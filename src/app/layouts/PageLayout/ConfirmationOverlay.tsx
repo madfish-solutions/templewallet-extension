@@ -12,8 +12,6 @@ const ConfirmationOverlay: FC = () => {
   const { confirmation, resetConfirmation, confirmInternal } = useTempleClient();
   const displayed = Boolean(confirmation);
 
-  console.log(confirmation);
-
   useLayoutEffect(() => {
     if (displayed) {
       const x = window.scrollX;

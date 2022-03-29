@@ -241,7 +241,6 @@ const promisableUnlock = async (
   opParams: any[],
   dryRunResult: any
 ) => {
-  console.log(dryRunResult);
   intercom.notify(port, {
     type: TempleMessageType.ConfirmationRequested,
     id,

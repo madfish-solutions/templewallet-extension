@@ -14,12 +14,10 @@ export type DryRunParams = {
 
 interface DryRunResult {
   error?: Array<any>;
-  result?: {
-    bytesToSign?: string;
-    rawToSign: ForgeOperationsParams;
-    estimates: Array<Estimate>;
-    opParams: any;
-  };
+  bytesToSign?: string;
+  rawToSign?: ForgeOperationsParams;
+  estimates?: Array<Estimate>;
+  opParams?: any;
 }
 
 const FEE_PER_GAS_UNIT = 0.1;
@@ -51,7 +49,7 @@ export async function dryRunOpParams({
           .catch(e => ({ ...e, isError: true })),
         tezos.estimate.batch(formated).catch(e => ({ ...e, isError: true }))
       ]);
-      if (result.some(x => x.isError)) {
+      if (result.every(x => x.isError)) {
         return { error: result };
       }
       estimates = result[1]?.map(
@@ -76,20 +74,18 @@ export async function dryRunOpParams({
       const withReveal = estimates.length === opParams.length + 1;
       const rawToSign = await localForger.parse(bytesToSign);
       return {
-        result: {
-          bytesToSign,
-          rawToSign,
-          estimates,
-          opParams: opParams.map((op, i) => {
-            const eIndex = withReveal ? i + 1 : i;
-            return {
-              ...op,
-              fee: op.fee ?? estimates?.[eIndex].suggestedFeeMutez,
-              gasLimit: op.gasLimit ?? estimates?.[eIndex].gasLimit,
-              storageLimit: op.storageLimit ?? estimates?.[eIndex].storageLimit
-            };
-          })
-        }
+        bytesToSign,
+        rawToSign,
+        estimates,
+        opParams: opParams.map((op, i) => {
+          const eIndex = withReveal ? i + 1 : i;
+          return {
+            ...op,
+            fee: op.fee ?? estimates?.[eIndex].suggestedFeeMutez,
+            gasLimit: op.gasLimit ?? estimates?.[eIndex].gasLimit,
+            storageLimit: op.storageLimit ?? estimates?.[eIndex].storageLimit
+          };
+        })
       };
     }
 
