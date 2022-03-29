@@ -304,11 +304,6 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
               )}
             </>
           )}
-          {spFormat.key === 'preview' && gasFeeError && (
-            <p className="text-xs text-red-600 pt-1 pb-8 h-4">
-              <T id="gasFeeMustBePositive" />
-            </p>
-          )}
         </div>
 
         <div className="flex-1" />

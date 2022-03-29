@@ -221,7 +221,7 @@ export function sendOperations(
       sourcePkh,
       sourcePublicKey
     });
-    if (dryRunResult && Array.isArray(dryRunResult) === false) {
+    if (dryRunResult && dryRunResult.result && Array.isArray(dryRunResult) === false) {
       opParams = (dryRunResult as any).opParams;
     }
 
@@ -249,9 +249,9 @@ const promisableUnlock = async (
       sourcePkh,
       networkRpc,
       opParams,
-      ...(dryRunResult ?? {})
+      ...((dryRunResult && dryRunResult.result) ?? {})
     },
-    ...(dryRunResult.error ? { error: dryRunResult } : {})
+    ...(dryRunResult && dryRunResult.error ? { error: dryRunResult } : {})
   });
 
   let closing = false;

@@ -241,6 +241,11 @@ const ExpensesView: FC<ExpensesViewProps> = ({
           </>
         )}
       </div>
+      {gasFeeError && (
+        <p className="text-xs text-red-600 pt-1 h-4">
+          <T id="gasFeeMustBePositive" />
+        </p>
+      )}
       {error && (
         <div className="rounded-lg flex flex-col  border border-red-700 my-2 py-2 px-4 justify-center">
           <span className="text-red-700 text-center">
