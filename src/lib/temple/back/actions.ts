@@ -221,8 +221,8 @@ export function sendOperations(
       sourcePkh,
       sourcePublicKey
     });
-    if (dryRunResult && dryRunResult.result && Array.isArray(dryRunResult) === false) {
-      opParams = (dryRunResult as any).opParams;
+    if (dryRunResult && dryRunResult.result) {
+      opParams = (dryRunResult.result as any).opParams;
     }
 
     return new Promise((resolve, reject) =>
