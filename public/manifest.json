@@ -7,6 +7,8 @@
     "16": "misc/icon-16.png",
     "19": "misc/icon-19.png",
     "38": "misc/icon-38.png",
+    "48": "misc/icon-38.png",
+    "96": "misc/icon-128.png",
     "128": "misc/icon-128.png"
   },
 
@@ -51,6 +53,8 @@
       "16": "misc/icon-16.png",
       "19": "misc/icon-19.png",
       "38": "misc/icon-38.png",
+      "48": "misc/icon-38.png",
+      "96": "misc/icon-128.png",
       "128": "misc/icon-128.png"
     },
     "default_title": "Temple - Tezos Wallet",
