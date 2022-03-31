@@ -58,6 +58,8 @@
     "__firefox__browser_style": false
   },
 
+  "web_accessible_resources": ["img/*"],
+
   "__chrome|opera__options_page": "options.html",
 
   "options_ui": {
