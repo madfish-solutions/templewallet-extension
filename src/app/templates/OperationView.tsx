@@ -16,10 +16,16 @@ type OperationViewProps = {
   payload: TempleDAppOperationsPayload | TempleDAppSignPayload;
   networkRpc?: string;
   mainnet?: boolean;
+  error?: any;
   modifyFeeAndLimit?: ModifyFeeAndLimit;
 };
 
-const OperationView: FC<OperationViewProps> = ({ payload, mainnet = false, modifyFeeAndLimit }) => {
+const OperationView: FC<OperationViewProps> = ({
+  payload,
+  error: payloadError,
+  mainnet = false,
+  modifyFeeAndLimit
+}) => {
   const contentToParse = useMemo(() => {
     switch (payload.type) {
       case 'confirm_operations':
@@ -117,7 +123,7 @@ const OperationView: FC<OperationViewProps> = ({ payload, mainnet = false, modif
         />
 
         <div className={classNames(spFormat.key !== 'preview' && 'hidden')}>
-          <ExpensesView expenses={expensesData} />
+          <ExpensesView error={payloadError} expenses={expensesData} />
         </div>
       </div>
     );
@@ -171,6 +177,7 @@ const OperationView: FC<OperationViewProps> = ({ payload, mainnet = false, modif
             estimates={payload.estimates}
             modifyFeeAndLimit={modifyFeeAndLimit}
             mainnet={mainnet}
+            error={payloadError}
           />
         </div>
       </div>

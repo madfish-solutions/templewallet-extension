@@ -1,4 +1,5 @@
 import { localForger } from '@taquito/local-forging';
+import { ForgeOperationsParams } from '@taquito/rpc';
 import { Estimate, TezosToolkit } from '@taquito/taquito';
 
 import { formatOpParamsBeforeSend, michelEncoder, loadFastRpcClient } from 'lib/temple/helpers';
@@ -11,9 +12,24 @@ export type DryRunParams = {
   sourcePublicKey: string;
 };
 
+interface DryRunResult {
+  error?: Array<any>;
+  result?: {
+    bytesToSign?: string;
+    rawToSign: ForgeOperationsParams;
+    estimates: Array<Estimate>;
+    opParams: any;
+  };
+}
+
 const FEE_PER_GAS_UNIT = 0.1;
 
-export async function dryRunOpParams({ opParams, networkRpc, sourcePkh, sourcePublicKey }: DryRunParams) {
+export async function dryRunOpParams({
+  opParams,
+  networkRpc,
+  sourcePkh,
+  sourcePublicKey
+}: DryRunParams): Promise<DryRunResult | null> {
   try {
     const tezos = new TezosToolkit(loadFastRpcClient(networkRpc));
 
@@ -26,17 +42,21 @@ export async function dryRunOpParams({ opParams, networkRpc, sourcePkh, sourcePu
     tezos.setPackerProvider(michelEncoder);
 
     let estimates: Estimate[] | undefined;
+    let error: any = [];
     try {
       const formated = opParams.map(formatOpParamsBeforeSend);
       const result = await Promise.all([
         tezos.contract
           .batch(formated)
           .send()
-          .catch(() => undefined),
-        tezos.estimate.batch(formated).catch(() => undefined)
+          .catch(e => ({ ...e, isError: true })),
+        tezos.estimate.batch(formated).catch(e => ({ ...e, isError: true }))
       ]);
+      if (result.every(x => x.isError)) {
+        error = result;
+      }
       estimates = result[1]?.map(
-        (e, i) =>
+        (e: any, i: number) =>
           ({
             ...e,
             burnFeeMutez: e.burnFeeMutez,
@@ -57,24 +77,26 @@ export async function dryRunOpParams({ opParams, networkRpc, sourcePkh, sourcePu
       const withReveal = estimates.length === opParams.length + 1;
       const rawToSign = await localForger.parse(bytesToSign);
       return {
-        bytesToSign,
-        rawToSign,
-        estimates,
-        opParams: opParams.map((op, i) => {
-          const eIndex = withReveal ? i + 1 : i;
-          return {
-            ...op,
-            fee: op.fee ?? estimates?.[eIndex].suggestedFeeMutez,
-            gasLimit: op.gasLimit ?? estimates?.[eIndex].gasLimit,
-            storageLimit: op.storageLimit ?? estimates?.[eIndex].storageLimit
-          };
-        })
+        result: {
+          bytesToSign,
+          rawToSign,
+          estimates,
+          opParams: opParams.map((op, i) => {
+            const eIndex = withReveal ? i + 1 : i;
+            return {
+              ...op,
+              fee: op.fee ?? estimates?.[eIndex].suggestedFeeMutez,
+              gasLimit: op.gasLimit ?? estimates?.[eIndex].gasLimit,
+              storageLimit: op.storageLimit ?? estimates?.[eIndex].storageLimit
+            };
+          })
+        }
       };
     }
 
-    return null;
-  } catch {
-    return null;
+    return error.length ? { error } : null;
+  } catch (e) {
+    return { error: [e] };
   }
 }
 

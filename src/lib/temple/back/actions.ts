@@ -221,8 +221,8 @@ export function sendOperations(
       sourcePkh,
       sourcePublicKey
     });
-    if (dryRunResult) {
-      opParams = dryRunResult.opParams;
+    if (dryRunResult && dryRunResult.result) {
+      opParams = (dryRunResult.result as any).opParams;
     }
 
     return new Promise((resolve, reject) =>
@@ -249,8 +249,9 @@ const promisableUnlock = async (
       sourcePkh,
       networkRpc,
       opParams,
-      ...(dryRunResult ?? {})
-    }
+      ...((dryRunResult && dryRunResult.result) ?? {})
+    },
+    ...(dryRunResult && dryRunResult.error ? { error: dryRunResult } : {})
   });
 
   let closing = false;

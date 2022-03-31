@@ -39,11 +39,12 @@ import { InternalConfirmationSelectors } from './InternalConfirmation.selectors'
 type InternalConfiramtionProps = {
   payload: TempleConfirmationPayload;
   onConfirm: (confirmed: boolean, modifiedTotalFee?: number, modifiedStorageLimit?: number) => Promise<void>;
+  error?: any;
 };
 
 const MIN_GAS_FEE = 0;
 
-const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfirm }) => {
+const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfirm, error: payloadError }) => {
   const { rpcBaseURL: currentNetworkRpc } = useNetwork();
   const { popup } = useAppEnv();
 
@@ -152,11 +153,12 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
 
   const [modifiedTotalFeeValue, setModifiedTotalFeeValue] = useSafeState(
     (payload.type === 'operations' &&
+      payload.opParams &&
       payload.opParams.reduce((sum, op) => sum + (op.fee ? +op.fee : 0), 0) + revealFee) ||
       0
   );
   const [modifiedStorageLimitValue, setModifiedStorageLimitValue] = useSafeState(
-    (payload.type === 'operations' && payload.opParams[0].storageLimit) || 0
+    (payload.type === 'operations' && payload.opParams && payload.opParams[0].storageLimit) || 0
   );
 
   const gasFeeError = useMemo(() => modifiedTotalFeeValue <= MIN_GAS_FEE, [modifiedTotalFeeValue]);
@@ -194,7 +196,7 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
   const handleErrorAlertClose = useCallback(() => setError(null), [setError]);
 
   const modifiedStorageLimitDisplayed = useMemo(
-    () => payload.type === 'operations' && payload.opParams.length < 2,
+    () => payload.type === 'operations' && payload.opParams && payload.opParams.length < 2,
     [payload]
   );
 
@@ -293,6 +295,7 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
               {spFormat.key === 'preview' && (
                 <ExpensesView
                   expenses={expensesData}
+                  error={payloadError}
                   estimates={payload.type === 'operations' ? payload.estimates : undefined}
                   modifyFeeAndLimit={modifyFeeAndLimit}
                   mainnet={mainnet}
@@ -300,11 +303,6 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
                 />
               )}
             </>
-          )}
-          {spFormat.key === 'preview' && gasFeeError && (
-            <p className="text-xs text-red-600 pt-1 h-4">
-              <T id="gasFeeMustBePositive" />
-            </p>
           )}
         </div>
 

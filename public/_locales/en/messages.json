@@ -2067,6 +2067,9 @@
   "txIsLikelyToFail": {
     "message": "Warning! Transaction is likely to fail"
   },
+  "copyErrorLogs": {
+    "message": "Copy Error Logs"
+  },
   "dAppsListTvlDescription": {
     "message": "Total Value Locked. The value in tez is the total amount of tez locked in dApps. The value in USD is the total amount of tez and tokens locked there."
   },

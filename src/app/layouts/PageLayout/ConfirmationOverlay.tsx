@@ -52,7 +52,13 @@ const ConfirmationOverlay: FC = () => {
           unmountOnExit
         >
           <div className="fixed inset-0 z-50 overflow-y-auto bg-primary-white">
-            {confirmation && <InternalConfirmation payload={confirmation.payload} onConfirm={handleConfirm} />}
+            {confirmation && (
+              <InternalConfirmation
+                payload={confirmation.payload}
+                error={confirmation.error}
+                onConfirm={handleConfirm}
+              />
+            )}
           </div>
         </CSSTransition>
       </Portal>

@@ -4,10 +4,12 @@ import { Estimate } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
 
+import CopyButton from 'app/atoms/CopyButton';
 import Identicon from 'app/atoms/Identicon';
 import Money from 'app/atoms/Money';
 import PlainAssetInput from 'app/atoms/PlainAssetInput';
 import { ReactComponent as ClipboardIcon } from 'app/icons/clipboard.svg';
+import { ReactComponent as CopyIcon } from 'app/icons/copy.svg';
 import HashChip from 'app/templates/HashChip';
 import InUSD from 'app/templates/InUSD';
 import { T, t, TProps } from 'lib/i18n/react';
@@ -19,6 +21,7 @@ import {
   tzToMutez,
   useAssetMetadata
 } from 'lib/temple/front';
+import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 
 type OperationAssetExpense = Omit<RawOperationAssetExpense, 'tokenAddress'> & {
   assetSlug: string;
@@ -34,6 +37,7 @@ type ExpensesViewProps = {
   mainnet?: boolean;
   modifyFeeAndLimit?: ModifyFeeAndLimit;
   gasFeeError?: boolean;
+  error?: any;
 };
 
 export interface ModifyFeeAndLimit {
@@ -45,13 +49,21 @@ export interface ModifyFeeAndLimit {
 
 const MAX_GAS_FEE = 1000;
 
-const ExpensesView: FC<ExpensesViewProps> = ({ expenses, estimates, mainnet, modifyFeeAndLimit, gasFeeError }) => {
+const ExpensesView: FC<ExpensesViewProps> = ({
+  expenses,
+  estimates,
+  mainnet,
+  modifyFeeAndLimit,
+  gasFeeError,
+  error
+}) => {
+  const { copy } = useCopyToClipboard();
   const modifyFeeAndLimitSection = useMemo(() => {
     if (!modifyFeeAndLimit) return null;
 
+    let defaultGasFeeMutez = new BigNumber(0);
+    let storageFeeMutez = new BigNumber(0);
     if (estimates) {
-      let defaultGasFeeMutez = new BigNumber(0);
-      let storageFeeMutez = new BigNumber(0);
       try {
         let i = 0;
         for (const e of estimates) {
@@ -67,133 +79,131 @@ const ExpensesView: FC<ExpensesViewProps> = ({ expenses, estimates, mainnet, mod
       } catch {
         return null;
       }
-
-      const gasFee = mutezToTz(modifyFeeAndLimit.totalFee);
-      const defaultGasFee = mutezToTz(defaultGasFeeMutez);
-      const storageFee = mutezToTz(storageFeeMutez);
-
-      return (
-        <div className="w-full flex flex-col">
-          {[
-            {
-              key: 'totalFee',
-              title: t('gasFee'),
-              value: gasFee,
-              onChange: modifyFeeAndLimit.onTotalFeeChange
-            },
-            {
-              key: 'storageFeeMax',
-              title: t('storageFeeMax'),
-              value: storageFee
-            },
-            ...(modifyFeeAndLimit.storageLimit !== null
-              ? [
-                  {
-                    key: 'storageLimit',
-                    title: t('storageLimit'),
-                    value: modifyFeeAndLimit.storageLimit,
-                    onChange: modifyFeeAndLimit.onStorageLimitChange
-                  }
-                ]
-              : [])
-          ].map(({ key, title, value, onChange }, i, arr) => (
-            <div key={key} className={classNames('w-full flex items-center', i !== arr.length - 1 && 'mb-1')}>
-              <div
-                className={classNames('whitespace-nowrap overflow-x-auto no-scrollbar', 'opacity-90')}
-                style={{ maxWidth: '45%' }}
-              >
-                {title}
-              </div>
-              <div className="mr-1">:</div>
-
-              <div className="flex-1" />
-
-              {value instanceof BigNumber ? (
-                <>
-                  <div className="mr-1">
-                    {onChange ? (
-                      <>
-                        <PlainAssetInput
-                          value={value.toFixed()}
-                          onChange={val => {
-                            onChange?.(tzToMutez(val ?? defaultGasFee).toNumber());
-                          }}
-                          max={MAX_GAS_FEE}
-                          placeholder={defaultGasFee.toFixed()}
-                          className={classNames(
-                            'mr-1',
-                            'appearance-none',
-                            'w-24',
-                            'py-px px-1',
-                            'border',
-                            gasFeeError ? 'border-red-300' : 'border-gray-300',
-                            'focus:border-primary-orange',
-                            'bg-gray-100 focus:bg-transparent',
-                            'focus:outline-none focus:shadow-outline',
-                            'transition ease-in-out duration-200',
-                            'rounded',
-                            'text-right',
-                            'text-gray-700 text-sm leading-tight',
-                            'placeholder-gray-600'
-                          )}
-                        />
-                        ꜩ
-                      </>
-                    ) : (
-                      <>
-                        <span className="font-medium">
-                          <Money>{value}</Money>
-                        </span>{' '}
-                        ꜩ
-                      </>
-                    )}
-                  </div>
-
-                  <InUSD volume={value} roundingMode={BigNumber.ROUND_UP} mainnet={mainnet}>
-                    {usdAmount => (
-                      <div>
-                        <span className="opacity-75">(</span>
-                        <span className="pr-px">$</span>
-                        {usdAmount}
-                        <span className="opacity-75">)</span>
-                      </div>
-                    )}
-                  </InUSD>
-                </>
-              ) : (
-                <input
-                  type="number"
-                  value={value || ''}
-                  onChange={e => {
-                    if (e.target.value.length > 8) return;
-                    const val = +e.target.value;
-                    onChange?.(val > 0 ? val : 0);
-                  }}
-                  placeholder="0"
-                  className={classNames(
-                    'appearance-none',
-                    'w-24',
-                    'py-px pl-1',
-                    'border',
-                    'border-gray-300',
-                    'focus:border-primary-orange',
-                    'bg-gray-100 focus:bg-transparent',
-                    'focus:outline-none focus:shadow-outline',
-                    'transition ease-in-out duration-200',
-                    'rounded',
-                    'text-right',
-                    'text-gray-700 text-sm leading-tight',
-                    'placeholder-gray-600'
-                  )}
-                />
-              )}
-            </div>
-          ))}
-        </div>
-      );
     }
 
-    return null;
+    const gasFee = mutezToTz(modifyFeeAndLimit.totalFee);
+    const defaultGasFee = mutezToTz(defaultGasFeeMutez);
+    const storageFee = mutezToTz(storageFeeMutez);
+
+    return (
+      <div className="w-full flex flex-col">
+        {[
+          {
+            key: 'totalFee',
+            title: t('gasFee'),
+            value: gasFee,
+            onChange: modifyFeeAndLimit.onTotalFeeChange
+          },
+          {
+            key: 'storageFeeMax',
+            title: t('storageFeeMax'),
+            value: storageFee
+          },
+          ...(modifyFeeAndLimit.storageLimit !== null
+            ? [
+                {
+                  key: 'storageLimit',
+                  title: t('storageLimit'),
+                  value: modifyFeeAndLimit.storageLimit,
+                  onChange: modifyFeeAndLimit.onStorageLimitChange
+                }
+              ]
+            : [])
+        ].map(({ key, title, value, onChange }, i, arr) => (
+          <div key={key} className={classNames('w-full flex items-center', i !== arr.length - 1 && 'mb-1')}>
+            <div
+              className={classNames('whitespace-nowrap overflow-x-auto no-scrollbar', 'opacity-90')}
+              style={{ maxWidth: '45%' }}
+            >
+              {title}
+            </div>
+            <div className="mr-1">:</div>
+
+            <div className="flex-1" />
+
+            {value instanceof BigNumber ? (
+              <>
+                <div className="mr-1">
+                  {onChange ? (
+                    <>
+                      <PlainAssetInput
+                        value={value.toFixed()}
+                        onChange={val => {
+                          onChange?.(tzToMutez(val ?? defaultGasFee).toNumber());
+                        }}
+                        max={MAX_GAS_FEE}
+                        placeholder={defaultGasFee.toFixed()}
+                        className={classNames(
+                          'mr-1',
+                          'appearance-none',
+                          'w-24',
+                          'py-px px-1',
+                          'border',
+                          gasFeeError ? 'border-red-300' : 'border-gray-300',
+                          'focus:border-primary-orange',
+                          'bg-gray-100 focus:bg-transparent',
+                          'focus:outline-none focus:shadow-outline',
+                          'transition ease-in-out duration-200',
+                          'rounded',
+                          'text-right',
+                          'text-gray-700 text-sm leading-tight',
+                          'placeholder-gray-600'
+                        )}
+                      />
+                      ꜩ
+                    </>
+                  ) : (
+                    <>
+                      <span className="font-medium">
+                        <Money>{value}</Money>
+                      </span>{' '}
+                      ꜩ
+                    </>
+                  )}
+                </div>
+
+                <InUSD volume={value} roundingMode={BigNumber.ROUND_UP} mainnet={mainnet}>
+                  {usdAmount => (
+                    <div>
+                      <span className="opacity-75">(</span>
+                      <span className="pr-px">$</span>
+                      {usdAmount}
+                      <span className="opacity-75">)</span>
+                    </div>
+                  )}
+                </InUSD>
+              </>
+            ) : (
+              <input
+                type="number"
+                value={value || ''}
+                onChange={e => {
+                  if (e.target.value.length > 8) return;
+                  const val = +e.target.value;
+                  onChange?.(val > 0 ? val : 0);
+                }}
+                placeholder="0"
+                className={classNames(
+                  'appearance-none',
+                  'w-24',
+                  'py-px pl-1',
+                  'border',
+                  'border-gray-300',
+                  'focus:border-primary-orange',
+                  'bg-gray-100 focus:bg-transparent',
+                  'focus:outline-none focus:shadow-outline',
+                  'transition ease-in-out duration-200',
+                  'rounded',
+                  'text-right',
+                  'text-gray-700 text-sm leading-tight',
+                  'placeholder-gray-600'
+                )}
+              />
+            )}
+          </div>
+        ))}
+      </div>
+    );
   }, [modifyFeeAndLimit, estimates, mainnet, gasFeeError]);
 
   if (!expenses) {
@@ -201,39 +211,64 @@ const ExpensesView: FC<ExpensesViewProps> = ({ expenses, estimates, mainnet, mod
   }
 
   return (
-    <div
-      className={classNames(
-        'relative rounded-md overflow-y-auto border',
-        'flex flex-col text-gray-700 text-sm leading-tight'
+    <>
+      <div
+        className={classNames(
+          'relative rounded-md overflow-y-auto border',
+          'flex flex-col text-gray-700 text-sm leading-tight'
+        )}
+        style={{ height: gasFeeError ? '10rem' : '11rem' }}
+      >
+        {expenses.map((item, index, arr) => (
+          <ExpenseViewItem key={index} item={item} last={index === arr.length - 1} mainnet={mainnet} />
+        ))}
+
+        {modifyFeeAndLimit && (
+          <>
+            <div className="flex-1" />
+
+            <div
+              className={classNames(
+                'sticky bottom-0 left-0 right-0',
+                'flex items-center',
+                'px-2 py-1',
+                'bg-gray-200 bg-opacity-90 border-t',
+                'text-sm text-gray-700'
+              )}
+            >
+              {modifyFeeAndLimitSection}
+            </div>
+          </>
+        )}
+      </div>
+      {gasFeeError && (
+        <p className="text-xs text-red-600 pt-1 h-4">
+          <T id="gasFeeMustBePositive" />
+        </p>
       )}
-      style={{ height: gasFeeError ? '10rem' : '11rem' }}
-    >
-      {expenses.map((item, index, arr) => (
-        <ExpenseViewItem key={index} item={item} last={index === arr.length - 1} mainnet={mainnet} />
-      ))}
-
-      {modifyFeeAndLimit && (
-        <>
-          <div className="flex-1" />
-
-          <div
-            className={classNames(
-              'sticky bottom-0 left-0 right-0',
-              'flex items-center',
-              'px-2 py-1',
-              'bg-gray-200 bg-opacity-90 border-t',
-              'text-sm text-gray-700'
-            )}
+      {error && (
+        <div className="rounded-lg flex flex-col  border border-red-700 my-2 py-2 px-4 justify-center">
+          <span className="text-red-700 text-center">
+            <T id="txIsLikelyToFail" />
+          </span>
+          <hr className="my-2" />
+          <CopyButton
+            className="flex justify-center items-center text-orange-500 cursor-pointer"
+            text={JSON.stringify(error ?? {})}
+            type="link"
           >
-            {modifyFeeAndLimitSection ?? (
-              <span>
-                <T id="txIsLikelyToFail" />
-              </span>
-            )}
-          </div>
-        </>
+            <span className="text-orange-500 bold mr-1">
+              <T id="copyErrorLogs" />
+            </span>
+            <CopyIcon
+              style={{ verticalAlign: 'inherit' }}
+              className={classNames('h-4 ml-1 w-auto inline', 'stroke-orange stroke-2')}
+              onClick={() => copy()}
+            />
+          </CopyButton>
+        </div>
       )}
-    </div>
+    </>
   );
 };
 

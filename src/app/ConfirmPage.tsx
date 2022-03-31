@@ -77,6 +77,7 @@ interface PayloadContentProps {
   accountPkhToConnect: string;
   setAccountPkhToConnect: (item: string) => void;
   payload: TempleDAppPayload;
+  error?: any;
   modifyFeeAndLimit: ModifyFeeAndLimit;
 }
 
@@ -84,6 +85,7 @@ const PayloadContent: React.FC<PayloadContentProps> = ({
   accountPkhToConnect,
   setAccountPkhToConnect,
   payload,
+  error,
   modifyFeeAndLimit
 }) => {
   const allAccounts = useRelevantAccounts(false);
@@ -119,6 +121,7 @@ const PayloadContent: React.FC<PayloadContentProps> = ({
   ) : (
     <OperationView
       payload={payload}
+      error={error}
       networkRpc={payload.networkRpc}
       mainnet={mainnet}
       modifyFeeAndLimit={modifyFeeAndLimit}
@@ -154,6 +157,7 @@ const ConfirmDAppForm: FC = () => {
     revalidateOnReconnect: false
   });
   const payload = data!;
+  const payloadError = data!.error;
 
   const connectedAccount = useMemo(
     () =>
@@ -390,6 +394,7 @@ const ConfirmDAppForm: FC = () => {
 
               <NetworkBanner rpc={payload.networkRpc} narrow={payload.type === 'connect'} />
               <PayloadContent
+                error={payloadError}
                 payload={payload}
                 accountPkhToConnect={accountPkhToConnect}
                 setAccountPkhToConnect={setAccountPkhToConnect}

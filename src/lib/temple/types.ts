@@ -166,6 +166,7 @@ export interface TempleDAppPayloadBase {
   origin: string;
   networkRpc: string;
   appMeta: TempleDAppMetadata;
+  error?: any;
 }
 
 export interface TempleDAppConnectPayload extends TempleDAppPayloadBase {
@@ -329,6 +330,7 @@ export interface TempleConfirmationRequested extends TempleMessageBase {
   type: TempleMessageType.ConfirmationRequested;
   id: string;
   payload: TempleConfirmationPayload;
+  error?: any;
 }
 
 export interface TempleConfirmationExpired extends TempleMessageBase {
