@@ -87,7 +87,7 @@ export const NETWORKS: TempleNetwork[] = [
     name: 'Ithacanet Testnet Smartpy',
     description: 'Ithacanet testnet',
     type: 'test',
-    rpcBaseURL: 'https://ithacanet.smartpy.io/',
+    rpcBaseURL: 'https://ithacanet.smartpy.io',
     color: '#FBBF24',
     disabled: false,
     hidden: true
