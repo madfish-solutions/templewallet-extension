@@ -83,6 +83,16 @@ export const NETWORKS: TempleNetwork[] = [
   },
   // Hidden
   {
+    id: 'smartpy-ithacanet',
+    name: 'Ithacanet Testnet Smartpy',
+    description: 'Ithacanet testnet',
+    type: 'test',
+    rpcBaseURL: 'https://ithacanet.smartpy.io',
+    color: '#FBBF24',
+    disabled: false,
+    hidden: true
+  },
+  {
     id: 'tzbeta-rpczero',
     name: 'Edo Testnet @rpczero.tzbeta.net',
     description: 'Highly available Edo Testnet nodes operated by Blockscale',
