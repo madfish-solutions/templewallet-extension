@@ -112,7 +112,6 @@ export const SwapForm: FC = () => {
   useEffect(() => {
     if (inputMutezAmountWithFee && routePairsCombinations.length > 0) {
       const bestTradeExactIn = getBestTradeExactInput(inputMutezAmountWithFee, routePairsCombinations);
-      console.log('inputMutezAmountWithFee', inputMutezAmountWithFee);
       const bestTradeOutput = getTradeOutputAmount(bestTradeExactIn);
 
       const outputTzAmount = bestTradeOutput ? atomsToTokens(bestTradeOutput, outputAssetMetadata.decimals) : undefined;
