@@ -1,7 +1,12 @@
 import { BlockResponse, OperationEntry, OperationContentsAndResultOrigination } from '@taquito/rpc';
-import { TezosToolkit, OpKind, WalletOperationBatch, WalletContract } from '@taquito/taquito';
-import { OperationBatch } from '@taquito/taquito/dist/types/batch/rpc-batch-provider';
-import { TransferParams } from '@taquito/taquito/dist/types/operations/types';
+import {
+  TezosToolkit,
+  OpKind,
+  WalletOperationBatch,
+  WalletContract,
+  OperationBatch,
+  TransferParams
+} from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
 
 import { loadContract } from 'lib/temple/front';
