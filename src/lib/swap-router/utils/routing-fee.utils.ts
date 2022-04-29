@@ -25,7 +25,7 @@ export const getRoutingFeeTransferParams = async (
       ];
     }
 
-    const assetContract = await loadAssetContract(tradeInputOperation.aTokenSlug, tezos as any);
+    const assetContract = await loadAssetContract(tradeInputOperation.aTokenSlug, tezos);
 
     if (assetContract) {
       if (assetContract.standard === TokenStandardEnum.FA1_2) {
