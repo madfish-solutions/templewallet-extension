@@ -75,24 +75,11 @@ export const SwapForm: FC = () => {
     () => allRoutePairs.data.filter(routePair => KNOWN_DEX_TYPES.includes(routePair.dexType)),
     [allRoutePairs.data]
   );
-  // const knownPoolsCount = useMemo(
-  //   () =>
-  //     filteredRoutePairs.reduce((prev, cur) => {
-  //       const element = cur.dexType.toString();
-  //       if (prev[element] !== undefined) {
-  //         return { ...prev, [element]: prev[element] + 1 };
-  //       }
-  //       return { ...prev, [element]: 0 };
-  //     }, {} as { [key: string]: number }),
-  //   [filteredRoutePairs]
-  // );
-  // console.log('knownPoolsCount', knownPoolsCount);
   const routePairsCombinations = useRoutePairsCombinations(
     inputValue.assetSlug,
     outputValue.assetSlug,
     filteredRoutePairs
   );
-  // console.log('routePairsCombinations', routePairsCombinations);
 
   const inputMutezAmount = useMemo(
     () => (inputValue.amount ? tokensToAtoms(inputValue.amount, inputAssetMetadata.decimals) : undefined),
