@@ -124,7 +124,7 @@
     "regexparam": "1.3.0",
     "rimraf": "3.0.2",
     "scryptsy": "2.1.0",
-    "swap-router-sdk": "^1.8.0",
+    "swap-router-sdk": "1.8.0",
     "swr": "0.2.2",
     "tailwindcss": "2.2.19",
     "terser-webpack-plugin": "4.2.3",
