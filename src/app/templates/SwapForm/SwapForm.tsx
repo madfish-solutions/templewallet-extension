@@ -41,7 +41,13 @@ import { SwapMinimumReceived } from './SwapMinimumReceived/SwapMinimumReceived';
 import { SwapPriceUpdateBar } from './SwapPriceUpdateBar/SwapPriceUpdateBar';
 import { SwapRoute } from './SwapRoute/SwapRoute';
 
-const KNOWN_DEX_TYPES = [DexTypeEnum.QuipuSwap, DexTypeEnum.Plenty, DexTypeEnum.LiquidityBaking, DexTypeEnum.Youves];
+const KNOWN_DEX_TYPES = [
+  DexTypeEnum.QuipuSwap,
+  DexTypeEnum.Plenty,
+  DexTypeEnum.LiquidityBaking,
+  DexTypeEnum.Youves,
+  DexTypeEnum.QuipuSwapTokenToTokenDex
+];
 
 export const SwapForm: FC = () => {
   const tezos = useTezos();
@@ -69,11 +75,24 @@ export const SwapForm: FC = () => {
     () => allRoutePairs.data.filter(routePair => KNOWN_DEX_TYPES.includes(routePair.dexType)),
     [allRoutePairs.data]
   );
+  // const knownPoolsCount = useMemo(
+  //   () =>
+  //     filteredRoutePairs.reduce((prev, cur) => {
+  //       const element = cur.dexType.toString();
+  //       if (prev[element] !== undefined) {
+  //         return { ...prev, [element]: prev[element] + 1 };
+  //       }
+  //       return { ...prev, [element]: 0 };
+  //     }, {} as { [key: string]: number }),
+  //   [filteredRoutePairs]
+  // );
+  // console.log('knownPoolsCount', knownPoolsCount);
   const routePairsCombinations = useRoutePairsCombinations(
     inputValue.assetSlug,
     outputValue.assetSlug,
     filteredRoutePairs
   );
+  // console.log('routePairsCombinations', routePairsCombinations);
 
   const inputMutezAmount = useMemo(
     () => (inputValue.amount ? tokensToAtoms(inputValue.amount, inputAssetMetadata.decimals) : undefined),
@@ -106,6 +125,7 @@ export const SwapForm: FC = () => {
   useEffect(() => {
     if (inputMutezAmountWithFee && routePairsCombinations.length > 0) {
       const bestTradeExactIn = getBestTradeExactInput(inputMutezAmountWithFee, routePairsCombinations);
+      console.log('inputMutezAmountWithFee', inputMutezAmountWithFee);
       const bestTradeOutput = getTradeOutputAmount(bestTradeExactIn);
 
       const outputTzAmount = bestTradeOutput ? atomsToTokens(bestTradeOutput, outputAssetMetadata.decimals) : undefined;
