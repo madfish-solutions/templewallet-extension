@@ -44,7 +44,12 @@ export const AssetIcon: FC<AssetIconProps> = ({ assetSlug, className, size }) =>
         <img
           src={imageSrc}
           alt={metadata?.name}
-          style={!isLoaded ? { display: 'none' } : {}}
+          style={{
+            ...(!isLoaded ? { display: 'none' } : {}),
+            objectFit: 'contain',
+            maxWidth: `${size}px`,
+            maxHeight: `${size}px`
+          }}
           height={size}
           width={size}
           onLoad={() => setIsLoaded(true)}
