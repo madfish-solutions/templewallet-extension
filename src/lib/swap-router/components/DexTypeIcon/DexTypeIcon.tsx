@@ -14,6 +14,7 @@ interface Props {
 export const DexTypeIcon: FC<Props> = ({ dexType }) => {
   switch (dexType) {
     case DexTypeEnum.QuipuSwap:
+    case DexTypeEnum.QuipuSwapTokenToTokenDex:
       return <QuipuSwapIcon />;
     case DexTypeEnum.Plenty:
       return <PlentyIcon />;
