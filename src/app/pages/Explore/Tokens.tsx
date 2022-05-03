@@ -241,7 +241,7 @@ const ListItem = memo<ListItemProps>(({ assetSlug, last, active, accountPkh }) =
 
   const renderBalancInToken = useCallback(
     (balance: BigNumber) => (
-      <div className="text-base font-medium text-gray-800">
+      <div className="text-base font-medium text-gray-800 truncate w-full text-right ml-4">
         <Money smallFractionFont={false}>{balance}</Money>
       </div>
     ),
@@ -252,7 +252,11 @@ const ListItem = memo<ListItemProps>(({ assetSlug, last, active, accountPkh }) =
     (balance: BigNumber) => (
       <InUSD assetSlug={assetSlug} volume={balance} smallFractionFont={false}>
         {usdBalance => (
-          <div className={classNames('ml-1', 'font-normal text-gray-500 text-xs text-right')}>≈ {usdBalance} $</div>
+          <div
+            className={classNames('ml-1', 'font-normal text-gray-500 text-xs text-right truncate w-full text-right')}
+          >
+            ≈ {usdBalance} $
+          </div>
         )}
       </InUSD>
     ),
@@ -278,7 +282,7 @@ const ListItem = memo<ListItemProps>(({ assetSlug, last, active, accountPkh }) =
     >
       <AssetIcon assetSlug={assetSlug} size={40} className="mr-2 flex-shrink-0" />
 
-      <div ref={toDisplayRef} className="w-full">
+      <div ref={toDisplayRef} className={classNames('w-full', styles.tokenInfoWidth)}>
         <div className="flex justify-between w-full mb-1">
           <div className="flex items-center">
             <div className={classNames(styles['tokenSymbol'])}>{getAssetSymbol(metadata)}</div>
