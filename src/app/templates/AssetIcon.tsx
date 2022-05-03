@@ -14,7 +14,7 @@ const AssetIconPlaceholder: FC<AssetIconPlaceholderProps> = ({ metadata, size })
   const isCollectible = Boolean(metadata?.artifactUri);
 
   return isCollectible ? (
-    <CollectiblePlaceholder style={{ width: '100%', height: '100%' }} />
+    <CollectiblePlaceholder style={{ maxWidth: `${size}px`, width: '100%', height: '100%' }} />
   ) : (
     <Identicon type="initials" hash={getAssetSymbol(metadata)} size={size} />
   );
