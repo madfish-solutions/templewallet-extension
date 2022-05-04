@@ -142,7 +142,10 @@ export function useAssetMetadata(slug: string) {
   return tokenMetadata;
 }
 
-const defaultAllTokensBaseMetadata = {};
+let quipuWhitelist: Record<string, AssetMetadata> = {};
+for (const key of PRESERVED_TOKEN_METADATA) quipuWhitelist[key[0]] = key[1];
+
+const defaultAllTokensBaseMetadata = quipuWhitelist;
 const enqueueSetAllTokensBaseMetadata = createQueue();
 
 export const [TokensMetadataProvider, useTokensMetadata] = constate(() => {
@@ -261,7 +264,12 @@ export const useAvailableAssets = (assetType: AssetTypesEnum) => {
 
   const isCollectibles = assetType === AssetTypesEnum.Collectibles;
   const assets = isCollectibles ? collectibles : tokens;
-  const slugs = isCollectibles ? allCollectiblesSlugs : allTokenSlugs;
+  let allQuipuSlugs: Array<string> = useMemo(() => [], []);
+  for (const key of PRESERVED_TOKEN_METADATA) allQuipuSlugs.push(key[0]);
+  const slugs = useMemo(
+    () => (isCollectibles ? allCollectiblesSlugs : removeDuplicates([...allQuipuSlugs, ...allTokenSlugs])),
+    [isCollectibles, allCollectiblesSlugs, allTokenSlugs, allQuipuSlugs]
+  );
   const revalidate = isCollectibles ? revalidateCollectibles : revalidateTokens;
 
   const isLoading =
@@ -282,7 +290,8 @@ export const useAvailableAssets = (assetType: AssetTypesEnum) => {
   }, [assets]);
 
   const availableAssets = useMemo(
-    () => slugs.filter(slug => slug in allTokensBaseMetadata && !assetsStatuses[slug]?.removed),
+    () =>
+      slugs.filter(slug => (slug in allTokensBaseMetadata || slug in quipuWhitelist) && !assetsStatuses[slug]?.removed),
     [slugs, allTokensBaseMetadata, assetsStatuses]
   );
 
@@ -326,3 +335,8 @@ function mapObjectKeys<T extends Record<string, any>>(obj: T, predicate: (key: s
 
   return newObj as T;
 }
+
+const removeDuplicates = (arrayToFilter: Array<string>) =>
+  arrayToFilter.filter(function (item, pos) {
+    return arrayToFilter.indexOf(item) === pos;
+  });
