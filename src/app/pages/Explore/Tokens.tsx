@@ -241,7 +241,7 @@ const ListItem = memo<ListItemProps>(({ assetSlug, last, active, accountPkh }) =
 
   const renderBalancInToken = useCallback(
     (balance: BigNumber) => (
-      <div className="text-base font-medium text-gray-800 truncate w-full text-right ml-4">
+      <div className="text-base font-medium text-gray-800 truncate text-right ml-4">
         <Money smallFractionFont={false}>{balance}</Money>
       </div>
     ),
@@ -252,9 +252,7 @@ const ListItem = memo<ListItemProps>(({ assetSlug, last, active, accountPkh }) =
     (balance: BigNumber) => (
       <InUSD assetSlug={assetSlug} volume={balance} smallFractionFont={false}>
         {usdBalance => (
-          <div
-            className={classNames('ml-1', 'font-normal text-gray-500 text-xs text-right truncate w-full text-right')}
-          >
+          <div className={classNames('ml-1', 'font-normal text-gray-500 text-xs text-right truncate text-right')}>
             ≈ {usdBalance} $
           </div>
         )}
@@ -297,7 +295,7 @@ const ListItem = memo<ListItemProps>(({ assetSlug, last, active, accountPkh }) =
           </Balance>
         </div>
         <div className="flex justify-between w-full mb-1">
-          <div className={classNames('text-xs font-normal text-gray-700 truncate w-auto flex-1')}>
+          <div className={classNames('text-xs font-normal text-gray-700 truncate flex-1')}>
             {getAssetName(metadata)}
           </div>
           <Balance address={accountPkh} assetSlug={assetSlug} displayed={displayed}>
