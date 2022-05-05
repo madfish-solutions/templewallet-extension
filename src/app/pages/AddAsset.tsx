@@ -145,7 +145,7 @@ const Form: FC = () => {
         { symbol: base.symbol },
         { name: base.name },
         { decimals: base.decimals },
-        { thumbnailUri: base.thumbnailUri }
+        { thumbnailUri: base.artifactUri ?? base.displayUri ?? base.thumbnailUri }
       ]);
 
       stateToSet = {
