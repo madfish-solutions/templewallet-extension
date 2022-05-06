@@ -49,8 +49,6 @@ const NetworkSelect: FC<NetworkSelectProps> = () => {
     [network, fallbackNetworkId, setNetworkId]
   );
 
-  console.log('selectedNetwork', selectedNetwork);
-
   return (
     <Popper
       placement="bottom-end"
