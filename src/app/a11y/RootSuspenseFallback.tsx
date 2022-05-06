@@ -4,6 +4,8 @@ import useForceUpdate from 'use-force-update';
 
 import Spinner from 'app/atoms/Spinner';
 
+import Header from '../layouts/PageLayout/Header';
+
 const DELAY = 1_000;
 
 let startedAt: number;
@@ -25,11 +27,14 @@ const RootSuspenseFallback: FC = () => {
   const spinnerDisplayed = startedAt && Date.now() > startedAt + 1_000;
 
   return spinnerDisplayed ? (
-    <div className="flex items-center justify-center h-screen">
-      <div>
-        <Spinner theme="gray" className="w-20" />
+    <>
+      <Header />
+      <div className="flex items-center justify-center h-screen">
+        <div>
+          <Spinner theme="gray" className="w-20" />
+        </div>
       </div>
-    </div>
+    </>
   ) : null;
 };
 

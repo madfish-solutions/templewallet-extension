@@ -19,7 +19,6 @@ import NetworkSelect from './Header/NetworkSelect';
 
 const Header: FC = () => {
   const appEnv = useAppEnv();
-  const { ready } = useTempleClient();
 
   return (
     <header className={classNames('bg-primary-orange', styles['inner-shadow'], appEnv.fullPage && 'pb-20 -mb-20')}>
@@ -32,7 +31,7 @@ const Header: FC = () => {
               </div>
             </Link>
 
-            {ready && <Control />}
+            <Control />
           </div>
         </div>
       </ContentContainer>
@@ -44,6 +43,7 @@ export default Header;
 
 const Control: FC = () => {
   const account = useAccount();
+  const { ready } = useTempleClient();
 
   return (
     <>
@@ -52,7 +52,7 @@ const Control: FC = () => {
           <Name
             className={classNames('text-primary-white', 'text-sm font-semibold', 'text-shadow-black', 'opacity-90')}
           >
-            {account.name}
+            {ready && account && account.name}
           </Name>
         </div>
 
@@ -61,28 +61,30 @@ const Control: FC = () => {
         <NetworkSelect />
       </div>
 
-      <Popper placement="bottom-end" strategy="fixed" popup={props => <AccountDropdown {...props} />}>
-        {({ ref, opened, toggleOpened }) => (
-          <Button
-            ref={ref}
-            className={classNames(
-              'ml-2 flex-shrink-0 flex',
-              'bg-white bg-opacity-10',
-              'border border-white border-opacity-25',
-              'rounded-md',
-              'p-px',
-              'transition ease-in-out duration-200',
-              opened ? 'shadow-md' : 'shadow hover:shadow-md focus:shadow-md',
-              opened ? 'opacity-100' : 'opacity-90 hover:opacity-100 focus:opacity-100',
-              'cursor-pointer'
-            )}
-            onClick={toggleOpened}
-            testID={HeaderSelectors.AccountIcon}
-          >
-            <Identicon type="bottts" hash={account.publicKeyHash} size={48} />
-          </Button>
-        )}
-      </Popper>
+      {ready && (
+        <Popper placement="bottom-end" strategy="fixed" popup={props => <AccountDropdown {...props} />}>
+          {({ ref, opened, toggleOpened }) => (
+            <Button
+              ref={ref}
+              className={classNames(
+                'ml-2 flex-shrink-0 flex',
+                'bg-white bg-opacity-10',
+                'border border-white border-opacity-25',
+                'rounded-md',
+                'p-px',
+                'transition ease-in-out duration-200',
+                opened ? 'shadow-md' : 'shadow hover:shadow-md focus:shadow-md',
+                opened ? 'opacity-100' : 'opacity-90 hover:opacity-100 focus:opacity-100',
+                'cursor-pointer'
+              )}
+              onClick={toggleOpened}
+              testID={HeaderSelectors.AccountIcon}
+            >
+              <Identicon type="bottts" hash={account.publicKeyHash} size={48} />
+            </Button>
+          )}
+        </Popper>
+      )}
     </>
   );
 };

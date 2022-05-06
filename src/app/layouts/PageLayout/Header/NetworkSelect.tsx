@@ -1,4 +1,4 @@
-import React, { FC, HTMLAttributes, useCallback } from 'react';
+import React, { FC, HTMLAttributes, useCallback, useMemo } from 'react';
 
 import classNames from 'clsx';
 
@@ -9,6 +9,7 @@ import { ReactComponent as ChevronDownIcon } from 'app/icons/chevron-down.svg';
 import { ReactComponent as SignalAltIcon } from 'app/icons/signal-alt.svg';
 import { T } from 'lib/i18n/react';
 import { loadChainId, useAllNetworks, useNetwork, useSetNetworkId } from 'lib/temple/front';
+import { NETWORKS } from 'lib/temple/networks';
 import Popper from 'lib/ui/Popper';
 
 import styles from './NetworkSelect.module.css';
@@ -36,6 +37,10 @@ const NetworkSelect: FC<NetworkSelectProps> = () => {
     [setNetworkId]
   );
 
+  const networks = useMemo(() => (allNetworks && Array.isArray(allNetworks) ? allNetworks : NETWORKS), [allNetworks]);
+
+  console.log(networks, setNetworkId);
+
   return (
     <Popper
       placement="bottom-end"
@@ -56,7 +61,7 @@ const NetworkSelect: FC<NetworkSelectProps> = () => {
               <T id="networks">{networks => <>{networks}</>}</T>
             </h2>
 
-            {allNetworks
+            {networks
               // Don't show hidden (but known) nodes on the dropdown
               .filter(n => !n.hidden)
               .map(({ id, rpcBaseURL, name, color, disabled, nameI18nKey }) => {
