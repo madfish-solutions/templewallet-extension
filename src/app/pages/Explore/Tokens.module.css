@@ -9,6 +9,10 @@
   color: #ffffff;
 }
 
+.tokenInfoWidth {
+  max-width: 19rem;
+}
+
 .tokenSymbol {
   font-family: Inter, Helvetica, Arial, Verdana, Tahoma, sans-serif;
   font-style: normal;
