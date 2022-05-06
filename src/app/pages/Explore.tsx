@@ -36,7 +36,7 @@ import AddressChip from './Explore/AddressChip';
 import BakingSection from './Explore/BakingSection';
 import EditableTitle from './Explore/EditableTitle';
 import MainBanner from './Explore/MainBanner';
-import Tokens from './Explore/Tokens';
+import Tokens from './Explore/Tokens/Tokens';
 import { useOnboardingProgress } from './Onboarding/hooks/useOnboardingProgress.hook';
 import Onboarding from './Onboarding/Onboarding';
 

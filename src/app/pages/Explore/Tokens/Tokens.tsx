@@ -27,7 +27,8 @@ import {
 } from 'lib/temple/front';
 import { Link, navigate } from 'lib/woozie';
 
-import { AssetsSelectors } from './Assets.selectors';
+import { AssetsSelectors } from '../Assets.selectors';
+import { QuipuToken } from './QuipuToken';
 import styles from './Tokens.module.css';
 
 const Tokens: FC = () => {
@@ -210,6 +211,8 @@ type ListItemProps = {
   latestBalance?: string;
 };
 
+const QUIPU_SLUG = 'KT193D4vozYnhGJQVtw7CoxxqphqUEEwK6Vb_0';
+
 const ListItem = memo<ListItemProps>(({ assetSlug, last, active, accountPkh }) => {
   const metadata = useAssetMetadata(assetSlug);
 
@@ -289,6 +292,7 @@ const ListItem = memo<ListItemProps>(({ assetSlug, last, active, accountPkh }) =
                 {<T id="delegate" />}
               </Link>
             )}
+            {assetSlug === QUIPU_SLUG && <QuipuToken />}
           </div>
           <Balance address={accountPkh} assetSlug={assetSlug} displayed={displayed}>
             {renderBalancInToken}
