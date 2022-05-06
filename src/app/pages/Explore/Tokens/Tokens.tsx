@@ -29,6 +29,7 @@ import { Link, navigate } from 'lib/woozie';
 
 import { AssetsSelectors } from '../Assets.selectors';
 import { QuipuToken } from './QuipuToken';
+import { TezosToken } from './TezosToken';
 import styles from './Tokens.module.css';
 
 const Tokens: FC = () => {
@@ -287,11 +288,7 @@ const ListItem = memo<ListItemProps>(({ assetSlug, last, active, accountPkh }) =
         <div className="flex justify-between w-full mb-1">
           <div className="flex items-center">
             <div className={classNames(styles['tokenSymbol'])}>{getAssetSymbol(metadata)}</div>
-            {assetSlug === 'tez' && (
-              <Link to="/explore/tez/?tab=delegation" className={classNames('ml-1 px-2 py-1', styles['apyBadge'])}>
-                {<T id="delegate" />}
-              </Link>
-            )}
+            {assetSlug === 'tez' && <TezosToken />}
             {assetSlug === QUIPU_SLUG && <QuipuToken />}
           </div>
           <Balance address={accountPkh} assetSlug={assetSlug} displayed={displayed}>
