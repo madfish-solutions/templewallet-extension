@@ -21,7 +21,7 @@ const NetworkSelect: FC<NetworkSelectProps> = () => {
   const allNetworks = useAllNetworks();
   const network = useNetwork();
   const networks = useMemo(() => (allNetworks && Array.isArray(allNetworks) ? allNetworks : NETWORKS), [allNetworks]);
-  const [fallbackNetworkId, setFallBackNetworkId] = usePassiveStorage('network_id', networks[0].id);
+  const [fallbackNetworkId, setFallBackNetworkId] = usePassiveStorage('network_id', networks[0]);
   const setNetworkId = useSetNetworkId();
 
   const handleNetworkSelect = useCallback(
@@ -34,14 +34,22 @@ const NetworkSelect: FC<NetworkSelectProps> = () => {
         } catch {}
 
         if (typeof setNetworkId !== 'function') {
-          setFallBackNetworkId(netId);
+          const foundNetwork = networks.find(x => x.id === netId);
+          if (foundNetwork) setFallBackNetworkId(foundNetwork);
           return;
         }
         setNetworkId(netId);
       }
     },
-    [setNetworkId, setFallBackNetworkId]
+    [setNetworkId, setFallBackNetworkId, networks]
   );
+
+  const selectedNetwork = useMemo(
+    () => (typeof setNetworkId === 'function' ? network : fallbackNetworkId),
+    [network, fallbackNetworkId, setNetworkId]
+  );
+
+  console.log('selectedNetwork', selectedNetwork);
 
   return (
     <Popper
@@ -67,7 +75,7 @@ const NetworkSelect: FC<NetworkSelectProps> = () => {
               // Don't show hidden (but known) nodes on the dropdown
               .filter(n => !n.hidden)
               .map(({ id, rpcBaseURL, name, color, disabled, nameI18nKey }) => {
-                const selected = typeof setNetworkId === 'function' ? id === network.id : id === fallbackNetworkId;
+                const selected = id === selectedNetwork.id;
 
                 return (
                   <Button
@@ -132,11 +140,11 @@ const NetworkSelect: FC<NetworkSelectProps> = () => {
         >
           <div
             className={classNames('mr-2', 'w-3 h-3', 'border border-primary-white', 'rounded-full', 'shadow-xs')}
-            style={{ backgroundColor: network.color }}
+            style={{ backgroundColor: selectedNetwork.color }}
           />
 
           <Name style={{ maxWidth: '7rem' }}>
-            {(network.nameI18nKey && <T id={network.nameI18nKey} />) || network.name}
+            {(selectedNetwork.nameI18nKey && <T id={selectedNetwork.nameI18nKey} />) || selectedNetwork.name}
           </Name>
 
           <ChevronDownIcon className="ml-1 -mr-1 stroke-current stroke-2" style={{ height: 16, width: 'auto' }} />

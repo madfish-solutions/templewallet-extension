@@ -1,4 +1,4 @@
-import React, { FC, useEffect } from 'react';
+import React, { FC, Suspense, useEffect } from 'react';
 
 import useForceUpdate from 'use-force-update';
 
@@ -28,7 +28,9 @@ const RootSuspenseFallback: FC = () => {
 
   return spinnerDisplayed ? (
     <>
-      <Header />
+      <Suspense fallback={null}>
+        <Header />
+      </Suspense>
       <div className="flex items-center justify-center h-screen">
         <div>
           <Spinner theme="gray" className="w-20" />
