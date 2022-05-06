@@ -8,7 +8,7 @@ import Name from 'app/atoms/Name';
 import { ReactComponent as ChevronDownIcon } from 'app/icons/chevron-down.svg';
 import { ReactComponent as SignalAltIcon } from 'app/icons/signal-alt.svg';
 import { T } from 'lib/i18n/react';
-import { loadChainId, useAllNetworks, useNetwork, useSetNetworkId } from 'lib/temple/front';
+import { loadChainId, useAllNetworks, useNetwork, usePassiveStorage, useSetNetworkId } from 'lib/temple/front';
 import { NETWORKS } from 'lib/temple/networks';
 import Popper from 'lib/ui/Popper';
 
@@ -20,6 +20,8 @@ type NetworkSelectProps = HTMLAttributes<HTMLDivElement>;
 const NetworkSelect: FC<NetworkSelectProps> = () => {
   const allNetworks = useAllNetworks();
   const network = useNetwork();
+  const networks = useMemo(() => (allNetworks && Array.isArray(allNetworks) ? allNetworks : NETWORKS), [allNetworks]);
+  const [fallbackNetworkId, setFallBackNetworkId] = usePassiveStorage('network_id', networks[0].id);
   const setNetworkId = useSetNetworkId();
 
   const handleNetworkSelect = useCallback(
@@ -31,15 +33,15 @@ const NetworkSelect: FC<NetworkSelectProps> = () => {
           await loadChainId(rpcUrl);
         } catch {}
 
+        if (typeof setNetworkId !== 'function') {
+          setFallBackNetworkId(netId);
+          return;
+        }
         setNetworkId(netId);
       }
     },
-    [setNetworkId]
+    [setNetworkId, setFallBackNetworkId]
   );
-
-  const networks = useMemo(() => (allNetworks && Array.isArray(allNetworks) ? allNetworks : NETWORKS), [allNetworks]);
-
-  console.log(networks, setNetworkId);
 
   return (
     <Popper
@@ -65,7 +67,7 @@ const NetworkSelect: FC<NetworkSelectProps> = () => {
               // Don't show hidden (but known) nodes on the dropdown
               .filter(n => !n.hidden)
               .map(({ id, rpcBaseURL, name, color, disabled, nameI18nKey }) => {
-                const selected = id === network.id;
+                const selected = typeof setNetworkId === 'function' ? id === network.id : id === fallbackNetworkId;
 
                 return (
                   <Button

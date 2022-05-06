@@ -10,9 +10,9 @@ import { AppEnvProvider } from 'app/env';
 import ErrorBoundary from 'app/ErrorBoundary';
 import Dialogs from 'app/layouts/Dialogs';
 import PageRouter from 'app/PageRouter';
-import { TempleProvider } from 'lib/temple/front';
 import { DialogsProvider } from 'lib/ui/dialog';
-import * as Woozie from 'lib/woozie';
+
+import { AppProvider } from './AppProvider';
 
 type AppProps = {
   env: ComponentProps<typeof AppEnvProvider>;
@@ -40,11 +40,3 @@ const App: FC<AppProps> = ({ env }) => (
 );
 
 export default App;
-
-const AppProvider: FC<AppProps> = ({ children, env }) => (
-  <AppEnvProvider {...env}>
-    <Woozie.Provider>
-      <TempleProvider>{children}</TempleProvider>
-    </Woozie.Provider>
-  </AppEnvProvider>
-);

@@ -10,7 +10,7 @@ export const NETWORK_IDS = new Map<string, string>([
 export const NETWORKS: TempleNetwork[] = [
   {
     id: 'mainnet',
-    name: getMessage('tezosMainnet'),
+    name: getMessage('tezosMainnet') || 'Mainnet',
     nameI18nKey: 'tezosMainnet',
     description: 'Tezos mainnet',
     type: 'main',
