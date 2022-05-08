@@ -93,7 +93,7 @@ const BuyCryptoContent: FC = () => {
       )}
       {step >= 1 && (
         <a
-          href={'https://exolix.com/contact'}
+          href={'https://docs.google.com/forms/d/e/1FAIpQLSdec4jK16R8uQ-05MRk7QgNi7y3PE5l7ojI5dvMYlfrX2LKDQ/viewform'}
           target="_blank"
           rel="noreferrer"
           className="text-blue-500 text-sm mb-8 cursor-pointer inline-block w-auto"

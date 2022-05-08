@@ -47,7 +47,14 @@ const WarningComponent: FC<Props> = ({ currency, amountAttention }) => {
                 <T
                   id={'attentionSendAmount'}
                   substitutions={[
-                    <a href={'https://exolix.com/contact'} className="underline" target="_blank" rel="noreferrer">
+                    <a
+                      href={
+                        'https://docs.google.com/forms/d/e/1FAIpQLSdec4jK16R8uQ-05MRk7QgNi7y3PE5l7ojI5dvMYlfrX2LKDQ/viewform'
+                      }
+                      className="underline"
+                      target="_blank"
+                      rel="noreferrer"
+                    >
                       <T id={'support'} />
                     </a>
                   ]}
