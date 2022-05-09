@@ -143,7 +143,7 @@ function useReadyTemple() {
 
 export function useChainId(suspense?: boolean) {
   const tezos = useTezos();
-  const rpcUrl = useMemo(() => tezos.rpc.getRpcUrl(), [tezos]);
+  const rpcUrl = useMemo(() => tezos && tezos.rpc && tezos.rpc.getRpcUrl(), [tezos]);
   return useCustomChainId(rpcUrl, suspense);
 }
 
@@ -168,18 +168,20 @@ export function useRelevantAccounts(withExtraTypes = true) {
 
   const relevantAccounts = useMemo(
     () =>
-      allAccounts.filter(acc => {
-        switch (acc.type) {
-          case TempleAccountType.ManagedKT:
-            return withExtraTypes && acc.chainId === lazyChainId;
+      allAccounts && Array.isArray(allAccounts)
+        ? allAccounts.filter(acc => {
+            switch (acc.type) {
+              case TempleAccountType.ManagedKT:
+                return withExtraTypes && acc.chainId === lazyChainId;
 
-          case TempleAccountType.WatchOnly:
-            return withExtraTypes && (!acc.chainId || acc.chainId === lazyChainId);
+              case TempleAccountType.WatchOnly:
+                return withExtraTypes && (!acc.chainId || acc.chainId === lazyChainId);
 
-          default:
-            return true;
-        }
-      }),
+              default:
+                return true;
+            }
+          })
+        : [],
     [allAccounts, lazyChainId, withExtraTypes]
   );
 

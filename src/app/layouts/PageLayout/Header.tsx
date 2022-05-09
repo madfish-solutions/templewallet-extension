@@ -61,30 +61,28 @@ const Control: FC = () => {
         <NetworkSelect />
       </div>
 
-      {ready && (
-        <Popper placement="bottom-end" strategy="fixed" popup={props => <AccountDropdown {...props} />}>
-          {({ ref, opened, toggleOpened }) => (
-            <Button
-              ref={ref}
-              className={classNames(
-                'ml-2 flex-shrink-0 flex',
-                'bg-white bg-opacity-10',
-                'border border-white border-opacity-25',
-                'rounded-md',
-                'p-px',
-                'transition ease-in-out duration-200',
-                opened ? 'shadow-md' : 'shadow hover:shadow-md focus:shadow-md',
-                opened ? 'opacity-100' : 'opacity-90 hover:opacity-100 focus:opacity-100',
-                'cursor-pointer'
-              )}
-              onClick={toggleOpened}
-              testID={HeaderSelectors.AccountIcon}
-            >
-              <Identicon type="bottts" hash={account.publicKeyHash} size={48} />
-            </Button>
-          )}
-        </Popper>
-      )}
+      <Popper placement="bottom-end" strategy="fixed" popup={props => <AccountDropdown {...props} />}>
+        {({ ref, opened, toggleOpened }) => (
+          <Button
+            ref={ref}
+            className={classNames(
+              'ml-2 flex-shrink-0 flex',
+              'bg-white bg-opacity-10',
+              'border border-white border-opacity-25',
+              'rounded-md',
+              'p-px',
+              'transition ease-in-out duration-200',
+              opened ? 'shadow-md' : 'shadow hover:shadow-md focus:shadow-md',
+              opened ? 'opacity-100' : 'opacity-90 hover:opacity-100 focus:opacity-100',
+              'cursor-pointer'
+            )}
+            onClick={toggleOpened}
+            testID={HeaderSelectors.AccountIcon}
+          >
+            <Identicon type="bottts" hash={account.publicKeyHash} size={48} />
+          </Button>
+        )}
+      </Popper>
     </>
   );
 };

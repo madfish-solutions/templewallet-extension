@@ -55,7 +55,7 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
   }, [setOpened]);
 
   const handleLogoutClick = useCallback(() => {
-    lock();
+    if (lock) lock();
   }, [lock]);
 
   const handleMaximiseViewClick = useCallback(() => {

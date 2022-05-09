@@ -63,6 +63,7 @@ export function goForward() {
 }
 
 export function createUrl(pathname: string = '/', search: string = '', hash: string = ''): string {
+  if (!search || !search.startsWith) return '';
   if (search && !search.startsWith('?')) {
     search = `?${search}`;
   }
