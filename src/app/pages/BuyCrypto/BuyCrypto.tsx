@@ -12,6 +12,7 @@ import { useAccount, useNetwork, useStorage } from 'lib/temple/front';
 import { Redirect } from 'lib/woozie';
 
 import { BuyCryptoSelectors } from './BuyCrypto.selectors';
+import { EXOLIX_CONTACT_LINK } from './config';
 
 const BuyCrypto: FC = () => (
   <PageLayout
@@ -93,7 +94,7 @@ const BuyCryptoContent: FC = () => {
       )}
       {step >= 1 && (
         <a
-          href={'https://docs.google.com/forms/d/e/1FAIpQLSdec4jK16R8uQ-05MRk7QgNi7y3PE5l7ojI5dvMYlfrX2LKDQ/viewform'}
+          href={EXOLIX_CONTACT_LINK}
           target="_blank"
           rel="noreferrer"
           className="text-blue-500 text-sm mb-8 cursor-pointer inline-block w-auto"
