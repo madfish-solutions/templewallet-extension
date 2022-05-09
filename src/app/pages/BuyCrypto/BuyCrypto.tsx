@@ -74,7 +74,7 @@ const BuyCryptoContent: FC = () => {
       )}
       {step === 1 && (
         <ApproveStep
-          exchangeData={exchangeData as ExchangeDataInterface}
+          exchangeData={exchangeData}
           setExchangeData={setExchangeData}
           setStep={setStep}
           isError={isError}
@@ -83,7 +83,7 @@ const BuyCryptoContent: FC = () => {
       )}
       {(step === 2 || step === 3 || step === 4) && (
         <ExchangeStep
-          exchangeData={exchangeData as ExchangeDataInterface}
+          exchangeData={exchangeData}
           setExchangeData={setExchangeData}
           setStep={setStep}
           step={step}
