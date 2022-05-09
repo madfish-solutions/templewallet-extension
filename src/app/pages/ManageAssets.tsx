@@ -1,4 +1,4 @@
-import React, { FC, memo, useCallback } from 'react';
+import React, { FC, memo, useCallback, useMemo } from 'react';
 
 import classNames from 'clsx';
 
@@ -23,6 +23,7 @@ import {
   useChainId,
   useFilteredAssets
 } from 'lib/temple/front';
+import { tokenListItemToSlug, useQuipuTokenlist } from 'lib/temple/front/use-quipu-tokenlist.hook';
 import { ITokenStatus, ITokenType } from 'lib/temple/repo';
 import { useConfirm } from 'lib/ui/dialog';
 import { Link } from 'lib/woozie';
@@ -56,7 +57,13 @@ const ManageAssetsContent: FC<Props> = ({ assetType }) => {
   const { availableAssets, assetsStatuses, isLoading, revalidate } = useAvailableAssets(
     assetType === AssetTypesEnum.Collectibles ? AssetTypesEnum.Collectibles : AssetTypesEnum.Tokens
   );
-  const { filteredAssets, searchValue, setSearchValue } = useFilteredAssets(availableAssets);
+  const quipuTokenList = useQuipuTokenlist().map(tokenListItemToSlug);
+  const zippedAssets = useMemo(() => [...availableAssets, ...quipuTokenList], [availableAssets, quipuTokenList]);
+  const { filteredAssets, searchValue, setSearchValue } = useFilteredAssets(
+    assetType === AssetTypesEnum.Collectibles
+      ? availableAssets
+      : zippedAssets.filter((item, pos) => zippedAssets.indexOf(item) === pos)
+  );
 
   const confirm = useConfirm();
 
