@@ -4,7 +4,8 @@ import { TempleChainId, TempleNetwork } from 'lib/temple/types';
 export const NETWORK_IDS = new Map<string, string>([
   [TempleChainId.Mainnet, 'mainnet'],
   [TempleChainId.Hangzhounet, 'hangzhounet'],
-  [TempleChainId.Ithacanet, 'ithacanet']
+  [TempleChainId.Ithacanet, 'ithacanet'],
+  [TempleChainId.Jakartanet, 'jakartanet'],
 ]);
 
 export const NETWORKS: TempleNetwork[] = [
@@ -70,6 +71,15 @@ export const NETWORKS: TempleNetwork[] = [
     type: 'test',
     rpcBaseURL: 'https://ithacanet.ecadinfra.com/',
     color: '#131380',
+    disabled: false
+  },
+  {
+    id: 'jakartanet',
+    name: 'Jakartanet Testnet',
+    description: 'Jakartanet testnet',
+    type: 'test',
+    rpcBaseURL: 'https://jakartanet.tezos.marigold.dev/',
+    color: '#232380',
     disabled: false
   },
   {
