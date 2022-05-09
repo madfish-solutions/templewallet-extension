@@ -21,7 +21,6 @@ type AppProps = {
 const App: FC<AppProps> = ({ env }) => (
   <ErrorBoundary whileMessage="booting a wallet" className="min-h-screen">
     <DialogsProvider>
-      <RootSuspenseFallback />
       <Suspense fallback={<RootSuspenseFallback />}>
         <AppProvider env={env}>
           <Dialogs />
