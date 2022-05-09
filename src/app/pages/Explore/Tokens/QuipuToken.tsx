@@ -9,7 +9,7 @@ import { getQuipuStakingInfo } from 'lib/templewallet-api/quipu-staking';
 
 import styles from './Tokens.module.css';
 
-const QUIPU_PERCENTAGE = '13.5';
+const QUIPU_DEFAULT_PERCENTAGE = '13.5';
 
 export const QuipuToken: FC = () => {
   const getQuipuStaking = useCallback(async () => {
@@ -20,7 +20,7 @@ export const QuipuToken: FC = () => {
     getQuipuStaking,
     { suspense: true, revalidateOnFocus: false, revalidateOnReconnect: false }
   );
-  const [quipuApy, setQuipuApy] = usePassiveStorage('quipu_apy', QUIPU_PERCENTAGE);
+  const [quipuApy, setQuipuApy] = usePassiveStorage('quipu_apy', QUIPU_DEFAULT_PERCENTAGE);
 
   useEffect(() => {
     if (!loadingQuipuStaking && quipuStakingInfo && quipuStakingInfo.item) {
