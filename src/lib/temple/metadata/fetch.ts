@@ -6,6 +6,7 @@ import retry from 'async-retry';
 import assert from 'lib/assert';
 import { isTezAsset } from 'lib/temple/assets';
 import { isValidContractAddress } from 'lib/temple/helpers';
+import { getTokenMetadata } from 'lib/templewallet-api';
 
 import { TEZOS_METADATA } from './defaults';
 import { PRESERVED_TOKEN_METADATA } from './fixtures';
@@ -93,8 +94,9 @@ export async function fetchTokenMetadata(
 
     const tzip12Metadata = await getTzip12Metadata(contract, tokenIdStr as any);
     const metadataFromUri = await getMetadataFromUri(contract, tokenIdStr, tezos);
+    const serverMetadata = await getTokenMetadata(contractAddress, tokenIdStr);
 
-    const rawMetadata = { ...metadataFromUri, ...tzip12Metadata };
+    const rawMetadata = { ...metadataFromUri, ...tzip12Metadata, ...serverMetadata };
 
     assert('decimals' in rawMetadata && ('name' in rawMetadata || 'symbol' in rawMetadata));
 

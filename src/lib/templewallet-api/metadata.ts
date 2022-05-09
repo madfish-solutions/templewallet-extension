@@ -8,3 +8,7 @@ export async function getTokensMetadata(slugs: string[], timeout?: number) {
   if (slugs.length === 0) return [];
   return api.post<(DetailedAssetMetdata | null)[]>('/', slugs, { timeout }).then(r => r.data);
 }
+
+export const getTokenMetadata = async (contract: string, id = '0', timeout?: number) => {
+  return api.get<DetailedAssetMetdata | null>(`/metadata/${contract}/${id}`, { timeout }).then(r => r.data);
+};
