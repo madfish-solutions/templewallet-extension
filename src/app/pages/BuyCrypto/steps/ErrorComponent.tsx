@@ -40,31 +40,38 @@ const ErrorComponent: FC<Props> = ({ exchangeData, testIDProperties, setIsError,
   };
   return (
     <>
-      <div style={{ backgroundColor: '#FCFAFC' }} className={'py-2 px-4 rounded-lg border border-red-700 mt-12 mb-10'}>
-        <p className={'text-red-700 text-base'}>
-          <T id={'overdueTransaction'} />
-        </p>
-        <p className={'text-red-700 text-xs'}>
-          <T id={'overdueTransactionMessage'} />
-        </p>
-      </div>
-      <div className="flex justify-between items-baseline mt-4">
-        <p className="text-gray-600 text-xs">
-          <T id={'transactionId'} />
-        </p>
-        <span>
-          <p style={{ color: '#1B262C' }} className="text-xs inline align-text-bottom">
-            {exchangeData!.id}
-          </p>
-          <CopyButton text={exchangeData!.id} type="link">
-            <CopyIcon
-              style={{ verticalAlign: 'inherit' }}
-              className={classNames('h-4 ml-1 w-auto inline', 'stroke-orange stroke-2')}
-              onClick={() => copy()}
-            />
-          </CopyButton>
-        </span>
-      </div>
+      {exchangeData && (
+        <>
+          <div
+            style={{ backgroundColor: '#FCFAFC' }}
+            className={'py-2 px-4 rounded-lg border border-red-700 mt-12 mb-10'}
+          >
+            <p className={'text-red-700 text-base'}>
+              <T id={'overdueTransaction'} />
+            </p>
+            <p className={'text-red-700 text-xs'}>
+              <T id={'overdueTransactionMessage'} />
+            </p>
+          </div>
+          <div className="flex justify-between items-baseline mt-4">
+            <p className="text-gray-600 text-xs">
+              <T id={'transactionId'} />
+            </p>
+            <span>
+              <p style={{ color: '#1B262C' }} className="text-xs inline align-text-bottom">
+                {exchangeData!.id}
+              </p>
+              <CopyButton text={exchangeData!.id} type="link">
+                <CopyIcon
+                  style={{ verticalAlign: 'inherit' }}
+                  className={classNames('h-4 ml-1 w-auto inline', 'stroke-orange stroke-2')}
+                  onClick={() => copy()}
+                />
+              </CopyButton>
+            </span>
+          </div>
+        </>
+      )}
       <FormSubmitButton
         className="w-full justify-center border-none mb-12"
         style={{

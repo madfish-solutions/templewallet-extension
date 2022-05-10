@@ -16,7 +16,7 @@ import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 import { BuyCryptoSelectors } from '../BuyCrypto.selectors';
 
 interface Props {
-  exchangeData: ExchangeDataInterface;
+  exchangeData: ExchangeDataInterface | null;
   setExchangeData: (exchangeData: ExchangeDataInterface | null) => void;
   step: number;
   setStep: (step: number) => void;
@@ -39,6 +39,10 @@ const ExchangeStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, step,
   useTopUpUpdate(exchangeData, setExchangeData, setIsError);
 
   useEffect(() => {
+    if (!exchangeData) {
+      setIsError(true);
+      return;
+    }
     if (exchangeData.status === ExchangeDataStatusEnum.SUCCESS) {
       setSendTime(new Date(exchangeData.created_at * 1000));
       setStep(4);
@@ -49,6 +53,17 @@ const ExchangeStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, step,
       setIsError(true);
     }
   }, [exchangeData, setExchangeData, setStep, step, setIsError]);
+
+  if (!exchangeData) {
+    return (
+      <ErrorComponent
+        exchangeData={exchangeData}
+        setIsError={setIsError}
+        setStep={setStep}
+        setExchangeData={setExchangeData}
+      />
+    );
+  }
 
   return (
     <>

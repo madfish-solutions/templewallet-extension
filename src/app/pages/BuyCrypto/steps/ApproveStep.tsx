@@ -20,7 +20,7 @@ import { BuyCryptoSelectors } from '../BuyCrypto.selectors';
 import WarningComponent from './WarningComponent';
 
 interface Props {
-  exchangeData: ExchangeDataInterface;
+  exchangeData: ExchangeDataInterface | null;
   setExchangeData: (exchangeData: ExchangeDataInterface | null) => void;
   setStep: (step: number) => void;
   isError: boolean;
@@ -58,7 +58,7 @@ const ApproveStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
           <T id={'depositDescription'} />
         </p>
       </div>
-      {isError ? (
+      {isError || !exchangeData ? (
         <ErrorComponent
           exchangeData={exchangeData}
           setIsError={setIsError}

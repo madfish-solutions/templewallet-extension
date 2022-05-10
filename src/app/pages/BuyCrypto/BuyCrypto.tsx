@@ -12,6 +12,7 @@ import { useAccount, useNetwork, useStorage } from 'lib/temple/front';
 import { Redirect } from 'lib/woozie';
 
 import { BuyCryptoSelectors } from './BuyCrypto.selectors';
+import { EXOLIX_CONTACT_LINK } from './config';
 
 const BuyCrypto: FC = () => (
   <PageLayout
@@ -74,7 +75,7 @@ const BuyCryptoContent: FC = () => {
       )}
       {step === 1 && (
         <ApproveStep
-          exchangeData={exchangeData as ExchangeDataInterface}
+          exchangeData={exchangeData}
           setExchangeData={setExchangeData}
           setStep={setStep}
           isError={isError}
@@ -83,7 +84,7 @@ const BuyCryptoContent: FC = () => {
       )}
       {(step === 2 || step === 3 || step === 4) && (
         <ExchangeStep
-          exchangeData={exchangeData as ExchangeDataInterface}
+          exchangeData={exchangeData}
           setExchangeData={setExchangeData}
           setStep={setStep}
           step={step}
@@ -93,7 +94,7 @@ const BuyCryptoContent: FC = () => {
       )}
       {step >= 1 && (
         <a
-          href={'https://exolix.com/contact'}
+          href={EXOLIX_CONTACT_LINK}
           target="_blank"
           rel="noreferrer"
           className="text-blue-500 text-sm mb-8 cursor-pointer inline-block w-auto"
