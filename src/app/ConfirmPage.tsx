@@ -159,6 +159,8 @@ const ConfirmDAppForm: FC = () => {
   const payload = data!;
   const payloadError = data!.error;
 
+  console.log(payload, id);
+
   const connectedAccount = useMemo(
     () =>
       allAccounts.find(a => a.publicKeyHash === (payload.type === 'connect' ? accountPkhToConnect : payload.sourcePkh)),

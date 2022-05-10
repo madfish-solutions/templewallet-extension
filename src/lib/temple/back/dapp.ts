@@ -400,6 +400,7 @@ async function requestConfirm({ id, payload, onDecline, handleIntercomRequest }:
   let knownPort: Runtime.Port | undefined;
   const stopRequestListening = intercom.onRequest(async (req: TempleRequest, port) => {
     if (req?.type === TempleMessageType.DAppGetPayloadRequest && req.id === id) {
+      console.log(req);
       knownPort = port;
 
       if (payload.type === 'confirm_operations') {
