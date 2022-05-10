@@ -5,7 +5,7 @@ export const NETWORK_IDS = new Map<string, string>([
   [TempleChainId.Mainnet, 'mainnet'],
   [TempleChainId.Hangzhounet, 'hangzhounet'],
   [TempleChainId.Ithacanet, 'ithacanet'],
-  [TempleChainId.Jakartanet, 'jakartanet'],
+  [TempleChainId.Jakartanet, 'jakartanet']
 ]);
 
 export const NETWORKS: TempleNetwork[] = [
