@@ -19,8 +19,10 @@ import {
   toBaseMetadata,
   DetailedAssetMetdata
 } from 'lib/temple/front';
+import { tokenListItemToSlug } from 'lib/temple/front/use-quipu-tokenlist.hook';
 import * as Repo from 'lib/temple/repo';
 import { getTokensMetadata } from 'lib/templewallet-api';
+import { getQuipuWhitelist } from 'lib/templewallet-api/token-list';
 
 export const [SyncTokensProvider] = constate(() => {
   const chainId = useChainId(true)!;
@@ -135,20 +137,28 @@ const makeSync = async (
   if (!networkId) return;
   const mainnet = networkId === 'mainnet';
 
-  const [bcdTokens, displayedFungibleTokens, displayedCollectibleTokens] = await Promise.all([
+  const [bcdTokens, displayedFungibleTokens, displayedCollectibleTokens, quipuTokens] = await Promise.all([
     fetchBcdTokenBalances(networkId, accountPkh),
     fetchDisplayedFungibleTokens(chainId, accountPkh),
-    fetchCollectibleTokens(chainId, accountPkh, true)
+    fetchCollectibleTokens(chainId, accountPkh, true),
+    getQuipuWhitelist()
   ]);
 
   const bcdTokensMap = new Map(bcdTokens.map(token => [toTokenSlug(token.contract, token.token_id), token]));
+  const quipuTokenList: Array<string> =
+    quipuTokens && quipuTokens.tokens ? quipuTokens.tokens.map(tokenListItemToSlug).filter(x => x !== 'tez') : [];
 
   const displayedTokenSlugs = [...displayedFungibleTokens, ...displayedCollectibleTokens].map(
     ({ tokenSlug }) => tokenSlug
   );
 
   let tokenSlugs = Array.from(
-    new Set([...bcdTokensMap.keys(), ...displayedTokenSlugs, ...(mainnet ? PREDEFINED_MAINNET_TOKENS : [])])
+    new Set([
+      ...bcdTokensMap.keys(),
+      ...displayedTokenSlugs,
+      ...quipuTokenList,
+      ...(mainnet ? PREDEFINED_MAINNET_TOKENS : [])
+    ])
   );
 
   const tokenRepoKeys = tokenSlugs.map(slug => Repo.toAccountTokenKey(chainId, accountPkh, slug));

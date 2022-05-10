@@ -17,7 +17,6 @@ import {
   useGetTokenMetadata,
   useOnBlock
 } from 'lib/temple/front';
-import { tokenListItemToSlug, useQuipuTokenlist } from 'lib/temple/front/use-quipu-tokenlist.hook';
 import Popper from 'lib/ui/Popper';
 
 import { AssetsMenu } from './AssetsMenu/AssetsMenu';
@@ -57,14 +56,8 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
 
   const { availableAssets, isLoading } = useAvailableAssets(AssetTypesEnum.Tokens);
   const availableAssetsWithTezos = useMemo(() => ['tez', ...availableAssets], [availableAssets]);
-  const quipuTokenList = useQuipuTokenlist().map(tokenListItemToSlug);
-  const zippedAssets = useMemo(
-    () => [...availableAssetsWithTezos, ...quipuTokenList],
-    [availableAssetsWithTezos, quipuTokenList]
-  );
-  const { filteredAssets, searchValue, setSearchValue, tokenId, setTokenId } = useFilteredAssets(
-    zippedAssets.filter((item, pos) => zippedAssets.indexOf(item) === pos)
-  );
+  const { filteredAssets, searchValue, setSearchValue, tokenId, setTokenId } =
+    useFilteredAssets(availableAssetsWithTezos);
 
   const showTokenIdInput = useSwapFormTokenIdInput(searchValue);
   const searchAssetSlug = toTokenSlug(searchValue, tokenId);

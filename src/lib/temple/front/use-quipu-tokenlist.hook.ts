@@ -9,7 +9,7 @@ export const useQuipuTokenlist = () => {
     return await getQuipuWhitelist();
   }, []);
   const { data: quipuStakingInfo, isValidating: loadingQuipuStaking } = useRetryableSWR(
-    ['baking-history'],
+    ['quipu-tokenlist'],
     getQuipuStaking,
     { suspense: true, revalidateOnFocus: false, revalidateOnReconnect: false }
   );
