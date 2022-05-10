@@ -159,8 +159,6 @@ const ConfirmDAppForm: FC = () => {
   const payload = data!;
   const payloadError = data!.error;
 
-  console.log(payload, id);
-
   const connectedAccount = useMemo(
     () =>
       allAccounts.find(a => a.publicKeyHash === (payload.type === 'connect' ? accountPkhToConnect : payload.sourcePkh)),
@@ -280,7 +278,7 @@ const ConfirmDAppForm: FC = () => {
           want: (
             <div className={classNames('mb-2 text-sm text-center text-gray-700', 'flex flex-col items-center')}>
               <div className="flex items-center justify-center">
-                <DAppLogo origin={payload.origin} size={16} className="mr-1" />
+                <DAppLogo icon={payload.appMeta.icon} origin={payload.origin} size={16} className="mr-1" />
                 <Name className="font-semibold" style={{ maxWidth: '10rem' }}>
                   {payload.appMeta.name}
                 </Name>
@@ -307,7 +305,7 @@ const ConfirmDAppForm: FC = () => {
           want: (
             <div className={classNames('mb-2 text-sm text-center text-gray-700', 'flex flex-col items-center')}>
               <div className="flex items-center justify-center">
-                <DAppLogo origin={payload.origin} size={16} className="mr-1" />
+                <DAppLogo icon={payload.appMeta.icon} origin={payload.origin} size={16} className="mr-1" />
                 <Name className="font-semibold" style={{ maxWidth: '10rem' }}>
                   {payload.appMeta.name}
                 </Name>
@@ -324,7 +322,7 @@ const ConfirmDAppForm: FC = () => {
           )
         };
     }
-  }, [payload.type, payload.origin, payload.appMeta.name, error]);
+  }, [payload.type, payload.origin, payload.appMeta.name, payload.appMeta.icon, error]);
 
   const modifiedStorageLimitDisplayed = useMemo(
     () => payload.type === 'confirm_operations' && payload.opParams.length < 2,
