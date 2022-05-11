@@ -1,7 +1,7 @@
 You will need those 2 repos:
 
 - [swap-router-sdk](https://github.com/madfish-solutions/swap-router-sdk)
-- [tezos-dexes-api](https://github.com/madfish-solutions/tezos-dexes-api)
+- [tezos-dexes-api](https://github.com/madfish-solutions/tezos-dexes-api) (You can use [Smart Websocket Client](https://chrome.google.com/webstore/detail/smart-websocket-client/omalebghpgejjiaoknljcfmglgbpocdp) for debug)
 
 plus:
 
