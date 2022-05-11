@@ -1,5 +1,5 @@
 // Actually, there is a bunch of other types but only these will be used for now
-export type TzktOperationType = 'delegation' | 'transaction' | 'reveal';
+export type TzktOperationType = 'delegation' | 'transaction' | 'reveal' | 'origination';
 
 export type TzktQuoteCurrency = 'None' | 'Btc' | 'Eur' | 'Usd' | 'Cny' | 'Jpy' | 'Krw';
 
@@ -194,4 +194,67 @@ export interface TzktAccountTokenBalance {
     tokenId: string;
   };
   transfersCount: number;
+}
+
+export interface TzktAccountOperations {
+  amount: string;
+  from: {
+    address: string;
+    alias?: string;
+  };
+  id: number;
+  level: number;
+  timestamp: string;
+  to: {
+    address: string;
+    alias?: string;
+  };
+  token: {
+    contract: {
+      alias: string;
+      address: string;
+    };
+    id: number;
+    metadata: {
+      decimals: string;
+      eth_contract: string;
+      eth_name: string;
+      eth_symbol: string;
+      name: string;
+      symbol: string;
+      thumbnailUri: string;
+    };
+    standard: string;
+    tokenId: string;
+  };
+  transactionId: number;
+}
+
+export interface TzktTokenTransfer {
+  allocationFee: number;
+  amount: number;
+  bakerFee: number;
+  block: string;
+  counter: number;
+  gasLimit: number;
+  gasUsed: number;
+  hasInternals: boolean;
+  hash: string;
+  id: number;
+  level: number;
+  parameter: {};
+  sender: {
+    address: string;
+    alias?: string;
+  };
+  status: string;
+  storageFee: number;
+  storageLimit: number;
+  storageUsed: number;
+  target: {
+    address: string;
+    alias?: string;
+  };
+  timestamp: string;
+  type: string;
 }

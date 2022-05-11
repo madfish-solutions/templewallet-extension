@@ -10,7 +10,7 @@ import {
   TzktRelatedContract
 } from 'lib/tzkt/types';
 
-import { TzktAccountTokenBalance } from '.';
+import { TzktAccountTokenBalance, TzktTokenTransfer } from '.';
 
 export const TZKT_API_BASE_URLS = new Map([
   [TempleChainId.Mainnet, 'https://api.tzkt.io/v1'],
@@ -38,6 +38,17 @@ export const getOperations = makeQuery<TzktGetOperationsParams, TzktOperation[]>
   })
 );
 
+export const getOperationsCount = makeQuery<TzktGetOperationsParams, number>(
+  params => `/accounts/${params.address}/operations/count`,
+  ({ address, type, quote, from, to, ...restParams }) => ({
+    type: type?.join(','),
+    quote: quote?.join(','),
+    'timestamp.ge': from,
+    'timestamp.lt': to,
+    ...restParams
+  })
+);
+
 export const getTokenBalances = makeQuery<TzktGetOperationsParams, TzktAccountTokenBalance[]>(
   () => `/tokens/balances`,
   ({ address, offset, limit, ...restParams }) => ({
@@ -47,6 +58,33 @@ export const getTokenBalances = makeQuery<TzktGetOperationsParams, TzktAccountTo
     ...restParams
   })
 );
+
+export const getTokenTransfers = makeQuery<TzktGetOperationsParams, Array<TzktTokenTransfer>>(
+  () => `/tokens/transfer`,
+  ({ address, limit, type, ...restParams }) => ({
+    'anyof.from.to': address,
+    limit,
+    type: type?.join(','),
+    ...restParams
+  })
+);
+
+export const getTokenTransfersCount = makeQuery<TzktGetOperationsParams, number>(
+  () => `/tokens/transfer/count`,
+  ({ address, limit, type, ...restParams }) => ({
+    'anyof.from.to': address,
+    limit,
+    type: type?.join(','),
+    ...restParams
+  })
+);
+
+// export const getAccountOperations = makeQuery<TzktGetOperationsParams, Array<TzktAccountOperations>>(
+//   params => `/accounts/${params.address}/operations`,
+//   ({ ...restParams }) => ({
+//     ...restParams
+//   })
+// );
 
 export const getTokenBalancesCount = makeQuery<TzktGetOperationsParams, number>(
   () => `/tokens/balances/count`,
