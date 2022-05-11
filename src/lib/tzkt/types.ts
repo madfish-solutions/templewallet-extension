@@ -41,6 +41,7 @@ export type TzktGetOperationsParams = {
   type?: TzktOperationType[];
   lastId?: number;
   limit?: number;
+  offset?: number;
   sort?: 0 | 1;
   quote?: TzktQuoteCurrency[];
 };
@@ -163,3 +164,34 @@ export const allInt32ParameterKeys: Int32ParameterKey[] = ['eq', 'ne', 'gt', 'ge
 export const isReveal = (operation: TzktOperation): operation is TzktRevealOperation => {
   return operation.type === 'reveal';
 };
+
+export interface TzktAccountTokenBalance {
+  account: { address: string };
+  balance: string;
+  firstLevel: number;
+  firstTime: string;
+  id: number;
+  lastLevel: number;
+  lastTime: string;
+  token: {
+    contract: { alias: string; address: string };
+    id: number;
+    metadata: {
+      artifactUri: string;
+      creators: Array<string>;
+      decimals: string;
+      description: string;
+      displayUri: string;
+      formats: Array<{ uri: string; mimeType: string }>;
+      isBooleanAmount: boolean;
+      name: string;
+      shouldPreferSymbol: boolean;
+      symbol: string;
+      tags: Array<string>;
+      thumbnailUri: string;
+    };
+    standard: string;
+    tokenId: string;
+  };
+  transfersCount: number;
+}

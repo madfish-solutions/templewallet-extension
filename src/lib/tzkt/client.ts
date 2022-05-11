@@ -10,6 +10,8 @@ import {
   TzktRelatedContract
 } from 'lib/tzkt/types';
 
+import { TzktAccountTokenBalance } from '.';
+
 export const TZKT_API_BASE_URLS = new Map([
   [TempleChainId.Mainnet, 'https://api.tzkt.io/v1'],
   [TempleChainId.Hangzhounet, 'https://api.hangzhou2net.tzkt.io/v1']
@@ -32,6 +34,38 @@ export const getOperations = makeQuery<TzktGetOperationsParams, TzktOperation[]>
     quote: quote?.join(','),
     'timestamp.ge': from,
     'timestamp.lt': to,
+    ...restParams
+  })
+);
+
+export const getTokenBalances = makeQuery<TzktGetOperationsParams, TzktAccountTokenBalance[]>(
+  () => `/tokens/balances`,
+  ({ address, offset, limit, ...restParams }) => ({
+    account: address,
+    offset,
+    limit,
+    ...restParams
+  })
+);
+
+export const getTokenBalancesCount = makeQuery<TzktGetOperationsParams, number>(
+  () => `/tokens/balances/count`,
+  ({ address, ...restParams }) => ({
+    account: address,
+    ...restParams
+  })
+);
+
+export const getAccount = makeQuery<TzktGetOperationsParams, any>(
+  params => `/accounts/${params.address}`,
+  ({ ...restParams }) => ({
+    ...restParams
+  })
+);
+
+export const getAccountMetadata = makeQuery<TzktGetOperationsParams, any>(
+  params => `/accounts/${params.address}/metadata`,
+  ({ ...restParams }) => ({
     ...restParams
   })
 );
