@@ -6,13 +6,12 @@ import {
   TzktOperation,
   getTokenTransfers,
   getTokenTransfersCount,
-  getOperationsCount,
   TzktTokenTransfer
 } from 'lib/tzkt';
 
 import { isKnownChainId } from '../types';
 import { deletePendingOp } from './deletePendingOp';
-import { isPositiveNumber, tryParseTokenTransfers, toTokenId, getBcdTokenTransferId } from './helpers';
+import { isPositiveNumber, tryParseTokenTransfers, toTokenId } from './helpers';
 
 export const isSyncSupported = (chainId: string) => TZKT_API_BASE_URLS.has(chainId as any);
 
@@ -63,9 +62,7 @@ async function fetchTzktOperations(
 
   const size = 1000;
 
-  const total = await getOperationsCount(chainId as any, { address });
-
-  let balances = await getOperations(chainId as any, {
+  const operations = await getOperations(chainId as any, {
     address,
     sort: 1,
     limit: size,
@@ -74,25 +71,7 @@ async function fetchTzktOperations(
       tzktTime && new Date(fresh ? tzktTime.higherTimestamp + 1 : tzktTime.lowerTimestamp).toISOString()
   });
 
-  if (total > size) {
-    const requests = Math.floor(total / size);
-    const restResponses = await Promise.all(
-      Array.from({ length: requests }).map((_, i) =>
-        getOperations(chainId as any, {
-          address,
-          sort: 1,
-          limit: size,
-          offset: (i + 1) * size,
-          [getFreshTzktField(fresh)]:
-            tzktTime && new Date(fresh ? tzktTime.higherTimestamp + 1 : tzktTime.lowerTimestamp).toISOString()
-        })
-      )
-    );
-
-    balances = [...balances, ...restResponses.flat()];
-  }
-
-  return balances;
+  return operations;
 }
 
 export async function syncOperations(type: 'new' | 'old', chainId: string, address: string) {
@@ -119,12 +98,12 @@ export async function syncOperations(type: 'new' | 'old', chainId: string, addre
    * ex BCD, TZKT token transfers
    */
 
-  syncTzktTokenTransfers(tzktTokenTransfers, chainId, address, tzktTime, fresh);
+  syncTzktTokenTransfers(tzktTokenTransfers, tzktOperations, chainId, address, tzktTime, fresh);
 
   // delete outdated pending operations
   await deletePendingOp();
 
-  return tzktOperations.length;
+  return tzktTokenTransfers.length;
 }
 
 const afterSyncUpdate = async (
@@ -238,29 +217,36 @@ const addMemberSetOperations = (tzktOp: TzktOperation, assetIdSet: Set<string>, 
 
 const syncTzktTokenTransfers = async (
   tokenTransfers: Array<TzktTokenTransfer>,
+  operations: Array<TzktOperation>,
   chainId: string,
   address: string,
   tzktTime: Repo.ISyncTime | undefined,
   fresh: boolean
 ) => {
   for (const tokenTrans of tokenTransfers) {
-    const current = await Repo.operations.get(tokenTrans.hash);
+    const operation = operations.find(x => x.id === tokenTrans.transactionId);
+    if (!operation) continue;
+    const current = await Repo.operations.get(operation.hash);
 
     const memberSet = new Set(current?.members);
     const assetIdSet = new Set(current?.assetIds);
 
-    memberSet.add(tokenTrans.initiator);
-    memberSet.add(tokenTrans.sender.address);
-    memberSet.add(tokenTrans.target.address);
+    memberSet.add(
+      operation.type !== 'reveal' && operation.type !== 'origination' && operation.initiator
+        ? operation.initiator.address
+        : address
+    );
+    memberSet.add(tokenTrans.from.address);
+    memberSet.add(tokenTrans.to.address);
 
-    assetIdSet.add(toTokenId(tokenTrans.contract, tokenTrans.token_id));
+    assetIdSet.add(toTokenId(tokenTrans.token.contract.address, tokenTrans.token.tokenId));
 
     const members = Array.from(memberSet);
     const assetIds = Array.from(assetIdSet);
 
     if (!current) {
       await Repo.operations.add({
-        hash: tokenTrans.hash,
+        hash: operation.hash,
         chainId,
         members,
         assetIds,
@@ -270,15 +256,13 @@ const syncTzktTokenTransfers = async (
         }
       });
     } else {
-      await Repo.operations.where({ hash: tokenTrans.hash }).modify(op => {
+      await Repo.operations.where({ hash: operation.hash }).modify(op => {
         op.members = members;
         op.assetIds = assetIds;
 
         if (!op.data.tzktTokenTransfers) {
           op.data.tzktTokenTransfers = [tokenTrans];
-        } else if (
-          op.data.tzktTokenTransfers.every(trans => getBcdTokenTransferId(trans) !== getBcdTokenTransferId(tokenTrans))
-        ) {
+        } else if (op.data.tzktTokenTransfers.every(trans => trans.transactionId !== tokenTrans.transactionId)) {
           op.data.tzktTokenTransfers.push(tokenTrans);
         }
       });

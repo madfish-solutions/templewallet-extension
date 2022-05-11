@@ -1,20 +1,19 @@
 import { OperationContentsAndResult, OpKind } from '@taquito/rpc';
 
-import { BcdTokenTransfer } from 'lib/better-call-dev';
 import * as Repo from 'lib/temple/repo';
-import { TzktOperation } from 'lib/tzkt';
+import { TzktOperation, TzktTokenTransfer } from 'lib/tzkt';
 
 import { isPositiveNumber, tryParseTokenTransfers } from './helpers';
 import { OpStackItem, OpStackItemType } from './types';
 
 export function parseOpStack(operation: Repo.IOperation, address: string) {
-  const { localGroup, tzktGroup, bcdTokenTransfers } = operation.data;
+  const { localGroup, tzktGroup, tzktTokenTransfers } = operation.data;
 
   const opStack: OpStackItem[] = [];
 
   if (tzktGroup) estimateTzktGroup(tzktGroup, address, opStack);
   else if (localGroup) estimateLocalGroup(localGroup, address, opStack);
-  if (bcdTokenTransfers) estimateBcdTokenTransfer(bcdTokenTransfers, address, opStack);
+  if (tzktTokenTransfers) estimateTzktTokenTransfer(tzktTokenTransfers, address, opStack);
 
   return opStack.sort((a, b) => a.type - b.type);
 }
@@ -103,10 +102,10 @@ const addTzktSenderAddress = (tzktOp: TzktOperation, address: string, opStack: O
 };
 
 const getTzktTransfers = (
-  tokenTransfers: TokenTransfers[],
+  tokenTransfers: Array<TokenTransfers>,
   tzktOp: TzktOperation,
   address: string,
-  opStack: OpStackItem[],
+  opStack: Array<OpStackItem>,
   parsed: any
 ) => {
   if (tzktOp.type !== 'transaction') return;
@@ -134,30 +133,30 @@ const getTzktTransfers = (
   }
 };
 
-const estimateBcdTokenTransfer = (
-  bcdTokenTransfers: BcdTokenTransfer[] | undefined,
+const estimateTzktTokenTransfer = (
+  tzktTokenTransfer: Array<TzktTokenTransfer> | undefined,
   address: string,
-  opStack: OpStackItem[]
+  opStack: Array<OpStackItem>
 ) => {
-  if (!bcdTokenTransfers) return;
+  if (!tzktTokenTransfer) return;
   /**
-   * BCD token transfers
+   * Tzkt token transfers
    */
 
-  for (const tokenTrans of bcdTokenTransfers) {
-    if (tokenTrans.from === address) {
+  for (const tokenTrans of tzktTokenTransfer) {
+    if (tokenTrans.from.address === address) {
       addIfNotExist(
         {
           type: OpStackItemType.TransferTo,
-          to: tokenTrans.to
+          to: tokenTrans.to.address
         },
         opStack
       );
-    } else if (tokenTrans.to === address) {
+    } else if (tokenTrans.to.address === address) {
       addIfNotExist(
         {
           type: OpStackItemType.TransferFrom,
-          from: tokenTrans.from
+          from: tokenTrans.from.address
         },
         opStack
       );
@@ -166,9 +165,9 @@ const estimateBcdTokenTransfer = (
 };
 
 const estimateLocalGroup = (
-  localGroup: OperationContentsAndResult[] | undefined,
+  localGroup: Array<OperationContentsAndResult> | undefined,
   address: string,
-  opStack: OpStackItem[]
+  opStack: Array<OpStackItem>
 ) => {
   if (!localGroup) return;
   /**
@@ -244,10 +243,10 @@ interface TokenTransfers {
 }
 
 const getTokenTransfers = (
-  tokenTransfers: TokenTransfers[],
+  tokenTransfers: Array<TokenTransfers>,
   op: OperationContentsAndResult,
   address: string,
-  opStack: OpStackItem[]
+  opStack: Array<OpStackItem>
 ) => {
   if (op.kind !== OpKind.TRANSACTION) return;
   if (!op.parameters) return;

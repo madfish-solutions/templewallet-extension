@@ -71,11 +71,19 @@ export interface TzktTransactionOperation extends TzktOperationBase {
   hasInternals: boolean;
 }
 
+export interface TzktOriginationOperation extends TzktOperationBase {
+  type: 'origination';
+}
+
 export interface TzktRevealOperation extends TzktOperationBase {
   type: 'reveal';
 }
 
-export type TzktOperation = TzktDelegationOperation | TzktTransactionOperation | TzktRevealOperation;
+export type TzktOperation =
+  | TzktDelegationOperation
+  | TzktTransactionOperation
+  | TzktRevealOperation
+  | TzktOriginationOperation;
 
 export type TzktDelegateInfo = {
   alias?: string;
@@ -166,7 +174,7 @@ export const isReveal = (operation: TzktOperation): operation is TzktRevealOpera
 };
 
 export interface TzktAccountTokenBalance {
-  account: { address: string };
+  account: TzktAlias;
   balance: string;
   firstLevel: number;
   firstTime: string;
@@ -174,7 +182,7 @@ export interface TzktAccountTokenBalance {
   lastLevel: number;
   lastTime: string;
   token: {
-    contract: { alias: string; address: string };
+    contract: TzktAlias;
     id: number;
     metadata: {
       artifactUri: string;
@@ -196,33 +204,24 @@ export interface TzktAccountTokenBalance {
   transfersCount: number;
 }
 
-export interface TzktAccountOperations {
+export interface TzktTokenTransfer {
   amount: string;
-  from: {
-    address: string;
-    alias?: string;
-  };
+  from: TzktAlias;
   id: number;
   level: number;
   timestamp: string;
-  to: {
-    address: string;
-    alias?: string;
-  };
+  to: TzktAlias;
   token: {
-    contract: {
-      alias: string;
-      address: string;
-    };
+    contract: TzktAlias;
     id: number;
     metadata: {
-      decimals: string;
-      eth_contract: string;
-      eth_name: string;
-      eth_symbol: string;
       name: string;
       symbol: string;
-      thumbnailUri: string;
+      decimals: string;
+      thumbnailUri?: string;
+      eth_name?: string;
+      eth_symbol?: string;
+      eth_contract?: string;
     };
     standard: string;
     tokenId: string;
@@ -230,7 +229,7 @@ export interface TzktAccountOperations {
   transactionId: number;
 }
 
-export interface TzktTokenTransfer {
+export interface TzktAccountOperations {
   allocationFee: number;
   amount: number;
   bakerFee: number;
@@ -243,18 +242,12 @@ export interface TzktTokenTransfer {
   id: number;
   level: number;
   parameter: {};
-  sender: {
-    address: string;
-    alias?: string;
-  };
+  sender: TzktAlias;
   status: string;
   storageFee: number;
   storageLimit: number;
   storageUsed: number;
-  target: {
-    address: string;
-    alias?: string;
-  };
+  target: TzktAlias;
   timestamp: string;
   type: string;
 }
