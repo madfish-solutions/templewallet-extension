@@ -144,19 +144,21 @@ const estimateTzktTokenTransfer = (
    */
 
   for (const tokenTrans of tzktTokenTransfer) {
-    if (tokenTrans.from.address === address) {
+    const isFromAddress = tokenTrans.from ? tokenTrans.from.address === address : true;
+    const isToAddress = tokenTrans.to ? tokenTrans.to.address === address : true;
+    if (isFromAddress) {
       addIfNotExist(
         {
           type: OpStackItemType.TransferTo,
-          to: tokenTrans.to.address
+          to: tokenTrans.to ? tokenTrans.to.address : address
         },
         opStack
       );
-    } else if (tokenTrans.to.address === address) {
+    } else if (isToAddress) {
       addIfNotExist(
         {
           type: OpStackItemType.TransferFrom,
-          from: tokenTrans.from.address
+          from: tokenTrans.from ? tokenTrans.from.address : address
         },
         opStack
       );

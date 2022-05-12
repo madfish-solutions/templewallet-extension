@@ -32,8 +32,8 @@ export const getOperations = makeQuery<TzktGetOperationsParams, TzktOperation[]>
   ({ address, type, quote, from, to, ...restParams }) => ({
     type: type?.join(','),
     quote: quote?.join(','),
-    'timestamp.ge': from,
-    'timestamp.lt': to,
+    'timestamp.lt': from,
+    'timestamp.ge': to,
     ...restParams
   })
 );
