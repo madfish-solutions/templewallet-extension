@@ -50,12 +50,7 @@ async function fetchTzktTokenTransfers(chainId: string, address: string) {
   return tokenTransfers;
 }
 
-async function fetchTzktOperations(
-  chainId: string,
-  address: string,
-  fresh: boolean,
-  tzktTime: Repo.ISyncTime | undefined
-) {
+async function fetchTzktOperations(chainId: string, address: string) {
   if (!isKnownChainId(chainId) || !TZKT_API_BASE_URLS.has(chainId)) {
     return [];
   }
@@ -66,9 +61,7 @@ async function fetchTzktOperations(
     address,
     sort: 1,
     limit: size,
-    offset: 0,
-    [getFreshTzktField(fresh)]:
-      tzktTime && new Date(fresh ? tzktTime.higherTimestamp + 1 : tzktTime.lowerTimestamp).toISOString()
+    offset: 0
   });
 
   return operations;
@@ -84,7 +77,7 @@ export async function syncOperations(type: 'new' | 'old', chainId: string, addre
   const fresh = type === 'new';
 
   const [tzktOperations, tzktTokenTransfers] = await Promise.all([
-    fetchTzktOperations(chainId, address, fresh, tzktTime),
+    fetchTzktOperations(chainId, address),
     fetchTzktTokenTransfers(chainId, address)
   ]);
 
@@ -286,5 +279,3 @@ const syncTzktTokenTransfers = async (
     }
   }
 };
-
-const getFreshTzktField = (fresh: boolean) => (fresh ? 'from' : 'to');

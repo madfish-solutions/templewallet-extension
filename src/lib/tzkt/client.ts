@@ -60,7 +60,7 @@ export const getTokenBalances = makeQuery<TzktGetOperationsParams, TzktAccountTo
 );
 
 export const getTokenTransfers = makeQuery<TzktGetOperationsParams, Array<TzktTokenTransfer>>(
-  () => `/tokens/transfer`,
+  () => `/tokens/transfers`,
   ({ address, limit, type, ...restParams }) => ({
     'anyof.from.to': address,
     limit,
@@ -70,7 +70,7 @@ export const getTokenTransfers = makeQuery<TzktGetOperationsParams, Array<TzktTo
 );
 
 export const getTokenTransfersCount = makeQuery<TzktGetOperationsParams, number>(
-  () => `/tokens/transfer/count`,
+  () => `/tokens/transfers/count`,
   ({ address, limit, type, ...restParams }) => ({
     'anyof.from.to': address,
     limit,
