@@ -1,4 +1,3 @@
-// import { getTokenTransfers, BCD_NETWORKS_NAMES, BcdTokenTransfer } from 'lib/better-call-dev';
 import * as Repo from 'lib/temple/repo';
 import {
   TZKT_API_BASE_URLS,

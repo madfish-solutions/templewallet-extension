@@ -78,14 +78,6 @@ export const getTokenTransfersCount = makeQuery<TzktGetOperationsParams, number>
     ...restParams
   })
 );
-
-// export const getAccountOperations = makeQuery<TzktGetOperationsParams, Array<TzktAccountOperations>>(
-//   params => `/accounts/${params.address}/operations`,
-//   ({ ...restParams }) => ({
-//     ...restParams
-//   })
-// );
-
 export const getTokenBalancesCount = makeQuery<TzktGetOperationsParams, number>(
   () => `/tokens/balances/count`,
   ({ address, ...restParams }) => ({
