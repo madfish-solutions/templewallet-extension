@@ -35,16 +35,14 @@ function WebpackShellPlugin(options) {
 WebpackShellPlugin.prototype.apply = function (compiler) {
   const options = this.options;
 
-  compiler.plugin('compilation', compilation => {
+  compiler.plugin('compilation', () => {
     if (options.onBuildStart.length) {
-      console.log('Executing pre-build scripts');
       options.onBuildStart.forEach(script => exec(script, puts));
     }
   });
 
-  compiler.plugin('emit', (compilation, callback) => {
+  compiler.plugin('emit', (_, callback) => {
     if (options.onBuildEnd.length) {
-      console.log('Executing post-build scripts');
       options.onBuildEnd.forEach(script => exec(script, puts));
     }
     callback();
@@ -54,7 +52,7 @@ WebpackShellPlugin.prototype.apply = function (compiler) {
 const pkg = require('./package.json');
 const tsConfig = require('./tsconfig.json');
 
-const { NODE_ENV = 'development' } = process.env;
+const { NODE_ENV = 'development', IS_SAFARI } = process.env;
 const dotenvPath = path.resolve(__dirname, '.env');
 
 // https://github.com/bkeepers/dotenv#what-other-env-files-can-i-use
@@ -92,7 +90,7 @@ const {
   IMAGE_INLINE_SIZE_LIMIT: IMAGE_INLINE_SIZE_LIMIT_ENV = '10000'
 } = process.env;
 const VERSION = pkg.version;
-const SOURCE_MAP = NODE_ENV !== 'production' && SOURCE_MAP_ENV !== 'false';
+const SOURCE_MAP = (NODE_ENV !== 'production' || IS_SAFARI === 'true') && SOURCE_MAP_ENV !== 'false';
 const IMAGE_INLINE_SIZE_LIMIT = parseInt(IMAGE_INLINE_SIZE_LIMIT_ENV);
 const CWD_PATH = fs.realpathSync(process.cwd());
 const NODE_MODULES_PATH = path.join(CWD_PATH, 'node_modules');
@@ -156,14 +154,14 @@ const CSS_MODULE_REGEX = /\.module\.css$/;
 
 module.exports = {
   mode: NODE_ENV,
-  bail: NODE_ENV === 'production',
+  bail: NODE_ENV === 'production' && IS_SAFARI !== 'true',
   devtool: SOURCE_MAP && 'inline-cheap-module-source-map',
 
   entry: ENTRIES,
 
   output: {
     path: OUTPUT_PATH,
-    pathinfo: NODE_ENV === 'development',
+    pathinfo: NODE_ENV === 'development' || IS_SAFARI === 'true',
     filename: 'scripts/[name].js',
     chunkFilename: 'scripts/[name].chunk.js'
   },
@@ -264,7 +262,7 @@ module.exports = {
               cacheDirectory: true,
               // See #6846 for context on why cacheCompression is disabled
               cacheCompression: false,
-              compact: NODE_ENV === 'production'
+              compact: NODE_ENV === 'production' && IS_SAFARI !== 'true'
             }
           },
           // Process any JS outside of the app with Babel.
@@ -362,6 +360,7 @@ module.exports = {
     new webpack.DefinePlugin({
       SharedArrayBuffer: '_SharedArrayBuffer',
       'process.env.NODE_ENV': JSON.stringify(NODE_ENV),
+      'process.env.IS_SAFARI': JSON.stringify(IS_SAFARI),
       'process.env.VERSION': JSON.stringify(VERSION),
       'process.env.TARGET_BROWSER': JSON.stringify(TARGET_BROWSER),
       ...(() => {
@@ -389,7 +388,7 @@ module.exports = {
           filename: path.basename(htmlTemplate.path),
           chunks: [...htmlTemplate.chunks, 'commons'],
           inject: 'body',
-          ...(NODE_ENV === 'production'
+          ...(NODE_ENV === 'production' && IS_SAFARI !== 'true'
             ? {
                 minify: {
                   removeComments: true,
@@ -477,8 +476,9 @@ module.exports = {
             warnings: false,
             comparisons: false,
             inline: 2,
-            drop_console: NODE_ENV === 'production'
+            drop_console: NODE_ENV === 'production' && IS_SAFARI !== 'true'
           },
+          safari10: true,
           mangle: {
             safari10: true
           },

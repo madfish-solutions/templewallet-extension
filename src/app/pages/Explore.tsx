@@ -102,9 +102,7 @@ const Explore: FC<ExploreProps> = ({ assetSlug }) => {
 
       <div className={classNames('flex flex-col items-center', fullpageClassName)}>
         <AddressChip pkh={accountPkh} className="mb-6" />
-
         <MainBanner accountPkh={accountPkh} assetSlug={assetSlug} />
-
         <div className="flex justify-between mx-auto w-full max-w-sm mt-6 px-8">
           <ActionButton
             label={<T id="receive" />}
