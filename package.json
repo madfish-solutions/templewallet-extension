@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "start": "cross-env NODE_ENV=development webpack --watch --info-verbosity none --display minimal --hide-modules",
+    "start:safari": "xcodebuild -project ./xcode/'Temple - Tezos Wallet (ex. Thanos).xcodeproj' -scheme macos build",
     "build": "cross-env NODE_ENV=production webpack",
     "build-all": "run-s build:*",
     "build:chrome": "cross-env TARGET_BROWSER=chrome run-s build",
@@ -164,5 +165,6 @@
     "postcss": "8.2.13",
     "follow-redirects": "1.14.8",
     "nanoid": "3.1.31"
-  }
+  },
+  "devDependencies": {}
 }

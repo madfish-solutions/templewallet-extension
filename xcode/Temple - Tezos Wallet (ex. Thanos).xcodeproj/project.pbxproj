@@ -1,0 +1,975 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 55;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		B63B190B282E74A8004B62C9 /* SafariWebExtensionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6987D31282E707900997902 /* SafariWebExtensionHandler.swift */; };
+		B63B190C282E74A9004B62C9 /* SafariWebExtensionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6987D31282E707900997902 /* SafariWebExtensionHandler.swift */; };
+		B6987D3A282E707900997902 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6987D39282E707900997902 /* AppDelegate.swift */; };
+		B6987D3C282E707900997902 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6987D3B282E707900997902 /* SceneDelegate.swift */; };
+		B6987D3F282E707900997902 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B6987D3D282E707900997902 /* LaunchScreen.storyboard */; };
+		B6987D42282E707900997902 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B6987D40282E707900997902 /* Main.storyboard */; };
+		B6987D4B282E707900997902 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6987D4A282E707900997902 /* AppDelegate.swift */; };
+		B6987D4E282E707900997902 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B6987D4C282E707900997902 /* Main.storyboard */; };
+		B6987D56282E707900997902 /* Temple - Tezos Wallet (ex. Thanos) Extension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = B6987D55282E707900997902 /* Temple - Tezos Wallet (ex. Thanos) Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		B6987D60282E707900997902 /* Temple - Tezos Wallet (ex. Thanos) Extension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = B6987D5F282E707900997902 /* Temple - Tezos Wallet (ex. Thanos) Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		B6987D66282E707900997902 /* Main.html in Resources */ = {isa = PBXBuildFile; fileRef = B6987D29282E707600997902 /* Main.html */; };
+		B6987D67282E707900997902 /* Main.html in Resources */ = {isa = PBXBuildFile; fileRef = B6987D29282E707600997902 /* Main.html */; };
+		B6987D68282E707900997902 /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = B6987D2B282E707600997902 /* Icon.png */; };
+		B6987D69282E707900997902 /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = B6987D2B282E707600997902 /* Icon.png */; };
+		B6987D6A282E707900997902 /* Style.css in Resources */ = {isa = PBXBuildFile; fileRef = B6987D2C282E707600997902 /* Style.css */; };
+		B6987D6B282E707900997902 /* Style.css in Resources */ = {isa = PBXBuildFile; fileRef = B6987D2C282E707600997902 /* Style.css */; };
+		B6987D6C282E707900997902 /* Script.js in Resources */ = {isa = PBXBuildFile; fileRef = B6987D2D282E707600997902 /* Script.js */; };
+		B6987D6D282E707900997902 /* Script.js in Resources */ = {isa = PBXBuildFile; fileRef = B6987D2D282E707600997902 /* Script.js */; };
+		B6987D6E282E707900997902 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6987D2E282E707600997902 /* ViewController.swift */; };
+		B6987D6F282E707900997902 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6987D2E282E707600997902 /* ViewController.swift */; };
+		B6987D70282E707900997902 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B6987D2F282E707900997902 /* Assets.xcassets */; };
+		B6987D71282E707900997902 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B6987D2F282E707900997902 /* Assets.xcassets */; };
+		B6987D8F282E707A00997902 /* misc in Resources */ = {isa = PBXBuildFile; fileRef = B6987D85282E707A00997902 /* misc */; };
+		B6987D90282E707A00997902 /* confirm.html in Resources */ = {isa = PBXBuildFile; fileRef = B6987D86282E707A00997902 /* confirm.html */; };
+		B6987D91282E707A00997902 /* popup.html in Resources */ = {isa = PBXBuildFile; fileRef = B6987D87282E707A00997902 /* popup.html */; };
+		B6987D92282E707A00997902 /* styles in Resources */ = {isa = PBXBuildFile; fileRef = B6987D88282E707A00997902 /* styles */; };
+		B6987D93282E707A00997902 /* scripts in Resources */ = {isa = PBXBuildFile; fileRef = B6987D89282E707A00997902 /* scripts */; };
+		B6987D94282E707A00997902 /* manifest.json in Resources */ = {isa = PBXBuildFile; fileRef = B6987D8A282E707A00997902 /* manifest.json */; };
+		B6987D95282E707A00997902 /* fullpage.html in Resources */ = {isa = PBXBuildFile; fileRef = B6987D8B282E707A00997902 /* fullpage.html */; };
+		B6987D96282E707A00997902 /* options.html in Resources */ = {isa = PBXBuildFile; fileRef = B6987D8C282E707A00997902 /* options.html */; };
+		B6987D97282E707A00997902 /* _locales in Resources */ = {isa = PBXBuildFile; fileRef = B6987D8D282E707A00997902 /* _locales */; };
+		B6987D98282E707A00997902 /* media in Resources */ = {isa = PBXBuildFile; fileRef = B6987D8E282E707A00997902 /* media */; };
+		B6987D99282E707A00997902 /* misc in Resources */ = {isa = PBXBuildFile; fileRef = B6987D85282E707A00997902 /* misc */; };
+		B6987D9A282E707A00997902 /* confirm.html in Resources */ = {isa = PBXBuildFile; fileRef = B6987D86282E707A00997902 /* confirm.html */; };
+		B6987D9B282E707A00997902 /* popup.html in Resources */ = {isa = PBXBuildFile; fileRef = B6987D87282E707A00997902 /* popup.html */; };
+		B6987D9C282E707A00997902 /* styles in Resources */ = {isa = PBXBuildFile; fileRef = B6987D88282E707A00997902 /* styles */; };
+		B6987D9D282E707A00997902 /* scripts in Resources */ = {isa = PBXBuildFile; fileRef = B6987D89282E707A00997902 /* scripts */; };
+		B6987D9E282E707A00997902 /* manifest.json in Resources */ = {isa = PBXBuildFile; fileRef = B6987D8A282E707A00997902 /* manifest.json */; };
+		B6987D9F282E707A00997902 /* fullpage.html in Resources */ = {isa = PBXBuildFile; fileRef = B6987D8B282E707A00997902 /* fullpage.html */; };
+		B6987DA0282E707A00997902 /* options.html in Resources */ = {isa = PBXBuildFile; fileRef = B6987D8C282E707A00997902 /* options.html */; };
+		B6987DA1282E707A00997902 /* _locales in Resources */ = {isa = PBXBuildFile; fileRef = B6987D8D282E707A00997902 /* _locales */; };
+		B6987DA2282E707A00997902 /* media in Resources */ = {isa = PBXBuildFile; fileRef = B6987D8E282E707A00997902 /* media */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		B6987D57282E707900997902 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = B6987D23282E707600997902 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = B6987D54282E707900997902;
+			remoteInfo = "Temple - Tezos Wallet (ex. Thanos) Extension (iOS)";
+		};
+		B6987D61282E707900997902 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = B6987D23282E707600997902 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = B6987D5E282E707900997902;
+			remoteInfo = "Temple - Tezos Wallet (ex. Thanos) Extension (macOS)";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		B6987D79282E707900997902 /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				B6987D56282E707900997902 /* Temple - Tezos Wallet (ex. Thanos) Extension.appex in Embed App Extensions */,
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B6987D80282E707900997902 /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				B6987D60282E707900997902 /* Temple - Tezos Wallet (ex. Thanos) Extension.appex in Embed App Extensions */,
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		B6987D2A282E707600997902 /* Base */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = Base; path = ../Base.lproj/Main.html; sourceTree = "<group>"; };
+		B6987D2B282E707600997902 /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Icon.png; sourceTree = "<group>"; };
+		B6987D2C282E707600997902 /* Style.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = Style.css; sourceTree = "<group>"; };
+		B6987D2D282E707600997902 /* Script.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = Script.js; sourceTree = "<group>"; };
+		B6987D2E282E707600997902 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		B6987D2F282E707900997902 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		B6987D31282E707900997902 /* SafariWebExtensionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafariWebExtensionHandler.swift; sourceTree = "<group>"; };
+		B6987D36282E707900997902 /* Temple - Tezos Wallet (ex. Thanos).app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Temple - Tezos Wallet (ex. Thanos).app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		B6987D39282E707900997902 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		B6987D3B282E707900997902 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
+		B6987D3E282E707900997902 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		B6987D41282E707900997902 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		B6987D43282E707900997902 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		B6987D48282E707900997902 /* Temple - Tezos Wallet (ex. Thanos).app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Temple - Tezos Wallet (ex. Thanos).app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		B6987D4A282E707900997902 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		B6987D4D282E707900997902 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		B6987D4F282E707900997902 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		B6987D50282E707900997902 /* Temple - Tezos Wallet (ex. Thanos).entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Temple - Tezos Wallet (ex. Thanos).entitlements"; sourceTree = "<group>"; };
+		B6987D55282E707900997902 /* Temple - Tezos Wallet (ex. Thanos) Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Temple - Tezos Wallet (ex. Thanos) Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		B6987D5A282E707900997902 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		B6987D5F282E707900997902 /* Temple - Tezos Wallet (ex. Thanos) Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Temple - Tezos Wallet (ex. Thanos) Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		B6987D64282E707900997902 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		B6987D65282E707900997902 /* Temple - Tezos Wallet (ex. Thanos).entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Temple - Tezos Wallet (ex. Thanos).entitlements"; sourceTree = "<group>"; };
+		B6987D85282E707A00997902 /* misc */ = {isa = PBXFileReference; lastKnownFileType = folder; name = misc; path = ../../dist/chrome_unpacked/misc; sourceTree = "<group>"; };
+		B6987D86282E707A00997902 /* confirm.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = confirm.html; path = ../../dist/chrome_unpacked/confirm.html; sourceTree = "<group>"; };
+		B6987D87282E707A00997902 /* popup.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = popup.html; path = ../../dist/chrome_unpacked/popup.html; sourceTree = "<group>"; };
+		B6987D88282E707A00997902 /* styles */ = {isa = PBXFileReference; lastKnownFileType = folder; name = styles; path = ../../dist/chrome_unpacked/styles; sourceTree = "<group>"; };
+		B6987D89282E707A00997902 /* scripts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = scripts; path = ../../dist/chrome_unpacked/scripts; sourceTree = "<group>"; };
+		B6987D8A282E707A00997902 /* manifest.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = manifest.json; path = ../../dist/chrome_unpacked/manifest.json; sourceTree = "<group>"; };
+		B6987D8B282E707A00997902 /* fullpage.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = fullpage.html; path = ../../dist/chrome_unpacked/fullpage.html; sourceTree = "<group>"; };
+		B6987D8C282E707A00997902 /* options.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = options.html; path = ../../dist/chrome_unpacked/options.html; sourceTree = "<group>"; };
+		B6987D8D282E707A00997902 /* _locales */ = {isa = PBXFileReference; lastKnownFileType = folder; name = _locales; path = ../../dist/chrome_unpacked/_locales; sourceTree = "<group>"; };
+		B6987D8E282E707A00997902 /* media */ = {isa = PBXFileReference; lastKnownFileType = folder; name = media; path = ../../dist/chrome_unpacked/media; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		B6987D33282E707900997902 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B6987D45282E707900997902 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B6987D52282E707900997902 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B6987D5C282E707900997902 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		B6987D22282E707600997902 = {
+			isa = PBXGroup;
+			children = (
+				B6987D27282E707600997902 /* Shared (App) */,
+				B6987D30282E707900997902 /* Shared (Extension) */,
+				B6987D38282E707900997902 /* iOS (App) */,
+				B6987D49282E707900997902 /* macOS (App) */,
+				B6987D59282E707900997902 /* iOS (Extension) */,
+				B6987D63282E707900997902 /* macOS (Extension) */,
+				B6987D37282E707900997902 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		B6987D27282E707600997902 /* Shared (App) */ = {
+			isa = PBXGroup;
+			children = (
+				B6987D2E282E707600997902 /* ViewController.swift */,
+				B6987D2F282E707900997902 /* Assets.xcassets */,
+				B6987D28282E707600997902 /* Resources */,
+			);
+			path = "Shared (App)";
+			sourceTree = "<group>";
+		};
+		B6987D28282E707600997902 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				B6987D29282E707600997902 /* Main.html */,
+				B6987D2B282E707600997902 /* Icon.png */,
+				B6987D2C282E707600997902 /* Style.css */,
+				B6987D2D282E707600997902 /* Script.js */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		B6987D30282E707900997902 /* Shared (Extension) */ = {
+			isa = PBXGroup;
+			children = (
+				B6987D84282E707A00997902 /* Resources */,
+				B6987D31282E707900997902 /* SafariWebExtensionHandler.swift */,
+			);
+			path = "Shared (Extension)";
+			sourceTree = "<group>";
+		};
+		B6987D37282E707900997902 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				B6987D36282E707900997902 /* Temple - Tezos Wallet (ex. Thanos).app */,
+				B6987D48282E707900997902 /* Temple - Tezos Wallet (ex. Thanos).app */,
+				B6987D55282E707900997902 /* Temple - Tezos Wallet (ex. Thanos) Extension.appex */,
+				B6987D5F282E707900997902 /* Temple - Tezos Wallet (ex. Thanos) Extension.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		B6987D38282E707900997902 /* iOS (App) */ = {
+			isa = PBXGroup;
+			children = (
+				B6987D39282E707900997902 /* AppDelegate.swift */,
+				B6987D3B282E707900997902 /* SceneDelegate.swift */,
+				B6987D3D282E707900997902 /* LaunchScreen.storyboard */,
+				B6987D40282E707900997902 /* Main.storyboard */,
+				B6987D43282E707900997902 /* Info.plist */,
+			);
+			path = "iOS (App)";
+			sourceTree = "<group>";
+		};
+		B6987D49282E707900997902 /* macOS (App) */ = {
+			isa = PBXGroup;
+			children = (
+				B6987D4A282E707900997902 /* AppDelegate.swift */,
+				B6987D4C282E707900997902 /* Main.storyboard */,
+				B6987D4F282E707900997902 /* Info.plist */,
+				B6987D50282E707900997902 /* Temple - Tezos Wallet (ex. Thanos).entitlements */,
+			);
+			path = "macOS (App)";
+			sourceTree = "<group>";
+		};
+		B6987D59282E707900997902 /* iOS (Extension) */ = {
+			isa = PBXGroup;
+			children = (
+				B6987D5A282E707900997902 /* Info.plist */,
+			);
+			path = "iOS (Extension)";
+			sourceTree = "<group>";
+		};
+		B6987D63282E707900997902 /* macOS (Extension) */ = {
+			isa = PBXGroup;
+			children = (
+				B6987D64282E707900997902 /* Info.plist */,
+				B6987D65282E707900997902 /* Temple - Tezos Wallet (ex. Thanos).entitlements */,
+			);
+			path = "macOS (Extension)";
+			sourceTree = "<group>";
+		};
+		B6987D84282E707A00997902 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				B6987D85282E707A00997902 /* misc */,
+				B6987D86282E707A00997902 /* confirm.html */,
+				B6987D87282E707A00997902 /* popup.html */,
+				B6987D88282E707A00997902 /* styles */,
+				B6987D89282E707A00997902 /* scripts */,
+				B6987D8A282E707A00997902 /* manifest.json */,
+				B6987D8B282E707A00997902 /* fullpage.html */,
+				B6987D8C282E707A00997902 /* options.html */,
+				B6987D8D282E707A00997902 /* _locales */,
+				B6987D8E282E707A00997902 /* media */,
+			);
+			name = Resources;
+			path = "Shared (Extension)";
+			sourceTree = SOURCE_ROOT;
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		B6987D35282E707900997902 /* Temple - Tezos Wallet (ex. Thanos) (iOS) */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B6987D7A282E707900997902 /* Build configuration list for PBXNativeTarget "Temple - Tezos Wallet (ex. Thanos) (iOS)" */;
+			buildPhases = (
+				B6987D32282E707900997902 /* Sources */,
+				B6987D33282E707900997902 /* Frameworks */,
+				B6987D34282E707900997902 /* Resources */,
+				B6987D79282E707900997902 /* Embed App Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				B6987D58282E707900997902 /* PBXTargetDependency */,
+			);
+			name = "Temple - Tezos Wallet (ex. Thanos) (iOS)";
+			productName = "Temple - Tezos Wallet (ex. Thanos) (iOS)";
+			productReference = B6987D36282E707900997902 /* Temple - Tezos Wallet (ex. Thanos).app */;
+			productType = "com.apple.product-type.application";
+		};
+		B6987D47282E707900997902 /* Temple - Tezos Wallet (ex. Thanos) (macOS) */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B6987D81282E707900997902 /* Build configuration list for PBXNativeTarget "Temple - Tezos Wallet (ex. Thanos) (macOS)" */;
+			buildPhases = (
+				B6987D44282E707900997902 /* Sources */,
+				B6987D45282E707900997902 /* Frameworks */,
+				B6987D46282E707900997902 /* Resources */,
+				B6987D80282E707900997902 /* Embed App Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				B6987D62282E707900997902 /* PBXTargetDependency */,
+			);
+			name = "Temple - Tezos Wallet (ex. Thanos) (macOS)";
+			productName = "Temple - Tezos Wallet (ex. Thanos) (macOS)";
+			productReference = B6987D48282E707900997902 /* Temple - Tezos Wallet (ex. Thanos).app */;
+			productType = "com.apple.product-type.application";
+		};
+		B6987D54282E707900997902 /* Temple - Tezos Wallet (ex. Thanos) Extension (iOS) */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B6987D76282E707900997902 /* Build configuration list for PBXNativeTarget "Temple - Tezos Wallet (ex. Thanos) Extension (iOS)" */;
+			buildPhases = (
+				B6987D51282E707900997902 /* Sources */,
+				B6987D52282E707900997902 /* Frameworks */,
+				B6987D53282E707900997902 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "Temple - Tezos Wallet (ex. Thanos) Extension (iOS)";
+			productName = "Temple - Tezos Wallet (ex. Thanos) Extension (iOS)";
+			productReference = B6987D55282E707900997902 /* Temple - Tezos Wallet (ex. Thanos) Extension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		B6987D5E282E707900997902 /* Temple - Tezos Wallet (ex. Thanos) Extension (macOS) */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B6987D7D282E707900997902 /* Build configuration list for PBXNativeTarget "Temple - Tezos Wallet (ex. Thanos) Extension (macOS)" */;
+			buildPhases = (
+				B6987D5B282E707900997902 /* Sources */,
+				B6987D5C282E707900997902 /* Frameworks */,
+				B6987D5D282E707900997902 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "Temple - Tezos Wallet (ex. Thanos) Extension (macOS)";
+			productName = "Temple - Tezos Wallet (ex. Thanos) Extension (macOS)";
+			productReference = B6987D5F282E707900997902 /* Temple - Tezos Wallet (ex. Thanos) Extension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		B6987D23282E707600997902 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1330;
+				LastUpgradeCheck = 1330;
+				TargetAttributes = {
+					B6987D35282E707900997902 = {
+						CreatedOnToolsVersion = 13.3.1;
+					};
+					B6987D47282E707900997902 = {
+						CreatedOnToolsVersion = 13.3.1;
+					};
+					B6987D54282E707900997902 = {
+						CreatedOnToolsVersion = 13.3.1;
+					};
+					B6987D5E282E707900997902 = {
+						CreatedOnToolsVersion = 13.3.1;
+					};
+				};
+			};
+			buildConfigurationList = B6987D26282E707600997902 /* Build configuration list for PBXProject "Temple - Tezos Wallet (ex. Thanos)" */;
+			compatibilityVersion = "Xcode 13.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = B6987D22282E707600997902;
+			productRefGroup = B6987D37282E707900997902 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				B6987D35282E707900997902 /* Temple - Tezos Wallet (ex. Thanos) (iOS) */,
+				B6987D47282E707900997902 /* Temple - Tezos Wallet (ex. Thanos) (macOS) */,
+				B6987D54282E707900997902 /* Temple - Tezos Wallet (ex. Thanos) Extension (iOS) */,
+				B6987D5E282E707900997902 /* Temple - Tezos Wallet (ex. Thanos) Extension (macOS) */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		B6987D34282E707900997902 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B6987D68282E707900997902 /* Icon.png in Resources */,
+				B6987D3F282E707900997902 /* LaunchScreen.storyboard in Resources */,
+				B6987D66282E707900997902 /* Main.html in Resources */,
+				B6987D6C282E707900997902 /* Script.js in Resources */,
+				B6987D70282E707900997902 /* Assets.xcassets in Resources */,
+				B6987D42282E707900997902 /* Main.storyboard in Resources */,
+				B6987D6A282E707900997902 /* Style.css in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B6987D46282E707900997902 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B6987D69282E707900997902 /* Icon.png in Resources */,
+				B6987D6B282E707900997902 /* Style.css in Resources */,
+				B6987D4E282E707900997902 /* Main.storyboard in Resources */,
+				B6987D6D282E707900997902 /* Script.js in Resources */,
+				B6987D71282E707900997902 /* Assets.xcassets in Resources */,
+				B6987D67282E707900997902 /* Main.html in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B6987D53282E707900997902 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B6987DA1282E707A00997902 /* _locales in Resources */,
+				B6987D9F282E707A00997902 /* fullpage.html in Resources */,
+				B6987D99282E707A00997902 /* misc in Resources */,
+				B6987D9B282E707A00997902 /* popup.html in Resources */,
+				B6987DA0282E707A00997902 /* options.html in Resources */,
+				B6987D9C282E707A00997902 /* styles in Resources */,
+				B6987D9D282E707A00997902 /* scripts in Resources */,
+				B6987DA2282E707A00997902 /* media in Resources */,
+				B6987D9E282E707A00997902 /* manifest.json in Resources */,
+				B6987D9A282E707A00997902 /* confirm.html in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B6987D5D282E707900997902 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B6987D97282E707A00997902 /* _locales in Resources */,
+				B6987D95282E707A00997902 /* fullpage.html in Resources */,
+				B6987D8F282E707A00997902 /* misc in Resources */,
+				B6987D91282E707A00997902 /* popup.html in Resources */,
+				B6987D96282E707A00997902 /* options.html in Resources */,
+				B6987D92282E707A00997902 /* styles in Resources */,
+				B6987D93282E707A00997902 /* scripts in Resources */,
+				B6987D98282E707A00997902 /* media in Resources */,
+				B6987D94282E707A00997902 /* manifest.json in Resources */,
+				B6987D90282E707A00997902 /* confirm.html in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		B6987D32282E707900997902 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B6987D6E282E707900997902 /* ViewController.swift in Sources */,
+				B6987D3A282E707900997902 /* AppDelegate.swift in Sources */,
+				B6987D3C282E707900997902 /* SceneDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B6987D44282E707900997902 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B6987D6F282E707900997902 /* ViewController.swift in Sources */,
+				B6987D4B282E707900997902 /* AppDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B6987D51282E707900997902 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B63B190C282E74A9004B62C9 /* SafariWebExtensionHandler.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B6987D5B282E707900997902 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B63B190B282E74A8004B62C9 /* SafariWebExtensionHandler.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		B6987D58282E707900997902 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = B6987D54282E707900997902 /* Temple - Tezos Wallet (ex. Thanos) Extension (iOS) */;
+			targetProxy = B6987D57282E707900997902 /* PBXContainerItemProxy */;
+		};
+		B6987D62282E707900997902 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = B6987D5E282E707900997902 /* Temple - Tezos Wallet (ex. Thanos) Extension (macOS) */;
+			targetProxy = B6987D61282E707900997902 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		B6987D29282E707600997902 /* Main.html */ = {
+			isa = PBXVariantGroup;
+			children = (
+				B6987D2A282E707600997902 /* Base */,
+			);
+			name = Main.html;
+			sourceTree = "<group>";
+		};
+		B6987D3D282E707900997902 /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				B6987D3E282E707900997902 /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+		B6987D40282E707900997902 /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				B6987D41282E707900997902 /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		B6987D4C282E707900997902 /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				B6987D4D282E707900997902 /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		B6987D74282E707900997902 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		B6987D75282E707900997902 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+			};
+			name = Release;
+		};
+		B6987D77282E707900997902 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "iOS (Extension)/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Temple - Tezos Wallet (ex. Thanos) Extension";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.github.Temple---Tezos-Wallet--ex--Thanos-.Extension";
+				PRODUCT_NAME = "Temple - Tezos Wallet (ex. Thanos) Extension";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		B6987D78282E707900997902 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "iOS (Extension)/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Temple - Tezos Wallet (ex. Thanos) Extension";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.github.Temple---Tezos-Wallet--ex--Thanos-.Extension";
+				PRODUCT_NAME = "Temple - Tezos Wallet (ex. Thanos) Extension";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		B6987D7B282E707900997902 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "iOS (App)/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Temple - Tezos Wallet (ex. Thanos)";
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UIMainStoryboardFile = Main;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+					"-framework",
+					WebKit,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.github.Temple---Tezos-Wallet--ex--Thanos-";
+				PRODUCT_NAME = "Temple - Tezos Wallet (ex. Thanos)";
+				SDKROOT = iphoneos;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		B6987D7C282E707900997902 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "iOS (App)/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Temple - Tezos Wallet (ex. Thanos)";
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UIMainStoryboardFile = Main;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+					"-framework",
+					WebKit,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.github.Temple---Tezos-Wallet--ex--Thanos-";
+				PRODUCT_NAME = "Temple - Tezos Wallet (ex. Thanos)";
+				SDKROOT = iphoneos;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		B6987D7E282E707900997902 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = "macOS (Extension)/Temple - Tezos Wallet (ex. Thanos).entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "macOS (Extension)/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Temple - Tezos Wallet (ex. Thanos) Extension";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.github.Temple---Tezos-Wallet--ex--Thanos-.Extension";
+				PRODUCT_NAME = "Temple - Tezos Wallet (ex. Thanos) Extension";
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		B6987D7F282E707900997902 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = "macOS (Extension)/Temple - Tezos Wallet (ex. Thanos).entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "macOS (Extension)/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Temple - Tezos Wallet (ex. Thanos) Extension";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.github.Temple---Tezos-Wallet--ex--Thanos-.Extension";
+				PRODUCT_NAME = "Temple - Tezos Wallet (ex. Thanos) Extension";
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		B6987D82282E707900997902 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "macOS (App)/Temple - Tezos Wallet (ex. Thanos).entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "macOS (App)/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Temple - Tezos Wallet (ex. Thanos)";
+				INFOPLIST_KEY_NSMainStoryboardFile = Main;
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+					"-framework",
+					WebKit,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.github.Temple---Tezos-Wallet--ex--Thanos-";
+				PRODUCT_NAME = "Temple - Tezos Wallet (ex. Thanos)";
+				SDKROOT = macosx;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		B6987D83282E707900997902 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "macOS (App)/Temple - Tezos Wallet (ex. Thanos).entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "macOS (App)/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Temple - Tezos Wallet (ex. Thanos)";
+				INFOPLIST_KEY_NSMainStoryboardFile = Main;
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+					"-framework",
+					WebKit,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.github.Temple---Tezos-Wallet--ex--Thanos-";
+				PRODUCT_NAME = "Temple - Tezos Wallet (ex. Thanos)";
+				SDKROOT = macosx;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		B6987D26282E707600997902 /* Build configuration list for PBXProject "Temple - Tezos Wallet (ex. Thanos)" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B6987D74282E707900997902 /* Debug */,
+				B6987D75282E707900997902 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		B6987D76282E707900997902 /* Build configuration list for PBXNativeTarget "Temple - Tezos Wallet (ex. Thanos) Extension (iOS)" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B6987D77282E707900997902 /* Debug */,
+				B6987D78282E707900997902 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		B6987D7A282E707900997902 /* Build configuration list for PBXNativeTarget "Temple - Tezos Wallet (ex. Thanos) (iOS)" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B6987D7B282E707900997902 /* Debug */,
+				B6987D7C282E707900997902 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		B6987D7D282E707900997902 /* Build configuration list for PBXNativeTarget "Temple - Tezos Wallet (ex. Thanos) Extension (macOS)" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B6987D7E282E707900997902 /* Debug */,
+				B6987D7F282E707900997902 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		B6987D81282E707900997902 /* Build configuration list for PBXNativeTarget "Temple - Tezos Wallet (ex. Thanos) (macOS)" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B6987D82282E707900997902 /* Debug */,
+				B6987D83282E707900997902 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = B6987D23282E707600997902 /* Project object */;
+}

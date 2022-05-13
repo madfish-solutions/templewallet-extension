@@ -1,3 +1,4 @@
+const exec = require('child_process').exec;
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const fs = require('fs');
@@ -17,6 +18,38 @@ const webpack = require('webpack');
 const ExtensionReloader = require('webpack-extension-reloader');
 const WebpackBar = require('webpackbar');
 const ZipPlugin = require('zip-webpack-plugin');
+
+function puts(error, stdout, stderr) {
+  console.log(stdout);
+}
+
+function WebpackShellPlugin(options) {
+  var defaultOptions = {
+    onBuildStart: [],
+    onBuildEnd: []
+  };
+
+  this.options = Object.assign(defaultOptions, options);
+}
+
+WebpackShellPlugin.prototype.apply = function (compiler) {
+  const options = this.options;
+
+  compiler.plugin('compilation', compilation => {
+    if (options.onBuildStart.length) {
+      console.log('Executing pre-build scripts');
+      options.onBuildStart.forEach(script => exec(script, puts));
+    }
+  });
+
+  compiler.plugin('emit', (compilation, callback) => {
+    if (options.onBuildEnd.length) {
+      console.log('Executing post-build scripts');
+      options.onBuildEnd.forEach(script => exec(script, puts));
+    }
+    callback();
+  });
+};
 
 const pkg = require('./package.json');
 const tsConfig = require('./tsconfig.json');
@@ -312,6 +345,11 @@ module.exports = {
 
   plugins: [
     new webpack.IgnorePlugin(/^\.\/wordlists\/(?!english)/, /bip39\/src$/),
+    new WebpackShellPlugin({
+      onBuildEnd: [
+        "xcodebuild -project ./xcode/'Temple - Tezos Wallet (ex. Thanos).xcodeproj' -scheme macos build -quiet"
+      ]
+    }),
 
     new CleanWebpackPlugin({
       cleanOnceBeforeBuildPatterns: [OUTPUT_PATH, OUTPUT_PACKED_PATH],
