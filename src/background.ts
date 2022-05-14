@@ -21,9 +21,7 @@ let connectionsCount = 0;
 const URL_BASE = 'extension://';
 
 browser.runtime.onConnect.addListener(externalPort => {
-  console.log('connection', externalPort);
   if (getChromePredicate(externalPort) || getFFPredicate(externalPort) || getSafariPredicate(externalPort)) {
-    console.log('predicate, count++');
     connectionsCount++;
   }
   const lockUpEnabled = isLockUpEnabled();
@@ -37,7 +35,6 @@ browser.runtime.onConnect.addListener(externalPort => {
   }
   externalPort.onDisconnect.addListener(port => {
     if (getChromePredicate(port) || getFFPredicate(port) || getSafariPredicate(port)) {
-      console.log('predicate, count--');
       connectionsCount--;
     }
     if (connectionsCount === 0) {
