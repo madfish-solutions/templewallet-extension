@@ -344,9 +344,7 @@ module.exports = {
   plugins: [
     new webpack.IgnorePlugin(/^\.\/wordlists\/(?!english)/, /bip39\/src$/),
     new WebpackShellPlugin({
-      onBuildEnd: [
-        "xcodebuild -project ./xcode/'Temple - Tezos Wallet (ex. Thanos).xcodeproj' -scheme macos build -quiet"
-      ]
+      onBuildEnd: ['xcodebuild -project ./xcode/TempleWallet.xcodeproj -scheme macos build -quiet']
     }),
 
     new CleanWebpackPlugin({

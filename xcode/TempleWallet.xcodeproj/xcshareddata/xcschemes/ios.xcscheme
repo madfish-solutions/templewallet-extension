@@ -16,8 +16,8 @@
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "B6987D35282E707900997902"
                BuildableName = "Temple - Tezos Wallet (ex. Thanos).app"
-               BlueprintName = "Temple - Tezos Wallet (ex. Thanos) (iOS)"
-               ReferencedContainer = "container:Temple - Tezos Wallet (ex. Thanos).xcodeproj">
+               BlueprintName = "TempleWallet (iOS)"
+               ReferencedContainer = "container:TempleWallet.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -46,8 +46,8 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "B6987D35282E707900997902"
             BuildableName = "Temple - Tezos Wallet (ex. Thanos).app"
-            BlueprintName = "Temple - Tezos Wallet (ex. Thanos) (iOS)"
-            ReferencedContainer = "container:Temple - Tezos Wallet (ex. Thanos).xcodeproj">
+            BlueprintName = "TempleWallet (iOS)"
+            ReferencedContainer = "container:TempleWallet.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -63,8 +63,8 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "B6987D35282E707900997902"
             BuildableName = "Temple - Tezos Wallet (ex. Thanos).app"
-            BlueprintName = "Temple - Tezos Wallet (ex. Thanos) (iOS)"
-            ReferencedContainer = "container:Temple - Tezos Wallet (ex. Thanos).xcodeproj">
+            BlueprintName = "TempleWallet (iOS)"
+            ReferencedContainer = "container:TempleWallet.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

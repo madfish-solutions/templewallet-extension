@@ -11,6 +11,7 @@
     "build:firefox": "cross-env TARGET_BROWSER=firefox run-s build",
     "build:safari": "cross-env TARGET_BROWSER=safari run-s build",
     "build:opera": "cross-env TARGET_BROWSER=opera run-s build",
+    "archieve": "xcodebuild -project ./xcode/TempleWallet.xcodeproj -scheme macos archive -archivePath ./dist/safari.xcarchive",
     "test": "jest",
     "test:coverage": "jest --coverage",
     "ts": "tsc --pretty",
