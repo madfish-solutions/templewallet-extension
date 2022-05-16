@@ -30,6 +30,7 @@ import toBuffer from 'typedarray-to-buffer';
 type Confirmation = {
   id: string;
   payload: TempleConfirmationPayload;
+  error?: any;
 };
 
 const intercom = new IntercomClient();
@@ -69,7 +70,7 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
 
         case TempleMessageType.ConfirmationRequested:
           if (msg.id === confirmationIdRef.current) {
-            setConfirmation({ id: msg.id, payload: msg.payload });
+            setConfirmation({ id: msg.id, payload: msg.payload, error: msg.error });
           }
           break;
 
@@ -147,6 +148,15 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     });
     assertResponse(res.type === TempleMessageType.RevealMnemonicResponse);
     return res.mnemonic;
+  }, []);
+
+  const generateSyncPayload = useCallback(async (password: string) => {
+    const res = await request({
+      type: TempleMessageType.GenerateSyncPayloadRequest,
+      password
+    });
+    assertResponse(res.type === TempleMessageType.GenerateSyncPayloadResponse);
+    return res.payload;
   }, []);
 
   const removeAccount = useCallback(async (accountPublicKeyHash: string, password: string) => {
@@ -353,6 +363,7 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     createAccount,
     revealPrivateKey,
     revealMnemonic,
+    generateSyncPayload,
     removeAccount,
     editAccountName,
     importAccount,

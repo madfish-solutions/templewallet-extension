@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import React, { FC, useCallback, useEffect, useLayoutEffect, useMemo, useRef } from 'react';
 
 import classNames from 'clsx';
 import { useForm } from 'react-hook-form';
@@ -9,7 +9,7 @@ import FormSubmitButton from 'app/atoms/FormSubmitButton';
 import { getAccountBadgeTitle } from 'app/defaults';
 import AccountBanner from 'app/templates/AccountBanner';
 import { T, t } from 'lib/i18n/react';
-import { useTempleClient, useAccount, TempleAccountType } from 'lib/temple/front';
+import { TempleAccountType, useAccount, useSecretState, useTempleClient } from 'lib/temple/front';
 
 const SUBMIT_ERROR_TYPE = 'submit-error';
 
@@ -28,7 +28,7 @@ const RevealSecret: FC<RevealSecretProps> = ({ reveal }) => {
   const { register, handleSubmit, errors, setError, clearError, formState } = useForm<FormData>();
   const submitting = formState.isSubmitting;
 
-  const [secret, setSecret] = useState<string | null>(null);
+  const [secret, setSecret] = useSecretState();
 
   const secretFieldRef = useRef<HTMLTextAreaElement>(null);
 
@@ -45,19 +45,6 @@ const RevealSecret: FC<RevealSecretProps> = ({ reveal }) => {
       secretFieldRef.current?.select();
     }
   }, [secret]);
-
-  useEffect(() => {
-    if (secret) {
-      const timer = setTimeout(() => {
-        setSecret(null);
-      }, 3 * 60_000);
-
-      return () => {
-        clearTimeout(timer);
-      };
-    }
-    return undefined;
-  }, [secret, setSecret]);
 
   const formRef = useRef<HTMLFormElement>(null);
 

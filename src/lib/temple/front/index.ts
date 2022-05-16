@@ -22,3 +22,4 @@ export * from 'lib/temple/front/blockexplorer';
 export * from 'lib/temple/front/address-book';
 export * from 'lib/temple/front/kukai';
 export * from 'lib/temple/front/local-storage';
+export * from 'lib/temple/front/use-secret-state.hook';

@@ -83,13 +83,22 @@ const NewWallet: FC<NewWalletProps> = ({ ownMnemonic = false, title, tabSlug = '
     });
   const submitting = formState.isSubmitting;
   const isPasswordError = errors.password?.message === PASSWORD_ERROR_CAPTION;
+  const isKeystorePasswordError = errors.keystorePassword?.message === PASSWORD_ERROR_CAPTION;
 
   const shouldUseKeystorePassword = watch('shouldUseKeystorePassword');
   const passwordValue = watch('password');
 
   const [focused, setFocused] = useState(false);
+  const [focusedKeystore, setFocusedKeystore] = useState(false);
 
   const [passwordValidation, setPasswordValidation] = useState<PasswordValidation>({
+    minChar: false,
+    cases: false,
+    number: false,
+    specialChar: false
+  });
+
+  const [passwordValidationKeystore, setPasswordValidationKeystore] = useState<PasswordValidation>({
     minChar: false,
     cases: false,
     number: false,
@@ -99,6 +108,18 @@ const NewWallet: FC<NewWalletProps> = ({ ownMnemonic = false, title, tabSlug = '
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>) => {
     const tempValue = e.target.value;
     setPasswordValidation({
+      minChar: tempValue.length >= MIN_PASSWORD_LENGTH,
+      cases: uppercaseLowercaseMixtureRegx.test(tempValue),
+      number: lettersNumbersMixtureRegx.test(tempValue),
+      specialChar: specialCharacterRegx.test(tempValue)
+    });
+  };
+
+  const handlePasswordChangeKeystore = (
+    e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>
+  ) => {
+    const tempValue = e.target.value;
+    setPasswordValidationKeystore({
       minChar: tempValue.length >= MIN_PASSWORD_LENGTH,
       cases: uppercaseLowercaseMixtureRegx.test(tempValue),
       number: lettersNumbersMixtureRegx.test(tempValue),
@@ -273,7 +294,18 @@ const NewWallet: FC<NewWalletProps> = ({ ownMnemonic = false, title, tabSlug = '
 
             <FormField
               ref={register({
-                required: isImportFromKeystore ? t('required') : false
+                required: isImportFromKeystore
+                  ? shouldUseKeystorePassword
+                    ? PASSWORD_ERROR_CAPTION
+                    : t('required')
+                  : false,
+                pattern:
+                  isImportFromKeystore && shouldUseKeystorePassword
+                    ? {
+                        value: PASSWORD_PATTERN,
+                        message: PASSWORD_ERROR_CAPTION
+                      }
+                    : undefined
               })}
               label={t('filePassword')}
               labelDescription={t('filePasswordInputDescription')}
@@ -282,15 +314,32 @@ const NewWallet: FC<NewWalletProps> = ({ ownMnemonic = false, title, tabSlug = '
               name="keystorePassword"
               placeholder="********"
               errorCaption={errors.keystorePassword?.message}
-              containerClassName="mb-8"
+              onFocus={() => setFocusedKeystore(true)}
+              onChange={handlePasswordChangeKeystore}
             />
+            {isImportFromKeystore && shouldUseKeystorePassword && (
+              <>
+                {isKeystorePasswordError && (
+                  <PasswordStrengthIndicator
+                    validation={passwordValidationKeystore}
+                    isPasswordError={isKeystorePasswordError}
+                  />
+                )}
+                {!isKeystorePasswordError && focusedKeystore && (
+                  <PasswordStrengthIndicator
+                    validation={passwordValidationKeystore}
+                    isPasswordError={isKeystorePasswordError}
+                  />
+                )}
+              </>
+            )}
 
             <Controller
               control={control}
               name="shouldUseKeystorePassword"
               as={FormCheckbox}
               label={t('useKeystorePassword')}
-              containerClassName={shouldUseKeystorePassword ? 'mb-2' : 'mb-8'}
+              containerClassName={classNames(shouldUseKeystorePassword ? 'mb-2' : 'mb-8', 'mt-8')}
             />
           </div>
         )}

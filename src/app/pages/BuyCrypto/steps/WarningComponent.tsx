@@ -4,6 +4,8 @@ import classNames from 'clsx';
 
 import { T } from 'lib/i18n/react';
 
+import { EXOLIX_CONTACT_LINK } from '../config';
+
 interface Props {
   currency?: string;
   amountAttention?: boolean;
@@ -47,7 +49,7 @@ const WarningComponent: FC<Props> = ({ currency, amountAttention }) => {
                 <T
                   id={'attentionSendAmount'}
                   substitutions={[
-                    <a href={'https://exolix.com/contact'} className="underline" target="_blank" rel="noreferrer">
+                    <a href={EXOLIX_CONTACT_LINK} className="underline" target="_blank" rel="noreferrer">
                       <T id={'support'} />
                     </a>
                   ]}

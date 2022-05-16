@@ -1854,6 +1854,9 @@
   "tezosApy": {
     "message": "APY: 6%"
   },
+  "tokenApy": {
+    "message": "APY"
+  },
   "max": {
     "message": "Max"
   },
@@ -2066,6 +2069,9 @@
   },
   "txIsLikelyToFail": {
     "message": "Warning! Transaction is likely to fail"
+  },
+  "copyErrorLogs": {
+    "message": "Copy Error Logs"
   },
   "dAppsListTvlDescription": {
     "message": "Total Value Locked. The value in tez is the total amount of tez locked in dApps. The value in USD is the total amount of tez and tokens locked there."
@@ -2522,5 +2528,32 @@
   },
   "swapTokenSearchInputPlaceholder": {
     "message": "Enter name or address"
+  },
+  "sync": {
+    "message": "Sync"
+  },
+  "synchronization": {
+    "message": "Synchronization"
+  },
+  "synchronizationSettingsDescription": {
+    "message": "Sync with Mobile Temple Wallet."
+  },
+  "syncSettingsTitle": {
+    "message": "Sync with Mobile Temple Wallet"
+  },
+  "syncSettingsDescription": {
+    "message": "You can sync your Seed Phrase and accounts (HD) with your mobile device. If you just open the Temple Mobile app for the first time, click 'Sync' button and follow the steps in your phone."
+  },
+  "syncPasswordDescription": {
+    "message": "The password is used to protect the synchronization process."
+  },
+  "syncSettingsAlert": {
+    "message": "Make sure nobody else is looking at your screen when you scan this code."
+  },
+  "scanQRWithTempleMobile": {
+    "message": "Scan this QR-code with yor Temple Wallet Mobile app."
+  },
+  "done": {
+    "message": "Done"
   }
 }

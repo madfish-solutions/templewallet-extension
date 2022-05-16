@@ -66,7 +66,9 @@ const NODE_MODULES_PATH = path.join(CWD_PATH, 'node_modules');
 const SOURCE_PATH = path.join(CWD_PATH, 'src');
 const PUBLIC_PATH = path.join(CWD_PATH, 'public');
 const DEST_PATH = path.join(CWD_PATH, 'dist');
+const WASM_PATH = path.join(NODE_MODULES_PATH, 'wasm-themis/src/libthemis.wasm');
 const OUTPUT_PATH = path.join(DEST_PATH, `${TARGET_BROWSER}_unpacked`);
+const SCRIPTS_PATH = path.join(OUTPUT_PATH, 'scripts/');
 const PACKED_EXTENSION = (() => {
   switch (TARGET_BROWSER) {
     case 'opera':
@@ -353,19 +355,19 @@ module.exports = {
           inject: 'body',
           ...(NODE_ENV === 'production'
             ? {
-                minify: {
-                  removeComments: true,
-                  collapseWhitespace: true,
-                  removeRedundantAttributes: true,
-                  useShortDoctype: true,
-                  removeEmptyAttributes: true,
-                  removeStyleLinkTypeAttributes: true,
-                  keepClosingSlash: true,
-                  minifyJS: true,
-                  minifyCSS: true,
-                  minifyURLs: true
-                }
+              minify: {
+                removeComments: true,
+                collapseWhitespace: true,
+                removeRedundantAttributes: true,
+                useShortDoctype: true,
+                removeEmptyAttributes: true,
+                removeStyleLinkTypeAttributes: true,
+                keepClosingSlash: true,
+                minifyJS: true,
+                minifyCSS: true,
+                minifyURLs: true
               }
+            }
             : {})
         })
     ),
@@ -396,7 +398,11 @@ module.exports = {
           const manifest = transformManifestKeys(JSON.parse(content), TARGET_BROWSER);
           return JSON.stringify(manifest, null, 2);
         }
-      }
+      },
+      {
+        from: WASM_PATH,
+        to: SCRIPTS_PATH
+      },
     ]),
 
     new WebpackBar({
@@ -406,12 +412,12 @@ module.exports = {
 
     // plugin to enable browser reloading in development mode
     NODE_ENV === 'development' &&
-      new ExtensionReloader({
-        port: 9090,
-        reloadPage: true,
-        // manifest: path.join(OUTPUT_PATH, "manifest.json"),
-        entries: EXTENSION_ENTRIES
-      })
+    new ExtensionReloader({
+      port: 9090,
+      reloadPage: true,
+      // manifest: path.join(OUTPUT_PATH, "manifest.json"),
+      entries: EXTENSION_ENTRIES
+    })
   ].filter(Boolean),
 
   optimization: {
@@ -457,13 +463,13 @@ module.exports = {
           parser: safePostCssParser,
           map: SOURCE_MAP
             ? {
-                // `inline: false` forces the sourcemap to be output into a
-                // separate file
-                inline: false,
-                // `annotation: true` appends the sourceMappingURL to the end of
-                // the css file, helping the browser find the sourcemap
-                annotation: true
-              }
+              // `inline: false` forces the sourcemap to be output into a
+              // separate file
+              inline: false,
+              // `annotation: true` appends the sourceMappingURL to the end of
+              // the css file, helping the browser find the sourcemap
+              annotation: true
+            }
             : false
         },
         cssProcessorPluginOptions: {

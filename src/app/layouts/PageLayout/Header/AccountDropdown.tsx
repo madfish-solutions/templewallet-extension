@@ -174,7 +174,7 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
         )}
         <div
           className={classNames(
-            'overflow-y-auto no-scrollbar',
+            'overflow-y-auto',
             'border border-white border-opacity-10 shadow-inner',
             'rounded',
             isShowSearch && 'border-t-0 rounded-t-none'

@@ -41,7 +41,14 @@ import { SwapMinimumReceived } from './SwapMinimumReceived/SwapMinimumReceived';
 import { SwapPriceUpdateBar } from './SwapPriceUpdateBar/SwapPriceUpdateBar';
 import { SwapRoute } from './SwapRoute/SwapRoute';
 
-const KNOWN_DEX_TYPES = [DexTypeEnum.QuipuSwap, DexTypeEnum.Plenty, DexTypeEnum.LiquidityBaking, DexTypeEnum.Youves];
+const KNOWN_DEX_TYPES = [
+  DexTypeEnum.QuipuSwap,
+  DexTypeEnum.Plenty,
+  DexTypeEnum.LiquidityBaking,
+  DexTypeEnum.Youves,
+  DexTypeEnum.QuipuSwapTokenToTokenDex,
+  DexTypeEnum.Vortex
+];
 
 export const SwapForm: FC = () => {
   const tezos = useTezos();

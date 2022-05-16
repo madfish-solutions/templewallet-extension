@@ -32,6 +32,13 @@ export const BLOCK_EXPLORERS: BlockExplorer[] = [
         }
       ],
       [
+        TempleChainId.Jakartanet,
+        {
+          account: 'https://jakartanet.tzkt.io',
+          transaction: 'https://jakartanet.tzkt.io'
+        }
+      ],
+      [
         TempleChainId.Hangzhounet,
         {
           account: 'https://hangzhou2net.tzkt.io',

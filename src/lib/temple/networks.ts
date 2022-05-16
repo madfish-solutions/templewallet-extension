@@ -4,7 +4,8 @@ import { TempleChainId, TempleNetwork } from 'lib/temple/types';
 export const NETWORK_IDS = new Map<string, string>([
   [TempleChainId.Mainnet, 'mainnet'],
   [TempleChainId.Hangzhounet, 'hangzhounet'],
-  [TempleChainId.Ithacanet, 'ithacanet']
+  [TempleChainId.Ithacanet, 'ithacanet'],
+  [TempleChainId.Jakartanet, 'jakartanet']
 ]);
 
 export const NETWORKS: TempleNetwork[] = [
@@ -73,6 +74,15 @@ export const NETWORKS: TempleNetwork[] = [
     disabled: false
   },
   {
+    id: 'jakartanet',
+    name: 'Jakartanet Testnet',
+    description: 'Jakartanet testnet',
+    type: 'test',
+    rpcBaseURL: 'https://jakartanet.tezos.marigold.dev/',
+    color: '#232380',
+    disabled: false
+  },
+  {
     id: 'sandbox',
     name: 'localhost:8732',
     description: 'Local Sandbox',
@@ -82,6 +92,16 @@ export const NETWORKS: TempleNetwork[] = [
     disabled: false
   },
   // Hidden
+  {
+    id: 'smartpy-ithacanet',
+    name: 'Ithacanet Testnet Smartpy',
+    description: 'Ithacanet testnet',
+    type: 'test',
+    rpcBaseURL: 'https://ithacanet.smartpy.io',
+    color: '#FBBF24',
+    disabled: false,
+    hidden: true
+  },
   {
     id: 'tzbeta-rpczero',
     name: 'Edo Testnet @rpczero.tzbeta.net',
