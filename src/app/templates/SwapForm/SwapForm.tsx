@@ -46,7 +46,8 @@ const KNOWN_DEX_TYPES = [
   DexTypeEnum.Plenty,
   DexTypeEnum.LiquidityBaking,
   DexTypeEnum.Youves,
-  DexTypeEnum.QuipuSwapTokenToTokenDex
+  DexTypeEnum.QuipuSwapTokenToTokenDex,
+  DexTypeEnum.Vortex
 ];
 
 export const SwapForm: FC = () => {
