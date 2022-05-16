@@ -446,7 +446,7 @@ export async function processBeacon(origin: string, msg: string, encrypted = fal
     };
   }
 
-  const res = await getBeaconResponse(req, resBase);
+  const res = await getBeaconResponse(req, resBase, origin);
   // const res = null;
 
   const resMsg = Beacon.encodeMessage<Beacon.Response>(res);
@@ -459,10 +459,10 @@ export async function processBeacon(origin: string, msg: string, encrypted = fal
   return { payload: resMsg };
 }
 
-const getBeaconResponse = async (req: Beacon.Request, resBase: any): Promise<Beacon.Response> => {
+const getBeaconResponse = async (req: Beacon.Request, resBase: any, origin: string): Promise<Beacon.Response> => {
   try {
     try {
-      return await formatTempleReq(getTempleReq(req), req, resBase);
+      return await formatTempleReq(getTempleReq(req), req, resBase, origin);
     } catch (err: any) {
       if (err instanceof TezosOperationError) {
         throw err;
@@ -546,7 +546,12 @@ const getTempleReq = (req: Beacon.Request): TempleDAppRequest | void => {
   }
 };
 
-const formatTempleReq = async (templeReq: TempleDAppRequest | void, req: Beacon.Request, resBase: any) => {
+const formatTempleReq = async (
+  templeReq: TempleDAppRequest | void,
+  req: Beacon.Request,
+  resBase: any,
+  origin: string
+) => {
   if (templeReq) {
     const templeRes = await processDApp(origin, templeReq);
 

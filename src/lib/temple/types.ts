@@ -162,11 +162,15 @@ export type TempleConfirmationPayload = TempleSignConfirmationPayload | TempleOp
  * DApp confirmation payloads
  */
 
+export type DappMetadata = TempleDAppMetadata & {
+  icon?: string;
+};
+
 export interface TempleDAppPayloadBase {
   type: string;
   origin: string;
   networkRpc: string;
-  appMeta: TempleDAppMetadata;
+  appMeta: DappMetadata;
   error?: any;
 }
 
