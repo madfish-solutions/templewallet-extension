@@ -1854,6 +1854,9 @@
   "tezosApy": {
     "message": "APY: 6%"
   },
+  "tokenApy": {
+    "message": "APY"
+  },
   "max": {
     "message": "Max"
   },

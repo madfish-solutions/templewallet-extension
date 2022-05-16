@@ -8,11 +8,12 @@ type DAppLogoProps = {
   origin: string;
   size: number;
   className?: string;
+  icon?: string;
   style?: CSSProperties;
 };
 
-const DAppLogo = memo<DAppLogoProps>(({ origin, size, className, style }) => {
-  const faviconSrc = useMemo(() => `${origin}/favicon.ico`, [origin]);
+const DAppLogo = memo<DAppLogoProps>(({ origin, size, icon, className, style }) => {
+  const faviconSrc = useMemo(() => (icon ? icon : `${origin}/favicon.ico`), [origin, icon]);
   const [faviconShowed, setFaviconShowed] = useState(true);
   const handleFaviconError = useCallback(() => {
     setFaviconShowed(false);

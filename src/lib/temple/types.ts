@@ -27,7 +27,8 @@ export interface TempleState {
 export enum TempleChainId {
   Mainnet = 'NetXdQprcVkpaWU',
   Hangzhounet = 'NetXZSsxBpMQeAT',
-  Ithacanet = 'NetXnHfVqm9iesp'
+  Ithacanet = 'NetXnHfVqm9iesp',
+  Jakartanet = 'NetXLH1uAxK7CCh'
 }
 
 export function isKnownChainId(chainId: string): chainId is TempleChainId {
@@ -161,11 +162,15 @@ export type TempleConfirmationPayload = TempleSignConfirmationPayload | TempleOp
  * DApp confirmation payloads
  */
 
+export type DappMetadata = TempleDAppMetadata & {
+  icon?: string;
+};
+
 export interface TempleDAppPayloadBase {
   type: string;
   origin: string;
   networkRpc: string;
-  appMeta: TempleDAppMetadata;
+  appMeta: DappMetadata;
   error?: any;
 }
 

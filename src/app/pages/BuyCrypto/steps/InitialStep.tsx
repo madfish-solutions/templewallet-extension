@@ -17,7 +17,7 @@ import { useAccount, useAssetUSDPrice } from 'lib/temple/front';
 import { BuyCryptoSelectors } from '../BuyCrypto.selectors';
 
 const coinTo = 'XTZ';
-const maxDollarValue = 5000;
+const maxDollarValue = 10000;
 const avgCommission = 300;
 
 interface Props {
