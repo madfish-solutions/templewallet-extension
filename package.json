@@ -13,6 +13,7 @@
     "build:opera": "cross-env TARGET_BROWSER=opera run-s build",
     "package:safari": "xcodebuild -project ./xcode/TempleWallet.xcodeproj -scheme macos archive -archivePath ./dist/safari.xcarchive",
     "export:safari": "xcodebuild -project ./xcode/TempleWallet.xcodeproj  -archivePath ./dist/safari.xcarchive -exportArchive -exportPath ./dist/safari_unsigned/ -exportOptionsPlist ./xcode/macOS_Ext/Info.plist",
+    "safari:test-flight": "cd xcode && bundle exec fastlane beta",
     "test": "jest",
     "test:coverage": "jest --coverage",
     "ts": "tsc --pretty",

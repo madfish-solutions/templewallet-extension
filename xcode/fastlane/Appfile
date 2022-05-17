@@ -1,0 +1,8 @@
+app_identifier("com.madfish.temple-wallet") # The bundle identifier of your app
+apple_id("andrii@madfish.solutions") # Your Apple email address
+
+itc_team_id("124086196") # App Store Connect Team ID
+team_id("D653UWS37K") # Developer Portal Team ID
+
+# For more information about the Appfile, see:
+#     https://docs.fastlane.tools/advanced/#appfile

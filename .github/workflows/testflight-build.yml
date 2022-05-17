@@ -1,0 +1,81 @@
+name: Testflight build
+
+on:
+  workflow_dispatch:
+    inputs:
+      buildNumber:
+        description: 'Build number'
+        required: true
+
+jobs:
+  testflight-build:
+    name: Create new Safari web extension build and upload them via Testflight
+    runs-on: macos-latest
+    environment: fastlane
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Prepare changelog
+        id: changelog
+        run: echo "##[set-output name=log;]$(git log --pretty=format:'%s' origin/master..origin/$(echo ${GITHUB_REF#refs/heads/}))"
+
+      - name: Install SSH key to get acces to repository with Certificates and Provisioning profiles
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.SSH_KEY }}
+          known_hosts: ${{ secrets.KNOWN_HOSTS }}
+
+      - name: Setup ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.7.2
+          bundler-cache: true
+
+      - name: Setup Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+
+      - uses: actions/cache@v2
+        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Create .env file
+        run: |
+          cat << EOF > .env
+          TEMPLE_WALLET_LEDGER_BRIDGE_URL = ${{ secrets.TEMPLE_WALLET_LEDGER_BRIDGE_URL }}
+          TEMPLE_WALLET_LOGO_URL = ${{ secrets.TEMPLE_WALLET_LOGO_URL }}
+          TEMPLE_WALLET_LV_ACCOUNT_PKH = ${{ secrets.TEMPLE_WALLET_LV_ACCOUNT_PKH }}
+          TEMPLE_WALLET_LV_ACCOUNT_PUBLIC_KEY = ${{ secrets.TEMPLE_WALLET_LV_ACCOUNT_PUBLIC_KEY }}
+          TEMPLE_WALLET_SEGMENT_WRITE_KEY = ${{ secrets.TEMPLE_WALLET_SEGMENT_WRITE_KEY }}
+          TEMPLE_WALLET_EXOLIX_API_KEY = ${{ secrets.TEMPLE_WALLET_EXOLIX_API_KEY }}
+          EOF
+
+      - name: Install iOS Gemfile dependencies
+        run: cd xcode && bundle install
+
+      - name: Build iOS & Distribute to Testflight
+        run: |
+          export LC_ALL=en_US.UTF-8
+          export LANG=en_US.UTF-8
+          cd ios && ./decrypt_script.sh
+          yarn safari:test-flight
+        env:
+          BUILD_NUMBER: ${{ github.event.inputs.buildNumber }}
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          APPSTORE_AUTHKEY: ${{ secrets.APPSTORE_AUTHKEY }}
+          CHANGELOG: ${{ steps.changelog.outputs.log }}
