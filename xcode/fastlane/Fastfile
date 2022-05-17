@@ -21,7 +21,7 @@ platform :ios do
     setup_ci
     match(type: "appstore", readonly: is_ci, api_key_path: "authkey.json")
     increment_build_number(build_number: ENV["BUILD_NUMBER"], xcodeproj: "TempleWallet.xcodeproj")
-    build_app(workspace: "TempleWallet.xcworkspace", scheme: "TempleWallet")
+    build_app(scheme: "macos")
     upload_to_testflight(api_key_path: "authkey.json", changelog: ENV["CHANGELOG"] || "No changelog provided")
   end
 end
