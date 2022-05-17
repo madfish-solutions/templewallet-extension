@@ -41,3 +41,17 @@ DerivedData
 *.hmap
 *.ipa
 *.xcuserstate
+
+# Fastlane
+# https://docs.fastlane.tools/best-practices/source-control/
+**/fastlane/report.xml
+**/fastlane/Preview.html
+**/fastlane/screenshots
+**/fastlane/test_output
+builds/*
+*.xcarchive
+*.cer
+*.mobileprovision
+*.dSYM.zip
+api-*.json
+**/authkey.json
