@@ -1,4 +1,4 @@
-app_identifier("com.madfish.temple-wallet") # The bundle identifier of your app
+app_identifier("com.madfish.temple-wallet-extension") # The bundle identifier of your app
 apple_id("andrii@madfish.solutions") # Your Apple email address
 
 itc_team_id("124086196") # App Store Connect Team ID
