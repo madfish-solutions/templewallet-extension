@@ -7,6 +7,7 @@ import { AssetIcon } from 'app/templates/AssetIcon';
 import Balance from 'app/templates/Balance';
 import IconifiedSelect, { IconifiedSelectOptionRenderProps } from 'app/templates/IconifiedSelect';
 import InUSD from 'app/templates/InUSD';
+import { useFiatCurrency } from 'lib/fiat-curency';
 import { T } from 'lib/i18n/react';
 import { getAssetName, getAssetSymbol, useAccount, useAssetMetadata } from 'lib/temple/front';
 
@@ -101,6 +102,7 @@ const AssetSelectedContent: FC<AssetSelectOptionRenderProps> = ({ option }) => {
   const account = useAccount();
   const assetSlug = getSlug(option);
   const metadata = useAssetMetadata(assetSlug);
+  const { selectedFiatCurrency } = useFiatCurrency();
 
   return (
     <Balance assetSlug={assetSlug} address={account.publicKeyHash}>
@@ -112,7 +114,11 @@ const AssetSelectedContent: FC<AssetSelectOptionRenderProps> = ({ option }) => {
           </span>
 
           <InUSD smallFractionFont={false} assetSlug={assetSlug} volume={balance}>
-            {usdBalance => <div className="mt-1 text-sm text-gray-500">≈ {usdBalance} $</div>}
+            {usdBalance => (
+              <div className="mt-1 text-sm text-gray-500">
+                ≈ {usdBalance} {selectedFiatCurrency.symbol}
+              </div>
+            )}
           </InUSD>
         </div>
       )}
