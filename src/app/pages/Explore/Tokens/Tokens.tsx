@@ -13,6 +13,7 @@ import { AssetIcon } from 'app/templates/AssetIcon';
 import Balance from 'app/templates/Balance';
 import InUSD from 'app/templates/InUSD';
 import SearchAssetField from 'app/templates/SearchAssetField';
+import { useFiatCurrency } from 'lib/fiat-curency';
 import { T } from 'lib/i18n/react';
 import {
   useAccount,
@@ -216,6 +217,7 @@ const QUIPU_SLUG = 'KT193D4vozYnhGJQVtw7CoxxqphqUEEwK6Vb_0';
 
 const ListItem = memo<ListItemProps>(({ assetSlug, last, active, accountPkh }) => {
   const metadata = useAssetMetadata(assetSlug);
+  const { selectedFiatCurrency } = useFiatCurrency();
 
   const balanceSWRKey = useBalanceSWRKey(assetSlug, accountPkh);
   const balanceAlreadyLoaded = useMemo(() => cache.has(balanceSWRKey), [balanceSWRKey]);
@@ -257,12 +259,12 @@ const ListItem = memo<ListItemProps>(({ assetSlug, last, active, accountPkh }) =
       <InUSD assetSlug={assetSlug} volume={balance} smallFractionFont={false}>
         {usdBalance => (
           <div className={classNames('ml-1', 'font-normal text-gray-500 text-xs text-right truncate text-right')}>
-            ≈ {usdBalance} $
+            ≈ {usdBalance} {selectedFiatCurrency.symbol}
           </div>
         )}
       </InUSD>
     ),
-    [assetSlug]
+    [assetSlug, selectedFiatCurrency]
   );
 
   return (

@@ -1,6 +1,7 @@
 import React, { FC, useMemo } from 'react';
 
 import { CustomRpsContext } from 'lib/analytics';
+import { FiatCurrencyProvider } from 'lib/fiat-curency';
 import { TokensMetadataProvider } from 'lib/temple/front/assets';
 import { NewBlockTriggersProvider } from 'lib/temple/front/chain';
 import { TempleClientProvider, useTempleClient } from 'lib/temple/front/client';
@@ -26,9 +27,11 @@ const ConditionalReadyTemple: FC = ({ children }) => {
           <WalletRpcProvider>
             <TokensMetadataProvider>
               <USDPriceProvider suspense>
-                <SyncTokensProvider>
-                  <NewBlockTriggersProvider>{children}</NewBlockTriggersProvider>
-                </SyncTokensProvider>
+                <FiatCurrencyProvider suspense>
+                  <SyncTokensProvider>
+                    <NewBlockTriggersProvider>{children}</NewBlockTriggersProvider>
+                  </SyncTokensProvider>
+                </FiatCurrencyProvider>
               </USDPriceProvider>
             </TokensMetadataProvider>
           </WalletRpcProvider>

@@ -10,6 +10,7 @@ import { ReactComponent as DollarIcon } from 'app/icons/dollar.svg';
 import { AssetIcon } from 'app/templates/AssetIcon';
 import Balance from 'app/templates/Balance';
 import InUSD from 'app/templates/InUSD';
+import { useAssetFiatCurrencyPrice } from 'lib/fiat-curency';
 import { T } from 'lib/i18n/react';
 import {
   getAssetName,
@@ -17,8 +18,7 @@ import {
   useAssetMetadata,
   useChainId,
   useDisplayedFungibleTokens,
-  useBalance,
-  useAssetUSDPrice
+  useBalance
 } from 'lib/temple/front';
 
 type MainBannerProps = {
@@ -47,7 +47,7 @@ type MainnetVolumeBannerProps = {
 const MainnetVolumeBanner: FC<MainnetVolumeBannerProps> = ({ chainId, accountPkh }) => {
   const { data: tokens } = useDisplayedFungibleTokens(chainId, accountPkh);
   const { data: tezBalance } = useBalance('tez', accountPkh);
-  const tezPrice = useAssetUSDPrice('tez');
+  const tezPrice = useAssetFiatCurrencyPrice('tez');
 
   const volumeInUSD = useMemo(() => {
     if (tokens && tezBalance && tezPrice) {

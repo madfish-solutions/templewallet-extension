@@ -34,6 +34,7 @@ import Balance from 'app/templates/Balance';
 import InUSD from 'app/templates/InUSD';
 import OperationStatus from 'app/templates/OperationStatus';
 import { AnalyticsEventCategory, useAnalytics, useFormAnalytics } from 'lib/analytics';
+import { useAssetFiatCurrencyPrice } from 'lib/fiat-curency';
 import { toLocalFixed } from 'lib/i18n/numbers';
 import { T, t } from 'lib/i18n/react';
 import { transferImplicit, transferToContract } from 'lib/michelson';
@@ -56,7 +57,6 @@ import {
   tzToMutez,
   useAccount,
   useAssetMetadata,
-  useAssetUSDPrice,
   useBalance,
   useChainId,
   useCollectibleTokens,
@@ -157,7 +157,7 @@ const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested })
   const { registerBackHandler } = useAppEnv();
 
   const assetMetadata = useAssetMetadata(assetSlug);
-  const assetPrice = useAssetUSDPrice(assetSlug);
+  const assetPrice = useAssetFiatCurrencyPrice(assetSlug);
 
   const assetSymbol = useMemo(() => getAssetSymbol(assetMetadata), [assetMetadata]);
 

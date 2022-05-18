@@ -3,7 +3,8 @@ import React, { FC, ReactElement, ReactNode, useMemo } from 'react';
 import BigNumber from 'bignumber.js';
 
 import Money from 'app/atoms/Money';
-import { useAssetUSDPrice, useNetwork } from 'lib/temple/front';
+import { useAssetFiatCurrencyPrice } from 'lib/fiat-curency';
+import { useNetwork } from 'lib/temple/front';
 
 type InUSDProps = {
   volume: BigNumber | number | string;
@@ -26,7 +27,7 @@ const InUSD: FC<InUSDProps> = ({
   mainnet,
   showCents = true
 }) => {
-  const price = useAssetUSDPrice(assetSlug ?? 'tez');
+  const price = useAssetFiatCurrencyPrice(assetSlug ?? 'tez');
   const walletNetwork = useNetwork();
 
   if (mainnet === undefined) {

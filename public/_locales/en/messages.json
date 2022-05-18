@@ -1422,6 +1422,9 @@
   "languageAndCountry": {
     "message": "Language"
   },
+  "fiatCurrency": {
+    "message": "Default Currency"
+  },
   "generalSettings": {
     "message": "General"
   },
