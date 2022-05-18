@@ -2552,8 +2552,5 @@
   },
   "scanQRWithTempleMobile": {
     "message": "Scan this QR-code with yor Temple Wallet Mobile app."
-  },
-  "done": {
-    "message": "Done"
   }
 }
