@@ -22,6 +22,7 @@ import BakerBanner from 'app/templates/BakerBanner';
 import InUSD from 'app/templates/InUSD';
 import OperationStatus from 'app/templates/OperationStatus';
 import { useFormAnalytics } from 'lib/analytics';
+import { useFiatCurrency } from 'lib/fiat-curency';
 import { toLocalFormat } from 'lib/i18n/numbers';
 import { T, t } from 'lib/i18n/react';
 import { setDelegate } from 'lib/michelson';
@@ -62,6 +63,7 @@ interface FormData {
 const DelegateForm: FC = () => {
   const { registerBackHandler } = useAppEnv();
   const formAnalytics = useFormAnalytics('DelegateForm');
+  const { selectedFiatCurrency } = useFiatCurrency();
 
   const acc = useAccount();
   const tezos = useTezos();
@@ -290,7 +292,12 @@ const DelegateForm: FC = () => {
                     </span>
 
                     <InUSD assetSlug="tez" volume={balance}>
-                      {usdBalance => <div className="mt-1 text-sm text-gray-500">${usdBalance}</div>}
+                      {usdBalance => (
+                        <div className="mt-1 text-sm text-gray-500">
+                          {selectedFiatCurrency.symbol}
+                          {usdBalance}
+                        </div>
+                      )}
                     </InUSD>
                   </div>
                 </div>

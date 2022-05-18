@@ -6,6 +6,7 @@ import classNames from 'clsx';
 import Money from 'app/atoms/Money';
 import { useAppEnv } from 'app/env';
 import InUSD from 'app/templates/InUSD';
+import { useFiatCurrency } from 'lib/fiat-curency';
 import { useAssetMetadata, getAssetSymbol } from 'lib/temple/front';
 
 type MoneyDiffViewProps = {
@@ -18,6 +19,7 @@ type MoneyDiffViewProps = {
 const MoneyDiffView = memo<MoneyDiffViewProps>(({ assetId: assetSlug, diff, pending = false, className }) => {
   const { popup } = useAppEnv();
   const metadata = useAssetMetadata(assetSlug);
+  const { selectedFiatCurrency } = useFiatCurrency();
 
   const diffBN = useMemo(() => new BigNumber(diff).div(metadata ? 10 ** metadata.decimals : 1), [diff, metadata]);
 
@@ -37,7 +39,7 @@ const MoneyDiffView = memo<MoneyDiffViewProps>(({ assetId: assetSlug, diff, pend
         <InUSD volume={diffBN.abs()} assetSlug={assetSlug}>
           {usdVolume => (
             <div className="text-xs text-gray-500 ml-1">
-              <span className="mr-px">$</span>
+              <span className="mr-px">{selectedFiatCurrency.symbol}</span>
               {usdVolume}
             </div>
           )}

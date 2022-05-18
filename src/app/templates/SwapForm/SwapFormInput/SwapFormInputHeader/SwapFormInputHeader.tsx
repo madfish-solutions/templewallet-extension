@@ -9,6 +9,7 @@ import { ReactComponent as ChevronDownIcon } from 'app/icons/chevron-down.svg';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
 import { AssetIcon } from 'app/templates/AssetIcon';
 import InUSD from 'app/templates/InUSD';
+import { useFiatCurrency } from 'lib/fiat-curency';
 import { toLocalFormat } from 'lib/i18n/numbers';
 import { t, T } from 'lib/i18n/react';
 import { AssetMetadata } from 'lib/temple/front';
@@ -53,6 +54,7 @@ export const SwapFormInputHeader = forwardRef<HTMLDivElement, Props>(
     const amountFieldRef = useRef<HTMLInputElement>(null);
     const searchInputRef = useRef<HTMLInputElement>(null);
     const [isActive, setIsActive] = useState(false);
+    const { selectedFiatCurrency } = useFiatCurrency();
 
     const prevOpenedRef = useRef(opened);
 
@@ -200,7 +202,11 @@ export const SwapFormInputHeader = forwardRef<HTMLDivElement, Props>(
                   volume={selectedAssetSlug ? amount ?? 0 : 0}
                   smallFractionFont={false}
                 >
-                  {usdBalance => <div className="text-gray-500">≈ {usdBalance} $</div>}
+                  {usdBalance => (
+                    <div className="text-gray-500">
+                      ≈ {usdBalance} {selectedFiatCurrency.symbol}
+                    </div>
+                  )}
                 </InUSD>
               </div>
             </div>
