@@ -7,7 +7,6 @@ import * as TaquitoUtils from '@taquito/utils';
 import { LedgerTempleBridgeTransport } from '@temple-wallet/ledger-bridge';
 import * as Bip39 from 'bip39';
 import * as Ed25519 from 'ed25519-hd-key';
-import { initialize, SecureCellSeal } from 'wasm-themis';
 
 import { getMessage } from 'lib/i18n';
 import { PublicError } from 'lib/temple/back/defaults';
@@ -181,6 +180,8 @@ export class Vault {
   }
 
   static async generateSyncPayload(password: string) {
+    const { initialize, SecureCellSeal } = await import('wasm-themis');
+
     try {
       await initialize();
     } catch {}
