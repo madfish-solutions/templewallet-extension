@@ -12178,10 +12178,10 @@ warning@^4.0.3:
   dependencies:
     loose-envify "^1.0.0"
 
-wasm-themis@^0.14.0:
-  version "0.14.0"
-  resolved "https://registry.yarnpkg.com/wasm-themis/-/wasm-themis-0.14.0.tgz#8b2a5ee4cb1ef2350ce6f77c8efd2935112718a8"
-  integrity sha512-xwvcByBhTDCdfZZxloIE2NNua6f+xG0eIqj+brgofx0VqdJsZFGYZz384oSqh1Djf89tAm+/VbHZborans7EfQ==
+wasm-themis@0.14.6-beta.0:
+  version "0.14.6-beta.0"
+  resolved "https://registry.yarnpkg.com/wasm-themis/-/wasm-themis-0.14.6-beta.0.tgz#5d4475e2637789820dc9b48f0790b9b41782a562"
+  integrity sha512-KyALDUiWfA/WsR85XyQUgToiSA0Xx9tNIkGcdRS4e7R3NXCAtVHtOXnfAQkHtaE+g70jPb4dRuLf1L9HhuhuIg==
 
 watchpack-chokidar2@^2.0.1:
   version "2.0.1"
