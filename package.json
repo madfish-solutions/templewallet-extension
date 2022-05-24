@@ -136,7 +136,7 @@
     "use-debounce": "7.0.1",
     "use-force-update": "1.0.7",
     "use-onclickoutside": "0.3.1",
-    "wasm-themis": "0.14.6-beta.0",
+    "wasm-themis": "0.14.6",
     "webextension-polyfill-ts": "0.19.0",
     "webpack": "4.46.0",
     "webpack-cli": "3.3.12",
