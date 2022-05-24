@@ -1,30 +1,31 @@
-import React, { FC, useLayoutEffect, useMemo } from 'react';
+import React, { FC, lazy, useLayoutEffect, useMemo } from 'react';
 
 import { OpenInFullPage, useAppEnv } from 'app/env';
-import AddAsset from 'app/pages/AddAsset';
-import BuyCrypto from 'app/pages/BuyCrypto/BuyCrypto';
-import CollectiblePage from 'app/pages/Collectibles/CollectiblePage';
-import ConnectLedger from 'app/pages/ConnectLedger';
-import CreateAccount from 'app/pages/CreateAccount';
-import CreateWallet from 'app/pages/CreateWallet';
-import DApps from 'app/pages/DApps';
-import Delegate from 'app/pages/Delegate';
-import Explore from 'app/pages/Explore';
-import ImportAccount from 'app/pages/ImportAccount';
-import ImportWallet from 'app/pages/ImportWallet';
-import ManageAssets from 'app/pages/ManageAssets';
-import Receive from 'app/pages/Receive';
-import Send from 'app/pages/Send';
-import Settings from 'app/pages/Settings';
-import { Swap } from 'app/pages/Swap/Swap';
-import Unlock from 'app/pages/Unlock';
-import Welcome from 'app/pages/Welcome';
 import { usePageRouterAnalytics } from 'lib/analytics';
 import { useTempleClient } from 'lib/temple/front';
 import * as Woozie from 'lib/woozie';
 
 import AttentionPage from './pages/Onboarding/pages/AttentionPage';
 import SelectCrypto from './pages/SelectCrypto/SelectCrypto';
+
+const AddAsset = lazy(() => import('app/pages/AddAsset'));
+const BuyCrypto = lazy(() => import('app/pages/BuyCrypto/BuyCrypto'));
+const CollectiblePage = lazy(() => import('app/pages/Collectibles/CollectiblePage'));
+const ConnectLedger = lazy(() => import('app/pages/ConnectLedger'));
+const CreateAccount = lazy(() => import('app/pages/CreateAccount'));
+const CreateWallet = lazy(() => import('app/pages/CreateWallet'));
+const DApps = lazy(() => import('app/pages/DApps'));
+const Delegate = lazy(() => import('app/pages/Delegate'));
+const Explore = lazy(() => import('app/pages/Explore'));
+const ImportAccount = lazy(() => import('app/pages/ImportAccount'));
+const ImportWallet = lazy(() => import('app/pages/ImportWallet'));
+const ManageAssets = lazy(() => import('app/pages/ManageAssets'));
+const Receive = lazy(() => import('app/pages/Receive'));
+const Send = lazy(() => import('app/pages/Send'));
+const Settings = lazy(() => import('app/pages/Settings'));
+const Swap = lazy(() => import('app/pages/Swap/Swap'));
+const Unlock = lazy(() => import('app/pages/Unlock'));
+const Welcome = lazy(() => import('app/pages/Welcome'));
 
 interface RouteContext {
   popup: boolean;

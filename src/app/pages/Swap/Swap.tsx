@@ -8,7 +8,7 @@ import { useNetwork } from 'lib/temple/front';
 
 import { SwapDisclaimer } from './SwapDisclaimer/SwapDisclaimer';
 
-export const Swap: FC = () => {
+const Swap: FC = () => {
   const network = useNetwork();
 
   return (
@@ -37,3 +37,5 @@ export const Swap: FC = () => {
     </PageLayout>
   );
 };
+
+export default Swap;
