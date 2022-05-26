@@ -245,7 +245,7 @@ const ListItem = memo<ListItemProps>(({ assetSlug, last, active, accountPkh }) =
 
   const renderBalancInToken = useCallback(
     (balance: BigNumber) => (
-      <div className="text-base font-medium text-gray-800 truncate text-right ml-4">
+      <div className="text-base font-medium text-gray-800 truncate text-right ml-4 w-full">
         <Money smallFractionFont={false}>{balance}</Money>
       </div>
     ),
