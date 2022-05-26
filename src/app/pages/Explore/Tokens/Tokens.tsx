@@ -245,7 +245,7 @@ const ListItem = memo<ListItemProps>(({ assetSlug, last, active, accountPkh }) =
 
   const renderBalancInToken = useCallback(
     (balance: BigNumber) => (
-      <div className="text-base font-medium text-gray-800 truncate text-right ml-4 w-full">
+      <div className="truncate text-base font-medium text-gray-800 text-right ml-4 flex-1 flex justify-end">
         <Money smallFractionFont={false}>{balance}</Money>
       </div>
     ),
@@ -286,7 +286,7 @@ const ListItem = memo<ListItemProps>(({ assetSlug, last, active, accountPkh }) =
 
       <div ref={toDisplayRef} className={classNames('w-full', styles.tokenInfoWidth)}>
         <div className="flex justify-between w-full mb-1">
-          <div className="flex items-center">
+          <div className="flex items-center flex-initial">
             <div className={classNames(styles['tokenSymbol'])}>{getAssetSymbol(metadata)}</div>
             {assetSlug === 'tez' && <TezosToken />}
             {assetSlug === QUIPU_SLUG && <QuipuToken />}
