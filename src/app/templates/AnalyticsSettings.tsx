@@ -4,7 +4,7 @@ import FormCheckbox from 'app/atoms/FormCheckbox';
 import { useAnalyticsSettings } from 'lib/analytics';
 import { t, T } from 'lib/i18n/react';
 
-const AnalyticsSettings: React.FC<{}> = () => {
+const AnalyticsSettings: React.FC = () => {
   const { analyticsEnabled, setAnalyticsEnabled } = useAnalyticsSettings();
 
   const handlePopupModeChange = (evt: React.ChangeEvent<HTMLInputElement>) => {

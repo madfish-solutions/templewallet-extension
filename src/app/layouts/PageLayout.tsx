@@ -17,13 +17,12 @@ import { ReactComponent as AttentionGreyIcon } from '../icons/attentionGrey.svg'
 import { ReactComponent as AttentionRedIcon } from '../icons/attentionRed.svg';
 import { useOnboardingProgress } from '../pages/Onboarding/hooks/useOnboardingProgress.hook';
 import { PageLayoutSelectors } from './PageLayout.selectors';
-import AnalyticsConfirmationOverlay from './PageLayout/AnalyticsConfirmationOverlay';
 import ConfirmationOverlay from './PageLayout/ConfirmationOverlay';
 import Header from './PageLayout/Header';
 
-type PageLayoutProps = ToolbarProps;
+type PageLayoutProps = { contentContainerStyle?: React.CSSProperties } & ToolbarProps;
 
-const PageLayout: FC<PageLayoutProps> = ({ children, ...toolbarProps }) => {
+const PageLayout: FC<PageLayoutProps> = ({ children, contentContainerStyle, ...toolbarProps }) => {
   const { fullPage } = useAppEnv();
 
   return (
@@ -36,7 +35,7 @@ const PageLayout: FC<PageLayoutProps> = ({ children, ...toolbarProps }) => {
         <ContentPaper>
           <Toolbar {...toolbarProps} />
 
-          <div className="p-4">
+          <div className="p-4" style={contentContainerStyle}>
             <ErrorBoundary whileMessage="displaying this page">
               <Suspense fallback={<SpinnerSection />}>{children}</Suspense>
             </ErrorBoundary>
@@ -45,7 +44,6 @@ const PageLayout: FC<PageLayoutProps> = ({ children, ...toolbarProps }) => {
       </div>
 
       <ConfirmationOverlay />
-      <AnalyticsConfirmationOverlay />
     </>
   );
 };
@@ -101,7 +99,10 @@ const Toolbar: FC<ToolbarProps> = ({ pageTitle, hasBackAction = true, step, setS
   };
 
   const inHome = pathname === '/';
-  const canBack = historyPosition > 0 || !inHome;
+  const properHistoryPosition = historyPosition > 0 || !inHome;
+  const canBack = hasBackAction && properHistoryPosition;
+  const canStepBack = Boolean(step) && step! > 0;
+  const isBackButtonAvailable = canBack || canStepBack;
 
   useLayoutEffect(() => {
     return registerBackHandler(() => {
@@ -161,26 +162,7 @@ const Toolbar: FC<ToolbarProps> = ({ pageTitle, hasBackAction = true, step, setS
       }}
     >
       <div className="flex-1">
-        {hasBackAction && canBack && (
-          <Button
-            className={classNames(
-              'px-4 py-2',
-              'rounded',
-              'flex items-center',
-              'text-gray-600 text-shadow-black',
-              'text-sm font-semibold leading-none',
-              'hover:bg-black hover:bg-opacity-5',
-              'transition duration-300 ease-in-out',
-              'opacity-90 hover:opacity-100'
-            )}
-            onClick={step ? onStepBack : onBack}
-            testID={PageLayoutSelectors.BackButton}
-          >
-            <ChevronLeftIcon className={classNames('-ml-2', 'h-5 w-auto', 'stroke-current', 'stroke-2')} />
-            <T id="back" />
-          </Button>
-        )}
-        {!!step && step > 0 && (
+        {isBackButtonAvailable && (
           <Button
             className={classNames(
               'px-4 py-2',
@@ -203,8 +185,8 @@ const Toolbar: FC<ToolbarProps> = ({ pageTitle, hasBackAction = true, step, setS
 
       {pageTitle && (
         <h2
-          className={classNames('px-1', 'flex items-center', 'text-gray-600', 'text-sm font-light leading-none')}
-          style={attention ? { marginLeft: 40 } : {}}
+          className={classNames('px-1', 'flex items-center', 'text-gray-700', 'font-normal leading-none')}
+          style={attention ? { marginLeft: 40, fontSize: 17 } : { fontSize: 17 }}
         >
           {pageTitle}
         </h2>

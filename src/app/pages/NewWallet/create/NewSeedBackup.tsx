@@ -12,15 +12,12 @@ interface BackupFormData {
   backuped: boolean;
 }
 
-type BackupProps = {
-  data: {
-    mnemonic: string;
-    password: string;
-  };
+interface NewSeedBackupProps {
+  seedPhrase: string;
   onBackupComplete: () => void;
-};
+}
 
-const Backup: FC<BackupProps> = ({ data, onBackupComplete }) => {
+export const NewSeedBackup: FC<NewSeedBackupProps> = ({ seedPhrase, onBackupComplete }) => {
   const { register, handleSubmit, errors, formState } = useForm<BackupFormData>();
   const submitting = formState.isSubmitting;
 
@@ -53,7 +50,7 @@ const Backup: FC<BackupProps> = ({ data, onBackupComplete }) => {
         spellCheck={false}
         containerClassName="mb-4"
         className="resize-none notranslate"
-        value={data.mnemonic}
+        value={seedPhrase}
       />
 
       <form className="w-full mt-8" onSubmit={handleSubmit(onBackupComplete)}>
@@ -68,12 +65,13 @@ const Backup: FC<BackupProps> = ({ data, onBackupComplete }) => {
           containerClassName="mb-6"
         />
 
-        <FormSubmitButton loading={submitting}>
-          <T id="continue" />
+        <FormSubmitButton
+          loading={submitting}
+          style={{ display: 'block', width: '100%', marginTop: 32, fontSize: 14, fontWeight: 500 }}
+        >
+          <T id="next" />
         </FormSubmitButton>
       </form>
     </div>
   );
 };
-
-export default Backup;
