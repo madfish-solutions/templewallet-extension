@@ -51,7 +51,7 @@ export const SetWalletPassword: FC<SetWalletPasswordProps> = ({
   const [focused, setFocused] = useState(false);
 
   const { control, watch, register, handleSubmit, errors, triggerValidation, formState } = useForm<FormData>({
-    defaultValues: { shouldUseKeystorePassword: true, analytics: true, skipOnboarding: false },
+    defaultValues: { shouldUseKeystorePassword: isImportFromKeystoreFile, analytics: true, skipOnboarding: false },
     mode: 'onChange'
   });
   const submitting = formState.isSubmitting;

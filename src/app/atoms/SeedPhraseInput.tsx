@@ -79,6 +79,7 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({ onChange, seedPhrase
 
       if (newDraftSeed.length > 24) {
         setPasteFailed(true);
+        setShowSeed(true);
         return;
       } else if (pasteFailed) {
         setPasteFailed(false);
@@ -172,7 +173,7 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({ onChange, seedPhrase
       </div>
       {seedError ? <div className="text-xs text-red-700 mt-4">{seedError}</div> : null}
       {pasteFailed ? (
-        <T id="seedPasteFailedTooManyWords">{message => <div className="text-xs text-red-500">{message}</div>}</T>
+        <T id="seedPasteFailedTooManyWords">{message => <div className="text-xs text-red-700 mt-4">{message}</div>}</T>
       ) : null}
     </div>
   );
