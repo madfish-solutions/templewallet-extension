@@ -165,11 +165,11 @@ const ExpensesView: FC<ExpensesViewProps> = ({
                 </div>
 
                 <InFiat volume={value} roundingMode={BigNumber.ROUND_UP} mainnet={mainnet}>
-                  {usdAmount => (
+                  {fiatAmount => (
                     <div>
                       <span className="opacity-75">(</span>
                       <span className="pr-px">{selectedFiatCurrency.symbol}</span>
-                      {usdAmount}
+                      {fiatAmount}
                       <span className="opacity-75">)</span>
                     </div>
                   )}

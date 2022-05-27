@@ -401,8 +401,8 @@ const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested })
   const [submitError, setSubmitError] = useSafeState<any>(null, `${tezos.checksum}_${toResolved}`);
 
   const toAssetAmount = useCallback(
-    (usdAmount: BigNumber.Value) =>
-      new BigNumber(usdAmount)
+    (fiatAmount: BigNumber.Value) =>
+      new BigNumber(fiatAmount)
         .dividedBy(assetPrice ?? 1)
         .toFormat(assetMetadata?.decimals ?? 0, BigNumber.ROUND_FLOOR, {
           decimalSeparator: '.'
@@ -672,7 +672,7 @@ interface TokenToUsdProps {
   assetMetadata: AssetMetadata;
   shouldUseUsd: boolean;
   assetSlug: string;
-  toAssetAmount: (usdAmount: BigNumber.Value) => string;
+  toAssetAmount: (fiatAmount: BigNumber.Value) => string;
 }
 
 const TokenToUsd: React.FC<TokenToUsdProps> = ({
@@ -694,12 +694,12 @@ const TokenToUsd: React.FC<TokenToUsdProps> = ({
         </div>
       ) : (
         <InFiat assetSlug={assetSlug} volume={amountValue} roundingMode={BigNumber.ROUND_FLOOR}>
-          {usdAmount => (
+          {fiatAmount => (
             <div className="mt-1 -mb-3">
               ≈{' '}
               <span className="font-normal text-gray-700">
                 <span className="pr-px">{selectedFiatCurrency.symbol}</span>
-                {usdAmount}
+                {fiatAmount}
               </span>{' '}
               <T id="inUSD" />
             </div>
