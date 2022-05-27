@@ -162,11 +162,15 @@ export type TempleConfirmationPayload = TempleSignConfirmationPayload | TempleOp
  * DApp confirmation payloads
  */
 
+export type DappMetadata = TempleDAppMetadata & {
+  icon?: string;
+};
+
 export interface TempleDAppPayloadBase {
   type: string;
   origin: string;
   networkRpc: string;
-  appMeta: TempleDAppMetadata;
+  appMeta: DappMetadata;
   error?: any;
 }
 
@@ -219,6 +223,8 @@ export enum TempleMessageType {
   RevealPrivateKeyResponse = 'TEMPLE_REVEAL_PRIVATE_KEY_RESPONSE',
   RevealMnemonicRequest = 'TEMPLE_REVEAL_MNEMONIC_REQUEST',
   RevealMnemonicResponse = 'TEMPLE_REVEAL_MNEMONIC_RESPONSE',
+  GenerateSyncPayloadRequest = 'TEMPLE_GENERATE_SYNC_PAYLOAD_REQUEST',
+  GenerateSyncPayloadResponse = 'TEMPLE_GENERATE_SYNC_PAYLOAD_RESPONSE',
   RemoveAccountRequest = 'TEMPLE_REMOVE_ACCOUNT_REQUEST',
   RemoveAccountResponse = 'TEMPLE_REMOVE_ACCOUNT_RESPONSE',
   EditAccountRequest = 'TEMPLE_EDIT_ACCOUNT_REQUEST',
@@ -270,6 +276,7 @@ export type TempleRequest =
   | TempleRevealPublicKeyRequest
   | TempleRevealPrivateKeyRequest
   | TempleRevealMnemonicRequest
+  | TempleGenerateSyncPayloadRequest
   | TempleEditAccountRequest
   | TempleImportAccountRequest
   | TempleImportMnemonicAccountRequest
@@ -299,6 +306,7 @@ export type TempleResponse =
   | TempleRevealPublicKeyResponse
   | TempleRevealPrivateKeyResponse
   | TempleRevealMnemonicResponse
+  | TempleGenerateSyncPayloadResponse
   | TempleEditAccountResponse
   | TempleImportAccountResponse
   | TempleImportMnemonicAccountResponse
@@ -413,6 +421,16 @@ export interface TempleRevealMnemonicRequest extends TempleMessageBase {
 export interface TempleRevealMnemonicResponse extends TempleMessageBase {
   type: TempleMessageType.RevealMnemonicResponse;
   mnemonic: string;
+}
+
+export interface TempleGenerateSyncPayloadRequest extends TempleMessageBase {
+  type: TempleMessageType.GenerateSyncPayloadRequest;
+  password: string;
+}
+
+export interface TempleGenerateSyncPayloadResponse extends TempleMessageBase {
+  type: TempleMessageType.GenerateSyncPayloadResponse;
+  payload: string;
 }
 
 export interface TempleRemoveAccountRequest extends TempleMessageBase {

@@ -29,15 +29,15 @@ const URL_BASE = 'extension://';
 browser.runtime.onConnect.addListener(externalPort => {
   if (getChromePredicate(externalPort) || getFFPredicate(externalPort)) {
     connectionsCount++;
-  }
-  const lockUpEnabled = isLockUpEnabled();
-  if (
-    connectionsCount === 1 &&
-    Date.now() - disconnectTimestamp >= LOCK_TIME &&
-    disconnectTimestamp !== 0 &&
-    lockUpEnabled
-  ) {
-    lock();
+    const lockUpEnabled = isLockUpEnabled();
+    if (
+      connectionsCount === 1 &&
+      Date.now() - disconnectTimestamp >= LOCK_TIME &&
+      disconnectTimestamp !== 0 &&
+      lockUpEnabled
+    ) {
+      lock();
+    }
   }
   externalPort.onDisconnect.addListener(port => {
     if (getChromePredicate(port) || getFFPredicate(port)) {

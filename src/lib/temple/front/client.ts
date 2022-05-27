@@ -150,6 +150,15 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     return res.mnemonic;
   }, []);
 
+  const generateSyncPayload = useCallback(async (password: string) => {
+    const res = await request({
+      type: TempleMessageType.GenerateSyncPayloadRequest,
+      password
+    });
+    assertResponse(res.type === TempleMessageType.GenerateSyncPayloadResponse);
+    return res.payload;
+  }, []);
+
   const removeAccount = useCallback(async (accountPublicKeyHash: string, password: string) => {
     const res = await request({
       type: TempleMessageType.RemoveAccountRequest,
@@ -354,6 +363,7 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     createAccount,
     revealPrivateKey,
     revealMnemonic,
+    generateSyncPayload,
     removeAccount,
     editAccountName,
     importAccount,
