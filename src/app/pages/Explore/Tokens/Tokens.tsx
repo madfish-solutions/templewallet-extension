@@ -11,7 +11,7 @@ import { ReactComponent as AddToListIcon } from 'app/icons/add-to-list.svg';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
 import { AssetIcon } from 'app/templates/AssetIcon';
 import Balance from 'app/templates/Balance';
-import InUSD from 'app/templates/InUSD';
+import InFiat from 'app/templates/InFiat';
 import SearchAssetField from 'app/templates/SearchAssetField';
 import { useFiatCurrency } from 'lib/fiat-curency';
 import { T } from 'lib/i18n/react';
@@ -256,13 +256,13 @@ const ListItem = memo<ListItemProps>(({ assetSlug, last, active, accountPkh }) =
 
   const renderBalanceInUSD = useCallback(
     (balance: BigNumber) => (
-      <InUSD assetSlug={assetSlug} volume={balance} smallFractionFont={false}>
-        {usdBalance => (
+      <InFiat assetSlug={assetSlug} volume={balance} smallFractionFont={false}>
+        {fiatBalance => (
           <div className={classNames('ml-1', 'font-normal text-gray-500 text-xs text-right truncate text-right')}>
-            ≈ {usdBalance} {selectedFiatCurrency.symbol}
+            ≈ {fiatBalance} {selectedFiatCurrency.symbol}
           </div>
         )}
-      </InUSD>
+      </InFiat>
     ),
     [assetSlug, selectedFiatCurrency]
   );

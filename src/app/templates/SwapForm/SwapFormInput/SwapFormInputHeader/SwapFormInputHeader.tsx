@@ -8,7 +8,7 @@ import Money from 'app/atoms/Money';
 import { ReactComponent as ChevronDownIcon } from 'app/icons/chevron-down.svg';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
 import { AssetIcon } from 'app/templates/AssetIcon';
-import InUSD from 'app/templates/InUSD';
+import InFiat from 'app/templates/InFiat';
 import { useFiatCurrency } from 'lib/fiat-curency';
 import { toLocalFormat } from 'lib/i18n/numbers';
 import { t, T } from 'lib/i18n/react';
@@ -197,17 +197,17 @@ export const SwapFormInputHeader = forwardRef<HTMLDivElement, Props>(
                   onChange={handleAmountChange}
                 />
 
-                <InUSD
+                <InFiat
                   assetSlug={selectedAssetSlug}
                   volume={selectedAssetSlug ? amount ?? 0 : 0}
                   smallFractionFont={false}
                 >
-                  {usdBalance => (
+                  {fiatBalance => (
                     <div className="text-gray-500">
-                      ≈ {usdBalance} {selectedFiatCurrency.symbol}
+                      ≈ {fiatBalance} {selectedFiatCurrency.symbol}
                     </div>
                   )}
-                </InUSD>
+                </InFiat>
               </div>
             </div>
           </div>

@@ -9,7 +9,7 @@ import { useAppEnv } from 'app/env';
 import { ReactComponent as DollarIcon } from 'app/icons/dollar.svg';
 import { AssetIcon } from 'app/templates/AssetIcon';
 import Balance from 'app/templates/Balance';
-import InUSD from 'app/templates/InUSD';
+import InFiat from 'app/templates/InFiat';
 import { useAssetFiatCurrencyPrice, useFiatCurrency } from 'lib/fiat-curency';
 import { T } from 'lib/i18n/react';
 import {
@@ -109,13 +109,13 @@ const AssetBanner: FC<AssetBannerProps> = ({ assetSlug, accountPkh }) => {
                   <span className="text-lg">{getAssetSymbol(assetMetadata)}</span>
                 </span>
 
-                <InUSD assetSlug={assetSlug} volume={balance} smallFractionFont={false}>
-                  {usdBalance => (
+                <InFiat assetSlug={assetSlug} volume={balance} smallFractionFont={false}>
+                  {fiatBalance => (
                     <div className="mt-1 text-sm text-gray-500">
-                      ≈ {usdBalance} {selectedFiatCurrency.symbol}
+                      ≈ {fiatBalance} {selectedFiatCurrency.symbol}
                     </div>
                   )}
-                </InUSD>
+                </InFiat>
               </div>
             )}
           </Balance>

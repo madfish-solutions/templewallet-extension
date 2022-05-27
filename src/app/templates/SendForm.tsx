@@ -31,7 +31,7 @@ import { ReactComponent as ChevronUpIcon } from 'app/icons/chevron-up.svg';
 import AdditionalFeeInput from 'app/templates/AdditionalFeeInput';
 import AssetSelect from 'app/templates/AssetSelect/AssetSelect';
 import Balance from 'app/templates/Balance';
-import InUSD from 'app/templates/InUSD';
+import InFiat from 'app/templates/InFiat';
 import OperationStatus from 'app/templates/OperationStatus';
 import { AnalyticsEventCategory, useAnalytics, useFormAnalytics } from 'lib/analytics';
 import { useAssetFiatCurrencyPrice, useFiatCurrency } from 'lib/fiat-curency';
@@ -693,7 +693,7 @@ const TokenToUsd: React.FC<TokenToUsdProps> = ({
           <T id="inAsset" substitutions={getAssetSymbol(assetMetadata, true)} />
         </div>
       ) : (
-        <InUSD assetSlug={assetSlug} volume={amountValue} roundingMode={BigNumber.ROUND_FLOOR}>
+        <InFiat assetSlug={assetSlug} volume={amountValue} roundingMode={BigNumber.ROUND_FLOOR}>
           {usdAmount => (
             <div className="mt-1 -mb-3">
               ≈{' '}
@@ -704,7 +704,7 @@ const TokenToUsd: React.FC<TokenToUsdProps> = ({
               <T id="inUSD" />
             </div>
           )}
-        </InUSD>
+        </InFiat>
       )}
     </>
   );

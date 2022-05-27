@@ -11,7 +11,7 @@ import PlainAssetInput from 'app/atoms/PlainAssetInput';
 import { ReactComponent as ClipboardIcon } from 'app/icons/clipboard.svg';
 import { ReactComponent as CopyIcon } from 'app/icons/copy.svg';
 import HashChip from 'app/templates/HashChip';
-import InUSD from 'app/templates/InUSD';
+import InFiat from 'app/templates/InFiat';
 import { useFiatCurrency } from 'lib/fiat-curency';
 import { T, t, TProps } from 'lib/i18n/react';
 import {
@@ -164,7 +164,7 @@ const ExpensesView: FC<ExpensesViewProps> = ({
                   )}
                 </div>
 
-                <InUSD volume={value} roundingMode={BigNumber.ROUND_UP} mainnet={mainnet}>
+                <InFiat volume={value} roundingMode={BigNumber.ROUND_UP} mainnet={mainnet}>
                   {usdAmount => (
                     <div>
                       <span className="opacity-75">(</span>
@@ -173,7 +173,7 @@ const ExpensesView: FC<ExpensesViewProps> = ({
                       <span className="opacity-75">)</span>
                     </div>
                   )}
-                </InUSD>
+                </InFiat>
               </>
             ) : (
               <input
@@ -206,7 +206,7 @@ const ExpensesView: FC<ExpensesViewProps> = ({
         ))}
       </div>
     );
-  }, [modifyFeeAndLimit, estimates, mainnet, gasFeeError]);
+  }, [modifyFeeAndLimit, estimates, gasFeeError, mainnet, selectedFiatCurrency.symbol]);
 
   if (!expenses) {
     return null;
@@ -459,14 +459,14 @@ const OperationVolumeDisplay = memo<OperationVolumeDisplayProps>(({ expense, vol
       </span>
 
       {expense?.assetSlug && (
-        <InUSD volume={finalVolume || 0} assetSlug={expense.assetSlug} mainnet={mainnet}>
+        <InFiat volume={finalVolume || 0} assetSlug={expense.assetSlug} mainnet={mainnet}>
           {usdVolume => (
             <div className="text-xs text-gray-500 ml-1">
               (<span className="mr-px">{selectedFiatCurrency.symbol}</span>
               {usdVolume})
             </div>
           )}
-        </InUSD>
+        </InFiat>
       )}
     </>
   );

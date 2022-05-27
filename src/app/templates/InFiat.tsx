@@ -6,7 +6,7 @@ import Money from 'app/atoms/Money';
 import { useAssetFiatCurrencyPrice } from 'lib/fiat-curency';
 import { useNetwork } from 'lib/temple/front';
 
-type InUSDProps = {
+type InFiatProps = {
   volume: BigNumber | number | string;
   assetSlug?: string;
   children: (usdVolume: ReactNode) => ReactElement;
@@ -17,7 +17,7 @@ type InUSDProps = {
   showCents?: boolean;
 };
 
-const InUSD: FC<InUSDProps> = ({
+const InFiat: FC<InFiatProps> = ({
   volume,
   assetSlug,
   children,
@@ -33,15 +33,15 @@ const InUSD: FC<InUSDProps> = ({
   if (mainnet === undefined) {
     mainnet = walletNetwork.type === 'main';
   }
-  const roundedInUSD = useMemo(() => {
+  const roundedInFiat = useMemo(() => {
     if (price === null) {
       return new BigNumber(0);
     }
-    const inUSD = new BigNumber(volume).times(price);
+    const inFiat = new BigNumber(volume).times(price);
     if (showCents) {
-      return inUSD;
+      return inFiat;
     }
-    return inUSD.integerValue();
+    return inFiat.integerValue();
   }, [price, showCents, volume]);
 
   const cryptoDecimals = showCents ? undefined : 0;
@@ -55,10 +55,10 @@ const InUSD: FC<InUSDProps> = ({
           shortened={shortened}
           smallFractionFont={smallFractionFont}
         >
-          {roundedInUSD}
+          {roundedInFiat}
         </Money>
       )
     : null;
 };
 
-export default InUSD;
+export default InFiat;
