@@ -699,8 +699,8 @@ const TokenToFiat: React.FC<TokenToFiatProps> = ({
             <div className="mt-1 -mb-3">
               ≈{' '}
               <span className="font-normal text-gray-700">
-                <span className="pr-px">{symbol}</span>
                 {balance}
+                <span className="pr-px">{symbol}</span>
               </span>{' '}
               <T id="inFiat" />
             </div>

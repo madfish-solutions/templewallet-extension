@@ -37,8 +37,8 @@ const MoneyDiffView = memo<MoneyDiffViewProps>(({ assetId: assetSlug, diff, pend
         <InFiat volume={diffBN.abs()} assetSlug={assetSlug}>
           {({ balance, symbol }) => (
             <div className="text-xs text-gray-500 ml-1">
-              <span className="mr-px">{symbol}</span>
               {balance}
+              <span className="mr-px">{symbol}</span>
             </div>
           )}
         </InFiat>

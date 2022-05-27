@@ -166,8 +166,8 @@ const ExpensesView: FC<ExpensesViewProps> = ({
                   {({ balance, symbol }) => (
                     <div>
                       <span className="opacity-75">(</span>
-                      <span className="pr-px">{symbol}</span>
                       {balance}
+                      <span className="pr-px">{symbol}</span>
                       <span className="opacity-75">)</span>
                     </div>
                   )}
@@ -459,8 +459,7 @@ const OperationVolumeDisplay = memo<OperationVolumeDisplayProps>(({ expense, vol
         <InFiat volume={finalVolume || 0} assetSlug={expense.assetSlug} mainnet={mainnet}>
           {({ balance, symbol }) => (
             <div className="text-xs text-gray-500 ml-1">
-              (<span className="mr-px">{symbol}</span>
-              {balance})
+              ({balance} <span className="mr-px">{symbol}</span>)
             </div>
           )}
         </InFiat>

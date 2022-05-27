@@ -292,8 +292,8 @@ const DelegateForm: FC = () => {
                     <InFiat assetSlug="tez" volume={balance}>
                       {({ balance, symbol }) => (
                         <div className="mt-1 text-sm text-gray-500">
-                          {symbol}
                           {balance}
+                          {symbol}
                         </div>
                       )}
                     </InFiat>
