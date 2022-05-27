@@ -60,15 +60,19 @@ const FiatCurrencyInMenuContent: FC<IconifiedSelectOptionRenderProps<FiatCurrenc
 }) => {
   return (
     <div className={classNames('relative w-full text-lg text-gray-700')}>
-      {fullname}, {name}, {symbol}
+      {symbol} {name} ({fullname})
     </div>
   );
 };
 
-const FiatCurrencyContent: FC<IconifiedSelectOptionRenderProps<FiatCurrencyOption>> = ({ option: { name } }) => {
+const FiatCurrencyContent: FC<IconifiedSelectOptionRenderProps<FiatCurrencyOption>> = ({
+  option: { name, symbol }
+}) => {
   return (
     <div className="flex flex-col items-start py-2">
-      <span className="text-xl text-gray-700">{name}</span>
+      <span className="text-xl text-gray-700">
+        {name} {symbol}
+      </span>
     </div>
   );
 };
