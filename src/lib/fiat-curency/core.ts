@@ -21,14 +21,14 @@ const FIAT_CURRENCY_STORAGE_KEY = 'fiat_currency';
 export function useAssetFiatCurrencyPrice(slug: string) {
   const exchangeRate = useAssetUSDPrice(slug);
   const exchangeRateTezos = useAssetUSDPrice('tez');
-  const { quotes, selectedFiatCurrency } = useFiatCurrency();
+  const { fiatRates, selectedFiatCurrency } = useFiatCurrency();
 
   return useMemo(() => {
-    if (!quotes || !exchangeRate || !exchangeRateTezos) return null;
-    const fiatToUsdRate = quotes[selectedFiatCurrency.name.toLowerCase()] / exchangeRateTezos;
+    if (!fiatRates || !exchangeRate || !exchangeRateTezos) return null;
+    const fiatToUsdRate = fiatRates[selectedFiatCurrency.name.toLowerCase()] / exchangeRateTezos;
     const trueExchangeRate = fiatToUsdRate * exchangeRate;
     return trueExchangeRate;
-  }, [quotes, exchangeRate, exchangeRateTezos, selectedFiatCurrency.name]);
+  }, [fiatRates, exchangeRate, exchangeRateTezos, selectedFiatCurrency.name]);
 }
 
 export const [FiatCurrencyProvider, useFiatCurrency] = constate((params: { suspense?: boolean }) => {
@@ -44,7 +44,7 @@ export const [FiatCurrencyProvider, useFiatCurrency] = constate((params: { suspe
   return {
     selectedFiatCurrency,
     setSelectedFiatCurrency,
-    quotes: data
+    fiatRates: data
   };
 });
 
