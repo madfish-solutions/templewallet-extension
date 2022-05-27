@@ -698,10 +698,10 @@ const TokenToUsd: React.FC<TokenToUsdProps> = ({
       ) : (
         <InUSD assetSlug={assetSlug} volume={amountValue} roundingMode={BigNumber.ROUND_FLOOR}>
           {usdAmount => (
-            <div className="mt-1 -mb-3 flex items-center">
+            <div className="mt-1 -mb-3 flex items-end">
               <span className="mr-1">≈</span>
-              <span className="font-normal text-gray-700 mr-1">
-                <span className="pr-px mr-1">$</span>
+              <span className="font-normal text-gray-700 mr-1 flex items-end">
+                <span className="pr-px">$</span>
                 {usdAmount}
               </span>{' '}
               <T id="inUSD" />

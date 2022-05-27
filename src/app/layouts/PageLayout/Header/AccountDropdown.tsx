@@ -227,12 +227,12 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
                         {acc.name}
                       </Name>
 
-                      <div className="flex flex-wrap items-center">
+                      <div className="flex flex-wrap items-end">
                         <Balance address={acc.publicKeyHash}>
                           {bal => (
                             <span
                               className={classNames(
-                                'text-xs leading-tight flex items-center',
+                                'text-xs leading-tight flex items-end',
                                 'text-white text-opacity-75'
                               )}
                             >
