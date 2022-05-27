@@ -111,7 +111,9 @@ const AssetBanner: FC<AssetBannerProps> = ({ assetSlug, accountPkh }) => {
                 <InUSD assetSlug={assetSlug} volume={balance} smallFractionFont={false}>
                   {usdBalance => (
                     <div className="mt-1 text-sm text-gray-500 flex">
-                      <span className="mr-2">≈</span> {usdBalance} $
+                      <span className="mr-1">≈</span>
+                      {usdBalance}
+                      <span className="ml-1">$</span>
                     </div>
                   )}
                 </InUSD>

@@ -262,7 +262,9 @@ const ListItem = memo<ListItemProps>(({ assetSlug, last, active, accountPkh }) =
               'font-normal text-gray-500 text-xs flex items-center text-right truncate text-right'
             )}
           >
-            ≈ {usdBalance} $
+            <span className="mr-1">≈</span>
+            {usdBalance}
+            <span className="ml-1">$</span>
           </div>
         )}
       </InUSD>

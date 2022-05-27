@@ -114,7 +114,13 @@ const AssetSelectedContent: FC<AssetSelectOptionRenderProps> = ({ option }) => {
           </span>
 
           <InUSD smallFractionFont={false} assetSlug={assetSlug} volume={balance}>
-            {usdBalance => <div className="mt-1 text-sm text-gray-500 flex">≈ {usdBalance} $</div>}
+            {usdBalance => (
+              <div className="mt-1 text-sm text-gray-500 flex">
+                <span className="mr-1">≈</span>
+                {usdBalance}
+                <span className="ml-1">$</span>
+              </div>
+            )}
           </InUSD>
         </div>
       )}

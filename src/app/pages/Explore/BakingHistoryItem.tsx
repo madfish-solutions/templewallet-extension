@@ -139,25 +139,26 @@ const BakingHistoryItem: FC<BakingHistoryItemProps> = ({
         {
           name: 'Delegated',
           value: (
-            <>
+            <span className="flex items-center">
               {normalizedBalance.lt(1) ? (
                 '<1'
               ) : (
                 <Money smallFractionFont={false}>{mutezToTz(balance).decimalPlaces(0, BigNumber.ROUND_FLOOR)}</Money>
-              )}{' '}
-              ꜩ
-            </>
+              )}
+              <span className="ml-1">ꜩ</span>
+            </span>
           )
         },
         {
           name: 'Rewards & Luck',
           value: (
-            <>
-              <Money smallFractionFont={false}>{normalizedRewards}</Money> ꜩ
-            </>
+            <span className="flex items-center">
+              <Money smallFractionFont={false}>{normalizedRewards}</Money>
+              <span className="ml-1">ꜩ</span>
+            </span>
           ),
           valueComment: (
-            <span className={luckClassName}>
+            <span className={classNames('flex items-center', luckClassName)}>
               ({luckPercentage.gt(0) ? '+' : ''}
               {toLocalFormat(luckPercentage, { decimalPlaces: 0 })}%)
             </span>
@@ -167,8 +168,9 @@ const BakingHistoryItem: FC<BakingHistoryItemProps> = ({
           name: 'Baker fee',
           value: `${bakerFeePart * 100}%`,
           valueComment: (
-            <span className="text-gray-500">
-              (<Money smallFractionFont={false}>{normalizedBakerFee}</Money> ꜩ)
+            <span className="text-gray-500 flex items-center">
+              (<Money smallFractionFont={false}>{normalizedBakerFee}</Money>
+              <span className="ml-1">ꜩ</span>)
             </span>
           )
         },
@@ -178,9 +180,10 @@ const BakingHistoryItem: FC<BakingHistoryItemProps> = ({
             cycleStatus === 'future' ? (
               '‒'
             ) : (
-              <>
-                <Money smallFractionFont={false}>{normalizedRewards.minus(normalizedBakerFee)}</Money> ꜩ
-              </>
+              <span className="flex items-center">
+                <Money smallFractionFont={false}>{normalizedRewards.minus(normalizedBakerFee)}</Money>
+                <span className="ml-1">ꜩ</span>
+              </span>
             )
         },
         {
@@ -190,7 +193,9 @@ const BakingHistoryItem: FC<BakingHistoryItemProps> = ({
             cycleStatus === 'future' ? (
               '‒'
             ) : (
-              <span className={efficiencyClassName}>{toLocalFormat(efficiencyPercentage, { decimalPlaces: 2 })}%</span>
+              <span className={classNames('flex items-center', efficiencyClassName)}>
+                {toLocalFormat(efficiencyPercentage, { decimalPlaces: 2 })}%
+              </span>
             )
         }
       ]
@@ -216,14 +221,16 @@ const BakingHistoryItem: FC<BakingHistoryItemProps> = ({
               id="rewardsForBlocks"
               substitutions={[
                 <span key={0} className="text-green-500">
-                  +<Money smallFractionFont={false}>{mutezToTz(ownBlockRewards)}</Money> ꜩ
+                  +<Money smallFractionFont={false}>{mutezToTz(ownBlockRewards)}</Money>
+                  <span className="ml-1">ꜩ</span>
                 </span>,
                 <span key={1} className="text-blue-600">
                   {ownBlocks}
                 </span>,
                 <T id={getPluralKey('blocks', ownBlocks)} />,
                 <span key={2} className="text-gray-600">
-                  +<Money smallFractionFont={false}>{mutezToTz(ownBlockFees)}</Money> ꜩ
+                  +<Money smallFractionFont={false}>{mutezToTz(ownBlockFees)}</Money>
+                  <span className="ml-1">ꜩ</span>
                 </span>
               ]}
             />
@@ -238,7 +245,8 @@ const BakingHistoryItem: FC<BakingHistoryItemProps> = ({
               id="rewardsForSlots"
               substitutions={[
                 <span key={0} className="text-green-500">
-                  +<Money smallFractionFont={false}>{mutezToTz(endorsementRewards)}</Money> ꜩ
+                  +<Money smallFractionFont={false}>{mutezToTz(endorsementRewards)}</Money>
+                  <span className="ml-1">ꜩ</span>
                 </span>,
                 <span key={1} className="text-blue-600">
                   {endorsements}
@@ -263,14 +271,16 @@ const BakingHistoryItem: FC<BakingHistoryItemProps> = ({
               id="rewardsForBlocks"
               substitutions={[
                 <span key={0} className="text-orange-500">
-                  -<Money smallFractionFont={false}>{mutezToTz(missedOwnBlockRewards)}</Money> ꜩ
+                  -<Money smallFractionFont={false}>{mutezToTz(missedOwnBlockRewards)}</Money>
+                  <span className="ml-1">ꜩ</span>
                 </span>,
                 <span key={1} className="text-blue-600">
                   {missedOwnBlocks}
                 </span>,
                 <T id={getPluralKey('blocks', missedOwnBlocks)} />,
                 <span key={2} className="text-gray-600">
-                  -<Money smallFractionFont={false}>{mutezToTz(missedOwnBlockFees)}</Money> ꜩ
+                  -<Money smallFractionFont={false}>{mutezToTz(missedOwnBlockFees)}</Money>
+                  <span className="ml-1">ꜩ</span>
                 </span>
               ]}
             />
@@ -285,7 +295,8 @@ const BakingHistoryItem: FC<BakingHistoryItemProps> = ({
               id="rewardsForSlots"
               substitutions={[
                 <span key={0} className="text-orange-500">
-                  -<Money smallFractionFont={false}>{mutezToTz(missedEndorsementRewards)}</Money> ꜩ
+                  -<Money smallFractionFont={false}>{mutezToTz(missedEndorsementRewards)}</Money>
+                  <span className="ml-1">ꜩ</span>
                 </span>,
                 <span key={1} className="text-blue-600">
                   {missedEndorsements}
@@ -410,7 +421,7 @@ type StatsEntryProps = {
 };
 
 const StatsEntry: FC<StatsEntryProps> = ({ name, value, valueComment, className }) => (
-  <div className={classNames('text-gray-500 text-xs leading-tight py-1', className)}>
+  <div className={classNames('text-gray-500 text-xs leading-tight py-1 flex items-center', className)}>
     <span className="mr-1">{name}:</span>
     <span className="text-gray-700">{value}</span>
     {valueComment && <span className="ml-1">{valueComment}</span>}

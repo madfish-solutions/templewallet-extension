@@ -87,7 +87,7 @@ export const SwapFormInputHeader = forwardRef<HTMLDivElement, Props>(
         <div className="w-full flex mb-1 items-center justify-between">
           <span className="text-xl text-gray-900">{label}</span>
           {selectedAssetSlug && (
-            <span className={classNames(opened && 'hidden', 'text-xs text-gray-500')}>
+            <span className={classNames(opened && 'hidden', 'text-xs text-gray-500 flex items-center')}>
               <span className="mr-1">
                 <T id="balance" />
               </span>
@@ -200,7 +200,13 @@ export const SwapFormInputHeader = forwardRef<HTMLDivElement, Props>(
                   volume={selectedAssetSlug ? amount ?? 0 : 0}
                   smallFractionFont={false}
                 >
-                  {usdBalance => <div className="text-gray-500 flex">≈ {usdBalance} $</div>}
+                  {usdBalance => (
+                    <div className="text-gray-500 flex">
+                      <span className="mr-1">≈</span>
+                      {usdBalance}
+                      <span className="ml-1">$</span>
+                    </div>
+                  )}
                 </InUSD>
               </div>
             </div>
