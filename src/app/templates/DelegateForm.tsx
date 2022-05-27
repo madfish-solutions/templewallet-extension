@@ -285,12 +285,20 @@ const DelegateForm: FC = () => {
               <div className="font-light leading-none">
                 <div className="flex items-center">
                   <div className="flex flex-col">
-                    <span className="text-xl text-gray-700">
-                      <Money>{balance}</Money> <span style={{ fontSize: '0.75em' }}>{assetSymbol}</span>
+                    <span className="text-xl text-gray-700 flex items-center">
+                      <Money>{balance}</Money>{' '}
+                      <span style={{ fontSize: '0.75em' }}>
+                        <span className="ml-1">{assetSymbol}</span>
+                      </span>
                     </span>
 
                     <InUSD assetSlug="tez" volume={balance}>
-                      {usdBalance => <div className="mt-1 text-sm text-gray-500 flex">${usdBalance}</div>}
+                      {usdBalance => (
+                        <div className="mt-1 text-sm text-gray-500 flex items-center">
+                          <span className="mr-1">$</span>
+                          {usdBalance}
+                        </div>
+                      )}
                     </InUSD>
                   </div>
                 </div>
@@ -659,12 +667,14 @@ const KnownDelegatorsList: React.FC<{ setValue: any; triggerValidation: any }> =
                 <div className="mb-1 flex flex-wrap items-center pl-px">
                   <T id="space">
                     {message => (
-                      <div className={classNames('text-xs font-light leading-none', 'text-gray-600')}>
+                      <div className={classNames('text-xs font-light leading-none flex items-center', 'text-gray-600')}>
                         {message}:{' '}
                         <span className="font-normal">
                           <Money>{baker.freeSpace}</Money>
                         </span>{' '}
-                        <span style={{ fontSize: '0.75em' }}>TEZ</span>
+                        <span className="ml-1" style={{ fontSize: '0.75em' }}>
+                          TEZ
+                        </span>
                       </div>
                     )}
                   </T>
@@ -672,12 +682,14 @@ const KnownDelegatorsList: React.FC<{ setValue: any; triggerValidation: any }> =
                 <div className="flex flex-wrap items-center pl-px">
                   <T id="staking">
                     {message => (
-                      <div className={classNames('text-xs font-light leading-none', 'text-gray-600')}>
+                      <div className={classNames('text-xs font-light leading-none flex items-center', 'text-gray-600')}>
                         {message}:{' '}
                         <span className="font-normal">
                           <Money>{baker.stakingBalance}</Money>
                         </span>{' '}
-                        <span style={{ fontSize: '0.75em' }}>TEZ</span>
+                        <span className="ml-1" style={{ fontSize: '0.75em' }}>
+                          TEZ
+                        </span>
                       </div>
                     )}
                   </T>

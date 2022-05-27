@@ -153,12 +153,12 @@ const ExpensesView: FC<ExpensesViewProps> = ({
                       ꜩ
                     </>
                   ) : (
-                    <>
+                    <span className="flex items-center">
                       <span className="font-medium">
                         <Money>{value}</Money>
-                      </span>{' '}
-                      ꜩ
-                    </>
+                      </span>
+                      <span className="ml-1">ꜩ</span>
+                    </span>
                   )}
                 </div>
 
@@ -166,7 +166,7 @@ const ExpensesView: FC<ExpensesViewProps> = ({
                   {usdAmount => (
                     <div className="flex">
                       <span className="opacity-75">(</span>
-                      <span className="pr-px">$</span>
+                      <span className="pr-px mr-1">$</span>
                       {usdAmount}
                       <span className="opacity-75">)</span>
                     </div>
@@ -447,12 +447,12 @@ const OperationVolumeDisplay = memo<OperationVolumeDisplayProps>(({ expense, vol
 
   return (
     <>
-      <span className="text-sm">
+      <span className="text-sm flex items-center">
         {/* {withdrawal && "-"} */}
         <span className="font-medium">
           <Money>{finalVolume || 0}</Money>
-        </span>{' '}
-        {getAssetSymbol(metadata, true)}
+        </span>
+        <span className="ml-1">{getAssetSymbol(metadata, true)}</span>
       </span>
 
       {expense?.assetSlug && (
