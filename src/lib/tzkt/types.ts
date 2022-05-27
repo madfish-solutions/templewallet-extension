@@ -228,26 +228,3 @@ export interface TzktTokenTransfer {
   };
   transactionId: number;
 }
-
-export interface TzktAccountOperations {
-  allocationFee: number;
-  amount: number;
-  bakerFee: number;
-  block: string;
-  counter: number;
-  gasLimit: number;
-  gasUsed: number;
-  hasInternals: boolean;
-  hash: string;
-  id: number;
-  level: number;
-  parameter: {};
-  sender: TzktAlias;
-  status: string;
-  storageFee: number;
-  storageLimit: number;
-  storageUsed: number;
-  target: TzktAlias;
-  timestamp: string;
-  type: string;
-}

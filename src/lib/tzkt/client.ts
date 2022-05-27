@@ -38,17 +38,6 @@ export const getOperations = makeQuery<TzktGetOperationsParams, TzktOperation[]>
   })
 );
 
-export const getOperationsCount = makeQuery<TzktGetOperationsParams, number>(
-  params => `/accounts/${params.address}/operations/count`,
-  ({ address, type, quote, from, to, ...restParams }) => ({
-    type: type?.join(','),
-    quote: quote?.join(','),
-    'timestamp.ge': from,
-    'timestamp.lt': to,
-    ...restParams
-  })
-);
-
 export const getTokenBalances = makeQuery<TzktGetOperationsParams, TzktAccountTokenBalance[]>(
   () => `/tokens/balances`,
   ({ address, offset, limit, ...restParams }) => ({
@@ -88,13 +77,6 @@ export const getTokenBalancesCount = makeQuery<TzktGetOperationsParams, number>(
 
 export const getAccount = makeQuery<TzktGetOperationsParams, any>(
   params => `/accounts/${params.address}`,
-  ({ ...restParams }) => ({
-    ...restParams
-  })
-);
-
-export const getAccountMetadata = makeQuery<TzktGetOperationsParams, any>(
-  params => `/accounts/${params.address}/metadata`,
   ({ ...restParams }) => ({
     ...restParams
   })
