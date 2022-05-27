@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useEffect, useRef, useState } from 'react';
+import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { validateMnemonic } from 'bip39';
 import classNames from 'clsx';
@@ -107,10 +107,13 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({ onChange, seedPhrase
     [numberOfWords, onSeedChange, pasteFailed, setPasteFailed]
   );
 
-  const numberOfWordsOptions = [];
-  for (let i = 12; i <= 24; i += 3) {
-    numberOfWordsOptions.push(`${i}`);
-  }
+  const numberOfWordsOptions = useMemo(() => {
+    const result = [];
+    for (let i = 12; i <= 24; i += 3) {
+      result.push(`${i}`);
+    }
+    return result;
+  }, []);
 
   return (
     <div>

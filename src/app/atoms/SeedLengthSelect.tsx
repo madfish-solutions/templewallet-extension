@@ -4,8 +4,7 @@ import classNames from 'clsx';
 
 import { ReactComponent as CheckMarkIcon } from 'app/icons/check-mark.svg';
 import { ReactComponent as SelectArrowDownIcon } from 'app/icons/select-arrow-down.svg';
-
-import { t } from '../../lib/i18n/react';
+import { t } from 'lib/i18n/react';
 
 interface SeedLengthSelectProps {
   options: Array<string>;
