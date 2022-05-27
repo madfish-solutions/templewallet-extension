@@ -7,11 +7,11 @@ import { useRetryableSWR } from 'lib/swr';
 import { useAssetUSDPrice, useStorage } from 'lib/temple/front';
 
 import { FIAT_CURRENCIES } from './consts';
-import { CoingeckoQuoteInterface, ExchangeRateRecord, FiatCurrencyOption } from './types';
+import { CoingeckoFiatInterface, ExchangeRateRecord, FiatCurrencyOption } from './types';
 
 const buildQuery = makeBuildQueryFn<Record<string, unknown>, any>('https://api.coingecko.com/api/v3/');
 
-const getFiatCurrencies = buildQuery<{}, CoingeckoQuoteInterface>(
+const getFiatCurrencies = buildQuery<{}, CoingeckoFiatInterface>(
   'GET',
   `/simple/price?ids=tezos&vs_currencies=${FIAT_CURRENCIES.map(({ apiLabel }) => apiLabel).join(',')}`
 );
@@ -55,8 +55,8 @@ async function fetchFiatCurrencies() {
     const data = await getFiatCurrencies({});
     const tezosData = Object.keys(data.tezos);
 
-    for (const quote of tezosData) {
-      mappedRates[quote] = +data.tezos[quote];
+    for (const fiatCurrency of tezosData) {
+      mappedRates[fiatCurrency] = +data.tezos[fiatCurrency];
     }
   } catch {}
 
