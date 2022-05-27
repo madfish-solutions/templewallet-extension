@@ -81,12 +81,12 @@ const AssetInMenuContent: FC<AssetSelectOptionRenderProps> = ({ option: asset })
   return (
     <div className="flex flex-col items-start">
       <span className="text-gray-700 text-sm">{getAssetName(metadata)}</span>
-      <span className={classNames('text-gray-600', 'text-sm leading-none')}>
+      <span className={classNames('text-gray-600', 'text-sm leading-none flex items-end')}>
         <Balance assetSlug={assetSlug} address={account.publicKeyHash}>
           {balance => (
             <>
-              <Money>{balance}</Money>{' '}
-              <span className="text-gray-500" style={{ fontSize: '0.75em' }}>
+              <Money>{balance}</Money>
+              <span className="text-gray-500 ml-1" style={{ fontSize: '0.75em' }}>
                 {getAssetSymbol(metadata)}
               </span>
             </>

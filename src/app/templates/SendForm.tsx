@@ -548,8 +548,11 @@ const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested })
               <div className="ml-1 mr-px font-normal">{filledContact.name}</div> (
               <Balance assetSlug={assetSlug} address={filledContact.address}>
                 {bal => (
-                  <span className={classNames('text-xs leading-none')}>
-                    <Money>{bal}</Money> <span style={{ fontSize: '0.75em' }}>{assetSymbol}</span>
+                  <span className={classNames('text-xs leading-none flex items-end')}>
+                    <Money>{bal}</Money>{' '}
+                    <span className="ml-1" style={{ fontSize: '0.75em' }}>
+                      {assetSymbol}
+                    </span>
                   </span>
                 )}
               </Balance>
@@ -695,7 +698,7 @@ const TokenToUsd: React.FC<TokenToUsdProps> = ({
       ) : (
         <InUSD assetSlug={assetSlug} volume={amountValue} roundingMode={BigNumber.ROUND_FLOOR}>
           {usdAmount => (
-            <div className="mt-1 -mb-3 flex">
+            <div className="mt-1 -mb-3 flex items-center">
               <span className="mr-1">≈</span>
               <span className="font-normal text-gray-700 mr-1">
                 <span className="pr-px mr-1">$</span>
