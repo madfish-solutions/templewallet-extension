@@ -256,7 +256,12 @@ const ListItem = memo<ListItemProps>(({ assetSlug, last, active, accountPkh }) =
     (balance: BigNumber) => (
       <InUSD assetSlug={assetSlug} volume={balance} smallFractionFont={false}>
         {usdBalance => (
-          <div className={classNames('ml-1', 'font-normal text-gray-500 text-xs text-right truncate text-right')}>
+          <div
+            className={classNames(
+              'ml-1',
+              'font-normal text-gray-500 text-xs flex items-center text-right truncate text-right'
+            )}
+          >
             ≈ {usdBalance} $
           </div>
         )}

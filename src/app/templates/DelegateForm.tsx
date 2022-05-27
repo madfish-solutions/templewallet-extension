@@ -290,7 +290,7 @@ const DelegateForm: FC = () => {
                     </span>
 
                     <InUSD assetSlug="tez" volume={balance}>
-                      {usdBalance => <div className="mt-1 text-sm text-gray-500">${usdBalance}</div>}
+                      {usdBalance => <div className="mt-1 text-sm text-gray-500 flex">${usdBalance}</div>}
                     </InUSD>
                   </div>
                 </div>

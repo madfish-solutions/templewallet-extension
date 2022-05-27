@@ -164,7 +164,7 @@ const ExpensesView: FC<ExpensesViewProps> = ({
 
                 <InUSD volume={value} roundingMode={BigNumber.ROUND_UP} mainnet={mainnet}>
                   {usdAmount => (
-                    <div>
+                    <div className="flex">
                       <span className="opacity-75">(</span>
                       <span className="pr-px">$</span>
                       {usdAmount}
@@ -458,7 +458,7 @@ const OperationVolumeDisplay = memo<OperationVolumeDisplayProps>(({ expense, vol
       {expense?.assetSlug && (
         <InUSD volume={finalVolume || 0} assetSlug={expense.assetSlug} mainnet={mainnet}>
           {usdVolume => (
-            <div className="text-xs text-gray-500 ml-1">
+            <div className="text-xs text-gray-500 flex ml-1">
               (<span className="mr-px">$</span>
               {usdVolume})
             </div>

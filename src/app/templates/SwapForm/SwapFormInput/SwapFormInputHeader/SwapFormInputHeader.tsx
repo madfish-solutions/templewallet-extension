@@ -200,7 +200,7 @@ export const SwapFormInputHeader = forwardRef<HTMLDivElement, Props>(
                   volume={selectedAssetSlug ? amount ?? 0 : 0}
                   smallFractionFont={false}
                 >
-                  {usdBalance => <div className="text-gray-500">≈ {usdBalance} $</div>}
+                  {usdBalance => <div className="text-gray-500 flex">≈ {usdBalance} $</div>}
                 </InUSD>
               </div>
             </div>

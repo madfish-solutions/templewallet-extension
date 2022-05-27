@@ -207,7 +207,7 @@ const FullAmountTippy: FC<FullAmountTippyProps> = ({
     [tippyContent, showAmountTooltip, setCopied]
   );
 
-  const ref = useTippy<HTMLSpanElement>(tippyProps);
+  const ref = useTippy<HTMLDivElement>(tippyProps);
 
   const handleClick = useCallback(
     evt => {
@@ -226,10 +226,10 @@ const FullAmountTippy: FC<FullAmountTippyProps> = ({
 
   return enabled ? (
     <>
-      <span ref={ref} onClick={handleClick} {...rest} />
+      <div ref={ref} onClick={handleClick} {...(rest as HTMLAttributes<HTMLDivElement>)} />
       <input ref={fieldRef} value={fullAmountStr} readOnly className="sr-only" />
     </>
   ) : (
-    <span {...rest} />
+    <div {...(rest as HTMLAttributes<HTMLDivElement>)} />
   );
 };
