@@ -22,7 +22,6 @@ import BakerBanner from 'app/templates/BakerBanner';
 import InFiat from 'app/templates/InFiat';
 import OperationStatus from 'app/templates/OperationStatus';
 import { useFormAnalytics } from 'lib/analytics';
-import { useFiatCurrency } from 'lib/fiat-curency';
 import { toLocalFormat } from 'lib/i18n/numbers';
 import { T, t } from 'lib/i18n/react';
 import { setDelegate } from 'lib/michelson';
@@ -63,7 +62,6 @@ interface FormData {
 const DelegateForm: FC = () => {
   const { registerBackHandler } = useAppEnv();
   const formAnalytics = useFormAnalytics('DelegateForm');
-  const { selectedFiatCurrency } = useFiatCurrency();
 
   const acc = useAccount();
   const tezos = useTezos();
@@ -292,10 +290,10 @@ const DelegateForm: FC = () => {
                     </span>
 
                     <InFiat assetSlug="tez" volume={balance}>
-                      {fiatBalance => (
+                      {({ balance, symbol }) => (
                         <div className="mt-1 text-sm text-gray-500">
-                          {selectedFiatCurrency.symbol}
-                          {fiatBalance}
+                          {symbol}
+                          {balance}
                         </div>
                       )}
                     </InFiat>
@@ -304,7 +302,7 @@ const DelegateForm: FC = () => {
               </div>
             </div>
           ),
-          [balance, selectedFiatCurrency.symbol]
+          [balance]
         )}
 
         <Controller

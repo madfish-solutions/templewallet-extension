@@ -12,7 +12,6 @@ import { ReactComponent as ClipboardIcon } from 'app/icons/clipboard.svg';
 import { ReactComponent as CopyIcon } from 'app/icons/copy.svg';
 import HashChip from 'app/templates/HashChip';
 import InFiat from 'app/templates/InFiat';
-import { useFiatCurrency } from 'lib/fiat-curency';
 import { T, t, TProps } from 'lib/i18n/react';
 import {
   getAssetSymbol,
@@ -59,7 +58,6 @@ const ExpensesView: FC<ExpensesViewProps> = ({
   error
 }) => {
   const { copy } = useCopyToClipboard();
-  const { selectedFiatCurrency } = useFiatCurrency();
   const modifyFeeAndLimitSection = useMemo(() => {
     if (!modifyFeeAndLimit) return null;
 
@@ -165,11 +163,11 @@ const ExpensesView: FC<ExpensesViewProps> = ({
                 </div>
 
                 <InFiat volume={value} roundingMode={BigNumber.ROUND_UP} mainnet={mainnet}>
-                  {fiatAmount => (
+                  {({ balance, symbol }) => (
                     <div>
                       <span className="opacity-75">(</span>
-                      <span className="pr-px">{selectedFiatCurrency.symbol}</span>
-                      {fiatAmount}
+                      <span className="pr-px">{symbol}</span>
+                      {balance}
                       <span className="opacity-75">)</span>
                     </div>
                   )}
@@ -206,7 +204,7 @@ const ExpensesView: FC<ExpensesViewProps> = ({
         ))}
       </div>
     );
-  }, [modifyFeeAndLimit, estimates, gasFeeError, mainnet, selectedFiatCurrency.symbol]);
+  }, [modifyFeeAndLimit, estimates, gasFeeError, mainnet]);
 
   if (!expenses) {
     return null;
@@ -444,7 +442,6 @@ type OperationVolumeDisplayProps = {
 
 const OperationVolumeDisplay = memo<OperationVolumeDisplayProps>(({ expense, volume, mainnet }) => {
   const metadata = useAssetMetadata(expense?.assetSlug ?? 'tez');
-  const { selectedFiatCurrency } = useFiatCurrency();
 
   const finalVolume = expense ? expense.amount.div(10 ** (metadata?.decimals || 0)) : volume;
 
@@ -460,10 +457,10 @@ const OperationVolumeDisplay = memo<OperationVolumeDisplayProps>(({ expense, vol
 
       {expense?.assetSlug && (
         <InFiat volume={finalVolume || 0} assetSlug={expense.assetSlug} mainnet={mainnet}>
-          {fiatVolume => (
+          {({ balance, symbol }) => (
             <div className="text-xs text-gray-500 ml-1">
-              (<span className="mr-px">{selectedFiatCurrency.symbol}</span>
-              {fiatVolume})
+              (<span className="mr-px">{symbol}</span>
+              {balance})
             </div>
           )}
         </InFiat>

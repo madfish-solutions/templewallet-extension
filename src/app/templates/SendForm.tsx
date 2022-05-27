@@ -684,7 +684,6 @@ const TokenToFiat: React.FC<TokenToFiatProps> = ({
   assetSlug,
   toAssetAmount
 }) => {
-  const { selectedFiatCurrency } = useFiatCurrency();
   if (!amountValue) return null;
   return (
     <>
@@ -696,12 +695,12 @@ const TokenToFiat: React.FC<TokenToFiatProps> = ({
         </div>
       ) : (
         <InFiat assetSlug={assetSlug} volume={amountValue} roundingMode={BigNumber.ROUND_FLOOR}>
-          {fiatAmount => (
+          {({ balance, symbol }) => (
             <div className="mt-1 -mb-3">
               ≈{' '}
               <span className="font-normal text-gray-700">
-                <span className="pr-px">{selectedFiatCurrency.symbol}</span>
-                {fiatAmount}
+                <span className="pr-px">{symbol}</span>
+                {balance}
               </span>{' '}
               <T id="inFiat" />
             </div>

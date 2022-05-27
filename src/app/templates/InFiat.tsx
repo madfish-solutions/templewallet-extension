@@ -3,13 +3,18 @@ import React, { FC, ReactElement, ReactNode, useMemo } from 'react';
 import BigNumber from 'bignumber.js';
 
 import Money from 'app/atoms/Money';
-import { useAssetFiatCurrencyPrice } from 'lib/fiat-curency';
+import { useAssetFiatCurrencyPrice, useFiatCurrency } from 'lib/fiat-curency';
 import { useNetwork } from 'lib/temple/front';
+
+type OutputProps = {
+  balance: ReactNode;
+  symbol: string;
+};
 
 type InFiatProps = {
   volume: BigNumber | number | string;
   assetSlug?: string;
-  children: (fiatVolume: ReactNode) => ReactElement;
+  children: (output: OutputProps) => ReactElement;
   roundingMode?: BigNumber.RoundingMode;
   shortened?: boolean;
   smallFractionFont?: boolean;
@@ -28,6 +33,7 @@ const InFiat: FC<InFiatProps> = ({
   showCents = true
 }) => {
   const price = useAssetFiatCurrencyPrice(assetSlug ?? 'tez');
+  const { selectedFiatCurrency } = useFiatCurrency();
   const walletNetwork = useNetwork();
 
   if (mainnet === undefined) {
@@ -47,17 +53,20 @@ const InFiat: FC<InFiatProps> = ({
   const cryptoDecimals = showCents ? undefined : 0;
 
   return mainnet && price !== null
-    ? children(
-        <Money
-          fiat={showCents}
-          cryptoDecimals={cryptoDecimals}
-          roundingMode={roundingMode}
-          shortened={shortened}
-          smallFractionFont={smallFractionFont}
-        >
-          {roundedInFiat}
-        </Money>
-      )
+    ? children({
+        balance: (
+          <Money
+            fiat={showCents}
+            cryptoDecimals={cryptoDecimals}
+            roundingMode={roundingMode}
+            shortened={shortened}
+            smallFractionFont={smallFractionFont}
+          >
+            {roundedInFiat}
+          </Money>
+        ),
+        symbol: selectedFiatCurrency.symbol
+      })
     : null;
 };
 
