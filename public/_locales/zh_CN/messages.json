@@ -1113,9 +1113,6 @@
   "availableToSend": {
     "message": "可发送（最大）："
   },
-  "inUSD": {
-    "message": "以USD计"
-  },
   "inAsset": {
     "message": "以$assetSymbol$计",
     "placeholders": {

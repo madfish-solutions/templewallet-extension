@@ -37,10 +37,10 @@ const MoneyDiffView = memo<MoneyDiffViewProps>(({ assetId: assetSlug, diff, pend
 
       {assetSlug && (
         <InFiat volume={diffBN.abs()} assetSlug={assetSlug}>
-          {usdVolume => (
+          {fiatVolume => (
             <div className="text-xs text-gray-500 ml-1">
               <span className="mr-px">{selectedFiatCurrency.symbol}</span>
-              {usdVolume}
+              {fiatVolume}
             </div>
           )}
         </InFiat>

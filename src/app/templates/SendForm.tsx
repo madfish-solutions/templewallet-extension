@@ -178,10 +178,10 @@ const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested })
   const { data: tezBalanceData, mutate: mutateTezBalance } = useBalance('tez', accountPkh);
   const tezBalance = tezBalanceData!;
 
-  const [shouldUseUsd, setShouldUseUsd] = useSafeState(false);
+  const [shoudUseFiat, setShouldUseFiat] = useSafeState(false);
 
-  const canToggleUsd = getAssetPriceByNetwork(network.type, assetPrice);
-  const prevCanToggleUsd = useRef(canToggleUsd);
+  const canToggleFiat = getAssetPriceByNetwork(network.type, assetPrice);
+  const prevCanToggleFiat = useRef(canToggleFiat);
 
   /**
    * Form
@@ -195,20 +195,20 @@ const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested })
       }
     });
 
-  const handleUsdToggle = useCallback(
+  const handleFiatToggle = useCallback(
     evt => {
       evt.preventDefault();
 
-      const newShouldUseUsd = !shouldUseUsd;
-      setShouldUseUsd(newShouldUseUsd);
+      const newShouldUseFiat = !shoudUseFiat;
+      setShouldUseFiat(newShouldUseFiat);
       if (!getValues().amount) {
         return;
       }
       const amount = new BigNumber(getValues().amount);
       setValue(
         'amount',
-        (newShouldUseUsd ? amount.multipliedBy(assetPrice!) : amount.div(assetPrice!)).toFormat(
-          newShouldUseUsd ? 2 : 6,
+        (newShouldUseFiat ? amount.multipliedBy(assetPrice!) : amount.div(assetPrice!)).toFormat(
+          newShouldUseFiat ? 2 : 6,
           BigNumber.ROUND_FLOOR,
           {
             decimalSeparator: '.'
@@ -216,15 +216,15 @@ const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested })
         )
       );
     },
-    [setShouldUseUsd, shouldUseUsd, getValues, assetPrice, setValue]
+    [setShouldUseFiat, shoudUseFiat, getValues, assetPrice, setValue]
   );
   useEffect(() => {
-    if (!canToggleUsd && prevCanToggleUsd.current && shouldUseUsd) {
-      setShouldUseUsd(false);
+    if (!canToggleFiat && prevCanToggleFiat.current && shoudUseFiat) {
+      setShouldUseFiat(false);
       setValue('amount', undefined);
     }
-    prevCanToggleUsd.current = canToggleUsd;
-  }, [setShouldUseUsd, canToggleUsd, shouldUseUsd, setValue]);
+    prevCanToggleFiat.current = canToggleFiat;
+  }, [setShouldUseFiat, canToggleFiat, shoudUseFiat, setValue]);
 
   const toValue = watch('to');
   const amountValue = watch('amount');
@@ -360,9 +360,9 @@ const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested })
     if (!(baseFee instanceof BigNumber)) return null;
 
     const maxAmountAsset = isTezAsset(assetSlug) ? getMaxAmountToken(acc, balance, baseFee, safeFeeValue) : balance;
-    const maxAmountUsd = getMaxAmountUsd(assetPrice, maxAmountAsset);
-    return shouldUseUsd ? maxAmountUsd : maxAmountAsset;
-  }, [acc, assetSlug, balance, baseFee, safeFeeValue, shouldUseUsd, assetPrice]);
+    const maxAmountFiat = getMaxAmountFiat(assetPrice, maxAmountAsset);
+    return shoudUseFiat ? maxAmountFiat : maxAmountAsset;
+  }, [acc, assetSlug, balance, baseFee, safeFeeValue, shoudUseFiat, assetPrice]);
 
   const validateAmount = useCallback(
     (v?: number) => {
@@ -425,7 +425,7 @@ const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested })
           const contract = await loadContract(tezos, acc.publicKeyHash);
           op = await contract.methods.do(michelsonLambda(toResolved, tzToMutez(amount))).send({ amount: 0 });
         } else {
-          const actualAmount = shouldUseUsd ? toAssetAmount(amount) : amount;
+          const actualAmount = shoudUseFiat ? toAssetAmount(amount) : amount;
           const transferParams = await toTransferParams(
             tezos,
             assetSlug,
@@ -468,7 +468,7 @@ const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested })
       reset,
       accountPkh,
       toResolved,
-      shouldUseUsd,
+      shoudUseFiat,
       toAssetAmount,
       formAnalytics
     ]
@@ -501,7 +501,9 @@ const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested })
     [allContacts, accountPkh]
   );
 
-  const visibleAssetSymbol = shouldUseUsd ? 'USD' : assetSymbol;
+  const { selectedFiatCurrency } = useFiatCurrency();
+
+  const visibleAssetSymbol = shoudUseFiat ? selectedFiatCurrency.symbol : assetSymbol;
   const assetDomainName = getAssetDomainName(canUseDomainNames);
 
   const isContactsDropdownOpen = getFilled(toFilled, toFieldFocused);
@@ -597,10 +599,10 @@ const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested })
         onFocus={() => amountFieldRef.current?.focus()}
         id="send-amount"
         assetSymbol={
-          canToggleUsd ? (
+          canToggleFiat ? (
             <button
               type="button"
-              onClick={handleUsdToggle}
+              onClick={handleFiatToggle}
               className={classNames(
                 'px-1 rounded-md',
                 'flex items-center',
@@ -620,7 +622,7 @@ const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested })
             assetSymbol
           )
         }
-        assetDecimals={shouldUseUsd ? 2 : assetMetadata?.decimals ?? 0}
+        assetDecimals={shoudUseFiat ? 2 : assetMetadata?.decimals ?? 0}
         label={t('amount')}
         labelDescription={
           restFormDisplayed &&
@@ -628,13 +630,13 @@ const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested })
             <>
               <T id="availableToSend" />{' '}
               <button type="button" className={classNames('underline')} onClick={handleSetMaxAmount}>
-                {shouldUseUsd ? <span className="pr-px">$</span> : null}
+                {shoudUseFiat ? <span className="pr-px">{selectedFiatCurrency.symbol}</span> : null}
                 {toLocalFixed(maxAmount)}
               </button>
-              <TokenToUsd
+              <TokenToFiat
                 amountValue={amountValue}
                 assetMetadata={assetMetadata}
-                shouldUseUsd={shouldUseUsd}
+                shoudUseFiat={shoudUseFiat}
                 assetSlug={assetSlug}
                 toAssetAmount={toAssetAmount}
               />
@@ -667,18 +669,18 @@ const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested })
   );
 };
 
-interface TokenToUsdProps {
+interface TokenToFiatProps {
   amountValue: string;
   assetMetadata: AssetMetadata;
-  shouldUseUsd: boolean;
+  shoudUseFiat: boolean;
   assetSlug: string;
   toAssetAmount: (fiatAmount: BigNumber.Value) => string;
 }
 
-const TokenToUsd: React.FC<TokenToUsdProps> = ({
+const TokenToFiat: React.FC<TokenToFiatProps> = ({
   amountValue,
   assetMetadata,
-  shouldUseUsd,
+  shoudUseFiat,
   assetSlug,
   toAssetAmount
 }) => {
@@ -687,7 +689,7 @@ const TokenToUsd: React.FC<TokenToUsdProps> = ({
   return (
     <>
       <br />
-      {shouldUseUsd ? (
+      {shoudUseFiat ? (
         <div className="mt-1 -mb-3">
           ≈ <span className="font-normal text-gray-700">{toAssetAmount(amountValue)}</span>{' '}
           <T id="inAsset" substitutions={getAssetSymbol(assetMetadata, true)} />
@@ -701,7 +703,7 @@ const TokenToUsd: React.FC<TokenToUsdProps> = ({
                 <span className="pr-px">{selectedFiatCurrency.symbol}</span>
                 {fiatAmount}
               </span>{' '}
-              <T id="inUSD" />
+              <T id="inFiat" />
             </div>
           )}
         </InFiat>
@@ -813,7 +815,7 @@ const SpinnerSection: FC = () => (
   </div>
 );
 
-const getMaxAmountUsd = (assetPrice: number | null, maxAmountAsset: BigNumber) =>
+const getMaxAmountFiat = (assetPrice: number | null, maxAmountAsset: BigNumber) =>
   assetPrice ? maxAmountAsset.times(assetPrice).decimalPlaces(2, BigNumber.ROUND_FLOOR) : new BigNumber(0);
 
 const getMaxAmountToken = (acc: TempleAccount, balance: BigNumber, baseFee: BigNumber, safeFeeValue: number) =>

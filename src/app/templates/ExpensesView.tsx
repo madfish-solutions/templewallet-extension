@@ -460,10 +460,10 @@ const OperationVolumeDisplay = memo<OperationVolumeDisplayProps>(({ expense, vol
 
       {expense?.assetSlug && (
         <InFiat volume={finalVolume || 0} assetSlug={expense.assetSlug} mainnet={mainnet}>
-          {usdVolume => (
+          {fiatVolume => (
             <div className="text-xs text-gray-500 ml-1">
               (<span className="mr-px">{selectedFiatCurrency.symbol}</span>
-              {usdVolume})
+              {fiatVolume})
             </div>
           )}
         </InFiat>

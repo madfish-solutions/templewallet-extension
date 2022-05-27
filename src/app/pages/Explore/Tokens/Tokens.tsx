@@ -254,7 +254,7 @@ const ListItem = memo<ListItemProps>(({ assetSlug, last, active, accountPkh }) =
     []
   );
 
-  const renderBalanceInUSD = useCallback(
+  const renderBalanceInFiat = useCallback(
     (balance: BigNumber) => (
       <InFiat assetSlug={assetSlug} volume={balance} smallFractionFont={false}>
         {fiatBalance => (
@@ -302,7 +302,7 @@ const ListItem = memo<ListItemProps>(({ assetSlug, last, active, accountPkh }) =
             {getAssetName(metadata)}
           </div>
           <Balance address={accountPkh} assetSlug={assetSlug} displayed={displayed}>
-            {renderBalanceInUSD}
+            {renderBalanceInFiat}
           </Balance>
         </div>
       </div>

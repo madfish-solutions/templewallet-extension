@@ -9,7 +9,7 @@ import { useNetwork } from 'lib/temple/front';
 type InFiatProps = {
   volume: BigNumber | number | string;
   assetSlug?: string;
-  children: (usdVolume: ReactNode) => ReactElement;
+  children: (fiatVolume: ReactNode) => ReactElement;
   roundingMode?: BigNumber.RoundingMode;
   shortened?: boolean;
   smallFractionFont?: boolean;
