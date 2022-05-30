@@ -87,7 +87,7 @@ export const SwapFormInputHeader = forwardRef<HTMLDivElement, Props>(
         <div className="w-full flex mb-1 items-center justify-between">
           <span className="text-xl text-gray-900">{label}</span>
           {selectedAssetSlug && (
-            <span className={classNames(opened && 'hidden', 'text-xs text-gray-500 flex items-center')}>
+            <span className={classNames(opened && 'hidden', 'text-xs text-gray-500 flex items-baseline')}>
               <span className="mr-1">
                 <T id="balance" />
               </span>
@@ -176,7 +176,7 @@ export const SwapFormInputHeader = forwardRef<HTMLDivElement, Props>(
                 amountInputDisabled && 'bg-gray-100'
               )}
             >
-              <div className="h-full flex-1 flex items-baseline justify-center flex-col">
+              <div className="h-full flex-1 flex items-end justify-center flex-col">
                 <AssetField
                   ref={amountFieldRef}
                   value={amount?.toString()}
