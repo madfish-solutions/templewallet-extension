@@ -19,7 +19,7 @@ import { useAppEnv } from 'app/env';
 import { ReactComponent as ChevronRightIcon } from 'app/icons/chevron-right.svg';
 import AdditionalFeeInput from 'app/templates/AdditionalFeeInput';
 import BakerBanner from 'app/templates/BakerBanner';
-import InUSD from 'app/templates/InUSD';
+import InFiat from 'app/templates/InFiat';
 import OperationStatus from 'app/templates/OperationStatus';
 import { useFormAnalytics } from 'lib/analytics';
 import { toLocalFormat } from 'lib/i18n/numbers';
@@ -289,15 +289,20 @@ const DelegateForm: FC = () => {
                       <Money>{balance}</Money> <span style={{ fontSize: '0.75em' }}>{assetSymbol}</span>
                     </span>
 
-                    <InUSD assetSlug="tez" volume={balance}>
-                      {usdBalance => <div className="mt-1 text-sm text-gray-500">${usdBalance}</div>}
-                    </InUSD>
+                    <InFiat assetSlug="tez" volume={balance}>
+                      {({ balance, symbol }) => (
+                        <div className="mt-1 text-sm text-gray-500">
+                          {balance}
+                          {symbol}
+                        </div>
+                      )}
+                    </InFiat>
                   </div>
                 </div>
               </div>
             </div>
           ),
-          [assetSymbol, balance]
+          [balance]
         )}
 
         <Controller

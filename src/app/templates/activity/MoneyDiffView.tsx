@@ -5,7 +5,7 @@ import classNames from 'clsx';
 
 import Money from 'app/atoms/Money';
 import { useAppEnv } from 'app/env';
-import InUSD from 'app/templates/InUSD';
+import InFiat from 'app/templates/InFiat';
 import { useAssetMetadata, getAssetSymbol } from 'lib/temple/front';
 
 type MoneyDiffViewProps = {
@@ -34,14 +34,14 @@ const MoneyDiffView = memo<MoneyDiffViewProps>(({ assetId: assetSlug, diff, pend
       </div>
 
       {assetSlug && (
-        <InUSD volume={diffBN.abs()} assetSlug={assetSlug}>
-          {usdVolume => (
+        <InFiat volume={diffBN.abs()} assetSlug={assetSlug}>
+          {({ balance, symbol }) => (
             <div className="text-xs text-gray-500 ml-1">
-              <span className="mr-px">$</span>
-              {usdVolume}
+              {balance}
+              <span className="mr-px">{symbol}</span>
             </div>
           )}
-        </InUSD>
+        </InFiat>
       )}
     </div>
   ) : null;

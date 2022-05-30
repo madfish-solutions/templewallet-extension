@@ -11,7 +11,7 @@ import PlainAssetInput from 'app/atoms/PlainAssetInput';
 import { ReactComponent as ClipboardIcon } from 'app/icons/clipboard.svg';
 import { ReactComponent as CopyIcon } from 'app/icons/copy.svg';
 import HashChip from 'app/templates/HashChip';
-import InUSD from 'app/templates/InUSD';
+import InFiat from 'app/templates/InFiat';
 import { T, t, TProps } from 'lib/i18n/react';
 import {
   getAssetSymbol,
@@ -162,16 +162,16 @@ const ExpensesView: FC<ExpensesViewProps> = ({
                   )}
                 </div>
 
-                <InUSD volume={value} roundingMode={BigNumber.ROUND_UP} mainnet={mainnet}>
-                  {usdAmount => (
+                <InFiat volume={value} roundingMode={BigNumber.ROUND_UP} mainnet={mainnet}>
+                  {({ balance, symbol }) => (
                     <div>
                       <span className="opacity-75">(</span>
-                      <span className="pr-px">$</span>
-                      {usdAmount}
+                      {balance}
+                      <span className="pr-px">{symbol}</span>
                       <span className="opacity-75">)</span>
                     </div>
                   )}
-                </InUSD>
+                </InFiat>
               </>
             ) : (
               <input
@@ -204,7 +204,7 @@ const ExpensesView: FC<ExpensesViewProps> = ({
         ))}
       </div>
     );
-  }, [modifyFeeAndLimit, estimates, mainnet, gasFeeError]);
+  }, [modifyFeeAndLimit, estimates, gasFeeError, mainnet]);
 
   if (!expenses) {
     return null;
@@ -456,14 +456,13 @@ const OperationVolumeDisplay = memo<OperationVolumeDisplayProps>(({ expense, vol
       </span>
 
       {expense?.assetSlug && (
-        <InUSD volume={finalVolume || 0} assetSlug={expense.assetSlug} mainnet={mainnet}>
-          {usdVolume => (
+        <InFiat volume={finalVolume || 0} assetSlug={expense.assetSlug} mainnet={mainnet}>
+          {({ balance, symbol }) => (
             <div className="text-xs text-gray-500 ml-1">
-              (<span className="mr-px">$</span>
-              {usdVolume})
+              ({balance} <span className="mr-px">{symbol}</span>)
             </div>
           )}
-        </InUSD>
+        </InFiat>
       )}
     </>
   );

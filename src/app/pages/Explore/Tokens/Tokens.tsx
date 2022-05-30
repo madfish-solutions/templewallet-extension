@@ -11,7 +11,7 @@ import { ReactComponent as AddToListIcon } from 'app/icons/add-to-list.svg';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
 import { AssetIcon } from 'app/templates/AssetIcon';
 import Balance from 'app/templates/Balance';
-import InUSD from 'app/templates/InUSD';
+import InFiat from 'app/templates/InFiat';
 import SearchAssetField from 'app/templates/SearchAssetField';
 import { T } from 'lib/i18n/react';
 import {
@@ -252,15 +252,15 @@ const ListItem = memo<ListItemProps>(({ assetSlug, last, active, accountPkh }) =
     []
   );
 
-  const renderBalanceInUSD = useCallback(
+  const renderBalanceInFiat = useCallback(
     (balance: BigNumber) => (
-      <InUSD assetSlug={assetSlug} volume={balance} smallFractionFont={false}>
-        {usdBalance => (
+      <InFiat assetSlug={assetSlug} volume={balance} smallFractionFont={false}>
+        {({ balance, symbol }) => (
           <div className={classNames('ml-1', 'font-normal text-gray-500 text-xs text-right truncate text-right')}>
-            ≈ {usdBalance} $
+            ≈ {balance} {symbol}
           </div>
         )}
-      </InUSD>
+      </InFiat>
     ),
     [assetSlug]
   );
@@ -300,7 +300,7 @@ const ListItem = memo<ListItemProps>(({ assetSlug, last, active, accountPkh }) =
             {getAssetName(metadata)}
           </div>
           <Balance address={accountPkh} assetSlug={assetSlug} displayed={displayed}>
-            {renderBalanceInUSD}
+            {renderBalanceInFiat}
           </Balance>
         </div>
       </div>

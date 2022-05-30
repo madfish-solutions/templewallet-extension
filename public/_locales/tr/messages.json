@@ -1209,9 +1209,6 @@
   "availableToSend": {
     "message": "Gönderilebilir (maks.):"
   },
-  "inUSD": {
-    "message": "USD cinsinden"
-  },
   "inAsset": {
     "message": "$assetSymbol$ cinsinden",
     "placeholders": {
