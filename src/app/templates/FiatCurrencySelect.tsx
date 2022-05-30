@@ -66,8 +66,11 @@ const FiatCurrencyInMenuContent: FC<IconifiedSelectOptionRenderProps<FiatCurrenc
 };
 
 const FiatCurrencyIcon: FC<IconifiedSelectOptionRenderProps<FiatCurrencyOption>> = ({ option: { symbol } }) => (
-  <div className={classNames('w-6 flex justify-center items-center ml-2 mr-3')} style={{ height: '1.3125rem' }}>
-    <span className="ml-1">{symbol}</span>
+  <div
+    className={classNames('w-6 flex justify-center items-center ml-2 mr-3 text-xl text-gray-700')}
+    style={{ height: '1.3125rem' }}
+  >
+    {symbol}
   </div>
 );
 
