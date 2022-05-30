@@ -1143,9 +1143,6 @@
   "availableToSend": {
     "message": "Доступно для відправки (макс.):"
   },
-  "inUSD": {
-    "message": "в USD"
-  },
   "inAsset": {
     "message": "в $assetSymbol$",
     "placeholders": {

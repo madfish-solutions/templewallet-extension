@@ -1266,8 +1266,8 @@
   "availableToSend": {
     "message": "Available to send(max):"
   },
-  "inUSD": {
-    "message": "in USD"
+  "inFiat": {
+    "message": "in Fiat"
   },
   "inAsset": {
     "message": "in $assetSymbol$",
@@ -1421,6 +1421,9 @@
   },
   "languageAndCountry": {
     "message": "Language"
+  },
+  "fiatCurrency": {
+    "message": "Default Currency"
   },
   "generalSettings": {
     "message": "General"

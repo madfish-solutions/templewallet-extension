@@ -27,12 +27,6 @@ export function hasManager(manager: ManagerKeyResponse) {
   return manager && typeof manager === 'object' ? !!manager.key : !!manager;
 }
 
-export function assetAmountToUSD(amount?: BigNumber, assetUsdPrice?: number, roundingMode?: BigNumber.RoundingMode) {
-  return !amount || assetUsdPrice === undefined
-    ? undefined
-    : amount.multipliedBy(assetUsdPrice).decimalPlaces(2, roundingMode ?? BigNumber.ROUND_DOWN);
-}
-
 export function usdToAssetAmount(
   usd?: BigNumber,
   assetUsdPrice?: number,
