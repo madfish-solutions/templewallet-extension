@@ -71,7 +71,7 @@ const FiatCurrencyContent: FC<IconifiedSelectOptionRenderProps<FiatCurrencyOptio
   return (
     <div className="flex flex-col items-start py-2">
       <span className="text-xl text-gray-700">
-        {name} {symbol}
+        {symbol} {name}
       </span>
     </div>
   );
