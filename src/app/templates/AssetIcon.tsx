@@ -32,7 +32,7 @@ export const AssetIcon: FC<AssetIconProps> = ({ assetSlug, className, size }) =>
   const metadata: AssetMetadata | null = useAssetMetadata(assetSlug);
   const isCollectible = Boolean(metadata?.artifactUri);
 
-  const isTezDao = 'KT1C9X9s5rpVJGxwVuHEVBLYEdAQ1Qw8QDjH_0';
+  const isTezDao = assetSlug === 'KT1C9X9s5rpVJGxwVuHEVBLYEdAQ1Qw8QDjH_0';
 
   const imageSrc = isLoadingFailed
     ? formatIpfsUri(metadata?.thumbnailUri)
