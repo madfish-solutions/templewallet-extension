@@ -540,7 +540,7 @@ const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested })
         label={t('recipient')}
         labelDescription={
           filledContact ? (
-            <div className="flex flex-wrap items-center">
+            <div className="flex flex-wrap items-baseline">
               <Identicon
                 type="bottts"
                 hash={filledContact.address}
@@ -550,7 +550,7 @@ const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested })
               <div className="ml-1 mr-px font-normal">{filledContact.name}</div> (
               <Balance assetSlug={assetSlug} address={filledContact.address}>
                 {bal => (
-                  <span className={classNames('text-xs leading-none flex items-end')}>
+                  <span className={classNames('text-xs leading-none flex items-baseline')}>
                     <Money>{bal}</Money>{' '}
                     <span className="ml-1" style={{ fontSize: '0.75em' }}>
                       {assetSymbol}
@@ -700,9 +700,9 @@ const TokenToFiat: React.FC<TokenToFiatProps> = ({
       ) : (
         <InFiat assetSlug={assetSlug} volume={amountValue} roundingMode={BigNumber.ROUND_FLOOR}>
           {({ balance, symbol }) => (
-            <div className="mt-1 -mb-3 flex items-end">
+            <div className="mt-1 -mb-3 flex items-baseline">
               <span className="mr-1">≈</span>
-              <span className="font-normal text-gray-700 mr-1 flex items-end">
+              <span className="font-normal text-gray-700 mr-1 flex items-baseline">
                 {balance}
                 <span className="pr-px">{symbol}</span>
               </span>{' '}

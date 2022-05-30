@@ -232,7 +232,7 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
                           {bal => (
                             <span
                               className={classNames(
-                                'text-xs leading-tight flex items-end',
+                                'text-xs leading-tight flex items-baseline',
                                 'text-white text-opacity-75'
                               )}
                             >

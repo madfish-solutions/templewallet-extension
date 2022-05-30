@@ -153,7 +153,7 @@ const ExpensesView: FC<ExpensesViewProps> = ({
                       ꜩ
                     </>
                   ) : (
-                    <span className="flex items-center">
+                    <span className="flex items-baseline">
                       <span className="font-medium">
                         <Money>{value}</Money>
                       </span>
@@ -458,7 +458,7 @@ const OperationVolumeDisplay = memo<OperationVolumeDisplayProps>(({ expense, vol
       {expense?.assetSlug && (
         <InFiat volume={finalVolume || 0} assetSlug={expense.assetSlug} mainnet={mainnet}>
           {({ balance, symbol }) => (
-            <div className="text-xs text-gray-500 flex ml-1">
+            <div className="text-xs text-gray-500 ml-1">
               ({balance}
               <span className="mr-px">{symbol}</span>)
             </div>

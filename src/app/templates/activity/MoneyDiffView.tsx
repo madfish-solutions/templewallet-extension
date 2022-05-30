@@ -28,7 +28,7 @@ const MoneyDiffView = memo<MoneyDiffViewProps>(({ assetId: assetSlug, diff, pend
 
   return metadata ? (
     <div className={classNames('inline-flex flex-wrap justify-end items-end', className)}>
-      <div className={classNames('flex items-center', conditionalPopupClassName, conditionalPendingClassName)}>
+      <div className={classNames('flex items-baseline', conditionalPopupClassName, conditionalPendingClassName)}>
         <span className="mr-1">{showPlus}</span>
         <Money>{diffBN}</Money>
         <span className="ml-1">{getAssetSymbol(metadata, true)}</span>

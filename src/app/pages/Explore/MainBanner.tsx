@@ -101,7 +101,7 @@ const AssetBanner: FC<AssetBannerProps> = ({ assetSlug, accountPkh }) => {
           <Balance address={accountPkh} assetSlug={assetSlug}>
             {balance => (
               <div className="flex flex-col">
-                <span className="text-xl text-gray-800 flex items-center">
+                <span className="text-xl text-gray-800 flex items-baseline">
                   <span className="inline-block align-bottom" style={{ maxWidth: popup ? '8rem' : '10rem' }}>
                     <Money smallFractionFont={false}>{balance}</Money>
                   </span>{' '}

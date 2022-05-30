@@ -65,7 +65,7 @@ const AccountBanner = memo<AccountBannerProps>(
               {displayBalance && (
                 <Balance address={account.publicKeyHash} networkRpc={networkRpc}>
                   {bal => (
-                    <div className={classNames('ml-2', 'text-xs leading-none flex items-end', 'text-gray-600')}>
+                    <div className={classNames('ml-2', 'text-xs leading-none flex items-baseline', 'text-gray-600')}>
                       <Money>{bal}</Money>
                       <span className="ml-1" style={{ fontSize: '0.75em' }}>
                         {TEZOS_METADATA.symbol}

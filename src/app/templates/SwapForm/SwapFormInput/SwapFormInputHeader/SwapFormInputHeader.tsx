@@ -176,7 +176,7 @@ export const SwapFormInputHeader = forwardRef<HTMLDivElement, Props>(
                 amountInputDisabled && 'bg-gray-100'
               )}
             >
-              <div className="h-full flex-1 flex items-end justify-center flex-col">
+              <div className="h-full flex-1 flex items-baseline justify-center flex-col">
                 <AssetField
                   ref={amountFieldRef}
                   value={amount?.toString()}

@@ -285,7 +285,7 @@ const DelegateForm: FC = () => {
               <div className="font-light leading-none">
                 <div className="flex items-center">
                   <div className="flex flex-col">
-                    <span className="text-xl text-gray-700 flex items-center">
+                    <span className="text-xl text-gray-700 flex items-baseline">
                       <Money>{balance}</Money>{' '}
                       <span style={{ fontSize: '0.75em' }}>
                         <span className="ml-1">{assetSymbol}</span>
@@ -294,7 +294,7 @@ const DelegateForm: FC = () => {
 
                     <InFiat assetSlug="tez" volume={balance}>
                       {({ balance, symbol }) => (
-                        <div className="mt-1 text-sm text-gray-500 flex items-center">
+                        <div className="mt-1 text-sm text-gray-500 flex items-baseline">
                           {balance}
                           <span className="ml-1">{symbol}</span>
                         </div>

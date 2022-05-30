@@ -210,7 +210,7 @@ const FeeOptionContent: FC<OptionRenderProps<FeeOption>> = ({ item: { descriptio
         </T>
 
         {amount && (
-          <div className="ml-2 leading-none text-gray-600 flex items-center">
+          <div className="ml-2 leading-none text-gray-600 flex items-baseline">
             <Money cryptoDecimals={5}>{amount}</Money>{' '}
             <span className="ml-1" style={{ fontSize: '0.75em' }}>
               {TEZOS_METADATA.symbol}
