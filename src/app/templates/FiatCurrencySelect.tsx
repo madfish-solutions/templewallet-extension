@@ -39,8 +39,8 @@ const FiatCurrencySelect: FC<FiatCurrencySelectProps> = ({ className }) => {
 
   return (
     <IconifiedSelect
-      Icon={() => null}
-      OptionSelectedIcon={() => null}
+      Icon={FiatCurrencyIcon}
+      OptionSelectedIcon={FiatCurrencyIcon}
       OptionInMenuContent={FiatCurrencyInMenuContent}
       OptionSelectedContent={FiatCurrencyContent}
       getKey={getFiatCurrencyKey}
@@ -56,23 +56,25 @@ const FiatCurrencySelect: FC<FiatCurrencySelectProps> = ({ className }) => {
 export default FiatCurrencySelect;
 
 const FiatCurrencyInMenuContent: FC<IconifiedSelectOptionRenderProps<FiatCurrencyOption>> = ({
-  option: { name, fullname, symbol }
+  option: { name, fullname }
 }) => {
   return (
     <div className={classNames('relative w-full text-lg text-gray-700')}>
-      {symbol} {name} ({fullname})
+      {name} ({fullname})
     </div>
   );
 };
 
-const FiatCurrencyContent: FC<IconifiedSelectOptionRenderProps<FiatCurrencyOption>> = ({
-  option: { name, symbol }
-}) => {
+const FiatCurrencyIcon: FC<IconifiedSelectOptionRenderProps<FiatCurrencyOption>> = ({ option: { symbol } }) => (
+  <div className={classNames('w-6 flex justify-center items-center ml-2 mr-3')} style={{ height: '1.3125rem' }}>
+    <span className="ml-1">{symbol}</span>
+  </div>
+);
+
+const FiatCurrencyContent: FC<IconifiedSelectOptionRenderProps<FiatCurrencyOption>> = ({ option: { name } }) => {
   return (
     <div className="flex flex-col items-start py-2">
-      <span className="text-xl text-gray-700">
-        {symbol} {name}
-      </span>
+      <span className="text-xl text-gray-700">{name}</span>
     </div>
   );
 };
