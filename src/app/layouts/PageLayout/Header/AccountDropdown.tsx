@@ -227,11 +227,19 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
                         {acc.name}
                       </Name>
 
-                      <div className="flex flex-wrap items-center">
+                      <div className="flex flex-wrap items-end">
                         <Balance address={acc.publicKeyHash}>
                           {bal => (
-                            <span className={classNames('text-xs leading-tight', 'text-white text-opacity-75')}>
-                              <Money tooltip={false}>{bal}</Money> <span style={{ fontSize: '0.5rem' }}>tez</span>
+                            <span
+                              className={classNames(
+                                'text-xs leading-tight flex items-baseline',
+                                'text-white text-opacity-75'
+                              )}
+                            >
+                              <Money tooltip={false}>{bal}</Money>
+                              <span className="ml-1" style={{ fontSize: '0.5rem' }}>
+                                tez
+                              </span>
                             </span>
                           )}
                         </Balance>

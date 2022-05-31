@@ -101,17 +101,19 @@ const AssetBanner: FC<AssetBannerProps> = ({ assetSlug, accountPkh }) => {
           <Balance address={accountPkh} assetSlug={assetSlug}>
             {balance => (
               <div className="flex flex-col">
-                <span className="text-xl text-gray-800">
-                  <span className="inline-block align-bottom truncate" style={{ maxWidth: popup ? '8rem' : '10rem' }}>
+                <span className="text-xl text-gray-800 flex items-baseline">
+                  <span className="inline-block align-bottom" style={{ maxWidth: popup ? '8rem' : '10rem' }}>
                     <Money smallFractionFont={false}>{balance}</Money>
                   </span>{' '}
-                  <span className="text-lg">{getAssetSymbol(assetMetadata)}</span>
+                  <span className="text-lg flex-2 ml-2">{getAssetSymbol(assetMetadata)}</span>
                 </span>
 
                 <InFiat assetSlug={assetSlug} volume={balance} smallFractionFont={false}>
                   {({ balance, symbol }) => (
-                    <div className="mt-1 text-sm text-gray-500">
-                      ≈ {balance} {symbol}
+                    <div className="mt-1 text-sm text-gray-500 flex">
+                      <span className="mr-1">≈</span>
+                      {balance}
+                      <span className="ml-1">{symbol}</span>
                     </div>
                   )}
                 </InFiat>

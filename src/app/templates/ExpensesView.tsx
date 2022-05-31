@@ -153,21 +153,21 @@ const ExpensesView: FC<ExpensesViewProps> = ({
                       ꜩ
                     </>
                   ) : (
-                    <>
+                    <span className="flex items-baseline">
                       <span className="font-medium">
                         <Money>{value}</Money>
-                      </span>{' '}
-                      ꜩ
-                    </>
+                      </span>
+                      <span className="ml-1">ꜩ</span>
+                    </span>
                   )}
                 </div>
 
                 <InFiat volume={value} roundingMode={BigNumber.ROUND_UP} mainnet={mainnet}>
                   {({ balance, symbol }) => (
-                    <div>
+                    <div className="flex">
                       <span className="opacity-75">(</span>
                       {balance}
-                      <span className="pr-px">{symbol}</span>
+                      <span className="pr-px ml-1">{symbol}</span>
                       <span className="opacity-75">)</span>
                     </div>
                   )}
@@ -447,19 +447,20 @@ const OperationVolumeDisplay = memo<OperationVolumeDisplayProps>(({ expense, vol
 
   return (
     <>
-      <span className="text-sm">
+      <span className="text-sm flex items-center">
         {/* {withdrawal && "-"} */}
         <span className="font-medium">
           <Money>{finalVolume || 0}</Money>
-        </span>{' '}
-        {getAssetSymbol(metadata, true)}
+        </span>
+        <span className="ml-1">{getAssetSymbol(metadata, true)}</span>
       </span>
 
       {expense?.assetSlug && (
         <InFiat volume={finalVolume || 0} assetSlug={expense.assetSlug} mainnet={mainnet}>
           {({ balance, symbol }) => (
-            <div className="text-xs text-gray-500 ml-1">
-              ({balance} <span className="mr-px">{symbol}</span>)
+            <div className="text-xs text-gray-500 ml-1 flex items-baseline">
+              ({balance}
+              <span className="mr-px">{symbol}</span>)
             </div>
           )}
         </InFiat>
