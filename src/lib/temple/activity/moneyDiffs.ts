@@ -1,9 +1,8 @@
 import { OperationContentsAndResult, OpKind } from '@taquito/rpc';
 import BigNumber from 'bignumber.js';
 
-import { BcdTokenTransfer } from 'lib/better-call-dev';
 import * as Repo from 'lib/temple/repo';
-import { TzktOperation } from 'lib/tzkt';
+import { TzktOperation, TzktTokenTransfer } from 'lib/tzkt';
 
 import { isPositiveNumber, tryParseTokenTransfers, toTokenId } from './helpers';
 
@@ -14,14 +13,16 @@ interface MoneyDiff {
 
 type DiffSource = 'local' | 'tzkt' | 'bcd';
 
-export function parseMoneyDiffs(operation: Repo.IOperation, address: string) {
-  const diffs: Record<string, { source: DiffSource; diff: string }[]> = {};
+type Diffs = Record<string, Array<{ source: DiffSource; diff: string }>>;
 
-  const { localGroup, tzktGroup, bcdTokenTransfers } = operation.data;
+export function parseMoneyDiffs(operation: Repo.IOperation, address: string) {
+  const diffs: Diffs = {};
+
+  const { localGroup, tzktGroup, tzktTokenTransfers } = operation.data;
 
   estimateLocalGroup(localGroup, address, diffs);
   estimateTzktGroup(tzktGroup, address, diffs);
-  estimateBcdTokenTransfers(bcdTokenTransfers, address, diffs);
+  estimateTzktTokenTransfers(tzktTokenTransfers, tzktGroup, address, diffs);
 
   const flatted: Record<string, string> = {};
   for (const assetId of Object.keys(diffs)) {
@@ -56,12 +57,7 @@ function isValidDiff(val: BigNumber.Value) {
   return !bn.isNaN() && bn.isFinite() && !bn.isZero();
 }
 
-const appendToDiff = (
-  source: DiffSource,
-  assetId: string,
-  diff: string,
-  diffs: Record<string, { source: DiffSource; diff: string }[]>
-) => {
+const appendToDiff = (source: DiffSource, assetId: string, diff: string, diffs: Diffs) => {
   if (!(assetId in diffs)) {
     diffs[assetId] = [];
   }
@@ -70,11 +66,7 @@ const appendToDiff = (
   }
 };
 
-const estimateLocalGroup = (
-  localGroup: OperationContentsAndResult[] | undefined,
-  address: string,
-  diffs: Record<string, { source: DiffSource; diff: string }[]>
-) => {
+const estimateLocalGroup = (localGroup: OperationContentsAndResult[] | undefined, address: string, diffs: Diffs) => {
   if (!localGroup) return;
   for (const op of localGroup) {
     if (op.kind === OpKind.ORIGINATION) {
@@ -87,11 +79,7 @@ const estimateLocalGroup = (
   }
 };
 
-const estimateTransactionOperation = (
-  op: OperationContentsAndResult,
-  address: string,
-  diffs: Record<string, { source: DiffSource; diff: string }[]>
-) => {
+const estimateTransactionOperation = (op: OperationContentsAndResult, address: string, diffs: Diffs) => {
   if (op.kind !== OpKind.TRANSACTION) return;
   if ((op.source === address || op.destination === address) && isPositiveNumber(op.amount)) {
     appendToDiff('local', 'tez', new BigNumber(op.amount).times(op.source === address ? -1 : 1).toFixed(), diffs);
@@ -106,11 +94,7 @@ const estimateTransactionOperation = (
   }
 };
 
-const estimateTzktGroup = (
-  tzktGroup: TzktOperation[] | undefined,
-  address: string,
-  diffs: Record<string, { source: DiffSource; diff: string }[]>
-) => {
+const estimateTzktGroup = (tzktGroup: Array<TzktOperation> | undefined, address: string, diffs: Diffs) => {
   if (!tzktGroup) return;
   for (const tzktOp of tzktGroup) {
     if (tzktOp.type === 'transaction' && tzktOp.status === 'applied') {
@@ -119,11 +103,7 @@ const estimateTzktGroup = (
   }
 };
 
-const estimateTzktOp = (
-  tzktOp: TzktOperation,
-  address: string,
-  diffs: Record<string, { source: DiffSource; diff: string }[]>
-) => {
+const estimateTzktOp = (tzktOp: TzktOperation, address: string, diffs: Diffs) => {
   if (tzktOp.type !== 'transaction' || tzktOp.status !== 'applied') return;
   if ((tzktOp.sender.address === address || tzktOp.target.address === address) && isPositiveNumber(tzktOp.amount)) {
     appendToDiff(
@@ -144,18 +124,23 @@ const estimateTzktOp = (
   } catch {}
 };
 
-const estimateBcdTokenTransfers = (
-  bcdTokenTransfers: BcdTokenTransfer[] | undefined,
+const estimateTzktTokenTransfers = (
+  tzktTokenTransfers: Array<TzktTokenTransfer> | undefined,
+  tzktGroup: Array<TzktOperation> | undefined,
   address: string,
-  diffs: Record<string, { source: DiffSource; diff: string }[]>
+  diffs: Diffs
 ) => {
-  if (!bcdTokenTransfers) return;
-  for (const tokenTrans of bcdTokenTransfers) {
-    if (tokenTrans.status === 'applied' && (tokenTrans.from === address || tokenTrans.to === address)) {
+  if (!tzktTokenTransfers) return;
+  for (const tokenTrans of tzktTokenTransfers) {
+    const operation = tzktGroup?.find(op => op.id === tokenTrans.transactionId);
+    if (!operation) continue;
+    const isFromAddress = tokenTrans.from ? tokenTrans.from.address === address : true;
+    const isToAddress = tokenTrans.to ? tokenTrans.to.address === address : true;
+    if (operation.status === 'applied' && (isFromAddress || isToAddress)) {
       appendToDiff(
         'bcd',
-        toTokenId(tokenTrans.contract, tokenTrans.token_id),
-        new BigNumber(tokenTrans.amount).times(tokenTrans.from === address ? -1 : 1).toFixed(),
+        toTokenId(tokenTrans.token.contract.address, tokenTrans.token.tokenId),
+        new BigNumber(tokenTrans.amount).times(isFromAddress ? -1 : 1).toFixed(),
         diffs
       );
     }

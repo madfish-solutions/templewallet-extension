@@ -1,14 +1,71 @@
-import BigNumber from 'bignumber.js';
-
-import { getTokenTransfers, BCD_NETWORKS_NAMES, BcdTokenTransfer } from 'lib/better-call-dev';
 import * as Repo from 'lib/temple/repo';
-import { TZKT_API_BASE_URLS, getOperations, TzktOperation } from 'lib/tzkt';
+import {
+  TZKT_API_BASE_URLS,
+  getOperations,
+  TzktOperation,
+  getTokenTransfers,
+  getTokenTransfersCount,
+  TzktTokenTransfer
+} from 'lib/tzkt';
 
+import { isKnownChainId } from '../types';
 import { deletePendingOp } from './deletePendingOp';
-import { isPositiveNumber, tryParseTokenTransfers, toTokenId, getBcdTokenTransferId } from './helpers';
+import { isPositiveNumber, tryParseTokenTransfers, toTokenId } from './helpers';
 
-export function isSyncSupported(chainId: string) {
-  return TZKT_API_BASE_URLS.has(chainId as any) && BCD_NETWORKS_NAMES.has(chainId as any);
+export const isSyncSupported = (chainId: string) => TZKT_API_BASE_URLS.has(chainId as any);
+
+async function fetchTzktTokenTransfers(chainId: string, address: string) {
+  if (!isKnownChainId(chainId) || !TZKT_API_BASE_URLS.has(chainId)) {
+    return [];
+  }
+
+  const size = 100;
+
+  const total = await getTokenTransfersCount(chainId as any, { address });
+
+  let tokenTransfers = await getTokenTransfers(chainId as any, {
+    address,
+    offset: 0,
+    limit: size,
+    type: ['delegation', 'origination', 'transaction']
+  });
+
+  if (total > size) {
+    const requests = Math.floor(total / size);
+    const restResponses = await Promise.all(
+      Array.from({ length: requests }).map((_, i) =>
+        getTokenTransfers(chainId, {
+          address,
+          limit: size,
+          offset: (i + 1) * size,
+          type: ['delegation', 'origination', 'transaction']
+        })
+      )
+    );
+
+    tokenTransfers = [...tokenTransfers, ...restResponses.flat()];
+  }
+
+  return tokenTransfers;
+}
+
+async function fetchTzktOperations(chainId: string, address: string, fresh: boolean, tzktTime?: Repo.ISyncTime) {
+  if (!isKnownChainId(chainId) || !TZKT_API_BASE_URLS.has(chainId)) {
+    return [];
+  }
+
+  const size = 1000;
+
+  const operations = await getOperations(chainId as any, {
+    address,
+    sort: 1,
+    limit: size,
+    offset: 0,
+    [getFreshTzktField(fresh)]:
+      tzktTime && new Date(fresh ? tzktTime.higherTimestamp + 1 : tzktTime.lowerTimestamp).toISOString()
+  });
+
+  return operations;
 }
 
 export async function syncOperations(type: 'new' | 'old', chainId: string, address: string) {
@@ -16,70 +73,31 @@ export async function syncOperations(type: 'new' | 'old', chainId: string, addre
     throw new Error('Not supported for this chainId');
   }
 
-  const [tzktTime, bcdTime] = await Promise.all(
-    ['tzkt', 'bcd'].map(service => Repo.syncTimes.get({ service, chainId, address }))
-  );
+  const [tzktTime] = await Promise.all(['tzkt'].map(service => Repo.syncTimes.get({ service, chainId, address })));
 
   const fresh = type === 'new';
-  const bcdNetwork = BCD_NETWORKS_NAMES.get(chainId as any)!;
 
-  const [tzktOperations, bcdTokenTransfers] = await Promise.all([
-    getOperations(chainId as any, {
-      address,
-      sort: 1,
-      limit: 1000,
-      [getFreshTzktField(fresh)]:
-        tzktTime && new Date(fresh ? tzktTime.higherTimestamp + 1 : tzktTime.lowerTimestamp).toISOString()
-    }),
-    getTokenTransfers({
-      network: bcdNetwork,
-      address,
-      sort: 'desc',
-      [getFreshBcdField(fresh)]:
-        bcdTime &&
-        new BigNumber(fresh ? bcdTime.higherTimestamp + 1_000 : bcdTime.lowerTimestamp).idiv(1_000).toNumber()
-    })
+  const [tzktOperations, tzktTokenTransfers] = await Promise.all([
+    fetchTzktOperations(chainId, address, fresh, tzktTime),
+    fetchTzktTokenTransfers(chainId, address)
   ]);
 
-  let tokenTransfers = bcdTokenTransfers.transfers;
-
-  const totalBcdTransfers = bcdTokenTransfers.total;
-  if (totalBcdTransfers > bcdTokenTransfers.transfers.length) {
-    let lastId = bcdTokenTransfers.last_id;
-
-    while (true) {
-      const result = await getTokenTransfers({
-        network: bcdNetwork,
-        address,
-        sort: 'desc',
-        last_id: lastId
-      });
-
-      if (result.transfers.length === 0) break;
-
-      tokenTransfers = [...tokenTransfers, ...result.transfers];
-      if (tokenTransfers.length > 200) break;
-
-      lastId = result.last_id;
-    }
-  }
-
   /**
-   * TZKT
+   * TZKT operations
    */
 
   syncTzktOperations(tzktOperations, chainId, address, tzktTime, fresh);
 
   /**
-   * BCD
+   * ex BCD, TZKT token transfers
    */
 
-  syncBcdOperations(tokenTransfers, chainId, address, tzktTime, fresh);
+  syncTzktTokenTransfers(tzktTokenTransfers, tzktOperations, chainId, address, tzktTime, fresh);
 
   // delete outdated pending operations
   await deletePendingOp();
 
-  return tzktOperations.length + tokenTransfers.length;
+  return tzktTokenTransfers.length;
 }
 
 const afterSyncUpdate = async (
@@ -191,50 +209,55 @@ const addMemberSetOperations = (tzktOp: TzktOperation, assetIdSet: Set<string>, 
   }
 };
 
-const syncBcdOperations = async (
-  tokenTransfers: BcdTokenTransfer[],
+const syncTzktTokenTransfers = async (
+  tokenTransfers: Array<TzktTokenTransfer>,
+  operations: Array<TzktOperation>,
   chainId: string,
   address: string,
   tzktTime: Repo.ISyncTime | undefined,
   fresh: boolean
 ) => {
   for (const tokenTrans of tokenTransfers) {
-    const current = await Repo.operations.get(tokenTrans.hash);
+    const operation = operations.find(x => x.id === tokenTrans.transactionId);
+    if (!operation) continue;
+    const current = await Repo.operations.get(operation.hash);
 
     const memberSet = new Set(current?.members);
     const assetIdSet = new Set(current?.assetIds);
 
-    memberSet.add(tokenTrans.initiator);
-    memberSet.add(tokenTrans.from);
-    memberSet.add(tokenTrans.to);
+    memberSet.add(
+      operation.type !== 'reveal' && operation.type !== 'origination' && operation.initiator
+        ? operation.initiator.address
+        : address
+    );
+    memberSet.add(tokenTrans.from ? tokenTrans.from.address : address);
+    memberSet.add(tokenTrans.to ? tokenTrans.to.address : address);
 
-    assetIdSet.add(toTokenId(tokenTrans.contract, tokenTrans.token_id));
+    assetIdSet.add(toTokenId(tokenTrans.token.contract.address, tokenTrans.token.tokenId));
 
     const members = Array.from(memberSet);
     const assetIds = Array.from(assetIdSet);
 
     if (!current) {
       await Repo.operations.add({
-        hash: tokenTrans.hash,
+        hash: operation.hash,
         chainId,
         members,
         assetIds,
         addedAt: +new Date(tokenTrans.timestamp),
         data: {
-          bcdTokenTransfers: [tokenTrans]
+          tzktTokenTransfers: [tokenTrans]
         }
       });
     } else {
-      await Repo.operations.where({ hash: tokenTrans.hash }).modify(op => {
+      await Repo.operations.where({ hash: operation.hash }).modify(op => {
         op.members = members;
         op.assetIds = assetIds;
 
-        if (!op.data.bcdTokenTransfers) {
-          op.data.bcdTokenTransfers = [tokenTrans];
-        } else if (
-          op.data.bcdTokenTransfers.every(trans => getBcdTokenTransferId(trans) !== getBcdTokenTransferId(tokenTrans))
-        ) {
-          op.data.bcdTokenTransfers.push(tokenTrans);
+        if (!op.data.tzktTokenTransfers) {
+          op.data.tzktTokenTransfers = [tokenTrans];
+        } else if (op.data.tzktTokenTransfers.every(trans => trans.transactionId !== tokenTrans.transactionId)) {
+          op.data.tzktTokenTransfers.push(tokenTrans);
         }
       });
     }
@@ -259,5 +282,3 @@ const syncBcdOperations = async (
 };
 
 const getFreshTzktField = (fresh: boolean) => (fresh ? 'from' : 'to');
-
-const getFreshBcdField = (fresh: boolean) => (fresh ? 'start' : 'end');

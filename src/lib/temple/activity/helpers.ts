@@ -30,6 +30,11 @@ export function getBcdTokenTransferId(tokenTrans: BcdTokenTransfer) {
   return `${tokenTrans.hash}_${tokenTrans.nonce}`;
 }
 
+export function getTzktTokenTransferId(hash: string, nonce?: number) {
+  const nonceStr = nonce ? `_${nonce}` : '';
+  return `${hash}${nonceStr}`;
+}
+
 const formatFa12 = (
   parameters: any,
   destination: string,
