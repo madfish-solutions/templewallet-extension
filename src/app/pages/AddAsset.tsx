@@ -153,7 +153,7 @@ const Form: FC = () => {
       };
     } catch (err: any) {
       await withErrorHumanDelay(err, () => {
-        stateToSet = errorHandler(err, contractAddress, setState);
+        stateToSet = errorHandler(err, contractAddress, setValue);
       });
     }
 

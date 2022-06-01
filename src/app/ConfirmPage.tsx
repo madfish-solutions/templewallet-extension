@@ -278,7 +278,7 @@ const ConfirmDAppForm: FC = () => {
           want: (
             <div className={classNames('mb-2 text-sm text-center text-gray-700', 'flex flex-col items-center')}>
               <div className="flex items-center justify-center">
-                <DAppLogo origin={payload.origin} size={16} className="mr-1" />
+                <DAppLogo icon={payload.appMeta.icon} origin={payload.origin} size={16} className="mr-1" />
                 <Name className="font-semibold" style={{ maxWidth: '10rem' }}>
                   {payload.appMeta.name}
                 </Name>
@@ -305,7 +305,7 @@ const ConfirmDAppForm: FC = () => {
           want: (
             <div className={classNames('mb-2 text-sm text-center text-gray-700', 'flex flex-col items-center')}>
               <div className="flex items-center justify-center">
-                <DAppLogo origin={payload.origin} size={16} className="mr-1" />
+                <DAppLogo icon={payload.appMeta.icon} origin={payload.origin} size={16} className="mr-1" />
                 <Name className="font-semibold" style={{ maxWidth: '10rem' }}>
                   {payload.appMeta.name}
                 </Name>
@@ -322,7 +322,7 @@ const ConfirmDAppForm: FC = () => {
           )
         };
     }
-  }, [payload.type, payload.origin, payload.appMeta.name, error]);
+  }, [payload.type, payload.origin, payload.appMeta.name, payload.appMeta.icon, error]);
 
   const modifiedStorageLimitDisplayed = useMemo(
     () => payload.type === 'confirm_operations' && payload.opParams.length < 2,
@@ -459,8 +459,11 @@ const AccountOptionContentHOC = (networkRpc: string) => {
 
         <Balance address={acc.publicKeyHash} networkRpc={networkRpc}>
           {bal => (
-            <div className={classNames('ml-2', 'text-xs leading-none', 'text-gray-600')}>
-              <Money>{bal}</Money> <span style={{ fontSize: '0.75em' }}>tez</span>
+            <div className={classNames('ml-2', 'text-xs leading-none flex items-baseline', 'text-gray-600')}>
+              <Money>{bal}</Money>
+              <span className="ml-1" style={{ fontSize: '0.75em' }}>
+                tez
+              </span>
             </div>
           )}
         </Balance>

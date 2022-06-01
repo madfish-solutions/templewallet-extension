@@ -28,14 +28,14 @@ const ActivityItem = memo<ActivityItemProps>(({ address, operation, syncSupporte
   const { hash, addedAt } = operation;
 
   const pending = useMemo(
-    () => syncSupported && !(operation.data.tzktGroup || operation.data.bcdTokenTransfers),
-    [syncSupported, operation.data.tzktGroup, operation.data.bcdTokenTransfers]
+    () => syncSupported && !(operation.data.tzktGroup || operation.data.tzktTokenTransfers),
+    [syncSupported, operation.data.tzktGroup, operation.data.tzktTokenTransfers]
   );
 
   const status = useMemo(() => {
     if (!syncSupported) return null;
 
-    const explorerStatus = operation.data.tzktGroup?.[0]?.status ?? operation.data.bcdTokenTransfers?.[0]?.status;
+    const explorerStatus = operation.data.tzktGroup?.[0]?.status;
     return explorerStatus ?? 'pending';
   }, [syncSupported, operation.data]);
 
@@ -49,7 +49,7 @@ const ActivityItem = memo<ActivityItemProps>(({ address, operation, syncSupporte
   const statusNode = useMemo(() => {
     if (!syncSupported) return null;
 
-    const explorerStatus = operation.data.tzktGroup?.[0]?.status ?? operation.data.bcdTokenTransfers?.[0]?.status;
+    const explorerStatus = operation.data.tzktGroup?.[0]?.status;
     const content = explorerStatus ?? 'pending';
     const conditionalTextColor = explorerStatus ? 'text-red-600' : 'text-yellow-600';
 

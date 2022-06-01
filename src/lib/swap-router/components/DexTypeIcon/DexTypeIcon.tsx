@@ -5,6 +5,7 @@ import { DexTypeEnum } from 'swap-router-sdk';
 import { ReactComponent as LiquidityBackingIcon } from './icons/liquidity-backing-icon.svg';
 import { ReactComponent as PlentyIcon } from './icons/plenty.svg';
 import { ReactComponent as QuipuSwapIcon } from './icons/quipu-swap-icon.svg';
+import { ReactComponent as VortexIcon } from './icons/vortex.svg';
 import { ReactComponent as YouvesIcon } from './icons/youves.svg';
 
 interface Props {
@@ -22,5 +23,7 @@ export const DexTypeIcon: FC<Props> = ({ dexType }) => {
       return <LiquidityBackingIcon />;
     case DexTypeEnum.Youves:
       return <YouvesIcon />;
+    case DexTypeEnum.Vortex:
+      return <VortexIcon />;
   }
 };

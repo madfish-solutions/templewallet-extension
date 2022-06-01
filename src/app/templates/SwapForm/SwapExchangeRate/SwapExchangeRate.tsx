@@ -30,12 +30,13 @@ export const SwapExchangeRate: FC<Props> = ({ trade, inputAssetMetadata, outputA
   return (
     <span>
       {exchangeRate ? (
-        <span>
-          <span>1 {outputAssetMetadata.symbol} = </span>
+        <span className="flex items-end justify-end">
+          <span>1 {outputAssetMetadata.symbol}</span>
+          <span className="ml-1 mr-1">=</span>
           <Money smallFractionFont={false} fiat={false}>
             {exchangeRate}
           </Money>
-          <span> {inputAssetMetadata.symbol}</span>
+          <span className="ml-1">{inputAssetMetadata.symbol}</span>
         </span>
       ) : (
         '-'

@@ -1,6 +1,5 @@
 import React, { FC } from 'react';
 
-import { TempleDAppMetadata } from '@temple-wallet/dapp/dist/types';
 import classNames from 'clsx';
 
 import Logo from 'app/atoms/Logo';
@@ -8,11 +7,12 @@ import Name from 'app/atoms/Name';
 import { ReactComponent as LayersIcon } from 'app/icons/layers.svg';
 import { ReactComponent as OkIcon } from 'app/icons/ok.svg';
 import DAppLogo from 'app/templates/DAppLogo';
+import { DappMetadata } from 'lib/temple/types';
 
 type ConnectBannerProps = {
   type: 'connect' | 'confirm_operations';
   origin: string;
-  appMeta: TempleDAppMetadata;
+  appMeta: DappMetadata;
   className?: string;
 };
 
@@ -22,7 +22,7 @@ const ConnectBanner: FC<ConnectBannerProps> = ({ type, origin, appMeta, classNam
   return (
     <div className={classNames('w-full flex items-center justify-around', className)}>
       <div className={classNames('w-32', 'border border-gray-200 rounded', 'flex flex-col items-center', 'p-2')}>
-        <DAppLogo origin={origin} size={32} className="flex-shrink-0 mb-1" />
+        <DAppLogo icon={appMeta.icon} origin={origin} size={32} className="flex-shrink-0 mb-1" />
 
         <span className="text-xs font-semibold text-gray-700">
           <Name style={{ maxWidth: '7.5rem' }}>{appMeta.name}</Name>

@@ -3,12 +3,16 @@ import { useEffect } from 'react';
 import { ExchangeDataInterface, getExchangeData } from 'lib/exolix-api';
 
 const useTopUpUpdate = (
-  exchangeData: ExchangeDataInterface,
+  exchangeData: ExchangeDataInterface | null,
   setExchangeData: (exchangeData: ExchangeDataInterface) => void,
   setIsError: (isError: boolean) => void
 ) => {
   useEffect(() => {
     let timeoutId = setTimeout(async function repeat() {
+      if (!exchangeData) {
+        setIsError(true);
+        return;
+      }
       try {
         const data = await getExchangeData(exchangeData.id);
         setExchangeData(data);

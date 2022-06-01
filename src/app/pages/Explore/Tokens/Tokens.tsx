@@ -11,7 +11,7 @@ import { ReactComponent as AddToListIcon } from 'app/icons/add-to-list.svg';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
 import { AssetIcon } from 'app/templates/AssetIcon';
 import Balance from 'app/templates/Balance';
-import InUSD from 'app/templates/InUSD';
+import InFiat from 'app/templates/InFiat';
 import SearchAssetField from 'app/templates/SearchAssetField';
 import { T } from 'lib/i18n/react';
 import {
@@ -27,7 +27,9 @@ import {
 } from 'lib/temple/front';
 import { Link, navigate } from 'lib/woozie';
 
-import { AssetsSelectors } from './Assets.selectors';
+import { AssetsSelectors } from '../Assets.selectors';
+import { QuipuToken } from './QuipuToken';
+import { TezosToken } from './TezosToken';
 import styles from './Tokens.module.css';
 
 const Tokens: FC = () => {
@@ -210,6 +212,8 @@ type ListItemProps = {
   latestBalance?: string;
 };
 
+const QUIPU_SLUG = 'KT193D4vozYnhGJQVtw7CoxxqphqUEEwK6Vb_0';
+
 const ListItem = memo<ListItemProps>(({ assetSlug, last, active, accountPkh }) => {
   const metadata = useAssetMetadata(assetSlug);
 
@@ -241,22 +245,29 @@ const ListItem = memo<ListItemProps>(({ assetSlug, last, active, accountPkh }) =
 
   const renderBalancInToken = useCallback(
     (balance: BigNumber) => (
-      <div className="text-base font-medium text-gray-800 truncate text-right ml-4">
+      <div className="truncate text-base font-medium text-gray-800 text-right ml-4 flex-1 flex justify-end">
         <Money smallFractionFont={false}>{balance}</Money>
       </div>
     ),
     []
   );
 
-  const renderBalanceInUSD = useCallback(
+  const renderBalanceInFiat = useCallback(
     (balance: BigNumber) => (
-      <InUSD assetSlug={assetSlug} volume={balance} smallFractionFont={false}>
-        {usdBalance => (
-          <div className={classNames('ml-1', 'font-normal text-gray-500 text-xs text-right truncate text-right')}>
-            ≈ {usdBalance} $
+      <InFiat assetSlug={assetSlug} volume={balance} smallFractionFont={false}>
+        {({ balance, symbol }) => (
+          <div
+            className={classNames(
+              'ml-1',
+              'font-normal text-gray-500 text-xs flex items-center text-right truncate text-right'
+            )}
+          >
+            <span className="mr-1">≈</span>
+            {balance}
+            <span className="ml-1">{symbol}</span>
           </div>
         )}
-      </InUSD>
+      </InFiat>
     ),
     [assetSlug]
   );
@@ -282,13 +293,10 @@ const ListItem = memo<ListItemProps>(({ assetSlug, last, active, accountPkh }) =
 
       <div ref={toDisplayRef} className={classNames('w-full', styles.tokenInfoWidth)}>
         <div className="flex justify-between w-full mb-1">
-          <div className="flex items-center">
+          <div className="flex items-center flex-initial">
             <div className={classNames(styles['tokenSymbol'])}>{getAssetSymbol(metadata)}</div>
-            {assetSlug === 'tez' && (
-              <Link to="/explore/tez/?tab=delegation" className={classNames('ml-1 px-2 py-1', styles['apyBadge'])}>
-                {<T id="delegate" />}
-              </Link>
-            )}
+            {assetSlug === 'tez' && <TezosToken />}
+            {assetSlug === QUIPU_SLUG && <QuipuToken />}
           </div>
           <Balance address={accountPkh} assetSlug={assetSlug} displayed={displayed}>
             {renderBalancInToken}
@@ -299,7 +307,7 @@ const ListItem = memo<ListItemProps>(({ assetSlug, last, active, accountPkh }) =
             {getAssetName(metadata)}
           </div>
           <Balance address={accountPkh} assetSlug={assetSlug} displayed={displayed}>
-            {renderBalanceInUSD}
+            {renderBalanceInFiat}
           </Balance>
         </div>
       </div>

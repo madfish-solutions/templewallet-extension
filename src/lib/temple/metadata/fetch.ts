@@ -49,7 +49,7 @@ const getMetadataFromUri = async (
   tokenId: string,
   tezos: TezosToolkit
 ) => {
-  let metadataFromUri: MetadataInterface = {};
+  let metadataFromUri: MetadataInterface & { thumbnail_uri?: string } = {};
 
   try {
     const storage = await contract.storage<any>();
@@ -104,7 +104,14 @@ export async function fetchTokenMetadata(
       name: rawMetadata.name || rawMetadata.symbol!,
       shouldPreferSymbol: parseBool(rawMetadata.shouldPreferSymbol),
       thumbnailUri:
-        rawMetadata.thumbnailUri || rawMetadata.logo || rawMetadata.icon || rawMetadata.iconUri || rawMetadata.iconUrl,
+        rawMetadata.thumbnailUri ||
+        rawMetadata.thumbnail_uri ||
+        rawMetadata.logo ||
+        rawMetadata.icon ||
+        rawMetadata.iconUri ||
+        rawMetadata.iconUrl ||
+        rawMetadata.displayUri ||
+        rawMetadata.artifactUri,
       displayUri: rawMetadata.displayUri,
       artifactUri: rawMetadata.artifactUri
     };

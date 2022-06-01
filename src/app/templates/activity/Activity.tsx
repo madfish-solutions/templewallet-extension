@@ -20,7 +20,7 @@ const Activity = memo<ActivityProps>(({ address, assetSlug, className }) => {
 
   const safeStateKey = useMemo(() => [chainId, address, assetSlug].join('_'), [chainId, address, assetSlug]);
 
-  const [restOperations, setRestOperations] = useSafeState<IOperation[]>([], safeStateKey);
+  const [restOperations, setRestOperations] = useSafeState<Array<IOperation>>([], safeStateKey);
   const [syncing, setSyncing] = useSafeState(false, safeStateKey);
   const [loadingMore, setLoadingMore] = useSafeState(false, safeStateKey);
   const [, setSyncError] = useSafeState<Error | null>(null, safeStateKey);
