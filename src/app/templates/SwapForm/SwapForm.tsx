@@ -42,12 +42,14 @@ import { SwapPriceUpdateBar } from './SwapPriceUpdateBar/SwapPriceUpdateBar';
 import { SwapRoute } from './SwapRoute/SwapRoute';
 
 const KNOWN_DEX_TYPES = [
-  DexTypeEnum.QuipuSwap,
-  DexTypeEnum.Plenty,
-  DexTypeEnum.LiquidityBaking,
-  DexTypeEnum.Youves,
-  DexTypeEnum.QuipuSwapTokenToTokenDex,
-  DexTypeEnum.Vortex
+  // DexTypeEnum.QuipuSwap,
+  // DexTypeEnum.Plenty,
+  // DexTypeEnum.LiquidityBaking,
+  // DexTypeEnum.Youves,
+  // DexTypeEnum.QuipuSwapTokenToTokenDex,
+  // DexTypeEnum.Vortex,
+  DexTypeEnum.Spicy,
+  DexTypeEnum.SpicyWrap
 ];
 
 export const SwapForm: FC = () => {
@@ -72,6 +74,7 @@ export const SwapForm: FC = () => {
 
   const [bestTrade, setBestTrade] = useState<Trade>([]);
   const allRoutePairs = useAllRoutePairs(TEZOS_DEXES_API_URL);
+  console.log(allRoutePairs);
   const filteredRoutePairs = useMemo(
     () => allRoutePairs.data.filter(routePair => KNOWN_DEX_TYPES.includes(routePair.dexType)),
     [allRoutePairs.data]
@@ -179,13 +182,14 @@ export const SwapForm: FC = () => {
 
     try {
       setOperation(undefined);
-
+      console.log(1);
       const routingFeeOpParams = await getRoutingFeeTransferParams(
         inputMutezAmount,
         bestTradeWithSlippageTolerance,
         account.publicKeyHash,
         tezos
       );
+      console.log(routingFeeOpParams);
       const tradeOpParams = await getTradeOpParams(bestTradeWithSlippageTolerance, account.publicKeyHash, tezos);
 
       const opParams = [...routingFeeOpParams, ...tradeOpParams].map(transferParams =>
