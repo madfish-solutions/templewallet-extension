@@ -3,12 +3,11 @@ import React, { FC } from 'react';
 import classNames from 'clsx';
 
 import { Button } from 'app/atoms/Button';
-import { useAppEnv } from 'app/env';
+import { openInFullPage, useAppEnv } from 'app/env';
 import ContentContainer from 'app/layouts/ContentContainer';
-import { T, t } from 'lib/i18n/react';
+import { T } from 'lib/i18n/react';
 import { useTempleClient } from 'lib/temple/front';
 
-import AddressBalanceImg from '../../pages/Onboarding/assets/address-balance.png';
 import TempleMobileOverlayBgImg from './assets/temple-mobile-overlay-bg.png';
 import TempleMobileOverlayDevicesImg from './assets/temple-mobile-overlay-devices.png';
 import { useTempleMobile } from './hooks/useTempleMobile.hook';
@@ -19,12 +18,14 @@ export const TempleMobileOverlay: FC = () => {
   const { showTempleMobileOverlay, setShowTempleMobileOverlay, setIsTempleMobileOverlaySkipped } = useTempleMobile();
 
   const handleSkipButtonClick = () => {
-    setShowTempleMobileOverlay(false);
-    setIsTempleMobileOverlaySkipped(true);
+    openInFullPage();
+    //setShowTempleMobileOverlay(false);
+    //setIsTempleMobileOverlaySkipped(true);
   };
   const handleDownloadButtonClick = () => {
-    setShowTempleMobileOverlay(false);
-    setIsTempleMobileOverlaySkipped(false);
+    openInFullPage();
+    //setShowTempleMobileOverlay(false);
+    //setIsTempleMobileOverlaySkipped(false);
   };
   console.log(showTempleMobileOverlay);
   const popupClassName = popup ? 'inset-0' : 'top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2';
@@ -37,40 +38,29 @@ export const TempleMobileOverlay: FC = () => {
         padding={!popup}
       >
         <div
-          className={classNames('bg-white rounded-md shadow-lg py-8 px-15', popup && 'h-full')}
+          className={classNames('flex flex-col bg-white rounded-md shadow-lg', popup && 'h-full')}
           style={{
             backgroundImage: `url(${TempleMobileOverlayBgImg})`
           }}
         >
-          <Button
-            className="w-full justify-center border-none"
-            style={{
-              padding: '10px 2rem',
-              background: '#4198e0',
-              color: '#ffffff',
-              marginTop: '40px',
-              borderRadius: 4
-            }}
-          >
+          <Button onClick={handleSkipButtonClick}>
             <T id="skip" />
           </Button>
-          <img src={AddressBalanceImg} alt="AddressBalanceImg" />
+          <img
+            src={TempleMobileOverlayDevicesImg}
+            alt="TempleMobileOverlayDevicesImg"
+            style={{
+              width: 250,
+              height: 359
+            }}
+          />
           <p className="text-xl">
             <T id="templeIsOnMobile" />
           </p>
           <p className="text-sm">
             <T id="getTempleMobileAndroid" />
           </p>
-          <Button
-            className="w-full justify-center border-none"
-            style={{
-              padding: '10px 2rem',
-              background: '#4198e0',
-              color: '#ffffff',
-              marginTop: '40px',
-              borderRadius: 4
-            }}
-          >
+          <Button className="pb-8" onClick={handleDownloadButtonClick}>
             <T id="download" />
           </Button>
         </div>
