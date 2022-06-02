@@ -19,10 +19,9 @@ import {
   toBaseMetadata,
   DetailedAssetMetdata
 } from 'lib/temple/front';
-import { tokenListItemToSlug } from 'lib/temple/front/use-quipu-tokenlist.hook';
 import * as Repo from 'lib/temple/repo';
 import { getTokensMetadata } from 'lib/templewallet-api';
-import { getQuipuWhitelist } from 'lib/templewallet-api/token-list';
+import { fetchWhitelistTokenSlugs } from 'lib/templewallet-api/whitelist-tokens';
 import { getTokenBalances, getTokenBalancesCount, TzktAccountTokenBalance, TZKT_API_BASE_URLS } from 'lib/tzkt';
 
 export const [SyncTokensProvider] = constate(() => {
@@ -142,18 +141,19 @@ const makeSync = async (
   if (!networkId) return;
   const mainnet = networkId === 'mainnet';
 
-  const [tzktTokens, displayedFungibleTokens, displayedCollectibleTokens, quipuTokens] = await Promise.all([
-    fetchTzktTokenBalances(chainId, accountPkh),
-    fetchDisplayedFungibleTokens(chainId, accountPkh),
-    fetchCollectibleTokens(chainId, accountPkh, true),
-    getQuipuWhitelist()
-  ]);
+  const [tzktTokens, displayedFungibleTokens, displayedCollectibleTokens, whitelistTokenSlugs] =
+    await Promise.all([
+      fetchTzktTokenBalances(chainId, accountPkh),
+      fetchDisplayedFungibleTokens(chainId, accountPkh),
+      fetchCollectibleTokens(chainId, accountPkh, true),
+      fetchWhitelistTokenSlugs()
+    ]);
+
+  console.log(whitelistTokenSlugs);
 
   const tzktTokensMap = new Map(
     tzktTokens.map(balance => [toTokenSlug(balance.token.contract.address, balance.token.tokenId), balance])
   );
-  const quipuTokenList: Array<string> =
-    quipuTokens && quipuTokens.tokens ? quipuTokens.tokens.map(tokenListItemToSlug).filter(x => x !== 'tez') : [];
 
   const displayedTokenSlugs = [...displayedFungibleTokens, ...displayedCollectibleTokens].map(
     ({ tokenSlug }) => tokenSlug
@@ -163,7 +163,7 @@ const makeSync = async (
     new Set([
       ...tzktTokensMap.keys(),
       ...displayedTokenSlugs,
-      ...quipuTokenList,
+      ...whitelistTokenSlugs,
       ...(mainnet ? PREDEFINED_MAINNET_TOKENS : [])
     ])
   );
