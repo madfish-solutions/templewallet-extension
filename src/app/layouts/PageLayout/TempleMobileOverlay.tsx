@@ -27,7 +27,6 @@ export const TempleMobileOverlay: FC = () => {
     //setShowTempleMobileOverlay(false);
     //setIsTempleMobileOverlaySkipped(false);
   };
-  console.log(showTempleMobileOverlay);
   const popupClassName = popup ? 'inset-0' : 'top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2';
 
   return ready && showTempleMobileOverlay ? (
@@ -43,7 +42,13 @@ export const TempleMobileOverlay: FC = () => {
             backgroundImage: `url(${TempleMobileOverlayBgImg})`
           }}
         >
-          <Button onClick={handleSkipButtonClick}>
+          <Button
+            onClick={handleSkipButtonClick}
+            className="font-inter font-normal text-sm text-gray-600 self-end mt-3 mr-6"
+            style={{
+              maxWidth: 'max-content'
+            }}
+          >
             <T id="skip" />
           </Button>
           <img
@@ -60,7 +65,13 @@ export const TempleMobileOverlay: FC = () => {
           <p className="text-sm">
             <T id="getTempleMobileAndroid" />
           </p>
-          <Button className="pb-8" onClick={handleDownloadButtonClick}>
+          <Button
+            className="mb-8 py-2 px-4 bg-primary-orange text-white"
+            onClick={handleDownloadButtonClick}
+            style={{
+              maxWidth: '7rem'
+            }}
+          >
             <T id="download" />
           </Button>
         </div>
