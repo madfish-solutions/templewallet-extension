@@ -42,12 +42,13 @@ import { SwapPriceUpdateBar } from './SwapPriceUpdateBar/SwapPriceUpdateBar';
 import { SwapRoute } from './SwapRoute/SwapRoute';
 
 const KNOWN_DEX_TYPES = [
-  // DexTypeEnum.QuipuSwap,
-  // DexTypeEnum.Plenty,
-  // DexTypeEnum.LiquidityBaking,
-  // DexTypeEnum.Youves,
-  // DexTypeEnum.QuipuSwapTokenToTokenDex,
-  // DexTypeEnum.Vortex,
+  DexTypeEnum.QuipuSwap,
+  DexTypeEnum.QuipuSwapTokenToTokenDex,
+  DexTypeEnum.Plenty,
+  DexTypeEnum.PlentyBridge,
+  DexTypeEnum.LiquidityBaking,
+  DexTypeEnum.Youves,
+  DexTypeEnum.Vortex,
   DexTypeEnum.Spicy,
   DexTypeEnum.SpicyWrap
 ];
