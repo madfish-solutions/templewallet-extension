@@ -1,4 +1,4 @@
-export const TEZOS_DEXES_API_URL = 'ws://localhost:3001';
+export const TEZOS_DEXES_API_URL = 'wss://tezos-dexes-api-mainnet.stage.madservice.xyz';
 
 export const ROUTING_FEE_ADDRESS = 'tz1UbRzhYjQKTtWYvGUWcRtVT4fN3NESDVYT';
 
