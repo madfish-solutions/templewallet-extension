@@ -43,10 +43,11 @@ import { SwapRoute } from './SwapRoute/SwapRoute';
 
 const KNOWN_DEX_TYPES = [
   DexTypeEnum.QuipuSwap,
+  DexTypeEnum.QuipuSwapTokenToTokenDex,
   DexTypeEnum.Plenty,
+  DexTypeEnum.PlentyBridge,
   DexTypeEnum.LiquidityBaking,
   DexTypeEnum.Youves,
-  DexTypeEnum.QuipuSwapTokenToTokenDex,
   DexTypeEnum.Vortex
 ];
 
