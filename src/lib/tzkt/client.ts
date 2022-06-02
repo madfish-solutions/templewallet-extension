@@ -14,8 +14,7 @@ import { TzktAccountTokenBalance, TzktTokenTransfer } from '.';
 
 export const TZKT_API_BASE_URLS = new Map([
   [TempleChainId.Mainnet, 'https://api.tzkt.io/v1'],
-  [TempleChainId.Ithacanet, 'https://api.ithacanet.tzkt.io/v1'],
-  [TempleChainId.Hangzhounet, 'https://api.hangzhou2net.tzkt.io/v1']
+  [TempleChainId.Ithacanet, 'https://api.ithacanet.tzkt.io/v1']
 ]);
 
 const api = axios.create();

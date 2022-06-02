@@ -21,6 +21,7 @@ import {
 } from 'lib/temple/front';
 import * as Repo from 'lib/temple/repo';
 import { getTokensMetadata } from 'lib/templewallet-api';
+import { fetchWhitelistTokenSlugs } from 'lib/templewallet-api/whitelist-tokens';
 import { getTokenBalances, getTokenBalancesCount, TzktAccountTokenBalance, TZKT_API_BASE_URLS } from 'lib/tzkt';
 
 export const [SyncTokensProvider] = constate(() => {
@@ -140,11 +141,14 @@ const makeSync = async (
   if (!networkId) return;
   const mainnet = networkId === 'mainnet';
 
-  const [tzktTokens, displayedFungibleTokens, displayedCollectibleTokens] = await Promise.all([
+  const [tzktTokens, displayedFungibleTokens, displayedCollectibleTokens, whitelistTokenSlugs] = await Promise.all([
     fetchTzktTokenBalances(chainId, accountPkh),
     fetchDisplayedFungibleTokens(chainId, accountPkh),
-    fetchCollectibleTokens(chainId, accountPkh, true)
+    fetchCollectibleTokens(chainId, accountPkh, true),
+    fetchWhitelistTokenSlugs()
   ]);
+
+  console.log(whitelistTokenSlugs);
 
   const tzktTokensMap = new Map(
     tzktTokens.map(balance => [toTokenSlug(balance.token.contract.address, balance.token.tokenId), balance])
@@ -154,8 +158,13 @@ const makeSync = async (
     ({ tokenSlug }) => tokenSlug
   );
 
-  const tokenSlugs = Array.from(
-    new Set([...tzktTokensMap.keys(), ...displayedTokenSlugs, ...(mainnet ? PREDEFINED_MAINNET_TOKENS : [])])
+  let tokenSlugs = Array.from(
+    new Set([
+      ...tzktTokensMap.keys(),
+      ...displayedTokenSlugs,
+      ...whitelistTokenSlugs,
+      ...(mainnet ? PREDEFINED_MAINNET_TOKENS : [])
+    ])
   );
 
   const tokenRepoKeys = tokenSlugs.map(slug => Repo.toAccountTokenKey(chainId, accountPkh, slug));
