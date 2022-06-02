@@ -112,6 +112,15 @@
   "skip": {
     "message": "Skip"
   },
+  "download": {
+    "message": "Download"
+  },
+  "templeIsOnMobile": {
+    "message": "Temple is on Mobile"
+  },
+  "getTempleMobileAndroid": {
+  "message": "Get the Android version of the wallet now"
+},
   "addNewToken": {
     "message": "Add new Token"
   },

@@ -20,6 +20,7 @@ import { PageLayoutSelectors } from './PageLayout.selectors';
 import AnalyticsConfirmationOverlay from './PageLayout/AnalyticsConfirmationOverlay';
 import ConfirmationOverlay from './PageLayout/ConfirmationOverlay';
 import Header from './PageLayout/Header';
+import { TempleMobileOverlay } from './PageLayout/TempleMobileOverlay';
 
 type PageLayoutProps = ToolbarProps;
 
@@ -46,6 +47,7 @@ const PageLayout: FC<PageLayoutProps> = ({ children, ...toolbarProps }) => {
 
       <ConfirmationOverlay />
       <AnalyticsConfirmationOverlay />
+      <TempleMobileOverlay />
     </>
   );
 };
