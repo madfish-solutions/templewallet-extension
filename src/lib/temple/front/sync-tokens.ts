@@ -141,13 +141,12 @@ const makeSync = async (
   if (!networkId) return;
   const mainnet = networkId === 'mainnet';
 
-  const [tzktTokens, displayedFungibleTokens, displayedCollectibleTokens, whitelistTokenSlugs] =
-    await Promise.all([
-      fetchTzktTokenBalances(chainId, accountPkh),
-      fetchDisplayedFungibleTokens(chainId, accountPkh),
-      fetchCollectibleTokens(chainId, accountPkh, true),
-      fetchWhitelistTokenSlugs()
-    ]);
+  const [tzktTokens, displayedFungibleTokens, displayedCollectibleTokens, whitelistTokenSlugs] = await Promise.all([
+    fetchTzktTokenBalances(chainId, accountPkh),
+    fetchDisplayedFungibleTokens(chainId, accountPkh),
+    fetchCollectibleTokens(chainId, accountPkh, true),
+    fetchWhitelistTokenSlugs()
+  ]);
 
   console.log(whitelistTokenSlugs);
 
