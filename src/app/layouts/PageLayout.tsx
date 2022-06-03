@@ -149,8 +149,8 @@ const Toolbar: FC<ToolbarProps> = ({ pageTitle, hasBackAction = true, step, setS
   }, [setSticked]);
 
   const handleDownloadMobileIconClick = () => {
-    setIsTempleMobileOverlaySkipped(false);
     trackEvent(TempleMobileSelectors.DownloadIcon, AnalyticsEventCategory.ButtonPress);
+    setIsTempleMobileOverlaySkipped(false);
   };
 
   return (

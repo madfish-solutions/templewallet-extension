@@ -21,14 +21,14 @@ export const TempleMobileOverlay: FC = () => {
   const { showTempleMobileOverlay, setShowTempleMobileOverlay, setIsTempleMobileOverlaySkipped } = useTempleMobile();
 
   const handleSkip = () => {
+    trackEvent(TempleMobileSelectors.Skip, AnalyticsEventCategory.ButtonPress);
     setShowTempleMobileOverlay(false);
     setIsTempleMobileOverlaySkipped(true);
-    trackEvent(TempleMobileSelectors.Skip, AnalyticsEventCategory.ButtonPress);
   };
   const handleDownload = () => {
+    trackEvent(TempleMobileSelectors.Download, AnalyticsEventCategory.ButtonPress);
     setShowTempleMobileOverlay(false);
     setIsTempleMobileOverlaySkipped(false);
-    trackEvent(TempleMobileSelectors.Download, AnalyticsEventCategory.ButtonPress);
   };
   const popupClassName = popup ? 'inset-0' : 'top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2';
 
