@@ -84,11 +84,11 @@ const BakerBanner = memo<BakerBannerProps>(({ bakerPkh, displayAddress = true, c
                 </div>
 
                 <div className="flex items-center">
-                  <div className={classNames('text-xs font-light leading-tight', 'text-gray-600')}>
-                    <T id="space" />:{' '}
-                    <span className="font-normal">
+                  <div className={classNames('text-xs font-light leading-tight flex items-end', 'text-gray-600')}>
+                    <T id="space" />:
+                    <span className="font-normal ml-1 mr-1">
                       <Money>{baker.freeSpace}</Money>
-                    </span>{' '}
+                    </span>
                     <span style={{ fontSize: '0.75em' }}>{assetSymbol}</span>
                   </div>
                 </div>

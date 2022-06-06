@@ -3,7 +3,6 @@ import { TempleChainId, TempleNetwork } from 'lib/temple/types';
 
 export const NETWORK_IDS = new Map<string, string>([
   [TempleChainId.Mainnet, 'mainnet'],
-  [TempleChainId.Hangzhounet, 'hangzhounet'],
   [TempleChainId.Ithacanet, 'ithacanet'],
   [TempleChainId.Jakartanet, 'jakartanet']
 ]);
@@ -53,15 +52,6 @@ export const NETWORKS: TempleNetwork[] = [
     type: 'main',
     rpcBaseURL: 'https://mainnet.api.tez.ie',
     color: '#047857',
-    disabled: false
-  },
-  {
-    id: 'hangzhounet',
-    name: 'Hangzhounet Testnet',
-    description: 'Hangzhounet testnet',
-    type: 'test',
-    rpcBaseURL: 'https://hangzhounet.smartpy.io',
-    color: '#b83280',
     disabled: false
   },
   {

@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 
-import { AnalyticsEventCategory } from './analytics-event.enum';
+import { AnalyticsEventCategory } from 'lib/temple/analytics-types';
+
 import { useAnalytics } from './use-analytics.hook';
 
 export const useFormAnalytics = (formName: string) => {

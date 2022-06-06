@@ -1,6 +1,13 @@
 import { Estimate } from '@taquito/taquito';
 import { TempleDAppMetadata, TempleDAppNetwork } from '@temple-wallet/dapp/dist/types';
 
+import {
+  TempleSendPageEventRequest,
+  TempleSendPageEventResponse,
+  TempleSendTrackEventRequest,
+  TempleSendTrackEventResponse
+} from './analytics-types';
+
 type NonEmptyArray<T> = [T, ...T[]];
 
 export interface ReadyTempleState extends TempleState {
@@ -26,7 +33,6 @@ export interface TempleState {
 
 export enum TempleChainId {
   Mainnet = 'NetXdQprcVkpaWU',
-  Hangzhounet = 'NetXZSsxBpMQeAT',
   Ithacanet = 'NetXnHfVqm9iesp',
   Jakartanet = 'NetXLH1uAxK7CCh'
 }
@@ -262,7 +268,11 @@ export enum TempleMessageType {
   DAppGetAllSessionsRequest = 'TEMPLE_DAPP_GET_ALL_SESSIONS_REQUEST',
   DAppGetAllSessionsResponse = 'TEMPLE_DAPP_GET_ALL_SESSIONS_RESPONSE',
   DAppRemoveSessionRequest = 'TEMPLE_DAPP_REMOVE_SESSION_REQUEST',
-  DAppRemoveSessionResponse = 'TEMPLE_DAPP_REMOVE_SESSION_RESPONSE'
+  DAppRemoveSessionResponse = 'TEMPLE_DAPP_REMOVE_SESSION_RESPONSE',
+  SendTrackEventRequest = 'SEND_TRACK_EVENT_REQUEST',
+  SendTrackEventResponse = 'SEND_TRACK_EVENT_RESPONSE',
+  SendPageEventRequest = 'SEND_PAGE_EVENT_REQUEST',
+  SendPageEventResponse = 'SEND_PAGE_EVENT_RESPONSE'
 }
 
 export type TempleNotification = TempleStateUpdated | TempleConfirmationRequested | TempleConfirmationExpired;
@@ -295,7 +305,9 @@ export type TempleRequest =
   | TempleDAppSignConfirmationRequest
   | TempleUpdateSettingsRequest
   | TempleGetAllDAppSessionsRequest
-  | TempleRemoveDAppSessionRequest;
+  | TempleRemoveDAppSessionRequest
+  | TempleSendTrackEventRequest
+  | TempleSendPageEventRequest;
 
 export type TempleResponse =
   | TempleGetStateResponse
@@ -325,7 +337,9 @@ export type TempleResponse =
   | TempleDAppSignConfirmationResponse
   | TempleUpdateSettingsResponse
   | TempleGetAllDAppSessionsResponse
-  | TempleRemoveDAppSessionResponse;
+  | TempleRemoveDAppSessionResponse
+  | TempleSendTrackEventResponse
+  | TempleSendPageEventResponse;
 
 export interface TempleMessageBase {
   type: TempleMessageType;

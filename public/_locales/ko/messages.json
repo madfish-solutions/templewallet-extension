@@ -1113,9 +1113,6 @@
   "availableToSend": {
     "message": "전송 가능(최대):"
   },
-  "inUSD": {
-    "message": "단위 USD"
-  },
   "inAsset": {
     "message": "단위 $assetSymbol$",
     "placeholders": {

@@ -4,7 +4,7 @@ import BigNumber from 'bignumber.js';
 import constate from 'constate';
 import { trigger } from 'swr';
 
-import { BCD_NETWORKS_NAMES, getAccountTokenBalances, BcdNetwork, BcdAccountTokenBalance } from 'lib/better-call-dev';
+import { BCD_NETWORKS_NAMES, BcdNetwork } from 'lib/better-call-dev';
 import {
   useChainId,
   useAccount,
@@ -21,6 +21,8 @@ import {
 } from 'lib/temple/front';
 import * as Repo from 'lib/temple/repo';
 import { getTokensMetadata } from 'lib/templewallet-api';
+import { fetchWhitelistTokenSlugs } from 'lib/templewallet-api/whitelist-tokens';
+import { getTokenBalances, getTokenBalancesCount, TzktAccountTokenBalance, TZKT_API_BASE_URLS } from 'lib/tzkt';
 
 export const [SyncTokensProvider] = constate(() => {
   const chainId = useChainId(true)!;
@@ -93,13 +95,18 @@ export const [SyncTokensProvider] = constate(() => {
   }, [networkId, accountPkh]);
 });
 
-async function fetchBcdTokenBalances(network: BcdNetwork, address: string) {
-  const size = 10;
+async function fetchTzktTokenBalances(chainId: string, address: string) {
+  if (!isKnownChainId(chainId) || !TZKT_API_BASE_URLS.has(chainId)) {
+    return [];
+  }
 
-  let { total, balances } = await getAccountTokenBalances({
-    network,
+  const size = 100;
+
+  const total = await getTokenBalancesCount(chainId, { address });
+
+  let balances = await getTokenBalances(chainId, {
     address,
-    size,
+    limit: size,
     offset: 0
   });
 
@@ -107,16 +114,15 @@ async function fetchBcdTokenBalances(network: BcdNetwork, address: string) {
     const requests = Math.floor(total / size);
     const restResponses = await Promise.all(
       Array.from({ length: requests }).map((_, i) =>
-        getAccountTokenBalances({
-          network,
+        getTokenBalances(chainId, {
           address,
-          size,
+          limit: size,
           offset: (i + 1) * size
         })
       )
     );
 
-    balances = [...balances, ...restResponses.map(r => r.balances).flat()];
+    balances = [...balances, ...restResponses.flat()];
   }
 
   return balances;
@@ -135,20 +141,28 @@ const makeSync = async (
   if (!networkId) return;
   const mainnet = networkId === 'mainnet';
 
-  const [bcdTokens, displayedFungibleTokens, displayedCollectibleTokens] = await Promise.all([
-    fetchBcdTokenBalances(networkId, accountPkh),
+  const [tzktTokens, displayedFungibleTokens, displayedCollectibleTokens, whitelistTokenSlugs] = await Promise.all([
+    fetchTzktTokenBalances(chainId, accountPkh),
     fetchDisplayedFungibleTokens(chainId, accountPkh),
-    fetchCollectibleTokens(chainId, accountPkh, true)
+    fetchCollectibleTokens(chainId, accountPkh, true),
+    fetchWhitelistTokenSlugs()
   ]);
 
-  const bcdTokensMap = new Map(bcdTokens.map(token => [toTokenSlug(token.contract, token.token_id), token]));
+  const tzktTokensMap = new Map(
+    tzktTokens.map(balance => [toTokenSlug(balance.token.contract.address, balance.token.tokenId), balance])
+  );
 
   const displayedTokenSlugs = [...displayedFungibleTokens, ...displayedCollectibleTokens].map(
     ({ tokenSlug }) => tokenSlug
   );
 
   let tokenSlugs = Array.from(
-    new Set([...bcdTokensMap.keys(), ...displayedTokenSlugs, ...(mainnet ? PREDEFINED_MAINNET_TOKENS : [])])
+    new Set([
+      ...tzktTokensMap.keys(),
+      ...displayedTokenSlugs,
+      ...whitelistTokenSlugs,
+      ...(mainnet ? PREDEFINED_MAINNET_TOKENS : [])
+    ])
   );
 
   const tokenRepoKeys = tokenSlugs.map(slug => Repo.toAccountTokenKey(chainId, accountPkh, slug));
@@ -196,7 +210,7 @@ const makeSync = async (
         chainId,
         accountPkh,
         existingRecords,
-        bcdTokensMap,
+        tzktTokensMap,
         baseMetadatasToSet,
         allTokensBaseMetadataRef,
         usdPrices
@@ -231,14 +245,14 @@ const updateTokenSlugs = (
   chainId: string,
   accountPkh: string,
   existingRecords: (Repo.IAccountToken | undefined)[],
-  bcdTokensMap: Map<string, BcdAccountTokenBalance>,
+  tzktTokensMap: Map<string, TzktAccountTokenBalance>,
   baseMetadatasToSet: any,
   allTokensBaseMetadataRef: any,
   usdPrices: Record<string, string>
 ) => {
   const existing = existingRecords[i];
-  const bcdToken = bcdTokensMap.get(slug);
-  const balance = bcdToken?.balance ?? '0';
+  const tzktToken = tzktTokensMap.get(slug);
+  const balance = tzktToken?.balance ?? '0';
   const metadata = baseMetadatasToSet[slug] ?? allTokensBaseMetadataRef.current[slug];
 
   const price = usdPrices[slug];

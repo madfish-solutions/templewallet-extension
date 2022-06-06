@@ -10,7 +10,7 @@ const isPendingOperationOutdated = (addedAt: number) => {
 
 export const deletePendingOp = async () => {
   const opToDelete = Repo.operations.filter(o => {
-    const explorerStatus = o.data.tzktGroup?.[0]?.status ?? o.data.bcdTokenTransfers?.[0]?.status;
+    const explorerStatus = o.data.tzktGroup?.[0]?.status;
 
     return !explorerStatus && isPendingOperationOutdated(o.addedAt);
   });

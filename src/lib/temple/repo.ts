@@ -1,8 +1,7 @@
 import { OperationContentsAndResult } from '@taquito/rpc';
 import Dexie from 'dexie';
 
-import { BcdTokenTransfer } from 'lib/better-call-dev';
-import { TzktOperation } from 'lib/tzkt';
+import { TzktOperation, TzktTokenTransfer } from 'lib/tzkt';
 
 export enum Table {
   AccountTokens = 'accountTokens',
@@ -55,16 +54,16 @@ export interface IAccountToken {
 export interface IOperation {
   hash: string;
   chainId: string;
-  members: string[];
-  assetIds: string[];
+  members: Array<string>;
+  assetIds: Array<string>;
   addedAt: number; // timestamp
   data: IOperationData;
 }
 
 export type IOperationData = AtLeastOne<{
-  localGroup: OperationContentsAndResult[];
-  tzktGroup: TzktOperation[];
-  bcdTokenTransfers: BcdTokenTransfer[];
+  localGroup: Array<OperationContentsAndResult>;
+  tzktGroup: Array<TzktOperation>;
+  tzktTokenTransfers: Array<TzktTokenTransfer>;
 }>;
 
 export interface ISyncTime {

@@ -490,13 +490,13 @@ async function getPublicKey(accountPublicKeyHash: string) {
   return res.publicKey;
 }
 
-async function request<T extends TempleRequest>(req: T) {
+export async function request<T extends TempleRequest>(req: T) {
   const res = await intercom.request(req);
   assertResponse('type' in res);
   return res as TempleResponse;
 }
 
-function assertResponse(condition: any): asserts condition {
+export function assertResponse(condition: any): asserts condition {
   if (!condition) {
     throw new Error('Invalid response recieved');
   }

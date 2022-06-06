@@ -28,7 +28,7 @@ export interface AppMetadata {
   icon?: string;
 }
 
-export type NetworkType = 'mainnet' | 'hangzhounet' | 'custom';
+export type NetworkType = 'mainnet' | 'custom';
 
 export interface Network {
   type: NetworkType;

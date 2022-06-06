@@ -11,8 +11,9 @@ import BuyCryptoInput from 'app/pages/BuyCrypto/BuyCryptoInput';
 import ErrorComponent from 'app/pages/BuyCrypto/steps/ErrorComponent';
 import WarningComponent from 'app/pages/BuyCrypto/steps/WarningComponent';
 import { ExchangeDataInterface, ExchangeDataStatusEnum, getRate, submitExchange } from 'lib/exolix-api';
+import { useAssetFiatCurrencyPrice } from 'lib/fiat-curency';
 import { T } from 'lib/i18n/react';
-import { useAccount, useAssetUSDPrice } from 'lib/temple/front';
+import { useAccount } from 'lib/temple/front';
 
 import { BuyCryptoSelectors } from '../BuyCrypto.selectors';
 
@@ -40,7 +41,7 @@ const InitialStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
   const { publicKeyHash } = useAccount();
   const [disabledProceed, setDisableProceed] = useState(true);
   const [debouncedAmount] = useDebounce(amount, 500);
-  const tezPrice = useAssetUSDPrice('tez');
+  const tezPrice = useAssetFiatCurrencyPrice('tez');
 
   const onAmountChange = (e: ChangeEvent<HTMLInputElement>) => {
     setDisableProceed(true);

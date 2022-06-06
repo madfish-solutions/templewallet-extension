@@ -22,13 +22,13 @@ export const SwapMinimumReceived: FC<Props> = ({ tradeWithSlippageTolerance, out
   }, [tradeWithSlippageTolerance, outputAssetMetadata.decimals]);
 
   return (
-    <span>
+    <span className="flex items-end justify-end">
       {minimumReceivedAmount ? (
         <>
           <Money smallFractionFont={false} fiat={false}>
             {minimumReceivedAmount}
           </Money>
-          <span> {outputAssetMetadata.symbol}</span>
+          <span className="ml-1">{outputAssetMetadata.symbol}</span>
         </>
       ) : (
         '-'

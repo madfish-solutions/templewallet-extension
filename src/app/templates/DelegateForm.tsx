@@ -19,7 +19,7 @@ import { useAppEnv } from 'app/env';
 import { ReactComponent as ChevronRightIcon } from 'app/icons/chevron-right.svg';
 import AdditionalFeeInput from 'app/templates/AdditionalFeeInput';
 import BakerBanner from 'app/templates/BakerBanner';
-import InUSD from 'app/templates/InUSD';
+import InFiat from 'app/templates/InFiat';
 import OperationStatus from 'app/templates/OperationStatus';
 import { useFormAnalytics } from 'lib/analytics';
 import { toLocalFormat } from 'lib/i18n/numbers';
@@ -285,19 +285,27 @@ const DelegateForm: FC = () => {
               <div className="font-light leading-none">
                 <div className="flex items-center">
                   <div className="flex flex-col">
-                    <span className="text-xl text-gray-700">
-                      <Money>{balance}</Money> <span style={{ fontSize: '0.75em' }}>{assetSymbol}</span>
+                    <span className="text-xl text-gray-700 flex items-baseline">
+                      <Money>{balance}</Money>{' '}
+                      <span style={{ fontSize: '0.75em' }}>
+                        <span className="ml-1">{assetSymbol}</span>
+                      </span>
                     </span>
 
-                    <InUSD assetSlug="tez" volume={balance}>
-                      {usdBalance => <div className="mt-1 text-sm text-gray-500">${usdBalance}</div>}
-                    </InUSD>
+                    <InFiat assetSlug="tez" volume={balance}>
+                      {({ balance, symbol }) => (
+                        <div className="mt-1 text-sm text-gray-500 flex items-baseline">
+                          {balance}
+                          <span className="ml-1">{symbol}</span>
+                        </div>
+                      )}
+                    </InFiat>
                   </div>
                 </div>
               </div>
             </div>
           ),
-          [assetSymbol, balance]
+          [balance]
         )}
 
         <Controller
@@ -659,12 +667,14 @@ const KnownDelegatorsList: React.FC<{ setValue: any; triggerValidation: any }> =
                 <div className="mb-1 flex flex-wrap items-center pl-px">
                   <T id="space">
                     {message => (
-                      <div className={classNames('text-xs font-light leading-none', 'text-gray-600')}>
+                      <div className={classNames('text-xs font-light leading-none flex items-center', 'text-gray-600')}>
                         {message}:{' '}
                         <span className="font-normal">
                           <Money>{baker.freeSpace}</Money>
                         </span>{' '}
-                        <span style={{ fontSize: '0.75em' }}>TEZ</span>
+                        <span className="ml-1" style={{ fontSize: '0.75em' }}>
+                          TEZ
+                        </span>
                       </div>
                     )}
                   </T>
@@ -672,12 +682,14 @@ const KnownDelegatorsList: React.FC<{ setValue: any; triggerValidation: any }> =
                 <div className="flex flex-wrap items-center pl-px">
                   <T id="staking">
                     {message => (
-                      <div className={classNames('text-xs font-light leading-none', 'text-gray-600')}>
+                      <div className={classNames('text-xs font-light leading-none flex items-center', 'text-gray-600')}>
                         {message}:{' '}
                         <span className="font-normal">
                           <Money>{baker.stakingBalance}</Money>
                         </span>{' '}
-                        <span style={{ fontSize: '0.75em' }}>TEZ</span>
+                        <span className="ml-1" style={{ fontSize: '0.75em' }}>
+                          TEZ
+                        </span>
                       </div>
                     )}
                   </T>
