@@ -48,7 +48,9 @@ const KNOWN_DEX_TYPES = [
   DexTypeEnum.PlentyBridge,
   DexTypeEnum.LiquidityBaking,
   DexTypeEnum.Youves,
-  DexTypeEnum.Vortex
+  DexTypeEnum.Vortex,
+  DexTypeEnum.Spicy,
+  DexTypeEnum.SpicyWrap
 ];
 
 export const SwapForm: FC = () => {
@@ -180,7 +182,6 @@ export const SwapForm: FC = () => {
 
     try {
       setOperation(undefined);
-
       const routingFeeOpParams = await getRoutingFeeTransferParams(
         inputMutezAmount,
         bestTradeWithSlippageTolerance,
