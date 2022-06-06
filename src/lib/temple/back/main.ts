@@ -1,6 +1,7 @@
 import { Runtime } from 'webextension-polyfill-ts';
 
 import * as Actions from 'lib/temple/back/actions';
+import * as Analytics from 'lib/temple/back/analytics';
 import { intercom } from 'lib/temple/back/defaults';
 import { store, toFront } from 'lib/temple/back/store';
 import { TempleMessageType, TempleRequest, TempleResponse } from 'lib/temple/types';
@@ -17,6 +18,14 @@ export async function start() {
 
 async function processRequest(req: TempleRequest, port: Runtime.Port): Promise<TempleResponse | void> {
   switch (req?.type) {
+    case TempleMessageType.SendTrackEventRequest:
+      await Analytics.trackEvent(req);
+      return { type: TempleMessageType.SendTrackEventResponse };
+
+    case TempleMessageType.SendPageEventRequest:
+      await Analytics.pageEvent(req);
+      return { type: TempleMessageType.SendPageEventResponse };
+
     case TempleMessageType.GetStateRequest:
       const state = await Actions.getFrontState();
       return {
