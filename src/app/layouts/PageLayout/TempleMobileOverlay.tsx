@@ -29,6 +29,7 @@ export const TempleMobileOverlay: FC = () => {
     trackEvent(TempleMobileSelectors.Download, AnalyticsEventCategory.ButtonPress);
     setShowTempleMobileOverlay(false);
     setIsTempleMobileOverlaySkipped(false);
+    window.open('https://templewallet.com/download', '_blank');
   };
   const popupClassName = popup ? 'inset-0' : 'top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2';
 
@@ -69,10 +70,7 @@ export const TempleMobileOverlay: FC = () => {
           <p className="mb-3 font-normal font-inter" style={{ fontSize: 12 }}>
             <T id="getTempleMobileAndroid" />
           </p>
-          <a
-            href="https://templewallet.com/download"
-            target="_blank"
-            rel="noopener noreferrer"
+          <Button
             className="mb-8 py-2 px-4 text-white font-inter rounded font-semibold uppercase mx-auto"
             onClick={handleDownload}
             style={{
@@ -82,7 +80,7 @@ export const TempleMobileOverlay: FC = () => {
             }}
           >
             <T id="download" />
-          </a>
+          </Button>
         </div>
       </ContentContainer>
     </>

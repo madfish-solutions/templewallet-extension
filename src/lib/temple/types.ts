@@ -1,6 +1,8 @@
 import { Estimate } from '@taquito/taquito';
 import { TempleDAppMetadata, TempleDAppNetwork } from '@temple-wallet/dapp/dist/types';
 
+import { AnalyticsEventCategory } from '../analytics';
+
 type NonEmptyArray<T> = [T, ...T[]];
 
 export interface ReadyTempleState extends TempleState {
@@ -261,7 +263,11 @@ export enum TempleMessageType {
   DAppGetAllSessionsRequest = 'TEMPLE_DAPP_GET_ALL_SESSIONS_REQUEST',
   DAppGetAllSessionsResponse = 'TEMPLE_DAPP_GET_ALL_SESSIONS_RESPONSE',
   DAppRemoveSessionRequest = 'TEMPLE_DAPP_REMOVE_SESSION_REQUEST',
-  DAppRemoveSessionResponse = 'TEMPLE_DAPP_REMOVE_SESSION_RESPONSE'
+  DAppRemoveSessionResponse = 'TEMPLE_DAPP_REMOVE_SESSION_RESPONSE',
+  SendTrackEventRequest = 'SEND_TRACK_EVENT_REQUEST',
+  SendTrackEventResponse = 'SEND_TRACK_EVENT_RESPONSE',
+  SendPageEventRequest = 'SEND_PAGE_EVENT_REQUEST',
+  SendPageEventResponse = 'SEND_PAGE_EVENT_RESPONSE'
 }
 
 export type TempleNotification = TempleStateUpdated | TempleConfirmationRequested | TempleConfirmationExpired;
@@ -294,7 +300,9 @@ export type TempleRequest =
   | TempleDAppSignConfirmationRequest
   | TempleUpdateSettingsRequest
   | TempleGetAllDAppSessionsRequest
-  | TempleRemoveDAppSessionRequest;
+  | TempleRemoveDAppSessionRequest
+  | TempleSendTrackEventRequest
+  | TempleSendPageEventRequest;
 
 export type TempleResponse =
   | TempleGetStateResponse
@@ -324,7 +332,9 @@ export type TempleResponse =
   | TempleDAppSignConfirmationResponse
   | TempleUpdateSettingsResponse
   | TempleGetAllDAppSessionsResponse
-  | TempleRemoveDAppSessionResponse;
+  | TempleRemoveDAppSessionResponse
+  | TempleSendTrackEventResponse
+  | TempleSendPageEventResponse;
 
 export interface TempleMessageBase {
   type: TempleMessageType;
@@ -638,6 +648,32 @@ export interface TempleRemoveDAppSessionRequest extends TempleMessageBase {
 export interface TempleRemoveDAppSessionResponse extends TempleMessageBase {
   type: TempleMessageType.DAppRemoveSessionResponse;
   sessions: TempleDAppSessions;
+}
+
+export interface TempleSendTrackEventRequest extends TempleMessageBase {
+  type: TempleMessageType.SendTrackEventRequest;
+  userId: string;
+  rpc: string | undefined;
+  event: string;
+  category: AnalyticsEventCategory;
+  properties?: object;
+}
+
+export interface TempleSendTrackEventResponse extends TempleMessageBase {
+  type: TempleMessageType.SendTrackEventResponse;
+}
+
+export interface TempleSendPageEventRequest extends TempleMessageBase {
+  type: TempleMessageType.SendPageEventRequest;
+  userId: string;
+  rpc: string | undefined;
+  path: string;
+  search: string;
+  additionalProperties: object;
+}
+
+export interface TempleSendPageEventResponse extends TempleMessageBase {
+  type: TempleMessageType.SendPageEventResponse;
 }
 
 export type OperationsPreview = any[] | { branch: string; contents: any[] };

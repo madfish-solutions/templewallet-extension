@@ -150,6 +150,14 @@ async function processRequest(req: TempleRequest, port: Runtime.Port): Promise<T
         sessions
       };
 
+    case TempleMessageType.SendTrackEventRequest:
+      await Actions.trackEvent(req);
+      return { type: TempleMessageType.SendTrackEventResponse };
+
+    case TempleMessageType.SendPageEventRequest:
+      await Actions.pageEvent(req);
+      return { type: TempleMessageType.SendPageEventResponse };
+
     case TempleMessageType.PageRequest:
       const dAppEnabled = await Actions.isDAppEnabled();
       if (dAppEnabled) {

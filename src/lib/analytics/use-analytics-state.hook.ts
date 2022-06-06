@@ -1,16 +1,10 @@
-import Analytics from 'analytics-node';
 import { nanoid } from 'nanoid';
 
 import { useLocalStorage } from 'lib/temple/front/local-storage';
 
-import { loadChainId } from '../temple/helpers';
+import { assertResponse, request } from '../temple/front';
+import { TempleMessageType } from '../temple/types';
 import { AnalyticsEventCategory } from './analytics-event.enum';
-
-if (!process.env.TEMPLE_WALLET_SEGMENT_WRITE_KEY) {
-  throw new Error("Require a 'TEMPLE_WALLET_SEGMENT_WRITE_KEY' environment variable to be set");
-}
-
-const client = new Analytics(process.env.TEMPLE_WALLET_SEGMENT_WRITE_KEY);
 
 interface AnalyticsStateInterface {
   enabled?: boolean;
@@ -24,19 +18,15 @@ export const sendTrackEvent = async (
   category: AnalyticsEventCategory = AnalyticsEventCategory.General,
   properties?: object
 ) => {
-  const chainId = rpc && (await loadChainId(rpc));
-
-  client.track({
+  const res = await request({
+    type: TempleMessageType.SendTrackEventRequest,
     userId,
-    event: `${category} ${event}`,
-    timestamp: new Date(),
-    properties: {
-      ...properties,
-      event,
-      category,
-      chainId
-    }
+    rpc,
+    event,
+    category,
+    properties
   });
+  assertResponse(res.type === TempleMessageType.SendTrackEventResponse);
 };
 
 export const sendPageEvent = async (
@@ -46,23 +36,15 @@ export const sendPageEvent = async (
   search: string,
   additionalProperties = {}
 ) => {
-  const url = `${path}${search}`;
-  const chainId = rpc && (await loadChainId(rpc));
-
-  client.page({
+  const res = await request({
+    type: TempleMessageType.SendPageEventRequest,
     userId,
-    name: path,
-    timestamp: new Date(),
-    category: AnalyticsEventCategory.PageOpened,
-    properties: {
-      url,
-      path: search,
-      referrer: path,
-      category: AnalyticsEventCategory.PageOpened,
-      chainId,
-      ...additionalProperties
-    }
+    rpc,
+    path,
+    search,
+    additionalProperties
   });
+  assertResponse(res.type === TempleMessageType.SendPageEventResponse);
 };
 
 export const useAnalyticsState = () => {
