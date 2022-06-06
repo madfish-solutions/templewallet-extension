@@ -5,7 +5,8 @@ import {
   TzktOperation,
   getTokenTransfers,
   getTokenTransfersCount,
-  TzktTokenTransfer
+  TzktTokenTransfer,
+  getIncomingTransactions
 } from 'lib/tzkt';
 
 import { isKnownChainId } from '../types';
@@ -68,6 +69,23 @@ async function fetchTzktOperations(chainId: string, address: string, fresh: bool
   return operations;
 }
 
+async function fetchTzktIncomingTransfers(chainId: string, address: string, fresh: boolean, tzktTime?: Repo.ISyncTime) {
+  if (!isKnownChainId(chainId) || !TZKT_API_BASE_URLS.has(chainId)) {
+    return [];
+  }
+
+  const size = 1000;
+
+  const operations = await getIncomingTransactions(chainId as any, {
+    address,
+    limit: size,
+    offset: 0,
+    to: tzktTime && new Date(fresh ? Date.now() : tzktTime.lowerTimestamp).toISOString()
+  });
+
+  return operations;
+}
+
 export async function syncOperations(type: 'new' | 'old', chainId: string, address: string) {
   if (!isSyncSupported(chainId)) {
     throw new Error('Not supported for this chainId');
@@ -77,10 +95,15 @@ export async function syncOperations(type: 'new' | 'old', chainId: string, addre
 
   const fresh = type === 'new';
 
-  const [tzktOperations, tzktTokenTransfers] = await Promise.all([
+  const [tzktAccountOperations, tzktIncomingTransfers, tzktTokenTransfers] = await Promise.all([
     fetchTzktOperations(chainId, address, fresh, tzktTime),
+    fetchTzktIncomingTransfers(chainId, address, fresh, tzktTime),
     fetchTzktTokenTransfers(chainId, address)
   ]);
+
+  const tzktOperations = [...tzktAccountOperations, ...tzktIncomingTransfers].sort(
+    (a, b) => a.level ?? 0 - (b.level ?? 0)
+  );
 
   /**
    * TZKT operations
@@ -97,7 +120,7 @@ export async function syncOperations(type: 'new' | 'old', chainId: string, addre
   // delete outdated pending operations
   await deletePendingOp();
 
-  return tzktTokenTransfers.length;
+  return tzktTokenTransfers.length + tzktIncomingTransfers.length;
 }
 
 const afterSyncUpdate = async (

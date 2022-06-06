@@ -38,6 +38,20 @@ export const getOperations = makeQuery<TzktGetOperationsParams, TzktOperation[]>
   })
 );
 
+export const getIncomingTransactions = makeQuery<TzktGetOperationsParams, TzktOperation[]>(
+  () => `/operations/transactions`,
+  ({ address, from, to, ...restParams }) => ({
+    'sender.ne': address,
+    'target.ne': address,
+    'initiator.ne': address,
+    entrypoint: 'transfer',
+    'parameter.to': address,
+    'timestamp.lt': to,
+    'timestamp.ge': from,
+    ...restParams
+  })
+);
+
 export const getTokenBalances = makeQuery<TzktGetOperationsParams, TzktAccountTokenBalance[]>(
   () => `/tokens/balances`,
   ({ address, offset, limit, ...restParams }) => ({
