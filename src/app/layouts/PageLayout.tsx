@@ -13,13 +13,19 @@ import { isSafeBrowserVersion } from 'lib/browser-info';
 import { T } from 'lib/i18n/react';
 import { goBack, HistoryAction, Link, navigate, useLocation } from 'lib/woozie';
 
+import { AnalyticsEventCategory, useAnalytics } from '../../lib/analytics';
 import { ReactComponent as AttentionGreyIcon } from '../icons/attentionGrey.svg';
 import { ReactComponent as AttentionRedIcon } from '../icons/attentionRed.svg';
+import { ReactComponent as DownloadMobileGreyIcon } from '../icons/download-mobile-grey.svg';
+import { ReactComponent as DownloadMobileIcon } from '../icons/download-mobile.svg';
 import { useOnboardingProgress } from '../pages/Onboarding/hooks/useOnboardingProgress.hook';
 import { PageLayoutSelectors } from './PageLayout.selectors';
 import AnalyticsConfirmationOverlay from './PageLayout/AnalyticsConfirmationOverlay';
 import ConfirmationOverlay from './PageLayout/ConfirmationOverlay';
 import Header from './PageLayout/Header';
+import { useTempleMobile } from './PageLayout/hooks/useTempleMobile.hook';
+import { TempleMobileSelectors } from './PageLayout/TempleMobile.selectors';
+import { TempleMobileOverlay } from './PageLayout/TempleMobileOverlay';
 
 type PageLayoutProps = ToolbarProps;
 
@@ -46,6 +52,7 @@ const PageLayout: FC<PageLayoutProps> = ({ children, ...toolbarProps }) => {
 
       <ConfirmationOverlay />
       <AnalyticsConfirmationOverlay />
+      <TempleMobileOverlay />
     </>
   );
 };
@@ -93,6 +100,8 @@ const Toolbar: FC<ToolbarProps> = ({ pageTitle, hasBackAction = true, step, setS
   const { historyPosition, pathname } = useLocation();
   const { fullPage, registerBackHandler, onBack } = useAppEnv();
   const { setOnboardingCompleted } = useOnboardingProgress();
+  const { trackEvent } = useAnalytics();
+  const { isTempleMobileOverlaySkipped, setIsTempleMobileOverlaySkipped } = useTempleMobile();
 
   const onStepBack = () => {
     if (step && setStep && step > 0) {
@@ -138,6 +147,11 @@ const Toolbar: FC<ToolbarProps> = ({ pageTitle, hasBackAction = true, step, setS
     }
     return undefined;
   }, [setSticked]);
+
+  const handleDownloadMobileIconClick = () => {
+    trackEvent(TempleMobileSelectors.DownloadIcon, AnalyticsEventCategory.ButtonPress);
+    setIsTempleMobileOverlaySkipped(false);
+  };
 
   return (
     <div
@@ -213,12 +227,20 @@ const Toolbar: FC<ToolbarProps> = ({ pageTitle, hasBackAction = true, step, setS
       <div className="flex-1" />
       {attention && (
         <div className="flex content-end">
-          <Link to={'/attention'} style={{ paddingRight: 12 }}>
-            {isSafeBrowserVersion ? (
-              <AttentionGreyIcon className="w-auto h-6 stroke-current flex-1 content-end" />
+          <a
+            href="https://templewallet.com/download"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mr-8 my-auto"
+          >
+            {isTempleMobileOverlaySkipped ? (
+              <DownloadMobileIcon onClick={handleDownloadMobileIconClick} />
             ) : (
-              <AttentionRedIcon className="w-auto h-6 stroke-current flex-1 content-end" />
+              <DownloadMobileGreyIcon onClick={handleDownloadMobileIconClick} />
             )}
+          </a>
+          <Link to={'/attention'} className="mr-3">
+            {isSafeBrowserVersion ? <AttentionGreyIcon /> : <AttentionRedIcon />}
           </Link>
         </div>
       )}
