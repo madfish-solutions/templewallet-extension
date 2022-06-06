@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 
-import { AnalyticsEventCategory } from './analytics-event.enum';
+import { AnalyticsEventCategory } from 'lib/temple/analytics-types';
+
 import { useAnalyticsNetwork } from './use-analytics-network.hook';
 import { sendPageEvent, sendTrackEvent, useAnalyticsState } from './use-analytics-state.hook';
 

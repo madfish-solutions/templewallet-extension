@@ -1,5 +1,21 @@
-import { AnalyticsEventCategory } from '../analytics';
 import { TempleMessageBase, TempleMessageType } from './types';
+
+export enum AnalyticsEventCategory {
+  General = 'General',
+  ButtonPress = 'ButtonPress',
+  FormChange = 'FormChange',
+  FormSubmit = 'FormSubmit',
+  FormSubmitSuccess = 'FormSubmitSuccess',
+  FormSubmitFail = 'FormSubmitFail',
+  PageOpened = 'PageOpened'
+}
+
+export enum AnalyticsEventEnum {
+  AnalyticsEnabled = 'AnalyticsEnabled',
+  AnalyticsDisabled = 'AnalyticsDisabled',
+  LanguageChanged = 'LanguageChanged',
+  FiatCurrencyChanged = 'FiatCurrencyChanged'
+}
 
 export interface TempleSendTrackEventRequest extends TempleMessageBase {
   type: TempleMessageType.SendTrackEventRequest;

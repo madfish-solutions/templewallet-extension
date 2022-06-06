@@ -1,8 +1,7 @@
 import Analytics from 'analytics-node';
 
-import { AnalyticsEventCategory } from '../../analytics';
-import { TempleSendPageEventRequest, TempleSendTrackEventRequest } from '../analytics-types';
-import { loadChainId } from '../helpers';
+import { TempleSendPageEventRequest, TempleSendTrackEventRequest } from 'lib/temple/analytics-types';
+import { loadChainId } from 'lib/temple/helpers';
 
 if (!process.env.TEMPLE_WALLET_SEGMENT_WRITE_KEY) {
   throw new Error("Require a 'TEMPLE_WALLET_SEGMENT_WRITE_KEY' environment variable to be set");
@@ -46,12 +45,12 @@ export const pageEvent = async ({
     userId,
     name: path,
     timestamp: new Date(),
-    category: AnalyticsEventCategory.PageOpened,
+    category: 'AnalyticsEventCategory.PageOpened',
     properties: {
       url,
       path: search,
       referrer: path,
-      category: AnalyticsEventCategory.PageOpened,
+      category: 'AnalyticsEventCategory.PageOpened',
       chainId,
       ...additionalProperties
     }

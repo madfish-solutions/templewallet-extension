@@ -1,10 +1,10 @@
 import { nanoid } from 'nanoid';
 
+import { AnalyticsEventCategory } from 'lib/temple/analytics-types';
 import { useLocalStorage } from 'lib/temple/front/local-storage';
 
 import { assertResponse, request } from '../temple/front';
 import { TempleMessageType } from '../temple/types';
-import { AnalyticsEventCategory } from './analytics-event.enum';
 
 interface AnalyticsStateInterface {
   enabled?: boolean;
