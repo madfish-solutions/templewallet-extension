@@ -18,6 +18,14 @@ export async function start() {
 
 async function processRequest(req: TempleRequest, port: Runtime.Port): Promise<TempleResponse | void> {
   switch (req?.type) {
+    case TempleMessageType.SendTrackEventRequest:
+      await Analytics.trackEvent(req);
+      return { type: TempleMessageType.SendTrackEventResponse };
+
+    case TempleMessageType.SendPageEventRequest:
+      await Analytics.pageEvent(req);
+      return { type: TempleMessageType.SendPageEventResponse };
+
     case TempleMessageType.GetStateRequest:
       const state = await Actions.getFrontState();
       return {
@@ -150,14 +158,6 @@ async function processRequest(req: TempleRequest, port: Runtime.Port): Promise<T
         type: TempleMessageType.DAppRemoveSessionResponse,
         sessions
       };
-
-    case TempleMessageType.SendTrackEventRequest:
-      await Analytics.trackEvent(req);
-      return { type: TempleMessageType.SendTrackEventResponse };
-
-    case TempleMessageType.SendPageEventRequest:
-      await Analytics.pageEvent(req);
-      return { type: TempleMessageType.SendPageEventResponse };
 
     case TempleMessageType.PageRequest:
       const dAppEnabled = await Actions.isDAppEnabled();

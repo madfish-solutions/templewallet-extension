@@ -151,7 +151,6 @@ const Toolbar: FC<ToolbarProps> = ({ pageTitle, hasBackAction = true, step, setS
   const handleDownloadMobileIconClick = () => {
     trackEvent(TempleMobileSelectors.DownloadIcon, AnalyticsEventCategory.ButtonPress);
     setIsTempleMobileOverlaySkipped(false);
-    window.open('https://templewallet.com/download', '_blank');
   };
 
   return (
@@ -228,9 +227,15 @@ const Toolbar: FC<ToolbarProps> = ({ pageTitle, hasBackAction = true, step, setS
       <div className="flex-1" />
       {attention && (
         <div className="flex content-end">
-          <Button className="mr-8 my-auto" onClick={handleDownloadMobileIconClick}>
+          <a
+            href="https://templewallet.com/download"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mr-8 my-auto"
+            onClick={handleDownloadMobileIconClick}
+          >
             {isTempleMobileOverlaySkipped ? <DownloadMobileIcon /> : <DownloadMobileGreyIcon />}
-          </Button>
+          </a>
           <Link to={'/attention'} className="mr-3">
             {isSafeBrowserVersion ? <AttentionGreyIcon /> : <AttentionRedIcon />}
           </Link>

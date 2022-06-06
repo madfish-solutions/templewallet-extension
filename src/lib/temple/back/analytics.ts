@@ -1,8 +1,8 @@
 import Analytics from 'analytics-node';
 
 import { AnalyticsEventCategory } from '../../analytics';
+import { TempleSendPageEventRequest, TempleSendTrackEventRequest } from '../analytics-types';
 import { loadChainId } from '../helpers';
-import { TempleSendPageEventRequest, TempleSendTrackEventRequest } from '../types';
 
 if (!process.env.TEMPLE_WALLET_SEGMENT_WRITE_KEY) {
   throw new Error("Require a 'TEMPLE_WALLET_SEGMENT_WRITE_KEY' environment variable to be set");
