@@ -7,7 +7,6 @@ import {
   TempleDAppRequest,
   TempleDAppResponse
 } from '@temple-wallet/dapp/dist/types';
-import Analytics from 'analytics-node';
 import { browser, Runtime } from 'webextension-polyfill-ts';
 
 import { createQueue } from 'lib/queue';
@@ -42,18 +41,8 @@ import {
   TempleMessageType,
   TempleRequest,
   TempleSettings,
-  TempleSharedStorageKey,
-  TempleSendPageEventRequest,
-  TempleSendTrackEventRequest
+  TempleSharedStorageKey
 } from 'lib/temple/types';
-
-import { AnalyticsEventCategory } from '../../analytics';
-
-if (!process.env.TEMPLE_WALLET_SEGMENT_WRITE_KEY) {
-  throw new Error("Require a 'TEMPLE_WALLET_SEGMENT_WRITE_KEY' environment variable to be set");
-}
-
-const client = new Analytics(process.env.TEMPLE_WALLET_SEGMENT_WRITE_KEY);
 
 const ACCOUNT_NAME_PATTERN = /^.{0,16}$/;
 const AUTODECLINE_AFTER = 60_000;
@@ -652,52 +641,4 @@ const close = (
     });
   } catch (_err) {}
   return innerClosing;
-};
-
-export const trackEvent = async ({
-  userId,
-  rpc,
-  event,
-  category,
-  properties
-}: Omit<TempleSendTrackEventRequest, 'type'>) => {
-  const chainId = rpc && (await loadChainId(rpc));
-
-  client.track({
-    userId,
-    event: `${category} ${event}`,
-    timestamp: new Date(),
-    properties: {
-      ...properties,
-      event,
-      category,
-      chainId
-    }
-  });
-};
-
-export const pageEvent = async ({
-  userId,
-  rpc,
-  path,
-  search,
-  additionalProperties
-}: Omit<TempleSendPageEventRequest, 'type'>) => {
-  const url = `${path}${search}`;
-  const chainId = rpc && (await loadChainId(rpc));
-
-  client.page({
-    userId,
-    name: path,
-    timestamp: new Date(),
-    category: AnalyticsEventCategory.PageOpened,
-    properties: {
-      url,
-      path: search,
-      referrer: path,
-      category: AnalyticsEventCategory.PageOpened,
-      chainId,
-      ...additionalProperties
-    }
-  });
 };
