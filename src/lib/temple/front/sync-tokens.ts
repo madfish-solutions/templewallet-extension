@@ -148,8 +148,6 @@ const makeSync = async (
     fetchWhitelistTokenSlugs()
   ]);
 
-  console.log(whitelistTokenSlugs);
-
   const tzktTokensMap = new Map(
     tzktTokens.map(balance => [toTokenSlug(balance.token.contract.address, balance.token.tokenId), balance])
   );
