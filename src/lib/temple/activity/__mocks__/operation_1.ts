@@ -7,30 +7,52 @@ const OPERATION_TOKEN_TRANSFER_ONLY = {
   assetIds: ['KT1NbznEfpxZZyPUNcSWRm9Y8qZkdEgWEFaV_0'],
   addedAt: 1624346191000,
   data: {
-    bcdTokenTransfers: [
+    tzktGroup: [
       {
-        indexed_time: 2736005,
-        network: 'hangzhou2net',
-        contract: 'KT1NbznEfpxZZyPUNcSWRm9Y8qZkdEgWEFaV',
-        initiator: 'tz1KoLibimdjUSfhrSpXwx4FhhhCq1JM5Etk',
-        hash: 'ooB5B636cUpMqJV17Z3DSmgSqw9RvRKvt9vHsUwi3ghLBe3CzmC',
-        status: 'applied',
-        timestamp: '2021-06-22T07:16:31Z',
-        level: 284496,
-        from: 'tz1KoLibimdjUSfhrSpXwx4FhhhCq1JM5Etk',
-        to: 'tz3Qth49881bX2dymtRREEKkFnuKzvhBjr6o',
-        token_id: 0,
-        amount: '162162162162162160000',
-        counter: 28265,
-        token: {
-          contract: 'KT1NbznEfpxZZyPUNcSWRm9Y8qZkdEgWEFaV',
-          network: 'hangzhou2net',
-          token_id: 0,
-          symbol: 'kDAO',
-          name: 'Kolibri DAO',
-          decimals: 18
+        type: 'transaction',
+        id: 2866005,
+        level: 227013081,
+        timestamp: '2021-06-14T12:08:04Z',
+        block: 'BMNEHzDdZLccdRFn7c7uwWoHR5mkSDH7eU8R4LsZJysu27Dn8nw',
+        hash: 'opZG7XNt1wHxvLeUZxQ5WkKJZCm64kMjbUPeGS8BTiehB5pBYsX',
+        counter: 23375,
+        initiator: {
+          address: 'tz1KoLibimdjUSfhrSpXwx4FhhhCq1JM5Etk'
         },
-        alias: 'kDAO Token'
+        sender: {
+          address: 'tz1KoLibimdjUSfhrSpXwx4FhhhCq1JM5Etk'
+        },
+        nonce: 0,
+        gasLimit: 0,
+        gasUsed: 1427,
+        storageLimit: 0,
+        storageUsed: 0,
+        bakerFee: 0,
+        storageFee: 0,
+        allocationFee: 0,
+        target: {
+          address: 'tz3Qth49881bX2dymtRREEKkFnuKzvhBjr6o'
+        },
+        amount: 0,
+        status: 'applied',
+        hasInternals: false
+      }
+    ],
+    tzktTokenTransfers: [
+      {
+        amount: '162162162162162160000',
+        from: { alias: 'QuipuSwap wUSDC', address: 'tz1KoLibimdjUSfhrSpXwx4FhhhCq1JM5Etk' },
+        id: 227013117,
+        level: 2347253,
+        timestamp: '2022-05-08T11:30:44Z',
+        token: {
+          contract: { alias: 'Wrapped Tokens Contract', address: 'KT1NbznEfpxZZyPUNcSWRm9Y8qZkdEgWEFaV' },
+          id: 103879,
+          metadata: { name: 'Wrapped USDC', symbol: 'wUSDC', decimals: '6' },
+          standard: 'fa2',
+          tokenId: '0'
+        },
+        transactionId: 2866005
       }
     ]
   }

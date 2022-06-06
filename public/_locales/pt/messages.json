@@ -1206,9 +1206,6 @@
   "availableToSend": {
     "message": "Disponível para enviar(máx.):"
   },
-  "inUSD": {
-    "message": "em USD"
-  },
   "inAsset": {
     "message": "em $assetSymbol$",
     "placeholders": {

@@ -1113,9 +1113,6 @@
   "availableToSend": {
     "message": "送ることができる額（最大）:"
   },
-  "inUSD": {
-    "message": "米ドル建て"
-  },
   "inAsset": {
     "message": "$assetSymbol$建て",
     "placeholders": {

@@ -8,7 +8,7 @@ import Money from 'app/atoms/Money';
 import { ReactComponent as ChevronDownIcon } from 'app/icons/chevron-down.svg';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
 import { AssetIcon } from 'app/templates/AssetIcon';
-import InUSD from 'app/templates/InUSD';
+import InFiat from 'app/templates/InFiat';
 import { toLocalFormat } from 'lib/i18n/numbers';
 import { t, T } from 'lib/i18n/react';
 import { AssetMetadata } from 'lib/temple/front';
@@ -87,7 +87,7 @@ export const SwapFormInputHeader = forwardRef<HTMLDivElement, Props>(
         <div className="w-full flex mb-1 items-center justify-between">
           <span className="text-xl text-gray-900">{label}</span>
           {selectedAssetSlug && (
-            <span className={classNames(opened && 'hidden', 'text-xs text-gray-500')}>
+            <span className={classNames(opened && 'hidden', 'text-xs text-gray-500 flex items-baseline')}>
               <span className="mr-1">
                 <T id="balance" />
               </span>
@@ -195,13 +195,19 @@ export const SwapFormInputHeader = forwardRef<HTMLDivElement, Props>(
                   onChange={handleAmountChange}
                 />
 
-                <InUSD
+                <InFiat
                   assetSlug={selectedAssetSlug}
                   volume={selectedAssetSlug ? amount ?? 0 : 0}
                   smallFractionFont={false}
                 >
-                  {usdBalance => <div className="text-gray-500">≈ {usdBalance} $</div>}
-                </InUSD>
+                  {({ balance, symbol }) => (
+                    <div className="text-gray-500 flex">
+                      <span className="mr-1">≈</span>
+                      {balance}
+                      <span className="ml-1">{symbol}</span>
+                    </div>
+                  )}
+                </InFiat>
               </div>
             </div>
           </div>

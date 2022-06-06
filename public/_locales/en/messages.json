@@ -112,6 +112,15 @@
   "skip": {
     "message": "Skip"
   },
+  "download": {
+    "message": "Download"
+  },
+  "templeIsOnMobile": {
+    "message": "Temple is on Mobile"
+  },
+  "getTempleMobileAndroid": {
+  "message": "Get the Android version of the wallet now"
+},
   "addNewToken": {
     "message": "Add new Token"
   },
@@ -1295,8 +1304,8 @@
   "availableToSend": {
     "message": "Available to send(max):"
   },
-  "inUSD": {
-    "message": "in USD"
+  "inFiat": {
+    "message": "in Fiat"
   },
   "inAsset": {
     "message": "in $assetSymbol$",
@@ -1450,6 +1459,9 @@
   },
   "languageAndCountry": {
     "message": "Language"
+  },
+  "fiatCurrency": {
+    "message": "Default Currency"
   },
   "generalSettings": {
     "message": "General"
