@@ -11440,10 +11440,10 @@ svgson@^4.0.0:
     omit-deep "0.3.0"
     xml-reader "2.4.3"
 
-swap-router-sdk@1.13.4:
-  version "1.13.4"
-  resolved "https://registry.yarnpkg.com/swap-router-sdk/-/swap-router-sdk-1.13.4.tgz#9d632418a9472775d0c18b290fbe6a326e0770ab"
-  integrity sha512-+gZVyJPPnRHHgUpmFhT8l5OfUQY1j0z5eGpRlZj52Fef7mT5RyEuw6ZsrpsGR/Uex2U4cZCGswfynovvQj7aWw==
+swap-router-sdk@1.13.6:
+  version "1.13.6"
+  resolved "https://registry.yarnpkg.com/swap-router-sdk/-/swap-router-sdk-1.13.6.tgz#2dfc00cf1a922b4f6b925d2e1f40b6ced8078e2c"
+  integrity sha512-d3Em5/Mz8LQcvblqrKEbchX+CgDAJOEEbTs9StNG8nvvqjuIfWtcHTGdUsNZmelLUtWiI3rGjGuRj+Okmh7jgA==
   dependencies:
     "@taquito/taquito" "12.1.1"
     async-retry "1.3.3"

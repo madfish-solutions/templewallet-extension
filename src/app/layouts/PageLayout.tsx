@@ -214,12 +214,9 @@ const Toolbar: FC<ToolbarProps> = ({ pageTitle, hasBackAction = true, step, setS
             target="_blank"
             rel="noopener noreferrer"
             className="mr-8 my-auto"
+            onClick={handleDownloadMobileIconClick}
           >
-            {isTempleMobileOverlaySkipped ? (
-              <DownloadMobileIcon onClick={handleDownloadMobileIconClick} />
-            ) : (
-              <DownloadMobileGreyIcon onClick={handleDownloadMobileIconClick} />
-            )}
+            {isTempleMobileOverlaySkipped ? <DownloadMobileIcon /> : <DownloadMobileGreyIcon />}
           </a>
           <Link to={'/attention'} className="mr-3">
             {isSafeBrowserVersion ? <AttentionGreyIcon /> : <AttentionRedIcon />}

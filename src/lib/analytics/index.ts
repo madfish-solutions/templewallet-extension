@@ -1,4 +1,4 @@
-export { AnalyticsEventEnum, AnalyticsEventCategory } from './analytics-event.enum';
+export { AnalyticsEventEnum, AnalyticsEventCategory } from 'lib/temple/analytics-types';
 
 export { CustomRpsContext } from './custom-rpc.context';
 

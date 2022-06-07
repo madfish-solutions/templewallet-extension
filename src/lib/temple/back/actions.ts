@@ -617,6 +617,7 @@ function generateRawPayloadBytes(payload: string) {
   // https://tezostaquito.io/docs/signing/
   return `0501${char2Bytes(String(bytes.length))}${bytes}`;
 }
+
 const close = (
   closing: boolean,
   port: Runtime.Port,
