@@ -127,13 +127,13 @@ export async function syncOperations(type: 'new' | 'old', chainId: string, addre
    * TZKT operations
    */
 
-  syncTzktOperations(tzktOperations, chainId, address, tzktTime, fresh);
+  await syncTzktOperations(tzktOperations, chainId, address, tzktTime, fresh);
 
   /**
    * ex BCD, TZKT token transfers
    */
 
-  syncTzktTokenTransfers(tzktTokenTransfers, tzktOperations, chainId, address, tzktTime, fresh);
+  await syncTzktTokenTransfers(tzktTokenTransfers, tzktOperations, chainId, address, tzktTime, fresh);
 
   // delete outdated pending operations
   await deletePendingOp();
