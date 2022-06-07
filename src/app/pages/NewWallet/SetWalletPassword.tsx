@@ -3,7 +3,7 @@ import React, { FC, useCallback, useLayoutEffect, useState } from 'react';
 import classNames from 'clsx';
 import { Controller, useForm } from 'react-hook-form';
 
-import { useAnalyticsSettings } from '../../../lib/analytics';
+import { AnalyticsEventCategory, useAnalytics, useAnalyticsSettings } from '../../../lib/analytics';
 import { T, t } from '../../../lib/i18n/react';
 import { useTempleClient } from '../../../lib/temple/front';
 import PasswordStrengthIndicator, { PasswordValidation } from '../../../lib/ui/PasswordStrengthIndicator';
@@ -42,6 +42,7 @@ export const SetWalletPassword: FC<SetWalletPasswordProps> = ({
   keystorePassword
 }) => {
   const { registerWallet } = useTempleClient();
+  const { trackEvent } = useAnalytics();
 
   const { setAnalyticsEnabled } = useAnalyticsSettings();
   const { setOnboardingCompleted } = useOnboardingProgress();
@@ -95,17 +96,32 @@ export const SetWalletPassword: FC<SetWalletPasswordProps> = ({
           : data.password
         : data.password;
       try {
-        setOnboardingCompleted(data.skipOnboarding!);
         setAnalyticsEnabled(data.analytics);
+        setOnboardingCompleted(data.skipOnboarding!);
 
         await registerWallet(password!, formatMnemonic(seedPhrase));
+        trackEvent(
+          data.skipOnboarding ? 'OnboardingSkipped' : 'OnboardingNotSkipped',
+          AnalyticsEventCategory.General,
+          undefined,
+          data.analytics
+        );
       } catch (err: any) {
         console.error(err);
 
         alert(err.message);
       }
     },
-    [setAnalyticsEnabled, setOnboardingCompleted, ownMnemonic, seedPhrase, keystorePassword, submitting, registerWallet]
+    [
+      trackEvent,
+      setAnalyticsEnabled,
+      setOnboardingCompleted,
+      ownMnemonic,
+      seedPhrase,
+      keystorePassword,
+      submitting,
+      registerWallet
+    ]
   );
 
   return (

@@ -10,8 +10,12 @@ export const useAnalytics = () => {
   const rpc = useAnalyticsNetwork();
 
   const trackEvent = useCallback(
-    (event: string, category: AnalyticsEventCategory = AnalyticsEventCategory.General, properties?: object) =>
-      analyticsState.enabled && sendTrackEvent(analyticsState.userId, rpc, event, category, properties),
+    (
+      event: string,
+      category: AnalyticsEventCategory = AnalyticsEventCategory.General,
+      properties?: object,
+      isAnalyticsEnabled = analyticsState.enabled
+    ) => isAnalyticsEnabled && sendTrackEvent(analyticsState.userId, rpc, event, category, properties),
     [analyticsState.enabled, analyticsState.userId, rpc]
   );
 
