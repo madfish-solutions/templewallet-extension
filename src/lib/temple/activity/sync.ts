@@ -6,7 +6,7 @@ import {
   getTokenTransfers,
   getTokenTransfersCount,
   TzktTokenTransfer,
-  getIncomingTransactions,
+  getFa12Transfers,
   getFa2Transfers
 } from 'lib/tzkt';
 
@@ -69,14 +69,14 @@ async function fetchTzktOperations(chainId: string, address: string, fresh: bool
   return operations;
 }
 
-async function fetchTzktIncomingTransfers(chainId: string, address: string, fresh: boolean, tzktTime?: Repo.ISyncTime) {
+async function fetchFa12Transfers(chainId: string, address: string, fresh: boolean, tzktTime?: Repo.ISyncTime) {
   if (!isKnownChainId(chainId) || !TZKT_API_BASE_URLS.has(chainId)) {
     return [];
   }
 
   const size = 1000;
 
-  const operations = await getIncomingTransactions(chainId as any, {
+  const operations = await getFa12Transfers(chainId as any, {
     address,
     limit: size,
     offset: 0,
@@ -114,7 +114,7 @@ export async function syncOperations(type: 'new' | 'old', chainId: string, addre
 
   const [tzktAccountOperations, tzktIncomingTransfers, tzktFa2Transfers, tzktTokenTransfers] = await Promise.all([
     fetchTzktOperations(chainId, address, fresh, tzktTime),
-    fetchTzktIncomingTransfers(chainId, address, fresh, tzktTime),
+    fetchFa12Transfers(chainId, address, fresh, tzktTime),
     fetchFa2Transfers(chainId, address, fresh, tzktTime),
     fetchTzktTokenTransfers(chainId, address)
   ]);

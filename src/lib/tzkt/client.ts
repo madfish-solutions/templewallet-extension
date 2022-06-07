@@ -38,7 +38,7 @@ export const getOperations = makeQuery<TzktGetOperationsParams, TzktOperation[]>
   })
 );
 
-export const getIncomingTransactions = makeQuery<TzktGetOperationsParams, TzktOperation[]>(
+export const getFa12Transfers = makeQuery<TzktGetOperationsParams, TzktOperation[]>(
   () => `/operations/transactions`,
   ({ address, from, to, ...restParams }) => ({
     'sender.ne': address,
