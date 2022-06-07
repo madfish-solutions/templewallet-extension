@@ -112,14 +112,14 @@ export async function syncOperations(type: 'new' | 'old', chainId: string, addre
 
   const fresh = type === 'new';
 
-  const [tzktAccountOperations, tzktIncomingTransfers, tzktFa2Transfers, tzktTokenTransfers] = await Promise.all([
+  const [tzktAccountOperations, tzktFa12Transfers, tzktFa2Transfers, tzktTokenTransfers] = await Promise.all([
     fetchTzktOperations(chainId, address, fresh, tzktTime),
     fetchFa12Transfers(chainId, address, fresh, tzktTime),
     fetchFa2Transfers(chainId, address, fresh, tzktTime),
     fetchTzktTokenTransfers(chainId, address)
   ]);
 
-  const tzktOperations = [...tzktAccountOperations, ...tzktIncomingTransfers, ...tzktFa2Transfers].sort(
+  const tzktOperations = [...tzktAccountOperations, ...tzktFa12Transfers, ...tzktFa2Transfers].sort(
     (a, b) => a.level ?? 0 - (b.level ?? 0)
   );
 
@@ -138,7 +138,7 @@ export async function syncOperations(type: 'new' | 'old', chainId: string, addre
   // delete outdated pending operations
   await deletePendingOp();
 
-  return tzktTokenTransfers.length + tzktIncomingTransfers.length;
+  return tzktTokenTransfers.length + tzktFa12Transfers.length;
 }
 
 const afterSyncUpdate = async (
