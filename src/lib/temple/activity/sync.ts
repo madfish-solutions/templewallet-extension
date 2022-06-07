@@ -6,7 +6,8 @@ import {
   getTokenTransfers,
   getTokenTransfersCount,
   TzktTokenTransfer,
-  getIncomingTransactions
+  getIncomingTransactions,
+  getFa2Transfers
 } from 'lib/tzkt';
 
 import { isKnownChainId } from '../types';
@@ -62,8 +63,7 @@ async function fetchTzktOperations(chainId: string, address: string, fresh: bool
     sort: 1,
     limit: size,
     offset: 0,
-    [getFreshTzktField(fresh)]:
-      tzktTime && new Date(fresh ? tzktTime.higherTimestamp + 1 : tzktTime.lowerTimestamp).toISOString()
+    to: tzktTime && new Date(fresh ? Date.now() : tzktTime.lowerTimestamp).toISOString()
   });
 
   return operations;
@@ -86,6 +86,23 @@ async function fetchTzktIncomingTransfers(chainId: string, address: string, fres
   return operations;
 }
 
+async function fetchFa2Transfers(chainId: string, address: string, fresh: boolean, tzktTime?: Repo.ISyncTime) {
+  if (!isKnownChainId(chainId) || !TZKT_API_BASE_URLS.has(chainId)) {
+    return [];
+  }
+
+  const size = 1000;
+
+  const operations = await getFa2Transfers(chainId as any, {
+    address,
+    limit: size,
+    offset: 0,
+    to: tzktTime && new Date(fresh ? Date.now() : tzktTime.lowerTimestamp).toISOString()
+  });
+
+  return operations;
+}
+
 export async function syncOperations(type: 'new' | 'old', chainId: string, address: string) {
   if (!isSyncSupported(chainId)) {
     throw new Error('Not supported for this chainId');
@@ -95,13 +112,14 @@ export async function syncOperations(type: 'new' | 'old', chainId: string, addre
 
   const fresh = type === 'new';
 
-  const [tzktAccountOperations, tzktIncomingTransfers, tzktTokenTransfers] = await Promise.all([
+  const [tzktAccountOperations, tzktIncomingTransfers, tzktFa2Transfers, tzktTokenTransfers] = await Promise.all([
     fetchTzktOperations(chainId, address, fresh, tzktTime),
     fetchTzktIncomingTransfers(chainId, address, fresh, tzktTime),
+    fetchFa2Transfers(chainId, address, fresh, tzktTime),
     fetchTzktTokenTransfers(chainId, address)
   ]);
 
-  const tzktOperations = [...tzktAccountOperations, ...tzktIncomingTransfers].sort(
+  const tzktOperations = [...tzktAccountOperations, ...tzktIncomingTransfers, ...tzktFa2Transfers].sort(
     (a, b) => a.level ?? 0 - (b.level ?? 0)
   );
 
@@ -223,12 +241,7 @@ const addMemberSetOperations = (tzktOp: TzktOperation, assetIdSet: Set<string>, 
       } catch {}
     }
   } else if (tzktOp.type === 'delegation') {
-    if (tzktOp.initiator) {
-      memberSet.add(tzktOp.initiator.address);
-    }
-    if (tzktOp.newDelegate) {
-      memberSet.add(tzktOp.newDelegate.address);
-    }
+    memberSet.add(tzktOp.sender.address);
   }
 };
 
@@ -292,16 +305,14 @@ const syncTzktTokenTransfers = async (
 
     if (!tzktTime) {
       await Repo.syncTimes.add({
-        service: 'bcd',
+        service: 'tzkt',
         chainId,
         address,
         higherTimestamp,
         lowerTimestamp
       });
     } else {
-      await afterSyncUpdate('bcd', chainId, address, fresh, higherTimestamp, lowerTimestamp);
+      await afterSyncUpdate('tzkt', chainId, address, fresh, higherTimestamp, lowerTimestamp);
     }
   }
 };
-
-const getFreshTzktField = (fresh: boolean) => (fresh ? 'from' : 'to');
