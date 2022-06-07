@@ -138,7 +138,7 @@ export async function syncOperations(type: 'new' | 'old', chainId: string, addre
   // delete outdated pending operations
   await deletePendingOp();
 
-  return tzktTokenTransfers.length + tzktFa12Transfers.length;
+  return tzktTokenTransfers.length + tzktFa12Transfers.length + tzktFa12Transfers.length;
 }
 
 const afterSyncUpdate = async (

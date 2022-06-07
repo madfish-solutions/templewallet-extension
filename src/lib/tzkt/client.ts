@@ -59,7 +59,7 @@ export const getFa2Transfers = makeQuery<TzktGetOperationsParams, TzktOperation[
     'target.ne': address,
     'initiator.ne': address,
     entrypoint: 'transfer',
-    'parameter.[*].txs.[*].to': address,
+    'parameter.[*].txs.[*].to_': address,
     'timestamp.lt': to,
     'timestamp.ge': from,
     ...restParams
