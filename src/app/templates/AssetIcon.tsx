@@ -26,17 +26,47 @@ interface AssetIconProps {
   size?: number;
 }
 
+interface LoadStrategy {
+  type: string;
+  uri: (value: string) => string;
+  field: 'thumbnailUri' | 'artifactUri' | 'displayUri' | 'assetSlug';
+}
+
+const tokenLoadStrategy: Array<LoadStrategy> = [
+  { type: 'token', uri: formatTokenUri, field: 'thumbnailUri' },
+  { type: 'thumbnailUri', uri: formatIpfsUri, field: 'thumbnailUri' }
+];
+const collectibleLoadStrategy: Array<LoadStrategy> = [
+  { type: 'objkt', uri: formatCollectibleUri, field: 'assetSlug' },
+  { type: 'displayUri', uri: formatIpfsUri, field: 'displayUri' },
+  { type: 'thumbnailUri', uri: formatIpfsUri, field: 'thumbnailUri' }
+];
+
+const getFirstFallback = (strategy: Array<LoadStrategy>, currentState: Record<string, boolean>): LoadStrategy => {
+  for (const strategyItem of strategy) {
+    if (!currentState[strategyItem.type]) {
+      return strategyItem;
+    }
+  }
+  return strategy[0];
+};
+
 export const AssetIcon: FC<AssetIconProps> = ({ assetSlug, className, size }) => {
   const [isLoaded, setIsLoaded] = useState(false);
-  const [isLoadingFailed, setIsLoadingFailed] = useState(false);
   const metadata: AssetMetadata | null = useAssetMetadata(assetSlug);
   const isCollectible = Boolean(metadata?.artifactUri);
+  const loadStrategy = isCollectible ? collectibleLoadStrategy : tokenLoadStrategy;
+  const [isLoadingFailed, setIsLoadingFailed] = useState(
+    loadStrategy.reduce<Record<string, boolean>>((acc, cur) => ({ ...acc, [cur.type]: false }), {})
+  );
 
-  const imageSrc = isLoadingFailed
-    ? formatIpfsUri(metadata?.thumbnailUri)
-    : isCollectible
-    ? formatCollectibleUri(assetSlug)
-    : formatTokenUri(metadata?.thumbnailUri);
+  const imageRequestObject = { ...metadata, assetSlug };
+  const currentFallback = getFirstFallback(loadStrategy, isLoadingFailed);
+  const imageSrc = currentFallback.uri(imageRequestObject[currentFallback.field] ?? assetSlug);
+
+  const handleLoadingFailed = () => {
+    setIsLoadingFailed(prevState => ({ ...prevState, [currentFallback.type]: true }));
+  };
 
   return (
     <div className={className}>
@@ -53,7 +83,7 @@ export const AssetIcon: FC<AssetIconProps> = ({ assetSlug, className, size }) =>
           height={size}
           width={size}
           onLoad={() => setIsLoaded(true)}
-          onError={() => setIsLoadingFailed(true)}
+          onError={handleLoadingFailed}
         />
       )}
       {(!isLoaded || !metadata || imageSrc === '') && <AssetIconPlaceholder metadata={metadata} size={size} />}
