@@ -5,7 +5,9 @@ import {
   TzktOperation,
   getTokenTransfers,
   getTokenTransfersCount,
-  TzktTokenTransfer
+  TzktTokenTransfer,
+  getFa12Transfers,
+  getFa2Transfers
 } from 'lib/tzkt';
 
 import { isKnownChainId } from '../types';
@@ -61,8 +63,41 @@ async function fetchTzktOperations(chainId: string, address: string, fresh: bool
     sort: 1,
     limit: size,
     offset: 0,
-    [getFreshTzktField(fresh)]:
-      tzktTime && new Date(fresh ? tzktTime.higherTimestamp + 1 : tzktTime.lowerTimestamp).toISOString()
+    to: tzktTime && new Date(fresh ? Date.now() : tzktTime.lowerTimestamp).toISOString()
+  });
+
+  return operations;
+}
+
+async function fetchFa12Transfers(chainId: string, address: string, fresh: boolean, tzktTime?: Repo.ISyncTime) {
+  if (!isKnownChainId(chainId) || !TZKT_API_BASE_URLS.has(chainId)) {
+    return [];
+  }
+
+  const size = 1000;
+
+  const operations = await getFa12Transfers(chainId as any, {
+    address,
+    limit: size,
+    offset: 0,
+    to: tzktTime && new Date(fresh ? Date.now() : tzktTime.lowerTimestamp).toISOString()
+  });
+
+  return operations;
+}
+
+async function fetchFa2Transfers(chainId: string, address: string, fresh: boolean, tzktTime?: Repo.ISyncTime) {
+  if (!isKnownChainId(chainId) || !TZKT_API_BASE_URLS.has(chainId)) {
+    return [];
+  }
+
+  const size = 1000;
+
+  const operations = await getFa2Transfers(chainId as any, {
+    address,
+    limit: size,
+    offset: 0,
+    to: tzktTime && new Date(fresh ? Date.now() : tzktTime.lowerTimestamp).toISOString()
   });
 
   return operations;
@@ -77,27 +112,33 @@ export async function syncOperations(type: 'new' | 'old', chainId: string, addre
 
   const fresh = type === 'new';
 
-  const [tzktOperations, tzktTokenTransfers] = await Promise.all([
+  const [tzktAccountOperations, tzktFa12Transfers, tzktFa2Transfers, tzktTokenTransfers] = await Promise.all([
     fetchTzktOperations(chainId, address, fresh, tzktTime),
+    fetchFa12Transfers(chainId, address, fresh, tzktTime),
+    fetchFa2Transfers(chainId, address, fresh, tzktTime),
     fetchTzktTokenTransfers(chainId, address)
   ]);
+
+  const tzktOperations = [...tzktAccountOperations, ...tzktFa12Transfers, ...tzktFa2Transfers].sort(
+    (a, b) => a.level ?? 0 - (b.level ?? 0)
+  );
 
   /**
    * TZKT operations
    */
 
-  syncTzktOperations(tzktOperations, chainId, address, tzktTime, fresh);
+  await syncTzktOperations(tzktOperations, chainId, address, tzktTime, fresh);
 
   /**
    * ex BCD, TZKT token transfers
    */
 
-  syncTzktTokenTransfers(tzktTokenTransfers, tzktOperations, chainId, address, tzktTime, fresh);
+  await syncTzktTokenTransfers(tzktTokenTransfers, tzktOperations, chainId, address, tzktTime, fresh);
 
   // delete outdated pending operations
   await deletePendingOp();
 
-  return tzktTokenTransfers.length;
+  return tzktTokenTransfers.length + tzktFa12Transfers.length + tzktFa12Transfers.length;
 }
 
 const afterSyncUpdate = async (
@@ -200,12 +241,7 @@ const addMemberSetOperations = (tzktOp: TzktOperation, assetIdSet: Set<string>, 
       } catch {}
     }
   } else if (tzktOp.type === 'delegation') {
-    if (tzktOp.initiator) {
-      memberSet.add(tzktOp.initiator.address);
-    }
-    if (tzktOp.newDelegate) {
-      memberSet.add(tzktOp.newDelegate.address);
-    }
+    memberSet.add(tzktOp.sender.address);
   }
 };
 
@@ -269,16 +305,14 @@ const syncTzktTokenTransfers = async (
 
     if (!tzktTime) {
       await Repo.syncTimes.add({
-        service: 'bcd',
+        service: 'tzkt',
         chainId,
         address,
         higherTimestamp,
         lowerTimestamp
       });
     } else {
-      await afterSyncUpdate('bcd', chainId, address, fresh, higherTimestamp, lowerTimestamp);
+      await afterSyncUpdate('tzkt', chainId, address, fresh, higherTimestamp, lowerTimestamp);
     }
   }
 };
-
-const getFreshTzktField = (fresh: boolean) => (fresh ? 'from' : 'to');
