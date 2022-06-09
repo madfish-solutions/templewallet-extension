@@ -134,13 +134,13 @@ const estimateTzktTokenTransfers = (
   for (const tokenTrans of tzktTokenTransfers) {
     const operation = tzktGroup?.find(op => op.id === tokenTrans.transactionId);
     if (!operation) continue;
-    const isFromAddress = tokenTrans.from ? tokenTrans.from.address === address : true;
-    const isToAddress = tokenTrans.to ? tokenTrans.to.address === address : true;
+    const isFromAddress = tokenTrans.from && tokenTrans.from.address === address;
+    const isToAddress = tokenTrans.to && tokenTrans.to.address === address;
     if (operation.status === 'applied' && (isFromAddress || isToAddress)) {
       appendToDiff(
         'bcd',
         toTokenId(tokenTrans.token.contract.address, tokenTrans.token.tokenId),
-        new BigNumber(tokenTrans.amount).times(isFromAddress ? -1 : 1).toFixed(),
+        new BigNumber(tokenTrans.amount).times(isToAddress ? 1 : -1).toFixed(),
         diffs
       );
     }
