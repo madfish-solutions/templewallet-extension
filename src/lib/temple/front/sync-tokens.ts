@@ -1,10 +1,9 @@
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 
 import BigNumber from 'bignumber.js';
 import constate from 'constate';
 import { trigger } from 'swr';
 
-import { BCD_NETWORKS_NAMES, BcdNetwork } from 'lib/better-call-dev';
 import {
   useChainId,
   useAccount,
@@ -24,6 +23,8 @@ import { getTokensMetadata } from 'lib/templewallet-api';
 import { fetchWhitelistTokenSlugs } from 'lib/templewallet-api/whitelist-tokens';
 import { getTokenBalances, getTokenBalancesCount, TzktAccountTokenBalance, TZKT_API_BASE_URLS } from 'lib/tzkt';
 
+import { TempleChainId } from '../types';
+
 export const [SyncTokensProvider] = constate(() => {
   const chainId = useChainId(true)!;
   const { publicKeyHash: accountPkh } = useAccount();
@@ -32,15 +33,9 @@ export const [SyncTokensProvider] = constate(() => {
     useTokensMetadata();
   const usdPrices = useUSDPrices();
 
-  const networkId = useMemo(
-    () => (isKnownChainId(chainId) ? BCD_NETWORKS_NAMES.get(chainId) : undefined) ?? null,
-    [chainId]
-  );
-
   const sync = useCallback(async () => {
     makeSync(
       accountPkh,
-      networkId,
       chainId,
       allTokensBaseMetadataRef,
       setTokensBaseMetadata,
@@ -50,7 +45,6 @@ export const [SyncTokensProvider] = constate(() => {
     );
   }, [
     accountPkh,
-    networkId,
     chainId,
     allTokensBaseMetadataRef,
     setTokensBaseMetadata,
@@ -64,17 +58,17 @@ export const [SyncTokensProvider] = constate(() => {
     syncRef.current = sync;
   }, [sync]);
 
-  const networkIdRef = useRef(networkId);
-  if (networkIdRef.current !== networkId) {
-    networkIdRef.current = networkId;
+  const networkIdRef = useRef(chainId);
+  if (networkIdRef.current !== chainId) {
+    networkIdRef.current = chainId;
   }
 
   useEffect(() => {
-    if (!networkId) {
+    if (!chainId) {
       return;
     }
 
-    const isTheSameNetwork = () => networkId === networkIdRef.current;
+    const isTheSameNetwork = () => chainId === networkIdRef.current;
     let timeoutId: any;
 
     const syncAndDefer = async () => {
@@ -92,7 +86,7 @@ export const [SyncTokensProvider] = constate(() => {
     syncAndDefer();
 
     return () => clearTimeout(timeoutId);
-  }, [networkId, accountPkh]);
+  }, [chainId, accountPkh]);
 });
 
 async function fetchTzktTokenBalances(chainId: string, address: string) {
@@ -130,7 +124,6 @@ async function fetchTzktTokenBalances(chainId: string, address: string) {
 
 const makeSync = async (
   accountPkh: string,
-  networkId: BcdNetwork | null,
   chainId: string,
   allTokensBaseMetadataRef: any,
   setTokensBaseMetadata: any,
@@ -138,14 +131,14 @@ const makeSync = async (
   usdPrices: Record<string, string>,
   fetchMetadata: any
 ) => {
-  if (!networkId) return;
-  const mainnet = networkId === 'mainnet';
+  if (!chainId) return;
+  const mainnet = chainId === TempleChainId.Mainnet;
 
   const [tzktTokens, displayedFungibleTokens, displayedCollectibleTokens, whitelistTokenSlugs] = await Promise.all([
     fetchTzktTokenBalances(chainId, accountPkh),
     fetchDisplayedFungibleTokens(chainId, accountPkh),
     fetchCollectibleTokens(chainId, accountPkh, true),
-    fetchWhitelistTokenSlugs()
+    fetchWhitelistTokenSlugs(chainId)
   ]);
 
   const tzktTokensMap = new Map(
