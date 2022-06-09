@@ -39,6 +39,8 @@ const Tokens: FC = () => {
 
   const { data: tokens = [] } = useDisplayedFungibleTokens(chainId, address);
 
+  console.log(tokens);
+
   const allTokensBaseMetadata = useAllTokensBaseMetadata();
 
   const { assetSlugs, latestBalances } = useMemo(() => {

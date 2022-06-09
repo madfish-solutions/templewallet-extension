@@ -1,5 +1,7 @@
 import axios from 'axios';
 
+import { TempleChainId } from 'lib/temple/types';
+
 interface TokenListItem {
   contractAddress: 'tez' | string;
   fa2TokenId?: number;
@@ -30,11 +32,11 @@ const WHITELIST_TOKENS_BASE_URL = 'https://raw.githubusercontent.com/madfish-sol
 
 const api = axios.create({ baseURL: WHITELIST_TOKENS_BASE_URL });
 
-export const fetchWhitelistTokenSlugs = () =>
+export const fetchWhitelistTokenSlugs = (chainId: string) =>
   api
     .get<WhitelistResponse>('tokens/quipuswap.whitelist.json')
     .then(response =>
-      response.data.tokens
+      response.data.tokens && chainId === TempleChainId.Mainnet
         ? response.data.tokens
             .map(token =>
               token.contractAddress === 'tez' ? 'tez' : `${token.contractAddress}_${token.fa2TokenId ?? 0}`
