@@ -43,9 +43,14 @@ const collectibleLoadStrategy: Array<LoadStrategy> = [
   { type: 'thumbnailUri', uri: formatIpfsUri, field: 'thumbnailUri' }
 ];
 
-const getFirstFallback = (strategy: Array<LoadStrategy>, currentState: Record<string, boolean>): LoadStrategy => {
+const getFirstFallback = (
+  strategy: Array<LoadStrategy>,
+  currentState: Record<string, boolean>,
+  metadata: AssetMetadata | null
+): LoadStrategy => {
   for (const strategyItem of strategy) {
-    if (!currentState[strategyItem.type]) {
+    // @ts-ignore
+    if (metadata && metadata[strategyItem.type] && !currentState[strategyItem.type]) {
       return strategyItem;
     }
   }
@@ -62,7 +67,7 @@ export const AssetIcon: FC<AssetIconProps> = ({ assetSlug, className, size }) =>
   );
 
   const imageRequestObject = { ...metadata, assetSlug };
-  const currentFallback = getFirstFallback(loadStrategy, isLoadingFailed);
+  const currentFallback = getFirstFallback(loadStrategy, isLoadingFailed, metadata);
   const imageSrc = currentFallback.uri(imageRequestObject[currentFallback.field] ?? assetSlug);
 
   const handleLoadingFailed = () => {
