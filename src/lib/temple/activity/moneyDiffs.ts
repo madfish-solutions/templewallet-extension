@@ -140,7 +140,7 @@ const estimateTzktTokenTransfers = (
       appendToDiff(
         'bcd',
         toTokenId(tokenTrans.token.contract.address, tokenTrans.token.tokenId),
-        new BigNumber(tokenTrans.amount).times(isFromAddress ? -1 : 1).toFixed(),
+        new BigNumber(tokenTrans.amount).times(isToAddress ? 1 : -1).toFixed(),
         diffs
       );
     }
