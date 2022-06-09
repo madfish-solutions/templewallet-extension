@@ -39,6 +39,7 @@ const tokenLoadStrategy: Array<LoadStrategy> = [
 const collectibleLoadStrategy: Array<LoadStrategy> = [
   { type: 'objkt', uri: formatCollectibleUri, field: 'assetSlug' },
   { type: 'displayUri', uri: formatIpfsUri, field: 'displayUri' },
+  { type: 'artifactUri', uri: formatIpfsUri, field: 'artifactUri' },
   { type: 'thumbnailUri', uri: formatIpfsUri, field: 'thumbnailUri' }
 ];
 
