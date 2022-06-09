@@ -1,6 +1,7 @@
 import OPERATION_COMPLEX from '../__mocks__/operation_0';
 import OPERATION_TOKEN_TRANSFER_ONLY from '../__mocks__/operation_1';
 import OPERATION_LOCAL_ONLY from '../__mocks__/operation_2';
+import OPERATION_SMART_CONTRACT_INTERACTION from '../__mocks__/operation_3';
 import { parseMoneyDiffs } from '../moneyDiffs';
 
 const ACCOUNT = 'tz3Qth49881bX2dymtRREEKkFnuKzvhBjr6o';
@@ -23,6 +24,17 @@ describe('Money diffs', () => {
 
   it('parseMoneyDiffs token transfer only', async () => {
     const moneyDiffs = parseMoneyDiffs(OPERATION_TOKEN_TRANSFER_ONLY, ACCOUNT);
+
+    expect(moneyDiffs).toStrictEqual([
+      {
+        assetId: 'KT1NbznEfpxZZyPUNcSWRm9Y8qZkdEgWEFaV_0',
+        diff: '162162162162162160000'
+      }
+    ]);
+  });
+
+  it('parseMoneyDiffs smart contract-like interaction', async () => {
+    const moneyDiffs = parseMoneyDiffs(OPERATION_SMART_CONTRACT_INTERACTION, ACCOUNT);
 
     expect(moneyDiffs).toStrictEqual([
       {
