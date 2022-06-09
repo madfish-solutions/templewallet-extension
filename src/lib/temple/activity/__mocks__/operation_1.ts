@@ -42,6 +42,7 @@ const OPERATION_TOKEN_TRANSFER_ONLY = {
       {
         amount: '162162162162162160000',
         from: { alias: 'QuipuSwap wUSDC', address: 'tz1KoLibimdjUSfhrSpXwx4FhhhCq1JM5Etk' },
+        to: { address: 'tz3Qth49881bX2dymtRREEKkFnuKzvhBjr6o' },
         id: 227013117,
         level: 2347253,
         timestamp: '2022-05-08T11:30:44Z',

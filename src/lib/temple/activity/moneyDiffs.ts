@@ -136,7 +136,7 @@ const estimateTzktTokenTransfers = (
     if (!operation) continue;
     const isFromAddress = tokenTrans.from && tokenTrans.from.address === address;
     const isToAddress = tokenTrans.to && tokenTrans.to.address === address;
-    if (operation.status === 'applied') {
+    if (operation.status === 'applied' && (isFromAddress || isToAddress)) {
       appendToDiff(
         'bcd',
         toTokenId(tokenTrans.token.contract.address, tokenTrans.token.tokenId),
