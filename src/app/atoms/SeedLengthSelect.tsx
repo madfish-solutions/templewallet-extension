@@ -2,21 +2,34 @@ import React, { FC, useCallback, useEffect, useRef, useState } from 'react';
 
 import classNames from 'clsx';
 
-import { ReactComponent as CheckMarkIcon } from 'app/icons/check-mark.svg';
 import { ReactComponent as SelectArrowDownIcon } from 'app/icons/select-arrow-down.svg';
 import { t } from 'lib/i18n/react';
 
 interface SeedLengthSelectProps {
   options: Array<string>;
+  currentOption: string;
   defaultOption?: string;
+  setShowSeed: (value: boolean) => void;
   onChange: (newSelectedOption: string) => void;
 }
 
-export const SeedLengthSelect: FC<SeedLengthSelectProps> = ({ options, defaultOption, onChange }) => {
+export const SeedLengthSelect: FC<SeedLengthSelectProps> = ({
+  options,
+  currentOption,
+  defaultOption,
+  setShowSeed,
+  onChange
+}) => {
   const [selectedOption, setSelectedOption] = useState(defaultOption ?? '');
   const [isOpen, setIsOpen] = useState(false);
 
   const selectRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (selectedOption !== currentOption) {
+      setSelectedOption(currentOption);
+    }
+  }, [currentOption, selectedOption]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -34,10 +47,11 @@ export const SeedLengthSelect: FC<SeedLengthSelectProps> = ({ options, defaultOp
   const handleClick = useCallback(
     option => {
       setIsOpen(false);
+      setShowSeed(true);
       setSelectedOption(option);
       onChange(option);
     },
-    [onChange]
+    [setShowSeed, onChange]
   );
 
   return (
@@ -58,14 +72,13 @@ export const SeedLengthSelect: FC<SeedLengthSelectProps> = ({ options, defaultOp
               onClick={() => handleClick(option)}
               className={classNames(
                 selectedOption === option ? 'bg-gray-200' : 'hover:bg-gray-100',
+                'py-1',
                 'text-gray-800',
-                'py-1 px-4',
-                'flex flex-row justify-between'
+                'flex justify-center'
               )}
               style={{ fontSize: 17 }}
             >
-              {selectedOption === option ? <CheckMarkIcon /> : <span />}
-              {option}
+              <span style={{ fontSize: 13 }}>{t('seedInputNumberOfWords', [`${option}`])}</span>
             </li>
           );
         })}

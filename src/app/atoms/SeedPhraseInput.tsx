@@ -24,7 +24,7 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({ onChange, seedPhrase
   const [draftSeed, setDraftSeed] = useState(new Array(defaultNumberOfWords).fill(''));
   const [showSeed, setShowSeed] = useState(true);
   const [numberOfWords, setNumberOfWords] = useState(defaultNumberOfWords);
-
+  console.log(draftSeed, 'draftseed');
   const inputsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -123,21 +123,20 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({ onChange, seedPhrase
         </h1>
         <div className="relative w-64 h-10">
           <SeedLengthSelect
+            options={numberOfWordsOptions}
+            currentOption={draftSeed.length.toString()}
+            defaultOption={`${numberOfWords}`}
+            setShowSeed={setShowSeed}
             onChange={newSelectedOption => {
               const newNumberOfWords = parseInt(newSelectedOption, 10);
               if (Number.isNaN(newNumberOfWords)) {
                 throw new Error('Unable to parse option as integer');
               }
 
-              let newDraftSeed = draftSeed.slice(0, newNumberOfWords);
-              if (newDraftSeed.length < newNumberOfWords) {
-                newDraftSeed = newDraftSeed.concat(new Array(newNumberOfWords - newDraftSeed.length).fill(''));
-              }
+              let newDraftSeed = new Array(newNumberOfWords).fill('');
               setNumberOfWords(newNumberOfWords);
               onSeedChange(newDraftSeed);
             }}
-            options={numberOfWordsOptions}
-            defaultOption={`${numberOfWords}`}
           />
         </div>
       </div>

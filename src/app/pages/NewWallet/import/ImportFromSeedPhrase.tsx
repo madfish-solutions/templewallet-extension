@@ -23,7 +23,7 @@ export const ImportFromSeedPhrase: FC<ImportFromSeedPhraseProps> = ({
   const onSubmit = useCallback(() => {
     if (seedPhrase && !seedPhrase.split(' ').includes('') && !seedError) {
       setIsSeedEntered(true);
-    } else {
+    } else if (seedError === '') {
       setSeedError(t('mnemonicWordsAmountConstraint'));
     }
   }, [seedPhrase, seedError, setIsSeedEntered]);

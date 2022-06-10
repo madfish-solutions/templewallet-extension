@@ -136,6 +136,14 @@ export const SetWalletPassword: FC<SetWalletPasswordProps> = ({
           as={FormCheckbox}
           label={t('useKeystorePassword')}
           containerClassName={classNames('mb-6', 'mt-8')}
+          onClick={() =>
+            setPasswordValidation({
+              minChar: false,
+              cases: false,
+              number: false,
+              specialChar: false
+            })
+          }
         />
       )}
 
@@ -220,6 +228,7 @@ export const SetWalletPassword: FC<SetWalletPasswordProps> = ({
         name="skipOnboarding"
         as={FormCheckbox}
         label={t('skipOnboarding')}
+        labelDescription={t('advancedUser')}
         containerClassName="mb-4"
       />
 

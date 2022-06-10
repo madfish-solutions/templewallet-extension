@@ -4,7 +4,7 @@ import PageLayout from 'app/layouts/PageLayout';
 import { t } from 'lib/i18n/react';
 
 import { useTempleClient } from '../../../lib/temple/front';
-import ImportTabSwitcher from '../../atoms/assets/ImportTabSwitcher';
+import ImportTabSwitcher from '../../atoms/ImportTabSwitcher';
 import { ImportFromKeystoreFile } from './import/ImportFromKeystoreFile';
 import { ImportFromSeedPhrase } from './import/ImportFromSeedPhrase';
 import { LockedWalletExists } from './LockedWalletExists';

@@ -88,6 +88,9 @@
   "clickToRevealField": {
     "message": "Click to reveal this field"
   },
+  "clickToReveal": {
+    "message": "Click to reveal"
+  },
   "copiedHash": {
     "message": "Copied."
   },
@@ -212,6 +215,9 @@
   },
   "skipOnboarding": {
     "message": "Skip Onboarding"
+  },
+  "advancedUser": {
+    "message": "I'm an advanced user"
   },
   "analytics": {
     "message": "Analytics"

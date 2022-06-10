@@ -2,7 +2,8 @@ import React, { FC, useCallback, useEffect, useRef, useState } from 'react';
 
 import classNames from 'clsx';
 
-import SeedWordBanner from './assets/seed-word-banner.png';
+import { T } from '../../lib/i18n/react';
+import { ReactComponent as LockAltIcon } from '../icons/lock-alt.svg';
 
 interface SeedWordInputProps {
   id: number;
@@ -101,13 +102,20 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
         )}
       />
       {!showSeed && !isError && (
-        <img
-          src={SeedWordBanner}
-          alt="SeedWordBanner"
-          className={classNames('absolute', 'rounded-md', 'cursor-text')}
-          style={{ top: 18 }}
+        <div
+          className={classNames(
+            'absolute',
+            'rounded-md bg-gray-200 w-full',
+            'cursor-pointer flex items-center justify-center'
+          )}
+          style={{ top: 20, height: 44 }}
           onClick={() => setShowSeed(true)}
-        />
+        >
+          <p className={classNames('flex items-center', 'text-gray-500 text-sm')}>
+            <LockAltIcon className={classNames('mr-1', 'h-4 w-auto', 'stroke-current stroke-2')} />
+            <T id="clickToReveal">{message => <span>{message}</span>}</T>
+          </p>
+        </div>
       )}
     </div>
   );
