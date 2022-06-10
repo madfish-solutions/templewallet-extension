@@ -1,7 +1,5 @@
 import BigNumber from 'bignumber.js';
 
-import { BcdTokenTransfer } from 'lib/better-call-dev';
-
 export function tryParseTokenTransfers(
   parameters: any,
   destination: string,
@@ -24,10 +22,6 @@ export function isPositiveNumber(val: BigNumber.Value) {
 
 export function toTokenId(contractAddress: string, tokenId: string | number = 0) {
   return `${contractAddress}_${tokenId}`;
-}
-
-export function getBcdTokenTransferId(tokenTrans: BcdTokenTransfer) {
-  return `${tokenTrans.hash}_${tokenTrans.nonce}`;
 }
 
 export function getTzktTokenTransferId(hash: string, nonce?: number) {
