@@ -2,7 +2,12 @@ import React, { FC, useState } from 'react';
 
 import Identicon from 'app/atoms/Identicon';
 import { ReactComponent as CollectiblePlaceholder } from 'app/icons/collectible-placeholder.svg';
-import { formatCollectibleUri, formatIpfsUri, formatTokenUri } from 'lib/image-uri';
+import {
+  formatCollectibleObjktBigUri,
+  formatCollectibleObjktMediumUri,
+  formatIpfsUri,
+  formatTokenUri
+} from 'lib/image-uri';
 import { AssetMetadata, getAssetSymbol, useAssetMetadata } from 'lib/temple/front';
 
 interface AssetIconPlaceholderProps {
@@ -37,20 +42,22 @@ const tokenLoadStrategy: Array<LoadStrategy> = [
   { type: 'thumbnailUri', uri: formatIpfsUri, field: 'thumbnailUri' }
 ];
 const collectibleLoadStrategy: Array<LoadStrategy> = [
-  { type: 'objkt', uri: formatCollectibleUri, field: 'assetSlug' },
+  { type: 'objktBig', uri: formatCollectibleObjktBigUri, field: 'assetSlug' },
+  { type: 'objktMed', uri: formatCollectibleObjktMediumUri, field: 'assetSlug' },
   { type: 'displayUri', uri: formatIpfsUri, field: 'displayUri' },
   { type: 'artifactUri', uri: formatIpfsUri, field: 'artifactUri' },
   { type: 'thumbnailUri', uri: formatIpfsUri, field: 'thumbnailUri' }
 ];
 
+type ImageRequestObject = (AssetMetadata | null) & { assetSlug: string };
+
 const getFirstFallback = (
   strategy: Array<LoadStrategy>,
   currentState: Record<string, boolean>,
-  metadata: AssetMetadata | null
+  metadata: ImageRequestObject
 ): LoadStrategy => {
   for (const strategyItem of strategy) {
-    // @ts-ignore
-    if (metadata && metadata[strategyItem.type] && !currentState[strategyItem.type]) {
+    if (metadata && metadata[strategyItem.field] && !currentState[strategyItem.type]) {
       return strategyItem;
     }
   }
@@ -66,8 +73,8 @@ export const AssetIcon: FC<AssetIconProps> = ({ assetSlug, className, size }) =>
     loadStrategy.reduce<Record<string, boolean>>((acc, cur) => ({ ...acc, [cur.type]: false }), {})
   );
 
-  const imageRequestObject = { ...metadata, assetSlug };
-  const currentFallback = getFirstFallback(loadStrategy, isLoadingFailed, metadata);
+  const imageRequestObject: ImageRequestObject = { ...metadata, assetSlug };
+  const currentFallback = getFirstFallback(loadStrategy, isLoadingFailed, imageRequestObject);
   const imageSrc = currentFallback.uri(imageRequestObject[currentFallback.field] ?? assetSlug);
 
   const handleLoadingFailed = () => {
