@@ -23,8 +23,6 @@ export const formatTokenUri = (thumbnailUri = '') => {
 export const formatCollectibleObjktBigUri = (assetSlug: string) => {
   const [address, id] = assetSlug.split('_');
 
-  console.log('big');
-
   return `https://assets.objkt.media/file/assets-001/${address}/${id.length > 1 ? id[id.length - 2] : 0}/${
     id[id.length - 1]
   }/${id}/thumb400`;
@@ -32,8 +30,6 @@ export const formatCollectibleObjktBigUri = (assetSlug: string) => {
 
 export const formatCollectibleObjktMediumUri = (assetSlug: string) => {
   const [address, id] = assetSlug.split('_');
-
-  console.log('med');
 
   return `https://assets.objkt.media/file/assets-003/${address}/${id}/thumb288`;
 };
