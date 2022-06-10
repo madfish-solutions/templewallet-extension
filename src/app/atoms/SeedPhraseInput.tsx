@@ -15,11 +15,18 @@ interface SeedPhraseInputProps {
   seedPhraseText: string;
   seedError: string;
   setSeedError: (e: string) => void;
+  reset: () => void;
 }
 
 const defaultNumberOfWords = 12;
 
-export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({ onChange, seedPhraseText, seedError, setSeedError }) => {
+export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
+  onChange,
+  seedPhraseText,
+  seedError,
+  setSeedError,
+  reset
+}) => {
   const [pasteFailed, setPasteFailed] = useState(false);
   const [draftSeed, setDraftSeed] = useState(new Array(defaultNumberOfWords).fill(''));
   const [showSeed, setShowSeed] = useState(true);
@@ -136,6 +143,7 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({ onChange, seedPhrase
               let newDraftSeed = new Array(newNumberOfWords).fill('');
               setNumberOfWords(newNumberOfWords);
               onSeedChange(newDraftSeed);
+              reset();
             }}
           />
         </div>
@@ -155,6 +163,7 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({ onChange, seedPhrase
               key={key}
               id={index}
               showSeed={showSeed}
+              isError={draftSeed[index] === '' ? Boolean(seedError) : false}
               setShowSeed={setShowSeed}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                 e.preventDefault();

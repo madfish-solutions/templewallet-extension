@@ -17,7 +17,7 @@ export const ImportFromSeedPhrase: FC<ImportFromSeedPhraseProps> = ({
   setSeedPhrase,
   setIsSeedEntered
 }) => {
-  const { handleSubmit } = useForm();
+  const { handleSubmit, formState, reset } = useForm();
   const [seedError, setSeedError] = useState('');
 
   const onSubmit = useCallback(() => {
@@ -33,8 +33,9 @@ export const ImportFromSeedPhrase: FC<ImportFromSeedPhraseProps> = ({
       <SeedPhraseInput
         onChange={setSeedPhrase}
         seedPhraseText={t('seedPhrase')}
-        seedError={seedError}
+        seedError={formState.submitCount !== 0 ? seedError : ''}
         setSeedError={setSeedError}
+        reset={reset}
       />
       <FormSubmitButton style={{ display: 'block', width: 384, margin: '40px auto', fontSize: 14, fontWeight: 500 }}>
         <T id="next" />

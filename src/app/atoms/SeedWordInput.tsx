@@ -8,6 +8,7 @@ import { ReactComponent as LockAltIcon } from '../icons/lock-alt.svg';
 interface SeedWordInputProps {
   id: number;
   showSeed: boolean;
+  isError: boolean;
   value?: string;
   autoComplete?: string;
   setShowSeed: (value: boolean) => void;
@@ -19,6 +20,7 @@ interface SeedWordInputProps {
 export const SeedWordInput: FC<SeedWordInputProps> = ({
   id,
   showSeed,
+  isError,
   value,
   autoComplete = 'off',
   setShowSeed,
@@ -26,11 +28,8 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
   onPaste,
   className
 }) => {
-  const [isChanged, setIsChanged] = useState(false);
   const [focused, setFocused] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
-
-  const isError = !value && isChanged;
 
   useEffect(() => {
     if (showSeed && focused) {
@@ -53,7 +52,6 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       if (onChange) {
-        setIsChanged(true);
         onChange(e);
       }
     },
@@ -75,7 +73,7 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
       className={classNames('relative', 'flex flex-col items-center', 'w-40')}
       onClick={() => inputRef.current?.focus()}
     >
-      <label htmlFor={id.toString()} className={isError ? 'text-red-600' : 'text-gray-600'}>
+      <label htmlFor={id.toString()} className={isError && !value ? 'text-red-600' : 'text-gray-600'}>
         <p style={{ fontSize: 14 }}>{`#${id + 1}`}</p>
       </label>
       <input
@@ -89,7 +87,7 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
         className={classNames(
           'appearance-none',
           'w-full py-2 border-2',
-          isError ? 'border-red-500' : 'border-gray-300',
+          isError && !value ? 'border-red-500' : 'border-gray-300',
           'focus:border-primary-orange',
           'bg-gray-100 focus:bg-transparent',
           'focus:outline-none focus:shadow-outline',
@@ -101,7 +99,7 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
           className
         )}
       />
-      {!showSeed && !isError && (
+      {!showSeed && !isError && value && (
         <div
           className={classNames(
             'absolute',
