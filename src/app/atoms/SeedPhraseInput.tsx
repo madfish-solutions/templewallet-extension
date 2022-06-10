@@ -24,7 +24,7 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({ onChange, seedPhrase
   const [draftSeed, setDraftSeed] = useState(new Array(defaultNumberOfWords).fill(''));
   const [showSeed, setShowSeed] = useState(true);
   const [numberOfWords, setNumberOfWords] = useState(defaultNumberOfWords);
-  console.log(draftSeed, 'draftseed');
+
   const inputsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
