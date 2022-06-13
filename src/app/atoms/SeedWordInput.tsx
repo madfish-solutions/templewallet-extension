@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useEffect, useRef, useState } from 'react';
+import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import classNames from 'clsx';
 
@@ -7,9 +7,9 @@ import { ReactComponent as LockAltIcon } from '../icons/lock-alt.svg';
 
 interface SeedWordInputProps {
   id: number;
-  showSeed: boolean;
-  isError: boolean;
+  submitted: boolean;
   value?: string;
+  showSeed: boolean;
   autoComplete?: string;
   setShowSeed: (value: boolean) => void;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -19,9 +19,9 @@ interface SeedWordInputProps {
 
 export const SeedWordInput: FC<SeedWordInputProps> = ({
   id,
-  showSeed,
-  isError,
+  submitted,
   value,
+  showSeed,
   autoComplete = 'off',
   setShowSeed,
   onChange,
@@ -30,9 +30,17 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
 }) => {
   const [focused, setFocused] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const isError = submitted ? !value : false;
+  const isWordHidden = useMemo(() => {
+    if (focused || !value) {
+      return false;
+    }
+
+    return !showSeed;
+  }, [focused, showSeed, value]);
 
   useEffect(() => {
-    if (showSeed && focused) {
+    if (showSeed) {
       const handleLocalBlur = () => {
         inputRef.current?.blur();
         setShowSeed(false);
@@ -47,7 +55,7 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
       };
     }
     return undefined;
-  }, [showSeed, focused, inputRef, setShowSeed]);
+  }, [showSeed, inputRef, setShowSeed]);
 
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -69,11 +77,8 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
   );
 
   return (
-    <div
-      className={classNames('relative', 'flex flex-col items-center', 'w-40')}
-      onClick={() => inputRef.current?.focus()}
-    >
-      <label htmlFor={id.toString()} className={isError && !value ? 'text-red-600' : 'text-gray-600'}>
+    <div className={classNames('relative', 'flex flex-col items-center', 'w-40')}>
+      <label htmlFor={id.toString()} className={isError ? 'text-red-600' : 'text-gray-600'}>
         <p style={{ fontSize: 14 }}>{`#${id + 1}`}</p>
       </label>
       <input
@@ -84,10 +89,14 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
         onChange={handleChange}
         onPaste={handlePaste}
         onFocus={() => setFocused(true)}
+        onBlur={() => {
+          setFocused(false);
+          setShowSeed(false);
+        }}
         className={classNames(
           'appearance-none',
           'w-full py-2 border-2',
-          isError && !value ? 'border-red-500' : 'border-gray-300',
+          isError ? 'border-red-500' : 'border-gray-300',
           'focus:border-primary-orange',
           'bg-gray-100 focus:bg-transparent',
           'focus:outline-none focus:shadow-outline',
@@ -99,7 +108,7 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
           className
         )}
       />
-      {!showSeed && !isError && value && (
+      {isWordHidden && (
         <div
           className={classNames(
             'absolute',
@@ -107,7 +116,10 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
             'cursor-pointer flex items-center justify-center'
           )}
           style={{ top: 20, height: 44 }}
-          onClick={() => setShowSeed(true)}
+          onClick={() => {
+            inputRef.current?.focus();
+            setShowSeed(true);
+          }}
         >
           <p className={classNames('flex items-center', 'text-gray-500 text-sm')}>
             <LockAltIcon className={classNames('mr-1', 'h-4 w-auto', 'stroke-current stroke-2')} />

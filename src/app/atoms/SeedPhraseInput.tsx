@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { FC, useCallback, useMemo, useState } from 'react';
 
 import { validateMnemonic } from 'bip39';
 import classNames from 'clsx';
@@ -11,9 +11,10 @@ import { SeedLengthSelect } from './SeedLengthSelect';
 import { SeedWordInput } from './SeedWordInput';
 
 interface SeedPhraseInputProps {
+  submitted: boolean;
+  seedError: string;
   onChange: (seed: string) => void;
   seedPhraseText: string;
-  seedError: string;
   setSeedError: (e: string) => void;
   reset: () => void;
 }
@@ -21,9 +22,10 @@ interface SeedPhraseInputProps {
 const defaultNumberOfWords = 12;
 
 export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
+  submitted,
+  seedError,
   onChange,
   seedPhraseText,
-  seedError,
   setSeedError,
   reset
 }) => {
@@ -31,21 +33,6 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
   const [draftSeed, setDraftSeed] = useState(new Array(defaultNumberOfWords).fill(''));
   const [showSeed, setShowSeed] = useState(true);
   const [numberOfWords, setNumberOfWords] = useState(defaultNumberOfWords);
-
-  const inputsRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (inputsRef.current && !inputsRef.current.contains(event.target as Node) && draftSeed.join('') !== '') {
-        setShowSeed(false);
-      }
-    };
-    window.addEventListener('mousedown', handleClickOutside);
-
-    return () => {
-      window.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [inputsRef, draftSeed]);
 
   const onSeedChange = useCallback(
     (newDraftSeed: Array<string>) => {
@@ -154,7 +141,7 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
       >
         <p>{t('seedPhraseTip')}</p>
       </div>
-      <div ref={inputsRef} className={classNames('grid grid-cols-3 gap-4')}>
+      <div className={classNames('grid grid-cols-3 gap-4')}>
         {[...Array(numberOfWords).keys()].map(index => {
           const key = `import-seed-word-${index}`;
 
@@ -162,8 +149,8 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
             <SeedWordInput
               key={key}
               id={index}
+              submitted={submitted}
               showSeed={showSeed}
-              isError={draftSeed[index] === '' ? Boolean(seedError) : false}
               setShowSeed={setShowSeed}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                 e.preventDefault();
@@ -182,7 +169,7 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
           );
         })}
       </div>
-      {seedError ? <div className="text-xs text-red-700 mt-4">{seedError}</div> : null}
+      {submitted && seedError ? <div className="text-xs text-red-700 mt-4">{seedError}</div> : null}
       {pasteFailed ? (
         <T id="seedPasteFailedTooManyWords">{message => <div className="text-xs text-red-700 mt-4">{message}</div>}</T>
       ) : null}

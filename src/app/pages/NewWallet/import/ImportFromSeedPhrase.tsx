@@ -33,7 +33,8 @@ export const ImportFromSeedPhrase: FC<ImportFromSeedPhraseProps> = ({
       <SeedPhraseInput
         onChange={setSeedPhrase}
         seedPhraseText={t('seedPhrase')}
-        seedError={formState.submitCount !== 0 ? seedError : ''}
+        submitted={formState.submitCount !== 0}
+        seedError={seedError}
         setSeedError={setSeedError}
         reset={reset}
       />
