@@ -98,7 +98,14 @@ export class Vault {
 
       const passKey = await Passworder.generateKey(password);
 
+      const onboarding = localStorage.getItem('onboarding');
+      const analytics = localStorage.getItem('analytics');
+
       await clearStorage();
+
+      localStorage.setItem('onboarding', onboarding!);
+      localStorage.setItem('analytics', analytics!);
+
       await encryptAndSaveMany(
         [
           [checkStrgKey, generateCheck()],

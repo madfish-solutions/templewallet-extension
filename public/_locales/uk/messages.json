@@ -646,9 +646,6 @@
   "processing": {
     "message": "Обробка..."
   },
-  "restoreWallet": {
-    "message": "Відновіть свій гаманець"
-  },
   "accountAddressLabel": {
     "message": "Адреса вашого аккаунту. Поділіться нею, щоб отримати кошти."
   },
