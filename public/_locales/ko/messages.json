@@ -579,9 +579,6 @@
   "isPrivateKeyEncrypted": {
     "message": "비공개 키가 암호화된 포맷으로 되어 있나요?"
   },
-  "noDerivation": {
-    "message": "도출 없음"
-  },
   "customDerivationPath": {
     "message": "맞춤형 도출 경로"
   },

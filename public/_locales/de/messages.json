@@ -597,9 +597,6 @@
   "isPrivateKeyEncrypted": {
     "message": "Ist Ihr privater Schlüssel verschlüsselt?"
   },
-  "noDerivation": {
-    "message": "Keine Ableitung"
-  },
   "customDerivationPath": {
     "message": "Benutzerdefinierter Ableitungspfad"
   },

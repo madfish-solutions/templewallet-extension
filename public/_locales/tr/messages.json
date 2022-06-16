@@ -597,9 +597,6 @@
   "isPrivateKeyEncrypted": {
     "message": "Özel anahtarınız şifreli mi?"
   },
-  "noDerivation": {
-    "message": "Türev yok"
-  },
   "customDerivationPath": {
     "message": "Özel türev yolu"
   },

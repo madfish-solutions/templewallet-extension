@@ -218,16 +218,8 @@ const ByPrivateKeyForm: FC = () => {
 
 const DERIVATION_PATHS = [
   {
-    type: 'none',
-    i18nKey: 'noDerivation'
-  },
-  {
     type: 'default',
     i18nKey: 'defaultAccount'
-  },
-  {
-    type: 'another',
-    i18nKey: 'anotherAccount'
   },
   {
     type: 'custom',
@@ -265,18 +257,7 @@ const ByMnemonicForm: FC = () => {
         await importMnemonicAccount(
           formatMnemonic(mnemonic),
           password || undefined,
-          (() => {
-            switch (derivationPath.type) {
-              case 'custom':
-                return customDerivationPath;
-              case 'default':
-                return "m/44'/1729'/0'/0'";
-              case 'another':
-                return `m/44'/1729'/${accountNumber! - 1}'/0'`;
-              default:
-                return undefined;
-            }
-          })()
+          derivationPath.type === 'custom' ? customDerivationPath : "m/44'/1729'/0'/0'"
         );
 
         formAnalytics.trackSubmitSuccess();
@@ -400,22 +381,6 @@ const ByMnemonicForm: FC = () => {
           })}
         </div>
       </div>
-
-      {derivationPath.type === 'another' && (
-        <FormField
-          ref={register({
-            min: { value: 1, message: t('positiveIntMessage') },
-            required: t('required')
-          })}
-          min={0}
-          type="number"
-          name="accountNumber"
-          id="importacc-acc-number"
-          label={t('accountNumber')}
-          placeholder="1"
-          errorCaption={errors.accountNumber?.message}
-        />
-      )}
 
       {derivationPath.type === 'custom' && (
         <FormField
