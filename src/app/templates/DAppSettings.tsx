@@ -1,4 +1,4 @@
-import React, { ComponentProps, FC, useCallback, useMemo, useRef, useState } from 'react';
+import React, { ComponentProps, FC, useCallback, useMemo, useRef } from 'react';
 
 import classNames from 'clsx';
 
@@ -34,21 +34,32 @@ const DAppSettings: FC = () => {
   const dAppSessions = data!;
 
   const [dAppEnabled, setDAppEnabled] = useStorage(TempleSharedStorageKey.DAppEnabled, true);
+  const [dAppCustomRpc, setDAppCustomRpc] = useStorage(TempleSharedStorageKey.DappCustomRpc, true);
 
   const changingRef = useRef(false);
-  const [error, setError] = useState<any>(null);
 
-  const handleChange = useCallback(
+  const handleChangeDappEnabled = useCallback(
     async evt => {
       if (changingRef.current) return;
       changingRef.current = true;
-      setError(null);
 
-      setDAppEnabled(evt.target.checked).catch((err: any) => setError(err));
+      setDAppEnabled(evt.target.checked);
 
       changingRef.current = false;
     },
-    [setError, setDAppEnabled]
+    [setDAppEnabled]
+  );
+
+  const handleChangeCustomDappRpc = useCallback(
+    async evt => {
+      if (changingRef.current) return;
+      changingRef.current = true;
+
+      setDAppCustomRpc(evt.target.checked);
+
+      changingRef.current = false;
+    },
+    [setDAppCustomRpc]
   );
 
   const handleRemoveClick = useCallback(
@@ -70,23 +81,39 @@ const DAppSettings: FC = () => {
 
   return (
     <div className="w-full max-w-sm mx-auto my-8">
-      <h2 className={classNames('w-full mb-4', 'leading-tight', 'flex flex-col')}>
-        <T id="dAppsCheckmarkPrompt" substitutions={t(dAppEnabled ? 'disable' : 'enable')}>
-          {message => (
-            <span className={classNames('text-xs font-light text-gray-600')} style={{ maxWidth: '90%' }}>
-              {message}
-            </span>
-          )}
-        </T>
-      </h2>
+      <label className="mb-4 leading-tight flex flex-col" htmlFor="dAppsInteraction">
+        <span className="text-base font-semibold text-gray-700">
+          <T id="dAppsInteraction" />
+        </span>
+
+        <span className="mt-1 text-xs font-light text-gray-600" style={{ maxWidth: '90%' }}>
+          <T id="dAppsCheckmarkPrompt" />
+        </span>
+      </label>
 
       <FormCheckbox
         checked={dAppEnabled}
-        onChange={handleChange}
+        onChange={handleChangeDappEnabled}
         name="dAppEnabled"
         label={t(dAppEnabled ? 'enabled' : 'disabled')}
-        labelDescription={t('dAppsInteraction')}
-        errorCaption={error?.message}
+        containerClassName="mb-4"
+      />
+
+      <label className="mb-4 leading-tight flex flex-col" htmlFor="dAppsCustomRpc">
+        <span className="text-base font-semibold text-gray-700">
+          <T id="dAppsCustomRpc" />
+        </span>
+
+        <span className="mt-1 text-xs font-light text-gray-600" style={{ maxWidth: '90%' }}>
+          <T id="dAppsCustomRpcDescription" />
+        </span>
+      </label>
+
+      <FormCheckbox
+        checked={dAppCustomRpc}
+        onChange={handleChangeCustomDappRpc}
+        name="dAppCustomRpc"
+        label={t(dAppCustomRpc ? 'enabled' : 'disabled')}
         containerClassName="mb-4"
       />
 

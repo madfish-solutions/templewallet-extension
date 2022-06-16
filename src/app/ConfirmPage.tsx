@@ -35,7 +35,11 @@ import {
   TempleAccountType,
   TempleDAppPayload,
   TempleAccount,
-  TempleChainId
+  TempleChainId,
+  useChainId,
+  useStorage,
+  TempleSharedStorageKey,
+  useNetwork
 } from 'lib/temple/front';
 import useSafeState from 'lib/ui/useSafeState';
 import { useLocation } from 'lib/woozie';
@@ -89,9 +93,17 @@ const PayloadContent: React.FC<PayloadContentProps> = ({
   modifyFeeAndLimit
 }) => {
   const allAccounts = useRelevantAccounts(false);
+  const [dAppCustomRpc] = useStorage(TempleSharedStorageKey.DappCustomRpc, true);
+  const customChainId = useCustomChainId(payload.networkRpc, true)!;
+  const chainId = useChainId(true)!;
+
+  const selectedChainId = useMemo(
+    () => (dAppCustomRpc ? customChainId : chainId),
+    [dAppCustomRpc, customChainId, chainId]
+  );
+
   const AccountOptionContent = useMemo(() => AccountOptionContentHOC(payload.networkRpc), [payload.networkRpc]);
-  const chainId = useCustomChainId(payload.networkRpc, true)!;
-  const mainnet = chainId === TempleChainId.Mainnet;
+  const mainnet = selectedChainId === TempleChainId.Mainnet;
 
   return payload.type === 'connect' ? (
     <div className={classNames('w-full', 'flex flex-col')}>
@@ -137,6 +149,8 @@ const ConfirmDAppForm: FC = () => {
   const { getDAppPayload, confirmDAppPermission, confirmDAppOperation, confirmDAppSign } = useTempleClient();
   const allAccounts = useRelevantAccounts(false);
   const account = useAccount();
+  const [dAppCustomRpc] = useStorage(TempleSharedStorageKey.DappCustomRpc, true);
+  const network = useNetwork();
 
   const [accountPkhToConnect, setAccountPkhToConnect] = useState(account.publicKeyHash);
 
@@ -158,6 +172,8 @@ const ConfirmDAppForm: FC = () => {
   });
   const payload = data!;
   const payloadError = data!.error;
+
+  payload.networkRpc = dAppCustomRpc ? payload.networkRpc : network.rpcBaseURL;
 
   const connectedAccount = useMemo(
     () =>
