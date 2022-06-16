@@ -248,7 +248,7 @@ const ByMnemonicForm: FC = () => {
   const [derivationPath, setDerivationPath] = useState(DERIVATION_PATHS[0]);
 
   const onSubmit = useCallback(
-    async ({ mnemonic, password, customDerivationPath, accountNumber }: ByMnemonicFormData) => {
+    async ({ mnemonic, password, customDerivationPath }: ByMnemonicFormData) => {
       if (formState.isSubmitting) return;
 
       formAnalytics.trackSubmit();
