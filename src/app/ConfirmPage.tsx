@@ -21,7 +21,7 @@ import Balance from 'app/templates/Balance';
 import ConnectBanner from 'app/templates/ConnectBanner';
 import CustomSelect, { OptionRenderProps } from 'app/templates/CustomSelect';
 import DAppLogo from 'app/templates/DAppLogo';
-import { ModifyFeeAndLimit } from 'app/templates/ExpensesView';
+import { ModifyFeeAndLimit } from 'app/templates/ExpensesView/ExpensesView';
 import NetworkBanner from 'app/templates/NetworkBanner';
 import OperationView from 'app/templates/OperationView';
 import { CustomRpsContext } from 'lib/analytics';
