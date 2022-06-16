@@ -213,7 +213,7 @@ const Toolbar: FC<ToolbarProps> = ({ pageTitle, hasBackAction = true, step, setS
             href="https://templewallet.com/download"
             target="_blank"
             rel="noopener noreferrer"
-            className="mr-8 my-auto"
+            className="mr-3 my-auto"
             onClick={handleDownloadMobileIconClick}
           >
             {isTempleMobileOverlaySkipped ? <DownloadMobileIcon /> : <DownloadMobileGreyIcon />}
