@@ -208,7 +208,7 @@ const Toolbar: FC<ToolbarProps> = ({ pageTitle, hasBackAction = true, step, setS
 
       <div className="flex-1" />
       {attention && (
-        <div className="flex content-end">
+        <div className="flex content-end absolute right-0">
           <a
             href="https://templewallet.com/download"
             target="_blank"
