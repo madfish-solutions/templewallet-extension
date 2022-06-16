@@ -20,6 +20,7 @@ import { ReactComponent as DownloadMobileGreyIcon } from '../icons/download-mobi
 import { ReactComponent as DownloadMobileIcon } from '../icons/download-mobile.svg';
 import { useOnboardingProgress } from '../pages/Onboarding/hooks/useOnboardingProgress.hook';
 import { PageLayoutSelectors } from './PageLayout.selectors';
+import { ChangelogOverlay } from './PageLayout/ChangelogOverlay/ChangelogOverlay';
 import ConfirmationOverlay from './PageLayout/ConfirmationOverlay';
 import Header from './PageLayout/Header';
 import { useTempleMobile } from './PageLayout/hooks/useTempleMobile.hook';
@@ -51,6 +52,7 @@ const PageLayout: FC<PageLayoutProps> = ({ children, contentContainerStyle, ...t
 
       <ConfirmationOverlay />
       <TempleMobileOverlay />
+      <ChangelogOverlay />
     </>
   );
 };

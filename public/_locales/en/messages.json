@@ -118,6 +118,15 @@
   "download": {
     "message": "Download"
   },
+  "okGotIt": {
+    "message": "Got it"
+  },
+  "changelogTitle": {
+    "message": "Temple Wallet updated to version"
+  },
+  "changelogDescription": {
+    "message": "In this update"
+  },
   "templeIsOnMobile": {
     "message": "Temple is on Mobile"
   },
