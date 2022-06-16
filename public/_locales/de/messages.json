@@ -1746,9 +1746,6 @@
   "swap": {
     "message": "Wechseln"
   },
-  "anotherAccount": {
-    "message": "Anderes Konto"
-  },
   "accountNumber": {
     "message": "Kontonummer"
   },

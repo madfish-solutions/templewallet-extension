@@ -1665,9 +1665,6 @@
   "swap": {
     "message": "Обміняти"
   },
-  "anotherAccount": {
-    "message": "Інший аккаунт"
-  },
   "accountNumber": {
     "message": "Номер аккаунта"
   },
