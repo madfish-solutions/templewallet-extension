@@ -87,7 +87,7 @@ const DAppSettings: FC = () => {
         </span>
 
         <span className="mt-1 text-xs font-light text-gray-600" style={{ maxWidth: '90%' }}>
-          <T id="dAppsCheckmarkPrompt" />
+          <T id="dAppsCheckmarkPrompt" substitutions={t(dAppEnabled ? 'disable' : 'enable')} />
         </span>
       </label>
 
@@ -105,7 +105,7 @@ const DAppSettings: FC = () => {
         </span>
 
         <span className="mt-1 text-xs font-light text-gray-600" style={{ maxWidth: '90%' }}>
-          <T id="dAppsCustomRpcDescription" />
+          <T id="dAppsCustomRpcDescription" substitutions={t(dAppCustomRpc ? 'ignore' : 'use')} />
         </span>
       </label>
 

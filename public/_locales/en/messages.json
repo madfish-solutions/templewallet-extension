@@ -119,10 +119,21 @@
     "message": "Download"
   },
   "dAppsCustomRpc": {
-    "message": "Custom RPC"
+    "message": "DApps RPC"
+  },
+  "ignore": {
+    "message": "ignore"
+  },
+  "use": {
+    "message": "use"
   },
   "dAppsCustomRpcDescription": {
-    "message": "Click on the checkmark to use DApps recommended RPC"
+    "message": "Click on the checkmark to $action$ DApps recommended RPC",
+    "placeholders": {
+      "action": {
+        "content": "$1"
+      }
+    }
   },
   "templeIsOnMobile": {
     "message": "Temple is on Mobile"
