@@ -16,7 +16,7 @@ export const QuipuToken: FC = () => {
     return await getQuipuStakingInfo();
   }, []);
   const { data: quipuStakingInfo, isValidating: loadingQuipuStaking } = useRetryableSWR(
-    ['baking-history'],
+    ['quipu-staking'],
     getQuipuStaking,
     { suspense: true, revalidateOnFocus: false, revalidateOnReconnect: false }
   );
