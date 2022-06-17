@@ -9,6 +9,8 @@ import { ReadyTempleProvider, useNetwork } from 'lib/temple/front/ready';
 import { SyncTokensProvider } from 'lib/temple/front/sync-tokens';
 import { USDPriceProvider } from 'lib/temple/front/usdprice';
 
+import { ABTestGroupProvider } from './ab-test.provider';
+
 export const TempleProvider: FC = ({ children }) => (
   <CustomRpsContext.Provider value={undefined}>
     <TempleClientProvider>
@@ -29,7 +31,9 @@ const ConditionalReadyTemple: FC = ({ children }) => {
               <USDPriceProvider suspense>
                 <FiatCurrencyProvider suspense>
                   <SyncTokensProvider>
-                    <NewBlockTriggersProvider>{children}</NewBlockTriggersProvider>
+                    <ABTestGroupProvider>
+                      <NewBlockTriggersProvider>{children}</NewBlockTriggersProvider>
+                    </ABTestGroupProvider>
                   </SyncTokensProvider>
                 </FiatCurrencyProvider>
               </USDPriceProvider>
