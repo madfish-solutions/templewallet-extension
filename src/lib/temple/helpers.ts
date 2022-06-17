@@ -67,6 +67,7 @@ export function isKTAddress(address: string) {
 }
 
 export function validateDerivationPath(p: string) {
+  if (p.length === 0) return true;
   if (!p.startsWith('m')) {
     return getMessage('derivationPathMustStartWithM');
   }

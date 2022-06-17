@@ -257,7 +257,11 @@ const ByMnemonicForm: FC = () => {
         await importMnemonicAccount(
           formatMnemonic(mnemonic),
           password || undefined,
-          derivationPath.type === 'custom' ? customDerivationPath : "m/44'/1729'/0'/0'"
+          derivationPath.type === 'custom'
+            ? customDerivationPath && customDerivationPath.length > 0
+              ? customDerivationPath
+              : undefined
+            : "m/44'/1729'/0'/0'"
         );
 
         formAnalytics.trackSubmitSuccess();
@@ -385,7 +389,6 @@ const ByMnemonicForm: FC = () => {
       {derivationPath.type === 'custom' && (
         <FormField
           ref={register({
-            required: t('required'),
             validate: validateDerivationPath
           })}
           name="customDerivationPath"
