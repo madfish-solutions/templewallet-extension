@@ -8,7 +8,6 @@ import ContentContainer from 'app/layouts/ContentContainer';
 import { T } from 'lib/i18n/react';
 import { useTempleClient, useStorage } from 'lib/temple/front';
 
-import { AnalyticsEventCategory, useAnalytics } from '../../../../lib/analytics';
 import { ChangelogOverlaySelectors } from './ChangelogOverlay.selectors';
 
 export const VERSION = '1.14.5';
@@ -25,11 +24,9 @@ const changes = [
 export const ChangelogOverlay: FC = () => {
   const { popup } = useAppEnv();
   const { ready } = useTempleClient();
-  const { trackEvent } = useAnalytics();
   const [showChangelogOverlay, toggleChangelogOverlay] = useStorage(`changelog_${VERSION}`, true);
 
   const handleContinue = () => {
-    trackEvent(ChangelogOverlaySelectors.Continue, AnalyticsEventCategory.ButtonPress);
     toggleChangelogOverlay(false);
   };
   const popupClassName = popup ? 'inset-0' : 'top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2';
@@ -42,11 +39,26 @@ export const ChangelogOverlay: FC = () => {
         padding={!popup}
       >
         <div
-          className={classNames('bg-white shadow-lg', popup ? 'py-8 px-8' : 'rounded-md py-32')}
+          className={classNames('bg-white shadow-lg', popup ? 'pt-20 pb-16 px-8' : 'rounded-md py-32')}
           style={{
-            backgroundColor: `#FFF2E6`
+            backgroundColor: `#FFF2E6`,
+            minHeight: popup ? '100%' : 'unset'
           }}
         >
+          <Button
+            onClick={handleContinue}
+            className={classNames(
+              'font-inter font-normal text-sm text-gray-600',
+              'self-end mt-3 mr-6 absolute top-0 right-0',
+              popup ? '' : 'pr-2'
+            )}
+            testID={ChangelogOverlaySelectors.Skip}
+            style={{
+              maxWidth: 'max-content'
+            }}
+          >
+            <T id="skip" />
+          </Button>
           <div className="flex flex-col max-w-sm mx-auto w-full">
             <p className="text-xl font-inter font-semibold" style={{ fontSize: 23, color: '#FF5B00' }}>
               <T id="changelogTitle">
@@ -70,6 +82,7 @@ export const ChangelogOverlay: FC = () => {
             <Button
               className="mt-6 py-2 px-8 text-white font-inter rounded font-semibold uppercase mx-auto"
               onClick={handleContinue}
+              testID={ChangelogOverlaySelectors.Continue}
               style={{
                 fontSize: 13,
                 maxWidth: '7rem',
