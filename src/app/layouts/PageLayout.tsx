@@ -200,7 +200,7 @@ const Toolbar: FC<ToolbarProps> = ({ pageTitle, hasBackAction = true, step, setS
       {pageTitle && (
         <h2
           className={classNames('px-1', 'flex items-center', 'text-gray-700', 'font-normal leading-none')}
-          style={attention ? { marginLeft: 40, fontSize: 17 } : { fontSize: 17 }}
+          style={{ fontSize: 17 }}
         >
           {pageTitle}
         </h2>
