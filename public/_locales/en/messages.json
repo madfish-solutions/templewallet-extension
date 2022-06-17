@@ -118,6 +118,12 @@
   "download": {
     "message": "Download"
   },
+  "dAppsCustomRpc": {
+    "message": "Custom RPC"
+  },
+  "dAppsCustomRpcDescription": {
+    "message": "Click on the checkmark to use DApps recommended RPC"
+  },
   "templeIsOnMobile": {
     "message": "Temple is on Mobile"
   },
