@@ -24,6 +24,7 @@ import { useTempleClient } from 'lib/temple/front';
 import * as Woozie from 'lib/woozie';
 
 import AttentionPage from './pages/Onboarding/pages/AttentionPage';
+import { AliceBob } from './pages/SelectCrypto/AliceBob/AliceBob';
 import SelectCrypto from './pages/SelectCrypto/SelectCrypto';
 
 interface RouteContext {
@@ -83,6 +84,7 @@ const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
   ['/settings/:tabSlug?', onlyReady(({ tabSlug }) => <Settings tabSlug={tabSlug} />)],
   ['/buy', onlyReady(onlyInFullPage(() => <SelectCrypto />))],
   ['/buy/crypto', onlyReady(onlyInFullPage(() => <BuyCrypto />))],
+  ['/buy/debit/alice-bob', onlyReady(onlyInFullPage(() => <AliceBob />))],
   ['/attention', onlyReady(onlyInFullPage(() => <AttentionPage />))],
   ['*', () => <Woozie.Redirect to="/" />]
 ]);

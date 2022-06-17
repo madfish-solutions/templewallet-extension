@@ -2372,6 +2372,12 @@
   "buyWithRampDescription": {
     "message": "Buy TEZ  using Visa, Mastercard, and all major debit and credit cards. Ramp is available in 160+ countries and territories."
   },
+  "buyWithAliceBob": {
+    "message": "Buy TEZ with Alice-Bob (UAH only)"
+  },
+  "buyWithAliceBobDescription": {
+    "message": "Fast and cost-effective exchange of UAH to TEZ."
+  },
   "topUpBuy": {
     "message": "Top up TEZ balance"
   },
