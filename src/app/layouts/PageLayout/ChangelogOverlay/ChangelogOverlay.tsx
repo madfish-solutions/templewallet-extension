@@ -18,6 +18,53 @@ const changes = [
   { Component: () => <>Added Ithaca Smartpy RPC and Jakarta support</> },
   { Component: () => <>Exolix top-up support improvements, single swap limit increased to $10k</> },
   { Component: () => <>Copy Error Text button: a feature to make error reports easier.</> },
+  { Component: () => <>Copy Error Text button: a feature to make error reports easier.</> },
+  { Component: () => <>Copy Error Text button: a feature to make error reports easier.</> },
+  { Component: () => <>Copy Error Text button: a feature to make error reports easier.</> },
+  { Component: () => <>Copy Error Text button: a feature to make error reports easier.</> },
+  { Component: () => <>Copy Error Text button: a feature to make error reports easier.</> },
+  { Component: () => <>Copy Error Text button: a feature to make error reports easier.</> },
+  { Component: () => <>Copy Error Text button: a feature to make error reports easier.</> },
+  { Component: () => <>Copy Error Text button: a feature to make error reports easier.</> },
+  { Component: () => <>Copy Error Text button: a feature to make error reports easier.</> },
+  { Component: () => <>Copy Error Text button: a feature to make error reports easier.</> },
+  { Component: () => <>Copy Error Text button: a feature to make error reports easier.</> },
+  { Component: () => <>Copy Error Text button: a feature to make error reports easier.</> },
+  { Component: () => <>Copy Error Text button: a feature to make error reports easier.</> },
+  { Component: () => <>Copy Error Text button: a feature to make error reports easier.</> },
+  { Component: () => <>Copy Error Text button: a feature to make error reports easier.</> },
+  { Component: () => <>Copy Error Text button: a feature to make error reports easier.</> },
+  { Component: () => <>Copy Error Text button: a feature to make error reports easier.</> },
+  { Component: () => <>Copy Error Text button: a feature to make error reports easier.</> },
+  { Component: () => <>Copy Error Text button: a feature to make error reports easier.</> },
+  { Component: () => <>Copy Error Text button: a feature to make error reports easier.</> },
+  { Component: () => <>Copy Error Text button: a feature to make error reports easier.</> },
+  { Component: () => <>Copy Error Text button: a feature to make error reports easier.</> },
+  { Component: () => <>Copy Error Text button: a feature to make error reports easier.</> },
+  { Component: () => <>Copy Error Text button: a feature to make error reports easier.</> },
+  { Component: () => <>Copy Error Text button: a feature to make error reports easier.</> },
+  { Component: () => <>Copy Error Text button: a feature to make error reports easier.</> },
+  { Component: () => <>Copy Error Text button: a feature to make error reports easier.</> },
+  { Component: () => <>Copy Error Text button: a feature to make error reports easier.</> },
+  { Component: () => <>Copy Error Text button: a feature to make error reports easier.</> },
+  { Component: () => <>Copy Error Text button: a feature to make error reports easier.</> },
+  { Component: () => <>Copy Error Text button: a feature to make error reports easier.</> },
+  { Component: () => <>Copy Error Text button: a feature to make error reports easier.</> },
+  { Component: () => <>Copy Error Text button: a feature to make error reports easier.</> },
+  { Component: () => <>Copy Error Text button: a feature to make error reports easier.</> },
+  { Component: () => <>Copy Error Text button: a feature to make error reports easier.</> },
+  { Component: () => <>Copy Error Text button: a feature to make error reports easier.</> },
+  { Component: () => <>Copy Error Text button: a feature to make error reports easier.</> },
+  { Component: () => <>Copy Error Text button: a feature to make error reports easier.</> },
+  { Component: () => <>Copy Error Text button: a feature to make error reports easier.</> },
+  { Component: () => <>Copy Error Text button: a feature to make error reports easier.</> },
+  { Component: () => <>Copy Error Text button: a feature to make error reports easier.</> },
+  { Component: () => <>Copy Error Text button: a feature to make error reports easier.</> },
+  { Component: () => <>Copy Error Text button: a feature to make error reports easier.</> },
+  { Component: () => <>Copy Error Text button: a feature to make error reports easier.</> },
+  { Component: () => <>Copy Error Text button: a feature to make error reports easier.</> },
+  { Component: () => <>Copy Error Text button: a feature to make error reports easier.</> },
+  { Component: () => <>Copy Error Text button: a feature to make error reports easier.</> },
   { Component: () => <strong>Groundwork done for Temple desktop and Temple mobile sync.</strong> },
   { Component: () => <>Other security and UI improvements!</> }
 ];
@@ -42,12 +89,12 @@ export const ChangelogOverlay: FC = () => {
         padding={!popup}
       >
         <div
-          className={classNames('bg-white shadow-lg', popup ? 'h-full' : 'rounded-md')}
+          className={classNames('bg-white shadow-lg', popup ? 'py-8 px-8' : 'rounded-md py-32')}
           style={{
             backgroundColor: `#FFF2E6`
           }}
         >
-          <div className="flex flex-col max-w-sm mx-auto w-full py-32">
+          <div className="flex flex-col max-w-sm mx-auto w-full">
             <p className="text-xl font-inter font-semibold" style={{ fontSize: 23, color: '#FF5B00' }}>
               <T id="changelogTitle">
                 {message => (
