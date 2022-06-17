@@ -13,6 +13,15 @@ import { ChangelogOverlaySelectors } from './ChangelogOverlay.selectors';
 
 export const VERSION = '1.14.5';
 
+const changes = [
+  { Component: () => <>Swap router upgrade: added Vortex DEX pools and QuipuSwap token-token pools.</> },
+  { Component: () => <>Added Ithaca Smartpy RPC and Jakarta support</> },
+  { Component: () => <>Exolix top-up support improvements, single swap limit increased to $10k</> },
+  { Component: () => <>Copy Error Text button: a feature to make error reports easier.</> },
+  { Component: () => <strong>Groundwork done for Temple desktop and Temple mobile sync.</strong> },
+  { Component: () => <>Other security and UI improvements!</> }
+];
+
 export const ChangelogOverlay: FC = () => {
   const { popup } = useAppEnv();
   const { ready } = useTempleClient();
@@ -33,34 +42,43 @@ export const ChangelogOverlay: FC = () => {
         padding={!popup}
       >
         <div
-          className={classNames('flex flex-col text-center bg-white shadow-lg', popup ? 'h-full' : 'rounded-md')}
+          className={classNames('bg-white shadow-lg', popup ? 'h-full' : 'rounded-md')}
           style={{
             backgroundColor: `#FFF2E6`
           }}
         >
-          <p className="text-xl mt-6 font-inter font-semibold" style={{ fontSize: 28, color: '#FF5B00' }}>
-            <T id="changelogTitle">
-              {message => (
-                <>
-                  {message} {VERSION}
-                </>
-              )}
-            </T>
-          </p>
-          <p className="mb-3 font-normal font-inter" style={{ fontSize: 12 }}>
-            <T id="getTempleMobileAndroid" />
-          </p>
-          <Button
-            className="mb-8 py-2 px-4 text-white font-inter rounded font-semibold uppercase mx-auto"
-            onClick={handleContinue}
-            style={{
-              fontSize: 13,
-              maxWidth: '7rem',
-              backgroundColor: '#FF5B00'
-            }}
-          >
-            <T id="okGotIt" />
-          </Button>
+          <div className="flex flex-col max-w-sm mx-auto w-full py-32">
+            <p className="text-xl font-inter font-semibold" style={{ fontSize: 23, color: '#FF5B00' }}>
+              <T id="changelogTitle">
+                {message => (
+                  <>
+                    {message} {VERSION}
+                  </>
+                )}
+              </T>
+            </p>
+            <p className="my-4 font-semibold font-inter" style={{ fontSize: 14 }}>
+              <T id="changelogDescription" />
+            </p>
+            <ul>
+              {changes.map((value, index) => (
+                <li className="mb-1" style={{ listStyleType: 'disc', listStylePosition: 'inside' }} key={index}>
+                  <value.Component />
+                </li>
+              ))}
+            </ul>
+            <Button
+              className="mt-6 py-2 px-8 text-white font-inter rounded font-semibold uppercase mx-auto"
+              onClick={handleContinue}
+              style={{
+                fontSize: 13,
+                maxWidth: '7rem',
+                backgroundColor: '#FF5B00'
+              }}
+            >
+              <T id="okGotIt" />
+            </Button>
+          </div>
         </div>
       </ContentContainer>
     </>
