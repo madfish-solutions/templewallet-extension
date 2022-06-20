@@ -1,15 +1,15 @@
-import React, { FC, memo, useMemo } from 'react';
+import React, { FC, memo, useCallback, useMemo, useState } from 'react';
 
 import { Estimate } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
+import { Collapse } from 'react-collapse';
 
-import CopyButton from 'app/atoms/CopyButton';
 import Identicon from 'app/atoms/Identicon';
 import Money from 'app/atoms/Money';
 import PlainAssetInput from 'app/atoms/PlainAssetInput';
+import { ReactComponent as ChevronDownIcon } from 'app/icons/chevron-down.svg';
 import { ReactComponent as ClipboardIcon } from 'app/icons/clipboard.svg';
-import { ReactComponent as CopyIcon } from 'app/icons/copy.svg';
 import HashChip from 'app/templates/HashChip';
 import InFiat from 'app/templates/InFiat';
 import { T, t, TProps } from 'lib/i18n/react';
@@ -21,7 +21,9 @@ import {
   tzToMutez,
   useAssetMetadata
 } from 'lib/temple/front';
-import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
+
+import OperationsBanner from '../OperationsBanner';
+import styles from './ExpensesView.module.css';
 
 type OperationAssetExpense = Omit<RawOperationAssetExpense, 'tokenAddress'> & {
   assetSlug: string;
@@ -57,7 +59,9 @@ const ExpensesView: FC<ExpensesViewProps> = ({
   gasFeeError,
   error
 }) => {
-  const { copy } = useCopyToClipboard();
+  const [showDetails, setShowDetails] = useState(false);
+
+  const toggleShowDetails = useCallback(() => setShowDetails(prevValue => !prevValue), []);
   const modifyFeeAndLimitSection = useMemo(() => {
     if (!modifyFeeAndLimit) return null;
 
@@ -247,25 +251,31 @@ const ExpensesView: FC<ExpensesViewProps> = ({
         </p>
       )}
       {error && (
-        <div className="rounded-lg flex flex-col  border border-red-700 my-2 py-2 px-4 justify-center">
-          <span className="text-red-700 text-center">
-            <T id="txIsLikelyToFail" />
-          </span>
-          <hr className="my-2" />
-          <CopyButton
-            className="flex justify-center items-center text-orange-500 cursor-pointer"
-            text={JSON.stringify(error ?? {})}
-            type="link"
-          >
-            <span className="text-orange-500 bold mr-1">
-              <T id="copyErrorLogs" />
+        <div className="rounded-lg flex flex-col border border-red-700 my-2 py-2 px-4 justify-center">
+          <div className="relative flex justify-center">
+            <span className="text-red-700 text-center">
+              <T id="txIsLikelyToFail" />
             </span>
-            <CopyIcon
-              style={{ verticalAlign: 'inherit' }}
-              className={classNames('h-4 ml-1 w-auto inline', 'stroke-orange stroke-2')}
-              onClick={() => copy()}
-            />
-          </CopyButton>
+            <button
+              className={classNames(
+                'absolute right-0 top-0 flex items-center justify-center w-4 h-4 rounded',
+                'bg-gray-200 text-gray-500 transform transition-transform duration-500',
+                showDetails && 'rotate-180'
+              )}
+              onClick={toggleShowDetails}
+            >
+              <ChevronDownIcon className="w-4 h-4 stroke-1 stroke-current" />
+            </button>
+          </div>
+          <Collapse
+            theme={{ collapse: styles.ReactCollapse }}
+            isOpened={showDetails}
+            initialStyle={{ height: '0px', overflow: 'hidden' }}
+          >
+            <div className="flex flex-col mt-2">
+              <OperationsBanner copyButtonClassName="pr-8 pt-4" opParams={error ?? {}} />
+            </div>
+          </Collapse>
         </div>
       )}
     </>
