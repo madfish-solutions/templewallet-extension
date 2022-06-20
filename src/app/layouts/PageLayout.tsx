@@ -200,7 +200,7 @@ const Toolbar: FC<ToolbarProps> = ({ pageTitle, hasBackAction = true, step, setS
       {pageTitle && (
         <h2
           className={classNames('px-1', 'flex items-center', 'text-gray-700', 'font-normal leading-none')}
-          style={attention ? { marginLeft: 40, fontSize: 17 } : { fontSize: 17 }}
+          style={{ fontSize: 17 }}
         >
           {pageTitle}
         </h2>
@@ -208,12 +208,12 @@ const Toolbar: FC<ToolbarProps> = ({ pageTitle, hasBackAction = true, step, setS
 
       <div className="flex-1" />
       {attention && (
-        <div className="flex content-end">
+        <div className="flex content-end absolute right-0">
           <a
             href="https://templewallet.com/download"
             target="_blank"
             rel="noopener noreferrer"
-            className="mr-8 my-auto"
+            className="mr-3 my-auto"
             onClick={handleDownloadMobileIconClick}
           >
             {isTempleMobileOverlaySkipped ? <DownloadMobileIcon /> : <DownloadMobileGreyIcon />}
