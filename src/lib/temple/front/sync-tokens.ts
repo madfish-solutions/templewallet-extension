@@ -225,7 +225,9 @@ const generateMetadataRequest = async (slug: string, mainnet: boolean, fetchMeta
     return await fetchMetadata(slug);
   } catch {
     if (!mainnet) {
-      localStorage.setItem(noMetadataFlag, 'true');
+      try {
+        localStorage.setItem(noMetadataFlag, 'true');
+      } catch {}
     }
 
     return null;

@@ -102,9 +102,10 @@ export class Vault {
       const analytics = localStorage.getItem('analytics');
 
       await clearStorage();
-
-      localStorage.setItem('onboarding', onboarding!);
-      localStorage.setItem('analytics', analytics!);
+      try {
+        localStorage.setItem('onboarding', onboarding!);
+        localStorage.setItem('analytics', analytics!);
+      } catch {}
 
       await encryptAndSaveMany(
         [
