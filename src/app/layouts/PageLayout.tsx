@@ -4,7 +4,7 @@ import classNames from 'clsx';
 
 import DocBg from 'app/a11y/DocBg';
 import { Button } from 'app/atoms/Button';
-import Spinner from 'app/atoms/Spinner';
+import Spinner from 'app/atoms/Spinner/Spinner';
 import { useAppEnv } from 'app/env';
 import ErrorBoundary from 'app/ErrorBoundary';
 import { ReactComponent as ChevronLeftIcon } from 'app/icons/chevron-left.svg';

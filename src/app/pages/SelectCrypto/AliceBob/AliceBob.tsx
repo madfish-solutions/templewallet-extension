@@ -5,9 +5,9 @@ import classNames from 'clsx';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
 
 import { T } from '../../../../lib/i18n/react';
+import { TopUpInput } from '../../../atoms/TopUpInput/TopUpInput';
 import PageLayout from '../../../layouts/PageLayout';
 import styles from '../../BuyCrypto/BuyCrypto.module.css';
-import BuyCryptoInput from '../../BuyCrypto/BuyCryptoInput';
 import { SelectCryptoSelectors } from '../SelectCrypto.selectors';
 
 export const AliceBob = () => {
@@ -24,6 +24,7 @@ export const AliceBob = () => {
       <h3>
         <T id="enterAmount" />
       </h3>
+      <TopUpInput type="fiat" currency="UAH" minAmount="500.00" maxAmount="29500.00" />
       <a
         className={classNames(
           'shadow-sm hover:shadow focus:shadow',

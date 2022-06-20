@@ -6,27 +6,12 @@ import classNames from 'clsx';
 import useSWR from 'swr';
 
 import DropdownWrapper from 'app/atoms/DropdownWrapper';
-import Spinner from 'app/atoms/Spinner';
-import styles from 'app/pages/BuyCrypto/BuyCrypto.module.css';
-import CurrencyComponent from 'app/pages/BuyCrypto/CurrencyComponent';
+import Spinner from 'app/atoms/Spinner/Spinner';
 import { getCurrencies, GetRateData } from 'lib/exolix-api';
 import { T } from 'lib/i18n/react';
 import Popper from 'lib/ui/Popper';
 
-interface Props {
-  type: string;
-  coin: string;
-  setCoin?: (coin: string) => void;
-  onChangeInputHandler?: (value: ChangeEvent<HTMLInputElement>) => void;
-  value?: number;
-  amount?: number;
-  lastMinAmount?: BigNumber;
-  readOnly?: boolean;
-  rates?: GetRateData;
-  maxAmount?: string;
-  isMaxAmountError?: boolean;
-  isCurrencyAvailable?: boolean;
-}
+import { CurrencyComponent } from './CurrencyComponent';
 
 const numbersAndDotRegExp = /^\d*\.?\d*$/;
 
@@ -83,20 +68,38 @@ const sameWidth: Modifier<string, any> = {
   }
 };
 
-const BuyCryptoInput: FC<Props> = ({
+interface Props {
+  type: string;
+  currency: string;
+  setCurrency?: (coin: string) => void;
+  onChangeInputHandler?: (value: ChangeEvent<HTMLInputElement>) => void;
+  value?: number;
+  amount?: number;
+  lastMinAmount?: BigNumber;
+  readOnly?: boolean;
+  rates?: GetRateData;
+  minAmount?: string;
+  maxAmount?: string;
+  isMaxAmountError?: boolean;
+  isCurrencyAvailable?: boolean;
+}
+
+export const TopUpInput: FC<Props> = ({
   type,
-  coin,
-  setCoin = () => void 0,
+  currency,
+  setCurrency = () => void 0,
   value,
   readOnly = false,
   amount,
   lastMinAmount,
   onChangeInputHandler,
   rates = { destination_amount: 0, rate: 0, min_amount: '0' },
+  minAmount,
   maxAmount,
   isMaxAmountError,
   isCurrencyAvailable
 }) => {
+  const isFiatType = type === 'fiat';
   const isCoinFromType = type === 'coinFrom';
   const { data: currencies = [], isValidating: isCurrenciesLoaded } = useSWR(['/api/currency'], getCurrencies);
 
@@ -106,20 +109,41 @@ const BuyCryptoInput: FC<Props> = ({
   const amountErrorClassName = getBigErrorText(isMinAmountError);
   return (
     <>
-      <div className={styles['titleWrapper']}>
-        <p className={styles['titleLeft']}>{isCoinFromType ? 'Send' : 'Get'}</p>
+      <div className="flex justify-between items-baseline">
+        {!isFiatType && (
+          <p className="font-inter" style={{ fontSize: 19, color: '#1b262c' }}>
+            {isCoinFromType ? 'Send' : 'Get'}
+          </p>
+        )}
         <p className={classNames(getSmallErrorText(isMinAmountError))}>
-          {isCoinFromType ? (
+          {isCoinFromType || isFiatType ? (
             <>
-              <T id={'min'} />
-              <span className={classNames(amountErrorClassName, 'text-sm')}> {rates.min_amount}</span>{' '}
-              <span className={classNames(amountErrorClassName, 'text-xs')}>{coin}</span>
+              <T id="min" />
+              <span className={classNames(amountErrorClassName, 'text-sm')}>
+                {' '}
+                {minAmount ? minAmount : rates.min_amount}
+              </span>{' '}
+              <span className={classNames(amountErrorClassName, 'text-xs')}>{currency}</span>
             </>
           ) : null}
         </p>
+        {isFiatType && maxAmount && (
+          <p className={classNames(getSmallErrorText(isMaxAmountError))}>
+            <T id="max" />
+            {':'}
+            <span className={classNames(amountErrorClassName, 'text-sm')}> {maxAmount}</span>{' '}
+            <span className={classNames(amountErrorClassName, 'text-xs')}>{currency}</span>
+          </p>
+        )}
       </div>
-      <div className={styles['inputWrapper']}>
-        <div className={styles['currencyBlock']}>
+      <div
+        className="flex box-border w-full border-solid border-gray-300"
+        style={{ borderWidth: 1, borderRadius: 6, height: 72 }}
+      >
+        <div
+          className="flex justify-center items-center border-solid border-gray-300"
+          style={{ borderRightWidth: 1, width: isFiatType ? 111 : 120 }}
+        >
           {isCoinFromType ? (
             <Popper
               placement="bottom-start"
@@ -140,14 +164,14 @@ const BuyCryptoInput: FC<Props> = ({
                   {isCurrenciesLoaded ? (
                     <Spinner theme="primary" style={{ width: '3rem' }} />
                   ) : (
-                    filteredCurrencies.map(currency => (
+                    filteredCurrencies.map(currencyItem => (
                       <CurrencyComponent
                         type="currencyDropdown"
-                        key={currency.code}
-                        label={currency.code}
-                        className={currency.code === coin ? styles.selected : ''}
+                        key={currencyItem.code}
+                        label={currencyItem.code}
+                        className={currencyItem.code === currency ? 'font-semibold' : ''}
                         onPress={() => {
-                          setCoin(currency.code);
+                          setCurrency(currencyItem.code);
                           setOpened(false);
                         }}
                       />
@@ -158,8 +182,8 @@ const BuyCryptoInput: FC<Props> = ({
             >
               {({ ref, toggleOpened }) => (
                 <CurrencyComponent
-                  type="currencySelector"
-                  label={coin}
+                  type="coinSelector"
+                  label={currency}
                   short
                   ref={ref as unknown as React.RefObject<HTMLDivElement>}
                   onPress={toggleOpened}
@@ -167,10 +191,10 @@ const BuyCryptoInput: FC<Props> = ({
               )}
             </Popper>
           ) : (
-            <CurrencyComponent type="tezosSelector" label={coin} />
+            <CurrencyComponent type={isFiatType ? 'fiatSelector' : 'tezosSelector'} label={currency} />
           )}
         </div>
-        <div className={styles['amountInputContainer']}>
+        <div className="flex flex-1">
           <input
             readOnly={readOnly}
             onKeyPress={(event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -187,7 +211,8 @@ const BuyCryptoInput: FC<Props> = ({
             }}
             value={value}
             placeholder="0.00"
-            className={classNames([[styles['amountInput'], 'pr-1']])}
+            className="w-full font-inter text-right pr-1"
+            style={{ fontSize: 23, borderRadius: 6 }}
             type="text"
             maxLength={15}
             onChange={onChangeInputHandler}
@@ -199,7 +224,7 @@ const BuyCryptoInput: FC<Props> = ({
         isCoinFromType={isCoinFromType}
         isCurrencyAvailable={isCurrencyAvailable}
         maxAmount={maxAmount}
-        coin={coin}
+        coin={currency}
       />
     </>
   );
@@ -222,7 +247,7 @@ const MaxAmountErrorComponent: React.FC<MaxAmountErrorComponentProps> = ({
 }) => {
   const maxAmountErrorText = getBigErrorText(isMaxAmountError);
   return (
-    <div className={styles['titleWrapper']} style={{ justifyContent: 'flex-end' }}>
+    <div className="flex justify-end items-baseline">
       <p className={classNames(getSmallErrorText(isMaxAmountError))}>
         {isCoinFromType && (
           <CurrencyText
@@ -243,6 +268,7 @@ const CurrencyText: React.FC<
   isCurrencyAvailable ? (
     <>
       <T id={'max'} />
+      {':'}
       <span className={classNames(className, 'text-sm')}> {maxAmount !== 'Infinity' ? maxAmount : '0'}</span>{' '}
       <span className={classNames(className, 'text-xs')}>{coin}</span>
     </>
@@ -254,5 +280,3 @@ const CurrencyText: React.FC<
 
 const getSmallErrorText = (flag?: boolean) => (flag ? 'text-red-700' : 'text-gray-500');
 const getBigErrorText = (flag?: boolean) => (flag ? 'text-red-700' : 'text-gray-700');
-
-export default BuyCryptoInput;
