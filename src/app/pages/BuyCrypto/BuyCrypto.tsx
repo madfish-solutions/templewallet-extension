@@ -17,9 +17,9 @@ import { EXOLIX_CONTACT_LINK } from './config';
 const BuyCrypto: FC = () => (
   <PageLayout
     pageTitle={
-      <>
+      <div className="font-medium text-sm">
         <T id="buyWithCrypto" />
-      </>
+      </div>
     }
   >
     <BuyCryptoContent />

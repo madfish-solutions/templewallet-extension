@@ -174,6 +174,7 @@ const InitialStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
             <T
               id="privacyAndPolicyLinks"
               substitutions={[
+                <T id={'topUp'} />,
                 <a className={styles['link']} rel="noreferrer" href="https://exolix.com/terms" target="_blank">
                   <T id={'termsOfUse'} />
                 </a>,
