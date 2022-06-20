@@ -10,8 +10,6 @@ import { useTempleClient, useStorage } from 'lib/temple/front';
 
 import { ChangelogOverlaySelectors } from './ChangelogOverlay.selectors';
 
-export const VERSION = '1.14.5';
-
 const changes = [
   { Component: () => <>Swap router upgrade: added Vortex DEX pools and QuipuSwap token-token pools.</> },
   { Component: () => <>Added Ithaca Smartpy RPC and Jakarta support</> },
@@ -24,7 +22,7 @@ const changes = [
 export const ChangelogOverlay: FC = () => {
   const { popup } = useAppEnv();
   const { ready } = useTempleClient();
-  const [showChangelogOverlay, toggleChangelogOverlay] = useStorage(`changelog_${VERSION}`, true);
+  const [showChangelogOverlay, toggleChangelogOverlay] = useStorage(`changelog_${process.env.VERSION}`, true);
 
   const handleContinue = () => {
     toggleChangelogOverlay(false);
@@ -64,7 +62,7 @@ export const ChangelogOverlay: FC = () => {
               <T id="changelogTitle">
                 {message => (
                   <>
-                    {message} {VERSION}
+                    {message} {process.env.VERSION}
                   </>
                 )}
               </T>
