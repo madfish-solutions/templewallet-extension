@@ -92,6 +92,8 @@ const InitialStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
     })();
   }, [coinFrom, tezPrice]);
 
+  const isMinAmountError = amount !== 0 && (lastMinAmount ? lastMinAmount.toNumber() : 0) > Number(amount);
+
   const isMaxAmountError =
     lastMaxAmount !== 'Infinity' && debouncedAmount !== 0 && Number(debouncedAmount) > Number(lastMaxAmount);
 
@@ -138,11 +140,10 @@ const InitialStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
             currency={coinFrom}
             setCurrency={setCoinFrom}
             type="coinFrom"
-            amount={amount}
-            lastMinAmount={lastMinAmount}
             onChangeInputHandler={onAmountChange}
             rates={rates}
             maxAmount={lastMaxAmount}
+            isMinAmountError={isMinAmountError}
             isMaxAmountError={isMaxAmountError}
             isCurrencyAvailable={isCurrencyAvailable}
           />

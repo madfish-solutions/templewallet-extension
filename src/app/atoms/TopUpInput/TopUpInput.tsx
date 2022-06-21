@@ -74,12 +74,11 @@ interface Props {
   setCurrency?: (coin: string) => void;
   onChangeInputHandler?: (value: ChangeEvent<HTMLInputElement>) => void;
   value?: number;
-  amount?: number;
-  lastMinAmount?: BigNumber;
   readOnly?: boolean;
   rates?: GetRateData;
   minAmount?: string;
   maxAmount?: string;
+  isMinAmountError?: boolean;
   isMaxAmountError?: boolean;
   isCurrencyAvailable?: boolean;
 }
@@ -90,20 +89,17 @@ export const TopUpInput: FC<Props> = ({
   setCurrency = () => void 0,
   value,
   readOnly = false,
-  amount,
-  lastMinAmount,
   onChangeInputHandler,
   rates = { destination_amount: 0, rate: 0, min_amount: '0' },
   minAmount,
   maxAmount,
+  isMinAmountError,
   isMaxAmountError,
   isCurrencyAvailable
 }) => {
   const isFiatType = type === 'fiat';
   const isCoinFromType = type === 'coinFrom';
   const { data: currencies = [], isValidating: isCurrenciesLoaded } = useSWR(['/api/currency'], getCurrencies);
-
-  const isMinAmountError = amount !== 0 && (lastMinAmount ? lastMinAmount.toNumber() : 0) > Number(amount);
 
   const filteredCurrencies = currencies.filter(currency => currency.status === 1 && coinList.includes(currency.code));
   const amountErrorClassName = getBigErrorText(isMinAmountError);
@@ -219,20 +215,20 @@ export const TopUpInput: FC<Props> = ({
           />
         </div>
       </div>
-      <MaxAmountErrorComponent
-        isMaxAmountError={isMaxAmountError}
-        isCoinFromType={isCoinFromType}
-        isCurrencyAvailable={isCurrencyAvailable}
-        maxAmount={maxAmount}
-        coin={currency}
-      />
+      {isCoinFromType && (
+        <MaxAmountErrorComponent
+          isMaxAmountError={isMaxAmountError}
+          isCurrencyAvailable={isCurrencyAvailable}
+          maxAmount={maxAmount}
+          coin={currency}
+        />
+      )}
     </>
   );
 };
 
 interface MaxAmountErrorComponentProps {
   isMaxAmountError?: boolean;
-  isCoinFromType: boolean;
   isCurrencyAvailable?: boolean;
   maxAmount?: string;
   coin: string;
@@ -240,7 +236,6 @@ interface MaxAmountErrorComponentProps {
 
 const MaxAmountErrorComponent: React.FC<MaxAmountErrorComponentProps> = ({
   isMaxAmountError,
-  isCoinFromType,
   isCurrencyAvailable,
   maxAmount,
   coin
@@ -249,14 +244,12 @@ const MaxAmountErrorComponent: React.FC<MaxAmountErrorComponentProps> = ({
   return (
     <div className="flex justify-end items-baseline">
       <p className={classNames(getSmallErrorText(isMaxAmountError))}>
-        {isCoinFromType && (
-          <CurrencyText
-            className={maxAmountErrorText}
-            coin={coin}
-            maxAmount={maxAmount}
-            isCurrencyAvailable={isCurrencyAvailable}
-          />
-        )}
+        <CurrencyText
+          className={maxAmountErrorText}
+          coin={coin}
+          maxAmount={maxAmount}
+          isCurrencyAvailable={isCurrencyAvailable}
+        />
       </p>
     </div>
   );
