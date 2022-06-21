@@ -1,7 +1,6 @@
 import React, { ChangeEvent, FC } from 'react';
 
 import { Modifier } from '@popperjs/core';
-import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
 import useSWR from 'swr';
 
@@ -102,7 +101,8 @@ export const TopUpInput: FC<Props> = ({
   const { data: currencies = [], isValidating: isCurrenciesLoaded } = useSWR(['/api/currency'], getCurrencies);
 
   const filteredCurrencies = currencies.filter(currency => currency.status === 1 && coinList.includes(currency.code));
-  const amountErrorClassName = getBigErrorText(isMinAmountError);
+  const minAmountErrorClassName = getBigErrorText(isMinAmountError);
+  const maxAmountErrorClassName = getBigErrorText(isMaxAmountError);
   return (
     <>
       <div className="flex justify-between items-baseline">
@@ -115,20 +115,20 @@ export const TopUpInput: FC<Props> = ({
           {isCoinFromType || isFiatType ? (
             <>
               <T id="min" />
-              <span className={classNames(amountErrorClassName, 'text-sm')}>
+              <span className={classNames(minAmountErrorClassName, 'text-sm')}>
                 {' '}
                 {minAmount ? minAmount : rates.min_amount}
               </span>{' '}
-              <span className={classNames(amountErrorClassName, 'text-xs')}>{currency}</span>
+              <span className={classNames(minAmountErrorClassName, 'text-xs')}>{currency}</span>
             </>
           ) : null}
         </p>
         {isFiatType && maxAmount && (
           <p className={classNames(getSmallErrorText(isMaxAmountError))}>
             <T id="max" />
-            {':'}
-            <span className={classNames(amountErrorClassName, 'text-sm')}> {maxAmount}</span>{' '}
-            <span className={classNames(amountErrorClassName, 'text-xs')}>{currency}</span>
+            {': '}
+            <span className={classNames(maxAmountErrorClassName, 'text-sm')}>{maxAmount}</span>{' '}
+            <span className={classNames(maxAmountErrorClassName, 'text-xs')}>{currency}</span>
           </p>
         )}
       </div>

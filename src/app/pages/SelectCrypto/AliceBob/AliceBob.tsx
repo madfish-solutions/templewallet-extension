@@ -1,11 +1,10 @@
 import React, { ChangeEvent, useCallback, useMemo, useState } from 'react';
 
-import classNames from 'clsx';
-
-import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
-
+import { useAnalyticsState } from '../../../../lib/analytics/use-analytics-state.hook';
 import { T } from '../../../../lib/i18n/react';
-import { Button } from '../../../atoms/Button';
+import makeBuildQueryFn from '../../../../lib/makeBuildQueryFn';
+import { useAccount } from '../../../../lib/temple/front';
+import FormSubmitButton from '../../../atoms/FormSubmitButton';
 import { TopUpInput } from '../../../atoms/TopUpInput/TopUpInput';
 import PageLayout from '../../../layouts/PageLayout';
 import styles from '../../BuyCrypto/BuyCrypto.module.css';
@@ -14,10 +13,15 @@ import { SelectCryptoSelectors } from '../SelectCrypto.selectors';
 const MIN_UAH_EXCHANGE_AMOUNT = 500;
 const MAX_UAH_EXCHANGE_AMOUNT = 29500;
 
+const buildQuery = makeBuildQueryFn<Record<string, string>, any>('https://temple-api.stage.madservice.xyz/api');
+const getSignedAliceBobUrl = buildQuery('GET', '/api/alice-bob-sign', ['amount', 'userId', 'walletAddress']);
+
 export const AliceBob = () => {
-  const { trackEvent } = useAnalytics();
+  const { analyticsState } = useAnalyticsState();
+  const { publicKeyHash: walletAddress } = useAccount();
 
   const [amount, setAmount] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
 
   const onAmountChange = useCallback(
     (e: ChangeEvent<HTMLInputElement>) => {
@@ -26,13 +30,27 @@ export const AliceBob = () => {
     [setAmount]
   );
 
-  const onButtonClick = useCallback(() => {
-    trackEvent(SelectCryptoSelectors.AliceBob, AnalyticsEventCategory.ButtonPress);
-    window.open('https://www.google.com/', '_blank');
-  }, [trackEvent]);
+  const submitExchangeHandler = useCallback(async () => {
+    try {
+      setIsLoading(true);
+
+      const response = await getSignedAliceBobUrl({
+        amount: amount.toString(),
+        userId: analyticsState.userId,
+        walletAddress
+      });
+
+      setIsLoading(false);
+      window.open(response.url, '_blank');
+    } catch {}
+  }, [amount, analyticsState.userId, walletAddress]);
 
   const isMinAmountError = useMemo(() => amount !== 0 && amount < MIN_UAH_EXCHANGE_AMOUNT, [amount]);
   const isMaxAmountError = useMemo(() => amount !== 0 && amount > MAX_UAH_EXCHANGE_AMOUNT, [amount]);
+  const disabledProceed = useMemo(
+    () => isMinAmountError || isMaxAmountError || amount === 0,
+    [isMinAmountError, isMaxAmountError, amount]
+  );
 
   return (
     <PageLayout
@@ -55,24 +73,16 @@ export const AliceBob = () => {
           isMaxAmountError={isMaxAmountError}
           onChangeInputHandler={onAmountChange}
         />
-        <Button
-          className={classNames(
-            'shadow-sm hover:shadow focus:shadow',
-            'py-2 px-4 rounded my-6',
-            'border-2',
-            'border-blue-500 hover:border-blue-600 focus:border-blue-600',
-            'flex items-center justify-center',
-            'text-white',
-            'text-base font-medium',
-            'transition ease-in-out duration-300',
-            'bg-blue-500',
-            'w-full'
-          )}
-          disabled={isMinAmountError || isMaxAmountError}
-          onClick={onButtonClick}
+        <FormSubmitButton
+          blue
+          className="w-full justify-center border-none mt-6"
+          disabled={disabledProceed}
+          loading={isLoading}
+          testID={SelectCryptoSelectors.AliceBob}
+          onClick={submitExchangeHandler}
         >
           <T id="next" />
-        </Button>
+        </FormSubmitButton>
         <div className="border-solid border-gray-300" style={{ borderTopWidth: 1 }}>
           <p className="mt-6">
             <T
