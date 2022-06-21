@@ -74,8 +74,8 @@ export const AliceBob = () => {
           onChangeInputHandler={onAmountChange}
         />
         <FormSubmitButton
-          blue
           className="w-full justify-center border-none mt-6"
+          style={{ background: '#4299e1' }}
           disabled={disabledProceed}
           loading={isLoading}
           testID={SelectCryptoSelectors.AliceBob}

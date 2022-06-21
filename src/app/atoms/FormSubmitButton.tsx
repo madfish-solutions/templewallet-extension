@@ -11,13 +11,11 @@ type FormSubmitButtonProps = ButtonHTMLAttributes<HTMLButtonElement> &
   TestIDProps & {
     loading?: boolean;
     small?: boolean;
-    blue?: boolean;
   };
 
 const FormSubmitButton: FC<FormSubmitButtonProps> = ({
   loading,
   small,
-  blue,
   disabled,
   className,
   style,
@@ -29,11 +27,7 @@ const FormSubmitButton: FC<FormSubmitButtonProps> = ({
       'relative',
       small ? 'px-6' : 'px-8',
       'rounded border-2',
-      disabled
-        ? 'bg-gray-400 border-gray-400'
-        : blue
-        ? 'bg-blue-500 border-blue-500'
-        : 'bg-primary-orange border-primary-orange',
+      disabled ? 'bg-gray-400 border-gray-400' : 'bg-primary-orange border-primary-orange',
       'flex items-center',
       loading ? 'text-transparent' : 'text-primary-orange-lighter',
       small ? 'text-sm' : 'text-base',
