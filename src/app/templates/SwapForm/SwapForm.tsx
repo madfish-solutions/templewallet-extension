@@ -42,15 +42,17 @@ import { SwapPriceUpdateBar } from './SwapPriceUpdateBar/SwapPriceUpdateBar';
 import { SwapRoute } from './SwapRoute/SwapRoute';
 
 const KNOWN_DEX_TYPES = [
-  DexTypeEnum.QuipuSwap,
-  DexTypeEnum.QuipuSwapTokenToTokenDex,
-  DexTypeEnum.Plenty,
-  DexTypeEnum.PlentyBridge,
-  DexTypeEnum.LiquidityBaking,
-  DexTypeEnum.Youves,
-  DexTypeEnum.Vortex,
-  DexTypeEnum.Spicy,
-  DexTypeEnum.SpicyWrap
+  // DexTypeEnum.QuipuSwap,
+  // DexTypeEnum.QuipuSwapTokenToTokenDex,
+  // DexTypeEnum.Plenty,
+  // DexTypeEnum.PlentyBridge,
+  DexTypeEnum.PlentyStableSwap,
+  DexTypeEnum.PlentyCtez,
+  // DexTypeEnum.LiquidityBaking,
+  // DexTypeEnum.Youves,
+  DexTypeEnum.Vortex
+  // DexTypeEnum.Spicy,
+  // DexTypeEnum.SpicyWrap
 ];
 
 export const SwapForm: FC = () => {
