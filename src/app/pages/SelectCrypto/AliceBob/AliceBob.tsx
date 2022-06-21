@@ -13,7 +13,7 @@ import { SelectCryptoSelectors } from '../SelectCrypto.selectors';
 const MIN_UAH_EXCHANGE_AMOUNT = 500;
 const MAX_UAH_EXCHANGE_AMOUNT = 29500;
 
-const buildQuery = makeBuildQueryFn<Record<string, string>, any>('https://temple-api.stage.madservice.xyz/api');
+const buildQuery = makeBuildQueryFn<Record<string, string>, any>('https://temple-api.stage.madservice.xyz');
 const getSignedAliceBobUrl = buildQuery('GET', '/api/alice-bob-sign', ['amount', 'userId', 'walletAddress']);
 
 export const AliceBob = () => {
