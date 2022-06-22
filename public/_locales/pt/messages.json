@@ -597,9 +597,6 @@
   "isPrivateKeyEncrypted": {
     "message": "A sua chave privada está em formato encriptado?"
   },
-  "noDerivation": {
-    "message": "Sem derivação"
-  },
   "customDerivationPath": {
     "message": "Caminho de derivação personalizado"
   },
@@ -1748,9 +1745,6 @@
   },
   "swap": {
     "message": "Trocar"
-  },
-  "anotherAccount": {
-    "message": "Outra conta"
   },
   "accountNumber": {
     "message": "Número de conta"

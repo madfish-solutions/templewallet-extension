@@ -579,9 +579,6 @@
   "isPrivateKeyEncrypted": {
     "message": "Votre clé privée est-elle au format chiffré ?"
   },
-  "noDerivation": {
-    "message": "Aucune dérivation"
-  },
   "customDerivationPath": {
     "message": "Chemin de dérivation personnalisée"
   },

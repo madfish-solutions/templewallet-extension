@@ -36,10 +36,6 @@ const DERIVATION_PATHS = [
     name: t('defaultAccount')
   },
   {
-    type: 'another',
-    name: t('anotherAccount')
-  },
-  {
     type: 'custom',
     name: t('customDerivationPath')
   }
