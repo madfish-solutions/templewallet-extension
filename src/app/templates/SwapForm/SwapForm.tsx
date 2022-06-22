@@ -46,6 +46,8 @@ const KNOWN_DEX_TYPES = [
   DexTypeEnum.QuipuSwapTokenToTokenDex,
   DexTypeEnum.Plenty,
   DexTypeEnum.PlentyBridge,
+  DexTypeEnum.PlentyStableSwap,
+  DexTypeEnum.PlentyCtez,
   DexTypeEnum.LiquidityBaking,
   DexTypeEnum.Youves,
   DexTypeEnum.Vortex,
