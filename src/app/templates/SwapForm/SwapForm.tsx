@@ -49,7 +49,7 @@ const KNOWN_DEX_TYPES = [
   // DexTypeEnum.PlentyBridge,
   // DexTypeEnum.PlentyStableSwap,
   DexTypeEnum.PlentyVolatileSwap
-  // DexTypeEnum.PlentyCtez
+  // DexTypeEnum.PlentyCtez,
   // DexTypeEnum.LiquidityBaking,
   // DexTypeEnum.Youves,
   // DexTypeEnum.Vortex,
