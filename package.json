@@ -39,7 +39,7 @@
     "@temple-wallet/dapp": "5.0.2",
     "@temple-wallet/ledger-bridge": "2.0.1",
     "@tezos-domains/core": "1.17.1",
-    "@tezos-domains/taquito-client": "1.9.0",
+    "@tezos-domains/taquito-client": "1.17.1",
     "@types/analytics-node": "3.1.7",
     "@types/async-retry": "1.4.3",
     "@types/debounce-promise": "3.1.4",

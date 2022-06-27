@@ -759,7 +759,10 @@ const WatchOnlyForm: FC = () => {
     revalidateOnFocus: false
   });
 
-  const finalAddress = useMemo(() => resolvedAddress || addressValue, [resolvedAddress, addressValue]);
+  const finalAddress = useMemo(
+    () => (resolvedAddress && resolvedAddress !== null ? resolvedAddress : addressValue),
+    [resolvedAddress, addressValue]
+  );
 
   const cleanAddressField = useCallback(() => {
     setValue('address', '');
