@@ -47,8 +47,8 @@ const KNOWN_DEX_TYPES = [
   // DexTypeEnum.QuipuSwapCurveLike,
   // DexTypeEnum.Plenty,
   // DexTypeEnum.PlentyBridge,
-  // DexTypeEnum.PlentyStableSwap,
-  DexTypeEnum.PlentyVolatileSwap
+  DexTypeEnum.PlentyStableSwap
+  //DexTypeEnum.PlentyVolatileSwap,
   // DexTypeEnum.PlentyCtez,
   // DexTypeEnum.LiquidityBaking,
   // DexTypeEnum.Youves,
