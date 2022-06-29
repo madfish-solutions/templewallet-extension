@@ -31,10 +31,11 @@ export const ImportFromSeedPhrase: FC<ImportFromSeedPhraseProps> = ({
   return (
     <form className="w-full mx-auto my-8 px-12 pb-8" onSubmit={handleSubmit(onSubmit)}>
       <SeedPhraseInput
-        onChange={setSeedPhrase}
-        seedPhraseText={t('seedPhrase')}
+        isFirstAccount
+        label={t('seedPhrase')}
         submitted={formState.submitCount !== 0}
         seedError={seedError}
+        onChange={setSeedPhrase}
         setSeedError={setSeedError}
         reset={reset}
       />
