@@ -22,6 +22,7 @@ export const DexTypeIcon: FC<Props> = ({ dexType }) => {
     case DexTypeEnum.Plenty:
     case DexTypeEnum.PlentyBridge:
     case DexTypeEnum.PlentyStableSwap:
+    case DexTypeEnum.PlentyVolatileSwap:
     case DexTypeEnum.PlentyCtez:
       return <PlentyIcon />;
     case DexTypeEnum.LiquidityBaking:
