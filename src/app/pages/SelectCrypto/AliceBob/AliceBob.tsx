@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useCallback, useMemo, useState } from 'react';
+import React, { ChangeEvent, useCallback, useEffect, useMemo, useState } from 'react';
 
 import { useAnalyticsState } from '../../../../lib/analytics/use-analytics-state.hook';
 import { T } from '../../../../lib/i18n/react';
@@ -10,18 +10,30 @@ import PageLayout from '../../../layouts/PageLayout';
 import styles from '../../BuyCrypto/BuyCrypto.module.css';
 import { SelectCryptoSelectors } from '../SelectCrypto.selectors';
 
-const MIN_UAH_EXCHANGE_AMOUNT = 500;
-const MAX_UAH_EXCHANGE_AMOUNT = 29500;
-
 const buildQuery = makeBuildQueryFn<Record<string, string>, any>('https://temple-api.stage.madservice.xyz');
 const getSignedAliceBobUrl = buildQuery('GET', '/api/alice-bob-sign', ['amount', 'userId', 'walletAddress']);
+const getAliceBobPairInfo = buildQuery('GET', '/api/alice-bob-pair-info');
 
 export const AliceBob = () => {
   const { analyticsState } = useAnalyticsState();
   const { publicKeyHash: walletAddress } = useAccount();
 
+  const [minExchangeAmount, setMinExchangeAmount] = useState(500);
+  const [maxExchangeAmount, setMaxExchangeAmount] = useState(29500);
+
   const [amount, setAmount] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const response = await getAliceBobPairInfo({});
+
+        setMinExchangeAmount(response.minAmount);
+        setMaxExchangeAmount(response.maxAmount);
+      } catch {}
+    })();
+  }, []);
 
   const onAmountChange = useCallback(
     (e: ChangeEvent<HTMLInputElement>) => {
@@ -45,8 +57,8 @@ export const AliceBob = () => {
     } catch {}
   }, [amount, analyticsState.userId, walletAddress]);
 
-  const isMinAmountError = useMemo(() => amount !== 0 && amount < MIN_UAH_EXCHANGE_AMOUNT, [amount]);
-  const isMaxAmountError = useMemo(() => amount !== 0 && amount > MAX_UAH_EXCHANGE_AMOUNT, [amount]);
+  const isMinAmountError = useMemo(() => amount !== 0 && amount < minExchangeAmount, [amount, minExchangeAmount]);
+  const isMaxAmountError = useMemo(() => amount !== 0 && amount > maxExchangeAmount, [amount, maxExchangeAmount]);
   const disabledProceed = useMemo(
     () => isMinAmountError || isMaxAmountError || amount === 0,
     [isMinAmountError, isMaxAmountError, amount]
@@ -67,8 +79,8 @@ export const AliceBob = () => {
         <TopUpInput
           type="fiat"
           currency="UAH"
-          minAmount={`${MIN_UAH_EXCHANGE_AMOUNT}.00`}
-          maxAmount={`${MAX_UAH_EXCHANGE_AMOUNT}.00`}
+          minAmount={`${minExchangeAmount}.00`}
+          maxAmount={`${maxExchangeAmount}.00`}
           isMinAmountError={isMinAmountError}
           isMaxAmountError={isMaxAmountError}
           onChangeInputHandler={onAmountChange}
