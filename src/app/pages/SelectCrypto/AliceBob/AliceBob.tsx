@@ -18,7 +18,7 @@ export const AliceBob = () => {
   const { analyticsState } = useAnalyticsState();
   const { publicKeyHash: walletAddress } = useAccount();
 
-  const [minExchangeAmount, setMinExchangeAmount] = useState(500);
+  const [minExchangeAmount, setMinExchangeAmount] = useState(600);
   const [maxExchangeAmount, setMaxExchangeAmount] = useState(29500);
 
   const [amount, setAmount] = useState(0);
