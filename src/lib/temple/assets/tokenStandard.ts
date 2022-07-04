@@ -10,7 +10,7 @@ const RETRY_PARAMS = { retries: 3, minTimeout: 0, maxTimeout: 0 };
 
 const FA1_2_ENTRYPOINTS_SCHEMA = [
   ['approve', 'pair', 'address', 'nat'],
-  ['transfer', 'pair', 'address', 'address', 'nat'],
+  ['transfer', 'pair', 'address', 'pair'],
   ['getAllowance', 'pair', 'pair', 'contract'],
   ['getBalance', 'pair', 'address', 'contract'],
   ['getTotalSupply', 'pair', 'unit', 'contract']
