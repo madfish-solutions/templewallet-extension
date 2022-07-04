@@ -21,7 +21,7 @@ export const MoonPay = () => {
         'border-blue-500 hover:border-blue-600 focus:border-blue-600',
         'flex items-center justify-center',
         'text-white',
-        'text-base font-semibold',
+        'text-base font-medium',
         'transition ease-in-out duration-300',
         'bg-blue-500',
         'w-full'

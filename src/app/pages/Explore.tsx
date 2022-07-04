@@ -3,7 +3,7 @@ import React, { FC, FunctionComponent, ReactNode, Suspense, SVGProps, useLayoutE
 import classNames from 'clsx';
 import { Props as TippyProps } from 'tippy.js';
 
-import Spinner from 'app/atoms/Spinner';
+import Spinner from 'app/atoms/Spinner/Spinner';
 import { useTabSlug } from 'app/atoms/useTabSlug';
 import { useAppEnv } from 'app/env';
 import ErrorBoundary from 'app/ErrorBoundary';
