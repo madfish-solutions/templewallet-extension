@@ -7,14 +7,17 @@ import { T, t } from 'lib/i18n/react';
 import { clearClipboard } from 'lib/ui/util';
 
 import { formatMnemonic } from '../defaults';
+import { useAppEnv } from '../env';
 import { SeedLengthSelect } from './SeedLengthSelect';
 import { SeedWordInput } from './SeedWordInput';
 
 interface SeedPhraseInputProps {
+  isFirstAccount?: boolean;
   submitted: boolean;
   seedError: string;
+  label: string;
+  labelWarning?: string;
   onChange: (seed: string) => void;
-  seedPhraseText: string;
   setSeedError: (e: string) => void;
   reset: () => void;
 }
@@ -22,13 +25,17 @@ interface SeedPhraseInputProps {
 const defaultNumberOfWords = 12;
 
 export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
+  isFirstAccount,
   submitted,
   seedError,
+  label,
+  labelWarning,
   onChange,
-  seedPhraseText,
   setSeedError,
   reset
 }) => {
+  const { popup } = useAppEnv();
+
   const [pasteFailed, setPasteFailed] = useState(false);
   const [draftSeed, setDraftSeed] = useState(new Array(defaultNumberOfWords).fill(''));
   const [showSeed, setShowSeed] = useState(true);
@@ -112,10 +119,18 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
   return (
     <div>
       <div className={classNames('flex justify-between', 'mb-6')}>
-        <h1 className={classNames('font-inter', 'flex self-center', 'text-gray-800')} style={{ fontSize: 23 }}>
-          {seedPhraseText}
+        <h1
+          className={classNames(
+            'font-inter',
+            'flex self-center',
+            'text-gray-800',
+            !isFirstAccount && 'font-semibold text-gray-700'
+          )}
+          style={{ fontSize: isFirstAccount ? 23 : 16 }}
+        >
+          {label}
         </h1>
-        <div className="relative w-64 h-10">
+        <div className={classNames('relative w-64 h-10')} style={{ width: popup ? 220 : undefined }}>
           <SeedLengthSelect
             options={numberOfWordsOptions}
             currentOption={draftSeed.length.toString()}
@@ -135,13 +150,14 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
           />
         </div>
       </div>
+      {!isFirstAccount && <div className="text-xs font-medium text-red-600 text-center mb-6">{labelWarning}</div>}
       <div
         className={classNames('w-full text-center', 'pb-2 mb-6', 'text-gray-700', 'border-b-2')}
         style={{ borderBottomWidth: 1 }}
       >
         <p>{t('seedPhraseTip')}</p>
       </div>
-      <div className={classNames('grid grid-cols-3 gap-4')}>
+      <div className={classNames('grid', isFirstAccount ? 'grid-cols-3 gap-4' : 'grid-cols-2 gap-2')}>
         {[...Array(numberOfWords).keys()].map(index => {
           const key = `import-seed-word-${index}`;
 
@@ -149,6 +165,7 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
             <SeedWordInput
               key={key}
               id={index}
+              isFirstAccount={isFirstAccount}
               submitted={submitted}
               showSeed={showSeed}
               setShowSeed={setShowSeed}

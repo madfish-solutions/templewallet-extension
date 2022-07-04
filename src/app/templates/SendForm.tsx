@@ -23,7 +23,7 @@ import FormSubmitButton from 'app/atoms/FormSubmitButton';
 import Identicon from 'app/atoms/Identicon';
 import Money from 'app/atoms/Money';
 import NoSpaceField from 'app/atoms/NoSpaceField';
-import Spinner from 'app/atoms/Spinner';
+import Spinner from 'app/atoms/Spinner/Spinner';
 import { ArtificialError, NotEnoughFundsError, ZeroBalanceError, ZeroTEZBalanceError } from 'app/defaults';
 import { useAppEnv } from 'app/env';
 import { ReactComponent as ChevronDownIcon } from 'app/icons/chevron-down.svg';

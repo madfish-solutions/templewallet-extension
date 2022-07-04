@@ -6,8 +6,8 @@ import { useDebounce } from 'use-debounce';
 
 import Divider from 'app/atoms/Divider';
 import FormSubmitButton from 'app/atoms/FormSubmitButton';
+import { TopUpInput } from 'app/atoms/TopUpInput/TopUpInput';
 import styles from 'app/pages/BuyCrypto/BuyCrypto.module.css';
-import BuyCryptoInput from 'app/pages/BuyCrypto/BuyCryptoInput';
 import ErrorComponent from 'app/pages/BuyCrypto/steps/ErrorComponent';
 import WarningComponent from 'app/pages/BuyCrypto/steps/WarningComponent';
 import { ExchangeDataInterface, ExchangeDataStatusEnum, getRate, submitExchange } from 'lib/exolix-api';
@@ -92,6 +92,8 @@ const InitialStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
     })();
   }, [coinFrom, tezPrice]);
 
+  const isMinAmountError = amount !== 0 && (lastMinAmount ? lastMinAmount.toNumber() : 0) > Number(amount);
+
   const isMaxAmountError =
     lastMaxAmount !== 'Infinity' && debouncedAmount !== 0 && Number(debouncedAmount) > Number(lastMaxAmount);
 
@@ -134,20 +136,19 @@ const InitialStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
           <WarningComponent currency={coinFrom} />
           <Divider style={{ marginTop: '60px', marginBottom: '10px' }} />
           {/*input 1*/}
-          <BuyCryptoInput
-            coin={coinFrom}
-            setCoin={setCoinFrom}
+          <TopUpInput
+            currency={coinFrom}
+            setCurrency={setCoinFrom}
             type="coinFrom"
-            amount={amount}
-            lastMinAmount={lastMinAmount}
             onChangeInputHandler={onAmountChange}
             rates={rates}
             maxAmount={lastMaxAmount}
+            isMinAmountError={isMinAmountError}
             isMaxAmountError={isMaxAmountError}
             isCurrencyAvailable={isCurrencyAvailable}
           />
           <br />
-          <BuyCryptoInput readOnly={true} value={depositAmount} coin={coinTo} type="coinTo" />
+          <TopUpInput readOnly={true} value={depositAmount} currency={coinTo} type="coinTo" />
           <Divider style={{ marginTop: '40px', marginBottom: '20px' }} />
           <div className={styles['exchangeRateBlock']}>
             <p className={styles['exchangeTitle']}>
@@ -174,6 +175,7 @@ const InitialStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
             <T
               id="privacyAndPolicyLinks"
               substitutions={[
+                <T id={'topUp'} />,
                 <a className={styles['link']} rel="noreferrer" href="https://exolix.com/terms" target="_blank">
                   <T id={'termsOfUse'} />
                 </a>,

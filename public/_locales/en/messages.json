@@ -2375,11 +2375,23 @@
   "buyWithRampDescription": {
     "message": "Buy TEZ  using Visa, Mastercard, and all major debit and credit cards. Ramp is available in 160+ countries and territories."
   },
+  "buyWithAliceBob": {
+    "message": "Buy TEZ with Alice-Bob (UAH only)"
+  },
+  "buyWithAliceBobDescription": {
+    "message": "Fast and cost-effective exchange of UAH to TEZ."
+  },
   "topUpBuy": {
     "message": "Top up TEZ balance"
   },
+  "buyWithCard": {
+    "message": "Buy with Debit/Credit Card"
+  },
   "topUpDescription": {
     "message": "Temple integrated third-party solutions to buy TEZ with crypto or a Debit/Credit card. Choose a provider, follow guides, get TEZ on your account."
+  },
+  "enterAmount": {
+    "message": "Please enter the amount:"
   },
   "topUpCrypto": {
     "message": "Crypto"
@@ -2409,13 +2421,16 @@
     "message": "Top up your TEZ balance instantly with 25 cryptocurrencies"
   },
   "privacyAndPolicyLinks": {
-    "message": "By clicking Top Up you agree with \n$termsOfUse$ and $privacyPolicy$",
+    "message": "By clicking $buttonContent$ you agree with \n$termsOfUse$ and $privacyPolicy$",
     "placeholders": {
-      "termsOfUse": {
+      "buttonContent": {
         "content": "$1"
       },
-      "privacyPolicy": {
+      "termsOfUse": {
         "content": "$2"
+      },
+      "privacyPolicy": {
+        "content": "$3"
       }
     }
   },

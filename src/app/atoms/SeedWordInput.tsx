@@ -8,8 +8,9 @@ import { ReactComponent as LockAltIcon } from '../icons/lock-alt.svg';
 interface SeedWordInputProps {
   id: number;
   submitted: boolean;
-  value?: string;
   showSeed: boolean;
+  isFirstAccount?: boolean;
+  value?: string;
   autoComplete?: string;
   setShowSeed: (value: boolean) => void;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -20,8 +21,9 @@ interface SeedWordInputProps {
 export const SeedWordInput: FC<SeedWordInputProps> = ({
   id,
   submitted,
-  value,
   showSeed,
+  value,
+  isFirstAccount,
   autoComplete = 'off',
   setShowSeed,
   onChange,
@@ -77,7 +79,7 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
   );
 
   return (
-    <div className={classNames('relative', 'flex flex-col items-center', 'w-40')}>
+    <div className={classNames('relative', 'flex flex-col items-center', isFirstAccount ? 'w-40' : 'w-44')}>
       <label htmlFor={id.toString()} className={isError ? 'text-red-600' : 'text-gray-600'}>
         <p style={{ fontSize: 14 }}>{`#${id + 1}`}</p>
       </label>

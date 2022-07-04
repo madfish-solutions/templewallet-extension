@@ -20,7 +20,7 @@ export const validateDelegate = async (
   if (isDomainNameValid(value, domainsClient)) {
     const resolved = await domainsClient.resolver.resolveNameToAddress(value);
     if (!resolved) {
-      return t('domainDoesntResolveToAddress', value);
+      return validateAddress(value) || t('domainDoesntResolveToAddress', value);
     }
 
     value = resolved;

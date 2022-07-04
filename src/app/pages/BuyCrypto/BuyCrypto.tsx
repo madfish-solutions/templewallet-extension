@@ -1,6 +1,6 @@
 import React, { FC, useCallback, useState } from 'react';
 
-import Stepper from 'app/atoms/Stepper';
+import Stepper from 'app/atoms/Stepper/Stepper';
 import PageLayout from 'app/layouts/PageLayout';
 import ApproveStep from 'app/pages/BuyCrypto/steps/ApproveStep';
 import ExchangeStep from 'app/pages/BuyCrypto/steps/ExchangeStep';
@@ -17,9 +17,9 @@ import { EXOLIX_CONTACT_LINK } from './config';
 const BuyCrypto: FC = () => (
   <PageLayout
     pageTitle={
-      <>
+      <div className="font-medium text-sm">
         <T id="buyWithCrypto" />
-      </>
+      </div>
     }
   >
     <BuyCryptoContent />

@@ -2,7 +2,7 @@ import React, { ButtonHTMLAttributes, FC } from 'react';
 
 import classNames from 'clsx';
 
-import Spinner from 'app/atoms/Spinner';
+import Spinner from 'app/atoms/Spinner/Spinner';
 import { TestIDProps } from 'lib/analytics';
 
 import { Button } from './Button';

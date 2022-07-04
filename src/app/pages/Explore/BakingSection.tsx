@@ -5,7 +5,7 @@ import classNames from 'clsx';
 import { Collapse } from 'react-collapse';
 
 import { Button } from 'app/atoms/Button';
-import Spinner from 'app/atoms/Spinner';
+import Spinner from 'app/atoms/Spinner/Spinner';
 import { useAppEnv } from 'app/env';
 import { ReactComponent as ChevronDownIcon } from 'app/icons/chevron-down.svg';
 import { ReactComponent as DelegateIcon } from 'app/icons/delegate.svg';
