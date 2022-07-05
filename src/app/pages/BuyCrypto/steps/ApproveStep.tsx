@@ -73,7 +73,7 @@ const ApproveStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
                 {props.minutes}:{props.seconds < 10 ? '0' + props.seconds : props.seconds}
               </p>
             )}
-            date={exchangeData.created_at * 1000 + 3600000}
+            date={exchangeData.created_at + 3600000}
             onComplete={async () => {
               const data = await getExchangeData(exchangeData.id);
               setExchangeData(data);
