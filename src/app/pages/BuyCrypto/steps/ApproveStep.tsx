@@ -139,7 +139,7 @@ const ApproveStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
             value={exchangeData.deposit_address}
             copyable
           />
-          {exchangeData.deposit_extra !== null && (
+          {exchangeData.deposit_extra !== null && exchangeData.deposit_extra !== 'null' && (
             <>
               <p className="text-gray-600 text-xs text-center mt-6">
                 <T id={'atomDepositMemo'} />
