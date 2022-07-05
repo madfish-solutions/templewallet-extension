@@ -44,10 +44,10 @@ const ExchangeStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, step,
       return;
     }
     if (exchangeData.status === ExchangeDataStatusEnum.SUCCESS) {
-      setSendTime(new Date(exchangeData.created_at * 1000));
+      setSendTime(new Date(exchangeData.created_at));
       setStep(4);
     } else if (exchangeData.status === ExchangeDataStatusEnum.EXCHANGING) {
-      setSendTime(new Date(exchangeData.created_at * 1000));
+      setSendTime(new Date(exchangeData.created_at));
       setStep(3);
     } else if (exchangeData.status === ExchangeDataStatusEnum.OVERDUE) {
       setIsError(true);
