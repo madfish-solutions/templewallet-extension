@@ -7,7 +7,7 @@ const useTopUpUpdate = (
   setExchangeData: (exchangeData: ExchangeDataInterface) => void,
   setIsError: (isError: boolean) => void
 ) => {
-  let isAlive = useRef(false);
+  const isAlive = useRef(false);
 
   useEffect(() => {
     let timeoutId = setTimeout(async function repeat() {
