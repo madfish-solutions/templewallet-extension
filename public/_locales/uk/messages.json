@@ -582,9 +582,6 @@
   "isPrivateKeyEncrypted": {
     "message": "Ваш приватний ключ у зашифрованому форматі?"
   },
-  "noDerivation": {
-    "message": "Нема деривації"
-  },
   "customDerivationPath": {
     "message": "Кастомна деривація"
   },
@@ -645,9 +642,6 @@
   },
   "processing": {
     "message": "Обробка..."
-  },
-  "restoreWallet": {
-    "message": "Відновіть свій гаманець"
   },
   "accountAddressLabel": {
     "message": "Адреса вашого аккаунту. Поділіться нею, щоб отримати кошти."
@@ -1670,9 +1664,6 @@
   },
   "swap": {
     "message": "Обміняти"
-  },
-  "anotherAccount": {
-    "message": "Інший аккаунт"
   },
   "accountNumber": {
     "message": "Номер аккаунта"

@@ -597,9 +597,6 @@
   "isPrivateKeyEncrypted": {
     "message": "A sua chave privada está em formato encriptado?"
   },
-  "noDerivation": {
-    "message": "Sem derivação"
-  },
   "customDerivationPath": {
     "message": "Caminho de derivação personalizado"
   },
@@ -660,9 +657,6 @@
   },
   "processing": {
     "message": "A processar..."
-  },
-  "restoreWallet": {
-    "message": "Repor a sua Carteira"
   },
   "errorImportingKukaiWallet": {
     "message": "Erro ao importar a carteira Kukai"
@@ -1528,33 +1522,6 @@
   "analyticsSettingsDescription": {
     "message": "Aqui pode configurar o envio de análises anónimas que nos ajudam a melhorar o produto."
   },
-  "analyticsConfirmationTitle": {
-    "message": "Ajude-nos a melhorar a Carteira Temple"
-  },
-  "analyticsConfirmationDescription": {
-    "message": "Estamos constantemente a melhorar a carteira Temple e precisamos da sua ajuda. Para compreender melhor que secção da carteira deve ser atualizada, recolhemos dados de utilização anónimos. Estes dados serão utilizados apenas para melhorar a usabilidade da carteira Temple."
-  },
-  "analyticsConfirmationCollect": {
-    "message": "O que recolhemos:"
-  },
-  "analyticsConfirmationCollectDescription": {
-    "message": "Eventos anónimos de cliques e vistas de páginas"
-  },
-  "analyticsConfirmationNeverCollect": {
-    "message": "NUNCA monitorizamos:"
-  },
-  "analyticsConfirmationNeverCollectDescription": {
-    "message": "As suas chaves, endereços, transações, saldos, hashes, IP ou qualquer informação pessoal."
-  },
-  "analyticsConfirmationSettingsDescription": {
-    "message": "Pode sempre desligar a função de controlo de análises nas definições da sua carteira."
-  },
-  "analyticsConfirmationConfirmButton": {
-    "message": "Confirmar"
-  },
-  "analyticsConfirmationCancelButton": {
-    "message": "Cancelar"
-  },
   "managedContract": {
     "message": "Contrato gerido"
   },
@@ -1778,9 +1745,6 @@
   },
   "swap": {
     "message": "Trocar"
-  },
-  "anotherAccount": {
-    "message": "Outra conta"
   },
   "accountNumber": {
     "message": "Número de conta"

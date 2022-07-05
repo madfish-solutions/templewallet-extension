@@ -579,9 +579,6 @@
   "isPrivateKeyEncrypted": {
     "message": "秘密鍵は暗号化されていますか？"
   },
-  "noDerivation": {
-    "message": "導出なし"
-  },
   "customDerivationPath": {
     "message": "カスタム導出パス"
   },

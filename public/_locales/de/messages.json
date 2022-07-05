@@ -597,9 +597,6 @@
   "isPrivateKeyEncrypted": {
     "message": "Ist Ihr privater Schlüssel verschlüsselt?"
   },
-  "noDerivation": {
-    "message": "Keine Ableitung"
-  },
   "customDerivationPath": {
     "message": "Benutzerdefinierter Ableitungspfad"
   },
@@ -660,9 +657,6 @@
   },
   "processing": {
     "message": "Wird verarbeitet..."
-  },
-  "restoreWallet": {
-    "message": "Ihre Wallet wiederherstellen"
   },
   "errorImportingKukaiWallet": {
     "message": "Fehler beim Importieren der Kukai-Wallet"
@@ -1528,33 +1522,6 @@
   "analyticsSettingsDescription": {
     "message": "Hier können Sie den Versand anonymer Analysen konfigurieren, die uns helfen, das Produkt zu verbessern."
   },
-  "analyticsConfirmationTitle": {
-    "message": "Helfen Sie uns, die Temple Wallet besser zu machen"
-  },
-  "analyticsConfirmationDescription": {
-    "message": "Wir verbessern die Temple Wallet ständig und benötigen Ihre Hilfe. Um besser zu verstehen, welcher Abschnitt der Wallet aktualisiert werden sollte, erheben wir anonyme Nutzungsdaten. Diese Daten werden nur verwendet, um die Benutzerfreundlichkeit der Temple Wallet zu verbessern."
-  },
-  "analyticsConfirmationCollect": {
-    "message": "Was wir sammeln:"
-  },
-  "analyticsConfirmationCollectDescription": {
-    "message": "Anonymisierte Klick- und Seitenaufrufereignisse"
-  },
-  "analyticsConfirmationNeverCollect": {
-    "message": "Wir verfolgen NIE:"
-  },
-  "analyticsConfirmationNeverCollectDescription": {
-    "message": "Ihre Schlüssel, Adressen, Transaktionen, Salden, Hashes, IP oder andere persönliche Informationen."
-  },
-  "analyticsConfirmationSettingsDescription": {
-    "message": "Sie können die Analyse-Nachverfolgungsfunktion jederzeit in Ihren Wallet-Einstellungen deaktivieren."
-  },
-  "analyticsConfirmationConfirmButton": {
-    "message": "Bestätigen"
-  },
-  "analyticsConfirmationCancelButton": {
-    "message": "Abbrechen"
-  },
   "managedContract": {
     "message": "Verwalteter Kontrakt"
   },
@@ -1778,9 +1745,6 @@
   },
   "swap": {
     "message": "Wechseln"
-  },
-  "anotherAccount": {
-    "message": "Anderes Konto"
   },
   "accountNumber": {
     "message": "Kontonummer"
