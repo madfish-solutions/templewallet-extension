@@ -6,13 +6,13 @@ import BuyCrypto from 'app/pages/BuyCrypto/BuyCrypto';
 import CollectiblePage from 'app/pages/Collectibles/CollectiblePage';
 import ConnectLedger from 'app/pages/ConnectLedger';
 import CreateAccount from 'app/pages/CreateAccount';
-import CreateWallet from 'app/pages/CreateWallet';
 import DApps from 'app/pages/DApps';
 import Delegate from 'app/pages/Delegate';
 import Explore from 'app/pages/Explore';
 import ImportAccount from 'app/pages/ImportAccount';
-import ImportWallet from 'app/pages/ImportWallet';
 import ManageAssets from 'app/pages/ManageAssets';
+import { CreateWallet } from 'app/pages/NewWallet/CreateWallet';
+import { ImportWallet } from 'app/pages/NewWallet/ImportWallet';
 import Receive from 'app/pages/Receive';
 import Send from 'app/pages/Send';
 import Settings from 'app/pages/Settings';
@@ -24,6 +24,7 @@ import { useTempleClient } from 'lib/temple/front';
 import * as Woozie from 'lib/woozie';
 
 import AttentionPage from './pages/Onboarding/pages/AttentionPage';
+import { AliceBob } from './pages/SelectCrypto/AliceBob/AliceBob';
 import SelectCrypto from './pages/SelectCrypto/SelectCrypto';
 
 interface RouteContext {
@@ -47,7 +48,7 @@ const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
           return <OpenInFullPage />;
 
         default:
-          return <ImportWallet key={p.tabSlug ?? ''} tabSlug={p.tabSlug} />;
+          return <ImportWallet key={p.tabSlug ?? ''} tabSlug={p.tabSlug ?? undefined} />;
       }
     }
   ],
@@ -83,6 +84,7 @@ const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
   ['/settings/:tabSlug?', onlyReady(({ tabSlug }) => <Settings tabSlug={tabSlug} />)],
   ['/buy', onlyReady(onlyInFullPage(() => <SelectCrypto />))],
   ['/buy/crypto', onlyReady(onlyInFullPage(() => <BuyCrypto />))],
+  ['/buy/debit/alice-bob', onlyReady(onlyInFullPage(() => <AliceBob />))],
   ['/attention', onlyReady(onlyInFullPage(() => <AttentionPage />))],
   ['*', () => <Woozie.Redirect to="/" />]
 ]);

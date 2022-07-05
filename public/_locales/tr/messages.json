@@ -597,9 +597,6 @@
   "isPrivateKeyEncrypted": {
     "message": "Özel anahtarınız şifreli mi?"
   },
-  "noDerivation": {
-    "message": "Türev yok"
-  },
   "customDerivationPath": {
     "message": "Özel türev yolu"
   },
@@ -660,9 +657,6 @@
   },
   "processing": {
     "message": "İşleniyor..."
-  },
-  "restoreWallet": {
-    "message": "Cüzdanınızı Kurtarın"
   },
   "errorImportingKukaiWallet": {
     "message": "Kukai cüzdanı içe aktarılırken hata oluştu"
@@ -1528,33 +1522,6 @@
   "analyticsSettingsDescription": {
     "message": "Burada, ürünü iyileştirmemize yardımcı olacak anonim analizler göndermeyi yapılandırabilirsiniz."
   },
-  "analyticsConfirmationTitle": {
-    "message": "Temple Wallet'i iyileştirmemize yardım edin"
-  },
-  "analyticsConfirmationDescription": {
-    "message": "Temple Wallet'i sürekli olarak iyileştiriyoruz ve bunun için yardımınızı istiyoruz. Cüzdanın hangi kısmının güncellenmesi gerektiğini daha iyi anlamak için anonim kullanım verileri topluyoruz. Bu veriler, yalnızca Temple Wallet'in kullanılabilirliğini iyileştirmek için kullanılacaktır."
-  },
-  "analyticsConfirmationCollect": {
-    "message": "Şunları topluyoruz:"
-  },
-  "analyticsConfirmationCollectDescription": {
-    "message": "Anonim tıklama ve sayfa görüntüleme olayları"
-  },
-  "analyticsConfirmationNeverCollect": {
-    "message": "Şunları ASLA izlemeyiz:"
-  },
-  "analyticsConfirmationNeverCollectDescription": {
-    "message": "Anahtarlarınız, adresleriniz, işlemleriniz, bakiyeleriniz, kriptografik özetleriniz, IP adresiniz veya kişisel bilgileriniz."
-  },
-  "analyticsConfirmationSettingsDescription": {
-    "message": "Analiz izleme özelliğini istediğiniz zaman cüzdan ayarlarınızdan kapatabilirsiniz."
-  },
-  "analyticsConfirmationConfirmButton": {
-    "message": "Onayla"
-  },
-  "analyticsConfirmationCancelButton": {
-    "message": "İptal"
-  },
   "managedContract": {
     "message": "Yönetilen Sözleşme"
   },
@@ -1778,9 +1745,6 @@
   },
   "swap": {
     "message": "Takas"
-  },
-  "anotherAccount": {
-    "message": "Başka hesap"
   },
   "accountNumber": {
     "message": "Hesap numarası"

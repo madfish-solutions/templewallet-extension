@@ -3,7 +3,7 @@ import React, { memo } from 'react';
 import classNames from 'clsx';
 
 import FormSecondaryButton from 'app/atoms/FormSecondaryButton';
-import Spinner from 'app/atoms/Spinner';
+import Spinner from 'app/atoms/Spinner/Spinner';
 import { ReactComponent as LayersIcon } from 'app/icons/layers.svg';
 import { T } from 'lib/i18n/react';
 import * as Repo from 'lib/temple/repo';

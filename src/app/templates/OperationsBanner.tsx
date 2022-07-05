@@ -25,10 +25,11 @@ type OperationsBannerProps = {
   modifiedStorageLimit?: number;
   label?: ReactNode;
   className?: string;
+  copyButtonClassName?: string;
 };
 
 const OperationsBanner = memo<OperationsBannerProps>(
-  ({ jsonViewStyle, opParams, modifiedTotalFee, modifiedStorageLimit, label, className }) => {
+  ({ jsonViewStyle, opParams, modifiedTotalFee, modifiedStorageLimit, label, className, copyButtonClassName }) => {
     opParams = typeof opParams === 'string' ? opParams : formatOpParams(opParams);
 
     if (typeof opParams === 'object' && !Array.isArray(opParams)) {
@@ -78,7 +79,7 @@ const OperationsBanner = memo<OperationsBannerProps>(
             )}
           </div>
 
-          <div className={classNames('absolute top-0 right-0 pt-2 pr-2')}>
+          <div className={classNames('absolute top-0 right-0 pt-2 pr-2', copyButtonClassName)}>
             <CopyButton toCopy={opParams} />
           </div>
         </div>
@@ -94,28 +95,30 @@ type opParamsType = {
 
 const enrichParams = (opParams: opParamsType, modifiedStorageLimit?: number, modifiedTotalFee?: number) => ({
   ...opParams,
-  contents: opParams.contents.map((elem, i, contents) => {
-    if (i === 0) {
-      let newElem = elem;
-      if (modifiedTotalFee !== undefined) {
-        newElem = {
-          ...newElem,
-          fee: JSON.stringify(modifiedTotalFee)
-        };
+  contents:
+    opParams.contents &&
+    opParams.contents.map((elem, i, contents) => {
+      if (i === 0) {
+        let newElem = elem;
+        if (modifiedTotalFee !== undefined) {
+          newElem = {
+            ...newElem,
+            fee: JSON.stringify(modifiedTotalFee)
+          };
+        }
+
+        if (modifiedStorageLimit !== undefined && contents.length < 2) {
+          newElem = {
+            ...newElem,
+            storage_limit: JSON.stringify(modifiedStorageLimit)
+          };
+        }
+
+        return newElem;
       }
 
-      if (modifiedStorageLimit !== undefined && contents.length < 2) {
-        newElem = {
-          ...newElem,
-          storage_limit: JSON.stringify(modifiedStorageLimit)
-        };
-      }
-
-      return newElem;
-    }
-
-    return elem;
-  })
+      return elem;
+    })
 });
 
 export default OperationsBanner;

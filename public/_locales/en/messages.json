@@ -27,7 +27,7 @@
     "message": "Open new tab"
   },
   "maximiseView": {
-    "message": "Maximise view"
+    "message": "Maximize view"
   },
   "selectFile": {
     "message": "Select file"
@@ -88,6 +88,9 @@
   "clickToRevealField": {
     "message": "Click to reveal this field"
   },
+  "clickToReveal": {
+    "message": "Click to reveal"
+  },
   "copiedHash": {
     "message": "Copied."
   },
@@ -114,6 +117,15 @@
   },
   "download": {
     "message": "Download"
+  },
+  "okGotIt": {
+    "message": "Got it"
+  },
+  "changelogTitle": {
+    "message": "Temple Wallet updated to version"
+  },
+  "changelogDescription": {
+    "message": "In this update"
   },
   "templeIsOnMobile": {
     "message": "Temple is on Mobile"
@@ -207,6 +219,26 @@
       },
       "privacyPolicyLink": {
         "content": "$2"
+      }
+    }
+  },
+  "skipOnboarding": {
+    "message": "Skip Onboarding"
+  },
+  "advancedUser": {
+    "message": "I'm an advanced user"
+  },
+  "analytics": {
+    "message": "Analytics"
+  },
+  "analyticsCollecting": {
+    "message": "anonymous information collecting"
+  },
+  "analyticsInputDescription": {
+    "message": "I agree to the $analyticsLink$",
+    "placeholders": {
+      "analyticsLink": {
+        "content": "$1"
       }
     }
   },
@@ -482,8 +514,17 @@
   "mnemonicSpacingConstraint": {
     "message": "Each word separated with a single space"
   },
+  "seedInputNumberOfWords": {
+    "message": "My Seed phrase is $1 words"
+  },
   "justValidPreGeneratedMnemonic": {
     "message": "Just valid pre-generated mnemonic"
+  },
+  "seedPasteFailedTooManyWords": {
+    "message": "Paste failed because it contained over 24 words."
+  },
+  "seedPhraseTip": {
+    "message": "You can paste your entire secret Seed phrase into any field"
   },
   "oops": {
     "message": "Oops!"
@@ -618,9 +659,6 @@
   "isPrivateKeyEncrypted": {
     "message": "Is your private key in encrypted format?"
   },
-  "noDerivation": {
-    "message": "No derivation"
-  },
   "customDerivationPath": {
     "message": "Custom derivation path"
   },
@@ -685,8 +723,11 @@
   "processing": {
     "message": "Processing..."
   },
-  "restoreWallet": {
-    "message": "Restore your Wallet"
+  "importWallet": {
+    "message": "Import Your Wallet"
+  },
+  "createWallet": {
+    "message": "Create Your Wallet"
   },
   "errorImportingKukaiWallet": {
     "message": "Error while importing Kukai wallet"
@@ -1600,33 +1641,6 @@
   "analyticsSettingsDescription": {
     "message": "Here you can configure sending of anonymous analytics that helps us to improve the product."
   },
-  "analyticsConfirmationTitle": {
-    "message": "Help us make the Temple Wallet better"
-  },
-  "analyticsConfirmationDescription": {
-    "message": "We are improving the Temple wallet constantly and we need your help. To better understand which section of the wallet should be updated, we gather anonymous usage data. This data will be used only for improving the usability of the Temple wallet."
-  },
-  "analyticsConfirmationCollect": {
-    "message": "What we collect:"
-  },
-  "analyticsConfirmationCollectDescription": {
-    "message": "Anonymized click & pageview events"
-  },
-  "analyticsConfirmationNeverCollect": {
-    "message": "We NEVER track:"
-  },
-  "analyticsConfirmationNeverCollectDescription": {
-    "message": "Your keys, addresses, transactions, balances, hashes, IP, or any personal information."
-  },
-  "analyticsConfirmationSettingsDescription": {
-    "message": "You may always turn off the analytics tracking feature in your wallet settings."
-  },
-  "analyticsConfirmationConfirmButton": {
-    "message": "Confirm"
-  },
-  "analyticsConfirmationCancelButton": {
-    "message": "Cancel"
-  },
   "managedContract": {
     "message": "Managed Contract"
   },
@@ -1850,9 +1864,6 @@
   },
   "swap": {
     "message": "Swap"
-  },
-  "anotherAccount": {
-    "message": "Another account"
   },
   "accountNumber": {
     "message": "Account number"
@@ -2364,11 +2375,23 @@
   "buyWithRampDescription": {
     "message": "Buy TEZ  using Visa, Mastercard, and all major debit and credit cards. Ramp is available in 160+ countries and territories."
   },
+  "buyWithAliceBob": {
+    "message": "Buy TEZ with Alice-Bob (UAH only)"
+  },
+  "buyWithAliceBobDescription": {
+    "message": "Fast and cost-effective exchange of UAH to TEZ."
+  },
   "topUpBuy": {
     "message": "Top up TEZ balance"
   },
+  "buyWithCard": {
+    "message": "Buy with Debit/Credit Card"
+  },
   "topUpDescription": {
     "message": "Temple integrated third-party solutions to buy TEZ with crypto or a Debit/Credit card. Choose a provider, follow guides, get TEZ on your account."
+  },
+  "enterAmount": {
+    "message": "Please enter the amount:"
   },
   "topUpCrypto": {
     "message": "Crypto"
@@ -2398,13 +2421,16 @@
     "message": "Top up your TEZ balance instantly with 25 cryptocurrencies"
   },
   "privacyAndPolicyLinks": {
-    "message": "By clicking Top Up you agree with \n$termsOfUse$ and $privacyPolicy$",
+    "message": "By clicking $buttonContent$ you agree with \n$termsOfUse$ and $privacyPolicy$",
     "placeholders": {
-      "termsOfUse": {
+      "buttonContent": {
         "content": "$1"
       },
-      "privacyPolicy": {
+      "termsOfUse": {
         "content": "$2"
+      },
+      "privacyPolicy": {
+        "content": "$3"
       }
     }
   },

@@ -579,9 +579,6 @@
   "isPrivateKeyEncrypted": {
     "message": "您的私钥是加密格式的吗？"
   },
-  "noDerivation": {
-    "message": "无衍生"
-  },
   "customDerivationPath": {
     "message": "自定义衍生路径"
   },

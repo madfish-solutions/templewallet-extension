@@ -28,7 +28,6 @@ import {
 import { Link, navigate } from 'lib/woozie';
 
 import { AssetsSelectors } from '../Assets.selectors';
-import { QuipuToken } from './QuipuToken';
 import { TezosToken } from './TezosToken';
 import styles from './Tokens.module.css';
 
@@ -212,8 +211,6 @@ type ListItemProps = {
   latestBalance?: string;
 };
 
-const QUIPU_SLUG = 'KT193D4vozYnhGJQVtw7CoxxqphqUEEwK6Vb_0';
-
 const ListItem = memo<ListItemProps>(({ assetSlug, last, active, accountPkh }) => {
   const metadata = useAssetMetadata(assetSlug);
 
@@ -296,7 +293,6 @@ const ListItem = memo<ListItemProps>(({ assetSlug, last, active, accountPkh }) =
           <div className="flex items-center flex-initial">
             <div className={classNames(styles['tokenSymbol'])}>{getAssetSymbol(metadata)}</div>
             {assetSlug === 'tez' && <TezosToken />}
-            {assetSlug === QUIPU_SLUG && <QuipuToken />}
           </div>
           <Balance address={accountPkh} assetSlug={assetSlug} displayed={displayed}>
             {renderBalancInToken}

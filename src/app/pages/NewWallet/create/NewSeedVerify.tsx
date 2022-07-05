@@ -6,14 +6,6 @@ import { useForm } from 'react-hook-form';
 import FormField from 'app/atoms/FormField';
 import FormSubmitButton from 'app/atoms/FormSubmitButton';
 import { T } from 'lib/i18n/react';
-import { useTempleClient } from 'lib/temple/front';
-
-type VerifyProps = {
-  data: {
-    mnemonic: string;
-    password: string;
-  };
-};
 
 const WORDS_TO_FILL = 2;
 
@@ -38,10 +30,14 @@ const shuffle = (array: any[]) => {
   return result;
 };
 
-const Verify: FC<VerifyProps> = ({ data }) => {
-  const { registerWallet } = useTempleClient();
+interface NewSeedVerifyProps {
+  seedPhrase: string;
+  onVerificationComplete: () => void;
+}
 
-  const words = useMemo(() => data.mnemonic.split(' '), [data.mnemonic]);
+export const NewSeedVerify: FC<NewSeedVerifyProps> = ({ seedPhrase, onVerificationComplete }) => {
+  const { handleSubmit } = useForm();
+  const words = useMemo(() => seedPhrase.split(' '), [seedPhrase]);
   const wordsToCheckPositions = useMemo(() => {
     const shuffledPositions = shuffle(range(words.length));
     const selectedPositions: number[] = [];
@@ -87,29 +83,14 @@ const Verify: FC<VerifyProps> = ({ data }) => {
     [wordsToCheckPositions, filledIndexes]
   );
 
-  const { handleSubmit, formState } = useForm();
-  const submitting = formState.isSubmitting;
-
-  const onSubmit = useCallback(async () => {
-    if (submitting || !filled) return;
-
-    try {
-      await registerWallet(data.password, data.mnemonic);
-    } catch (err: any) {
-      console.error(err);
-
-      alert(err.message);
-    }
-  }, [filled, submitting, registerWallet, data.password, data.mnemonic]);
-
   return (
     <div className="w-full max-w-md mx-auto my-8">
-      <form className="w-full mt-8" onSubmit={handleSubmit(onSubmit)}>
+      <form className="w-full mt-8" onSubmit={handleSubmit(onVerificationComplete)}>
         <h3 className={classNames('mt-2 mb-8', 'text-gray-600 text-xl font-light', 'text-center')}>
           <T id="verifySeedPhraseDescription" />
         </h3>
 
-        <div className="mb-8 flex flex-col">
+        <div className="flex flex-col">
           {wordsToCheckPositions.map((indexToFill, i) => (
             <WordsRow
               key={i}
@@ -120,15 +101,16 @@ const Verify: FC<VerifyProps> = ({ data }) => {
           ))}
         </div>
 
-        <FormSubmitButton loading={submitting} disabled={!filled}>
-          <T id="finish" />
+        <FormSubmitButton
+          disabled={!filled}
+          style={{ display: 'block', width: 384, margin: '8px auto', fontSize: 14, fontWeight: 500 }}
+        >
+          <T id="next" />
         </FormSubmitButton>
       </form>
     </div>
   );
 };
-
-export default Verify;
 
 type WordsRowProps = {
   allWords: string[];
