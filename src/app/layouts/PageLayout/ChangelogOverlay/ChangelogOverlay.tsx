@@ -11,12 +11,24 @@ import { useTempleClient, useStorage } from 'lib/temple/front';
 import { ChangelogOverlaySelectors } from './ChangelogOverlay.selectors';
 
 const changes = [
-  { Component: () => <>Swap router upgrade: added Vortex DEX pools and QuipuSwap token-token pools.</> },
-  { Component: () => <>Added Ithaca Smartpy RPC and Jakarta support</> },
-  { Component: () => <>Exolix top-up support improvements, single swap limit increased to $10k</> },
-  { Component: () => <>Copy Error Text button: a feature to make error reports easier.</> },
-  { Component: () => <strong>Groundwork done for Temple desktop and Temple mobile sync.</strong> },
-  { Component: () => <>Other security and UI improvements!</> }
+  { Component: () => <>Jakarta protocol testnet is up.</> },
+  { Component: () => <>Ghostnet is now supported.</> },
+  {
+    Component: () => <>QuipuSwap Stable pools, Plenty Stable Swap and Plenty Volatile Swap added to the swap router.</>
+  },
+  { Component: () => <>Ctez pools and Vortex DOGA/TEZ pools fixed.</> },
+  {
+    Component: () => (
+      <>
+        Import/create wallet flow changed to be more intuitive. Seed phrase confirmation process changed to bolster
+        security.
+      </>
+    )
+  },
+  { Component: () => <>Streamlined derivation path options on wallet import.</> },
+  { Component: () => <>.xyz Tez domains are now supported.</> },
+  { Component: () => <>Hryvna/Tez top-up added (Alice-Bob partner integration)</> },
+  { Component: () => <>Various other UI fixes</> }
 ];
 
 export const ChangelogOverlay: FC = () => {

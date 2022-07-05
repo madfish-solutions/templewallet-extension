@@ -56,7 +56,14 @@ export interface GetRateData {
 }
 
 export const getRate = async (data: { coin_from: string; coin_to: string; deposit_amount: number }) => {
-  return api.post('/rate', data).then(r => r.data);
+  return api
+    .post('/rate', data)
+    .then(r => r.data)
+    .catch(error => {
+      if (error.response) {
+        return error.response.data;
+      }
+    });
 };
 
 export const submitExchange = async (data: {
