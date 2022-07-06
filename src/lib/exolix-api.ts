@@ -1,21 +1,34 @@
 import axios from 'axios';
 
+interface ExchangeCoin {
+  coinCode: string;
+  coinName: string;
+  icon: string;
+  memoName: string;
+  network: string;
+  networkName: string;
+  networkShortName: string;
+}
+
+interface ExchangeHash {
+  hash: string | null;
+  link: string | null;
+}
+
 export interface ExchangeDataInterface {
-  amount_from: string;
-  amount_to: string;
-  coin_from: string;
-  coin_to: string;
-  created_at: number;
-  deposit_address: string;
-  deposit_extra: string | null;
-  destination_address: string;
-  destination_extra: string | null;
-  hash_in: string | null;
-  hash_in_link: string | null;
-  hash_out: string | null;
-  hash_out_link: string | null;
+  amount: string;
+  amountTo: string;
+  coinFrom: ExchangeCoin;
+  coinTo: ExchangeCoin;
+  createdAt: string;
+  depositAddress: string;
+  depositExtraId: string | null;
+  withdrawalAddress: string;
+  withdrawalExtraId: string | null;
+  hashIn: ExchangeHash;
+  hashOut: ExchangeHash;
   id: string;
-  message: string | null;
+  comment: string | null;
   rate: string;
   status: string;
 }
@@ -25,19 +38,22 @@ export enum ExchangeDataStatusEnum {
   CONFIRMATION = 'confirmation',
   EXCHANGING = 'exchanging',
   SUCCESS = 'success',
-  OVERDUE = 'overdue'
+  OVERDUE = 'overdue',
+  REFUNDED = 'refunded'
 }
 
 interface CurrenciesInterface {
-  status: number;
-  label: string;
-  code: string;
+  data: Array<{
+    icon: string;
+    name: string;
+    code: string;
+  }>;
 }
 
 const API_KEY = process.env.TEMPLE_WALLET_EXOLIX_API_KEY;
 
 const api = axios.create({
-  baseURL: 'https://exolix.com/api',
+  baseURL: 'https://exolix.com/api/v2',
   ...(API_KEY && {
     headers: {
       Authorization: API_KEY
@@ -45,20 +61,36 @@ const api = axios.create({
   })
 });
 
+const currenciesLimit = 100;
+
 export const getCurrencies = async () => {
-  return api.get<CurrenciesInterface[]>('/currency').then(r => r.data);
+  let page = 1;
+  let result = await getCurrency(page);
+  let totalData = result.data;
+  while (result && result.data && result.data.length === currenciesLimit) {
+    page++;
+    result = await getCurrency(page);
+    if (result && result.data) {
+      totalData.concat(result.data);
+    }
+  }
+  return totalData;
+};
+
+const getCurrency = async (page = 1) => {
+  return api.get<CurrenciesInterface>('/currencies', { params: { size: currenciesLimit, page } }).then(r => r.data);
 };
 
 export interface GetRateData {
-  destination_amount: number;
+  toAmount: number;
   rate: number;
-  min_amount: string;
+  minAmount: number;
 }
 
-export const getRate = async (data: { coin_from: string; coin_to: string; deposit_amount: number }) => {
+export const getRate = async (data: { coinFrom: string; coinTo: string; amount: number }) => {
   return api
-    .post('/rate', data)
-    .then(r => r.data)
+    .get('/rate', { params: data })
+    .then(r => r.data as GetRateData)
     .catch(error => {
       if (error.response) {
         return error.response.data;
@@ -67,15 +99,15 @@ export const getRate = async (data: { coin_from: string; coin_to: string; deposi
 };
 
 export const submitExchange = async (data: {
-  coin_from: string;
-  coin_to: string;
-  deposit_amount: number;
-  destination_address: string;
-  destination_extra: string;
+  coinFrom: string;
+  coinTo: string;
+  amount: number;
+  withdrawalAddress: string;
+  withdrawalExtraId: string;
 }) => {
-  return api.post('/exchange', data).then(r => r.data);
+  return api.post('/transactions', data).then(r => r.data);
 };
 
 export const getExchangeData = async (exchangeId: string) => {
-  return api.get<ExchangeDataInterface>(`/exchange/${exchangeId}`).then(r => r.data);
+  return api.get<ExchangeDataInterface>(`/transactions/${exchangeId}`).then(r => r.data);
 };

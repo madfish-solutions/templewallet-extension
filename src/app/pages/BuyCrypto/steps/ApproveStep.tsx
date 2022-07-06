@@ -73,7 +73,7 @@ const ApproveStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
                 {props.minutes}:{props.seconds < 10 ? '0' + props.seconds : props.seconds}
               </p>
             )}
-            date={exchangeData.created_at + 3600000}
+            date={new Date(exchangeData.createdAt).getTime() + 3600000}
             onComplete={async () => {
               const data = await getExchangeData(exchangeData.id);
               setExchangeData(data);
@@ -86,7 +86,7 @@ const ApproveStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
               <T id={'sendByOneTransaction'} />
             </p>
             <p style={{ color: '#1B262C' }} className="text-2xl">
-              {exchangeData.amount_from} {exchangeData.coin_from}
+              {exchangeData.amount} {exchangeData.coinFrom.coinCode}
             </p>
           </div>
           <div className="flex justify-between items-baseline">
@@ -94,7 +94,7 @@ const ApproveStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
               <T id={'youGet'} />
             </p>
             <p style={{ color: '#1B262C' }} className="text-xs">
-              {exchangeData.amount_to} {exchangeData.coin_to}
+              {exchangeData.amountTo} {exchangeData.coinTo.coinCode}
             </p>
           </div>
           <div className="flex justify-between items-baseline">
@@ -102,7 +102,7 @@ const ApproveStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
               <T id={'fixedRate'} />
             </p>
             <p style={{ color: '#1B262C' }} className="text-xs">
-              1 {exchangeData.coin_from} = {exchangeData.rate} {exchangeData.coin_to}
+              1 {exchangeData.coinFrom.coinCode} = {exchangeData.rate} {exchangeData.coinTo.coinCode}
             </p>
           </div>
           <div className="flex justify-between items-baseline">
@@ -123,9 +123,9 @@ const ApproveStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
             </span>
           </div>
           <p className="text-gray-600 text-xs text-center mt-6">
-            <T id={'depositAddressText'} substitutions={[exchangeData.coin_from]} />
+            <T id={'depositAddressText'} substitutions={[exchangeData.coinFrom.coinCode]} />
           </p>
-          <QRCode value={exchangeData.deposit_address} style={{ width: '160px', margin: '24px auto' }} />
+          <QRCode value={exchangeData.depositAddress} style={{ width: '160px', margin: '24px auto' }} />
           <FormField
             rows={2}
             size={36}
@@ -136,15 +136,15 @@ const ApproveStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
               textAlign: 'center'
             }}
             textarea
-            value={exchangeData.deposit_address}
+            value={exchangeData.depositAddress}
             copyable
           />
-          {exchangeData.deposit_extra !== null && exchangeData.deposit_extra !== 'null' && (
+          {exchangeData.depositExtraId !== null && exchangeData.depositExtraId !== 'null' && (
             <>
               <p className="text-gray-600 text-xs text-center mt-6">
                 <T id={'atomDepositMemo'} />
               </p>
-              <QRCode value={exchangeData.deposit_extra} style={{ width: '160px', margin: '24px auto' }} />
+              <QRCode value={exchangeData.depositExtraId} style={{ width: '160px', margin: '24px auto' }} />
               <FormField
                 rows={1}
                 size={36}
@@ -155,7 +155,7 @@ const ApproveStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
                   textAlign: 'center'
                 }}
                 textarea
-                value={exchangeData.deposit_extra}
+                value={exchangeData.depositExtraId}
                 copyable
               />
             </>
@@ -167,7 +167,7 @@ const ApproveStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
               <T id={'recipientAddress'} />
             </p>
             <p style={{ color: '#1B262C' }} className="text-xs">
-              <HashShortView hash={exchangeData.destination_address} />
+              <HashShortView hash={exchangeData.depositAddress} />
             </p>
           </div>
           <div>

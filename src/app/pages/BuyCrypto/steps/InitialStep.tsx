@@ -51,11 +51,11 @@ const InitialStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
   const submitExchangeHandler = async () => {
     try {
       const data = await submitExchange({
-        coin_from: coinFrom,
-        coin_to: coinTo,
-        deposit_amount: amount,
-        destination_address: publicKeyHash,
-        destination_extra: ''
+        coinFrom,
+        coinTo,
+        amount,
+        withdrawalAddress: publicKeyHash,
+        withdrawalExtraId: ''
       });
       setExchangeData(data);
       if (data.status === ExchangeDataStatusEnum.WAIT) {
@@ -69,9 +69,9 @@ const InitialStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
       setIsError(true);
     }
   };
-  const { data: rates = { destination_amount: 0, rate: 0, min_amount: '0' } } = useSWR(
+  const { data: rates = { toAmount: 0, rate: 0, minAmount: 0 } } = useSWR(
     ['/api/currency', coinTo, coinFrom, amount],
-    () => getRate({ coin_from: coinFrom, coin_to: coinTo, deposit_amount: amount })
+    () => getRate({ coinFrom, coinTo, amount })
   );
 
   useEffect(() => {
@@ -80,12 +80,12 @@ const InitialStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
         setIsCurrencyAvailable(true);
 
         const { rate, ...rest } = await getRate({
-          coin_from: coinTo,
-          coin_to: coinFrom,
-          deposit_amount: (maxDollarValue + avgCommission) / tezPrice!
+          coinFrom: coinTo,
+          coinTo: coinFrom,
+          amount: (maxDollarValue + avgCommission) / tezPrice!
         });
 
-        setMaxAmount(new BigNumber(rest.destination_amount).toFixed(Number(rest.destination_amount) > 100 ? 2 : 6));
+        setMaxAmount(new BigNumber(rest.toAmount).toFixed(Number(rest.toAmount) > 100 ? 2 : 6));
       } catch (e) {
         setIsCurrencyAvailable(false);
       }
@@ -98,20 +98,20 @@ const InitialStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
     lastMaxAmount !== 'Infinity' && debouncedAmount !== 0 && Number(debouncedAmount) > Number(lastMaxAmount);
 
   useEffect(() => {
-    setDepositAmount(rates.destination_amount);
+    setDepositAmount(rates.toAmount);
     if (amount === 0) {
       setDisableProceed(true);
-    } else if (rates.min_amount === 0) {
+    } else if (rates.minAmount === 0) {
       setDisableProceed(true);
-    } else if (rates.min_amount > amount) {
+    } else if (rates.minAmount > amount) {
       setDisableProceed(true);
-    } else if (rates.destination_amount === 0) {
+    } else if (rates.toAmount === 0) {
       setDisableProceed(true);
     } else {
       setDisableProceed(false);
     }
-    if (rates.min_amount > 0) {
-      setLastMinAmount(new BigNumber(rates.min_amount));
+    if (rates.minAmount > 0) {
+      setLastMinAmount(new BigNumber(rates.minAmount));
     }
     if (maxAmount !== 'Infinity') {
       setLastMaxAmount(maxAmount);
