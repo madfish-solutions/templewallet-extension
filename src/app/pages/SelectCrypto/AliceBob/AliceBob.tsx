@@ -10,7 +10,7 @@ import PageLayout from '../../../layouts/PageLayout';
 import styles from '../../BuyCrypto/BuyCrypto.module.css';
 import { SelectCryptoSelectors } from '../SelectCrypto.selectors';
 
-const buildQuery = makeBuildQueryFn<Record<string, string>, any>('https://temple-api.stage.madservice.xyz');
+const buildQuery = makeBuildQueryFn<Record<string, string>, any>('https://temple-api.production.madservice.xyz');
 const getSignedAliceBobUrl = buildQuery('GET', '/api/alice-bob-sign', ['amount', 'userId', 'walletAddress']);
 const getAliceBobPairInfo = buildQuery('GET', '/api/alice-bob-pair-info');
 
@@ -28,6 +28,7 @@ export const AliceBob = () => {
     (async () => {
       try {
         const response = await getAliceBobPairInfo({});
+        console.log(response);
 
         setMinExchangeAmount(response.minAmount);
         setMaxExchangeAmount(response.maxAmount);
