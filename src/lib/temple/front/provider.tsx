@@ -26,8 +26,8 @@ const ConditionalReadyTemple: FC = ({ children }) => {
         <ReadyTempleProvider>
           <WalletRpcProvider>
             <TokensMetadataProvider>
-              <USDPriceProvider suspense>
-                <FiatCurrencyProvider suspense>
+              <USDPriceProvider>
+                <FiatCurrencyProvider>
                   <SyncTokensProvider>
                     <NewBlockTriggersProvider>{children}</NewBlockTriggersProvider>
                   </SyncTokensProvider>
