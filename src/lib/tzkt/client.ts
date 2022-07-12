@@ -1,6 +1,6 @@
 import axios, { AxiosError } from 'axios';
 
-import { TempleChainId } from 'lib/temple/types';
+import { isKnownChainId, TempleChainId } from 'lib/temple/types';
 import {
   allInt32ParameterKeys,
   TzktGetOperationsParams,
@@ -72,6 +72,20 @@ export const getTokenBalances = makeQuery<TzktGetOperationsParams, TzktAccountTo
     account: address,
     offset,
     limit,
+    'sort.desc': 'balance',
+    'token.metadata.artifactUri.null': true,
+    ...restParams
+  })
+);
+
+export const getNFTBalances = makeQuery<TzktGetOperationsParams, TzktAccountTokenBalance[]>(
+  () => `/tokens/balances`,
+  ({ address, offset, limit, ...restParams }) => ({
+    account: address,
+    offset,
+    limit,
+    'sort.desc': 'balance',
+    'token.metadata.artifactUri.null': false,
     ...restParams
   })
 );
@@ -99,6 +113,16 @@ export const getTokenBalancesCount = makeQuery<TzktGetOperationsParams, number>(
   () => `/tokens/balances/count`,
   ({ address, ...restParams }) => ({
     account: address,
+    'token.metadata.artifactUri.null': true,
+    ...restParams
+  })
+);
+
+export const getNFTBalancesCount = makeQuery<TzktGetOperationsParams, number>(
+  () => `/tokens/balances/count`,
+  ({ address, ...restParams }) => ({
+    account: address,
+    'token.metadata.artifactUri.null': false,
     ...restParams
   })
 );
@@ -148,3 +172,33 @@ function makeQuery<P extends Record<string, unknown>, R>(
     return data;
   };
 }
+
+const size = 100;
+
+export const fetchTokenBalances = async (chainId: string, address: string, page = 1) => {
+  if (!isKnownChainId(chainId) || !TZKT_API_BASE_URLS.has(chainId)) {
+    return [];
+  }
+
+  let balances = await getTokenBalances(chainId, {
+    address,
+    limit: size,
+    offset: page * size
+  });
+
+  return balances;
+};
+
+export const fetchNFTBalances = async (chainId: string, address: string, page = 1) => {
+  if (!isKnownChainId(chainId) || !TZKT_API_BASE_URLS.has(chainId)) {
+    return [];
+  }
+
+  let balances = await getNFTBalances(chainId, {
+    address,
+    limit: size,
+    offset: page * size
+  });
+
+  return balances;
+};

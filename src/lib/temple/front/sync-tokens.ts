@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import BigNumber from 'bignumber.js';
 import constate from 'constate';
@@ -7,7 +7,6 @@ import { trigger } from 'swr';
 import {
   useChainId,
   useAccount,
-  isKnownChainId,
   toTokenSlug,
   useTokensMetadata,
   AssetMetadata,
@@ -21,12 +20,14 @@ import {
 import * as Repo from 'lib/temple/repo';
 import { getTokensMetadata } from 'lib/templewallet-api';
 import { fetchWhitelistTokenSlugs } from 'lib/templewallet-api/whitelist-tokens';
-import { getTokenBalances, getTokenBalancesCount, TzktAccountTokenBalance, TZKT_API_BASE_URLS } from 'lib/tzkt';
+import { TzktAccountTokenBalance } from 'lib/tzkt';
 
 import { TempleChainId } from '../types';
 
-export const [SyncTokensProvider] = constate(() => {
+export const [SyncTokensProvider, useSyncTokens] = constate(() => {
   const chainId = useChainId(true)!;
+  const [tokens, setTokens] = useState([]);
+  const [nfts, setNfts] = useState([]);
   const { publicKeyHash: accountPkh } = useAccount();
 
   const { allTokensBaseMetadataRef, setTokensBaseMetadata, setTokensDetailedMetadata, fetchMetadata } =
@@ -41,7 +42,8 @@ export const [SyncTokensProvider] = constate(() => {
       setTokensBaseMetadata,
       setTokensDetailedMetadata,
       usdPrices,
-      fetchMetadata
+      fetchMetadata,
+      tokens.concat(nfts)
     );
   }, [
     accountPkh,
@@ -50,7 +52,9 @@ export const [SyncTokensProvider] = constate(() => {
     setTokensBaseMetadata,
     setTokensDetailedMetadata,
     usdPrices,
-    fetchMetadata
+    fetchMetadata,
+    tokens,
+    nfts
   ]);
 
   const syncRef = useRef(sync);
@@ -87,40 +91,14 @@ export const [SyncTokensProvider] = constate(() => {
 
     return () => clearTimeout(timeoutId);
   }, [chainId, accountPkh]);
+
+  return {
+    tokens,
+    setTokens,
+    nfts,
+    setNfts
+  };
 });
-
-async function fetchTzktTokenBalances(chainId: string, address: string) {
-  if (!isKnownChainId(chainId) || !TZKT_API_BASE_URLS.has(chainId)) {
-    return [];
-  }
-
-  const size = 100;
-
-  const total = await getTokenBalancesCount(chainId, { address });
-
-  let balances = await getTokenBalances(chainId, {
-    address,
-    limit: size,
-    offset: 0
-  });
-
-  if (total > size) {
-    const requests = Math.floor(total / size);
-    const restResponses = await Promise.all(
-      Array.from({ length: requests }).map((_, i) =>
-        getTokenBalances(chainId, {
-          address,
-          limit: size,
-          offset: (i + 1) * size
-        })
-      )
-    );
-
-    balances = [...balances, ...restResponses.flat()];
-  }
-
-  return balances;
-}
 
 const makeSync = async (
   accountPkh: string,
@@ -129,13 +107,13 @@ const makeSync = async (
   setTokensBaseMetadata: any,
   setTokensDetailedMetadata: any,
   usdPrices: Record<string, string>,
-  fetchMetadata: any
+  fetchMetadata: any,
+  tzktTokens: TzktAccountTokenBalance[]
 ) => {
   if (!chainId) return;
   const mainnet = chainId === TempleChainId.Mainnet;
 
-  const [tzktTokens, displayedFungibleTokens, displayedCollectibleTokens, whitelistTokenSlugs] = await Promise.all([
-    fetchTzktTokenBalances(chainId, accountPkh),
+  const [displayedFungibleTokens, displayedCollectibleTokens, whitelistTokenSlugs] = await Promise.all([
     fetchDisplayedFungibleTokens(chainId, accountPkh),
     fetchCollectibleTokens(chainId, accountPkh, true),
     fetchWhitelistTokenSlugs(chainId)
