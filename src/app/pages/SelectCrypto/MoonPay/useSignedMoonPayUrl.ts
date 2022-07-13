@@ -1,16 +1,15 @@
 import { useEffect, useState } from 'react';
 
+import { templewalletQuery } from 'lib/templewallet-api/templewallet-query';
+
 import { getCurrentLocale } from '../../../../lib/i18n';
-import makeBuildQueryFn from '../../../../lib/makeBuildQueryFn';
 import { useAccount } from '../../../../lib/temple/front';
 
 const MOONPAY_DOMAIN = 'https://buy.moonpay.com';
 const API_KEY = 'pk_live_PrSDks3YtrreqFifd0BsIji7xPXjSGx';
 const CURRENCY_CODE = 'xtz';
 
-const buildQuery = makeBuildQueryFn<Record<string, string>, any>('https://api.templewallet.com/api');
-
-const getSignedMoonPayUrl = buildQuery('GET', '/moonpay-sign', ['url']);
+const getSignedMoonPayUrl = templewalletQuery('GET', '/moonpay-sign', ['url']);
 
 export const useSignedMoonPayUrl = () => {
   const { publicKeyHash: walletAddress } = useAccount();

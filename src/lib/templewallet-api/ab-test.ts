@@ -1,5 +1,9 @@
-import makeBuildQueryFn from 'lib/makeBuildQueryFn';
+import { templewalletQuery } from './templewallet-query';
 
-const buildQuery = makeBuildQueryFn<Record<string, unknown>, any>('https://api.templewallet.com/api');
+export enum ABTestGroup {
+  A = 'A',
+  B = 'B',
+  Unknown = 'Unknown'
+}
 
-export const getABGroup = buildQuery<{}, { ab: 'A' | 'B' }>('GET', '/abtest');
+export const getABGroup = templewalletQuery<{}, { ab: ABTestGroup.A | ABTestGroup.B }>('GET', '/abtest');

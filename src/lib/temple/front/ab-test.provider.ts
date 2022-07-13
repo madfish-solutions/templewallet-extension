@@ -4,7 +4,7 @@ import constate from 'constate';
 
 import { useAnalyticsState } from 'lib/analytics/use-analytics-state.hook';
 import { useRetryableSWR } from 'lib/swr';
-import { getABGroup } from 'lib/templewallet-api';
+import { ABTestGroup, getABGroup } from 'lib/templewallet-api';
 
 import { usePassiveStorage } from './storage';
 
@@ -12,7 +12,7 @@ export function useAB() {
   const { data: abGroup, loading } = useABGroup();
   const { analyticsState } = useAnalyticsState();
 
-  const [localABGroup, setLocalABGroup] = usePassiveStorage<'A' | 'B' | null>('ab-test-value', null);
+  const [localABGroup, setLocalABGroup] = usePassiveStorage<ABTestGroup>('ab-test-value', ABTestGroup.Unknown);
 
   useEffect(() => {
     if (!loading && !localABGroup) {
@@ -24,7 +24,7 @@ export function useAB() {
     if (analyticsState.enabled) {
       return localABGroup;
     }
-    return null;
+    return ABTestGroup.Unknown;
   }, [analyticsState, localABGroup]);
 }
 
@@ -34,14 +34,10 @@ export const [ABTestGroupProvider, useABGroup] = constate((params: { suspense?: 
     dedupingInterval: 30_000,
     suspense: params.suspense
   });
-  return { data: data?.ab ?? null, loading };
+  return { data: data?.ab ?? ABTestGroup.Unknown, loading };
 });
 
 async function fetchABGroup() {
-  try {
-    const group = await getABGroup({});
-    return group;
-  } catch {
-    return null;
-  }
+  const group = await getABGroup({}).catch(() => null);
+  return group;
 }

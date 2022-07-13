@@ -1,6 +1,7 @@
 import React, { FC, ReactNode } from 'react';
 
 import { useAB } from 'lib/temple/front';
+import { ABTestGroup } from 'lib/templewallet-api';
 
 interface ABContainerProps {
   noAnalyticsComponent: ReactNode;
@@ -10,8 +11,8 @@ interface ABContainerProps {
 
 const ABContainer: FC<ABContainerProps> = ({ noAnalyticsComponent, groupAComponent, groupBComponent }) => {
   const abGroup = useAB();
-  if (abGroup === null) return <>{noAnalyticsComponent}</>;
-  return abGroup === 'A' ? <>{groupAComponent}</> : <>{groupBComponent}</>;
+  if (abGroup === ABTestGroup.Unknown) return <>{noAnalyticsComponent}</>;
+  return abGroup === ABTestGroup.A ? <>{groupAComponent}</> : <>{groupBComponent}</>;
 };
 
 export default ABContainer;
