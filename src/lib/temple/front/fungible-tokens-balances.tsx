@@ -20,7 +20,7 @@ export const [FungibleTokensBalancesProvider, useFungibleTokensBalances] = const
   useEffect(() => {
     if (initialPageLoaded.current) {
       initialPageLoaded.current = false;
-      // setItems([]);
+      setItems([]);
     }
   }, [address, chainId]);
 

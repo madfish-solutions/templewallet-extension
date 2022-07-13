@@ -96,7 +96,7 @@ export const [SyncTokensProvider, useSyncTokens] = constate(() => {
     syncAndDefer();
 
     return () => clearTimeout(timeoutId);
-  }, [chainId, accountPkh, tokens]);
+  }, [chainId, tokens]);
 
   return {
     sync,
