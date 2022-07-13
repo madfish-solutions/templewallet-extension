@@ -26,8 +26,8 @@ import { TempleChainId } from '../types';
 
 export const [SyncTokensProvider, useSyncTokens] = constate(() => {
   const chainId = useChainId(true)!;
-  const [tokens, setTokens] = useState([]);
-  const [nfts, setNfts] = useState([]);
+  const [tokens, setTokens] = useState<Array<TzktAccountTokenBalance>>([]);
+  const [nfts, setNfts] = useState<Array<TzktAccountTokenBalance>>([]);
   const { publicKeyHash: accountPkh } = useAccount();
 
   const { allTokensBaseMetadataRef, setTokensBaseMetadata, setTokensDetailedMetadata, fetchMetadata } =
@@ -93,6 +93,7 @@ export const [SyncTokensProvider, useSyncTokens] = constate(() => {
   }, [chainId, accountPkh]);
 
   return {
+    sync,
     tokens,
     setTokens,
     nfts,
@@ -113,11 +114,15 @@ const makeSync = async (
   if (!chainId) return;
   const mainnet = chainId === TempleChainId.Mainnet;
 
+  console.log('make sync call');
+
   const [displayedFungibleTokens, displayedCollectibleTokens, whitelistTokenSlugs] = await Promise.all([
     fetchDisplayedFungibleTokens(chainId, accountPkh),
     fetchCollectibleTokens(chainId, accountPkh, true),
     fetchWhitelistTokenSlugs(chainId)
   ]);
+
+  console.log('make sync promises resolved');
 
   const tzktTokensMap = new Map(
     tzktTokens.map(balance => [toTokenSlug(balance.token.contract.address, balance.token.tokenId), balance])
@@ -170,8 +175,12 @@ const makeSync = async (
     }
   }
 
+  console.log('make sync tokens metadata setting');
+
   await setTokensBaseMetadata(baseMetadatasToSet);
   await setTokensDetailedMetadata(detailedMetadatasToSet);
+
+  console.log('make sync tokens metadata set');
 
   await Repo.accountTokens.bulkPut(
     tokenSlugs.map((slug, i) =>
@@ -189,6 +198,8 @@ const makeSync = async (
     ),
     tokenRepoKeys
   );
+
+  console.log('make sync tokens bulk put complete');
 
   trigger(['displayed-fungible-tokens', chainId, accountPkh], true);
 };

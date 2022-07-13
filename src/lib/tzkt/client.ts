@@ -14,6 +14,7 @@ import { TzktAccountTokenBalance, TzktTokenTransfer } from '.';
 
 export const TZKT_API_BASE_URLS = new Map([
   [TempleChainId.Mainnet, 'https://api.tzkt.io/v1'],
+  [TempleChainId.Jakartanet, 'https://api.jakartanet.tzkt.io/v1'],
   [TempleChainId.Ghostnet, 'https://api.ghostnet.tzkt.io/v1']
 ]);
 
@@ -173,31 +174,43 @@ function makeQuery<P extends Record<string, unknown>, R>(
   };
 }
 
-const size = 100;
+export const TZKT_FETCH_QUERY_SIZE = 20;
 
-export const fetchTokenBalances = async (chainId: string, address: string, page = 1) => {
+export const fetchTokenBalancesCount = async (chainId: string, address: string) => {
+  if (!isKnownChainId(chainId) || !TZKT_API_BASE_URLS.has(chainId)) {
+    return 0;
+  }
+
+  const count = await getTokenBalancesCount(chainId, {
+    address
+  });
+
+  return count;
+};
+
+export const fetchTokenBalances = async (chainId: string, address: string, page = 0) => {
   if (!isKnownChainId(chainId) || !TZKT_API_BASE_URLS.has(chainId)) {
     return [];
   }
 
-  let balances = await getTokenBalances(chainId, {
+  const balances = await getTokenBalances(chainId, {
     address,
-    limit: size,
-    offset: page * size
+    limit: TZKT_FETCH_QUERY_SIZE,
+    offset: page * TZKT_FETCH_QUERY_SIZE
   });
 
   return balances;
 };
 
-export const fetchNFTBalances = async (chainId: string, address: string, page = 1) => {
+export const fetchNFTBalances = async (chainId: string, address: string, page = 0) => {
   if (!isKnownChainId(chainId) || !TZKT_API_BASE_URLS.has(chainId)) {
     return [];
   }
 
-  let balances = await getNFTBalances(chainId, {
+  const balances = await getNFTBalances(chainId, {
     address,
-    limit: size,
-    offset: page * size
+    limit: TZKT_FETCH_QUERY_SIZE,
+    offset: page * TZKT_FETCH_QUERY_SIZE
   });
 
   return balances;

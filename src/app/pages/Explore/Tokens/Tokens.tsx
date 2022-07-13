@@ -6,7 +6,9 @@ import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import { cache } from 'swr';
 import { useDebounce } from 'use-debounce';
 
+import FormSecondaryButton from 'app/atoms/FormSecondaryButton';
 import Money from 'app/atoms/Money';
+import Spinner from 'app/atoms/Spinner/Spinner';
 import { ReactComponent as AddToListIcon } from 'app/icons/add-to-list.svg';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
 import { AssetIcon } from 'app/templates/AssetIcon';
@@ -25,6 +27,7 @@ import {
   useAllTokensBaseMetadata,
   searchAssets
 } from 'lib/temple/front';
+import { useInfiniteLoadingTokens } from 'lib/temple/front/use-infinite-loading';
 import { Link, navigate } from 'lib/woozie';
 
 import { AssetsSelectors } from '../Assets.selectors';
@@ -35,6 +38,8 @@ const Tokens: FC = () => {
   const chainId = useChainId(true)!;
   const account = useAccount();
   const address = account.publicKeyHash;
+
+  const { hasMore, loadItems, isLoading } = useInfiniteLoadingTokens();
 
   const { data: tokens = [] } = useDisplayedFungibleTokens(chainId, address);
 
@@ -55,6 +60,8 @@ const Tokens: FC = () => {
 
     return { assetSlugs: slugs, latestBalances: balances };
   }, [tokens, allTokensBaseMetadata]);
+
+  console.log(assetSlugs);
 
   const [searchValue, setSearchValue] = useState('');
   const [searchFocused, setSearchFocused] = useState(false);
@@ -197,11 +204,24 @@ const Tokens: FC = () => {
           </p>
         </div>
       )}
+      {hasMore && (
+        <div className="w-full flex justify-center mt-5 mb-3">
+          <FormSecondaryButton disabled={isLoading} onClick={loadItems} small>
+            {isLoading ? <ActivitySpinner /> : <T id="loadMore" />}
+          </FormSecondaryButton>
+        </div>
+      )}
     </div>
   );
 };
 
 export default Tokens;
+
+const ActivitySpinner = memo(() => (
+  <div className="w-full flex items-center justify-center overflow-hidden" style={{ height: '21px' }}>
+    <Spinner theme="gray" className="w-16" />
+  </div>
+));
 
 type ListItemProps = {
   assetSlug: string;
