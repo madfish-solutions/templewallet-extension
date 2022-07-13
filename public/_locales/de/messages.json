@@ -597,9 +597,6 @@
   "isPrivateKeyEncrypted": {
     "message": "Ist Ihr privater Schlüssel verschlüsselt?"
   },
-  "noDerivation": {
-    "message": "Keine Ableitung"
-  },
   "customDerivationPath": {
     "message": "Benutzerdefinierter Ableitungspfad"
   },
@@ -1748,9 +1745,6 @@
   },
   "swap": {
     "message": "Wechseln"
-  },
-  "anotherAccount": {
-    "message": "Anderes Konto"
   },
   "accountNumber": {
     "message": "Kontonummer"

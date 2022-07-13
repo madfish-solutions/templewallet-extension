@@ -2,7 +2,7 @@ import React, { FC } from 'react';
 
 import { t, T } from '../../../lib/i18n/react';
 import { useStorage } from '../../../lib/temple/front';
-import Stepper from '../../atoms/Stepper';
+import Stepper from '../../atoms/Stepper/Stepper';
 import PageLayout from '../../layouts/PageLayout';
 import CongratsPage from './pages/CongratsPage';
 import FirstStep from './steps/FirstStep';

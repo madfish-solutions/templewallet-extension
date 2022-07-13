@@ -2,7 +2,7 @@ import React, { FC, ReactNode, Suspense, useMemo } from 'react';
 
 import classNames from 'clsx';
 
-import Spinner from 'app/atoms/Spinner';
+import Spinner from 'app/atoms/Spinner/Spinner';
 import { useTabSlug } from 'app/atoms/useTabSlug';
 import { useAppEnv } from 'app/env';
 import ErrorBoundary from 'app/ErrorBoundary';
@@ -10,6 +10,7 @@ import PageLayout from 'app/layouts/PageLayout';
 import { T, t } from 'lib/i18n/react';
 import { Link } from 'lib/woozie';
 
+import { ReactComponent as ShoppingCartIcon } from './../../icons/shopping-cart.svg';
 import { Cryptos } from './Cryptos';
 import { Debits } from './Debits';
 import s from './SelectCrypto.module.css';
@@ -50,8 +51,11 @@ const SelectCrypto: FC<{}> = () => {
   return (
     <PageLayout
       pageTitle={
-        <div className="font-medium">
-          <T id="topUpBuy" />
+        <div className="flex flex-row font-normal text-sm">
+          <ShoppingCartIcon />
+          <span className="pl-1" style={{ paddingTop: 1 }}>
+            <T id="topUpBuy" />
+          </span>
         </div>
       }
     >

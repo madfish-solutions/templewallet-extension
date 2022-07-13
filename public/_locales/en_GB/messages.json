@@ -579,9 +579,6 @@
   "isPrivateKeyEncrypted": {
     "message": "Is your private key in encrypted format?"
   },
-  "noDerivation": {
-    "message": "No derivation"
-  },
   "customDerivationPath": {
     "message": "Custom derivation path"
   },

@@ -4,7 +4,7 @@ import classNames from 'clsx';
 
 import DocBg from 'app/a11y/DocBg';
 import { Button } from 'app/atoms/Button';
-import Spinner from 'app/atoms/Spinner';
+import Spinner from 'app/atoms/Spinner/Spinner';
 import { useAppEnv } from 'app/env';
 import ErrorBoundary from 'app/ErrorBoundary';
 import { ReactComponent as ChevronLeftIcon } from 'app/icons/chevron-left.svg';
@@ -20,11 +20,12 @@ import { ReactComponent as DownloadMobileGreyIcon } from '../icons/download-mobi
 import { ReactComponent as DownloadMobileIcon } from '../icons/download-mobile.svg';
 import { useOnboardingProgress } from '../pages/Onboarding/hooks/useOnboardingProgress.hook';
 import { PageLayoutSelectors } from './PageLayout.selectors';
+import { ChangelogOverlay } from './PageLayout/ChangelogOverlay/ChangelogOverlay';
 import ConfirmationOverlay from './PageLayout/ConfirmationOverlay';
 import Header from './PageLayout/Header';
 import { useTempleMobile } from './PageLayout/hooks/useTempleMobile.hook';
 import { TempleMobileSelectors } from './PageLayout/TempleMobile.selectors';
-import { TempleMobileOverlay } from './PageLayout/TempleMobileOverlay';
+// import { TempleMobileOverlay } from './PageLayout/TempleMobileOverlay';
 
 type PageLayoutProps = { contentContainerStyle?: React.CSSProperties } & ToolbarProps;
 
@@ -50,7 +51,8 @@ const PageLayout: FC<PageLayoutProps> = ({ children, contentContainerStyle, ...t
       </div>
 
       <ConfirmationOverlay />
-      <TempleMobileOverlay />
+      {/* <TempleMobileOverlay /> */}
+      <ChangelogOverlay />
     </>
   );
 };
@@ -200,7 +202,7 @@ const Toolbar: FC<ToolbarProps> = ({ pageTitle, hasBackAction = true, step, setS
       {pageTitle && (
         <h2
           className={classNames('px-1', 'flex items-center', 'text-gray-700', 'font-normal leading-none')}
-          style={attention ? { marginLeft: 40, fontSize: 17 } : { fontSize: 17 }}
+          style={{ fontSize: 17 }}
         >
           {pageTitle}
         </h2>
@@ -208,12 +210,12 @@ const Toolbar: FC<ToolbarProps> = ({ pageTitle, hasBackAction = true, step, setS
 
       <div className="flex-1" />
       {attention && (
-        <div className="flex content-end">
+        <div className="flex content-end absolute right-0">
           <a
             href="https://templewallet.com/download"
             target="_blank"
             rel="noopener noreferrer"
-            className="mr-8 my-auto"
+            className="mr-3 my-auto"
             onClick={handleDownloadMobileIconClick}
           >
             {isTempleMobileOverlaySkipped ? <DownloadMobileIcon /> : <DownloadMobileGreyIcon />}

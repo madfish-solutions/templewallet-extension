@@ -582,9 +582,6 @@
   "isPrivateKeyEncrypted": {
     "message": "Ваш приватний ключ у зашифрованому форматі?"
   },
-  "noDerivation": {
-    "message": "Нема деривації"
-  },
   "customDerivationPath": {
     "message": "Кастомна деривація"
   },
@@ -1667,9 +1664,6 @@
   },
   "swap": {
     "message": "Обміняти"
-  },
-  "anotherAccount": {
-    "message": "Інший аккаунт"
   },
   "accountNumber": {
     "message": "Номер аккаунта"
