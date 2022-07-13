@@ -27,7 +27,7 @@ import {
   useAllTokensBaseMetadata,
   searchAssets
 } from 'lib/temple/front';
-import { useInfiniteLoadingTokens } from 'lib/temple/front/use-infinite-loading';
+import { useFungibleTokensBalances } from 'lib/temple/front/fungible-tokens-balances';
 import { Link, navigate } from 'lib/woozie';
 
 import { AssetsSelectors } from '../Assets.selectors';
@@ -39,7 +39,7 @@ const Tokens: FC = () => {
   const account = useAccount();
   const address = account.publicKeyHash;
 
-  const { hasMore, loadItems, isLoading } = useInfiniteLoadingTokens();
+  const { hasMore, loadItems, isLoading, items } = useFungibleTokensBalances();
 
   const { data: tokens = [] } = useDisplayedFungibleTokens(chainId, address);
 
@@ -61,7 +61,7 @@ const Tokens: FC = () => {
     return { assetSlugs: slugs, latestBalances: balances };
   }, [tokens, allTokensBaseMetadata]);
 
-  console.log(assetSlugs);
+  console.log(assetSlugs.length, items.length);
 
   const [searchValue, setSearchValue] = useState('');
   const [searchFocused, setSearchFocused] = useState(false);

@@ -1,13 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
+import constate from 'constate';
+
 import { TzktAccountTokenBalance } from 'lib/tzkt';
 import { fetchTokenBalances, fetchTokenBalancesCount } from 'lib/tzkt/client';
 
 import { useAccount, useChainId } from './ready';
-import { useSyncTokens } from './sync-tokens';
 
-export const useInfiniteLoadingTokens = () => {
-  const { setTokens, sync } = useSyncTokens();
+export const [FungibleTokensBalancesProvider, useFungibleTokensBalances] = constate(() => {
   const chainId = useChainId(true)!;
   const account = useAccount();
   const address = account.publicKeyHash;
@@ -17,6 +17,13 @@ export const useInfiniteLoadingTokens = () => {
   const initialPageLoaded = useRef(false);
   const [hasMore, setHasMore] = useState(true);
 
+  useEffect(() => {
+    if (initialPageLoaded.current) {
+      initialPageLoaded.current = false;
+      // setItems([]);
+    }
+  }, [address, chainId]);
+
   const loadItems = useCallback(async () => {
     setIsLoading(true);
     const count = await fetchTokenBalancesCount(chainId, address);
@@ -24,10 +31,8 @@ export const useInfiniteLoadingTokens = () => {
     pageToLoad.current = pageToLoad.current + 1;
     setHasMore(items.length < count);
     setItems(prevItems => [...prevItems, ...data]);
-    setTokens((prev: any) => [...prev, ...data]);
-    sync();
     setIsLoading(false);
-  }, [address, chainId, items.length, setTokens, sync]);
+  }, [address, chainId, items.length]);
 
   useEffect(() => {
     if (initialPageLoaded.current) {
@@ -43,6 +48,7 @@ export const useInfiniteLoadingTokens = () => {
     items,
     hasMore,
     isLoading,
+    setItems,
     loadItems
   };
-};
+});

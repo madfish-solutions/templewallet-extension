@@ -23,10 +23,11 @@ import { fetchWhitelistTokenSlugs } from 'lib/templewallet-api/whitelist-tokens'
 import { TzktAccountTokenBalance } from 'lib/tzkt';
 
 import { TempleChainId } from '../types';
+import { useFungibleTokensBalances } from './fungible-tokens-balances';
 
 export const [SyncTokensProvider, useSyncTokens] = constate(() => {
   const chainId = useChainId(true)!;
-  const [tokens, setTokens] = useState<Array<TzktAccountTokenBalance>>([]);
+  const { items: tokens } = useFungibleTokensBalances();
   const [nfts, setNfts] = useState<Array<TzktAccountTokenBalance>>([]);
   const { publicKeyHash: accountPkh } = useAccount();
 
@@ -35,6 +36,7 @@ export const [SyncTokensProvider, useSyncTokens] = constate(() => {
   const usdPrices = useUSDPrices();
 
   const sync = useCallback(async () => {
+    console.log('sync update');
     makeSync(
       accountPkh,
       chainId,
@@ -59,6 +61,7 @@ export const [SyncTokensProvider, useSyncTokens] = constate(() => {
 
   const syncRef = useRef(sync);
   useEffect(() => {
+    console.log('syncref update', tokens.length, accountPkh);
     syncRef.current = sync;
   }, [sync]);
 
@@ -76,6 +79,7 @@ export const [SyncTokensProvider, useSyncTokens] = constate(() => {
     let timeoutId: any;
 
     const syncAndDefer = async () => {
+      console.log('syncAndDefer call');
       try {
         await syncRef.current();
       } catch (err: any) {
@@ -87,17 +91,17 @@ export const [SyncTokensProvider, useSyncTokens] = constate(() => {
       }
     };
 
+    console.log('syncAndDefer launch');
+
     syncAndDefer();
 
     return () => clearTimeout(timeoutId);
-  }, [chainId, accountPkh]);
+  }, [chainId, accountPkh, tokens]);
 
   return {
     sync,
     tokens,
-    setTokens,
-    nfts,
-    setNfts
+    nfts
   };
 });
 
@@ -114,7 +118,7 @@ const makeSync = async (
   if (!chainId) return;
   const mainnet = chainId === TempleChainId.Mainnet;
 
-  console.log('make sync call');
+  console.log('make sync call', tzktTokens.length);
 
   const [displayedFungibleTokens, displayedCollectibleTokens, whitelistTokenSlugs] = await Promise.all([
     fetchDisplayedFungibleTokens(chainId, accountPkh),
