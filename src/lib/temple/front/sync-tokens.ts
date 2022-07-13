@@ -28,7 +28,7 @@ import { useFungibleTokensBalances } from './fungible-tokens-balances';
 export const [SyncTokensProvider, useSyncTokens] = constate(() => {
   const chainId = useChainId(true)!;
   const { items: tokens } = useFungibleTokensBalances();
-  const [nfts, setNfts] = useState<Array<TzktAccountTokenBalance>>([]);
+  const [nfts] = useState<Array<TzktAccountTokenBalance>>([]);
   const { publicKeyHash: accountPkh } = useAccount();
 
   const { allTokensBaseMetadataRef, setTokensBaseMetadata, setTokensDetailedMetadata, fetchMetadata } =
@@ -61,7 +61,7 @@ export const [SyncTokensProvider, useSyncTokens] = constate(() => {
 
   const syncRef = useRef(sync);
   useEffect(() => {
-    console.log('syncref update', tokens.length, accountPkh);
+    // console.log('syncref update', tokens.length, accountPkh);
     syncRef.current = sync;
   }, [sync]);
 
