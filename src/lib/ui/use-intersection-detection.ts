@@ -14,9 +14,13 @@ export const useIntersectionDetection = (ref: RefObject<HTMLDivElement>, callbac
         { rootMargin: '0px' }
       );
 
-      observer.observe(el);
+      if (el) {
+        observer.observe(el);
+      }
       return () => {
-        observer.unobserve(el);
+        if (el) {
+          observer.unobserve(el);
+        }
       };
     }
     return undefined;

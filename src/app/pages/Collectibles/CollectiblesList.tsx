@@ -97,9 +97,9 @@ const CollectiblesList = () => {
             ))}
           </>
         )}
-        {hasMore && <div ref={loadMoreRef} className="w-full flex justify-center mt-5 mb-3"></div>}
-        {hasMore && !canLoadMore.current && <ActivitySpinner />}
       </div>
+      {hasMore && <div ref={loadMoreRef} className="w-full flex justify-center mt-5 mb-3"></div>}
+      {hasMore && !canLoadMore.current && <ActivitySpinner />}
     </div>
   );
 };
