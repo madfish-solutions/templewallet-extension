@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import React, { FC, useEffect, useRef, useState } from 'react';
 
 import { AssetIcon } from 'app/templates/AssetIcon';
 import { useAssetMetadata } from 'lib/temple/front';
@@ -12,6 +12,28 @@ interface Props {
 
 const CollectibleItem: FC<Props> = ({ assetSlug, index, itemsLength }) => {
   const collectibleMetadata = useAssetMetadata(assetSlug)!;
+  const toDisplayRef = useRef<HTMLDivElement>(null);
+  const [displayed, setDisplayed] = useState(true);
+
+  useEffect(() => {
+    const el = toDisplayRef.current;
+    if (!displayed && 'IntersectionObserver' in window && el) {
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          if (entry.isIntersecting) {
+            setDisplayed(true);
+          }
+        },
+        { rootMargin: '0px' }
+      );
+
+      observer.observe(el);
+      return () => {
+        observer.unobserve(el);
+      };
+    }
+    return undefined;
+  }, [displayed, setDisplayed]);
   return (
     <Link to={`/collectible/${assetSlug}`}>
       <div className="flex items-center" style={index === itemsLength - 1 ? {} : { borderBottom: '1px solid #e2e8f0' }}>
@@ -20,7 +42,7 @@ const CollectibleItem: FC<Props> = ({ assetSlug, index, itemsLength }) => {
             style={{ borderRadius: '12px' }}
             className="border border-gray-300 w-16 h-16 flex items-center justify-center overflow-hidden p-2"
           >
-            <AssetIcon assetSlug={assetSlug} className="w-12 h-12" />
+            {displayed && <AssetIcon assetSlug={assetSlug} className="w-12 h-12" />}
           </div>
         </div>
         <div className="pl-2">

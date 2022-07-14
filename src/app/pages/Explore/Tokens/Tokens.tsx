@@ -185,8 +185,7 @@ const Tokens: FC = () => {
           )}
         >
           <TransitionGroup key={chainId}>
-            {filteredAssets.map((asset, i, arr) => {
-              const last = i === arr.length - 1;
+            {filteredAssets.map(asset => {
               const active = activeAsset ? asset === activeAsset : false;
 
               return (
@@ -202,7 +201,6 @@ const Tokens: FC = () => {
                 >
                   <ListItem
                     assetSlug={asset}
-                    last={last}
                     active={active}
                     accountPkh={account.publicKeyHash}
                     latestBalance={latestBalances[asset]}
@@ -244,13 +242,12 @@ export default Tokens;
 
 type ListItemProps = {
   assetSlug: string;
-  last: boolean;
   active: boolean;
   accountPkh: string;
   latestBalance?: string;
 };
 
-const ListItem = memo<ListItemProps>(({ assetSlug, last, active, accountPkh }) => {
+const ListItem = memo<ListItemProps>(({ assetSlug, active, accountPkh }) => {
   const metadata = useAssetMetadata(assetSlug);
 
   const balanceSWRKey = useBalanceSWRKey(assetSlug, accountPkh);
@@ -315,7 +312,7 @@ const ListItem = memo<ListItemProps>(({ assetSlug, last, active, accountPkh }) =
         'relative',
         'block w-full',
         'overflow-hidden',
-        !last && 'border-b border-gray-200',
+        'border-b border-gray-200',
         active ? 'bg-gray-100' : 'hover:bg-gray-100 focus:bg-gray-100',
         'flex items-center p-4',
         'text-gray-700',
