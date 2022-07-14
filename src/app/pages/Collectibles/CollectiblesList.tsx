@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef } from 'react';
+import React, { useCallback, useMemo, useRef } from 'react';
 
 import classNames from 'clsx';
 
@@ -18,6 +18,7 @@ import {
 } from 'lib/temple/front';
 import { useNonFungibleTokensBalances } from 'lib/temple/front/non-fungible-tokens-balances';
 import { TZKT_FETCH_QUERY_SIZE } from 'lib/tzkt';
+import { useIntersectionDetection } from 'lib/ui/use-intersection-detection';
 import { Link } from 'lib/woozie';
 
 const CollectiblesList = () => {
@@ -53,25 +54,13 @@ const CollectiblesList = () => {
     }
   }, [loadItems]);
 
-  useEffect(() => {
-    const el = loadMoreRef.current;
-    if ('IntersectionObserver' in window && el) {
-      const observer = new IntersectionObserver(
-        ([entry]) => {
-          if (entry.isIntersecting && !isLoading && hasMore && items.length >= TZKT_FETCH_QUERY_SIZE) {
-            handleLoadItems();
-          }
-        },
-        { rootMargin: '0px' }
-      );
-
-      observer.observe(el);
-      return () => {
-        observer.unobserve(el);
-      };
+  const handleIntersection = useCallback(() => {
+    if (!isLoading && hasMore && items.length >= TZKT_FETCH_QUERY_SIZE) {
+      handleLoadItems();
     }
-    return undefined;
-  }, [isLoading, handleLoadItems, hasMore, items.length]);
+  }, [handleLoadItems, isLoading, hasMore, items.length]);
+
+  useIntersectionDetection(loadMoreRef, handleIntersection);
 
   return (
     <div className={classNames('w-full max-w-sm mx-auto')}>

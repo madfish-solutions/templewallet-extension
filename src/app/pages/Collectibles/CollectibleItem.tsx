@@ -1,7 +1,8 @@
-import React, { FC, useEffect, useRef, useState } from 'react';
+import React, { FC, useCallback, useRef, useState } from 'react';
 
 import { AssetIcon } from 'app/templates/AssetIcon';
 import { useAssetMetadata } from 'lib/temple/front';
+import { useIntersectionDetection } from 'lib/ui/use-intersection-detection';
 import { Link } from 'lib/woozie';
 
 interface Props {
@@ -15,25 +16,12 @@ const CollectibleItem: FC<Props> = ({ assetSlug, index, itemsLength }) => {
   const toDisplayRef = useRef<HTMLDivElement>(null);
   const [displayed, setDisplayed] = useState(true);
 
-  useEffect(() => {
-    const el = toDisplayRef.current;
-    if (!displayed && 'IntersectionObserver' in window && el) {
-      const observer = new IntersectionObserver(
-        ([entry]) => {
-          if (entry.isIntersecting) {
-            setDisplayed(true);
-          }
-        },
-        { rootMargin: '0px' }
-      );
+  const handleIntersection = useCallback(() => {
+    setDisplayed(true);
+  }, [setDisplayed]);
 
-      observer.observe(el);
-      return () => {
-        observer.unobserve(el);
-      };
-    }
-    return undefined;
-  }, [displayed, setDisplayed]);
+  useIntersectionDetection(toDisplayRef, handleIntersection, !displayed);
+
   return (
     <Link to={`/collectible/${assetSlug}`}>
       <div className="flex items-center" style={index === itemsLength - 1 ? {} : { borderBottom: '1px solid #e2e8f0' }}>

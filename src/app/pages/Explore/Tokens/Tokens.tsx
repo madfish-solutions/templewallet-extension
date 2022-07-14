@@ -28,6 +28,7 @@ import {
 } from 'lib/temple/front';
 import { useFungibleTokensBalances } from 'lib/temple/front/fungible-tokens-balances';
 import { TZKT_FETCH_QUERY_SIZE } from 'lib/tzkt';
+import { useIntersectionDetection } from 'lib/ui/use-intersection-detection';
 import { Link, navigate } from 'lib/woozie';
 
 import { AssetsSelectors } from '../Assets.selectors';
@@ -126,25 +127,13 @@ const Tokens: FC = () => {
     }
   }, [loadItems]);
 
-  useEffect(() => {
-    const el = loadMoreRef.current;
-    if ('IntersectionObserver' in window && el) {
-      const observer = new IntersectionObserver(
-        ([entry]) => {
-          if (entry.isIntersecting && !isLoading && hasMore && items.length >= TZKT_FETCH_QUERY_SIZE) {
-            handleLoadItems();
-          }
-        },
-        { rootMargin: '0px' }
-      );
-
-      observer.observe(el);
-      return () => {
-        observer.unobserve(el);
-      };
+  const handleIntersection = useCallback(() => {
+    if (!isLoading && hasMore && items.length >= TZKT_FETCH_QUERY_SIZE) {
+      handleLoadItems();
     }
-    return undefined;
-  }, [isLoading, handleLoadItems, hasMore, items.length]);
+  }, [handleLoadItems, isLoading, hasMore, items.length]);
+
+  useIntersectionDetection(loadMoreRef, handleIntersection);
 
   return (
     <div className={classNames('w-full max-w-sm mx-auto')}>
@@ -256,25 +245,11 @@ const ListItem = memo<ListItemProps>(({ assetSlug, active, accountPkh }) => {
   const toDisplayRef = useRef<HTMLDivElement>(null);
   const [displayed, setDisplayed] = useState(balanceAlreadyLoaded);
 
-  useEffect(() => {
-    const el = toDisplayRef.current;
-    if (!displayed && 'IntersectionObserver' in window && el) {
-      const observer = new IntersectionObserver(
-        ([entry]) => {
-          if (entry.isIntersecting) {
-            setDisplayed(true);
-          }
-        },
-        { rootMargin: '0px' }
-      );
+  const handleIntersection = useCallback(() => {
+    setDisplayed(true);
+  }, [setDisplayed]);
 
-      observer.observe(el);
-      return () => {
-        observer.unobserve(el);
-      };
-    }
-    return undefined;
-  }, [displayed, setDisplayed]);
+  useIntersectionDetection(toDisplayRef, handleIntersection, !displayed);
 
   const renderBalancInToken = useCallback(
     (balance: BigNumber) => (
