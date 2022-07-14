@@ -261,7 +261,6 @@ const updateTokenSlugs = (
   };
 };
 
-// @ts-ignore
-function onlyUnique(value, index, self) {
+function onlyUnique(value: string, index: number, self: string[]) {
   return self.indexOf(value) === index;
 }
