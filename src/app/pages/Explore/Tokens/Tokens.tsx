@@ -6,7 +6,6 @@ import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import { cache } from 'swr';
 import { useDebounce } from 'use-debounce';
 
-import FormSecondaryButton from 'app/atoms/FormSecondaryButton';
 import Money from 'app/atoms/Money';
 import Spinner from 'app/atoms/Spinner/Spinner';
 import { ReactComponent as AddToListIcon } from 'app/icons/add-to-list.svg';
@@ -28,6 +27,7 @@ import {
   searchAssets
 } from 'lib/temple/front';
 import { useFungibleTokensBalances } from 'lib/temple/front/fungible-tokens-balances';
+import { TZKT_FETCH_QUERY_SIZE } from 'lib/tzkt';
 import { Link, navigate } from 'lib/woozie';
 
 import { AssetsSelectors } from '../Assets.selectors';
@@ -38,6 +38,8 @@ const Tokens: FC = () => {
   const chainId = useChainId(true)!;
   const account = useAccount();
   const address = account.publicKeyHash;
+
+  const loadMoreRef = useRef<HTMLDivElement>(null);
 
   const { hasMore, loadItems, isLoading, items } = useFungibleTokensBalances();
 
@@ -60,8 +62,6 @@ const Tokens: FC = () => {
 
     return { assetSlugs: slugs, latestBalances: balances };
   }, [tokens, allTokensBaseMetadata]);
-
-  console.log(assetSlugs.length, items.length);
 
   const [searchValue, setSearchValue] = useState('');
   const [searchFocused, setSearchFocused] = useState(false);
@@ -115,6 +115,26 @@ const Tokens: FC = () => {
     window.addEventListener('keyup', handleKeyup);
     return () => window.removeEventListener('keyup', handleKeyup);
   }, [activeAsset, setActiveIndex]);
+
+  useEffect(() => {
+    const el = loadMoreRef.current;
+    if ('IntersectionObserver' in window && el) {
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          if (entry.isIntersecting && !isLoading && hasMore && items.length >= TZKT_FETCH_QUERY_SIZE) {
+            loadItems();
+          }
+        },
+        { rootMargin: '0px' }
+      );
+
+      observer.observe(el);
+      return () => {
+        observer.unobserve(el);
+      };
+    }
+    return undefined;
+  }, [isLoading, loadItems, hasMore, items.length]);
 
   return (
     <div className={classNames('w-full max-w-sm mx-auto')}>
@@ -204,13 +224,8 @@ const Tokens: FC = () => {
           </p>
         </div>
       )}
-      {hasMore && (
-        <div className="w-full flex justify-center mt-5 mb-3">
-          <FormSecondaryButton disabled={isLoading} onClick={loadItems} small>
-            {isLoading ? <ActivitySpinner /> : <T id="loadMore" />}
-          </FormSecondaryButton>
-        </div>
-      )}
+      {hasMore && <div ref={loadMoreRef} className="w-full flex justify-center mt-5 mb-3"></div>}
+      {hasMore && isLoading && <ActivitySpinner />}
     </div>
   );
 };
