@@ -1,7 +1,8 @@
-import React, { useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 
 import classNames from 'clsx';
 
+import { ActivitySpinner } from 'app/atoms/ActivitySpinner';
 import { ReactComponent as AddToListIcon } from 'app/icons/add-to-list.svg';
 import CollectibleItem from 'app/pages/Collectibles/CollectibleItem';
 import { AssetsSelectors } from 'app/pages/Explore/Assets.selectors';
@@ -15,12 +16,17 @@ import {
   useCollectibleTokens,
   useFilteredAssets
 } from 'lib/temple/front';
+import { useNonFungibleTokensBalances } from 'lib/temple/front/non-fungible-tokens-balances';
+import { TZKT_FETCH_QUERY_SIZE } from 'lib/tzkt';
 import { Link } from 'lib/woozie';
 
 const CollectiblesList = () => {
   const chainId = useChainId(true)!;
   const account = useAccount();
   const address = account.publicKeyHash;
+  const loadMoreRef = useRef<HTMLDivElement>(null);
+  const canLoadMore = useRef(true);
+  const { hasMore, loadItems, isLoading, items } = useNonFungibleTokensBalances();
   const { data: collectibles = [] } = useCollectibleTokens(chainId, address, true);
 
   const allTokensBaseMetadata = useAllTokensBaseMetadata();
@@ -33,11 +39,39 @@ const CollectiblesList = () => {
         slugs.push(tokenSlug);
       }
     }
+    canLoadMore.current = true;
 
     return slugs;
   }, [collectibles, allTokensBaseMetadata]);
 
   const { filteredAssets, searchValue, setSearchValue } = useFilteredAssets(assetSlugs);
+
+  const handleLoadItems = useCallback(() => {
+    if (canLoadMore.current) {
+      canLoadMore.current = false;
+      loadItems();
+    }
+  }, [loadItems]);
+
+  useEffect(() => {
+    const el = loadMoreRef.current;
+    if ('IntersectionObserver' in window && el) {
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          if (entry.isIntersecting && !isLoading && hasMore && items.length >= TZKT_FETCH_QUERY_SIZE) {
+            handleLoadItems();
+          }
+        },
+        { rootMargin: '0px' }
+      );
+
+      observer.observe(el);
+      return () => {
+        observer.unobserve(el);
+      };
+    }
+    return undefined;
+  }, [isLoading, handleLoadItems, hasMore, items.length]);
 
   return (
     <div className={classNames('w-full max-w-sm mx-auto')}>
@@ -74,6 +108,8 @@ const CollectiblesList = () => {
             ))}
           </>
         )}
+        {hasMore && <div ref={loadMoreRef} className="w-full flex justify-center mt-5 mb-3"></div>}
+        {hasMore && !canLoadMore.current && <ActivitySpinner />}
       </div>
     </div>
   );

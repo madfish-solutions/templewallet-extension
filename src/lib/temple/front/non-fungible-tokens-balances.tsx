@@ -1,13 +1,13 @@
 import constate from 'constate';
 
-import { fetchTokenBalances, fetchTokenBalancesCount } from 'lib/tzkt/client';
+import { fetchNFTBalances, fetchNFTBalancesCount } from 'lib/tzkt/client';
 
 import { useInfiniteList } from './use-infinite-list';
 
-export const [FungibleTokensBalancesProvider, useFungibleTokensBalances] = constate(() => {
+export const [NonFungibleTokensBalancesProvider, useNonFungibleTokensBalances] = constate(() => {
   const { items, hasMore, isLoading, setItems, loadItems } = useInfiniteList({
-    getCount: fetchTokenBalancesCount,
-    getItems: fetchTokenBalances
+    getCount: fetchNFTBalancesCount,
+    getItems: fetchNFTBalances
   });
 
   return {

@@ -202,6 +202,18 @@ export const fetchTokenBalances = async (chainId: string, address: string, page 
   return balances;
 };
 
+export const fetchNFTBalancesCount = async (chainId: string, address: string) => {
+  if (!isKnownChainId(chainId) || !TZKT_API_BASE_URLS.has(chainId)) {
+    return 0;
+  }
+
+  const count = await getNFTBalancesCount(chainId, {
+    address
+  });
+
+  return count;
+};
+
 export const fetchNFTBalances = async (chainId: string, address: string, page = 0) => {
   if (!isKnownChainId(chainId) || !TZKT_API_BASE_URLS.has(chainId)) {
     return [];

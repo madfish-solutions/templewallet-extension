@@ -6,8 +6,8 @@ import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import { cache } from 'swr';
 import { useDebounce } from 'use-debounce';
 
+import { ActivitySpinner } from 'app/atoms/ActivitySpinner';
 import Money from 'app/atoms/Money';
-import Spinner from 'app/atoms/Spinner/Spinner';
 import { ReactComponent as AddToListIcon } from 'app/icons/add-to-list.svg';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
 import { AssetIcon } from 'app/templates/AssetIcon';
@@ -40,6 +40,7 @@ const Tokens: FC = () => {
   const address = account.publicKeyHash;
 
   const loadMoreRef = useRef<HTMLDivElement>(null);
+  const canLoadMore = useRef(true);
 
   const { hasMore, loadItems, isLoading, items } = useFungibleTokensBalances();
 
@@ -59,6 +60,8 @@ const Tokens: FC = () => {
         balances[tokenSlug] = latestBalance;
       }
     }
+
+    canLoadMore.current = true;
 
     return { assetSlugs: slugs, latestBalances: balances };
   }, [tokens, allTokensBaseMetadata]);
@@ -116,13 +119,20 @@ const Tokens: FC = () => {
     return () => window.removeEventListener('keyup', handleKeyup);
   }, [activeAsset, setActiveIndex]);
 
+  const handleLoadItems = useCallback(() => {
+    if (canLoadMore.current) {
+      canLoadMore.current = false;
+      loadItems();
+    }
+  }, [loadItems]);
+
   useEffect(() => {
     const el = loadMoreRef.current;
     if ('IntersectionObserver' in window && el) {
       const observer = new IntersectionObserver(
         ([entry]) => {
           if (entry.isIntersecting && !isLoading && hasMore && items.length >= TZKT_FETCH_QUERY_SIZE) {
-            loadItems();
+            handleLoadItems();
           }
         },
         { rootMargin: '0px' }
@@ -134,7 +144,7 @@ const Tokens: FC = () => {
       };
     }
     return undefined;
-  }, [isLoading, loadItems, hasMore, items.length]);
+  }, [isLoading, handleLoadItems, hasMore, items.length]);
 
   return (
     <div className={classNames('w-full max-w-sm mx-auto')}>
@@ -225,18 +235,12 @@ const Tokens: FC = () => {
         </div>
       )}
       {hasMore && <div ref={loadMoreRef} className="w-full flex justify-center mt-5 mb-3"></div>}
-      {hasMore && isLoading && <ActivitySpinner />}
+      {hasMore && !canLoadMore.current && <ActivitySpinner />}
     </div>
   );
 };
 
 export default Tokens;
-
-const ActivitySpinner = memo(() => (
-  <div className="w-full flex items-center justify-center overflow-hidden" style={{ height: '21px' }}>
-    <Spinner theme="gray" className="w-16" />
-  </div>
-));
 
 type ListItemProps = {
   assetSlug: string;
