@@ -153,7 +153,7 @@ const ListItem = memo<ListItemProps>(({ assetSlug, last, checked, onUpdate, asse
   const metadata = useAssetMetadata(assetSlug);
 
   const handleCheckboxChange = useCallback(
-    evt => {
+    (evt: React.ChangeEvent<HTMLInputElement>) => {
       onUpdate(assetSlug, evt.target.checked ? ITokenStatus.Enabled : ITokenStatus.Disabled);
     },
     [assetSlug, onUpdate]

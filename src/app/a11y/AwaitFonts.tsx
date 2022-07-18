@@ -3,11 +3,13 @@ import React, { FC } from 'react';
 import FontFaceObserver from 'fontfaceobserver';
 import useSWR from 'swr';
 
-type AwaitFontsProps = {
+import { PropsWithChildren } from 'lib/props-with-children';
+
+interface AwaitFontsProps extends PropsWithChildren {
   name: string;
   weights: number[];
   className: string;
-};
+}
 
 const AwaitFonts: FC<AwaitFontsProps> = ({ name, weights, className, children }) => {
   useSWR([name, weights, className], awaitFonts, {

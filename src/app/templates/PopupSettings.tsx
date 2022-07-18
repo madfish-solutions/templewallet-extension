@@ -10,7 +10,7 @@ const PopupSettings: FC<{}> = () => {
   const [error, setError] = useState<any>(null);
 
   const handlePopupModeChange = useCallback(
-    evt => {
+    (evt: React.ChangeEvent<HTMLInputElement>) => {
       if (changingRef.current) return;
       changingRef.current = true;
       setError(null);

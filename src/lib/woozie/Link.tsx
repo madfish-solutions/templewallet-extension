@@ -50,7 +50,7 @@ const LinkAnchor: FC<LinkAnchorProps> = ({
   const { trackEvent } = useAnalytics();
 
   const handleClick = useCallback(
-    evt => {
+    (evt: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
       testID !== undefined && trackEvent(testID, AnalyticsEventCategory.ButtonPress, testIDProperties);
 
       try {
@@ -82,6 +82,6 @@ const LinkAnchor: FC<LinkAnchorProps> = ({
   );
 };
 
-function isModifiedEvent(event: MouseEvent) {
+function isModifiedEvent(event: React.MouseEvent<HTMLAnchorElement, MouseEvent>) {
   return !!(event.metaKey || event.altKey || event.ctrlKey || event.shiftKey);
 }

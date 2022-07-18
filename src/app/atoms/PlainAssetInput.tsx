@@ -32,7 +32,7 @@ const PlainAssetInput: FC<PlainAssetInputProps> = ({
   }, [setLocalValue, focused, valueStr]);
 
   const handleChange = useCallback(
-    evt => {
+    (evt: React.ChangeEvent<HTMLInputElement>) => {
       let val = evt.target.value.replace(/ /g, '').replace(/,/g, '.');
       let numVal = new BigNumber(val || 0);
       const indexOfDot = val.indexOf('.');
@@ -52,7 +52,7 @@ const PlainAssetInput: FC<PlainAssetInputProps> = ({
   );
 
   const handleFocus = useCallback(
-    evt => {
+    (evt: React.FocusEvent<HTMLInputElement>) => {
       setFocused(true);
       if (onFocus) {
         onFocus(evt);
@@ -65,7 +65,7 @@ const PlainAssetInput: FC<PlainAssetInputProps> = ({
   );
 
   const handleBlur = useCallback(
-    evt => {
+    (evt: React.FocusEvent<HTMLInputElement>) => {
       setFocused(false);
       if (onBlur) {
         onBlur(evt);

@@ -1,6 +1,6 @@
 import React, { FC, useCallback, useEffect, useMemo, useRef } from 'react';
 
-import { useForm } from 'react-hook-form';
+import { OnSubmit, useForm } from 'react-hook-form';
 
 import FormField from 'app/atoms/FormField';
 import FormSubmitButton from 'app/atoms/FormSubmitButton';
@@ -49,7 +49,7 @@ const CreateAccount: FC = () => {
   });
   const submitting = formState.isSubmitting;
 
-  const onSubmit = useCallback(
+  const onSubmit = useCallback<OnSubmit<FormData>>(
     async ({ name }) => {
       if (submitting) return;
 

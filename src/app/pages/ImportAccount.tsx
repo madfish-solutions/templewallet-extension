@@ -527,7 +527,7 @@ const FromFaucetForm: FC = () => {
   const handleTextFieldFocus = useCallback(() => textFieldRef.current?.focus(), []);
   const cleanTextField = useCallback(() => setValue('text', ''), [setValue]);
 
-  const handleFormSubmit = useCallback(evt => {
+  const handleFormSubmit = useCallback((evt: React.FormEvent<HTMLFormElement>) => {
     evt.preventDefault();
   }, []);
 

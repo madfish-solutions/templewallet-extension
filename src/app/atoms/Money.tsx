@@ -159,7 +159,7 @@ const MoneyWithFormat: FC<MoneyWithFormatProps> = ({
   </FullAmountTippy>
 );
 
-type FullAmountTippyProps = HTMLAttributes<HTMLButtonElement> & {
+type FullAmountTippyProps = HTMLAttributes<HTMLDivElement> & {
   fullAmount: BigNumber;
   showAmountTooltip?: boolean;
   enabled?: boolean;
@@ -210,7 +210,7 @@ const FullAmountTippy: FC<FullAmountTippyProps> = ({
   const ref = useTippy<HTMLDivElement>(tippyProps);
 
   const handleClick = useCallback(
-    evt => {
+    (evt: React.MouseEvent<HTMLDivElement>) => {
       evt.preventDefault();
       evt.stopPropagation();
 

@@ -12,6 +12,7 @@ import Balance from 'app/templates/Balance';
 import InFiat from 'app/templates/InFiat';
 import { useAssetFiatCurrencyPrice } from 'lib/fiat-curency';
 import { T } from 'lib/i18n/react';
+import { PropsWithChildren } from 'lib/props-with-children';
 import {
   getAssetName,
   getAssetSymbol,
@@ -126,9 +127,9 @@ const AssetBanner: FC<AssetBannerProps> = ({ assetSlug, accountPkh }) => {
   );
 };
 
-type BannerLayoutProps = {
+interface BannerLayoutProps extends PropsWithChildren {
   name: ReactNode;
-};
+}
 
 const BannerLayout: FC<BannerLayoutProps> = ({ name, children }) => (
   <div className={classNames('w-full mx-auto', 'pt-1', 'flex flex-col items-center max-w-sm px-6')}>

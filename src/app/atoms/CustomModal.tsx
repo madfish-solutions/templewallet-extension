@@ -1,11 +1,11 @@
-import React, { FC, ReactChild } from 'react';
+import React, { FC } from 'react';
 
 import classNames from 'clsx';
 import Modal from 'react-modal';
 
-export type CustomModalProps = Modal.Props & {
-  children?: ReactChild | ReactChild[];
-};
+import { PropsWithChildren } from 'lib/props-with-children';
+
+export type CustomModalProps = Modal.Props & Partial<PropsWithChildren>;
 
 const CustomModal: FC<CustomModalProps> = props => {
   const { className, overlayClassName, ...restProps } = props;

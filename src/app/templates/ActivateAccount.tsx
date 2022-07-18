@@ -1,4 +1,4 @@
-import React, { FC, ReactNode, useCallback, useMemo, useState } from 'react';
+import React, { FC, KeyboardEventHandler, ReactNode, useCallback, useMemo, useState } from 'react';
 
 import { useForm } from 'react-hook-form';
 
@@ -74,7 +74,7 @@ const ActivateAccount: FC = () => {
 
   const submit = useMemo(() => handleSubmit(onSubmit), [handleSubmit, onSubmit]);
 
-  const handleSecretFieldKeyPress = useCallback(
+  const handleSecretFieldKeyPress = useCallback<KeyboardEventHandler>(
     evt => {
       if (evt.which === 13 && !evt.shiftKey) {
         evt.preventDefault();

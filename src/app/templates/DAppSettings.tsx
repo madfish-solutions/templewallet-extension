@@ -39,7 +39,7 @@ const DAppSettings: FC = () => {
   const [error, setError] = useState<any>(null);
 
   const handleChange = useCallback(
-    async evt => {
+    async (evt: React.ChangeEvent<HTMLInputElement>) => {
       if (changingRef.current) return;
       changingRef.current = true;
       setError(null);

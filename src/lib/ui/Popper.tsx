@@ -45,16 +45,17 @@ const Popper = memo<PopperProps>(({ popup, children, fallbackPlacementsEnabled =
     setOpened(o => !o);
   }, [setOpened]);
 
-  const handleClickOuside = useCallback(
-    evt => {
-      if (!(triggerRef.current && triggerRef.current.contains(evt.target))) {
-        setOpened(false);
-      }
-    },
-    [setOpened]
+  useOnClickOutside(
+    popupRef,
+    opened
+      ? evt => {
+          // @ts-ignore
+          if (!(triggerRef.current && triggerRef.current.contains(evt.target))) {
+            setOpened(false);
+          }
+        }
+      : null
   );
-
-  useOnClickOutside(popupRef, opened ? handleClickOuside : null);
 
   const finalOptions = useMemo(
     () => ({
