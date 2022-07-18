@@ -28,7 +28,7 @@ const Activity = memo<ActivityProps>(({ address, assetSlug, className }) => {
   const {
     data: latestOperations,
     isValidating: fetching,
-    revalidate: refetchLatest
+    mutate: refetchLatest
   } = useRetryableSWR(
     ['latest-operations', chainId, address, assetSlug],
     () =>

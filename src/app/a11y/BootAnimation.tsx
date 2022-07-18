@@ -21,7 +21,6 @@ const BootAnimation: FC<PropsWithChildren> = ({ children }) => {
         enterActive: classNames('opacity-100', 'transition ease-out duration-200'),
         exit: classNames('opacity-0', 'transition ease-in duration-200')
       }}
-      unmountOnExit
     >
       {children}
     </CSSTransition>

@@ -2,7 +2,8 @@ import { useCallback, useEffect, useRef } from 'react';
 
 import BigNumber from 'bignumber.js';
 import constate from 'constate';
-import { trigger } from 'swr';
+import { useSWRConfig } from 'swr';
+import { ScopedMutator } from 'swr/dist/types';
 
 import {
   useChainId,
@@ -26,6 +27,7 @@ import { getTokenBalances, getTokenBalancesCount, TzktAccountTokenBalance, TZKT_
 import { TempleChainId } from '../types';
 
 export const [SyncTokensProvider] = constate(() => {
+  const { mutate } = useSWRConfig();
   const chainId = useChainId(true)!;
   const { publicKeyHash: accountPkh } = useAccount();
 
@@ -41,7 +43,8 @@ export const [SyncTokensProvider] = constate(() => {
       setTokensBaseMetadata,
       setTokensDetailedMetadata,
       usdPrices,
-      fetchMetadata
+      fetchMetadata,
+      mutate
     );
   }, [
     accountPkh,
@@ -50,7 +53,8 @@ export const [SyncTokensProvider] = constate(() => {
     setTokensBaseMetadata,
     setTokensDetailedMetadata,
     usdPrices,
-    fetchMetadata
+    fetchMetadata,
+    mutate
   ]);
 
   const syncRef = useRef(sync);
@@ -129,7 +133,8 @@ const makeSync = async (
   setTokensBaseMetadata: any,
   setTokensDetailedMetadata: any,
   usdPrices: Record<string, string>,
-  fetchMetadata: any
+  fetchMetadata: any,
+  mutate: ScopedMutator<any>
 ) => {
   if (!chainId) return;
   const mainnet = chainId === TempleChainId.Mainnet;
@@ -212,7 +217,7 @@ const makeSync = async (
     tokenRepoKeys
   );
 
-  trigger(['displayed-fungible-tokens', chainId, accountPkh], true);
+  mutate(['displayed-fungible-tokens', chainId, accountPkh]);
 };
 
 const generateMetadataRequest = async (slug: string, mainnet: boolean, fetchMetadata: any) => {

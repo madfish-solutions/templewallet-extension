@@ -44,11 +44,11 @@ type ImportAccountProps = {
   tabSlug: string | null;
 };
 
-type ImportTabDescriptor = {
+interface ImportTabDescriptor {
   slug: string;
   i18nKey: string;
   Form: FC<{}>;
-};
+}
 
 const ImportAccount: FC<ImportAccountProps> = ({ tabSlug }) => {
   const network = useNetwork();

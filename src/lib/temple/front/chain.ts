@@ -2,22 +2,23 @@ import { useCallback, useEffect, useRef } from 'react';
 
 import { Subscription } from '@taquito/taquito';
 import constate from 'constate';
-import { trigger } from 'swr';
+import { useSWRConfig } from 'swr';
 
 import { useTezos, useRelevantAccounts, getBalanceSWRKey, confirmOperation } from 'lib/temple/front';
 
 export const [NewBlockTriggersProvider, useBlockTriggers] = constate(useNewBlockTriggers);
 
 function useNewBlockTriggers() {
+  const { mutate } = useSWRConfig();
   const tezos = useTezos();
   const allAccounts = useRelevantAccounts();
 
   const triggerNewBlock = useCallback(() => {
     for (const acc of allAccounts) {
-      trigger(getBalanceSWRKey(tezos, 'tez', acc.publicKeyHash), true);
-      trigger(['delegate', tezos.checksum, acc.publicKeyHash], true);
+      mutate(getBalanceSWRKey(tezos, 'tez', acc.publicKeyHash));
+      mutate(['delegate', tezos.checksum, acc.publicKeyHash]);
     }
-  }, [allAccounts, tezos]);
+  }, [allAccounts, mutate, tezos]);
 
   useOnBlock(triggerNewBlock);
 
