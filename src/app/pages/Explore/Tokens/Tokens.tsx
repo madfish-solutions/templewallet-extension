@@ -6,6 +6,7 @@ import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import { cache } from 'swr';
 import { useDebounce } from 'use-debounce';
 
+import { ActivitySpinner } from 'app/atoms/ActivitySpinner';
 import Money from 'app/atoms/Money';
 import { ReactComponent as AddToListIcon } from 'app/icons/add-to-list.svg';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
@@ -25,6 +26,9 @@ import {
   useAllTokensBaseMetadata,
   searchAssets
 } from 'lib/temple/front';
+import { useFungibleTokensBalances } from 'lib/temple/front/fungible-tokens-balances';
+import { TZKT_FETCH_QUERY_SIZE } from 'lib/tzkt';
+import { useIntersectionDetection } from 'lib/ui/use-intersection-detection';
 import { Link, navigate } from 'lib/woozie';
 
 import { AssetsSelectors } from '../Assets.selectors';
@@ -35,6 +39,11 @@ const Tokens: FC = () => {
   const chainId = useChainId(true)!;
   const account = useAccount();
   const address = account.publicKeyHash;
+
+  const loadMoreRef = useRef<HTMLDivElement>(null);
+  const canLoadMore = useRef(true);
+
+  const { hasMore, loadItems, isLoading, items } = useFungibleTokensBalances();
 
   const { data: tokens = [] } = useDisplayedFungibleTokens(chainId, address);
 
@@ -52,6 +61,8 @@ const Tokens: FC = () => {
         balances[tokenSlug] = latestBalance;
       }
     }
+
+    canLoadMore.current = true;
 
     return { assetSlugs: slugs, latestBalances: balances };
   }, [tokens, allTokensBaseMetadata]);
@@ -109,6 +120,21 @@ const Tokens: FC = () => {
     return () => window.removeEventListener('keyup', handleKeyup);
   }, [activeAsset, setActiveIndex]);
 
+  const handleLoadItems = useCallback(() => {
+    if (canLoadMore.current) {
+      canLoadMore.current = false;
+      loadItems();
+    }
+  }, [loadItems]);
+
+  const handleIntersection = useCallback(() => {
+    if (!isLoading && hasMore && items.length >= TZKT_FETCH_QUERY_SIZE) {
+      handleLoadItems();
+    }
+  }, [handleLoadItems, isLoading, hasMore, items.length]);
+
+  useIntersectionDetection(loadMoreRef, handleIntersection);
+
   return (
     <div className={classNames('w-full max-w-sm mx-auto')}>
       <div className="mt-1 mb-3 w-full flex items-strech">
@@ -148,8 +174,7 @@ const Tokens: FC = () => {
           )}
         >
           <TransitionGroup key={chainId}>
-            {filteredAssets.map((asset, i, arr) => {
-              const last = i === arr.length - 1;
+            {filteredAssets.map(asset => {
               const active = activeAsset ? asset === activeAsset : false;
 
               return (
@@ -165,7 +190,6 @@ const Tokens: FC = () => {
                 >
                   <ListItem
                     assetSlug={asset}
-                    last={last}
                     active={active}
                     accountPkh={account.publicKeyHash}
                     latestBalance={latestBalances[asset]}
@@ -197,6 +221,8 @@ const Tokens: FC = () => {
           </p>
         </div>
       )}
+      {hasMore && <div ref={loadMoreRef} className="w-full flex justify-center mt-5 mb-3"></div>}
+      {hasMore && !canLoadMore.current && <ActivitySpinner />}
     </div>
   );
 };
@@ -205,13 +231,12 @@ export default Tokens;
 
 type ListItemProps = {
   assetSlug: string;
-  last: boolean;
   active: boolean;
   accountPkh: string;
   latestBalance?: string;
 };
 
-const ListItem = memo<ListItemProps>(({ assetSlug, last, active, accountPkh }) => {
+const ListItem = memo<ListItemProps>(({ assetSlug, active, accountPkh }) => {
   const metadata = useAssetMetadata(assetSlug);
 
   const balanceSWRKey = useBalanceSWRKey(assetSlug, accountPkh);
@@ -220,25 +245,11 @@ const ListItem = memo<ListItemProps>(({ assetSlug, last, active, accountPkh }) =
   const toDisplayRef = useRef<HTMLDivElement>(null);
   const [displayed, setDisplayed] = useState(balanceAlreadyLoaded);
 
-  useEffect(() => {
-    const el = toDisplayRef.current;
-    if (!displayed && 'IntersectionObserver' in window && el) {
-      const observer = new IntersectionObserver(
-        ([entry]) => {
-          if (entry.isIntersecting) {
-            setDisplayed(true);
-          }
-        },
-        { rootMargin: '0px' }
-      );
+  const handleIntersection = useCallback(() => {
+    setDisplayed(true);
+  }, [setDisplayed]);
 
-      observer.observe(el);
-      return () => {
-        observer.unobserve(el);
-      };
-    }
-    return undefined;
-  }, [displayed, setDisplayed]);
+  useIntersectionDetection(toDisplayRef, handleIntersection, !displayed);
 
   const renderBalancInToken = useCallback(
     (balance: BigNumber) => (
@@ -276,7 +287,7 @@ const ListItem = memo<ListItemProps>(({ assetSlug, last, active, accountPkh }) =
         'relative',
         'block w-full',
         'overflow-hidden',
-        !last && 'border-b border-gray-200',
+        'border-b border-gray-200',
         active ? 'bg-gray-100' : 'hover:bg-gray-100 focus:bg-gray-100',
         'flex items-center p-4',
         'text-gray-700',
