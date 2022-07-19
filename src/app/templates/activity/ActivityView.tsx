@@ -2,8 +2,8 @@ import React, { memo } from 'react';
 
 import classNames from 'clsx';
 
+import { ActivitySpinner } from 'app/atoms/ActivitySpinner';
 import FormSecondaryButton from 'app/atoms/FormSecondaryButton';
-import Spinner from 'app/atoms/Spinner/Spinner';
 import { ReactComponent as LayersIcon } from 'app/icons/layers.svg';
 import { T } from 'lib/i18n/react';
 import * as Repo from 'lib/temple/repo';
@@ -28,7 +28,7 @@ const ActivityView = memo<ActivityViewProps>(
 
     if (noOperations) {
       return initialLoading ? (
-        <ActivitySpinner />
+        <ActivitySpinner height="2.5rem" />
       ) : (
         <div className={classNames('mt-4 mb-12', 'flex flex-col items-center justify-center', 'text-gray-500')}>
           <LayersIcon className="w-16 h-auto mb-2 stroke-current" />
@@ -49,7 +49,7 @@ const ActivityView = memo<ActivityViewProps>(
         </div>
 
         {loadingMore ? (
-          <ActivitySpinner />
+          <ActivitySpinner height="2.5rem" />
         ) : (
           <div className="w-full flex justify-center mt-5 mb-3">
             <FormSecondaryButton disabled={!loadMoreDisplayed} onClick={loadMore} small>
@@ -61,11 +61,5 @@ const ActivityView = memo<ActivityViewProps>(
     );
   }
 );
-
-const ActivitySpinner = memo(() => (
-  <div className="w-full flex items-center justify-center mt-5 mb-3" style={{ height: '2.5rem' }}>
-    <Spinner theme="gray" className="w-16" />
-  </div>
-));
 
 export default ActivityView;

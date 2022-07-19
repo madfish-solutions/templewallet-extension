@@ -1,16 +1,18 @@
 import React, { ChangeEvent, useCallback, useEffect, useMemo, useState } from 'react';
 
 import { useAnalyticsState } from '../../../../lib/analytics/use-analytics-state.hook';
-import { T } from '../../../../lib/i18n/react';
+import { t, T } from '../../../../lib/i18n/react';
 import makeBuildQueryFn from '../../../../lib/makeBuildQueryFn';
 import { useAccount } from '../../../../lib/temple/front';
+import Alert from '../../../atoms/Alert';
 import FormSubmitButton from '../../../atoms/FormSubmitButton';
 import { TopUpInput } from '../../../atoms/TopUpInput/TopUpInput';
+import { ReactComponent as AttentionRedIcon } from '../../../icons/attentionRed.svg';
 import PageLayout from '../../../layouts/PageLayout';
 import styles from '../../BuyCrypto/BuyCrypto.module.css';
 import { SelectCryptoSelectors } from '../SelectCrypto.selectors';
 
-const buildQuery = makeBuildQueryFn<Record<string, string>, any>('https://temple-api.stage.madservice.xyz');
+const buildQuery = makeBuildQueryFn<Record<string, string>, any>('https://temple-api.production.madservice.xyz');
 const getSignedAliceBobUrl = buildQuery('GET', '/api/alice-bob-sign', ['amount', 'userId', 'walletAddress']);
 const getAliceBobPairInfo = buildQuery('GET', '/api/alice-bob-pair-info');
 
@@ -23,15 +25,22 @@ export const AliceBob = () => {
 
   const [amount, setAmount] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+  const isError = useMemo(
+    () => minExchangeAmount === 0 && maxExchangeAmount === 0,
+    [minExchangeAmount, maxExchangeAmount]
+  );
 
   useEffect(() => {
     (async () => {
-      try {
-        const response = await getAliceBobPairInfo({});
-
-        setMinExchangeAmount(response.minAmount);
-        setMaxExchangeAmount(response.maxAmount);
-      } catch {}
+      getAliceBobPairInfo({})
+        .then(response => {
+          setMinExchangeAmount(response.minAmount);
+          setMaxExchangeAmount(response.maxAmount);
+        })
+        .catch(() => {
+          setMinExchangeAmount(0);
+          setMaxExchangeAmount(0);
+        });
     })();
   }, []);
 
@@ -76,6 +85,14 @@ export const AliceBob = () => {
         <h3 className="mb-6" style={{ fontSize: 17 }}>
           <T id="enterAmount" />
         </h3>
+        {isError && (
+          <div className="flex w-full justify-center mb-6 text-red-600" style={{ fontSize: 17 }}>
+            <AttentionRedIcon />
+            <h3 className="ml-1">
+              <T id="aliceBobError" />
+            </h3>
+          </div>
+        )}
         <TopUpInput
           type="fiat"
           currency="UAH"

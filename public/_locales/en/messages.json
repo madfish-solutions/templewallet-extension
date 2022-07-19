@@ -2587,5 +2587,8 @@
   },
   "scanQRWithTempleMobile": {
     "message": "Scan this QR-code with yor Temple Wallet Mobile app."
+  },
+  "aliceBobError": {
+    "message": "Sorry, service is temporarily unavailable. Try again later!"
   }
 }

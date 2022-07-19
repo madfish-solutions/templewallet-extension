@@ -33,9 +33,8 @@ export async function fetchDisplayedFungibleTokens(chainId: string, account: str
   return Repo.accountTokens
     .where({ type: Repo.ITokenType.Fungible, chainId, account })
     .filter(isTokenDisplayed)
-    .reverse()
-    .sortBy('addedAt')
-    .then(items => items.sort(compareAccountTokensByUSDBalance));
+    .sortBy('order')
+    .then(items => items);
 }
 
 export async function fetchFungibleTokens(chainId: string, account: string) {
@@ -46,8 +45,7 @@ export async function fetchCollectibleTokens(chainId: string, account: string, i
   return Repo.accountTokens
     .where({ type: Repo.ITokenType.Collectible, chainId, account })
     .filter(accountToken => (isDisplayed ? isTokenDisplayed(accountToken) : true))
-    .reverse()
-    .sortBy('addedAt');
+    .sortBy('order');
 }
 
 export async function fetchAllKnownFungibleTokenSlugs(chainId: string) {
