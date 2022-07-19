@@ -71,7 +71,7 @@ export const getCurrencies = async () => {
     page++;
     result = await getCurrency(page);
     if (result && result.data) {
-      totalData.concat(result.data);
+      totalData = totalData.concat(result.data);
     }
   }
   return totalData;
