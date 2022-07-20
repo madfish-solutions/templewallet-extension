@@ -1,6 +1,16 @@
 import { getMessage } from 'lib/i18n';
 import { TempleChainId, TempleNetwork } from 'lib/temple/types';
 
+const formatDateToRPCFormat = (date: Date) => date.toLocaleDateString('en-GB').split('/').reverse().join('-');
+
+const getLastMonday = (date = new Date()) => {
+  const dateCopy = new Date(date.getTime() - 604800000);
+
+  const nextMonday = new Date(dateCopy.setDate(dateCopy.getDate() + ((7 - dateCopy.getDay() + 1) % 7 || 7)));
+
+  return formatDateToRPCFormat(nextMonday);
+};
+
 export const NETWORK_IDS = new Map<string, string>([
   [TempleChainId.Mainnet, 'mainnet'],
   [TempleChainId.Ghostnet, 'ghostnet'],
@@ -70,6 +80,33 @@ export const NETWORKS: TempleNetwork[] = [
     type: 'test',
     rpcBaseURL: 'https://jakartanet.tezos.marigold.dev/',
     color: '#232380',
+    disabled: false
+  },
+  {
+    id: 'katmandu',
+    name: 'Katmandu Testnet',
+    description: 'Katmandu testnet',
+    type: 'test',
+    rpcBaseURL: 'https://rpc.kathmandunet.teztnets.xyz/',
+    color: '#FBBF24',
+    disabled: false
+  },
+  {
+    id: 'monday',
+    name: 'MondayNet',
+    description: `MondayNet ${getLastMonday()}`,
+    type: 'test',
+    rpcBaseURL: `https://rpc.mondaynet-${getLastMonday()}.teztnets.xyz/`,
+    color: '#FBBF24',
+    disabled: false
+  },
+  {
+    id: 'daily',
+    name: 'DailyNet',
+    description: 'DailyNet',
+    type: 'test',
+    rpcBaseURL: `https://rpc.dailynet-${formatDateToRPCFormat(new Date())}.teztnets.xyz/`,
+    color: '#FBBF24',
     disabled: false
   },
   {
