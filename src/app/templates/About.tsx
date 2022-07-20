@@ -1,5 +1,6 @@
 import React, { FC } from 'react';
 
+import ABContainer from 'app/atoms/ABContainer';
 import Logo from 'app/atoms/Logo';
 import SubTitle from 'app/atoms/SubTitle';
 import { T } from 'lib/i18n/react';
@@ -16,6 +17,7 @@ const About: FC = () => (
           substitutions={[
             <span className="font-bold" key="version">
               {process.env.VERSION}
+              <ABContainer groupAComponent={'A'} groupBComponent={'B'} />
             </span>
           ]}
         >
