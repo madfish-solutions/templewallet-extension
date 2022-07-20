@@ -14,7 +14,9 @@ const ABContainer: FC<ABContainerProps> = ({ groupAComponent, groupBComponent })
   const { pageEvent } = useAnalytics();
 
   useEffect(() => {
-    pageEvent('ABTest', abGroup);
+    if (abGroup !== ABTestGroup.Unknown) {
+      pageEvent('ABTest', abGroup);
+    }
   }, [abGroup, pageEvent]);
 
   return abGroup === ABTestGroup.B ? <>{groupBComponent}</> : <>{groupAComponent}</>;
