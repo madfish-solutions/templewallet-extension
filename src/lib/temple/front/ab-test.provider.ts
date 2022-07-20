@@ -24,8 +24,10 @@ export const [ABTestGroupProvider, useABGroup] = constate((params: { suspense?: 
 
   useEffect(() => {
     const getData = async () => {
-      const data = await fetchABGroup();
-      if (localABGroup === ABTestGroup.Unknown) setLocalABGroup(data?.ab ?? ABTestGroup.A);
+      if (localABGroup === ABTestGroup.Unknown) {
+        const data = await fetchABGroup();
+        setLocalABGroup(data?.ab ?? ABTestGroup.Unknown);
+      }
     };
     getData();
   }, [setLocalABGroup, localABGroup]);
