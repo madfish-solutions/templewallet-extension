@@ -1,6 +1,6 @@
-import React, { FC, ReactNode, useEffect } from 'react';
+import React, { FC, ReactNode, useCallback } from 'react';
 
-import { useAnalytics } from 'lib/analytics';
+import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
 import { useAB } from 'lib/temple/front';
 import { ABTestGroup } from 'lib/templewallet-api';
 
@@ -11,15 +11,15 @@ interface ABContainerProps {
 
 const ABContainer: FC<ABContainerProps> = ({ groupAComponent, groupBComponent }) => {
   const abGroup = useAB();
-  const { pageEvent } = useAnalytics();
+  const { trackABEvent } = useAnalytics();
 
-  useEffect(() => {
-    if (abGroup !== ABTestGroup.Unknown) {
-      pageEvent('ABTest', abGroup);
-    }
-  }, [abGroup, pageEvent]);
+  const handleAnalyticsClick = useCallback(() => {
+    trackABEvent(`a/b ${abGroup} click`, AnalyticsEventCategory.ButtonPress);
+  }, [abGroup, trackABEvent]);
 
-  return abGroup === ABTestGroup.B ? <>{groupBComponent}</> : <>{groupAComponent}</>;
+  return (
+    <div onClick={handleAnalyticsClick}>{abGroup === ABTestGroup.B ? { groupBComponent } : { groupAComponent }}</div>
+  );
 };
 
 export default ABContainer;
