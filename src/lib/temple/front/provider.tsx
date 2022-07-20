@@ -10,6 +10,8 @@ import { SyncTokensProvider } from 'lib/temple/front/sync-tokens';
 import { USDPriceProvider } from 'lib/temple/front/usdprice';
 
 import { ABTestGroupProvider } from './ab-test.provider';
+import { FungibleTokensBalancesProvider } from './fungible-tokens-balances';
+import { NonFungibleTokensBalancesProvider } from './non-fungible-tokens-balances';
 
 export const TempleProvider: FC = ({ children }) => (
   <CustomRpsContext.Provider value={undefined}>
@@ -30,11 +32,15 @@ const ConditionalReadyTemple: FC = ({ children }) => {
             <TokensMetadataProvider>
               <USDPriceProvider>
                 <FiatCurrencyProvider>
-                  <SyncTokensProvider>
-                    <ABTestGroupProvider>
-                      <NewBlockTriggersProvider>{children}</NewBlockTriggersProvider>
-                    </ABTestGroupProvider>
-                  </SyncTokensProvider>
+                  <FungibleTokensBalancesProvider>
+                    <NonFungibleTokensBalancesProvider>
+                      <ABTestGroupProvider>
+                        <SyncTokensProvider>
+                          <NewBlockTriggersProvider>{children}</NewBlockTriggersProvider>
+                        </SyncTokensProvider>
+                      </ABTestGroupProvider>
+                    </NonFungibleTokensBalancesProvider>
+                  </FungibleTokensBalancesProvider>
                 </FiatCurrencyProvider>
               </USDPriceProvider>
             </TokensMetadataProvider>

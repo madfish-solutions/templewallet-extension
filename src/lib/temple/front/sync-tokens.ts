@@ -7,7 +7,6 @@ import { trigger } from 'swr';
 import {
   useChainId,
   useAccount,
-  isKnownChainId,
   toTokenSlug,
   useTokensMetadata,
   AssetMetadata,
@@ -21,12 +20,16 @@ import {
 import * as Repo from 'lib/temple/repo';
 import { getTokensMetadata } from 'lib/templewallet-api';
 import { fetchWhitelistTokenSlugs } from 'lib/templewallet-api/whitelist-tokens';
-import { getTokenBalances, getTokenBalancesCount, TzktAccountTokenBalance, TZKT_API_BASE_URLS } from 'lib/tzkt';
+import { TzktAccountTokenBalance } from 'lib/tzkt';
 
 import { TempleChainId } from '../types';
+import { useFungibleTokensBalances } from './fungible-tokens-balances';
+import { useNonFungibleTokensBalances } from './non-fungible-tokens-balances';
 
-export const [SyncTokensProvider] = constate(() => {
+export const [SyncTokensProvider, useSyncTokens] = constate(() => {
   const chainId = useChainId(true)!;
+  const { items: tokens } = useFungibleTokensBalances();
+  const { items: nfts } = useNonFungibleTokensBalances();
   const { publicKeyHash: accountPkh } = useAccount();
 
   const { allTokensBaseMetadataRef, setTokensBaseMetadata, setTokensDetailedMetadata, fetchMetadata } =
@@ -41,7 +44,8 @@ export const [SyncTokensProvider] = constate(() => {
       setTokensBaseMetadata,
       setTokensDetailedMetadata,
       usdPrices,
-      fetchMetadata
+      fetchMetadata,
+      tokens.concat(nfts)
     );
   }, [
     accountPkh,
@@ -50,7 +54,9 @@ export const [SyncTokensProvider] = constate(() => {
     setTokensBaseMetadata,
     setTokensDetailedMetadata,
     usdPrices,
-    fetchMetadata
+    fetchMetadata,
+    tokens,
+    nfts
   ]);
 
   const syncRef = useRef(sync);
@@ -86,41 +92,14 @@ export const [SyncTokensProvider] = constate(() => {
     syncAndDefer();
 
     return () => clearTimeout(timeoutId);
-  }, [chainId, accountPkh]);
+  }, [chainId, tokens, nfts]);
+
+  return {
+    sync,
+    tokens,
+    nfts
+  };
 });
-
-async function fetchTzktTokenBalances(chainId: string, address: string) {
-  if (!isKnownChainId(chainId) || !TZKT_API_BASE_URLS.has(chainId)) {
-    return [];
-  }
-
-  const size = 100;
-
-  const total = await getTokenBalancesCount(chainId, { address });
-
-  let balances = await getTokenBalances(chainId, {
-    address,
-    limit: size,
-    offset: 0
-  });
-
-  if (total > size) {
-    const requests = Math.floor(total / size);
-    const restResponses = await Promise.all(
-      Array.from({ length: requests }).map((_, i) =>
-        getTokenBalances(chainId, {
-          address,
-          limit: size,
-          offset: (i + 1) * size
-        })
-      )
-    );
-
-    balances = [...balances, ...restResponses.flat()];
-  }
-
-  return balances;
-}
 
 const makeSync = async (
   accountPkh: string,
@@ -129,13 +108,13 @@ const makeSync = async (
   setTokensBaseMetadata: any,
   setTokensDetailedMetadata: any,
   usdPrices: Record<string, string>,
-  fetchMetadata: any
+  fetchMetadata: any,
+  tzktTokens: TzktAccountTokenBalance[]
 ) => {
   if (!chainId) return;
   const mainnet = chainId === TempleChainId.Mainnet;
 
-  const [tzktTokens, displayedFungibleTokens, displayedCollectibleTokens, whitelistTokenSlugs] = await Promise.all([
-    fetchTzktTokenBalances(chainId, accountPkh),
+  const [displayedFungibleTokens, displayedCollectibleTokens, whitelistTokenSlugs] = await Promise.all([
     fetchDisplayedFungibleTokens(chainId, accountPkh),
     fetchCollectibleTokens(chainId, accountPkh, true),
     fetchWhitelistTokenSlugs(chainId)
@@ -149,14 +128,12 @@ const makeSync = async (
     ({ tokenSlug }) => tokenSlug
   );
 
-  let tokenSlugs = Array.from(
-    new Set([
-      ...tzktTokensMap.keys(),
-      ...displayedTokenSlugs,
-      ...whitelistTokenSlugs,
-      ...(mainnet ? PREDEFINED_MAINNET_TOKENS : [])
-    ])
-  );
+  let tokenSlugs = [
+    ...tzktTokens.map(balance => toTokenSlug(balance.token.contract.address, balance.token.tokenId)),
+    ...displayedTokenSlugs,
+    ...whitelistTokenSlugs,
+    ...(mainnet ? PREDEFINED_MAINNET_TOKENS : [])
+  ].filter(onlyUnique);
 
   const tokenRepoKeys = tokenSlugs.map(slug => Repo.toAccountTokenKey(chainId, accountPkh, slug));
 
@@ -263,6 +240,7 @@ const updateTokenSlugs = (
     return {
       ...existing,
       type: metadata?.artifactUri ? Repo.ITokenType.Collectible : Repo.ITokenType.Fungible,
+      order: i,
       latestBalance: balance,
       latestUSDBalance: usdBalance
     };
@@ -272,6 +250,7 @@ const updateTokenSlugs = (
 
   return {
     type: metadata?.artifactUri ? Repo.ITokenType.Collectible : Repo.ITokenType.Fungible,
+    order: i,
     chainId,
     account: accountPkh,
     tokenSlug: slug,
@@ -281,3 +260,7 @@ const updateTokenSlugs = (
     latestUSDBalance: usdBalance
   };
 };
+
+function onlyUnique(value: string, index: number, self: string[]) {
+  return self.indexOf(value) === index;
+}
