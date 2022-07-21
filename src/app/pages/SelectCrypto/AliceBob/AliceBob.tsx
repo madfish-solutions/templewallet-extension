@@ -1,10 +1,9 @@
 import React, { ChangeEvent, useCallback, useEffect, useMemo, useState } from 'react';
 
 import { useAnalyticsState } from '../../../../lib/analytics/use-analytics-state.hook';
-import { t, T } from '../../../../lib/i18n/react';
+import { T } from '../../../../lib/i18n/react';
 import makeBuildQueryFn from '../../../../lib/makeBuildQueryFn';
 import { useAccount } from '../../../../lib/temple/front';
-import Alert from '../../../atoms/Alert';
 import FormSubmitButton from '../../../atoms/FormSubmitButton';
 import { TopUpInput } from '../../../atoms/TopUpInput/TopUpInput';
 import { ReactComponent as AttentionRedIcon } from '../../../icons/attentionRed.svg';
