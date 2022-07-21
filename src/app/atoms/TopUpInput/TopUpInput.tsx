@@ -82,6 +82,8 @@ interface Props {
   isCurrencyAvailable?: boolean;
 }
 
+const COIN_LIST_REFETCH_INTERVAL = 3600000;
+
 export const TopUpInput: FC<Props> = ({
   type,
   currency,
@@ -89,7 +91,7 @@ export const TopUpInput: FC<Props> = ({
   value,
   readOnly = false,
   onChangeInputHandler,
-  rates = { destination_amount: 0, rate: 0, min_amount: '0' },
+  rates = { toAmount: 0, rate: 0, minAmount: '0' },
   minAmount,
   maxAmount,
   isMinAmountError,
@@ -98,9 +100,13 @@ export const TopUpInput: FC<Props> = ({
 }) => {
   const isFiatType = type === 'fiat';
   const isCoinFromType = type === 'coinFrom';
-  const { data: currencies = [], isValidating: isCurrenciesLoaded } = useSWR(['/api/currency'], getCurrencies);
+  const { data, isValidating: isCurrenciesLoaded } = useSWR(['/api/currency'], getCurrencies, {
+    dedupingInterval: COIN_LIST_REFETCH_INTERVAL
+  });
 
-  const filteredCurrencies = currencies.filter(currency => currency.status === 1 && coinList.includes(currency.code));
+  const currencies = data ?? [];
+
+  const filteredCurrencies = currencies.filter(currency => coinList.includes(currency.code));
   const minAmountErrorClassName = getBigErrorText(isMinAmountError);
   const maxAmountErrorClassName = getBigErrorText(isMaxAmountError);
   return (
@@ -117,7 +123,7 @@ export const TopUpInput: FC<Props> = ({
               <T id="min" />
               <span className={classNames(minAmountErrorClassName, 'text-sm')}>
                 {' '}
-                {minAmount ? minAmount : rates.min_amount}
+                {minAmount ? minAmount : rates.minAmount}
               </span>{' '}
               <span className={classNames(minAmountErrorClassName, 'text-xs')}>{currency}</span>
             </>

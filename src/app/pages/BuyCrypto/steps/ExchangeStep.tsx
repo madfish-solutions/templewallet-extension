@@ -44,10 +44,10 @@ const ExchangeStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, step,
       return;
     }
     if (exchangeData.status === ExchangeDataStatusEnum.SUCCESS) {
-      setSendTime(new Date(exchangeData.created_at));
+      setSendTime(new Date(exchangeData.createdAt));
       setStep(4);
     } else if (exchangeData.status === ExchangeDataStatusEnum.EXCHANGING) {
-      setSendTime(new Date(exchangeData.created_at));
+      setSendTime(new Date(exchangeData.createdAt));
       setStep(3);
     } else if (exchangeData.status === ExchangeDataStatusEnum.OVERDUE) {
       setIsError(true);
@@ -118,7 +118,7 @@ const ExchangeStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, step,
                   <T id={'youSend'} />
                 </p>
                 <p style={{ color: '#1B262C' }} className="text-xs">
-                  {exchangeData.amount_from} {exchangeData.coin_from}
+                  {exchangeData.amount} {exchangeData.coinFrom.coinCode}
                 </p>
               </div>
               <div className="flex justify-between items-baseline mt-2">
@@ -126,15 +126,15 @@ const ExchangeStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, step,
                   <T id={'youReceive'} />
                 </p>
                 <p style={{ color: '#1B262C' }} className="text-xs">
-                  {exchangeData.amount_to} {exchangeData.coin_to}
+                  {exchangeData.amountTo} {exchangeData.coinTo.coinCode}
                 </p>
               </div>
               <div className="flex justify-between items-baseline mt-4">
                 <p className="text-gray-600 text-xs">
-                  <T id={'depositAddressText'} substitutions={[exchangeData.coin_from]} />
+                  <T id={'depositAddressText'} substitutions={[exchangeData.coinFrom.coinCode]} />
                 </p>
                 <p style={{ color: '#1B262C' }} className="text-xs">
-                  <HashShortView hash={exchangeData.deposit_address} />
+                  <HashShortView hash={exchangeData.depositAddress} />
                 </p>
               </div>
               <div className="flex justify-between items-baseline mt-4">
@@ -142,7 +142,7 @@ const ExchangeStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, step,
                   <T id={'recipientAddress'} />
                 </p>
                 <p style={{ color: '#1B262C' }} className="text-xs">
-                  <HashShortView hash={exchangeData.destination_address} />
+                  <HashShortView hash={exchangeData.withdrawalAddress} />
                 </p>
               </div>
               <Divider style={{ marginTop: '1rem', marginBottom: '3rem' }} />
@@ -191,43 +191,43 @@ const ExchangeStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, step,
               <T id={'youSend'} />
             </p>
             <p style={{ color: '#1B262C' }} className="text-xs">
-              {exchangeData.amount_from} {exchangeData.coin_from}
+              {exchangeData.amount} {exchangeData.coinFrom.coinCode}
             </p>
           </div>
-          {exchangeData.hash_out && exchangeData.hash_out_link && (
+          {exchangeData.hashOut.hash && exchangeData.hashOut.link && (
             <div className="flex justify-between items-baseline mt-2">
               <p className="text-gray-600 text-xs">
                 <T id={'inputHash'} />
               </p>
               <p style={{ color: '#1B262C' }} className="text-xs">
-                <a className={'text-blue-700 underline'} href={exchangeData.hash_out_link}>
-                  <HashShortView hash={exchangeData.hash_out} />
+                <a className={'text-blue-700 underline'} href={exchangeData.hashOut.link}>
+                  <HashShortView hash={exchangeData.hashOut.hash} />
                 </a>
               </p>
             </div>
           )}
           <div className="flex justify-between items-baseline mt-4">
             <p className="text-gray-600 text-xs">
-              <T id={'depositAddressText'} substitutions={[exchangeData.coin_from]} />
+              <T id={'depositAddressText'} substitutions={[exchangeData.coinFrom.coinCode]} />
             </p>
             <p style={{ color: '#1B262C' }} className="text-xs">
-              <HashShortView hash={exchangeData.deposit_address} />
+              <HashShortView hash={exchangeData.depositAddress} />
             </p>
           </div>
           <div className="flex justify-between items-baseline mt-4">
             <p className="text-gray-600 text-xs">You receive:</p>
             <p style={{ color: '#1B262C' }} className="text-xs">
-              {exchangeData.amount_to} {exchangeData.coin_to}
+              {exchangeData.amountTo} {exchangeData.coinTo.coinCode}
             </p>
           </div>
-          {exchangeData.hash_in && exchangeData.hash_in_link && (
+          {exchangeData.hashIn.hash && exchangeData.hashIn.link && (
             <div className="flex justify-between items-baseline mt-2">
               <p className="text-gray-600 text-xs">
                 <T id={'inputHash'} />
               </p>
               <p style={{ color: '#1B262C' }} className="text-xs">
-                <a className={'text-blue-700 underline'} href={exchangeData.hash_in_link}>
-                  <HashShortView hash={exchangeData.hash_in} />
+                <a className={'text-blue-700 underline'} href={exchangeData.hashIn.link}>
+                  <HashShortView hash={exchangeData.hashIn.hash} />
                 </a>
               </p>
             </div>
@@ -238,7 +238,7 @@ const ExchangeStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, step,
               <T id={'recipientXtzAddress'} />
             </p>
             <p style={{ color: '#1B262C' }} className="text-xs">
-              <HashShortView hash={exchangeData.destination_address} />
+              <HashShortView hash={exchangeData.depositAddress} />
             </p>
           </div>
           <Divider style={{ marginTop: '1rem', marginBottom: '2.5rem' }} />
