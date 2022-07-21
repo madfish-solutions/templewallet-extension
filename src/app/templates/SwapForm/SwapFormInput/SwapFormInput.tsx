@@ -52,7 +52,7 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
 
   const account = useAccount();
   const balance = useBalance(assetSlugWithFallback, account.publicKeyHash, { suspense: false });
-  useOnBlock(balance.mutate);
+  useOnBlock(_ => balance.mutate());
 
   const { availableAssets, isLoading } = useAvailableAssets(AssetTypesEnum.Tokens);
   const availableAssetsWithTezos = useMemo(() => ['tez', ...availableAssets], [availableAssets]);
