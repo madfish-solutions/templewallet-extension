@@ -145,7 +145,7 @@ const BakingHistoryItem: FC<BakingHistoryItemProps> = ({
               ) : (
                 <Money smallFractionFont={false}>{mutezToTz(balance).decimalPlaces(0, BigNumber.ROUND_FLOOR)}</Money>
               )}
-              <span className="ml-1">ꜩ</span>
+              <span>ꜩ</span>
             </span>
           )
         },
@@ -154,7 +154,7 @@ const BakingHistoryItem: FC<BakingHistoryItemProps> = ({
           value: (
             <span className="flex items-center">
               <Money smallFractionFont={false}>{normalizedRewards}</Money>
-              <span className="ml-1">ꜩ</span>
+              <span>ꜩ</span>
             </span>
           ),
           valueComment: (
@@ -170,7 +170,7 @@ const BakingHistoryItem: FC<BakingHistoryItemProps> = ({
           valueComment: (
             <span className="text-gray-500 flex items-center">
               (<Money smallFractionFont={false}>{normalizedBakerFee}</Money>
-              <span className="ml-1">ꜩ</span>)
+              <span>ꜩ</span>)
             </span>
           )
         },
@@ -182,7 +182,7 @@ const BakingHistoryItem: FC<BakingHistoryItemProps> = ({
             ) : (
               <span className="flex items-center">
                 <Money smallFractionFont={false}>{normalizedRewards.minus(normalizedBakerFee)}</Money>
-                <span className="ml-1">ꜩ</span>
+                <span>ꜩ</span>
               </span>
             )
         },
@@ -220,17 +220,17 @@ const BakingHistoryItem: FC<BakingHistoryItemProps> = ({
             <T
               id="rewardsForBlocks"
               substitutions={[
-                <span key={0} className="text-green-500">
+                <span key={0} className="text-green-500 flex gap-1">
                   +<Money smallFractionFont={false}>{mutezToTz(ownBlockRewards)}</Money>
-                  <span className="ml-1">ꜩ</span>
+                  <span>ꜩ</span>
                 </span>,
                 <span key={1} className="text-blue-600">
                   {ownBlocks}
                 </span>,
                 <T id={getPluralKey('blocks', ownBlocks)} />,
-                <span key={2} className="text-gray-600">
+                <span key={2} className="text-gray-600 flex gap-1">
                   +<Money smallFractionFont={false}>{mutezToTz(ownBlockFees)}</Money>
-                  <span className="ml-1">ꜩ</span>
+                  <span>ꜩ</span>
                 </span>
               ]}
             />
@@ -244,11 +244,11 @@ const BakingHistoryItem: FC<BakingHistoryItemProps> = ({
             <T
               id="rewardsForSlots"
               substitutions={[
-                <span key={0} className="text-green-500">
+                <span key={0} className="text-green-500 flex gap-1">
                   +<Money smallFractionFont={false}>{mutezToTz(endorsementRewards)}</Money>
-                  <span className="ml-1">ꜩ</span>
+                  <span>ꜩ</span>
                 </span>,
-                <span key={1} className="text-blue-600">
+                <span key={1} className="text-blue-600 flex gap-1">
                   {endorsements}
                 </span>,
                 <T id={getPluralKey('slots', endorsements)} />
@@ -270,17 +270,17 @@ const BakingHistoryItem: FC<BakingHistoryItemProps> = ({
             <T
               id="rewardsForBlocks"
               substitutions={[
-                <span key={0} className="text-orange-500">
+                <span key={0} className="text-orange-500 flex gap-1">
                   -<Money smallFractionFont={false}>{mutezToTz(missedOwnBlockRewards)}</Money>
-                  <span className="ml-1">ꜩ</span>
+                  <span>ꜩ</span>
                 </span>,
-                <span key={1} className="text-blue-600">
+                <span key={1} className="text-blue-600 flex gap-1">
                   {missedOwnBlocks}
                 </span>,
                 <T id={getPluralKey('blocks', missedOwnBlocks)} />,
-                <span key={2} className="text-gray-600">
+                <span key={2} className="text-gray-600 flex gap-1">
                   -<Money smallFractionFont={false}>{mutezToTz(missedOwnBlockFees)}</Money>
-                  <span className="ml-1">ꜩ</span>
+                  <span>ꜩ</span>
                 </span>
               ]}
             />
@@ -294,11 +294,11 @@ const BakingHistoryItem: FC<BakingHistoryItemProps> = ({
             <T
               id="rewardsForSlots"
               substitutions={[
-                <span key={0} className="text-orange-500">
+                <span key={0} className="text-orange-500 flex gap-1">
                   -<Money smallFractionFont={false}>{mutezToTz(missedEndorsementRewards)}</Money>
-                  <span className="ml-1">ꜩ</span>
+                  <span>ꜩ</span>
                 </span>,
-                <span key={1} className="text-blue-600">
+                <span key={1} className="text-blue-600 flex gap-1">
                   {missedEndorsements}
                 </span>,
                 <T id={getPluralKey('slots', missedEndorsements)} />
@@ -409,7 +409,7 @@ const AccordionItem: React.FC<AccordionItemProps> = ({ Icon, title, children }) 
       <Icon aria-hidden={true} className="h-6 w-auto mr-1 stroke-2 stroke-current" />
       {title}
     </div>
-    <span className="text-sm text-gray-700 font-medium">{children}</span>
+    <span className="text-sm text-gray-700 font-medium flex gap-1">{children}</span>
   </div>
 );
 
