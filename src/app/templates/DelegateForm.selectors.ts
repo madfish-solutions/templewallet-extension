@@ -3,5 +3,7 @@ export enum DelegateFormSelectors {
   SortBakerByFeeTab = 'DelegateForm/SortBakerByFeeTab',
   SortBakerBySpaceTab = 'DelegateForm/SortBakerBySpaceTab',
   SortBakerByStakingTab = 'DelegateForm/SortBakerByStakingTab',
-  KnownBakerItemButton = 'DelegateForm/KnownBakerItemButton'
+  KnownBakerItemButton = 'DelegateForm/KnownBakerItemButton',
+  KnownBakerItemButtonA = 'DelegateForm/KnownBakerItemButton/EverstakeA',
+  KnownBakerItemButtonB = 'DelegateForm/KnownBakerItemButton/EverstakeB'
 }

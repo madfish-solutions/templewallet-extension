@@ -50,7 +50,10 @@ type RewardConfig = Record<
   | 'lowPriorityEndorses',
   boolean
 >;
-export type Baker = Pick<BakingBadBaker, 'address' | 'name' | 'fee' | 'freeSpace' | 'minDelegation'> & {
+export type Baker = Pick<
+  BakingBadBaker,
+  'address' | 'name' | 'fee' | 'freeSpace' | 'minDelegation' | 'stakingBalance'
+> & {
   logo?: string;
   feeHistory?: BakingBadBakerValueHistoryItem<number>[];
   rewardConfigHistory: BakingBadBakerValueHistoryItem<RewardConfig>[];
@@ -92,6 +95,7 @@ export function useKnownBaker(address: string | null, suspense = true) {
           logo: bakingBadBaker.logo ? bakingBadBaker.logo : undefined,
           fee: bakingBadBaker.fee,
           freeSpace: bakingBadBaker.freeSpace,
+          stakingBalance: bakingBadBaker.stakingBalance,
           feeHistory: bakingBadBaker.config?.fee,
           minDelegation: bakingBadBaker.minDelegation,
           rewardConfigHistory:

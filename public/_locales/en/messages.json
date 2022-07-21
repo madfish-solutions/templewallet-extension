@@ -955,6 +955,9 @@
   "staking": {
     "message": "Staking"
   },
+  "partnership": {
+    "message": "Partnership"
+  },
   "delegation": {
     "message": "Delegation"
   },
