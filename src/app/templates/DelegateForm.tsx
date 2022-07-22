@@ -7,7 +7,6 @@ import { useForm, Controller, Control, FieldError, NestDataObject, FormStateProx
 import useSWR from 'swr';
 import { browser } from 'webextension-polyfill-ts';
 
-import ABContainer from 'app/atoms/ABContainer';
 import Alert from 'app/atoms/Alert';
 import { Button } from 'app/atoms/Button';
 import FormSubmitButton from 'app/atoms/FormSubmitButton';
@@ -21,6 +20,7 @@ import BakerBanner from 'app/templates/BakerBanner';
 import InFiat from 'app/templates/InFiat';
 import OperationStatus from 'app/templates/OperationStatus';
 import { useFormAnalytics } from 'lib/analytics';
+import { submitDelegation } from 'lib/everstake-api';
 import { T, t } from 'lib/i18n/react';
 import { setDelegate } from 'lib/michelson';
 import {
@@ -241,6 +241,10 @@ const DelegateForm: FC = () => {
         setOperation(op);
         reset({ to: '', fee: RECOMMENDED_ADD_FEE });
 
+        if (to === sponsoredBaker) {
+          submitDelegation(op.opHash);
+        }
+
         formAnalytics.trackSubmitSuccess(analyticsProperties);
       } catch (err: any) {
         formAnalytics.trackSubmitFail(analyticsProperties);
@@ -429,8 +433,8 @@ const BakerForm: React.FC<BakerFormProps> = ({
           ? {
               testID:
                 abGroup === ABTestGroup.B
-                  ? DelegateFormSelectors.KnownBakerItemButtonB
-                  : DelegateFormSelectors.KnownBakerItemButtonA
+                  ? DelegateFormSelectors.KnownBakerItemButtonSubmitB
+                  : DelegateFormSelectors.KnownBakerItemButtonSubmitA
             }
           : {})}
       >
@@ -471,7 +475,7 @@ const BakerBannerComponent: React.FC<BakerBannerComponentProps> = ({ tzError, ba
               id="minDelegationAmountDescription"
               substitutions={[
                 <span className="font-normal" key="minDelegationsAmount">
-                  <Money>{baker.minDelegation}</Money> <span style={{ fontSize: '0.75em' }}>{assetSymbol}</span>
+                  <Money isSpan>{baker.minDelegation}</Money> <span style={{ fontSize: '0.75em' }}>{assetSymbol}</span>
                 </span>
               ]}
             />
@@ -488,6 +492,7 @@ const BakerBannerComponent: React.FC<BakerBannerComponentProps> = ({ tzError, ba
 const KnownDelegatorsList: React.FC<{ setValue: any; triggerValidation: any }> = ({ setValue, triggerValidation }) => {
   const knownBakers = useKnownBakers();
   const { search } = useLocation();
+  const abGroup = useAB();
 
   const bakerSortTypes = useMemo(
     () => [
@@ -632,81 +637,45 @@ const KnownDelegatorsList: React.FC<{ setValue: any; triggerValidation: any }> =
             window.scrollTo(0, 0);
           };
 
-          if (baker.address !== sponsoredBaker) {
-            return (
-              <Button
-                key={baker.address}
-                type="button"
-                className={classNames(
-                  'hover:bg-gray-100 focus:bg-gray-100',
-                  'transition ease-in-out duration-200',
-                  'focus:outline-none',
-                  'opacity-90 hover:opacity-100'
-                )}
-                onClick={handleBakerClick}
-                testID={DelegateFormSelectors.KnownBakerItemButton}
-                testIDProperties={{ bakerAddress: baker.address }}
-              >
-                <BakerBanner
-                  bakerPkh={baker.address}
-                  link
-                  style={{ width: undefined }}
-                  className={classNames(!last && 'border-b border-gray-200')}
-                />
-              </Button>
-            );
+          let testId = DelegateFormSelectors.KnownBakerItemButton;
+          let classnames = classNames(
+            'hover:bg-gray-100 focus:bg-gray-100',
+            'transition ease-in-out duration-200',
+            'focus:outline-none',
+            'opacity-90 hover:opacity-100'
+          );
+
+          if (baker.address === sponsoredBaker) {
+            testId = DelegateFormSelectors.KnownBakerItemButtonA;
+            if (abGroup === ABTestGroup.B) {
+              testId = DelegateFormSelectors.KnownBakerItemButtonB;
+              classnames = classNames(
+                'hover:bg-gray-100 focus:bg-gray-100',
+                'transition ease-in-out duration-200',
+                'focus:outline-none',
+                'opacity-90 hover:opacity-100',
+                'bg-orange-100'
+              );
+            }
           }
 
           return (
-            <ABContainer
-              groupAComponent={
-                <Button
-                  key={baker.address}
-                  type="button"
-                  className={classNames(
-                    'hover:bg-gray-100 focus:bg-gray-100',
-                    'transition ease-in-out duration-200',
-                    'focus:outline-none',
-                    'opacity-90 hover:opacity-100'
-                  )}
-                  onClick={handleBakerClick}
-                  testID={DelegateFormSelectors.KnownBakerItemButtonA}
-                  testIDProperties={{ bakerAddress: baker.address }}
-                >
-                  <BakerBanner
-                    bakerPkh={baker.address}
-                    link
-                    promoted={baker.address === sponsoredBaker}
-                    style={{ width: undefined }}
-                    className={classNames(!last && 'border-b border-gray-200')}
-                  />
-                </Button>
-              }
-              groupBComponent={
-                <Button
-                  key={baker.address}
-                  type="button"
-                  className={classNames(
-                    'hover:bg-gray-100 focus:bg-gray-100',
-                    'transition ease-in-out duration-200',
-                    'focus:outline-none',
-                    'opacity-90 hover:opacity-100',
-                    'bg-orange-100'
-                  )}
-                  onClick={handleBakerClick}
-                  testID={DelegateFormSelectors.KnownBakerItemButtonB}
-                  testIDProperties={{ bakerAddress: baker.address }}
-                >
-                  <BakerBanner
-                    bakerPkh={baker.address}
-                    link
-                    promoted={baker.address === sponsoredBaker}
-                    style={{ width: undefined }}
-                    className={classNames(!last && 'border-b border-gray-200')}
-                  />
-                </Button>
-              }
-            />
+            <Button
+              key={baker.address}
+              type="button"
+              className={classnames}
+              onClick={handleBakerClick}
+              testID={testId}
+              testIDProperties={{ bakerAddress: baker.address }}
+            >
+              <BakerBanner
+                bakerPkh={baker.address}
+                link
+                style={{ width: undefined }}
+                promoted={baker.address === sponsoredBaker}
+                className={classNames(!last && 'border-b border-gray-200')}
+              />
+            </Button>
           );
         })}
       </div>

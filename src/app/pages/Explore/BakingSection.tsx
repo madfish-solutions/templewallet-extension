@@ -210,7 +210,7 @@ const BakingSection = memo(() => {
                   delegateButtonProps={commonSmallDelegateButtonProps}
                 />
               </div>
-              <BakerBanner bakerPkh={myBakerPkh} />
+              <BakerBanner displayAddress bakerPkh={myBakerPkh} />
             </>
           ) : (
             <div className="flex flex-col items-center text-black">
@@ -270,7 +270,7 @@ const BakingSection = memo(() => {
 
               <div className="flex items-center gap-6 mb-2">
                 {links.map(({ href, Icon }) => (
-                  <a href={href} target="_blank" rel="noopener noreferrer">
+                  <a key={href} href={href} target="_blank" rel="noopener noreferrer">
                     <Icon className="h-full w-auto" />
                   </a>
                 ))}
