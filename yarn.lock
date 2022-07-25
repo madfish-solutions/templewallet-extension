@@ -2897,7 +2897,14 @@
     "@ledgerhq/hw-transport-webhid" "^6.20.0"
     "@types/ledgerhq__hw-transport" "^4.21.3"
 
-"@tezos-domains/core@1.17.1", "@tezos-domains/core@^1.17.1":
+"@tezos-domains/core@1.18.0":
+  version "1.18.0"
+  resolved "https://registry.yarnpkg.com/@tezos-domains/core/-/core-1.18.0.tgz#5c3782bc65d8a74bf759d743ffed74f09479a070"
+  integrity sha512-/SmBY+z51YmvPC0X3cxlcM58CEE8D7+JcYZBQlzIJFAHzgXhl+XlHkE3Y+yl9P3qOsLkP10eBBPPLL7v6XFdsQ==
+  dependencies:
+    idna-uts46-hx "^3.3.0"
+
+"@tezos-domains/core@^1.17.1":
   version "1.17.1"
   resolved "https://registry.yarnpkg.com/@tezos-domains/core/-/core-1.17.1.tgz#de2ab7c29fef08c78b3512d8925f60587fb06121"
   integrity sha512-I0OZmL9nUqi0RNIipdEgPtQdfURKHnVNanTioM1jLYCi55ZtW7mJ7y5VkFn2IQCcijEv0EoVfgfgmHQ//411IQ==
