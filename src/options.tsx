@@ -3,7 +3,7 @@ import './main.css';
 import React, { FC, useCallback } from 'react';
 
 import classNames from 'clsx';
-import * as ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import { browser } from 'webextension-polyfill-ts';
 
 import DisableOutlinesForClick from 'app/a11y/DisableOutlinesForClick';
@@ -56,7 +56,9 @@ const Options: FC = () => {
   );
 };
 
-ReactDOM.render(<OptionsWrapper />, document.getElementById('root'));
+const container = document.getElementById('root');
+const root = createRoot(container!);
+root.render(<OptionsWrapper />);
 
 let resetting = false;
 async function handleReset(customAlert: AlertFn, confirm: ConfirmFn) {

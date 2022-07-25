@@ -247,7 +247,7 @@ export const useAvailableAssets = (assetType: AssetTypesEnum) => {
     useAllKnownCollectibleTokenSlugs(chainId);
   const {
     data: collectibles = [],
-    revalidate: revalidateCollectibles,
+    mutate: mutateCollectibles,
     isValidating: collectibleTokensLoading
   } = useCollectibleTokens(chainId, account.publicKeyHash, false);
 
@@ -255,14 +255,14 @@ export const useAvailableAssets = (assetType: AssetTypesEnum) => {
     useAllKnownFungibleTokenSlugs(chainId);
   const {
     data: tokens = [],
-    revalidate: revalidateTokens,
+    mutate: mutateTokens,
     isValidating: fungibleTokensLoading
   } = useFungibleTokens(chainId, account.publicKeyHash);
 
   const isCollectibles = assetType === AssetTypesEnum.Collectibles;
   const assets = isCollectibles ? collectibles : tokens;
   const slugs = isCollectibles ? allCollectiblesSlugs : allTokenSlugs;
-  const revalidate = isCollectibles ? revalidateCollectibles : revalidateTokens;
+  const mutate = isCollectibles ? mutateCollectibles : mutateTokens;
 
   const isLoading =
     allKnownFungibleTokenSlugsLoading ||
@@ -286,7 +286,7 @@ export const useAvailableAssets = (assetType: AssetTypesEnum) => {
     [slugs, allTokensBaseMetadata, assetsStatuses]
   );
 
-  return { availableAssets, assetsStatuses, isLoading, revalidate };
+  return { availableAssets, assetsStatuses, isLoading, mutate };
 };
 
 export function searchAssets(

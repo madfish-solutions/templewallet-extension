@@ -203,7 +203,10 @@ const DelegateForm: FC = () => {
     return undefined;
   }, [balanceNum, baseFee]);
 
-  const handleFeeFieldChange = useCallback(([v]) => (maxAddFee && v > maxAddFee ? maxAddFee : v), [maxAddFee]);
+  const handleFeeFieldChange = useCallback<BakerFormProps['handleFeeFieldChange']>(
+    ([v]) => (maxAddFee && v > maxAddFee ? maxAddFee : v),
+    [maxAddFee]
+  );
 
   const [submitError, setSubmitError] = useSafeState<ReactNode>(null, `${tezos.checksum}_${toResolved}`);
   const [operation, setOperation] = useSafeState<any>(null, tezos.checksum);

@@ -29,7 +29,7 @@ const SearchField: FC<SearchFieldProps> = ({
   ...rest
 }) => {
   const handleChange = useCallback(
-    evt => {
+    (evt: React.ChangeEvent<HTMLInputElement>) => {
       onValueChange(evt.target.value);
     },
     [onValueChange]

@@ -3,7 +3,7 @@ import React, { FC, memo, useCallback, useEffect, useMemo, useRef, useState } fr
 import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
-import { cache } from 'swr';
+import { useSWRConfig } from 'swr';
 import { useDebounce } from 'use-debounce';
 
 import { ActivitySpinner } from 'app/atoms/ActivitySpinner';
@@ -237,10 +237,11 @@ type ListItemProps = {
 };
 
 const ListItem = memo<ListItemProps>(({ assetSlug, active, accountPkh }) => {
+  const { cache } = useSWRConfig();
   const metadata = useAssetMetadata(assetSlug);
 
   const balanceSWRKey = useBalanceSWRKey(assetSlug, accountPkh);
-  const balanceAlreadyLoaded = useMemo(() => cache.has(balanceSWRKey), [balanceSWRKey]);
+  const balanceAlreadyLoaded = useMemo(() => cache.get(balanceSWRKey) !== undefined, [cache, balanceSWRKey]);
 
   const toDisplayRef = useRef<HTMLDivElement>(null);
   const [displayed, setDisplayed] = useState(balanceAlreadyLoaded);

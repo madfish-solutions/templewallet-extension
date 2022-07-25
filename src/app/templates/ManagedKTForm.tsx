@@ -43,14 +43,15 @@ const ManagedKTForm: FC = () => {
   const [error, setError] = useState<ReactNode>(null);
 
   const queryKey = useMemo(
-    () => [
-      'get-accounts-contracts',
-      chainId,
-      ...accounts.filter(({ type }) => type !== TempleAccountType.ManagedKT).map(({ publicKeyHash }) => publicKeyHash)
-    ],
+    () =>
+      [
+        'get-accounts-contracts',
+        chainId,
+        ...accounts.filter(({ type }) => type !== TempleAccountType.ManagedKT).map(({ publicKeyHash }) => publicKeyHash)
+      ] as string[],
     [accounts, chainId]
   );
-  const { data: usersContracts = [] } = useRetryableSWR(queryKey, getUsersContracts);
+  const { data: usersContracts = [] } = useRetryableSWR(queryKey, getUsersContracts, {});
 
   const remainingUsersContracts = useMemo(() => {
     return usersContracts.filter(({ address }) => !accounts.some(({ publicKeyHash }) => publicKeyHash === address));

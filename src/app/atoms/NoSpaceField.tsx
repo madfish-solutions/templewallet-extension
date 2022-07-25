@@ -11,7 +11,7 @@ const NoSpaceField = forwardRef<HTMLTextAreaElement, NoSpaceFieldProps>(({ value
   const format = useCallback((val: string) => val.replace(/\s/g, ''), []);
 
   const handleChange = useCallback(
-    evt => {
+    (evt: React.ChangeEvent<HTMLInputElement> & React.ChangeEvent<HTMLTextAreaElement>) => {
       const formatted = format(evt.target.value);
       if (onChange) {
         onChange(formatted);

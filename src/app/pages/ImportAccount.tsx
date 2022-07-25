@@ -44,11 +44,11 @@ type ImportAccountProps = {
   tabSlug: string | null;
 };
 
-type ImportTabDescriptor = {
+interface ImportTabDescriptor {
   slug: string;
   i18nKey: string;
   Form: FC<{}>;
-};
+}
 
 const ImportAccount: FC<ImportAccountProps> = ({ tabSlug }) => {
   const network = useNetwork();
@@ -527,7 +527,7 @@ const FromFaucetForm: FC = () => {
   const handleTextFieldFocus = useCallback(() => textFieldRef.current?.focus(), []);
   const cleanTextField = useCallback(() => setValue('text', ''), [setValue]);
 
-  const handleFormSubmit = useCallback(evt => {
+  const handleFormSubmit = useCallback((evt: React.FormEvent<HTMLFormElement>) => {
     evt.preventDefault();
   }, []);
 

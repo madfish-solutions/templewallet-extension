@@ -45,7 +45,7 @@ export const SeedLengthSelect: FC<SeedLengthSelectProps> = ({
   }, [selectRef]);
 
   const handleClick = useCallback(
-    option => {
+    (option: string) => {
       setIsOpen(false);
       setShowSeed(true);
       setSelectedOption(option);
