@@ -27,6 +27,8 @@ interface Props {
   setIsError: (error: boolean) => void;
 }
 
+const FORTY_FIVE_MINUTES_IN_MS = 45 * 60 * 1000;
+
 const ApproveStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isError, setIsError }) => {
   const { copy } = useCopyToClipboard();
 
@@ -73,7 +75,7 @@ const ApproveStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
                 {props.minutes}:{props.seconds < 10 ? '0' + props.seconds : props.seconds}
               </p>
             )}
-            date={new Date(exchangeData.createdAt).getTime() + 2700000}
+            date={new Date(exchangeData.createdAt).getTime() + FORTY_FIVE_MINUTES_IN_MS}
             onComplete={async () => {
               const data = await getExchangeData(exchangeData.id);
               setExchangeData(data);
