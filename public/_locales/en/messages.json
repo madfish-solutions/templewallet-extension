@@ -122,10 +122,13 @@
     "message": "Got it"
   },
   "changelogTitle": {
-    "message": "Temple Wallet updated to version"
+    "message": "Temple Wallet updated"
   },
   "changelogDescription": {
     "message": "In this update"
+  },
+  "update": {
+    "message": "update"
   },
   "templeIsOnMobile": {
     "message": "Temple is on Mobile"

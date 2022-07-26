@@ -8,28 +8,8 @@ import ContentContainer from 'app/layouts/ContentContainer';
 import { T } from 'lib/i18n/react';
 import { useTempleClient, useStorage } from 'lib/temple/front';
 
+import { changelogData } from './ChangelogOverlay.data';
 import { ChangelogOverlaySelectors } from './ChangelogOverlay.selectors';
-
-const changes = [
-  { Component: () => <>Jakarta protocol testnet is up.</> },
-  { Component: () => <>Ghostnet is now supported.</> },
-  {
-    Component: () => <>QuipuSwap Stable pools, Plenty Stable Swap and Plenty Volatile Swap added to the swap router.</>
-  },
-  { Component: () => <>Ctez pools and Vortex DOGA/TEZ pools fixed.</> },
-  {
-    Component: () => (
-      <>
-        Import/create wallet flow changed to be more intuitive. Seed phrase confirmation process changed to bolster
-        security.
-      </>
-    )
-  },
-  { Component: () => <>Streamlined derivation path options on wallet import.</> },
-  { Component: () => <>.xyz Tez domains are now supported.</> },
-  { Component: () => <>Hryvna/Tez top-up added (Alice-Bob partner integration)</> },
-  { Component: () => <>Various other UI fixes</> }
-];
 
 export const ChangelogOverlay: FC = () => {
   const { popup } = useAppEnv();
@@ -71,36 +51,22 @@ export const ChangelogOverlay: FC = () => {
           </Button>
           <div className="flex flex-col max-w-sm mx-auto w-full">
             <p className="text-xl font-inter font-semibold" style={{ fontSize: 23, color: '#FF5B00' }}>
-              <T id="changelogTitle">
-                {message => (
-                  <>
-                    {message} {process.env.VERSION}
-                  </>
-                )}
-              </T>
+              <T id="changelogTitle" />
             </p>
-            <p className="my-4 font-semibold font-inter" style={{ fontSize: 14 }}>
-              <T id="changelogDescription" />
-            </p>
-            <ul>
-              {changes.map((value, index) => (
-                <li className="mb-1" style={{ listStyleType: 'disc', listStylePosition: 'inside' }} key={index}>
-                  <value.Component />
-                </li>
-              ))}
-            </ul>
-            <Button
-              className="mt-6 py-2 px-8 text-white font-inter rounded font-semibold uppercase mx-auto"
-              onClick={handleContinue}
-              testID={ChangelogOverlaySelectors.Continue}
-              style={{
-                fontSize: 13,
-                maxWidth: '7rem',
-                backgroundColor: '#FF5B00'
-              }}
-            >
-              <T id="okGotIt" />
-            </Button>
+            {changelogData.changelog.map(({ version, data }) => (
+              <React.Fragment key={version}>
+                <p className="my-4 font-semibold font-inter" style={{ fontSize: 14 }}>
+                  <T id="update" /> {version}
+                </p>
+                <ul>
+                  {data.map((value, index) => (
+                    <li className="mb-1" style={{ listStyleType: 'disc', listStylePosition: 'inside' }} key={index}>
+                      <value.Component />
+                    </li>
+                  ))}
+                </ul>
+              </React.Fragment>
+            ))}
           </div>
         </div>
       </ContentContainer>
