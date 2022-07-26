@@ -124,7 +124,7 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
             'font-inter',
             'flex self-center',
             'text-gray-800',
-            !isFirstAccount && 'font-semibold text-gray-700'
+            !isFirstAccount && 'font-semibold text-gray-500'
           )}
           style={{ fontSize: isFirstAccount ? 23 : 16 }}
         >
