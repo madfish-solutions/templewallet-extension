@@ -4,6 +4,14 @@ interface ChangelogItem {
   version?: string;
   data: Array<JSX.Element>;
 }
+
+export interface ChangelogRenderItem {
+  data: {
+    Component: () => JSX.Element;
+  }[];
+  version?: string | undefined;
+}
+
 const datav1_14_8: ChangelogItem = {
   version: '1.14.8',
   data: [
@@ -34,31 +42,7 @@ const datav1_14_7: ChangelogItem = {
   ]
 };
 
-const datav1_14_6: ChangelogItem = {
-  version: '1.14.6',
-  data: [
-    <>Swap router upgrade: added Vortex DEX pools and QuipuSwap token-token pools.</>,
-    <>Added Ithaca Smartpy RPC and Jakarta support</>,
-    <>Exolix top-up support improvements, single swap limit increased to $10k</>,
-    <>Copy Error Text button: a feature to make error reports easier.</>,
-    <strong>Groundwork done for Temple desktop and Temple mobile sync.</strong>,
-    <>Other security and UI improvements!</>
-  ]
-};
-
-const datav1_14_5: ChangelogItem = {
-  version: '1.14.5',
-  data: [
-    <>Swap router upgrade: added Vortex DEX pools and QuipuSwap token-token pools.</>,
-    <>Added Ithaca Smartpy RPC and Jakarta support</>,
-    <>Exolix top-up support improvements, single swap limit increased to $10k</>,
-    <>Copy Error Text button: a feature to make error reports easier.</>,
-    <strong>Groundwork done for Temple desktop and Temple mobile sync.</strong>,
-    <>Other security and UI improvements!</>
-  ]
-};
-
-const allVersions = [datav1_14_8, datav1_14_7, datav1_14_6, datav1_14_5];
+const allVersions = [datav1_14_8, datav1_14_7];
 
 export const changelogData = {
   changelog: allVersions.map(x => ({ ...x, data: x.data.map(y => ({ Component: () => y })) }))

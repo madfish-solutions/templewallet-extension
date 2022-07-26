@@ -8,20 +8,31 @@ import ContentContainer from 'app/layouts/ContentContainer';
 import { T } from 'lib/i18n/react';
 import { useTempleClient, useStorage } from 'lib/temple/front';
 
-import { changelogData } from './ChangelogOverlay.data';
+import { changelogData, ChangelogRenderItem } from './ChangelogOverlay.data';
 import { ChangelogOverlaySelectors } from './ChangelogOverlay.selectors';
+
+const currentVersion = process.env.VERSION;
 
 export const ChangelogOverlay: FC = () => {
   const { popup } = useAppEnv();
   const { ready } = useTempleClient();
-  const [showChangelogOverlay, toggleChangelogOverlay] = useStorage(`changelog_${process.env.VERSION}`, true);
+  const [showChangelogOverlay, toggleChangelogOverlay] = useStorage<string | undefined | null>(
+    `changelog_version`,
+    '1.14.6'
+  );
 
   const handleContinue = () => {
-    toggleChangelogOverlay(false);
+    toggleChangelogOverlay(currentVersion);
   };
-  const popupClassName = popup ? 'inset-0' : 'top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2';
+  const popupClassName = popup ? 'inset-0' : 'top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2 p-12';
 
-  return ready && showChangelogOverlay ? (
+  const isNewerVersion = changelogData.changelog.find(e => e.version === currentVersion);
+  if (!isNewerVersion) {
+    return null;
+  }
+  const filteredChangelog = filterByVersion(showChangelogOverlay, changelogData.changelog);
+
+  return ready && showChangelogOverlay !== currentVersion ? (
     <>
       <div className={'fixed left-0 right-0 top-0 bottom-0 opacity-20 bg-gray-700 z-50'}></div>
       <ContentContainer
@@ -29,7 +40,7 @@ export const ChangelogOverlay: FC = () => {
         padding={!popup}
       >
         <div
-          className={classNames('bg-white shadow-lg', popup ? 'pt-20 pb-16 px-8' : 'rounded-md py-32')}
+          className={classNames('bg-white shadow-lg relative', popup ? 'pt-20 pb-16 px-8' : 'rounded-md py-32')}
           style={{
             backgroundColor: `#FFF2E6`,
             minHeight: popup ? '100%' : 'unset'
@@ -53,7 +64,7 @@ export const ChangelogOverlay: FC = () => {
             <p className="text-xl font-inter font-semibold" style={{ fontSize: 23, color: '#FF5B00' }}>
               <T id="changelogTitle" />
             </p>
-            {changelogData.changelog.map(({ version, data }) => (
+            {filteredChangelog.map(({ version, data }) => (
               <React.Fragment key={version}>
                 <p className="my-4 font-semibold font-inter" style={{ fontSize: 14 }}>
                   <T id="update" /> {version}
@@ -72,4 +83,17 @@ export const ChangelogOverlay: FC = () => {
       </ContentContainer>
     </>
   ) : null;
+};
+
+const filterByVersion = (
+  version: string | null | undefined,
+  data: Array<ChangelogRenderItem>
+): Array<ChangelogRenderItem> => {
+  let foundVersion: number | undefined;
+  return data.filter((x, i) => {
+    if (x.version === version) {
+      foundVersion = i;
+    }
+    return foundVersion ? foundVersion > i : true;
+  });
 };
