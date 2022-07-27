@@ -171,7 +171,10 @@ export const TopUpInput: FC<Props> = ({
                         type="currencyDropdown"
                         key={currencyItem.code}
                         label={currencyItem.code}
-                        className={currencyItem.code === currency ? 'font-semibold' : ''}
+                        className={classNames(
+                          'hover:bg-gray-200 cursor-pointer',
+                          currencyItem.code === currency ? 'font-semibold' : ''
+                        )}
                         onPress={() => {
                           setCurrency(currencyItem.code);
                           setOpened(false);

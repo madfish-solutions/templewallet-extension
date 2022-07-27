@@ -89,7 +89,7 @@ export interface GetRateData {
 
 export const getRate = async (data: { coinFrom: string; coinTo: string; amount: number }) => {
   return api
-    .get('/rate', { params: data })
+    .get('/rate', { params: { ...data, rateType: 'fixed' } })
     .then(r => r.data as GetRateData)
     .catch(error => {
       if (error.response) {
@@ -105,7 +105,7 @@ export const submitExchange = async (data: {
   withdrawalAddress: string;
   withdrawalExtraId: string;
 }) => {
-  return api.post('/transactions', data).then(r => r.data);
+  return api.post('/transactions', { ...data, rateType: 'fixed' }).then(r => r.data);
 };
 
 export const getExchangeData = async (exchangeId: string) => {

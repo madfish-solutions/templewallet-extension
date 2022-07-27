@@ -27,6 +27,8 @@ interface Props {
   setIsError: (error: boolean) => void;
 }
 
+const FORTY_FIVE_MINUTES_IN_MS = 45 * 60 * 1000;
+
 const ApproveStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isError, setIsError }) => {
   const { copy } = useCopyToClipboard();
 
@@ -73,7 +75,7 @@ const ApproveStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
                 {props.minutes}:{props.seconds < 10 ? '0' + props.seconds : props.seconds}
               </p>
             )}
-            date={new Date(exchangeData.createdAt).getTime() + 3600000}
+            date={new Date(exchangeData.createdAt).getTime() + FORTY_FIVE_MINUTES_IN_MS}
             onComplete={async () => {
               const data = await getExchangeData(exchangeData.id);
               setExchangeData(data);
@@ -123,7 +125,7 @@ const ApproveStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
             </span>
           </div>
           <p className="text-gray-600 text-xs text-center mt-6">
-            <T id={'depositAddressText'} substitutions={[exchangeData.coinFrom.coinCode]} />
+            <T id={'depositAddressText'} substitutions={[exchangeData.coinFrom.networkName]} />
           </p>
           <QRCode value={exchangeData.depositAddress} style={{ width: '160px', margin: '24px auto' }} />
           <FormField
