@@ -279,13 +279,13 @@ const BakingSection = memo(() => {
                     </a>
                   </p>
 
-              <div className="flex items-center gap-6 mb-2">
-                {links.map(({ href, Icon }) => (
-                  <a key={href} href={href} target="_blank" rel="noopener noreferrer">
-                    <Icon className="h-full w-auto" />
-                  </a>
-                ))}
-              </div>
+                  <div className="flex items-center gap-6 mb-2">
+                    {links.map(({ href, Icon }) => (
+                      <a key={href} href={href} target="_blank" rel="noopener noreferrer">
+                        <Icon className="h-full w-auto" />
+                      </a>
+                    ))}
+                  </div>
 
                   <p className={'text-xs mb-6 font-normal w-full'}>
                     <T id={'delegationComunity'} />
