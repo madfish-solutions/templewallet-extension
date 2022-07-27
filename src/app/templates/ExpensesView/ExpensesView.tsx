@@ -19,7 +19,8 @@ import {
   RawOperationAssetExpense,
   RawOperationExpenses,
   tzToMutez,
-  useAssetMetadata
+  useAssetMetadata,
+  useNetwork
 } from 'lib/temple/front';
 
 import OperationsBanner from '../OperationsBanner';
@@ -59,6 +60,7 @@ const ExpensesView: FC<ExpensesViewProps> = ({
   gasFeeError,
   error
 }) => {
+  const network = useNetwork();
   const [showDetails, setShowDetails] = useState(false);
 
   const toggleShowDetails = useCallback(() => setShowDetails(prevValue => !prevValue), []);
@@ -154,14 +156,14 @@ const ExpensesView: FC<ExpensesViewProps> = ({
                           'placeholder-gray-600'
                         )}
                       />
-                      ꜩ
+                      {network.type === 'dcp' ? 'ф' : 'ꜩ'}
                     </>
                   ) : (
                     <span className="flex items-baseline">
                       <span className="font-medium">
                         <Money>{value}</Money>
                       </span>
-                      <span className="ml-1">ꜩ</span>
+                      <span className="ml-1">{network.type === 'dcp' ? 'ф' : 'ꜩ'}</span>
                     </span>
                   )}
                 </div>
@@ -208,7 +210,7 @@ const ExpensesView: FC<ExpensesViewProps> = ({
         ))}
       </div>
     );
-  }, [modifyFeeAndLimit, estimates, gasFeeError, mainnet]);
+  }, [modifyFeeAndLimit, estimates, gasFeeError, mainnet, network.type]);
 
   if (!expenses) {
     return null;

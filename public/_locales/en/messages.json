@@ -251,6 +251,9 @@
   "delegatedTo": {
     "message": "Delegated to:"
   },
+  "dcpDelegatingMotivation": {
+    "message": "Delegating your funds to producers is a great way of earning interest on your balance"
+  },
   "delegatingMotivation": {
     "message": "Delegating your funds to bakers is a great way of earning interest on your balance"
   },
@@ -990,6 +993,12 @@
   },
   "bakerInputDescription": {
     "message": "Address of a registered baker."
+  },
+  "producer": {
+    "message": "Producer"
+  },
+  "producerInputDescription": {
+    "message": "Address of a registered producer."
   },
   "bakerInputDescriptionWithDomain": {
     "message": "Address or domain name of a registered baker."

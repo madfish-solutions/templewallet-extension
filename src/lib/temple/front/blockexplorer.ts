@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 
 import { isKnownChainId, TempleChainId, useChainId, useStorage } from 'lib/temple/front';
 
-export type BlockExplorerId = 'tzkt' | 'tzstats' | 'bcd' | 'tezblock';
+export type BlockExplorerId = 'tzkt' | 'tzstats' | 'bcd' | 'tezblock' | 't4l3nt';
 
 type BaseUrls = { account?: string; transaction: string };
 
@@ -36,6 +36,26 @@ export const BLOCK_EXPLORERS: BlockExplorer[] = [
         {
           account: 'https://jakartanet.tzkt.io',
           transaction: 'https://jakartanet.tzkt.io'
+        }
+      ]
+    ])
+  },
+  {
+    id: 't4l3nt',
+    name: 'T4L3NT',
+    baseUrls: new Map([
+      [
+        TempleChainId.Dcp,
+        {
+          account: 'https://explorer.tlnt.net/',
+          transaction: 'https://explorer.tlnt.net/'
+        }
+      ],
+      [
+        TempleChainId.DcpTest,
+        {
+          account: 'https://explorer.tlnt.net:444',
+          transaction: 'https://explorer.tlnt.net:444'
         }
       ]
     ])

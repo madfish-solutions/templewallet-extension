@@ -62,12 +62,13 @@ interface FormData {
 const DelegateForm: FC = () => {
   const { registerBackHandler } = useAppEnv();
   const formAnalytics = useFormAnalytics('DelegateForm');
+  const network = useNetwork();
 
   const acc = useAccount();
   const tezos = useTezos();
 
   const accountPkh = acc.publicKeyHash;
-  const assetSymbol = 'ꜩ';
+  const assetSymbol = network.type === 'dcp' ? 'ф' : 'ꜩ';
 
   const { data: balanceData, mutate: mutateBalance } = useBalance('tez', accountPkh);
   const balance = balanceData!;
@@ -277,7 +278,9 @@ const DelegateForm: FC = () => {
           () => (
             <div className={classNames('mb-6', 'border rounded-md', 'p-2', 'flex items-center')}>
               <img
-                src={browser.runtime.getURL('misc/token-logos/tez.svg')}
+                src={browser.runtime.getURL(
+                  network.type === 'dcp' ? 'misc/token-logos/film.png' : 'misc/token-logos/tez.svg'
+                )}
                 alt={assetSymbol}
                 className="w-auto h-12 mr-3"
               />
@@ -305,7 +308,7 @@ const DelegateForm: FC = () => {
               </div>
             </div>
           ),
-          [balance]
+          [balance, assetSymbol, network.type]
         )}
 
         <Controller
@@ -322,8 +325,14 @@ const DelegateForm: FC = () => {
           cleanable={Boolean(toValue)}
           onClean={cleanToField}
           id="delegate-to"
-          label={t('baker')}
-          labelDescription={canUseDomainNames ? t('bakerInputDescriptionWithDomain') : t('bakerInputDescription')}
+          label={network.type === 'dcp' ? t('producer') : t('baker')}
+          labelDescription={
+            canUseDomainNames
+              ? t('bakerInputDescriptionWithDomain')
+              : network.type === 'dcp'
+              ? t('producerInputDescription')
+              : t('bakerInputDescription')
+          }
           placeholder={canUseDomainNames ? t('recipientInputPlaceholderWithDomain') : t('bakerInputPlaceholder')}
           errorCaption={errors.to?.message && t(errors.to?.message.toString())}
           style={{

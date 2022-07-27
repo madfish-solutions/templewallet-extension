@@ -18,7 +18,7 @@ import BakingHistoryItem from 'app/pages/Explore/BakingHistoryItem';
 import BakerBanner from 'app/templates/BakerBanner';
 import { T, t } from 'lib/i18n/react';
 import { useRetryableSWR } from 'lib/swr';
-import { useAccount, useDelegate, TempleAccountType, useChainId, isKnownChainId } from 'lib/temple/front';
+import { useAccount, useDelegate, TempleAccountType, useChainId, isKnownChainId, useNetwork } from 'lib/temple/front';
 import { getDelegatorRewards, TZKT_API_BASE_URLS } from 'lib/tzkt';
 import useTippy from 'lib/ui/useTippy';
 import { Link } from 'lib/woozie';
@@ -64,6 +64,7 @@ const links = [
 
 const BakingSection = memo(() => {
   const acc = useAccount();
+  const network = useNetwork();
   const { data: myBakerPkh } = useDelegate(acc.publicKeyHash);
   const canDelegate = acc.type !== TempleAccountType.WatchOnly;
   const chainId = useChainId(true);
@@ -224,70 +225,81 @@ const BakingSection = memo(() => {
             <div className="flex flex-col items-center text-black">
               <DelegateIcon className="mb-1 stroke-current" />
 
-              <T id="delegationWelcome">
-                {message => <h3 className="mb-2 text-lg font-normal text-center w-full">{message}</h3>}
-              </T>
-
-              <div className={classNames('relative px-4 py-2', styles['sectionBg'])}>
-                <p className={'text-sm font-normal w-full cursor-pointer'} onClick={toggleShowDetails}>
-                  <T id={'delegationHowTo'} />
-                </p>
-                <button
-                  className={classNames(
-                    'absolute flex items-center justify-center w-4 h-4 rounded',
-                    'text-orange-500 transform transition-transform duration-500',
-                    showDetails && 'rotate-180'
+              {network.type === 'dcp' ? (
+                <T id="dcpDelegatingMotivation">
+                  {message => (
+                    <p className="mb-6 text-sm font-light text-center" style={{ maxWidth: '20rem' }}>
+                      {message}
+                    </p>
                   )}
-                  style={{ right: '8px', top: '8px' }}
-                  onClick={toggleShowDetails}
-                >
-                  <ChevronDownIcon className="w-4 h-4 stroke-1 stroke-current" />
-                </button>
+                </T>
+              ) : (
+                <>
+                  <T id="delegationWelcome">
+                    {message => <h3 className="mb-2 text-lg font-normal text-center w-full">{message}</h3>}
+                  </T>
 
-                <Collapse
-                  theme={{ collapse: styles.ReactCollapse }}
-                  isOpened={showDetails}
-                  initialStyle={{ height: '0px', overflow: 'hidden' }}
-                >
-                  <p className={'text-xs mb-2 font-normal w-full mt-2'}>
-                    <T id={'delegationFaq1'} />
+                  <div className={classNames('relative px-4 py-2', styles['sectionBg'])}>
+                    <p className={'text-sm font-normal w-full cursor-pointer'} onClick={toggleShowDetails}>
+                      <T id={'delegationHowTo'} />
+                    </p>
+                    <button
+                      className={classNames(
+                        'absolute flex items-center justify-center w-4 h-4 rounded',
+                        'text-orange-500 transform transition-transform duration-500',
+                        showDetails && 'rotate-180'
+                      )}
+                      style={{ right: '8px', top: '8px' }}
+                      onClick={toggleShowDetails}
+                    >
+                      <ChevronDownIcon className="w-4 h-4 stroke-1 stroke-current" />
+                    </button>
+
+                    <Collapse
+                      theme={{ collapse: styles.ReactCollapse }}
+                      isOpened={showDetails}
+                      initialStyle={{ height: '0px', overflow: 'hidden' }}
+                    >
+                      <p className={'text-xs mb-2 font-normal w-full mt-2'}>
+                        <T id={'delegationFaq1'} />
+                      </p>
+                      <p className={'text-xs mb-2 font-normal w-full'}>
+                        <T id={'delegationFaq2'} />
+                      </p>
+                      <p className={'text-xs mb-2 font-normal w-full'}>
+                        <T id={'delegationFaq3'} />
+                      </p>
+                      <p className={'text-xs mb-2 font-normal w-full'}>
+                        <T id={'delegationFaq4'} />
+                      </p>
+                    </Collapse>
+                  </div>
+
+                  <p className={'text-xs mb-4 font-normal mt-6'}>
+                    <T id={'delegationGuide'} />
+                    <a
+                      className="ml-1 text-blue-500 underline"
+                      href="https://www.youtube.com/watch?v=iFH8WEfuaDI"
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      <T id={'delegationGuideLink'} />
+                    </a>
                   </p>
-                  <p className={'text-xs mb-2 font-normal w-full'}>
-                    <T id={'delegationFaq2'} />
+
+                  <div className="flex items-center gap-6 mb-2">
+                    {links.map(({ href, Icon }) => (
+                      <a href={href} target="_blank" rel="noopener noreferrer">
+                        <Icon className="h-full w-auto" />
+                      </a>
+                    ))}
+                  </div>
+
+                  <p className={'text-xs mb-6 font-normal w-full'}>
+                    <T id={'delegationComunity'} />
                   </p>
-                  <p className={'text-xs mb-2 font-normal w-full'}>
-                    <T id={'delegationFaq3'} />
-                  </p>
-                  <p className={'text-xs mb-2 font-normal w-full'}>
-                    <T id={'delegationFaq4'} />
-                  </p>
-                </Collapse>
-              </div>
-
-              <p className={'text-xs mb-4 font-normal mt-6'}>
-                <T id={'delegationGuide'} />
-                <a
-                  className="ml-1 text-blue-500 underline"
-                  href="https://www.youtube.com/watch?v=iFH8WEfuaDI"
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  <T id={'delegationGuideLink'} />
-                </a>
-              </p>
-
-              <div className="flex items-center gap-6 mb-2">
-                {links.map(({ href, Icon }) => (
-                  <a href={href} target="_blank" rel="noopener noreferrer">
-                    <Icon className="h-full w-auto" />
-                  </a>
-                ))}
-              </div>
-
-              <p className={'text-xs mb-6 font-normal w-full'}>
-                <T id={'delegationComunity'} />
-              </p>
-
+                </>
+              )}
               <DelegateLink
                 canDelegate={canDelegate}
                 delegateButtonRef={delegateButtonRef}
@@ -331,7 +343,8 @@ const BakingSection = memo(() => {
       fallbackRewardsPerEvents,
       popup,
       showDetails,
-      toggleShowDetails
+      toggleShowDetails,
+      network.type
     ]
   );
 });

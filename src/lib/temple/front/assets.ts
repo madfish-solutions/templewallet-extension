@@ -28,7 +28,9 @@ import {
   AssetTypesEnum,
   useChainId,
   useAccount,
-  isTokenDisplayed
+  isTokenDisplayed,
+  useNetwork,
+  FILM_METADATA
 } from 'lib/temple/front';
 import { ITokenStatus } from 'lib/temple/repo';
 
@@ -92,6 +94,7 @@ const autoFetchMetadataFails = new Set<string>();
 export function useAssetMetadata(slug: string) {
   const tezos = useTezos();
   const forceUpdate = useForceUpdate();
+  const network = useNetwork();
 
   const { allTokensBaseMetadataRef, fetchMetadata, setTokensBaseMetadata, setTokensDetailedMetadata } =
     useTokensMetadata();
@@ -131,7 +134,7 @@ export function useAssetMetadata(slug: string) {
 
   // Tezos
   if (tezAsset) {
-    return TEZOS_METADATA;
+    return network.type === 'dcp' ? FILM_METADATA : TEZOS_METADATA;
   }
 
   // Preserved for legacy tokens
@@ -195,16 +198,17 @@ export const [TokensMetadataProvider, useTokensMetadata] = constate(() => {
 
 export const useGetTokenMetadata = () => {
   const { allTokensBaseMetadataRef } = useTokensMetadata();
+  const network = useNetwork();
 
   return useCallback(
     (slug: string) => {
       if (isTezAsset(slug)) {
-        return TEZOS_METADATA;
+        return network.type === 'dcp' ? FILM_METADATA : TEZOS_METADATA;
       }
 
       return allTokensBaseMetadataRef.current[slug];
     },
-    [allTokensBaseMetadataRef]
+    [allTokensBaseMetadataRef, network.type]
   );
 };
 
