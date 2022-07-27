@@ -2,7 +2,9 @@ import React, { FC, ReactNode } from 'react';
 
 import classNames from 'clsx';
 
-interface TemplateProps {
+import { PropsWithChildren } from 'lib/props-with-children';
+
+interface TemplateProps extends PropsWithChildren {
   title: ReactNode;
 }
 

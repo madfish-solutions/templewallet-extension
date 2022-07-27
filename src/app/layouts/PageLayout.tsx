@@ -11,6 +11,7 @@ import { ReactComponent as ChevronLeftIcon } from 'app/icons/chevron-left.svg';
 import ContentContainer from 'app/layouts/ContentContainer';
 import { isSafeBrowserVersion } from 'lib/browser-info';
 import { T } from 'lib/i18n/react';
+import { PropsWithChildren } from 'lib/props-with-children';
 import { goBack, HistoryAction, Link, navigate, useLocation } from 'lib/woozie';
 
 import { AnalyticsEventCategory, useAnalytics } from '../../lib/analytics';
@@ -25,9 +26,10 @@ import ConfirmationOverlay from './PageLayout/ConfirmationOverlay';
 import Header from './PageLayout/Header';
 import { useTempleMobile } from './PageLayout/hooks/useTempleMobile.hook';
 import { TempleMobileSelectors } from './PageLayout/TempleMobile.selectors';
-// import { TempleMobileOverlay } from './PageLayout/TempleMobileOverlay';
 
-type PageLayoutProps = { contentContainerStyle?: React.CSSProperties } & ToolbarProps;
+interface PageLayoutProps extends PropsWithChildren, ToolbarProps {
+  contentContainerStyle?: React.CSSProperties;
+}
 
 const PageLayout: FC<PageLayoutProps> = ({ children, contentContainerStyle, ...toolbarProps }) => {
   const { fullPage } = useAppEnv();

@@ -8,6 +8,7 @@ import { useAppEnv } from 'app/env';
 import ErrorBoundary from 'app/ErrorBoundary';
 import PageLayout from 'app/layouts/PageLayout';
 import { T, t } from 'lib/i18n/react';
+import { PropsWithChildren } from 'lib/props-with-children';
 import { Link } from 'lib/woozie';
 
 import { ReactComponent as ShoppingCartIcon } from './../../icons/shopping-cart.svg';
@@ -102,10 +103,10 @@ const SelectCrypto: FC<{}> = () => {
 
 export default SelectCrypto;
 
-type SuspenseContainerProps = {
+interface SuspenseContainerProps extends PropsWithChildren {
   whileMessage: string;
   fallback?: ReactNode;
-};
+}
 
 const SuspenseContainer: FC<SuspenseContainerProps> = ({ whileMessage, fallback = <SpinnerSection />, children }) => (
   <ErrorBoundary whileMessage={whileMessage}>

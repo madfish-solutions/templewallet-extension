@@ -21,10 +21,10 @@ export const CurrencyComponent = forwardRef<HTMLDivElement, Props>(
     <div
       style={
         type === 'coinSelector'
-          ? { marginLeft: 10 }
+          ? { paddingLeft: 10 }
           : type === 'fiatSelector'
-          ? { margin: '5px 16px' }
-          : { margin: '5px 0 5px 10px' }
+          ? { padding: '5px 16px' }
+          : { padding: '5px 0 5px 10px' }
       }
       onClick={onPress}
       ref={ref}

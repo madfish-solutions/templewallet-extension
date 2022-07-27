@@ -6,7 +6,6 @@ import { Collapse } from 'react-collapse';
 
 import { Button } from 'app/atoms/Button';
 import Spinner from 'app/atoms/Spinner/Spinner';
-import { useAppEnv } from 'app/env';
 import { ReactComponent as ChevronDownIcon } from 'app/icons/chevron-down.svg';
 import { ReactComponent as DelegateIcon } from 'app/icons/delegate.svg';
 import { ReactComponent as DiscordIcon } from 'app/icons/delegationDis.svg';
@@ -68,7 +67,6 @@ const BakingSection = memo(() => {
   const { data: myBakerPkh } = useDelegate(acc.publicKeyHash);
   const canDelegate = acc.type !== TempleAccountType.WatchOnly;
   const chainId = useChainId(true);
-  const { popup } = useAppEnv();
   const [showDetails, setShowDetails] = useState(false);
 
   const toggleShowDetails = useCallback(() => setShowDetails(prevValue => !prevValue), []);
@@ -213,13 +211,7 @@ const BakingSection = memo(() => {
                   delegateButtonProps={commonSmallDelegateButtonProps}
                 />
               </div>
-              <BakerBanner
-                bakerPkh={myBakerPkh}
-                style={{
-                  maxWidth: undefined,
-                  width: popup ? '100%' : '22.5rem'
-                }}
-              />
+              <BakerBanner displayAddress bakerPkh={myBakerPkh} />
             </>
           ) : (
             <div className="flex flex-col items-center text-black">
@@ -287,13 +279,13 @@ const BakingSection = memo(() => {
                     </a>
                   </p>
 
-                  <div className="flex items-center gap-6 mb-2">
-                    {links.map(({ href, Icon }) => (
-                      <a href={href} target="_blank" rel="noopener noreferrer">
-                        <Icon className="h-full w-auto" />
-                      </a>
-                    ))}
-                  </div>
+              <div className="flex items-center gap-6 mb-2">
+                {links.map(({ href, Icon }) => (
+                  <a key={href} href={href} target="_blank" rel="noopener noreferrer">
+                    <Icon className="h-full w-auto" />
+                  </a>
+                ))}
+              </div>
 
                   <p className={'text-xs mb-6 font-normal w-full'}>
                     <T id={'delegationComunity'} />
@@ -341,7 +333,6 @@ const BakingSection = memo(() => {
       loadingBakingHistory,
       bakingHistory,
       fallbackRewardsPerEvents,
-      popup,
       showDetails,
       toggleShowDetails,
       network.type

@@ -2,7 +2,8 @@ import { useCallback, useEffect, useRef } from 'react';
 
 import BigNumber from 'bignumber.js';
 import constate from 'constate';
-import { trigger } from 'swr';
+import { useSWRConfig } from 'swr';
+import { ScopedMutator } from 'swr/dist/types';
 
 import {
   useChainId,
@@ -27,6 +28,7 @@ import { useFungibleTokensBalances } from './fungible-tokens-balances';
 import { useNonFungibleTokensBalances } from './non-fungible-tokens-balances';
 
 export const [SyncTokensProvider, useSyncTokens] = constate(() => {
+  const { mutate } = useSWRConfig();
   const chainId = useChainId(true)!;
   const { items: tokens } = useFungibleTokensBalances();
   const { items: nfts } = useNonFungibleTokensBalances();
@@ -45,8 +47,12 @@ export const [SyncTokensProvider, useSyncTokens] = constate(() => {
       setTokensDetailedMetadata,
       usdPrices,
       fetchMetadata,
-      tokens.concat(nfts)
+      networkIdRef.current === chainId ? tokens.concat(nfts) : [],
+      mutate
     );
+    if (networkIdRef.current !== chainId) {
+      networkIdRef.current = chainId;
+    }
   }, [
     accountPkh,
     chainId,
@@ -56,7 +62,8 @@ export const [SyncTokensProvider, useSyncTokens] = constate(() => {
     usdPrices,
     fetchMetadata,
     tokens,
-    nfts
+    nfts,
+    mutate
   ]);
 
   const syncRef = useRef(sync);
@@ -65,9 +72,6 @@ export const [SyncTokensProvider, useSyncTokens] = constate(() => {
   }, [sync]);
 
   const networkIdRef = useRef(chainId);
-  if (networkIdRef.current !== chainId) {
-    networkIdRef.current = chainId;
-  }
 
   useEffect(() => {
     if (!chainId) {
@@ -109,7 +113,8 @@ const makeSync = async (
   setTokensDetailedMetadata: any,
   usdPrices: Record<string, string>,
   fetchMetadata: any,
-  tzktTokens: TzktAccountTokenBalance[]
+  tzktTokens: TzktAccountTokenBalance[],
+  mutate: ScopedMutator<any>
 ) => {
   if (!chainId) return;
   const mainnet = chainId === TempleChainId.Mainnet;
@@ -169,8 +174,8 @@ const makeSync = async (
     }
   }
 
-  await setTokensBaseMetadata(baseMetadatasToSet);
-  await setTokensDetailedMetadata(detailedMetadatasToSet);
+  setTokensBaseMetadata(baseMetadatasToSet);
+  setTokensDetailedMetadata(detailedMetadatasToSet);
 
   await Repo.accountTokens.bulkPut(
     tokenSlugs.map((slug, i) =>
@@ -189,7 +194,7 @@ const makeSync = async (
     tokenRepoKeys
   );
 
-  trigger(['displayed-fungible-tokens', chainId, accountPkh], true);
+  mutate(['displayed-fungible-tokens', chainId, accountPkh]);
 };
 
 const generateMetadataRequest = async (slug: string, mainnet: boolean, fetchMetadata: any) => {

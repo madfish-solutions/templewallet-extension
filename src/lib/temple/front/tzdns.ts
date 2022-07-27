@@ -13,7 +13,7 @@ export function getClient(networkId: 'mainnet' | 'custom', tezos: TezosToolkit) 
 }
 
 export function isDomainNameValid(name: string, client: TaquitoTezosDomainsClient) {
-  return client.validator.validateDomainName(name) === DomainNameValidationResult.VALID;
+  return client.validator.validateDomainName(name, { minLevel: 2 }) === DomainNameValidationResult.VALID;
 }
 
 export function useTezosDomainsClient() {

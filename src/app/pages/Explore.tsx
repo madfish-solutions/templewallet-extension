@@ -18,6 +18,7 @@ import Activity from 'app/templates/activity/Activity';
 import AssetInfo from 'app/templates/AssetInfo';
 import { TestIDProps } from 'lib/analytics';
 import { T, t } from 'lib/i18n/react';
+import { PropsWithChildren } from 'lib/props-with-children';
 import {
   getAssetSymbol,
   isTezAsset,
@@ -325,10 +326,10 @@ const SecondarySection: FC<SecondarySectionProps> = ({ assetSlug, className }) =
   );
 };
 
-type SuspenseContainerProps = {
+interface SuspenseContainerProps extends PropsWithChildren {
   whileMessage: string;
   fallback?: ReactNode;
-};
+}
 
 const SuspenseContainer: FC<SuspenseContainerProps> = ({ whileMessage, fallback = <SpinnerSection />, children }) => (
   <ErrorBoundary whileMessage={whileMessage}>

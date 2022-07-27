@@ -1,6 +1,7 @@
 import React, {
   Dispatch,
   FC,
+  FocusEventHandler,
   Suspense,
   useCallback,
   useEffect,
@@ -196,7 +197,7 @@ const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested })
     });
 
   const handleFiatToggle = useCallback(
-    evt => {
+    (evt: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
       evt.preventDefault();
 
       const newShouldUseFiat = !shoudUseFiat;
@@ -377,7 +378,10 @@ const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested })
     [maxAmount, toValue]
   );
 
-  const handleFeeFieldChange = useCallback(([v]) => (maxAddFee && v > maxAddFee ? maxAddFee : v), [maxAddFee]);
+  const handleFeeFieldChange = useCallback<FeeComponentProps['handleFeeFieldChange']>(
+    ([v]) => (maxAddFee && v > maxAddFee ? maxAddFee : v),
+    [maxAddFee]
+  );
 
   const maxAmountStr = maxAmount?.toString();
   useEffect(() => {
@@ -393,7 +397,7 @@ const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested })
     }
   }, [setValue, maxAmount, triggerValidation]);
 
-  const handleAmountFieldFocus = useCallback(evt => {
+  const handleAmountFieldFocus = useCallback<FocusEventHandler>(evt => {
     evt.preventDefault();
     amountFieldRef.current?.focus({ preventScroll: true });
   }, []);

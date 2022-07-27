@@ -46,7 +46,7 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     return res.state;
   }, []);
 
-  const { data, revalidate } = useRetryableSWR('state', fetchState, {
+  const { data, mutate } = useRetryableSWR('state', fetchState, {
     suspense: true,
     shouldRetryOnError: false,
     revalidateOnFocus: false,
@@ -65,7 +65,7 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     return intercom.subscribe((msg: TempleNotification) => {
       switch (msg?.type) {
         case TempleMessageType.StateUpdated:
-          revalidate();
+          mutate();
           break;
 
         case TempleMessageType.ConfirmationRequested:
@@ -81,7 +81,7 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
           break;
       }
     });
-  }, [revalidate, setConfirmation, resetConfirmation]);
+  }, [mutate, setConfirmation, resetConfirmation]);
 
   /**
    * Aliases

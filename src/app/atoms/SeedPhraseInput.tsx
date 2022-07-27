@@ -62,12 +62,12 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
   );
 
   const onSeedWordChange = useCallback(
-    (index, newWord) => {
+    (index: number, event: React.ChangeEvent<HTMLInputElement>) => {
       if (pasteFailed) {
         setPasteFailed(false);
       }
       const newSeed = draftSeed.slice();
-      newSeed[index] = newWord.trim();
+      newSeed[index] = event.target.value.trim();
       onSeedChange(newSeed);
     },
     [draftSeed, onSeedChange, pasteFailed]
@@ -124,7 +124,7 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
             'font-inter',
             'flex self-center',
             'text-gray-800',
-            !isFirstAccount && 'font-semibold text-gray-700'
+            !isFirstAccount && 'font-semibold text-gray-500'
           )}
           style={{ fontSize: isFirstAccount ? 23 : 16 }}
         >
@@ -171,7 +171,7 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
               setShowSeed={setShowSeed}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                 e.preventDefault();
-                onSeedWordChange(index, e.target.value);
+                onSeedWordChange(index, e);
               }}
               value={draftSeed[index]}
               onPaste={(e: React.ClipboardEvent<HTMLInputElement>) => {

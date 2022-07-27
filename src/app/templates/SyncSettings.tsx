@@ -1,7 +1,7 @@
 import React, { FC, useCallback, useLayoutEffect, useRef } from 'react';
 
 import classNames from 'clsx';
-import { useForm } from 'react-hook-form';
+import { OnSubmit, useForm } from 'react-hook-form';
 import { QRCode } from 'react-qr-svg';
 
 import Alert from 'app/atoms/Alert';
@@ -28,7 +28,7 @@ const SyncSettings: FC = () => {
 
   useLayoutEffect(() => focusPasswordField(), [focusPasswordField]);
 
-  const onSubmit = useCallback(
+  const onSubmit = useCallback<OnSubmit<FormData>>(
     async ({ password }) => {
       if (formState.isSubmitting) return;
 

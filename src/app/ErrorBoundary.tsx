@@ -1,15 +1,15 @@
 import React, { Component, ErrorInfo } from 'react';
 
 import classNames from 'clsx';
-import { cache } from 'swr';
 
 import { ReactComponent as DangerIcon } from 'app/icons/danger.svg';
 import { T } from 'lib/i18n/react';
+import { PropsWithChildren } from 'lib/props-with-children';
 
-type ErrorBoundaryProps = {
+interface ErrorBoundaryProps extends PropsWithChildren {
   className?: string;
   whileMessage?: string;
-};
+}
 
 type ErrorBoundaryState = {
   error: Error | null;
@@ -35,11 +35,6 @@ export default class ErrorBoundary extends Component<ErrorBoundaryProps> {
   }
 
   tryAgain() {
-    const err = this.state.error as any;
-    if (err?.swrErrorKey) {
-      cache.delete(err.swrErrorKey, false);
-    }
-
     this.setState({ error: null });
   }
 

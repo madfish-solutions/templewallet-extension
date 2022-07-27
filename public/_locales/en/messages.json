@@ -958,6 +958,12 @@
   "staking": {
     "message": "Staking"
   },
+  "recommended": {
+    "message": "Recommended"
+  },
+  "partnership": {
+    "message": "Partnership"
+  },
   "delegation": {
     "message": "Delegation"
   },

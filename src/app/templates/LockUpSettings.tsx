@@ -7,7 +7,7 @@ import { isLockUpEnabled, setLockUp } from 'lib/ui/useLockUp';
 const LockUpSettings: FC<{}> = () => {
   const lockUpEnabled = isLockUpEnabled();
 
-  const handleLockUpChange = useCallback(evt => {
+  const handleLockUpChange = useCallback((evt: React.ChangeEvent<HTMLInputElement>) => {
     setLockUp(evt.target.checked);
   }, []);
 

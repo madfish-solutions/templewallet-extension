@@ -44,7 +44,7 @@ export function useBalance(assetSlug: string, address: string, opts: UseBalanceO
     suspense: opts.suspense ?? true,
     revalidateOnFocus: false,
     dedupingInterval: 20_000,
-    initialData: opts.initial
+    fallbackData: opts.initial
   });
 }
 

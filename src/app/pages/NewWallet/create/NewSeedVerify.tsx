@@ -124,7 +124,7 @@ const WordsRow = memo<WordsRowProps>(({ allWords, indexToFill, onFill }) => {
   const [fillValue, setFillValue] = useState('');
 
   const handleChange = useCallback(
-    evt => {
+    (evt: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>) => {
       const { value } = evt.target;
       setFillValue(value);
       onFill(value === allWords[indexToFill]);

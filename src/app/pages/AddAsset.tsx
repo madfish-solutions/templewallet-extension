@@ -2,7 +2,7 @@ import React, { FC, ReactNode, useCallback, useEffect, useRef, useMemo } from 'r
 
 import classNames from 'clsx';
 import { FormContextValues, useForm } from 'react-hook-form';
-import { cache as swrCache } from 'swr';
+import { useSWRConfig } from 'swr';
 import { useDebouncedCallback } from 'use-debounce';
 
 import Alert from 'app/atoms/Alert';
@@ -82,6 +82,7 @@ const Form: FC = () => {
   const { id: networkId } = useNetwork();
   const chainId = useChainId(true)!;
   const { publicKeyHash: accountPkh } = useAccount();
+  const { cache: swrCache } = useSWRConfig();
 
   const { fetchMetadata, setTokensBaseMetadata, setTokensDetailedMetadata } = useTokensMetadata();
 
@@ -244,6 +245,7 @@ const Form: FC = () => {
     },
     [
       tezos,
+      swrCache,
       formState.isSubmitting,
       chainId,
       accountPkh,

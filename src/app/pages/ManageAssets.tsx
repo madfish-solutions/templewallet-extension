@@ -53,7 +53,7 @@ const ManageAssetsContent: FC<Props> = ({ assetType }) => {
   const account = useAccount();
   const address = account.publicKeyHash;
 
-  const { availableAssets, assetsStatuses, isLoading, revalidate } = useAvailableAssets(
+  const { availableAssets, assetsStatuses, isLoading, mutate } = useAvailableAssets(
     assetType === AssetTypesEnum.Collectibles ? AssetTypesEnum.Collectibles : AssetTypesEnum.Tokens
   );
   const { filteredAssets, searchValue, setSearchValue } = useFilteredAssets(availableAssets);
@@ -77,13 +77,13 @@ const ManageAssetsContent: FC<Props> = ({ assetType }) => {
           assetSlug,
           status
         );
-        await revalidate();
+        await mutate();
       } catch (err: any) {
         console.error(err);
         alert(err.message);
       }
     },
-    [chainId, address, confirm, revalidate, assetType]
+    [chainId, address, confirm, mutate, assetType]
   );
 
   return (
@@ -153,7 +153,7 @@ const ListItem = memo<ListItemProps>(({ assetSlug, last, checked, onUpdate, asse
   const metadata = useAssetMetadata(assetSlug);
 
   const handleCheckboxChange = useCallback(
-    evt => {
+    (evt: React.ChangeEvent<HTMLInputElement>) => {
       onUpdate(assetSlug, evt.target.checked ? ITokenStatus.Enabled : ITokenStatus.Disabled);
     },
     [assetSlug, onUpdate]
