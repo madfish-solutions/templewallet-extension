@@ -47,9 +47,12 @@ export const [SyncTokensProvider, useSyncTokens] = constate(() => {
       setTokensDetailedMetadata,
       usdPrices,
       fetchMetadata,
-      tokens.concat(nfts),
+      networkIdRef.current === chainId ? tokens.concat(nfts) : [],
       mutate
     );
+    if (networkIdRef.current !== chainId) {
+      networkIdRef.current = chainId;
+    }
   }, [
     accountPkh,
     chainId,
@@ -69,9 +72,6 @@ export const [SyncTokensProvider, useSyncTokens] = constate(() => {
   }, [sync]);
 
   const networkIdRef = useRef(chainId);
-  if (networkIdRef.current !== chainId) {
-    networkIdRef.current = chainId;
-  }
 
   useEffect(() => {
     if (!chainId) {
@@ -174,8 +174,8 @@ const makeSync = async (
     }
   }
 
-  await setTokensBaseMetadata(baseMetadatasToSet);
-  await setTokensDetailedMetadata(detailedMetadatasToSet);
+  setTokensBaseMetadata(baseMetadatasToSet);
+  setTokensDetailedMetadata(detailedMetadatasToSet);
 
   await Repo.accountTokens.bulkPut(
     tokenSlugs.map((slug, i) =>
