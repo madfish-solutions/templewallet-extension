@@ -48,6 +48,7 @@ import { ABTestGroup } from 'lib/templewallet-api';
 import useSafeState from 'lib/ui/useSafeState';
 import { Link, useLocation } from 'lib/woozie';
 
+import { useGasToken } from '../hooks/useGasToken';
 import { DelegateFormSelectors } from './DelegateForm.selectors';
 
 const PENNY = 0.000001;
@@ -64,13 +65,12 @@ const sponsoredBaker = 'tz1aRoaRhSpRYvFdyvgWLL6TGyRoGF51wDjM';
 const DelegateForm: FC = () => {
   const { registerBackHandler } = useAppEnv();
   const formAnalytics = useFormAnalytics('DelegateForm');
-  const network = useNetwork();
+  const { symbol, isDcpNetwork, logo } = useGasToken();
 
   const acc = useAccount();
   const tezos = useTezos();
 
   const accountPkh = acc.publicKeyHash;
-  const assetSymbol = network.type === 'dcp' ? 'ф' : 'ꜩ';
 
   const { data: balanceData, mutate: mutateBalance } = useBalance('tez', accountPkh);
   const balance = balanceData!;
@@ -286,13 +286,7 @@ const DelegateForm: FC = () => {
         {useMemo(
           () => (
             <div className={classNames('mb-6', 'border rounded-md', 'p-2', 'flex items-center')}>
-              <img
-                src={browser.runtime.getURL(
-                  network.type === 'dcp' ? 'misc/token-logos/film.png' : 'misc/token-logos/tez.svg'
-                )}
-                alt={assetSymbol}
-                className="w-auto h-12 mr-3"
-              />
+              <img src={browser.runtime.getURL(logo)} alt={symbol} className="w-auto h-12 mr-3" />
 
               <div className="font-light leading-none">
                 <div className="flex items-center">
@@ -300,7 +294,7 @@ const DelegateForm: FC = () => {
                     <span className="text-xl text-gray-700 flex items-baseline">
                       <Money>{balance}</Money>{' '}
                       <span style={{ fontSize: '0.75em' }}>
-                        <span className="ml-1">{assetSymbol}</span>
+                        <span className="ml-1">{symbol}</span>
                       </span>
                     </span>
 
@@ -317,7 +311,7 @@ const DelegateForm: FC = () => {
               </div>
             </div>
           ),
-          [balance, assetSymbol, network.type]
+          [balance, symbol, logo]
         )}
 
         <Controller
@@ -334,11 +328,11 @@ const DelegateForm: FC = () => {
           cleanable={Boolean(toValue)}
           onClean={cleanToField}
           id="delegate-to"
-          label={network.type === 'dcp' ? t('producer') : t('baker')}
+          label={isDcpNetwork ? t('producer') : t('baker')}
           labelDescription={
             canUseDomainNames
               ? t('bakerInputDescriptionWithDomain')
-              : network.type === 'dcp'
+              : isDcpNetwork
               ? t('producerInputDescription')
               : t('bakerInputDescription')
           }
@@ -471,7 +465,7 @@ const BakerBannerComponent: React.FC<BakerBannerComponentProps> = ({ tzError, ba
   const balance = balanceData!;
   const balanceNum = balance.toNumber();
   const net = useNetwork();
-  const assetSymbol = 'ꜩ';
+  const { symbol } = useGasToken();
   return baker ? (
     <>
       <div className={classNames('-mt-2 mb-6', 'flex flex-col items-center')}>
@@ -487,7 +481,7 @@ const BakerBannerComponent: React.FC<BakerBannerComponentProps> = ({ tzError, ba
               id="minDelegationAmountDescription"
               substitutions={[
                 <span className="font-normal" key="minDelegationsAmount">
-                  <Money isSpan>{baker.minDelegation}</Money> <span style={{ fontSize: '0.75em' }}>{assetSymbol}</span>
+                  <Money isSpan>{baker.minDelegation}</Money> <span style={{ fontSize: '0.75em' }}>{symbol}</span>
                 </span>
               ]}
             />

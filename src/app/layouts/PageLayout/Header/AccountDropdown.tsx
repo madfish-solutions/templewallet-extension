@@ -20,10 +20,11 @@ import Balance from 'app/templates/Balance';
 import SearchField from 'app/templates/SearchField';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
 import { t, T } from 'lib/i18n/react';
-import { useAccount, useNetwork, useRelevantAccounts, useSetAccountPkh, useTempleClient } from 'lib/temple/front';
+import { useAccount, useRelevantAccounts, useSetAccountPkh, useTempleClient } from 'lib/temple/front';
 import { PopperRenderProps } from 'lib/ui/Popper';
 import { Link } from 'lib/woozie';
 
+import { useGasToken } from '../../../hooks/useGasToken';
 import { AccountDropdownSelectors } from './AccountDropdown.selectors';
 
 type ExcludesFalse = <T>(x: T | false) => x is T;
@@ -37,7 +38,7 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
   const account = useAccount();
   const setAccountPkh = useSetAccountPkh();
   const [searchValue, setSearchValue] = useState('');
-  const network = useNetwork();
+  const { assetName } = useGasToken();
 
   const isShowSearch = useMemo(() => allAccounts.length > 5, [allAccounts.length]);
 
@@ -239,7 +240,7 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
                             >
                               <Money tooltip={false}>{bal}</Money>
                               <span className="ml-1" style={{ fontSize: '0.5rem' }}>
-                                {network.type === 'dcp' ? 'FILM' : 'tez'}
+                                {assetName}
                               </span>
                             </span>
                           )}

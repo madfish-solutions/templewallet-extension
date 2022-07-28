@@ -52,7 +52,6 @@ import {
   mutezToTz,
   ReactiveTezosToolkit,
   TempleAccountType,
-  TEZOS_METADATA,
   toPenny,
   toTransferParams,
   tzToMutez,
@@ -68,11 +67,12 @@ import {
 } from 'lib/temple/front';
 import { useFilteredContacts } from 'lib/temple/front/use-filtered-contacts.hook';
 import { validateDelegate } from 'lib/temple/front/validate-delegate';
-import { AssetMetadata, FILM_METADATA } from 'lib/temple/metadata';
+import { AssetMetadata } from 'lib/temple/metadata';
 import { TempleAccount, TempleNetworkType } from 'lib/temple/types';
 import useSafeState from 'lib/ui/useSafeState';
 import { HistoryAction, navigate } from 'lib/woozie';
 
+import { useGasToken } from '../hooks/useGasToken';
 import { IAsset } from './AssetSelect/interfaces';
 import { getSlug } from './AssetSelect/utils';
 import { SendFormSelectors } from './SendForm.selectors';
@@ -745,7 +745,7 @@ const FeeComponent: React.FC<FeeComponentProps> = ({
   isSubmitting
 }) => {
   const acc = useAccount();
-  const network = useNetwork();
+  const { metadata } = useGasToken();
   const accountPkh = acc.publicKeyHash;
   if (!restFormDisplayed) return null;
   return (
@@ -787,7 +787,7 @@ const FeeComponent: React.FC<FeeComponentProps> = ({
         name="fee"
         control={control}
         onChange={handleFeeFieldChange}
-        assetSymbol={network.type === 'dcp' ? FILM_METADATA.symbol : TEZOS_METADATA.symbol}
+        assetSymbol={metadata.symbol}
         baseFee={baseFee}
         error={error}
         id="send-fee"

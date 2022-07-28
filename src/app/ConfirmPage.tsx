@@ -41,6 +41,7 @@ import useSafeState from 'lib/ui/useSafeState';
 import { useLocation } from 'lib/woozie';
 
 import { ConfirmPageSelectors } from './ConfirmPage.selectors';
+import { useGasToken } from './hooks/useGasToken';
 
 const ConfirmPage: FC = () => {
   const { ready } = useTempleClient();
@@ -445,6 +446,8 @@ const AccountIcon: FC<OptionRenderProps<TempleAccount>> = ({ item }) => (
 );
 
 const AccountOptionContentHOC = (networkRpc: string) => {
+  const { assetName } = useGasToken();
+
   return memo<OptionRenderProps<TempleAccount>>(({ item: acc }) => (
     <>
       <div className="flex flex-wrap items-center">
@@ -462,7 +465,7 @@ const AccountOptionContentHOC = (networkRpc: string) => {
             <div className={classNames('ml-2', 'text-xs leading-none flex items-baseline', 'text-gray-600')}>
               <Money>{bal}</Money>
               <span className="ml-1" style={{ fontSize: '0.75em' }}>
-                tez
+                {assetName}
               </span>
             </div>
           )}

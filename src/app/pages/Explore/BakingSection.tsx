@@ -17,11 +17,12 @@ import BakingHistoryItem from 'app/pages/Explore/BakingHistoryItem';
 import BakerBanner from 'app/templates/BakerBanner';
 import { T, t } from 'lib/i18n/react';
 import { useRetryableSWR } from 'lib/swr';
-import { useAccount, useDelegate, TempleAccountType, useChainId, isKnownChainId, useNetwork } from 'lib/temple/front';
+import { useAccount, useDelegate, TempleAccountType, useChainId, isKnownChainId } from 'lib/temple/front';
 import { getDelegatorRewards, TZKT_API_BASE_URLS } from 'lib/tzkt';
 import useTippy from 'lib/ui/useTippy';
 import { Link } from 'lib/woozie';
 
+import { useGasToken } from '../../hooks/useGasToken';
 import styles from './BakingSection.module.css';
 import { BakingSectionSelectors } from './BakingSection.selectors';
 
@@ -63,11 +64,11 @@ const links = [
 
 const BakingSection = memo(() => {
   const acc = useAccount();
-  const network = useNetwork();
   const { data: myBakerPkh } = useDelegate(acc.publicKeyHash);
   const canDelegate = acc.type !== TempleAccountType.WatchOnly;
   const chainId = useChainId(true);
   const [showDetails, setShowDetails] = useState(false);
+  const { isDcpNetwork } = useGasToken();
 
   const toggleShowDetails = useCallback(() => setShowDetails(prevValue => !prevValue), []);
 
@@ -217,7 +218,7 @@ const BakingSection = memo(() => {
             <div className="flex flex-col items-center text-black">
               <DelegateIcon className="mb-1 stroke-current" />
 
-              {network.type === 'dcp' ? (
+              {isDcpNetwork ? (
                 <T id="dcpDelegatingMotivation">
                   {message => (
                     <p className="mb-6 text-sm font-light text-center" style={{ maxWidth: '20rem' }}>
@@ -335,7 +336,7 @@ const BakingSection = memo(() => {
       fallbackRewardsPerEvents,
       showDetails,
       toggleShowDetails,
-      network.type
+      isDcpNetwork
     ]
   );
 });
