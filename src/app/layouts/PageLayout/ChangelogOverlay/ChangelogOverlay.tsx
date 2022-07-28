@@ -26,11 +26,11 @@ export const ChangelogOverlay: FC = () => {
   };
   const popupClassName = popup ? 'inset-0' : 'top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2 p-12';
 
-  const isNewerVersion = changelogData.changelog.find(e => e.version === currentVersion);
+  const isNewerVersion = changelogData.find(e => e.version === currentVersion);
   if (!isNewerVersion) {
     return null;
   }
-  const filteredChangelog = filterByVersion(lastShownVersion, changelogData.changelog);
+  const filteredChangelog = filterByVersion(lastShownVersion, changelogData);
 
   return ready && lastShownVersion !== currentVersion ? (
     <>

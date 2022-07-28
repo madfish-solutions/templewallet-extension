@@ -35,8 +35,4 @@ const datav1_14_7: ChangelogItem = {
   ]
 };
 
-const allVersions = [datav1_14_8, datav1_14_7];
-
-export const changelogData = {
-  changelog: allVersions
-};
+export const changelogData = [datav1_14_8, datav1_14_7];
