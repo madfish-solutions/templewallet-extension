@@ -8,7 +8,7 @@ import ContentContainer from 'app/layouts/ContentContainer';
 import { T } from 'lib/i18n/react';
 import { useTempleClient, useStorage } from 'lib/temple/front';
 
-import { changelogData, ChangelogRenderItem } from './ChangelogOverlay.data';
+import { changelogData, ChangelogItem } from './ChangelogOverlay.data';
 import { ChangelogOverlaySelectors } from './ChangelogOverlay.selectors';
 
 const currentVersion = process.env.VERSION;
@@ -16,13 +16,13 @@ const currentVersion = process.env.VERSION;
 export const ChangelogOverlay: FC = () => {
   const { popup } = useAppEnv();
   const { ready } = useTempleClient();
-  const [showChangelogOverlay, toggleChangelogOverlay] = useStorage<string | undefined | null>(
-    `changelog_version`,
+  const [lastShownVersion, setLastShownVersion] = useStorage<string | undefined | null>(
+    `last_shown_changelog_version`,
     '1.14.6'
   );
 
   const handleContinue = () => {
-    toggleChangelogOverlay(currentVersion);
+    setLastShownVersion(currentVersion);
   };
   const popupClassName = popup ? 'inset-0' : 'top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2 p-12';
 
@@ -30,9 +30,9 @@ export const ChangelogOverlay: FC = () => {
   if (!isNewerVersion) {
     return null;
   }
-  const filteredChangelog = filterByVersion(showChangelogOverlay, changelogData.changelog);
+  const filteredChangelog = filterByVersion(lastShownVersion, changelogData.changelog);
 
-  return ready && showChangelogOverlay !== currentVersion ? (
+  return ready && lastShownVersion !== currentVersion ? (
     <>
       <div className={'fixed left-0 right-0 top-0 bottom-0 opacity-20 bg-gray-700 z-50'}></div>
       <ContentContainer
@@ -72,7 +72,7 @@ export const ChangelogOverlay: FC = () => {
                 <ul>
                   {data.map((value, index) => (
                     <li className="mb-1" style={{ listStyleType: 'disc', listStylePosition: 'inside' }} key={index}>
-                      <value.Component />
+                      {value}
                     </li>
                   ))}
                 </ul>
@@ -85,10 +85,7 @@ export const ChangelogOverlay: FC = () => {
   ) : null;
 };
 
-const filterByVersion = (
-  version: string | null | undefined,
-  data: Array<ChangelogRenderItem>
-): Array<ChangelogRenderItem> => {
+const filterByVersion = (version: string | null | undefined, data: Array<ChangelogItem>): Array<ChangelogItem> => {
   let foundVersion: number | undefined;
   return data.filter((x, i) => {
     if (x.version === version) {

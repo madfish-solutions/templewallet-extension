@@ -1,15 +1,8 @@
 import React from 'react';
 
-interface ChangelogItem {
-  version?: string;
+export interface ChangelogItem {
+  version: string;
   data: Array<JSX.Element>;
-}
-
-export interface ChangelogRenderItem {
-  data: {
-    Component: () => JSX.Element;
-  }[];
-  version?: string | undefined;
 }
 
 const datav1_14_8: ChangelogItem = {
@@ -45,5 +38,5 @@ const datav1_14_7: ChangelogItem = {
 const allVersions = [datav1_14_8, datav1_14_7];
 
 export const changelogData = {
-  changelog: allVersions.map(x => ({ ...x, data: x.data.map(y => ({ Component: () => y })) }))
+  changelog: allVersions
 };
