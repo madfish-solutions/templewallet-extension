@@ -84,12 +84,12 @@ const BakerBanner = memo<BakerBannerProps>(
                 </div>
 
                 <div className="flex flex-wrap items-center w-full">
-                  <div className="flex items-center mr-3">
+                  <div className="flex-1 flex items-start mr-3">
                     <div
                       className={classNames(
                         'text-xs leading-tight flex',
                         'text-gray-500 flex-col',
-                        'align-start flex-1'
+                        'items-start flex-1'
                       )}
                     >
                       <T id="staking" />:
@@ -98,12 +98,12 @@ const BakerBanner = memo<BakerBannerProps>(
                       </span>
                     </div>
                   </div>
-                  <div className="flex items-center mr-3">
+                  <div className="flex-1 flex items-start mr-3">
                     <div
                       className={classNames(
                         'text-xs leading-tight flex',
                         'text-gray-500 flex-col',
-                        'align-start flex-1'
+                        'items-start flex-1'
                       )}
                     >
                       <T id="space" />:
@@ -112,12 +112,12 @@ const BakerBanner = memo<BakerBannerProps>(
                       </span>
                     </div>
                   </div>
-                  <div className="flex items-center mr-12">
+                  <div className="flex-1 flex items-start mr-12">
                     <div
                       className={classNames(
                         'text-xs leading-tight',
                         'text-gray-500 flex flex-col',
-                        'align-start flex-1'
+                        'items-start flex-1'
                       )}
                     >
                       <T id="fee" />:
