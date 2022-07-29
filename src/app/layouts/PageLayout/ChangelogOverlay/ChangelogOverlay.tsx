@@ -8,40 +8,31 @@ import ContentContainer from 'app/layouts/ContentContainer';
 import { T } from 'lib/i18n/react';
 import { useTempleClient, useStorage } from 'lib/temple/front';
 
+import { changelogData, ChangelogItem } from './ChangelogOverlay.data';
 import { ChangelogOverlaySelectors } from './ChangelogOverlay.selectors';
 
-const changes = [
-  { Component: () => <>Jakarta protocol testnet is up.</> },
-  { Component: () => <>Ghostnet is now supported.</> },
-  {
-    Component: () => <>QuipuSwap Stable pools, Plenty Stable Swap and Plenty Volatile Swap added to the swap router.</>
-  },
-  { Component: () => <>Ctez pools and Vortex DOGA/TEZ pools fixed.</> },
-  {
-    Component: () => (
-      <>
-        Import/create wallet flow changed to be more intuitive. Seed phrase confirmation process changed to bolster
-        security.
-      </>
-    )
-  },
-  { Component: () => <>Streamlined derivation path options on wallet import.</> },
-  { Component: () => <>.xyz Tez domains are now supported.</> },
-  { Component: () => <>Hryvna/Tez top-up added (Alice-Bob partner integration)</> },
-  { Component: () => <>Various other UI fixes</> }
-];
+const currentVersion = process.env.VERSION;
 
 export const ChangelogOverlay: FC = () => {
   const { popup } = useAppEnv();
   const { ready } = useTempleClient();
-  const [showChangelogOverlay, toggleChangelogOverlay] = useStorage(`changelog_${process.env.VERSION}`, true);
+  const [lastShownVersion, setLastShownVersion] = useStorage<string | undefined | null>(
+    `last_shown_changelog_version`,
+    '1.14.6'
+  );
 
   const handleContinue = () => {
-    toggleChangelogOverlay(false);
+    setLastShownVersion(currentVersion);
   };
-  const popupClassName = popup ? 'inset-0' : 'top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2';
+  const popupClassName = popup ? 'inset-0' : 'top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2 p-12';
 
-  return ready && showChangelogOverlay ? (
+  const isNewerVersion = changelogData.find(e => e.version === currentVersion);
+  if (!isNewerVersion) {
+    return null;
+  }
+  const filteredChangelog = filterByVersion(lastShownVersion, changelogData);
+
+  return ready && lastShownVersion !== currentVersion ? (
     <>
       <div className={'fixed left-0 right-0 top-0 bottom-0 opacity-20 bg-gray-700 z-50'}></div>
       <ContentContainer
@@ -49,7 +40,7 @@ export const ChangelogOverlay: FC = () => {
         padding={!popup}
       >
         <div
-          className={classNames('bg-white shadow-lg', popup ? 'pt-20 pb-16 px-8' : 'rounded-md py-32')}
+          className={classNames('bg-white shadow-lg relative', popup ? 'pt-20 pb-16 px-8' : 'rounded-md py-32')}
           style={{
             backgroundColor: `#FFF2E6`,
             minHeight: popup ? '100%' : 'unset'
@@ -71,39 +62,35 @@ export const ChangelogOverlay: FC = () => {
           </Button>
           <div className="flex flex-col max-w-sm mx-auto w-full">
             <p className="text-xl font-inter font-semibold" style={{ fontSize: 23, color: '#FF5B00' }}>
-              <T id="changelogTitle">
-                {message => (
-                  <>
-                    {message} {process.env.VERSION}
-                  </>
-                )}
-              </T>
+              <T id="changelogTitle" />
             </p>
-            <p className="my-4 font-semibold font-inter" style={{ fontSize: 14 }}>
-              <T id="changelogDescription" />
-            </p>
-            <ul>
-              {changes.map((value, index) => (
-                <li className="mb-1" style={{ listStyleType: 'disc', listStylePosition: 'inside' }} key={index}>
-                  <value.Component />
-                </li>
-              ))}
-            </ul>
-            <Button
-              className="mt-6 py-2 px-8 text-white font-inter rounded font-semibold uppercase mx-auto"
-              onClick={handleContinue}
-              testID={ChangelogOverlaySelectors.Continue}
-              style={{
-                fontSize: 13,
-                maxWidth: '7rem',
-                backgroundColor: '#FF5B00'
-              }}
-            >
-              <T id="okGotIt" />
-            </Button>
+            {filteredChangelog.map(({ version, data }) => (
+              <React.Fragment key={version}>
+                <p className="my-4 font-semibold font-inter" style={{ fontSize: 14 }}>
+                  <T id="update" /> {version}
+                </p>
+                <ul>
+                  {data.map((value, index) => (
+                    <li className="mb-1" style={{ listStyleType: 'disc', listStylePosition: 'inside' }} key={index}>
+                      {value}
+                    </li>
+                  ))}
+                </ul>
+              </React.Fragment>
+            ))}
           </div>
         </div>
       </ContentContainer>
     </>
   ) : null;
+};
+
+const filterByVersion = (version: string | null | undefined, data: Array<ChangelogItem>): Array<ChangelogItem> => {
+  let foundVersion: number | undefined;
+  return data.filter((x, i) => {
+    if (x.version === version) {
+      foundVersion = i;
+    }
+    return foundVersion ? foundVersion > i : true;
+  });
 };
