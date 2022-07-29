@@ -3,7 +3,7 @@ import React, { FC, FunctionComponent, ReactNode, Suspense, SVGProps, useLayoutE
 import classNames from 'clsx';
 import { Props as TippyProps } from 'tippy.js';
 
-import Spinner from 'app/atoms/Spinner';
+import Spinner from 'app/atoms/Spinner/Spinner';
 import { useTabSlug } from 'app/atoms/useTabSlug';
 import { useAppEnv } from 'app/env';
 import ErrorBoundary from 'app/ErrorBoundary';
@@ -18,6 +18,7 @@ import Activity from 'app/templates/activity/Activity';
 import AssetInfo from 'app/templates/AssetInfo';
 import { TestIDProps } from 'lib/analytics';
 import { T, t } from 'lib/i18n/react';
+import { PropsWithChildren } from 'lib/props-with-children';
 import {
   getAssetSymbol,
   isTezAsset,
@@ -36,7 +37,7 @@ import AddressChip from './Explore/AddressChip';
 import BakingSection from './Explore/BakingSection';
 import EditableTitle from './Explore/EditableTitle';
 import MainBanner from './Explore/MainBanner';
-import Tokens from './Explore/Tokens';
+import Tokens from './Explore/Tokens/Tokens';
 import { useOnboardingProgress } from './Onboarding/hooks/useOnboardingProgress.hook';
 import Onboarding from './Onboarding/Onboarding';
 
@@ -323,10 +324,10 @@ const SecondarySection: FC<SecondarySectionProps> = ({ assetSlug, className }) =
   );
 };
 
-type SuspenseContainerProps = {
+interface SuspenseContainerProps extends PropsWithChildren {
   whileMessage: string;
   fallback?: ReactNode;
-};
+}
 
 const SuspenseContainer: FC<SuspenseContainerProps> = ({ whileMessage, fallback = <SpinnerSection />, children }) => (
   <ErrorBoundary whileMessage={whileMessage}>

@@ -7,6 +7,7 @@ import * as TaquitoUtils from '@taquito/utils';
 import { LedgerTempleBridgeTransport } from '@temple-wallet/ledger-bridge';
 import * as Bip39 from 'bip39';
 import * as Ed25519 from 'ed25519-hd-key';
+import { initialize, SecureCellSeal } from 'wasm-themis';
 
 import { getMessage } from 'lib/i18n';
 import { PublicError } from 'lib/temple/back/defaults';
@@ -34,6 +35,7 @@ import * as Passworder from 'lib/temple/passworder';
 import { clearStorage } from 'lib/temple/reset';
 import { TempleAccount, TempleAccountType, TempleContact, TempleSettings } from 'lib/temple/types';
 
+const TEMPLE_SYNC_PREFIX = 'templesync';
 const TEZOS_BIP44_COINTYPE = 1729;
 const STORAGE_KEY_PREFIX = 'vault';
 const DEFAULT_SETTINGS: TempleSettings = {};
@@ -96,7 +98,15 @@ export class Vault {
 
       const passKey = await Passworder.generateKey(password);
 
+      const onboarding = localStorage.getItem('onboarding');
+      const analytics = localStorage.getItem('analytics');
+
       await clearStorage();
+      try {
+        localStorage.setItem('onboarding', onboarding!);
+        localStorage.setItem('analytics', analytics!);
+      } catch {}
+
       await encryptAndSaveMany(
         [
           [checkStrgKey, generateCheck()],
@@ -176,6 +186,29 @@ export class Vault {
   static async revealMnemonic(password: string) {
     const passKey = await Vault.toValidPassKey(password);
     return withError('Failed to reveal seed phrase', () => fetchAndDecryptOne<string>(mnemonicStrgKey, passKey));
+  }
+
+  static async generateSyncPayload(password: string) {
+    try {
+      await initialize();
+    } catch {}
+    const passKey = await Vault.toValidPassKey(password);
+    return withError('Failed to generate sync payload', async () => {
+      const [mnemonic, allAccounts] = await Promise.all([
+        fetchAndDecryptOne<string>(mnemonicStrgKey, passKey),
+        fetchAndDecryptOne<TempleAccount[]>(accountsStrgKey, passKey)
+      ]);
+
+      const hdAccounts = allAccounts.filter(acc => acc.type === TempleAccountType.HD);
+
+      const data = [mnemonic, hdAccounts.length];
+
+      const payload = Uint8Array.from(Buffer.from(JSON.stringify(data)));
+      const cell = SecureCellSeal.withPassphrase(password);
+      const encrypted = cell.encrypt(payload);
+
+      return [TEMPLE_SYNC_PREFIX, encrypted].map(item => Buffer.from(item).toString('base64')).join('');
+    });
   }
 
   static async revealPrivateKey(accPublicKeyHash: string, password: string) {

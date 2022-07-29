@@ -15,7 +15,6 @@ import { nanoid } from 'nanoid';
 
 import { IntercomClient } from 'lib/intercom';
 import { useRetryableSWR } from 'lib/swr';
-import { TempleNetwork } from 'lib/temple/front';
 import {
   TempleConfirmationPayload,
   TempleMessageType,
@@ -31,6 +30,7 @@ import toBuffer from 'typedarray-to-buffer';
 type Confirmation = {
   id: string;
   payload: TempleConfirmationPayload;
+  error?: any;
 };
 
 const intercom = new IntercomClient();
@@ -46,7 +46,7 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     return res.state;
   }, []);
 
-  const { data, revalidate } = useRetryableSWR('state', fetchState, {
+  const { data, mutate } = useRetryableSWR('state', fetchState, {
     suspense: true,
     shouldRetryOnError: false,
     revalidateOnFocus: false,
@@ -65,12 +65,12 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     return intercom.subscribe((msg: TempleNotification) => {
       switch (msg?.type) {
         case TempleMessageType.StateUpdated:
-          revalidate();
+          mutate();
           break;
 
         case TempleMessageType.ConfirmationRequested:
           if (msg.id === confirmationIdRef.current) {
-            setConfirmation({ id: msg.id, payload: msg.payload });
+            setConfirmation({ id: msg.id, payload: msg.payload, error: msg.error });
           }
           break;
 
@@ -81,7 +81,7 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
           break;
       }
     });
-  }, [revalidate, setConfirmation, resetConfirmation]);
+  }, [mutate, setConfirmation, resetConfirmation]);
 
   /**
    * Aliases
@@ -92,28 +92,8 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
   const locked = status === TempleStatus.Locked;
   const ready = status === TempleStatus.Ready;
 
-  const getLambdaContractFromNetwork = useCallback(
-    (network: TempleNetwork) =>
-      network.lambdaContract
-        ? network
-        : {
-            ...network,
-            lambdaContract: settings?.lambdaContracts?.[network.id]
-          },
-    [settings]
-  );
-
-  const customNetworks = useMemo(() => {
-    const customNetworksWithoutLambdaContracts = settings?.customNetworks ?? [];
-    return customNetworksWithoutLambdaContracts.map(getLambdaContractFromNetwork);
-  }, [settings, getLambdaContractFromNetwork]);
-  const defaultNetworksWithLambdaContracts = useMemo(() => {
-    return defaultNetworks.map(getLambdaContractFromNetwork);
-  }, [defaultNetworks, getLambdaContractFromNetwork]);
-  const networks = useMemo(
-    () => [...defaultNetworksWithLambdaContracts, ...customNetworks],
-    [defaultNetworksWithLambdaContracts, customNetworks]
-  );
+  const customNetworks = useMemo(() => settings?.customNetworks ?? [], [settings]);
+  const networks = useMemo(() => [...defaultNetworks, ...customNetworks], [defaultNetworks, customNetworks]);
 
   /**
    * Actions
@@ -168,6 +148,15 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     });
     assertResponse(res.type === TempleMessageType.RevealMnemonicResponse);
     return res.mnemonic;
+  }, []);
+
+  const generateSyncPayload = useCallback(async (password: string) => {
+    const res = await request({
+      type: TempleMessageType.GenerateSyncPayloadRequest,
+      password
+    });
+    assertResponse(res.type === TempleMessageType.GenerateSyncPayloadResponse);
+    return res.payload;
   }, []);
 
   const removeAccount = useCallback(async (accountPublicKeyHash: string, password: string) => {
@@ -355,7 +344,7 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     // Aliases
     status,
     defaultNetworks,
-    customNetworks: defaultNetworksWithLambdaContracts,
+    customNetworks,
     networks,
     accounts,
     settings,
@@ -374,6 +363,7 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     createAccount,
     revealPrivateKey,
     revealMnemonic,
+    generateSyncPayload,
     removeAccount,
     editAccountName,
     importAccount,
@@ -500,13 +490,13 @@ async function getPublicKey(accountPublicKeyHash: string) {
   return res.publicKey;
 }
 
-async function request<T extends TempleRequest>(req: T) {
+export async function request<T extends TempleRequest>(req: T) {
   const res = await intercom.request(req);
   assertResponse('type' in res);
   return res as TempleResponse;
 }
 
-function assertResponse(condition: any): asserts condition {
+export function assertResponse(condition: any): asserts condition {
   if (!condition) {
     throw new Error('Invalid response recieved');
   }

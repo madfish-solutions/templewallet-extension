@@ -1,6 +1,6 @@
 import React, { FC, useCallback, useEffect, useRef } from 'react';
 
-import { useForm } from 'react-hook-form';
+import { OnSubmit, useForm } from 'react-hook-form';
 
 import Alert from 'app/atoms/Alert';
 import FormField from 'app/atoms/FormField';
@@ -33,7 +33,7 @@ const RemoveAccount: FC = () => {
   const { register, handleSubmit, errors, setError, clearError, formState } = useForm<FormData>();
   const submitting = formState.isSubmitting;
 
-  const onSubmit = useCallback(
+  const onSubmit = useCallback<OnSubmit<FormData>>(
     async ({ password }) => {
       if (submitting) return;
 

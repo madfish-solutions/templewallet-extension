@@ -20,10 +20,16 @@ export const formatTokenUri = (thumbnailUri = '') => {
   return sanitizeImgUri(ipfsUri);
 };
 
-export const formatCollectibleUri = (assetSlug: string) => {
+export const formatCollectibleObjktBigUri = (assetSlug: string) => {
   const [address, id] = assetSlug.split('_');
 
   return `https://assets.objkt.media/file/assets-001/${address}/${id.length > 1 ? id[id.length - 2] : 0}/${
     id[id.length - 1]
   }/${id}/thumb400`;
+};
+
+export const formatCollectibleObjktMediumUri = (assetSlug: string) => {
+  const [address, id] = assetSlug.split('_');
+
+  return `https://assets.objkt.media/file/assets-003/${address}/${id}/thumb288`;
 };

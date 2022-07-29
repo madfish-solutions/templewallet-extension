@@ -95,15 +95,15 @@ describe('Vault tests', () => {
   });
 
   it('updateSettings test', async () => {
+    const contractsMock = [{ address: 'addressMock', name: 'nameMock' }];
+
     const newSettings: Partial<TempleSettings> = {
-      lambdaContracts: {
-        contract1: 'value1'
-      }
+      contacts: contractsMock
     };
     await Vault.spawn(password, mnemonic);
     const vault = await Vault.setup(password);
     const settings = await vault.updateSettings(newSettings);
-    expect(settings?.lambdaContracts?.contract1!).toBe('value1');
+    expect(settings?.contacts).toBe(contractsMock);
   });
 
   it('sign tz1 64 bytes test', async () => {

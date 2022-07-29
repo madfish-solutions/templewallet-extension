@@ -28,7 +28,7 @@ export interface AppMetadata {
   icon?: string;
 }
 
-export type NetworkType = 'mainnet' | 'granadanet' | 'hangzhounet' | 'custom';
+export type NetworkType = 'mainnet' | 'custom';
 
 export interface Network {
   type: NetworkType;
@@ -219,7 +219,7 @@ export function formatOpParams(op: any) {
  */
 export const PAIRING_RESPONSE_BASE: Partial<PostMessagePairingResponse> = {
   type: MessageType.HandshakeResponse,
-  name: 'Temple - Tezos Wallet (ex. Thanos)',
+  name: 'Temple - Tezos Wallet',
   icon: process.env.TEMPLE_WALLET_LOGO_URL || undefined,
   appUrl: browser.runtime.getURL('fullpage.html')
 };

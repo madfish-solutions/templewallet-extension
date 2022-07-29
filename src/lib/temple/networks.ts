@@ -1,18 +1,20 @@
 import { getMessage } from 'lib/i18n';
 import { TempleChainId, TempleNetwork } from 'lib/temple/types';
 
-export const KNOWN_LAMBDA_CONTRACTS = new Map([
-  [TempleChainId.Mainnet, 'KT1CPuTzwC7h7uLXd5WQmpMFso1HxrLBUtpE'],
-  [TempleChainId.Granadanet, 'KT1VhtTGAyh7AVVwyH2ExNhaXvQq2rAJ6DNs'],
-  [TempleChainId.Hangzhounet, 'KT19ewhnhaCcCuoF1Ly2pxXAFRiF3UtgaY9U'],
-  [TempleChainId.Idiazabalnet, 'KT1VCXUAQC6bky8LKjSaTvM9wwTXe9YQ7N4s']
-]);
+const formatDateToRPCFormat = (date: Date) => date.toLocaleDateString('en-GB').split('/').reverse().join('-');
+
+const getLastMonday = (date = new Date()) => {
+  const dateCopy = new Date(date.getTime() - 604800000);
+
+  const nextMonday = new Date(dateCopy.setDate(dateCopy.getDate() + ((7 - dateCopy.getDay() + 1) % 7 || 7)));
+
+  return formatDateToRPCFormat(nextMonday);
+};
 
 export const NETWORK_IDS = new Map<string, string>([
   [TempleChainId.Mainnet, 'mainnet'],
-  [TempleChainId.Granadanet, 'granadanet'],
-  [TempleChainId.Hangzhounet, 'hangzhounet'],
-  [TempleChainId.Idiazabalnet, 'idiazabalnet']
+  [TempleChainId.Ghostnet, 'ghostnet'],
+  [TempleChainId.Jakartanet, 'jakartanet']
 ]);
 
 export const NETWORKS: TempleNetwork[] = [
@@ -21,7 +23,6 @@ export const NETWORKS: TempleNetwork[] = [
     name: getMessage('tezosMainnet'),
     nameI18nKey: 'tezosMainnet',
     description: 'Tezos mainnet',
-    lambdaContract: 'KT1CPuTzwC7h7uLXd5WQmpMFso1HxrLBUtpE',
     type: 'main',
     rpcBaseURL: 'https://mainnet-node.madfish.solutions',
     color: '#83b300',
@@ -31,7 +32,6 @@ export const NETWORKS: TempleNetwork[] = [
     id: 'giganode-mainnet',
     name: 'Mainnet @giganode.io',
     description: 'Highly available Tezos Mainnet nodes operated by Giganode',
-    lambdaContract: 'KT1CPuTzwC7h7uLXd5WQmpMFso1HxrLBUtpE',
     type: 'main',
     rpcBaseURL: 'https://mainnet-tezos.giganode.io',
     color: '#059669',
@@ -41,7 +41,6 @@ export const NETWORKS: TempleNetwork[] = [
     id: 'smartpy-mainnet',
     name: 'Mainnet @smartpy.io',
     description: 'SmartPy Mainnet',
-    lambdaContract: 'KT1CPuTzwC7h7uLXd5WQmpMFso1HxrLBUtpE',
     type: 'main',
     rpcBaseURL: 'https://mainnet.smartpy.io',
     color: '#34D399',
@@ -51,7 +50,6 @@ export const NETWORKS: TempleNetwork[] = [
     id: 'tzbeta-mainnet',
     name: 'Mainnet @tzbeta.net',
     description: 'Highly available Tezos Mainnet nodes operated by Blockscale',
-    lambdaContract: 'KT1CPuTzwC7h7uLXd5WQmpMFso1HxrLBUtpE',
     type: 'main',
     rpcBaseURL: 'https://rpc.tzbeta.net',
     color: '#10B981',
@@ -61,40 +59,54 @@ export const NETWORKS: TempleNetwork[] = [
     id: 'tezie-mainnet',
     name: 'Mainnet @api.tez.ie',
     description: 'Highly available Tezos Mainnet nodes operated by ECAD Labs',
-    lambdaContract: 'KT1CPuTzwC7h7uLXd5WQmpMFso1HxrLBUtpE',
     type: 'main',
     rpcBaseURL: 'https://mainnet.api.tez.ie',
     color: '#047857',
     disabled: false
   },
   {
-    id: 'granadanet',
-    name: 'Granada Testnet',
-    description: 'Granada testnet',
-    lambdaContract: 'KT1VhtTGAyh7AVVwyH2ExNhaXvQq2rAJ6DNs',
+    id: 'ghostnet',
+    name: 'Ghostnet Testnet',
+    description: 'Ghostnet testnet',
     type: 'test',
-    rpcBaseURL: 'https://granadanet.smartpy.io',
-    color: '#667eea',
-    disabled: false
-  },
-  {
-    id: 'hangzhounet',
-    name: 'Hangzhounet Testnet',
-    description: 'Hangzhounet testnet',
-    lambdaContract: 'KT19ewhnhaCcCuoF1Ly2pxXAFRiF3UtgaY9U',
-    type: 'test',
-    rpcBaseURL: 'https://hangzhounet.smartpy.io',
-    color: '#b83280',
-    disabled: false
-  },
-  {
-    id: 'idiazabalnet',
-    name: 'Idiazabalnet Testnet',
-    description: 'Idiazabalnet testnet',
-    lambdaContract: 'KT1VCXUAQC6bky8LKjSaTvM9wwTXe9YQ7N4s',
-    type: 'test',
-    rpcBaseURL: 'https://rpc.tzkt.io/idiazabalnet',
+    rpcBaseURL: 'https://rpc.ghostnet.teztnets.xyz/',
     color: '#131380',
+    disabled: false
+  },
+  {
+    id: 'jakartanet',
+    name: 'Jakartanet Testnet',
+    description: 'Jakartanet testnet',
+    type: 'test',
+    rpcBaseURL: 'https://jakartanet.tezos.marigold.dev/',
+    color: '#232380',
+    disabled: false
+  },
+  {
+    id: 'katmandu',
+    name: 'Katmandu Testnet',
+    description: 'Katmandu testnet',
+    type: 'test',
+    rpcBaseURL: 'https://rpc.kathmandunet.teztnets.xyz/',
+    color: '#FBBF24',
+    disabled: false
+  },
+  {
+    id: 'monday',
+    name: 'MondayNet',
+    description: `MondayNet ${getLastMonday()}`,
+    type: 'test',
+    rpcBaseURL: `https://rpc.mondaynet-${getLastMonday()}.teztnets.xyz/`,
+    color: '#FBBF24',
+    disabled: false
+  },
+  {
+    id: 'daily',
+    name: 'DailyNet',
+    description: 'DailyNet',
+    type: 'test',
+    rpcBaseURL: `https://rpc.dailynet-${formatDateToRPCFormat(new Date())}.teztnets.xyz/`,
+    color: '#FBBF24',
     disabled: false
   },
   {
@@ -107,6 +119,16 @@ export const NETWORKS: TempleNetwork[] = [
     disabled: false
   },
   // Hidden
+  {
+    id: 'smartpy-ithacanet',
+    name: 'Ithacanet Testnet Smartpy',
+    description: 'Ithacanet testnet',
+    type: 'test',
+    rpcBaseURL: 'https://ithacanet.smartpy.io',
+    color: '#FBBF24',
+    disabled: false,
+    hidden: true
+  },
   {
     id: 'tzbeta-rpczero',
     name: 'Edo Testnet @rpczero.tzbeta.net',

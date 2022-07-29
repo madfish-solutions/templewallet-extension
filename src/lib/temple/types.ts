@@ -1,5 +1,12 @@
-import { Estimate } from '@taquito/taquito/dist/types/contract/estimate';
+import { Estimate } from '@taquito/taquito';
 import { TempleDAppMetadata, TempleDAppNetwork } from '@temple-wallet/dapp/dist/types';
+
+import {
+  TempleSendPageEventRequest,
+  TempleSendPageEventResponse,
+  TempleSendTrackEventRequest,
+  TempleSendTrackEventResponse
+} from './analytics-types';
 
 type NonEmptyArray<T> = [T, ...T[]];
 
@@ -26,9 +33,11 @@ export interface TempleState {
 
 export enum TempleChainId {
   Mainnet = 'NetXdQprcVkpaWU',
-  Granadanet = 'NetXz969SFaFn8k',
-  Hangzhounet = 'NetXZSsxBpMQeAT',
-  Idiazabalnet = 'NetXxkAx4woPLyu'
+  Ghostnet = 'NetXnHfVqm9iesp',
+  Jakartanet = 'NetXLH1uAxK7CCh',
+  Katmandu = 'NetXdnUSgMs7Xc3',
+  Monday = 'NetXaqtQ8b5nihx',
+  Daily = 'NetXxkAx4woPLyu'
 }
 
 export function isKnownChainId(chainId: string): chainId is TempleChainId {
@@ -102,7 +111,6 @@ export interface TempleNetwork {
   nameI18nKey?: string;
   description: string;
   descriptionI18nKey?: string;
-  lambdaContract?: string;
   type: TempleNetworkType;
   rpcBaseURL: string;
   color: string;
@@ -114,7 +122,6 @@ export type TempleNetworkType = 'main' | 'test';
 
 export interface TempleSettings {
   customNetworks?: TempleNetwork[];
-  lambdaContracts?: Record<string, string>;
   contacts?: TempleContact[];
 }
 
@@ -164,11 +171,16 @@ export type TempleConfirmationPayload = TempleSignConfirmationPayload | TempleOp
  * DApp confirmation payloads
  */
 
+export type DappMetadata = TempleDAppMetadata & {
+  icon?: string;
+};
+
 export interface TempleDAppPayloadBase {
   type: string;
   origin: string;
   networkRpc: string;
-  appMeta: TempleDAppMetadata;
+  appMeta: DappMetadata;
+  error?: any;
 }
 
 export interface TempleDAppConnectPayload extends TempleDAppPayloadBase {
@@ -220,6 +232,8 @@ export enum TempleMessageType {
   RevealPrivateKeyResponse = 'TEMPLE_REVEAL_PRIVATE_KEY_RESPONSE',
   RevealMnemonicRequest = 'TEMPLE_REVEAL_MNEMONIC_REQUEST',
   RevealMnemonicResponse = 'TEMPLE_REVEAL_MNEMONIC_RESPONSE',
+  GenerateSyncPayloadRequest = 'TEMPLE_GENERATE_SYNC_PAYLOAD_REQUEST',
+  GenerateSyncPayloadResponse = 'TEMPLE_GENERATE_SYNC_PAYLOAD_RESPONSE',
   RemoveAccountRequest = 'TEMPLE_REMOVE_ACCOUNT_REQUEST',
   RemoveAccountResponse = 'TEMPLE_REMOVE_ACCOUNT_RESPONSE',
   EditAccountRequest = 'TEMPLE_EDIT_ACCOUNT_REQUEST',
@@ -257,7 +271,11 @@ export enum TempleMessageType {
   DAppGetAllSessionsRequest = 'TEMPLE_DAPP_GET_ALL_SESSIONS_REQUEST',
   DAppGetAllSessionsResponse = 'TEMPLE_DAPP_GET_ALL_SESSIONS_RESPONSE',
   DAppRemoveSessionRequest = 'TEMPLE_DAPP_REMOVE_SESSION_REQUEST',
-  DAppRemoveSessionResponse = 'TEMPLE_DAPP_REMOVE_SESSION_RESPONSE'
+  DAppRemoveSessionResponse = 'TEMPLE_DAPP_REMOVE_SESSION_RESPONSE',
+  SendTrackEventRequest = 'SEND_TRACK_EVENT_REQUEST',
+  SendTrackEventResponse = 'SEND_TRACK_EVENT_RESPONSE',
+  SendPageEventRequest = 'SEND_PAGE_EVENT_REQUEST',
+  SendPageEventResponse = 'SEND_PAGE_EVENT_RESPONSE'
 }
 
 export type TempleNotification = TempleStateUpdated | TempleConfirmationRequested | TempleConfirmationExpired;
@@ -271,6 +289,7 @@ export type TempleRequest =
   | TempleRevealPublicKeyRequest
   | TempleRevealPrivateKeyRequest
   | TempleRevealMnemonicRequest
+  | TempleGenerateSyncPayloadRequest
   | TempleEditAccountRequest
   | TempleImportAccountRequest
   | TempleImportMnemonicAccountRequest
@@ -289,7 +308,9 @@ export type TempleRequest =
   | TempleDAppSignConfirmationRequest
   | TempleUpdateSettingsRequest
   | TempleGetAllDAppSessionsRequest
-  | TempleRemoveDAppSessionRequest;
+  | TempleRemoveDAppSessionRequest
+  | TempleSendTrackEventRequest
+  | TempleSendPageEventRequest;
 
 export type TempleResponse =
   | TempleGetStateResponse
@@ -300,6 +321,7 @@ export type TempleResponse =
   | TempleRevealPublicKeyResponse
   | TempleRevealPrivateKeyResponse
   | TempleRevealMnemonicResponse
+  | TempleGenerateSyncPayloadResponse
   | TempleEditAccountResponse
   | TempleImportAccountResponse
   | TempleImportMnemonicAccountResponse
@@ -318,7 +340,9 @@ export type TempleResponse =
   | TempleDAppSignConfirmationResponse
   | TempleUpdateSettingsResponse
   | TempleGetAllDAppSessionsResponse
-  | TempleRemoveDAppSessionResponse;
+  | TempleRemoveDAppSessionResponse
+  | TempleSendTrackEventResponse
+  | TempleSendPageEventResponse;
 
 export interface TempleMessageBase {
   type: TempleMessageType;
@@ -332,6 +356,7 @@ export interface TempleConfirmationRequested extends TempleMessageBase {
   type: TempleMessageType.ConfirmationRequested;
   id: string;
   payload: TempleConfirmationPayload;
+  error?: any;
 }
 
 export interface TempleConfirmationExpired extends TempleMessageBase {
@@ -413,6 +438,16 @@ export interface TempleRevealMnemonicRequest extends TempleMessageBase {
 export interface TempleRevealMnemonicResponse extends TempleMessageBase {
   type: TempleMessageType.RevealMnemonicResponse;
   mnemonic: string;
+}
+
+export interface TempleGenerateSyncPayloadRequest extends TempleMessageBase {
+  type: TempleMessageType.GenerateSyncPayloadRequest;
+  password: string;
+}
+
+export interface TempleGenerateSyncPayloadResponse extends TempleMessageBase {
+  type: TempleMessageType.GenerateSyncPayloadResponse;
+  payload: string;
 }
 
 export interface TempleRemoveAccountRequest extends TempleMessageBase {

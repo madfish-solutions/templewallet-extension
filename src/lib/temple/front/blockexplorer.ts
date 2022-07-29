@@ -25,17 +25,17 @@ export const BLOCK_EXPLORERS: BlockExplorer[] = [
         }
       ],
       [
-        TempleChainId.Granadanet,
+        TempleChainId.Ghostnet,
         {
-          account: 'https://granadanet.tzkt.io',
-          transaction: 'https://granadanet.tzkt.io'
+          account: 'https://ghostnet.tzkt.io',
+          transaction: 'https://ghostnet.tzkt.io'
         }
       ],
       [
-        TempleChainId.Hangzhounet,
+        TempleChainId.Jakartanet,
         {
-          account: 'https://hangzhou2net.tzkt.io',
-          transaction: 'https://hangzhou2net.tzkt.io'
+          account: 'https://jakartanet.tzkt.io',
+          transaction: 'https://jakartanet.tzkt.io'
         }
       ]
     ])
@@ -61,12 +61,6 @@ export const BLOCK_EXPLORERS: BlockExplorer[] = [
         TempleChainId.Mainnet,
         {
           transaction: 'https://better-call.dev/mainnet/opg'
-        }
-      ],
-      [
-        TempleChainId.Granadanet,
-        {
-          transaction: 'https://better-call.dev/granadanet/opg'
         }
       ]
     ])

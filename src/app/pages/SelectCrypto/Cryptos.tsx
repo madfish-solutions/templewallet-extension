@@ -18,7 +18,7 @@ export const Cryptos: FC = () => {
         <div className="text-lg text-center">
           <T id="buyWithExolix" />
         </div>
-        <div className="text-center w-64 mx-auto">
+        <div className="text-center w-64 mx-auto mt-2 text-gray-700">
           <T id="buyWithExolixDescription" />
         </div>
         <Link
@@ -29,7 +29,7 @@ export const Cryptos: FC = () => {
             'flex items-center justify-center',
             'text-white',
             'shadow-sm hover:shadow focus:shadow',
-            'text-base font-semibold',
+            'text-base font-medium',
             'transition ease-in-out duration-300',
             'bg-blue-500',
             'w-full'

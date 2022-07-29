@@ -25,7 +25,7 @@ const DAppSettings: FC = () => {
   const { getAllDAppSessions, removeDAppSession } = useTempleClient();
   const confirm = useConfirm();
 
-  const { data, revalidate } = useRetryableSWR<TempleDAppSessions>(['getAllDAppSessions'], getAllDAppSessions, {
+  const { data, mutate } = useRetryableSWR<TempleDAppSessions>(['getAllDAppSessions'], getAllDAppSessions, {
     suspense: true,
     shouldRetryOnError: false,
     revalidateOnFocus: false,
@@ -39,7 +39,7 @@ const DAppSettings: FC = () => {
   const [error, setError] = useState<any>(null);
 
   const handleChange = useCallback(
-    async evt => {
+    async (evt: React.ChangeEvent<HTMLInputElement>) => {
       if (changingRef.current) return;
       changingRef.current = true;
       setError(null);
@@ -60,10 +60,10 @@ const DAppSettings: FC = () => {
         })
       ) {
         await removeDAppSession(origin);
-        revalidate();
+        mutate();
       }
     },
-    [removeDAppSession, revalidate, confirm]
+    [removeDAppSession, mutate, confirm]
   );
 
   const dAppEntries = useMemo(() => Object.entries(dAppSessions), [dAppSessions]);

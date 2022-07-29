@@ -27,7 +27,7 @@
     "message": "Open new tab"
   },
   "maximiseView": {
-    "message": "Maximise view"
+    "message": "Maximize view"
   },
   "selectFile": {
     "message": "Select file"
@@ -88,6 +88,9 @@
   "clickToRevealField": {
     "message": "Click to reveal this field"
   },
+  "clickToReveal": {
+    "message": "Click to reveal"
+  },
   "copiedHash": {
     "message": "Copied."
   },
@@ -112,6 +115,24 @@
   "skip": {
     "message": "Skip"
   },
+  "download": {
+    "message": "Download"
+  },
+  "okGotIt": {
+    "message": "Got it"
+  },
+  "changelogTitle": {
+    "message": "Temple Wallet updated to version"
+  },
+  "changelogDescription": {
+    "message": "In this update"
+  },
+  "templeIsOnMobile": {
+    "message": "Temple is on Mobile"
+  },
+  "getTempleMobileAndroid": {
+  "message": "Get the Android version of the wallet now"
+},
   "addNewToken": {
     "message": "Add new Token"
   },
@@ -198,6 +219,26 @@
       },
       "privacyPolicyLink": {
         "content": "$2"
+      }
+    }
+  },
+  "skipOnboarding": {
+    "message": "Skip Onboarding"
+  },
+  "advancedUser": {
+    "message": "I'm an advanced user"
+  },
+  "analytics": {
+    "message": "Analytics"
+  },
+  "analyticsCollecting": {
+    "message": "anonymous information collecting"
+  },
+  "analyticsInputDescription": {
+    "message": "I agree to the $analyticsLink$",
+    "placeholders": {
+      "analyticsLink": {
+        "content": "$1"
       }
     }
   },
@@ -298,9 +339,6 @@
     "message": "Address of a deployed asset contract."
   },
   "tokenContractPlaceholder": {
-    "message": "e.g. KT1v9CmPy..."
-  },
-  "lambdaContractPlaceholder": {
     "message": "e.g. KT1v9CmPy..."
   },
   "tokenSymbolPatternDescription": {
@@ -476,8 +514,17 @@
   "mnemonicSpacingConstraint": {
     "message": "Each word separated with a single space"
   },
+  "seedInputNumberOfWords": {
+    "message": "My Seed phrase is $1 words"
+  },
   "justValidPreGeneratedMnemonic": {
     "message": "Just valid pre-generated mnemonic"
+  },
+  "seedPasteFailedTooManyWords": {
+    "message": "Paste failed because it contained over 24 words."
+  },
+  "seedPhraseTip": {
+    "message": "You can paste your entire secret Seed phrase into any field"
   },
   "oops": {
     "message": "Oops!"
@@ -612,9 +659,6 @@
   "isPrivateKeyEncrypted": {
     "message": "Is your private key in encrypted format?"
   },
-  "noDerivation": {
-    "message": "No derivation"
-  },
   "customDerivationPath": {
     "message": "Custom derivation path"
   },
@@ -679,8 +723,11 @@
   "processing": {
     "message": "Processing..."
   },
-  "restoreWallet": {
-    "message": "Restore your Wallet"
+  "importWallet": {
+    "message": "Import Your Wallet"
+  },
+  "createWallet": {
+    "message": "Create Your Wallet"
   },
   "errorImportingKukaiWallet": {
     "message": "Error while importing Kukai wallet"
@@ -907,6 +954,12 @@
   },
   "staking": {
     "message": "Staking"
+  },
+  "recommended": {
+    "message": "Recommended"
+  },
+  "partnership": {
+    "message": "Partnership"
   },
   "delegation": {
     "message": "Delegation"
@@ -1269,8 +1322,8 @@
   "availableToSend": {
     "message": "Available to send(max):"
   },
-  "inUSD": {
-    "message": "in USD"
+  "inFiat": {
+    "message": "in Fiat"
   },
   "inAsset": {
     "message": "in $assetSymbol$",
@@ -1425,6 +1478,9 @@
   "languageAndCountry": {
     "message": "Language"
   },
+  "fiatCurrency": {
+    "message": "Default Currency"
+  },
   "generalSettings": {
     "message": "General"
   },
@@ -1441,17 +1497,6 @@
     "message": "unknown token $token$",
     "placeholders": {
       "token": {
-        "content": "$1"
-      }
-    }
-  },
-  "lambdaContract": {
-    "message": "Lambda View contract"
-  },
-  "someLambda": {
-    "message": "Lambda View: $lambda$",
-    "placeholders": {
-      "lambda": {
         "content": "$1"
       }
     }
@@ -1477,15 +1522,6 @@
   },
   "approveToken": {
     "message": "Approve Token"
-  },
-  "noLambdaWarningContent": {
-    "message": "No Lambda View contract was specified. Some functionality may not work without it. Press 'Add network' button if you want to proceed."
-  },
-  "noActiveNetLambdaWarningTitle": {
-    "message": "No Lambda View contract for the current network was specified!"
-  },
-  "noActiveNetLambdaWarningContent": {
-    "message": "No Lambda View contract for the current network was specified. You can add it in the form below or click 'Deploy new' to deploy a new one and add automatically."
   },
   "add": {
     "message": "Add"
@@ -1610,33 +1646,6 @@
   },
   "analyticsSettingsDescription": {
     "message": "Here you can configure sending of anonymous analytics that helps us to improve the product."
-  },
-  "analyticsConfirmationTitle": {
-    "message": "Help us make the Temple Wallet better"
-  },
-  "analyticsConfirmationDescription": {
-    "message": "We are improving the Temple wallet constantly and we need your help. To better understand which section of the wallet should be updated, we gather anonymous usage data. This data will be used only for improving the usability of the Temple wallet."
-  },
-  "analyticsConfirmationCollect": {
-    "message": "What we collect:"
-  },
-  "analyticsConfirmationCollectDescription": {
-    "message": "Anonymized click & pageview events"
-  },
-  "analyticsConfirmationNeverCollect": {
-    "message": "We NEVER track:"
-  },
-  "analyticsConfirmationNeverCollectDescription": {
-    "message": "Your keys, addresses, transactions, balances, hashes, IP, or any personal information."
-  },
-  "analyticsConfirmationSettingsDescription": {
-    "message": "You may always turn off the analytics tracking feature in your wallet settings."
-  },
-  "analyticsConfirmationConfirmButton": {
-    "message": "Confirm"
-  },
-  "analyticsConfirmationCancelButton": {
-    "message": "Cancel"
   },
   "managedContract": {
     "message": "Managed Contract"
@@ -1862,9 +1871,6 @@
   "swap": {
     "message": "Swap"
   },
-  "anotherAccount": {
-    "message": "Another account"
-  },
   "accountNumber": {
     "message": "Account number"
   },
@@ -1876,6 +1882,9 @@
   },
   "tezosApy": {
     "message": "APY: 6%"
+  },
+  "tokenApy": {
+    "message": "APY"
   },
   "max": {
     "message": "Max"
@@ -2090,6 +2099,9 @@
   "txIsLikelyToFail": {
     "message": "Warning! Transaction is likely to fail"
   },
+  "copyErrorLogs": {
+    "message": "Copy Error Logs"
+  },
   "dAppsListTvlDescription": {
     "message": "Total Value Locked. The value in tez is the total amount of tez locked in dApps. The value in USD is the total amount of tez and tokens locked there."
   },
@@ -2201,14 +2213,8 @@
   "done": {
     "message": "Done!"
   },
-  "donate": {
-    "message": "Donate"
-  },
   "standWithUkraine": {
     "message": "Stand with Ukraine"
-  },
-  "supportUkrainians": {
-    "message": "Donate TEZ - support Ukrainians in their fight with Putin occupants."
   },
   "addressBalanceDetails": {
     "message": "Your address and balance"
@@ -2375,11 +2381,23 @@
   "buyWithRampDescription": {
     "message": "Buy TEZ  using Visa, Mastercard, and all major debit and credit cards. Ramp is available in 160+ countries and territories."
   },
+  "buyWithAliceBob": {
+    "message": "Buy TEZ with Alice-Bob (UAH only)"
+  },
+  "buyWithAliceBobDescription": {
+    "message": "Fast and cost-effective exchange of UAH to TEZ."
+  },
   "topUpBuy": {
     "message": "Top up TEZ balance"
   },
+  "buyWithCard": {
+    "message": "Buy with Debit/Credit Card"
+  },
   "topUpDescription": {
-    "message": "To interact with the Tezos DApps ecosystem, the account balance must be positive. Top up your address with TEZ coins easily."
+    "message": "Temple integrated third-party solutions to buy TEZ with crypto or a Debit/Credit card. Choose a provider, follow guides, get TEZ on your account."
+  },
+  "enterAmount": {
+    "message": "Please enter the amount:"
   },
   "topUpCrypto": {
     "message": "Crypto"
@@ -2409,13 +2427,16 @@
     "message": "Top up your TEZ balance instantly with 25 cryptocurrencies"
   },
   "privacyAndPolicyLinks": {
-    "message": "By clicking Top Up you agree with \n$termsOfUse$ and $privacyPolicy$",
+    "message": "By clicking $buttonContent$ you agree with \n$termsOfUse$ and $privacyPolicy$",
     "placeholders": {
-      "termsOfUse": {
+      "buttonContent": {
         "content": "$1"
       },
-      "privacyPolicy": {
+      "termsOfUse": {
         "content": "$2"
+      },
+      "privacyPolicy": {
+        "content": "$3"
       }
     }
   },
@@ -2548,5 +2569,32 @@
   },
   "swapTokenSearchInputPlaceholder": {
     "message": "Enter name or address"
+  },
+  "sync": {
+    "message": "Sync"
+  },
+  "synchronization": {
+    "message": "Synchronization"
+  },
+  "synchronizationSettingsDescription": {
+    "message": "Sync with Mobile Temple Wallet."
+  },
+  "syncSettingsTitle": {
+    "message": "Sync with Mobile Temple Wallet"
+  },
+  "syncSettingsDescription": {
+    "message": "You can sync your Seed Phrase and accounts (HD) with your mobile device. If you just open the Temple Mobile app for the first time, click 'Sync' button and follow the steps in your phone."
+  },
+  "syncPasswordDescription": {
+    "message": "The password is used to protect the synchronization process."
+  },
+  "syncSettingsAlert": {
+    "message": "Make sure nobody else is looking at your screen when you scan this code."
+  },
+  "scanQRWithTempleMobile": {
+    "message": "Scan this QR-code with yor Temple Wallet Mobile app."
+  },
+  "aliceBobError": {
+    "message": "Sorry, service is temporarily unavailable. Try again later!"
   }
 }

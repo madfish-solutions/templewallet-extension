@@ -11,7 +11,7 @@ import HashShortView from 'app/atoms/HashShortView';
 import Identicon from 'app/atoms/Identicon';
 import Money from 'app/atoms/Money';
 import Name from 'app/atoms/Name';
-import Spinner from 'app/atoms/Spinner';
+import Spinner from 'app/atoms/Spinner/Spinner';
 import SubTitle from 'app/atoms/SubTitle';
 import ErrorBoundary from 'app/ErrorBoundary';
 import ContentContainer from 'app/layouts/ContentContainer';
@@ -21,7 +21,7 @@ import Balance from 'app/templates/Balance';
 import ConnectBanner from 'app/templates/ConnectBanner';
 import CustomSelect, { OptionRenderProps } from 'app/templates/CustomSelect';
 import DAppLogo from 'app/templates/DAppLogo';
-import { ModifyFeeAndLimit } from 'app/templates/ExpensesView';
+import { ModifyFeeAndLimit } from 'app/templates/ExpensesView/ExpensesView';
 import NetworkBanner from 'app/templates/NetworkBanner';
 import OperationView from 'app/templates/OperationView';
 import { CustomRpsContext } from 'lib/analytics';
@@ -77,6 +77,7 @@ interface PayloadContentProps {
   accountPkhToConnect: string;
   setAccountPkhToConnect: (item: string) => void;
   payload: TempleDAppPayload;
+  error?: any;
   modifyFeeAndLimit: ModifyFeeAndLimit;
 }
 
@@ -84,6 +85,7 @@ const PayloadContent: React.FC<PayloadContentProps> = ({
   accountPkhToConnect,
   setAccountPkhToConnect,
   payload,
+  error,
   modifyFeeAndLimit
 }) => {
   const allAccounts = useRelevantAccounts(false);
@@ -119,6 +121,7 @@ const PayloadContent: React.FC<PayloadContentProps> = ({
   ) : (
     <OperationView
       payload={payload}
+      error={error}
       networkRpc={payload.networkRpc}
       mainnet={mainnet}
       modifyFeeAndLimit={modifyFeeAndLimit}
@@ -154,6 +157,7 @@ const ConfirmDAppForm: FC = () => {
     revalidateOnReconnect: false
   });
   const payload = data!;
+  const payloadError = data!.error;
 
   const connectedAccount = useMemo(
     () =>
@@ -274,7 +278,7 @@ const ConfirmDAppForm: FC = () => {
           want: (
             <div className={classNames('mb-2 text-sm text-center text-gray-700', 'flex flex-col items-center')}>
               <div className="flex items-center justify-center">
-                <DAppLogo origin={payload.origin} size={16} className="mr-1" />
+                <DAppLogo icon={payload.appMeta.icon} origin={payload.origin} size={16} className="mr-1" />
                 <Name className="font-semibold" style={{ maxWidth: '10rem' }}>
                   {payload.appMeta.name}
                 </Name>
@@ -301,7 +305,7 @@ const ConfirmDAppForm: FC = () => {
           want: (
             <div className={classNames('mb-2 text-sm text-center text-gray-700', 'flex flex-col items-center')}>
               <div className="flex items-center justify-center">
-                <DAppLogo origin={payload.origin} size={16} className="mr-1" />
+                <DAppLogo icon={payload.appMeta.icon} origin={payload.origin} size={16} className="mr-1" />
                 <Name className="font-semibold" style={{ maxWidth: '10rem' }}>
                   {payload.appMeta.name}
                 </Name>
@@ -318,7 +322,7 @@ const ConfirmDAppForm: FC = () => {
           )
         };
     }
-  }, [payload.type, payload.origin, payload.appMeta.name, error]);
+  }, [payload.type, payload.origin, payload.appMeta.name, payload.appMeta.icon, error]);
 
   const modifiedStorageLimitDisplayed = useMemo(
     () => payload.type === 'confirm_operations' && payload.opParams.length < 2,
@@ -390,6 +394,7 @@ const ConfirmDAppForm: FC = () => {
 
               <NetworkBanner rpc={payload.networkRpc} narrow={payload.type === 'connect'} />
               <PayloadContent
+                error={payloadError}
                 payload={payload}
                 accountPkhToConnect={accountPkhToConnect}
                 setAccountPkhToConnect={setAccountPkhToConnect}
@@ -454,8 +459,11 @@ const AccountOptionContentHOC = (networkRpc: string) => {
 
         <Balance address={acc.publicKeyHash} networkRpc={networkRpc}>
           {bal => (
-            <div className={classNames('ml-2', 'text-xs leading-none', 'text-gray-600')}>
-              <Money>{bal}</Money> <span style={{ fontSize: '0.75em' }}>tez</span>
+            <div className={classNames('ml-2', 'text-xs leading-none flex items-baseline', 'text-gray-600')}>
+              <Money>{bal}</Money>
+              <span className="ml-1" style={{ fontSize: '0.75em' }}>
+                tez
+              </span>
             </div>
           )}
         </Balance>

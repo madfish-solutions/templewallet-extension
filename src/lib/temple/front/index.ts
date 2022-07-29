@@ -1,4 +1,5 @@
 export * from 'lib/temple/types';
+export * from 'lib/temple/analytics-types';
 export * from 'lib/temple/helpers';
 export * from 'lib/temple/assets';
 export * from 'lib/temple/metadata';
@@ -22,3 +23,5 @@ export * from 'lib/temple/front/blockexplorer';
 export * from 'lib/temple/front/address-book';
 export * from 'lib/temple/front/kukai';
 export * from 'lib/temple/front/local-storage';
+export * from 'lib/temple/front/use-secret-state.hook';
+export * from 'lib/temple/front/ab-test.provider';

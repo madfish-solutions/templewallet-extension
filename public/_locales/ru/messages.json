@@ -41,9 +41,6 @@
   "defaultAccount": {
     "message": "Аккаунт по умолчанию (первый)"
   },
-  "anotherAccount": {
-    "message": "Другой аккаунт"
-  },
   "accountNumber": {
     "message": "Номер аккаунта"
   },

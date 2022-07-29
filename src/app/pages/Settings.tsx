@@ -12,6 +12,7 @@ import { ReactComponent as OkIcon } from 'app/icons/ok.svg';
 import { ReactComponent as SettingsIcon } from 'app/icons/settings.svg';
 import { ReactComponent as SignalAltIcon } from 'app/icons/signal-alt.svg';
 import { ReactComponent as StickerIcon } from 'app/icons/sticker.svg';
+import { ReactComponent as SyncIcon } from 'app/icons/sync.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import About from 'app/templates/About';
 import ActivateAccount from 'app/templates/ActivateAccount';
@@ -22,6 +23,7 @@ import GeneralSettings from 'app/templates/GeneralSettings';
 import HelpAndCommunity from 'app/templates/HelpAndCommunity';
 import RemoveAccount from 'app/templates/RemoveAccount';
 import RevealSecret from 'app/templates/RevealSecret';
+import SyncSettings from 'app/templates/SyncSettings';
 import { T } from 'lib/i18n/react';
 import { Link } from 'lib/woozie';
 
@@ -43,6 +45,15 @@ const TABS = [
     color: '#667EEA',
     descriptionI18nKey: 'generalSettingsDescription',
     testID: SettingsSelectors.GeneralButton
+  },
+  {
+    slug: 'synchronization',
+    titleI18nKey: 'synchronization',
+    Icon: SyncIcon,
+    Component: SyncSettings,
+    color: '#7ED9A7',
+    descriptionI18nKey: 'synchronizationSettingsDescription',
+    testID: SettingsSelectors.SynchronizationButton
   },
   {
     slug: 'address-book',
@@ -177,11 +188,10 @@ const Settings: FC<SettingsProps> = ({ tabSlug }) => {
                 const linkTo = `/settings/${slug}`;
 
                 return (
-                  <li key={slug} className={classNames(!first && 'mt-10 md:mt-0')}>
+                  <Link to={linkTo} key={slug} className={classNames(!first && 'mt-10 md:mt-0 block')} testID={testID}>
                     <div className="flex">
                       <div className="ml-2 flex-shrink-0">
-                        <Link
-                          to={linkTo}
+                        <div
                           className={classNames(
                             'block',
                             'h-12 w-12',
@@ -193,17 +203,15 @@ const Settings: FC<SettingsProps> = ({ tabSlug }) => {
                             'opacity-90 hover:opacity-100 focus:opacity-100'
                           )}
                           style={{ backgroundColor: color }}
-                          testID={testID}
                         >
                           <Icon className="h-8 w-8 stroke-current" />
-                        </Link>
+                        </div>
                       </div>
 
                       <div className="ml-4">
                         <T id={titleI18nKey}>
                           {message => (
-                            <Link
-                              to={linkTo}
+                            <div
                               className={classNames(
                                 'text-lg leading-6 font-medium',
                                 'filter-brightness-75',
@@ -211,10 +219,9 @@ const Settings: FC<SettingsProps> = ({ tabSlug }) => {
                                 'transition ease-in-out duration-200'
                               )}
                               style={{ color }}
-                              testID={testID}
                             >
                               {message}
-                            </Link>
+                            </div>
                           )}
                         </T>
 
@@ -223,7 +230,7 @@ const Settings: FC<SettingsProps> = ({ tabSlug }) => {
                         </T>
                       </div>
                     </div>
-                  </li>
+                  </Link>
                 );
               })}
             </ul>

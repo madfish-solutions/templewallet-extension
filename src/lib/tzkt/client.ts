@@ -1,6 +1,6 @@
 import axios, { AxiosError } from 'axios';
 
-import { TempleChainId } from 'lib/temple/types';
+import { isKnownChainId, TempleChainId } from 'lib/temple/types';
 import {
   allInt32ParameterKeys,
   TzktGetOperationsParams,
@@ -10,10 +10,12 @@ import {
   TzktRelatedContract
 } from 'lib/tzkt/types';
 
+import { TzktAccountTokenBalance, TzktTokenTransfer } from '.';
+
 export const TZKT_API_BASE_URLS = new Map([
   [TempleChainId.Mainnet, 'https://api.tzkt.io/v1'],
-  [TempleChainId.Granadanet, 'https://api.granadanet.tzkt.io/v1'],
-  [TempleChainId.Hangzhounet, 'https://api.hangzhou2net.tzkt.io/v1']
+  [TempleChainId.Jakartanet, 'https://api.jakartanet.tzkt.io/v1'],
+  [TempleChainId.Ghostnet, 'https://api.ghostnet.tzkt.io/v1']
 ]);
 
 const api = axios.create();
@@ -31,8 +33,104 @@ export const getOperations = makeQuery<TzktGetOperationsParams, TzktOperation[]>
   ({ address, type, quote, from, to, ...restParams }) => ({
     type: type?.join(','),
     quote: quote?.join(','),
-    'timestamp.ge': from,
     'timestamp.lt': to,
+    'timestamp.ge': from,
+    ...restParams
+  })
+);
+
+export const getFa12Transfers = makeQuery<TzktGetOperationsParams, TzktOperation[]>(
+  () => `/operations/transactions`,
+  ({ address, from, to, ...restParams }) => ({
+    'sender.ne': address,
+    'target.ne': address,
+    'initiator.ne': address,
+    entrypoint: 'transfer',
+    'parameter.to': address,
+    'timestamp.lt': to,
+    'timestamp.ge': from,
+    ...restParams
+  })
+);
+
+export const getFa2Transfers = makeQuery<TzktGetOperationsParams, TzktOperation[]>(
+  () => `/operations/transactions`,
+  ({ address, from, to, ...restParams }) => ({
+    'sender.ne': address,
+    'target.ne': address,
+    'initiator.ne': address,
+    entrypoint: 'transfer',
+    'parameter.[*].txs.[*].to_': address,
+    'timestamp.lt': to,
+    'timestamp.ge': from,
+    ...restParams
+  })
+);
+
+export const getTokenBalances = makeQuery<TzktGetOperationsParams, TzktAccountTokenBalance[]>(
+  () => `/tokens/balances`,
+  ({ address, offset, limit, ...restParams }) => ({
+    account: address,
+    offset,
+    limit,
+    'sort.desc': 'balance',
+    'token.metadata.artifactUri.null': true,
+    ...restParams
+  })
+);
+
+export const getNFTBalances = makeQuery<TzktGetOperationsParams, TzktAccountTokenBalance[]>(
+  () => `/tokens/balances`,
+  ({ address, offset, limit, ...restParams }) => ({
+    account: address,
+    offset,
+    limit,
+    'sort.desc': 'balance',
+    'token.metadata.artifactUri.null': false,
+    ...restParams
+  })
+);
+
+export const getTokenTransfers = makeQuery<TzktGetOperationsParams, Array<TzktTokenTransfer>>(
+  () => `/tokens/transfers`,
+  ({ address, limit, type, ...restParams }) => ({
+    'anyof.from.to': address,
+    limit,
+    type: type?.join(','),
+    ...restParams
+  })
+);
+
+export const getTokenTransfersCount = makeQuery<TzktGetOperationsParams, number>(
+  () => `/tokens/transfers/count`,
+  ({ address, limit, type, ...restParams }) => ({
+    'anyof.from.to': address,
+    limit,
+    type: type?.join(','),
+    ...restParams
+  })
+);
+export const getTokenBalancesCount = makeQuery<TzktGetOperationsParams, number>(
+  () => `/tokens/balances/count`,
+  ({ address, ...restParams }) => ({
+    account: address,
+    'token.metadata.artifactUri.null': true,
+    ...restParams
+  })
+);
+
+export const getNFTBalancesCount = makeQuery<TzktGetOperationsParams, number>(
+  () => `/tokens/balances/count`,
+  ({ address, ...restParams }) => ({
+    account: address,
+    'token.metadata.artifactUri.null': false,
+    ...restParams
+  })
+);
+
+export const getAccount = makeQuery<TzktGetOperationsParams, any>(
+  params => `/accounts/${params.address}`,
+  ({ ...restParams }) => ({
     ...restParams
   })
 );
@@ -75,3 +173,57 @@ function makeQuery<P extends Record<string, unknown>, R>(
     return data;
   };
 }
+
+export const TZKT_FETCH_QUERY_SIZE = 20;
+
+export const fetchTokenBalancesCount = async (chainId: string, address: string) => {
+  if (!isKnownChainId(chainId) || !TZKT_API_BASE_URLS.has(chainId)) {
+    return 0;
+  }
+
+  const count = await getTokenBalancesCount(chainId, {
+    address
+  });
+
+  return count;
+};
+
+export const fetchTokenBalances = async (chainId: string, address: string, page = 0) => {
+  if (!isKnownChainId(chainId) || !TZKT_API_BASE_URLS.has(chainId)) {
+    return [];
+  }
+
+  const balances = await getTokenBalances(chainId, {
+    address,
+    limit: TZKT_FETCH_QUERY_SIZE,
+    offset: page * TZKT_FETCH_QUERY_SIZE
+  });
+
+  return balances;
+};
+
+export const fetchNFTBalancesCount = async (chainId: string, address: string) => {
+  if (!isKnownChainId(chainId) || !TZKT_API_BASE_URLS.has(chainId)) {
+    return 0;
+  }
+
+  const count = await getNFTBalancesCount(chainId, {
+    address
+  });
+
+  return count;
+};
+
+export const fetchNFTBalances = async (chainId: string, address: string, page = 0) => {
+  if (!isKnownChainId(chainId) || !TZKT_API_BASE_URLS.has(chainId)) {
+    return [];
+  }
+
+  const balances = await getNFTBalances(chainId, {
+    address,
+    limit: TZKT_FETCH_QUERY_SIZE,
+    offset: page * TZKT_FETCH_QUERY_SIZE
+  });
+
+  return balances;
+};

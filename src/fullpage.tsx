@@ -2,9 +2,11 @@ import './main.css';
 
 import React from 'react';
 
-import * as ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 
 import App from 'app/App';
 import { WindowType } from 'app/env';
 
-ReactDOM.render(<App env={{ windowType: WindowType.FullPage }} />, document.getElementById('root'));
+const container = document.getElementById('root');
+const root = createRoot(container!);
+root.render(<App env={{ windowType: WindowType.FullPage }} />);

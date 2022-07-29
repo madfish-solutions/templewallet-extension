@@ -2,7 +2,9 @@ export const LOCK_UP_STORAGE_KEY = 'lock_up';
 export const DEFAULT_LOCK_UP = true;
 
 export function setLockUp(enabled: boolean) {
-  localStorage.setItem(LOCK_UP_STORAGE_KEY, JSON.stringify(enabled));
+  try {
+    localStorage.setItem(LOCK_UP_STORAGE_KEY, JSON.stringify(enabled));
+  } catch {}
 }
 
 export function isLockUpEnabled() {

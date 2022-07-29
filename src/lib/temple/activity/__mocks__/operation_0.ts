@@ -1481,51 +1481,38 @@ const OPERATION_COMPLEX = {
           '{"entrypoint":"update_operators","value":[{"prim":"Left","args":[{"prim":"Pair","args":[{"string":"tz3Qth49881bX2dymtRREEKkFnuKzvhBjr6o"},{"prim":"Pair","args":[{"string":"KT1T2BiwkP5goinYv81pX64kxCR1DUL7yNus"},{"int":"0"}]}]}]}]}'
       }
     ],
-    bcdTokenTransfers: [
+    tzktTokenTransfers: [
       {
-        indexed_time: 2420957,
-        network: 'granadanet',
-        contract: 'KT1DaKxkR1LdnXW1tr7yozdwEAiSQDpCLUBj',
-        initiator: 'KT1T2BiwkP5goinYv81pX64kxCR1DUL7yNus',
-        hash: 'opZG7XNt1wHxvLeUZxQ5WkKJZCm64kMjbUPeGS8BTiehB5pBYsX',
-        status: 'applied',
-        timestamp: '2021-06-14T12:08:04Z',
-        level: 263965,
-        from: 'tz3Qth49881bX2dymtRREEKkFnuKzvhBjr6o',
-        to: 'KT1T2BiwkP5goinYv81pX64kxCR1DUL7yNus',
-        token_id: 0,
         amount: '100',
-        counter: 23375,
-        nonce: 1,
-        parent: 'tokenToTezPayment',
+        from: { alias: 'sender', address: 'tz3Qth49881bX2dymtRREEKkFnuKzvhBjr6o' },
+        to: { alias: 'contract', address: 'KT1T2BiwkP5goinYv81pX64kxCR1DUL7yNus' },
+        id: 227013117,
+        level: 2347253,
+        timestamp: '2022-05-08T11:30:44Z',
         token: {
-          contract: 'KT1DaKxkR1LdnXW1tr7yozdwEAiSQDpCLUBj',
-          network: 'granadanet',
-          token_id: 0
+          contract: { alias: 'Wrapped Tokens Contract', address: 'KT1DaKxkR1LdnXW1tr7yozdwEAiSQDpCLUBj' },
+          id: 103879,
+          metadata: { name: 'Wrapped USDC', symbol: 'wUSDC', decimals: '6' },
+          standard: 'fa2',
+          tokenId: '0'
         },
-        alias: 'Quipu Token'
+        transactionId: 2866004
       },
       {
-        indexed_time: 2420958,
-        network: 'granadanet',
-        contract: 'KT1P3RGEAa78XLTs3Hkpd1VWtryQRLDjiXqF',
-        initiator: 'KT1GdCu6VyfijaARRx5tDPg4ZU2U8uQadBT4',
-        hash: 'opZG7XNt1wHxvLeUZxQ5WkKJZCm64kMjbUPeGS8BTiehB5pBYsX',
-        status: 'applied',
-        timestamp: '2021-06-14T12:08:04Z',
-        level: 263965,
-        from: 'KT1GdCu6VyfijaARRx5tDPg4ZU2U8uQadBT4',
-        to: 'tz3Qth49881bX2dymtRREEKkFnuKzvhBjr6o',
-        token_id: 0,
         amount: '341',
-        counter: 23376,
-        nonce: 2,
-        parent: 'tezToTokenPayment',
+        to: { alias: 'sender', address: 'tz3Qth49881bX2dymtRREEKkFnuKzvhBjr6o' },
+        from: { alias: 'contract', address: 'KT1GdCu6VyfijaARRx5tDPg4ZU2U8uQadBT4' },
+        id: 2270131122,
+        level: 2347253,
+        timestamp: '2022-05-08T11:30:44Z',
         token: {
-          contract: 'KT1P3RGEAa78XLTs3Hkpd1VWtryQRLDjiXqF',
-          network: 'granadanet',
-          token_id: 0
-        }
+          contract: { alias: 'Wrapped Tokens Contract', address: 'KT1P3RGEAa78XLTs3Hkpd1VWtryQRLDjiXqF' },
+          id: 103879,
+          metadata: { name: 'Wrapped USDC', symbol: 'wUSDC', decimals: '6' },
+          standard: 'fa2',
+          tokenId: '0'
+        },
+        transactionId: 2866007
       }
     ]
   }

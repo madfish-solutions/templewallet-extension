@@ -6,7 +6,7 @@ import Money from 'app/atoms/Money';
 import { AssetIcon } from 'app/templates/AssetIcon';
 import Balance from 'app/templates/Balance';
 import IconifiedSelect, { IconifiedSelectOptionRenderProps } from 'app/templates/IconifiedSelect';
-import InUSD from 'app/templates/InUSD';
+import InFiat from 'app/templates/InFiat';
 import { T } from 'lib/i18n/react';
 import { getAssetName, getAssetSymbol, useAccount, useAssetMetadata } from 'lib/temple/front';
 
@@ -81,12 +81,12 @@ const AssetInMenuContent: FC<AssetSelectOptionRenderProps> = ({ option: asset })
   return (
     <div className="flex flex-col items-start">
       <span className="text-gray-700 text-sm">{getAssetName(metadata)}</span>
-      <span className={classNames('text-gray-600', 'text-sm leading-none')}>
+      <span className={classNames('text-gray-600', 'text-sm leading-none flex items-baseline')}>
         <Balance assetSlug={assetSlug} address={account.publicKeyHash}>
           {balance => (
             <>
-              <Money>{balance}</Money>{' '}
-              <span className="text-gray-500" style={{ fontSize: '0.75em' }}>
+              <Money>{balance}</Money>
+              <span className="text-gray-500 ml-1" style={{ fontSize: '0.75em' }}>
                 {getAssetSymbol(metadata)}
               </span>
             </>
@@ -106,14 +106,22 @@ const AssetSelectedContent: FC<AssetSelectOptionRenderProps> = ({ option }) => {
     <Balance assetSlug={assetSlug} address={account.publicKeyHash}>
       {balance => (
         <div className="flex flex-col items-start">
-          <span className="text-xl text-gray-800">
+          <span className="text-xl text-gray-800 flex items-baseline">
             <Money smallFractionFont={false}>{balance}</Money>{' '}
-            <span style={{ fontSize: '0.75em' }}>{getAssetSymbol(metadata)}</span>
+            <span className="ml-2" style={{ fontSize: '0.75em' }}>
+              {getAssetSymbol(metadata)}
+            </span>
           </span>
 
-          <InUSD smallFractionFont={false} assetSlug={assetSlug} volume={balance}>
-            {usdBalance => <div className="mt-1 text-sm text-gray-500">≈ {usdBalance} $</div>}
-          </InUSD>
+          <InFiat smallFractionFont={false} assetSlug={assetSlug} volume={balance}>
+            {({ balance, symbol }) => (
+              <div className="mt-1 text-sm text-gray-500 flex">
+                <span className="mr-1">≈</span>
+                {balance}
+                <span className="ml-1">{symbol}</span>
+              </div>
+            )}
+          </InFiat>
         </div>
       )}
     </Balance>

@@ -26,14 +26,7 @@ export function useBalance(assetSlug: string, address: string, opts: UseBalanceO
   const tezos = useMemo(() => {
     if (opts.networkRpc) {
       const rpc = opts.networkRpc;
-      const t = new ReactiveTezosToolkit(
-        loadFastRpcClient(rpc),
-        rpc
-        // lambda view contract for custom RPC may be here
-        // currently we don't call lambda view for custom RPC
-        // but if we need to do this, we have to load chainId and pick lambdaView
-        // from settings with this chainId
-      );
+      const t = new ReactiveTezosToolkit(loadFastRpcClient(rpc), rpc);
       t.setPackerProvider(michelEncoder);
       return t;
     }
@@ -51,7 +44,7 @@ export function useBalance(assetSlug: string, address: string, opts: UseBalanceO
     suspense: opts.suspense ?? true,
     revalidateOnFocus: false,
     dedupingInterval: 20_000,
-    initialData: opts.initial
+    fallbackData: opts.initial
   });
 }
 

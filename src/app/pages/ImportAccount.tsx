@@ -37,15 +37,18 @@ import { validateDelegate } from 'lib/temple/front/validate-delegate';
 import useSafeState from 'lib/ui/useSafeState';
 import { navigate } from 'lib/woozie';
 
+import { clearClipboard } from '../../lib/ui/util';
+import { SeedPhraseInput } from '../atoms/SeedPhraseInput';
+
 type ImportAccountProps = {
   tabSlug: string | null;
 };
 
-type ImportTabDescriptor = {
+interface ImportTabDescriptor {
   slug: string;
   i18nKey: string;
   Form: FC<{}>;
-};
+}
 
 const ImportAccount: FC<ImportAccountProps> = ({ tabSlug }) => {
   const network = useNetwork();
@@ -188,6 +191,7 @@ const ByPrivateKeyForm: FC = () => {
         errorCaption={errors.privateKey?.message}
         className="resize-none"
         containerClassName="mb-6"
+        onPaste={() => clearClipboard()}
       />
 
       {encrypted && (
@@ -218,16 +222,8 @@ const ByPrivateKeyForm: FC = () => {
 
 const DERIVATION_PATHS = [
   {
-    type: 'none',
-    i18nKey: 'noDerivation'
-  },
-  {
     type: 'default',
     i18nKey: 'defaultAccount'
-  },
-  {
-    type: 'another',
-    i18nKey: 'anotherAccount'
   },
   {
     type: 'custom',
@@ -236,7 +232,6 @@ const DERIVATION_PATHS = [
 ];
 
 interface ByMnemonicFormData {
-  mnemonic: string;
   password?: string;
   customDerivationPath: string;
   accountNumber?: number;
@@ -246,7 +241,10 @@ const ByMnemonicForm: FC = () => {
   const { importMnemonicAccount } = useTempleClient();
   const formAnalytics = useFormAnalytics(ImportAccountFormType.Mnemonic);
 
-  const { register, handleSubmit, errors, formState } = useForm<ByMnemonicFormData>({
+  const [seedPhrase, setSeedPhrase] = useState('');
+  const [seedError, setSeedError] = useState('');
+
+  const { register, handleSubmit, errors, formState, reset } = useForm<ByMnemonicFormData>({
     defaultValues: {
       customDerivationPath: "m/44'/1729'/0'/0'",
       accountNumber: 1
@@ -256,66 +254,55 @@ const ByMnemonicForm: FC = () => {
   const [derivationPath, setDerivationPath] = useState(DERIVATION_PATHS[0]);
 
   const onSubmit = useCallback(
-    async ({ mnemonic, password, customDerivationPath, accountNumber }: ByMnemonicFormData) => {
+    async ({ password, customDerivationPath }: ByMnemonicFormData) => {
       if (formState.isSubmitting) return;
 
-      formAnalytics.trackSubmit();
-      setError(null);
-      try {
-        await importMnemonicAccount(
-          formatMnemonic(mnemonic),
-          password || undefined,
-          (() => {
-            switch (derivationPath.type) {
-              case 'custom':
-                return customDerivationPath;
-              case 'default':
-                return "m/44'/1729'/0'/0'";
-              case 'another':
-                return `m/44'/1729'/${accountNumber! - 1}'/0'`;
-              default:
-                return undefined;
-            }
-          })()
-        );
+      if (seedPhrase && !seedPhrase.split(' ').includes('') && !seedError) {
+        formAnalytics.trackSubmit();
+        setError(null);
+        try {
+          await importMnemonicAccount(
+            formatMnemonic(seedPhrase),
+            password || undefined,
+            derivationPath.type === 'custom'
+              ? customDerivationPath && customDerivationPath.length > 0
+                ? customDerivationPath
+                : undefined
+              : "m/44'/1729'/0'/0'"
+          );
 
-        formAnalytics.trackSubmitSuccess();
-      } catch (err: any) {
-        formAnalytics.trackSubmitFail();
+          formAnalytics.trackSubmitSuccess();
+        } catch (err: any) {
+          formAnalytics.trackSubmitFail();
 
-        console.error(err);
+          console.error(err);
 
-        // Human delay
-        await new Promise(r => setTimeout(r, 300));
-        setError(err.message);
+          // Human delay
+          await new Promise(r => setTimeout(r, 300));
+          setError(err.message);
+        }
+      } else if (seedError === '') {
+        setSeedError(t('mnemonicWordsAmountConstraint'));
       }
     },
-    [formState.isSubmitting, setError, importMnemonicAccount, derivationPath, formAnalytics]
+    [seedPhrase, seedError, formState.isSubmitting, setError, importMnemonicAccount, derivationPath, formAnalytics]
   );
 
   return (
     <form className="w-full max-w-sm mx-auto my-8" onSubmit={handleSubmit(onSubmit)}>
       {error && <Alert type="error" title={t('error')} autoFocus description={error} className="mb-6" />}
 
-      <FormField
-        secret
-        textarea
-        rows={4}
-        name="mnemonic"
-        ref={register({
-          required: t('required'),
-          validate: val => validateMnemonic(formatMnemonic(val)) || MNEMONIC_ERROR_CAPTION
-        })}
-        errorCaption={errors.mnemonic?.message}
-        label={t('mnemonicInputLabel')}
-        labelDescription={t('mnemonicInputDescription')}
-        labelWarning={t('mnemonicInputWarning')}
-        id="importfundacc-mnemonic"
-        placeholder={t('mnemonicInputPlaceholder')}
-        spellCheck={false}
-        containerClassName="mb-4"
-        className="resize-none"
-      />
+      <div className="mb-8">
+        <SeedPhraseInput
+          label={t('seedPhrase')}
+          labelWarning={t('mnemonicInputWarning')}
+          submitted={formState.submitCount !== 0}
+          seedError={seedError}
+          setSeedError={setSeedError}
+          onChange={setSeedPhrase}
+          reset={reset}
+        />
+      </div>
 
       <FormField
         ref={register}
@@ -401,26 +388,9 @@ const ByMnemonicForm: FC = () => {
         </div>
       </div>
 
-      {derivationPath.type === 'another' && (
-        <FormField
-          ref={register({
-            min: { value: 1, message: t('positiveIntMessage') },
-            required: t('required')
-          })}
-          min={0}
-          type="number"
-          name="accountNumber"
-          id="importacc-acc-number"
-          label={t('accountNumber')}
-          placeholder="1"
-          errorCaption={errors.accountNumber?.message}
-        />
-      )}
-
       {derivationPath.type === 'custom' && (
         <FormField
           ref={register({
-            required: t('required'),
             validate: validateDerivationPath
           })}
           name="customDerivationPath"
@@ -557,7 +527,7 @@ const FromFaucetForm: FC = () => {
   const handleTextFieldFocus = useCallback(() => textFieldRef.current?.focus(), []);
   const cleanTextField = useCallback(() => setValue('text', ''), [setValue]);
 
-  const handleFormSubmit = useCallback(evt => {
+  const handleFormSubmit = useCallback((evt: React.FormEvent<HTMLFormElement>) => {
     evt.preventDefault();
   }, []);
 
@@ -791,7 +761,10 @@ const WatchOnlyForm: FC = () => {
     revalidateOnFocus: false
   });
 
-  const finalAddress = useMemo(() => resolvedAddress || addressValue, [resolvedAddress, addressValue]);
+  const finalAddress = useMemo(
+    () => (resolvedAddress && resolvedAddress !== null ? resolvedAddress : addressValue),
+    [resolvedAddress, addressValue]
+  );
 
   const cleanAddressField = useCallback(() => {
     setValue('address', '');

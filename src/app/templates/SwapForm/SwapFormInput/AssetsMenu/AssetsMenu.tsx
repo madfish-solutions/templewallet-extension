@@ -1,7 +1,7 @@
 import React, { FC, useMemo } from 'react';
 
 import DropdownWrapper from 'app/atoms/DropdownWrapper';
-import Spinner from 'app/atoms/Spinner';
+import Spinner from 'app/atoms/Spinner/Spinner';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
 import { T } from 'lib/i18n/react';
 import { useAccount, useChainId } from 'lib/temple/front';

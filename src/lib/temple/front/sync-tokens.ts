@@ -1,14 +1,13 @@
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 
 import BigNumber from 'bignumber.js';
 import constate from 'constate';
-import { trigger } from 'swr';
+import { useSWRConfig } from 'swr';
+import { ScopedMutator } from 'swr/dist/types';
 
-import { BCD_NETWORKS_NAMES, getAccountTokenBalances, BcdNetwork, BcdAccountTokenBalance } from 'lib/better-call-dev';
 import {
   useChainId,
   useAccount,
-  isKnownChainId,
   toTokenSlug,
   useTokensMetadata,
   AssetMetadata,
@@ -21,40 +20,50 @@ import {
 } from 'lib/temple/front';
 import * as Repo from 'lib/temple/repo';
 import { getTokensMetadata } from 'lib/templewallet-api';
+import { fetchWhitelistTokenSlugs } from 'lib/templewallet-api/whitelist-tokens';
+import { TzktAccountTokenBalance } from 'lib/tzkt';
 
-export const [SyncTokensProvider] = constate(() => {
+import { TempleChainId } from '../types';
+import { useFungibleTokensBalances } from './fungible-tokens-balances';
+import { useNonFungibleTokensBalances } from './non-fungible-tokens-balances';
+
+export const [SyncTokensProvider, useSyncTokens] = constate(() => {
+  const { mutate } = useSWRConfig();
   const chainId = useChainId(true)!;
+  const { items: tokens } = useFungibleTokensBalances();
+  const { items: nfts } = useNonFungibleTokensBalances();
   const { publicKeyHash: accountPkh } = useAccount();
 
   const { allTokensBaseMetadataRef, setTokensBaseMetadata, setTokensDetailedMetadata, fetchMetadata } =
     useTokensMetadata();
   const usdPrices = useUSDPrices();
 
-  const networkId = useMemo(
-    () => (isKnownChainId(chainId) ? BCD_NETWORKS_NAMES.get(chainId) : undefined) ?? null,
-    [chainId]
-  );
-
   const sync = useCallback(async () => {
     makeSync(
       accountPkh,
-      networkId,
       chainId,
       allTokensBaseMetadataRef,
       setTokensBaseMetadata,
       setTokensDetailedMetadata,
       usdPrices,
-      fetchMetadata
+      fetchMetadata,
+      networkIdRef.current === chainId ? tokens.concat(nfts) : [],
+      mutate
     );
+    if (networkIdRef.current !== chainId) {
+      networkIdRef.current = chainId;
+    }
   }, [
     accountPkh,
-    networkId,
     chainId,
     allTokensBaseMetadataRef,
     setTokensBaseMetadata,
     setTokensDetailedMetadata,
     usdPrices,
-    fetchMetadata
+    fetchMetadata,
+    tokens,
+    nfts,
+    mutate
   ]);
 
   const syncRef = useRef(sync);
@@ -62,17 +71,14 @@ export const [SyncTokensProvider] = constate(() => {
     syncRef.current = sync;
   }, [sync]);
 
-  const networkIdRef = useRef(networkId);
-  if (networkIdRef.current !== networkId) {
-    networkIdRef.current = networkId;
-  }
+  const networkIdRef = useRef(chainId);
 
   useEffect(() => {
-    if (!networkId) {
+    if (!chainId) {
       return;
     }
 
-    const isTheSameNetwork = () => networkId === networkIdRef.current;
+    const isTheSameNetwork = () => chainId === networkIdRef.current;
     let timeoutId: any;
 
     const syncAndDefer = async () => {
@@ -90,66 +96,49 @@ export const [SyncTokensProvider] = constate(() => {
     syncAndDefer();
 
     return () => clearTimeout(timeoutId);
-  }, [networkId, accountPkh]);
+  }, [chainId, tokens, nfts]);
+
+  return {
+    sync,
+    tokens,
+    nfts
+  };
 });
-
-async function fetchBcdTokenBalances(network: BcdNetwork, address: string) {
-  const size = 10;
-
-  let { total, balances } = await getAccountTokenBalances({
-    network,
-    address,
-    size,
-    offset: 0
-  });
-
-  if (total > size) {
-    const requests = Math.floor(total / size);
-    const restResponses = await Promise.all(
-      Array.from({ length: requests }).map((_, i) =>
-        getAccountTokenBalances({
-          network,
-          address,
-          size,
-          offset: (i + 1) * size
-        })
-      )
-    );
-
-    balances = [...balances, ...restResponses.map(r => r.balances).flat()];
-  }
-
-  return balances;
-}
 
 const makeSync = async (
   accountPkh: string,
-  networkId: BcdNetwork | null,
   chainId: string,
   allTokensBaseMetadataRef: any,
   setTokensBaseMetadata: any,
   setTokensDetailedMetadata: any,
   usdPrices: Record<string, string>,
-  fetchMetadata: any
+  fetchMetadata: any,
+  tzktTokens: TzktAccountTokenBalance[],
+  mutate: ScopedMutator<any>
 ) => {
-  if (!networkId) return;
-  const mainnet = networkId === 'mainnet';
+  if (!chainId) return;
+  const mainnet = chainId === TempleChainId.Mainnet;
 
-  const [bcdTokens, displayedFungibleTokens, displayedCollectibleTokens] = await Promise.all([
-    fetchBcdTokenBalances(networkId, accountPkh),
+  const [displayedFungibleTokens, displayedCollectibleTokens, whitelistTokenSlugs] = await Promise.all([
     fetchDisplayedFungibleTokens(chainId, accountPkh),
-    fetchCollectibleTokens(chainId, accountPkh, true)
+    fetchCollectibleTokens(chainId, accountPkh, true),
+    fetchWhitelistTokenSlugs(chainId)
   ]);
 
-  const bcdTokensMap = new Map(bcdTokens.map(token => [toTokenSlug(token.contract, token.token_id), token]));
+  const tzktTokensMap = new Map(
+    tzktTokens.map(balance => [toTokenSlug(balance.token.contract.address, balance.token.tokenId), balance])
+  );
 
   const displayedTokenSlugs = [...displayedFungibleTokens, ...displayedCollectibleTokens].map(
     ({ tokenSlug }) => tokenSlug
   );
 
-  let tokenSlugs = Array.from(
-    new Set([...bcdTokensMap.keys(), ...displayedTokenSlugs, ...(mainnet ? PREDEFINED_MAINNET_TOKENS : [])])
-  );
+  let tokenSlugs = [
+    ...tzktTokens.map(balance => toTokenSlug(balance.token.contract.address, balance.token.tokenId)),
+    ...displayedTokenSlugs,
+    ...whitelistTokenSlugs,
+    ...(mainnet ? PREDEFINED_MAINNET_TOKENS : [])
+  ].filter(onlyUnique);
 
   const tokenRepoKeys = tokenSlugs.map(slug => Repo.toAccountTokenKey(chainId, accountPkh, slug));
 
@@ -185,8 +174,8 @@ const makeSync = async (
     }
   }
 
-  await setTokensBaseMetadata(baseMetadatasToSet);
-  await setTokensDetailedMetadata(detailedMetadatasToSet);
+  setTokensBaseMetadata(baseMetadatasToSet);
+  setTokensDetailedMetadata(detailedMetadatasToSet);
 
   await Repo.accountTokens.bulkPut(
     tokenSlugs.map((slug, i) =>
@@ -196,7 +185,7 @@ const makeSync = async (
         chainId,
         accountPkh,
         existingRecords,
-        bcdTokensMap,
+        tzktTokensMap,
         baseMetadatasToSet,
         allTokensBaseMetadataRef,
         usdPrices
@@ -205,7 +194,7 @@ const makeSync = async (
     tokenRepoKeys
   );
 
-  trigger(['displayed-fungible-tokens', chainId, accountPkh], true);
+  mutate(['displayed-fungible-tokens', chainId, accountPkh]);
 };
 
 const generateMetadataRequest = async (slug: string, mainnet: boolean, fetchMetadata: any) => {
@@ -218,7 +207,9 @@ const generateMetadataRequest = async (slug: string, mainnet: boolean, fetchMeta
     return await fetchMetadata(slug);
   } catch {
     if (!mainnet) {
-      localStorage.setItem(noMetadataFlag, 'true');
+      try {
+        localStorage.setItem(noMetadataFlag, 'true');
+      } catch {}
     }
 
     return null;
@@ -231,14 +222,14 @@ const updateTokenSlugs = (
   chainId: string,
   accountPkh: string,
   existingRecords: (Repo.IAccountToken | undefined)[],
-  bcdTokensMap: Map<string, BcdAccountTokenBalance>,
+  tzktTokensMap: Map<string, TzktAccountTokenBalance>,
   baseMetadatasToSet: any,
   allTokensBaseMetadataRef: any,
   usdPrices: Record<string, string>
 ) => {
   const existing = existingRecords[i];
-  const bcdToken = bcdTokensMap.get(slug);
-  const balance = bcdToken?.balance ?? '0';
+  const tzktToken = tzktTokensMap.get(slug);
+  const balance = tzktToken?.balance ?? '0';
   const metadata = baseMetadatasToSet[slug] ?? allTokensBaseMetadataRef.current[slug];
 
   const price = usdPrices[slug];
@@ -254,6 +245,7 @@ const updateTokenSlugs = (
     return {
       ...existing,
       type: metadata?.artifactUri ? Repo.ITokenType.Collectible : Repo.ITokenType.Fungible,
+      order: i,
       latestBalance: balance,
       latestUSDBalance: usdBalance
     };
@@ -263,6 +255,7 @@ const updateTokenSlugs = (
 
   return {
     type: metadata?.artifactUri ? Repo.ITokenType.Collectible : Repo.ITokenType.Fungible,
+    order: i,
     chainId,
     account: accountPkh,
     tokenSlug: slug,
@@ -272,3 +265,7 @@ const updateTokenSlugs = (
     latestUSDBalance: usdBalance
   };
 };
+
+function onlyUnique(value: string, index: number, self: string[]) {
+  return self.indexOf(value) === index;
+}

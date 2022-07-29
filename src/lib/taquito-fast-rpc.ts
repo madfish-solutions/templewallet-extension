@@ -84,7 +84,9 @@ export class FastRpcClient extends RpcClient {
 
     opts = await this.loadLatestBlock(opts);
     const result = await this.getEntrypointsMemo(contract, opts);
-    localStorage.setItem(cacheKey, JSON.stringify(result));
+    try {
+      localStorage.setItem(cacheKey, JSON.stringify(result));
+    } catch {}
     return result;
   }
 

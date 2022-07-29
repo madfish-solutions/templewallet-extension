@@ -1,4 +1,4 @@
-import { TezosToolkit, WalletContract, Contract } from '@taquito/taquito';
+import { TezosToolkit, WalletContract, Contract, ChainIds } from '@taquito/taquito';
 import retry from 'async-retry';
 
 import { getMessage } from 'lib/i18n';
@@ -10,7 +10,8 @@ const RETRY_PARAMS = { retries: 3, minTimeout: 0, maxTimeout: 0 };
 
 const FA1_2_ENTRYPOINTS_SCHEMA = [
   ['approve', 'pair', 'address', 'nat'],
-  ['transfer', 'pair', 'address', 'address', 'nat'],
+  // TODO: investigate why different FA 1.2 tokens have different transfer schema
+  // ['transfer', 'pair', 'address', 'pair'],
   ['getAllowance', 'pair', 'pair', 'contract'],
   ['getBalance', 'pair', 'address', 'contract'],
   ['getTotalSupply', 'pair', 'unit', 'contract']
@@ -49,14 +50,14 @@ export async function assertGetBalance(
   standard: TokenStandard,
   fa2TokenId = 0
 ) {
+  const chainId = (await tezos.rpc.getChainId()) as ChainIds;
+
   try {
     await retry(
       () =>
         standard === 'fa2'
-          ? contract.views
-              .balance_of([{ owner: STUB_TEZOS_ADDRESS, token_id: fa2TokenId }])
-              .read((tezos as any).lambdaContract)
-          : contract.views.getBalance(STUB_TEZOS_ADDRESS).read((tezos as any).lambdaContract),
+          ? contract.views.balance_of([{ owner: STUB_TEZOS_ADDRESS, token_id: fa2TokenId }]).read(chainId)
+          : contract.views.getBalance(STUB_TEZOS_ADDRESS).read(chainId),
       RETRY_PARAMS
     );
   } catch (err: any) {

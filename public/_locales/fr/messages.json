@@ -282,9 +282,6 @@
   "addressOfDeployedTokenContract": {
     "message": "Adresse d'un contrat de jeton déployé."
   },
-  "lambdaContractPlaceholder": {
-    "message": "p. ex. KT1v9CmPy…"
-  },
   "tokenContractPlaceholder": {
     "message": "p. ex. KT1v9CmPy…"
   },
@@ -581,9 +578,6 @@
   },
   "isPrivateKeyEncrypted": {
     "message": "Votre clé privée est-elle au format chiffré ?"
-  },
-  "noDerivation": {
-    "message": "Aucune dérivation"
   },
   "customDerivationPath": {
     "message": "Chemin de dérivation personnalisée"
@@ -1125,9 +1119,6 @@
   "availableToSend": {
     "message": "Disponible à l'envoi (max) :"
   },
-  "inUSD": {
-    "message": "en USD"
-  },
   "inAsset": {
     "message": "en $assetSymbol$",
     "placeholders": {
@@ -1301,17 +1292,6 @@
       }
     }
   },
-  "lambdaContract": {
-    "message": "Contrat Lambda View"
-  },
-  "someLambda": {
-    "message": "Lambda View : $lambda$",
-    "placeholders": {
-      "lambda": {
-        "content": "$1"
-      }
-    }
-  },
   "interactionWithSomeEntrypoint": {
     "message": "Interaction avec le point d'entrée « $entrypoint$ » du contrat $contractAddress$",
     "placeholders": {
@@ -1333,15 +1313,6 @@
   },
   "approveToken": {
     "message": "Approuver le jeton"
-  },
-  "noLambdaWarningContent": {
-    "message": "Aucun contrat Lambda View n'a été spécifié. Sans un tel contrat, certaines fonctionnalités pourraient ne pas marcher. Appuyez sur le bouton « Ajouter un réseau » si vous voulez continuer."
-  },
-  "noActiveNetLambdaWarningTitle": {
-    "message": "Aucun contrat Lambda View n'a été spécifié pour le réseau actuel !"
-  },
-  "noActiveNetLambdaWarningContent": {
-    "message": "Aucun contrat Lambda View n'a été spécifié pour le réseau actuel. Vous pouvez en ajouter un dans le formulaire ci-dessous ou cliquer sur « Déployer un nouveau » pour déployer un nouveau contrat et l'ajouter automatiquement."
   },
   "add": {
     "message": "Ajouter"

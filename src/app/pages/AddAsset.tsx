@@ -2,14 +2,14 @@ import React, { FC, ReactNode, useCallback, useEffect, useRef, useMemo } from 'r
 
 import classNames from 'clsx';
 import { FormContextValues, useForm } from 'react-hook-form';
-import { cache as swrCache } from 'swr';
+import { useSWRConfig } from 'swr';
 import { useDebouncedCallback } from 'use-debounce';
 
 import Alert from 'app/atoms/Alert';
 import FormField from 'app/atoms/FormField';
 import FormSubmitButton from 'app/atoms/FormSubmitButton';
 import NoSpaceField from 'app/atoms/NoSpaceField';
-import Spinner from 'app/atoms/Spinner';
+import Spinner from 'app/atoms/Spinner/Spinner';
 import { ReactComponent as AddIcon } from 'app/icons/add.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import { useFormAnalytics } from 'lib/analytics';
@@ -19,7 +19,6 @@ import {
   validateContractAddress,
   useNetwork,
   NotMatchingStandardError,
-  loadContractForCallLambdaView,
   useTokensMetadata,
   toTokenSlug,
   NotFoundTokenMetadata,
@@ -30,7 +29,8 @@ import {
   detectTokenStandard,
   IncorrectTokenIdError,
   AssetMetadata,
-  DetailedAssetMetdata
+  DetailedAssetMetdata,
+  loadContract
 } from 'lib/temple/front';
 import * as Repo from 'lib/temple/repo';
 import { withErrorHumanDelay } from 'lib/ui/humanDelay';
@@ -82,6 +82,7 @@ const Form: FC = () => {
   const { id: networkId } = useNetwork();
   const chainId = useChainId(true)!;
   const { publicKeyHash: accountPkh } = useAccount();
+  const { cache: swrCache } = useSWRConfig();
 
   const { fetchMetadata, setTokensBaseMetadata, setTokensDetailedMetadata } = useTokensMetadata();
 
@@ -123,7 +124,7 @@ const Form: FC = () => {
     try {
       let contract;
       try {
-        contract = await loadContractForCallLambdaView(tezos, contractAddress);
+        contract = await loadContract(tezos, contractAddress, false);
       } catch {
         throw new ContractNotFoundError();
       }
@@ -153,7 +154,7 @@ const Form: FC = () => {
       };
     } catch (err: any) {
       await withErrorHumanDelay(err, () => {
-        stateToSet = errorHandler(err, contractAddress, setState);
+        stateToSet = errorHandler(err, contractAddress, setValue);
       });
     }
 
@@ -244,6 +245,7 @@ const Form: FC = () => {
     },
     [
       tezos,
+      swrCache,
       formState.isSubmitting,
       chainId,
       accountPkh,

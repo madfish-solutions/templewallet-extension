@@ -6,14 +6,14 @@ import { TaquitoTezosDomainsClient } from '@tezos-domains/taquito-client';
 
 import { useTezos, useChainId, NETWORK_IDS } from 'lib/temple/front';
 
-export function getClient(networkId: string, tezos: TezosToolkit) {
+export function getClient(networkId: 'mainnet' | 'custom', tezos: TezosToolkit) {
   return isTezosDomainsSupportedNetwork(networkId)
     ? new TaquitoTezosDomainsClient({ network: networkId, tezos })
     : TaquitoTezosDomainsClient.Unsupported;
 }
 
 export function isDomainNameValid(name: string, client: TaquitoTezosDomainsClient) {
-  return client.validator.validateDomainName(name) === DomainNameValidationResult.VALID;
+  return client.validator.validateDomainName(name, { minLevel: 2 }) === DomainNameValidationResult.VALID;
 }
 
 export function useTezosDomainsClient() {
@@ -21,5 +21,5 @@ export function useTezosDomainsClient() {
   const tezos = useTezos();
 
   const networkId = NETWORK_IDS.get(chainId)!;
-  return useMemo(() => getClient(networkId, tezos), [networkId, tezos]);
+  return useMemo(() => getClient(networkId === 'mainnet' ? networkId : 'custom', tezos), [networkId, tezos]);
 }

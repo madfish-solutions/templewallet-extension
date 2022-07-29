@@ -27,6 +27,8 @@ import { ITokenStatus, ITokenType } from 'lib/temple/repo';
 import { useConfirm } from 'lib/ui/dialog';
 import { Link } from 'lib/woozie';
 
+import styles from './ManageAssets.module.css';
+
 interface Props {
   assetType: string;
 }
@@ -51,7 +53,7 @@ const ManageAssetsContent: FC<Props> = ({ assetType }) => {
   const account = useAccount();
   const address = account.publicKeyHash;
 
-  const { availableAssets, assetsStatuses, isLoading, revalidate } = useAvailableAssets(
+  const { availableAssets, assetsStatuses, isLoading, mutate } = useAvailableAssets(
     assetType === AssetTypesEnum.Collectibles ? AssetTypesEnum.Collectibles : AssetTypesEnum.Tokens
   );
   const { filteredAssets, searchValue, setSearchValue } = useFilteredAssets(availableAssets);
@@ -75,13 +77,13 @@ const ManageAssetsContent: FC<Props> = ({ assetType }) => {
           assetSlug,
           status
         );
-        await revalidate();
+        await mutate();
       } catch (err: any) {
         console.error(err);
         alert(err.message);
       }
     },
-    [chainId, address, confirm, revalidate, assetType]
+    [chainId, address, confirm, mutate, assetType]
   );
 
   return (
@@ -151,7 +153,7 @@ const ListItem = memo<ListItemProps>(({ assetSlug, last, checked, onUpdate, asse
   const metadata = useAssetMetadata(assetSlug);
 
   const handleCheckboxChange = useCallback(
-    evt => {
+    (evt: React.ChangeEvent<HTMLInputElement>) => {
       onUpdate(assetSlug, evt.target.checked ? ITokenStatus.Enabled : ITokenStatus.Disabled);
     },
     [assetSlug, onUpdate]
@@ -173,13 +175,18 @@ const ListItem = memo<ListItemProps>(({ assetSlug, last, checked, onUpdate, asse
     >
       <AssetIcon assetSlug={assetSlug} size={32} className="mr-3 flex-shrink-0" />
 
-      <div className="flex items-center">
-        <div className="flex flex-col items-start">
-          <div className={classNames('text-sm font-normal text-gray-700')} style={{ marginBottom: '0.125rem' }}>
+      <div className={classNames('flex items-center', styles.tokenInfoWidth)}>
+        <div className="flex flex-col items-start w-full">
+          <div
+            className={classNames('text-sm font-normal text-gray-700 truncate w-full')}
+            style={{ marginBottom: '0.125rem' }}
+          >
             {getAssetName(metadata)}
           </div>
 
-          <div className={classNames('text-xs font-light text-gray-600')}>{getAssetSymbol(metadata)}</div>
+          <div className={classNames('text-xs font-light text-gray-600 truncate w-full')}>
+            {getAssetSymbol(metadata)}
+          </div>
         </div>
       </div>
 

@@ -282,9 +282,6 @@
   "addressOfDeployedTokenContract": {
     "message": "已部署的代币合约的地址。"
   },
-  "lambdaContractPlaceholder": {
-    "message": "例如：KT1v9CmPy..."
-  },
   "tokenContractPlaceholder": {
     "message": "例如：KT1v9CmPy..."
   },
@@ -581,9 +578,6 @@
   },
   "isPrivateKeyEncrypted": {
     "message": "您的私钥是加密格式的吗？"
-  },
-  "noDerivation": {
-    "message": "无衍生"
   },
   "customDerivationPath": {
     "message": "自定义衍生路径"
@@ -1116,9 +1110,6 @@
   "availableToSend": {
     "message": "可发送（最大）："
   },
-  "inUSD": {
-    "message": "以USD计"
-  },
   "inAsset": {
     "message": "以$assetSymbol$计",
     "placeholders": {
@@ -1292,17 +1283,6 @@
       }
     }
   },
-  "lambdaContract": {
-    "message": "Lambda View合约"
-  },
-  "someLambda": {
-    "message": "Lambda View：$lambda$",
-    "placeholders": {
-      "lambda": {
-        "content": "$1"
-      }
-    }
-  },
   "interactionWithSomeEntrypoint": {
     "message": "与合约$contractAddress$的进入点“$entrypoint$”的互动",
     "placeholders": {
@@ -1324,15 +1304,6 @@
   },
   "approveToken": {
     "message": "批准代币"
-  },
-  "noLambdaWarningContent": {
-    "message": "未指定Lambda View合约。若如此合约，则部分功能可能无法使用。如需继续，请按“添加网络”按钮。"
-  },
-  "noActiveNetLambdaWarningTitle": {
-    "message": "当前网络未指定Lambda View合约！"
-  },
-  "noActiveNetLambdaWarningContent": {
-    "message": "当前网络未指定Lambda View合约！您可以在下方表单中添加，或点击“新部署”来部署一个新的并自动添加。"
   },
   "add": {
     "message": "添加"

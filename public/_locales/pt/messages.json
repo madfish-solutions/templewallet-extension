@@ -297,9 +297,6 @@
   "tokenContractPlaceholder": {
     "message": "por exemplo, KT1v9CmPy..."
   },
-  "lambdaContractPlaceholder": {
-    "message": "por exemplo, KT1v9CmPy..."
-  },
   "tokenSymbolPatternDescription": {
     "message": "Apenas são permitidos caracteres a-z, A-Z, 0-9, comprimento de 2 a 5"
   },
@@ -600,9 +597,6 @@
   "isPrivateKeyEncrypted": {
     "message": "A sua chave privada está em formato encriptado?"
   },
-  "noDerivation": {
-    "message": "Sem derivação"
-  },
   "customDerivationPath": {
     "message": "Caminho de derivação personalizado"
   },
@@ -663,9 +657,6 @@
   },
   "processing": {
     "message": "A processar..."
-  },
-  "restoreWallet": {
-    "message": "Repor a sua Carteira"
   },
   "errorImportingKukaiWallet": {
     "message": "Erro ao importar a carteira Kukai"
@@ -1212,9 +1203,6 @@
   "availableToSend": {
     "message": "Disponível para enviar(máx.):"
   },
-  "inUSD": {
-    "message": "em USD"
-  },
   "inAsset": {
     "message": "em $assetSymbol$",
     "placeholders": {
@@ -1388,17 +1376,6 @@
       }
     }
   },
-  "lambdaContract": {
-    "message": "Contrato Lambda View"
-  },
-  "someLambda": {
-    "message": "Lambda View: $lambda$",
-    "placeholders": {
-      "lambda": {
-        "content": "$1"
-      }
-    }
-  },
   "interactionWithSomeEntrypoint": {
     "message": "Interação com o ponto de entrada '$entrypoint$' do $contractAddress$ do contrato",
     "placeholders": {
@@ -1420,15 +1397,6 @@
   },
   "approveToken": {
     "message": "Aprovar Token"
-  },
-  "noLambdaWarningContent": {
-    "message": "Não foi especificado nenhum contrato Lambda View. Algumas funcionalidades podem não funcionar sem este. Prima o botão 'Adicionar rede' se quiser prosseguir."
-  },
-  "noActiveNetLambdaWarningTitle": {
-    "message": "Não foi especificado nenhum contrato Lambda View para a rede atual!"
-  },
-  "noActiveNetLambdaWarningContent": {
-    "message": "Não foi especificado nenhum contrato Lambda View para a rede atual. Pode adicioná-lo no formulário abaixo ou clicar em 'Implantar novo' para implantar um novo e adicionar automaticamente."
   },
   "add": {
     "message": "Acrescentar"
@@ -1553,33 +1521,6 @@
   },
   "analyticsSettingsDescription": {
     "message": "Aqui pode configurar o envio de análises anónimas que nos ajudam a melhorar o produto."
-  },
-  "analyticsConfirmationTitle": {
-    "message": "Ajude-nos a melhorar a Carteira Temple"
-  },
-  "analyticsConfirmationDescription": {
-    "message": "Estamos constantemente a melhorar a carteira Temple e precisamos da sua ajuda. Para compreender melhor que secção da carteira deve ser atualizada, recolhemos dados de utilização anónimos. Estes dados serão utilizados apenas para melhorar a usabilidade da carteira Temple."
-  },
-  "analyticsConfirmationCollect": {
-    "message": "O que recolhemos:"
-  },
-  "analyticsConfirmationCollectDescription": {
-    "message": "Eventos anónimos de cliques e vistas de páginas"
-  },
-  "analyticsConfirmationNeverCollect": {
-    "message": "NUNCA monitorizamos:"
-  },
-  "analyticsConfirmationNeverCollectDescription": {
-    "message": "As suas chaves, endereços, transações, saldos, hashes, IP ou qualquer informação pessoal."
-  },
-  "analyticsConfirmationSettingsDescription": {
-    "message": "Pode sempre desligar a função de controlo de análises nas definições da sua carteira."
-  },
-  "analyticsConfirmationConfirmButton": {
-    "message": "Confirmar"
-  },
-  "analyticsConfirmationCancelButton": {
-    "message": "Cancelar"
   },
   "managedContract": {
     "message": "Contrato gerido"
@@ -1804,9 +1745,6 @@
   },
   "swap": {
     "message": "Trocar"
-  },
-  "anotherAccount": {
-    "message": "Outra conta"
   },
   "accountNumber": {
     "message": "Número de conta"

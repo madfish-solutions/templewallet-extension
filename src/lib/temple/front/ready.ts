@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo } from 'react';
 
-import { RpcClient } from '@taquito/rpc';
+import { RpcClientInterface } from '@taquito/rpc';
 import { TezosToolkit } from '@taquito/taquito';
 import { Tzip16Module } from '@taquito/tzip16';
 import constate from 'constate';
@@ -112,7 +112,7 @@ function useReadyTemple() {
     const rpc = network.rpcBaseURL;
     const pkh = account.type === TempleAccountType.ManagedKT ? account.owner : account.publicKeyHash;
 
-    const t = new ReactiveTezosToolkit(loadFastRpcClient(rpc), checksum, network.lambdaContract);
+    const t = new ReactiveTezosToolkit(loadFastRpcClient(rpc), checksum);
     t.setSignerProvider(createTaquitoSigner(pkh));
     t.setWalletProvider(createTaquitoWallet(pkh, rpc));
     t.setPackerProvider(michelEncoder);
@@ -193,7 +193,7 @@ export function useRelevantAccounts(withExtraTypes = true) {
 }
 
 export class ReactiveTezosToolkit extends TezosToolkit {
-  constructor(rpc: string | RpcClient, public checksum: string, public lambdaContract?: string) {
+  constructor(rpc: string | RpcClientInterface, public checksum: string) {
     super(rpc);
     this.addExtension(new Tzip16Module());
   }
