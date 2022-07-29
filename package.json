@@ -176,6 +176,5 @@
     "postcss": "8.4.6",
     "follow-redirects": "1.14.8",
     "nanoid": "3.1.31"
-  },
-  "devDependencies": {}
+  }
 }
