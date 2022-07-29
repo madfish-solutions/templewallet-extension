@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "1330"
+   LastUpgradeVersion = "1340"
    wasCreatedForAppExtension = "YES"
    version = "2.0">
    <BuildAction
@@ -15,7 +15,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "B6987D5E282E707900997902"
+               BlueprintIdentifier = "B6EA007D2893F44900F30EDD"
                BuildableName = "TempleWallet Extension.appex"
                BlueprintName = "TempleWallet Extension (macOS)"
                ReferencedContainer = "container:TempleWallet.xcodeproj">
@@ -29,9 +29,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "B6987D47282E707900997902"
-               BuildableName = "TempleWallet Extension.app"
-               BlueprintName = "TempleWallet (macOS)"
+               BlueprintIdentifier = "B6EA00662893F44900F30EDD"
+               BuildableName = "TempleWallet.app"
+               BlueprintName = "macos"
                ReferencedContainer = "container:TempleWallet.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -61,9 +61,9 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "B6987D47282E707900997902"
-            BuildableName = "TempleWallet Extension.app"
-            BlueprintName = "TempleWallet (macOS)"
+            BlueprintIdentifier = "B6EA00662893F44900F30EDD"
+            BuildableName = "TempleWallet.app"
+            BlueprintName = "macos"
             ReferencedContainer = "container:TempleWallet.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -80,9 +80,9 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "B6987D47282E707900997902"
-            BuildableName = "TempleWallet Extension.app"
-            BlueprintName = "TempleWallet (macOS)"
+            BlueprintIdentifier = "B6EA00662893F44900F30EDD"
+            BuildableName = "TempleWallet.app"
+            BlueprintName = "macos"
             ReferencedContainer = "container:TempleWallet.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>

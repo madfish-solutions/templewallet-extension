@@ -2,7 +2,7 @@
 //  ViewController.swift
 //  Shared (App)
 //
-//  Created by Anton Chaika on 13.05.2022.
+//  Created by Anton Chaika on 29.07.2022.
 //
 
 import WebKit
@@ -16,7 +16,7 @@ import SafariServices
 typealias PlatformViewController = NSViewController
 #endif
 
-let extensionBundleIdentifier = "com.github.Temple---Tezos-Wallet--ex--Thanos-.Extension"
+let extensionBundleIdentifier = "com.madfish.TempleWallet.Extension"
 
 class ViewController: PlatformViewController, WKNavigationDelegate, WKScriptMessageHandler {
 

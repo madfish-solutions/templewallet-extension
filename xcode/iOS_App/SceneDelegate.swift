@@ -2,7 +2,7 @@
 //  SceneDelegate.swift
 //  iOS (App)
 //
-//  Created by Anton Chaika on 13.05.2022.
+//  Created by Anton Chaika on 29.07.2022.
 //
 
 import UIKit

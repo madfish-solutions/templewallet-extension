@@ -7,86 +7,80 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		B63B190B282E74A8004B62C9 /* SafariWebExtensionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6987D31282E707900997902 /* SafariWebExtensionHandler.swift */; };
-		B63B190C282E74A9004B62C9 /* SafariWebExtensionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6987D31282E707900997902 /* SafariWebExtensionHandler.swift */; };
-		B6987D3A282E707900997902 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6987D39282E707900997902 /* AppDelegate.swift */; };
-		B6987D3C282E707900997902 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6987D3B282E707900997902 /* SceneDelegate.swift */; };
-		B6987D3F282E707900997902 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B6987D3D282E707900997902 /* LaunchScreen.storyboard */; };
-		B6987D42282E707900997902 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B6987D40282E707900997902 /* Main.storyboard */; };
-		B6987D4B282E707900997902 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6987D4A282E707900997902 /* AppDelegate.swift */; };
-		B6987D4E282E707900997902 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B6987D4C282E707900997902 /* Main.storyboard */; };
-		B6987D56282E707900997902 /* TempleWallet Extension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = B6987D55282E707900997902 /* TempleWallet Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		B6987D60282E707900997902 /* TempleWallet Extension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = B6987D5F282E707900997902 /* TempleWallet Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		B6987D66282E707900997902 /* Main.html in Resources */ = {isa = PBXBuildFile; fileRef = B6987D29282E707600997902 /* Main.html */; };
-		B6987D67282E707900997902 /* Main.html in Resources */ = {isa = PBXBuildFile; fileRef = B6987D29282E707600997902 /* Main.html */; };
-		B6987D68282E707900997902 /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = B6987D2B282E707600997902 /* Icon.png */; };
-		B6987D69282E707900997902 /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = B6987D2B282E707600997902 /* Icon.png */; };
-		B6987D6A282E707900997902 /* Style.css in Resources */ = {isa = PBXBuildFile; fileRef = B6987D2C282E707600997902 /* Style.css */; };
-		B6987D6B282E707900997902 /* Style.css in Resources */ = {isa = PBXBuildFile; fileRef = B6987D2C282E707600997902 /* Style.css */; };
-		B6987D6C282E707900997902 /* Script.js in Resources */ = {isa = PBXBuildFile; fileRef = B6987D2D282E707600997902 /* Script.js */; };
-		B6987D6D282E707900997902 /* Script.js in Resources */ = {isa = PBXBuildFile; fileRef = B6987D2D282E707600997902 /* Script.js */; };
-		B6987D6E282E707900997902 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6987D2E282E707600997902 /* ViewController.swift */; };
-		B6987D6F282E707900997902 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6987D2E282E707600997902 /* ViewController.swift */; };
-		B6987D70282E707900997902 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B6987D2F282E707900997902 /* Assets.xcassets */; };
-		B6987D71282E707900997902 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B6987D2F282E707900997902 /* Assets.xcassets */; };
-		B6987D8F282E707A00997902 /* misc in Resources */ = {isa = PBXBuildFile; fileRef = B6987D85282E707A00997902 /* misc */; };
-		B6987D90282E707A00997902 /* confirm.html in Resources */ = {isa = PBXBuildFile; fileRef = B6987D86282E707A00997902 /* confirm.html */; };
-		B6987D91282E707A00997902 /* popup.html in Resources */ = {isa = PBXBuildFile; fileRef = B6987D87282E707A00997902 /* popup.html */; };
-		B6987D92282E707A00997902 /* styles in Resources */ = {isa = PBXBuildFile; fileRef = B6987D88282E707A00997902 /* styles */; };
-		B6987D93282E707A00997902 /* scripts in Resources */ = {isa = PBXBuildFile; fileRef = B6987D89282E707A00997902 /* scripts */; };
-		B6987D94282E707A00997902 /* manifest.json in Resources */ = {isa = PBXBuildFile; fileRef = B6987D8A282E707A00997902 /* manifest.json */; };
-		B6987D95282E707A00997902 /* fullpage.html in Resources */ = {isa = PBXBuildFile; fileRef = B6987D8B282E707A00997902 /* fullpage.html */; };
-		B6987D96282E707A00997902 /* options.html in Resources */ = {isa = PBXBuildFile; fileRef = B6987D8C282E707A00997902 /* options.html */; };
-		B6987D97282E707A00997902 /* _locales in Resources */ = {isa = PBXBuildFile; fileRef = B6987D8D282E707A00997902 /* _locales */; };
-		B6987D98282E707A00997902 /* media in Resources */ = {isa = PBXBuildFile; fileRef = B6987D8E282E707A00997902 /* media */; };
-		B6987D99282E707A00997902 /* misc in Resources */ = {isa = PBXBuildFile; fileRef = B6987D85282E707A00997902 /* misc */; };
-		B6987D9A282E707A00997902 /* confirm.html in Resources */ = {isa = PBXBuildFile; fileRef = B6987D86282E707A00997902 /* confirm.html */; };
-		B6987D9B282E707A00997902 /* popup.html in Resources */ = {isa = PBXBuildFile; fileRef = B6987D87282E707A00997902 /* popup.html */; };
-		B6987D9C282E707A00997902 /* styles in Resources */ = {isa = PBXBuildFile; fileRef = B6987D88282E707A00997902 /* styles */; };
-		B6987D9D282E707A00997902 /* scripts in Resources */ = {isa = PBXBuildFile; fileRef = B6987D89282E707A00997902 /* scripts */; };
-		B6987D9E282E707A00997902 /* manifest.json in Resources */ = {isa = PBXBuildFile; fileRef = B6987D8A282E707A00997902 /* manifest.json */; };
-		B6987D9F282E707A00997902 /* fullpage.html in Resources */ = {isa = PBXBuildFile; fileRef = B6987D8B282E707A00997902 /* fullpage.html */; };
-		B6987DA0282E707A00997902 /* options.html in Resources */ = {isa = PBXBuildFile; fileRef = B6987D8C282E707A00997902 /* options.html */; };
-		B6987DA1282E707A00997902 /* _locales in Resources */ = {isa = PBXBuildFile; fileRef = B6987D8D282E707A00997902 /* _locales */; };
-		B6987DA2282E707A00997902 /* media in Resources */ = {isa = PBXBuildFile; fileRef = B6987D8E282E707A00997902 /* media */; };
+		B6EA00592893F44900F30EDD /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6EA00582893F44900F30EDD /* AppDelegate.swift */; };
+		B6EA005B2893F44900F30EDD /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6EA005A2893F44900F30EDD /* SceneDelegate.swift */; };
+		B6EA005E2893F44900F30EDD /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B6EA005C2893F44900F30EDD /* LaunchScreen.storyboard */; };
+		B6EA00612893F44900F30EDD /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B6EA005F2893F44900F30EDD /* Main.storyboard */; };
+		B6EA006A2893F44900F30EDD /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6EA00692893F44900F30EDD /* AppDelegate.swift */; };
+		B6EA006D2893F44900F30EDD /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B6EA006B2893F44900F30EDD /* Main.storyboard */; };
+		B6EA00752893F44900F30EDD /* TempleWallet Extension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = B6EA00742893F44900F30EDD /* TempleWallet Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		B6EA007F2893F44900F30EDD /* TempleWallet Extension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = B6EA007E2893F44900F30EDD /* TempleWallet Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		B6EA00852893F44900F30EDD /* Main.html in Resources */ = {isa = PBXBuildFile; fileRef = B6EA00482893F43E00F30EDD /* Main.html */; };
+		B6EA00862893F44900F30EDD /* Main.html in Resources */ = {isa = PBXBuildFile; fileRef = B6EA00482893F43E00F30EDD /* Main.html */; };
+		B6EA00872893F44900F30EDD /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = B6EA004A2893F43E00F30EDD /* Icon.png */; };
+		B6EA00882893F44900F30EDD /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = B6EA004A2893F43E00F30EDD /* Icon.png */; };
+		B6EA00892893F44900F30EDD /* Style.css in Resources */ = {isa = PBXBuildFile; fileRef = B6EA004B2893F43E00F30EDD /* Style.css */; };
+		B6EA008A2893F44900F30EDD /* Style.css in Resources */ = {isa = PBXBuildFile; fileRef = B6EA004B2893F43E00F30EDD /* Style.css */; };
+		B6EA008B2893F44900F30EDD /* Script.js in Resources */ = {isa = PBXBuildFile; fileRef = B6EA004C2893F43E00F30EDD /* Script.js */; };
+		B6EA008C2893F44900F30EDD /* Script.js in Resources */ = {isa = PBXBuildFile; fileRef = B6EA004C2893F43E00F30EDD /* Script.js */; };
+		B6EA008D2893F44900F30EDD /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6EA004D2893F43E00F30EDD /* ViewController.swift */; };
+		B6EA008E2893F44900F30EDD /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6EA004D2893F43E00F30EDD /* ViewController.swift */; };
+		B6EA008F2893F44900F30EDD /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B6EA004E2893F44800F30EDD /* Assets.xcassets */; };
+		B6EA00902893F44900F30EDD /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B6EA004E2893F44800F30EDD /* Assets.xcassets */; };
+		B6EA00912893F44900F30EDD /* SafariWebExtensionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6EA00502893F44800F30EDD /* SafariWebExtensionHandler.swift */; };
+		B6EA00922893F44900F30EDD /* SafariWebExtensionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6EA00502893F44800F30EDD /* SafariWebExtensionHandler.swift */; };
+		B6EA00AB2893F44B00F30EDD /* misc in Resources */ = {isa = PBXBuildFile; fileRef = B6EA00A42893F44B00F30EDD /* misc */; };
+		B6EA00AC2893F44B00F30EDD /* confirm.html in Resources */ = {isa = PBXBuildFile; fileRef = B6EA00A52893F44B00F30EDD /* confirm.html */; };
+		B6EA00AD2893F44B00F30EDD /* popup.html in Resources */ = {isa = PBXBuildFile; fileRef = B6EA00A62893F44B00F30EDD /* popup.html */; };
+		B6EA00AE2893F44B00F30EDD /* manifest.json in Resources */ = {isa = PBXBuildFile; fileRef = B6EA00A72893F44B00F30EDD /* manifest.json */; };
+		B6EA00AF2893F44B00F30EDD /* fullpage.html in Resources */ = {isa = PBXBuildFile; fileRef = B6EA00A82893F44B00F30EDD /* fullpage.html */; };
+		B6EA00B02893F44B00F30EDD /* options.html in Resources */ = {isa = PBXBuildFile; fileRef = B6EA00A92893F44B00F30EDD /* options.html */; };
+		B6EA00B12893F44B00F30EDD /* _locales in Resources */ = {isa = PBXBuildFile; fileRef = B6EA00AA2893F44B00F30EDD /* _locales */; };
+		B6EA00B22893F44B00F30EDD /* misc in Resources */ = {isa = PBXBuildFile; fileRef = B6EA00A42893F44B00F30EDD /* misc */; };
+		B6EA00B32893F44B00F30EDD /* confirm.html in Resources */ = {isa = PBXBuildFile; fileRef = B6EA00A52893F44B00F30EDD /* confirm.html */; };
+		B6EA00B42893F44B00F30EDD /* popup.html in Resources */ = {isa = PBXBuildFile; fileRef = B6EA00A62893F44B00F30EDD /* popup.html */; };
+		B6EA00B52893F44B00F30EDD /* manifest.json in Resources */ = {isa = PBXBuildFile; fileRef = B6EA00A72893F44B00F30EDD /* manifest.json */; };
+		B6EA00B62893F44B00F30EDD /* fullpage.html in Resources */ = {isa = PBXBuildFile; fileRef = B6EA00A82893F44B00F30EDD /* fullpage.html */; };
+		B6EA00B72893F44B00F30EDD /* options.html in Resources */ = {isa = PBXBuildFile; fileRef = B6EA00A92893F44B00F30EDD /* options.html */; };
+		B6EA00B82893F44B00F30EDD /* _locales in Resources */ = {isa = PBXBuildFile; fileRef = B6EA00AA2893F44B00F30EDD /* _locales */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		B6987D57282E707900997902 /* PBXContainerItemProxy */ = {
+		B6EA00762893F44900F30EDD /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = B6987D23282E707600997902 /* Project object */;
+			containerPortal = B6EA00422893F43E00F30EDD /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = B6987D54282E707900997902;
-			remoteInfo = "Temple - Tezos Wallet (ex. Thanos) Extension (iOS)";
+			remoteGlobalIDString = B6EA00732893F44900F30EDD;
+			remoteInfo = "TempleWallet Extension (iOS)";
 		};
-		B6987D61282E707900997902 /* PBXContainerItemProxy */ = {
+		B6EA00802893F44900F30EDD /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = B6987D23282E707600997902 /* Project object */;
+			containerPortal = B6EA00422893F43E00F30EDD /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = B6987D5E282E707900997902;
-			remoteInfo = "Temple - Tezos Wallet (ex. Thanos) Extension (macOS)";
+			remoteGlobalIDString = B6EA007D2893F44900F30EDD;
+			remoteInfo = "TempleWallet Extension (macOS)";
 		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		B6987D79282E707900997902 /* Embed App Extensions */ = {
+		B6EA00982893F44900F30EDD /* Embed App Extensions */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				B6987D56282E707900997902 /* TempleWallet Extension.appex in Embed App Extensions */,
+				B6EA00752893F44900F30EDD /* TempleWallet Extension.appex in Embed App Extensions */,
 			);
 			name = "Embed App Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		B6987D80282E707900997902 /* Embed App Extensions */ = {
+		B6EA009F2893F44900F30EDD /* Embed App Extensions */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				B6987D60282E707900997902 /* TempleWallet Extension.appex in Embed App Extensions */,
+				B6EA007F2893F44900F30EDD /* TempleWallet Extension.appex in Embed App Extensions */,
 			);
 			name = "Embed App Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -94,64 +88,61 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		B6987D2A282E707600997902 /* Base */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = Base; path = ../Base.lproj/Main.html; sourceTree = "<group>"; };
-		B6987D2B282E707600997902 /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Icon.png; sourceTree = "<group>"; };
-		B6987D2C282E707600997902 /* Style.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = Style.css; sourceTree = "<group>"; };
-		B6987D2D282E707600997902 /* Script.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = Script.js; sourceTree = "<group>"; };
-		B6987D2E282E707600997902 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
-		B6987D2F282E707900997902 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		B6987D31282E707900997902 /* SafariWebExtensionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafariWebExtensionHandler.swift; sourceTree = "<group>"; };
-		B6987D36282E707900997902 /* Temple Wallet.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Temple Wallet.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		B6987D39282E707900997902 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		B6987D3B282E707900997902 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
-		B6987D3E282E707900997902 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
-		B6987D41282E707900997902 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
-		B6987D43282E707900997902 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		B6987D48282E707900997902 /* Temple Wallet.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Temple Wallet.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		B6987D4A282E707900997902 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		B6987D4D282E707900997902 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
-		B6987D4F282E707900997902 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		B6987D50282E707900997902 /* TempleWallet.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = TempleWallet.entitlements; sourceTree = "<group>"; };
-		B6987D55282E707900997902 /* TempleWallet Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "TempleWallet Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
-		B6987D5A282E707900997902 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		B6987D5F282E707900997902 /* TempleWallet Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "TempleWallet Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
-		B6987D64282E707900997902 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		B6987D65282E707900997902 /* TempleWallet.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = TempleWallet.entitlements; sourceTree = "<group>"; };
-		B6987D85282E707A00997902 /* misc */ = {isa = PBXFileReference; lastKnownFileType = folder; name = misc; path = ../../dist/chrome_unpacked/misc; sourceTree = "<group>"; };
-		B6987D86282E707A00997902 /* confirm.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = confirm.html; path = ../../dist/chrome_unpacked/confirm.html; sourceTree = "<group>"; };
-		B6987D87282E707A00997902 /* popup.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = popup.html; path = ../../dist/chrome_unpacked/popup.html; sourceTree = "<group>"; };
-		B6987D88282E707A00997902 /* styles */ = {isa = PBXFileReference; lastKnownFileType = folder; name = styles; path = ../../dist/chrome_unpacked/styles; sourceTree = "<group>"; };
-		B6987D89282E707A00997902 /* scripts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = scripts; path = ../../dist/chrome_unpacked/scripts; sourceTree = "<group>"; };
-		B6987D8A282E707A00997902 /* manifest.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = manifest.json; path = ../../dist/chrome_unpacked/manifest.json; sourceTree = "<group>"; };
-		B6987D8B282E707A00997902 /* fullpage.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = fullpage.html; path = ../../dist/chrome_unpacked/fullpage.html; sourceTree = "<group>"; };
-		B6987D8C282E707A00997902 /* options.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = options.html; path = ../../dist/chrome_unpacked/options.html; sourceTree = "<group>"; };
-		B6987D8D282E707A00997902 /* _locales */ = {isa = PBXFileReference; lastKnownFileType = folder; name = _locales; path = ../../dist/chrome_unpacked/_locales; sourceTree = "<group>"; };
-		B6987D8E282E707A00997902 /* media */ = {isa = PBXFileReference; lastKnownFileType = folder; name = media; path = ../../dist/chrome_unpacked/media; sourceTree = "<group>"; };
+		B6EA00492893F43E00F30EDD /* Base */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = Base; path = ../Base.lproj/Main.html; sourceTree = "<group>"; };
+		B6EA004A2893F43E00F30EDD /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Icon.png; sourceTree = "<group>"; };
+		B6EA004B2893F43E00F30EDD /* Style.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = Style.css; sourceTree = "<group>"; };
+		B6EA004C2893F43E00F30EDD /* Script.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = Script.js; sourceTree = "<group>"; };
+		B6EA004D2893F43E00F30EDD /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		B6EA004E2893F44800F30EDD /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		B6EA00502893F44800F30EDD /* SafariWebExtensionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafariWebExtensionHandler.swift; sourceTree = "<group>"; };
+		B6EA00552893F44900F30EDD /* TempleWallet.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TempleWallet.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		B6EA00582893F44900F30EDD /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		B6EA005A2893F44900F30EDD /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
+		B6EA005D2893F44900F30EDD /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		B6EA00602893F44900F30EDD /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		B6EA00622893F44900F30EDD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		B6EA00672893F44900F30EDD /* TempleWallet.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TempleWallet.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		B6EA00692893F44900F30EDD /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		B6EA006C2893F44900F30EDD /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		B6EA006E2893F44900F30EDD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		B6EA006F2893F44900F30EDD /* TempleWallet.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = TempleWallet.entitlements; sourceTree = "<group>"; };
+		B6EA00742893F44900F30EDD /* TempleWallet Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "TempleWallet Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		B6EA00792893F44900F30EDD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		B6EA007E2893F44900F30EDD /* TempleWallet Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "TempleWallet Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		B6EA00832893F44900F30EDD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		B6EA00842893F44900F30EDD /* TempleWallet.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = TempleWallet.entitlements; sourceTree = "<group>"; };
+		B6EA00A42893F44B00F30EDD /* misc */ = {isa = PBXFileReference; lastKnownFileType = folder; name = misc; path = ../../../public/misc; sourceTree = "<group>"; };
+		B6EA00A52893F44B00F30EDD /* confirm.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = confirm.html; path = ../../../public/confirm.html; sourceTree = "<group>"; };
+		B6EA00A62893F44B00F30EDD /* popup.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = popup.html; path = ../../../public/popup.html; sourceTree = "<group>"; };
+		B6EA00A72893F44B00F30EDD /* manifest.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = manifest.json; path = ../../../public/manifest.json; sourceTree = "<group>"; };
+		B6EA00A82893F44B00F30EDD /* fullpage.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = fullpage.html; path = ../../../public/fullpage.html; sourceTree = "<group>"; };
+		B6EA00A92893F44B00F30EDD /* options.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = options.html; path = ../../../public/options.html; sourceTree = "<group>"; };
+		B6EA00AA2893F44B00F30EDD /* _locales */ = {isa = PBXFileReference; lastKnownFileType = folder; name = _locales; path = ../../../public/_locales; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		B6987D33282E707900997902 /* Frameworks */ = {
+		B6EA00522893F44800F30EDD /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		B6987D45282E707900997902 /* Frameworks */ = {
+		B6EA00642893F44900F30EDD /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		B6987D52282E707900997902 /* Frameworks */ = {
+		B6EA00712893F44900F30EDD /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		B6987D5C282E707900997902 /* Frameworks */ = {
+		B6EA007B2893F44900F30EDD /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -161,113 +152,110 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		B6987D22282E707600997902 = {
+		B6EA00412893F43E00F30EDD = {
 			isa = PBXGroup;
 			children = (
-				B6987D27282E707600997902 /* Shared_App */,
-				B6987D30282E707900997902 /* Shared_Extension */,
-				B6987D38282E707900997902 /* iOS_App */,
-				B6987D49282E707900997902 /* macOs_App */,
-				B6987D59282E707900997902 /* iOS_Ext */,
-				B6987D63282E707900997902 /* macOS_Ext */,
-				B6987D37282E707900997902 /* Products */,
+				B6EA00462893F43E00F30EDD /* Shared_App */,
+				B6EA004F2893F44800F30EDD /* Shared_Ext */,
+				B6EA00572893F44900F30EDD /* iOS_App */,
+				B6EA00682893F44900F30EDD /* macOs_App */,
+				B6EA00782893F44900F30EDD /* iOS_Ext */,
+				B6EA00822893F44900F30EDD /* macOs_Ext */,
+				B6EA00562893F44900F30EDD /* Products */,
 			);
 			sourceTree = "<group>";
 		};
-		B6987D27282E707600997902 /* Shared_App */ = {
+		B6EA00462893F43E00F30EDD /* Shared_App */ = {
 			isa = PBXGroup;
 			children = (
-				B6987D2E282E707600997902 /* ViewController.swift */,
-				B6987D2F282E707900997902 /* Assets.xcassets */,
-				B6987D28282E707600997902 /* Resources */,
+				B6EA004D2893F43E00F30EDD /* ViewController.swift */,
+				B6EA004E2893F44800F30EDD /* Assets.xcassets */,
+				B6EA00472893F43E00F30EDD /* Resources */,
 			);
 			path = Shared_App;
 			sourceTree = "<group>";
 		};
-		B6987D28282E707600997902 /* Resources */ = {
+		B6EA00472893F43E00F30EDD /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				B6987D29282E707600997902 /* Main.html */,
-				B6987D2B282E707600997902 /* Icon.png */,
-				B6987D2C282E707600997902 /* Style.css */,
-				B6987D2D282E707600997902 /* Script.js */,
+				B6EA00482893F43E00F30EDD /* Main.html */,
+				B6EA004A2893F43E00F30EDD /* Icon.png */,
+				B6EA004B2893F43E00F30EDD /* Style.css */,
+				B6EA004C2893F43E00F30EDD /* Script.js */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
 		};
-		B6987D30282E707900997902 /* Shared_Extension */ = {
+		B6EA004F2893F44800F30EDD /* Shared_Ext */ = {
 			isa = PBXGroup;
 			children = (
-				B6987D84282E707A00997902 /* Resources */,
-				B6987D31282E707900997902 /* SafariWebExtensionHandler.swift */,
+				B6EA00A32893F44B00F30EDD /* Resources */,
+				B6EA00502893F44800F30EDD /* SafariWebExtensionHandler.swift */,
 			);
-			path = Shared_Extension;
+			path = Shared_Ext;
 			sourceTree = "<group>";
 		};
-		B6987D37282E707900997902 /* Products */ = {
+		B6EA00562893F44900F30EDD /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				B6987D36282E707900997902 /* Temple Wallet.app */,
-				B6987D48282E707900997902 /* Temple Wallet.app */,
-				B6987D55282E707900997902 /* TempleWallet Extension.appex */,
-				B6987D5F282E707900997902 /* TempleWallet Extension.appex */,
+				B6EA00552893F44900F30EDD /* TempleWallet.app */,
+				B6EA00672893F44900F30EDD /* TempleWallet.app */,
+				B6EA00742893F44900F30EDD /* TempleWallet Extension.appex */,
+				B6EA007E2893F44900F30EDD /* TempleWallet Extension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		B6987D38282E707900997902 /* iOS_App */ = {
+		B6EA00572893F44900F30EDD /* iOS_App */ = {
 			isa = PBXGroup;
 			children = (
-				B6987D39282E707900997902 /* AppDelegate.swift */,
-				B6987D3B282E707900997902 /* SceneDelegate.swift */,
-				B6987D3D282E707900997902 /* LaunchScreen.storyboard */,
-				B6987D40282E707900997902 /* Main.storyboard */,
-				B6987D43282E707900997902 /* Info.plist */,
+				B6EA00582893F44900F30EDD /* AppDelegate.swift */,
+				B6EA005A2893F44900F30EDD /* SceneDelegate.swift */,
+				B6EA005C2893F44900F30EDD /* LaunchScreen.storyboard */,
+				B6EA005F2893F44900F30EDD /* Main.storyboard */,
+				B6EA00622893F44900F30EDD /* Info.plist */,
 			);
 			path = iOS_App;
 			sourceTree = "<group>";
 		};
-		B6987D49282E707900997902 /* macOs_App */ = {
+		B6EA00682893F44900F30EDD /* macOs_App */ = {
 			isa = PBXGroup;
 			children = (
-				B6987D4A282E707900997902 /* AppDelegate.swift */,
-				B6987D4C282E707900997902 /* Main.storyboard */,
-				B6987D4F282E707900997902 /* Info.plist */,
-				B6987D50282E707900997902 /* TempleWallet.entitlements */,
+				B6EA00692893F44900F30EDD /* AppDelegate.swift */,
+				B6EA006B2893F44900F30EDD /* Main.storyboard */,
+				B6EA006E2893F44900F30EDD /* Info.plist */,
+				B6EA006F2893F44900F30EDD /* TempleWallet.entitlements */,
 			);
 			path = macOs_App;
 			sourceTree = "<group>";
 		};
-		B6987D59282E707900997902 /* iOS_Ext */ = {
+		B6EA00782893F44900F30EDD /* iOS_Ext */ = {
 			isa = PBXGroup;
 			children = (
-				B6987D5A282E707900997902 /* Info.plist */,
+				B6EA00792893F44900F30EDD /* Info.plist */,
 			);
 			path = iOS_Ext;
 			sourceTree = "<group>";
 		};
-		B6987D63282E707900997902 /* macOS_Ext */ = {
+		B6EA00822893F44900F30EDD /* macOs_Ext */ = {
 			isa = PBXGroup;
 			children = (
-				B6987D64282E707900997902 /* Info.plist */,
-				B6987D65282E707900997902 /* TempleWallet.entitlements */,
+				B6EA00832893F44900F30EDD /* Info.plist */,
+				B6EA00842893F44900F30EDD /* TempleWallet.entitlements */,
 			);
-			path = macOS_Ext;
+			path = macOs_Ext;
 			sourceTree = "<group>";
 		};
-		B6987D84282E707A00997902 /* Resources */ = {
+		B6EA00A32893F44B00F30EDD /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				B6987D85282E707A00997902 /* misc */,
-				B6987D86282E707A00997902 /* confirm.html */,
-				B6987D87282E707A00997902 /* popup.html */,
-				B6987D88282E707A00997902 /* styles */,
-				B6987D89282E707A00997902 /* scripts */,
-				B6987D8A282E707A00997902 /* manifest.json */,
-				B6987D8B282E707A00997902 /* fullpage.html */,
-				B6987D8C282E707A00997902 /* options.html */,
-				B6987D8D282E707A00997902 /* _locales */,
-				B6987D8E282E707A00997902 /* media */,
+				B6EA00A42893F44B00F30EDD /* misc */,
+				B6EA00A52893F44B00F30EDD /* confirm.html */,
+				B6EA00A62893F44B00F30EDD /* popup.html */,
+				B6EA00A72893F44B00F30EDD /* manifest.json */,
+				B6EA00A82893F44B00F30EDD /* fullpage.html */,
+				B6EA00A92893F44B00F30EDD /* options.html */,
+				B6EA00AA2893F44B00F30EDD /* _locales */,
 			);
 			name = Resources;
 			path = "Shared (Extension)";
@@ -276,103 +264,103 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		B6987D35282E707900997902 /* TempleWallet (iOS) */ = {
+		B6EA00542893F44800F30EDD /* ios */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = B6987D7A282E707900997902 /* Build configuration list for PBXNativeTarget "TempleWallet (iOS)" */;
+			buildConfigurationList = B6EA00992893F44900F30EDD /* Build configuration list for PBXNativeTarget "ios" */;
 			buildPhases = (
-				B6987D32282E707900997902 /* Sources */,
-				B6987D33282E707900997902 /* Frameworks */,
-				B6987D34282E707900997902 /* Resources */,
-				B6987D79282E707900997902 /* Embed App Extensions */,
+				B6EA00512893F44800F30EDD /* Sources */,
+				B6EA00522893F44800F30EDD /* Frameworks */,
+				B6EA00532893F44800F30EDD /* Resources */,
+				B6EA00982893F44900F30EDD /* Embed App Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				B6987D58282E707900997902 /* PBXTargetDependency */,
+				B6EA00772893F44900F30EDD /* PBXTargetDependency */,
 			);
-			name = "TempleWallet (iOS)";
-			productName = "Temple - Tezos Wallet (ex. Thanos) (iOS)";
-			productReference = B6987D36282E707900997902 /* Temple Wallet.app */;
+			name = ios;
+			productName = "TempleWallet (iOS)";
+			productReference = B6EA00552893F44900F30EDD /* TempleWallet.app */;
 			productType = "com.apple.product-type.application";
 		};
-		B6987D47282E707900997902 /* TempleWallet (macOS) */ = {
+		B6EA00662893F44900F30EDD /* macos */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = B6987D81282E707900997902 /* Build configuration list for PBXNativeTarget "TempleWallet (macOS)" */;
+			buildConfigurationList = B6EA00A02893F44900F30EDD /* Build configuration list for PBXNativeTarget "macos" */;
 			buildPhases = (
-				B6987D44282E707900997902 /* Sources */,
-				B6987D45282E707900997902 /* Frameworks */,
-				B6987D46282E707900997902 /* Resources */,
-				B6987D80282E707900997902 /* Embed App Extensions */,
+				B6EA00632893F44900F30EDD /* Sources */,
+				B6EA00642893F44900F30EDD /* Frameworks */,
+				B6EA00652893F44900F30EDD /* Resources */,
+				B6EA009F2893F44900F30EDD /* Embed App Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				B6987D62282E707900997902 /* PBXTargetDependency */,
+				B6EA00812893F44900F30EDD /* PBXTargetDependency */,
 			);
-			name = "TempleWallet (macOS)";
-			productName = "Temple - Tezos Wallet (ex. Thanos) (macOS)";
-			productReference = B6987D48282E707900997902 /* Temple Wallet.app */;
+			name = macos;
+			productName = "TempleWallet (macOS)";
+			productReference = B6EA00672893F44900F30EDD /* TempleWallet.app */;
 			productType = "com.apple.product-type.application";
 		};
-		B6987D54282E707900997902 /* TempleWallet Extension (iOS) */ = {
+		B6EA00732893F44900F30EDD /* TempleWallet Extension (iOS) */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = B6987D76282E707900997902 /* Build configuration list for PBXNativeTarget "TempleWallet Extension (iOS)" */;
+			buildConfigurationList = B6EA00952893F44900F30EDD /* Build configuration list for PBXNativeTarget "TempleWallet Extension (iOS)" */;
 			buildPhases = (
-				B6987D51282E707900997902 /* Sources */,
-				B6987D52282E707900997902 /* Frameworks */,
-				B6987D53282E707900997902 /* Resources */,
+				B6EA00702893F44900F30EDD /* Sources */,
+				B6EA00712893F44900F30EDD /* Frameworks */,
+				B6EA00722893F44900F30EDD /* Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
 			name = "TempleWallet Extension (iOS)";
-			productName = "Temple - Tezos Wallet (ex. Thanos) Extension (iOS)";
-			productReference = B6987D55282E707900997902 /* TempleWallet Extension.appex */;
+			productName = "TempleWallet Extension (iOS)";
+			productReference = B6EA00742893F44900F30EDD /* TempleWallet Extension.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
-		B6987D5E282E707900997902 /* TempleWallet Extension (macOS) */ = {
+		B6EA007D2893F44900F30EDD /* TempleWallet Extension (macOS) */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = B6987D7D282E707900997902 /* Build configuration list for PBXNativeTarget "TempleWallet Extension (macOS)" */;
+			buildConfigurationList = B6EA009C2893F44900F30EDD /* Build configuration list for PBXNativeTarget "TempleWallet Extension (macOS)" */;
 			buildPhases = (
-				B6987D5B282E707900997902 /* Sources */,
-				B6987D5C282E707900997902 /* Frameworks */,
-				B6987D5D282E707900997902 /* Resources */,
+				B6EA007A2893F44900F30EDD /* Sources */,
+				B6EA007B2893F44900F30EDD /* Frameworks */,
+				B6EA007C2893F44900F30EDD /* Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
 			name = "TempleWallet Extension (macOS)";
-			productName = "Temple - Tezos Wallet (ex. Thanos) Extension (macOS)";
-			productReference = B6987D5F282E707900997902 /* TempleWallet Extension.appex */;
+			productName = "TempleWallet Extension (macOS)";
+			productReference = B6EA007E2893F44900F30EDD /* TempleWallet Extension.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		B6987D23282E707600997902 /* Project object */ = {
+		B6EA00422893F43E00F30EDD /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1330;
-				LastUpgradeCheck = 1330;
+				LastSwiftUpdateCheck = 1340;
+				LastUpgradeCheck = 1340;
 				TargetAttributes = {
-					B6987D35282E707900997902 = {
-						CreatedOnToolsVersion = 13.3.1;
+					B6EA00542893F44800F30EDD = {
+						CreatedOnToolsVersion = 13.4;
 					};
-					B6987D47282E707900997902 = {
-						CreatedOnToolsVersion = 13.3.1;
+					B6EA00662893F44900F30EDD = {
+						CreatedOnToolsVersion = 13.4;
 					};
-					B6987D54282E707900997902 = {
-						CreatedOnToolsVersion = 13.3.1;
+					B6EA00732893F44900F30EDD = {
+						CreatedOnToolsVersion = 13.4;
 					};
-					B6987D5E282E707900997902 = {
-						CreatedOnToolsVersion = 13.3.1;
+					B6EA007D2893F44900F30EDD = {
+						CreatedOnToolsVersion = 13.4;
 					};
 				};
 			};
-			buildConfigurationList = B6987D26282E707600997902 /* Build configuration list for PBXProject "TempleWallet" */;
+			buildConfigurationList = B6EA00452893F43E00F30EDD /* Build configuration list for PBXProject "TempleWallet" */;
 			compatibilityVersion = "Xcode 13.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -380,163 +368,157 @@
 				en,
 				Base,
 			);
-			mainGroup = B6987D22282E707600997902;
-			productRefGroup = B6987D37282E707900997902 /* Products */;
+			mainGroup = B6EA00412893F43E00F30EDD;
+			productRefGroup = B6EA00562893F44900F30EDD /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				B6987D35282E707900997902 /* TempleWallet (iOS) */,
-				B6987D47282E707900997902 /* TempleWallet (macOS) */,
-				B6987D54282E707900997902 /* TempleWallet Extension (iOS) */,
-				B6987D5E282E707900997902 /* TempleWallet Extension (macOS) */,
+				B6EA00542893F44800F30EDD /* ios */,
+				B6EA00662893F44900F30EDD /* macos */,
+				B6EA00732893F44900F30EDD /* TempleWallet Extension (iOS) */,
+				B6EA007D2893F44900F30EDD /* TempleWallet Extension (macOS) */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		B6987D34282E707900997902 /* Resources */ = {
+		B6EA00532893F44800F30EDD /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B6987D68282E707900997902 /* Icon.png in Resources */,
-				B6987D3F282E707900997902 /* LaunchScreen.storyboard in Resources */,
-				B6987D66282E707900997902 /* Main.html in Resources */,
-				B6987D6C282E707900997902 /* Script.js in Resources */,
-				B6987D70282E707900997902 /* Assets.xcassets in Resources */,
-				B6987D42282E707900997902 /* Main.storyboard in Resources */,
-				B6987D6A282E707900997902 /* Style.css in Resources */,
+				B6EA00872893F44900F30EDD /* Icon.png in Resources */,
+				B6EA005E2893F44900F30EDD /* LaunchScreen.storyboard in Resources */,
+				B6EA00852893F44900F30EDD /* Main.html in Resources */,
+				B6EA008B2893F44900F30EDD /* Script.js in Resources */,
+				B6EA008F2893F44900F30EDD /* Assets.xcassets in Resources */,
+				B6EA00612893F44900F30EDD /* Main.storyboard in Resources */,
+				B6EA00892893F44900F30EDD /* Style.css in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		B6987D46282E707900997902 /* Resources */ = {
+		B6EA00652893F44900F30EDD /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B6987D69282E707900997902 /* Icon.png in Resources */,
-				B6987D6B282E707900997902 /* Style.css in Resources */,
-				B6987D4E282E707900997902 /* Main.storyboard in Resources */,
-				B6987D6D282E707900997902 /* Script.js in Resources */,
-				B6987D71282E707900997902 /* Assets.xcassets in Resources */,
-				B6987D67282E707900997902 /* Main.html in Resources */,
+				B6EA00882893F44900F30EDD /* Icon.png in Resources */,
+				B6EA008A2893F44900F30EDD /* Style.css in Resources */,
+				B6EA006D2893F44900F30EDD /* Main.storyboard in Resources */,
+				B6EA008C2893F44900F30EDD /* Script.js in Resources */,
+				B6EA00902893F44900F30EDD /* Assets.xcassets in Resources */,
+				B6EA00862893F44900F30EDD /* Main.html in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		B6987D53282E707900997902 /* Resources */ = {
+		B6EA00722893F44900F30EDD /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B6987DA1282E707A00997902 /* _locales in Resources */,
-				B6987D9F282E707A00997902 /* fullpage.html in Resources */,
-				B6987D99282E707A00997902 /* misc in Resources */,
-				B6987D9B282E707A00997902 /* popup.html in Resources */,
-				B6987DA0282E707A00997902 /* options.html in Resources */,
-				B6987D9C282E707A00997902 /* styles in Resources */,
-				B6987D9D282E707A00997902 /* scripts in Resources */,
-				B6987DA2282E707A00997902 /* media in Resources */,
-				B6987D9E282E707A00997902 /* manifest.json in Resources */,
-				B6987D9A282E707A00997902 /* confirm.html in Resources */,
+				B6EA00B52893F44B00F30EDD /* manifest.json in Resources */,
+				B6EA00B22893F44B00F30EDD /* misc in Resources */,
+				B6EA00B42893F44B00F30EDD /* popup.html in Resources */,
+				B6EA00B32893F44B00F30EDD /* confirm.html in Resources */,
+				B6EA00B62893F44B00F30EDD /* fullpage.html in Resources */,
+				B6EA00B82893F44B00F30EDD /* _locales in Resources */,
+				B6EA00B72893F44B00F30EDD /* options.html in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		B6987D5D282E707900997902 /* Resources */ = {
+		B6EA007C2893F44900F30EDD /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B6987D97282E707A00997902 /* _locales in Resources */,
-				B6987D95282E707A00997902 /* fullpage.html in Resources */,
-				B6987D8F282E707A00997902 /* misc in Resources */,
-				B6987D91282E707A00997902 /* popup.html in Resources */,
-				B6987D96282E707A00997902 /* options.html in Resources */,
-				B6987D92282E707A00997902 /* styles in Resources */,
-				B6987D93282E707A00997902 /* scripts in Resources */,
-				B6987D98282E707A00997902 /* media in Resources */,
-				B6987D94282E707A00997902 /* manifest.json in Resources */,
-				B6987D90282E707A00997902 /* confirm.html in Resources */,
+				B6EA00AE2893F44B00F30EDD /* manifest.json in Resources */,
+				B6EA00AB2893F44B00F30EDD /* misc in Resources */,
+				B6EA00AD2893F44B00F30EDD /* popup.html in Resources */,
+				B6EA00AC2893F44B00F30EDD /* confirm.html in Resources */,
+				B6EA00AF2893F44B00F30EDD /* fullpage.html in Resources */,
+				B6EA00B12893F44B00F30EDD /* _locales in Resources */,
+				B6EA00B02893F44B00F30EDD /* options.html in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		B6987D32282E707900997902 /* Sources */ = {
+		B6EA00512893F44800F30EDD /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B6987D6E282E707900997902 /* ViewController.swift in Sources */,
-				B6987D3A282E707900997902 /* AppDelegate.swift in Sources */,
-				B6987D3C282E707900997902 /* SceneDelegate.swift in Sources */,
+				B6EA008D2893F44900F30EDD /* ViewController.swift in Sources */,
+				B6EA00592893F44900F30EDD /* AppDelegate.swift in Sources */,
+				B6EA005B2893F44900F30EDD /* SceneDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		B6987D44282E707900997902 /* Sources */ = {
+		B6EA00632893F44900F30EDD /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B6987D6F282E707900997902 /* ViewController.swift in Sources */,
-				B6987D4B282E707900997902 /* AppDelegate.swift in Sources */,
+				B6EA008E2893F44900F30EDD /* ViewController.swift in Sources */,
+				B6EA006A2893F44900F30EDD /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		B6987D51282E707900997902 /* Sources */ = {
+		B6EA00702893F44900F30EDD /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B63B190C282E74A9004B62C9 /* SafariWebExtensionHandler.swift in Sources */,
+				B6EA00912893F44900F30EDD /* SafariWebExtensionHandler.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		B6987D5B282E707900997902 /* Sources */ = {
+		B6EA007A2893F44900F30EDD /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B63B190B282E74A8004B62C9 /* SafariWebExtensionHandler.swift in Sources */,
+				B6EA00922893F44900F30EDD /* SafariWebExtensionHandler.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		B6987D58282E707900997902 /* PBXTargetDependency */ = {
+		B6EA00772893F44900F30EDD /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = B6987D54282E707900997902 /* TempleWallet Extension (iOS) */;
-			targetProxy = B6987D57282E707900997902 /* PBXContainerItemProxy */;
+			target = B6EA00732893F44900F30EDD /* TempleWallet Extension (iOS) */;
+			targetProxy = B6EA00762893F44900F30EDD /* PBXContainerItemProxy */;
 		};
-		B6987D62282E707900997902 /* PBXTargetDependency */ = {
+		B6EA00812893F44900F30EDD /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = B6987D5E282E707900997902 /* TempleWallet Extension (macOS) */;
-			targetProxy = B6987D61282E707900997902 /* PBXContainerItemProxy */;
+			target = B6EA007D2893F44900F30EDD /* TempleWallet Extension (macOS) */;
+			targetProxy = B6EA00802893F44900F30EDD /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
-		B6987D29282E707600997902 /* Main.html */ = {
+		B6EA00482893F43E00F30EDD /* Main.html */ = {
 			isa = PBXVariantGroup;
 			children = (
-				B6987D2A282E707600997902 /* Base */,
+				B6EA00492893F43E00F30EDD /* Base */,
 			);
 			name = Main.html;
 			sourceTree = "<group>";
 		};
-		B6987D3D282E707900997902 /* LaunchScreen.storyboard */ = {
+		B6EA005C2893F44900F30EDD /* LaunchScreen.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
-				B6987D3E282E707900997902 /* Base */,
+				B6EA005D2893F44900F30EDD /* Base */,
 			);
 			name = LaunchScreen.storyboard;
 			sourceTree = "<group>";
 		};
-		B6987D40282E707900997902 /* Main.storyboard */ = {
+		B6EA005F2893F44900F30EDD /* Main.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
-				B6987D41282E707900997902 /* Base */,
+				B6EA00602893F44900F30EDD /* Base */,
 			);
 			name = Main.storyboard;
 			sourceTree = "<group>";
 		};
-		B6987D4C282E707900997902 /* Main.storyboard */ = {
+		B6EA006B2893F44900F30EDD /* Main.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
-				B6987D4D282E707900997902 /* Base */,
+				B6EA006C2893F44900F30EDD /* Base */,
 			);
 			name = Main.storyboard;
 			sourceTree = "<group>";
@@ -544,7 +526,7 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
-		B6987D74282E707900997902 /* Debug */ = {
+		B6EA00932893F44900F30EDD /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -602,7 +584,7 @@
 			};
 			name = Debug;
 		};
-		B6987D75282E707900997902 /* Release */ = {
+		B6EA00942893F44900F30EDD /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -653,14 +635,14 @@
 			};
 			name = Release;
 		};
-		B6987D77282E707900997902 /* Debug */ = {
+		B6EA00962893F44900F30EDD /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = iOS_Ext/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Temple Wallet";
+				INFOPLIST_KEY_CFBundleDisplayName = "TempleWallet Extension";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -683,14 +665,14 @@
 			};
 			name = Debug;
 		};
-		B6987D78282E707900997902 /* Release */ = {
+		B6EA00972893F44900F30EDD /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = iOS_Ext/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Temple Wallet";
+				INFOPLIST_KEY_CFBundleDisplayName = "TempleWallet Extension";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -714,7 +696,7 @@
 			};
 			name = Release;
 		};
-		B6987D7B282E707900997902 /* Debug */ = {
+		B6EA009A2893F44900F30EDD /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
@@ -724,7 +706,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = iOS_App/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Temple Wallet";
+				INFOPLIST_KEY_CFBundleDisplayName = TempleWallet;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
@@ -743,7 +725,7 @@
 					WebKit,
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.madfish.temple-wallet-extension";
-				PRODUCT_NAME = "TempleWallet Extension";
+				PRODUCT_NAME = TempleWallet;
 				SDKROOT = iphoneos;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -751,7 +733,7 @@
 			};
 			name = Debug;
 		};
-		B6987D7C282E707900997902 /* Release */ = {
+		B6EA009B2893F44900F30EDD /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
@@ -761,7 +743,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = iOS_App/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Temple Wallet";
+				INFOPLIST_KEY_CFBundleDisplayName = TempleWallet;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
@@ -780,7 +762,7 @@
 					WebKit,
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.madfish.temple-wallet-extension";
-				PRODUCT_NAME = "TempleWallet Extension";
+				PRODUCT_NAME = TempleWallet;
 				SDKROOT = iphoneos;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -789,16 +771,16 @@
 			};
 			name = Release;
 		};
-		B6987D7E282E707900997902 /* Debug */ = {
+		B6EA009D2893F44900F30EDD /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_ENTITLEMENTS = macOS_Ext/TempleWallet.entitlements;
+				CODE_SIGN_ENTITLEMENTS = "macOS (Extension)/TempleWallet.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = macOS_Ext/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Temple Wallet";
+				INFOPLIST_FILE = macOs_Ext/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "TempleWallet Extension";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -820,16 +802,16 @@
 			};
 			name = Debug;
 		};
-		B6987D7F282E707900997902 /* Release */ = {
+		B6EA009E2893F44900F30EDD /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_ENTITLEMENTS = macOS_Ext/TempleWallet.entitlements;
+				CODE_SIGN_ENTITLEMENTS = "macOS (Extension)/TempleWallet.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = macOS_Ext/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Temple Wallet";
+				INFOPLIST_FILE = macOs_Ext/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "TempleWallet Extension";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -851,19 +833,19 @@
 			};
 			name = Release;
 		};
-		B6987D82282E707900997902 /* Debug */ = {
+		B6EA00A12893F44900F30EDD /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = macOS_App/TempleWallet.entitlements;
+				CODE_SIGN_ENTITLEMENTS = "macOS (App)/TempleWallet.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = macOS_App/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Temple Wallet";
+				INFOPLIST_FILE = macOs_App/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = TempleWallet;
 				INFOPLIST_KEY_NSMainStoryboardFile = Main;
 				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -879,26 +861,26 @@
 					WebKit,
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.madfish.temple-wallet-extension";
-				PRODUCT_NAME = "TempleWallet Extension";
+				PRODUCT_NAME = TempleWallet;
 				SDKROOT = macosx;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
 		};
-		B6987D83282E707900997902 /* Release */ = {
+		B6EA00A22893F44900F30EDD /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = macOS_App/TempleWallet.entitlements;
+				CODE_SIGN_ENTITLEMENTS = "macOS (App)/TempleWallet.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = macOS_App/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Temple Wallet";
+				INFOPLIST_FILE = macOs_App/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = TempleWallet;
 				INFOPLIST_KEY_NSMainStoryboardFile = Main;
 				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -914,7 +896,7 @@
 					WebKit,
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.madfish.temple-wallet-extension";
-				PRODUCT_NAME = "TempleWallet Extension";
+				PRODUCT_NAME = TempleWallet;
 				SDKROOT = macosx;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -924,52 +906,52 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		B6987D26282E707600997902 /* Build configuration list for PBXProject "TempleWallet" */ = {
+		B6EA00452893F43E00F30EDD /* Build configuration list for PBXProject "TempleWallet" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				B6987D74282E707900997902 /* Debug */,
-				B6987D75282E707900997902 /* Release */,
+				B6EA00932893F44900F30EDD /* Debug */,
+				B6EA00942893F44900F30EDD /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		B6987D76282E707900997902 /* Build configuration list for PBXNativeTarget "TempleWallet Extension (iOS)" */ = {
+		B6EA00952893F44900F30EDD /* Build configuration list for PBXNativeTarget "TempleWallet Extension (iOS)" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				B6987D77282E707900997902 /* Debug */,
-				B6987D78282E707900997902 /* Release */,
+				B6EA00962893F44900F30EDD /* Debug */,
+				B6EA00972893F44900F30EDD /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		B6987D7A282E707900997902 /* Build configuration list for PBXNativeTarget "TempleWallet (iOS)" */ = {
+		B6EA00992893F44900F30EDD /* Build configuration list for PBXNativeTarget "ios" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				B6987D7B282E707900997902 /* Debug */,
-				B6987D7C282E707900997902 /* Release */,
+				B6EA009A2893F44900F30EDD /* Debug */,
+				B6EA009B2893F44900F30EDD /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		B6987D7D282E707900997902 /* Build configuration list for PBXNativeTarget "TempleWallet Extension (macOS)" */ = {
+		B6EA009C2893F44900F30EDD /* Build configuration list for PBXNativeTarget "TempleWallet Extension (macOS)" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				B6987D7E282E707900997902 /* Debug */,
-				B6987D7F282E707900997902 /* Release */,
+				B6EA009D2893F44900F30EDD /* Debug */,
+				B6EA009E2893F44900F30EDD /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		B6987D81282E707900997902 /* Build configuration list for PBXNativeTarget "TempleWallet (macOS)" */ = {
+		B6EA00A02893F44900F30EDD /* Build configuration list for PBXNativeTarget "macos" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				B6987D82282E707900997902 /* Debug */,
-				B6987D83282E707900997902 /* Release */,
+				B6EA00A12893F44900F30EDD /* Debug */,
+				B6EA00A22893F44900F30EDD /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
-	rootObject = B6987D23282E707600997902 /* Project object */;
+	rootObject = B6EA00422893F43E00F30EDD /* Project object */;
 }
