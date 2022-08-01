@@ -8,7 +8,9 @@ import Money from 'app/atoms/Money';
 import Name from 'app/atoms/Name';
 import Balance from 'app/templates/Balance';
 import { t } from 'lib/i18n/react';
-import { TempleAccount, TEZOS_METADATA } from 'lib/temple/front';
+import { TempleAccount } from 'lib/temple/front';
+
+import { useGasToken } from '../hooks/useGasToken';
 
 type AccountBannerProps = HTMLAttributes<HTMLDivElement> & {
   account: TempleAccount;
@@ -22,6 +24,7 @@ type AccountBannerProps = HTMLAttributes<HTMLDivElement> & {
 const AccountBanner = memo<AccountBannerProps>(
   ({ account, displayBalance = true, networkRpc, className, label, labelIndent = 'md', labelDescription }) => {
     const labelWithFallback = label ?? t('account');
+    const { metadata } = useGasToken();
 
     return (
       <div className={classNames('flex flex-col', className)}>
@@ -68,7 +71,7 @@ const AccountBanner = memo<AccountBannerProps>(
                     <div className={classNames('ml-2', 'text-xs leading-none flex items-baseline', 'text-gray-600')}>
                       <Money>{bal}</Money>
                       <span className="ml-1" style={{ fontSize: '0.75em' }}>
-                        {TEZOS_METADATA.symbol}
+                        {metadata.symbol}
                       </span>
                     </div>
                   )}

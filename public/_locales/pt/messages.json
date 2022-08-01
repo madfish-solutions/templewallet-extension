@@ -961,7 +961,12 @@
     "message": "Isto pode acontecer porque:"
   },
   "minimalFeeGreaterThanBalanceVerbose": {
-    "message": "A taxa mínima para esta transação é superior ao seu saldo. Poderá ser necessário pagar uma taxa superior por enviar fundos para uma conta de Gestor vazia. Isso requer uma taxa de consolidação única de 0,06425 ꜩ;"
+    "message": "A taxa mínima para esta transação é superior ao seu saldo. Poderá ser necessário pagar uma taxa superior por enviar fundos para uma conta de Gestor vazia. Isso requer uma taxa de consolidação única de 0,06425 $gasTokenSymbol$;",
+    "placeholders": {
+      "gasTokenSymbol": {
+        "content": "$1"
+      }
+    }
   },
   "networkOrOtherIssue": {
     "message": "Rede ou outra questão técnica."
@@ -1741,7 +1746,7 @@
     "message": "A sua conta está vazia. Deposite qualquer montante tez nesta conta para ativá-la"
   },
   "balanceTooLow": {
-    "message": "Saldo Tez baixo"
+    "message": "Saldo gas token baixo"
   },
   "swap": {
     "message": "Trocar"

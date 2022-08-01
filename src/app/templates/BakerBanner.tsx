@@ -12,8 +12,10 @@ import { useAppEnv } from 'app/env';
 import { ReactComponent as ChevronRightIcon } from 'app/icons/chevron-right.svg';
 import { toLocalFormat } from 'lib/i18n/numbers';
 import { T } from 'lib/i18n/react';
-import { useRelevantAccounts, useAccount, useKnownBaker, useExplorerBaseUrls } from 'lib/temple/front';
+import { useRelevantAccounts, useAccount, useKnownBaker, useExplorerBaseUrls, useNetwork } from 'lib/temple/front';
 import { TempleAccount } from 'lib/temple/types';
+
+import HashChip from './HashChip';
 
 type BakerBannerProps = HTMLAttributes<HTMLDivElement> & {
   bakerPkh: string;
@@ -154,7 +156,12 @@ const BakerBanner = memo<BakerBannerProps>(
             <div className="flex flex-col items-start flex-1 ml-2">
               <div className={classNames('mb-px w-full', 'flex flex-wrap items-center', 'leading-none')}>
                 <Name className="pb-1 mr-1 text-lg font-medium">
-                  <BakerAccount account={account} bakerAcc={bakerAcc} />
+                  <BakerAccount
+                    account={account}
+                    bakerAcc={bakerAcc}
+                    bakerPkh={bakerPkh}
+                    accountBaseUrl={accountBaseUrl}
+                  />
                 </Name>
               </div>
             </div>
@@ -167,8 +174,15 @@ const BakerBanner = memo<BakerBannerProps>(
 
 export default BakerBanner;
 
-const BakerAccount: React.FC<{ bakerAcc: TempleAccount | null; account: TempleAccount }> = ({ bakerAcc, account }) =>
-  bakerAcc ? (
+const BakerAccount: React.FC<{
+  bakerAcc: TempleAccount | null;
+  account: TempleAccount;
+  bakerPkh: string;
+  accountBaseUrl?: string;
+}> = ({ bakerAcc, account, bakerPkh, accountBaseUrl }) => {
+  const network = useNetwork();
+
+  return bakerAcc ? (
     <>
       {bakerAcc.name}
       {bakerAcc.publicKeyHash === account.publicKeyHash && (
@@ -182,11 +196,19 @@ const BakerAccount: React.FC<{ bakerAcc: TempleAccount | null; account: TempleAc
         </T>
       )}
     </>
+  ) : network.type === 'dcp' ? (
+    <div className="flex">
+      <HashChip bgShade={200} rounded="base" className="mr-1" hash={bakerPkh} small textShade={700} />
+      {accountBaseUrl && (
+        <OpenInExplorerChip bgShade={200} textShade={500} rounded="base" hash={bakerPkh} baseUrl={accountBaseUrl} />
+      )}
+    </div>
   ) : (
     <T id="unknownBakerTitle">
       {message => <span className="font-normal">{typeof message === 'string' ? message.toLowerCase() : message}</span>}
     </T>
   );
+};
 
 const SponsoredBaker = () => (
   <div

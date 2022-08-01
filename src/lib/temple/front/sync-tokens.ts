@@ -39,7 +39,7 @@ export const [SyncTokensProvider, useSyncTokens] = constate(() => {
   const usdPrices = useUSDPrices();
 
   const sync = useCallback(async () => {
-    makeSync(
+    await makeSync(
       accountPkh,
       chainId,
       allTokensBaseMetadataRef,

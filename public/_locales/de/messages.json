@@ -961,7 +961,12 @@
     "message": "Dies kann passieren, weil:"
   },
   "minimalFeeGreaterThanBalanceVerbose": {
-    "message": "Die Mindestgebühr für diese Transaktion ist höher als Ihr Guthaben. Es kann eine hohe Gebühr anfallen, weil Sie Geld an ein leeres Manager-Konto senden. Dies erfordert eine einmalige Brenngebühr von 0,06425 ꜩ;"
+    "message": "Die Mindestgebühr für diese Transaktion ist höher als Ihr Guthaben. Es kann eine hohe Gebühr anfallen, weil Sie Geld an ein leeres Manager-Konto senden. Dies erfordert eine einmalige Brenngebühr von 0,06425 $gasTokenSymbol$;",
+    "placeholders": {
+      "gasTokenSymbol": {
+        "content": "$1"
+      }
+    }
   },
   "networkOrOtherIssue": {
     "message": "Netzwerk- oder anderes technisches Problem."
@@ -1741,7 +1746,7 @@
     "message": "Ihr Konto ist leer. Zahlen Sie einen beliebigen Tez-Betrag auf dieses Konto ein, um es zu aktivieren"
   },
   "balanceTooLow": {
-    "message": "Tez-Guthaben zu niedrig"
+    "message": "Gas-Token-Guthaben zu niedrig"
   },
   "swap": {
     "message": "Wechseln"

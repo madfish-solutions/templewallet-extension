@@ -1092,7 +1092,12 @@
     "message": "This may happen because:"
   },
   "minimalFeeGreaterThanBalanceVerbose": {
-    "message": "Minimal fee for this transaction is greater than your balance. A large fee may be required because of you sending funds to an empty Manager account. That requires a one-time 0.06425 ꜩ burn fee;"
+    "message": "Minimal fee for this transaction is greater than your balance. A large fee may be required because of you sending funds to an empty Manager account. That requires a one-time 0.06425 $gasTokenSymbol$ burn fee;",
+    "placeholders": {
+      "gasTokenSymbol": {
+        "content": "$1"
+      }
+    }
   },
   "networkOrOtherIssue": {
     "message": "Network or other technical issue."
@@ -1878,7 +1883,7 @@
     "message": "Your account is empty. Deposit any tez amount on this account to activate it"
   },
   "balanceTooLow": {
-    "message": "Tez balance to low"
+    "message": "Gas token balance is too low"
   },
   "swap": {
     "message": "Swap"

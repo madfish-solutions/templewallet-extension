@@ -694,56 +694,62 @@ type DelegateErrorAlertProps = {
   error: Error;
 };
 
-const DelegateErrorAlert: FC<DelegateErrorAlertProps> = ({ type, error }) => (
-  <Alert
-    type={type === 'submit' ? 'error' : 'warn'}
-    title={(() => {
-      switch (true) {
-        case error instanceof NotEnoughFundsError:
-          return `${t('notEnoughFunds')} 😶`;
+const DelegateErrorAlert: FC<DelegateErrorAlertProps> = ({ type, error }) => {
+  const { symbol } = useGasToken();
 
-        case [UnchangedError, UnregisteredDelegateError].some(Err => error instanceof Err):
-          return t('notAllowed');
+  return (
+    <Alert
+      type={type === 'submit' ? 'error' : 'warn'}
+      title={(() => {
+        switch (true) {
+          case error instanceof NotEnoughFundsError:
+            return `${t('notEnoughFunds')} 😶`;
 
-        default:
-          return t('failed');
-      }
-    })()}
-    description={(() => {
-      switch (true) {
-        case error instanceof ZeroBalanceError:
-          return t('yourBalanceIsZero');
+          case [UnchangedError, UnregisteredDelegateError].some(Err => error instanceof Err):
+            return t('notAllowed');
 
-        case error instanceof NotEnoughFundsError:
-          return t('minimalFeeGreaterThanBalance');
+          default:
+            return t('failed');
+        }
+      })()}
+      description={(() => {
+        switch (true) {
+          case error instanceof ZeroBalanceError:
+            return t('yourBalanceIsZero');
 
-        case error instanceof UnchangedError:
-          return t('alreadyDelegatedFundsToBaker');
+          case error instanceof NotEnoughFundsError:
+            return t('minimalFeeGreaterThanBalance');
 
-        case error instanceof UnregisteredDelegateError:
-          return t('bakerNotRegistered');
+          case error instanceof UnchangedError:
+            return t('alreadyDelegatedFundsToBaker');
 
-        default:
-          return (
-            <>
-              <T
-                id="unableToPerformActionToBaker"
-                substitutions={t(type === 'submit' ? 'delegate' : 'estimateDelegation').toLowerCase()}
-              />
-              <br />
-              <T id="thisMayHappenBecause" />
-              <ul className="mt-1 ml-2 text-xs list-disc list-inside">
-                <T id="minimalFeeGreaterThanBalanceVerbose">{message => <li>{message}</li>}</T>
-                <T id="networkOrOtherIssue">{message => <li>{message}</li>}</T>
-              </ul>
-            </>
-          );
-      }
-    })()}
-    autoFocus
-    className={classNames('mt-6 mb-4')}
-  />
-);
+          case error instanceof UnregisteredDelegateError:
+            return t('bakerNotRegistered');
+
+          default:
+            return (
+              <>
+                <T
+                  id="unableToPerformActionToBaker"
+                  substitutions={t(type === 'submit' ? 'delegate' : 'estimateDelegation').toLowerCase()}
+                />
+                <br />
+                <T id="thisMayHappenBecause" />
+                <ul className="mt-1 ml-2 text-xs list-disc list-inside">
+                  <T id="minimalFeeGreaterThanBalanceVerbose" substitutions={symbol}>
+                    {message => <li>{message}</li>}
+                  </T>
+                  <T id="networkOrOtherIssue">{message => <li>{message}</li>}</T>
+                </ul>
+              </>
+            );
+        }
+      })()}
+      autoFocus
+      className={classNames('mt-6 mb-4')}
+    />
+  );
+};
 
 class UnchangedError extends Error {}
 
