@@ -658,6 +658,7 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = D653UWS37K;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = iOS_Ext/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Temple Wallet";
@@ -688,6 +689,7 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = D653UWS37K;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = iOS_Ext/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Temple Wallet";
