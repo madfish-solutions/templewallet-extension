@@ -83,25 +83,43 @@ const BakerBanner = memo<BakerBannerProps>(
                   )}
                 </div>
 
-                <div className="flex flex-wrap items-center">
-                  <div className="flex items-center mr-3">
-                    <div className={classNames('text-xs leading-tight flex', 'text-gray-500 flex-col')}>
+                <div className="flex flex-wrap items-center w-full">
+                  <div className="flex-1 flex items-start mr-3">
+                    <div
+                      className={classNames(
+                        'text-xs leading-tight flex',
+                        'text-gray-500 flex-col',
+                        'items-start flex-1'
+                      )}
+                    >
                       <T id="staking" />:
                       <span className="text-gray-600 flex">
                         <Money>{(baker.stakingBalance / 1000).toFixed(0)}</Money>K
                       </span>
                     </div>
                   </div>
-                  <div className="flex items-center mr-3">
-                    <div className={classNames('text-xs leading-tight flex', 'text-gray-500 flex-col')}>
+                  <div className="flex-1 flex items-start mr-3">
+                    <div
+                      className={classNames(
+                        'text-xs leading-tight flex',
+                        'text-gray-500 flex-col',
+                        'items-start flex-1'
+                      )}
+                    >
                       <T id="space" />:
                       <span className="text-gray-600 flex">
                         <Money>{(baker.freeSpace / 1000).toFixed(0)}</Money>K
                       </span>
                     </div>
                   </div>
-                  <div className="flex items-center">
-                    <div className={classNames('text-xs leading-tight', 'text-gray-500 flex flex-col')}>
+                  <div className="flex-1 flex items-start mr-12">
+                    <div
+                      className={classNames(
+                        'text-xs leading-tight',
+                        'text-gray-500 flex flex-col',
+                        'items-start flex-1'
+                      )}
+                    >
                       <T id="fee" />:
                       <span className="text-gray-600">
                         {toLocalFormat(new BigNumber(baker.fee).times(100), {
