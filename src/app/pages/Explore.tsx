@@ -113,7 +113,7 @@ const Explore: FC<ExploreProps> = ({ assetSlug }) => {
             to="/receive"
             testID={ExploreSelectors.ReceiveButton}
           />
-          {network.type !== 'test' && (
+          {network.type === 'main' && (
             <ActionButton label={<T id="buyButton" />} Icon={BuyIcon} to="/buy" testID={ExploreSelectors.BuyButton} />
           )}
 

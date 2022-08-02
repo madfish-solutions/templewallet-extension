@@ -37,7 +37,9 @@ export enum TempleChainId {
   Jakartanet = 'NetXLH1uAxK7CCh',
   Katmandu = 'NetXdnUSgMs7Xc3',
   Monday = 'NetXaqtQ8b5nihx',
-  Daily = 'NetXxkAx4woPLyu'
+  Daily = 'NetXxkAx4woPLyu',
+  Dcp = 'NetXooyhiru73tk',
+  DcpTest = 'NetXX7Tz1sK8JTa'
 }
 
 export function isKnownChainId(chainId: string): chainId is TempleChainId {
@@ -118,7 +120,7 @@ export interface TempleNetwork {
   hidden?: boolean;
 }
 
-export type TempleNetworkType = 'main' | 'test';
+export type TempleNetworkType = 'main' | 'test' | 'dcp';
 
 export interface TempleSettings {
   customNetworks?: TempleNetwork[];

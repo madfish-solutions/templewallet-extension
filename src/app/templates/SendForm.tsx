@@ -52,7 +52,6 @@ import {
   mutezToTz,
   ReactiveTezosToolkit,
   TempleAccountType,
-  TEZOS_METADATA,
   toPenny,
   toTransferParams,
   tzToMutez,
@@ -73,6 +72,7 @@ import { TempleAccount, TempleNetworkType } from 'lib/temple/types';
 import useSafeState from 'lib/ui/useSafeState';
 import { HistoryAction, navigate } from 'lib/woozie';
 
+import { useGasToken } from '../hooks/useGasToken';
 import { IAsset } from './AssetSelect/interfaces';
 import { getSlug } from './AssetSelect/utils';
 import { SendFormSelectors } from './SendForm.selectors';
@@ -745,6 +745,7 @@ const FeeComponent: React.FC<FeeComponentProps> = ({
   isSubmitting
 }) => {
   const acc = useAccount();
+  const { metadata } = useGasToken();
   const accountPkh = acc.publicKeyHash;
   if (!restFormDisplayed) return null;
   return (
@@ -786,7 +787,7 @@ const FeeComponent: React.FC<FeeComponentProps> = ({
         name="fee"
         control={control}
         onChange={handleFeeFieldChange}
-        assetSymbol={TEZOS_METADATA.symbol}
+        assetSymbol={metadata.symbol}
         baseFee={baseFee}
         error={error}
         id="send-fee"

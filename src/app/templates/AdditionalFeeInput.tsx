@@ -26,8 +26,8 @@ import CustomSelect, { OptionRenderProps } from 'app/templates/CustomSelect';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
 import { toLocalFixed } from 'lib/i18n/numbers';
 import { T, t } from 'lib/i18n/react';
-import { TEZOS_METADATA } from 'lib/temple/front';
 
+import { useGasToken } from '../hooks/useGasToken';
 import { AdditionalFeeInputSelectors } from './AdditionalFeeInput.selectors';
 
 type AssetFieldProps = typeof AssetField extends ForwardRefExoticComponent<infer T> ? T : never;
@@ -202,6 +202,8 @@ const FeeOptionIcon: FC<OptionRenderProps<FeeOption>> = ({ item: { Icon } }) => 
 };
 
 const FeeOptionContent: FC<OptionRenderProps<FeeOption>> = ({ item: { descriptionI18nKey, amount } }) => {
+  const { metadata } = useGasToken();
+
   return (
     <>
       <div className="flex flex-wrap items-center">
@@ -213,7 +215,7 @@ const FeeOptionContent: FC<OptionRenderProps<FeeOption>> = ({ item: { descriptio
           <div className="ml-2 leading-none text-gray-600 flex items-baseline">
             <Money cryptoDecimals={5}>{amount}</Money>{' '}
             <span className="ml-1" style={{ fontSize: '0.75em' }}>
-              {TEZOS_METADATA.symbol}
+              {metadata.symbol}
             </span>
           </div>
         )}

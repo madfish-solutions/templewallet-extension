@@ -32,6 +32,8 @@ import {
 } from 'lib/temple/front';
 import { ITokenStatus } from 'lib/temple/repo';
 
+import { useGasToken } from '../../../app/hooks/useGasToken';
+
 export const ALL_TOKENS_BASE_METADATA_STORAGE_KEY = 'tokens_base_metadata';
 
 export function useDisplayedFungibleTokens(chainId: string, account: string) {
@@ -92,6 +94,7 @@ const autoFetchMetadataFails = new Set<string>();
 export function useAssetMetadata(slug: string) {
   const tezos = useTezos();
   const forceUpdate = useForceUpdate();
+  const { metadata } = useGasToken();
 
   const { allTokensBaseMetadataRef, fetchMetadata, setTokensBaseMetadata, setTokensDetailedMetadata } =
     useTokensMetadata();
@@ -131,7 +134,7 @@ export function useAssetMetadata(slug: string) {
 
   // Tezos
   if (tezAsset) {
-    return TEZOS_METADATA;
+    return metadata;
   }
 
   // Preserved for legacy tokens
@@ -195,16 +198,17 @@ export const [TokensMetadataProvider, useTokensMetadata] = constate(() => {
 
 export const useGetTokenMetadata = () => {
   const { allTokensBaseMetadataRef } = useTokensMetadata();
+  const { metadata } = useGasToken();
 
   return useCallback(
     (slug: string) => {
       if (isTezAsset(slug)) {
-        return TEZOS_METADATA;
+        return metadata;
       }
 
       return allTokensBaseMetadataRef.current[slug];
     },
-    [allTokensBaseMetadataRef]
+    [allTokensBaseMetadataRef, metadata]
   );
 };
 

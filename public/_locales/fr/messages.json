@@ -916,7 +916,12 @@
     "message": "Cela pourrait se produire à cause de :"
   },
   "minimalFeeGreaterThanBalanceVerbose": {
-    "message": "Les frais minimaux pour cette transaction sont supérieurs à votre solde. Des frais considérables peuvent être exigés parce que vous envoyez des fonds vers un compte de gestionnaire vide. Cela nécessite des frais de brûlure uniques de 0,257 XTZ ;"
+    "message": "Les frais minimaux pour cette transaction sont supérieurs à votre solde. Des frais considérables peuvent être exigés parce que vous envoyez des fonds vers un compte de gestionnaire vide. Cela nécessite des frais de brûlure uniques de 0,257 $gasTokenSymbol$;",
+    "placeholders": {
+      "gasTokenSymbol": {
+        "content": "$1"
+      }
+    }
   },
   "networkOrOtherIssue": {
     "message": "Problème réseau ou autre problème technique."

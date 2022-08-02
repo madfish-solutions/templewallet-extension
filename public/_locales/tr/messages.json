@@ -961,7 +961,12 @@
     "message": "Bunun nedeni şunlar olabilir:"
   },
   "minimalFeeGreaterThanBalanceVerbose": {
-    "message": "Bu işlem için en düşük ücret bakiyenizin üzerindedir. Boş bir Yönetici hesabına fon gönderdiğiniz için yüksek ücret gerekebilir. Bunun için tek seferlik 0,06425 ꜩ yakma ücreti gereklidir;"
+    "message": "Bu işlem için en düşük ücret bakiyenizin üzerindedir. Boş bir Yönetici hesabına fon gönderdiğiniz için yüksek ücret gerekebilir. Bunun için tek seferlik 0,06425 $gasTokenSymbol$ yakma ücreti gereklidir;",
+    "placeholders": {
+      "gasTokenSymbol": {
+        "content": "$1"
+      }
+    }
   },
   "networkOrOtherIssue": {
     "message": "Ağ sorunu veya başka bir teknik sorun."
@@ -1741,7 +1746,7 @@
     "message": "Hesabınız boş. Etkinleştirmek için bu hesaba herhangi bir tutarda tez yatırın"
   },
   "balanceTooLow": {
-    "message": "Tez bakiyesi çok düşük"
+    "message": "Gas token bakiyesi çok düşük"
   },
   "swap": {
     "message": "Takas"

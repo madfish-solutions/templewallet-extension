@@ -48,6 +48,7 @@ import { ABTestGroup } from 'lib/templewallet-api';
 import useSafeState from 'lib/ui/useSafeState';
 import { Link, useLocation } from 'lib/woozie';
 
+import { useGasToken } from '../hooks/useGasToken';
 import { DelegateFormSelectors } from './DelegateForm.selectors';
 
 const PENNY = 0.000001;
@@ -64,12 +65,12 @@ const sponsoredBaker = 'tz1aRoaRhSpRYvFdyvgWLL6TGyRoGF51wDjM';
 const DelegateForm: FC = () => {
   const { registerBackHandler } = useAppEnv();
   const formAnalytics = useFormAnalytics('DelegateForm');
+  const { symbol, isDcpNetwork, logo } = useGasToken();
 
   const acc = useAccount();
   const tezos = useTezos();
 
   const accountPkh = acc.publicKeyHash;
-  const assetSymbol = 'ꜩ';
 
   const { data: balanceData, mutate: mutateBalance } = useBalance('tez', accountPkh);
   const balance = balanceData!;
@@ -285,11 +286,7 @@ const DelegateForm: FC = () => {
         {useMemo(
           () => (
             <div className={classNames('mb-6', 'border rounded-md', 'p-2', 'flex items-center')}>
-              <img
-                src={browser.runtime.getURL('misc/token-logos/tez.svg')}
-                alt={assetSymbol}
-                className="w-auto h-12 mr-3"
-              />
+              <img src={browser.runtime.getURL(logo)} alt={symbol} className="w-auto h-12 mr-3" />
 
               <div className="font-light leading-none">
                 <div className="flex items-center">
@@ -297,7 +294,7 @@ const DelegateForm: FC = () => {
                     <span className="text-xl text-gray-700 flex items-baseline">
                       <Money>{balance}</Money>{' '}
                       <span style={{ fontSize: '0.75em' }}>
-                        <span className="ml-1">{assetSymbol}</span>
+                        <span className="ml-1">{symbol}</span>
                       </span>
                     </span>
 
@@ -314,7 +311,7 @@ const DelegateForm: FC = () => {
               </div>
             </div>
           ),
-          [balance]
+          [balance, symbol, logo]
         )}
 
         <Controller
@@ -331,8 +328,14 @@ const DelegateForm: FC = () => {
           cleanable={Boolean(toValue)}
           onClean={cleanToField}
           id="delegate-to"
-          label={t('baker')}
-          labelDescription={canUseDomainNames ? t('bakerInputDescriptionWithDomain') : t('bakerInputDescription')}
+          label={isDcpNetwork ? t('producer') : t('baker')}
+          labelDescription={
+            canUseDomainNames
+              ? t('bakerInputDescriptionWithDomain')
+              : isDcpNetwork
+              ? t('producerInputDescription')
+              : t('bakerInputDescription')
+          }
           placeholder={canUseDomainNames ? t('recipientInputPlaceholderWithDomain') : t('bakerInputPlaceholder')}
           errorCaption={errors.to?.message && t(errors.to?.message.toString())}
           style={{
@@ -462,7 +465,7 @@ const BakerBannerComponent: React.FC<BakerBannerComponentProps> = ({ tzError, ba
   const balance = balanceData!;
   const balanceNum = balance.toNumber();
   const net = useNetwork();
-  const assetSymbol = 'ꜩ';
+  const { symbol } = useGasToken();
   return baker ? (
     <>
       <div className={classNames('-mt-2 mb-6', 'flex flex-col items-center')}>
@@ -478,7 +481,7 @@ const BakerBannerComponent: React.FC<BakerBannerComponentProps> = ({ tzError, ba
               id="minDelegationAmountDescription"
               substitutions={[
                 <span className="font-normal" key="minDelegationsAmount">
-                  <Money isSpan>{baker.minDelegation}</Money> <span style={{ fontSize: '0.75em' }}>{assetSymbol}</span>
+                  <Money isSpan>{baker.minDelegation}</Money> <span style={{ fontSize: '0.75em' }}>{symbol}</span>
                 </span>
               ]}
             />
@@ -691,56 +694,62 @@ type DelegateErrorAlertProps = {
   error: Error;
 };
 
-const DelegateErrorAlert: FC<DelegateErrorAlertProps> = ({ type, error }) => (
-  <Alert
-    type={type === 'submit' ? 'error' : 'warn'}
-    title={(() => {
-      switch (true) {
-        case error instanceof NotEnoughFundsError:
-          return `${t('notEnoughFunds')} 😶`;
+const DelegateErrorAlert: FC<DelegateErrorAlertProps> = ({ type, error }) => {
+  const { symbol } = useGasToken();
 
-        case [UnchangedError, UnregisteredDelegateError].some(Err => error instanceof Err):
-          return t('notAllowed');
+  return (
+    <Alert
+      type={type === 'submit' ? 'error' : 'warn'}
+      title={(() => {
+        switch (true) {
+          case error instanceof NotEnoughFundsError:
+            return `${t('notEnoughFunds')} 😶`;
 
-        default:
-          return t('failed');
-      }
-    })()}
-    description={(() => {
-      switch (true) {
-        case error instanceof ZeroBalanceError:
-          return t('yourBalanceIsZero');
+          case [UnchangedError, UnregisteredDelegateError].some(Err => error instanceof Err):
+            return t('notAllowed');
 
-        case error instanceof NotEnoughFundsError:
-          return t('minimalFeeGreaterThanBalance');
+          default:
+            return t('failed');
+        }
+      })()}
+      description={(() => {
+        switch (true) {
+          case error instanceof ZeroBalanceError:
+            return t('yourBalanceIsZero');
 
-        case error instanceof UnchangedError:
-          return t('alreadyDelegatedFundsToBaker');
+          case error instanceof NotEnoughFundsError:
+            return t('minimalFeeGreaterThanBalance');
 
-        case error instanceof UnregisteredDelegateError:
-          return t('bakerNotRegistered');
+          case error instanceof UnchangedError:
+            return t('alreadyDelegatedFundsToBaker');
 
-        default:
-          return (
-            <>
-              <T
-                id="unableToPerformActionToBaker"
-                substitutions={t(type === 'submit' ? 'delegate' : 'estimateDelegation').toLowerCase()}
-              />
-              <br />
-              <T id="thisMayHappenBecause" />
-              <ul className="mt-1 ml-2 text-xs list-disc list-inside">
-                <T id="minimalFeeGreaterThanBalanceVerbose">{message => <li>{message}</li>}</T>
-                <T id="networkOrOtherIssue">{message => <li>{message}</li>}</T>
-              </ul>
-            </>
-          );
-      }
-    })()}
-    autoFocus
-    className={classNames('mt-6 mb-4')}
-  />
-);
+          case error instanceof UnregisteredDelegateError:
+            return t('bakerNotRegistered');
+
+          default:
+            return (
+              <>
+                <T
+                  id="unableToPerformActionToBaker"
+                  substitutions={t(type === 'submit' ? 'delegate' : 'estimateDelegation').toLowerCase()}
+                />
+                <br />
+                <T id="thisMayHappenBecause" />
+                <ul className="mt-1 ml-2 text-xs list-disc list-inside">
+                  <T id="minimalFeeGreaterThanBalanceVerbose" substitutions={symbol}>
+                    {message => <li>{message}</li>}
+                  </T>
+                  <T id="networkOrOtherIssue">{message => <li>{message}</li>}</T>
+                </ul>
+              </>
+            );
+        }
+      })()}
+      autoFocus
+      className={classNames('mt-6 mb-4')}
+    />
+  );
+};
 
 class UnchangedError extends Error {}
 

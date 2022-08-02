@@ -22,6 +22,7 @@ import {
   useAssetMetadata
 } from 'lib/temple/front';
 
+import { useGasToken } from '../../hooks/useGasToken';
 import OperationsBanner from '../OperationsBanner';
 import styles from './ExpensesView.module.css';
 
@@ -59,6 +60,7 @@ const ExpensesView: FC<ExpensesViewProps> = ({
   gasFeeError,
   error
 }) => {
+  const { symbol } = useGasToken();
   const [showDetails, setShowDetails] = useState(false);
 
   const toggleShowDetails = useCallback(() => setShowDetails(prevValue => !prevValue), []);
@@ -154,14 +156,14 @@ const ExpensesView: FC<ExpensesViewProps> = ({
                           'placeholder-gray-600'
                         )}
                       />
-                      ꜩ
+                      {symbol}
                     </>
                   ) : (
                     <span className="flex items-baseline">
                       <span className="font-medium">
                         <Money>{value}</Money>
                       </span>
-                      <span className="ml-1">ꜩ</span>
+                      <span className="ml-1">{symbol}</span>
                     </span>
                   )}
                 </div>
@@ -208,7 +210,7 @@ const ExpensesView: FC<ExpensesViewProps> = ({
         ))}
       </div>
     );
-  }, [modifyFeeAndLimit, estimates, gasFeeError, mainnet]);
+  }, [modifyFeeAndLimit, estimates, gasFeeError, mainnet, symbol]);
 
   if (!expenses) {
     return null;
