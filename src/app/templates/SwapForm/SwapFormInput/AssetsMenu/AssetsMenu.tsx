@@ -10,6 +10,7 @@ import { useAccount, useChainId } from 'lib/temple/front';
 import * as Repo from 'lib/temple/repo';
 
 import { AssetOption } from './AssetOption/AssetOption';
+import { useAppEnv } from '../../../../env';
 
 interface Props {
   value?: string;
@@ -34,6 +35,7 @@ export const AssetsMenu: FC<Props> = ({
   setOpened,
   onChange
 }) => {
+  const appEnv = useAppEnv();
   const chainId = useChainId(true)!;
   const account = useAccount();
   const isShowSearchOption = useMemo(() => !options.includes(searchAssetSlug), [options, searchAssetSlug]);
@@ -88,7 +90,7 @@ export const AssetsMenu: FC<Props> = ({
       )}
       {/*// @ts-ignore*/}
       <List
-        width={382}
+        width={appEnv.popup ? 328 : 382}
         height={240}
         rowCount={options.length}
         rowHeight={65}
