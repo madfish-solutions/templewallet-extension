@@ -4,13 +4,13 @@ import { List } from 'react-virtualized';
 
 import DropdownWrapper from 'app/atoms/DropdownWrapper';
 import Spinner from 'app/atoms/Spinner/Spinner';
+import { useAppEnv } from 'app/env';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
 import { T } from 'lib/i18n/react';
 import { useAccount, useChainId } from 'lib/temple/front';
 import * as Repo from 'lib/temple/repo';
 
 import { AssetOption } from './AssetOption/AssetOption';
-import { useAppEnv } from '../../../../env';
 
 interface Props {
   value?: string;
