@@ -1,5 +1,7 @@
 import React, { FC, useMemo } from 'react';
 
+import { List } from 'react-virtualized';
+
 import DropdownWrapper from 'app/atoms/DropdownWrapper';
 import Spinner from 'app/atoms/Spinner/Spinner';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
@@ -70,9 +72,7 @@ export const AssetsMenu: FC<Props> = ({
         padding: 0
       }}
     >
-      {isShowSearchOption && (
-        <AssetOption assetSlug={searchAssetSlug} isLast={false} onClick={handleSearchOptionClick} />
-      )}
+      {isShowSearchOption && <AssetOption assetSlug={searchAssetSlug} onClick={handleSearchOptionClick} />}
       {(options.length === 0 || isLoading) && (
         <div className="my-8 flex flex-col items-center justify-center text-gray-500">
           {isLoading ? (
@@ -86,14 +86,16 @@ export const AssetsMenu: FC<Props> = ({
           )}
         </div>
       )}
-      {options.map((assetSlug, index) => (
-        <AssetOption
-          key={assetSlug}
-          assetSlug={assetSlug}
-          isLast={index === options.length - 1}
-          onClick={handleOptionClick}
-        />
-      ))}
+      {/*// @ts-ignore*/}
+      <List
+        width={382}
+        height={240}
+        rowCount={options.length}
+        rowHeight={65}
+        rowRenderer={({ key, index, style }) => (
+          <AssetOption key={key} assetSlug={options[index]} style={style} onClick={handleOptionClick} />
+        )}
+      />
     </DropdownWrapper>
   );
 };
