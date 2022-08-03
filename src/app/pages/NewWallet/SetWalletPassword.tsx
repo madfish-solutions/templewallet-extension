@@ -96,21 +96,16 @@ export const SetWalletPassword: FC<SetWalletPasswordProps> = ({
           : data.password
         : data.password;
       try {
-        console.log('1');
         setAnalyticsEnabled(data.analytics);
-        console.log('2');
         setOnboardingCompleted(data.skipOnboarding!);
-        console.log('3');
 
         await registerWallet(password!, formatMnemonic(seedPhrase));
-        console.log('4');
         trackEvent(
           data.skipOnboarding ? 'OnboardingSkipped' : 'OnboardingNotSkipped',
           AnalyticsEventCategory.General,
           undefined,
           data.analytics
         );
-        console.log('5');
       } catch (err: any) {
         console.error(err);
 
