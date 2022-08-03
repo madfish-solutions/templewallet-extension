@@ -70,7 +70,7 @@ export const TempleMobileOverlay: FC = () => {
             <T id="getTempleMobileAndroid" />
           </p>
           <a
-            href="https://templewallet.com/download?platform=mobile"
+            href="https://templewallet.com/mobile"
             target="_blank"
             rel="noopener noreferrer"
             className="mb-8 py-2 px-4 text-white font-inter rounded font-semibold uppercase mx-auto"
