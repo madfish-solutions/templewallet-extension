@@ -11,7 +11,9 @@ const datav1_14_9: ChangelogItem = {
     <>Added new test networks: Katmandu, Monday net, Daily net</>,
     <>Exolix API update</>,
     <>Delegation section update</>,
-    <>Decentralized pictures network integration</>,
+    <>
+      - Decentralized pictures network integration (<strong>T4L3NT</strong>)
+    </>,
     <>Other minor fixes.</>
   ]
 };
