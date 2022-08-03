@@ -2613,5 +2613,11 @@
   },
   "aliceBobError": {
     "message": "Sorry, service is temporarily unavailable. Try again later!"
+  },
+  "buyWithChainBits": {
+    "message": "Buy with ChainBits"
+  },
+  "buyWithChainBitsDescription": {
+    "message": "Buying Crypto Was Never This Easy"
   }
 }
