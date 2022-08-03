@@ -5,6 +5,17 @@ export interface ChangelogItem {
   data: Array<JSX.Element>;
 }
 
+const datav1_14_9: ChangelogItem = {
+  version: '1.14.9',
+  data: [
+    <>Added new test networks: Katmandu, Monday net, Daily net</>,
+    <>Exolix API update</>,
+    <>Delegation section update</>,
+    <>Decentralized pictures network integration</>,
+    <>Other minor fixes.</>
+  ]
+};
+
 const datav1_14_8: ChangelogItem = {
   version: '1.14.8',
   data: [
@@ -35,4 +46,4 @@ const datav1_14_7: ChangelogItem = {
   ]
 };
 
-export const changelogData = [datav1_14_8, datav1_14_7];
+export const changelogData = [datav1_14_9, datav1_14_8, datav1_14_7];
