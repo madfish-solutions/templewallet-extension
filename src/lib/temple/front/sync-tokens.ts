@@ -13,10 +13,10 @@ import {
   AssetMetadata,
   useUSDPrices,
   fetchDisplayedFungibleTokens,
-  PREDEFINED_MAINNET_TOKENS,
   fetchCollectibleTokens,
   toBaseMetadata,
-  DetailedAssetMetdata
+  DetailedAssetMetdata,
+  getPredefinedTokensSlugs
 } from 'lib/temple/front';
 import * as Repo from 'lib/temple/repo';
 import { getTokensMetadata } from 'lib/templewallet-api';
@@ -137,7 +137,7 @@ const makeSync = async (
     ...tzktTokens.map(balance => toTokenSlug(balance.token.contract.address, balance.token.tokenId)),
     ...displayedTokenSlugs,
     ...whitelistTokenSlugs,
-    ...(mainnet ? PREDEFINED_MAINNET_TOKENS : [])
+    ...getPredefinedTokensSlugs(chainId)
   ].filter(onlyUnique);
 
   const tokenRepoKeys = tokenSlugs.map(slug => Repo.toAccountTokenKey(chainId, accountPkh, slug));
@@ -251,7 +251,7 @@ const updateTokenSlugs = (
     };
   }
 
-  const status = PREDEFINED_MAINNET_TOKENS.includes(slug) ? Repo.ITokenStatus.Enabled : Repo.ITokenStatus.Idle;
+  const status = getPredefinedTokensSlugs(chainId).includes(slug) ? Repo.ITokenStatus.Enabled : Repo.ITokenStatus.Idle;
 
   return {
     type: metadata?.artifactUri ? Repo.ITokenType.Collectible : Repo.ITokenType.Fungible,
