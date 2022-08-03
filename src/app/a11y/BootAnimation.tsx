@@ -11,9 +11,9 @@ const BootAnimation: FC<PropsWithChildren> = ({ children }) => {
   useLayoutEffect(() => {
     if (firstRenderRef.current) {
       firstRenderRef.current = false;
+      setBooted(true);
       return;
     }
-    setBooted(true);
   }, [setBooted]);
 
   return (
