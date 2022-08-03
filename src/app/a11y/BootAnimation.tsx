@@ -1,23 +1,18 @@
-import React, { FC, useLayoutEffect, useRef, useState } from 'react';
+import React, { FC, useLayoutEffect, useState } from 'react';
 
 import CSSTransition from 'react-transition-group/CSSTransition';
 
 import { PropsWithChildren } from 'lib/props-with-children';
 
 const BootAnimation: FC<PropsWithChildren> = ({ children }) => {
-  const firstRenderRef = useRef(true);
   const [booted, setBooted] = useState(false);
 
   useLayoutEffect(() => {
-    if (firstRenderRef.current) {
-      firstRenderRef.current = false;
-      setBooted(true);
-      return;
-    }
-  }, [setBooted]);
+    setBooted(true);
+  }, []);
 
   return (
-    <CSSTransition in={booted} timeout={200}>
+    <CSSTransition in={booted} timeout={200} unmountOnExit>
       {children}
     </CSSTransition>
   );
