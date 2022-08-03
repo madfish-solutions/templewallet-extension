@@ -3,6 +3,8 @@ import React, { FC, useCallback, useLayoutEffect, useState } from 'react';
 import classNames from 'clsx';
 import { Controller, useForm } from 'react-hook-form';
 
+import { navigate } from 'lib/woozie';
+
 import { AnalyticsEventCategory, useAnalytics, useAnalyticsSettings } from '../../../lib/analytics';
 import { T, t } from '../../../lib/i18n/react';
 import { useTempleClient } from '../../../lib/temple/front';
@@ -106,6 +108,7 @@ export const SetWalletPassword: FC<SetWalletPasswordProps> = ({
           undefined,
           data.analytics
         );
+        navigate('/');
       } catch (err: any) {
         console.error(err);
 
