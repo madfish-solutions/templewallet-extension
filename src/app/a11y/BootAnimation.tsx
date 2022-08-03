@@ -9,10 +9,13 @@ const BootAnimation: FC<PropsWithChildren> = ({ children }) => {
 
   useLayoutEffect(() => {
     setBooted(true);
+    return () => {
+      setBooted(false);
+    };
   }, []);
 
   return (
-    <CSSTransition in={booted} timeout={200} unmountOnExit>
+    <CSSTransition in={booted} timeout={200}>
       {children}
     </CSSTransition>
   );
