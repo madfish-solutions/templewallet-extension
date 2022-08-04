@@ -11,10 +11,9 @@ import ErrorBoundary from 'app/ErrorBoundary';
 import Dialogs from 'app/layouts/Dialogs';
 import PageRouter from 'app/PageRouter';
 import { PropsWithChildren } from 'lib/props-with-children';
-import { TempleProvider } from 'lib/temple/front';
+import { ABTestGroupProvider, TempleProvider } from 'lib/temple/front';
 import { DialogsProvider } from 'lib/ui/dialog';
 import * as Woozie from 'lib/woozie';
-
 interface AppProps extends Partial<PropsWithChildren> {
   env: ComponentProps<typeof AppEnvProvider>;
 }
@@ -43,8 +42,10 @@ export default App;
 
 const AppProvider: FC<AppProps> = ({ children, env }) => (
   <AppEnvProvider {...env}>
-    <Woozie.Provider>
-      <TempleProvider>{children}</TempleProvider>
-    </Woozie.Provider>
+    <ABTestGroupProvider>
+      <Woozie.Provider>
+        <TempleProvider>{children}</TempleProvider>
+      </Woozie.Provider>
+    </ABTestGroupProvider>
   </AppEnvProvider>
 );
