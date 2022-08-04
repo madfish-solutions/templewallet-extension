@@ -18,7 +18,7 @@ export const ChangelogOverlay: FC = () => {
   const { ready } = useTempleClient();
   const [lastShownVersion, setLastShownVersion] = useStorage<string | undefined | null>(
     `last_shown_changelog_version`,
-    '1.14.8'
+    '1.14.6'
   );
 
   const handleContinue = () => {
@@ -66,7 +66,7 @@ export const ChangelogOverlay: FC = () => {
             </p>
             {filteredChangelog.map(({ version, data }) => (
               <React.Fragment key={version}>
-                <p className="mb-10 mt-2 font-inter" style={{ fontSize: 16 }}>
+                <p className="mb-5 mt-8 font-inter" style={{ fontSize: 16 }}>
                   <T id="update" /> {version}
                 </p>
                 <ul>
