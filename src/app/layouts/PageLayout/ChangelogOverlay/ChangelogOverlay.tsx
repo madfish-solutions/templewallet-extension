@@ -61,23 +61,35 @@ export const ChangelogOverlay: FC = () => {
             <T id="skip" />
           </Button>
           <div className="flex flex-col max-w-sm mx-auto w-full">
-            <p className="text-xl font-inter font-semibold" style={{ fontSize: 23, color: '#FF5B00' }}>
+            <p className="text-xl font-inter font-semibold" style={{ fontSize: 23, color: '#ED8936' }}>
               <T id="changelogTitle" />
             </p>
             {filteredChangelog.map(({ version, data }) => (
               <React.Fragment key={version}>
-                <p className="my-4 font-semibold font-inter" style={{ fontSize: 14 }}>
+                <p className="mb-5 mt-8 font-inter" style={{ fontSize: 16 }}>
                   <T id="update" /> {version}
                 </p>
                 <ul>
                   {data.map((value, index) => (
-                    <li className="mb-1" style={{ listStyleType: 'disc', listStylePosition: 'inside' }} key={index}>
+                    <li className="mb-1" style={{ listStyleType: 'disc' }} key={index}>
                       {value}
                     </li>
                   ))}
                 </ul>
               </React.Fragment>
             ))}
+            <Button
+              className="mt-6 py-2 px-8 text-white font-inter rounded font-semibold uppercase mx-auto"
+              onClick={handleContinue}
+              testID={ChangelogOverlaySelectors.Continue}
+              style={{
+                fontSize: 13,
+                maxWidth: '7rem',
+                backgroundColor: '#ED8936'
+              }}
+            >
+              <T id="okGotIt" />
+            </Button>
           </div>
         </div>
       </ContentContainer>
