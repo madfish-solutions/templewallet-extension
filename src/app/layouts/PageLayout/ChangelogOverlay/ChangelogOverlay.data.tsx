@@ -12,7 +12,7 @@ const datav1_14_9: ChangelogItem = {
     <>Exolix API update</>,
     <>Delegation section update</>,
     <>
-      Decentralized pictures network integration (<strong>T4L3NT</strong>)
+      - Decentralized pictures network integration (<strong>T4L3NT</strong>)
     </>,
     <>Other minor fixes.</>
   ]
