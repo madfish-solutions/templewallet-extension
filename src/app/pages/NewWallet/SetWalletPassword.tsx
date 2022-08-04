@@ -108,7 +108,7 @@ export const SetWalletPassword: FC<SetWalletPasswordProps> = ({
           undefined,
           data.analytics
         );
-        navigate('/');
+        navigate('/loading');
       } catch (err: any) {
         console.error(err);
 
