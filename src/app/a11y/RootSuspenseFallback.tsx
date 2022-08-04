@@ -22,15 +22,13 @@ const RootSuspenseFallback: FC = () => {
     return undefined;
   }, [forceUpdate]);
 
-  const spinnerDisplayed = startedAt && Date.now() > startedAt + 1_000;
-
-  return spinnerDisplayed ? (
+  return (
     <div className="flex items-center justify-center h-screen">
       <div>
         <Spinner theme="gray" className="w-20" />
       </div>
     </div>
-  ) : null;
+  );
 };
 
 export default RootSuspenseFallback;
