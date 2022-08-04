@@ -11,6 +11,7 @@ import { T, t } from 'lib/i18n/react';
 import { PropsWithChildren } from 'lib/props-with-children';
 import { Link } from 'lib/woozie';
 
+import { useGasToken } from '../../hooks/useGasToken';
 import { ReactComponent as ShoppingCartIcon } from './../../icons/shopping-cart.svg';
 import { Cryptos } from './Cryptos';
 import { Debits } from './Debits';
@@ -20,6 +21,7 @@ import { SelectCryptoSelectors } from './SelectCrypto.selectors';
 const SelectCrypto: FC<{}> = () => {
   const { fullPage } = useAppEnv();
   const tabSlug = useTabSlug();
+  const { assetName } = useGasToken();
 
   const tabs = useMemo<
     {
@@ -55,13 +57,13 @@ const SelectCrypto: FC<{}> = () => {
         <div className="flex flex-row font-normal text-sm">
           <ShoppingCartIcon />
           <span className="pl-1" style={{ paddingTop: 1 }}>
-            <T id="topUpBuy" />
+            <T id="topUpBuy" substitutions={[assetName]} />
           </span>
         </div>
       }
     >
       <div className="text-center my-3 text-gray-700">
-        <T id="topUpDescription" />
+        <T id="topUpDescription" substitutions={[assetName, assetName]} />
       </div>
       <div className={classNames('-mx-4', fullPage && 'rounded-t-md')}>
         <div className={s.bottomShadow}>
