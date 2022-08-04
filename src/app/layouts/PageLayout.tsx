@@ -214,7 +214,7 @@ const Toolbar: FC<ToolbarProps> = ({ pageTitle, hasBackAction = true, step, setS
       {attention && (
         <div className="flex content-end absolute right-0">
           <a
-            href="https://templewallet.com/download"
+            href="https://templewallet.com/mobile"
             target="_blank"
             rel="noopener noreferrer"
             className="mr-3 my-auto"
