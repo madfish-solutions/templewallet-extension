@@ -83,6 +83,15 @@ export const NETWORKS: TempleNetwork[] = [
     disabled: false
   },
   {
+    id: 'ghostnet',
+    name: 'Ghostnet Testnet',
+    description: 'Ghostnet testnet',
+    type: 'test',
+    rpcBaseURL: 'https://rpc.ghostnet.teztnets.xyz/',
+    color: '#131380',
+    disabled: false
+  },
+  {
     id: 'jakartanet',
     name: 'Jakartanet Testnet',
     description: 'Jakartanet testnet',
