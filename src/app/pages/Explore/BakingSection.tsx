@@ -204,7 +204,10 @@ const BakingSection = memo(() => {
         <div className="mb-12 flex flex-col items-stretch" style={{ maxWidth: popup ? '20.5rem' : '22.5rem' }}>
           {myBakerPkh ? (
             <>
-              <div className="mb-4 flex flex-row justify-between items-center text-xs leading-tight">
+              <div
+                className="mb-4 flex flex-row justify-between items-center text-xs leading-tight"
+                style={{ minWidth: '20.5rem' }}
+              >
                 <span className="text-gray-600">
                   <T id="delegatedTo" />
                 </span>
