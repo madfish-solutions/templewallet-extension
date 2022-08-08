@@ -22,6 +22,7 @@ import { getDelegatorRewards, TZKT_API_BASE_URLS } from 'lib/tzkt';
 import useTippy from 'lib/ui/useTippy';
 import { Link } from 'lib/woozie';
 
+import { useAppEnv } from '../../env';
 import { useGasToken } from '../../hooks/useGasToken';
 import styles from './BakingSection.module.css';
 import { BakingSectionSelectors } from './BakingSection.selectors';
@@ -69,6 +70,8 @@ const BakingSection = memo(() => {
   const chainId = useChainId(true);
   const [showDetails, setShowDetails] = useState(false);
   const { isDcpNetwork } = useGasToken();
+
+  const { popup } = useAppEnv();
 
   const toggleShowDetails = useCallback(() => setShowDetails(prevValue => !prevValue), []);
 
@@ -198,7 +201,7 @@ const BakingSection = memo(() => {
   return useMemo(
     () => (
       <div className="flex justify-center">
-        <div className="mb-12 flex flex-col items-stretch" style={{ maxWidth: '22.5rem' }}>
+        <div className="mb-12 flex flex-col items-stretch" style={{ maxWidth: popup ? '20.5rem' : '22.5rem' }}>
           {myBakerPkh ? (
             <>
               <div className="mb-4 flex flex-row justify-between items-center text-xs leading-tight">
@@ -336,7 +339,8 @@ const BakingSection = memo(() => {
       fallbackRewardsPerEvents,
       showDetails,
       toggleShowDetails,
-      isDcpNetwork
+      isDcpNetwork,
+      popup
     ]
   );
 });
