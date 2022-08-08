@@ -6,6 +6,7 @@ import { Collapse } from 'react-collapse';
 
 import { Button } from 'app/atoms/Button';
 import Spinner from 'app/atoms/Spinner/Spinner';
+import { useAppEnv } from 'app/env';
 import { ReactComponent as ChevronDownIcon } from 'app/icons/chevron-down.svg';
 import { ReactComponent as DelegateIcon } from 'app/icons/delegate.svg';
 import { ReactComponent as DiscordIcon } from 'app/icons/delegationDis.svg';
@@ -64,6 +65,7 @@ const links = [
 
 const BakingSection = memo(() => {
   const acc = useAccount();
+  const appEnv = useAppEnv();
   const { data: myBakerPkh } = useDelegate(acc.publicKeyHash);
   const canDelegate = acc.type !== TempleAccountType.WatchOnly;
   const chainId = useChainId(true);
@@ -197,7 +199,7 @@ const BakingSection = memo(() => {
 
   return useMemo(
     () => (
-      <div className="flex justify-center">
+      <div className={classNames(appEnv.popup ? '' : 'flex justify-center')}>
         <div className="mb-12 flex flex-col items-stretch" style={{ maxWidth: '22.5rem' }}>
           {myBakerPkh ? (
             <>
@@ -336,7 +338,8 @@ const BakingSection = memo(() => {
       fallbackRewardsPerEvents,
       showDetails,
       toggleShowDetails,
-      isDcpNetwork
+      isDcpNetwork,
+      appEnv
     ]
   );
 });
