@@ -65,8 +65,17 @@ export const NETWORKS: TempleNetwork[] = [
     disabled: false
   },
   {
+    id: 'ghostnet',
+    name: 'Ghostnet Testnet',
+    description: 'Ghostnet testnet',
+    type: 'test',
+    rpcBaseURL: 'https://rpc.ghostnet.teztnets.xyz/',
+    color: '#131380',
+    disabled: false
+  },
+  {
     id: 't4l3nt-mainnet',
-    name: 'Mainnet T4L3NT',
+    name: 'T4L3NT Mainnet',
     description: 'Decentralized pictures Betanet',
     type: 'dcp',
     rpcBaseURL: 'https://rpc.decentralized.pictures',

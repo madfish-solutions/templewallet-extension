@@ -1,4 +1,4 @@
-import { FC, ReactElement, useLayoutEffect } from 'react';
+import { FC, ReactElement, useEffect } from 'react';
 
 import { HistoryAction, createUrl, changeState } from 'lib/woozie/history';
 import { To, createLocationState, createLocationUpdates } from 'lib/woozie/location';
@@ -10,7 +10,7 @@ type RedirectProps = {
 };
 
 const Redirect: FC<RedirectProps> = ({ to, push = false, fallback = null }) => {
-  useLayoutEffect(() => {
+  useEffect(() => {
     const lctn = createLocationState();
     const { pathname, search, hash, state } = createLocationUpdates(to, lctn);
     const url = createUrl(pathname, search, hash);

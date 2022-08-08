@@ -1,13 +1,10 @@
 import React, { FC, useState } from 'react';
 
+import classNames from 'clsx';
+
 import Identicon from 'app/atoms/Identicon';
 import { ReactComponent as CollectiblePlaceholder } from 'app/icons/collectible-placeholder.svg';
-import {
-  formatCollectibleObjktBigUri,
-  formatCollectibleObjktMediumUri,
-  formatIpfsUri,
-  formatTokenUri
-} from 'lib/image-uri';
+import { formatObjktSmallAssetUri, formatAssetUri } from 'lib/image-uri';
 import { AssetMetadata, getAssetSymbol, useAssetMetadata } from 'lib/temple/front';
 
 interface AssetIconPlaceholderProps {
@@ -33,20 +30,19 @@ interface AssetIconProps {
 
 interface LoadStrategy {
   type: string;
-  uri: (value: string) => string;
+  formatUriFn: (value: string) => string;
   field: 'thumbnailUri' | 'artifactUri' | 'displayUri' | 'assetSlug';
 }
 
 const tokenLoadStrategy: Array<LoadStrategy> = [
-  { type: 'token', uri: formatTokenUri, field: 'thumbnailUri' },
-  { type: 'thumbnailUri', uri: formatIpfsUri, field: 'thumbnailUri' }
+  { type: 'token', formatUriFn: formatAssetUri, field: 'thumbnailUri' },
+  { type: 'thumbnailUri', formatUriFn: formatAssetUri, field: 'thumbnailUri' }
 ];
 const collectibleLoadStrategy: Array<LoadStrategy> = [
-  { type: 'objktBig', uri: formatCollectibleObjktBigUri, field: 'assetSlug' },
-  { type: 'objktMed', uri: formatCollectibleObjktMediumUri, field: 'assetSlug' },
-  { type: 'displayUri', uri: formatIpfsUri, field: 'displayUri' },
-  { type: 'artifactUri', uri: formatIpfsUri, field: 'artifactUri' },
-  { type: 'thumbnailUri', uri: formatIpfsUri, field: 'thumbnailUri' }
+  { type: 'objktSmall', formatUriFn: formatObjktSmallAssetUri, field: 'assetSlug' },
+  { type: 'displayUri', formatUriFn: formatAssetUri, field: 'displayUri' },
+  { type: 'artifactUri', formatUriFn: formatAssetUri, field: 'artifactUri' },
+  { type: 'thumbnailUri', formatUriFn: formatAssetUri, field: 'thumbnailUri' }
 ];
 
 type ImageRequestObject = (AssetMetadata | null) & { assetSlug: string };
@@ -75,14 +71,13 @@ export const AssetIcon: FC<AssetIconProps> = ({ assetSlug, className, size }) =>
 
   const imageRequestObject: ImageRequestObject = { ...metadata, assetSlug };
   const currentFallback = getFirstFallback(loadStrategy, isLoadingFailed, imageRequestObject);
-  const imageSrc = currentFallback.uri(imageRequestObject[currentFallback.field] ?? assetSlug);
+  const imageSrc = currentFallback.formatUriFn(imageRequestObject[currentFallback.field] ?? assetSlug);
 
-  const handleLoadingFailed = () => {
-    setIsLoadingFailed(prevState => ({ ...prevState, [currentFallback.type]: true }));
-  };
+  const handleLoad = () => setIsLoaded(true);
+  const handleError = () => setIsLoadingFailed(prevState => ({ ...prevState, [currentFallback.type]: true }));
 
   return (
-    <div className={className}>
+    <div className={classNames('flex items-center justify-center', className)}>
       {imageSrc !== '' && (
         <img
           src={imageSrc}
@@ -90,13 +85,13 @@ export const AssetIcon: FC<AssetIconProps> = ({ assetSlug, className, size }) =>
           style={{
             ...(!isLoaded ? { display: 'none' } : {}),
             objectFit: 'contain',
-            maxWidth: `${size}px`,
-            maxHeight: `${size}px`
+            maxWidth: `100%`,
+            maxHeight: `100%`
           }}
           height={size}
           width={size}
-          onLoad={() => setIsLoaded(true)}
-          onError={handleLoadingFailed}
+          onLoad={handleLoad}
+          onError={handleError}
         />
       )}
       {(!isLoaded || !metadata || imageSrc === '') && <AssetIconPlaceholder metadata={metadata} size={size} />}
