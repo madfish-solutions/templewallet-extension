@@ -23,6 +23,7 @@ import { usePageRouterAnalytics } from 'lib/analytics';
 import { useTempleClient } from 'lib/temple/front';
 import * as Woozie from 'lib/woozie';
 
+import { NewsNotificationsItemDetails } from './pages/Notifications/NewsNotifications/NewsNotificationsItemDetails';
 import { Notifications } from './pages/Notifications/Notifications';
 import { AliceBob } from './pages/SelectCrypto/AliceBob/AliceBob';
 import SelectCrypto from './pages/SelectCrypto/SelectCrypto';
@@ -81,6 +82,10 @@ const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
   [
     '/notifications/:tabSlug?',
     onlyReady(params => <Notifications key={params.tabSlug ?? ''} tabSlug={params.tabSlug ?? undefined} />)
+  ],
+  [
+    '/notifications/news/:newsId?',
+    onlyReady(params => <NewsNotificationsItemDetails key={params.newsId ?? ''} id={params.newsId ?? ''} />)
   ],
   ['/manage-assets/:assetType?', onlyReady(({ assetType }) => <ManageAssets assetType={assetType!} />)],
   ['/collectible/:assetSlug?', onlyReady(({ assetSlug }) => <CollectiblePage assetSlug={assetSlug!} />)],

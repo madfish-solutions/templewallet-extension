@@ -1,5 +1,4 @@
 import {
-  ActivityNotificationsInterface,
   ActivityType,
   BakerRewardsActivityNotificationInterface,
   BidMadeActivityNotificationInterface,
@@ -13,24 +12,14 @@ import {
   TransactionActivityNotificationInterface
 } from './ActivityNotifications.interface';
 
-export const transactionNotifications: Array<TransactionActivityNotificationInterface> = [
-  // {
-  //   id: '1t',
-  //   createdAt: '2020-01-01T00:00:00.000Z',
-  //   status: StatusType.New,
-  //   type: ActivityType.Transaction,
-  //   title: 'Transaction kind',
-  //   description: 'Transaction description',
-  //   transactionHash: 'onk5ZxztDpkiYKgrg8NVdvjG3xTVZmhdicBefSuTwby891AHNPc'
-  // },
+const transactionNotifications: Array<TransactionActivityNotificationInterface> = [
   {
     id: '1t',
     createdAt: '2020-01-01T00:00:00.000Z',
     status: StatusType.New,
     type: ActivityType.Transaction,
-    title: 'Transaction kind Transaction kind Transaction kind Transaction kind Transaction kind',
-    description:
-      'Transaction description Transaction description Transaction description Transaction description Transaction description Transaction descriptionTransaction descriptionTransaction descriptionTransaction descriptionTransaction descriptionTransaction descriptionTransaction descriptionTransaction description',
+    title: 'Transaction kind',
+    description: 'Transaction description',
     transactionHash: 'onk5ZxztDpkiYKgrg8NVdvjG3xTVZmhdicBefSuTwby891AHNPc'
   },
   {
@@ -44,24 +33,14 @@ export const transactionNotifications: Array<TransactionActivityNotificationInte
   }
 ];
 
-export const bakerNotifications: Array<BakerRewardsActivityNotificationInterface> = [
-  // {
-  //   id: '1b',
-  //   createdAt: '2020-01-02T00:00:00.000Z',
-  //   status: StatusType.New,
-  //   type: ActivityType.BakerRewards,
-  //   title: 'BakerReward kind',
-  //   description: 'BakerReward description',
-  //   transactionHash: 'ongEJway6ZPKwSSj4Dy75mKYRUH7nTkbwBpzP3k2AVdr51pif8V',
-  //   rewardAmount: '0.1',
-  //   rewardLuck: '0.2'
-  // },
+const bakerNotifications: Array<BakerRewardsActivityNotificationInterface> = [
   {
     id: '1b',
     createdAt: '2020-01-02T00:00:00.000Z',
     status: StatusType.New,
     type: ActivityType.BakerRewards,
     title: 'BakerReward kind',
+    description: 'BakerReward description',
     transactionHash: 'ongEJway6ZPKwSSj4Dy75mKYRUH7nTkbwBpzP3k2AVdr51pif8V',
     rewardAmount: '0.1',
     rewardLuck: '0.2'
@@ -102,7 +81,7 @@ const collectibleSold: Array<CollectibleSoldActivityNotificationInterface> = [
     collectibleMarketplaceUrl: 'https://objkt.com/asset/hicetnunc/761048',
     transactionAmount: '1',
     buyerAddress: 'tz1Xa6fJvCLeHrwzcnYFPADxStFPoKHPTU1k',
-    creatorName: 'e-m-i.tez',
+    creatorAddress: 'e-m-i.tez',
     creatorMarketplaceUrl: 'https://objkt.com/@e-m-i',
     marketplaceUrl: 'https://objkt.com/'
   },
@@ -117,7 +96,7 @@ const collectibleSold: Array<CollectibleSoldActivityNotificationInterface> = [
     collectibleMarketplaceUrl: 'https://objkt.com/asset/hicetnunc/761976',
     transactionAmount: '10',
     buyerAddress: 'tz1Xa6fJvCLeHrwzcnYFPADxStFPoKHPTU1k',
-    creatorName: 'e-m-i.tez',
+    creatorAddress: 'e-m-i.tez',
     creatorMarketplaceUrl: 'https://objkt.com/@e-m-i',
     marketplaceUrl: 'https://objkt.com/'
   },
@@ -132,7 +111,7 @@ const collectibleSold: Array<CollectibleSoldActivityNotificationInterface> = [
     collectibleMarketplaceUrl: 'https://objkt.com/asset/hicetnunc/761048',
     transactionAmount: '4',
     buyerAddress: 'tz1Xa6fJvCLeHrwzcnYFPADxStFPoKHPTU1k',
-    creatorName: 'e-m-i.tez',
+    creatorAddress: 'e-m-i.tez',
     creatorMarketplaceUrl: 'https://objkt.com/@e-m-i',
     marketplaceUrl: 'https://objkt.com/'
   }
@@ -150,7 +129,7 @@ const collectiblePurchased: Array<CollectiblePurchasedActivityNotificationInterf
     collectibleMarketplaceUrl: 'https://objkt.com/asset/hicetnunc/761048',
     transactionAmount: '1',
     sellerAddress: 'tz1Xa6fJvCLeHrwzcnYFPADxStFPoKHPTU1k',
-    creatorName: 'e-m-i.tez',
+    creatorAddress: 'e-m-i.tez',
     creatorMarketplaceUrl: 'https://objkt.com/@e-m-i',
     marketplaceUrl: 'https://objkt.com/'
   },
@@ -165,7 +144,7 @@ const collectiblePurchased: Array<CollectiblePurchasedActivityNotificationInterf
     collectibleMarketplaceUrl: 'https://objkt.com/asset/hicetnunc/761976',
     transactionAmount: '10',
     sellerAddress: 'tz1Xa6fJvCLeHrwzcnYFPADxStFPoKHPTU1k',
-    creatorName: 'e-m-i.tez',
+    creatorAddress: 'e-m-i.tez',
     creatorMarketplaceUrl: 'https://objkt.com/@e-m-i',
     marketplaceUrl: 'https://objkt.com/'
   },
@@ -180,7 +159,7 @@ const collectiblePurchased: Array<CollectiblePurchasedActivityNotificationInterf
     collectibleMarketplaceUrl: 'https://objkt.com/asset/hicetnunc/761048',
     transactionAmount: '4',
     sellerAddress: 'tz1Xa6fJvCLeHrwzcnYFPADxStFPoKHPTU1k',
-    creatorName: 'e-m-i.tez',
+    creatorAddress: 'e-m-i.tez',
     creatorMarketplaceUrl: 'https://objkt.com/@e-m-i',
     marketplaceUrl: 'https://objkt.com/'
   }
@@ -199,7 +178,7 @@ const collectibleResold: Array<CollectibleResoldActivityNotificationInterface> =
     royaltyAmount: '1',
     buyerAddress: 'tz1Xa6fJvCLeHrwzcnYFPADxStFPoKHPTU1k',
     sellerAddress: 'tz1f7C7HeTczoCxoo8oQ3vBDRQTiNM3tFTZu',
-    creatorName: 'e-m-i.tez',
+    creatorAddress: 'e-m-i.tez',
     creatorMarketplaceUrl: 'https://objkt.com/@e-m-i',
     marketplaceUrl: 'https://objkt.com/'
   },
@@ -215,7 +194,7 @@ const collectibleResold: Array<CollectibleResoldActivityNotificationInterface> =
     royaltyAmount: '10',
     buyerAddress: 'tz1Xa6fJvCLeHrwzcnYFPADxStFPoKHPTU1k',
     sellerAddress: 'tz1f7C7HeTczoCxoo8oQ3vBDRQTiNM3tFTZu',
-    creatorName: 'e-m-i.tez',
+    creatorAddress: 'e-m-i.tez',
     creatorMarketplaceUrl: 'https://objkt.com/@e-m-i',
     marketplaceUrl: 'https://objkt.com/'
   },
@@ -231,7 +210,7 @@ const collectibleResold: Array<CollectibleResoldActivityNotificationInterface> =
     royaltyAmount: '4',
     buyerAddress: 'tz1Xa6fJvCLeHrwzcnYFPADxStFPoKHPTU1k',
     sellerAddress: 'tz1f7C7HeTczoCxoo8oQ3vBDRQTiNM3tFTZu',
-    creatorName: 'e-m-i.tez',
+    creatorAddress: 'e-m-i.tez',
     creatorMarketplaceUrl: 'https://objkt.com/@e-m-i',
     marketplaceUrl: 'https://objkt.com/'
   }
@@ -249,7 +228,7 @@ const collectibleOffers: Array<CollectibleSellOfferActivityNotificationInterface
     collectibleMarketplaceUrl: 'https://objkt.com/asset/hicetnunc/761048',
     offerAmount: '1',
     offerAddress: 'tz1Xa6fJvCLeHrwzcnYFPADxStFPoKHPTU1k',
-    creatorName: 'e-m-i.tez',
+    creatorAddress: 'e-m-i.tez',
     creatorMarketplaceUrl: 'https://objkt.com/@e-m-i',
     marketplaceUrl: 'https://objkt.com/'
   },
@@ -264,7 +243,7 @@ const collectibleOffers: Array<CollectibleSellOfferActivityNotificationInterface
     collectibleMarketplaceUrl: 'https://objkt.com/asset/hicetnunc/761976',
     offerAmount: '10',
     offerAddress: 'tz1Xa6fJvCLeHrwzcnYFPADxStFPoKHPTU1k',
-    creatorName: 'e-m-i.tez',
+    creatorAddress: 'e-m-i.tez',
     creatorMarketplaceUrl: 'https://objkt.com/@e-m-i',
     marketplaceUrl: 'https://objkt.com/'
   },
@@ -279,7 +258,7 @@ const collectibleOffers: Array<CollectibleSellOfferActivityNotificationInterface
     collectibleMarketplaceUrl: 'https://objkt.com/asset/hicetnunc/761048',
     offerAmount: '4',
     offerAddress: 'tz1Xa6fJvCLeHrwzcnYFPADxStFPoKHPTU1k',
-    creatorName: 'e-m-i.tez',
+    creatorAddress: 'e-m-i.tez',
     creatorMarketplaceUrl: 'https://objkt.com/@e-m-i',
     marketplaceUrl: 'https://objkt.com/'
   }
@@ -411,7 +390,17 @@ const bidsOutbidded: Array<BidOutbitedActivityNotificationInterface> = [
   }
 ];
 
-export const activityNotificationsMockData: Array<ActivityNotificationsInterface> = [
+export const activityNotificationsMockData: Array<
+  | TransactionActivityNotificationInterface
+  | BakerRewardsActivityNotificationInterface
+  | CollectibleSoldActivityNotificationInterface
+  | CollectiblePurchasedActivityNotificationInterface
+  | CollectibleResoldActivityNotificationInterface
+  | CollectibleSellOfferActivityNotificationInterface
+  | BidMadeActivityNotificationInterface
+  | BidReceivedActivityNotificationInterface
+  | BidOutbitedActivityNotificationInterface
+> = [
   ...transactionNotifications,
   ...bakerNotifications,
   ...collectibleSold,

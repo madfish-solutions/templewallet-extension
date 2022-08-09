@@ -25,6 +25,21 @@ export interface ActivityNotificationsInterface {
   description?: string;
 }
 
+export interface BaseCollectibleActivityNotificationInterface extends ActivityNotificationsInterface {
+  collectibleName: string;
+  marketplaceUrl: string;
+  collectibleMarketplaceUrl: string;
+  creatorAddress: string;
+  creatorMarketplaceUrl: string;
+}
+
+export interface BaseBidActivityNotificationInterface extends ActivityNotificationsInterface {
+  bidAmount: string;
+  actionName: string;
+  actionUrl: string;
+  marketplaceUrl: string;
+}
+
 export interface TransactionActivityNotificationInterface extends ActivityNotificationsInterface {
   type: ActivityType.Transaction;
   transactionHash: string;
@@ -37,74 +52,44 @@ export interface BakerRewardsActivityNotificationInterface extends ActivityNotif
   rewardLuck: string;
 }
 
-export interface CollectibleSoldActivityNotificationInterface extends ActivityNotificationsInterface {
+export interface CollectibleSoldActivityNotificationInterface extends BaseCollectibleActivityNotificationInterface {
   type: ActivityType.CollectibleSold;
-  collectibleName: string;
-  collectibleMarketplaceUrl: string;
   transactionAmount: string;
   buyerAddress: string;
-  creatorName: string;
-  creatorMarketplaceUrl: string;
-  marketplaceUrl: string;
 }
 
-export interface CollectiblePurchasedActivityNotificationInterface extends ActivityNotificationsInterface {
+export interface CollectiblePurchasedActivityNotificationInterface
+  extends BaseCollectibleActivityNotificationInterface {
   type: ActivityType.CollectiblePurchased;
-  collectibleName: string;
-  collectibleMarketplaceUrl: string;
   transactionAmount: string;
   sellerAddress: string;
-  creatorName: string;
-  creatorMarketplaceUrl: string;
-  marketplaceUrl: string;
 }
 
-export interface CollectibleResoldActivityNotificationInterface extends ActivityNotificationsInterface {
+export interface CollectibleResoldActivityNotificationInterface extends BaseCollectibleActivityNotificationInterface {
   type: ActivityType.CollectibleResold;
-  collectibleName: string;
-  collectibleMarketplaceUrl: string;
   royaltyAmount: string;
   buyerAddress: string;
   sellerAddress: string;
-  creatorName: string;
-  creatorMarketplaceUrl: string;
-  marketplaceUrl: string;
 }
 
-export interface CollectibleSellOfferActivityNotificationInterface extends ActivityNotificationsInterface {
+export interface CollectibleSellOfferActivityNotificationInterface
+  extends BaseCollectibleActivityNotificationInterface {
   type: ActivityType.CollectibleSellOffer;
-  collectibleName: string;
-  collectibleMarketplaceUrl: string;
   offerAmount: string;
   offerAddress: string;
-  creatorName: string;
-  creatorMarketplaceUrl: string;
-  marketplaceUrl: string;
 }
 
-export interface BidMadeActivityNotificationInterface extends ActivityNotificationsInterface {
+export interface BidMadeActivityNotificationInterface extends BaseBidActivityNotificationInterface {
   type: ActivityType.BidMade;
-  bidAmount: string;
-  actionName: string;
-  actionUrl: string;
-  marketplaceUrl: string;
 }
 
-export interface BidReceivedActivityNotificationInterface extends ActivityNotificationsInterface {
+export interface BidReceivedActivityNotificationInterface extends BaseBidActivityNotificationInterface {
   type: ActivityType.BidReceived;
-  bidAmount: string;
-  actionName: string;
-  actionUrl: string;
   bidderAddress: string;
-  marketplaceUrl: string;
 }
 
-export interface BidOutbitedActivityNotificationInterface extends ActivityNotificationsInterface {
+export interface BidOutbitedActivityNotificationInterface extends BaseBidActivityNotificationInterface {
   type: ActivityType.BidOutbited;
-  bidAmount: string;
-  actionName: string;
-  actionUrl: string;
   bidderAddress: string;
   topBidAmount: string;
-  marketplaceUrl: string;
 }

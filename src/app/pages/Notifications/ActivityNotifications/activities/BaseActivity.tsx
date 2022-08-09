@@ -4,11 +4,11 @@ import classNames from 'clsx';
 
 import { T } from 'lib/i18n/react';
 
-import { PropsWithChildren } from '../../../../lib/props-with-children';
-import { ActivityIcon } from '../components/ActivityIcon';
-import { formatDate } from '../utils/formatDate';
-import { truncateDescription, truncateTitle } from '../utils/truncate';
-import { ActivityNotificationsInterface, StatusType } from './ActivityNotifications.interface';
+import { PropsWithChildren } from '../../../../../lib/props-with-children';
+import { ActivityIcon } from '../../components/ActivityIcon';
+import { formatDate } from '../../utils/formatDate';
+import { truncateDescription, truncateTitle } from '../../utils/truncate';
+import { ActivityNotificationsInterface, StatusType } from '../ActivityNotifications.interface';
 
 interface BaseActivityProps extends ActivityNotificationsInterface, PropsWithChildren {
   index: number;
@@ -41,18 +41,20 @@ export const BaseActivity: FC<BaseActivityProps> = ({
         <div
           className={classNames(
             'mb-1 text-sm font-medium',
-            status === StatusType.Read ? 'text-gray-600' : 'text-black'
+            status === StatusType.Read ? 'text-gray-700' : 'text-black'
           )}
         >
           {truncateTitle(title)}
         </div>
-        {description && <div className="text-gray-600 text-xs font-normal">{truncateDescription(description)}</div>}
+        {description && (
+          <div className="text-gray-700 text-xs font-normal mb-1">{truncateDescription(description)}</div>
+        )}
       </div>
 
       {children}
 
       <div className="flex mt-6">
-        <div className="text-gray-500 font-normal" style={{ fontSize: 10 }}>
+        <div className="text-gray-500 font-medium" style={{ fontSize: 10 }}>
           <span className="uppercase">
             <T id="applied" />
           </span>

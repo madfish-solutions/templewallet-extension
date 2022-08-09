@@ -1209,6 +1209,9 @@
   "noOperationsFound": {
     "message": "No operations found"
   },
+  "notificationsNotFound": {
+    "message": "Notifications not found"
+  },
   "pending": {
     "message": "pending..."
   },
@@ -1216,13 +1219,10 @@
     "message": "Applied"
   },
   "yourRewardsAndLuck": {
-    "message": "Your rewards & luck $rewardAmount$ $gasToken$",
+    "message": "Your rewards & luck $rewardAmount$",
     "placeholders": {
       "rewardAmount": {
         "content": "$1"
-      },
-      "gasToken": {
-        "content": "$2"
       }
     }
   },
@@ -1305,6 +1305,24 @@
   },
   "transaction": {
     "message": "Transaction"
+  },
+  "topBid": {
+    "message": "Top bid"
+  },
+  "bidder": {
+    "message": "Bidder"
+  },
+  "buyer": {
+    "message": "Buyer"
+  },
+  "seller": {
+    "message": "Seller"
+  },
+  "creator": {
+    "message": "Creator"
+  },
+  "offerer": {
+    "message": "Offerer"
   },
   "recipient": {
     "message": "Recipient"
@@ -1565,6 +1583,9 @@
   },
   "news": {
     "message": "News"
+  },
+  "chainNotifications": {
+    "message": "Chain notifications"
   },
   "details": {
     "message": "Details"
@@ -2340,6 +2361,9 @@
   "ledgerLiveSettingsDescription": {
     "message": "The new Ledger Live bridge allows you to use your Ledger in a different way."
   },
+  "notificationsSettingsDescription": {
+    "message": "Configure the notifications you want to receive. (Platform updates and emergency notifications can’t be disabled)"
+  },
   "lockUpSettings": {
     "message": "Extension lock-up"
   },
@@ -2475,6 +2499,100 @@
   },
   "youSend": {
     "message": "You send:"
+  },
+  "youSent": {
+    "message": "You sent $amount$",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "youReceived": {
+    "message": "You received $amount$",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "youReceivedAnOffer": {
+    "message": "You received an offer $amount$",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "yourRoyalty": {
+    "message": "You royalty $amount$",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "youMadeBid": {
+    "message": "You made a bid $amount$",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "youReceivedBid": {
+    "message": "You received a bid $amount$",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "yourBidWasOutbid": {
+    "message": "Your bid $amount$ was outbid",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "auction": {
+    "message": "Auction"
+  },
+  "nftWasResold": {
+    "message": "NFT $collectibleName$ was resold",
+    "placeholders": {
+      "collectibleName": {
+        "content": "$1"
+      }
+    }
+  },
+  "onNft": {
+    "message": "On NFT $collectibleName$",
+    "placeholders": {
+      "collectibleName": {
+        "content": "$1"
+      }
+    }
+  },
+  "youSoldNft": {
+    "message": "You sold NFT $collectibleName$",
+    "placeholders": {
+      "collectibleName": {
+        "content": "$1"
+      }
+    }
+  },
+  "youBoughtNft": {
+    "message": "You bought NFT $collectibleName$",
+    "placeholders": {
+      "collectibleName": {
+        "content": "$1"
+      }
+    }
+  },
+  "readInOriginal": {
+    "message": "Read in original"
   },
   "sendTime": {
     "message": "Send time:"

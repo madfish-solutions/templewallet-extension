@@ -3,17 +3,23 @@ import React, { FC } from 'react';
 import classNames from 'clsx';
 
 import { T } from '../../../lib/i18n/react';
+import { TempleSharedStorageKey } from '../../../lib/temple/types';
 import TabSwitcher from '../../atoms/TabSwitcher';
 import { useAppEnv } from '../../env';
 import { ReactComponent as BellGrayIcon } from '../../icons/bell-gray.svg';
+import { ReactComponent as NotFoundIcon } from '../../icons/notFound.svg';
 import PageLayout from '../../layouts/PageLayout';
 import { BakerRewardsActivity } from './ActivityNotifications/activities/BakerRewardsActivity';
+import { BidActivity } from './ActivityNotifications/activities/BidActivity';
+import { CollectibleActivity } from './ActivityNotifications/activities/CollectibleActivity';
 import { TransactionActivity } from './ActivityNotifications/activities/TransactionActivity';
-import { bakerNotifications, transactionNotifications } from './ActivityNotifications/ActivityNotifications.data';
+import { activityNotificationsMockData } from './ActivityNotifications/ActivityNotifications.data';
+import { ActivityType } from './ActivityNotifications/ActivityNotifications.interface';
 import {
   newsNotificationsMockData,
   welcomeNewsNotificationsMockData
 } from './NewsNotifications/NewsNotifications.data';
+import { NewsType } from './NewsNotifications/NewsNotifications.interface';
 import { NewsNotificationsItem } from './NewsNotifications/NewsNotificationsItem';
 
 const NotificationOptions = [
@@ -33,6 +39,13 @@ interface NotificationsProps {
 
 export const Notifications: FC<NotificationsProps> = ({ tabSlug = 'activity' }) => {
   const isActivity = tabSlug === 'activity';
+
+  const isNewsNotificationsEnabled = localStorage.getItem(TempleSharedStorageKey.NewsNotifications) === 'true';
+  const isChainNotificationsEnabled = localStorage.getItem(TempleSharedStorageKey.ChainNotifications) === 'true';
+
+  const allNews = [...welcomeNewsNotificationsMockData, ...newsNotificationsMockData].filter(newsItem =>
+    isNewsNotificationsEnabled ? newsItem : newsItem.type !== NewsType.News
+  );
 
   const { popup } = useAppEnv();
 
@@ -55,17 +68,40 @@ export const Notifications: FC<NotificationsProps> = ({ tabSlug = 'activity' }) 
       <div style={{ maxWidth: '360px', margin: 'auto' }} className="pb-8">
         <div className={popup ? 'mx-5' : ''}>
           {isActivity ? (
-            <>
-              <TransactionActivity key={transactionNotifications[0].id} index={0} {...transactionNotifications[0]} />
-              <BakerRewardsActivity key={bakerNotifications[0].id} index={0} {...bakerNotifications[0]} />
-            </>
+            activityNotificationsMockData.length === 0 || !isChainNotificationsEnabled ? (
+              <NotificationsNotFound />
+            ) : (
+              activityNotificationsMockData.map((activity, index) => {
+                switch (activity.type) {
+                  case ActivityType.Transaction:
+                    return <TransactionActivity key={activity.id} index={index} {...activity} />;
+                  case ActivityType.BakerRewards:
+                    return <BakerRewardsActivity key={activity.id} index={index} {...activity} />;
+                  case ActivityType.BidMade:
+                  case ActivityType.BidReceived:
+                  case ActivityType.BidOutbited:
+                    return <BidActivity key={activity.id} index={index} {...activity} />;
+                  default:
+                    return <CollectibleActivity key={activity.id} index={index} {...activity} />;
+                }
+              })
+            )
+          ) : allNews.length === 0 ? (
+            <NotificationsNotFound />
           ) : (
-            welcomeNewsNotificationsMockData
-              .concat(newsNotificationsMockData)
-              .map((newsItem, index) => <NewsNotificationsItem key={newsItem.id} index={index} {...newsItem} />)
+            allNews.map((newsItem, index) => <NewsNotificationsItem key={newsItem.id} index={index} {...newsItem} />)
           )}
         </div>
       </div>
     </PageLayout>
   );
 };
+
+const NotificationsNotFound = () => (
+  <div className={classNames('mx-12', 'flex flex-col items-center justify-center', 'text-gray-600')}>
+    <NotFoundIcon />
+    <h3 className="font-inter text-sm font-normal text-center mt-2">
+      <T id="notificationsNotFound" />
+    </h3>
+  </div>
+);

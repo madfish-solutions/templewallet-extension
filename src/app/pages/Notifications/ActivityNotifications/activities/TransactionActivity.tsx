@@ -6,7 +6,7 @@ import { useExplorerBaseUrls } from 'lib/temple/front/blockexplorer';
 import OpenInExplorerChip from '../../../../atoms/OpenInExplorerChip';
 import HashChip from '../../../../templates/HashChip';
 import { TransactionActivityNotificationInterface } from '../ActivityNotifications.interface';
-import { BaseActivity } from '../BaseActivity';
+import { BaseActivity } from './BaseActivity';
 
 interface TransactionActivityProps extends TransactionActivityNotificationInterface {
   index: number;
@@ -19,7 +19,7 @@ export const TransactionActivity: FC<TransactionActivityProps> = props => {
   return (
     <BaseActivity {...props}>
       <div className="flex row items-center mt-4">
-        <span className="font-inter text-gray-600 text-xs font-normal">
+        <span className="font-inter text-gray-700 text-xs font-normal">
           <T id="transaction" />
         </span>
         <HashChip hash={transactionHash} firstCharsCount={10} lastCharsCount={7} small className="mx-1" />
