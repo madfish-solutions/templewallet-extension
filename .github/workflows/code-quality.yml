@@ -16,6 +16,7 @@ jobs:
   pull-request-check:
     name: Checks if ts, lint, unit tests & build works
     runs-on: ubuntu-latest
+    environment: production
     steps:
       - name: Clone repository
         uses: actions/checkout@v2
