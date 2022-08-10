@@ -45,9 +45,14 @@ export const NewsNotificationsItemDetails: FC<NewsNotificationsItemDetailsProps>
           <div className="font-inter mt-7" style={{ fontSize: 10 }}>
             <span className="text-gray-500 font-normal">{formatDate(newsItem.createdAt)}</span>
             <span className="text-gray-600 font-medium mx-1">•</span>
-            <span className="uppercase font-medium text-blue-500">
+            <a
+              href={newsItem.readInOriginalUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="uppercase font-medium text-blue-500"
+            >
               <T id="readInOriginal" />
-            </span>
+            </a>
           </div>
           <Button
             className={classNames(

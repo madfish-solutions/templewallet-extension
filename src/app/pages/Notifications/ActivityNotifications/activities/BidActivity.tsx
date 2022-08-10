@@ -45,7 +45,7 @@ export const BidActivity: FC<BidActivityProps> = props => {
         <span className="font-inter text-gray-700 text-xs font-normal mr-2">
           <T id="auction" />
         </span>
-        <a href={actionUrl} className="font-inter text-blue-500 text-xs font-normal">
+        <a href={actionUrl} target="_blank" rel="noreferrer" className="font-inter text-blue-500 text-xs font-normal">
           {actionName}
         </a>
       </div>
@@ -70,7 +70,12 @@ export const BidActivity: FC<BidActivityProps> = props => {
         <span className="font-inter text-gray-700 text-xs font-normal mr-2">
           <T id="marketplace" />
         </span>
-        <a href={marketplaceUrl} className="font-inter text-blue-500 text-xs font-normal">
+        <a
+          href={marketplaceUrl}
+          target="_blank"
+          rel="noreferrer"
+          className="font-inter text-blue-500 text-xs font-normal"
+        >
           {marketplaceUrl.slice(8, -1)}
         </a>
       </div>

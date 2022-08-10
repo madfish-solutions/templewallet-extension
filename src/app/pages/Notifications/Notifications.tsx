@@ -3,8 +3,8 @@ import React, { FC } from 'react';
 import classNames from 'clsx';
 
 import { T } from '../../../lib/i18n/react';
-import { TempleSharedStorageKey } from '../../../lib/temple/types';
-import TabSwitcher from '../../atoms/TabSwitcher';
+import { TempleNotificationsSharedStorageKey } from '../../../lib/temple/front';
+import TabSwitcher, { TabDescriptor } from '../../atoms/TabSwitcher';
 import { useAppEnv } from '../../env';
 import { ReactComponent as BellGrayIcon } from '../../icons/bell-gray.svg';
 import { ReactComponent as NotFoundIcon } from '../../icons/notFound.svg';
@@ -14,24 +14,13 @@ import { BidActivity } from './ActivityNotifications/activities/BidActivity';
 import { CollectibleActivity } from './ActivityNotifications/activities/CollectibleActivity';
 import { TransactionActivity } from './ActivityNotifications/activities/TransactionActivity';
 import { activityNotificationsMockData } from './ActivityNotifications/ActivityNotifications.data';
-import { ActivityType } from './ActivityNotifications/ActivityNotifications.interface';
+import { ActivityType, StatusType } from './ActivityNotifications/ActivityNotifications.interface';
 import {
   newsNotificationsMockData,
   welcomeNewsNotificationsMockData
 } from './NewsNotifications/NewsNotifications.data';
 import { NewsType } from './NewsNotifications/NewsNotifications.interface';
 import { NewsNotificationsItem } from './NewsNotifications/NewsNotificationsItem';
-
-const NotificationOptions = [
-  {
-    slug: 'activity',
-    i18nKey: 'activity'
-  },
-  {
-    slug: 'news',
-    i18nKey: 'news'
-  }
-];
 
 interface NotificationsProps {
   tabSlug?: string;
@@ -40,12 +29,29 @@ interface NotificationsProps {
 export const Notifications: FC<NotificationsProps> = ({ tabSlug = 'activity' }) => {
   const isActivity = tabSlug === 'activity';
 
-  const isNewsNotificationsEnabled = localStorage.getItem(TempleSharedStorageKey.NewsNotifications) === 'true';
-  const isChainNotificationsEnabled = localStorage.getItem(TempleSharedStorageKey.ChainNotifications) === 'true';
+  const isNewsNotificationsEnabled =
+    localStorage.getItem(TempleNotificationsSharedStorageKey.NewsNotificationsEnabled) === 'true';
+  const isChainNotificationsEnabled =
+    localStorage.getItem(TempleNotificationsSharedStorageKey.ChainNotificationsEnabled) === 'true';
 
   const allNews = [...welcomeNewsNotificationsMockData, ...newsNotificationsMockData].filter(newsItem =>
     isNewsNotificationsEnabled ? newsItem : newsItem.type !== NewsType.News
   );
+
+  const NotificationOptions: TabDescriptor[] = [
+    {
+      slug: 'activity',
+      i18nKey: 'activity',
+      isDotVisible:
+        activityNotificationsMockData.find(activity => activity.status === StatusType.New) !== undefined &&
+        isChainNotificationsEnabled
+    },
+    {
+      slug: 'news',
+      i18nKey: 'news',
+      isDotVisible: allNews.find(newsItem => newsItem.status === StatusType.New) !== undefined
+    }
+  ];
 
   const { popup } = useAppEnv();
 

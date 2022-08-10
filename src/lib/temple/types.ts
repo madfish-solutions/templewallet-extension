@@ -132,9 +132,12 @@ export enum TempleSharedStorageKey {
   LocaleCode = 'localecode',
   UseLedgerLive = 'useledgerlive',
   PasswordAttempts = 'passwordAttempts',
-  TimeLock = 'timelock',
-  NewsNotifications = 'newsNotifications',
-  ChainNotifications = 'chainNotifications'
+  TimeLock = 'timelock'
+}
+
+export enum TempleNotificationsSharedStorageKey {
+  NewsNotificationsEnabled = 'newsNotificationsEnabled',
+  ChainNotificationsEnabled = 'chainNotificationsEnabled'
 }
 
 export type TempleDAppSessions = Record<string, TempleDAppSession>;

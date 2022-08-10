@@ -12,7 +12,8 @@ export const newsNotificationsMockData: Array<NewsNotificationInterface> = [
     description: 'First news',
     content: 'First news lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quidem.',
     extensionImageUrl: 'https://pbs.twimg.com/profile_images/1364551906283110400/4Ts3YPJz_400x400.jpg',
-    mobileImageUrl: 'https://pbs.twimg.com/profile_images/1364551906283110400/4Ts3YPJz_400x400.jpg'
+    mobileImageUrl: 'https://pbs.twimg.com/profile_images/1364551906283110400/4Ts3YPJz_400x400.jpg',
+    readInOriginalUrl: 'https://templewallet.com/'
   },
   {
     id: '1m',
@@ -25,7 +26,8 @@ export const newsNotificationsMockData: Array<NewsNotificationInterface> = [
     description: 'First news',
     content: 'First news lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quidem.',
     extensionImageUrl: 'https://pbs.twimg.com/profile_images/1364551906283110400/4Ts3YPJz_400x400.jpg',
-    mobileImageUrl: 'https://pbs.twimg.com/profile_images/1364551906283110400/4Ts3YPJz_400x400.jpg'
+    mobileImageUrl: 'https://pbs.twimg.com/profile_images/1364551906283110400/4Ts3YPJz_400x400.jpg',
+    readInOriginalUrl: 'https://templewallet.com/'
   },
   {
     id: '2e',
@@ -38,7 +40,8 @@ export const newsNotificationsMockData: Array<NewsNotificationInterface> = [
     description: 'Second news',
     content: 'Second news lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quidem.',
     extensionImageUrl: 'https://mj-gallery.com/ce5347a1-000e-4d77-8703-aef971c835ee/grid_0.png',
-    mobileImageUrl: 'https://mj-gallery.com/ce5347a1-000e-4d77-8703-aef971c835ee/grid_0.png'
+    mobileImageUrl: 'https://mj-gallery.com/ce5347a1-000e-4d77-8703-aef971c835ee/grid_0.png',
+    readInOriginalUrl: 'https://templewallet.com/'
   },
   {
     id: '2m',
@@ -51,7 +54,8 @@ export const newsNotificationsMockData: Array<NewsNotificationInterface> = [
     description: 'Second news',
     content: 'Second news lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quidem.',
     extensionImageUrl: 'https://mj-gallery.com/ce5347a1-000e-4d77-8703-aef971c835ee/grid_0.png',
-    mobileImageUrl: 'https://mj-gallery.com/ce5347a1-000e-4d77-8703-aef971c835ee/grid_0.png'
+    mobileImageUrl: 'https://mj-gallery.com/ce5347a1-000e-4d77-8703-aef971c835ee/grid_0.png',
+    readInOriginalUrl: 'https://templewallet.com/'
   },
   {
     id: '3e',
@@ -65,7 +69,9 @@ export const newsNotificationsMockData: Array<NewsNotificationInterface> = [
     content: 'Very important update lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quidem.',
     extensionImageUrl:
       'https://assets.objkt.media/file/assets-003/QmbatSRJHqPzbvVLAxQkQFeHumWdiSSXSTY4VxBbawwJxb/artifact',
-    mobileImageUrl: 'https://assets.objkt.media/file/assets-003/QmbatSRJHqPzbvVLAxQkQFeHumWdiSSXSTY4VxBbawwJxb/artifact'
+    mobileImageUrl:
+      'https://assets.objkt.media/file/assets-003/QmbatSRJHqPzbvVLAxQkQFeHumWdiSSXSTY4VxBbawwJxb/artifact',
+    readInOriginalUrl: 'https://templewallet.com/'
   },
   {
     id: '3m',
@@ -79,7 +85,9 @@ export const newsNotificationsMockData: Array<NewsNotificationInterface> = [
     content: 'Very important update lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quidem.',
     extensionImageUrl:
       'https://assets.objkt.media/file/assets-003/QmbatSRJHqPzbvVLAxQkQFeHumWdiSSXSTY4VxBbawwJxb/artifact',
-    mobileImageUrl: 'https://assets.objkt.media/file/assets-003/QmbatSRJHqPzbvVLAxQkQFeHumWdiSSXSTY4VxBbawwJxb/artifact'
+    mobileImageUrl:
+      'https://assets.objkt.media/file/assets-003/QmbatSRJHqPzbvVLAxQkQFeHumWdiSSXSTY4VxBbawwJxb/artifact',
+    readInOriginalUrl: 'https://templewallet.com/'
   },
   {
     id: '4e',
@@ -92,7 +100,8 @@ export const newsNotificationsMockData: Array<NewsNotificationInterface> = [
     description: 'Very important unread update',
     content: 'Very important unread update lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quidem.',
     extensionImageUrl: 'https://mj-gallery.com/8c84ef87-eaec-42e8-9e58-7e4ca530030e/grid_0.png',
-    mobileImageUrl: 'https://mj-gallery.com/8c84ef87-eaec-42e8-9e58-7e4ca530030e/grid_0.png'
+    mobileImageUrl: 'https://mj-gallery.com/8c84ef87-eaec-42e8-9e58-7e4ca530030e/grid_0.png',
+    readInOriginalUrl: 'https://templewallet.com/'
   },
   {
     id: '4m',
@@ -105,7 +114,8 @@ export const newsNotificationsMockData: Array<NewsNotificationInterface> = [
     description: 'Very important unread update',
     content: 'Very important unread update lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quidem.',
     extensionImageUrl: 'https://mj-gallery.com/8c84ef87-eaec-42e8-9e58-7e4ca530030e/grid_0.png',
-    mobileImageUrl: 'https://mj-gallery.com/8c84ef87-eaec-42e8-9e58-7e4ca530030e/grid_0.png'
+    mobileImageUrl: 'https://mj-gallery.com/8c84ef87-eaec-42e8-9e58-7e4ca530030e/grid_0.png',
+    readInOriginalUrl: 'https://templewallet.com/'
   },
   {
     id: '5e',
@@ -118,7 +128,8 @@ export const newsNotificationsMockData: Array<NewsNotificationInterface> = [
     description: 'Very important unread alert',
     content: 'Very important unread alert lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quidem.',
     extensionImageUrl: 'https://mj-gallery.com/119d8b55-41b6-49fb-bfd2-5e6e46355363/grid_0.png',
-    mobileImageUrl: 'https://mj-gallery.com/119d8b55-41b6-49fb-bfd2-5e6e46355363/grid_0.png'
+    mobileImageUrl: 'https://mj-gallery.com/119d8b55-41b6-49fb-bfd2-5e6e46355363/grid_0.png',
+    readInOriginalUrl: 'https://templewallet.com/'
   },
   {
     id: '5m',
@@ -131,7 +142,8 @@ export const newsNotificationsMockData: Array<NewsNotificationInterface> = [
     description: 'Very important unread alert',
     content: 'Very important unread alert lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quidem.',
     extensionImageUrl: 'https://mj-gallery.com/119d8b55-41b6-49fb-bfd2-5e6e46355363/grid_0.png',
-    mobileImageUrl: 'https://mj-gallery.com/119d8b55-41b6-49fb-bfd2-5e6e46355363/grid_0.png'
+    mobileImageUrl: 'https://mj-gallery.com/119d8b55-41b6-49fb-bfd2-5e6e46355363/grid_0.png',
+    readInOriginalUrl: 'https://templewallet.com/'
   },
   {
     id: '6e',
@@ -144,7 +156,8 @@ export const newsNotificationsMockData: Array<NewsNotificationInterface> = [
     description: 'Very important alert readed',
     content: 'Very important alert readed lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quidem.',
     extensionImageUrl: 'https://mj-gallery.com/876c08c5-3ead-4fd8-99ba-215812e03885/grid_0.png',
-    mobileImageUrl: 'https://mj-gallery.com/876c08c5-3ead-4fd8-99ba-215812e03885/grid_0.png'
+    mobileImageUrl: 'https://mj-gallery.com/876c08c5-3ead-4fd8-99ba-215812e03885/grid_0.png',
+    readInOriginalUrl: 'https://templewallet.com/'
   },
   {
     id: '6m',
@@ -157,7 +170,8 @@ export const newsNotificationsMockData: Array<NewsNotificationInterface> = [
     description: 'Very important alert readed',
     content: 'Very important alert readed lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quidem.',
     extensionImageUrl: 'https://mj-gallery.com/876c08c5-3ead-4fd8-99ba-215812e03885/grid_0.png',
-    mobileImageUrl: 'https://mj-gallery.com/876c08c5-3ead-4fd8-99ba-215812e03885/grid_0.png'
+    mobileImageUrl: 'https://mj-gallery.com/876c08c5-3ead-4fd8-99ba-215812e03885/grid_0.png',
+    readInOriginalUrl: 'https://templewallet.com/'
   }
 ];
 
@@ -173,7 +187,8 @@ export const welcomeNewsNotificationsMockData: Array<NewsNotificationInterface> 
     description: 'Welcome message',
     content: 'Some welcome message lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quidem.',
     extensionImageUrl: 'https://pbs.twimg.com/profile_images/1364551906283110400/4Ts3YPJz_400x400.jpg',
-    mobileImageUrl: 'https://pbs.twimg.com/profile_images/1364551906283110400/4Ts3YPJz_400x400.jpg'
+    mobileImageUrl: 'https://pbs.twimg.com/profile_images/1364551906283110400/4Ts3YPJz_400x400.jpg',
+    readInOriginalUrl: 'https://templewallet.com/'
   },
   {
     id: '0m',
@@ -186,6 +201,7 @@ export const welcomeNewsNotificationsMockData: Array<NewsNotificationInterface> 
     description: 'Welcome message',
     content: 'Some welcome message lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quidem.',
     extensionImageUrl: 'https://pbs.twimg.com/profile_images/1364551906283110400/4Ts3YPJz_400x400.jpg',
-    mobileImageUrl: 'https://pbs.twimg.com/profile_images/1364551906283110400/4Ts3YPJz_400x400.jpg'
+    mobileImageUrl: 'https://pbs.twimg.com/profile_images/1364551906283110400/4Ts3YPJz_400x400.jpg',
+    readInOriginalUrl: 'https://templewallet.com/'
   }
 ];

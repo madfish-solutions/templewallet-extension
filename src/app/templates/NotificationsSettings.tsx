@@ -1,18 +1,18 @@
 import React, { FC } from 'react';
 
 import { T, t } from 'lib/i18n/react';
-import { TempleSharedStorageKey, useLocalStorage } from 'lib/temple/front';
+import { TempleNotificationsSharedStorageKey, useLocalStorage } from 'lib/temple/front';
 
 import { MultiCheckbox } from '../atoms/MultiCheckbox';
 
 const NotificationsSettings: FC = () => {
   const [newsNotificationsEnabled, setNewsNotificationsEnabled] = useLocalStorage<boolean>(
-    TempleSharedStorageKey.NewsNotifications,
-    false
+    TempleNotificationsSharedStorageKey.NewsNotificationsEnabled,
+    true
   );
   const [chainNotificationsEnabled, setChainNotificationsEnabled] = useLocalStorage<boolean>(
-    TempleSharedStorageKey.ChainNotifications,
-    false
+    TempleNotificationsSharedStorageKey.ChainNotificationsEnabled,
+    true
   );
 
   const handleNewsNotificationsChange = (evt: React.ChangeEvent<HTMLInputElement>) => {

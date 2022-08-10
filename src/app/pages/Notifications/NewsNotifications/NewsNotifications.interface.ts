@@ -27,4 +27,5 @@ export interface NewsNotificationInterface {
   content: string;
   extensionImageUrl: string;
   mobileImageUrl: string;
+  readInOriginalUrl: string;
 }
