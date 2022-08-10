@@ -47,8 +47,8 @@ export const BLOCK_EXPLORERS: BlockExplorer[] = [
       [
         TempleChainId.Dcp,
         {
-          account: 'https://explorer.tlnt.net/',
-          transaction: 'https://explorer.tlnt.net/'
+          account: 'https://explorer.tlnt.net',
+          transaction: 'https://explorer.tlnt.net'
         }
       ],
       [

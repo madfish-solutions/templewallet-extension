@@ -97,5 +97,16 @@ export const PRESERVED_TOKEN_METADATA = new Map<string, AssetMetadata>([
       name: 'SmartLink',
       thumbnailUri: 'https://quipuswap.com/tokens/smak.png'
     }
+  ],
+
+  // T4L3NT
+  [
+    'KT1N7Rh6SgSdExMPxfnYw1tHqrkSm7cm6JDN_0',
+    {
+      decimals: 0,
+      symbol: 'APX',
+      name: 'APXCOIN',
+      thumbnailUri: 'https://loonfilms.com/apx/apx-coin-220px.png'
+    }
   ]
 ]);

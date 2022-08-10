@@ -14,6 +14,10 @@ export const formatAssetUri = (url = '') => {
     return url;
   }
 
+  if (url.startsWith('moz-extension')) {
+    return url;
+  }
+
   return '';
 };
 

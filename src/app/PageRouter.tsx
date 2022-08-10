@@ -23,6 +23,8 @@ import { usePageRouterAnalytics } from 'lib/analytics';
 import { useTempleClient } from 'lib/temple/front';
 import * as Woozie from 'lib/woozie';
 
+import RootSuspenseFallback from './a11y/RootSuspenseFallback';
+import AttentionPage from './pages/Onboarding/pages/AttentionPage';
 import { NewsNotificationsItemDetails } from './pages/Notifications/NewsNotifications/NewsNotificationsItemDetails';
 import { Notifications } from './pages/Notifications/Notifications';
 import { AliceBob } from './pages/SelectCrypto/AliceBob/AliceBob';
@@ -68,6 +70,7 @@ const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
       }
     }
   ],
+  ['/loading', (_p, ctx) => (ctx.ready ? <Woozie.Redirect to={'/'} /> : <RootSuspenseFallback />)],
   ['/', (_p, ctx) => (ctx.ready ? <Explore /> : <Welcome />)],
   ['/explore/:assetSlug?', onlyReady(({ assetSlug }) => <Explore assetSlug={assetSlug} />)],
   ['/create-wallet', onlyNotReady(() => <CreateWallet />)],

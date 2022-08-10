@@ -128,7 +128,7 @@
     "message": "In this update"
   },
   "update": {
-    "message": "update"
+    "message": "Update"
   },
   "templeIsOnMobile": {
     "message": "Temple is on Mobile"
@@ -2404,13 +2404,26 @@
     "message": "Fast and cost-effective exchange of UAH to TEZ."
   },
   "topUpBuy": {
-    "message": "Top up TEZ balance"
+    "message": "Top up $gasTokenName$ balance",
+    "placeholders": {
+      "gasTokenName": {
+        "content": "$1"
+      }
+    }
   },
   "buyWithCard": {
     "message": "Buy with Debit/Credit Card"
   },
   "topUpDescription": {
-    "message": "Temple integrated third-party solutions to buy TEZ with crypto or a Debit/Credit card. Choose a provider, follow guides, get TEZ on your account."
+    "message": "Temple integrated third-party solutions to buy $gasTokenName1$ with crypto or a Debit/Credit card. Choose a provider, follow guides, get $gasTokenName2$ on your account.",
+    "placeholders": {
+      "gasTokenName1": {
+        "content": "$1"
+      },
+      "gasTokenName2": {
+        "content": "$2"
+      }
+    }
   },
   "enterAmount": {
     "message": "Please enter the amount:"
@@ -2706,5 +2719,11 @@
   },
   "aliceBobError": {
     "message": "Sorry, service is temporarily unavailable. Try again later!"
+  },
+  "buyWithChainBits": {
+    "message": "Buy with ChainBits"
+  },
+  "buyWithChainBitsDescription": {
+    "message": "Buying Crypto Was Never This Easy"
   }
 }

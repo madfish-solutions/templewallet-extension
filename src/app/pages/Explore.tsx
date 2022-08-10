@@ -23,6 +23,7 @@ import {
   getAssetSymbol,
   isTezAsset,
   TempleAccountType,
+  TempleNetworkType,
   useAccount,
   useAssetMetadata,
   useNetwork
@@ -51,6 +52,8 @@ const tippyPropsMock = {
   content: t('disabledForWatchOnlyAccount'),
   animation: 'shift-away-subtle'
 };
+
+const NETWORK_TYPES_WITH_BUY_BUTTON: TempleNetworkType[] = ['main', 'dcp'];
 
 const Explore: FC<ExploreProps> = ({ assetSlug }) => {
   const { fullPage, registerBackHandler } = useAppEnv();
@@ -113,8 +116,13 @@ const Explore: FC<ExploreProps> = ({ assetSlug }) => {
             to="/receive"
             testID={ExploreSelectors.ReceiveButton}
           />
-          {network.type === 'main' && (
-            <ActionButton label={<T id="buyButton" />} Icon={BuyIcon} to="/buy" testID={ExploreSelectors.BuyButton} />
+          {NETWORK_TYPES_WITH_BUY_BUTTON.includes(network.type) && (
+            <ActionButton
+              label={<T id="buyButton" />}
+              Icon={BuyIcon}
+              to={`/buy?tab=${network.type === 'dcp' ? 'debit' : 'crypto'}`}
+              testID={ExploreSelectors.BuyButton}
+            />
           )}
 
           <ActionButton

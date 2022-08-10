@@ -10,7 +10,6 @@ import { ReadyTempleProvider, useNetwork } from 'lib/temple/front/ready';
 import { SyncTokensProvider } from 'lib/temple/front/sync-tokens';
 import { USDPriceProvider } from 'lib/temple/front/usdprice';
 
-import { ABTestGroupProvider } from './ab-test.provider';
 import { FungibleTokensBalancesProvider } from './fungible-tokens-balances';
 import { NonFungibleTokensBalancesProvider } from './non-fungible-tokens-balances';
 
@@ -35,11 +34,9 @@ const ConditionalReadyTemple: FC<PropsWithChildren> = ({ children }) => {
                 <FiatCurrencyProvider>
                   <FungibleTokensBalancesProvider>
                     <NonFungibleTokensBalancesProvider>
-                      <ABTestGroupProvider>
-                        <SyncTokensProvider>
-                          <NewBlockTriggersProvider>{children}</NewBlockTriggersProvider>
-                        </SyncTokensProvider>
-                      </ABTestGroupProvider>
+                      <SyncTokensProvider>
+                        <NewBlockTriggersProvider>{children}</NewBlockTriggersProvider>
+                      </SyncTokensProvider>
                     </NonFungibleTokensBalancesProvider>
                   </FungibleTokensBalancesProvider>
                 </FiatCurrencyProvider>
