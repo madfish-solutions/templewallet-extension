@@ -8,7 +8,16 @@ import Name from 'app/atoms/Name';
 import { ReactComponent as ChevronDownIcon } from 'app/icons/chevron-down.svg';
 import { ReactComponent as SignalAltIcon } from 'app/icons/signal-alt.svg';
 import { T } from 'lib/i18n/react';
-import { loadChainId, useAllNetworks, useNetwork, useSetNetworkId } from 'lib/temple/front';
+import {
+  BLOCK_EXPLORERS,
+  isKnownChainId,
+  loadChainId,
+  useAllNetworks,
+  useBlockExplorer,
+  useChainId,
+  useNetwork,
+  useSetNetworkId
+} from 'lib/temple/front';
 import Popper from 'lib/ui/Popper';
 
 import styles from './NetworkSelect.module.css';
@@ -21,19 +30,31 @@ const NetworkSelect: FC<NetworkSelectProps> = () => {
   const network = useNetwork();
   const setNetworkId = useSetNetworkId();
 
+  const chainId = useChainId(true)!;
+  const { setExplorerId } = useBlockExplorer();
+
   const handleNetworkSelect = useCallback(
     async (netId: string, rpcUrl: string, selected: boolean, setOpened: (o: boolean) => void) => {
       setOpened(false);
 
       if (!selected) {
         try {
-          await loadChainId(rpcUrl);
+          const currentChainId = await loadChainId(rpcUrl);
+
+          if (currentChainId && isKnownChainId(currentChainId)) {
+            const currentBlockExplorerId =
+              BLOCK_EXPLORERS.find(explorer => explorer.baseUrls.get(currentChainId))?.id ?? 'tzkt';
+
+            if (currentChainId !== chainId) {
+              setExplorerId(currentBlockExplorerId);
+            }
+          }
         } catch {}
 
         setNetworkId(netId);
       }
     },
-    [setNetworkId]
+    [setNetworkId, setExplorerId, chainId]
   );
 
   return (
