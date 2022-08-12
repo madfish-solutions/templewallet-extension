@@ -61,7 +61,7 @@ export const AliceBob = () => {
       });
 
       setIsLoading(false);
-      window.open(response.url, '_blank');
+      window.open(response.url, '_blank', 'noopener,noreferrer');
     } catch {}
   }, [amount, analyticsState.userId, walletAddress]);
 
