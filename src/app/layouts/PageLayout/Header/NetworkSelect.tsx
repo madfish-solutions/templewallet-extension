@@ -48,6 +48,8 @@ const NetworkSelect: FC<NetworkSelectProps> = () => {
             if (currentChainId !== chainId) {
               setExplorerId(currentBlockExplorerId);
             }
+          } else if (currentChainId !== chainId) {
+            setExplorerId('tzkt');
           }
         } catch {}
 
