@@ -3,7 +3,7 @@ import React, { FC } from 'react';
 import classNames from 'clsx';
 
 import { T } from '../../../lib/i18n/react';
-import { TempleNotificationsSharedStorageKey } from '../../../lib/temple/front';
+import { TempleNotificationsSharedStorageKey, useLocalStorage } from '../../../lib/temple/front';
 import TabSwitcher, { TabDescriptor } from '../../atoms/TabSwitcher';
 import { useAppEnv } from '../../env';
 import { ReactComponent as BellGrayIcon } from '../../icons/bell-gray.svg';
@@ -29,13 +29,17 @@ interface NotificationsProps {
 export const Notifications: FC<NotificationsProps> = ({ tabSlug = 'activity' }) => {
   const isActivity = tabSlug === 'activity';
 
-  const isNewsNotificationsEnabled =
-    localStorage.getItem(TempleNotificationsSharedStorageKey.NewsNotificationsEnabled) === 'true';
-  const isChainNotificationsEnabled =
-    localStorage.getItem(TempleNotificationsSharedStorageKey.ChainNotificationsEnabled) === 'true';
+  const [newsNotificationsEnabled] = useLocalStorage<boolean>(
+    TempleNotificationsSharedStorageKey.NewsNotificationsEnabled,
+    true
+  );
+  const [chainNotificationsEnabled] = useLocalStorage<boolean>(
+    TempleNotificationsSharedStorageKey.ChainNotificationsEnabled,
+    true
+  );
 
   const allNews = [...welcomeNewsNotificationsMockData, ...newsNotificationsMockData].filter(newsItem =>
-    isNewsNotificationsEnabled ? newsItem : newsItem.type !== NewsType.News
+    newsNotificationsEnabled ? newsItem : newsItem.type !== NewsType.News
   );
 
   const NotificationOptions: TabDescriptor[] = [
@@ -44,7 +48,7 @@ export const Notifications: FC<NotificationsProps> = ({ tabSlug = 'activity' }) 
       i18nKey: 'activity',
       isDotVisible:
         activityNotificationsMockData.find(activity => activity.status === StatusType.New) !== undefined &&
-        isChainNotificationsEnabled
+        chainNotificationsEnabled
     },
     {
       slug: 'news',
@@ -74,7 +78,7 @@ export const Notifications: FC<NotificationsProps> = ({ tabSlug = 'activity' }) 
       <div style={{ maxWidth: '360px', margin: 'auto' }} className="pb-8">
         <div className={popup ? 'mx-5' : ''}>
           {isActivity ? (
-            activityNotificationsMockData.length === 0 || !isChainNotificationsEnabled ? (
+            activityNotificationsMockData.length === 0 || !chainNotificationsEnabled ? (
               <NotificationsNotFound />
             ) : (
               activityNotificationsMockData.map((activity, index) => {
