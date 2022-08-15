@@ -16,12 +16,9 @@ import { CollectibleActivity } from './ActivityNotifications/activities/Collecti
 import { TransactionActivity } from './ActivityNotifications/activities/TransactionActivity';
 import { activityNotificationsMockData } from './ActivityNotifications/ActivityNotifications.data';
 import { ActivityType, StatusType } from './ActivityNotifications/ActivityNotifications.interface';
-import {
-  newsNotificationsMockData,
-  welcomeNewsNotificationsMockData
-} from './NewsNotifications/NewsNotifications.data';
 import { NewsType } from './NewsNotifications/NewsNotifications.interface';
 import { NewsNotificationsItem } from './NewsNotifications/NewsNotificationsItem';
+import { useNews } from './use-news.hook';
 
 interface NotificationsProps {
   tabSlug?: string;
@@ -29,6 +26,8 @@ interface NotificationsProps {
 
 export const Notifications: FC<NotificationsProps> = ({ tabSlug = 'activity' }) => {
   const isActivity = tabSlug === 'activity';
+
+  const { isUnreadNews, news } = useNews();
 
   const [newsNotificationsEnabled] = useLocalStorage<boolean>(
     TempleNotificationsSharedStorageKey.NewsNotificationsEnabled,
@@ -39,9 +38,7 @@ export const Notifications: FC<NotificationsProps> = ({ tabSlug = 'activity' }) 
     true
   );
 
-  const allNews = [...welcomeNewsNotificationsMockData, ...newsNotificationsMockData].filter(newsItem =>
-    newsNotificationsEnabled ? newsItem : newsItem.type !== NewsType.News
-  );
+  const allNews = news.filter(newsItem => (newsNotificationsEnabled ? newsItem : newsItem.type !== NewsType.News));
 
   const NotificationOptions: TabDescriptor[] = [
     {
@@ -54,7 +51,7 @@ export const Notifications: FC<NotificationsProps> = ({ tabSlug = 'activity' }) 
     {
       slug: 'news',
       i18nKey: 'news',
-      isDotVisible: allNews.find(newsItem => newsItem.status === StatusType.New) !== undefined
+      isDotVisible: isUnreadNews
     }
   ];
 

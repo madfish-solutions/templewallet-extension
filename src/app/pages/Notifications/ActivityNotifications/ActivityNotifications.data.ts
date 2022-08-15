@@ -347,7 +347,7 @@ const bidsReceived: Array<BidReceivedActivityNotificationInterface> = [
 
 const bidsOutbidded: Array<BidOutbitedActivityNotificationInterface> = [
   {
-    id: '1bm',
+    id: '1bo',
     createdAt: '2020-01-02T00:00:00.000Z',
     status: StatusType.New,
     type: ActivityType.BidOutbited,
@@ -361,7 +361,7 @@ const bidsOutbidded: Array<BidOutbitedActivityNotificationInterface> = [
     marketplaceUrl: 'https://objkt.com/'
   },
   {
-    id: '2bm',
+    id: '2bo',
     createdAt: '2020-01-03T00:00:00.000Z',
     status: StatusType.Viewed,
     type: ActivityType.BidOutbited,
@@ -375,7 +375,7 @@ const bidsOutbidded: Array<BidOutbitedActivityNotificationInterface> = [
     marketplaceUrl: 'https://objkt.com/'
   },
   {
-    id: '3bm',
+    id: '3bo',
     createdAt: '2020-01-01T00:00:00.000Z',
     status: StatusType.New,
     type: ActivityType.BidOutbited,
