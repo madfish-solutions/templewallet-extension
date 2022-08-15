@@ -5,17 +5,17 @@ import classNames from 'clsx';
 import { T } from 'lib/i18n/react';
 import { Link } from 'lib/woozie';
 
-type TabDescriptor = {
+interface TabDescriptor {
   slug: string;
   i18nKey: string;
-};
+}
 
-type TabSwitcherProps = {
+interface TabSwitcherProps {
   className?: string;
   tabs: TabDescriptor[];
   activeTabSlug: string;
   urlPrefix: string;
-};
+}
 
 export const ButtonTabSwitcher: React.FC<TabSwitcherProps> = ({ className, tabs, activeTabSlug, urlPrefix }) => (
   <div className={classNames('w-full max-w-md mx-auto', 'flex flex-wrap items-center justify-center', className)}>
