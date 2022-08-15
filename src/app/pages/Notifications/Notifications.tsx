@@ -2,9 +2,10 @@ import React, { FC } from 'react';
 
 import classNames from 'clsx';
 
+import { TabDescriptor, TabSwitcher } from 'app/atoms/TabSwitcher';
+
 import { T } from '../../../lib/i18n/react';
 import { TempleNotificationsSharedStorageKey, useLocalStorage } from '../../../lib/temple/front';
-import TabSwitcher, { TabDescriptor } from '../../atoms/TabSwitcher';
 import { useAppEnv } from '../../env';
 import { ReactComponent as BellGrayIcon } from '../../icons/bell-gray.svg';
 import { ReactComponent as NotFoundIcon } from '../../icons/notFound.svg';
@@ -73,7 +74,7 @@ export const Notifications: FC<NotificationsProps> = ({ tabSlug = 'activity' }) 
         tabs={NotificationOptions}
         activeTabSlug={tabSlug}
         urlPrefix="/notifications"
-        className={classNames('mt-4 mb-6', !popup && 'px-8')}
+        className={classNames('mt-4 mb-6', popup ? 'px-7' : 'px-32')}
       />
       <div style={{ maxWidth: '360px', margin: 'auto' }} className="pb-8">
         <div className={popup ? 'mx-5' : ''}>
