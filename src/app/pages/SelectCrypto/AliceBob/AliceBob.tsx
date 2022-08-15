@@ -1,5 +1,7 @@
 import React, { ChangeEvent, useCallback, useEffect, useMemo, useState } from 'react';
 
+import { useDebouncedCallback } from 'use-debounce';
+
 import { useAnalyticsState } from '../../../../lib/analytics/use-analytics-state.hook';
 import { T } from '../../../../lib/i18n/react';
 import makeBuildQueryFn from '../../../../lib/makeBuildQueryFn';
@@ -15,6 +17,8 @@ const buildQuery = makeBuildQueryFn<Record<string, string>, any>('https://temple
 const getSignedAliceBobUrl = buildQuery('GET', '/api/alice-bob-sign', ['amount', 'userId', 'walletAddress']);
 const getAliceBobPairInfo = buildQuery('GET', '/api/alice-bob-pair-info');
 
+const REQUEST_LATENCY = 200;
+
 export const AliceBob = () => {
   const { analyticsState } = useAnalyticsState();
   const { publicKeyHash: walletAddress } = useAccount();
@@ -23,10 +27,18 @@ export const AliceBob = () => {
   const [maxExchangeAmount, setMaxExchangeAmount] = useState(29500);
 
   const [amount, setAmount] = useState(0);
+  const [link, setLink] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
   const isError = useMemo(
     () => minExchangeAmount === 0 && maxExchangeAmount === 0,
     [minExchangeAmount, maxExchangeAmount]
+  );
+  const isMinAmountError = useMemo(() => amount !== 0 && amount < minExchangeAmount, [amount, minExchangeAmount]);
+  const isMaxAmountError = useMemo(() => amount !== 0 && amount > maxExchangeAmount, [amount, maxExchangeAmount]);
+  const disabledProceed = useMemo(
+    () => isMinAmountError || isMaxAmountError || amount === 0,
+    [isMinAmountError, isMaxAmountError, amount]
   );
 
   useEffect(() => {
@@ -43,34 +55,27 @@ export const AliceBob = () => {
     })();
   }, []);
 
-  const onAmountChange = useCallback(
-    (e: ChangeEvent<HTMLInputElement>) => {
-      setAmount(Number(e.target.value));
+  const linkRequest = useCallback(
+    async (e: ChangeEvent<HTMLInputElement>) => {
+      if (!disabledProceed) {
+        try {
+          setIsLoading(true);
+
+          const response = await getSignedAliceBobUrl({
+            amount: e.target.value,
+            userId: analyticsState.userId,
+            walletAddress
+          });
+
+          setLink(response.url);
+          setIsLoading(false);
+        } catch {}
+      }
     },
-    [setAmount]
+    [disabledProceed, analyticsState.userId, walletAddress]
   );
 
-  const submitExchangeHandler = useCallback(async () => {
-    try {
-      setIsLoading(true);
-
-      const response = await getSignedAliceBobUrl({
-        amount: amount.toString(),
-        userId: analyticsState.userId,
-        walletAddress
-      });
-
-      setIsLoading(false);
-      window.open(response.url, '_blank', 'noopener,noreferrer');
-    } catch {}
-  }, [amount, analyticsState.userId, walletAddress]);
-
-  const isMinAmountError = useMemo(() => amount !== 0 && amount < minExchangeAmount, [amount, minExchangeAmount]);
-  const isMaxAmountError = useMemo(() => amount !== 0 && amount > maxExchangeAmount, [amount, maxExchangeAmount]);
-  const disabledProceed = useMemo(
-    () => isMinAmountError || isMaxAmountError || amount === 0,
-    [isMinAmountError, isMaxAmountError, amount]
-  );
+  const debouncedLinkRequest = useDebouncedCallback(linkRequest, REQUEST_LATENCY);
 
   return (
     <PageLayout
@@ -99,7 +104,10 @@ export const AliceBob = () => {
           maxAmount={`${maxExchangeAmount}.00`}
           isMinAmountError={isMinAmountError}
           isMaxAmountError={isMaxAmountError}
-          onChangeInputHandler={onAmountChange}
+          onChangeInputHandler={e => {
+            setAmount(Number(e.target.value));
+            debouncedLinkRequest(e);
+          }}
         />
         <FormSubmitButton
           className="w-full justify-center border-none mt-6"
@@ -107,9 +115,10 @@ export const AliceBob = () => {
           disabled={disabledProceed}
           loading={isLoading}
           testID={SelectCryptoSelectors.AliceBob}
-          onClick={submitExchangeHandler}
         >
-          <T id="next" />
+          <a href={link} target="_blank" rel="noopener noreferrer" className="w-full h-auto">
+            <T id="next" />
+          </a>
         </FormSubmitButton>
         <div className="border-solid border-gray-300" style={{ borderTopWidth: 1 }}>
           <p className="mt-6">
