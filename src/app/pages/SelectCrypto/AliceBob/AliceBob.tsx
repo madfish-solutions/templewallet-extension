@@ -111,12 +111,24 @@ export const AliceBob = () => {
         />
         <FormSubmitButton
           className="w-full justify-center border-none mt-6"
-          style={{ background: '#4299e1' }}
+          style={{
+            background: '#4299e1',
+            padding: 0
+          }}
           disabled={disabledProceed}
           loading={isLoading}
           testID={SelectCryptoSelectors.AliceBob}
         >
-          <a href={link} target="_blank" rel="noopener noreferrer" className="w-full h-auto">
+          <a
+            href={link}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full h-auto"
+            style={{
+              paddingTop: '0.625rem',
+              paddingBottom: '0.625rem'
+            }}
+          >
             <T id="next" />
           </a>
         </FormSubmitButton>
