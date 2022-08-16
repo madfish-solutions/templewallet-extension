@@ -1,10 +1,4 @@
-import React, { FC, useEffect, useState } from 'react';
-
-import useSWR from 'swr';
-
-import { useLocalStorage } from 'lib/temple/front';
-import { getNewsCount } from 'lib/templewallet-api/news';
-import { templewalletQuery } from 'lib/templewallet-api/templewallet-query';
+import React, { FC } from 'react';
 
 import Link from '../../../../lib/woozie/Link';
 import { ReactComponent as BellIcon } from '../../../icons/bell.svg';

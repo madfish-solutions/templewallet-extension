@@ -9,8 +9,9 @@ import { Button } from '../../../atoms/Button';
 import { useAppEnv } from '../../../env';
 import { ReactComponent as BellGrayIcon } from '../../../icons/bell-gray.svg';
 import PageLayout from '../../../layouts/PageLayout';
+import { useNews } from '../use-news.hook';
 import { formatDate } from '../utils/formatDate';
-import { newsNotificationsMockData, welcomeNewsNotificationsMockData } from './NewsNotifications.data';
+import { welcomeNewsNotificationsMockData } from './NewsNotifications.data';
 
 interface NewsNotificationsItemDetailsProps {
   id: string;
@@ -19,9 +20,9 @@ interface NewsNotificationsItemDetailsProps {
 export const NewsNotificationsItemDetails: FC<NewsNotificationsItemDetailsProps> = ({ id }) => {
   const { popup } = useAppEnv();
 
-  const newsItem = [...welcomeNewsNotificationsMockData, ...newsNotificationsMockData].find(
-    newsItem => newsItem.id === id
-  )!;
+  const { news } = useNews();
+
+  const newsItem = [...welcomeNewsNotificationsMockData, ...news].find(newsItem => newsItem.id === id)!;
 
   return (
     <PageLayout

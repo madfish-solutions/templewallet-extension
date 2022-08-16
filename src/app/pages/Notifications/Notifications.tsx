@@ -38,6 +38,8 @@ export const Notifications: FC<NotificationsProps> = ({ tabSlug = 'activity' }) 
     true
   );
 
+  const [readNewsIds] = useLocalStorage<string[]>(TempleNotificationsSharedStorageKey.UnreadNewsIds, []);
+
   const allNews = news.filter(newsItem => (newsNotificationsEnabled ? newsItem : newsItem.type !== NewsType.News));
 
   const NotificationOptions: TabDescriptor[] = [
@@ -97,7 +99,14 @@ export const Notifications: FC<NotificationsProps> = ({ tabSlug = 'activity' }) 
           ) : allNews.length === 0 ? (
             <NotificationsNotFound />
           ) : (
-            allNews.map((newsItem, index) => <NewsNotificationsItem key={newsItem.id} index={index} {...newsItem} />)
+            allNews.map((newsItem, index) => (
+              <NewsNotificationsItem
+                key={newsItem.id}
+                index={index}
+                {...newsItem}
+                status={readNewsIds.indexOf(newsItem.id) >= 0 ? StatusType.Read : StatusType.New}
+              />
+            ))
           )}
         </div>
       </div>

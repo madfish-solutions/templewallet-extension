@@ -137,7 +137,8 @@ export enum TempleSharedStorageKey {
 
 export enum TempleNotificationsSharedStorageKey {
   NewsNotificationsEnabled = 'newsNotificationsEnabled',
-  ChainNotificationsEnabled = 'chainNotificationsEnabled'
+  ChainNotificationsEnabled = 'chainNotificationsEnabled',
+  UnreadNewsIds = 'unreadNewsIds'
 }
 
 export type TempleDAppSessions = Record<string, TempleDAppSession>;
