@@ -2227,6 +2227,9 @@
   "next": {
     "message": "Next"
   },
+  "updatingMinMax": {
+    "message": "Updating min/max..."
+  },
   "done": {
     "message": "Done!"
   },

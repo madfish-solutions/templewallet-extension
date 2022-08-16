@@ -28,7 +28,8 @@ export const AliceBob = () => {
 
   const [amount, setAmount] = useState(0);
   const [link, setLink] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLinkLoading, setIsLinkLoading] = useState(false);
+  const [isMinMaxLoading, setIsMinMaxLoading] = useState(false);
 
   const isError = useMemo(
     () => minExchangeAmount === 0 && maxExchangeAmount === 0,
@@ -43,14 +44,17 @@ export const AliceBob = () => {
 
   useEffect(() => {
     (async () => {
+      setIsMinMaxLoading(true);
       getAliceBobPairInfo({})
         .then(response => {
           setMinExchangeAmount(response.minAmount);
           setMaxExchangeAmount(response.maxAmount);
+          setIsMinMaxLoading(false);
         })
         .catch(() => {
           setMinExchangeAmount(0);
           setMaxExchangeAmount(0);
+          setIsMinMaxLoading(false);
         });
     })();
   }, []);
@@ -59,7 +63,7 @@ export const AliceBob = () => {
     async (e: ChangeEvent<HTMLInputElement>) => {
       if (!disabledProceed) {
         try {
-          setIsLoading(true);
+          setIsLinkLoading(true);
 
           const response = await getSignedAliceBobUrl({
             amount: e.target.value,
@@ -68,7 +72,7 @@ export const AliceBob = () => {
           });
 
           setLink(response.url);
-          setIsLoading(false);
+          setIsLinkLoading(false);
         } catch {}
       }
     },
@@ -102,6 +106,7 @@ export const AliceBob = () => {
           currency="UAH"
           minAmount={`${minExchangeAmount}.00`}
           maxAmount={`${maxExchangeAmount}.00`}
+          disabled={isMinMaxLoading}
           isMinAmountError={isMinAmountError}
           isMaxAmountError={isMaxAmountError}
           onChangeInputHandler={e => {
@@ -116,7 +121,7 @@ export const AliceBob = () => {
             padding: 0
           }}
           disabled={disabledProceed}
-          loading={isLoading}
+          loading={isLinkLoading}
           testID={SelectCryptoSelectors.AliceBob}
         >
           <a
@@ -129,7 +134,7 @@ export const AliceBob = () => {
               paddingBottom: '0.625rem'
             }}
           >
-            <T id="next" />
+            <T id={isMinMaxLoading ? 'updatingMinMax' : 'next'} />
           </a>
         </FormSubmitButton>
         <div className="border-solid border-gray-300" style={{ borderTopWidth: 1 }}>
