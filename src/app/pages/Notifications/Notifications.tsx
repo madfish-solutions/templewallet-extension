@@ -1,8 +1,10 @@
-import React, { FC } from 'react';
+import React, { FC, useCallback, useRef } from 'react';
 
 import classNames from 'clsx';
 
+import { ActivitySpinner } from 'app/atoms/ActivitySpinner';
 import { TabDescriptor, TabSwitcher } from 'app/atoms/TabSwitcher';
+import { useIntersectionDetection } from 'lib/ui/use-intersection-detection';
 
 import { T } from '../../../lib/i18n/react';
 import { TempleNotificationsSharedStorageKey, useLocalStorage } from '../../../lib/temple/front';
@@ -27,7 +29,7 @@ interface NotificationsProps {
 export const Notifications: FC<NotificationsProps> = ({ tabSlug = 'activity' }) => {
   const isActivity = tabSlug === 'activity';
 
-  const { isUnreadNews, news } = useNews();
+  const { isUnreadNews, news, isAllLoaded, handleUpdate: handleLoadMoreNews } = useNews();
 
   const [newsNotificationsEnabled] = useLocalStorage<boolean>(
     TempleNotificationsSharedStorageKey.NewsNotificationsEnabled,
@@ -57,7 +59,16 @@ export const Notifications: FC<NotificationsProps> = ({ tabSlug = 'activity' }) 
     }
   ];
 
+  const loadMoreRef = useRef<HTMLDivElement>(null);
   const { popup } = useAppEnv();
+
+  const handleIntersection = useCallback(() => {
+    if (!isAllLoaded) {
+      handleLoadMoreNews();
+    }
+  }, [isAllLoaded, handleLoadMoreNews]);
+
+  useIntersectionDetection(loadMoreRef, handleIntersection);
 
   return (
     <PageLayout
@@ -99,14 +110,18 @@ export const Notifications: FC<NotificationsProps> = ({ tabSlug = 'activity' }) 
           ) : allNews.length === 0 ? (
             <NotificationsNotFound />
           ) : (
-            allNews.map((newsItem, index) => (
-              <NewsNotificationsItem
-                key={newsItem.id}
-                index={index}
-                {...newsItem}
-                status={readNewsIds.indexOf(newsItem.id) >= 0 ? StatusType.Read : StatusType.New}
-              />
-            ))
+            <>
+              {allNews.map((newsItem, index) => (
+                <NewsNotificationsItem
+                  key={newsItem.id}
+                  index={index}
+                  {...newsItem}
+                  status={readNewsIds.indexOf(newsItem.id) >= 0 ? StatusType.Read : StatusType.New}
+                />
+              ))}
+              {!isAllLoaded && <div ref={loadMoreRef} className="w-full flex justify-center mt-5 mb-3"></div>}
+              {!isAllLoaded && <ActivitySpinner />}
+            </>
           )}
         </div>
       </div>

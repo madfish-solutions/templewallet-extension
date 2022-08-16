@@ -17,7 +17,7 @@ export const getNewsCount = templewalletQuery<
     sorted?: SortedBy;
   },
   { count: number }
->('GET', '/news/count', ['welcome']);
+>('GET', '/news/count', ['welcome', 'platform', 'limit', 'timeGt', 'timeLt']);
 export const getNewsItems = templewalletQuery<
   {
     welcome?: boolean;
@@ -29,4 +29,4 @@ export const getNewsItems = templewalletQuery<
     sorted?: SortedBy;
   },
   NewsNotificationInterface[]
->('GET', '/news', ['welcome']);
+>('GET', '/news', ['welcome', 'platform', 'limit', 'timeGt', 'timeLt']);
