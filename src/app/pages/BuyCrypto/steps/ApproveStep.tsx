@@ -50,6 +50,11 @@ const ApproveStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
     }
   }, [exchangeData, setStep, setIsError]);
 
+  if (exchangeData && !exchangeData.coinFrom) {
+    setIsError(true);
+    return null;
+  }
+
   return (
     <>
       <div className="w-64 m-auto">
