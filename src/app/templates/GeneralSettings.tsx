@@ -6,6 +6,7 @@ import FiatCurrencySelect from 'app/templates/FiatCurrencySelect';
 import LedgerLiveSettings from 'app/templates/LedgerLiveSettings';
 import LocaleSelect from 'app/templates/LocaleSelect';
 import LockUpSettings from 'app/templates/LockUpSettings';
+import NotificationsSettings from 'app/templates/NotificationsSettings';
 import PopupSettings from 'app/templates/PopupSettings';
 
 const GeneralSettings: FC = () => {
@@ -23,6 +24,8 @@ const GeneralSettings: FC = () => {
       <AnalyticsSettings />
 
       <LedgerLiveSettings />
+
+      <NotificationsSettings />
     </div>
   );
 };

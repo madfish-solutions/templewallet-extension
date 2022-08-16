@@ -5,40 +5,63 @@ import classNames from 'clsx';
 import { T } from 'lib/i18n/react';
 import { Link } from 'lib/woozie';
 
-type TabDescriptor = {
+export interface TabDescriptor {
   slug: string;
   i18nKey: string;
-};
+  isDotVisible?: boolean;
+}
 
-type TabSwitcherProps = {
+interface TabSwitcherProps {
   className?: string;
   tabs: TabDescriptor[];
   activeTabSlug: string;
   urlPrefix: string;
-};
+  isImportPage?: boolean;
+}
 
-const TabSwitcher: React.FC<TabSwitcherProps> = ({ className, tabs, activeTabSlug, urlPrefix }) => (
-  <div className={classNames('w-full max-w-md mx-auto', 'flex flex-wrap items-center justify-center', className)}>
-    {tabs.map(({ slug, i18nKey }) => {
-      const active = slug === activeTabSlug;
+export const TabSwitcher: React.FC<TabSwitcherProps> = ({
+  className,
+  tabs,
+  activeTabSlug,
+  urlPrefix,
+  isImportPage = false
+}) => (
+  <div className={classNames('w-full', className)} style={{ borderBottomWidth: 1, fontSize: 17 }}>
+    <div className={classNames('flex items-center justify-around')}>
+      {tabs.map(({ slug, i18nKey, isDotVisible }) => {
+        const active = slug === activeTabSlug;
 
-      return (
-        <Link
-          key={slug}
-          to={`${urlPrefix}/${slug}`}
-          replace
-          className={classNames(
-            'text-center cursor-pointer rounded-md mx-1 py-2 px-3 mb-1',
-            'text-gray-600 text-sm',
-            active ? 'text-primary-orange bg-primary-orange bg-opacity-10' : 'hover:bg-gray-100 focus:bg-gray-100',
-            'transition ease-in-out duration-200'
-          )}
-        >
-          <T id={i18nKey} />
-        </Link>
-      );
-    })}
+        return (
+          <Link
+            key={slug}
+            to={`${urlPrefix}/${slug}`}
+            replace
+            className={classNames(
+              'flex row items-center gap-1',
+              'text-center cursor-pointer pb-1 pt-2',
+              isImportPage ? 'px-4' : 'flex-1 justify-center',
+              'text-gray-500',
+              'border-b-2',
+              active ? 'border-primary-orange' : 'border-transparent',
+              active ? 'text-primary-orange' : 'hover:text-primary-orange',
+              'transition ease-in-out duration-300',
+              'truncate'
+            )}
+          >
+            {isDotVisible && (
+              <span
+                className="bg-red-600"
+                style={{
+                  width: 6,
+                  height: 6,
+                  borderRadius: '50%'
+                }}
+              />
+            )}
+            <T id={i18nKey} />
+          </Link>
+        );
+      })}
+    </div>
   </div>
 );
-
-export default TabSwitcher;
