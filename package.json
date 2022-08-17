@@ -15,9 +15,11 @@
     "ts": "tsc --pretty",
     "lint": "eslint src",
     "lint:fix": "prettier \"./**/*\" --write --ignore-unknown",
-    "clear:lint": "rimraf node_modules/.cache/eslint-loader"
+    "clear:lint": "rimraf node_modules/.cache/eslint-loader",
+    "graphgen": "graphql-codegen --config codegen.yml"
   },
   "dependencies": {
+    "@apollo/client": "^3.6.9",
     "@babel/core": "7.11.6",
     "@dicebear/avatars": "4.2.5",
     "@dicebear/avatars-bottts-sprites": "4.2.5",
@@ -95,6 +97,7 @@
     "file-loader": "6.0.0",
     "fontfaceobserver": "2.1.0",
     "fuse.js": "6.4.6",
+    "graphql": "^16.6.0",
     "html-webpack-plugin": "4.3.0",
     "inter-ui": "3.13.1",
     "jest": "27.4.5",
@@ -150,7 +153,13 @@
     "postcss": "8.4.6"
   },
   "devDependencies": {
-    "postcss": "8.4.6"
+    "@graphql-codegen/cli": "2.11.6",
+    "@graphql-codegen/introspection": "2.2.1",
+    "@graphql-codegen/typescript": "2.7.3",
+    "@graphql-codegen/typescript-operations": "2.5.3",
+    "@graphql-codegen/typescript-react-apollo": "3.3.3",
+    "postcss": "8.4.6",
+    "ts-graphql-plugin": "^2.1.8"
   },
   "resolutions": {
     "@taquito/**/braces": "2.3.1",

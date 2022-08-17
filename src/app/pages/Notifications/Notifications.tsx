@@ -4,10 +4,11 @@ import classNames from 'clsx';
 
 import { ActivitySpinner } from 'app/atoms/ActivitySpinner';
 import { TabDescriptor, TabSwitcher } from 'app/atoms/TabSwitcher';
+import { useLatestEventsQuery } from 'generated/graphql';
 import { useIntersectionDetection } from 'lib/ui/use-intersection-detection';
 
 import { T } from '../../../lib/i18n/react';
-import { TempleNotificationsSharedStorageKey, useLocalStorage } from '../../../lib/temple/front';
+import { TempleNotificationsSharedStorageKey, useAccount, useLocalStorage } from '../../../lib/temple/front';
 import { useAppEnv } from '../../env';
 import { ReactComponent as BellGrayIcon } from '../../icons/bell-gray.svg';
 import { ReactComponent as NotFoundIcon } from '../../icons/notFound.svg';
@@ -29,7 +30,12 @@ interface NotificationsProps {
 export const Notifications: FC<NotificationsProps> = ({ tabSlug = 'activity' }) => {
   const isActivity = tabSlug === 'activity';
 
+  const { publicKeyHash } = useAccount();
+
   const { isUnreadNews, news, isAllLoaded, handleUpdate: handleLoadMoreNews } = useNews();
+  const { data, error, loading } = useLatestEventsQuery({ variables: { account: publicKeyHash } });
+
+  console.log(data, error, loading);
 
   const [newsNotificationsEnabled] = useLocalStorage<boolean>(
     TempleNotificationsSharedStorageKey.NewsNotificationsEnabled,

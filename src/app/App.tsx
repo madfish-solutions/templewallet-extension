@@ -1,5 +1,7 @@
 import React, { ComponentProps, FC, Suspense } from 'react';
 
+import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client';
+
 import AwaitFonts from 'app/a11y/AwaitFonts';
 import AwaitI18N from 'app/a11y/AwaitI18N';
 import BootAnimation from 'app/a11y/BootAnimation';
@@ -18,23 +20,30 @@ interface AppProps extends Partial<PropsWithChildren> {
   env: ComponentProps<typeof AppEnvProvider>;
 }
 
+const client = new ApolloClient({
+  uri: 'https://unstable-do-not-use-in-production-api.teztok.com/v1/graphql',
+  cache: new InMemoryCache()
+});
+
 const App: FC<AppProps> = ({ env }) => (
   <ErrorBoundary whileMessage="booting a wallet" className="min-h-screen">
-    <DialogsProvider>
-      <Suspense fallback={<RootSuspenseFallback />}>
-        <AppProvider env={env}>
-          <Dialogs />
+    <ApolloProvider client={client}>
+      <DialogsProvider>
+        <Suspense fallback={<RootSuspenseFallback />}>
+          <AppProvider env={env}>
+            <Dialogs />
 
-          <DisableOutlinesForClick />
+            <DisableOutlinesForClick />
 
-          <AwaitI18N />
+            <AwaitI18N />
 
-          <AwaitFonts name="Inter" weights={[300, 400, 500, 600]} className="antialiased font-inter">
-            <BootAnimation>{env.confirmWindow ? <ConfirmPage /> : <PageRouter />}</BootAnimation>
-          </AwaitFonts>
-        </AppProvider>
-      </Suspense>
-    </DialogsProvider>
+            <AwaitFonts name="Inter" weights={[300, 400, 500, 600]} className="antialiased font-inter">
+              <BootAnimation>{env.confirmWindow ? <ConfirmPage /> : <PageRouter />}</BootAnimation>
+            </AwaitFonts>
+          </AppProvider>
+        </Suspense>
+      </DialogsProvider>
+    </ApolloProvider>
   </ErrorBoundary>
 );
 
