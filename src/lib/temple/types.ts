@@ -35,7 +35,7 @@ export enum TempleChainId {
   Mainnet = 'NetXdQprcVkpaWU',
   Ghostnet = 'NetXnHfVqm9iesp',
   Jakartanet = 'NetXLH1uAxK7CCh',
-  Katmandu = 'NetXdnUSgMs7Xc3',
+  Kathmandunet = 'NetXdnUSgMs7Xc3',
   Monday = 'NetXaqtQ8b5nihx',
   Daily = 'NetXxkAx4woPLyu',
   Dcp = 'NetXooyhiru73tk',

@@ -101,9 +101,9 @@ export const NETWORKS: TempleNetwork[] = [
     disabled: false
   },
   {
-    id: 'katmandu',
-    name: 'Katmandu Testnet',
-    description: 'Katmandu testnet',
+    id: 'kathmandunet',
+    name: 'Kathmandunet Testnet',
+    description: 'Kathmandunet testnet',
     type: 'test',
     rpcBaseURL: 'https://rpc.kathmandunet.teztnets.xyz/',
     color: '#FBBF24',
