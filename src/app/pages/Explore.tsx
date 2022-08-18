@@ -93,7 +93,7 @@ const Explore: FC<ExploreProps> = ({ assetSlug }) => {
           )}
         </>
       }
-      notifications={true}
+      attention={true}
     >
       <DonationBanner />
 

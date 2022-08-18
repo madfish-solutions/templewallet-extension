@@ -135,11 +135,6 @@ export enum TempleSharedStorageKey {
   TimeLock = 'timelock'
 }
 
-export enum TempleNotificationsSharedStorageKey {
-  NewsNotificationsEnabled = 'newsNotificationsEnabled',
-  ChainNotificationsEnabled = 'chainNotificationsEnabled'
-}
-
 export type TempleDAppSessions = Record<string, TempleDAppSession>;
 
 export interface TempleContact {

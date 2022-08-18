@@ -10,6 +10,7 @@ import FileInput, { FileInputProps } from 'app/atoms/FileInput';
 import FormField from 'app/atoms/FormField';
 import FormSubmitButton from 'app/atoms/FormSubmitButton';
 import NoSpaceField from 'app/atoms/NoSpaceField';
+import TabSwitcher from 'app/atoms/TabSwitcher';
 import { MNEMONIC_ERROR_CAPTION, formatMnemonic } from 'app/defaults';
 import { ReactComponent as DownloadIcon } from 'app/icons/download.svg';
 import { ReactComponent as OkIcon } from 'app/icons/ok.svg';
@@ -37,7 +38,6 @@ import useSafeState from 'lib/ui/useSafeState';
 import { navigate } from 'lib/woozie';
 
 import { clearClipboard } from '../../lib/ui/util';
-import { ButtonTabSwitcher } from '../atoms/ButtonTabSwitcher';
 import { SeedPhraseInput } from '../atoms/SeedPhraseInput';
 
 type ImportAccountProps = {
@@ -126,7 +126,7 @@ const ImportAccount: FC<ImportAccountProps> = ({ tabSlug }) => {
       }
     >
       <div className="py-4">
-        <ButtonTabSwitcher className="mb-4" tabs={allTabs} activeTabSlug={slug} urlPrefix="/import-account" />
+        <TabSwitcher className="mb-4" tabs={allTabs} activeTabSlug={slug} urlPrefix="/import-account" />
 
         <Form />
       </div>

@@ -4,11 +4,15 @@ import PageLayout from 'app/layouts/PageLayout';
 import { t } from 'lib/i18n/react';
 
 import { useTempleClient } from '../../../lib/temple/front';
-import { TabSwitcher } from '../../atoms/TabSwitcher';
+import ImportTabSwitcher from '../../atoms/ImportTabSwitcher';
 import { ImportFromKeystoreFile } from './import/ImportFromKeystoreFile';
 import { ImportFromSeedPhrase } from './import/ImportFromSeedPhrase';
 import { LockedWalletExists } from './LockedWalletExists';
 import { SetWalletPassword } from './SetWalletPassword';
+
+interface ImportWalletProps {
+  tabSlug?: string;
+}
 
 const importWalletOptions = [
   {
@@ -21,10 +25,6 @@ const importWalletOptions = [
   }
 ];
 
-interface ImportWalletProps {
-  tabSlug?: string;
-}
-
 export const ImportWallet: FC<ImportWalletProps> = ({ tabSlug = 'seed-phrase' }) => {
   const { locked } = useTempleClient();
 
@@ -36,7 +36,7 @@ export const ImportWallet: FC<ImportWalletProps> = ({ tabSlug = 'seed-phrase' })
 
   return (
     <PageLayout pageTitle={t('importWallet')} contentContainerStyle={{ padding: 0 }}>
-      <TabSwitcher tabs={importWalletOptions} activeTabSlug={tabSlug} urlPrefix="/import-wallet" isImportPage />
+      <ImportTabSwitcher tabs={importWalletOptions} activeTabSlug={tabSlug} urlPrefix="/import-wallet" />
       <LockedWalletExists locked={locked} />
       {isImportFromSeedPhrase ? (
         isSeedEntered ? (
