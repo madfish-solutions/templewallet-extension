@@ -29,6 +29,7 @@ import { atomsToTokens, tokensToAtoms } from 'lib/temple/helpers';
 import useTippy from 'lib/ui/useTippy';
 import { HistoryAction, navigate } from 'lib/woozie';
 
+import { checkIsPromotionTime } from '../../layouts/PageLayout/utils/checkYupanaPromotion';
 import { SwapExchangeRate } from './SwapExchangeRate/SwapExchangeRate';
 import { SwapFormValue, SwapInputValue, useSwapFormDefaultValue } from './SwapForm.form';
 import styles from './SwapForm.module.css';
@@ -69,6 +70,8 @@ export const SwapForm: FC = () => {
     defaultValues
   });
   const isValid = Object.keys(errors).length === 0;
+
+  const isPromotionTime = checkIsPromotionTime();
 
   const inputValue = watch('input');
   const outputValue = watch('output');
@@ -291,13 +294,21 @@ export const SwapForm: FC = () => {
         <tbody>
           <tr>
             <td>
-              <span ref={feeInfoIconRef} className="flex w-fit items-center text-gray-500 hover:bg-gray-100">
+              <span
+                ref={feeInfoIconRef}
+                className={classNames(
+                  'flex w-fit items-center hover:bg-gray-100',
+                  isPromotionTime ? 'text-green-500' : 'text-gray-500'
+                )}
+              >
                 <T id="routingFee" />
                 &nbsp;
                 <InfoIcon className="w-3 h-auto stroke-current" />
               </span>
             </td>
-            <td className="text-right text-gray-600">{ROUTING_FEE_PERCENT} %</td>
+            <td className={classNames('text-right', isPromotionTime ? 'text-green-600' : 'text-gray-600')}>
+              {ROUTING_FEE_PERCENT} %
+            </td>
           </tr>
           <tr>
             <td>

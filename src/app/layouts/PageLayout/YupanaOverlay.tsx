@@ -11,9 +11,10 @@ import { useStorage, useTempleClient } from 'lib/temple/front';
 import { AnalyticsEventCategory, useAnalytics } from '../../../lib/analytics';
 import YupanaLogo from './assets/yupana-logo.png';
 import YupanaOverlayBg from './assets/yupana-overlay-bg.png';
-import { YupanaOverlaySelectors } from './YupanaOverlay.selectors';
+import { checkIsPromotionTime } from './utils/checkYupanaPromotion';
+import { YupanaSelectors } from './Yupana.selectors';
 
-const YUPANA_LINK = 'https://app.yupana.finance';
+export const YUPANA_LINK = 'https://app.yupana.finance';
 
 export const YupanaOverlay: FC = () => {
   const { popup } = useAppEnv();
@@ -21,17 +22,19 @@ export const YupanaOverlay: FC = () => {
   const { trackEvent } = useAnalytics();
   const [showYupanaOverlay, setShowYupanaOverlay] = useStorage('show_yupana_overlay', true);
 
+  const isPromotionTime = checkIsPromotionTime();
+
   const handleSkip = () => {
-    trackEvent(YupanaOverlaySelectors.Skip, AnalyticsEventCategory.ButtonPress);
+    trackEvent(YupanaSelectors.Skip, AnalyticsEventCategory.ButtonPress);
     setShowYupanaOverlay(false);
   };
   const handleCheckNow = () => {
-    trackEvent(YupanaOverlaySelectors.CheckNow, AnalyticsEventCategory.ButtonPress);
+    trackEvent(YupanaSelectors.CheckNow, AnalyticsEventCategory.ButtonPress);
     setShowYupanaOverlay(false);
   };
   const popupClassName = popup ? 'inset-0' : 'top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2';
 
-  return ready && showYupanaOverlay ? (
+  return ready && isPromotionTime && showYupanaOverlay ? (
     <>
       <div className={'fixed left-0 right-0 top-0 bottom-0 opacity-20 bg-gray-700 z-50'}></div>
       <ContentContainer
