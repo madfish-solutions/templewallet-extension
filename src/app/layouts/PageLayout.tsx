@@ -24,8 +24,7 @@ import { PageLayoutSelectors } from './PageLayout.selectors';
 import { ChangelogOverlay } from './PageLayout/ChangelogOverlay/ChangelogOverlay';
 import ConfirmationOverlay from './PageLayout/ConfirmationOverlay';
 import Header from './PageLayout/Header';
-import { useTempleMobile } from './PageLayout/hooks/useTempleMobile.hook';
-import { TempleMobileSelectors } from './PageLayout/TempleMobile.selectors';
+import { YupanaOverlay } from './PageLayout/YupanaOverlay';
 
 interface PageLayoutProps extends PropsWithChildren, ToolbarProps {
   contentContainerStyle?: React.CSSProperties;
@@ -53,7 +52,7 @@ const PageLayout: FC<PageLayoutProps> = ({ children, contentContainerStyle, ...t
       </div>
 
       <ConfirmationOverlay />
-      {/* <TempleMobileOverlay /> */}
+      <YupanaOverlay />
       <ChangelogOverlay />
     </>
   );
@@ -103,7 +102,6 @@ const Toolbar: FC<ToolbarProps> = ({ pageTitle, hasBackAction = true, step, setS
   const { fullPage, registerBackHandler, onBack } = useAppEnv();
   const { setOnboardingCompleted } = useOnboardingProgress();
   const { trackEvent } = useAnalytics();
-  const { isTempleMobileOverlaySkipped, setIsTempleMobileOverlaySkipped } = useTempleMobile();
 
   const onStepBack = () => {
     if (step && setStep && step > 0) {
