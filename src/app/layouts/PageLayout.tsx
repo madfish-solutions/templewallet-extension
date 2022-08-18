@@ -9,17 +9,23 @@ import { useAppEnv } from 'app/env';
 import ErrorBoundary from 'app/ErrorBoundary';
 import { ReactComponent as ChevronLeftIcon } from 'app/icons/chevron-left.svg';
 import ContentContainer from 'app/layouts/ContentContainer';
+import { isSafeBrowserVersion } from 'lib/browser-info';
 import { T } from 'lib/i18n/react';
 import { PropsWithChildren } from 'lib/props-with-children';
-import { goBack, HistoryAction, navigate, useLocation } from 'lib/woozie';
+import { goBack, HistoryAction, Link, navigate, useLocation } from 'lib/woozie';
 
-import { NotificationsButton } from '../pages/Notifications/components/NotificationsButton';
+import { AnalyticsEventCategory, useAnalytics } from '../../lib/analytics';
+import { ReactComponent as AttentionGreyIcon } from '../icons/attentionGrey.svg';
+import { ReactComponent as AttentionRedIcon } from '../icons/attentionRed.svg';
+import { ReactComponent as DownloadMobileGreyIcon } from '../icons/download-mobile-grey.svg';
+import { ReactComponent as DownloadMobileIcon } from '../icons/download-mobile.svg';
 import { useOnboardingProgress } from '../pages/Onboarding/hooks/useOnboardingProgress.hook';
 import { PageLayoutSelectors } from './PageLayout.selectors';
 import { ChangelogOverlay } from './PageLayout/ChangelogOverlay/ChangelogOverlay';
 import ConfirmationOverlay from './PageLayout/ConfirmationOverlay';
 import Header from './PageLayout/Header';
-import { YupanaOverlay } from './PageLayout/YupanaOverlay';
+import { useTempleMobile } from './PageLayout/hooks/useTempleMobile.hook';
+import { TempleMobileSelectors } from './PageLayout/TempleMobile.selectors';
 
 interface PageLayoutProps extends PropsWithChildren, ToolbarProps {
   contentContainerStyle?: React.CSSProperties;
@@ -47,7 +53,7 @@ const PageLayout: FC<PageLayoutProps> = ({ children, contentContainerStyle, ...t
       </div>
 
       <ConfirmationOverlay />
-      <YupanaOverlay />
+      {/* <TempleMobileOverlay /> */}
       <ChangelogOverlay />
     </>
   );
@@ -89,13 +95,15 @@ type ToolbarProps = {
   step?: number;
   setStep?: (step: number) => void;
   skip?: boolean;
-  notifications?: boolean;
+  attention?: boolean;
 };
 
-const Toolbar: FC<ToolbarProps> = ({ pageTitle, hasBackAction = true, step, setStep, skip, notifications }) => {
+const Toolbar: FC<ToolbarProps> = ({ pageTitle, hasBackAction = true, step, setStep, skip, attention }) => {
   const { historyPosition, pathname } = useLocation();
   const { fullPage, registerBackHandler, onBack } = useAppEnv();
   const { setOnboardingCompleted } = useOnboardingProgress();
+  const { trackEvent } = useAnalytics();
+  const { isTempleMobileOverlaySkipped, setIsTempleMobileOverlaySkipped } = useTempleMobile();
 
   const onStepBack = () => {
     if (step && setStep && step > 0) {
@@ -144,6 +152,11 @@ const Toolbar: FC<ToolbarProps> = ({ pageTitle, hasBackAction = true, step, setS
     }
     return undefined;
   }, [setSticked]);
+
+  const handleDownloadMobileIconClick = () => {
+    trackEvent(TempleMobileSelectors.DownloadIcon, AnalyticsEventCategory.ButtonPress);
+    setIsTempleMobileOverlaySkipped(false);
+  };
 
   return (
     <div
@@ -198,13 +211,22 @@ const Toolbar: FC<ToolbarProps> = ({ pageTitle, hasBackAction = true, step, setS
       )}
 
       <div className="flex-1" />
-
-      {notifications && (
+      {attention && (
         <div className="flex content-end absolute right-0">
-          <NotificationsButton />
+          <a
+            href="https://templewallet.com/mobile"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mr-3 my-auto"
+            onClick={handleDownloadMobileIconClick}
+          >
+            {isTempleMobileOverlaySkipped ? <DownloadMobileIcon /> : <DownloadMobileGreyIcon />}
+          </a>
+          <Link to={'/attention'} className="mr-3">
+            {isSafeBrowserVersion ? <AttentionGreyIcon /> : <AttentionRedIcon />}
+          </Link>
         </div>
       )}
-
       {skip && (
         <div className="flex content-end">
           <Button
