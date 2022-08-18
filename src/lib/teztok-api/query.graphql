@@ -27,6 +27,8 @@
         name
         description
         price
+        royalties
+        royalties_total
       }
       amount
       owner_address

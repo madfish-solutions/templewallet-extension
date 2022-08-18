@@ -3828,6 +3828,8 @@ export type LatestEventsQuery = {
       name?: string | null;
       description?: string | null;
       price?: any | null;
+      royalties?: any | null;
+      royalties_total?: any | null;
     } | null;
   }>;
 };
@@ -3861,6 +3863,8 @@ export const LatestEventsDocument = gql`
         name
         description
         price
+        royalties
+        royalties_total
       }
       amount
       owner_address

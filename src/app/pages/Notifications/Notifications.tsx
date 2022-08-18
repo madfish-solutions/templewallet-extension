@@ -19,6 +19,7 @@ import { CollectibleActivity } from './ActivityNotifications/activities/Collecti
 import { TransactionActivity } from './ActivityNotifications/activities/TransactionActivity';
 import { activityNotificationsMockData } from './ActivityNotifications/ActivityNotifications.data';
 import { ActivityType, StatusType } from './ActivityNotifications/ActivityNotifications.interface';
+import { mapLatestEventsToActivity } from './ActivityNotifications/util';
 import { NewsType } from './NewsNotifications/NewsNotifications.interface';
 import { NewsNotificationsItem } from './NewsNotifications/NewsNotificationsItem';
 import { useNews } from './use-news.hook';
@@ -31,11 +32,102 @@ export const Notifications: FC<NotificationsProps> = ({ tabSlug = 'activity' }) 
   const isActivity = tabSlug === 'activity';
 
   const { publicKeyHash } = useAccount();
+  // const { data: myBakerPkh } = useDelegate(publicKeyHash);
+  // const chainId = useChainId(true);
 
   const { isUnreadNews, news, isAllLoaded, handleUpdate: handleLoadMoreNews } = useNews();
   const { data, error, loading } = useLatestEventsQuery({ variables: { account: publicKeyHash } });
 
+  // const getBakingHistory = useCallback(
+  //   async (_k: string, accountPkh: string) => {
+  //     if (!isKnownChainId(chainId!) || !TZKT_API_BASE_URLS.has(chainId)) {
+  //       return [];
+  //     }
+  //     return (
+  //       (await getDelegatorRewards(chainId, {
+  //         address: accountPkh,
+  //         limit: 30
+  //       })) || []
+  //     );
+  //   },
+  //   [chainId]
+  // );
+  // const { data: bakingHistory, isValidating: loadingBakingHistory } = useRetryableSWR(
+  //   ['baking-history', publicKeyHash, myBakerPkh, chainId],
+  //   getBakingHistory,
+  //   { suspense: true, revalidateOnFocus: false, revalidateOnReconnect: false }
+  // );
+  // const rewardsPerEventHistory = useMemo(() => {
+  //   if (!bakingHistory) {
+  //     return [];
+  //   }
+  //   return bakingHistory.map(historyItem => {
+  //     const {
+  //       endorsements,
+  //       endorsementRewards,
+  //       futureBlocks,
+  //       futureBlockRewards,
+  //       futureEndorsements,
+  //       futureEndorsementRewards,
+  //       ownBlocks,
+  //       ownBlockRewards
+  //     } = historyItem;
+  //     const rewardPerOwnBlock = ownBlocks === 0 ? undefined : new BigNumber(ownBlockRewards).div(ownBlocks);
+  //     const rewardPerEndorsement = endorsements === 0 ? undefined : new BigNumber(endorsementRewards).div(endorsements);
+  //     const rewardPerFutureBlock = futureBlocks === 0 ? undefined : new BigNumber(futureBlockRewards).div(futureBlocks);
+  //     const rewardPerFutureEndorsement =
+  //       futureEndorsements === 0 ? undefined : new BigNumber(futureEndorsementRewards).div(futureEndorsements);
+  //     return {
+  //       rewardPerOwnBlock,
+  //       rewardPerEndorsement,
+  //       rewardPerFutureBlock,
+  //       rewardPerFutureEndorsement
+  //     };
+  //   });
+  // }, [bakingHistory]);
+  // const fallbackRewardsPerEvents = useMemo(() => {
+  //   return rewardsPerEventHistory.map(historyItem =>
+  //     allRewardsPerEventKeys.reduce(
+  //       (fallbackRewardsItem, key, index) => {
+  //         return reduceFunction(fallbackRewardsItem, key, index, historyItem, rewardsPerEventHistory);
+  //       },
+  //       {
+  //         rewardPerOwnBlock: new BigNumber(0),
+  //         rewardPerEndorsement: new BigNumber(0),
+  //         rewardPerFutureBlock: new BigNumber(0),
+  //         rewardPerFutureEndorsement: new BigNumber(0)
+  //       }
+  //     )
+  //   );
+  // }, [rewardsPerEventHistory]);
+  // const currentCycle = useMemo(
+  //   () =>
+  //     bakingHistory?.find(
+  //       ({ extraBlockRewards, endorsementRewards, ownBlockRewards, ownBlockFees, extraBlockFees }) => {
+  //         const totalCurrentRewards = new BigNumber(extraBlockRewards)
+  //           .plus(endorsementRewards)
+  //           .plus(ownBlockRewards)
+  //           .plus(ownBlockFees)
+  //           .plus(extraBlockFees);
+  //         return totalCurrentRewards.gt(0);
+  //       }
+  //     )?.cycle,
+  //   [bakingHistory]
+  // );
+
   console.log(data, error, loading);
+  // console.log(
+  //   bakingHistory?.map(() =>
+  //     getLuckAndRewardAndCycleStatus({
+  //       x.content,
+  //       x.currentCycle,
+  //       fallbackRewardPerEndorsement,
+  //       fallbackRewardPerFutureBlock,
+  //       fallbackRewardPerFutureEndorsement,
+  //       fallbackRewardPerOwnBlock
+  //     })
+  //   )
+  // );
 
   const [newsNotificationsEnabled] = useLocalStorage<boolean>(
     TempleNotificationsSharedStorageKey.NewsNotificationsEnabled,
@@ -76,6 +168,9 @@ export const Notifications: FC<NotificationsProps> = ({ tabSlug = 'activity' }) 
 
   useIntersectionDetection(loadMoreRef, handleIntersection);
 
+  const events = mapLatestEventsToActivity(publicKeyHash, data);
+  // const events = activityNotificationsMockData;
+
   return (
     <PageLayout
       pageTitle={
@@ -95,15 +190,17 @@ export const Notifications: FC<NotificationsProps> = ({ tabSlug = 'activity' }) 
       <div style={{ maxWidth: '360px', margin: 'auto' }} className="pb-8">
         <div className={popup ? 'mx-5' : ''}>
           {isActivity ? (
-            activityNotificationsMockData.length === 0 || !chainNotificationsEnabled ? (
+            events.length === 0 || !chainNotificationsEnabled ? (
               <NotificationsNotFound />
+            ) : loading ? (
+              <ActivitySpinner />
             ) : (
-              activityNotificationsMockData.map((activity, index) => {
+              events.map((activity, index) => {
                 switch (activity.type) {
                   case ActivityType.Transaction:
                     return <TransactionActivity key={activity.id} index={index} {...activity} />;
-                  case ActivityType.BakerRewards:
-                    return <BakerRewardsActivity key={activity.id} index={index} {...activity} />;
+                  // case ActivityType.BakerRewards:
+                  //   return <BakerRewardsActivity key={activity.id} index={index} {...activity} />;
                   case ActivityType.BidMade:
                   case ActivityType.BidReceived:
                   case ActivityType.BidOutbited:
