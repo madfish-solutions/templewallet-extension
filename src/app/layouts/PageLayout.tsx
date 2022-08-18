@@ -28,7 +28,7 @@ import ConfirmationOverlay from './PageLayout/ConfirmationOverlay';
 import Header from './PageLayout/Header';
 import { useTempleMobile } from './PageLayout/hooks/useTempleMobile.hook';
 import { TempleMobileSelectors } from './PageLayout/TempleMobile.selectors';
-import { checkIsPromotionTime } from './PageLayout/utils/checkYupanaPromotion';
+import { checkIsPromotionTime } from './PageLayout/utils/checkIsPromotionTime';
 import { YupanaSelectors } from './PageLayout/Yupana.selectors';
 import { YUPANA_LINK, YupanaOverlay } from './PageLayout/YupanaOverlay';
 

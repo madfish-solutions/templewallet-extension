@@ -29,7 +29,7 @@ import { atomsToTokens, tokensToAtoms } from 'lib/temple/helpers';
 import useTippy from 'lib/ui/useTippy';
 import { HistoryAction, navigate } from 'lib/woozie';
 
-import { checkIsPromotionTime } from '../../layouts/PageLayout/utils/checkYupanaPromotion';
+import { checkIsPromotionTime } from '../../layouts/PageLayout/utils/checkIsPromotionTime';
 import { SwapExchangeRate } from './SwapExchangeRate/SwapExchangeRate';
 import { SwapFormValue, SwapInputValue, useSwapFormDefaultValue } from './SwapForm.form';
 import styles from './SwapForm.module.css';

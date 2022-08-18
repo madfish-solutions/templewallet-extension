@@ -1,4 +1,4 @@
-import { checkIsPromotionTime } from '../../app/layouts/PageLayout/utils/checkYupanaPromotion';
+import { checkIsPromotionTime } from '../../app/layouts/PageLayout/utils/checkIsPromotionTime';
 
 export const TEZOS_DEXES_API_URL = 'wss://tezos-dexes-api-mainnet.production.madservice.xyz';
 

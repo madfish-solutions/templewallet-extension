@@ -11,7 +11,7 @@ import { useStorage, useTempleClient } from 'lib/temple/front';
 import { AnalyticsEventCategory, useAnalytics } from '../../../lib/analytics';
 import YupanaLogo from './assets/yupana-logo.png';
 import YupanaOverlayBg from './assets/yupana-overlay-bg.png';
-import { checkIsPromotionTime } from './utils/checkYupanaPromotion';
+import { checkIsPromotionTime } from './utils/checkIsPromotionTime';
 import { YupanaSelectors } from './Yupana.selectors';
 
 export const YUPANA_LINK = 'https://app.yupana.finance';
