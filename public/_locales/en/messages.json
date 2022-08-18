@@ -1209,22 +1209,11 @@
   "noOperationsFound": {
     "message": "No operations found"
   },
-  "notificationsNotFound": {
-    "message": "Notifications not found"
-  },
   "pending": {
     "message": "pending..."
   },
   "applied": {
     "message": "Applied"
-  },
-  "yourRewardsAndLuck": {
-    "message": "Your rewards & luck $rewardAmount$",
-    "placeholders": {
-      "rewardAmount": {
-        "content": "$1"
-      }
-    }
   },
   "skipped": {
     "message": "Skipped"
@@ -1305,24 +1294,6 @@
   },
   "transaction": {
     "message": "Transaction"
-  },
-  "topBid": {
-    "message": "Top bid"
-  },
-  "bidder": {
-    "message": "Bidder"
-  },
-  "buyer": {
-    "message": "Buyer"
-  },
-  "seller": {
-    "message": "Seller"
-  },
-  "creator": {
-    "message": "Creator"
-  },
-  "offerer": {
-    "message": "Offerer"
   },
   "recipient": {
     "message": "Recipient"
@@ -1580,15 +1551,6 @@
   },
   "activity": {
     "message": "Activity"
-  },
-  "news": {
-    "message": "News"
-  },
-  "chainNotifications": {
-    "message": "Chain notifications"
-  },
-  "details": {
-    "message": "Details"
   },
   "manage": {
     "message": "Manage"
@@ -2262,9 +2224,6 @@
   "onboarding": {
     "message": "Onboarding"
   },
-  "notifications": {
-    "message": "Notifications"
-  },
   "next": {
     "message": "Next"
   },
@@ -2334,6 +2293,9 @@
   "start": {
     "message": "Start"
   },
+  "thanks": {
+    "message": "Ok thanks!"
+  },
   "browserVersionIsOutOfDate": {
     "message": "Your browser version is out of date, we strongly recommend updating to the newest version!"
   },
@@ -2355,6 +2317,48 @@
   "congratsDescription6": {
     "message": "PS: Good luck exploring the Tezos world!"
   },
+  "attention": {
+    "message": "Attention"
+  },
+  "attentionDescription": {
+    "message": "Never and under any pretext share your private keys and seed phrase with third parties."
+  },
+  "attentionListTitle1": {
+    "message": "Also, remember:"
+  },
+  "attentionListItem1": {
+    "message": "Your wallet can be targeted through a browser 0days or via other malicious extension installed;"
+  },
+  "attentionListItem2": {
+    "message": "The screen can potentially be manipulated by malicious software installed in the system;"
+  },
+  "attentionListItem3": {
+    "message": "User’s host machine can be targeted by malware to steal encrypted wallet;"
+  },
+  "attentionListItem4": {
+    "message": "Choosing weak passwords can reduce the ability of a wallet to resist adversarial brute-forcing."
+  },
+  "attentionListTitle2": {
+    "message": "To keep your assets safe, we recommend:"
+  },
+  "attentionListItem5": {
+    "message": "Move your funds from “hot” wallet to “cold” as soon as possible (Temple wallet supports integration with “Ledger Nano” devices);"
+  },
+  "attentionListItem6": {
+    "message": "Use separate browsers for web-surfing and wallet’s operating;"
+  },
+  "attentionListItem7": {
+    "message": "Use one browser’s tab at a time to make transactions;"
+  },
+  "attentionListItem8": {
+    "message": "Keep the wallet locked when it is not in usage."
+  },
+  "takeCare": {
+    "message": "Take care of your safety in the crypto world!"
+  },
+  "readMore": {
+    "message": "Read more by the "
+  },
   "deleteTokenConfirm": {
     "message": "Are you sure you want to delete this token?"
   },
@@ -2363,9 +2367,6 @@
   },
   "ledgerLiveSettingsDescription": {
     "message": "The new Ledger Live bridge allows you to use your Ledger in a different way."
-  },
-  "notificationsSettingsDescription": {
-    "message": "Configure the notifications you want to receive. (Platform updates and emergency notifications can’t be disabled)"
   },
   "lockUpSettings": {
     "message": "Extension lock-up"
@@ -2515,100 +2516,6 @@
   },
   "youSend": {
     "message": "You send:"
-  },
-  "youSent": {
-    "message": "You sent $amount$",
-    "placeholders": {
-      "amount": {
-        "content": "$1"
-      }
-    }
-  },
-  "youReceived": {
-    "message": "You received $amount$",
-    "placeholders": {
-      "amount": {
-        "content": "$1"
-      }
-    }
-  },
-  "youReceivedAnOffer": {
-    "message": "You received an offer $amount$",
-    "placeholders": {
-      "amount": {
-        "content": "$1"
-      }
-    }
-  },
-  "yourRoyalty": {
-    "message": "You royalty $amount$",
-    "placeholders": {
-      "amount": {
-        "content": "$1"
-      }
-    }
-  },
-  "youMadeBid": {
-    "message": "You made a bid $amount$",
-    "placeholders": {
-      "amount": {
-        "content": "$1"
-      }
-    }
-  },
-  "youReceivedBid": {
-    "message": "You received a bid $amount$",
-    "placeholders": {
-      "amount": {
-        "content": "$1"
-      }
-    }
-  },
-  "yourBidWasOutbid": {
-    "message": "Your bid $amount$ was outbid",
-    "placeholders": {
-      "amount": {
-        "content": "$1"
-      }
-    }
-  },
-  "auction": {
-    "message": "Auction"
-  },
-  "nftWasResold": {
-    "message": "NFT $collectibleName$ was resold",
-    "placeholders": {
-      "collectibleName": {
-        "content": "$1"
-      }
-    }
-  },
-  "onNft": {
-    "message": "On NFT $collectibleName$",
-    "placeholders": {
-      "collectibleName": {
-        "content": "$1"
-      }
-    }
-  },
-  "youSoldNft": {
-    "message": "You sold NFT $collectibleName$",
-    "placeholders": {
-      "collectibleName": {
-        "content": "$1"
-      }
-    }
-  },
-  "youBoughtNft": {
-    "message": "You bought NFT $collectibleName$",
-    "placeholders": {
-      "collectibleName": {
-        "content": "$1"
-      }
-    }
-  },
-  "readInOriginal": {
-    "message": "Read in original"
   },
   "sendTime": {
     "message": "Send time:"

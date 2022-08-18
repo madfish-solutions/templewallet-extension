@@ -1,4 +1,5 @@
 export enum TempleMobileSelectors {
   Download = 'TempleMobile/Download',
-  Skip = 'TempleMobile/Skip'
+  Skip = 'TempleMobile/Skip',
+  DownloadIcon = 'TempleMobile/DownloadIcon'
 }

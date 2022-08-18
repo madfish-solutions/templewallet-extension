@@ -24,8 +24,7 @@ import { useTempleClient } from 'lib/temple/front';
 import * as Woozie from 'lib/woozie';
 
 import RootSuspenseFallback from './a11y/RootSuspenseFallback';
-import { NewsNotificationsItemDetails } from './pages/Notifications/NewsNotifications/NewsNotificationsItemDetails';
-import { Notifications } from './pages/Notifications/Notifications';
+import AttentionPage from './pages/Onboarding/pages/AttentionPage';
 import { AliceBob } from './pages/SelectCrypto/AliceBob/AliceBob';
 import SelectCrypto from './pages/SelectCrypto/SelectCrypto';
 
@@ -81,14 +80,6 @@ const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
   ['/swap', onlyReady(() => <Swap />)],
   ['/delegate', onlyReady(() => <Delegate />)],
   ['/dapps', onlyReady(() => <DApps />)],
-  [
-    '/notifications/:tabSlug?',
-    onlyReady(params => <Notifications key={params.tabSlug ?? ''} tabSlug={params.tabSlug ?? undefined} />)
-  ],
-  [
-    '/notifications/news/:newsId?',
-    onlyReady(params => <NewsNotificationsItemDetails key={params.newsId ?? ''} id={params.newsId ?? ''} />)
-  ],
   ['/manage-assets/:assetType?', onlyReady(({ assetType }) => <ManageAssets assetType={assetType!} />)],
   ['/collectible/:assetSlug?', onlyReady(({ assetSlug }) => <CollectiblePage assetSlug={assetSlug!} />)],
   ['/add-asset', onlyReady(onlyInFullPage(() => <AddAsset />))],
@@ -96,6 +87,7 @@ const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
   ['/buy', onlyReady(onlyInFullPage(() => <SelectCrypto />))],
   ['/buy/crypto', onlyReady(onlyInFullPage(() => <BuyCrypto />))],
   ['/buy/debit/alice-bob', onlyReady(onlyInFullPage(() => <AliceBob />))],
+  ['/attention', onlyReady(onlyInFullPage(() => <AttentionPage />))],
   ['*', () => <Woozie.Redirect to="/" />]
 ]);
 
