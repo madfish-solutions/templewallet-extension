@@ -3801,6 +3801,7 @@ export enum Tzprofiles_Select_Column {
 
 export type LatestEventsQueryVariables = Exact<{
   account: Scalars['String'];
+  _lt?: InputMaybe<Scalars['timestamptz']>;
 }>;
 
 export type LatestEventsQuery = {
@@ -3810,6 +3811,7 @@ export type LatestEventsQuery = {
     type?: string | null;
     timestamp: any;
     amount?: any | null;
+    auction_id?: any | null;
     owner_address?: string | null;
     from_address?: string | null;
     to_address?: string | null;
@@ -3819,6 +3821,7 @@ export type LatestEventsQuery = {
     artist_address?: string | null;
     opid: any;
     ophash?: string | null;
+    price?: any | null;
     token?: {
       __typename?: 'tokens';
       fa2_address: string;
@@ -3835,7 +3838,7 @@ export type LatestEventsQuery = {
 };
 
 export const LatestEventsDocument = gql`
-  query LatestEvents($account: String!) {
+  query LatestEvents($account: String!, $_lt: timestamptz) {
     events(
       limit: 100
       where: {
@@ -3850,6 +3853,7 @@ export const LatestEventsDocument = gql`
             { to_address: { _eq: $account } }
           ]
         }
+        timestamp: { _lt: $_lt }
       }
       order_by: { opid: desc }
     ) {
@@ -3867,6 +3871,7 @@ export const LatestEventsDocument = gql`
         royalties_total
       }
       amount
+      auction_id
       owner_address
       from_address
       to_address
@@ -3876,6 +3881,7 @@ export const LatestEventsDocument = gql`
       artist_address
       opid
       ophash
+      price
     }
   }
 `;
@@ -3893,6 +3899,7 @@ export const LatestEventsDocument = gql`
  * const { data, loading, error } = useLatestEventsQuery({
  *   variables: {
  *      account: // value for 'account'
+ *      _lt: // value for '_lt'
  *   },
  * });
  */

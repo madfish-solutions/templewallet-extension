@@ -1581,6 +1581,9 @@
   "activity": {
     "message": "Activity"
   },
+  "events": {
+    "message": "Events"
+  },
   "news": {
     "message": "News"
   },

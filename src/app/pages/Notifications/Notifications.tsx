@@ -1,42 +1,57 @@
-import React, { FC, useCallback, useRef } from 'react';
+import React, { FC, useCallback, useEffect, useRef } from 'react';
 
 import classNames from 'clsx';
 
 import { ActivitySpinner } from 'app/atoms/ActivitySpinner';
 import { TabDescriptor, TabSwitcher } from 'app/atoms/TabSwitcher';
-import { useLatestEventsQuery } from 'generated/graphql';
 import { useIntersectionDetection } from 'lib/ui/use-intersection-detection';
 
 import { T } from '../../../lib/i18n/react';
-import { TempleNotificationsSharedStorageKey, useAccount, useLocalStorage } from '../../../lib/temple/front';
+import { TempleNotificationsSharedStorageKey, useLocalStorage } from '../../../lib/temple/front';
 import { useAppEnv } from '../../env';
 import { ReactComponent as BellGrayIcon } from '../../icons/bell-gray.svg';
 import { ReactComponent as NotFoundIcon } from '../../icons/notFound.svg';
 import PageLayout from '../../layouts/PageLayout';
-import { BakerRewardsActivity } from './ActivityNotifications/activities/BakerRewardsActivity';
 import { BidActivity } from './ActivityNotifications/activities/BidActivity';
 import { CollectibleActivity } from './ActivityNotifications/activities/CollectibleActivity';
 import { TransactionActivity } from './ActivityNotifications/activities/TransactionActivity';
-import { activityNotificationsMockData } from './ActivityNotifications/ActivityNotifications.data';
 import { ActivityType, StatusType } from './ActivityNotifications/ActivityNotifications.interface';
-import { mapLatestEventsToActivity } from './ActivityNotifications/util';
 import { NewsType } from './NewsNotifications/NewsNotifications.interface';
 import { NewsNotificationsItem } from './NewsNotifications/NewsNotificationsItem';
+import { useEvents } from './use-events.hook';
 import { useNews } from './use-news.hook';
+import { useReadEvents } from './use-read-events.hook';
 
 interface NotificationsProps {
   tabSlug?: string;
 }
 
-export const Notifications: FC<NotificationsProps> = ({ tabSlug = 'activity' }) => {
-  const isActivity = tabSlug === 'activity';
+const FIVE_SECONDS = 5000;
 
-  const { publicKeyHash } = useAccount();
+export const Notifications: FC<NotificationsProps> = ({ tabSlug = 'event' }) => {
+  const isEvent = tabSlug === 'event';
   // const { data: myBakerPkh } = useDelegate(publicKeyHash);
   // const chainId = useChainId(true);
 
-  const { isUnreadNews, news, isAllLoaded, handleUpdate: handleLoadMoreNews } = useNews();
-  const { data, error, loading } = useLatestEventsQuery({ variables: { account: publicKeyHash } });
+  const { isUnreadNews, news, isAllLoaded: isAllNewsLoaded, handleUpdate: handleLoadMoreNews } = useNews();
+  const { events, handleUpdate: handleLoadMoreEvents, loading, isAllLoaded: isAllEventsLoaded } = useEvents();
+
+  const { readManyEvents, isEventUnread, readEventsIds } = useReadEvents();
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      const ids = [];
+      for (const event of events) {
+        if (event.status === StatusType.New && isEventUnread(event)) {
+          ids.push(event.id);
+        }
+      }
+      readManyEvents(ids);
+    }, FIVE_SECONDS);
+    return () => {
+      clearTimeout(timeout);
+    };
+  }, [events, isEventUnread, readManyEvents]);
 
   // const getBakingHistory = useCallback(
   //   async (_k: string, accountPkh: string) => {
@@ -114,8 +129,6 @@ export const Notifications: FC<NotificationsProps> = ({ tabSlug = 'activity' }) 
   //     )?.cycle,
   //   [bakingHistory]
   // );
-
-  console.log(data, error, loading);
   // console.log(
   //   bakingHistory?.map(() =>
   //     getLuckAndRewardAndCycleStatus({
@@ -133,22 +146,16 @@ export const Notifications: FC<NotificationsProps> = ({ tabSlug = 'activity' }) 
     TempleNotificationsSharedStorageKey.NewsNotificationsEnabled,
     true
   );
-  const [chainNotificationsEnabled] = useLocalStorage<boolean>(
-    TempleNotificationsSharedStorageKey.ChainNotificationsEnabled,
-    true
-  );
 
-  const [readNewsIds] = useLocalStorage<string[]>(TempleNotificationsSharedStorageKey.UnreadNewsIds, []);
+  const [readNewsIds] = useLocalStorage<string[]>(TempleNotificationsSharedStorageKey.ReadNewsIds, []);
 
   const allNews = news.filter(newsItem => (newsNotificationsEnabled ? newsItem : newsItem.type !== NewsType.News));
 
   const NotificationOptions: TabDescriptor[] = [
     {
-      slug: 'activity',
-      i18nKey: 'activity',
-      isDotVisible:
-        activityNotificationsMockData.find(activity => activity.status === StatusType.New) !== undefined &&
-        chainNotificationsEnabled
+      slug: 'events',
+      i18nKey: 'events',
+      isDotVisible: readEventsIds.length < events.length
     },
     {
       slug: 'news',
@@ -161,15 +168,18 @@ export const Notifications: FC<NotificationsProps> = ({ tabSlug = 'activity' }) 
   const { popup } = useAppEnv();
 
   const handleIntersection = useCallback(() => {
-    if (!isAllLoaded) {
-      handleLoadMoreNews();
+    if (!isEvent) {
+      if (!isAllNewsLoaded) {
+        handleLoadMoreNews();
+      }
+    } else {
+      if (!isAllEventsLoaded) {
+        handleLoadMoreEvents();
+      }
     }
-  }, [isAllLoaded, handleLoadMoreNews]);
+  }, [isEvent, isAllEventsLoaded, isAllNewsLoaded, handleLoadMoreNews, handleLoadMoreEvents]);
 
   useIntersectionDetection(loadMoreRef, handleIntersection);
-
-  const events = mapLatestEventsToActivity(publicKeyHash, data);
-  // const events = activityNotificationsMockData;
 
   return (
     <PageLayout
@@ -189,26 +199,49 @@ export const Notifications: FC<NotificationsProps> = ({ tabSlug = 'activity' }) 
       />
       <div style={{ maxWidth: '360px', margin: 'auto' }} className="pb-8">
         <div className={popup ? 'mx-5' : ''}>
-          {isActivity ? (
-            events.length === 0 || !chainNotificationsEnabled ? (
+          {isEvent ? (
+            events.length === 0 ? (
               <NotificationsNotFound />
-            ) : loading ? (
-              <ActivitySpinner />
             ) : (
-              events.map((activity, index) => {
-                switch (activity.type) {
-                  case ActivityType.Transaction:
-                    return <TransactionActivity key={activity.id} index={index} {...activity} />;
-                  // case ActivityType.BakerRewards:
-                  //   return <BakerRewardsActivity key={activity.id} index={index} {...activity} />;
-                  case ActivityType.BidMade:
-                  case ActivityType.BidReceived:
-                  case ActivityType.BidOutbited:
-                    return <BidActivity key={activity.id} index={index} {...activity} />;
-                  default:
-                    return <CollectibleActivity key={activity.id} index={index} {...activity} />;
-                }
-              })
+              <>
+                {events.map((activity, index) => {
+                  switch (activity.type) {
+                    case ActivityType.Transaction:
+                      return (
+                        <TransactionActivity
+                          key={activity.id}
+                          index={index}
+                          {...activity}
+                          status={isEventUnread(activity) ? StatusType.New : StatusType.Read}
+                        />
+                      );
+                    // case ActivityType.BakerRewards:
+                    //   return <BakerRewardsActivity key={activity.id} index={index} {...activity} />;
+                    case ActivityType.BidMade:
+                    case ActivityType.BidReceived:
+                    case ActivityType.BidOutbited:
+                      return (
+                        <BidActivity
+                          key={activity.id}
+                          index={index}
+                          {...activity}
+                          status={isEventUnread(activity) ? StatusType.New : StatusType.Read}
+                        />
+                      );
+                    default:
+                      return (
+                        <CollectibleActivity
+                          key={activity.id}
+                          index={index}
+                          {...activity}
+                          status={isEventUnread(activity) ? StatusType.New : StatusType.Read}
+                        />
+                      );
+                  }
+                })}
+                {!isAllEventsLoaded && <div ref={loadMoreRef} className="w-full flex justify-center mt-5 mb-3"></div>}
+                {loading && <ActivitySpinner />}
+              </>
             )
           ) : allNews.length === 0 ? (
             <NotificationsNotFound />
@@ -222,8 +255,8 @@ export const Notifications: FC<NotificationsProps> = ({ tabSlug = 'activity' }) 
                   status={readNewsIds.indexOf(newsItem.id) >= 0 ? StatusType.Read : StatusType.New}
                 />
               ))}
-              {!isAllLoaded && <div ref={loadMoreRef} className="w-full flex justify-center mt-5 mb-3"></div>}
-              {!isAllLoaded && <ActivitySpinner />}
+              {!isAllNewsLoaded && <div ref={loadMoreRef} className="w-full flex justify-center mt-5 mb-3"></div>}
+              {!isAllNewsLoaded && <ActivitySpinner />}
             </>
           )}
         </div>

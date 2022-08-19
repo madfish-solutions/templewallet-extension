@@ -16,6 +16,7 @@ interface BaseActivityProps extends ActivityNotificationsInterface, PropsWithChi
 
 export const BaseActivity: FC<BaseActivityProps> = ({
   index,
+  id,
   title,
   description,
   createdAt,
@@ -44,7 +45,7 @@ export const BaseActivity: FC<BaseActivityProps> = ({
             status === StatusType.Read ? 'text-gray-700' : 'text-black'
           )}
         >
-          {truncateTitle(title)}
+          {truncateTitle(title)} {id}
         </div>
         {description && (
           <div className="text-gray-700 text-xs font-normal mb-1">{truncateDescription(description)}</div>

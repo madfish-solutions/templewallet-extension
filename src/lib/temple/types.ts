@@ -138,8 +138,11 @@ export enum TempleSharedStorageKey {
 export enum TempleNotificationsSharedStorageKey {
   NewsNotificationsEnabled = 'newsNotificationsEnabled',
   ChainNotificationsEnabled = 'chainNotificationsEnabled',
-  UnreadNewsIds = 'unreadNewsIds'
+  ReadNewsIds = 'readNewsIds',
+  ReadEventsIds = 'readEventsIds'
 }
+
+export const getReadEventsIds = (pkh: string) => TempleNotificationsSharedStorageKey.ReadEventsIds + pkh;
 
 export type TempleDAppSessions = Record<string, TempleDAppSession>;
 

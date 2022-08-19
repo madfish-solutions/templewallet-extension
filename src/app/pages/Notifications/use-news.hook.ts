@@ -19,7 +19,7 @@ export const useNews = () => {
 
   const [loading, setLoading] = useState(false);
   const [isAllLoaded, setIsAllLoaded] = useState<boolean>(false);
-  const [readNewsIds] = useLocalStorage<string[]>(TempleNotificationsSharedStorageKey.UnreadNewsIds, []);
+  const [readNewsIds] = useLocalStorage<string[]>(TempleNotificationsSharedStorageKey.ReadNewsIds, []);
   const [loadedNews, setLoadedNews] = useLocalStorage<NewsNotificationInterface[]>('loadedNews', []);
   const lastNewsIdRef = useRef<string>('');
 
