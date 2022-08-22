@@ -23,7 +23,10 @@ export const [NewsProvider, useNews] = constate((params: { suspense?: boolean })
   const [loading, setLoading] = useState(false);
   const [isAllLoaded, setIsAllLoaded] = useState<boolean>(false);
   const [readNewsIds] = useLocalStorage<string[]>(TempleNotificationsSharedStorageKey.ReadNewsIds, []);
-  const [loadedNews, setLoadedNews] = useLocalStorage<NewsNotificationInterface[]>('loadedNews', []);
+  const [loadedNews, setLoadedNews] = useLocalStorage<NewsNotificationInterface[]>(
+    TempleNotificationsSharedStorageKey.LoadedNewsKey,
+    []
+  );
   const lastNewsIdRef = useRef<string>('');
 
   useEffect(() => {

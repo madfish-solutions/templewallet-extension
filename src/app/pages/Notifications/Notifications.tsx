@@ -34,11 +34,11 @@ export const Notifications: FC<NotificationsProps> = ({ tabSlug = 'events' }) =>
   const {
     isUnreadNews,
     news,
+    handleUpdate: handleLoadMoreNews,
     loading: newsLoading,
-    isAllLoaded: isAllNewsLoaded,
-    handleUpdate: handleLoadMoreNews
+    isAllLoaded: isAllNewsLoaded
   } = useNews();
-  const { events, handleUpdate: handleLoadMoreEvents, loading, isAllLoaded: isAllEventsLoaded } = useEvents();
+  const { events, loading, isAllLoaded: isAllEventsLoaded } = useEvents();
 
   const { readManyEvents, isEventUnread, readEventsIds } = useReadEvents();
 
@@ -87,12 +87,8 @@ export const Notifications: FC<NotificationsProps> = ({ tabSlug = 'events' }) =>
       if (!isAllNewsLoaded) {
         handleLoadMoreNews();
       }
-    } else {
-      if (!isAllEventsLoaded) {
-        handleLoadMoreEvents();
-      }
     }
-  }, [isEvent, isAllEventsLoaded, isAllNewsLoaded, handleLoadMoreNews, handleLoadMoreEvents]);
+  }, [isEvent, isAllNewsLoaded, handleLoadMoreNews]);
 
   useIntersectionDetection(loadMoreRef, handleIntersection);
 
@@ -118,45 +114,41 @@ export const Notifications: FC<NotificationsProps> = ({ tabSlug = 'events' }) =>
             events.length === 0 ? (
               <NotificationsNotFound />
             ) : (
-              <>
-                {events.map((activity, index) => {
-                  switch (activity.type) {
-                    case ActivityType.Transaction:
-                      return (
-                        <TransactionActivity
-                          key={activity.id}
-                          index={index}
-                          {...activity}
-                          status={isEventUnread(activity) ? StatusType.New : StatusType.Read}
-                        />
-                      );
-                    // case ActivityType.BakerRewards:
-                    //   return <BakerRewardsActivity key={activity.id} index={index} {...activity} />;
-                    case ActivityType.BidMade:
-                    case ActivityType.BidReceived:
-                    case ActivityType.BidOutbited:
-                      return (
-                        <BidActivity
-                          key={activity.id}
-                          index={index}
-                          {...activity}
-                          status={isEventUnread(activity) ? StatusType.New : StatusType.Read}
-                        />
-                      );
-                    default:
-                      return (
-                        <CollectibleActivity
-                          key={activity.id}
-                          index={index}
-                          {...activity}
-                          status={isEventUnread(activity) ? StatusType.New : StatusType.Read}
-                        />
-                      );
-                  }
-                })}
-                {!isAllEventsLoaded && <div ref={loadMoreRef} className="w-full flex justify-center mt-5 mb-3"></div>}
-                {loading && <ActivitySpinner />}
-              </>
+              events.map((activity, index) => {
+                switch (activity.type) {
+                  case ActivityType.Transaction:
+                    return (
+                      <TransactionActivity
+                        key={activity.id}
+                        index={index}
+                        {...activity}
+                        status={isEventUnread(activity) ? StatusType.New : StatusType.Read}
+                      />
+                    );
+                  // case ActivityType.BakerRewards:
+                  //   return <BakerRewardsActivity key={activity.id} index={index} {...activity} />;
+                  case ActivityType.BidMade:
+                  case ActivityType.BidReceived:
+                  case ActivityType.BidOutbited:
+                    return (
+                      <BidActivity
+                        key={activity.id}
+                        index={index}
+                        {...activity}
+                        status={isEventUnread(activity) ? StatusType.New : StatusType.Read}
+                      />
+                    );
+                  default:
+                    return (
+                      <CollectibleActivity
+                        key={activity.id}
+                        index={index}
+                        {...activity}
+                        status={isEventUnread(activity) ? StatusType.New : StatusType.Read}
+                      />
+                    );
+                }
+              })
             )
           ) : allNews.length === 0 ? (
             <NotificationsNotFound />

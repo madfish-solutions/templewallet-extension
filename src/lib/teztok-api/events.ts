@@ -37,9 +37,9 @@ export type LatestEventsQuery = {
 
 const createEventsQuery = (pkh: string, timestamp = new Date().toISOString()) =>
   JSON.stringify({
-    query: `query LatestEvents($account: String!, $_lt: timestamptz) {
+    query: `query LatestEvents($account: String!, $_gt: timestamptz) {
   events(
-    limit: 100
+    ${timestamp ? '' : 'limit: 100'}
     where: {
       token: { metadata_status: { _eq: "processed" } }
       _and: {
@@ -52,7 +52,7 @@ const createEventsQuery = (pkh: string, timestamp = new Date().toISOString()) =>
           { to_address: { _eq: $account } }
         ]
       }
-      timestamp: { _lt: $_lt }
+      timestamp: { _gt: $_gt }
     }
     order_by: { opid: desc }
   ) {
@@ -83,7 +83,7 @@ const createEventsQuery = (pkh: string, timestamp = new Date().toISOString()) =>
     price
   }
 }`,
-    variables: { account: pkh, _lt: timestamp }
+    variables: { account: pkh, _gt: timestamp }
   });
 
 const createAuctionsParticipationQuery = (pkh: string) =>
