@@ -4,6 +4,7 @@ import classNames from 'clsx';
 
 import { ActivitySpinner } from 'app/atoms/ActivitySpinner';
 import { TabDescriptor, TabSwitcher } from 'app/atoms/TabSwitcher';
+import { ActivityType, StatusType } from 'lib/teztok-api/interfaces';
 import { useIntersectionDetection } from 'lib/ui/use-intersection-detection';
 
 import { T } from '../../../lib/i18n/react';
@@ -15,11 +16,10 @@ import PageLayout from '../../layouts/PageLayout';
 import { BidActivity } from './ActivityNotifications/activities/BidActivity';
 import { CollectibleActivity } from './ActivityNotifications/activities/CollectibleActivity';
 import { TransactionActivity } from './ActivityNotifications/activities/TransactionActivity';
-import { ActivityType, StatusType } from './ActivityNotifications/ActivityNotifications.interface';
 import { NewsType } from './NewsNotifications/NewsNotifications.interface';
 import { NewsNotificationsItem } from './NewsNotifications/NewsNotificationsItem';
-import { useEvents } from './use-events.hook';
-import { useNews } from './use-news.hook';
+import { useEvents } from './providers/events.provider';
+import { useNews } from './providers/news.provider';
 import { useReadEvents } from './use-read-events.hook';
 
 interface NotificationsProps {
@@ -30,8 +30,6 @@ const FIVE_SECONDS = 5000;
 
 export const Notifications: FC<NotificationsProps> = ({ tabSlug = 'events' }) => {
   const isEvent = tabSlug === 'events';
-  // const { data: myBakerPkh } = useDelegate(publicKeyHash);
-  // const chainId = useChainId(true);
 
   const {
     isUnreadNews,
@@ -58,95 +56,6 @@ export const Notifications: FC<NotificationsProps> = ({ tabSlug = 'events' }) =>
       clearTimeout(timeout);
     };
   }, [events, isEventUnread, readManyEvents]);
-
-  // const getBakingHistory = useCallback(
-  //   async (_k: string, accountPkh: string) => {
-  //     if (!isKnownChainId(chainId!) || !TZKT_API_BASE_URLS.has(chainId)) {
-  //       return [];
-  //     }
-  //     return (
-  //       (await getDelegatorRewards(chainId, {
-  //         address: accountPkh,
-  //         limit: 30
-  //       })) || []
-  //     );
-  //   },
-  //   [chainId]
-  // );
-  // const { data: bakingHistory, isValidating: loadingBakingHistory } = useRetryableSWR(
-  //   ['baking-history', publicKeyHash, myBakerPkh, chainId],
-  //   getBakingHistory,
-  //   { suspense: true, revalidateOnFocus: false, revalidateOnReconnect: false }
-  // );
-  // const rewardsPerEventHistory = useMemo(() => {
-  //   if (!bakingHistory) {
-  //     return [];
-  //   }
-  //   return bakingHistory.map(historyItem => {
-  //     const {
-  //       endorsements,
-  //       endorsementRewards,
-  //       futureBlocks,
-  //       futureBlockRewards,
-  //       futureEndorsements,
-  //       futureEndorsementRewards,
-  //       ownBlocks,
-  //       ownBlockRewards
-  //     } = historyItem;
-  //     const rewardPerOwnBlock = ownBlocks === 0 ? undefined : new BigNumber(ownBlockRewards).div(ownBlocks);
-  //     const rewardPerEndorsement = endorsements === 0 ? undefined : new BigNumber(endorsementRewards).div(endorsements);
-  //     const rewardPerFutureBlock = futureBlocks === 0 ? undefined : new BigNumber(futureBlockRewards).div(futureBlocks);
-  //     const rewardPerFutureEndorsement =
-  //       futureEndorsements === 0 ? undefined : new BigNumber(futureEndorsementRewards).div(futureEndorsements);
-  //     return {
-  //       rewardPerOwnBlock,
-  //       rewardPerEndorsement,
-  //       rewardPerFutureBlock,
-  //       rewardPerFutureEndorsement
-  //     };
-  //   });
-  // }, [bakingHistory]);
-  // const fallbackRewardsPerEvents = useMemo(() => {
-  //   return rewardsPerEventHistory.map(historyItem =>
-  //     allRewardsPerEventKeys.reduce(
-  //       (fallbackRewardsItem, key, index) => {
-  //         return reduceFunction(fallbackRewardsItem, key, index, historyItem, rewardsPerEventHistory);
-  //       },
-  //       {
-  //         rewardPerOwnBlock: new BigNumber(0),
-  //         rewardPerEndorsement: new BigNumber(0),
-  //         rewardPerFutureBlock: new BigNumber(0),
-  //         rewardPerFutureEndorsement: new BigNumber(0)
-  //       }
-  //     )
-  //   );
-  // }, [rewardsPerEventHistory]);
-  // const currentCycle = useMemo(
-  //   () =>
-  //     bakingHistory?.find(
-  //       ({ extraBlockRewards, endorsementRewards, ownBlockRewards, ownBlockFees, extraBlockFees }) => {
-  //         const totalCurrentRewards = new BigNumber(extraBlockRewards)
-  //           .plus(endorsementRewards)
-  //           .plus(ownBlockRewards)
-  //           .plus(ownBlockFees)
-  //           .plus(extraBlockFees);
-  //         return totalCurrentRewards.gt(0);
-  //       }
-  //     )?.cycle,
-  //   [bakingHistory]
-  // );
-  // console.log(
-  //   bakingHistory?.map(() =>
-  //     getLuckAndRewardAndCycleStatus({
-  //       x.content,
-  //       x.currentCycle,
-  //       fallbackRewardPerEndorsement,
-  //       fallbackRewardPerFutureBlock,
-  //       fallbackRewardPerFutureEndorsement,
-  //       fallbackRewardPerOwnBlock
-  //     })
-  //   )
-  // );
 
   const [newsNotificationsEnabled] = useLocalStorage<boolean>(
     TempleNotificationsSharedStorageKey.NewsNotificationsEnabled,

@@ -1,11 +1,11 @@
 import React, { FC } from 'react';
 
 import { T } from 'lib/i18n/react';
+import { ActivityType, BaseCollectibleActivityNotificationInterface } from 'lib/teztok-api/interfaces';
 
 import Money from '../../../../atoms/Money';
 import { useGasToken } from '../../../../hooks/useGasToken';
 import HashChip from '../../../../templates/HashChip';
-import { ActivityType, BaseCollectibleActivityNotificationInterface } from '../ActivityNotifications.interface';
 import { BaseActivity } from './BaseActivity';
 
 interface CollectibleActivityProps extends BaseCollectibleActivityNotificationInterface {

@@ -1,21 +1,24 @@
 import { useEffect, useRef, useState } from 'react';
 
-import { TempleNotificationsSharedStorageKey, useLocalStorage } from 'lib/temple/front';
+import constate from 'constate';
+
+import { useLocalStorage } from 'lib/temple/front/local-storage';
+import { TempleNotificationsSharedStorageKey } from 'lib/temple/types';
 import { getNewsItems } from 'lib/templewallet-api/news';
 
-import { welcomeNewsNotificationsMockData } from './NewsNotifications/NewsNotifications.data';
-import { NewsNotificationInterface, PlatformType, StatusType } from './NewsNotifications/NewsNotifications.interface';
+import { welcomeNewsNotificationsMockData } from '../NewsNotifications/NewsNotifications.data';
+import { NewsNotificationInterface, PlatformType, StatusType } from '../NewsNotifications/NewsNotifications.interface';
 
 // once per hour
-const NEWS_REFRESH_INTERVAL = 3600000;
+const NEWS_REFRESH_INTERVAL = 60 * 60 * 1000;
 
-export const useNews = () => {
+export const [NewsProvider, useNews] = constate((params: { suspense?: boolean }) => {
   const [newsNotificationsEnabled] = useLocalStorage<boolean>(
     TempleNotificationsSharedStorageKey.NewsNotificationsEnabled,
     true
   );
 
-  const [loadingDate, setLoadingDate] = useLocalStorage('loadingDate', 0);
+  const [loadingDate, setLoadingDate] = useLocalStorage(TempleNotificationsSharedStorageKey.LastDateLoadNews, 0);
 
   const [loading, setLoading] = useState(false);
   const [isAllLoaded, setIsAllLoaded] = useState<boolean>(false);
@@ -72,14 +75,18 @@ export const useNews = () => {
         .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
     : [];
 
+  const getNewsItem = (id: string) =>
+    [...welcomeNewsNotificationsMockData, ...news].find(newsItem => newsItem.id === id)!;
+
   return {
     isUnreadNews: readNewsIds.length < news.length,
     news,
     loading,
     isAllLoaded,
+    getNewsItem,
     handleUpdate
   };
-};
+});
 
 function unique(array: NewsNotificationInterface[], propertyName: keyof NewsNotificationInterface) {
   return array.filter((e, i) => array.findIndex(a => a[propertyName] === e[propertyName]) === i);

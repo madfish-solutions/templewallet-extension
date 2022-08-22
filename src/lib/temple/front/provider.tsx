@@ -1,5 +1,7 @@
 import React, { FC, useMemo } from 'react';
 
+import { EventsProvider } from 'app/pages/Notifications/providers/events.provider';
+import { NewsProvider } from 'app/pages/Notifications/providers/news.provider';
 import { CustomRpsContext } from 'lib/analytics';
 import { FiatCurrencyProvider } from 'lib/fiat-curency';
 import { PropsWithChildren } from 'lib/props-with-children';
@@ -35,7 +37,11 @@ const ConditionalReadyTemple: FC<PropsWithChildren> = ({ children }) => {
                   <FungibleTokensBalancesProvider>
                     <NonFungibleTokensBalancesProvider>
                       <SyncTokensProvider>
-                        <NewBlockTriggersProvider>{children}</NewBlockTriggersProvider>
+                        <NewBlockTriggersProvider>
+                          <NewsProvider>
+                            <EventsProvider>{children}</EventsProvider>
+                          </NewsProvider>
+                        </NewBlockTriggersProvider>
                       </SyncTokensProvider>
                     </NonFungibleTokensBalancesProvider>
                   </FungibleTokensBalancesProvider>

@@ -10,7 +10,7 @@ import {
   CollectibleSoldActivityNotificationInterface,
   StatusType,
   TransactionActivityNotificationInterface
-} from './ActivityNotifications.interface';
+} from 'lib/teztok-api/interfaces';
 
 const transactionNotifications: Array<TransactionActivityNotificationInterface> = [
   {

@@ -3,12 +3,12 @@ import React, { FC } from 'react';
 import classNames from 'clsx';
 
 import { T } from 'lib/i18n/react';
+import { ActivityNotificationsInterface, StatusType } from 'lib/teztok-api/interfaces';
 
 import { PropsWithChildren } from '../../../../../lib/props-with-children';
 import { ActivityIcon } from '../../components/ActivityIcon';
 import { formatDate } from '../../utils/formatDate';
 import { truncateDescription, truncateTitle } from '../../utils/truncate';
-import { ActivityNotificationsInterface, StatusType } from '../ActivityNotifications.interface';
 
 interface BaseActivityProps extends ActivityNotificationsInterface, PropsWithChildren {
   index: number;

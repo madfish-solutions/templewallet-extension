@@ -1,10 +1,11 @@
 import React, { FC, useMemo } from 'react';
 
+import { ActivityType } from 'lib/teztok-api/interfaces';
+
 import { ReactComponent as AuctionIcon } from '../../../icons/auction.svg';
 import { ReactComponent as GiftIcon } from '../../../icons/gift.svg';
 import { ReactComponent as MailIcon } from '../../../icons/mail.svg';
 import { ReactComponent as NftIcon } from '../../../icons/nft.svg';
-import { ActivityType } from '../ActivityNotifications/ActivityNotifications.interface';
 import { NotificationsIcon, NotificationsIconProps } from './NotificationsIcon';
 
 interface ActivityIconProps extends Pick<NotificationsIconProps, 'isDotVisible'> {

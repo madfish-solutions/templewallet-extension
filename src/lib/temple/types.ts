@@ -139,10 +139,14 @@ export enum TempleNotificationsSharedStorageKey {
   NewsNotificationsEnabled = 'newsNotificationsEnabled',
   ChainNotificationsEnabled = 'chainNotificationsEnabled',
   ReadNewsIds = 'readNewsIds',
-  ReadEventsIds = 'readEventsIds'
+  LastDateLoadNews = 'lastDateLoadNews',
+  ReadEventsIds = 'readEventsIds',
+  LastDateLoadEvents = 'lastDateLoadEvents'
 }
 
 export const getReadEventsIds = (pkh: string) => TempleNotificationsSharedStorageKey.ReadEventsIds + pkh;
+
+export const getLastDateLoadEvents = (pkh: string) => TempleNotificationsSharedStorageKey.LastDateLoadEvents + pkh;
 
 export type TempleDAppSessions = Record<string, TempleDAppSession>;
 

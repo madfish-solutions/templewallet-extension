@@ -17,6 +17,8 @@ export type LatestEventsQuery = {
     artist_address?: string | null;
     opid: any;
     ophash?: string | null;
+    start_time: any | null;
+    end_time: any | null;
     price?: any | null;
     token?: {
       __typename?: 'tokens';
@@ -33,24 +35,7 @@ export type LatestEventsQuery = {
   }>;
 };
 
-// const teztokApi = 'https://unstable-do-not-use-in-production-api.teztok.com/v1/graphql';
-
-// export const teztokQuery = makeBuildQueryFn<Record<string, unknown>, any>(teztokApi);
-
-// export const getNewsCount = teztokQuery<
-//   {
-//     welcome?: boolean;
-//     platform?: PlatformType;
-//     limit?: string;
-//     page?: string;
-//     timeLt?: string;
-//     timeGt?: string;
-//     sorted?: SortedBy;
-//   },
-//   { count: number }
-// >('GET', '/news/count', ['welcome', 'platform', 'limit', 'timeGt', 'timeLt']);
-
-const createData = (pkh: string, timestamp = new Date().toISOString()) =>
+const createEventsQuery = (pkh: string, timestamp = new Date().toISOString()) =>
   JSON.stringify({
     query: `query LatestEvents($account: String!, $_lt: timestamptz) {
   events(
@@ -101,6 +86,65 @@ const createData = (pkh: string, timestamp = new Date().toISOString()) =>
     variables: { account: pkh, _lt: timestamp }
   });
 
+const createAuctionsParticipationQuery = (pkh: string) =>
+  JSON.stringify({
+    query: `query AuctionParticipation($account: String = "") {
+      events(
+        limit: 100
+        order_by: { auction_id: desc }
+        where: {
+          type: { _eq: "OBJKT_BID_ENGLISH_AUCTION" }
+          bidder_address: { _eq: $account }
+        }
+        distinct_on: auction_id
+      ) {
+        auction_id
+        start_time
+        end_time
+      }
+    }`,
+    variables: { account: pkh }
+  });
+
+const populateAuctionQueries = (auctions: Array<number>) =>
+  auctions.map(
+    id => `auction_${id}: events(
+  limit: 1
+  order_by: { opid: desc }
+  where: {
+    type: { _eq: "OBJKT_BID_ENGLISH_AUCTION" }
+    auction_id: { _eq: ${id} }
+  }
+) {
+  ...eventsFragment
+}`
+  );
+
+const createBidsByAuctionQuery = (auctionIds: Array<number>) =>
+  JSON.stringify({
+    query: `query LatestBidsOnSelectedAuctions {
+      ${populateAuctionQueries(auctionIds)}
+    }
+    
+    fragment eventsFragment on events {
+      auction_id
+      bidder_address
+      price
+      timestamp
+      current_price
+      token {
+        fa2_address
+        token_id
+        artist_address
+        symbol
+        name
+      }
+      owner_address
+      seller_address
+      artist_address
+    }`
+  });
+
 const config = {
   url: 'https://unstable-do-not-use-in-production-api.teztok.com/v1/graphql',
   headers: {
@@ -114,7 +158,35 @@ export const getEvents = (pkh: string, timestamp?: string) => {
       method: 'POST',
       url: config.url,
       headers: config.headers,
-      data: createData(pkh, timestamp)
+      data: createEventsQuery(pkh, timestamp)
+    })
+    .then(x => ({ events: (x.data.data ?? { events: [] }).events }))
+    .catch(() => {
+      return { events: [] };
+    });
+};
+
+export const getAuctionsParticipation = (pkh: string) => {
+  return axios
+    .request<{ data?: LatestEventsQuery }>({
+      method: 'POST',
+      url: config.url,
+      headers: config.headers,
+      data: createAuctionsParticipationQuery(pkh)
+    })
+    .then(x => ({ events: (x.data.data ?? { events: [] }).events }))
+    .catch(() => {
+      return { events: [] };
+    });
+};
+
+export const getBidsByAuctions = (auctionIds: Array<number>) => {
+  return axios
+    .request<{ data?: LatestEventsQuery }>({
+      method: 'POST',
+      url: config.url,
+      headers: config.headers,
+      data: createBidsByAuctionQuery(auctionIds)
     })
     .then(x => ({ events: (x.data.data ?? { events: [] }).events }))
     .catch(() => {

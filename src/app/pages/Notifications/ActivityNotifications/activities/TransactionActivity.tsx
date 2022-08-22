@@ -2,10 +2,10 @@ import React, { FC } from 'react';
 
 import { T } from 'lib/i18n/react';
 import { useExplorerBaseUrls } from 'lib/temple/front/blockexplorer';
+import { TransactionActivityNotificationInterface } from 'lib/teztok-api/interfaces';
 
 import OpenInExplorerChip from '../../../../atoms/OpenInExplorerChip';
 import HashChip from '../../../../templates/HashChip';
-import { TransactionActivityNotificationInterface } from '../ActivityNotifications.interface';
 import { BaseActivity } from './BaseActivity';
 
 interface TransactionActivityProps extends TransactionActivityNotificationInterface {

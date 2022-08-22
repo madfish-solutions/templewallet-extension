@@ -1,6 +1,5 @@
 import { getReadEventsIds, useAccount, useLocalStorage } from 'lib/temple/front';
-
-import { ActivityNotificationsInterface } from './ActivityNotifications/ActivityNotifications.interface';
+import { ActivityNotificationsInterface } from 'lib/teztok-api/interfaces';
 
 export const useReadEvents = () => {
   const { publicKeyHash } = useAccount();

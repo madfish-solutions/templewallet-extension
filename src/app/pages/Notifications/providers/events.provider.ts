@@ -1,49 +1,58 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { TempleNotificationsSharedStorageKey, useAccount, useLocalStorage } from 'lib/temple/front';
+import constate from 'constate';
+
+import { useAccount } from 'lib/temple/front';
+import { useLocalStorage } from 'lib/temple/front/local-storage';
+import { getLastDateLoadEvents, TempleNotificationsSharedStorageKey } from 'lib/temple/types';
 import { getEvents, LatestEventsQuery } from 'lib/teztok-api/events';
+import { mapLatestEventsToActivity } from 'lib/teztok-api/util';
 
-import { mapLatestEventsToActivity } from './ActivityNotifications/util';
+// once per block
+const EVENTS_REFRESH_INTERVAL = 30 * 1000;
 
-export const useEvents = () => {
+export const [EventsProvider, useEvents] = constate((params: { suspense?: boolean }) => {
   const [chainNotificationsEnabled] = useLocalStorage<boolean>(
     TempleNotificationsSharedStorageKey.ChainNotificationsEnabled,
     true
   );
 
   const { publicKeyHash } = useAccount();
+
+  const [loadingDate, setLoadingDate] = useLocalStorage(getLastDateLoadEvents(publicKeyHash), Date.now());
+
   const [isAllLoaded, setIsAllLoaded] = useState<boolean>(false);
   const [loadedEvents, setLoadedEvents] = useState<LatestEventsQuery>({ events: [] });
   const lastEventsIdRef = useRef<string>('');
   const [loading, setLoading] = useState(false);
 
+  const loadEvents = useCallback(async (pkh: string) => {
+    setLoading(true);
+    const data = await getEvents(pkh);
+    setIsAllLoaded(false);
+    const events = data ?? { events: [] };
+    if (events.events.length > 0) {
+      setIsAllLoaded(false);
+    } else {
+      setIsAllLoaded(true);
+    }
+    setLoadedEvents(events);
+    setLoading(false);
+  }, []);
+
   useEffect(() => {
     (async () => {
       try {
-        // if (Date.now() - loadingDate < NEWS_REFRESH_INTERVAL || !newsNotificationsEnabled) {
-        //   return;
-        // }
+        // if (!chainNotificationsEnabled || !publicKeyHash || Date.now() - loadingDate < EVENTS_REFRESH_INTERVAL) {
         if (!chainNotificationsEnabled || !publicKeyHash) {
           return;
         }
-        // setLoadingDate(Date.now());
-        setLoading(true);
-        const data = await getEvents(publicKeyHash);
-        setIsAllLoaded(false);
-        const events = data ?? { events: [] };
-        if (events.events.length > 0) {
-          setIsAllLoaded(false);
-        } else {
-          setIsAllLoaded(true);
-        }
-        setLoadedEvents(events);
-        setLoading(false);
+        loadEvents(publicKeyHash);
       } catch {
         setLoading(false);
       }
-      setLoading(false);
     })();
-  }, [publicKeyHash, chainNotificationsEnabled]);
+  }, [publicKeyHash, chainNotificationsEnabled, loadEvents]);
 
   const handleUpdate = async () => {
     if (loadedEvents.events.length > 0 && !isAllLoaded) {
@@ -77,4 +86,4 @@ export const useEvents = () => {
     isAllLoaded,
     handleUpdate
   };
-};
+});

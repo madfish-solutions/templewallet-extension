@@ -4,13 +4,13 @@ import classNames from 'clsx';
 
 import { T } from 'lib/i18n/react';
 import { useExplorerBaseUrls } from 'lib/temple/front/blockexplorer';
+import { BakerRewardsActivityNotificationInterface } from 'lib/teztok-api/interfaces';
 
 import Money from '../../../../atoms/Money';
 import OpenInExplorerChip from '../../../../atoms/OpenInExplorerChip';
 import { useAppEnv } from '../../../../env';
 import { useGasToken } from '../../../../hooks/useGasToken';
 import HashChip from '../../../../templates/HashChip';
-import { BakerRewardsActivityNotificationInterface } from '../ActivityNotifications.interface';
 import { BaseActivity } from './BaseActivity';
 
 interface BakerRewardsActivityProps extends BakerRewardsActivityNotificationInterface {

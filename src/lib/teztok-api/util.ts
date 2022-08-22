@@ -14,7 +14,7 @@ import {
   CollectibleSoldActivityNotificationInterface,
   StatusType,
   TransactionActivityNotificationInterface
-} from './ActivityNotifications.interface';
+} from './interfaces';
 
 export const mapLatestEventsToActivity = (publicKeyHash: string, data?: LatestEventsQuery) => {
   const result: Array<
