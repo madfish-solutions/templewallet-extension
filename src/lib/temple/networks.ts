@@ -47,15 +47,6 @@ export const NETWORKS: TempleNetwork[] = [
     disabled: false
   },
   {
-    id: 'tzbeta-mainnet',
-    name: 'Mainnet @tzbeta.net',
-    description: 'Highly available Tezos Mainnet nodes operated by Blockscale',
-    type: 'main',
-    rpcBaseURL: 'https://rpc.tzbeta.net',
-    color: '#10B981',
-    disabled: false
-  },
-  {
     id: 'tezie-mainnet',
     name: 'Mainnet @api.tez.ie',
     description: 'Highly available Tezos Mainnet nodes operated by ECAD Labs',
