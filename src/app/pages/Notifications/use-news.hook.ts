@@ -35,12 +35,14 @@ export const useNews = () => {
           platform: PlatformType.Extension,
           timeGt: new Date(loadingDate).toISOString()
         });
+        console.log('news', news);
         setIsAllLoaded(false);
         setLoadedNews(prev => unique([...prev, ...news.map(x => ({ ...x, status: StatusType.New }))], 'id'));
-        setLoading(false);
       } catch {
-        setLoading(false);
+        console.log('catch');
+        setIsAllLoaded(true);
       }
+      console.log('finally');
       setLoading(false);
     })();
   }, [loadingDate, setLoadedNews, setLoadingDate, newsNotificationsEnabled]);

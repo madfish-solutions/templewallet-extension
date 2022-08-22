@@ -1,7 +1,7 @@
 import BigNumber from 'bignumber.js';
 
-import { LatestEventsQuery } from 'generated/graphql';
 import { t } from 'lib/i18n/react';
+import { LatestEventsQuery } from 'lib/teztok-api/events';
 
 import {
   ActivityType,
@@ -302,7 +302,7 @@ const predicateEventTypeToValidActivityType = (
     }
   }
   if (VALID_ACTIVITIES[ActivityType.BidMade].indexOf(type ?? '') >= 0) {
-    if (publicKeyHash === buyer_address) {
+    if (publicKeyHash === buyer_address || publicKeyHash === bidder_address) {
       return ActivityType.BidMade;
     }
   }

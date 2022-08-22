@@ -1,8 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-import { LatestEventsQuery } from 'generated/graphql';
 import { TempleNotificationsSharedStorageKey, useAccount, useLocalStorage } from 'lib/temple/front';
-import { getEvents } from 'lib/teztok-api/events';
+import { getEvents, LatestEventsQuery } from 'lib/teztok-api/events';
 
 import { mapLatestEventsToActivity } from './ActivityNotifications/util';
 

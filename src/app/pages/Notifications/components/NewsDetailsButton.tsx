@@ -11,7 +11,7 @@ interface NewsDetailsButtonProps {
 }
 
 export const NewsDetailsButton: FC<NewsDetailsButtonProps> = ({ newsId }) => {
-  const [, setReadNewsIds] = useLocalStorage<string[]>(TempleNotificationsSharedStorageKey.UnreadNewsIds, []);
+  const [, setReadNewsIds] = useLocalStorage<string[]>(TempleNotificationsSharedStorageKey.ReadNewsIds, []);
 
   const handleMarkAsRead = () => {
     setReadNewsIds(prev => [...prev.filter(x => x !== newsId), newsId]);

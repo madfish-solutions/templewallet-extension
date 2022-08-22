@@ -28,12 +28,18 @@ interface NotificationsProps {
 
 const FIVE_SECONDS = 5000;
 
-export const Notifications: FC<NotificationsProps> = ({ tabSlug = 'event' }) => {
-  const isEvent = tabSlug === 'event';
+export const Notifications: FC<NotificationsProps> = ({ tabSlug = 'events' }) => {
+  const isEvent = tabSlug === 'events';
   // const { data: myBakerPkh } = useDelegate(publicKeyHash);
   // const chainId = useChainId(true);
 
-  const { isUnreadNews, news, isAllLoaded: isAllNewsLoaded, handleUpdate: handleLoadMoreNews } = useNews();
+  const {
+    isUnreadNews,
+    news,
+    loading: newsLoading,
+    isAllLoaded: isAllNewsLoaded,
+    handleUpdate: handleLoadMoreNews
+  } = useNews();
   const { events, handleUpdate: handleLoadMoreEvents, loading, isAllLoaded: isAllEventsLoaded } = useEvents();
 
   const { readManyEvents, isEventUnread, readEventsIds } = useReadEvents();
@@ -256,7 +262,7 @@ export const Notifications: FC<NotificationsProps> = ({ tabSlug = 'event' }) => 
                 />
               ))}
               {!isAllNewsLoaded && <div ref={loadMoreRef} className="w-full flex justify-center mt-5 mb-3"></div>}
-              {!isAllNewsLoaded && <ActivitySpinner />}
+              {newsLoading && <ActivitySpinner />}
             </>
           )}
         </div>

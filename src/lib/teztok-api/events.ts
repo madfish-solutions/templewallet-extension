@@ -1,6 +1,37 @@
-import axios, { Method } from 'axios';
+import axios from 'axios';
 
-import { LatestEventsQuery, LatestEventsQueryResult } from 'generated/graphql';
+export type LatestEventsQuery = {
+  __typename?: 'query_root';
+  events: Array<{
+    __typename?: 'events';
+    type?: string | null;
+    timestamp: any;
+    amount?: any | null;
+    auction_id?: any | null;
+    owner_address?: string | null;
+    from_address?: string | null;
+    to_address?: string | null;
+    bidder_address?: string | null;
+    buyer_address?: string | null;
+    seller_address?: string | null;
+    artist_address?: string | null;
+    opid: any;
+    ophash?: string | null;
+    price?: any | null;
+    token?: {
+      __typename?: 'tokens';
+      fa2_address: string;
+      token_id: string;
+      artist_address?: string | null;
+      symbol?: string | null;
+      name?: string | null;
+      description?: string | null;
+      price?: any | null;
+      royalties?: any | null;
+      royalties_total?: any | null;
+    } | null;
+  }>;
+};
 
 // const teztokApi = 'https://unstable-do-not-use-in-production-api.teztok.com/v1/graphql';
 
@@ -79,7 +110,7 @@ const config = {
 
 export const getEvents = (pkh: string, timestamp?: string) => {
   return axios
-    .request<LatestEventsQueryResult>({
+    .request<{ data?: LatestEventsQuery }>({
       method: 'POST',
       url: config.url,
       headers: config.headers,
