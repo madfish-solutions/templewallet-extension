@@ -6,10 +6,17 @@ on:
       - master
       - development
 
+env:
+  TEMPLE_WALLET_SEGMENT_WRITE_KEY: ${{ secrets.TEMPLE_WALLET_SEGMENT_WRITE_KEY }}
+  TEMPLE_WALLET_EXOLIX_API_KEY: ${{ secrets.TEMPLE_WALLET_EXOLIX_API_KEY }}
+  TEMPLE_WALLET_EVERSTAKE_API_KEY: ${{ secrets.TEMPLE_WALLET_EVERSTAKE_API_KEY }}
+  TEMPLE_WALLET_EVERSTAKE_LINK_ID: ${{ secrets.TEMPLE_WALLET_EVERSTAKE_LINK_ID }}
+
 jobs:
   pull-request-check:
     name: Checks if ts, lint, unit tests & build works
     runs-on: ubuntu-latest
+    environment: production
     steps:
       - name: Clone repository
         uses: actions/checkout@v2

@@ -8,7 +8,7 @@ export interface ChangelogItem {
 const datav1_14_9: ChangelogItem = {
   version: '1.14.9',
   data: [
-    <>Added new test networks: Katmandu, Monday net, Daily net</>,
+    <>Added new test networks: Kathmandunet, Monday net, Daily net</>,
     <>Exolix API update</>,
     <>Delegation section update</>,
     <>

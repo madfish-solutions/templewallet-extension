@@ -1,5 +1,7 @@
 import React, { ChangeEvent, useCallback, useEffect, useMemo, useState } from 'react';
 
+import { useDebouncedCallback } from 'use-debounce';
+
 import { useAnalyticsState } from '../../../../lib/analytics/use-analytics-state.hook';
 import { T } from '../../../../lib/i18n/react';
 import makeBuildQueryFn from '../../../../lib/makeBuildQueryFn';
@@ -15,6 +17,8 @@ const buildQuery = makeBuildQueryFn<Record<string, string>, any>('https://temple
 const getSignedAliceBobUrl = buildQuery('GET', '/api/alice-bob-sign', ['amount', 'userId', 'walletAddress']);
 const getAliceBobPairInfo = buildQuery('GET', '/api/alice-bob-pair-info');
 
+const REQUEST_LATENCY = 200;
+
 export const AliceBob = () => {
   const { analyticsState } = useAnalyticsState();
   const { publicKeyHash: walletAddress } = useAccount();
@@ -23,54 +27,59 @@ export const AliceBob = () => {
   const [maxExchangeAmount, setMaxExchangeAmount] = useState(29500);
 
   const [amount, setAmount] = useState(0);
-  const [isLoading, setIsLoading] = useState(false);
+  const [link, setLink] = useState('');
+  const [isLinkLoading, setIsLinkLoading] = useState(false);
+  const [isMinMaxLoading, setIsMinMaxLoading] = useState(false);
+
   const isError = useMemo(
     () => minExchangeAmount === 0 && maxExchangeAmount === 0,
     [minExchangeAmount, maxExchangeAmount]
   );
-
-  useEffect(() => {
-    (async () => {
-      getAliceBobPairInfo({})
-        .then(response => {
-          setMinExchangeAmount(response.minAmount);
-          setMaxExchangeAmount(response.maxAmount);
-        })
-        .catch(() => {
-          setMinExchangeAmount(0);
-          setMaxExchangeAmount(0);
-        });
-    })();
-  }, []);
-
-  const onAmountChange = useCallback(
-    (e: ChangeEvent<HTMLInputElement>) => {
-      setAmount(Number(e.target.value));
-    },
-    [setAmount]
-  );
-
-  const submitExchangeHandler = useCallback(async () => {
-    try {
-      setIsLoading(true);
-
-      const response = await getSignedAliceBobUrl({
-        amount: amount.toString(),
-        userId: analyticsState.userId,
-        walletAddress
-      });
-
-      setIsLoading(false);
-      window.open(response.url, '_blank');
-    } catch {}
-  }, [amount, analyticsState.userId, walletAddress]);
-
   const isMinAmountError = useMemo(() => amount !== 0 && amount < minExchangeAmount, [amount, minExchangeAmount]);
   const isMaxAmountError = useMemo(() => amount !== 0 && amount > maxExchangeAmount, [amount, maxExchangeAmount]);
   const disabledProceed = useMemo(
     () => isMinAmountError || isMaxAmountError || amount === 0,
     [isMinAmountError, isMaxAmountError, amount]
   );
+
+  useEffect(() => {
+    (async () => {
+      setIsMinMaxLoading(true);
+      getAliceBobPairInfo({})
+        .then(response => {
+          setMinExchangeAmount(response.minAmount);
+          setMaxExchangeAmount(response.maxAmount);
+          setIsMinMaxLoading(false);
+        })
+        .catch(() => {
+          setMinExchangeAmount(0);
+          setMaxExchangeAmount(0);
+          setIsMinMaxLoading(false);
+        });
+    })();
+  }, []);
+
+  const linkRequest = useCallback(
+    async (e: ChangeEvent<HTMLInputElement>) => {
+      if (!disabledProceed) {
+        try {
+          setIsLinkLoading(true);
+
+          const response = await getSignedAliceBobUrl({
+            amount: e.target.value,
+            userId: analyticsState.userId,
+            walletAddress
+          });
+
+          setLink(response.url);
+          setIsLinkLoading(false);
+        } catch {}
+      }
+    },
+    [disabledProceed, analyticsState.userId, walletAddress]
+  );
+
+  const debouncedLinkRequest = useDebouncedCallback(linkRequest, REQUEST_LATENCY);
 
   return (
     <PageLayout
@@ -97,19 +106,36 @@ export const AliceBob = () => {
           currency="UAH"
           minAmount={`${minExchangeAmount}.00`}
           maxAmount={`${maxExchangeAmount}.00`}
+          disabled={isMinMaxLoading}
           isMinAmountError={isMinAmountError}
           isMaxAmountError={isMaxAmountError}
-          onChangeInputHandler={onAmountChange}
+          onChangeInputHandler={e => {
+            setAmount(Number(e.target.value));
+            debouncedLinkRequest(e);
+          }}
         />
         <FormSubmitButton
           className="w-full justify-center border-none mt-6"
-          style={{ background: '#4299e1' }}
+          style={{
+            background: '#4299e1',
+            padding: 0
+          }}
           disabled={disabledProceed}
-          loading={isLoading}
+          loading={isLinkLoading}
           testID={SelectCryptoSelectors.AliceBob}
-          onClick={submitExchangeHandler}
         >
-          <T id="next" />
+          <a
+            href={link}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full h-auto"
+            style={{
+              paddingTop: '0.625rem',
+              paddingBottom: '0.625rem'
+            }}
+          >
+            <T id={isMinMaxLoading ? 'updatingMinMax' : 'next'} />
+          </a>
         </FormSubmitButton>
         <div className="border-solid border-gray-300" style={{ borderTopWidth: 1 }}>
           <p className="mt-6">

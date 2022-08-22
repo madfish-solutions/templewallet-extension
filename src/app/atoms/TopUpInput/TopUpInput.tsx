@@ -73,6 +73,7 @@ interface Props {
   setCurrency?: (coin: string) => void;
   onChangeInputHandler?: (value: ChangeEvent<HTMLInputElement>) => void;
   value?: number;
+  disabled?: boolean;
   readOnly?: boolean;
   rates?: GetRateData;
   minAmount?: string;
@@ -89,6 +90,7 @@ export const TopUpInput: FC<Props> = ({
   currency,
   setCurrency = () => void 0,
   value,
+  disabled,
   readOnly = false,
   onChangeInputHandler,
   rates = { toAmount: 0, rate: 0, minAmount: '0' },
@@ -220,6 +222,7 @@ export const TopUpInput: FC<Props> = ({
             style={{ fontSize: 23, borderRadius: 6 }}
             type="text"
             maxLength={15}
+            disabled={disabled}
             onChange={onChangeInputHandler}
           />
         </div>
