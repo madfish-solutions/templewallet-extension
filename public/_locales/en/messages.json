@@ -115,8 +115,45 @@
   "skip": {
     "message": "Skip"
   },
-  "download": {
-    "message": "Download"
+  "checkNow": {
+    "message": "Check now"
+  },
+  "theLendingProtocol": {
+    "message": "The lending protocol on Tezos."
+  },
+  "alreadyLaunched": {
+    "message": "Already Launched!"
+  },
+  "borrowLandEarn": {
+    "message": "Borrow, Land and Earn on your favorite tokens!"
+  },
+  "tokensAreSupported": {
+    "message": "TEZ, cTEZ, kUSD, tzBTC, uUSD, and uBTC are supported."
+  },
+  "independenceDayOfUkraine": {
+    "message": "Independence Day of Ukraine"
+  },
+  "zeroSwapCommissionTitle": {
+    "message": "Zero Swap commissions for two weeks - celebrate the $text$ with us!",
+    "placeholders": {
+      "text": {
+        "content": "$1"
+      }
+    }
+  },
+  "zeroSwapCommissionDescription": {
+    "message": "From $date1$ till $date2$, Temple users may conduct trades via our router in the $text$ section without our dev commissions.\n\nEnjoy the most lucrative exchange rates and trade without fees in one place.",
+    "placeholders": {
+      "date1": {
+        "content": "$1"
+      },
+      "date2": {
+        "content": "$2"
+      },
+      "text": {
+        "content": "$3"
+      }
+    }
   },
   "okGotIt": {
     "message": "Got it"
@@ -130,12 +167,6 @@
   "update": {
     "message": "Update"
   },
-  "templeIsOnMobile": {
-    "message": "Temple is on Mobile"
-  },
-  "getTempleMobileAndroid": {
-  "message": "Get the Android version of the wallet now"
-},
   "addNewToken": {
     "message": "Add new Token"
   },

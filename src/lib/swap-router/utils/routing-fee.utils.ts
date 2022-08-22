@@ -2,6 +2,7 @@ import { TezosToolkit } from '@taquito/taquito';
 import { BigNumber } from 'bignumber.js';
 import { getTradeInputOperation, loadAssetContract, Trade, TokenStandardEnum } from 'swap-router-sdk';
 
+import { checkIsPromotionTime } from '../../../app/layouts/PageLayout/utils/checkIsPromotionTime';
 import { ROUTING_FEE_ADDRESS } from '../config';
 
 export const getRoutingFeeTransferParams = async (
@@ -10,9 +11,11 @@ export const getRoutingFeeTransferParams = async (
   senderPublicKeyHash: string,
   tezos: TezosToolkit
 ) => {
+  const isPromotionTime = checkIsPromotionTime();
+
   const tradeInputOperation = getTradeInputOperation(trade);
 
-  if (inputTokenMutezAmount && tradeInputOperation) {
+  if (inputTokenMutezAmount && tradeInputOperation && !isPromotionTime) {
     const feeAmount = inputTokenMutezAmount.minus(tradeInputOperation.aTokenAmount);
 
     if (tradeInputOperation.aTokenSlug === 'tez') {
