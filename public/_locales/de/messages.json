@@ -2100,7 +2100,12 @@
     "message": "Austauschdetails eingeben"
   },
   "exchangeDetailsDescription": {
-    "message": "Laden Sie Ihr TEZ-Guthaben sofort mit 25 Kryptowährungen auf"
+    "message": "Laden Sie Ihr TEZ-Guthaben sofort mit $number$ Kryptowährungen auf",
+    "placeholders": {
+      "number": {
+        "content": "$1"
+      }
+    }
   },
   "privacyAndPolicyLinks": {
     "message": "Indem Sie auf Aufladen klicken, stimmen Sie den \n$termsOfUse$ und $privacyPolicy$ zu",
@@ -2180,18 +2185,6 @@
   },
   "step": {
     "message": "Schritt"
-  },
-  "dogeNote": {
-    "message": "Hinweis für DOGE: Übertragungsnetz - MainNet DOGE. Bitte zahlen Sie nur DOGE (MainNet) ein. Andernfalls können Sie Ihr Vermögen dauerhaft verlieren."
-  },
-  "polygonNote": {
-    "message": "Hinweis für MATIC: Übertragungsnetz - Ethereum (ETH). Bitte zahlen Sie nur MATIC (ERC20) ein. Andernfalls können Sie Ihr Vermögen dauerhaft verlieren."
-  },
-  "usdtNote": {
-    "message": "Hinweis für USDT: Übertragungsnetz - Ethereum (ETH) ERC20. Bitte zahlen Sie nur USDT (ERC20) ein. Andernfalls können Sie Ihr Vermögen dauerhaft verlieren."
-  },
-  "cakeNote": {
-    "message": "Hinweis für CAKE: Übertragungsnetz - Binance Smart Chain (BSC). Bitte zahlen Sie nur CAKE (BEP20) ein. Andernfalls können Sie Ihr Vermögen dauerhaft verlieren."
   },
   "collectibles": {
     "message": "Sammlerstücke"

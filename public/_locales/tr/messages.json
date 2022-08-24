@@ -2100,7 +2100,12 @@
     "message": "Alım satım bilgilerini girin"
   },
   "exchangeDetailsDescription": {
-    "message": "TEZ bakiyenizi anında 25 kripto para ile doldurun"
+    "message": "TEZ bakiyenizi anında $number$ kripto para ile doldurun",
+    "placeholders": {
+      "number": {
+        "content": "$1"
+      }
+    }
   },
   "privacyAndPolicyLinks": {
     "message": "Doldur seçeneğine tıklayarak $termsOfUse$ \nve $privacyPolicy$ hükümlerini kabul etmiş olursunuz",
@@ -2180,18 +2185,6 @@
   },
   "step": {
     "message": "Adım"
-  },
-  "dogeNote": {
-    "message": "DOGE için Not: transfer ağı - MainNet DOGE. Lütfen yalnızca DOGE yatırın (MainNet). Aksi halde varlıklarınızı kalıcı olarak kaybedebilirsiniz."
-  },
-  "polygonNote": {
-    "message": "MATIC için Not: transfer ağı - Ethereum (ETH). Lütfen yalnızca MATIC yatırın (ERC20). Aksi halde varlıklarınızı kalıcı olarak kaybedebilirsiniz."
-  },
-  "usdtNote": {
-    "message": "USDT için Not: transfer ağı - Ethereum (ETH) ERC20. Lütfen yalnızca USDT yatırın (ERC20). Aksi halde varlıklarınızı kalıcı olarak kaybedebilirsiniz."
-  },
-  "cakeNote": {
-    "message": "CAKE için Not: transfer ağı - Binance Smart Chain (BSC). Lütfen yalnızca CAKE yatırın (BEP20). Aksi halde varlıklarınızı kalıcı olarak kaybedebilirsiniz."
   },
   "collectibles": {
     "message": "Koleksiyonluklar"

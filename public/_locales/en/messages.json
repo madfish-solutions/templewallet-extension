@@ -632,6 +632,20 @@
   "send": {
     "message": "Send"
   },
+  "get": {
+    "message": "Get"
+  },
+  "exolixWarningNote": {
+    "message": "Please, deposit only $currencyName$ transfer network $networkName$. Otherwise, you may lose your assets permanently.",
+    "placeholders": {
+      "currencyName": {
+        "content": "$1"
+      },
+      "networkName": {
+        "content": "$1"
+      }
+    }
+  },
   "baking": {
     "message": "Baking"
   },
@@ -1906,9 +1920,6 @@
   "max": {
     "message": "Max"
   },
-  "currencyUnavailable": {
-    "message": "The currency is temporarily unavailable."
-  },
   "balance": {
     "message": "Balance:"
   },
@@ -2387,13 +2398,18 @@
     "message": "Buy With Exolix"
   },
   "buyWithExolixDescription": {
-    "message": "Exchange 25 cryptocurrencies to TEZ instantly and without registration"
+    "message": "Exchange $number$ cryptocurrencies to TEZ instantly and without registration",
+    "placeholders": {
+      "number": {
+        "content": "$1"
+      }
+    }
   },
   "buyWithMoonPay": {
     "message": "Buy With MoonPay"
   },
   "buyWithMoonPayDescription": {
-    "message": "Crypto just got easy.Buy TEZ in minutes using Visa, Mastercard, and all major debit and credit cards."
+    "message": "Crypto just got easy. Buy TEZ in minutes using Visa, Mastercard, and all major debit and credit cards."
   },
   "buyWithRamp": {
     "message": "Buy With Ramp"
@@ -2457,7 +2473,12 @@
     "message": "Enter exchange details"
   },
   "exchangeDetailsDescription": {
-    "message": "Top up your TEZ balance instantly with 25 cryptocurrencies"
+    "message": "Top up your TEZ balance instantly with $number$ cryptocurrencies",
+    "placeholders": {
+      "number": {
+        "content": "$1"
+      }
+    }
   },
   "privacyAndPolicyLinks": {
     "message": "By clicking $buttonContent$ you agree with \n$termsOfUse$ and $privacyPolicy$",
@@ -2540,18 +2561,6 @@
   },
   "step": {
     "message": "Step"
-  },
-  "dogeNote": {
-    "message": "Note for DOGE: transfer network - MainNet DOGE. Please, deposit only DOGE (MainNet). Otherwise, you may lose your assets permanently."
-  },
-  "polygonNote": {
-    "message": "Note for MATIC: transfer network - Ethereum (ETH). Please, deposit only MATIC (ERC20). Otherwise, you may lose your assets permanently."
-  },
-  "usdtNote": {
-    "message": "Note for USDT: transfer network - Ethereum (ETH) ERC20. Please, deposit only USDT (ERC20). Otherwise, you may lose your assets permanently."
-  },
-  "cakeNote": {
-    "message": "Note for CAKE: transfer network - Binance Smart Chain (BSC). Please, deposit only CAKE (BEP20). Otherwise, you may lose your assets permanently."
   },
   "collectibles": {
     "message": "Collectibles"
