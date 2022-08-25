@@ -1,10 +1,8 @@
-import { getReadEventsIds, useAccount, useLocalStorage } from 'lib/temple/front';
+import { TempleNotificationsSharedStorageKey, useLocalStorage } from 'lib/temple/front';
 import { ActivityNotificationsInterface } from 'lib/teztok-api/interfaces';
 
 export const useReadEvents = () => {
-  const { publicKeyHash } = useAccount();
-
-  const [readEventsIds, setReaded] = useLocalStorage<string[]>(getReadEventsIds(publicKeyHash), []);
+  const [readEventsIds, setReaded] = useLocalStorage<string[]>(TempleNotificationsSharedStorageKey.ReadEventsIds, []);
 
   const readOneEvent = (id: string) => {
     setReaded(prev => [...prev, id]);

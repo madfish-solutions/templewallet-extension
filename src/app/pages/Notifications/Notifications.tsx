@@ -38,7 +38,7 @@ export const Notifications: FC<NotificationsProps> = ({ tabSlug = 'events' }) =>
     loading: newsLoading,
     isAllLoaded: isAllNewsLoaded
   } = useNews();
-  const { events, loading, isAllLoaded: isAllEventsLoaded } = useEvents();
+  const { events } = useEvents();
 
   const { readManyEvents, isEventUnread, readEventsIds } = useReadEvents();
 

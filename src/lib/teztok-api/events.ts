@@ -1,38 +1,45 @@
 import axios from 'axios';
 
+type GeneralEventsType = {
+  __typename?: 'events';
+  type?: string | null;
+  timestamp: any;
+  amount?: any | null;
+  auction_id?: any | null;
+  owner_address?: string | null;
+  from_address?: string | null;
+  to_address?: string | null;
+  bidder_address?: string | null;
+  buyer_address?: string | null;
+  seller_address?: string | null;
+  artist_address?: string | null;
+  opid: any;
+  ophash?: string | null;
+  start_time: any | null;
+  end_time: any | null;
+  price?: any | null;
+  token?: {
+    __typename?: 'tokens';
+    fa2_address: string;
+    token_id: string;
+    artist_address?: string | null;
+    symbol?: string | null;
+    name?: string | null;
+    description?: string | null;
+    price?: any | null;
+    royalties?: any | null;
+    royalties_total?: any | null;
+  } | null;
+};
+
 export type LatestEventsQuery = {
   __typename?: 'query_root';
-  events: Array<{
-    __typename?: 'events';
-    type?: string | null;
-    timestamp: any;
-    amount?: any | null;
-    auction_id?: any | null;
-    owner_address?: string | null;
-    from_address?: string | null;
-    to_address?: string | null;
-    bidder_address?: string | null;
-    buyer_address?: string | null;
-    seller_address?: string | null;
-    artist_address?: string | null;
-    opid: any;
-    ophash?: string | null;
-    start_time: any | null;
-    end_time: any | null;
-    price?: any | null;
-    token?: {
-      __typename?: 'tokens';
-      fa2_address: string;
-      token_id: string;
-      artist_address?: string | null;
-      symbol?: string | null;
-      name?: string | null;
-      description?: string | null;
-      price?: any | null;
-      royalties?: any | null;
-      royalties_total?: any | null;
-    } | null;
-  }>;
+  events: Array<GeneralEventsType>;
+};
+
+export type OutbidedEventsQuery = {
+  __typename?: 'query_root';
+  events: Array<GeneralEventsType & { currentPrice?: any | null }>;
 };
 
 const createEventsQuery = (pkh: string, timestamp = new Date().toISOString()) =>
@@ -44,6 +51,7 @@ const createEventsQuery = (pkh: string, timestamp = new Date().toISOString()) =>
       token: { metadata_status: { _eq: "processed" } }
       _and: {
         _or: [
+          { bidder_address: { _eq: $account } }
           { artist_address: { _eq: $account } }
           { owner_address: { _eq: $account } }
           { buyer_address: { _eq: $account } }
@@ -86,15 +94,16 @@ const createEventsQuery = (pkh: string, timestamp = new Date().toISOString()) =>
     variables: { account: pkh, _gt: timestamp }
   });
 
-const createAuctionsParticipationQuery = (pkh: string) =>
+const createAuctionsParticipationQuery = (pkh: string, timestamp = new Date().toISOString()) =>
   JSON.stringify({
-    query: `query AuctionParticipation($account: String = "") {
+    query: `query AuctionParticipation($account: String = "", $_gt: timestamptz) {
       events(
-        limit: 100
+        ${timestamp ? '' : 'limit: 100'}
         order_by: { auction_id: desc }
         where: {
           type: { _eq: "OBJKT_BID_ENGLISH_AUCTION" }
           bidder_address: { _eq: $account }
+          timestamp: { _gt: $_gt }
         }
         distinct_on: auction_id
       ) {
@@ -103,12 +112,13 @@ const createAuctionsParticipationQuery = (pkh: string) =>
         end_time
       }
     }`,
-    variables: { account: pkh }
+    variables: { account: pkh, _gt: timestamp }
   });
 
 const populateAuctionQueries = (auctions: Array<number>) =>
-  auctions.map(
-    id => `auction_${id}: events(
+  auctions
+    .map(
+      id => `auction_${id}: events(
   limit: 1
   order_by: { opid: desc }
   where: {
@@ -118,7 +128,8 @@ const populateAuctionQueries = (auctions: Array<number>) =>
 ) {
   ...eventsFragment
 }`
-  );
+    )
+    .join('\n');
 
 const createBidsByAuctionQuery = (auctionIds: Array<number>) =>
   JSON.stringify({
@@ -166,13 +177,13 @@ export const getEvents = (pkh: string, timestamp?: string) => {
     });
 };
 
-export const getAuctionsParticipation = (pkh: string) => {
+export const getAuctionsParticipation = (pkh: string, timestamp?: string) => {
   return axios
     .request<{ data?: LatestEventsQuery }>({
       method: 'POST',
       url: config.url,
       headers: config.headers,
-      data: createAuctionsParticipationQuery(pkh)
+      data: createAuctionsParticipationQuery(pkh, timestamp)
     })
     .then(x => ({ events: (x.data.data ?? { events: [] }).events }))
     .catch(() => {
@@ -182,7 +193,7 @@ export const getAuctionsParticipation = (pkh: string) => {
 
 export const getBidsByAuctions = (auctionIds: Array<number>) => {
   return axios
-    .request<{ data?: LatestEventsQuery }>({
+    .request<{ data?: OutbidedEventsQuery }>({
       method: 'POST',
       url: config.url,
       headers: config.headers,

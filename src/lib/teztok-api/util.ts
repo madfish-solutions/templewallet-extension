@@ -297,7 +297,7 @@ const predicateEventTypeToValidActivityType = (
     }
   }
   if (VALID_ACTIVITIES[ActivityType.CollectibleSellOffer].indexOf(type ?? '') >= 0) {
-    if (publicKeyHash !== offerAddress) {
+    if (publicKeyHash !== buyer_address) {
       return ActivityType.CollectibleSellOffer;
     }
   }

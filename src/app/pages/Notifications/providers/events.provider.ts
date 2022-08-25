@@ -1,11 +1,17 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import constate from 'constate';
 
 import { useAccount } from 'lib/temple/front';
-import { useLocalStorage } from 'lib/temple/front/local-storage';
+import { getLocalStorageKey, setLocalStorageValue, useLocalStorage } from 'lib/temple/front/local-storage';
 import { getLastDateLoadEvents, getLoadedEventsKey, TempleNotificationsSharedStorageKey } from 'lib/temple/types';
-import { getEvents, LatestEventsQuery } from 'lib/teztok-api/events';
+import {
+  getAuctionsParticipation,
+  getBidsByAuctions,
+  getEvents,
+  LatestEventsQuery,
+  OutbidedEventsQuery
+} from 'lib/teztok-api/events';
 import { mapLatestEventsToActivity } from 'lib/teztok-api/util';
 
 // once per block
@@ -17,125 +23,70 @@ export const [EventsProvider, useEvents] = constate((params: { suspense?: boolea
     true
   );
 
+  const [time, setTime] = useState(Date.now());
+
   const { publicKeyHash } = useAccount();
 
-  const [loadingDate, setLoadingDate] = useLocalStorage(getLastDateLoadEvents(publicKeyHash), Date.now());
-
   const [isAllLoaded, setIsAllLoaded] = useState<boolean>(false);
-  const [loadedEvents, setLoadedEvents] = useLocalStorage<LatestEventsQuery>(getLoadedEventsKey(publicKeyHash), {
-    events: []
-  });
-  const lastEventsIdRef = useRef<string>('');
+
   const [loading, setLoading] = useState(false);
 
-  const loadEvents = useCallback(async (pkh: string) => {
-    setLoading(true);
-    setLoadingDate(Date.now());
-    const data = await getEvents(pkh);
-    setIsAllLoaded(false);
-    const events = data ?? { events: [] };
-    if (events.events.length > 0) {
+  const loadMoreEvents = useCallback(
+    async (pkh: string) => {
+      const storedEvents = getLocalStorageKey<LatestEventsQuery>(getLoadedEventsKey(publicKeyHash), {
+        events: []
+      });
+      const loadingDate = getLocalStorageKey(getLastDateLoadEvents(publicKeyHash), 0);
+      const timestamp =
+        storedEvents.events.length > 0 ? storedEvents.events[0].timestamp : new Date(loadingDate).toISOString();
+      setLoading(true);
+      setLocalStorageValue(getLastDateLoadEvents(publicKeyHash), Date.now());
+      const [eventsData, auctionsData] = await Promise.all([
+        getEvents(pkh, timestamp),
+        getAuctionsParticipation(pkh, timestamp)
+      ]);
+      let bidsData: OutbidedEventsQuery = { events: [] };
+      if (auctionsData.events.length > 0) {
+        bidsData = await getBidsByAuctions(auctionsData.events.map(x => x.auction_id));
+      }
       setIsAllLoaded(false);
-    } else {
-      setIsAllLoaded(true);
-    }
-    setLoadedEvents(events);
-    setLoading(false);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const loadMoreEvents = useCallback(async (pkh: string, timestamp: string) => {
-    setLoading(true);
-    setLoadingDate(Date.now());
-    const data = await getEvents(pkh, timestamp);
-    // const data = await getEvents(pkh);
-    setIsAllLoaded(false);
-    const events = data ?? { events: [] };
-    if (events.events.length > 0) {
-      setIsAllLoaded(false);
-    } else {
-      setIsAllLoaded(true);
-    }
-    setLoadedEvents(prev => {
-      let array = prev.events.concat(events.events);
-      array = array.filter((e, i) => array.findIndex(a => a['opid'] === e['opid']) === i);
-      return { events: array };
-    });
-    setLoading(false);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+      const generalEvents = eventsData ?? { events: [] };
+      const outbidEvents = bidsData ?? { events: [] };
+      if (generalEvents.events.length > 0) {
+        setIsAllLoaded(false);
+      } else {
+        setIsAllLoaded(true);
+      }
+      let filteredEvents = storedEvents.events
+        .concat(generalEvents.events)
+        .concat(outbidEvents.events.map(x => ({ ...x, price: x.currentPrice })));
+      filteredEvents = filteredEvents.filter((e, i) => filteredEvents.findIndex(a => a['opid'] === e['opid']) === i);
+      setLocalStorageValue(getLoadedEventsKey(publicKeyHash), { events: filteredEvents });
+      setLoading(false);
+      setTime(Date.now());
+    },
+    [publicKeyHash]
+  );
 
   useEffect(() => {
-    try {
-      // if (!chainNotificationsEnabled || !publicKeyHash || Date.now() - loadingDate < EVENTS_REFRESH_INTERVAL) {
-      if (!chainNotificationsEnabled || !publicKeyHash) {
+    function tick() {
+      const loadingDate = getLocalStorageKey(getLastDateLoadEvents(publicKeyHash), 0);
+      if (!chainNotificationsEnabled || !publicKeyHash || Date.now() - loadingDate < EVENTS_REFRESH_INTERVAL) {
         return;
       }
-      loadEvents(publicKeyHash);
-    } catch {
-      setLoading(false);
+      loadMoreEvents(publicKeyHash);
     }
-  }, [publicKeyHash, chainNotificationsEnabled, loadEvents]);
+    const id = setTimeout(tick, EVENTS_REFRESH_INTERVAL);
+    return () => clearTimeout(id);
+  }, [chainNotificationsEnabled, publicKeyHash, time, loadMoreEvents]);
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      try {
-        if (!chainNotificationsEnabled || !publicKeyHash) {
-          return;
-        }
-        loadMoreEvents(
-          publicKeyHash,
-          loadedEvents.events.length > 0
-            ? loadedEvents.events[0].timestamp
-            : `${new Date().toISOString().split('.')[0]}+00:00`
-        );
-      } catch {
-        setLoading(false);
-      }
-    }, EVENTS_REFRESH_INTERVAL);
-    return clearTimeout(timer);
-  }, [publicKeyHash, chainNotificationsEnabled, loadedEvents.events, loadMoreEvents]);
+  const eventsStored = getLocalStorageKey<LatestEventsQuery>(getLoadedEventsKey(publicKeyHash), { events: [] });
 
-  // const handleUpdate = async () => {
-  //   try {
-  //     // if (!chainNotificationsEnabled || !publicKeyHash || Date.now() - loadingDate < EVENTS_REFRESH_INTERVAL) {
-  //     if (!chainNotificationsEnabled || !publicKeyHash) {
-  //       return;
-  //     }
-  //     loadEvents(publicKeyHash);
-  //     setLoadingDate(Date.now());
-  //   } catch {
-  //     setLoading(false);
-  //   }
-  //   // if (loadedEvents.events.length > 0 && !isAllLoaded) {
-  //   //   const lastEvents = loadedEvents.events[loadedEvents.events.length - 1];
-  //   //   if (lastEvents) {
-  //   //     if (lastEvents.opid !== lastEventsIdRef.current) {
-  //   //       lastEventsIdRef.current = lastEvents.opid;
-  //   //       setLoading(true);
-
-  //   //       const data = await getEvents(publicKeyHash, lastEvents.timestamp);
-  //   //       const events = data ?? { events: [] };
-  //   //       if (events.events.length === 0) {
-  //   //         setIsAllLoaded(true);
-  //   //       }
-  //   //       setLoading(false);
-  //   //       setLoadedEvents(prev => {
-  //   //         let array = prev.events.concat(events.events);
-  //   //         array = array.filter((e, i) => array.findIndex(a => a['opid'] === e['opid']) === i);
-  //   //         return { events: array };
-  //   //       });
-  //   //     }
-  //   //   }
-  //   // }
-  // };
-
-  const events = useMemo(() => mapLatestEventsToActivity(publicKeyHash, loadedEvents), [publicKeyHash, loadedEvents]);
+  const events = useMemo(() => mapLatestEventsToActivity(publicKeyHash, eventsStored), [publicKeyHash, eventsStored]);
 
   return {
     events,
     loading,
     isAllLoaded
-    // handleUpdate
   };
 });
