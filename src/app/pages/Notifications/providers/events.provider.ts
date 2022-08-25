@@ -5,14 +5,9 @@ import constate from 'constate';
 import { useAccount } from 'lib/temple/front';
 import { getLocalStorageKey, setLocalStorageValue, useLocalStorage } from 'lib/temple/front/local-storage';
 import { getLastDateLoadEvents, getLoadedEventsKey, TempleNotificationsSharedStorageKey } from 'lib/temple/types';
-import {
-  getAuctionsParticipation,
-  getBidsByAuctions,
-  getEvents,
-  LatestEventsQuery,
-  OutbidedEventsQuery
-} from 'lib/teztok-api/events';
-import { mapLatestEventsToActivity } from 'lib/teztok-api/util';
+import { getAuctionsParticipation, getBidsByAuctions, getEvents } from 'lib/teztok-api/events';
+import { LatestEventsQuery, OutbidedEventsQuery } from 'lib/teztok-api/interfaces';
+import { mapLatestEventsToActivity } from 'lib/teztok-api/mappers';
 
 // once per block
 const EVENTS_REFRESH_INTERVAL = 30 * 1000;
