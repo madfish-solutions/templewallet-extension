@@ -51,12 +51,12 @@ export const SetWalletPassword: FC<SetWalletPasswordProps> = ({
 
   const isImportFromKeystoreFile = Boolean(keystorePassword);
 
-  const isKeystorePasswordWick = isImportFromKeystoreFile && !PASSWORD_PATTERN.test(keystorePassword!);
+  const isKeystorePasswordWeak = isImportFromKeystoreFile && !PASSWORD_PATTERN.test(keystorePassword!);
 
   const [focused, setFocused] = useState(false);
 
   const { control, watch, register, handleSubmit, errors, triggerValidation, formState } = useForm<FormData>({
-    defaultValues: { shouldUseKeystorePassword: !isKeystorePasswordWick, analytics: true, skipOnboarding: false },
+    defaultValues: { shouldUseKeystorePassword: !isKeystorePasswordWeak, analytics: true, skipOnboarding: false },
     mode: 'onChange'
   });
   const submitting = formState.isSubmitting;
@@ -93,7 +93,7 @@ export const SetWalletPassword: FC<SetWalletPasswordProps> = ({
   const onSubmit = useCallback(
     async (data: FormData) => {
       if (submitting) return;
-      if (shouldUseKeystorePassword && isKeystorePasswordWick) return;
+      if (shouldUseKeystorePassword && isKeystorePasswordWeak) return;
 
       const password = ownMnemonic
         ? data.shouldUseKeystorePassword
@@ -121,7 +121,7 @@ export const SetWalletPassword: FC<SetWalletPasswordProps> = ({
     [
       submitting,
       shouldUseKeystorePassword,
-      isKeystorePasswordWick,
+      isKeystorePasswordWeak,
       ownMnemonic,
       keystorePassword,
       setAnalyticsEnabled,
@@ -153,9 +153,9 @@ export const SetWalletPassword: FC<SetWalletPasswordProps> = ({
               })
             }
           />
-          {shouldUseKeystorePassword && isKeystorePasswordWick && (
+          {shouldUseKeystorePassword && isKeystorePasswordWeak && (
             <div className="text-xs text-red-500">
-              <T id="wickKeystorePassword" />
+              <T id="weakKeystorePassword" />
             </div>
           )}
         </div>
