@@ -4,13 +4,14 @@ import { LatestEventsQuery, OutbidedEventsQuery } from './interfaces';
 import { createAuctionsParticipationQuery, createBidsByAuctionQuery, createEventsQuery } from './queries';
 
 const config = {
-  url: 'https://api.teztok.com/v1/graphql',
+  // url: 'https://api.teztok.com/v1/graphql',
+  url: 'http://localhost:8080/v1/graphql',
   headers: {
     accept: 'application/json'
   }
 };
 
-export const getEvents = (pkh: string, timestamp?: string) => {
+export const getEvents = (pkh: string, timestamp?: string): Promise<LatestEventsQuery> => {
   return axios
     .request<{ data?: LatestEventsQuery }>({
       method: 'POST',
@@ -24,7 +25,7 @@ export const getEvents = (pkh: string, timestamp?: string) => {
     });
 };
 
-export const getAuctionsParticipation = (pkh: string, timestamp?: string) => {
+export const getAuctionsParticipation = (pkh: string, timestamp?: string): Promise<LatestEventsQuery> => {
   return axios
     .request<{ data?: LatestEventsQuery }>({
       method: 'POST',
@@ -38,7 +39,7 @@ export const getAuctionsParticipation = (pkh: string, timestamp?: string) => {
     });
 };
 
-export const getBidsByAuctions = (auctionIds: Array<number>) => {
+export const getBidsByAuctions = (auctionIds: Array<number>): Promise<OutbidedEventsQuery> => {
   return axios
     .request<{ data?: OutbidedEventsQuery }>({
       method: 'POST',
