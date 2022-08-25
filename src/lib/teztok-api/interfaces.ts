@@ -93,3 +93,45 @@ export interface BidOutbitedActivityNotificationInterface extends BaseBidActivit
   bidderAddress: string;
   topBidAmount: string;
 }
+
+type GeneralEventsType = {
+  __typename?: 'events';
+  type?: string | null;
+  timestamp: any;
+  amount?: any | null;
+  auction_id?: any | null;
+  owner_address?: string | null;
+  from_address?: string | null;
+  to_address?: string | null;
+  bidder_address?: string | null;
+  buyer_address?: string | null;
+  seller_address?: string | null;
+  artist_address?: string | null;
+  opid: any;
+  ophash?: string | null;
+  start_time: any | null;
+  end_time: any | null;
+  price?: any | null;
+  token?: {
+    __typename?: 'tokens';
+    fa2_address: string;
+    token_id: string;
+    artist_address?: string | null;
+    symbol?: string | null;
+    name?: string | null;
+    description?: string | null;
+    price?: any | null;
+    royalties?: any | null;
+    royalties_total?: any | null;
+  } | null;
+};
+
+export type LatestEventsQuery = {
+  __typename?: 'query_root';
+  events: Array<GeneralEventsType>;
+};
+
+export type OutbidedEventsQuery = {
+  __typename?: 'query_root';
+  events: Array<GeneralEventsType & { currentPrice?: any | null }>;
+};
