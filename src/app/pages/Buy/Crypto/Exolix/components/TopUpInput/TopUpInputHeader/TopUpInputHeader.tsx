@@ -4,11 +4,12 @@ import classNames from 'clsx';
 
 import { ReactComponent as ChevronDownIcon } from 'app/icons/chevron-down.svg';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
+import { getBigErrorText, getSmallErrorText } from 'app/pages/Buy/utils/errorText.utils';
 import { T, t } from 'lib/i18n/react';
 import { PopperRenderProps } from 'lib/ui/Popper';
 
 import { toLocalFormat } from '../../../../../../../../lib/i18n/numbers';
-import { handleNumberInput } from '../../../../../utils/handleNumberInput';
+import { handleNumberInput } from '../../../../../utils/handleNumberInput.util';
 import { getProperNetworkFullName } from '../../../exolix.util';
 import { StaticCurrencyImage } from '../StaticCurrencyImage/StaticCurrencyImage';
 import { TopUpInputProps } from '../TopUpInput.props';
@@ -205,6 +206,3 @@ const CurrencyText: React.FC<
     <span className={classNames(className, 'text-xs')}>{coin}</span>
   </>
 );
-
-const getSmallErrorText = (flag?: boolean) => (flag ? 'text-red-700' : 'text-gray-500');
-const getBigErrorText = (flag?: boolean) => (flag ? 'text-red-700' : 'text-gray-700');

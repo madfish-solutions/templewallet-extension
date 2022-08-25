@@ -4,7 +4,8 @@ import classNames from 'clsx';
 
 import { T } from 'lib/i18n/react';
 
-import { handleNumberInput } from '../../../utils/handleNumberInput';
+import { getBigErrorText, getSmallErrorText } from '../../../utils/errorText.utils';
+import { handleNumberInput } from '../../../utils/handleNumberInput.util';
 import { CurrencyComponent } from './CurrencyComponent';
 
 interface Props {
@@ -60,7 +61,7 @@ export const TopUpInput: FC<Props> = ({
           className="flex justify-center items-center border-solid border-gray-300"
           style={{ borderRightWidth: 1, width: 111 }}
         >
-          <CurrencyComponent type="fiatSelector" label={currency} />
+          <CurrencyComponent label={currency} />
         </div>
         <div className="flex flex-1">
           <input
@@ -80,6 +81,3 @@ export const TopUpInput: FC<Props> = ({
     </>
   );
 };
-
-const getSmallErrorText = (flag?: boolean) => (flag ? 'text-red-700' : 'text-gray-500');
-const getBigErrorText = (flag?: boolean) => (flag ? 'text-red-700' : 'text-gray-700');

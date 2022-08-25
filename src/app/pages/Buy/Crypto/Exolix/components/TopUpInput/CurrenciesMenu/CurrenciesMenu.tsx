@@ -4,9 +4,9 @@ import { List } from 'react-virtualized';
 
 import DropdownWrapper from 'app/atoms/DropdownWrapper';
 import Spinner from 'app/atoms/Spinner/Spinner';
-import { useAppEnv } from 'app/env';
 import { T } from 'lib/i18n/react';
 
+import { useAppEnvStyle } from '../../../../../../../hooks/useAppEnvStyle';
 import { CurrencyInterface } from '../../../exolix.interface';
 import { CurrencyOption } from './CurrencyOption/CurrencyOption';
 
@@ -20,7 +20,7 @@ interface Props {
 }
 
 export const CurrenciesMenu: FC<Props> = ({ value, options, isLoading = false, opened, setOpened, onChange }) => {
-  const appEnv = useAppEnv();
+  const { dropdownWidth } = useAppEnvStyle();
 
   const handleOptionClick = (newValue: CurrencyInterface) => {
     if (value.code !== newValue.code || value.network !== newValue.network) {
@@ -53,7 +53,7 @@ export const CurrenciesMenu: FC<Props> = ({ value, options, isLoading = false, o
       )}
       {/*// @ts-ignore*/}
       <List
-        width={appEnv.popup ? 328 : 382}
+        width={dropdownWidth}
         height={options.length > 2 ? 240 : 132}
         rowCount={options.length}
         rowHeight={65}

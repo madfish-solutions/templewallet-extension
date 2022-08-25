@@ -78,7 +78,7 @@ export const Debit: FC = () => {
               'bg-blue-500',
               'w-full'
             )}
-            href="app/pages/Buy/Debit/Debit.tsx?crypto=FILM"
+            href="https://buy.chainbits.com/?crypto=FILM"
             target="_blank"
             rel="noopener noreferrer"
           >
