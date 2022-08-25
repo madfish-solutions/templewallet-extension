@@ -1,39 +1,21 @@
-import React, { FC, useCallback, useState } from 'react';
+import React, { FC, useCallback } from 'react';
 
 import classNames from 'clsx';
 import { Controller, FieldError, NestDataObject, useForm } from 'react-hook-form';
-
-import PasswordStrengthIndicator, { PasswordValidation } from 'lib/ui/PasswordStrengthIndicator';
 
 import { T, t } from '../../../../lib/i18n/react';
 import { decryptKukaiSeedPhrase } from '../../../../lib/temple/front';
 import { AlertFn, useAlert } from '../../../../lib/ui/dialog';
 import FileInput, { FileInputProps } from '../../../atoms/FileInput';
-import FormField, { PASSWORD_ERROR_CAPTION } from '../../../atoms/FormField';
+import FormField from '../../../atoms/FormField';
 import FormSubmitButton from '../../../atoms/FormSubmitButton';
-import {
-  lettersNumbersMixtureRegx,
-  PASSWORD_PATTERN,
-  specialCharacterRegx,
-  uppercaseLowercaseMixtureRegx
-} from '../../../defaults';
 import { ReactComponent as TrashbinIcon } from '../../../icons/bin.svg';
 import { ReactComponent as PaperclipIcon } from '../../../icons/paperclip.svg';
-import { MIN_PASSWORD_LENGTH } from '../SetWalletPassword';
 
 interface FormData {
   keystoreFile?: FileList;
   keystorePassword?: string;
 }
-
-const validateKeystoreFile = (value?: FileList) => {
-  const file = value?.item(0);
-
-  if (file && !file.name.endsWith('.tez')) {
-    return t('selectedFileFormatNotSupported');
-  }
-  return true;
-};
 
 interface ImportFromKeystoreFileProps {
   setSeedPhrase: (seed: string) => void;
@@ -47,33 +29,10 @@ export const ImportFromKeystoreFile: FC<ImportFromKeystoreFileProps> = ({
   setIsSeedEntered
 }) => {
   const customAlert = useAlert();
-  const [focusedKeystore, setFocusedKeystore] = useState(false);
-
   const { setValue, control, register, handleSubmit, errors, triggerValidation, formState } = useForm<FormData>({
     mode: 'onChange'
   });
   const submitting = formState.isSubmitting;
-
-  const isKeystorePasswordError = errors.keystorePassword?.message === PASSWORD_ERROR_CAPTION;
-
-  const [passwordValidationKeystore, setPasswordValidationKeystore] = useState<PasswordValidation>({
-    minChar: false,
-    cases: false,
-    number: false,
-    specialChar: false
-  });
-
-  const handlePasswordChangeKeystore = (
-    e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>
-  ) => {
-    const tempValue = e.target.value;
-    setPasswordValidationKeystore({
-      minChar: tempValue.length >= MIN_PASSWORD_LENGTH,
-      cases: uppercaseLowercaseMixtureRegx.test(tempValue),
-      number: lettersNumbersMixtureRegx.test(tempValue),
-      specialChar: specialCharacterRegx.test(tempValue)
-    });
-  };
 
   const clearKeystoreFileInput = (event: React.MouseEvent<SVGSVGElement, MouseEvent>) => {
     event.stopPropagation();
@@ -123,11 +82,7 @@ export const ImportFromKeystoreFile: FC<ImportFromKeystoreFileProps> = ({
 
       <FormField
         ref={register({
-          required: PASSWORD_ERROR_CAPTION,
-          pattern: {
-            value: PASSWORD_PATTERN,
-            message: PASSWORD_ERROR_CAPTION
-          }
+          required: t('required')
         })}
         label={t('filePassword')}
         labelDescription={t('filePasswordInputDescription')}
@@ -136,15 +91,7 @@ export const ImportFromKeystoreFile: FC<ImportFromKeystoreFileProps> = ({
         name="keystorePassword"
         placeholder="********"
         errorCaption={errors.keystorePassword?.message}
-        onFocus={() => setFocusedKeystore(true)}
-        onChange={handlePasswordChangeKeystore}
       />
-      {isKeystorePasswordError && (
-        <PasswordStrengthIndicator validation={passwordValidationKeystore} isPasswordError={isKeystorePasswordError} />
-      )}
-      {!isKeystorePasswordError && focusedKeystore && (
-        <PasswordStrengthIndicator validation={passwordValidationKeystore} isPasswordError={isKeystorePasswordError} />
-      )}
       <FormSubmitButton
         loading={submitting}
         style={{ display: 'block', width: '100%', margin: '40px auto', fontSize: 14, fontWeight: 500 }}
@@ -194,6 +141,15 @@ const KeystoreFileInput: React.FC<KeystoreFileInputProps> = ({ value, name, clea
       </div>
     </FileInput>
   );
+};
+
+const validateKeystoreFile = (value?: FileList) => {
+  const file = value?.item(0);
+
+  if (file && !file.name.endsWith('.tez')) {
+    return t('selectedFileFormatNotSupported');
+  }
+  return true;
 };
 
 const handleKukaiWalletError = (err: any, customAlert: AlertFn) => {
