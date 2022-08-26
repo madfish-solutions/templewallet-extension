@@ -13,6 +13,8 @@ export const VALID_ACTIVITIES: Record<ActivityType, Array<string>> = {
     'HEN_COLLECT_V2',
     'TEIA_COLLECT',
     'FX_COLLECT',
+    'FX_LISTING_ACCEPT',
+    'FX_OFFER_ACCEPT_V3',
     'VERSUM_ACCEPT_OFFER'
   ],
   [ActivityType.CollectiblePurchased]: [
@@ -25,6 +27,8 @@ export const VALID_ACTIVITIES: Record<ActivityType, Array<string>> = {
     'HEN_COLLECT_V2',
     'TEIA_COLLECT',
     'FX_COLLECT',
+    'FX_LISTING_ACCEPT',
+    'FX_OFFER_ACCEPT_V3',
     'VERSUM_ACCEPT_OFFER'
   ],
   [ActivityType.CollectibleResold]: [
@@ -37,10 +41,12 @@ export const VALID_ACTIVITIES: Record<ActivityType, Array<string>> = {
     'HEN_COLLECT_V2',
     'TEIA_COLLECT',
     'FX_COLLECT',
+    'FX_LISTING_ACCEPT',
+    'FX_OFFER_ACCEPT_V3',
     'VERSUM_ACCEPT_OFFER'
   ],
   [ActivityType.CollectibleSellOffer]: ['OBJKT_OFFER', 'FX_OFFER', 'VERSUM_MAKE_OFFER'],
-  [ActivityType.BidMade]: ['OBJKT_BID', 'OBJKT_BID_ENGLISH_AUCTION'],
-  [ActivityType.BidReceived]: ['OBJKT_BID', 'OBJKT_BID_ENGLISH_AUCTION'],
+  [ActivityType.BidMade]: ['OBJKT_BID', 'OBJKT_BID_ENGLISH_AUCTION', 'OBJKT_BID_ENGLISH_AUCTION_V2'],
+  [ActivityType.BidReceived]: ['OBJKT_BID', 'OBJKT_BID_ENGLISH_AUCTION', 'OBJKT_BID_ENGLISH_AUCTION_V2'],
   [ActivityType.BidOutbited]: []
 };

@@ -53,7 +53,7 @@ export const predicateEventTypeToValidActivityType = (
     }
   }
   if (VALID_ACTIVITIES[ActivityType.BidReceived].indexOf(type ?? '') >= 0) {
-    if (publicKeyHash !== bidder_address) {
+    if (publicKeyHash === seller_address) {
       return ActivityType.BidReceived;
     }
   }
