@@ -2100,7 +2100,7 @@
     "message": "Austauschdetails eingeben"
   },
   "exchangeDetailsDescription": {
-    "message": "Laden Sie Ihr TEZ-Guthaben sofort mit $number$ Kryptowährungen auf",
+    "message": "Laden Sie Ihr TEZ-Guthaben oder USDT-Tezos-Guthaben sofort mit $number$ Kryptowährungen auf",
     "placeholders": {
       "number": {
         "content": "$1"

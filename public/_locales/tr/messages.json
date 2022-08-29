@@ -2100,7 +2100,7 @@
     "message": "Alım satım bilgilerini girin"
   },
   "exchangeDetailsDescription": {
-    "message": "TEZ bakiyenizi anında $number$ kripto para ile doldurun",
+    "message": "TEZ or USDT Tezos bakiyenizi anında $number$ kripto para ile doldurun",
     "placeholders": {
       "number": {
         "content": "$1"

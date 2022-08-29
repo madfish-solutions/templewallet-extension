@@ -2100,7 +2100,7 @@
     "message": "Introduza os detalhes da troca"
   },
   "exchangeDetailsDescription": {
-    "message": "Reponha o seu saldo TEZ instantaneamente com $number$ criptomoedas",
+    "message": "Reponha o seu saldo TEZ ou USDT Tezos instantaneamente com $number$ criptomoedas",
     "placeholders": {
       "number": {
         "content": "$1"

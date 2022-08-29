@@ -2398,7 +2398,7 @@
     "message": "Buy With Exolix"
   },
   "buyWithExolixDescription": {
-    "message": "Exchange $number$ cryptocurrencies to TEZ instantly and without registration",
+    "message": "Exchange $number$ cryptocurrencies to TEZ or USDT Tezos instantly and without registration",
     "placeholders": {
       "number": {
         "content": "$1"
@@ -2473,7 +2473,7 @@
     "message": "Enter exchange details"
   },
   "exchangeDetailsDescription": {
-    "message": "Top up your TEZ balance instantly with $number$ cryptocurrencies",
+    "message": "Top up your TEZ or USDT Tezos balance instantly with $number$ cryptocurrencies",
     "placeholders": {
       "number": {
         "content": "$1"
