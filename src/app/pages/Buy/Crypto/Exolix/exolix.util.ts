@@ -46,24 +46,21 @@ export const getCurrencies = async () => {
     );
 };
 
-const getCurrency = async (page = 1) => {
-  return api
+const getCurrency = async (page = 1) =>
+  api
     .get<ExolixCurrenciesInterface>('/currencies', { params: { size: currenciesLimit, page, withNetworks: true } })
     .then(r => r.data);
-};
 
-export const getCurrenciesCount = async () => {
-  return api.get<ExolixCurrenciesInterface>('/currencies').then(r => r.data.count);
-};
+export const getCurrenciesCount = () => api.get<ExolixCurrenciesInterface>('/currencies').then(r => r.data.count);
 
-export const getRate = async (data: {
+export const getRate = (data: {
   coinFrom: string;
   coinFromNetwork: string;
   coinTo: string;
   coinToNetwork: string;
   amount: number;
-}) => {
-  return api
+}) =>
+  api
     .get('/rate', { params: { ...data, rateType: 'fixed' } })
     .then(r => r.data as GetRateData)
     .catch(error => {
@@ -71,9 +68,8 @@ export const getRate = async (data: {
         return error.response.data;
       }
     });
-};
 
-export const submitExchange = async (data: {
+export const submitExchange = (data: {
   coinFrom: string;
   networkFrom: string;
   coinTo: string;
@@ -81,13 +77,10 @@ export const submitExchange = async (data: {
   amount: number;
   withdrawalAddress: string;
   withdrawalExtraId: string;
-}) => {
-  return api.post('/transactions', { ...data, rateType: 'fixed' }).then(r => r.data);
-};
+}) => api.post('/transactions', { ...data, rateType: 'fixed' }).then(r => r.data);
 
-export const getExchangeData = async (exchangeId: string) => {
-  return api.get<ExchangeDataInterface>(`/transactions/${exchangeId}`).then(r => r.data);
-};
+export const getExchangeData = (exchangeId: string) =>
+  api.get<ExchangeDataInterface>(`/transactions/${exchangeId}`).then(r => r.data);
 
 export const getProperNetworkFullName = (currency?: CurrencyInterface) =>
   currency
