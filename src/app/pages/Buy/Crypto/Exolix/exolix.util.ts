@@ -46,7 +46,7 @@ export const getCurrencies = async () => {
     );
 };
 
-const getCurrency = async (page = 1) =>
+const getCurrency = (page = 1) =>
   api
     .get<ExolixCurrenciesInterface>('/currencies', { params: { size: currenciesLimit, page, withNetworks: true } })
     .then(r => r.data);
