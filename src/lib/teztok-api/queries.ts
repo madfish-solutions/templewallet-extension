@@ -30,7 +30,6 @@ events(
     name
     description
     price
-    royalties
     royalties_total
   }
   amount
