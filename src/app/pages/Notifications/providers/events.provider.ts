@@ -31,7 +31,7 @@ export const [EventsProvider, useEvents] = constate((params: { suspense?: boolea
       const storedEvents = getLocalStorageKey<LatestEventsQuery>(getLoadedEventsKey(publicKeyHash), {
         events: []
       });
-      const loadingDate = getLocalStorageKey(getLastDateLoadEvents(publicKeyHash), 0);
+      const loadingDate = getLocalStorageKey(getLastDateLoadEvents(publicKeyHash), Date.now());
       const timestamp =
         storedEvents.events.length > 0 ? storedEvents.events[0].timestamp : new Date(loadingDate).toISOString();
       setLoading(true);
@@ -65,7 +65,7 @@ export const [EventsProvider, useEvents] = constate((params: { suspense?: boolea
 
   useEffect(() => {
     function tick() {
-      const loadingDate = getLocalStorageKey(getLastDateLoadEvents(publicKeyHash), 0);
+      const loadingDate = getLocalStorageKey(getLastDateLoadEvents(publicKeyHash), Date.now());
       if (!chainNotificationsEnabled || !publicKeyHash || Date.now() - loadingDate < EVENTS_REFRESH_INTERVAL) {
         return;
       }

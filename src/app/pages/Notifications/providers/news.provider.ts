@@ -18,7 +18,10 @@ export const [NewsProvider, useNews] = constate((params: { suspense?: boolean })
     true
   );
 
-  const [loadingDate, setLoadingDate] = useLocalStorage(TempleNotificationsSharedStorageKey.LastDateLoadNews, 0);
+  const [loadingDate, setLoadingDate] = useLocalStorage(
+    TempleNotificationsSharedStorageKey.LastDateLoadNews,
+    Date.now()
+  );
 
   const [loading, setLoading] = useState(false);
   const [isAllLoaded, setIsAllLoaded] = useState<boolean>(false);
@@ -51,7 +54,7 @@ export const [NewsProvider, useNews] = constate((params: { suspense?: boolean })
   }, [loadingDate, setLoadedNews, setLoadingDate, newsNotificationsEnabled]);
 
   const handleUpdate = async () => {
-    if (loadedNews.length > 0 && !isAllLoaded) {
+    if (loadedNews.length > 0 && !isAllLoaded && newsNotificationsEnabled) {
       const lastNews = loadedNews[loadedNews.length - 1];
 
       if (lastNews) {
