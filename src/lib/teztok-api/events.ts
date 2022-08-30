@@ -4,8 +4,7 @@ import { LatestEventsQuery, OutbidedEventsQuery } from './interfaces';
 import { createAuctionsParticipationQuery, createBidsByAuctionQuery, createEventsQuery } from './queries';
 
 const config = {
-  // url: 'https://api.teztok.com/v1/graphql',
-  url: 'http://localhost:8080/v1/graphql',
+  url: 'https://api.teztok.com/v1/graphql',
   headers: {
     accept: 'application/json'
   }
