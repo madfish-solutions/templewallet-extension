@@ -213,6 +213,8 @@ export type TempleDAppPayload = TempleDAppConnectPayload | TempleDAppOperationsP
  */
 
 export enum TempleMessageType {
+  // Aknowledge
+  Acknowledge = 'TEMPLE_CONNECT_AKNOWLEDGE',
   // Notifications
   StateUpdated = 'TEMPLE_STATE_UPDATED',
   ConfirmationRequested = 'TEMPLE_CONFIRMATION_REQUESTED',
@@ -283,6 +285,7 @@ export enum TempleMessageType {
 export type TempleNotification = TempleStateUpdated | TempleConfirmationRequested | TempleConfirmationExpired;
 
 export type TempleRequest =
+  | TempleAcknowledgeRequest
   | TempleGetStateRequest
   | TempleNewWalletRequest
   | TempleUnlockRequest
@@ -316,6 +319,7 @@ export type TempleRequest =
 
 export type TempleResponse =
   | TempleGetStateResponse
+  | TempleAcknowledgeResponse
   | TempleNewWalletResponse
   | TempleUnlockResponse
   | TempleLockResponse
@@ -373,6 +377,13 @@ export interface TempleGetStateRequest extends TempleMessageBase {
 export interface TempleGetStateResponse extends TempleMessageBase {
   type: TempleMessageType.GetStateResponse;
   state: TempleState;
+}
+
+export interface TempleAcknowledgeResponse extends TempleMessageBase {
+  type: TempleMessageType.Acknowledge;
+  payload: string;
+  // id: string;
+  encrypted?: boolean;
 }
 
 export interface TempleNewWalletRequest extends TempleMessageBase {
@@ -585,6 +596,14 @@ export interface TempleConfirmationResponse extends TempleMessageBase {
 
 export interface TemplePageRequest extends TempleMessageBase {
   type: TempleMessageType.PageRequest;
+  origin: string;
+  payload: any;
+  beacon?: boolean;
+  encrypted?: boolean;
+}
+
+export interface TempleAcknowledgeRequest extends TempleMessageBase {
+  type: TempleMessageType.Acknowledge;
   origin: string;
   payload: any;
   beacon?: boolean;

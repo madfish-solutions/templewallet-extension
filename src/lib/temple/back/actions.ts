@@ -389,8 +389,9 @@ export async function processDApp(origin: string, req: TempleDAppRequest): Promi
   }
 }
 
-export async function processBeacon(origin: string, msg: string, encrypted = false) {
+export async function getBeaconMessage(origin: string, msg: string, encrypted = false) {
   let recipientPubKey: string | null = null;
+  let payload = null;
 
   if (encrypted) {
     try {
@@ -404,7 +405,7 @@ export async function processBeacon(origin: string, msg: string, encrypted = fal
         throw err;
       }
     } catch {
-      return {
+      payload = {
         payload: Beacon.encodeMessage<Beacon.Response>({
           version: '2',
           senderId: await Beacon.getSenderId(),
@@ -415,10 +416,35 @@ export async function processBeacon(origin: string, msg: string, encrypted = fal
     }
   }
 
-  let req: Beacon.Request;
+  let req: Beacon.Request | null;
   try {
     req = Beacon.decodeMessage<Beacon.Request>(msg);
   } catch {
+    req = null;
+  }
+
+  return {
+    recipientPubKey,
+    req,
+    payload
+  };
+}
+
+type ProcessedBeaconMessage = {
+  payload: string;
+  encrypted?: boolean;
+};
+
+export async function processBeacon(
+  origin: string,
+  msg: string,
+  encrypted = false
+): Promise<ProcessedBeaconMessage | undefined> {
+  const { req, recipientPubKey, payload } = await getBeaconMessage(origin, msg, encrypted);
+  if (payload) {
+    return payload;
+  }
+  if (!req) {
     return;
   }
 

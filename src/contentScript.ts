@@ -31,7 +31,6 @@ type BeaconMessage =
       target: BeaconMessageTarget;
       encryptedPayload: any;
     };
-
 type BeaconPageMessage = BeaconMessage | { message: BeaconMessage; sender: { id: string } };
 
 const SENDER = {
@@ -95,15 +94,19 @@ function templeRequest(evt: MessageEvent, isLegacyRequest: boolean) {
 }
 
 function beaconRequest(evt: MessageEvent) {
+  console.log('evt', evt);
+  const { origin, data } = evt;
+  const encrypted = Boolean(data.encryptedPayload);
   getIntercom()
     .request({
       type: TempleMessageType.PageRequest,
-      origin: evt.origin,
-      payload: evt.data.encryptedPayload ?? evt.data.payload,
+      origin: origin,
+      payload: data.encryptedPayload ?? data.payload,
       beacon: true,
-      encrypted: Boolean(evt.data.encryptedPayload)
+      encrypted: Boolean(data.encryptedPayload)
     })
     .then((res: TempleResponse) => {
+      console.log('res', res);
       if (res?.type === TempleMessageType.PageResponse && res.payload) {
         const message = {
           target: BeaconMessageTarget.Page,
@@ -116,11 +119,79 @@ function beaconRequest(evt: MessageEvent) {
                 message,
                 sender: { id: SENDER.id }
               },
-          evt.origin
+          origin
         );
       }
     })
     .catch(err => console.error(err));
+
+  getIntercom()
+    .request({
+      type: TempleMessageType.Acknowledge,
+      origin: origin,
+      payload: data.encryptedPayload ?? data.payload,
+      beacon: true,
+      encrypted: encrypted
+    })
+    .then((res: TempleResponse) => {
+      if (res?.type === TempleMessageType.Acknowledge) {
+        const acknowledgeMessage = {
+          target: BeaconMessageTarget.Page,
+          // version: '3',
+          // id: res?.id ?? '',
+          // senderId: SENDER.id,
+          encryptedPayload: res.payload
+          // message: {
+          //   type: 'disconnect'
+          // }
+          // ...(res.encrypted ? { encryptedPayload: res.message } : { payload: res.message })
+        };
+        console.log('try send', acknowledgeMessage);
+        // const resMsg = Beacon.encodeMessage<Beacon.Response>(res);
+        // if (encrypted && recipientPubKey) {
+        //   return {
+        //     payload: await Beacon.encryptMessage(resMsg, recipientPubKey),
+        //     encrypted: true
+        //   };
+        // }
+        // return { payload: resMsg };
+        send(
+          {
+            message: acknowledgeMessage,
+            sender: { id: SENDER.id }
+          },
+          origin
+        );
+      }
+    })
+    .catch(err => console.error(err));
+
+  // getBeaconMessage(origin, data.encryptedPayload ?? data.payload, encrypted).then(({ req, payload }) => {
+  //   if (payload && payload.payload !== 'pong') {
+  //     const acknowledgeMessage = {
+  //       type: AcknowledgeResponseType.Acknowledge,
+  //       senderId: SENDER.id,
+  //       version: req?.version ?? '3',
+  //       id: req?.id ?? ''
+  //     };
+  //     console.log('try send', acknowledgeMessage);
+  //     // const resMsg = Beacon.encodeMessage<Beacon.Response>(res);
+  //     // if (encrypted && recipientPubKey) {
+  //     //   return {
+  //     //     payload: await Beacon.encryptMessage(resMsg, recipientPubKey),
+  //     //     encrypted: true
+  //     //   };
+  //     // }
+  //     // return { payload: resMsg };
+  //     send(
+  //       {
+  //         message: acknowledgeMessage,
+  //         sender: { id: SENDER.id }
+  //       },
+  //       evt.origin
+  //     );
+  //   }
+  // });
 }
 
 function send(msg: TemplePageMessage | LegacyPageMessage | BeaconPageMessage, targetOrigin: string) {
