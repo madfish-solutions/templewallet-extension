@@ -27,6 +27,7 @@ import RootSuspenseFallback from './a11y/RootSuspenseFallback';
 import AttentionPage from './pages/Onboarding/pages/AttentionPage';
 import { AliceBob } from './pages/SelectCrypto/AliceBob/AliceBob';
 import SelectCrypto from './pages/SelectCrypto/SelectCrypto';
+import { Utorg } from './pages/SelectCrypto/Utorg/Utorg';
 
 interface RouteContext {
   popup: boolean;
@@ -87,6 +88,7 @@ const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
   ['/buy', onlyReady(onlyInFullPage(() => <SelectCrypto />))],
   ['/buy/crypto', onlyReady(onlyInFullPage(() => <BuyCrypto />))],
   ['/buy/debit/alice-bob', onlyReady(onlyInFullPage(() => <AliceBob />))],
+  ['/buy/debit/utorg', onlyReady(onlyInFullPage(() => <Utorg />))],
   ['/attention', onlyReady(onlyInFullPage(() => <AttentionPage />))],
   ['*', () => <Woozie.Redirect to="/" />]
 ]);
