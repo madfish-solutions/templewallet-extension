@@ -9,10 +9,7 @@ import Link from 'lib/woozie/Link';
 import { ReactComponent as AliceBobIcon } from '../assets/AliceBob.svg';
 import ChainBitsIcon from '../assets/ChainBits.png';
 import { ReactComponent as MoonPayIcon } from '../assets/MoonPay.svg';
-import { ReactComponent as AliceBobIcon } from './assets/AliceBob.svg';
-import ChainBitsIcon from './assets/ChainBits.png';
-import { ReactComponent as MoonPayIcon } from './assets/MoonPay.svg';
-import { ReactComponent as UtorgIcon } from './assets/Utorg.svg';
+import { ReactComponent as UtorgIcon } from '../assets/Utorg.svg';
 import { MoonPay } from './MoonPay/MoonPay';
 
 export const Debit: FC = () => {

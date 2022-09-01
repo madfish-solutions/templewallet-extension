@@ -1,27 +1,18 @@
 import React, { ChangeEvent, useCallback, useEffect, useMemo, useState } from 'react';
 
-import { useDebouncedCallback } from 'use-debounce';
-
-import { useAnalyticsState } from '../../../../lib/analytics/use-analytics-state.hook';
-import { T } from '../../../../lib/i18n/react';
-import makeBuildQueryFn from '../../../../lib/makeBuildQueryFn';
-import { useAccount } from '../../../../lib/temple/front';
-import FormSubmitButton from '../../../atoms/FormSubmitButton';
-import { TopUpInput } from '../../../atoms/TopUpInput/TopUpInput';
-import { ReactComponent as AttentionRedIcon } from '../../../icons/attentionRed.svg';
-import PageLayout from '../../../layouts/PageLayout';
-import styles from '../../BuyCrypto/BuyCrypto.module.css';
+import { T } from '../../../../../lib/i18n/react';
+import Divider from '../../../../atoms/Divider';
+import FormSubmitButton from '../../../../atoms/FormSubmitButton';
+import PageLayout from '../../../../layouts/PageLayout';
+import { outputTokensList } from '../../Crypto/Exolix/config';
 import { SelectCryptoSelectors } from '../SelectCrypto.selectors';
-
-const buildQuery = makeBuildQueryFn<Record<string, string>, any>('https://temple-api.production.madservice.xyz');
-const getSignedAliceBobUrl = buildQuery('GET', '/api/alice-bob-sign', ['amount', 'userId', 'walletAddress']);
-const getAliceBobPairInfo = buildQuery('GET', '/api/alice-bob-pair-info');
+import { TopUpInput } from './components/TopUpInput/TopUpInput';
 
 const REQUEST_LATENCY = 200;
 
 export const Utorg = () => {
-  const { analyticsState } = useAnalyticsState();
-  const { publicKeyHash: walletAddress } = useAccount();
+  const [coinFrom, setCoinFrom] = useState(INITIAL_COIN_FROM);
+  const [coinTo, setCoinTo] = useState(outputTokensList[0]);
 
   const [minExchangeAmount, setMinExchangeAmount] = useState(600);
   const [maxExchangeAmount, setMaxExchangeAmount] = useState(29500);
@@ -29,12 +20,7 @@ export const Utorg = () => {
   const [amount, setAmount] = useState(0);
   const [link, setLink] = useState('');
   const [isLinkLoading, setIsLinkLoading] = useState(false);
-  const [isMinMaxLoading, setIsMinMaxLoading] = useState(false);
 
-  const isError = useMemo(
-    () => minExchangeAmount === 0 && maxExchangeAmount === 0,
-    [minExchangeAmount, maxExchangeAmount]
-  );
   const isMinAmountError = useMemo(() => amount !== 0 && amount < minExchangeAmount, [amount, minExchangeAmount]);
   const isMaxAmountError = useMemo(() => amount !== 0 && amount > maxExchangeAmount, [amount, maxExchangeAmount]);
   const disabledProceed = useMemo(
@@ -42,44 +28,9 @@ export const Utorg = () => {
     [isMinAmountError, isMaxAmountError, amount]
   );
 
-  useEffect(() => {
-    (async () => {
-      setIsMinMaxLoading(true);
-      getAliceBobPairInfo({})
-        .then(response => {
-          setMinExchangeAmount(response.minAmount);
-          setMaxExchangeAmount(response.maxAmount);
-          setIsMinMaxLoading(false);
-        })
-        .catch(() => {
-          setMinExchangeAmount(0);
-          setMaxExchangeAmount(0);
-          setIsMinMaxLoading(false);
-        });
-    })();
-  }, []);
-
-  const linkRequest = useCallback(
-    async (e: ChangeEvent<HTMLInputElement>) => {
-      if (!disabledProceed) {
-        try {
-          setIsLinkLoading(true);
-
-          const response = await getSignedAliceBobUrl({
-            amount: e.target.value,
-            userId: analyticsState.userId,
-            walletAddress
-          });
-
-          setLink(response.url);
-          setIsLinkLoading(false);
-        } catch {}
-      }
-    },
-    [disabledProceed, analyticsState.userId, walletAddress]
-  );
-
-  const debouncedLinkRequest = useDebouncedCallback(linkRequest, REQUEST_LATENCY);
+  const handleAmountChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setAmount(Number(e.target.value));
+  };
 
   return (
     <PageLayout
@@ -90,30 +41,32 @@ export const Utorg = () => {
       }
     >
       <div className="mx-auto my-10 text-center font-inter font-normal text-gray-700" style={{ maxWidth: 360 }}>
-        <h3 className="mb-6" style={{ fontSize: 17 }}>
-          <T id="enterAmount" />
-        </h3>
-        {isError && (
-          <div className="flex w-full justify-center mb-6 text-red-600" style={{ fontSize: 17 }}>
-            <AttentionRedIcon />
-            <h3 className="ml-1">
-              <T id="aliceBobError" />
-            </h3>
-          </div>
-        )}
+        <Divider style={{ marginBottom: '10px' }} />
+
         <TopUpInput
-          type="fiat"
-          currency="UAH"
-          minAmount={`${minExchangeAmount}.00`}
-          maxAmount={`${maxExchangeAmount}.00`}
-          disabled={isMinMaxLoading}
+          currency={coinFrom}
+          currenciesList={currencies ?? []}
+          label={<T id="send" />}
+          setCurrency={setCoinFrom}
+          onAmountChange={handleAmountChange}
+          isSearchable
+        />
+
+        <br />
+        <TopUpInput
+          currency={coinTo}
+          currenciesList={outputTokensList}
+          label={<T id="get" />}
+          readOnly={true}
+          amountInputDisabled={true}
+          minAmount={minAmount}
+          maxAmount={lastMaxAmount}
           isMinAmountError={isMinAmountError}
           isMaxAmountError={isMaxAmountError}
-          onChangeInputHandler={e => {
-            setAmount(Number(e.target.value));
-            debouncedLinkRequest(e);
-          }}
+          amount={depositAmount}
+          setCurrency={setCoinTo}
         />
+        <Divider style={{ marginTop: '40px', marginBottom: '20px' }} />
         <FormSubmitButton
           className="w-full justify-center border-none mt-6"
           style={{

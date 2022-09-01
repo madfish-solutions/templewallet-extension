@@ -26,10 +26,8 @@ import * as Woozie from 'lib/woozie';
 import RootSuspenseFallback from './a11y/RootSuspenseFallback';
 import Buy from './pages/Buy/Buy';
 import { AliceBob } from './pages/Buy/Debit/AliceBob/AliceBob';
+import { Utorg } from './pages/Buy/Debit/Utorg/Utorg';
 import AttentionPage from './pages/Onboarding/pages/AttentionPage';
-import { AliceBob } from './pages/SelectCrypto/AliceBob/AliceBob';
-import SelectCrypto from './pages/SelectCrypto/SelectCrypto';
-import { Utorg } from './pages/SelectCrypto/Utorg/Utorg';
 
 interface RouteContext {
   popup: boolean;
