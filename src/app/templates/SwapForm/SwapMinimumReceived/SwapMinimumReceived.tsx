@@ -3,7 +3,6 @@ import React, { FC, useMemo } from 'react';
 import { Trade } from 'swap-router-sdk';
 
 import Money from 'app/atoms/Money';
-import { ROUTING_FEE_RATIO } from 'lib/swap-router/config';
 import { AssetMetadata } from 'lib/temple/front';
 import { atomsToTokens } from 'lib/temple/helpers';
 
@@ -17,10 +16,7 @@ export const SwapMinimumReceived: FC<Props> = ({ tradeWithSlippageTolerance, out
     if (tradeWithSlippageTolerance.length > 0) {
       const lastTradeOperation = tradeWithSlippageTolerance[tradeWithSlippageTolerance.length - 1];
 
-      return atomsToTokens(
-        lastTradeOperation.bTokenAmount.multipliedBy(ROUTING_FEE_RATIO).dividedToIntegerBy(1),
-        outputAssetMetadata.decimals
-      );
+      return atomsToTokens(lastTradeOperation.bTokenAmount, outputAssetMetadata.decimals);
     }
     return undefined;
   }, [tradeWithSlippageTolerance, outputAssetMetadata.decimals]);

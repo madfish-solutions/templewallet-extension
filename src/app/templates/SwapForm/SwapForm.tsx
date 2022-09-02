@@ -93,8 +93,15 @@ export const SwapForm: FC = () => {
     () => (inputValue.amount ? tokensToAtoms(inputValue.amount, inputAssetMetadata.decimals) : undefined),
     [inputValue.amount, inputAssetMetadata.decimals]
   );
-
-  const bestTradeWithSlippageTolerance = useTradeWithSlippageTolerance(inputMutezAmount, bestTrade, slippageTolerance);
+  const inputMutezAmountWithFee = useMemo(
+    () => (inputMutezAmount ? inputMutezAmount.multipliedBy(ROUTING_FEE_RATIO).dividedToIntegerBy(1) : undefined),
+    [inputMutezAmount]
+  );
+  const bestTradeWithSlippageTolerance = useTradeWithSlippageTolerance(
+    inputMutezAmountWithFee,
+    bestTrade,
+    slippageTolerance
+  );
 
   const [error, setError] = useState<Error>();
   const [operation, setOperation] = useState<BatchWalletOperation>();
@@ -111,16 +118,11 @@ export const SwapForm: FC = () => {
   );
 
   useEffect(() => {
-    if (inputMutezAmount && routePairsCombinations.length > 0) {
-      const bestTradeExactIn = getBestTradeExactInput(inputMutezAmount, routePairsCombinations);
+    if (inputMutezAmountWithFee && routePairsCombinations.length > 0) {
+      const bestTradeExactIn = getBestTradeExactInput(inputMutezAmountWithFee, routePairsCombinations);
       const bestTradeOutput = getTradeOutputAmount(bestTradeExactIn);
 
-      const outputTzAmount = bestTradeOutput
-        ? atomsToTokens(
-            bestTradeOutput.multipliedBy(ROUTING_FEE_RATIO).dividedToIntegerBy(1),
-            outputAssetMetadata.decimals
-          )
-        : undefined;
+      const outputTzAmount = bestTradeOutput ? atomsToTokens(bestTradeOutput, outputAssetMetadata.decimals) : undefined;
 
       setBestTrade(bestTradeExactIn);
       setValue('output', { assetSlug: outputValue.assetSlug, amount: outputTzAmount });
@@ -133,7 +135,7 @@ export const SwapForm: FC = () => {
       triggerValidation();
     }
   }, [
-    inputMutezAmount,
+    inputMutezAmountWithFee,
     outputValue.assetSlug,
     slippageTolerance,
     routePairsCombinations,
