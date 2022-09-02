@@ -94,7 +94,6 @@ function templeRequest(evt: MessageEvent, isLegacyRequest: boolean) {
 }
 
 function beaconRequest(evt: MessageEvent) {
-  console.log('evt', evt);
   const { origin, data } = evt;
   const encrypted = Boolean(data.encryptedPayload);
   getIntercom()
@@ -106,7 +105,6 @@ function beaconRequest(evt: MessageEvent) {
       encrypted: Boolean(data.encryptedPayload)
     })
     .then((res: TempleResponse) => {
-      console.log('res', res);
       if (res?.type === TempleMessageType.PageResponse && res.payload) {
         const message = {
           target: BeaconMessageTarget.Page,
@@ -137,24 +135,8 @@ function beaconRequest(evt: MessageEvent) {
       if (res?.type === TempleMessageType.Acknowledge) {
         const acknowledgeMessage = {
           target: BeaconMessageTarget.Page,
-          // version: '3',
-          // id: res?.id ?? '',
-          // senderId: SENDER.id,
-          encryptedPayload: res.payload
-          // message: {
-          //   type: 'disconnect'
-          // }
-          // ...(res.encrypted ? { encryptedPayload: res.message } : { payload: res.message })
+          ...(res.encrypted ? { encryptedPayload: res.payload } : { payload: res.payload })
         };
-        console.log('try send', acknowledgeMessage);
-        // const resMsg = Beacon.encodeMessage<Beacon.Response>(res);
-        // if (encrypted && recipientPubKey) {
-        //   return {
-        //     payload: await Beacon.encryptMessage(resMsg, recipientPubKey),
-        //     encrypted: true
-        //   };
-        // }
-        // return { payload: resMsg };
         send(
           {
             message: acknowledgeMessage,
@@ -165,33 +147,6 @@ function beaconRequest(evt: MessageEvent) {
       }
     })
     .catch(err => console.error(err));
-
-  // getBeaconMessage(origin, data.encryptedPayload ?? data.payload, encrypted).then(({ req, payload }) => {
-  //   if (payload && payload.payload !== 'pong') {
-  //     const acknowledgeMessage = {
-  //       type: AcknowledgeResponseType.Acknowledge,
-  //       senderId: SENDER.id,
-  //       version: req?.version ?? '3',
-  //       id: req?.id ?? ''
-  //     };
-  //     console.log('try send', acknowledgeMessage);
-  //     // const resMsg = Beacon.encodeMessage<Beacon.Response>(res);
-  //     // if (encrypted && recipientPubKey) {
-  //     //   return {
-  //     //     payload: await Beacon.encryptMessage(resMsg, recipientPubKey),
-  //     //     encrypted: true
-  //     //   };
-  //     // }
-  //     // return { payload: resMsg };
-  //     send(
-  //       {
-  //         message: acknowledgeMessage,
-  //         sender: { id: SENDER.id }
-  //       },
-  //       evt.origin
-  //     );
-  //   }
-  // });
 }
 
 function send(msg: TemplePageMessage | LegacyPageMessage | BeaconPageMessage, targetOrigin: string) {

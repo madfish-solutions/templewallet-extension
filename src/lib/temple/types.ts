@@ -382,7 +382,6 @@ export interface TempleGetStateResponse extends TempleMessageBase {
 export interface TempleAcknowledgeResponse extends TempleMessageBase {
   type: TempleMessageType.Acknowledge;
   payload: string;
-  // id: string;
   encrypted?: boolean;
 }
 

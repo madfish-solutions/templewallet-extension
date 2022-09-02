@@ -19,7 +19,6 @@ export async function start() {
 }
 
 async function processRequest(req: TempleRequest, port: Runtime.Port): Promise<TempleResponse | void> {
-  console.log('process req', req);
   switch (req?.type) {
     case TempleMessageType.SendTrackEventRequest:
       await Analytics.trackEvent(req);
@@ -175,20 +174,9 @@ async function processRequest(req: TempleRequest, port: Runtime.Port): Promise<T
         if (!req) {
           return;
         }
-        // const { req, payload } = await getBeaconMessage(origin, msg, encrypted);
-        // const resMsg = encodeMessage<Response>({
-        //   type: MessageType.Acknowledge
-        // });
-        // if (req.encrypted && recipientPubKey) {
-        // return {
-        //   type: TempleMessageType.Acknowledge,
-        //   id: res?.id ?? '',
-        //   message: await encryptMessage(resMsg, recipientPubKey),
-        //   encrypted: true
-        // };
 
         const response: {
-          type: MessageType.Disconnect;
+          type: MessageType.Acknowledge;
           version: string;
           id: string;
           senderId: string;
@@ -196,21 +184,14 @@ async function processRequest(req: TempleRequest, port: Runtime.Port): Promise<T
           version: '2',
           senderId: await getSenderId(),
           id: res?.id ?? '',
-          type: MessageType.Disconnect
+          type: MessageType.Acknowledge
         };
 
-        console.log('valid object', response);
         return {
           type: TempleMessageType.Acknowledge,
-          payload: encodeMessage<Response>(response)
+          payload: await encryptMessage(encodeMessage<Response>(response), recipientPubKey ?? ''),
+          encrypted: true
         };
-        // }
-        // return { payload: resMsg, type: TempleMessageType.Acknowledge };
-        // return {
-        //   type: TempleMessageType.Acknowledge,
-        //   id: res?.id,
-        //   version: res?.version
-        // };
       }
       break;
     }
