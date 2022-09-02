@@ -1,24 +1,23 @@
 import { TezosToolkit } from '@taquito/taquito';
 import { BigNumber } from 'bignumber.js';
-import { getTradeInputOperation, loadAssetContract, Trade, TokenStandardEnum } from 'swap-router-sdk';
+import { loadAssetContract, Trade, TokenStandardEnum, getTradeOutputOperation } from 'swap-router-sdk';
 
-import { checkIsPromotionTime } from '../../../app/layouts/PageLayout/utils/checkIsPromotionTime';
 import { ROUTING_FEE_ADDRESS } from '../config';
 
 export const getRoutingFeeTransferParams = async (
-  inputTokenMutezAmount: BigNumber | undefined,
+  outputTokenMutezAmount: BigNumber | undefined,
   trade: Trade,
   senderPublicKeyHash: string,
   tezos: TezosToolkit
 ) => {
-  const isPromotionTime = checkIsPromotionTime();
+  console.log(trade);
+  const tradeOutputOperation = getTradeOutputOperation(trade);
+  console.log(tradeOutputOperation);
 
-  const tradeInputOperation = getTradeInputOperation(trade);
+  if (outputTokenMutezAmount && tradeOutputOperation) {
+    const feeAmount = outputTokenMutezAmount.minus(tradeOutputOperation.aTokenAmount);
 
-  if (inputTokenMutezAmount && tradeInputOperation && !isPromotionTime) {
-    const feeAmount = inputTokenMutezAmount.minus(tradeInputOperation.aTokenAmount);
-
-    if (tradeInputOperation.aTokenSlug === 'tez') {
+    if (tradeOutputOperation.aTokenSlug === 'tez') {
       return [
         {
           amount: feeAmount.toNumber(),
@@ -28,7 +27,7 @@ export const getRoutingFeeTransferParams = async (
       ];
     }
 
-    const assetContract = await loadAssetContract(tradeInputOperation.aTokenSlug, tezos);
+    const assetContract = await loadAssetContract(tradeOutputOperation.aTokenSlug, tezos);
 
     if (assetContract) {
       if (assetContract.standard === TokenStandardEnum.FA1_2) {
