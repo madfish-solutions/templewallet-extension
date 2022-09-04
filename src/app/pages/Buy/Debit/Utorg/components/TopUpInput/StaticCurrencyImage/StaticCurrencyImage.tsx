@@ -2,16 +2,25 @@ import React, { FC, useMemo, useState } from 'react';
 
 import { browser } from 'webextension-polyfill-ts';
 
+const MOONPAY_FIAT_ICONS_BASE_URL = 'https://static.moonpay.com/widget/currencies/';
+
 interface Props {
-  currencyCode: string;
-  imageSrc: string;
+  currencyName: string;
   style?: React.CSSProperties;
 }
 
-const EXOLIX_FALLBACK_IMAGE_SRC = 'https://exolix.com/img/crypto.png';
-
-export const StaticCurrencyImage: FC<Props> = ({ currencyCode, imageSrc, style = {} }) => {
+export const StaticCurrencyImage: FC<Props> = ({ currencyName, style = {} }) => {
   const [isFailed, setIsFailed] = useState(false);
+  const imageSrc = useMemo(() => {
+    switch (currencyName) {
+      case 'XTZ':
+        return browser.runtime.getURL('misc/token-logos/tez.svg');
+      case 'UAH':
+        return browser.runtime.getURL('misc/fiat-logos/uah.svg');
+      default:
+        return MOONPAY_FIAT_ICONS_BASE_URL + currencyName.toLowerCase() + '.svg';
+    }
+  }, [currencyName]);
 
   const conditionalStyle = useMemo(() => ({ display: isFailed ? 'none' : 'flex' }), [isFailed]);
 
@@ -20,11 +29,13 @@ export const StaticCurrencyImage: FC<Props> = ({ currencyCode, imageSrc, style =
       <img
         alt="currencyImage"
         style={{ ...style, ...conditionalStyle }}
-        src={currencyCode === 'XTZ' ? browser.runtime.getURL('misc/token-logos/tez.svg') : imageSrc}
+        src={imageSrc}
         onLoad={() => setIsFailed(false)}
         onError={() => setIsFailed(true)}
       />
-      {isFailed && <img alt="fallbackCurrencyImage" style={style} src={EXOLIX_FALLBACK_IMAGE_SRC} />}
+      {isFailed && (
+        <img alt="fallbackIcon" style={style} src={browser.runtime.getURL('misc/token-logos/fallback.svg')} />
+      )}
     </>
   );
 };

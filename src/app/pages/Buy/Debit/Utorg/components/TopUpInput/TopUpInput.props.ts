@@ -1,16 +1,15 @@
 import React, { ChangeEvent } from 'react';
 
-import { CurrencyInterface } from '../../exolix.interface';
-
 export interface TopUpInputProps {
-  currency: CurrencyInterface;
-  currenciesList: CurrencyInterface[];
+  currencyName: string;
+  currenciesList: string[];
   label: React.ReactNode;
-  setCurrency: (value: CurrencyInterface) => void;
+  setCurrencyName?: (value: string) => void;
   isCurrenciesLoading?: boolean;
   isSearchable?: boolean;
   amount?: number;
   className?: string;
+  singleToken?: boolean;
   amountInputDisabled?: boolean;
   readOnly?: boolean;
   minAmount?: string;

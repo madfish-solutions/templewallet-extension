@@ -2275,6 +2275,9 @@
   "updatingMinMax": {
     "message": "Updating min/max..."
   },
+  "loading": {
+    "message": "Loading..."
+  },
   "done": {
     "message": "Done!"
   },
@@ -2635,7 +2638,7 @@
     "message": "Min:"
   },
   "warningTopUpServiceMessage": {
-    "message": "The token exchange feature is provided by a third party. The Temple wallet is not responsible for the work of third-party services."
+    "message": "The token exchange feature is provided by a third party. The Temple Wallet is not responsible for the work of third-party services."
   },
   "selectTokensToSwap": {
     "message": "Please, select tokens to swap"
@@ -2676,7 +2679,7 @@
   "scanQRWithTempleMobile": {
     "message": "Scan this QR-code with yor Temple Wallet Mobile app."
   },
-  "aliceBobError": {
+  "serviceIsUnavailable": {
     "message": "Sorry, service is temporarily unavailable. Try again later!"
   },
   "buyWithChainBits": {

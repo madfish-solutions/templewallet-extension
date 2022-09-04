@@ -10,7 +10,6 @@ import { PopperRenderProps } from 'lib/ui/Popper';
 
 import { toLocalFormat } from '../../../../../../../../lib/i18n/numbers';
 import { handleNumberInput } from '../../../../../utils/handleNumberInput.util';
-import { getProperNetworkFullName } from '../../../exolix.util';
 import { StaticCurrencyImage } from '../StaticCurrencyImage/StaticCurrencyImage';
 import { TopUpInputProps } from '../TopUpInput.props';
 
@@ -22,7 +21,7 @@ interface Props extends PopperRenderProps, TopUpInputProps {
 export const TopUpInputHeader = forwardRef<HTMLDivElement, Props>(
   (
     {
-      currency,
+      currencyName,
       amount,
       label,
       readOnly,
@@ -35,6 +34,7 @@ export const TopUpInputHeader = forwardRef<HTMLDivElement, Props>(
       isMinAmountError,
       isMaxAmountError,
       isSearchable = false,
+      singleToken = false,
       onAmountChange,
       onSearchChange
     },
@@ -71,7 +71,7 @@ export const TopUpInputHeader = forwardRef<HTMLDivElement, Props>(
           {minAmount && !opened && (
             <p className={getSmallErrorText(isMinAmountError)} style={{ marginBottom: -10 }}>
               <T id="min" /> <span className={classNames(minAmountErrorClassName, 'text-sm')}>{' ' + minAmount}</span>{' '}
-              <span className={classNames(minAmountErrorClassName, 'text-xs')}>{currency.code}</span>
+              <span className={classNames(minAmountErrorClassName, 'text-xs')}>{currencyName}</span>
             </p>
           )}
         </div>
@@ -108,12 +108,14 @@ export const TopUpInputHeader = forwardRef<HTMLDivElement, Props>(
             style={{ height: '4.5rem' }}
           >
             <div
-              className="border-r border-gray-300 pl-4 pr-3 flex py-5 items-center cursor-pointer"
-              onClick={toggleOpened}
+              className={classNames(
+                'border-r border-gray-300 pl-4 pr-3 flex py-5 items-center',
+                !singleToken && 'cursor-pointer'
+              )}
+              onClick={singleToken ? undefined : toggleOpened}
             >
               <StaticCurrencyImage
-                currencyCode={currency.code}
-                imageSrc={currency.icon}
+                currencyName={currencyName}
                 style={{
                   borderRadius: '50%',
                   width: 32,
@@ -122,17 +124,15 @@ export const TopUpInputHeader = forwardRef<HTMLDivElement, Props>(
               />
               <div className="flex flex-col ml-2 text-left whitespace-nowrap">
                 <span className="text-gray-700 font-normal text-lg overflow-ellipsis overflow-hidden w-16">
-                  {currency.code}
-                </span>
-                <span
-                  className="text-indigo-500 font-medium overflow-ellipsis overflow-hidden w-12"
-                  style={{ fontSize: 11 }}
-                >
-                  {currency.networkShortName ?? getProperNetworkFullName(currency)}
+                  {currencyName}
                 </span>
               </div>
 
-              <ChevronDownIcon className="w-4 ml-2 h-auto text-gray-700 stroke-current stroke-2" />
+              {singleToken ? (
+                <span className="w-4 ml-2"></span>
+              ) : (
+                <ChevronDownIcon className="w-4 ml-2 h-auto text-gray-700 stroke-current stroke-2" />
+              )}
             </div>
             <div
               className={classNames(
@@ -175,7 +175,7 @@ export const TopUpInputHeader = forwardRef<HTMLDivElement, Props>(
           </div>
         </div>
         {maxAmount && !opened && (
-          <MaxAmountErrorComponent isMaxAmountError={isMaxAmountError} maxAmount={maxAmount} coin={currency.code} />
+          <MaxAmountErrorComponent isMaxAmountError={isMaxAmountError} maxAmount={maxAmount} coin={currencyName} />
         )}
       </div>
     );

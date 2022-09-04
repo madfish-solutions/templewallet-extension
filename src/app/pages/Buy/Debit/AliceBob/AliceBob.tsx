@@ -97,7 +97,7 @@ export const AliceBob = () => {
           <div className="flex w-full justify-center mb-6 text-red-600" style={{ fontSize: 17 }}>
             <AttentionRedIcon />
             <h3 className="ml-1">
-              <T id="aliceBobError" />
+              <T id="serviceIsUnavailable" />
             </h3>
           </div>
         )}

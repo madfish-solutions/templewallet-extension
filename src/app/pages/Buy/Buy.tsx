@@ -66,8 +66,9 @@ const Buy: FC = () => {
       </div>
       <div className={classNames('-mx-4', fullPage && 'rounded-t-md')}>
         <div
+          className="border-gray-300"
           style={{
-            boxShadow: '0 1px 2px 0 rgb(0 0 0 / 20%)'
+            borderBottomWidth: 1
           }}
         >
           <div className={classNames('w-full max-w-sm mx-auto', 'flex items-center justify-center')}>

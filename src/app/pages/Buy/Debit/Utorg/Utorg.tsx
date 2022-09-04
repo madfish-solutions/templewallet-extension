@@ -1,36 +1,80 @@
-import React, { ChangeEvent, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { ChangeEvent, useCallback, useEffect, useState } from 'react';
+
+import { useDebouncedCallback } from 'use-debounce';
+import { useDebounce } from 'use-debounce/esm';
 
 import { T } from '../../../../../lib/i18n/react';
+import { useAccount } from '../../../../../lib/temple/front';
+import { createOrder } from '../../../../../lib/utorg-api';
 import Divider from '../../../../atoms/Divider';
 import FormSubmitButton from '../../../../atoms/FormSubmitButton';
+import { ReactComponent as AttentionRedIcon } from '../../../../icons/attentionRed.svg';
 import PageLayout from '../../../../layouts/PageLayout';
-import { outputTokensList } from '../../Crypto/Exolix/config';
-import { SelectCryptoSelectors } from '../SelectCrypto.selectors';
+import { BuySelectors } from '../../Buy.selectors';
+import styles from '../../Crypto/Exolix/Exolix.module.css';
 import { TopUpInput } from './components/TopUpInput/TopUpInput';
+import { UTORG_PRIVICY_LINK, UTORG_TERMS_LINK } from './config';
+import { useDisabledProceed } from './hooks/useDisabledProceed';
+import { useExchangeRate } from './hooks/useExchangeRate';
+import { useOutputAmount } from './hooks/useOutputAmount';
+import { useUpdatedExchangeInfo } from './hooks/useUpdatedExchangeInfo';
 
-const REQUEST_LATENCY = 200;
+const DEFAULT_CURRENCY = 'USD';
+const REQUEST_LATENCY = 300;
+const INPUT_UPDATE_LATENCY = 200;
 
 export const Utorg = () => {
-  const [coinFrom, setCoinFrom] = useState(INITIAL_COIN_FROM);
-  const [coinTo, setCoinTo] = useState(outputTokensList[0]);
+  const [inputCurrency, setInputCurrency] = useState(DEFAULT_CURRENCY);
 
-  const [minExchangeAmount, setMinExchangeAmount] = useState(600);
-  const [maxExchangeAmount, setMaxExchangeAmount] = useState(29500);
+  const [inputAmount, setInputAmount] = useState(0);
 
-  const [amount, setAmount] = useState(0);
   const [link, setLink] = useState('');
-  const [isLinkLoading, setIsLinkLoading] = useState(false);
 
-  const isMinAmountError = useMemo(() => amount !== 0 && amount < minExchangeAmount, [amount, minExchangeAmount]);
-  const isMaxAmountError = useMemo(() => amount !== 0 && amount > maxExchangeAmount, [amount, maxExchangeAmount]);
-  const disabledProceed = useMemo(
-    () => isMinAmountError || isMaxAmountError || amount === 0,
-    [isMinAmountError, isMaxAmountError, amount]
+  const [isApiError, setIsApiError] = useState(false);
+  const [isLoading, setLoading] = useState(false);
+
+  const { publicKeyHash } = useAccount();
+  const [inputAmountDebounced] = useDebounce(inputAmount, INPUT_UPDATE_LATENCY);
+
+  const exchangeRate = useExchangeRate(inputCurrency, setLoading, setIsApiError);
+  const outputAmount = useOutputAmount(inputAmountDebounced, inputCurrency, setLoading, setIsApiError);
+
+  const { currencies, minXtzExchangeAmount, maxXtzExchangeAmount, isMinMaxLoading } = useUpdatedExchangeInfo(
+    setLoading,
+    setIsApiError
   );
 
-  const handleAmountChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setAmount(Number(e.target.value));
-  };
+  const { isMinAmountError, isMaxAmountError, disabledProceed } = useDisabledProceed(
+    inputAmount,
+    outputAmount,
+    minXtzExchangeAmount,
+    maxXtzExchangeAmount,
+    isApiError
+  );
+
+  const linkRequest = useCallback(() => {
+    if (!disabledProceed) {
+      setLoading(true);
+      createOrder(inputAmount, inputCurrency, publicKeyHash)
+        .then(url => {
+          setLink(url);
+          setLoading(false);
+        })
+        .catch(() => {
+          setIsApiError(true);
+          setLoading(false);
+        });
+    }
+  }, [inputAmount, disabledProceed, inputCurrency, publicKeyHash]);
+
+  const debouncedLinkRequest = useDebouncedCallback(linkRequest, REQUEST_LATENCY);
+
+  useEffect(() => debouncedLinkRequest(), [debouncedLinkRequest, inputAmount, inputCurrency]);
+
+  const handleInputAmountChange = useCallback(
+    (e: ChangeEvent<HTMLInputElement>) => setInputAmount(Number(e.target.value)),
+    []
+  );
 
   return (
     <PageLayout
@@ -40,33 +84,49 @@ export const Utorg = () => {
         </div>
       }
     >
-      <div className="mx-auto my-10 text-center font-inter font-normal text-gray-700" style={{ maxWidth: 360 }}>
-        <Divider style={{ marginBottom: '10px' }} />
-
+      {isApiError && (
+        <div className="flex w-full justify-center my-6 text-red-600" style={{ fontSize: 17 }}>
+          <AttentionRedIcon />
+          <h3 className="ml-1">
+            <T id="serviceIsUnavailable" />
+          </h3>
+        </div>
+      )}
+      <div className="mx-auto mt-4 mb-10 text-center font-inter font-normal text-gray-700" style={{ maxWidth: 360 }}>
         <TopUpInput
-          currency={coinFrom}
-          currenciesList={currencies ?? []}
+          currencyName={inputCurrency}
+          currenciesList={currencies}
           label={<T id="send" />}
-          setCurrency={setCoinFrom}
-          onAmountChange={handleAmountChange}
+          setCurrencyName={setInputCurrency}
+          className="mb-4"
+          onAmountChange={handleInputAmountChange}
+          amountInputDisabled={isMinMaxLoading}
           isSearchable
         />
 
         <br />
         <TopUpInput
-          currency={coinTo}
-          currenciesList={outputTokensList}
+          readOnly
+          singleToken
+          amountInputDisabled
           label={<T id="get" />}
-          readOnly={true}
-          amountInputDisabled={true}
-          minAmount={minAmount}
-          maxAmount={lastMaxAmount}
+          currenciesList={[]}
+          currencyName="XTZ"
+          minAmount={minXtzExchangeAmount.toString()}
+          maxAmount={maxXtzExchangeAmount.toString()}
           isMinAmountError={isMinAmountError}
           isMaxAmountError={isMaxAmountError}
-          amount={depositAmount}
-          setCurrency={setCoinTo}
+          amount={outputAmount}
         />
         <Divider style={{ marginTop: '40px', marginBottom: '20px' }} />
+        <div className={styles['exchangeRateBlock']}>
+          <p className={styles['exchangeTitle']}>
+            <T id={'exchangeRate'} />
+          </p>
+          <p className={styles['exchangeData']}>
+            1 {inputCurrency} ≈ {exchangeRate} XTZ
+          </p>
+        </div>
         <FormSubmitButton
           className="w-full justify-center border-none mt-6"
           style={{
@@ -74,8 +134,8 @@ export const Utorg = () => {
             padding: 0
           }}
           disabled={disabledProceed}
-          loading={isLinkLoading}
-          testID={SelectCryptoSelectors.AliceBob}
+          loading={isLoading}
+          testID={BuySelectors.Utorg}
         >
           <a
             href={link}
@@ -96,20 +156,10 @@ export const Utorg = () => {
               id="privacyAndPolicyLinks"
               substitutions={[
                 <T id={'next'} />,
-                <a
-                  className={styles['link']}
-                  rel="noreferrer"
-                  href="https://oval-rhodium-33f.notion.site/End-User-License-Agreement-Abex-Eng-6124123e256d456a83cffc3b2977c4dc"
-                  target="_blank"
-                >
+                <a className={styles['link']} rel="noreferrer" href={UTORG_TERMS_LINK} target="_blank">
                   <T id={'termsOfUse'} />
                 </a>,
-                <a
-                  className={styles['link']}
-                  rel="noreferrer"
-                  href="https://oval-rhodium-33f.notion.site/Privacy-Policy-Abex-Eng-d70fa7cc134341a3ac4fd04816358b9e"
-                  target="_blank"
-                >
+                <a className={styles['link']} rel="noreferrer" href={UTORG_PRIVICY_LINK} target="_blank">
                   <T id={'privacyPolicy'} />
                 </a>
               ]}

@@ -4,5 +4,6 @@ export enum BuySelectors {
   MoonPay = 'TopUp/MoonPayContinue',
   Exolix = 'TopUp/ExolixContinue',
   Ramp = 'TopUp/RampTab',
+  Utorg = 'TopUp/Utorg',
   AliceBob = 'TopUp/AliceBob'
 }

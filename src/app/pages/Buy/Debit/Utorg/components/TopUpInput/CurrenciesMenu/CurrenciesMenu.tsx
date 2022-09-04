@@ -7,23 +7,22 @@ import Spinner from 'app/atoms/Spinner/Spinner';
 import { T } from 'lib/i18n/react';
 
 import { useAppEnvStyle } from '../../../../../../../hooks/useAppEnvStyle';
-import { CurrencyInterface } from '../../../exolix.interface';
 import { CurrencyOption } from './CurrencyOption/CurrencyOption';
 
 interface Props {
-  value: CurrencyInterface;
-  options: CurrencyInterface[];
+  value: string;
+  options: string[];
   isLoading?: boolean;
   opened: boolean;
   setOpened: (newValue: boolean) => void;
-  onChange: (newValue: CurrencyInterface) => void;
+  onChange: (newValue: string) => void;
 }
 
 export const CurrenciesMenu: FC<Props> = ({ value, options, isLoading = false, opened, setOpened, onChange }) => {
   const { dropdownWidth } = useAppEnvStyle();
 
-  const handleOptionClick = (newValue: CurrencyInterface) => {
-    if (value.code !== newValue.code || value.network !== newValue.network) {
+  const handleOptionClick = (newValue: string) => {
+    if (value !== newValue) {
       onChange(newValue);
     }
     setOpened(false);
@@ -60,8 +59,8 @@ export const CurrenciesMenu: FC<Props> = ({ value, options, isLoading = false, o
         rowRenderer={({ key, index, style }) => (
           <CurrencyOption
             key={key}
-            currency={options[index]}
-            isSelected={value.code === options[index].code && value.network === options[index].network}
+            currencyName={options[index]}
+            isSelected={value === options[index]}
             style={style}
             onClick={handleOptionClick}
           />

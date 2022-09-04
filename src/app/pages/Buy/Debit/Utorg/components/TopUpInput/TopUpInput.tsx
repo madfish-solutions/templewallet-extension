@@ -26,9 +26,14 @@ const sameWidthModifiers: Array<Modifier<string, any>> = [
   }
 ];
 
-export const TopUpInput: FC<TopUpInputProps> = props => {
-  const { currency, currenciesList, setCurrency, className, isCurrenciesLoading } = props;
-
+export const TopUpInput: FC<TopUpInputProps> = ({
+  currencyName,
+  currenciesList,
+  setCurrencyName = () => {},
+  className,
+  isCurrenciesLoading,
+  ...rest
+}) => {
   const { filteredCurrencies, searchValue, setSearchValue } = useFilteredCurrencies(currenciesList);
 
   return (
@@ -40,24 +45,29 @@ export const TopUpInput: FC<TopUpInputProps> = props => {
         fallbackPlacementsEnabled={false}
         popup={({ opened, setOpened }) => (
           <CurrenciesMenu
-            value={currency}
+            value={currencyName}
             options={filteredCurrencies}
             isLoading={isCurrenciesLoading}
             opened={opened}
             setOpened={setOpened}
-            onChange={currency => setCurrency(currency)}
+            onChange={currencyName => setCurrencyName(currencyName)}
           />
         )}
       >
         {({ ref, opened, toggleOpened, setOpened }) => (
           <TopUpInputHeader
             ref={ref as unknown as React.RefObject<HTMLDivElement>}
+            currencyName={currencyName}
+            currenciesList={currenciesList}
+            isCurrenciesLoading={isCurrenciesLoading}
+            setCurrencyName={setCurrencyName}
+            className={className}
             opened={opened}
             setOpened={setOpened}
             toggleOpened={toggleOpened}
             searchString={searchValue}
             onSearchChange={e => setSearchValue(e.target.value)}
-            {...props}
+            {...rest}
           />
         )}
       </Popper>
