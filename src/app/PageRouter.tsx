@@ -24,7 +24,7 @@ import { useTempleClient } from 'lib/temple/front';
 import * as Woozie from 'lib/woozie';
 
 import RootSuspenseFallback from './a11y/RootSuspenseFallback';
-import Buy from './pages/Buy/Buy';
+import { Buy } from './pages/Buy/Buy';
 import { AliceBob } from './pages/Buy/Debit/AliceBob/AliceBob';
 import { Utorg } from './pages/Buy/Debit/Utorg/Utorg';
 import AttentionPage from './pages/Onboarding/pages/AttentionPage';

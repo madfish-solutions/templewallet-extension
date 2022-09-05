@@ -17,7 +17,7 @@ import { BuySelectors } from './Buy.selectors';
 import { Crypto } from './Crypto/Crypto';
 import { Debit } from './Debit/Debit';
 
-const Buy: FC = () => {
+export const Buy: FC = () => {
   const { fullPage } = useAppEnv();
   const tabSlug = useTabSlug();
   const { assetName } = useGasToken();
@@ -106,8 +106,6 @@ const Buy: FC = () => {
     </PageLayout>
   );
 };
-
-export default Buy;
 
 interface SuspenseContainerProps extends PropsWithChildren {
   whileMessage: string;
