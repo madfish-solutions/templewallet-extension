@@ -23,7 +23,7 @@ import OperationStatus from 'app/templates/OperationStatus';
 import { useFormAnalytics } from 'lib/analytics';
 import { T, t } from 'lib/i18n/react';
 import { getRoutingFeeTransferParams } from 'lib/swap-router';
-import { ROUTING_FEE_PERCENT, ROUTING_FEE_RATIO, TEZOS_DEXES_API_URL } from 'lib/swap-router/config';
+import { ROUTING_FEE_PERCENT, TEZOS_DEXES_API_URL } from 'lib/swap-router/config';
 import { useAccount, useAssetMetadata, useTezos } from 'lib/temple/front';
 import { atomsToTokens, tokensToAtoms } from 'lib/temple/helpers';
 import useTippy from 'lib/ui/useTippy';
@@ -93,15 +93,7 @@ export const SwapForm: FC = () => {
     () => (inputValue.amount ? tokensToAtoms(inputValue.amount, inputAssetMetadata.decimals) : undefined),
     [inputValue.amount, inputAssetMetadata.decimals]
   );
-  const inputMutezAmountWithFee = useMemo(
-    () => (inputMutezAmount ? inputMutezAmount.multipliedBy(ROUTING_FEE_RATIO).dividedToIntegerBy(1) : undefined),
-    [inputMutezAmount]
-  );
-  const bestTradeWithSlippageTolerance = useTradeWithSlippageTolerance(
-    inputMutezAmountWithFee,
-    bestTrade,
-    slippageTolerance
-  );
+  const bestTradeWithSlippageTolerance = useTradeWithSlippageTolerance(inputMutezAmount, bestTrade, slippageTolerance);
 
   const [error, setError] = useState<Error>();
   const [operation, setOperation] = useState<BatchWalletOperation>();
@@ -118,8 +110,8 @@ export const SwapForm: FC = () => {
   );
 
   useEffect(() => {
-    if (inputMutezAmountWithFee && routePairsCombinations.length > 0) {
-      const bestTradeExactIn = getBestTradeExactInput(inputMutezAmountWithFee, routePairsCombinations);
+    if (inputMutezAmount && routePairsCombinations.length > 0) {
+      const bestTradeExactIn = getBestTradeExactInput(inputMutezAmount, routePairsCombinations);
       const bestTradeOutput = getTradeOutputAmount(bestTradeExactIn);
 
       const outputTzAmount = bestTradeOutput ? atomsToTokens(bestTradeOutput, outputAssetMetadata.decimals) : undefined;
@@ -135,7 +127,7 @@ export const SwapForm: FC = () => {
       triggerValidation();
     }
   }, [
-    inputMutezAmountWithFee,
+    inputMutezAmount,
     outputValue.assetSlug,
     slippageTolerance,
     routePairsCombinations,
