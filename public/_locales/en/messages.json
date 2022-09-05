@@ -1045,6 +1045,27 @@
   "delegationFaq4": {
     "message": "Delegation is the in-build function of the Temple Wallet."
   },
+  "delegationPointsHead1": {
+    "message": "Earn 5.6% interest"
+  },
+  "delegationPointsHead2": {
+    "message": "on your Tezos"
+  },
+  "delegationPointsHead3": {
+    "message": "annualy from Baking rewards"
+  },
+  "delegationPoint1": {
+    "message": "Your first reward in Tezos will be paid approximately in 36 days."
+  },
+  "delegationPoint2": {
+    "message": "Then, you receive a reward every 3 days."
+  },
+  "delegationPoint3": {
+    "message": "Earn rate varies over time. Check the current rate in your Wallet."
+  },
+  "delegationPoint4": {
+    "message": "Your Tezos tokens are never locked. Send anytime!"
+  },
   "baker": {
     "message": "Baker"
   },

@@ -6,6 +6,7 @@ import { Collapse } from 'react-collapse';
 
 import { Button } from 'app/atoms/Button';
 import Spinner from 'app/atoms/Spinner/Spinner';
+// SVG
 import { ReactComponent as ChevronDownIcon } from 'app/icons/chevron-down.svg';
 import { ReactComponent as DelegateIcon } from 'app/icons/delegate.svg';
 import { ReactComponent as DiscordIcon } from 'app/icons/delegationDis.svg';
@@ -13,6 +14,11 @@ import { ReactComponent as RedditIcon } from 'app/icons/delegationRed.svg';
 import { ReactComponent as TelegramIcon } from 'app/icons/delegationTg.svg';
 import { ReactComponent as TwitterIcon } from 'app/icons/delegationTwi.svg';
 import { ReactComponent as YoutubeIcon } from 'app/icons/delegationYt.svg';
+import { ReactComponent as ClockRepeatIcon } from 'app/icons/history.svg';
+import { ReactComponent as StockUpIcon } from 'app/icons/stock-up.svg';
+import { ReactComponent as ClockIcon } from 'app/icons/time.svg';
+import { ReactComponent as UnlockIcon } from 'app/icons/unlock.svg';
+//
 import BakingHistoryItem from 'app/pages/Explore/BakingHistoryItem';
 import BakerBanner from 'app/templates/BakerBanner';
 import { T, t } from 'lib/i18n/react';
@@ -223,6 +229,80 @@ const BakingSection = memo(() => {
           ) : (
             <div className="flex flex-col items-center text-black">
               <DelegateIcon className="mb-1 stroke-current" />
+
+              <>
+                <h3 className="mb-4 text-lg font-medium text-center w-full">
+                  <span className="text-blue-500">
+                    <T id="delegationPointsHead1" />
+                  </span>{' '}
+                  <T id="delegationPointsHead2" />
+                  <br />
+                  <T id="delegationPointsHead3" />
+                </h3>
+
+                <div className="mb-4 bg-gray-100 rounded-lg">
+                  <div
+                    className={classNames(
+                      'relative',
+                      'border-b border-gray-200',
+                      'flex items-center',
+                      'text-black-400 py-3 pr-3'
+                    )}
+                  >
+                    <aside className="flex items-center p-4 text-blue-500">
+                      <ClockIcon className="w-8 h-8 stroke-current" style={{ strokeWidth: 1.5 }} />
+                    </aside>
+                    <p className="text-base">
+                      <T id="delegationPoint1" />
+                    </p>
+                  </div>
+                  <div
+                    className={classNames(
+                      'relative',
+                      'border-b border-gray-200',
+                      'flex items-center',
+                      'text-black-400 py-3 pr-3'
+                    )}
+                  >
+                    <aside className="flex items-center p-4 text-blue-500">
+                      <ClockRepeatIcon className="w-8 h-8 stroke-current" style={{ strokeWidth: 1.5 }} />
+                    </aside>
+                    <p className="text-base">
+                      <T id="delegationPoint2" />
+                    </p>
+                  </div>
+                  <div
+                    className={classNames(
+                      'relative',
+                      'border-b border-gray-200',
+                      'flex items-center',
+                      'text-black-400 py-3 pr-3'
+                    )}
+                  >
+                    <aside className="flex items-center p-4 text-blue-500">
+                      <StockUpIcon className="w-8 h-8 stroke-current" style={{ strokeWidth: 1.5 }} />
+                    </aside>
+                    <p className="text-base">
+                      <T id="delegationPoint3" />
+                    </p>
+                  </div>
+                  <div
+                    className={classNames(
+                      'relative',
+                      // 'border-b border-gray-200',
+                      'flex items-center',
+                      'text-black-400 py-3 pr-3'
+                    )}
+                  >
+                    <aside className="flex items-center p-4 text-blue-500">
+                      <UnlockIcon className="w-8 h-8 stroke-current" style={{ strokeWidth: 1.5 }} />
+                    </aside>
+                    <p className="text-base">
+                      <T id="delegationPoint4" />
+                    </p>
+                  </div>
+                </div>
+              </>
 
               {isDcpNetwork ? (
                 <T id="dcpDelegatingMotivation">
