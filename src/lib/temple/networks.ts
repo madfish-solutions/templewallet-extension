@@ -24,7 +24,7 @@ export const NETWORKS: TempleNetwork[] = [
     nameI18nKey: 'tezosMainnet',
     description: 'Tezos mainnet',
     type: 'main',
-    rpcBaseURL: 'https://mainnet-node.madfish.solutions',
+    rpcBaseURL: 'https://uoi3x99n7c.tezosrpc.midl.dev',
     color: '#83b300',
     disabled: false
   },
@@ -78,7 +78,7 @@ export const NETWORKS: TempleNetwork[] = [
     name: 'Ghostnet Testnet',
     description: 'Ghostnet testnet',
     type: 'test',
-    rpcBaseURL: 'https://rpc.ghostnet.teztnets.xyz/',
+    rpcBaseURL: 'https://uoi3x99n7c.ghostnet.tezosrpc.midl.dev',
     color: '#131380',
     disabled: false
   },

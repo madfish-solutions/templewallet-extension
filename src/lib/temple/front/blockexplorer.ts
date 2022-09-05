@@ -105,21 +105,19 @@ const BLOCK_EXPLORER_STORAGE_KEY = 'block_explorer';
 export function useBlockExplorer() {
   const [explorerId, setExplorerId] = useStorage<BlockExplorerId>(BLOCK_EXPLORER_STORAGE_KEY, 'tzkt');
   const explorer = useMemo(() => BLOCK_EXPLORERS.find(({ id }) => id === explorerId)!, [explorerId]);
+
   return {
     explorer,
     setExplorerId
   };
 }
 
-export function useExplorerBaseUrls() {
+export function useExplorerBaseUrls(): Partial<BaseUrls> {
   const chainId = useChainId();
   const { explorer } = useBlockExplorer();
-  return useMemo<Partial<BaseUrls>>(() => {
-    if (chainId && isKnownChainId(chainId)) {
-      const fallbackBaseUrls =
-        BLOCK_EXPLORERS.find(currentExplorer => currentExplorer.baseUrls.get(chainId))?.baseUrls.get(chainId) ?? {};
-      return explorer.baseUrls.get(chainId) ?? fallbackBaseUrls;
-    }
-    return {};
-  }, [chainId, explorer]);
+
+  if (chainId && isKnownChainId(chainId)) {
+    return explorer.baseUrls.get(chainId) ?? {};
+  }
+  return {};
 }

@@ -79,7 +79,10 @@ const IconifiedSelect = <T extends unknown>({
           </Popper>
         </>
       ) : (
-        <SelectButton Icon={OptionSelectedIcon} Content={OptionSelectedContent} value={value} />
+        <>
+          {title}
+          <SelectButton Icon={OptionSelectedIcon} Content={OptionSelectedContent} value={value} />
+        </>
       )}
     </div>
   );
