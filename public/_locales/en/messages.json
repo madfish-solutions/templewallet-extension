@@ -2275,9 +2275,6 @@
   "updatingMinMax": {
     "message": "Updating min/max..."
   },
-  "loading": {
-    "message": "Loading..."
-  },
   "done": {
     "message": "Done!"
   },
