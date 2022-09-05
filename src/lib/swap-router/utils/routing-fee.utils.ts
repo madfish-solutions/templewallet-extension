@@ -10,9 +10,7 @@ export const getRoutingFeeTransferParams = async (
   senderPublicKeyHash: string,
   tezos: TezosToolkit
 ) => {
-  console.log(trade);
   const tradeOutputOperation = getTradeOutputOperation(trade);
-  console.log(tradeOutputOperation);
 
   if (outputTokenMutezAmount && tradeOutputOperation) {
     const feeAmount = outputTokenMutezAmount.minus(
