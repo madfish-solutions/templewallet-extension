@@ -187,7 +187,7 @@ export const SwapForm: FC = () => {
     try {
       setOperation(undefined);
       const routingFeeOpParams = await getRoutingFeeTransferParams(
-        bestTradeWithSlippageTolerance[bestTradeWithSlippageTolerance.length - 1].aTokenAmount,
+        bestTradeWithSlippageTolerance[bestTradeWithSlippageTolerance.length - 1].bTokenAmount,
         bestTradeWithSlippageTolerance,
         account.publicKeyHash,
         tezos

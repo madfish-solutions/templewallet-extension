@@ -16,10 +16,10 @@ export const getRoutingFeeTransferParams = async (
 
   if (outputTokenMutezAmount && tradeOutputOperation) {
     const feeAmount = outputTokenMutezAmount.minus(
-      tradeOutputOperation.aTokenAmount.multipliedBy(ROUTING_FEE_RATIO).dividedToIntegerBy(1)
+      tradeOutputOperation.bTokenAmount.multipliedBy(ROUTING_FEE_RATIO).dividedToIntegerBy(1)
     );
 
-    if (tradeOutputOperation.aTokenSlug === 'tez') {
+    if (tradeOutputOperation.bTokenSlug === 'tez') {
       return [
         {
           amount: feeAmount.toNumber(),
@@ -29,7 +29,7 @@ export const getRoutingFeeTransferParams = async (
       ];
     }
 
-    const assetContract = await loadAssetContract(tradeOutputOperation.aTokenSlug, tezos);
+    const assetContract = await loadAssetContract(tradeOutputOperation.bTokenSlug, tezos);
 
     if (assetContract) {
       if (assetContract.standard === TokenStandardEnum.FA1_2) {
