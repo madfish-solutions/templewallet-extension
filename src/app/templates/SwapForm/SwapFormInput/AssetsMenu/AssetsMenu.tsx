@@ -4,12 +4,12 @@ import { List } from 'react-virtualized';
 
 import DropdownWrapper from 'app/atoms/DropdownWrapper';
 import Spinner from 'app/atoms/Spinner/Spinner';
-import { useAppEnv } from 'app/env';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
 import { T } from 'lib/i18n/react';
 import { useAccount, useChainId } from 'lib/temple/front';
 import * as Repo from 'lib/temple/repo';
 
+import { useAppEnvStyle } from '../../../../hooks/useAppEnvStyle';
 import { AssetOption } from './AssetOption/AssetOption';
 
 interface Props {
@@ -35,7 +35,7 @@ export const AssetsMenu: FC<Props> = ({
   setOpened,
   onChange
 }) => {
-  const appEnv = useAppEnv();
+  const { dropdownWidth } = useAppEnvStyle();
   const chainId = useChainId(true)!;
   const account = useAccount();
   const isShowSearchOption = useMemo(() => !options.includes(searchAssetSlug), [options, searchAssetSlug]);
@@ -90,7 +90,7 @@ export const AssetsMenu: FC<Props> = ({
       )}
       {/*// @ts-ignore*/}
       <List
-        width={appEnv.popup ? 328 : 382}
+        width={dropdownWidth}
         height={240}
         rowCount={options.length}
         rowHeight={65}
