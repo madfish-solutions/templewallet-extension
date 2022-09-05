@@ -37,12 +37,12 @@ const api = axios.create({
   })
 });
 
-export const createOrder = (paymentAmount: number, paymentCurrency: string, address: string) =>
+export const createOrder = (amount: number, paymentCurrency: string, address: string) =>
   api
     .post<{ data: { url: string } }>('/order/init', {
       type: 'FIAT_TO_CRYPTO',
       currency: 'XTZ',
-      paymentAmount,
+      amount,
       paymentCurrency,
       address,
       externalId: new Date().toString()
@@ -58,8 +58,13 @@ export const convertFiatAmountToXtz = (paymentAmount: number, fromCurrency: stri
     })
     .then(r => r.data.data);
 
-export const getExchangeRate = (fromCurrency: string) => convertFiatAmountToXtz(1, fromCurrency);
+export const getExchangeRate = (paymentAmount: number, fromCurrency: string) => {
+  const finalPaymentAmount = paymentAmount === 0 ? 1 : paymentAmount;
 
+  return convertFiatAmountToXtz(finalPaymentAmount, fromCurrency).then(
+    res => Math.round((res / finalPaymentAmount) * 10000) / 10000
+  );
+};
 export const getCurrenciesInfo = () =>
   api.post<{ data: utorgCurrencyInfo[] }>('/settings/currency').then(r => r.data.data);
 

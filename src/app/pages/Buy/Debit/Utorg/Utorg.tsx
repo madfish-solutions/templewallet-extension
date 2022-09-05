@@ -1,7 +1,6 @@
 import React, { ChangeEvent, useCallback, useEffect, useState } from 'react';
 
 import { useDebouncedCallback } from 'use-debounce';
-import { useDebounce } from 'use-debounce/esm';
 
 import { T } from '../../../../../lib/i18n/react';
 import { useAccount } from '../../../../../lib/temple/front';
@@ -21,11 +20,9 @@ import { useUpdatedExchangeInfo } from './hooks/useUpdatedExchangeInfo';
 
 const DEFAULT_CURRENCY = 'USD';
 const REQUEST_LATENCY = 300;
-const INPUT_UPDATE_LATENCY = 200;
 
 export const Utorg = () => {
   const [inputCurrency, setInputCurrency] = useState(DEFAULT_CURRENCY);
-
   const [inputAmount, setInputAmount] = useState(0);
 
   const [link, setLink] = useState('');
@@ -34,10 +31,9 @@ export const Utorg = () => {
   const [isLoading, setLoading] = useState(false);
 
   const { publicKeyHash } = useAccount();
-  const [inputAmountDebounced] = useDebounce(inputAmount, INPUT_UPDATE_LATENCY);
 
-  const exchangeRate = useExchangeRate(inputCurrency, setLoading, setIsApiError);
-  const outputAmount = useOutputAmount(inputAmountDebounced, inputCurrency, setLoading, setIsApiError);
+  const exchangeRate = useExchangeRate(inputAmount, inputCurrency, setLoading, setIsApiError);
+  const outputAmount = useOutputAmount(inputAmount, inputCurrency, setLoading, setIsApiError);
 
   const { currencies, minXtzExchangeAmount, maxXtzExchangeAmount, isMinMaxLoading } = useUpdatedExchangeInfo(
     setLoading,
@@ -55,7 +51,7 @@ export const Utorg = () => {
   const linkRequest = useCallback(() => {
     if (!disabledProceed) {
       setLoading(true);
-      createOrder(inputAmount, inputCurrency, publicKeyHash)
+      createOrder(outputAmount, inputCurrency, publicKeyHash)
         .then(url => {
           setLink(url);
           setLoading(false);
@@ -65,7 +61,7 @@ export const Utorg = () => {
           setLoading(false);
         });
     }
-  }, [inputAmount, disabledProceed, inputCurrency, publicKeyHash]);
+  }, [outputAmount, disabledProceed, inputCurrency, publicKeyHash]);
 
   const debouncedLinkRequest = useDebouncedCallback(linkRequest, REQUEST_LATENCY);
 
@@ -133,7 +129,7 @@ export const Utorg = () => {
             background: '#4299e1',
             padding: 0
           }}
-          disabled={disabledProceed}
+          disabled={disabledProceed || link === ''}
           loading={isLoading}
           testID={BuySelectors.Utorg}
         >
