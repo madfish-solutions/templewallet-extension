@@ -1,6 +1,5 @@
 import { DerivationType } from '@taquito/ledger-signer';
 import { TezosOperationError } from '@taquito/taquito';
-// import { char2Bytes } from '@taquito/utils';
 import {
   TempleDAppMessageType,
   TempleDAppErrorType,
@@ -612,12 +611,6 @@ async function createCustomNetworksSnapshot(settings: TempleSettings) {
 function getErrorData(err: any) {
   return err instanceof TezosOperationError ? err.errors.map(({ contract_code, ...rest }: any) => rest) : undefined;
 }
-
-// function generateRawPayloadBytes(payload: string) {
-//   const bytes = char2Bytes(Buffer.from(payload, 'utf8').toString('hex'));
-//   // https://tezostaquito.io/docs/signing/
-//   return `0501${char2Bytes(String(bytes.length))}${bytes}`;
-// }
 
 const close = (
   closing: boolean,

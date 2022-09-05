@@ -40,7 +40,6 @@ const CONFIRM_WINDOW_WIDTH = 380;
 const CONFIRM_WINDOW_HEIGHT = 632;
 const AUTODECLINE_AFTER = 120_000;
 const STORAGE_KEY = 'dapp_sessions';
-// const HEX_PATTERN = /^[0-9a-fA-F]+$/;
 const TEZ_MSG_SIGN_PATTERN = /^0501[a-f0-9]{8}54657a6f73205369676e6564204d6573736167653a20[a-f0-9]*$/;
 
 export async function getCurrentPermission(origin: string): Promise<TempleDAppGetCurrentPermissionResponse> {
