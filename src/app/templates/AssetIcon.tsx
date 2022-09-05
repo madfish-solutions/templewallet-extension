@@ -35,7 +35,6 @@ interface LoadStrategy {
 }
 
 const tokenLoadStrategy: Array<LoadStrategy> = [
-  { type: 'token', formatUriFn: formatAssetUri, field: 'thumbnailUri' },
   { type: 'thumbnailUri', formatUriFn: formatAssetUri, field: 'thumbnailUri' }
 ];
 const collectibleLoadStrategy: Array<LoadStrategy> = [
