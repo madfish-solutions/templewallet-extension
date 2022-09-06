@@ -32,7 +32,7 @@ const api = axios.create({
     headers: {
       'Content-Type': 'application/json',
       'X-AUTH-SID': SID,
-      'X-AUTH-NONCE': new Date().toString()
+      'X-AUTH-NONCE': Math.random().toString()
     }
   })
 });
