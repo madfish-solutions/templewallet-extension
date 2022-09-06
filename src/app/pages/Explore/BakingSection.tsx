@@ -255,8 +255,8 @@ const BakingSection = memo(() => {
                     </ul>
                   )}
 
-                  <p className={'text-xs mb-4 font-normal w-full'}>
-                    <T id={'delegationComunity'} />
+                  <p className="text-xs mb-4 font-normal w-full">
+                    <T id="delegationComunity" />
                   </p>
 
                   <div className="flex items-center gap-6 mb-6">
