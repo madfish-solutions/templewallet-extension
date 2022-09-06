@@ -15,20 +15,21 @@ export const StaticCurrencyImage: FC<Props> = ({ currencyName, style = {} }) => 
 
   return (
     <>
-      <div className="flex justify-center items-center bg-gray-300" style={{ ...style, ...conditionalStyle }}>
-        <img
-          alt="currencyImage"
-          width={21}
-          height={15}
-          src={UTORG_FIAT_ICONS_BASE_URL + currencyName.slice(0, -1) + '.svg'}
-          onLoad={() => setIsFailed(false)}
-          onError={() => setIsFailed(true)}
-        />
-      </div>
-      {currencyName === 'XTZ' && (
+      {currencyName === 'XTZ' ? (
         <img alt="tezIcon" style={style} src={browser.runtime.getURL('misc/token-logos/tez.svg')} />
+      ) : (
+        <div className="flex justify-center items-center bg-gray-300" style={{ ...style, ...conditionalStyle }}>
+          <img
+            alt="currencyImage"
+            width={21}
+            height={15}
+            src={UTORG_FIAT_ICONS_BASE_URL + currencyName.slice(0, -1) + '.svg'}
+            onLoad={() => setIsFailed(false)}
+            onError={() => setIsFailed(true)}
+          />
+        </div>
       )}
-      {isFailed && currencyName !== 'XTZ' && (
+      {isFailed && (
         <img alt="fallbackIcon" style={style} src={browser.runtime.getURL('misc/token-logos/fallback.svg')} />
       )}
     </>

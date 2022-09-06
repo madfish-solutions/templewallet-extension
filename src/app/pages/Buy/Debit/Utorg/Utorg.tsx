@@ -32,8 +32,8 @@ export const Utorg = () => {
 
   const { publicKeyHash } = useAccount();
 
-  const exchangeRate = useExchangeRate(inputAmount, inputCurrency, setLoading, setIsApiError);
-  const outputAmount = useOutputAmount(inputAmount, inputCurrency, setLoading, setIsApiError);
+  const exchangeRate = useExchangeRate(inputAmount, inputCurrency, setLoading);
+  const outputAmount = useOutputAmount(inputAmount, inputCurrency, setLoading);
 
   const { currencies, minXtzExchangeAmount, maxXtzExchangeAmount, isMinMaxLoading } = useUpdatedExchangeInfo(
     setLoading,
@@ -52,14 +52,8 @@ export const Utorg = () => {
     if (!disabledProceed) {
       setLoading(true);
       createOrder(outputAmount, inputCurrency, publicKeyHash)
-        .then(url => {
-          setLink(url);
-          setLoading(false);
-        })
-        .catch(() => {
-          setIsApiError(true);
-          setLoading(false);
-        });
+        .then(url => setLink(url))
+        .finally(() => setLoading(false));
     }
   }, [outputAmount, disabledProceed, inputCurrency, publicKeyHash]);
 
@@ -130,7 +124,7 @@ export const Utorg = () => {
             padding: 0
           }}
           disabled={disabledProceed || link === ''}
-          loading={isLoading}
+          loading={isLoading || isMinMaxLoading}
           testID={BuySelectors.Utorg}
         >
           <a
@@ -143,7 +137,7 @@ export const Utorg = () => {
               paddingBottom: '0.625rem'
             }}
           >
-            <T id={isMinMaxLoading ? 'updatingMinMax' : 'next'} />
+            <T id="next" />
           </a>
         </FormSubmitButton>
         <div className="border-solid border-gray-300" style={{ borderTopWidth: 1 }}>
