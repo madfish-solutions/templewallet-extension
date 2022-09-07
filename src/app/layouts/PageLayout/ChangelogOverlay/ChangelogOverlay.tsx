@@ -45,6 +45,7 @@ export const ChangelogOverlay: FC = () => {
           )}
           style={{
             backgroundColor: `#FFF2E6`,
+            minHeight: popup ? '100vh' : 200,
             maxHeight: popup ? '100vh' : 'calc(100vh - 96px)',
             paddingBottom: popup ? 104 : 160
           }}
