@@ -60,7 +60,7 @@ export const ChangelogOverlay: FC = () => {
                   <T id="update" /> {version}
                 </p>
                 <ul>
-                  {data.map((value, index) => (
+                  {data?.map((value, index) => (
                     <li className="mb-1" style={{ listStyleType: 'disc' }} key={index}>
                       {value}
                     </li>
@@ -106,6 +106,7 @@ const filterByVersion = (version: string | null | undefined, data: Array<Changel
     if (x.version === version) {
       foundVersion = i;
     }
+    if (!x.data) return false;
     return foundVersion ? foundVersion > i : true;
   });
 };
