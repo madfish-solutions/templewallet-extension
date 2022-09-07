@@ -41,7 +41,7 @@ export const ChangelogOverlay: FC = () => {
           className={classNames(
             'bg-white shadow-lg relative',
             s.overlay_scrollbar,
-            popup ? 'pt-12 px-8' : 'rounded-md'
+            popup ? 'pt-12 px-8' : 'pt-16 rounded-md'
           )}
           style={{
             backgroundColor: `#FFF2E6`,
@@ -49,20 +49,6 @@ export const ChangelogOverlay: FC = () => {
             paddingBottom: popup ? 108 : 160
           }}
         >
-          <Button
-            onClick={handleContinue}
-            className={classNames(
-              'font-inter font-normal text-sm text-gray-600',
-              'self-end mr-6 absolute top-0 right-0',
-              popup ? 'mt-3' : 'mt-6 pr-2'
-            )}
-            testID={ChangelogOverlaySelectors.Skip}
-            style={{
-              maxWidth: 'max-content'
-            }}
-          >
-            <T id="skip" />
-          </Button>
           <div className={classNames('flex flex-col max-w-sm mx-auto w-full')}>
             <p className="text-xl font-inter font-semibold" style={{ fontSize: 23, color: '#ED8936' }}>
               <T id="changelogTitle" />
@@ -84,7 +70,7 @@ export const ChangelogOverlay: FC = () => {
             <div
               className={classNames(s.overlay_ok_container)}
               style={{
-                height: popup ? 108 : 160,
+                height: popup ? 108 : 90,
                 bottom: popup ? 0 : 48,
                 left: popup ? 16 : 32,
                 right: popup ? 16 : 32
@@ -92,7 +78,7 @@ export const ChangelogOverlay: FC = () => {
             >
               <Button
                 className={classNames(
-                  'mt-6 py-2 px-8',
+                  'py-2',
                   'text-white font-inter rounded font-semibold uppercase',
                   'mx-auto',
                   s.overlay_ok_button

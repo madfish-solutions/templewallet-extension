@@ -27,7 +27,6 @@ Not supports in Firefox and IE */
 .overlay_scrollbar {
   min-width: 150px;
   overflow-y: scroll;
-  overflow-y: scroll;
 }
 
 .overlay_ok_container {
