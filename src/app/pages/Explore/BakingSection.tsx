@@ -1,18 +1,22 @@
-import React, { memo, useCallback, useMemo, useState } from 'react';
+import React, { memo, useCallback, useMemo } from 'react';
 
 import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
-import { Collapse } from 'react-collapse';
 
 import { Button } from 'app/atoms/Button';
 import Spinner from 'app/atoms/Spinner/Spinner';
-import { ReactComponent as ChevronDownIcon } from 'app/icons/chevron-down.svg';
+// SVG
 import { ReactComponent as DelegateIcon } from 'app/icons/delegate.svg';
 import { ReactComponent as DiscordIcon } from 'app/icons/delegationDis.svg';
 import { ReactComponent as RedditIcon } from 'app/icons/delegationRed.svg';
 import { ReactComponent as TelegramIcon } from 'app/icons/delegationTg.svg';
 import { ReactComponent as TwitterIcon } from 'app/icons/delegationTwi.svg';
 import { ReactComponent as YoutubeIcon } from 'app/icons/delegationYt.svg';
+import { ReactComponent as ClockRepeatIcon } from 'app/icons/history.svg';
+import { ReactComponent as StockUpIcon } from 'app/icons/stock-up.svg';
+import { ReactComponent as ClockIcon } from 'app/icons/time.svg';
+import { ReactComponent as UnlockIcon } from 'app/icons/unlock.svg';
+//
 import BakingHistoryItem from 'app/pages/Explore/BakingHistoryItem';
 import BakerBanner from 'app/templates/BakerBanner';
 import { T, t } from 'lib/i18n/react';
@@ -68,12 +72,9 @@ const BakingSection = memo(() => {
   const { data: myBakerPkh } = useDelegate(acc.publicKeyHash);
   const canDelegate = acc.type !== TempleAccountType.WatchOnly;
   const chainId = useChainId(true);
-  const [showDetails, setShowDetails] = useState(false);
   const { isDcpNetwork } = useGasToken();
 
   const { popup } = useAppEnv();
-
-  const toggleShowDetails = useCallback(() => setShowDetails(prevValue => !prevValue), []);
 
   const tippyProps = {
     trigger: 'mouseenter',
@@ -198,6 +199,8 @@ const BakingSection = memo(() => {
     [bakingHistory]
   );
 
+  const unfamiliarWithDelegation = bakingHistory ? bakingHistory.length === 0 : false;
+
   return useMemo(
     () => (
       <div className="flex justify-center">
@@ -222,81 +225,47 @@ const BakingSection = memo(() => {
             </>
           ) : (
             <div className="flex flex-col items-center text-black">
-              <DelegateIcon className="mb-1 stroke-current" />
-
               {isDcpNetwork ? (
-                <T id="dcpDelegatingMotivation">
-                  {message => (
-                    <p className="mb-6 text-sm font-light text-center" style={{ maxWidth: '20rem' }}>
-                      {message}
-                    </p>
-                  )}
-                </T>
+                <>
+                  <DelegateIcon className="mb-1 stroke-current" />
+                  <p className="mb-6 text-sm font-light text-center" style={{ maxWidth: '20rem' }}>
+                    <T id="dcpDelegatingMotivation" />
+                  </p>
+                </>
               ) : (
                 <>
-                  <T id="delegationWelcome">
-                    {message => <h3 className="mb-2 text-lg font-normal text-center w-full">{message}</h3>}
-                  </T>
+                  <h3 className="mb-4 text-lg font-medium text-center w-full">
+                    <span className="text-blue-500">
+                      <T id="delegationPointsHead1" />
+                    </span>{' '}
+                    <T id="delegationPointsHead2" />
+                    <br />
+                    <T id="delegationPointsHead3" />
+                  </h3>
 
-                  <div className={classNames('relative px-4 py-2', styles['sectionBg'])}>
-                    <p className={'text-sm font-normal w-full cursor-pointer'} onClick={toggleShowDetails}>
-                      <T id="delegationHowTo" />
-                    </p>
-                    <button
-                      className={classNames(
-                        'absolute flex items-center justify-center w-4 h-4 rounded',
-                        'text-orange-500 transform transition-transform duration-500',
-                        showDetails && 'rotate-180'
-                      )}
-                      style={{ right: '8px', top: '8px' }}
-                      onClick={toggleShowDetails}
-                    >
-                      <ChevronDownIcon className="w-4 h-4 stroke-1 stroke-current" />
-                    </button>
+                  {unfamiliarWithDelegation && (
+                    <ul className="mb-4 bg-gray-100 rounded-lg">
+                      <DelegateMotivationPoint Icon={ClockIcon} textNode={<T id="delegationPoint1" />} />
+                      <hr className="mx-4 bg-gray-200" />
+                      <DelegateMotivationPoint Icon={ClockRepeatIcon} textNode={<T id="delegationPoint2" />} />
+                      <hr className="mx-4 bg-gray-200" />
+                      <DelegateMotivationPoint Icon={StockUpIcon} textNode={<T id="delegationPoint3" />} />
+                      <hr className="mx-4 bg-gray-200" />
+                      <DelegateMotivationPoint Icon={UnlockIcon} textNode={<T id="delegationPoint4" />} />
+                    </ul>
+                  )}
 
-                    <Collapse
-                      theme={{ collapse: styles.ReactCollapse }}
-                      isOpened={showDetails}
-                      initialStyle={{ height: '0px', overflow: 'hidden' }}
-                    >
-                      <p className={'text-xs mb-2 font-normal w-full mt-2'}>
-                        <T id="delegationFaq1" />
-                      </p>
-                      <p className={'text-xs mb-2 font-normal w-full'}>
-                        <T id="delegationFaq2" />
-                      </p>
-                      <p className={'text-xs mb-2 font-normal w-full'}>
-                        <T id="delegationFaq3" />
-                      </p>
-                      <p className={'text-xs mb-2 font-normal w-full'}>
-                        <T id="delegationFaq4" />
-                      </p>
-                    </Collapse>
-                  </div>
-
-                  <p className={'text-xs mb-4 font-normal mt-6'}>
-                    <T id="delegationGuide" />
-                    <a
-                      className="ml-1 text-blue-500 underline"
-                      href="https://www.youtube.com/watch?v=iFH8WEfuaDI"
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      <T id="delegationGuideLink" />
-                    </a>
+                  <p className="text-xs mb-4 font-normal w-full">
+                    <T id="delegationComunity" />
                   </p>
 
-                  <div className="flex items-center gap-6 mb-2">
+                  <div className="flex items-center gap-6 mb-6">
                     {links.map(({ href, Icon }) => (
                       <a key={href} href={href} target="_blank" rel="noopener noreferrer">
                         <Icon className="h-full w-auto" />
                       </a>
                     ))}
                   </div>
-
-                  <p className={'text-xs mb-6 font-normal w-full'}>
-                    <T id="delegationComunity" />
-                  </p>
                 </>
               )}
               <DelegateLink
@@ -340,10 +309,9 @@ const BakingSection = memo(() => {
       loadingBakingHistory,
       bakingHistory,
       fallbackRewardsPerEvents,
-      showDetails,
-      toggleShowDetails,
       isDcpNetwork,
-      popup
+      popup,
+      unfamiliarWithDelegation
     ]
   );
 });
@@ -417,3 +385,21 @@ const reduceFunction = (
     [key]: fallbackRewardsValue
   };
 };
+
+const DelegateMotivationPoint: React.FC<{
+  Icon: React.FC<React.SVGProps<SVGSVGElement>>;
+  textNode: React.ReactNode;
+}> = ({ Icon, textNode }) => (
+  // eslint-disable-next-line prettier/prettier
+  <li
+    className={classNames(
+      'flex items-center',
+      'text-black-400 py-3 pr-3'
+    )}
+  >
+    <aside className="flex items-center p-4 text-blue-500">
+      <Icon className="w-8 h-8 stroke-current" style={{ strokeWidth: 1.5 }} />
+    </aside>
+    <p className="text-base">{textNode}</p>
+  </li>
+);

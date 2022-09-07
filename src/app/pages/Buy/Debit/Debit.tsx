@@ -9,6 +9,7 @@ import Link from 'lib/woozie/Link';
 import { ReactComponent as AliceBobIcon } from '../assets/AliceBob.svg';
 import ChainBitsIcon from '../assets/ChainBits.png';
 import { ReactComponent as MoonPayIcon } from '../assets/MoonPay.svg';
+import { ReactComponent as UtorgIcon } from '../assets/Utorg.svg';
 import { MoonPay } from './MoonPay/MoonPay';
 
 export const Debit: FC = () => {
@@ -26,6 +27,34 @@ export const Debit: FC = () => {
             <T id="buyWithMoonPayDescription" />
           </div>
           <MoonPay />
+        </div>
+      )}
+      {network.type === 'main' && (
+        <div className={classNames('mx-auto max-w-sm flex flex-col items-center', 'border-2 rounded-md p-4 mb-4')}>
+          <UtorgIcon />
+          <div className="text-lg text-center mt-4">
+            <T id="buyWithUtorg" />
+          </div>
+          <div className="text-center px-2 mt-2 mx-auto text-gray-700">
+            <T id="buyWithUtorgDescription" />
+          </div>
+          <Link
+            className={classNames(
+              'py-2 px-4 rounded mt-4',
+              'border-2',
+              'border-blue-500 hover:border-blue-600 focus:border-blue-600',
+              'flex items-center justify-center',
+              'text-white',
+              'shadow-sm hover:shadow focus:shadow',
+              'text-base font-medium',
+              'transition ease-in-out duration-300',
+              'bg-blue-500',
+              'w-full'
+            )}
+            to="/buy/debit/utorg"
+          >
+            <T id="continue" />
+          </Link>
         </div>
       )}
       {network.type === 'main' && (

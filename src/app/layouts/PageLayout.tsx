@@ -21,16 +21,12 @@ import { ReactComponent as DownloadMobileGreyIcon } from '../icons/download-mobi
 import { ReactComponent as DownloadMobileIcon } from '../icons/download-mobile.svg';
 import { useOnboardingProgress } from '../pages/Onboarding/hooks/useOnboardingProgress.hook';
 import { PageLayoutSelectors } from './PageLayout.selectors';
-import YupanaButtonMini from './PageLayout/assets/yupana-button-mini.png';
-import YupanaButton from './PageLayout/assets/yupana-button.png';
 import { ChangelogOverlay } from './PageLayout/ChangelogOverlay/ChangelogOverlay';
 import ConfirmationOverlay from './PageLayout/ConfirmationOverlay';
 import Header from './PageLayout/Header';
 import { useTempleMobile } from './PageLayout/hooks/useTempleMobile.hook';
 import { TempleMobileSelectors } from './PageLayout/TempleMobile.selectors';
-import { checkIsPromotionTime } from './PageLayout/utils/checkIsPromotionTime';
-import { YupanaSelectors } from './PageLayout/Yupana.selectors';
-import { YUPANA_LINK, YupanaOverlay } from './PageLayout/YupanaOverlay';
+import { YupanaOverlay } from './PageLayout/YupanaOverlay';
 
 interface PageLayoutProps extends PropsWithChildren, ToolbarProps {
   contentContainerStyle?: React.CSSProperties;
@@ -105,12 +101,11 @@ type ToolbarProps = {
 
 const Toolbar: FC<ToolbarProps> = ({ pageTitle, hasBackAction = true, step, setStep, skip, attention }) => {
   const { historyPosition, pathname } = useLocation();
-  const { fullPage, registerBackHandler, onBack, popup } = useAppEnv();
+  const { fullPage, registerBackHandler, onBack } = useAppEnv();
   const { setOnboardingCompleted } = useOnboardingProgress();
   const { trackEvent } = useAnalytics();
 
   const { isTempleMobileOverlaySkipped, setIsTempleMobileOverlaySkipped } = useTempleMobile();
-  const isPromotionTime = checkIsPromotionTime();
 
   const onStepBack = () => {
     if (step && setStep && step > 0) {
@@ -220,34 +215,16 @@ const Toolbar: FC<ToolbarProps> = ({ pageTitle, hasBackAction = true, step, setS
       <div className="flex-1" />
       {attention && (
         <div className="flex items-center content-end absolute right-0">
-          {isPromotionTime ? (
-            <a
-              href={YUPANA_LINK}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mr-3 my-auto"
-              onClick={() => trackEvent(YupanaSelectors.Icon, AnalyticsEventCategory.ButtonPress)}
-            >
-              <img
-                src={popup ? YupanaButtonMini : YupanaButton}
-                alt="YupanaButton"
-                style={{
-                  maxWidth: popup ? 28 : 72,
-                  maxHeight: popup ? 28 : 28
-                }}
-              />
-            </a>
-          ) : (
-            <a
-              href="https://templewallet.com/mobile"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mr-3 my-auto"
-              onClick={handleDownloadMobileIconClick}
-            >
-              {isTempleMobileOverlaySkipped ? <DownloadMobileIcon /> : <DownloadMobileGreyIcon />}
-            </a>
-          )}
+          <a
+            href="https://templewallet.com/mobile"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mr-3 my-auto"
+            onClick={handleDownloadMobileIconClick}
+          >
+            {isTempleMobileOverlaySkipped ? <DownloadMobileIcon /> : <DownloadMobileGreyIcon />}
+          </a>
+
           <Link to={'/attention'} className="mr-3">
             {isSafeBrowserVersion ? <AttentionGreyIcon /> : <AttentionRedIcon />}
           </Link>

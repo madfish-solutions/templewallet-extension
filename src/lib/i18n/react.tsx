@@ -11,12 +11,6 @@ export type ReactSubstitutions = ReactNode | ReactNode[];
 
 export type TID = keyof typeof _LocaleMessages;
 
-/*
-export const TIDS = Object.fromEntries(
-  Object.keys(_LocaleMessages).map(k => [k, k])
-) as { [k in TID]: k };
-*/
-
 export type TProps = {
   id: TID;
   substitutions?: any;
