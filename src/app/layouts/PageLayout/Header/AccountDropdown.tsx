@@ -75,42 +75,42 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
         {
           key: 'create-account',
           Icon: AddIcon,
-          i18nKey: 'createAccount',
+          i18nKey: 'createAccount' as const,
           linkTo: '/create-account',
           onClick: closeDropdown
         },
         {
           key: 'import-account',
           Icon: DownloadIcon,
-          i18nKey: 'importAccount',
+          i18nKey: 'importAccount' as const,
           linkTo: '/import-account',
           onClick: closeDropdown
         },
         {
           key: 'connect-ledger',
           Icon: LinkIcon,
-          i18nKey: 'connectLedger',
+          i18nKey: 'connectLedger' as const,
           linkTo: '/connect-ledger',
           onClick: closeDropdown
         },
         {
           key: 'dapps',
           Icon: DAppsIcon,
-          i18nKey: 'dapps',
+          i18nKey: 'dApps' as const,
           linkTo: '/dApps',
           onClick: closeDropdown
         },
         {
           key: 'settings',
           Icon: SettingsIcon,
-          i18nKey: 'settings',
+          i18nKey: 'settings' as const,
           linkTo: '/settings',
           onClick: closeDropdown
         },
         {
           key: 'maximise',
           Icon: MaximiseIcon,
-          i18nKey: appEnv.fullPage ? 'openNewTab' : 'maximiseView',
+          i18nKey: appEnv.fullPage ? ('openNewTab' as const) : ('maximiseView' as const),
           linkTo: null,
           onClick: handleMaximiseViewClick
         }

@@ -159,7 +159,7 @@ const OpStackItemComponent = memo<OpStackItemProps>(({ item }) => {
               <T id="delegation" />
             </>
           ),
-          argsI18nKey: 'delegationToSmb',
+          argsI18nKey: 'delegationToSmb' as const,
           args: [item.to]
         };
 
@@ -180,7 +180,7 @@ const OpStackItemComponent = memo<OpStackItemProps>(({ item }) => {
               <T id="interaction" />
             </>
           ),
-          argsI18nKey: 'interactionWithContract',
+          argsI18nKey: 'interactionWithContract' as const,
           args: [item.with]
         };
 
@@ -191,7 +191,7 @@ const OpStackItemComponent = memo<OpStackItemProps>(({ item }) => {
               ↓ <T id="transfer" />
             </>
           ),
-          argsI18nKey: 'transferFromSmb',
+          argsI18nKey: 'transferFromSmb' as const,
           args: [item.from]
         };
 
@@ -202,7 +202,7 @@ const OpStackItemComponent = memo<OpStackItemProps>(({ item }) => {
               ↑ <T id="transfer" />
             </>
           ),
-          argsI18nKey: 'transferToSmb',
+          argsI18nKey: 'transferToSmb' as const,
           args: [item.to]
         };
 

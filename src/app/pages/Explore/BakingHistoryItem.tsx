@@ -18,6 +18,7 @@ import { ReactComponent as ShieldOkIcon } from 'app/icons/shield-ok.svg';
 import { ReactComponent as TimeIcon } from 'app/icons/time.svg';
 import HashChip from 'app/templates/HashChip';
 import { getPluralKey, toLocalFormat } from 'lib/i18n/numbers';
+import type { TID } from 'lib/i18n/react';
 import { T } from 'lib/i18n/react';
 import { getRewardsStats, mutezToTz, useExplorerBaseUrls, useKnownBaker } from 'lib/temple/front';
 import { TzktRewardsEntry } from 'lib/tzkt';
@@ -231,7 +232,7 @@ const BakingHistoryItem: FC<BakingHistoryItemProps> = ({
                 <span key={1} className="text-blue-600">
                   {ownBlocks}
                 </span>,
-                <T id={getPluralKey('blocks', ownBlocks)} />,
+                <T id={getPluralKey('blocks', ownBlocks) as TID} />,
                 <span key={2} className="text-gray-600 flex">
                   +<Money smallFractionFont={false}>{mutezToTz(ownBlockFees)}</Money>
                   <span>{symbol}</span>
@@ -255,7 +256,7 @@ const BakingHistoryItem: FC<BakingHistoryItemProps> = ({
                 <span key={1} className="text-blue-600 flex">
                   {endorsements}
                 </span>,
-                <T id={getPluralKey('slots', endorsements)} />
+                <T id={getPluralKey('slots', endorsements) as TID} />
               ]}
             />
           ),
@@ -281,7 +282,7 @@ const BakingHistoryItem: FC<BakingHistoryItemProps> = ({
                 <span key={1} className="text-blue-600 flex">
                   {missedOwnBlocks}
                 </span>,
-                <T id={getPluralKey('blocks', missedOwnBlocks)} />,
+                <T id={getPluralKey('blocks', missedOwnBlocks) as TID} />,
                 <span key={2} className="text-gray-600 flex">
                   -<Money smallFractionFont={false}>{mutezToTz(missedOwnBlockFees)}</Money>
                   <span>{symbol}</span>
@@ -305,7 +306,7 @@ const BakingHistoryItem: FC<BakingHistoryItemProps> = ({
                 <span key={1} className="text-blue-600 flex">
                   {missedEndorsements}
                 </span>,
-                <T id={getPluralKey('slots', missedEndorsements)} />
+                <T id={getPluralKey('slots', missedEndorsements) as TID} />
               ]}
             />
           ),

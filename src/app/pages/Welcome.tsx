@@ -17,16 +17,16 @@ const SIGNS = [
     Icon: ({ className, ...rest }: ComponentProps<typeof EntranceIcon>) => (
       <EntranceIcon className={classNames('transform rotate-90', className)} {...rest} />
     ),
-    titleI18nKey: 'importExistingWallet',
-    descriptionI18nKey: 'importExistingWalletDescription'
+    titleI18nKey: 'importExistingWallet' as const,
+    descriptionI18nKey: 'importExistingWalletDescription' as const
   },
   {
     key: 'create',
     linkTo: '/create-wallet',
     filled: true,
     Icon: FolderAddIcon,
-    titleI18nKey: 'createNewWallet',
-    descriptionI18nKey: 'createNewWalletDescription'
+    titleI18nKey: 'createNewWallet' as const,
+    descriptionI18nKey: 'createNewWalletDescription' as const
   }
 ];
 

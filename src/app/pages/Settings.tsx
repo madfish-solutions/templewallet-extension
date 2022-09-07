@@ -39,101 +39,101 @@ const RevealSeedPhrase: FC = () => <RevealSecret reveal="seed-phrase" />;
 const TABS = [
   {
     slug: 'general-settings',
-    titleI18nKey: 'generalSettings',
+    titleI18nKey: 'generalSettings' as const,
     Icon: SettingsIcon,
     Component: GeneralSettings,
     color: '#667EEA',
-    descriptionI18nKey: 'generalSettingsDescription',
+    descriptionI18nKey: 'generalSettingsDescription' as const,
     testID: SettingsSelectors.GeneralButton
   },
   {
     slug: 'synchronization',
-    titleI18nKey: 'synchronization',
+    titleI18nKey: 'synchronization' as const,
     Icon: SyncIcon,
     Component: SyncSettings,
     color: '#7ED9A7',
-    descriptionI18nKey: 'synchronizationSettingsDescription',
+    descriptionI18nKey: 'synchronizationSettingsDescription' as const,
     testID: SettingsSelectors.SynchronizationButton
   },
   {
     slug: 'address-book',
-    titleI18nKey: 'addressBook',
+    titleI18nKey: 'addressBook' as const,
     Icon: ContactBookIcon,
     Component: AddressBook,
     color: '#d53f8c',
-    descriptionI18nKey: 'addressBookDescription',
+    descriptionI18nKey: 'addressBookDescription' as const,
     testID: SettingsSelectors.AddressBookButton
   },
   {
     slug: 'reveal-private-key',
-    titleI18nKey: 'revealPrivateKey',
+    titleI18nKey: 'revealPrivateKey' as const,
     Icon: KeyIcon,
     Component: RevealPrivateKey,
     color: '#3182CE',
-    descriptionI18nKey: 'revealPrivateKeyDescription',
+    descriptionI18nKey: 'revealPrivateKeyDescription' as const,
     testID: SettingsSelectors.RevealPrivateKeyButton
   },
   {
     slug: 'reveal-seed-phrase',
-    titleI18nKey: 'revealSeedPhrase',
+    titleI18nKey: 'revealSeedPhrase' as const,
     Icon: StickerIcon,
     Component: RevealSeedPhrase,
     color: '#F6AD55',
-    descriptionI18nKey: 'revealSeedPhraseDescription',
+    descriptionI18nKey: 'revealSeedPhraseDescription' as const,
     testID: SettingsSelectors.RevealSeedPhraseButton
   },
   {
     slug: 'dapps',
-    titleI18nKey: 'authorizedDApps',
+    titleI18nKey: 'authorizedDApps' as const,
     Icon: AppsIcon,
     Component: DAppSettings,
     color: '#9F7AEA',
-    descriptionI18nKey: 'dAppsDescription',
+    descriptionI18nKey: 'dAppsDescription' as const,
     testID: SettingsSelectors.DAppsButton
   },
   {
     slug: 'networks',
-    titleI18nKey: 'networks',
+    titleI18nKey: 'networks' as const,
     Icon: SignalAltIcon,
     Component: CustomNetworksSettings,
     color: '#F6C90E',
-    descriptionI18nKey: 'networksDescription',
+    descriptionI18nKey: 'networksDescription' as const,
     testID: SettingsSelectors.NetworksButton
   },
   {
     slug: 'activate-account',
-    titleI18nKey: 'activateAccount',
+    titleI18nKey: 'activateAccount' as const,
     Icon: OkIcon,
     Component: ActivateAccount,
     color: 'rgb(131, 179, 0)',
-    descriptionI18nKey: 'activateAccountDescription',
+    descriptionI18nKey: 'activateAccountDescription' as const,
     testID: SettingsSelectors.ActivateAccountButton
   },
   {
     slug: 'remove-account',
-    titleI18nKey: 'removeAccount',
+    titleI18nKey: 'removeAccount' as const,
     Icon: MinusIcon,
     Component: RemoveAccount,
     color: 'rgb(245, 101, 101)',
-    descriptionI18nKey: 'removeAccountDescription',
+    descriptionI18nKey: 'removeAccountDescription' as const,
     testID: SettingsSelectors.RemoveAccountButton
   },
   {
     slug: 'about',
-    titleI18nKey: 'about',
+    titleI18nKey: 'about' as const,
     Icon: ExtensionIcon,
     Component: About,
     color: '#A0AEC0',
-    descriptionI18nKey: 'aboutDescription',
+    descriptionI18nKey: 'aboutDescription' as const,
     testID: SettingsSelectors.AboutButton
   },
   {
     slug: 'help-and-community',
-    titleI18nKey: 'helpAndCommunity',
+    titleI18nKey: 'helpAndCommunity' as const,
     Icon: HelpIcon,
     Component: HelpAndCommunity,
     color: '#38B2AC',
-    descriptionI18nKey: 'helpAndCommunityDescription'
+    descriptionI18nKey: 'helpAndCommunityDescription' as const
   }
 ];
 

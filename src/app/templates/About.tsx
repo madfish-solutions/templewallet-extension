@@ -50,23 +50,23 @@ const About: FC = () => (
     <div className="text-center">
       {[
         {
-          key: 'website',
+          key: 'website' as const,
           link: 'https://templewallet.com'
         },
         {
-          key: 'repo',
+          key: 'repo' as const,
           link: 'https://github.com/madfish-solutions/templewallet-extension'
         },
         {
-          key: 'privacyPolicy',
+          key: 'privacyPolicy' as const,
           link: 'https://templewallet.com/privacy'
         },
         {
-          key: 'termsOfUse',
+          key: 'termsOfUse' as const,
           link: 'https://templewallet.com/terms'
         },
         {
-          key: 'contact',
+          key: 'contact' as const,
           link: 'https://templewallet.com/contact'
         }
       ].map(({ key, link }) => (

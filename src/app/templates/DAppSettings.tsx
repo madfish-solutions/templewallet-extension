@@ -148,7 +148,7 @@ const DAppDescription: FC<OptionRenderProps<DAppEntry, string, DAppActions>> = p
   const dAppAttributes = useMemo(
     () => [
       {
-        key: 'originLabel',
+        key: 'originLabel' as const,
         value: origin,
         Component: ({ className, ...rest }: ComponentProps<typeof Name>) => (
           <a
@@ -162,13 +162,13 @@ const DAppDescription: FC<OptionRenderProps<DAppEntry, string, DAppActions>> = p
         )
       },
       {
-        key: 'networkLabel',
+        key: 'networkLabel' as const,
         value: typeof network === 'string' ? network : network.name || network.rpc,
         valueClassName: (typeof network === 'string' || network.name) && 'capitalize',
         Component: Name
       },
       {
-        key: 'pkhLabel',
+        key: 'pkhLabel' as const,
         value: <HashChip hash={pkh} type="link" small />,
         Component: 'span'
       }

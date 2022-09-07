@@ -17,11 +17,11 @@ interface ImportWalletProps {
 const importWalletOptions = [
   {
     slug: 'seed-phrase',
-    i18nKey: 'seedPhrase'
+    i18nKey: 'seedPhrase' as const
   },
   {
     slug: 'keystore-file',
-    i18nKey: 'keystoreFile'
+    i18nKey: 'keystoreFile' as const
   }
 ];
 

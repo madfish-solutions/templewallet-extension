@@ -12,7 +12,7 @@ const ALL_DEPOSITS = [
   {
     networkType: 'main',
     type: 'exchange',
-    titleName: 'useCoinSwitch',
+    titleName: 'useCoinSwitch' as const,
     link: 'https://coinswitch.templewallet.com/',
     icon: <ExchangeIcon />,
     color: ''
@@ -20,7 +20,7 @@ const ALL_DEPOSITS = [
   {
     networkType: 'main',
     type: 'faucet',
-    titleName: 'tezosFaucet',
+    titleName: 'tezosFaucet' as const,
     link: 'https://faucet.tezos.com/',
     icon: <FaucetIcon />,
     color: ''
@@ -28,7 +28,7 @@ const ALL_DEPOSITS = [
   {
     networkType: 'test',
     type: 'faucet',
-    titleName: 'tezosFaucetAlpha',
+    titleName: 'tezosFaucetAlpha' as const,
     link: 'https://faucet.tzalpha.net/',
     icon: <FaucetIcon />,
     color: ''

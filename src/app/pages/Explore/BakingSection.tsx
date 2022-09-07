@@ -240,7 +240,7 @@ const BakingSection = memo(() => {
 
                   <div className={classNames('relative px-4 py-2', styles['sectionBg'])}>
                     <p className={'text-sm font-normal w-full cursor-pointer'} onClick={toggleShowDetails}>
-                      <T id={'delegationHowTo'} />
+                      <T id="delegationHowTo" />
                     </p>
                     <button
                       className={classNames(
@@ -260,29 +260,29 @@ const BakingSection = memo(() => {
                       initialStyle={{ height: '0px', overflow: 'hidden' }}
                     >
                       <p className={'text-xs mb-2 font-normal w-full mt-2'}>
-                        <T id={'delegationFaq1'} />
+                        <T id="delegationFaq1" />
                       </p>
                       <p className={'text-xs mb-2 font-normal w-full'}>
-                        <T id={'delegationFaq2'} />
+                        <T id="delegationFaq2" />
                       </p>
                       <p className={'text-xs mb-2 font-normal w-full'}>
-                        <T id={'delegationFaq3'} />
+                        <T id="delegationFaq3" />
                       </p>
                       <p className={'text-xs mb-2 font-normal w-full'}>
-                        <T id={'delegationFaq4'} />
+                        <T id="delegationFaq4" />
                       </p>
                     </Collapse>
                   </div>
 
                   <p className={'text-xs mb-4 font-normal mt-6'}>
-                    <T id={'delegationGuide'} />
+                    <T id="delegationGuide" />
                     <a
                       className="ml-1 text-blue-500 underline"
                       href="https://www.youtube.com/watch?v=iFH8WEfuaDI"
                       target="_blank"
                       rel="noreferrer"
                     >
-                      <T id={'delegationGuideLink'} />
+                      <T id="delegationGuideLink" />
                     </a>
                   </p>
 
@@ -295,7 +295,7 @@ const BakingSection = memo(() => {
                   </div>
 
                   <p className={'text-xs mb-6 font-normal w-full'}>
-                    <T id={'delegationComunity'} />
+                    <T id="delegationComunity" />
                   </p>
                 </>
               )}

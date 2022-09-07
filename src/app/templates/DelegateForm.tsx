@@ -21,6 +21,7 @@ import InFiat from 'app/templates/InFiat';
 import OperationStatus from 'app/templates/OperationStatus';
 import { useFormAnalytics } from 'lib/analytics';
 import { submitDelegation } from 'lib/everstake-api';
+import type { TID } from 'lib/i18n/react';
 import { T, t } from 'lib/i18n/react';
 import { setDelegate } from 'lib/michelson';
 import {
@@ -337,7 +338,7 @@ const DelegateForm: FC = () => {
               : t('bakerInputDescription')
           }
           placeholder={canUseDomainNames ? t('recipientInputPlaceholderWithDomain') : t('bakerInputPlaceholder')}
-          errorCaption={errors.to?.message && t(errors.to?.message.toString())}
+          errorCaption={errors.to?.message && t(errors.to.message.toString() as TID)}
           style={{
             resize: 'none'
           }}
