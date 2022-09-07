@@ -5,6 +5,15 @@ export interface ChangelogItem {
   data: Array<JSX.Element>;
 }
 
+const datav1_14_13: ChangelogItem = {
+  version: '1.14.13',
+  data: [
+    <>All Exolix supported cryptocurrencies (418 tokens) are now available for Tez and Tezos USDT top-up.</>,
+    <>UTORG top-up with fiat integrated.</>,
+    <>Some UI and backend tweaks.</>
+  ]
+};
+
 const datav1_14_9: ChangelogItem = {
   version: '1.14.9',
   data: [
@@ -48,4 +57,4 @@ const datav1_14_7: ChangelogItem = {
   ]
 };
 
-export const changelogData = [datav1_14_9, datav1_14_8, datav1_14_7];
+export const changelogData = [datav1_14_13, datav1_14_9, datav1_14_8, datav1_14_7];

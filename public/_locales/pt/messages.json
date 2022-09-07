@@ -2100,7 +2100,12 @@
     "message": "Introduza os detalhes da troca"
   },
   "exchangeDetailsDescription": {
-    "message": "Reponha o seu saldo TEZ instantaneamente com 25 criptomoedas"
+    "message": "Reponha o seu saldo TEZ ou USDT Tezos instantaneamente com $number$ criptomoedas",
+    "placeholders": {
+      "number": {
+        "content": "$1"
+      }
+    }
   },
   "privacyAndPolicyLinks": {
     "message": "Ao clicar em Repor, concorda com \n$termsOfUse$ e $privacyPolicy$",
@@ -2180,18 +2185,6 @@
   },
   "step": {
     "message": "Etapa"
-  },
-  "dogeNote": {
-    "message": "Nota para DOGE: rede de transferência - MainNet DOGE. Deposite apenas DOGE (MainNet). Caso contrário, poderá perder permanentemente os seus ativos."
-  },
-  "polygonNote": {
-    "message": "Nota para MATIC: rede de transferência - Ethereum (ETH). Deposite apenas MATIC (ERC20). Caso contrário, poderá perder permanentemente os seus ativos."
-  },
-  "usdtNote": {
-    "message": "Nota para USDT: rede de transferência - Ethereum (ETH) ERC20. Deposite apenas USDT (ERC20). Caso contrário, poderá perder permanentemente os seus ativos."
-  },
-  "cakeNote": {
-    "message": "Nota para CAKE: rede de transferência - Binance Smart Chain (BSC). Deposite apenas CAKE (BEP20). Caso contrário, poderá perder permanentemente os seus ativos."
   },
   "collectibles": {
     "message": "Colecionáveis"

@@ -23,13 +23,12 @@ import OperationStatus from 'app/templates/OperationStatus';
 import { useFormAnalytics } from 'lib/analytics';
 import { T, t } from 'lib/i18n/react';
 import { getRoutingFeeTransferParams } from 'lib/swap-router';
-import { ROUTING_FEE_PERCENT, ROUTING_FEE_RATIO, TEZOS_DEXES_API_URL } from 'lib/swap-router/config';
+import { ROUTING_FEE_PERCENT, TEZOS_DEXES_API_URL } from 'lib/swap-router/config';
 import { useAccount, useAssetMetadata, useTezos } from 'lib/temple/front';
 import { atomsToTokens, tokensToAtoms } from 'lib/temple/helpers';
 import useTippy from 'lib/ui/useTippy';
 import { HistoryAction, navigate } from 'lib/woozie';
 
-import { checkIsPromotionTime } from '../../layouts/PageLayout/utils/checkIsPromotionTime';
 import { SwapExchangeRate } from './SwapExchangeRate/SwapExchangeRate';
 import { SwapFormValue, SwapInputValue, useSwapFormDefaultValue } from './SwapForm.form';
 import styles from './SwapForm.module.css';
@@ -71,8 +70,6 @@ export const SwapForm: FC = () => {
   });
   const isValid = Object.keys(errors).length === 0;
 
-  const isPromotionTime = checkIsPromotionTime();
-
   const inputValue = watch('input');
   const outputValue = watch('output');
   const slippageTolerance = watch('slippageTolerance');
@@ -96,15 +93,7 @@ export const SwapForm: FC = () => {
     () => (inputValue.amount ? tokensToAtoms(inputValue.amount, inputAssetMetadata.decimals) : undefined),
     [inputValue.amount, inputAssetMetadata.decimals]
   );
-  const inputMutezAmountWithFee = useMemo(
-    () => (inputMutezAmount ? inputMutezAmount.multipliedBy(ROUTING_FEE_RATIO).dividedToIntegerBy(1) : undefined),
-    [inputMutezAmount]
-  );
-  const bestTradeWithSlippageTolerance = useTradeWithSlippageTolerance(
-    inputMutezAmountWithFee,
-    bestTrade,
-    slippageTolerance
-  );
+  const bestTradeWithSlippageTolerance = useTradeWithSlippageTolerance(inputMutezAmount, bestTrade, slippageTolerance);
 
   const [error, setError] = useState<Error>();
   const [operation, setOperation] = useState<BatchWalletOperation>();
@@ -121,8 +110,8 @@ export const SwapForm: FC = () => {
   );
 
   useEffect(() => {
-    if (inputMutezAmountWithFee && routePairsCombinations.length > 0) {
-      const bestTradeExactIn = getBestTradeExactInput(inputMutezAmountWithFee, routePairsCombinations);
+    if (inputMutezAmount && routePairsCombinations.length > 0) {
+      const bestTradeExactIn = getBestTradeExactInput(inputMutezAmount, routePairsCombinations);
       const bestTradeOutput = getTradeOutputAmount(bestTradeExactIn);
 
       const outputTzAmount = bestTradeOutput ? atomsToTokens(bestTradeOutput, outputAssetMetadata.decimals) : undefined;
@@ -138,7 +127,7 @@ export const SwapForm: FC = () => {
       triggerValidation();
     }
   }, [
-    inputMutezAmountWithFee,
+    inputMutezAmount,
     outputValue.assetSlug,
     slippageTolerance,
     routePairsCombinations,
@@ -190,14 +179,14 @@ export const SwapForm: FC = () => {
     try {
       setOperation(undefined);
       const routingFeeOpParams = await getRoutingFeeTransferParams(
-        inputMutezAmount,
+        bestTradeWithSlippageTolerance[bestTradeWithSlippageTolerance.length - 1].bTokenAmount,
         bestTradeWithSlippageTolerance,
         account.publicKeyHash,
         tezos
       );
       const tradeOpParams = await getTradeOpParams(bestTradeWithSlippageTolerance, account.publicKeyHash, tezos);
 
-      const opParams = [...routingFeeOpParams, ...tradeOpParams].map(transferParams =>
+      const opParams = [...tradeOpParams, ...routingFeeOpParams].map(transferParams =>
         parseTransferParamsToParamsWithKind(transferParams)
       );
 
@@ -296,19 +285,14 @@ export const SwapForm: FC = () => {
             <td>
               <span
                 ref={feeInfoIconRef}
-                className={classNames(
-                  'flex w-fit items-center hover:bg-gray-100',
-                  isPromotionTime ? 'text-green-500' : 'text-gray-500'
-                )}
+                className={classNames('flex w-fit items-center hover:bg-gray-100', 'text-gray-500')}
               >
                 <T id="routingFee" />
                 &nbsp;
                 <InfoIcon className="w-3 h-auto stroke-current" />
               </span>
             </td>
-            <td className={classNames('text-right', isPromotionTime ? 'text-green-600' : 'text-gray-600')}>
-              {ROUTING_FEE_PERCENT} %
-            </td>
+            <td className={classNames('text-right', 'text-gray-600')}>{ROUTING_FEE_PERCENT} %</td>
           </tr>
           <tr>
             <td>
