@@ -9,6 +9,7 @@ import { T } from 'lib/i18n/react';
 import { useTempleClient, useStorage } from 'lib/temple/front';
 
 import { changelogData, ChangelogItem } from './ChangelogOverlay.data';
+import s from './ChangelogOverlay.module.css';
 import { ChangelogOverlaySelectors } from './ChangelogOverlay.selectors';
 
 const currentVersion = process.env.VERSION;
@@ -35,23 +36,25 @@ export const ChangelogOverlay: FC = () => {
   return ready && lastShownVersion !== currentVersion ? (
     <>
       <div className={'fixed left-0 right-0 top-0 bottom-0 opacity-20 bg-gray-700 z-50'}></div>
-      <ContentContainer
-        className={classNames('fixed z-50', 'max-h-full', 'overflow-y-auto', popupClassName)}
-        padding={!popup}
-      >
+      <ContentContainer className={classNames('fixed z-50', 'max-h-full', popupClassName)} padding={!popup}>
         <div
-          className={classNames('bg-white shadow-lg relative', popup ? 'pt-20 pb-16 px-8' : 'rounded-md py-32')}
+          className={classNames(
+            'bg-white shadow-lg relative',
+            s.overlay_scrollbar,
+            popup ? 'pt-12 px-8' : 'rounded-md'
+          )}
           style={{
             backgroundColor: `#FFF2E6`,
-            minHeight: popup ? '100%' : 'unset'
+            maxHeight: popup ? '100vh' : 'calc(100vh - 96px)',
+            paddingBottom: popup ? 108 : 160
           }}
         >
           <Button
             onClick={handleContinue}
             className={classNames(
               'font-inter font-normal text-sm text-gray-600',
-              'self-end mt-3 mr-6 absolute top-0 right-0',
-              popup ? '' : 'pr-2'
+              'self-end mr-6 absolute top-0 right-0',
+              popup ? 'mt-3' : 'mt-6 pr-2'
             )}
             testID={ChangelogOverlaySelectors.Skip}
             style={{
@@ -60,7 +63,7 @@ export const ChangelogOverlay: FC = () => {
           >
             <T id="skip" />
           </Button>
-          <div className="flex flex-col max-w-sm mx-auto w-full">
+          <div className={classNames('flex flex-col max-w-sm mx-auto w-full')}>
             <p className="text-xl font-inter font-semibold" style={{ fontSize: 23, color: '#ED8936' }}>
               <T id="changelogTitle" />
             </p>
@@ -78,18 +81,31 @@ export const ChangelogOverlay: FC = () => {
                 </ul>
               </React.Fragment>
             ))}
-            <Button
-              className="mt-6 py-2 px-8 text-white font-inter rounded font-semibold uppercase mx-auto"
-              onClick={handleContinue}
-              testID={ChangelogOverlaySelectors.Continue}
+            <div
+              className={classNames(s.overlay_ok_container)}
               style={{
-                fontSize: 13,
-                maxWidth: '7rem',
-                backgroundColor: '#ED8936'
+                height: popup ? 108 : 160,
+                bottom: popup ? 0 : 48,
+                left: popup ? 16 : 32,
+                right: popup ? 16 : 32
               }}
             >
-              <T id="okGotIt" />
-            </Button>
+              <Button
+                className={classNames(
+                  'mt-6 py-2 px-8',
+                  'text-white font-inter rounded font-semibold uppercase',
+                  'mx-auto',
+                  s.overlay_ok_button
+                )}
+                onClick={handleContinue}
+                testID={ChangelogOverlaySelectors.Continue}
+                style={{
+                  width: popup ? 270 : 384
+                }}
+              >
+                <T id="okGotIt" />
+              </Button>
+            </div>
           </div>
         </div>
       </ContentContainer>

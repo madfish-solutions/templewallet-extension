@@ -1,0 +1,47 @@
+/* Customize website's scrollbar like Mac OS
+Not supports in Firefox and IE */
+
+/* total width */
+.overlay_scrollbar::-webkit-scrollbar {
+  background-color: rgba(0, 0, 0, 0.02);
+  width: 8px;
+}
+
+/* background of the scrollbar except button or resizer */
+.overlay_scrollbar::-webkit-scrollbar-track {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+/* scrollbar itself */
+.overlay_scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(0,0,0,.1);
+  border-radius: 8px;
+  padding: 5px;
+}
+
+/* set button(top and bottom of the scrollbar) */
+.overlay_scrollbar::-webkit-scrollbar-button {
+  display: none;
+}
+
+.overlay_scrollbar {
+  min-width: 150px;
+  overflow-y: scroll;
+  overflow-y: scroll;
+}
+
+.overlay_ok_container {
+  position: fixed;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  height: 104px;
+  background-color: rgb(255, 242, 230);
+}
+
+.overlay_ok_button {
+  font-size: 13px;
+  background-color: #ed8936;
+}
