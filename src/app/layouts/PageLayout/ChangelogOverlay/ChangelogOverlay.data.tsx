@@ -8,30 +8,9 @@ export interface ChangelogItem {
 const datav1_14_13: ChangelogItem = {
   version: '1.14.13',
   data: [
-    <>Added new test networks: Katmandu, Monday, Daily net;</>,
-    <>Exolix API update;</>,
-    <>Delegation section update;</>,
-    <>Decentralized pictures network integration (T4L3NT)</>,
-    <>Other minor fixes.</>,
-    <>Other minor fixes.</>,
-    <>Other minor fixes.</>,
-    <>Other minor fixes.</>,
-    <>Other minor fixes.</>,
-    <>Other minor fixes.</>,
-    <>Other minor fixes.</>,
-    <>Other minor fixes.</>,
-    <>Other minor fixes.</>,
-    <>Other minor fixes.</>,
-    <>Other minor fixes.</>,
-    <>Other minor fixes.</>,
-    <>Other minor fixes.</>,
-    <>Other minor fixes.</>,
-    <>Other minor fixes.</>,
-    <>Other minor fixes.</>,
-    <>Other minor fixes.</>,
-    <>Other minor fixes.</>,
-    <>Other minor fixes.</>,
-    <>Other minor fixes.</>
+    <>All Exolix supported cryptocurrencies (418 tokens) are now available for Tez and Tezos USDT top-up.</>,
+    <>UTORG top-up with fiat integrated.</>,
+    <>Some UI and backend tweaks.</>
   ]
 };
 
