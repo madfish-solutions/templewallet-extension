@@ -6,6 +6,8 @@ import { intercom } from 'lib/temple/back/defaults';
 import { store, toFront } from 'lib/temple/back/store';
 import { TempleMessageType, TempleRequest, TempleResponse } from 'lib/temple/types';
 
+import { encodeMessage, encryptMessage, getSenderId, MessageType, Response } from '../beacon';
+
 const frontStore = store.map(toFront);
 
 export async function start() {
@@ -158,6 +160,41 @@ async function processRequest(req: TempleRequest, port: Runtime.Port): Promise<T
         type: TempleMessageType.DAppRemoveSessionResponse,
         sessions
       };
+
+    case TempleMessageType.Acknowledge: {
+      if (req.payload !== 'PING' && req.payload !== 'ping' && req.beacon) {
+        const {
+          req: res,
+          recipientPubKey,
+          payload
+        } = await Actions.getBeaconMessage(req.origin, req.payload, req.encrypted);
+        if (payload) {
+          return;
+        }
+        if (!req) {
+          return;
+        }
+
+        const response: {
+          type: MessageType.Acknowledge;
+          version: string;
+          id: string;
+          senderId: string;
+        } = {
+          version: '2',
+          senderId: await getSenderId(),
+          id: res?.id ?? '',
+          type: MessageType.Acknowledge
+        };
+
+        return {
+          type: TempleMessageType.Acknowledge,
+          payload: await encryptMessage(encodeMessage<Response>(response), recipientPubKey ?? ''),
+          encrypted: true
+        };
+      }
+      break;
+    }
 
     case TempleMessageType.PageRequest:
       const dAppEnabled = await Actions.isDAppEnabled();
