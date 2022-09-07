@@ -538,7 +538,6 @@ const getTempleReq = (req: Beacon.Request): TempleDAppRequest | void => {
       return {
         type: TempleDAppMessageType.SignRequest,
         sourcePkh: req.sourceAddress,
-        // payload: req.signingType === Beacon.SigningType.RAW ? generateRawPayloadBytes(req.payload) : req.payload
         payload: req.payload
       };
 
