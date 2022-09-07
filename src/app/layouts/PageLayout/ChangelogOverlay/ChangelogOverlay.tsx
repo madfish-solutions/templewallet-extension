@@ -107,6 +107,6 @@ const filterByVersion = (version: string | null | undefined, data: Array<Changel
       foundVersion = i;
     }
     if (!x.data) return false;
-    return foundVersion ? foundVersion > i : true;
+    return typeof foundVersion === 'number' ? foundVersion > i : true;
   });
 };

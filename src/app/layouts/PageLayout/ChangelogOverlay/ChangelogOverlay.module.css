@@ -32,7 +32,6 @@ Not supports in Firefox and IE */
   position: fixed;
 
   display: flex;
-  /* align-items: center; */
   justify-content: center;
   
   height: 104px;
