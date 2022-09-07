@@ -46,7 +46,7 @@ export const ChangelogOverlay: FC = () => {
           style={{
             backgroundColor: `#FFF2E6`,
             maxHeight: popup ? '100vh' : 'calc(100vh - 96px)',
-            paddingBottom: popup ? 108 : 160
+            paddingBottom: popup ? 104 : 160
           }}
         >
           <div className={classNames('flex flex-col max-w-sm mx-auto w-full')}>
@@ -70,7 +70,7 @@ export const ChangelogOverlay: FC = () => {
             <div
               className={classNames(s.overlay_ok_container)}
               style={{
-                height: popup ? 108 : 90,
+                height: popup ? 104 : 90,
                 bottom: popup ? 0 : 48,
                 left: popup ? 16 : 32,
                 right: popup ? 16 : 32

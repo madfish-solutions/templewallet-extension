@@ -33,14 +33,19 @@ Not supports in Firefox and IE */
   position: fixed;
 
   display: flex;
-  align-items: center;
+  /* align-items: center; */
   justify-content: center;
-
+  
   height: 104px;
   background-color: rgb(255, 242, 230);
 }
 
 .overlay_ok_button {
+  margin-top: 24px;
+
+  height: 36px;
+
   font-size: 13px;
+  
   background-color: #ed8936;
 }
