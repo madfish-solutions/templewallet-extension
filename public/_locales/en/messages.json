@@ -2460,6 +2460,9 @@
   "buyWithAliceBobDescription": {
     "message": "Fast and cost-effective exchange of UAH to TEZ."
   },
+  "buyWithUtorgDescription": {
+    "message": "Licensed fiat-to-crypto gateway. 187+ countries, AI-powered KYC, Apple Pay, Google Pay."
+  },
   "topUpBuy": {
     "message": "Top up $gasTokenName$ balance",
     "placeholders": {
@@ -2467,6 +2470,9 @@
         "content": "$1"
       }
     }
+  },
+  "buyWithUtorg": {
+    "message": "Buy TEZ with UTORG"
   },
   "buyWithCard": {
     "message": "Buy with Debit/Credit Card"
@@ -2632,7 +2638,7 @@
     "message": "Min:"
   },
   "warningTopUpServiceMessage": {
-    "message": "The token exchange feature is provided by a third party. The Temple wallet is not responsible for the work of third-party services."
+    "message": "The token exchange feature is provided by a third party. The Temple Wallet is not responsible for the work of third-party services."
   },
   "selectTokensToSwap": {
     "message": "Please, select tokens to swap"
@@ -2673,7 +2679,7 @@
   "scanQRWithTempleMobile": {
     "message": "Scan this QR-code with yor Temple Wallet Mobile app."
   },
-  "aliceBobError": {
+  "serviceIsUnavailable": {
     "message": "Sorry, service is temporarily unavailable. Try again later!"
   },
   "buyWithChainBits": {
