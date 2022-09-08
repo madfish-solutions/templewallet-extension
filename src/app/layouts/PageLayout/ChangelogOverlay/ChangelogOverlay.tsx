@@ -45,6 +45,7 @@ export const ChangelogOverlay: FC = () => {
           )}
           style={{
             backgroundColor: `#FFF2E6`,
+            minHeight: popup ? '100vh' : 200,
             maxHeight: popup ? '100vh' : 'calc(100vh - 96px)',
             paddingBottom: popup ? 104 : 160
           }}
@@ -59,7 +60,7 @@ export const ChangelogOverlay: FC = () => {
                   <T id="update" /> {version}
                 </p>
                 <ul>
-                  {data.map((value, index) => (
+                  {data?.map((value, index) => (
                     <li className="mb-1" style={{ listStyleType: 'disc' }} key={index}>
                       {value}
                     </li>
@@ -105,6 +106,7 @@ const filterByVersion = (version: string | null | undefined, data: Array<Changel
     if (x.version === version) {
       foundVersion = i;
     }
-    return foundVersion ? foundVersion > i : true;
+    if (!x.data) return false;
+    return typeof foundVersion === 'number' ? foundVersion > i : true;
   });
 };
