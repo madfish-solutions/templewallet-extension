@@ -2,6 +2,7 @@ import BigNumber from 'bignumber.js';
 import memoize from 'micro-memoize';
 
 import { getCurrentLocale, getNumberSymbols } from './core';
+import type { TID } from './react';
 import { t } from './react';
 
 type FormatParams = {
@@ -75,7 +76,7 @@ export function toShortened(value: BigNumber.Value) {
     return toLocalFixed(bn.toPrecision(1));
   }
   bn = bn.integerValue();
-  const formats = ['thousandFormat', 'millionFormat', 'billionFormat'] as const;
+  const formats: TID[] = ['thousandFormat', 'millionFormat', 'billionFormat'];
   let formatIndex = -1;
   while (bn.abs().gte(1000) && formatIndex < formats.length - 1) {
     formatIndex++;

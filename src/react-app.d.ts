@@ -2,6 +2,8 @@
 /// <reference types="react" />
 /// <reference types="react-dom" />
 
+declare type ImportedSVGComponent = React.FunctionComponent<React.SVGProps<SVGSVGElement> & { title?: string }>;
+
 declare namespace NodeJS {
   interface ProcessEnv {
     readonly NODE_ENV: 'development' | 'production' | 'test';
@@ -40,9 +42,7 @@ declare module '*.webp' {
 }
 
 declare module '*.svg' {
-  import { FunctionComponent, SVGProps } from 'react';
-
-  export const ReactComponent: FunctionComponent<SVGProps<SVGSVGElement> & { title?: string }>;
+  export const ReactComponent: ImportedSVGComponent;
 
   const src: string;
   export default src;

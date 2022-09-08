@@ -8,7 +8,6 @@
   },
   "rules": {
     "prettier/prettier": "error",
-    //// [ `eslint-plugin-import` ]
     "import/no-named-as-default": 0,
     "import/order": [
       "error",
@@ -29,9 +28,8 @@
         "newlines-between": "always"
       }
     ],
-    // "import/no-cycle": "error",
+    "import/no-cycle": "warn",
     "import/no-self-import": "error",
-    //// [ typescript ]
     "@typescript-eslint/consistent-type-assertions": ["warn", { "assertionStyle": "never" }],
     "@typescript-eslint/no-non-null-assertion": "warn"
   }

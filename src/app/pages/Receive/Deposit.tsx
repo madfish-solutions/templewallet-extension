@@ -5,14 +5,24 @@ import classNames from 'clsx';
 import Name from 'app/atoms/Name';
 import { ReactComponent as ExchangeIcon } from 'app/misc/exchange.svg';
 import { ReactComponent as FaucetIcon } from 'app/misc/faucet.svg';
+import type { TID } from 'lib/i18n/react';
 import { T } from 'lib/i18n/react';
 import { useNetwork } from 'lib/temple/front';
 
-const ALL_DEPOSITS = [
+interface TDeposit {
+  networkType: string;
+  type: string;
+  titleName: TID;
+  link: string;
+  icon: React.ReactElement;
+  color: string;
+}
+
+const ALL_DEPOSITS: TDeposit[] = [
   {
     networkType: 'main',
     type: 'exchange',
-    titleName: 'useCoinSwitch' as const,
+    titleName: 'useCoinSwitch',
     link: 'https://coinswitch.templewallet.com/',
     icon: <ExchangeIcon />,
     color: ''
@@ -20,7 +30,7 @@ const ALL_DEPOSITS = [
   {
     networkType: 'main',
     type: 'faucet',
-    titleName: 'tezosFaucet' as const,
+    titleName: 'tezosFaucet',
     link: 'https://faucet.tezos.com/',
     icon: <FaucetIcon />,
     color: ''
@@ -28,7 +38,7 @@ const ALL_DEPOSITS = [
   {
     networkType: 'test',
     type: 'faucet',
-    titleName: 'tezosFaucetAlpha' as const,
+    titleName: 'tezosFaucetAlpha',
     link: 'https://faucet.tzalpha.net/',
     icon: <FaucetIcon />,
     color: ''
@@ -50,17 +60,13 @@ const Deposit: FC<DepositProps> = ({ address }) => {
   return (
     <div className="mt-8 w-full">
       <h2 className={classNames('mb-4', 'leading-tight', 'flex flex-col')}>
-        <T id="depositToWallet">
-          {message => <span className="text-base font-semibold text-gray-700">{message}</span>}
-        </T>
+        <span className="text-base font-semibold text-gray-700">
+          <T id="depositToWallet" />
+        </span>
 
-        <T id="depositToWalletDescription">
-          {message => (
-            <span className={classNames('mt-1', 'text-xs font-light text-gray-600')} style={{ maxWidth: '90%' }}>
-              {message}
-            </span>
-          )}
-        </T>
+        <span className={classNames('mt-1', 'text-xs font-light text-gray-600')} style={{ maxWidth: '90%' }}>
+          <T id="depositToWalletDescription" />
+        </span>
       </h2>
       <div
         className={classNames(
@@ -95,7 +101,9 @@ const Deposit: FC<DepositProps> = ({ address }) => {
             <div className={classNames('flex-shrink-0', 'w-auto h-auto', 'rounded shadow-xs')}>{d.icon}</div>
             <div className="ml-2 flex flex-col items-start justify-center">
               <div className={classNames('flex flex-wrap items-center', 'leading-noneleading-none')}>
-                <T id={d.titleName}>{message => <Name className="text-base font-medium pb-1">{message}</Name>}</T>
+                <Name className="text-base font-medium pb-1">
+                  <T id={d.titleName} />
+                </Name>
               </div>
             </div>
           </a>

@@ -221,14 +221,19 @@ const ByPrivateKeyForm: FC = () => {
   );
 };
 
-const DERIVATION_PATHS = [
+interface DerivationPath {
+  type: string;
+  i18nKey: TID;
+}
+
+const DERIVATION_PATHS: DerivationPath[] = [
   {
     type: 'default',
-    i18nKey: 'defaultAccount' as const
+    i18nKey: 'defaultAccount'
   },
   {
     type: 'custom',
-    i18nKey: 'customDerivationPath' as const
+    i18nKey: 'customDerivationPath'
   }
 ];
 
