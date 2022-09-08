@@ -31,7 +31,6 @@ type BeaconMessage =
       target: BeaconMessageTarget;
       encryptedPayload: any;
     };
-
 type BeaconPageMessage = BeaconMessage | { message: BeaconMessage; sender: { id: string } };
 
 const SENDER = {
@@ -95,13 +94,15 @@ function templeRequest(evt: MessageEvent, isLegacyRequest: boolean) {
 }
 
 function beaconRequest(evt: MessageEvent) {
+  const { origin, data } = evt;
+  const encrypted = Boolean(data.encryptedPayload);
   getIntercom()
     .request({
       type: TempleMessageType.PageRequest,
-      origin: evt.origin,
-      payload: evt.data.encryptedPayload ?? evt.data.payload,
+      origin: origin,
+      payload: data.encryptedPayload ?? data.payload,
       beacon: true,
-      encrypted: Boolean(evt.data.encryptedPayload)
+      encrypted: Boolean(data.encryptedPayload)
     })
     .then((res: TempleResponse) => {
       if (res?.type === TempleMessageType.PageResponse && res.payload) {
@@ -116,7 +117,32 @@ function beaconRequest(evt: MessageEvent) {
                 message,
                 sender: { id: SENDER.id }
               },
-          evt.origin
+          origin
+        );
+      }
+    })
+    .catch(err => console.error(err));
+
+  getIntercom()
+    .request({
+      type: TempleMessageType.Acknowledge,
+      origin: origin,
+      payload: data.encryptedPayload ?? data.payload,
+      beacon: true,
+      encrypted: encrypted
+    })
+    .then((res: TempleResponse) => {
+      if (res?.type === TempleMessageType.Acknowledge) {
+        const acknowledgeMessage = {
+          target: BeaconMessageTarget.Page,
+          ...(res.encrypted ? { encryptedPayload: res.payload } : { payload: res.payload })
+        };
+        send(
+          {
+            message: acknowledgeMessage,
+            sender: { id: SENDER.id }
+          },
+          origin
         );
       }
     })

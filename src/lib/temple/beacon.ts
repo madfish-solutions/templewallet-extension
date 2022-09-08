@@ -56,10 +56,13 @@ export type Response =
   | OperationResponse
   | SignResponse
   | BroadcastResponse
+  | AcknowledgeResponse
   | DisconnectMessage
   | PostMessagePairingResponse;
 
 export enum MessageType {
+  Acknowledge = 'acknowledge',
+
   PermissionRequest = 'permission_request',
   SignPayloadRequest = 'sign_payload_request',
   OperationRequest = 'operation_request',
@@ -105,6 +108,13 @@ export interface PermissionResponse extends BaseMessage {
     amount: string;
     timeframe: string;
   };
+}
+
+export interface AcknowledgeResponse {
+  type: MessageType.Acknowledge;
+  version: string;
+  senderId: string;
+  id: string;
 }
 
 export interface OperationRequest extends BaseMessage {

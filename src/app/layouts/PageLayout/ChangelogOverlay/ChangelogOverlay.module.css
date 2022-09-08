@@ -25,7 +25,6 @@ Not supports in Firefox and IE */
 }
 
 .overlay_scrollbar {
-  min-width: 150px;
   overflow-y: scroll;
 }
 
@@ -33,9 +32,8 @@ Not supports in Firefox and IE */
   position: fixed;
 
   display: flex;
-  /* align-items: center; */
   justify-content: center;
-  
+
   height: 104px;
   background-color: rgb(255, 242, 230);
 }
@@ -46,6 +44,6 @@ Not supports in Firefox and IE */
   height: 36px;
 
   font-size: 13px;
-  
+
   background-color: #ed8936;
 }
