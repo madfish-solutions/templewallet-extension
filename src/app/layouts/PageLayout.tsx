@@ -26,7 +26,6 @@ import ConfirmationOverlay from './PageLayout/ConfirmationOverlay';
 import Header from './PageLayout/Header';
 import { useTempleMobile } from './PageLayout/hooks/useTempleMobile.hook';
 import { TempleMobileSelectors } from './PageLayout/TempleMobile.selectors';
-import { YupanaOverlay } from './PageLayout/YupanaOverlay';
 
 interface PageLayoutProps extends PropsWithChildren, ToolbarProps {
   contentContainerStyle?: React.CSSProperties;
@@ -54,7 +53,6 @@ const PageLayout: FC<PageLayoutProps> = ({ children, contentContainerStyle, ...t
       </div>
 
       <ConfirmationOverlay />
-      <YupanaOverlay />
       <ChangelogOverlay />
     </>
   );
