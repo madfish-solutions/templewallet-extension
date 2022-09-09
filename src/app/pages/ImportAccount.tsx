@@ -121,7 +121,9 @@ const ImportAccount: FC<ImportAccountProps> = ({ tabSlug }) => {
       pageTitle={
         <>
           <DownloadIcon className="w-auto h-4 mr-1 stroke-current" />
-          <T id="importAccount">{message => <span className="capitalize">{message}</span>}</T>
+          <span className="capitalize">
+            <T id="importAccount" />
+          </span>
         </>
       }
     >
@@ -203,9 +205,9 @@ const ByPrivateKeyForm: FC = () => {
           label={
             <>
               <T id="password" />{' '}
-              <T id="optionalComment">
-                {message => <span className="text-sm font-light text-gray-600">{message}</span>}
-              </T>
+              <span className="text-sm font-light text-gray-600">
+                <T id="optionalComment" />
+              </span>
             </>
           }
           labelDescription={t('isPrivateKeyEncrypted')}
@@ -312,7 +314,9 @@ const ByMnemonicForm: FC = () => {
         label={
           <>
             <T id="password" />{' '}
-            <T id="optionalComment">{message => <span className="text-sm font-light text-gray-600">{message}</span>}</T>
+            <span className="text-sm font-light text-gray-600">
+              <T id="optionalComment" />
+            </span>
           </>
         }
         labelDescription={t('passwordInputDescription')}
@@ -325,16 +329,14 @@ const ByMnemonicForm: FC = () => {
         <h2 className={classNames('mb-4', 'leading-tight', 'flex flex-col')}>
           <span className="text-base font-semibold text-gray-700">
             <T id="derivation" />{' '}
-            <T id="optionalComment">{message => <span className="text-sm font-light text-gray-600">{message}</span>}</T>
+            <span className="text-sm font-light text-gray-600">
+              <T id="optionalComment" />
+            </span>
           </span>
 
-          <T id="addDerivationPathPrompt">
-            {message => (
-              <span className={classNames('mt-1', 'text-xs font-light text-gray-600')} style={{ maxWidth: '90%' }}>
-                {message}
-              </span>
-            )}
-          </T>
+          <span className={classNames('mt-1', 'text-xs font-light text-gray-600')} style={{ maxWidth: '90%' }}>
+            <T id="addDerivationPathPrompt" />
+          </span>
         </h2>
 
         <div
@@ -402,13 +404,9 @@ const ByMnemonicForm: FC = () => {
         />
       )}
 
-      <T id="importAccount">
-        {message => (
-          <FormSubmitButton loading={formState.isSubmitting} className="mt-8">
-            {message}
-          </FormSubmitButton>
-        )}
-      </T>
+      <FormSubmitButton loading={formState.isSubmitting} className="mt-8">
+        <T id="importAccount" />
+      </FormSubmitButton>
     </form>
   );
 };
