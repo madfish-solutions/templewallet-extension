@@ -555,7 +555,12 @@
     "message": "Each word separated with a single space"
   },
   "seedInputNumberOfWords": {
-    "message": "My Seed phrase is $1 words"
+    "message": "My Seed phrase is $count$ words",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
   },
   "justValidPreGeneratedMnemonic": {
     "message": "Just valid pre-generated mnemonic"
