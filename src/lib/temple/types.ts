@@ -3,7 +3,7 @@ import { TempleDAppMetadata, TempleDAppNetwork } from '@temple-wallet/dapp/dist/
 
 import type { TID } from 'lib/i18n/react';
 
-import {
+import type {
   TempleSendPageEventRequest,
   TempleSendPageEventResponse,
   TempleSendTrackEventRequest,

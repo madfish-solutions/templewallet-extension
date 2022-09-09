@@ -51,9 +51,13 @@ export function toLocalFormat(value: BigNumber.Value, { decimalPlaces, roundingM
 
 const makePluralRules = memoize((locale: string) => new Intl.PluralRules(locale.replace('_', '-')));
 
-export function getPluralKey(keyPrefix: string, amount: number) {
+export function getPluralKey<T extends string>(keyPrefix: T, amount: number) {
+  return `${keyPrefix}_${getPluralKeyAmountPrefix(amount)}` as `${T}_${Intl.LDMLPluralRule}`;
+}
+
+export function getPluralKeyAmountPrefix(amount: number) {
   const rules = makePluralRules(getCurrentLocale());
-  return `${keyPrefix}_${rules.select(amount)}`;
+  return rules.select(amount);
 }
 
 export function toLocalFixed(value: BigNumber.Value, decimalPlaces?: number, roundingMode?: BigNumber.RoundingMode) {

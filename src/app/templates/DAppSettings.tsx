@@ -8,6 +8,7 @@ import { ReactComponent as CloseIcon } from 'app/icons/close.svg';
 import CustomSelect, { OptionRenderProps } from 'app/templates/CustomSelect';
 import DAppLogo from 'app/templates/DAppLogo';
 import HashChip from 'app/templates/HashChip';
+import type { TID } from 'lib/i18n/react';
 import { T, t } from 'lib/i18n/react';
 import { useRetryableSWR } from 'lib/swr';
 import { useStorage, TempleSharedStorageKey, useTempleClient } from 'lib/temple/front';
@@ -145,10 +146,17 @@ const DAppDescription: FC<OptionRenderProps<DAppEntry, string, DAppActions>> = p
     [onRemove, origin]
   );
 
+  interface TDAppAttribute {
+    key: TID;
+    value: React.ReactNode;
+    valueClassName?: string;
+    Component: React.FC | keyof JSX.IntrinsicElements;
+  }
+
   const dAppAttributes = useMemo(
-    () => [
+    (): TDAppAttribute[] => [
       {
-        key: 'originLabel' as const,
+        key: 'originLabel',
         value: origin,
         Component: ({ className, ...rest }: ComponentProps<typeof Name>) => (
           <a
@@ -162,13 +170,13 @@ const DAppDescription: FC<OptionRenderProps<DAppEntry, string, DAppActions>> = p
         )
       },
       {
-        key: 'networkLabel' as const,
+        key: 'networkLabel',
         value: typeof network === 'string' ? network : network.name || network.rpc,
         valueClassName: (typeof network === 'string' || network.name) && 'capitalize',
         Component: Name
       },
       {
-        key: 'pkhLabel' as const,
+        key: 'pkhLabel',
         value: <HashChip hash={pkh} type="link" small />,
         Component: 'span'
       }

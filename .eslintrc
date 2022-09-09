@@ -28,9 +28,6 @@
         "newlines-between": "always"
       }
     ],
-    "import/no-cycle": "warn",
-    "import/no-self-import": "error",
-    "@typescript-eslint/consistent-type-assertions": ["warn", { "assertionStyle": "never" }],
-    "@typescript-eslint/no-non-null-assertion": "warn"
+    "import/no-self-import": "error"
   }
 }
