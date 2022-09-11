@@ -2428,6 +2428,9 @@
   "buyButton": {
     "message": "Buy"
   },
+  "withdraw": {
+    "message": "Withdraw"
+  },
   "buyWithCrypto": {
     "message": "Buy With Crypto"
   },
@@ -2457,8 +2460,14 @@
   "buyWithAliceBob": {
     "message": "Buy TEZ with Alice-Bob (UAH only)"
   },
+  "sellWithAliceBob": {
+    "message": "Sell TEZ with Alice-Bob (UAH only)"
+  },
   "buyWithAliceBobDescription": {
     "message": "Fast and cost-effective exchange of UAH to TEZ."
+  },
+  "sellWithAliceBobDescription": {
+    "message": "Fast and cost-effective exchange of TEZ to UAH."
   },
   "buyWithUtorgDescription": {
     "message": "Licensed fiat-to-crypto gateway. 187+ countries, AI-powered KYC, Apple Pay, Google Pay."

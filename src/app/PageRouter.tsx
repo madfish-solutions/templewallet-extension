@@ -28,6 +28,7 @@ import { Buy } from './pages/Buy/Buy';
 import { AliceBob } from './pages/Buy/Debit/AliceBob/AliceBob';
 import { Utorg } from './pages/Buy/Debit/Utorg/Utorg';
 import AttentionPage from './pages/Onboarding/pages/AttentionPage';
+import { Withdraw } from './pages/Withdraw/Withdraw';
 
 interface RouteContext {
   popup: boolean;
@@ -86,9 +87,10 @@ const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
   ['/add-asset', onlyReady(onlyInFullPage(() => <AddAsset />))],
   ['/settings/:tabSlug?', onlyReady(({ tabSlug }) => <Settings tabSlug={tabSlug} />)],
   ['/buy', onlyReady(onlyInFullPage(() => <Buy />))],
-  ['/buy/crypto', onlyReady(onlyInFullPage(() => <Exolix />))],
+  ['/buy/crypto/exolix', onlyReady(onlyInFullPage(() => <Exolix />))],
   ['/buy/debit/alice-bob', onlyReady(onlyInFullPage(() => <AliceBob />))],
   ['/buy/debit/utorg', onlyReady(onlyInFullPage(() => <Utorg />))],
+  ['/withdraw', onlyReady(onlyInFullPage(() => <Withdraw />))],
   ['/attention', onlyReady(onlyInFullPage(() => <AttentionPage />))],
   ['*', () => <Woozie.Redirect to="/" />]
 ]);

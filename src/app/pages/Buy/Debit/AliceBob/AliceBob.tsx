@@ -13,7 +13,7 @@ import { BuySelectors } from '../../Buy.selectors';
 import styles from '../../Crypto/Exolix/Exolix.module.css';
 import { TopUpInput } from './components/TopUpInput';
 
-const buildQuery = makeBuildQueryFn<Record<string, string>, any>('https://temple-api.production.madservice.xyz');
+const buildQuery = makeBuildQueryFn<Record<string, string>, any>('https://api.templewallet.com');
 const getSignedAliceBobUrl = buildQuery('GET', '/api/alice-bob-sign', ['amount', 'userId', 'walletAddress']);
 const getAliceBobPairInfo = buildQuery('GET', '/api/alice-bob-pair-info');
 

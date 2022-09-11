@@ -109,7 +109,7 @@ const Explore: FC<ExploreProps> = ({ assetSlug }) => {
 
         <MainBanner accountPkh={accountPkh} assetSlug={assetSlug} />
 
-        <div className="flex justify-between mx-auto w-full max-w-sm mt-6 px-8">
+        <div className="flex justify-between mx-auto w-full max-w-sm mt-6 px-2">
           <ActionButton
             label={<T id="receive" />}
             Icon={ReceiveIcon}
@@ -124,7 +124,14 @@ const Explore: FC<ExploreProps> = ({ assetSlug }) => {
               testID={ExploreSelectors.BuyButton}
             />
           )}
-
+          {network.type === 'main' && (
+            <ActionButton
+              label={<T id="withdraw" />}
+              Icon={BuyIcon}
+              to="/withdraw"
+              testID={ExploreSelectors.WithdrawButton}
+            />
+          )}
           <ActionButton
             label={<T id="swap" />}
             Icon={SwapIcon}
@@ -181,15 +188,23 @@ const ActionButton: FC<ActionButtonProps> = ({
       children: (
         <>
           <div
-            className={classNames(
-              disabled ? 'bg-blue-300' : 'bg-blue-500',
-              'rounded mb-1 flex items-center text-white'
-            )}
-            style={{ padding: '0 0.625rem', height: '2.75rem' }}
+            className="rounded mb-1 flex items-center text-white"
+            style={{
+              backgroundColor: '#FFF2E6',
+              opacity: disabled ? 0.5 : 1,
+              padding: '0 0.625rem',
+              height: '2.75rem'
+            }}
           >
             <Icon className="w-6 h-auto stroke-current" />
           </div>
-          <span className={classNames('text-xs text-center', disabled ? 'text-blue-300' : 'text-blue-500')}>
+          <span
+            className="text-xs text-center"
+            style={{
+              color: '#1B262C',
+              opacity: disabled ? 0.3 : 1
+            }}
+          >
             {label}
           </span>
         </>
