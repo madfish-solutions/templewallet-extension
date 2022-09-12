@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { ChangeEvent, FC, useCallback, useState } from 'react';
 
 import { useDebouncedCallback } from 'use-debounce';
 
@@ -6,80 +6,72 @@ import { useAnalyticsState } from '../../../../../lib/analytics/use-analytics-st
 import { T } from '../../../../../lib/i18n/react';
 import makeBuildQueryFn from '../../../../../lib/makeBuildQueryFn';
 import { useAccount } from '../../../../../lib/temple/front';
+import Divider from '../../../../atoms/Divider';
 import FormSubmitButton from '../../../../atoms/FormSubmitButton';
 import { ReactComponent as AttentionRedIcon } from '../../../../icons/attentionRed.svg';
 import PageLayout from '../../../../layouts/PageLayout';
+import { WithdrawSelectors } from '../../../Withdraw/Withdraw.selectors';
 import { BuySelectors } from '../../Buy.selectors';
 import styles from '../../Crypto/Exolix/Exolix.module.css';
-import { TopUpInput } from './components/TopUpInput';
-
-const buildQuery = makeBuildQueryFn<Record<string, string>, any>('https://api.templewallet.com');
-const getSignedAliceBobUrl = buildQuery('GET', '/api/alice-bob-sign', ['amount', 'userId', 'walletAddress']);
-const getAliceBobPairInfo = buildQuery('GET', '/api/alice-bob-pair-info');
+import { TopUpInput } from '../Utorg/components/TopUpInput/TopUpInput';
+import { useDisabledProceed } from './hooks/useDisabledProceed';
+import { useOutputEstimation } from './hooks/useOutputEstimation';
+import { useUpdatedExchangeInfo } from './hooks/useUpdatedExchangeInfo';
 
 const REQUEST_LATENCY = 200;
 
-export const AliceBob = () => {
+interface AliceBobProps {
+  isWithdraw?: boolean;
+}
+
+export const AliceBob: FC<AliceBobProps> = ({ isWithdraw = false }) => {
   const { analyticsState } = useAnalyticsState();
   const { publicKeyHash: walletAddress } = useAccount();
 
-  const [minExchangeAmount, setMinExchangeAmount] = useState(600);
-  const [maxExchangeAmount, setMaxExchangeAmount] = useState(29500);
-
-  const [amount, setAmount] = useState(0);
+  const [inputAmount, setInputAmount] = useState(0);
   const [link, setLink] = useState('');
-  const [isLinkLoading, setIsLinkLoading] = useState(false);
-  const [isMinMaxLoading, setIsMinMaxLoading] = useState(false);
 
-  const isError = useMemo(
-    () => minExchangeAmount === 0 && maxExchangeAmount === 0,
-    [minExchangeAmount, maxExchangeAmount]
-  );
-  const isMinAmountError = useMemo(() => amount !== 0 && amount < minExchangeAmount, [amount, minExchangeAmount]);
-  const isMaxAmountError = useMemo(() => amount !== 0 && amount > maxExchangeAmount, [amount, maxExchangeAmount]);
-  const disabledProceed = useMemo(
-    () => isMinAmountError || isMaxAmountError || amount === 0,
-    [isMinAmountError, isMaxAmountError, amount]
+  const [isLoading, setLoading] = useState(false);
+
+  const inputCurrency = isWithdraw ? 'XTZ' : 'UAH';
+  const outputCurrency = isWithdraw ? 'UAH' : 'XTZ';
+
+  const { minExchangeAmount, maxExchangeAmount, isMinMaxLoading } = useUpdatedExchangeInfo(isWithdraw);
+
+  const { isApiError, isMinAmountError, isMaxAmountError, disabledProceed } = useDisabledProceed(
+    inputAmount,
+    minExchangeAmount,
+    maxExchangeAmount
   );
 
-  useEffect(() => {
-    (async () => {
-      setIsMinMaxLoading(true);
-      getAliceBobPairInfo({})
-        .then(response => {
-          setMinExchangeAmount(response.minAmount);
-          setMaxExchangeAmount(response.maxAmount);
-          setIsMinMaxLoading(false);
-        })
-        .catch(() => {
-          setMinExchangeAmount(0);
-          setMaxExchangeAmount(0);
-          setIsMinMaxLoading(false);
-        });
-    })();
-  }, []);
+  const { outputAmount, exchangeRate } = useOutputEstimation(isWithdraw, inputAmount, disabledProceed, setLoading);
 
   const linkRequest = useCallback(
-    async (e: ChangeEvent<HTMLInputElement>) => {
+    (e: ChangeEvent<HTMLInputElement>) => {
       if (!disabledProceed) {
-        try {
-          setIsLinkLoading(true);
-
-          const response = await getSignedAliceBobUrl({
-            amount: e.target.value,
-            userId: analyticsState.userId,
-            walletAddress
-          });
-
-          setLink(response.url);
-          setIsLinkLoading(false);
-        } catch {}
+        setLoading(true);
+        getSignedAliceBobUrl({
+          isWithdraw: String(isWithdraw),
+          amount: e.target.value,
+          userId: analyticsState.userId,
+          walletAddress
+        })
+          .then(({ url }) => setLink(url))
+          .finally(() => setLoading(false));
       }
     },
-    [disabledProceed, analyticsState.userId, walletAddress]
+    [disabledProceed, isWithdraw, analyticsState.userId, walletAddress]
   );
 
   const debouncedLinkRequest = useDebouncedCallback(linkRequest, REQUEST_LATENCY);
+
+  const handleInputAmountChange = useCallback(
+    (e: ChangeEvent<HTMLInputElement>) => {
+      setInputAmount(Number(e.target.value));
+      debouncedLinkRequest(e);
+    },
+    [debouncedLinkRequest]
+  );
 
   return (
     <PageLayout
@@ -89,39 +81,57 @@ export const AliceBob = () => {
         </div>
       }
     >
-      <div className="mx-auto my-10 text-center font-inter font-normal text-gray-700" style={{ maxWidth: 360 }}>
-        <h3 className="mb-6" style={{ fontSize: 17 }}>
-          <T id="enterAmount" />
-        </h3>
-        {isError && (
-          <div className="flex w-full justify-center mb-6 text-red-600" style={{ fontSize: 17 }}>
-            <AttentionRedIcon />
-            <h3 className="ml-1">
-              <T id="serviceIsUnavailable" />
-            </h3>
-          </div>
-        )}
+      {isApiError && (
+        <div className="flex w-full justify-center my-6 text-red-600" style={{ fontSize: 17 }}>
+          <AttentionRedIcon />
+          <h3 className="ml-1">
+            <T id="serviceIsUnavailable" />
+          </h3>
+        </div>
+      )}
+      <div className="mx-auto mt-4 mb-10 text-center font-inter font-normal text-gray-700" style={{ maxWidth: 360 }}>
         <TopUpInput
-          currency="UAH"
-          minAmount={`${minExchangeAmount}.00`}
-          maxAmount={`${maxExchangeAmount}.00`}
-          disabled={isMinMaxLoading}
+          singleToken
+          isDefaultUahIcon
+          amountInputDisabled={isMinMaxLoading}
+          label={<T id="send" />}
+          currencyName={inputCurrency}
+          currenciesList={[]}
+          minAmount={minExchangeAmount.toString()}
+          maxAmount={maxExchangeAmount.toString()}
           isMinAmountError={isMinAmountError}
           isMaxAmountError={isMaxAmountError}
-          onChangeInputHandler={e => {
-            setAmount(Number(e.target.value));
-            debouncedLinkRequest(e);
-          }}
+          onAmountChange={handleInputAmountChange}
+          className="mb-4"
         />
+
+        <br />
+        <TopUpInput
+          readOnly
+          singleToken
+          isDefaultUahIcon
+          amountInputDisabled
+          label={<T id="get" />}
+          currencyName={outputCurrency}
+          currenciesList={[]}
+          amount={outputAmount}
+        />
+        <Divider style={{ marginTop: '40px', marginBottom: '20px' }} />
+        <div className={styles['exchangeRateBlock']}>
+          <p className={styles['exchangeTitle']}>
+            <T id={'exchangeRate'} />
+          </p>
+          <p className={styles['exchangeData']}>1 XTZ ≈ {exchangeRate} UAH</p>
+        </div>
         <FormSubmitButton
           className="w-full justify-center border-none mt-6"
           style={{
             background: '#4299e1',
             padding: 0
           }}
-          disabled={disabledProceed}
-          loading={isLinkLoading}
-          testID={BuySelectors.AliceBob}
+          disabled={disabledProceed || link === ''}
+          loading={isLoading || isMinMaxLoading}
+          testID={isWithdraw ? WithdrawSelectors.AliceBob : BuySelectors.AliceBob}
         >
           <a
             href={link}
@@ -133,7 +143,7 @@ export const AliceBob = () => {
               paddingBottom: '0.625rem'
             }}
           >
-            <T id={isMinMaxLoading ? 'updatingMinMax' : 'next'} />
+            <T id="next" />
           </a>
         </FormSubmitButton>
         <div className="border-solid border-gray-300" style={{ borderTopWidth: 1 }}>
@@ -169,3 +179,16 @@ export const AliceBob = () => {
     </PageLayout>
   );
 };
+
+const buildQuery = makeBuildQueryFn<Record<string, string>, any>('http://localhost:3000');
+export const getSignedAliceBobUrl = buildQuery('GET', '/api/alice-bob-sign', [
+  'isWithdraw',
+  'amount',
+  'userId',
+  'walletAddress'
+]);
+export const getAliceBobPairInfo = buildQuery('GET', '/api/alice-bob-pair-info', ['isWithdraw']);
+export const getAliceBobOutputEstimation = buildQuery('GET', '/api/alice-bob-output-estimation', [
+  'isWithdraw',
+  'amount'
+]);

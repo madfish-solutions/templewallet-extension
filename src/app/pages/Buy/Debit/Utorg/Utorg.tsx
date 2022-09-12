@@ -84,14 +84,14 @@ export const Utorg = () => {
       )}
       <div className="mx-auto mt-4 mb-10 text-center font-inter font-normal text-gray-700" style={{ maxWidth: 360 }}>
         <TopUpInput
+          isSearchable
+          label={<T id="send" />}
           currencyName={inputCurrency}
           currenciesList={currencies}
-          label={<T id="send" />}
           setCurrencyName={setInputCurrency}
-          className="mb-4"
           onAmountChange={handleInputAmountChange}
           amountInputDisabled={isMinMaxLoading}
-          isSearchable
+          className="mb-4"
         />
 
         <br />
@@ -100,8 +100,8 @@ export const Utorg = () => {
           singleToken
           amountInputDisabled
           label={<T id="get" />}
-          currenciesList={[]}
           currencyName="XTZ"
+          currenciesList={[]}
           minAmount={minXtzExchangeAmount.toString()}
           maxAmount={maxXtzExchangeAmount.toString()}
           isMinAmountError={isMinAmountError}

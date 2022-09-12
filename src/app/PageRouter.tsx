@@ -91,6 +91,7 @@ const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
   ['/buy/debit/alice-bob', onlyReady(onlyInFullPage(() => <AliceBob />))],
   ['/buy/debit/utorg', onlyReady(onlyInFullPage(() => <Utorg />))],
   ['/withdraw', onlyReady(onlyInFullPage(() => <Withdraw />))],
+  ['/withdraw/debit/alice-bob', onlyReady(onlyInFullPage(() => <AliceBob isWithdraw />))],
   ['/attention', onlyReady(onlyInFullPage(() => <AttentionPage />))],
   ['*', () => <Woozie.Redirect to="/" />]
 ]);

@@ -11,6 +11,7 @@ export interface TopUpInputProps {
   className?: string;
   singleToken?: boolean;
   amountInputDisabled?: boolean;
+  isDefaultUahIcon?: boolean;
   readOnly?: boolean;
   minAmount?: string;
   maxAmount?: string;

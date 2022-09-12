@@ -2275,9 +2275,6 @@
   "next": {
     "message": "Next"
   },
-  "updatingMinMax": {
-    "message": "Updating min/max..."
-  },
   "done": {
     "message": "Done!"
   },
@@ -2496,9 +2493,6 @@
         "content": "$2"
       }
     }
-  },
-  "enterAmount": {
-    "message": "Please enter the amount:"
   },
   "topUpCrypto": {
     "message": "Crypto"

@@ -29,6 +29,7 @@ export const TopUpInputHeader = forwardRef<HTMLDivElement, Props>(
       searchString,
       toggleOpened,
       amountInputDisabled,
+      isDefaultUahIcon,
       minAmount,
       maxAmount,
       isMinAmountError,
@@ -116,6 +117,7 @@ export const TopUpInputHeader = forwardRef<HTMLDivElement, Props>(
             >
               <StaticCurrencyImage
                 currencyName={currencyName}
+                isDefaultUahIcon={isDefaultUahIcon}
                 style={{
                   borderRadius: '50%',
                   width: 32,

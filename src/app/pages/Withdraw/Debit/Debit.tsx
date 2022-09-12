@@ -30,7 +30,7 @@ export const Debit: FC = () => {
           'bg-blue-500',
           'w-full'
         )}
-        to="/buy/debit/alice-bob"
+        to="/withdraw/debit/alice-bob"
       >
         <T id="continue" />
       </Link>

@@ -6,10 +6,11 @@ const UTORG_FIAT_ICONS_BASE_URL = 'https://utorg.pro/img/flags2/icon-';
 
 interface Props {
   currencyName: string;
+  isDefaultUahIcon?: boolean;
   style?: React.CSSProperties;
 }
 
-export const StaticCurrencyImage: FC<Props> = ({ currencyName, style = {} }) => {
+export const StaticCurrencyImage: FC<Props> = ({ currencyName, isDefaultUahIcon, style = {} }) => {
   const [isFailed, setIsFailed] = useState(false);
   const conditionalStyle = useMemo(() => ({ display: isFailed ? 'none' : 'flex' }), [isFailed]);
 
@@ -17,6 +18,8 @@ export const StaticCurrencyImage: FC<Props> = ({ currencyName, style = {} }) => 
     <>
       {currencyName === 'XTZ' ? (
         <img alt="tezIcon" style={style} src={browser.runtime.getURL('misc/token-logos/tez.svg')} />
+      ) : currencyName === 'UAH' && isDefaultUahIcon ? (
+        <img alt="tezIcon" style={style} src={browser.runtime.getURL('misc/fiat-logos/uah.svg')} />
       ) : (
         <div className="flex justify-center items-center bg-gray-300" style={{ ...style, ...conditionalStyle }}>
           <img
