@@ -12,10 +12,11 @@ export const DonationBanner: FC = () => {
 
   return (
     <a
-      className={classNames('flex flex-col mx-auto mt-2', 'mb-2 p-2')}
+      className={classNames('flex flex-col items-center justify-center', 'ml-4 mt-1 mb-1')}
       style={{
         borderRadius: '4px',
         maxWidth: '100px',
+        height: '28px',
         backgroundColor: '#E5F2FF'
       }}
       href="https://donate.tezos.org.ua"
@@ -25,7 +26,7 @@ export const DonationBanner: FC = () => {
     >
       <div className="flex flex-row justify-center px-2 items-center">
         <div className="flex flex-col">
-          <span className="font-inter font-semibold text-base" style={{ color: '#007AFF' }}>
+          <span className="font-inter font-semibold text-sm" style={{ color: '#007AFF' }}>
             <T id={'support'} />
           </span>
         </div>

@@ -16,7 +16,7 @@ const SearchAssetField: FC<SearchAssetFieldProps> = ({ className, ...rest }) => 
       className={classNames(
         'py-2 pl-8 pr-4',
         'bg-gray-100 focus:bg-transparent',
-        'border border-transparent',
+        'border border-transparent border-bgheader',
         'focus:outline-none focus:border-gray-300',
         'transition ease-in-out duration-200',
         'rounded-md',

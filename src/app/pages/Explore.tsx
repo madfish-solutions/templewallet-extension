@@ -13,6 +13,7 @@ import { ReactComponent as ExploreIcon } from 'app/icons/explore.svg';
 import { ReactComponent as ReceiveIcon } from 'app/icons/receive.svg';
 import { ReactComponent as SendIcon } from 'app/icons/send-alt.svg';
 import { ReactComponent as SwapIcon } from 'app/icons/swap.svg';
+import { ReactComponent as WithdrawIcon } from 'app/icons/withdraw.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import Activity from 'app/templates/activity/Activity';
 import AssetInfo from 'app/templates/AssetInfo';
@@ -75,7 +76,7 @@ const Explore: FC<ExploreProps> = ({ assetSlug }) => {
 
   const accountPkh = account.publicKeyHash;
   const canSend = account.type !== TempleAccountType.WatchOnly;
-  const fullpageClassName = fullPage ? 'mb-10' : 'mb-6';
+  const fullpageClassName = fullPage ? 'mb-8' : 'mb-6';
   const sendLink = assetSlug ? `/send/${assetSlug}` : '/send';
 
   return onboardingCompleted ? (
@@ -98,31 +99,35 @@ const Explore: FC<ExploreProps> = ({ assetSlug }) => {
       {fullPage && (
         <div className="w-full max-w-sm mx-auto">
           <EditableTitle />
-          <hr className="mb-6" />
+          <hr className="mb-4" />
         </div>
       )}
 
       <div className={classNames('flex flex-col items-center', fullpageClassName)}>
-        <AddressChip pkh={accountPkh} className="mb-6" />
-
         <MainBanner accountPkh={accountPkh} assetSlug={assetSlug} />
 
-        <div className="flex justify-between mx-auto w-full max-w-sm mt-6 px-8">
+        <div className="flex justify-between mx-auto w-full max-w-sm">
           <ActionButton
             label={<T id="receive" />}
             Icon={ReceiveIcon}
             to="/receive"
             testID={ExploreSelectors.ReceiveButton}
           />
-          {NETWORK_TYPES_WITH_BUY_BUTTON.includes(network.type) && (
-            <ActionButton
-              label={<T id="buyButton" />}
-              Icon={BuyIcon}
-              to={`/buy?tab=${network.type === 'dcp' ? 'debit' : 'crypto'}`}
-              testID={ExploreSelectors.BuyButton}
-            />
-          )}
 
+          <ActionButton
+            label={<T id="buyButton" />}
+            Icon={BuyIcon}
+            to={`/buy?tab=${network.type === 'dcp' ? 'debit' : 'crypto'}`}
+            disabled={!NETWORK_TYPES_WITH_BUY_BUTTON.includes(network.type)}
+            testID={ExploreSelectors.BuyButton}
+          />
+          <ActionButton
+            label={<T id="withdrawButton" />}
+            Icon={WithdrawIcon}
+            to={`/buy?tab=${network.type === 'dcp' ? 'debit' : 'crypto'}`}
+            disabled={true}
+            testID={ExploreSelectors.WithdrawButton}
+          />
           <ActionButton
             label={<T id="swap" />}
             Icon={SwapIcon}
@@ -171,7 +176,10 @@ const ActionButton: FC<ActionButtonProps> = ({
   testID,
   testIDProperties
 }) => {
-  const buttonRef = useTippy<HTMLButtonElement>(tippyProps);
+  const buttonRef = useTippy<HTMLButtonElement>({
+    ...tippyProps,
+    content: disabled && !tippyProps.content ? t('disabled') : tippyProps.content
+  });
   const commonButtonProps = useMemo(
     () => ({
       className: `flex flex-col items-center`,
@@ -179,17 +187,12 @@ const ActionButton: FC<ActionButtonProps> = ({
       children: (
         <>
           <div
-            className={classNames(
-              disabled ? 'bg-blue-300' : 'bg-blue-500',
-              'rounded mb-1 flex items-center text-white'
-            )}
+            className={classNames(disabled ? 'bg-grey' : 'bg-orange-10', 'rounded mb-1 flex items-center text-white')}
             style={{ padding: '0 0.625rem', height: '2.75rem' }}
           >
-            <Icon className="w-6 h-auto stroke-current" />
+            <Icon className={classNames('w-6 h-auto', disabled ? 'stroke-grey' : 'stroke-accent-orange')} />
           </div>
-          <span className={classNames('text-xs text-center', disabled ? 'text-blue-300' : 'text-blue-500')}>
-            {label}
-          </span>
+          <span className={classNames('text-xs text-center', disabled ? 'color-grey' : 'color-dark')}>{label}</span>
         </>
       )
     }),
@@ -298,7 +301,7 @@ const SecondarySection: FC<SecondarySectionProps> = ({ assetSlug, className }) =
 
   return (
     <div className={classNames('-mx-4', 'shadow-top-light', fullPage && 'rounded-t-md', className)}>
-      <div className={classNames('w-full max-w-sm mx-auto px-10', 'flex items-center justify-center')}>
+      <div className={classNames('w-full max-w-sm mx-auto', 'flex items-center justify-center')}>
         {tabs.map(currentTab => {
           const active = slug === currentTab.slug;
 

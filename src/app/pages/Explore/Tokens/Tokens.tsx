@@ -168,7 +168,7 @@ const Tokens: FC = () => {
         <div
           className={classNames(
             'w-full overflow-hidden',
-            'border rounded-md',
+            'rounded-md',
             'flex flex-col',
             'text-gray-700 text-sm leading-tight'
           )}
@@ -288,8 +288,7 @@ const ListItem = memo<ListItemProps>(({ assetSlug, active, accountPkh }) => {
         'relative',
         'block w-full',
         'overflow-hidden',
-        'border-b border-gray-200',
-        active ? 'bg-gray-100' : 'hover:bg-gray-100 focus:bg-gray-100',
+        active ? 'bg-secondary-hover' : 'bg-secondary-hover bg-secondary-focus',
         'flex items-center p-4',
         'text-gray-700',
         'transition ease-in-out duration-200',

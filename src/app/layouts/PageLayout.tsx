@@ -190,7 +190,7 @@ const Toolbar: FC<ToolbarProps> = ({
       }}
     >
       <div className="flex-1">
-        {adShow && <DonationBanner />}
+        {!isBackButtonAvailable && adShow && <DonationBanner />}
         {isBackButtonAvailable && (
           <Button
             className={classNames(
