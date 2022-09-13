@@ -1095,6 +1095,42 @@
       }
     }
   },
+  "cycles_zero": {
+    "message": "$amount$ cycles",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "cycles_two": {
+    "message": "$amount$ cycles",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "cycles_few": {
+    "message": "$amount$ cycles",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "cycles_many": {
+    "message": "$amount$ cycles",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
   "cycles_other": {
     "message": "$amount$ cycles",
     "description": "For plural forms",
@@ -2119,6 +2155,42 @@
       }
     }
   },
+  "blocks_zero": {
+    "message": "$amount$ blocks",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "blocks_two": {
+    "message": "$amount$ blocks",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "blocks_few": {
+    "message": "$amount$ blocks",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "blocks_many": {
+    "message": "$amount$ blocks",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
   "blocks_other": {
     "message": "$amount$ blocks",
     "description": "For plural forms",
@@ -2144,6 +2216,42 @@
   },
   "slots_one": {
     "message": "$amount$ slot",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "slots_zero": {
+    "message": "$amount$ slots",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "slots_two": {
+    "message": "$amount$ slots",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "slots_few": {
+    "message": "$amount$ slots",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "slots_many": {
+    "message": "$amount$ slots",
     "description": "For plural forms",
     "placeholders": {
       "amount": {

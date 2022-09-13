@@ -8,6 +8,7 @@ import { ReactComponent as CloseIcon } from 'app/icons/close.svg';
 import CustomSelect, { OptionRenderProps } from 'app/templates/CustomSelect';
 import DAppLogo from 'app/templates/DAppLogo';
 import HashChip from 'app/templates/HashChip';
+import type { TID } from 'lib/i18n/react';
 import { T, t } from 'lib/i18n/react';
 import { useRetryableSWR } from 'lib/swr';
 import { useStorage, TempleSharedStorageKey, useTempleClient } from 'lib/temple/front';
@@ -145,8 +146,15 @@ const DAppDescription: FC<OptionRenderProps<DAppEntry, string, DAppActions>> = p
     [onRemove, origin]
   );
 
+  interface TDAppAttribute {
+    key: TID;
+    value: React.ReactNode;
+    valueClassName?: string;
+    Component: React.FC | keyof JSX.IntrinsicElements;
+  }
+
   const dAppAttributes = useMemo(
-    () => [
+    (): TDAppAttribute[] => [
       {
         key: 'originLabel',
         value: origin,

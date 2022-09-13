@@ -19,6 +19,7 @@ import { ReactComponent as SettingsIcon } from 'app/icons/settings.svg';
 import Balance from 'app/templates/Balance';
 import SearchField from 'app/templates/SearchField';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
+import type { TID } from 'lib/i18n/react';
 import { t, T } from 'lib/i18n/react';
 import { useAccount, useRelevantAccounts, useSetAccountPkh, useTempleClient } from 'lib/temple/front';
 import { PopperRenderProps } from 'lib/ui/Popper';
@@ -27,8 +28,15 @@ import { Link } from 'lib/woozie';
 import { useGasToken } from '../../../hooks/useGasToken';
 import { AccountDropdownSelectors } from './AccountDropdown.selectors';
 
-type ExcludesFalse = <T>(x: T | false) => x is T;
 type AccountDropdownProps = PopperRenderProps;
+
+interface TDropdownAction {
+  key: string;
+  Icon: React.FC<React.SVGProps<SVGSVGElement>>;
+  i18nKey: TID;
+  linkTo: string | null;
+  onClick: () => void;
+}
 
 const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
   const appEnv = useAppEnv();
@@ -70,51 +78,50 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
   }, [appEnv.popup, closeDropdown]);
 
   const actions = useMemo(
-    () =>
-      [
-        {
-          key: 'create-account',
-          Icon: AddIcon,
-          i18nKey: 'createAccount',
-          linkTo: '/create-account',
-          onClick: closeDropdown
-        },
-        {
-          key: 'import-account',
-          Icon: DownloadIcon,
-          i18nKey: 'importAccount',
-          linkTo: '/import-account',
-          onClick: closeDropdown
-        },
-        {
-          key: 'connect-ledger',
-          Icon: LinkIcon,
-          i18nKey: 'connectLedger',
-          linkTo: '/connect-ledger',
-          onClick: closeDropdown
-        },
-        {
-          key: 'dapps',
-          Icon: DAppsIcon,
-          i18nKey: 'dapps',
-          linkTo: '/dApps',
-          onClick: closeDropdown
-        },
-        {
-          key: 'settings',
-          Icon: SettingsIcon,
-          i18nKey: 'settings',
-          linkTo: '/settings',
-          onClick: closeDropdown
-        },
-        {
-          key: 'maximise',
-          Icon: MaximiseIcon,
-          i18nKey: appEnv.fullPage ? 'openNewTab' : 'maximiseView',
-          linkTo: null,
-          onClick: handleMaximiseViewClick
-        }
-      ].filter(Boolean as any as ExcludesFalse),
+    (): TDropdownAction[] => [
+      {
+        key: 'create-account',
+        Icon: AddIcon,
+        i18nKey: 'createAccount',
+        linkTo: '/create-account',
+        onClick: closeDropdown
+      },
+      {
+        key: 'import-account',
+        Icon: DownloadIcon,
+        i18nKey: 'importAccount',
+        linkTo: '/import-account',
+        onClick: closeDropdown
+      },
+      {
+        key: 'connect-ledger',
+        Icon: LinkIcon,
+        i18nKey: 'connectLedger',
+        linkTo: '/connect-ledger',
+        onClick: closeDropdown
+      },
+      {
+        key: 'dapps',
+        Icon: DAppsIcon,
+        i18nKey: 'dApps',
+        linkTo: '/dApps',
+        onClick: closeDropdown
+      },
+      {
+        key: 'settings',
+        Icon: SettingsIcon,
+        i18nKey: 'settings',
+        linkTo: '/settings',
+        onClick: closeDropdown
+      },
+      {
+        key: 'maximise',
+        Icon: MaximiseIcon,
+        i18nKey: appEnv.fullPage ? 'openNewTab' : 'maximiseView',
+        linkTo: null,
+        onClick: handleMaximiseViewClick
+      }
+    ],
     [appEnv.fullPage, closeDropdown, handleMaximiseViewClick]
   );
 
