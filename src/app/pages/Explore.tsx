@@ -31,7 +31,6 @@ import {
 import useTippy from 'lib/ui/useTippy';
 import { HistoryAction, Link, navigate, To, useLocation } from 'lib/woozie';
 
-import { DonationBanner } from '../atoms/DonationBanner';
 import CollectiblesList from './Collectibles/CollectiblesList';
 import { ExploreSelectors } from './Explore.selectors';
 import AddressChip from './Explore/AddressChip';
@@ -94,14 +93,13 @@ const Explore: FC<ExploreProps> = ({ assetSlug }) => {
         </>
       }
       attention={true}
+      adShow
     >
-      <DonationBanner />
-
       {fullPage && (
-        <>
+        <div className="w-full max-w-sm mx-auto">
           <EditableTitle />
           <hr className="mb-6" />
-        </>
+        </div>
       )}
 
       <div className={classNames('flex flex-col items-center', fullpageClassName)}>

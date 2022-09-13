@@ -15,6 +15,7 @@ import { PropsWithChildren } from 'lib/props-with-children';
 import { goBack, HistoryAction, Link, navigate, useLocation } from 'lib/woozie';
 
 import { AnalyticsEventCategory, useAnalytics } from '../../lib/analytics';
+import { DonationBanner } from '../atoms/DonationBanner';
 import { ReactComponent as AttentionGreyIcon } from '../icons/attentionGrey.svg';
 import { ReactComponent as AttentionRedIcon } from '../icons/attentionRed.svg';
 import { ReactComponent as DownloadMobileGreyIcon } from '../icons/download-mobile-grey.svg';
@@ -93,11 +94,20 @@ type ToolbarProps = {
   hasBackAction?: boolean;
   step?: number;
   setStep?: (step: number) => void;
+  adShow?: boolean;
   skip?: boolean;
   attention?: boolean;
 };
 
-const Toolbar: FC<ToolbarProps> = ({ pageTitle, hasBackAction = true, step, setStep, skip, attention }) => {
+const Toolbar: FC<ToolbarProps> = ({
+  pageTitle,
+  hasBackAction = true,
+  step,
+  setStep,
+  adShow = false,
+  skip,
+  attention
+}) => {
   const { historyPosition, pathname } = useLocation();
   const { fullPage, registerBackHandler, onBack } = useAppEnv();
   const { setOnboardingCompleted } = useOnboardingProgress();
@@ -180,6 +190,7 @@ const Toolbar: FC<ToolbarProps> = ({ pageTitle, hasBackAction = true, step, setS
       }}
     >
       <div className="flex-1">
+        {adShow && <DonationBanner />}
         {isBackButtonAvailable && (
           <Button
             className={classNames(

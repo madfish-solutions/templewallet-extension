@@ -97,7 +97,7 @@ const EditableTitle: FC = () => {
   }, [setEditing]);
 
   return (
-    <div className="relative flex items-center justify-center pt-4">
+    <div className="relative flex items-center pt-4">
       {editing ? (
         <form className="flex flex-col items-center flex-1" onSubmit={handleEditSubmit}>
           <FormField
@@ -159,15 +159,15 @@ const EditableTitle: FC = () => {
       ) : (
         <>
           <Name
-            className={classNames('mb-2 pl-7', 'text-2xl font-light text-gray-700 text-center')}
-            style={{ maxWidth: '24rem' }}
+            className={classNames('mb-1 pl-1', 'text-2xl text-gray-700 text-center')}
+            style={{ maxWidth: '24rem', color: '#1B262C' }}
           >
             {account.name}
           </Name>
           {!editing && (
             <Button
               className={classNames(
-                'px-1 py-1 ml-1 mb-2',
+                'px-1 py-1',
                 'rounded overflow-hidden',
                 'text-gray-600 text-sm',
                 'transition ease-in-out duration-200',
@@ -177,7 +177,7 @@ const EditableTitle: FC = () => {
               onClick={handleEditClick}
               testID={EditableTitleSelectors.EditButton}
             >
-              <EditIcon className={classNames('h-5 w-auto stroke-current stroke-2')} />
+              <EditIcon className={classNames('h-4 w-auto stroke-current stroke-2')} />
             </Button>
           )}
         </>
