@@ -24,6 +24,7 @@ import HelpAndCommunity from 'app/templates/HelpAndCommunity';
 import RemoveAccount from 'app/templates/RemoveAccount';
 import RevealSecret from 'app/templates/RevealSecret';
 import SyncSettings from 'app/templates/SyncSettings';
+import type { TID } from 'lib/i18n/react';
 import { T } from 'lib/i18n/react';
 import { Link } from 'lib/woozie';
 
@@ -36,7 +37,17 @@ type SettingsProps = {
 const RevealPrivateKey: FC = () => <RevealSecret reveal="private-key" />;
 const RevealSeedPhrase: FC = () => <RevealSecret reveal="seed-phrase" />;
 
-const TABS = [
+interface Tab {
+  slug: string;
+  titleI18nKey: TID;
+  Icon: React.FC<React.SVGProps<SVGSVGElement>>;
+  Component: React.FC;
+  color: string;
+  descriptionI18nKey: TID;
+  testID?: SettingsSelectors;
+}
+
+const TABS: Tab[] = [
   {
     slug: 'general-settings',
     titleI18nKey: 'generalSettings',

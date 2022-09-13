@@ -9,7 +9,8 @@ import { ReactComponent as ChevronRightIcon } from 'app/icons/chevron-right.svg'
 import { ReactComponent as ChevronUpIcon } from 'app/icons/chevron-up.svg';
 import { ReactComponent as ClipboardIcon } from 'app/icons/clipboard.svg';
 import HashChip from 'app/templates/HashChip';
-import { T, t, getDateFnsLocale, TProps } from 'lib/i18n/react';
+import type { TID } from 'lib/i18n/react';
+import { T, t, getDateFnsLocale } from 'lib/i18n/react';
 import { OpStackItem, OpStackItemType, parseMoneyDiffs, parseOpStack } from 'lib/temple/activity';
 import { useExplorerBaseUrls } from 'lib/temple/front';
 import * as Repo from 'lib/temple/repo';
@@ -150,7 +151,11 @@ type OpStackItemProps = {
 };
 
 const OpStackItemComponent = memo<OpStackItemProps>(({ item }) => {
-  const toRender = (() => {
+  const toRender = ((): {
+    base: React.ReactNode;
+    argsI18nKey?: TID;
+    args?: string[];
+  } => {
     switch (item.type) {
       case OpStackItemType.Delegation:
         return {
@@ -220,7 +225,9 @@ const OpStackItemComponent = memo<OpStackItemProps>(({ item }) => {
     <div className="flex flex-wrap items-center">
       <div className={classNames('flex items-center', 'text-xs text-blue-600 opacity-75')}>{toRender.base}</div>
 
-      {toRender.argsI18nKey && <StackItemArgs i18nKey={toRender.argsI18nKey} args={toRender.args} className="ml-1" />}
+      {toRender.argsI18nKey && toRender.args && (
+        <StackItemArgs i18nKey={toRender.argsI18nKey} args={toRender.args} className="ml-1" />
+      )}
     </div>
   );
 });
@@ -246,7 +253,7 @@ const Time: React.FC<TimeProps> = ({ children }) => {
 };
 
 type StackItemArgsProps = {
-  i18nKey: TProps['id'];
+  i18nKey: TID;
   args: string[];
   className?: string;
 };

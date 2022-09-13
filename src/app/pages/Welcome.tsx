@@ -6,10 +6,20 @@ import Logo from 'app/atoms/Logo';
 import { ReactComponent as EntranceIcon } from 'app/icons/entrance.svg';
 import { ReactComponent as FolderAddIcon } from 'app/icons/folder-add.svg';
 import { ReactComponent as LedgerNanoIcon } from 'app/misc/ledger.svg';
+import type { TID } from 'lib/i18n/react';
 import { T } from 'lib/i18n/react';
 import { Link } from 'lib/woozie';
 
-const SIGNS = [
+interface TSign {
+  key: string;
+  linkTo: string;
+  filled: boolean;
+  Icon: ImportedSVGComponent;
+  titleI18nKey: TID;
+  descriptionI18nKey: TID;
+}
+
+const SIGNS: TSign[] = [
   {
     key: 'import',
     linkTo: '/import-wallet',

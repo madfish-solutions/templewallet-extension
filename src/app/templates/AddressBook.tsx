@@ -138,7 +138,7 @@ const AddNewContactForm: React.FC<{ className?: string }> = ({ className }) => {
   const validateAddressField = useCallback(
     async (value: any) => {
       if (!value?.length) {
-        return t('Required');
+        return t('required');
       }
 
       if (isDomainNameValid(value, domainsClient)) {

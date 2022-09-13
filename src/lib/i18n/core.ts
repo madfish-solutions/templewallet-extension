@@ -127,10 +127,11 @@ export async function fetchLocaleMessages(locale: string) {
 function appendPlaceholderLists(messages: LocaleMessages) {
   for (const name in messages) {
     const val = messages[name];
-    if (val.placeholders) {
+    const placeholders = val.placeholders;
+    if (placeholders) {
       val.placeholderList = [];
-      for (const pKey in val.placeholders) {
-        const { content } = val.placeholders[pKey];
+      for (const pKey in placeholders) {
+        const { content } = placeholders[pKey];
         const index = +content.substring(1) - 1;
         val.placeholderList[index] = pKey;
       }

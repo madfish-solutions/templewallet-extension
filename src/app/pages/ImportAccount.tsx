@@ -17,6 +17,7 @@ import { ReactComponent as OkIcon } from 'app/icons/ok.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import ManagedKTForm from 'app/templates/ManagedKTForm';
 import { useFormAnalytics } from 'lib/analytics';
+import type { TID } from 'lib/i18n/react';
 import { T, t } from 'lib/i18n/react';
 import {
   useTempleClient,
@@ -46,7 +47,7 @@ type ImportAccountProps = {
 
 interface ImportTabDescriptor {
   slug: string;
-  i18nKey: string;
+  i18nKey: TID;
   Form: FC<{}>;
 }
 
@@ -222,7 +223,12 @@ const ByPrivateKeyForm: FC = () => {
   );
 };
 
-const DERIVATION_PATHS = [
+interface DerivationPath {
+  type: string;
+  i18nKey: TID;
+}
+
+const DERIVATION_PATHS: DerivationPath[] = [
   {
     type: 'default',
     i18nKey: 'defaultAccount'
@@ -690,7 +696,7 @@ const FromFaucetForm: FC = () => {
           label={t('faucetJson')}
           labelDescription={t('faucetJsonDescription')}
           placeholder={'{ ... }'}
-          errorCaption={errors.text?.message && t(errors.text?.message.toString())}
+          errorCaption={errors.text?.message && t(errors.text.message.toString() as TID)}
           className="text-xs"
           style={{
             resize: 'none'
