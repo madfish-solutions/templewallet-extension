@@ -34,7 +34,6 @@ import { HistoryAction, Link, navigate, To, useLocation } from 'lib/woozie';
 
 import CollectiblesList from './Collectibles/CollectiblesList';
 import { ExploreSelectors } from './Explore.selectors';
-import AddressChip from './Explore/AddressChip';
 import BakingSection from './Explore/BakingSection';
 import EditableTitle from './Explore/EditableTitle';
 import MainBanner from './Explore/MainBanner';
