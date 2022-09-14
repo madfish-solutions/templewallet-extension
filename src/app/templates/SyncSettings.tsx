@@ -36,7 +36,7 @@ const SyncSettings: FC = () => {
       try {
         const syncPayload = await generateSyncPayload(password);
         setPayload(syncPayload);
-      } catch (err) {
+      } catch (err: any) {
         if (process.env.NODE_ENV === 'development') {
           console.error(err);
         }

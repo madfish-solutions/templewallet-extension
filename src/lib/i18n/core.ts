@@ -86,10 +86,6 @@ export function getDateFnsLocale() {
   return dateFnsLocales[getCurrentLocale()] || enUS;
 }
 
-export function getCldrLocale() {
-  return cldrLocale;
-}
-
 export function getNumberSymbols() {
   return cldrLocale.numbers['symbols-numberSystem-latn'];
 }
@@ -130,9 +126,8 @@ function appendPlaceholderLists(messages: LocaleMessages) {
     const placeholders = val.placeholders;
     if (placeholders) {
       val.placeholderList = [];
-      for (const pKey in placeholders) {
-        const { content } = placeholders[pKey];
-        const index = +content.substring(1) - 1;
+      for (const pKey in val.placeholders) {
+        const index = +val.placeholders[pKey].content.substring(1) - 1;
         val.placeholderList[index] = pKey;
       }
     }
