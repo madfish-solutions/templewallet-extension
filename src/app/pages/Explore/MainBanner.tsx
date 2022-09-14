@@ -63,7 +63,7 @@ const MainnetVolumeBanner: FC<MainnetVolumeBannerProps> = ({ chainId, accountPkh
     <div className="w-full max-w-sm mx-auto mb-4">
       <div className="flex justify-between items-center mb-3">
         {volumeInUSD && (
-          <div className="text-sm font-medium color-darkgrey">
+          <div className="text-sm font-medium text-gray-700">
             <T id="totalEquityValue" />
           </div>
         )}
@@ -93,7 +93,7 @@ const AssetBanner: FC<AssetBannerProps> = ({ assetSlug, accountPkh }) => {
       <div className="flex justify-between items-center mb-3">
         <div className="flex items-center">
           <AssetIcon assetSlug={assetSlug} size={24} className="flex-shrink-0" />
-          <div className={classNames('text-sm font-normal color-darkgrey truncate flex-1 ml-2')}>
+          <div className={classNames('text-sm font-normal text-gray-700 truncate flex-1 ml-2')}>
             {getAssetName(assetMetadata)}
           </div>
         </div>

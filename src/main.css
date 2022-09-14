@@ -101,52 +101,11 @@ button,
   display: none;
 }
 
-.bg-orange-10 {
-  background-color: #FFF2E6;
-}
-
-.bg-accent-orange {
-  background-color: #FF5B00;
-}
-
 .stroke-accent-orange {
   stroke: #FF5B00;
 }
-
-.border-bgheader {
-  border-color: #e2e8f0;
-}
-
-.bg-secondary {
-  background-color: #EDF2F7;
-}
-
-.bg-secondary-hover:hover {
-  background-color: #EDF2F7;
-}
-
-.bg-secondary-focus:focus {
-  background-color: #EDF2F7;
-}
-
-.bg-grey {
-  background-color: #F4F4F4;
-}
-
-.stroke-grey {
+.stroke-gray {
   stroke: #AEAEB2;
-}
-
-.color-grey {
-  color: #AEAEB2;
-}
-
-.color-darkgrey {
-  color: #4A5568;
-}
-
-.color-dark {
-  color: #1B262C;
 }
 
 /**

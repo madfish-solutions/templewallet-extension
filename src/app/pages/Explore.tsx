@@ -186,12 +186,17 @@ const ActionButton: FC<ActionButtonProps> = ({
       children: (
         <>
           <div
-            className={classNames(disabled ? 'bg-grey' : 'bg-orange-10', 'rounded mb-1 flex items-center text-white')}
+            className={classNames(
+              disabled ? 'bg-gray-10' : 'bg-orange-10',
+              'rounded mb-1 flex items-center text-white'
+            )}
             style={{ padding: '0 0.625rem', height: '2.75rem' }}
           >
-            <Icon className={classNames('w-6 h-auto', disabled ? 'stroke-grey' : 'stroke-accent-orange')} />
+            <Icon className={classNames('w-6 h-auto', disabled ? 'stroke-gray' : 'stroke-accent-orange')} />
           </div>
-          <span className={classNames('text-xs text-center', disabled ? 'color-grey' : 'color-dark')}>{label}</span>
+          <span className={classNames('text-xs text-center', disabled ? 'text-gray-20' : 'text-gray-910')}>
+            {label}
+          </span>
         </>
       )
     }),

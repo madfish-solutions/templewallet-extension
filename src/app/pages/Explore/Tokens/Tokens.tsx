@@ -288,7 +288,7 @@ const ListItem = memo<ListItemProps>(({ assetSlug, active, accountPkh }) => {
         'relative',
         'block w-full',
         'overflow-hidden',
-        active ? 'bg-secondary-hover' : 'bg-secondary-hover bg-secondary-focus',
+        active ? 'hover:bg-gray-200' : 'hover:bg-gray-200 focus:bg-gray-200',
         'flex items-center p-4',
         'text-gray-700',
         'transition ease-in-out duration-200',
