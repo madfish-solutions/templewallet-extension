@@ -68,7 +68,7 @@ const BakerBanner = memo<BakerBannerProps>(
                     'leading-none'
                   )}
                 >
-                  <Name style={{ fontSize: '17px' }}>{baker.name}</Name>
+                  <Name style={{ fontSize: '17px', lineHeight: '20px' }}>{baker.name}</Name>
                   {promoted && <ABContainer groupAComponent={<SponsoredBaker />} groupBComponent={<PromotedBaker />} />}
                   {displayAddress && (
                     <div className="ml-2 flex flex-wrap items-center">
