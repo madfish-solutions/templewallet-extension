@@ -1,7 +1,9 @@
 import { Estimate } from '@taquito/taquito';
 import { TempleDAppMetadata, TempleDAppNetwork } from '@temple-wallet/dapp/dist/types';
 
-import {
+import type { TID } from 'lib/i18n/react';
+
+import type {
   TempleSendPageEventRequest,
   TempleSendPageEventResponse,
   TempleSendTrackEventRequest,
@@ -35,7 +37,7 @@ export enum TempleChainId {
   Mainnet = 'NetXdQprcVkpaWU',
   Ghostnet = 'NetXnHfVqm9iesp',
   Jakartanet = 'NetXLH1uAxK7CCh',
-  Katmandu = 'NetXdnUSgMs7Xc3',
+  Kathmandunet = 'NetXdnUSgMs7Xc3',
   Monday = 'NetXaqtQ8b5nihx',
   Daily = 'NetXxkAx4woPLyu',
   Dcp = 'NetXooyhiru73tk',
@@ -110,7 +112,7 @@ export enum TempleAccountType {
 export interface TempleNetwork {
   id: string;
   name: string;
-  nameI18nKey?: string;
+  nameI18nKey?: TID;
   description: string;
   descriptionI18nKey?: string;
   type: TempleNetworkType;
@@ -227,6 +229,8 @@ export type TempleDAppPayload = TempleDAppConnectPayload | TempleDAppOperationsP
  */
 
 export enum TempleMessageType {
+  // Aknowledge
+  Acknowledge = 'TEMPLE_CONNECT_AKNOWLEDGE',
   // Notifications
   StateUpdated = 'TEMPLE_STATE_UPDATED',
   ConfirmationRequested = 'TEMPLE_CONFIRMATION_REQUESTED',
@@ -297,6 +301,7 @@ export enum TempleMessageType {
 export type TempleNotification = TempleStateUpdated | TempleConfirmationRequested | TempleConfirmationExpired;
 
 export type TempleRequest =
+  | TempleAcknowledgeRequest
   | TempleGetStateRequest
   | TempleNewWalletRequest
   | TempleUnlockRequest
@@ -330,6 +335,7 @@ export type TempleRequest =
 
 export type TempleResponse =
   | TempleGetStateResponse
+  | TempleAcknowledgeResponse
   | TempleNewWalletResponse
   | TempleUnlockResponse
   | TempleLockResponse
@@ -387,6 +393,12 @@ export interface TempleGetStateRequest extends TempleMessageBase {
 export interface TempleGetStateResponse extends TempleMessageBase {
   type: TempleMessageType.GetStateResponse;
   state: TempleState;
+}
+
+export interface TempleAcknowledgeResponse extends TempleMessageBase {
+  type: TempleMessageType.Acknowledge;
+  payload: string;
+  encrypted?: boolean;
 }
 
 export interface TempleNewWalletRequest extends TempleMessageBase {
@@ -599,6 +611,14 @@ export interface TempleConfirmationResponse extends TempleMessageBase {
 
 export interface TemplePageRequest extends TempleMessageBase {
   type: TempleMessageType.PageRequest;
+  origin: string;
+  payload: any;
+  beacon?: boolean;
+  encrypted?: boolean;
+}
+
+export interface TempleAcknowledgeRequest extends TempleMessageBase {
+  type: TempleMessageType.Acknowledge;
   origin: string;
   payload: any;
   beacon?: boolean;

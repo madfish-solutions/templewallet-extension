@@ -115,8 +115,45 @@
   "skip": {
     "message": "Skip"
   },
-  "download": {
-    "message": "Download"
+  "checkNow": {
+    "message": "Check now"
+  },
+  "theLendingProtocol": {
+    "message": "The lending protocol on Tezos."
+  },
+  "alreadyLaunched": {
+    "message": "Already Launched!"
+  },
+  "borrowLandEarn": {
+    "message": "Borrow, Land and Earn on your favorite tokens!"
+  },
+  "tokensAreSupported": {
+    "message": "TEZ, cTEZ, kUSD, tzBTC, uUSD, and uBTC are supported."
+  },
+  "independenceDayOfUkraine": {
+    "message": "Independence Day of Ukraine"
+  },
+  "zeroSwapCommissionTitle": {
+    "message": "Zero Swap commissions for two weeks - celebrate the $text$ with us!",
+    "placeholders": {
+      "text": {
+        "content": "$1"
+      }
+    }
+  },
+  "zeroSwapCommissionDescription": {
+    "message": "From $date1$ till $date2$, Temple users may conduct trades via our router in the $text$ section without our dev commissions.\n\nEnjoy the most lucrative exchange rates and trade without fees in one place.",
+    "placeholders": {
+      "date1": {
+        "content": "$1"
+      },
+      "date2": {
+        "content": "$2"
+      },
+      "text": {
+        "content": "$3"
+      }
+    }
   },
   "okGotIt": {
     "message": "Got it"
@@ -130,12 +167,6 @@
   "update": {
     "message": "Update"
   },
-  "templeIsOnMobile": {
-    "message": "Temple is on Mobile"
-  },
-  "getTempleMobileAndroid": {
-  "message": "Get the Android version of the wallet now"
-},
   "addNewToken": {
     "message": "Add new Token"
   },
@@ -338,6 +369,9 @@
   "required": {
     "message": "Required"
   },
+  "weakKeystorePassword": {
+    "message": "The \"keystore file\" password is too weak to use as an extension password. You need to set a new one."
+  },
   "address": {
     "message": "Address"
   },
@@ -521,7 +555,12 @@
     "message": "Each word separated with a single space"
   },
   "seedInputNumberOfWords": {
-    "message": "My Seed phrase is $1 words"
+    "message": "My Seed phrase is $count$ words",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
   },
   "justValidPreGeneratedMnemonic": {
     "message": "Just valid pre-generated mnemonic"
@@ -631,6 +670,20 @@
   },
   "send": {
     "message": "Send"
+  },
+  "get": {
+    "message": "Get"
+  },
+  "exolixWarningNote": {
+    "message": "Please, deposit only $currencyName$ transfer network $networkName$. Otherwise, you may lose your assets permanently.",
+    "placeholders": {
+      "currencyName": {
+        "content": "$1"
+      },
+      "networkName": {
+        "content": "$1"
+      }
+    }
   },
   "baking": {
     "message": "Baking"
@@ -970,12 +1023,6 @@
   "delegation": {
     "message": "Delegation"
   },
-  "delegationWelcome": {
-    "message": "Welcome to Tezos delegation"
-  },
-  "delegationHowTo": {
-    "message": "How to delegate your tokens to the Baker?"
-  },
   "delegationGuide": {
     "message": "Full video guide"
   },
@@ -985,17 +1032,26 @@
   "delegationComunity": {
     "message": "In case you have any questions, write them in our communities"
   },
-  "delegationFaq1": {
-    "message": "If you have XTZ tokens but you don't want to launch your node, you can delegate your XTZ tokens to Bakers with an already running node to get rewards from the mining based on your contribution."
+  "delegationPointsHead1": {
+    "message": "Earn 5.6% interest"
   },
-  "delegationFaq2": {
-    "message": "Delegation is the right and opportunity of every member of the Tezos network to transfer their vote in the form of XTZ tokens to other Bakers. Delegated funds are not frozen and are not moved anywhere. They remain in your wallet, and you can spend them or change Baker at any time."
+  "delegationPointsHead2": {
+    "message": "on your Tezos"
   },
-  "delegationFaq3": {
-    "message": "The delegation system is also part of the LPoS consensus and allows users to be involved in supporting the network. Also, delegation helps significantly speed up transactions, makes them cheap, creates the basis for network scaling, and brings a passive income for delegators."
+  "delegationPointsHead3": {
+    "message": "annualy from Baking rewards"
   },
-  "delegationFaq4": {
-    "message": "Delegation is the in-build function of the Temple Wallet."
+  "delegationPoint1": {
+    "message": "Your first reward in Tezos will be paid approximately in 36 days."
+  },
+  "delegationPoint2": {
+    "message": "Then, you receive a reward every 3 days."
+  },
+  "delegationPoint3": {
+    "message": "Earn rate varies over time. Check the current rate in your Wallet."
+  },
+  "delegationPoint4": {
+    "message": "Your Tezos tokens are never locked. Send anytime!"
   },
   "baker": {
     "message": "Baker"
@@ -1032,6 +1088,42 @@
   },
   "cycles_one": {
     "message": "$amount$ cycle",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "cycles_zero": {
+    "message": "$amount$ cycles",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "cycles_two": {
+    "message": "$amount$ cycles",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "cycles_few": {
+    "message": "$amount$ cycles",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "cycles_many": {
+    "message": "$amount$ cycles",
     "description": "For plural forms",
     "placeholders": {
       "amount": {
@@ -1947,9 +2039,6 @@
   "max": {
     "message": "Max"
   },
-  "currencyUnavailable": {
-    "message": "The currency is temporarily unavailable."
-  },
   "balance": {
     "message": "Balance:"
   },
@@ -2107,6 +2196,42 @@
       }
     }
   },
+  "blocks_zero": {
+    "message": "$amount$ blocks",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "blocks_two": {
+    "message": "$amount$ blocks",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "blocks_few": {
+    "message": "$amount$ blocks",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "blocks_many": {
+    "message": "$amount$ blocks",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
   "blocks_other": {
     "message": "$amount$ blocks",
     "description": "For plural forms",
@@ -2132,6 +2257,42 @@
   },
   "slots_one": {
     "message": "$amount$ slot",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "slots_zero": {
+    "message": "$amount$ slots",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "slots_two": {
+    "message": "$amount$ slots",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "slots_few": {
+    "message": "$amount$ slots",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "slots_many": {
+    "message": "$amount$ slots",
     "description": "For plural forms",
     "placeholders": {
       "amount": {
@@ -2271,6 +2432,9 @@
   "next": {
     "message": "Next"
   },
+  "updatingMinMax": {
+    "message": "Updating min/max..."
+  },
   "done": {
     "message": "Done!"
   },
@@ -2386,13 +2550,18 @@
     "message": "Buy With Exolix"
   },
   "buyWithExolixDescription": {
-    "message": "Exchange 25 cryptocurrencies to TEZ instantly and without registration"
+    "message": "Exchange $number$ cryptocurrencies to TEZ or USDT Tezos instantly and without registration",
+    "placeholders": {
+      "number": {
+        "content": "$1"
+      }
+    }
   },
   "buyWithMoonPay": {
     "message": "Buy With MoonPay"
   },
   "buyWithMoonPayDescription": {
-    "message": "Crypto just got easy.Buy TEZ in minutes using Visa, Mastercard, and all major debit and credit cards."
+    "message": "Crypto just got easy. Buy TEZ in minutes using Visa, Mastercard, and all major debit and credit cards."
   },
   "buyWithRamp": {
     "message": "Buy With Ramp"
@@ -2406,6 +2575,9 @@
   "buyWithAliceBobDescription": {
     "message": "Fast and cost-effective exchange of UAH to TEZ."
   },
+  "buyWithUtorgDescription": {
+    "message": "Licensed fiat-to-crypto gateway. 187+ countries, AI-powered KYC, Apple Pay, Google Pay."
+  },
   "topUpBuy": {
     "message": "Top up $gasTokenName$ balance",
     "placeholders": {
@@ -2413,6 +2585,9 @@
         "content": "$1"
       }
     }
+  },
+  "buyWithUtorg": {
+    "message": "Buy TEZ with UTORG"
   },
   "buyWithCard": {
     "message": "Buy with Debit/Credit Card"
@@ -2456,7 +2631,12 @@
     "message": "Enter exchange details"
   },
   "exchangeDetailsDescription": {
-    "message": "Top up your TEZ balance instantly with 25 cryptocurrencies"
+    "message": "Top up your TEZ or USDT Tezos balance instantly with $number$ cryptocurrencies",
+    "placeholders": {
+      "number": {
+        "content": "$1"
+      }
+    }
   },
   "privacyAndPolicyLinks": {
     "message": "By clicking $buttonContent$ you agree with \n$termsOfUse$ and $privacyPolicy$",
@@ -2634,18 +2814,6 @@
   "step": {
     "message": "Step"
   },
-  "dogeNote": {
-    "message": "Note for DOGE: transfer network - MainNet DOGE. Please, deposit only DOGE (MainNet). Otherwise, you may lose your assets permanently."
-  },
-  "polygonNote": {
-    "message": "Note for MATIC: transfer network - Ethereum (ETH). Please, deposit only MATIC (ERC20). Otherwise, you may lose your assets permanently."
-  },
-  "usdtNote": {
-    "message": "Note for USDT: transfer network - Ethereum (ETH) ERC20. Please, deposit only USDT (ERC20). Otherwise, you may lose your assets permanently."
-  },
-  "cakeNote": {
-    "message": "Note for CAKE: transfer network - Binance Smart Chain (BSC). Please, deposit only CAKE (BEP20). Otherwise, you may lose your assets permanently."
-  },
   "collectibles": {
     "message": "Collectibles"
   },
@@ -2679,7 +2847,7 @@
     "message": "Min:"
   },
   "warningTopUpServiceMessage": {
-    "message": "The token exchange feature is provided by a third party. The Temple wallet is not responsible for the work of third-party services."
+    "message": "The token exchange feature is provided by a third party. The Temple Wallet is not responsible for the work of third-party services."
   },
   "selectTokensToSwap": {
     "message": "Please, select tokens to swap"
@@ -2720,7 +2888,7 @@
   "scanQRWithTempleMobile": {
     "message": "Scan this QR-code with yor Temple Wallet Mobile app."
   },
-  "aliceBobError": {
+  "serviceIsUnavailable": {
     "message": "Sorry, service is temporarily unavailable. Try again later!"
   },
   "buyWithChainBits": {

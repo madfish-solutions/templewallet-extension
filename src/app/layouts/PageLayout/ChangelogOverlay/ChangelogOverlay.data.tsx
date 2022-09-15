@@ -2,13 +2,34 @@ import React from 'react';
 
 export interface ChangelogItem {
   version: string;
-  data: Array<JSX.Element>;
+  data?: Array<JSX.Element>;
 }
+
+const datav1_14_13: ChangelogItem = {
+  version: '1.14.13',
+  data: [
+    <>All Exolix supported cryptocurrencies (418 tokens) are now available for Tez and Tezos USDT top-up.</>,
+    <>UTORG top-up with fiat integrated.</>,
+    <>Some UI and backend tweaks.</>
+  ]
+};
+
+const datav1_14_12: ChangelogItem = {
+  version: '1.14.12'
+};
+
+const datav1_14_11: ChangelogItem = {
+  version: '1.14.11'
+};
+
+const datav1_14_10: ChangelogItem = {
+  version: '1.14.10'
+};
 
 const datav1_14_9: ChangelogItem = {
   version: '1.14.9',
   data: [
-    <>Added new test networks: Katmandu, Monday net, Daily net</>,
+    <>Added new test networks: Kathmandunet, Monday net, Daily net</>,
     <>Exolix API update</>,
     <>Delegation section update</>,
     <>
@@ -48,4 +69,12 @@ const datav1_14_7: ChangelogItem = {
   ]
 };
 
-export const changelogData = [datav1_14_9, datav1_14_8, datav1_14_7];
+export const changelogData = [
+  datav1_14_13,
+  datav1_14_12,
+  datav1_14_11,
+  datav1_14_10,
+  datav1_14_9,
+  datav1_14_8,
+  datav1_14_7
+];

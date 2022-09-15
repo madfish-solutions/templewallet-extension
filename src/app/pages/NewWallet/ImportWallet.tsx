@@ -1,6 +1,7 @@
 import React, { FC, useState } from 'react';
 
 import PageLayout from 'app/layouts/PageLayout';
+import type { TID } from 'lib/i18n/react';
 import { t } from 'lib/i18n/react';
 
 import { useTempleClient } from '../../../lib/temple/front';
@@ -10,7 +11,14 @@ import { ImportFromSeedPhrase } from './import/ImportFromSeedPhrase';
 import { LockedWalletExists } from './LockedWalletExists';
 import { SetWalletPassword } from './SetWalletPassword';
 
-const importWalletOptions = [
+interface ImportWalletProps {
+  tabSlug?: string;
+}
+
+const importWalletOptions: {
+  slug: string;
+  i18nKey: TID;
+}[] = [
   {
     slug: 'seed-phrase',
     i18nKey: 'seedPhrase'

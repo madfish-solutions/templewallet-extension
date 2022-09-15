@@ -86,10 +86,6 @@ export function getDateFnsLocale() {
   return dateFnsLocales[getCurrentLocale()] || enUS;
 }
 
-export function getCldrLocale() {
-  return cldrLocale;
-}
-
 export function getNumberSymbols() {
   return cldrLocale.numbers['symbols-numberSystem-latn'];
 }
@@ -127,11 +123,11 @@ export async function fetchLocaleMessages(locale: string) {
 function appendPlaceholderLists(messages: LocaleMessages) {
   for (const name in messages) {
     const val = messages[name];
-    if (val.placeholders) {
+    const placeholders = val.placeholders;
+    if (placeholders) {
       val.placeholderList = [];
       for (const pKey in val.placeholders) {
-        const { content } = val.placeholders[pKey];
-        const index = +content.substring(1) - 1;
+        const index = +val.placeholders[pKey].content.substring(1) - 1;
         val.placeholderList[index] = pKey;
       }
     }

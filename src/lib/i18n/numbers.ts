@@ -2,6 +2,7 @@ import BigNumber from 'bignumber.js';
 import memoize from 'micro-memoize';
 
 import { getCurrentLocale, getNumberSymbols } from './core';
+import type { TID } from './react';
 import { t } from './react';
 
 type FormatParams = {
@@ -50,9 +51,13 @@ export function toLocalFormat(value: BigNumber.Value, { decimalPlaces, roundingM
 
 const makePluralRules = memoize((locale: string) => new Intl.PluralRules(locale.replace('_', '-')));
 
-export function getPluralKey(keyPrefix: string, amount: number) {
+export function getPluralKey<T extends string>(keyPrefix: T, amount: number) {
+  return `${keyPrefix}_${getPluralKeyAmountPrefix(amount)}` as `${T}_${Intl.LDMLPluralRule}`;
+}
+
+export function getPluralKeyAmountPrefix(amount: number) {
   const rules = makePluralRules(getCurrentLocale());
-  return `${keyPrefix}_${rules.select(amount)}`;
+  return rules.select(amount);
 }
 
 export function toLocalFixed(value: BigNumber.Value, decimalPlaces?: number, roundingMode?: BigNumber.RoundingMode) {
@@ -75,7 +80,7 @@ export function toShortened(value: BigNumber.Value) {
     return toLocalFixed(bn.toPrecision(1));
   }
   bn = bn.integerValue();
-  const formats = ['thousandFormat', 'millionFormat', 'billionFormat'];
+  const formats: TID[] = ['thousandFormat', 'millionFormat', 'billionFormat'];
   let formatIndex = -1;
   while (bn.abs().gte(1000) && formatIndex < formats.length - 1) {
     formatIndex++;

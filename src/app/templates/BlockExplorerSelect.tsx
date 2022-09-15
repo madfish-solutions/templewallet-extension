@@ -5,7 +5,7 @@ import { browser } from 'webextension-polyfill-ts';
 
 import Flag from 'app/atoms/Flag';
 import { T } from 'lib/i18n/react';
-import { BlockExplorer, BLOCK_EXPLORERS, useBlockExplorer } from 'lib/temple/front';
+import { BlockExplorer, BLOCK_EXPLORERS, useBlockExplorer, useChainId, isKnownChainId } from 'lib/temple/front';
 
 import IconifiedSelect, { IconifiedSelectOptionRenderProps } from './IconifiedSelect';
 
@@ -17,6 +17,15 @@ const getBlockExplorerId = ({ id }: BlockExplorer) => id;
 
 const BlockExplorerSelect: FC<BlockExplorerSelectProps> = ({ className }) => {
   const { explorer, setExplorerId } = useBlockExplorer();
+  const chainId = useChainId(true)!;
+
+  const options = useMemo(() => {
+    if (chainId && isKnownChainId(chainId)) {
+      return BLOCK_EXPLORERS.filter(explorer => explorer.baseUrls.get(chainId));
+    }
+
+    return [];
+  }, [chainId]);
 
   const title = useMemo(
     () => (
@@ -43,7 +52,7 @@ const BlockExplorerSelect: FC<BlockExplorerSelectProps> = ({ className }) => {
       OptionInMenuContent={BlockExplorerInMenuContent}
       OptionSelectedContent={BlockExplorerSelectContent}
       getKey={getBlockExplorerId}
-      options={BLOCK_EXPLORERS}
+      options={options}
       value={explorer}
       onChange={handleBlockExplorerChange}
       title={title}
@@ -58,14 +67,12 @@ const BlockExplorerIcon: FC<IconifiedSelectOptionRenderProps<BlockExplorer>> = (
   <Flag alt={name} className="ml-2 mr-3" src={browser.runtime.getURL(`/misc/explorer-logos/${id}.ico`)} />
 );
 
-const BlockExplorerInMenuContent: FC<IconifiedSelectOptionRenderProps<BlockExplorer>> = ({ option: { name } }) => {
-  return <div className={classNames('relative w-full text-lg text-gray-700')}>{name}</div>;
-};
+const BlockExplorerInMenuContent: FC<IconifiedSelectOptionRenderProps<BlockExplorer>> = ({ option: { name } }) => (
+  <div className={classNames('relative w-full text-lg text-gray-700')}>{name}</div>
+);
 
-const BlockExplorerSelectContent: FC<IconifiedSelectOptionRenderProps<BlockExplorer>> = ({ option }) => {
-  return (
-    <div className="flex flex-col items-start py-2">
-      <span className="text-xl text-gray-700">{option.name}</span>
-    </div>
-  );
-};
+const BlockExplorerSelectContent: FC<IconifiedSelectOptionRenderProps<BlockExplorer>> = ({ option }) => (
+  <div className="flex flex-col items-start py-2">
+    <span className="text-xl text-gray-700">{option.name}</span>
+  </div>
+);

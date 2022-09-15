@@ -46,7 +46,6 @@ const PageLayout: FC<PageLayoutProps> = ({ children, contentContainerStyle, ...t
       </div>
 
       <ConfirmationOverlay />
-      {/* <TempleMobileOverlay /> */}
       <ChangelogOverlay />
     </>
   );

@@ -2,7 +2,7 @@ import React, { FC, useLayoutEffect, useMemo } from 'react';
 
 import { OpenInFullPage, useAppEnv } from 'app/env';
 import AddAsset from 'app/pages/AddAsset';
-import BuyCrypto from 'app/pages/BuyCrypto/BuyCrypto';
+import Exolix from 'app/pages/Buy/Crypto/Exolix/Exolix';
 import CollectiblePage from 'app/pages/Collectibles/CollectiblePage';
 import ConnectLedger from 'app/pages/ConnectLedger';
 import CreateAccount from 'app/pages/CreateAccount';
@@ -24,10 +24,11 @@ import { useTempleClient } from 'lib/temple/front';
 import * as Woozie from 'lib/woozie';
 
 import RootSuspenseFallback from './a11y/RootSuspenseFallback';
+import { Buy } from './pages/Buy/Buy';
+import { AliceBob } from './pages/Buy/Debit/AliceBob/AliceBob';
+import { Utorg } from './pages/Buy/Debit/Utorg/Utorg';
 import { NewsNotificationsItemDetails } from './pages/Notifications/NewsNotifications/NewsNotificationsItemDetails';
 import { Notifications } from './pages/Notifications/Notifications';
-import { AliceBob } from './pages/SelectCrypto/AliceBob/AliceBob';
-import SelectCrypto from './pages/SelectCrypto/SelectCrypto';
 
 interface RouteContext {
   popup: boolean;
@@ -81,10 +82,7 @@ const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
   ['/swap', onlyReady(() => <Swap />)],
   ['/delegate', onlyReady(() => <Delegate />)],
   ['/dapps', onlyReady(() => <DApps />)],
-  [
-    '/notifications/:tabSlug?',
-    onlyReady(params => <Notifications key={params.tabSlug ?? ''} tabSlug={params.tabSlug ?? undefined} />)
-  ],
+  ['/notifications', onlyReady(() => <Notifications />)],
   [
     '/notifications/news/:newsId?',
     onlyReady(params => <NewsNotificationsItemDetails key={params.newsId ?? ''} id={params.newsId ?? ''} />)
@@ -93,9 +91,10 @@ const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
   ['/collectible/:assetSlug?', onlyReady(({ assetSlug }) => <CollectiblePage assetSlug={assetSlug!} />)],
   ['/add-asset', onlyReady(onlyInFullPage(() => <AddAsset />))],
   ['/settings/:tabSlug?', onlyReady(({ tabSlug }) => <Settings tabSlug={tabSlug} />)],
-  ['/buy', onlyReady(onlyInFullPage(() => <SelectCrypto />))],
-  ['/buy/crypto', onlyReady(onlyInFullPage(() => <BuyCrypto />))],
+  ['/buy', onlyReady(onlyInFullPage(() => <Buy />))],
+  ['/buy/crypto', onlyReady(onlyInFullPage(() => <Exolix />))],
   ['/buy/debit/alice-bob', onlyReady(onlyInFullPage(() => <AliceBob />))],
+  ['/buy/debit/utorg', onlyReady(onlyInFullPage(() => <Utorg />))],
   ['*', () => <Woozie.Redirect to="/" />]
 ]);
 

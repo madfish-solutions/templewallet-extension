@@ -17,11 +17,13 @@ env:
   TEMPLE_WALLET_EXOLIX_API_KEY: ${{ secrets.TEMPLE_WALLET_EXOLIX_API_KEY }}
   TEMPLE_WALLET_EVERSTAKE_API_KEY: ${{ secrets.TEMPLE_WALLET_EVERSTAKE_API_KEY }}
   TEMPLE_WALLET_EVERSTAKE_LINK_ID: ${{ secrets.TEMPLE_WALLET_EVERSTAKE_LINK_ID }}
+  TEMPLE_WALLET_UTORG_SID: ${{ secrets.TEMPLE_WALLET_UTORG_SID }}
 
 jobs:
   additional-builds:
     name: Creates builds for a specific browsers
     runs-on: ubuntu-latest
+    environment: production
     steps:
       - name: Clone repository
         uses: actions/checkout@v2
