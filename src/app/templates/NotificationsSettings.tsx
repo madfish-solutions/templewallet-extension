@@ -2,7 +2,6 @@ import React, { FC } from 'react';
 
 import { T, t } from 'lib/i18n/react';
 import { TempleNotificationsSharedStorageKey, useLocalStorage } from 'lib/temple/front';
-
 import FormCheckbox from 'app/atoms/FormCheckbox';
 
 const NotificationsSettings: FC = () => {
@@ -26,7 +25,6 @@ const NotificationsSettings: FC = () => {
           <T id="notificationsSettingsDescription" />
         </span>
       </label>
-
 
       <FormCheckbox
         checked={newsNotificationsEnabled}
