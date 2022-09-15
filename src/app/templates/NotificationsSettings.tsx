@@ -1,8 +1,8 @@
 import React, { FC } from 'react';
 
+import FormCheckbox from 'app/atoms/FormCheckbox';
 import { T, t } from 'lib/i18n/react';
 import { TempleNotificationsSharedStorageKey, useLocalStorage } from 'lib/temple/front';
-import FormCheckbox from 'app/atoms/FormCheckbox';
 
 const NotificationsSettings: FC = () => {
   const [newsNotificationsEnabled, setNewsNotificationsEnabled] = useLocalStorage<boolean>(
