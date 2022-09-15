@@ -48,7 +48,7 @@ const MainnetVolumeBanner: FC<MainnetVolumeBannerProps> = ({ chainId, accountPkh
   const tezPrice = useAssetFiatCurrencyPrice('tez');
   const { selectedFiatCurrency } = useFiatCurrency();
 
-  const volumeInUSD = useMemo(() => {
+  const volumInFiat = useMemo(() => {
     if (tokens && tezBalance && tezPrice) {
       const tezBalanceInUSD = tezBalance.times(tezPrice);
       const tokensBalanceInUSD = tokens.reduce((sum, t) => sum.plus(t.latestUSDBalance ?? 0), new BigNumber(0));
@@ -62,7 +62,7 @@ const MainnetVolumeBanner: FC<MainnetVolumeBannerProps> = ({ chainId, accountPkh
   return (
     <div className="w-full max-w-sm mx-auto mb-4">
       <div className="flex justify-between items-center mb-3">
-        {volumeInUSD && (
+        {volumInFiat && (
           <div className="text-sm font-medium text-gray-700">
             <T id="totalEquityValue" />
           </div>
@@ -72,7 +72,7 @@ const MainnetVolumeBanner: FC<MainnetVolumeBannerProps> = ({ chainId, accountPkh
       <div className="flex items-center text-2xl">
         <span className="mr-1">≈</span>
         <Money smallFractionFont={false} fiat>
-          {volumeInUSD}
+          {volumInFiat}
         </Money>
         <span className="mr-1">{selectedFiatCurrency.symbol}</span>
       </div>
