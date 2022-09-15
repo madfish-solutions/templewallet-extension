@@ -38,8 +38,8 @@ import useSafeState from 'lib/ui/useSafeState';
 import { navigate } from 'lib/woozie';
 
 import { clearClipboard } from '../../lib/ui/util';
-import { ButtonTabSwitcher } from '../atoms/ButtonTabSwitcher';
 import { SeedPhraseInput } from '../atoms/SeedPhraseInput';
+import { TabSwitcher } from '../atoms/TabSwitcher';
 
 type ImportAccountProps = {
   tabSlug: string | null;
@@ -129,7 +129,7 @@ const ImportAccount: FC<ImportAccountProps> = ({ tabSlug }) => {
       }
     >
       <div className="py-4">
-        <ButtonTabSwitcher className="mb-4" tabs={allTabs} activeTabSlug={slug} urlPrefix="/import-account" />
+        <TabSwitcher className="mb-4" tabs={allTabs} activeTabSlug={slug} urlPrefix="/import-account" />
 
         <Form />
       </div>
