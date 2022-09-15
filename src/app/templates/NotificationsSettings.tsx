@@ -10,17 +10,9 @@ const NotificationsSettings: FC = () => {
     TempleNotificationsSharedStorageKey.NewsNotificationsEnabled,
     true
   );
-  const [chainNotificationsEnabled, setChainNotificationsEnabled] = useLocalStorage<boolean>(
-    TempleNotificationsSharedStorageKey.ChainNotificationsEnabled,
-    true
-  );
 
   const handleNewsNotificationsChange = (evt: React.ChangeEvent<HTMLInputElement>) => {
     setNewsNotificationsEnabled(evt.target.checked);
-  };
-
-  const handleChainNotificationsChange = (evt: React.ChangeEvent<HTMLInputElement>) => {
-    setChainNotificationsEnabled(evt.target.checked);
   };
 
   return (
@@ -42,12 +34,6 @@ const NotificationsSettings: FC = () => {
             onChange: handleNewsNotificationsChange,
             name: 'newsNotificationsEnabled',
             label: t('news')
-          },
-          {
-            checked: chainNotificationsEnabled,
-            onChange: handleChainNotificationsChange,
-            name: 'chainNotificationsEnabled',
-            label: t('chainNotifications')
           }
         ]}
       />

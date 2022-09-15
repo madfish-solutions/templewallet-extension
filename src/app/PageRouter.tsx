@@ -29,6 +29,7 @@ import { AliceBob } from './pages/Buy/Debit/AliceBob/AliceBob';
 import { Utorg } from './pages/Buy/Debit/Utorg/Utorg';
 import { NewsNotificationsItemDetails } from './pages/Notifications/NewsNotifications/NewsNotificationsItemDetails';
 import { Notifications } from './pages/Notifications/Notifications';
+import AttentionPage from './pages/Onboarding/pages/AttentionPage';
 
 interface RouteContext {
   popup: boolean;
@@ -95,6 +96,7 @@ const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
   ['/buy/crypto', onlyReady(onlyInFullPage(() => <Exolix />))],
   ['/buy/debit/alice-bob', onlyReady(onlyInFullPage(() => <AliceBob />))],
   ['/buy/debit/utorg', onlyReady(onlyInFullPage(() => <Utorg />))],
+  ['/attention', onlyReady(onlyInFullPage(() => <AttentionPage />))],
   ['*', () => <Woozie.Redirect to="/" />]
 ]);
 

@@ -139,7 +139,6 @@ export enum TempleSharedStorageKey {
 
 export enum TempleNotificationsSharedStorageKey {
   NewsNotificationsEnabled = 'newsNotificationsEnabled',
-  ChainNotificationsEnabled = 'chainNotificationsEnabled',
   ReadNewsIds = 'readNewsIds',
   LastDateLoadNews = 'lastDateLoadNews',
   ReadEventsIds = 'readEventsIds',
