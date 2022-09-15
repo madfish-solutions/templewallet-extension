@@ -45,24 +45,27 @@ type MainnetVolumeBannerProps = {
 const MainnetVolumeBanner: FC<MainnetVolumeBannerProps> = ({ chainId, accountPkh }) => {
   const { data: tokens } = useDisplayedFungibleTokens(chainId, accountPkh);
   const { data: tezBalance } = useBalance('tez', accountPkh);
-  const tezPrice = useAssetFiatCurrencyPrice('tez');
-  const { selectedFiatCurrency } = useFiatCurrency();
+  const tezPriceInFiat = useAssetFiatCurrencyPrice('tez');
+  const { fiatRates, selectedFiatCurrency } = useFiatCurrency();
+  const fiatToUsdRate = (fiatRates[selectedFiatCurrency.name.toLowerCase()] ?? 1) / (tezPriceInFiat ?? 1);
 
-  const volumInFiat = useMemo(() => {
-    if (tokens && tezBalance && tezPrice) {
-      const tezBalanceInUSD = tezBalance.times(tezPrice);
-      const tokensBalanceInUSD = tokens.reduce((sum, t) => sum.plus(t.latestUSDBalance ?? 0), new BigNumber(0));
+  const volumeInFiat = useMemo(() => {
+    if (tokens && tezBalance && tezPriceInFiat) {
+      const tezBalanceInUSD = tezBalance.times(tezPriceInFiat);
+      const tokensBalanceInUSD = tokens
+        .reduce((sum, t) => sum.plus(t.latestUSDBalance ?? 0), new BigNumber(0))
+        .times(fiatToUsdRate);
 
       return tezBalanceInUSD.plus(tokensBalanceInUSD);
     }
 
     return null;
-  }, [tokens, tezBalance, tezPrice]);
+  }, [tokens, tezBalance, tezPriceInFiat, fiatToUsdRate]);
 
   return (
     <div className="w-full max-w-sm mx-auto mb-4">
       <div className="flex justify-between items-center mb-3">
-        {volumInFiat && (
+        {volumeInFiat && (
           <div className="text-sm font-medium text-gray-700">
             <T id="totalEquityValue" />
           </div>
@@ -72,7 +75,7 @@ const MainnetVolumeBanner: FC<MainnetVolumeBannerProps> = ({ chainId, accountPkh
       <div className="flex items-center text-2xl">
         <span className="mr-1">≈</span>
         <Money smallFractionFont={false} fiat>
-          {volumInFiat}
+          {volumeInFiat}
         </Money>
         <span className="mr-1">{selectedFiatCurrency.symbol}</span>
       </div>
