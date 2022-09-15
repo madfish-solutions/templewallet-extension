@@ -24,6 +24,8 @@
     "@dicebear/avatars-jdenticon-sprites": "4.2.5",
     "@peculiar/webcrypto": "1.1.6",
     "@popperjs/core": "2.4.4",
+    "@rooks/use-did-mount": "^4.11.2",
+    "@rooks/use-did-update": "^4.11.2",
     "@serh11p/jest-webextension-mock": "4.0.0",
     "@svgr/webpack": "5.5.0",
     "@taquito/ledger-signer": "13.0.0",
