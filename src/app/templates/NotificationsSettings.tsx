@@ -3,7 +3,7 @@ import React, { FC } from 'react';
 import { T, t } from 'lib/i18n/react';
 import { TempleNotificationsSharedStorageKey, useLocalStorage } from 'lib/temple/front';
 
-import { MultiCheckbox } from '../atoms/MultiCheckbox';
+import FormCheckbox from 'app/atoms/FormCheckbox';
 
 const NotificationsSettings: FC = () => {
   const [newsNotificationsEnabled, setNewsNotificationsEnabled] = useLocalStorage<boolean>(
@@ -27,15 +27,13 @@ const NotificationsSettings: FC = () => {
         </span>
       </label>
 
-      <MultiCheckbox
-        checkboxesData={[
-          {
-            checked: newsNotificationsEnabled,
-            onChange: handleNewsNotificationsChange,
-            name: 'newsNotificationsEnabled',
-            label: t('news')
-          }
-        ]}
+
+      <FormCheckbox
+        checked={newsNotificationsEnabled}
+        onChange={handleNewsNotificationsChange}
+        name="newsNotificationsEnabled"
+        label={t('news')}
+        containerClassName="mb-4"
       />
     </>
   );
