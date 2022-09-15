@@ -1310,14 +1310,6 @@
   "applied": {
     "message": "Applied"
   },
-  "yourRewardsAndLuck": {
-    "message": "Your rewards & luck $rewardAmount$",
-    "placeholders": {
-      "rewardAmount": {
-        "content": "$1"
-      }
-    }
-  },
   "skipped": {
     "message": "Skipped"
   },
@@ -1397,24 +1389,6 @@
   },
   "transaction": {
     "message": "Transaction"
-  },
-  "topBid": {
-    "message": "Top bid"
-  },
-  "bidder": {
-    "message": "Bidder"
-  },
-  "buyer": {
-    "message": "Buyer"
-  },
-  "seller": {
-    "message": "Seller"
-  },
-  "creator": {
-    "message": "Creator"
-  },
-  "offerer": {
-    "message": "Offerer"
   },
   "recipient": {
     "message": "Recipient"
