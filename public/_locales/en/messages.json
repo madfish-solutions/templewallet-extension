@@ -1673,14 +1673,8 @@
   "activity": {
     "message": "Activity"
   },
-  "events": {
-    "message": "Events"
-  },
   "news": {
     "message": "News"
-  },
-  "chainNotifications": {
-    "message": "Chain notifications"
   },
   "details": {
     "message": "Details"
@@ -2740,97 +2734,6 @@
   },
   "youSend": {
     "message": "You send:"
-  },
-  "youSent": {
-    "message": "You sent $amount$",
-    "placeholders": {
-      "amount": {
-        "content": "$1"
-      }
-    }
-  },
-  "youReceived": {
-    "message": "You received $amount$",
-    "placeholders": {
-      "amount": {
-        "content": "$1"
-      }
-    }
-  },
-  "youReceivedAnOffer": {
-    "message": "You received an offer $amount$",
-    "placeholders": {
-      "amount": {
-        "content": "$1"
-      }
-    }
-  },
-  "yourRoyalty": {
-    "message": "You royalty $amount$",
-    "placeholders": {
-      "amount": {
-        "content": "$1"
-      }
-    }
-  },
-  "youMadeBid": {
-    "message": "You made a bid $amount$",
-    "placeholders": {
-      "amount": {
-        "content": "$1"
-      }
-    }
-  },
-  "youReceivedBid": {
-    "message": "You received a bid $amount$",
-    "placeholders": {
-      "amount": {
-        "content": "$1"
-      }
-    }
-  },
-  "yourBidWasOutbid": {
-    "message": "Your bid $amount$ was outbid",
-    "placeholders": {
-      "amount": {
-        "content": "$1"
-      }
-    }
-  },
-  "auction": {
-    "message": "Auction"
-  },
-  "nftWasResold": {
-    "message": "NFT $collectibleName$ was resold",
-    "placeholders": {
-      "collectibleName": {
-        "content": "$1"
-      }
-    }
-  },
-  "onNft": {
-    "message": "On NFT $collectibleName$",
-    "placeholders": {
-      "collectibleName": {
-        "content": "$1"
-      }
-    }
-  },
-  "youSoldNft": {
-    "message": "You sold NFT $collectibleName$",
-    "placeholders": {
-      "collectibleName": {
-        "content": "$1"
-      }
-    }
-  },
-  "youBoughtNft": {
-    "message": "You bought NFT $collectibleName$",
-    "placeholders": {
-      "collectibleName": {
-        "content": "$1"
-      }
-    }
   },
   "readInOriginal": {
     "message": "Read in original"
