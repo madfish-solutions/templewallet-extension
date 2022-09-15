@@ -19,7 +19,7 @@ export const ChangelogOverlay: FC = () => {
   const { ready } = useTempleClient();
   const [lastShownVersion, setLastShownVersion] = useStorage<string | undefined | null>(
     `last_shown_changelog_version`,
-    '1.14.8'
+    currentVersion
   );
 
   const handleContinue = () => {
