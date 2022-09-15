@@ -2541,6 +2541,9 @@
   "ledgerLiveSettingsDescription": {
     "message": "The new Ledger Live bridge allows you to use your Ledger in a different way."
   },
+  "notificationsSettingsDescription": {
+    "message": "Configure the notifications you want to receive. (Platform updates and emergency notifications can’t be disabled)"
+  },
   "lockUpSettings": {
     "message": "Extension lock-up"
   },
