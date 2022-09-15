@@ -2,6 +2,7 @@ import React, { FC } from 'react';
 
 import classNames from 'clsx';
 
+import { useAppEnv } from 'app/env';
 import { ReactComponent as Ukraine } from 'app/icons/ukraine.svg';
 
 import { AnalyticsEventCategory, useAnalytics } from '../../lib/analytics';
@@ -9,10 +10,11 @@ import { T } from '../../lib/i18n/react';
 
 export const DonationBanner: FC = () => {
   const { trackEvent } = useAnalytics();
+  const { popup } = useAppEnv();
 
   return (
     <a
-      className={classNames('flex flex-col items-center justify-center', 'ml-4 mt-1 mb-1')}
+      className={classNames('flex flex-col items-center justify-center', 'mt-1 mb-1', popup ? 'ml-2' : 'ml-3')}
       style={{
         borderRadius: '4px',
         maxWidth: '100px',

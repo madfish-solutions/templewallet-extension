@@ -341,7 +341,7 @@ const SecondarySection: FC<SecondarySectionProps> = ({ assetSlug, className }) =
         })}
       </div>
 
-      <div className={'mx-4 mb-4 mt-6'}>
+      <div className={'mx-4 mb-4 mt-4'}>
         <SuspenseContainer whileMessage="displaying tab">{Component && <Component />}</SuspenseContainer>
       </div>
     </div>
