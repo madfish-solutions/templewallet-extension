@@ -15,6 +15,24 @@ import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 import { ExchangeDataInterface, ExchangeDataStatusEnum } from '../exolix.interface';
 import { ExolixSelectors } from '../Exolix.selectors';
 
+type dateFormatOptionsValue = 'numeric' | '2-digit';
+
+interface dateFormatOptionsInterface {
+  day?: dateFormatOptionsValue;
+  month?: dateFormatOptionsValue | 'long';
+  year?: dateFormatOptionsValue;
+  hour?: dateFormatOptionsValue;
+  minute?: dateFormatOptionsValue;
+}
+
+const dateFormatOptions: dateFormatOptionsInterface = {
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+  hour: 'numeric',
+  minute: 'numeric'
+};
+
 interface Props {
   exchangeData: ExchangeDataInterface | null;
   setExchangeData: (exchangeData: ExchangeDataInterface | null) => void;
@@ -23,14 +41,6 @@ interface Props {
   isError: boolean;
   setIsError: (error: boolean) => void;
 }
-
-const dateFormatOptions = {
-  day: 'numeric',
-  month: 'long',
-  year: 'numeric',
-  hour: 'numeric',
-  minute: 'numeric'
-};
 
 const ExchangeStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, step, isError, setIsError }) => {
   const { copy } = useCopyToClipboard();
