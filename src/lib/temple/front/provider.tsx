@@ -3,7 +3,6 @@ import React, { FC, useMemo } from 'react';
 import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
 
-import { EventsProvider } from 'app/pages/Notifications/providers/events.provider';
 import { NewsProvider } from 'app/pages/Notifications/providers/news.provider';
 import { CustomRpsContext } from 'lib/analytics';
 import { FiatCurrencyProvider } from 'lib/fiat-curency';
@@ -44,9 +43,7 @@ const ConditionalReadyTemple: FC<PropsWithChildren> = ({ children }) => {
                         <NonFungibleTokensBalancesProvider>
                           <SyncTokensProvider>
                             <NewBlockTriggersProvider>
-                              <NewsProvider>
-                                <EventsProvider>{children}</EventsProvider>
-                              </NewsProvider>
+                              <NewsProvider>{children}</NewsProvider>
                             </NewBlockTriggersProvider>
                           </SyncTokensProvider>
                         </NonFungibleTokensBalancesProvider>
