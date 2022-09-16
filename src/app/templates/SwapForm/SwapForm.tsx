@@ -1,6 +1,7 @@
 import React, { FC, useEffect, useMemo, useRef, useState } from 'react';
 
 import { BatchWalletOperation } from '@taquito/taquito/dist/types/wallet/batch-operation';
+import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
 import { Controller, useForm } from 'react-hook-form';
 import {
@@ -23,7 +24,7 @@ import OperationStatus from 'app/templates/OperationStatus';
 import { useFormAnalytics } from 'lib/analytics';
 import { T, t } from 'lib/i18n/react';
 import { getRoutingFeeTransferParams } from 'lib/swap-router';
-import { ROUTING_FEE_PERCENT, TEZOS_DEXES_API_URL } from 'lib/swap-router/config';
+import { ROUTING_FEE_PERCENT, ROUTING_FEE_RATIO, TEZOS_DEXES_API_URL } from 'lib/swap-router/config';
 import { useAccount, useAssetMetadata, useTezos } from 'lib/temple/front';
 import { atomsToTokens, tokensToAtoms } from 'lib/temple/helpers';
 import useTippy from 'lib/ui/useTippy';
@@ -109,15 +110,34 @@ export const SwapForm: FC = () => {
     [inputValue.assetSlug, outputValue.assetSlug]
   );
 
+  const minimumReceivedAmount = useMemo(() => {
+    if (bestTradeWithSlippageTolerance.length > 0) {
+      const lastTradeOperation = bestTradeWithSlippageTolerance[bestTradeWithSlippageTolerance.length - 1];
+
+      const amount = atomsToTokens(lastTradeOperation.bTokenAmount, outputAssetMetadata.decimals);
+
+      return amount;
+    }
+    return undefined;
+  }, [bestTradeWithSlippageTolerance, outputAssetMetadata.decimals]);
+
   useEffect(() => {
-    if (inputMutezAmount && routePairsCombinations.length > 0) {
-      const bestTradeExactIn = getBestTradeExactInput(inputMutezAmount, routePairsCombinations);
-      const bestTradeOutput = getTradeOutputAmount(bestTradeExactIn);
+    if (bestTrade) {
+      const bestTradeOutput = getTradeOutputAmount(bestTrade);
 
       const outputTzAmount = bestTradeOutput ? atomsToTokens(bestTradeOutput, outputAssetMetadata.decimals) : undefined;
 
+      const feeAmount = minimumReceivedAmount?.minus(minimumReceivedAmount?.multipliedBy(ROUTING_FEE_RATIO));
+      const finalAmount = outputTzAmount?.minus(feeAmount ?? new BigNumber(0));
+
+      setValue('output', { assetSlug: outputValue.assetSlug, amount: finalAmount });
+    }
+  }, [bestTrade, minimumReceivedAmount, outputAssetMetadata.decimals, outputValue.assetSlug, setValue]);
+
+  useEffect(() => {
+    if (inputMutezAmount && routePairsCombinations.length > 0) {
+      const bestTradeExactIn = getBestTradeExactInput(inputMutezAmount, routePairsCombinations);
       setBestTrade(bestTradeExactIn);
-      setValue('output', { assetSlug: outputValue.assetSlug, amount: outputTzAmount });
     } else {
       setBestTrade([]);
       setValue('output', { assetSlug: outputValue.assetSlug, amount: undefined });
