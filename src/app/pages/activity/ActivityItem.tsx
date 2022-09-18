@@ -7,6 +7,7 @@ import React, {
 	useRef,
 	useState,
 	useMemo,
+	memo,
 } from 'react';
 
 import classNames from 'clsx';
@@ -20,10 +21,12 @@ import MoneyDiffView from 'app/templates/activity/MoneyDiffView';
 import HashChip from 'app/templates/HashChip';
 import { t, getDateFnsLocale } from 'lib/i18n/react';
 import { useExplorerBaseUrls } from 'lib/temple/front';
+import { OpStackItem, OpStackItemType, parseMoneyDiffs, parseOpStack, parseOperStackOfActivity } from 'lib/temple/activity';
+import OperStackComp from 'app/templates/activity/OperStack';
 
 
 import type {
-   Activity,
+	Activity,
 } from './utils';
 
 
@@ -35,13 +38,18 @@ type ActivityItemCompProps = {
 	syncSupported : boolean;
 };
 
-const ActivityItemComp : React.FC<ActivityItemCompProps> = ({
+// React.memo<ActivityItemCompProps>();
+
+const ActivityItemComp = memo<ActivityItemCompProps>(({
 	activity,
+	address,
 	syncSupported,
 }) => {
 	const { hash, addedAt } = activity;
 	//
 	const { transaction: explorerBaseUrl } = useExplorerBaseUrls();
+	//
+	const operStack = useMemo(() => parseOperStackOfActivity(activity, address), [activity, address]);
 	//
 	return (
 		<div className={classNames('my-3')}>
@@ -57,7 +65,7 @@ const ActivityItemComp : React.FC<ActivityItemCompProps> = ({
 
 			<div className="flex items-stretch">
 				<div className="flex flex-col pt-2">
-					{/* <OpStack opStack={opStack} className="mb-2" /> */}
+					<OperStackComp opStack={operStack} className="mb-2" />
 
 					<ActivityItemStatusComp activity={activity} syncSupported={syncSupported} />
 
@@ -84,7 +92,7 @@ const ActivityItemComp : React.FC<ActivityItemCompProps> = ({
 			</div>
 		</div>
 	);
-};
+});
 
 export default ActivityItemComp;
 
@@ -99,7 +107,7 @@ const ActivityItemStatusComp : React.FC<ActivityItemStatusCompProps> = ({
 }) => {
 	if(syncSupported === false) return null;
 
-	const explorerStatus = activity.operations[0]?.status;
+	const explorerStatus = activity.status;
 	const content = explorerStatus ?? 'pending';
 	const conditionalTextColor = explorerStatus ? 'text-red-600' : 'text-yellow-600';
 

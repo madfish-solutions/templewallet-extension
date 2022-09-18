@@ -46,7 +46,7 @@ import ActivityItemComp from './ActivityItem';
 
 ////
 
-const INIT_OPERS_N = 10, OPERS_LOAD_STEP = 10;
+const INIT_OPERS_N = 50, OPERS_LOAD_STEP = 50;
 
 
 ////

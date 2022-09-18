@@ -1,5 +1,6 @@
 import { OperationContentsAndResult, OpKind } from '@taquito/rpc';
 
+import type { Activity } from 'app/pages/activity/utils';
 import * as Repo from 'lib/temple/repo';
 import { TzktOperation, TzktTokenTransfer } from 'lib/tzkt';
 
@@ -14,6 +15,16 @@ export function parseOpStack(operation: Repo.IOperation, address: string) {
   if (tzktGroup) estimateTzktGroup(tzktGroup, address, opStack);
   else if (localGroup) estimateLocalGroup(localGroup, address, opStack);
   if (tzktTokenTransfers) estimateTzktTokenTransfer(tzktTokenTransfers, address, opStack);
+
+  return opStack.sort((a, b) => a.type - b.type);
+}
+
+export function parseOperStackOfActivity(activity: Activity, address: string) {
+  const tzktGroup = activity.tzktOperations;
+
+  const opStack: OpStackItem[] = [];
+
+  if (tzktGroup) estimateTzktGroup(tzktGroup, address, opStack);
 
   return opStack.sort((a, b) => a.type - b.type);
 }

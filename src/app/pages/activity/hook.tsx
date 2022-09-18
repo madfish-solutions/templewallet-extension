@@ -7,9 +7,14 @@ import React, {
 	useState,
 	useMemo,
 } from 'react';
+import {
+	useSafeState,
+} from 'ahooks';
 
-import useDidMount from '@rooks/use-did-mount';
-import useDidUpdate from '@rooks/use-did-update';
+import {
+	useDidMount,
+	useDidUpdate,
+} from 'rooks';
 
 import formatDistanceToNow from 'date-fns/formatDistanceToNow';
 
@@ -41,10 +46,10 @@ export default function useLatestActivitiesOfCurrentAccount(
 	//
 	const currentAccountAddress = account.publicKeyHash;
 	//
-	const [loading, setLoading] = useState<TLoading>( isKnownChainId(chainId) && 'init' );
-	const [activities, setActivities] = useState<Activity[]>([]);
-	const [reachedTheEnd, setReachedTheEnd] = useState(false);
-	const [syncing, setSyncing] = useState(false);
+	const [loading, setLoading] = useSafeState<TLoading>( isKnownChainId(chainId) && 'init' );
+	const [activities, setActivities] = useSafeState<Activity[]>([]);
+	const [reachedTheEnd, setReachedTheEnd] = useSafeState(false);
+	const [syncing, setSyncing] = useSafeState(false);
 	// const [loadingError, setLoadingError] = useState<Error | null>(null);
 	//
 	async function first_loadLatestActivities() {

@@ -46,16 +46,25 @@ type ParameterLiquidityBaking = {
 
 export interface OperGroup {
 	hash : string;
-	operations : _TzktOperation[];
+	operations : TzktOperation[];
 }
 
 export interface Activity {
 	hash : string;
 	addedAt : string; // : ISO string
-	operations : ActivityOperation[];
+	status: ActivityStatus;
+	/**
+	 * Sorted new-to-old
+	 */
+	tzktOperations : TzktOperation[];
+	/**
+	 * Sorted new-to-old
+	 */
+	// operations : ActivityOperation[];
+	// oldestTzktOperId : number;
 };
 
-type ActivityStatus = 'pending' | 'applied' | 'failed' | 'backtracked' | 'skipped';
+type ActivityStatus = TzktOperation['status'] | 'pending';
 
 export interface ActivityOperation {
 	type: TzktOperation['type'];
@@ -78,13 +87,19 @@ export function operGroupToActivity(
 	{ hash, operations } : OperGroup,
 	address : string,
 ) : Activity {
-	const addedAt = operations[0].timestamp;
-	const ActivityOperations = reduceActivityOperations(address, operations);
+	const firstOperation = operations[0]!, lastOperation = operations[operations.length-1]!;
+	const addedAt = firstOperation.timestamp;
+	const status = firstOperation.status;
+	// const oldestTzktOperId = lastOperation.id;
+	// const activityOperations = reduceActivityOperations(address, operations as _TzktOperation[]);
 	//
 	return {
 		hash,
 		addedAt,
-		operations: ActivityOperations,
+		status,
+		tzktOperations: operations,
+		// operations: activityOperations,
+		// oldestTzktOperId,
 	};
 }
 

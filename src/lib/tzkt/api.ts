@@ -81,11 +81,13 @@ export function makeQuery<P extends Record<string, unknown>, R, Q = Record<strin
 
 ////
 
+/*
 type Param_Id = {
 	id ? : number;
 } & {
 	[key in `id.${'lt'|'ge'}`] ? : number;
 };
+*/
 
 type Param_LimitOffset = {
 	limit ? : number;
@@ -103,7 +105,7 @@ type Param_Level = {
 export async function fetchGetAccountOperations(
 	chainId : TzktApiChainId,
 	accountAddress : string,
-	params : Param_Id & Param_LimitOffset & Param_Timestamp & Param_Level & {
+	params : Param_LimitOffset & Param_Timestamp & Param_Level & {
 		type ? : TzktOperationType | TzktOperationType[];
 		lastId ? : number;
 		sort ? : 0 | 1;
@@ -127,7 +129,7 @@ export async function fetchGetOperationsByHash(
 		quote ? : TzktQuoteCurrency[];
 	} = {},
 ) {
-	return await fetchGet<_TzktOperation[]>(
+	return await fetchGet<TzktOperation[]>(
 		chainId,
 		`/operations/${hash}`,
 		params,
@@ -142,7 +144,8 @@ type Param_SortBy = {
 
 export async function fetchGetOperationsTransactions(
 	chainId : TzktApiChainId,
-	params : Param_Id & Param_LimitOffset & Param_Timestamp & Param_Level & Param_SortBy & {
+	params : Param_LimitOffset & Param_Timestamp & Param_Level & Param_SortBy & {
+		lastId ? : number;
 		'sender.ne' ? : string;
 		'target' ? : string;
 		'target.ne' ? : string;
