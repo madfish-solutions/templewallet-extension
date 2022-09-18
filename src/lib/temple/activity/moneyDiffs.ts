@@ -1,6 +1,7 @@
 import { OperationContentsAndResult, OpKind } from '@taquito/rpc';
 import BigNumber from 'bignumber.js';
 
+import { Activity } from 'app/pages/activity/utils';
 import * as Repo from 'lib/temple/repo';
 import { TzktOperation, TzktTokenTransfer } from 'lib/tzkt';
 
@@ -23,6 +24,41 @@ export function parseMoneyDiffs(operation: Repo.IOperation, address: string) {
   estimateLocalGroup(localGroup, address, diffs);
   estimateTzktGroup(tzktGroup, address, diffs);
   estimateTzktTokenTransfers(tzktTokenTransfers, tzktGroup, address, diffs);
+
+  const flatted: Record<string, string> = {};
+  for (const assetId of Object.keys(diffs)) {
+    flatted[assetId] = diffs[assetId].reduce((sum, val) => sum.plus(val.diff), new BigNumber(0)).toFixed();
+  }
+
+  const { tez, ...rest } = flatted;
+  const result: MoneyDiff[] = [];
+
+  if (tez && isValidDiff(tez)) {
+    result.push({
+      assetId: 'tez',
+      diff: tez
+    });
+  }
+
+  for (const assetId of Object.keys(rest)) {
+    const diff = rest[assetId];
+    if (isValidDiff(diff)) {
+      result.push({
+        assetId,
+        diff
+      });
+    }
+  }
+
+  return result;
+}
+
+export function parseMoneyDiffsOfActivity(activity: Activity, address: string) {
+  const diffs: Diffs = {};
+
+  const tzktGroup = activity.tzktOperations;
+
+  estimateTzktGroup(tzktGroup, address, diffs);
 
   const flatted: Record<string, string> = {};
   for (const assetId of Object.keys(diffs)) {

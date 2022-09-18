@@ -252,7 +252,7 @@ async function fetchOperations_Any(
 		accountAddress,
 		newerThen ? { newerThen } : { limit },
 		olderThanId,
-	), 2000);
+	), 1000);
 
 	if(newerThen == null) {
 		newerThen = fa12OperationsTransactions[accOperations.length-1]?.timestamp
@@ -263,7 +263,7 @@ async function fetchOperations_Any(
 		accountAddress,
 		newerThen ? { newerThen } : { limit },
 		olderThanId,
-	), 2000);
+	), 1000);
 
 	const allOperations = accOperations.concat(
 		fa12OperationsTransactions,
@@ -363,7 +363,7 @@ async function _fetchOperGroupsForOperations(
 
 	const groups : OperGroup[] = [];
 	for(const hash of uniqueHashes) {
-		const operations = await TZKT.refetchOnce429(() => TZKT.fetchGetOperationsByHash(chainId, hash), 2000);
+		const operations = await TZKT.refetchOnce429(() => TZKT.fetchGetOperationsByHash(chainId, hash), 1000);
 		operations.sort((b, a) => a.id - b.id);
 		groups.push({
 			hash,

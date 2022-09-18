@@ -43,8 +43,10 @@ api.interceptors.response.use(
 	res => res,
 	err => {
 		console.error(err);
-		const { message } = (err as AxiosError).response?.data;
-		throw new Error(`Failed when querying Tzkt API: ${message}`);
+		const message = (err as AxiosError).response?.data?.message;
+		console.error(`Failed when querying Tzkt API: ${message}`);
+		// throw new Error(`Failed when querying Tzkt API: ${message}`);
+		throw err;
 	}
 );
 
@@ -175,16 +177,18 @@ function delay(ms : number) {
 	return new Promise<void>(resolve => setTimeout(resolve, ms));
 }
 
-export async function refetchOnce429<R>(fetcher : () => Promise<R>, delay_ms = 1000) {
+export async function refetchOnce429<R>(fetcher : () => Promise<R>, delayAroundInMS = 1000) {
 	try {
 		return await fetcher();
 	}
 	catch(error) {
-		if(typeof error?.code === 'string') {
+		if(error.isAxiosError) {
 			const $error : AxiosError = error;
-			if($error.code === '429') {
-				await delay(delay_ms);
-				return await fetcher();
+			if($error.response?.status === 429) {
+				await delay(delayAroundInMS);
+				const res = await fetcher();
+				await delay(delayAroundInMS);
+				return res;
 			}
 		}
 
