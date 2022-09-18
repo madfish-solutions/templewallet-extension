@@ -25,7 +25,7 @@ import {
   isKnownChainId,
   ImportAccountFormType
 } from 'lib/temple/front';
-import { getOneUserContracts, TzktRelatedContract, TZKT_API_BASE_URLS } from 'lib/tzkt';
+import { getOneUserContracts, TzktRelatedContract, TZKT_API_BASE_URLS_MAP } from 'lib/tzkt';
 
 type ImportKTAccountFormData = {
   contractAddress: string;
@@ -235,7 +235,7 @@ const ManagedKTForm: FC = () => {
 export default ManagedKTForm;
 
 export const getUsersContracts = async (_k: string, chainId: string, ...accounts: string[]) => {
-  if (!isKnownChainId(chainId) || !TZKT_API_BASE_URLS.has(chainId)) {
+  if (!isKnownChainId(chainId) || !TZKT_API_BASE_URLS_MAP.has(chainId)) {
     return [];
   }
 

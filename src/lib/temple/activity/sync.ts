@@ -1,6 +1,6 @@
 import * as Repo from 'lib/temple/repo';
 import {
-  TZKT_API_BASE_URLS,
+  TZKT_API_BASE_URLS_MAP,
   getOperations,
   TzktOperation,
   getTokenTransfers,
@@ -14,10 +14,10 @@ import { isKnownChainId } from '../types';
 import { deletePendingOp } from './deletePendingOp';
 import { isPositiveNumber, tryParseTokenTransfers, toTokenId } from './helpers';
 
-export const isSyncSupported = (chainId: string) => TZKT_API_BASE_URLS.has(chainId as any);
+export const isSyncSupported = (chainId: string) => TZKT_API_BASE_URLS_MAP.has(chainId as any);
 
 async function fetchTzktTokenTransfers(chainId: string, address: string) {
-  if (!isKnownChainId(chainId) || !TZKT_API_BASE_URLS.has(chainId)) {
+  if (!isKnownChainId(chainId) || !TZKT_API_BASE_URLS_MAP.has(chainId)) {
     return [];
   }
 
@@ -52,7 +52,7 @@ async function fetchTzktTokenTransfers(chainId: string, address: string) {
 }
 
 async function fetchTzktOperations(chainId: string, address: string, fresh: boolean, tzktTime?: Repo.ISyncTime) {
-  if (!isKnownChainId(chainId) || !TZKT_API_BASE_URLS.has(chainId)) {
+  if (!isKnownChainId(chainId) || !TZKT_API_BASE_URLS_MAP.has(chainId)) {
     return [];
   }
 
@@ -70,7 +70,7 @@ async function fetchTzktOperations(chainId: string, address: string, fresh: bool
 }
 
 async function fetchFa12Transfers(chainId: string, address: string, fresh: boolean, tzktTime?: Repo.ISyncTime) {
-  if (!isKnownChainId(chainId) || !TZKT_API_BASE_URLS.has(chainId)) {
+  if (!isKnownChainId(chainId) || !TZKT_API_BASE_URLS_MAP.has(chainId)) {
     return [];
   }
 
@@ -87,7 +87,7 @@ async function fetchFa12Transfers(chainId: string, address: string, fresh: boole
 }
 
 async function fetchFa2Transfers(chainId: string, address: string, fresh: boolean, tzktTime?: Repo.ISyncTime) {
-  if (!isKnownChainId(chainId) || !TZKT_API_BASE_URLS.has(chainId)) {
+  if (!isKnownChainId(chainId) || !TZKT_API_BASE_URLS_MAP.has(chainId)) {
     return [];
   }
 

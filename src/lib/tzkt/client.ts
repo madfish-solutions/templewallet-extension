@@ -1,6 +1,3 @@
-import axios, { AxiosError } from 'axios';
-
-import { isKnownChainId, TempleChainId } from 'lib/temple/types';
 import {
   allInt32ParameterKeys,
   TzktGetOperationsParams,
@@ -12,23 +9,11 @@ import {
   TzktAccountTokenBalance
 } from 'lib/tzkt/types';
 
-export const TZKT_API_BASE_URLS = new Map([
-  [TempleChainId.Mainnet, 'https://api.tzkt.io/v1'],
-  [TempleChainId.Jakartanet, 'https://api.jakartanet.tzkt.io/v1'],
-  [TempleChainId.Ghostnet, 'https://api.ghostnet.tzkt.io/v1'],
-  [TempleChainId.Dcp, 'https://explorer.tlnt.net:8001/v1'],
-  [TempleChainId.DcpTest, 'https://explorer.tlnt.net:8009/v1']
-]);
+import { isKnownChainId, makeQuery, TZKT_API_BASE_URLS_MAP } from './api';
 
-const api = axios.create();
-api.interceptors.response.use(
-  res => res,
-  err => {
-    console.error(err);
-    const { message } = (err as AxiosError).response?.data;
-    throw new Error(`Failed when querying Tzkt API: ${message}`);
-  }
-);
+////
+
+export { TZKT_API_BASE_URLS_MAP };
 
 export const getOperations = makeQuery<TzktGetOperationsParams, TzktOperation[]>(
   params => `/accounts/${params.address}/operations`,
@@ -162,24 +147,10 @@ export const getDelegatorRewards = makeQuery<TzktGetRewardsParams, TzktGetReward
   })
 );
 
-function makeQuery<P extends Record<string, unknown>, R>(
-  url: (params: P) => string,
-  searchParams: (params: P) => Record<string, unknown>
-) {
-  return async (chainId: TempleChainId, params: P) => {
-    const { data } = await api.get<R>(url(params), {
-      baseURL: TZKT_API_BASE_URLS.get(chainId),
-      params: searchParams(params)
-    });
-
-    return data;
-  };
-}
-
 export const TZKT_FETCH_QUERY_SIZE = 20;
 
 export const fetchTokenBalancesCount = async (chainId: string, address: string) => {
-  if (!isKnownChainId(chainId) || !TZKT_API_BASE_URLS.has(chainId)) {
+  if (!isKnownChainId(chainId)) {
     return 0;
   }
 
@@ -191,7 +162,7 @@ export const fetchTokenBalancesCount = async (chainId: string, address: string) 
 };
 
 export const fetchTokenBalances = async (chainId: string, address: string, page = 0) => {
-  if (!isKnownChainId(chainId) || !TZKT_API_BASE_URLS.has(chainId)) {
+  if (!isKnownChainId(chainId)) {
     return [];
   }
 
@@ -205,7 +176,7 @@ export const fetchTokenBalances = async (chainId: string, address: string, page 
 };
 
 export const fetchNFTBalancesCount = async (chainId: string, address: string) => {
-  if (!isKnownChainId(chainId) || !TZKT_API_BASE_URLS.has(chainId)) {
+  if (!isKnownChainId(chainId)) {
     return 0;
   }
 
@@ -217,7 +188,7 @@ export const fetchNFTBalancesCount = async (chainId: string, address: string) =>
 };
 
 export const fetchNFTBalances = async (chainId: string, address: string, page = 0) => {
-  if (!isKnownChainId(chainId) || !TZKT_API_BASE_URLS.has(chainId)) {
+  if (!isKnownChainId(chainId)) {
     return [];
   }
 

@@ -13,17 +13,12 @@ import useDidUpdate from '@rooks/use-did-update';
 
 import formatDistanceToNow from 'date-fns/formatDistanceToNow';
 
-import { useExplorerBaseUrls } from 'lib/temple/front';
+import { useExplorerBaseUrls, useTezos } from 'lib/temple/front';
 import {
 	useChainId,
 	useAccount,
 } from 'lib/temple/front';
-
-import {
-	TzktApiChainId,
-	isKnownChainId,
-} from './tzkt';
-
+import { isKnownChainId } from 'lib/tzkt/api';
 
 import fetchActivities from './fetching';
 
@@ -40,6 +35,7 @@ export default function useLatestActivitiesOfCurrentAccount(
 	initialPseudoLimit : number,
    assetSlug ? : string,
 ) {
+	const tezos = useTezos();
 	const chainId = useChainId(true);
 	const account = useAccount();
 	//
@@ -58,9 +54,10 @@ export default function useLatestActivitiesOfCurrentAccount(
 		try {
 			newActivities = await fetchActivities(
 				chainId,
-				currentAccountAddress,
+				account,
 				assetSlug,
 				initialPseudoLimit,
+				tezos,
 			);
 		}
 		catch(error) {
@@ -95,9 +92,10 @@ export default function useLatestActivitiesOfCurrentAccount(
 		try {
 			newActivities = await fetchActivities(
 				chainId,
-				currentAccountAddress,
+				account,
 				assetSlug,
 				pseudoMoreN,
+				tezos,
 				lastActivity,
 			);
 		}

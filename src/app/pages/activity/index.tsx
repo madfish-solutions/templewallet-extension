@@ -32,7 +32,7 @@ import {
 
 import {
 	isKnownChainId,
-} from './tzkt';
+} from 'lib/tzkt/api';
 
 import {
 	Activity,

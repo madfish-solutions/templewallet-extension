@@ -1,4 +1,6 @@
-// Actually, there is a bunch of other types but only these will be used for now
+/**
+ * Actually, there is a bunch of other types but only these will be used for now
+ */
 export type TzktOperationType = 'delegation' | 'transaction' | 'reveal' | 'origination';
 
 export type TzktQuoteCurrency = 'None' | 'Btc' | 'Eur' | 'Usd' | 'Cny' | 'Jpy' | 'Krw';
@@ -16,7 +18,9 @@ export interface TzktOperationError {
   type: string;
 }
 
-// To be reviewed if a new operation type is added
+/**
+ * To be reviewed if a new operation type is added
+ */
 interface TzktOperationBase {
   type: TzktOperationType;
   id: number;
@@ -85,6 +89,15 @@ export type TzktOperation =
   | TzktRevealOperation
   | TzktOriginationOperation;
 
+export interface _TzktOperation extends TzktOperationBase {
+  target: TzktAlias;
+  amount: number;
+  entrypoint: string;
+  parameter?: unknown;
+  contractBalance?: string;
+  newDelegate?: TzktAlias | null;
+  originatedContract?: TzktAlias;
+}
 export type TzktDelegateInfo = {
   alias?: string;
   address: string;

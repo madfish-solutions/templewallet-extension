@@ -7,7 +7,7 @@ import type {
 	_TzktOperation,
 	TzktOperation,
 	TzktAlias as MemberInterface,
-} from './tzkt/types';
+} from 'lib/tzkt/types';
 
 
 ////
