@@ -118,17 +118,19 @@ export const SwapForm: FC = () => {
 
       return amount;
     }
-    return undefined;
+    return new BigNumber(0);
   }, [bestTradeWithSlippageTolerance, outputAssetMetadata.decimals]);
 
   useEffect(() => {
     if (bestTrade) {
       const bestTradeOutput = getTradeOutputAmount(bestTrade);
 
-      const outputTzAmount = bestTradeOutput ? atomsToTokens(bestTradeOutput, outputAssetMetadata.decimals) : undefined;
+      const outputTzAmount = bestTradeOutput
+        ? atomsToTokens(bestTradeOutput, outputAssetMetadata.decimals)
+        : new BigNumber(0);
 
-      const feeAmount = minimumReceivedAmount?.minus(minimumReceivedAmount?.multipliedBy(ROUTING_FEE_RATIO));
-      const finalAmount = outputTzAmount?.minus(feeAmount ?? new BigNumber(0));
+      const feeAmount = minimumReceivedAmount.minus(minimumReceivedAmount.multipliedBy(ROUTING_FEE_RATIO));
+      const finalAmount = outputTzAmount.minus(feeAmount);
 
       setValue('output', { assetSlug: outputValue.assetSlug, amount: finalAmount });
     }
