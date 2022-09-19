@@ -14,7 +14,7 @@ import { ReactComponent as ReceiveIcon } from 'app/icons/receive.svg';
 import { ReactComponent as SendIcon } from 'app/icons/send-alt.svg';
 import { ReactComponent as SwapIcon } from 'app/icons/swap.svg';
 import PageLayout from 'app/layouts/PageLayout';
-// import Activity from 'app/templates/activity/Activity';
+import ActivityComponent from 'app/templates/activity-new/Activity';
 import AssetInfo from 'app/templates/AssetInfo';
 import { TestIDProps } from 'lib/analytics';
 import { T, t } from 'lib/i18n/react';
@@ -32,7 +32,6 @@ import useTippy from 'lib/ui/useTippy';
 import { HistoryAction, Link, navigate, To, useLocation } from 'lib/woozie';
 
 import { DonationBanner } from '../atoms/DonationBanner';
-import ActivityComponent from './activity';
 import CollectiblesList from './Collectibles/CollectiblesList';
 import { ExploreSelectors } from './Explore.selectors';
 import AddressChip from './Explore/AddressChip';
@@ -211,19 +210,17 @@ const Delegation: FC = () => (
   </SuspenseContainer>
 );
 
-// type ActivityTabProps = {
-//   assetSlug?: string;
-// };
+type ActivityTabProps = {
+  assetSlug?: string;
+};
 
-// const ActivityTab: FC<ActivityTabProps> = ({ assetSlug }) => {
-//   const account = useAccount();
-
-//   return (
-//     <SuspenseContainer whileMessage={t('operationHistoryWhileMessage')}>
-//       <Activity address={account.publicKeyHash} assetSlug={assetSlug} />
-//     </SuspenseContainer>
-//   );
-// };
+const ActivityTab: FC<ActivityTabProps> = ({ assetSlug }) => {
+  return (
+    <SuspenseContainer whileMessage={t('operationHistoryWhileMessage')}>
+      <ActivityComponent assetSlug={assetSlug} />
+    </SuspenseContainer>
+  );
+};
 
 type SecondarySectionProps = {
   assetSlug?: string | null;
@@ -259,8 +256,7 @@ const SecondarySection: FC<SecondarySectionProps> = ({ assetSlug, className }) =
         {
           slug: 'activity',
           title: t('activity'),
-          // Component: ActivityTab,
-          Component: ActivityComponent,
+          Component: ActivityTab,
           testID: ExploreSelectors.ActivityTab
         }
       ];
@@ -269,8 +265,7 @@ const SecondarySection: FC<SecondarySectionProps> = ({ assetSlug, className }) =
     const activity = {
       slug: 'activity',
       title: t('activity'),
-      // Component: () => <ActivityTab assetSlug={assetSlug} />,
-      Component: () => <ActivityComponent assetSlug={assetSlug} />,
+      Component: () => <ActivityTab assetSlug={assetSlug} />,
       testID: ExploreSelectors.ActivityTab
     };
 

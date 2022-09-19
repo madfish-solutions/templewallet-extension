@@ -3334,6 +3334,11 @@
   resolved "https://registry.yarnpkg.com/@types/libsodium-wrappers/-/libsodium-wrappers-0.7.8.tgz#34575d7692fdbb7a7fdb63afcde381db86ec0de2"
   integrity sha512-vkDSj6enD3K0+Ep83wnoGUk+f7sqsO4alsqxxEZ8BcTJhFmcY4UehYH3rTf4M3JGHXNhdpGFDdMbWFMgyvw/fA==
 
+"@types/lodash@^4.14.185":
+  version "4.14.185"
+  resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.185.tgz#c9843f5a40703a8f5edfd53358a58ae729816908"
+  integrity sha512-evMDG1bC4rgQg4ku9tKpuMh5iBNEwNa3tf9zRHdP1qlv+1WUg44xat4IxCE14gIpZRGUUWAx2VhItCZc25NfMA==
+
 "@types/minimatch@*":
   version "3.0.3"
   resolved "https://registry.yarnpkg.com/@types/minimatch/-/minimatch-3.0.3.tgz#3dca0e3f33b200fc7d1139c0cd96c1268cadfd9d"

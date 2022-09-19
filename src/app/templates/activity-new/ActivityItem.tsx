@@ -27,7 +27,7 @@ import OperStackComp from 'app/templates/activity/OperStack';
 
 import type {
 	Activity,
-} from './utils';
+} from 'lib/temple/activity-new/utils';
 
 
 

@@ -1,6 +1,6 @@
 import { OperationContentsAndResult, OpKind } from '@taquito/rpc';
 
-import type { Activity } from 'app/pages/activity/utils';
+import type { Activity } from 'lib/temple/activity-new/utils';
 import * as Repo from 'lib/temple/repo';
 import { TzktOperation, TzktTokenTransfer } from 'lib/tzkt';
 
@@ -64,7 +64,7 @@ const estimateTzktGroup = (tzktGroup: TzktOperation[] | undefined, address: stri
         to: tzktOp.newDelegate.address
       });
     } else if (tzktOp.type === 'transaction') {
-      if (tzktOp.parameters) {
+      if (tzktOp.parameter) {
         tryToParseTzktDelegationOp(tzktOp, address, opStack);
       } else if (isPositiveNumber(tzktOp.amount)) {
         addTzktSenderAddress(tzktOp, address, opStack);
@@ -80,10 +80,10 @@ const estimateTzktGroup = (tzktGroup: TzktOperation[] | undefined, address: stri
 
 const tryToParseTzktDelegationOp = (tzktOp: TzktOperation, address: string, opStack: OpStackItem[]) => {
   if (tzktOp.type !== 'transaction') return;
-  if (!tzktOp.parameters) return;
+  if (!tzktOp.parameter) return;
   let parsed;
   try {
-    parsed = JSON.parse(tzktOp.parameters);
+    parsed = tzktOp.parameter;
   } catch {}
 
   if (parsed) {
@@ -98,7 +98,7 @@ const tryToParseTzktDelegationOp = (tzktOp: TzktOperation, address: string, opSt
 
 const addTzktSenderAddress = (tzktOp: TzktOperation, address: string, opStack: OpStackItem[]) => {
   if (tzktOp.type !== 'transaction') return;
-  if (tzktOp.parameters) return;
+  if (tzktOp.parameter) return;
   if (tzktOp.sender.address === address) {
     opStack.push({
       type: OpStackItemType.TransferTo,
@@ -120,7 +120,7 @@ const getTzktTransfers = (
   parsed: any
 ) => {
   if (tzktOp.type !== 'transaction') return;
-  if (!tzktOp.parameters) return;
+  if (!tzktOp.parameter) return;
   if (tokenTransfers.length > 0) {
     for (const tt of tokenTransfers) {
       if (tt.from === address) {

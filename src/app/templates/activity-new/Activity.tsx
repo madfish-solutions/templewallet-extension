@@ -6,7 +6,6 @@
 - Loading discard on account, chainId .. change
 - Accounting for tokenSlug
 - Fetcher
-- `rooks` package
 - 'Sync' functionality
 - State management
 */
@@ -34,11 +33,7 @@ import {
 	isKnownChainId,
 } from 'lib/tzkt/api';
 
-import {
-	Activity,
-} from './utils';
-
-import useLatestActivitiesOfCurrentAccount from './hook';
+import useActivities from 'lib/temple/activity-new/hook';
 
 import ActivityItemComp from './ActivityItem';
 
@@ -54,11 +49,10 @@ const INIT_OPERS_N = 50, OPERS_LOAD_STEP = 50;
 export default function ActivityComponent({ assetSlug } : { assetSlug ? : string; } ) {
 	const {
 		loading,
-		syncing,
 		reachedTheEnd,
 		list: activities,
 		loadMore: loadMoreActivities,
-	} = useLatestActivitiesOfCurrentAccount(INIT_OPERS_N, assetSlug);
+	} = useActivities(INIT_OPERS_N, assetSlug);
 
 	const account = useAccount();
 	const chainId = useChainId(true);
@@ -67,19 +61,16 @@ export default function ActivityComponent({ assetSlug } : { assetSlug ? : string
 	const currentAccountAddress = account.publicKeyHash;
 
 	function onLoadMoreBtnClick() {
-		if(loading) return;
 		loadMoreActivities(OPERS_LOAD_STEP);
 	}
 
 	function onRetryLoadBtnClick() {
-		if(loading) return;
 		loadMoreActivities(INIT_OPERS_N);
 	}
 
 	if(activities.length === 0) {
-		if(loading === 'init') return <ActivitySpinner height="2.5rem" />;
-
-		if(loading === false && reachedTheEnd === false) return (
+		if(loading) return <ActivitySpinner height="2.5rem" />;
+		else if(reachedTheEnd === false) return (
 			<div className="w-full flex justify-center mt-5 mb-3">
 				<FormSecondaryButton onClick={onRetryLoadBtnClick} small>
 					<T id="tryLoadAgain" />
@@ -105,14 +96,13 @@ export default function ActivityComponent({ assetSlug } : { assetSlug ? : string
 			)) }
 		</div>
 
-		{ loading === 'more' ? (
-			<ActivitySpinner height="2.5rem" />
-		) : (
-			<div className="w-full flex justify-center mt-5 mb-3">
-				<FormSecondaryButton disabled={reachedTheEnd} onClick={onLoadMoreBtnClick} small>
-					<T id="loadMore" />
-				</FormSecondaryButton>
-			</div>
-		)}
+		{ loading ? <ActivitySpinner height="2.5rem" />
+			: reachedTheEnd === false ? (
+				<div className="w-full flex justify-center mt-5 mb-3">
+					<FormSecondaryButton onClick={onLoadMoreBtnClick} small>
+						<T id="loadMore" />
+					</FormSecondaryButton>
+				</div>
+			) : null}
 	</>);
 }

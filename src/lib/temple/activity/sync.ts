@@ -232,9 +232,9 @@ const addMemberSetOperations = (tzktOp: TzktOperation, assetIdSet: Set<string>, 
     memberSet.add(tzktOp.sender.address);
     memberSet.add(tzktOp.target.address);
 
-    if (tzktOp.parameters) {
+    if (tzktOp.parameter) {
       try {
-        tryParseTokenTransfers(JSON.parse(tzktOp.parameters), tzktOp.target.address, (assetId, from, to) => {
+        tryParseTokenTransfers(tzktOp.parameter, tzktOp.target.address, (assetId, from, to) => {
           memberSet.add(from).add(to);
           assetIdSet.add(assetId);
         });

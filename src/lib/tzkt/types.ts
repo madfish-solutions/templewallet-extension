@@ -71,7 +71,7 @@ export interface TzktTransactionOperation extends TzktOperationBase {
   allocationFee: number;
   target: TzktAlias;
   amount: number;
-  parameters?: string;
+  parameter?: unknown;
   hasInternals: boolean;
 }
 

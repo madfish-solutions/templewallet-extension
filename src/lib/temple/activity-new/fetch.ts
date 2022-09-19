@@ -14,7 +14,7 @@ import {
 	Activity,
 	OperGroup,
 	operGroupToActivity,
-} from '../utils';
+} from './utils';
 
 import {
 	detectTokenStandard,
@@ -60,7 +60,7 @@ export default async function fetchActivities(
 	);
 
 	return groups.map( group =>
-		operGroupToActivity(group, accAddress)
+		operGroupToActivity(group)
 	);
 }
 

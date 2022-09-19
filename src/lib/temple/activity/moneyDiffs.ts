@@ -1,7 +1,7 @@
 import { OperationContentsAndResult, OpKind } from '@taquito/rpc';
 import BigNumber from 'bignumber.js';
 
-import { Activity } from 'app/pages/activity/utils';
+import type { Activity } from 'lib/temple/activity-new/utils';
 import * as Repo from 'lib/temple/repo';
 import { TzktOperation, TzktTokenTransfer } from 'lib/tzkt';
 
@@ -150,9 +150,9 @@ const estimateTzktOp = (tzktOp: TzktOperation, address: string, diffs: Diffs) =>
     );
   }
 
-  if (!tzktOp.parameters) return;
+  if (!tzktOp.parameter) return;
   try {
-    tryParseTokenTransfers(JSON.parse(tzktOp.parameters), tzktOp.target.address, (assetId, from, to, amount) => {
+    tryParseTokenTransfers(tzktOp.parameter, tzktOp.target.address, (assetId, from, to, amount) => {
       if (from === address || to === address) {
         appendToDiff('tzkt', assetId, new BigNumber(amount).times(from === address ? -1 : 1).toFixed(), diffs);
       }
