@@ -45,7 +45,7 @@ export const createOrder = (amount: number, paymentCurrency: string, address: st
       amount,
       paymentCurrency,
       address,
-      externalId: new Date().toString() + paymentCurrency + amount.toString()
+      externalId: Number(new Date()).toString() + paymentCurrency + amount.toString()
     })
     .then(r => r.data.data.url);
 
