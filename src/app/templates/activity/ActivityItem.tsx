@@ -4,14 +4,9 @@ import classNames from 'clsx';
 import formatDistanceToNow from 'date-fns/formatDistanceToNow';
 
 import OpenInExplorerChip from 'app/atoms/OpenInExplorerChip';
-import { OP_STACK_PREVIEW_SIZE } from 'app/defaults';
-import { ReactComponent as ChevronRightIcon } from 'app/icons/chevron-right.svg';
-import { ReactComponent as ChevronUpIcon } from 'app/icons/chevron-up.svg';
-import { ReactComponent as ClipboardIcon } from 'app/icons/clipboard.svg';
 import HashChip from 'app/templates/HashChip';
-import type { TID } from 'lib/i18n/react';
-import { T, t, getDateFnsLocale } from 'lib/i18n/react';
-import { OpStackItem, OpStackItemType, parseMoneyDiffs, parseOpStack } from 'lib/temple/activity';
+import { t, getDateFnsLocale } from 'lib/i18n/react';
+import { parseMoneyDiffs, parseOpStack } from 'lib/temple/activity';
 import { useExplorerBaseUrls } from 'lib/temple/front';
 import * as Repo from 'lib/temple/repo';
 

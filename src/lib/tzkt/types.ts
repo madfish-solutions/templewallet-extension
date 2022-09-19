@@ -89,15 +89,6 @@ export type TzktOperation =
   | TzktRevealOperation
   | TzktOriginationOperation;
 
-export interface _TzktOperation extends TzktOperationBase {
-  target: TzktAlias;
-  amount: number;
-  entrypoint: string;
-  parameter?: unknown;
-  contractBalance?: string;
-  newDelegate?: TzktAlias | null;
-  originatedContract?: TzktAlias;
-}
 export type TzktDelegateInfo = {
   alias?: string;
   address: string;

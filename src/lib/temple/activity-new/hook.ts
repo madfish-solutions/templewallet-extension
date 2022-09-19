@@ -1,112 +1,76 @@
-/* eslint-disable prettier/prettier */
-/* eslint-disable import/order */
+import React, { useEffect, useRef, useState, useMemo, useCallback } from 'react';
 
+import { useSafeState } from 'ahooks';
+import { useDidMount, useDidUpdate } from 'rooks';
 
-import React, {
-	useEffect,
-	useRef,
-	useState,
-	useMemo,
-	useCallback,
-} from 'react';
-import {
-	useDidMount,
-	useDidUpdate,
-} from 'rooks';
-import {
-	useSafeState,
-} from 'ahooks';
-
-import { useTezos } from 'lib/temple/front';
-import {
-	useChainId,
-	useAccount,
-} from 'lib/temple/front';
+import { useTezos, useChainId, useAccount } from 'lib/temple/front';
 import { isKnownChainId } from 'lib/tzkt/api';
 
 import fetchActivities from './fetch';
-
-import type {
-	Activity,
-} from './utils';
-
+import type { Activity } from './utils';
 
 ////
 
 type TLoading = 'init' | 'more' | false;
 
-export default function useActivities(
-	initialPseudoLimit : number,
-   assetSlug ? : string,
-) {
-	const tezos = useTezos();
-	const chainId = useChainId(true);
-	const account = useAccount();
+export default function useActivities(initialPseudoLimit: number, assetSlug?: string) {
+  const tezos = useTezos();
+  const chainId = useChainId(true);
+  const account = useAccount();
 
-	const accountAddress = account.publicKeyHash;
+  const accountAddress = account.publicKeyHash;
 
-	const [loading, setLoading] = useSafeState<TLoading>( isKnownChainId(chainId) && 'init' );
-	const [activities, setActivities] = useSafeState<Activity[]>([]);
-	const [reachedTheEnd, setReachedTheEnd] = useSafeState(false);
+  const [loading, setLoading] = useSafeState<TLoading>(isKnownChainId(chainId) && 'init');
+  const [activities, setActivities] = useSafeState<Activity[]>([]);
+  const [reachedTheEnd, setReachedTheEnd] = useSafeState(false);
 
-	async function loadActivities(
-		pseudoLimit : number,
-		activities : Activity[],
-	) {
-		if(!isKnownChainId(chainId)) {
-			setLoading(false);
-			return;
-		}
+  async function loadActivities(pseudoLimit: number, activities: Activity[]) {
+    if (!isKnownChainId(chainId)) {
+      setLoading(false);
+      return;
+    }
 
-		setLoading(activities.length ? 'more' : 'init');
-		const lastActivity = activities[activities.length - 1];
+    setLoading(activities.length ? 'more' : 'init');
+    const lastActivity = activities[activities.length - 1];
 
-		let newActivities : Activity[];
-		try {
-			newActivities = await fetchActivities(
-				chainId,
-				account,
-				assetSlug,
-				pseudoLimit,
-				tezos,
-				lastActivity,
-			);
-		}
-		catch(error) {
-			setLoading(false);
-			console.log(error);
+    let newActivities: Activity[];
+    try {
+      newActivities = await fetchActivities(chainId, account, assetSlug, pseudoLimit, tezos, lastActivity);
+    } catch (error) {
+      setLoading(false);
+      console.log(error);
 
-			return;
-		}
+      return;
+    }
 
-		setActivities( activities.concat(newActivities) );
-		setLoading(false);
-		// if(newActivities.length < limit)
-		if(newActivities.length === 0) setReachedTheEnd(true);
-	}
+    setActivities(activities.concat(newActivities));
+    setLoading(false);
+    // if(newActivities.length < limit)
+    if (newActivities.length === 0) setReachedTheEnd(true);
+  }
 
-	/** Loads more of older items */
-	function loadMore(pseudoLimit : number) {
-		if(loading || reachedTheEnd) return;
-		loadActivities(pseudoLimit, activities);
-	}
+  /** Loads more of older items */
+  function loadMore(pseudoLimit: number) {
+    if (loading || reachedTheEnd) return;
+    loadActivities(pseudoLimit, activities);
+  }
 
-	useDidMount(() => {
-		loadActivities(initialPseudoLimit, activities);
-	});
+  useDidMount(() => {
+    loadActivities(initialPseudoLimit, activities);
+  });
 
-	useDidUpdate(() => {
-		setActivities([]);
-		setLoading('init');
-		setReachedTheEnd(false);
+  useDidUpdate(() => {
+    setActivities([]);
+    setLoading('init');
+    setReachedTheEnd(false);
 
-		loadActivities(initialPseudoLimit, []);
-	}, [chainId, accountAddress, assetSlug]);
+    loadActivities(initialPseudoLimit, []);
+  }, [chainId, accountAddress, assetSlug]);
 
-	return {
-		loading,
-		reachedTheEnd,
-		list: activities,
-		loadMore,
-	};
+  return {
+    loading,
+    reachedTheEnd,
+    list: activities,
+    loadMore
+  };
 }
