@@ -42,7 +42,7 @@ const ActivityView = memo<ActivityViewProps>(
 
     return (
       <>
-        <div className={classNames('w-full max-w-md mx-auto', 'flex flex-col', className)}>
+        <div className={classNames('w-full max-w-sm mx-auto', 'flex flex-col', className)}>
           {operations?.map(op => (
             <ActivityItem key={op.hash} address={address} operation={op} syncSupported={syncSupported} />
           ))}
