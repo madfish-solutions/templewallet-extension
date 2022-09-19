@@ -59,17 +59,16 @@ const MainnetVolumeBanner: FC<MainnetVolumeBannerProps> = ({ chainId, accountPkh
       return tezBalanceInFiat.plus(tokensBalanceInFiat);
     }
 
-    return null;
+    return 0;
   }, [tokens, tezBalance, tezPriceInFiat, fiatToUsdRate]);
 
   return (
     <div className="w-full max-w-sm mx-auto mb-4">
       <div className="flex justify-between items-center mb-3">
-        {volumeInFiat && (
-          <div className="text-sm font-medium text-gray-700">
-            <T id="totalEquityValue" />
-          </div>
-        )}
+        <div className="text-sm font-medium text-gray-700">
+          <T id="totalEquityValue" />
+        </div>
+
         <AddressChip pkh={accountPkh} />
       </div>
       <div className="flex items-center text-2xl">
