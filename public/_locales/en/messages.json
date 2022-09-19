@@ -2784,7 +2784,7 @@
     "message": "You can sync your Seed Phrase and accounts (HD) with your mobile device. If you just open the Temple Mobile app for the first time, click 'Sync' button and follow the steps in your phone."
   },
   "syncPasswordDescription": {
-    "message": "The password is used to protect the synchronization process."
+    "message": "Use your current wallet password to start the synchronization."
   },
   "syncSettingsAlert": {
     "message": "Make sure nobody else is looking at your screen when you scan this code."
