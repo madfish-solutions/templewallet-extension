@@ -3,6 +3,7 @@ import React, { FC, useCallback, useRef } from 'react';
 import classNames from 'clsx';
 
 import { ActivitySpinner } from 'app/atoms/ActivitySpinner';
+import { NewsType, StatusType, useNews } from 'lib/temple/front/news.provider';
 import { useIntersectionDetection } from 'lib/ui/use-intersection-detection';
 
 import { T } from '../../../lib/i18n/react';
@@ -11,9 +12,7 @@ import { useAppEnv } from '../../env';
 import { ReactComponent as BellGrayIcon } from '../../icons/bell-gray.svg';
 import { ReactComponent as NotFoundIcon } from '../../icons/notFound.svg';
 import PageLayout from '../../layouts/PageLayout';
-import { NewsType, StatusType } from './NewsNotifications/NewsNotifications.interface';
 import { NewsNotificationsItem } from './NewsNotifications/NewsNotificationsItem';
-import { useNews } from './providers/news.provider';
 
 export const Notifications: FC = () => {
   const { news, handleUpdate: handleLoadMoreNews, loading: newsLoading, isAllLoaded: isAllNewsLoaded } = useNews();
