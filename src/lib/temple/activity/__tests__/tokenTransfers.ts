@@ -1,6 +1,6 @@
 import TOKEN_TRANFER_FA1_2 from '../__mocks__/tokenTransfer_fa1_2';
 import TOKEN_TRANSFER_FA2 from '../__mocks__/tokenTransfer_fa2';
-import { _tryParseTokenTransfers } from '../helpers';
+import { tryParseTokenTransfers } from '../helpers';
 
 interface TokenTransfer {
   tokenId: string;
@@ -12,7 +12,7 @@ interface TokenTransfer {
 describe('Money diffs', () => {
   it('tryParseTokenTransfers FA1.2', async () => {
     const transfers: TokenTransfer[] = [];
-    _tryParseTokenTransfers(
+    tryParseTokenTransfers(
       TOKEN_TRANFER_FA1_2.parameters,
       TOKEN_TRANFER_FA1_2.destination,
       (tokenId, from, to, amount) => {
@@ -32,7 +32,7 @@ describe('Money diffs', () => {
 
   it('tryParseTokenTransfers FA2', async () => {
     const transfers: TokenTransfer[] = [];
-    _tryParseTokenTransfers(
+    tryParseTokenTransfers(
       TOKEN_TRANSFER_FA2.parameter,
       TOKEN_TRANSFER_FA2.destination,
       (tokenId, from, to, amount) => {

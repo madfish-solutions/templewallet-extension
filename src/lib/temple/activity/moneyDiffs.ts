@@ -28,16 +28,6 @@ export function parseMoneyDiffs(operation: Repo.IOperation, address: string) {
   return flattenDiffs(diffs);
 }
 
-export function parseMoneyDiffsOfActivity(activity: Activity, address: string) {
-  const diffs: Diffs = {};
-
-  const tzktGroup = activity.tzktOperations;
-
-  estimateTzktGroup(tzktGroup, address, diffs);
-
-  return flattenDiffs(diffs);
-}
-
 function flattenDiffs(diffs: Diffs) {
   const flatted: Record<string, string> = {};
   for (const assetId of Object.keys(diffs)) {

@@ -8,7 +8,8 @@ import MoneyDiffView from 'app/templates/activity/MoneyDiffView';
 import OperStackComp from 'app/templates/activity/OperStack';
 import HashChip from 'app/templates/HashChip';
 import { t, getDateFnsLocale } from 'lib/i18n/react';
-import { parseMoneyDiffsOfActivity, parseOperStackOfActivity } from 'lib/temple/activity';
+import { parseMoneyDiffs } from 'lib/temple/activity-new/moneyDiffs';
+import { parseOperStack } from 'lib/temple/activity-new/opStack';
 import type { Activity } from 'lib/temple/activity-new/utils';
 import { useExplorerBaseUrls } from 'lib/temple/front';
 
@@ -27,10 +28,10 @@ const ActivityItemComp = memo<ActivityItemCompProps>(({ activity, address, syncS
 
   const pending = status === 'pending';
 
-  const operStack = useMemo(() => parseOperStackOfActivity(activity, address), [activity, address]);
+  const operStack = useMemo(() => parseOperStack(activity, address), [activity, address]);
 
   const moneyDiffs = useMemo(() => {
-    return ['pending', 'applied'].includes(status) ? parseMoneyDiffsOfActivity(activity, address) : [];
+    return ['pending', 'applied'].includes(status) ? parseMoneyDiffs(activity, address) : [];
   }, [status, activity, address]);
 
   return (

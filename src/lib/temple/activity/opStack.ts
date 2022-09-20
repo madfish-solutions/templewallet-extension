@@ -19,16 +19,6 @@ export function parseOpStack(operation: Repo.IOperation, address: string) {
   return opStack.sort((a, b) => a.type - b.type);
 }
 
-export function parseOperStackOfActivity(activity: Activity, address: string) {
-  const tzktGroup = activity.tzktOperations;
-
-  const opStack: OpStackItem[] = [];
-
-  if (tzktGroup) estimateTzktGroup(tzktGroup, address, opStack);
-
-  return opStack.sort((a, b) => a.type - b.type);
-}
-
 function isOpStackItemsEqual(a: OpStackItem, b: OpStackItem) {
   switch (a.type) {
     case OpStackItemType.Delegation:
