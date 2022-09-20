@@ -169,11 +169,7 @@ export type TzktGetRewardsResponse = TzktRewardsEntry[] | undefined;
 
 export const allInt32ParameterKeys: Int32ParameterKey[] = ['eq', 'ne', 'gt', 'ge', 'lt', 'le', 'in', 'ni'];
 
-export const isReveal = (operation: TzktOperation): operation is TzktRevealOperation => {
-  return operation.type === 'reveal';
-};
-
-export interface TzktAccountTokenBalance {
+export interface TzktAccountToken {
   account: TzktAlias;
   balance: string;
   firstLevel: number;

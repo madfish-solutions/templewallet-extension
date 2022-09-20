@@ -21,7 +21,6 @@ import {
   fetchAllKnownFungibleTokenSlugs,
   onStorageChanged,
   putToStorage,
-  fetchFromStorage,
   fetchCollectibleTokens,
   fetchAllKnownCollectibleTokenSlugs,
   DetailedAssetMetdata,
@@ -32,7 +31,7 @@ import {
 } from 'lib/temple/front';
 import { ITokenStatus } from 'lib/temple/repo';
 
-import { useGasToken } from '../../../app/hooks/useGasToken';
+import { useGasToken } from '../../../app/hooks/use-gas-token';
 
 export const ALL_TOKENS_BASE_METADATA_STORAGE_KEY = 'tokens_base_metadata';
 
@@ -211,25 +210,6 @@ export const useGetTokenMetadata = () => {
     [allTokensBaseMetadataRef, metadata]
   );
 };
-
-export function useDetailedAssetMetadata(slug: string) {
-  const baseMetadata = useAssetMetadata(slug);
-
-  const storageKey = useMemo(() => getDetailedMetadataStorageKey(slug), [slug]);
-
-  const { data: detailedMetadata, mutate } = useRetryableSWR<DetailedAssetMetdata>(
-    ['detailed-metadata', storageKey],
-    fetchFromStorage,
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false
-    }
-  );
-
-  useEffect(() => onStorageChanged(storageKey, mutate), [storageKey, mutate]);
-
-  return detailedMetadata ?? baseMetadata;
-}
 
 export function useAllTokensBaseMetadata() {
   const { allTokensBaseMetadataRef } = useTokensMetadata();

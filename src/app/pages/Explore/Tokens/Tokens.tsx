@@ -4,9 +4,7 @@ import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import { useSWRConfig } from 'swr';
-import { useDebounce } from 'use-debounce';
 
-import { ActivitySpinner } from 'app/atoms/ActivitySpinner';
 import Money from 'app/atoms/Money';
 import { ReactComponent as AddToListIcon } from 'app/icons/add-to-list.svg';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
@@ -22,15 +20,12 @@ import {
   useDisplayedFungibleTokens,
   useAssetMetadata,
   getAssetSymbol,
-  getAssetName,
-  useAllTokensBaseMetadata,
-  searchAssets
+  getAssetName
 } from 'lib/temple/front';
-import { useFungibleTokensBalances } from 'lib/temple/front/fungible-tokens-balances';
-import { TZKT_FETCH_QUERY_SIZE } from 'lib/tzkt';
 import { useIntersectionDetection } from 'lib/ui/use-intersection-detection';
 import { Link, navigate } from 'lib/woozie';
 
+import { useFilteredAssetsList } from '../../../hooks/use-filtered-assets-list';
 import { AssetsSelectors } from '../Assets.selectors';
 import { TezosToken } from './TezosToken';
 import styles from './Tokens.module.css';
@@ -40,44 +35,13 @@ const Tokens: FC = () => {
   const account = useAccount();
   const address = account.publicKeyHash;
 
-  const loadMoreRef = useRef<HTMLDivElement>(null);
-  const canLoadMore = useRef(true);
-
-  const { hasMore, loadItems, isLoading, items } = useFungibleTokensBalances();
-
   const { data: tokens = [] } = useDisplayedFungibleTokens(chainId, address);
 
-  const allTokensBaseMetadata = useAllTokensBaseMetadata();
+  const { filteredAssets, searchValue, setSearchValue } = useFilteredAssetsList(tokens);
 
-  const { assetSlugs, latestBalances } = useMemo(() => {
-    const slugs = ['tez'];
-    const balances: Record<string, string> = {};
-
-    for (const { tokenSlug, latestBalance } of tokens) {
-      if (tokenSlug in allTokensBaseMetadata) {
-        slugs.push(tokenSlug);
-      }
-      if (latestBalance) {
-        balances[tokenSlug] = latestBalance;
-      }
-    }
-
-    canLoadMore.current = true;
-
-    return { assetSlugs: slugs, latestBalances: balances };
-  }, [tokens, allTokensBaseMetadata]);
-
-  const [searchValue, setSearchValue] = useState('');
   const [searchFocused, setSearchFocused] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
-
   const searchValueExist = useMemo(() => Boolean(searchValue), [searchValue]);
-  const [searchValueDebounced] = useDebounce(searchValue, 300);
-
-  const filteredAssets = useMemo(
-    () => searchAssets(searchValueDebounced, assetSlugs, allTokensBaseMetadata),
-    [searchValueDebounced, assetSlugs, allTokensBaseMetadata]
-  );
 
   const activeAsset = useMemo(() => {
     return searchFocused && searchValueExist && filteredAssets[activeIndex] ? filteredAssets[activeIndex] : null;
@@ -119,21 +83,6 @@ const Tokens: FC = () => {
     window.addEventListener('keyup', handleKeyup);
     return () => window.removeEventListener('keyup', handleKeyup);
   }, [activeAsset, setActiveIndex]);
-
-  const handleLoadItems = useCallback(() => {
-    if (canLoadMore.current) {
-      canLoadMore.current = false;
-      loadItems();
-    }
-  }, [loadItems]);
-
-  const handleIntersection = useCallback(() => {
-    if (!isLoading && hasMore && items.length >= TZKT_FETCH_QUERY_SIZE) {
-      handleLoadItems();
-    }
-  }, [handleLoadItems, isLoading, hasMore, items.length]);
-
-  useIntersectionDetection(loadMoreRef, handleIntersection);
 
   return (
     <div className={classNames('w-full max-w-sm mx-auto')}>
@@ -188,12 +137,7 @@ const Tokens: FC = () => {
                   }}
                   unmountOnExit
                 >
-                  <ListItem
-                    assetSlug={asset}
-                    active={active}
-                    accountPkh={account.publicKeyHash}
-                    latestBalance={latestBalances[asset]}
-                  />
+                  <ListItem assetSlug={asset} active={active} accountPkh={account.publicKeyHash} />
                 </CSSTransition>
               );
             })}
@@ -221,8 +165,6 @@ const Tokens: FC = () => {
           </p>
         </div>
       )}
-      {hasMore && <div ref={loadMoreRef} className="w-full flex justify-center mt-5 mb-3"></div>}
-      {hasMore && !canLoadMore.current && <ActivitySpinner />}
     </div>
   );
 };
@@ -233,7 +175,6 @@ type ListItemProps = {
   assetSlug: string;
   active: boolean;
   accountPkh: string;
-  latestBalance?: string;
 };
 
 const ListItem = memo<ListItemProps>(({ assetSlug, active, accountPkh }) => {

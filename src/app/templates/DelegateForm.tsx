@@ -49,7 +49,7 @@ import { ABTestGroup } from 'lib/templewallet-api';
 import useSafeState from 'lib/ui/useSafeState';
 import { Link, useLocation } from 'lib/woozie';
 
-import { useGasToken } from '../hooks/useGasToken';
+import { useGasToken } from '../hooks/use-gas-token';
 import { DelegateFormSelectors } from './DelegateForm.selectors';
 
 const PENNY = 0.000001;

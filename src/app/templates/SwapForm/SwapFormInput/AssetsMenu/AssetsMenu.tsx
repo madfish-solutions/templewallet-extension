@@ -9,7 +9,7 @@ import { T } from 'lib/i18n/react';
 import { useAccount, useChainId } from 'lib/temple/front';
 import * as Repo from 'lib/temple/repo';
 
-import { useAppEnvStyle } from '../../../../hooks/useAppEnvStyle';
+import { useAppEnvStyle } from '../../../../hooks/use-app-env-style';
 import { AssetOption } from './AssetOption/AssetOption';
 
 interface Props {

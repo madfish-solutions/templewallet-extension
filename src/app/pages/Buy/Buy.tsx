@@ -11,7 +11,7 @@ import { T, t } from 'lib/i18n/react';
 import { PropsWithChildren } from 'lib/props-with-children';
 import { Link } from 'lib/woozie';
 
-import { useGasToken } from '../../hooks/useGasToken';
+import { useGasToken } from '../../hooks/use-gas-token';
 import { ReactComponent as ShoppingCartIcon } from './../../icons/shopping-cart.svg';
 import { BuySelectors } from './Buy.selectors';
 import { Crypto } from './Crypto/Crypto';

@@ -21,17 +21,17 @@ import {
 import * as Repo from 'lib/temple/repo';
 import { getTokensMetadata } from 'lib/templewallet-api';
 import { fetchWhitelistTokenSlugs } from 'lib/templewallet-api/whitelist-tokens';
-import { TzktAccountTokenBalance } from 'lib/tzkt';
+import { TzktAccountToken } from 'lib/tzkt';
 
 import { TempleChainId } from '../types';
-import { useFungibleTokensBalances } from './fungible-tokens-balances';
-import { useNonFungibleTokensBalances } from './non-fungible-tokens-balances';
+import { useFungibleTokens } from './fungible-tokens';
+import { useNonFungibleTokens } from './non-fungible-tokens';
 
 export const [SyncTokensProvider, useSyncTokens] = constate(() => {
   const { mutate } = useSWRConfig();
   const chainId = useChainId(true)!;
-  const { items: tokens } = useFungibleTokensBalances();
-  const { items: nfts } = useNonFungibleTokensBalances();
+  const { tokens } = useFungibleTokens();
+  const { nfts } = useNonFungibleTokens();
   const { publicKeyHash: accountPkh } = useAccount();
 
   const { allTokensBaseMetadataRef, setTokensBaseMetadata, setTokensDetailedMetadata, fetchMetadata } =
@@ -113,7 +113,7 @@ const makeSync = async (
   setTokensDetailedMetadata: any,
   usdPrices: Record<string, string>,
   fetchMetadata: any,
-  tzktTokens: TzktAccountTokenBalance[],
+  tzktTokens: TzktAccountToken[],
   mutate: ScopedMutator<any>
 ) => {
   if (!chainId) return;
@@ -222,7 +222,7 @@ const updateTokenSlugs = (
   chainId: string,
   accountPkh: string,
   existingRecords: (Repo.IAccountToken | undefined)[],
-  tzktTokensMap: Map<string, TzktAccountTokenBalance>,
+  tzktTokensMap: Map<string, TzktAccountToken>,
   baseMetadatasToSet: any,
   allTokensBaseMetadataRef: any,
   usdPrices: Record<string, string>

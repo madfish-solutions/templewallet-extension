@@ -41,7 +41,7 @@ import useSafeState from 'lib/ui/useSafeState';
 import { useLocation } from 'lib/woozie';
 
 import { ConfirmPageSelectors } from './ConfirmPage.selectors';
-import { useGasToken } from './hooks/useGasToken';
+import { useGasToken } from './hooks/use-gas-token';
 
 const ConfirmPage: FC = () => {
   const { ready } = useTempleClient();
