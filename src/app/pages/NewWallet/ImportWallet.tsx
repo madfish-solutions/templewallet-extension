@@ -29,10 +29,6 @@ const importWalletOptions: {
   }
 ];
 
-interface ImportWalletProps {
-  tabSlug?: string;
-}
-
 export const ImportWallet: FC<ImportWalletProps> = ({ tabSlug = 'seed-phrase' }) => {
   const { locked } = useTempleClient();
 
