@@ -3,16 +3,14 @@ import React, { FC } from 'react';
 import classNames from 'clsx';
 
 import { T } from 'lib/i18n/react';
+import { NewsNotificationInterface, useNews, welcomeNewsNotificationsMockData } from 'lib/temple/front/news.provider';
 import { goBack } from 'lib/woozie';
 
 import { Button } from '../../../atoms/Button';
 import { useAppEnv } from '../../../env';
 import { ReactComponent as BellGrayIcon } from '../../../icons/bell-gray.svg';
 import PageLayout from '../../../layouts/PageLayout';
-import { useNews } from '../providers/news.provider';
 import { formatDate } from '../utils/formatDate';
-import { welcomeNewsNotificationsMockData } from './NewsNotifications.data';
-import { NewsNotificationInterface } from './NewsNotifications.interface';
 
 interface NewsNotificationsItemDetailsProps {
   id: string;

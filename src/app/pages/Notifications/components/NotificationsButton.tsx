@@ -1,8 +1,9 @@
 import React, { FC } from 'react';
 
+import { useNews } from 'lib/temple/front/news.provider';
+
 import Link from '../../../../lib/woozie/Link';
 import { ReactComponent as BellIcon } from '../../../icons/bell.svg';
-import { useNews } from '../providers/news.provider';
 import { NotificationsIcon } from './NotificationsIcon';
 
 export const NotificationsButton: FC = () => {

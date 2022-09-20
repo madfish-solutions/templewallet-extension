@@ -6,8 +6,69 @@ import { useLocalStorage } from 'lib/temple/front/local-storage';
 import { TempleNotificationsSharedStorageKey } from 'lib/temple/types';
 import { getNewsItems } from 'lib/templewallet-api/news';
 
-import { welcomeNewsNotificationsMockData } from '../NewsNotifications/NewsNotifications.data';
-import { NewsNotificationInterface, PlatformType, StatusType } from '../NewsNotifications/NewsNotifications.interface';
+export enum NewsType {
+  News = 'News',
+  ApplicationUpdate = 'ApplicationUpdate',
+  Alert = 'Alert'
+}
+
+export enum PlatformType {
+  Mobile = 'Mobile',
+  Extension = 'Extension'
+}
+
+export enum StatusType {
+  New = 'New',
+  Read = 'Read',
+  Viewed = 'Viewed'
+}
+
+export interface NewsNotificationInterface {
+  id: string;
+  createdAt: string;
+  status: StatusType;
+  type: NewsType;
+  platform: PlatformType;
+  language: string;
+  title: string;
+  description: string;
+  content: string;
+  extensionImageUrl: string;
+  mobileImageUrl: string;
+  readInOriginalUrl: string;
+}
+
+export interface NewsNotificationsApiProps {
+  welcome?: boolean;
+  platform?: PlatformType;
+  limit?: string;
+  page?: string;
+  timeLt?: string;
+  timeGt?: string;
+  sorted?: SortedBy;
+}
+
+export enum SortedBy {
+  DateAsc = '0',
+  DateDesc = '1'
+}
+
+export const welcomeNewsNotificationsMockData: Array<NewsNotificationInterface> = [
+  {
+    id: '0e',
+    createdAt: '2022-09-01T00:00:00.000Z',
+    status: StatusType.New,
+    type: NewsType.News,
+    platform: PlatformType.Extension,
+    language: 'en-US',
+    title: 'Temple Wallet Greetings',
+    description: 'Welcome message',
+    content: 'Some welcome message lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quidem.',
+    extensionImageUrl: 'https://pbs.twimg.com/profile_images/1364551906283110400/4Ts3YPJz_400x400.jpg',
+    mobileImageUrl: 'https://pbs.twimg.com/profile_images/1364551906283110400/4Ts3YPJz_400x400.jpg',
+    readInOriginalUrl: 'https://templewallet.com/'
+  }
+];
 
 // once per hour
 const NEWS_REFRESH_INTERVAL = 60 * 60 * 1000;

@@ -1,9 +1,10 @@
 import React, { FC, useMemo } from 'react';
 
+import { NewsType } from 'lib/temple/front/news.provider';
+
 import { ReactComponent as AlertNewsIcon } from '../../../icons/alert-news.svg';
 import { ReactComponent as ApplicationUpdateNewsIcon } from '../../../icons/application-update-news.svg';
 import { ReactComponent as NewspaperIcon } from '../../../icons/newspaper.svg';
-import { NewsType } from '../NewsNotifications/NewsNotifications.interface';
 import { NotificationsIcon, NotificationsIconProps } from './NotificationsIcon';
 
 interface NewsIconProps extends Pick<NotificationsIconProps, 'isDotVisible'> {

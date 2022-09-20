@@ -2,11 +2,12 @@ import React, { FC } from 'react';
 
 import classNames from 'clsx';
 
+import { NewsNotificationInterface, StatusType } from 'lib/temple/front/news.provider';
+
 import { NewsDetailsButton } from '../components/NewsDetailsButton';
 import { NewsIcon } from '../components/NewsIcon';
 import { formatDate } from '../utils/formatDate';
 import { truncateDescription, truncateTitle } from '../utils/truncate';
-import { NewsNotificationInterface, StatusType } from './NewsNotifications.interface';
 
 interface NewsNotificationsItemProps extends NewsNotificationInterface {
   index: number;
