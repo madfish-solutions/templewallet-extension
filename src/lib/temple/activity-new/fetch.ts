@@ -24,8 +24,6 @@ export default async function fetchActivities(
   tezos: ReactiveTezosToolkit,
   olderThan?: Activity
 ): Promise<Activity[]> {
-  const { publicKeyHash: accAddress } = account;
-
   const operations = await fetchOperations(chainId, account, assetSlug, pseudoLimit, tezos, olderThan);
 
   const groups = await _fetchOperGroupsForOperations(chainId, operations, olderThan);
@@ -72,24 +70,22 @@ async function fetchOperations(
   return await fetchOperations_Any(chainId, accAddress, pseudoLimit, olderThan);
 }
 
-async function fetchOperations_TEZ(
+function fetchOperations_TEZ(
   chainId: TzktApiChainId,
   accountAddress: string,
   pseudoLimit: number,
   olderThan?: Activity
 ) {
-  const olderThanId = olderThan?.tzktOperations[olderThan.tzktOperations.length - 1]?.id;
-
-  return await TZKT.fetchGetAccountOperations(chainId, accountAddress, {
+  return TZKT.fetchGetAccountOperations(chainId, accountAddress, {
     type: 'transaction',
-    lastId: olderThanId,
+    ..._buildOlderThanParam(olderThan),
     limit: pseudoLimit,
     sort: 1,
     'parameter.null': true
   });
 }
 
-async function fetchOperations_Contract(
+function fetchOperations_Contract(
   chainId: TzktApiChainId,
   accountAddress: string,
   pseudoLimit: number,
@@ -97,7 +93,7 @@ async function fetchOperations_Contract(
 ) {
   const olderThanLevel = olderThan?.tzktOperations[olderThan.tzktOperations.length - 1]?.level;
 
-  return await TZKT.fetchGetAccountOperations(chainId, accountAddress, {
+  return TZKT.fetchGetAccountOperations(chainId, accountAddress, {
     type: 'transaction',
     limit: pseudoLimit,
     sort: 1,
@@ -107,7 +103,7 @@ async function fetchOperations_Contract(
   });
 }
 
-async function fetchOperations_Token_Fa_1_2(
+function fetchOperations_Token_Fa_1_2(
   chainId: TzktApiChainId,
   accountAddress: string,
   contractAddress: string,
@@ -116,7 +112,7 @@ async function fetchOperations_Token_Fa_1_2(
 ) {
   const olderThanLevel = olderThan?.tzktOperations[olderThan.tzktOperations.length - 1]?.level;
 
-  return await TZKT.fetchGetOperationsTransactions(chainId, {
+  return TZKT.fetchGetOperationsTransactions(chainId, {
     limit: pseudoLimit,
     entrypoint: 'transfer',
     'sort.desc': 'level',
@@ -126,7 +122,7 @@ async function fetchOperations_Token_Fa_1_2(
   });
 }
 
-async function fetchOperations_Token_Fa_2(
+function fetchOperations_Token_Fa_2(
   chainId: TzktApiChainId,
   accountAddress: string,
   contractAddress: string,
@@ -136,7 +132,7 @@ async function fetchOperations_Token_Fa_2(
 ) {
   const olderThanLevel = olderThan?.tzktOperations[olderThan.tzktOperations.length - 1]?.level;
 
-  return await TZKT.fetchGetOperationsTransactions(chainId, {
+  return TZKT.fetchGetOperationsTransactions(chainId, {
     limit: pseudoLimit,
     entrypoint: 'transfer',
     'sort.desc': 'level',
@@ -153,11 +149,10 @@ async function fetchOperations_Any(
   olderThan?: Activity
 ) {
   const limit = pseudoLimit;
-  const olderThanId = olderThan?.tzktOperations[olderThan.tzktOperations.length - 1]?.id;
 
   const accOperations = await TZKT.fetchGetAccountOperations(chainId, accountAddress, {
     type: ['delegation', 'origination', 'transaction'],
-    lastId: olderThanId,
+    ..._buildOlderThanParam(olderThan),
     limit,
     sort: 1
   });
@@ -166,7 +161,7 @@ async function fetchOperations_Any(
 
   const fa12OperationsTransactions = await TZKT.refetchOnce429(
     () =>
-      fetchIncomingOperTransactions_Fa_1_2(chainId, accountAddress, newerThen ? { newerThen } : { limit }, olderThanId),
+      fetchIncomingOperTransactions_Fa_1_2(chainId, accountAddress, newerThen ? { newerThen } : { limit }, olderThan),
     1000
   );
 
@@ -175,8 +170,7 @@ async function fetchOperations_Any(
   }
 
   const fa2OperationsTransactions = await TZKT.refetchOnce429(
-    () =>
-      fetchIncomingOperTransactions_Fa_2(chainId, accountAddress, newerThen ? { newerThen } : { limit }, olderThanId),
+    () => fetchIncomingOperTransactions_Fa_2(chainId, accountAddress, newerThen ? { newerThen } : { limit }, olderThan),
     1000
   );
 
@@ -189,17 +183,11 @@ async function fetchOperations_Any(
 
 ////
 
-async function fetchIncomingOperTransactions_Fa_1_2(
+function fetchIncomingOperTransactions_Fa_1_2(
   chainId: TzktApiChainId,
   accountAddress: string,
-  endLimitation:
-    | {
-        limit: number;
-      }
-    | {
-        newerThen: string;
-      },
-  olderThanId?: number
+  endLimitation: { limit: number } | { newerThen: string },
+  olderThan?: Activity
 ) {
   const bottomParams = 'limit' in endLimitation ? endLimitation : { 'timestamp.ge': endLimitation.newerThen };
 
@@ -209,7 +197,7 @@ async function fetchIncomingOperTransactions_Fa_1_2(
     'initiator.ne': accountAddress,
     'parameter.to': accountAddress,
     entrypoint: 'transfer',
-    lastId: olderThanId,
+    ..._buildOlderThanParam(olderThan),
     ...bottomParams,
     'sort.desc': 'id'
   });
@@ -217,27 +205,21 @@ async function fetchIncomingOperTransactions_Fa_1_2(
   return result;
 }
 
-async function fetchIncomingOperTransactions_Fa_2(
+function fetchIncomingOperTransactions_Fa_2(
   chainId: TzktApiChainId,
   accountAddress: string,
-  endLimitation:
-    | {
-        limit: number;
-      }
-    | {
-        newerThen: string;
-      },
-  olderThanId?: number
+  endLimitation: { limit: number } | { newerThen: string },
+  olderThan?: Activity
 ) {
   const bottomParams = 'limit' in endLimitation ? endLimitation : { 'timestamp.ge': endLimitation.newerThen };
 
-  const result = await TZKT.fetchGetOperationsTransactions(chainId, {
+  const result = TZKT.fetchGetOperationsTransactions(chainId, {
     'sender.ne': accountAddress,
     'target.ne': accountAddress,
     'initiator.ne': accountAddress,
     'parameter.[*].txs.[*].to_': accountAddress,
     entrypoint: 'transfer',
-    lastId: olderThanId,
+    ..._buildOlderThanParam(olderThan),
     ...bottomParams,
     'sort.desc': 'id'
   });
@@ -275,4 +257,14 @@ async function _fetchOperGroupsForOperations(
   }
 
   return groups;
+}
+
+/**
+ * > (!) TZKT API errors with `{"code":400,"errors":{"lastId":"The value '331626822238208' is not valid."}}`
+ * >     When it's not true!
+ */
+function _buildOlderThanParam(olderThan?: Activity) {
+  const lastTzktOper = olderThan?.tzktOperations[olderThan.tzktOperations.length - 1];
+  // return { lastId: lastTzktOper?.id };
+  return { 'timestamp.lt': lastTzktOper?.timestamp };
 }
