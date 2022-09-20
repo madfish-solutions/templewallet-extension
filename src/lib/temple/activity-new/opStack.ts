@@ -16,9 +16,6 @@ export function parseOperStack(activity: Activity, address: string) {
 
 const estimateTzktGroup = (tzktGroup: TzktOperation[] | undefined, address: string, opStack: OpStackItem[]) => {
   if (!tzktGroup) return;
-  /**
-   * Tzkt group
-   */
 
   for (const tzktOp of tzktGroup) {
     if (tzktOp.type === 'delegation' && tzktOp.sender.address === address && tzktOp.newDelegate) {

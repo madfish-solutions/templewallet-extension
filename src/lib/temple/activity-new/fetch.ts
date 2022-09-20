@@ -259,6 +259,5 @@ async function _fetchOperGroupsForOperations(
  */
 function _buildOlderThanParam(olderThan?: Activity) {
   const lastTzktOper = olderThan?.tzktOperations[olderThan.tzktOperations.length - 1];
-  // return { lastId: lastTzktOper?.id };
   return { 'timestamp.lt': lastTzktOper?.timestamp };
 }

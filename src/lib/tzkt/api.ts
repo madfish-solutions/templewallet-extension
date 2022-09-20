@@ -34,7 +34,6 @@ api.interceptors.response.use(
     console.error(err);
     const message = (err as AxiosError).response?.data?.message;
     console.error(`Failed when querying Tzkt API: ${message}`);
-    // throw new Error(`Failed when querying Tzkt API: ${message}`);
     throw err;
   }
 );
@@ -64,33 +63,27 @@ export function makeQuery<P extends Record<string, unknown>, R, Q = Record<strin
 
 ////
 
-type Param_LimitOffset = {
+type GetOperationsBaseParams = {
   limit?: number;
   offset?: number;
-};
-
-type Param_Timestamp = {
+} & {
   [key in `timestamp.${'lt' | 'ge'}`]?: string;
-};
-
-type Param_Level = {
+} & {
   [key in `level.${'lt' | 'ge'}`]?: number;
 };
 
 export async function fetchGetAccountOperations(
   chainId: TzktApiChainId,
   accountAddress: string,
-  params: Param_LimitOffset &
-    Param_Timestamp &
-    Param_Level & {
-      type?: TzktOperationType | TzktOperationType[];
-      lastId?: number;
-      sort?: 0 | 1;
-      initiator?: string;
-      entrypoint?: 'mintOrBurn';
-      quote?: TzktQuoteCurrency[];
-      'parameter.null'?: boolean;
-    }
+  params: GetOperationsBaseParams & {
+    type?: TzktOperationType | TzktOperationType[];
+    lastId?: number;
+    sort?: 0 | 1;
+    initiator?: string;
+    entrypoint?: 'mintOrBurn';
+    quote?: TzktQuoteCurrency[];
+    'parameter.null'?: boolean;
+  }
 ) {
   return await fetchGet<TzktOperation[]>(chainId, `/accounts/${accountAddress}/operations`, params);
 }
@@ -105,37 +98,29 @@ export async function fetchGetOperationsByHash(
   return await fetchGet<TzktOperation[]>(chainId, `/operations/${hash}`, params);
 }
 
-type Param_SortBy_Val_Type = 'id' | 'level';
-type Param_SortBy = {
-  sort?: Param_SortBy_Val_Type;
-  'sort.desc'?: Param_SortBy_Val_Type;
-};
+type GetOperationsSortParamValueType = 'id' | 'level';
 
 export async function fetchGetOperationsTransactions(
   chainId: TzktApiChainId,
-  params: Param_LimitOffset &
-    Param_Timestamp &
-    Param_Level &
-    Param_SortBy & {
-      lastId?: number;
-      'sender.ne'?: string;
-      target?: string;
-      'target.ne'?: string;
-      'initiator.ne'?: string;
-      'parameter.to'?: string;
-      'parameter.[*].txs.[*].to_'?: string;
-      'parameter.in'?: string;
-      'parameter.[*].in'?: string;
-      entrypoint?: 'transfer';
-      // quote ? : TzktQuoteCurrency[];
-    }
+  params: GetOperationsBaseParams & {
+    lastId?: number;
+    'sender.ne'?: string;
+    target?: string;
+    'target.ne'?: string;
+    'initiator.ne'?: string;
+    'parameter.to'?: string;
+    'parameter.[*].txs.[*].to_'?: string;
+    'parameter.in'?: string;
+    'parameter.[*].in'?: string;
+    entrypoint?: 'transfer';
+    sort?: GetOperationsSortParamValueType;
+    'sort.desc'?: GetOperationsSortParamValueType;
+  }
 ) {
-  type TzktOperationTransaction = TzktOperation; // (?) Can it be narrowed down for this endpoint?
+  type TzktTransactionOperation = TzktOperation; // (?) Can it be narrowed down for this endpoint?
 
-  return await fetchGet<TzktOperationTransaction[]>(chainId, `/operations/transactions`, params);
+  return await fetchGet<TzktTransactionOperation[]>(chainId, `/operations/transactions`, params);
 }
-
-////
 
 function delay(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms));

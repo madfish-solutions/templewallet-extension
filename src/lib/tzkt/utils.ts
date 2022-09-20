@@ -51,7 +51,6 @@ export function isTzktOperParam_Fa12(param: any): param is ParameterFa12 {
  */
 export function isTzktOperParam_Fa2(param: any): param is ParameterFa2 {
   if (!isTzktOperParam(param)) return false;
-  // return param.entrypoint === 'transfer';
   if (!Array.isArray(param.value)) return false;
   let item = param.value[0];
   if (item == null) return true;
