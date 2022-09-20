@@ -13,8 +13,6 @@ import { parseOperStack } from 'lib/temple/activity-new/opStack';
 import type { Activity } from 'lib/temple/activity-new/utils';
 import { useExplorerBaseUrls } from 'lib/temple/front';
 
-////
-
 type ActivityItemCompProps = {
   activity: Activity;
   address: string;
@@ -76,8 +74,6 @@ const ActivityItemComp = memo<ActivityItemCompProps>(({ activity, address, syncS
 });
 
 export default ActivityItemComp;
-
-////
 
 type ActivityItemStatusCompProps = {
   activity: Activity;

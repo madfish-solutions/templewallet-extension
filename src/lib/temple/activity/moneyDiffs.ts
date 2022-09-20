@@ -1,7 +1,6 @@
 import { OperationContentsAndResult, OpKind } from '@taquito/rpc';
 import BigNumber from 'bignumber.js';
 
-import type { Activity } from 'lib/temple/activity-new/utils';
 import * as Repo from 'lib/temple/repo';
 import { TzktOperation, TzktTokenTransfer } from 'lib/tzkt';
 

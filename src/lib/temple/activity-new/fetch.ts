@@ -7,15 +7,9 @@ import type { TzktOperation } from 'lib/tzkt/types';
 
 import { Activity, OperGroup, operGroupToActivity } from './utils';
 
-////
 const TEZ_TOKEN_SLUG = 'tez';
 const LIQUIDITY_BAKING_DEX_ADDRESS = 'KT1TxqZ8QtKvLu3V3JH7Gx58n7Co8pgtpQU5';
 
-////
-
-/**
- * @return activities[number].operations // not necessarily sorted new-to-old
- */
 export default async function fetchActivities(
   chainId: TzktApiChainId,
   account: TempleAccount,

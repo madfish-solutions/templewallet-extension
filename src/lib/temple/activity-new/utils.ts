@@ -1,7 +1,5 @@
 import type { TzktOperation } from 'lib/tzkt/types';
 
-////
-
 export interface OperGroup {
   hash: string;
   operations: TzktOperation[];

@@ -12,12 +12,8 @@ import { isKnownChainId } from 'lib/tzkt/api';
 
 import ActivityItemComp from './ActivityItem';
 
-////
-
 const INIT_OPERS_N = 30;
 const OPERS_LOAD_STEP = 30;
-
-////
 
 export default function ActivityComponent({ assetSlug }: { assetSlug?: string }) {
   const {

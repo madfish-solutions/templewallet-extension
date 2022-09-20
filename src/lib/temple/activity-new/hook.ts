@@ -1,5 +1,3 @@
-import React, { useEffect, useRef, useState, useMemo, useCallback } from 'react';
-
 import { useSafeState } from 'ahooks';
 import { useDidMount, useDidUpdate } from 'rooks';
 
@@ -8,8 +6,6 @@ import { isKnownChainId } from 'lib/tzkt/api';
 
 import fetchActivities from './fetch';
 import type { Activity } from './utils';
-
-////
 
 type TLoading = 'init' | 'more' | false;
 
@@ -45,7 +41,6 @@ export default function useActivities(initialPseudoLimit: number, assetSlug?: st
 
     setActivities(activities.concat(newActivities));
     setLoading(false);
-    // if(newActivities.length < limit)
     if (newActivities.length === 0) setReachedTheEnd(true);
   }
 
