@@ -150,7 +150,12 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
           />
         </div>
       </div>
-      {!isFirstAccount && <div className="text-xs font-medium text-red-600 text-center mb-6">{labelWarning}</div>}
+      {!isFirstAccount && <div className="text-xs font-medium text-red-600 text-center">{labelWarning}</div>}
+      {!isFirstAccount && (
+        <div className="text-xs font-medium text-red-600 text-center mb-6">
+          <T id="seedPhraseAttention" />
+        </div>
+      )}
       <div
         className={classNames('w-full text-center', 'pb-2 mb-6', 'text-gray-700', 'border-b-2')}
         style={{ borderBottomWidth: 1 }}

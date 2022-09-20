@@ -24,6 +24,7 @@
     "@dicebear/avatars-jdenticon-sprites": "4.2.5",
     "@peculiar/webcrypto": "1.1.6",
     "@popperjs/core": "2.4.4",
+    "@reduxjs/toolkit": "^1.8.5",
     "@serh11p/jest-webextension-mock": "4.0.0",
     "@svgr/webpack": "5.5.0",
     "@taquito/ledger-signer": "13.0.0",
@@ -123,20 +124,25 @@
     "react-json-view": "1.21.3",
     "react-modal": "3.15.1",
     "react-qr-svg": "2.2.2",
+    "react-redux": "^8.0.2",
     "react-transition-group": "4.4.2",
     "react-virtualized": "^9.22.3",
+    "redux-observable": "^2.0.0",
+    "redux-persist": "^6.0.0",
     "regexparam": "1.3.0",
     "rimraf": "3.0.2",
     "rooks": "^7.1.2",
+    "rxjs": "^7.5.6",
     "scryptsy": "2.1.0",
     "swap-router-sdk": "1.16.1",
     "swr": "1.3.0",
     "tailwindcss": "2.2.19",
     "terser-webpack-plugin": "4.2.3",
     "tippy.js": "6.2.6",
+    "ts-action": "^11.0.0",
+    "ts-action-operators": "^9.1.2",
     "ts-jest": "27.1.1",
-    "ts-node": "9.1.1",
-    "typescript": "4.1.3",
+    "ts-node": "^10.4.0",
     "url-loader": "4.1.1",
     "use-debounce": "7.0.1",
     "use-force-update": "1.0.7",
@@ -153,7 +159,8 @@
     "postcss": "8.4.6"
   },
   "devDependencies": {
-    "postcss": "8.4.6"
+    "postcss": "8.4.6",
+    "typescript": "^4.5.5"
   },
   "resolutions": {
     "@taquito/**/braces": "2.3.1",
@@ -176,6 +183,7 @@
     "color-string": "1.5.5",
     "postcss": "8.4.6",
     "follow-redirects": "1.14.8",
-    "nanoid": "3.1.31"
+    "nanoid": "3.1.31",
+    "tslib": "2.4.0"
   }
 }

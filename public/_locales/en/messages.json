@@ -568,6 +568,9 @@
   "seedPasteFailedTooManyWords": {
     "message": "Paste failed because it contained over 24 words."
   },
+  "seedPhraseAttention": {
+    "message": "We don't track your derivation path on imported accounts"
+  },
   "seedPhraseTip": {
     "message": "You can paste your entire secret Seed phrase into any field"
   },

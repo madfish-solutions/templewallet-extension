@@ -144,7 +144,7 @@ function delay(ms: number) {
 export async function refetchOnce429<R>(fetcher: () => Promise<R>, delayAroundInMS = 1000) {
   try {
     return await fetcher();
-  } catch (err) {
+  } catch (err: any) {
     if (err.isAxiosError) {
       const error: AxiosError = err;
       if (error.response?.status === 429) {
