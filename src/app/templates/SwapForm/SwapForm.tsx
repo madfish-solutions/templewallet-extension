@@ -112,9 +112,9 @@ export const SwapForm: FC = () => {
 
   const minimumReceivedAmount = useMemo(() => {
     if (bestTradeWithSlippageTolerance.length > 0) {
-      const lastTradeOperation = bestTradeWithSlippageTolerance[bestTradeWithSlippageTolerance.length - 1];
+      const lastTradeOperation = getTradeOutputAmount(bestTradeWithSlippageTolerance) ?? new BigNumber(0);
 
-      const amount = atomsToTokens(lastTradeOperation.bTokenAmount, outputAssetMetadata.decimals);
+      const amount = atomsToTokens(lastTradeOperation, outputAssetMetadata.decimals);
 
       return amount;
     }
@@ -129,7 +129,9 @@ export const SwapForm: FC = () => {
         ? atomsToTokens(bestTradeOutput, outputAssetMetadata.decimals)
         : new BigNumber(0);
 
-      const feeAmount = minimumReceivedAmount.minus(minimumReceivedAmount.multipliedBy(ROUTING_FEE_RATIO));
+      const feeAmount = minimumReceivedAmount.minus(
+        minimumReceivedAmount.multipliedBy(ROUTING_FEE_RATIO).dividedToIntegerBy(1)
+      );
       const finalAmount = outputTzAmount.minus(feeAmount);
 
       setValue('output', { assetSlug: outputValue.assetSlug, amount: finalAmount });
@@ -201,7 +203,7 @@ export const SwapForm: FC = () => {
     try {
       setOperation(undefined);
       const routingFeeOpParams = await getRoutingFeeTransferParams(
-        bestTradeWithSlippageTolerance[bestTradeWithSlippageTolerance.length - 1].bTokenAmount,
+        getTradeOutputAmount(bestTradeWithSlippageTolerance),
         bestTradeWithSlippageTolerance,
         account.publicKeyHash,
         tezos
@@ -348,7 +350,7 @@ export const SwapForm: FC = () => {
             </td>
             <td className="text-right text-gray-600">
               <SwapMinimumReceived
-                tradeWithSlippageTolerance={bestTradeWithSlippageTolerance}
+                minimumReceivedAmount={minimumReceivedAmount}
                 outputAssetMetadata={outputAssetMetadata}
               />
             </td>

@@ -1,29 +1,16 @@
-import React, { FC, useMemo } from 'react';
+import React, { FC } from 'react';
 
-import { Trade } from 'swap-router-sdk';
+import { BigNumber } from 'bignumber.js';
 
 import Money from 'app/atoms/Money';
-import { ROUTING_FEE_RATIO } from 'lib/swap-router/config';
 import { AssetMetadata } from 'lib/temple/front';
-import { atomsToTokens } from 'lib/temple/helpers';
 
 interface Props {
-  tradeWithSlippageTolerance: Trade;
+  minimumReceivedAmount: BigNumber;
   outputAssetMetadata: AssetMetadata;
 }
 
-export const SwapMinimumReceived: FC<Props> = ({ tradeWithSlippageTolerance, outputAssetMetadata }) => {
-  const minimumReceivedAmount = useMemo(() => {
-    if (tradeWithSlippageTolerance.length > 0) {
-      const lastTradeOperation = tradeWithSlippageTolerance[tradeWithSlippageTolerance.length - 1];
-
-      const feeAmount = atomsToTokens(lastTradeOperation.bTokenAmount, outputAssetMetadata.decimals);
-
-      return feeAmount.multipliedBy(ROUTING_FEE_RATIO);
-    }
-    return undefined;
-  }, [tradeWithSlippageTolerance, outputAssetMetadata.decimals]);
-
+export const SwapMinimumReceived: FC<Props> = ({ minimumReceivedAmount, outputAssetMetadata }) => {
   return (
     <span className="flex items-end justify-end">
       {minimumReceivedAmount ? (
