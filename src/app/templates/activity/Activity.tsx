@@ -1,187 +1,90 @@
-import React, { memo, useCallback, useEffect, useMemo, useRef, useLayoutEffect } from 'react';
+import React, { useMemo } from 'react';
 
-import { ACTIVITY_PAGE_SIZE } from 'app/defaults';
-import { useRetryableSWR } from 'lib/swr';
-import { useChainId, fetchOperations, syncOperations, isSyncSupported } from 'lib/temple/front';
-import { IOperation } from 'lib/temple/repo';
-import useSafeState from 'lib/ui/useSafeState';
+import classNames from 'clsx';
 
-import ActivityView from './ActivityView';
+import { ActivitySpinner } from 'app/atoms/ActivitySpinner';
+import FormSecondaryButton from 'app/atoms/FormSecondaryButton';
+import { ReactComponent as LayersIcon } from 'app/icons/layers.svg';
+import { T } from 'lib/i18n/react';
+import useActivities from 'lib/temple/activity-new/hook';
+import { useChainId, useAccount } from 'lib/temple/front';
+import { isKnownChainId } from 'lib/tzkt/api';
 
-type ActivityProps = {
-  address: string;
-  assetSlug?: string;
-  className?: string;
-};
+import ActivityItemComp from './ActivityItem';
 
-const Activity = memo<ActivityProps>(({ address, assetSlug, className }) => {
-  const chainId = useChainId(true)!;
-  const syncSupported = useMemo(() => isSyncSupported(chainId), [chainId]);
+////
 
-  const safeStateKey = useMemo(() => [chainId, address, assetSlug].join('_'), [chainId, address, assetSlug]);
+const INIT_OPERS_N = 50;
+const OPERS_LOAD_STEP = 50;
 
-  const [restOperations, setRestOperations] = useSafeState<Array<IOperation>>([], safeStateKey);
-  const [syncing, setSyncing] = useSafeState(false, safeStateKey);
-  const [loadingMore, setLoadingMore] = useSafeState(false, safeStateKey);
-  const [, setSyncError] = useSafeState<Error | null>(null, safeStateKey);
+////
 
+export default function ActivityComponent({ assetSlug }: { assetSlug?: string }) {
   const {
-    data: latestOperations,
-    isValidating: fetching,
-    mutate: refetchLatest
-  } = useRetryableSWR(
-    ['latest-operations', chainId, address, assetSlug],
-    () =>
-      fetchOperations({
-        chainId,
-        address,
-        assetIds: assetSlug ? [assetSlug] : undefined,
-        limit: ACTIVITY_PAGE_SIZE
-      }),
-    {
-      revalidateOnMount: true,
-      refreshInterval: 10_000,
-      dedupingInterval: 3_000
-    }
-  );
+    loading,
+    reachedTheEnd,
+    list: activities,
+    loadMore: loadMoreActivities
+  } = useActivities(INIT_OPERS_N, assetSlug);
 
-  const operations = useMemo(
-    () => mergeOperations(latestOperations, restOperations),
-    [latestOperations, restOperations]
-  );
+  const account = useAccount();
+  const chainId = useChainId(true);
+  const syncSupported = useMemo(() => isKnownChainId(chainId), [chainId]);
 
-  /**
-   * Load more / Pagination
-   */
+  const currentAccountAddress = account.publicKeyHash;
 
-  const hasMoreRef = useRef(true);
-  useLayoutEffect(() => {
-    hasMoreRef.current = true;
-  }, [safeStateKey]);
+  function onLoadMoreBtnClick() {
+    loadMoreActivities(OPERS_LOAD_STEP);
+  }
 
-  const handleLoadMoreInner = useCallback(async () => {
-    handleLoadMore({
-      setLoadingMore,
-      setSyncError,
-      setRestOperations,
-      chainId,
-      address,
-      assetSlug,
-      operations,
-      hasMoreRef
-    });
-  }, [setLoadingMore, setSyncError, setRestOperations, chainId, address, assetSlug, operations]);
+  function onRetryLoadBtnClick() {
+    loadMoreActivities(INIT_OPERS_N);
+  }
 
-  /**
-   * New operations syncing
-   */
+  if (activities.length === 0) {
+    if (loading) return <ActivitySpinner height="2.5rem" />;
+    else if (reachedTheEnd === false)
+      return (
+        <div className="w-full flex justify-center mt-5 mb-3">
+          <FormSecondaryButton onClick={onRetryLoadBtnClick} small>
+            <T id="tryLoadAgain" />
+          </FormSecondaryButton>
+        </div>
+      );
 
-  const syncNewOperations = useCallback(async () => {
-    setSyncing(true);
-    try {
-      const newCount = await syncOperations('new', chainId, address);
-      if (newCount > 0) {
-        refetchLatest();
-      }
-    } catch (err: any) {
-      console.error(err);
-      setSyncError(err);
-    }
-    setSyncing(false);
-  }, [setSyncing, setSyncError, chainId, address, refetchLatest]);
+    return (
+      <div className={classNames('mt-4 mb-12', 'flex flex-col items-center justify-center', 'text-gray-500')}>
+        <LayersIcon className="w-16 h-auto mb-2 stroke-current" />
 
-  const timeoutRef = useRef<any>();
-
-  const syncAndDefer = useCallback(async () => {
-    await syncNewOperations();
-    timeoutRef.current = setTimeout(syncAndDefer, 10_000);
-  }, [syncNewOperations]);
-
-  useEffect(() => {
-    if (syncSupported) {
-      syncAndDefer();
-    }
-
-    return () => clearTimeout(timeoutRef.current);
-  }, [syncSupported, syncAndDefer]);
+        <h3 className="text-sm font-light text-center" style={{ maxWidth: '20rem' }}>
+          <T id="noOperationsFound" />
+        </h3>
+      </div>
+    );
+  }
 
   return (
-    <ActivityView
-      address={address}
-      syncSupported={syncSupported}
-      operations={operations ?? []}
-      initialLoading={fetching || (!operations || operations.length === 0 ? syncing : false)}
-      loadingMore={loadingMore}
-      syncing={syncing}
-      loadMoreDisplayed={hasMoreRef.current}
-      loadMore={handleLoadMoreInner}
-      className={className}
-    />
+    <>
+      <div className={classNames('w-full max-w-md mx-auto', 'flex flex-col')}>
+        {activities.map(activity => (
+          <ActivityItemComp
+            key={activity.hash}
+            address={currentAccountAddress}
+            activity={activity}
+            syncSupported={syncSupported}
+          />
+        ))}
+      </div>
+
+      {loading ? (
+        <ActivitySpinner height="2.5rem" />
+      ) : reachedTheEnd === false ? (
+        <div className="w-full flex justify-center mt-5 mb-3">
+          <FormSecondaryButton onClick={onLoadMoreBtnClick} small>
+            <T id="loadMore" />
+          </FormSecondaryButton>
+        </div>
+      ) : null}
+    </>
   );
-});
-
-export default Activity;
-
-function mergeOperations(base?: IOperation[], toAppend: IOperation[] = []) {
-  if (!base) return undefined;
-
-  const uniqueHashes = new Set<string>();
-  const uniques: IOperation[] = [];
-  for (const op of [...base, ...toAppend]) {
-    if (!uniqueHashes.has(op.hash)) {
-      uniqueHashes.add(op.hash);
-      uniques.push(op);
-    }
-  }
-  return uniques;
 }
-
-interface HandleLoadMore {
-  setLoadingMore: (value: React.SetStateAction<boolean>) => void;
-  setSyncError: (value: React.SetStateAction<Error | null>) => void;
-  setRestOperations: (value: React.SetStateAction<IOperation[]>) => void;
-  chainId: string;
-  address: string;
-  assetSlug?: string;
-  operations?: IOperation[];
-  hasMoreRef: React.MutableRefObject<boolean>;
-}
-
-const handleLoadMore = async ({
-  setLoadingMore,
-  setSyncError,
-  setRestOperations,
-  chainId,
-  address,
-  assetSlug,
-  operations,
-  hasMoreRef
-}: HandleLoadMore) => {
-  setLoadingMore(true);
-
-  try {
-    await syncOperations('old', chainId, address);
-  } catch (err: any) {
-    console.error(err);
-    setSyncError(err);
-  }
-
-  try {
-    const oldOperations = await fetchOperations({
-      chainId,
-      address,
-      assetIds: assetSlug ? [assetSlug] : undefined,
-      limit: ACTIVITY_PAGE_SIZE,
-      offset: operations?.length ?? 0
-    });
-    if (oldOperations.length === 0) {
-      hasMoreRef.current = false;
-    }
-
-    setRestOperations((ops: IOperation[]) => [...ops, ...oldOperations]);
-  } catch (err: any) {
-    console.error(err);
-  }
-
-  setLoadingMore(false);
-};

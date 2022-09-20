@@ -25,32 +25,7 @@ export function parseMoneyDiffs(operation: Repo.IOperation, address: string) {
   estimateTzktGroup(tzktGroup, address, diffs);
   estimateTzktTokenTransfers(tzktTokenTransfers, tzktGroup, address, diffs);
 
-  const flatted: Record<string, string> = {};
-  for (const assetId of Object.keys(diffs)) {
-    flatted[assetId] = diffs[assetId].reduce((sum, val) => sum.plus(val.diff), new BigNumber(0)).toFixed();
-  }
-
-  const { tez, ...rest } = flatted;
-  const result: MoneyDiff[] = [];
-
-  if (tez && isValidDiff(tez)) {
-    result.push({
-      assetId: 'tez',
-      diff: tez
-    });
-  }
-
-  for (const assetId of Object.keys(rest)) {
-    const diff = rest[assetId];
-    if (isValidDiff(diff)) {
-      result.push({
-        assetId,
-        diff
-      });
-    }
-  }
-
-  return result;
+  return flattenDiffs(diffs);
 }
 
 export function parseMoneyDiffsOfActivity(activity: Activity, address: string) {
@@ -60,6 +35,10 @@ export function parseMoneyDiffsOfActivity(activity: Activity, address: string) {
 
   estimateTzktGroup(tzktGroup, address, diffs);
 
+  return flattenDiffs(diffs);
+}
+
+function flattenDiffs(diffs: Diffs) {
   const flatted: Record<string, string> = {};
   for (const assetId of Object.keys(diffs)) {
     flatted[assetId] = diffs[assetId].reduce((sum, val) => sum.plus(val.diff), new BigNumber(0)).toFixed();

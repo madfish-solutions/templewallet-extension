@@ -1,64 +1,40 @@
-import React, { memo, useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState, useMemo, memo } from 'react';
 
 import classNames from 'clsx';
 import formatDistanceToNow from 'date-fns/formatDistanceToNow';
 
 import OpenInExplorerChip from 'app/atoms/OpenInExplorerChip';
+import MoneyDiffView from 'app/templates/activity/MoneyDiffView';
+import OperStackComp from 'app/templates/activity/OperStack';
 import HashChip from 'app/templates/HashChip';
 import { t, getDateFnsLocale } from 'lib/i18n/react';
-import { parseMoneyDiffs, parseOpStack } from 'lib/temple/activity';
+import { parseMoneyDiffsOfActivity, parseOperStackOfActivity } from 'lib/temple/activity';
+import type { Activity } from 'lib/temple/activity-new/utils';
 import { useExplorerBaseUrls } from 'lib/temple/front';
-import * as Repo from 'lib/temple/repo';
 
-import MoneyDiffView from './MoneyDiffView';
-import OpStack from './OperStack';
+////
 
-type ActivityItemProps = {
+type ActivityItemCompProps = {
+  activity: Activity;
   address: string;
-  operation: Repo.IOperation;
   syncSupported: boolean;
-  className?: string;
 };
 
-const ActivityItem = memo<ActivityItemProps>(({ address, operation, syncSupported, className }) => {
+const ActivityItemComp = memo<ActivityItemCompProps>(({ activity, address, syncSupported }) => {
+  const { hash, addedAt, status } = activity;
+
   const { transaction: explorerBaseUrl } = useExplorerBaseUrls();
-  const { hash, addedAt } = operation;
 
-  const pending = useMemo(
-    () => syncSupported && !(operation.data.tzktGroup || operation.data.tzktTokenTransfers),
-    [syncSupported, operation.data.tzktGroup, operation.data.tzktTokenTransfers]
-  );
+  const pending = status === 'pending';
 
-  const status = useMemo(() => {
-    if (!syncSupported) return null;
+  const operStack = useMemo(() => parseOperStackOfActivity(activity, address), [activity, address]);
 
-    const explorerStatus = operation.data.tzktGroup?.[0]?.status;
-    return explorerStatus ?? 'pending';
-  }, [syncSupported, operation.data]);
-
-  const moneyDiffs = useMemo(
-    () => (!status || ['pending', 'applied'].includes(status) ? parseMoneyDiffs(operation, address) : []),
-    [status, operation, address]
-  );
-
-  const opStack = useMemo(() => parseOpStack(operation, address), [operation, address]);
-
-  const statusNode = useMemo(() => {
-    if (!syncSupported) return null;
-
-    const explorerStatus = operation.data.tzktGroup?.[0]?.status;
-    const content = explorerStatus ?? 'pending';
-    const conditionalTextColor = explorerStatus ? 'text-red-600' : 'text-yellow-600';
-
-    return (
-      <span className={classNames(explorerStatus === 'applied' ? 'text-gray-600' : conditionalTextColor, 'capitalize')}>
-        {t(content) || content}
-      </span>
-    );
-  }, [syncSupported, operation.data]);
+  const moneyDiffs = useMemo(() => {
+    return ['pending', 'applied'].includes(status) ? parseMoneyDiffsOfActivity(activity, address) : [];
+  }, [status, activity, address]);
 
   return (
-    <div className={classNames('my-3', className)}>
+    <div className={classNames('my-3')}>
       <div className="w-full flex items-center">
         <HashChip hash={hash} firstCharsCount={10} lastCharsCount={7} small className="mr-2" />
 
@@ -69,9 +45,9 @@ const ActivityItem = memo<ActivityItemProps>(({ address, operation, syncSupporte
 
       <div className="flex items-stretch">
         <div className="flex flex-col pt-2">
-          <OpStack opStack={opStack} className="mb-2" />
+          <OperStackComp opStack={operStack} className="mb-2" />
 
-          {statusNode && <div className="mb-px text-xs font-light leading-none">{statusNode}</div>}
+          <ActivityItemStatusComp activity={activity} syncSupported={syncSupported} />
 
           <Time
             children={() => (
@@ -98,7 +74,30 @@ const ActivityItem = memo<ActivityItemProps>(({ address, operation, syncSupporte
   );
 });
 
-export default ActivityItem;
+export default ActivityItemComp;
+
+////
+
+type ActivityItemStatusCompProps = {
+  activity: Activity;
+  syncSupported: boolean;
+};
+
+const ActivityItemStatusComp: React.FC<ActivityItemStatusCompProps> = ({ activity, syncSupported }) => {
+  if (syncSupported === false) return null;
+
+  const explorerStatus = activity.status;
+  const content = explorerStatus ?? 'pending';
+  const conditionalTextColor = explorerStatus ? 'text-red-600' : 'text-yellow-600';
+
+  return (
+    <div className="mb-px text-xs font-light leading-none">
+      <span className={classNames(explorerStatus === 'applied' ? 'text-gray-600' : conditionalTextColor, 'capitalize')}>
+        {t(content) || content}
+      </span>
+    </div>
+  );
+};
 
 type TimeProps = {
   children: () => React.ReactElement;

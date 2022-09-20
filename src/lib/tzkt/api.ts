@@ -64,14 +64,6 @@ export function makeQuery<P extends Record<string, unknown>, R, Q = Record<strin
 
 ////
 
-/*
-type Param_Id = {
-	id ? : number;
-} & {
-	[key in `id.${'lt'|'ge'}`] ? : number;
-};
-*/
-
 type Param_LimitOffset = {
   limit?: number;
   offset?: number;
@@ -146,16 +138,16 @@ export async function fetchGetOperationsTransactions(
 ////
 
 function delay(ms: number) {
-  return new Promise<void>(resolve => setTimeout(resolve, ms));
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 export async function refetchOnce429<R>(fetcher: () => Promise<R>, delayAroundInMS = 1000) {
   try {
     return await fetcher();
-  } catch (error) {
-    if (error.isAxiosError) {
-      const $error: AxiosError = error;
-      if ($error.response?.status === 429) {
+  } catch (err) {
+    if (err.isAxiosError) {
+      const error: AxiosError = err;
+      if (error.response?.status === 429) {
         await delay(delayAroundInMS);
         const res = await fetcher();
         await delay(delayAroundInMS);
@@ -163,6 +155,6 @@ export async function refetchOnce429<R>(fetcher: () => Promise<R>, delayAroundIn
       }
     }
 
-    throw error;
+    throw err;
   }
 }

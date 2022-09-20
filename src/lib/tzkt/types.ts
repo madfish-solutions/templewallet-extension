@@ -25,6 +25,7 @@ interface TzktOperationBase {
   type: TzktOperationType;
   id: number;
   level?: number;
+  /** ISO Date */
   timestamp: string;
   block?: string;
   hash: string;
