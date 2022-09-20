@@ -112,9 +112,9 @@ export const SwapForm: FC = () => {
 
   const minimumReceivedAmount = useMemo(() => {
     if (bestTradeWithSlippageTolerance.length > 0) {
-      const lastTradeOperation = getTradeOutputAmount(bestTradeWithSlippageTolerance) ?? new BigNumber(0);
+      const lastTradeOperationOutput = getTradeOutputAmount(bestTradeWithSlippageTolerance) ?? new BigNumber(0);
 
-      const amount = atomsToTokens(lastTradeOperation, outputAssetMetadata.decimals);
+      const amount = atomsToTokens(lastTradeOperationOutput, outputAssetMetadata.decimals);
 
       return amount;
     }
