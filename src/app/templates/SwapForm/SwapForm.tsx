@@ -122,7 +122,7 @@ export const SwapForm: FC = () => {
   }, [bestTradeWithSlippageTolerance, outputAssetMetadata.decimals]);
 
   useEffect(() => {
-    if (bestTrade) {
+    if (bestTrade.length) {
       const bestTradeOutput = getTradeOutputAmount(bestTrade);
 
       const outputTzAmount = bestTradeOutput
