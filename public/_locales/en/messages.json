@@ -2404,7 +2404,7 @@
     "message": "After creating an account, you’ll get a unique address — your personal identifier in the Tezos blockchain. If you would like to receive and use TEZ or Tezos-built tokens in Temple, you should use this address."
   },
   "addressBalanceHint": {
-    "message": "The balance of your TEZ is displayed under the public address."
+    "message": "Your total balance is displayed near the public address."
   },
   "howToStartDetails": {
     "message": "How to start"
