@@ -9,6 +9,7 @@ import {
   getBestTradeExactInput,
   getTradeOpParams,
   getTradeOutputAmount,
+  getTradeOutputOperation,
   parseTransferParamsToParamsWithKind,
   Trade,
   useAllRoutePairs,
@@ -26,7 +27,7 @@ import { T, t } from 'lib/i18n/react';
 import { getRoutingFeeTransferParams } from 'lib/swap-router';
 import { ROUTING_FEE_PERCENT, ROUTING_FEE_RATIO, TEZOS_DEXES_API_URL } from 'lib/swap-router/config';
 import { useAccount, useAssetMetadata, useTezos } from 'lib/temple/front';
-import { atomsToTokens, tokensToAtoms } from 'lib/temple/helpers';
+import { tokensToAtoms } from 'lib/temple/helpers';
 import useTippy from 'lib/ui/useTippy';
 import { HistoryAction, navigate } from 'lib/woozie';
 
@@ -78,7 +79,6 @@ export const SwapForm: FC = () => {
   const inputAssetMetadata = useAssetMetadata(inputValue.assetSlug ?? 'tez');
   const outputAssetMetadata = useAssetMetadata(outputValue.assetSlug ?? 'tez');
 
-  const [bestTrade, setBestTrade] = useState<Trade>([]);
   const allRoutePairs = useAllRoutePairs(TEZOS_DEXES_API_URL);
   const filteredRoutePairs = useMemo(
     () => allRoutePairs.data.filter(routePair => KNOWN_DEX_TYPES.includes(routePair.dexType)),
@@ -90,11 +90,18 @@ export const SwapForm: FC = () => {
     filteredRoutePairs
   );
 
+  const bestTrade = useMemo<Trade>(
+    () =>
+      inputValue.amount && routePairsCombinations.length > 0
+        ? getBestTradeExactInput(inputValue.amount, routePairsCombinations)
+        : [],
+    [inputValue.amount, routePairsCombinations]
+  );
+
   const inputMutezAmount = useMemo(
     () => (inputValue.amount ? tokensToAtoms(inputValue.amount, inputAssetMetadata.decimals) : undefined),
     [inputValue.amount, inputAssetMetadata.decimals]
   );
-  const bestTradeWithSlippageTolerance = useTradeWithSlippageTolerance(inputMutezAmount, bestTrade, slippageTolerance);
 
   const [error, setError] = useState<Error>();
   const [operation, setOperation] = useState<BatchWalletOperation>();
@@ -110,55 +117,40 @@ export const SwapForm: FC = () => {
     [inputValue.assetSlug, outputValue.assetSlug]
   );
 
-  const minimumReceivedAmount = useMemo(() => {
-    if (bestTradeWithSlippageTolerance.length > 0) {
-      const lastTradeOperationOutput = getTradeOutputAmount(bestTradeWithSlippageTolerance) ?? new BigNumber(0);
+  const bestTradeWithSlippageTolerance = useTradeWithSlippageTolerance(inputMutezAmount, bestTrade, slippageTolerance);
 
-      const amount = atomsToTokens(lastTradeOperationOutput, outputAssetMetadata.decimals);
+  const { feeAmount, minimumReceivedAmount } = useMemo(() => {
+    const bestTradeWithSlippageToleranceOutput = getTradeOutputAmount(bestTradeWithSlippageTolerance);
+    const tradeOutputOperation = getTradeOutputOperation(bestTradeWithSlippageTolerance);
 
-      return amount;
-    }
-    return new BigNumber(0);
-  }, [bestTradeWithSlippageTolerance, outputAssetMetadata.decimals]);
-
-  useEffect(() => {
-    if (bestTrade.length) {
-      const bestTradeOutput = getTradeOutputAmount(bestTrade);
-
-      const outputTzAmount = bestTradeOutput
-        ? atomsToTokens(bestTradeOutput, outputAssetMetadata.decimals)
-        : new BigNumber(0);
-
-      const feeAmount = minimumReceivedAmount.minus(
-        minimumReceivedAmount.multipliedBy(ROUTING_FEE_RATIO).dividedToIntegerBy(1)
+    if (bestTradeWithSlippageToleranceOutput && tradeOutputOperation) {
+      const feeAmount = bestTradeWithSlippageToleranceOutput.minus(
+        tradeOutputOperation.bTokenAmount.multipliedBy(ROUTING_FEE_RATIO).dividedToIntegerBy(1)
       );
-      const finalAmount = outputTzAmount.minus(feeAmount);
+      const minimumReceivedAmount = bestTradeWithSlippageToleranceOutput.minus(feeAmount);
 
-      setValue('output', { assetSlug: outputValue.assetSlug, amount: finalAmount });
+      return { feeAmount, minimumReceivedAmount };
+    } else {
+      const feeAmount = new BigNumber(0);
+      const minimumReceivedAmount = undefined;
+
+      return { feeAmount, minimumReceivedAmount };
     }
-  }, [bestTrade, minimumReceivedAmount, outputAssetMetadata.decimals, outputValue.assetSlug, setValue]);
+  }, [bestTradeWithSlippageTolerance]);
 
   useEffect(() => {
-    if (inputMutezAmount && routePairsCombinations.length > 0) {
-      const bestTradeExactIn = getBestTradeExactInput(inputMutezAmount, routePairsCombinations);
-      setBestTrade(bestTradeExactIn);
+    if (bestTrade.length > 0) {
+      const bestTradeOutput = getTradeOutputAmount(bestTrade);
+      const displayedBestTradeOutput = bestTradeOutput ? bestTradeOutput.minus(feeAmount) : undefined;
+      setValue('output', { assetSlug: outputValue.assetSlug, amount: displayedBestTradeOutput });
     } else {
-      setBestTrade([]);
       setValue('output', { assetSlug: outputValue.assetSlug, amount: undefined });
     }
 
     if (isSubmitButtonPressedRef.current) {
       triggerValidation();
     }
-  }, [
-    inputMutezAmount,
-    outputValue.assetSlug,
-    slippageTolerance,
-    routePairsCombinations,
-    outputAssetMetadata.decimals,
-    setValue,
-    triggerValidation
-  ]);
+  }, [bestTrade, feeAmount, outputValue.assetSlug, setValue, triggerValidation]);
 
   useEffect(() => {
     register('input', {
@@ -203,8 +195,8 @@ export const SwapForm: FC = () => {
     try {
       setOperation(undefined);
       const routingFeeOpParams = await getRoutingFeeTransferParams(
-        getTradeOutputAmount(bestTradeWithSlippageTolerance),
         bestTradeWithSlippageTolerance,
+        feeAmount,
         account.publicKeyHash,
         tezos
       );
@@ -350,7 +342,7 @@ export const SwapForm: FC = () => {
             </td>
             <td className="text-right text-gray-600">
               <SwapMinimumReceived
-                minimumReceivedAmount={minimumReceivedAmount.multipliedBy(ROUTING_FEE_RATIO).dividedToIntegerBy(1)}
+                minimumReceivedAmount={minimumReceivedAmount}
                 outputAssetMetadata={outputAssetMetadata}
               />
             </td>

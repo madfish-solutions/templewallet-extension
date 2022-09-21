@@ -6,7 +6,7 @@ import Money from 'app/atoms/Money';
 import { AssetMetadata } from 'lib/temple/front';
 
 interface Props {
-  minimumReceivedAmount: BigNumber;
+  minimumReceivedAmount?: BigNumber;
   outputAssetMetadata: AssetMetadata;
 }
 
