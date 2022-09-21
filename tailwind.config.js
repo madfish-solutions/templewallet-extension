@@ -471,6 +471,8 @@ module.exports = {
     }),
     stroke: {
       current: 'currentColor',
+      'accent-orange': '#FF5B00',
+      gray: '#AEAEB2',
       orange: '#ED8936'
     },
     strokeWidth: {
