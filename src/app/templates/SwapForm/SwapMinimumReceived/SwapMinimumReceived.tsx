@@ -3,7 +3,7 @@ import React, { FC } from 'react';
 import { BigNumber } from 'bignumber.js';
 
 import Money from 'app/atoms/Money';
-import { AssetMetadata } from 'lib/temple/front';
+import { AssetMetadata, atomsToTokens } from 'lib/temple/front';
 
 interface Props {
   minimumReceivedAmount?: BigNumber;
@@ -16,7 +16,7 @@ export const SwapMinimumReceived: FC<Props> = ({ minimumReceivedAmount, outputAs
       {minimumReceivedAmount ? (
         <>
           <Money smallFractionFont={false} fiat={false}>
-            {minimumReceivedAmount}
+            {atomsToTokens(minimumReceivedAmount, outputAssetMetadata.decimals)}
           </Money>
           <span className="ml-1">{outputAssetMetadata.symbol}</span>
         </>

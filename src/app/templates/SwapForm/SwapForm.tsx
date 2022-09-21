@@ -27,7 +27,7 @@ import { T, t } from 'lib/i18n/react';
 import { getRoutingFeeTransferParams } from 'lib/swap-router';
 import { ROUTING_FEE_PERCENT, ROUTING_FEE_RATIO, TEZOS_DEXES_API_URL } from 'lib/swap-router/config';
 import { useAccount, useAssetMetadata, useTezos } from 'lib/temple/front';
-import { tokensToAtoms } from 'lib/temple/helpers';
+import { atomsToTokens, tokensToAtoms } from 'lib/temple/helpers';
 import useTippy from 'lib/ui/useTippy';
 import { HistoryAction, navigate } from 'lib/woozie';
 
@@ -90,17 +90,17 @@ export const SwapForm: FC = () => {
     filteredRoutePairs
   );
 
-  const bestTrade = useMemo<Trade>(
-    () =>
-      inputValue.amount && routePairsCombinations.length > 0
-        ? getBestTradeExactInput(inputValue.amount, routePairsCombinations)
-        : [],
-    [inputValue.amount, routePairsCombinations]
-  );
-
   const inputMutezAmount = useMemo(
     () => (inputValue.amount ? tokensToAtoms(inputValue.amount, inputAssetMetadata.decimals) : undefined),
     [inputValue.amount, inputAssetMetadata.decimals]
+  );
+
+  const bestTrade = useMemo<Trade>(
+    () =>
+      inputMutezAmount && routePairsCombinations.length > 0
+        ? getBestTradeExactInput(inputMutezAmount, routePairsCombinations)
+        : [],
+    [inputMutezAmount, routePairsCombinations]
   );
 
   const [error, setError] = useState<Error>();
@@ -140,9 +140,12 @@ export const SwapForm: FC = () => {
 
   useEffect(() => {
     if (bestTrade.length > 0) {
-      const bestTradeOutput = getTradeOutputAmount(bestTrade);
-      const displayedBestTradeOutput = bestTradeOutput ? bestTradeOutput.minus(feeAmount) : undefined;
-      setValue('output', { assetSlug: outputValue.assetSlug, amount: displayedBestTradeOutput });
+      const bestTradeOutput = getTradeOutputAmount(bestTrade) ?? new BigNumber(0);
+      const displayedBestTradeOutput = bestTradeOutput.minus(feeAmount);
+      setValue('output', {
+        assetSlug: outputValue.assetSlug,
+        amount: atomsToTokens(displayedBestTradeOutput, outputAssetMetadata.decimals)
+      });
     } else {
       setValue('output', { assetSlug: outputValue.assetSlug, amount: undefined });
     }
@@ -150,7 +153,7 @@ export const SwapForm: FC = () => {
     if (isSubmitButtonPressedRef.current) {
       triggerValidation();
     }
-  }, [bestTrade, feeAmount, outputValue.assetSlug, setValue, triggerValidation]);
+  }, [bestTrade, feeAmount, outputAssetMetadata.decimals, outputValue.assetSlug, setValue, triggerValidation]);
 
   useEffect(() => {
     register('input', {
