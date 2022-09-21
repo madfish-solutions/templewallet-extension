@@ -9,10 +9,10 @@ import { ReactComponent as ClipboardIcon } from 'app/icons/clipboard.svg';
 import HashChip from 'app/templates/HashChip';
 import type { TID } from 'lib/i18n/react';
 import { T } from 'lib/i18n/react';
-import { OpStackItem, OpStackItemType } from 'lib/temple/activity';
+import { OperStackItem, OperStackItemType } from 'lib/temple/activity-new/types';
 
 type OpStackProps = {
-  opStack: OpStackItem[];
+  opStack: OperStackItem[];
   className?: string;
 };
 
@@ -27,13 +27,13 @@ const OperStackComponent = memo<OpStackProps>(({ opStack, className }) => {
   return (
     <div className={classNames('flex flex-col', className)}>
       {base.map((item, i) => (
-        <OpStackItemComponent key={i} item={item} />
+        <OperStackItemComponent key={i} item={item} />
       ))}
 
       {expanded && (
         <>
           {rest.map((item, i) => (
-            <OpStackItemComponent key={i} item={item} />
+            <OperStackItemComponent key={i} item={item} />
           ))}
         </>
       )}
@@ -55,18 +55,18 @@ const OperStackComponent = memo<OpStackProps>(({ opStack, className }) => {
 
 export default OperStackComponent;
 
-type OpStackItemProps = {
-  item: OpStackItem;
+type OperStackItemProps = {
+  item: OperStackItem;
 };
 
-const OpStackItemComponent = memo<OpStackItemProps>(({ item }) => {
+const OperStackItemComponent = memo<OperStackItemProps>(({ item }) => {
   const toRender = ((): {
     base: React.ReactNode;
     argsI18nKey?: TID;
     args?: string[];
   } => {
     switch (item.type) {
-      case OpStackItemType.Delegation:
+      case OperStackItemType.Delegation:
         return {
           base: (
             <>
@@ -77,7 +77,7 @@ const OpStackItemComponent = memo<OpStackItemProps>(({ item }) => {
           args: [item.to]
         };
 
-      case OpStackItemType.Origination:
+      case OperStackItemType.Origination:
         return {
           base: (
             <>
@@ -86,7 +86,7 @@ const OpStackItemComponent = memo<OpStackItemProps>(({ item }) => {
           )
         };
 
-      case OpStackItemType.Interaction:
+      case OperStackItemType.Interaction:
         return {
           base: (
             <>
@@ -98,7 +98,7 @@ const OpStackItemComponent = memo<OpStackItemProps>(({ item }) => {
           args: [item.with]
         };
 
-      case OpStackItemType.TransferFrom:
+      case OperStackItemType.TransferFrom:
         return {
           base: (
             <>
@@ -109,7 +109,7 @@ const OpStackItemComponent = memo<OpStackItemProps>(({ item }) => {
           args: [item.from]
         };
 
-      case OpStackItemType.TransferTo:
+      case OperStackItemType.TransferTo:
         return {
           base: (
             <>
@@ -120,7 +120,7 @@ const OpStackItemComponent = memo<OpStackItemProps>(({ item }) => {
           args: [item.to]
         };
 
-      case OpStackItemType.Other:
+      case OperStackItemType.Other:
         return {
           base: item.name
             .split('_')

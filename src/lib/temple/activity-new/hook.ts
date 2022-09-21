@@ -5,7 +5,7 @@ import { useTezos, useChainId, useAccount } from 'lib/temple/front';
 import { isKnownChainId } from 'lib/tzkt/api';
 
 import fetchActivities from './fetch';
-import type { Activity } from './utils';
+import type { Activity } from './types';
 
 type TLoading = 'init' | 'more' | false;
 

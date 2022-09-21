@@ -73,11 +73,14 @@ export interface TzktTransactionOperation extends TzktOperationBase {
   target: TzktAlias;
   amount: number;
   parameter?: unknown;
+  entrypoint?: string;
   hasInternals: boolean;
 }
 
 export interface TzktOriginationOperation extends TzktOperationBase {
   type: 'origination';
+  originatedContract?: TzktAlias;
+  contractBalance?: string;
 }
 
 export interface TzktRevealOperation extends TzktOperationBase {

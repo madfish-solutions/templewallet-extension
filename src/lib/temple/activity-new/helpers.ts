@@ -1,82 +1,88 @@
 import BigNumber from 'bignumber.js';
 
-type ParameterFa12 = {
-  entrypoint: string;
-  value: {
-    to: string;
-    from: string;
-    value: string;
-  };
-};
-interface Fa2Transaction {
-  to_: string;
-  amount: string;
-  token_id: string;
-}
-interface Fa2OpParams {
-  txs: Fa2Transaction[];
-  from_: 'tz1h85hgb9hk4MmLuouLcWWna4wBLtqCq4Ta';
-}
-type ParameterFa2 = {
-  entrypoint: string;
-  value: Fa2OpParams[];
-};
+import type { Activity } from 'lib/temple/activity-new/types';
 
-export function tryParseTokenTransfers(
-  parameter: any,
-  destination: string,
-  onTransfer: (tokenId: string, from: string, to: string, amount: string) => void
-) {
-  // FA1.2
-  try {
-    formatFa12(parameter, destination, onTransfer);
-  } catch {}
+import { OperStackItem, OperStackItemType } from './types';
 
-  // FA2
-  try {
-    formatFa2(parameter, destination, onTransfer);
-  } catch {}
+export function isZero(val: BigNumber.Value) {
+  return new BigNumber(val).isZero();
 }
 
-export function isPositiveNumber(val: BigNumber.Value) {
-  return new BigNumber(val).isGreaterThan(0);
-}
-
-export function toTokenId(contractAddress: string, tokenId: string | number = 0) {
+export function toTokenSlug(contractAddress: string, tokenId: string | number = 0) {
   return `${contractAddress}_${tokenId}`;
 }
 
-export function getTzktTokenTransferId(hash: string, nonce?: number) {
-  const nonceStr = nonce ? `_${nonce}` : '';
-  return `${hash}${nonceStr}`;
-}
+export function parseOperStack(activity: Activity, address: string) {
+  const opStack: OperStackItem[] = [];
 
-const formatFa12 = (
-  parameter: ParameterFa12,
-  destination: string,
-  onTransfer: (tokenId: string, from: string, to: string, amount: string) => void
-) => {
-  const { entrypoint, value } = parameter;
-  if (entrypoint !== 'transfer') return;
-
-  const { from, to, value: amount } = value;
-
-  onTransfer(toTokenId(destination), from, to, amount);
-};
-
-const formatFa2 = (
-  parameter: ParameterFa2,
-  destination: string,
-  onTransfer: (tokenId: string, from: string, to: string, amount: string) => void
-) => {
-  const { entrypoint, value: values } = parameter;
-  if (entrypoint !== 'transfer') return;
-
-  for (const value of values) {
-    const from = value.from_;
-
-    for (const tx of value.txs) {
-      onTransfer(toTokenId(destination, tx.token_id), from, tx.to_, tx.amount);
+  for (const oper of activity.operations) {
+    switch (oper.type) {
+      case 'transaction': {
+        if (isZero(oper.amountSigned)) {
+          opStack.push({
+            type: OperStackItemType.Interaction,
+            with: oper.destination.address,
+            entrypoint: oper.entrypoint
+          });
+          break;
+        }
+        if (oper.source.address === address) {
+          opStack.push({
+            type: OperStackItemType.TransferTo,
+            to: oper.destination.address
+          });
+        } else if (oper.destination.address === address) {
+          opStack.push({
+            type: OperStackItemType.TransferFrom,
+            from: oper.source.address
+          });
+        }
+        break;
+      }
+      case 'delegation': {
+        if (oper.source.address === address && oper.destination) {
+          opStack.push({
+            type: OperStackItemType.Delegation,
+            to: oper.destination.address
+          });
+          break;
+        }
+      }
+      // eslint-disable-next-line no-fallthrough
+      default: {
+        opStack.push({
+          type: OperStackItemType.Other,
+          name: oper.type
+        });
+      }
     }
   }
-};
+
+  return opStack.sort((a, b) => a.type - b.type);
+}
+
+interface MoneyDiff {
+  assetSlug: string;
+  diff: string;
+}
+
+export function parseMoneyDiffs(activity: Activity) {
+  const diffsMap: Record<string, BigNumber> = {};
+
+  for (const oper of activity.operations) {
+    if (oper.type !== 'transaction' || oper.status !== 'applied' || isZero(oper.amountSigned)) continue;
+    const assetSlug = oper.contractAddress == null ? 'tez' : toTokenSlug(oper.contractAddress, oper.tokenId);
+    diffsMap[assetSlug] = new BigNumber(oper.amountSigned).plus(diffsMap[assetSlug] || 0);
+  }
+
+  const diffs: MoneyDiff[] = [];
+  for (const assetSlug of Object.keys(diffsMap)) {
+    const diff = diffsMap[assetSlug]!.toFixed();
+    diffs.push({
+      assetSlug,
+      diff
+    });
+  }
+
+  return diffs;
+}

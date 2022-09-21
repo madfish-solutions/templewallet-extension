@@ -1,4 +1,4 @@
-type ParameterFa12 = {
+export type ParameterFa12 = {
   entrypoint: string;
   value: {
     to: string;
@@ -15,11 +15,11 @@ interface Fa2OpParams {
   txs: Fa2Transaction[];
   from_: string;
 }
-type ParameterFa2 = {
+export type ParameterFa2 = {
   entrypoint: string;
   value: Fa2OpParams[];
 };
-type ParameterLiquidityBaking = {
+export type ParameterLiquidityBaking = {
   entrypoint: string;
   value: {
     target: string;
@@ -47,7 +47,8 @@ export function isTzktOperParam_Fa12(param: any): param is ParameterFa12 {
 }
 
 /**
- * (?)(!) Might only refer to `param.entrypoint === 'transfer'` case
+ * (!) Might only refer to `param.entrypoint === 'transfer'` case
+ * (?) So, would this check be enough?
  */
 export function isTzktOperParam_Fa2(param: any): param is ParameterFa2 {
   if (!isTzktOperParam(param)) return false;

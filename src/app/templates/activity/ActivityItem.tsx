@@ -8,9 +8,8 @@ import MoneyDiffView from 'app/templates/activity/MoneyDiffView';
 import OperStackComp from 'app/templates/activity/OperStack';
 import HashChip from 'app/templates/HashChip';
 import { t, getDateFnsLocale } from 'lib/i18n/react';
-import { parseMoneyDiffs } from 'lib/temple/activity-new/moneyDiffs';
-import { parseOperStack } from 'lib/temple/activity-new/opStack';
-import type { Activity } from 'lib/temple/activity-new/utils';
+import { parseOperStack, parseMoneyDiffs } from 'lib/temple/activity-new/helpers';
+import type { Activity } from 'lib/temple/activity-new/types';
 import { useExplorerBaseUrls } from 'lib/temple/front';
 
 type ActivityItemCompProps = {
@@ -29,8 +28,8 @@ const ActivityItemComp = memo<ActivityItemCompProps>(({ activity, address, syncS
   const operStack = useMemo(() => parseOperStack(activity, address), [activity, address]);
 
   const moneyDiffs = useMemo(() => {
-    return ['pending', 'applied'].includes(status) ? parseMoneyDiffs(activity, address) : [];
-  }, [status, activity, address]);
+    return ['pending', 'applied'].includes(status) ? parseMoneyDiffs(activity) : [];
+  }, [status, activity]);
 
   return (
     <div className={classNames('my-3')}>
@@ -64,8 +63,8 @@ const ActivityItemComp = memo<ActivityItemCompProps>(({ activity, address, syncS
         <div className="flex-1" />
 
         <div className="flex flex-col flex-shrink-0 pt-2">
-          {moneyDiffs.map(({ assetId, diff }, i) => (
-            <MoneyDiffView key={i} assetId={assetId} diff={diff} pending={pending} />
+          {moneyDiffs.map(({ assetSlug, diff }, i) => (
+            <MoneyDiffView key={i} assetId={assetSlug} diff={diff} pending={pending} />
           ))}
         </div>
       </div>

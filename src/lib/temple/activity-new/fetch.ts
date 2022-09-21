@@ -5,7 +5,8 @@ import type { TzktApiChainId } from 'lib/tzkt/api';
 import * as TZKT from 'lib/tzkt/api';
 import type { TzktOperation } from 'lib/tzkt/types';
 
-import { Activity, OperGroup, operGroupToActivity } from './utils';
+import type { Activity, OperGroup } from './types';
+import { operGroupToActivity } from './utils';
 
 const TEZ_TOKEN_SLUG = 'tez';
 const LIQUIDITY_BAKING_DEX_ADDRESS = 'KT1TxqZ8QtKvLu3V3JH7Gx58n7Co8pgtpQU5';
@@ -22,7 +23,7 @@ export default async function fetchActivities(
 
   const groups = await _fetchOperGroupsForOperations(chainId, operations, olderThan);
 
-  return groups.map(group => operGroupToActivity(group));
+  return groups.map(group => operGroupToActivity(group, account.publicKeyHash));
 }
 
 ////
@@ -85,7 +86,7 @@ function fetchOperations_Contract(
   pseudoLimit: number,
   olderThan?: Activity
 ) {
-  const olderThanLevel = olderThan?.tzktOperations[olderThan.tzktOperations.length - 1]?.level;
+  const olderThanLevel = olderThan?.oldestTzktOperation.level;
 
   return TZKT.fetchGetAccountOperations(chainId, accountAddress, {
     type: 'transaction',
@@ -104,7 +105,7 @@ function fetchOperations_Token_Fa_1_2(
   pseudoLimit: number,
   olderThan?: Activity
 ) {
-  const olderThanLevel = olderThan?.tzktOperations[olderThan.tzktOperations.length - 1]?.level;
+  const olderThanLevel = olderThan?.oldestTzktOperation.level;
 
   return TZKT.fetchGetOperationsTransactions(chainId, {
     limit: pseudoLimit,
@@ -124,7 +125,7 @@ function fetchOperations_Token_Fa_2(
   pseudoLimit: number,
   olderThan?: Activity
 ) {
-  const olderThanLevel = olderThan?.tzktOperations[olderThan.tzktOperations.length - 1]?.level;
+  const olderThanLevel = olderThan?.oldestTzktOperation.level;
 
   return TZKT.fetchGetOperationsTransactions(chainId, {
     limit: pseudoLimit,
@@ -258,6 +259,6 @@ async function _fetchOperGroupsForOperations(
  * >     When it's not true!
  */
 function _buildOlderThanParam(olderThan?: Activity) {
-  const lastTzktOper = olderThan?.tzktOperations[olderThan.tzktOperations.length - 1];
+  const lastTzktOper = olderThan?.oldestTzktOperation;
   return { 'timestamp.lt': lastTzktOper?.timestamp };
 }
