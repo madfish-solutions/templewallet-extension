@@ -350,7 +350,7 @@ export const SwapForm: FC = () => {
             </td>
             <td className="text-right text-gray-600">
               <SwapMinimumReceived
-                minimumReceivedAmount={minimumReceivedAmount}
+                minimumReceivedAmount={minimumReceivedAmount.multipliedBy(ROUTING_FEE_RATIO).dividedToIntegerBy(1)}
                 outputAssetMetadata={outputAssetMetadata}
               />
             </td>
