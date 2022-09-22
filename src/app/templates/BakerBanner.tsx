@@ -8,7 +8,6 @@ import Identicon from 'app/atoms/Identicon';
 import Money from 'app/atoms/Money';
 import Name from 'app/atoms/Name';
 import OpenInExplorerChip from 'app/atoms/OpenInExplorerChip';
-import { useAppEnv } from 'app/env';
 import { ReactComponent as ChevronRightIcon } from 'app/icons/chevron-right.svg';
 import { toLocalFormat } from 'lib/i18n/numbers';
 import { T } from 'lib/i18n/react';
@@ -28,7 +27,6 @@ const BakerBanner = memo<BakerBannerProps>(
   ({ bakerPkh, link = false, promoted = false, displayAddress = false, className, style }) => {
     const allAccounts = useRelevantAccounts();
     const account = useAccount();
-    const { popup } = useAppEnv();
     const { data: baker } = useKnownBaker(bakerPkh);
     const { account: accountBaseUrl } = useExplorerBaseUrls();
 
@@ -42,7 +40,6 @@ const BakerBanner = memo<BakerBannerProps>(
         className={classNames('w-full', 'border rounded-md', 'p-2', className)}
         style={{
           maxWidth: undefined,
-          width: popup ? '100%' : '22.5rem',
           ...style
         }}
       >

@@ -4,6 +4,7 @@ import classNames from 'clsx';
 
 import { ActivitySpinner } from 'app/atoms/ActivitySpinner';
 import FormSecondaryButton from 'app/atoms/FormSecondaryButton';
+import { useAppEnv } from 'app/env';
 import { ReactComponent as LayersIcon } from 'app/icons/layers.svg';
 import { T } from 'lib/i18n/react';
 import * as Repo from 'lib/temple/repo';
@@ -25,12 +26,20 @@ type ActivityViewProps = {
 const ActivityView = memo<ActivityViewProps>(
   ({ address, syncSupported, operations, initialLoading, loadingMore, loadMoreDisplayed, loadMore, className }) => {
     const noOperations = operations.length === 0;
+    const { popup } = useAppEnv();
 
     if (noOperations) {
       return initialLoading ? (
         <ActivitySpinner height="2.5rem" />
       ) : (
-        <div className={classNames('mt-4 mb-12', 'flex flex-col items-center justify-center', 'text-gray-500')}>
+        <div
+          className={classNames(
+            'mt-4 mb-12',
+            'flex flex-col items-center justify-center',
+            'text-gray-500',
+            popup ? 'mx-4' : ''
+          )}
+        >
           <LayersIcon className="w-16 h-auto mb-2 stroke-current" />
 
           <h3 className="text-sm font-light text-center" style={{ maxWidth: '20rem' }}>
@@ -41,7 +50,7 @@ const ActivityView = memo<ActivityViewProps>(
     }
 
     return (
-      <>
+      <div className={classNames(popup ? 'mx-4' : '')}>
         <div className={classNames('w-full max-w-sm mx-auto', 'flex flex-col', className)}>
           {operations?.map(op => (
             <ActivityItem key={op.hash} address={address} operation={op} syncSupported={syncSupported} />
@@ -57,7 +66,7 @@ const ActivityView = memo<ActivityViewProps>(
             </FormSecondaryButton>
           </div>
         )}
-      </>
+      </div>
     );
   }
 );

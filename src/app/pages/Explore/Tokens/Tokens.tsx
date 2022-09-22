@@ -137,31 +137,32 @@ const Tokens: FC = () => {
 
   return (
     <div className={classNames('w-full max-w-sm mx-auto')}>
-      <div className="mt-1 mb-3 w-full flex items-strech">
-        <SearchAssetField
-          value={searchValue}
-          onValueChange={setSearchValue}
-          onFocus={handleSearchFieldFocus}
-          onBlur={handleSearchFieldBlur}
-        />
+      <div className="mx-4 mt-3">
+        <div className="mb-3 w-full flex items-strech">
+          <SearchAssetField
+            value={searchValue}
+            onValueChange={setSearchValue}
+            onFocus={handleSearchFieldFocus}
+            onBlur={handleSearchFieldBlur}
+          />
 
-        <Link
-          to="/manage-assets"
-          className={classNames(
-            'ml-2 flex-shrink-0',
-            'px-3 py-1',
-            'rounded overflow-hidden',
-            'flex items-center',
-            'text-gray-600 text-sm',
-            'transition ease-in-out duration-200',
-            'hover:bg-gray-100',
-            'opacity-75 hover:opacity-100 focus:opacity-100'
-          )}
-          testID={AssetsSelectors.ManageButton}
-        >
-          <AddToListIcon className={classNames('mr-1 h-5 w-auto stroke-current stroke-2')} />
-          <T id="manage" />
-        </Link>
+          <Link
+            to="/manage-assets"
+            className={classNames(
+              'ml-2 flex-shrink-0',
+              'px-3 py-1',
+              'rounded overflow-hidden',
+              'flex items-center',
+              'hover:text-gray-600 text-gray-500 text-sm',
+              'transition ease-in-out duration-200',
+              'bg-gray-100'
+            )}
+            testID={AssetsSelectors.ManageButton}
+          >
+            <AddToListIcon className={classNames('mr-1 h-5 w-auto stroke-current stroke-2')} />
+            <T id="manage" />
+          </Link>
+        </div>
       </div>
 
       {filteredAssets.length > 0 ? (
@@ -289,7 +290,7 @@ const ListItem = memo<ListItemProps>(({ assetSlug, active, accountPkh }) => {
         'block w-full',
         'overflow-hidden',
         active ? 'hover:bg-gray-200' : 'hover:bg-gray-200 focus:bg-gray-200',
-        'flex items-center p-4',
+        'flex items-center px-4 py-3',
         'text-gray-700',
         'transition ease-in-out duration-200',
         'focus:outline-none'

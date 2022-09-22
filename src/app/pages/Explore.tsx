@@ -77,7 +77,6 @@ const Explore: FC<ExploreProps> = ({ assetSlug }) => {
 
   const accountPkh = account.publicKeyHash;
   const canSend = account.type !== TempleAccountType.WatchOnly;
-  const fullpageClassName = fullPage ? 'mb-8' : 'mb-6';
   const sendLink = assetSlug ? `/send/${assetSlug}` : '/send';
 
   return onboardingCompleted ? (
@@ -104,7 +103,7 @@ const Explore: FC<ExploreProps> = ({ assetSlug }) => {
         </div>
       )}
 
-      <div className={classNames('flex flex-col items-center', fullpageClassName)}>
+      <div className={classNames('flex flex-col items-center', 'mb-4')}>
         <MainBanner accountPkh={accountPkh} assetSlug={assetSlug} />
 
         <div className="flex justify-between mx-auto w-full max-w-sm">
@@ -191,13 +190,16 @@ const ActionButton: FC<ActionButtonProps> = ({
           <div
             className={classNames(
               disabled ? 'bg-gray-10' : 'bg-orange-10',
-              'rounded mb-1 flex items-center text-white'
+              'rounded mb-2 flex items-center text-white',
+              'p-2 h-10'
             )}
-            style={{ padding: '0 0.625rem', height: '2.75rem' }}
           >
             <Icon className={classNames('w-6 h-auto', disabled ? 'stroke-gray' : 'stroke-accent-orange')} />
           </div>
-          <span className={classNames('text-xs text-center', disabled ? 'text-gray-20' : 'text-gray-910')}>
+          <span
+            style={{ fontSize: 11 }}
+            className={classNames('text-center', disabled ? 'text-gray-20' : 'text-gray-910')}
+          >
             {label}
           </span>
         </>
@@ -325,9 +327,9 @@ const SecondarySection: FC<SecondarySectionProps> = ({ assetSlug, className }) =
               replace
               className={classNames(
                 'flex1 w-full',
-                'text-center cursor-pointer mb-1 pb-1 pt-2',
+                'text-center cursor-pointer py-2',
                 'text-gray-500 text-xs font-medium',
-                'border-t-2',
+                'border-t-3',
                 active ? 'border-primary-orange' : 'border-transparent',
                 active ? 'text-primary-orange' : 'hover:text-primary-orange',
                 'transition ease-in-out duration-300',
@@ -340,10 +342,7 @@ const SecondarySection: FC<SecondarySectionProps> = ({ assetSlug, className }) =
           );
         })}
       </div>
-
-      <div className={'mx-4 mb-4 mt-4'}>
-        <SuspenseContainer whileMessage="displaying tab">{Component && <Component />}</SuspenseContainer>
-      </div>
+      <SuspenseContainer whileMessage="displaying tab">{Component && <Component />}</SuspenseContainer>
     </div>
   );
 };

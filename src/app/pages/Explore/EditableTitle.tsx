@@ -97,7 +97,7 @@ const EditableTitle: FC = () => {
   }, [setEditing]);
 
   return (
-    <div className="relative flex items-center pt-4 mb-1">
+    <div className="relative flex items-center pt-2 mb-1">
       {editing ? (
         <form className="flex flex-col items-center flex-1" onSubmit={handleEditSubmit}>
           <FormField
@@ -159,8 +159,8 @@ const EditableTitle: FC = () => {
       ) : (
         <>
           <Name
-            className={classNames('pl-1', 'text-2xl text-gray-700 text-center')}
-            style={{ maxWidth: '24rem', color: '#1B262C' }}
+            className={classNames('pl-1', 'text-gray-700 text-center')}
+            style={{ maxWidth: '24rem', color: '#1B262C', fontSize: 23 }}
           >
             {account.name}
           </Name>

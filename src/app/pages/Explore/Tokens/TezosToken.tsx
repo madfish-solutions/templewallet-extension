@@ -15,7 +15,7 @@ export const TezosToken: FC = () => (
       e.stopPropagation();
       navigate('/explore/tez/?tab=delegation');
     }}
-    className={classNames('ml-1 px-2 py-1', styles['apyBadge'])}
+    className={classNames('ml-2 px-2 py-1', styles['apyBadge'])}
   >
     {<T id="delegate" />}
   </Button>

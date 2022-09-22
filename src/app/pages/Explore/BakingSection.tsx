@@ -203,8 +203,8 @@ const BakingSection = memo(() => {
 
   return useMemo(
     () => (
-      <div className="flex justify-center">
-        <div className="mb-12 flex flex-col items-stretch" style={{ maxWidth: popup ? '20.5rem' : '22.5rem' }}>
+      <div className="mt-3 flex justify-center">
+        <div className={classNames('mb-12 flex flex-col items-stretch max-w-sm', popup ? 'mx-4' : '')}>
           {myBakerPkh ? (
             <>
               <div

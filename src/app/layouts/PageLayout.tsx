@@ -177,7 +177,7 @@ const Toolbar: FC<ToolbarProps> = ({
         sticked ? 'shadow' : 'shadow-sm',
         'bg-gray-100',
         'overflow-hidden',
-        'p-1',
+        'py-2 px-4',
         'flex items-center',
         'transition ease-in-out duration-300'
       )}
@@ -194,7 +194,6 @@ const Toolbar: FC<ToolbarProps> = ({
         {isBackButtonAvailable && (
           <Button
             className={classNames(
-              'px-4 py-2',
               'rounded',
               'flex items-center',
               'text-gray-600 text-shadow-black',

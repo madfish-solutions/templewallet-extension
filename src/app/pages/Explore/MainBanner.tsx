@@ -64,7 +64,7 @@ const MainnetVolumeBanner: FC<MainnetVolumeBannerProps> = ({ chainId, accountPkh
 
   return (
     <div className="w-full max-w-sm mx-auto mb-4">
-      <div className="flex justify-between items-center mb-3">
+      <div className="flex justify-between items-center mb-2">
         <div className="text-sm font-medium text-gray-700">
           <T id="totalEquityValue" />
         </div>
