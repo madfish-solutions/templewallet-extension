@@ -3,6 +3,7 @@ import React, { useCallback, useMemo, useRef } from 'react';
 import classNames from 'clsx';
 
 import { ActivitySpinner } from 'app/atoms/ActivitySpinner';
+import { useAppEnv } from 'app/env';
 import { ReactComponent as AddToListIcon } from 'app/icons/add-to-list.svg';
 import CollectibleItem from 'app/pages/Collectibles/CollectibleItem';
 import { AssetsSelectors } from 'app/pages/Explore/Assets.selectors';
@@ -24,6 +25,7 @@ import { Link } from 'lib/woozie';
 const CollectiblesList = () => {
   const chainId = useChainId(true)!;
   const account = useAccount();
+  const { popup } = useAppEnv();
   const address = account.publicKeyHash;
   const loadMoreRef = useRef<HTMLDivElement>(null);
   const canLoadMore = useRef(true);
@@ -64,7 +66,7 @@ const CollectiblesList = () => {
 
   return (
     <div className={classNames('w-full max-w-sm mx-auto')}>
-      <div className="mx-4 mt-3">
+      <div className={classNames('mt-3', popup ? 'mx-4' : '')}>
         <div className="mb-3 w-full flex items-strech">
           <SearchAssetField value={searchValue} onValueChange={setSearchValue} />
 

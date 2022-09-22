@@ -194,7 +194,7 @@ const Toolbar: FC<ToolbarProps> = ({
         {isBackButtonAvailable && (
           <Button
             className={classNames(
-              'rounded',
+              'rounded px-2 py-1',
               'flex items-center',
               'text-gray-600 text-shadow-black',
               'text-sm font-semibold leading-none',

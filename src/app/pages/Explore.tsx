@@ -9,8 +9,6 @@ import { useTabSlug } from 'app/atoms/useTabSlug';
 import { useAppEnv } from 'app/env';
 import ErrorBoundary from 'app/ErrorBoundary';
 import { ReactComponent as BuyIcon } from 'app/icons/buy.svg';
-import { ReactComponent as ChevronRightIcon } from 'app/icons/chevron-right.svg';
-import { ReactComponent as ExploreIcon } from 'app/icons/explore.svg';
 import { ReactComponent as ReceiveIcon } from 'app/icons/receive.svg';
 import { ReactComponent as SendIcon } from 'app/icons/send-alt.svg';
 import { ReactComponent as SwapIcon } from 'app/icons/swap.svg';
@@ -83,11 +81,8 @@ const Explore: FC<ExploreProps> = ({ assetSlug }) => {
     <PageLayout
       pageTitle={
         <>
-          <ExploreIcon className="w-auto h-4 mr-1 stroke-current" />
-          <T id="explore" />
           {assetSlug && (
             <>
-              <ChevronRightIcon className="w-auto h-4 mx-px stroke-current opacity-75" />
               <span className="font-normal">{getAssetSymbol(assetMetadata)}</span>
             </>
           )}
@@ -103,7 +98,7 @@ const Explore: FC<ExploreProps> = ({ assetSlug }) => {
         </div>
       )}
 
-      <div className={classNames('flex flex-col items-center', 'mb-4')}>
+      <div className={classNames('flex flex-col items-center', 'mb-6')}>
         <MainBanner accountPkh={accountPkh} assetSlug={assetSlug} />
 
         <div className="flex justify-between mx-auto w-full max-w-sm">

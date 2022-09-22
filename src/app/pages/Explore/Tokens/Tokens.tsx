@@ -8,6 +8,7 @@ import { useDebounce } from 'use-debounce';
 
 import { ActivitySpinner } from 'app/atoms/ActivitySpinner';
 import Money from 'app/atoms/Money';
+import { useAppEnv } from 'app/env';
 import { ReactComponent as AddToListIcon } from 'app/icons/add-to-list.svg';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
 import { AssetIcon } from 'app/templates/AssetIcon';
@@ -39,6 +40,7 @@ const Tokens: FC = () => {
   const chainId = useChainId(true)!;
   const account = useAccount();
   const address = account.publicKeyHash;
+  const { popup } = useAppEnv();
 
   const loadMoreRef = useRef<HTMLDivElement>(null);
   const canLoadMore = useRef(true);
@@ -137,7 +139,7 @@ const Tokens: FC = () => {
 
   return (
     <div className={classNames('w-full max-w-sm mx-auto')}>
-      <div className="mx-4 mt-3">
+      <div className={classNames('mt-3', popup ? 'mx-4' : '')}>
         <div className="mb-3 w-full flex items-strech">
           <SearchAssetField
             value={searchValue}
