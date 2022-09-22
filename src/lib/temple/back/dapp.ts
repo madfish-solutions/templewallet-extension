@@ -367,10 +367,6 @@ export async function removeDApp(origin: string) {
   return restDApps;
 }
 
-export function cleanDApps() {
-  return setDApps({});
-}
-
 function setDApps(newDApps: TempleDAppSessions) {
   return browser.storage.local.set({ [STORAGE_KEY]: newDApps });
 }

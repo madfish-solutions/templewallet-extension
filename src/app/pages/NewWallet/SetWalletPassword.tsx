@@ -21,7 +21,7 @@ import {
 } from '../../defaults';
 import { useOnboardingProgress } from '../Onboarding/hooks/useOnboardingProgress.hook';
 
-export const MIN_PASSWORD_LENGTH = 8;
+const MIN_PASSWORD_LENGTH = 8;
 
 interface FormData {
   shouldUseKeystorePassword?: boolean;

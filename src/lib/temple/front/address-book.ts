@@ -42,7 +42,7 @@ export function useContacts() {
   };
 }
 
-export const CONTACT_FIELDS_TO_SEARCH = ['name', 'address'] as const;
+const CONTACT_FIELDS_TO_SEARCH = ['name', 'address'] as const;
 
 export function searchContacts<T extends TempleContact>(contacts: T[], searchValue: string) {
   if (!searchValue) return contacts;

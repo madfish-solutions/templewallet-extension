@@ -19,7 +19,7 @@ export function useAB() {
   }, [analyticsState, abGroup]);
 }
 
-export const [ABTestGroupProvider, useABGroup] = constate((params: { suspense?: boolean }) => {
+export const [ABTestGroupProvider, useABGroup] = constate(() => {
   const [localABGroup, setLocalABGroup] = usePassiveStorage<ABTestGroup>('ab-test-value', ABTestGroup.Unknown);
   const { analyticsState } = useAnalyticsState();
 

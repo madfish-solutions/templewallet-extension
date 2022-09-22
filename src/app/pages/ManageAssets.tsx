@@ -149,7 +149,7 @@ type ListItemProps = {
   assetType: string;
 };
 
-const ListItem = memo<ListItemProps>(({ assetSlug, last, checked, onUpdate, assetType }) => {
+const ListItem = memo<ListItemProps>(({ assetSlug, last, checked, onUpdate }) => {
   const metadata = useAssetMetadata(assetSlug);
 
   const handleCheckboxChange = useCallback(

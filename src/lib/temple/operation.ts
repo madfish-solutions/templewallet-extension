@@ -1,18 +1,8 @@
-import { BlockResponse, OperationEntry, OperationContentsAndResultOrigination } from '@taquito/rpc';
-import {
-  TezosToolkit,
-  OpKind,
-  WalletOperationBatch,
-  WalletContract,
-  OperationBatch,
-  TransferParams
-} from '@taquito/taquito';
-import BigNumber from 'bignumber.js';
+import { BlockResponse, OperationEntry } from '@taquito/rpc';
+import { TezosToolkit } from '@taquito/taquito';
 
-import { loadContract } from 'lib/temple/front';
-
-export const SYNC_INTERVAL = 10_000;
-export const CONFIRM_TIMEOUT = 60_000 * 5;
+const SYNC_INTERVAL = 10_000;
+const CONFIRM_TIMEOUT = 60_000 * 5;
 
 export type ConfirmOperationOptions = {
   initializedAt?: number;
@@ -79,80 +69,6 @@ export async function findOperation(block: BlockResponse, opHash: string) {
 }
 
 export class FailedOpError extends Error {}
-
-export const batchify = (batch: OperationBatch | WalletOperationBatch, transfers: TransferParams[]) =>
-  transfers.reduce((b, tParams) => b.withTransfer(tParams), batch);
-
-type TokenApproveParams = {
-  tokenAddress: string;
-  tokenId?: number;
-  from: string;
-  to: string;
-  value: BigNumber;
-};
-
-function getFA12ApproveParams(tokenContract: WalletContract, to: string, value: BigNumber) {
-  return {
-    kind: OpKind.TRANSACTION as const,
-    ...tokenContract.methods.approve(to, value).toTransferParams()
-  };
-}
-
-export async function withTokenApprove(
-  tezos: TezosToolkit,
-  transfers: TransferParams[],
-  { tokenAddress, tokenId, from, to, value }: TokenApproveParams
-) {
-  const tokenContract = await loadContract(tezos, tokenAddress);
-
-  if (tokenId !== undefined) {
-    return [
-      tokenContract.methods
-        .update_operators([
-          {
-            add_operator: {
-              owner: from,
-              operator: to,
-              token_id: tokenId
-            }
-          }
-        ])
-        .toTransferParams(),
-      ...transfers,
-      tokenContract.methods
-        .update_operators([
-          {
-            remove_operator: {
-              owner: from,
-              operator: to,
-              token_id: tokenId
-            }
-          }
-        ])
-        .toTransferParams()
-    ];
-  }
-
-  const approveParams = getFA12ApproveParams(tokenContract, to, value);
-  let resetApprove = false;
-  try {
-    await tezos.estimate.batch([approveParams]);
-  } catch (err: any) {
-    resetApprove = true;
-  }
-
-  return resetApprove
-    ? [getFA12ApproveParams(tokenContract, to, new BigNumber(0)), approveParams, ...transfers]
-    : [approveParams, ...transfers];
-}
-
-export function getOriginatedContractAddress(opEntry: OperationEntry) {
-  const results = Array.isArray(opEntry.contents) ? opEntry.contents : [opEntry.contents];
-  const originationOp = results.find(op => op.kind === OpKind.ORIGINATION) as
-    | OperationContentsAndResultOrigination
-    | undefined;
-  return originationOp?.metadata?.operation_result?.originated_contracts?.[0] ?? null;
-}
 
 const formatOperationEntry = (opEntry: OperationEntry) => {
   let status;
