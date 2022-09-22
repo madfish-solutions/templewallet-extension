@@ -18,7 +18,7 @@ export async function fetchBalance(
 ) {
   const asset = await fromAssetSlug(tezos, assetSlug);
 
-  let nat;
+  let nat: BigNumber | undefined;
 
   if (asset === 'tez') {
     nat = await getBalanceSafe(tezos, account);

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useState } from 'react';
 
 import BigNumber from 'bignumber.js';
 import constate from 'constate';
@@ -21,24 +21,27 @@ import {
 import * as Repo from 'lib/temple/repo';
 import { getTokensMetadata } from 'lib/templewallet-api';
 import { fetchWhitelistTokenSlugs } from 'lib/templewallet-api/whitelist-tokens';
-import { TzktAccountToken } from 'lib/tzkt';
+import { fetchTzktTokens, TzktAccountToken } from 'lib/tzkt';
 
+import { useTimerEffect } from '../../../app/hooks/use-timer-effect';
 import { TempleChainId } from '../types';
-import { useFungibleTokens } from './fungible-tokens';
-import { useNonFungibleTokens } from './non-fungible-tokens';
+
+const SYNC_INTERVAL = 60_000;
 
 export const [SyncTokensProvider, useSyncTokens] = constate(() => {
   const { mutate } = useSWRConfig();
   const chainId = useChainId(true)!;
-  const { tokens } = useFungibleTokens();
-  const { nfts } = useNonFungibleTokens();
   const { publicKeyHash: accountPkh } = useAccount();
 
   const { allTokensBaseMetadataRef, setTokensBaseMetadata, setTokensDetailedMetadata, fetchMetadata } =
     useTokensMetadata();
   const usdPrices = useUSDPrices();
 
+  const [isSync, setIsSync] = useState<boolean | null>(null);
+
   const sync = useCallback(async () => {
+    setIsSync(true);
+
     await makeSync(
       accountPkh,
       chainId,
@@ -47,12 +50,10 @@ export const [SyncTokensProvider, useSyncTokens] = constate(() => {
       setTokensDetailedMetadata,
       usdPrices,
       fetchMetadata,
-      networkIdRef.current === chainId ? tokens.concat(nfts) : [],
       mutate
     );
-    if (networkIdRef.current !== chainId) {
-      networkIdRef.current = chainId;
-    }
+
+    setIsSync(false);
   }, [
     accountPkh,
     chainId,
@@ -61,48 +62,12 @@ export const [SyncTokensProvider, useSyncTokens] = constate(() => {
     setTokensDetailedMetadata,
     usdPrices,
     fetchMetadata,
-    tokens,
-    nfts,
     mutate
   ]);
 
-  const syncRef = useRef(sync);
-  useEffect(() => {
-    syncRef.current = sync;
-  }, [sync]);
+  useTimerEffect(sync, SYNC_INTERVAL, [chainId, accountPkh]);
 
-  const networkIdRef = useRef(chainId);
-
-  useEffect(() => {
-    if (!chainId) {
-      return;
-    }
-
-    const isTheSameNetwork = () => chainId === networkIdRef.current;
-    let timeoutId: any;
-
-    const syncAndDefer = async () => {
-      try {
-        await syncRef.current();
-      } catch (err: any) {
-        console.error(err);
-      } finally {
-        if (isTheSameNetwork()) {
-          timeoutId = setTimeout(syncAndDefer, 30_000);
-        }
-      }
-    };
-
-    syncAndDefer();
-
-    return () => clearTimeout(timeoutId);
-  }, [chainId, tokens, nfts]);
-
-  return {
-    sync,
-    tokens,
-    nfts
-  };
+  return { isSync };
 });
 
 const makeSync = async (
@@ -113,13 +78,14 @@ const makeSync = async (
   setTokensDetailedMetadata: any,
   usdPrices: Record<string, string>,
   fetchMetadata: any,
-  tzktTokens: TzktAccountToken[],
-  mutate: ScopedMutator<any>
+  mutate: ScopedMutator
 ) => {
   if (!chainId) return;
+
   const mainnet = chainId === TempleChainId.Mainnet;
 
-  const [displayedFungibleTokens, displayedCollectibleTokens, whitelistTokenSlugs] = await Promise.all([
+  const [tzktTokens, displayedFungibleTokens, displayedCollectibleTokens, whitelistTokenSlugs] = await Promise.all([
+    fetchTzktTokens(chainId, accountPkh),
     fetchDisplayedFungibleTokens(chainId, accountPkh),
     fetchCollectibleTokens(chainId, accountPkh, true),
     fetchWhitelistTokenSlugs(chainId)
@@ -194,7 +160,7 @@ const makeSync = async (
     tokenRepoKeys
   );
 
-  mutate(['displayed-fungible-tokens', chainId, accountPkh]);
+  await mutate(['displayed-fungible-tokens', chainId, accountPkh]);
 };
 
 const generateMetadataRequest = async (slug: string, mainnet: boolean, fetchMetadata: any) => {
@@ -221,7 +187,7 @@ const updateTokenSlugs = (
   i: number,
   chainId: string,
   accountPkh: string,
-  existingRecords: (Repo.IAccountToken | undefined)[],
+  existingRecords: Array<Repo.IAccountToken | undefined>,
   tzktTokensMap: Map<string, TzktAccountToken>,
   baseMetadatasToSet: any,
   allTokensBaseMetadataRef: any,
@@ -266,6 +232,4 @@ const updateTokenSlugs = (
   };
 };
 
-function onlyUnique(value: string, index: number, self: string[]) {
-  return self.indexOf(value) === index;
-}
+const onlyUnique = (value: string, index: number, self: string[]) => self.indexOf(value) === index;

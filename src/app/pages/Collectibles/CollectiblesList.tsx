@@ -4,7 +4,7 @@ import classNames from 'clsx';
 
 import { useFilteredAssetsList } from 'app/hooks/use-filtered-assets-list';
 import { ReactComponent as AddToListIcon } from 'app/icons/add-to-list.svg';
-import CollectibleItem from 'app/pages/Collectibles/CollectibleItem';
+import { CollectibleItem } from 'app/pages/Collectibles/CollectibleItem';
 import { AssetsSelectors } from 'app/pages/Explore/Assets.selectors';
 import SearchAssetField from 'app/templates/SearchAssetField';
 import { T } from 'lib/i18n/react';
@@ -12,14 +12,17 @@ import { AssetTypesEnum } from 'lib/temple/assets/types';
 import { useAccount, useChainId, useCollectibleTokens } from 'lib/temple/front';
 import { Link } from 'lib/woozie';
 
+import { useUpdatedBalances } from '../../hooks/use-updated-balances';
+
 const CollectiblesList = () => {
   const chainId = useChainId(true)!;
-  const account = useAccount();
-  const address = account.publicKeyHash;
+  const { publicKeyHash } = useAccount();
 
-  const { data: collectibles = [] } = useCollectibleTokens(chainId, address, true);
+  const { data: collectibles = [] } = useCollectibleTokens(chainId, publicKeyHash, true);
 
-  const { filteredAssets, searchValue, setSearchValue } = useFilteredAssetsList(collectibles);
+  const collectibleSlugsWithLatestBalances = useUpdatedBalances(collectibles, chainId, publicKeyHash);
+
+  const { filteredAssets, searchValue, setSearchValue } = useFilteredAssetsList(collectibleSlugsWithLatestBalances);
 
   return (
     <div className={classNames('w-full max-w-sm mx-auto')}>
@@ -51,8 +54,13 @@ const CollectiblesList = () => {
           </p>
         ) : (
           <>
-            {filteredAssets.map((item, index) => (
-              <CollectibleItem key={item} assetSlug={item} index={index} itemsLength={filteredAssets.length} />
+            {filteredAssets.map((asset, index) => (
+              <CollectibleItem
+                key={asset.slug}
+                assetSlug={asset.slug}
+                index={index}
+                itemsLength={filteredAssets.length}
+              />
             ))}
           </>
         )}

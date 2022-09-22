@@ -69,12 +69,11 @@ export const getFa2Transfers = makeQuery<TzktGetOperationsParams, TzktOperation[
   })
 );
 
-export const getTzktTokens = makeQuery<{ isCollectible: boolean } & TzktGetOperationsParams, TzktAccountToken[]>(
+export const getTzktTokens = makeQuery<TzktGetOperationsParams, TzktAccountToken[]>(
   () => `/tokens/balances`,
-  ({ isCollectible, address, ...restParams }) => ({
+  ({ address, ...restParams }) => ({
     account: address,
     'sort.desc': 'balance',
-    'token.metadata.artifactUri.null': !isCollectible,
     ...restParams
   })
 );
@@ -140,13 +139,12 @@ function makeQuery<P extends Record<string, unknown>, R>(
 
 export const TZKT_FETCH_QUERY_SIZE = 300;
 
-export const fetchTokens = async (chainId: string, address: string, isCollectible: boolean) => {
+export const fetchTzktTokens = async (chainId: string, address: string) => {
   if (!isKnownChainId(chainId) || !TZKT_API_BASE_URLS.has(chainId)) {
     return [];
   }
 
   return await getTzktTokens(chainId, {
-    isCollectible,
     address,
     limit: TZKT_FETCH_QUERY_SIZE
   });
