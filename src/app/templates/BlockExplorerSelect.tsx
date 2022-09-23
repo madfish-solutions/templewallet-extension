@@ -5,7 +5,8 @@ import { browser } from 'webextension-polyfill-ts';
 
 import Flag from 'app/atoms/Flag';
 import { T } from 'lib/i18n/react';
-import { BlockExplorer, BLOCK_EXPLORERS, useBlockExplorer, useChainId, isKnownChainId } from 'lib/temple/front';
+import { BlockExplorer, BLOCK_EXPLORERS, useBlockExplorer, useChainId } from 'lib/temple/front';
+import { isKnownChainId } from 'lib/temple/types';
 
 import IconifiedSelect, { IconifiedSelectOptionRenderProps } from './IconifiedSelect';
 

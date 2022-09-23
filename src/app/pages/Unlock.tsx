@@ -9,7 +9,8 @@ import FormSubmitButton from 'app/atoms/FormSubmitButton';
 import SimplePageLayout from 'app/layouts/SimplePageLayout';
 import { useFormAnalytics } from 'lib/analytics';
 import { T, t } from 'lib/i18n/react';
-import { useLocalStorage, useTempleClient, TempleSharedStorageKey } from 'lib/temple/front';
+import { useLocalStorage, useTempleClient } from 'lib/temple/front';
+import { TempleSharedStorageKey } from 'lib/temple/types';
 import { Link } from 'lib/woozie';
 
 interface UnlockProps {

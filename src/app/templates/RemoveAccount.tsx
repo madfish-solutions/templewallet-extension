@@ -7,7 +7,8 @@ import FormField from 'app/atoms/FormField';
 import FormSubmitButton from 'app/atoms/FormSubmitButton';
 import AccountBanner from 'app/templates/AccountBanner';
 import { T, t } from 'lib/i18n/react';
-import { TempleAccountType, useTempleClient, useRelevantAccounts, useAccount } from 'lib/temple/front';
+import { useTempleClient, useRelevantAccounts, useAccount } from 'lib/temple/front';
+import { TempleAccountType } from 'lib/temple/types';
 import { navigate } from 'lib/woozie';
 
 const SUBMIT_ERROR_TYPE = 'submit-error';

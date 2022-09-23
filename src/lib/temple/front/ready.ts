@@ -7,17 +7,9 @@ import constate from 'constate';
 
 import { IS_DEV_ENV } from 'app/env';
 import { useRetryableSWR } from 'lib/swr';
-import {
-  ReadyTempleState,
-  TempleAccountType,
-  TempleStatus,
-  TempleState,
-  usePassiveStorage,
-  useTempleClient,
-  loadChainId,
-  michelEncoder,
-  loadFastRpcClient
-} from 'lib/temple/front';
+import { usePassiveStorage, useTempleClient } from 'lib/temple/front';
+import { loadChainId, michelEncoder, loadFastRpcClient } from 'lib/temple/helpers';
+import { ReadyTempleState, TempleAccountType, TempleStatus, TempleState } from 'lib/temple/types';
 
 export enum ActivationStatus {
   ActivationRequestSent,

@@ -20,15 +20,10 @@ import AssetInfo from 'app/templates/AssetInfo';
 import { TestIDProps } from 'lib/analytics';
 import { T, t } from 'lib/i18n/react';
 import { PropsWithChildren } from 'lib/props-with-children';
-import {
-  getAssetSymbol,
-  isTezAsset,
-  TempleAccountType,
-  TempleNetworkType,
-  useAccount,
-  useAssetMetadata,
-  useNetwork
-} from 'lib/temple/front';
+import { isTezAsset } from 'lib/temple/assets';
+import { useAccount, useAssetMetadata, useNetwork } from 'lib/temple/front';
+import { getAssetSymbol } from 'lib/temple/metadata';
+import { TempleAccountType, TempleNetworkType } from 'lib/temple/types';
 import useTippy from 'lib/ui/useTippy';
 import { HistoryAction, Link, navigate, To, useLocation } from 'lib/woozie';
 

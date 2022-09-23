@@ -3,6 +3,7 @@ import React, { FC, useMemo } from 'react';
 import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
 
+import { persistor, store } from 'app/store/store';
 import { CustomRpsContext } from 'lib/analytics';
 import { FiatCurrencyProvider } from 'lib/fiat-curency';
 import { PropsWithChildren } from 'lib/props-with-children';
@@ -13,7 +14,6 @@ import { ReadyTempleProvider, useNetwork } from 'lib/temple/front/ready';
 import { SyncTokensProvider } from 'lib/temple/front/sync-tokens';
 import { USDPriceProvider } from 'lib/temple/front/usdprice';
 
-import { persistor, store } from '../../../app/store/store';
 import { FungibleTokensBalancesProvider } from './fungible-tokens-balances';
 import { NonFungibleTokensBalancesProvider } from './non-fungible-tokens-balances';
 

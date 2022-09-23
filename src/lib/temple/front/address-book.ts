@@ -1,7 +1,8 @@
 import { useCallback } from 'react';
 
 import { getMessage } from 'lib/i18n';
-import { TempleContact, useTempleClient } from 'lib/temple/front';
+import { useTempleClient } from 'lib/temple/front';
+import { TempleContact } from 'lib/temple/types';
 
 import { useFilteredContacts } from './use-filtered-contacts.hook';
 

@@ -6,33 +6,36 @@ import Fuse from 'fuse.js';
 import useForceUpdate from 'use-force-update';
 import { browser } from 'webextension-polyfill-ts';
 
+import { useGasToken } from 'app/hooks/useGasToken';
 import { createQueue } from 'lib/queue';
 import { useRetryableSWR } from 'lib/swr';
 import {
+  isTezAsset,
+  fetchDisplayedFungibleTokens,
+  fetchFungibleTokens,
+  fetchAllKnownFungibleTokenSlugs,
+  fetchCollectibleTokens,
+  fetchAllKnownCollectibleTokenSlugs,
+  AssetTypesEnum,
+  isTokenDisplayed
+} from 'lib/temple/assets';
+import {
   useTezos,
   usePassiveStorage,
-  isTezAsset,
+  onStorageChanged,
+  putToStorage,
+  fetchFromStorage,
+  useChainId,
+  useAccount
+} from 'lib/temple/front';
+import {
   AssetMetadata,
   fetchTokenMetadata,
   PRESERVED_TOKEN_METADATA,
   TEZOS_METADATA,
-  fetchDisplayedFungibleTokens,
-  fetchFungibleTokens,
-  fetchAllKnownFungibleTokenSlugs,
-  onStorageChanged,
-  putToStorage,
-  fetchFromStorage,
-  fetchCollectibleTokens,
-  fetchAllKnownCollectibleTokenSlugs,
-  DetailedAssetMetdata,
-  AssetTypesEnum,
-  useChainId,
-  useAccount,
-  isTokenDisplayed
-} from 'lib/temple/front';
+  DetailedAssetMetdata
+} from 'lib/temple/metadata';
 import { ITokenStatus } from 'lib/temple/repo';
-
-import { useGasToken } from '../../../app/hooks/useGasToken';
 
 export const ALL_TOKENS_BASE_METADATA_STORAGE_KEY = 'tokens_base_metadata';
 

@@ -7,8 +7,9 @@ import FormField from 'app/atoms/FormField';
 import FormSubmitButton from 'app/atoms/FormSubmitButton';
 import AccountBanner from 'app/templates/AccountBanner';
 import { T, t } from 'lib/i18n/react';
-import { ActivationStatus, useTezos, useAccount, confirmOperation } from 'lib/temple/front';
+import { ActivationStatus, useTezos, useAccount } from 'lib/temple/front';
 import { activateAccount } from 'lib/temple/front/activate-account';
+import { confirmOperation } from 'lib/temple/operation';
 import useIsMounted from 'lib/ui/useIsMounted';
 
 type FormData = {

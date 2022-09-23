@@ -19,7 +19,8 @@ import { ReactComponent as TimeIcon } from 'app/icons/time.svg';
 import HashChip from 'app/templates/HashChip';
 import { getPluralKey, toLocalFormat } from 'lib/i18n/numbers';
 import { T } from 'lib/i18n/react';
-import { getRewardsStats, mutezToTz, useExplorerBaseUrls, useKnownBaker } from 'lib/temple/front';
+import { getRewardsStats, useExplorerBaseUrls, useKnownBaker } from 'lib/temple/front';
+import { mutezToTz } from 'lib/temple/helpers';
 import { TzktRewardsEntry } from 'lib/tzkt';
 
 import { useGasToken } from '../../hooks/useGasToken';

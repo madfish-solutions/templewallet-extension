@@ -1,6 +1,6 @@
 import BigNumber from 'bignumber.js';
 
-import { OperationsPreview } from 'lib/temple/front';
+import type { OperationsPreview } from 'lib/temple/types';
 
 export type RawOperationAssetExpense = {
   tokenAddress?: string;

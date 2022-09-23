@@ -6,18 +6,13 @@ import { useSWRConfig } from 'swr';
 import { ScopedMutator } from 'swr/dist/types';
 
 import {
-  useChainId,
-  useAccount,
   toTokenSlug,
-  useTokensMetadata,
-  AssetMetadata,
-  useUSDPrices,
   fetchDisplayedFungibleTokens,
   fetchCollectibleTokens,
-  toBaseMetadata,
-  DetailedAssetMetdata,
   getPredefinedTokensSlugs
-} from 'lib/temple/front';
+} from 'lib/temple/assets';
+import { useChainId, useAccount, useTokensMetadata, useUSDPrices } from 'lib/temple/front';
+import { AssetMetadata, toBaseMetadata, DetailedAssetMetdata } from 'lib/temple/metadata';
 import * as Repo from 'lib/temple/repo';
 import { getTokensMetadata } from 'lib/templewallet-api';
 import { fetchWhitelistTokenSlugs } from 'lib/templewallet-api/whitelist-tokens';

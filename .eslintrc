@@ -9,6 +9,7 @@
   "rules": {
     "prettier/prettier": "error",
     "import/no-named-as-default": 0,
+    "import/no-duplicates": "error",
     "import/order": [
       "error",
       {

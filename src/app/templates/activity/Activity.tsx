@@ -2,7 +2,8 @@ import React, { memo, useCallback, useEffect, useMemo, useRef, useLayoutEffect }
 
 import { ACTIVITY_PAGE_SIZE } from 'app/defaults';
 import { useRetryableSWR } from 'lib/swr';
-import { useChainId, fetchOperations, syncOperations, isSyncSupported } from 'lib/temple/front';
+import { fetchOperations, syncOperations, isSyncSupported } from 'lib/temple/activity';
+import { useChainId } from 'lib/temple/front';
 import { IOperation } from 'lib/temple/repo';
 import useSafeState from 'lib/ui/useSafeState';
 

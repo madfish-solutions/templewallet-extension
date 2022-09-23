@@ -4,7 +4,8 @@ import { TezosToolkit } from '@taquito/taquito';
 import { DomainNameValidationResult, isTezosDomainsSupportedNetwork } from '@tezos-domains/core';
 import { TaquitoTezosDomainsClient } from '@tezos-domains/taquito-client';
 
-import { useTezos, useChainId, NETWORK_IDS } from 'lib/temple/front';
+import { useTezos, useChainId } from 'lib/temple/front';
+import { NETWORK_IDS } from 'lib/temple/networks';
 
 export function getClient(networkId: 'mainnet' | 'custom', tezos: TezosToolkit) {
   return isTezosDomainsSupportedNetwork(networkId)
