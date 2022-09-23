@@ -25,6 +25,7 @@ import { ReactComponent as SettingsIcon } from 'app/icons/settings.svg';
 import CustomSelect, { OptionRenderProps } from 'app/templates/CustomSelect';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
 import { toLocalFixed } from 'lib/i18n/numbers';
+import type { TID } from 'lib/i18n/react';
 import { T, t } from 'lib/i18n/react';
 
 import { useGasToken } from '../hooks/useGasToken';
@@ -41,7 +42,7 @@ export type AdditionalFeeInputProps = Pick<ControllerProps<ComponentType>, 'name
 
 type FeeOption = {
   Icon?: FunctionComponent<SVGProps<SVGSVGElement>>;
-  descriptionI18nKey: string;
+  descriptionI18nKey: TID;
   type: 'minimal' | 'fast' | 'rocket' | 'custom';
   amount?: number;
 };

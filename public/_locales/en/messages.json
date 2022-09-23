@@ -555,13 +555,21 @@
     "message": "Each word separated with a single space"
   },
   "seedInputNumberOfWords": {
-    "message": "My Seed phrase is $1 words"
+    "message": "My Seed phrase is $count$ words",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
   },
   "justValidPreGeneratedMnemonic": {
     "message": "Just valid pre-generated mnemonic"
   },
   "seedPasteFailedTooManyWords": {
     "message": "Paste failed because it contained over 24 words."
+  },
+  "seedPhraseAttention": {
+    "message": "We don't track your derivation path on imported accounts"
   },
   "seedPhraseTip": {
     "message": "You can paste your entire secret Seed phrase into any field"
@@ -1083,6 +1091,42 @@
   },
   "cycles_one": {
     "message": "$amount$ cycle",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "cycles_zero": {
+    "message": "$amount$ cycles",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "cycles_two": {
+    "message": "$amount$ cycles",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "cycles_few": {
+    "message": "$amount$ cycles",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "cycles_many": {
+    "message": "$amount$ cycles",
     "description": "For plural forms",
     "placeholders": {
       "amount": {
@@ -2114,6 +2158,42 @@
       }
     }
   },
+  "blocks_zero": {
+    "message": "$amount$ blocks",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "blocks_two": {
+    "message": "$amount$ blocks",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "blocks_few": {
+    "message": "$amount$ blocks",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "blocks_many": {
+    "message": "$amount$ blocks",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
   "blocks_other": {
     "message": "$amount$ blocks",
     "description": "For plural forms",
@@ -2139,6 +2219,42 @@
   },
   "slots_one": {
     "message": "$amount$ slot",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "slots_zero": {
+    "message": "$amount$ slots",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "slots_two": {
+    "message": "$amount$ slots",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "slots_few": {
+    "message": "$amount$ slots",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "slots_many": {
+    "message": "$amount$ slots",
     "description": "For plural forms",
     "placeholders": {
       "amount": {
@@ -2288,16 +2404,16 @@
     "message": "After creating an account, you’ll get a unique address — your personal identifier in the Tezos blockchain. If you would like to receive and use TEZ or Tezos-built tokens in Temple, you should use this address."
   },
   "addressBalanceHint": {
-    "message": "The balance of your TEZ is displayed under the public address."
+    "message": "Your total balance is displayed near the public address."
   },
   "howToStartDetails": {
     "message": "How to start"
   },
   "howToStartDescription1": {
-    "message": "To start using your wallet and interacting with the Tezos DApps ecosystem, the account balance must be positive. To do this, top up your address with TEZ coins."
+    "message": "To start using your wallet and interacting with the Tezos DApps ecosystem, the account balance must be positive. To do this, top up your address with TEZ."
   },
   "howToStartDescription2": {
-    "message": "You can use the \"Buy\" button and top up your TEZ balance, using cryptocurrencies, debit, or credit cards."
+    "message": "You can use the \"Buy\" button to exchange your\ncryptocurrencies, as well as top up your balance using fiat currencies to receive TEZ or USDt."
   },
   "howToStartHint": {
     "message": "Also, you can copy your address and send coins to it from another wallet or Exchange. To copy the address, click on it on the main wallet screen or use “Receive”."
@@ -2674,7 +2790,7 @@
     "message": "You can sync your Seed Phrase and accounts (HD) with your mobile device. If you just open the Temple Mobile app for the first time, click 'Sync' button and follow the steps in your phone."
   },
   "syncPasswordDescription": {
-    "message": "The password is used to protect the synchronization process."
+    "message": "Use your current wallet password to start the synchronization."
   },
   "syncSettingsAlert": {
     "message": "Make sure nobody else is looking at your screen when you scan this code."

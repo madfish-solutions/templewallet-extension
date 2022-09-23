@@ -40,7 +40,7 @@ export function usePassiveStorage<T = any>(key: string, fallback?: T): [T, Dispa
   });
   const finalData = fallback !== undefined ? data ?? fallback : data!;
 
-  const [value, setValue] = useState(finalData);
+  const [value, setValue] = useState<T>(finalData);
   const prevValue = useRef(value);
 
   useEffect(() => {

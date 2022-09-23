@@ -7,10 +7,10 @@ import {
   TzktGetRewardsParams,
   TzktGetRewardsResponse,
   TzktOperation,
-  TzktRelatedContract
+  TzktRelatedContract,
+  TzktTokenTransfer,
+  TzktAccountTokenBalance
 } from 'lib/tzkt/types';
-
-import { TzktAccountTokenBalance, TzktTokenTransfer } from '.';
 
 export const TZKT_API_BASE_URLS = new Map([
   [TempleChainId.Mainnet, 'https://api.tzkt.io/v1'],

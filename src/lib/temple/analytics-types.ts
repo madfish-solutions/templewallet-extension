@@ -1,4 +1,4 @@
-import { TempleMessageBase, TempleMessageType } from './types';
+import type { TempleMessageBase, TempleMessageType } from './types';
 
 export enum AnalyticsEventCategory {
   General = 'General',

@@ -23,9 +23,9 @@ async function fetchTzktTokenTransfers(chainId: string, address: string) {
 
   const size = 100;
 
-  const total = await getTokenTransfersCount(chainId as any, { address });
+  const total = await getTokenTransfersCount(chainId, { address });
 
-  let tokenTransfers = await getTokenTransfers(chainId as any, {
+  let tokenTransfers = await getTokenTransfers(chainId, {
     address,
     offset: 0,
     limit: size,
@@ -58,7 +58,7 @@ async function fetchTzktOperations(chainId: string, address: string, fresh: bool
 
   const size = 1000;
 
-  const operations = await getOperations(chainId as any, {
+  const operations = await getOperations(chainId, {
     address,
     sort: 1,
     limit: size,
@@ -76,7 +76,7 @@ async function fetchFa12Transfers(chainId: string, address: string, fresh: boole
 
   const size = 1000;
 
-  const operations = await getFa12Transfers(chainId as any, {
+  const operations = await getFa12Transfers(chainId, {
     address,
     limit: size,
     offset: 0,
@@ -93,7 +93,7 @@ async function fetchFa2Transfers(chainId: string, address: string, fresh: boolea
 
   const size = 1000;
 
-  const operations = await getFa2Transfers(chainId as any, {
+  const operations = await getFa2Transfers(chainId, {
     address,
     limit: size,
     offset: 0,

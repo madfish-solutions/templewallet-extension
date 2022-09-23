@@ -2,12 +2,13 @@ import React from 'react';
 
 import classNames from 'clsx';
 
+import type { TID } from 'lib/i18n/react';
 import { T } from 'lib/i18n/react';
 import { Link } from 'lib/woozie';
 
 type ImportTabDescriptor = {
   slug: string;
-  i18nKey: string;
+  i18nKey: TID;
 };
 
 type ImportTabSwitcherProps = {
