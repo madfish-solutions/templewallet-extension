@@ -13,15 +13,16 @@ export function fetchTezosBalance(tezos: TezosToolkit, account: string) {
 export async function fetchBalance(
   tezos: TezosToolkit,
   assetSlug: string,
-  assetMetadata: Pick<AssetMetadata, 'decimals'> | null,
+  assetMetadata: Pick<AssetMetadata, 'decimals'> | null = TEZOS_METADATA,
   account: string
 ) {
   const asset = await fromAssetSlug(tezos, assetSlug);
 
-  let nat;
+  const nat = new BigNumber(0);
 
   if (asset === 'tez') {
-    nat = await getBalanceSafe(tezos, account);
+    const safeBalance = await getBalanceSafe(tezos, account);
+    nat.plus(safeBalance ?? new BigNumber(0));
   } else {
     const contract = await loadContract(tezos, asset.contract, false);
     const chainId = (await tezos.rpc.getChainId()) as ChainIds;
@@ -29,17 +30,15 @@ export async function fetchBalance(
     if (isFA2Token(asset)) {
       try {
         const response = await contract.views.balance_of([{ owner: account, token_id: asset.id }]).read(chainId);
-        nat = response[0].balance;
+        const accountBalance = response[0].balance;
+        nat.plus(getSafeBignum(accountBalance));
       } catch {}
     } else {
       try {
-        nat = await contract.views.getBalance(account).read(chainId);
+        const accountBalance = await contract.views.getBalance(account).read(chainId);
+        nat.plus(getSafeBignum(accountBalance));
       } catch {}
     }
-  }
-
-  if (!nat || nat.isNaN()) {
-    nat = new BigNumber(0);
   }
 
   return assetMetadata ? nat.div(10 ** assetMetadata.decimals) : nat;
@@ -51,3 +50,5 @@ const getBalanceSafe = async (tezos: TezosToolkit, account: string) => {
   } catch {}
   return undefined;
 };
+
+const getSafeBignum = (x: any): BigNumber => (!x || x.isNaN() ? new BigNumber(0) : new BigNumber(x));
