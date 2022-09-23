@@ -8,7 +8,7 @@ import { Link } from 'lib/woozie';
 
 import { AssetIcon } from '../../../../templates/AssetIcon';
 import { AssetsSelectors } from '../../Assets.selectors';
-import styles from '../TokensList.module.css';
+import styles from '../Tokens.module.css';
 import { toExploreAssetLink } from '../utils';
 import Balance from './Balance';
 import { DelegateButton } from './DelegateButton';

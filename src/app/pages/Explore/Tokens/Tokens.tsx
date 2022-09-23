@@ -16,7 +16,7 @@ import { AssetsSelectors } from '../Assets.selectors';
 import { ListItem } from './components/ListItem';
 import { toExploreAssetLink } from './utils';
 
-export const TokensList: FC = () => {
+export const Tokens: FC = () => {
   const chainId = useChainId(true)!;
   const { publicKeyHash } = useAccount();
   const { data: tezBalance = new BigNumber(0) } = useBalance('tez', publicKeyHash);

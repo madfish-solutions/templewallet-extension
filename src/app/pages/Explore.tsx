@@ -40,7 +40,7 @@ import AddressChip from './Explore/AddressChip';
 import BakingSection from './Explore/BakingSection';
 import EditableTitle from './Explore/EditableTitle';
 import MainBanner from './Explore/MainBanner';
-import { TokensList } from './Explore/TokensList/TokensList';
+import { Tokens } from './Explore/Tokens/Tokens';
 import { useOnboardingProgress } from './Onboarding/hooks/useOnboardingProgress.hook';
 import Onboarding from './Onboarding/Onboarding';
 
@@ -256,7 +256,7 @@ const SecondarySection: FC<SecondarySectionProps> = ({ assetSlug, className }) =
         {
           slug: 'tokens',
           title: t('tokens'),
-          Component: TokensList,
+          Component: Tokens,
           testID: ExploreSelectors.AssetsTab
         },
         {

@@ -6,7 +6,7 @@ import { Button } from 'app/atoms/Button';
 import { T } from 'lib/i18n/react';
 import { navigate } from 'lib/woozie';
 
-import styles from '../TokensList.module.css';
+import styles from '../Tokens.module.css';
 
 export const DelegateButton: FC = () => (
   <Button
