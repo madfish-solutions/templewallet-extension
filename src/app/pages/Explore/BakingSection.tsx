@@ -204,7 +204,7 @@ const BakingSection = memo(() => {
   return useMemo(
     () => (
       <div className="mt-3 flex justify-center">
-        <div className={classNames('mb-12 flex flex-col items-stretch max-w-sm', popup ? 'mx-4' : '')}>
+        <div className={classNames('mb-12 flex flex-col items-stretch max-w-sm', popup && 'mx-4')}>
           {myBakerPkh ? (
             <>
               <div

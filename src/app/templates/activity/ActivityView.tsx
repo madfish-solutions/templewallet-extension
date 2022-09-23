@@ -37,7 +37,7 @@ const ActivityView = memo<ActivityViewProps>(
             'mt-4 mb-12',
             'flex flex-col items-center justify-center',
             'text-gray-500',
-            popup ? 'mx-4' : ''
+            popup && 'mx-4'
           )}
         >
           <LayersIcon className="w-16 h-auto mb-2 stroke-current" />
@@ -50,7 +50,7 @@ const ActivityView = memo<ActivityViewProps>(
     }
 
     return (
-      <div className={classNames(popup ? 'mx-4' : '')}>
+      <div className={classNames(popup && 'mx-4')}>
         <div className={classNames('w-full max-w-sm mx-auto', 'flex flex-col', className)}>
           {operations?.map(op => (
             <ActivityItem key={op.hash} address={address} operation={op} syncSupported={syncSupported} />

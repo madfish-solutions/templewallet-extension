@@ -34,9 +34,7 @@ const CollectibleItem: FC<Props> = ({ assetSlug, index, itemsLength }) => {
           </div>
         </div>
         <div className="pl-2">
-          <p style={{ color: '#1B262C' }} className="text-sm">
-            {collectibleMetadata.name}
-          </p>
+          <p className="text-sm text-gray-910">{collectibleMetadata.name}</p>
         </div>
       </div>
     </Link>

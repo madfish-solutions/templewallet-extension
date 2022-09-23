@@ -49,17 +49,19 @@ const MainnetVolumeBanner: FC<MainnetVolumeBannerProps> = ({ chainId, accountPkh
   const { fiatRates, selectedFiatCurrency } = useFiatCurrency();
   const fiatToUsdRate = (fiatRates ?? {})[selectedFiatCurrency.name.toLowerCase()] ?? 1;
 
-  const volumeInFiat = useMemo(() => {
+  const volumeInFiat = useMemo<BigNumber>(() => {
+    const initialVolume = new BigNumber(0);
+
     if (tokens && tezBalance && tezPriceInFiat) {
       const tezBalanceInFiat = tezBalance.times(tezPriceInFiat);
       const tokensBalanceInFiat = tokens
-        .reduce((sum, t) => sum.plus(t.latestUSDBalance ?? 0), new BigNumber(0))
+        .reduce((sum, t) => sum.plus(t.latestUSDBalance ?? 0), initialVolume)
         .times(fiatToUsdRate);
 
       return tezBalanceInFiat.plus(tokensBalanceInFiat);
     }
 
-    return 0;
+    return initialVolume;
   }, [tokens, tezBalance, tezPriceInFiat, fiatToUsdRate]);
 
   return (

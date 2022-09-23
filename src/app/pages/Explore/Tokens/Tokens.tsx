@@ -139,7 +139,7 @@ const Tokens: FC = () => {
 
   return (
     <div className={classNames('w-full max-w-sm mx-auto')}>
-      <div className={classNames('mt-3', popup ? 'mx-4' : '')}>
+      <div className={classNames('mt-3', popup && 'mx-4')}>
         <div className="mb-3 w-full flex items-strech">
           <SearchAssetField
             value={searchValue}
