@@ -20,15 +20,6 @@ import {
   isTokenDisplayed
 } from 'lib/temple/assets';
 import {
-  useTezos,
-  usePassiveStorage,
-  onStorageChanged,
-  putToStorage,
-  fetchFromStorage,
-  useChainId,
-  useAccount
-} from 'lib/temple/front';
-import {
   AssetMetadata,
   fetchTokenMetadata,
   PRESERVED_TOKEN_METADATA,
@@ -37,7 +28,10 @@ import {
 } from 'lib/temple/metadata';
 import { ITokenStatus } from 'lib/temple/repo';
 
-export const ALL_TOKENS_BASE_METADATA_STORAGE_KEY = 'tokens_base_metadata';
+import { useTezos, useChainId, useAccount } from './ready';
+import { onStorageChanged, putToStorage, usePassiveStorage } from './storage';
+
+const ALL_TOKENS_BASE_METADATA_STORAGE_KEY = 'tokens_base_metadata';
 
 export function useDisplayedFungibleTokens(chainId: string, account: string) {
   return useRetryableSWR(
@@ -51,7 +45,7 @@ export function useDisplayedFungibleTokens(chainId: string, account: string) {
   );
 }
 
-export function useFungibleTokens(chainId: string, account: string) {
+function useFungibleTokens(chainId: string, account: string) {
   return useRetryableSWR(['fungible-tokens', chainId, account], () => fetchFungibleTokens(chainId, account), {
     revalidateOnMount: true,
     refreshInterval: 20_000,
@@ -71,7 +65,7 @@ export function useCollectibleTokens(chainId: string, account: string, isDisplay
   );
 }
 
-export function useAllKnownFungibleTokenSlugs(chainId: string) {
+function useAllKnownFungibleTokenSlugs(chainId: string) {
   return useRetryableSWR(['all-known-fungible-token-slugs', chainId], () => fetchAllKnownFungibleTokenSlugs(chainId), {
     revalidateOnMount: true,
     refreshInterval: 60_000,
@@ -79,7 +73,7 @@ export function useAllKnownFungibleTokenSlugs(chainId: string) {
   });
 }
 
-export function useAllKnownCollectibleTokenSlugs(chainId: string) {
+function useAllKnownCollectibleTokenSlugs(chainId: string) {
   return useRetryableSWR(
     ['all-known-collectible-token-slugs', chainId],
     () => fetchAllKnownCollectibleTokenSlugs(chainId),
@@ -214,25 +208,6 @@ export const useGetTokenMetadata = () => {
     [allTokensBaseMetadataRef, metadata]
   );
 };
-
-export function useDetailedAssetMetadata(slug: string) {
-  const baseMetadata = useAssetMetadata(slug);
-
-  const storageKey = useMemo(() => getDetailedMetadataStorageKey(slug), [slug]);
-
-  const { data: detailedMetadata, mutate } = useRetryableSWR<DetailedAssetMetdata>(
-    ['detailed-metadata', storageKey],
-    fetchFromStorage,
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false
-    }
-  );
-
-  useEffect(() => onStorageChanged(storageKey, mutate), [storageKey, mutate]);
-
-  return detailedMetadata ?? baseMetadata;
-}
 
 export function useAllTokensBaseMetadata() {
   const { allTokensBaseMetadataRef } = useTokensMetadata();

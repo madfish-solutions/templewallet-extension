@@ -24,11 +24,6 @@ export function toTokenId(contractAddress: string, tokenId: string | number = 0)
   return `${contractAddress}_${tokenId}`;
 }
 
-export function getTzktTokenTransferId(hash: string, nonce?: number) {
-  const nonceStr = nonce ? `_${nonce}` : '';
-  return `${hash}${nonceStr}`;
-}
-
 const formatFa12 = (
   parameters: any,
   destination: string,

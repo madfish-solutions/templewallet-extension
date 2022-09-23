@@ -1,13 +1,15 @@
-import { HistoryAction, createUrl, changeState } from 'lib/woozie/history';
-import { To, createLocationState, createLocationUpdates } from 'lib/woozie/location';
-import * as Router from 'lib/woozie/router';
+import { HistoryAction, createUrl, changeState } from './history';
+import { To, createLocationState, createLocationUpdates } from './location';
+import * as Router from './router';
 
-export * from 'lib/woozie/config';
-export * from 'lib/woozie/history';
-export * from 'lib/woozie/location';
-export { default as Provider } from 'lib/woozie/Provider';
-export { default as Link } from 'lib/woozie/Link';
-export { default as Redirect } from 'lib/woozie/Redirect';
+export * from './config';
+export * from './history';
+export * from './location';
+
+export { default as Provider } from './Provider';
+export { default as Link } from './Link';
+export { default as Redirect } from './Redirect';
+
 export { Router };
 
 export function navigate(to: To, action?: HistoryAction.Push | HistoryAction.Replace) {

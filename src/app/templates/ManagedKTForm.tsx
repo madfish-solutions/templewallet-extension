@@ -227,7 +227,7 @@ const ManagedKTForm: FC = () => {
 
 export default ManagedKTForm;
 
-export const getUsersContracts = async (_k: string, chainId: string, ...accounts: string[]) => {
+const getUsersContracts = async (_k: string, chainId: string, ...accounts: string[]) => {
   if (!isKnownChainId(chainId) || !TZKT_API_BASE_URLS.has(chainId)) {
     return [];
   }

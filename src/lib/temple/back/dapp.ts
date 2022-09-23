@@ -349,11 +349,11 @@ export async function getAllDApps() {
   return dAppsSessions;
 }
 
-export async function getDApp(origin: string): Promise<TempleDAppSession | undefined> {
+async function getDApp(origin: string): Promise<TempleDAppSession | undefined> {
   return (await getAllDApps())[origin];
 }
 
-export async function setDApp(origin: string, permissions: TempleDAppSession) {
+async function setDApp(origin: string, permissions: TempleDAppSession) {
   const current = await getAllDApps();
   const newDApps = { ...current, [origin]: permissions };
   await setDApps(newDApps);
@@ -489,7 +489,7 @@ async function requestConfirm({ id, payload, onDecline, handleIntercomRequest }:
   const stopTimeout = () => clearTimeout(t);
 }
 
-export async function getNetworkRPC(net: TempleDAppNetwork) {
+async function getNetworkRPC(net: TempleDAppNetwork) {
   const targetRpc = typeof net === 'string' ? NETWORKS.find(n => n.id === net)!.rpcBaseURL : removeLastSlash(net.rpc);
 
   if (typeof net === 'string') {

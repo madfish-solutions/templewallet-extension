@@ -1,6 +1,6 @@
 import constate from 'constate';
 
-import { fetchNFTBalances, fetchNFTBalancesCount } from 'lib/tzkt/client';
+import { fetchNFTBalances, fetchNFTBalancesCount } from 'lib/tzkt';
 
 import { useInfiniteList } from './use-infinite-list';
 

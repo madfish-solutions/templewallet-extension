@@ -22,7 +22,7 @@ import { TempleChainId } from '../types';
 import { useFungibleTokensBalances } from './fungible-tokens-balances';
 import { useNonFungibleTokensBalances } from './non-fungible-tokens-balances';
 
-export const [SyncTokensProvider, useSyncTokens] = constate(() => {
+export const [SyncTokensProvider] = constate(() => {
   const { mutate } = useSWRConfig();
   const chainId = useChainId(true)!;
   const { items: tokens } = useFungibleTokensBalances();

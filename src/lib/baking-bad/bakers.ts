@@ -9,10 +9,12 @@ export const bakingBadGetBaker = buildQuery<BakingBadGetBakerParams, BakingBadGe
   ['configs', 'insurance', 'contribution', 'type']
 );
 
-export const bakingBadGetKnownBakers = buildQuery<
-  Omit<BakingBadGetBakerParams, 'address'>,
-  BakingBadGetBakerResponse[]
->(api, 'GET', '/bakers', ['configs', 'insurance', 'contribution', 'type', 'health']);
+const bakingBadGetKnownBakers = buildQuery<Omit<BakingBadGetBakerParams, 'address'>, BakingBadGetBakerResponse[]>(
+  api,
+  'GET',
+  '/bakers',
+  ['configs', 'insurance', 'contribution', 'type', 'health']
+);
 
 export async function getAllBakersBakingBad() {
   const bakers = await bakingBadGetKnownBakers({

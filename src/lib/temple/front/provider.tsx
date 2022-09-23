@@ -7,15 +7,15 @@ import { persistor, store } from 'app/store/store';
 import { CustomRpsContext } from 'lib/analytics';
 import { FiatCurrencyProvider } from 'lib/fiat-curency';
 import { PropsWithChildren } from 'lib/props-with-children';
-import { TokensMetadataProvider } from 'lib/temple/front/assets';
-import { NewBlockTriggersProvider } from 'lib/temple/front/chain';
-import { TempleClientProvider, useTempleClient } from 'lib/temple/front/client';
-import { ReadyTempleProvider, useNetwork } from 'lib/temple/front/ready';
-import { SyncTokensProvider } from 'lib/temple/front/sync-tokens';
-import { USDPriceProvider } from 'lib/temple/front/usdprice';
 
+import { TokensMetadataProvider } from './assets';
+import { NewBlockTriggersProvider } from './chain';
+import { TempleClientProvider, useTempleClient } from './client';
 import { FungibleTokensBalancesProvider } from './fungible-tokens-balances';
 import { NonFungibleTokensBalancesProvider } from './non-fungible-tokens-balances';
+import { ReadyTempleProvider, useNetwork } from './ready';
+import { SyncTokensProvider } from './sync-tokens';
+import { USDPriceProvider } from './usdprice';
 
 export const TempleProvider: FC<PropsWithChildren> = ({ children }) => (
   <CustomRpsContext.Provider value={undefined}>

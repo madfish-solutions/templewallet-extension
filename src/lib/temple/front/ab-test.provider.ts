@@ -19,7 +19,7 @@ export function useAB() {
   }, [analyticsState, abGroup]);
 }
 
-export const [ABTestGroupProvider, useABGroup] = constate(() => {
+const [ABTestGroupProvider, useABGroup] = constate(() => {
   const [localABGroup, setLocalABGroup] = usePassiveStorage<ABTestGroup>('ab-test-value', ABTestGroup.Unknown);
   const { analyticsState } = useAnalyticsState();
 
@@ -37,6 +37,8 @@ export const [ABTestGroupProvider, useABGroup] = constate(() => {
 
   return localABGroup;
 });
+
+export { ABTestGroupProvider };
 
 async function fetchABGroup() {
   const group = await getABGroup({}).catch(() => null);

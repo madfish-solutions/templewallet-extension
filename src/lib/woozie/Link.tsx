@@ -1,9 +1,10 @@
 import React, { AnchorHTMLAttributes, FC, MouseEventHandler, useCallback, useMemo } from 'react';
 
 import { TestIDProps, useAnalytics, AnalyticsEventCategory } from 'lib/analytics';
-import { USE_LOCATION_HASH_AS_URL } from 'lib/woozie/config';
-import { HistoryAction, createUrl, changeState } from 'lib/woozie/history';
-import { To, createLocationUpdates, useLocation } from 'lib/woozie/location';
+
+import { USE_LOCATION_HASH_AS_URL } from './config';
+import { HistoryAction, createUrl, changeState } from './history';
+import { To, createLocationUpdates, useLocation } from './location';
 
 export interface LinkProps extends AnchorHTMLAttributes<HTMLAnchorElement>, TestIDProps {
   to: To;

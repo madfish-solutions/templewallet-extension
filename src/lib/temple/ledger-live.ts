@@ -8,7 +8,7 @@ export function pickLedgerTransport() {
   return pickTransport(savedTransport === 'true');
 }
 
-export function pickTransport(isLedgerLive: boolean) {
+function pickTransport(isLedgerLive: boolean) {
   if (isLedgerLive) return TransportType.LEDGERLIVE;
   const navigator = window.navigator as undefined | (Navigator & { hid: unknown });
   return navigator && navigator.hid ? TransportType.WEBHID : TransportType.U2F;

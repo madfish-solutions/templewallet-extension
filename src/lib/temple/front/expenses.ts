@@ -21,7 +21,7 @@ export function tryParseExpenses(operations: OperationsPreview, accountAddress: 
   return tryParseExpensesPure(operations, accountAddress);
 }
 
-export function tryParseExpensesPure(operations: OperationsPreview, accountAddress: string): RawOperationExpenses[] {
+function tryParseExpensesPure(operations: OperationsPreview, accountAddress: string): RawOperationExpenses[] {
   const operationsAsArray = Array.isArray(operations) ? operations : operations.contents;
   return (Array.isArray(operationsAsArray) ? operationsAsArray : [])
     .map<RawOperationExpenses | undefined>(operation => mapExpensesArray(operation, accountAddress))
