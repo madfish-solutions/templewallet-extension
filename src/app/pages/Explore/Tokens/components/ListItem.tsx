@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo, useEffect, useState } from 'react';
 
 import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
@@ -14,13 +14,22 @@ import Balance from './Balance';
 import { DelegateButton } from './DelegateButton';
 
 interface ListItemProps {
-  assetSlug: string;
-  latestBalance: BigNumber;
   active: boolean;
+  assetSlug: string;
+  latestBalances: Record<string, BigNumber>;
 }
 
-export const ListItem = memo<ListItemProps>(({ assetSlug, active, latestBalance }) => {
+export const ListItem = memo<ListItemProps>(({ active, assetSlug, latestBalances }) => {
+  const [latestBalance, setLatestBalance] = useState(new BigNumber(0));
+
   const metadata = useAssetMetadata(assetSlug);
+
+  useEffect(() => {
+    if (latestBalances.hasOwnProperty(assetSlug)) {
+      setLatestBalance(latestBalances[assetSlug]);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [latestBalances]);
 
   return (
     <Link

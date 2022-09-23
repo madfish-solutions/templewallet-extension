@@ -1,17 +1,15 @@
 import React, { FC, useCallback, useEffect, useMemo, useState } from 'react';
 
-import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
-import { CSSTransition, TransitionGroup } from 'react-transition-group';
 
 import { ReactComponent as AddToListIcon } from 'app/icons/add-to-list.svg';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
 import SearchAssetField from 'app/templates/SearchAssetField';
 import { T } from 'lib/i18n/react';
-import { useAccount, useChainId, useDisplayedFungibleTokens, useBalance } from 'lib/temple/front';
+import { useAccount, useChainId, useDisplayedFungibleTokens, useFilteredAssets } from 'lib/temple/front';
 import { Link, navigate } from 'lib/woozie';
 
-import { useFilteredAssetsList } from '../../../hooks/use-filtered-assets-list';
+import { IAccountToken, ITokenStatus, ITokenType } from '../../../../lib/temple/repo';
 import { useUpdatedBalances } from '../../../hooks/use-updated-balances';
 import { AssetsSelectors } from '../Assets.selectors';
 import { ListItem } from './components/ListItem';
@@ -20,21 +18,32 @@ import { toExploreAssetLink } from './utils';
 export const Tokens: FC = () => {
   const chainId = useChainId(true)!;
   const { publicKeyHash } = useAccount();
-  const { data: tezBalance = new BigNumber(0) } = useBalance('tez', publicKeyHash);
+
+  const tezToken = useMemo<IAccountToken>(
+    () => ({
+      type: ITokenType.Fungible,
+      chainId: chainId,
+      account: publicKeyHash,
+      tokenSlug: 'tez',
+      status: ITokenStatus.Enabled,
+      addedAt: 0
+    }),
+    [chainId, publicKeyHash]
+  );
 
   const { data: tokens = [] } = useDisplayedFungibleTokens(chainId, publicKeyHash);
-  const tokenSlugsWithLatestBalances = useUpdatedBalances(tokens, chainId, publicKeyHash);
 
-  const { filteredAssets, searchValue, setSearchValue } = useFilteredAssetsList([
-    { slug: 'tez', latestBalance: tezBalance },
-    ...tokenSlugsWithLatestBalances
-  ]);
+  const tokenSlugs = tokens.map(({ tokenSlug }) => tokenSlug);
+
+  const { filteredAssets, searchValue, setSearchValue } = useFilteredAssets(['tez', ...tokenSlugs]);
+
+  const latestBalances = useUpdatedBalances([tezToken, ...tokens], chainId, publicKeyHash);
 
   const [searchFocused, setSearchFocused] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
   const searchValueExist = useMemo(() => Boolean(searchValue), [searchValue]);
 
-  const activeAsset = useMemo(() => {
+  const activeAssetSlug = useMemo(() => {
     return searchFocused && searchValueExist && filteredAssets[activeIndex] ? filteredAssets[activeIndex] : null;
   }, [filteredAssets, searchFocused, searchValueExist, activeIndex]);
 
@@ -53,12 +62,12 @@ export const Tokens: FC = () => {
   }, [setSearchFocused]);
 
   useEffect(() => {
-    if (!activeAsset) return;
+    if (!activeAssetSlug) return;
 
     const handleKeyup = (evt: KeyboardEvent) => {
       switch (evt.key) {
         case 'Enter':
-          navigate(toExploreAssetLink(activeAsset.slug));
+          navigate(toExploreAssetLink(activeAssetSlug));
           break;
 
         case 'ArrowDown':
@@ -73,7 +82,7 @@ export const Tokens: FC = () => {
 
     window.addEventListener('keyup', handleKeyup);
     return () => window.removeEventListener('keyup', handleKeyup);
-  }, [activeAsset, setActiveIndex]);
+  }, [activeAssetSlug, setActiveIndex]);
 
   return (
     <div className={classNames('w-full max-w-sm mx-auto')}>
@@ -134,31 +143,11 @@ export const Tokens: FC = () => {
             'text-gray-700 text-sm leading-tight'
           )}
         >
-          <TransitionGroup key={chainId}>
-            {filteredAssets.map(asset => {
-              const active = activeAsset ? asset.slug === activeAsset.slug : false;
+          {filteredAssets.map(assetSlug => {
+            const active = activeAssetSlug ? assetSlug === activeAssetSlug : false;
 
-              return (
-                <CSSTransition
-                  key={asset.slug}
-                  timeout={300}
-                  classNames={{
-                    enter: 'opacity-0',
-                    enterActive: classNames('opacity-100', 'transition ease-out duration-300'),
-                    exit: classNames('opacity-0', 'transition ease-in duration-300')
-                  }}
-                  unmountOnExit
-                >
-                  <ListItem
-                    key={asset.slug}
-                    assetSlug={asset.slug}
-                    active={active}
-                    latestBalance={asset.latestBalance}
-                  />
-                </CSSTransition>
-              );
-            })}
-          </TransitionGroup>
+            return <ListItem key={assetSlug} assetSlug={assetSlug} active={active} latestBalances={latestBalances} />;
+          })}
         </div>
       )}
     </div>

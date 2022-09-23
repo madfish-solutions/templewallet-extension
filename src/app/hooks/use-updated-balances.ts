@@ -5,12 +5,8 @@ import BigNumber from 'bignumber.js';
 import { fetchBalance, useAllTokensBaseMetadata, useSyncTokens, useTezos } from 'lib/temple/front';
 import { IAccountToken } from 'lib/temple/repo';
 
-interface UpdatedAssetsInterface extends Omit<IAccountToken, 'latestBalance'> {
-  latestBalance: BigNumber;
-}
-
 export const useUpdatedBalances = (assets: IAccountToken[], chainId: string, address: string) => {
-  const [assetsWithUpdatedBalances, setAssetsWithUpdatedBalances] = useState<UpdatedAssetsInterface[]>([]);
+  const [assetSlugsWithUpdatedBalances, setAssetSlugsWithUpdatedBalances] = useState<Record<string, BigNumber>>({});
 
   const tezos = useTezos();
   const allTokensBaseMetadata = useAllTokensBaseMetadata();
@@ -33,12 +29,12 @@ export const useUpdatedBalances = (assets: IAccountToken[], chainId: string, add
 
       if (!shouldLoad) break;
 
-      setAssetsWithUpdatedBalances(prevState => [...prevState, { ...asset, latestBalance }]);
+      setAssetSlugsWithUpdatedBalances(prevState => ({ ...prevState, [tokenSlug]: latestBalance }));
     }
   }, [address, allTokensBaseMetadata, assets, tezos]);
 
   useEffect(() => {
-    setAssetsWithUpdatedBalances([]);
+    setAssetSlugsWithUpdatedBalances({});
 
     if (isSync === false) {
       updateBalances();
@@ -46,5 +42,5 @@ export const useUpdatedBalances = (assets: IAccountToken[], chainId: string, add
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSync]);
 
-  return assetsWithUpdatedBalances.map(({ tokenSlug, latestBalance }) => ({ slug: tokenSlug, latestBalance }));
+  return assetSlugsWithUpdatedBalances;
 };
