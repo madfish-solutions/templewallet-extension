@@ -23,7 +23,7 @@ import { getTokensMetadata } from 'lib/templewallet-api';
 import { fetchWhitelistTokenSlugs } from 'lib/templewallet-api/whitelist-tokens';
 import { fetchTzktTokens, TzktAccountToken } from 'lib/tzkt';
 
-import { useTimerEffect } from '../../../app/hooks/use-timer-effect';
+import { useTimerEffect } from '../../../app/hooks/useTimerEffect';
 import { TempleChainId } from '../types';
 
 const SYNC_INTERVAL = 60_000;

@@ -22,7 +22,7 @@ import { T } from 'lib/i18n/react';
 import { getRewardsStats, mutezToTz, useExplorerBaseUrls, useKnownBaker } from 'lib/temple/front';
 import { TzktRewardsEntry } from 'lib/tzkt';
 
-import { useGasToken } from '../../hooks/use-gas-token';
+import { useGasToken } from '../../hooks/useGasToken';
 import styles from './BakingHistoryItem.module.css';
 
 type BakingHistoryItemProps = {

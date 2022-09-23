@@ -22,7 +22,7 @@ import {
   useAssetMetadata
 } from 'lib/temple/front';
 
-import { useGasToken } from '../../hooks/use-gas-token';
+import { useGasToken } from '../../hooks/useGasToken';
 import OperationsBanner from '../OperationsBanner';
 import styles from './ExpensesView.module.css';
 

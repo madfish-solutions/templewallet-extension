@@ -10,7 +10,7 @@ import Balance from 'app/templates/Balance';
 import { t } from 'lib/i18n/react';
 import { TempleAccount } from 'lib/temple/front';
 
-import { useGasToken } from '../hooks/use-gas-token';
+import { useGasToken } from '../hooks/useGasToken';
 
 type AccountBannerProps = HTMLAttributes<HTMLDivElement> & {
   account: TempleAccount;

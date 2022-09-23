@@ -10,7 +10,7 @@ import { useAccount, useChainId, useDisplayedFungibleTokens, useFilteredAssets }
 import { Link, navigate } from 'lib/woozie';
 
 import { IAccountToken, ITokenStatus, ITokenType } from '../../../../lib/temple/repo';
-import { useUpdatedBalances } from '../../../hooks/use-updated-balances';
+import { useUpdatedBalances } from '../../../hooks/useUpdatedBalances';
 import { AssetsSelectors } from '../Assets.selectors';
 import { ListItem } from './components/ListItem';
 import { toExploreAssetLink } from './utils';

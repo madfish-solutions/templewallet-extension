@@ -25,7 +25,7 @@ import { useAccount, useRelevantAccounts, useSetAccountPkh, useTempleClient } fr
 import { PopperRenderProps } from 'lib/ui/Popper';
 import { Link } from 'lib/woozie';
 
-import { useGasToken } from '../../../hooks/use-gas-token';
+import { useGasToken } from '../../../hooks/useGasToken';
 import { AccountDropdownSelectors } from './AccountDropdown.selectors';
 
 type AccountDropdownProps = PopperRenderProps;

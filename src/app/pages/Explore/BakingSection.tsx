@@ -27,7 +27,7 @@ import useTippy from 'lib/ui/useTippy';
 import { Link } from 'lib/woozie';
 
 import { useAppEnv } from '../../env';
-import { useGasToken } from '../../hooks/use-gas-token';
+import { useGasToken } from '../../hooks/useGasToken';
 import styles from './BakingSection.module.css';
 import { BakingSectionSelectors } from './BakingSection.selectors';
 

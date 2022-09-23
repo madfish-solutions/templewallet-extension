@@ -31,7 +31,7 @@ import {
 } from 'lib/temple/front';
 import { ITokenStatus } from 'lib/temple/repo';
 
-import { useGasToken } from '../../../app/hooks/use-gas-token';
+import { useGasToken } from '../../../app/hooks/useGasToken';
 
 export const ALL_TOKENS_BASE_METADATA_STORAGE_KEY = 'tokens_base_metadata';
 
