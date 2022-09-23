@@ -4,7 +4,7 @@ import { TezosToolkit } from '@taquito/taquito';
 const SYNC_INTERVAL = 10_000;
 const CONFIRM_TIMEOUT = 60_000 * 5;
 
-export type ConfirmOperationOptions = {
+type ConfirmOperationOptions = {
   initializedAt?: number;
   fromBlockLevel?: number;
   signal?: AbortSignal;

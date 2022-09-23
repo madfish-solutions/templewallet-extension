@@ -15,11 +15,11 @@ export interface PatchedHistory extends History {
   position: number;
 }
 
-export type HistoryListener = () => void;
+type HistoryListener = () => void;
 
 const listeners = new Set<HistoryListener>();
 
-export function listen(listener: HistoryListener) {
+function listen(listener: HistoryListener) {
   listeners.add(listener);
   return () => {
     listeners.delete(listener);

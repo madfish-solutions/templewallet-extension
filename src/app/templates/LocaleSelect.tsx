@@ -5,7 +5,8 @@ import { browser } from 'webextension-polyfill-ts';
 
 import Flag from 'app/atoms/Flag';
 import { AnalyticsEventCategory, AnalyticsEventEnum, useAnalytics } from 'lib/analytics';
-import { getCurrentLocale, T, updateLocale } from 'lib/i18n';
+import { getCurrentLocale, updateLocale } from 'lib/i18n';
+import { T } from 'lib/i18n/react';
 
 import IconifiedSelect, { IconifiedSelectOptionRenderProps } from './IconifiedSelect';
 

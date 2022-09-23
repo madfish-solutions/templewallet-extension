@@ -3,7 +3,7 @@ import constate from 'constate';
 import { USE_LOCATION_HASH_AS_URL } from './config';
 import { HistoryAction, PatchedHistory, useHistory } from './history';
 
-export interface LocationState {
+interface LocationState {
   pathname: string;
   search: string;
   hash: string;
@@ -21,14 +21,14 @@ export interface LocationState {
   protocol?: string;
 }
 
-export interface LocationUpdates {
+interface LocationUpdates {
   pathname?: string;
   search?: string;
   hash?: string;
   state?: any;
 }
 
-export type ModifyLocation = (location: LocationState) => LocationUpdates;
+type ModifyLocation = (location: LocationState) => LocationUpdates;
 export type To = string | LocationUpdates | ModifyLocation;
 
 export function createLocationState(): LocationState {

@@ -2,7 +2,6 @@ import { HistoryAction, createUrl, changeState } from './history';
 import { To, createLocationState, createLocationUpdates } from './location';
 import * as Router from './router';
 
-export * from './config';
 export * from './history';
 export * from './location';
 

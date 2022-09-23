@@ -27,7 +27,7 @@ export async function getAllBakersBakingBad() {
   return bakers.filter(baker => typeof baker !== 'string') as BakingBadBaker[];
 }
 
-export type BakingBadGetBakerParams = {
+type BakingBadGetBakerParams = {
   address: string;
   configs?: boolean;
   insurance?: boolean;
@@ -62,14 +62,14 @@ export type BakingBadBaker = {
   contribution?: BakingBadBakerContribution | null;
 };
 
-export type BakingBadGetBakerResponse = BakingBadBaker | '';
+type BakingBadGetBakerResponse = BakingBadBaker | '';
 
 export type BakingBadBakerValueHistoryItem<T> = {
   cycle: number;
   value: T;
 };
 
-export type BakingBadBakerConfig = {
+type BakingBadBakerConfig = {
   address: string;
   fee: BakingBadBakerValueHistoryItem<number>[];
   minDelegation: BakingBadBakerValueHistoryItem<number>[];
@@ -86,14 +86,14 @@ export type BakingBadBakerConfig = {
   sources: string[];
 };
 
-export type BakingBadBakerInsurance = {
+type BakingBadBakerInsurance = {
   address: string;
   insuranceAddress: string;
   insuranceAmount: number;
   coverage: number;
 };
 
-export type BakingBadBakerContribution = {
+type BakingBadBakerContribution = {
   address: string;
   title: string;
   link: string;
