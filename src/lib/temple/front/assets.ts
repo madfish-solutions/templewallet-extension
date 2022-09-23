@@ -36,8 +36,14 @@ import { useGasToken } from '../../../app/hooks/use-gas-token';
 export const ALL_TOKENS_BASE_METADATA_STORAGE_KEY = 'tokens_base_metadata';
 
 export function useDisplayedFungibleTokens(chainId: string, account: string) {
-  return useRetryableSWR(['displayed-fungible-tokens', chainId, account], () =>
-    fetchDisplayedFungibleTokens(chainId, account)
+  return useRetryableSWR(
+    ['displayed-fungible-tokens', chainId, account],
+    () => fetchDisplayedFungibleTokens(chainId, account),
+    {
+      revalidateOnMount: true,
+      refreshInterval: 20_000,
+      dedupingInterval: 1_000
+    }
   );
 }
 

@@ -2,17 +2,14 @@ import React from 'react';
 
 import classNames from 'clsx';
 
-import { useFilteredAssetsList } from 'app/hooks/use-filtered-assets-list';
 import { ReactComponent as AddToListIcon } from 'app/icons/add-to-list.svg';
 import { CollectibleItem } from 'app/pages/Collectibles/CollectibleItem';
 import { AssetsSelectors } from 'app/pages/Explore/Assets.selectors';
 import SearchAssetField from 'app/templates/SearchAssetField';
 import { T } from 'lib/i18n/react';
 import { AssetTypesEnum } from 'lib/temple/assets/types';
-import { useAccount, useChainId, useCollectibleTokens } from 'lib/temple/front';
+import { useAccount, useChainId, useCollectibleTokens, useFilteredAssets } from 'lib/temple/front';
 import { Link } from 'lib/woozie';
-
-import { useUpdatedBalances } from '../../hooks/use-updated-balances';
 
 const CollectiblesList = () => {
   const chainId = useChainId(true)!;
@@ -20,9 +17,9 @@ const CollectiblesList = () => {
 
   const { data: collectibles = [] } = useCollectibleTokens(chainId, publicKeyHash, true);
 
-  const collectibleSlugsWithLatestBalances = useUpdatedBalances(collectibles, chainId, publicKeyHash);
+  const collectibleSlugs = collectibles.map(collectible => collectible.tokenSlug);
 
-  const { filteredAssets, searchValue, setSearchValue } = useFilteredAssetsList(collectibleSlugsWithLatestBalances);
+  const { filteredAssets, searchValue, setSearchValue } = useFilteredAssets(collectibleSlugs);
 
   return (
     <div className={classNames('w-full max-w-sm mx-auto')}>
@@ -54,13 +51,8 @@ const CollectiblesList = () => {
           </p>
         ) : (
           <>
-            {filteredAssets.map((asset, index) => (
-              <CollectibleItem
-                key={asset.slug}
-                assetSlug={asset.slug}
-                index={index}
-                itemsLength={filteredAssets.length}
-              />
+            {filteredAssets.map((slug, index) => (
+              <CollectibleItem key={slug} assetSlug={slug} index={index} itemsLength={filteredAssets.length} />
             ))}
           </>
         )}

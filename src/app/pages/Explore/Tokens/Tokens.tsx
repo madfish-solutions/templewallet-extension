@@ -2,6 +2,7 @@ import React, { FC, useCallback, useEffect, useMemo, useState } from 'react';
 
 import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
+import { CSSTransition, TransitionGroup } from 'react-transition-group';
 
 import { ReactComponent as AddToListIcon } from 'app/icons/add-to-list.svg';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
@@ -133,13 +134,31 @@ export const Tokens: FC = () => {
             'text-gray-700 text-sm leading-tight'
           )}
         >
-          {filteredAssets.map(asset => {
-            const active = activeAsset ? asset.slug === activeAsset.slug : false;
+          <TransitionGroup key={chainId}>
+            {filteredAssets.map(asset => {
+              const active = activeAsset ? asset.slug === activeAsset.slug : false;
 
-            return (
-              <ListItem key={asset.slug} assetSlug={asset.slug} active={active} latestBalance={asset.latestBalance} />
-            );
-          })}
+              return (
+                <CSSTransition
+                  key={asset.slug}
+                  timeout={300}
+                  classNames={{
+                    enter: 'opacity-0',
+                    enterActive: classNames('opacity-100', 'transition ease-out duration-300'),
+                    exit: classNames('opacity-0', 'transition ease-in duration-300')
+                  }}
+                  unmountOnExit
+                >
+                  <ListItem
+                    key={asset.slug}
+                    assetSlug={asset.slug}
+                    active={active}
+                    latestBalance={asset.latestBalance}
+                  />
+                </CSSTransition>
+              );
+            })}
+          </TransitionGroup>
         </div>
       )}
     </div>
