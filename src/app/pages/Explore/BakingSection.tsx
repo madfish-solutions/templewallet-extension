@@ -391,7 +391,12 @@ const DelegateMotivationPoint: React.FC<{
   textNode: React.ReactNode;
 }> = ({ Icon, textNode }) => (
   // eslint-disable-next-line prettier/prettier
-  <li className={classNames('flex items-center', 'text-black-400 py-3 pr-3')}>
+  <li
+    className={classNames(
+      'flex items-center',
+      'text-black-400 py-3 pr-3'
+    )}
+  >
     <aside className="flex items-center p-4 text-blue-500">
       <Icon className="w-8 h-8 stroke-current" style={{ strokeWidth: 1.5 }} />
     </aside>
