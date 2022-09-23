@@ -180,6 +180,7 @@ export const AliceBob: FC<AliceBobProps> = ({ isWithdraw = false }) => {
   );
 };
 
+// TODO: change to https://api.templewallet.com
 const buildQuery = makeBuildQueryFn<Record<string, string>, any>('http://localhost:3000');
 export const getSignedAliceBobUrl = buildQuery('GET', '/api/alice-bob-sign', [
   'isWithdraw',
