@@ -15,7 +15,11 @@ import ActivityItemComp from './ActivityItem';
 const INIT_OPERS_N = 30;
 const OPERS_LOAD_STEP = 30;
 
-export default function ActivityComponent({ assetSlug }: { assetSlug?: string }) {
+interface ActivityCompProps {
+  assetSlug?: string;
+}
+
+const ActivityComponent: React.FC<ActivityCompProps> = ({ assetSlug }) => {
   const {
     loading,
     reachedTheEnd,
@@ -23,19 +27,17 @@ export default function ActivityComponent({ assetSlug }: { assetSlug?: string })
     loadMore: loadMoreActivities
   } = useActivities(INIT_OPERS_N, assetSlug);
 
-  const account = useAccount();
+  const { publicKeyHash: currentAccountAddress } = useAccount();
   const chainId = useChainId(true);
   const syncSupported = useMemo(() => isKnownChainId(chainId), [chainId]);
 
-  const currentAccountAddress = account.publicKeyHash;
-
-  function onLoadMoreBtnClick() {
+  const onLoadMoreBtnClick = () => {
     loadMoreActivities(OPERS_LOAD_STEP);
-  }
+  };
 
-  function onRetryLoadBtnClick() {
+  const onRetryLoadBtnClick = () => {
     loadMoreActivities(INIT_OPERS_N);
-  }
+  };
 
   if (activities.length === 0) {
     if (loading) return <ActivitySpinner height="2.5rem" />;
@@ -83,4 +85,6 @@ export default function ActivityComponent({ assetSlug }: { assetSlug?: string })
       ) : null}
     </>
   );
-}
+};
+
+export default ActivityComponent;

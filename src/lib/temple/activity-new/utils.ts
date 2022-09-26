@@ -109,7 +109,6 @@ function reduceOneTzktTransactionOperation(
     const values = reduceParameterFa2Values(parameter.value, address);
     const firstVal = values[0];
     // (!) Here we abandon other but 1st non-zero-amount values
-    // (?) Is this right?
     if (firstVal == null) return null;
 
     const contractAddress = operation.target.address;
@@ -159,6 +158,9 @@ function buildActivityOperBase(operation: TzktOperation, address: string, amount
   return reducedOperation;
 }
 
+/**
+ * Items with zero cumulative amount value are filtered out
+ */
 function reduceParameterFa2Values(values: ParameterFa2['value'], relAddress: string) {
   const result: {
     from: string;
@@ -167,8 +169,11 @@ function reduceParameterFa2Values(values: ParameterFa2['value'], relAddress: str
   }[] = [];
 
   for (const val of values) {
-    // (!) We assume, that all `val.txs` items have same `token_id`
-    // (?) Is that correct?
+    /*
+      We assume, that all `val.txs` items have same `token_id` value.
+      Visit https://tezos.b9lab.com/fa2 - There is a link to code in Smartpy IDE.
+      Fa2 token-standard/smartcontract literally has it in its code.
+    */
 
     const from = val.from_;
     if (val.from_ === relAddress) {

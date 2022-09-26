@@ -12,18 +12,16 @@ import { parseOperStack, parseMoneyDiffs } from 'lib/temple/activity-new/helpers
 import type { Activity } from 'lib/temple/activity-new/types';
 import { useExplorerBaseUrls } from 'lib/temple/front';
 
-type ActivityItemCompProps = {
+interface ActivityItemCompProps {
   activity: Activity;
   address: string;
   syncSupported: boolean;
-};
+}
 
 const ActivityItemComp = memo<ActivityItemCompProps>(({ activity, address, syncSupported }) => {
   const { hash, addedAt, status } = activity;
 
   const { transaction: explorerBaseUrl } = useExplorerBaseUrls();
-
-  const pending = status === 'pending';
 
   const operStack = useMemo(() => parseOperStack(activity, address), [activity, address]);
 
@@ -64,7 +62,7 @@ const ActivityItemComp = memo<ActivityItemCompProps>(({ activity, address, syncS
 
         <div className="flex flex-col flex-shrink-0 pt-2">
           {moneyDiffs.map(({ assetSlug, diff }, i) => (
-            <MoneyDiffView key={i} assetId={assetSlug} diff={diff} pending={pending} />
+            <MoneyDiffView key={i} assetId={assetSlug} diff={diff} pending={status === 'pending'} />
           ))}
         </div>
       </div>
@@ -74,10 +72,10 @@ const ActivityItemComp = memo<ActivityItemCompProps>(({ activity, address, syncS
 
 export default ActivityItemComp;
 
-type ActivityItemStatusCompProps = {
+interface ActivityItemStatusCompProps {
   activity: Activity;
   syncSupported: boolean;
-};
+}
 
 const ActivityItemStatusComp: React.FC<ActivityItemStatusCompProps> = ({ activity, syncSupported }) => {
   if (syncSupported === false) return null;
