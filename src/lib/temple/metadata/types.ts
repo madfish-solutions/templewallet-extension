@@ -101,7 +101,7 @@ export type DetailedAssetMetdata = AssetMetadata &
     attributes: AssetMetadataAttribute[];
   }>;
 
-export type AssetMetadataFormat = Partial<{
+type AssetMetadataFormat = Partial<{
   // [format: uri-reference]
   // A URI to the asset represented in this format.
   uri: string;
@@ -135,7 +135,7 @@ export type AssetMetadataFormat = Partial<{
   };
 }>;
 
-export type AssetMetadataAttribute = {
+type AssetMetadataAttribute = {
   // Name of the attribute.
   name: string;
 

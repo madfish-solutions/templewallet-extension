@@ -11,7 +11,7 @@ runs:
       shell: bash
 
     - name: Find deadcode
-      run: npx ts-prune --error | grep -v '(used in module)'
+      run: yarn find-deadcode
       shell: bash
 
     - name: Check ESLint

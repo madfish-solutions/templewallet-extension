@@ -124,7 +124,7 @@ export interface OperationRequest extends BaseMessage {
   sourceAddress: string;
 }
 
-export interface OperationResponse extends BaseMessage {
+interface OperationResponse extends BaseMessage {
   type: MessageType.OperationResponse;
   transactionHash: string;
 }
@@ -183,7 +183,7 @@ export interface PostMessagePairingRequest extends BaseMessage {
   publicKey: string;
 }
 
-export interface PostMessagePairingResponse extends BaseMessage {
+interface PostMessagePairingResponse extends BaseMessage {
   type: MessageType.HandshakeResponse;
   name: string;
   icon?: string; // TODO: Should this be a URL or base64 image?
