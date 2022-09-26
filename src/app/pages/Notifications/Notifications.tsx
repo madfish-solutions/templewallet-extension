@@ -8,7 +8,6 @@ import { useIntersectionDetection } from 'lib/ui/use-intersection-detection';
 
 import { T } from '../../../lib/i18n/react';
 import { TempleNotificationsSharedStorageKey, useLocalStorage } from '../../../lib/temple/front';
-import { useAppEnv } from '../../env';
 import { ReactComponent as BellGrayIcon } from '../../icons/bell-gray.svg';
 import { ReactComponent as NotFoundIcon } from '../../icons/notFound.svg';
 import PageLayout from '../../layouts/PageLayout';
@@ -27,7 +26,6 @@ export const Notifications: FC = () => {
   const allNews = news.filter(newsItem => (newsNotificationsEnabled ? newsItem : newsItem.type !== NewsType.News));
 
   const loadMoreRef = useRef<HTMLDivElement>(null);
-  const { popup } = useAppEnv();
 
   const handleIntersection = useCallback(() => {
     if (!isAllNewsLoaded) {
@@ -48,7 +46,7 @@ export const Notifications: FC = () => {
       contentContainerStyle={{ padding: 0 }}
     >
       <div className="max-w-sm mx-auto">
-        <div className={classNames('pt-6', popup ? 'mx-5' : '')}>
+        <div className={classNames('pt-6')}>
           {allNews.length === 0 ? (
             <NotificationsNotFound />
           ) : (

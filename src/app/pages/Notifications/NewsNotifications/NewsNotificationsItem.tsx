@@ -39,7 +39,7 @@ export const NewsNotificationsItem: FC<NewsNotificationsItemProps> = ({
       <div>
         <div
           className={classNames(
-            'mb-1 text-sm font-medium',
+            'mb-2 text-sm font-medium',
             status === StatusType.Read ? 'text-gray-600' : 'text-black'
           )}
         >
