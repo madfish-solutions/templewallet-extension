@@ -12,7 +12,7 @@ import PageLayout from 'app/layouts/PageLayout';
 import { AssetIcon } from 'app/templates/AssetIcon';
 import { T } from 'lib/i18n/react';
 import { fromFa2TokenSlug } from 'lib/temple/assets';
-import { useAccount, useAssetMetadata, useBalance } from 'lib/temple/front';
+import { useAccount, useBalance, useAssetMetadata } from 'lib/temple/front';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 import { navigate } from 'lib/woozie';
 

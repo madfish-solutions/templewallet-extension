@@ -2,7 +2,7 @@ import { FC } from 'react';
 
 import useSWR from 'swr';
 
-import { onInited } from 'lib/i18n';
+import { onInited } from 'lib/i18n/loading';
 
 const AwaitI18N: FC = () => {
   useSWR('i18n', awaitI18n, {

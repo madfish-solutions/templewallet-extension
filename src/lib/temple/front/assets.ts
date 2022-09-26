@@ -16,16 +16,13 @@ import {
   fetchAllKnownFungibleTokenSlugs,
   fetchCollectibleTokens,
   fetchAllKnownCollectibleTokenSlugs,
-  AssetTypesEnum,
   isTokenDisplayed
 } from 'lib/temple/assets';
-import {
-  AssetMetadata,
-  fetchTokenMetadata,
-  PRESERVED_TOKEN_METADATA,
-  TEZOS_METADATA,
-  DetailedAssetMetdata
-} from 'lib/temple/metadata';
+import { AssetTypesEnum } from 'lib/temple/assets/types';
+import { TEZOS_METADATA } from 'lib/temple/metadata/defaults';
+import { fetchTokenMetadata } from 'lib/temple/metadata/fetch';
+import { PRESERVED_TOKEN_METADATA } from 'lib/temple/metadata/fixtures';
+import type { AssetMetadata, DetailedAssetMetdata } from 'lib/temple/metadata/types';
 import { ITokenStatus } from 'lib/temple/repo';
 
 import { useTezos, useChainId, useAccount } from './ready';

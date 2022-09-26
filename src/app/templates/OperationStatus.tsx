@@ -6,7 +6,8 @@ import Alert from 'app/atoms/Alert';
 import OpenInExplorerChip from 'app/atoms/OpenInExplorerChip';
 import HashChip from 'app/templates/HashChip';
 import { T, t } from 'lib/i18n/react';
-import { useTezos, useBlockTriggers, useExplorerBaseUrls } from 'lib/temple/front';
+import { useTezos, useExplorerBaseUrls } from 'lib/temple/front';
+import { useBlockTriggers } from 'lib/temple/front/chain';
 import { FailedOpError } from 'lib/temple/operation';
 import useSafeState from 'lib/ui/useSafeState';
 

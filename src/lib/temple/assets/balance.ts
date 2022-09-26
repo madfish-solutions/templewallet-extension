@@ -3,7 +3,8 @@ import BigNumber from 'bignumber.js';
 
 import { loadContract } from 'lib/temple/contract';
 
-import { AssetMetadata, TEZOS_METADATA } from '../metadata';
+import { TEZOS_METADATA } from '../metadata/defaults';
+import type { AssetMetadata } from '../metadata/types';
 import { fromAssetSlug, isFA2Token } from './utils';
 
 export function fetchTezosBalance(tezos: TezosToolkit, account: string) {

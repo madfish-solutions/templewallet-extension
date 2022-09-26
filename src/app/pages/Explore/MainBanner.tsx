@@ -13,8 +13,9 @@ import InFiat from 'app/templates/InFiat';
 import { useAssetFiatCurrencyPrice } from 'lib/fiat-curency';
 import { T } from 'lib/i18n/react';
 import { PropsWithChildren } from 'lib/props-with-children';
-import { useAssetMetadata, useChainId, useDisplayedFungibleTokens, useBalance } from 'lib/temple/front';
-import { getAssetName, getAssetSymbol } from 'lib/temple/metadata';
+import { useChainId, useBalance } from 'lib/temple/front';
+import { useAssetMetadata, useDisplayedFungibleTokens } from 'lib/temple/front/assets';
+import { getAssetName, getAssetSymbol } from 'lib/temple/metadata/utils';
 
 type MainBannerProps = {
   assetSlug?: string | null;

@@ -2,7 +2,7 @@ import { OperationContentsAndResult, OpKind } from '@taquito/rpc';
 import BigNumber from 'bignumber.js';
 
 import * as Repo from 'lib/temple/repo';
-import { TzktOperation, TzktTokenTransfer } from 'lib/tzkt';
+import type { TzktOperation, TzktTokenTransfer } from 'lib/tzkt/types';
 
 import { isPositiveNumber, tryParseTokenTransfers, toTokenId } from './helpers';
 

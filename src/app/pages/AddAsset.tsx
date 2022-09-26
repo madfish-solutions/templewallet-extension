@@ -22,9 +22,10 @@ import {
   IncorrectTokenIdError
 } from 'lib/temple/assets';
 import { loadContract } from 'lib/temple/contract';
-import { useTezos, useNetwork, useTokensMetadata, useChainId, useAccount, getBalanceSWRKey } from 'lib/temple/front';
+import { useTezos, useNetwork, useChainId, useAccount, useTokensMetadata, getBalanceSWRKey } from 'lib/temple/front';
 import { validateContractAddress } from 'lib/temple/helpers';
-import { NotFoundTokenMetadata, AssetMetadata, DetailedAssetMetdata } from 'lib/temple/metadata';
+import { NotFoundTokenMetadata } from 'lib/temple/metadata/fetch';
+import type { AssetMetadata, DetailedAssetMetdata } from 'lib/temple/metadata/types';
 import * as Repo from 'lib/temple/repo';
 import { withErrorHumanDelay } from 'lib/ui/humanDelay';
 import useSafeState from 'lib/ui/useSafeState';

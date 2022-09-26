@@ -15,17 +15,15 @@ import Balance from 'app/templates/Balance';
 import InFiat from 'app/templates/InFiat';
 import SearchAssetField from 'app/templates/SearchAssetField';
 import { T } from 'lib/i18n/react';
+import { useAccount, useBalanceSWRKey, useChainId } from 'lib/temple/front';
 import {
-  useAccount,
-  useBalanceSWRKey,
-  useChainId,
   useDisplayedFungibleTokens,
   useAssetMetadata,
   useAllTokensBaseMetadata,
   searchAssets
-} from 'lib/temple/front';
+} from 'lib/temple/front/assets';
 import { useFungibleTokensBalances } from 'lib/temple/front/fungible-tokens-balances';
-import { getAssetSymbol, getAssetName } from 'lib/temple/metadata';
+import { getAssetSymbol, getAssetName } from 'lib/temple/metadata/utils';
 import { TZKT_FETCH_QUERY_SIZE } from 'lib/tzkt';
 import { useIntersectionDetection } from 'lib/ui/use-intersection-detection';
 import { Link, navigate } from 'lib/woozie';

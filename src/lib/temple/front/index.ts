@@ -1,15 +1,27 @@
 export * from './tzdns';
 export * from './provider';
-export * from './storage';
-export * from './client';
-export * from './ready';
-export * from './usdprice';
-export * from './chain';
+export { useStorage } from './storage';
+export { useTempleClient, request, assertResponse } from './client';
+export {
+  useAllNetworks,
+  useSetNetworkId,
+  useNetwork,
+  useAllAccounts,
+  useSetAccountPkh,
+  useAccount,
+  useSettings,
+  useTezos,
+  useChainId,
+  useRelevantAccounts,
+  useCustomChainId
+} from './ready';
+export { useAssetUSDPrice, useUSDPrices } from './usdprice';
+// export * from './chain';
 export * from './balance';
 export * from './baking';
-export * from './assets';
-export * from './sync-tokens';
-export * from './expenses';
+export { useAssetMetadata, useTokensMetadata, useAvailableAssets } from './assets';
+// export * from './sync-tokens';
+// export * from './expenses';
 export * from './blockexplorer';
 export * from './address-book';
 export * from './kukai';
