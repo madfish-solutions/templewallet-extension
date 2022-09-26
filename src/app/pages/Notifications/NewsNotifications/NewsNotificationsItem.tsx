@@ -25,7 +25,7 @@ export const NewsNotificationsItem: FC<NewsNotificationsItemProps> = ({
   <div
     className={classNames(
       'flex column font-inter',
-      'pt-4 pb-5 px-2',
+      'p-4 pb-6',
       status === StatusType.Read && 'bg-gray-200',
       'border-gray-300'
     )}
@@ -35,7 +35,7 @@ export const NewsNotificationsItem: FC<NewsNotificationsItemProps> = ({
     }}
   >
     <NewsIcon isDotVisible={status === StatusType.New} type={type} />
-    <div className="mx-2 w-full">
+    <div style={{ marginLeft: 10 }} className="w-full">
       <div>
         <div
           className={classNames(
@@ -45,7 +45,13 @@ export const NewsNotificationsItem: FC<NewsNotificationsItemProps> = ({
         >
           {truncateTitle(title)}
         </div>
-        <div className="text-gray-600 text-xs font-normal">{truncateDescription(description)}</div>
+        {truncateDescription(description)
+          .split('\n')
+          .map(x => (
+            <div key={x} className="text-gray-600 text-xs font-normal">
+              {x}
+            </div>
+          ))}
       </div>
       <div className="flex row justify-between mt-7">
         <div className="text-gray-500 font-normal" style={{ fontSize: 10 }}>

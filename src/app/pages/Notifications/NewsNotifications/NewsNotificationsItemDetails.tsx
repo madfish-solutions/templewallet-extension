@@ -40,7 +40,7 @@ export const NewsNotificationsItemDetails: FC<NewsNotificationsItemDetailsProps>
       contentContainerStyle={{ padding: 0 }}
     >
       {newsItem && (
-        <div style={{ maxWidth: '360px', margin: 'auto' }} className="pb-8">
+        <div className="pb-8 max-w-sm mx-auto">
           <div className={popup ? 'mx-5' : ''}>
             <img
               src={newsItem.extensionImageUrl}
@@ -48,13 +48,15 @@ export const NewsNotificationsItemDetails: FC<NewsNotificationsItemDetailsProps>
               className="w-full my-6"
               style={{ borderRadius: 10 }}
             />
-            <div className="font-inter text-gray-900 font-semibold mb-8" style={{ fontSize: 23 }}>
-              {newsItem.description}
+            <div className="font-inter text-gray-900 font-semibold mb-4" style={{ fontSize: 23 }}>
+              {newsItem.title}
             </div>
-            <div className="font-inter text-gray-900 font-normal" style={{ fontSize: 17 }}>
-              {newsItem.description}
-            </div>
-            <div className="font-inter mt-7" style={{ fontSize: 10 }}>
+            {newsItem.content.split('\n').map(x => (
+              <div key={x} className="font-inter text-gray-900 font-normal overflow-auto mb-2" style={{ fontSize: 17 }}>
+                {x}
+              </div>
+            ))}
+            <div className="font-inter mt-4" style={{ fontSize: 10 }}>
               <span className="text-gray-500 font-normal">{formatDate(newsItem.createdAt)}</span>
               <span className="text-gray-600 font-medium mx-1">•</span>
               <a
@@ -68,8 +70,8 @@ export const NewsNotificationsItemDetails: FC<NewsNotificationsItemDetailsProps>
             </div>
             <Button
               className={classNames(
-                'w-full mt-12',
-                popup ? 'mb-6' : 'mb-10',
+                'w-full mt-6',
+                'mb-10',
                 'rounded border-2',
                 'bg-primary-orange border-primary-orange',
                 'flex justify-center items-center',
