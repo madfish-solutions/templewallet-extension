@@ -2,13 +2,11 @@ import React from 'react';
 
 import classNames from 'clsx';
 
-import type { TID } from 'lib/i18n/react';
-import { T } from 'lib/i18n/react';
+import { T, TID } from 'lib/i18n/react';
 import { Link } from 'lib/woozie';
 
 export interface TabDescriptor {
   slug: string;
-  isDotVisible?: boolean;
   i18nKey: TID;
 }
 
@@ -29,7 +27,7 @@ export const TabSwitcher: React.FC<TabSwitcherProps> = ({
 }) => (
   <div className={classNames('w-full', className)} style={{ borderBottomWidth: 1, fontSize: 17 }}>
     <div className={classNames('flex items-center justify-around')}>
-      {tabs.map(({ slug, i18nKey, isDotVisible }) => {
+      {tabs.map(({ slug, i18nKey }) => {
         const active = slug === activeTabSlug;
 
         return (
@@ -49,16 +47,6 @@ export const TabSwitcher: React.FC<TabSwitcherProps> = ({
               'truncate'
             )}
           >
-            {isDotVisible && (
-              <span
-                className="bg-red-600"
-                style={{
-                  width: 6,
-                  height: 6,
-                  borderRadius: '50%'
-                }}
-              />
-            )}
             <T id={i18nKey} />
           </Link>
         );

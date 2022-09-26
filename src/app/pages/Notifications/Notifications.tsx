@@ -47,8 +47,8 @@ export const Notifications: FC = () => {
       }
       contentContainerStyle={{ padding: 0 }}
     >
-      <div style={{ maxWidth: '360px', margin: 'auto' }} className="pb-8">
-        <div className={popup ? 'mx-5' : ''}>
+      <div style={{ maxWidth: '360px', margin: 'auto' }}>
+        <div className={classNames('pt-6', popup ? 'mx-5' : '')}>
           {allNews.length === 0 ? (
             <NotificationsNotFound />
           ) : (
