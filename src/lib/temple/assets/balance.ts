@@ -51,4 +51,5 @@ const getBalanceSafe = async (tezos: TezosToolkit, account: string) => {
   return undefined;
 };
 
-const getSafeBignum = (x: any): BigNumber => (!x || x.isNaN() ? new BigNumber(0) : new BigNumber(x));
+const getSafeBignum = (x: any): BigNumber =>
+  !x || (typeof x === 'object' && typeof x.isNaN === 'function' && x.isNaN()) ? new BigNumber(0) : new BigNumber(x);
