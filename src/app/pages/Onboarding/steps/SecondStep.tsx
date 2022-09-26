@@ -2,7 +2,7 @@ import React, { FC } from 'react';
 
 import { T } from '../../../../lib/i18n/react';
 import { Button } from '../../../atoms/Button';
-import ExploreButtonsImg from '../assets/explore-buttons.png';
+import { ReactComponent as ButtonsIcon } from '../assets/second.svg';
 import styles from '../Onboarding.module.css';
 
 interface Props {
@@ -21,7 +21,7 @@ const SecondStep: FC<Props> = ({ setStep }) => {
       <p className={styles['description']} style={{ marginTop: 20 }}>
         <T id={'howToStartDescription2'} />
       </p>
-      <img src={ExploreButtonsImg} alt="ExploreButtonsImg" />
+      <ButtonsIcon />
       <p className={styles['description']} style={{ marginBottom: 0 }}>
         <T id={'howToStartHint'} />
       </p>

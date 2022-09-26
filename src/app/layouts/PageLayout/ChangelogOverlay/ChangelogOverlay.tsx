@@ -8,18 +8,19 @@ import ContentContainer from 'app/layouts/ContentContainer';
 import { T } from 'lib/i18n/react';
 import { useTempleClient, useStorage } from 'lib/temple/front';
 
+import PackageJSON from '../../../../../package.json';
 import { changelogData, ChangelogItem } from './ChangelogOverlay.data';
 import s from './ChangelogOverlay.module.css';
 import { ChangelogOverlaySelectors } from './ChangelogOverlay.selectors';
 
-const currentVersion = process.env.VERSION;
+const currentVersion = PackageJSON.version;
 
 export const ChangelogOverlay: FC = () => {
   const { popup } = useAppEnv();
   const { ready } = useTempleClient();
   const [lastShownVersion, setLastShownVersion] = useStorage<string | undefined | null>(
     `last_shown_changelog_version`,
-    '1.14.8'
+    currentVersion
   );
 
   const handleContinue = () => {
