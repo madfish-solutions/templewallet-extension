@@ -45,9 +45,12 @@ type MainnetVolumeBannerProps = {
 const MainnetVolumeBanner: FC<MainnetVolumeBannerProps> = ({ chainId, accountPkh }) => {
   const { data: tokens } = useDisplayedFungibleTokens(chainId, accountPkh);
   const { data: tezBalance } = useBalance('tez', accountPkh);
+
   const tezPriceInFiat = useAssetFiatCurrencyPrice('tez');
   const { fiatRates, selectedFiatCurrency } = useFiatCurrency();
-  const fiatToUsdRate = (fiatRates ?? {})[selectedFiatCurrency.name.toLowerCase()] ?? 1;
+  const safeFiatRates = fiatRates ?? {};
+  const usdCurrency = safeFiatRates['usd'] ?? 1;
+  const fiatToUsdRate = (safeFiatRates[selectedFiatCurrency.name.toLowerCase()] ?? 1) / usdCurrency;
 
   const volumeInFiat = useMemo<BigNumber>(() => {
     const initialVolume = new BigNumber(0);
