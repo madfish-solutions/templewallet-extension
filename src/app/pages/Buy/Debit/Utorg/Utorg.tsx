@@ -82,7 +82,7 @@ export const Utorg = () => {
           </h3>
         </div>
       )}
-      <div className="mx-auto mt-4 mb-10 text-center font-inter font-normal text-gray-700" style={{ maxWidth: 360 }}>
+      <div className="max-w-sm mx-auto mt-4 mb-10 text-center font-inter font-normal text-gray-700">
         <TopUpInput
           currencyName={inputCurrency}
           currenciesList={currencies}
