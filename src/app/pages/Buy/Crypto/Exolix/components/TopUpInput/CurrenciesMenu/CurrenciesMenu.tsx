@@ -34,7 +34,7 @@ export const CurrenciesMenu: FC<Props> = ({ value, options, isLoading = false, o
       opened={opened}
       className="origin-top overflow-x-hidden overflow-y-auto"
       style={{
-        maxHeight: options.length > 2 ? '15.75rem' : '7.25rem',
+        maxHeight: '15.75rem',
         backgroundColor: 'white',
         borderColor: '#e2e8f0',
         padding: 0
