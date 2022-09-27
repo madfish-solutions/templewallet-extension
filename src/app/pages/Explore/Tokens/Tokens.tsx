@@ -6,10 +6,11 @@ import { ReactComponent as AddToListIcon } from 'app/icons/add-to-list.svg';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
 import SearchAssetField from 'app/templates/SearchAssetField';
 import { T } from 'lib/i18n/react';
-import { useAccount, useChainId, useDisplayedFungibleTokens, useFilteredAssets } from 'lib/temple/front';
+import { useAccount, useChainId, useDisplayedFungibleTokens, useFilteredAssets, useSyncTokens } from 'lib/temple/front';
 import { Link, navigate } from 'lib/woozie';
 
 import { IAccountToken, ITokenStatus, ITokenType } from '../../../../lib/temple/repo';
+import { ActivitySpinner } from '../../../atoms/ActivitySpinner';
 import { useUpdatedBalances } from '../../../hooks/useUpdatedBalances';
 import { AssetsSelectors } from '../Assets.selectors';
 import { ListItem } from './components/ListItem';
@@ -18,6 +19,7 @@ import { toExploreAssetLink } from './utils';
 export const Tokens: FC = () => {
   const chainId = useChainId(true)!;
   const { publicKeyHash } = useAccount();
+  const { isSync } = useSyncTokens();
 
   const tezToken = useMemo<IAccountToken>(
     () => ({
@@ -148,6 +150,11 @@ export const Tokens: FC = () => {
 
             return <ListItem key={assetSlug} assetSlug={assetSlug} active={active} latestBalances={latestBalances} />;
           })}
+        </div>
+      )}
+      {isSync && (
+        <div className="mt-4">
+          <ActivitySpinner />
         </div>
       )}
     </div>
