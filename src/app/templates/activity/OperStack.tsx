@@ -16,7 +16,7 @@ type OpStackProps = {
   className?: string;
 };
 
-const OperStackComponent = memo<OpStackProps>(({ opStack, className }) => {
+export const OperStackComp = memo<OpStackProps>(({ opStack, className }) => {
   const [expanded, setExpanded] = useState(false);
 
   const base = useMemo(() => opStack.filter((_, i) => i < OP_STACK_PREVIEW_SIZE), [opStack]);
@@ -52,8 +52,6 @@ const OperStackComponent = memo<OpStackProps>(({ opStack, className }) => {
     </div>
   );
 });
-
-export default OperStackComponent;
 
 type OperStackItemProps = {
   item: OperStackItem;

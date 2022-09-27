@@ -15,7 +15,7 @@ type MoneyDiffViewProps = {
   className?: string;
 };
 
-const MoneyDiffView = memo<MoneyDiffViewProps>(({ assetId: assetSlug, diff, pending = false, className }) => {
+export const MoneyDiffComp = memo<MoneyDiffViewProps>(({ assetId: assetSlug, diff, pending = false, className }) => {
   const { popup } = useAppEnv();
   const metadata = useAssetMetadata(assetSlug);
 
@@ -47,5 +47,3 @@ const MoneyDiffView = memo<MoneyDiffViewProps>(({ assetId: assetSlug, diff, pend
     </div>
   ) : null;
 });
-
-export default MoneyDiffView;

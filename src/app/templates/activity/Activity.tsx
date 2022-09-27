@@ -10,7 +10,7 @@ import useActivities from 'lib/temple/activity-new/hook';
 import { useChainId, useAccount } from 'lib/temple/front';
 import { isKnownChainId } from 'lib/tzkt/api';
 
-import ActivityItemComp from './ActivityItem';
+import { ActivityItemComp } from './ActivityItem';
 
 const INIT_OPERS_N = 30;
 const OPERS_LOAD_STEP = 30;
@@ -19,7 +19,7 @@ interface ActivityCompProps {
   assetSlug?: string;
 }
 
-const ActivityComponent: React.FC<ActivityCompProps> = ({ assetSlug }) => {
+export const ActivityComponent: React.FC<ActivityCompProps> = ({ assetSlug }) => {
   const {
     loading,
     reachedTheEnd,
@@ -86,5 +86,3 @@ const ActivityComponent: React.FC<ActivityCompProps> = ({ assetSlug }) => {
     </>
   );
 };
-
-export default ActivityComponent;

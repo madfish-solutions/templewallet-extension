@@ -4,8 +4,8 @@ import classNames from 'clsx';
 import formatDistanceToNow from 'date-fns/formatDistanceToNow';
 
 import OpenInExplorerChip from 'app/atoms/OpenInExplorerChip';
-import MoneyDiffView from 'app/templates/activity/MoneyDiffView';
-import OperStackComp from 'app/templates/activity/OperStack';
+import { MoneyDiffComp } from 'app/templates/activity/MoneyDiffView';
+import { OperStackComp } from 'app/templates/activity/OperStack';
 import HashChip from 'app/templates/HashChip';
 import { t, getDateFnsLocale } from 'lib/i18n/react';
 import { parseOperStack, parseMoneyDiffs } from 'lib/temple/activity-new/helpers';
@@ -18,7 +18,7 @@ interface ActivityItemCompProps {
   syncSupported: boolean;
 }
 
-const ActivityItemComp = memo<ActivityItemCompProps>(({ activity, address, syncSupported }) => {
+export const ActivityItemComp = memo<ActivityItemCompProps>(({ activity, address, syncSupported }) => {
   const { hash, addedAt, status } = activity;
 
   const { transaction: explorerBaseUrl } = useExplorerBaseUrls();
@@ -62,15 +62,13 @@ const ActivityItemComp = memo<ActivityItemCompProps>(({ activity, address, syncS
 
         <div className="flex flex-col flex-shrink-0 pt-2">
           {moneyDiffs.map(({ assetSlug, diff }, i) => (
-            <MoneyDiffView key={i} assetId={assetSlug} diff={diff} pending={status === 'pending'} />
+            <MoneyDiffComp key={i} assetId={assetSlug} diff={diff} pending={status === 'pending'} />
           ))}
         </div>
       </div>
     </div>
   );
 });
-
-export default ActivityItemComp;
 
 interface ActivityItemStatusCompProps {
   activity: Activity;
