@@ -77,7 +77,7 @@ export const AliceBob: FC<AliceBobProps> = ({ isWithdraw = false }) => {
     <PageLayout
       pageTitle={
         <div className="font-medium text-sm">
-          <T id="buyWithCard" />
+          <T id={isWithdraw ? 'sellTez' : 'buyWithCard'} />
         </div>
       }
     >

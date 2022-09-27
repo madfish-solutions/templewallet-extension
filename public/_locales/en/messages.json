@@ -2599,6 +2599,9 @@
   "buyWithCard": {
     "message": "Buy with Debit/Credit Card"
   },
+  "sellTez": {
+    "message": "Sell TEZ"
+  },
   "topUpDescription": {
     "message": "Temple integrated third-party solutions to buy $gasTokenName1$ with crypto or a Debit/Credit card. Choose a provider, follow guides, get $gasTokenName2$ on your account.",
     "placeholders": {
