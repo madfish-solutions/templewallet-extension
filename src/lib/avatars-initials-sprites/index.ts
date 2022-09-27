@@ -18,7 +18,7 @@ export default function initialsSprites(random: Random, options: Options = {}) {
   options.fontSize = options.fontSize || 50;
   options.chars = options.chars || 2;
 
-  let backgroundColors: string[] = [];
+  const backgroundColors: string[] = [];
 
   if (options.background) {
     backgroundColors.push(options.background);
@@ -36,12 +36,12 @@ export default function initialsSprites(random: Random, options: Options = {}) {
     });
   }
 
-  let backgroundColor = random.pickone(backgroundColors);
-  let seedInitials = random.seed.trim().slice(0, options.chars);
-  let fontFamily = 'Menlo,Monaco,monospace';
+  const backgroundColor = random.pickone(backgroundColors);
+  const seedInitials = random.seed.trim().slice(0, options.chars);
+  const fontFamily = 'Menlo,Monaco,monospace';
 
   // prettier-ignore
-  let svg = [
+  const svg = [
     `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="isolation:isolate;" viewBox="0 0 1 1" version="1.1">`,
     `<rect width="1" height="1" fill="${backgroundColor}"></rect>`,
     options.margin ? `<g transform="translate(${options.margin / 100}, ${options.margin / 100})">` : '',

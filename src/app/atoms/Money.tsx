@@ -45,8 +45,8 @@ const Money = memo<MoneyProps>(
     const deciamlsLimit = decimalsLength > cryptoDecimals ? cryptoDecimals : decimalsLength;
 
     const decimals = fiat ? 2 : deciamlsLimit;
-    let result = shortened ? toShortened(bn) : toLocalFormat(bn, { decimalPlaces: decimals, roundingMode });
-    let indexOfDecimal = result.indexOf(decimal) === -1 ? result.indexOf('.') : result.indexOf(decimal);
+    const result = shortened ? toShortened(bn) : toLocalFormat(bn, { decimalPlaces: decimals, roundingMode });
+    const indexOfDecimal = result.indexOf(decimal) === -1 ? result.indexOf('.') : result.indexOf(decimal);
 
     const tippyClassName = classNames(
       'truncate',

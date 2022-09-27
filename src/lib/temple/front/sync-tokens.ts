@@ -128,7 +128,7 @@ const makeSync = async (
     ({ tokenSlug }) => tokenSlug
   );
 
-  let tokenSlugs = [
+  const tokenSlugs = [
     ...tzktTokens.map(balance => toTokenSlug(balance.token.contract.address, balance.token.tokenId)),
     ...displayedTokenSlugs,
     ...whitelistTokenSlugs,
