@@ -158,7 +158,7 @@
   },
   "devDependencies": {
     "postcss": "8.4.6",
-    "typescript": "^4.5.5"
+    "typescript": "4.5.5"
   },
   "resolutions": {
     "@taquito/**/braces": "2.3.1",

@@ -1,7 +1,6 @@
 import React, { FC, FunctionComponent, ReactNode, Suspense, SVGProps, useLayoutEffect, useMemo } from 'react';
 
 import classNames from 'clsx';
-import { useDispatch } from 'react-redux';
 import { Props as TippyProps } from 'tippy.js';
 
 import Spinner from 'app/atoms/Spinner/Spinner';
@@ -28,7 +27,6 @@ import useTippy from 'lib/ui/useTippy';
 import { HistoryAction, Link, navigate, To, useLocation } from 'lib/woozie';
 
 import { DonationBanner } from '../atoms/DonationBanner';
-import { increaseCounterAction } from '../store/wallet/wallet-actions';
 import CollectiblesList from './Collectibles/CollectiblesList';
 import { ExploreSelectors } from './Explore.selectors';
 import AddressChip from './Explore/AddressChip';
@@ -170,8 +168,6 @@ const ActionButton: FC<ActionButtonProps> = ({
   testID,
   testIDProperties
 }) => {
-  const dispatch = useDispatch();
-
   const buttonRef = useTippy<HTMLButtonElement>(tippyProps);
   const commonButtonProps = useMemo(
     () => ({
@@ -199,13 +195,7 @@ const ActionButton: FC<ActionButtonProps> = ({
   return disabled ? (
     <button ref={buttonRef} {...commonButtonProps} />
   ) : (
-    <Link
-      testID={testID}
-      testIDProperties={testIDProperties}
-      to={to}
-      onClick={() => dispatch(increaseCounterAction())}
-      {...commonButtonProps}
-    />
+    <Link testID={testID} testIDProperties={testIDProperties} to={to} {...commonButtonProps} />
   );
 };
 
