@@ -90,6 +90,7 @@ const Explore: FC<ExploreProps> = ({ assetSlug }) => {
       attention={true}
       adShow
     >
+      <DonationBanner />
       {fullPage && (
         <div className="w-full max-w-sm mx-auto">
           <EditableTitle />
