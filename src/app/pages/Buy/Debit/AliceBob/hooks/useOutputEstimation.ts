@@ -9,7 +9,6 @@ export const useOutputEstimation = (
   setLoading: (v: boolean) => void
 ) => {
   const [outputAmount, setOutputAmount] = useState(0);
-  const [exchangeRate, setExchangeRate] = useState(0);
 
   const getOutputEstimation = useCallback(() => {
     if (!disabledProceed) {
@@ -19,7 +18,6 @@ export const useOutputEstimation = (
         amount: String(inputAmount)
       }).then(({ outputAmount, exchangeRate }) => {
         setOutputAmount(outputAmount);
-        setExchangeRate(exchangeRate);
         setLoading(false);
       });
     }
@@ -29,5 +27,5 @@ export const useOutputEstimation = (
     getOutputEstimation();
   }, [getOutputEstimation]);
 
-  return { outputAmount, exchangeRate };
+  return outputAmount;
 };

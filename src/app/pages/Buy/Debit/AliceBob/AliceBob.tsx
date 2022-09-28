@@ -1,4 +1,4 @@
-import React, { ChangeEvent, FC, useCallback, useState } from 'react';
+import React, { ChangeEvent, FC, useCallback, useMemo, useState } from 'react';
 
 import { useDebouncedCallback } from 'use-debounce';
 
@@ -44,7 +44,12 @@ export const AliceBob: FC<AliceBobProps> = ({ isWithdraw = false }) => {
     maxExchangeAmount
   );
 
-  const { outputAmount, exchangeRate } = useOutputEstimation(isWithdraw, inputAmount, disabledProceed, setLoading);
+  const outputAmount = useOutputEstimation(isWithdraw, inputAmount, disabledProceed, setLoading);
+
+  const exchangeRate = useMemo(
+    () => (inputAmount > 0 ? (outputAmount / inputAmount).toFixed(4) : 0),
+    [inputAmount, outputAmount]
+  );
 
   const linkRequest = useCallback(
     (e: ChangeEvent<HTMLInputElement>) => {
