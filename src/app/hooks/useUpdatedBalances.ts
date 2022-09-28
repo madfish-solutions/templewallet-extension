@@ -19,6 +19,8 @@ export const useUpdatedBalances = (assets: IAccountToken[], chainId: string, add
   useEffect(() => void (addressRef.current = address), [address]);
 
   const updateBalances = useCallback(async () => {
+    console.log('assets', assets);
+
     for (let asset of assets) {
       const { tokenSlug } = asset;
       const shouldLoad = chainIdRef.current === asset.chainId && addressRef.current === asset.account;
@@ -26,6 +28,7 @@ export const useUpdatedBalances = (assets: IAccountToken[], chainId: string, add
       if (!shouldLoad) break;
 
       const latestBalance = await fetchBalance(tezos, tokenSlug, allTokensBaseMetadata[tokenSlug], address);
+      console.log('balance', latestBalance.toString());
 
       if (!shouldLoad) break;
 
@@ -41,6 +44,8 @@ export const useUpdatedBalances = (assets: IAccountToken[], chainId: string, add
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSync]);
+
+  console.log('assetSlugsWithUpdatedBalances', assetSlugsWithUpdatedBalances);
 
   return assetSlugsWithUpdatedBalances;
 };

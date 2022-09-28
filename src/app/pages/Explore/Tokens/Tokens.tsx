@@ -7,9 +7,9 @@ import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
 import SearchAssetField from 'app/templates/SearchAssetField';
 import { T } from 'lib/i18n/react';
 import { useAccount, useChainId, useDisplayedFungibleTokens, useFilteredAssets, useSyncTokens } from 'lib/temple/front';
+import { ITokenStatus, ITokenType } from 'lib/temple/repo';
 import { Link, navigate } from 'lib/woozie';
 
-import { IAccountToken, ITokenStatus, ITokenType } from '../../../../lib/temple/repo';
 import { ActivitySpinner } from '../../../atoms/ActivitySpinner';
 import { useUpdatedBalances } from '../../../hooks/useUpdatedBalances';
 import { AssetsSelectors } from '../Assets.selectors';
@@ -21,25 +21,28 @@ export const Tokens: FC = () => {
   const { publicKeyHash } = useAccount();
   const { isSync } = useSyncTokens();
 
-  const tezToken = useMemo<IAccountToken>(
-    () => ({
-      type: ITokenType.Fungible,
-      chainId: chainId,
-      account: publicKeyHash,
-      tokenSlug: 'tez',
-      status: ITokenStatus.Enabled,
-      addedAt: 0
-    }),
-    [chainId, publicKeyHash]
-  );
-
   const { data: tokens = [] } = useDisplayedFungibleTokens(chainId, publicKeyHash);
 
-  const tokenSlugs = tokens.map(({ tokenSlug }) => tokenSlug);
+  const tokensWithTez = useMemo(
+    () => [
+      {
+        type: ITokenType.Fungible,
+        chainId: chainId,
+        account: publicKeyHash,
+        tokenSlug: 'tez',
+        status: ITokenStatus.Enabled,
+        addedAt: 0
+      },
+      ...tokens
+    ],
+    [chainId, publicKeyHash, tokens]
+  );
 
-  const { filteredAssets, searchValue, setSearchValue } = useFilteredAssets(['tez', ...tokenSlugs]);
+  const tokenSlugsWithTez = useMemo(() => tokensWithTez.map(({ tokenSlug }) => tokenSlug), [tokensWithTez]);
 
-  const latestBalances = useUpdatedBalances([tezToken, ...tokens], chainId, publicKeyHash);
+  const { filteredAssets, searchValue, setSearchValue } = useFilteredAssets(tokenSlugsWithTez);
+
+  const latestBalances = useUpdatedBalances(tokensWithTez, chainId, publicKeyHash);
 
   const [searchFocused, setSearchFocused] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
