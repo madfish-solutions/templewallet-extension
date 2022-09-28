@@ -62,7 +62,7 @@ const BuyCryptoContent: FC = () => {
   }
 
   return (
-    <div style={{ maxWidth: '360px', margin: 'auto' }} className="pb-8 text-center">
+    <div className="pb-8 text-center max-w-sm mx-auto">
       <Stepper style={{ marginTop: '64px' }} steps={steps} currentStep={step} />
       {step === 0 && (
         <InitialStep
