@@ -26,8 +26,6 @@ export default async function fetchActivities(
   return groups.map(group => operGroupToActivity(group, account.publicKeyHash));
 }
 
-////
-
 /**
  * Returned items are sorted new-to-old.
  *
@@ -175,8 +173,6 @@ async function fetchOperations_Any(
 
   return allOperations;
 }
-
-////
 
 function fetchIncomingOperTransactions_Fa_1_2(
   chainId: TzktApiChainId,

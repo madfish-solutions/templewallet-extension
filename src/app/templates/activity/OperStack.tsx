@@ -139,7 +139,7 @@ const OperStackItemComponent = memo<OperStackItemProps>(({ item }) => {
   );
 });
 
-type StackItemArgsProps = {
+interface StackItemArgsProps {
   i18nKey: TID;
   args: string[];
   className?: string;

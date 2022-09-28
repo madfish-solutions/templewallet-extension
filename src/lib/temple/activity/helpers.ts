@@ -1,12 +1,8 @@
 import BigNumber from 'bignumber.js';
 
-export function isPositiveNumber(val: BigNumber.Value) {
-  return new BigNumber(val).isGreaterThan(0);
-}
+export const isPositiveNumber = (val: BigNumber.Value) => new BigNumber(val).isGreaterThan(0);
 
-export function toTokenId(contractAddress: string, tokenId: string | number = 0) {
-  return `${contractAddress}_${tokenId}`;
-}
+export const toTokenId = (contractAddress: string, tokenId: string | number = 0) => `${contractAddress}_${tokenId}`;
 
 export function getTzktTokenTransferId(hash: string, nonce?: number) {
   const nonceStr = nonce ? `_${nonce}` : '';

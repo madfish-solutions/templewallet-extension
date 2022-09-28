@@ -11,8 +11,6 @@ import {
 
 import { isKnownChainId, makeQuery, TZKT_API_BASE_URLS_MAP } from './api';
 
-////
-
 export { TZKT_API_BASE_URLS_MAP };
 
 export const getOperations = makeQuery<TzktGetOperationsParams, TzktOperation[]>(
