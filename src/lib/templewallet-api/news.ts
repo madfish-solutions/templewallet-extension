@@ -13,4 +13,4 @@ export const getNewsItems = templewalletQuery<
     sorted?: SortedBy;
   },
   NewsNotificationInterface[]
->('GET', '/news', ['welcome', 'platform', 'limit', 'timeGt', 'timeLt']);
+>('GET', '/news', ['welcome', 'platform', 'limit', 'timeGt', 'timeLt', 'page', 'sorted']);
