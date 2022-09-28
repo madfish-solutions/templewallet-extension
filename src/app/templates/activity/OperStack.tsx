@@ -143,7 +143,7 @@ interface StackItemArgsProps {
   i18nKey: TID;
   args: string[];
   className?: string;
-};
+}
 
 const StackItemArgs = memo<StackItemArgsProps>(({ i18nKey, args, className }) => (
   <span className={classNames('font-light text-gray-500 text-xs', className)}>
