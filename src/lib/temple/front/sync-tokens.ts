@@ -40,7 +40,6 @@ export const [SyncTokensProvider, useSyncTokens] = constate(() => {
   const [isSync, setIsSync] = useState<boolean | null>(null);
 
   const sync = useCallback(async () => {
-    console.log('sync start');
     setIsSync(true);
 
     await makeSync(
@@ -55,7 +54,6 @@ export const [SyncTokensProvider, useSyncTokens] = constate(() => {
     );
 
     setIsSync(false);
-    console.log('sync end');
   }, [
     accountPkh,
     chainId,
