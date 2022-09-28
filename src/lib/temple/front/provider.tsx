@@ -29,11 +29,9 @@ const ConditionalReadyTemple: FC<PropsWithChildren> = ({ children }) => {
             <TokensMetadataProvider>
               <USDPriceProvider>
                 <FiatCurrencyProvider>
-
-                      <SyncTokensProvider>
-                        <NewBlockTriggersProvider>{children}</NewBlockTriggersProvider>
-                      </SyncTokensProvider>
-
+                  <SyncTokensProvider>
+                    <NewBlockTriggersProvider>{children}</NewBlockTriggersProvider>
+                  </SyncTokensProvider>
                 </FiatCurrencyProvider>
               </USDPriceProvider>
             </TokensMetadataProvider>
