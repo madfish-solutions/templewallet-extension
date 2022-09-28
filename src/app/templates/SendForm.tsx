@@ -298,7 +298,7 @@ const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested })
         tezos.rpc.getManagerKey(acc.type === TempleAccountType.ManagedKT ? acc.owner : accountPkh)
       ]);
 
-      let estmtnMax = await estimateMaxFee(acc, tez, tezos, to, balanceBN, transferParams, manager);
+      const estmtnMax = await estimateMaxFee(acc, tez, tezos, to, balanceBN, transferParams, manager);
 
       let estimatedBaseFee = mutezToTz(estmtnMax.burnFeeMutez + estmtnMax.suggestedFeeMutez);
       if (!hasManager(manager)) {

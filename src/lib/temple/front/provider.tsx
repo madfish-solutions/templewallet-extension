@@ -1,9 +1,5 @@
 import React, { FC, useMemo } from 'react';
 
-import { Provider } from 'react-redux';
-import { PersistGate } from 'redux-persist/integration/react';
-
-import { persistor, store } from 'app/store/store';
 import { CustomRpsContext } from 'lib/analytics';
 import { FiatCurrencyProvider } from 'lib/fiat-curency';
 import { PropsWithChildren } from 'lib/props-with-children';
@@ -33,23 +29,19 @@ const ConditionalReadyTemple: FC<PropsWithChildren> = ({ children }) => {
       ready ? (
         <ReadyTempleProvider>
           <WalletRpcProvider>
-            <Provider store={store}>
-              <PersistGate persistor={persistor} loading={null}>
-                <TokensMetadataProvider>
-                  <USDPriceProvider>
-                    <FiatCurrencyProvider>
-                      <FungibleTokensBalancesProvider>
-                        <NonFungibleTokensBalancesProvider>
-                          <SyncTokensProvider>
-                            <NewBlockTriggersProvider>{children}</NewBlockTriggersProvider>
-                          </SyncTokensProvider>
-                        </NonFungibleTokensBalancesProvider>
-                      </FungibleTokensBalancesProvider>
-                    </FiatCurrencyProvider>
-                  </USDPriceProvider>
-                </TokensMetadataProvider>
-              </PersistGate>
-            </Provider>
+            <TokensMetadataProvider>
+              <USDPriceProvider>
+                <FiatCurrencyProvider>
+                  <FungibleTokensBalancesProvider>
+                    <NonFungibleTokensBalancesProvider>
+                      <SyncTokensProvider>
+                        <NewBlockTriggersProvider>{children}</NewBlockTriggersProvider>
+                      </SyncTokensProvider>
+                    </NonFungibleTokensBalancesProvider>
+                  </FungibleTokensBalancesProvider>
+                </FiatCurrencyProvider>
+              </USDPriceProvider>
+            </TokensMetadataProvider>
           </WalletRpcProvider>
         </ReadyTempleProvider>
       ) : (
