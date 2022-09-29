@@ -9,7 +9,7 @@ type RedirectProps = {
   fallback?: ReactElement;
 };
 
-const Redirect: FC<RedirectProps> = ({ to, push = false, fallback = null }) => {
+export const Redirect: FC<RedirectProps> = ({ to, push = false, fallback = null }) => {
   useEffect(() => {
     const lctn = createLocationState();
     const { pathname, search, hash, state } = createLocationUpdates(to, lctn);
@@ -19,5 +19,3 @@ const Redirect: FC<RedirectProps> = ({ to, push = false, fallback = null }) => {
 
   return fallback;
 };
-
-export default Redirect;

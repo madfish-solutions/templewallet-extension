@@ -4,10 +4,12 @@ import { To, createLocationState, createLocationUpdates } from './location';
 export { resetHistoryPosition, goBack, createUrl, HistoryAction } from './history';
 export { useLocation } from './location';
 export type { To } from './location';
+export type { ResolveResult } from './router';
+export { createMap, SKIP, resolve } from './router';
 
-export { default as Provider } from './Provider';
-export { default as Link } from './Link';
-export { default as Redirect } from './Redirect';
+export { Provider } from './Provider';
+export { Link } from './Link';
+export { Redirect } from './Redirect';
 
 export function navigate(to: To, action?: HistoryAction.Push | HistoryAction.Replace) {
   const lctn = createLocationState();
