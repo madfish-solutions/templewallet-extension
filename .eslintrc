@@ -8,7 +8,10 @@
   },
   "rules": {
     "prettier/prettier": "error",
-    "import/no-named-as-default": 0,
+    "prefer-const": "error",
+    "import/no-duplicates": "error",
+    "import/no-named-as-default": "off",
+    "import/no-self-import": "error",
     "import/order": [
       "error",
       {
@@ -27,7 +30,6 @@
         },
         "newlines-between": "always"
       }
-    ],
-    "import/no-self-import": "error"
+    ]
   }
 }

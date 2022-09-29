@@ -1,6 +1,6 @@
 import BigNumber from 'bignumber.js';
 
-import { OperationsPreview } from 'lib/temple/front';
+import type { OperationsPreview } from 'lib/temple/types';
 
 export type RawOperationAssetExpense = {
   tokenAddress?: string;
@@ -21,7 +21,7 @@ export function tryParseExpenses(operations: OperationsPreview, accountAddress: 
   return tryParseExpensesPure(operations, accountAddress);
 }
 
-export function tryParseExpensesPure(operations: OperationsPreview, accountAddress: string): RawOperationExpenses[] {
+function tryParseExpensesPure(operations: OperationsPreview, accountAddress: string): RawOperationExpenses[] {
   const operationsAsArray = Array.isArray(operations) ? operations : operations.contents;
   return (Array.isArray(operationsAsArray) ? operationsAsArray : [])
     .map<RawOperationExpenses | undefined>(operation => mapExpensesArray(operation, accountAddress))

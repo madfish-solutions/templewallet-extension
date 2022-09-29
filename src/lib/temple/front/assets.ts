@@ -6,35 +6,32 @@ import Fuse from 'fuse.js';
 import useForceUpdate from 'use-force-update';
 import { browser } from 'webextension-polyfill-ts';
 
+import { useGasToken } from 'app/hooks/useGasToken';
 import { createQueue } from 'lib/queue';
 import { useRetryableSWR } from 'lib/swr';
 import {
-  useTezos,
-  usePassiveStorage,
   isTezAsset,
+  fetchDisplayedFungibleTokens,
+  fetchFungibleTokens,
+  fetchAllKnownFungibleTokenSlugs,
+  fetchCollectibleTokens,
+  fetchAllKnownCollectibleTokenSlugs,
+  AssetTypesEnum,
+  isTokenDisplayed
+} from 'lib/temple/assets';
+import {
   AssetMetadata,
   fetchTokenMetadata,
   PRESERVED_TOKEN_METADATA,
   TEZOS_METADATA,
-  fetchDisplayedFungibleTokens,
-  fetchFungibleTokens,
-  fetchAllKnownFungibleTokenSlugs,
-  onStorageChanged,
-  putToStorage,
-  fetchFromStorage,
-  fetchCollectibleTokens,
-  fetchAllKnownCollectibleTokenSlugs,
-  DetailedAssetMetdata,
-  AssetTypesEnum,
-  useChainId,
-  useAccount,
-  isTokenDisplayed
-} from 'lib/temple/front';
+  DetailedAssetMetdata
+} from 'lib/temple/metadata';
 import { ITokenStatus } from 'lib/temple/repo';
 
-import { useGasToken } from '../../../app/hooks/useGasToken';
+import { useTezos, useChainId, useAccount } from './ready';
+import { onStorageChanged, putToStorage, usePassiveStorage } from './storage';
 
-export const ALL_TOKENS_BASE_METADATA_STORAGE_KEY = 'tokens_base_metadata';
+const ALL_TOKENS_BASE_METADATA_STORAGE_KEY = 'tokens_base_metadata';
 
 export function useDisplayedFungibleTokens(chainId: string, account: string) {
   return useRetryableSWR(
@@ -48,7 +45,7 @@ export function useDisplayedFungibleTokens(chainId: string, account: string) {
   );
 }
 
-export function useFungibleTokens(chainId: string, account: string) {
+function useFungibleTokens(chainId: string, account: string) {
   return useRetryableSWR(['fungible-tokens', chainId, account], () => fetchFungibleTokens(chainId, account), {
     revalidateOnMount: true,
     refreshInterval: 20_000,
@@ -68,7 +65,7 @@ export function useCollectibleTokens(chainId: string, account: string, isDisplay
   );
 }
 
-export function useAllKnownFungibleTokenSlugs(chainId: string) {
+function useAllKnownFungibleTokenSlugs(chainId: string) {
   return useRetryableSWR(['all-known-fungible-token-slugs', chainId], () => fetchAllKnownFungibleTokenSlugs(chainId), {
     revalidateOnMount: true,
     refreshInterval: 60_000,
@@ -76,7 +73,7 @@ export function useAllKnownFungibleTokenSlugs(chainId: string) {
   });
 }
 
-export function useAllKnownCollectibleTokenSlugs(chainId: string) {
+function useAllKnownCollectibleTokenSlugs(chainId: string) {
   return useRetryableSWR(
     ['all-known-collectible-token-slugs', chainId],
     () => fetchAllKnownCollectibleTokenSlugs(chainId),
@@ -211,25 +208,6 @@ export const useGetTokenMetadata = () => {
     [allTokensBaseMetadataRef, metadata]
   );
 };
-
-export function useDetailedAssetMetadata(slug: string) {
-  const baseMetadata = useAssetMetadata(slug);
-
-  const storageKey = useMemo(() => getDetailedMetadataStorageKey(slug), [slug]);
-
-  const { data: detailedMetadata, mutate } = useRetryableSWR<DetailedAssetMetdata>(
-    ['detailed-metadata', storageKey],
-    fetchFromStorage,
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false
-    }
-  );
-
-  useEffect(() => onStorageChanged(storageKey, mutate), [storageKey, mutate]);
-
-  return detailedMetadata ?? baseMetadata;
-}
 
 export function useAllTokensBaseMetadata() {
   const { allTokensBaseMetadataRef } = useTokensMetadata();

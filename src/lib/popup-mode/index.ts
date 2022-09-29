@@ -1,5 +1,5 @@
-export const POPUP_MODE_STORAGE_KEY = 'popup_mode';
-export const DEFAULT_POPUP_MODE = true;
+const POPUP_MODE_STORAGE_KEY = 'popup_mode';
+const DEFAULT_POPUP_MODE = true;
 
 export function setPopupMode(enabled: boolean) {
   try {
