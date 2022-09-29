@@ -1,6 +1,7 @@
 import React, { ComponentProps, FC, Suspense } from 'react';
 
-import '../runtime-patch';
+import 'lib/runtime-patch';
+
 import AwaitFonts from 'app/a11y/AwaitFonts';
 import AwaitI18N from 'app/a11y/AwaitI18N';
 import BootAnimation from 'app/a11y/BootAnimation';

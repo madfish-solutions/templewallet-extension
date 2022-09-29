@@ -1,10 +1,11 @@
 import { browser } from 'webextension-polyfill-ts';
 
-import './runtime-patch';
-import './xhr-polyfill';
+import 'lib/runtime-patch';
+import 'lib/xhr-polyfill';
+
+import { getLockUpEnabled } from 'lib/lock-up';
 import { lock } from 'lib/temple/back/actions';
 import { start } from 'lib/temple/back/main';
-import { isLockUpEnabledSafe } from 'lib/ui/useLockUp';
 
 browser.runtime.onInstalled.addListener(({ reason }) => (reason === 'install' ? openFullPage() : null));
 
@@ -31,15 +32,7 @@ const URL_BASE = 'extension://';
 browser.runtime.onConnect.addListener(externalPort => {
   if (getChromePredicate(externalPort) || getFFPredicate(externalPort)) {
     connectionsCount++;
-    const lockUpEnabled = isLockUpEnabledSafe();
-    if (
-      connectionsCount === 1 &&
-      Date.now() - disconnectTimestamp >= LOCK_TIME &&
-      disconnectTimestamp !== 0 &&
-      lockUpEnabled
-    ) {
-      lock();
-    }
+    checkOnLockUp();
   }
   externalPort.onDisconnect.addListener(port => {
     if (getChromePredicate(port) || getFFPredicate(port)) {
@@ -58,3 +51,16 @@ export const getFFPredicate = (port: any) => {
   const edgeUrl = fullUrl.split('/scripts')[0].split('://')[1];
   return port.sender?.url?.includes(`${URL_BASE}${edgeUrl}`);
 };
+
+async function checkOnLockUp() {
+  const lockUpEnabled = await getLockUpEnabled();
+
+  if (
+    connectionsCount === 1 &&
+    Date.now() - disconnectTimestamp >= LOCK_TIME &&
+    disconnectTimestamp !== 0 &&
+    lockUpEnabled
+  ) {
+    lock();
+  }
+}
