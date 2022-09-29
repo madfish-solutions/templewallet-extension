@@ -33,7 +33,7 @@ import { AdditionalFeeInputSelectors } from './AdditionalFeeInput.selectors';
 
 type AssetFieldProps = typeof AssetField extends ForwardRefExoticComponent<infer T> ? T : never;
 
-export type AdditionalFeeInputProps = Pick<ControllerProps<ComponentType>, 'name' | 'control' | 'onChange'> & {
+type AdditionalFeeInputProps = Pick<ControllerProps<ComponentType>, 'name' | 'control' | 'onChange'> & {
   assetSymbol: string;
   baseFee?: BigNumber | Error;
   error?: FieldError;

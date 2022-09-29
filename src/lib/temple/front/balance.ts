@@ -3,14 +3,11 @@ import { useCallback, useMemo } from 'react';
 import BigNumber from 'bignumber.js';
 
 import { useRetryableSWR } from 'lib/swr';
-import {
-  useTezos,
-  fetchBalance,
-  ReactiveTezosToolkit,
-  michelEncoder,
-  loadFastRpcClient,
-  useAssetMetadata
-} from 'lib/temple/front';
+import { fetchBalance } from 'lib/temple/assets';
+import { michelEncoder, loadFastRpcClient } from 'lib/temple/helpers';
+
+import { useAssetMetadata } from './assets';
+import { useTezos, ReactiveTezosToolkit } from './ready';
 
 type UseBalanceOptions = {
   suspense?: boolean;

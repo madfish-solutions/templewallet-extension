@@ -1,6 +1,7 @@
 import axios, { AxiosError } from 'axios';
 
 import { isKnownChainId, TempleChainId } from 'lib/temple/types';
+
 import {
   allInt32ParameterKeys,
   TzktGetOperationsParams,
@@ -10,7 +11,7 @@ import {
   TzktRelatedContract,
   TzktTokenTransfer,
   TzktAccountToken
-} from 'lib/tzkt/types';
+} from './types';
 
 export const TZKT_API_BASE_URLS = new Map([
   [TempleChainId.Mainnet, 'https://api.tzkt.io/v1'],

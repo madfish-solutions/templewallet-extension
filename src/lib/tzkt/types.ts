@@ -101,8 +101,11 @@ export type TzktRelatedContract = {
   creationTime: string;
 };
 
-type Int32ParameterKey = 'eq' | 'ne' | 'gt' | 'ge' | 'lt' | 'le' | 'in' | 'ni';
-export type Int32Parameter = Partial<Record<Int32ParameterKey, number>>;
+export const allInt32ParameterKeys = ['eq', 'ne', 'gt', 'ge', 'lt', 'le', 'in', 'ni'] as const;
+
+export type Int32ParameterKey = typeof allInt32ParameterKeys[number];
+
+type Int32Parameter = Partial<Record<Int32ParameterKey, number>>;
 
 export type TzktGetRewardsParams = {
   address: string;

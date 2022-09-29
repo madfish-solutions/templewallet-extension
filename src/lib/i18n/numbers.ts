@@ -55,7 +55,7 @@ export function getPluralKey<T extends string>(keyPrefix: T, amount: number) {
   return `${keyPrefix}_${getPluralKeyAmountPrefix(amount)}` as `${T}_${Intl.LDMLPluralRule}`;
 }
 
-export function getPluralKeyAmountPrefix(amount: number) {
+function getPluralKeyAmountPrefix(amount: number) {
   const rules = makePluralRules(getCurrentLocale());
   return rules.select(amount);
 }

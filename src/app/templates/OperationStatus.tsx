@@ -6,7 +6,8 @@ import Alert from 'app/atoms/Alert';
 import OpenInExplorerChip from 'app/atoms/OpenInExplorerChip';
 import HashChip from 'app/templates/HashChip';
 import { T, t } from 'lib/i18n/react';
-import { useTezos, useBlockTriggers, useExplorerBaseUrls, FailedOpError } from 'lib/temple/front';
+import { useTezos, useBlockTriggers, useExplorerBaseUrls } from 'lib/temple/front';
+import { FailedOpError } from 'lib/temple/operation';
 import useSafeState from 'lib/ui/useSafeState';
 
 type OperationStatusProps = {
@@ -72,7 +73,7 @@ const OperationStatus: FC<OperationStatusProps> = ({ typeTitle, operation, class
           )
         }));
       })
-      .catch(err => {
+      .catch((err: any) => {
         setAlert({
           type: 'error',
           title: t('error'),

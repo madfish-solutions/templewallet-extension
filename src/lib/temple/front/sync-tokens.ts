@@ -6,18 +6,13 @@ import { useSWRConfig } from 'swr';
 import { ScopedMutator } from 'swr/dist/types';
 
 import {
-  useChainId,
-  useAccount,
   toTokenSlug,
-  useTokensMetadata,
-  AssetMetadata,
-  useUSDPrices,
   fetchDisplayedFungibleTokens,
   fetchCollectibleTokens,
-  toBaseMetadata,
-  DetailedAssetMetdata,
   getPredefinedTokensSlugs
-} from 'lib/temple/front';
+} from 'lib/temple/assets';
+import { useChainId, useAccount, useTokensMetadata, useUSDPrices } from 'lib/temple/front';
+import { AssetMetadata, toBaseMetadata, DetailedAssetMetdata } from 'lib/temple/metadata';
 import * as Repo from 'lib/temple/repo';
 import { getTokensMetadata } from 'lib/templewallet-api';
 import { fetchWhitelistTokenSlugs } from 'lib/templewallet-api/whitelist-tokens';
@@ -28,7 +23,7 @@ import { TempleChainId } from '../types';
 
 const SYNC_INTERVAL = 60_000;
 
-export const [SyncTokensProvider, useSyncTokens] = constate(() => {
+export const [SyncTokensProvider] = constate(() => {
   const { mutate } = useSWRConfig();
   const chainId = useChainId(true)!;
   const { publicKeyHash: accountPkh } = useAccount();
@@ -99,7 +94,7 @@ const makeSync = async (
     ({ tokenSlug }) => tokenSlug
   );
 
-  let tokenSlugs = [
+  const tokenSlugs = [
     ...tzktTokens.map(balance => toTokenSlug(balance.token.contract.address, balance.token.tokenId)),
     ...displayedTokenSlugs,
     ...whitelistTokenSlugs,

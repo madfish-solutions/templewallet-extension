@@ -12,15 +12,10 @@ import { ReactComponent as OkIcon } from 'app/icons/ok.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import { useFormAnalytics } from 'lib/analytics';
 import { T, t } from 'lib/i18n/react';
-import {
-  DerivationType,
-  TempleAccountType,
-  useAllAccounts,
-  useSetAccountPkh,
-  useTempleClient,
-  validateDerivationPath
-} from 'lib/temple/front';
+import { useAllAccounts, useSetAccountPkh, useTempleClient } from 'lib/temple/front';
+import { validateDerivationPath } from 'lib/temple/helpers';
 import { pickLedgerTransport } from 'lib/temple/ledger-live';
+import { DerivationType, TempleAccountType } from 'lib/temple/types';
 import { navigate } from 'lib/woozie';
 
 type FormData = {

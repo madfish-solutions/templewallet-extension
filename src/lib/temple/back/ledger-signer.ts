@@ -3,9 +3,9 @@ import { b58cdecode, b58cencode, buf2hex, hex2buf, isValidPrefix, mergebuf, pref
 import * as elliptic from 'elliptic';
 import * as sodium from 'libsodium-wrappers';
 import { crypto_sign_verify_detached, crypto_generichash } from 'libsodium-wrappers';
+import toBuffer from 'typedarray-to-buffer';
 
 import { PublicError } from 'lib/temple/back/defaults';
-import toBuffer from 'typedarray-to-buffer';
 
 export type curves = 'ed' | 'p2' | 'sp';
 

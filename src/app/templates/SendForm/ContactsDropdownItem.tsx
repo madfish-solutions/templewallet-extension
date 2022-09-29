@@ -7,7 +7,7 @@ import HashShortView from 'app/atoms/HashShortView';
 import Identicon from 'app/atoms/Identicon';
 import Name from 'app/atoms/Name';
 import { T } from 'lib/i18n/react';
-import { TempleContact } from 'lib/temple/front';
+import type { TempleContact } from 'lib/temple/types';
 
 import { SendFormSelectors } from '../SendForm.selectors';
 
