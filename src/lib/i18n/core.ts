@@ -94,16 +94,16 @@ export function getCurrentLocale() {
   return getSavedLocale() || getNativeLocale();
 }
 
-export function getNativeLocale() {
+function getNativeLocale() {
   return browser.i18n.getUILanguage();
 }
 
-export function getDefaultLocale(): string {
+function getDefaultLocale(): string {
   const manifest = browser.runtime.getManifest();
   return (manifest as any).default_locale || 'en';
 }
 
-export async function fetchLocaleMessages(locale: string) {
+async function fetchLocaleMessages(locale: string) {
   const dirName = locale.replace('-', '_');
   const url = browser.runtime.getURL(`_locales/${dirName}/messages.json`);
 

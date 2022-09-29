@@ -9,8 +9,9 @@ import { ReactComponent as ChevronRightIcon } from 'app/icons/chevron-right.svg'
 import { ReactComponent as ChevronUpIcon } from 'app/icons/chevron-up.svg';
 import { ReactComponent as ClipboardIcon } from 'app/icons/clipboard.svg';
 import HashChip from 'app/templates/HashChip';
+import { getDateFnsLocale } from 'lib/i18n';
 import type { TID } from 'lib/i18n/react';
-import { T, t, getDateFnsLocale } from 'lib/i18n/react';
+import { T, t } from 'lib/i18n/react';
 import { OpStackItem, OpStackItemType, parseMoneyDiffs, parseOpStack } from 'lib/temple/activity';
 import { useExplorerBaseUrls } from 'lib/temple/front';
 import * as Repo from 'lib/temple/repo';

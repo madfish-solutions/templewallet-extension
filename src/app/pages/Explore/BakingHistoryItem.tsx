@@ -19,16 +19,23 @@ import { ReactComponent as TimeIcon } from 'app/icons/time.svg';
 import HashChip from 'app/templates/HashChip';
 import { getPluralKey, toLocalFormat } from 'lib/i18n/numbers';
 import { T } from 'lib/i18n/react';
-import {
-  BakingHistoryItemProps,
-  getRewardsStats,
-  mutezToTz,
-  useExplorerBaseUrls,
-  useKnownBaker
-} from 'lib/temple/front';
+import { getRewardsStats, useExplorerBaseUrls, useKnownBaker } from 'lib/temple/front';
+import { mutezToTz } from 'lib/temple/helpers';
+import { TzktRewardsEntry } from 'lib/tzkt';
 
 import { useGasToken } from '../../hooks/useGasToken';
 import styles from './BakingHistoryItem.module.css';
+
+type BakingHistoryItemProps = {
+  content: TzktRewardsEntry;
+  currentCycle?: number;
+} & Record<
+  | 'fallbackRewardPerOwnBlock'
+  | 'fallbackRewardPerEndorsement'
+  | 'fallbackRewardPerFutureBlock'
+  | 'fallbackRewardPerFutureEndorsement',
+  BigNumber
+>;
 
 const BakingHistoryItem: FC<BakingHistoryItemProps> = ({
   content,

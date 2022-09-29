@@ -1,6 +1,6 @@
 import * as Repo from 'lib/temple/repo';
 
-export type FetchOperationsParams = {
+type FetchOperationsParams = {
   chainId: string;
   address: string;
   assetIds?: string[];

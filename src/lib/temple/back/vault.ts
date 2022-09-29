@@ -648,7 +648,7 @@ const MIGRATIONS = [
       }
     };
 
-    let [mnemonic, accounts, settings] = await Promise.all([
+    const [mnemonic, accounts, settings] = await Promise.all([
       fetchLegacySafe<string>(mnemonicStrgKey),
       fetchLegacySafe<TempleAccount[]>(accountsStrgKey),
       fetchLegacySafe<TempleSettings>(settingsStrgKey)
@@ -656,7 +656,6 @@ const MIGRATIONS = [
 
     // Address book contacts migration
     const contacts = await getPlain<TempleContact[]>('contacts');
-    settings = { ...settings, contacts };
 
     const accountsStrgKeys = accounts!
       .map(acc => [accPrivKeyStrgKey(acc.publicKeyHash), accPubKeyStrgKey(acc.publicKeyHash)])
@@ -668,7 +667,7 @@ const MIGRATIONS = [
       [checkStrgKey, generateCheck()],
       [mnemonicStrgKey, mnemonic],
       [accountsStrgKey, accounts],
-      [settingsStrgKey, settings],
+      [settingsStrgKey, { ...settings, contacts }],
       ...accountsStrgKeys.map((key, i) => [key, accountsStrgValues[i]])
     ].filter(([_key, value]) => value !== undefined) as [string, any][];
 

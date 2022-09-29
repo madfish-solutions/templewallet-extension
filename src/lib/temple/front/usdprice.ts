@@ -3,7 +3,7 @@ import { useMemo } from 'react';
 import constate from 'constate';
 
 import { useRetryableSWR } from 'lib/swr';
-import { toTokenSlug } from 'lib/temple/front';
+import { toTokenSlug } from 'lib/temple/assets';
 import { getTokensExchangeRates } from 'lib/templewallet-api';
 
 export function useAssetUSDPrice(slug: string) {

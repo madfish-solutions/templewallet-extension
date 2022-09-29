@@ -103,14 +103,14 @@ export function withInited<T>(factory: (state: StoreState) => T) {
   return factory(state);
 }
 
-export function assertUnlocked(state: StoreState): asserts state is UnlockedStoreState {
+function assertUnlocked(state: StoreState): asserts state is UnlockedStoreState {
   assertInited(state);
   if (state.status !== TempleStatus.Ready) {
     throw new Error('Not ready');
   }
 }
 
-export function assertInited(state: StoreState) {
+function assertInited(state: StoreState) {
   if (!state.inited) {
     throw new Error('Not initialized');
   }

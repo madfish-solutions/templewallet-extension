@@ -1,4 +1,4 @@
-export const SWAP_OPERATIONS = {
+const SWAP_OPERATIONS = {
   branch: 'BM74jDLTriKBwSvB1TVszL8BB2TdqQ1YnEFXc5kqYkV39xktmup',
   contents: [
     {

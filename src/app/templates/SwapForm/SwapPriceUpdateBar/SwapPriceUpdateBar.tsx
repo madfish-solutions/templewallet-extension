@@ -6,7 +6,7 @@ interface Props {
   lastUpdateBlock: BlockInterface;
 }
 
-export const BLOCK_DURATION = 30000;
+const BLOCK_DURATION = 30000;
 
 export const SwapPriceUpdateBar: FC<Props> = ({ lastUpdateBlock }) => {
   const [nowTimestamp, setNowTimestamp] = useState(new Date().getTime());

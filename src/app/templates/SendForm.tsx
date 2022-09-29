@@ -39,22 +39,11 @@ import { useAssetFiatCurrencyPrice, useFiatCurrency } from 'lib/fiat-curency';
 import { toLocalFixed } from 'lib/i18n/numbers';
 import { T, t } from 'lib/i18n/react';
 import { transferImplicit, transferToContract } from 'lib/michelson';
+import { fetchBalance, fetchTezosBalance, isTezAsset, toPenny, toTransferParams } from 'lib/temple/assets';
+import { loadContract } from 'lib/temple/contract';
 import {
-  fetchBalance,
-  fetchTezosBalance,
-  getAssetSymbol,
-  hasManager,
-  isAddressValid,
   isDomainNameValid,
-  isKTAddress,
-  isTezAsset,
-  loadContract,
-  mutezToTz,
   ReactiveTezosToolkit,
-  TempleAccountType,
-  toPenny,
-  toTransferParams,
-  tzToMutez,
   useAccount,
   useAssetMetadata,
   useBalance,
@@ -67,8 +56,11 @@ import {
 } from 'lib/temple/front';
 import { useFilteredContacts } from 'lib/temple/front/use-filtered-contacts.hook';
 import { validateDelegate } from 'lib/temple/front/validate-delegate';
-import { AssetMetadata } from 'lib/temple/metadata';
-import { TempleAccount, TempleNetworkType } from 'lib/temple/types';
+import { hasManager, isAddressValid, isKTAddress, mutezToTz, tzToMutez } from 'lib/temple/helpers';
+import type { AssetMetadata } from 'lib/temple/metadata';
+import { getAssetSymbol } from 'lib/temple/metadata';
+import { TempleAccountType } from 'lib/temple/types';
+import type { TempleAccount, TempleNetworkType } from 'lib/temple/types';
 import useSafeState from 'lib/ui/useSafeState';
 import { HistoryAction, navigate } from 'lib/woozie';
 
@@ -308,7 +300,7 @@ const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested })
         tezos.rpc.getManagerKey(acc.type === TempleAccountType.ManagedKT ? acc.owner : accountPkh)
       ]);
 
-      let estmtnMax = await estimateMaxFee(acc, tez, tezos, to, balanceBN, transferParams, manager);
+      const estmtnMax = await estimateMaxFee(acc, tez, tezos, to, balanceBN, transferParams, manager);
 
       let estimatedBaseFee = mutezToTz(estmtnMax.burnFeeMutez + estmtnMax.suggestedFeeMutez);
       if (!hasManager(manager)) {

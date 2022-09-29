@@ -9,8 +9,9 @@ import {
   getAllBakersBakingBad
 } from 'lib/baking-bad';
 import { useRetryableSWR } from 'lib/swr';
-import { useNetwork, useTezos, mutezToTz } from 'lib/temple/front';
 import { TzktRewardsEntry } from 'lib/tzkt';
+
+import { useNetwork, useTezos } from './ready';
 
 export function useDelegate(address: string, suspense = true) {
   const tezos = useTezos();

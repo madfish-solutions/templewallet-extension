@@ -180,7 +180,7 @@ describe('Vault tests', () => {
   it('sign tz3 encrypted with bytes producing signature that needs padding test', async () => {
     await Vault.spawn(password, mnemonic);
     const vault = await Vault.setup(password);
-    let accounts = await vault.importAccount('p2sk2ke47zhFz3znRZj39TW5KKS9VgfU1Hax7KeErgnShNe9oQFQUP');
+    const accounts = await vault.importAccount('p2sk2ke47zhFz3znRZj39TW5KKS9VgfU1Hax7KeErgnShNe9oQFQUP');
     const { publicKeyHash } = accounts[1];
     const result = await vault.sign(publicKeyHash, '1234');
     expect(result.sig).toBe(
