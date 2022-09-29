@@ -8,11 +8,14 @@ import CollectibleItem from 'app/pages/Collectibles/CollectibleItem';
 import { AssetsSelectors } from 'app/pages/Explore/Assets.selectors';
 import SearchAssetField from 'app/templates/SearchAssetField';
 import { T } from 'lib/i18n/react';
-import { useFilteredAssets } from 'lib/temple/assets';
-import { AssetTypesEnum } from 'lib/temple/assets/types';
-import { useAccount, useChainId } from 'lib/temple/front';
-import { useAllTokensBaseMetadata, useCollectibleTokens } from 'lib/temple/front/assets';
-import { useNonFungibleTokensBalances } from 'lib/temple/front/non-fungible-tokens-balances';
+import { AssetTypesEnum, useFilteredAssets } from 'lib/temple/assets';
+import {
+  useAccount,
+  useChainId,
+  useAllTokensBaseMetadata,
+  useCollectibleTokens,
+  useNonFungibleTokensBalances
+} from 'lib/temple/front';
 import { TZKT_FETCH_QUERY_SIZE } from 'lib/tzkt';
 import { useIntersectionDetection } from 'lib/ui/use-intersection-detection';
 import { Link } from 'lib/woozie';

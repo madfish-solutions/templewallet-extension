@@ -20,16 +20,16 @@ import { useFormAnalytics } from 'lib/analytics';
 import type { TID } from 'lib/i18n/react';
 import { T, t } from 'lib/i18n/react';
 import {
+  ActivationStatus,
   useTempleClient,
   useSetAccountPkh,
   useTezos,
   useAllAccounts,
   useTezosDomainsClient,
-  useNetwork
+  useNetwork,
+  activateAccount,
+  validateDelegate
 } from 'lib/temple/front';
-import { activateAccount } from 'lib/temple/front/activate-account';
-import { ActivationStatus } from 'lib/temple/front/ready';
-import { validateDelegate } from 'lib/temple/front/validate-delegate';
 import { validateDerivationPath, isAddressValid, isKTAddress } from 'lib/temple/helpers';
 import { confirmOperation } from 'lib/temple/operation';
 import { ImportAccountFormType } from 'lib/temple/types';

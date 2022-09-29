@@ -36,15 +36,15 @@ interface RouteContext {
   locked: boolean;
 }
 
-type RouteFactory = Woozie.ResolveResult<RouteContext>;
+type RouteFactory = Woozie.Router.ResolveResult<RouteContext>;
 
-const ROUTE_MAP = Woozie.createMap<RouteContext>([
+const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
   [
     '/import-wallet/:tabSlug?',
     (p, ctx) => {
       switch (true) {
         case ctx.ready:
-          return Woozie.SKIP;
+          return Woozie.Router.SKIP;
 
         case !ctx.fullPage:
           return <OpenInFullPage />;
@@ -65,7 +65,7 @@ const ROUTE_MAP = Woozie.createMap<RouteContext>([
           return <OpenInFullPage />;
 
         default:
-          return Woozie.SKIP;
+          return Woozie.Router.SKIP;
       }
     }
   ],
@@ -122,17 +122,17 @@ const PageRouter: FC = () => {
 
   usePageRouterAnalytics(pathname, search, ctx.ready);
 
-  return useMemo(() => Woozie.resolve(ROUTE_MAP, pathname, ctx), [pathname, ctx]);
+  return useMemo(() => Woozie.Router.resolve(ROUTE_MAP, pathname, ctx), [pathname, ctx]);
 };
 
 export default PageRouter;
 
 function onlyReady(factory: RouteFactory): RouteFactory {
-  return (params, ctx) => (ctx.ready ? factory(params, ctx) : Woozie.SKIP);
+  return (params, ctx) => (ctx.ready ? factory(params, ctx) : Woozie.Router.SKIP);
 }
 
 function onlyNotReady(factory: RouteFactory): RouteFactory {
-  return (params, ctx) => (ctx.ready ? Woozie.SKIP : factory(params, ctx));
+  return (params, ctx) => (ctx.ready ? Woozie.Router.SKIP : factory(params, ctx));
 }
 
 function onlyInFullPage(factory: RouteFactory): RouteFactory {

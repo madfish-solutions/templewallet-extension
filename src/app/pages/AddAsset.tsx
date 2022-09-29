@@ -24,8 +24,8 @@ import {
 import { loadContract } from 'lib/temple/contract';
 import { useTezos, useNetwork, useChainId, useAccount, useTokensMetadata, getBalanceSWRKey } from 'lib/temple/front';
 import { validateContractAddress } from 'lib/temple/helpers';
-import { NotFoundTokenMetadata } from 'lib/temple/metadata/fetch';
-import type { AssetMetadata, DetailedAssetMetdata } from 'lib/temple/metadata/types';
+import type { AssetMetadata, DetailedAssetMetdata } from 'lib/temple/metadata';
+import { NotFoundTokenMetadata } from 'lib/temple/metadata';
 import * as Repo from 'lib/temple/repo';
 import { withErrorHumanDelay } from 'lib/ui/humanDelay';
 import useSafeState from 'lib/ui/useSafeState';

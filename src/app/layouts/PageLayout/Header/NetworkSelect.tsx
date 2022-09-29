@@ -8,8 +8,14 @@ import Name from 'app/atoms/Name';
 import { ReactComponent as ChevronDownIcon } from 'app/icons/chevron-down.svg';
 import { ReactComponent as SignalAltIcon } from 'app/icons/signal-alt.svg';
 import { T } from 'lib/i18n/react';
-import { useAllNetworks, useChainId, useNetwork, useSetNetworkId } from 'lib/temple/front';
-import { BLOCK_EXPLORERS, useBlockExplorer } from 'lib/temple/front/blockexplorer';
+import {
+  BLOCK_EXPLORERS,
+  useBlockExplorer,
+  useAllNetworks,
+  useChainId,
+  useNetwork,
+  useSetNetworkId
+} from 'lib/temple/front';
 import { loadChainId } from 'lib/temple/helpers';
 import { isKnownChainId } from 'lib/temple/types';
 import Popper from 'lib/ui/Popper';

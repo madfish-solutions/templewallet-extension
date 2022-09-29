@@ -6,8 +6,7 @@ import useSWR from 'swr';
 import { ReactComponent as HashIcon } from 'app/icons/hash.svg';
 import { ReactComponent as LanguageIcon } from 'app/icons/language.svg';
 import HashChip from 'app/templates/HashChip';
-import { useTezos, useTezosDomainsClient } from 'lib/temple/front';
-import { fetchFromStorage, putToStorage } from 'lib/temple/front/storage';
+import { useTezos, useTezosDomainsClient, fetchFromStorage, putToStorage } from 'lib/temple/front';
 
 type AddressChipProps = {
   pkh: string;

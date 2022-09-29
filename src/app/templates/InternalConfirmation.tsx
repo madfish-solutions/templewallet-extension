@@ -23,8 +23,7 @@ import { ViewsSwitcherItemProps } from 'app/templates/ViewsSwitcher/ViewsSwitche
 import { T, t } from 'lib/i18n/react';
 import { useRetryableSWR } from 'lib/swr';
 import { toTokenSlug } from 'lib/temple/assets';
-import { useCustomChainId, useNetwork, useRelevantAccounts } from 'lib/temple/front';
-import { tryParseExpenses } from 'lib/temple/front/expenses';
+import { useCustomChainId, useNetwork, useRelevantAccounts, tryParseExpenses } from 'lib/temple/front';
 import { TempleAccountType, TempleChainId, TempleConfirmationPayload } from 'lib/temple/types';
 import useSafeState from 'lib/ui/useSafeState';
 

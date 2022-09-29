@@ -4,7 +4,7 @@ import { getTradeInputAmount, getTradeOutputAmount, Trade } from 'swap-router-sd
 
 import Money from 'app/atoms/Money';
 import { atomsToTokens } from 'lib/temple/helpers';
-import type { AssetMetadata } from 'lib/temple/metadata/types';
+import type { AssetMetadata } from 'lib/temple/metadata';
 
 interface Props {
   trade: Trade;

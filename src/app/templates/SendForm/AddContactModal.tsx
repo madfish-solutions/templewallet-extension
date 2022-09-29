@@ -10,7 +10,7 @@ import HashShortView from 'app/atoms/HashShortView';
 import Identicon from 'app/atoms/Identicon';
 import ModalWithTitle from 'app/templates/ModalWithTitle';
 import { T, t } from 'lib/i18n/react';
-import { useContacts } from 'lib/temple/front/address-book';
+import { useContacts } from 'lib/temple/front';
 import { withErrorHumanDelay } from 'lib/ui/humanDelay';
 
 type AddContactModalProps = {

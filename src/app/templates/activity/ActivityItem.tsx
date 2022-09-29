@@ -13,7 +13,7 @@ import { getDateFnsLocale } from 'lib/i18n';
 import type { TID } from 'lib/i18n/react';
 import { T, t } from 'lib/i18n/react';
 import { OpStackItem, OpStackItemType, parseMoneyDiffs, parseOpStack } from 'lib/temple/activity';
-import { useExplorerBaseUrls } from 'lib/temple/front/blockexplorer';
+import { useExplorerBaseUrls } from 'lib/temple/front';
 import * as Repo from 'lib/temple/repo';
 
 import MoneyDiffView from './MoneyDiffView';

@@ -26,6 +26,7 @@ import { T, t } from 'lib/i18n/react';
 import { setDelegate } from 'lib/michelson';
 import { fetchTezosBalance } from 'lib/temple/assets';
 import { loadContract } from 'lib/temple/contract';
+import type { Baker } from 'lib/temple/front';
 import {
   useAccount,
   useBalance,
@@ -33,10 +34,11 @@ import {
   isDomainNameValid,
   useNetwork,
   useTezos,
-  useAB
+  useAB,
+  useKnownBaker,
+  useKnownBakers,
+  validateDelegate
 } from 'lib/temple/front';
-import { useKnownBaker, useKnownBakers, Baker } from 'lib/temple/front/baking';
-import { validateDelegate } from 'lib/temple/front/validate-delegate';
 import { tzToMutez, mutezToTz, isAddressValid, isKTAddress, hasManager } from 'lib/temple/helpers';
 import { TempleAccountType } from 'lib/temple/types';
 import { ABTestGroup } from 'lib/templewallet-api';

@@ -9,7 +9,7 @@ import FormSubmitButton from 'app/atoms/FormSubmitButton';
 import { ReactComponent as TrashbinIcon } from 'app/icons/bin.svg';
 import { ReactComponent as PaperclipIcon } from 'app/icons/paperclip.svg';
 import { T, t } from 'lib/i18n/react';
-import { decryptKukaiSeedPhrase } from 'lib/temple/front/kukai';
+import { decryptKukaiSeedPhrase } from 'lib/temple/front';
 import { AlertFn, useAlert } from 'lib/ui/dialog';
 
 interface FormData {

@@ -1,7 +1,7 @@
 import { RouteDirectionEnum } from 'swap-router-sdk';
 
-import type { AssetMetadata } from 'lib/temple/metadata/types';
-import { getAssetSymbol } from 'lib/temple/metadata/utils';
+import type { AssetMetadata } from 'lib/temple/metadata';
+import { getAssetSymbol } from 'lib/temple/metadata';
 
 export const getPoolName = (
   direction: RouteDirectionEnum,

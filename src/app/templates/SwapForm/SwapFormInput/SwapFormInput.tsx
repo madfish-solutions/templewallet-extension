@@ -5,12 +5,16 @@ import classNames from 'clsx';
 
 import { useFormAnalytics } from 'lib/analytics';
 import { t } from 'lib/i18n/react';
-import { toTokenSlug, useFilteredAssets } from 'lib/temple/assets';
-import { AssetTypesEnum } from 'lib/temple/assets/types';
-import { useAccount, useBalance } from 'lib/temple/front';
-import { useAssetMetadata, useAvailableAssets, useGetTokenMetadata } from 'lib/temple/front/assets';
-import { useOnBlock } from 'lib/temple/front/chain';
-import { EMPTY_ASSET_METADATA } from 'lib/temple/metadata/defaults';
+import { AssetTypesEnum, toTokenSlug, useFilteredAssets } from 'lib/temple/assets';
+import {
+  useAccount,
+  useBalance,
+  useAssetMetadata,
+  useAvailableAssets,
+  useGetTokenMetadata,
+  useOnBlock
+} from 'lib/temple/front';
+import { EMPTY_ASSET_METADATA } from 'lib/temple/metadata';
 import Popper from 'lib/ui/Popper';
 
 import { AssetsMenu } from './AssetsMenu/AssetsMenu';

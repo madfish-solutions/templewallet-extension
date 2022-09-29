@@ -42,21 +42,23 @@ import { transferImplicit, transferToContract } from 'lib/michelson';
 import { fetchBalance, fetchTezosBalance, isTezAsset, toPenny, toTransferParams } from 'lib/temple/assets';
 import { loadContract } from 'lib/temple/contract';
 import {
+  ReactiveTezosToolkit,
   isDomainNameValid,
   useAccount,
   useBalance,
   useChainId,
   useNetwork,
   useTezos,
-  useTezosDomainsClient
+  useTezosDomainsClient,
+  useAssetMetadata,
+  useCollectibleTokens,
+  useDisplayedFungibleTokens,
+  useFilteredContacts,
+  validateDelegate
 } from 'lib/temple/front';
-import { useAssetMetadata, useCollectibleTokens, useDisplayedFungibleTokens } from 'lib/temple/front/assets';
-import { ReactiveTezosToolkit } from 'lib/temple/front/ready';
-import { useFilteredContacts } from 'lib/temple/front/use-filtered-contacts.hook';
-import { validateDelegate } from 'lib/temple/front/validate-delegate';
 import { hasManager, isAddressValid, isKTAddress, mutezToTz, tzToMutez } from 'lib/temple/helpers';
-import type { AssetMetadata } from 'lib/temple/metadata/types';
-import { getAssetSymbol } from 'lib/temple/metadata/utils';
+import type { AssetMetadata } from 'lib/temple/metadata';
+import { getAssetSymbol } from 'lib/temple/metadata';
 import { TempleAccountType } from 'lib/temple/types';
 import type { TempleAccount, TempleNetworkType } from 'lib/temple/types';
 import useSafeState from 'lib/ui/useSafeState';

@@ -4,8 +4,8 @@ import { To, createLocationState, createLocationUpdates } from './location';
 export { resetHistoryPosition, goBack, createUrl, HistoryAction } from './history';
 export { useLocation } from './location';
 export type { To } from './location';
-export type { ResolveResult } from './router';
-export { createMap, SKIP, resolve } from './router';
+
+export * as Router from './router';
 
 export { Provider } from './Provider';
 export { Link } from './Link';

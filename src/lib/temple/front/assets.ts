@@ -10,6 +10,7 @@ import { useGasToken } from 'app/hooks/useGasToken';
 import { createQueue } from 'lib/queue';
 import { useRetryableSWR } from 'lib/swr';
 import {
+  AssetTypesEnum,
   isTezAsset,
   fetchDisplayedFungibleTokens,
   fetchFungibleTokens,
@@ -18,11 +19,8 @@ import {
   fetchAllKnownCollectibleTokenSlugs,
   isTokenDisplayed
 } from 'lib/temple/assets';
-import { AssetTypesEnum } from 'lib/temple/assets/types';
-import { TEZOS_METADATA } from 'lib/temple/metadata/defaults';
-import { fetchTokenMetadata } from 'lib/temple/metadata/fetch';
-import { PRESERVED_TOKEN_METADATA } from 'lib/temple/metadata/fixtures';
-import type { AssetMetadata, DetailedAssetMetdata } from 'lib/temple/metadata/types';
+import type { AssetMetadata, DetailedAssetMetdata } from 'lib/temple/metadata';
+import { TEZOS_METADATA, PRESERVED_TOKEN_METADATA, fetchTokenMetadata } from 'lib/temple/metadata';
 import { ITokenStatus } from 'lib/temple/repo';
 
 import { useTezos, useChainId, useAccount } from './ready';

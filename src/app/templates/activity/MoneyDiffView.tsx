@@ -7,7 +7,7 @@ import Money from 'app/atoms/Money';
 import { useAppEnv } from 'app/env';
 import InFiat from 'app/templates/InFiat';
 import { useAssetMetadata } from 'lib/temple/front';
-import { getAssetSymbol } from 'lib/temple/metadata/utils';
+import { getAssetSymbol } from 'lib/temple/metadata';
 
 type MoneyDiffViewProps = {
   assetId: string;
