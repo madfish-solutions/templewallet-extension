@@ -5,7 +5,8 @@ export { resetHistoryPosition, goBack, createUrl, HistoryAction } from './histor
 export { useLocation } from './location';
 export type { To } from './location';
 
-export * as Router from './router';
+export type { ResolveResult } from './router';
+export { SKIP, createMap, resolve } from './router';
 
 export { Provider } from './Provider';
 export { Link } from './Link';
