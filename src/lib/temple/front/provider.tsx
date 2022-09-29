@@ -7,8 +7,6 @@ import { PropsWithChildren } from 'lib/props-with-children';
 import { TokensMetadataProvider } from './assets';
 import { NewBlockTriggersProvider } from './chain';
 import { TempleClientProvider, useTempleClient } from './client';
-import { FungibleTokensBalancesProvider } from './fungible-tokens-balances';
-import { NonFungibleTokensBalancesProvider } from './non-fungible-tokens-balances';
 import { ReadyTempleProvider, useNetwork } from './ready';
 import { SyncTokensProvider } from './sync-tokens';
 import { USDPriceProvider } from './usdprice';

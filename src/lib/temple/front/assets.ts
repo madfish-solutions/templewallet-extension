@@ -14,8 +14,6 @@ import {
   fetchDisplayedFungibleTokens,
   fetchFungibleTokens,
   fetchAllKnownFungibleTokenSlugs,
-  onStorageChanged,
-  putToStorage,
   fetchCollectibleTokens,
   fetchAllKnownCollectibleTokenSlugs,
   AssetTypesEnum,

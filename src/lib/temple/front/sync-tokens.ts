@@ -23,7 +23,7 @@ import { TempleChainId } from '../types';
 
 const SYNC_INTERVAL = 60_000;
 
-export const [SyncTokensProvider] = constate(() => {
+export const [SyncTokensProvider, useSyncTokens] = constate(() => {
   const { mutate } = useSWRConfig();
   const chainId = useChainId(true)!;
   const { publicKeyHash: accountPkh } = useAccount();

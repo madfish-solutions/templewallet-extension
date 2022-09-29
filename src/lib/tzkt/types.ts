@@ -170,8 +170,6 @@ export type TzktRewardsEntry = {
 
 export type TzktGetRewardsResponse = TzktRewardsEntry[] | undefined;
 
-export const allInt32ParameterKeys: Int32ParameterKey[] = ['eq', 'ne', 'gt', 'ge', 'lt', 'le', 'in', 'ni'];
-
 export interface TzktAccountToken {
   account: TzktAlias;
   balance: string;

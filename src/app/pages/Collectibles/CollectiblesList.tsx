@@ -8,10 +8,7 @@ import { AssetsSelectors } from 'app/pages/Explore/Assets.selectors';
 import SearchAssetField from 'app/templates/SearchAssetField';
 import { T } from 'lib/i18n/react';
 import { AssetTypesEnum, useFilteredAssets } from 'lib/temple/assets';
-import { useAccount, useAllTokensBaseMetadata, useChainId, useCollectibleTokens } from 'lib/temple/front';
-import { useNonFungibleTokensBalances } from 'lib/temple/front/non-fungible-tokens-balances';
-import { TZKT_FETCH_QUERY_SIZE } from 'lib/tzkt';
-import { useIntersectionDetection } from 'lib/ui/use-intersection-detection';
+import { useAccount, useChainId, useCollectibleTokens } from 'lib/temple/front';
 import { Link } from 'lib/woozie';
 
 const CollectiblesList = () => {

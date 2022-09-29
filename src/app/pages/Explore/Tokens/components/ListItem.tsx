@@ -1,9 +1,10 @@
-import React, { memo, useEffect, useState } from 'react';
+import React, { memo, useMemo } from 'react';
 
 import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
 
-import { getAssetName, getAssetSymbol, useAssetMetadata } from 'lib/temple/front';
+import { useAssetMetadata } from 'lib/temple/front';
+import { getAssetName, getAssetSymbol } from 'lib/temple/metadata';
 import { Link } from 'lib/woozie';
 
 import { AssetIcon } from '../../../../templates/AssetIcon';
@@ -20,16 +21,15 @@ interface ListItemProps {
 }
 
 export const ListItem = memo<ListItemProps>(({ active, assetSlug, latestBalances }) => {
-  const [latestBalance, setLatestBalance] = useState(new BigNumber(0));
+  const latestBalance = useMemo(() => {
+    if (latestBalances.hasOwnProperty(assetSlug)) {
+      return latestBalances[assetSlug];
+    }
+
+    return new BigNumber(0);
+  }, [assetSlug, latestBalances]);
 
   const metadata = useAssetMetadata(assetSlug);
-
-  useEffect(() => {
-    if (latestBalances.hasOwnProperty(assetSlug)) {
-      setLatestBalance(latestBalances[assetSlug]);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [latestBalances]);
 
   return (
     <Link

@@ -1,8 +1,8 @@
 import { DependencyList, useEffect } from 'react';
 
-import { EmptyFn } from '../config/general';
+import { EmptyFn } from '../utils/function.utils';
 
-export const useTimerEffect = (callback: EmptyFn, refreshInterval: number, deps: DependencyList = []) =>
+export const useTimerEffect = (callback: EmptyFn, refreshInterval: number, deps: DependencyList) =>
   useEffect(() => {
     callback();
 
@@ -10,4 +10,4 @@ export const useTimerEffect = (callback: EmptyFn, refreshInterval: number, deps:
 
     return () => clearInterval(interval);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [...deps]);
+  }, deps);

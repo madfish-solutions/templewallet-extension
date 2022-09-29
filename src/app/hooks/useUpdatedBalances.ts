@@ -2,7 +2,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 import BigNumber from 'bignumber.js';
 
-import { fetchBalance, useAllTokensBaseMetadata, useSyncTokens, useTezos } from 'lib/temple/front';
+import { fetchBalance } from 'lib/temple/assets';
+import { useAllTokensBaseMetadata, useSyncTokens, useTezos } from 'lib/temple/front';
 import { IAccountToken } from 'lib/temple/repo';
 
 export const useUpdatedBalances = (assets: IAccountToken[], chainId: string, address: string) => {
@@ -43,8 +44,7 @@ export const useUpdatedBalances = (assets: IAccountToken[], chainId: string, add
     if (isSync === false) {
       updateBalances();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isSync]);
+  }, [isSync, updateBalances]);
 
   return assetSlugsWithUpdatedBalances;
 };
