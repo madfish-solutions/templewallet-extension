@@ -15,23 +15,16 @@ import PageLayout from 'app/layouts/PageLayout';
 import { useFormAnalytics } from 'lib/analytics';
 import { T, t } from 'lib/i18n/react';
 import {
-  useTezos,
-  validateContractAddress,
-  useNetwork,
   NotMatchingStandardError,
-  useTokensMetadata,
   toTokenSlug,
-  NotFoundTokenMetadata,
   assertGetBalance,
-  useChainId,
-  useAccount,
-  getBalanceSWRKey,
   detectTokenStandard,
-  IncorrectTokenIdError,
-  AssetMetadata,
-  DetailedAssetMetdata,
-  loadContract
-} from 'lib/temple/front';
+  IncorrectTokenIdError
+} from 'lib/temple/assets';
+import { loadContract } from 'lib/temple/contract';
+import { useTezos, useNetwork, useTokensMetadata, useChainId, useAccount, getBalanceSWRKey } from 'lib/temple/front';
+import { validateContractAddress } from 'lib/temple/helpers';
+import { NotFoundTokenMetadata, AssetMetadata, DetailedAssetMetdata } from 'lib/temple/metadata';
 import * as Repo from 'lib/temple/repo';
 import { withErrorHumanDelay } from 'lib/ui/humanDelay';
 import useSafeState from 'lib/ui/useSafeState';

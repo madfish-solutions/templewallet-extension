@@ -22,7 +22,7 @@ export interface PopperRenderProps {
   setOpened: Dispatch<SetStateAction<boolean>>;
   toggleOpened: () => void;
 }
-export type RenderProp<P> = (props: P) => ReactElement;
+type RenderProp<P> = (props: P) => ReactElement;
 
 type PopperProps = Partial<Options> & {
   popup: RenderProp<PopperRenderProps>;

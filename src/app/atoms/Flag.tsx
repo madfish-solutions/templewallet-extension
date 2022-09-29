@@ -2,7 +2,7 @@ import React, { FC, HTMLAttributes, memo, useCallback, useState } from 'react';
 
 import classNames from 'clsx';
 
-export type FlagProps = {
+type FlagProps = {
   alt: string;
   className?: string;
   src?: string;

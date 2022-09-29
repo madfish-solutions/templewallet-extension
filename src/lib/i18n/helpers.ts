@@ -1,4 +1,4 @@
-export const TEMPLATE_RGX = /\$(.*?)\$/g;
+const TEMPLATE_RGX = /\$(.*?)\$/g;
 
 export function processTemplate(str: string, mix: any) {
   return str.replace(TEMPLATE_RGX, (_: any, key) => {

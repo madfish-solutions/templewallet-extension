@@ -27,16 +27,8 @@ import OperationView from 'app/templates/OperationView';
 import { CustomRpsContext } from 'lib/analytics';
 import { T, t } from 'lib/i18n/react';
 import { useRetryableSWR } from 'lib/swr';
-import {
-  useTempleClient,
-  useAccount,
-  useRelevantAccounts,
-  useCustomChainId,
-  TempleAccountType,
-  TempleDAppPayload,
-  TempleAccount,
-  TempleChainId
-} from 'lib/temple/front';
+import { useTempleClient, useAccount, useRelevantAccounts, useCustomChainId } from 'lib/temple/front';
+import { TempleAccountType, TempleDAppPayload, TempleAccount, TempleChainId } from 'lib/temple/types';
 import useSafeState from 'lib/ui/useSafeState';
 import { useLocation } from 'lib/woozie';
 

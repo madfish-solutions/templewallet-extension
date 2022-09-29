@@ -234,7 +234,7 @@ export const PAIRING_RESPONSE_BASE: Partial<PostMessagePairingResponse> = {
   appUrl: browser.runtime.getURL('fullpage.html')
 };
 
-export const KEYPAIR_SEED_STORAGE_KEY = 'beacon_keypair_seed';
+const KEYPAIR_SEED_STORAGE_KEY = 'beacon_keypair_seed';
 
 export async function getSenderId(): Promise<string> {
   await ready;

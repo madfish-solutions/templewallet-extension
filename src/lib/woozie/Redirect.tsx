@@ -1,7 +1,7 @@
 import { FC, ReactElement, useEffect } from 'react';
 
-import { HistoryAction, createUrl, changeState } from 'lib/woozie/history';
-import { To, createLocationState, createLocationUpdates } from 'lib/woozie/location';
+import { HistoryAction, createUrl, changeState } from './history';
+import { To, createLocationState, createLocationUpdates } from './location';
 
 type RedirectProps = {
   to: To;

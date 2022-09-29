@@ -18,8 +18,6 @@ db.version(2).stores({
   [Table.AccountTokens]: indexes('', '[chainId+account+type]', '[chainId+type]')
 });
 
-export const waitFor = Dexie.waitFor;
-
 export const accountTokens = db.table<IAccountToken, string>(Table.AccountTokens);
 export const operations = db.table<IOperation, string>(Table.Operations);
 export const syncTimes = db.table<ISyncTime, string>(Table.SyncTimes);

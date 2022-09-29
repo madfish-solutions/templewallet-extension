@@ -1,6 +1,6 @@
 import constate from 'constate';
 
-import { fetchTokenBalances, fetchTokenBalancesCount } from 'lib/tzkt/client';
+import { fetchTokenBalances, fetchTokenBalancesCount } from 'lib/tzkt';
 
 import { useInfiniteList } from './use-infinite-list';
 

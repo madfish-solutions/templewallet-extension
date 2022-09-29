@@ -16,45 +16,34 @@ export function parseOperStack(activity: Activity, address: string) {
   const opStack: OperStackItem[] = [];
 
   for (const oper of activity.operations) {
-    switch (oper.type) {
-      case 'transaction': {
-        if (isZero(oper.amountSigned)) {
-          opStack.push({
-            type: OperStackItemType.Interaction,
-            with: oper.destination.address,
-            entrypoint: oper.entrypoint
-          });
-          break;
-        }
-        if (oper.source.address === address) {
-          opStack.push({
-            type: OperStackItemType.TransferTo,
-            to: oper.destination.address
-          });
-        } else if (oper.destination.address === address) {
-          opStack.push({
-            type: OperStackItemType.TransferFrom,
-            from: oper.source.address
-          });
-        }
-        break;
-      }
-      case 'delegation': {
-        if (oper.source.address === address && oper.destination) {
-          opStack.push({
-            type: OperStackItemType.Delegation,
-            to: oper.destination.address
-          });
-          break;
-        }
-      }
-      // eslint-disable-next-line no-fallthrough
-      default: {
+    if (oper.type === 'transaction') {
+      if (isZero(oper.amountSigned)) {
         opStack.push({
-          type: OperStackItemType.Other,
-          name: oper.type
+          type: OperStackItemType.Interaction,
+          with: oper.destination.address,
+          entrypoint: oper.entrypoint
+        });
+      } else if (oper.source.address === address) {
+        opStack.push({
+          type: OperStackItemType.TransferTo,
+          to: oper.destination.address
+        });
+      } else if (oper.destination.address === address) {
+        opStack.push({
+          type: OperStackItemType.TransferFrom,
+          from: oper.source.address
         });
       }
+    } else if (oper.type === 'delegation' && oper.source.address === address && oper.destination) {
+      opStack.push({
+        type: OperStackItemType.Delegation,
+        to: oper.destination.address
+      });
+    } else {
+      opStack.push({
+        type: OperStackItemType.Other,
+        name: oper.type
+      });
     }
   }
 

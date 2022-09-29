@@ -3,8 +3,9 @@ import React, { FC, HTMLAttributes, memo, useCallback, useMemo, useRef } from 'r
 import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
 
+import { getNumberSymbols } from 'lib/i18n';
 import { toLocalFixed, toLocalFormat, toShortened } from 'lib/i18n/numbers';
-import { getNumberSymbols, t } from 'lib/i18n/react';
+import { t } from 'lib/i18n/react';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 import useTippy, { TippyInstance, TippyProps } from 'lib/ui/useTippy';
 
@@ -44,8 +45,8 @@ const Money = memo<MoneyProps>(
     const deciamlsLimit = decimalsLength > cryptoDecimals ? cryptoDecimals : decimalsLength;
 
     const decimals = fiat ? 2 : deciamlsLimit;
-    let result = shortened ? toShortened(bn) : toLocalFormat(bn, { decimalPlaces: decimals, roundingMode });
-    let indexOfDecimal = result.indexOf(decimal) === -1 ? result.indexOf('.') : result.indexOf(decimal);
+    const result = shortened ? toShortened(bn) : toLocalFormat(bn, { decimalPlaces: decimals, roundingMode });
+    const indexOfDecimal = result.indexOf(decimal) === -1 ? result.indexOf('.') : result.indexOf(decimal);
 
     const tippyClassName = classNames(
       'truncate',

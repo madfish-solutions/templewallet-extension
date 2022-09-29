@@ -12,7 +12,7 @@ export type OptionRenderProps<T, K extends string | number = string | number, A 
   index: number;
 };
 
-export type CustomSelectProps<T, K extends string | number = string | number, A extends Actions<K> = {}> = {
+type CustomSelectProps<T, K extends string | number = string | number, A extends Actions<K> = {}> = {
   activeItemId?: K;
   actions?: A;
   className?: string;

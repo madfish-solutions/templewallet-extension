@@ -21,7 +21,8 @@ import BakingHistoryItem from 'app/pages/Explore/BakingHistoryItem';
 import BakerBanner from 'app/templates/BakerBanner';
 import { T, t } from 'lib/i18n/react';
 import { useRetryableSWR } from 'lib/swr';
-import { useAccount, useDelegate, TempleAccountType, useChainId, isKnownChainId } from 'lib/temple/front';
+import { useAccount, useDelegate, useChainId } from 'lib/temple/front';
+import { TempleAccountType, isKnownChainId } from 'lib/temple/types';
 import { getDelegatorRewards, TZKT_API_BASE_URLS_MAP } from 'lib/tzkt';
 import useTippy from 'lib/ui/useTippy';
 import { Link } from 'lib/woozie';
@@ -390,13 +391,7 @@ const DelegateMotivationPoint: React.FC<{
   Icon: React.FC<React.SVGProps<SVGSVGElement>>;
   textNode: React.ReactNode;
 }> = ({ Icon, textNode }) => (
-  // eslint-disable-next-line prettier/prettier
-  <li
-    className={classNames(
-      'flex items-center',
-      'text-black-400 py-3 pr-3'
-    )}
-  >
+  <li className={classNames('flex items-center', 'text-black-400 py-3 pr-3')}>
     <aside className="flex items-center p-4 text-blue-500">
       <Icon className="w-8 h-8 stroke-current" style={{ strokeWidth: 1.5 }} />
     </aside>

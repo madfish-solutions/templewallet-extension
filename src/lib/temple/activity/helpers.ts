@@ -60,15 +60,11 @@ const formatFa2 = (
   const { entrypoint, value } = parameters;
   if (entrypoint !== 'transfer') return;
   for (const { args: x } of value) {
-    let from: string | undefined;
-
-    from = checkIfVarString(x);
+    const from: string | undefined = checkIfVarString(x);
     for (const { args: y } of x[1]) {
-      let to, tokenId, amount: string | undefined;
-
-      to = checkIfVarString(y);
-      tokenId = checkDestination(y[1].args[0], destination);
-      amount = checkIfIntString(y[1].args[1]);
+      const to = checkIfVarString(y);
+      const tokenId = checkDestination(y[1].args[0], destination);
+      const amount: string | undefined = checkIfIntString(y[1].args[1]);
 
       if (from && to && tokenId && amount) {
         onTransfer(tokenId, from, to, amount);

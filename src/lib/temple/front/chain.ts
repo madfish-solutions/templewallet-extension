@@ -4,7 +4,10 @@ import { Subscription } from '@taquito/taquito';
 import constate from 'constate';
 import { useSWRConfig } from 'swr';
 
-import { useTezos, useRelevantAccounts, getBalanceSWRKey, confirmOperation } from 'lib/temple/front';
+import { confirmOperation } from 'lib/temple/operation';
+
+import { getBalanceSWRKey } from './balance';
+import { useTezos, useRelevantAccounts } from './ready';
 
 export const [NewBlockTriggersProvider, useBlockTriggers] = constate(useNewBlockTriggers);
 

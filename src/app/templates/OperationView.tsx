@@ -10,7 +10,9 @@ import OperationsBanner from 'app/templates/OperationsBanner';
 import RawPayloadView from 'app/templates/RawPayloadView';
 import ViewsSwitcher from 'app/templates/ViewsSwitcher/ViewsSwitcher';
 import { T, t } from 'lib/i18n/react';
-import { tryParseExpenses, TempleDAppOperationsPayload, TempleDAppSignPayload, toTokenSlug } from 'lib/temple/front';
+import { toTokenSlug } from 'lib/temple/assets';
+import { tryParseExpenses } from 'lib/temple/front';
+import { TempleDAppOperationsPayload, TempleDAppSignPayload } from 'lib/temple/types';
 
 type OperationViewProps = {
   payload: TempleDAppOperationsPayload | TempleDAppSignPayload;

@@ -6,7 +6,8 @@ import classNames from 'clsx';
 import Money from 'app/atoms/Money';
 import { useAppEnv } from 'app/env';
 import InFiat from 'app/templates/InFiat';
-import { useAssetMetadata, getAssetSymbol } from 'lib/temple/front';
+import { useAssetMetadata } from 'lib/temple/front';
+import { getAssetSymbol } from 'lib/temple/metadata';
 
 type MoneyDiffViewProps = {
   assetId: string;

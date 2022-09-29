@@ -5,7 +5,8 @@ import BigNumber from 'bignumber.js';
 import { useDebounce } from 'use-debounce';
 
 import { loadContract } from 'lib/temple/contract';
-import { isValidContractAddress, searchAssets, useAllTokensBaseMetadata } from 'lib/temple/front';
+import { searchAssets, useAllTokensBaseMetadata } from 'lib/temple/front';
+import { isValidContractAddress } from 'lib/temple/helpers';
 import { AssetMetadata } from 'lib/temple/metadata';
 
 import { detectTokenStandard } from './tokenStandard';
@@ -90,10 +91,6 @@ export function fromFa2TokenSlug(slug: string): FA2Token {
   };
 }
 
-export function toAssetSlug(asset: Asset) {
-  return isTezAsset(asset) ? asset : toTokenSlug(asset.contract, asset.id);
-}
-
 export function toTokenSlug(contract: string, id: BigNumber.Value = 0) {
   return contract === 'tez' ? 'tez' : `${contract}_${new BigNumber(id).toFixed()}`;
 }
@@ -108,10 +105,6 @@ export function isFA2Token(token: Token): token is FA2Token {
 
 export function isTezAsset(asset: Asset | string): asset is 'tez' {
   return asset === 'tez';
-}
-
-export function isTokenAsset(asset: Asset): asset is Token {
-  return asset !== 'tez';
 }
 
 export function toPenny(metadata: AssetMetadata | null) {

@@ -228,7 +228,7 @@ async function _fetchOperGroupsForOperations(
   operations: TzktOperation[],
   olderThan?: Activity
 ) {
-  let allHashes = operations.map(d => d.hash);
+  const allHashes = operations.map(d => d.hash);
 
   const uniqueHashes: string[] = [];
   for (const hash of allHashes) {
