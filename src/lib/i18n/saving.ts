@@ -1,7 +1,10 @@
 export const STORAGE_KEY = 'locale';
 
 export function getSavedLocale() {
-  return localStorage.getItem(STORAGE_KEY);
+  try {
+    return localStorage.getItem(STORAGE_KEY);
+  } catch {}
+  return null;
 }
 
 export function saveLocale(locale: string) {

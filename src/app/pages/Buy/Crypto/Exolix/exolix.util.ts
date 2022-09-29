@@ -1,12 +1,11 @@
-import axios from 'axios';
-
 import { outputTokensList } from 'app/pages/Buy/Crypto/Exolix/config';
+import { createAPI } from 'lib/axios';
 
 import { CurrencyInterface, ExchangeDataInterface, ExolixCurrenciesInterface, GetRateData } from './exolix.interface';
 
 const API_KEY = process.env.TEMPLE_WALLET_EXOLIX_API_KEY;
 
-const api = axios.create({
+const api = createAPI({
   baseURL: 'https://exolix.com/api/v2',
   ...(API_KEY && {
     headers: {
@@ -48,7 +47,9 @@ export const getCurrencies = async () => {
 
 const getCurrency = (page = 1) =>
   api
-    .get<ExolixCurrenciesInterface>('/currencies', { params: { size: currenciesLimit, page, withNetworks: true } })
+    .get<ExolixCurrenciesInterface>('/currencies', {
+      params: { size: currenciesLimit, page, withNetworks: true }
+    })
     .then(r => r.data);
 
 export const getCurrenciesCount = () => api.get<ExolixCurrenciesInterface>('/currencies').then(r => r.data.count);

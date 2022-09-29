@@ -1,5 +1,4 @@
-import axios from 'axios';
-
+import { createAPI } from 'lib/axios';
 import { TempleChainId } from 'lib/temple/types';
 
 interface TokenListItem {
@@ -30,7 +29,7 @@ interface WhitelistResponse {
 
 const WHITELIST_TOKENS_BASE_URL = 'https://raw.githubusercontent.com/madfish-solutions/tokens-whitelist/master/';
 
-const api = axios.create({ baseURL: WHITELIST_TOKENS_BASE_URL });
+const api = createAPI({ baseURL: WHITELIST_TOKENS_BASE_URL });
 
 export const fetchWhitelistTokenSlugs = (chainId: string) =>
   api

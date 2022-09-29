@@ -1,8 +1,10 @@
 {
+  "include": ["src"],
   "compilerOptions": {
     "baseUrl": "src",
     "target": "es5",
     "lib": ["dom", "dom.iterable", "esnext"],
+    "downlevelIteration": true,
     "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
@@ -16,8 +18,6 @@
     "noEmit": true,
     "jsx": "react",
     "noImplicitReturns": true,
-    "noImplicitAny": true,
-    "downlevelIteration": true
-  },
-  "include": ["src"]
+    "noImplicitAny": true
+  }
 }

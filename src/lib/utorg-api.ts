@@ -1,4 +1,4 @@
-import axios from 'axios';
+import { createAPI } from 'lib/axios';
 
 enum currencyInfoType {
   CRYPTO = 'CRYPTO',
@@ -26,7 +26,7 @@ interface utorgCurrencyInfo {
 
 const SID = process.env.TEMPLE_WALLET_UTORG_SID;
 
-const api = axios.create({
+const api = createAPI({
   baseURL: 'https://app.utorg.pro/api/merchant/v1',
   ...(SID && {
     headers: {

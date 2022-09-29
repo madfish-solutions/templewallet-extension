@@ -14,7 +14,7 @@ const WatchMissingNodeModulesPlugin = require('react-dev-utils/WatchMissingNodeM
 const resolve = require('resolve');
 const TerserPlugin = require('terser-webpack-plugin');
 const webpack = require('webpack');
-const ExtensionReloader = require('webpack-extension-reloader');
+// const ExtensionReloader = require('webpack-extension-reloader');
 const WebpackBar = require('webpackbar');
 const ZipPlugin = require('zip-webpack-plugin');
 
@@ -109,11 +109,13 @@ const ENTRIES = {
   contentScript: path.join(SOURCE_PATH, 'contentScript.ts')
 };
 
+/*
 const EXTENSION_ENTRIES = {
   contentScript: 'contentScript',
   background: 'background',
   extensionPage: ['commons', 'popup', 'fullpage', 'confirm', 'options']
 };
+*/
 const SEPARATED_CHUNKS = new Set(['background', 'contentScript']);
 const MANIFEST_PATH = path.join(PUBLIC_PATH, 'manifest.json');
 const MODULE_FILE_EXTENSIONS = ['.js', '.mjs', '.jsx', '.ts', '.tsx', '.json'];
@@ -355,19 +357,19 @@ module.exports = {
           inject: 'body',
           ...(NODE_ENV === 'production'
             ? {
-              minify: {
-                removeComments: true,
-                collapseWhitespace: true,
-                removeRedundantAttributes: true,
-                useShortDoctype: true,
-                removeEmptyAttributes: true,
-                removeStyleLinkTypeAttributes: true,
-                keepClosingSlash: true,
-                minifyJS: true,
-                minifyCSS: true,
-                minifyURLs: true
+                minify: {
+                  removeComments: true,
+                  collapseWhitespace: true,
+                  removeRedundantAttributes: true,
+                  useShortDoctype: true,
+                  removeEmptyAttributes: true,
+                  removeStyleLinkTypeAttributes: true,
+                  keepClosingSlash: true,
+                  minifyJS: true,
+                  minifyCSS: true,
+                  minifyURLs: true
+                }
               }
-            }
             : {})
         })
     ),
@@ -402,22 +404,24 @@ module.exports = {
       {
         from: WASM_PATH,
         to: SCRIPTS_PATH
-      },
+      }
     ]),
 
     new WebpackBar({
       name: 'Temple Wallet',
       color: '#ed8936'
-    }),
+    })
 
     // plugin to enable browser reloading in development mode
+    /*
     NODE_ENV === 'development' &&
-    new ExtensionReloader({
-      port: 9090,
-      reloadPage: true,
-      // manifest: path.join(OUTPUT_PATH, "manifest.json"),
-      entries: EXTENSION_ENTRIES
-    })
+      new ExtensionReloader({
+        port: 9090,
+        reloadPage: true,
+        // manifest: path.join(OUTPUT_PATH, "manifest.json"),
+        entries: EXTENSION_ENTRIES
+      })
+    */
   ].filter(Boolean),
 
   optimization: {
@@ -463,13 +467,13 @@ module.exports = {
           parser: safePostCssParser,
           map: SOURCE_MAP
             ? {
-              // `inline: false` forces the sourcemap to be output into a
-              // separate file
-              inline: false,
-              // `annotation: true` appends the sourceMappingURL to the end of
-              // the css file, helping the browser find the sourcemap
-              annotation: true
-            }
+                // `inline: false` forces the sourcemap to be output into a
+                // separate file
+                inline: false,
+                // `annotation: true` appends the sourceMappingURL to the end of
+                // the css file, helping the browser find the sourcemap
+                annotation: true
+              }
             : false
         },
         cssProcessorPluginOptions: {

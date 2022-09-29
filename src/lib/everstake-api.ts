@@ -1,9 +1,9 @@
-import axios from 'axios';
+import { createAPI } from 'lib/axios';
 
 const API_KEY = process.env.TEMPLE_WALLET_EVERSTAKE_API_KEY;
 const LINK_ID = process.env.TEMPLE_WALLET_EVERSTAKE_LINK_ID;
 
-const api = axios.create({
+const api = createAPI({
   baseURL: 'https://aff-api.everstake.one/temple',
   ...(API_KEY && {
     headers: {

@@ -1,15 +1,17 @@
 import { browser } from 'webextension-polyfill-ts';
 
+import './runtime-patch';
+import './xhr-polyfill';
 import { lock } from 'lib/temple/back/actions';
 import { start } from 'lib/temple/back/main';
-import { isLockUpEnabled } from 'lib/ui/useLockUp';
+import { isLockUpEnabledSafe } from 'lib/ui/useLockUp';
 
 browser.runtime.onInstalled.addListener(({ reason }) => (reason === 'install' ? openFullPage() : null));
 
 start();
 
 if (process.env.TARGET_BROWSER === 'safari') {
-  browser.browserAction.onClicked.addListener(() => {
+  browser.action.onClicked.addListener(() => {
     openFullPage();
   });
 }
@@ -29,7 +31,7 @@ const URL_BASE = 'extension://';
 browser.runtime.onConnect.addListener(externalPort => {
   if (getChromePredicate(externalPort) || getFFPredicate(externalPort)) {
     connectionsCount++;
-    const lockUpEnabled = isLockUpEnabled();
+    const lockUpEnabled = isLockUpEnabledSafe();
     if (
       connectionsCount === 1 &&
       Date.now() - disconnectTimestamp >= LOCK_TIME &&

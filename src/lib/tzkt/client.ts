@@ -1,5 +1,6 @@
-import axios, { AxiosError } from 'axios';
+import { AxiosError } from 'axios';
 
+import { createAPI } from 'lib/axios';
 import { isKnownChainId, TempleChainId } from 'lib/temple/types';
 import {
   allInt32ParameterKeys,
@@ -20,7 +21,7 @@ export const TZKT_API_BASE_URLS = new Map([
   [TempleChainId.DcpTest, 'https://explorer.tlnt.net:8009/v1']
 ]);
 
-const api = axios.create();
+const api = createAPI();
 api.interceptors.response.use(
   res => res,
   err => {

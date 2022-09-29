@@ -1,4 +1,5 @@
-import axios, { AxiosError } from 'axios';
+import { AxiosError } from 'axios';
+import { createAPI } from 'lib/axios';
 
 import { TempleChainId } from 'lib/temple/types';
 import {
@@ -19,7 +20,7 @@ export type Explore<P, T> = (n: TZStatsNetwork, p?: Partial<P>) => Promise<T>;
 
 export type Query<T> = (n: TZStatsNetwork, a?: QueryArguments | null, f?: QueryFilter[]) => Promise<T>;
 
-const api = axios.create();
+const api = createAPI();
 api.interceptors.response.use(
   res => res,
   err => {

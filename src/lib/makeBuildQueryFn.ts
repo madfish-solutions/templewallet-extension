@@ -1,4 +1,4 @@
-import axios from 'axios';
+import { createAPI } from 'lib/axios';
 
 function pick<T, U extends keyof T>(obj: T, keys: U[]) {
   const newObj: Partial<T> = {};
@@ -11,7 +11,7 @@ function pick<T, U extends keyof T>(obj: T, keys: U[]) {
 }
 
 export default function makeBuildQueryFn<P, R>(baseURL: string) {
-  const api = axios.create({ baseURL });
+  const api = createAPI({ baseURL });
   return function f1<P1 extends P, R1 extends R>(
     method: 'GET' | 'POST',
     path: string | ((params: P1) => string),

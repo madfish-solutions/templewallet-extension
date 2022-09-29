@@ -1,0 +1,8 @@
+- Restore `localStorage` reliant features
+- - `lib/i18n/saving.ts>getSavedLocale()`
+- - `lib/ui/useLockUp.ts>isLockUpEnabled()`
+- Restore hot-reload
+- `wasm-unsafe-eval` works only for Chrome v102+
+- Get rid of runtime patch
+- Get rid of XHR polyfill
+- - PR to `taquito` ?
