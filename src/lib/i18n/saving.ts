@@ -1,3 +1,5 @@
+// import { useStorage, fetchFromStorage } from 'lib/temple/front';
+
 const STORAGE_KEY = 'locale';
 
 export function getSavedLocale() {

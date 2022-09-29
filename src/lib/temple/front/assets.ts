@@ -6,7 +6,6 @@ import Fuse from 'fuse.js';
 import useForceUpdate from 'use-force-update';
 import { browser } from 'webextension-polyfill-ts';
 
-import { useGasToken } from 'app/hooks/useGasToken';
 import { createQueue } from 'lib/queue';
 import { useRetryableSWR } from 'lib/swr';
 import {
@@ -23,15 +22,35 @@ import {
   AssetMetadata,
   fetchTokenMetadata,
   PRESERVED_TOKEN_METADATA,
+  FILM_METADATA,
   TEZOS_METADATA,
   DetailedAssetMetdata
 } from 'lib/temple/metadata';
 import { ITokenStatus } from 'lib/temple/repo';
 
-import { useTezos, useChainId, useAccount } from './ready';
+import { useTezos, useChainId, useNetwork, useAccount } from './ready';
 import { onStorageChanged, putToStorage, usePassiveStorage } from './storage';
 
 const ALL_TOKENS_BASE_METADATA_STORAGE_KEY = 'tokens_base_metadata';
+
+export const useGasToken = () => {
+  const network = useNetwork();
+
+  return network.type === 'dcp'
+    ? {
+        logo: 'misc/token-logos/film.png',
+        symbol: 'ф',
+        assetName: 'FILM',
+        metadata: FILM_METADATA,
+        isDcpNetwork: true
+      }
+    : {
+        logo: 'misc/token-logos/tez.svg',
+        symbol: 'ꜩ',
+        assetName: 'tez',
+        metadata: TEZOS_METADATA
+      };
+};
 
 export function useDisplayedFungibleTokens(chainId: string, account: string) {
   return useRetryableSWR(

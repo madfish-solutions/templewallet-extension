@@ -6,3 +6,8 @@
 - Get rid of runtime patch
 - Get rid of XHR polyfill
 - - PR to `taquito` ?
+- Remove references
+- - `lib` -> `app`
+- - `back` -> `app`
+- - `back` -> `front`
+- Get rid of `eslint-loader`

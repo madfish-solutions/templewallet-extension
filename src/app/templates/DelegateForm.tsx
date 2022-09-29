@@ -36,7 +36,8 @@ import {
   Baker,
   useNetwork,
   useTezos,
-  useAB
+  useAB,
+  useGasToken
 } from 'lib/temple/front';
 import { validateDelegate } from 'lib/temple/front/validate-delegate';
 import { tzToMutez, mutezToTz, isAddressValid, isKTAddress, hasManager } from 'lib/temple/helpers';
@@ -45,7 +46,6 @@ import { ABTestGroup } from 'lib/templewallet-api';
 import useSafeState from 'lib/ui/useSafeState';
 import { Link, useLocation } from 'lib/woozie';
 
-import { useGasToken } from '../hooks/useGasToken';
 import { DelegateFormSelectors } from './DelegateForm.selectors';
 
 const PENNY = 0.000001;

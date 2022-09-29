@@ -5,8 +5,6 @@ import { browser } from 'webextension-polyfill-ts';
 
 import { createUrl } from 'lib/woozie';
 
-export const IS_DEV_ENV = process.env.NODE_ENV === 'development';
-
 type AppEnvironment = {
   windowType: WindowType;
   confirmWindow?: boolean;

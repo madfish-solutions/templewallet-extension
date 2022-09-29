@@ -52,7 +52,8 @@ import {
   useDisplayedFungibleTokens,
   useNetwork,
   useTezos,
-  useTezosDomainsClient
+  useTezosDomainsClient,
+  useGasToken
 } from 'lib/temple/front';
 import { useFilteredContacts } from 'lib/temple/front/use-filtered-contacts.hook';
 import { validateDelegate } from 'lib/temple/front/validate-delegate';
@@ -64,7 +65,6 @@ import type { TempleAccount, TempleNetworkType } from 'lib/temple/types';
 import useSafeState from 'lib/ui/useSafeState';
 import { HistoryAction, navigate } from 'lib/woozie';
 
-import { useGasToken } from '../hooks/useGasToken';
 import { IAsset } from './AssetSelect/interfaces';
 import { getSlug } from './AssetSelect/utils';
 import { SendFormSelectors } from './SendForm.selectors';

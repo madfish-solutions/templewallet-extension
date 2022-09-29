@@ -21,11 +21,10 @@ import SearchField from 'app/templates/SearchField';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
 import type { TID } from 'lib/i18n/react';
 import { t, T } from 'lib/i18n/react';
-import { useAccount, useRelevantAccounts, useSetAccountPkh, useTempleClient } from 'lib/temple/front';
+import { useAccount, useRelevantAccounts, useSetAccountPkh, useTempleClient, useGasToken } from 'lib/temple/front';
 import { PopperRenderProps } from 'lib/ui/Popper';
 import { Link } from 'lib/woozie';
 
-import { useGasToken } from '../../../hooks/useGasToken';
 import { AccountDropdownSelectors } from './AccountDropdown.selectors';
 
 type AccountDropdownProps = PopperRenderProps;

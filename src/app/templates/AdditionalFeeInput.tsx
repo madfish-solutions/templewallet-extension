@@ -27,8 +27,8 @@ import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
 import { toLocalFixed } from 'lib/i18n/numbers';
 import type { TID } from 'lib/i18n/react';
 import { T, t } from 'lib/i18n/react';
+import { useGasToken } from 'lib/temple/front';
 
-import { useGasToken } from '../hooks/useGasToken';
 import { AdditionalFeeInputSelectors } from './AdditionalFeeInput.selectors';
 
 type AssetFieldProps = typeof AssetField extends ForwardRefExoticComponent<infer T> ? T : never;
