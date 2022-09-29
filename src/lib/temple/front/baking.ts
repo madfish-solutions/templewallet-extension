@@ -82,53 +82,52 @@ const defaultRewardConfigHistory = [
   }
 ];
 
-export const fetchBaker = async (address: string | null): Promise<Baker | null> => {
-  if (!address) return null;
-  try {
-    const bakingBadBaker = await bakingBadGetBaker({ address, configs: true });
-
-    if (typeof bakingBadBaker === 'object') {
-      return {
-        address: bakingBadBaker.address,
-        name: bakingBadBaker.name,
-        logo: bakingBadBaker.logo ? bakingBadBaker.logo : undefined,
-        fee: bakingBadBaker.fee,
-        freeSpace: bakingBadBaker.freeSpace,
-        stakingBalance: bakingBadBaker.stakingBalance,
-        feeHistory: bakingBadBaker.config?.fee,
-        minDelegation: bakingBadBaker.minDelegation,
-        rewardConfigHistory:
-          bakingBadBaker.config?.rewardStruct.map(({ cycle, value: rewardStruct }) => ({
-            cycle,
-            value: {
-              blocks: (rewardStruct & 1) > 0,
-              endorses: (rewardStruct & 2) > 0,
-              fees: (rewardStruct & 4) > 0,
-              accusationRewards: (rewardStruct & 8) > 0,
-              accusationLostDeposits: (rewardStruct & 16) > 0,
-              accusationLostRewards: (rewardStruct & 32) > 0,
-              accusationLostFees: (rewardStruct & 64) > 0,
-              revelationRewards: (rewardStruct & 128) > 0,
-              revelationLostRewards: (rewardStruct & 256) > 0,
-              revelationLostFees: (rewardStruct & 512) > 0,
-              missedBlocks: (rewardStruct & 1024) > 0,
-              stolenBlocks: (rewardStruct & 2048) > 0,
-              missedEndorses: (rewardStruct & 4096) > 0,
-              lowPriorityEndorses: (rewardStruct & 8192) > 0
-            }
-          })) ?? defaultRewardConfigHistory
-      };
-    }
-
-    return null;
-  } catch (_err) {
-    return null;
-  }
-};
-
 export function useKnownBaker(address: string | null, suspense = true) {
   const net = useNetwork();
-  return useRetryableSWR(net.type === 'main' && address ? ['baker', address] : null, () => fetchBaker(address), {
+  const fetchBaker = useCallback(async (): Promise<Baker | null> => {
+    if (!address) return null;
+    try {
+      const bakingBadBaker = await bakingBadGetBaker({ address, configs: true });
+
+      if (typeof bakingBadBaker === 'object') {
+        return {
+          address: bakingBadBaker.address,
+          name: bakingBadBaker.name,
+          logo: bakingBadBaker.logo ? bakingBadBaker.logo : undefined,
+          fee: bakingBadBaker.fee,
+          freeSpace: bakingBadBaker.freeSpace,
+          stakingBalance: bakingBadBaker.stakingBalance,
+          feeHistory: bakingBadBaker.config?.fee,
+          minDelegation: bakingBadBaker.minDelegation,
+          rewardConfigHistory:
+            bakingBadBaker.config?.rewardStruct.map(({ cycle, value: rewardStruct }) => ({
+              cycle,
+              value: {
+                blocks: (rewardStruct & 1) > 0,
+                endorses: (rewardStruct & 2) > 0,
+                fees: (rewardStruct & 4) > 0,
+                accusationRewards: (rewardStruct & 8) > 0,
+                accusationLostDeposits: (rewardStruct & 16) > 0,
+                accusationLostRewards: (rewardStruct & 32) > 0,
+                accusationLostFees: (rewardStruct & 64) > 0,
+                revelationRewards: (rewardStruct & 128) > 0,
+                revelationLostRewards: (rewardStruct & 256) > 0,
+                revelationLostFees: (rewardStruct & 512) > 0,
+                missedBlocks: (rewardStruct & 1024) > 0,
+                stolenBlocks: (rewardStruct & 2048) > 0,
+                missedEndorses: (rewardStruct & 4096) > 0,
+                lowPriorityEndorses: (rewardStruct & 8192) > 0
+              }
+            })) ?? defaultRewardConfigHistory
+        };
+      }
+
+      return null;
+    } catch (_err) {
+      return null;
+    }
+  }, [address]);
+  return useRetryableSWR(net.type === 'main' && address ? ['baker', address] : null, fetchBaker, {
     refreshInterval: 120_000,
     dedupingInterval: 60_000,
     suspense
@@ -340,104 +339,3 @@ const calculateLuck = (params: RewardsStatsCalculationParams, totalRewards: BigN
 
   return totalRewards.minus(totalExpectedRewards).div(totalExpectedRewards);
 };
-
-type RewardsPerEventHistoryItem = Partial<
-  Record<
-    'rewardPerOwnBlock' | 'rewardPerEndorsement' | 'rewardPerFutureBlock' | 'rewardPerFutureEndorsement',
-    BigNumber
-  >
->;
-
-export const allRewardsPerEventKeys: (keyof RewardsPerEventHistoryItem)[] = [
-  'rewardPerOwnBlock',
-  'rewardPerEndorsement',
-  'rewardPerFutureBlock',
-  'rewardPerFutureEndorsement'
-];
-
-type RewardsTrueType = {
-  rewardPerOwnBlock: BigNumber;
-  rewardPerEndorsement: BigNumber;
-  rewardPerFutureBlock: BigNumber;
-  rewardPerFutureEndorsement: BigNumber;
-};
-
-export const reduceFunction = (
-  fallbackRewardsItem: RewardsTrueType,
-  key: keyof RewardsPerEventHistoryItem,
-  index: number,
-  historyItem: RewardsPerEventHistoryItem,
-  rewardsPerEventHistory: RewardsPerEventHistoryItem[]
-) => {
-  if (historyItem[key]) {
-    return {
-      ...fallbackRewardsItem,
-      [key]: historyItem[key]
-    };
-  }
-  let leftValueIndex = index - 1;
-  while (leftValueIndex >= 0 && !rewardsPerEventHistory[leftValueIndex][key]) {
-    leftValueIndex--;
-  }
-  let rightValueIndex = index + 1;
-  while (rightValueIndex < rewardsPerEventHistory.length && !rewardsPerEventHistory[rightValueIndex][key]) {
-    rightValueIndex++;
-  }
-  let fallbackRewardsValue = new BigNumber(0);
-  const leftValueExists = leftValueIndex >= 0;
-  const rightValueExists = rightValueIndex < rewardsPerEventHistory.length;
-  if (leftValueExists && rightValueExists) {
-    const leftValue = rewardsPerEventHistory[leftValueIndex][key]!;
-    const rightValue = rewardsPerEventHistory[rightValueIndex][key]!;
-    const x0 = leftValueIndex;
-    const y0 = leftValue;
-    const x1 = rightValueIndex;
-    const y1 = rightValue;
-    fallbackRewardsValue = new BigNumber(index - x0)
-      .div(x1 - x0)
-      .multipliedBy(y1.minus(y0))
-      .plus(y0);
-  } else if (leftValueExists || rightValueExists) {
-    fallbackRewardsValue = rewardsPerEventHistory[leftValueExists ? leftValueIndex : rightValueIndex][key]!;
-  }
-  return {
-    ...fallbackRewardsItem,
-    [key]: fallbackRewardsValue
-  };
-};
-
-export const getLuckAndRewardAndCycleStatus = async ({
-  content,
-  currentCycle,
-  fallbackRewardPerEndorsement,
-  fallbackRewardPerFutureBlock,
-  fallbackRewardPerFutureEndorsement,
-  fallbackRewardPerOwnBlock
-}: BakingHistoryItemProps) => {
-  const bakerDetails = await fetchBaker(content.baker.address);
-  const { rewards, luck, cycleStatus } = getRewardsStats({
-    rewardsEntry: content,
-    bakerDetails,
-    currentCycle,
-    fallbackRewardPerEndorsement,
-    fallbackRewardPerFutureBlock,
-    fallbackRewardPerFutureEndorsement,
-    fallbackRewardPerOwnBlock
-  });
-
-  const luckPercentage = luck.times(100);
-  const normalizedRewards = mutezToTz(rewards);
-
-  return { luck: luckPercentage, reward: normalizedRewards, cycleStatus };
-};
-
-export type BakingHistoryItemProps = {
-  content: TzktRewardsEntry;
-  currentCycle?: number;
-} & Record<
-  | 'fallbackRewardPerOwnBlock'
-  | 'fallbackRewardPerEndorsement'
-  | 'fallbackRewardPerFutureBlock'
-  | 'fallbackRewardPerFutureEndorsement',
-  BigNumber
->;

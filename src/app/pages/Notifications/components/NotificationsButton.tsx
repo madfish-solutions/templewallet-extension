@@ -1,17 +1,17 @@
 import React, { FC } from 'react';
 
-import { useNews } from 'lib/temple/front/news.provider';
+import { useIsEveryNewsReadedSelector } from 'app/store/news/news-selector';
 
 import Link from '../../../../lib/woozie/Link';
 import { ReactComponent as BellIcon } from '../../../icons/bell.svg';
 import { NotificationsIcon } from './NotificationsIcon';
 
 export const NotificationsButton: FC = () => {
-  const { isUnreadNews } = useNews();
+  const isDotVisible = useIsEveryNewsReadedSelector();
 
   return (
     <Link to={'/notifications'} className="bg-blue-100 mr-4" style={{ padding: 6, borderRadius: 7 }}>
-      <NotificationsIcon isDotVisible={isUnreadNews} small>
+      <NotificationsIcon isDotVisible={isDotVisible} small>
         <BellIcon />
       </NotificationsIcon>
     </Link>

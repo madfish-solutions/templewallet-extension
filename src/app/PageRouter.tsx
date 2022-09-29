@@ -1,5 +1,7 @@
 import React, { FC, useLayoutEffect, useMemo } from 'react';
 
+import { useDispatch } from 'react-redux';
+
 import { OpenInFullPage, useAppEnv } from 'app/env';
 import AddAsset from 'app/pages/AddAsset';
 import Exolix from 'app/pages/Buy/Crypto/Exolix/Exolix';
@@ -24,12 +26,14 @@ import { useTempleClient } from 'lib/temple/front';
 import * as Woozie from 'lib/woozie';
 
 import RootSuspenseFallback from './a11y/RootSuspenseFallback';
+import { useTimerEffect } from './hooks/use-timer-effect.hook';
 import { Buy } from './pages/Buy/Buy';
 import { AliceBob } from './pages/Buy/Debit/AliceBob/AliceBob';
 import { Utorg } from './pages/Buy/Debit/Utorg/Utorg';
 import { NewsNotificationsItemDetails } from './pages/Notifications/NewsNotifications/NewsNotificationsItemDetails';
 import { Notifications } from './pages/Notifications/Notifications';
 import AttentionPage from './pages/Onboarding/pages/AttentionPage';
+import { loadNewsAction } from './store/news/news-actions';
 
 interface RouteContext {
   popup: boolean;
@@ -100,7 +104,11 @@ const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
   ['*', () => <Woozie.Redirect to="/" />]
 ]);
 
+// once per hour
+const NEWS_REFRESH_INTERVAL = 60 * 60 * 1000;
+
 const PageRouter: FC = () => {
+  const dispatch = useDispatch();
   const { trigger, pathname, search } = Woozie.useLocation();
 
   // Scroll to top after new location pushed.
@@ -113,6 +121,12 @@ const PageRouter: FC = () => {
       Woozie.resetHistoryPosition();
     }
   }, [trigger, pathname]);
+
+  const initDataLoading = () => {
+    dispatch(loadNewsAction.submit());
+  };
+
+  useTimerEffect(initDataLoading, NEWS_REFRESH_INTERVAL, []);
 
   const appEnv = useAppEnv();
   const temple = useTempleClient();

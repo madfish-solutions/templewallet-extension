@@ -1,4 +1,4 @@
-import { NewsNotificationInterface, PlatformType, SortedBy } from 'lib/temple/front/news.provider';
+import { NewsNotificationInterface, PlatformType, SortedBy } from 'app/store/news/news-interfaces';
 
 import { templewalletQuery } from './templewallet-query';
 

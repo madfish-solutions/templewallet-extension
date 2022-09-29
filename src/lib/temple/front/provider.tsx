@@ -8,7 +8,6 @@ import { TokensMetadataProvider } from './assets';
 import { NewBlockTriggersProvider } from './chain';
 import { TempleClientProvider, useTempleClient } from './client';
 import { FungibleTokensBalancesProvider } from './fungible-tokens-balances';
-import { NewsProvider } from './news.provider';
 import { NonFungibleTokensBalancesProvider } from './non-fungible-tokens-balances';
 import { ReadyTempleProvider, useNetwork } from './ready';
 import { SyncTokensProvider } from './sync-tokens';
@@ -36,9 +35,7 @@ const ConditionalReadyTemple: FC<PropsWithChildren> = ({ children }) => {
                   <FungibleTokensBalancesProvider>
                     <NonFungibleTokensBalancesProvider>
                       <SyncTokensProvider>
-                        <NewBlockTriggersProvider>
-                          <NewsProvider>{children}</NewsProvider>
-                        </NewBlockTriggersProvider>
+                        <NewBlockTriggersProvider>{children}</NewBlockTriggersProvider>
                       </SyncTokensProvider>
                     </NonFungibleTokensBalancesProvider>
                   </FungibleTokensBalancesProvider>

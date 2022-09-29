@@ -1,9 +1,11 @@
 import React, { FC } from 'react';
 
-import { T } from 'lib/i18n/react';
-import { TempleNotificationsSharedStorageKey, useLocalStorage } from 'lib/temple/front';
+import { useDispatch } from 'react-redux';
 
-import Link from '../../../../lib/woozie/Link';
+import { readNewsAction } from 'app/store/news/news-actions';
+import { T } from 'lib/i18n/react';
+import { Link } from 'lib/woozie';
+
 import { ReactComponent as ArrowRightIcon } from '../../../icons/arrow-right.svg';
 
 interface NewsDetailsButtonProps {
@@ -11,10 +13,10 @@ interface NewsDetailsButtonProps {
 }
 
 export const NewsDetailsButton: FC<NewsDetailsButtonProps> = ({ newsId }) => {
-  const [, setReadNewsIds] = useLocalStorage<string[]>(TempleNotificationsSharedStorageKey.ReadNewsIds, []);
+  const dispatch = useDispatch();
 
   const handleMarkAsRead = () => {
-    setReadNewsIds(prev => [...prev.filter(x => x !== newsId), newsId]);
+    dispatch(readNewsAction(newsId));
   };
 
   return (

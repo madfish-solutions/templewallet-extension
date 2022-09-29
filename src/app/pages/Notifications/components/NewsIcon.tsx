@@ -1,6 +1,6 @@
 import React, { FC, useMemo } from 'react';
 
-import { NewsType } from 'lib/temple/front/news.provider';
+import { NewsType } from 'app/store/news/news-interfaces';
 
 import { ReactComponent as AlertNewsIcon } from '../../../icons/alert-news.svg';
 import { ReactComponent as ApplicationUpdateNewsIcon } from '../../../icons/application-update-news.svg';

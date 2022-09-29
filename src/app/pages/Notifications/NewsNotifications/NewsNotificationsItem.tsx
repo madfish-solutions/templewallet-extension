@@ -2,7 +2,7 @@ import React, { FC } from 'react';
 
 import classNames from 'clsx';
 
-import { NewsNotificationInterface, StatusType } from 'lib/temple/front/news.provider';
+import { NewsNotificationInterface, StatusType } from 'app/store/news/news-interfaces';
 
 import { NewsDetailsButton } from '../components/NewsDetailsButton';
 import { NewsIcon } from '../components/NewsIcon';
@@ -47,8 +47,8 @@ export const NewsNotificationsItem: FC<NewsNotificationsItemProps> = ({
         </div>
         {truncateDescription(description)
           .split('\n')
-          .map(x => (
-            <div key={x} className="text-gray-600 text-xs font-normal">
+          .map((x, index) => (
+            <div key={index} className="text-gray-600 text-xs font-normal">
               {x}
             </div>
           ))}

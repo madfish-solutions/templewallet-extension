@@ -2,8 +2,8 @@ import React, { FC } from 'react';
 
 import classNames from 'clsx';
 
+import { useNewsIdSelector } from 'app/store/news/news-selector';
 import { T } from 'lib/i18n/react';
-import { NewsNotificationInterface, useNews, welcomeNewsNotificationsMockData } from 'lib/temple/front/news.provider';
 import { goBack } from 'lib/woozie';
 
 import { Button } from '../../../atoms/Button';
@@ -19,15 +19,7 @@ interface NewsNotificationsItemDetailsProps {
 export const NewsNotificationsItemDetails: FC<NewsNotificationsItemDetailsProps> = ({ id }) => {
   const { popup } = useAppEnv();
 
-  const { getNewsItem } = useNews();
-
-  let newsItem: NewsNotificationInterface | null = welcomeNewsNotificationsMockData[0];
-
-  try {
-    newsItem = getNewsItem(id);
-  } catch {
-    newsItem = null;
-  }
+  const newsItem = useNewsIdSelector(id) ?? null;
 
   return (
     <PageLayout
@@ -51,8 +43,12 @@ export const NewsNotificationsItemDetails: FC<NewsNotificationsItemDetailsProps>
             <div className="font-inter text-gray-900 font-semibold mb-4" style={{ fontSize: 23 }}>
               {newsItem.title}
             </div>
-            {newsItem.content.split('\n').map(x => (
-              <div key={x} className="font-inter text-gray-900 font-normal overflow-auto mb-2" style={{ fontSize: 17 }}>
+            {newsItem.content.split('\n').map((x, index) => (
+              <div
+                key={index}
+                className="font-inter text-gray-900 font-normal overflow-auto mb-2"
+                style={{ fontSize: 17 }}
+              >
                 {x}
               </div>
             ))}
