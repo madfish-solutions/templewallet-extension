@@ -1,4 +1,5 @@
-import { FILM_METADATA, TEZOS_METADATA, useNetwork } from '../../lib/temple/front';
+import { useNetwork } from 'lib/temple/front';
+import { FILM_METADATA, TEZOS_METADATA } from 'lib/temple/metadata';
 
 export const useGasToken = () => {
   const network = useNetwork();

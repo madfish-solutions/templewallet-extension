@@ -12,6 +12,7 @@ import {
 import { buf2hex } from '@taquito/utils';
 import constate from 'constate';
 import { nanoid } from 'nanoid';
+import toBuffer from 'typedarray-to-buffer';
 
 import { IntercomClient } from 'lib/intercom';
 import { useRetryableSWR } from 'lib/swr';
@@ -25,7 +26,6 @@ import {
   TempleSettings,
   DerivationType
 } from 'lib/temple/types';
-import toBuffer from 'typedarray-to-buffer';
 
 type Confirmation = {
   id: string;

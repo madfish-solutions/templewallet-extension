@@ -2,6 +2,7 @@ import { AxiosError } from 'axios';
 
 import { createAPI } from 'lib/axios';
 import { isKnownChainId, TempleChainId } from 'lib/temple/types';
+
 import {
   allInt32ParameterKeys,
   TzktGetOperationsParams,
@@ -11,7 +12,7 @@ import {
   TzktRelatedContract,
   TzktTokenTransfer,
   TzktAccountTokenBalance
-} from 'lib/tzkt/types';
+} from './types';
 
 export const TZKT_API_BASE_URLS = new Map([
   [TempleChainId.Mainnet, 'https://api.tzkt.io/v1'],
@@ -70,7 +71,7 @@ export const getFa2Transfers = makeQuery<TzktGetOperationsParams, TzktOperation[
   })
 );
 
-export const getTokenBalances = makeQuery<TzktGetOperationsParams, TzktAccountTokenBalance[]>(
+const getTokenBalances = makeQuery<TzktGetOperationsParams, TzktAccountTokenBalance[]>(
   () => `/tokens/balances`,
   ({ address, offset, limit, ...restParams }) => ({
     account: address,
@@ -82,7 +83,7 @@ export const getTokenBalances = makeQuery<TzktGetOperationsParams, TzktAccountTo
   })
 );
 
-export const getNFTBalances = makeQuery<TzktGetOperationsParams, TzktAccountTokenBalance[]>(
+const getNFTBalances = makeQuery<TzktGetOperationsParams, TzktAccountTokenBalance[]>(
   () => `/tokens/balances`,
   ({ address, offset, limit, ...restParams }) => ({
     account: address,
@@ -113,7 +114,7 @@ export const getTokenTransfersCount = makeQuery<TzktGetOperationsParams, number>
     ...restParams
   })
 );
-export const getTokenBalancesCount = makeQuery<TzktGetOperationsParams, number>(
+const getTokenBalancesCount = makeQuery<TzktGetOperationsParams, number>(
   () => `/tokens/balances/count`,
   ({ address, ...restParams }) => ({
     account: address,
@@ -122,18 +123,11 @@ export const getTokenBalancesCount = makeQuery<TzktGetOperationsParams, number>(
   })
 );
 
-export const getNFTBalancesCount = makeQuery<TzktGetOperationsParams, number>(
+const getNFTBalancesCount = makeQuery<TzktGetOperationsParams, number>(
   () => `/tokens/balances/count`,
   ({ address, ...restParams }) => ({
     account: address,
     'token.metadata.artifactUri.null': false,
-    ...restParams
-  })
-);
-
-export const getAccount = makeQuery<TzktGetOperationsParams, any>(
-  params => `/accounts/${params.address}`,
-  ({ ...restParams }) => ({
     ...restParams
   })
 );

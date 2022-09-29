@@ -24,27 +24,23 @@ import { submitDelegation } from 'lib/everstake-api';
 import type { TID } from 'lib/i18n/react';
 import { T, t } from 'lib/i18n/react';
 import { setDelegate } from 'lib/michelson';
+import { fetchTezosBalance } from 'lib/temple/assets';
+import { loadContract } from 'lib/temple/contract';
 import {
   useAccount,
   useBalance,
   useKnownBaker,
   useKnownBakers,
-  tzToMutez,
-  mutezToTz,
-  isAddressValid,
-  isKTAddress,
-  hasManager,
-  TempleAccountType,
-  loadContract,
   useTezosDomainsClient,
   isDomainNameValid,
-  fetchTezosBalance,
   Baker,
   useNetwork,
   useTezos,
   useAB
 } from 'lib/temple/front';
 import { validateDelegate } from 'lib/temple/front/validate-delegate';
+import { tzToMutez, mutezToTz, isAddressValid, isKTAddress, hasManager } from 'lib/temple/helpers';
+import { TempleAccountType } from 'lib/temple/types';
 import { ABTestGroup } from 'lib/templewallet-api';
 import useSafeState from 'lib/ui/useSafeState';
 import { Link, useLocation } from 'lib/woozie';

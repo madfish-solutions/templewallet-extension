@@ -18,6 +18,9 @@
     "noEmit": true,
     "jsx": "react",
     "noImplicitReturns": true,
-    "noImplicitAny": true
+    "noImplicitAny": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true
   }
 }

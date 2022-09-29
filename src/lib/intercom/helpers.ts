@@ -1,4 +1,4 @@
-export const DEFAULT_ERROR_MESSAGE = 'Unexpected error occured';
+const DEFAULT_ERROR_MESSAGE = 'Unexpected error occured';
 
 export function serealizeError(err: any) {
   const message = err?.message || DEFAULT_ERROR_MESSAGE;

@@ -13,14 +13,9 @@ import { ReactComponent as ClipboardIcon } from 'app/icons/clipboard.svg';
 import HashChip from 'app/templates/HashChip';
 import InFiat from 'app/templates/InFiat';
 import { T, t, TProps } from 'lib/i18n/react';
-import {
-  getAssetSymbol,
-  mutezToTz,
-  RawOperationAssetExpense,
-  RawOperationExpenses,
-  tzToMutez,
-  useAssetMetadata
-} from 'lib/temple/front';
+import { RawOperationAssetExpense, RawOperationExpenses, useAssetMetadata } from 'lib/temple/front';
+import { mutezToTz, tzToMutez } from 'lib/temple/helpers';
+import { getAssetSymbol } from 'lib/temple/metadata';
 
 import { useGasToken } from '../../hooks/useGasToken';
 import OperationsBanner from '../OperationsBanner';

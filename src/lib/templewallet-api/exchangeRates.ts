@@ -1,4 +1,9 @@
 import { templewalletQuery } from './templewallet-query';
-import { TokensExchangeRatesEntry } from './types';
+
+type TokensExchangeRatesEntry = {
+  tokenAddress?: string;
+  tokenId?: number;
+  exchangeRate: string;
+};
 
 export const getTokensExchangeRates = templewalletQuery<{}, TokensExchangeRatesEntry[]>('GET', '/exchange-rates');
