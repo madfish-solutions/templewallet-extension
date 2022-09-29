@@ -22,15 +22,15 @@ import { browser } from 'webextension-polyfill-ts';
 
 import * as bs58check from 'bs58check';
 
-export interface AppMetadata {
+interface AppMetadata {
   senderId: string;
   name: string;
   icon?: string;
 }
 
-export type NetworkType = 'mainnet' | 'custom';
+type NetworkType = 'mainnet' | 'custom';
 
-export interface Network {
+interface Network {
   type: NetworkType;
   name?: string;
   rpcUrl?: string;
@@ -78,7 +78,7 @@ export enum MessageType {
   HandshakeResponse = 'postmessage-pairing-response'
 }
 
-export interface BaseMessage {
+interface BaseMessage {
   type: MessageType;
   version: string;
   id: string; // ID of the message. The same ID is used in the request and response
@@ -99,7 +99,7 @@ export interface PermissionRequest extends BaseMessage {
   scopes: PermissionScope[];
 }
 
-export interface PermissionResponse extends BaseMessage {
+interface PermissionResponse extends BaseMessage {
   type: MessageType.PermissionResponse;
   network: Network; // Network on which the permissions have been granted
   publicKey: string; // Public Key, because it can be used to verify signatures
@@ -110,7 +110,7 @@ export interface PermissionResponse extends BaseMessage {
   };
 }
 
-export interface AcknowledgeResponse {
+interface AcknowledgeResponse {
   type: MessageType.Acknowledge;
   version: string;
   senderId: string;
@@ -124,30 +124,30 @@ export interface OperationRequest extends BaseMessage {
   sourceAddress: string;
 }
 
-export interface OperationResponse extends BaseMessage {
+interface OperationResponse extends BaseMessage {
   type: MessageType.OperationResponse;
   transactionHash: string;
 }
 
-export interface SignRequest extends BaseMessage {
+interface SignRequest extends BaseMessage {
   type: MessageType.SignPayloadRequest;
   sourceAddress: string;
   payload: string;
   signingType?: SigningType;
 }
 
-export interface SignResponse extends BaseMessage {
+interface SignResponse extends BaseMessage {
   type: MessageType.SignPayloadResponse;
   signature: string;
 }
 
-export interface BroadcastRequest extends BaseMessage {
+interface BroadcastRequest extends BaseMessage {
   type: MessageType.BroadcastRequest;
   network: Network; // Network on which the transaction will be broadcast
   signedTransaction: string; // Signed transaction that will be broadcast
 }
 
-export interface BroadcastResponse extends BaseMessage {
+interface BroadcastResponse extends BaseMessage {
   type: MessageType.BroadcastResponse;
   transactionHash: string; // Hash of the broadcast transaction
 }
@@ -165,13 +165,13 @@ export enum ErrorType {
   UNKNOWN_ERROR = 'UNKNOWN_ERROR' // Used as a wildcard if an unexpected error occured.
 }
 
-export interface ErrorResponse extends BaseMessage {
+interface ErrorResponse extends BaseMessage {
   type: MessageType.Error;
   errorType: ErrorType;
   errorData?: any[];
 }
 
-export interface DisconnectMessage extends BaseMessage {
+interface DisconnectMessage extends BaseMessage {
   type: MessageType.Disconnect;
 }
 
@@ -183,7 +183,7 @@ export interface PostMessagePairingRequest extends BaseMessage {
   publicKey: string;
 }
 
-export interface PostMessagePairingResponse extends BaseMessage {
+interface PostMessagePairingResponse extends BaseMessage {
   type: MessageType.HandshakeResponse;
   name: string;
   icon?: string; // TODO: Should this be a URL or base64 image?

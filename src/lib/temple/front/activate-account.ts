@@ -1,6 +1,6 @@
 import { TezosToolkit } from '@taquito/taquito';
 
-import { ActivationStatus } from 'lib/temple/front';
+import { ActivationStatus } from 'lib/temple/front/ready';
 
 export const activateAccount = async (address: string, secret: string, tezos: TezosToolkit) => {
   let op;

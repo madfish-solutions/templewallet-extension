@@ -23,12 +23,12 @@ import {
   useTempleClient,
   useSetAccountPkh,
   useTezos,
-  ActivationStatus,
   useAllAccounts,
   useTezosDomainsClient,
   useNetwork
 } from 'lib/temple/front';
 import { activateAccount } from 'lib/temple/front/activate-account';
+import { ActivationStatus } from 'lib/temple/front/ready';
 import { validateDelegate } from 'lib/temple/front/validate-delegate';
 import { validateDerivationPath, isAddressValid, isKTAddress } from 'lib/temple/helpers';
 import { confirmOperation } from 'lib/temple/operation';

@@ -6,7 +6,8 @@ import Identicon from 'app/atoms/Identicon';
 import { ReactComponent as CollectiblePlaceholder } from 'app/icons/collectible-placeholder.svg';
 import { formatObjktSmallAssetUri, formatAssetUri } from 'lib/image-uri';
 import { useAssetMetadata } from 'lib/temple/front';
-import { AssetMetadata, getAssetSymbol } from 'lib/temple/metadata';
+import type { AssetMetadata } from 'lib/temple/metadata/types';
+import { getAssetSymbol } from 'lib/temple/metadata/utils';
 
 interface AssetIconPlaceholderProps {
   metadata: AssetMetadata | null;

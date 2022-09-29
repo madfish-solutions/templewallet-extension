@@ -11,7 +11,8 @@ import ErrorBoundary from 'app/ErrorBoundary';
 import Dialogs from 'app/layouts/Dialogs';
 import PageRouter from 'app/PageRouter';
 import { PropsWithChildren } from 'lib/props-with-children';
-import { ABTestGroupProvider, TempleProvider } from 'lib/temple/front';
+import { ABTestGroupProvider } from 'lib/temple/front/ab-test.provider';
+import { TempleProvider } from 'lib/temple/front/provider';
 import { DialogsProvider } from 'lib/ui/dialog';
 import * as Woozie from 'lib/woozie';
 interface AppProps extends Partial<PropsWithChildren> {

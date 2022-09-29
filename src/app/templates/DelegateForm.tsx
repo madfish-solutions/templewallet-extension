@@ -29,15 +29,13 @@ import { loadContract } from 'lib/temple/contract';
 import {
   useAccount,
   useBalance,
-  useKnownBaker,
-  useKnownBakers,
   useTezosDomainsClient,
   isDomainNameValid,
-  Baker,
   useNetwork,
   useTezos,
   useAB
 } from 'lib/temple/front';
+import { useKnownBaker, useKnownBakers, Baker } from 'lib/temple/front/baking';
 import { validateDelegate } from 'lib/temple/front/validate-delegate';
 import { tzToMutez, mutezToTz, isAddressValid, isKTAddress, hasManager } from 'lib/temple/helpers';
 import { TempleAccountType } from 'lib/temple/types';

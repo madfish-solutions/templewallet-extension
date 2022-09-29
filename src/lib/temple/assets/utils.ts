@@ -5,9 +5,9 @@ import BigNumber from 'bignumber.js';
 import { useDebounce } from 'use-debounce';
 
 import { loadContract } from 'lib/temple/contract';
-import { searchAssets, useAllTokensBaseMetadata } from 'lib/temple/front';
+import { searchAssets, useAllTokensBaseMetadata } from 'lib/temple/front/assets';
 import { isValidContractAddress } from 'lib/temple/helpers';
-import { AssetMetadata } from 'lib/temple/metadata';
+import type { AssetMetadata } from 'lib/temple/metadata/types';
 
 import { detectTokenStandard } from './tokenStandard';
 import { Asset, Token, FA2Token } from './types';

@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-import { DetailedAssetMetdata } from 'lib/temple/metadata';
+import type { DetailedAssetMetdata } from 'lib/temple/metadata/types';
 
 const api = axios.create({ baseURL: 'https://metadata.templewallet.com' });
 

@@ -11,12 +11,13 @@ import {
   fetchCollectibleTokens,
   getPredefinedTokensSlugs
 } from 'lib/temple/assets';
-import { useChainId, useAccount, useTokensMetadata, useUSDPrices } from 'lib/temple/front';
-import { AssetMetadata, toBaseMetadata, DetailedAssetMetdata } from 'lib/temple/metadata';
+import { useChainId, useAccount, useUSDPrices, useTokensMetadata } from 'lib/temple/front';
+import type { AssetMetadata, DetailedAssetMetdata } from 'lib/temple/metadata/types';
+import { toBaseMetadata } from 'lib/temple/metadata/utils';
 import * as Repo from 'lib/temple/repo';
 import { getTokensMetadata } from 'lib/templewallet-api';
 import { fetchWhitelistTokenSlugs } from 'lib/templewallet-api/whitelist-tokens';
-import { TzktAccountTokenBalance } from 'lib/tzkt';
+import type { TzktAccountTokenBalance } from 'lib/tzkt/types';
 
 import { TempleChainId } from '../types';
 import { useFungibleTokensBalances } from './fungible-tokens-balances';

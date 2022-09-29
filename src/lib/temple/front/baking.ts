@@ -9,7 +9,7 @@ import {
   getAllBakersBakingBad
 } from 'lib/baking-bad';
 import { useRetryableSWR } from 'lib/swr';
-import { TzktRewardsEntry } from 'lib/tzkt';
+import type { TzktRewardsEntry } from 'lib/tzkt/types';
 
 import { useNetwork, useTezos } from './ready';
 

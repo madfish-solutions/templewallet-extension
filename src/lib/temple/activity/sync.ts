@@ -2,13 +2,12 @@ import * as Repo from 'lib/temple/repo';
 import {
   TZKT_API_BASE_URLS,
   getOperations,
-  TzktOperation,
   getTokenTransfers,
   getTokenTransfersCount,
-  TzktTokenTransfer,
   getFa12Transfers,
   getFa2Transfers
 } from 'lib/tzkt';
+import type { TzktOperation, TzktTokenTransfer } from 'lib/tzkt/types';
 
 import { isKnownChainId } from '../types';
 import { deletePendingOp } from './deletePendingOp';

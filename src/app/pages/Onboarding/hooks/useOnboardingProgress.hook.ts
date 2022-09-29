@@ -1,4 +1,4 @@
-import { useLocalStorage, useStorage } from '../../../../lib/temple/front';
+import { useLocalStorage, useStorage } from 'lib/temple/front';
 
 export const useOnboardingProgress = () => {
   const [onBoarding, setOnboarding] = useLocalStorage('onboarding', false);

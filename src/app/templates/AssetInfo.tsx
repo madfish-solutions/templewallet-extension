@@ -9,7 +9,7 @@ import { T } from 'lib/i18n/react';
 import { useRetryableSWR } from 'lib/swr';
 import { fromAssetSlug, isFA2Asset, isTezAsset } from 'lib/temple/assets';
 import { useTezos, useAssetMetadata } from 'lib/temple/front';
-import { getAssetSymbol } from 'lib/temple/metadata';
+import { getAssetSymbol } from 'lib/temple/metadata/utils';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 
 type AssetInfoProps = {

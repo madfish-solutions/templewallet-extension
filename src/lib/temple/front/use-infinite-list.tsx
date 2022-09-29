@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { TzktAccountTokenBalance } from 'lib/tzkt';
+import type { TzktAccountTokenBalance } from 'lib/tzkt/types';
 
 import { useAccount, useChainId } from './ready';
 

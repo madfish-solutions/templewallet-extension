@@ -6,11 +6,18 @@ runs:
     - run: yarn install
       shell: bash
 
-    - run: yarn ts
+    - name: Check TypeScript
+      run: yarn ts
       shell: bash
 
-    - run: yarn lint
+    - name: Find deadcode
+      run: yarn find-deadcode
       shell: bash
 
-    - run: yarn test:coverage
+    - name: Check ESLint
+      run: yarn lint
+      shell: bash
+
+    - name: Run Unit tests
+      run: yarn test:coverage
       shell: bash

@@ -1,9 +1,9 @@
 import { OperationContentsAndResult } from '@taquito/rpc';
 import Dexie from 'dexie';
 
-import { TzktOperation, TzktTokenTransfer } from 'lib/tzkt';
+import type { TzktOperation, TzktTokenTransfer } from 'lib/tzkt/types';
 
-export enum Table {
+enum Table {
   AccountTokens = 'accountTokens',
   Operations = 'operations',
   SyncTimes = 'syncTimes'
@@ -58,7 +58,7 @@ export interface IOperation {
   data: IOperationData;
 }
 
-export type IOperationData = AtLeastOne<{
+type IOperationData = AtLeastOne<{
   localGroup: Array<OperationContentsAndResult>;
   tzktGroup: Array<TzktOperation>;
   tzktTokenTransfers: Array<TzktTokenTransfer>;

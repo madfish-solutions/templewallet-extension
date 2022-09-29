@@ -18,7 +18,8 @@ import { useRetryableSWR } from 'lib/swr';
 import { useRelevantAccounts, useTezos, useTempleClient, useChainId } from 'lib/temple/front';
 import { isAddressValid } from 'lib/temple/helpers';
 import { TempleAccountType, isKnownChainId, ImportAccountFormType } from 'lib/temple/types';
-import { getOneUserContracts, TzktRelatedContract, TZKT_API_BASE_URLS } from 'lib/tzkt';
+import { getOneUserContracts, TZKT_API_BASE_URLS } from 'lib/tzkt';
+import type { TzktRelatedContract } from 'lib/tzkt/types';
 
 type ImportKTAccountFormData = {
   contractAddress: string;

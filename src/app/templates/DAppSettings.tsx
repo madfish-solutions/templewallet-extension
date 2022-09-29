@@ -11,7 +11,7 @@ import HashChip from 'app/templates/HashChip';
 import type { TID } from 'lib/i18n/react';
 import { T, t } from 'lib/i18n/react';
 import { useRetryableSWR } from 'lib/swr';
-import { useStorage, useTempleClient } from 'lib/temple/front';
+import { useTempleClient, useStorage } from 'lib/temple/front';
 import { TempleSharedStorageKey, TempleDAppSession, TempleDAppSessions } from 'lib/temple/types';
 import { useConfirm } from 'lib/ui/dialog';
 
