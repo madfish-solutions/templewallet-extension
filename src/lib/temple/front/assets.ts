@@ -1,8 +1,9 @@
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import constate from 'constate';
 import deepEqual from 'fast-deep-equal';
 import Fuse from 'fuse.js';
+import { useDebounce } from 'use-debounce';
 import useForceUpdate from 'use-force-update';
 import { browser } from 'webextension-polyfill-ts';
 
@@ -16,7 +17,8 @@ import {
   fetchCollectibleTokens,
   fetchAllKnownCollectibleTokenSlugs,
   AssetTypesEnum,
-  isTokenDisplayed
+  isTokenDisplayed,
+  toTokenSlug
 } from 'lib/temple/assets';
 import {
   AssetMetadata,
@@ -313,6 +315,27 @@ export function searchAssets(
   );
 
   return fuse.search(searchValue).map(({ item: { slug } }) => slug);
+}
+
+export function useFilteredAssets(assetSlugs: string[]) {
+  const allTokensBaseMetadata = useAllTokensBaseMetadata();
+
+  const [searchValue, setSearchValue] = useState('');
+  const [tokenId, setTokenId] = useState<number>();
+  const [searchValueDebounced] = useDebounce(tokenId ? toTokenSlug(searchValue, tokenId) : searchValue, 300);
+
+  const filteredAssets = useMemo(
+    () => searchAssets(searchValueDebounced, assetSlugs, allTokensBaseMetadata),
+    [searchValueDebounced, assetSlugs, allTokensBaseMetadata]
+  );
+
+  return {
+    filteredAssets,
+    searchValue,
+    setSearchValue,
+    tokenId,
+    setTokenId
+  };
 }
 
 function getDetailedMetadataStorageKey(slug: string) {

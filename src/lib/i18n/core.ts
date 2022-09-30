@@ -26,7 +26,6 @@ let fetchedLocaleMessages: FetchedLocaleMessages = {
 let cldrLocale = cldrjsLocales.en;
 
 export async function init() {
-  console.log(fetchedLocaleMessages.target);
   const refetched: FetchedLocaleMessages = {
     target: null,
     fallback: null
@@ -59,7 +58,6 @@ export async function init() {
 }
 
 export function getMessage(messageName: string, substitutions?: Substitutions) {
-  console.log(!!fetchedLocaleMessages.target);
   const val = fetchedLocaleMessages.target?.[messageName] ?? fetchedLocaleMessages.fallback?.[messageName];
 
   if (!val) {

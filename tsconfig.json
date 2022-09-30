@@ -1,7 +1,7 @@
 {
-  "include": ["src"],
+  "include": ["./src"],
   "compilerOptions": {
-    "baseUrl": "src",
+    "baseUrl": "./src",
     "target": "es5",
     "lib": ["dom", "dom.iterable", "esnext"],
     "downlevelIteration": true,
