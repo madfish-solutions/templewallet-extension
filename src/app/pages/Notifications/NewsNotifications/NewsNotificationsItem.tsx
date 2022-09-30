@@ -9,12 +9,7 @@ import { NewsIcon } from '../components/NewsIcon';
 import { formatDate } from '../utils/formatDate';
 import { truncateDescription, truncateTitle } from '../utils/truncate';
 
-interface NewsNotificationsItemProps extends NewsNotificationInterface {
-  index: number;
-}
-
-export const NewsNotificationsItem: FC<NewsNotificationsItemProps> = ({
-  index,
+export const NewsNotificationsItem: FC<NewsNotificationInterface> = ({
   id,
   title,
   description,
@@ -30,7 +25,6 @@ export const NewsNotificationsItem: FC<NewsNotificationsItemProps> = ({
       'border-gray-300'
     )}
     style={{
-      borderTopWidth: index === 0 ? 0 : 1,
       borderBottomWidth: 1
     }}
   >

@@ -22,7 +22,8 @@ import { Swap } from 'app/pages/Swap/Swap';
 import Unlock from 'app/pages/Unlock';
 import Welcome from 'app/pages/Welcome';
 import { usePageRouterAnalytics } from 'lib/analytics';
-import { useTempleClient } from 'lib/temple/front';
+import { useLocalStorage, useTempleClient } from 'lib/temple/front';
+import { TempleNotificationsSharedStorageKey } from 'lib/temple/types';
 import * as Woozie from 'lib/woozie';
 
 import RootSuspenseFallback from './a11y/RootSuspenseFallback';
@@ -109,6 +110,10 @@ const NEWS_REFRESH_INTERVAL = 60 * 60 * 1000;
 
 const PageRouter: FC = () => {
   const dispatch = useDispatch();
+  const [newsNotificationsEnabled] = useLocalStorage<boolean>(
+    TempleNotificationsSharedStorageKey.NewsNotificationsEnabled,
+    true
+  );
   const { trigger, pathname, search } = Woozie.useLocation();
 
   // Scroll to top after new location pushed.
@@ -123,7 +128,9 @@ const PageRouter: FC = () => {
   }, [trigger, pathname]);
 
   const initDataLoading = () => {
-    dispatch(loadNewsAction.submit());
+    if (newsNotificationsEnabled) {
+      dispatch(loadNewsAction.submit());
+    }
   };
 
   useTimerEffect(initDataLoading, NEWS_REFRESH_INTERVAL, []);
