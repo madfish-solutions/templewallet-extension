@@ -3,9 +3,7 @@ import React, { FC, useCallback, useEffect, useLayoutEffect, useMemo, useRef } f
 import classNames from 'clsx';
 import { OnSubmit, useForm } from 'react-hook-form';
 
-import Alert from 'app/atoms/Alert';
-import FormField from 'app/atoms/FormField';
-import FormSubmitButton from 'app/atoms/FormSubmitButton';
+import { Alert, FormField, FormSubmitButton } from 'app/atoms';
 import { getAccountBadgeTitle } from 'app/defaults';
 import AccountBanner from 'app/templates/AccountBanner';
 import { T, t } from 'lib/i18n/react';

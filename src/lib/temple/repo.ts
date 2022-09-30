@@ -3,7 +3,7 @@ import Dexie from 'dexie';
 
 import { TzktOperation, TzktTokenTransfer } from 'lib/tzkt';
 
-export enum Table {
+enum Table {
   AccountTokens = 'accountTokens',
   Operations = 'operations',
   SyncTimes = 'syncTimes'
@@ -58,7 +58,7 @@ export interface IOperation {
   data: IOperationData;
 }
 
-export type IOperationData = AtLeastOne<{
+type IOperationData = AtLeastOne<{
   localGroup: Array<OperationContentsAndResult>;
   tzktGroup: Array<TzktOperation>;
   tzktTokenTransfers: Array<TzktTokenTransfer>;

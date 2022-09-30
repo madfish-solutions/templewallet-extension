@@ -11,7 +11,7 @@ interface LinkProps extends AnchorHTMLAttributes<HTMLAnchorElement>, TestIDProps
   replace?: boolean;
 }
 
-const Link: FC<LinkProps> = ({ to, replace, testID, testIDProperties, ...rest }) => {
+export const Link: FC<LinkProps> = ({ to, replace, testID, testIDProperties, ...rest }) => {
   const lctn = useLocation();
   const { trackEvent } = useAnalytics();
 
@@ -30,8 +30,6 @@ const Link: FC<LinkProps> = ({ to, replace, testID, testIDProperties, ...rest })
 
   return <LinkAnchor {...rest} href={href} onNavigate={handleNavigate} />;
 };
-
-export default Link;
 
 interface LinkAnchorProps extends AnchorHTMLAttributes<HTMLAnchorElement>, TestIDProps {
   onNavigate: () => void;

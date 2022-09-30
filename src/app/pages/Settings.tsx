@@ -24,8 +24,7 @@ import HelpAndCommunity from 'app/templates/HelpAndCommunity';
 import RemoveAccount from 'app/templates/RemoveAccount';
 import RevealSecret from 'app/templates/RevealSecret';
 import SyncSettings from 'app/templates/SyncSettings';
-import type { TID } from 'lib/i18n/react';
-import { T } from 'lib/i18n/react';
+import { TID, T } from 'lib/i18n/react';
 import { Link } from 'lib/woozie';
 
 import { SettingsSelectors } from './Settings.selectors';

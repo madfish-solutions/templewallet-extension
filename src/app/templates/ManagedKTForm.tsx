@@ -3,13 +3,11 @@ import React, { FC, ReactNode, useCallback, useMemo, useRef, useState } from 're
 import classNames from 'clsx';
 import { Controller, useForm } from 'react-hook-form';
 
+import { Alert, FormSubmitButton, NoSpaceField } from 'app/atoms';
 import AccountTypeBadge from 'app/atoms/AccountTypeBadge';
-import Alert from 'app/atoms/Alert';
-import FormSubmitButton from 'app/atoms/FormSubmitButton';
 import Identicon from 'app/atoms/Identicon';
 import Money from 'app/atoms/Money';
 import Name from 'app/atoms/Name';
-import NoSpaceField from 'app/atoms/NoSpaceField';
 import Balance from 'app/templates/Balance';
 import CustomSelect, { OptionRenderProps } from 'app/templates/CustomSelect';
 import { useFormAnalytics } from 'lib/analytics';
@@ -18,7 +16,7 @@ import { useRetryableSWR } from 'lib/swr';
 import { useRelevantAccounts, useTezos, useTempleClient, useChainId } from 'lib/temple/front';
 import { isAddressValid } from 'lib/temple/helpers';
 import { TempleAccountType, isKnownChainId, ImportAccountFormType } from 'lib/temple/types';
-import { getOneUserContracts, TzktRelatedContract, TZKT_API_BASE_URLS } from 'lib/tzkt';
+import { TzktRelatedContract, TZKT_API_BASE_URLS, getOneUserContracts } from 'lib/tzkt';
 
 type ImportKTAccountFormData = {
   contractAddress: string;

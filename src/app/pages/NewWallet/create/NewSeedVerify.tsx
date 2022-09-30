@@ -3,8 +3,7 @@ import React, { FC, memo, useCallback, useMemo, useState } from 'react';
 import classNames from 'clsx';
 import { useForm } from 'react-hook-form';
 
-import FormField from 'app/atoms/FormField';
-import FormSubmitButton from 'app/atoms/FormSubmitButton';
+import { FormField, FormSubmitButton } from 'app/atoms';
 import { T } from 'lib/i18n/react';
 
 const WORDS_TO_FILL = 2;

@@ -5,12 +5,12 @@ export enum MessageType {
   Sub = 'INTERCOM_SUBSCRIPTION' // Subscription updates
 }
 
-export interface Message {
+interface Message {
   type: MessageType;
   data: any;
 }
 
-export interface ReqResMessage extends Message {
+interface ReqResMessage extends Message {
   type: MessageType.Req | MessageType.Res | MessageType.Err;
   reqId: number;
 }

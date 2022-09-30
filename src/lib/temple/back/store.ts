@@ -4,12 +4,12 @@ import { Vault } from 'lib/temple/back/vault';
 import { NETWORKS } from 'lib/temple/networks';
 import { TempleState, TempleStatus, TempleAccount, TempleSettings } from 'lib/temple/types';
 
-export interface StoreState extends TempleState {
+interface StoreState extends TempleState {
   inited: boolean;
   vault: Vault | null;
 }
 
-export interface UnlockedStoreState extends StoreState {
+interface UnlockedStoreState extends StoreState {
   vault: Vault;
 }
 

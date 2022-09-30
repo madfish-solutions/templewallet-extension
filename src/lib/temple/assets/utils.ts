@@ -1,11 +1,7 @@
-import { useMemo, useState } from 'react';
-
 import { OpKind, TezosToolkit } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
-import { useDebounce } from 'use-debounce';
 
 import { loadContract } from 'lib/temple/contract';
-import { searchAssets, useAllTokensBaseMetadata } from 'lib/temple/front';
 import { isValidContractAddress } from 'lib/temple/helpers';
 import { AssetMetadata } from 'lib/temple/metadata';
 
@@ -109,25 +105,4 @@ export function isTezAsset(asset: Asset | string): asset is 'tez' {
 
 export function toPenny(metadata: AssetMetadata | null) {
   return new BigNumber(1).div(10 ** (metadata?.decimals ?? 0));
-}
-
-export function useFilteredAssets(assetSlugs: string[]) {
-  const allTokensBaseMetadata = useAllTokensBaseMetadata();
-
-  const [searchValue, setSearchValue] = useState('');
-  const [tokenId, setTokenId] = useState<number>();
-  const [searchValueDebounced] = useDebounce(tokenId ? toTokenSlug(searchValue, tokenId) : searchValue, 300);
-
-  const filteredAssets = useMemo(
-    () => searchAssets(searchValueDebounced, assetSlugs, allTokensBaseMetadata),
-    [searchValueDebounced, assetSlugs, allTokensBaseMetadata]
-  );
-
-  return {
-    filteredAssets,
-    searchValue,
-    setSearchValue,
-    tokenId,
-    setTokenId
-  };
 }
