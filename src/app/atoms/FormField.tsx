@@ -47,7 +47,7 @@ interface FormFieldProps extends FormFieldAttrs {
   copyable?: boolean;
 }
 
-const FormField = forwardRef<FormFieldRef, FormFieldProps>(
+export const FormField = forwardRef<FormFieldRef, FormFieldProps>(
   (
     {
       containerStyle,
@@ -357,5 +357,3 @@ const getInnerClassName = (isPasswordInput: boolean, extraInner: ReactNode) => {
   const passwordClassName = isPasswordInput ? 'pr-12' : 'pr-4';
   return extraInner ? 'pr-32' : passwordClassName;
 };
-
-export default FormField;

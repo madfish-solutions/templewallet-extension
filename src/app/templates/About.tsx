@@ -2,8 +2,7 @@ import React, { FC } from 'react';
 
 import Logo from 'app/atoms/Logo';
 import SubTitle from 'app/atoms/SubTitle';
-import type { TID } from 'lib/i18n/react';
-import { T } from 'lib/i18n/react';
+import { TID, T } from 'lib/i18n/react';
 
 const LINKS: {
   key: TID;

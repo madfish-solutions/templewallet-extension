@@ -142,7 +142,7 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
                 throw new Error('Unable to parse option as integer');
               }
 
-              let newDraftSeed = new Array(newNumberOfWords).fill('');
+              const newDraftSeed = new Array(newNumberOfWords).fill('');
               setNumberOfWords(newNumberOfWords);
               onSeedChange(newDraftSeed);
               reset();

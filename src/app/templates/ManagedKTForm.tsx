@@ -3,29 +3,20 @@ import React, { FC, ReactNode, useCallback, useMemo, useRef, useState } from 're
 import classNames from 'clsx';
 import { Controller, useForm } from 'react-hook-form';
 
+import { Alert, FormSubmitButton, NoSpaceField } from 'app/atoms';
 import AccountTypeBadge from 'app/atoms/AccountTypeBadge';
-import Alert from 'app/atoms/Alert';
-import FormSubmitButton from 'app/atoms/FormSubmitButton';
 import Identicon from 'app/atoms/Identicon';
 import Money from 'app/atoms/Money';
 import Name from 'app/atoms/Name';
-import NoSpaceField from 'app/atoms/NoSpaceField';
 import Balance from 'app/templates/Balance';
 import CustomSelect, { OptionRenderProps } from 'app/templates/CustomSelect';
 import { useFormAnalytics } from 'lib/analytics';
 import { T, t } from 'lib/i18n/react';
 import { useRetryableSWR } from 'lib/swr';
-import {
-  TempleAccountType,
-  isAddressValid,
-  useRelevantAccounts,
-  useTezos,
-  useTempleClient,
-  useChainId,
-  isKnownChainId,
-  ImportAccountFormType
-} from 'lib/temple/front';
-import { getOneUserContracts, TzktRelatedContract, TZKT_API_BASE_URLS } from 'lib/tzkt';
+import { useRelevantAccounts, useTezos, useTempleClient, useChainId } from 'lib/temple/front';
+import { isAddressValid } from 'lib/temple/helpers';
+import { TempleAccountType, isKnownChainId, ImportAccountFormType } from 'lib/temple/types';
+import { TzktRelatedContract, TZKT_API_BASE_URLS, getOneUserContracts } from 'lib/tzkt';
 
 type ImportKTAccountFormData = {
   contractAddress: string;
@@ -234,7 +225,7 @@ const ManagedKTForm: FC = () => {
 
 export default ManagedKTForm;
 
-export const getUsersContracts = async (_k: string, chainId: string, ...accounts: string[]) => {
+const getUsersContracts = async (_k: string, chainId: string, ...accounts: string[]) => {
   if (!isKnownChainId(chainId) || !TZKT_API_BASE_URLS.has(chainId)) {
     return [];
   }

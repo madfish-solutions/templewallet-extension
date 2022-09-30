@@ -1,7 +1,7 @@
 import { FC, ReactElement, useEffect } from 'react';
 
-import { HistoryAction, createUrl, changeState } from 'lib/woozie/history';
-import { To, createLocationState, createLocationUpdates } from 'lib/woozie/location';
+import { HistoryAction, createUrl, changeState } from './history';
+import { To, createLocationState, createLocationUpdates } from './location';
 
 type RedirectProps = {
   to: To;
@@ -9,7 +9,7 @@ type RedirectProps = {
   fallback?: ReactElement;
 };
 
-const Redirect: FC<RedirectProps> = ({ to, push = false, fallback = null }) => {
+export const Redirect: FC<RedirectProps> = ({ to, push = false, fallback = null }) => {
   useEffect(() => {
     const lctn = createLocationState();
     const { pathname, search, hash, state } = createLocationUpdates(to, lctn);
@@ -19,5 +19,3 @@ const Redirect: FC<RedirectProps> = ({ to, push = false, fallback = null }) => {
 
   return fallback;
 };
-
-export default Redirect;

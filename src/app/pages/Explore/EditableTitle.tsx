@@ -2,8 +2,7 @@ import React, { FC, FormEventHandler, useCallback, useEffect, useRef, useState }
 
 import classNames from 'clsx';
 
-import { Button } from 'app/atoms/Button';
-import FormField from 'app/atoms/FormField';
+import { FormField, Button } from 'app/atoms';
 import Name from 'app/atoms/Name';
 import { ACCOUNT_NAME_PATTERN } from 'app/defaults';
 import { ReactComponent as EditIcon } from 'app/icons/edit.svg';

@@ -3,11 +3,13 @@ import React, { ComponentProps, FC } from 'react';
 import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
 
-import FormField from 'app/atoms/FormField';
+import { FormField } from 'app/atoms';
 import { ReactComponent as CopyIcon } from 'app/icons/copy.svg';
 import { T } from 'lib/i18n/react';
 import { useRetryableSWR } from 'lib/swr';
-import { useTezos, fromAssetSlug, getAssetSymbol, isFA2Asset, isTezAsset, useAssetMetadata } from 'lib/temple/front';
+import { fromAssetSlug, isFA2Asset, isTezAsset } from 'lib/temple/assets';
+import { useTezos, useAssetMetadata } from 'lib/temple/front';
+import { getAssetSymbol } from 'lib/temple/metadata';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 
 type AssetInfoProps = {

@@ -1,6 +1,6 @@
 import { AxiosInstance, AxiosRequestConfig } from 'axios';
 
-export type RequestParams<T> = T & Omit<AxiosRequestConfig, 'method' | 'url' | 'params'>;
+type RequestParams<T> = T & Omit<AxiosRequestConfig, 'method' | 'url' | 'params'>;
 
 export function buildQuery<P extends Record<string, unknown>, R = any>(
   api: AxiosInstance,

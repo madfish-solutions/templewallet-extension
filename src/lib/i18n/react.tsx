@@ -5,9 +5,7 @@ import { getMessage } from './core';
 import { toList } from './helpers';
 import { Substitutions } from './types';
 
-export * from './index';
-
-export type ReactSubstitutions = ReactNode | ReactNode[];
+type ReactSubstitutions = ReactNode | ReactNode[];
 
 export type TID = keyof typeof _LocaleMessages;
 

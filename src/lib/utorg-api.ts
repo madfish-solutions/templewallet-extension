@@ -65,8 +65,7 @@ export const getExchangeRate = (paymentAmount: number, fromCurrency: string) => 
     res => Math.round((res / finalPaymentAmount) * 10000) / 10000
   );
 };
-export const getCurrenciesInfo = () =>
-  api.post<{ data: utorgCurrencyInfo[] }>('/settings/currency').then(r => r.data.data);
+const getCurrenciesInfo = () => api.post<{ data: utorgCurrencyInfo[] }>('/settings/currency').then(r => r.data.data);
 
 export const getMinMaxExchangeValue = () =>
   getCurrenciesInfo().then(currenciesInfo => {

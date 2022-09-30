@@ -2,11 +2,10 @@ import React, { FC } from 'react';
 
 import classNames from 'clsx';
 
-import Alert from 'app/atoms/Alert';
+import { Alert } from 'app/atoms';
 import { NotEnoughFundsError, ZeroBalanceError, ZeroTEZBalanceError } from 'app/defaults';
 import { T, t } from 'lib/i18n/react';
-
-import { useGasToken } from '../../hooks/useGasToken';
+import { useGasToken } from 'lib/temple/front';
 
 type SendErrorAlertProps = {
   type: 'submit' | 'estimation';
