@@ -29,7 +29,8 @@ export {
   useDisplayedFungibleTokens,
   searchAssets,
   useGetTokenMetadata,
-  useGasToken
+  useGasToken,
+  useFilteredAssets
 } from './assets';
 
 export { useAssetUSDPrice, useUSDPrices } from './usdprice';
