@@ -24,7 +24,12 @@ import OperationStatus from 'app/templates/OperationStatus';
 import { useFormAnalytics } from 'lib/analytics';
 import { T, t } from 'lib/i18n/react';
 import { getRoutingFeeTransferParams } from 'lib/swap-router';
-import { ROUTING_FEE_PERCENT, ROUTING_FEE_RATIO, TEZOS_DEXES_API_URL } from 'lib/swap-router/config';
+import {
+  ROUTING_FEE_ADDRESS,
+  ROUTING_FEE_PERCENT,
+  ROUTING_FEE_RATIO,
+  TEZOS_DEXES_API_URL
+} from 'lib/swap-router/config';
 import { useAccount, useTezos, useAssetMetadata } from 'lib/temple/front';
 import { atomsToTokens, tokensToAtoms } from 'lib/temple/helpers';
 import useTippy from 'lib/ui/useTippy';
@@ -202,7 +207,12 @@ export const SwapForm: FC = () => {
         account.publicKeyHash,
         tezos
       );
-      const tradeOpParams = await getTradeOpParams(bestTradeWithSlippageTolerance, account.publicKeyHash, tezos);
+      const tradeOpParams = await getTradeOpParams(
+        bestTradeWithSlippageTolerance,
+        account.publicKeyHash,
+        tezos,
+        ROUTING_FEE_ADDRESS
+      );
 
       const opParams = [...tradeOpParams, ...routingFeeOpParams].map(transferParams =>
         parseTransferParamsToParamsWithKind(transferParams)
