@@ -7,7 +7,7 @@ import { useDebounce } from 'use-debounce';
 import { loadContract } from 'lib/temple/contract';
 import { searchAssets, useAllTokensBaseMetadata } from 'lib/temple/front';
 import { isValidContractAddress } from 'lib/temple/helpers';
-import type { AssetMetadata } from 'lib/temple/metadata';
+import { AssetMetadata } from 'lib/temple/metadata';
 
 import { detectTokenStandard } from './tokenStandard';
 import { Asset, Token, FA2Token } from './types';

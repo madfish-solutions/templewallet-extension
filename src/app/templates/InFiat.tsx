@@ -3,7 +3,7 @@ import React, { FC, ReactElement, ReactNode, useMemo } from 'react';
 import BigNumber from 'bignumber.js';
 
 import Money from 'app/atoms/Money';
-import { useAssetFiatCurrencyPrice, useFiatCurrency } from 'lib/fiat-curency';
+import { useAssetFiatCurrencyPrice, useFiatCurrency } from 'lib/fiat-currency';
 import { useNetwork } from 'lib/temple/front';
 
 type OutputProps = {

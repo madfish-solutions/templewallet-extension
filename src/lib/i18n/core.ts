@@ -4,7 +4,7 @@ import { browser } from 'webextension-polyfill-ts';
 import cldrjsLocales from './cldrjs-locales.json';
 import { areLocalesEqual, processTemplate, toList } from './helpers';
 import { getSavedLocale } from './saving';
-import type { FetchedLocaleMessages, LocaleMessages, Substitutions } from './types';
+import { FetchedLocaleMessages, LocaleMessages, Substitutions } from './types';
 
 const dateFnsLocales: Record<string, Locale> = {
   en: enUS,

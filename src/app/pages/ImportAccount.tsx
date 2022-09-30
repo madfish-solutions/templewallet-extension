@@ -5,20 +5,23 @@ import classNames from 'clsx';
 import { useForm, Controller } from 'react-hook-form';
 import useSWR from 'swr';
 
-import Alert from 'app/atoms/Alert';
-import FileInput, { FileInputProps } from 'app/atoms/FileInput';
-import FormField from 'app/atoms/FormField';
-import FormSubmitButton from 'app/atoms/FormSubmitButton';
-import NoSpaceField from 'app/atoms/NoSpaceField';
-import TabSwitcher from 'app/atoms/TabSwitcher';
+import {
+  Alert,
+  FileInputProps,
+  FileInput,
+  FormField,
+  FormSubmitButton,
+  NoSpaceField,
+  TabSwitcher,
+  SeedPhraseInput
+} from 'app/atoms';
 import { MNEMONIC_ERROR_CAPTION, formatMnemonic } from 'app/defaults';
 import { ReactComponent as DownloadIcon } from 'app/icons/download.svg';
 import { ReactComponent as OkIcon } from 'app/icons/ok.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import ManagedKTForm from 'app/templates/ManagedKTForm';
 import { useFormAnalytics } from 'lib/analytics';
-import type { TID } from 'lib/i18n/react';
-import { T, t } from 'lib/i18n/react';
+import { TID, T, t } from 'lib/i18n/react';
 import {
   ActivationStatus,
   useTempleClient,
@@ -34,10 +37,8 @@ import { validateDerivationPath, isAddressValid, isKTAddress } from 'lib/temple/
 import { confirmOperation } from 'lib/temple/operation';
 import { ImportAccountFormType } from 'lib/temple/types';
 import useSafeState from 'lib/ui/useSafeState';
+import { clearClipboard } from 'lib/ui/util';
 import { navigate } from 'lib/woozie';
-
-import { clearClipboard } from '../../lib/ui/util';
-import { SeedPhraseInput } from '../atoms/SeedPhraseInput';
 
 type ImportAccountProps = {
   tabSlug: string | null;

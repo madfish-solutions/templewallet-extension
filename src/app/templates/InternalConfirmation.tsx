@@ -3,10 +3,8 @@ import React, { FC, useCallback, useMemo } from 'react';
 import { localForger } from '@taquito/local-forging';
 import classNames from 'clsx';
 
-import Alert from 'app/atoms/Alert';
+import { Alert, FormSubmitButton, FormSecondaryButton } from 'app/atoms';
 import ConfirmLedgerOverlay from 'app/atoms/ConfirmLedgerOverlay';
-import FormSecondaryButton from 'app/atoms/FormSecondaryButton';
-import FormSubmitButton from 'app/atoms/FormSubmitButton';
 import Logo from 'app/atoms/Logo';
 import SubTitle from 'app/atoms/SubTitle';
 import { useAppEnv } from 'app/env';

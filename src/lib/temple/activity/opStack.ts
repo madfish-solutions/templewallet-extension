@@ -1,7 +1,7 @@
 import { OperationContentsAndResult, OpKind } from '@taquito/rpc';
 
 import * as Repo from 'lib/temple/repo';
-import type { TzktOperation, TzktTokenTransfer } from 'lib/tzkt/types';
+import { TzktOperation, TzktTokenTransfer } from 'lib/tzkt';
 
 import { isPositiveNumber, tryParseTokenTransfers } from './helpers';
 import { OpStackItem, OpStackItemType } from './types';

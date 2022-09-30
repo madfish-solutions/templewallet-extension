@@ -4,7 +4,7 @@ import { ListRowProps } from 'react-virtualized';
 
 import { AssetIcon } from 'app/templates/AssetIcon';
 import { useAssetMetadata } from 'lib/temple/front';
-import type { AssetMetadata } from 'lib/temple/metadata';
+import { AssetMetadata } from 'lib/temple/metadata';
 
 import { AssetOptionBalance } from './AssetOptionBalance';
 

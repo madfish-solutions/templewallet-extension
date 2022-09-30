@@ -7,7 +7,7 @@ import {
   getFa12Transfers,
   getFa2Transfers
 } from 'lib/tzkt';
-import type { TzktOperation, TzktTokenTransfer } from 'lib/tzkt/types';
+import { TzktOperation, TzktTokenTransfer } from 'lib/tzkt/types';
 
 import { isKnownChainId } from '../types';
 import { deletePendingOp } from './deletePendingOp';

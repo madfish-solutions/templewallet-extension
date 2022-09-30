@@ -1,6 +1,6 @@
 import React, { FC, useCallback, useRef, useState } from 'react';
 
-import FormCheckbox from 'app/atoms/FormCheckbox';
+import { FormCheckbox } from 'app/atoms';
 import { t, T } from 'lib/i18n/react';
 import { isPopupModeEnabled, setPopupMode } from 'lib/popup-mode';
 

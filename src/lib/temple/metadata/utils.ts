@@ -1,4 +1,4 @@
-import type { AssetMetadata, DetailedAssetMetdata } from './types';
+import { AssetMetadata, DetailedAssetMetdata } from './types';
 
 export function getAssetSymbol(metadata: AssetMetadata | null, short = false) {
   if (!metadata) return '???';

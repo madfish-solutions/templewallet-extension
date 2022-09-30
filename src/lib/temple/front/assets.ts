@@ -19,8 +19,13 @@ import {
   fetchAllKnownCollectibleTokenSlugs,
   isTokenDisplayed
 } from 'lib/temple/assets';
-import type { AssetMetadata, DetailedAssetMetdata } from 'lib/temple/metadata';
-import { TEZOS_METADATA, PRESERVED_TOKEN_METADATA, fetchTokenMetadata } from 'lib/temple/metadata';
+import {
+  TEZOS_METADATA,
+  PRESERVED_TOKEN_METADATA,
+  AssetMetadata,
+  DetailedAssetMetdata,
+  fetchTokenMetadata
+} from 'lib/temple/metadata';
 import { ITokenStatus } from 'lib/temple/repo';
 
 import { useTezos, useChainId, useAccount } from './ready';

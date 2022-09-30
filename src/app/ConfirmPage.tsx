@@ -2,11 +2,9 @@ import React, { FC, Fragment, memo, Suspense, useCallback, useMemo, useState } f
 
 import classNames from 'clsx';
 
+import { Alert, FormSubmitButton, FormSecondaryButton } from 'app/atoms';
 import AccountTypeBadge from 'app/atoms/AccountTypeBadge';
-import Alert from 'app/atoms/Alert';
 import ConfirmLedgerOverlay from 'app/atoms/ConfirmLedgerOverlay';
-import FormSecondaryButton from 'app/atoms/FormSecondaryButton';
-import FormSubmitButton from 'app/atoms/FormSubmitButton';
 import HashShortView from 'app/atoms/HashShortView';
 import Identicon from 'app/atoms/Identicon';
 import Money from 'app/atoms/Money';

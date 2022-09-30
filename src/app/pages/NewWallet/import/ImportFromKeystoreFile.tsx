@@ -3,9 +3,7 @@ import React, { FC, useCallback } from 'react';
 import classNames from 'clsx';
 import { Controller, FieldError, NestDataObject, useForm } from 'react-hook-form';
 
-import FileInput, { FileInputProps } from 'app/atoms/FileInput';
-import FormField from 'app/atoms/FormField';
-import FormSubmitButton from 'app/atoms/FormSubmitButton';
+import { FileInputProps, FileInput, FormField, FormSubmitButton } from 'app/atoms';
 import { ReactComponent as TrashbinIcon } from 'app/icons/bin.svg';
 import { ReactComponent as PaperclipIcon } from 'app/icons/paperclip.svg';
 import { T, t } from 'lib/i18n/react';

@@ -17,8 +17,7 @@ import {
   useTradeWithSlippageTolerance
 } from 'swap-router-sdk';
 
-import Alert from 'app/atoms/Alert';
-import FormSubmitButton from 'app/atoms/FormSubmitButton';
+import { Alert, FormSubmitButton } from 'app/atoms';
 import { ReactComponent as InfoIcon } from 'app/icons/info.svg';
 import { ReactComponent as ToggleIcon } from 'app/icons/toggle.svg';
 import OperationStatus from 'app/templates/OperationStatus';

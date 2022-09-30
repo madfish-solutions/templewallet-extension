@@ -21,7 +21,7 @@ import { getPluralKey, toLocalFormat } from 'lib/i18n/numbers';
 import { T } from 'lib/i18n/react';
 import { getRewardsStats, useKnownBaker, useExplorerBaseUrls } from 'lib/temple/front';
 import { mutezToTz } from 'lib/temple/helpers';
-import type { TzktRewardsEntry } from 'lib/tzkt/types';
+import { TzktRewardsEntry } from 'lib/tzkt';
 
 import { useGasToken } from '../../hooks/useGasToken';
 import styles from './BakingHistoryItem.module.css';

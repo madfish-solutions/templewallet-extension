@@ -4,7 +4,7 @@ import { BigNumber } from 'bignumber.js';
 
 import Money from 'app/atoms/Money';
 import { atomsToTokens } from 'lib/temple/helpers';
-import type { AssetMetadata } from 'lib/temple/metadata';
+import { AssetMetadata } from 'lib/temple/metadata';
 
 interface Props {
   minimumReceivedAmount?: BigNumber;

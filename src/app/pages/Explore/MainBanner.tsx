@@ -10,7 +10,7 @@ import { ReactComponent as DollarIcon } from 'app/icons/dollar.svg';
 import { AssetIcon } from 'app/templates/AssetIcon';
 import Balance from 'app/templates/Balance';
 import InFiat from 'app/templates/InFiat';
-import { useAssetFiatCurrencyPrice } from 'lib/fiat-curency';
+import { useAssetFiatCurrencyPrice } from 'lib/fiat-currency';
 import { T } from 'lib/i18n/react';
 import { PropsWithChildren } from 'lib/props-with-children';
 import { useChainId, useBalance, useAssetMetadata, useDisplayedFungibleTokens } from 'lib/temple/front';

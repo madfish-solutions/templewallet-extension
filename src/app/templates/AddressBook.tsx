@@ -3,8 +3,7 @@ import React, { useCallback, useMemo } from 'react';
 import classNames from 'clsx';
 import { useForm } from 'react-hook-form';
 
-import FormField from 'app/atoms/FormField';
-import FormSubmitButton from 'app/atoms/FormSubmitButton';
+import { FormField, FormSubmitButton } from 'app/atoms';
 import Identicon from 'app/atoms/Identicon';
 import Name from 'app/atoms/Name';
 import SubTitle from 'app/atoms/SubTitle';
