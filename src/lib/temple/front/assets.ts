@@ -6,7 +6,6 @@ import Fuse from 'fuse.js';
 import useForceUpdate from 'use-force-update';
 import { browser } from 'webextension-polyfill-ts';
 
-import { useGasToken } from 'app/hooks/useGasToken';
 import { createQueue } from 'lib/queue';
 import { useRetryableSWR } from 'lib/swr';
 import {
@@ -19,8 +18,10 @@ import {
   fetchAllKnownCollectibleTokenSlugs,
   isTokenDisplayed
 } from 'lib/temple/assets';
+import { useNetwork } from 'lib/temple/front';
 import {
   TEZOS_METADATA,
+  FILM_METADATA,
   PRESERVED_TOKEN_METADATA,
   AssetMetadata,
   DetailedAssetMetdata,
@@ -87,6 +88,25 @@ function useAllKnownCollectibleTokenSlugs(chainId: string) {
 
 const enqueueAutoFetchMetadata = createQueue();
 const autoFetchMetadataFails = new Set<string>();
+
+export const useGasToken = () => {
+  const network = useNetwork();
+
+  return network.type === 'dcp'
+    ? {
+        logo: 'misc/token-logos/film.png',
+        symbol: 'ф',
+        assetName: 'FILM',
+        metadata: FILM_METADATA,
+        isDcpNetwork: true
+      }
+    : {
+        logo: 'misc/token-logos/tez.svg',
+        symbol: 'ꜩ',
+        assetName: 'tez',
+        metadata: TEZOS_METADATA
+      };
+};
 
 export function useAssetMetadata(slug: string) {
   const tezos = useTezos();

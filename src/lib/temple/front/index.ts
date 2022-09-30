@@ -28,7 +28,8 @@ export {
   useCollectibleTokens,
   useDisplayedFungibleTokens,
   searchAssets,
-  useGetTokenMetadata
+  useGetTokenMetadata,
+  useGasToken
 } from './assets';
 
 export { useAssetUSDPrice, useUSDPrices } from './usdprice';

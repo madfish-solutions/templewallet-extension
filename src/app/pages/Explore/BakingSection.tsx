@@ -21,14 +21,13 @@ import BakingHistoryItem from 'app/pages/Explore/BakingHistoryItem';
 import BakerBanner from 'app/templates/BakerBanner';
 import { T, t } from 'lib/i18n/react';
 import { useRetryableSWR } from 'lib/swr';
-import { useAccount, useChainId, useDelegate } from 'lib/temple/front';
+import { useAccount, useChainId, useDelegate, useGasToken } from 'lib/temple/front';
 import { TempleAccountType, isKnownChainId } from 'lib/temple/types';
 import { getDelegatorRewards, TZKT_API_BASE_URLS } from 'lib/tzkt';
 import useTippy from 'lib/ui/useTippy';
 import { Link } from 'lib/woozie';
 
 import { useAppEnv } from '../../env';
-import { useGasToken } from '../../hooks/useGasToken';
 import styles from './BakingSection.module.css';
 import { BakingSectionSelectors } from './BakingSection.selectors';
 

@@ -52,7 +52,8 @@ import {
   useCollectibleTokens,
   useDisplayedFungibleTokens,
   useFilteredContacts,
-  validateDelegate
+  validateDelegate,
+  useGasToken
 } from 'lib/temple/front';
 import { hasManager, isAddressValid, isKTAddress, mutezToTz, tzToMutez } from 'lib/temple/helpers';
 import { AssetMetadata, getAssetSymbol } from 'lib/temple/metadata';
@@ -60,7 +61,6 @@ import { TempleAccountType, TempleAccount, TempleNetworkType } from 'lib/temple/
 import useSafeState from 'lib/ui/useSafeState';
 import { HistoryAction, navigate } from 'lib/woozie';
 
-import { useGasToken } from '../hooks/useGasToken';
 import { IAsset } from './AssetSelect/interfaces';
 import { getSlug } from './AssetSelect/utils';
 import { SendFormSelectors } from './SendForm.selectors';
