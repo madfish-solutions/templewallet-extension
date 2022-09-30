@@ -11,7 +11,7 @@ interface Props {
   currentStep: number;
 }
 
-const Stepper: FC<Props> = ({ style, steps, currentStep }) => (
+export const Stepper: FC<Props> = ({ style, steps, currentStep }) => (
   <div className={classNames(styles['stepperWrapper'])} style={style}>
     {steps.map((stepItem, index) => (
       <div className="stepBlock" key={stepItem}>
@@ -34,5 +34,3 @@ const Stepper: FC<Props> = ({ style, steps, currentStep }) => (
     ))}
   </div>
 );
-
-export default Stepper;

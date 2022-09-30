@@ -1,6 +1,6 @@
 import React, { FC } from 'react';
 
-import Stepper from 'app/atoms/Stepper/Stepper';
+import { Stepper } from 'app/atoms';
 import PageLayout from 'app/layouts/PageLayout';
 import { t, T } from 'lib/i18n/react';
 import { useStorage } from 'lib/temple/front';
