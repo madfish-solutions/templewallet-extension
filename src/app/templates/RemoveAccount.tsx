@@ -2,9 +2,7 @@ import React, { FC, useCallback, useEffect, useRef } from 'react';
 
 import { OnSubmit, useForm } from 'react-hook-form';
 
-import Alert from 'app/atoms/Alert';
-import FormField from 'app/atoms/FormField';
-import FormSubmitButton from 'app/atoms/FormSubmitButton';
+import { Alert, FormField, FormSubmitButton } from 'app/atoms';
 import AccountBanner from 'app/templates/AccountBanner';
 import { T, t } from 'lib/i18n/react';
 import { useTempleClient, useRelevantAccounts, useAccount } from 'lib/temple/front';

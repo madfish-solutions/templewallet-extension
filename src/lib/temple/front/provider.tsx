@@ -1,7 +1,7 @@
 import React, { FC, useMemo } from 'react';
 
 import { CustomRpsContext } from 'lib/analytics';
-import { FiatCurrencyProvider } from 'lib/fiat-curency';
+import { FiatCurrencyProvider } from 'lib/fiat-currency';
 import { PropsWithChildren } from 'lib/props-with-children';
 
 import { TokensMetadataProvider } from './assets';

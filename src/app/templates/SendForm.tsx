@@ -18,12 +18,10 @@ import classNames from 'clsx';
 import { Controller, FieldError, useForm } from 'react-hook-form';
 import useSWR from 'swr';
 
-import Alert from 'app/atoms/Alert';
+import { Alert, FormSubmitButton, NoSpaceField } from 'app/atoms';
 import AssetField from 'app/atoms/AssetField';
-import FormSubmitButton from 'app/atoms/FormSubmitButton';
 import Identicon from 'app/atoms/Identicon';
 import Money from 'app/atoms/Money';
-import NoSpaceField from 'app/atoms/NoSpaceField';
 import Spinner from 'app/atoms/Spinner/Spinner';
 import { ArtificialError, NotEnoughFundsError, ZeroBalanceError, ZeroTEZBalanceError } from 'app/defaults';
 import { useAppEnv } from 'app/env';
@@ -35,36 +33,34 @@ import Balance from 'app/templates/Balance';
 import InFiat from 'app/templates/InFiat';
 import OperationStatus from 'app/templates/OperationStatus';
 import { AnalyticsEventCategory, useAnalytics, useFormAnalytics } from 'lib/analytics';
-import { useAssetFiatCurrencyPrice, useFiatCurrency } from 'lib/fiat-curency';
+import { useAssetFiatCurrencyPrice, useFiatCurrency } from 'lib/fiat-currency';
 import { toLocalFixed } from 'lib/i18n/numbers';
 import { T, t } from 'lib/i18n/react';
 import { transferImplicit, transferToContract } from 'lib/michelson';
 import { fetchBalance, fetchTezosBalance, isTezAsset, toPenny, toTransferParams } from 'lib/temple/assets';
 import { loadContract } from 'lib/temple/contract';
 import {
-  isDomainNameValid,
   ReactiveTezosToolkit,
+  isDomainNameValid,
   useAccount,
-  useAssetMetadata,
   useBalance,
   useChainId,
-  useCollectibleTokens,
-  useDisplayedFungibleTokens,
   useNetwork,
   useTezos,
-  useTezosDomainsClient
+  useTezosDomainsClient,
+  useAssetMetadata,
+  useCollectibleTokens,
+  useDisplayedFungibleTokens,
+  useFilteredContacts,
+  validateDelegate,
+  useGasToken
 } from 'lib/temple/front';
-import { useFilteredContacts } from 'lib/temple/front/use-filtered-contacts.hook';
-import { validateDelegate } from 'lib/temple/front/validate-delegate';
 import { hasManager, isAddressValid, isKTAddress, mutezToTz, tzToMutez } from 'lib/temple/helpers';
-import type { AssetMetadata } from 'lib/temple/metadata';
-import { getAssetSymbol } from 'lib/temple/metadata';
-import { TempleAccountType } from 'lib/temple/types';
-import type { TempleAccount, TempleNetworkType } from 'lib/temple/types';
+import { AssetMetadata, getAssetSymbol } from 'lib/temple/metadata';
+import { TempleAccountType, TempleAccount, TempleNetworkType } from 'lib/temple/types';
 import useSafeState from 'lib/ui/useSafeState';
 import { HistoryAction, navigate } from 'lib/woozie';
 
-import { useGasToken } from '../hooks/useGasToken';
 import { IAsset } from './AssetSelect/interfaces';
 import { getSlug } from './AssetSelect/utils';
 import { SendFormSelectors } from './SendForm.selectors';

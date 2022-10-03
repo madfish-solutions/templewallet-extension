@@ -1,6 +1,6 @@
 import React, { FC, useCallback, useState } from 'react';
 
-import Stepper from 'app/atoms/Stepper/Stepper';
+import { Stepper } from 'app/atoms';
 import PageLayout from 'app/layouts/PageLayout';
 import ApproveStep from 'app/pages/Buy/Crypto/Exolix/steps/ApproveStep';
 import ExchangeStep from 'app/pages/Buy/Crypto/Exolix/steps/ExchangeStep';
