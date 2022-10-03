@@ -88,7 +88,7 @@ const makeSync = async (
   ]);
 
   const tzktTokensMap = new Map(
-    tzktTokens.map(balance => [toTokenSlug(balance.token.contract.address, balance.token.tokenId), balance])
+    tzktTokens.map(tzktToken => [toTokenSlug(tzktToken.token.contract.address, tzktToken.token.tokenId), tzktToken])
   );
 
   const displayedTokenSlugs = [...displayedFungibleTokens, ...displayedCollectibleTokens].map(
@@ -193,6 +193,10 @@ const updateTokenSlugs = (
   const tzktToken = tzktTokensMap.get(slug);
   const balance = tzktToken?.balance ?? '0';
   const metadata = baseMetadatasToSet[slug] ?? allTokensBaseMetadataRef.current[slug];
+  const tokenType =
+    metadata?.artifactUri || tzktToken?.token.metadata.artifactUri
+      ? Repo.ITokenType.Collectible
+      : Repo.ITokenType.Fungible;
 
   const price = usdPrices[slug];
   const usdBalance =
@@ -206,7 +210,7 @@ const updateTokenSlugs = (
   if (existing) {
     return {
       ...existing,
-      type: metadata?.artifactUri ? Repo.ITokenType.Collectible : Repo.ITokenType.Fungible,
+      type: tokenType,
       order: i,
       latestBalance: balance,
       latestUSDBalance: usdBalance
@@ -216,7 +220,7 @@ const updateTokenSlugs = (
   const status = getPredefinedTokensSlugs(chainId).includes(slug) ? Repo.ITokenStatus.Enabled : Repo.ITokenStatus.Idle;
 
   return {
-    type: metadata?.artifactUri ? Repo.ITokenType.Collectible : Repo.ITokenType.Fungible,
+    type: tokenType,
     order: i,
     chainId,
     account: accountPkh,
