@@ -8,8 +8,8 @@ const secureBrowserVersions: Record<string, number> = {
 };
 
 const browserInfo = (() => {
-  let ua = navigator.userAgent,
-    tem,
+  const ua = navigator.userAgent;
+  let tem,
     M = ua.match(/(opera|chrome|safari|firefox|msie|trident(?=\/))\/?\s*(\d+)/i) || [];
 
   if (/trident/i.test(M[1])) {

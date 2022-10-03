@@ -4,13 +4,6 @@ import scrypt from 'scryptsy';
 
 import { t } from 'lib/i18n/react';
 
-export interface AccountCredentials {
-  sk: string | null;
-  pk: string | null;
-  pkh: string;
-  seedPhrase: string;
-}
-
 async function decrypt(chipher: string, password: string, salt: string) {
   try {
     if (!password || !salt) {

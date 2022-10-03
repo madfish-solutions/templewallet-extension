@@ -2,8 +2,7 @@ import BigNumber from 'bignumber.js';
 import memoize from 'micro-memoize';
 
 import { getCurrentLocale, getNumberSymbols } from './core';
-import type { TID } from './react';
-import { t } from './react';
+import { TID, t } from './react';
 
 type FormatParams = {
   decimalPlaces?: number;
@@ -55,7 +54,7 @@ export function getPluralKey<T extends string>(keyPrefix: T, amount: number) {
   return `${keyPrefix}_${getPluralKeyAmountPrefix(amount)}` as `${T}_${Intl.LDMLPluralRule}`;
 }
 
-export function getPluralKeyAmountPrefix(amount: number) {
+function getPluralKeyAmountPrefix(amount: number) {
   const rules = makePluralRules(getCurrentLocale());
   return rules.select(amount);
 }

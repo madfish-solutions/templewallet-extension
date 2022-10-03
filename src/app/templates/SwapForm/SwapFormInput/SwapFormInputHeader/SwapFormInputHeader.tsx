@@ -11,7 +11,7 @@ import { AssetIcon } from 'app/templates/AssetIcon';
 import InFiat from 'app/templates/InFiat';
 import { toLocalFormat } from 'lib/i18n/numbers';
 import { t, T } from 'lib/i18n/react';
-import { AssetMetadata } from 'lib/temple/front';
+import { AssetMetadata } from 'lib/temple/metadata';
 import { PopperRenderProps } from 'lib/ui/Popper';
 
 import { SwapFormInputProps } from '../SwapFormInput.props';

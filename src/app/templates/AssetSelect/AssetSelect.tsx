@@ -8,7 +8,8 @@ import Balance from 'app/templates/Balance';
 import IconifiedSelect, { IconifiedSelectOptionRenderProps } from 'app/templates/IconifiedSelect';
 import InFiat from 'app/templates/InFiat';
 import { T } from 'lib/i18n/react';
-import { getAssetName, getAssetSymbol, useAccount, useAssetMetadata } from 'lib/temple/front';
+import { useAccount, useAssetMetadata } from 'lib/temple/front';
+import { getAssetName, getAssetSymbol } from 'lib/temple/metadata';
 
 import { IAsset } from './interfaces';
 import { getSlug } from './utils';

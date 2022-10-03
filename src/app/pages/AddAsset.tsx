@@ -5,33 +5,23 @@ import { FormContextValues, useForm } from 'react-hook-form';
 import { useSWRConfig } from 'swr';
 import { useDebouncedCallback } from 'use-debounce';
 
-import Alert from 'app/atoms/Alert';
-import FormField from 'app/atoms/FormField';
-import FormSubmitButton from 'app/atoms/FormSubmitButton';
-import NoSpaceField from 'app/atoms/NoSpaceField';
+import { Alert, FormField, FormSubmitButton, NoSpaceField } from 'app/atoms';
 import Spinner from 'app/atoms/Spinner/Spinner';
 import { ReactComponent as AddIcon } from 'app/icons/add.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import { useFormAnalytics } from 'lib/analytics';
 import { T, t } from 'lib/i18n/react';
 import {
-  useTezos,
-  validateContractAddress,
-  useNetwork,
   NotMatchingStandardError,
-  useTokensMetadata,
   toTokenSlug,
-  NotFoundTokenMetadata,
   assertGetBalance,
-  useChainId,
-  useAccount,
-  getBalanceSWRKey,
   detectTokenStandard,
-  IncorrectTokenIdError,
-  AssetMetadata,
-  DetailedAssetMetdata,
-  loadContract
-} from 'lib/temple/front';
+  IncorrectTokenIdError
+} from 'lib/temple/assets';
+import { loadContract } from 'lib/temple/contract';
+import { useTezos, useNetwork, useChainId, useAccount, useTokensMetadata, getBalanceSWRKey } from 'lib/temple/front';
+import { validateContractAddress } from 'lib/temple/helpers';
+import { AssetMetadata, DetailedAssetMetdata, NotFoundTokenMetadata } from 'lib/temple/metadata';
 import * as Repo from 'lib/temple/repo';
 import { withErrorHumanDelay } from 'lib/ui/humanDelay';
 import useSafeState from 'lib/ui/useSafeState';

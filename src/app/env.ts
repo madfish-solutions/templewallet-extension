@@ -5,9 +5,7 @@ import { browser } from 'webextension-polyfill-ts';
 
 import { createUrl } from 'lib/woozie';
 
-export const IS_DEV_ENV = process.env.NODE_ENV === 'development';
-
-export type AppEnvironment = {
+type AppEnvironment = {
   windowType: WindowType;
   confirmWindow?: boolean;
 };
@@ -17,7 +15,7 @@ export enum WindowType {
   FullPage
 }
 
-export type BackHandler = () => void;
+type BackHandler = () => void;
 
 export const [AppEnvProvider, useAppEnv] = constate((env: AppEnvironment) => {
   const fullPage = env.windowType === WindowType.FullPage;

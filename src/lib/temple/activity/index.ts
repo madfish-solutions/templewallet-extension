@@ -1,5 +1,5 @@
-export * from './types';
-export * from './helpers';
+export { OpStackItemType } from './types';
+export type { OpStackItem } from './types';
 export * from './local';
 export * from './sync';
 export * from './fetch';

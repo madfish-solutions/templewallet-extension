@@ -1,6 +1,5 @@
 import { b58cdecode, hex2buf } from '@taquito/utils';
 import { crypto_generichash, ready } from 'libsodium-wrappers';
-
 import toBuffer from 'typedarray-to-buffer';
 
 import {

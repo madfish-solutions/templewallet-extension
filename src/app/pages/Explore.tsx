@@ -1,7 +1,6 @@
 import React, { FC, FunctionComponent, ReactNode, Suspense, SVGProps, useLayoutEffect, useMemo } from 'react';
 
 import classNames from 'clsx';
-import { useDispatch } from 'react-redux';
 import { Props as TippyProps } from 'tippy.js';
 
 import Spinner from 'app/atoms/Spinner/Spinner';
@@ -20,20 +19,14 @@ import AssetInfo from 'app/templates/AssetInfo';
 import { TestIDProps } from 'lib/analytics';
 import { T, t } from 'lib/i18n/react';
 import { PropsWithChildren } from 'lib/props-with-children';
-import {
-  getAssetSymbol,
-  isTezAsset,
-  TempleAccountType,
-  TempleNetworkType,
-  useAccount,
-  useAssetMetadata,
-  useNetwork
-} from 'lib/temple/front';
+import { isTezAsset } from 'lib/temple/assets';
+import { useAccount, useNetwork, useAssetMetadata } from 'lib/temple/front';
+import { getAssetSymbol } from 'lib/temple/metadata';
+import { TempleAccountType, TempleNetworkType } from 'lib/temple/types';
 import useTippy from 'lib/ui/useTippy';
 import { HistoryAction, Link, navigate, To, useLocation } from 'lib/woozie';
 
 import { DonationBanner } from '../atoms/DonationBanner';
-import { increaseCounterAction } from '../store/wallet/wallet-actions';
 import CollectiblesList from './Collectibles/CollectiblesList';
 import { ExploreSelectors } from './Explore.selectors';
 import AddressChip from './Explore/AddressChip';
@@ -182,8 +175,6 @@ const ActionButton: FC<ActionButtonProps> = ({
   testID,
   testIDProperties
 }) => {
-  const dispatch = useDispatch();
-
   const buttonRef = useTippy<HTMLButtonElement>(tippyProps);
   const commonButtonProps = useMemo(
     () => ({
@@ -219,13 +210,7 @@ const ActionButton: FC<ActionButtonProps> = ({
   return disabled ? (
     <button ref={buttonRef} {...commonButtonProps} />
   ) : (
-    <Link
-      testID={testID}
-      testIDProperties={testIDProperties}
-      to={to}
-      onClick={() => dispatch(increaseCounterAction())}
-      {...commonButtonProps}
-    />
+    <Link testID={testID} testIDProperties={testIDProperties} to={to} {...commonButtonProps} />
   );
 };
 

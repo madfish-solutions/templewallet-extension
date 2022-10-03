@@ -8,8 +8,8 @@ export function pickLedgerTransport() {
   return pickTransport(savedTransport === 'true');
 }
 
-export function pickTransport(isLedgerLive: boolean) {
+function pickTransport(isLedgerLive: boolean) {
   if (isLedgerLive) return TransportType.LEDGERLIVE;
-  // @ts-ignore
-  return window.navigator && window.navigator.hid ? TransportType.WEBHID : TransportType.U2F;
+  const navigator = window.navigator as undefined | (Navigator & { hid: unknown });
+  return navigator && navigator.hid ? TransportType.WEBHID : TransportType.U2F;
 }

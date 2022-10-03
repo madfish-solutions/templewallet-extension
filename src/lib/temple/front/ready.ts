@@ -5,19 +5,13 @@ import { TezosToolkit } from '@taquito/taquito';
 import { Tzip16Module } from '@taquito/tzip16';
 import constate from 'constate';
 
-import { IS_DEV_ENV } from 'app/env';
+import { IS_DEV_ENV } from 'lib/env';
 import { useRetryableSWR } from 'lib/swr';
-import {
-  ReadyTempleState,
-  TempleAccountType,
-  TempleStatus,
-  TempleState,
-  usePassiveStorage,
-  useTempleClient,
-  loadChainId,
-  michelEncoder,
-  loadFastRpcClient
-} from 'lib/temple/front';
+import { loadChainId, michelEncoder, loadFastRpcClient } from 'lib/temple/helpers';
+import { ReadyTempleState, TempleAccountType, TempleStatus, TempleState } from 'lib/temple/types';
+
+import { useTempleClient } from './client';
+import { usePassiveStorage } from './storage';
 
 export enum ActivationStatus {
   ActivationRequestSent,

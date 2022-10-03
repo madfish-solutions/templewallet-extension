@@ -2,7 +2,7 @@ import { useLayoutEffect } from 'react';
 
 import useForceUpdate from 'use-force-update';
 
-import { USE_LOCATION_HASH_AS_URL } from 'lib/woozie/config';
+import { USE_LOCATION_HASH_AS_URL } from './config';
 
 export enum HistoryAction {
   Pop = 'popstate',
@@ -15,11 +15,11 @@ export interface PatchedHistory extends History {
   position: number;
 }
 
-export type HistoryListener = () => void;
+type HistoryListener = () => void;
 
 const listeners = new Set<HistoryListener>();
 
-export function listen(listener: HistoryListener) {
+function listen(listener: HistoryListener) {
   listeners.add(listener);
   return () => {
     listeners.delete(listener);
@@ -50,16 +50,12 @@ export function changeState(action: HistoryAction.Push | HistoryAction.Replace, 
   }
 }
 
-export function go(delta: number) {
+function go(delta: number) {
   window.history.go(delta);
 }
 
 export function goBack() {
   go(-1);
-}
-
-export function goForward() {
-  go(1);
 }
 
 export function createUrl(pathname: string = '/', search: string = '', hash: string = ''): string {

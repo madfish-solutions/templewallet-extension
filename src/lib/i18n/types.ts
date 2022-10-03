@@ -7,7 +7,7 @@ export type Substitutions = string | (string | number)[];
 
 export type LocaleMessages = Record<string, LocaleMessage>;
 
-export type LocaleMessage = {
+type LocaleMessage = {
   message: string;
   description?: string;
   placeholders?: Record<string, { content: string }>;

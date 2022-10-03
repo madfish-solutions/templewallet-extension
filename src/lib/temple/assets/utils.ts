@@ -1,11 +1,8 @@
-import { useMemo, useState } from 'react';
-
 import { OpKind, TezosToolkit } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
-import { useDebounce } from 'use-debounce';
 
 import { loadContract } from 'lib/temple/contract';
-import { isValidContractAddress, searchAssets, useAllTokensBaseMetadata } from 'lib/temple/front';
+import { isValidContractAddress } from 'lib/temple/helpers';
 import { AssetMetadata } from 'lib/temple/metadata';
 
 import { detectTokenStandard } from './tokenStandard';
@@ -90,10 +87,6 @@ export function fromFa2TokenSlug(slug: string): FA2Token {
   };
 }
 
-export function toAssetSlug(asset: Asset) {
-  return isTezAsset(asset) ? asset : toTokenSlug(asset.contract, asset.id);
-}
-
 export function toTokenSlug(contract: string, id: BigNumber.Value = 0) {
   return contract === 'tez' ? 'tez' : `${contract}_${new BigNumber(id).toFixed()}`;
 }
@@ -110,31 +103,6 @@ export function isTezAsset(asset: Asset | string): asset is 'tez' {
   return asset === 'tez';
 }
 
-export function isTokenAsset(asset: Asset): asset is Token {
-  return asset !== 'tez';
-}
-
 export function toPenny(metadata: AssetMetadata | null) {
   return new BigNumber(1).div(10 ** (metadata?.decimals ?? 0));
-}
-
-export function useFilteredAssets(assetSlugs: string[]) {
-  const allTokensBaseMetadata = useAllTokensBaseMetadata();
-
-  const [searchValue, setSearchValue] = useState('');
-  const [tokenId, setTokenId] = useState<number>();
-  const [searchValueDebounced] = useDebounce(tokenId ? toTokenSlug(searchValue, tokenId) : searchValue, 300);
-
-  const filteredAssets = useMemo(
-    () => searchAssets(searchValueDebounced, assetSlugs, allTokensBaseMetadata),
-    [searchValueDebounced, assetSlugs, allTokensBaseMetadata]
-  );
-
-  return {
-    filteredAssets,
-    searchValue,
-    setSearchValue,
-    tokenId,
-    setTokenId
-  };
 }

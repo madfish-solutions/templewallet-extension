@@ -3,7 +3,7 @@ import Dexie from 'dexie';
 
 import { TzktOperation, TzktTokenTransfer } from 'lib/tzkt';
 
-export enum Table {
+enum Table {
   AccountTokens = 'accountTokens',
   Operations = 'operations',
   SyncTimes = 'syncTimes'
@@ -17,8 +17,6 @@ db.version(1).stores({
 db.version(2).stores({
   [Table.AccountTokens]: indexes('', '[chainId+account+type]', '[chainId+type]')
 });
-
-export const waitFor = Dexie.waitFor;
 
 export const accountTokens = db.table<IAccountToken, string>(Table.AccountTokens);
 export const operations = db.table<IOperation, string>(Table.Operations);
@@ -60,7 +58,7 @@ export interface IOperation {
   data: IOperationData;
 }
 
-export type IOperationData = AtLeastOne<{
+type IOperationData = AtLeastOne<{
   localGroup: Array<OperationContentsAndResult>;
   tzktGroup: Array<TzktOperation>;
   tzktTokenTransfers: Array<TzktTokenTransfer>;
