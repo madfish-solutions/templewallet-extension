@@ -24,8 +24,6 @@ export const NewsNotificationsItem: FC<Props> = ({ id, title, description, creat
     style={{
       borderBottomWidth: 1,
       ...style
-      // maxHeight: 120,
-      // overflow: 'hidden'
     }}
   >
     <NewsIcon isDotVisible={status === StatusType.New} type={type} />
