@@ -70,7 +70,7 @@ export const getFa2Transfers = makeQuery<TzktGetOperationsParams, TzktOperation[
   })
 );
 
-export const getTzktTokens = makeQuery<TzktGetOperationsParams, TzktAccountToken[]>(
+const getTzktTokens = makeQuery<TzktGetOperationsParams, TzktAccountToken[]>(
   () => `/tokens/balances`,
   ({ address, ...restParams }) => ({
     account: address,
@@ -138,7 +138,7 @@ function makeQuery<P extends Record<string, unknown>, R>(
   };
 }
 
-export const TZKT_FETCH_QUERY_SIZE = 300;
+const TZKT_FETCH_QUERY_SIZE = 300;
 
 export const fetchTzktTokens = async (chainId: string, address: string) => {
   if (!isKnownChainId(chainId) || !TZKT_API_BASE_URLS.has(chainId)) {

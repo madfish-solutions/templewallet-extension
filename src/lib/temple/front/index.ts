@@ -27,7 +27,6 @@ export {
   useAllTokensBaseMetadata,
   useCollectibleTokens,
   useDisplayedFungibleTokens,
-  searchAssets,
   useGetTokenMetadata,
   useGasToken,
   useFilteredAssets

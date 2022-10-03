@@ -2,7 +2,6 @@ export type { TzktOperation, TzktTokenTransfer, TzktRelatedContract, TzktRewards
 
 export {
   TZKT_API_BASE_URLS,
-  TZKT_FETCH_QUERY_SIZE,
   getOperations,
   getTokenTransfers,
   getDelegatorRewards,
