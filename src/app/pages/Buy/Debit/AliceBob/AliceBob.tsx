@@ -2,12 +2,13 @@ import React, { ChangeEvent, FC, useCallback, useMemo, useState } from 'react';
 
 import { useDebouncedCallback } from 'use-debounce';
 
+import { FormSubmitButton } from 'app/atoms/FormSubmitButton';
+
 import { useAnalyticsState } from '../../../../../lib/analytics/use-analytics-state.hook';
 import { T } from '../../../../../lib/i18n/react';
 import makeBuildQueryFn from '../../../../../lib/makeBuildQueryFn';
 import { useAccount } from '../../../../../lib/temple/front';
 import Divider from '../../../../atoms/Divider';
-import FormSubmitButton from '../../../../atoms/FormSubmitButton';
 import { ReactComponent as AttentionRedIcon } from '../../../../icons/attentionRed.svg';
 import PageLayout from '../../../../layouts/PageLayout';
 import { WithdrawSelectors } from '../../../Withdraw/Withdraw.selectors';
