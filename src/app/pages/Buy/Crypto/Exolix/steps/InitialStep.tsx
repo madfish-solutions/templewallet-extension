@@ -4,12 +4,12 @@ import BigNumber from 'bignumber.js';
 import useSWR from 'swr';
 import { useDebounce } from 'use-debounce';
 
+import { FormSubmitButton } from 'app/atoms';
 import Divider from 'app/atoms/Divider';
-import FormSubmitButton from 'app/atoms/FormSubmitButton';
 import styles from 'app/pages/Buy/Crypto/Exolix/Exolix.module.css';
 import ErrorComponent from 'app/pages/Buy/Crypto/Exolix/steps/ErrorComponent';
 import WarningComponent from 'app/pages/Buy/Crypto/Exolix/steps/WarningComponent';
-import { useAssetFiatCurrencyPrice } from 'lib/fiat-curency';
+import { useAssetFiatCurrencyPrice } from 'lib/fiat-currency';
 import { T } from 'lib/i18n/react';
 import { useAccount } from 'lib/temple/front';
 

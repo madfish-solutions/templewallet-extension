@@ -13,6 +13,7 @@ import { getMessage } from 'lib/i18n';
 import { createQueue } from 'lib/queue';
 import { useRetryableSWR } from 'lib/swr';
 import {
+  AssetTypesEnum,
   TokenStandard,
   isTezAsset,
   fetchDisplayedFungibleTokens,
@@ -20,17 +21,16 @@ import {
   fetchAllKnownFungibleTokenSlugs,
   fetchCollectibleTokens,
   fetchAllKnownCollectibleTokenSlugs,
-  AssetTypesEnum,
   isTokenDisplayed,
   toTokenSlug
 } from 'lib/temple/assets';
 import {
   AssetMetadata,
-  fetchTokenMetadata,
   PRESERVED_TOKEN_METADATA,
   FILM_METADATA,
   TEZOS_METADATA,
-  DetailedAssetMetdata
+  DetailedAssetMetdata,
+  fetchTokenMetadata
 } from 'lib/temple/metadata';
 import { ITokenStatus } from 'lib/temple/repo';
 

@@ -1,9 +1,9 @@
 import { Estimate } from '@taquito/taquito';
 import { TempleDAppMetadata, TempleDAppNetwork } from '@temple-wallet/dapp/dist/types';
 
-import type { TID } from 'lib/i18n/react';
+import { TID } from 'lib/i18n/react';
 
-import type {
+import {
   TempleSendPageEventRequest,
   TempleSendPageEventResponse,
   TempleSendTrackEventRequest,
@@ -67,32 +67,32 @@ export enum DerivationType {
   P256 = 2
 }
 
-export interface TempleLedgerAccount extends TempleAccountBase {
+interface TempleLedgerAccount extends TempleAccountBase {
   type: TempleAccountType.Ledger;
   derivationPath: string;
 }
 
-export interface TempleImportedAccount extends TempleAccountBase {
+interface TempleImportedAccount extends TempleAccountBase {
   type: TempleAccountType.Imported;
 }
 
-export interface TempleHDAccount extends TempleAccountBase {
+interface TempleHDAccount extends TempleAccountBase {
   type: TempleAccountType.HD;
   hdIndex: number;
 }
 
-export interface TempleManagedKTAccount extends TempleAccountBase {
+interface TempleManagedKTAccount extends TempleAccountBase {
   type: TempleAccountType.ManagedKT;
   chainId: string;
   owner: string;
 }
 
-export interface TempleWatchOnlyAccount extends TempleAccountBase {
+interface TempleWatchOnlyAccount extends TempleAccountBase {
   type: TempleAccountType.WatchOnly;
   chainId?: string;
 }
 
-export interface TempleAccountBase {
+interface TempleAccountBase {
   type: TempleAccountType;
   name: string;
   publicKeyHash: string;
@@ -149,18 +149,18 @@ export interface TempleContact {
 /**
  * Internal confirmation payloads
  */
-export interface TempleConfirmationPayloadBase {
+interface TempleConfirmationPayloadBase {
   type: string;
   sourcePkh: string;
 }
 
-export interface TempleSignConfirmationPayload extends TempleConfirmationPayloadBase {
+interface TempleSignConfirmationPayload extends TempleConfirmationPayloadBase {
   type: 'sign';
   bytes: string;
   watermark?: string;
 }
 
-export interface TempleOpsConfirmationPayload extends TempleConfirmationPayloadBase {
+interface TempleOpsConfirmationPayload extends TempleConfirmationPayloadBase {
   type: 'operations';
   networkRpc: string;
   opParams: any[];
@@ -179,7 +179,7 @@ export type DappMetadata = TempleDAppMetadata & {
   icon?: string;
 };
 
-export interface TempleDAppPayloadBase {
+interface TempleDAppPayloadBase {
   type: string;
   origin: string;
   networkRpc: string;
@@ -187,7 +187,7 @@ export interface TempleDAppPayloadBase {
   error?: any;
 }
 
-export interface TempleDAppConnectPayload extends TempleDAppPayloadBase {
+interface TempleDAppConnectPayload extends TempleDAppPayloadBase {
   type: 'connect';
 }
 
@@ -356,208 +356,208 @@ export interface TempleMessageBase {
   type: TempleMessageType;
 }
 
-export interface TempleStateUpdated extends TempleMessageBase {
+interface TempleStateUpdated extends TempleMessageBase {
   type: TempleMessageType.StateUpdated;
 }
 
-export interface TempleConfirmationRequested extends TempleMessageBase {
+interface TempleConfirmationRequested extends TempleMessageBase {
   type: TempleMessageType.ConfirmationRequested;
   id: string;
   payload: TempleConfirmationPayload;
   error?: any;
 }
 
-export interface TempleConfirmationExpired extends TempleMessageBase {
+interface TempleConfirmationExpired extends TempleMessageBase {
   type: TempleMessageType.ConfirmationExpired;
   id: string;
 }
 
-export interface TempleGetStateRequest extends TempleMessageBase {
+interface TempleGetStateRequest extends TempleMessageBase {
   type: TempleMessageType.GetStateRequest;
 }
 
-export interface TempleGetStateResponse extends TempleMessageBase {
+interface TempleGetStateResponse extends TempleMessageBase {
   type: TempleMessageType.GetStateResponse;
   state: TempleState;
 }
 
-export interface TempleAcknowledgeResponse extends TempleMessageBase {
+interface TempleAcknowledgeResponse extends TempleMessageBase {
   type: TempleMessageType.Acknowledge;
   payload: string;
   encrypted?: boolean;
 }
 
-export interface TempleNewWalletRequest extends TempleMessageBase {
+interface TempleNewWalletRequest extends TempleMessageBase {
   type: TempleMessageType.NewWalletRequest;
   password: string;
   mnemonic?: string;
 }
 
-export interface TempleNewWalletResponse extends TempleMessageBase {
+interface TempleNewWalletResponse extends TempleMessageBase {
   type: TempleMessageType.NewWalletResponse;
 }
 
-export interface TempleUnlockRequest extends TempleMessageBase {
+interface TempleUnlockRequest extends TempleMessageBase {
   type: TempleMessageType.UnlockRequest;
   password: string;
 }
 
-export interface TempleUnlockResponse extends TempleMessageBase {
+interface TempleUnlockResponse extends TempleMessageBase {
   type: TempleMessageType.UnlockResponse;
 }
 
-export interface TempleLockRequest extends TempleMessageBase {
+interface TempleLockRequest extends TempleMessageBase {
   type: TempleMessageType.LockRequest;
 }
 
-export interface TempleLockResponse extends TempleMessageBase {
+interface TempleLockResponse extends TempleMessageBase {
   type: TempleMessageType.LockResponse;
 }
 
-export interface TempleCreateAccountRequest extends TempleMessageBase {
+interface TempleCreateAccountRequest extends TempleMessageBase {
   type: TempleMessageType.CreateAccountRequest;
   name?: string;
 }
 
-export interface TempleCreateAccountResponse extends TempleMessageBase {
+interface TempleCreateAccountResponse extends TempleMessageBase {
   type: TempleMessageType.CreateAccountResponse;
 }
 
-export interface TempleRevealPublicKeyRequest extends TempleMessageBase {
+interface TempleRevealPublicKeyRequest extends TempleMessageBase {
   type: TempleMessageType.RevealPublicKeyRequest;
   accountPublicKeyHash: string;
 }
 
-export interface TempleRevealPublicKeyResponse extends TempleMessageBase {
+interface TempleRevealPublicKeyResponse extends TempleMessageBase {
   type: TempleMessageType.RevealPublicKeyResponse;
   publicKey: string;
 }
 
-export interface TempleRevealPrivateKeyRequest extends TempleMessageBase {
+interface TempleRevealPrivateKeyRequest extends TempleMessageBase {
   type: TempleMessageType.RevealPrivateKeyRequest;
   accountPublicKeyHash: string;
   password: string;
 }
 
-export interface TempleRevealPrivateKeyResponse extends TempleMessageBase {
+interface TempleRevealPrivateKeyResponse extends TempleMessageBase {
   type: TempleMessageType.RevealPrivateKeyResponse;
   privateKey: string;
 }
 
-export interface TempleRevealMnemonicRequest extends TempleMessageBase {
+interface TempleRevealMnemonicRequest extends TempleMessageBase {
   type: TempleMessageType.RevealMnemonicRequest;
   password: string;
 }
 
-export interface TempleRevealMnemonicResponse extends TempleMessageBase {
+interface TempleRevealMnemonicResponse extends TempleMessageBase {
   type: TempleMessageType.RevealMnemonicResponse;
   mnemonic: string;
 }
 
-export interface TempleGenerateSyncPayloadRequest extends TempleMessageBase {
+interface TempleGenerateSyncPayloadRequest extends TempleMessageBase {
   type: TempleMessageType.GenerateSyncPayloadRequest;
   password: string;
 }
 
-export interface TempleGenerateSyncPayloadResponse extends TempleMessageBase {
+interface TempleGenerateSyncPayloadResponse extends TempleMessageBase {
   type: TempleMessageType.GenerateSyncPayloadResponse;
   payload: string;
 }
 
-export interface TempleRemoveAccountRequest extends TempleMessageBase {
+interface TempleRemoveAccountRequest extends TempleMessageBase {
   type: TempleMessageType.RemoveAccountRequest;
   accountPublicKeyHash: string;
   password: string;
 }
 
-export interface TempleRemoveAccountResponse extends TempleMessageBase {
+interface TempleRemoveAccountResponse extends TempleMessageBase {
   type: TempleMessageType.RemoveAccountResponse;
 }
 
-export interface TempleEditAccountRequest extends TempleMessageBase {
+interface TempleEditAccountRequest extends TempleMessageBase {
   type: TempleMessageType.EditAccountRequest;
   accountPublicKeyHash: string;
   name: string;
 }
 
-export interface TempleEditAccountResponse extends TempleMessageBase {
+interface TempleEditAccountResponse extends TempleMessageBase {
   type: TempleMessageType.EditAccountResponse;
 }
 
-export interface TempleImportAccountRequest extends TempleMessageBase {
+interface TempleImportAccountRequest extends TempleMessageBase {
   type: TempleMessageType.ImportAccountRequest;
   privateKey: string;
   encPassword?: string;
 }
 
-export interface TempleImportAccountResponse extends TempleMessageBase {
+interface TempleImportAccountResponse extends TempleMessageBase {
   type: TempleMessageType.ImportAccountResponse;
 }
 
-export interface TempleImportMnemonicAccountRequest extends TempleMessageBase {
+interface TempleImportMnemonicAccountRequest extends TempleMessageBase {
   type: TempleMessageType.ImportMnemonicAccountRequest;
   mnemonic: string;
   password?: string;
   derivationPath?: string;
 }
 
-export interface TempleImportMnemonicAccountResponse extends TempleMessageBase {
+interface TempleImportMnemonicAccountResponse extends TempleMessageBase {
   type: TempleMessageType.ImportMnemonicAccountResponse;
 }
 
-export interface TempleImportFundraiserAccountRequest extends TempleMessageBase {
+interface TempleImportFundraiserAccountRequest extends TempleMessageBase {
   type: TempleMessageType.ImportFundraiserAccountRequest;
   email: string;
   password: string;
   mnemonic: string;
 }
 
-export interface TempleImportFundraiserAccountResponse extends TempleMessageBase {
+interface TempleImportFundraiserAccountResponse extends TempleMessageBase {
   type: TempleMessageType.ImportFundraiserAccountResponse;
 }
 
-export interface TempleImportManagedKTAccountRequest extends TempleMessageBase {
+interface TempleImportManagedKTAccountRequest extends TempleMessageBase {
   type: TempleMessageType.ImportManagedKTAccountRequest;
   address: string;
   chainId: string;
   owner: string;
 }
 
-export interface TempleImportManagedKTAccountResponse extends TempleMessageBase {
+interface TempleImportManagedKTAccountResponse extends TempleMessageBase {
   type: TempleMessageType.ImportManagedKTAccountResponse;
 }
 
-export interface TempleImportWatchOnlyAccountRequest extends TempleMessageBase {
+interface TempleImportWatchOnlyAccountRequest extends TempleMessageBase {
   type: TempleMessageType.ImportWatchOnlyAccountRequest;
   address: string;
   chainId?: string;
 }
 
-export interface TempleImportWatchOnlyAccountResponse extends TempleMessageBase {
+interface TempleImportWatchOnlyAccountResponse extends TempleMessageBase {
   type: TempleMessageType.ImportWatchOnlyAccountResponse;
 }
 
-export interface TempleCreateLedgerAccountRequest extends TempleMessageBase {
+interface TempleCreateLedgerAccountRequest extends TempleMessageBase {
   type: TempleMessageType.CreateLedgerAccountRequest;
   name: string;
   derivationPath?: string;
   derivationType?: DerivationType;
 }
 
-export interface TempleCreateLedgerAccountResponse extends TempleMessageBase {
+interface TempleCreateLedgerAccountResponse extends TempleMessageBase {
   type: TempleMessageType.CreateLedgerAccountResponse;
 }
 
-export interface TempleUpdateSettingsRequest extends TempleMessageBase {
+interface TempleUpdateSettingsRequest extends TempleMessageBase {
   type: TempleMessageType.UpdateSettingsRequest;
   settings: Partial<TempleSettings>;
 }
 
-export interface TempleUpdateSettingsResponse extends TempleMessageBase {
+interface TempleUpdateSettingsResponse extends TempleMessageBase {
   type: TempleMessageType.UpdateSettingsResponse;
 }
 
-export interface TempleOperationsRequest extends TempleMessageBase {
+interface TempleOperationsRequest extends TempleMessageBase {
   type: TempleMessageType.OperationsRequest;
   id: string;
   sourcePkh: string;
@@ -565,12 +565,12 @@ export interface TempleOperationsRequest extends TempleMessageBase {
   opParams: any[];
 }
 
-export interface TempleOperationsResponse extends TempleMessageBase {
+interface TempleOperationsResponse extends TempleMessageBase {
   type: TempleMessageType.OperationsResponse;
   opHash: string;
 }
 
-export interface TempleSignRequest extends TempleMessageBase {
+interface TempleSignRequest extends TempleMessageBase {
   type: TempleMessageType.SignRequest;
   id: string;
   sourcePkh: string;
@@ -578,12 +578,12 @@ export interface TempleSignRequest extends TempleMessageBase {
   watermark?: string;
 }
 
-export interface TempleSignResponse extends TempleMessageBase {
+interface TempleSignResponse extends TempleMessageBase {
   type: TempleMessageType.SignResponse;
   result: any;
 }
 
-export interface TempleConfirmationRequest extends TempleMessageBase {
+interface TempleConfirmationRequest extends TempleMessageBase {
   type: TempleMessageType.ConfirmationRequest;
   id: string;
   confirmed: boolean;
@@ -591,11 +591,11 @@ export interface TempleConfirmationRequest extends TempleMessageBase {
   modifiedStorageLimit?: number;
 }
 
-export interface TempleConfirmationResponse extends TempleMessageBase {
+interface TempleConfirmationResponse extends TempleMessageBase {
   type: TempleMessageType.ConfirmationResponse;
 }
 
-export interface TemplePageRequest extends TempleMessageBase {
+interface TemplePageRequest extends TempleMessageBase {
   type: TempleMessageType.PageRequest;
   origin: string;
   payload: any;
@@ -603,7 +603,7 @@ export interface TemplePageRequest extends TempleMessageBase {
   encrypted?: boolean;
 }
 
-export interface TempleAcknowledgeRequest extends TempleMessageBase {
+interface TempleAcknowledgeRequest extends TempleMessageBase {
   type: TempleMessageType.Acknowledge;
   origin: string;
   payload: any;
@@ -611,23 +611,23 @@ export interface TempleAcknowledgeRequest extends TempleMessageBase {
   encrypted?: boolean;
 }
 
-export interface TemplePageResponse extends TempleMessageBase {
+interface TemplePageResponse extends TempleMessageBase {
   type: TempleMessageType.PageResponse;
   payload: any;
   encrypted?: boolean;
 }
 
-export interface TempleDAppGetPayloadRequest extends TempleMessageBase {
+interface TempleDAppGetPayloadRequest extends TempleMessageBase {
   type: TempleMessageType.DAppGetPayloadRequest;
   id: string;
 }
 
-export interface TempleDAppGetPayloadResponse extends TempleMessageBase {
+interface TempleDAppGetPayloadResponse extends TempleMessageBase {
   type: TempleMessageType.DAppGetPayloadResponse;
   payload: TempleDAppPayload;
 }
 
-export interface TempleDAppPermConfirmationRequest extends TempleMessageBase {
+interface TempleDAppPermConfirmationRequest extends TempleMessageBase {
   type: TempleMessageType.DAppPermConfirmationRequest;
   id: string;
   confirmed: boolean;
@@ -635,11 +635,11 @@ export interface TempleDAppPermConfirmationRequest extends TempleMessageBase {
   accountPublicKeyHash: string;
 }
 
-export interface TempleDAppPermConfirmationResponse extends TempleMessageBase {
+interface TempleDAppPermConfirmationResponse extends TempleMessageBase {
   type: TempleMessageType.DAppPermConfirmationResponse;
 }
 
-export interface TempleDAppOpsConfirmationRequest extends TempleMessageBase {
+interface TempleDAppOpsConfirmationRequest extends TempleMessageBase {
   type: TempleMessageType.DAppOpsConfirmationRequest;
   id: string;
   confirmed: boolean;
@@ -647,35 +647,35 @@ export interface TempleDAppOpsConfirmationRequest extends TempleMessageBase {
   modifiedStorageLimit?: number;
 }
 
-export interface TempleDAppOpsConfirmationResponse extends TempleMessageBase {
+interface TempleDAppOpsConfirmationResponse extends TempleMessageBase {
   type: TempleMessageType.DAppOpsConfirmationResponse;
 }
 
-export interface TempleDAppSignConfirmationRequest extends TempleMessageBase {
+interface TempleDAppSignConfirmationRequest extends TempleMessageBase {
   type: TempleMessageType.DAppSignConfirmationRequest;
   id: string;
   confirmed: boolean;
 }
 
-export interface TempleDAppSignConfirmationResponse extends TempleMessageBase {
+interface TempleDAppSignConfirmationResponse extends TempleMessageBase {
   type: TempleMessageType.DAppSignConfirmationResponse;
 }
 
-export interface TempleGetAllDAppSessionsRequest extends TempleMessageBase {
+interface TempleGetAllDAppSessionsRequest extends TempleMessageBase {
   type: TempleMessageType.DAppGetAllSessionsRequest;
 }
 
-export interface TempleGetAllDAppSessionsResponse extends TempleMessageBase {
+interface TempleGetAllDAppSessionsResponse extends TempleMessageBase {
   type: TempleMessageType.DAppGetAllSessionsResponse;
   sessions: TempleDAppSessions;
 }
 
-export interface TempleRemoveDAppSessionRequest extends TempleMessageBase {
+interface TempleRemoveDAppSessionRequest extends TempleMessageBase {
   type: TempleMessageType.DAppRemoveSessionRequest;
   origin: string;
 }
 
-export interface TempleRemoveDAppSessionResponse extends TempleMessageBase {
+interface TempleRemoveDAppSessionResponse extends TempleMessageBase {
   type: TempleMessageType.DAppRemoveSessionResponse;
   sessions: TempleDAppSessions;
 }

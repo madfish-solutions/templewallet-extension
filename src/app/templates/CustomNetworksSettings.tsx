@@ -3,8 +3,7 @@ import React, { FC, useCallback } from 'react';
 import classNames from 'clsx';
 import { useForm } from 'react-hook-form';
 
-import FormField from 'app/atoms/FormField';
-import FormSubmitButton from 'app/atoms/FormSubmitButton';
+import { FormField, FormSubmitButton } from 'app/atoms';
 import Name from 'app/atoms/Name';
 import SubTitle from 'app/atoms/SubTitle';
 import { URL_PATTERN } from 'app/defaults';

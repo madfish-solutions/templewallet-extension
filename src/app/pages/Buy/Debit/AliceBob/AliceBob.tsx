@@ -2,13 +2,14 @@ import React, { ChangeEvent, useCallback, useEffect, useMemo, useState } from 'r
 
 import { useDebouncedCallback } from 'use-debounce';
 
-import { useAnalyticsState } from '../../../../../lib/analytics/use-analytics-state.hook';
-import { T } from '../../../../../lib/i18n/react';
-import makeBuildQueryFn from '../../../../../lib/makeBuildQueryFn';
-import { useAccount } from '../../../../../lib/temple/front';
-import FormSubmitButton from '../../../../atoms/FormSubmitButton';
-import { ReactComponent as AttentionRedIcon } from '../../../../icons/attentionRed.svg';
-import PageLayout from '../../../../layouts/PageLayout';
+import { FormSubmitButton } from 'app/atoms';
+import { ReactComponent as AttentionRedIcon } from 'app/icons/attentionRed.svg';
+import PageLayout from 'app/layouts/PageLayout';
+import { useAnalyticsState } from 'lib/analytics/use-analytics-state.hook';
+import { T } from 'lib/i18n/react';
+import makeBuildQueryFn from 'lib/makeBuildQueryFn';
+import { useAccount } from 'lib/temple/front';
+
 import { BuySelectors } from '../../Buy.selectors';
 import styles from '../../Crypto/Exolix/Exolix.module.css';
 import { TopUpInput } from './components/TopUpInput';

@@ -11,7 +11,7 @@ import {
   fetchCollectibleTokens,
   getPredefinedTokensSlugs
 } from 'lib/temple/assets';
-import { AssetMetadata, toBaseMetadata, DetailedAssetMetdata } from 'lib/temple/metadata';
+import { AssetMetadata, DetailedAssetMetdata, toBaseMetadata } from 'lib/temple/metadata';
 import * as Repo from 'lib/temple/repo';
 import { getTokensMetadata } from 'lib/templewallet-api';
 import { fetchWhitelistTokenSlugs } from 'lib/templewallet-api/whitelist-tokens';

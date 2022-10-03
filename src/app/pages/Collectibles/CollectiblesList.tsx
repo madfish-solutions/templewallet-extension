@@ -11,12 +11,12 @@ import { T } from 'lib/i18n/react';
 import { AssetTypesEnum } from 'lib/temple/assets';
 import {
   useAccount,
-  useAllTokensBaseMetadata,
   useChainId,
+  useAllTokensBaseMetadata,
   useCollectibleTokens,
+  useNonFungibleTokensBalances,
   useFilteredAssets
 } from 'lib/temple/front';
-import { useNonFungibleTokensBalances } from 'lib/temple/front/non-fungible-tokens-balances';
 import { TZKT_FETCH_QUERY_SIZE } from 'lib/tzkt';
 import { useIntersectionDetection } from 'lib/ui/use-intersection-detection';
 import { Link } from 'lib/woozie';

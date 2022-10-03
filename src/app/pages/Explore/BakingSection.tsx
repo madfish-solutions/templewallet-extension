@@ -21,7 +21,7 @@ import BakingHistoryItem from 'app/pages/Explore/BakingHistoryItem';
 import BakerBanner from 'app/templates/BakerBanner';
 import { T, t } from 'lib/i18n/react';
 import { useRetryableSWR } from 'lib/swr';
-import { useAccount, useDelegate, useChainId, useGasToken } from 'lib/temple/front';
+import { useAccount, useChainId, useDelegate, useGasToken } from 'lib/temple/front';
 import { TempleAccountType, isKnownChainId } from 'lib/temple/types';
 import { getDelegatorRewards, TZKT_API_BASE_URLS } from 'lib/tzkt';
 import useTippy from 'lib/ui/useTippy';

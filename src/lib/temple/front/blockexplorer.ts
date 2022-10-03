@@ -5,7 +5,7 @@ import { isKnownChainId, TempleChainId } from 'lib/temple/types';
 import { useChainId } from './ready';
 import { useStorage } from './storage';
 
-export type BlockExplorerId = 'tzkt' | 'tzstats' | 'bcd' | 'tezblock' | 't4l3nt';
+type BlockExplorerId = 'tzkt' | 'tzstats' | 'bcd' | 'tezblock' | 't4l3nt';
 
 type BaseUrls = { account?: string; transaction: string };
 

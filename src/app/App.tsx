@@ -13,7 +13,7 @@ import ErrorBoundary from 'app/ErrorBoundary';
 import Dialogs from 'app/layouts/Dialogs';
 import PageRouter from 'app/PageRouter';
 import { PropsWithChildren } from 'lib/props-with-children';
-import { ABTestGroupProvider, TempleProvider } from 'lib/temple/front';
+import { TempleProvider, ABTestGroupProvider } from 'lib/temple/front';
 import { DialogsProvider } from 'lib/ui/dialog';
 import * as Woozie from 'lib/woozie';
 

@@ -1,6 +1,6 @@
 import React from 'react';
 
-import FormCheckbox from 'app/atoms/FormCheckbox';
+import { FormCheckbox } from 'app/atoms';
 import { useAnalyticsSettings } from 'lib/analytics';
 import { t, T } from 'lib/i18n/react';
 

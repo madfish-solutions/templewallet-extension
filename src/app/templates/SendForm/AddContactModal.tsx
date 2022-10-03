@@ -3,9 +3,7 @@ import React, { FC, useCallback } from 'react';
 import classNames from 'clsx';
 import { useForm } from 'react-hook-form';
 
-import FormField from 'app/atoms/FormField';
-import FormSecondaryButton from 'app/atoms/FormSecondaryButton';
-import FormSubmitButton from 'app/atoms/FormSubmitButton';
+import { FormField, FormSubmitButton, FormSecondaryButton } from 'app/atoms';
 import HashShortView from 'app/atoms/HashShortView';
 import Identicon from 'app/atoms/Identicon';
 import ModalWithTitle from 'app/templates/ModalWithTitle';

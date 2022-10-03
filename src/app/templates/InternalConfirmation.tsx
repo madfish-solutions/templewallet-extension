@@ -3,10 +3,8 @@ import React, { FC, useCallback, useMemo } from 'react';
 import { localForger } from '@taquito/local-forging';
 import classNames from 'clsx';
 
-import Alert from 'app/atoms/Alert';
+import { Alert, FormSubmitButton, FormSecondaryButton } from 'app/atoms';
 import ConfirmLedgerOverlay from 'app/atoms/ConfirmLedgerOverlay';
-import FormSecondaryButton from 'app/atoms/FormSecondaryButton';
-import FormSubmitButton from 'app/atoms/FormSubmitButton';
 import Logo from 'app/atoms/Logo';
 import SubTitle from 'app/atoms/SubTitle';
 import { useAppEnv } from 'app/env';
@@ -23,7 +21,7 @@ import { ViewsSwitcherItemProps } from 'app/templates/ViewsSwitcher/ViewsSwitche
 import { T, t } from 'lib/i18n/react';
 import { useRetryableSWR } from 'lib/swr';
 import { toTokenSlug } from 'lib/temple/assets';
-import { tryParseExpenses, useCustomChainId, useNetwork, useRelevantAccounts } from 'lib/temple/front';
+import { useCustomChainId, useNetwork, useRelevantAccounts, tryParseExpenses } from 'lib/temple/front';
 import { TempleAccountType, TempleChainId, TempleConfirmationPayload } from 'lib/temple/types';
 import useSafeState from 'lib/ui/useSafeState';
 

@@ -5,10 +5,7 @@ import { FormContextValues, useForm } from 'react-hook-form';
 import { useSWRConfig } from 'swr';
 import { useDebouncedCallback } from 'use-debounce';
 
-import Alert from 'app/atoms/Alert';
-import FormField from 'app/atoms/FormField';
-import FormSubmitButton from 'app/atoms/FormSubmitButton';
-import NoSpaceField from 'app/atoms/NoSpaceField';
+import { Alert, FormField, FormSubmitButton, NoSpaceField } from 'app/atoms';
 import Spinner from 'app/atoms/Spinner/Spinner';
 import { ReactComponent as AddIcon } from 'app/icons/add.svg';
 import PageLayout from 'app/layouts/PageLayout';

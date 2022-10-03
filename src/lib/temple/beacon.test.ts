@@ -25,11 +25,11 @@ import {
   Request,
   Response,
   decodeMessage,
-  PostMessagePairingRequest,
   formatOpParams,
-  OperationRequest,
   encodeMessage,
-  MessageType
+  MessageType,
+  PostMessagePairingRequest,
+  OperationRequest
 } from './beacon';
 import { mockBrowserStorageLocal, mockCryptoUtil } from './beacon.mock';
 

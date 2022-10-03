@@ -8,9 +8,9 @@ import { t } from 'lib/i18n/react';
 import { AssetTypesEnum, toTokenSlug } from 'lib/temple/assets';
 import {
   useAccount,
+  useBalance,
   useAssetMetadata,
   useAvailableAssets,
-  useBalance,
   useGetTokenMetadata,
   useOnBlock,
   useFilteredAssets
