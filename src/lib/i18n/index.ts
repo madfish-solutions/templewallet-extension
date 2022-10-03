@@ -1,5 +1,2 @@
-export * from './types';
-export * from './helpers';
-export * from './core';
-export * from './saving';
-export * from './loading';
+export { getMessage, getCurrentLocale, getDateFnsLocale, getNumberSymbols } from './core';
+export { updateLocale, onInited } from './loading';

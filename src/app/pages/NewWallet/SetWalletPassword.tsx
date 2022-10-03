@@ -3,15 +3,13 @@ import React, { FC, useCallback, useLayoutEffect, useState } from 'react';
 import classNames from 'clsx';
 import { Controller, useForm } from 'react-hook-form';
 
+import { PASSWORD_ERROR_CAPTION, FormField, FormSubmitButton, FormCheckbox } from 'app/atoms';
+import { AnalyticsEventCategory, useAnalytics, useAnalyticsSettings } from 'lib/analytics';
+import { T, t } from 'lib/i18n/react';
+import { useTempleClient } from 'lib/temple/front';
+import PasswordStrengthIndicator, { PasswordValidation } from 'lib/ui/PasswordStrengthIndicator';
 import { navigate } from 'lib/woozie';
 
-import { AnalyticsEventCategory, useAnalytics, useAnalyticsSettings } from '../../../lib/analytics';
-import { T, t } from '../../../lib/i18n/react';
-import { useTempleClient } from '../../../lib/temple/front';
-import PasswordStrengthIndicator, { PasswordValidation } from '../../../lib/ui/PasswordStrengthIndicator';
-import FormCheckbox from '../../atoms/FormCheckbox';
-import FormField, { PASSWORD_ERROR_CAPTION } from '../../atoms/FormField';
-import FormSubmitButton from '../../atoms/FormSubmitButton';
 import {
   formatMnemonic,
   lettersNumbersMixtureRegx,
@@ -21,7 +19,7 @@ import {
 } from '../../defaults';
 import { useOnboardingProgress } from '../Onboarding/hooks/useOnboardingProgress.hook';
 
-export const MIN_PASSWORD_LENGTH = 8;
+const MIN_PASSWORD_LENGTH = 8;
 
 interface FormData {
   shouldUseKeystorePassword?: boolean;

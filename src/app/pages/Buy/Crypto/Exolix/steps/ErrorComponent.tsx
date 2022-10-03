@@ -2,8 +2,8 @@ import React, { FC, useEffect } from 'react';
 
 import classNames from 'clsx';
 
+import { FormSubmitButton } from 'app/atoms';
 import CopyButton from 'app/atoms/CopyButton';
-import FormSubmitButton from 'app/atoms/FormSubmitButton';
 import { ReactComponent as CopyIcon } from 'app/icons/copy.svg';
 import { AnalyticsEventCategory, TestIDProps, useAnalytics } from 'lib/analytics';
 import { T } from 'lib/i18n/react';

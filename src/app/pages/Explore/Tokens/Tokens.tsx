@@ -20,14 +20,13 @@ import {
   useAccount,
   useBalanceSWRKey,
   useChainId,
+  useFungibleTokensBalances,
   useDisplayedFungibleTokens,
   useAssetMetadata,
-  getAssetSymbol,
-  getAssetName,
   useAllTokensBaseMetadata,
   searchAssets
 } from 'lib/temple/front';
-import { useFungibleTokensBalances } from 'lib/temple/front/fungible-tokens-balances';
+import { getAssetSymbol, getAssetName } from 'lib/temple/metadata';
 import { TZKT_FETCH_QUERY_SIZE } from 'lib/tzkt';
 import { useIntersectionDetection } from 'lib/ui/use-intersection-detection';
 import { Link, navigate } from 'lib/woozie';

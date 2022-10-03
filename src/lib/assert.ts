@@ -1,4 +1,4 @@
-export class AssertionError extends Error {
+class AssertionError extends Error {
   constructor(message?: string, public actual?: any) {
     super(message);
   }

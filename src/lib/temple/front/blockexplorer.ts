@@ -1,8 +1,9 @@
 import { useMemo } from 'react';
 
-import { isKnownChainId, TempleChainId, useChainId, useStorage } from 'lib/temple/front';
+import { useChainId, useStorage } from 'lib/temple/front';
+import { isKnownChainId, TempleChainId } from 'lib/temple/types';
 
-export type BlockExplorerId = 'tzkt' | 'tzstats' | 'bcd' | 'tezblock' | 't4l3nt';
+type BlockExplorerId = 'tzkt' | 'tzstats' | 'bcd' | 'tezblock' | 't4l3nt';
 
 type BaseUrls = { account?: string; transaction: string };
 

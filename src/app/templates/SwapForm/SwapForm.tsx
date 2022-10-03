@@ -17,16 +17,20 @@ import {
   useTradeWithSlippageTolerance
 } from 'swap-router-sdk';
 
-import Alert from 'app/atoms/Alert';
-import FormSubmitButton from 'app/atoms/FormSubmitButton';
+import { Alert, FormSubmitButton } from 'app/atoms';
 import { ReactComponent as InfoIcon } from 'app/icons/info.svg';
 import { ReactComponent as ToggleIcon } from 'app/icons/toggle.svg';
 import OperationStatus from 'app/templates/OperationStatus';
 import { useFormAnalytics } from 'lib/analytics';
 import { T, t } from 'lib/i18n/react';
 import { getRoutingFeeTransferParams } from 'lib/swap-router';
-import { ROUTING_FEE_PERCENT, ROUTING_FEE_RATIO, TEZOS_DEXES_API_URL } from 'lib/swap-router/config';
-import { useAccount, useAssetMetadata, useTezos } from 'lib/temple/front';
+import {
+  ROUTING_FEE_ADDRESS,
+  ROUTING_FEE_PERCENT,
+  ROUTING_FEE_RATIO,
+  TEZOS_DEXES_API_URL
+} from 'lib/swap-router/config';
+import { useAccount, useTezos, useAssetMetadata } from 'lib/temple/front';
 import { atomsToTokens, tokensToAtoms } from 'lib/temple/helpers';
 import useTippy from 'lib/ui/useTippy';
 import { HistoryAction, navigate } from 'lib/woozie';
@@ -203,7 +207,12 @@ export const SwapForm: FC = () => {
         account.publicKeyHash,
         tezos
       );
-      const tradeOpParams = await getTradeOpParams(bestTradeWithSlippageTolerance, account.publicKeyHash, tezos);
+      const tradeOpParams = await getTradeOpParams(
+        bestTradeWithSlippageTolerance,
+        account.publicKeyHash,
+        tezos,
+        ROUTING_FEE_ADDRESS
+      );
 
       const opParams = [...tradeOpParams, ...routingFeeOpParams].map(transferParams =>
         parseTransferParamsToParamsWithKind(transferParams)

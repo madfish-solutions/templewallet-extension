@@ -11,7 +11,7 @@ import OpenInExplorerChip from 'app/atoms/OpenInExplorerChip';
 import { ReactComponent as ChevronRightIcon } from 'app/icons/chevron-right.svg';
 import { toLocalFormat } from 'lib/i18n/numbers';
 import { T } from 'lib/i18n/react';
-import { useRelevantAccounts, useAccount, useKnownBaker, useExplorerBaseUrls, useNetwork } from 'lib/temple/front';
+import { useRelevantAccounts, useAccount, useNetwork, useKnownBaker, useExplorerBaseUrls } from 'lib/temple/front';
 import { TempleAccount } from 'lib/temple/types';
 
 import HashChip from './HashChip';

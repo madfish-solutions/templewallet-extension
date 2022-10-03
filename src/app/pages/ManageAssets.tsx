@@ -12,17 +12,9 @@ import { ManageAssetsSelectors } from 'app/pages/ManageAssets.selectors';
 import { AssetIcon } from 'app/templates/AssetIcon';
 import SearchAssetField from 'app/templates/SearchAssetField';
 import { T, t } from 'lib/i18n/react';
-import { AssetTypesEnum } from 'lib/temple/assets/types';
-import {
-  getAssetName,
-  getAssetSymbol,
-  setTokenStatus,
-  useAccount,
-  useAssetMetadata,
-  useAvailableAssets,
-  useChainId,
-  useFilteredAssets
-} from 'lib/temple/front';
+import { AssetTypesEnum, setTokenStatus } from 'lib/temple/assets';
+import { useAccount, useChainId, useAssetMetadata, useAvailableAssets, useFilteredAssets } from 'lib/temple/front';
+import { getAssetName, getAssetSymbol } from 'lib/temple/metadata';
 import { ITokenStatus, ITokenType } from 'lib/temple/repo';
 import { useConfirm } from 'lib/ui/dialog';
 import { Link } from 'lib/woozie';
@@ -149,7 +141,7 @@ type ListItemProps = {
   assetType: string;
 };
 
-const ListItem = memo<ListItemProps>(({ assetSlug, last, checked, onUpdate, assetType }) => {
+const ListItem = memo<ListItemProps>(({ assetSlug, last, checked, onUpdate }) => {
   const metadata = useAssetMetadata(assetSlug);
 
   const handleCheckboxChange = useCallback(

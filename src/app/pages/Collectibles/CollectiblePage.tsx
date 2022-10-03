@@ -3,16 +3,16 @@ import React, { FC, useMemo } from 'react';
 import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
 
+import { FormSubmitButton } from 'app/atoms';
 import CopyButton from 'app/atoms/CopyButton';
 import Divider from 'app/atoms/Divider';
-import FormSubmitButton from 'app/atoms/FormSubmitButton';
 import HashShortView from 'app/atoms/HashShortView';
 import { ReactComponent as CopyIcon } from 'app/icons/copy.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import { AssetIcon } from 'app/templates/AssetIcon';
 import { T } from 'lib/i18n/react';
-import { fromFa2TokenSlug } from 'lib/temple/assets/utils';
-import { useAccount, useAssetMetadata, useBalance } from 'lib/temple/front';
+import { fromFa2TokenSlug } from 'lib/temple/assets';
+import { useAccount, useBalance, useAssetMetadata } from 'lib/temple/front';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 import { navigate } from 'lib/woozie';
 

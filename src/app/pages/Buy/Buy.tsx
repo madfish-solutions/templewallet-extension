@@ -9,9 +9,9 @@ import ErrorBoundary from 'app/ErrorBoundary';
 import PageLayout from 'app/layouts/PageLayout';
 import { T, t } from 'lib/i18n/react';
 import { PropsWithChildren } from 'lib/props-with-children';
+import { useGasToken } from 'lib/temple/front';
 import { Link } from 'lib/woozie';
 
-import { useGasToken } from '../../hooks/useGasToken';
 import { ReactComponent as ShoppingCartIcon } from './../../icons/shopping-cart.svg';
 import { BuySelectors } from './Buy.selectors';
 import { Crypto } from './Crypto/Crypto';

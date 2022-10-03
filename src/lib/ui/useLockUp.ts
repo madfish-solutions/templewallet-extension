@@ -1,5 +1,5 @@
-export const LOCK_UP_STORAGE_KEY = 'lock_up';
-export const DEFAULT_LOCK_UP = true;
+const LOCK_UP_STORAGE_KEY = 'lock_up';
+const DEFAULT_LOCK_UP = true;
 
 export function setLockUp(enabled: boolean) {
   try {

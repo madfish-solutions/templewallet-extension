@@ -7,16 +7,10 @@ import Money from 'app/atoms/Money';
 import { AssetIcon } from 'app/templates/AssetIcon';
 import Balance from 'app/templates/Balance';
 import InFiat from 'app/templates/InFiat';
-import { useAssetFiatCurrencyPrice, useFiatCurrency } from 'lib/fiat-curency';
+import { useAssetFiatCurrencyPrice, useFiatCurrency } from 'lib/fiat-currency';
 import { T } from 'lib/i18n/react';
-import {
-  getAssetName,
-  getAssetSymbol,
-  useAssetMetadata,
-  useChainId,
-  useDisplayedFungibleTokens,
-  useBalance
-} from 'lib/temple/front';
+import { useAssetMetadata, useChainId, useDisplayedFungibleTokens, useBalance } from 'lib/temple/front';
+import { getAssetName, getAssetSymbol } from 'lib/temple/metadata';
 
 import AddressChip from './AddressChip';
 

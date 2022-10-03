@@ -1,9 +1,10 @@
 import { ChainIds, TezosToolkit } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
 
-import { loadContract } from 'lib/temple/front';
+import { loadContract } from 'lib/temple/contract';
 
-import { AssetMetadata, TEZOS_METADATA } from '../metadata';
+import { TEZOS_METADATA } from '../metadata/defaults';
+import { AssetMetadata } from '../metadata/types';
 import { fromAssetSlug, isFA2Token } from './utils';
 
 export function fetchTezosBalance(tezos: TezosToolkit, account: string) {

@@ -10,7 +10,7 @@ export type FileInputProps = Omit<
   value?: FileList;
 };
 
-const FileInput: React.FC<FileInputProps> = ({ children, className, onChange, value, ...restProps }) => {
+export const FileInput: React.FC<FileInputProps> = ({ children, className, onChange, value, ...restProps }) => {
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const { files } = e.target;
@@ -50,5 +50,3 @@ const FileInput: React.FC<FileInputProps> = ({ children, className, onChange, va
     </div>
   );
 };
-
-export default FileInput;

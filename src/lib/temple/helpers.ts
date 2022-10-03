@@ -18,7 +18,7 @@ export const loadChainId = memoize(fetchChainId, {
   maxSize: 100
 });
 
-export function fetchChainId(rpcUrl: string) {
+function fetchChainId(rpcUrl: string) {
   const rpc = new RpcClient(rpcUrl);
   return rpc.getChainId();
 }
