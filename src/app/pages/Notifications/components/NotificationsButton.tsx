@@ -2,7 +2,7 @@ import React, { FC } from 'react';
 
 import { useIsEveryNewsReadedSelector } from 'app/store/news/news-selector';
 
-import Link from '../../../../lib/woozie/Link';
+import { Link } from '../../../../lib/woozie/Link';
 import { ReactComponent as BellIcon } from '../../../icons/bell.svg';
 import { NotificationsIcon } from './NotificationsIcon';
 

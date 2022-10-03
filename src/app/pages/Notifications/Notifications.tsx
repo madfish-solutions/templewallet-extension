@@ -1,4 +1,4 @@
-import React, { FC, useRef } from 'react';
+import React, { FC, useCallback, useMemo, useRef } from 'react';
 
 import classNames from 'clsx';
 import { useDispatch } from 'react-redux';
@@ -20,6 +20,12 @@ import { NewsNotificationsItem } from './NewsNotifications/NewsNotificationsItem
 
 import 'react-virtualized/styles.css'; // only needs to be imported once
 
+interface ListItemProps {
+  style: React.HTMLAttributes<HTMLDivElement>;
+  key: string;
+  index: number;
+}
+
 export const Notifications: FC = () => {
   const dispatch = useDispatch();
   const news = useNewsSelector();
@@ -34,27 +40,50 @@ export const Notifications: FC = () => {
 
   const readNewsIds = useReadedNewsIdsSelector();
 
-  const handleLoadMore = () => {
-    const lastNews = news[news.length - 1];
-    if (newsNotificationsEnabled && news.length > 1 && lasLoadedRef.current !== lastNews.id) {
-      return getNewsItems({
-        platform: PlatformType.Extension,
-        timeLt: new Date(lastNews.createdAt).getTime().toString()
-      }).then(loadedNews => {
-        lasLoadedRef.current = lastNews.id;
-        dispatch(loadMoreNewsAction.success(loadedNews));
-        return loadedNews;
-      });
-    }
-    return new Promise((resolve, reject) => {
-      if (false) return resolve;
-      setTimeout(reject, 1000);
+  const handleLoadMore = useCallback(() => {
+    return new Promise<void>((resolve, reject) => {
+      const lastNews = news[news.length - 1];
+      if (newsNotificationsEnabled && news.length > 1 && lasLoadedRef.current !== lastNews.id) {
+        return getNewsItems({
+          platform: PlatformType.Extension,
+          timeLt: new Date(lastNews.createdAt).getTime().toString()
+        }).then(loadedNews => {
+          lasLoadedRef.current = lastNews.id;
+          dispatch(loadMoreNewsAction.success(loadedNews));
+          resolve();
+        });
+      }
+      reject();
+      return;
     });
-  };
+  }, [dispatch, news, newsNotificationsEnabled]);
 
-  const isRowLoaded = ({ index }: { index: number }) => index < news.length && !newsLoading;
+  const allNews = useMemo(
+    () => news.filter(newsItem => (newsNotificationsEnabled ? newsItem : newsItem.type !== NewsType.News)),
+    [news, newsNotificationsEnabled]
+  );
 
-  const allNews = news.filter(newsItem => (newsNotificationsEnabled ? newsItem : newsItem.type !== NewsType.News));
+  const isRowLoaded = useCallback(
+    ({ index }: { index: number }) => index < news.length && allNews[index] && !newsLoading,
+    [news.length, allNews, newsLoading]
+  );
+
+  const itemRenderer = useCallback(
+    ({ index, key, style }: ListItemProps) =>
+      index >= allNews.length ? (
+        <div key={key} style={style} />
+      ) : (
+        <NewsNotificationsItem
+          key={key}
+          {...allNews[index]}
+          status={readNewsIds.indexOf(allNews[index].id) >= 0 ? StatusType.Read : StatusType.New}
+          style={style}
+        />
+      ),
+    [allNews, readNewsIds]
+  );
+
+  const remoteRowCount = useMemo(() => allNews.length + 1, [allNews.length]);
 
   return (
     <PageLayout
@@ -72,12 +101,7 @@ export const Notifications: FC = () => {
           <WindowScroller>
             {({ height, isScrolling, onChildScroll, scrollTop }) => (
               // @ts-ignore
-              <InfiniteLoader
-                isRowLoaded={isRowLoaded}
-                loadMoreRows={handleLoadMore}
-                threshold={5}
-                rowCount={allNews.length + 20}
-              >
+              <InfiniteLoader isRowLoaded={isRowLoaded} loadMoreRows={handleLoadMore} rowCount={remoteRowCount}>
                 {({ onRowsRendered, registerChild }) => (
                   // @ts-ignore
                   <List
@@ -88,22 +112,12 @@ export const Notifications: FC = () => {
                     scrollTop={scrollTop}
                     ref={registerChild}
                     width={360}
-                    rowHeight={120}
-                    rowCount={allNews.length + 20}
-                    noRowsRenderer={() => <NotificationsNotFound />}
-                    rowRenderer={({ index, key }) => {
-                      if (index >= allNews.length) {
-                        return <div key={key} style={{ height: 120 }}></div>;
-                      }
-                      return (
-                        <NewsNotificationsItem
-                          key={index >= allNews.length ? key : allNews[index].id}
-                          {...allNews[index]}
-                          status={readNewsIds.indexOf(allNews[index].id) >= 0 ? StatusType.Read : StatusType.New}
-                        />
-                      );
-                    }}
+                    rowHeight={150}
+                    rowCount={remoteRowCount}
                     onRowsRendered={onRowsRendered}
+                    noRowsRenderer={() => <NotificationsNotFound />}
+                    // @ts-ignore
+                    rowRenderer={itemRenderer}
                   />
                 )}
               </InfiniteLoader>
