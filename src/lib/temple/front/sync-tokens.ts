@@ -16,9 +16,10 @@ import { AssetMetadata, DetailedAssetMetdata, toBaseMetadata } from 'lib/temple/
 import * as Repo from 'lib/temple/repo';
 import { getTokensMetadata } from 'lib/templewallet-api';
 import { fetchWhitelistTokenSlugs } from 'lib/templewallet-api/whitelist-tokens';
-import { fetchTzktTokens, TzktAccountToken } from 'lib/tzkt';
+import { fetchTzktTokens } from 'lib/tzkt/client';
 
 import { useTimerEffect } from '../../../app/hooks/useTimerEffect';
+import { TzktAccountToken } from '../../tzkt/types';
 import { TempleChainId } from '../types';
 
 const SYNC_INTERVAL = 60_000;

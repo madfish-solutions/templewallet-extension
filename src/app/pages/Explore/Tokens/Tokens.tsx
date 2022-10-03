@@ -6,8 +6,8 @@ import { ReactComponent as AddToListIcon } from 'app/icons/add-to-list.svg';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
 import SearchAssetField from 'app/templates/SearchAssetField';
 import { T } from 'lib/i18n/react';
-import { useFilteredAssets } from 'lib/temple/assets';
-import { useAccount, useChainId, useDisplayedFungibleTokens, useSyncTokens } from 'lib/temple/front';
+import { useAccount, useChainId, useDisplayedFungibleTokens, useFilteredAssets } from 'lib/temple/front';
+import { useSyncTokens } from 'lib/temple/front/sync-tokens';
 import { ITokenStatus, ITokenType } from 'lib/temple/repo';
 import { Link, navigate } from 'lib/woozie';
 

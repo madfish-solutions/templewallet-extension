@@ -3,7 +3,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import BigNumber from 'bignumber.js';
 
 import { fetchBalance } from 'lib/temple/assets';
-import { useAllTokensBaseMetadata, useSyncTokens, useTezos } from 'lib/temple/front';
+import { useAllTokensBaseMetadata, useTezos } from 'lib/temple/front';
+import { useSyncTokens } from 'lib/temple/front/sync-tokens';
 import { IAccountToken } from 'lib/temple/repo';
 
 export const useUpdatedBalances = (assets: IAccountToken[], chainId: string, address: string) => {

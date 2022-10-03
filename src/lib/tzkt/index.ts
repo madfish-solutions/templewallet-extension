@@ -1,10 +1,4 @@
-export type {
-  TzktOperation,
-  TzktTokenTransfer,
-  TzktRelatedContract,
-  TzktRewardsEntry,
-  TzktAccountTokenBalance
-} from './types';
+export type { TzktOperation, TzktTokenTransfer, TzktRelatedContract, TzktRewardsEntry } from './types';
 
 export {
   TZKT_API_BASE_URLS,
@@ -15,9 +9,5 @@ export {
   getOneUserContracts,
   getTokenTransfersCount,
   getFa12Transfers,
-  getFa2Transfers,
-  fetchTokenBalances,
-  fetchTokenBalancesCount,
-  fetchNFTBalances,
-  fetchNFTBalancesCount
+  getFa2Transfers
 } from 'lib/tzkt/client';

@@ -7,8 +7,8 @@ import { CollectibleItem } from 'app/pages/Collectibles/CollectibleItem';
 import { AssetsSelectors } from 'app/pages/Explore/Assets.selectors';
 import SearchAssetField from 'app/templates/SearchAssetField';
 import { T } from 'lib/i18n/react';
-import { AssetTypesEnum, useFilteredAssets } from 'lib/temple/assets';
-import { useAccount, useChainId, useCollectibleTokens } from 'lib/temple/front';
+import { AssetTypesEnum } from 'lib/temple/assets';
+import { useAccount, useChainId, useCollectibleTokens, useFilteredAssets } from 'lib/temple/front';
 import { Link } from 'lib/woozie';
 
 const CollectiblesList = () => {
