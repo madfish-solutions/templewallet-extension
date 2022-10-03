@@ -109,7 +109,6 @@ export const Notifications: FC = () => {
               </InfiniteLoader>
             )}
           </WindowScroller>
-          {/* {newsLoading && <ActivitySpinner />} */}
         </div>
       </div>
     </PageLayout>
