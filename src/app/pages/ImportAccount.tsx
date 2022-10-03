@@ -26,11 +26,12 @@ import {
   ActivationStatus,
   useAllAccounts,
   useTezosDomainsClient,
-  useNetwork
+  useNetwork,
+  validateDerivationPath
 } from 'lib/temple/front';
 import { activateAccount } from 'lib/temple/front/activate-account';
 import { validateDelegate } from 'lib/temple/front/validate-delegate';
-import { validateDerivationPath, isAddressValid, isKTAddress } from 'lib/temple/helpers';
+import { isAddressValid, isKTAddress } from 'lib/temple/helpers';
 import { confirmOperation } from 'lib/temple/operation';
 import { ImportAccountFormType } from 'lib/temple/types';
 import useSafeState from 'lib/ui/useSafeState';

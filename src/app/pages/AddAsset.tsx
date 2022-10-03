@@ -14,16 +14,20 @@ import { ReactComponent as AddIcon } from 'app/icons/add.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import { useFormAnalytics } from 'lib/analytics';
 import { T, t } from 'lib/i18n/react';
-import {
-  NotMatchingStandardError,
-  toTokenSlug,
-  assertGetBalance,
-  detectTokenStandard,
-  IncorrectTokenIdError
-} from 'lib/temple/assets';
+import { toTokenSlug, detectTokenStandard } from 'lib/temple/assets';
 import { loadContract } from 'lib/temple/contract';
-import { useTezos, useNetwork, useTokensMetadata, useChainId, useAccount, getBalanceSWRKey } from 'lib/temple/front';
-import { validateContractAddress } from 'lib/temple/helpers';
+import {
+  IncorrectTokenIdError,
+  NotMatchingStandardError,
+  useTezos,
+  useNetwork,
+  useTokensMetadata,
+  useChainId,
+  useAccount,
+  getBalanceSWRKey,
+  assertGetBalance,
+  validateContractAddress
+} from 'lib/temple/front';
 import { NotFoundTokenMetadata, AssetMetadata, DetailedAssetMetdata } from 'lib/temple/metadata';
 import * as Repo from 'lib/temple/repo';
 import { withErrorHumanDelay } from 'lib/ui/humanDelay';

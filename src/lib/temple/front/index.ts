@@ -16,3 +16,5 @@ export * from './kukai';
 export * from './local-storage';
 export * from './use-secret-state.hook';
 export * from './ab-test.provider';
+export * from './lock-up';
+export * from './helpers';

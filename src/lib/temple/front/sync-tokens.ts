@@ -11,7 +11,6 @@ import {
   fetchCollectibleTokens,
   getPredefinedTokensSlugs
 } from 'lib/temple/assets';
-import { useChainId, useAccount, useTokensMetadata, useUSDPrices } from 'lib/temple/front';
 import { AssetMetadata, toBaseMetadata, DetailedAssetMetdata } from 'lib/temple/metadata';
 import * as Repo from 'lib/temple/repo';
 import { getTokensMetadata } from 'lib/templewallet-api';
@@ -19,8 +18,11 @@ import { fetchWhitelistTokenSlugs } from 'lib/templewallet-api/whitelist-tokens'
 import { TzktAccountTokenBalance } from 'lib/tzkt';
 
 import { TempleChainId } from '../types';
+import { useTokensMetadata } from './assets';
 import { useFungibleTokensBalances } from './fungible-tokens-balances';
 import { useNonFungibleTokensBalances } from './non-fungible-tokens-balances';
+import { useChainId, useAccount } from './ready';
+import { useUSDPrices } from './usdprice';
 
 export const [SyncTokensProvider] = constate(() => {
   const { mutate } = useSWRConfig();

@@ -2,7 +2,10 @@ import { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useRef, useS
 
 import { browser, Storage } from 'webextension-polyfill-ts';
 
+import { fetchFromStorage, putToStorage } from 'lib/storage';
 import { useRetryableSWR } from 'lib/swr';
+
+export { fetchFromStorage, putToStorage };
 
 export function useStorage<T = any>(key: string, fallback?: T): [T, (val: SetStateAction<T>) => Promise<void>] {
   const { data, mutate } = useRetryableSWR<T>(key, fetchFromStorage, {
@@ -67,17 +70,4 @@ export function onStorageChanged<T = any>(key: string, callback: (newValue: T) =
 
   browser.storage.onChanged.addListener(handleChanged);
   return () => browser.storage.onChanged.removeListener(handleChanged);
-}
-
-export async function fetchFromStorage(key: string) {
-  const items = await browser.storage.local.get([key]);
-  if (key in items) {
-    return items[key];
-  } else {
-    return null;
-  }
-}
-
-export async function putToStorage<T = any>(key: string, value: T) {
-  return browser.storage.local.set({ [key]: value });
 }

@@ -1,7 +1,8 @@
 import { TaquitoTezosDomainsClient } from '@tezos-domains/taquito-client';
 
-import { isDomainNameValid } from 'lib/temple/front';
 import { isAddressValid } from 'lib/temple/helpers';
+
+import { isDomainNameValid } from './tzdns';
 
 export const validateDelegate = async (
   value: any,

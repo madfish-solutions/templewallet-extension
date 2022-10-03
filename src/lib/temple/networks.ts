@@ -1,4 +1,3 @@
-import { getMessage } from 'lib/i18n';
 import { TempleChainId, TempleNetwork } from 'lib/temple/types';
 
 const formatDateToRPCFormat = (date: Date) => date.toLocaleDateString('en-GB').split('/').reverse().join('-');
@@ -20,7 +19,7 @@ export const NETWORK_IDS = new Map<string, string>([
 export const NETWORKS: TempleNetwork[] = [
   {
     id: 'mainnet',
-    name: getMessage('tezosMainnet'),
+    name: 'Tezos Mainnet',
     nameI18nKey: 'tezosMainnet',
     description: 'Tezos mainnet',
     type: 'main',

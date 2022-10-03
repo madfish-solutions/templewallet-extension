@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
+import { TezosToolkit, WalletContract, ChainIds } from '@taquito/taquito';
+import retry from 'async-retry';
 import constate from 'constate';
 import deepEqual from 'fast-deep-equal';
 import Fuse from 'fuse.js';
@@ -7,9 +9,11 @@ import { useDebounce } from 'use-debounce';
 import useForceUpdate from 'use-force-update';
 import { browser } from 'webextension-polyfill-ts';
 
+import { getMessage } from 'lib/i18n';
 import { createQueue } from 'lib/queue';
 import { useRetryableSWR } from 'lib/swr';
 import {
+  TokenStandard,
   isTezAsset,
   fetchDisplayedFungibleTokens,
   fetchFungibleTokens,
@@ -336,6 +340,39 @@ export function useFilteredAssets(assetSlugs: string[]) {
     tokenId,
     setTokenId
   };
+}
+
+const STUB_TEZOS_ADDRESS = 'tz1TTXUmQaxe1dTLPtyD4WMQP6aKYK9C8fKw';
+
+export class NotMatchingStandardError extends Error {}
+
+export class IncorrectTokenIdError extends NotMatchingStandardError {}
+
+export async function assertGetBalance(
+  tezos: TezosToolkit,
+  contract: WalletContract,
+  standard: TokenStandard,
+  fa2TokenId = 0
+) {
+  const chainId = (await tezos.rpc.getChainId()) as ChainIds;
+
+  try {
+    await retry(
+      () =>
+        standard === 'fa2'
+          ? contract.views.balance_of([{ owner: STUB_TEZOS_ADDRESS, token_id: fa2TokenId }]).read(chainId)
+          : contract.views.getBalance(STUB_TEZOS_ADDRESS).read(chainId),
+      { retries: 3, minTimeout: 0, maxTimeout: 0 }
+    );
+  } catch (err: any) {
+    if (err?.value?.string === 'FA2_TOKEN_UNDEFINED') {
+      throw new IncorrectTokenIdError(getMessage('incorrectTokenIdErrorMessage'));
+    } else {
+      throw new Error(
+        getMessage('unknownErrorCheckingSomeEntrypoint', standard === 'fa2' ? 'balance_of' : 'getBalance')
+      );
+    }
+  }
 }
 
 function getDetailedMetadataStorageKey(slug: string) {
