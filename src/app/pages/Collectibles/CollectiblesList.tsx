@@ -11,9 +11,13 @@ import { AssetTypesEnum } from 'lib/temple/assets';
 import { useAccount, useChainId, useCollectibleTokens, useFilteredAssets } from 'lib/temple/front';
 import { Link } from 'lib/woozie';
 
+import { useSyncTokens } from '../../../lib/temple/front/sync-tokens';
+import { ActivitySpinner } from '../../atoms/ActivitySpinner';
+
 const CollectiblesList = () => {
   const chainId = useChainId(true)!;
   const { publicKeyHash } = useAccount();
+  const { isSync } = useSyncTokens();
 
   const { data: collectibles = [] } = useCollectibleTokens(chainId, publicKeyHash, true);
 
@@ -55,6 +59,11 @@ const CollectiblesList = () => {
               <CollectibleItem key={slug} assetSlug={slug} index={index} itemsLength={filteredAssets.length} />
             ))}
           </>
+        )}
+        {isSync && (
+          <div className="mt-4">
+            <ActivitySpinner />
+          </div>
         )}
       </div>
     </div>
