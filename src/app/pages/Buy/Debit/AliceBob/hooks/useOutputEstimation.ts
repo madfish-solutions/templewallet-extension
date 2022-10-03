@@ -16,7 +16,7 @@ export const useOutputEstimation = (
       getAliceBobOutputEstimation({
         isWithdraw: String(isWithdraw),
         amount: String(inputAmount)
-      }).then(({ outputAmount, exchangeRate }) => {
+      }).then(({ outputAmount }) => {
         setOutputAmount(outputAmount);
         setLoading(false);
       });

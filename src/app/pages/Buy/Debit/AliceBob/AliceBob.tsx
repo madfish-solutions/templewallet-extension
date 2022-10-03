@@ -187,7 +187,7 @@ export const AliceBob: FC<AliceBobProps> = ({ isWithdraw = false }) => {
 };
 
 const buildQuery = makeBuildQueryFn<Record<string, string>, any>('https://api.templewallet.com');
-export const getSignedAliceBobUrl = buildQuery('GET', '/api/alice-bob-sign', [
+const getSignedAliceBobUrl = buildQuery('GET', '/api/alice-bob-sign', [
   'isWithdraw',
   'amount',
   'userId',

@@ -3,8 +3,8 @@ import React, { FC } from 'react';
 import classNames from 'clsx';
 
 import { T } from 'lib/i18n/react';
+import { Link } from 'lib/woozie/Link';
 
-import Link from '../../../../lib/woozie/Link';
 import { ReactComponent as AliceBobIcon } from '../../Buy/assets/AliceBob.svg';
 
 export const Debit: FC = () => {
