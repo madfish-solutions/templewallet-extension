@@ -10,8 +10,8 @@ import { ReactComponent as SignalAltIcon } from 'app/icons/signal-alt.svg';
 import { T } from 'lib/i18n/react';
 import {
   BLOCK_EXPLORERS,
-  useAllNetworks,
   useBlockExplorer,
+  useAllNetworks,
   useChainId,
   useNetwork,
   useSetNetworkId

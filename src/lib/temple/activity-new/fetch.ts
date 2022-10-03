@@ -1,9 +1,8 @@
 import { detectTokenStandard } from 'lib/temple/assets/tokenStandard';
 import { ReactiveTezosToolkit } from 'lib/temple/front';
-import type { TempleAccount } from 'lib/temple/types';
-import type { TzktApiChainId } from 'lib/tzkt/api';
+import { TempleAccount } from 'lib/temple/types';
+import { TzktApiChainId, TzktOperation } from 'lib/tzkt';
 import * as TZKT from 'lib/tzkt/api';
-import type { TzktOperation } from 'lib/tzkt/types';
 
 import type { Activity, OperGroup } from './types';
 import { operGroupToActivity } from './utils';

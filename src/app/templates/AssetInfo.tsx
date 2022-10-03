@@ -3,7 +3,7 @@ import React, { ComponentProps, FC } from 'react';
 import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
 
-import FormField from 'app/atoms/FormField';
+import { FormField } from 'app/atoms';
 import { ReactComponent as CopyIcon } from 'app/icons/copy.svg';
 import { T } from 'lib/i18n/react';
 import { useRetryableSWR } from 'lib/swr';

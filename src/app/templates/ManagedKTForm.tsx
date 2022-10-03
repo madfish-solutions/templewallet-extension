@@ -3,13 +3,11 @@ import React, { FC, ReactNode, useCallback, useMemo, useRef, useState } from 're
 import classNames from 'clsx';
 import { Controller, useForm } from 'react-hook-form';
 
+import { Alert, FormSubmitButton, NoSpaceField } from 'app/atoms';
 import AccountTypeBadge from 'app/atoms/AccountTypeBadge';
-import Alert from 'app/atoms/Alert';
-import FormSubmitButton from 'app/atoms/FormSubmitButton';
 import Identicon from 'app/atoms/Identicon';
 import Money from 'app/atoms/Money';
 import Name from 'app/atoms/Name';
-import NoSpaceField from 'app/atoms/NoSpaceField';
 import Balance from 'app/templates/Balance';
 import CustomSelect, { OptionRenderProps } from 'app/templates/CustomSelect';
 import { useFormAnalytics } from 'lib/analytics';
@@ -233,7 +231,7 @@ const getUsersContracts = async (_k: string, chainId: string, ...accounts: strin
   }
 
   const contractsChunks = await Promise.all(
-    accounts.map<Promise<TzktRelatedContract[]>>(account => getOneUserContracts(chainId, { account }).catch(() => []))
+    accounts.map<Promise<TzktRelatedContract[]>>(account => getOneUserContracts(chainId, account).catch(() => []))
   );
   return contractsChunks.reduce(
     (contracts, chunk) => [...contracts, ...chunk.filter(({ kind }) => kind === 'delegator_contract')],

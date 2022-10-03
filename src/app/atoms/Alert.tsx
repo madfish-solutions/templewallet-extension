@@ -14,7 +14,7 @@ type AlertProps = HTMLAttributes<HTMLDivElement> & {
   onClose?: () => void;
 };
 
-const Alert: FC<AlertProps> = ({
+export const Alert: FC<AlertProps> = ({
   type = 'warn',
   title,
   description,
@@ -77,5 +77,3 @@ const Alert: FC<AlertProps> = ({
     </div>
   );
 };
-
-export default Alert;

@@ -1,6 +1,6 @@
 import { BigNumber } from 'bignumber.js';
 
-import type { TzktOperation, TzktTransactionOperation } from 'lib/tzkt/types';
+import { TzktOperation, TzktTransactionOperation } from 'lib/tzkt';
 import {
   isTzktOperParam,
   isTzktOperParam_Fa12,

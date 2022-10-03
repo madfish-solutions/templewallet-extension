@@ -2,11 +2,20 @@ import axios, { AxiosError } from 'axios';
 
 import { TempleChainId } from 'lib/temple/types';
 
-import type { TzktOperation, TzktOperationType, TzktQuoteCurrency } from './types';
+import {
+  TzktOperation,
+  TzktOperationType,
+  TzktQuoteCurrency,
+  TzktAccountTokenBalance,
+  allInt32ParameterKeys,
+  TzktGetRewardsParams,
+  TzktGetRewardsResponse,
+  TzktRelatedContract
+} from './types';
 
 //// CHAIN ID
 
-export const TZKT_API_BASE_URLS = {
+const TZKT_API_BASE_URLS = {
   [TempleChainId.Mainnet]: 'https://api.tzkt.io/v1',
   [TempleChainId.Jakartanet]: 'https://api.jakartanet.tzkt.io/v1',
   [TempleChainId.Ghostnet]: 'https://api.ghostnet.tzkt.io/v1',
@@ -38,27 +47,13 @@ api.interceptors.response.use(
   }
 );
 
-export async function fetchGet<R>(chainId: TzktApiChainId, endpoint: string, params: Record<string, unknown>) {
+async function fetchGet<R>(chainId: TzktApiChainId, endpoint: string, params?: Record<string, unknown>) {
   const { data } = await api.get<R>(endpoint, {
     baseURL: TZKT_API_BASE_URLS[chainId],
     params
   });
 
   return data;
-}
-
-export function makeQuery<P extends Record<string, unknown>, R, Q = Record<string, unknown>>(
-  url: (params: P) => string,
-  searchParams: (params: P) => Q
-) {
-  return async (chainId: TempleChainId, params: P) => {
-    const { data } = await api.get<R>(url(params), {
-      baseURL: TZKT_API_BASE_URLS_MAP.get(chainId),
-      params: searchParams(params)
-    });
-
-    return data;
-  };
 }
 
 ////
@@ -72,7 +67,7 @@ type GetOperationsBaseParams = {
   [key in `level.${'lt' | 'ge'}`]?: number;
 };
 
-export async function fetchGetAccountOperations(
+export function fetchGetAccountOperations(
   chainId: TzktApiChainId,
   accountAddress: string,
   params: GetOperationsBaseParams & {
@@ -85,22 +80,22 @@ export async function fetchGetAccountOperations(
     'parameter.null'?: boolean;
   }
 ) {
-  return await fetchGet<TzktOperation[]>(chainId, `/accounts/${accountAddress}/operations`, params);
+  return fetchGet<TzktOperation[]>(chainId, `/accounts/${accountAddress}/operations`, params);
 }
 
-export async function fetchGetOperationsByHash(
+export function fetchGetOperationsByHash(
   chainId: TzktApiChainId,
   hash: string,
   params: {
     quote?: TzktQuoteCurrency[];
   } = {}
 ) {
-  return await fetchGet<TzktOperation[]>(chainId, `/operations/${hash}`, params);
+  return fetchGet<TzktOperation[]>(chainId, `/operations/${hash}`, params);
 }
 
 type GetOperationsSortParamValueType = 'id' | 'level';
 
-export async function fetchGetOperationsTransactions(
+export function fetchGetOperationsTransactions(
   chainId: TzktApiChainId,
   params: GetOperationsBaseParams & {
     lastId?: number;
@@ -117,13 +112,89 @@ export async function fetchGetOperationsTransactions(
     'sort.desc'?: GetOperationsSortParamValueType;
   }
 ) {
-  type TzktTransactionOperation = TzktOperation; // (?) Can it be narrowed down for this endpoint?
-
-  return await fetchGet<TzktTransactionOperation[]>(chainId, `/operations/transactions`, params);
+  return fetchGet<TzktOperation[]>(chainId, `/operations/transactions`, params);
 }
 
-function delay(ms: number) {
-  return new Promise(resolve => setTimeout(resolve, ms));
+export async function getOneUserContracts(chainId: TempleChainId, accountAddress: string) {
+  if (!isKnownChainId(chainId)) {
+    return [];
+  }
+
+  return fetchGet<TzktRelatedContract[]>(chainId, `/accounts/${accountAddress}/contracts`);
+}
+
+export async function getDelegatorRewards(
+  chainId: TempleChainId,
+  { address, cycle = {}, sort, quote, ...restParams }: TzktGetRewardsParams
+) {
+  if (!isKnownChainId(chainId)) {
+    throw Error('Unknown chain id');
+  }
+
+  return fetchGet<TzktGetRewardsResponse>(chainId, `/rewards/delegators/${address}`, {
+    ...allInt32ParameterKeys.reduce(
+      (cycleParams, key) => ({
+        ...cycleParams,
+        [`cycle.${key}`]: cycle[key]
+      }),
+      {}
+    ),
+    ...(sort ? { [`sort.${sort}`]: 'cycle' } : {}),
+    quote: quote?.join(','),
+    ...restParams
+  });
+}
+
+export const TZKT_FETCH_QUERY_SIZE = 20;
+
+export async function fetchTokenBalancesCount(chainId: string, accountAddress: string) {
+  if (!isKnownChainId(chainId)) {
+    return 0;
+  }
+
+  return fetchGet<number>(chainId, '/tokens/balances/count', {
+    account: accountAddress,
+    'token.metadata.artifactUri.null': true
+  });
+}
+
+export async function fetchTokenBalances(chainId: string, accountAddress: string, page = 0) {
+  if (!isKnownChainId(chainId)) {
+    return [];
+  }
+
+  return fetchGet<TzktAccountTokenBalance[]>(chainId, '/tokens/balances', {
+    account: accountAddress,
+    limit: TZKT_FETCH_QUERY_SIZE,
+    offset: page * TZKT_FETCH_QUERY_SIZE,
+    'sort.desc': 'balance',
+    'token.metadata.artifactUri.null': true
+  });
+}
+
+export async function fetchNFTBalancesCount(chainId: string, accountAddress: string) {
+  if (!isKnownChainId(chainId)) {
+    return 0;
+  }
+
+  return fetchGet<number>(chainId, '/tokens/balances/count', {
+    account: accountAddress,
+    'token.metadata.artifactUri.null': false
+  });
+}
+
+export async function fetchNFTBalances(chainId: string, accountAddress: string, page = 0) {
+  if (!isKnownChainId(chainId)) {
+    return [];
+  }
+
+  return fetchGet<TzktAccountTokenBalance[]>(chainId, '/tokens/balances', {
+    account: accountAddress,
+    limit: TZKT_FETCH_QUERY_SIZE,
+    offset: page * TZKT_FETCH_QUERY_SIZE,
+    'sort.desc': 'balance',
+    'token.metadata.artifactUri.null': false
+  });
 }
 
 export async function refetchOnce429<R>(fetcher: () => Promise<R>, delayAroundInMS = 1000) {
@@ -143,3 +214,5 @@ export async function refetchOnce429<R>(fetcher: () => Promise<R>, delayAroundIn
     throw err;
   }
 }
+
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));

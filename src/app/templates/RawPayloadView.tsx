@@ -1,6 +1,6 @@
 import React, { CSSProperties, memo } from 'react';
 
-import FormField from 'app/atoms/FormField';
+import { FormField } from 'app/atoms';
 
 type RawPayloadViewProps = {
   payload: string;

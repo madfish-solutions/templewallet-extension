@@ -1,4 +1,4 @@
-import type { TzktOperation, TzktAlias, TzktOperationType } from 'lib/tzkt/types';
+import { TzktOperation, TzktAlias, TzktOperationType } from 'lib/tzkt';
 
 export interface OperGroup {
   hash: string;
@@ -63,37 +63,37 @@ export type OperStackItem =
   | OriginationItem
   | OtherItem;
 
-export interface OperStackItemBase {
+interface OperStackItemBase {
   type: OperStackItemType;
 }
 
-export interface TransferFromItem extends OperStackItemBase {
+interface TransferFromItem extends OperStackItemBase {
   type: OperStackItemType.TransferFrom;
   from: string;
 }
 
-export interface TransferToItem extends OperStackItemBase {
+interface TransferToItem extends OperStackItemBase {
   type: OperStackItemType.TransferTo;
   to: string;
 }
 
-export interface DelegationItem extends OperStackItemBase {
+interface DelegationItem extends OperStackItemBase {
   type: OperStackItemType.Delegation;
   to: string;
 }
 
-export interface InteractionItem extends OperStackItemBase {
+interface InteractionItem extends OperStackItemBase {
   type: OperStackItemType.Interaction;
   with: string;
   entrypoint?: string;
 }
 
-export interface OriginationItem extends OperStackItemBase {
+interface OriginationItem extends OperStackItemBase {
   type: OperStackItemType.Origination;
   contract?: string;
 }
 
-export interface OtherItem extends OperStackItemBase {
+interface OtherItem extends OperStackItemBase {
   type: OperStackItemType.Other;
   name: TzktOperationType;
 }

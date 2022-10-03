@@ -12,7 +12,7 @@ type FormCheckboxProps = ComponentProps<typeof Checkbox> & {
   labelClassName?: string;
 };
 
-const FormCheckbox = forwardRef<HTMLInputElement, FormCheckboxProps>(
+export const FormCheckbox = forwardRef<HTMLInputElement, FormCheckboxProps>(
   ({ label, labelDescription, errorCaption, containerClassName, labelClassName, ...rest }, ref) => (
     <div className={classNames('flex flex-col', containerClassName)}>
       <label
@@ -44,5 +44,3 @@ const FormCheckbox = forwardRef<HTMLInputElement, FormCheckboxProps>(
     </div>
   )
 );
-
-export default FormCheckbox;

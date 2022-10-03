@@ -1,11 +1,11 @@
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo } from 'react';
 
 import { RpcClientInterface } from '@taquito/rpc';
 import { TezosToolkit } from '@taquito/taquito';
 import { Tzip16Module } from '@taquito/tzip16';
 import constate from 'constate';
 
-import { IS_DEV_ENV } from 'app/env';
+import { IS_DEV_ENV } from 'lib/env';
 import { useRetryableSWR } from 'lib/swr';
 import { loadChainId, michelEncoder, loadFastRpcClient } from 'lib/temple/helpers';
 import { ReadyTempleState, TempleAccountType, TempleStatus, TempleState } from 'lib/temple/types';
@@ -135,28 +135,10 @@ function useReadyTemple() {
   };
 }
 
-export function useAccountRef() {
-  const account = useAccount();
-  const ref = useRef(account);
-  useEffect(() => {
-    ref.current = account;
-  }, [account]);
-  return ref;
-}
-
 export function useChainId(suspense?: boolean) {
   const tezos = useTezos();
   const rpcUrl = useMemo(() => tezos.rpc.getRpcUrl(), [tezos]);
   return useCustomChainId(rpcUrl, suspense);
-}
-
-export function useChainIdRef(suspense?: boolean) {
-  const chainId = useChainId(suspense);
-  const ref = useRef(chainId);
-  useEffect(() => {
-    ref.current = chainId;
-  }, [chainId]);
-  return ref;
 }
 
 export function useCustomChainId(rpcUrl: string, suspense?: boolean) {

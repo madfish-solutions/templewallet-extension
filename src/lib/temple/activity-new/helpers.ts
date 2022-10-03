@@ -1,14 +1,14 @@
 import BigNumber from 'bignumber.js';
 
-import type { Activity } from 'lib/temple/activity-new/types';
+import type { Activity } from 'lib/temple/activity-new';
 
 import { OperStackItem, OperStackItemType } from './types';
 
-export function isZero(val: BigNumber.Value) {
+function isZero(val: BigNumber.Value) {
   return new BigNumber(val).isZero();
 }
 
-export function toTokenSlug(contractAddress: string, tokenId: string | number = 0) {
+function toTokenSlug(contractAddress: string, tokenId: string | number = 0) {
   return `${contractAddress}_${tokenId}`;
 }
 

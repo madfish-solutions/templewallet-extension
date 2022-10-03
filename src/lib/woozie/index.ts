@@ -1,15 +1,16 @@
 import { HistoryAction, createUrl, changeState } from './history';
 import { To, createLocationState, createLocationUpdates } from './location';
-import * as Router from './router';
 
-export * from './history';
-export * from './location';
+export { resetHistoryPosition, goBack, createUrl, HistoryAction } from './history';
+export { useLocation } from './location';
+export type { To } from './location';
 
-export { default as Provider } from './Provider';
-export { default as Link } from './Link';
-export { default as Redirect } from './Redirect';
+export type { ResolveResult } from './router';
+export { SKIP, createMap, resolve } from './router';
 
-export { Router };
+export { Provider } from './Provider';
+export { Link } from './Link';
+export { Redirect } from './Redirect';
 
 export function navigate(to: To, action?: HistoryAction.Push | HistoryAction.Replace) {
   const lctn = createLocationState();

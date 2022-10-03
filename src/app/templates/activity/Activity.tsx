@@ -2,8 +2,8 @@ import React, { useMemo } from 'react';
 
 import classNames from 'clsx';
 
+import { FormSecondaryButton } from 'app/atoms';
 import { ActivitySpinner } from 'app/atoms/ActivitySpinner';
-import FormSecondaryButton from 'app/atoms/FormSecondaryButton';
 import { ReactComponent as LayersIcon } from 'app/icons/layers.svg';
 import { T } from 'lib/i18n/react';
 import useActivities from 'lib/temple/activity-new/hook';

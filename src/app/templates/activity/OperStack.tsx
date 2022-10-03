@@ -7,8 +7,7 @@ import { ReactComponent as ChevronRightIcon } from 'app/icons/chevron-right.svg'
 import { ReactComponent as ChevronUpIcon } from 'app/icons/chevron-up.svg';
 import { ReactComponent as ClipboardIcon } from 'app/icons/clipboard.svg';
 import HashChip from 'app/templates/HashChip';
-import type { TID } from 'lib/i18n/react';
-import { T } from 'lib/i18n/react';
+import { TID, T } from 'lib/i18n/react';
 import { OperStackItem, OperStackItemType } from 'lib/temple/activity-new/types';
 
 type OpStackProps = {

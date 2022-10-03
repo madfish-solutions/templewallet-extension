@@ -7,10 +7,9 @@ import OpenInExplorerChip from 'app/atoms/OpenInExplorerChip';
 import { MoneyDiffComp } from 'app/templates/activity/MoneyDiffView';
 import { OperStackComp } from 'app/templates/activity/OperStack';
 import HashChip from 'app/templates/HashChip';
-import { getDateFnsLocale } from 'lib/i18n/core';
+import { getDateFnsLocale } from 'lib/i18n';
 import { t } from 'lib/i18n/react';
-import { parseOperStack, parseMoneyDiffs } from 'lib/temple/activity-new/helpers';
-import type { Activity } from 'lib/temple/activity-new/types';
+import { Activity, parseOperStack, parseMoneyDiffs } from 'lib/temple/activity-new';
 import { useExplorerBaseUrls } from 'lib/temple/front';
 
 interface ActivityItemCompProps {

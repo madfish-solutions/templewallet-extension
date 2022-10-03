@@ -1,4 +1,4 @@
-export type ParameterFa12 = {
+type ParameterFa12 = {
   entrypoint: string;
   value: {
     to: string;
@@ -19,7 +19,7 @@ export type ParameterFa2 = {
   entrypoint: string;
   value: Fa2OpParams[];
 };
-export type ParameterLiquidityBaking = {
+type ParameterLiquidityBaking = {
   entrypoint: string;
   value: {
     target: string;

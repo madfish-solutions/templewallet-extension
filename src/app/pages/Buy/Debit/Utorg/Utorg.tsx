@@ -2,13 +2,14 @@ import React, { ChangeEvent, useCallback, useEffect, useState } from 'react';
 
 import { useDebouncedCallback } from 'use-debounce';
 
-import { T } from '../../../../../lib/i18n/react';
-import { useAccount } from '../../../../../lib/temple/front';
-import { createOrder } from '../../../../../lib/utorg-api';
-import Divider from '../../../../atoms/Divider';
-import FormSubmitButton from '../../../../atoms/FormSubmitButton';
-import { ReactComponent as AttentionRedIcon } from '../../../../icons/attentionRed.svg';
-import PageLayout from '../../../../layouts/PageLayout';
+import { FormSubmitButton } from 'app/atoms';
+import Divider from 'app/atoms/Divider';
+import { ReactComponent as AttentionRedIcon } from 'app/icons/attentionRed.svg';
+import PageLayout from 'app/layouts/PageLayout';
+import { T } from 'lib/i18n/react';
+import { useAccount } from 'lib/temple/front';
+import { createOrder } from 'lib/utorg-api';
+
 import { BuySelectors } from '../../Buy.selectors';
 import styles from '../../Crypto/Exolix/Exolix.module.css';
 import { TopUpInput } from './components/TopUpInput/TopUpInput';

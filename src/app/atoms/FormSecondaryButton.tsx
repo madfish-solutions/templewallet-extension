@@ -13,7 +13,7 @@ type FormSecondaryButtonProps = ButtonHTMLAttributes<HTMLButtonElement> &
     small?: boolean;
   };
 
-const FormSecondaryButton: FC<FormSecondaryButtonProps> = ({
+export const FormSecondaryButton: FC<FormSecondaryButtonProps> = ({
   loading,
   small,
   type = 'button',
@@ -56,5 +56,3 @@ const FormSecondaryButton: FC<FormSecondaryButtonProps> = ({
     )}
   </Button>
 );
-
-export default FormSecondaryButton;
