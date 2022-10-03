@@ -194,7 +194,7 @@ const updateTokenSlugs = (
   const balance = tzktToken?.balance ?? '0';
   const metadata = baseMetadatasToSet[slug] ?? allTokensBaseMetadataRef.current[slug];
   const tokenType =
-    metadata?.artifactUri || tzktToken?.token.metadata.artifactUri
+    metadata?.artifactUri || tzktToken?.token.metadata?.artifactUri
       ? Repo.ITokenType.Collectible
       : Repo.ITokenType.Fungible;
 
