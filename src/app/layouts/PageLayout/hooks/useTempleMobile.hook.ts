@@ -1,4 +1,4 @@
-import { useStorage } from '../../../../lib/temple/front';
+import { useStorage } from 'lib/temple/front';
 
 export const useTempleMobile = () => {
   const [isTempleMobileOverlaySkipped, setIsTempleMobileOverlaySkipped] = useStorage(

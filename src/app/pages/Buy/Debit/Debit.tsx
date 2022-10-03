@@ -4,7 +4,7 @@ import classNames from 'clsx';
 
 import { T } from 'lib/i18n/react';
 import { useNetwork } from 'lib/temple/front';
-import Link from 'lib/woozie/Link';
+import { Link } from 'lib/woozie';
 
 import { ReactComponent as AliceBobIcon } from '../assets/AliceBob.svg';
 import ChainBitsIcon from '../assets/ChainBits.png';

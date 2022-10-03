@@ -7,11 +7,8 @@ import { useForm, Controller, Control, FieldError, NestDataObject, FormStateProx
 import useSWR from 'swr';
 import { browser } from 'webextension-polyfill-ts';
 
-import Alert from 'app/atoms/Alert';
-import { Button } from 'app/atoms/Button';
-import FormSubmitButton from 'app/atoms/FormSubmitButton';
+import { Alert, Button, FormSubmitButton, NoSpaceField } from 'app/atoms';
 import Money from 'app/atoms/Money';
-import NoSpaceField from 'app/atoms/NoSpaceField';
 import Spinner from 'app/atoms/Spinner/Spinner';
 import { ArtificialError, NotEnoughFundsError, ZeroBalanceError } from 'app/defaults';
 import { useAppEnv } from 'app/env';
@@ -21,31 +18,30 @@ import InFiat from 'app/templates/InFiat';
 import OperationStatus from 'app/templates/OperationStatus';
 import { useFormAnalytics } from 'lib/analytics';
 import { submitDelegation } from 'lib/everstake-api';
-import type { TID } from 'lib/i18n/react';
-import { T, t } from 'lib/i18n/react';
+import { TID, T, t } from 'lib/i18n/react';
 import { setDelegate } from 'lib/michelson';
 import { fetchTezosBalance } from 'lib/temple/assets';
 import { loadContract } from 'lib/temple/contract';
 import {
+  Baker,
   useAccount,
   useBalance,
-  useKnownBaker,
-  useKnownBakers,
   useTezosDomainsClient,
   isDomainNameValid,
-  Baker,
   useNetwork,
   useTezos,
-  useAB
+  useAB,
+  useKnownBaker,
+  useKnownBakers,
+  validateDelegate,
+  useGasToken
 } from 'lib/temple/front';
-import { validateDelegate } from 'lib/temple/front/validate-delegate';
 import { tzToMutez, mutezToTz, isAddressValid, isKTAddress, hasManager } from 'lib/temple/helpers';
 import { TempleAccountType } from 'lib/temple/types';
 import { ABTestGroup } from 'lib/templewallet-api';
 import useSafeState from 'lib/ui/useSafeState';
 import { Link, useLocation } from 'lib/woozie';
 
-import { useGasToken } from '../hooks/useGasToken';
 import { DelegateFormSelectors } from './DelegateForm.selectors';
 
 const PENNY = 0.000001;

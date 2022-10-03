@@ -2,9 +2,9 @@ import React, { FC, useEffect, useState } from 'react';
 
 import classNames from 'clsx';
 
+import { FormSubmitButton } from 'app/atoms';
 import CopyButton from 'app/atoms/CopyButton';
 import Divider from 'app/atoms/Divider';
-import FormSubmitButton from 'app/atoms/FormSubmitButton';
 import HashShortView from 'app/atoms/HashShortView';
 import { ReactComponent as CopyIcon } from 'app/icons/copy.svg';
 import useTopUpUpdate from 'app/pages/Buy/Crypto/Exolix/hooks/useTopUpUpdate.hook';

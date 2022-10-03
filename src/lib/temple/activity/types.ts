@@ -15,37 +15,37 @@ export type OpStackItem =
   | OriginationItem
   | OtherItem;
 
-export interface OpStackItemBase {
+interface OpStackItemBase {
   type: OpStackItemType;
 }
 
-export interface TransferFromItem extends OpStackItemBase {
+interface TransferFromItem extends OpStackItemBase {
   type: OpStackItemType.TransferFrom;
   from: string;
 }
 
-export interface TransferToItem extends OpStackItemBase {
+interface TransferToItem extends OpStackItemBase {
   type: OpStackItemType.TransferTo;
   to: string;
 }
 
-export interface DelegationItem extends OpStackItemBase {
+interface DelegationItem extends OpStackItemBase {
   type: OpStackItemType.Delegation;
   to: string;
 }
 
-export interface InteractionItem extends OpStackItemBase {
+interface InteractionItem extends OpStackItemBase {
   type: OpStackItemType.Interaction;
   with: string;
   entrypoint: string;
 }
 
-export interface OriginationItem extends OpStackItemBase {
+interface OriginationItem extends OpStackItemBase {
   type: OpStackItemType.Origination;
   contract?: string;
 }
 
-export interface OtherItem extends OpStackItemBase {
+interface OtherItem extends OpStackItemBase {
   type: OpStackItemType.Other;
   name: string;
 }

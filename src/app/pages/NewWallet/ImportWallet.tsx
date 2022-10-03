@@ -1,8 +1,7 @@
 import React, { FC, useState } from 'react';
 
 import PageLayout from 'app/layouts/PageLayout';
-import type { TID } from 'lib/i18n/react';
-import { t } from 'lib/i18n/react';
+import { TID, t } from 'lib/i18n/react';
 
 import { useTempleClient } from '../../../lib/temple/front';
 import { TabSwitcher } from '../../atoms/TabSwitcher';

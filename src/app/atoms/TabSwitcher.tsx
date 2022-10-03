@@ -2,7 +2,7 @@ import React from 'react';
 
 import classNames from 'clsx';
 
-import { T, TID } from 'lib/i18n/react';
+import { TID, T } from 'lib/i18n/react';
 import { Link } from 'lib/woozie';
 
 export interface TabDescriptor {
@@ -18,17 +18,10 @@ interface TabSwitcherProps {
   isImportPage?: boolean;
 }
 
-export const TabSwitcher: React.FC<TabSwitcherProps> = ({
-  className,
-  tabs,
-  activeTabSlug,
-  urlPrefix,
-  isImportPage = false
-}) => (
-  <div className={classNames('w-full', className)} style={{ borderBottomWidth: 1, fontSize: 17 }}>
-    <div className={classNames('flex items-center justify-around')}>
-      {tabs.map(({ slug, i18nKey }) => {
-        const active = slug === activeTabSlug;
+export const TabSwitcher: React.FC<TabSwitcherProps> = ({ className, tabs, activeTabSlug, urlPrefix }) => (
+  <div className={classNames('w-full max-w-md mx-auto', 'flex flex-wrap items-center justify-center', className)}>
+    {tabs.map(({ slug, i18nKey }) => {
+      const active = slug === activeTabSlug;
 
         return (
           <Link

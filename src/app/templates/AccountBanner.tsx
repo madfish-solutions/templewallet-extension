@@ -8,9 +8,8 @@ import Money from 'app/atoms/Money';
 import Name from 'app/atoms/Name';
 import Balance from 'app/templates/Balance';
 import { t } from 'lib/i18n/react';
-import type { TempleAccount } from 'lib/temple/types';
-
-import { useGasToken } from '../hooks/useGasToken';
+import { useGasToken } from 'lib/temple/front';
+import { TempleAccount } from 'lib/temple/types';
 
 type AccountBannerProps = HTMLAttributes<HTMLDivElement> & {
   account: TempleAccount;

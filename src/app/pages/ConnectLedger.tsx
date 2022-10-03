@@ -3,10 +3,8 @@ import React, { FC, ReactNode, useCallback, useEffect, useMemo, useRef, useState
 import classNames from 'clsx';
 import { Controller, useForm } from 'react-hook-form';
 
-import Alert from 'app/atoms/Alert';
+import { Alert, FormField, FormSubmitButton } from 'app/atoms';
 import ConfirmLedgerOverlay from 'app/atoms/ConfirmLedgerOverlay';
-import FormField from 'app/atoms/FormField';
-import FormSubmitButton from 'app/atoms/FormSubmitButton';
 import { ReactComponent as LinkIcon } from 'app/icons/link.svg';
 import { ReactComponent as OkIcon } from 'app/icons/ok.svg';
 import PageLayout from 'app/layouts/PageLayout';

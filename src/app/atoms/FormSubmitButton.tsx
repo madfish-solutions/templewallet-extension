@@ -13,7 +13,7 @@ type FormSubmitButtonProps = ButtonHTMLAttributes<HTMLButtonElement> &
     small?: boolean;
   };
 
-const FormSubmitButton: FC<FormSubmitButtonProps> = ({
+export const FormSubmitButton: FC<FormSubmitButtonProps> = ({
   loading,
   small,
   disabled,
@@ -54,5 +54,3 @@ const FormSubmitButton: FC<FormSubmitButtonProps> = ({
     )}
   </Button>
 );
-
-export default FormSubmitButton;
