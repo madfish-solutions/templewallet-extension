@@ -6,6 +6,7 @@ import 'lib/xhr-polyfill';
 import { getLockUpEnabled } from 'lib/lock-up';
 import { lock } from 'lib/temple/back/actions';
 import { start } from 'lib/temple/back/main';
+import { getChromePredicate, getFFPredicate } from 'lib/temple/back/predicates';
 
 browser.runtime.onInstalled.addListener(({ reason }) => (reason === 'install' ? openFullPage() : null));
 
@@ -27,8 +28,6 @@ const LOCK_TIME = 5 * 60_000;
 let disconnectTimestamp = 0;
 let connectionsCount = 0;
 
-const URL_BASE = 'extension://';
-
 browser.runtime.onConnect.addListener(externalPort => {
   if (getChromePredicate(externalPort) || getFFPredicate(externalPort)) {
     connectionsCount++;
@@ -43,14 +42,6 @@ browser.runtime.onConnect.addListener(externalPort => {
     }
   });
 });
-
-export const getChromePredicate = (port: any) => port.sender?.url?.includes(`${URL_BASE}${browser.runtime.id}`);
-export const getFFPredicate = (port: any) => {
-  const manifest: any = browser.runtime.getManifest();
-  const fullUrl = manifest.background?.scripts[0];
-  const edgeUrl = fullUrl.split('/scripts')[0].split('://')[1];
-  return port.sender?.url?.includes(`${URL_BASE}${edgeUrl}`);
-};
 
 async function checkOnLockUp() {
   const lockUpEnabled = await getLockUpEnabled();

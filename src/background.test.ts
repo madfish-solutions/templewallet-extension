@@ -1,6 +1,6 @@
 import { browser } from 'webextension-polyfill-ts';
 
-import { getChromePredicate, getFFPredicate } from './background';
+import { getChromePredicate, getFFPredicate } from 'lib/temple/back/predicates';
 
 const EXTENSION_ID = 'some-test-id';
 
