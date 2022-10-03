@@ -44,7 +44,8 @@ export const useUpdatedBalances = (assets: IAccountToken[], chainId: string, add
     if (isSync === false) {
       updateBalances();
     }
-  }, [isSync, updateBalances]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isSync]);
 
   return assetSlugsWithUpdatedBalances;
 };
