@@ -30,16 +30,6 @@ export interface NewsNotificationInterface {
   readInOriginalUrl: string;
 }
 
-export interface NewsNotificationsApiProps {
-  welcome?: boolean;
-  platform?: PlatformType;
-  limit?: string;
-  page?: string;
-  timeLt?: string;
-  timeGt?: string;
-  sorted?: SortedBy;
-}
-
 export enum SortedBy {
   DateAsc = '0',
   DateDesc = '1'

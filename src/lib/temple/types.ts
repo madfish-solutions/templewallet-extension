@@ -147,9 +147,6 @@ export enum TempleNotificationsSharedStorageKey {
   LoadedEventsKey = 'loadedEvents'
 }
 
-export const getLastDateLoadEvents = (pkh: string) => TempleNotificationsSharedStorageKey.LastDateLoadEvents + pkh;
-export const getLoadedEventsKey = (pkh: string) => TempleNotificationsSharedStorageKey.LoadedEventsKey + pkh;
-
 export type TempleDAppSessions = Record<string, TempleDAppSession>;
 
 export interface TempleContact {
