@@ -22,9 +22,9 @@ export const useUpdatedBalances = (assets: IAccountToken[], chainId: string, add
   useEffect(() => void (addressRef.current = address), [address]);
 
   const updateBalances = useCallback(async () => {
-    for (let i = 0; i < assets.length; i++) {
-      const { tokenSlug } = assets[i];
-      const shouldLoad = chainIdRef.current === assets[i].chainId && addressRef.current === assets[i].account;
+    for (const asset of assets) {
+      const { tokenSlug } = asset;
+      const shouldLoad = chainIdRef.current === asset.chainId && addressRef.current === asset.account;
 
       if (!shouldLoad) break;
 
