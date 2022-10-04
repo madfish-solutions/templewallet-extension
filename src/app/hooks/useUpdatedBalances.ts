@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import BigNumber from 'bignumber.js';
+import { flushSync } from 'react-dom';
 
 import { fetchBalance } from 'lib/temple/assets';
 import { useAllTokensBaseMetadata, useTezos } from 'lib/temple/front';
@@ -31,11 +32,7 @@ export const useUpdatedBalances = (assets: IAccountToken[], chainId: string, add
 
       if (!shouldLoad) break;
 
-      if (i === 0) {
-        setAssetSlugsWithUpdatedBalances({ [tokenSlug]: latestBalance });
-      } else {
-        setAssetSlugsWithUpdatedBalances(prevState => ({ ...prevState, [tokenSlug]: latestBalance }));
-      }
+      flushSync(() => setAssetSlugsWithUpdatedBalances(prevState => ({ ...prevState, [tokenSlug]: latestBalance })));
     }
   }, [address, allTokensBaseMetadata, assets, tezos]);
 
