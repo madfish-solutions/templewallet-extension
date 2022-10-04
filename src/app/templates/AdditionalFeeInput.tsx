@@ -24,8 +24,9 @@ import { ReactComponent as RocketIcon } from 'app/icons/rocket.svg';
 import { ReactComponent as SettingsIcon } from 'app/icons/settings.svg';
 import CustomSelect, { OptionRenderProps } from 'app/templates/CustomSelect';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
+import { TID } from 'lib/i18n';
 import { toLocalFixed } from 'lib/i18n/numbers';
-import { TID, T, t } from 'lib/i18n/react';
+import { T, t } from 'lib/i18n/react';
 import { useGasToken } from 'lib/temple/front';
 
 import { AdditionalFeeInputSelectors } from './AdditionalFeeInput.selectors';

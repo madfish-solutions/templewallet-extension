@@ -1,6 +1,6 @@
 import { browser } from 'webextension-polyfill-ts';
 
-export async function fetchFromStorage(key: string) {
+export async function fetchFromStorage<T = any>(key: string): Promise<T | null> {
   const items = await browser.storage.local.get([key]);
   if (key in items) {
     return items[key];

@@ -17,8 +17,8 @@ export function onInited(callback: () => void) {
   initPromise.then(callback);
 }
 
-export function updateLocale(locale: string) {
-  saveLocale(locale);
+export async function updateLocale(locale: string) {
+  await saveLocale(locale);
   notifyOthers();
   refresh();
 }
@@ -36,9 +36,5 @@ async function refresh() {
 }
 
 async function isBackgroundScript() {
-  let backgroundWindow;
-  try {
-    backgroundWindow = await browser.runtime.getBackgroundPage();
-  } catch {}
-  return window === backgroundWindow;
+  return false;
 }

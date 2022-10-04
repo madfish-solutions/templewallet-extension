@@ -5,7 +5,7 @@ import { validateAddress, ValidationResult } from '@taquito/utils';
 import BigNumber from 'bignumber.js';
 import memoize from 'micro-memoize';
 
-import { getMessage } from 'lib/i18n';
+import { fetchOneMessage } from 'lib/i18n/fetchOneMessage';
 import { IntercomError } from 'lib/intercom/helpers';
 import { FastRpcClient } from 'lib/taquito-fast-rpc';
 
@@ -79,12 +79,12 @@ export function formatOpParamsBeforeSend(params: any) {
   return params;
 }
 
-export function transformHttpResponseError(err: HttpResponseError) {
+export async function transformHttpResponseError(err: HttpResponseError) {
   let parsedBody: any;
   try {
     parsedBody = JSON.parse(err.body);
   } catch {
-    throw new Error(getMessage('unknownErrorFromRPC', err.url));
+    throw new Error(await fetchOneMessage('unknownErrorFromRPC', err.url));
   }
 
   try {
@@ -94,10 +94,10 @@ export function transformHttpResponseError(err: HttpResponseError) {
 
     // Parse special error with Counter Already Used
     if (typeof firstTezError.msg === 'string' && /Counter.*already used for contract/.test(firstTezError.msg)) {
-      message = getMessage('counterErrorDescription');
+      message = await fetchOneMessage('counterErrorDescription');
     } else {
-      const matchingPostfix = Object.keys(KNOWN_TEZ_ERRORS).find(idPostfix => firstTezError?.id?.endsWith(idPostfix));
-      message = matchingPostfix ? KNOWN_TEZ_ERRORS[matchingPostfix] : err.message;
+      const msgId = getTezErrLocaleMsgId(firstTezError?.id);
+      message = msgId ? await fetchOneMessage(msgId) : err.message;
     }
 
     return new IntercomError(message, parsedBody);
@@ -106,7 +106,13 @@ export function transformHttpResponseError(err: HttpResponseError) {
   }
 }
 
-const KNOWN_TEZ_ERRORS: Record<string, string> = {
-  'implicit.empty_implicit_contract': getMessage('emptyImplicitContract'),
-  'contract.balance_too_low': getMessage('balanceTooLow')
-};
+enum KNOWN_TEZ_ERRORS {
+  'implicit.empty_implicit_contract' = 'emptyImplicitContract',
+  'contract.balance_too_low' = 'balanceTooLow'
+}
+
+function getTezErrLocaleMsgId(tezErrId?: string) {
+  const idPostfixes = Object.keys(KNOWN_TEZ_ERRORS) as (keyof typeof KNOWN_TEZ_ERRORS)[];
+  const matchingPostfix = tezErrId && idPostfixes.find(idPostfix => tezErrId.endsWith(idPostfix));
+  return (matchingPostfix && KNOWN_TEZ_ERRORS[matchingPostfix]) || null;
+}

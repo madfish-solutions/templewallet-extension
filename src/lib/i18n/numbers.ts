@@ -1,8 +1,10 @@
 import BigNumber from 'bignumber.js';
 import memoize from 'micro-memoize';
 
+import { TID } from 'lib/i18n';
+
 import { getCurrentLocale, getNumberSymbols } from './core';
-import { TID, t } from './react';
+import { t } from './react';
 
 type FormatParams = {
   decimalPlaces?: number;

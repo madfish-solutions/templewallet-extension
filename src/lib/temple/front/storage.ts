@@ -8,7 +8,7 @@ import { useRetryableSWR } from 'lib/swr';
 export { fetchFromStorage, putToStorage };
 
 export function useStorage<T = any>(key: string, fallback?: T): [T, (val: SetStateAction<T>) => Promise<void>] {
-  const { data, mutate } = useRetryableSWR<T>(key, fetchFromStorage, {
+  const { data, mutate } = useRetryableSWR<T | null>(key, fetchFromStorage, {
     suspense: true,
     revalidateOnFocus: false,
     revalidateOnReconnect: false
@@ -36,7 +36,7 @@ export function useStorage<T = any>(key: string, fallback?: T): [T, (val: SetSta
 }
 
 export function usePassiveStorage<T = any>(key: string, fallback?: T): [T, Dispatch<SetStateAction<T>>] {
-  const { data } = useRetryableSWR<T>(key, fetchFromStorage, {
+  const { data } = useRetryableSWR<T | null>(key, fetchFromStorage, {
     suspense: true,
     revalidateOnFocus: false,
     revalidateOnReconnect: false
