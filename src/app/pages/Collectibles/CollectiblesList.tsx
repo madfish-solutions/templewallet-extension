@@ -2,7 +2,7 @@ import React, { useCallback, useMemo, useRef } from 'react';
 
 import classNames from 'clsx';
 
-import { ActivitySpinner } from 'app/atoms/ActivitySpinner';
+import { ActivitySpinner } from 'app/atoms';
 import { useAppEnv } from 'app/env';
 import { ReactComponent as AddToListIcon } from 'app/icons/add-to-list.svg';
 import CollectibleItem from 'app/pages/Collectibles/CollectibleItem';

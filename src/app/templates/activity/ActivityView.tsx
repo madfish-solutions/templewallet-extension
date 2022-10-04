@@ -2,8 +2,7 @@ import React, { memo } from 'react';
 
 import classNames from 'clsx';
 
-import { ActivitySpinner } from 'app/atoms/ActivitySpinner';
-import { FormSecondaryButton } from 'app/atoms/FormSecondaryButton';
+import { FormSecondaryButton, ActivitySpinner } from 'app/atoms';
 import { useAppEnv } from 'app/env';
 import { ReactComponent as LayersIcon } from 'app/icons/layers.svg';
 import { T } from 'lib/i18n/react';

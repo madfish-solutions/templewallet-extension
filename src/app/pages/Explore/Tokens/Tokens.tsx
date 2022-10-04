@@ -6,7 +6,7 @@ import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import { useSWRConfig } from 'swr';
 import { useDebounce } from 'use-debounce';
 
-import { ActivitySpinner } from 'app/atoms/ActivitySpinner';
+import { ActivitySpinner } from 'app/atoms';
 import Money from 'app/atoms/Money';
 import { useAppEnv } from 'app/env';
 import { ReactComponent as AddToListIcon } from 'app/icons/add-to-list.svg';
