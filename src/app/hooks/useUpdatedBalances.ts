@@ -22,9 +22,9 @@ export const useUpdatedBalances = (assets: IAccountToken[], chainId: string, add
   useEffect(() => void (addressRef.current = address), [address]);
 
   const updateBalances = useCallback(async () => {
-    for (const asset of assets) {
-      const { tokenSlug } = asset;
-      const shouldLoad = chainIdRef.current === asset.chainId && addressRef.current === asset.account;
+    for (let i = 0; i < assets.length; i++) {
+      const { tokenSlug } = assets[i];
+      const shouldLoad = chainIdRef.current === assets[i].chainId && addressRef.current === assets[i].account;
 
       if (!shouldLoad) break;
 
@@ -32,7 +32,11 @@ export const useUpdatedBalances = (assets: IAccountToken[], chainId: string, add
 
       if (!shouldLoad) break;
 
-      flushSync(() => setAssetSlugsWithUpdatedBalances(prevState => ({ ...prevState, [tokenSlug]: latestBalance })));
+      if (i === 0) {
+        flushSync(() => setAssetSlugsWithUpdatedBalances({ [tokenSlug]: latestBalance }));
+      } else {
+        flushSync(() => setAssetSlugsWithUpdatedBalances(prevState => ({ ...prevState, [tokenSlug]: latestBalance })));
+      }
     }
   }, [address, allTokensBaseMetadata, assets, tezos]);
 
