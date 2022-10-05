@@ -8,11 +8,10 @@ import SearchAssetField from 'app/templates/SearchAssetField';
 import { T } from 'lib/i18n/react';
 import { useAccount, useChainId, useDisplayedFungibleTokens, useFilteredAssets } from 'lib/temple/front';
 import { useSyncTokens } from 'lib/temple/front/sync-tokens';
-import { ITokenStatus, ITokenType } from 'lib/temple/repo';
 import { Link, navigate } from 'lib/woozie';
 
+import { useSyncBalances } from '../../../../lib/temple/front/sync-balances';
 import { ActivitySpinner } from '../../../atoms/ActivitySpinner';
-import { useUpdatedBalances } from '../../../hooks/useUpdatedBalances';
 import { AssetsSelectors } from '../Assets.selectors';
 import { ListItem } from './components/ListItem';
 import { toExploreAssetLink } from './utils';
@@ -20,30 +19,14 @@ import { toExploreAssetLink } from './utils';
 export const Tokens: FC = () => {
   const chainId = useChainId(true)!;
   const { publicKeyHash } = useAccount();
-  const { isSync } = useSyncTokens();
+  const isSync = useSyncTokens();
+  const latestBalances = useSyncBalances();
 
   const { data: tokens = [] } = useDisplayedFungibleTokens(chainId, publicKeyHash);
 
-  const tokensWithTez = useMemo(
-    () => [
-      {
-        type: ITokenType.Fungible,
-        chainId: chainId,
-        account: publicKeyHash,
-        tokenSlug: 'tez',
-        status: ITokenStatus.Enabled,
-        addedAt: 0
-      },
-      ...tokens
-    ],
-    [chainId, publicKeyHash, tokens]
-  );
-
-  const tokenSlugsWithTez = useMemo(() => tokensWithTez.map(({ tokenSlug }) => tokenSlug), [tokensWithTez]);
+  const tokenSlugsWithTez = useMemo(() => ['tez', ...tokens.map(({ tokenSlug }) => tokenSlug)], [tokens]);
 
   const { filteredAssets, searchValue, setSearchValue } = useFilteredAssets(tokenSlugsWithTez);
-
-  const latestBalances = useUpdatedBalances(tokensWithTez, chainId, publicKeyHash);
 
   const [searchFocused, setSearchFocused] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);

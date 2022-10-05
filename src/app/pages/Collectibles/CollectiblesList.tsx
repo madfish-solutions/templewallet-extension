@@ -17,7 +17,7 @@ import { ActivitySpinner } from '../../atoms/ActivitySpinner';
 const CollectiblesList = () => {
   const chainId = useChainId(true)!;
   const { publicKeyHash } = useAccount();
-  const { isSync } = useSyncTokens();
+  const isSync = useSyncTokens();
 
   const { data: collectibles = [] } = useCollectibleTokens(chainId, publicKeyHash, true);
 

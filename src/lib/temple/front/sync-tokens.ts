@@ -63,7 +63,7 @@ export const [SyncTokensProvider, useSyncTokens] = constate(() => {
 
   useTimerEffect(sync, SYNC_INTERVAL, [chainId, accountPkh]);
 
-  return { isSync };
+  return isSync;
 });
 
 const makeSync = async (
