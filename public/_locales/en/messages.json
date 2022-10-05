@@ -2613,6 +2613,9 @@
       }
     }
   },
+  "withdrawDescription": {
+    "message": "Temple integrated third-party solutions to sell TEZ."
+  },
   "topUpCrypto": {
     "message": "Crypto"
   },

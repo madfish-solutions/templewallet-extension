@@ -27,7 +27,7 @@ export const Withdraw: FC = () => {
       tabs={tabs}
       icon={<WithdrawIcon />}
       title={t('withdraw')}
-      description={t('topUpDescription', [assetName, assetName])}
+      description={t('withdrawDescription', [assetName, assetName])}
     />
   );
 };
