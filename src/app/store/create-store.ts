@@ -1,5 +1,6 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { Middleware } from 'redux';
+import { createLogger } from 'redux-logger';
 import { combineEpics, createEpicMiddleware, Epic, StateObservable } from 'redux-observable';
 import { FLUSH, PAUSE, PERSIST, persistReducer, persistStore, PURGE, REGISTER, REHYDRATE } from 'redux-persist';
 import autoMergeLevel2 from 'redux-persist/lib/stateReconciler/autoMergeLevel2';
@@ -12,10 +13,15 @@ import { newsReducer } from './news/news-reducers';
 import { NewsRootState } from './news/news-state';
 import { rootStateReducer } from './root-state.reducers';
 
+const logger = createLogger();
+
 export type RootState = NewsRootState;
 
+const { NODE_ENV = 'development' } = process.env;
+
 const epicMiddleware = createEpicMiddleware();
-const middlewares: Array<Middleware<{}, RootState>> = [epicMiddleware];
+const middlewares: Array<Middleware<{}, RootState>> =
+  NODE_ENV === 'development' ? [epicMiddleware, logger] : [epicMiddleware];
 
 const persistConfig: PersistConfig<RootState> = {
   key: 'temple-root',

@@ -1,5 +1,5 @@
 import { combineEpics } from 'redux-observable';
-import { Observable, of } from 'rxjs';
+import { from, Observable, of } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 import { Action } from 'ts-action';
 import { ofType } from 'ts-action-operators';
@@ -15,12 +15,15 @@ const loadNewsEpic = (action$: Observable<Action>) =>
   action$.pipe(
     ofType(loadNewsAction.submit),
     switchMap(() =>
-      getNewsItems({
-        platform: PlatformType.Extension
-      })
-    ),
-    map(data => loadNewsAction.success(data)),
-    catchError(err => of(loadNewsAction.fail(err.message)))
+      from(
+        getNewsItems({
+          platform: PlatformType.Extension
+        })
+      ).pipe(
+        map(data => loadNewsAction.success(data)),
+        catchError(err => of(loadNewsAction.fail(err.message)))
+      )
+    )
   );
 
 const loadMoreNewsEpic = (action$: Observable<Action>, state$: Observable<RootState>) =>
@@ -28,13 +31,16 @@ const loadMoreNewsEpic = (action$: Observable<Action>, state$: Observable<RootSt
     ofType(loadMoreNewsAction.submit),
     withLoadedNews(state$),
     switchMap(([, lastNews]) =>
-      getNewsItems({
-        platform: PlatformType.Extension,
-        timeLt: new Date(lastNews[lastNews.length - 1].createdAt).getTime().toString()
-      })
-    ),
-    map(data => loadNewsAction.success(data)),
-    catchError(err => of(loadNewsAction.fail(err.message)))
+      from(
+        getNewsItems({
+          platform: PlatformType.Extension,
+          timeLt: new Date(lastNews[lastNews.length - 1].createdAt).getTime().toString()
+        })
+      ).pipe(
+        map(data => loadNewsAction.success(data)),
+        catchError(err => of(loadNewsAction.fail(err.message)))
+      )
+    )
   );
 
 export const newsEpics = combineEpics(loadNewsEpic, loadMoreNewsEpic);
