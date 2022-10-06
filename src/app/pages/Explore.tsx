@@ -30,7 +30,7 @@ import { ExploreSelectors } from './Explore.selectors';
 import BakingSection from './Explore/BakingSection';
 import EditableTitle from './Explore/EditableTitle';
 import MainBanner from './Explore/MainBanner';
-import Tokens from './Explore/Tokens/Tokens';
+import { Tokens } from './Explore/Tokens/Tokens';
 import { useOnboardingProgress } from './Onboarding/hooks/useOnboardingProgress.hook';
 import Onboarding from './Onboarding/Onboarding';
 

@@ -45,11 +45,6 @@ export function useBalance(assetSlug: string, address: string, opts: UseBalanceO
   });
 }
 
-export function useBalanceSWRKey(assetSlug: string, address: string) {
-  const tezos = useTezos();
-  return getBalanceSWRKey(tezos, assetSlug, address);
-}
-
 export function getBalanceSWRKey(tezos: ReactiveTezosToolkit, assetSlug: string, address: string) {
   return ['balance', tezos.checksum, assetSlug, address];
 }

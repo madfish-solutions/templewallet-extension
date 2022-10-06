@@ -314,11 +314,7 @@ export function useFilteredAssets(assetSlugs: string[]) {
   };
 }
 
-export function searchAssets(
-  searchValue: string,
-  assetSlugs: string[],
-  allTokensBaseMetadata: Record<string, AssetMetadata>
-) {
+function searchAssets(searchValue: string, assetSlugs: string[], allTokensBaseMetadata: Record<string, AssetMetadata>) {
   if (!searchValue) return assetSlugs;
 
   const fuse = new Fuse(

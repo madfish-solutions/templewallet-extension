@@ -27,7 +27,6 @@ export {
   useAllTokensBaseMetadata,
   useCollectibleTokens,
   useDisplayedFungibleTokens,
-  searchAssets,
   useGetTokenMetadata,
   useGasToken,
   useFilteredAssets
@@ -37,7 +36,7 @@ export { useAssetUSDPrice, useUSDPrices } from './usdprice';
 
 export { useBlockTriggers, useOnBlock } from './chain';
 
-export { useBalance, useBalanceSWRKey, getBalanceSWRKey } from './balance';
+export { useBalance, getBalanceSWRKey } from './balance';
 
 export { useContacts, searchContacts } from './address-book';
 
@@ -53,10 +52,6 @@ export { BLOCK_EXPLORERS, useBlockExplorer, useExplorerBaseUrls } from './blocke
 
 export type { RawOperationAssetExpense, RawOperationExpenses } from './expenses';
 export { tryParseExpenses } from './expenses';
-
-export { useFungibleTokensBalances } from './fungible-tokens-balances';
-
-export { useNonFungibleTokensBalances } from './non-fungible-tokens-balances';
 
 export { TempleProvider } from './provider';
 

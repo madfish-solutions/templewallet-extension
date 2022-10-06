@@ -2,6 +2,7 @@ import React, { FC, useCallback, useRef, useState } from 'react';
 
 import { AssetIcon } from 'app/templates/AssetIcon';
 import { useAssetMetadata } from 'lib/temple/front';
+import { getAssetName } from 'lib/temple/metadata';
 import { useIntersectionDetection } from 'lib/ui/use-intersection-detection';
 import { Link } from 'lib/woozie';
 
@@ -11,8 +12,8 @@ interface Props {
   itemsLength: number;
 }
 
-const CollectibleItem: FC<Props> = ({ assetSlug, index, itemsLength }) => {
-  const collectibleMetadata = useAssetMetadata(assetSlug)!;
+export const CollectibleItem: FC<Props> = ({ assetSlug, index, itemsLength }) => {
+  const metadata = useAssetMetadata(assetSlug);
   const toDisplayRef = useRef<HTMLDivElement>(null);
   const [displayed, setDisplayed] = useState(true);
 
@@ -27,6 +28,7 @@ const CollectibleItem: FC<Props> = ({ assetSlug, index, itemsLength }) => {
       <div className="flex items-center" style={index === itemsLength - 1 ? {} : { borderBottom: '1px solid #e2e8f0' }}>
         <div className="p-2">
           <div
+            ref={toDisplayRef}
             style={{ borderRadius: '12px' }}
             className="border border-gray-300 w-16 h-16 flex items-center justify-center overflow-hidden p-2"
           >
@@ -34,11 +36,9 @@ const CollectibleItem: FC<Props> = ({ assetSlug, index, itemsLength }) => {
           </div>
         </div>
         <div className="pl-2">
-          <p className="text-sm text-gray-910">{collectibleMetadata.name}</p>
+          <p className="text-sm text-gray-910">{getAssetName(metadata)}</p>
         </div>
       </div>
     </Link>
   );
 };
-
-export default CollectibleItem;
