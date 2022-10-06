@@ -23,10 +23,7 @@ export const ActivityItem = memo<Props>(({ activity, address }) => {
   const { transaction: explorerBaseUrl } = useExplorerBaseUrls();
 
   const operationsStack = useMemo(() => parseOperationsStack(activity, address), [activity, address]);
-
-  const moneyDiffs = useMemo(() => {
-    return ['pending', 'applied'].includes(status) ? parseMoneyDiffs(activity) : [];
-  }, [status, activity]);
+  const moneyDiffs = useMemo(() => parseMoneyDiffs(activity), [activity]);
 
   return (
     <div className={classNames('my-3')}>

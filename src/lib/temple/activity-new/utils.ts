@@ -24,8 +24,8 @@ export function operationsGroupToActivity({ hash, operations }: OperationsGroup,
   const firstOperation = operations[0]!;
   const oldestTzktOperation = operations[operations.length - 1]!;
   const addedAt = firstOperation.timestamp;
-  const status = firstOperation.status;
   const activityOperations = reduceTzktOperations(operations, address);
+  const status = deriveActivityStatus(activityOperations);
 
   return {
     hash,
@@ -205,8 +205,18 @@ function reduceParameterFa2Values(values: ParameterFa2['value'], relAddress: str
   return result;
 }
 
-const stringToActivityStatus = (status: string): ActivityStatus => {
+function stringToActivityStatus(status: string): ActivityStatus {
   if (['applied', 'backtracked', 'skipped', 'failed'].includes(status)) return status as ActivityStatus;
 
   return 'pending';
-};
+}
+
+function deriveActivityStatus(items: { status: ActivityStatus }[]): ActivityStatus {
+  if (items.find(o => o.status === 'pending')) return 'pending';
+  if (items.find(o => o.status === 'applied')) return 'applied';
+  if (items.find(o => o.status === 'backtracked')) return 'backtracked';
+  if (items.find(o => o.status === 'skipped')) return 'skipped';
+  if (items.find(o => o.status === 'failed')) return 'failed';
+
+  return items[0]!.status;
+}

@@ -51,7 +51,7 @@ export function parseMoneyDiffs(activity: Activity) {
   const diffsMap: Record<string, BigNumber> = {};
 
   for (const oper of activity.operations) {
-    if (oper.type !== 'transaction' || oper.status !== 'applied' || isZero(oper.amountSigned)) continue;
+    if (oper.type !== 'transaction' || isZero(oper.amountSigned)) continue;
     const assetSlug = oper.contractAddress == null ? 'tez' : toTokenSlug(oper.contractAddress, oper.tokenId);
     diffsMap[assetSlug] = new BigNumber(oper.amountSigned).plus(diffsMap[assetSlug] || 0);
   }
