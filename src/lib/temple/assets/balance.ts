@@ -14,12 +14,12 @@ export function fetchTezosBalance(tezos: TezosToolkit, account: string) {
 export async function fetchBalance(
   tezos: TezosToolkit,
   assetSlug: string,
-  assetMetadata: Pick<AssetMetadata, 'decimals'> | null,
+  assetMetadata: Pick<AssetMetadata, 'decimals'> | null = TEZOS_METADATA,
   account: string
 ) {
   const asset = await fromAssetSlug(tezos, assetSlug);
 
-  let nat;
+  let nat: BigNumber | undefined;
 
   if (asset === 'tez') {
     nat = await getBalanceSafe(tezos, account);
