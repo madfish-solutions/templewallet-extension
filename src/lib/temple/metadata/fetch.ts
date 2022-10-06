@@ -71,7 +71,7 @@ const getMetadataFromUri = async (
 export async function fetchTokenMetadata(
   tezos: TezosToolkit,
   assetSlug: string
-): Promise<{ base: AssetMetadata; detailed: DetailedAssetMetdata }> {
+): Promise<{ base: AssetMetadata; detailed: DetailedAssetMetdata } | null> {
   const [contractAddress, tokenIdStr = '0'] = assetSlug.split('_');
 
   if (isTezAsset(contractAddress)) {
@@ -87,49 +87,44 @@ export async function fetchTokenMetadata(
     throw new Error('Invalid contract address');
   }
 
-  try {
-    // TODO: add validation
-    const contract = await retry(() => tezos.contract.at(contractAddress, compose(tzip12, tzip16)), RETRY_PARAMS);
+  const contract = await retry(() => tezos.contract.at(contractAddress, compose(tzip12, tzip16)), RETRY_PARAMS);
 
-    const tzip12Metadata = await getTzip12Metadata(contract, tokenIdStr as any);
-    const metadataFromUri = await getMetadataFromUri(contract, tokenIdStr, tezos);
+  const tzip12Metadata = await getTzip12Metadata(contract, tokenIdStr as any);
+  const metadataFromUri = await getMetadataFromUri(contract, tokenIdStr, tezos);
 
-    const rawMetadata = { ...metadataFromUri, ...tzip12Metadata };
+  const rawMetadata = { ...metadataFromUri, ...tzip12Metadata };
 
-    assert('decimals' in rawMetadata && ('name' in rawMetadata || 'symbol' in rawMetadata));
-
-    const base: AssetMetadata = {
-      decimals: +rawMetadata.decimals,
-      symbol: rawMetadata.symbol || rawMetadata.name!.substr(0, 8),
-      name: rawMetadata.name || rawMetadata.symbol!,
-      shouldPreferSymbol: parseBool(rawMetadata.shouldPreferSymbol),
-      thumbnailUri:
-        rawMetadata.thumbnailUri ||
-        rawMetadata.thumbnail_uri ||
-        rawMetadata.logo ||
-        rawMetadata.icon ||
-        rawMetadata.iconUri ||
-        rawMetadata.iconUrl ||
-        rawMetadata.displayUri ||
-        rawMetadata.artifactUri,
-      displayUri: rawMetadata.displayUri,
-      artifactUri: rawMetadata.artifactUri
-    };
-
-    const tzip16Metadata = await getTzip16Metadata(contract);
-
-    const detailed: DetailedAssetMetdata = {
-      ...tzip16Metadata?.assets?.[tokenIdStr],
-      ...rawMetadata,
-      ...base
-    };
-
-    return { base, detailed };
-  } catch (err: any) {
-    console.error(err);
-
-    throw new NotFoundTokenMetadata();
+  if (!('decimals' in rawMetadata && ('name' in rawMetadata || 'symbol' in rawMetadata))) {
+    return null;
   }
+
+  const base: AssetMetadata = {
+    decimals: +rawMetadata.decimals,
+    symbol: rawMetadata.symbol || rawMetadata.name!.substr(0, 8),
+    name: rawMetadata.name || rawMetadata.symbol!,
+    shouldPreferSymbol: parseBool(rawMetadata.shouldPreferSymbol),
+    thumbnailUri:
+      rawMetadata.thumbnailUri ||
+      rawMetadata.thumbnail_uri ||
+      rawMetadata.logo ||
+      rawMetadata.icon ||
+      rawMetadata.iconUri ||
+      rawMetadata.iconUrl ||
+      rawMetadata.displayUri ||
+      rawMetadata.artifactUri,
+    displayUri: rawMetadata.displayUri,
+    artifactUri: rawMetadata.artifactUri
+  };
+
+  const tzip16Metadata = await getTzip16Metadata(contract);
+
+  const detailed: DetailedAssetMetdata = {
+    ...tzip16Metadata?.assets?.[tokenIdStr],
+    ...rawMetadata,
+    ...base
+  };
+
+  return { base, detailed };
 }
 
 export class NotFoundTokenMetadata extends Error {

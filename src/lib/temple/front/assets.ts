@@ -141,12 +141,15 @@ export function useAssetMetadata(slug: string) {
   useEffect(() => {
     if (!isTezAsset(slug) && !exist && !autoFetchMetadataFails.has(slug)) {
       enqueueAutoFetchMetadata(() => fetchMetadata(slug))
-        .then(metadata =>
-          Promise.all([
-            setTokensBaseMetadata({ [slug]: metadata.base }),
-            setTokensDetailedMetadata({ [slug]: metadata.detailed })
-          ])
-        )
+        .then(metadata => {
+          if (metadata !== null) {
+            return Promise.all([
+              setTokensBaseMetadata({ [slug]: metadata.base }),
+              setTokensDetailedMetadata({ [slug]: metadata.detailed })
+            ]);
+          }
+          throw new Error('');
+        })
         .catch(() => autoFetchMetadataFails.add(slug));
     }
   }, [slug, exist, fetchMetadata, setTokensBaseMetadata, setTokensDetailedMetadata]);

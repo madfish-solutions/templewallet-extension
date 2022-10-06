@@ -73,7 +73,10 @@ const makeSync = async (
   setTokensBaseMetadata: any,
   setTokensDetailedMetadata: any,
   usdPrices: Record<string, string>,
-  fetchMetadata: any,
+  fetchMetadata: (slug: string) => Promise<{
+    base: AssetMetadata;
+    detailed: DetailedAssetMetdata;
+  } | null>,
   mutate: ScopedMutator
 ) => {
   if (!chainId) return;
@@ -119,6 +122,7 @@ const makeSync = async (
   // Otherwise - fetch from chain.
   if (!metadatas) {
     metadatas = await Promise.all(metadataSlugs.map(slug => generateMetadataRequest(slug, mainnet, fetchMetadata)));
+    metadatas = metadatas.filter(x => !!x);
   }
 
   const baseMetadatasToSet: Record<string, AssetMetadata> = {};
@@ -159,7 +163,14 @@ const makeSync = async (
   await mutate(['displayed-fungible-tokens', chainId, accountPkh]);
 };
 
-const generateMetadataRequest = async (slug: string, mainnet: boolean, fetchMetadata: any) => {
+const generateMetadataRequest = async (
+  slug: string,
+  mainnet: boolean,
+  fetchMetadata: (slug: string) => Promise<{
+    base: AssetMetadata;
+    detailed: DetailedAssetMetdata;
+  } | null>
+) => {
   const noMetadataFlag = `no_metadata_${slug}`;
   if (!mainnet && localStorage.getItem(noMetadataFlag) === 'true') {
     return null;

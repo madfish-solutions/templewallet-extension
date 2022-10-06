@@ -43,7 +43,9 @@ const AssetInfo: FC<AssetInfoProps> = ({ assetSlug }) => {
         <InfoField id="token-id" label={<T id="tokenId" />} value={new BigNumber(asset.id).toFixed()} />
       )}
 
-      <InfoField id="token-decimals" label={<T id="decimals" />} value={metadata.decimals} />
+      {metadata && metadata.decimals && (
+        <InfoField id="token-decimals" label={<T id="decimals" />} value={metadata.decimals} />
+      )}
     </div>
   );
 };
