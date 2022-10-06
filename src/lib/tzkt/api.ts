@@ -6,7 +6,7 @@ import {
   TzktOperation,
   TzktOperationType,
   TzktQuoteCurrency,
-  TzktAccountTokenBalance,
+  TzktAccountToken,
   allInt32ParameterKeys,
   TzktGetRewardsParams,
   TzktGetRewardsResponse,
@@ -117,43 +117,14 @@ export const getDelegatorRewards = (
     ...restParams
   });
 
-export const TZKT_FETCH_QUERY_SIZE = 20;
+const TZKT_FETCH_QUERY_SIZE = 300;
 
-export const fetchTokenBalancesCount = async (chainId: string, accountAddress: string) =>
+export const fetchTzktTokens = async (chainId: string, accountAddress: string) =>
   isKnownChainId(chainId)
-    ? await fetchGet<number>(chainId, '/tokens/balances/count', {
-        account: accountAddress,
-        'token.metadata.artifactUri.null': true
-      })
-    : 0;
-
-export const fetchTokenBalances = async (chainId: string, accountAddress: string, page = 0) =>
-  isKnownChainId(chainId)
-    ? await fetchGet<TzktAccountTokenBalance[]>(chainId, '/tokens/balances', {
+    ? await fetchGet<TzktAccountToken[]>(chainId, '/tokens/balances', {
         account: accountAddress,
         limit: TZKT_FETCH_QUERY_SIZE,
-        offset: page * TZKT_FETCH_QUERY_SIZE,
-        'sort.desc': 'balance',
-        'token.metadata.artifactUri.null': true
-      })
-    : [];
-
-export const fetchNFTBalancesCount = async (chainId: string, accountAddress: string) =>
-  isKnownChainId(chainId)
-    ? await fetchGet<number>(chainId, '/tokens/balances/count', {
-        account: accountAddress,
-        'token.metadata.artifactUri.null': false
-      })
-    : 0;
-
-export const fetchNFTBalances = async (chainId: string, accountAddress: string, page = 0) =>
-  isKnownChainId(chainId)
-    ? await fetchGet<TzktAccountTokenBalance[]>(chainId, '/tokens/balances', {
-        account: accountAddress,
-        limit: TZKT_FETCH_QUERY_SIZE,
-        offset: page * TZKT_FETCH_QUERY_SIZE,
-        'sort.desc': 'balance',
-        'token.metadata.artifactUri.null': false
+        'sort.desc': 'balance'
       })
     : [];
 
