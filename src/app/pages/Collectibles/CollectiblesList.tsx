@@ -15,7 +15,7 @@ import { Link } from 'lib/woozie';
 import { useSyncTokens } from '../../../lib/temple/front/sync-tokens';
 import { ActivitySpinner } from '../../atoms/ActivitySpinner';
 
-const CollectiblesList = () => {
+export const CollectiblesList = () => {
   const chainId = useChainId(true)!;
   const { popup } = useAppEnv();
   const { publicKeyHash } = useAccount();
@@ -73,5 +73,3 @@ const CollectiblesList = () => {
     </div>
   );
 };
-
-export default CollectiblesList;
