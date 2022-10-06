@@ -1,66 +1,29 @@
-import React, { useCallback, useMemo, useRef } from 'react';
+import React from 'react';
 
 import classNames from 'clsx';
 
-import { ActivitySpinner } from 'app/atoms/ActivitySpinner';
 import { ReactComponent as AddToListIcon } from 'app/icons/add-to-list.svg';
-import CollectibleItem from 'app/pages/Collectibles/CollectibleItem';
+import { CollectibleItem } from 'app/pages/Collectibles/CollectibleItem';
 import { AssetsSelectors } from 'app/pages/Explore/Assets.selectors';
 import SearchAssetField from 'app/templates/SearchAssetField';
 import { T } from 'lib/i18n/react';
 import { AssetTypesEnum } from 'lib/temple/assets';
-import {
-  useAccount,
-  useChainId,
-  useAllTokensBaseMetadata,
-  useCollectibleTokens,
-  useNonFungibleTokensBalances,
-  useFilteredAssets
-} from 'lib/temple/front';
-import { TZKT_FETCH_QUERY_SIZE } from 'lib/tzkt';
-import { useIntersectionDetection } from 'lib/ui/use-intersection-detection';
+import { useAccount, useChainId, useCollectibleTokens, useFilteredAssets } from 'lib/temple/front';
 import { Link } from 'lib/woozie';
+
+import { useSyncTokens } from '../../../lib/temple/front/sync-tokens';
+import { ActivitySpinner } from '../../atoms/ActivitySpinner';
 
 const CollectiblesList = () => {
   const chainId = useChainId(true)!;
-  const account = useAccount();
-  const address = account.publicKeyHash;
-  const loadMoreRef = useRef<HTMLDivElement>(null);
-  const canLoadMore = useRef(true);
-  const { hasMore, loadItems, isLoading, items } = useNonFungibleTokensBalances();
-  const { data: collectibles = [] } = useCollectibleTokens(chainId, address, true);
+  const { publicKeyHash } = useAccount();
+  const isSync = useSyncTokens();
 
-  const allTokensBaseMetadata = useAllTokensBaseMetadata();
+  const { data: collectibles = [] } = useCollectibleTokens(chainId, publicKeyHash, true);
 
-  const assetSlugs = useMemo(() => {
-    const slugs = [];
+  const collectibleSlugs = collectibles.map(collectible => collectible.tokenSlug);
 
-    for (const { tokenSlug } of collectibles) {
-      if (tokenSlug in allTokensBaseMetadata) {
-        slugs.push(tokenSlug);
-      }
-    }
-    canLoadMore.current = true;
-
-    return slugs;
-  }, [collectibles, allTokensBaseMetadata]);
-
-  const { filteredAssets, searchValue, setSearchValue } = useFilteredAssets(assetSlugs);
-
-  const handleLoadItems = useCallback(() => {
-    if (canLoadMore.current) {
-      canLoadMore.current = false;
-      loadItems();
-    }
-  }, [loadItems]);
-
-  const handleIntersection = useCallback(() => {
-    if (!isLoading && hasMore && items.length >= TZKT_FETCH_QUERY_SIZE) {
-      handleLoadItems();
-    }
-  }, [handleLoadItems, isLoading, hasMore, items.length]);
-
-  useIntersectionDetection(loadMoreRef, handleIntersection);
+  const { filteredAssets, searchValue, setSearchValue } = useFilteredAssets(collectibleSlugs);
 
   return (
     <div className={classNames('w-full max-w-sm mx-auto')}>
@@ -92,14 +55,17 @@ const CollectiblesList = () => {
           </p>
         ) : (
           <>
-            {filteredAssets.map((item, index) => (
-              <CollectibleItem key={item} assetSlug={item} index={index} itemsLength={filteredAssets.length} />
+            {filteredAssets.map((slug, index) => (
+              <CollectibleItem key={slug} assetSlug={slug} index={index} itemsLength={filteredAssets.length} />
             ))}
           </>
         )}
+        {isSync && (
+          <div className="mt-4">
+            <ActivitySpinner />
+          </div>
+        )}
       </div>
-      {hasMore && <div ref={loadMoreRef} className="w-full flex justify-center mt-5 mb-3"></div>}
-      {hasMore && !canLoadMore.current && <ActivitySpinner />}
     </div>
   );
 };
