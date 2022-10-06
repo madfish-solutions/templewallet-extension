@@ -1,8 +1,8 @@
 import React from 'react';
 
 import classNames from 'clsx';
+import InfiniteScroll from 'react-infinite-scroll-component';
 
-import { FormSecondaryButton } from 'app/atoms';
 import { ActivitySpinner } from 'app/atoms/ActivitySpinner';
 import { ReactComponent as LayersIcon } from 'app/icons/layers.svg';
 import { T } from 'lib/i18n/react';
@@ -19,29 +19,14 @@ interface Props {
 }
 
 export const ActivityComponent: React.FC<Props> = ({ assetSlug }) => {
-  const {
-    loading,
-    reachedTheEnd,
-    list: activities,
-    loadMore: loadMoreActivities
-  } = useActivities(INITIAL_NUMBER, assetSlug);
+  const { loading, reachedTheEnd, list: activities, loadMore } = useActivities(INITIAL_NUMBER, assetSlug);
 
   const { publicKeyHash: accountAddress } = useAccount();
 
-  const onLoadMoreButtonClick = () => loadMoreActivities(LOAD_STEP);
-  const onRetryLoadButtonClick = () => loadMoreActivities(INITIAL_NUMBER);
+  const retryInitialLoad = () => loadMore(INITIAL_NUMBER);
+  const loadMoreActivities = () => loadMore(LOAD_STEP);
 
-  if (activities.length === 0) {
-    if (loading) return <ActivitySpinner height="2.5rem" />;
-    else if (reachedTheEnd === false)
-      return (
-        <div className="w-full flex justify-center mt-5 mb-3">
-          <FormSecondaryButton onClick={onRetryLoadButtonClick} small>
-            <T id="tryLoadAgain" />
-          </FormSecondaryButton>
-        </div>
-      );
-
+  if (activities.length === 0 && !loading && reachedTheEnd)
     return (
       <div className={classNames('mt-4 mb-12', 'flex flex-col items-center justify-center', 'text-gray-500')}>
         <LayersIcon className="w-16 h-auto mb-2 stroke-current" />
@@ -51,25 +36,32 @@ export const ActivityComponent: React.FC<Props> = ({ assetSlug }) => {
         </h3>
       </div>
     );
-  }
+
+  const loadNext = activities.length === 0 ? retryInitialLoad : loadMoreActivities;
 
   return (
-    <>
-      <div className={classNames('w-full max-w-md mx-auto', 'flex flex-col')}>
+    <div className="w-full max-w-md mx-auto flex flex-col">
+      <InfiniteScroll
+        dataLength={activities.length}
+        hasMore={reachedTheEnd === false}
+        next={loading || reachedTheEnd ? () => null : loadNext}
+        loader={loading && <ActivitySpinner height="2.5rem" />}
+        onScroll={({ target }) => {
+          /*
+            In case we catch an error on loading more items, `InfiniteScroll.next` won't trigger.
+            Thus we also force its call here on condition of error.
+          */
+          if (loading || reachedTheEnd) return;
+          const elem: HTMLElement =
+            target instanceof Document ? (target.scrollingElement! as HTMLElement) : (target as HTMLElement);
+          const atBottom = 0 === elem.offsetHeight - elem.clientHeight - elem.scrollTop;
+          if (atBottom) loadNext();
+        }}
+      >
         {activities.map(activity => (
           <ActivityItem key={activity.hash} address={accountAddress} activity={activity} />
         ))}
-      </div>
-
-      {loading ? (
-        <ActivitySpinner height="2.5rem" />
-      ) : reachedTheEnd === false ? (
-        <div className="w-full flex justify-center mt-5 mb-3">
-          <FormSecondaryButton onClick={onLoadMoreButtonClick} small>
-            <T id="loadMore" />
-          </FormSecondaryButton>
-        </div>
-      ) : null}
-    </>
+      </InfiniteScroll>
+    </div>
   );
 };

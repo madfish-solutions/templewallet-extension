@@ -1,3 +1,5 @@
+import { useRef } from 'react';
+
 import { useSafeState } from 'ahooks';
 import { useDidMount, useDidUpdate } from 'rooks';
 
@@ -20,9 +22,16 @@ export default function useActivities(initialPseudoLimit: number, assetSlug?: st
   const [activities, setActivities] = useSafeState<Activity[]>([]);
   const [reachedTheEnd, setReachedTheEnd] = useSafeState(false);
 
-  async function loadActivities(pseudoLimit: number, activities: Activity[]) {
+  const shouldStopRef = useRef<Symbol | null>(null);
+  const buildShouldStop = () => {
+    const symb = (shouldStopRef.current = Symbol());
+    return () => symb !== shouldStopRef.current;
+  };
+
+  async function loadActivities(pseudoLimit: number, activities: Activity[], shouldStop: () => boolean) {
     if (!isKnownChainId(chainId)) {
       setLoading(false);
+      setReachedTheEnd(true);
       return;
     }
 
@@ -32,7 +41,9 @@ export default function useActivities(initialPseudoLimit: number, assetSlug?: st
     let newActivities: Activity[];
     try {
       newActivities = await fetchActivities(chainId, account, assetSlug, pseudoLimit, tezos, lastActivity);
+      if (shouldStop()) return;
     } catch (error) {
+      if (shouldStop()) return;
       setLoading(false);
       console.log(error);
 
@@ -47,11 +58,11 @@ export default function useActivities(initialPseudoLimit: number, assetSlug?: st
   /** Loads more of older items */
   function loadMore(pseudoLimit: number) {
     if (loading || reachedTheEnd) return;
-    loadActivities(pseudoLimit, activities);
+    loadActivities(pseudoLimit, activities, buildShouldStop());
   }
 
   useDidMount(() => {
-    loadActivities(initialPseudoLimit, activities);
+    loadActivities(initialPseudoLimit, [], buildShouldStop());
   });
 
   useDidUpdate(() => {
@@ -59,7 +70,7 @@ export default function useActivities(initialPseudoLimit: number, assetSlug?: st
     setLoading('init');
     setReachedTheEnd(false);
 
-    loadActivities(initialPseudoLimit, []);
+    loadActivities(initialPseudoLimit, [], buildShouldStop());
   }, [chainId, accountAddress, assetSlug]);
 
   return {
