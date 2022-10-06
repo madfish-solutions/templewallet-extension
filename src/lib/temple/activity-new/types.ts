@@ -1,6 +1,6 @@
 import { TzktOperation, TzktAlias, TzktOperationType } from 'lib/tzkt';
 
-export interface OperGroup {
+export interface OperationsGroup {
   hash: string;
   operations: TzktOperation[];
 }
@@ -10,18 +10,17 @@ export type ActivityStatus = TzktOperation['status'] | 'pending';
 export type ActivityMember = TzktAlias;
 export interface Activity {
   hash: string;
-  addedAt: string; // : ISO string
+  /** ISO string */
+  addedAt: string;
   status: ActivityStatus;
   oldestTzktOperation: TzktOperation;
-  /**
-   * Sorted new-to-old
-   */
+  /** Sorted new-to-old */
   operations: ActivityOperation[];
 }
 
-type PickedPropsFromOperation = Pick<TzktOperation, 'hash' | 'id' | 'level'>;
+type PickedPropsFromTzktOperation = Pick<TzktOperation, 'hash' | 'id' | 'level'>;
 
-export interface ActivityOperationBase extends PickedPropsFromOperation {
+export interface ActivityOperationBase extends PickedPropsFromTzktOperation {
   contractAddress?: string;
   source: ActivityMember;
   status: ActivityStatus;
@@ -44,9 +43,7 @@ export interface ActivityOtherOperation extends ActivityOperationBase {
 
 export type ActivityOperation = ActivityTransactionOperation | ActivityOtherOperation;
 
-//// OPER-STACK
-
-export enum OperStackItemType {
+export enum OperStackItemTypeEnum {
   TransferTo,
   TransferFrom,
   Delegation,
@@ -55,7 +52,7 @@ export enum OperStackItemType {
   Other
 }
 
-export type OperStackItem =
+export type OperStackItemInterface =
   | TransferFromItem
   | TransferToItem
   | DelegationItem
@@ -64,36 +61,36 @@ export type OperStackItem =
   | OtherItem;
 
 interface OperStackItemBase {
-  type: OperStackItemType;
+  type: OperStackItemTypeEnum;
 }
 
 interface TransferFromItem extends OperStackItemBase {
-  type: OperStackItemType.TransferFrom;
+  type: OperStackItemTypeEnum.TransferFrom;
   from: string;
 }
 
 interface TransferToItem extends OperStackItemBase {
-  type: OperStackItemType.TransferTo;
+  type: OperStackItemTypeEnum.TransferTo;
   to: string;
 }
 
 interface DelegationItem extends OperStackItemBase {
-  type: OperStackItemType.Delegation;
+  type: OperStackItemTypeEnum.Delegation;
   to: string;
 }
 
 interface InteractionItem extends OperStackItemBase {
-  type: OperStackItemType.Interaction;
+  type: OperStackItemTypeEnum.Interaction;
   with: string;
   entrypoint?: string;
 }
 
 interface OriginationItem extends OperStackItemBase {
-  type: OperStackItemType.Origination;
+  type: OperStackItemTypeEnum.Origination;
   contract?: string;
 }
 
 interface OtherItem extends OperStackItemBase {
-  type: OperStackItemType.Other;
+  type: OperStackItemTypeEnum.Other;
   name: TzktOperationType;
 }

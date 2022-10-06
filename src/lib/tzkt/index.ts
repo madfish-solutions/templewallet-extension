@@ -11,8 +11,8 @@ export type {
 
 export type { TzktApiChainId } from './api';
 export {
-  TZKT_API_BASE_URLS_MAP,
   TZKT_FETCH_QUERY_SIZE,
+  isKnownChainId,
   getDelegatorRewards,
   getOneUserContracts,
   fetchTokenBalances,

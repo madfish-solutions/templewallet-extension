@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 
 import classNames from 'clsx';
 
@@ -7,44 +7,36 @@ import { ActivitySpinner } from 'app/atoms/ActivitySpinner';
 import { ReactComponent as LayersIcon } from 'app/icons/layers.svg';
 import { T } from 'lib/i18n/react';
 import useActivities from 'lib/temple/activity-new/hook';
-import { useChainId, useAccount } from 'lib/temple/front';
-import { isKnownChainId } from 'lib/tzkt/api';
+import { useAccount } from 'lib/temple/front';
 
-import { ActivityItemComp } from './ActivityItem';
+import { ActivityItem } from './ActivityItem';
 
-const INIT_OPERS_N = 30;
-const OPERS_LOAD_STEP = 30;
+const INITIAL_NUMBER = 30;
+const LOAD_STEP = 30;
 
-interface ActivityCompProps {
+interface Props {
   assetSlug?: string;
 }
 
-export const ActivityComponent: React.FC<ActivityCompProps> = ({ assetSlug }) => {
+export const ActivityComponent: React.FC<Props> = ({ assetSlug }) => {
   const {
     loading,
     reachedTheEnd,
     list: activities,
     loadMore: loadMoreActivities
-  } = useActivities(INIT_OPERS_N, assetSlug);
+  } = useActivities(INITIAL_NUMBER, assetSlug);
 
-  const { publicKeyHash: currentAccountAddress } = useAccount();
-  const chainId = useChainId(true);
-  const syncSupported = useMemo(() => isKnownChainId(chainId), [chainId]);
+  const { publicKeyHash: accountAddress } = useAccount();
 
-  const onLoadMoreBtnClick = () => {
-    loadMoreActivities(OPERS_LOAD_STEP);
-  };
-
-  const onRetryLoadBtnClick = () => {
-    loadMoreActivities(INIT_OPERS_N);
-  };
+  const onLoadMoreButtonClick = () => loadMoreActivities(LOAD_STEP);
+  const onRetryLoadButtonClick = () => loadMoreActivities(INITIAL_NUMBER);
 
   if (activities.length === 0) {
     if (loading) return <ActivitySpinner height="2.5rem" />;
     else if (reachedTheEnd === false)
       return (
         <div className="w-full flex justify-center mt-5 mb-3">
-          <FormSecondaryButton onClick={onRetryLoadBtnClick} small>
+          <FormSecondaryButton onClick={onRetryLoadButtonClick} small>
             <T id="tryLoadAgain" />
           </FormSecondaryButton>
         </div>
@@ -65,12 +57,7 @@ export const ActivityComponent: React.FC<ActivityCompProps> = ({ assetSlug }) =>
     <>
       <div className={classNames('w-full max-w-md mx-auto', 'flex flex-col')}>
         {activities.map(activity => (
-          <ActivityItemComp
-            key={activity.hash}
-            address={currentAccountAddress}
-            activity={activity}
-            syncSupported={syncSupported}
-          />
+          <ActivityItem key={activity.hash} address={accountAddress} activity={activity} />
         ))}
       </div>
 
@@ -78,7 +65,7 @@ export const ActivityComponent: React.FC<ActivityCompProps> = ({ assetSlug }) =>
         <ActivitySpinner height="2.5rem" />
       ) : reachedTheEnd === false ? (
         <div className="w-full flex justify-center mt-5 mb-3">
-          <FormSecondaryButton onClick={onLoadMoreBtnClick} small>
+          <FormSecondaryButton onClick={onLoadMoreButtonClick} small>
             <T id="loadMore" />
           </FormSecondaryButton>
         </div>

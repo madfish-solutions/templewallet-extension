@@ -209,13 +209,11 @@ type ActivityTabProps = {
   assetSlug?: string;
 };
 
-const ActivityTab: FC<ActivityTabProps> = ({ assetSlug }) => {
-  return (
-    <SuspenseContainer whileMessage={t('operationHistoryWhileMessage')}>
-      <ActivityComponent assetSlug={assetSlug} />
-    </SuspenseContainer>
-  );
-};
+const ActivityTab: FC<ActivityTabProps> = ({ assetSlug }) => (
+  <SuspenseContainer whileMessage={t('operationHistoryWhileMessage')}>
+    <ActivityComponent assetSlug={assetSlug} />
+  </SuspenseContainer>
+);
 
 type SecondarySectionProps = {
   assetSlug?: string | null;

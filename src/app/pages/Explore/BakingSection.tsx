@@ -22,8 +22,8 @@ import BakerBanner from 'app/templates/BakerBanner';
 import { T, t } from 'lib/i18n/react';
 import { useRetryableSWR } from 'lib/swr';
 import { useAccount, useChainId, useDelegate, useGasToken } from 'lib/temple/front';
-import { TempleAccountType, isKnownChainId } from 'lib/temple/types';
-import { getDelegatorRewards, TZKT_API_BASE_URLS_MAP } from 'lib/tzkt';
+import { TempleAccountType } from 'lib/temple/types';
+import { getDelegatorRewards, isKnownChainId } from 'lib/tzkt';
 import useTippy from 'lib/ui/useTippy';
 import { Link } from 'lib/woozie';
 
@@ -85,7 +85,7 @@ const BakingSection = memo(() => {
 
   const getBakingHistory = useCallback(
     async (_k: string, accountPkh: string) => {
-      if (!isKnownChainId(chainId!) || !TZKT_API_BASE_URLS_MAP.has(chainId)) {
+      if (!isKnownChainId(chainId!)) {
         return [];
       }
       return (

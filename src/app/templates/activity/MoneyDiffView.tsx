@@ -9,14 +9,14 @@ import InFiat from 'app/templates/InFiat';
 import { useAssetMetadata } from 'lib/temple/front';
 import { getAssetSymbol } from 'lib/temple/metadata';
 
-type MoneyDiffViewProps = {
+type Props = {
   assetId: string;
   diff: string;
   pending?: boolean;
   className?: string;
 };
 
-export const MoneyDiffComp = memo<MoneyDiffViewProps>(({ assetId: assetSlug, diff, pending = false, className }) => {
+export const MoneyDiffView = memo<Props>(({ assetId: assetSlug, diff, pending = false, className }) => {
   const { popup } = useAppEnv();
   const metadata = useAssetMetadata(assetSlug);
 

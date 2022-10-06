@@ -4,26 +4,25 @@ import classNames from 'clsx';
 import formatDistanceToNow from 'date-fns/formatDistanceToNow';
 
 import OpenInExplorerChip from 'app/atoms/OpenInExplorerChip';
-import { MoneyDiffComp } from 'app/templates/activity/MoneyDiffView';
-import { OperStackComp } from 'app/templates/activity/OperStack';
+import { MoneyDiffView } from 'app/templates/activity/MoneyDiffView';
+import { OperStack } from 'app/templates/activity/OperStack';
 import HashChip from 'app/templates/HashChip';
 import { getDateFnsLocale } from 'lib/i18n';
 import { t } from 'lib/i18n/react';
-import { Activity, parseOperStack, parseMoneyDiffs } from 'lib/temple/activity-new';
+import { Activity, parseOperationsStack, parseMoneyDiffs } from 'lib/temple/activity-new';
 import { useExplorerBaseUrls } from 'lib/temple/front';
 
-interface ActivityItemCompProps {
+interface Props {
   activity: Activity;
   address: string;
-  syncSupported: boolean;
 }
 
-export const ActivityItemComp = memo<ActivityItemCompProps>(({ activity, address, syncSupported }) => {
+export const ActivityItem = memo<Props>(({ activity, address }) => {
   const { hash, addedAt, status } = activity;
 
   const { transaction: explorerBaseUrl } = useExplorerBaseUrls();
 
-  const operStack = useMemo(() => parseOperStack(activity, address), [activity, address]);
+  const operationsStack = useMemo(() => parseOperationsStack(activity, address), [activity, address]);
 
   const moneyDiffs = useMemo(() => {
     return ['pending', 'applied'].includes(status) ? parseMoneyDiffs(activity) : [];
@@ -41,9 +40,9 @@ export const ActivityItemComp = memo<ActivityItemCompProps>(({ activity, address
 
       <div className="flex items-stretch">
         <div className="flex flex-col pt-2">
-          <OperStackComp opStack={operStack} className="mb-2" />
+          <OperStack opStack={operationsStack} className="mb-2" />
 
-          <ActivityItemStatusComp activity={activity} syncSupported={syncSupported} />
+          <ActivityItemStatusComp activity={activity} />
 
           <Time
             children={() => (
@@ -62,7 +61,7 @@ export const ActivityItemComp = memo<ActivityItemCompProps>(({ activity, address
 
         <div className="flex flex-col flex-shrink-0 pt-2">
           {moneyDiffs.map(({ assetSlug, diff }, i) => (
-            <MoneyDiffComp key={i} assetId={assetSlug} diff={diff} pending={status === 'pending'} />
+            <MoneyDiffView key={i} assetId={assetSlug} diff={diff} pending={status === 'pending'} />
           ))}
         </div>
       </div>
@@ -72,12 +71,9 @@ export const ActivityItemComp = memo<ActivityItemCompProps>(({ activity, address
 
 interface ActivityItemStatusCompProps {
   activity: Activity;
-  syncSupported: boolean;
 }
 
-const ActivityItemStatusComp: React.FC<ActivityItemStatusCompProps> = ({ activity, syncSupported }) => {
-  if (syncSupported === false) return null;
-
+const ActivityItemStatusComp: React.FC<ActivityItemStatusCompProps> = ({ activity }) => {
   const explorerStatus = activity.status;
   const content = explorerStatus ?? 'pending';
   const conditionalTextColor = explorerStatus ? 'text-red-600' : 'text-yellow-600';

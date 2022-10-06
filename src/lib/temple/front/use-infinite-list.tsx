@@ -4,12 +4,12 @@ import { TzktAccountTokenBalance } from 'lib/tzkt';
 
 import { useAccount, useChainId } from './ready';
 
-interface infiniteListProps {
+interface InfiniteListProps {
   getCount: (chainId: string, address: string) => Promise<number>;
   getItems: (chainId: string, address: string, page?: number) => Promise<Array<TzktAccountTokenBalance>>;
 }
 
-export const useInfiniteList = ({ getCount, getItems }: infiniteListProps) => {
+export const useInfiniteList = ({ getCount, getItems }: InfiniteListProps) => {
   const chainId = useChainId(true)!;
   const account = useAccount();
   const address = account.publicKeyHash;

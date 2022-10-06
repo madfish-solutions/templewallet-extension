@@ -10,7 +10,7 @@ import {
 } from 'lib/tzkt/utils';
 
 import type {
-  OperGroup,
+  OperationsGroup,
   ActivityStatus,
   Activity,
   ActivityOperationBase,
@@ -20,7 +20,7 @@ import type {
   ActivityMember
 } from './types';
 
-export function operGroupToActivity({ hash, operations }: OperGroup, address: string): Activity {
+export function operationsGroupToActivity({ hash, operations }: OperationsGroup, address: string): Activity {
   const firstOperation = operations[0]!;
   const oldestTzktOperation = operations[operations.length - 1]!;
   const addedAt = firstOperation.timestamp;
