@@ -23,9 +23,6 @@ export const ActivityComponent: React.FC<Props> = ({ assetSlug }) => {
 
   const { publicKeyHash: accountAddress } = useAccount();
 
-  const retryInitialLoad = () => loadMore(INITIAL_NUMBER);
-  const loadMoreActivities = () => loadMore(LOAD_STEP);
-
   if (activities.length === 0 && !loading && reachedTheEnd)
     return (
       <div className={classNames('mt-4 mb-12', 'flex flex-col items-center justify-center', 'text-gray-500')}>
@@ -37,6 +34,9 @@ export const ActivityComponent: React.FC<Props> = ({ assetSlug }) => {
       </div>
     );
 
+  const retryInitialLoad = () => loadMore(INITIAL_NUMBER);
+  const loadMoreActivities = () => loadMore(LOAD_STEP);
+
   const loadNext = activities.length === 0 ? retryInitialLoad : loadMoreActivities;
 
   return (
@@ -44,7 +44,7 @@ export const ActivityComponent: React.FC<Props> = ({ assetSlug }) => {
       <InfiniteScroll
         dataLength={activities.length}
         hasMore={reachedTheEnd === false}
-        next={loading || reachedTheEnd ? () => null : loadNext}
+        next={loadNext}
         loader={loading && <ActivitySpinner height="2.5rem" />}
         onScroll={({ target }) => {
           /*
