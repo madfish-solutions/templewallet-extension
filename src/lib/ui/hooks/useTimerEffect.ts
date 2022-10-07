@@ -1,7 +1,5 @@
 import { DependencyList, useEffect } from 'react';
 
-import { EmptyFn } from '../utils/function.utils';
-
 export const useTimerEffect = (callback: EmptyFn, refreshInterval: number, deps: DependencyList) =>
   useEffect(() => {
     callback();

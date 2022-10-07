@@ -23,7 +23,7 @@ import { useRetryableSWR } from 'lib/swr';
 import { toTokenSlug } from 'lib/temple/assets';
 import { useCustomChainId, useNetwork, useRelevantAccounts, tryParseExpenses } from 'lib/temple/front';
 import { TempleAccountType, TempleChainId, TempleConfirmationPayload } from 'lib/temple/types';
-import useSafeState from 'lib/ui/useSafeState';
+import { useSafeState } from 'lib/ui/hooks';
 
 import { InternalConfirmationSelectors } from './InternalConfirmation.selectors';
 

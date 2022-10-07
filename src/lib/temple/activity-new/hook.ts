@@ -1,10 +1,8 @@
 import { useRef } from 'react';
 
-import { useSafeState } from 'ahooks';
-import { useDidMount, useDidUpdate } from 'rooks';
-
 import { useTezos, useChainId, useAccount } from 'lib/temple/front';
 import { isKnownChainId } from 'lib/tzkt/api';
+import { useDidMount, useDidUpdate, useSafeState } from 'lib/ui/hooks';
 
 import fetchActivities from './fetch';
 import type { Activity } from './types';

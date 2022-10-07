@@ -14,13 +14,12 @@ import {
 import { useChainId, useAccount, useUSDPrices, useTokensMetadata } from 'lib/temple/front';
 import { AssetMetadata, DetailedAssetMetdata, toBaseMetadata } from 'lib/temple/metadata';
 import * as Repo from 'lib/temple/repo';
+import { TempleChainId } from 'lib/temple/types';
 import { getTokensMetadata } from 'lib/templewallet-api';
 import { fetchWhitelistTokenSlugs } from 'lib/templewallet-api/whitelist-tokens';
 import { fetchTzktTokens } from 'lib/tzkt';
-
-import { useTimerEffect } from '../../../app/hooks/useTimerEffect';
-import { TzktAccountToken } from '../../tzkt/types';
-import { TempleChainId } from '../types';
+import { TzktAccountToken } from 'lib/tzkt/types';
+import { useTimerEffect } from 'lib/ui/hooks';
 
 const SYNC_INTERVAL = 60_000;
 
