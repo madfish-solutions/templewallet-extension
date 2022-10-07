@@ -1,9 +1,6 @@
 /*
   Reference for this config:
   https://github.com/facebook/create-react-app/blob/main/packages/react-scripts/config/webpack.config.js
-
-  TODO:
-  - Use EsLint plugin
 */
 
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
@@ -13,7 +10,6 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
 const path = require('path');
-const safePostCssParser = require('postcss-safe-parser');
 const ForkTsCheckerWebpackPlugin = require('react-dev-utils/ForkTsCheckerWebpackPlugin');
 const getCSSModuleLocalIdent = require('react-dev-utils/getCSSModuleLocalIdent');
 const ModuleNotFoundPlugin = require('react-dev-utils/ModuleNotFoundPlugin');
@@ -22,6 +18,7 @@ const WatchMissingNodeModulesPlugin = require('react-dev-utils/WatchMissingNodeM
 const resolve = require('resolve');
 const TerserPlugin = require('terser-webpack-plugin');
 const webpack = require('webpack');
+const ESLintPlugin = require('eslint-webpack-plugin');
 const ExtensionReloader = require('webpack-ext-reloader-mv3');
 const WebpackBar = require('webpackbar');
 const ZipPlugin = require('zip-webpack-plugin');
@@ -203,24 +200,6 @@ module.exports = {
     strictExportPresence: true,
 
     rules: [
-      // First, run the linter.
-      // It's important to do this before Babel processes the JS.
-      {
-        test: /\.(js|mjs|jsx|ts|tsx)$/,
-        enforce: 'pre',
-        include: SOURCE_PATH,
-        use: [
-          {
-            options: {
-              cache: true,
-              formatter: require.resolve('react-dev-utils/eslintFormatter'),
-              eslintPath: require.resolve('eslint'),
-              resolvePluginsRelativeTo: __dirname
-            },
-            loader: require.resolve('eslint-loader')
-          }
-        ]
-      },
       {
         // "oneOf" will traverse all following loaders until one will
         // match the requirements. When no loader matches it will fall
@@ -480,7 +459,20 @@ module.exports = {
         reloadPage: true,
         // manifest: path.join(OUTPUT_PATH, "manifest.json"),
         entries: EXTENSION_ENTRIES
-      })
+      }),
+
+    new ESLintPlugin({
+      extensions: ['js', 'mjs', 'jsx', 'ts', 'tsx'],
+      formatter: require.resolve('react-dev-utils/eslintFormatter'),
+      eslintPath: require.resolve('eslint'),
+      resolvePluginsRelativeTo: __dirname,
+      cache: true,
+      cacheLocation: path.resolve(
+        NODE_MODULES_PATH,
+        '.cache/.eslintcache'
+      ),
+      failOnError: true,
+    }),
   ].filter(Boolean),
 
   optimization: {
@@ -520,14 +512,7 @@ module.exports = {
       }),
 
       // This is only used in production mode
-      new CssMinimizerPlugin({
-        minimizerOptions: {
-          processorOptions: {
-            parser: safePostCssParser
-          },
-          preset: ['default', { minifyFontValues: { removeQuotes: false } }],
-        },
-      }),
+      new CssMinimizerPlugin(),
 
       new ZipPlugin({
         path: DEST_PATH,
