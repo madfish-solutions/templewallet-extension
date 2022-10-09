@@ -10,7 +10,7 @@ import DisableOutlinesForClick from 'app/a11y/DisableOutlinesForClick';
 import Dialogs from 'app/layouts/Dialogs';
 import { getMessage } from 'lib/i18n';
 import { T } from 'lib/i18n/react';
-import { clearStorage } from 'lib/temple/reset';
+import { clearStorages } from 'lib/temple/reset';
 import { AlertFn, ConfirmFn, DialogsProvider, useAlert, useConfirm } from 'lib/ui/dialog';
 
 const OptionsWrapper: FC = () => (
@@ -72,7 +72,7 @@ async function handleReset(customAlert: AlertFn, confirm: ConfirmFn) {
   if (confirmed) {
     (async () => {
       try {
-        await clearStorage();
+        await clearStorages();
         browser.runtime.reload();
       } catch (err: any) {
         await customAlert({

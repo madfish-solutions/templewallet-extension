@@ -32,7 +32,7 @@ import {
 } from 'lib/temple/helpers';
 import { pickLedgerTransport } from 'lib/temple/ledger-live';
 import * as Passworder from 'lib/temple/passworder';
-import { clearStorage } from 'lib/temple/reset';
+import { clearStorages } from 'lib/temple/reset';
 import { TempleAccount, TempleAccountType, TempleContact, TempleSettings } from 'lib/temple/types';
 
 const TEMPLE_SYNC_PREFIX = 'templesync';
@@ -98,14 +98,7 @@ export class Vault {
 
       const passKey = await Passworder.generateKey(password);
 
-      const onboarding = localStorage.getItem('onboarding');
-      const analytics = localStorage.getItem('analytics');
-
-      await clearStorage();
-      try {
-        localStorage.setItem('onboarding', onboarding!);
-        localStorage.setItem('analytics', analytics!);
-      } catch {}
+      await clearStorages();
 
       await encryptAndSaveMany(
         [
@@ -791,6 +784,7 @@ async function withError<T>(errMessage: string, factory: (doThrow: () => void) =
       throw new Error('<stub>');
     });
   } catch (err: any) {
+    console.log(err);
     throw err instanceof PublicError ? err : new PublicError(errMessage);
   }
 }
