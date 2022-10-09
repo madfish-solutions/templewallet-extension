@@ -4,6 +4,7 @@ import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
 
 import { FormField } from 'app/atoms';
+import { useAppEnv } from 'app/env';
 import { ReactComponent as CopyIcon } from 'app/icons/copy.svg';
 import { T } from 'lib/i18n/react';
 import { useRetryableSWR } from 'lib/swr';
@@ -17,6 +18,7 @@ type AssetInfoProps = {
 };
 
 const AssetInfo: FC<AssetInfoProps> = ({ assetSlug }) => {
+  const { popup } = useAppEnv();
   const tezos = useTezos();
   const asset = useRetryableSWR(['asset', assetSlug, tezos.checksum], () => fromAssetSlug(tezos, assetSlug), {
     suspense: true
@@ -25,25 +27,27 @@ const AssetInfo: FC<AssetInfoProps> = ({ assetSlug }) => {
   const metadata = useAssetMetadata(assetSlug);
 
   return (
-    <div className={classNames('w-full max-w-sm mx-auto')}>
-      <InfoField
-        textarea
-        rows={2}
-        id="contract-address"
-        label={<T id="contract" />}
-        labelDescription={<T id="addressOfTokenContract" substitutions={[getAssetSymbol(metadata)]} />}
-        value={isTezAsset(asset) ? 'TEZ' : asset.contract}
-        size={36}
-        style={{
-          resize: 'none'
-        }}
-      />
+    <div className={classNames(popup && 'mx-4')}>
+      <div className={classNames('w-full max-w-sm mx-auto')}>
+        <InfoField
+          textarea
+          rows={2}
+          id="contract-address"
+          label={<T id="contract" />}
+          labelDescription={<T id="addressOfTokenContract" substitutions={[getAssetSymbol(metadata)]} />}
+          value={isTezAsset(asset) ? 'TEZ' : asset.contract}
+          size={36}
+          style={{
+            resize: 'none'
+          }}
+        />
 
-      {isFA2Asset(asset) && (
-        <InfoField id="token-id" label={<T id="tokenId" />} value={new BigNumber(asset.id).toFixed()} />
-      )}
+        {isFA2Asset(asset) && (
+          <InfoField id="token-id" label={<T id="tokenId" />} value={new BigNumber(asset.id).toFixed()} />
+        )}
 
-      <InfoField id="token-decimals" label={<T id="decimals" />} value={metadata.decimals} />
+        <InfoField id="token-decimals" label={<T id="decimals" />} value={metadata.decimals} />
+      </div>
     </div>
   );
 };

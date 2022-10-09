@@ -19,10 +19,10 @@ export async function fetchBalance(
 ) {
   const asset = await fromAssetSlug(tezos, assetSlug);
 
-  let nat: BigNumber | undefined;
+  let nat = new BigNumber(0);
 
   if (asset === 'tez') {
-    nat = await getBalanceSafe(tezos, account);
+    nat = (await getBalanceSafe(tezos, account)) ?? new BigNumber(0);
   } else {
     const contract = await loadContract(tezos, asset.contract, false);
     const chainId = (await tezos.rpc.getChainId()) as ChainIds;
@@ -39,9 +39,7 @@ export async function fetchBalance(
     }
   }
 
-  if (!nat || nat.isNaN()) {
-    nat = new BigNumber(0);
-  }
+  nat = getSafeBignum(nat);
 
   return assetMetadata ? nat.div(10 ** assetMetadata.decimals) : nat;
 }
@@ -52,3 +50,6 @@ const getBalanceSafe = async (tezos: TezosToolkit, account: string) => {
   } catch {}
   return undefined;
 };
+
+const getSafeBignum = (x: any): BigNumber =>
+  !x || (typeof x === 'object' && typeof x.isNaN === 'function' && x.isNaN()) ? new BigNumber(0) : new BigNumber(x);
