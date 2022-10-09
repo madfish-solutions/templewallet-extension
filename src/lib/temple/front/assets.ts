@@ -296,11 +296,7 @@ export const useAvailableAssets = (assetType: AssetTypesEnum) => {
   return { availableAssets, assetsStatuses, isLoading, mutate };
 };
 
-export function searchAssets(
-  searchValue: string,
-  assetSlugs: string[],
-  allTokensBaseMetadata: Record<string, AssetMetadata>
-) {
+function searchAssets(searchValue: string, assetSlugs: string[], allTokensBaseMetadata: Record<string, AssetMetadata>) {
   if (!searchValue) return assetSlugs;
 
   const fuse = new Fuse(

@@ -8,5 +8,5 @@ export async function clearStorages() {
   await Repo.db.open();
   await browser.storage.local.clear();
 
-  if(IS_BROWSER_ENV) localStorage.clear();
+  if (IS_BROWSER_ENV) localStorage.clear();
 }

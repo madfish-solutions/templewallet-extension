@@ -170,7 +170,7 @@ export type TzktRewardsEntry = {
 
 export type TzktGetRewardsResponse = TzktRewardsEntry[] | undefined;
 
-export interface TzktAccountTokenBalance {
+export interface TzktAccountToken {
   account: TzktAlias;
   balance: string;
   firstLevel: number;
