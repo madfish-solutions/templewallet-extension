@@ -2,6 +2,13 @@
 # yarn lockfile v1
 
 
+"@alexseleznov/tezos-domains-core@^1.20.1":
+  version "1.20.1"
+  resolved "https://gitlab.com/api/v4/projects/39968510/packages/npm/@alexseleznov/tezos-domains-core/-/@alexseleznov/tezos-domains-core-1.20.1.tgz#7f428828ded9dbf57f11178f82b10324de30e475"
+  integrity sha1-f0KIKN7Z2/V/ERePgrEDJN4w5HU=
+  dependencies:
+    idna-uts46-hx "^3.3.0"
+
 "@ampproject/remapping@^2.1.0":
   version "2.2.0"
   resolved "https://registry.yarnpkg.com/@ampproject/remapping/-/remapping-2.2.0.tgz#56c133824780de3174aed5ab6834f3026790154d"
@@ -1969,50 +1976,50 @@
     "@ledgerhq/hw-transport-webhid" "^6.20.0"
     "@types/ledgerhq__hw-transport" "^4.21.3"
 
-"@tezos-domains/core@1.18.0", "@tezos-domains/core@^1.17.1":
-  version "1.18.0"
-  resolved "https://registry.yarnpkg.com/@tezos-domains/core/-/core-1.18.0.tgz#5c3782bc65d8a74bf759d743ffed74f09479a070"
-  integrity sha512-/SmBY+z51YmvPC0X3cxlcM58CEE8D7+JcYZBQlzIJFAHzgXhl+XlHkE3Y+yl9P3qOsLkP10eBBPPLL7v6XFdsQ==
+"@tezos-domains/core@^1.20.0", "@tezos-domains/core@^1.21.0":
+  version "1.21.0"
+  resolved "https://registry.yarnpkg.com/@tezos-domains/core/-/core-1.21.0.tgz#22b736a81cf37705d3287f0e07e0a39ab66d9af7"
+  integrity sha512-E8PI8z6yFBVxU0O0LGeOy6XA53lrGQHwBfMsU6TPnGubNG2bg763u7M/K/tJFNXrJ4+I+t9ZQVoKa9zmfmcv2g==
   dependencies:
     idna-uts46-hx "^3.3.0"
 
-"@tezos-domains/manager@^1.17.1":
-  version "1.17.1"
-  resolved "https://registry.yarnpkg.com/@tezos-domains/manager/-/manager-1.17.1.tgz#6a92fba1e9811d8518349b808348f1ab4f8a2b98"
-  integrity sha512-j/Qfk29l0xaqlPi/9kD8GVf2T3rA6lVcvADKzKnS3P2BYIfYk/ZETV9r9vHDFQLlSySvG/nYV3Wk45votqommw==
+"@tezos-domains/manager@^1.20.0":
+  version "1.21.0"
+  resolved "https://registry.yarnpkg.com/@tezos-domains/manager/-/manager-1.21.0.tgz#53f835891d1d9cf9ff383da614ab36a4cfb06378"
+  integrity sha512-XC7x8vWr6AYeGNljzvjbqVH6BbAN7fXCxmaBvmWMws2INFMpQmzs0tDIiNfffnpWtj7ipRV5BMD8dIDTYmZCIQ==
   dependencies:
-    "@tezos-domains/core" "^1.17.1"
-    "@tezos-domains/taquito" "^1.17.1"
+    "@tezos-domains/core" "^1.21.0"
+    "@tezos-domains/taquito" "^1.21.0"
     "@types/sha.js" "^2.4.0"
     bignumber.js "^9.0.2"
     sha.js "^2.4.11"
 
-"@tezos-domains/resolver@^1.17.1":
-  version "1.17.1"
-  resolved "https://registry.yarnpkg.com/@tezos-domains/resolver/-/resolver-1.17.1.tgz#1e78699e2a3d3a15db2bb099e8e223a5808cc7d8"
-  integrity sha512-NWC3GkytaGNKq5es6KujEB8MsT3FigwfHHpdrcPrDlb7k4cJZ9oGRHXVjt0TzEvJ+ooRgVzuCY8QVob+ElalSg==
+"@tezos-domains/resolver@^1.20.0":
+  version "1.21.0"
+  resolved "https://registry.yarnpkg.com/@tezos-domains/resolver/-/resolver-1.21.0.tgz#1d1d01b5ac278738baabcc1faeab96fdfb154e1c"
+  integrity sha512-+NkP9XETxjslKys9/rHbU5L6FnUEc2K6w1pJASPWpSOWe8oNDDxbrAggJPRvwTtHc5xds4zQS0cCWNrIq9MLKw==
   dependencies:
-    "@tezos-domains/core" "^1.17.1"
+    "@tezos-domains/core" "^1.21.0"
     node-cache "^5.1.2"
 
-"@tezos-domains/taquito-client@1.17.1":
-  version "1.17.1"
-  resolved "https://registry.yarnpkg.com/@tezos-domains/taquito-client/-/taquito-client-1.17.1.tgz#c018e2997be5375eef8e58c888eef1fcb9073f80"
-  integrity sha512-snzMK4aPm0dHS2zZdcM5M3hfzxLtygu73HTw64ljGJm/UNO21G5VtBHFGQhy7p6mmE/OmiRm6eNQ8MZ8n73U0A==
+"@tezos-domains/taquito-client@1.20.0":
+  version "1.20.0"
+  resolved "https://registry.yarnpkg.com/@tezos-domains/taquito-client/-/taquito-client-1.20.0.tgz#08143cddf0c1195a849061fbdbc55da2eadca0ab"
+  integrity sha512-lQAlOZzzBK8cJl+knoYtxra1g6DzBe59PrBmd62x6s7lV6hR6tr72N7k9GaSRc92N43OFgcLx2KbK0cdoudt+A==
   dependencies:
-    "@tezos-domains/core" "^1.17.1"
-    "@tezos-domains/manager" "^1.17.1"
-    "@tezos-domains/resolver" "^1.17.1"
-    "@tezos-domains/taquito" "^1.17.1"
+    "@tezos-domains/core" "^1.20.0"
+    "@tezos-domains/manager" "^1.20.0"
+    "@tezos-domains/resolver" "^1.20.0"
+    "@tezos-domains/taquito" "^1.20.0"
     bignumber.js "^9.0.2"
     node-cache "^5.1.2"
 
-"@tezos-domains/taquito@^1.17.1":
-  version "1.17.1"
-  resolved "https://registry.yarnpkg.com/@tezos-domains/taquito/-/taquito-1.17.1.tgz#2c09e986efed8942c5591680cd118df2f0ba4a15"
-  integrity sha512-nYZQEIk8mR3IMTBAG/roFzB3Ok8F/66u+AJrtt4tLMxVkawVdeRdwMQan+C40a900xuA1OT1jnlA9gMtxicgjQ==
+"@tezos-domains/taquito@^1.20.0", "@tezos-domains/taquito@^1.21.0":
+  version "1.21.0"
+  resolved "https://registry.yarnpkg.com/@tezos-domains/taquito/-/taquito-1.21.0.tgz#aec9a54205951975cd3f2303777b0acbccf15733"
+  integrity sha512-IvRXH0O06Ph/568JmShlhizueSMMe+g5YblC8TyyzhJEH5WPWvfo40RAt4kMUmI1+6uRPlKY6QhSZTeGhef+6Q==
   dependencies:
-    "@tezos-domains/core" "^1.17.1"
+    "@tezos-domains/core" "^1.21.0"
     bignumber.js "^9.0.2"
     node-cache "^5.1.2"
 
@@ -2368,7 +2375,7 @@
   resolved "https://registry.yarnpkg.com/@types/use-sync-external-store/-/use-sync-external-store-0.0.3.tgz#b6725d5f4af24ace33b36fafd295136e75509f43"
   integrity sha512-EwmlvuaxPNej9+T4v5AuBPJa2x2UOJVdjCtDHgcDqitUeOtjnJKJ+apYjVcAoBEMjKW1VVFGZLUb5+qqa09XFA==
 
-"@types/webextension-polyfill@^0.8.3":
+"@types/webextension-polyfill@^0.8.2":
   version "0.8.3"
   resolved "https://registry.yarnpkg.com/@types/webextension-polyfill/-/webextension-polyfill-0.8.3.tgz#eb601b3fcf524f0ecf7d7579ccbd237928d0dda7"
   integrity sha512-GN+Hjzy9mXjWoXKmaicTegv3FJ0WFZ3aYz77Wk8TMp1IY3vEzvzj1vnsa0ggV7vMI1i+PUxe4qqnIJKCzf9aTg==
@@ -7034,7 +7041,7 @@ minimatch@^3.0.4, minimatch@^3.1.2:
   dependencies:
     brace-expansion "^1.1.7"
 
-minimist@^1.1.1, minimist@^1.2.0, minimist@^1.2.6:
+minimist@^1.1.1, minimist@^1.2.0, minimist@^1.2.5, minimist@^1.2.6:
   version "1.2.6"
   resolved "https://registry.yarnpkg.com/minimist/-/minimist-1.2.6.tgz#8637a5b759ea0d6e98702cfb3a9283323c93af44"
   integrity sha512-Jsjnk4bw3YJqYzbdyBiNsPWHPfO++UGG749Cxs6peCu5Xg4nrena6OVxOYxrQTqww0Jmwt+Ref8rggumkTLz9Q==
@@ -9910,11 +9917,6 @@ webextension-polyfill@^0.8.0:
   resolved "https://registry.yarnpkg.com/webextension-polyfill/-/webextension-polyfill-0.8.0.tgz#f80e9f4b7f81820c420abd6ffbebfa838c60e041"
   integrity sha512-a19+DzlT6Kp9/UI+mF9XQopeZ+n2ussjhxHJ4/pmIGge9ijCDz7Gn93mNnjpZAk95T4Tae8iHZ6sSf869txqiQ==
 
-webextension-polyfill@^0.9.0:
-  version "0.9.0"
-  resolved "https://registry.yarnpkg.com/webextension-polyfill/-/webextension-polyfill-0.9.0.tgz#de6c1941d0ef1b0858b20e9c7b46bbc042c5a960"
-  integrity sha512-LTtHb0yR49xa9irkstDxba4GATDAcDw3ncnFH9RImoFwDlW47U95ME5sn5IiQX2ghfaECaf6xyXM8yvClIBkkw==
-
 webidl-conversions@^3.0.0:
   version "3.0.1"
   resolved "https://registry.yarnpkg.com/webidl-conversions/-/webidl-conversions-3.0.1.tgz#24534275e2a7bc6be7bc86611cc16ae0a5654871"
@@ -9948,23 +9950,23 @@ webpack-cli@4.10.0:
     rechoir "^0.7.0"
     webpack-merge "^5.7.3"
 
-webpack-ext-reloader-mv3@^2.1.1:
-  version "2.1.1"
-  resolved "https://registry.yarnpkg.com/webpack-ext-reloader-mv3/-/webpack-ext-reloader-mv3-2.1.1.tgz#a96c8be4ab64966c4ac5c556a394c6db29b3360a"
-  integrity sha512-hCdoQ9zr66zDhH1Aa+4XhFAZynMkH4E+Hy8rdLCRULyIdT7fwyXbfhAdReVFrA8qAs5Ct4vHhTGYRtk3/Lau9Q==
+webpack-ext-reloader@^1.1.9:
+  version "1.1.9"
+  resolved "https://registry.yarnpkg.com/webpack-ext-reloader/-/webpack-ext-reloader-1.1.9.tgz#7d4145c459ba3ec6e377b0e87065f7ea68686a73"
+  integrity sha512-6AVXGrjcVHKtIQn4yGGghJpiIV2h9F7hNKLsh1oP8m+d6H3QLF3jTNu3vNdKu/8Lab3J/gwb7Bm7tjZLa+DS6g==
   dependencies:
-    "@types/webextension-polyfill" "^0.8.3"
+    "@types/webextension-polyfill" "^0.8.2"
     "@types/webpack" "^5.28.0"
     "@types/webpack-sources" "^3.2.0"
     clean-webpack-plugin "^4.0.0"
     colors "^1.4.0"
     cross-env "^7.0.3"
     lodash "^4.17.21"
-    minimist "^1.2.6"
+    minimist "^1.2.5"
     useragent "^2.3.0"
-    webextension-polyfill "^0.9.0"
+    webextension-polyfill "^0.8.0"
     webpack-sources "^3.2.3"
-    ws "^8.6.0"
+    ws "^8.4.2"
 
 webpack-merge@^5.7.3:
   version "5.8.0"
@@ -10127,7 +10129,7 @@ write-file-atomic@^3.0.0:
     signal-exit "^3.0.2"
     typedarray-to-buffer "^3.1.5"
 
-ws@7.4.6, ws@^7.4.6, ws@^8.6.0:
+ws@7.4.6, ws@^7.4.6, ws@^8.4.2:
   version "7.4.6"
   resolved "https://registry.yarnpkg.com/ws/-/ws-7.4.6.tgz#5654ca8ecdeee47c33a9a4bf6d28e2be2980377c"
   integrity sha512-YmhHDO4MzaDLB+M9ym/mDA5z0naX8j7SIlT8f8z+I0VtzsRbekxEutHSme7NPS2qE8StCYQNUnfWdXta/Yu85A==

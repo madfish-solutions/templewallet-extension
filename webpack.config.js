@@ -19,7 +19,7 @@ const resolve = require('resolve');
 const TerserPlugin = require('terser-webpack-plugin');
 const webpack = require('webpack');
 const ESLintPlugin = require('eslint-webpack-plugin');
-const ExtensionReloader = require('webpack-ext-reloader-mv3');
+const ExtensionReloader = require('webpack-ext-reloader');
 const WebpackBar = require('webpackbar');
 const ZipPlugin = require('zip-webpack-plugin');
 
@@ -335,9 +335,12 @@ module.exports = {
   },
 
   plugins: [
+    /* To be removed on `@tezos-domains/core@1.20.1` */
+    new webpack.NormalModuleReplacementPlugin(/@tezos-domains\/core/, '@alexseleznov/tezos-domains-core'),
+
     /*
-      Some dependencies do not perform checks on `typeof process !== undefined`.
-      WebPack v4 injected `process` automatically.
+      Some dependencies do not perform checks on `typeof nodeSpecificAsset !== undefined`.
+      WebPack v4 injected `nodeSpecificAsset` automatically.
     */
     new webpack.ProvidePlugin({
       process: 'process/browser',
