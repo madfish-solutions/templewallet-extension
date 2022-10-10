@@ -2,6 +2,7 @@ import React, { FC, useCallback, useEffect, useMemo, useState } from 'react';
 
 import classNames from 'clsx';
 
+import { useAppEnv } from 'app/env';
 import { ReactComponent as AddToListIcon } from 'app/icons/add-to-list.svg';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
 import SearchAssetField from 'app/templates/SearchAssetField';
@@ -20,6 +21,7 @@ export const Tokens: FC = () => {
   const chainId = useChainId(true)!;
   const { publicKeyHash } = useAccount();
   const isSync = useSyncTokens();
+  const { popup } = useAppEnv();
   const latestBalances = useSyncBalances();
 
   const { data: tokens = [] } = useDisplayedFungibleTokens(chainId, publicKeyHash);
@@ -75,31 +77,33 @@ export const Tokens: FC = () => {
 
   return (
     <div className={classNames('w-full max-w-sm mx-auto')}>
-      <div className="mt-1 mb-3 w-full flex items-strech">
-        <SearchAssetField
-          value={searchValue}
-          onValueChange={setSearchValue}
-          onFocus={handleSearchFieldFocus}
-          onBlur={handleSearchFieldBlur}
-        />
+      <div className={classNames('mt-3', popup && 'mx-4')}>
+        <div className="mb-3 w-full flex items-strech">
+          <SearchAssetField
+            value={searchValue}
+            onValueChange={setSearchValue}
+            onFocus={handleSearchFieldFocus}
+            onBlur={handleSearchFieldBlur}
+          />
 
-        <Link
-          to="/manage-assets"
-          className={classNames(
-            'ml-2 flex-shrink-0',
-            'px-3 py-1',
-            'rounded overflow-hidden',
-            'flex items-center',
-            'text-gray-600 text-sm',
-            'transition ease-in-out duration-200',
-            'hover:bg-gray-100',
-            'opacity-75 hover:opacity-100 focus:opacity-100'
-          )}
-          testID={AssetsSelectors.ManageButton}
-        >
-          <AddToListIcon className={classNames('mr-1 h-5 w-auto stroke-current stroke-2')} />
-          <T id="manage" />
-        </Link>
+          <Link
+            to="/manage-assets"
+            className={classNames(
+              'ml-2 flex-shrink-0',
+              'px-3 py-1',
+              'rounded overflow-hidden',
+              'flex items-center',
+              'text-gray-600 text-sm',
+              'transition ease-in-out duration-200',
+              'hover:bg-gray-100',
+              'opacity-75 hover:opacity-100 focus:opacity-100'
+            )}
+            testID={AssetsSelectors.ManageButton}
+          >
+            <AddToListIcon className={classNames('mr-1 h-5 w-auto stroke-current stroke-2')} />
+            <T id="manage" />
+          </Link>
+        </div>
       </div>
 
       {filteredAssets.length === 0 ? (
@@ -127,7 +131,7 @@ export const Tokens: FC = () => {
         <div
           className={classNames(
             'w-full overflow-hidden',
-            'border rounded-md',
+            'rounded-md',
             'flex flex-col',
             'text-gray-700 text-sm leading-tight'
           )}

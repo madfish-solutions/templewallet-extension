@@ -36,9 +36,7 @@ export const CollectibleItem: FC<Props> = ({ assetSlug, index, itemsLength }) =>
           </div>
         </div>
         <div className="pl-2">
-          <p style={{ color: '#1B262C' }} className="text-sm">
-            {getAssetName(metadata)}
-          </p>
+          <p className="text-sm text-gray-910">{getAssetName(metadata)}</p>
         </div>
       </div>
     </Link>

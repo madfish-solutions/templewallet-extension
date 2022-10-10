@@ -11,6 +11,9 @@
   "createAccount": {
     "message": "Create or Restore account"
   },
+  "totalEquityValue": {
+    "message": "Total Equity Value"
+  },
   "importAccount": {
     "message": "Import account"
   },

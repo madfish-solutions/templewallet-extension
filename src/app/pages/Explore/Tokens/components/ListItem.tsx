@@ -38,9 +38,8 @@ export const ListItem = memo<ListItemProps>(({ active, assetSlug, latestBalances
         'relative',
         'block w-full',
         'overflow-hidden',
-        'border-b border-gray-200',
-        active ? 'bg-gray-100' : 'hover:bg-gray-100 focus:bg-gray-100',
-        'flex items-center p-4',
+        active ? 'hover:bg-gray-200' : 'hover:bg-gray-200 focus:bg-gray-200',
+        'flex items-center px-4 py-3',
         'text-gray-700',
         'transition ease-in-out duration-200',
         'focus:outline-none'
