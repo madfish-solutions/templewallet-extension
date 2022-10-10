@@ -122,7 +122,7 @@ const makeSync = async (
   // Otherwise - fetch from chain.
   if (!metadatas) {
     metadatas = await Promise.all(metadataSlugs.map(slug => generateMetadataRequest(slug, mainnet, fetchMetadata)));
-    metadatas = metadatas.filter(x => !!x);
+    metadatas = metadatas.filter(x => Boolean(x));
   }
 
   const baseMetadatasToSet: Record<string, AssetMetadata> = {};
