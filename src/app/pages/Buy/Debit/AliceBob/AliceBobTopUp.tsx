@@ -3,29 +3,24 @@ import React, { ChangeEvent, FC, useCallback, useMemo, useState } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
 
 import { FormSubmitButton } from 'app/atoms/FormSubmitButton';
+import { getSignedAliceBobUrl } from 'lib/alice-bob-api';
+import { useAnalyticsState } from 'lib/analytics/use-analytics-state.hook';
+import { T } from 'lib/i18n/react';
+import { useAccount } from 'lib/temple/front';
 
-import { useAnalyticsState } from '../../../../../lib/analytics/use-analytics-state.hook';
-import { T } from '../../../../../lib/i18n/react';
-import makeBuildQueryFn from '../../../../../lib/makeBuildQueryFn';
-import { useAccount } from '../../../../../lib/temple/front';
 import Divider from '../../../../atoms/Divider';
+import { useDisabledProceed } from '../../../../hooks/AliceBob/useDisabledProceed';
+import { useOutputEstimation } from '../../../../hooks/AliceBob/useOutputEstimation';
+import { useUpdatedExchangeInfo } from '../../../../hooks/AliceBob/useUpdatedExchangeInfo';
 import { ReactComponent as AttentionRedIcon } from '../../../../icons/attentionRed.svg';
 import PageLayout from '../../../../layouts/PageLayout';
-import { WithdrawSelectors } from '../../../Withdraw/Withdraw.selectors';
 import { BuySelectors } from '../../Buy.selectors';
 import styles from '../../Crypto/Exolix/Exolix.module.css';
 import { TopUpInput } from '../Utorg/components/TopUpInput/TopUpInput';
-import { useDisabledProceed } from './hooks/useDisabledProceed';
-import { useOutputEstimation } from './hooks/useOutputEstimation';
-import { useUpdatedExchangeInfo } from './hooks/useUpdatedExchangeInfo';
 
 const REQUEST_LATENCY = 200;
 
-interface AliceBobProps {
-  isWithdraw?: boolean;
-}
-
-export const AliceBob: FC<AliceBobProps> = ({ isWithdraw = false }) => {
+export const AliceBobTopUp: FC = () => {
   const { analyticsState } = useAnalyticsState();
   const { publicKeyHash: walletAddress } = useAccount();
 
@@ -34,10 +29,7 @@ export const AliceBob: FC<AliceBobProps> = ({ isWithdraw = false }) => {
 
   const [isLoading, setLoading] = useState(false);
 
-  const inputCurrency = isWithdraw ? 'XTZ' : 'UAH';
-  const outputCurrency = isWithdraw ? 'UAH' : 'XTZ';
-
-  const { minExchangeAmount, maxExchangeAmount, isMinMaxLoading } = useUpdatedExchangeInfo(isWithdraw);
+  const { minExchangeAmount, maxExchangeAmount, isMinMaxLoading } = useUpdatedExchangeInfo();
 
   const { isApiError, isMinAmountError, isMaxAmountError, disabledProceed } = useDisabledProceed(
     inputAmount,
@@ -45,7 +37,7 @@ export const AliceBob: FC<AliceBobProps> = ({ isWithdraw = false }) => {
     maxExchangeAmount
   );
 
-  const outputAmount = useOutputEstimation(isWithdraw, inputAmount, disabledProceed, setLoading);
+  const outputAmount = useOutputEstimation(inputAmount, disabledProceed, setLoading);
 
   const exchangeRate = useMemo(
     () => (inputAmount > 0 ? (outputAmount / inputAmount).toFixed(4) : 0),
@@ -57,16 +49,16 @@ export const AliceBob: FC<AliceBobProps> = ({ isWithdraw = false }) => {
       if (!disabledProceed) {
         setLoading(true);
         getSignedAliceBobUrl({
-          isWithdraw: String(isWithdraw),
+          isWithdraw: 'false',
           amount: e.target.value,
           userId: analyticsState.userId,
           walletAddress
         })
-          .then(({ url }) => setLink(url))
+          .then(({ paymentInfo }) => setLink(paymentInfo))
           .finally(() => setLoading(false));
       }
     },
-    [disabledProceed, isWithdraw, analyticsState.userId, walletAddress]
+    [disabledProceed, analyticsState.userId, walletAddress]
   );
 
   const debouncedLinkRequest = useDebouncedCallback(linkRequest, REQUEST_LATENCY);
@@ -83,7 +75,7 @@ export const AliceBob: FC<AliceBobProps> = ({ isWithdraw = false }) => {
     <PageLayout
       pageTitle={
         <div className="font-medium text-sm">
-          <T id={isWithdraw ? 'sellTez' : 'buyWithCard'} />
+          <T id="buyWithCard" />
         </div>
       }
     >
@@ -101,7 +93,7 @@ export const AliceBob: FC<AliceBobProps> = ({ isWithdraw = false }) => {
           isDefaultUahIcon
           amountInputDisabled={isMinMaxLoading}
           label={<T id="send" />}
-          currencyName={inputCurrency}
+          currencyName="UAH"
           currenciesList={[]}
           minAmount={minExchangeAmount.toString()}
           maxAmount={maxExchangeAmount.toString()}
@@ -118,7 +110,7 @@ export const AliceBob: FC<AliceBobProps> = ({ isWithdraw = false }) => {
           isDefaultUahIcon
           amountInputDisabled
           label={<T id="get" />}
-          currencyName={outputCurrency}
+          currencyName="XTZ"
           currenciesList={[]}
           amount={outputAmount}
         />
@@ -127,7 +119,7 @@ export const AliceBob: FC<AliceBobProps> = ({ isWithdraw = false }) => {
           <p className={styles['exchangeTitle']}>
             <T id={'exchangeRate'} />
           </p>
-          <p className={styles['exchangeData']}>1 XTZ ≈ {exchangeRate} UAH</p>
+          <p className={styles['exchangeData']}>1 TEZ ≈ {exchangeRate} UAH</p>
         </div>
         <FormSubmitButton
           className="w-full justify-center border-none mt-6"
@@ -137,7 +129,7 @@ export const AliceBob: FC<AliceBobProps> = ({ isWithdraw = false }) => {
           }}
           disabled={disabledProceed || link === ''}
           loading={isLoading || isMinMaxLoading}
-          testID={isWithdraw ? WithdrawSelectors.AliceBob : BuySelectors.AliceBob}
+          testID={BuySelectors.AliceBob}
         >
           <a
             href={link}
@@ -185,16 +177,3 @@ export const AliceBob: FC<AliceBobProps> = ({ isWithdraw = false }) => {
     </PageLayout>
   );
 };
-
-const buildQuery = makeBuildQueryFn<Record<string, string>, any>('http://localhost:3000');
-const getSignedAliceBobUrl = buildQuery('GET', '/api/alice-bob-sign', [
-  'isWithdraw',
-  'amount',
-  'userId',
-  'walletAddress'
-]);
-export const getAliceBobPairInfo = buildQuery('GET', '/api/alice-bob-pair-info', ['isWithdraw']);
-export const getAliceBobOutputEstimation = buildQuery('GET', '/api/alice-bob-output-estimation', [
-  'isWithdraw',
-  'amount'
-]);

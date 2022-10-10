@@ -2544,6 +2544,15 @@
   "withdraw": {
     "message": "Withdraw"
   },
+  "toCard": {
+    "message": "To card"
+  },
+  "enterCardNumber": {
+    "message": "Enter card number"
+  },
+  "onlyForUkrainianCards": {
+    "message": "Only for Ukrainian banking cards"
+  },
   "buyWithCrypto": {
     "message": "Buy With Crypto"
   },
@@ -2647,6 +2656,12 @@
         "content": "$1"
       }
     }
+  },
+  "sellTezDetails": {
+    "message": "Sell TEZ details"
+  },
+  "sellDetailsDescription": {
+    "message": "Sell TEZ to fiat. Get fiat to Visa, Mastercard Ukrainian cards."
   },
   "privacyAndPolicyLinks": {
     "message": "By clicking $buttonContent$ you agree with \n$termsOfUse$ and $privacyPolicy$",

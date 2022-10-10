@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useState } from 'react';
 
-import { getAliceBobOutputEstimation } from '../AliceBob';
+import { getAliceBobOutputEstimation } from 'lib/alice-bob-api';
 
 export const useOutputEstimation = (
-  isWithdraw: boolean,
   inputAmount: number,
   disabledProceed: boolean,
-  setLoading: (v: boolean) => void
+  setLoading: (v: boolean) => void,
+  isWithdraw = false
 ) => {
   const [outputAmount, setOutputAmount] = useState(0);
 

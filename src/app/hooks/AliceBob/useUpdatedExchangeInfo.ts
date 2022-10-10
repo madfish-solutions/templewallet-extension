@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 
-import { getAliceBobPairInfo } from '../AliceBob';
+import { getAliceBobPairInfo } from 'lib/alice-bob-api';
 
-export const useUpdatedExchangeInfo = (isWithdraw: boolean) => {
+export const useUpdatedExchangeInfo = (isWithdraw = false) => {
   const [isMinMaxLoading, setIsMinMaxLoading] = useState(false);
 
   const [minExchangeAmount, setMinExchangeAmount] = useState(1);
