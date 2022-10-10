@@ -27,7 +27,7 @@ import { TempleNotificationsSharedStorageKey } from 'lib/temple/types';
 import * as Woozie from 'lib/woozie';
 
 import RootSuspenseFallback from './a11y/RootSuspenseFallback';
-import { useTimerEffect } from './hooks/use-timer-effect.hook';
+import { useTimerEffect } from './hooks/useTimerEffect';
 import { Buy } from './pages/Buy/Buy';
 import { AliceBob } from './pages/Buy/Debit/AliceBob/AliceBob';
 import { Utorg } from './pages/Buy/Debit/Utorg/Utorg';
