@@ -13,6 +13,7 @@ import { T } from 'lib/i18n/react';
 import { PropsWithChildren } from 'lib/props-with-children';
 import { goBack, HistoryAction, navigate, useLocation } from 'lib/woozie';
 
+import { DonationBanner } from '../atoms/DonationBanner';
 import { NotificationsButton } from '../pages/Notifications/components/NotificationsButton';
 import { useOnboardingProgress } from '../pages/Onboarding/hooks/useOnboardingProgress.hook';
 import { PageLayoutSelectors } from './PageLayout.selectors';
@@ -86,11 +87,20 @@ type ToolbarProps = {
   hasBackAction?: boolean;
   step?: number;
   setStep?: (step: number) => void;
+  adShow?: boolean;
   skip?: boolean;
   notifications?: boolean;
 };
 
-const Toolbar: FC<ToolbarProps> = ({ pageTitle, hasBackAction = true, step, setStep, skip, notifications }) => {
+const Toolbar: FC<ToolbarProps> = ({
+  pageTitle,
+  hasBackAction = true,
+  step,
+  setStep,
+  adShow = false,
+  skip,
+  notifications
+}) => {
   const { historyPosition, pathname } = useLocation();
   const { fullPage, registerBackHandler, onBack } = useAppEnv();
   const { setOnboardingCompleted } = useOnboardingProgress();
@@ -152,7 +162,7 @@ const Toolbar: FC<ToolbarProps> = ({ pageTitle, hasBackAction = true, step, setS
         sticked ? 'shadow' : 'shadow-sm',
         'bg-gray-100',
         'overflow-hidden',
-        'p-1',
+        'py-2 px-4',
         'flex items-center',
         'transition ease-in-out duration-300'
       )}
@@ -165,11 +175,11 @@ const Toolbar: FC<ToolbarProps> = ({ pageTitle, hasBackAction = true, step, setS
       }}
     >
       <div className="flex-1">
+        {!isBackButtonAvailable && adShow && <DonationBanner />}
         {isBackButtonAvailable && (
           <Button
             className={classNames(
-              'px-4 py-2',
-              'rounded',
+              'rounded px-2 py-1',
               'flex items-center',
               'text-gray-600 text-shadow-black',
               'text-sm font-semibold leading-none',

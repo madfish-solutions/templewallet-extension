@@ -58,9 +58,7 @@ const ErrorComponent: FC<Props> = ({ exchangeData, testIDProperties, setIsError,
               <T id={'transactionId'} />
             </p>
             <span>
-              <p style={{ color: '#1B262C' }} className="text-xs inline align-text-bottom">
-                {exchangeData!.id}
-              </p>
+              <p className="text-xs inline align-text-bottom text-gray-910">{exchangeData!.id}</p>
               <CopyButton text={exchangeData!.id} type="link">
                 <CopyIcon
                   style={{ verticalAlign: 'inherit' }}

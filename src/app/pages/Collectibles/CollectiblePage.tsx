@@ -48,24 +48,20 @@ const CollectiblePage: FC<Props> = ({ assetSlug }) => {
           <p className="text-gray-600 text-xs">
             <T id={'name'} />
           </p>
-          <p style={{ color: '#1B262C' }} className="text-xs">
-            {collectibleData.name}
-          </p>
+          <p className="text-xs text-gray-910">{collectibleData.name}</p>
         </div>
         <div className="flex justify-between items-baseline mt-4 mb-4">
           <p className="text-gray-600 text-xs">
             <T id={'amount'} />
           </p>
-          <p style={{ color: '#1B262C' }} className="text-xs">
-            {collectibleBalance ? collectibleBalance.toFixed() : ''}
-          </p>
+          <p className="text-xs text-gray-910">{collectibleBalance ? collectibleBalance.toFixed() : ''}</p>
         </div>
         <div className="flex justify-between items-baseline mb-4">
           <p className="text-gray-600 text-xs">
             <T id={'address'} />
           </p>
           <span className={'flex align-middle'}>
-            <p style={{ color: '#1B262C' }} className="text-xs inline align-text-bottom">
+            <p className="text-xs inline align-text-bottom text-gray-910">
               <HashShortView hash={assetContract} />
             </p>
             <CopyButton text={assetContract} type="link">
@@ -82,9 +78,7 @@ const CollectiblePage: FC<Props> = ({ assetSlug }) => {
             <T id={'id'} />
           </p>
           <span className={'flex align-middle'}>
-            <p style={{ color: '#1B262C' }} className="text-xs inline align-text-bottom">
-              {assetId.toFixed()}
-            </p>
+            <p className="text-xs inline align-text-bottom text-gray-910">{assetId.toFixed()}</p>
             <CopyButton text={assetId.toFixed()} type="link">
               <CopyIcon
                 style={{ verticalAlign: 'inherit' }}
