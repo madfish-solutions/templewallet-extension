@@ -107,7 +107,7 @@ const InitialStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
           coinFromNetwork: coinTo.network,
           coinTo: coinFrom.code,
           coinToNetwork: coinFrom.network,
-          amount: (MAX_DOLLAR_VALUE + AVERAGE_COMMISSION) / coinToPrice!
+          amount: new BigNumber(MAX_DOLLAR_VALUE + AVERAGE_COMMISSION).div(coinToPrice!).toNumber()
         });
 
         setMaxAmount(new BigNumber(rest.toAmount).toFixed(Number(rest.toAmount) > 100 ? 2 : 6));

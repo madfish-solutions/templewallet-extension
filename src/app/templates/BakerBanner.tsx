@@ -27,8 +27,8 @@ type BakerBannerProps = HTMLAttributes<HTMLDivElement> & {
 const BakerBanner = memo<BakerBannerProps>(
   ({ bakerPkh, link = false, promoted = false, displayAddress = false, className, style }) => {
     const allAccounts = useRelevantAccounts();
-    const { popup } = useAppEnv();
     const account = useAccount();
+    const { popup } = useAppEnv();
     const { data: baker } = useKnownBaker(bakerPkh);
     const { account: accountBaseUrl } = useExplorerBaseUrls();
 

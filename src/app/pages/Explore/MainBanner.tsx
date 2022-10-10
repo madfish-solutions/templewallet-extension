@@ -1,15 +1,15 @@
-import React, { memo, FC, useMemo } from 'react';
+import React, { memo, FC } from 'react';
 
-import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
 
 import Money from 'app/atoms/Money';
 import { AssetIcon } from 'app/templates/AssetIcon';
 import Balance from 'app/templates/Balance';
 import InFiat from 'app/templates/InFiat';
-import { useAssetFiatCurrencyPrice, useFiatCurrency } from 'lib/fiat-currency';
+import { useFiatCurrency } from 'lib/fiat-currency';
 import { T } from 'lib/i18n/react';
-import { useAssetMetadata, useChainId, useDisplayedFungibleTokens, useBalance } from 'lib/temple/front';
+import { useAssetMetadata } from 'lib/temple/front';
+import { useTotalBalance } from 'lib/temple/front/use-total-balance.hook';
 import { getAssetName, getAssetSymbol } from 'lib/temple/metadata';
 
 import AddressChip from './AddressChip';
@@ -20,46 +20,23 @@ type MainBannerProps = {
 };
 
 const MainBanner = memo<MainBannerProps>(({ assetSlug, accountPkh }) => {
-  const chainId = useChainId(true)!;
-
   return assetSlug ? (
     <AssetBanner assetSlug={assetSlug ?? 'tez'} accountPkh={accountPkh} />
   ) : (
-    <MainnetVolumeBanner chainId={chainId} accountPkh={accountPkh} />
+    <MainnetVolumeBanner accountPkh={accountPkh} />
   );
 });
 
 export default MainBanner;
 
 type MainnetVolumeBannerProps = {
-  chainId: string;
   accountPkh: string;
 };
 
-const MainnetVolumeBanner: FC<MainnetVolumeBannerProps> = ({ chainId, accountPkh }) => {
-  const { data: tokens } = useDisplayedFungibleTokens(chainId, accountPkh);
-  const { data: tezBalance } = useBalance('tez', accountPkh);
+const MainnetVolumeBanner: FC<MainnetVolumeBannerProps> = ({ accountPkh }) => {
+  const { selectedFiatCurrency } = useFiatCurrency();
 
-  const tezPriceInFiat = useAssetFiatCurrencyPrice('tez');
-  const { fiatRates, selectedFiatCurrency } = useFiatCurrency();
-  const safeFiatRates = fiatRates ?? {};
-  const usdCurrency = safeFiatRates['usd'] ?? 1;
-  const fiatToUsdRate = (safeFiatRates[selectedFiatCurrency.name.toLowerCase()] ?? 1) / usdCurrency;
-
-  const volumeInFiat = useMemo<BigNumber>(() => {
-    const initialVolume = new BigNumber(0);
-
-    if (tokens && tezBalance && tezPriceInFiat) {
-      const tezBalanceInFiat = tezBalance.times(tezPriceInFiat);
-      const tokensBalanceInFiat = tokens
-        .reduce((sum, t) => sum.plus(t.latestUSDBalance ?? 0), initialVolume)
-        .times(fiatToUsdRate);
-
-      return tezBalanceInFiat.plus(tokensBalanceInFiat);
-    }
-
-    return initialVolume;
-  }, [tokens, tezBalance, tezPriceInFiat, fiatToUsdRate]);
+  const volumeInFiat = useTotalBalance();
 
   return (
     <div className="w-full max-w-sm mx-auto mb-4">

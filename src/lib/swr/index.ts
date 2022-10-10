@@ -6,7 +6,8 @@ export const useRetryableSWR = <Data, Error = any, SWRKey extends Key = Key>(
   config: SWRConfiguration<Data, Error, Fetcher<Data, SWRKey>> | undefined
 ): SWRResponse<Data, Error> => {
   try {
-    return useSWR(key, fetcher, { errorRetryCount: 10, ...config });
+    // Chromium request throttle after 4 errors (https://www.chromium.org/throttling)
+    return useSWR(key, fetcher, { errorRetryCount: 2, ...config });
   } catch (err: any) {
     throw err;
   }

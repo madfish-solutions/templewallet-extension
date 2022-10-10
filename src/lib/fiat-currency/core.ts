@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 
+import { BigNumber } from 'bignumber.js';
 import constate from 'constate';
 
 import makeBuildQueryFn from 'lib/makeBuildQueryFn';
@@ -18,15 +19,15 @@ const getFiatCurrencies = buildQuery<{}, CoingeckoFiatInterface>(
 
 const FIAT_CURRENCY_STORAGE_KEY = 'fiat_currency';
 
-export function useAssetFiatCurrencyPrice(slug: string) {
+export function useAssetFiatCurrencyPrice(slug: string): BigNumber {
   const exchangeRate = useAssetUSDPrice(slug);
   const exchangeRateTezos = useAssetUSDPrice('tez');
   const { fiatRates, selectedFiatCurrency } = useFiatCurrency();
 
   return useMemo(() => {
-    if (!fiatRates || !exchangeRate || !exchangeRateTezos) return null;
-    const fiatToUsdRate = fiatRates[selectedFiatCurrency.name.toLowerCase()] / exchangeRateTezos;
-    const trueExchangeRate = fiatToUsdRate * exchangeRate;
+    if (!fiatRates || !exchangeRate || !exchangeRateTezos) return new BigNumber(0);
+    const fiatToUsdRate = new BigNumber(fiatRates[selectedFiatCurrency.name.toLowerCase()]).div(exchangeRateTezos);
+    const trueExchangeRate = fiatToUsdRate.times(exchangeRate);
     return trueExchangeRate;
   }, [fiatRates, exchangeRate, exchangeRateTezos, selectedFiatCurrency.name]);
 }
