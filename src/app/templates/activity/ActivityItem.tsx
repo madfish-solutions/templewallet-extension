@@ -9,7 +9,7 @@ import { OperStack } from 'app/templates/activity/OperStack';
 import HashChip from 'app/templates/HashChip';
 import { getDateFnsLocale } from 'lib/i18n';
 import { t } from 'lib/i18n/react';
-import { Activity, parseOperationsStack, parseMoneyDiffs } from 'lib/temple/activity-new';
+import { Activity, buildOperStack, buildMoneyDiffs } from 'lib/temple/activity-new';
 import { useExplorerBaseUrls } from 'lib/temple/front';
 
 interface Props {
@@ -22,8 +22,8 @@ export const ActivityItem = memo<Props>(({ activity, address }) => {
 
   const { transaction: explorerBaseUrl } = useExplorerBaseUrls();
 
-  const operationsStack = useMemo(() => parseOperationsStack(activity, address), [activity, address]);
-  const moneyDiffs = useMemo(() => parseMoneyDiffs(activity), [activity]);
+  const operStack = useMemo(() => buildOperStack(activity, address), [activity, address]);
+  const moneyDiffs = useMemo(() => buildMoneyDiffs(activity), [activity]);
 
   return (
     <div className={classNames('my-3')}>
@@ -37,7 +37,7 @@ export const ActivityItem = memo<Props>(({ activity, address }) => {
 
       <div className="flex items-stretch">
         <div className="flex flex-col pt-2">
-          <OperStack opStack={operationsStack} className="mb-2" />
+          <OperStack operStack={operStack} className="mb-2" />
 
           <ActivityItemStatusComp activity={activity} />
 

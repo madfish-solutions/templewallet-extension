@@ -4,7 +4,7 @@ import type { Activity } from 'lib/temple/activity-new';
 
 import { OperStackItemInterface, OperStackItemTypeEnum } from './types';
 
-export function parseOperationsStack(activity: Activity, address: string) {
+export function buildOperStack(activity: Activity, address: string) {
   const opStack: OperStackItemInterface[] = [];
 
   for (const oper of activity.operations) {
@@ -47,7 +47,7 @@ interface MoneyDiff {
   diff: string;
 }
 
-export function parseMoneyDiffs(activity: Activity) {
+export function buildMoneyDiffs(activity: Activity) {
   const diffsMap: Record<string, BigNumber> = {};
 
   for (const oper of activity.operations) {

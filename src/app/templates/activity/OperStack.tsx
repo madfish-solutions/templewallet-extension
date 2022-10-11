@@ -11,15 +11,15 @@ import { OperStackItemInterface } from 'lib/temple/activity-new/types';
 import { OperStackItem } from './OperStackItem';
 
 type Props = {
-  opStack: OperStackItemInterface[];
+  operStack: OperStackItemInterface[];
   className?: string;
 };
 
-export const OperStack = memo<Props>(({ opStack, className }) => {
+export const OperStack = memo<Props>(({ operStack, className }) => {
   const [expanded, setExpanded] = useState(false);
 
-  const base = useMemo(() => opStack.filter((_, i) => i < OP_STACK_PREVIEW_SIZE), [opStack]);
-  const rest = useMemo(() => opStack.filter((_, i) => i >= OP_STACK_PREVIEW_SIZE), [opStack]);
+  const base = useMemo(() => operStack.filter((_, i) => i < OP_STACK_PREVIEW_SIZE), [operStack]);
+  const rest = useMemo(() => operStack.filter((_, i) => i >= OP_STACK_PREVIEW_SIZE), [operStack]);
 
   const ExpandIcon = expanded ? ChevronUpIcon : ChevronRightIcon;
 

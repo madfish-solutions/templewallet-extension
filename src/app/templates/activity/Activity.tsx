@@ -23,7 +23,7 @@ export const ActivityComponent: React.FC<Props> = ({ assetSlug }) => {
 
   const { publicKeyHash: accountAddress } = useAccount();
 
-  if (activities.length === 0 && !loading && reachedTheEnd)
+  if (activities.length === 0 && !loading && reachedTheEnd) {
     return (
       <div className={classNames('mt-4 mb-12', 'flex flex-col items-center justify-center', 'text-gray-500')}>
         <LayersIcon className="w-16 h-auto mb-2 stroke-current" />
@@ -33,11 +33,14 @@ export const ActivityComponent: React.FC<Props> = ({ assetSlug }) => {
         </h3>
       </div>
     );
+  }
 
   const retryInitialLoad = () => loadMore(INITIAL_NUMBER);
   const loadMoreActivities = () => loadMore(LOAD_STEP);
 
   const loadNext = activities.length === 0 ? retryInitialLoad : loadMoreActivities;
+
+  const onScroll = loading || reachedTheEnd ? undefined : buildOnScroll(loadNext);
 
   return (
     <div className="w-full max-w-md mx-auto flex flex-col">
@@ -46,17 +49,7 @@ export const ActivityComponent: React.FC<Props> = ({ assetSlug }) => {
         hasMore={reachedTheEnd === false}
         next={loadNext}
         loader={loading && <ActivitySpinner height="2.5rem" />}
-        onScroll={({ target }) => {
-          /*
-            In case we catch an error on loading more items, `InfiniteScroll.next` won't trigger.
-            Thus we also force its call here on condition of error.
-          */
-          if (loading || reachedTheEnd) return;
-          const elem: HTMLElement =
-            target instanceof Document ? (target.scrollingElement! as HTMLElement) : (target as HTMLElement);
-          const atBottom = 0 === elem.offsetHeight - elem.clientHeight - elem.scrollTop;
-          if (atBottom) loadNext();
-        }}
+        onScroll={onScroll}
       >
         {activities.map(activity => (
           <ActivityItem key={activity.hash} address={accountAddress} activity={activity} />
@@ -65,3 +58,16 @@ export const ActivityComponent: React.FC<Props> = ({ assetSlug }) => {
     </div>
   );
 };
+
+/**
+ * Build onscroll listener to trigger next loading, when fetching data resulted in error.
+ * `InfiniteScroll.props.next` won't be triggered in this case.
+ */
+const buildOnScroll =
+  (next: EmptyFn) =>
+  ({ target }: { target: EventTarget | null }) => {
+    const elem: HTMLElement =
+      target instanceof Document ? (target.scrollingElement! as HTMLElement) : (target as HTMLElement);
+    const atBottom = 0 === elem.offsetHeight - elem.clientHeight - elem.scrollTop;
+    if (atBottom) next();
+  };

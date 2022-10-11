@@ -1,3 +1,3 @@
 export type { Activity } from './types';
 
-export { parseOperationsStack, parseMoneyDiffs } from './helpers';
+export { buildOperStack, buildMoneyDiffs } from './helpers';
