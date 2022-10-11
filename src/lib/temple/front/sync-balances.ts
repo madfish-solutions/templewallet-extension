@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import BigNumber from 'bignumber.js';
 import constate from 'constate';
@@ -20,12 +20,10 @@ export const [SyncBalancesProvider, useSyncBalances] = constate(() => {
   const [assetSlugsWithUpdatedBalances, setAssetSlugsWithUpdatedBalances] = useState<Record<string, BigNumber>>({});
 
   const tezos = useTezos();
-
   const isSyncing = useSyncTokens();
-  const chainId = useChainId(true)!;
   const { publicKeyHash } = useAccount();
+  const chainId = useChainId(true)!;
   const allTokensBaseMetadata = useAllTokensBaseMetadata();
-
   const { data: tokens = [] } = useDisplayedFungibleTokens(chainId, publicKeyHash);
 
   const tokensWithTez = useMemo(
@@ -45,11 +43,8 @@ export const [SyncBalancesProvider, useSyncBalances] = constate(() => {
 
   const chainIdRef = useRef<string>();
   const accountRef = useRef<string>();
-  const balancesRef = useRef<Record<string, BigNumber>>({});
 
-  useEffect(() => void (balancesRef.current = assetSlugsWithUpdatedBalances), [assetSlugsWithUpdatedBalances]);
-
-  const updateBalances = useCallback(async () => {
+  const updateBalances = async () => {
     for (let i = 0; i < tokensWithTez.length; i++) {
       const { tokenSlug } = tokensWithTez[i];
 
@@ -59,11 +54,14 @@ export const [SyncBalancesProvider, useSyncBalances] = constate(() => {
 
       if (chainIdRef.current !== tokensWithTez[i].chainId || accountRef.current !== tokensWithTez[i].account) break;
 
-      if (!balancesRef.current.hasOwnProperty(tokenSlug) || !balancesRef.current[tokenSlug].eq(latestBalance)) {
+      if (
+        !assetSlugsWithUpdatedBalances.hasOwnProperty(tokenSlug) ||
+        !assetSlugsWithUpdatedBalances[tokenSlug].eq(latestBalance)
+      ) {
         flushSync(() => setAssetSlugsWithUpdatedBalances(prevState => ({ ...prevState, [tokenSlug]: latestBalance })));
       }
     }
-  }, [publicKeyHash, allTokensBaseMetadata, tokensWithTez, tezos]);
+  };
 
   useEffect(() => {
     if (chainId !== chainIdRef.current || publicKeyHash !== accountRef.current) {
