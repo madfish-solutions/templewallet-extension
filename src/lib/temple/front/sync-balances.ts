@@ -53,14 +53,11 @@ export const [SyncBalancesProvider, useSyncBalances] = constate(() => {
     for (let i = 0; i < tokensWithTez.length; i++) {
       const { tokenSlug } = tokensWithTez[i];
 
-      const shouldLoad =
-        chainIdRef.current === tokensWithTez[i].chainId && accountRef.current === tokensWithTez[i].account;
-
-      if (!shouldLoad) break;
+      if (chainIdRef.current !== tokensWithTez[i].chainId || accountRef.current !== tokensWithTez[i].account) break;
 
       const latestBalance = await fetchBalance(tezos, tokenSlug, allTokensBaseMetadata[tokenSlug], publicKeyHash);
 
-      if (!shouldLoad) break;
+      if (chainIdRef.current !== tokensWithTez[i].chainId || accountRef.current !== tokensWithTez[i].account) break;
 
       if (!balancesRef.current.hasOwnProperty(tokenSlug) || !balancesRef.current[tokenSlug].eq(latestBalance)) {
         flushSync(() => setAssetSlugsWithUpdatedBalances(prevState => ({ ...prevState, [tokenSlug]: latestBalance })));
