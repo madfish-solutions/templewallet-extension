@@ -3,6 +3,7 @@ export enum ExploreSelectors {
   BuyButton = 'Explore/BuyButton',
   WithdrawButton = 'Explore/WithdrawButton',
   SendButton = 'Explore/SendButton',
+  WithdrawButton = 'Explore/WithdrawButton',
   SwapButton = 'Explore/SwapButton',
   AssetsTab = 'Explore/AssetsTab',
   DelegationTab = 'Explore/DelegationTab',
