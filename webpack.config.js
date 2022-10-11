@@ -335,9 +335,6 @@ module.exports = {
   },
 
   plugins: [
-    /* To be removed on `@tezos-domains/core@1.20.1` */
-    new webpack.NormalModuleReplacementPlugin(/@tezos-domains\/core/, '@alexseleznov/tezos-domains-core'),
-
     /*
       Some dependencies do not perform checks on `typeof nodeSpecificAsset !== undefined`.
       WebPack v4 injected `nodeSpecificAsset` automatically.

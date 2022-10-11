@@ -19,7 +19,6 @@
     "find-deadcode": "ts-prune --error"
   },
   "dependencies": {
-    "@alexseleznov/tezos-domains-core": "^1.20.1",
     "@babel/core": "7.19.3",
     "@babel/runtime": "^7.19.0",
     "@dicebear/avatars": "4.2.5",
@@ -43,7 +42,8 @@
     "@taquito/utils": "13.0.0",
     "@temple-wallet/dapp": "5.0.2",
     "@temple-wallet/ledger-bridge": "2.0.1",
-    "@tezos-domains/taquito-client": "1.20.0",
+    "@tezos-domains/core": "1.21.0",
+    "@tezos-domains/taquito-client": "1.21.0",
     "@types/analytics-node": "3.1.7",
     "@types/async-retry": "1.4.3",
     "@types/debounce-promise": "3.1.4",

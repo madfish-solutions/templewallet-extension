@@ -2,13 +2,6 @@
 # yarn lockfile v1
 
 
-"@alexseleznov/tezos-domains-core@^1.20.1":
-  version "1.20.1"
-  resolved "https://gitlab.com/api/v4/projects/39968510/packages/npm/@alexseleznov/tezos-domains-core/-/@alexseleznov/tezos-domains-core-1.20.1.tgz#7f428828ded9dbf57f11178f82b10324de30e475"
-  integrity sha1-f0KIKN7Z2/V/ERePgrEDJN4w5HU=
-  dependencies:
-    idna-uts46-hx "^3.3.0"
-
 "@ampproject/remapping@^2.1.0":
   version "2.2.0"
   resolved "https://registry.yarnpkg.com/@ampproject/remapping/-/remapping-2.2.0.tgz#56c133824780de3174aed5ab6834f3026790154d"
@@ -1976,14 +1969,14 @@
     "@ledgerhq/hw-transport-webhid" "^6.20.0"
     "@types/ledgerhq__hw-transport" "^4.21.3"
 
-"@tezos-domains/core@^1.20.0", "@tezos-domains/core@^1.21.0":
+"@tezos-domains/core@1.21.0", "@tezos-domains/core@^1.21.0":
   version "1.21.0"
   resolved "https://registry.yarnpkg.com/@tezos-domains/core/-/core-1.21.0.tgz#22b736a81cf37705d3287f0e07e0a39ab66d9af7"
   integrity sha512-E8PI8z6yFBVxU0O0LGeOy6XA53lrGQHwBfMsU6TPnGubNG2bg763u7M/K/tJFNXrJ4+I+t9ZQVoKa9zmfmcv2g==
   dependencies:
     idna-uts46-hx "^3.3.0"
 
-"@tezos-domains/manager@^1.20.0":
+"@tezos-domains/manager@^1.21.0":
   version "1.21.0"
   resolved "https://registry.yarnpkg.com/@tezos-domains/manager/-/manager-1.21.0.tgz#53f835891d1d9cf9ff383da614ab36a4cfb06378"
   integrity sha512-XC7x8vWr6AYeGNljzvjbqVH6BbAN7fXCxmaBvmWMws2INFMpQmzs0tDIiNfffnpWtj7ipRV5BMD8dIDTYmZCIQ==
@@ -1994,7 +1987,7 @@
     bignumber.js "^9.0.2"
     sha.js "^2.4.11"
 
-"@tezos-domains/resolver@^1.20.0":
+"@tezos-domains/resolver@^1.21.0":
   version "1.21.0"
   resolved "https://registry.yarnpkg.com/@tezos-domains/resolver/-/resolver-1.21.0.tgz#1d1d01b5ac278738baabcc1faeab96fdfb154e1c"
   integrity sha512-+NkP9XETxjslKys9/rHbU5L6FnUEc2K6w1pJASPWpSOWe8oNDDxbrAggJPRvwTtHc5xds4zQS0cCWNrIq9MLKw==
@@ -2002,19 +1995,19 @@
     "@tezos-domains/core" "^1.21.0"
     node-cache "^5.1.2"
 
-"@tezos-domains/taquito-client@1.20.0":
-  version "1.20.0"
-  resolved "https://registry.yarnpkg.com/@tezos-domains/taquito-client/-/taquito-client-1.20.0.tgz#08143cddf0c1195a849061fbdbc55da2eadca0ab"
-  integrity sha512-lQAlOZzzBK8cJl+knoYtxra1g6DzBe59PrBmd62x6s7lV6hR6tr72N7k9GaSRc92N43OFgcLx2KbK0cdoudt+A==
+"@tezos-domains/taquito-client@1.21.0":
+  version "1.21.0"
+  resolved "https://registry.yarnpkg.com/@tezos-domains/taquito-client/-/taquito-client-1.21.0.tgz#b89aa36893db231a6cae9454f9d7f9d8db8eedfe"
+  integrity sha512-dAfcPS1TzkxudLHXSvld9cHiGosXgBEXenmcCc2rw4toqEJLhomWPqF5G5HbqxOsnhOZ7q3t1Ey+AJNF5xDuQg==
   dependencies:
-    "@tezos-domains/core" "^1.20.0"
-    "@tezos-domains/manager" "^1.20.0"
-    "@tezos-domains/resolver" "^1.20.0"
-    "@tezos-domains/taquito" "^1.20.0"
+    "@tezos-domains/core" "^1.21.0"
+    "@tezos-domains/manager" "^1.21.0"
+    "@tezos-domains/resolver" "^1.21.0"
+    "@tezos-domains/taquito" "^1.21.0"
     bignumber.js "^9.0.2"
     node-cache "^5.1.2"
 
-"@tezos-domains/taquito@^1.20.0", "@tezos-domains/taquito@^1.21.0":
+"@tezos-domains/taquito@^1.21.0":
   version "1.21.0"
   resolved "https://registry.yarnpkg.com/@tezos-domains/taquito/-/taquito-1.21.0.tgz#aec9a54205951975cd3f2303777b0acbccf15733"
   integrity sha512-IvRXH0O06Ph/568JmShlhizueSMMe+g5YblC8TyyzhJEH5WPWvfo40RAt4kMUmI1+6uRPlKY6QhSZTeGhef+6Q==
