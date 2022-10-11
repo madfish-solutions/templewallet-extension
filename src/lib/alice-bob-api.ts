@@ -39,7 +39,8 @@ export const getSignedAliceBobUrl = buildQuery('GET', '/api/alice-bob-sign', [
   'isWithdraw',
   'amount',
   'userId',
-  'walletAddress'
+  'walletAddress',
+  'cardNumber'
 ]);
 
 export const getAliceBobPairInfo = buildQuery('GET', '/api/alice-bob-pair-info', ['isWithdraw']);

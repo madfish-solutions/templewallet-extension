@@ -369,6 +369,9 @@
   "required": {
     "message": "Required"
   },
+  "cardNumberIsNotValid": {
+    "message": "Card number is not valid"
+  },
   "weakKeystorePassword": {
     "message": "The \"keystore file\" password is too weak to use as an extension password. You need to set a new one."
   },
