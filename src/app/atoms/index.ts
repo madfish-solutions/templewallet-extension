@@ -13,6 +13,8 @@ export { FormSecondaryButton } from './FormSecondaryButton';
 
 export { FormCheckbox } from './FormCheckbox';
 
+export { ActivitySpinner } from './ActivitySpinner';
+
 export { NoSpaceField } from './NoSpaceField';
 
 export { TabSwitcher } from './TabSwitcher';

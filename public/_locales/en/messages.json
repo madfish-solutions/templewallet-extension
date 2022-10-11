@@ -2541,8 +2541,14 @@
   "lockUpSettingsDescription": {
     "message": "The extension will be automatically blocked after 5 minutes of inactivity."
   },
+  "totalEquityValue": {
+    "message": "Total Equity Value"
+  },
   "totalBalance": {
     "message": "Total Balance"
+  },
+  "withdrawButton": {
+    "message": "Withdraw"
   },
   "buyButton": {
     "message": "Buy"

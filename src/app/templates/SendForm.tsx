@@ -169,7 +169,7 @@ const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested })
 
   const [shoudUseFiat, setShouldUseFiat] = useSafeState(false);
 
-  const canToggleFiat = getAssetPriceByNetwork(network.type, assetPrice);
+  const canToggleFiat = getAssetPriceByNetwork(network.type, assetPrice.toNumber());
   const prevCanToggleFiat = useRef(canToggleFiat);
 
   /**
@@ -349,7 +349,7 @@ const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested })
     if (!(baseFee instanceof BigNumber)) return null;
 
     const maxAmountAsset = isTezAsset(assetSlug) ? getMaxAmountToken(acc, balance, baseFee, safeFeeValue) : balance;
-    const maxAmountFiat = getMaxAmountFiat(assetPrice, maxAmountAsset);
+    const maxAmountFiat = getMaxAmountFiat(assetPrice.toNumber(), maxAmountAsset);
     return shoudUseFiat ? maxAmountFiat : maxAmountAsset;
   }, [acc, assetSlug, balance, baseFee, safeFeeValue, shoudUseFiat, assetPrice]);
 
