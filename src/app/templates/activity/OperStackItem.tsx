@@ -5,9 +5,9 @@ import HashChip from 'app/templates/HashChip';
 import { TID, T } from 'lib/i18n/react';
 import { OperStackItemInterface, OperStackItemTypeEnum } from 'lib/temple/activity-new/types';
 
-type Props = {
+interface Props {
   item: OperStackItemInterface;
-};
+}
 
 export const OperStackItem = memo<Props>(({ item }) => {
   switch (item.type) {

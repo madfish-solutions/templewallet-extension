@@ -10,10 +10,10 @@ import { OperStackItemInterface } from 'lib/temple/activity-new/types';
 
 import { OperStackItem } from './OperStackItem';
 
-type Props = {
+interface Props {
   operStack: OperStackItemInterface[];
   className?: string;
-};
+}
 
 export const OperStack = memo<Props>(({ operStack, className }) => {
   const [expanded, setExpanded] = useState(false);
