@@ -2,6 +2,7 @@ import React, { FC, useCallback, useEffect, useMemo, useState } from 'react';
 
 import classNames from 'clsx';
 
+import { ActivitySpinner } from 'app/atoms';
 import { useAppEnv } from 'app/env';
 import { ReactComponent as AddToListIcon } from 'app/icons/add-to-list.svg';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
@@ -12,7 +13,6 @@ import { useSyncBalances } from 'lib/temple/front/sync-balances';
 import { useSyncTokens } from 'lib/temple/front/sync-tokens';
 import { Link, navigate } from 'lib/woozie';
 
-import { ActivitySpinner } from '../../../atoms';
 import { AssetsSelectors } from '../Assets.selectors';
 import { ListItem } from './components/ListItem';
 import { toExploreAssetLink } from './utils';

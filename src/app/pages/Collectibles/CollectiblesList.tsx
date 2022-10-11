@@ -2,6 +2,7 @@ import React from 'react';
 
 import classNames from 'clsx';
 
+import { ActivitySpinner } from 'app/atoms';
 import { useAppEnv } from 'app/env';
 import { ReactComponent as AddToListIcon } from 'app/icons/add-to-list.svg';
 import { CollectibleItem } from 'app/pages/Collectibles/CollectibleItem';
@@ -12,8 +13,6 @@ import { AssetTypesEnum } from 'lib/temple/assets';
 import { useAccount, useChainId, useCollectibleTokens, useFilteredAssets } from 'lib/temple/front';
 import { useSyncTokens } from 'lib/temple/front/sync-tokens';
 import { Link } from 'lib/woozie';
-
-import { ActivitySpinner } from '../../atoms';
 
 export const CollectiblesList = () => {
   const chainId = useChainId(true)!;
