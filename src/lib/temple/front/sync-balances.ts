@@ -20,33 +20,34 @@ export const [SyncBalancesProvider, useSyncBalances] = constate(() => {
   const [assetSlugsWithUpdatedBalances, setAssetSlugsWithUpdatedBalances] = useState<Record<string, BigNumber>>({});
 
   const tezos = useTezos();
-  const isSync = useSyncTokens();
+
+  const isSyncing = useSyncTokens();
   const chainId = useChainId(true)!;
-  const { publicKeyHash: account } = useAccount();
+  const { publicKeyHash } = useAccount();
   const allTokensBaseMetadata = useAllTokensBaseMetadata();
 
-  const { data: tokens = [] } = useDisplayedFungibleTokens(chainId, account);
+  const { data: tokens = [] } = useDisplayedFungibleTokens(chainId, publicKeyHash);
 
   const tokensWithTez = useMemo(
     () => [
       {
         type: ITokenType.Fungible,
         chainId,
-        account,
+        account: publicKeyHash,
         tokenSlug: 'tez',
         status: ITokenStatus.Enabled,
         addedAt: 0
       },
       ...tokens
     ],
-    [chainId, account, tokens]
+    [chainId, publicKeyHash, tokens]
   );
 
   const chainIdRef = useRef<string>();
   const accountRef = useRef<string>();
+  const balancesRef = useRef<Record<string, BigNumber>>({});
 
-  useEffect(() => void (chainIdRef.current = chainId), [chainId]);
-  useEffect(() => void (accountRef.current = account), [account]);
+  useEffect(() => void (balancesRef.current = assetSlugsWithUpdatedBalances), [assetSlugsWithUpdatedBalances]);
 
   const updateBalances = useCallback(async () => {
     for (let i = 0; i < tokensWithTez.length; i++) {
@@ -57,27 +58,28 @@ export const [SyncBalancesProvider, useSyncBalances] = constate(() => {
 
       if (!shouldLoad) break;
 
-      const latestBalance = await fetchBalance(tezos, tokenSlug, allTokensBaseMetadata[tokenSlug], account);
+      const latestBalance = await fetchBalance(tezos, tokenSlug, allTokensBaseMetadata[tokenSlug], publicKeyHash);
 
       if (!shouldLoad) break;
 
-      if (i === 0) {
-        flushSync(() => setAssetSlugsWithUpdatedBalances({ [tokenSlug]: latestBalance }));
-      } else {
+      if (!balancesRef.current.hasOwnProperty(tokenSlug) || !balancesRef.current[tokenSlug].eq(latestBalance)) {
         flushSync(() => setAssetSlugsWithUpdatedBalances(prevState => ({ ...prevState, [tokenSlug]: latestBalance })));
       }
     }
-  }, [account, allTokensBaseMetadata, tokensWithTez, tezos]);
+  }, [publicKeyHash, allTokensBaseMetadata, tokensWithTez, tezos]);
 
   useEffect(() => {
-    if (isSync) {
+    if (chainId !== chainIdRef.current || publicKeyHash !== accountRef.current) {
       setAssetSlugsWithUpdatedBalances({});
-    } else {
+    } else if (!isSyncing) {
       updateBalances();
     }
 
+    chainIdRef.current = chainId;
+    accountRef.current = publicKeyHash;
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isSync]);
+  }, [isSyncing, chainId, publicKeyHash]);
 
   return assetSlugsWithUpdatedBalances;
 });
