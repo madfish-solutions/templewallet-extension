@@ -1,7 +1,6 @@
 export enum ExploreSelectors {
   ReceiveButton = 'Explore/ReceiveButton',
   BuyButton = 'Explore/BuyButton',
-  WithdrawButton = 'Explore/WithdrawButton',
   SendButton = 'Explore/SendButton',
   WithdrawButton = 'Explore/WithdrawButton',
   SwapButton = 'Explore/SwapButton',

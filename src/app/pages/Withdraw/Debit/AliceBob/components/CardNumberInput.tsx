@@ -1,20 +1,21 @@
-import React, { ChangeEvent, forwardRef, useCallback, useState } from 'react';
+import React, { forwardRef, useCallback, useState } from 'react';
 
 import classNames from 'clsx';
 
 import { t } from 'lib/i18n/react';
 
+import { emptyFn } from '../../../../../utils/function.utils';
 import { handleNumberInput } from '../../../../Buy/utils/handleNumberInput.util';
 
 interface Props {
   showError?: boolean;
   className?: string;
-  onChange?: () => void;
   setIsError?: (v: boolean) => void;
+  setIsNotUkrainianCardError?: (v: boolean) => void;
 }
 
 export const CardNumberInput = forwardRef<HTMLInputElement, Props>(
-  ({ showError = false, className, onChange, setIsError }, ref) => {
+  ({ showError = false, className, setIsError = emptyFn, setIsNotUkrainianCardError = emptyFn }, ref) => {
     const [cardNumber, setCardNumber] = useState('');
     const [isActive, setIsActive] = useState(false);
     const [error, setError] = useState('');
@@ -22,70 +23,88 @@ export const CardNumberInput = forwardRef<HTMLInputElement, Props>(
     const handleFocus = () => setIsActive(true);
     const handleBlur = () => setIsActive(false);
 
-    const handleChange = useCallback(
-      (e: ChangeEvent<HTMLInputElement>) => {
-        if (onChange) {
-          onChange();
-        }
-
-        setCardNumber(e.target.value);
-
-        if (e.target.value.length === 20 && checkLuhn(e.target.value)) {
+    const validateCardNumber = useCallback(
+      (cardNumber: string) => {
+        if (cardNumber.length === 19 && checkLuhn(cardNumber)) {
           setError('');
           setIsError(false);
         } else {
-          setError(t('cardNumberIsNotValid'));
+          setError(t('cardNumberIsInvalid'));
           setIsError(true);
         }
+
+        setIsNotUkrainianCardError(false);
       },
-      [onChange, setIsError]
+      [setIsError, setIsNotUkrainianCardError]
     );
 
-    // console.log(checkLuhn('4441 1144 4250 2546'), 'mono');
-    // console.log(checkLuhn('5169 3100 0962 4437'), 'pl');
+    const handleChange = useCallback(
+      (e: React.ChangeEvent<HTMLInputElement>) => {
+        const cardNumber = e.target.value;
+
+        setBeautifiedCardNumber(cardNumber, setCardNumber, validateCardNumber);
+      },
+      [validateCardNumber]
+    );
+
+    const handlePaste = useCallback(
+      (e: React.ClipboardEvent<HTMLInputElement>) => {
+        const cardNumber = e.clipboardData.getData('text');
+
+        setBeautifiedCardNumber(cardNumber, setCardNumber, validateCardNumber);
+      },
+      [validateCardNumber]
+    );
 
     return (
       <>
         <input
           ref={ref}
-          value={handleCardDisplay(cardNumber)}
+          value={cardNumber}
           placeholder={t('enterCardNumber')}
           style={{ color: '#1B262C' }}
           className={classNames(
             isActive && 'border-orange-500 bg-gray-100',
+            showError && Boolean(error) ? 'border-red-700' : 'border-gray-300',
             'transition ease-in-out duration-200',
-            'w-full border rounded-md border-gray-300',
+            'w-full border rounded-md',
             'p-4 leading-tight placeholder-alphagray',
             'font-inter font-normal text-sm',
             className
           )}
           type="text"
-          maxLength={20}
+          maxLength={19}
           onBlur={handleBlur}
           onFocus={handleFocus}
-          onKeyPress={e => handleNumberInput(e, false)}
+          onPaste={handlePaste}
           onChange={handleChange}
+          onKeyPress={e => handleNumberInput(e, false)}
         />
-        {showError && Boolean(error) && <p>{error}</p>}
+        {showError && Boolean(error) && (
+          <p className="font-inter font-normal text-xs text-red-700 mt-1 text-left">{error}</p>
+        )}
       </>
     );
   }
 );
 
-const handleCardDisplay = (cardNumber: string) => {
-  const rawText = [...cardNumber.split(' ').join('')];
-  const creditCard: string[] = [];
+const setBeautifiedCardNumber = (cardNumber: string, set: (v: string) => void, validate: (v: string) => void) => {
+  const rawSplit = [...cardNumber.split(' ').join('')];
+  const beautifiedSplit: string[] = [];
 
-  rawText.forEach((t, i) => {
-    if (i % 4 === 0) creditCard.push(' ');
-    creditCard.push(t);
+  rawSplit.forEach((t, i) => {
+    if (i % 4 === 0 && beautifiedSplit.length !== 0) beautifiedSplit.push(' ');
+    beautifiedSplit.push(t);
   });
 
-  return creditCard.join('');
+  const beautifiedCardNumber = beautifiedSplit.join('');
+
+  set(beautifiedCardNumber);
+  validate(beautifiedCardNumber);
 };
 
+// checks card number validity using Luhn algorithm
 const checkLuhn = (cardNumber: string) => {
-  console.log('lugnCheck');
   if (/[^0-9-\s]+/.test(cardNumber)) return false;
 
   let nCheck = 0,
