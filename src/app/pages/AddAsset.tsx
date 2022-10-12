@@ -129,15 +129,17 @@ const Form: FC = () => {
       const slug = toTokenSlug(contractAddress, tokenId);
       const metadata = await fetchMetadata(slug);
 
-      metadataRef.current = metadata;
+      if (metadata) {
+        metadataRef.current = metadata;
 
-      const { base } = metadata;
-      setValue([
-        { symbol: base.symbol },
-        { name: base.name },
-        { decimals: base.decimals },
-        { thumbnailUri: base.thumbnailUri }
-      ]);
+        const { base } = metadata;
+        setValue([
+          { symbol: base.symbol },
+          { name: base.name },
+          { decimals: base.decimals },
+          { thumbnailUri: base.thumbnailUri }
+        ]);
+      }
 
       stateToSet = {
         bottomSectionVisible: true
