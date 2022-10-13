@@ -17,7 +17,10 @@ import { COLORS } from 'lib/ui/colors';
 import { useConfirm } from 'lib/ui/dialog';
 import { withErrorHumanDelay } from 'lib/ui/humanDelay';
 
-type NetworkFormData = Pick<TempleNetwork, 'name' | 'rpcBaseURL'>;
+interface NetworkFormData {
+  name: string;
+  rpcBaseURL: string;
+}
 
 const SUBMIT_ERROR_TYPE = 'submit-error';
 

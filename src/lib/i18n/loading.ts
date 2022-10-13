@@ -28,13 +28,5 @@ function notifyOthers() {
 }
 
 async function refresh() {
-  if (await isBackgroundScript()) {
-    init();
-  } else {
-    window.location.reload();
-  }
-}
-
-async function isBackgroundScript() {
-  return false;
+  window.location.reload();
 }

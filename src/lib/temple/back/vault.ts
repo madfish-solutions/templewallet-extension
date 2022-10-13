@@ -9,7 +9,6 @@ import * as Bip39 from 'bip39';
 import * as Ed25519 from 'ed25519-hd-key';
 import { initialize, SecureCellSeal } from 'wasm-themis';
 
-import { fetchMessage } from 'lib/i18n/for-bg';
 import { PublicError } from 'lib/temple/back/defaults';
 import { TempleLedgerSigner } from 'lib/temple/back/ledger-signer';
 import {
@@ -24,16 +23,13 @@ import {
   removeManyLegacy,
   savePlain
 } from 'lib/temple/back/safe-storage';
-import {
-  formatOpParamsBeforeSend,
-  loadFastRpcClient,
-  michelEncoder,
-  transformHttpResponseError
-} from 'lib/temple/helpers';
+import { formatOpParamsBeforeSend, loadFastRpcClient, michelEncoder } from 'lib/temple/helpers';
 import { pickLedgerTransport } from 'lib/temple/ledger-live';
 import * as Passworder from 'lib/temple/passworder';
 import { clearStorage } from 'lib/temple/reset';
 import { TempleAccount, TempleAccountType, TempleContact, TempleSettings } from 'lib/temple/types';
+
+import { fetchMessage, transformHttpResponseError } from './helpers';
 
 const TEMPLE_SYNC_PREFIX = 'templesync';
 const TEZOS_BIP44_COINTYPE = 1729;

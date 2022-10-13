@@ -111,7 +111,7 @@ export enum TempleAccountType {
 
 export interface TempleNetwork {
   id: string;
-  name: string;
+  name?: string;
   nameI18nKey?: TID;
   description: string;
   descriptionI18nKey?: string;
