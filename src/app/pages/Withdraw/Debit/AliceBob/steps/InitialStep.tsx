@@ -4,7 +4,7 @@ import classNames from 'clsx';
 
 import { FormSubmitButton } from 'app/atoms/FormSubmitButton';
 import { TopUpInput } from 'app/pages/Buy/Debit/Utorg/components/TopUpInput/TopUpInput';
-import { createAliceBobOrder } from 'lib/alice-bob-api';
+import { AliceBobOrderInfo, createAliceBobOrder } from 'lib/alice-bob-api';
 import { useAnalyticsState } from 'lib/analytics/use-analytics-state.hook';
 import { T } from 'lib/i18n/react';
 
@@ -19,7 +19,11 @@ import { CardNumberInput } from '../components/CardNumberInput';
 
 const NOT_UKRAINIAN_CARD_ERROR_MESSAGE = 'Ukrainian bank card is required.';
 
-export const InitialStep: FC = () => {
+interface Props {
+  orderInfo?: AliceBobOrderInfo;
+}
+
+export const InitialStep: FC<Props> = () => {
   const { analyticsState } = useAnalyticsState();
 
   const [inputAmount, setInputAmount] = useState(0);
@@ -170,35 +174,6 @@ export const InitialStep: FC = () => {
         >
           <T id="next" />
         </FormSubmitButton>
-        <div className="border-solid border-gray-300" style={{ borderTopWidth: 1 }}>
-          <p className="mt-6">
-            <T
-              id="privacyAndPolicyLinks"
-              substitutions={[
-                <T id={'next'} />,
-                <a
-                  className={styles['link']}
-                  rel="noreferrer"
-                  href="https://oval-rhodium-33f.notion.site/End-User-License-Agreement-Abex-Eng-6124123e256d456a83cffc3b2977c4dc"
-                  target="_blank"
-                >
-                  <T id={'termsOfUse'} />
-                </a>,
-                <a
-                  className={styles['link']}
-                  rel="noreferrer"
-                  href="https://oval-rhodium-33f.notion.site/Privacy-Policy-Abex-Eng-d70fa7cc134341a3ac4fd04816358b9e"
-                  target="_blank"
-                >
-                  <T id={'privacyPolicy'} />
-                </a>
-              ]}
-            />
-          </p>
-          <p className="my-6">
-            <T id={'warningTopUpServiceMessage'} />
-          </p>
-        </div>
       </div>
     </>
   );

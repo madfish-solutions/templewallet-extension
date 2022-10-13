@@ -62,11 +62,10 @@ export const CardNumberInput = forwardRef<HTMLInputElement, Props>(
           ref={ref}
           value={cardNumber}
           placeholder={t('enterCardNumber')}
-          style={{ color: '#1B262C' }}
           className={classNames(
             isActive && 'border-orange-500 bg-gray-100',
             showError && Boolean(error) ? 'border-red-700' : 'border-gray-300',
-            'transition ease-in-out duration-200',
+            'text-gray-910 transition ease-in-out duration-200',
             'w-full border rounded-md',
             'p-4 leading-tight placeholder-alphagray',
             'font-inter font-normal text-sm',

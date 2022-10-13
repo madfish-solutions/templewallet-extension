@@ -2730,6 +2730,15 @@
   "youSend": {
     "message": "You send:"
   },
+  "sell": {
+    "message": "Sell"
+  },
+  "newSell": {
+    "message": "New sell"
+  },
+  "youSell": {
+    "message": "You sell:"
+  },
   "sendTime": {
     "message": "Send time:"
   },

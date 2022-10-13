@@ -1,6 +1,6 @@
 import { templewalletQueryLOCAL } from './templewallet-api/templewallet-query';
 
-interface AliceBobOrderInfo {
+export interface AliceBobOrderInfo {
   id: string;
   status: string;
   from: string;
