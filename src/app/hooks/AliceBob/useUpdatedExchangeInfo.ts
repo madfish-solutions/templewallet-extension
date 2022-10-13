@@ -2,24 +2,22 @@ import { useCallback, useEffect, useState } from 'react';
 
 import { getAliceBobPairInfo } from 'lib/alice-bob-api';
 
-export const useUpdatedExchangeInfo = (isWithdraw = false) => {
+export const useUpdatedExchangeInfo = (setIsApiError: (v: boolean) => void, isWithdraw = false) => {
   const [isMinMaxLoading, setIsMinMaxLoading] = useState(false);
 
-  const [minExchangeAmount, setMinExchangeAmount] = useState(1);
-  const [maxExchangeAmount, setMaxExchangeAmount] = useState(1);
+  const [minExchangeAmount, setMinExchangeAmount] = useState(0);
+  const [maxExchangeAmount, setMaxExchangeAmount] = useState(0);
 
   const updateMinMaxRequest = useCallback(() => {
     setIsMinMaxLoading(true);
     getAliceBobPairInfo({ isWithdraw: String(isWithdraw) })
-      .then(response => {
-        setMinExchangeAmount(response.minAmount);
-        setMaxExchangeAmount(response.maxAmount);
+      .then(({ pairInfo }) => {
+        setMinExchangeAmount(pairInfo.minAmount);
+        setMaxExchangeAmount(pairInfo.maxAmount);
       })
-      .catch(() => {
-        setMinExchangeAmount(0);
-        setMaxExchangeAmount(0);
-      })
+      .catch(() => setIsApiError(true))
       .finally(() => setIsMinMaxLoading(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isWithdraw]);
 
   useEffect(() => {

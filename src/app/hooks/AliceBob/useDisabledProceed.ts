@@ -1,10 +1,13 @@
 import { useMemo } from 'react';
 
-export const useDisabledProceed = (inputAmount: number, minExchangeAmount: number, maxExchangeAmount: number) => {
-  const isApiError = useMemo(
-    () => minExchangeAmount === 0 && maxExchangeAmount === 0,
-    [minExchangeAmount, maxExchangeAmount]
-  );
+export const useDisabledProceed = (
+  inputAmount: number,
+  minExchangeAmount: number,
+  maxExchangeAmount: number,
+  isApiError = false,
+  isCardInputError = false,
+  isNotUkrainianCardError = false
+) => {
   const isMinAmountError = useMemo(
     () => inputAmount !== 0 && inputAmount < minExchangeAmount,
     [inputAmount, minExchangeAmount]
@@ -14,12 +17,17 @@ export const useDisabledProceed = (inputAmount: number, minExchangeAmount: numbe
     [inputAmount, maxExchangeAmount]
   );
   const disabledProceed = useMemo(
-    () => isMinAmountError || isMaxAmountError || inputAmount === 0 || isApiError,
-    [isMinAmountError, isMaxAmountError, inputAmount, isApiError]
+    () =>
+      isMinAmountError ||
+      isMaxAmountError ||
+      inputAmount === 0 ||
+      isApiError ||
+      isCardInputError ||
+      isNotUkrainianCardError,
+    [isMinAmountError, isMaxAmountError, inputAmount, isApiError, isCardInputError, isNotUkrainianCardError]
   );
 
   return {
-    isApiError,
     isMinAmountError,
     isMaxAmountError,
     disabledProceed

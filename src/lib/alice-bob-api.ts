@@ -1,6 +1,6 @@
-import makeBuildQueryFn from './makeBuildQueryFn';
+import { templewalletQueryLOCAL } from './templewallet-api/templewallet-query';
 
-export interface aliceBobOrder {
+interface AliceBobOrderInfo {
   id: string;
   status: string;
   from: string;
@@ -33,19 +33,43 @@ export interface aliceBobOrder {
   orderExpirationTimetamp: number;
 }
 
-const buildQuery = makeBuildQueryFn<Record<string, string>, any>('http://localhost:3000');
+interface AliceBobPairInfo {
+  minAmount: number;
+  maxAmount: number;
+}
 
-export const getSignedAliceBobUrl = buildQuery('GET', '/api/alice-bob-sign', [
-  'isWithdraw',
-  'amount',
-  'userId',
-  'walletAddress',
-  'cardNumber'
+type QueryParams = Record<string, string>;
+
+export const createAliceBobOrder = templewalletQueryLOCAL<QueryParams, { orderInfo: AliceBobOrderInfo }>(
+  'POST',
+  '/alice-bob/create-order',
+  ['isWithdraw', 'amount', 'userId', 'walletAddress', 'cardNumber']
+);
+
+export const cancelAliceBobOrder = templewalletQueryLOCAL<QueryParams, null>('POST', '/alice-bob/cancel-order', [
+  'orderId'
 ]);
 
-export const getAliceBobPairInfo = buildQuery('GET', '/api/alice-bob-pair-info', ['isWithdraw']);
+export const getAliceBobPairInfo = templewalletQueryLOCAL<QueryParams, { pairInfo: AliceBobPairInfo }>(
+  'GET',
+  '/alice-bob/get-pair-info',
+  ['isWithdraw']
+);
 
-export const getAliceBobOutputEstimation = buildQuery('GET', '/api/alice-bob-output-estimation', [
-  'isWithdraw',
-  'amount'
-]);
+export const getAliceBobOrders = templewalletQueryLOCAL<QueryParams, { orders: AliceBobOrderInfo[] }>(
+  'GET',
+  '/alice-bob/get-orders',
+  ['userId']
+);
+
+export const getAliceBobOrderInfo = templewalletQueryLOCAL<QueryParams, { orderInfo: AliceBobOrderInfo }>(
+  'GET',
+  '/alice-bob/check-order',
+  ['orderId']
+);
+
+export const estimateAliceBobOutput = templewalletQueryLOCAL<QueryParams, { outputAmount: number }>(
+  'POST',
+  '/alice-bob/estimate-amount',
+  ['isWithdraw', 'amount']
+);

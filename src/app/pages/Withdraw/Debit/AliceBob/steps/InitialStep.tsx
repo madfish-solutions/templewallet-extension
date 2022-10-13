@@ -4,7 +4,7 @@ import classNames from 'clsx';
 
 import { FormSubmitButton } from 'app/atoms/FormSubmitButton';
 import { TopUpInput } from 'app/pages/Buy/Debit/Utorg/components/TopUpInput/TopUpInput';
-import { aliceBobOrder, getSignedAliceBobUrl } from 'lib/alice-bob-api';
+import { createAliceBobOrder } from 'lib/alice-bob-api';
 import { useAnalyticsState } from 'lib/analytics/use-analytics-state.hook';
 import { T } from 'lib/i18n/react';
 
@@ -17,6 +17,8 @@ import styles from '../../../../Buy/Crypto/Exolix/Exolix.module.css';
 import { WithdrawSelectors } from '../../../Withdraw.selectors';
 import { CardNumberInput } from '../components/CardNumberInput';
 
+const NOT_UKRAINIAN_CARD_ERROR_MESSAGE = 'Ukrainian bank card is required.';
+
 export const InitialStep: FC = () => {
   const { analyticsState } = useAnalyticsState();
 
@@ -26,18 +28,23 @@ export const InitialStep: FC = () => {
   const [submitCount, setSubmitCount] = useState(0);
 
   const cardNumberRef = useRef<HTMLInputElement>(null);
+
+  const [isApiError, setIsApiError] = useState(false);
   const [isCardInputError, setIsCardInputError] = useState(false);
   const [isNotUkrainianCardError, setIsNotUkrainianCardError] = useState(false);
 
-  const { minExchangeAmount, maxExchangeAmount, isMinMaxLoading } = useUpdatedExchangeInfo(true);
+  const { minExchangeAmount, maxExchangeAmount, isMinMaxLoading } = useUpdatedExchangeInfo(setIsApiError, true);
 
-  const { isApiError, isMinAmountError, isMaxAmountError, disabledProceed } = useDisabledProceed(
+  const { isMinAmountError, isMaxAmountError, disabledProceed } = useDisabledProceed(
     inputAmount,
     minExchangeAmount,
-    maxExchangeAmount
+    maxExchangeAmount,
+    isApiError,
+    isCardInputError,
+    isNotUkrainianCardError
   );
 
-  const outputAmount = useOutputEstimation(inputAmount, disabledProceed, setLoading, true);
+  const outputAmount = useOutputEstimation(inputAmount, disabledProceed, setLoading, setIsApiError, true);
 
   const exchangeRate = useMemo(
     () => (inputAmount > 0 ? (outputAmount / inputAmount).toFixed(4) : 0),
@@ -46,18 +53,24 @@ export const InitialStep: FC = () => {
 
   const handleSubmit = () => {
     setSubmitCount(prevState => prevState + 1);
-    if (!disabledProceed && !isCardInputError && !isNotUkrainianCardError) {
+    if (!disabledProceed) {
       setLoading(true);
-      getSignedAliceBobUrl({
+      createAliceBobOrder({
         isWithdraw: 'true',
         amount: inputAmount.toString(),
         userId: analyticsState.userId,
         cardNumber: cardNumberRef.current?.value ?? ''
       })
-        .then(({ orderInfo }: { orderInfo: aliceBobOrder }) => {
+        .then(({ orderInfo }) => {
           console.log('orderInfo', orderInfo);
         })
-        .catch(() => setIsNotUkrainianCardError(true))
+        .catch(err => {
+          if (err.response.data.message === NOT_UKRAINIAN_CARD_ERROR_MESSAGE) {
+            setIsNotUkrainianCardError(true);
+          } else {
+            setIsApiError(true);
+          }
+        })
         .finally(() => setLoading(false));
     }
   };

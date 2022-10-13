@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useState } from 'react';
 
-import { getAliceBobOutputEstimation } from 'lib/alice-bob-api';
+import { estimateAliceBobOutput } from 'lib/alice-bob-api';
 
 export const useOutputEstimation = (
   inputAmount: number,
   disabledProceed: boolean,
   setLoading: (v: boolean) => void,
+  setIsApiError: (v: boolean) => void,
   isWithdraw = false
 ) => {
   const [outputAmount, setOutputAmount] = useState(0);
@@ -13,15 +14,18 @@ export const useOutputEstimation = (
   const getOutputEstimation = useCallback(() => {
     if (!disabledProceed) {
       setLoading(true);
-      getAliceBobOutputEstimation({
+      estimateAliceBobOutput({
         isWithdraw: String(isWithdraw),
         amount: String(inputAmount)
-      }).then(({ outputAmount }) => {
-        setOutputAmount(outputAmount);
-        setLoading(false);
-      });
+      })
+        .then(({ outputAmount }) => {
+          setOutputAmount(outputAmount);
+          setLoading(false);
+        })
+        .catch(() => setIsApiError(true));
     }
-  }, [disabledProceed, isWithdraw, inputAmount, setLoading]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [disabledProceed, isWithdraw, inputAmount]);
 
   useEffect(() => {
     getOutputEstimation();

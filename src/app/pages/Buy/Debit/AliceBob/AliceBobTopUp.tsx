@@ -3,7 +3,7 @@ import React, { ChangeEvent, FC, useCallback, useMemo, useState } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
 
 import { FormSubmitButton } from 'app/atoms/FormSubmitButton';
-import { getSignedAliceBobUrl } from 'lib/alice-bob-api';
+import { createAliceBobOrder } from 'lib/alice-bob-api';
 import { useAnalyticsState } from 'lib/analytics/use-analytics-state.hook';
 import { T } from 'lib/i18n/react';
 import { useAccount } from 'lib/temple/front';
@@ -27,17 +27,18 @@ export const AliceBobTopUp: FC = () => {
   const [inputAmount, setInputAmount] = useState(0);
   const [link, setLink] = useState('');
 
+  const [isApiError, setIsApiError] = useState(false);
   const [isLoading, setLoading] = useState(false);
 
-  const { minExchangeAmount, maxExchangeAmount, isMinMaxLoading } = useUpdatedExchangeInfo();
+  const { minExchangeAmount, maxExchangeAmount, isMinMaxLoading } = useUpdatedExchangeInfo(setIsApiError);
 
-  const { isApiError, isMinAmountError, isMaxAmountError, disabledProceed } = useDisabledProceed(
+  const { isMinAmountError, isMaxAmountError, disabledProceed } = useDisabledProceed(
     inputAmount,
     minExchangeAmount,
     maxExchangeAmount
   );
 
-  const outputAmount = useOutputEstimation(inputAmount, disabledProceed, setLoading);
+  const outputAmount = useOutputEstimation(inputAmount, disabledProceed, setLoading, setIsApiError);
 
   const exchangeRate = useMemo(
     () => (inputAmount > 0 ? (outputAmount / inputAmount).toFixed(4) : 0),
@@ -48,13 +49,14 @@ export const AliceBobTopUp: FC = () => {
     (e: ChangeEvent<HTMLInputElement>) => {
       if (!disabledProceed) {
         setLoading(true);
-        getSignedAliceBobUrl({
+        createAliceBobOrder({
           isWithdraw: 'false',
           amount: e.target.value,
           userId: analyticsState.userId,
           walletAddress
         })
-          .then(({ paymentInfo }) => setLink(paymentInfo))
+          .then(({ orderInfo }) => setLink(orderInfo.payUrl))
+          .catch(() => setIsApiError(true))
           .finally(() => setLoading(false));
       }
     },
