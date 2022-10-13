@@ -1,13 +1,10 @@
 import React, { FC, Fragment, ReactElement, ReactNode, useMemo } from 'react';
 
-import type _LocaleMessages from '../../../public/_locales/en/messages.json';
 import { getMessage } from './core';
 import { toList } from './helpers';
-import { Substitutions } from './types';
+import { TID, Substitutions } from './types';
 
 type ReactSubstitutions = ReactNode | ReactNode[];
-
-export type TID = keyof typeof _LocaleMessages;
 
 export type TProps = {
   id: TID;

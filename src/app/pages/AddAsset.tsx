@@ -19,8 +19,15 @@ import {
   IncorrectTokenIdError
 } from 'lib/temple/assets';
 import { loadContract } from 'lib/temple/contract';
-import { useTezos, useNetwork, useChainId, useAccount, useTokensMetadata, getBalanceSWRKey } from 'lib/temple/front';
-import { validateContractAddress } from 'lib/temple/helpers';
+import {
+  useTezos,
+  useNetwork,
+  useChainId,
+  useAccount,
+  useTokensMetadata,
+  getBalanceSWRKey,
+  validateContractAddress
+} from 'lib/temple/front';
 import { AssetMetadata, DetailedAssetMetdata, NotFoundTokenMetadata } from 'lib/temple/metadata';
 import * as Repo from 'lib/temple/repo';
 import { withErrorHumanDelay } from 'lib/ui/humanDelay';

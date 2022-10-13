@@ -9,7 +9,7 @@ import * as Bip39 from 'bip39';
 import * as Ed25519 from 'ed25519-hd-key';
 import { initialize, SecureCellSeal } from 'wasm-themis';
 
-import { getMessage } from 'lib/i18n';
+import { fetchMessage } from 'lib/i18n/for-bg';
 import { PublicError } from 'lib/temple/back/defaults';
 import { TempleLedgerSigner } from 'lib/temple/back/ledger-signer';
 import {
@@ -300,7 +300,7 @@ export class Vault {
 
       const accPrivateKey = seedToHDPrivateKey(seed, hdAccIndex);
       const [accPublicKey, accPublicKeyHash] = await getPublicKeyAndHash(accPrivateKey);
-      const accName = name || getNewAccountName(allAccounts);
+      const accName = name || (await fetchNewAccountName(allAccounts));
 
       if (allAccounts.some(a => a.publicKeyHash === accPublicKeyHash)) {
         return this.createHDAccount(accName, hdAccIndex + 1);
@@ -341,7 +341,7 @@ export class Vault {
 
       const newAccount: TempleAccount = {
         type: TempleAccountType.Imported,
-        name: getNewAccountName(allAccounts),
+        name: await fetchNewAccountName(allAccounts),
         publicKeyHash: accPublicKeyHash
       };
       const newAllAcounts = concatAccount(allAccounts, newAccount);
@@ -390,7 +390,7 @@ export class Vault {
       const allAccounts = await this.fetchAccounts();
       const newAccount: TempleAccount = {
         type: TempleAccountType.ManagedKT,
-        name: getNewAccountName(
+        name: await fetchNewAccountName(
           allAccounts.filter(({ type }) => type === TempleAccountType.ManagedKT),
           'defaultManagedKTAccountName'
         ),
@@ -411,7 +411,7 @@ export class Vault {
       const allAccounts = await this.fetchAccounts();
       const newAccount: TempleAccount = {
         type: TempleAccountType.WatchOnly,
-        name: getNewAccountName(
+        name: await fetchNewAccountName(
           allAccounts.filter(({ type }) => type === TempleAccountType.WatchOnly),
           'defaultWatchOnlyAccountName'
         ),
@@ -518,7 +518,7 @@ export class Vault {
             throw err;
 
           case err instanceof HttpResponseError:
-            throw transformHttpResponseError(err);
+            throw await transformHttpResponseError(err);
 
           default:
             throw new Error(`Failed to send operations. ${err.message}`);
@@ -592,7 +592,7 @@ const MIGRATIONS = [
 
     const newInitialAccount: TempleAccount = {
       type: TempleAccountType.HD,
-      name: getNewAccountName(accounts),
+      name: await fetchNewAccountName(accounts),
       publicKeyHash: accPublicKeyHash,
       hdIndex: hdAccIndex
     };
@@ -700,8 +700,10 @@ function concatAccount(current: TempleAccount[], newOne: TempleAccount) {
   throw new PublicError('Account already exists');
 }
 
-function getNewAccountName(allAccounts: TempleAccount[], templateI18nKey = 'defaultAccountName') {
-  return getMessage(templateI18nKey, String(allAccounts.length + 1));
+type NewAccountName = 'defaultAccountName' | 'defaultManagedKTAccountName' | 'defaultWatchOnlyAccountName';
+
+function fetchNewAccountName(allAccounts: TempleAccount[], templateI18nKey: NewAccountName = 'defaultAccountName') {
+  return fetchMessage(templateI18nKey, String(allAccounts.length + 1));
 }
 
 async function getPublicKeyAndHash(privateKey: string) {

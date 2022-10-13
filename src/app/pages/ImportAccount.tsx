@@ -21,7 +21,8 @@ import { ReactComponent as OkIcon } from 'app/icons/ok.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import ManagedKTForm from 'app/templates/ManagedKTForm';
 import { useFormAnalytics } from 'lib/analytics';
-import { TID, T, t } from 'lib/i18n/react';
+import { TID } from 'lib/i18n';
+import { T, t } from 'lib/i18n/react';
 import {
   ActivationStatus,
   useTempleClient,
@@ -31,9 +32,10 @@ import {
   useTezosDomainsClient,
   useNetwork,
   activateAccount,
-  validateDelegate
+  validateDelegate,
+  validateDerivationPath
 } from 'lib/temple/front';
-import { validateDerivationPath, isAddressValid, isKTAddress } from 'lib/temple/helpers';
+import { isAddressValid, isKTAddress } from 'lib/temple/helpers';
 import { confirmOperation } from 'lib/temple/operation';
 import { ImportAccountFormType } from 'lib/temple/types';
 import useSafeState from 'lib/ui/useSafeState';
