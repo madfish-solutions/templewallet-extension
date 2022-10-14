@@ -17,8 +17,8 @@ export function onInited(callback: () => void) {
   initPromise.then(callback);
 }
 
-export async function updateLocale(locale: string) {
-  await saveLocale(locale);
+export function updateLocale(locale: string) {
+  saveLocale(locale);
   notifyOthers();
   refresh();
 }

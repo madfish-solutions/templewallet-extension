@@ -8,13 +8,12 @@ import {
   fetchLocaleMessages,
   applySubstitutions
 } from 'lib/i18n/helpers';
-import { asyncGetSavedLocale } from 'lib/i18n/saving';
+import { getSavedLocale } from 'lib/i18n/saving';
 import type { TID, Substitutions } from 'lib/i18n/types';
 import { IntercomError } from 'lib/intercom/helpers';
 
 export async function fetchMessage(msgId: TID, substitutions?: Substitutions) {
-  const savedLocale = await asyncGetSavedLocale();
-
+  const savedLocale = getSavedLocale();
   const nativeLocale = getNativeLocale();
 
   let result: string | null = null;
