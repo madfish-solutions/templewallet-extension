@@ -1,0 +1,1 @@
+rm -rf node_modules dist ; yarn ; yarn build;

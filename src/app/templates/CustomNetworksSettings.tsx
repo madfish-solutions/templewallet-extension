@@ -43,11 +43,16 @@ const CustomNetworksSettings: FC = () => {
       clearError();
 
       let chainId;
-      try {
-        chainId = await loadChainId(rpcBaseURL);
-      } catch (err: any) {
-        await withErrorHumanDelay(err, () => setError('rpcBaseURL', SUBMIT_ERROR_TYPE, t('invalidRpcCantGetChainId')));
-        return;
+      if (name == 'deku') chainId = 'deku';
+      else {
+        try {
+          chainId = await loadChainId(rpcBaseURL);
+        } catch (err: any) {
+          await withErrorHumanDelay(err, () =>
+            setError('rpcBaseURL', SUBMIT_ERROR_TYPE, t('invalidRpcCantGetChainId'))
+          );
+          return;
+        }
       }
 
       try {

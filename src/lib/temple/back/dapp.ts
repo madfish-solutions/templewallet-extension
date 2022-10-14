@@ -16,7 +16,15 @@ import {
   TempleDAppSignResponse,
   TempleDAppBroadcastRequest,
   TempleDAppBroadcastResponse,
-  TempleDAppNetwork
+  TempleDAppNetwork,
+  TempleDAppPermissionRequestV3,
+  TempleDAppMetadata,
+  TempleDAppPermissionResponseV3,
+  BeaconMessageWrapper,
+  TempleDAppRequest,
+  TempleDAppRequestV3,
+  TempleDAppOperationResponseV3,
+  TempleDAppOperationRequestV3
 } from '@temple-wallet/dapp/dist/types';
 import { nanoid } from 'nanoid';
 import { browser, Runtime } from 'webextension-polyfill-ts';
@@ -60,23 +68,42 @@ export async function getCurrentPermission(origin: string): Promise<TempleDAppGe
 
 export async function requestPermission(
   origin: string,
-  req: TempleDAppPermissionRequest
-): Promise<TempleDAppPermissionResponse> {
-  if (![isAllowedNetwork(req?.network), typeof req?.appMeta?.name === 'string'].every(Boolean)) {
+  req: TempleDAppRequest | TempleDAppRequestV3
+): Promise<TempleDAppPermissionResponse | BeaconMessageWrapper<TempleDAppPermissionResponseV3>> {
+  let network: TempleDAppNetwork;
+  let appMeta: TempleDAppMetadata;
+  //let force: boolean;
+
+  const v3 = req as BeaconMessageWrapper<TempleDAppPermissionRequestV3>;
+  const v2 = req as TempleDAppPermissionRequest;
+
+  if (v3.message) {
+    network = v3.message.blockchainData.network;
+    appMeta = v3.message.blockchainData.appMetadata;
+    //force = true;
+  } else {
+    network = v2.network;
+    appMeta = v2.appMeta;
+    //force = v2.force ? v2.force : false;
+  }
+
+  if (![isAllowedNetwork(network), typeof appMeta?.name === 'string'].every(Boolean)) {
     throw new Error(TempleDAppErrorType.InvalidParams);
   }
 
-  const networkRpc = await getNetworkRPC(req.network);
-  const dApp = await getDApp(origin);
+  const networkRpc = await getNetworkRPC(network);
+  //const dApp = await getDApp(origin);
 
-  if (!req.force && dApp && isNetworkEquals(req.network, dApp.network) && req.appMeta.name === dApp.appMeta.name) {
+  /*
+  if (force && dApp && isNetworkEquals(network, dApp.network) && appMeta.name === dApp.appMeta.name) {
+    alert('forcing return with no promise ...???');
     return {
       type: TempleDAppMessageType.PermissionResponse,
       rpc: networkRpc,
       pkh: dApp.pkh,
       publicKey: dApp.publicKey
     };
-  }
+  }*/
 
   return new Promise(async (resolve, reject) => {
     const id = nanoid();
@@ -87,28 +114,60 @@ export async function requestPermission(
         type: 'connect',
         origin,
         networkRpc,
-        appMeta: req.appMeta
+        appMeta: appMeta
       },
       onDecline: () => {
+        alert('onDecline not granted ?');
         reject(new Error(TempleDAppErrorType.NotGranted));
       },
-      handleIntercomRequest: async (confirmReq, decline) => {
+      handleIntercomRequest: async (confirmReq, decline): Promise<any> => {
+        alert('handleIntercomRequest confirmReq is');
+        alert(JSON.stringify(confirmReq));
+
         if (confirmReq?.type === TempleMessageType.DAppPermConfirmationRequest && confirmReq?.id === id) {
           const { confirmed, accountPublicKeyHash, accountPublicKey } = confirmReq;
           if (confirmed && accountPublicKeyHash && accountPublicKey) {
             await setDApp(origin, {
-              network: req.network,
-              appMeta: req.appMeta,
+              network: network,
+              appMeta: appMeta,
               pkh: accountPublicKeyHash,
               publicKey: accountPublicKey
             });
-            resolve({
-              type: TempleDAppMessageType.PermissionResponse,
-              pkh: accountPublicKeyHash,
-              publicKey: accountPublicKey,
-              rpc: networkRpc
-            });
+
+            alert('v3 request was ');
+            alert(JSON.stringify(v3));
+
+            resolve(
+              !v3.message
+                ? ({
+                    type: TempleDAppMessageType.PermissionResponse,
+                    pkh: accountPublicKeyHash,
+                    publicKey: accountPublicKey,
+                    rpc: networkRpc
+                  } as TempleDAppPermissionResponse)
+                : ({
+                    id: v3.id,
+                    version: v3.version,
+                    senderId: v3.senderId,
+                    message: {
+                      blockchainIdentifier: v3.message.blockchainIdentifier,
+                      type: TempleDAppMessageType.PermissionResponse,
+                      blockchainData: {
+                        ...v3.message.blockchainData,
+                        accounts: [
+                          {
+                            accountId: 'account',
+                            publicKey: accountPublicKey,
+                            address: accountPublicKeyHash,
+                            network: { ...v3.message.blockchainData.network }
+                          }
+                        ]
+                      }
+                    }
+                  } as BeaconMessageWrapper<TempleDAppPermissionResponseV3>)
+            );
           } else {
+            alert('onDecline not granted ? confirmed && accountPublicKeyHash && accountPublicKey');
             decline();
           }
 
@@ -124,13 +183,27 @@ export async function requestPermission(
 
 export async function requestOperation(
   origin: string,
-  req: TempleDAppOperationRequest
-): Promise<TempleDAppOperationResponse> {
+  req: TempleDAppRequest | TempleDAppRequestV3
+): Promise<TempleDAppOperationResponse | TempleDAppOperationResponseV3> {
+  const v2 = req as TempleDAppOperationRequest;
+  const v3 = req as BeaconMessageWrapper<TempleDAppOperationRequestV3>;
+
+  let sourcePkh: string;
+  let opParams: any[];
+  if (v3.message) {
+    sourcePkh = v3.message.blockchainData.sourceAddress;
+    opParams = Object.values(v3.message.blockchainData);
+  } else {
+    sourcePkh = v2.sourcePkh;
+    opParams = v2.opParams;
+  }
+
   if (
+    !v3.message &&
     ![
-      isAddressValid(req?.sourcePkh),
-      req?.opParams?.length > 0,
-      req?.opParams?.every(op => typeof op.kind === 'string')
+      isAddressValid(sourcePkh),
+      v2?.opParams?.length > 0,
+      v2?.opParams?.every(op => typeof op.kind === 'string')
     ].every(Boolean)
   ) {
     throw new Error(TempleDAppErrorType.InvalidParams);
@@ -142,7 +215,7 @@ export async function requestOperation(
     throw new Error(TempleDAppErrorType.NotGranted);
   }
 
-  if (req.sourcePkh !== dApp.pkh) {
+  if (sourcePkh !== dApp.pkh) {
     throw new Error(TempleDAppErrorType.NotFound);
   }
 
@@ -157,15 +230,15 @@ export async function requestOperation(
         origin,
         networkRpc,
         appMeta: dApp.appMeta,
-        sourcePkh: req.sourcePkh,
+        sourcePkh: sourcePkh,
         sourcePublicKey: dApp.publicKey,
-        opParams: req.opParams
+        opParams: opParams
       },
       onDecline: () => {
         reject(new Error(TempleDAppErrorType.NotGranted));
       },
       handleIntercomRequest: (confirmReq, decline) =>
-        handleIntercomRequest(confirmReq, decline, id, dApp, networkRpc, req, resolve, reject)
+        handleIntercomRequest(confirmReq, decline, id, dApp, networkRpc, v2, resolve, reject)
     });
   });
 }
@@ -223,12 +296,17 @@ const safeGetChain = async (networkRpc: string, op: any) => {
   } catch {}
 };
 
-export async function requestSign(origin: string, req: TempleDAppSignRequest): Promise<TempleDAppSignResponse> {
-  if (req?.payload?.startsWith('0x')) {
-    req = { ...req, payload: req.payload.substring(2) };
+export async function requestSign(
+  origin: string,
+  req: TempleDAppRequest | TempleDAppRequestV3
+): Promise<TempleDAppSignResponse> {
+  let v2 = req as TempleDAppSignRequest;
+
+  if (v2?.payload?.startsWith('0x')) {
+    v2 = { ...v2, payload: v2.payload.substring(2) };
   }
 
-  if (![isAddressValid(req?.sourcePkh), HEX_PATTERN.test(req?.payload)].every(Boolean)) {
+  if (![isAddressValid(v2?.sourcePkh), HEX_PATTERN.test(v2?.payload)].every(Boolean)) {
     throw new Error(TempleDAppErrorType.InvalidParams);
   }
 
@@ -238,11 +316,11 @@ export async function requestSign(origin: string, req: TempleDAppSignRequest): P
     throw new Error(TempleDAppErrorType.NotGranted);
   }
 
-  if (req.sourcePkh !== dApp.pkh) {
+  if (v2.sourcePkh !== dApp.pkh) {
     throw new Error(TempleDAppErrorType.NotFound);
   }
 
-  return new Promise((resolve, reject) => generatePromisifySign(resolve, reject, dApp, req));
+  return new Promise((resolve, reject) => generatePromisifySign(resolve, reject, dApp, v2));
 }
 
 const generatePromisifySign = async (
@@ -315,9 +393,10 @@ const generatePromisifySign = async (
 
 export async function requestBroadcast(
   origin: string,
-  req: TempleDAppBroadcastRequest
+  req: TempleDAppRequest | TempleDAppRequestV3
 ): Promise<TempleDAppBroadcastResponse> {
-  if (![req?.signedOpBytes?.length > 0].every(Boolean)) {
+  const v2 = req as TempleDAppBroadcastRequest;
+  if (![v2?.signedOpBytes?.length > 0].every(Boolean)) {
     throw new Error(TempleDAppErrorType.InvalidParams);
   }
 
@@ -329,7 +408,7 @@ export async function requestBroadcast(
 
   try {
     const rpc = new RpcClient(await getNetworkRPC(dApp.network));
-    const opHash = await rpc.injectOperation(req.signedOpBytes);
+    const opHash = await rpc.injectOperation(v2.signedOpBytes);
     return {
       type: TempleDAppMessageType.BroadcastResponse,
       opHash
@@ -378,7 +457,9 @@ type RequestConfirmParams = {
   handleIntercomRequest: (req: TempleRequest, decline: () => void) => Promise<any>;
 };
 
-async function requestConfirm({ id, payload, onDecline, handleIntercomRequest }: RequestConfirmParams) {
+async function requestConfirm({ id, payload, onDecline, handleIntercomRequest }: RequestConfirmParams): Promise<void> {
+  alert('begin requestConfirm');
+
   let closing = false;
   const close = async () => {
     if (closing) return;
@@ -434,8 +515,6 @@ async function requestConfirm({ id, payload, onDecline, handleIntercomRequest }:
     }
   });
 
-  const isWin = (await browser.runtime.getPlatformInfo()).os === 'win';
-
   let left = 0;
   let top = 0;
   try {
@@ -444,7 +523,9 @@ async function requestConfirm({ id, payload, onDecline, handleIntercomRequest }:
 
     top = Math.round(lastFocused.top! + lastFocused.height! / 2 - CONFIRM_WINDOW_HEIGHT / 2);
     left = Math.round(lastFocused.left! + lastFocused.width! / 2 - CONFIRM_WINDOW_WIDTH / 2);
-  } catch {
+  } catch (err) {
+    alert('l 527');
+    alert(err);
     // The following properties are more than likely 0, due to being
     // opened from the background chrome process for the extension that
     // has no physical dimensions
@@ -453,13 +534,12 @@ async function requestConfirm({ id, payload, onDecline, handleIntercomRequest }:
     left = Math.round(screenX + outerWidth / 2 - CONFIRM_WINDOW_WIDTH / 2);
   }
 
+  alert('creating the popup');
   const confirmWin = await browser.windows.create({
     type: 'popup',
     url: browser.runtime.getURL(`confirm.html#?id=${id}`),
-    width: isWin ? CONFIRM_WINDOW_WIDTH + 16 : CONFIRM_WINDOW_WIDTH,
-    height: isWin ? CONFIRM_WINDOW_HEIGHT + 17 : CONFIRM_WINDOW_HEIGHT,
-    top: Math.max(top, 20),
-    left: Math.max(left, 20)
+    width: 500,
+    height: 500
   });
 
   // Firefox currently ignores left/top for create, but it works for update
@@ -490,7 +570,8 @@ async function requestConfirm({ id, payload, onDecline, handleIntercomRequest }:
 }
 
 async function getNetworkRPC(net: TempleDAppNetwork) {
-  const targetRpc = typeof net === 'string' ? NETWORKS.find(n => n.id === net)!.rpcBaseURL : removeLastSlash(net.rpc);
+  const targetRpc =
+    typeof net === 'string' ? NETWORKS.find(n => n.id === net)!.rpcBaseURL : removeLastSlash(net.rpcUrl);
 
   if (typeof net === 'string') {
     try {
@@ -519,14 +600,17 @@ async function getCurrentTempleNetwork() {
 }
 
 function isAllowedNetwork(net: TempleDAppNetwork) {
-  return typeof net === 'string' ? NETWORKS.some(n => !n.disabled && n.id === net) : Boolean(net?.rpc);
+  return typeof net === 'string' ? NETWORKS.some(n => !n.disabled && n.id === net) : Boolean(net?.rpcUrl);
 }
 
+/*
 function isNetworkEquals(fNet: TempleDAppNetwork, sNet: TempleDAppNetwork) {
   return typeof fNet !== 'string' && typeof sNet !== 'string'
-    ? removeLastSlash(fNet.rpc) === removeLastSlash(sNet.rpc)
+    ? fNet.rpcUrl !== undefined && sNet.rpcUrl !== undefined
+      ? removeLastSlash(fNet.rpcUrl) === removeLastSlash(sNet.rpcUrl)
+      : false
     : fNet === sNet;
-}
+}*/
 
 function removeLastSlash(str: string) {
   return str.endsWith('/') ? str.slice(0, -1) : str;

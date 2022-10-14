@@ -170,7 +170,7 @@ const DAppDescription: FC<OptionRenderProps<DAppEntry, string, DAppActions>> = p
       },
       {
         key: 'networkLabel',
-        value: typeof network === 'string' ? network : network.name || network.rpc,
+        value: typeof network === 'string' ? network : network.name || network.rpcUrl,
         valueClassName: (typeof network === 'string' || network.name) && 'capitalize',
         Component: Name
       },

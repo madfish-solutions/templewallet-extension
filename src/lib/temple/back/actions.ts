@@ -5,7 +5,17 @@ import {
   TempleDAppMessageType,
   TempleDAppErrorType,
   TempleDAppRequest,
-  TempleDAppResponse
+  TempleDAppResponse,
+  BeaconMessageWrapper,
+  TempleDAppRequestV3,
+  TempleDAppResponseV3,
+  TempleDAppBroadcastResponse,
+  TempleDAppOperationResponse,
+  TempleDAppOperationResponseV3,
+  TempleDAppSignResponse,
+  TempleDAppPermissionResponse,
+  TempleDAppPermissionRequestV3,
+  TempleDAppPermissionRequest
 } from '@temple-wallet/dapp/dist/types';
 import { browser, Runtime } from 'webextension-polyfill-ts';
 
@@ -370,8 +380,15 @@ export function sign(port: Runtime.Port, id: string, sourcePkh: string, bytes: s
   );
 }
 
-export async function processDApp(origin: string, req: TempleDAppRequest): Promise<TempleDAppResponse | void> {
-  switch (req?.type) {
+export async function processDApp(
+  origin: string,
+  req: TempleDAppRequest | TempleDAppRequestV3
+): Promise<TempleDAppResponse | TempleDAppResponseV3> {
+  const v2 = req as TempleDAppRequest;
+  const v3 = req as TempleDAppRequestV3;
+  const type = v3.message ? v3.message.type : v2.type;
+
+  switch (type) {
     case TempleDAppMessageType.GetCurrentPermissionRequest:
       return withInited(() => getCurrentPermission(origin));
 
@@ -386,6 +403,10 @@ export async function processDApp(origin: string, req: TempleDAppRequest): Promi
 
     case TempleDAppMessageType.BroadcastRequest:
       return withInited(() => requestBroadcast(origin, req));
+
+    default: {
+      throw new Error('reqtype not matching cases ');
+    }
   }
 }
 
@@ -401,10 +422,13 @@ export async function getBeaconMessage(origin: string, msg: string, encrypted = 
       try {
         msg = await Beacon.decryptMessage(msg, recipientPubKey);
       } catch (err: any) {
+        alert(JSON.stringify(err));
         await Beacon.removeDAppPublicKey(origin);
         throw err;
       }
-    } catch {
+    } catch (err) {
+      alert('catch of Beacon.getDAppPublicKey or more ...');
+      alert(JSON.stringify(err));
       payload = {
         payload: Beacon.encodeMessage<Beacon.Response>({
           version: '2',
@@ -416,10 +440,11 @@ export async function getBeaconMessage(origin: string, msg: string, encrypted = 
     }
   }
 
-  let req: Beacon.Request | null;
+  let req: Beacon.Request | Beacon.RequestV3 | null;
   try {
     req = Beacon.decodeMessage<Beacon.Request>(msg);
-  } catch {
+  } catch (err) {
+    alert(err);
     req = null;
   }
 
@@ -441,6 +466,9 @@ export async function processBeacon(
   encrypted = false
 ): Promise<ProcessedBeaconMessage | undefined> {
   const { req, recipientPubKey, payload } = await getBeaconMessage(origin, msg, encrypted);
+
+  const v2 = req as Beacon.Request;
+
   if (payload) {
     return payload;
   }
@@ -449,7 +477,7 @@ export async function processBeacon(
   }
 
   // Process Disconnect
-  if (req.type === Beacon.MessageType.Disconnect) {
+  if (v2.type === Beacon.MessageType.Disconnect) {
     await removeDApp(origin);
     return;
   }
@@ -461,8 +489,8 @@ export async function processBeacon(
   };
 
   // Process handshake
-  if (req.type === Beacon.MessageType.HandshakeRequest) {
-    await Beacon.saveDAppPublicKey(origin, req.publicKey);
+  if (v2.type === Beacon.MessageType.HandshakeRequest) {
+    await Beacon.saveDAppPublicKey(origin, v2.publicKey);
     const keyPair = await Beacon.getOrCreateKeyPair();
     return {
       payload: await Beacon.sealCryptobox(
@@ -471,29 +499,34 @@ export async function processBeacon(
           ...Beacon.PAIRING_RESPONSE_BASE,
           publicKey: Beacon.toHex(keyPair.publicKey)
         }),
-        Beacon.fromHex(req.publicKey)
+        Beacon.fromHex(v2.publicKey)
       )
     };
   }
 
   const res = await getBeaconResponse(req, resBase, origin);
-  // const res = null;
 
-  const resMsg = Beacon.encodeMessage<Beacon.Response>(res);
+  const resMsg = Beacon.encodeMessage<Beacon.Response | Beacon.ResponseV3>(res);
   if (encrypted && recipientPubKey) {
     return {
       payload: await Beacon.encryptMessage(resMsg, recipientPubKey),
       encrypted: true
     };
   }
+
   return { payload: resMsg };
 }
 
-const getBeaconResponse = async (req: Beacon.Request, resBase: any, origin: string): Promise<Beacon.Response> => {
+const getBeaconResponse = async (
+  req: Beacon.Request | Beacon.RequestV3,
+  resBase: any,
+  origin: string
+): Promise<Beacon.Response | Beacon.ResponseV3> => {
   try {
     try {
       return await formatTempleReq(getTempleReq(req), req, resBase, origin);
     } catch (err: any) {
+      alert(JSON.stringify(err));
       if (err instanceof TezosOperationError) {
         throw err;
       }
@@ -516,6 +549,7 @@ const getBeaconResponse = async (req: Beacon.Request, resBase: any, origin: stri
       throw new Error(beaconErrorType);
     }
   } catch (err: any) {
+    alert(JSON.stringify(err));
     return {
       ...resBase,
       type: Beacon.MessageType.Error,
@@ -536,92 +570,198 @@ const getBeaconResponse = async (req: Beacon.Request, resBase: any, origin: stri
   }
 };
 
-const getTempleReq = (req: Beacon.Request): TempleDAppRequest | void => {
-  switch (req.type) {
-    case Beacon.MessageType.PermissionRequest:
-      const network =
-        req.network.type === 'custom'
-          ? {
-              name: req.network.name!,
-              rpc: req.network.rpcUrl!
-            }
-          : req.network.type;
+/**
+ * Converts Beacon.Request | Beacon.RequestV3 to TempleDAppRequest | TempleDAppRequestV3
+ * @param req
+ * @returns
+ */
+const getTempleReq = (req: Beacon.Request | Beacon.RequestV3): TempleDAppRequest | TempleDAppRequestV3 => {
+  const v2 = req as Beacon.Request;
+  const v3 = req as Beacon.RequestV3;
 
-      return {
-        type: TempleDAppMessageType.PermissionRequest,
-        network: network as any,
-        appMeta: req.appMetadata,
-        force: true
-      };
+  const type: string = v3.message ? v3.message.type : v2.type;
 
-    case Beacon.MessageType.OperationRequest:
+  switch (type) {
+    case Beacon.MessageType.PermissionRequest: {
+      const request = req as Beacon.PermissionRequest;
+      const reqPermissionBlockchain = v3 as BeaconMessageWrapper<Beacon.DekuPermissionRequest>;
+      if (reqPermissionBlockchain.message) {
+        reqPermissionBlockchain.message.blockchainData.network =
+          reqPermissionBlockchain.message.blockchainData.network.type === 'custom'
+            ? {
+                name: reqPermissionBlockchain.message.blockchainData.network.name!,
+                rpcUrl: reqPermissionBlockchain.message.blockchainData.network.rpcUrl!
+              }
+            : reqPermissionBlockchain.message.blockchainData.network;
+
+        return {
+          id: reqPermissionBlockchain.id,
+          version: reqPermissionBlockchain.version,
+          senderId: reqPermissionBlockchain.senderId,
+          message: {
+            type: TempleDAppMessageType.PermissionRequest,
+            network: reqPermissionBlockchain.message.blockchainData.network,
+            appMeta: { name: reqPermissionBlockchain.message.blockchainData.appMetadata.name },
+            force: true,
+            blockchainData: reqPermissionBlockchain.message.blockchainData,
+            blockchainIdentifier: reqPermissionBlockchain.message.blockchainIdentifier
+          }
+        } as BeaconMessageWrapper<TempleDAppPermissionRequestV3>;
+      } else {
+        alert('PermissionRequest');
+        request.network =
+          request.network.type === 'custom'
+            ? {
+                name: request.network.name!,
+                rpcUrl: request.network.rpcUrl!
+              }
+            : request.network;
+        return {
+          type: TempleDAppMessageType.PermissionRequest,
+          network: request.network,
+          appMeta: request.appMetadata,
+          force: true
+        } as TempleDAppPermissionRequest;
+      }
+    }
+
+    case Beacon.MessageType.OperationRequest: {
+      const request: Beacon.OperationRequest = req as Beacon.OperationRequest;
       return {
         type: TempleDAppMessageType.OperationRequest,
-        sourcePkh: req.sourceAddress,
-        opParams: req.operationDetails.map(Beacon.formatOpParams)
+        sourcePkh: request.sourceAddress,
+        opParams: request.operationDetails.map(Beacon.formatOpParams)
       };
-
-    case Beacon.MessageType.SignPayloadRequest:
+    }
+    case Beacon.MessageType.SignPayloadRequest: {
+      const request: Beacon.SignRequest = req as Beacon.SignRequest;
       return {
         type: TempleDAppMessageType.SignRequest,
-        sourcePkh: req.sourceAddress,
-        payload: req.signingType === Beacon.SigningType.RAW ? generateRawPayloadBytes(req.payload) : req.payload
+        sourcePkh: request.sourceAddress,
+        payload:
+          request.signingType === Beacon.SigningType.RAW ? generateRawPayloadBytes(request.payload) : request.payload
       };
-
-    case Beacon.MessageType.BroadcastRequest:
+    }
+    case Beacon.MessageType.BroadcastRequest: {
+      const request: Beacon.BroadcastRequest = req as Beacon.BroadcastRequest;
       return {
         type: TempleDAppMessageType.BroadcastRequest,
-        signedOpBytes: req.signedTransaction
+        signedOpBytes: request.signedTransaction
       };
+    }
+
+    default: {
+      alert('Cannot find Message type');
+      alert(type);
+      throw new Error('Cannot find Message type' + type);
+    }
   }
 };
 
+/**
+ * Convert templeReq to Beacon.Response | Beacon.ResponseV3
+ * @param templeReq
+ * @param req
+ * @param resBase
+ * @param v3
+ * @param origin
+ * @returns
+ */
 const formatTempleReq = async (
-  templeReq: TempleDAppRequest | void,
-  req: Beacon.Request,
+  templeReq: TempleDAppRequest | TempleDAppRequestV3,
+  req: Beacon.Request | Beacon.RequestV3,
   resBase: any,
   origin: string
-) => {
+): Promise<Beacon.Response | Beacon.ResponseV3> => {
   if (templeReq) {
-    const templeRes = await processDApp(origin, templeReq);
+    const templeRes: TempleDAppResponse | TempleDAppResponseV3 = await processDApp(origin, templeReq);
+    alert('after await processDApp(origin, templeReq);');
+    alert(JSON.stringify(templeRes));
+    return new Promise((resolve, _) => {
+      if (templeRes) {
+        const v2Res = templeRes as TempleDAppResponse;
+        const v3Res = templeRes as TempleDAppResponseV3;
+        const type = v3Res.message ? v3Res.message.type : v2Res.type;
 
-    if (templeRes) {
-      // Map Temple DApp response to Beacon response
-      switch (templeRes.type) {
-        case TempleDAppMessageType.PermissionResponse:
-          return {
-            ...resBase,
-            type: Beacon.MessageType.PermissionResponse,
-            publicKey: (templeRes as any).publicKey,
-            network: (req as Beacon.PermissionRequest).network,
-            scopes: [Beacon.PermissionScope.OPERATION_REQUEST, Beacon.PermissionScope.SIGN]
-          };
+        // Map Temple DApp response to Beacon response
+        switch (type) {
+          case TempleDAppMessageType.PermissionResponse: {
+            return resolve(
+              !v3Res.message
+                ? ({
+                    ...resBase,
+                    type: Beacon.MessageType.PermissionResponse,
+                    publicKey: (v2Res as TempleDAppPermissionResponse).publicKey,
+                    network: (req as Beacon.PermissionRequest).network,
+                    scopes: [Beacon.PermissionScope.OPERATION_REQUEST, Beacon.PermissionScope.SIGN]
+                  } as Beacon.PermissionResponse)
+                : ({
+                    ...resBase,
+                    message: {
+                      blockchainIdentifier: v3Res.message.blockchainIdentifier,
+                      type: Beacon.MessageType.PermissionResponse,
+                      blockchainData: v3Res.message.blockchainData
+                    }
+                  } as Beacon.ResponseV3)
+            );
+          }
+          case TempleDAppMessageType.OperationResponse:
+            return resolve(
+              !v3Res.message
+                ? ({
+                    ...resBase,
+                    type: Beacon.MessageType.OperationResponse,
+                    transactionHash: (v2Res as TempleDAppOperationResponse).opHash
+                  } as Beacon.OperationResponse)
+                : ({
+                    ...resBase,
+                    message: {
+                      type: Beacon.MessageType.OperationResponse,
+                      transactionHash: (v3Res as unknown as TempleDAppOperationResponseV3).transactionHash
+                    }
+                  } as Beacon.DekuTransferResponse)
+            );
 
-        case TempleDAppMessageType.OperationResponse:
-          return {
-            ...resBase,
-            type: Beacon.MessageType.OperationResponse,
-            transactionHash: templeRes.opHash
-          };
+          case TempleDAppMessageType.SignResponse:
+            return resolve(
+              !v3Res.message
+                ? ({
+                    ...resBase,
+                    type: Beacon.MessageType.SignPayloadResponse,
+                    signature: (v2Res as TempleDAppSignResponse).signature
+                  } as Beacon.SignResponse)
+                : ({
+                    //FIXME V2 for the moment
+                    ...resBase,
+                    type: Beacon.MessageType.SignPayloadResponse,
+                    signature: (v2Res as TempleDAppSignResponse).signature
+                  } as Beacon.SignResponse)
+            );
 
-        case TempleDAppMessageType.SignResponse:
-          return {
-            ...resBase,
-            type: Beacon.MessageType.SignPayloadResponse,
-            signature: templeRes.signature
-          };
-
-        case TempleDAppMessageType.BroadcastResponse:
-          return {
-            ...resBase,
-            type: Beacon.MessageType.BroadcastResponse,
-            transactionHash: templeRes.opHash
-          };
+          case TempleDAppMessageType.BroadcastResponse:
+            return resolve(
+              !v3Res.message
+                ? ({
+                    ...resBase,
+                    type: Beacon.MessageType.BroadcastResponse,
+                    transactionHash: (v2Res as TempleDAppBroadcastResponse).opHash
+                  } as Beacon.BroadcastResponse)
+                : ({
+                    //FIXME V2 for the moment
+                    ...resBase,
+                    type: Beacon.MessageType.BroadcastResponse,
+                    transactionHash: (v2Res as TempleDAppBroadcastResponse).opHash
+                  } as Beacon.BroadcastResponse)
+            );
+        }
       }
-    }
+    });
+  } else {
+    alert(`No templeReq`);
+    return new Promise((_, reject) => {
+      reject(new Error(Beacon.ErrorType.UNKNOWN_ERROR));
+    });
   }
-
-  throw new Error(Beacon.ErrorType.UNKNOWN_ERROR);
 };
 
 async function createCustomNetworksSnapshot(settings: TempleSettings) {

@@ -31,7 +31,7 @@ interface AppMetadata {
 type NetworkType = 'mainnet' | 'custom';
 
 interface Network {
-  type: NetworkType;
+  type?: NetworkType;
   name?: string;
   rpcUrl?: string;
 }
@@ -42,6 +42,16 @@ export enum SigningType {
   MICHELINE = 'micheline' // "05" prefix
 }
 
+export interface BlockchainMessage {
+  blockchainIdentifier: string;
+  type: unknown;
+  blockchainData: unknown;
+}
+
+export interface BeaconMessageWrapper<T extends BlockchainMessage> extends BaseMessage {
+  message: T;
+}
+
 export type Request =
   | PermissionRequest
   | OperationRequest
@@ -49,6 +59,8 @@ export type Request =
   | BroadcastRequest
   | DisconnectMessage
   | PostMessagePairingRequest;
+
+export type RequestV3 = BeaconMessageWrapper<DekuPermissionRequest> | BeaconMessageWrapper<DekuTransferRequest>;
 
 export type Response =
   | ErrorResponse
@@ -58,7 +70,10 @@ export type Response =
   | BroadcastResponse
   | AcknowledgeResponse
   | DisconnectMessage
-  | PostMessagePairingResponse;
+  | PostMessagePairingResponse
+  | DekuTransferResponse;
+
+export type ResponseV3 = BeaconMessageWrapper<DekuPermissionResponse>;
 
 export enum MessageType {
   Acknowledge = 'acknowledge',
@@ -75,7 +90,8 @@ export enum MessageType {
   Error = 'error',
   // Handshake
   HandshakeRequest = 'postmessage-pairing-request',
-  HandshakeResponse = 'postmessage-pairing-response'
+  HandshakeResponse = 'postmessage-pairing-response',
+  BlockchainRequest = 'blockchain_request'
 }
 
 interface BaseMessage {
@@ -84,6 +100,7 @@ interface BaseMessage {
   id: string; // ID of the message. The same ID is used in the request and response
   beaconId?: string;
   senderId?: string; // ID of the sender. This is used to identify the sender of the message
+  message?: any; //for blockchain types
 }
 
 export enum PermissionScope {
@@ -99,7 +116,71 @@ export interface PermissionRequest extends BaseMessage {
   scopes: PermissionScope[];
 }
 
-interface PermissionResponse extends BaseMessage {
+export enum DekuPermissionScope {
+  'transfer' = 'transfer'
+}
+
+export interface DekuPermissionRequest extends BlockchainMessage {
+  blockchainIdentifier: 'deku';
+  type: MessageType.PermissionRequest;
+  blockchainData: {
+    scopes: DekuPermissionScope[]; // enum
+    appMetadata: AppMetadata;
+    network: Network;
+  };
+}
+
+export interface DekuPermissionResponse extends BlockchainMessage {
+  blockchainIdentifier: 'deku';
+  type: MessageType.PermissionResponse;
+  blockchainData: {
+    appMetadata: AppMetadata;
+    scopes: DekuPermissionScope[]; // enum
+    accounts: {
+      accountId: string;
+      publicKey: string;
+      address: string;
+      network: Network;
+    }[];
+    origin: {
+      type: any;
+      id: any;
+    };
+  };
+}
+
+export enum DekuMessageType {
+  'transfer_request' = 'transfer_request'
+}
+
+export interface DekuTransferRequest extends BlockchainMessage {
+  blockchainIdentifier: 'deku';
+  type: MessageType.BlockchainRequest;
+  blockchainData: {
+    type: DekuMessageType.transfer_request;
+    scope: DekuPermissionScope.transfer;
+    sourceAddress: string;
+    amount: string;
+    recipient: string;
+    mode: 'submit' | 'submit-and-return' | 'return'; // TODO: Wording
+  };
+}
+
+export type DekuTransferResponse =
+  | {
+      transactionHash: string;
+    }
+  | {
+      transactionHash: string;
+      signature: string;
+      payload?: string;
+    }
+  | {
+      signature: string;
+      payload?: string;
+    };
+
+export interface PermissionResponse extends BaseMessage {
   type: MessageType.PermissionResponse;
   network: Network; // Network on which the permissions have been granted
   publicKey: string; // Public Key, because it can be used to verify signatures
@@ -110,7 +191,7 @@ interface PermissionResponse extends BaseMessage {
   };
 }
 
-interface AcknowledgeResponse {
+export interface AcknowledgeResponse {
   type: MessageType.Acknowledge;
   version: string;
   senderId: string;
@@ -124,30 +205,30 @@ export interface OperationRequest extends BaseMessage {
   sourceAddress: string;
 }
 
-interface OperationResponse extends BaseMessage {
+export interface OperationResponse extends BaseMessage {
   type: MessageType.OperationResponse;
   transactionHash: string;
 }
 
-interface SignRequest extends BaseMessage {
+export interface SignRequest extends BaseMessage {
   type: MessageType.SignPayloadRequest;
   sourceAddress: string;
   payload: string;
   signingType?: SigningType;
 }
 
-interface SignResponse extends BaseMessage {
+export interface SignResponse extends BaseMessage {
   type: MessageType.SignPayloadResponse;
   signature: string;
 }
 
-interface BroadcastRequest extends BaseMessage {
+export interface BroadcastRequest extends BaseMessage {
   type: MessageType.BroadcastRequest;
   network: Network; // Network on which the transaction will be broadcast
   signedTransaction: string; // Signed transaction that will be broadcast
 }
 
-interface BroadcastResponse extends BaseMessage {
+export interface BroadcastResponse extends BaseMessage {
   type: MessageType.BroadcastResponse;
   transactionHash: string; // Hash of the broadcast transaction
 }
