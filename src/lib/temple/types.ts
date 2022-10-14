@@ -259,6 +259,7 @@ export enum TempleMessageType {
   UpdateSettingsRequest = 'TEMPLE_UPDATE_SETTINGS_REQUEST',
   UpdateSettingsResponse = 'TEMPLE_UPDATE_SETTINGS_RESPONSE',
   OperationsRequest = 'TEMPLE_OPERATIONS_REQUEST',
+  BlockchainRequest = 'TEMPLE_BLOCKCHAIN_REQUEST',
   OperationsResponse = 'TEMPLE_OPERATIONS_RESPONSE',
   SignRequest = 'TEMPLE_SIGN_REQUEST',
   SignResponse = 'TEMPLE_SIGN_RESPONSE',
@@ -317,7 +318,8 @@ export type TempleRequest =
   | TempleGetAllDAppSessionsRequest
   | TempleRemoveDAppSessionRequest
   | TempleSendTrackEventRequest
-  | TempleSendPageEventRequest;
+  | TempleSendPageEventRequest
+  | TempleBlockchainRequest;
 
 export type TempleResponse =
   | TempleGetStateResponse
@@ -563,6 +565,11 @@ interface TempleOperationsRequest extends TempleMessageBase {
   sourcePkh: string;
   networkRpc: string;
   opParams: any[];
+}
+
+interface TempleBlockchainRequest extends TempleMessageBase {
+  type: TempleMessageType.BlockchainRequest;
+  id: string;
 }
 
 interface TempleOperationsResponse extends TempleMessageBase {

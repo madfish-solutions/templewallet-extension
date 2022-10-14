@@ -11,11 +11,13 @@ import {
   TempleDAppResponseV3,
   TempleDAppBroadcastResponse,
   TempleDAppOperationResponse,
-  TempleDAppOperationResponseV3,
   TempleDAppSignResponse,
   TempleDAppPermissionResponse,
   TempleDAppPermissionRequestV3,
-  TempleDAppPermissionRequest
+  TempleDAppPermissionRequest,
+  TempleDAppOperationRequest,
+  TempleDAppBlockchainRequestV3,
+  TempleDAppBlockchainResponseV3
 } from '@temple-wallet/dapp/dist/types';
 import { browser, Runtime } from 'webextension-polyfill-ts';
 
@@ -27,6 +29,7 @@ import {
   requestOperation,
   requestSign,
   requestBroadcast,
+  requestBlockchain,
   getAllDApps,
   removeDApp
 } from 'lib/temple/back/dapp';
@@ -396,13 +399,16 @@ export async function processDApp(
       return withInited(() => enqueueDApp(() => requestPermission(origin, req)));
 
     case TempleDAppMessageType.OperationRequest:
-      return withInited(() => enqueueDApp(() => requestOperation(origin, req)));
+      return withInited(() => enqueueDApp(() => requestOperation(origin, v2)));
 
     case TempleDAppMessageType.SignRequest:
-      return withInited(() => enqueueDApp(() => requestSign(origin, req)));
+      return withInited(() => enqueueDApp(() => requestSign(origin, v2)));
 
     case TempleDAppMessageType.BroadcastRequest:
-      return withInited(() => requestBroadcast(origin, req));
+      return withInited(() => requestBroadcast(origin, v2));
+
+    case TempleDAppMessageType.BlockchainRequest:
+      return withInited(() => enqueueDApp(() => requestBlockchain(origin, v3)));
 
     default: {
       throw new Error('reqtype not matching cases ');
@@ -608,7 +614,6 @@ const getTempleReq = (req: Beacon.Request | Beacon.RequestV3): TempleDAppRequest
           }
         } as BeaconMessageWrapper<TempleDAppPermissionRequestV3>;
       } else {
-        alert('PermissionRequest');
         request.network =
           request.network.type === 'custom'
             ? {
@@ -626,13 +631,35 @@ const getTempleReq = (req: Beacon.Request | Beacon.RequestV3): TempleDAppRequest
     }
 
     case Beacon.MessageType.OperationRequest: {
-      const request: Beacon.OperationRequest = req as Beacon.OperationRequest;
+      const request = req as Beacon.OperationRequest;
+
       return {
         type: TempleDAppMessageType.OperationRequest,
         sourcePkh: request.sourceAddress,
         opParams: request.operationDetails.map(Beacon.formatOpParams)
-      };
+      } as TempleDAppOperationRequest;
     }
+
+    case Beacon.MessageType.BlockchainRequest: {
+      const reqBlockchain = v3 as BeaconMessageWrapper<Beacon.DekuTransferRequest>;
+      return {
+        id: reqBlockchain.id,
+        version: reqBlockchain.version,
+        senderId: reqBlockchain.senderId,
+        message: {
+          type: TempleDAppMessageType.BlockchainRequest,
+          blockchainData: {
+            type: TempleDAppMessageType.OperationRequest,
+            scope: reqBlockchain.message.blockchainData.scope,
+            sourceAddress: reqBlockchain.message.blockchainData.sourceAddress,
+            amount: reqBlockchain.message.blockchainData.amount,
+            recipient: reqBlockchain.message.blockchainData.recipient,
+            mode: reqBlockchain.message.blockchainData.mode
+          }
+        }
+      } as BeaconMessageWrapper<TempleDAppBlockchainRequestV3>;
+    }
+
     case Beacon.MessageType.SignPayloadRequest: {
       const request: Beacon.SignRequest = req as Beacon.SignRequest;
       return {
@@ -675,8 +702,6 @@ const formatTempleReq = async (
 ): Promise<Beacon.Response | Beacon.ResponseV3> => {
   if (templeReq) {
     const templeRes: TempleDAppResponse | TempleDAppResponseV3 = await processDApp(origin, templeReq);
-    alert('after await processDApp(origin, templeReq);');
-    alert(JSON.stringify(templeRes));
     return new Promise((resolve, _) => {
       if (templeRes) {
         const v2Res = templeRes as TempleDAppResponse;
@@ -686,6 +711,8 @@ const formatTempleReq = async (
         // Map Temple DApp response to Beacon response
         switch (type) {
           case TempleDAppMessageType.PermissionResponse: {
+            const templeDAppPermissionRequestV3 =
+              v3Res as unknown as BeaconMessageWrapper<TempleDAppPermissionRequestV3>;
             return resolve(
               !v3Res.message
                 ? ({
@@ -698,61 +725,49 @@ const formatTempleReq = async (
                 : ({
                     ...resBase,
                     message: {
-                      blockchainIdentifier: v3Res.message.blockchainIdentifier,
+                      blockchainIdentifier: templeDAppPermissionRequestV3.message.blockchainIdentifier,
                       type: Beacon.MessageType.PermissionResponse,
-                      blockchainData: v3Res.message.blockchainData
+                      blockchainData: templeDAppPermissionRequestV3.message.blockchainData
                     }
                   } as Beacon.ResponseV3)
             );
           }
           case TempleDAppMessageType.OperationResponse:
-            return resolve(
-              !v3Res.message
-                ? ({
-                    ...resBase,
-                    type: Beacon.MessageType.OperationResponse,
-                    transactionHash: (v2Res as TempleDAppOperationResponse).opHash
-                  } as Beacon.OperationResponse)
-                : ({
-                    ...resBase,
-                    message: {
-                      type: Beacon.MessageType.OperationResponse,
-                      transactionHash: (v3Res as unknown as TempleDAppOperationResponseV3).transactionHash
-                    }
-                  } as Beacon.DekuTransferResponse)
-            );
-
+            return resolve({
+              ...resBase,
+              type: Beacon.MessageType.OperationResponse,
+              transactionHash: (v2Res as TempleDAppOperationResponse).opHash
+            } as Beacon.OperationResponse);
           case TempleDAppMessageType.SignResponse:
-            return resolve(
-              !v3Res.message
-                ? ({
-                    ...resBase,
-                    type: Beacon.MessageType.SignPayloadResponse,
-                    signature: (v2Res as TempleDAppSignResponse).signature
-                  } as Beacon.SignResponse)
-                : ({
-                    //FIXME V2 for the moment
-                    ...resBase,
-                    type: Beacon.MessageType.SignPayloadResponse,
-                    signature: (v2Res as TempleDAppSignResponse).signature
-                  } as Beacon.SignResponse)
-            );
+            return resolve({
+              ...resBase,
+              type: Beacon.MessageType.SignPayloadResponse,
+              signature: (v2Res as TempleDAppSignResponse).signature
+            } as Beacon.SignResponse);
 
           case TempleDAppMessageType.BroadcastResponse:
-            return resolve(
-              !v3Res.message
-                ? ({
-                    ...resBase,
-                    type: Beacon.MessageType.BroadcastResponse,
-                    transactionHash: (v2Res as TempleDAppBroadcastResponse).opHash
-                  } as Beacon.BroadcastResponse)
-                : ({
-                    //FIXME V2 for the moment
-                    ...resBase,
-                    type: Beacon.MessageType.BroadcastResponse,
-                    transactionHash: (v2Res as TempleDAppBroadcastResponse).opHash
-                  } as Beacon.BroadcastResponse)
+            return resolve({
+              ...resBase,
+              type: Beacon.MessageType.BroadcastResponse,
+              transactionHash: (v2Res as TempleDAppBroadcastResponse).opHash
+            } as Beacon.BroadcastResponse);
+
+          case TempleDAppMessageType.BlockchainResponse: {
+            alert(
+              'case TempleDAppMessageType.BlockchainResponse, returning BeaconMessageWrapper<TempleDAppBlockchainResponseV3>'
             );
+            const templeDAppBlockchainResponseV3 =
+              v3Res as unknown as BeaconMessageWrapper<TempleDAppBlockchainResponseV3>;
+            return resolve({
+              ...resBase,
+              message: {
+                type: TempleDAppMessageType.BlockchainResponse,
+                transactionHash: templeDAppBlockchainResponseV3.message.transactionHash,
+                signature: templeDAppBlockchainResponseV3.message.signature,
+                payload: templeDAppBlockchainResponseV3.message.payload
+              }
+            } as Beacon.ResponseV3);
+          }
         }
       }
     });

@@ -23,8 +23,8 @@ import {
   BeaconMessageWrapper,
   TempleDAppRequest,
   TempleDAppRequestV3,
-  TempleDAppOperationResponseV3,
-  TempleDAppOperationRequestV3
+  TempleDAppBlockchainResponseV3,
+  TempleDAppBlockchainRequestV3
 } from '@temple-wallet/dapp/dist/types';
 import { nanoid } from 'nanoid';
 import { browser, Runtime } from 'webextension-polyfill-ts';
@@ -121,9 +121,6 @@ export async function requestPermission(
         reject(new Error(TempleDAppErrorType.NotGranted));
       },
       handleIntercomRequest: async (confirmReq, decline): Promise<any> => {
-        alert('handleIntercomRequest confirmReq is');
-        alert(JSON.stringify(confirmReq));
-
         if (confirmReq?.type === TempleMessageType.DAppPermConfirmationRequest && confirmReq?.id === id) {
           const { confirmed, accountPublicKeyHash, accountPublicKey } = confirmReq;
           if (confirmed && accountPublicKeyHash && accountPublicKey) {
@@ -133,9 +130,6 @@ export async function requestPermission(
               pkh: accountPublicKeyHash,
               publicKey: accountPublicKey
             });
-
-            alert('v3 request was ');
-            alert(JSON.stringify(v3));
 
             resolve(
               !v3.message
@@ -181,25 +175,13 @@ export async function requestPermission(
   });
 }
 
-export async function requestOperation(
-  origin: string,
-  req: TempleDAppRequest | TempleDAppRequestV3
-): Promise<TempleDAppOperationResponse | TempleDAppOperationResponseV3> {
+export async function requestOperation(origin: string, req: TempleDAppRequest): Promise<TempleDAppOperationResponse> {
   const v2 = req as TempleDAppOperationRequest;
-  const v3 = req as BeaconMessageWrapper<TempleDAppOperationRequestV3>;
 
-  let sourcePkh: string;
-  let opParams: any[];
-  if (v3.message) {
-    sourcePkh = v3.message.blockchainData.sourceAddress;
-    opParams = Object.values(v3.message.blockchainData);
-  } else {
-    sourcePkh = v2.sourcePkh;
-    opParams = v2.opParams;
-  }
+  const sourcePkh = v2.sourcePkh;
+  const opParams = v2.opParams;
 
   if (
-    !v3.message &&
     ![
       isAddressValid(sourcePkh),
       v2?.opParams?.length > 0,
@@ -243,39 +225,94 @@ export async function requestOperation(
   });
 }
 
+export async function requestBlockchain(
+  origin: string,
+  req: TempleDAppRequestV3
+): Promise<BeaconMessageWrapper<TempleDAppBlockchainResponseV3>> {
+  alert('requestBlockchain');
+  const v3 = req as BeaconMessageWrapper<TempleDAppBlockchainRequestV3>;
+
+  const dApp = await getDApp(origin);
+
+  if (!dApp) {
+    throw new Error(TempleDAppErrorType.NotGranted);
+  }
+
+  if (v3.message.blockchainData.sourceAddress !== dApp.pkh) {
+    throw new Error(TempleDAppErrorType.NotFound);
+  }
+
+  return new Promise(async (resolve, reject) => {
+    const id = nanoid();
+    const networkRpc = await getNetworkRPC(dApp.network);
+
+    alert('calling requestConfirm');
+    await requestConfirm({
+      id,
+      payload: {
+        type: 'confirm_operations', //FIXME ???
+        origin,
+        networkRpc,
+        appMeta: dApp.appMeta,
+        sourcePkh: v3.message.blockchainData.sourceAddress,
+        sourcePublicKey: dApp.publicKey,
+        opParams: [] //FIXME
+      },
+      onDecline: () => {
+        reject(new Error(TempleDAppErrorType.NotGranted));
+      },
+      handleIntercomRequest: (confirmReq, decline) =>
+        handleIntercomRequest(confirmReq, decline, id, dApp, networkRpc, v3, resolve, reject)
+    });
+  });
+}
+
 const handleIntercomRequest = async (
   confirmReq: TempleRequest,
   decline: () => void,
   id: string,
   dApp: TempleDAppSession,
   networkRpc: string,
-  req: TempleDAppOperationRequest,
+  req: TempleDAppOperationRequest | BeaconMessageWrapper<TempleDAppBlockchainRequestV3>,
   resolve: any,
   reject: any
 ) => {
+  alert('begin handleIntercomRequest');
+
+  const reqV2 = req as TempleDAppOperationRequest;
+  //FIXME const reqV3 = req as BeaconMessageWrapper<TempleDAppBlockchainRequestV3>;
+
   if (confirmReq?.type === TempleMessageType.DAppOpsConfirmationRequest && confirmReq?.id === id) {
     if (confirmReq.confirmed) {
       try {
-        const op = await withUnlocked(({ vault }) =>
-          vault.sendOperations(
+        const op = await withUnlocked(({ vault }) => {
+          alert('vault.sendOperations');
+          return vault.sendOperations(
             dApp.pkh,
             networkRpc,
-            buildFinalOpParmas(req.opParams, confirmReq.modifiedTotalFee, confirmReq.modifiedStorageLimit)
-          )
-        );
+            buildFinalOpParmas(
+              reqV2.opParams, //FIXME
+              confirmReq.modifiedTotalFee,
+              confirmReq.modifiedStorageLimit
+            )
+          );
+        });
 
+        alert('safeGetChain');
         safeGetChain(networkRpc, op);
 
+        alert('resolve {type: TempleDAppMessageType.OperationResponse...');
         resolve({
           type: TempleDAppMessageType.OperationResponse,
           opHash: op.hash
         });
       } catch (err: any) {
+        alert(JSON.stringify(err));
         if (err instanceof TezosOperationError) {
           err.message = TempleDAppErrorType.TezosOperation;
           reject(err);
         } else {
-          throw err;
+          reject(err);
         }
       }
     } else {
@@ -285,8 +322,10 @@ const handleIntercomRequest = async (
     return {
       type: TempleMessageType.DAppOpsConfirmationResponse
     };
+  } else {
+    alert('confirmReq?.type === TempleMessageType.DAppOpsConfirmationRequest && confirmReq?.id === id => is false');
+    throw new Error('confirmReq is not DAppOpsConfirmationRequest and identifiers are different');
   }
-  return undefined;
 };
 
 const safeGetChain = async (networkRpc: string, op: any) => {
@@ -296,10 +335,7 @@ const safeGetChain = async (networkRpc: string, op: any) => {
   } catch {}
 };
 
-export async function requestSign(
-  origin: string,
-  req: TempleDAppRequest | TempleDAppRequestV3
-): Promise<TempleDAppSignResponse> {
+export async function requestSign(origin: string, req: TempleDAppRequest): Promise<TempleDAppSignResponse> {
   let v2 = req as TempleDAppSignRequest;
 
   if (v2?.payload?.startsWith('0x')) {
@@ -391,10 +427,7 @@ const generatePromisifySign = async (
   });
 };
 
-export async function requestBroadcast(
-  origin: string,
-  req: TempleDAppRequest | TempleDAppRequestV3
-): Promise<TempleDAppBroadcastResponse> {
+export async function requestBroadcast(origin: string, req: TempleDAppRequest): Promise<TempleDAppBroadcastResponse> {
   const v2 = req as TempleDAppBroadcastRequest;
   if (![v2?.signedOpBytes?.length > 0].every(Boolean)) {
     throw new Error(TempleDAppErrorType.InvalidParams);
@@ -458,8 +491,6 @@ type RequestConfirmParams = {
 };
 
 async function requestConfirm({ id, payload, onDecline, handleIntercomRequest }: RequestConfirmParams): Promise<void> {
-  alert('begin requestConfirm');
-
   let closing = false;
   const close = async () => {
     if (closing) return;
@@ -481,6 +512,7 @@ async function requestConfirm({ id, payload, onDecline, handleIntercomRequest }:
 
   let knownPort: Runtime.Port | undefined;
   const stopRequestListening = intercom.onRequest(async (req: TempleRequest, port) => {
+    alert('stopRequestListening = intercom.onRequest');
     if (req?.type === TempleMessageType.DAppGetPayloadRequest && req.id === id) {
       knownPort = port;
 
@@ -507,6 +539,7 @@ async function requestConfirm({ id, payload, onDecline, handleIntercomRequest }:
     } else {
       if (knownPort !== port) return;
 
+      alert('calling await handleIntercomRequest(req, onDecline)');
       const result = await handleIntercomRequest(req, onDecline);
       if (result) {
         close();
@@ -524,7 +557,6 @@ async function requestConfirm({ id, payload, onDecline, handleIntercomRequest }:
     top = Math.round(lastFocused.top! + lastFocused.height! / 2 - CONFIRM_WINDOW_HEIGHT / 2);
     left = Math.round(lastFocused.left! + lastFocused.width! / 2 - CONFIRM_WINDOW_WIDTH / 2);
   } catch (err) {
-    alert('l 527');
     alert(err);
     // The following properties are more than likely 0, due to being
     // opened from the background chrome process for the extension that
@@ -534,7 +566,6 @@ async function requestConfirm({ id, payload, onDecline, handleIntercomRequest }:
     left = Math.round(screenX + outerWidth / 2 - CONFIRM_WINDOW_WIDTH / 2);
   }
 
-  alert('creating the popup');
   const confirmWin = await browser.windows.create({
     type: 'popup',
     url: browser.runtime.getURL(`confirm.html#?id=${id}`),
