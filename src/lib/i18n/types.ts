@@ -3,7 +3,7 @@ export interface FetchedLocaleMessages {
   fallback: LocaleMessages | null;
 }
 
-export type Substitutions = string | (string | number)[];
+export type Substitutions = string | string[];
 
 export type LocaleMessages = Record<string, LocaleMessage>;
 

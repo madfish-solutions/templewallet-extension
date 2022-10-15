@@ -1,6 +1,6 @@
 import React, { FC, useMemo, useState } from 'react';
 
-import { browser } from 'webextension-polyfill-ts';
+import browser from 'webextension-polyfill';
 
 interface Props {
   currencyCode: string;
