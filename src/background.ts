@@ -2,6 +2,7 @@ import { browser } from 'webextension-polyfill-ts';
 
 import { lock } from 'lib/temple/back/actions';
 import { start } from 'lib/temple/back/main';
+import { getChromePredicate, getFFPredicate } from 'lib/temple/back/predicates';
 import { isLockUpEnabled } from 'lib/ui/useLockUp';
 
 browser.runtime.onInstalled.addListener(({ reason }) => (reason === 'install' ? openFullPage() : null));
@@ -23,8 +24,6 @@ function openFullPage() {
 const LOCK_TIME = 5 * 60_000;
 let disconnectTimestamp = 0;
 let connectionsCount = 0;
-
-const URL_BASE = 'extension://';
 
 browser.runtime.onConnect.addListener(externalPort => {
   if (getChromePredicate(externalPort) || getFFPredicate(externalPort)) {
@@ -48,11 +47,3 @@ browser.runtime.onConnect.addListener(externalPort => {
     }
   });
 });
-
-export const getChromePredicate = (port: any) => port.sender?.url?.includes(`${URL_BASE}${browser.runtime.id}`);
-export const getFFPredicate = (port: any) => {
-  const manifest: any = browser.runtime.getManifest();
-  const fullUrl = manifest.background?.scripts[0];
-  const edgeUrl = fullUrl.split('/scripts')[0].split('://')[1];
-  return port.sender?.url?.includes(`${URL_BASE}${edgeUrl}`);
-};
