@@ -184,6 +184,7 @@
     "postcss": "8.4.6",
     "follow-redirects": "1.14.8",
     "nanoid": "3.1.31",
-    "tslib": "2.4.0"
+    "tslib": "2.4.0",
+    "regenerator-runtime": "0.13.9"
   }
 }
