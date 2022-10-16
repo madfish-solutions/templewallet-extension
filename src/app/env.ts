@@ -1,7 +1,7 @@
 import { FC, useCallback, useLayoutEffect, useRef } from 'react';
 
 import constate from 'constate';
-import { browser } from 'webextension-polyfill-ts';
+import browser from 'webextension-polyfill';
 
 import { createUrl } from 'lib/woozie';
 
