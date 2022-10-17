@@ -8,7 +8,7 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 const fs = require('fs');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
+const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 const path = require('path');
 const ForkTsCheckerWebpackPlugin = require('react-dev-utils/ForkTsCheckerWebpackPlugin');
 const getCSSModuleLocalIdent = require('react-dev-utils/getCSSModuleLocalIdent');
@@ -89,20 +89,20 @@ const PACKED_EXTENSION = (() => {
 const OUTPUT_PACKED_PATH = path.join(OUTPUT_PATH, `${TARGET_BROWSER}.${PACKED_EXTENSION}`);
 const HTML_TEMPLATES = [
   {
-    path: path.join(PUBLIC_PATH, 'popup.html'),
-    chunks: ['popup']
+    name: 'popup',
+    path: path.join(PUBLIC_PATH, 'popup.html')
   },
   {
-    path: path.join(PUBLIC_PATH, 'fullpage.html'),
-    chunks: ['fullpage']
+    name: 'fullpage',
+    path: path.join(PUBLIC_PATH, 'fullpage.html')
   },
   {
-    path: path.join(PUBLIC_PATH, 'confirm.html'),
-    chunks: ['confirm']
+    name: 'confirm',
+    path: path.join(PUBLIC_PATH, 'confirm.html')
   },
   {
-    path: path.join(PUBLIC_PATH, 'options.html'),
-    chunks: ['options']
+    name: 'options',
+    path: path.join(PUBLIC_PATH, 'options.html')
   }
 ];
 const ENTRIES = {
@@ -114,10 +114,10 @@ const ENTRIES = {
   contentScript: path.join(SOURCE_PATH, 'contentScript.ts')
 };
 
-const EXTENSION_ENTRIES = {
+const RELOADER_ENTRIES = {
   contentScript: 'contentScript',
   background: 'background',
-  extensionPage: ['commons', 'popup', 'fullpage', 'confirm', 'options']
+  extensionPage: ['popup', 'fullpage', 'confirm', 'options', 'commons.chunk']
 };
 const SEPARATED_CHUNKS = new Set(['background', 'contentScript']);
 const MANIFEST_PATH = path.join(PUBLIC_PATH, 'manifest.json');
@@ -375,7 +375,7 @@ module.exports = {
         new HtmlWebpackPlugin({
           template: htmlTemplate.path,
           filename: path.basename(htmlTemplate.path),
-          chunks: [...htmlTemplate.chunks, 'commons'],
+          chunks: [htmlTemplate.name, 'commons'],
           inject: 'body',
           ...(NODE_ENV === 'production'
             ? {
@@ -451,7 +451,7 @@ module.exports = {
         port: 9090,
         reloadPage: true,
         // manifest: path.join(OUTPUT_PATH, "manifest.json"),
-        entries: EXTENSION_ENTRIES
+        entries: RELOADER_ENTRIES
       }),
 
     new ESLintPlugin({
