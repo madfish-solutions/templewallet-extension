@@ -11,7 +11,7 @@ import { ReactComponent as BuyIcon } from 'app/icons/buy.svg';
 import { ReactComponent as ReceiveIcon } from 'app/icons/receive.svg';
 import { ReactComponent as SendIcon } from 'app/icons/send-alt.svg';
 import { ReactComponent as SwapIcon } from 'app/icons/swap.svg';
-import { ReactComponent as WithdrawButtonIcon } from 'app/icons/withdrawButton.svg';
+import { ReactComponent as WithdrawIcon } from 'app/icons/withdraw.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import Activity from 'app/templates/activity/Activity';
 import AssetInfo from 'app/templates/AssetInfo';
@@ -111,7 +111,7 @@ const Explore: FC<ExploreProps> = ({ assetSlug }) => {
           />
           <ActionButton
             label={<T id="withdrawButton" />}
-            Icon={WithdrawButtonIcon}
+            Icon={WithdrawIcon}
             to="/withdraw"
             disabled={!canSend || network.type !== 'main'}
             testID={ExploreSelectors.WithdrawButton}
