@@ -24,7 +24,6 @@
     "@dicebear/avatars": "4.2.5",
     "@dicebear/avatars-bottts-sprites": "4.2.5",
     "@dicebear/avatars-jdenticon-sprites": "4.2.5",
-    "@i2labs/dns": "1.0.1",
     "@peculiar/webcrypto": "1.1.6",
     "@popperjs/core": "2.4.4",
     "@reduxjs/toolkit": "^1.8.5",

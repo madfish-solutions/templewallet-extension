@@ -151,17 +151,10 @@ module.exports = {
 
     /*
       Some libraries import Node modules but don't use them in the browser.
-      Tell Webpack to provide empty mocks for them so importing them works.
+      Tell Webpack to provide mocks for them so importing them works.
     */
     fallback: {
       fs: false,
-      module: false,
-      dgram: false,
-      http2: false,
-      net: false,
-      tls: false,
-      child_process: false,
-      dns: require.resolve('@i2labs/dns'),
       path: require.resolve('path-browserify'),
       buffer: require.resolve('buffer'),
       stream: require.resolve('stream-browserify'),
