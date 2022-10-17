@@ -68,12 +68,12 @@ const fetchOperations_TEZ = (
   pseudoLimit: number,
   olderThan?: Activity
 ) =>
-  TZKT.fetchGetAccountOperations(chainId, accountAddress, {
-    type: 'transaction',
+  TZKT.fetchGetOperationsTransactions(chainId, {
+    'anyof.sender.target.initiator': accountAddress,
     ...buildOlderThanParam(olderThan),
     limit: pseudoLimit,
-    sort: 1,
-    'parameter.null': true
+    'sort.desc': 'id',
+    'amount.ne': '0'
   });
 
 const fetchOperations_Contract = (
