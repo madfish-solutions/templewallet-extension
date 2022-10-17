@@ -4,26 +4,22 @@ import classNames from 'clsx';
 
 import { FormSubmitButton } from 'app/atoms/FormSubmitButton';
 import { TopUpInput } from 'app/pages/Buy/Debit/Utorg/components/TopUpInput/TopUpInput';
-import { AliceBobOrderInfo, createAliceBobOrder } from 'lib/alice-bob-api';
+import { createAliceBobOrder } from 'lib/alice-bob-api';
 import { useAnalyticsState } from 'lib/analytics/use-analytics-state.hook';
 import { T } from 'lib/i18n/react';
 
 import { useDisabledProceed } from '../../../../../hooks/AliceBob/useDisabledProceed';
+import { useMinMaxExchangeAmounts } from '../../../../../hooks/AliceBob/useMinMaxExchangeAmounts';
 import { useOutputEstimation } from '../../../../../hooks/AliceBob/useOutputEstimation';
-import { useUpdatedExchangeInfo } from '../../../../../hooks/AliceBob/useUpdatedExchangeInfo';
 import { ReactComponent as AlertIcon } from '../../../../../icons/alert.svg';
-import { ReactComponent as AttentionRedIcon } from '../../../../../icons/attentionRed.svg';
 import styles from '../../../../Buy/Crypto/Exolix/Exolix.module.css';
 import { WithdrawSelectors } from '../../../Withdraw.selectors';
 import { CardNumberInput } from '../components/CardNumberInput';
+import { StepProps } from './step.props';
 
 const NOT_UKRAINIAN_CARD_ERROR_MESSAGE = 'Ukrainian bank card is required.';
 
-interface Props {
-  orderInfo?: AliceBobOrderInfo;
-}
-
-export const InitialStep: FC<Props> = () => {
+export const InitialStep: FC<Omit<StepProps, 'orderInfo'>> = ({ isApiError, setOrderInfo, setStep, setIsApiError }) => {
   const { analyticsState } = useAnalyticsState();
 
   const [inputAmount, setInputAmount] = useState(0);
@@ -33,11 +29,10 @@ export const InitialStep: FC<Props> = () => {
 
   const cardNumberRef = useRef<HTMLInputElement>(null);
 
-  const [isApiError, setIsApiError] = useState(false);
   const [isCardInputError, setIsCardInputError] = useState(false);
   const [isNotUkrainianCardError, setIsNotUkrainianCardError] = useState(false);
 
-  const { minExchangeAmount, maxExchangeAmount, isMinMaxLoading } = useUpdatedExchangeInfo(setIsApiError, true);
+  const { minExchangeAmount, maxExchangeAmount, isMinMaxLoading } = useMinMaxExchangeAmounts(setIsApiError, true);
 
   const { isMinAmountError, isMaxAmountError, disabledProceed } = useDisabledProceed(
     inputAmount,
@@ -66,7 +61,8 @@ export const InitialStep: FC<Props> = () => {
         cardNumber: cardNumberRef.current?.value ?? ''
       })
         .then(({ orderInfo }) => {
-          console.log('orderInfo', orderInfo);
+          setOrderInfo(orderInfo);
+          setStep(1);
         })
         .catch(err => {
           if (err.response.data.message === NOT_UKRAINIAN_CARD_ERROR_MESSAGE) {
@@ -86,15 +82,6 @@ export const InitialStep: FC<Props> = () => {
 
   return (
     <>
-      {isApiError && (
-        <div className="flex w-full justify-center my-6 text-red-600" style={{ fontSize: 17 }}>
-          <AttentionRedIcon />
-          <h3 className="ml-1">
-            <T id="serviceIsUnavailable" />
-          </h3>
-        </div>
-      )}
-
       <p className={styles['title']}>
         <T id={'sellTezDetails'} />
       </p>
@@ -169,7 +156,7 @@ export const InitialStep: FC<Props> = () => {
           }}
           disabled={disabledProceed}
           loading={isLoading || isMinMaxLoading}
-          testID={WithdrawSelectors.AliceBobCreateOrder}
+          testID={WithdrawSelectors.AliceBobNextButton}
           onClick={handleSubmit}
         >
           <T id="next" />

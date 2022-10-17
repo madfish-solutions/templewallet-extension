@@ -1,28 +1,53 @@
-import React, { FC } from 'react';
+import React, { FC, useCallback, useMemo } from 'react';
 
-import { AliceBobOrderInfo } from 'lib/alice-bob-api';
-import { T } from 'lib/i18n/react';
+import classNames from 'clsx';
+
+import { T, TID } from 'lib/i18n/react';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 
+import { AliceBobOrderStatus } from '../../../../../../lib/alice-bob-api';
 import { FormSubmitButton } from '../../../../../atoms';
 import CopyButton from '../../../../../atoms/CopyButton';
 import Divider from '../../../../../atoms/Divider';
 import { ReactComponent as CopyIcon } from '../../../../../icons/copy.svg';
+import { WithdrawSelectors } from '../../../Withdraw.selectors';
+import { useUpdatedOrderInfo } from '../hooks/useUpdatedOrderInfo';
+import { StepProps } from './step.props';
 
-interface Props {
-  orderInfo?: AliceBobOrderInfo;
-}
-
-export const OrderStatusStep: FC<Props> = () => {
+export const OrderStatusStep: FC<StepProps> = ({ orderInfo, setStep, setOrderInfo, setIsApiError }) => {
   const { copy } = useCopyToClipboard();
+
+  useUpdatedOrderInfo(orderInfo, setOrderInfo, setIsApiError);
+
+  const { status, id: orderId } = orderInfo;
+
+  const truncatedOrderId = useMemo(() => orderId.slice(0, 10) + '...' + orderId.slice(-5), [orderId]);
+
+  const exchangeInProgress = useMemo(
+    () =>
+      status === AliceBobOrderStatus.WAITING ||
+      status === AliceBobOrderStatus.EXCHANGING ||
+      status === AliceBobOrderStatus.SENDING,
+    [status]
+  );
+
+  const newSellButtonHandler = useCallback(() => {
+    setStep(0);
+    setOrderInfo(null);
+  }, [setOrderInfo, setStep]);
 
   return (
     <>
       <div className="font-inter text-gray-700 text-center">
-        <p style={{ fontSize: 19 }} className="mb-2">
-          <T id={'completed'} />
+        <p
+          style={{ fontSize: 19 }}
+          className={classNames('mt-6 mb-2', status === AliceBobOrderStatus.COMPLETED && 'text-green-500')}
+        >
+          {status}
         </p>
-        <p className="text-sm text-gray-600">In the process of execution of the order, an error occurred.</p>
+        <p className="text-sm text-gray-600">
+          <T id={(status.toLowerCase() + 'StatusDescription') as TID} />
+        </p>
       </div>
 
       <Divider className="mt-8" />
@@ -31,9 +56,9 @@ export const OrderStatusStep: FC<Props> = () => {
           <T id={'transactionId'} />
         </p>
         <span className="flex flex-row justify-center">
-          <p className="text-gray-910">69951ec1-6b7a-4eab-ab89-d7f3592788a1</p>
-          <CopyButton text={'69951ec1-6b7a-4eab-ab89-d7f3592788a1'} type="link">
-            <CopyIcon className="h-4 ml-1 w-auto stroke-orange stroke-2" onClick={() => copy()} />
+          <p className="text-gray-910">{truncatedOrderId}</p>
+          <CopyButton text={orderId} type="link">
+            <CopyIcon className="h-4 ml-1 w-auto stroke-orange stroke-2" onClick={copy} />
           </CopyButton>
         </span>
       </div>
@@ -45,6 +70,9 @@ export const OrderStatusStep: FC<Props> = () => {
           paddingTop: '0.625rem',
           paddingBottom: '0.625rem'
         }}
+        disabled={exchangeInProgress}
+        testID={WithdrawSelectors.AliceBobNewSellButton}
+        onClick={newSellButtonHandler}
       >
         <T id="newSell" />
       </FormSubmitButton>

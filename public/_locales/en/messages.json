@@ -2632,7 +2632,7 @@
     }
   },
   "withdrawDescription": {
-    "message": "Temple integrated third-party solutions to sell TEZ."
+    "message": "Temple integrated third-party solutions to sell TEZ. Choose a provider, follow guides, \n get fiat to your Debit/Credit card"
   },
   "topUpCrypto": {
     "message": "Crypto"
@@ -2762,6 +2762,36 @@
   },
   "step": {
     "message": "Step"
+  },
+  "waitingStatusDescription": {
+    "message": "Waiting for client deposit."
+  },
+  "exchangingStatusDescription": {
+    "message": "Exchange is carried out."
+  },
+  "sendingStatusDescription": {
+    "message": "In the process of payment to the client."
+  },
+  "completedStatusDescription": {
+    "message": "Order successfully completed."
+  },
+  "expiredStatusDescription": {
+    "message": "The order was not paid for the time allocated."
+  },
+  "canceledStatusDescription": {
+    "message": "The order was canceled."
+  },
+  "failedStatusDescription": {
+    "message": "In the process of execution of the order, an error occurred."
+  },
+  "holdedStatusDescription": {
+    "message": "The warrant is suspended to check KYC."
+  },
+  "refundedStatusDescription": {
+    "message": "The money was returned to the client."
+  },
+  "preparedStatusDescription": {
+    "message": "The order is ready to sell crypto."
   },
   "collectibles": {
     "message": "Collectibles"

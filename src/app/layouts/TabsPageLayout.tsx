@@ -44,7 +44,7 @@ export const TabsPageLayout: FC<Props> = ({ tabs, icon, title, description }) =>
         </div>
       }
     >
-      <div className="text-center my-3 text-gray-700">{description}</div>
+      <div className="text-center my-3 text-gray-700 max-w-lg m-auto">{description}</div>
       <div className={classNames('-mx-4', fullPage && 'rounded-t-md')}>
         <div
           className="border-gray-300"

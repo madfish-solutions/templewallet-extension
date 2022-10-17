@@ -10,13 +10,14 @@ import { useAccount } from 'lib/temple/front';
 
 import Divider from '../../../../atoms/Divider';
 import { useDisabledProceed } from '../../../../hooks/AliceBob/useDisabledProceed';
+import { useMinMaxExchangeAmounts } from '../../../../hooks/AliceBob/useMinMaxExchangeAmounts';
 import { useOutputEstimation } from '../../../../hooks/AliceBob/useOutputEstimation';
-import { useUpdatedExchangeInfo } from '../../../../hooks/AliceBob/useUpdatedExchangeInfo';
 import { ReactComponent as AttentionRedIcon } from '../../../../icons/attentionRed.svg';
 import PageLayout from '../../../../layouts/PageLayout';
 import { BuySelectors } from '../../Buy.selectors';
 import styles from '../../Crypto/Exolix/Exolix.module.css';
 import { TopUpInput } from '../Utorg/components/TopUpInput/TopUpInput';
+import { ALICE_BOB_PRIVACY_LINK, ALICE_BOB_TERMS_LINK } from './config';
 
 const REQUEST_LATENCY = 200;
 
@@ -30,7 +31,7 @@ export const AliceBobTopUp: FC = () => {
   const [isApiError, setIsApiError] = useState(false);
   const [isLoading, setLoading] = useState(false);
 
-  const { minExchangeAmount, maxExchangeAmount, isMinMaxLoading } = useUpdatedExchangeInfo(setIsApiError);
+  const { minExchangeAmount, maxExchangeAmount, isMinMaxLoading } = useMinMaxExchangeAmounts(setIsApiError);
 
   const { isMinAmountError, isMaxAmountError, disabledProceed } = useDisabledProceed(
     inputAmount,
@@ -152,20 +153,10 @@ export const AliceBobTopUp: FC = () => {
               id="privacyAndPolicyLinks"
               substitutions={[
                 <T id={'next'} />,
-                <a
-                  className={styles['link']}
-                  rel="noreferrer"
-                  href="https://oval-rhodium-33f.notion.site/End-User-License-Agreement-Abex-Eng-6124123e256d456a83cffc3b2977c4dc"
-                  target="_blank"
-                >
+                <a className={styles['link']} rel="noreferrer" href={ALICE_BOB_PRIVACY_LINK} target="_blank">
                   <T id={'termsOfUse'} />
                 </a>,
-                <a
-                  className={styles['link']}
-                  rel="noreferrer"
-                  href="https://oval-rhodium-33f.notion.site/Privacy-Policy-Abex-Eng-d70fa7cc134341a3ac4fd04816358b9e"
-                  target="_blank"
-                >
+                <a className={styles['link']} rel="noreferrer" href={ALICE_BOB_TERMS_LINK} target="_blank">
                   <T id={'privacyPolicy'} />
                 </a>
               ]}
