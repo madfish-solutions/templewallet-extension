@@ -2,6 +2,7 @@ import React from 'react';
 
 import classNames from 'clsx';
 
+import { ActivitySpinner } from 'app/atoms';
 import { useAppEnv } from 'app/env';
 import { ReactComponent as AddToListIcon } from 'app/icons/add-to-list.svg';
 import { CollectibleItem } from 'app/pages/Collectibles/CollectibleItem';
@@ -10,16 +11,14 @@ import SearchAssetField from 'app/templates/SearchAssetField';
 import { T } from 'lib/i18n/react';
 import { AssetTypesEnum } from 'lib/temple/assets';
 import { useAccount, useChainId, useCollectibleTokens, useFilteredAssets } from 'lib/temple/front';
+import { useSyncTokens } from 'lib/temple/front/sync-tokens';
 import { Link } from 'lib/woozie';
-
-import { useSyncTokens } from '../../../lib/temple/front/sync-tokens';
-import { ActivitySpinner } from '../../atoms/ActivitySpinner';
 
 export const CollectiblesList = () => {
   const chainId = useChainId(true)!;
   const { popup } = useAppEnv();
   const { publicKeyHash } = useAccount();
-  const isSync = useSyncTokens();
+  const isSyncing = useSyncTokens();
 
   const { data: collectibles = [] } = useCollectibleTokens(chainId, publicKeyHash, true);
 
@@ -63,7 +62,7 @@ export const CollectiblesList = () => {
               ))}
             </>
           )}
-          {isSync && (
+          {isSyncing && (
             <div className="mt-4">
               <ActivitySpinner />
             </div>

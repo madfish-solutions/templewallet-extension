@@ -22,7 +22,7 @@ import { TzktAccountToken } from '../../tzkt/types';
 import { AssetMetadata, DetailedAssetMetdata, toBaseMetadata } from '../metadata';
 import { TempleChainId } from '../types';
 
-const SYNC_INTERVAL = 60_000;
+const SYNCING_INTERVAL = 60_000;
 
 export const [SyncTokensProvider, useSyncTokens] = constate(() => {
   const { mutate } = useSWRConfig();
@@ -33,10 +33,10 @@ export const [SyncTokensProvider, useSyncTokens] = constate(() => {
     useTokensMetadata();
   const usdPrices = useUSDPrices();
 
-  const [isSync, setIsSync] = useState<boolean | null>(null);
+  const [isSyncing, setIsSyncing] = useState<boolean | null>(null);
 
   const sync = useCallback(async () => {
-    setIsSync(true);
+    setIsSyncing(true);
 
     await makeSync(
       accountPkh,
@@ -49,7 +49,7 @@ export const [SyncTokensProvider, useSyncTokens] = constate(() => {
       mutate
     );
 
-    setIsSync(false);
+    setIsSyncing(false);
   }, [
     accountPkh,
     chainId,
@@ -61,9 +61,9 @@ export const [SyncTokensProvider, useSyncTokens] = constate(() => {
     mutate
   ]);
 
-  useTimerEffect(sync, SYNC_INTERVAL, [chainId, accountPkh]);
+  useTimerEffect(sync, SYNCING_INTERVAL, [chainId, accountPkh]);
 
-  return isSync;
+  return isSyncing;
 });
 
 const makeSync = async (
