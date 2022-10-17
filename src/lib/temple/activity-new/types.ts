@@ -18,7 +18,7 @@ export interface Activity {
   operations: ActivityOperation[];
 }
 
-type PickedPropsFromTzktOperation = Pick<TzktOperation, 'hash' | 'id' | 'level'>;
+type PickedPropsFromTzktOperation = Pick<TzktOperation, 'id' | 'level'>;
 
 export interface ActivityOperationBase extends PickedPropsFromTzktOperation {
   contractAddress?: string;
@@ -26,7 +26,6 @@ export interface ActivityOperationBase extends PickedPropsFromTzktOperation {
   status: ActivityStatus;
   amountSigned: string;
   addedAt: string;
-  timestamp: number;
 }
 
 export interface ActivityTransactionOperation extends ActivityOperationBase {

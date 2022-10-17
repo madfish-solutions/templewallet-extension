@@ -144,16 +144,14 @@ function reduceOneTzktTransactionOperation(
 }
 
 function buildActivityOperBase(operation: TzktOperation, address: string, amount: string, source: ActivityMember) {
-  const { id, hash, level } = operation;
+  const { id, level, timestamp: addedAt } = operation;
   const reducedOperation: ActivityOperationBase = {
     id,
-    hash,
     level,
     source,
     amountSigned: source.address === address ? `-${amount}` : amount,
     status: stringToActivityStatus(operation.status),
-    addedAt: operation.timestamp,
-    timestamp: new Date(operation.timestamp).getTime()
+    addedAt
   };
   return reducedOperation;
 }

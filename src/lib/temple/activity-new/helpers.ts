@@ -48,21 +48,13 @@ interface MoneyDiff {
 }
 
 export function buildMoneyDiffs(activity: Activity) {
-  const diffsMap: Record<string, BigNumber> = {};
+  const diffs: MoneyDiff[] = [];
 
   for (const oper of activity.operations) {
     if (oper.type !== 'transaction' || isZero(oper.amountSigned)) continue;
     const assetSlug = oper.contractAddress == null ? 'tez' : toTokenSlug(oper.contractAddress, oper.tokenId);
-    diffsMap[assetSlug] = new BigNumber(oper.amountSigned).plus(diffsMap[assetSlug] || 0);
-  }
-
-  const diffs: MoneyDiff[] = [];
-  for (const assetSlug of Object.keys(diffsMap)) {
-    const diff = diffsMap[assetSlug]!.toFixed();
-    diffs.push({
-      assetSlug,
-      diff
-    });
+    const diff = new BigNumber(oper.amountSigned).toFixed();
+    diffs.push({ assetSlug, diff });
   }
 
   return diffs;
