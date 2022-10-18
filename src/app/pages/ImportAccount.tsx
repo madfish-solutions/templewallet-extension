@@ -36,7 +36,7 @@ import {
 import { validateDerivationPath, isAddressValid, isKTAddress } from 'lib/temple/helpers';
 import { confirmOperation } from 'lib/temple/operation';
 import { ImportAccountFormType } from 'lib/temple/types';
-import useSafeState from 'lib/ui/useSafeState';
+import { useSafeState } from 'lib/ui/hooks';
 import { clearClipboard } from 'lib/ui/util';
 import { navigate } from 'lib/woozie';
 

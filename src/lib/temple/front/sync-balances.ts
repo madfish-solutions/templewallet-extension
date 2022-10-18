@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import BigNumber from 'bignumber.js';
 import constate from 'constate';
@@ -20,64 +20,61 @@ export const [SyncBalancesProvider, useSyncBalances] = constate(() => {
   const [assetSlugsWithUpdatedBalances, setAssetSlugsWithUpdatedBalances] = useState<Record<string, BigNumber>>({});
 
   const tezos = useTezos();
-  const isSync = useSyncTokens();
+  const isSyncing = useSyncTokens();
+  const { publicKeyHash } = useAccount();
   const chainId = useChainId(true)!;
-  const { publicKeyHash: account } = useAccount();
   const allTokensBaseMetadata = useAllTokensBaseMetadata();
-
-  const { data: tokens = [] } = useDisplayedFungibleTokens(chainId, account);
+  const { data: tokens = [] } = useDisplayedFungibleTokens(chainId, publicKeyHash);
 
   const tokensWithTez = useMemo(
     () => [
       {
         type: ITokenType.Fungible,
         chainId,
-        account,
+        account: publicKeyHash,
         tokenSlug: 'tez',
         status: ITokenStatus.Enabled,
         addedAt: 0
       },
       ...tokens
     ],
-    [chainId, account, tokens]
+    [chainId, publicKeyHash, tokens]
   );
 
   const chainIdRef = useRef<string>();
   const accountRef = useRef<string>();
 
-  useEffect(() => void (chainIdRef.current = chainId), [chainId]);
-  useEffect(() => void (accountRef.current = account), [account]);
-
-  const updateBalances = useCallback(async () => {
+  const updateBalances = async () => {
     for (let i = 0; i < tokensWithTez.length; i++) {
       const { tokenSlug } = tokensWithTez[i];
 
-      const shouldLoad =
-        chainIdRef.current === tokensWithTez[i].chainId && accountRef.current === tokensWithTez[i].account;
+      if (chainIdRef.current !== tokensWithTez[i].chainId || accountRef.current !== tokensWithTez[i].account) break;
 
-      if (!shouldLoad) break;
+      const latestBalance = await fetchBalance(tezos, tokenSlug, allTokensBaseMetadata[tokenSlug], publicKeyHash);
 
-      const latestBalance = await fetchBalance(tezos, tokenSlug, allTokensBaseMetadata[tokenSlug], account);
+      if (chainIdRef.current !== tokensWithTez[i].chainId || accountRef.current !== tokensWithTez[i].account) break;
 
-      if (!shouldLoad) break;
-
-      if (i === 0) {
-        flushSync(() => setAssetSlugsWithUpdatedBalances({ [tokenSlug]: latestBalance }));
-      } else {
+      if (
+        !assetSlugsWithUpdatedBalances.hasOwnProperty(tokenSlug) ||
+        !assetSlugsWithUpdatedBalances[tokenSlug].eq(latestBalance)
+      ) {
         flushSync(() => setAssetSlugsWithUpdatedBalances(prevState => ({ ...prevState, [tokenSlug]: latestBalance })));
       }
     }
-  }, [account, allTokensBaseMetadata, tokensWithTez, tezos]);
+  };
 
   useEffect(() => {
-    if (isSync) {
+    if (chainId !== chainIdRef.current || publicKeyHash !== accountRef.current) {
       setAssetSlugsWithUpdatedBalances({});
-    } else {
+    } else if (!isSyncing) {
       updateBalances();
     }
 
+    chainIdRef.current = chainId;
+    accountRef.current = publicKeyHash;
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isSync]);
+  }, [isSyncing, chainId, publicKeyHash]);
 
   return assetSlugsWithUpdatedBalances;
 });
