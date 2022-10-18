@@ -5,7 +5,6 @@ import constate from 'constate';
 import { useSWRConfig } from 'swr';
 import { ScopedMutator } from 'swr/dist/types';
 
-import { useTimerEffect } from 'app/hooks/useTimerEffect';
 import {
   toTokenSlug,
   fetchDisplayedFungibleTokens,
@@ -13,14 +12,14 @@ import {
   getPredefinedTokensSlugs
 } from 'lib/temple/assets';
 import { useChainId, useAccount, useUSDPrices, useTokensMetadata } from 'lib/temple/front';
+import { AssetMetadata, DetailedAssetMetdata, toBaseMetadata } from 'lib/temple/metadata';
 import * as Repo from 'lib/temple/repo';
+import { TempleChainId } from 'lib/temple/types';
 import { getTokensMetadata } from 'lib/templewallet-api';
 import { fetchWhitelistTokenSlugs } from 'lib/templewallet-api/whitelist-tokens';
-import { fetchTzktTokens } from 'lib/tzkt/client';
-
-import { TzktAccountToken } from '../../tzkt/types';
-import { AssetMetadata, DetailedAssetMetdata, toBaseMetadata } from '../metadata';
-import { TempleChainId } from '../types';
+import { fetchTzktTokens } from 'lib/tzkt';
+import { TzktAccountToken } from 'lib/tzkt/types';
+import { useTimerEffect } from 'lib/ui/hooks';
 
 const SYNCING_INTERVAL = 60_000;
 

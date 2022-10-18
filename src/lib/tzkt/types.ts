@@ -1,13 +1,15 @@
-// Actually, there is a bunch of other types but only these will be used for now
-type TzktOperationType = 'delegation' | 'transaction' | 'reveal' | 'origination';
+/**
+ * Actually, there is a bunch of other types but only these will be used for now
+ */
+export type TzktOperationType = 'delegation' | 'transaction' | 'reveal' | 'origination';
 
-type TzktQuoteCurrency = 'None' | 'Btc' | 'Eur' | 'Usd' | 'Cny' | 'Jpy' | 'Krw';
+export type TzktQuoteCurrency = 'None' | 'Btc' | 'Eur' | 'Usd' | 'Cny' | 'Jpy' | 'Krw';
 
 type TzktOperationStatus = 'applied' | 'failed' | 'backtracked' | 'skipped';
 
 type TzktContractType = 'delegator_contract' | 'smart_contract';
 
-interface TzktAlias {
+export interface TzktAlias {
   alias?: string;
   address: string;
 }
@@ -16,11 +18,14 @@ interface TzktOperationError {
   type: string;
 }
 
-// To be reviewed if a new operation type is added
+/**
+ * To be reviewed if a new operation type is added
+ */
 interface TzktOperationBase {
   type: TzktOperationType;
   id: number;
   level?: number;
+  /** ISO Date */
   timestamp: string;
   block?: string;
   hash: string;
@@ -34,18 +39,6 @@ interface TzktOperationBase {
   status: TzktOperationStatus;
 }
 
-export type TzktGetOperationsParams = {
-  address: string;
-  from?: string;
-  to?: string;
-  type?: TzktOperationType[];
-  lastId?: number;
-  limit?: number;
-  offset?: number;
-  sort?: 0 | 1;
-  quote?: TzktQuoteCurrency[];
-};
-
 type TzktQuote = Partial<Record<TzktQuoteCurrency, number>>;
 
 interface TzktDelegationOperation extends TzktOperationBase {
@@ -57,7 +50,7 @@ interface TzktDelegationOperation extends TzktOperationBase {
   newDelegate?: TzktAlias | null;
 }
 
-interface TzktTransactionOperation extends TzktOperationBase {
+export interface TzktTransactionOperation extends TzktOperationBase {
   type: 'transaction';
   initiator?: TzktAlias;
   nonce?: number;
@@ -67,12 +60,15 @@ interface TzktTransactionOperation extends TzktOperationBase {
   allocationFee: number;
   target: TzktAlias;
   amount: number;
-  parameters?: string;
+  parameter?: unknown;
+  entrypoint?: string;
   hasInternals: boolean;
 }
 
 interface TzktOriginationOperation extends TzktOperationBase {
   type: 'origination';
+  originatedContract?: TzktAlias;
+  contractBalance?: string;
 }
 
 interface TzktRevealOperation extends TzktOperationBase {

@@ -39,7 +39,7 @@ import {
 import { tzToMutez, mutezToTz, isAddressValid, isKTAddress, hasManager } from 'lib/temple/helpers';
 import { TempleAccountType } from 'lib/temple/types';
 import { ABTestGroup } from 'lib/templewallet-api';
-import useSafeState from 'lib/ui/useSafeState';
+import { useSafeState } from 'lib/ui/hooks';
 import { Link, useLocation } from 'lib/woozie';
 
 import { DelegateFormSelectors } from './DelegateForm.selectors';

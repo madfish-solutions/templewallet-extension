@@ -1,12 +1,12 @@
-export type { TzktOperation, TzktTokenTransfer, TzktRelatedContract, TzktRewardsEntry } from './types';
+export type {
+  TzktOperation,
+  TzktTokenTransfer,
+  TzktRelatedContract,
+  TzktRewardsEntry,
+  TzktAlias,
+  TzktOperationType,
+  TzktTransactionOperation
+} from './types';
 
-export {
-  TZKT_API_BASE_URLS,
-  getOperations,
-  getTokenTransfers,
-  getDelegatorRewards,
-  getOneUserContracts,
-  getTokenTransfersCount,
-  getFa12Transfers,
-  getFa2Transfers
-} from 'lib/tzkt/client';
+export type { TzktApiChainId } from './api';
+export { isKnownChainId, getDelegatorRewards, getOneUserContracts, fetchTzktTokens } from './api';
