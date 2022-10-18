@@ -29,15 +29,6 @@ export const NETWORKS: TempleNetwork[] = [
     disabled: false
   },
   {
-    id: 'giganode-mainnet',
-    name: 'Mainnet @giganode.io',
-    description: 'Highly available Tezos Mainnet nodes operated by Giganode',
-    type: 'main',
-    rpcBaseURL: 'https://mainnet-tezos.giganode.io',
-    color: '#059669',
-    disabled: false
-  },
-  {
     id: 'smartpy-mainnet',
     name: 'Mainnet @smartpy.io',
     description: 'SmartPy Mainnet',
