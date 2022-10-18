@@ -201,6 +201,19 @@ export interface TempleDAppOperationsPayload extends TempleDAppPayloadBase {
   estimates?: Estimate[];
 }
 
+export interface TempleDAppBlockchainPayload extends TempleDAppPayloadBase {
+  type: 'confirm_blockchain';
+  sourcePkh: string;
+  amount: string;
+  recipient: string;
+  ticketer: string;
+  data: string;
+  options: {
+    nonce?: number;
+    level?: number;
+  };
+}
+
 export interface TempleDAppSignPayload extends TempleDAppPayloadBase {
   type: 'sign';
   sourcePkh: string;
@@ -208,7 +221,11 @@ export interface TempleDAppSignPayload extends TempleDAppPayloadBase {
   preview: any;
 }
 
-export type TempleDAppPayload = TempleDAppConnectPayload | TempleDAppOperationsPayload | TempleDAppSignPayload;
+export type TempleDAppPayload =
+  | TempleDAppConnectPayload
+  | TempleDAppOperationsPayload
+  | TempleDAppSignPayload
+  | TempleDAppBlockchainPayload;
 
 /**
  * Messages
@@ -273,6 +290,8 @@ export enum TempleMessageType {
   DAppPermConfirmationResponse = 'TEMPLE_DAPP_PERM_CONFIRMATION_RESPONSE',
   DAppOpsConfirmationRequest = 'TEMPLE_DAPP_OPS_CONFIRMATION_REQUEST',
   DAppOpsConfirmationResponse = 'TEMPLE_DAPP_OPS_CONFIRMATION_RESPONSE',
+  DAppBlockchainConfirmationRequest = 'TEMPLE_DAPP_BLOCKCHAIN_CONFIRMATION_REQUEST',
+  DAppBlockchainConfirmationResponse = 'TEMPLE_DAPP_BLOCKCHAIN_CONFIRMATION_RESPONSE',
   DAppSignConfirmationRequest = 'TEMPLE_DAPP_SIGN_CONFIRMATION_REQUEST',
   DAppSignConfirmationResponse = 'TEMPLE_DAPP_SIGN_CONFIRMATION_RESPONSE',
   DAppGetAllSessionsRequest = 'TEMPLE_DAPP_GET_ALL_SESSIONS_REQUEST',
@@ -313,6 +332,7 @@ export type TempleRequest =
   | TempleDAppGetPayloadRequest
   | TempleDAppPermConfirmationRequest
   | TempleDAppOpsConfirmationRequest
+  | TempleDAppBlockchainConfirmationRequest
   | TempleDAppSignConfirmationRequest
   | TempleUpdateSettingsRequest
   | TempleGetAllDAppSessionsRequest
@@ -347,6 +367,7 @@ export type TempleResponse =
   | TempleDAppGetPayloadResponse
   | TempleDAppPermConfirmationResponse
   | TempleDAppOpsConfirmationResponse
+  | TempleDAppBlockchainConfirmationResponse
   | TempleDAppSignConfirmationResponse
   | TempleUpdateSettingsResponse
   | TempleGetAllDAppSessionsResponse
@@ -656,6 +677,18 @@ interface TempleDAppOpsConfirmationRequest extends TempleMessageBase {
 
 interface TempleDAppOpsConfirmationResponse extends TempleMessageBase {
   type: TempleMessageType.DAppOpsConfirmationResponse;
+}
+
+interface TempleDAppBlockchainConfirmationRequest extends TempleMessageBase {
+  type: TempleMessageType.DAppBlockchainConfirmationRequest;
+  id: string;
+  confirmed: boolean;
+  modifiedTotalFee?: number;
+  modifiedStorageLimit?: number;
+}
+
+interface TempleDAppBlockchainConfirmationResponse extends TempleMessageBase {
+  type: TempleMessageType.DAppBlockchainConfirmationResponse;
 }
 
 interface TempleDAppSignConfirmationRequest extends TempleMessageBase {

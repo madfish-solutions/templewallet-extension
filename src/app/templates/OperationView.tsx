@@ -12,10 +12,10 @@ import ViewsSwitcher from 'app/templates/ViewsSwitcher/ViewsSwitcher';
 import { T, t } from 'lib/i18n/react';
 import { toTokenSlug } from 'lib/temple/assets';
 import { tryParseExpenses } from 'lib/temple/front';
-import { TempleDAppOperationsPayload, TempleDAppSignPayload } from 'lib/temple/types';
+import { TempleDAppBlockchainPayload, TempleDAppOperationsPayload, TempleDAppSignPayload } from 'lib/temple/types';
 
 type OperationViewProps = {
-  payload: TempleDAppOperationsPayload | TempleDAppSignPayload;
+  payload: TempleDAppOperationsPayload | TempleDAppSignPayload | TempleDAppBlockchainPayload;
   networkRpc?: string;
   mainnet?: boolean;
   error?: any;

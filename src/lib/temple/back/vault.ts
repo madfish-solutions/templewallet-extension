@@ -1,3 +1,11 @@
+import {
+  DekuToolkit,
+  fromMemorySigner
+  //AddressType,
+  //AmountType,
+  //OptOptions,
+  //OperationHashType
+} from '@marigold-dev/deku-toolkit';
 import { HttpResponseError } from '@taquito/http-utils';
 import { DerivationType } from '@taquito/ledger-signer';
 import { localForger } from '@taquito/local-forging';
@@ -523,6 +531,30 @@ export class Vault {
           default:
             throw new Error(`Failed to send operations. ${err.message}`);
         }
+      }
+    });
+  }
+
+  async sendBlockchainOperations(
+    accPublicKeyHash: string,
+    rpc: string,
+    receiver: string, //AddressType,
+    amount: string, //AmountType,
+    ticketer: string,
+    data: string,
+    options?: {
+      nonce?: number;
+      level?: number;
+    } //OptOptions
+  ): Promise<string> {
+    //OperationHashType> {
+    return this.withSigner(accPublicKeyHash, async signer => {
+      try {
+        const dekuClient = new DekuToolkit({ dekuRpc: rpc, dekuSigner: fromMemorySigner(signer) });
+        return dekuClient.transferTo(receiver, Number.parseFloat(amount), ticketer, data, options);
+      } catch (err: any) {
+        alert('sendBlockchainOperations error: ' + JSON.stringify(err));
+        throw err;
       }
     });
   }

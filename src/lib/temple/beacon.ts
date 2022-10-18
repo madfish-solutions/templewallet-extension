@@ -39,7 +39,8 @@ interface Network {
 export enum SigningType {
   RAW = 'raw', // Arbitrary payload (string), which will be hashed before signing
   OPERATION = 'operation', // "03" prefix
-  MICHELINE = 'micheline' // "05" prefix
+  MICHELINE = 'micheline', // "05" prefix
+  DEKU = 'deku' // "80" prefix
 }
 
 export interface BlockchainMessage {
@@ -162,7 +163,13 @@ export interface DekuTransferRequest extends BlockchainMessage {
     sourceAddress: string;
     amount: string;
     recipient: string;
-    mode: 'submit' | 'submit-and-return' | 'return'; // TODO: Wording
+    mode: 'submit' | 'submit-and-return' | 'return';
+    ticketer: string;
+    data: string;
+    options: {
+      nonce?: number;
+      level?: number;
+    };
   };
 }
 

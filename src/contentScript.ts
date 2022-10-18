@@ -105,6 +105,7 @@ function beaconRequest(evt: MessageEvent) {
       encrypted: Boolean(data.encryptedPayload)
     })
     .then((res: TempleResponse) => {
+      alert('l 108' + JSON.stringify(res));
       if (res?.type === TempleMessageType.PageResponse && res.payload) {
         const message = {
           target: BeaconMessageTarget.Page,
@@ -121,7 +122,10 @@ function beaconRequest(evt: MessageEvent) {
         );
       }
     })
-    .catch(err => console.error(err));
+    .catch(err => {
+      alert('Error Page response:' + JSON.stringify(err));
+      console.error(err);
+    });
 
   getIntercom()
     .request({

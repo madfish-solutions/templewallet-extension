@@ -294,6 +294,20 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     []
   );
 
+  const confirmDAppBlockchain = useCallback(
+    async (id: string, confirmed: boolean, modifiedTotalFee?: number, modifiedStorageLimit?: number) => {
+      const res = await request({
+        type: TempleMessageType.DAppBlockchainConfirmationRequest,
+        id,
+        confirmed,
+        modifiedTotalFee,
+        modifiedStorageLimit
+      });
+      assertResponse(res.type === TempleMessageType.DAppBlockchainConfirmationResponse);
+    },
+    []
+  );
+
   const confirmDAppSign = useCallback(async (id: string, confirmed: boolean) => {
     const res = await request({
       type: TempleMessageType.DAppSignConfirmationRequest,
@@ -377,6 +391,7 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     getDAppPayload,
     confirmDAppPermission,
     confirmDAppOperation,
+    confirmDAppBlockchain,
     confirmDAppSign,
     createTaquitoWallet,
     createTaquitoSigner,

@@ -124,7 +124,8 @@ export default ConfirmPage;
 const getPkh = (account: TempleAccount) => account.publicKeyHash;
 
 const ConfirmDAppForm: FC = () => {
-  const { getDAppPayload, confirmDAppPermission, confirmDAppOperation, confirmDAppSign } = useTempleClient();
+  const { getDAppPayload, confirmDAppPermission, confirmDAppOperation, confirmDAppBlockchain, confirmDAppSign } =
+    useTempleClient();
   const allAccounts = useRelevantAccounts(false);
   const account = useAccount();
 
@@ -163,6 +164,9 @@ const ConfirmDAppForm: FC = () => {
 
         case 'confirm_operations':
           return confirmDAppOperation(id, confimed, modifiedTotalFee, modifiedStorageLimit);
+
+        case 'confirm_blockchain':
+          return confirmDAppBlockchain(id, confimed, modifiedTotalFee, modifiedStorageLimit);
 
         case 'sign':
           return confirmDAppSign(id, confimed);
@@ -285,6 +289,35 @@ const ConfirmDAppForm: FC = () => {
           )
         };
 
+      case 'confirm_blockchain':
+        return {
+          title: t('confirmAction', t('operations').toLowerCase()),
+          declineActionTitle: t('reject'),
+          declineActionTestID: ConfirmPageSelectors.ConfirmOperationsAction_RejectButton,
+          confirmActionTitle: error ? t('retry') : t('confirm'),
+          confirmActionTestID: error
+            ? ConfirmPageSelectors.ConfirmOperationsAction_RetryButton
+            : ConfirmPageSelectors.ConfirmOperationsAction_ConfirmButton,
+          want: (
+            <div className={classNames('mb-2 text-sm text-center text-gray-700', 'flex flex-col items-center')}>
+              <div className="flex items-center justify-center">
+                <DAppLogo icon={payload.appMeta.icon} origin={payload.origin} size={16} className="mr-1" />
+                <Name className="font-semibold" style={{ maxWidth: '10rem' }}>
+                  {payload.appMeta.name}
+                </Name>
+              </div>
+              <T
+                id="appRequestOperationToYou"
+                substitutions={[
+                  <Name className="max-w-full text-xs italic" key="origin">
+                    {payload.origin}
+                  </Name>
+                ]}
+              />
+            </div>
+          )
+        };
+
       case 'sign':
         return {
           title: t('confirmAction', t('signAction').toLowerCase()),
@@ -346,14 +379,14 @@ const ConfirmDAppForm: FC = () => {
       >
         <div className="flex flex-col items-center px-4 py-2">
           <SubTitle small className={payload.type === 'connect' ? 'mt-4 mb-6' : 'mt-4 mb-2'}>
-            {content.title}
+            {content?.title}
           </SubTitle>
 
           {payload.type === 'connect' && (
             <ConnectBanner type={payload.type} origin={payload.origin} appMeta={payload.appMeta} className="mb-4" />
           )}
 
-          {content.want}
+          {content?.want}
 
           {payload.type === 'connect' && (
             <T id="viewAccountAddressWarning">
@@ -405,9 +438,9 @@ const ConfirmDAppForm: FC = () => {
               className="justify-center w-full"
               loading={declining}
               onClick={handleDeclineClick}
-              testID={content.declineActionTestID}
+              testID={content?.declineActionTestID}
             >
-              {content.declineActionTitle}
+              {content?.declineActionTitle}
             </FormSecondaryButton>
           </div>
 
@@ -417,9 +450,9 @@ const ConfirmDAppForm: FC = () => {
               className="justify-center w-full"
               loading={confirming}
               onClick={handleConfirmClick}
-              testID={content.confirmActionTestID}
+              testID={content?.confirmActionTestID}
             >
-              {content.confirmActionTitle}
+              {content?.confirmActionTitle}
             </FormSubmitButton>
           </div>
         </div>

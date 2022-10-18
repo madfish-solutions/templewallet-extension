@@ -530,32 +530,35 @@ const getBeaconResponse = async (
 ): Promise<Beacon.Response | Beacon.ResponseV3> => {
   try {
     try {
-      return await formatTempleReq(getTempleReq(req), req, resBase, origin);
+      return formatTempleReq(getTempleReq(req), req, resBase, origin);
     } catch (err: any) {
-      alert(JSON.stringify(err));
+      alert('Error : l 540 ' + JSON.stringify(err));
       if (err instanceof TezosOperationError) {
         throw err;
+      } else if (err) {
+        // Map Temple DApp error to Beacon error
+        const beaconErrorType = (() => {
+          switch (err?.message) {
+            case TempleDAppErrorType.InvalidParams:
+              return Beacon.ErrorType.PARAMETERS_INVALID_ERROR;
+
+            case TempleDAppErrorType.NotFound:
+            case TempleDAppErrorType.NotGranted:
+              return req.beaconId ? Beacon.ErrorType.NOT_GRANTED_ERROR : Beacon.ErrorType.ABORTED_ERROR;
+
+            default:
+              return err?.message;
+          }
+        })();
+
+        throw new Error(beaconErrorType);
+      } else {
+        alert('Uncatched error l560');
+        throw err;
       }
-
-      // Map Temple DApp error to Beacon error
-      const beaconErrorType = (() => {
-        switch (err?.message) {
-          case TempleDAppErrorType.InvalidParams:
-            return Beacon.ErrorType.PARAMETERS_INVALID_ERROR;
-
-          case TempleDAppErrorType.NotFound:
-          case TempleDAppErrorType.NotGranted:
-            return req.beaconId ? Beacon.ErrorType.NOT_GRANTED_ERROR : Beacon.ErrorType.ABORTED_ERROR;
-
-          default:
-            return err?.message;
-        }
-      })();
-
-      throw new Error(beaconErrorType);
     }
   } catch (err: any) {
-    alert(JSON.stringify(err));
+    alert('Error l 562' + JSON.stringify(err));
     return {
       ...resBase,
       type: Beacon.MessageType.Error,
@@ -654,19 +657,26 @@ const getTempleReq = (req: Beacon.Request | Beacon.RequestV3): TempleDAppRequest
             sourceAddress: reqBlockchain.message.blockchainData.sourceAddress,
             amount: reqBlockchain.message.blockchainData.amount,
             recipient: reqBlockchain.message.blockchainData.recipient,
-            mode: reqBlockchain.message.blockchainData.mode
+            mode: reqBlockchain.message.blockchainData.mode,
+            ticketer: reqBlockchain.message.blockchainData.ticketer,
+            data: reqBlockchain.message.blockchainData.data,
+            options: reqBlockchain.message.blockchainData.options
           }
         }
       } as BeaconMessageWrapper<TempleDAppBlockchainRequestV3>;
     }
 
     case Beacon.MessageType.SignPayloadRequest: {
-      const request: Beacon.SignRequest = req as Beacon.SignRequest;
+      const request = req as Beacon.SignRequest;
       return {
         type: TempleDAppMessageType.SignRequest,
         sourcePkh: request.sourceAddress,
         payload:
-          request.signingType === Beacon.SigningType.RAW ? generateRawPayloadBytes(request.payload) : request.payload
+          request.signingType === Beacon.SigningType.RAW
+            ? generateRawPayloadBytes(request.payload)
+            : request.signingType === Beacon.SigningType.DEKU
+            ? generateDekuPayloadBytes(request.payload)
+            : request.payload
       };
     }
     case Beacon.MessageType.BroadcastRequest: {
@@ -753,18 +763,12 @@ const formatTempleReq = async (
             } as Beacon.BroadcastResponse);
 
           case TempleDAppMessageType.BlockchainResponse: {
-            alert(
-              'case TempleDAppMessageType.BlockchainResponse, returning BeaconMessageWrapper<TempleDAppBlockchainResponseV3>'
-            );
-            const templeDAppBlockchainResponseV3 =
-              v3Res as unknown as BeaconMessageWrapper<TempleDAppBlockchainResponseV3>;
+            const templeDAppBlockchainResponseV3 = v3Res as unknown as TempleDAppBlockchainResponseV3;
             return resolve({
               ...resBase,
               message: {
                 type: TempleDAppMessageType.BlockchainResponse,
-                transactionHash: templeDAppBlockchainResponseV3.message.transactionHash,
-                signature: templeDAppBlockchainResponseV3.message.signature,
-                payload: templeDAppBlockchainResponseV3.message.payload
+                transactionHash: templeDAppBlockchainResponseV3.transactionHash
               }
             } as Beacon.ResponseV3);
           }
@@ -797,6 +801,12 @@ function generateRawPayloadBytes(payload: string) {
   const bytes = char2Bytes(Buffer.from(payload, 'utf8').toString('hex'));
   // https://tezostaquito.io/docs/signing/
   return `0501${char2Bytes(String(bytes.length))}${bytes}`;
+}
+
+function generateDekuPayloadBytes(payload: string) {
+  const bytes = char2Bytes(Buffer.from(payload, 'utf8').toString('hex'));
+  // https://tezostaquito.io/docs/signing/
+  return `8001${char2Bytes(String(bytes.length))}${bytes}`;
 }
 
 const close = (
