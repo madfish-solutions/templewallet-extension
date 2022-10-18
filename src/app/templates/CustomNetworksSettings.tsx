@@ -8,7 +8,7 @@ import Name from 'app/atoms/Name';
 import SubTitle from 'app/atoms/SubTitle';
 import { URL_PATTERN } from 'app/defaults';
 import { ReactComponent as CloseIcon } from 'app/icons/close.svg';
-import { T, t } from 'lib/i18n/react';
+import { T, t } from 'lib/i18n';
 import { useSettings, useTempleClient } from 'lib/temple/front';
 import { loadChainId } from 'lib/temple/helpers';
 import { NETWORK_IDS } from 'lib/temple/networks';

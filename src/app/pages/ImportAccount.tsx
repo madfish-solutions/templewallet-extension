@@ -21,8 +21,7 @@ import { ReactComponent as OkIcon } from 'app/icons/ok.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import ManagedKTForm from 'app/templates/ManagedKTForm';
 import { useFormAnalytics } from 'lib/analytics';
-import { TID } from 'lib/i18n';
-import { T, t } from 'lib/i18n/react';
+import { TID, T, t } from 'lib/i18n';
 import {
   ActivationStatus,
   useTempleClient,

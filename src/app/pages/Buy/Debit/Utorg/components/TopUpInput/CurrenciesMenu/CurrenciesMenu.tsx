@@ -4,7 +4,7 @@ import { List } from 'react-virtualized';
 
 import DropdownWrapper from 'app/atoms/DropdownWrapper';
 import Spinner from 'app/atoms/Spinner/Spinner';
-import { T } from 'lib/i18n/react';
+import { T } from 'lib/i18n';
 
 import { useAppEnvStyle } from '../../../../../../../hooks/useAppEnvStyle';
 import { CurrencyOption } from './CurrencyOption/CurrencyOption';

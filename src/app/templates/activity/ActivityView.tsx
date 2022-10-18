@@ -5,7 +5,7 @@ import classNames from 'clsx';
 import { FormSecondaryButton, ActivitySpinner } from 'app/atoms';
 import { useAppEnv } from 'app/env';
 import { ReactComponent as LayersIcon } from 'app/icons/layers.svg';
-import { T } from 'lib/i18n/react';
+import { T } from 'lib/i18n';
 import * as Repo from 'lib/temple/repo';
 
 import ActivityItem from './ActivityItem';

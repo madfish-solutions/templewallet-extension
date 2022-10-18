@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { T, t } from 'lib/i18n/react';
+import { T, t } from 'lib/i18n';
 import { TempleAccount, TempleAccountType } from 'lib/temple/types';
 
 export const ACTIVITY_PAGE_SIZE = 1000;

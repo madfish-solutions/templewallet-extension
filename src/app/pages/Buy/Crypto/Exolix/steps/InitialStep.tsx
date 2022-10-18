@@ -10,7 +10,7 @@ import styles from 'app/pages/Buy/Crypto/Exolix/Exolix.module.css';
 import ErrorComponent from 'app/pages/Buy/Crypto/Exolix/steps/ErrorComponent';
 import WarningComponent from 'app/pages/Buy/Crypto/Exolix/steps/WarningComponent';
 import { useAssetFiatCurrencyPrice } from 'lib/fiat-currency';
-import { T } from 'lib/i18n/react';
+import { T } from 'lib/i18n';
 import { useAccount } from 'lib/temple/front';
 
 import { TopUpInput } from '../components/TopUpInput/TopUpInput';

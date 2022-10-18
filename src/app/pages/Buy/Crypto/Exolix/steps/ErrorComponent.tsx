@@ -6,7 +6,7 @@ import { FormSubmitButton } from 'app/atoms';
 import CopyButton from 'app/atoms/CopyButton';
 import { ReactComponent as CopyIcon } from 'app/icons/copy.svg';
 import { AnalyticsEventCategory, TestIDProps, useAnalytics } from 'lib/analytics';
-import { T } from 'lib/i18n/react';
+import { T } from 'lib/i18n';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 
 import { ExchangeDataInterface } from '../exolix.interface';

@@ -8,8 +8,7 @@ import { browser } from 'webextension-polyfill-ts';
 
 import DisableOutlinesForClick from 'app/a11y/DisableOutlinesForClick';
 import Dialogs from 'app/layouts/Dialogs';
-import { getMessage } from 'lib/i18n';
-import { T } from 'lib/i18n/react';
+import { getMessage, T } from 'lib/i18n';
 import { clearStorage } from 'lib/temple/reset';
 import { AlertFn, ConfirmFn, DialogsProvider, useAlert, useConfirm } from 'lib/ui/dialog';
 

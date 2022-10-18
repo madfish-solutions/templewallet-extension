@@ -5,7 +5,7 @@ import { List } from 'react-virtualized';
 import DropdownWrapper from 'app/atoms/DropdownWrapper';
 import Spinner from 'app/atoms/Spinner/Spinner';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
-import { T } from 'lib/i18n/react';
+import { T } from 'lib/i18n';
 import { useAccount, useChainId } from 'lib/temple/front';
 import * as Repo from 'lib/temple/repo';
 
