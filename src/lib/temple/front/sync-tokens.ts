@@ -14,15 +14,14 @@ import {
 import { useChainId, useAccount, useUSDPrices, useTokensMetadata } from 'lib/temple/front';
 import { AssetMetadata, DetailedAssetMetdata, toBaseMetadata } from 'lib/temple/metadata';
 import * as Repo from 'lib/temple/repo';
+import { TempleChainId } from 'lib/temple/types';
 import { getTokensMetadata } from 'lib/templewallet-api';
 import { fetchWhitelistTokenSlugs } from 'lib/templewallet-api/whitelist-tokens';
-import { fetchTzktTokens } from 'lib/tzkt/client';
+import { fetchTzktTokens } from 'lib/tzkt';
+import { TzktAccountToken } from 'lib/tzkt/types';
+import { useTimerEffect } from 'lib/ui/hooks';
 
-import { useTimerEffect } from '../../../app/hooks/useTimerEffect';
-import { TzktAccountToken } from '../../tzkt/types';
-import { TempleChainId } from '../types';
-
-const SYNC_INTERVAL = 60_000;
+const SYNCING_INTERVAL = 60_000;
 
 export const [SyncTokensProvider, useSyncTokens] = constate(() => {
   const { mutate } = useSWRConfig();
@@ -33,10 +32,10 @@ export const [SyncTokensProvider, useSyncTokens] = constate(() => {
     useTokensMetadata();
   const usdPrices = useUSDPrices();
 
-  const [isSync, setIsSync] = useState<boolean | null>(null);
+  const [isSyncing, setIsSyncing] = useState<boolean | null>(null);
 
   const sync = useCallback(async () => {
-    setIsSync(true);
+    setIsSyncing(true);
 
     await makeSync(
       accountPkh,
@@ -49,7 +48,7 @@ export const [SyncTokensProvider, useSyncTokens] = constate(() => {
       mutate
     );
 
-    setIsSync(false);
+    setIsSyncing(false);
   }, [
     accountPkh,
     chainId,
@@ -61,9 +60,9 @@ export const [SyncTokensProvider, useSyncTokens] = constate(() => {
     mutate
   ]);
 
-  useTimerEffect(sync, SYNC_INTERVAL, [chainId, accountPkh]);
+  useTimerEffect(sync, SYNCING_INTERVAL, [chainId, accountPkh]);
 
-  return isSync;
+  return isSyncing;
 });
 
 const makeSync = async (
@@ -73,7 +72,10 @@ const makeSync = async (
   setTokensBaseMetadata: any,
   setTokensDetailedMetadata: any,
   usdPrices: Record<string, string>,
-  fetchMetadata: any,
+  fetchMetadata: (slug: string) => Promise<{
+    base: AssetMetadata;
+    detailed: DetailedAssetMetdata;
+  } | null>,
   mutate: ScopedMutator
 ) => {
   if (!chainId) return;
@@ -119,6 +121,7 @@ const makeSync = async (
   // Otherwise - fetch from chain.
   if (!metadatas) {
     metadatas = await Promise.all(metadataSlugs.map(slug => generateMetadataRequest(slug, mainnet, fetchMetadata)));
+    metadatas = metadatas.filter(x => Boolean(x));
   }
 
   const baseMetadatasToSet: Record<string, AssetMetadata> = {};
@@ -159,7 +162,14 @@ const makeSync = async (
   await mutate(['displayed-fungible-tokens', chainId, accountPkh]);
 };
 
-const generateMetadataRequest = async (slug: string, mainnet: boolean, fetchMetadata: any) => {
+const generateMetadataRequest = async (
+  slug: string,
+  mainnet: boolean,
+  fetchMetadata: (slug: string) => Promise<{
+    base: AssetMetadata;
+    detailed: DetailedAssetMetdata;
+  } | null>
+) => {
   const noMetadataFlag = `no_metadata_${slug}`;
   if (!mainnet && localStorage.getItem(noMetadataFlag) === 'true') {
     return null;

@@ -1,5 +1,9 @@
 import BigNumber from 'bignumber.js';
 
+export const isPositiveNumber = (val: BigNumber.Value) => new BigNumber(val).isGreaterThan(0);
+
+const toTokenId = (contractAddress: string, tokenId: string | number = 0) => `${contractAddress}_${tokenId}`;
+
 export function tryParseTokenTransfers(
   parameters: any,
   destination: string,
@@ -14,14 +18,6 @@ export function tryParseTokenTransfers(
   try {
     formatFa2(parameters, destination, onTransfer);
   } catch {}
-}
-
-export function isPositiveNumber(val: BigNumber.Value) {
-  return new BigNumber(val).isGreaterThan(0);
-}
-
-export function toTokenId(contractAddress: string, tokenId: string | number = 0) {
-  return `${contractAddress}_${tokenId}`;
 }
 
 const formatFa12 = (

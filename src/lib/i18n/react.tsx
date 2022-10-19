@@ -24,9 +24,9 @@ export const T: FC<TProps> = ({ id, substitutions, children }) => {
 export function t(messageName: TID, substitutions?: Substitutions): string;
 export function t(messageName: TID, substitutions?: ReactSubstitutions): ReactNode;
 export function t(messageName: TID, substitutions?: any): any {
-  return !substitutions || !hasReactSubstitutions(substitutions)
-    ? getMessage(messageName, substitutions)
-    : tReact(messageName, substitutions);
+  return substitutions && hasReactSubstitutions(substitutions)
+    ? tReact(messageName, substitutions)
+    : getMessage(messageName, substitutions);
 }
 
 function tReact(messageName: TID, substitutions?: Substitutions | ReactSubstitutions): ReactNode {

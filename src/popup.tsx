@@ -3,7 +3,7 @@ import './main.css';
 import React from 'react';
 
 import { createRoot } from 'react-dom/client';
-import { browser } from 'webextension-polyfill-ts';
+import browser from 'webextension-polyfill';
 
 import App from 'app/App';
 import { WindowType, openInFullPage } from 'app/env';

@@ -88,7 +88,6 @@ export const AssetsMenu: FC<Props> = ({
           )}
         </div>
       )}
-      {/*// @ts-ignore*/}
       <List
         width={dropdownWidth}
         height={240}

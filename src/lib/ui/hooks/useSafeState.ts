@@ -1,8 +1,8 @@
 import { Dispatch, SetStateAction, useCallback, useEffect, useRef, useState } from 'react';
 
-import useIsMounted from 'lib/ui/useIsMounted';
+import { useIsMounted } from './useIsMounted';
 
-export default function useSafeState<T>(initialState: T | (() => T), dep?: any): [T, Dispatch<SetStateAction<T>>] {
+export function useSafeState<T>(initialState: T | (() => T), dep?: any): [T, Dispatch<SetStateAction<T>>] {
   const isMounted = useIsMounted();
   const [state, setStatePure] = useState(initialState);
 

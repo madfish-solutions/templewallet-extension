@@ -5,7 +5,7 @@ import deepEqual from 'fast-deep-equal';
 import Fuse from 'fuse.js';
 import { useDebounce } from 'use-debounce';
 import useForceUpdate from 'use-force-update';
-import { browser } from 'webextension-polyfill-ts';
+import browser from 'webextension-polyfill';
 
 import { createQueue } from 'lib/queue';
 import { useRetryableSWR } from 'lib/swr';
@@ -21,16 +21,16 @@ import {
   toTokenSlug
 } from 'lib/temple/assets';
 import { useNetwork } from 'lib/temple/front';
-import {
-  TEZOS_METADATA,
-  FILM_METADATA,
-  PRESERVED_TOKEN_METADATA,
-  AssetMetadata,
-  DetailedAssetMetdata,
-  fetchTokenMetadata
-} from 'lib/temple/metadata';
 import { ITokenStatus } from 'lib/temple/repo';
 
+import {
+  AssetMetadata,
+  DetailedAssetMetdata,
+  fetchTokenMetadata,
+  FILM_METADATA,
+  PRESERVED_TOKEN_METADATA,
+  TEZOS_METADATA
+} from '../metadata';
 import { useTezos, useChainId, useAccount } from './ready';
 import { onStorageChanged, putToStorage, usePassiveStorage } from './storage';
 
@@ -141,12 +141,15 @@ export function useAssetMetadata(slug: string) {
   useEffect(() => {
     if (!isTezAsset(slug) && !exist && !autoFetchMetadataFails.has(slug)) {
       enqueueAutoFetchMetadata(() => fetchMetadata(slug))
-        .then(metadata =>
-          Promise.all([
-            setTokensBaseMetadata({ [slug]: metadata.base }),
-            setTokensDetailedMetadata({ [slug]: metadata.detailed })
-          ])
-        )
+        .then(metadata => {
+          if (metadata !== null) {
+            return Promise.all([
+              setTokensBaseMetadata({ [slug]: metadata.base }),
+              setTokensDetailedMetadata({ [slug]: metadata.detailed })
+            ]);
+          }
+          throw new Error('');
+        })
         .catch(() => autoFetchMetadataFails.add(slug));
     }
   }, [slug, exist, fetchMetadata, setTokensBaseMetadata, setTokensDetailedMetadata]);

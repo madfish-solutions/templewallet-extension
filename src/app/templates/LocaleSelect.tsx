@@ -1,7 +1,7 @@
 import React, { useMemo, useCallback, FC } from 'react';
 
 import classNames from 'clsx';
-import { browser } from 'webextension-polyfill-ts';
+import browser from 'webextension-polyfill';
 
 import Flag from 'app/atoms/Flag';
 import { AnalyticsEventCategory, AnalyticsEventEnum, useAnalytics } from 'lib/analytics';
