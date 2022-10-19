@@ -1,4 +1,4 @@
-import { browser } from 'webextension-polyfill-ts';
+import browser from 'webextension-polyfill';
 
 // eslint-disable-next-line import/order
 import { mockSodiumUtil, MOCK_PK_KEY, MOCK_SK_KEY } from './libsodium-wrappers.mock';

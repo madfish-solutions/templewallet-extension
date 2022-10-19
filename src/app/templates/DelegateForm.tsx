@@ -5,7 +5,7 @@ import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
 import { useForm, Controller, Control, FieldError, NestDataObject, FormStateProxy } from 'react-hook-form';
 import useSWR from 'swr';
-import { browser } from 'webextension-polyfill-ts';
+import browser from 'webextension-polyfill';
 
 import { Alert, Button, FormSubmitButton, NoSpaceField } from 'app/atoms';
 import Money from 'app/atoms/Money';

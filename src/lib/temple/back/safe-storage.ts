@@ -1,5 +1,5 @@
 import { Buffer } from 'buffer';
-import { browser } from 'webextension-polyfill-ts';
+import browser from 'webextension-polyfill';
 
 import * as Passworder from 'lib/temple/passworder';
 
