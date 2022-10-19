@@ -10,7 +10,7 @@ import { useAppEnv } from '../env';
 import ErrorBoundary from '../ErrorBoundary';
 import PageLayout from './PageLayout';
 
-export interface tabInterface {
+export interface TabInterface {
   slug: string;
   title: string;
   Component: FC;
@@ -18,7 +18,7 @@ export interface tabInterface {
 }
 
 interface Props {
-  tabs: tabInterface[];
+  tabs: TabInterface[];
   icon: JSX.Element;
   title: string;
   description: string;

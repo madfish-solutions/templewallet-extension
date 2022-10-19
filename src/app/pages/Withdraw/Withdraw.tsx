@@ -3,12 +3,12 @@ import React, { FC, useMemo } from 'react';
 import { t } from 'lib/i18n/react';
 
 import { ReactComponent as WithdrawGreyIcon } from '../../icons/withdraw-grey.svg';
-import { tabInterface, TabsPageLayout } from '../../layouts/TabsPageLayout';
+import { TabInterface, TabsPageLayout } from '../../layouts/TabsPageLayout';
 import { Debit } from './Debit/Debit';
 import { WithdrawSelectors } from './Withdraw.selectors';
 
 export const Withdraw: FC = () => {
-  const tabs = useMemo<tabInterface[]>(() => {
+  const tabs = useMemo<TabInterface[]>(() => {
     return [
       {
         slug: 'debit',
