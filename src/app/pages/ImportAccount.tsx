@@ -311,25 +311,6 @@ const ByMnemonicForm: FC = () => {
         />
       </div>
 
-      <FormField
-        ref={register}
-        name="password"
-        type="password"
-        id="importfundacc-password"
-        label={
-          <>
-            <T id="password" />{' '}
-            <span className="text-sm font-light text-gray-600">
-              <T id="optionalComment" />
-            </span>
-          </>
-        }
-        labelDescription={t('passwordInputDescription')}
-        placeholder="*********"
-        errorCaption={errors.password?.message}
-        containerClassName="mb-6"
-      />
-
       <div className={classNames('mb-4', 'flex flex-col')}>
         <h2 className={classNames('mb-4', 'leading-tight', 'flex flex-col')}>
           <span className="text-base font-semibold text-gray-700">
@@ -408,6 +389,25 @@ const ByMnemonicForm: FC = () => {
           containerClassName="mb-6"
         />
       )}
+
+      <FormField
+        ref={register}
+        name="password"
+        type="password"
+        id="importfundacc-password"
+        label={
+          <>
+            <T id="password" />{' '}
+            <span className="text-sm font-light text-gray-600">
+              <T id="optionalComment" />
+            </span>
+          </>
+        }
+        labelDescription={t('passwordInputDescription')}
+        placeholder="*********"
+        errorCaption={errors.password?.message}
+        containerClassName="mb-6"
+      />
 
       <FormSubmitButton loading={formState.isSubmitting} className="mt-8">
         <T id="importAccount" />

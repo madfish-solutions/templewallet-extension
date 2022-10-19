@@ -589,7 +589,7 @@
     "message": "p. ex. venue sock milk update…"
   },
   "passwordInputDescription": {
-    "message": "Utilisé pour la dérivation mnémonique supplémentaire. Il NE s'agit PAS d'un mot de passe de portefeuille."
+    "message": "Il NE s'agit PAS d'un mot de passe de portefeuille.\nUtilisé pour la dérivation mnémonique supplémentaire."
   },
   "derivation": {
     "message": "Dérivation"
