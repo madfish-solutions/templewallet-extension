@@ -1627,7 +1627,7 @@
     "message": "Hash"
   },
   "defaultAccount": {
-    "message": "Default account"
+    "message": "Default account (the first one)"
   },
   "loadMore": {
     "message": "Load more"
