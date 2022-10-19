@@ -1951,6 +1951,9 @@
   "loadMore": {
     "message": "Load more"
   },
+  "tryLoadAgain": {
+    "message": "Try again"
+  },
   "submit": {
     "message": "Submit"
   },

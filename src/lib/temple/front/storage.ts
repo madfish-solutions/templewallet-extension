@@ -1,6 +1,6 @@
 import { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { browser, Storage } from 'webextension-polyfill-ts';
+import browser, { Storage } from 'webextension-polyfill';
 
 import { useRetryableSWR } from 'lib/swr';
 

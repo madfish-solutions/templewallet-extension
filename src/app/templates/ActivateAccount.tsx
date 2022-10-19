@@ -7,7 +7,7 @@ import AccountBanner from 'app/templates/AccountBanner';
 import { T, t } from 'lib/i18n/react';
 import { ActivationStatus, useTezos, useAccount, activateAccount } from 'lib/temple/front';
 import { confirmOperation } from 'lib/temple/operation';
-import useIsMounted from 'lib/ui/useIsMounted';
+import { useIsMounted } from 'lib/ui/hooks';
 
 type FormData = {
   secret: string;

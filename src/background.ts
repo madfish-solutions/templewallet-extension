@@ -1,4 +1,4 @@
-import { browser } from 'webextension-polyfill-ts';
+import browser from 'webextension-polyfill';
 
 import { lock } from 'lib/temple/back/actions';
 import { start } from 'lib/temple/back/main';

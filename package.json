@@ -57,6 +57,7 @@
     "@types/react-transition-group": "4.4.5",
     "@types/react-virtualized": "^9.21.21",
     "@types/typedarray-to-buffer": "^4.0.0",
+    "@types/webextension-polyfill": "^0.9.1",
     "@typescript-eslint/eslint-plugin": "5.38.0",
     "@typescript-eslint/parser": "5.38.0",
     "analytics-node": "6.0.0",
@@ -121,6 +122,7 @@
     "react-dev-utils": "11.0.4",
     "react-dom": "18.2.0",
     "react-hook-form": "5.3.1",
+    "react-infinite-scroll-component": "^6.1.0",
     "react-json-view": "1.21.3",
     "react-modal": "3.15.1",
     "react-qr-svg": "2.2.2",
@@ -147,7 +149,7 @@
     "use-force-update": "1.0.7",
     "use-onclickoutside": "0.4.1",
     "wasm-themis": "0.14.6",
-    "webextension-polyfill-ts": "0.19.0",
+    "webextension-polyfill": "^0.10.0",
     "webpack": "4.46.0",
     "webpack-cli": "3.3.12",
     "webpack-extension-reloader": "1.1.4",
@@ -185,6 +187,7 @@
     "follow-redirects": "1.14.8",
     "nanoid": "3.1.31",
     "tslib": "2.4.0",
-    "regenerator-runtime": "0.13.9"
+    "regenerator-runtime": "0.13.9",
+    "@types/react": "18.0.15"
   }
 }

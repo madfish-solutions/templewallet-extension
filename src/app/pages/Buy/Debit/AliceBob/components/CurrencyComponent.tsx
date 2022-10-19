@@ -1,7 +1,7 @@
 import React, { forwardRef } from 'react';
 
 import classNames from 'clsx';
-import { browser } from 'webextension-polyfill-ts';
+import browser from 'webextension-polyfill';
 
 interface Props {
   onPress?: () => void;

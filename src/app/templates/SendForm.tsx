@@ -58,7 +58,7 @@ import {
 import { hasManager, isAddressValid, isKTAddress, mutezToTz, tzToMutez } from 'lib/temple/helpers';
 import { AssetMetadata, getAssetSymbol } from 'lib/temple/metadata';
 import { TempleAccountType, TempleAccount, TempleNetworkType } from 'lib/temple/types';
-import useSafeState from 'lib/ui/useSafeState';
+import { useSafeState } from 'lib/ui/hooks';
 import { HistoryAction, navigate } from 'lib/woozie';
 
 import { IAsset } from './AssetSelect/interfaces';
