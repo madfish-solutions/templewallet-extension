@@ -22,10 +22,10 @@ async function decrypt(chipher: string, password: string, salt: string) {
     const key = await scrypt.async(password, Buffer.from(salt, 'hex'), 65536, 8, 1, 32);
     const decipher = forge.cipher.createDecipher('AES-GCM', key.toString('binary'));
     decipher.start({
-      iv: Buffer.from(salt, 'hex'),
-      tag: forge.util.createBuffer(Buffer.from(tag, 'hex').toString('binary'), 'utf-8')
+      iv: Buffer.from(salt, 'hex') as any,
+      tag: forge.util.createBuffer(Buffer.from(tag, 'hex').toString('binary'), 'raw')
     });
-    decipher.update(forge.util.createBuffer(Buffer.from(chiphertext, 'hex').toString('binary'), 'utf-8'));
+    decipher.update(forge.util.createBuffer(Buffer.from(chiphertext, 'hex').toString('binary'), 'raw'));
     const pass = decipher.finish();
     if (pass) {
       return Buffer.from(decipher.output.toHex(), 'hex');
