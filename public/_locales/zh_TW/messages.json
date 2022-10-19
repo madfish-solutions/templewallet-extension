@@ -1606,7 +1606,7 @@
     "message": "雜湊"
   },
   "defaultAccount": {
-    "message": "預設帳戶"
+    "message": "默認賬戶（第一個）"
   },
   "loadMore": {
     "message": "載入更多"

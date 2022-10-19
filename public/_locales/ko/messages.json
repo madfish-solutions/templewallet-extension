@@ -1606,7 +1606,7 @@
     "message": "해시"
   },
   "defaultAccount": {
-    "message": "기본 계정"
+    "message": "기본 계정(첫 번째 계정)"
   },
   "loadMore": {
     "message": "더 로드 하기"

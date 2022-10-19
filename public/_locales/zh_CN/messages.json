@@ -1606,7 +1606,7 @@
     "message": "哈希"
   },
   "defaultAccount": {
-    "message": "默认账户"
+    "message": "默认账户（第一个）"
   },
   "loadMore": {
     "message": "加载更多"

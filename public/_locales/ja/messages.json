@@ -1606,7 +1606,7 @@
     "message": "ハッシュ"
   },
   "defaultAccount": {
-    "message": "デフォルトのアカウント"
+    "message": "デフォルトのアカウント (最初のアカウント)"
   },
   "loadMore": {
     "message": "さらに読み込む"

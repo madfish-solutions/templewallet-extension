@@ -1615,7 +1615,7 @@
     "message": "Hachage"
   },
   "defaultAccount": {
-    "message": "Compte par défaut"
+    "message": "Compte par défaut (le premier)"
   },
   "loadMore": {
     "message": "Charger plus"
