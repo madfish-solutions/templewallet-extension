@@ -30,7 +30,7 @@ export const NETWORKS: TempleNetwork[] = [
   },
   {
     id: 'smartpy-mainnet',
-    name: 'Mainnet @smartpy.io',
+    name: 'SmartPy Mainnet',
     description: 'SmartPy Mainnet',
     type: 'main',
     rpcBaseURL: 'https://mainnet.smartpy.io',
