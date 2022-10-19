@@ -1,8 +1,15 @@
 import { entropyToMnemonic } from 'bip39';
 import * as forge from 'node-forge';
-import scrypt from 'scryptsy';
+import scryptsy from 'scryptsy';
 
 import { t } from 'lib/i18n/react';
+
+type ScryptsyType = typeof scryptsy;
+interface ScryptsyCorrectType extends ScryptsyType {
+  async: (...a: [...Parameters<ScryptsyType>, ...[promiseInterval?: number]]) => Promise<ReturnType<ScryptsyType>>;
+}
+
+const scrypt: ScryptsyCorrectType = scryptsy as any;
 
 async function decrypt(chipher: string, password: string, salt: string) {
   try {

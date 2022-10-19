@@ -334,7 +334,9 @@ module.exports = {
     */
     new webpack.ProvidePlugin({
       process: 'process/browser',
-      Buffer: ['buffer', 'Buffer']
+      Buffer: ['buffer', 'Buffer'],
+      // Seen 'setImmediate' in: 'scryptsy'
+      setImmediate: ['timers-browserify', 'setImmediate'],
     }),
 
     new webpack.IgnorePlugin({ resourceRegExp: /^\.\/wordlists\/(?!english)/, contextRegExp: /bip39\/src$/ }),
