@@ -39,7 +39,7 @@ export const NETWORKS: TempleNetwork[] = [
   },
   {
     id: 'tezie-mainnet',
-    name: 'Mainnet @api.tez.ie',
+    name: 'ECAD Labs Mainnet',
     description: 'Highly available Tezos Mainnet nodes operated by ECAD Labs',
     type: 'main',
     rpcBaseURL: 'https://mainnet.api.tez.ie',
