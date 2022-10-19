@@ -93,7 +93,7 @@ export const NETWORKS: TempleNetwork[] = [
   },
   {
     id: 'monday',
-    name: 'MondayNet',
+    name: 'MondayNet Testnet',
     description: `MondayNet ${getLastMonday()}`,
     type: 'test',
     rpcBaseURL: `https://rpc.mondaynet-${getLastMonday()}.teztnets.xyz/`,
@@ -102,7 +102,7 @@ export const NETWORKS: TempleNetwork[] = [
   },
   {
     id: 'daily',
-    name: 'DailyNet',
+    name: 'DailyNet Testnet',
     description: 'DailyNet',
     type: 'test',
     rpcBaseURL: `https://rpc.dailynet-${formatDateToRPCFormat(new Date())}.teztnets.xyz/`,
