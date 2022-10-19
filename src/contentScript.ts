@@ -105,7 +105,6 @@ function beaconRequest(evt: MessageEvent) {
       encrypted: Boolean(data.encryptedPayload)
     })
     .then((res: TempleResponse) => {
-      alert('l 108' + JSON.stringify(res));
       if (res?.type === TempleMessageType.PageResponse && res.payload) {
         const message = {
           target: BeaconMessageTarget.Page,

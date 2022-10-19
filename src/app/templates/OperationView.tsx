@@ -32,6 +32,8 @@ const OperationView: FC<OperationViewProps> = ({
     switch (payload.type) {
       case 'confirm_operations':
         return (payload.rawToSign ?? payload.opParams) || [];
+      case 'confirm_blockchain':
+        return [payload.sourcePkh, payload.amount, payload.recipient, payload.ticketer, payload.data] || [];
       case 'sign':
         return payload.preview || [];
       default:
@@ -182,6 +184,47 @@ const OperationView: FC<OperationViewProps> = ({
             error={payloadError}
           />
         </div>
+      </div>
+    );
+  }
+
+  if (payload.type === 'confirm_blockchain') {
+    return (
+      <div className="flex flex-col w-full">
+        <h2 className={classNames('mb-3', 'leading-tight', 'flex items-center')}>
+          <span className={classNames('mr-2', 'text-base font-semibold text-gray-700')}>
+            <T id="operations" />
+          </span>
+
+          <div className="flex-1" />
+
+          {signPayloadFormats.length > 1 && (
+            <ViewsSwitcher activeItem={spFormat} items={signPayloadFormats} onChange={setSpFormat} />
+          )}
+        </h2>
+
+        <OperationsBanner
+          opParams={{
+            branch: 'current',
+            contents: [
+              {
+                kind: payload.type,
+                source: payload.sourcePkh,
+                fee: '0',
+                counter: '0',
+                gas_limit: '0',
+                storage_limit: '0',
+                amount: payload.amount,
+                destination: payload.recipient,
+                ticketer: payload.ticketer,
+                data: payload.data
+              }
+            ]
+          }}
+          className={classNames(spFormat.key !== 'raw' && 'hidden')}
+          jsonViewStyle={signPayloadFormats.length > 1 ? { height: '11rem' } : undefined}
+          label={null}
+        />
       </div>
     );
   }

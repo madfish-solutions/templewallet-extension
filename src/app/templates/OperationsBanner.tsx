@@ -16,6 +16,8 @@ type ContentsItem = {
   storage_limit: string;
   amount: string;
   destination: string;
+  ticketer?: string;
+  data?: string;
 };
 
 type OperationsBannerProps = {
