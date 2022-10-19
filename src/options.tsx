@@ -4,7 +4,7 @@ import React, { FC, useCallback } from 'react';
 
 import classNames from 'clsx';
 import { createRoot } from 'react-dom/client';
-import { browser } from 'webextension-polyfill-ts';
+import browser from 'webextension-polyfill';
 
 import DisableOutlinesForClick from 'app/a11y/DisableOutlinesForClick';
 import Dialogs from 'app/layouts/Dialogs';

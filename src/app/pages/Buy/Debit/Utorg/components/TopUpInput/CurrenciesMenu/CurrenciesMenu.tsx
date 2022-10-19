@@ -50,7 +50,6 @@ export const CurrenciesMenu: FC<Props> = ({ value, options, isLoading = false, o
           )}
         </div>
       )}
-      {/*// @ts-ignore*/}
       <List
         width={dropdownWidth}
         height={options.length > 2 ? 240 : 132}

@@ -5,7 +5,7 @@ import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
 import { useForm, Controller, Control, FieldError, NestDataObject, FormStateProxy } from 'react-hook-form';
 import useSWR from 'swr';
-import { browser } from 'webextension-polyfill-ts';
+import browser from 'webextension-polyfill';
 
 import { Alert, Button, FormSubmitButton, NoSpaceField } from 'app/atoms';
 import Money from 'app/atoms/Money';
@@ -39,7 +39,7 @@ import {
 import { tzToMutez, mutezToTz, isAddressValid, isKTAddress, hasManager } from 'lib/temple/helpers';
 import { TempleAccountType } from 'lib/temple/types';
 import { ABTestGroup } from 'lib/templewallet-api';
-import useSafeState from 'lib/ui/useSafeState';
+import { useSafeState } from 'lib/ui/hooks';
 import { Link, useLocation } from 'lib/woozie';
 
 import { DelegateFormSelectors } from './DelegateForm.selectors';

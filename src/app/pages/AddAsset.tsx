@@ -30,8 +30,8 @@ import {
 } from 'lib/temple/front';
 import { AssetMetadata, DetailedAssetMetdata, NotFoundTokenMetadata } from 'lib/temple/metadata';
 import * as Repo from 'lib/temple/repo';
+import { useSafeState } from 'lib/ui/hooks';
 import { withErrorHumanDelay } from 'lib/ui/humanDelay';
-import useSafeState from 'lib/ui/useSafeState';
 import { navigate } from 'lib/woozie';
 
 const AddAsset: FC = () => (

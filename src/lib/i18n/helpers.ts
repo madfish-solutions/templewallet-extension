@@ -1,4 +1,4 @@
-import { browser } from 'webextension-polyfill-ts';
+import browser from 'webextension-polyfill';
 
 import type { LocaleMessage, LocaleMessages, Substitutions } from './types';
 

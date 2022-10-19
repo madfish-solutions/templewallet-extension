@@ -15,8 +15,8 @@ import { T, t } from 'lib/i18n';
 import { useRetryableSWR } from 'lib/swr';
 import { useRelevantAccounts, useTezos, useTempleClient, useChainId } from 'lib/temple/front';
 import { isAddressValid } from 'lib/temple/helpers';
-import { TempleAccountType, isKnownChainId, ImportAccountFormType } from 'lib/temple/types';
-import { TzktRelatedContract, TZKT_API_BASE_URLS, getOneUserContracts } from 'lib/tzkt';
+import { TempleAccountType, ImportAccountFormType } from 'lib/temple/types';
+import { getOneUserContracts, TzktRelatedContract, isKnownChainId } from 'lib/tzkt';
 
 type ImportKTAccountFormData = {
   contractAddress: string;
@@ -226,12 +226,12 @@ const ManagedKTForm: FC = () => {
 export default ManagedKTForm;
 
 const getUsersContracts = async (_k: string, chainId: string, ...accounts: string[]) => {
-  if (!isKnownChainId(chainId) || !TZKT_API_BASE_URLS.has(chainId)) {
+  if (!isKnownChainId(chainId)) {
     return [];
   }
 
   const contractsChunks = await Promise.all(
-    accounts.map<Promise<TzktRelatedContract[]>>(account => getOneUserContracts(chainId, { account }).catch(() => []))
+    accounts.map<Promise<TzktRelatedContract[]>>(account => getOneUserContracts(chainId, account).catch(() => []))
   );
   return contractsChunks.reduce(
     (contracts, chunk) => [...contracts, ...chunk.filter(({ kind }) => kind === 'delegator_contract')],

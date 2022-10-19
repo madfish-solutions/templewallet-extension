@@ -2,17 +2,17 @@ import React, { FC, useCallback, useEffect, useMemo, useState } from 'react';
 
 import classNames from 'clsx';
 
+import { ActivitySpinner } from 'app/atoms';
 import { useAppEnv } from 'app/env';
 import { ReactComponent as AddToListIcon } from 'app/icons/add-to-list.svg';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
 import SearchAssetField from 'app/templates/SearchAssetField';
 import { T } from 'lib/i18n';
 import { useAccount, useChainId, useDisplayedFungibleTokens, useFilteredAssets } from 'lib/temple/front';
+import { useSyncBalances } from 'lib/temple/front/sync-balances';
 import { useSyncTokens } from 'lib/temple/front/sync-tokens';
 import { Link, navigate } from 'lib/woozie';
 
-import { useSyncBalances } from '../../../../lib/temple/front/sync-balances';
-import { ActivitySpinner } from '../../../atoms/ActivitySpinner';
 import { AssetsSelectors } from '../Assets.selectors';
 import { ListItem } from './components/ListItem';
 import { toExploreAssetLink } from './utils';
@@ -20,7 +20,7 @@ import { toExploreAssetLink } from './utils';
 export const Tokens: FC = () => {
   const chainId = useChainId(true)!;
   const { publicKeyHash } = useAccount();
-  const isSync = useSyncTokens();
+  const isSyncing = useSyncTokens();
   const { popup } = useAppEnv();
   const latestBalances = useSyncBalances();
 
@@ -143,7 +143,7 @@ export const Tokens: FC = () => {
           })}
         </div>
       )}
-      {isSync && (
+      {isSyncing && (
         <div className="mt-4">
           <ActivitySpinner />
         </div>

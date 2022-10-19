@@ -13,7 +13,7 @@ import { ReactComponent as SendIcon } from 'app/icons/send-alt.svg';
 import { ReactComponent as SwapIcon } from 'app/icons/swap.svg';
 import { ReactComponent as WithdrawIcon } from 'app/icons/withdraw.svg';
 import PageLayout from 'app/layouts/PageLayout';
-import Activity from 'app/templates/activity/Activity';
+import { ActivityComponent } from 'app/templates/activity/Activity';
 import AssetInfo from 'app/templates/AssetInfo';
 import { TestIDProps } from 'lib/analytics';
 import { T, t } from 'lib/i18n';
@@ -211,15 +211,11 @@ type ActivityTabProps = {
   assetSlug?: string;
 };
 
-const ActivityTab: FC<ActivityTabProps> = ({ assetSlug }) => {
-  const account = useAccount();
-
-  return (
-    <SuspenseContainer whileMessage={t('operationHistoryWhileMessage')}>
-      <Activity address={account.publicKeyHash} assetSlug={assetSlug} />
-    </SuspenseContainer>
-  );
-};
+const ActivityTab: FC<ActivityTabProps> = ({ assetSlug }) => (
+  <SuspenseContainer whileMessage={t('operationHistoryWhileMessage')}>
+    <ActivityComponent assetSlug={assetSlug} />
+  </SuspenseContainer>
+);
 
 type SecondarySectionProps = {
   assetSlug?: string | null;

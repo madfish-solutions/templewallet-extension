@@ -7,7 +7,7 @@ import {
   TempleDAppRequest,
   TempleDAppResponse
 } from '@temple-wallet/dapp/dist/types';
-import { browser, Runtime } from 'webextension-polyfill-ts';
+import browser, { Runtime } from 'webextension-polyfill';
 
 import { createQueue } from 'lib/queue';
 import { addLocalOperation } from 'lib/temple/activity';
