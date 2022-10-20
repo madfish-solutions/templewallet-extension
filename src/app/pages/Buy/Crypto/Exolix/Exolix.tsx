@@ -28,8 +28,6 @@ const Exolix: FC = () => (
 
 export default Exolix;
 
-const steps = [`${t('step')} 1`, `${t('step')} 2`, `${t('step')} 3`, `${t('step')} 4`];
-
 const BuyCryptoContent: FC = () => {
   const { trackEvent } = useAnalytics();
   const network = useNetwork();
@@ -60,6 +58,8 @@ const BuyCryptoContent: FC = () => {
   if (network.type !== 'main') {
     return <Redirect to={'/'} />;
   }
+
+  const steps = (stepWord => [`${stepWord} 1`, `${stepWord} 2`, `${stepWord} 3`, `${stepWord} 4`])(t('step'));
 
   return (
     <div className="pb-8 text-center max-w-sm mx-auto">

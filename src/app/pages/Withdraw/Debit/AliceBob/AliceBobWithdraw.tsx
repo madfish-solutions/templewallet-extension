@@ -15,8 +15,6 @@ import { InitialStep } from './steps/InitialStep';
 import { OrderStatusStep } from './steps/OrderStatusStep';
 import { SellStep } from './steps/SellStep';
 
-const steps = [`${t('step')} 1`, `${t('step')} 2`, `${t('step')} 3`];
-
 export const AliceBobWithdraw: FC = () => {
   const network = useNetwork();
   const account = useAccount();
@@ -31,6 +29,8 @@ export const AliceBobWithdraw: FC = () => {
   if (network.type !== 'main' || account.type === TempleAccountType.WatchOnly) {
     return <Redirect to={'/'} />;
   }
+
+  const steps = (stepWord => [`${stepWord} 1`, `${stepWord} 2`, `${stepWord} 3`])(t('step'));
 
   return (
     <PageLayout
