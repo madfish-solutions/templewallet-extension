@@ -2373,6 +2373,11 @@
   resolved "https://registry.yarnpkg.com/@types/webextension-polyfill/-/webextension-polyfill-0.8.3.tgz#eb601b3fcf524f0ecf7d7579ccbd237928d0dda7"
   integrity sha512-GN+Hjzy9mXjWoXKmaicTegv3FJ0WFZ3aYz77Wk8TMp1IY3vEzvzj1vnsa0ggV7vMI1i+PUxe4qqnIJKCzf9aTg==
 
+"@types/webextension-polyfill@^0.9.1":
+  version "0.9.1"
+  resolved "https://registry.yarnpkg.com/@types/webextension-polyfill/-/webextension-polyfill-0.9.1.tgz#fcb5c352e2e461d0287774db89bc326b15b47844"
+  integrity sha512-6aNzPIhqKlAV9t06nwSH3/veAceYE2dS2RVFZI8V1+UXHqsFNB6cRwxNmheiBvEGRc45E/gyZNzH0xAYIC27KA==
+
 "@types/webpack-sources@^3.2.0":
   version "3.2.0"
   resolved "https://registry.yarnpkg.com/@types/webpack-sources/-/webpack-sources-3.2.0.tgz#16d759ba096c289034b26553d2df1bf45248d38b"
@@ -9917,12 +9922,10 @@ webcrypto-core@^1.2.0:
     pvtsutils "^1.1.2"
     tslib "^2.1.0"
 
-webextension-polyfill-ts@0.26.0:
-  version "0.26.0"
-  resolved "https://registry.yarnpkg.com/webextension-polyfill-ts/-/webextension-polyfill-ts-0.26.0.tgz#80b7063ddaf99abaa1ca73aad0cec09f306612d3"
-  integrity sha512-XEFL+aYVEsm/d4RajVwP75g56c/w2aSHnPwgtUv8/nCzbLNSzRQIix6aj1xqFkA5yr7OIDkk3OD/QTnPp8ThYA==
-  dependencies:
-    webextension-polyfill "^0.8.0"
+webextension-polyfill@^0.10.0:
+  version "0.10.0"
+  resolved "https://registry.yarnpkg.com/webextension-polyfill/-/webextension-polyfill-0.10.0.tgz#ccb28101c910ba8cf955f7e6a263e662d744dbb8"
+  integrity sha512-c5s35LgVa5tFaHhrZDnr3FpQpjj1BB+RXhLTYUxGqBVN460HkbM8TBtEqdXWbpTKfzwCcjAZVF7zXCYSKtcp9g==
 
 webextension-polyfill@^0.8.0:
   version "0.8.0"

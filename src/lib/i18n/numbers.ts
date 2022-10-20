@@ -2,7 +2,8 @@ import BigNumber from 'bignumber.js';
 import memoize from 'micro-memoize';
 
 import { getCurrentLocale, getNumberSymbols } from './core';
-import { TID, t } from './react';
+import { t } from './react';
+import { TID } from './types';
 
 type FormatParams = {
   decimalPlaces?: number;

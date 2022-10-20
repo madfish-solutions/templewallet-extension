@@ -19,7 +19,7 @@ import {
   TempleDAppNetwork
 } from '@temple-wallet/dapp/dist/types';
 import { nanoid } from 'nanoid';
-import { browser, Runtime } from 'webextension-polyfill-ts';
+import browser, { Runtime } from 'webextension-polyfill';
 
 import { addLocalOperation } from 'lib/temple/activity';
 import { intercom } from 'lib/temple/back/defaults';

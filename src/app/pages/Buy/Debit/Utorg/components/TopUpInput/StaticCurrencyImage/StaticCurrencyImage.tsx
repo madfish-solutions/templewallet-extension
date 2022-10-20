@@ -1,6 +1,6 @@
 import React, { FC, useMemo, useState } from 'react';
 
-import { browser } from 'webextension-polyfill-ts';
+import browser from 'webextension-polyfill';
 
 const UTORG_FIAT_ICONS_BASE_URL = 'https://utorg.pro/img/flags2/icon-';
 

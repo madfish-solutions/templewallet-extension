@@ -1,5 +1,5 @@
 import { TemplePageMessage, TemplePageMessageType } from '@temple-wallet/dapp/dist/types';
-import { browser } from 'webextension-polyfill-ts';
+import browser from 'webextension-polyfill';
 
 import { IntercomClient } from 'lib/intercom/client';
 import { serealizeError } from 'lib/intercom/helpers';

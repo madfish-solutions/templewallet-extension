@@ -2,7 +2,7 @@ import React, { ChangeEvent, FC } from 'react';
 
 import classNames from 'clsx';
 
-import { T } from 'lib/i18n/react';
+import { T } from 'lib/i18n';
 
 import { getBigErrorText, getSmallErrorText } from '../../../utils/errorText.utils';
 import { handleNumberInput } from '../../../utils/handleNumberInput.util';

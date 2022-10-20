@@ -5,7 +5,5 @@ export function getSavedLocale() {
 }
 
 export function saveLocale(locale: string) {
-  try {
-    localStorage.setItem(STORAGE_KEY, locale);
-  } catch {}
+  localStorage.setItem(STORAGE_KEY, locale);
 }

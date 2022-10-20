@@ -2,7 +2,7 @@ import React, { FC } from 'react';
 
 import classNames from 'clsx';
 
-import { T } from 'lib/i18n/react';
+import { T } from 'lib/i18n';
 
 import { EXOLIX_CONTACT_LINK } from '../config';
 import { CurrencyInterface } from '../exolix.interface';

@@ -10,9 +10,10 @@ export default {
   },
   testEnvironment: 'jsdom',
   transform: {
-    '.+\\.ts$': 'ts-jest'
+    '.+\\.ts$': 'ts-jest',
+    '.+\\.tsx$': 'ts-jest'
   },
-  moduleFileExtensions: ['ts', 'js'],
+  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx'],
   setupFiles: ['dotenv/config', '@serh11p/jest-webextension-mock'],
   setupFilesAfterEnv: ['./jest.setup.js']
 };

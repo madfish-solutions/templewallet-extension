@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 
 import { Alert, FormField, FormSubmitButton } from 'app/atoms';
 import AccountBanner from 'app/templates/AccountBanner';
-import { T, t } from 'lib/i18n/react';
+import { T, t } from 'lib/i18n';
 import { ActivationStatus, useTezos, useAccount, activateAccount } from 'lib/temple/front';
 import { confirmOperation } from 'lib/temple/operation';
 import { useIsMounted } from 'lib/ui/hooks';
@@ -113,7 +113,9 @@ const ActivateAccount: FC = () => {
         onKeyPress={handleSecretFieldKeyPress}
       />
 
-      <T id="activate">{message => <FormSubmitButton loading={submitting}>{message}</FormSubmitButton>}</T>
+      <FormSubmitButton loading={submitting}>
+        <T id="activate" />
+      </FormSubmitButton>
     </form>
   );
 };

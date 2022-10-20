@@ -4,7 +4,7 @@ import classNames from 'clsx';
 
 import DropdownWrapper from 'app/atoms/DropdownWrapper';
 import { ReactComponent as ContactBookIcon } from 'app/icons/contact-book.svg';
-import { T } from 'lib/i18n/react';
+import { T } from 'lib/i18n';
 import { searchContacts } from 'lib/temple/front';
 import { TempleContact } from 'lib/temple/types';
 

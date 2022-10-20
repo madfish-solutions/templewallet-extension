@@ -4,7 +4,7 @@ import classNames from 'clsx';
 import ReactJson from 'react-json-view';
 
 import { ReactComponent as CopyIcon } from 'app/icons/copy.svg';
-import { T } from 'lib/i18n/react';
+import { T } from 'lib/i18n';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 
 type ContentsItem = {

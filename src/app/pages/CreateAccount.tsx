@@ -7,7 +7,7 @@ import { ACCOUNT_NAME_PATTERN } from 'app/defaults';
 import { ReactComponent as AddIcon } from 'app/icons/add.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import { useFormAnalytics } from 'lib/analytics';
-import { T, t } from 'lib/i18n/react';
+import { T, t } from 'lib/i18n';
 import { useTempleClient, useAllAccounts, useSetAccountPkh } from 'lib/temple/front';
 import { TempleAccountType } from 'lib/temple/types';
 import { navigate } from 'lib/woozie';

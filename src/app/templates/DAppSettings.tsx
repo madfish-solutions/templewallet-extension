@@ -8,7 +8,7 @@ import { ReactComponent as CloseIcon } from 'app/icons/close.svg';
 import CustomSelect, { OptionRenderProps } from 'app/templates/CustomSelect';
 import DAppLogo from 'app/templates/DAppLogo';
 import HashChip from 'app/templates/HashChip';
-import { TID, T, t } from 'lib/i18n/react';
+import { TID, T, t } from 'lib/i18n';
 import { useRetryableSWR } from 'lib/swr';
 import { useTempleClient, useStorage } from 'lib/temple/front';
 import { TempleSharedStorageKey, TempleDAppSession, TempleDAppSessions } from 'lib/temple/types';

@@ -2,7 +2,7 @@ import { entropyToMnemonic } from 'bip39';
 import * as forge from 'node-forge';
 import scryptsy from 'scryptsy';
 
-import { t } from 'lib/i18n/react';
+import { t } from 'lib/i18n';
 
 type ScryptsyType = typeof scryptsy;
 interface ScryptsyCorrectType extends ScryptsyType {
