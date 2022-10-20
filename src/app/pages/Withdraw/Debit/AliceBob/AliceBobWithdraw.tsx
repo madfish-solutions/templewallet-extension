@@ -1,16 +1,16 @@
 import React, { FC, useState } from 'react';
 
+import { Stepper } from 'app/atoms';
+import { ReactComponent as AttentionRedIcon } from 'app/icons/attentionRed.svg';
+import PageLayout from 'app/layouts/PageLayout';
+import styles from 'app/pages/Buy/Crypto/Exolix/Exolix.module.css';
+import { ALICE_BOB_PRIVACY_LINK, ALICE_BOB_TERMS_LINK } from 'app/pages/Buy/Debit/AliceBob/config';
 import { AliceBobOrderInfo, AliceBobOrderStatus } from 'lib/alice-bob-api';
 import { t, T } from 'lib/i18n/react';
 import { useAccount, useNetwork, useStorage } from 'lib/temple/front';
 import { TempleAccountType } from 'lib/temple/types';
 import { Redirect } from 'lib/woozie';
 
-import { Stepper } from '../../../../atoms';
-import { ReactComponent as AttentionRedIcon } from '../../../../icons/attentionRed.svg';
-import PageLayout from '../../../../layouts/PageLayout';
-import styles from '../../../Buy/Crypto/Exolix/Exolix.module.css';
-import { ALICE_BOB_PRIVACY_LINK, ALICE_BOB_TERMS_LINK } from '../../../Buy/Debit/AliceBob/config';
 import { InitialStep } from './steps/InitialStep';
 import { OrderStatusStep } from './steps/OrderStatusStep';
 import { SellStep } from './steps/SellStep';

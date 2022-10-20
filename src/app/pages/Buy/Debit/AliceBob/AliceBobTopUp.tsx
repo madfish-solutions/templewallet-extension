@@ -2,18 +2,18 @@ import React, { ChangeEvent, FC, useCallback, useMemo, useState } from 'react';
 
 import { useDebouncedCallback } from 'use-debounce';
 
+import Divider from 'app/atoms/Divider';
 import { FormSubmitButton } from 'app/atoms/FormSubmitButton';
+import { useDisabledProceed } from 'app/hooks/AliceBob/useDisabledProceed';
+import { useMinMaxExchangeAmounts } from 'app/hooks/AliceBob/useMinMaxExchangeAmounts';
+import { useOutputEstimation } from 'app/hooks/AliceBob/useOutputEstimation';
+import { ReactComponent as AttentionRedIcon } from 'app/icons/attentionRed.svg';
+import PageLayout from 'app/layouts/PageLayout';
 import { createAliceBobOrder } from 'lib/alice-bob-api';
 import { useAnalyticsState } from 'lib/analytics/use-analytics-state.hook';
 import { T } from 'lib/i18n/react';
 import { useAccount } from 'lib/temple/front';
 
-import Divider from '../../../../atoms/Divider';
-import { useDisabledProceed } from '../../../../hooks/AliceBob/useDisabledProceed';
-import { useMinMaxExchangeAmounts } from '../../../../hooks/AliceBob/useMinMaxExchangeAmounts';
-import { useOutputEstimation } from '../../../../hooks/AliceBob/useOutputEstimation';
-import { ReactComponent as AttentionRedIcon } from '../../../../icons/attentionRed.svg';
-import PageLayout from '../../../../layouts/PageLayout';
 import { BuySelectors } from '../../Buy.selectors';
 import styles from '../../Crypto/Exolix/Exolix.module.css';
 import { TopUpInput } from '../Utorg/components/TopUpInput/TopUpInput';

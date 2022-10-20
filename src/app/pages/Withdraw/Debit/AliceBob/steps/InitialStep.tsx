@@ -3,17 +3,17 @@ import React, { ChangeEvent, FC, useCallback, useMemo, useRef, useState } from '
 import classNames from 'clsx';
 
 import { FormSubmitButton } from 'app/atoms/FormSubmitButton';
+import { useDisabledProceed } from 'app/hooks/AliceBob/useDisabledProceed';
+import { useMinMaxExchangeAmounts } from 'app/hooks/AliceBob/useMinMaxExchangeAmounts';
+import { useOutputEstimation } from 'app/hooks/AliceBob/useOutputEstimation';
+import { ReactComponent as AlertIcon } from 'app/icons/alert.svg';
+import styles from 'app/pages/Buy/Crypto/Exolix/Exolix.module.css';
 import { TopUpInput } from 'app/pages/Buy/Debit/Utorg/components/TopUpInput/TopUpInput';
+import { WithdrawSelectors } from 'app/pages/Withdraw/Withdraw.selectors';
 import { createAliceBobOrder } from 'lib/alice-bob-api';
 import { useAnalyticsState } from 'lib/analytics/use-analytics-state.hook';
 import { T } from 'lib/i18n/react';
 
-import { useDisabledProceed } from '../../../../../hooks/AliceBob/useDisabledProceed';
-import { useMinMaxExchangeAmounts } from '../../../../../hooks/AliceBob/useMinMaxExchangeAmounts';
-import { useOutputEstimation } from '../../../../../hooks/AliceBob/useOutputEstimation';
-import { ReactComponent as AlertIcon } from '../../../../../icons/alert.svg';
-import styles from '../../../../Buy/Crypto/Exolix/Exolix.module.css';
-import { WithdrawSelectors } from '../../../Withdraw.selectors';
 import { CardNumberInput } from '../components/CardNumberInput';
 import { StepProps } from './step.props';
 

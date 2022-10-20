@@ -2,10 +2,9 @@ import React, { forwardRef, useCallback, useState } from 'react';
 
 import classNames from 'clsx';
 
+import { handleNumberInput } from 'app/pages/Buy/utils/handleNumberInput.util';
+import { emptyFn } from 'app/utils/function.utils';
 import { t } from 'lib/i18n/react';
-
-import { emptyFn } from '../../../../../utils/function.utils';
-import { handleNumberInput } from '../../../../Buy/utils/handleNumberInput.util';
 
 interface Props {
   showError?: boolean;

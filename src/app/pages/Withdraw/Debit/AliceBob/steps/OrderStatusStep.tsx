@@ -2,15 +2,15 @@ import React, { FC, useCallback, useMemo } from 'react';
 
 import classNames from 'clsx';
 
+import { FormSubmitButton } from 'app/atoms';
+import CopyButton from 'app/atoms/CopyButton';
+import Divider from 'app/atoms/Divider';
+import { ReactComponent as CopyIcon } from 'app/icons/copy.svg';
+import { WithdrawSelectors } from 'app/pages/Withdraw/Withdraw.selectors';
+import { AliceBobOrderStatus } from 'lib/alice-bob-api';
 import { T, TID } from 'lib/i18n';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 
-import { AliceBobOrderStatus } from '../../../../../../lib/alice-bob-api';
-import { FormSubmitButton } from '../../../../../atoms';
-import CopyButton from '../../../../../atoms/CopyButton';
-import Divider from '../../../../../atoms/Divider';
-import { ReactComponent as CopyIcon } from '../../../../../icons/copy.svg';
-import { WithdrawSelectors } from '../../../Withdraw.selectors';
 import { useUpdatedOrderInfo } from '../hooks/useUpdatedOrderInfo';
 import { StepProps } from './step.props';
 

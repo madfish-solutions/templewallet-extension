@@ -1,5 +1,9 @@
 import React, { FC, useCallback, useMemo, useState } from 'react';
 
+import { FormSubmitButton } from 'app/atoms';
+import CopyButton from 'app/atoms/CopyButton';
+import { ReactComponent as CopyIcon } from 'app/icons/copy.svg';
+import { WithdrawSelectors } from 'app/pages/Withdraw/Withdraw.selectors';
 import { AliceBobOrderStatus, cancelAliceBobOrder } from 'lib/alice-bob-api';
 import { AnalyticsEventCategory, useAnalytics, useFormAnalytics } from 'lib/analytics';
 import { T, TID } from 'lib/i18n';
@@ -8,10 +12,6 @@ import { useAccount, useTezos } from 'lib/temple/front';
 import { TEZOS_METADATA } from 'lib/temple/metadata';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 
-import { FormSubmitButton } from '../../../../../atoms';
-import CopyButton from '../../../../../atoms/CopyButton';
-import { ReactComponent as CopyIcon } from '../../../../../icons/copy.svg';
-import { WithdrawSelectors } from '../../../Withdraw.selectors';
 import { useUpdatedOrderInfo } from '../hooks/useUpdatedOrderInfo';
 import { StepProps } from './step.props';
 

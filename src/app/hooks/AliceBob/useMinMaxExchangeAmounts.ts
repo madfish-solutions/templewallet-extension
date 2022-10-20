@@ -3,8 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import BigNumber from 'bignumber.js';
 
 import { getAliceBobPairInfo } from 'lib/alice-bob-api';
-
-import { useAccount, useBalance } from '../../../lib/temple/front';
+import { useAccount, useBalance } from 'lib/temple/front';
 
 export const useMinMaxExchangeAmounts = (setIsApiError: (v: boolean) => void, isWithdraw = false) => {
   const { publicKeyHash } = useAccount();
