@@ -11,7 +11,7 @@ import PageLayout from 'app/layouts/PageLayout';
 import { ManageAssetsSelectors } from 'app/pages/ManageAssets.selectors';
 import { AssetIcon } from 'app/templates/AssetIcon';
 import SearchAssetField from 'app/templates/SearchAssetField';
-import { T, t } from 'lib/i18n/react';
+import { T, t } from 'lib/i18n';
 import { AssetTypesEnum, setTokenStatus } from 'lib/temple/assets';
 import { useAccount, useChainId, useAssetMetadata, useAvailableAssets, useFilteredAssets } from 'lib/temple/front';
 import { getAssetName, getAssetSymbol } from 'lib/temple/metadata';

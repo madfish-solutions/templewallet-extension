@@ -3,7 +3,7 @@ import React, { FC, useMemo } from 'react';
 import classNames from 'clsx';
 
 import Name from 'app/atoms/Name';
-import { T } from 'lib/i18n/react';
+import { T } from 'lib/i18n';
 import { useAllNetworks } from 'lib/temple/front';
 
 type NetworkBannerProps = {
@@ -18,13 +18,9 @@ const NetworkBanner: FC<NetworkBannerProps> = ({ rpc, narrow = false }) => {
   return (
     <div className={classNames('w-full', narrow ? '-mt-1 mb-2' : 'mb-4', 'flex flex-col')}>
       <h2 className={classNames('leading-tight', 'flex flex-col')}>
-        <T id="network">
-          {message => (
-            <span className={classNames(narrow ? 'mb-1' : 'mb-2', 'text-base font-semibold text-gray-700')}>
-              {message}
-            </span>
-          )}
-        </T>
+        <span className={classNames(narrow ? 'mb-1' : 'mb-2', 'text-base font-semibold text-gray-700')}>
+          <T id="network" />
+        </span>
 
         {knownNetwork ? (
           <div className={classNames('mb-1', 'flex items-center')}>
@@ -50,19 +46,13 @@ const NetworkBanner: FC<NetworkBannerProps> = ({ rpc, narrow = false }) => {
               )}
             />
 
-            <T id="unknownNetwork">
-              {message => (
-                <>
-                  <span className={classNames('flex-shrink-0 mr-2', 'text-xs font-medium uppercase text-red-500')}>
-                    {message}
-                  </span>
+            <span className={classNames('flex-shrink-0 mr-2', 'text-xs font-medium uppercase text-red-500')}>
+              <T id="unknownNetwork" />
+            </span>
 
-                  <Name className="text-xs font-mono italic text-gray-900" style={{ maxWidth: '15rem' }}>
-                    {rpc}
-                  </Name>
-                </>
-              )}
-            </T>
+            <Name className="text-xs font-mono italic text-gray-900" style={{ maxWidth: '15rem' }}>
+              {rpc}
+            </Name>
           </div>
         )}
       </h2>

@@ -4,7 +4,7 @@ import { Button } from 'app/atoms/Button';
 import { useAppEnv } from 'app/env';
 import PageLayout from 'app/layouts/PageLayout';
 import { isSafeBrowserVersion } from 'lib/browser-info';
-import { T } from 'lib/i18n/react';
+import { T } from 'lib/i18n';
 
 import styles from '../Onboarding.module.css';
 

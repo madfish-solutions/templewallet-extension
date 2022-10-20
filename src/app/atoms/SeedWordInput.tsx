@@ -2,7 +2,8 @@ import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from 're
 
 import classNames from 'clsx';
 
-import { T } from '../../lib/i18n/react';
+import { T } from 'lib/i18n';
+
 import { ReactComponent as LockAltIcon } from '../icons/lock-alt.svg';
 
 interface SeedWordInputProps {
@@ -125,7 +126,9 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
         >
           <p className={classNames('flex items-center', 'text-gray-500 text-sm')}>
             <LockAltIcon className={classNames('mr-1', 'h-4 w-auto', 'stroke-current stroke-2')} />
-            <T id="clickToReveal">{message => <span>{message}</span>}</T>
+            <span>
+              <T id="clickToReveal" />
+            </span>
           </p>
         </div>
       )}

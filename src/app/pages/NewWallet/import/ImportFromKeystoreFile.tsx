@@ -6,7 +6,7 @@ import { Controller, FieldError, NestDataObject, useForm } from 'react-hook-form
 import { FileInputProps, FileInput, FormField, FormSubmitButton } from 'app/atoms';
 import { ReactComponent as TrashbinIcon } from 'app/icons/bin.svg';
 import { ReactComponent as PaperclipIcon } from 'app/icons/paperclip.svg';
-import { T, t } from 'lib/i18n/react';
+import { T, t } from 'lib/i18n';
 import { decryptKukaiSeedPhrase } from 'lib/temple/front';
 import { AlertFn, useAlert } from 'lib/ui';
 

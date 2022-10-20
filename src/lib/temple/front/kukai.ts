@@ -2,7 +2,7 @@ import { entropyToMnemonic } from 'bip39';
 import * as forge from 'node-forge';
 import scrypt from 'scryptsy';
 
-import { t } from 'lib/i18n/react';
+import { t } from 'lib/i18n';
 
 async function decrypt(chipher: string, password: string, salt: string) {
   try {

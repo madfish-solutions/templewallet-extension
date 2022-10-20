@@ -2,7 +2,7 @@ import React, { FC, useCallback, useMemo } from 'react';
 
 import classNames from 'clsx';
 
-import { T, TID } from 'lib/i18n/react';
+import { T, TID } from 'lib/i18n';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 
 import { AliceBobOrderStatus } from '../../../../../../lib/alice-bob-api';

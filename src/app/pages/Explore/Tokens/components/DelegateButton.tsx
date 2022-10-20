@@ -3,7 +3,7 @@ import React, { FC } from 'react';
 import classNames from 'clsx';
 
 import { Button } from 'app/atoms/Button';
-import { T } from 'lib/i18n/react';
+import { T } from 'lib/i18n';
 import { navigate } from 'lib/woozie';
 
 import styles from '../Tokens.module.css';

@@ -18,7 +18,7 @@ import OperationsBanner from 'app/templates/OperationsBanner';
 import RawPayloadView from 'app/templates/RawPayloadView';
 import ViewsSwitcher from 'app/templates/ViewsSwitcher/ViewsSwitcher';
 import { ViewsSwitcherItemProps } from 'app/templates/ViewsSwitcher/ViewsSwitcherItem';
-import { T, t } from 'lib/i18n/react';
+import { T, t } from 'lib/i18n';
 import { useRetryableSWR } from 'lib/swr';
 import { toTokenSlug } from 'lib/temple/assets';
 import { useCustomChainId, useNetwork, useRelevantAccounts, tryParseExpenses } from 'lib/temple/front';

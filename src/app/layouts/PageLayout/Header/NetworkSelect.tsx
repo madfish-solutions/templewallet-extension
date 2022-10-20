@@ -7,7 +7,7 @@ import DropdownWrapper from 'app/atoms/DropdownWrapper';
 import Name from 'app/atoms/Name';
 import { ReactComponent as ChevronDownIcon } from 'app/icons/chevron-down.svg';
 import { ReactComponent as SignalAltIcon } from 'app/icons/signal-alt.svg';
-import { T } from 'lib/i18n/react';
+import { T } from 'lib/i18n';
 import {
   BLOCK_EXPLORERS,
   useBlockExplorer,

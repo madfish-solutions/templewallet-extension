@@ -1,7 +1,7 @@
 import React, { FC, useMemo } from 'react';
 
-import { t } from 'lib/i18n/react';
-import { useGasToken } from 'lib/temple/front/assets';
+import { t } from 'lib/i18n';
+import { useGasToken } from 'lib/temple/front';
 
 import { TabInterface, TabsPageLayout } from '../../layouts/TabsPageLayout';
 import { ReactComponent as ShoppingCartIcon } from './../../icons/shopping-cart.svg';

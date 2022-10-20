@@ -6,7 +6,7 @@ import ApproveStep from 'app/pages/Buy/Crypto/Exolix/steps/ApproveStep';
 import ExchangeStep from 'app/pages/Buy/Crypto/Exolix/steps/ExchangeStep';
 import InitialStep from 'app/pages/Buy/Crypto/Exolix/steps/InitialStep';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
-import { T, t } from 'lib/i18n/react';
+import { T, t } from 'lib/i18n';
 import { useAccount, useNetwork, useStorage } from 'lib/temple/front';
 import { Redirect } from 'lib/woozie';
 

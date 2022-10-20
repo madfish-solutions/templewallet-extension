@@ -6,7 +6,7 @@ import { FormSubmitButton } from 'app/atoms';
 import Divider from 'app/atoms/Divider';
 import { ReactComponent as AttentionRedIcon } from 'app/icons/attentionRed.svg';
 import PageLayout from 'app/layouts/PageLayout';
-import { T } from 'lib/i18n/react';
+import { T } from 'lib/i18n';
 import { useAccount } from 'lib/temple/front';
 import { createOrder } from 'lib/utorg-api';
 

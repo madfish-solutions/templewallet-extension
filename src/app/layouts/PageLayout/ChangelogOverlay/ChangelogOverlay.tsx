@@ -5,7 +5,7 @@ import classNames from 'clsx';
 import { Button } from 'app/atoms/Button';
 import { useAppEnv } from 'app/env';
 import ContentContainer from 'app/layouts/ContentContainer';
-import { T } from 'lib/i18n/react';
+import { T } from 'lib/i18n';
 import { useTempleClient, useStorage } from 'lib/temple/front';
 
 import PackageJSON from '../../../../../package.json';

@@ -20,7 +20,7 @@ import { ReactComponent as SettingsIcon } from 'app/icons/settings.svg';
 import Balance from 'app/templates/Balance';
 import SearchField from 'app/templates/SearchField';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
-import { TID, t, T } from 'lib/i18n/react';
+import { TID, T, t } from 'lib/i18n';
 import { useAccount, useRelevantAccounts, useSetAccountPkh, useTempleClient, useGasToken } from 'lib/temple/front';
 import { PopperRenderProps } from 'lib/ui/Popper';
 import { Link } from 'lib/woozie';

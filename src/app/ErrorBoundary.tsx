@@ -3,7 +3,7 @@ import React, { Component, ErrorInfo } from 'react';
 import classNames from 'clsx';
 
 import { ReactComponent as DangerIcon } from 'app/icons/danger.svg';
-import { T } from 'lib/i18n/react';
+import { T } from 'lib/i18n';
 import { PropsWithChildren } from 'lib/props-with-children';
 
 interface ErrorBoundaryProps extends PropsWithChildren {

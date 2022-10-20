@@ -2,7 +2,7 @@ import React, { FC, useCallback, useMemo, useState } from 'react';
 
 import { AliceBobOrderStatus, cancelAliceBobOrder } from 'lib/alice-bob-api';
 import { AnalyticsEventCategory, useAnalytics, useFormAnalytics } from 'lib/analytics';
-import { T, TID } from 'lib/i18n/react';
+import { T, TID } from 'lib/i18n';
 import { toTransferParams } from 'lib/temple/assets';
 import { useAccount, useTezos } from 'lib/temple/front';
 import { TEZOS_METADATA } from 'lib/temple/metadata';
