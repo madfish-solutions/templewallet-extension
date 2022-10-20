@@ -4,6 +4,7 @@ import classNames from 'clsx';
 import InfiniteScroll from 'react-infinite-scroll-component';
 
 import { ActivitySpinner } from 'app/atoms';
+import { useAppEnv } from 'app/env';
 import { ReactComponent as LayersIcon } from 'app/icons/layers.svg';
 import { T } from 'lib/i18n/react';
 import useActivities from 'lib/temple/activity-new/hook';
@@ -20,6 +21,8 @@ interface Props {
 
 export const ActivityComponent: React.FC<Props> = ({ assetSlug }) => {
   const { loading, reachedTheEnd, list: activities, loadMore } = useActivities(INITIAL_NUMBER, assetSlug);
+
+  const { popup } = useAppEnv();
 
   const { publicKeyHash: accountAddress } = useAccount();
 
@@ -43,18 +46,20 @@ export const ActivityComponent: React.FC<Props> = ({ assetSlug }) => {
   const onScroll = loading || reachedTheEnd ? undefined : buildOnScroll(loadNext);
 
   return (
-    <div className="w-full max-w-md mx-auto flex flex-col">
-      <InfiniteScroll
-        dataLength={activities.length}
-        hasMore={reachedTheEnd === false}
-        next={loadNext}
-        loader={loading && <ActivitySpinner height="2.5rem" />}
-        onScroll={onScroll}
-      >
-        {activities.map(activity => (
-          <ActivityItem key={activity.hash} address={accountAddress} activity={activity} />
-        ))}
-      </InfiniteScroll>
+    <div className="w-full max-w-sm mx-auto">
+      <div className={classNames('mt-3 flex flex-col', popup && 'mx-4')}>
+        <InfiniteScroll
+          dataLength={activities.length}
+          hasMore={reachedTheEnd === false}
+          next={loadNext}
+          loader={loading && <ActivitySpinner height="2.5rem" />}
+          onScroll={onScroll}
+        >
+          {activities.map(activity => (
+            <ActivityItem key={activity.hash} address={accountAddress} activity={activity} />
+          ))}
+        </InfiniteScroll>
+      </div>
     </div>
   );
 };
