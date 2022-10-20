@@ -3,9 +3,8 @@ import React, { FC } from 'react';
 import classNames from 'clsx';
 
 import { ReactComponent as Ukraine } from 'app/icons/ukraine.svg';
-
-import { AnalyticsEventCategory, useAnalytics } from '../../lib/analytics';
-import { T } from '../../lib/i18n/react';
+import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
+import { T } from 'lib/i18n';
 
 export const DonationBanner: FC = () => {
   const { trackEvent } = useAnalytics();

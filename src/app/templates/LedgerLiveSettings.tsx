@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { FormCheckbox } from 'app/atoms';
-import { T, t } from 'lib/i18n/react';
+import { T, t } from 'lib/i18n';
 import { useLocalStorage } from 'lib/temple/front';
 import { TempleSharedStorageKey } from 'lib/temple/types';
 

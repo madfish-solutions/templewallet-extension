@@ -5,7 +5,7 @@ import { Controller, useForm } from 'react-hook-form';
 
 import { PASSWORD_ERROR_CAPTION, FormField, FormSubmitButton, FormCheckbox } from 'app/atoms';
 import { AnalyticsEventCategory, useAnalytics, useAnalyticsSettings } from 'lib/analytics';
-import { T, t } from 'lib/i18n/react';
+import { T, t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
 import PasswordStrengthIndicator, { PasswordValidation } from 'lib/ui/PasswordStrengthIndicator';
 import { navigate } from 'lib/woozie';

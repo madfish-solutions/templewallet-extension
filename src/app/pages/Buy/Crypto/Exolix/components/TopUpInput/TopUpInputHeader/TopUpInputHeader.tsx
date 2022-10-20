@@ -5,10 +5,9 @@ import classNames from 'clsx';
 import { ReactComponent as ChevronDownIcon } from 'app/icons/chevron-down.svg';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
 import { getBigErrorText, getSmallErrorText } from 'app/pages/Buy/utils/errorText.utils';
-import { T, t } from 'lib/i18n/react';
+import { toLocalFormat, T, t } from 'lib/i18n';
 import { PopperRenderProps } from 'lib/ui/Popper';
 
-import { toLocalFormat } from '../../../../../../../../lib/i18n/numbers';
 import { handleNumberInput } from '../../../../../utils/handleNumberInput.util';
 import { getProperNetworkFullName } from '../../../exolix.util';
 import { StaticCurrencyImage } from '../StaticCurrencyImage/StaticCurrencyImage';

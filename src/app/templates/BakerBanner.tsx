@@ -10,8 +10,7 @@ import Name from 'app/atoms/Name';
 import OpenInExplorerChip from 'app/atoms/OpenInExplorerChip';
 import { useAppEnv } from 'app/env';
 import { ReactComponent as ChevronRightIcon } from 'app/icons/chevron-right.svg';
-import { toLocalFormat } from 'lib/i18n/numbers';
-import { T } from 'lib/i18n/react';
+import { toLocalFormat, T } from 'lib/i18n';
 import { useRelevantAccounts, useAccount, useNetwork, useKnownBaker, useExplorerBaseUrls } from 'lib/temple/front';
 import { TempleAccount } from 'lib/temple/types';
 

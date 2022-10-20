@@ -10,7 +10,7 @@ import ErrorBoundary from 'app/ErrorBoundary';
 import { ReactComponent as ChevronLeftIcon } from 'app/icons/chevron-left.svg';
 import ContentContainer from 'app/layouts/ContentContainer';
 import { isSafeBrowserVersion } from 'lib/browser-info';
-import { T } from 'lib/i18n/react';
+import { T } from 'lib/i18n';
 import { PropsWithChildren } from 'lib/props-with-children';
 import { goBack, HistoryAction, Link, navigate, useLocation } from 'lib/woozie';
 

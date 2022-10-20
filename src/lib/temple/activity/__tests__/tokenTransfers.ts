@@ -33,7 +33,7 @@ describe('Money diffs', () => {
   it('tryParseTokenTransfers FA2', async () => {
     const transfers: TokenTransfer[] = [];
     tryParseTokenTransfers(
-      TOKEN_TRANSFER_FA2.parameters,
+      TOKEN_TRANSFER_FA2.parameter,
       TOKEN_TRANSFER_FA2.destination,
       (tokenId, from, to, amount) => {
         transfers.push({ tokenId, from, to, amount });

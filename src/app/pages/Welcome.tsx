@@ -6,7 +6,7 @@ import Logo from 'app/atoms/Logo';
 import { ReactComponent as EntranceIcon } from 'app/icons/entrance.svg';
 import { ReactComponent as FolderAddIcon } from 'app/icons/folder-add.svg';
 import { ReactComponent as LedgerNanoIcon } from 'app/misc/ledger.svg';
-import { TID, T } from 'lib/i18n/react';
+import { TID, T } from 'lib/i18n';
 import { Link } from 'lib/woozie';
 
 interface TSign {

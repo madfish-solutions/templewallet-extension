@@ -1,12 +1,9 @@
-import { HttpResponseError } from '@taquito/http-utils';
 import { ManagerKeyResponse, RpcClient } from '@taquito/rpc';
 import { MichelCodecPacker } from '@taquito/taquito';
 import { validateAddress, ValidationResult } from '@taquito/utils';
 import BigNumber from 'bignumber.js';
 import memoize from 'micro-memoize';
 
-import { getMessage } from 'lib/i18n';
-import { IntercomError } from 'lib/intercom/helpers';
 import { FastRpcClient } from 'lib/taquito-fast-rpc';
 
 export const loadFastRpcClient = memoize((rpc: string) => new FastRpcClient(rpc));
@@ -66,42 +63,7 @@ export function isKTAddress(address: string) {
   return address?.startsWith('KT');
 }
 
-export function validateDerivationPath(p: string) {
-  if (p.length === 0) return true;
-  if (!p.startsWith('m')) {
-    return getMessage('derivationPathMustStartWithM');
-  }
-  if (p.length > 1 && p[1] !== '/') {
-    return getMessage('derivationSeparatorMustBeSlash');
-  }
-
-  const parts = p.replace('m', '').split('/').filter(Boolean);
-  if (
-    !parts.every(itemPart => {
-      const pNum = +(itemPart.includes("'") ? itemPart.replace("'", '') : itemPart);
-      return Number.isSafeInteger(pNum) && pNum >= 0;
-    })
-  ) {
-    return getMessage('invalidPath');
-  }
-
-  return true;
-}
-
 export const isValidContractAddress = (address: string) => isAddressValid(address) && isKTAddress(address);
-
-export function validateContractAddress(value: any) {
-  switch (false) {
-    case isAddressValid(value):
-      return getMessage('invalidAddress');
-
-    case isKTAddress(value):
-      return getMessage('onlyKTContractAddressAllowed');
-
-    default:
-      return true;
-  }
-}
 
 export function formatOpParamsBeforeSend(params: any) {
   if (params.kind === 'origination' && params.script) {
@@ -113,35 +75,3 @@ export function formatOpParamsBeforeSend(params: any) {
   }
   return params;
 }
-
-export function transformHttpResponseError(err: HttpResponseError) {
-  let parsedBody: any;
-  try {
-    parsedBody = JSON.parse(err.body);
-  } catch {
-    throw new Error(getMessage('unknownErrorFromRPC', err.url));
-  }
-
-  try {
-    const firstTezError = parsedBody[0];
-
-    let message: string;
-
-    // Parse special error with Counter Already Used
-    if (typeof firstTezError.msg === 'string' && /Counter.*already used for contract/.test(firstTezError.msg)) {
-      message = getMessage('counterErrorDescription');
-    } else {
-      const matchingPostfix = Object.keys(KNOWN_TEZ_ERRORS).find(idPostfix => firstTezError?.id?.endsWith(idPostfix));
-      message = matchingPostfix ? KNOWN_TEZ_ERRORS[matchingPostfix] : err.message;
-    }
-
-    return new IntercomError(message, parsedBody);
-  } catch {
-    throw err;
-  }
-}
-
-const KNOWN_TEZ_ERRORS: Record<string, string> = {
-  'implicit.empty_implicit_contract': getMessage('emptyImplicitContract'),
-  'contract.balance_too_low': getMessage('balanceTooLow')
-};

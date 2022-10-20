@@ -11,10 +11,10 @@ import { ReactComponent as LanguageIcon } from 'app/icons/language.svg';
 import { ReactComponent as QRIcon } from 'app/icons/qr.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import ViewsSwitcher, { ViewsSwitcherProps } from 'app/templates/ViewsSwitcher/ViewsSwitcher';
-import { T, t } from 'lib/i18n/react';
+import { T, t } from 'lib/i18n';
 import { useAccount, useTezos, useTezosDomainsClient } from 'lib/temple/front';
+import { useSafeState } from 'lib/ui/hooks';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
-import useSafeState from 'lib/ui/useSafeState';
 
 const ADDRESS_FIELD_VIEWS = [
   {

@@ -4,7 +4,7 @@ import classNames from 'clsx';
 import { useForm } from 'react-hook-form';
 
 import { FormField, FormSubmitButton } from 'app/atoms';
-import { T } from 'lib/i18n/react';
+import { T } from 'lib/i18n';
 
 const WORDS_TO_FILL = 2;
 

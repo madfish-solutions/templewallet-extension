@@ -1,12 +1,13 @@
 import React, { FC } from 'react';
 
-import { T } from '../../../../lib/i18n/react';
-import { Button } from '../../../atoms/Button';
-import { ReactComponent as DiscordIcon } from '../../../icons/discord.svg';
-import { ReactComponent as RedditIcon } from '../../../icons/reddit.svg';
-import { ReactComponent as TelegramIcon } from '../../../icons/telegram.svg';
-import { ReactComponent as TwitterIcon } from '../../../icons/twitter.svg';
-import { ReactComponent as YoutubeIcon } from '../../../icons/youtube.svg';
+import { Button } from 'app/atoms/Button';
+import { ReactComponent as DiscordIcon } from 'app/icons/discord.svg';
+import { ReactComponent as RedditIcon } from 'app/icons/reddit.svg';
+import { ReactComponent as TelegramIcon } from 'app/icons/telegram.svg';
+import { ReactComponent as TwitterIcon } from 'app/icons/twitter.svg';
+import { ReactComponent as YoutubeIcon } from 'app/icons/youtube.svg';
+import { T } from 'lib/i18n';
+
 import { useOnboardingProgress } from '../hooks/useOnboardingProgress.hook';
 import styles from '../Onboarding.module.css';
 

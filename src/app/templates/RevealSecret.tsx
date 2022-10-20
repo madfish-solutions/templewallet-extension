@@ -6,7 +6,7 @@ import { OnSubmit, useForm } from 'react-hook-form';
 import { Alert, FormField, FormSubmitButton } from 'app/atoms';
 import { getAccountBadgeTitle } from 'app/defaults';
 import AccountBanner from 'app/templates/AccountBanner';
-import { T, t } from 'lib/i18n/react';
+import { T, t } from 'lib/i18n';
 import { useAccount, useSecretState, useTempleClient } from 'lib/temple/front';
 import { TempleAccountType } from 'lib/temple/types';
 

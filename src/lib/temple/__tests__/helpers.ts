@@ -4,6 +4,7 @@
 
 import BigNumber from 'bignumber.js';
 
+import * as FrontHelpers from '../front/helpers';
 import * as Helpers from '../helpers';
 
 let address: string;
@@ -70,13 +71,13 @@ describe('Helpers', () => {
 
   it('isKTAddress', async () => {
     address = 'asdasd';
-    expect(Helpers.validateContractAddress(address)).toBe('Translated<invalidAddress>');
+    expect(FrontHelpers.validateContractAddress(address)).toBe('Translated<invalidAddress>');
 
     address = 'tz3Lfm6CyfSTZ7EgMckptZZGiPxzs9GK59At';
-    expect(Helpers.validateContractAddress(address)).toBe('Translated<onlyKTContractAddressAllowed>');
+    expect(FrontHelpers.validateContractAddress(address)).toBe('Translated<onlyKTContractAddressAllowed>');
 
     address = 'KT1EyH6KR9STvgiet4ahrtBf7WCnmJovvJa1';
-    expect(Helpers.validateContractAddress(address)).toBeTruthy();
+    expect(FrontHelpers.validateContractAddress(address)).toBeTruthy();
   });
 
   it('mutezToTz & tzToMutez', async () => {
@@ -93,9 +94,9 @@ describe('Helpers', () => {
   });
 
   it('validateDerivationPath', async () => {
-    expect(Helpers.validateDerivationPath("44'/1729'/0'/0'")).toBe('Translated<derivationPathMustStartWithM>');
-    expect(Helpers.validateDerivationPath("m44'/1729'/0'/0'")).toBe('Translated<derivationSeparatorMustBeSlash>');
-    expect(Helpers.validateDerivationPath("m/44'/asd'/0'/0'")).toBe('Translated<invalidPath>');
-    expect(Helpers.validateDerivationPath("m/44'/1729'/0'/0'")).toBeTruthy();
+    expect(FrontHelpers.validateDerivationPath("44'/1729'/0'/0'")).toBe('Translated<derivationPathMustStartWithM>');
+    expect(FrontHelpers.validateDerivationPath("m44'/1729'/0'/0'")).toBe('Translated<derivationSeparatorMustBeSlash>');
+    expect(FrontHelpers.validateDerivationPath("m/44'/asd'/0'/0'")).toBe('Translated<invalidPath>');
+    expect(FrontHelpers.validateDerivationPath("m/44'/1729'/0'/0'")).toBeTruthy();
   });
 });

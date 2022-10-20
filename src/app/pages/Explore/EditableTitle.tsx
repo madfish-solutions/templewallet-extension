@@ -7,7 +7,7 @@ import Name from 'app/atoms/Name';
 import { ACCOUNT_NAME_PATTERN } from 'app/defaults';
 import { ReactComponent as EditIcon } from 'app/icons/edit.svg';
 import { useFormAnalytics } from 'lib/analytics';
-import { T, t } from 'lib/i18n/react';
+import { T, t } from 'lib/i18n';
 import { useTempleClient, useAccount } from 'lib/temple/front';
 import { useAlert } from 'lib/ui/dialog';
 

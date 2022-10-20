@@ -1,7 +1,8 @@
 import React, { FC } from 'react';
 
-import { T } from '../../../../lib/i18n/react';
-import { Button } from '../../../atoms/Button';
+import { Button } from 'app/atoms/Button';
+import { T } from 'lib/i18n';
+
 import TokensCollectibleImg from '../assets/tokens-collectible.png';
 import styles from '../Onboarding.module.css';
 
