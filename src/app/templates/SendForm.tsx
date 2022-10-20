@@ -34,8 +34,7 @@ import InFiat from 'app/templates/InFiat';
 import OperationStatus from 'app/templates/OperationStatus';
 import { AnalyticsEventCategory, useAnalytics, useFormAnalytics } from 'lib/analytics';
 import { useAssetFiatCurrencyPrice, useFiatCurrency } from 'lib/fiat-currency';
-import { toLocalFixed } from 'lib/i18n/numbers';
-import { T, t } from 'lib/i18n/react';
+import { toLocalFixed, T, t } from 'lib/i18n';
 import { transferImplicit, transferToContract } from 'lib/michelson';
 import { fetchBalance, fetchTezosBalance, isTezAsset, toPenny, toTransferParams } from 'lib/temple/assets';
 import { loadContract } from 'lib/temple/contract';
@@ -781,13 +780,9 @@ const FeeComponent: React.FC<FeeComponentProps> = ({
         id="send-fee"
       />
 
-      <T id="send">
-        {message => (
-          <FormSubmitButton loading={isSubmitting} disabled={Boolean(estimationError)}>
-            {message}
-          </FormSubmitButton>
-        )}
-      </T>
+      <FormSubmitButton loading={isSubmitting} disabled={Boolean(estimationError)}>
+        <T id="send" />
+      </FormSubmitButton>
     </>
   );
 };

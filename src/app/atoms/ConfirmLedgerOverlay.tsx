@@ -5,7 +5,7 @@ import classNames from 'clsx';
 import CSSTransition from 'react-transition-group/CSSTransition';
 
 import { ReactComponent as LedgerNanoIcon } from 'app/misc/ledger.svg';
-import { T } from 'lib/i18n/react';
+import { T } from 'lib/i18n';
 import { pickLedgerTransport } from 'lib/temple/ledger-live';
 
 type ConfirmLedgerOverlayProps = {
@@ -32,14 +32,16 @@ const ConfirmLedgerOverlay: FC<ConfirmLedgerOverlayProps> = ({ displayed }) => (
       )}
     >
       <h1 className={classNames('mb-8', 'text-center', 'text-xl font-medium tracking-tight text-gray-600')}>
-        <T id="confirmActionOnDevice">{message => <span className="text-base font-normal">{message}</span>}</T>
+        <span className="text-base font-normal">
+          <T id="confirmActionOnDevice" />
+        </span>
         <br />
         <T
           id="deviceName"
           substitutions={[
-            <T id="ledgerNano" key="ledgerNano">
-              {message => <span className="text-gray-700">{message}</span>}
-            </T>
+            <span key="ledgerNano" className="text-gray-700">
+              <T id="ledgerNano" />
+            </span>
           ]}
         />
       </h1>

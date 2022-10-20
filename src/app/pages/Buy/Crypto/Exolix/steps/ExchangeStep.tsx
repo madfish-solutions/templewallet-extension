@@ -9,8 +9,7 @@ import HashShortView from 'app/atoms/HashShortView';
 import { ReactComponent as CopyIcon } from 'app/icons/copy.svg';
 import useTopUpUpdate from 'app/pages/Buy/Crypto/Exolix/hooks/useTopUpUpdate.hook';
 import ErrorComponent from 'app/pages/Buy/Crypto/Exolix/steps/ErrorComponent';
-import { getCurrentLocale } from 'lib/i18n';
-import { T } from 'lib/i18n/react';
+import { getCurrentLocale, T } from 'lib/i18n';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 
 import { ExchangeDataInterface, ExchangeDataStatusEnum } from '../exolix.interface';

@@ -3,7 +3,7 @@ import React, { FC } from 'react';
 import classNames from 'clsx';
 
 import { ReactComponent as InfoIcon } from 'app/icons/info.svg';
-import { T } from 'lib/i18n/react';
+import { T } from 'lib/i18n';
 import useTippy from 'lib/ui/useTippy';
 
 import { swapDisclaimerTippyProps } from './SwapDisclaimer.tippy';

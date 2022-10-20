@@ -3,7 +3,7 @@ import React, { FC } from 'react';
 import classNames from 'clsx';
 
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
-import { T } from 'lib/i18n/react';
+import { T } from 'lib/i18n';
 import { Link } from 'lib/woozie';
 
 import { useNetwork } from '../../../../lib/temple/front';

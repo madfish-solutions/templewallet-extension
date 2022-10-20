@@ -19,7 +19,7 @@ import { ReactComponent as UnlockIcon } from 'app/icons/unlock.svg';
 //
 import BakingHistoryItem from 'app/pages/Explore/BakingHistoryItem';
 import BakerBanner from 'app/templates/BakerBanner';
-import { T, t } from 'lib/i18n/react';
+import { T, t } from 'lib/i18n';
 import { useRetryableSWR } from 'lib/swr';
 import { useAccount, useChainId, useDelegate, useGasToken } from 'lib/temple/front';
 import { TempleAccountType } from 'lib/temple/types';
