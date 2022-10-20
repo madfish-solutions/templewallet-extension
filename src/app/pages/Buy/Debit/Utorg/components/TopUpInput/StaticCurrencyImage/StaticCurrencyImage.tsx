@@ -16,7 +16,7 @@ export const StaticCurrencyImage: FC<Props> = ({ currencyName, isDefaultUahIcon,
 
   return (
     <>
-      {currencyName === 'XTZ' ? (
+      {currencyName === 'TEZ' || currencyName === 'XTZ' ? (
         <img alt="tezIcon" style={style} src={browser.runtime.getURL('misc/token-logos/tez.svg')} />
       ) : currencyName === 'UAH' && isDefaultUahIcon ? (
         <img alt="tezIcon" style={style} src={browser.runtime.getURL('misc/fiat-logos/uah.svg')} />

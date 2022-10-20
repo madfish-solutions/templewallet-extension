@@ -113,7 +113,7 @@ export const AliceBobTopUp: FC = () => {
           isDefaultUahIcon
           amountInputDisabled
           label={<T id="get" />}
-          currencyName="XTZ"
+          currencyName="TEZ"
           currenciesList={[]}
           amount={outputAmount}
         />

@@ -95,7 +95,7 @@ export const InitialStep: FC<Omit<StepProps, 'orderInfo'>> = ({ isApiError, setO
           isDefaultUahIcon
           amountInputDisabled={isMinMaxLoading}
           label={<T id="send" />}
-          currencyName="XTZ"
+          currencyName="TEZ"
           currenciesList={[]}
           minAmount={minExchangeAmount.toString()}
           maxAmount={maxExchangeAmount.toString()}

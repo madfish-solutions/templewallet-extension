@@ -101,7 +101,7 @@ export const Utorg = () => {
           singleToken
           amountInputDisabled
           label={<T id="get" />}
-          currencyName="XTZ"
+          currencyName="TEZ"
           currenciesList={[]}
           minAmount={minXtzExchangeAmount.toString()}
           maxAmount={maxXtzExchangeAmount.toString()}
@@ -115,7 +115,7 @@ export const Utorg = () => {
             <T id={'exchangeRate'} />
           </p>
           <p className={styles['exchangeData']}>
-            1 {inputCurrency} ≈ {exchangeRate} XTZ
+            1 {inputCurrency} ≈ {exchangeRate} TEZ
           </p>
         </div>
         <FormSubmitButton
