@@ -1,13 +1,20 @@
-const LOCK_UP_STORAGE_KEY = 'lock_up';
-const DEFAULT_LOCK_UP = true;
+import { STORAGE_KEY, DEFAULT_VALUE, saveIsLockUpEnabled } from 'lib/lock-up';
+import { useStorage } from 'lib/temple/front';
 
-export function setLockUp(enabled: boolean) {
-  try {
-    localStorage.setItem(LOCK_UP_STORAGE_KEY, JSON.stringify(enabled));
-  } catch {}
+export function useIsLockUpEnabled() {
+  return useStorage<boolean>(STORAGE_KEY, DEFAULT_VALUE);
 }
 
-export function isLockUpEnabled() {
-  const stored = localStorage.getItem(LOCK_UP_STORAGE_KEY);
-  return stored ? (JSON.parse(stored) as boolean) : DEFAULT_LOCK_UP;
+// Migration
+
+migrateFromLocalStorage();
+
+/**
+ * Relevant for updates from v1.14.13
+ */
+async function migrateFromLocalStorage() {
+  const stored = localStorage.getItem('lock_up');
+  if (stored == null) return;
+  await saveIsLockUpEnabled(stored === 'true');
+  localStorage.removeItem('lock_up');
 }

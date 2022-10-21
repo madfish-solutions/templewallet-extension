@@ -787,7 +787,7 @@ async function withError<T>(errMessage: string, factory: (doThrow: () => void) =
       throw new Error('<stub>');
     });
   } catch (err: any) {
-    console.log(err);
+    console.error(err);
     throw err instanceof PublicError ? err : new PublicError(errMessage);
   }
 }

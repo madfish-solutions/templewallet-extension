@@ -2,14 +2,17 @@ import React, { FC, useCallback } from 'react';
 
 import { FormCheckbox } from 'app/atoms';
 import { t, T } from 'lib/i18n';
-import { isLockUpEnabled, setLockUp } from 'lib/ui/useLockUp';
+import { useIsLockUpEnabled } from 'lib/ui/useLockUp';
 
 const LockUpSettings: FC<{}> = () => {
-  const lockUpEnabled = isLockUpEnabled();
+  const [isLockUpEnabled, setIsLockUpEnabled] = useIsLockUpEnabled();
 
-  const handleLockUpChange = useCallback((evt: React.ChangeEvent<HTMLInputElement>) => {
-    setLockUp(evt.target.checked);
-  }, []);
+  const handleLockUpChange = useCallback(
+    (evt: React.ChangeEvent<HTMLInputElement>) => {
+      setIsLockUpEnabled(evt.target.checked);
+    },
+    [setIsLockUpEnabled]
+  );
 
   return (
     <>
@@ -24,10 +27,10 @@ const LockUpSettings: FC<{}> = () => {
       </label>
 
       <FormCheckbox
-        checked={lockUpEnabled}
+        checked={isLockUpEnabled}
         onChange={handleLockUpChange}
-        name="lockUpEnabled"
-        label={t(lockUpEnabled ? 'enabled' : 'disabled')}
+        name="isLockUpEnabled"
+        label={t(isLockUpEnabled ? 'enabled' : 'disabled')}
         containerClassName="mb-4"
       />
     </>

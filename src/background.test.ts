@@ -1,6 +1,6 @@
 import browser from 'webextension-polyfill';
 
-import { getChromePredicate, getFFPredicate } from './background';
+import { isChromePredicate, isFFPredicate, isExtensionPageByPort } from 'lib/temple/back/helpers';
 
 const EXTENSION_ID = 'some-test-id';
 
@@ -17,42 +17,61 @@ browser.runtime = {
   })
 };
 
+const CHROME_PAGE_URL = `chrome-extension://${EXTENSION_ID}/popup.html`;
 const EXTERNAL_CHROME_PORT = {
   sender: {
-    url: `chrome-extension://${EXTENSION_ID}/popup.html`
+    url: CHROME_PAGE_URL
   }
-};
+} as browser.Runtime.Port;
 
+const MOZ_PAGE_URL = `moz-extension://${EXTENSION_ID}/popup.html`;
 const EXTERNAL_MOZ_PORT = {
   sender: {
-    url: `moz-extension://${EXTENSION_ID}/popup.html`
+    url: MOZ_PAGE_URL
   }
-};
+} as browser.Runtime.Port;
 
+const DAPP_PAGE_URL = 'https://quipuswap.com/';
 const DAPP_PORT = {
   sender: {
-    url: `https://quipuswap.com/`
+    url: DAPP_PAGE_URL
   }
-};
+} as browser.Runtime.Port;
 
 describe('Background Tests', () => {
-  describe('getChromePredicate', () => {
+  describe('isChromePredicate', () => {
     it('finds correct url', async () => {
-      const result = getChromePredicate(EXTERNAL_CHROME_PORT);
+      const result = isChromePredicate(CHROME_PAGE_URL);
       expect(result).toBeTruthy();
     });
     it('not finds correct url', async () => {
-      const result = getChromePredicate(DAPP_PORT);
+      const result = isChromePredicate(DAPP_PAGE_URL);
       expect(result).toBeFalsy();
     });
   });
-  describe('getFFPredicate', () => {
+
+  describe('isFFPredicate', () => {
     it('finds correct url', async () => {
-      const result = getFFPredicate(EXTERNAL_MOZ_PORT);
+      const result = isFFPredicate(MOZ_PAGE_URL);
       expect(result).toBeTruthy();
     });
     it('not finds correct url', async () => {
-      const result = getFFPredicate(DAPP_PORT);
+      const result = isFFPredicate(DAPP_PAGE_URL);
+      expect(result).toBeFalsy();
+    });
+  });
+
+  describe('isExtensionPageByPort', () => {
+    it('confirms page by port', async () => {
+      const result = isExtensionPageByPort(EXTERNAL_CHROME_PORT);
+      expect(result).toBeTruthy();
+    });
+    it('confirms page by port', async () => {
+      const result = isExtensionPageByPort(EXTERNAL_MOZ_PORT);
+      expect(result).toBeTruthy();
+    });
+    it('not confirms page by port', async () => {
+      const result = isExtensionPageByPort(DAPP_PORT);
       expect(result).toBeFalsy();
     });
   });
