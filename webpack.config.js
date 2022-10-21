@@ -1,11 +1,15 @@
+/*
+  Reference for this config:
+  https://github.com/facebook/create-react-app/blob/main/packages/react-scripts/config/webpack.config.js
+*/
+
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const fs = require('fs');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
+const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 const path = require('path');
-const safePostCssParser = require('postcss-safe-parser');
 const ForkTsCheckerWebpackPlugin = require('react-dev-utils/ForkTsCheckerWebpackPlugin');
 const getCSSModuleLocalIdent = require('react-dev-utils/getCSSModuleLocalIdent');
 const ModuleNotFoundPlugin = require('react-dev-utils/ModuleNotFoundPlugin');
@@ -14,7 +18,8 @@ const WatchMissingNodeModulesPlugin = require('react-dev-utils/WatchMissingNodeM
 const resolve = require('resolve');
 const TerserPlugin = require('terser-webpack-plugin');
 const webpack = require('webpack');
-const ExtensionReloader = require('webpack-extension-reloader');
+const ESLintPlugin = require('eslint-webpack-plugin');
+const ExtensionReloader = require('webpack-ext-reloader');
 const WebpackBar = require('webpackbar');
 const ZipPlugin = require('zip-webpack-plugin');
 
@@ -84,20 +89,20 @@ const PACKED_EXTENSION = (() => {
 const OUTPUT_PACKED_PATH = path.join(OUTPUT_PATH, `${TARGET_BROWSER}.${PACKED_EXTENSION}`);
 const HTML_TEMPLATES = [
   {
-    path: path.join(PUBLIC_PATH, 'popup.html'),
-    chunks: ['popup']
+    name: 'popup',
+    path: path.join(PUBLIC_PATH, 'popup.html')
   },
   {
-    path: path.join(PUBLIC_PATH, 'fullpage.html'),
-    chunks: ['fullpage']
+    name: 'fullpage',
+    path: path.join(PUBLIC_PATH, 'fullpage.html')
   },
   {
-    path: path.join(PUBLIC_PATH, 'confirm.html'),
-    chunks: ['confirm']
+    name: 'confirm',
+    path: path.join(PUBLIC_PATH, 'confirm.html')
   },
   {
-    path: path.join(PUBLIC_PATH, 'options.html'),
-    chunks: ['options']
+    name: 'options',
+    path: path.join(PUBLIC_PATH, 'options.html')
   }
 ];
 const ENTRIES = {
@@ -109,10 +114,10 @@ const ENTRIES = {
   contentScript: path.join(SOURCE_PATH, 'contentScript.ts')
 };
 
-const EXTENSION_ENTRIES = {
+const RELOADER_ENTRIES = {
   contentScript: 'contentScript',
   background: 'background',
-  extensionPage: ['commons', 'popup', 'fullpage', 'confirm', 'options']
+  extensionPage: ['popup', 'fullpage', 'confirm', 'options', 'commons.chunk']
 };
 const SEPARATED_CHUNKS = new Set(['background', 'contentScript']);
 const MANIFEST_PATH = path.join(PUBLIC_PATH, 'manifest.json');
@@ -132,14 +137,32 @@ module.exports = {
 
   output: {
     path: OUTPUT_PATH,
-    pathinfo: NODE_ENV === 'development',
+    pathinfo: NODE_ENV === 'development' ? 'verbose' : false,
     filename: 'scripts/[name].js',
-    chunkFilename: 'scripts/[name].chunk.js'
+    /* Not working like in WP4 `optimization.splitChunks.cacheGroups.{cacheGroupKey}.name` overrides this. */
+    chunkFilename: 'scripts/[name].chunk.js',
+    /* For `rule.type = 'asset' | 'asset/resource'` */
+    assetModuleFilename: 'media/[hash:8][ext]'
   },
 
   resolve: {
     modules: [NODE_MODULES_PATH, ...ADDITIONAL_MODULE_PATHS],
     extensions: MODULE_FILE_EXTENSIONS,
+
+    /*
+      Some libraries import Node modules but don't use them in the browser.
+      Tell Webpack to provide mocks for them so importing them works.
+    */
+    fallback: {
+      fs: false,
+      path: require.resolve('path-browserify'),
+      buffer: require.resolve('buffer'),
+      stream: require.resolve('stream-browserify'),
+      crypto: require.resolve('crypto-browserify'),
+      util: require.resolve('util/'),
+      assert: require.resolve('assert/')
+    },
+
     plugins: [
       {
         apply(resolver) {
@@ -170,27 +193,6 @@ module.exports = {
     strictExportPresence: true,
 
     rules: [
-      { parser: { requireEnsure: false } },
-
-      // First, run the linter.
-      // It's important to do this before Babel processes the JS.
-      {
-        test: /\.(js|mjs|jsx|ts|tsx)$/,
-        enforce: 'pre',
-        include: SOURCE_PATH,
-        use: [
-          {
-            options: {
-              cache: true,
-              formatter: require.resolve('react-dev-utils/eslintFormatter'),
-              eslintPath: require.resolve('eslint'),
-              resolvePluginsRelativeTo: __dirname
-            },
-            loader: require.resolve('eslint-loader')
-          }
-        ]
-      },
-
       {
         // "oneOf" will traverse all following loaders until one will
         // match the requirements. When no loader matches it will fall
@@ -201,11 +203,39 @@ module.exports = {
           // A missing `test` is equivalent to a match.
           {
             test: [/\.bmp$/, /\.gif$/, /\.jpe?g$/, /\.png$/],
-            loader: require.resolve('url-loader'),
-            options: {
-              limit: IMAGE_INLINE_SIZE_LIMIT,
-              name: 'media/[hash:8].[ext]'
+            type: 'asset',
+            parser: {
+              dataUrlCondition: {
+                maxSize: IMAGE_INLINE_SIZE_LIMIT
+              }
             }
+          },
+          {
+            test: /\.svg$/,
+            issuer: {
+              and: [/\.(ts|tsx|js|jsx|md|mdx)$/]
+            },
+            use: [
+              {
+                loader: require.resolve('@svgr/webpack'),
+                options: {
+                  prettier: false,
+                  svgo: false,
+                  svgoConfig: {
+                    plugins: [{ removeViewBox: false }]
+                  },
+                  titleProp: true,
+                  ref: true
+                }
+              },
+              {
+                /* `type: 'asset/resource'` is not applicable here - WebPack bug. Had to go with `file-loader` */
+                loader: require.resolve('file-loader'),
+                options: {
+                  name: 'media/[hash:8].[ext]'
+                }
+              }
+            ]
           },
           // Process application JS with Babel.
           // The preset includes JSX, Flow, TypeScript, and some ESnext features.
@@ -215,18 +245,6 @@ module.exports = {
             loader: require.resolve('babel-loader'),
             options: {
               customize: require.resolve('babel-preset-react-app/webpack-overrides'),
-              plugins: [
-                [
-                  require.resolve('babel-plugin-named-asset-import'),
-                  {
-                    loaderMap: {
-                      svg: {
-                        ReactComponent: '@svgr/webpack?-svgo,+titleProp,+ref![path]'
-                      }
-                    }
-                  }
-                ]
-              ],
               // This is a feature of `babel-loader` for webpack (not Babel itself).
               // It enables caching results in ./node_modules/.cache/babel-loader/
               // directory for faster rebuilds.
@@ -295,15 +313,12 @@ module.exports = {
           // This loader doesn't use a "test" so it will catch all modules
           // that fall through the other loaders.
           {
-            loader: require.resolve('file-loader'),
+            type: 'asset/resource',
             // Exclude `js` files to keep "css" loader working as it injects
             // its runtime that would otherwise be processed through "file" loader.
             // Also exclude `html` and `json` extensions so they get processed
             // by webpacks internal loaders.
-            exclude: [/\.(js|mjs|jsx|ts|tsx)$/, /\.html$/, /\.json$/],
-            options: {
-              name: 'media/[hash:8].[ext]'
-            }
+            exclude: [/\.(js|mjs|jsx|ts|tsx)$/, /\.html$/, /\.json$/]
           }
           // ** STOP ** Are you adding a new loader?
           // Make sure to add the new loader(s) before the "file" loader.
@@ -313,7 +328,18 @@ module.exports = {
   },
 
   plugins: [
-    new webpack.IgnorePlugin(/^\.\/wordlists\/(?!english)/, /bip39\/src$/),
+    /*
+      Some dependencies do not perform checks on `typeof nodeSpecificAsset !== undefined`.
+      WebPack v4 injected `nodeSpecificAsset` automatically.
+    */
+    new webpack.ProvidePlugin({
+      process: 'process/browser',
+      Buffer: ['buffer', 'Buffer'],
+      // Seen 'setImmediate' in: 'scryptsy'
+      setImmediate: ['timers-browserify', 'setImmediate'],
+    }),
+
+    new webpack.IgnorePlugin({ resourceRegExp: /^\.\/wordlists\/(?!english)/, contextRegExp: /bip39\/src$/ }),
 
     new CleanWebpackPlugin({
       cleanOnceBeforeBuildPatterns: [OUTPUT_PATH, OUTPUT_PACKED_PATH],
@@ -351,23 +377,23 @@ module.exports = {
         new HtmlWebpackPlugin({
           template: htmlTemplate.path,
           filename: path.basename(htmlTemplate.path),
-          chunks: [...htmlTemplate.chunks, 'commons'],
+          chunks: [htmlTemplate.name, 'commons'],
           inject: 'body',
           ...(NODE_ENV === 'production'
             ? {
-              minify: {
-                removeComments: true,
-                collapseWhitespace: true,
-                removeRedundantAttributes: true,
-                useShortDoctype: true,
-                removeEmptyAttributes: true,
-                removeStyleLinkTypeAttributes: true,
-                keepClosingSlash: true,
-                minifyJS: true,
-                minifyCSS: true,
-                minifyURLs: true
+                minify: {
+                  removeComments: true,
+                  collapseWhitespace: true,
+                  removeRedundantAttributes: true,
+                  useShortDoctype: true,
+                  removeEmptyAttributes: true,
+                  removeStyleLinkTypeAttributes: true,
+                  keepClosingSlash: true,
+                  minifyJS: true,
+                  minifyCSS: true,
+                  minifyURLs: true
+                }
               }
-            }
             : {})
         })
     ),
@@ -385,25 +411,35 @@ module.exports = {
       formatter: typescriptFormatter
     }),
 
-    new CopyWebpackPlugin([
-      {
-        from: PUBLIC_PATH,
-        to: OUTPUT_PATH
-      },
-      {
-        from: MANIFEST_PATH,
-        to: path.join(OUTPUT_PATH, 'manifest.json'),
-        toType: 'file',
-        transform: content => {
-          const manifest = transformManifestKeys(JSON.parse(content), TARGET_BROWSER);
-          return JSON.stringify(manifest, null, 2);
+    new CopyWebpackPlugin({
+      patterns: [
+        {
+          from: PUBLIC_PATH,
+          to: OUTPUT_PATH,
+          globOptions: {
+            /*
+              - HTML files are taken care of by the `html-webpack-plugin`. Copying them here leads to:
+                `ERROR in Conflict: Multiple assets emit different content to the same filename [name].html`
+              - Manifest file is copied next with transformation of it.
+            */
+            ignore: ['**/*.html', '**/manifest.json']
+          }
+        },
+        {
+          from: MANIFEST_PATH,
+          to: path.join(OUTPUT_PATH, 'manifest.json'),
+          toType: 'file',
+          transform: content => {
+            const manifest = transformManifestKeys(JSON.parse(content), TARGET_BROWSER);
+            return JSON.stringify(manifest, null, 2);
+          }
+        },
+        {
+          from: WASM_PATH,
+          to: SCRIPTS_PATH
         }
-      },
-      {
-        from: WASM_PATH,
-        to: SCRIPTS_PATH
-      },
-    ]),
+      ]
+    }),
 
     new WebpackBar({
       name: 'Temple Wallet',
@@ -411,32 +447,44 @@ module.exports = {
     }),
 
     // plugin to enable browser reloading in development mode
+
     NODE_ENV === 'development' &&
-    new ExtensionReloader({
-      port: 9090,
-      reloadPage: true,
-      // manifest: path.join(OUTPUT_PATH, "manifest.json"),
-      entries: EXTENSION_ENTRIES
-    })
+      new ExtensionReloader({
+        port: 9090,
+        reloadPage: true,
+        // manifest: path.join(OUTPUT_PATH, "manifest.json"),
+        entries: RELOADER_ENTRIES
+      }),
+
+    new ESLintPlugin({
+      extensions: ['js', 'mjs', 'jsx', 'ts', 'tsx'],
+      formatter: require.resolve('react-dev-utils/eslintFormatter'),
+      eslintPath: require.resolve('eslint'),
+      resolvePluginsRelativeTo: __dirname,
+      cache: true,
+      cacheLocation: path.resolve(
+        NODE_MODULES_PATH,
+        '.cache/.eslintcache'
+      ),
+      failOnError: true,
+    }),
   ].filter(Boolean),
 
   optimization: {
     splitChunks: {
       cacheGroups: {
         commons: {
-          name: 'commons',
+          name: (module, chunks, cacheGroupKey) => `${cacheGroupKey}.chunk`,
           minChunks: 2,
-          chunks(chunk) {
-            return !SEPARATED_CHUNKS.has(chunk.name);
-          }
+          chunks: chunk => !SEPARATED_CHUNKS.has(chunk.name)
         }
       }
     },
 
     minimizer: [
       new TerserPlugin({
-        sourceMap: SOURCE_MAP,
         terserOptions: {
+          sourceMap: SOURCE_MAP,
           parse: {
             ecma: 8
           },
@@ -458,24 +506,8 @@ module.exports = {
         }
       }),
 
-      new OptimizeCSSAssetsPlugin({
-        cssProcessorOptions: {
-          parser: safePostCssParser,
-          map: SOURCE_MAP
-            ? {
-              // `inline: false` forces the sourcemap to be output into a
-              // separate file
-              inline: false,
-              // `annotation: true` appends the sourceMappingURL to the end of
-              // the css file, helping the browser find the sourcemap
-              annotation: true
-            }
-            : false
-        },
-        cssProcessorPluginOptions: {
-          preset: ['default', { minifyFontValues: { removeQuotes: false } }]
-        }
-      }),
+      // This is only used in production mode
+      new CssMinimizerPlugin(),
 
       new ZipPlugin({
         path: DEST_PATH,
@@ -485,18 +517,6 @@ module.exports = {
     ]
   },
 
-  // Some libraries import Node modules but don't use them in the browser.
-  // Tell Webpack to provide empty mocks for them so importing them works.
-  node: {
-    module: 'empty',
-    dgram: 'empty',
-    dns: 'mock',
-    fs: 'empty',
-    http2: 'empty',
-    net: 'empty',
-    tls: 'empty',
-    child_process: 'empty'
-  },
   // Turn off performance processing because we utilize
   // our own hints via the FileSizeReporter
   performance: false

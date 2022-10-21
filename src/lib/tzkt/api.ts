@@ -85,17 +85,18 @@ export const fetchGetOperationsByHash = (
   } = {}
 ) => fetchGet<TzktOperation[]>(chainId, `/operations/${hash}`, params);
 
-type GetOperationsTransactionsParameterParams = {
+type GetOperationsTransactionsParams = GetOperationsBaseParams & {
+  [key in `anyof.sender.target${'' | '.initiator'}`]?: string;
+} & {
+  [key in `amount${'' | '.ne'}`]?: string;
+} & {
   [key in `parameter.${'to' | 'in' | '[*].in' | '[*].txs.[*].to_'}`]?: string;
-};
-type GetOperationsTransactionsSortParams = {
+} & {
   [key in `sort${'' | '.desc'}`]?: 'id' | 'level';
 };
 
-export const fetchGetOperationsTransactions = (
-  chainId: TzktApiChainId,
-  params: GetOperationsBaseParams & GetOperationsTransactionsParameterParams & GetOperationsTransactionsSortParams
-) => fetchGet<TzktOperation[]>(chainId, `/operations/transactions`, params);
+export const fetchGetOperationsTransactions = (chainId: TzktApiChainId, params: GetOperationsTransactionsParams) =>
+  fetchGet<TzktOperation[]>(chainId, `/operations/transactions`, params);
 
 export const getOneUserContracts = (chainId: TzktApiChainId, accountAddress: string) =>
   fetchGet<TzktRelatedContract[]>(chainId, `/accounts/${accountAddress}/contracts`);

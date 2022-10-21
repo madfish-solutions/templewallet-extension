@@ -589,7 +589,7 @@
     "message": "例如：venue sock milk update..."
   },
   "passwordInputDescription": {
-    "message": "用于附加助记衍生。这不是钱包的密码。"
+    "message": "这不是钱包的密码。\n用于附加助记衍生。"
   },
   "derivation": {
     "message": "衍生"
@@ -1606,7 +1606,7 @@
     "message": "哈希"
   },
   "defaultAccount": {
-    "message": "默认账户"
+    "message": "默认账户（第一个）"
   },
   "loadMore": {
     "message": "加载更多"
