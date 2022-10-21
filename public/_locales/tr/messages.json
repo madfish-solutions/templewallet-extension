@@ -610,7 +610,7 @@
     "message": "ör. mekan çorap süt güncelleme..."
   },
   "passwordInputDescription": {
-    "message": "Ek anımsatıcı ifade türetmek için kullanılır. Bu bir cüzdan parolası DEĞİLDİR."
+    "message": "Bu bir cüzdan parolası DEĞİLDİR.\nEk anımsatıcı ifade türetmek için kullanılır."
   },
   "derivation": {
     "message": "Türev"

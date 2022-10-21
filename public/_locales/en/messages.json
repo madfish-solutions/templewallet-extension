@@ -740,7 +740,7 @@
     "message": "e.g. venue sock milk update..."
   },
   "passwordInputDescription": {
-    "message": "Used for additional mnemonic derivation. That is NOT a wallet password."
+    "message": "That is NOT a wallet password.\nUsed for additional mnemonic derivation."
   },
   "derivation": {
     "message": "Derivation"

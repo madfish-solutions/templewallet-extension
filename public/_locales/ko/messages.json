@@ -589,7 +589,7 @@
     "message": "예) 장소 양말 우유 업데이트..."
   },
   "passwordInputDescription": {
-    "message": "추가 니모닉 도출에 사용합니다. 이는 지갑 비밀번호가 아닙니다."
+    "message": "이는 지갑 비밀번호가 아닙니다.\n추가 니모닉 도출에 사용합니다."
   },
   "derivation": {
     "message": "도출"
@@ -1606,7 +1606,7 @@
     "message": "해시"
   },
   "defaultAccount": {
-    "message": "기본 계정"
+    "message": "기본 계정(첫 번째 계정)"
   },
   "loadMore": {
     "message": "더 로드 하기"
