@@ -6,7 +6,7 @@ import { FormSubmitButton } from 'app/atoms';
 import { ReactComponent as AttentionRedIcon } from 'app/icons/attentionRed.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import { useAnalyticsState } from 'lib/analytics/use-analytics-state.hook';
-import { T } from 'lib/i18n/react';
+import { T } from 'lib/i18n';
 import makeBuildQueryFn from 'lib/makeBuildQueryFn';
 import { useAccount } from 'lib/temple/front';
 

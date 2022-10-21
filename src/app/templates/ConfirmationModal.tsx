@@ -2,7 +2,7 @@ import React, { FC } from 'react';
 
 import { FormSubmitButton, FormSecondaryButton } from 'app/atoms';
 import ModalWithTitle, { ModalWithTitleProps } from 'app/templates/ModalWithTitle';
-import { t } from 'lib/i18n/react';
+import { t } from 'lib/i18n';
 
 export type ConfirmationModalProps = ModalWithTitleProps & {
   onConfirm: () => void;

@@ -8,7 +8,7 @@ import DAppItem from 'app/templates/DAppsList/DAppItem';
 import SearchField from 'app/templates/SearchField';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
 import { DappEnum, getDApps } from 'lib/custom-dapps-api';
-import { TID, t } from 'lib/i18n/react';
+import { TID, t } from 'lib/i18n';
 import { useRetryableSWR } from 'lib/swr';
 
 import { DAppStoreSelectors } from './DAppsList.selectors';

@@ -3,7 +3,7 @@ import React, { FC, Suspense } from 'react';
 import { ReactComponent as SwapIcon } from 'app/icons/swap-header.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import { SwapForm } from 'app/templates/SwapForm/SwapForm';
-import { t, T } from 'lib/i18n/react';
+import { t, T } from 'lib/i18n';
 import { useNetwork } from 'lib/temple/front';
 
 import { SwapDisclaimer } from './SwapDisclaimer/SwapDisclaimer';

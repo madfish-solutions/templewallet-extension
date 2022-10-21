@@ -7,7 +7,7 @@ import { FormField, FormSubmitButton, FormSecondaryButton } from 'app/atoms';
 import HashShortView from 'app/atoms/HashShortView';
 import Identicon from 'app/atoms/Identicon';
 import ModalWithTitle from 'app/templates/ModalWithTitle';
-import { T, t } from 'lib/i18n/react';
+import { T, t } from 'lib/i18n';
 import { useContacts } from 'lib/temple/front';
 import { withErrorHumanDelay } from 'lib/ui/humanDelay';
 

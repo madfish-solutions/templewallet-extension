@@ -7,7 +7,7 @@ import { AssetIcon } from 'app/templates/AssetIcon';
 import Balance from 'app/templates/Balance';
 import IconifiedSelect, { IconifiedSelectOptionRenderProps } from 'app/templates/IconifiedSelect';
 import InFiat from 'app/templates/InFiat';
-import { T } from 'lib/i18n/react';
+import { T } from 'lib/i18n';
 import { useAccount, useAssetMetadata } from 'lib/temple/front';
 import { getAssetName, getAssetSymbol } from 'lib/temple/metadata';
 
@@ -25,15 +25,13 @@ const AssetSelect: FC<AssetSelectProps> = ({ value, assets, onChange, className 
   const title = useMemo(
     () => (
       <h2 className={classNames('mb-4', 'leading-tight', 'flex flex-col')}>
-        <T id="asset">{message => <span className="text-base font-semibold text-gray-700">{message}</span>}</T>
+        <span className="text-base font-semibold text-gray-700">
+          <T id="asset" />
+        </span>
 
-        <T id="selectAnotherAssetPrompt">
-          {message => (
-            <span className={classNames('mt-1', 'text-xs font-light text-gray-600')} style={{ maxWidth: '90%' }}>
-              {message}
-            </span>
-          )}
-        </T>
+        <span className="mt-1 text-xs font-light text-gray-600" style={{ maxWidth: '90%' }}>
+          <T id="selectAnotherAssetPrompt" />
+        </span>
       </h2>
     ),
     []

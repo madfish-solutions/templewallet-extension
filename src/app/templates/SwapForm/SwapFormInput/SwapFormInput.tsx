@@ -4,7 +4,7 @@ import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
 
 import { useFormAnalytics } from 'lib/analytics';
-import { t } from 'lib/i18n/react';
+import { t } from 'lib/i18n';
 import { AssetTypesEnum, toTokenSlug } from 'lib/temple/assets';
 import {
   useAccount,

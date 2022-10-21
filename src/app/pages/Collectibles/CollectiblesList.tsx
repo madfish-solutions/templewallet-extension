@@ -8,7 +8,7 @@ import { ReactComponent as AddToListIcon } from 'app/icons/add-to-list.svg';
 import { CollectibleItem } from 'app/pages/Collectibles/CollectibleItem';
 import { AssetsSelectors } from 'app/pages/Explore/Assets.selectors';
 import SearchAssetField from 'app/templates/SearchAssetField';
-import { T } from 'lib/i18n/react';
+import { T } from 'lib/i18n';
 import { AssetTypesEnum } from 'lib/temple/assets';
 import { useAccount, useChainId, useCollectibleTokens, useFilteredAssets } from 'lib/temple/front';
 import { useSyncTokens } from 'lib/temple/front/sync-tokens';

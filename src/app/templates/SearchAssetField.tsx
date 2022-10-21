@@ -3,7 +3,7 @@ import React, { FC, InputHTMLAttributes } from 'react';
 import classNames from 'clsx';
 
 import SearchField from 'app/templates/SearchField';
-import { t } from 'lib/i18n/react';
+import { t } from 'lib/i18n';
 
 type SearchAssetFieldProps = InputHTMLAttributes<HTMLInputElement> & {
   value: string;

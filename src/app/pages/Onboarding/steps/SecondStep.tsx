@@ -1,7 +1,8 @@
 import React, { FC } from 'react';
 
-import { T } from '../../../../lib/i18n/react';
-import { Button } from '../../../atoms/Button';
+import { Button } from 'app/atoms/Button';
+import { T } from 'lib/i18n';
+
 import { ReactComponent as ButtonsIcon } from '../assets/second.svg';
 import styles from '../Onboarding.module.css';
 

@@ -18,7 +18,7 @@ import InFiat from 'app/templates/InFiat';
 import OperationStatus from 'app/templates/OperationStatus';
 import { useFormAnalytics } from 'lib/analytics';
 import { submitDelegation } from 'lib/everstake-api';
-import { TID, T, t } from 'lib/i18n/react';
+import { TID, T, t } from 'lib/i18n';
 import { setDelegate } from 'lib/michelson';
 import { fetchTezosBalance } from 'lib/temple/assets';
 import { loadContract } from 'lib/temple/contract';
