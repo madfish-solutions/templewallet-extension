@@ -610,7 +610,7 @@
     "message": "por exemplo, local meia leite atualização..."
   },
   "passwordInputDescription": {
-    "message": "Utilizado para derivação mnemónica adicional. Isso NÃO é uma palavra-passe de carteira."
+    "message": "Isso NÃO é uma palavra-passe de carteira.\nUtilizado para derivação mnemónica adicional."
   },
   "derivation": {
     "message": "Derivação"
