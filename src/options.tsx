@@ -32,7 +32,9 @@ const Options: FC = () => {
 
   return (
     <div className="p-4">
-      <h1 className="mb-2 text-xl font-semibold">{getMessage('templeWalletOptions')}</h1>
+      <h1 className="mb-2 text-xl font-semibold">
+        <T id="templeWalletOptions" />
+      </h1>
 
       <div className="my-6">
         <button
@@ -50,7 +52,7 @@ const Options: FC = () => {
           )}
           onClick={internalHandleReset}
         >
-          {getMessage('resetExtension')}
+          <T id="resetExtension" />
         </button>
       </div>
     </div>

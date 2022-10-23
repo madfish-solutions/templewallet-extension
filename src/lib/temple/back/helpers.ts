@@ -1,19 +1,20 @@
 import { HttpResponseError } from '@taquito/http-utils';
 import browser from 'webextension-polyfill';
 
+// (!) Only importing from `lib/i18n/${'helpers' | 'types'}` directly here
 import {
+  asyncGetSavedLocale,
   getNativeLocale,
   getDefaultLocale,
   areLocalesEqual,
   fetchLocaleMessages,
   applySubstitutions
 } from 'lib/i18n/helpers';
-import { getSavedLocale } from 'lib/i18n/saving';
 import type { TID, Substitutions } from 'lib/i18n/types';
 import { IntercomError } from 'lib/intercom/helpers';
 
 export async function fetchMessage(msgId: TID, substitutions?: Substitutions) {
-  const savedLocale = getSavedLocale();
+  const savedLocale = await asyncGetSavedLocale();
   const nativeLocale = getNativeLocale();
 
   let result: string | null = null;
