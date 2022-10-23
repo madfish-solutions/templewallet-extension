@@ -4,6 +4,8 @@ import React from 'react';
 
 import { createRoot } from 'react-dom/client';
 
+import 'lib/lock-up/run-checks';
+
 import App from 'app/App';
 import { WindowType } from 'app/env';
 

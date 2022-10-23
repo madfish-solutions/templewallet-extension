@@ -6,6 +6,8 @@ import classNames from 'clsx';
 import { createRoot } from 'react-dom/client';
 import browser from 'webextension-polyfill';
 
+import 'lib/lock-up/run-checks';
+
 import DisableOutlinesForClick from 'app/a11y/DisableOutlinesForClick';
 import Dialogs from 'app/layouts/Dialogs';
 import { getMessage, T } from 'lib/i18n';

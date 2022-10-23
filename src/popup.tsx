@@ -5,6 +5,8 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 import browser from 'webextension-polyfill';
 
+import 'lib/lock-up/run-checks';
+
 import App from 'app/App';
 import { WindowType, openInFullPage } from 'app/env';
 import { isPopupModeEnabled } from 'lib/popup-mode';

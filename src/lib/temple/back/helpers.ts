@@ -12,28 +12,6 @@ import { getSavedLocale } from 'lib/i18n/saving';
 import type { TID, Substitutions } from 'lib/i18n/types';
 import { IntercomError } from 'lib/intercom/helpers';
 
-const URL_BASE = 'extension://';
-
-export function getOpenedPagesN() {
-  const windowsN = browser.extension.getViews().length;
-  const bgWindow: Window | null = browser.extension.getBackgroundPage();
-  return bgWindow ? windowsN - 1 : windowsN;
-}
-
-export function isExtensionPageByPort(port: browser.Runtime.Port) {
-  const url = port.sender?.url;
-  return url ? isChromePredicate(url) || isFFPredicate(url) : false;
-}
-
-export const isChromePredicate = (url: string) => url.includes(`${URL_BASE}${browser.runtime.id}`);
-
-export const isFFPredicate = (url: string) => {
-  const manifest = browser.runtime.getManifest();
-  const fullUrl = (manifest.background as browser.Manifest.WebExtensionManifestBackgroundC2Type).scripts[0]!;
-  const edgeUrl = fullUrl.split('/scripts')[0].split('://')[1];
-  return url.includes(`${URL_BASE}${edgeUrl}`);
-};
-
 export async function fetchMessage(msgId: TID, substitutions?: Substitutions) {
   const savedLocale = getSavedLocale();
   const nativeLocale = getNativeLocale();
