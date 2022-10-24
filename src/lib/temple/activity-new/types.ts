@@ -13,7 +13,7 @@ export interface Activity {
   /** ISO string */
   addedAt: string;
   status: ActivityStatus;
-  oldestTzktOperation: TzktOperation;
+  oldestTzktOperation: TzktOperation | null;
   /** Sorted new-to-old */
   operations: ActivityOperation[];
 }

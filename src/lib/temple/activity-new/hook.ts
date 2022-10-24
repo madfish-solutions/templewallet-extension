@@ -4,6 +4,7 @@ import { useTezos, useChainId, useAccount } from 'lib/temple/front';
 import { isKnownChainId } from 'lib/tzkt/api';
 import { useDidMount, useDidUpdate, useSafeState } from 'lib/ui/hooks';
 
+import { getLocalOperation, removeLocalOperation } from '../activity/local';
 import fetchActivities from './fetch';
 import type { Activity } from './types';
 
@@ -48,7 +49,17 @@ export default function useActivities(initialPseudoLimit: number, assetSlug?: st
       return;
     }
 
-    setActivities(activities.concat(newActivities));
+    const pending = await getLocalOperation(chainId, accountAddress);
+    const allActivities = activities.concat(newActivities);
+
+    const pendingCollisions = pending.filter(({ hash }) => allActivities.some(x => x.hash === hash));
+    const pendingNotCollisions = pending.filter(({ hash }) => !allActivities.some(x => x.hash === hash));
+
+    for (const { hash } of pendingCollisions) {
+      removeLocalOperation(hash);
+    }
+
+    setActivities([...pendingNotCollisions, ...allActivities]);
     setLoading(false);
     if (newActivities.length === 0) setReachedTheEnd(true);
   }

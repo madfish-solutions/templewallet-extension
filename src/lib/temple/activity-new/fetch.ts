@@ -88,7 +88,7 @@ const fetchOperations_Contract = (
     sort: 1,
     initiator: accountAddress,
     entrypoint: 'mintOrBurn',
-    'level.lt': olderThan?.oldestTzktOperation.level
+    'level.lt': olderThan?.oldestTzktOperation?.level
   });
 
 const fetchOperations_Token_Fa_1_2 = (
@@ -104,7 +104,7 @@ const fetchOperations_Token_Fa_1_2 = (
     'sort.desc': 'level',
     target: contractAddress,
     'parameter.in': `[{"from":"${accountAddress}"},{"to":"${accountAddress}"}]`,
-    'level.lt': olderThan?.oldestTzktOperation.level
+    'level.lt': olderThan?.oldestTzktOperation?.level
   });
 
 const fetchOperations_Token_Fa_2 = (
@@ -121,7 +121,7 @@ const fetchOperations_Token_Fa_2 = (
     'sort.desc': 'level',
     target: contractAddress,
     'parameter.[*].in': `[{"from_":"${accountAddress}","txs":[{"token_id":"${tokenId}"}]},{"txs":[{"to_":"${accountAddress}","token_id":"${tokenId}"}]}]`,
-    'level.lt': olderThan?.oldestTzktOperation.level
+    'level.lt': olderThan?.oldestTzktOperation?.level
   });
 
 async function fetchOperations_Any(
