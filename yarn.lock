@@ -2368,7 +2368,7 @@
   resolved "https://registry.yarnpkg.com/@types/use-sync-external-store/-/use-sync-external-store-0.0.3.tgz#b6725d5f4af24ace33b36fafd295136e75509f43"
   integrity sha512-EwmlvuaxPNej9+T4v5AuBPJa2x2UOJVdjCtDHgcDqitUeOtjnJKJ+apYjVcAoBEMjKW1VVFGZLUb5+qqa09XFA==
 
-"@types/webextension-polyfill@^0.8.2":
+"@types/webextension-polyfill@^0.8.3":
   version "0.8.3"
   resolved "https://registry.yarnpkg.com/@types/webextension-polyfill/-/webextension-polyfill-0.8.3.tgz#eb601b3fcf524f0ecf7d7579ccbd237928d0dda7"
   integrity sha512-GN+Hjzy9mXjWoXKmaicTegv3FJ0WFZ3aYz77Wk8TMp1IY3vEzvzj1vnsa0ggV7vMI1i+PUxe4qqnIJKCzf9aTg==
@@ -7039,7 +7039,7 @@ minimatch@^3.0.4, minimatch@^3.1.2:
   dependencies:
     brace-expansion "^1.1.7"
 
-minimist@^1.1.1, minimist@^1.2.0, minimist@^1.2.5, minimist@^1.2.6:
+minimist@^1.1.1, minimist@^1.2.0, minimist@^1.2.6:
   version "1.2.6"
   resolved "https://registry.yarnpkg.com/minimist/-/minimist-1.2.6.tgz#8637a5b759ea0d6e98702cfb3a9283323c93af44"
   integrity sha512-Jsjnk4bw3YJqYzbdyBiNsPWHPfO++UGG749Cxs6peCu5Xg4nrena6OVxOYxrQTqww0Jmwt+Ref8rggumkTLz9Q==
@@ -9927,10 +9927,10 @@ webextension-polyfill@^0.10.0:
   resolved "https://registry.yarnpkg.com/webextension-polyfill/-/webextension-polyfill-0.10.0.tgz#ccb28101c910ba8cf955f7e6a263e662d744dbb8"
   integrity sha512-c5s35LgVa5tFaHhrZDnr3FpQpjj1BB+RXhLTYUxGqBVN460HkbM8TBtEqdXWbpTKfzwCcjAZVF7zXCYSKtcp9g==
 
-webextension-polyfill@^0.8.0:
-  version "0.8.0"
-  resolved "https://registry.yarnpkg.com/webextension-polyfill/-/webextension-polyfill-0.8.0.tgz#f80e9f4b7f81820c420abd6ffbebfa838c60e041"
-  integrity sha512-a19+DzlT6Kp9/UI+mF9XQopeZ+n2ussjhxHJ4/pmIGge9ijCDz7Gn93mNnjpZAk95T4Tae8iHZ6sSf869txqiQ==
+webextension-polyfill@^0.9.0:
+  version "0.9.0"
+  resolved "https://registry.yarnpkg.com/webextension-polyfill/-/webextension-polyfill-0.9.0.tgz#de6c1941d0ef1b0858b20e9c7b46bbc042c5a960"
+  integrity sha512-LTtHb0yR49xa9irkstDxba4GATDAcDw3ncnFH9RImoFwDlW47U95ME5sn5IiQX2ghfaECaf6xyXM8yvClIBkkw==
 
 webidl-conversions@^3.0.0:
   version "3.0.1"
@@ -9965,23 +9965,23 @@ webpack-cli@4.10.0:
     rechoir "^0.7.0"
     webpack-merge "^5.7.3"
 
-webpack-ext-reloader@^1.1.9:
-  version "1.1.9"
-  resolved "https://registry.yarnpkg.com/webpack-ext-reloader/-/webpack-ext-reloader-1.1.9.tgz#7d4145c459ba3ec6e377b0e87065f7ea68686a73"
-  integrity sha512-6AVXGrjcVHKtIQn4yGGghJpiIV2h9F7hNKLsh1oP8m+d6H3QLF3jTNu3vNdKu/8Lab3J/gwb7Bm7tjZLa+DS6g==
+webpack-ext-reloader-mv3@^2.1.1:
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/webpack-ext-reloader-mv3/-/webpack-ext-reloader-mv3-2.1.1.tgz#a96c8be4ab64966c4ac5c556a394c6db29b3360a"
+  integrity sha512-hCdoQ9zr66zDhH1Aa+4XhFAZynMkH4E+Hy8rdLCRULyIdT7fwyXbfhAdReVFrA8qAs5Ct4vHhTGYRtk3/Lau9Q==
   dependencies:
-    "@types/webextension-polyfill" "^0.8.2"
+    "@types/webextension-polyfill" "^0.8.3"
     "@types/webpack" "^5.28.0"
     "@types/webpack-sources" "^3.2.0"
     clean-webpack-plugin "^4.0.0"
     colors "^1.4.0"
     cross-env "^7.0.3"
     lodash "^4.17.21"
-    minimist "^1.2.5"
+    minimist "^1.2.6"
     useragent "^2.3.0"
-    webextension-polyfill "^0.8.0"
+    webextension-polyfill "^0.9.0"
     webpack-sources "^3.2.3"
-    ws "^8.4.2"
+    ws "^8.6.0"
 
 webpack-merge@^5.7.3:
   version "5.8.0"
@@ -10144,7 +10144,7 @@ write-file-atomic@^3.0.0:
     signal-exit "^3.0.2"
     typedarray-to-buffer "^3.1.5"
 
-ws@7.4.6, ws@^7.4.6, ws@^8.4.2:
+ws@7.4.6, ws@^7.4.6, ws@^8.6.0:
   version "7.4.6"
   resolved "https://registry.yarnpkg.com/ws/-/ws-7.4.6.tgz#5654ca8ecdeee47c33a9a4bf6d28e2be2980377c"
   integrity sha512-YmhHDO4MzaDLB+M9ym/mDA5z0naX8j7SIlT8f8z+I0VtzsRbekxEutHSme7NPS2qE8StCYQNUnfWdXta/Yu85A==
