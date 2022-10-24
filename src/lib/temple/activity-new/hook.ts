@@ -10,6 +10,8 @@ import type { Activity } from './types';
 
 type TLoading = 'init' | 'more' | false;
 
+const EXPIRATION_DATE = 4 * 60 * 60 * 1000;
+
 export default function useActivities(initialPseudoLimit: number, assetSlug?: string) {
   const tezos = useTezos();
   const chainId = useChainId(true);
@@ -52,7 +54,7 @@ export default function useActivities(initialPseudoLimit: number, assetSlug?: st
     const pending = await getLocalOperation(chainId, accountAddress);
     const allActivities = activities.concat(newActivities);
 
-    const pendingCollisions = pending.filter(({ hash }) => allActivities.some(x => x.hash === hash));
+    const pendingCollisions = pending.filter(({ hash, addedAt }) => allActivities.some(x => x.hash === hash) || Date.now() - Number(addedAt) > EXPIRATION_DATE);
     const pendingNotCollisions = pending.filter(({ hash }) => !allActivities.some(x => x.hash === hash));
 
     for (const { hash } of pendingCollisions) {
