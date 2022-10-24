@@ -610,7 +610,7 @@
     "message": "z. B. Veranstaltungsort Socke Milch Update..."
   },
   "passwordInputDescription": {
-    "message": "Wird für zusätzliche Gedächtnisstützenableitung verwendet. Das ist KEIN Wallet-Passwort."
+    "message": "Das ist KEIN Wallet-Passwort.\nWird für zusätzliche Gedächtnisstützenableitung verwendet."
   },
   "derivation": {
     "message": "Ableitung"

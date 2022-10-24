@@ -595,7 +595,7 @@
     "message": "e.g. venue sock milk update..."
   },
   "passwordInputDescription": {
-    "message": "Used for additional mnemonic derivation. That is NOT a wallet password."
+    "message": "That is NOT a wallet password.\nUsed for additional mnemonic derivation."
   },
   "derivation": {
     "message": "Derivation"
@@ -1627,7 +1627,7 @@
     "message": "Hash"
   },
   "defaultAccount": {
-    "message": "Default account"
+    "message": "Default account (the first one)"
   },
   "loadMore": {
     "message": "Load more"

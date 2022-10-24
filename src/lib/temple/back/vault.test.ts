@@ -1,4 +1,4 @@
-import { browser } from 'webextension-polyfill-ts';
+import browser from 'webextension-polyfill';
 
 import { TempleAccountType, TempleSettings } from '../types';
 import { Vault } from './vault';

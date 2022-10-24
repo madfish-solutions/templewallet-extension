@@ -5,7 +5,7 @@ import deepEqual from 'fast-deep-equal';
 import Fuse from 'fuse.js';
 import { useDebounce } from 'use-debounce';
 import useForceUpdate from 'use-force-update';
-import { browser } from 'webextension-polyfill-ts';
+import browser from 'webextension-polyfill';
 
 import { createQueue } from 'lib/queue';
 import { useRetryableSWR } from 'lib/swr';

@@ -5,7 +5,7 @@ import { OnSubmit, useForm } from 'react-hook-form';
 import { QRCode } from 'react-qr-svg';
 
 import { Alert, FormField, FormSubmitButton } from 'app/atoms';
-import { T, t } from 'lib/i18n/react';
+import { T, t } from 'lib/i18n';
 import { useSecretState, useTempleClient } from 'lib/temple/front';
 
 type FormData = {

@@ -3,9 +3,7 @@ import React, { FC, HTMLAttributes, memo, useCallback, useMemo, useRef } from 'r
 import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
 
-import { getNumberSymbols } from 'lib/i18n';
-import { toLocalFixed, toLocalFormat, toShortened } from 'lib/i18n/numbers';
-import { t } from 'lib/i18n/react';
+import { getNumberSymbols, toLocalFixed, toLocalFormat, toShortened, t } from 'lib/i18n';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 import useTippy, { TippyInstance, TippyProps } from 'lib/ui/useTippy';
 

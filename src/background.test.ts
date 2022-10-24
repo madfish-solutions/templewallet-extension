@@ -1,4 +1,4 @@
-import { browser } from 'webextension-polyfill-ts';
+import browser from 'webextension-polyfill';
 
 import { getChromePredicate, getFFPredicate } from 'lib/temple/back/predicates';
 

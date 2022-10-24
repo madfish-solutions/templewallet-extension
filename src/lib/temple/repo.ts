@@ -20,7 +20,6 @@ db.version(2).stores({
 
 export const accountTokens = db.table<IAccountToken, string>(Table.AccountTokens);
 export const operations = db.table<IOperation, string>(Table.Operations);
-export const syncTimes = db.table<ISyncTime, string>(Table.SyncTimes);
 
 export function toAccountTokenKey(chainId: string, account: string, tokenSlug: string) {
   return [chainId, account, tokenSlug].join('_');
@@ -49,7 +48,7 @@ export interface IAccountToken {
   latestUSDBalance?: string;
 }
 
-export interface IOperation {
+interface IOperation {
   hash: string;
   chainId: string;
   members: Array<string>;
@@ -63,14 +62,6 @@ type IOperationData = AtLeastOne<{
   tzktGroup: Array<TzktOperation>;
   tzktTokenTransfers: Array<TzktTokenTransfer>;
 }>;
-
-export interface ISyncTime {
-  service: 'tzkt' | 'bcd';
-  chainId: string;
-  address: string;
-  higherTimestamp: number;
-  lowerTimestamp: number;
-}
 
 function indexes(...items: string[]) {
   return items.join(',');

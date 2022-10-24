@@ -5,10 +5,10 @@ import classNames from 'clsx';
 import { Alert } from 'app/atoms';
 import OpenInExplorerChip from 'app/atoms/OpenInExplorerChip';
 import HashChip from 'app/templates/HashChip';
-import { T, t } from 'lib/i18n/react';
+import { T, t } from 'lib/i18n';
 import { useTezos, useExplorerBaseUrls, useBlockTriggers } from 'lib/temple/front';
 import { FailedOpError } from 'lib/temple/operation';
-import useSafeState from 'lib/ui/useSafeState';
+import { useSafeState } from 'lib/ui/hooks';
 
 type OperationStatusProps = {
   className?: string;

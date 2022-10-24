@@ -589,7 +589,7 @@
     "message": "例: venue sock milk update..."
   },
   "passwordInputDescription": {
-    "message": "追加的なニーモニックの導出に使用されます。ウォレットパスワードではありません。"
+    "message": "ウォレットパスワードではありません。\n追加的なニーモニックの導出に使用されます。"
   },
   "derivation": {
     "message": "導出"
@@ -1606,7 +1606,7 @@
     "message": "ハッシュ"
   },
   "defaultAccount": {
-    "message": "デフォルトのアカウント"
+    "message": "デフォルトのアカウント (最初のアカウント)"
   },
   "loadMore": {
     "message": "さらに読み込む"

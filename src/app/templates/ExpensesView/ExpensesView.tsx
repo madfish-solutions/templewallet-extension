@@ -12,7 +12,7 @@ import { ReactComponent as ChevronDownIcon } from 'app/icons/chevron-down.svg';
 import { ReactComponent as ClipboardIcon } from 'app/icons/clipboard.svg';
 import HashChip from 'app/templates/HashChip';
 import InFiat from 'app/templates/InFiat';
-import { T, t, TProps } from 'lib/i18n/react';
+import { TProps, T, t } from 'lib/i18n';
 import { RawOperationAssetExpense, RawOperationExpenses, useAssetMetadata, useGasToken } from 'lib/temple/front';
 import { mutezToTz, tzToMutez } from 'lib/temple/helpers';
 import { getAssetSymbol } from 'lib/temple/metadata';

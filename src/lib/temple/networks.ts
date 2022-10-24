@@ -1,4 +1,3 @@
-import { getMessage } from 'lib/i18n';
 import { TempleChainId, TempleNetwork } from 'lib/temple/types';
 
 const formatDateToRPCFormat = (date: Date) => date.toLocaleDateString('en-GB').split('/').reverse().join('-');
@@ -20,7 +19,6 @@ export const NETWORK_IDS = new Map<string, string>([
 export const NETWORKS: TempleNetwork[] = [
   {
     id: 'mainnet',
-    name: getMessage('tezosMainnet'),
     nameI18nKey: 'tezosMainnet',
     description: 'Tezos mainnet',
     type: 'main',
@@ -29,17 +27,8 @@ export const NETWORKS: TempleNetwork[] = [
     disabled: false
   },
   {
-    id: 'giganode-mainnet',
-    name: 'Mainnet @giganode.io',
-    description: 'Highly available Tezos Mainnet nodes operated by Giganode',
-    type: 'main',
-    rpcBaseURL: 'https://mainnet-tezos.giganode.io',
-    color: '#059669',
-    disabled: false
-  },
-  {
     id: 'smartpy-mainnet',
-    name: 'Mainnet @smartpy.io',
+    name: 'SmartPy Mainnet',
     description: 'SmartPy Mainnet',
     type: 'main',
     rpcBaseURL: 'https://mainnet.smartpy.io',
@@ -48,7 +37,7 @@ export const NETWORKS: TempleNetwork[] = [
   },
   {
     id: 'tezie-mainnet',
-    name: 'Mainnet @api.tez.ie',
+    name: 'ECAD Labs Mainnet',
     description: 'Highly available Tezos Mainnet nodes operated by ECAD Labs',
     type: 'main',
     rpcBaseURL: 'https://mainnet.api.tez.ie',
@@ -102,7 +91,7 @@ export const NETWORKS: TempleNetwork[] = [
   },
   {
     id: 'monday',
-    name: 'MondayNet',
+    name: 'MondayNet Testnet',
     description: `MondayNet ${getLastMonday()}`,
     type: 'test',
     rpcBaseURL: `https://rpc.mondaynet-${getLastMonday()}.teztnets.xyz/`,
@@ -111,7 +100,7 @@ export const NETWORKS: TempleNetwork[] = [
   },
   {
     id: 'daily',
-    name: 'DailyNet',
+    name: 'DailyNet Testnet',
     description: 'DailyNet',
     type: 'test',
     rpcBaseURL: `https://rpc.dailynet-${formatDateToRPCFormat(new Date())}.teztnets.xyz/`,

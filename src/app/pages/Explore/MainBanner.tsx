@@ -7,7 +7,7 @@ import { AssetIcon } from 'app/templates/AssetIcon';
 import Balance from 'app/templates/Balance';
 import InFiat from 'app/templates/InFiat';
 import { useFiatCurrency } from 'lib/fiat-currency';
-import { T } from 'lib/i18n/react';
+import { T } from 'lib/i18n';
 import { useAssetMetadata } from 'lib/temple/front';
 import { useTotalBalance } from 'lib/temple/front/use-total-balance.hook';
 import { getAssetName, getAssetSymbol } from 'lib/temple/metadata';

@@ -1,13 +1,10 @@
 import React, { FC, Fragment, ReactElement, ReactNode, useMemo } from 'react';
 
-import type _LocaleMessages from '../../../public/_locales/en/messages.json';
 import { getMessage } from './core';
 import { toList } from './helpers';
-import { Substitutions } from './types';
+import { TID, Substitutions } from './types';
 
 type ReactSubstitutions = ReactNode | ReactNode[];
-
-export type TID = keyof typeof _LocaleMessages;
 
 export type TProps = {
   id: TID;
@@ -24,9 +21,9 @@ export const T: FC<TProps> = ({ id, substitutions, children }) => {
 export function t(messageName: TID, substitutions?: Substitutions): string;
 export function t(messageName: TID, substitutions?: ReactSubstitutions): ReactNode;
 export function t(messageName: TID, substitutions?: any): any {
-  return !substitutions || !hasReactSubstitutions(substitutions)
-    ? getMessage(messageName, substitutions)
-    : tReact(messageName, substitutions);
+  return substitutions && hasReactSubstitutions(substitutions)
+    ? tReact(messageName, substitutions)
+    : getMessage(messageName, substitutions);
 }
 
 function tReact(messageName: TID, substitutions?: Substitutions | ReactSubstitutions): ReactNode {

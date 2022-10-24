@@ -10,7 +10,7 @@ import HashShortView from 'app/atoms/HashShortView';
 import { ReactComponent as CopyIcon } from 'app/icons/copy.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import { AssetIcon } from 'app/templates/AssetIcon';
-import { T } from 'lib/i18n/react';
+import { T } from 'lib/i18n';
 import { fromFa2TokenSlug } from 'lib/temple/assets';
 import { useAccount, useBalance, useAssetMetadata } from 'lib/temple/front';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';

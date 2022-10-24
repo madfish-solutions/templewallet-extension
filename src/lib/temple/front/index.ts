@@ -32,6 +32,8 @@ export {
   useFilteredAssets
 } from './assets';
 
+export { validateDerivationPath, validateContractAddress } from './helpers';
+
 export { useAssetUSDPrice, useUSDPrices } from './usdprice';
 
 export { useBlockTriggers, useOnBlock } from './chain';

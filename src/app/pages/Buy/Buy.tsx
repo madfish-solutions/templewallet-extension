@@ -7,7 +7,7 @@ import { useTabSlug } from 'app/atoms/useTabSlug';
 import { useAppEnv } from 'app/env';
 import ErrorBoundary from 'app/ErrorBoundary';
 import PageLayout from 'app/layouts/PageLayout';
-import { T, t } from 'lib/i18n/react';
+import { T, t } from 'lib/i18n';
 import { PropsWithChildren } from 'lib/props-with-children';
 import { useGasToken } from 'lib/temple/front';
 import { Link } from 'lib/woozie';
