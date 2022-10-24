@@ -11,7 +11,7 @@ import 'lib/lock-up/run-checks';
 import DisableOutlinesForClick from 'app/a11y/DisableOutlinesForClick';
 import Dialogs from 'app/layouts/Dialogs';
 import { getMessage, T } from 'lib/i18n';
-import { clearStorage } from 'lib/temple/reset';
+import { clearAllStorages } from 'lib/temple/reset';
 import { AlertFn, ConfirmFn, DialogsProvider, useAlert, useConfirm } from 'lib/ui/dialog';
 
 const OptionsWrapper: FC = () => (
@@ -75,7 +75,7 @@ async function handleReset(customAlert: AlertFn, confirm: ConfirmFn) {
   if (confirmed) {
     (async () => {
       try {
-        await clearStorage();
+        await clearAllStorages();
         browser.runtime.reload();
       } catch (err: any) {
         await customAlert({

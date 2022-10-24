@@ -44,6 +44,8 @@ import {
   TempleSharedStorageKey
 } from 'lib/temple/types';
 
+import type { DryRunResult } from './dryrun';
+
 const ACCOUNT_NAME_PATTERN = /^.{0,16}$/;
 const AUTODECLINE_AFTER = 60_000;
 const BEACON_ID = `temple_wallet_${browser.runtime.id}`;
@@ -236,14 +238,14 @@ export function sendOperations(
 }
 
 const promisableUnlock = async (
-  resolve: any,
-  reject: any,
+  resolve: (arg: { opHash: string }) => void,
+  reject: (err: Error) => void,
   port: Runtime.Port,
   id: string,
   sourcePkh: string,
   networkRpc: string,
   opParams: any[],
-  dryRunResult: any
+  dryRunResult: DryRunResult | null
 ) => {
   intercom.notify(port, {
     type: TempleMessageType.ConfirmationRequested,

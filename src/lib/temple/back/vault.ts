@@ -26,7 +26,7 @@ import {
 import { formatOpParamsBeforeSend, loadFastRpcClient, michelEncoder } from 'lib/temple/helpers';
 import { pickLedgerTransport } from 'lib/temple/ledger-live';
 import * as Passworder from 'lib/temple/passworder';
-import { clearStorage } from 'lib/temple/reset';
+import { clearAsyncStorages } from 'lib/temple/reset';
 import { TempleAccount, TempleAccountType, TempleContact, TempleSettings } from 'lib/temple/types';
 
 import { fetchMessage, transformHttpResponseError } from './helpers';
@@ -94,14 +94,7 @@ export class Vault {
 
       const passKey = await Passworder.generateKey(password);
 
-      const onboarding = localStorage.getItem('onboarding');
-      const analytics = localStorage.getItem('analytics');
-
-      await clearStorage();
-      try {
-        localStorage.setItem('onboarding', onboarding!);
-        localStorage.setItem('analytics', analytics!);
-      } catch {}
+      await clearAsyncStorages();
 
       await encryptAndSaveMany(
         [
