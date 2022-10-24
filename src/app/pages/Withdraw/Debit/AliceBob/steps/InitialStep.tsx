@@ -34,13 +34,14 @@ export const InitialStep: FC<Omit<StepProps, 'orderInfo'>> = ({ isApiError, setO
 
   const { minExchangeAmount, maxExchangeAmount, isMinMaxLoading } = useMinMaxExchangeAmounts(setIsApiError, true);
 
-  const { isMinAmountError, isMaxAmountError, disabledProceed } = useDisabledProceed(
+  const { isMinAmountError, isMaxAmountError, isInsufficientTezBalanceError, disabledProceed } = useDisabledProceed(
     inputAmount,
     minExchangeAmount,
     maxExchangeAmount,
     isApiError,
     isCardInputError,
-    isNotUkrainianCardError
+    isNotUkrainianCardError,
+    true
   );
 
   const outputAmount = useOutputEstimation(inputAmount, disabledProceed, setLoading, setIsApiError, true);
@@ -89,7 +90,7 @@ export const InitialStep: FC<Omit<StepProps, 'orderInfo'>> = ({ isApiError, setO
         <T id={'sellDetailsDescription'} />
       </p>
 
-      <div className="mx-auto mt-10 text-center font-inter font-normal text-gray-700" style={{ maxWidth: 360 }}>
+      <div className="mx-auto mt-10 text-center font-inter font-normal text-gray-700">
         <TopUpInput
           singleToken
           isDefaultUahIcon
@@ -101,6 +102,7 @@ export const InitialStep: FC<Omit<StepProps, 'orderInfo'>> = ({ isApiError, setO
           maxAmount={maxExchangeAmount.toString()}
           isMinAmountError={isMinAmountError}
           isMaxAmountError={isMaxAmountError}
+          isInsufficientTezBalanceError={isInsufficientTezBalanceError}
           onAmountChange={handleInputAmountChange}
           className="mb-4"
         />

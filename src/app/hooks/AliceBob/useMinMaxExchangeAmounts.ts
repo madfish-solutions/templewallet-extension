@@ -1,37 +1,26 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import BigNumber from 'bignumber.js';
 
 import { getAliceBobPairInfo } from 'lib/alice-bob-api';
-import { useAccount, useBalance } from 'lib/temple/front';
+
+const PENNY = 0.000001;
 
 export const useMinMaxExchangeAmounts = (setIsApiError: (v: boolean) => void, isWithdraw = false) => {
-  const { publicKeyHash } = useAccount();
-  const { data: tezBalanceData } = useBalance('tez', publicKeyHash);
-  const tezBalance = tezBalanceData!;
-
   const [isMinMaxLoading, setIsMinMaxLoading] = useState(false);
 
   const [minExchangeAmount, setMinExchangeAmount] = useState(0);
   const [maxExchangeAmount, setMaxExchangeAmount] = useState(0);
 
-  const finalMaxExchangeAmount = useMemo(() => {
-    if (isWithdraw) {
-      const gasFee = new BigNumber(0.3);
-      const maxTezAmount = BigNumber.max(tezBalance.minus(gasFee), 0);
-
-      return BigNumber.min(maxExchangeAmount, maxTezAmount).toNumber();
-    } else {
-      return maxExchangeAmount;
-    }
-  }, [isWithdraw, maxExchangeAmount, tezBalance]);
-
   const updateMinMaxRequest = useCallback(() => {
     setIsMinMaxLoading(true);
     getAliceBobPairInfo({ isWithdraw: String(isWithdraw) })
       .then(({ pairInfo }) => {
-        setMinExchangeAmount(pairInfo.minAmount);
-        setMaxExchangeAmount(pairInfo.maxAmount);
+        const normalizedMin = new BigNumber(pairInfo.minAmount).dp(6).plus(PENNY).toNumber();
+        const normalizedMax = new BigNumber(pairInfo.maxAmount).dp(6, BigNumber.ROUND_FLOOR).toNumber();
+
+        setMinExchangeAmount(normalizedMin);
+        setMaxExchangeAmount(normalizedMax);
       })
       .catch(() => setIsApiError(true))
       .finally(() => setIsMinMaxLoading(false));
@@ -44,7 +33,7 @@ export const useMinMaxExchangeAmounts = (setIsApiError: (v: boolean) => void, is
 
   return {
     minExchangeAmount,
-    maxExchangeAmount: finalMaxExchangeAmount,
+    maxExchangeAmount,
     isMinMaxLoading
   };
 };

@@ -33,6 +33,7 @@ export const TopUpInputHeader = forwardRef<HTMLDivElement, Props>(
       maxAmount,
       isMinAmountError,
       isMaxAmountError,
+      isInsufficientTezBalanceError,
       isSearchable = false,
       singleToken = false,
       onAmountChange,
@@ -176,30 +177,42 @@ export const TopUpInputHeader = forwardRef<HTMLDivElement, Props>(
           </div>
         </div>
         {maxAmount && !opened && (
-          <MaxAmountErrorComponent isMaxAmountError={isMaxAmountError} maxAmount={maxAmount} coin={currencyName} />
+          <ErrorsComponent
+            isInsufficientTezBalanceError={isInsufficientTezBalanceError}
+            isMaxAmountError={isMaxAmountError}
+            maxAmount={maxAmount}
+            coin={currencyName}
+          />
         )}
       </div>
     );
   }
 );
 
-interface MaxAmountErrorComponentProps {
+interface ErrorsComponentProps {
+  isInsufficientTezBalanceError?: boolean;
   isMaxAmountError?: boolean;
   maxAmount?: string;
   coin: string;
 }
 
-const MaxAmountErrorComponent: React.FC<MaxAmountErrorComponentProps> = ({ isMaxAmountError, maxAmount, coin }) => (
-  <div className="flex justify-end items-baseline mt-1">
+const ErrorsComponent: React.FC<ErrorsComponentProps> = ({
+  isInsufficientTezBalanceError,
+  isMaxAmountError,
+  maxAmount,
+  coin
+}) => (
+  <div className="flex justify-between items-baseline mt-1">
+    <p className={classNames(isInsufficientTezBalanceError ? 'text-red-700' : 'text-transparent')}>
+      <T id={'insufficientTezBalance'} />
+    </p>
     <p className={getSmallErrorText(isMaxAmountError)}>
       <CurrencyText className={getBigErrorText(isMaxAmountError)} coin={coin} maxAmount={maxAmount} />
     </p>
   </div>
 );
 
-const CurrencyText: React.FC<
-  Omit<MaxAmountErrorComponentProps, 'isCoinFromType' | 'isMaxAmountError'> & { className: string }
-> = ({ className, coin, maxAmount }) => (
+const CurrencyText: React.FC<ErrorsComponentProps & { className: string }> = ({ className, coin, maxAmount }) => (
   <>
     <T id={'max'} />
     {':'}

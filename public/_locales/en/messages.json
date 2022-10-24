@@ -1146,6 +1146,9 @@
       }
     }
   },
+  "insufficientTezBalance": {
+    "message": "Insufficient TEZ balance"
+  },
   "notEnoughFunds": {
     "message": "Not enough funds"
   },

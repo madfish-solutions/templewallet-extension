@@ -17,5 +17,6 @@ export interface TopUpInputProps {
   maxAmount?: string;
   isMinAmountError?: boolean;
   isMaxAmountError?: boolean;
+  isInsufficientTezBalanceError?: boolean;
   onAmountChange?: (value: ChangeEvent<HTMLInputElement>) => void;
 }
