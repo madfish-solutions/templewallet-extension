@@ -90,49 +90,7 @@ export const mapOperationToActivity = (sourcePkh: string, { hash, addedAt, data 
     operations:
       data.localGroup && data.localGroup.length > 0
         ? data.localGroup.map(group => mapLocalGroupToActivityOperation(sourcePkh, group, addedAt))
-        : data.tzktGroup && data.tzktGroup.length > 0
-        ? data.tzktGroup.map(() => mapTzktGroupToActivityOperation(sourcePkh, addedAt))
-        : data.tzktTokenTransfers && data.tzktTokenTransfers.length > 0
-        ? data.tzktTokenTransfers.map(() => mapTzktTokenTransferToActivityOperation(sourcePkh, addedAt))
         : []
-  };
-};
-
-// legacy, thus dont need to have tzkt operation as param
-const mapTzktTokenTransferToActivityOperation = (sourcePkh: string, addedAt: number): ActivityOperation => {
-  return {
-    id: -1,
-    level: -1,
-    type: 'transaction',
-    destination: {
-      address: ''
-    },
-    source: {
-      address: sourcePkh
-    },
-    contractAddress: 'tez',
-    status: 'pending',
-    amountSigned: '0',
-    addedAt: new Date(addedAt).toISOString()
-  };
-};
-
-// legacy, thus dont need to have tzkt operation as param
-const mapTzktGroupToActivityOperation = (sourcePkh: string, addedAt: number): ActivityOperation => {
-  return {
-    id: -1,
-    level: -1,
-    type: 'transaction',
-    destination: {
-      address: ''
-    },
-    source: {
-      address: sourcePkh
-    },
-    contractAddress: 'tez',
-    status: 'pending',
-    amountSigned: '0',
-    addedAt: new Date(addedAt).toISOString()
   };
 };
 

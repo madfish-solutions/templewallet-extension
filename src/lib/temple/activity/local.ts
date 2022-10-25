@@ -73,7 +73,9 @@ export async function removeLocalOperation(hash: string) {
 
 export async function getLocalActivity(chainId: string, sourcePkh: string): Promise<Array<Activity>> {
   const operations = await Repo.operations.where({ chainId }).toArray();
-  return operations.map(operation => mapOperationToActivity(sourcePkh, operation));
+  return operations
+    .filter(x => x.data.localGroup && x.data.localGroup.length > 0)
+    .map(operation => mapOperationToActivity(sourcePkh, operation));
 }
 
 const addTezIfPositive = (x: string, assetSet: Set<string>) => isPositiveNumber(x) && assetSet.add('tez');
