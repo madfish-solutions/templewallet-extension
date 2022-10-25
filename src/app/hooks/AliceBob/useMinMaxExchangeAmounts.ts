@@ -16,7 +16,10 @@ export const useMinMaxExchangeAmounts = (setIsApiError: (v: boolean) => void, is
     setIsMinMaxLoading(true);
     getAliceBobPairInfo({ isWithdraw: String(isWithdraw) })
       .then(({ pairInfo }) => {
-        const normalizedMin = new BigNumber(pairInfo.minAmount).dp(6).plus(PENNY).toNumber();
+        const normalizedMin = new BigNumber(pairInfo.minAmount)
+          .dp(6)
+          .plus(isWithdraw ? PENNY : 0)
+          .toNumber();
         const normalizedMax = new BigNumber(pairInfo.maxAmount).dp(6, BigNumber.ROUND_FLOOR).toNumber();
 
         setMinExchangeAmount(normalizedMin);

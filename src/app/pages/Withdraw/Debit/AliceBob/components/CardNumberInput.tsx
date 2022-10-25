@@ -2,19 +2,19 @@ import React, { forwardRef, useCallback, useState } from 'react';
 
 import classNames from 'clsx';
 
-import { handleNumberInput } from 'app/pages/Buy/utils/handleNumberInput.util';
 import { emptyFn } from 'app/utils/function.utils';
 import { t } from 'lib/i18n/react';
 
+const NUMBERS_WITH_SPACES_REGEX = /^[\d ]*$/;
+
 interface Props {
-  showError?: boolean;
   className?: string;
   setIsError?: (v: boolean) => void;
   setIsNotUkrainianCardError?: (v: boolean) => void;
 }
 
 export const CardNumberInput = forwardRef<HTMLInputElement, Props>(
-  ({ showError = false, className, setIsError = emptyFn, setIsNotUkrainianCardError = emptyFn }, ref) => {
+  ({ className, setIsError = emptyFn, setIsNotUkrainianCardError = emptyFn }, ref) => {
     const [cardNumber, setCardNumber] = useState('');
     const [isActive, setIsActive] = useState(false);
     const [error, setError] = useState('');
@@ -41,6 +41,11 @@ export const CardNumberInput = forwardRef<HTMLInputElement, Props>(
       (e: React.ChangeEvent<HTMLInputElement>) => {
         const cardNumber = e.target.value;
 
+        if (cardNumber && !NUMBERS_WITH_SPACES_REGEX.test(cardNumber)) {
+          e.preventDefault();
+          return;
+        }
+
         setBeautifiedCardNumber(cardNumber, setCardNumber, validateCardNumber);
       },
       [validateCardNumber]
@@ -49,6 +54,11 @@ export const CardNumberInput = forwardRef<HTMLInputElement, Props>(
     const handlePaste = useCallback(
       (e: React.ClipboardEvent<HTMLInputElement>) => {
         const cardNumber = e.clipboardData.getData('text');
+
+        if (cardNumber && !NUMBERS_WITH_SPACES_REGEX.test(cardNumber)) {
+          e.preventDefault();
+          return;
+        }
 
         setBeautifiedCardNumber(cardNumber, setCardNumber, validateCardNumber);
       },
@@ -63,7 +73,7 @@ export const CardNumberInput = forwardRef<HTMLInputElement, Props>(
           placeholder={t('enterCardNumber')}
           className={classNames(
             isActive && 'border-orange-500 bg-gray-100',
-            showError && Boolean(error) ? 'border-red-700' : 'border-gray-300',
+            Boolean(error) ? 'border-red-700' : 'border-gray-300',
             'text-gray-910 transition ease-in-out duration-200',
             'w-full border rounded-md',
             'p-4 leading-tight placeholder-alphagray',
@@ -76,11 +86,8 @@ export const CardNumberInput = forwardRef<HTMLInputElement, Props>(
           onFocus={handleFocus}
           onPaste={handlePaste}
           onChange={handleChange}
-          onKeyPress={e => handleNumberInput(e, false)}
         />
-        {showError && Boolean(error) && (
-          <p className="font-inter font-normal text-xs text-red-700 mt-1 text-left">{error}</p>
-        )}
+        {Boolean(error) && <p className="font-inter font-normal text-xs text-red-700 mt-1 text-left">{error}</p>}
       </>
     );
   }

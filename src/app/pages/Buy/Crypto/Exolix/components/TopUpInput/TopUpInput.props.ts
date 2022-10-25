@@ -1,11 +1,11 @@
-import React, { ChangeEvent } from 'react';
+import { ReactNode } from 'react';
 
 import { CurrencyInterface } from '../../exolix.interface';
 
 export interface TopUpInputProps {
   currency: CurrencyInterface;
   currenciesList: CurrencyInterface[];
-  label: React.ReactNode;
+  label: ReactNode;
   setCurrency: (value: CurrencyInterface) => void;
   isCurrenciesLoading?: boolean;
   isSearchable?: boolean;
@@ -17,5 +17,5 @@ export interface TopUpInputProps {
   maxAmount?: string;
   isMinAmountError?: boolean;
   isMaxAmountError?: boolean;
-  onAmountChange?: (value: ChangeEvent<HTMLInputElement>) => void;
+  onAmountChange?: (value?: number) => void;
 }

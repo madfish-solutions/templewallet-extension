@@ -5,10 +5,11 @@ import classNames from 'clsx';
 import { ReactComponent as ChevronDownIcon } from 'app/icons/chevron-down.svg';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
 import { getBigErrorText, getSmallErrorText } from 'app/pages/Buy/utils/errorText.utils';
+import { emptyFn } from 'app/utils/function.utils';
 import { toLocalFormat, T, t } from 'lib/i18n';
 import { PopperRenderProps } from 'lib/ui/Popper';
 
-import { handleNumberInput } from '../../../../../utils/handleNumberInput.util';
+import AssetField from '../../../../../../../atoms/AssetField';
 import { StaticCurrencyImage } from '../StaticCurrencyImage/StaticCurrencyImage';
 import { TopUpInputProps } from '../TopUpInput.props';
 
@@ -36,7 +37,7 @@ export const TopUpInputHeader = forwardRef<HTMLDivElement, Props>(
       isInsufficientTezBalanceError,
       isSearchable = false,
       singleToken = false,
-      onAmountChange,
+      onAmountChange = emptyFn,
       onSearchChange
     },
     ref
@@ -63,6 +64,11 @@ export const TopUpInputHeader = forwardRef<HTMLDivElement, Props>(
       event.preventDefault();
       setIsActive(true);
       amountFieldRef.current?.focus({ preventScroll: true });
+    };
+
+    const handleAmountChange = (newInputValue?: string) => {
+      const newValue = newInputValue ? Number(newInputValue) : undefined;
+      onAmountChange(newValue);
     };
 
     return (
@@ -143,14 +149,10 @@ export const TopUpInputHeader = forwardRef<HTMLDivElement, Props>(
               )}
             >
               <div className="h-full flex-1 flex items-end justify-center flex-col">
-                <input
+                <AssetField
                   ref={amountFieldRef}
                   value={amount?.toString()}
                   readOnly={readOnly}
-                  onKeyPress={e => handleNumberInput(e)}
-                  placeholder={toLocalFormat(0, { decimalPlaces: 2 })}
-                  min={0}
-                  style={{ padding: 0, borderRadius: 0 }}
                   className={classNames(
                     'appearance-none',
                     'w-full',
@@ -165,12 +167,16 @@ export const TopUpInputHeader = forwardRef<HTMLDivElement, Props>(
                     'text-gray-700 text-2xl text-right border-none bg-opacity-0',
                     'pl-0 focus:shadow-none'
                   )}
+                  style={{ padding: 0, borderRadius: 0 }}
+                  placeholder={toLocalFormat(0, { decimalPlaces: 2 })}
                   type="text"
+                  min={0}
                   maxLength={15}
                   disabled={amountInputDisabled}
+                  fieldWrapperBottomMargin={false}
                   onBlur={handleBlur}
                   onFocus={handleAmountFieldFocus}
-                  onChange={onAmountChange}
+                  onChange={handleAmountChange}
                 />
               </div>
             </div>

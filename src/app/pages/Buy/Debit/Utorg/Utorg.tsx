@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 import { useDebouncedCallback } from 'use-debounce';
 
@@ -24,7 +24,7 @@ const REQUEST_LATENCY = 300;
 
 export const Utorg = () => {
   const [inputCurrency, setInputCurrency] = useState(DEFAULT_CURRENCY);
-  const [inputAmount, setInputAmount] = useState(0);
+  const [inputAmount, setInputAmount] = useState<number | undefined>(undefined);
 
   const [link, setLink] = useState('');
 
@@ -62,10 +62,7 @@ export const Utorg = () => {
 
   useEffect(() => debouncedLinkRequest(), [debouncedLinkRequest, inputAmount, inputCurrency]);
 
-  const handleInputAmountChange = useCallback(
-    (e: ChangeEvent<HTMLInputElement>) => setInputAmount(Number(e.target.value)),
-    []
-  );
+  const handleInputAmountChange = useCallback((amount?: number) => setInputAmount(amount), []);
 
   return (
     <PageLayout
@@ -87,6 +84,7 @@ export const Utorg = () => {
         <TopUpInput
           isSearchable
           label={<T id="send" />}
+          amount={inputAmount}
           currencyName={inputCurrency}
           currenciesList={currencies}
           setCurrencyName={setInputCurrency}

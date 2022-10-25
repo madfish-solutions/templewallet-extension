@@ -5,7 +5,7 @@ import BigNumber from 'bignumber.js';
 import { useAccount, useBalance } from 'lib/temple/front';
 
 export const useDisabledProceed = (
-  inputAmount: number,
+  inputAmount: number | undefined,
   minExchangeAmount: number,
   maxExchangeAmount: number,
   isApiError = false,
@@ -18,12 +18,12 @@ export const useDisabledProceed = (
   const tezBalance = tezBalanceData!;
 
   const isMinAmountError = useMemo(
-    () => inputAmount !== 0 && inputAmount < minExchangeAmount,
+    () => inputAmount !== undefined && inputAmount !== 0 && inputAmount < minExchangeAmount,
     [inputAmount, minExchangeAmount]
   );
 
   const isMaxAmountError = useMemo(
-    () => inputAmount !== 0 && inputAmount > maxExchangeAmount,
+    () => inputAmount !== undefined && inputAmount !== 0 && inputAmount > maxExchangeAmount,
     [inputAmount, maxExchangeAmount]
   );
 
@@ -32,7 +32,7 @@ export const useDisabledProceed = (
       const gasFee = new BigNumber(0.3);
       const maxTezAmount = BigNumber.max(tezBalance.minus(gasFee), 0);
 
-      return inputAmount !== 0 && inputAmount > maxTezAmount.toNumber();
+      return inputAmount !== undefined && inputAmount !== 0 && inputAmount > maxTezAmount.toNumber();
     } else {
       return false;
     }
@@ -43,6 +43,7 @@ export const useDisabledProceed = (
       isMinAmountError ||
       isMaxAmountError ||
       inputAmount === 0 ||
+      inputAmount === undefined ||
       isApiError ||
       isCardInputError ||
       isNotUkrainianCardError ||

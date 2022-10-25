@@ -104,28 +104,28 @@ export const SellStep: FC<StepProps> = ({ orderInfo, isApiError, setStep, setOrd
         <p className="text-gray-600 text-xs">
           <T id="youSell" />
         </p>
-        <p className="text-xs text-gray-910">{fromAmount} TEZ</p>
+        <p className="text-sm font-medium text-gray-910">{fromAmount} TEZ</p>
       </div>
 
       <div className="flex justify-between items-baseline mt-2">
         <p className="text-gray-600 text-xs">
           <T id="exchangeRate" />:
         </p>
-        <p className="text-xs text-gray-910">1 TEZ ≈ {exchangeRate} UAH</p>
+        <p className="text-xs text-gray-600">1 TEZ ≈ {exchangeRate} UAH</p>
       </div>
 
       <div className="flex justify-between items-baseline mt-2">
         <p className="text-gray-600 text-xs">
           <T id="fee" />:
         </p>
-        <p className="text-xs text-gray-910">{totalFee.toFixed(4)} UAH</p>
+        <p className="text-xs text-gray-600">{totalFee.toFixed(4)} UAH</p>
       </div>
 
       <div className="flex justify-between items-baseline mt-2">
         <p className="text-gray-600 text-xs">
           <T id={'youGet'} />
         </p>
-        <p className="text-xs text-gray-910">{toAmount} UAH</p>
+        <p className="text-sm font-medium text-gray-910">{toAmount} UAH</p>
       </div>
 
       <FormSubmitButton

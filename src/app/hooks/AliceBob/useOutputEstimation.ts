@@ -1,35 +1,47 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { estimateAliceBobOutput } from 'lib/alice-bob-api';
 
 export const useOutputEstimation = (
-  inputAmount: number,
-  disabledProceed: boolean,
+  inputAmount = 0,
+  isMinAmountError: boolean,
+  isMaxAmountError: boolean,
   setLoading: (v: boolean) => void,
   setIsApiError: (v: boolean) => void,
   isWithdraw = false
 ) => {
   const [outputAmount, setOutputAmount] = useState(0);
 
+  const isValidInput = useMemo(
+    () => inputAmount > 0 && !isMinAmountError && !isMaxAmountError,
+    [inputAmount, isMaxAmountError, isMinAmountError]
+  );
+
   const getOutputEstimation = useCallback(() => {
-    if (!disabledProceed) {
+    if (isValidInput) {
       setLoading(true);
+
       estimateAliceBobOutput({
         isWithdraw: String(isWithdraw),
         amount: String(inputAmount)
       })
         .then(({ outputAmount }) => {
           setOutputAmount(outputAmount);
-          setLoading(false);
         })
-        .catch(() => setIsApiError(true));
+        .catch(() => setIsApiError(true))
+        .finally(() => setLoading(false));
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [disabledProceed, isWithdraw, inputAmount]);
+  }, [inputAmount, isValidInput, isWithdraw, setIsApiError, setLoading]);
 
   useEffect(() => {
     getOutputEstimation();
   }, [getOutputEstimation]);
+
+  useEffect(() => {
+    if (!isValidInput && outputAmount !== 0) {
+      setOutputAmount(0);
+    }
+  }, [isValidInput, outputAmount]);
 
   return outputAmount;
 };

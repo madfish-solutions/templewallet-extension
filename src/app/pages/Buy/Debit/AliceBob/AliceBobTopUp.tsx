@@ -1,4 +1,4 @@
-import React, { ChangeEvent, FC, useCallback, useMemo, useState } from 'react';
+import React, { FC, useCallback, useMemo, useState } from 'react';
 
 import { useDebouncedCallback } from 'use-debounce';
 
@@ -25,7 +25,7 @@ export const AliceBobTopUp: FC = () => {
   const { analyticsState } = useAnalyticsState();
   const { publicKeyHash: walletAddress } = useAccount();
 
-  const [inputAmount, setInputAmount] = useState(0);
+  const [inputAmount, setInputAmount] = useState<number | undefined>(undefined);
   const [link, setLink] = useState('');
 
   const [isApiError, setIsApiError] = useState(false);
@@ -39,20 +39,20 @@ export const AliceBobTopUp: FC = () => {
     maxExchangeAmount
   );
 
-  const outputAmount = useOutputEstimation(inputAmount, disabledProceed, setLoading, setIsApiError);
+  const outputAmount = useOutputEstimation(inputAmount, isMinAmountError, isMaxAmountError, setLoading, setIsApiError);
 
   const exchangeRate = useMemo(
-    () => (inputAmount > 0 ? (outputAmount / inputAmount).toFixed(4) : 0),
+    () => (inputAmount && inputAmount > 0 ? (outputAmount / inputAmount).toFixed(4) : 0),
     [inputAmount, outputAmount]
   );
 
   const linkRequest = useCallback(
-    (e: ChangeEvent<HTMLInputElement>) => {
+    (amount = 0) => {
       if (!disabledProceed) {
         setLoading(true);
         createAliceBobOrder({
           isWithdraw: 'false',
-          amount: e.target.value,
+          amount: amount.toString(),
           userId: analyticsState.userId,
           walletAddress
         })
@@ -67,9 +67,9 @@ export const AliceBobTopUp: FC = () => {
   const debouncedLinkRequest = useDebouncedCallback(linkRequest, REQUEST_LATENCY);
 
   const handleInputAmountChange = useCallback(
-    (e: ChangeEvent<HTMLInputElement>) => {
-      setInputAmount(Number(e.target.value));
-      debouncedLinkRequest(e);
+    (amount?: number) => {
+      setInputAmount(amount);
+      debouncedLinkRequest(amount);
     },
     [debouncedLinkRequest]
   );
@@ -96,6 +96,7 @@ export const AliceBobTopUp: FC = () => {
           isDefaultUahIcon
           amountInputDisabled={isMinMaxLoading}
           label={<T id="send" />}
+          amount={inputAmount}
           currencyName="UAH"
           currenciesList={[]}
           minAmount={minExchangeAmount.toString()}
@@ -152,18 +153,18 @@ export const AliceBobTopUp: FC = () => {
             <T
               id="privacyAndPolicyLinks"
               substitutions={[
-                <T id={'next'} />,
+                <T id="next" />,
                 <a className={styles['link']} rel="noreferrer" href={ALICE_BOB_PRIVACY_LINK} target="_blank">
-                  <T id={'termsOfUse'} />
+                  <T id="termsOfUse" />
                 </a>,
                 <a className={styles['link']} rel="noreferrer" href={ALICE_BOB_TERMS_LINK} target="_blank">
-                  <T id={'privacyPolicy'} />
+                  <T id="privacyPolicy" />
                 </a>
               ]}
             />
           </p>
           <p className="mt-6">
-            <T id={'warningTopUpServiceMessage'} />
+            <T id="warningTopUpServiceMessage" />
           </p>
         </div>
       </div>

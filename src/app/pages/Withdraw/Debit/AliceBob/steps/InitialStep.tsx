@@ -1,4 +1,4 @@
-import React, { ChangeEvent, FC, useCallback, useMemo, useRef, useState } from 'react';
+import React, { FC, useCallback, useMemo, useRef, useState } from 'react';
 
 import classNames from 'clsx';
 
@@ -22,10 +22,9 @@ const NOT_UKRAINIAN_CARD_ERROR_MESSAGE = 'Ukrainian bank card is required.';
 export const InitialStep: FC<Omit<StepProps, 'orderInfo'>> = ({ isApiError, setOrderInfo, setStep, setIsApiError }) => {
   const { analyticsState } = useAnalyticsState();
 
-  const [inputAmount, setInputAmount] = useState(0);
+  const [inputAmount, setInputAmount] = useState<number | undefined>(undefined);
 
   const [isLoading, setLoading] = useState(false);
-  const [submitCount, setSubmitCount] = useState(0);
 
   const cardNumberRef = useRef<HTMLInputElement>(null);
 
@@ -44,20 +43,26 @@ export const InitialStep: FC<Omit<StepProps, 'orderInfo'>> = ({ isApiError, setO
     true
   );
 
-  const outputAmount = useOutputEstimation(inputAmount, disabledProceed, setLoading, setIsApiError, true);
+  const outputAmount = useOutputEstimation(
+    inputAmount,
+    isMinAmountError,
+    isMaxAmountError,
+    setLoading,
+    setIsApiError,
+    true
+  );
 
   const exchangeRate = useMemo(
-    () => (inputAmount > 0 ? (outputAmount / inputAmount).toFixed(4) : 0),
+    () => (inputAmount && inputAmount > 0 ? (outputAmount / inputAmount).toFixed(4) : 0),
     [inputAmount, outputAmount]
   );
 
   const handleSubmit = () => {
-    setSubmitCount(prevState => prevState + 1);
     if (!disabledProceed) {
       setLoading(true);
       createAliceBobOrder({
         isWithdraw: 'true',
-        amount: inputAmount.toString(),
+        amount: inputAmount?.toString() ?? '0',
         userId: analyticsState.userId,
         cardNumber: cardNumberRef.current?.value ?? ''
       })
@@ -76,10 +81,7 @@ export const InitialStep: FC<Omit<StepProps, 'orderInfo'>> = ({ isApiError, setO
     }
   };
 
-  const handleInputAmountChange = useCallback(
-    (e: ChangeEvent<HTMLInputElement>) => setInputAmount(Number(e.target.value)),
-    []
-  );
+  const handleInputAmountChange = useCallback((amount?: number) => setInputAmount(amount), []);
 
   return (
     <>
@@ -95,6 +97,7 @@ export const InitialStep: FC<Omit<StepProps, 'orderInfo'>> = ({ isApiError, setO
           singleToken
           isDefaultUahIcon
           amountInputDisabled={isMinMaxLoading}
+          amount={inputAmount}
           label={<T id="send" />}
           currencyName="TEZ"
           currenciesList={[]}
@@ -143,7 +146,6 @@ export const InitialStep: FC<Omit<StepProps, 'orderInfo'>> = ({ isApiError, setO
 
         <CardNumberInput
           ref={cardNumberRef}
-          showError={submitCount > 0}
           setIsError={setIsCardInputError}
           setIsNotUkrainianCardError={setIsNotUkrainianCardError}
           className={classNames(isNotUkrainianCardError && 'border-red-700')}
