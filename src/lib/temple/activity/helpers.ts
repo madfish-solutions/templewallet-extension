@@ -87,13 +87,14 @@ export const mapOperationToActivity = (sourcePkh: string, { hash, addedAt, data 
     addedAt: new Date(addedAt).toISOString(),
     status: 'pending',
     oldestTzktOperation: null,
-    operations: data.localGroup
-      ? data.localGroup.map(group => mapLocalGroupToActivityOperation(sourcePkh, group, addedAt))
-      : data.tzktGroup
-      ? data.tzktGroup.map(() => mapTzktGroupToActivityOperation(sourcePkh, addedAt))
-      : data.tzktTokenTransfers
-      ? data.tzktTokenTransfers.map(() => mapTzktTokenTransferToActivityOperation(sourcePkh, addedAt))
-      : []
+    operations:
+      data.localGroup && data.localGroup.length > 0
+        ? data.localGroup.map(group => mapLocalGroupToActivityOperation(sourcePkh, group, addedAt))
+        : data.tzktGroup && data.tzktGroup.length > 0
+        ? data.tzktGroup.map(() => mapTzktGroupToActivityOperation(sourcePkh, addedAt))
+        : data.tzktTokenTransfers && data.tzktTokenTransfers.length > 0
+        ? data.tzktTokenTransfers.map(() => mapTzktTokenTransferToActivityOperation(sourcePkh, addedAt))
+        : []
   };
 };
 

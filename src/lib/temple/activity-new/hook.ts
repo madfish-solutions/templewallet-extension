@@ -50,7 +50,7 @@ export default function useActivities(initialPseudoLimit: number, assetSlug?: st
 
       return;
     }
-    setActivities(newActivities);
+    setActivities(activities.concat(newActivities));
     setLoading(false);
     if (newActivities.length === 0) setReachedTheEnd(true);
   }
