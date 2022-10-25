@@ -4,13 +4,11 @@ import { useTezos, useChainId, useAccount } from 'lib/temple/front';
 import { isKnownChainId } from 'lib/tzkt/api';
 import { useDidMount, useDidUpdate, useSafeState } from 'lib/ui/hooks';
 
-import { getLocalOperation, removeLocalOperation } from '../activity/index';
+import { useLocalActivities, useLocalActivitiesCleanedUp } from '../activity/index';
 import fetchActivities from './fetch';
 import type { Activity } from './types';
 
 type TLoading = 'init' | 'more' | false;
-
-const EXPIRATION_DATE = 4 * 60 * 60 * 1000;
 
 export default function useActivities(initialPseudoLimit: number, assetSlug?: string) {
   const tezos = useTezos();
@@ -22,6 +20,8 @@ export default function useActivities(initialPseudoLimit: number, assetSlug?: st
   const [loading, setLoading] = useSafeState<TLoading>(isKnownChainId(chainId) && 'init');
   const [activities, setActivities] = useSafeState<Activity[]>([]);
   const [reachedTheEnd, setReachedTheEnd] = useSafeState(false);
+  const localActivities = useLocalActivities();
+  const cleanedUpActivities = useLocalActivitiesCleanedUp(localActivities, activities);
 
   const shouldStopRef = useRef<Symbol | null>(null);
   const buildShouldStop = () => {
@@ -50,20 +50,7 @@ export default function useActivities(initialPseudoLimit: number, assetSlug?: st
 
       return;
     }
-
-    const pending = await getLocalOperation(chainId, accountAddress);
-    const allActivities = activities.concat(newActivities);
-
-    const pendingCollisions = pending.filter(
-      ({ hash, addedAt }) => allActivities.some(x => x.hash === hash) || Date.now() - Number(addedAt) > EXPIRATION_DATE
-    );
-    const pendingNotCollisions = pending.filter(({ hash }) => !allActivities.some(x => x.hash === hash));
-
-    for (const { hash } of pendingCollisions) {
-      removeLocalOperation(hash);
-    }
-
-    setActivities([...pendingNotCollisions, ...allActivities]);
+    setActivities(newActivities);
     setLoading(false);
     if (newActivities.length === 0) setReachedTheEnd(true);
   }
@@ -89,7 +76,7 @@ export default function useActivities(initialPseudoLimit: number, assetSlug?: st
   return {
     loading,
     reachedTheEnd,
-    list: activities,
+    list: [...cleanedUpActivities, ...activities],
     loadMore
   };
 }

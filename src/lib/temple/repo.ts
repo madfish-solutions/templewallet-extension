@@ -48,7 +48,7 @@ export interface IAccountToken {
   latestUSDBalance?: string;
 }
 
-interface IOperation {
+export interface IOperation {
   hash: string;
   chainId: string;
   members: Array<string>;
