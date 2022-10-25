@@ -1,1 +1,1 @@
-export * from './local';
+export { getLocalOperation, removeLocalOperation, addLocalOperation } from './local';
