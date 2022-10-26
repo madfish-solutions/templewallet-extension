@@ -9,9 +9,10 @@ interface Props {
   style: React.CSSProperties;
   steps: string[];
   currentStep: number;
+  completed?: boolean;
 }
 
-export const Stepper: FC<Props> = ({ style, steps, currentStep }) => (
+export const Stepper: FC<Props> = ({ style, steps, currentStep, completed = false }) => (
   <div className={classNames(styles['stepperWrapper'])} style={style}>
     {steps.map((stepItem, index) => (
       <div className="stepBlock" key={stepItem}>
@@ -20,11 +21,11 @@ export const Stepper: FC<Props> = ({ style, steps, currentStep }) => (
           <div
             className={classNames(
               styles['circle'],
-              currentStep === index && styles['circle-active'],
-              currentStep > index && styles['circle-passed']
+              (completed || currentStep) === index && styles['circle-active'],
+              (completed || currentStep > index) && styles['circle-passed']
             )}
           >
-            {currentStep > index && <OkIcon style={{ width: '14px', height: '14px' }} />}
+            {(completed || currentStep > index) && <OkIcon style={{ width: '14px', height: '14px' }} />}
           </div>
           {index !== steps.length - 1 && (
             <div className={classNames(styles['line'], currentStep > index && styles['line-active'])} />
