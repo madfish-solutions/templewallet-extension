@@ -67,9 +67,7 @@ export async function addLocalOperation(chainId: string, hash: string, localGrou
   });
 }
 
-export async function removeLocalOperation(hash: string) {
-  return Repo.operations.delete(hash);
-}
+export const removeLocalOperation = (hash: string) => Repo.operations.delete(hash);
 
 export async function getLocalActivity(chainId: string, sourcePkh: string): Promise<Array<Activity>> {
   const operations = await Repo.operations.where({ chainId }).toArray();

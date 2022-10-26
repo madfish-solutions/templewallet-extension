@@ -12,26 +12,25 @@ const EXPIRATION_DATE = 4 * 60 * 60 * 1000;
 export function useLocalActivities() {
   const chainId = useChainId(true);
   const [activities, setActivities] = useSafeState<Activity[]>([]);
-  const account = useAccount();
-  const accountAddress = account.publicKeyHash;
+  const { publicKeyHash } = useAccount();
 
-  async function loadActivities(chainId: string, accountAddress: string) {
-    const pending = await getLocalActivity(chainId, accountAddress);
+  async function loadActivities(chainId: string, publicKeyHash: string) {
+    const pending = await getLocalActivity(chainId, publicKeyHash);
     setActivities(pending);
   }
 
   useDidMount(() => {
     if (isKnownChainId(chainId)) {
-      loadActivities(chainId, accountAddress);
+      loadActivities(chainId, publicKeyHash);
     }
   });
 
   useDidUpdate(() => {
     if (isKnownChainId(chainId)) {
       setActivities([]);
-      loadActivities(chainId, accountAddress);
+      loadActivities(chainId, publicKeyHash);
     }
-  }, [chainId, accountAddress]);
+  }, [chainId, publicKeyHash]);
 
   return activities;
 }
