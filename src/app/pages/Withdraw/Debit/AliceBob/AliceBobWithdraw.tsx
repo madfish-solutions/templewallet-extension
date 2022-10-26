@@ -4,13 +4,20 @@ import { Stepper } from 'app/atoms';
 import { ReactComponent as AttentionRedIcon } from 'app/icons/attentionRed.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import styles from 'app/pages/Buy/Crypto/Exolix/Exolix.module.css';
-import { ALICE_BOB_PRIVACY_LINK, ALICE_BOB_TERMS_LINK } from 'app/pages/Buy/Debit/AliceBob/config';
+import {
+  ALICE_BOB_CONTACT_LINK,
+  ALICE_BOB_PRIVACY_LINK,
+  ALICE_BOB_TERMS_LINK
+} from 'app/pages/Buy/Debit/AliceBob/config';
 import { AliceBobOrderInfo, AliceBobOrderStatus } from 'lib/alice-bob-api';
+import { useAnalytics } from 'lib/analytics';
 import { t, T } from 'lib/i18n/react';
+import { AnalyticsEventCategory } from 'lib/temple/analytics-types';
 import { useAccount, useNetwork, useStorage } from 'lib/temple/front';
 import { TempleAccountType } from 'lib/temple/types';
 import { Redirect } from 'lib/woozie';
 
+import { WithdrawSelectors } from '../../Withdraw.selectors';
 import { InitialStep } from './steps/InitialStep';
 import { OrderStatusStep } from './steps/OrderStatusStep';
 import { SellStep } from './steps/SellStep';
@@ -19,6 +26,8 @@ export const AliceBobWithdraw: FC = () => {
   const network = useNetwork();
   const account = useAccount();
   const { publicKeyHash } = account;
+  const { trackEvent } = useAnalytics();
+
   const [step, setStep] = useStorage<number>(`alice_bob_withdraw_step_state_${publicKeyHash}`, 0);
   const [isApiError, setIsApiError] = useState(false);
   const [orderInfo, setOrderInfo] = useStorage<AliceBobOrderInfo | null>(
@@ -77,13 +86,25 @@ export const AliceBobWithdraw: FC = () => {
         )}
 
         {orderInfo && step === 2 && (
-          <OrderStatusStep
-            orderInfo={orderInfo}
-            isApiError={isApiError}
-            setStep={setStep}
-            setOrderInfo={setOrderInfo}
-            setIsApiError={setIsApiError}
-          />
+          <>
+            <OrderStatusStep
+              orderInfo={orderInfo}
+              isApiError={isApiError}
+              setStep={setStep}
+              setOrderInfo={setOrderInfo}
+              setIsApiError={setIsApiError}
+            />
+
+            <a
+              href={ALICE_BOB_CONTACT_LINK}
+              target="_blank"
+              rel="noreferrer"
+              className="text-blue-500 text-sm mt-6 cursor-pointer inline-block w-auto"
+              onClick={() => trackEvent(WithdrawSelectors.AliceBobSupportButton, AnalyticsEventCategory.ButtonPress)}
+            >
+              <T id={'support'} />
+            </a>
+          </>
         )}
 
         <div className="text-gray-700">
