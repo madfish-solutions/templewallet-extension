@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 import { useDebouncedCallback } from 'use-debounce';
 
@@ -24,7 +24,7 @@ const REQUEST_LATENCY = 300;
 
 export const Utorg = () => {
   const [inputCurrency, setInputCurrency] = useState(DEFAULT_CURRENCY);
-  const [inputAmount, setInputAmount] = useState(0);
+  const [inputAmount, setInputAmount] = useState<number | undefined>(undefined);
 
   const [link, setLink] = useState('');
 
@@ -62,10 +62,7 @@ export const Utorg = () => {
 
   useEffect(() => debouncedLinkRequest(), [debouncedLinkRequest, inputAmount, inputCurrency]);
 
-  const handleInputAmountChange = useCallback(
-    (e: ChangeEvent<HTMLInputElement>) => setInputAmount(Number(e.target.value)),
-    []
-  );
+  const handleInputAmountChange = useCallback((amount?: number) => setInputAmount(amount), []);
 
   return (
     <PageLayout
@@ -85,14 +82,15 @@ export const Utorg = () => {
       )}
       <div className="max-w-sm mx-auto mt-4 mb-10 text-center font-inter font-normal text-gray-700">
         <TopUpInput
+          isSearchable
+          label={<T id="send" />}
+          amount={inputAmount}
           currencyName={inputCurrency}
           currenciesList={currencies}
-          label={<T id="send" />}
           setCurrencyName={setInputCurrency}
-          className="mb-4"
           onAmountChange={handleInputAmountChange}
           amountInputDisabled={isMinMaxLoading}
-          isSearchable
+          className="mb-4"
         />
 
         <br />
@@ -101,8 +99,8 @@ export const Utorg = () => {
           singleToken
           amountInputDisabled
           label={<T id="get" />}
+          currencyName="TEZ"
           currenciesList={[]}
-          currencyName="XTZ"
           minAmount={minXtzExchangeAmount.toString()}
           maxAmount={maxXtzExchangeAmount.toString()}
           isMinAmountError={isMinAmountError}
@@ -115,7 +113,7 @@ export const Utorg = () => {
             <T id={'exchangeRate'} />
           </p>
           <p className={styles['exchangeData']}>
-            1 {inputCurrency} ≈ {exchangeRate} XTZ
+            1 {inputCurrency} ≈ {exchangeRate} TEZ
           </p>
         </div>
         <FormSubmitButton

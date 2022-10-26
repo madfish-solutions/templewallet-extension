@@ -11,10 +11,10 @@ import FourthStep from './steps/FourthStep';
 import SecondStep from './steps/SecondStep';
 import ThirdStep from './steps/ThirdStep';
 
-const steps = [`${t('step')} 1`, `${t('step')} 2`, `${t('step')} 3`, `${t('step')} 4`];
-
 const Onboarding: FC = () => {
   const [step, setStep] = useStorage<number>(`onboarding_step_state`, 0);
+
+  const steps = (stepWord => [`${stepWord} 1`, `${stepWord} 2`, `${stepWord} 3`, `${stepWord} 4`])(t('step'));
 
   return (
     <PageLayout

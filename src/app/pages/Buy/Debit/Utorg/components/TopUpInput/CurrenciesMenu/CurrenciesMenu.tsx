@@ -4,9 +4,9 @@ import { List } from 'react-virtualized';
 
 import DropdownWrapper from 'app/atoms/DropdownWrapper';
 import Spinner from 'app/atoms/Spinner/Spinner';
+import { useAppEnvStyle } from 'app/hooks/useAppEnvStyle';
 import { T } from 'lib/i18n';
 
-import { useAppEnvStyle } from '../../../../../../../hooks/useAppEnvStyle';
 import { CurrencyOption } from './CurrencyOption/CurrencyOption';
 
 interface Props {
