@@ -2,6 +2,7 @@ import React, { FC, useCallback, useMemo, useRef, useState } from 'react';
 
 import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
+import MaskedInput from 'react-text-mask';
 
 import { FormSubmitButton } from 'app/atoms/FormSubmitButton';
 import { useDisabledProceed } from 'app/hooks/AliceBob/useDisabledProceed';
@@ -27,7 +28,7 @@ export const InitialStep: FC<Omit<StepProps, 'orderInfo'>> = ({ isApiError, setO
 
   const [isLoading, setLoading] = useState(false);
 
-  const cardNumberRef = useRef<HTMLInputElement>(null);
+  const cardNumberRef = useRef<MaskedInput>(null);
 
   const [cardInputError, setCardInputError] = useState('');
   const [isNotUkrainianCardError, setIsNotUkrainianCardError] = useState(false);
@@ -62,7 +63,7 @@ export const InitialStep: FC<Omit<StepProps, 'orderInfo'>> = ({ isApiError, setO
   );
 
   const handleSubmit = () => {
-    const cardNumber = cardNumberRef.current?.value;
+    const cardNumber = String(cardNumberRef.current?.props.value);
 
     if (!cardNumber) {
       setCardInputError(t('required'));

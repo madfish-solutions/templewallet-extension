@@ -1,11 +1,32 @@
 import React, { forwardRef, useCallback, useState } from 'react';
 
 import classNames from 'clsx';
+import MaskedInput from 'react-text-mask';
 
 import { emptyFn } from 'app/utils/function.utils';
 import { t } from 'lib/i18n/react';
 
-const NUMBERS_WITH_SPACES_REGEX = /^[\d ]*$/;
+const NUMBERS_WITH_SPACES_REGEX = [
+  /[1-9]/,
+  /\d/,
+  /\d/,
+  /\d/,
+  ' ',
+  /\d/,
+  /\d/,
+  /\d/,
+  /\d/,
+  ' ',
+  /\d/,
+  /\d/,
+  /\d/,
+  /\d/,
+  ' ',
+  /\d/,
+  /\d/,
+  /\d/,
+  /\d/
+];
 
 interface Props {
   className?: string;
@@ -14,7 +35,7 @@ interface Props {
   setIsNotUkrainianCardError?: (v: boolean) => void;
 }
 
-export const CardNumberInput = forwardRef<HTMLInputElement, Props>(
+export const CardNumberInput = forwardRef<MaskedInput, Props>(
   ({ className, error = '', setError = emptyFn, setIsNotUkrainianCardError = emptyFn }, ref) => {
     const [cardNumber, setCardNumber] = useState('');
     const [isActive, setIsActive] = useState(false);
@@ -39,12 +60,8 @@ export const CardNumberInput = forwardRef<HTMLInputElement, Props>(
       (e: React.ChangeEvent<HTMLInputElement>) => {
         const cardNumber = e.target.value;
 
-        if (cardNumber && !NUMBERS_WITH_SPACES_REGEX.test(cardNumber)) {
-          e.preventDefault();
-          return;
-        }
-
-        setBeautifiedCardNumber(cardNumber, setCardNumber, validateCardNumber);
+        setCardNumber(cardNumber);
+        validateCardNumber(cardNumber);
       },
       [validateCardNumber]
     );
@@ -53,21 +70,19 @@ export const CardNumberInput = forwardRef<HTMLInputElement, Props>(
       (e: React.ClipboardEvent<HTMLInputElement>) => {
         const cardNumber = e.clipboardData.getData('text');
 
-        if (cardNumber && !NUMBERS_WITH_SPACES_REGEX.test(cardNumber)) {
-          e.preventDefault();
-          return;
-        }
-
-        setBeautifiedCardNumber(cardNumber, setCardNumber, validateCardNumber);
+        setCardNumber(cardNumber);
+        validateCardNumber(cardNumber);
       },
       [validateCardNumber]
     );
 
     return (
       <>
-        <input
+        <MaskedInput
           ref={ref}
           value={cardNumber}
+          mask={NUMBERS_WITH_SPACES_REGEX}
+          guide={false}
           placeholder={t('enterCardNumber')}
           className={classNames(
             isActive && 'border-orange-500 bg-gray-100',
@@ -90,21 +105,6 @@ export const CardNumberInput = forwardRef<HTMLInputElement, Props>(
     );
   }
 );
-
-const setBeautifiedCardNumber = (cardNumber: string, set: (v: string) => void, validate: (v: string) => void) => {
-  const rawSplit = [...cardNumber.split(' ').join('')];
-  const beautifiedSplit: string[] = [];
-
-  rawSplit.forEach((t, i) => {
-    if (i % 4 === 0 && beautifiedSplit.length !== 0) beautifiedSplit.push(' ');
-    beautifiedSplit.push(t);
-  });
-
-  const beautifiedCardNumber = beautifiedSplit.join('');
-
-  set(beautifiedCardNumber);
-  validate(beautifiedCardNumber);
-};
 
 // checks card number validity using Luhn algorithm
 const checkLuhn = (cardNumber: string) => {
