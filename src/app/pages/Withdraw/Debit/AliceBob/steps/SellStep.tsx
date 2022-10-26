@@ -1,5 +1,7 @@
 import React, { FC, useCallback, useMemo, useState } from 'react';
 
+import BigNumber from 'bignumber.js';
+
 import { FormSubmitButton } from 'app/atoms';
 import CopyButton from 'app/atoms/CopyButton';
 import { ReactComponent as CopyIcon } from 'app/icons/copy.svg';
@@ -31,9 +33,15 @@ export const SellStep: FC<StepProps> = ({ orderInfo, isApiError, setStep, setOrd
 
   const truncatedOrderId = useMemo(() => orderId.slice(0, 10) + '...' + orderId.slice(-5), [orderId]);
 
-  const exchangeRate = useMemo(() => (toAmount / fromAmount).toFixed(4), [fromAmount, toAmount]);
+  const exchangeRate = useMemo(
+    () => new BigNumber(toAmount).div(fromAmount).dp(2, BigNumber.ROUND_FLOOR).toString(),
+    [fromAmount, toAmount]
+  );
 
-  const totalFee = useMemo(() => fromAmount * toRate - toAmount, [fromAmount, toAmount, toRate]);
+  const totalFee = useMemo(
+    () => new BigNumber(fromAmount).times(toRate).minus(toAmount).dp(2, BigNumber.ROUND_FLOOR).toString(),
+    [fromAmount, toAmount, toRate]
+  );
 
   const cancelButtonHandler = useCallback(async () => {
     setStep(0);
@@ -118,14 +126,16 @@ export const SellStep: FC<StepProps> = ({ orderInfo, isApiError, setStep, setOrd
         <p className="text-gray-600 text-xs">
           <T id="fee" />:
         </p>
-        <p className="text-xs text-gray-600">{totalFee.toFixed(4)} UAH</p>
+        <p className="text-xs text-gray-600">{totalFee} UAH</p>
       </div>
 
       <div className="flex justify-between items-baseline mt-2">
         <p className="text-gray-600 text-xs">
           <T id={'youGet'} />
         </p>
-        <p className="text-sm font-medium text-gray-910">{toAmount} UAH</p>
+        <p className="text-sm font-medium text-gray-910">
+          {new BigNumber(toAmount).dp(2, BigNumber.ROUND_FLOOR).toNumber()} UAH
+        </p>
       </div>
 
       <FormSubmitButton

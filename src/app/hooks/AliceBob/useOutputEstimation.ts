@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
+import BigNumber from 'bignumber.js';
+
 import { estimateAliceBobOutput } from 'lib/alice-bob-api';
 
 export const useOutputEstimation = (
@@ -25,9 +27,9 @@ export const useOutputEstimation = (
         isWithdraw: String(isWithdraw),
         amount: String(inputAmount)
       })
-        .then(({ outputAmount }) => {
-          setOutputAmount(outputAmount);
-        })
+        .then(({ outputAmount }) =>
+          setOutputAmount(new BigNumber(outputAmount).dp(2, BigNumber.ROUND_FLOOR).toNumber())
+        )
         .catch(() => setIsApiError(true))
         .finally(() => setLoading(false));
     }

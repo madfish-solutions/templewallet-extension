@@ -1,5 +1,6 @@
 import React, { FC, useCallback, useMemo, useRef, useState } from 'react';
 
+import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
 
 import { FormSubmitButton } from 'app/atoms/FormSubmitButton';
@@ -53,7 +54,10 @@ export const InitialStep: FC<Omit<StepProps, 'orderInfo'>> = ({ isApiError, setO
   );
 
   const exchangeRate = useMemo(
-    () => (inputAmount && inputAmount > 0 ? (outputAmount / inputAmount).toFixed(4) : 0),
+    () =>
+      inputAmount && inputAmount > 0
+        ? new BigNumber(outputAmount).div(inputAmount).dp(2, BigNumber.ROUND_FLOOR).toString()
+        : 0,
     [inputAmount, outputAmount]
   );
 
