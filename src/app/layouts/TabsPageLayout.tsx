@@ -2,10 +2,11 @@ import React, { FC, ReactNode, Suspense, useMemo } from 'react';
 
 import classNames from 'clsx';
 
-import { PropsWithChildren } from '../../lib/props-with-children';
-import { Link } from '../../lib/woozie';
-import Spinner from '../atoms/Spinner/Spinner';
-import { useTabSlug } from '../atoms/useTabSlug';
+import Spinner from 'app/atoms/Spinner/Spinner';
+import { useTabSlug } from 'app/atoms/useTabSlug';
+import { PropsWithChildren } from 'lib/props-with-children';
+import { Link } from 'lib/woozie';
+
 import { useAppEnv } from '../env';
 import ErrorBoundary from '../ErrorBoundary';
 import PageLayout from './PageLayout';

@@ -2,6 +2,7 @@ import React, { ChangeEvent, forwardRef, FocusEvent, useEffect, useRef, useState
 
 import classNames from 'clsx';
 
+import AssetField from 'app/atoms/AssetField';
 import { ReactComponent as ChevronDownIcon } from 'app/icons/chevron-down.svg';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
 import { getBigErrorText, getSmallErrorText } from 'app/pages/Buy/utils/errorText.utils';
@@ -9,7 +10,6 @@ import { emptyFn } from 'app/utils/function.utils';
 import { toLocalFormat, T, t } from 'lib/i18n';
 import { PopperRenderProps } from 'lib/ui/Popper';
 
-import AssetField from '../../../../../../../atoms/AssetField';
 import { StaticCurrencyImage } from '../StaticCurrencyImage/StaticCurrencyImage';
 import { TopUpInputProps } from '../TopUpInput.props';
 
