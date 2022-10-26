@@ -9,15 +9,15 @@ const NUMBERS_WITH_SPACES_REGEX = /^[\d ]*$/;
 
 interface Props {
   className?: string;
-  setIsError?: (v: boolean) => void;
+  error?: string;
+  setError?: (v: string) => void;
   setIsNotUkrainianCardError?: (v: boolean) => void;
 }
 
 export const CardNumberInput = forwardRef<HTMLInputElement, Props>(
-  ({ className, setIsError = emptyFn, setIsNotUkrainianCardError = emptyFn }, ref) => {
+  ({ className, error = '', setError = emptyFn, setIsNotUkrainianCardError = emptyFn }, ref) => {
     const [cardNumber, setCardNumber] = useState('');
     const [isActive, setIsActive] = useState(false);
-    const [error, setError] = useState('');
 
     const handleFocus = () => setIsActive(true);
     const handleBlur = () => setIsActive(false);
@@ -26,15 +26,13 @@ export const CardNumberInput = forwardRef<HTMLInputElement, Props>(
       (cardNumber: string) => {
         if (cardNumber.length === 19 && checkLuhn(cardNumber)) {
           setError('');
-          setIsError(false);
         } else {
           setError(t('cardNumberIsInvalid'));
-          setIsError(true);
         }
 
         setIsNotUkrainianCardError(false);
       },
-      [setIsError, setIsNotUkrainianCardError]
+      [setError, setIsNotUkrainianCardError]
     );
 
     const handleChange = useCallback(

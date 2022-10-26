@@ -12,7 +12,7 @@ import { TopUpInput } from 'app/pages/Buy/Debit/Utorg/components/TopUpInput/TopU
 import { WithdrawSelectors } from 'app/pages/Withdraw/Withdraw.selectors';
 import { createAliceBobOrder } from 'lib/alice-bob-api';
 import { useAnalyticsState } from 'lib/analytics/use-analytics-state.hook';
-import { T } from 'lib/i18n/react';
+import { T, t } from 'lib/i18n/react';
 
 import { CardNumberInput } from '../components/CardNumberInput';
 import { StepProps } from './step.props';
@@ -28,7 +28,7 @@ export const InitialStep: FC<Omit<StepProps, 'orderInfo'>> = ({ isApiError, setO
 
   const cardNumberRef = useRef<HTMLInputElement>(null);
 
-  const [isCardInputError, setIsCardInputError] = useState(false);
+  const [cardInputError, setCardInputError] = useState('');
   const [isNotUkrainianCardError, setIsNotUkrainianCardError] = useState(false);
 
   const { minExchangeAmount, maxExchangeAmount, isMinMaxLoading } = useMinMaxExchangeAmounts(setIsApiError, true);
@@ -38,7 +38,7 @@ export const InitialStep: FC<Omit<StepProps, 'orderInfo'>> = ({ isApiError, setO
     minExchangeAmount,
     maxExchangeAmount,
     isApiError,
-    isCardInputError,
+    Boolean(cardInputError),
     isNotUkrainianCardError,
     true
   );
@@ -58,13 +58,20 @@ export const InitialStep: FC<Omit<StepProps, 'orderInfo'>> = ({ isApiError, setO
   );
 
   const handleSubmit = () => {
+    const cardNumber = cardNumberRef.current?.value;
+
+    if (!cardNumber) {
+      setCardInputError(t('required'));
+      return;
+    }
+
     if (!disabledProceed) {
       setLoading(true);
       createAliceBobOrder({
         isWithdraw: 'true',
         amount: inputAmount?.toString() ?? '0',
         userId: analyticsState.userId,
-        cardNumber: cardNumberRef.current?.value ?? ''
+        cardNumber
       })
         .then(({ orderInfo }) => {
           setOrderInfo(orderInfo);
@@ -146,7 +153,8 @@ export const InitialStep: FC<Omit<StepProps, 'orderInfo'>> = ({ isApiError, setO
 
         <CardNumberInput
           ref={cardNumberRef}
-          setIsError={setIsCardInputError}
+          error={cardInputError}
+          setError={setCardInputError}
           setIsNotUkrainianCardError={setIsNotUkrainianCardError}
           className={classNames(isNotUkrainianCardError && 'border-red-700')}
         />
