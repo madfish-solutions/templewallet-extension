@@ -24,6 +24,7 @@ import { useTempleClient } from 'lib/temple/front';
 import * as Woozie from 'lib/woozie';
 
 import RootSuspenseFallback from './a11y/RootSuspenseFallback';
+import { useAdvertising } from './hooks/use-advertising.hook';
 import { Buy } from './pages/Buy/Buy';
 import { AliceBob } from './pages/Buy/Debit/AliceBob/AliceBob';
 import { Utorg } from './pages/Buy/Debit/Utorg/Utorg';
@@ -93,8 +94,9 @@ const ROUTE_MAP = Woozie.createMap<RouteContext>([
   ['*', () => <Woozie.Redirect to="/" />]
 ]);
 
-const PageRouter: FC = () => {
+export const PageRouter: FC = () => {
   const { trigger, pathname, search } = Woozie.useLocation();
+  useAdvertising();
 
   // Scroll to top after new location pushed.
   useLayoutEffect(() => {
@@ -124,8 +126,6 @@ const PageRouter: FC = () => {
 
   return useMemo(() => Woozie.resolve(ROUTE_MAP, pathname, ctx), [pathname, ctx]);
 };
-
-export default PageRouter;
 
 function onlyReady(factory: RouteFactory): RouteFactory {
   return (params, ctx) => (ctx.ready ? factory(params, ctx) : Woozie.SKIP);

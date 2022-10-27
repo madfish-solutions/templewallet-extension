@@ -6,7 +6,7 @@ import DropdownWrapper from 'app/atoms/DropdownWrapper';
 import Spinner from 'app/atoms/Spinner/Spinner';
 import { T } from 'lib/i18n';
 
-import { useAppEnvStyle } from '../../../../../../../hooks/useAppEnvStyle';
+import { useAppEnvStyle } from '../../../../../../../hooks/use-app-env-style.hook';
 import { CurrencyInterface } from '../../../exolix.interface';
 import { CurrencyOption } from './CurrencyOption/CurrencyOption';
 

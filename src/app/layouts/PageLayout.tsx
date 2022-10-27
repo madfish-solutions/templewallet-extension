@@ -1,5 +1,6 @@
 import React, { ComponentProps, FC, ReactNode, Suspense, useEffect, useLayoutEffect, useRef, useState } from 'react';
 
+import { isDefined } from '@rnw-community/shared';
 import classNames from 'clsx';
 
 import DocBg from 'app/a11y/DocBg';
@@ -21,6 +22,8 @@ import { ReactComponent as AttentionRedIcon } from '../icons/attentionRed.svg';
 import { ReactComponent as DownloadMobileGreyIcon } from '../icons/download-mobile-grey.svg';
 import { ReactComponent as DownloadMobileIcon } from '../icons/download-mobile.svg';
 import { useOnboardingProgress } from '../pages/Onboarding/hooks/useOnboardingProgress.hook';
+import { useActivePromotionSelector } from '../store/advertising/advertising-selectors';
+import { AdvertisingOverlay } from '../templates/advertising/advertising-overlay/advertising-overlay';
 import { PageLayoutSelectors } from './PageLayout.selectors';
 import { ChangelogOverlay } from './PageLayout/ChangelogOverlay/ChangelogOverlay';
 import ConfirmationOverlay from './PageLayout/ConfirmationOverlay';
@@ -53,6 +56,7 @@ const PageLayout: FC<PageLayoutProps> = ({ children, contentContainerStyle, ...t
         </ContentPaper>
       </div>
 
+      <AdvertisingOverlay />
       <ConfirmationOverlay />
       <ChangelogOverlay />
     </>
@@ -109,9 +113,10 @@ const Toolbar: FC<ToolbarProps> = ({
   attention
 }) => {
   const { historyPosition, pathname } = useLocation();
-  const { fullPage, registerBackHandler, onBack } = useAppEnv();
+  const { fullPage, popup, registerBackHandler, onBack } = useAppEnv();
   const { setOnboardingCompleted } = useOnboardingProgress();
   const { trackEvent } = useAnalytics();
+  const activePromotion = useActivePromotionSelector();
 
   const { isTempleMobileOverlaySkipped, setIsTempleMobileOverlaySkipped } = useTempleMobile();
 
@@ -223,6 +228,33 @@ const Toolbar: FC<ToolbarProps> = ({
       <div className="flex-1" />
       {attention && (
         <div className="flex items-center content-end absolute right-0">
+          {isDefined(activePromotion) && (
+            <a
+              className={classNames('flex items-center justify-center mr-3')}
+              style={{
+                height: 28,
+                paddingLeft: popup ? 4 : 8,
+                paddingRight: popup ? 4 : 8,
+                borderRadius: 4,
+                backgroundColor: '#E5F2FF'
+              }}
+              href={activePromotion.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() =>
+                trackEvent(
+                  `${activePromotion?.name}_${popup ? 'POPUP' : 'FULLPAGE'}_LOGO`,
+                  AnalyticsEventCategory.ButtonPress
+                )
+              }
+            >
+              <img
+                alt={activePromotion.name}
+                src={popup ? activePromotion.popupLogoUrl : activePromotion.fullPageLogoUrl}
+              />
+            </a>
+          )}
+
           <a
             href="https://templewallet.com/mobile"
             target="_blank"

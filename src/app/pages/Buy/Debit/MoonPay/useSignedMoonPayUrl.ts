@@ -1,15 +1,12 @@
 import { useEffect, useState } from 'react';
 
-import { templewalletQuery } from 'lib/templewallet-api/templewallet-query';
-
-import { getCurrentLocale } from '../../../../../lib/i18n';
-import { useAccount } from '../../../../../lib/temple/front';
+import { getCurrentLocale } from 'lib/i18n';
+import { useAccount } from 'lib/temple/front';
+import { getMoonpaySign } from 'lib/templewallet-api';
 
 const MOONPAY_DOMAIN = 'https://buy.moonpay.com';
 const API_KEY = 'pk_live_PrSDks3YtrreqFifd0BsIji7xPXjSGx';
 const CURRENCY_CODE = 'xtz';
-
-const getSignedMoonPayUrl = templewalletQuery('GET', '/moonpay-sign', ['url']);
 
 export const useSignedMoonPayUrl = () => {
   const { publicKeyHash: walletAddress } = useAccount();
@@ -20,14 +17,13 @@ export const useSignedMoonPayUrl = () => {
 
   const url = `${defaultUrl}&walletAddress=${walletAddress}`;
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const response = await getSignedMoonPayUrl({ url });
-        setSignedUrl(response.signedUrl);
-      } catch {}
-    })();
-  }, [url]);
+  useEffect(
+    () =>
+      void getMoonpaySign(url)
+        .then(response => setSignedUrl(response.data.signedUrl))
+        .catch(),
+    [url]
+  );
 
   return signedUrl;
 };
