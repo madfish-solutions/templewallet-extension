@@ -1,7 +1,7 @@
 import { Observable } from 'rxjs';
 import { withLatestFrom } from 'rxjs/operators';
 
-import { WalletRootState } from '../store/wallet/wallet-state';
+import { WalletRootState } from '../store/wallet/state';
 
 export const withSelectedCounter =
   <T>(state$: Observable<WalletRootState>) =>

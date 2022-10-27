@@ -7,16 +7,12 @@ import { useDispatch } from 'react-redux';
 import { Button } from 'app/atoms/Button';
 import { useAppEnv } from 'app/env';
 import ContentContainer from 'app/layouts/ContentContainer';
+import { skipAdvertisingPromotionAction } from 'app/store/advertising/actions';
+import { useActivePromotionSelector, useIsNewPromotionAvailableSelector } from 'app/store/advertising/selectors';
 import { useAnalytics } from 'lib/analytics';
 import { T } from 'lib/i18n/react';
 import { AnalyticsEventCategory } from 'lib/temple/analytics-types';
 import { useTempleClient } from 'lib/temple/front';
-
-import { skipAdvertisingPromotionAction } from '../../../store/advertising/advertising-actions';
-import {
-  useActivePromotionSelector,
-  useIsNewPromotionAvailableSelector
-} from '../../../store/advertising/advertising-selectors';
 
 export const AdvertisingOverlay: FC = () => {
   const { popup } = useAppEnv();

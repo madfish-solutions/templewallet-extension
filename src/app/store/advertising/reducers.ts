@@ -1,10 +1,10 @@
 import { createReducer } from '@reduxjs/toolkit';
 
 import { createEntity } from '../create-entity';
-import { loadAdvertisingPromotionActions, skipAdvertisingPromotionAction } from './advertising-actions';
-import { advertisingInitialState, AdvertisingState } from './advertising-state';
+import { loadAdvertisingPromotionActions, skipAdvertisingPromotionAction } from './actions';
+import { advertisingInitialState, AdvertisingState } from './state';
 
-export const advertisingReducers = createReducer<AdvertisingState>(advertisingInitialState, builder => {
+export const advertisingReducer = createReducer<AdvertisingState>(advertisingInitialState, builder => {
   builder.addCase(loadAdvertisingPromotionActions.submit, state => ({
     ...state,
     activePromotion: createEntity(state.activePromotion.data, true)

@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 
+import { emptyFn } from '@rnw-community/shared';
+
 import { getCurrentLocale } from 'lib/i18n';
 import { useAccount } from 'lib/temple/front';
 import { getMoonpaySign } from 'lib/templewallet-api';
@@ -21,7 +23,7 @@ export const useSignedMoonPayUrl = () => {
     () =>
       void getMoonpaySign(url)
         .then(response => setSignedUrl(response.data.signedUrl))
-        .catch(),
+        .catch(emptyFn),
     [url]
   );
 

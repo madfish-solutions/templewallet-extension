@@ -22,7 +22,7 @@ import { ReactComponent as AttentionRedIcon } from '../icons/attentionRed.svg';
 import { ReactComponent as DownloadMobileGreyIcon } from '../icons/download-mobile-grey.svg';
 import { ReactComponent as DownloadMobileIcon } from '../icons/download-mobile.svg';
 import { useOnboardingProgress } from '../pages/Onboarding/hooks/useOnboardingProgress.hook';
-import { useActivePromotionSelector } from '../store/advertising/advertising-selectors';
+import { useActivePromotionSelector } from '../store/advertising/selectors';
 import { AdvertisingOverlay } from '../templates/advertising/advertising-overlay/advertising-overlay';
 import { PageLayoutSelectors } from './PageLayout.selectors';
 import { ChangelogOverlay } from './PageLayout/ChangelogOverlay/ChangelogOverlay';

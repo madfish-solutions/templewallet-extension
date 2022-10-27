@@ -6,7 +6,7 @@ import { ofType } from 'ts-action-operators';
 
 import { getAdvertisingInfo } from 'lib/templewallet-api';
 
-import { loadAdvertisingPromotionActions } from './advertising-actions';
+import { loadAdvertisingPromotionActions } from './actions';
 
 const loadActivePromotionEpic = (action$: Observable<Action>) =>
   action$.pipe(

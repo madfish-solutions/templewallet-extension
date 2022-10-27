@@ -2,7 +2,7 @@ import { useSelector } from 'react-redux';
 
 import { AdvertisingPromotion } from 'lib/templewallet-api';
 
-import { AdvertisingRootState } from './advertising-state';
+import { AdvertisingRootState } from './state';
 
 export const useActivePromotionSelector = () =>
   useSelector<AdvertisingRootState, AdvertisingPromotion | undefined>(
