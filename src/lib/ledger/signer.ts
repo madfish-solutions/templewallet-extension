@@ -1,11 +1,14 @@
 import { LedgerSigner, LedgerTransport, DerivationType } from '@taquito/ledger-signer';
 import { b58cdecode, b58cencode, buf2hex, hex2buf, isValidPrefix, mergebuf, prefix } from '@taquito/utils';
+import { TransportType, LedgerTempleBridgeTransport } from '@temple-wallet/ledger-bridge';
 import * as elliptic from 'elliptic';
 import * as sodium from 'libsodium-wrappers';
 import { crypto_sign_verify_detached, crypto_generichash } from 'libsodium-wrappers';
 import toBuffer from 'typedarray-to-buffer';
 
 import { PublicError } from 'lib/temple/back/defaults';
+
+import { removeMFromDerivationPath } from './helpers';
 
 export type curves = 'ed' | 'p2' | 'sp';
 
@@ -29,6 +32,41 @@ export const pref = {
     sig: prefix.spsig
   }
 };
+
+let transport: LedgerTempleBridgeTransport;
+
+export async function createLedgerSigner(
+  transportType: TransportType,
+  derivationPath: string,
+  derivationType?: DerivationType,
+  publicKey?: string,
+  publicKeyHash?: string
+) {
+  if (transport) await transport?.close();
+
+  const bridgeUrl = process.env.TEMPLE_WALLET_LEDGER_BRIDGE_URL;
+  if (!bridgeUrl) {
+    throw new Error("Require a 'TEMPLE_WALLET_LEDGER_BRIDGE_URL' environment variable to be set");
+  }
+
+  transport = await LedgerTempleBridgeTransport.open(bridgeUrl);
+  transport.updateTransportType(transportType);
+
+  // After Ledger Live bridge was setuped, we don't close transport
+  // Probably we do not need to close it
+  // But if we need, we can close it after not use timeout
+  const cleanup = () => {};
+  const signer = new TempleLedgerSigner(
+    transport,
+    removeMFromDerivationPath(derivationPath),
+    true,
+    derivationType,
+    publicKey,
+    publicKeyHash
+  );
+
+  return { signer, cleanup };
+}
 
 export class TempleLedgerSigner extends LedgerSigner {
   constructor(

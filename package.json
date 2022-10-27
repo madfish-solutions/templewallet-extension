@@ -60,6 +60,7 @@
     "@types/react-virtualized": "^9.21.21",
     "@types/scryptsy": "^2.0.0",
     "@types/typedarray-to-buffer": "^4.0.0",
+    "@types/w3c-web-hid": "^1.0.3",
     "@types/webextension-polyfill": "^0.9.1",
     "@typescript-eslint/eslint-plugin": "5.38.0",
     "@typescript-eslint/parser": "5.38.0",

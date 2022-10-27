@@ -11,7 +11,7 @@ import PageLayout from 'app/layouts/PageLayout';
 import { useFormAnalytics } from 'lib/analytics';
 import { T, t } from 'lib/i18n';
 import { useAllAccounts, useSetAccountPkh, useTempleClient, validateDerivationPath } from 'lib/temple/front';
-import { pickLedgerTransport } from 'lib/temple/ledger-live';
+import { getLedgerTransportType } from 'lib/temple/ledger';
 import { DerivationType, TempleAccountType } from 'lib/temple/types';
 import { navigate } from 'lib/woozie';
 
@@ -91,17 +91,16 @@ const ConnectLedger: FC = () => {
 
       formAnalytics.trackSubmit();
       try {
-        // @ts-ignore
         const webhidTransport = window.navigator.hid;
-        if (webhidTransport && pickLedgerTransport()) {
+        if (webhidTransport && getLedgerTransportType()) {
           const devices = await webhidTransport.getDevices();
-          const webHidIsConnected = devices.some((device: any) => device.vendorId === Number(LEDGER_USB_VENDOR_ID));
+          const webHidIsConnected = devices.some(device => device.vendorId === Number(LEDGER_USB_VENDOR_ID));
           if (!webHidIsConnected) {
             const connectedDevices = await webhidTransport.requestDevice({
-              filters: [{ vendorId: LEDGER_USB_VENDOR_ID }]
+              filters: [{ vendorId: LEDGER_USB_VENDOR_ID as any as number }]
             });
             const userApprovedWebHidConnection = connectedDevices.some(
-              (device: any) => device.vendorId === Number(LEDGER_USB_VENDOR_ID)
+              device => device.vendorId === Number(LEDGER_USB_VENDOR_ID)
             );
             if (!userApprovedWebHidConnection) {
               throw new Error('No Ledger connected error');
