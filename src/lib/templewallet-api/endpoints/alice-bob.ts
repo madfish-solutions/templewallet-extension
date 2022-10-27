@@ -1,4 +1,4 @@
-import { templewalletQuery } from './templewallet-api/templewallet-query';
+import { templeWalletApi } from './templewallet.api';
 
 export enum AliceBobOrderStatus {
   WAITING = 'WAITING',
@@ -51,30 +51,31 @@ interface AliceBobPairInfo {
   maxAmount: number;
 }
 
-type QueryParams = Record<string, string>;
+export const createAliceBobOrder = (
+  isWithdraw: boolean,
+  amount: string,
+  userId: string,
+  walletAddress?: string,
+  cardNumber?: string
+) =>
+  templeWalletApi.post<{ orderInfo: AliceBobOrderInfo }>('/alice-bob/create-order', {
+    isWithdraw,
+    amount,
+    userId,
+    walletAddress,
+    cardNumber
+  });
 
-export const createAliceBobOrder = templewalletQuery<QueryParams, { orderInfo: AliceBobOrderInfo }>(
-  'POST',
-  '/alice-bob/create-order',
-  ['isWithdraw', 'amount', 'userId', 'walletAddress', 'cardNumber']
-);
+export const cancelAliceBobOrder = (orderId: string) => templeWalletApi.post('/alice-bob/cancel-order', { orderId });
 
-export const cancelAliceBobOrder = templewalletQuery<QueryParams, null>('POST', '/alice-bob/cancel-order', ['orderId']);
+export const getAliceBobPairInfo = (isWithdraw: boolean) =>
+  templeWalletApi.get<{ pairInfo: AliceBobPairInfo }>('/alice-bob/get-pair-info', { params: { isWithdraw } });
 
-export const getAliceBobPairInfo = templewalletQuery<QueryParams, { pairInfo: AliceBobPairInfo }>(
-  'GET',
-  '/alice-bob/get-pair-info',
-  ['isWithdraw']
-);
+export const getAliceBobOrderInfo = (orderId: string) =>
+  templeWalletApi.get<{ orderInfo: AliceBobOrderInfo }>('/alice-bob/check-order', { params: { orderId } });
 
-export const getAliceBobOrderInfo = templewalletQuery<QueryParams, { orderInfo: AliceBobOrderInfo }>(
-  'GET',
-  '/alice-bob/check-order',
-  ['orderId']
-);
-
-export const estimateAliceBobOutput = templewalletQuery<QueryParams, { outputAmount: number }>(
-  'POST',
-  '/alice-bob/estimate-amount',
-  ['isWithdraw', 'amount']
-);
+export const estimateAliceBobOutput = (isWithdraw: boolean, amount: string) =>
+  templeWalletApi.post<{ outputAmount: number }>('/alice-bob/estimate-amount', {
+    isWithdraw,
+    amount
+  });
