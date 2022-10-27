@@ -58,15 +58,18 @@ export const createAliceBobOrder = (
   walletAddress?: string,
   cardNumber?: string
 ) =>
-  templeWalletApi.post<{ orderInfo: AliceBobOrderInfo }>('/alice-bob/create-order', {
-    isWithdraw,
-    amount,
-    userId,
-    walletAddress,
-    cardNumber
+  templeWalletApi.post<{ orderInfo: AliceBobOrderInfo }>('/alice-bob/create-order', null, {
+    params: {
+      isWithdraw,
+      amount,
+      userId,
+      walletAddress,
+      cardNumber
+    }
   });
 
-export const cancelAliceBobOrder = (orderId: string) => templeWalletApi.post('/alice-bob/cancel-order', { orderId });
+export const cancelAliceBobOrder = (orderId: string) =>
+  templeWalletApi.post('/alice-bob/cancel-order', null, { params: { orderId } });
 
 export const getAliceBobPairInfo = (isWithdraw: boolean) =>
   templeWalletApi.get<{ pairInfo: AliceBobPairInfo }>('/alice-bob/get-pair-info', { params: { isWithdraw } });
@@ -75,7 +78,9 @@ export const getAliceBobOrderInfo = (orderId: string) =>
   templeWalletApi.get<{ orderInfo: AliceBobOrderInfo }>('/alice-bob/check-order', { params: { orderId } });
 
 export const estimateAliceBobOutput = (isWithdraw: boolean, amount: string) =>
-  templeWalletApi.post<{ outputAmount: number }>('/alice-bob/estimate-amount', {
-    isWithdraw,
-    amount
+  templeWalletApi.post<{ outputAmount: number }>('/alice-bob/estimate-amount', null, {
+    params: {
+      isWithdraw,
+      amount
+    }
   });
