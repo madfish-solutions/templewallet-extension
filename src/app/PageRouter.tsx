@@ -26,9 +26,11 @@ import * as Woozie from 'lib/woozie';
 import RootSuspenseFallback from './a11y/RootSuspenseFallback';
 import { useAdvertising } from './hooks/use-advertising.hook';
 import { Buy } from './pages/Buy/Buy';
-import { AliceBob } from './pages/Buy/Debit/AliceBob/AliceBob';
+import { AliceBobTopUp } from './pages/Buy/Debit/AliceBob/AliceBobTopUp';
 import { Utorg } from './pages/Buy/Debit/Utorg/Utorg';
 import AttentionPage from './pages/Onboarding/pages/AttentionPage';
+import { AliceBobWithdraw } from './pages/Withdraw/Debit/AliceBob/AliceBobWithdraw';
+import { Withdraw } from './pages/Withdraw/Withdraw';
 
 interface RouteContext {
   popup: boolean;
@@ -87,9 +89,11 @@ const ROUTE_MAP = Woozie.createMap<RouteContext>([
   ['/add-asset', onlyReady(onlyInFullPage(() => <AddAsset />))],
   ['/settings/:tabSlug?', onlyReady(({ tabSlug }) => <Settings tabSlug={tabSlug} />)],
   ['/buy', onlyReady(onlyInFullPage(() => <Buy />))],
-  ['/buy/crypto', onlyReady(onlyInFullPage(() => <Exolix />))],
-  ['/buy/debit/alice-bob', onlyReady(onlyInFullPage(() => <AliceBob />))],
+  ['/buy/crypto/exolix', onlyReady(onlyInFullPage(() => <Exolix />))],
+  ['/buy/debit/alice-bob', onlyReady(onlyInFullPage(() => <AliceBobTopUp />))],
   ['/buy/debit/utorg', onlyReady(onlyInFullPage(() => <Utorg />))],
+  ['/withdraw', onlyReady(onlyInFullPage(() => <Withdraw />))],
+  ['/withdraw/debit/alice-bob', onlyReady(onlyInFullPage(() => <AliceBobWithdraw />))],
   ['/attention', onlyReady(onlyInFullPage(() => <AttentionPage />))],
   ['*', () => <Woozie.Redirect to="/" />]
 ]);

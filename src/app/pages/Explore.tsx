@@ -112,8 +112,8 @@ const Explore: FC<ExploreProps> = ({ assetSlug }) => {
           <ActionButton
             label={<T id="withdrawButton" />}
             Icon={WithdrawIcon}
-            to={`/buy?tab=${network.type === 'dcp' ? 'debit' : 'crypto'}`}
-            disabled={true}
+            to="/withdraw"
+            disabled={!canSend || network.type !== 'main'}
             testID={ExploreSelectors.WithdrawButton}
           />
           <ActionButton

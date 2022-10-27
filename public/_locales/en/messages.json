@@ -369,6 +369,9 @@
   "required": {
     "message": "Required"
   },
+  "cardNumberIsInvalid": {
+    "message": "Card number is invalid"
+  },
   "weakKeystorePassword": {
     "message": "The \"keystore file\" password is too weak to use as an extension password. You need to set a new one."
   },
@@ -1142,6 +1145,9 @@
         "content": "$1"
       }
     }
+  },
+  "insufficientTezBalance": {
+    "message": "Insufficient TEZ balance"
   },
   "notEnoughFunds": {
     "message": "Not enough funds"
@@ -2394,9 +2400,6 @@
   "next": {
     "message": "Next"
   },
-  "updatingMinMax": {
-    "message": "Updating min/max..."
-  },
   "done": {
     "message": "Done!"
   },
@@ -2553,6 +2556,18 @@
   "buyButton": {
     "message": "Buy"
   },
+  "withdraw": {
+    "message": "Withdraw"
+  },
+  "toCard": {
+    "message": "To card"
+  },
+  "enterCardNumber": {
+    "message": "Enter card number"
+  },
+  "onlyForUkrainianCards": {
+    "message": "Only for Ukrainian banking cards"
+  },
   "buyWithCrypto": {
     "message": "Buy With Crypto"
   },
@@ -2582,8 +2597,14 @@
   "buyWithAliceBob": {
     "message": "Buy TEZ with Alice-Bob (UAH only)"
   },
+  "sellWithAliceBob": {
+    "message": "Sell TEZ with Alice-Bob (UAH only)"
+  },
   "buyWithAliceBobDescription": {
     "message": "Fast and cost-effective exchange of UAH to TEZ."
+  },
+  "sellWithAliceBobDescription": {
+    "message": "Fast and cost-effective exchange of TEZ to UAH."
   },
   "buyWithUtorgDescription": {
     "message": "Licensed fiat-to-crypto gateway. 187+ countries, AI-powered KYC, Apple Pay, Google Pay."
@@ -2602,6 +2623,9 @@
   "buyWithCard": {
     "message": "Buy with Debit/Credit Card"
   },
+  "sellTez": {
+    "message": "Sell TEZ"
+  },
   "topUpDescription": {
     "message": "Temple integrated third-party solutions to buy $gasTokenName1$ with crypto or a Debit/Credit card. Choose a provider, follow guides, get $gasTokenName2$ on your account.",
     "placeholders": {
@@ -2613,8 +2637,8 @@
       }
     }
   },
-  "enterAmount": {
-    "message": "Please enter the amount:"
+  "withdrawDescription": {
+    "message": "Temple integrated third-party solutions to sell TEZ. Choose a provider, follow guides, \n get fiat to your Debit/Credit card"
   },
   "topUpCrypto": {
     "message": "Crypto"
@@ -2647,6 +2671,12 @@
         "content": "$1"
       }
     }
+  },
+  "sellTezDetails": {
+    "message": "Sell TEZ details"
+  },
+  "sellDetailsDescription": {
+    "message": "Sell TEZ to fiat. Get fiat to Visa, Mastercard Ukrainian cards."
   },
   "privacyAndPolicyLinks": {
     "message": "By clicking $buttonContent$ you agree with \n$termsOfUse$ and $privacyPolicy$",
@@ -2706,6 +2736,15 @@
   "youSend": {
     "message": "You send:"
   },
+  "sell": {
+    "message": "Sell"
+  },
+  "newSell": {
+    "message": "New sell"
+  },
+  "youSell": {
+    "message": "You sell:"
+  },
   "sendTime": {
     "message": "Send time:"
   },
@@ -2729,6 +2768,36 @@
   },
   "step": {
     "message": "Step"
+  },
+  "waitingStatusDescription": {
+    "message": "Waiting for client deposit."
+  },
+  "exchangingStatusDescription": {
+    "message": "Exchange is carried out."
+  },
+  "sendingStatusDescription": {
+    "message": "In the process of payment to the client."
+  },
+  "completedStatusDescription": {
+    "message": "Order successfully completed."
+  },
+  "expiredStatusDescription": {
+    "message": "The order was not paid for the time allocated."
+  },
+  "canceledStatusDescription": {
+    "message": "The order was canceled."
+  },
+  "failedStatusDescription": {
+    "message": "In the process of execution of the order, an error occurred."
+  },
+  "holdedStatusDescription": {
+    "message": "The warrant is suspended to check KYC."
+  },
+  "refundedStatusDescription": {
+    "message": "The money was returned to the client."
+  },
+  "preparedStatusDescription": {
+    "message": "The order is ready to sell crypto."
   },
   "collectibles": {
     "message": "Collectibles"
