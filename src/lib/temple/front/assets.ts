@@ -110,7 +110,7 @@ export const useGasToken = () => {
       };
 };
 
-export function useAssetMetadata(slug: string) {
+export function useAssetMetadata(slug: string): AssetMetadata | null {
   const tezos = useTezos();
   const forceUpdate = useForceUpdate();
   const { metadata } = useGasToken();
@@ -129,7 +129,7 @@ export function useAssetMetadata(slug: string) {
   );
 
   const tezAsset = isTezAsset(slug);
-  const tokenMetadata = allTokensBaseMetadataRef.current[slug] ?? null;
+  const tokenMetadata: AssetMetadata | null = allTokensBaseMetadataRef.current[slug] ?? null;
   const exist = Boolean(tokenMetadata);
 
   // Load token metadata if missing
@@ -223,7 +223,7 @@ export const useGetTokenMetadata = () => {
   const { metadata } = useGasToken();
 
   return useCallback(
-    (slug: string) => {
+    (slug: string): AssetMetadata | undefined => {
       if (isTezAsset(slug)) {
         return metadata;
       }

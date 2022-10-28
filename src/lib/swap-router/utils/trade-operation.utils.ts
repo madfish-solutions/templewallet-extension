@@ -4,8 +4,8 @@ import { AssetMetadata, getAssetSymbol } from 'lib/temple/metadata';
 
 export const getPoolName = (
   direction: RouteDirectionEnum,
-  aTokenMetadata: AssetMetadata,
-  bTokenMetadata: AssetMetadata
+  aTokenMetadata: AssetMetadata | null,
+  bTokenMetadata: AssetMetadata | null
 ) => {
   switch (direction) {
     case RouteDirectionEnum.Direct:

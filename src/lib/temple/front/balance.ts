@@ -31,7 +31,7 @@ export function useBalance(assetSlug: string, address: string, opts: UseBalanceO
   }, [opts.networkRpc, nativeTezos]);
 
   const fetchBalanceLocal = useCallback(
-    () => fetchBalance(tezos, assetSlug, assetMetadata, address),
+    () => fetchBalance(tezos, assetSlug, address, assetMetadata),
     [tezos, address, assetSlug, assetMetadata]
   );
 

@@ -4,7 +4,7 @@ import BigNumber from 'bignumber.js';
 import constate from 'constate';
 import { flushSync } from 'react-dom';
 
-import { fetchBalance } from 'lib/temple/assets';
+import { isTezAsset, fetchBalance } from 'lib/temple/assets';
 import {
   useAccount,
   useAllTokensBaseMetadata,
@@ -13,8 +13,8 @@ import {
   useTezos
 } from 'lib/temple/front/index';
 import { useSyncTokens } from 'lib/temple/front/sync-tokens';
-
-import { ITokenStatus, ITokenType } from '../repo';
+import { AssetMetadata } from 'lib/temple/metadata';
+import { ITokenStatus, ITokenType } from 'lib/temple/repo';
 
 export const [SyncBalancesProvider, useSyncBalances] = constate(() => {
   const [assetSlugsWithUpdatedBalances, setAssetSlugsWithUpdatedBalances] = useState<Record<string, BigNumber>>({});
@@ -41,18 +41,22 @@ export const [SyncBalancesProvider, useSyncBalances] = constate(() => {
     [chainId, publicKeyHash, tokens]
   );
 
-  const chainIdRef = useRef<string>();
-  const accountRef = useRef<string>();
+  const chainIdRef = useRef<string>(chainId);
+  const accountRef = useRef<string>(publicKeyHash);
 
   const updateBalances = async () => {
-    for (let i = 0; i < tokensWithTez.length; i++) {
-      const { tokenSlug } = tokensWithTez[i];
+    for (const token of tokensWithTez) {
+      const { tokenSlug, chainId: tokenChainId, account: tokenAccount } = token;
 
-      if (chainIdRef.current !== tokensWithTez[i].chainId || accountRef.current !== tokensWithTez[i].account) break;
+      if (chainIdRef.current !== tokenChainId || accountRef.current !== tokenAccount) break;
 
-      const latestBalance = await fetchBalance(tezos, tokenSlug, allTokensBaseMetadata[tokenSlug], publicKeyHash);
+      const tokenMetadata: AssetMetadata | undefined = allTokensBaseMetadata[tokenSlug];
 
-      if (chainIdRef.current !== tokensWithTez[i].chainId || accountRef.current !== tokensWithTez[i].account) break;
+      if (tokenMetadata == null && isTezAsset(tokenSlug) === false) continue;
+
+      const latestBalance = await fetchBalance(tezos, tokenSlug, publicKeyHash, tokenMetadata);
+
+      if (chainIdRef.current !== tokenChainId || accountRef.current !== tokenAccount) break;
 
       if (
         !assetSlugsWithUpdatedBalances.hasOwnProperty(tokenSlug) ||
@@ -66,7 +70,7 @@ export const [SyncBalancesProvider, useSyncBalances] = constate(() => {
   useEffect(() => {
     if (chainId !== chainIdRef.current || publicKeyHash !== accountRef.current) {
       setAssetSlugsWithUpdatedBalances({});
-    } else if (!isSyncing) {
+    } else if (isSyncing === false) {
       updateBalances();
     }
 
