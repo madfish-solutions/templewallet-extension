@@ -9,12 +9,12 @@ import {
   ALICE_BOB_PRIVACY_LINK,
   ALICE_BOB_TERMS_LINK
 } from 'app/pages/Buy/Debit/AliceBob/config';
-import { AliceBobOrderInfo, AliceBobOrderStatus } from 'lib/alice-bob-api';
 import { useAnalytics } from 'lib/analytics';
 import { t, T } from 'lib/i18n/react';
 import { AnalyticsEventCategory } from 'lib/temple/analytics-types';
 import { useAccount, useNetwork, useStorage } from 'lib/temple/front';
 import { TempleAccountType } from 'lib/temple/types';
+import { AliceBobOrderInfo, AliceBobOrderStatus } from 'lib/templewallet-api';
 import { Redirect } from 'lib/woozie';
 
 import { WithdrawSelectors } from '../../Withdraw.selectors';

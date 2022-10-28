@@ -1,4 +1,4 @@
-import { AliceBobOrderInfo } from 'lib/alice-bob-api';
+import { AliceBobOrderInfo } from 'lib/templewallet-api';
 
 export interface StepProps {
   orderInfo: AliceBobOrderInfo;

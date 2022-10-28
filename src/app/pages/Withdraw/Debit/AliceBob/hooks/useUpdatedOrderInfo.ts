@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 
-import { AliceBobOrderInfo, getAliceBobOrderInfo } from 'lib/alice-bob-api';
+import { AliceBobOrderInfo, getAliceBobOrderInfo } from 'lib/templewallet-api';
 
 const UPDATE_INTERVAL = 5_000;
 
@@ -18,11 +18,11 @@ export const useUpdatedOrderInfo = (
       isAlive.current = true;
 
       try {
-        const { orderInfo } = await getAliceBobOrderInfo({ orderId });
+        const response = await getAliceBobOrderInfo(orderId);
         if (!isAlive.current) {
           return;
         }
-        setLastOrderInfo(orderInfo);
+        setLastOrderInfo(response.data.orderInfo);
         timeoutId = setTimeout(repeat, UPDATE_INTERVAL);
       } catch (e) {
         setIsApiError(true);

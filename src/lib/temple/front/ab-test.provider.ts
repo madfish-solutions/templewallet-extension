@@ -24,14 +24,8 @@ const [ABTestGroupProvider, useABGroup] = constate(() => {
   const { analyticsState } = useAnalyticsState();
 
   useEffect(() => {
-    const getData = async () => {
-      if (localABGroup === ABTestGroup.Unknown) {
-        const data = await fetchABGroup();
-        setLocalABGroup(data?.ab ?? ABTestGroup.Unknown);
-      }
-    };
-    if (analyticsState.enabled) {
-      getData();
+    if (analyticsState.enabled && localABGroup === ABTestGroup.Unknown) {
+      getABGroup().then(group => setLocalABGroup(group));
     }
   }, [setLocalABGroup, localABGroup, analyticsState.enabled]);
 
@@ -39,8 +33,3 @@ const [ABTestGroupProvider, useABGroup] = constate(() => {
 });
 
 export { ABTestGroupProvider };
-
-async function fetchABGroup() {
-  const group = await getABGroup({}).catch(() => null);
-  return group;
-}
