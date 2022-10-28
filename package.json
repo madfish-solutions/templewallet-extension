@@ -27,6 +27,7 @@
     "@peculiar/webcrypto": "1.1.6",
     "@popperjs/core": "2.4.4",
     "@reduxjs/toolkit": "^1.8.5",
+    "@rnw-community/shared": "^0.48.0",
     "@serh11p/jest-webextension-mock": "4.0.0",
     "@svgr/webpack": "6.4.0",
     "@taquito/ledger-signer": "13.0.0",

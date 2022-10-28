@@ -6,7 +6,7 @@ import { ofType } from 'ts-action-operators';
 
 import { withSelectedCounter } from '../../utils/wallet.utils';
 import { RootState } from '../create-store';
-import { increaseCounterAction } from './wallet-actions';
+import { increaseCounterAction } from './actions';
 
 const logCounterIncreaseEpic = (action$: Observable<Action>, state$: Observable<RootState>) =>
   action$.pipe(
