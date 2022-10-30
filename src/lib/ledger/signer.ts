@@ -1,72 +1,11 @@
 import { LedgerSigner, LedgerTransport, DerivationType } from '@taquito/ledger-signer';
 import { b58cdecode, b58cencode, buf2hex, hex2buf, isValidPrefix, mergebuf, prefix } from '@taquito/utils';
-import { TransportType, LedgerTempleBridgeTransport } from '@temple-wallet/ledger-bridge';
 import * as elliptic from 'elliptic';
 import * as sodium from 'libsodium-wrappers';
 import { crypto_sign_verify_detached, crypto_generichash } from 'libsodium-wrappers';
 import toBuffer from 'typedarray-to-buffer';
 
-import { PublicError } from 'lib/temple/back/defaults';
-
-import { removeMFromDerivationPath } from './helpers';
-
-export type curves = 'ed' | 'p2' | 'sp';
-
-export const pref = {
-  ed: {
-    pk: prefix['edpk'],
-    sk: prefix['edsk'],
-    pkh: prefix.tz1,
-    sig: prefix.edsig
-  },
-  p2: {
-    pk: prefix['p2pk'],
-    sk: prefix['p2sk'],
-    pkh: prefix.tz3,
-    sig: prefix.p2sig
-  },
-  sp: {
-    pk: prefix['sppk'],
-    sk: prefix['spsk'],
-    pkh: prefix.tz2,
-    sig: prefix.spsig
-  }
-};
-
-let transport: LedgerTempleBridgeTransport;
-
-export async function createLedgerSigner(
-  transportType: TransportType,
-  derivationPath: string,
-  derivationType?: DerivationType,
-  publicKey?: string,
-  publicKeyHash?: string
-) {
-  if (transport) await transport?.close();
-
-  const bridgeUrl = process.env.TEMPLE_WALLET_LEDGER_BRIDGE_URL;
-  if (!bridgeUrl) {
-    throw new Error("Require a 'TEMPLE_WALLET_LEDGER_BRIDGE_URL' environment variable to be set");
-  }
-
-  transport = await LedgerTempleBridgeTransport.open(bridgeUrl);
-  transport.updateTransportType(transportType);
-
-  // After Ledger Live bridge was setuped, we don't close transport
-  // Probably we do not need to close it
-  // But if we need, we can close it after not use timeout
-  const cleanup = () => {};
-  const signer = new TempleLedgerSigner(
-    transport,
-    removeMFromDerivationPath(derivationPath),
-    true,
-    derivationType,
-    publicKey,
-    publicKeyHash
-  );
-
-  return { signer, cleanup };
-}
+import { toLedgerError } from './helpers';
 
 export class TempleLedgerSigner extends LedgerSigner {
   constructor(
@@ -131,6 +70,29 @@ export class TempleLedgerSigner extends LedgerSigner {
   }
 }
 
+export type curves = 'ed' | 'p2' | 'sp';
+
+export const pref = {
+  ed: {
+    pk: prefix['edpk'],
+    sk: prefix['edsk'],
+    pkh: prefix.tz1,
+    sig: prefix.edsig
+  },
+  p2: {
+    pk: prefix['p2pk'],
+    sk: prefix['p2sk'],
+    pkh: prefix.tz3,
+    sig: prefix.p2sig
+  },
+  sp: {
+    pk: prefix['sppk'],
+    sk: prefix['spsk'],
+    pkh: prefix.tz2,
+    sig: prefix.spsig
+  }
+};
+
 export const verifySignature = (bytes: string, signature: string, publicKey: string, pkh: string) => {
   const curve = publicKey.substring(0, 2) as curves;
   const _publicKey = new Uint8Array(toBuffer(b58cdecode(publicKey, pref[curve].pk)));
@@ -181,10 +143,6 @@ export const getSig = (signature: string, curve: any, pref: any) => {
   }
   return sig;
 };
-
-export function toLedgerError(err: any) {
-  return new PublicError(`Ledger error. ${err.message}`);
-}
 
 export const safeSignEdData = (sig: Uint8Array, bytesHash: Uint8Array, _publicKey: any) => {
   try {

@@ -7,6 +7,7 @@ import { createRoot } from 'react-dom/client';
 import browser from 'webextension-polyfill';
 
 import 'lib/lock-up/run-checks';
+import 'lib/ledger/mv3/fg';
 
 import DisableOutlinesForClick from 'app/a11y/DisableOutlinesForClick';
 import Dialogs from 'app/layouts/Dialogs';

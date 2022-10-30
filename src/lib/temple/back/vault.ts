@@ -8,7 +8,7 @@ import * as Bip39 from 'bip39';
 import * as Ed25519 from 'ed25519-hd-key';
 import { initialize, SecureCellSeal } from 'wasm-themis';
 
-import { createLedgerSigner } from 'lib/ledger/signer';
+import { createLedgerSignerProxy } from 'lib/ledger/mv3/bg';
 import { PublicError } from 'lib/temple/back/defaults';
 import {
   encryptAndSaveMany,
@@ -23,7 +23,6 @@ import {
   savePlain
 } from 'lib/temple/back/safe-storage';
 import { formatOpParamsBeforeSend, loadFastRpcClient, michelEncoder } from 'lib/temple/helpers';
-import { getLedgerTransportType } from 'lib/temple/ledger';
 import * as Passworder from 'lib/temple/passworder';
 import { clearAsyncStorages } from 'lib/temple/reset';
 import { TempleAccount, TempleAccountType, TempleContact, TempleSettings } from 'lib/temple/types';
@@ -418,8 +417,7 @@ export class Vault {
     return withError('Failed to connect Ledger account', async () => {
       if (!derivationPath) derivationPath = getMainDerivationPath(0);
 
-      const transportType = getLedgerTransportType();
-      const { signer, cleanup } = await createLedgerSigner(transportType, derivationPath, derivationType);
+      const { signer, cleanup } = await createLedgerSignerProxy(derivationPath, derivationType);
 
       try {
         const accPublicKey = await signer.publicKey();
@@ -525,7 +523,7 @@ export class Vault {
     }
   }
 
-  private async getSigner(accPublicKeyHash: string) {
+  private async getSigner(accPublicKeyHash: string): Promise<{ signer: Signer; cleanup: () => void }> {
     const allAccounts = await this.fetchAccounts();
     const acc = allAccounts.find(a => a.publicKeyHash === accPublicKeyHash);
     if (!acc) {
@@ -535,18 +533,15 @@ export class Vault {
     switch (acc.type) {
       case TempleAccountType.Ledger:
         const publicKey = await this.revealPublicKey(accPublicKeyHash);
-        const transportType = getLedgerTransportType();
-        return createLedgerSigner(transportType, acc.derivationPath, acc.derivationType, publicKey, accPublicKeyHash);
+        return await createLedgerSignerProxy(acc.derivationPath, acc.derivationType, publicKey, accPublicKeyHash);
 
       case TempleAccountType.WatchOnly:
         throw new PublicError('Cannot sign Watch-only account');
 
       default:
         const privateKey = await fetchAndDecryptOne<string>(accPrivKeyStrgKey(accPublicKeyHash), this.passKey);
-        return createMemorySigner(privateKey).then(signer => ({
-          signer,
-          cleanup: () => {}
-        }));
+        const signer = await createMemorySigner(privateKey);
+        return { signer, cleanup: () => {} };
     }
   }
 }
