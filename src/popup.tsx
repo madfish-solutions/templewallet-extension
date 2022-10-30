@@ -8,7 +8,7 @@ import browser from 'webextension-polyfill';
 import 'lib/lock-up/run-checks';
 import 'lib/ledger/mv3/fg';
 
-import App from 'app/App';
+import { App } from 'app/App';
 import { WindowType, openInFullPage } from 'app/env';
 import { isPopupModeEnabled } from 'lib/popup-mode';
 

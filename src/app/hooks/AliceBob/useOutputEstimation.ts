@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { estimateAliceBobOutput } from 'lib/alice-bob-api';
+import { estimateAliceBobOutput } from 'lib/templewallet-api';
 
 export const useOutputEstimation = (
   inputAmount = 0,
@@ -21,12 +21,9 @@ export const useOutputEstimation = (
     if (isValidInput) {
       setLoading(true);
 
-      estimateAliceBobOutput({
-        isWithdraw: String(isWithdraw),
-        amount: String(inputAmount)
-      })
-        .then(({ outputAmount }) => {
-          setOutputAmount(outputAmount);
+      estimateAliceBobOutput(isWithdraw, inputAmount.toString())
+        .then(response => {
+          setOutputAmount(response.data.outputAmount);
         })
         .catch(() => setIsApiError(true))
         .finally(() => setLoading(false));

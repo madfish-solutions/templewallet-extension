@@ -9,10 +9,10 @@ import { useMinMaxExchangeAmounts } from 'app/hooks/AliceBob/useMinMaxExchangeAm
 import { useOutputEstimation } from 'app/hooks/AliceBob/useOutputEstimation';
 import { ReactComponent as AttentionRedIcon } from 'app/icons/attentionRed.svg';
 import PageLayout from 'app/layouts/PageLayout';
-import { createAliceBobOrder } from 'lib/alice-bob-api';
 import { useAnalyticsState } from 'lib/analytics/use-analytics-state.hook';
 import { T } from 'lib/i18n/react';
 import { useAccount } from 'lib/temple/front';
+import { createAliceBobOrder } from 'lib/templewallet-api';
 
 import { BuySelectors } from '../../Buy.selectors';
 import styles from '../../Crypto/Exolix/Exolix.module.css';
@@ -50,13 +50,8 @@ export const AliceBobTopUp: FC = () => {
     (amount = 0) => {
       if (!disabledProceed) {
         setLoading(true);
-        createAliceBobOrder({
-          isWithdraw: 'false',
-          amount: amount.toString(),
-          userId: analyticsState.userId,
-          walletAddress
-        })
-          .then(({ orderInfo }) => setLink(orderInfo.payUrl))
+        createAliceBobOrder(false, amount.toString(), analyticsState.userId, walletAddress)
+          .then(response => setLink(response.data.orderInfo.payUrl))
           .catch(() => setIsApiError(true))
           .finally(() => setLoading(false));
       }

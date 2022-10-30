@@ -7,7 +7,7 @@ import { createRoot } from 'react-dom/client';
 import 'lib/lock-up/run-checks';
 import 'lib/ledger/mv3/fg';
 
-import App from 'app/App';
+import { App } from 'app/App';
 import { WindowType } from 'app/env';
 
 const container = document.getElementById('root');

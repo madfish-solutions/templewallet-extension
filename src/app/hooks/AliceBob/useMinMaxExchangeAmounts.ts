@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 
 import BigNumber from 'bignumber.js';
 
-import { getAliceBobPairInfo } from 'lib/alice-bob-api';
+import { getAliceBobPairInfo } from 'lib/templewallet-api';
 
 const PENNY = 0.000001;
 
@@ -14,13 +14,13 @@ export const useMinMaxExchangeAmounts = (setIsApiError: (v: boolean) => void, is
 
   const updateMinMaxRequest = useCallback(() => {
     setIsMinMaxLoading(true);
-    getAliceBobPairInfo({ isWithdraw: String(isWithdraw) })
-      .then(({ pairInfo }) => {
-        const normalizedMin = new BigNumber(pairInfo.minAmount)
+    getAliceBobPairInfo(isWithdraw)
+      .then(response => {
+        const normalizedMin = new BigNumber(response.data.pairInfo.minAmount)
           .dp(6)
           .plus(isWithdraw ? PENNY : 0)
           .toNumber();
-        const normalizedMax = new BigNumber(pairInfo.maxAmount).dp(6, BigNumber.ROUND_FLOOR).toNumber();
+        const normalizedMax = new BigNumber(response.data.pairInfo.maxAmount).dp(6, BigNumber.ROUND_FLOOR).toNumber();
 
         setMinExchangeAmount(normalizedMin);
         setMaxExchangeAmount(normalizedMax);
