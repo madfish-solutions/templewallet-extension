@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 
 import BigNumber from 'bignumber.js';
 import constate from 'constate';
@@ -15,9 +15,10 @@ import {
 import { useSyncTokens } from 'lib/temple/front/sync-tokens';
 import { AssetMetadata } from 'lib/temple/metadata';
 import { ITokenStatus, ITokenType } from 'lib/temple/repo';
+import { useSafeState, useStopper } from 'lib/ui/hooks';
 
 export const [SyncBalancesProvider, useSyncBalances] = constate(() => {
-  const [assetSlugsWithUpdatedBalances, setAssetSlugsWithUpdatedBalances] = useState<Record<string, BigNumber>>({});
+  const [assetSlugsWithUpdatedBalances, setAssetSlugsWithUpdatedBalances] = useSafeState<Record<string, BigNumber>>({});
 
   const tezos = useTezos();
   const isSyncing = useSyncTokens();
@@ -44,24 +45,20 @@ export const [SyncBalancesProvider, useSyncBalances] = constate(() => {
   const chainIdRef = useRef<string>(chainId);
   const accountRef = useRef<string>(publicKeyHash);
 
-  const updateBalances = async () => {
-    for (const token of tokensWithTez) {
-      const { tokenSlug, chainId: tokenChainId, account: tokenAccount } = token;
+  const { stop: stopUpdate, stopAndBuildChecker } = useStopper();
 
-      if (chainIdRef.current !== tokenChainId || accountRef.current !== tokenAccount) break;
-
+  const updateBalances = async (shouldStop: () => boolean) => {
+    for (const { tokenSlug } of tokensWithTez) {
       const tokenMetadata: AssetMetadata | undefined = allTokensBaseMetadata[tokenSlug];
 
       if (tokenMetadata == null && isTezAsset(tokenSlug) === false) continue;
 
       const latestBalance = await fetchBalance(tezos, tokenSlug, publicKeyHash, tokenMetadata);
 
-      if (chainIdRef.current !== tokenChainId || accountRef.current !== tokenAccount) break;
+      if (shouldStop()) return;
 
-      if (
-        !assetSlugsWithUpdatedBalances.hasOwnProperty(tokenSlug) ||
-        !assetSlugsWithUpdatedBalances[tokenSlug].eq(latestBalance)
-      ) {
+      const currentBalance: BigNumber | undefined = assetSlugsWithUpdatedBalances[tokenSlug];
+      if (!currentBalance || !currentBalance.eq(latestBalance)) {
         flushSync(() => setAssetSlugsWithUpdatedBalances(prevState => ({ ...prevState, [tokenSlug]: latestBalance })));
       }
     }
@@ -69,13 +66,16 @@ export const [SyncBalancesProvider, useSyncBalances] = constate(() => {
 
   useEffect(() => {
     if (chainId !== chainIdRef.current || publicKeyHash !== accountRef.current) {
+      stopUpdate();
       setAssetSlugsWithUpdatedBalances({});
     } else if (isSyncing === false) {
-      updateBalances();
+      updateBalances(stopAndBuildChecker());
     }
 
     chainIdRef.current = chainId;
     accountRef.current = publicKeyHash;
+
+    return stopUpdate;
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSyncing, chainId, publicKeyHash]);
