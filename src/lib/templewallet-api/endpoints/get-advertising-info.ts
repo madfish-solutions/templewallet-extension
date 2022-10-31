@@ -1,3 +1,6 @@
+import { from } from 'rxjs';
+import { map } from 'rxjs/operators';
+
 import { templeWalletApi } from './templewallet.api';
 
 export interface AdvertisingPromotion {
@@ -10,4 +13,9 @@ export interface AdvertisingPromotion {
   mobileBannerUrl: string;
 }
 
-export const getAdvertisingInfo = () => templeWalletApi.get<AdvertisingPromotion>('/advertising-info');
+interface GetAdvertisingInfoResponse {
+  data?: AdvertisingPromotion;
+}
+
+export const getAdvertisingInfo$ = () =>
+  from(templeWalletApi.get<GetAdvertisingInfoResponse>('/advertising-info')).pipe(map(response => response.data.data));
