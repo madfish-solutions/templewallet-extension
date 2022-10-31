@@ -25,10 +25,10 @@ export const InitialStep: FC<Omit<StepProps, 'orderInfo'>> = ({ isApiError, setO
   const { analyticsState } = useAnalyticsState();
 
   const [inputAmount, setInputAmount] = useState<number | undefined>(undefined);
+  const [cardNumber, setCardNumber] = useState('');
 
   const [isLoading, setLoading] = useState(false);
-
-  const cardNumberRef = useRef<MaskedInput>(null);
+  const [isFormSubmitted, setIsFormSubmitted] = useState(false);
 
   const [cardInputError, setCardInputError] = useState('');
   const [isNotUkrainianCardError, setIsNotUkrainianCardError] = useState(false);
@@ -63,7 +63,7 @@ export const InitialStep: FC<Omit<StepProps, 'orderInfo'>> = ({ isApiError, setO
   );
 
   const handleSubmit = () => {
-    const cardNumber = String(cardNumberRef.current?.props.value);
+    setIsFormSubmitted(true);
 
     if (!cardNumber) {
       setCardInputError(t('required'));
@@ -152,7 +152,6 @@ export const InitialStep: FC<Omit<StepProps, 'orderInfo'>> = ({ isApiError, setO
         </div>
 
         <CardNumberInput
-          ref={cardNumberRef}
           error={cardInputError}
           setError={setCardInputError}
           setIsNotUkrainianCardError={setIsNotUkrainianCardError}
