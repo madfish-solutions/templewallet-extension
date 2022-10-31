@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import BigNumber from 'bignumber.js';
 
-import { estimateAliceBobOutput } from 'lib/alice-bob-api';
+import { estimateAliceBobOutput } from 'lib/templewallet-api';
 
 export const useOutputEstimation = (
   inputAmount = 0,
@@ -23,13 +23,10 @@ export const useOutputEstimation = (
     if (isValidInput) {
       setLoading(true);
 
-      estimateAliceBobOutput({
-        isWithdraw: String(isWithdraw),
-        amount: String(inputAmount)
-      })
-        .then(({ outputAmount }) =>
-          setOutputAmount(new BigNumber(outputAmount).dp(2, BigNumber.ROUND_FLOOR).toNumber())
-        )
+      estimateAliceBobOutput(isWithdraw, inputAmount.toString())
+        .then(response => {
+          setOutputAmount(new BigNumber(response.data.outputAmount).dp(2, BigNumber.ROUND_FLOOR).toNumber());
+        })
         .catch(() => setIsApiError(true))
         .finally(() => setLoading(false));
     }

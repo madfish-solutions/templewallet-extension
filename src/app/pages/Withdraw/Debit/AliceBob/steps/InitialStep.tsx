@@ -12,9 +12,9 @@ import { ReactComponent as AlertIcon } from 'app/icons/alert.svg';
 import styles from 'app/pages/Buy/Crypto/Exolix/Exolix.module.css';
 import { TopUpInput } from 'app/pages/Buy/Debit/Utorg/components/TopUpInput/TopUpInput';
 import { WithdrawSelectors } from 'app/pages/Withdraw/Withdraw.selectors';
-import { createAliceBobOrder } from 'lib/alice-bob-api';
 import { useAnalyticsState } from 'lib/analytics/use-analytics-state.hook';
 import { T, t } from 'lib/i18n/react';
+import { createAliceBobOrder } from 'lib/templewallet-api';
 
 import { CardNumberInput } from '../components/CardNumberInput';
 import { StepProps } from './step.props';
@@ -72,14 +72,9 @@ export const InitialStep: FC<Omit<StepProps, 'orderInfo'>> = ({ isApiError, setO
 
     if (!disabledProceed) {
       setLoading(true);
-      createAliceBobOrder({
-        isWithdraw: 'true',
-        amount: inputAmount?.toString() ?? '0',
-        userId: analyticsState.userId,
-        cardNumber
-      })
-        .then(({ orderInfo }) => {
-          setOrderInfo(orderInfo);
+      createAliceBobOrder(true, inputAmount?.toString() ?? '0', analyticsState.userId, undefined, cardNumber)
+        .then(response => {
+          setOrderInfo(response.data.orderInfo);
           setStep(1);
         })
         .catch(err => {
