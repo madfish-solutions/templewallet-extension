@@ -1,11 +1,11 @@
 const STORAGE_KEY = 'lock_up';
 const DEFAULT_VALUE = true;
 
-export function getIsLockUpEnabled() {
+export const getIsLockUpEnabled = () => {
   const stored = localStorage.getItem(STORAGE_KEY);
-  return stored == null ? DEFAULT_VALUE : stored === 'true';
-}
+  return stored ? stored === 'true' : DEFAULT_VALUE;
+};
 
-export function saveIsLockUpEnabled(value: boolean) {
+export const saveIsLockUpEnabled = (value: boolean) => {
   localStorage.setItem(STORAGE_KEY, String(value));
-}
+};

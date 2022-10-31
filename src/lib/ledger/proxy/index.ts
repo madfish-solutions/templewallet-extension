@@ -1,3 +1,12 @@
+/*
+  This proxy solution is meant to allow using a Ledger signer in background script indirectly,
+  through messaging to foreground pages, where it will be instantiated.
+
+  Applicable, since direct usage is not suitable for Service Worker environment.
+
+  (!) You need to inject './foreground' script into every foreground page.
+*/
+
 import type { DerivationType } from '@taquito/ledger-signer';
 import type { Signer } from '@taquito/taquito';
 import browser from 'webextension-polyfill';
@@ -13,19 +22,18 @@ import type {
 } from './types';
 import { uInt8ArrayToString } from './utils';
 
-export async function createLedgerSignerProxy(
+export const createLedgerSignerProxy = async (
   derivationPath: string,
   derivationType?: DerivationType,
   publicKey?: string,
   publicKeyHash?: string
-) {
+) => {
   const signer = new TempleLedgerSignerProxy({ derivationPath, derivationType, publicKey, publicKeyHash });
   const cleanup = () => {};
 
   return { signer, cleanup };
-}
+};
 
-/** This is a background script proxy for TempleLedgerSigner, created at foreground */
 class TempleLedgerSignerProxy implements Signer {
   constructor(private creatorArgs: CreatorArguments) {}
 
@@ -37,7 +45,7 @@ class TempleLedgerSignerProxy implements Signer {
     throw new Error('Secret key cannot be exposed');
   }
 
-  async sign(op: string, magicByte?: Uint8Array) {
+  sign(op: string, magicByte?: Uint8Array) {
     const args: RequestMessageSignMethodCall['args'] = {
       op,
       magicByte: magicByte && uInt8ArrayToString(magicByte)

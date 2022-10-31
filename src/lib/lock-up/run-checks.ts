@@ -35,11 +35,11 @@ window.addEventListener(
   true
 );
 
-function getOpenedTemplePagesN() {
+const getOpenedTemplePagesN = () => {
   const windowsN = browser.extension.getViews().length;
   const bgWindow: Window | null = browser.extension.getBackgroundPage();
   return bgWindow ? windowsN - 1 : windowsN;
-}
+};
 
 async function lock() {
   const res = await request({

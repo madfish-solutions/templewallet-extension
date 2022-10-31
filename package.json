@@ -190,7 +190,6 @@
     "follow-redirects": "1.14.8",
     "nanoid": "3.1.31",
     "tslib": "2.4.0",
-    "regenerator-runtime": "0.13.9",
     "@types/react": "18.0.15"
   }
 }

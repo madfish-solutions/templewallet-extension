@@ -6,12 +6,12 @@ import { removeMFromDerivationPath } from './helpers';
 import { TempleLedgerSigner } from './signer';
 import { TempleLedgerTransport } from './transport';
 
-export async function createLedgerSigner(
+export const createLedgerSigner = async (
   derivationPath: string,
   derivationType?: DerivationType,
   publicKey?: string,
   publicKeyHash?: string
-) {
+) => {
   const transport = await createLedgerTransport();
 
   const signer = new TempleLedgerSigner(
@@ -29,11 +29,11 @@ export async function createLedgerSigner(
   const cleanup = () => {};
 
   return { signer, cleanup };
-}
+};
 
 let soleTransport: TempleLedgerTransport;
 
-async function createLedgerTransport() {
+const createLedgerTransport = async () => {
   if (soleTransport) await soleTransport.close();
 
   const bridgeUrl = process.env.TEMPLE_WALLET_LEDGER_BRIDGE_URL;
@@ -47,4 +47,4 @@ async function createLedgerTransport() {
   soleTransport.updateTransportType(transportType);
 
   return soleTransport;
-}
+};

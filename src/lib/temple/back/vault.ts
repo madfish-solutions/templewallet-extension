@@ -8,7 +8,7 @@ import * as Bip39 from 'bip39';
 import * as Ed25519 from 'ed25519-hd-key';
 import { initialize, SecureCellSeal } from 'wasm-themis';
 
-import { createLedgerSignerProxy } from 'lib/ledger/mv3/bg';
+import { createLedgerSignerProxy } from 'lib/ledger/proxy';
 import { PublicError } from 'lib/temple/back/defaults';
 import {
   encryptAndSaveMany,
