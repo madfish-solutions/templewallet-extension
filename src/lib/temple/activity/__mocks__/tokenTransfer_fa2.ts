@@ -1,6 +1,6 @@
 const TOKEN_TRANSFER_FA2 = {
   destination: 'KT1RX7AdYr9hFZPQTZw5Fu8KkMwVtobHpTp6',
-  parameters: {
+  parameter: {
     entrypoint: 'transfer',
     value: [
       {

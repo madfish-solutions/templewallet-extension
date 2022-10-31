@@ -12,7 +12,7 @@ import ConfirmPage from 'app/ConfirmPage';
 import { AppEnvProvider } from 'app/env';
 import ErrorBoundary from 'app/ErrorBoundary';
 import Dialogs from 'app/layouts/Dialogs';
-import PageRouter from 'app/PageRouter';
+import { PageRouter } from 'app/PageRouter';
 import { PropsWithChildren } from 'lib/props-with-children';
 import { TempleProvider, ABTestGroupProvider } from 'lib/temple/front';
 import { DialogsProvider } from 'lib/ui/dialog';
@@ -20,11 +20,11 @@ import * as Woozie from 'lib/woozie';
 
 import { persistor, store } from './store/store';
 
-interface AppProps extends Partial<PropsWithChildren> {
+interface Props extends Partial<PropsWithChildren> {
   env: ComponentProps<typeof AppEnvProvider>;
 }
 
-const App: FC<AppProps> = ({ env }) => (
+export const App: FC<Props> = ({ env }) => (
   <ErrorBoundary whileMessage="booting a wallet" className="min-h-screen">
     <DialogsProvider>
       <Suspense fallback={<RootSuspenseFallback />}>
@@ -48,14 +48,16 @@ const App: FC<AppProps> = ({ env }) => (
   </ErrorBoundary>
 );
 
-export default App;
-
-const AppProvider: FC<AppProps> = ({ children, env }) => (
+const AppProvider: FC<Props> = ({ children, env }) => (
   <AppEnvProvider {...env}>
-    <ABTestGroupProvider>
-      <Woozie.Provider>
-        <TempleProvider>{children}</TempleProvider>
-      </Woozie.Provider>
-    </ABTestGroupProvider>
+    <Provider store={store}>
+      <PersistGate persistor={persistor} loading={null}>
+        <ABTestGroupProvider>
+          <Woozie.Provider>
+            <TempleProvider>{children}</TempleProvider>
+          </Woozie.Provider>
+        </ABTestGroupProvider>
+      </PersistGate>
+    </Provider>
   </AppEnvProvider>
 );

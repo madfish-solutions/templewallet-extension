@@ -1,7 +1,7 @@
 import { Estimate } from '@taquito/taquito';
 import { TempleDAppMetadata, TempleDAppNetwork } from '@temple-wallet/dapp/dist/types';
 
-import { TID } from 'lib/i18n/react';
+import { TID } from 'lib/i18n';
 
 import {
   TempleSendPageEventRequest,
@@ -111,7 +111,7 @@ export enum TempleAccountType {
 
 export interface TempleNetwork {
   id: string;
-  name: string;
+  name?: string;
   nameI18nKey?: TID;
   description: string;
   descriptionI18nKey?: string;

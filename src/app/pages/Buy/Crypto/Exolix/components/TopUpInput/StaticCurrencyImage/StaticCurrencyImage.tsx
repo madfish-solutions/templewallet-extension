@@ -1,6 +1,6 @@
 import React, { FC, useMemo, useState } from 'react';
 
-import { browser } from 'webextension-polyfill-ts';
+import browser from 'webextension-polyfill';
 
 interface Props {
   currencyCode: string;
@@ -20,7 +20,11 @@ export const StaticCurrencyImage: FC<Props> = ({ currencyCode, imageSrc, style =
       <img
         alt="currencyImage"
         style={{ ...style, ...conditionalStyle }}
-        src={currencyCode === 'XTZ' ? browser.runtime.getURL('misc/token-logos/tez.svg') : imageSrc}
+        src={
+          currencyCode === 'TEZ' || currencyCode === 'XTZ'
+            ? browser.runtime.getURL('misc/token-logos/tez.svg')
+            : imageSrc
+        }
         onLoad={() => setIsFailed(false)}
         onError={() => setIsFailed(true)}
       />

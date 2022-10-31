@@ -21,7 +21,7 @@ import { ReactComponent as OkIcon } from 'app/icons/ok.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import ManagedKTForm from 'app/templates/ManagedKTForm';
 import { useFormAnalytics } from 'lib/analytics';
-import { TID, T, t } from 'lib/i18n/react';
+import { TID, T, t } from 'lib/i18n';
 import {
   ActivationStatus,
   useTempleClient,
@@ -31,12 +31,13 @@ import {
   useTezosDomainsClient,
   useNetwork,
   activateAccount,
-  validateDelegate
+  validateDelegate,
+  validateDerivationPath
 } from 'lib/temple/front';
-import { validateDerivationPath, isAddressValid, isKTAddress } from 'lib/temple/helpers';
+import { isAddressValid, isKTAddress } from 'lib/temple/helpers';
 import { confirmOperation } from 'lib/temple/operation';
 import { ImportAccountFormType } from 'lib/temple/types';
-import useSafeState from 'lib/ui/useSafeState';
+import { useSafeState } from 'lib/ui/hooks';
 import { clearClipboard } from 'lib/ui/util';
 import { navigate } from 'lib/woozie';
 
@@ -311,25 +312,6 @@ const ByMnemonicForm: FC = () => {
         />
       </div>
 
-      <FormField
-        ref={register}
-        name="password"
-        type="password"
-        id="importfundacc-password"
-        label={
-          <>
-            <T id="password" />{' '}
-            <span className="text-sm font-light text-gray-600">
-              <T id="optionalComment" />
-            </span>
-          </>
-        }
-        labelDescription={t('passwordInputDescription')}
-        placeholder="*********"
-        errorCaption={errors.password?.message}
-        containerClassName="mb-6"
-      />
-
       <div className={classNames('mb-4', 'flex flex-col')}>
         <h2 className={classNames('mb-4', 'leading-tight', 'flex flex-col')}>
           <span className="text-base font-semibold text-gray-700">
@@ -408,6 +390,25 @@ const ByMnemonicForm: FC = () => {
           containerClassName="mb-6"
         />
       )}
+
+      <FormField
+        ref={register}
+        name="password"
+        type="password"
+        id="importfundacc-password"
+        label={
+          <>
+            <T id="password" />{' '}
+            <span className="text-sm font-light text-gray-600">
+              <T id="optionalComment" />
+            </span>
+          </>
+        }
+        labelDescription={t('passwordInputDescription')}
+        placeholder="*********"
+        errorCaption={errors.password?.message}
+        containerClassName="mb-6"
+      />
 
       <FormSubmitButton loading={formState.isSubmitting} className="mt-8">
         <T id="importAccount" />

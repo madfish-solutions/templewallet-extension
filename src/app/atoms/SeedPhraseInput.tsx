@@ -3,7 +3,7 @@ import React, { FC, useCallback, useMemo, useState } from 'react';
 import { validateMnemonic } from 'bip39';
 import classNames from 'clsx';
 
-import { T, t } from 'lib/i18n/react';
+import { T, t } from 'lib/i18n';
 import { clearClipboard } from 'lib/ui/util';
 
 import { formatMnemonic } from '../defaults';
@@ -193,7 +193,9 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
       </div>
       {submitted && seedError ? <div className="text-xs text-red-700 mt-4">{seedError}</div> : null}
       {pasteFailed ? (
-        <T id="seedPasteFailedTooManyWords">{message => <div className="text-xs text-red-700 mt-4">{message}</div>}</T>
+        <div className="text-xs text-red-700 mt-4">
+          <T id="seedPasteFailedTooManyWords" />
+        </div>
       ) : null}
     </div>
   );

@@ -18,7 +18,7 @@ import {
   CryptoKX
 } from 'libsodium-wrappers';
 import memoize from 'p-memoize';
-import { browser } from 'webextension-polyfill-ts';
+import browser from 'webextension-polyfill';
 
 import * as bs58check from 'bs58check';
 

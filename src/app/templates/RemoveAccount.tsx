@@ -4,7 +4,7 @@ import { OnSubmit, useForm } from 'react-hook-form';
 
 import { Alert, FormField, FormSubmitButton } from 'app/atoms';
 import AccountBanner from 'app/templates/AccountBanner';
-import { T, t } from 'lib/i18n/react';
+import { T, t } from 'lib/i18n';
 import { useTempleClient, useRelevantAccounts, useAccount } from 'lib/temple/front';
 import { TempleAccountType } from 'lib/temple/types';
 import { navigate } from 'lib/woozie';
@@ -88,13 +88,9 @@ const RemoveAccount: FC = () => {
             containerClassName="mb-4"
           />
 
-          <T id="remove">
-            {message => (
-              <FormSubmitButton loading={submitting} disabled={submitting}>
-                {message}
-              </FormSubmitButton>
-            )}
-          </T>
+          <FormSubmitButton loading={submitting} disabled={submitting}>
+            <T id="remove" />
+          </FormSubmitButton>
         </form>
       )}
     </div>

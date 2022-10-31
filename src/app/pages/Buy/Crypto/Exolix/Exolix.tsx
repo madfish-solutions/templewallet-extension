@@ -6,7 +6,7 @@ import ApproveStep from 'app/pages/Buy/Crypto/Exolix/steps/ApproveStep';
 import ExchangeStep from 'app/pages/Buy/Crypto/Exolix/steps/ExchangeStep';
 import InitialStep from 'app/pages/Buy/Crypto/Exolix/steps/InitialStep';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
-import { T, t } from 'lib/i18n/react';
+import { T, t } from 'lib/i18n';
 import { useAccount, useNetwork, useStorage } from 'lib/temple/front';
 import { Redirect } from 'lib/woozie';
 
@@ -27,8 +27,6 @@ const Exolix: FC = () => (
 );
 
 export default Exolix;
-
-const steps = [`${t('step')} 1`, `${t('step')} 2`, `${t('step')} 3`, `${t('step')} 4`];
 
 const BuyCryptoContent: FC = () => {
   const { trackEvent } = useAnalytics();
@@ -61,9 +59,11 @@ const BuyCryptoContent: FC = () => {
     return <Redirect to={'/'} />;
   }
 
+  const steps = (stepWord => [`${stepWord} 1`, `${stepWord} 2`, `${stepWord} 3`, `${stepWord} 4`])(t('step'));
+
   return (
     <div className="pb-8 text-center max-w-sm mx-auto">
-      <Stepper style={{ marginTop: '64px' }} steps={steps} currentStep={step} />
+      <Stepper style={{ marginTop: 8 }} steps={steps} currentStep={step} />
       {step === 0 && (
         <InitialStep
           isError={isError}

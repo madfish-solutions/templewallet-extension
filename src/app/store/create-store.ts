@@ -9,19 +9,22 @@ import { PersistConfig } from 'redux-persist/lib/types';
 import { Observable } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
+import { IS_DEV_ENV } from 'lib/env';
+
+import { advertisingReducer } from './advertising/reducers';
+import { AdvertisingRootState } from './advertising/state';
 import { newsReducer } from './news/news-reducers';
 import { NewsRootState } from './news/news-state';
 import { rootStateReducer } from './root-state.reducers';
+import { walletReducer } from './wallet/reducers';
+import { WalletRootState } from './wallet/state';
+
+export type RootState = WalletRootState & NewsRootState & AdvertisingRootState;
 
 const logger = createLogger();
 
-export type RootState = NewsRootState;
-
-const { NODE_ENV = 'development' } = process.env;
-
 const epicMiddleware = createEpicMiddleware();
-const middlewares: Array<Middleware<{}, RootState>> =
-  NODE_ENV === 'development' ? [epicMiddleware, logger] : [epicMiddleware];
+const middlewares: Array<Middleware<{}, RootState>> = IS_DEV_ENV ? [epicMiddleware, logger] : [epicMiddleware];
 
 const persistConfig: PersistConfig<RootState> = {
   key: 'temple-root',
@@ -31,7 +34,9 @@ const persistConfig: PersistConfig<RootState> = {
 };
 
 const rootReducer = rootStateReducer<RootState>({
-  newsState: newsReducer
+  newsState: newsReducer,
+  wallet: walletReducer,
+  advertising: advertisingReducer
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

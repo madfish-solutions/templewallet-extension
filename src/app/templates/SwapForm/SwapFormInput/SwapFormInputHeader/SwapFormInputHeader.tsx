@@ -9,8 +9,7 @@ import { ReactComponent as ChevronDownIcon } from 'app/icons/chevron-down.svg';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
 import { AssetIcon } from 'app/templates/AssetIcon';
 import InFiat from 'app/templates/InFiat';
-import { toLocalFormat } from 'lib/i18n/numbers';
-import { t, T } from 'lib/i18n/react';
+import { toLocalFormat, T, t } from 'lib/i18n';
 import { AssetMetadata } from 'lib/temple/metadata';
 import { PopperRenderProps } from 'lib/ui/Popper';
 

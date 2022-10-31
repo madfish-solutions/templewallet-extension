@@ -4,9 +4,9 @@ import { List } from 'react-virtualized';
 
 import DropdownWrapper from 'app/atoms/DropdownWrapper';
 import Spinner from 'app/atoms/Spinner/Spinner';
-import { T } from 'lib/i18n/react';
+import { useAppEnvStyle } from 'app/hooks/use-app-env-style.hook';
+import { T } from 'lib/i18n';
 
-import { useAppEnvStyle } from '../../../../../../../hooks/useAppEnvStyle';
 import { CurrencyInterface } from '../../../exolix.interface';
 import { CurrencyOption } from './CurrencyOption/CurrencyOption';
 
@@ -51,7 +51,6 @@ export const CurrenciesMenu: FC<Props> = ({ value, options, isLoading = false, o
           )}
         </div>
       )}
-      {/*// @ts-ignore*/}
       <List
         width={dropdownWidth}
         height={options.length > 2 ? 240 : 132}

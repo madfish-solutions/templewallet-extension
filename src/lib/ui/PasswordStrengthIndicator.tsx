@@ -1,6 +1,7 @@
 import React, { FC } from 'react';
 
-import { T } from '../i18n/react';
+import { T } from 'lib/i18n';
+
 import PasswordStrengthIndicatorItem from './PasswordStrengthIndicatorItem';
 
 export interface PasswordValidation {

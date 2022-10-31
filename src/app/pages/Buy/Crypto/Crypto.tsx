@@ -3,7 +3,7 @@ import React, { FC } from 'react';
 import classNames from 'clsx';
 
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
-import { T } from 'lib/i18n/react';
+import { T } from 'lib/i18n';
 import { Link } from 'lib/woozie';
 
 import { useNetwork } from '../../../../lib/temple/front';
@@ -40,7 +40,7 @@ export const Crypto: FC = () => {
               'bg-blue-500',
               'w-full'
             )}
-            to={'/buy/crypto'}
+            to={'/buy/crypto/exolix'}
             onClick={() => trackEvent(BuySelectors.Exolix, AnalyticsEventCategory.ButtonPress)}
           >
             <T id="continue" />

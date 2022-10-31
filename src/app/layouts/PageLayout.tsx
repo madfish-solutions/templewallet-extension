@@ -9,13 +9,14 @@ import { useAppEnv } from 'app/env';
 import ErrorBoundary from 'app/ErrorBoundary';
 import { ReactComponent as ChevronLeftIcon } from 'app/icons/chevron-left.svg';
 import ContentContainer from 'app/layouts/ContentContainer';
-import { T } from 'lib/i18n/react';
+import { T } from 'lib/i18n';
 import { PropsWithChildren } from 'lib/props-with-children';
 import { goBack, HistoryAction, navigate, useLocation } from 'lib/woozie';
 
 import { DonationBanner } from '../atoms/DonationBanner';
 import { NotificationsButton } from '../pages/Notifications/components/NotificationsButton';
 import { useOnboardingProgress } from '../pages/Onboarding/hooks/useOnboardingProgress.hook';
+import { AdvertisingOverlay } from '../templates/advertising/advertising-overlay/advertising-overlay';
 import { PageLayoutSelectors } from './PageLayout.selectors';
 import { ChangelogOverlay } from './PageLayout/ChangelogOverlay/ChangelogOverlay';
 import ConfirmationOverlay from './PageLayout/ConfirmationOverlay';
@@ -46,6 +47,7 @@ const PageLayout: FC<PageLayoutProps> = ({ children, contentContainerStyle, ...t
         </ContentPaper>
       </div>
 
+      <AdvertisingOverlay />
       <ConfirmationOverlay />
       <ChangelogOverlay />
     </>
