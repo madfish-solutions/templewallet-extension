@@ -1,8 +1,7 @@
-import React, { FC, useCallback, useMemo, useRef, useState } from 'react';
+import React, { FC, useMemo, useState } from 'react';
 
 import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
-import MaskedInput from 'react-text-mask';
 
 import { FormSubmitButton } from 'app/atoms/FormSubmitButton';
 import { useDisabledProceed } from 'app/hooks/AliceBob/useDisabledProceed';
@@ -13,10 +12,11 @@ import styles from 'app/pages/Buy/Crypto/Exolix/Exolix.module.css';
 import { TopUpInput } from 'app/pages/Buy/Debit/Utorg/components/TopUpInput/TopUpInput';
 import { WithdrawSelectors } from 'app/pages/Withdraw/Withdraw.selectors';
 import { useAnalyticsState } from 'lib/analytics/use-analytics-state.hook';
-import { T, t } from 'lib/i18n/react';
+import { t, T } from 'lib/i18n/react';
 import { createAliceBobOrder } from 'lib/templewallet-api';
 
 import { CardNumberInput } from '../components/CardNumberInput';
+import { useCardNumberInput } from '../components/use-card-number-input.hook';
 import { StepProps } from './step.props';
 
 const NOT_UKRAINIAN_CARD_ERROR_MESSAGE = 'Ukrainian bank card is required.';
@@ -24,14 +24,11 @@ const NOT_UKRAINIAN_CARD_ERROR_MESSAGE = 'Ukrainian bank card is required.';
 export const InitialStep: FC<Omit<StepProps, 'orderInfo'>> = ({ isApiError, setOrderInfo, setStep, setIsApiError }) => {
   const { analyticsState } = useAnalyticsState();
 
-  const [inputAmount, setInputAmount] = useState<number | undefined>(undefined);
-  const [cardNumber, setCardNumber] = useState('');
-
   const [isLoading, setLoading] = useState(false);
   const [isFormSubmitted, setIsFormSubmitted] = useState(false);
 
-  const [cardInputError, setCardInputError] = useState('');
-  const [isNotUkrainianCardError, setIsNotUkrainianCardError] = useState(false);
+  const [inputAmount, setInputAmount] = useState<number | undefined>(undefined);
+  const cardNumberInput = useCardNumberInput(isFormSubmitted);
 
   const { minExchangeAmount, maxExchangeAmount, isMinMaxLoading } = useMinMaxExchangeAmounts(setIsApiError, true);
 
@@ -39,10 +36,12 @@ export const InitialStep: FC<Omit<StepProps, 'orderInfo'>> = ({ isApiError, setO
     inputAmount,
     minExchangeAmount,
     maxExchangeAmount,
-    isApiError,
-    Boolean(cardInputError),
-    isNotUkrainianCardError,
     true
+  );
+
+  const isFormValid = useMemo(
+    () => !disabledProceed && !isApiError && cardNumberInput.isValid,
+    [disabledProceed, isApiError, cardNumberInput.isValid]
   );
 
   const outputAmount = useOutputEstimation(
@@ -65,21 +64,21 @@ export const InitialStep: FC<Omit<StepProps, 'orderInfo'>> = ({ isApiError, setO
   const handleSubmit = () => {
     setIsFormSubmitted(true);
 
-    if (!cardNumber) {
-      setCardInputError(t('required'));
+    if (!isFormValid) {
       return;
     }
 
     if (!disabledProceed) {
       setLoading(true);
-      createAliceBobOrder(true, inputAmount?.toString() ?? '0', analyticsState.userId, undefined, cardNumber)
+
+      createAliceBobOrder(true, inputAmount?.toString() ?? '0', analyticsState.userId, undefined, cardNumberInput.value)
         .then(response => {
           setOrderInfo(response.data.orderInfo);
           setStep(1);
         })
         .catch(err => {
           if (err.response.data.message === NOT_UKRAINIAN_CARD_ERROR_MESSAGE) {
-            setIsNotUkrainianCardError(true);
+            cardNumberInput.setCustomError(t('onlyForUkrainianCards'));
           } else {
             setIsApiError(true);
           }
@@ -88,7 +87,7 @@ export const InitialStep: FC<Omit<StepProps, 'orderInfo'>> = ({ isApiError, setO
     }
   };
 
-  const handleInputAmountChange = useCallback((amount?: number) => setInputAmount(amount), []);
+  const handleInputAmountChange = (amount?: number) => setInputAmount(amount);
 
   return (
     <>
@@ -140,22 +139,19 @@ export const InitialStep: FC<Omit<StepProps, 'orderInfo'>> = ({ isApiError, setO
           <span className="text-xl text-gray-900">
             <T id="toCard" />
           </span>
-          <span
-            className={classNames(
-              'inline-flex items-center font-inter text-xs font-normal',
-              isNotUkrainianCardError ? 'text-red-700' : 'text-orange-500'
-            )}
-          >
+          <span className={classNames('inline-flex items-center font-inter text-xs font-normal text-orange-500')}>
             <AlertIcon className="mr-1 stroke-current" />
             <T id="onlyForUkrainianCards" />
           </span>
         </div>
 
         <CardNumberInput
-          error={cardInputError}
-          setError={setCardInputError}
-          setIsNotUkrainianCardError={setIsNotUkrainianCardError}
-          className={classNames(isNotUkrainianCardError && 'border-red-700')}
+          value={cardNumberInput.value}
+          error={cardNumberInput.error}
+          isFocused={cardNumberInput.isFocused}
+          onBlur={cardNumberInput.onBlur}
+          onFocus={cardNumberInput.onFocus}
+          onChange={cardNumberInput.onChange}
         />
 
         <FormSubmitButton
