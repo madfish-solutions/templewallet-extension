@@ -111,7 +111,6 @@ export const useGasToken = () => {
 };
 
 export function useAssetMetadata(slug: string): AssetMetadata | null {
-  const tezos = useTezos();
   const forceUpdate = useForceUpdate();
   const { metadata } = useGasToken();
 
@@ -128,31 +127,34 @@ export function useAssetMetadata(slug: string): AssetMetadata | null {
     [slug, allTokensBaseMetadataRef, forceUpdate]
   );
 
+  const getCurrentBaseMetadata = useMemo(
+    () => (): AssetMetadata | null => allTokensBaseMetadataRef.current[slug] ?? null,
+    [slug, allTokensBaseMetadataRef]
+  );
+
   const tezAsset = isTezAsset(slug);
-  const tokenMetadata: AssetMetadata | null = allTokensBaseMetadataRef.current[slug] ?? null;
+  const tokenMetadata = getCurrentBaseMetadata();
   const exist = Boolean(tokenMetadata);
 
-  // Load token metadata if missing
-  const tezosRef = useRef(tezos);
   useEffect(() => {
-    tezosRef.current = tezos;
-  }, [tezos]);
-
-  useEffect(() => {
-    if (!isTezAsset(slug) && !exist && !autoFetchMetadataFails.has(slug)) {
-      enqueueAutoFetchMetadata(() => fetchMetadata(slug))
-        .then(metadata => {
-          if (metadata !== null) {
-            return Promise.all([
-              setTokensBaseMetadata({ [slug]: metadata.base }),
-              setTokensDetailedMetadata({ [slug]: metadata.detailed })
-            ]);
-          }
-          throw new Error('');
-        })
-        .catch(() => autoFetchMetadataFails.add(slug));
-    }
-  }, [slug, exist, fetchMetadata, setTokensBaseMetadata, setTokensDetailedMetadata]);
+    if (isTezAsset(slug) || exist || autoFetchMetadataFails.has(slug)) return;
+    enqueueAutoFetchMetadata(async () => {
+      if (getCurrentBaseMetadata()) return;
+      const metadata = await fetchMetadata(slug);
+      if (metadata == null) throw new Error('');
+      return metadata;
+    })
+      .then(metadata => {
+        return (
+          metadata &&
+          Promise.all([
+            setTokensBaseMetadata({ [slug]: metadata.base }),
+            setTokensDetailedMetadata({ [slug]: metadata.detailed })
+          ])
+        );
+      })
+      .catch(() => autoFetchMetadataFails.add(slug));
+  }, [slug, exist, getCurrentBaseMetadata, fetchMetadata, setTokensBaseMetadata, setTokensDetailedMetadata]);
 
   // Tezos
   if (tezAsset) {
