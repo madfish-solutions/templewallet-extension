@@ -31,7 +31,7 @@ import {
   PRESERVED_TOKEN_METADATA,
   TEZOS_METADATA
 } from '../metadata';
-import { useTezos, useChainId, useAccount } from './ready';
+import { useTezosRef, useChainId, useAccount } from './ready';
 import { onStorageChanged, putToStorage, usePassiveStorage } from './storage';
 
 const ALL_TOKENS_BASE_METADATA_STORAGE_KEY = 'tokens_base_metadata';
@@ -187,13 +187,9 @@ export const [TokensMetadataProvider, useTokensMetadata] = constate(() => {
     []
   );
 
-  const tezos = useTezos();
-  const tezosRef = useRef(tezos);
-  useEffect(() => {
-    tezosRef.current = tezos;
-  }, [tezos]);
+  const tezosRef = useTezosRef();
 
-  const fetchMetadata = useCallback((slug: string) => fetchTokenMetadata(tezosRef.current, slug), []);
+  const fetchMetadata = (slug: string) => fetchTokenMetadata(tezosRef.current, slug);
 
   const setTokensBaseMetadata = useCallback(
     (toSet: Record<string, AssetMetadata>) =>

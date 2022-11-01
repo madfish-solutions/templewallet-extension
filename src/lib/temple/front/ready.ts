@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useLayoutEffect, useMemo } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef } from 'react';
 
 import { RpcClientInterface } from '@taquito/rpc';
 import { TezosToolkit } from '@taquito/taquito';
@@ -133,6 +133,14 @@ function useReadyTemple() {
     settings,
     tezos
   };
+}
+
+export function useTezosRef() {
+  const tezos = useTezos();
+  const tezosRef = useRef(tezos);
+  useEffect(() => void (tezosRef.current = tezos), [tezos]);
+
+  return tezosRef;
 }
 
 export function useChainId(suspense?: boolean) {
