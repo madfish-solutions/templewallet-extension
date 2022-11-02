@@ -1,5 +1,5 @@
 {
-  "manifest_version": 2,
+  "manifest_version": 3,
   "name": "Temple - Tezos Wallet",
   "version": "1.14.13",
 
@@ -18,7 +18,9 @@
     "storage",
     "unlimitedStorage",
     "clipboardWrite",
-    "activeTab",
+    "activeTab"
+  ],
+  "host_permissions": [
     "http://localhost:8732/",
     "https://*.giganode.io/",
     "https://*.tzstats.com/",
@@ -29,7 +31,9 @@
     "https://api.templewallet.com/",
     "https://quipuswap.com/"
   ],
-  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
+  },
 
   "__chrome|firefox__author": "https://madfish.solutions",
   "__opera__developer": {
@@ -45,7 +49,7 @@
 
   "default_locale": "en",
 
-  "browser_action": {
+  "action": {
     "__chrome|firefox|opera__default_popup": "popup.html",
     "default_icon": {
       "16": "misc/icon-16.png",
@@ -62,13 +66,11 @@
 
   "options_ui": {
     "page": "options.html",
-    "open_in_tab": true,
-    "__chrome__chrome_style": false
+    "open_in_tab": true
   },
 
   "background": {
-    "scripts": ["scripts/background.js"],
-    "__chrome|opera__persistent": true
+    "service_worker": "scripts/background.js"
   },
 
   "content_scripts": [
