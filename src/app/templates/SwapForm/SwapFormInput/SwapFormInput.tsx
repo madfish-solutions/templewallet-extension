@@ -4,19 +4,18 @@ import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
 
 import { useFormAnalytics } from 'lib/analytics';
-import { t } from 'lib/i18n/react';
+import { t } from 'lib/i18n';
+import { AssetTypesEnum, toTokenSlug } from 'lib/temple/assets';
 import {
-  AssetTypesEnum,
-  EMPTY_ASSET_METADATA,
-  toTokenSlug,
   useAccount,
+  useBalance,
   useAssetMetadata,
   useAvailableAssets,
-  useBalance,
-  useFilteredAssets,
   useGetTokenMetadata,
-  useOnBlock
+  useOnBlock,
+  useFilteredAssets
 } from 'lib/temple/front';
+import { EMPTY_ASSET_METADATA } from 'lib/temple/metadata';
 import Popper from 'lib/ui/Popper';
 
 import { AssetsMenu } from './AssetsMenu/AssetsMenu';
@@ -43,7 +42,7 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
   const isTezosSlug = assetSlug === 'tez';
   const assetSlugWithFallback = assetSlug ?? 'tez';
 
-  const assetMetadataWithFallback = useAssetMetadata(assetSlugWithFallback);
+  const assetMetadataWithFallback = useAssetMetadata(assetSlugWithFallback)!;
   const assetMetadata = useMemo(
     () => (assetSlug ? assetMetadataWithFallback : EMPTY_ASSET_METADATA),
     [assetSlug, assetMetadataWithFallback]
@@ -96,7 +95,7 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
   };
 
   const handleSelectedAssetChange = (newAssetSlug: string) => {
-    const newAssetMetadata = getTokenMetadata(newAssetSlug);
+    const newAssetMetadata = getTokenMetadata(newAssetSlug)!;
     const newAmount = amount?.decimalPlaces(newAssetMetadata.decimals, BigNumber.ROUND_DOWN);
 
     onChange({

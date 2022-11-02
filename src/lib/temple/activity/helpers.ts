@@ -1,5 +1,9 @@
 import BigNumber from 'bignumber.js';
 
+export const isPositiveNumber = (val: BigNumber.Value) => new BigNumber(val).isGreaterThan(0);
+
+const toTokenId = (contractAddress: string, tokenId: string | number = 0) => `${contractAddress}_${tokenId}`;
+
 export function tryParseTokenTransfers(
   parameters: any,
   destination: string,
@@ -14,19 +18,6 @@ export function tryParseTokenTransfers(
   try {
     formatFa2(parameters, destination, onTransfer);
   } catch {}
-}
-
-export function isPositiveNumber(val: BigNumber.Value) {
-  return new BigNumber(val).isGreaterThan(0);
-}
-
-export function toTokenId(contractAddress: string, tokenId: string | number = 0) {
-  return `${contractAddress}_${tokenId}`;
-}
-
-export function getTzktTokenTransferId(hash: string, nonce?: number) {
-  const nonceStr = nonce ? `_${nonce}` : '';
-  return `${hash}${nonceStr}`;
 }
 
 const formatFa12 = (
@@ -64,15 +55,11 @@ const formatFa2 = (
   const { entrypoint, value } = parameters;
   if (entrypoint !== 'transfer') return;
   for (const { args: x } of value) {
-    let from: string | undefined;
-
-    from = checkIfVarString(x);
+    const from: string | undefined = checkIfVarString(x);
     for (const { args: y } of x[1]) {
-      let to, tokenId, amount: string | undefined;
-
-      to = checkIfVarString(y);
-      tokenId = checkDestination(y[1].args[0], destination);
-      amount = checkIfIntString(y[1].args[1]);
+      const to = checkIfVarString(y);
+      const tokenId = checkDestination(y[1].args[0], destination);
+      const amount: string | undefined = checkIfIntString(y[1].args[1]);
 
       if (from && to && tokenId && amount) {
         onTransfer(tokenId, from, to, amount);

@@ -3,7 +3,7 @@ import React, { memo } from 'react';
 import classNames from 'clsx';
 
 import { getAccountBadgeTitle } from 'app/defaults';
-import { TempleAccount } from 'lib/temple/front';
+import { TempleAccount } from 'lib/temple/types';
 
 type AccountTypeBadgeProps = {
   account: Pick<TempleAccount, 'type'>;
@@ -19,7 +19,7 @@ const AccountTypeBadge = memo<AccountTypeBadgeProps>(({ account, darkTheme = fal
     <span
       className={classNames(
         'ml-2',
-        'rounded-sm',
+        'rounded',
         'border border-opacity-25',
         'px-1 py-px',
         'leading-tight',
@@ -28,7 +28,7 @@ const AccountTypeBadge = memo<AccountTypeBadgeProps>(({ account, darkTheme = fal
       )}
       style={{ fontSize: '0.6rem' }}
     >
-      {title}
+      {title.toUpperCase()}
     </span>
   ) : null;
 });

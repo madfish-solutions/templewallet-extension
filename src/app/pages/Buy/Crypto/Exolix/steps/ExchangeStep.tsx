@@ -2,18 +2,36 @@ import React, { FC, useEffect, useState } from 'react';
 
 import classNames from 'clsx';
 
+import { FormSubmitButton } from 'app/atoms';
 import CopyButton from 'app/atoms/CopyButton';
 import Divider from 'app/atoms/Divider';
-import FormSubmitButton from 'app/atoms/FormSubmitButton';
 import HashShortView from 'app/atoms/HashShortView';
 import { ReactComponent as CopyIcon } from 'app/icons/copy.svg';
 import useTopUpUpdate from 'app/pages/Buy/Crypto/Exolix/hooks/useTopUpUpdate.hook';
 import ErrorComponent from 'app/pages/Buy/Crypto/Exolix/steps/ErrorComponent';
-import { getCurrentLocale, T } from 'lib/i18n/react';
+import { getCurrentLocale, T } from 'lib/i18n';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 
 import { ExchangeDataInterface, ExchangeDataStatusEnum } from '../exolix.interface';
 import { ExolixSelectors } from '../Exolix.selectors';
+
+type dateFormatOptionsValue = 'numeric' | '2-digit';
+
+interface dateFormatOptionsInterface {
+  day?: dateFormatOptionsValue;
+  month?: dateFormatOptionsValue | 'long';
+  year?: dateFormatOptionsValue;
+  hour?: dateFormatOptionsValue;
+  minute?: dateFormatOptionsValue;
+}
+
+const dateFormatOptions: dateFormatOptionsInterface = {
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+  hour: 'numeric',
+  minute: 'numeric'
+};
 
 interface Props {
   exchangeData: ExchangeDataInterface | null;
@@ -23,14 +41,6 @@ interface Props {
   isError: boolean;
   setIsError: (error: boolean) => void;
 }
-
-const dateFormatOptions = {
-  day: 'numeric',
-  month: 'long',
-  year: 'numeric',
-  hour: 'numeric',
-  minute: 'numeric'
-};
 
 const ExchangeStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, step, isError, setIsError }) => {
   const { copy } = useCopyToClipboard();
@@ -97,9 +107,7 @@ const ExchangeStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, step,
                   <T id={'transactionId'} />
                 </p>
                 <span>
-                  <p style={{ color: '#1B262C' }} className="text-xs inline align-text-bottom">
-                    {exchangeData.id}
-                  </p>
+                  <p className="text-xs inline align-text-bottom text-gray-910">{exchangeData.id}</p>
                   <CopyButton
                     text={exchangeData.id}
                     type="link"
@@ -117,7 +125,7 @@ const ExchangeStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, step,
                 <p className="text-gray-600 text-xs">
                   <T id={'youSend'} />
                 </p>
-                <p style={{ color: '#1B262C' }} className="text-xs">
+                <p className="text-xs text-gray-910">
                   {exchangeData.amount} {exchangeData.coinFrom.coinCode}
                 </p>
               </div>
@@ -125,7 +133,7 @@ const ExchangeStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, step,
                 <p className="text-gray-600 text-xs">
                   <T id={'youReceive'} />
                 </p>
-                <p style={{ color: '#1B262C' }} className="text-xs">
+                <p className="text-xs text-gray-910">
                   {exchangeData.amountTo} {exchangeData.coinTo.coinCode}
                 </p>
               </div>
@@ -133,7 +141,7 @@ const ExchangeStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, step,
                 <p className="text-gray-600 text-xs">
                   <T id={'depositAddressText'} substitutions={[exchangeData.coinFrom.coinCode]} />
                 </p>
-                <p style={{ color: '#1B262C' }} className="text-xs">
+                <p className="text-xs text-gray-910">
                   <HashShortView hash={exchangeData.depositAddress} />
                 </p>
               </div>
@@ -141,7 +149,7 @@ const ExchangeStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, step,
                 <p className="text-gray-600 text-xs">
                   <T id={'recipientAddress'} />
                 </p>
-                <p style={{ color: '#1B262C' }} className="text-xs">
+                <p className="text-xs text-gray-910">
                   <HashShortView hash={exchangeData.withdrawalAddress} />
                 </p>
               </div>
@@ -166,9 +174,7 @@ const ExchangeStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, step,
               <T id={'transactionId'} />
             </p>
             <span>
-              <p style={{ color: '#1B262C' }} className="text-xs inline align-text-bottom">
-                {exchangeData.id}
-              </p>
+              <p className="text-xs inline align-text-bottom text-gray-910">{exchangeData.id}</p>
               <CopyButton text={exchangeData.id} type="link">
                 <CopyIcon
                   style={{ verticalAlign: 'inherit' }}
@@ -182,7 +188,7 @@ const ExchangeStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, step,
             <p className="text-gray-600 text-xs">
               <T id={'sendTime'} />
             </p>
-            <p style={{ color: '#1B262C' }} className="text-xs">
+            <p className="text-xs text-gray-910">
               {sendTime.toLocaleDateString(getCurrentLocale(), dateFormatOptions)}
             </p>
           </div>
@@ -190,7 +196,7 @@ const ExchangeStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, step,
             <p className="text-gray-600 text-xs">
               <T id={'youSend'} />
             </p>
-            <p style={{ color: '#1B262C' }} className="text-xs">
+            <p className="text-xs text-gray-910">
               {exchangeData.amount} {exchangeData.coinFrom.coinCode}
             </p>
           </div>
@@ -199,7 +205,7 @@ const ExchangeStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, step,
               <p className="text-gray-600 text-xs">
                 <T id={'inputHash'} />
               </p>
-              <p style={{ color: '#1B262C' }} className="text-xs">
+              <p className="text-xs text-gray-910">
                 <a className={'text-blue-700 underline'} href={exchangeData.hashOut.link}>
                   <HashShortView hash={exchangeData.hashOut.hash} />
                 </a>
@@ -210,13 +216,13 @@ const ExchangeStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, step,
             <p className="text-gray-600 text-xs">
               <T id={'depositAddressText'} substitutions={[exchangeData.coinFrom.coinCode]} />
             </p>
-            <p style={{ color: '#1B262C' }} className="text-xs">
+            <p className="text-xs text-gray-910">
               <HashShortView hash={exchangeData.depositAddress} />
             </p>
           </div>
           <div className="flex justify-between items-baseline mt-4">
             <p className="text-gray-600 text-xs">You receive:</p>
-            <p style={{ color: '#1B262C' }} className="text-xs">
+            <p className="text-xs text-gray-910">
               {exchangeData.amountTo} {exchangeData.coinTo.coinCode}
             </p>
           </div>
@@ -225,7 +231,7 @@ const ExchangeStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, step,
               <p className="text-gray-600 text-xs">
                 <T id={'inputHash'} />
               </p>
-              <p style={{ color: '#1B262C' }} className="text-xs">
+              <p className="text-xs text-gray-910">
                 <a className={'text-blue-700 underline'} href={exchangeData.hashIn.link}>
                   <HashShortView hash={exchangeData.hashIn.hash} />
                 </a>
@@ -237,7 +243,7 @@ const ExchangeStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, step,
             <p className="text-gray-600 text-xs">
               <T id={'recipientXtzAddress'} />
             </p>
-            <p style={{ color: '#1B262C' }} className="text-xs">
+            <p className="text-xs text-gray-910">
               <HashShortView hash={exchangeData.depositAddress} />
             </p>
           </div>

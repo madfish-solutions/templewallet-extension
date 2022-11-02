@@ -9,8 +9,10 @@ import ExpensesView, { ModifyFeeAndLimit } from 'app/templates/ExpensesView/Expe
 import OperationsBanner from 'app/templates/OperationsBanner';
 import RawPayloadView from 'app/templates/RawPayloadView';
 import ViewsSwitcher from 'app/templates/ViewsSwitcher/ViewsSwitcher';
-import { T, t } from 'lib/i18n/react';
-import { tryParseExpenses, TempleDAppOperationsPayload, TempleDAppSignPayload, toTokenSlug } from 'lib/temple/front';
+import { T, t } from 'lib/i18n';
+import { toTokenSlug } from 'lib/temple/assets';
+import { tryParseExpenses } from 'lib/temple/front';
+import { TempleDAppOperationsPayload, TempleDAppSignPayload } from 'lib/temple/types';
 
 type OperationViewProps = {
   payload: TempleDAppOperationsPayload | TempleDAppSignPayload;
@@ -101,9 +103,9 @@ const OperationView: FC<OperationViewProps> = ({
     return (
       <div className="flex flex-col w-full">
         <h2 className={classNames('mb-3', 'leading-tight', 'flex items-center')}>
-          <T id="payloadToSign">
-            {message => <span className={classNames('mr-2', 'text-base font-semibold text-gray-700')}>{message}</span>}
-          </T>
+          <span className={classNames('mr-2', 'text-base font-semibold text-gray-700')}>
+            <T id="payloadToSign" />
+          </span>
 
           <div className="flex-1" />
 

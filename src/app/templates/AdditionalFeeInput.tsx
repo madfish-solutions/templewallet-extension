@@ -24,15 +24,14 @@ import { ReactComponent as RocketIcon } from 'app/icons/rocket.svg';
 import { ReactComponent as SettingsIcon } from 'app/icons/settings.svg';
 import CustomSelect, { OptionRenderProps } from 'app/templates/CustomSelect';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
-import { toLocalFixed } from 'lib/i18n/numbers';
-import { T, t } from 'lib/i18n/react';
+import { TID, toLocalFixed, T, t } from 'lib/i18n';
+import { useGasToken } from 'lib/temple/front';
 
-import { useGasToken } from '../hooks/useGasToken';
 import { AdditionalFeeInputSelectors } from './AdditionalFeeInput.selectors';
 
 type AssetFieldProps = typeof AssetField extends ForwardRefExoticComponent<infer T> ? T : never;
 
-export type AdditionalFeeInputProps = Pick<ControllerProps<ComponentType>, 'name' | 'control' | 'onChange'> & {
+type AdditionalFeeInputProps = Pick<ControllerProps<ComponentType>, 'name' | 'control' | 'onChange'> & {
   assetSymbol: string;
   baseFee?: BigNumber | Error;
   error?: FieldError;
@@ -41,7 +40,7 @@ export type AdditionalFeeInputProps = Pick<ControllerProps<ComponentType>, 'name
 
 type FeeOption = {
   Icon?: FunctionComponent<SVGProps<SVGSVGElement>>;
-  descriptionI18nKey: string;
+  descriptionI18nKey: TID;
   type: 'minimal' | 'fast' | 'rocket' | 'custom';
   amount?: number;
 };
@@ -207,9 +206,9 @@ const FeeOptionContent: FC<OptionRenderProps<FeeOption>> = ({ item: { descriptio
   return (
     <>
       <div className="flex flex-wrap items-center">
-        <T id={descriptionI18nKey}>
-          {message => <Name className="w-16 text-sm font-medium leading-tight text-left">{message}</Name>}
-        </T>
+        <Name className="w-16 text-sm font-medium leading-tight text-left">
+          <T id={descriptionI18nKey} />
+        </Name>
 
         {amount && (
           <div className="ml-2 leading-none text-gray-600 flex items-baseline">

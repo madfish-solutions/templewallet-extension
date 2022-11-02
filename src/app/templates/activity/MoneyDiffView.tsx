@@ -6,16 +6,17 @@ import classNames from 'clsx';
 import Money from 'app/atoms/Money';
 import { useAppEnv } from 'app/env';
 import InFiat from 'app/templates/InFiat';
-import { useAssetMetadata, getAssetSymbol } from 'lib/temple/front';
+import { useAssetMetadata } from 'lib/temple/front';
+import { getAssetSymbol } from 'lib/temple/metadata';
 
-type MoneyDiffViewProps = {
+interface Props {
   assetId: string;
   diff: string;
   pending?: boolean;
   className?: string;
-};
+}
 
-const MoneyDiffView = memo<MoneyDiffViewProps>(({ assetId: assetSlug, diff, pending = false, className }) => {
+export const MoneyDiffView = memo<Props>(({ assetId: assetSlug, diff, pending = false, className }) => {
   const { popup } = useAppEnv();
   const metadata = useAssetMetadata(assetSlug);
 
@@ -47,5 +48,3 @@ const MoneyDiffView = memo<MoneyDiffViewProps>(({ assetId: assetSlug, diff, pend
     </div>
   ) : null;
 });
-
-export default MoneyDiffView;

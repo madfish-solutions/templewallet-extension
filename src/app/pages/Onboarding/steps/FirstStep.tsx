@@ -1,8 +1,9 @@
 import React, { FC } from 'react';
 
-import { T } from '../../../../lib/i18n/react';
-import { Button } from '../../../atoms/Button';
-import AddressBalanceImg from '../assets/address-balance.png';
+import { Button } from 'app/atoms/Button';
+import { T } from 'lib/i18n';
+
+import { ReactComponent as BalancesIcon } from '../assets/first.svg';
 import styles from '../Onboarding.module.css';
 
 interface Props {
@@ -18,7 +19,7 @@ const FirstStep: FC<Props> = ({ setStep }) => {
       <p className={styles['description']}>
         <T id={'addressBalanceDescription'} />
       </p>
-      <img src={AddressBalanceImg} alt="AddressBalanceImg" />
+      <BalancesIcon />
       <p className={styles['description']} style={{ marginBottom: 0 }}>
         <T id={'addressBalanceHint'} />
       </p>

@@ -71,7 +71,7 @@ const getMetadataFromUri = async (
 export async function fetchTokenMetadata(
   tezos: TezosToolkit,
   assetSlug: string
-): Promise<{ base: AssetMetadata; detailed: DetailedAssetMetdata }> {
+): Promise<{ base: AssetMetadata; detailed: DetailedAssetMetdata } | null> {
   const [contractAddress, tokenIdStr = '0'] = assetSlug.split('_');
 
   if (isTezAsset(contractAddress)) {
@@ -88,7 +88,6 @@ export async function fetchTokenMetadata(
   }
 
   try {
-    // TODO: add validation
     const contract = await retry(() => tezos.contract.at(contractAddress, compose(tzip12, tzip16)), RETRY_PARAMS);
 
     const tzip12Metadata = await getTzip12Metadata(contract, tokenIdStr as any);
@@ -96,7 +95,9 @@ export async function fetchTokenMetadata(
 
     const rawMetadata = { ...metadataFromUri, ...tzip12Metadata };
 
-    assert('decimals' in rawMetadata && ('name' in rawMetadata || 'symbol' in rawMetadata));
+    if (!('decimals' in rawMetadata && ('name' in rawMetadata || 'symbol' in rawMetadata))) {
+      return null;
+    }
 
     const base: AssetMetadata = {
       decimals: +rawMetadata.decimals,

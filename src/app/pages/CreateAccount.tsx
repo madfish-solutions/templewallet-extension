@@ -2,14 +2,14 @@ import React, { FC, useCallback, useEffect, useMemo, useRef } from 'react';
 
 import { OnSubmit, useForm } from 'react-hook-form';
 
-import FormField from 'app/atoms/FormField';
-import FormSubmitButton from 'app/atoms/FormSubmitButton';
+import { FormField, FormSubmitButton } from 'app/atoms';
 import { ACCOUNT_NAME_PATTERN } from 'app/defaults';
 import { ReactComponent as AddIcon } from 'app/icons/add.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import { useFormAnalytics } from 'lib/analytics';
-import { T, t } from 'lib/i18n/react';
-import { TempleAccountType, useTempleClient, useAllAccounts, useSetAccountPkh } from 'lib/temple/front';
+import { T, t } from 'lib/i18n';
+import { useTempleClient, useAllAccounts, useSetAccountPkh } from 'lib/temple/front';
+import { TempleAccountType } from 'lib/temple/types';
 import { navigate } from 'lib/woozie';
 
 type FormData = {

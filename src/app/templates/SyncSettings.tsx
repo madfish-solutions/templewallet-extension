@@ -4,10 +4,8 @@ import classNames from 'clsx';
 import { OnSubmit, useForm } from 'react-hook-form';
 import { QRCode } from 'react-qr-svg';
 
-import Alert from 'app/atoms/Alert';
-import FormField from 'app/atoms/FormField';
-import FormSubmitButton from 'app/atoms/FormSubmitButton';
-import { T, t } from 'lib/i18n/react';
+import { Alert, FormField, FormSubmitButton } from 'app/atoms';
+import { T, t } from 'lib/i18n';
 import { useSecretState, useTempleClient } from 'lib/temple/front';
 
 type FormData = {
@@ -36,7 +34,7 @@ const SyncSettings: FC = () => {
       try {
         const syncPayload = await generateSyncPayload(password);
         setPayload(syncPayload);
-      } catch (err) {
+      } catch (err: any) {
         if (process.env.NODE_ENV === 'development') {
           console.error(err);
         }

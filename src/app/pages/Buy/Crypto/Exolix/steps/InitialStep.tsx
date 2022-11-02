@@ -1,16 +1,16 @@
-import React, { ChangeEvent, FC, useEffect, useState } from 'react';
+import React, { FC, useEffect, useState } from 'react';
 
 import BigNumber from 'bignumber.js';
 import useSWR from 'swr';
 import { useDebounce } from 'use-debounce';
 
+import { FormSubmitButton } from 'app/atoms';
 import Divider from 'app/atoms/Divider';
-import FormSubmitButton from 'app/atoms/FormSubmitButton';
 import styles from 'app/pages/Buy/Crypto/Exolix/Exolix.module.css';
 import ErrorComponent from 'app/pages/Buy/Crypto/Exolix/steps/ErrorComponent';
 import WarningComponent from 'app/pages/Buy/Crypto/Exolix/steps/WarningComponent';
-import { useAssetFiatCurrencyPrice } from 'lib/fiat-curency';
-import { T } from 'lib/i18n/react';
+import { useAssetFiatCurrencyPrice } from 'lib/fiat-currency';
+import { T } from 'lib/i18n';
 import { useAccount } from 'lib/temple/front';
 
 import { TopUpInput } from '../components/TopUpInput/TopUpInput';
@@ -41,7 +41,7 @@ interface Props {
 
 const InitialStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isError, setIsError }) => {
   const [maxAmount, setMaxAmount] = useState('');
-  const [amount, setAmount] = useState(0);
+  const [amount, setAmount] = useState<number | undefined>(undefined);
   const [coinFrom, setCoinFrom] = useState(INITIAL_COIN_FROM);
   const [coinTo, setCoinTo] = useState(outputTokensList[0]);
   const [lastMinAmount, setLastMinAmount] = useState(new BigNumber(0));
@@ -59,9 +59,9 @@ const InitialStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
 
   const currenciesCount = useCurrenciesCount();
 
-  const handleAmountChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleAmountChange = (amount?: number) => {
     setDisableProceed(true);
-    setAmount(Number(e.target.value));
+    setAmount(amount);
   };
 
   const submitExchangeHandler = async () => {
@@ -71,7 +71,7 @@ const InitialStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
         networkFrom: coinFrom.network,
         coinTo: coinTo.code,
         networkTo: coinTo.network,
-        amount,
+        amount: amount ?? 0,
         withdrawalAddress: publicKeyHash,
         withdrawalExtraId: ''
       });
@@ -95,7 +95,7 @@ const InitialStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
         coinFromNetwork: coinFrom.network,
         coinTo: coinTo.code,
         coinToNetwork: coinTo.network,
-        amount
+        amount: amount ?? 0
       })
   );
 
@@ -107,7 +107,7 @@ const InitialStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
           coinFromNetwork: coinTo.network,
           coinTo: coinFrom.code,
           coinToNetwork: coinFrom.network,
-          amount: (MAX_DOLLAR_VALUE + AVERAGE_COMMISSION) / coinToPrice!
+          amount: new BigNumber(MAX_DOLLAR_VALUE + AVERAGE_COMMISSION).div(coinToPrice!).toNumber()
         });
 
         setMaxAmount(new BigNumber(rest.toAmount).toFixed(Number(rest.toAmount) > 100 ? 2 : 6));
@@ -122,7 +122,7 @@ const InitialStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
 
   useEffect(() => {
     setDepositAmount(rates.toAmount);
-    if (amount === 0) {
+    if (amount === 0 || amount === undefined) {
       setDisableProceed(true);
     } else if (rates.minAmount === 0) {
       setDisableProceed(true);
@@ -160,6 +160,7 @@ const InitialStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
           <Divider style={{ marginBottom: '10px' }} />
 
           <TopUpInput
+            amount={amount}
             currency={coinFrom}
             currenciesList={currencies ?? []}
             isCurrenciesLoading={isCurrenciesLoading}

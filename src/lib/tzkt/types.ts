@@ -1,26 +1,31 @@
-// Actually, there is a bunch of other types but only these will be used for now
+/**
+ * Actually, there is a bunch of other types but only these will be used for now
+ */
 export type TzktOperationType = 'delegation' | 'transaction' | 'reveal' | 'origination';
 
 export type TzktQuoteCurrency = 'None' | 'Btc' | 'Eur' | 'Usd' | 'Cny' | 'Jpy' | 'Krw';
 
-export type TzktOperationStatus = 'applied' | 'failed' | 'backtracked' | 'skipped';
+type TzktOperationStatus = 'applied' | 'failed' | 'backtracked' | 'skipped';
 
-export type TzktContractType = 'delegator_contract' | 'smart_contract';
+type TzktContractType = 'delegator_contract' | 'smart_contract';
 
 export interface TzktAlias {
   alias?: string;
   address: string;
 }
 
-export interface TzktOperationError {
+interface TzktOperationError {
   type: string;
 }
 
-// To be reviewed if a new operation type is added
+/**
+ * To be reviewed if a new operation type is added
+ */
 interface TzktOperationBase {
   type: TzktOperationType;
   id: number;
   level?: number;
+  /** ISO Date */
   timestamp: string;
   block?: string;
   hash: string;
@@ -34,21 +39,9 @@ interface TzktOperationBase {
   status: TzktOperationStatus;
 }
 
-export type TzktGetOperationsParams = {
-  address: string;
-  from?: string;
-  to?: string;
-  type?: TzktOperationType[];
-  lastId?: number;
-  limit?: number;
-  offset?: number;
-  sort?: 0 | 1;
-  quote?: TzktQuoteCurrency[];
-};
+type TzktQuote = Partial<Record<TzktQuoteCurrency, number>>;
 
-export type TzktQuote = Partial<Record<TzktQuoteCurrency, number>>;
-
-export interface TzktDelegationOperation extends TzktOperationBase {
+interface TzktDelegationOperation extends TzktOperationBase {
   type: 'delegation';
   initiator?: TzktAlias;
   nonce?: number;
@@ -67,15 +60,18 @@ export interface TzktTransactionOperation extends TzktOperationBase {
   allocationFee: number;
   target: TzktAlias;
   amount: number;
-  parameters?: string;
+  parameter?: unknown;
+  entrypoint?: string;
   hasInternals: boolean;
 }
 
-export interface TzktOriginationOperation extends TzktOperationBase {
+interface TzktOriginationOperation extends TzktOperationBase {
   type: 'origination';
+  originatedContract?: TzktAlias;
+  contractBalance?: string;
 }
 
-export interface TzktRevealOperation extends TzktOperationBase {
+interface TzktRevealOperation extends TzktOperationBase {
   type: 'reveal';
 }
 
@@ -85,7 +81,7 @@ export type TzktOperation =
   | TzktRevealOperation
   | TzktOriginationOperation;
 
-export type TzktDelegateInfo = {
+type TzktDelegateInfo = {
   alias?: string;
   address: string;
   active: boolean;
@@ -101,8 +97,11 @@ export type TzktRelatedContract = {
   creationTime: string;
 };
 
-type Int32ParameterKey = 'eq' | 'ne' | 'gt' | 'ge' | 'lt' | 'le' | 'in' | 'ni';
-export type Int32Parameter = Partial<Record<Int32ParameterKey, number>>;
+export const allInt32ParameterKeys = ['eq', 'ne', 'gt', 'ge', 'lt', 'le', 'in', 'ni'] as const;
+
+type Int32ParameterKey = typeof allInt32ParameterKeys[number];
+
+type Int32Parameter = Partial<Record<Int32ParameterKey, number>>;
 
 export type TzktGetRewardsParams = {
   address: string;
@@ -167,13 +166,7 @@ export type TzktRewardsEntry = {
 
 export type TzktGetRewardsResponse = TzktRewardsEntry[] | undefined;
 
-export const allInt32ParameterKeys: Int32ParameterKey[] = ['eq', 'ne', 'gt', 'ge', 'lt', 'le', 'in', 'ni'];
-
-export const isReveal = (operation: TzktOperation): operation is TzktRevealOperation => {
-  return operation.type === 'reveal';
-};
-
-export interface TzktAccountTokenBalance {
+export interface TzktAccountToken {
   account: TzktAlias;
   balance: string;
   firstLevel: number;

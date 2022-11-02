@@ -3,8 +3,8 @@ import React, { useMemo, useCallback, FC } from 'react';
 import classNames from 'clsx';
 
 import { AnalyticsEventCategory, AnalyticsEventEnum, useAnalytics } from 'lib/analytics';
-import { FiatCurrencyOption, FIAT_CURRENCIES, getFiatCurrencyKey, useFiatCurrency } from 'lib/fiat-curency';
-import { T } from 'lib/i18n/react';
+import { FIAT_CURRENCIES, FiatCurrencyOption, getFiatCurrencyKey, useFiatCurrency } from 'lib/fiat-currency';
+import { T } from 'lib/i18n';
 
 import IconifiedSelect, { IconifiedSelectOptionRenderProps } from './IconifiedSelect';
 

@@ -1,7 +1,7 @@
 import React, { FC, useCallback, useRef, useState } from 'react';
 
-import FormCheckbox from 'app/atoms/FormCheckbox';
-import { t, T } from 'lib/i18n/react';
+import { FormCheckbox } from 'app/atoms';
+import { t, T } from 'lib/i18n';
 import { isPopupModeEnabled, setPopupMode } from 'lib/popup-mode';
 
 const PopupSettings: FC<{}> = () => {

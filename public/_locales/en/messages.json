@@ -369,6 +369,12 @@
   "required": {
     "message": "Required"
   },
+  "cardNumberIsInvalid": {
+    "message": "Card number is invalid"
+  },
+  "cardNumberLengthValidation": {
+    "message": "Card number should have a total of 16 digits"
+  },
   "weakKeystorePassword": {
     "message": "The \"keystore file\" password is too weak to use as an extension password. You need to set a new one."
   },
@@ -555,13 +561,21 @@
     "message": "Each word separated with a single space"
   },
   "seedInputNumberOfWords": {
-    "message": "My Seed phrase is $1 words"
+    "message": "My Seed phrase is $count$ words",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
   },
   "justValidPreGeneratedMnemonic": {
     "message": "Just valid pre-generated mnemonic"
   },
   "seedPasteFailedTooManyWords": {
     "message": "Paste failed because it contained over 24 words."
+  },
+  "seedPhraseAttention": {
+    "message": "We don't track your derivation path on imported accounts"
   },
   "seedPhraseTip": {
     "message": "You can paste your entire secret Seed phrase into any field"
@@ -729,7 +743,7 @@
     "message": "e.g. venue sock milk update..."
   },
   "passwordInputDescription": {
-    "message": "Used for additional mnemonic derivation. That is NOT a wallet password."
+    "message": "That is NOT a wallet password.\nUsed for additional mnemonic derivation."
   },
   "derivation": {
     "message": "Derivation"
@@ -1090,6 +1104,42 @@
       }
     }
   },
+  "cycles_zero": {
+    "message": "$amount$ cycles",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "cycles_two": {
+    "message": "$amount$ cycles",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "cycles_few": {
+    "message": "$amount$ cycles",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "cycles_many": {
+    "message": "$amount$ cycles",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
   "cycles_other": {
     "message": "$amount$ cycles",
     "description": "For plural forms",
@@ -1098,6 +1148,9 @@
         "content": "$1"
       }
     }
+  },
+  "insufficientTezBalance": {
+    "message": "Insufficient TEZ balance"
   },
   "notEnoughFunds": {
     "message": "Not enough funds"
@@ -1907,6 +1960,9 @@
   "loadMore": {
     "message": "Load more"
   },
+  "tryLoadAgain": {
+    "message": "Try again"
+  },
   "submit": {
     "message": "Submit"
   },
@@ -2114,6 +2170,42 @@
       }
     }
   },
+  "blocks_zero": {
+    "message": "$amount$ blocks",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "blocks_two": {
+    "message": "$amount$ blocks",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "blocks_few": {
+    "message": "$amount$ blocks",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "blocks_many": {
+    "message": "$amount$ blocks",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
   "blocks_other": {
     "message": "$amount$ blocks",
     "description": "For plural forms",
@@ -2139,6 +2231,42 @@
   },
   "slots_one": {
     "message": "$amount$ slot",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "slots_zero": {
+    "message": "$amount$ slots",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "slots_two": {
+    "message": "$amount$ slots",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "slots_few": {
+    "message": "$amount$ slots",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "slots_many": {
+    "message": "$amount$ slots",
     "description": "For plural forms",
     "placeholders": {
       "amount": {
@@ -2275,9 +2403,6 @@
   "next": {
     "message": "Next"
   },
-  "updatingMinMax": {
-    "message": "Updating min/max..."
-  },
   "done": {
     "message": "Done!"
   },
@@ -2291,16 +2416,16 @@
     "message": "After creating an account, you’ll get a unique address — your personal identifier in the Tezos blockchain. If you would like to receive and use TEZ or Tezos-built tokens in Temple, you should use this address."
   },
   "addressBalanceHint": {
-    "message": "The balance of your TEZ is displayed under the public address."
+    "message": "Your total balance is displayed near the public address."
   },
   "howToStartDetails": {
     "message": "How to start"
   },
   "howToStartDescription1": {
-    "message": "To start using your wallet and interacting with the Tezos DApps ecosystem, the account balance must be positive. To do this, top up your address with TEZ coins."
+    "message": "To start using your wallet and interacting with the Tezos DApps ecosystem, the account balance must be positive. To do this, top up your address with TEZ."
   },
   "howToStartDescription2": {
-    "message": "You can use the \"Buy\" button and top up your TEZ balance, using cryptocurrencies, debit, or credit cards."
+    "message": "You can use the \"Buy\" button to exchange your\ncryptocurrencies, as well as top up your balance using fiat currencies to receive TEZ or USDt."
   },
   "howToStartHint": {
     "message": "Also, you can copy your address and send coins to it from another wallet or Exchange. To copy the address, click on it on the main wallet screen or use “Receive”."
@@ -2422,11 +2547,29 @@
   "lockUpSettingsDescription": {
     "message": "The extension will be automatically blocked after 5 minutes of inactivity."
   },
+  "totalEquityValue": {
+    "message": "Total Equity Value"
+  },
   "totalBalance": {
     "message": "Total Balance"
   },
+  "withdrawButton": {
+    "message": "Withdraw"
+  },
   "buyButton": {
     "message": "Buy"
+  },
+  "withdraw": {
+    "message": "Withdraw"
+  },
+  "toCard": {
+    "message": "To card"
+  },
+  "enterCardNumber": {
+    "message": "Enter card number"
+  },
+  "onlyForUkrainianCards": {
+    "message": "Only for Ukrainian banking cards"
   },
   "buyWithCrypto": {
     "message": "Buy With Crypto"
@@ -2457,8 +2600,14 @@
   "buyWithAliceBob": {
     "message": "Buy TEZ with Alice-Bob (UAH only)"
   },
+  "sellWithAliceBob": {
+    "message": "Sell TEZ with Alice-Bob (UAH only)"
+  },
   "buyWithAliceBobDescription": {
     "message": "Fast and cost-effective exchange of UAH to TEZ."
+  },
+  "sellWithAliceBobDescription": {
+    "message": "Fast and cost-effective exchange of TEZ to UAH."
   },
   "buyWithUtorgDescription": {
     "message": "Licensed fiat-to-crypto gateway. 187+ countries, AI-powered KYC, Apple Pay, Google Pay."
@@ -2477,6 +2626,9 @@
   "buyWithCard": {
     "message": "Buy with Debit/Credit Card"
   },
+  "sellTez": {
+    "message": "Sell TEZ"
+  },
   "topUpDescription": {
     "message": "Temple integrated third-party solutions to buy $gasTokenName1$ with crypto or a Debit/Credit card. Choose a provider, follow guides, get $gasTokenName2$ on your account.",
     "placeholders": {
@@ -2488,8 +2640,8 @@
       }
     }
   },
-  "enterAmount": {
-    "message": "Please enter the amount:"
+  "withdrawDescription": {
+    "message": "Temple integrated third-party solutions to sell TEZ. Choose a provider, follow guides, \n get fiat to your Debit/Credit card"
   },
   "topUpCrypto": {
     "message": "Crypto"
@@ -2522,6 +2674,12 @@
         "content": "$1"
       }
     }
+  },
+  "sellTezDetails": {
+    "message": "Sell TEZ details"
+  },
+  "sellDetailsDescription": {
+    "message": "Sell TEZ to fiat. Get fiat to Visa, Mastercard Ukrainian cards."
   },
   "privacyAndPolicyLinks": {
     "message": "By clicking $buttonContent$ you agree with \n$termsOfUse$ and $privacyPolicy$",
@@ -2581,6 +2739,15 @@
   "youSend": {
     "message": "You send:"
   },
+  "sell": {
+    "message": "Sell"
+  },
+  "newSell": {
+    "message": "New sell"
+  },
+  "youSell": {
+    "message": "You sell:"
+  },
   "sendTime": {
     "message": "Send time:"
   },
@@ -2604,6 +2771,36 @@
   },
   "step": {
     "message": "Step"
+  },
+  "waitingStatusDescription": {
+    "message": "Waiting for client deposit."
+  },
+  "exchangingStatusDescription": {
+    "message": "Exchange is carried out."
+  },
+  "sendingStatusDescription": {
+    "message": "In the process of payment to the client."
+  },
+  "completedStatusDescription": {
+    "message": "Order successfully completed."
+  },
+  "expiredStatusDescription": {
+    "message": "The order was not paid for the time allocated."
+  },
+  "canceledStatusDescription": {
+    "message": "The order was canceled."
+  },
+  "failedStatusDescription": {
+    "message": "In the process of execution of the order, an error occurred."
+  },
+  "holdedStatusDescription": {
+    "message": "The warrant is suspended to check KYC."
+  },
+  "refundedStatusDescription": {
+    "message": "The money was returned to the client."
+  },
+  "preparedStatusDescription": {
+    "message": "The order is ready to sell crypto."
   },
   "collectibles": {
     "message": "Collectibles"
@@ -2671,7 +2868,7 @@
     "message": "You can sync your Seed Phrase and accounts (HD) with your mobile device. If you just open the Temple Mobile app for the first time, click 'Sync' button and follow the steps in your phone."
   },
   "syncPasswordDescription": {
-    "message": "The password is used to protect the synchronization process."
+    "message": "Use your current wallet password to start the synchronization."
   },
   "syncSettingsAlert": {
     "message": "Make sure nobody else is looking at your screen when you scan this code."

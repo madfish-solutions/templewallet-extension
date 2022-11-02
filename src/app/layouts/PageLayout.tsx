@@ -10,16 +10,19 @@ import ErrorBoundary from 'app/ErrorBoundary';
 import { ReactComponent as ChevronLeftIcon } from 'app/icons/chevron-left.svg';
 import ContentContainer from 'app/layouts/ContentContainer';
 import { isSafeBrowserVersion } from 'lib/browser-info';
-import { T } from 'lib/i18n/react';
+import { T } from 'lib/i18n';
 import { PropsWithChildren } from 'lib/props-with-children';
 import { goBack, HistoryAction, Link, navigate, useLocation } from 'lib/woozie';
 
 import { AnalyticsEventCategory, useAnalytics } from '../../lib/analytics';
+import { DonationBanner } from '../atoms/DonationBanner';
 import { ReactComponent as AttentionGreyIcon } from '../icons/attentionGrey.svg';
 import { ReactComponent as AttentionRedIcon } from '../icons/attentionRed.svg';
 import { ReactComponent as DownloadMobileGreyIcon } from '../icons/download-mobile-grey.svg';
 import { ReactComponent as DownloadMobileIcon } from '../icons/download-mobile.svg';
 import { useOnboardingProgress } from '../pages/Onboarding/hooks/useOnboardingProgress.hook';
+import { AdvertisingBanner } from '../templates/advertising/advertising-banner/advertising-banner';
+import { AdvertisingOverlay } from '../templates/advertising/advertising-overlay/advertising-overlay';
 import { PageLayoutSelectors } from './PageLayout.selectors';
 import { ChangelogOverlay } from './PageLayout/ChangelogOverlay/ChangelogOverlay';
 import ConfirmationOverlay from './PageLayout/ConfirmationOverlay';
@@ -52,6 +55,7 @@ const PageLayout: FC<PageLayoutProps> = ({ children, contentContainerStyle, ...t
         </ContentPaper>
       </div>
 
+      <AdvertisingOverlay />
       <ConfirmationOverlay />
       <ChangelogOverlay />
     </>
@@ -93,11 +97,20 @@ type ToolbarProps = {
   hasBackAction?: boolean;
   step?: number;
   setStep?: (step: number) => void;
+  adShow?: boolean;
   skip?: boolean;
   attention?: boolean;
 };
 
-const Toolbar: FC<ToolbarProps> = ({ pageTitle, hasBackAction = true, step, setStep, skip, attention }) => {
+const Toolbar: FC<ToolbarProps> = ({
+  pageTitle,
+  hasBackAction = true,
+  step,
+  setStep,
+  adShow = false,
+  skip,
+  attention
+}) => {
   const { historyPosition, pathname } = useLocation();
   const { fullPage, registerBackHandler, onBack } = useAppEnv();
   const { setOnboardingCompleted } = useOnboardingProgress();
@@ -167,7 +180,7 @@ const Toolbar: FC<ToolbarProps> = ({ pageTitle, hasBackAction = true, step, setS
         sticked ? 'shadow' : 'shadow-sm',
         'bg-gray-100',
         'overflow-hidden',
-        'p-1',
+        'py-2 px-4',
         'flex items-center',
         'transition ease-in-out duration-300'
       )}
@@ -180,11 +193,11 @@ const Toolbar: FC<ToolbarProps> = ({ pageTitle, hasBackAction = true, step, setS
       }}
     >
       <div className="flex-1">
+        {!isBackButtonAvailable && adShow && <DonationBanner />}
         {isBackButtonAvailable && (
           <Button
             className={classNames(
-              'px-4 py-2',
-              'rounded',
+              'rounded px-2 py-1',
               'flex items-center',
               'text-gray-600 text-shadow-black',
               'text-sm font-semibold leading-none',
@@ -213,6 +226,8 @@ const Toolbar: FC<ToolbarProps> = ({ pageTitle, hasBackAction = true, step, setS
       <div className="flex-1" />
       {attention && (
         <div className="flex items-center content-end absolute right-0">
+          <AdvertisingBanner />
+
           <a
             href="https://templewallet.com/mobile"
             target="_blank"

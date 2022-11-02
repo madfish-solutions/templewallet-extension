@@ -3,15 +3,15 @@ import React, { useCallback, useMemo } from 'react';
 import classNames from 'clsx';
 import { useForm } from 'react-hook-form';
 
-import FormField from 'app/atoms/FormField';
-import FormSubmitButton from 'app/atoms/FormSubmitButton';
+import { FormField, FormSubmitButton } from 'app/atoms';
 import Identicon from 'app/atoms/Identicon';
 import Name from 'app/atoms/Name';
 import SubTitle from 'app/atoms/SubTitle';
 import { ReactComponent as CloseIcon } from 'app/icons/close.svg';
-import { t, T } from 'lib/i18n/react';
-import { useContacts, TempleContact, isDomainNameValid, useTezosDomainsClient, isAddressValid } from 'lib/temple/front';
-import { useFilteredContacts } from 'lib/temple/front/use-filtered-contacts.hook';
+import { t, T } from 'lib/i18n';
+import { isDomainNameValid, useTezosDomainsClient, useContacts, useFilteredContacts } from 'lib/temple/front';
+import { isAddressValid } from 'lib/temple/helpers';
+import { TempleContact } from 'lib/temple/types';
 import { useConfirm } from 'lib/ui/dialog';
 import { withErrorHumanDelay } from 'lib/ui/humanDelay';
 
@@ -138,7 +138,7 @@ const AddNewContactForm: React.FC<{ className?: string }> = ({ className }) => {
   const validateAddressField = useCallback(
     async (value: any) => {
       if (!value?.length) {
-        return t('Required');
+        return t('required');
       }
 
       if (isDomainNameValid(value, domainsClient)) {

@@ -16,7 +16,7 @@ import CleanButton from 'app/atoms/CleanButton';
 import CopyButton from 'app/atoms/CopyButton';
 import { ReactComponent as CopyIcon } from 'app/icons/copy.svg';
 import { ReactComponent as LockAltIcon } from 'app/icons/lock-alt.svg';
-import { T } from 'lib/i18n/react';
+import { T } from 'lib/i18n';
 import { blurHandler, checkedHandler, focusHandler } from 'lib/ui/inputHandlers';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 
@@ -47,7 +47,7 @@ interface FormFieldProps extends FormFieldAttrs {
   copyable?: boolean;
 }
 
-const FormField = forwardRef<FormFieldRef, FormFieldProps>(
+export const FormField = forwardRef<FormFieldRef, FormFieldProps>(
   (
     {
       containerStyle,
@@ -271,11 +271,15 @@ const SecretBanner: React.FC<SecretBannerProps> = ({ secretBannerDisplayed, hand
         )}
       >
         <LockAltIcon className={classNames('-ml-2 mr-1', 'h-6 w-auto', 'stroke-current stroke-2')} />
-        <T id="protectedFormField">{message => <span>{message}</span>}</T>
+        <span>
+          <T id="protectedFormField" />
+        </span>
       </p>
 
       <p className={classNames('mb-1', 'flex items-center', 'text-gray-500 text-sm')}>
-        <T id="clickToRevealField">{message => <span>{message}</span>}</T>
+        <span>
+          <T id="clickToRevealField" />
+        </span>
       </p>
     </div>
   ) : null;
@@ -357,5 +361,3 @@ const getInnerClassName = (isPasswordInput: boolean, extraInner: ReactNode) => {
   const passwordClassName = isPasswordInput ? 'pr-12' : 'pr-4';
   return extraInner ? 'pr-32' : passwordClassName;
 };
-
-export default FormField;

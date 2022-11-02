@@ -3,7 +3,7 @@ import React, { FC, useCallback, useMemo, useState } from 'react';
 import { validateMnemonic } from 'bip39';
 import classNames from 'clsx';
 
-import { T, t } from 'lib/i18n/react';
+import { T, t } from 'lib/i18n';
 import { clearClipboard } from 'lib/ui/util';
 
 import { formatMnemonic } from '../defaults';
@@ -142,7 +142,7 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
                 throw new Error('Unable to parse option as integer');
               }
 
-              let newDraftSeed = new Array(newNumberOfWords).fill('');
+              const newDraftSeed = new Array(newNumberOfWords).fill('');
               setNumberOfWords(newNumberOfWords);
               onSeedChange(newDraftSeed);
               reset();
@@ -150,7 +150,12 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
           />
         </div>
       </div>
-      {!isFirstAccount && <div className="text-xs font-medium text-red-600 text-center mb-6">{labelWarning}</div>}
+      {!isFirstAccount && <div className="text-xs font-medium text-red-600 text-center">{labelWarning}</div>}
+      {!isFirstAccount && (
+        <div className="text-xs font-medium text-red-600 text-center mb-6">
+          <T id="seedPhraseAttention" />
+        </div>
+      )}
       <div
         className={classNames('w-full text-center', 'pb-2 mb-6', 'text-gray-700', 'border-b-2')}
         style={{ borderBottomWidth: 1 }}
@@ -188,7 +193,9 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
       </div>
       {submitted && seedError ? <div className="text-xs text-red-700 mt-4">{seedError}</div> : null}
       {pasteFailed ? (
-        <T id="seedPasteFailedTooManyWords">{message => <div className="text-xs text-red-700 mt-4">{message}</div>}</T>
+        <div className="text-xs text-red-700 mt-4">
+          <T id="seedPasteFailedTooManyWords" />
+        </div>
       ) : null}
     </div>
   );

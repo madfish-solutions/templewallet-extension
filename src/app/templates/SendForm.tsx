@@ -18,12 +18,10 @@ import classNames from 'clsx';
 import { Controller, FieldError, useForm } from 'react-hook-form';
 import useSWR from 'swr';
 
-import Alert from 'app/atoms/Alert';
+import { Alert, FormSubmitButton, NoSpaceField } from 'app/atoms';
 import AssetField from 'app/atoms/AssetField';
-import FormSubmitButton from 'app/atoms/FormSubmitButton';
 import Identicon from 'app/atoms/Identicon';
 import Money from 'app/atoms/Money';
-import NoSpaceField from 'app/atoms/NoSpaceField';
 import Spinner from 'app/atoms/Spinner/Spinner';
 import { ArtificialError, NotEnoughFundsError, ZeroBalanceError, ZeroTEZBalanceError } from 'app/defaults';
 import { useAppEnv } from 'app/env';
@@ -35,44 +33,33 @@ import Balance from 'app/templates/Balance';
 import InFiat from 'app/templates/InFiat';
 import OperationStatus from 'app/templates/OperationStatus';
 import { AnalyticsEventCategory, useAnalytics, useFormAnalytics } from 'lib/analytics';
-import { useAssetFiatCurrencyPrice, useFiatCurrency } from 'lib/fiat-curency';
-import { toLocalFixed } from 'lib/i18n/numbers';
-import { T, t } from 'lib/i18n/react';
+import { useAssetFiatCurrencyPrice, useFiatCurrency } from 'lib/fiat-currency';
+import { toLocalFixed, T, t } from 'lib/i18n';
 import { transferImplicit, transferToContract } from 'lib/michelson';
+import { fetchBalance, fetchTezosBalance, isTezAsset, toPenny, toTransferParams } from 'lib/temple/assets';
+import { loadContract } from 'lib/temple/contract';
 import {
-  fetchBalance,
-  fetchTezosBalance,
-  getAssetSymbol,
-  hasManager,
-  isAddressValid,
-  isDomainNameValid,
-  isKTAddress,
-  isTezAsset,
-  loadContract,
-  mutezToTz,
   ReactiveTezosToolkit,
-  TempleAccountType,
-  toPenny,
-  toTransferParams,
-  tzToMutez,
+  isDomainNameValid,
   useAccount,
-  useAssetMetadata,
   useBalance,
   useChainId,
-  useCollectibleTokens,
-  useDisplayedFungibleTokens,
   useNetwork,
   useTezos,
-  useTezosDomainsClient
+  useTezosDomainsClient,
+  useAssetMetadata,
+  useCollectibleTokens,
+  useDisplayedFungibleTokens,
+  useFilteredContacts,
+  validateDelegate,
+  useGasToken
 } from 'lib/temple/front';
-import { useFilteredContacts } from 'lib/temple/front/use-filtered-contacts.hook';
-import { validateDelegate } from 'lib/temple/front/validate-delegate';
-import { AssetMetadata } from 'lib/temple/metadata';
-import { TempleAccount, TempleNetworkType } from 'lib/temple/types';
-import useSafeState from 'lib/ui/useSafeState';
+import { hasManager, isAddressValid, isKTAddress, mutezToTz, tzToMutez } from 'lib/temple/helpers';
+import { AssetMetadata, getAssetSymbol } from 'lib/temple/metadata';
+import { TempleAccountType, TempleAccount, TempleNetworkType } from 'lib/temple/types';
+import { useSafeState } from 'lib/ui/hooks';
 import { HistoryAction, navigate } from 'lib/woozie';
 
-import { useGasToken } from '../hooks/useGasToken';
 import { IAsset } from './AssetSelect/interfaces';
 import { getSlug } from './AssetSelect/utils';
 import { SendFormSelectors } from './SendForm.selectors';
@@ -181,7 +168,7 @@ const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested })
 
   const [shoudUseFiat, setShouldUseFiat] = useSafeState(false);
 
-  const canToggleFiat = getAssetPriceByNetwork(network.type, assetPrice);
+  const canToggleFiat = getAssetPriceByNetwork(network.type, assetPrice.toNumber());
   const prevCanToggleFiat = useRef(canToggleFiat);
 
   /**
@@ -290,7 +277,7 @@ const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested })
       const to = toResolved;
       const tez = isTezAsset(assetSlug);
 
-      const balanceBN = (await mutateBalance(fetchBalance(tezos, assetSlug, assetMetadata, accountPkh)))!;
+      const balanceBN = (await mutateBalance(fetchBalance(tezos, assetSlug, accountPkh, assetMetadata)))!;
       if (balanceBN.isZero()) {
         throw new ZeroBalanceError();
       }
@@ -308,7 +295,7 @@ const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested })
         tezos.rpc.getManagerKey(acc.type === TempleAccountType.ManagedKT ? acc.owner : accountPkh)
       ]);
 
-      let estmtnMax = await estimateMaxFee(acc, tez, tezos, to, balanceBN, transferParams, manager);
+      const estmtnMax = await estimateMaxFee(acc, tez, tezos, to, balanceBN, transferParams, manager);
 
       let estimatedBaseFee = mutezToTz(estmtnMax.burnFeeMutez + estmtnMax.suggestedFeeMutez);
       if (!hasManager(manager)) {
@@ -361,7 +348,7 @@ const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested })
     if (!(baseFee instanceof BigNumber)) return null;
 
     const maxAmountAsset = isTezAsset(assetSlug) ? getMaxAmountToken(acc, balance, baseFee, safeFeeValue) : balance;
-    const maxAmountFiat = getMaxAmountFiat(assetPrice, maxAmountAsset);
+    const maxAmountFiat = getMaxAmountFiat(assetPrice.toNumber(), maxAmountAsset);
     return shoudUseFiat ? maxAmountFiat : maxAmountAsset;
   }, [acc, assetSlug, balance, baseFee, safeFeeValue, shoudUseFiat, assetPrice]);
 
@@ -678,7 +665,7 @@ const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested })
 
 interface TokenToFiatProps {
   amountValue: string;
-  assetMetadata: AssetMetadata;
+  assetMetadata: AssetMetadata | null;
   shoudUseFiat: boolean;
   assetSlug: string;
   toAssetAmount: (fiatAmount: BigNumber.Value) => string;
@@ -793,13 +780,9 @@ const FeeComponent: React.FC<FeeComponentProps> = ({
         id="send-fee"
       />
 
-      <T id="send">
-        {message => (
-          <FormSubmitButton loading={isSubmitting} disabled={Boolean(estimationError)}>
-            {message}
-          </FormSubmitButton>
-        )}
-      </T>
+      <FormSubmitButton loading={isSubmitting} disabled={Boolean(estimationError)}>
+        <T id="send" />
+      </FormSubmitButton>
     </>
   );
 };

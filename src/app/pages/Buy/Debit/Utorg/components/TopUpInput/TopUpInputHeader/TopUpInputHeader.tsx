@@ -2,14 +2,14 @@ import React, { ChangeEvent, forwardRef, FocusEvent, useEffect, useRef, useState
 
 import classNames from 'clsx';
 
+import AssetField from 'app/atoms/AssetField';
 import { ReactComponent as ChevronDownIcon } from 'app/icons/chevron-down.svg';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
 import { getBigErrorText, getSmallErrorText } from 'app/pages/Buy/utils/errorText.utils';
-import { T, t } from 'lib/i18n/react';
+import { emptyFn } from 'app/utils/function.utils';
+import { toLocalFormat, T, t } from 'lib/i18n';
 import { PopperRenderProps } from 'lib/ui/Popper';
 
-import { toLocalFormat } from '../../../../../../../../lib/i18n/numbers';
-import { handleNumberInput } from '../../../../../utils/handleNumberInput.util';
 import { StaticCurrencyImage } from '../StaticCurrencyImage/StaticCurrencyImage';
 import { TopUpInputProps } from '../TopUpInput.props';
 
@@ -29,13 +29,15 @@ export const TopUpInputHeader = forwardRef<HTMLDivElement, Props>(
       searchString,
       toggleOpened,
       amountInputDisabled,
+      isDefaultUahIcon,
       minAmount,
       maxAmount,
       isMinAmountError,
       isMaxAmountError,
+      isInsufficientTezBalanceError,
       isSearchable = false,
       singleToken = false,
-      onAmountChange,
+      onAmountChange = emptyFn,
       onSearchChange
     },
     ref
@@ -62,6 +64,11 @@ export const TopUpInputHeader = forwardRef<HTMLDivElement, Props>(
       event.preventDefault();
       setIsActive(true);
       amountFieldRef.current?.focus({ preventScroll: true });
+    };
+
+    const handleAmountChange = (newInputValue?: string) => {
+      const newValue = newInputValue ? Number(newInputValue) : undefined;
+      onAmountChange(newValue);
     };
 
     return (
@@ -116,6 +123,7 @@ export const TopUpInputHeader = forwardRef<HTMLDivElement, Props>(
             >
               <StaticCurrencyImage
                 currencyName={currencyName}
+                isDefaultUahIcon={isDefaultUahIcon}
                 style={{
                   borderRadius: '50%',
                   width: 32,
@@ -141,14 +149,10 @@ export const TopUpInputHeader = forwardRef<HTMLDivElement, Props>(
               )}
             >
               <div className="h-full flex-1 flex items-end justify-center flex-col">
-                <input
+                <AssetField
                   ref={amountFieldRef}
                   value={amount?.toString()}
                   readOnly={readOnly}
-                  onKeyPress={e => handleNumberInput(e)}
-                  placeholder={toLocalFormat(0, { decimalPlaces: 2 })}
-                  min={0}
-                  style={{ padding: 0, borderRadius: 0 }}
                   className={classNames(
                     'appearance-none',
                     'w-full',
@@ -163,42 +167,58 @@ export const TopUpInputHeader = forwardRef<HTMLDivElement, Props>(
                     'text-gray-700 text-2xl text-right border-none bg-opacity-0',
                     'pl-0 focus:shadow-none'
                   )}
+                  style={{ padding: 0, borderRadius: 0 }}
+                  placeholder={toLocalFormat(0, { decimalPlaces: 2 })}
                   type="text"
+                  min={0}
                   maxLength={15}
                   disabled={amountInputDisabled}
+                  fieldWrapperBottomMargin={false}
                   onBlur={handleBlur}
                   onFocus={handleAmountFieldFocus}
-                  onChange={onAmountChange}
+                  onChange={handleAmountChange}
                 />
               </div>
             </div>
           </div>
         </div>
         {maxAmount && !opened && (
-          <MaxAmountErrorComponent isMaxAmountError={isMaxAmountError} maxAmount={maxAmount} coin={currencyName} />
+          <ErrorsComponent
+            isInsufficientTezBalanceError={isInsufficientTezBalanceError}
+            isMaxAmountError={isMaxAmountError}
+            maxAmount={maxAmount}
+            coin={currencyName}
+          />
         )}
       </div>
     );
   }
 );
 
-interface MaxAmountErrorComponentProps {
+interface ErrorsComponentProps {
+  isInsufficientTezBalanceError?: boolean;
   isMaxAmountError?: boolean;
   maxAmount?: string;
   coin: string;
 }
 
-const MaxAmountErrorComponent: React.FC<MaxAmountErrorComponentProps> = ({ isMaxAmountError, maxAmount, coin }) => (
-  <div className="flex justify-end items-baseline mt-1">
+const ErrorsComponent: React.FC<ErrorsComponentProps> = ({
+  isInsufficientTezBalanceError,
+  isMaxAmountError,
+  maxAmount,
+  coin
+}) => (
+  <div className="flex justify-between items-baseline mt-1">
+    <p className={classNames(isInsufficientTezBalanceError ? 'text-red-700' : 'text-transparent')}>
+      <T id={'insufficientTezBalance'} />
+    </p>
     <p className={getSmallErrorText(isMaxAmountError)}>
       <CurrencyText className={getBigErrorText(isMaxAmountError)} coin={coin} maxAmount={maxAmount} />
     </p>
   </div>
 );
 
-const CurrencyText: React.FC<
-  Omit<MaxAmountErrorComponentProps, 'isCoinFromType' | 'isMaxAmountError'> & { className: string }
-> = ({ className, coin, maxAmount }) => (
+const CurrencyText: React.FC<ErrorsComponentProps & { className: string }> = ({ className, coin, maxAmount }) => (
   <>
     <T id={'max'} />
     {':'}

@@ -1,11 +1,12 @@
 import React, { useMemo, useCallback, FC } from 'react';
 
 import classNames from 'clsx';
-import { browser } from 'webextension-polyfill-ts';
+import browser from 'webextension-polyfill';
 
 import Flag from 'app/atoms/Flag';
-import { T } from 'lib/i18n/react';
-import { BlockExplorer, BLOCK_EXPLORERS, useBlockExplorer, useChainId, isKnownChainId } from 'lib/temple/front';
+import { T } from 'lib/i18n';
+import { BlockExplorer, useChainId, BLOCK_EXPLORERS, useBlockExplorer } from 'lib/temple/front';
+import { isKnownChainId } from 'lib/temple/types';
 
 import IconifiedSelect, { IconifiedSelectOptionRenderProps } from './IconifiedSelect';
 

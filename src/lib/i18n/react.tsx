@@ -2,14 +2,12 @@ import React, { FC, Fragment, ReactElement, ReactNode, useMemo } from 'react';
 
 import { getMessage } from './core';
 import { toList } from './helpers';
-import { Substitutions } from './types';
+import { TID, Substitutions } from './types';
 
-export * from './index';
-
-export type ReactSubstitutions = ReactNode | ReactNode[];
+type ReactSubstitutions = ReactNode | ReactNode[];
 
 export type TProps = {
-  id: string;
+  id: TID;
   substitutions?: any;
   children?: (m: ReactNode | string | null) => ReactElement;
 };
@@ -20,15 +18,15 @@ export const T: FC<TProps> = ({ id, substitutions, children }) => {
   return useMemo(() => (children ? children(message) : <>{message}</>), [message, children]);
 };
 
-export function t(messageName: string, substitutions?: Substitutions): string;
-export function t(messageName: string, substitutions?: ReactSubstitutions): ReactNode;
-export function t(messageName: string, substitutions?: any): any {
-  return !substitutions || !hasReactSubstitutions(substitutions)
-    ? getMessage(messageName, substitutions)
-    : tReact(messageName, substitutions);
+export function t(messageName: TID, substitutions?: Substitutions): string;
+export function t(messageName: TID, substitutions?: ReactSubstitutions): ReactNode;
+export function t(messageName: TID, substitutions?: any): any {
+  return substitutions && hasReactSubstitutions(substitutions)
+    ? tReact(messageName, substitutions)
+    : getMessage(messageName, substitutions);
 }
 
-function tReact(messageName: string, substitutions?: Substitutions | ReactSubstitutions): ReactNode {
+function tReact(messageName: TID, substitutions?: Substitutions | ReactSubstitutions): ReactNode {
   const subList = toList(substitutions);
   const tmp = getMessage(
     messageName,

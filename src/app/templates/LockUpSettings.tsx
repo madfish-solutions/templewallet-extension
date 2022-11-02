@@ -1,7 +1,7 @@
 import React, { FC, useCallback } from 'react';
 
-import FormCheckbox from 'app/atoms/FormCheckbox';
-import { t, T } from 'lib/i18n/react';
+import { FormCheckbox } from 'app/atoms';
+import { t, T } from 'lib/i18n';
 import { isLockUpEnabled, setLockUp } from 'lib/ui/useLockUp';
 
 const LockUpSettings: FC<{}> = () => {

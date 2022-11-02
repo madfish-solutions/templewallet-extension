@@ -5,40 +5,41 @@ import classNames from 'clsx';
 import { useForm, Controller } from 'react-hook-form';
 import useSWR from 'swr';
 
-import Alert from 'app/atoms/Alert';
-import FileInput, { FileInputProps } from 'app/atoms/FileInput';
-import FormField from 'app/atoms/FormField';
-import FormSubmitButton from 'app/atoms/FormSubmitButton';
-import NoSpaceField from 'app/atoms/NoSpaceField';
-import TabSwitcher from 'app/atoms/TabSwitcher';
+import {
+  Alert,
+  FileInputProps,
+  FileInput,
+  FormField,
+  FormSubmitButton,
+  NoSpaceField,
+  TabSwitcher,
+  SeedPhraseInput
+} from 'app/atoms';
 import { MNEMONIC_ERROR_CAPTION, formatMnemonic } from 'app/defaults';
 import { ReactComponent as DownloadIcon } from 'app/icons/download.svg';
 import { ReactComponent as OkIcon } from 'app/icons/ok.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import ManagedKTForm from 'app/templates/ManagedKTForm';
 import { useFormAnalytics } from 'lib/analytics';
-import { T, t } from 'lib/i18n/react';
+import { TID, T, t } from 'lib/i18n';
 import {
+  ActivationStatus,
   useTempleClient,
   useSetAccountPkh,
-  validateDerivationPath,
   useTezos,
-  ActivationStatus,
   useAllAccounts,
-  isAddressValid,
   useTezosDomainsClient,
-  isKTAddress,
-  confirmOperation,
   useNetwork,
-  ImportAccountFormType
+  activateAccount,
+  validateDelegate,
+  validateDerivationPath
 } from 'lib/temple/front';
-import { activateAccount } from 'lib/temple/front/activate-account';
-import { validateDelegate } from 'lib/temple/front/validate-delegate';
-import useSafeState from 'lib/ui/useSafeState';
+import { isAddressValid, isKTAddress } from 'lib/temple/helpers';
+import { confirmOperation } from 'lib/temple/operation';
+import { ImportAccountFormType } from 'lib/temple/types';
+import { useSafeState } from 'lib/ui/hooks';
+import { clearClipboard } from 'lib/ui/util';
 import { navigate } from 'lib/woozie';
-
-import { clearClipboard } from '../../lib/ui/util';
-import { SeedPhraseInput } from '../atoms/SeedPhraseInput';
 
 type ImportAccountProps = {
   tabSlug: string | null;
@@ -46,7 +47,7 @@ type ImportAccountProps = {
 
 interface ImportTabDescriptor {
   slug: string;
-  i18nKey: string;
+  i18nKey: TID;
   Form: FC<{}>;
 }
 
@@ -121,7 +122,9 @@ const ImportAccount: FC<ImportAccountProps> = ({ tabSlug }) => {
       pageTitle={
         <>
           <DownloadIcon className="w-auto h-4 mr-1 stroke-current" />
-          <T id="importAccount">{message => <span className="capitalize">{message}</span>}</T>
+          <span className="capitalize">
+            <T id="importAccount" />
+          </span>
         </>
       }
     >
@@ -203,9 +206,9 @@ const ByPrivateKeyForm: FC = () => {
           label={
             <>
               <T id="password" />{' '}
-              <T id="optionalComment">
-                {message => <span className="text-sm font-light text-gray-600">{message}</span>}
-              </T>
+              <span className="text-sm font-light text-gray-600">
+                <T id="optionalComment" />
+              </span>
             </>
           }
           labelDescription={t('isPrivateKeyEncrypted')}
@@ -220,7 +223,12 @@ const ByPrivateKeyForm: FC = () => {
   );
 };
 
-const DERIVATION_PATHS = [
+interface DerivationPath {
+  type: string;
+  i18nKey: TID;
+}
+
+const DERIVATION_PATHS: DerivationPath[] = [
   {
     type: 'default',
     i18nKey: 'defaultAccount'
@@ -304,37 +312,18 @@ const ByMnemonicForm: FC = () => {
         />
       </div>
 
-      <FormField
-        ref={register}
-        name="password"
-        type="password"
-        id="importfundacc-password"
-        label={
-          <>
-            <T id="password" />{' '}
-            <T id="optionalComment">{message => <span className="text-sm font-light text-gray-600">{message}</span>}</T>
-          </>
-        }
-        labelDescription={t('passwordInputDescription')}
-        placeholder="*********"
-        errorCaption={errors.password?.message}
-        containerClassName="mb-6"
-      />
-
       <div className={classNames('mb-4', 'flex flex-col')}>
         <h2 className={classNames('mb-4', 'leading-tight', 'flex flex-col')}>
           <span className="text-base font-semibold text-gray-700">
             <T id="derivation" />{' '}
-            <T id="optionalComment">{message => <span className="text-sm font-light text-gray-600">{message}</span>}</T>
+            <span className="text-sm font-light text-gray-600">
+              <T id="optionalComment" />
+            </span>
           </span>
 
-          <T id="addDerivationPathPrompt">
-            {message => (
-              <span className={classNames('mt-1', 'text-xs font-light text-gray-600')} style={{ maxWidth: '90%' }}>
-                {message}
-              </span>
-            )}
-          </T>
+          <span className={classNames('mt-1', 'text-xs font-light text-gray-600')} style={{ maxWidth: '90%' }}>
+            <T id="addDerivationPathPrompt" />
+          </span>
         </h2>
 
         <div
@@ -402,13 +391,28 @@ const ByMnemonicForm: FC = () => {
         />
       )}
 
-      <T id="importAccount">
-        {message => (
-          <FormSubmitButton loading={formState.isSubmitting} className="mt-8">
-            {message}
-          </FormSubmitButton>
-        )}
-      </T>
+      <FormField
+        ref={register}
+        name="password"
+        type="password"
+        id="importfundacc-password"
+        label={
+          <>
+            <T id="password" />{' '}
+            <span className="text-sm font-light text-gray-600">
+              <T id="optionalComment" />
+            </span>
+          </>
+        }
+        labelDescription={t('passwordInputDescription')}
+        placeholder="*********"
+        errorCaption={errors.password?.message}
+        containerClassName="mb-6"
+      />
+
+      <FormSubmitButton loading={formState.isSubmitting} className="mt-8">
+        <T id="importAccount" />
+      </FormSubmitButton>
     </form>
   );
 };
@@ -692,7 +696,7 @@ const FromFaucetForm: FC = () => {
           label={t('faucetJson')}
           labelDescription={t('faucetJsonDescription')}
           placeholder={'{ ... }'}
-          errorCaption={errors.text?.message && t(errors.text?.message.toString())}
+          errorCaption={errors.text?.message && t(errors.text.message.toString() as TID)}
           className="text-xs"
           style={{
             resize: 'none'

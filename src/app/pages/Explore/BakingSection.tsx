@@ -19,15 +19,15 @@ import { ReactComponent as UnlockIcon } from 'app/icons/unlock.svg';
 //
 import BakingHistoryItem from 'app/pages/Explore/BakingHistoryItem';
 import BakerBanner from 'app/templates/BakerBanner';
-import { T, t } from 'lib/i18n/react';
+import { T, t } from 'lib/i18n';
 import { useRetryableSWR } from 'lib/swr';
-import { useAccount, useDelegate, TempleAccountType, useChainId, isKnownChainId } from 'lib/temple/front';
-import { getDelegatorRewards, TZKT_API_BASE_URLS } from 'lib/tzkt';
+import { useAccount, useChainId, useDelegate, useGasToken } from 'lib/temple/front';
+import { TempleAccountType } from 'lib/temple/types';
+import { getDelegatorRewards, isKnownChainId } from 'lib/tzkt';
 import useTippy from 'lib/ui/useTippy';
 import { Link } from 'lib/woozie';
 
 import { useAppEnv } from '../../env';
-import { useGasToken } from '../../hooks/useGasToken';
 import styles from './BakingSection.module.css';
 import { BakingSectionSelectors } from './BakingSection.selectors';
 
@@ -85,7 +85,7 @@ const BakingSection = memo(() => {
 
   const getBakingHistory = useCallback(
     async (_k: string, accountPkh: string) => {
-      if (!isKnownChainId(chainId!) || !TZKT_API_BASE_URLS.has(chainId)) {
+      if (!isKnownChainId(chainId!)) {
         return [];
       }
       return (
@@ -203,8 +203,8 @@ const BakingSection = memo(() => {
 
   return useMemo(
     () => (
-      <div className="flex justify-center">
-        <div className="mb-12 flex flex-col items-stretch" style={{ maxWidth: popup ? '20.5rem' : '22.5rem' }}>
+      <div className="mt-3 flex justify-center">
+        <div className={classNames('mb-12 flex flex-col items-stretch max-w-sm', popup && 'mx-4')}>
           {myBakerPkh ? (
             <>
               <div
@@ -390,13 +390,7 @@ const DelegateMotivationPoint: React.FC<{
   Icon: React.FC<React.SVGProps<SVGSVGElement>>;
   textNode: React.ReactNode;
 }> = ({ Icon, textNode }) => (
-  // eslint-disable-next-line prettier/prettier
-  <li
-    className={classNames(
-      'flex items-center',
-      'text-black-400 py-3 pr-3'
-    )}
-  >
+  <li className={classNames('flex items-center', 'text-black-400 py-3 pr-3')}>
     <aside className="flex items-center p-4 text-blue-500">
       <Icon className="w-8 h-8 stroke-current" style={{ strokeWidth: 1.5 }} />
     </aside>

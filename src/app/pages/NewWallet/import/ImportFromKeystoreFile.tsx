@@ -3,14 +3,12 @@ import React, { FC, useCallback } from 'react';
 import classNames from 'clsx';
 import { Controller, FieldError, NestDataObject, useForm } from 'react-hook-form';
 
-import { T, t } from '../../../../lib/i18n/react';
-import { decryptKukaiSeedPhrase } from '../../../../lib/temple/front';
-import { AlertFn, useAlert } from '../../../../lib/ui/dialog';
-import FileInput, { FileInputProps } from '../../../atoms/FileInput';
-import FormField from '../../../atoms/FormField';
-import FormSubmitButton from '../../../atoms/FormSubmitButton';
-import { ReactComponent as TrashbinIcon } from '../../../icons/bin.svg';
-import { ReactComponent as PaperclipIcon } from '../../../icons/paperclip.svg';
+import { FileInputProps, FileInput, FormField, FormSubmitButton } from 'app/atoms';
+import { ReactComponent as TrashbinIcon } from 'app/icons/bin.svg';
+import { ReactComponent as PaperclipIcon } from 'app/icons/paperclip.svg';
+import { T, t } from 'lib/i18n';
+import { decryptKukaiSeedPhrase } from 'lib/temple/front';
+import { AlertFn, useAlert } from 'lib/ui';
 
 interface FormData {
   keystoreFile?: FileList;

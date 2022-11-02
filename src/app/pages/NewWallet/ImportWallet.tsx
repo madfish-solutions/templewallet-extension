@@ -1,7 +1,7 @@
 import React, { FC, useState } from 'react';
 
 import PageLayout from 'app/layouts/PageLayout';
-import { t } from 'lib/i18n/react';
+import { TID, t } from 'lib/i18n';
 
 import { useTempleClient } from '../../../lib/temple/front';
 import ImportTabSwitcher from '../../atoms/ImportTabSwitcher';
@@ -14,7 +14,10 @@ interface ImportWalletProps {
   tabSlug?: string;
 }
 
-const importWalletOptions = [
+const importWalletOptions: {
+  slug: string;
+  i18nKey: TID;
+}[] = [
   {
     slug: 'seed-phrase',
     i18nKey: 'seedPhrase'

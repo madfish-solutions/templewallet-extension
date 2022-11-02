@@ -8,37 +8,29 @@ import { useTabSlug } from 'app/atoms/useTabSlug';
 import { useAppEnv } from 'app/env';
 import ErrorBoundary from 'app/ErrorBoundary';
 import { ReactComponent as BuyIcon } from 'app/icons/buy.svg';
-import { ReactComponent as ChevronRightIcon } from 'app/icons/chevron-right.svg';
-import { ReactComponent as ExploreIcon } from 'app/icons/explore.svg';
 import { ReactComponent as ReceiveIcon } from 'app/icons/receive.svg';
 import { ReactComponent as SendIcon } from 'app/icons/send-alt.svg';
 import { ReactComponent as SwapIcon } from 'app/icons/swap.svg';
+import { ReactComponent as WithdrawIcon } from 'app/icons/withdraw.svg';
 import PageLayout from 'app/layouts/PageLayout';
-import Activity from 'app/templates/activity/Activity';
+import { ActivityComponent } from 'app/templates/activity/Activity';
 import AssetInfo from 'app/templates/AssetInfo';
 import { TestIDProps } from 'lib/analytics';
-import { T, t } from 'lib/i18n/react';
+import { T, t } from 'lib/i18n';
 import { PropsWithChildren } from 'lib/props-with-children';
-import {
-  getAssetSymbol,
-  isTezAsset,
-  TempleAccountType,
-  TempleNetworkType,
-  useAccount,
-  useAssetMetadata,
-  useNetwork
-} from 'lib/temple/front';
+import { isTezAsset } from 'lib/temple/assets';
+import { useAccount, useNetwork, useAssetMetadata } from 'lib/temple/front';
+import { getAssetSymbol } from 'lib/temple/metadata';
+import { TempleAccountType, TempleNetworkType } from 'lib/temple/types';
 import useTippy from 'lib/ui/useTippy';
 import { HistoryAction, Link, navigate, To, useLocation } from 'lib/woozie';
 
-import { DonationBanner } from '../atoms/DonationBanner';
-import CollectiblesList from './Collectibles/CollectiblesList';
+import { CollectiblesList } from './Collectibles/CollectiblesList';
 import { ExploreSelectors } from './Explore.selectors';
-import AddressChip from './Explore/AddressChip';
 import BakingSection from './Explore/BakingSection';
 import EditableTitle from './Explore/EditableTitle';
 import MainBanner from './Explore/MainBanner';
-import Tokens from './Explore/Tokens/Tokens';
+import { Tokens } from './Explore/Tokens/Tokens';
 import { useOnboardingProgress } from './Onboarding/hooks/useOnboardingProgress.hook';
 import Onboarding from './Onboarding/Onboarding';
 
@@ -76,55 +68,54 @@ const Explore: FC<ExploreProps> = ({ assetSlug }) => {
 
   const accountPkh = account.publicKeyHash;
   const canSend = account.type !== TempleAccountType.WatchOnly;
-  const fullpageClassName = fullPage ? 'mb-10' : 'mb-6';
   const sendLink = assetSlug ? `/send/${assetSlug}` : '/send';
 
   return onboardingCompleted ? (
     <PageLayout
       pageTitle={
         <>
-          <ExploreIcon className="w-auto h-4 mr-1 stroke-current" />
-          <T id="explore" />
           {assetSlug && (
             <>
-              <ChevronRightIcon className="w-auto h-4 mx-px stroke-current opacity-75" />
               <span className="font-normal">{getAssetSymbol(assetMetadata)}</span>
             </>
           )}
         </>
       }
       attention={true}
+      adShow
     >
-      <DonationBanner />
-
       {fullPage && (
-        <>
+        <div className="w-full max-w-sm mx-auto">
           <EditableTitle />
-          <hr className="mb-6" />
-        </>
+          <hr className="mb-4" />
+        </div>
       )}
 
-      <div className={classNames('flex flex-col items-center', fullpageClassName)}>
-        <AddressChip pkh={accountPkh} className="mb-6" />
-
+      <div className={classNames('flex flex-col items-center', 'mb-6')}>
         <MainBanner accountPkh={accountPkh} assetSlug={assetSlug} />
 
-        <div className="flex justify-between mx-auto w-full max-w-sm mt-6 px-8">
+        <div className="flex justify-between mx-auto w-full max-w-sm">
           <ActionButton
             label={<T id="receive" />}
             Icon={ReceiveIcon}
             to="/receive"
             testID={ExploreSelectors.ReceiveButton}
           />
-          {NETWORK_TYPES_WITH_BUY_BUTTON.includes(network.type) && (
-            <ActionButton
-              label={<T id="buyButton" />}
-              Icon={BuyIcon}
-              to={`/buy?tab=${network.type === 'dcp' ? 'debit' : 'crypto'}`}
-              testID={ExploreSelectors.BuyButton}
-            />
-          )}
 
+          <ActionButton
+            label={<T id="buyButton" />}
+            Icon={BuyIcon}
+            to={`/buy?tab=${network.type === 'dcp' ? 'debit' : 'crypto'}`}
+            disabled={!NETWORK_TYPES_WITH_BUY_BUTTON.includes(network.type)}
+            testID={ExploreSelectors.BuyButton}
+          />
+          <ActionButton
+            label={<T id="withdrawButton" />}
+            Icon={WithdrawIcon}
+            to="/withdraw"
+            disabled={!canSend || network.type !== 'main'}
+            testID={ExploreSelectors.WithdrawButton}
+          />
           <ActionButton
             label={<T id="swap" />}
             Icon={SwapIcon}
@@ -173,7 +164,10 @@ const ActionButton: FC<ActionButtonProps> = ({
   testID,
   testIDProperties
 }) => {
-  const buttonRef = useTippy<HTMLButtonElement>(tippyProps);
+  const buttonRef = useTippy<HTMLButtonElement>({
+    ...tippyProps,
+    content: disabled && !tippyProps.content ? t('disabled') : tippyProps.content
+  });
   const commonButtonProps = useMemo(
     () => ({
       className: `flex flex-col items-center`,
@@ -182,14 +176,17 @@ const ActionButton: FC<ActionButtonProps> = ({
         <>
           <div
             className={classNames(
-              disabled ? 'bg-blue-300' : 'bg-blue-500',
-              'rounded mb-1 flex items-center text-white'
+              disabled ? 'bg-gray-10' : 'bg-orange-10',
+              'rounded mb-2 flex items-center text-white',
+              'p-2 h-10'
             )}
-            style={{ padding: '0 0.625rem', height: '2.75rem' }}
           >
-            <Icon className="w-6 h-auto stroke-current" />
+            <Icon className={classNames('w-6 h-auto', disabled ? 'stroke-gray' : 'stroke-accent-orange')} />
           </div>
-          <span className={classNames('text-xs text-center', disabled ? 'text-blue-300' : 'text-blue-500')}>
+          <span
+            style={{ fontSize: 11 }}
+            className={classNames('text-center', disabled ? 'text-gray-20' : 'text-gray-910')}
+          >
             {label}
           </span>
         </>
@@ -214,15 +211,11 @@ type ActivityTabProps = {
   assetSlug?: string;
 };
 
-const ActivityTab: FC<ActivityTabProps> = ({ assetSlug }) => {
-  const account = useAccount();
-
-  return (
-    <SuspenseContainer whileMessage={t('operationHistoryWhileMessage')}>
-      <Activity address={account.publicKeyHash} assetSlug={assetSlug} />
-    </SuspenseContainer>
-  );
-};
+const ActivityTab: FC<ActivityTabProps> = ({ assetSlug }) => (
+  <SuspenseContainer whileMessage={t('operationHistoryWhileMessage')}>
+    <ActivityComponent assetSlug={assetSlug} />
+  </SuspenseContainer>
+);
 
 type SecondarySectionProps = {
   assetSlug?: string | null;
@@ -300,7 +293,7 @@ const SecondarySection: FC<SecondarySectionProps> = ({ assetSlug, className }) =
 
   return (
     <div className={classNames('-mx-4', 'shadow-top-light', fullPage && 'rounded-t-md', className)}>
-      <div className={classNames('w-full max-w-sm mx-auto px-10', 'flex items-center justify-center')}>
+      <div className={classNames('w-full max-w-sm mx-auto', 'flex items-center justify-center')}>
         {tabs.map(currentTab => {
           const active = slug === currentTab.slug;
 
@@ -311,9 +304,9 @@ const SecondarySection: FC<SecondarySectionProps> = ({ assetSlug, className }) =
               replace
               className={classNames(
                 'flex1 w-full',
-                'text-center cursor-pointer mb-1 pb-1 pt-2',
+                'text-center cursor-pointer py-2',
                 'text-gray-500 text-xs font-medium',
-                'border-t-2',
+                'border-t-3',
                 active ? 'border-primary-orange' : 'border-transparent',
                 active ? 'text-primary-orange' : 'hover:text-primary-orange',
                 'transition ease-in-out duration-300',
@@ -326,10 +319,7 @@ const SecondarySection: FC<SecondarySectionProps> = ({ assetSlug, className }) =
           );
         })}
       </div>
-
-      <div className={'mx-4 mb-4 mt-6'}>
-        <SuspenseContainer whileMessage="displaying tab">{Component && <Component />}</SuspenseContainer>
-      </div>
+      <SuspenseContainer whileMessage="displaying tab">{Component && <Component />}</SuspenseContainer>
     </div>
   );
 };

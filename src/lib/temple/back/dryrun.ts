@@ -5,7 +5,7 @@ import { Estimate, TezosToolkit } from '@taquito/taquito';
 import { formatOpParamsBeforeSend, michelEncoder, loadFastRpcClient } from 'lib/temple/helpers';
 import { ReadOnlySigner } from 'lib/temple/read-only-signer';
 
-export type DryRunParams = {
+type DryRunParams = {
   opParams: any[];
   networkRpc: string;
   sourcePkh: string;

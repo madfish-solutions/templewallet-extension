@@ -2,11 +2,10 @@ import React, { FC } from 'react';
 
 import classNames from 'clsx';
 
-import Alert from 'app/atoms/Alert';
+import { Alert } from 'app/atoms';
 import { NotEnoughFundsError, ZeroBalanceError, ZeroTEZBalanceError } from 'app/defaults';
-import { T, t } from 'lib/i18n/react';
-
-import { useGasToken } from '../../hooks/useGasToken';
+import { T, t } from 'lib/i18n';
+import { useGasToken } from 'lib/temple/front';
 
 type SendErrorAlertProps = {
   type: 'submit' | 'estimation';
@@ -49,10 +48,12 @@ const SendErrorAlert: FC<SendErrorAlertProps> = ({ type, error }) => {
                 <br />
                 <T id="thisMayHappenBecause" />
                 <ul className="mt-1 ml-2 text-xs list-disc list-inside">
-                  <T id="minimalFeeGreaterThanBalanceVerbose" substitutions={symbol}>
-                    {message => <li>{message}</li>}
-                  </T>
-                  <T id="networkOrOtherIssue">{message => <li>{message}</li>}</T>
+                  <li>
+                    <T id="minimalFeeGreaterThanBalanceVerbose" substitutions={symbol} />
+                  </li>
+                  <li>
+                    <T id="networkOrOtherIssue" />
+                  </li>
                 </ul>
               </>
             );

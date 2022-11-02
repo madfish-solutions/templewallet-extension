@@ -2,16 +2,16 @@ import React, { ComponentProps, FC, useCallback, useMemo, useRef, useState } fro
 
 import classNames from 'clsx';
 
-import FormCheckbox from 'app/atoms/FormCheckbox';
+import { FormCheckbox } from 'app/atoms';
 import Name from 'app/atoms/Name';
 import { ReactComponent as CloseIcon } from 'app/icons/close.svg';
 import CustomSelect, { OptionRenderProps } from 'app/templates/CustomSelect';
 import DAppLogo from 'app/templates/DAppLogo';
 import HashChip from 'app/templates/HashChip';
-import { T, t } from 'lib/i18n/react';
+import { TID, T, t } from 'lib/i18n';
 import { useRetryableSWR } from 'lib/swr';
-import { useStorage, TempleSharedStorageKey, useTempleClient } from 'lib/temple/front';
-import { TempleDAppSession, TempleDAppSessions } from 'lib/temple/types';
+import { useTempleClient, useStorage } from 'lib/temple/front';
+import { TempleSharedStorageKey, TempleDAppSession, TempleDAppSessions } from 'lib/temple/types';
 import { useConfirm } from 'lib/ui/dialog';
 
 type DAppEntry = [string, TempleDAppSession];
@@ -145,8 +145,15 @@ const DAppDescription: FC<OptionRenderProps<DAppEntry, string, DAppActions>> = p
     [onRemove, origin]
   );
 
+  interface TDAppAttribute {
+    key: TID;
+    value: React.ReactNode;
+    valueClassName?: string;
+    Component: React.FC | keyof JSX.IntrinsicElements;
+  }
+
   const dAppAttributes = useMemo(
-    () => [
+    (): TDAppAttribute[] => [
       {
         key: 'originLabel',
         value: origin,

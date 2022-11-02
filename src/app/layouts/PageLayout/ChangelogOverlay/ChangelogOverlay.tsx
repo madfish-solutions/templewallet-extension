@@ -5,22 +5,20 @@ import classNames from 'clsx';
 import { Button } from 'app/atoms/Button';
 import { useAppEnv } from 'app/env';
 import ContentContainer from 'app/layouts/ContentContainer';
-import { T } from 'lib/i18n/react';
+import { T } from 'lib/i18n';
 import { useTempleClient, useStorage } from 'lib/temple/front';
 
+import PackageJSON from '../../../../../package.json';
 import { changelogData, ChangelogItem } from './ChangelogOverlay.data';
 import s from './ChangelogOverlay.module.css';
 import { ChangelogOverlaySelectors } from './ChangelogOverlay.selectors';
 
-const currentVersion = process.env.VERSION;
+const currentVersion = PackageJSON.version;
 
 export const ChangelogOverlay: FC = () => {
   const { popup } = useAppEnv();
   const { ready } = useTempleClient();
-  const [lastShownVersion, setLastShownVersion] = useStorage<string | undefined | null>(
-    `last_shown_changelog_version`,
-    '1.14.8'
-  );
+  const [lastShownVersion, setLastShownVersion] = useStorage(`last_shown_changelog_version`, currentVersion);
 
   const handleContinue = () => {
     setLastShownVersion(currentVersion);

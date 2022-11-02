@@ -2,7 +2,7 @@ import React, { ComponentProps, forwardRef, ReactNode, useCallback, useEffect, u
 
 import BigNumber from 'bignumber.js';
 
-import FormField from 'app/atoms/FormField';
+import { FormField } from 'app/atoms';
 
 type AssetFieldProps = Omit<ComponentProps<typeof FormField>, 'onChange'> & {
   value?: number | string;

@@ -2,13 +2,12 @@ import React, { FC, FormEventHandler, useCallback, useEffect, useRef, useState }
 
 import classNames from 'clsx';
 
-import { Button } from 'app/atoms/Button';
-import FormField from 'app/atoms/FormField';
+import { FormField, Button } from 'app/atoms';
 import Name from 'app/atoms/Name';
 import { ACCOUNT_NAME_PATTERN } from 'app/defaults';
 import { ReactComponent as EditIcon } from 'app/icons/edit.svg';
 import { useFormAnalytics } from 'lib/analytics';
-import { T, t } from 'lib/i18n/react';
+import { T, t } from 'lib/i18n';
 import { useTempleClient, useAccount } from 'lib/temple/front';
 import { useAlert } from 'lib/ui/dialog';
 
@@ -97,7 +96,7 @@ const EditableTitle: FC = () => {
   }, [setEditing]);
 
   return (
-    <div className="relative flex items-center justify-center pt-4">
+    <div className="relative flex items-center pt-2 mb-1">
       {editing ? (
         <form className="flex flex-col items-center flex-1" onSubmit={handleEditSubmit}>
           <FormField
@@ -159,15 +158,15 @@ const EditableTitle: FC = () => {
       ) : (
         <>
           <Name
-            className={classNames('mb-2 pl-7', 'text-2xl font-light text-gray-700 text-center')}
-            style={{ maxWidth: '24rem' }}
+            className={classNames('pl-1', 'text-gray-700 text-center text-gray-910')}
+            style={{ maxWidth: '24rem', fontSize: 23 }}
           >
             {account.name}
           </Name>
           {!editing && (
             <Button
               className={classNames(
-                'px-1 py-1 ml-1 mb-2',
+                'px-1 py-1',
                 'rounded overflow-hidden',
                 'text-gray-600 text-sm',
                 'transition ease-in-out duration-200',
@@ -177,7 +176,7 @@ const EditableTitle: FC = () => {
               onClick={handleEditClick}
               testID={EditableTitleSelectors.EditButton}
             >
-              <EditIcon className={classNames('h-5 w-auto stroke-current stroke-2')} />
+              <EditIcon className={classNames('h-4 w-auto stroke-current stroke-2')} />
             </Button>
           )}
         </>

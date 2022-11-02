@@ -3,16 +3,17 @@ import React, { FC, useMemo } from 'react';
 import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
 
+import { FormSubmitButton } from 'app/atoms';
 import CopyButton from 'app/atoms/CopyButton';
 import Divider from 'app/atoms/Divider';
-import FormSubmitButton from 'app/atoms/FormSubmitButton';
 import HashShortView from 'app/atoms/HashShortView';
 import { ReactComponent as CopyIcon } from 'app/icons/copy.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import { AssetIcon } from 'app/templates/AssetIcon';
-import { T } from 'lib/i18n/react';
-import { fromFa2TokenSlug } from 'lib/temple/assets/utils';
-import { useAccount, useAssetMetadata, useBalance } from 'lib/temple/front';
+import { T } from 'lib/i18n';
+import { fromFa2TokenSlug } from 'lib/temple/assets';
+import { useAccount, useBalance, useAssetMetadata } from 'lib/temple/front';
+import { getAssetName } from 'lib/temple/metadata';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 import { navigate } from 'lib/woozie';
 
@@ -33,10 +34,12 @@ const CollectiblePage: FC<Props> = ({ assetSlug }) => {
   });
 
   const { copy } = useCopyToClipboard();
-  const collectibleData = useAssetMetadata(assetSlug)!;
+  const collectibleData = useAssetMetadata(assetSlug);
+
+  const collectibleName = getAssetName(collectibleData);
 
   return (
-    <PageLayout pageTitle={collectibleData.name}>
+    <PageLayout pageTitle={collectibleName}>
       <div style={{ maxWidth: '360px', margin: 'auto' }} className="text-center pb-4">
         <div className={classNames('w-full max-w-sm mx-auto')}>
           <div style={{ borderRadius: '12px', width: '320px' }} className={'border border-gray-300 p-6 mx-auto my-10'}>
@@ -48,24 +51,20 @@ const CollectiblePage: FC<Props> = ({ assetSlug }) => {
           <p className="text-gray-600 text-xs">
             <T id={'name'} />
           </p>
-          <p style={{ color: '#1B262C' }} className="text-xs">
-            {collectibleData.name}
-          </p>
+          <p className="text-xs text-gray-910">{collectibleName}</p>
         </div>
         <div className="flex justify-between items-baseline mt-4 mb-4">
           <p className="text-gray-600 text-xs">
             <T id={'amount'} />
           </p>
-          <p style={{ color: '#1B262C' }} className="text-xs">
-            {collectibleBalance ? collectibleBalance.toFixed() : ''}
-          </p>
+          <p className="text-xs text-gray-910">{collectibleBalance ? collectibleBalance.toFixed() : ''}</p>
         </div>
         <div className="flex justify-between items-baseline mb-4">
           <p className="text-gray-600 text-xs">
             <T id={'address'} />
           </p>
           <span className={'flex align-middle'}>
-            <p style={{ color: '#1B262C' }} className="text-xs inline align-text-bottom">
+            <p className="text-xs inline align-text-bottom text-gray-910">
               <HashShortView hash={assetContract} />
             </p>
             <CopyButton text={assetContract} type="link">
@@ -82,9 +81,7 @@ const CollectiblePage: FC<Props> = ({ assetSlug }) => {
             <T id={'id'} />
           </p>
           <span className={'flex align-middle'}>
-            <p style={{ color: '#1B262C' }} className="text-xs inline align-text-bottom">
-              {assetId.toFixed()}
-            </p>
+            <p className="text-xs inline align-text-bottom text-gray-910">{assetId.toFixed()}</p>
             <CopyButton text={assetId.toFixed()} type="link">
               <CopyIcon
                 style={{ verticalAlign: 'inherit' }}

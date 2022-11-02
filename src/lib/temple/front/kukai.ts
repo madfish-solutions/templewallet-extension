@@ -1,15 +1,15 @@
 import { entropyToMnemonic } from 'bip39';
 import * as forge from 'node-forge';
-import scrypt from 'scryptsy';
+import scryptsy from 'scryptsy';
 
-import { t } from 'lib/i18n/react';
+import { t } from 'lib/i18n';
 
-export interface AccountCredentials {
-  sk: string | null;
-  pk: string | null;
-  pkh: string;
-  seedPhrase: string;
+type ScryptsyType = typeof scryptsy;
+interface ScryptsyCorrectType extends ScryptsyType {
+  async: (...a: [...Parameters<ScryptsyType>, ...[promiseInterval?: number]]) => Promise<ReturnType<ScryptsyType>>;
 }
+
+const scrypt: ScryptsyCorrectType = scryptsy as any;
 
 async function decrypt(chipher: string, password: string, salt: string) {
   try {
@@ -22,10 +22,10 @@ async function decrypt(chipher: string, password: string, salt: string) {
     const key = await scrypt.async(password, Buffer.from(salt, 'hex'), 65536, 8, 1, 32);
     const decipher = forge.cipher.createDecipher('AES-GCM', key.toString('binary'));
     decipher.start({
-      iv: Buffer.from(salt, 'hex'),
-      tag: forge.util.createBuffer(Buffer.from(tag, 'hex').toString('binary'), 'utf-8')
+      iv: Buffer.from(salt, 'hex') as any,
+      tag: forge.util.createBuffer(Buffer.from(tag, 'hex').toString('binary'), 'raw')
     });
-    decipher.update(forge.util.createBuffer(Buffer.from(chiphertext, 'hex').toString('binary'), 'utf-8'));
+    decipher.update(forge.util.createBuffer(Buffer.from(chiphertext, 'hex').toString('binary'), 'raw'));
     const pass = decipher.finish();
     if (pass) {
       return Buffer.from(decipher.output.toHex(), 'hex');

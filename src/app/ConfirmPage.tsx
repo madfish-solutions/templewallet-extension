@@ -2,11 +2,9 @@ import React, { FC, Fragment, memo, Suspense, useCallback, useMemo, useState } f
 
 import classNames from 'clsx';
 
+import { Alert, FormSubmitButton, FormSecondaryButton } from 'app/atoms';
 import AccountTypeBadge from 'app/atoms/AccountTypeBadge';
-import Alert from 'app/atoms/Alert';
 import ConfirmLedgerOverlay from 'app/atoms/ConfirmLedgerOverlay';
-import FormSecondaryButton from 'app/atoms/FormSecondaryButton';
-import FormSubmitButton from 'app/atoms/FormSubmitButton';
 import HashShortView from 'app/atoms/HashShortView';
 import Identicon from 'app/atoms/Identicon';
 import Money from 'app/atoms/Money';
@@ -25,23 +23,14 @@ import { ModifyFeeAndLimit } from 'app/templates/ExpensesView/ExpensesView';
 import NetworkBanner from 'app/templates/NetworkBanner';
 import OperationView from 'app/templates/OperationView';
 import { CustomRpsContext } from 'lib/analytics';
-import { T, t } from 'lib/i18n/react';
+import { T, t } from 'lib/i18n';
 import { useRetryableSWR } from 'lib/swr';
-import {
-  useTempleClient,
-  useAccount,
-  useRelevantAccounts,
-  useCustomChainId,
-  TempleAccountType,
-  TempleDAppPayload,
-  TempleAccount,
-  TempleChainId
-} from 'lib/temple/front';
-import useSafeState from 'lib/ui/useSafeState';
+import { useTempleClient, useAccount, useRelevantAccounts, useCustomChainId, useGasToken } from 'lib/temple/front';
+import { TempleAccountType, TempleDAppPayload, TempleAccount, TempleChainId } from 'lib/temple/types';
+import { useSafeState } from 'lib/ui/hooks';
 import { useLocation } from 'lib/woozie';
 
 import { ConfirmPageSelectors } from './ConfirmPage.selectors';
-import { useGasToken } from './hooks/useGasToken';
 
 const ConfirmPage: FC = () => {
   const { ready } = useTempleClient();

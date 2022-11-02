@@ -34,7 +34,7 @@ const AddressChip: FC<AddressChipProps> = ({ pkh, className, small }) => {
   useEffect(() => {
     (async () => {
       try {
-        const val = await fetchFromStorage(domainDisplayedKey);
+        const val = await fetchFromStorage<boolean>(domainDisplayedKey);
         setDomainDisplayed(val ?? true);
       } catch {}
     })();
@@ -63,10 +63,10 @@ const AddressChip: FC<AddressChipProps> = ({ pkh, className, small }) => {
           type="button"
           className={classNames(
             'ml-2',
-            'bg-gray-100 hover:bg-gray-200',
+            'bg-gray-100',
             'rounded-sm shadow-xs',
             small ? 'text-xs' : 'text-sm',
-            'text-gray-500 leading-none select-none',
+            'hover:text-gray-600 text-gray-500 leading-none select-none',
             'transition ease-in-out duration-300',
             'inline-flex items-center justify-center'
           )}

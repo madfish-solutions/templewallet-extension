@@ -1,8 +1,9 @@
 import React from 'react';
 
-import FormCheckbox from 'app/atoms/FormCheckbox';
-import { T, t } from 'lib/i18n/react';
-import { TempleSharedStorageKey, useLocalStorage } from 'lib/temple/front';
+import { FormCheckbox } from 'app/atoms';
+import { T, t } from 'lib/i18n';
+import { useLocalStorage } from 'lib/temple/front';
+import { TempleSharedStorageKey } from 'lib/temple/types';
 
 const LedgerLiveSettings: React.FC<{}> = () => {
   const [ledgerLiveEnabled, setLedgerLiveEnabled] = useLocalStorage<boolean>(

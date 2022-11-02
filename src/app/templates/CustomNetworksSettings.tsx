@@ -3,19 +3,24 @@ import React, { FC, useCallback } from 'react';
 import classNames from 'clsx';
 import { useForm } from 'react-hook-form';
 
-import FormField from 'app/atoms/FormField';
-import FormSubmitButton from 'app/atoms/FormSubmitButton';
+import { FormField, FormSubmitButton } from 'app/atoms';
 import Name from 'app/atoms/Name';
 import SubTitle from 'app/atoms/SubTitle';
 import { URL_PATTERN } from 'app/defaults';
 import { ReactComponent as CloseIcon } from 'app/icons/close.svg';
-import { T, t } from 'lib/i18n/react';
-import { loadChainId, NETWORK_IDS, TempleNetwork, useSettings, useTempleClient } from 'lib/temple/front';
+import { T, t } from 'lib/i18n';
+import { useSettings, useTempleClient } from 'lib/temple/front';
+import { loadChainId } from 'lib/temple/helpers';
+import { NETWORK_IDS } from 'lib/temple/networks';
+import { TempleNetwork } from 'lib/temple/types';
 import { COLORS } from 'lib/ui/colors';
 import { useConfirm } from 'lib/ui/dialog';
 import { withErrorHumanDelay } from 'lib/ui/humanDelay';
 
-type NetworkFormData = Pick<TempleNetwork, 'name' | 'rpcBaseURL'>;
+interface NetworkFormData {
+  name: string;
+  rpcBaseURL: string;
+}
 
 const SUBMIT_ERROR_TYPE = 'submit-error';
 
@@ -148,7 +153,7 @@ const CustomNetworksSettings: FC = () => {
       </div>
 
       <SubTitle>
-        <T id="AddNetwork" />
+        <T id="addNetwork" />
       </SubTitle>
 
       <form onSubmit={handleSubmit(onNetworkFormSubmit)}>

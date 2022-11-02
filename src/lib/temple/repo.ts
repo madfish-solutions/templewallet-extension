@@ -3,7 +3,7 @@ import Dexie from 'dexie';
 
 import { TzktOperation, TzktTokenTransfer } from 'lib/tzkt';
 
-export enum Table {
+enum Table {
   AccountTokens = 'accountTokens',
   Operations = 'operations',
   SyncTimes = 'syncTimes'
@@ -18,11 +18,8 @@ db.version(2).stores({
   [Table.AccountTokens]: indexes('', '[chainId+account+type]', '[chainId+type]')
 });
 
-export const waitFor = Dexie.waitFor;
-
 export const accountTokens = db.table<IAccountToken, string>(Table.AccountTokens);
 export const operations = db.table<IOperation, string>(Table.Operations);
-export const syncTimes = db.table<ISyncTime, string>(Table.SyncTimes);
 
 export function toAccountTokenKey(chainId: string, account: string, tokenSlug: string) {
   return [chainId, account, tokenSlug].join('_');
@@ -51,7 +48,7 @@ export interface IAccountToken {
   latestUSDBalance?: string;
 }
 
-export interface IOperation {
+interface IOperation {
   hash: string;
   chainId: string;
   members: Array<string>;
@@ -60,19 +57,11 @@ export interface IOperation {
   data: IOperationData;
 }
 
-export type IOperationData = AtLeastOne<{
+type IOperationData = AtLeastOne<{
   localGroup: Array<OperationContentsAndResult>;
   tzktGroup: Array<TzktOperation>;
   tzktTokenTransfers: Array<TzktTokenTransfer>;
 }>;
-
-export interface ISyncTime {
-  service: 'tzkt' | 'bcd';
-  chainId: string;
-  address: string;
-  higherTimestamp: number;
-  lowerTimestamp: number;
-}
 
 function indexes(...items: string[]) {
   return items.join(',');

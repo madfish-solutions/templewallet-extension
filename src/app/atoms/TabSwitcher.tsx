@@ -2,12 +2,12 @@ import React from 'react';
 
 import classNames from 'clsx';
 
-import { T } from 'lib/i18n/react';
+import { TID, T } from 'lib/i18n';
 import { Link } from 'lib/woozie';
 
 type TabDescriptor = {
   slug: string;
-  i18nKey: string;
+  i18nKey: TID;
 };
 
 type TabSwitcherProps = {
@@ -17,7 +17,7 @@ type TabSwitcherProps = {
   urlPrefix: string;
 };
 
-const TabSwitcher: React.FC<TabSwitcherProps> = ({ className, tabs, activeTabSlug, urlPrefix }) => (
+export const TabSwitcher: React.FC<TabSwitcherProps> = ({ className, tabs, activeTabSlug, urlPrefix }) => (
   <div className={classNames('w-full max-w-md mx-auto', 'flex flex-wrap items-center justify-center', className)}>
     {tabs.map(({ slug, i18nKey }) => {
       const active = slug === activeTabSlug;
@@ -40,5 +40,3 @@ const TabSwitcher: React.FC<TabSwitcherProps> = ({ className, tabs, activeTabSlu
     })}
   </div>
 );
-
-export default TabSwitcher;

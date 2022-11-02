@@ -1,4 +1,4 @@
-export const TEZ_TRANSFER_OPERATIONS = {
+const TEZ_TRANSFER_OPERATIONS = {
   branch: 'BLJHNoL9u4Aw84siCWKZ8KakjecKkfBcaznDgYsfYiUDDrpNaCQ',
   contents: [
     {

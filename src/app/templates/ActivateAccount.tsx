@@ -2,14 +2,12 @@ import React, { FC, KeyboardEventHandler, ReactNode, useCallback, useMemo, useSt
 
 import { useForm } from 'react-hook-form';
 
-import Alert from 'app/atoms/Alert';
-import FormField from 'app/atoms/FormField';
-import FormSubmitButton from 'app/atoms/FormSubmitButton';
+import { Alert, FormField, FormSubmitButton } from 'app/atoms';
 import AccountBanner from 'app/templates/AccountBanner';
-import { T, t } from 'lib/i18n/react';
-import { ActivationStatus, useTezos, useAccount, confirmOperation } from 'lib/temple/front';
-import { activateAccount } from 'lib/temple/front/activate-account';
-import useIsMounted from 'lib/ui/useIsMounted';
+import { T, t } from 'lib/i18n';
+import { ActivationStatus, useTezos, useAccount, activateAccount } from 'lib/temple/front';
+import { confirmOperation } from 'lib/temple/operation';
+import { useIsMounted } from 'lib/ui/hooks';
 
 type FormData = {
   secret: string;
@@ -115,7 +113,9 @@ const ActivateAccount: FC = () => {
         onKeyPress={handleSecretFieldKeyPress}
       />
 
-      <T id="activate">{message => <FormSubmitButton loading={submitting}>{message}</FormSubmitButton>}</T>
+      <FormSubmitButton loading={submitting}>
+        <T id="activate" />
+      </FormSubmitButton>
     </form>
   );
 };

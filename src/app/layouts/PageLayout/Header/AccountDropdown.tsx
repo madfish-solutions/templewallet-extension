@@ -5,6 +5,7 @@ import classNames from 'clsx';
 import AccountTypeBadge from 'app/atoms/AccountTypeBadge';
 import { Button } from 'app/atoms/Button';
 import DropdownWrapper from 'app/atoms/DropdownWrapper';
+import HashShortView from 'app/atoms/HashShortView';
 import Identicon from 'app/atoms/Identicon';
 import Money from 'app/atoms/Money';
 import Name from 'app/atoms/Name';
@@ -13,22 +14,28 @@ import { ReactComponent as AddIcon } from 'app/icons/add.svg';
 import { ReactComponent as DAppsIcon } from 'app/icons/apps-alt.svg';
 import { ReactComponent as DownloadIcon } from 'app/icons/download.svg';
 import { ReactComponent as LinkIcon } from 'app/icons/link.svg';
+import { ReactComponent as LockIcon } from 'app/icons/lock.svg';
 import { ReactComponent as MaximiseIcon } from 'app/icons/maximise.svg';
-import { ReactComponent as PeopleIcon } from 'app/icons/people.svg';
 import { ReactComponent as SettingsIcon } from 'app/icons/settings.svg';
 import Balance from 'app/templates/Balance';
 import SearchField from 'app/templates/SearchField';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
-import { t, T } from 'lib/i18n/react';
-import { useAccount, useRelevantAccounts, useSetAccountPkh, useTempleClient } from 'lib/temple/front';
+import { TID, T, t } from 'lib/i18n';
+import { useAccount, useRelevantAccounts, useSetAccountPkh, useTempleClient, useGasToken } from 'lib/temple/front';
 import { PopperRenderProps } from 'lib/ui/Popper';
 import { Link } from 'lib/woozie';
 
-import { useGasToken } from '../../../hooks/useGasToken';
 import { AccountDropdownSelectors } from './AccountDropdown.selectors';
 
-type ExcludesFalse = <T>(x: T | false) => x is T;
 type AccountDropdownProps = PopperRenderProps;
+
+interface TDropdownAction {
+  key: string;
+  Icon: React.FC<React.SVGProps<SVGSVGElement>>;
+  i18nKey: TID;
+  linkTo: string | null;
+  onClick: () => void;
+}
 
 const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
   const appEnv = useAppEnv();
@@ -70,51 +77,50 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
   }, [appEnv.popup, closeDropdown]);
 
   const actions = useMemo(
-    () =>
-      [
-        {
-          key: 'create-account',
-          Icon: AddIcon,
-          i18nKey: 'createAccount',
-          linkTo: '/create-account',
-          onClick: closeDropdown
-        },
-        {
-          key: 'import-account',
-          Icon: DownloadIcon,
-          i18nKey: 'importAccount',
-          linkTo: '/import-account',
-          onClick: closeDropdown
-        },
-        {
-          key: 'connect-ledger',
-          Icon: LinkIcon,
-          i18nKey: 'connectLedger',
-          linkTo: '/connect-ledger',
-          onClick: closeDropdown
-        },
-        {
-          key: 'dapps',
-          Icon: DAppsIcon,
-          i18nKey: 'dapps',
-          linkTo: '/dApps',
-          onClick: closeDropdown
-        },
-        {
-          key: 'settings',
-          Icon: SettingsIcon,
-          i18nKey: 'settings',
-          linkTo: '/settings',
-          onClick: closeDropdown
-        },
-        {
-          key: 'maximise',
-          Icon: MaximiseIcon,
-          i18nKey: appEnv.fullPage ? 'openNewTab' : 'maximiseView',
-          linkTo: null,
-          onClick: handleMaximiseViewClick
-        }
-      ].filter(Boolean as any as ExcludesFalse),
+    (): TDropdownAction[] => [
+      {
+        key: 'create-account',
+        Icon: AddIcon,
+        i18nKey: 'createAccount',
+        linkTo: '/create-account',
+        onClick: closeDropdown
+      },
+      {
+        key: 'import-account',
+        Icon: DownloadIcon,
+        i18nKey: 'importAccount',
+        linkTo: '/import-account',
+        onClick: closeDropdown
+      },
+      {
+        key: 'connect-ledger',
+        Icon: LinkIcon,
+        i18nKey: 'connectLedger',
+        linkTo: '/connect-ledger',
+        onClick: closeDropdown
+      },
+      {
+        key: 'dapps',
+        Icon: DAppsIcon,
+        i18nKey: 'dApps',
+        linkTo: '/dApps',
+        onClick: closeDropdown
+      },
+      {
+        key: 'settings',
+        Icon: SettingsIcon,
+        i18nKey: 'settings',
+        linkTo: '/settings',
+        onClick: closeDropdown
+      },
+      {
+        key: 'maximise',
+        Icon: MaximiseIcon,
+        i18nKey: appEnv.fullPage ? 'openNewTab' : 'maximiseView',
+        linkTo: null,
+        onClick: handleMaximiseViewClick
+      }
+    ],
     [appEnv.fullPage, closeDropdown, handleMaximiseViewClick]
   );
 
@@ -126,34 +132,34 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
         minWidth: '16rem'
       }}
     >
-      <div className="flex items-end mb-2">
-        <h3 className={classNames('mx-1', 'flex items-center', 'text-sm text-white text-opacity-90')}>
+      <div className="flex items-center mb-2">
+        <h3 className={classNames('flex items-center', 'text-sm text-white opacity-20')}>
           <T id="accounts" />
-          <PeopleIcon className="ml-1 h-6 w-auto stroke-current" />
         </h3>
 
         <div className="flex-1" />
 
         <Button
           className={classNames(
-            'px-4 py-1',
-            'rounded',
-            'border border-white',
+            'px-2 py-1',
+            'rounded-md',
+            'border border-gray-700',
             'flex items-center',
             'text-white text-shadow-black',
             'text-sm',
-            'hover:bg-white hover:bg-opacity-5',
             'transition duration-300 ease-in-out',
-            'opacity-90 hover:opacity-100'
+            'opacity-20',
+            'hover:opacity-100'
           )}
           onClick={handleLogoutClick}
           testID={AccountDropdownSelectors.LogoutButton}
         >
+          <LockIcon className="mr-1 h-4 w-auto" />
           <T id="lock" />
         </Button>
       </div>
 
-      <div className={classNames('my-2')}>
+      <div className="my-2">
         {isShowSearch && (
           <SearchField
             value={searchValue}
@@ -163,7 +169,7 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
               'border border-white border-opacity-10',
               'focus:outline-none',
               'transition ease-in-out duration-200',
-              'rounded rounded-b-none',
+              'rounded-md rounded-b-none',
               'text-white text-sm leading-tight'
             )}
             placeholder={t('searchByName')}
@@ -177,11 +183,11 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
         <div
           className={classNames(
             'overflow-y-auto',
-            'border border-white border-opacity-10 shadow-inner',
+            'border border-gray-700 shadow-inner',
             'rounded',
             isShowSearch && 'border-t-0 rounded-t-none'
           )}
-          style={{ maxHeight: '12.5rem' }}
+          style={{ maxHeight: isShowSearch ? '12rem' : '14.25rem' }}
         >
           <div className="flex flex-col">
             {filteredAccounts.length === 0 ? (
@@ -202,46 +208,39 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
                   <Button
                     key={acc.publicKeyHash}
                     className={classNames(
-                      'block w-full',
+                      'block w-full p-2',
                       'overflow-hidden',
                       'flex items-center',
                       'text-white text-shadow-black',
                       'transition ease-in-out duration-200',
                       selected && 'shadow',
-                      selected ? 'bg-white bg-opacity-10' : 'hover:bg-white hover:bg-opacity-5',
-                      !selected && 'opacity-75 hover:opacity-100'
+                      selected ? 'bg-gray-700 bg-opacity-40' : 'hover:bg-white hover:bg-opacity-5',
+                      !selected && 'opacity-65 hover:opacity-100'
                     )}
-                    style={{
-                      padding: '0.375rem'
-                    }}
                     onClick={handleAccountClick}
                     testID={AccountDropdownSelectors.AccountItemButton}
                   >
                     <Identicon
                       type="bottts"
                       hash={acc.publicKeyHash}
-                      size={32}
+                      size={46}
                       className="flex-shrink-0 shadow-xs-white"
                     />
 
-                    <div className="flex flex-col items-start ml-2">
-                      <Name className="text-sm font-medium leading-none" style={{ paddingBottom: 3 }}>
-                        {acc.name}
-                      </Name>
+                    <div style={{ marginLeft: '10px' }} className="flex flex-col items-start">
+                      <Name className="text-sm font-medium">{acc.name}</Name>
+                      <div className={classNames('text-xs', 'text-gray-500')}>
+                        <HashShortView hash={acc.publicKeyHash} />
+                      </div>
 
                       <div className="flex flex-wrap items-end">
                         <Balance address={acc.publicKeyHash}>
                           {bal => (
-                            <span
-                              className={classNames(
-                                'text-xs leading-tight flex items-baseline',
-                                'text-white text-opacity-75'
-                              )}
-                            >
-                              <Money tooltip={false}>{bal}</Money>
-                              <span className="ml-1" style={{ fontSize: '0.5rem' }}>
-                                {assetName}
-                              </span>
+                            <span className={classNames('text-xs leading-tight flex items-baseline', 'text-gray-500 ')}>
+                              <Money smallFractionFont={false} tooltip={false}>
+                                {bal}
+                              </Money>
+                              <span className="ml-1">{assetName.toUpperCase()}</span>
                             </span>
                           )}
                         </Balance>
@@ -257,7 +256,7 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
         </div>
       </div>
 
-      <div className="my-2">
+      <div className="mt-2">
         {actions.map(({ key, Icon, i18nKey, linkTo, onClick }) => {
           const handleClick = () => {
             trackEvent(AccountDropdownSelectors.ActionButton, AnalyticsEventCategory.ButtonPress, { type: key });
@@ -268,7 +267,6 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
             key,
             className: classNames(
               'block w-full',
-              'my-1',
               'rounded overflow-hidden',
               'flex items-center',
               'px-2',

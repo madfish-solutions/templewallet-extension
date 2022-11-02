@@ -7,17 +7,17 @@ import DropdownWrapper from 'app/atoms/DropdownWrapper';
 import Name from 'app/atoms/Name';
 import { ReactComponent as ChevronDownIcon } from 'app/icons/chevron-down.svg';
 import { ReactComponent as SignalAltIcon } from 'app/icons/signal-alt.svg';
-import { T } from 'lib/i18n/react';
+import { T } from 'lib/i18n';
 import {
   BLOCK_EXPLORERS,
-  isKnownChainId,
-  loadChainId,
-  useAllNetworks,
   useBlockExplorer,
+  useAllNetworks,
   useChainId,
   useNetwork,
   useSetNetworkId
 } from 'lib/temple/front';
+import { loadChainId } from 'lib/temple/helpers';
+import { isKnownChainId } from 'lib/temple/types';
 import Popper from 'lib/ui/Popper';
 
 import styles from './NetworkSelect.module.css';

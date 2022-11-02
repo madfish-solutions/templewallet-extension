@@ -1,7 +1,8 @@
 import { useCallback } from 'react';
 
 import { getMessage } from 'lib/i18n';
-import { TempleContact, useTempleClient } from 'lib/temple/front';
+import { useTempleClient } from 'lib/temple/front';
+import { TempleContact } from 'lib/temple/types';
 
 import { useFilteredContacts } from './use-filtered-contacts.hook';
 
@@ -42,7 +43,7 @@ export function useContacts() {
   };
 }
 
-export const CONTACT_FIELDS_TO_SEARCH = ['name', 'address'] as const;
+const CONTACT_FIELDS_TO_SEARCH = ['name', 'address'] as const;
 
 export function searchContacts<T extends TempleContact>(contacts: T[], searchValue: string) {
   if (!searchValue) return contacts;

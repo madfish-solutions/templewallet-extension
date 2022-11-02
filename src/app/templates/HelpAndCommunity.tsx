@@ -7,7 +7,7 @@ import { ReactComponent as RedditIcon } from 'app/icons/reddit.svg';
 import { ReactComponent as TelegramIcon } from 'app/icons/telegram.svg';
 import { ReactComponent as TwitterIcon } from 'app/icons/twitter.svg';
 import { ReactComponent as YoutubeIcon } from 'app/icons/youtube.svg';
-import { T } from 'lib/i18n/react';
+import { T } from 'lib/i18n';
 
 const links = [
   {

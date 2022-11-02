@@ -5,36 +5,33 @@ import { FormContextValues, useForm } from 'react-hook-form';
 import { useSWRConfig } from 'swr';
 import { useDebouncedCallback } from 'use-debounce';
 
-import Alert from 'app/atoms/Alert';
-import FormField from 'app/atoms/FormField';
-import FormSubmitButton from 'app/atoms/FormSubmitButton';
-import NoSpaceField from 'app/atoms/NoSpaceField';
+import { Alert, FormField, FormSubmitButton, NoSpaceField } from 'app/atoms';
 import Spinner from 'app/atoms/Spinner/Spinner';
 import { ReactComponent as AddIcon } from 'app/icons/add.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import { useFormAnalytics } from 'lib/analytics';
-import { T, t } from 'lib/i18n/react';
+import { T, t } from 'lib/i18n';
+import {
+  NotMatchingStandardError,
+  toTokenSlug,
+  assertGetBalance,
+  detectTokenStandard,
+  IncorrectTokenIdError
+} from 'lib/temple/assets';
+import { loadContract } from 'lib/temple/contract';
 import {
   useTezos,
-  validateContractAddress,
   useNetwork,
-  NotMatchingStandardError,
-  useTokensMetadata,
-  toTokenSlug,
-  NotFoundTokenMetadata,
-  assertGetBalance,
   useChainId,
   useAccount,
+  useTokensMetadata,
   getBalanceSWRKey,
-  detectTokenStandard,
-  IncorrectTokenIdError,
-  AssetMetadata,
-  DetailedAssetMetdata,
-  loadContract
+  validateContractAddress
 } from 'lib/temple/front';
+import { AssetMetadata, DetailedAssetMetdata, NotFoundTokenMetadata } from 'lib/temple/metadata';
 import * as Repo from 'lib/temple/repo';
+import { useSafeState } from 'lib/ui/hooks';
 import { withErrorHumanDelay } from 'lib/ui/humanDelay';
-import useSafeState from 'lib/ui/useSafeState';
 import { navigate } from 'lib/woozie';
 
 const AddAsset: FC = () => (
@@ -139,15 +136,17 @@ const Form: FC = () => {
       const slug = toTokenSlug(contractAddress, tokenId);
       const metadata = await fetchMetadata(slug);
 
-      metadataRef.current = metadata;
+      if (metadata) {
+        metadataRef.current = metadata;
 
-      const { base } = metadata;
-      setValue([
-        { symbol: base.symbol },
-        { name: base.name },
-        { decimals: base.decimals },
-        { thumbnailUri: base.thumbnailUri }
-      ]);
+        const { base } = metadata;
+        setValue([
+          { symbol: base.symbol },
+          { name: base.name },
+          { decimals: base.decimals },
+          { thumbnailUri: base.thumbnailUri }
+        ]);
+      }
 
       stateToSet = {
         bottomSectionVisible: true

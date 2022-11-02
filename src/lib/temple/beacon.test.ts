@@ -1,4 +1,4 @@
-import { browser } from 'webextension-polyfill-ts';
+import browser from 'webextension-polyfill';
 
 // eslint-disable-next-line import/order
 import { mockSodiumUtil, MOCK_PK_KEY, MOCK_SK_KEY } from './libsodium-wrappers.mock';
@@ -25,11 +25,11 @@ import {
   Request,
   Response,
   decodeMessage,
-  PostMessagePairingRequest,
   formatOpParams,
-  OperationRequest,
   encodeMessage,
-  MessageType
+  MessageType,
+  PostMessagePairingRequest,
+  OperationRequest
 } from './beacon';
 import { mockBrowserStorageLocal, mockCryptoUtil } from './beacon.mock';
 

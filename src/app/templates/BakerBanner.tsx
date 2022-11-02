@@ -10,9 +10,8 @@ import Name from 'app/atoms/Name';
 import OpenInExplorerChip from 'app/atoms/OpenInExplorerChip';
 import { useAppEnv } from 'app/env';
 import { ReactComponent as ChevronRightIcon } from 'app/icons/chevron-right.svg';
-import { toLocalFormat } from 'lib/i18n/numbers';
-import { T } from 'lib/i18n/react';
-import { useRelevantAccounts, useAccount, useKnownBaker, useExplorerBaseUrls, useNetwork } from 'lib/temple/front';
+import { toLocalFormat, T } from 'lib/i18n';
+import { useRelevantAccounts, useAccount, useNetwork, useKnownBaker, useExplorerBaseUrls } from 'lib/temple/front';
 import { TempleAccount } from 'lib/temple/types';
 
 import HashChip from './HashChip';
@@ -39,10 +38,9 @@ const BakerBanner = memo<BakerBannerProps>(
 
     return (
       <div
-        className={classNames('w-full', 'border rounded-md', 'p-2', className)}
+        className={classNames('w-full', 'border rounded-md', 'p-3', className)}
         style={{
           maxWidth: undefined,
-          width: popup ? '100%' : '22.5rem',
           ...style
         }}
       >
@@ -63,12 +61,12 @@ const BakerBanner = memo<BakerBannerProps>(
               <div className="flex flex-col items-start flex-1 ml-2 relative">
                 <div
                   className={classNames(
-                    'w-full mb-2 mt-1 text-lg text-gray-900',
+                    'w-full mb-2 text-lg text-gray-900',
                     'flex flex-wrap items-center',
                     'leading-none'
                   )}
                 >
-                  <Name style={{ fontSize: '17px' }}>{baker.name}</Name>
+                  <Name style={{ fontSize: '17px', lineHeight: '20px' }}>{baker.name}</Name>
                   {promoted && <ABContainer groupAComponent={<SponsoredBaker />} groupBComponent={<PromotedBaker />} />}
                   {displayAddress && (
                     <div className="ml-2 flex flex-wrap items-center">
@@ -86,7 +84,7 @@ const BakerBanner = memo<BakerBannerProps>(
                 </div>
 
                 <div className="flex flex-wrap items-center w-full">
-                  <div className="flex-1 flex items-start mr-3">
+                  <div className={classNames('flex-1 flex items-start', popup ? (link ? 'mr-3' : 'mr-7') : 'mr-8')}>
                     <div
                       className={classNames(
                         'text-xs leading-tight flex',
@@ -95,12 +93,12 @@ const BakerBanner = memo<BakerBannerProps>(
                       )}
                     >
                       <T id="staking" />:
-                      <span className="text-gray-600 flex">
+                      <span style={{ marginTop: 2 }} className="text-gray-600 flex">
                         <Money>{(baker.stakingBalance / 1000).toFixed(0)}</Money>K
                       </span>
                     </div>
                   </div>
-                  <div className="flex-1 flex items-start mr-3">
+                  <div className={classNames('flex-1 flex items-start', popup ? (link ? 'mr-3' : 'mr-7') : 'mr-8')}>
                     <div
                       className={classNames(
                         'text-xs leading-tight flex',
@@ -109,12 +107,12 @@ const BakerBanner = memo<BakerBannerProps>(
                       )}
                     >
                       <T id="space" />:
-                      <span className="text-gray-600 flex">
+                      <span style={{ marginTop: 2 }} className="text-gray-600 flex">
                         <Money>{(baker.freeSpace / 1000).toFixed(0)}</Money>K
                       </span>
                     </div>
                   </div>
-                  <div className="flex-1 flex items-start mr-12">
+                  <div className={classNames('flex-1 flex items-start', popup ? 'mr-9' : 'mr-16')}>
                     <div
                       className={classNames(
                         'text-xs leading-tight',
@@ -123,7 +121,7 @@ const BakerBanner = memo<BakerBannerProps>(
                       )}
                     >
                       <T id="fee" />:
-                      <span className="text-gray-600">
+                      <span style={{ marginTop: 2 }} className="text-gray-600">
                         {toLocalFormat(new BigNumber(baker.fee).times(100), {
                           decimalPlaces: 2
                         })}
@@ -133,14 +131,7 @@ const BakerBanner = memo<BakerBannerProps>(
                   </div>
                 </div>
                 {link && (
-                  <div
-                    className={classNames(
-                      'absolute right-0 top-0 bottom-0',
-                      'flex items-center',
-                      'pr-2',
-                      'text-gray-500'
-                    )}
-                  >
+                  <div className={classNames('absolute right-0 top-0 bottom-0', 'flex items-center', 'text-gray-500')}>
                     <ChevronRightIcon className="h-5 w-auto stroke-current" />
                   </div>
                 )}

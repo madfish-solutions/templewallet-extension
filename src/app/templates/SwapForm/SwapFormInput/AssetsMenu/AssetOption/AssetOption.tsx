@@ -3,7 +3,8 @@ import React, { FC } from 'react';
 import { ListRowProps } from 'react-virtualized';
 
 import { AssetIcon } from 'app/templates/AssetIcon';
-import { AssetMetadata, useAssetMetadata } from 'lib/temple/front';
+import { useAssetMetadata } from 'lib/temple/front';
+import { AssetMetadata } from 'lib/temple/metadata';
 
 import { AssetOptionBalance } from './AssetOptionBalance';
 

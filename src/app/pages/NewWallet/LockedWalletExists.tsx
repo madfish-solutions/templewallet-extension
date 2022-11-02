@@ -1,8 +1,8 @@
 import React, { FC } from 'react';
 
-import { T, t } from '../../../lib/i18n/react';
-import { Link } from '../../../lib/woozie';
-import Alert from '../../atoms/Alert';
+import { Alert } from 'app/atoms';
+import { T, t } from 'lib/i18n';
+import { Link } from 'lib/woozie';
 
 interface LockedWalletExistsProps {
   locked: boolean;

@@ -2,11 +2,8 @@ import React, { FC } from 'react';
 
 import { useForm } from 'react-hook-form';
 
-import Alert from 'app/atoms/Alert';
-import FormCheckbox from 'app/atoms/FormCheckbox';
-import FormField from 'app/atoms/FormField';
-import FormSubmitButton from 'app/atoms/FormSubmitButton';
-import { T, t } from 'lib/i18n/react';
+import { Alert, FormField, FormSubmitButton, FormCheckbox } from 'app/atoms';
+import { T, t } from 'lib/i18n';
 
 interface BackupFormData {
   backuped: boolean;

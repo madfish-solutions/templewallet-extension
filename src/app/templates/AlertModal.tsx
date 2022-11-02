@@ -1,8 +1,8 @@
 import React, { FC } from 'react';
 
-import FormSubmitButton from 'app/atoms/FormSubmitButton';
+import { FormSubmitButton } from 'app/atoms';
 import ModalWithTitle, { ModalWithTitleProps } from 'app/templates/ModalWithTitle';
-import { t } from 'lib/i18n/react';
+import { t } from 'lib/i18n';
 
 export type AlertModalProps = ModalWithTitleProps;
 

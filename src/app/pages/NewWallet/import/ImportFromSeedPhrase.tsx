@@ -2,9 +2,8 @@ import React, { FC, useCallback, useState } from 'react';
 
 import { useForm } from 'react-hook-form';
 
-import { T, t } from '../../../../lib/i18n/react';
-import FormSubmitButton from '../../../atoms/FormSubmitButton';
-import { SeedPhraseInput } from '../../../atoms/SeedPhraseInput';
+import { FormSubmitButton, SeedPhraseInput } from 'app/atoms';
+import { T, t } from 'lib/i18n';
 
 interface ImportFromSeedPhraseProps {
   seedPhrase: string;

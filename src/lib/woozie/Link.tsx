@@ -1,16 +1,17 @@
 import React, { AnchorHTMLAttributes, FC, MouseEventHandler, useCallback, useMemo } from 'react';
 
 import { TestIDProps, useAnalytics, AnalyticsEventCategory } from 'lib/analytics';
-import { USE_LOCATION_HASH_AS_URL } from 'lib/woozie/config';
-import { HistoryAction, createUrl, changeState } from 'lib/woozie/history';
-import { To, createLocationUpdates, useLocation } from 'lib/woozie/location';
 
-export interface LinkProps extends AnchorHTMLAttributes<HTMLAnchorElement>, TestIDProps {
+import { USE_LOCATION_HASH_AS_URL } from './config';
+import { HistoryAction, createUrl, changeState } from './history';
+import { To, createLocationUpdates, useLocation } from './location';
+
+interface LinkProps extends AnchorHTMLAttributes<HTMLAnchorElement>, TestIDProps {
   to: To;
   replace?: boolean;
 }
 
-const Link: FC<LinkProps> = ({ to, replace, testID, testIDProperties, ...rest }) => {
+export const Link: FC<LinkProps> = ({ to, replace, testID, testIDProperties, ...rest }) => {
   const lctn = useLocation();
   const { trackEvent } = useAnalytics();
 
@@ -29,8 +30,6 @@ const Link: FC<LinkProps> = ({ to, replace, testID, testIDProperties, ...rest })
 
   return <LinkAnchor {...rest} href={href} onNavigate={handleNavigate} />;
 };
-
-export default Link;
 
 interface LinkAnchorProps extends AnchorHTMLAttributes<HTMLAnchorElement>, TestIDProps {
   onNavigate: () => void;

@@ -19,26 +19,17 @@ export function useAB() {
   }, [analyticsState, abGroup]);
 }
 
-export const [ABTestGroupProvider, useABGroup] = constate((params: { suspense?: boolean }) => {
+const [ABTestGroupProvider, useABGroup] = constate(() => {
   const [localABGroup, setLocalABGroup] = usePassiveStorage<ABTestGroup>('ab-test-value', ABTestGroup.Unknown);
   const { analyticsState } = useAnalyticsState();
 
   useEffect(() => {
-    const getData = async () => {
-      if (localABGroup === ABTestGroup.Unknown) {
-        const data = await fetchABGroup();
-        setLocalABGroup(data?.ab ?? ABTestGroup.Unknown);
-      }
-    };
-    if (analyticsState.enabled) {
-      getData();
+    if (analyticsState.enabled && localABGroup === ABTestGroup.Unknown) {
+      getABGroup().then(group => setLocalABGroup(group));
     }
   }, [setLocalABGroup, localABGroup, analyticsState.enabled]);
 
   return localABGroup;
 });
 
-async function fetchABGroup() {
-  const group = await getABGroup({}).catch(() => null);
-  return group;
-}
+export { ABTestGroupProvider };

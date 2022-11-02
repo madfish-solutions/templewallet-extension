@@ -3,24 +3,16 @@ import React, { FC, ReactNode, useCallback, useEffect, useMemo, useRef, useState
 import classNames from 'clsx';
 import { Controller, useForm } from 'react-hook-form';
 
-import Alert from 'app/atoms/Alert';
+import { Alert, FormField, FormSubmitButton } from 'app/atoms';
 import ConfirmLedgerOverlay from 'app/atoms/ConfirmLedgerOverlay';
-import FormField from 'app/atoms/FormField';
-import FormSubmitButton from 'app/atoms/FormSubmitButton';
 import { ReactComponent as LinkIcon } from 'app/icons/link.svg';
 import { ReactComponent as OkIcon } from 'app/icons/ok.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import { useFormAnalytics } from 'lib/analytics';
-import { T, t } from 'lib/i18n/react';
-import {
-  DerivationType,
-  TempleAccountType,
-  useAllAccounts,
-  useSetAccountPkh,
-  useTempleClient,
-  validateDerivationPath
-} from 'lib/temple/front';
+import { T, t } from 'lib/i18n';
+import { useAllAccounts, useSetAccountPkh, useTempleClient, validateDerivationPath } from 'lib/temple/front';
 import { pickLedgerTransport } from 'lib/temple/ledger-live';
+import { DerivationType, TempleAccountType } from 'lib/temple/types';
 import { navigate } from 'lib/woozie';
 
 type FormData = {

@@ -3,11 +3,14 @@ import React, { ComponentProps, FC } from 'react';
 import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
 
-import FormField from 'app/atoms/FormField';
+import { FormField } from 'app/atoms';
+import { useAppEnv } from 'app/env';
 import { ReactComponent as CopyIcon } from 'app/icons/copy.svg';
-import { T } from 'lib/i18n/react';
+import { T } from 'lib/i18n';
 import { useRetryableSWR } from 'lib/swr';
-import { useTezos, fromAssetSlug, getAssetSymbol, isFA2Asset, isTezAsset, useAssetMetadata } from 'lib/temple/front';
+import { fromAssetSlug, isFA2Asset, isTezAsset } from 'lib/temple/assets';
+import { useTezos, useAssetMetadata } from 'lib/temple/front';
+import { getAssetSymbol } from 'lib/temple/metadata';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 
 type AssetInfoProps = {
@@ -15,6 +18,7 @@ type AssetInfoProps = {
 };
 
 const AssetInfo: FC<AssetInfoProps> = ({ assetSlug }) => {
+  const { popup } = useAppEnv();
   const tezos = useTezos();
   const asset = useRetryableSWR(['asset', assetSlug, tezos.checksum], () => fromAssetSlug(tezos, assetSlug), {
     suspense: true
@@ -23,25 +27,29 @@ const AssetInfo: FC<AssetInfoProps> = ({ assetSlug }) => {
   const metadata = useAssetMetadata(assetSlug);
 
   return (
-    <div className={classNames('w-full max-w-sm mx-auto')}>
-      <InfoField
-        textarea
-        rows={2}
-        id="contract-address"
-        label={<T id="contract" />}
-        labelDescription={<T id="addressOfTokenContract" substitutions={[getAssetSymbol(metadata)]} />}
-        value={isTezAsset(asset) ? 'TEZ' : asset.contract}
-        size={36}
-        style={{
-          resize: 'none'
-        }}
-      />
+    <div className={classNames(popup && 'mx-4')}>
+      <div className={classNames('w-full max-w-sm mx-auto')}>
+        <InfoField
+          textarea
+          rows={2}
+          id="contract-address"
+          label={<T id="contract" />}
+          labelDescription={<T id="addressOfTokenContract" substitutions={[getAssetSymbol(metadata)]} />}
+          value={isTezAsset(asset) ? 'TEZ' : asset.contract}
+          size={36}
+          style={{
+            resize: 'none'
+          }}
+        />
 
-      {isFA2Asset(asset) && (
-        <InfoField id="token-id" label={<T id="tokenId" />} value={new BigNumber(asset.id).toFixed()} />
-      )}
+        {isFA2Asset(asset) && (
+          <InfoField id="token-id" label={<T id="tokenId" />} value={new BigNumber(asset.id).toFixed()} />
+        )}
 
-      <InfoField id="token-decimals" label={<T id="decimals" />} value={metadata.decimals} />
+        {metadata && metadata.decimals && (
+          <InfoField id="token-decimals" label={<T id="decimals" />} value={metadata.decimals} />
+        )}
+      </div>
     </div>
   );
 };

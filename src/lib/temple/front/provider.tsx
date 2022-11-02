@@ -1,17 +1,16 @@
 import React, { FC, useMemo } from 'react';
 
 import { CustomRpsContext } from 'lib/analytics';
-import { FiatCurrencyProvider } from 'lib/fiat-curency';
+import { FiatCurrencyProvider } from 'lib/fiat-currency';
 import { PropsWithChildren } from 'lib/props-with-children';
-import { TokensMetadataProvider } from 'lib/temple/front/assets';
-import { NewBlockTriggersProvider } from 'lib/temple/front/chain';
-import { TempleClientProvider, useTempleClient } from 'lib/temple/front/client';
-import { ReadyTempleProvider, useNetwork } from 'lib/temple/front/ready';
-import { SyncTokensProvider } from 'lib/temple/front/sync-tokens';
-import { USDPriceProvider } from 'lib/temple/front/usdprice';
 
-import { FungibleTokensBalancesProvider } from './fungible-tokens-balances';
-import { NonFungibleTokensBalancesProvider } from './non-fungible-tokens-balances';
+import { TokensMetadataProvider } from './assets';
+import { NewBlockTriggersProvider } from './chain';
+import { TempleClientProvider, useTempleClient } from './client';
+import { ReadyTempleProvider, useNetwork } from './ready';
+import { SyncBalancesProvider } from './sync-balances';
+import { SyncTokensProvider } from './sync-tokens';
+import { USDPriceProvider } from './usdprice';
 
 export const TempleProvider: FC<PropsWithChildren> = ({ children }) => (
   <CustomRpsContext.Provider value={undefined}>
@@ -32,13 +31,11 @@ const ConditionalReadyTemple: FC<PropsWithChildren> = ({ children }) => {
             <TokensMetadataProvider>
               <USDPriceProvider>
                 <FiatCurrencyProvider>
-                  <FungibleTokensBalancesProvider>
-                    <NonFungibleTokensBalancesProvider>
-                      <SyncTokensProvider>
-                        <NewBlockTriggersProvider>{children}</NewBlockTriggersProvider>
-                      </SyncTokensProvider>
-                    </NonFungibleTokensBalancesProvider>
-                  </FungibleTokensBalancesProvider>
+                  <SyncTokensProvider>
+                    <SyncBalancesProvider>
+                      <NewBlockTriggersProvider>{children}</NewBlockTriggersProvider>
+                    </SyncBalancesProvider>
+                  </SyncTokensProvider>
                 </FiatCurrencyProvider>
               </USDPriceProvider>
             </TokensMetadataProvider>

@@ -24,10 +24,13 @@ import { useTempleClient } from 'lib/temple/front';
 import * as Woozie from 'lib/woozie';
 
 import RootSuspenseFallback from './a11y/RootSuspenseFallback';
+import { useAdvertising } from './hooks/use-advertising.hook';
 import { Buy } from './pages/Buy/Buy';
-import { AliceBob } from './pages/Buy/Debit/AliceBob/AliceBob';
+import { AliceBobTopUp } from './pages/Buy/Debit/AliceBob/AliceBobTopUp';
 import { Utorg } from './pages/Buy/Debit/Utorg/Utorg';
 import AttentionPage from './pages/Onboarding/pages/AttentionPage';
+import { AliceBobWithdraw } from './pages/Withdraw/Debit/AliceBob/AliceBobWithdraw';
+import { Withdraw } from './pages/Withdraw/Withdraw';
 
 interface RouteContext {
   popup: boolean;
@@ -36,15 +39,15 @@ interface RouteContext {
   locked: boolean;
 }
 
-type RouteFactory = Woozie.Router.ResolveResult<RouteContext>;
+type RouteFactory = Woozie.ResolveResult<RouteContext>;
 
-const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
+const ROUTE_MAP = Woozie.createMap<RouteContext>([
   [
     '/import-wallet/:tabSlug?',
     (p, ctx) => {
       switch (true) {
         case ctx.ready:
-          return Woozie.Router.SKIP;
+          return Woozie.SKIP;
 
         case !ctx.fullPage:
           return <OpenInFullPage />;
@@ -65,7 +68,7 @@ const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
           return <OpenInFullPage />;
 
         default:
-          return Woozie.Router.SKIP;
+          return Woozie.SKIP;
       }
     }
   ],
@@ -86,15 +89,18 @@ const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
   ['/add-asset', onlyReady(onlyInFullPage(() => <AddAsset />))],
   ['/settings/:tabSlug?', onlyReady(({ tabSlug }) => <Settings tabSlug={tabSlug} />)],
   ['/buy', onlyReady(onlyInFullPage(() => <Buy />))],
-  ['/buy/crypto', onlyReady(onlyInFullPage(() => <Exolix />))],
-  ['/buy/debit/alice-bob', onlyReady(onlyInFullPage(() => <AliceBob />))],
+  ['/buy/crypto/exolix', onlyReady(onlyInFullPage(() => <Exolix />))],
+  ['/buy/debit/alice-bob', onlyReady(onlyInFullPage(() => <AliceBobTopUp />))],
   ['/buy/debit/utorg', onlyReady(onlyInFullPage(() => <Utorg />))],
+  ['/withdraw', onlyReady(onlyInFullPage(() => <Withdraw />))],
+  ['/withdraw/debit/alice-bob', onlyReady(onlyInFullPage(() => <AliceBobWithdraw />))],
   ['/attention', onlyReady(onlyInFullPage(() => <AttentionPage />))],
   ['*', () => <Woozie.Redirect to="/" />]
 ]);
 
-const PageRouter: FC = () => {
+export const PageRouter: FC = () => {
   const { trigger, pathname, search } = Woozie.useLocation();
+  useAdvertising();
 
   // Scroll to top after new location pushed.
   useLayoutEffect(() => {
@@ -122,17 +128,15 @@ const PageRouter: FC = () => {
 
   usePageRouterAnalytics(pathname, search, ctx.ready);
 
-  return useMemo(() => Woozie.Router.resolve(ROUTE_MAP, pathname, ctx), [pathname, ctx]);
+  return useMemo(() => Woozie.resolve(ROUTE_MAP, pathname, ctx), [pathname, ctx]);
 };
 
-export default PageRouter;
-
 function onlyReady(factory: RouteFactory): RouteFactory {
-  return (params, ctx) => (ctx.ready ? factory(params, ctx) : Woozie.Router.SKIP);
+  return (params, ctx) => (ctx.ready ? factory(params, ctx) : Woozie.SKIP);
 }
 
 function onlyNotReady(factory: RouteFactory): RouteFactory {
-  return (params, ctx) => (ctx.ready ? Woozie.Router.SKIP : factory(params, ctx));
+  return (params, ctx) => (ctx.ready ? Woozie.SKIP : factory(params, ctx));
 }
 
 function onlyInFullPage(factory: RouteFactory): RouteFactory {

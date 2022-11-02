@@ -4,15 +4,15 @@ import classNames from 'clsx';
 import Countdown from 'react-countdown';
 import { QRCode } from 'react-qr-svg';
 
+import { FormField } from 'app/atoms';
 import CopyButton from 'app/atoms/CopyButton';
 import Divider from 'app/atoms/Divider';
-import FormField from 'app/atoms/FormField';
 import HashShortView from 'app/atoms/HashShortView';
 import { ReactComponent as CopyIcon } from 'app/icons/copy.svg';
 import useTopUpUpdate from 'app/pages/Buy/Crypto/Exolix/hooks/useTopUpUpdate.hook';
 import ErrorComponent from 'app/pages/Buy/Crypto/Exolix/steps/ErrorComponent';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
-import { T } from 'lib/i18n/react';
+import { T } from 'lib/i18n';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 
 import { ExchangeDataInterface, ExchangeDataStatusEnum } from '../exolix.interface';
@@ -77,7 +77,7 @@ const ApproveStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
         <>
           <Countdown
             renderer={props => (
-              <p style={{ color: '#1B262C' }} className="text-center mt-12 text-2xl">
+              <p className="text-center mt-12 text-2xl text-gray-910">
                 {props.minutes}:{props.seconds < 10 ? '0' + props.seconds : props.seconds}
               </p>
             )}
@@ -93,7 +93,7 @@ const ApproveStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
             <p className="text-gray-600 text-xs">
               <T id={'sendByOneTransaction'} />
             </p>
-            <p style={{ color: '#1B262C' }} className="text-2xl">
+            <p className="text-2xl text-gray-910">
               {exchangeData.amount} {exchangeData.coinFrom.coinCode}
             </p>
           </div>
@@ -101,7 +101,7 @@ const ApproveStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
             <p className="text-gray-600 text-xs">
               <T id={'youGet'} />
             </p>
-            <p style={{ color: '#1B262C' }} className="text-xs">
+            <p className="text-xs text-gray-910">
               {exchangeData.amountTo} {exchangeData.coinTo.coinCode}
             </p>
           </div>
@@ -109,7 +109,7 @@ const ApproveStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
             <p className="text-gray-600 text-xs">
               <T id={'fixedRate'} />
             </p>
-            <p style={{ color: '#1B262C' }} className="text-xs">
+            <p className="text-xs text-gray-910">
               1 {exchangeData.coinFrom.coinCode} = {exchangeData.rate} {exchangeData.coinTo.coinCode}
             </p>
           </div>
@@ -118,9 +118,7 @@ const ApproveStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
               <T id={'transactionId'} />
             </p>
             <span>
-              <p style={{ color: '#1B262C' }} className="text-xs inline align-text-bottom">
-                {exchangeData.id}
-              </p>
+              <p className="text-xs inline align-text-bottom text-gray-910">{exchangeData.id}</p>
               <CopyButton text={exchangeData.id} type="link" testID={ExolixSelectors.TopupSecondStepCopy}>
                 <CopyIcon
                   style={{ verticalAlign: 'inherit' }}
@@ -174,7 +172,7 @@ const ApproveStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
             <p className="text-gray-600 text-xs">
               <T id={'recipientAddress'} />
             </p>
-            <p style={{ color: '#1B262C' }} className="text-xs">
+            <p className="text-xs text-gray-910">
               <HashShortView hash={exchangeData.depositAddress} />
             </p>
           </div>
@@ -184,7 +182,7 @@ const ApproveStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
                 trackEvent(ExolixSelectors.TopupSecondStepCancel, AnalyticsEventCategory.ButtonPress);
                 setStep(0);
               }}
-              className="text-red-700 text-sm mb-8 inline-block cursor-pointer inline-block w-auto"
+              className="font inter font-medium text-red-700 text-sm mb-8 inline-block cursor-pointer inline-block w-auto"
             >
               <T id={'cancel'} />
             </p>

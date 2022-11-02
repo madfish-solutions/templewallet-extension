@@ -2,11 +2,11 @@ import React, { FC, useEffect } from 'react';
 
 import classNames from 'clsx';
 
+import { FormSubmitButton } from 'app/atoms';
 import CopyButton from 'app/atoms/CopyButton';
-import FormSubmitButton from 'app/atoms/FormSubmitButton';
 import { ReactComponent as CopyIcon } from 'app/icons/copy.svg';
 import { AnalyticsEventCategory, TestIDProps, useAnalytics } from 'lib/analytics';
-import { T } from 'lib/i18n/react';
+import { T } from 'lib/i18n';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 
 import { ExchangeDataInterface } from '../exolix.interface';
@@ -58,9 +58,7 @@ const ErrorComponent: FC<Props> = ({ exchangeData, testIDProperties, setIsError,
               <T id={'transactionId'} />
             </p>
             <span>
-              <p style={{ color: '#1B262C' }} className="text-xs inline align-text-bottom">
-                {exchangeData!.id}
-              </p>
+              <p className="text-xs inline align-text-bottom text-gray-910">{exchangeData!.id}</p>
               <CopyButton text={exchangeData!.id} type="link">
                 <CopyIcon
                   style={{ verticalAlign: 'inherit' }}

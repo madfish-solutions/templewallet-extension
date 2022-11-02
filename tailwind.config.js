@@ -28,6 +28,8 @@ module.exports = {
         white: '#fff',
 
         gray: {
+          10: '#f4f4f4',
+          20: '#aeaeb2',
           100: '#f7fafc',
           200: '#edf2f7',
           300: '#e2e8f0',
@@ -36,7 +38,8 @@ module.exports = {
           600: '#718096',
           700: '#4a5568',
           800: '#2d3748',
-          900: '#1a202c'
+          900: '#1a202c',
+          910: '#1b262c'
         },
         red: {
           100: '#fff5f5',
@@ -50,6 +53,8 @@ module.exports = {
           900: '#742a2a'
         },
         orange: {
+          10: '#fff2e6',
+          20: '#ff5b00',
           100: '#fffaf0',
           200: '#feebc8',
           300: '#fbd38d',
@@ -145,6 +150,7 @@ module.exports = {
       const brandColors = {
         'primary-white': '#fcfaf7',
         'primary-orange': baseColors.orange[500],
+        'accent-orange': baseColors.orange[20],
         'primary-orange-light': baseColors.orange[300],
         'primary-orange-dark': baseColors.orange[700],
         'primary-orange-lighter': baseColors.orange[100],
@@ -217,6 +223,7 @@ module.exports = {
       DEFAULT: '1px',
       0: '0',
       2: '2px',
+      3: '3px',
       4: '4px',
       8: '8px'
     },
@@ -405,7 +412,9 @@ module.exports = {
       10: '0.1',
       20: '0.2',
       25: '0.25',
+      40: '0.4',
       50: '0.5',
+      65: '0.65',
       75: '0.75',
       90: '0.9',
       100: '1'
@@ -465,6 +474,8 @@ module.exports = {
     }),
     stroke: {
       current: 'currentColor',
+      'accent-orange': '#FF5B00',
+      gray: '#AEAEB2',
       orange: '#ED8936'
     },
     strokeWidth: {

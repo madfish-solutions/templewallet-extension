@@ -1,6 +1,7 @@
 {
+  "include": ["./src"],
   "compilerOptions": {
-    "baseUrl": "src",
+    "baseUrl": "./src",
     "target": "es5",
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
@@ -17,7 +18,9 @@
     "jsx": "react",
     "noImplicitReturns": true,
     "noImplicitAny": true,
-    "downlevelIteration": true
-  },
-  "include": ["src"]
+    "downlevelIteration": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true
+  }
 }

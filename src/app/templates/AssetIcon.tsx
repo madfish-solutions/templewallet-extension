@@ -5,7 +5,8 @@ import classNames from 'clsx';
 import Identicon from 'app/atoms/Identicon';
 import { ReactComponent as CollectiblePlaceholder } from 'app/icons/collectible-placeholder.svg';
 import { formatObjktSmallAssetUri, formatAssetUri } from 'lib/image-uri';
-import { AssetMetadata, getAssetSymbol, useAssetMetadata } from 'lib/temple/front';
+import { useAssetMetadata } from 'lib/temple/front';
+import { AssetMetadata, getAssetSymbol } from 'lib/temple/metadata';
 
 interface AssetIconPlaceholderProps {
   metadata: AssetMetadata | null;
@@ -61,7 +62,7 @@ const getFirstFallback = (
 
 export const AssetIcon: FC<AssetIconProps> = ({ assetSlug, className, size }) => {
   const [isLoaded, setIsLoaded] = useState(false);
-  const metadata: AssetMetadata | null = useAssetMetadata(assetSlug);
+  const metadata = useAssetMetadata(assetSlug)!;
   const isCollectible = Boolean(metadata?.artifactUri);
   const loadStrategy = isCollectible ? collectibleLoadStrategy : tokenLoadStrategy;
   const [isLoadingFailed, setIsLoadingFailed] = useState(
