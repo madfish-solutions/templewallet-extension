@@ -8,9 +8,6 @@ export const useDisabledProceed = (
   inputAmount: number | undefined,
   minExchangeAmount: number,
   maxExchangeAmount: number,
-  isApiError = false,
-  isCardInputError = false,
-  isNotUkrainianCardError = false,
   isWithdraw = false
 ) => {
   const { publicKeyHash } = useAccount();
@@ -44,19 +41,8 @@ export const useDisabledProceed = (
       isMaxAmountError ||
       inputAmount === 0 ||
       inputAmount === undefined ||
-      isApiError ||
-      isCardInputError ||
-      isNotUkrainianCardError ||
       isInsufficientTezBalanceError,
-    [
-      isMinAmountError,
-      isMaxAmountError,
-      inputAmount,
-      isApiError,
-      isCardInputError,
-      isNotUkrainianCardError,
-      isInsufficientTezBalanceError
-    ]
+    [isMinAmountError, isMaxAmountError, inputAmount, isInsufficientTezBalanceError]
   );
 
   return {

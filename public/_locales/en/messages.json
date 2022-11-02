@@ -372,6 +372,9 @@
   "cardNumberIsInvalid": {
     "message": "Card number is invalid"
   },
+  "cardNumberLengthValidation": {
+    "message": "Card number should have a total of 16 digits"
+  },
   "weakKeystorePassword": {
     "message": "The \"keystore file\" password is too weak to use as an extension password. You need to set a new one."
   },
