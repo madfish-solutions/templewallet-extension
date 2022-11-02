@@ -1,8 +1,6 @@
-import { useRef } from 'react';
-
 import { useTezos, useChainId, useAccount } from 'lib/temple/front';
 import { isKnownChainId } from 'lib/tzkt/api';
-import { useDidMount, useDidUpdate, useSafeState } from 'lib/ui/hooks';
+import { useDidMount, useDidUpdate, useSafeState, useStopper } from 'lib/ui/hooks';
 
 import fetchActivities from './fetch';
 import type { Activity } from './types';
@@ -20,11 +18,7 @@ export default function useActivities(initialPseudoLimit: number, assetSlug?: st
   const [activities, setActivities] = useSafeState<Activity[]>([]);
   const [reachedTheEnd, setReachedTheEnd] = useSafeState(false);
 
-  const shouldStopRef = useRef<Symbol | null>(null);
-  const buildShouldStop = () => {
-    const symb = (shouldStopRef.current = Symbol());
-    return () => symb !== shouldStopRef.current;
-  };
+  const { stop: stopLoading, stopAndBuildChecker } = useStopper();
 
   async function loadActivities(pseudoLimit: number, activities: Activity[], shouldStop: () => boolean) {
     if (!isKnownChainId(chainId)) {
@@ -56,11 +50,13 @@ export default function useActivities(initialPseudoLimit: number, assetSlug?: st
   /** Loads more of older items */
   function loadMore(pseudoLimit: number) {
     if (loading || reachedTheEnd) return;
-    loadActivities(pseudoLimit, activities, buildShouldStop());
+    loadActivities(pseudoLimit, activities, stopAndBuildChecker());
   }
 
   useDidMount(() => {
-    loadActivities(initialPseudoLimit, [], buildShouldStop());
+    loadActivities(initialPseudoLimit, [], stopAndBuildChecker());
+
+    return stopLoading;
   });
 
   useDidUpdate(() => {
@@ -68,7 +64,7 @@ export default function useActivities(initialPseudoLimit: number, assetSlug?: st
     setLoading('init');
     setReachedTheEnd(false);
 
-    loadActivities(initialPseudoLimit, [], buildShouldStop());
+    loadActivities(initialPseudoLimit, [], stopAndBuildChecker());
   }, [chainId, accountAddress, assetSlug]);
 
   return {

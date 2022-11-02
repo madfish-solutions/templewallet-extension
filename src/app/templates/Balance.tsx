@@ -25,7 +25,7 @@ const Balance = memo<BalanceProps>(({ address, children, assetSlug = 'tez', netw
   const exist = balance !== undefined;
 
   return useMemo(() => {
-    const childNode = children(balance !== undefined ? balance : new BigNumber(0));
+    const childNode = children(balance == null ? new BigNumber(0) : balance);
 
     return (
       <CSSTransition
