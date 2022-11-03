@@ -19,7 +19,7 @@ import { getTokensMetadata } from 'lib/templewallet-api';
 import { fetchWhitelistTokenSlugs } from 'lib/templewallet-api/whitelist-tokens';
 import { fetchTzktTokens } from 'lib/tzkt';
 import { TzktAccountToken } from 'lib/tzkt/types';
-import { useTimerEffect } from 'lib/ui/hooks';
+import { useInterval } from 'lib/ui/hooks';
 
 const SYNCING_INTERVAL = 60_000;
 
@@ -60,7 +60,7 @@ export const [SyncTokensProvider, useSyncTokens] = constate(() => {
     mutate
   ]);
 
-  useTimerEffect(sync, SYNCING_INTERVAL, [chainId, accountPkh]);
+  useInterval(sync, SYNCING_INTERVAL, [chainId, accountPkh]);
 
   return isSyncing;
 });

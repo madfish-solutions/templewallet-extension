@@ -3,7 +3,7 @@ import { useCallback, useMemo } from 'react';
 import BigNumber from 'bignumber.js';
 
 import { useRetryableSWR } from 'lib/swr';
-import { fetchBalance } from 'lib/temple/assets';
+import { fetchRawBalance, toFloatBalance } from 'lib/temple/assets';
 import { michelEncoder, loadFastRpcClient } from 'lib/temple/helpers';
 
 import { useAssetMetadata } from './assets';
@@ -31,8 +31,9 @@ export function useBalance(assetSlug: string, address: string, opts: UseBalanceO
   }, [opts.networkRpc, nativeTezos]);
 
   const fetchBalanceLocal = useCallback(async () => {
-    if (assetMetadata) return fetchBalance(tezos, assetSlug, address, assetMetadata);
-    throw new Error('Metadata missing, when fetching balance');
+    if (assetMetadata == null) throw new Error('Metadata missing, when fetching balance');
+    const rawBalance = await fetchRawBalance(tezos, assetSlug, address);
+    return toFloatBalance(rawBalance, assetMetadata);
   }, [tezos, address, assetSlug, assetMetadata]);
 
   const displayed = opts.displayed ?? true;

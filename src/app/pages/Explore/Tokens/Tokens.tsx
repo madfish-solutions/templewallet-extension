@@ -22,7 +22,7 @@ export const Tokens: FC = () => {
   const { publicKeyHash } = useAccount();
   const isSyncing = useSyncTokens();
   const { popup } = useAppEnv();
-  const latestBalances = useSyncBalances();
+  const rawBalances = useSyncBalances();
 
   const { data: tokens = [] } = useDisplayedFungibleTokens(chainId, publicKeyHash);
 
@@ -139,7 +139,7 @@ export const Tokens: FC = () => {
           {filteredAssets.map(assetSlug => {
             const active = activeAssetSlug ? assetSlug === activeAssetSlug : false;
 
-            return <ListItem key={assetSlug} assetSlug={assetSlug} active={active} latestBalances={latestBalances} />;
+            return <ListItem key={assetSlug} assetSlug={assetSlug} active={active} rawBalances={rawBalances} />;
           })}
         </div>
       )}

@@ -8,6 +8,9 @@ import { AssetMetadata } from 'lib/temple/metadata';
 import { detectTokenStandard } from './tokenStandard';
 import { Asset, Token, FA2Token } from './types';
 
+const TEZ_ASSET = 'tez';
+const GAS_ASSET = TEZ_ASSET;
+
 export async function toTransferParams(
   tezos: TezosToolkit,
   assetSlug: string,
@@ -88,19 +91,23 @@ export function fromFa2TokenSlug(slug: string): FA2Token {
 }
 
 export function toTokenSlug(contract: string, id: BigNumber.Value = 0) {
-  return contract === 'tez' ? 'tez' : `${contract}_${new BigNumber(id).toFixed()}`;
+  return contract === TEZ_ASSET ? TEZ_ASSET : `${contract}_${new BigNumber(id).toFixed()}`;
 }
 
 export function isFA2Asset(asset: Asset): asset is FA2Token {
-  return asset === 'tez' ? false : typeof asset.id !== 'undefined';
+  return asset === TEZ_ASSET ? false : typeof asset.id !== 'undefined';
 }
 
 export function isFA2Token(token: Token): token is FA2Token {
   return typeof token.id !== 'undefined';
 }
 
-export function isTezAsset(asset: Asset | string): asset is 'tez' {
-  return asset === 'tez';
+export function isTezAsset(asset: Asset | string): asset is typeof TEZ_ASSET {
+  return asset === TEZ_ASSET;
+}
+
+export function isGasAsset(asset: Asset | string): asset is typeof GAS_ASSET {
+  return asset === GAS_ASSET;
 }
 
 export function toPenny(metadata: AssetMetadata | null) {

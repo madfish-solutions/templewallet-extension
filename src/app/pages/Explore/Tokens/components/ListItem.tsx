@@ -3,11 +3,12 @@ import React, { memo, useMemo } from 'react';
 import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
 
+import { AssetIcon } from 'app/templates/AssetIcon';
+import { toFloatBalance } from 'lib/temple/assets';
 import { useAssetMetadata } from 'lib/temple/front';
 import { getAssetName, getAssetSymbol } from 'lib/temple/metadata';
 import { Link } from 'lib/woozie';
 
-import { AssetIcon } from '../../../../templates/AssetIcon';
 import { AssetsSelectors } from '../../Assets.selectors';
 import styles from '../Tokens.module.css';
 import { toExploreAssetLink } from '../utils';
@@ -17,19 +18,17 @@ import { DelegateButton } from './DelegateButton';
 interface ListItemProps {
   active: boolean;
   assetSlug: string;
-  latestBalances: Record<string, BigNumber>;
+  rawBalances: Record<string, BigNumber>;
 }
 
-export const ListItem = memo<ListItemProps>(({ active, assetSlug, latestBalances }) => {
-  const latestBalance = useMemo(() => {
-    if (latestBalances.hasOwnProperty(assetSlug)) {
-      return latestBalances[assetSlug];
-    }
-
-    return new BigNumber(0);
-  }, [assetSlug, latestBalances]);
-
+export const ListItem = memo<ListItemProps>(({ active, assetSlug, rawBalances }) => {
   const metadata = useAssetMetadata(assetSlug);
+
+  const balance = useMemo(() => {
+    const rawBalance: BigNumber | undefined = rawBalances[assetSlug];
+    if (rawBalance && metadata) return toFloatBalance(rawBalance, metadata);
+    return new BigNumber(0);
+  }, [rawBalances, assetSlug, metadata]);
 
   return (
     <Link
@@ -55,13 +54,13 @@ export const ListItem = memo<ListItemProps>(({ active, assetSlug, latestBalances
             <div className={classNames(styles['tokenSymbol'])}>{getAssetSymbol(metadata)}</div>
             {assetSlug === 'tez' && <DelegateButton />}
           </div>
-          <Balance assetSlug={assetSlug} latestBalance={latestBalance} />
+          <Balance assetSlug={assetSlug} balance={balance} />
         </div>
         <div className="flex justify-between w-full mb-1">
           <div className={classNames('text-xs font-normal text-gray-700 truncate flex-1')}>
             {getAssetName(metadata)}
           </div>
-          <Balance assetSlug={assetSlug} latestBalance={latestBalance} inFiat />
+          <Balance assetSlug={assetSlug} balance={balance} inFiat />
         </div>
       </div>
     </Link>

@@ -112,7 +112,7 @@ export const useGasToken = () => {
 
 export function useAssetMetadata(slug: string): AssetMetadata | null {
   const forceUpdate = useForceUpdate();
-  const { metadata } = useGasToken();
+  const { metadata: gasTokenMetadata } = useGasToken();
 
   const { allTokensBaseMetadataRef, fetchMetadata, setTokensBaseMetadata, setTokensDetailedMetadata } =
     useTokensMetadata();
@@ -157,9 +157,7 @@ export function useAssetMetadata(slug: string): AssetMetadata | null {
   }, [slug, exist, getCurrentBaseMetadata, fetchMetadata, setTokensBaseMetadata, setTokensDetailedMetadata]);
 
   // Tezos
-  if (tezAsset) {
-    return metadata;
-  }
+  if (tezAsset) return gasTokenMetadata;
 
   // Preserved for legacy tokens
   if (!exist && PRESERVED_TOKEN_METADATA.has(slug)) {

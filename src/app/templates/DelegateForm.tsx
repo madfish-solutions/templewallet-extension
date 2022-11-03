@@ -20,7 +20,7 @@ import { useFormAnalytics } from 'lib/analytics';
 import { submitDelegation } from 'lib/everstake-api';
 import { TID, T, t } from 'lib/i18n';
 import { setDelegate } from 'lib/michelson';
-import { fetchTezosBalance } from 'lib/temple/assets';
+import { fetchTezosFloatBalance } from 'lib/temple/assets';
 import { loadContract } from 'lib/temple/contract';
 import {
   Baker,
@@ -138,7 +138,7 @@ const DelegateForm: FC = () => {
 
   const estimateBaseFee = useCallback(async () => {
     try {
-      const balanceBN = (await mutateBalance(fetchTezosBalance(tezos, accountPkh)))!;
+      const balanceBN = (await mutateBalance(fetchTezosFloatBalance(tezos, accountPkh)))!;
       if (balanceBN.isZero()) {
         throw new ZeroBalanceError();
       }

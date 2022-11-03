@@ -36,7 +36,7 @@ import { AnalyticsEventCategory, useAnalytics, useFormAnalytics } from 'lib/anal
 import { useAssetFiatCurrencyPrice, useFiatCurrency } from 'lib/fiat-currency';
 import { toLocalFixed, T, t } from 'lib/i18n';
 import { transferImplicit, transferToContract } from 'lib/michelson';
-import { fetchBalance, fetchTezosBalance, isTezAsset, toPenny, toTransferParams } from 'lib/temple/assets';
+import { fetchFloatBalance, fetchTezosFloatBalance, isTezAsset, toPenny, toTransferParams } from 'lib/temple/assets';
 import { loadContract } from 'lib/temple/contract';
 import {
   ReactiveTezosToolkit,
@@ -277,14 +277,14 @@ const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested })
       const to = toResolved;
       const tez = isTezAsset(assetSlug);
 
-      const balanceBN = (await mutateBalance(fetchBalance(tezos, assetSlug, accountPkh, assetMetadata)))!;
+      const balanceBN = (await mutateBalance(fetchFloatBalance(tezos, assetSlug, accountPkh, assetMetadata)))!;
       if (balanceBN.isZero()) {
         throw new ZeroBalanceError();
       }
 
       let tezBalanceBN: BigNumber;
       if (!tez) {
-        tezBalanceBN = (await mutateTezBalance(fetchTezosBalance(tezos, accountPkh)))!;
+        tezBalanceBN = (await mutateTezBalance(fetchTezosFloatBalance(tezos, accountPkh)))!;
         if (tezBalanceBN.isZero()) {
           throw new ZeroTEZBalanceError();
         }

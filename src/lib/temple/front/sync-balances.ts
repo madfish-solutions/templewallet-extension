@@ -4,16 +4,9 @@ import BigNumber from 'bignumber.js';
 import constate from 'constate';
 import { flushSync } from 'react-dom';
 
-import { isTezAsset, fetchBalance } from 'lib/temple/assets';
-import {
-  useAccount,
-  useAllTokensBaseMetadata,
-  useChainId,
-  useDisplayedFungibleTokens,
-  useTezos
-} from 'lib/temple/front/index';
+import { fetchRawBalance } from 'lib/temple/assets';
+import { useAccount, useChainId, useDisplayedFungibleTokens, useTezos } from 'lib/temple/front/index';
 import { useSyncTokens } from 'lib/temple/front/sync-tokens';
-import { AssetMetadata } from 'lib/temple/metadata';
 import { ITokenStatus, ITokenType } from 'lib/temple/repo';
 import { useSafeState, useStopper } from 'lib/ui/hooks';
 
@@ -24,7 +17,6 @@ export const [SyncBalancesProvider, useSyncBalances] = constate(() => {
   const isSyncing = useSyncTokens();
   const { publicKeyHash } = useAccount();
   const chainId = useChainId(true)!;
-  const allTokensBaseMetadata = useAllTokensBaseMetadata();
   const { data: tokens = [] } = useDisplayedFungibleTokens(chainId, publicKeyHash);
 
   const tokensWithTez = useMemo(
@@ -49,11 +41,7 @@ export const [SyncBalancesProvider, useSyncBalances] = constate(() => {
 
   const updateBalances = async (shouldStop: () => boolean) => {
     for (const { tokenSlug } of tokensWithTez) {
-      const tokenMetadata: AssetMetadata | undefined = allTokensBaseMetadata[tokenSlug];
-
-      if (tokenMetadata == null && isTezAsset(tokenSlug) === false) continue;
-
-      const latestBalance = await fetchBalance(tezos, tokenSlug, publicKeyHash, tokenMetadata);
+      const latestBalance = await fetchRawBalance(tezos, tokenSlug, publicKeyHash);
 
       if (shouldStop()) return;
 
