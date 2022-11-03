@@ -33,7 +33,7 @@ Not supports in Firefox and IE */
 
   display: flex;
   justify-content: center;
-  
+
   height: 104px;
   background-color: rgb(255, 242, 230);
 }
@@ -44,6 +44,6 @@ Not supports in Firefox and IE */
   height: 36px;
 
   font-size: 13px;
-  
+
   background-color: #ed8936;
 }

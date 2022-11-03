@@ -24,7 +24,6 @@ export {
   useAssetMetadata,
   useTokensMetadata,
   useAvailableAssets,
-  useAllTokensBaseMetadata,
   useCollectibleTokens,
   useDisplayedFungibleTokens,
   useGetTokenMetadata,

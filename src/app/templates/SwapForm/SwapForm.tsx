@@ -49,6 +49,7 @@ import { SwapRoute } from './SwapRoute/SwapRoute';
 
 const KNOWN_DEX_TYPES = [
   DexTypeEnum.QuipuSwap,
+  DexTypeEnum.QuipuSwap20,
   DexTypeEnum.QuipuSwapTokenToTokenDex,
   DexTypeEnum.QuipuSwapCurveLike,
   DexTypeEnum.Plenty,

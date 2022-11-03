@@ -19,7 +19,7 @@ import styles from '../../Crypto/Exolix/Exolix.module.css';
 import { TopUpInput } from '../Utorg/components/TopUpInput/TopUpInput';
 import { ALICE_BOB_PRIVACY_LINK, ALICE_BOB_TERMS_LINK } from './config';
 
-const REQUEST_LATENCY = 200;
+const REQUEST_LATENCY = 500;
 
 export const AliceBobTopUp: FC = () => {
   const { analyticsState } = useAnalyticsState();

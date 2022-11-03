@@ -4,7 +4,7 @@ import { AdvertisingPromotion } from 'lib/templewallet-api';
 
 import { createActions } from '../create-actions';
 
-export const loadAdvertisingPromotionActions = createActions<void, AdvertisingPromotion, string>(
+export const loadAdvertisingPromotionActions = createActions<void, AdvertisingPromotion | undefined, string>(
   'advertising/LOAD_PROMOTION'
 );
 
