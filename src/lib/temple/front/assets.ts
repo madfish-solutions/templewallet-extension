@@ -141,7 +141,7 @@ export function useAssetMetadata(slug: string): AssetMetadata | null {
     enqueueAutoFetchMetadata(async () => {
       if (getCurrentBaseMetadata()) return;
       const metadata = await fetchMetadata(slug);
-      if (metadata == null) throw new Error('');
+      if (metadata == null) throw new Error("Metadata fetch returned 'null'");
       return metadata;
     })
       .then(metadata => {

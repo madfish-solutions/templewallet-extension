@@ -30,6 +30,8 @@ export const ListItem = memo<ListItemProps>(({ active, assetSlug, rawBalances })
     return new BigNumber(0);
   }, [rawBalances, assetSlug, metadata]);
 
+  if (metadata == null) return null;
+
   return (
     <Link
       to={toExploreAssetLink(assetSlug)}
