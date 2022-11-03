@@ -23,6 +23,8 @@ export const CollectibleItem: FC<Props> = ({ assetSlug, index, itemsLength }) =>
 
   useIntersectionDetection(toDisplayRef, handleIntersection, !displayed);
 
+  if (metadata == null) return null;
+
   return (
     <Link to={`/collectible/${assetSlug}`}>
       <div className="flex items-center" style={index === itemsLength - 1 ? {} : { borderBottom: '1px solid #e2e8f0' }}>
