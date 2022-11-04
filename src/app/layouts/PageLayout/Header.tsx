@@ -61,7 +61,12 @@ const Control: FC = () => {
         <NetworkSelect />
       </div>
 
-      <Popper placement="bottom-end" strategy="fixed" popup={props => <AccountDropdown {...props} />}>
+      <Popper
+        placement="left-start"
+        strategy="fixed"
+        style={{ pointerEvents: 'none' }}
+        popup={props => <AccountDropdown {...props} />}
+      >
         {({ ref, opened, toggleOpened }) => (
           <Button
             ref={ref}

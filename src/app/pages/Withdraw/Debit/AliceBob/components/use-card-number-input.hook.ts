@@ -49,6 +49,7 @@ export const useCardNumberInput = (isFormSubmitted: boolean) => {
     value,
     error,
     isValid,
+    isTouched,
     isFocused,
     onBlur,
     onFocus,

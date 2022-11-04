@@ -40,8 +40,8 @@ export const InitialStep: FC<Omit<StepProps, 'orderInfo'>> = ({ isApiError, setO
   );
 
   const isFormValid = useMemo(
-    () => !disabledProceed && !isApiError && cardNumberInput.isValid,
-    [disabledProceed, isApiError, cardNumberInput.isValid]
+    () => !disabledProceed && !isApiError && cardNumberInput.isValid && cardNumberInput.isTouched,
+    [disabledProceed, isApiError, cardNumberInput.isValid, cardNumberInput.isTouched]
   );
 
   const outputAmount = useOutputEstimation(
@@ -68,23 +68,21 @@ export const InitialStep: FC<Omit<StepProps, 'orderInfo'>> = ({ isApiError, setO
       return;
     }
 
-    if (!disabledProceed) {
-      setLoading(true);
+    setLoading(true);
 
-      createAliceBobOrder(true, inputAmount?.toString() ?? '0', analyticsState.userId, undefined, cardNumberInput.value)
-        .then(response => {
-          setOrderInfo(response.data.orderInfo);
-          setStep(1);
-        })
-        .catch(err => {
-          if (err.response.data.message === NOT_UKRAINIAN_CARD_ERROR_MESSAGE) {
-            cardNumberInput.setCustomError(t('onlyForUkrainianCards'));
-          } else {
-            setIsApiError(true);
-          }
-        })
-        .finally(() => setLoading(false));
-    }
+    createAliceBobOrder(true, inputAmount?.toString() ?? '0', analyticsState.userId, undefined, cardNumberInput.value)
+      .then(response => {
+        setOrderInfo(response.data.orderInfo);
+        setStep(1);
+      })
+      .catch(err => {
+        if (err.response.data.message === NOT_UKRAINIAN_CARD_ERROR_MESSAGE) {
+          cardNumberInput.setCustomError(t('onlyForUkrainianCards'));
+        } else {
+          setIsApiError(true);
+        }
+      })
+      .finally(() => setLoading(false));
   };
 
   const handleInputAmountChange = (amount?: number) => setInputAmount(amount);
@@ -161,7 +159,6 @@ export const InitialStep: FC<Omit<StepProps, 'orderInfo'>> = ({ isApiError, setO
             paddingTop: '0.625rem',
             paddingBottom: '0.625rem'
           }}
-          disabled={disabledProceed}
           loading={isLoading || isMinMaxLoading}
           testID={WithdrawSelectors.AliceBobNextButton}
           onClick={handleSubmit}

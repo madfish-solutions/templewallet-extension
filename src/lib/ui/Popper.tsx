@@ -32,9 +32,10 @@ type PopperProps = Partial<Options> & {
     }
   >;
   fallbackPlacementsEnabled?: boolean;
+  style?: React.CSSProperties;
 };
 
-const Popper = memo<PopperProps>(({ popup, children, fallbackPlacementsEnabled = true, ...popperOptions }) => {
+const Popper = memo<PopperProps>(({ popup, children, fallbackPlacementsEnabled = true, style, ...popperOptions }) => {
   const popperRef = useRef<Instance>();
   const triggerRef = useRef<HTMLButtonElement>(null);
   const popupRef = useRef<HTMLDivElement>(null);
@@ -121,7 +122,7 @@ const Popper = memo<PopperProps>(({ popup, children, fallbackPlacementsEnabled =
       {triggerNode}
 
       <Portal>
-        <div ref={popupRef} className="z-40">
+        <div ref={popupRef} className="z-40" style={style}>
           {popupNode}
         </div>
       </Portal>
