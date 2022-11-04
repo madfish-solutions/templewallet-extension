@@ -129,7 +129,9 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
       opened={opened}
       className="origin-top-right"
       style={{
-        minWidth: '16rem'
+        minWidth: '16rem',
+        transform: 'translate(3.25rem, 3.25rem)',
+        pointerEvents: 'all'
       }}
     >
       <div className="flex items-center mb-2">
