@@ -9,7 +9,13 @@ import * as Ed25519 from 'ed25519-hd-key';
 import { initialize, SecureCellSeal } from 'wasm-themis';
 
 import { createLedgerSignerProxy } from 'lib/ledger/proxy';
-import { PublicError } from 'lib/temple/back/defaults';
+import { formatOpParamsBeforeSend, loadFastRpcClient, michelEncoder } from 'lib/temple/helpers';
+import * as Passworder from 'lib/temple/passworder';
+import { clearAsyncStorages } from 'lib/temple/reset';
+import { TempleAccount, TempleAccountType, TempleContact, TempleSettings } from 'lib/temple/types';
+
+import { fetchMessage, transformHttpResponseError } from './helpers';
+import { PublicError } from './PublicError';
 import {
   encryptAndSaveMany,
   encryptAndSaveManyLegacy,
@@ -21,13 +27,7 @@ import {
   removeMany,
   removeManyLegacy,
   savePlain
-} from 'lib/temple/back/safe-storage';
-import { formatOpParamsBeforeSend, loadFastRpcClient, michelEncoder } from 'lib/temple/helpers';
-import * as Passworder from 'lib/temple/passworder';
-import { clearAsyncStorages } from 'lib/temple/reset';
-import { TempleAccount, TempleAccountType, TempleContact, TempleSettings } from 'lib/temple/types';
-
-import { fetchMessage, transformHttpResponseError } from './helpers';
+} from './safe-storage';
 
 const TEMPLE_SYNC_PREFIX = 'templesync';
 const TEZOS_BIP44_COINTYPE = 1729;

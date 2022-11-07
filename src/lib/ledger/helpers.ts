@@ -1,6 +1,6 @@
 import { TransportType } from '@temple-wallet/ledger-bridge';
 
-import { PublicError } from 'lib/temple/back/defaults';
+import { PublicError } from 'lib/temple/back/PublicError';
 
 export const removeMFromDerivationPath = (dPath: string) => (dPath.startsWith('m/') ? dPath.substring(2) : dPath);
 

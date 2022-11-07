@@ -11,7 +11,7 @@ import type { DerivationType } from '@taquito/ledger-signer';
 import type { Signer } from '@taquito/taquito';
 import browser from 'webextension-polyfill';
 
-import { PublicError } from 'lib/temple/back/defaults';
+import { PublicError } from 'lib/temple/back/PublicError';
 
 import type {
   SignerMethodsReturns,
