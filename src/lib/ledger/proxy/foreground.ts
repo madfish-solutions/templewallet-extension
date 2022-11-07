@@ -34,10 +34,11 @@ let keptSigner: {
 } | null = null;
 
 const createLedgerSignerLocal = async (instanceId: number, creatorArgs: CreatorArguments) => {
-  if (keptSigner?.instanceId === instanceId) return keptSigner;
-  const { derivationPath, derivationType, publicKey, publicKeyHash } = creatorArgs;
-  const { signer } = await createLedgerSigner(derivationPath, derivationType, publicKey, publicKeyHash);
-  keptSigner = { instanceId, signer };
+  if (keptSigner?.instanceId !== instanceId) {
+    const { derivationPath, derivationType, publicKey, publicKeyHash } = creatorArgs;
+    const { signer } = await createLedgerSigner(derivationPath, derivationType, publicKey, publicKeyHash);
+    keptSigner = { instanceId, signer };
+  }
 
   return keptSigner;
 };
