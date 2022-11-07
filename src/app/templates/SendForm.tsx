@@ -277,7 +277,7 @@ const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested })
       const to = toResolved;
       const tez = isTezAsset(assetSlug);
 
-      const balanceBN = (await mutateBalance(fetchBalance(tezos, assetSlug, assetMetadata, accountPkh)))!;
+      const balanceBN = (await mutateBalance(fetchBalance(tezos, assetSlug, accountPkh, assetMetadata)))!;
       if (balanceBN.isZero()) {
         throw new ZeroBalanceError();
       }
@@ -665,7 +665,7 @@ const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested })
 
 interface TokenToFiatProps {
   amountValue: string;
-  assetMetadata: AssetMetadata;
+  assetMetadata: AssetMetadata | null;
   shoudUseFiat: boolean;
   assetSlug: string;
   toAssetAmount: (fiatAmount: BigNumber.Value) => string;

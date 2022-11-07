@@ -40,7 +40,7 @@ export const [FiatCurrencyProvider, useFiatCurrency] = constate((params: { suspe
   });
   const [selectedFiatCurrency, setSelectedFiatCurrency] = useStorage<FiatCurrencyOption>(
     FIAT_CURRENCY_STORAGE_KEY,
-    FIAT_CURRENCIES[0]
+    FIAT_CURRENCIES[0]!
   );
   return {
     selectedFiatCurrency,

@@ -42,7 +42,7 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
   const isTezosSlug = assetSlug === 'tez';
   const assetSlugWithFallback = assetSlug ?? 'tez';
 
-  const assetMetadataWithFallback = useAssetMetadata(assetSlugWithFallback);
+  const assetMetadataWithFallback = useAssetMetadata(assetSlugWithFallback)!;
   const assetMetadata = useMemo(
     () => (assetSlug ? assetMetadataWithFallback : EMPTY_ASSET_METADATA),
     [assetSlug, assetMetadataWithFallback]
@@ -95,7 +95,7 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
   };
 
   const handleSelectedAssetChange = (newAssetSlug: string) => {
-    const newAssetMetadata = getTokenMetadata(newAssetSlug);
+    const newAssetMetadata = getTokenMetadata(newAssetSlug)!;
     const newAmount = amount?.decimalPlaces(newAssetMetadata.decimals, BigNumber.ROUND_DOWN);
 
     onChange({
