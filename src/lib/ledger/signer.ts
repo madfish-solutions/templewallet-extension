@@ -5,30 +5,7 @@ import * as sodium from 'libsodium-wrappers';
 import { crypto_sign_verify_detached, crypto_generichash } from 'libsodium-wrappers';
 import toBuffer from 'typedarray-to-buffer';
 
-import { PublicError } from 'lib/temple/back/defaults';
-
-export type curves = 'ed' | 'p2' | 'sp';
-
-export const pref = {
-  ed: {
-    pk: prefix['edpk'],
-    sk: prefix['edsk'],
-    pkh: prefix.tz1,
-    sig: prefix.edsig
-  },
-  p2: {
-    pk: prefix['p2pk'],
-    sk: prefix['p2sk'],
-    pkh: prefix.tz3,
-    sig: prefix.p2sig
-  },
-  sp: {
-    pk: prefix['sppk'],
-    sk: prefix['spsk'],
-    pkh: prefix.tz2,
-    sig: prefix.spsig
-  }
-};
+import { toLedgerError } from './helpers';
 
 export class TempleLedgerSigner extends LedgerSigner {
   constructor(
@@ -93,6 +70,29 @@ export class TempleLedgerSigner extends LedgerSigner {
   }
 }
 
+export type curves = 'ed' | 'p2' | 'sp';
+
+export const pref = {
+  ed: {
+    pk: prefix['edpk'],
+    sk: prefix['edsk'],
+    pkh: prefix.tz1,
+    sig: prefix.edsig
+  },
+  p2: {
+    pk: prefix['p2pk'],
+    sk: prefix['p2sk'],
+    pkh: prefix.tz3,
+    sig: prefix.p2sig
+  },
+  sp: {
+    pk: prefix['sppk'],
+    sk: prefix['spsk'],
+    pkh: prefix.tz2,
+    sig: prefix.spsig
+  }
+};
+
 export const verifySignature = (bytes: string, signature: string, publicKey: string, pkh: string) => {
   const curve = publicKey.substring(0, 2) as curves;
   const _publicKey = new Uint8Array(toBuffer(b58cdecode(publicKey, pref[curve].pk)));
@@ -143,10 +143,6 @@ export const getSig = (signature: string, curve: any, pref: any) => {
   }
   return sig;
 };
-
-export function toLedgerError(err: any) {
-  return new PublicError(`Ledger error. ${err.message}`);
-}
 
 export const safeSignEdData = (sig: Uint8Array, bytesHash: Uint8Array, _publicKey: any) => {
   try {
