@@ -35,7 +35,12 @@ export const createLedgerSignerProxy = async (
 };
 
 class TempleLedgerSignerProxy implements Signer {
-  constructor(private creatorArgs: CreatorArguments) {}
+  private creatorArgs: CreatorArguments;
+  private id: number;
+  constructor(creatorArgs: CreatorArguments) {
+    this.creatorArgs = creatorArgs;
+    this.id = Date.now();
+  }
 
   publicKey = () => this.requestMethodCall<SignerMethodsReturns['publicKey']>('publicKey');
 
@@ -59,6 +64,7 @@ class TempleLedgerSignerProxy implements Signer {
   ) {
     const message: RequestMessageBase = {
       type: 'LEDGER_MV3_REQUEST',
+      instanceId: this.id,
       creatorArgs: this.creatorArgs,
       method,
       args

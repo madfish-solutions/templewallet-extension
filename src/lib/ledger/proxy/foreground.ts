@@ -2,7 +2,7 @@ import browser from 'webextension-polyfill';
 
 import { createLedgerSigner } from '../creator';
 import type { TempleLedgerSigner } from '../signer';
-import type { RequestMessage, ForegroundResponse } from './types';
+import type { RequestMessage, ForegroundResponse, CreatorArguments } from './types';
 import { stringToUInt8Array } from './utils';
 
 browser.runtime.onMessage.addListener((message: unknown) => {
@@ -15,8 +15,7 @@ const isKnownMessage = (msg: any): msg is RequestMessage =>
 
 const buildSignerCallResponse = async (message: RequestMessage): Promise<ForegroundResponse> => {
   try {
-    const { derivationPath, derivationType, publicKey, publicKeyHash } = message.creatorArgs;
-    const { signer } = await createLedgerSigner(derivationPath, derivationType, publicKey, publicKeyHash);
+    const { signer } = await createLedgerSignerLocal(message.instanceId, message.creatorArgs);
     try {
       const value = await callSignerMethod(signer, message);
       return { type: 'success', value };
@@ -27,6 +26,20 @@ const buildSignerCallResponse = async (message: RequestMessage): Promise<Foregro
     console.error(error);
     return { type: 'error', message: `Error, when creating a signer` };
   }
+};
+
+let keptSigner: {
+  instanceId: number;
+  signer: TempleLedgerSigner;
+} | null = null;
+
+const createLedgerSignerLocal = async (instanceId: number, creatorArgs: CreatorArguments) => {
+  if (keptSigner?.instanceId === instanceId) return keptSigner;
+  const { derivationPath, derivationType, publicKey, publicKeyHash } = creatorArgs;
+  const { signer } = await createLedgerSigner(derivationPath, derivationType, publicKey, publicKeyHash);
+  keptSigner = { instanceId, signer };
+
+  return keptSigner;
 };
 
 const callSignerMethod = (signer: TempleLedgerSigner, message: RequestMessage) => {
