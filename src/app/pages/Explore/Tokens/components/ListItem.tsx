@@ -31,6 +31,8 @@ export const ListItem = memo<ListItemProps>(({ active, assetSlug, latestBalances
 
   const metadata = useAssetMetadata(assetSlug);
 
+  if (metadata == null) return null;
+
   return (
     <Link
       to={toExploreAssetLink(assetSlug)}

@@ -2,9 +2,10 @@ import React, { FC } from 'react';
 
 interface DividerProps {
   style?: React.CSSProperties;
+  className?: string;
 }
 
-const Divider: FC<DividerProps> = ({ style }) => (
+const Divider: FC<DividerProps> = ({ style, className }) => (
   <div
     style={{
       width: '100%',
@@ -12,6 +13,7 @@ const Divider: FC<DividerProps> = ({ style }) => (
       backgroundColor: '#E2E8F0',
       ...style
     }}
+    className={className}
   />
 );
 

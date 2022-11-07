@@ -129,7 +129,9 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
       opened={opened}
       className="origin-top-right"
       style={{
-        minWidth: '16rem'
+        minWidth: '16rem',
+        transform: 'translate(3.25rem, 3.25rem)',
+        pointerEvents: 'all'
       }}
     >
       <div className="flex items-center mb-2">
@@ -159,7 +161,7 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
         </Button>
       </div>
 
-      <div className={classNames('my-2')}>
+      <div className="my-2">
         {isShowSearch && (
           <SearchField
             value={searchValue}
@@ -187,7 +189,7 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
             'rounded',
             isShowSearch && 'border-t-0 rounded-t-none'
           )}
-          style={{ maxHeight: '12.5rem' }}
+          style={{ maxHeight: isShowSearch ? '12rem' : '14.25rem' }}
         >
           <div className="flex flex-col">
             {filteredAccounts.length === 0 ? (
@@ -256,7 +258,7 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
         </div>
       </div>
 
-      <div className="my-2">
+      <div className="mt-2">
         {actions.map(({ key, Icon, i18nKey, linkTo, onClick }) => {
           const handleClick = () => {
             trackEvent(AccountDropdownSelectors.ActionButton, AnalyticsEventCategory.ButtonPress, { type: key });
@@ -267,7 +269,6 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
             key,
             className: classNames(
               'block w-full',
-              'my-1',
               'rounded overflow-hidden',
               'flex items-center',
               'px-2',

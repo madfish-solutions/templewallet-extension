@@ -49,6 +49,7 @@ import { SwapRoute } from './SwapRoute/SwapRoute';
 
 const KNOWN_DEX_TYPES = [
   DexTypeEnum.QuipuSwap,
+  DexTypeEnum.QuipuSwap20,
   DexTypeEnum.QuipuSwapTokenToTokenDex,
   DexTypeEnum.QuipuSwapCurveLike,
   DexTypeEnum.Plenty,
@@ -80,8 +81,8 @@ export const SwapForm: FC = () => {
   const outputValue = watch('output');
   const slippageTolerance = watch('slippageTolerance');
 
-  const inputAssetMetadata = useAssetMetadata(inputValue.assetSlug ?? 'tez');
-  const outputAssetMetadata = useAssetMetadata(outputValue.assetSlug ?? 'tez');
+  const inputAssetMetadata = useAssetMetadata(inputValue.assetSlug ?? 'tez')!;
+  const outputAssetMetadata = useAssetMetadata(outputValue.assetSlug ?? 'tez')!;
 
   const allRoutePairs = useAllRoutePairs(TEZOS_DEXES_API_URL);
   const filteredRoutePairs = useMemo(

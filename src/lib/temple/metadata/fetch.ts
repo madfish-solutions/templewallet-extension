@@ -92,7 +92,6 @@ export async function fetchTokenMetadata(
 
     const tzip12Metadata = await getTzip12Metadata(contract, tokenIdStr as any);
     const metadataFromUri = await getMetadataFromUri(contract, tokenIdStr, tezos);
-    const tzip16Metadata = await getTzip16Metadata(contract);
 
     const rawMetadata = { ...metadataFromUri, ...tzip12Metadata };
 
@@ -117,6 +116,8 @@ export async function fetchTokenMetadata(
       displayUri: rawMetadata.displayUri,
       artifactUri: rawMetadata.artifactUri
     };
+
+    const tzip16Metadata = await getTzip16Metadata(contract);
 
     const detailed: DetailedAssetMetdata = {
       ...tzip16Metadata?.assets?.[tokenIdStr],

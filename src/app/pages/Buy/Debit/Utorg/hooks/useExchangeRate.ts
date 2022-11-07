@@ -3,7 +3,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { getExchangeRate } from '../../../../../../lib/utorg-api';
 import { booleanSetter } from '../config';
 
-export const useExchangeRate = (inputAmount: number, inputCurrency: string, setLoading: booleanSetter) => {
+export const useExchangeRate = (inputAmount = 0, inputCurrency: string, setLoading: booleanSetter) => {
   const [exchangeRate, setExchangeRate] = useState(0);
 
   const updateExchangeRateRequest = useCallback(() => {

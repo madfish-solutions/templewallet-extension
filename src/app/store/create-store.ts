@@ -8,11 +8,13 @@ import { PersistConfig } from 'redux-persist/lib/types';
 import { Observable } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
+import { advertisingReducer } from './advertising/reducers';
+import { AdvertisingRootState } from './advertising/state';
 import { rootStateReducer } from './root-state.reducers';
-import { walletReducers } from './wallet/wallet-reducers';
-import { WalletRootState } from './wallet/wallet-state';
+import { walletReducer } from './wallet/reducers';
+import { WalletRootState } from './wallet/state';
 
-export type RootState = WalletRootState;
+export type RootState = WalletRootState & AdvertisingRootState;
 
 const epicMiddleware = createEpicMiddleware();
 const middlewares: Array<Middleware<{}, RootState>> = [epicMiddleware];
@@ -25,7 +27,8 @@ const persistConfig: PersistConfig<RootState> = {
 };
 
 const rootReducer = rootStateReducer<RootState>({
-  wallet: walletReducers
+  wallet: walletReducer,
+  advertising: advertisingReducer
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

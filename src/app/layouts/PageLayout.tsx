@@ -21,6 +21,8 @@ import { ReactComponent as AttentionRedIcon } from '../icons/attentionRed.svg';
 import { ReactComponent as DownloadMobileGreyIcon } from '../icons/download-mobile-grey.svg';
 import { ReactComponent as DownloadMobileIcon } from '../icons/download-mobile.svg';
 import { useOnboardingProgress } from '../pages/Onboarding/hooks/useOnboardingProgress.hook';
+import { AdvertisingBanner } from '../templates/advertising/advertising-banner/advertising-banner';
+import { AdvertisingOverlay } from '../templates/advertising/advertising-overlay/advertising-overlay';
 import { PageLayoutSelectors } from './PageLayout.selectors';
 import { ChangelogOverlay } from './PageLayout/ChangelogOverlay/ChangelogOverlay';
 import ConfirmationOverlay from './PageLayout/ConfirmationOverlay';
@@ -53,6 +55,7 @@ const PageLayout: FC<PageLayoutProps> = ({ children, contentContainerStyle, ...t
         </ContentPaper>
       </div>
 
+      <AdvertisingOverlay />
       <ConfirmationOverlay />
       <ChangelogOverlay />
     </>
@@ -223,6 +226,8 @@ const Toolbar: FC<ToolbarProps> = ({
       <div className="flex-1" />
       {attention && (
         <div className="flex items-center content-end absolute right-0">
+          <AdvertisingBanner />
+
           <a
             href="https://templewallet.com/mobile"
             target="_blank"
