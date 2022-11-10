@@ -6,15 +6,16 @@ import classNames from 'clsx';
 import Money from 'app/atoms/Money';
 import InFiat from 'app/templates/InFiat';
 
-type BalanceProps = {
+type Props = {
   assetSlug: string;
-  latestBalance: BigNumber;
+  /** Float number */
+  value: BigNumber;
   inFiat?: boolean;
 };
 
-const Balance = memo<BalanceProps>(({ assetSlug, latestBalance, inFiat = false }) =>
+export const Balance = memo<Props>(({ assetSlug, value, inFiat = false }) =>
   inFiat ? (
-    <InFiat assetSlug={assetSlug} volume={latestBalance} smallFractionFont={false}>
+    <InFiat assetSlug={assetSlug} volume={value} smallFractionFont={false}>
       {({ balance, symbol }) => (
         <div
           className={classNames(
@@ -30,9 +31,7 @@ const Balance = memo<BalanceProps>(({ assetSlug, latestBalance, inFiat = false }
     </InFiat>
   ) : (
     <div className="truncate text-base font-medium text-gray-800 text-right ml-4 flex-1 flex justify-end">
-      <Money smallFractionFont={false}>{latestBalance}</Money>
+      <Money smallFractionFont={false}>{value}</Money>
     </div>
   )
 );
-
-export default Balance;

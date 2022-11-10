@@ -34,7 +34,8 @@ export function useAssetFiatCurrencyPrice(slug: string): BigNumber {
 
 export const [FiatCurrencyProvider, useFiatCurrency] = constate((params: { suspense?: boolean }) => {
   const { data } = useRetryableSWR('fiat-currencies', fetchFiatCurrencies, {
-    refreshInterval: 5 * 60 * 1_000,
+    refreshInterval: 5 * 60_000,
+    errorRetryInterval: 1_100,
     dedupingInterval: 30_000,
     suspense: params.suspense
   });
@@ -42,6 +43,7 @@ export const [FiatCurrencyProvider, useFiatCurrency] = constate((params: { suspe
     FIAT_CURRENCY_STORAGE_KEY,
     FIAT_CURRENCIES[0]!
   );
+
   return {
     selectedFiatCurrency,
     setSelectedFiatCurrency,
@@ -52,14 +54,12 @@ export const [FiatCurrencyProvider, useFiatCurrency] = constate((params: { suspe
 async function fetchFiatCurrencies() {
   const mappedRates: ExchangeRateRecord = {};
 
-  try {
-    const data = await getFiatCurrencies({});
-    const tezosData = Object.keys(data.tezos);
+  const data = await getFiatCurrencies({});
+  const tezosData = Object.keys(data.tezos);
 
-    for (const fiatCurrency of tezosData) {
-      mappedRates[fiatCurrency] = +data.tezos[fiatCurrency];
-    }
-  } catch {}
+  for (const fiatCurrency of tezosData) {
+    mappedRates[fiatCurrency] = +data.tezos[fiatCurrency];
+  }
 
   return mappedRates;
 }
