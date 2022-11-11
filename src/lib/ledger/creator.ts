@@ -36,14 +36,9 @@ let soleTransport: TempleLedgerTransport;
 const createLedgerTransport = async () => {
   if (soleTransport) await soleTransport.close();
 
-  const bridgeUrl = process.env.TEMPLE_WALLET_LEDGER_BRIDGE_URL;
-  if (!bridgeUrl) {
-    throw new Error("Require a 'TEMPLE_WALLET_LEDGER_BRIDGE_URL' environment variable to be set");
-  }
-
   const transportType = getLedgerTransportType();
 
-  soleTransport = await TempleLedgerTransport.open(bridgeUrl);
+  soleTransport = new TempleLedgerTransport();
   soleTransport.updateTransportType(transportType);
 
   return soleTransport;

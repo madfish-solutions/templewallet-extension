@@ -5,23 +5,8 @@ import type { TempleLedgerSigner } from '../signer';
 import type { RequestMessage, ForegroundResponse, CreatorArguments } from './types';
 import { stringToUInt8Array } from './utils';
 
-let windowIsActive = document.hasFocus();
-
-window.onfocus = () => {
-  windowIsActive = true;
-};
-
-window.onblur = () => {
-  windowIsActive = false;
-};
-
 browser.runtime.onMessage.addListener((message: unknown) => {
   if (!isKnownMessage(message)) return;
-  /*
-    Checking for window to be the active one.
-    Otherwise, <iframe> that is appended by our ledger-bridge won't allow interraction with it.
-  */
-  if (windowIsActive === false) return;
 
   return buildSignerCallResponse(message);
 });
