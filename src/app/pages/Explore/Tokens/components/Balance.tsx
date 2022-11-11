@@ -6,12 +6,12 @@ import classNames from 'clsx';
 import Money from 'app/atoms/Money';
 import InFiat from 'app/templates/InFiat';
 
-type Props = {
+interface Props {
   assetSlug: string;
   /** Float number */
   value: BigNumber;
   inFiat?: boolean;
-};
+}
 
 export const Balance = memo<Props>(({ assetSlug, value, inFiat = false }) =>
   inFiat ? (
