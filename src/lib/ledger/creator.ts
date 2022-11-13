@@ -38,8 +38,7 @@ const createLedgerTransport = async () => {
 
   const transportType = getLedgerTransportType();
 
-  soleTransport = new TempleLedgerTransport();
-  soleTransport.updateTransportType(transportType);
+  soleTransport = new TempleLedgerTransport(transportType);
 
   return soleTransport;
 };

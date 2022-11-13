@@ -1,4 +1,5 @@
-import { TransportError } from '@ledgerhq/errors/dist';
+// @ts-ignore
+import { TransportError } from '@ledgerhq/errors';
 import Transport from '@ledgerhq/hw-transport';
 
 import { LedgerTempleBridgeIFrame } from './iframe';

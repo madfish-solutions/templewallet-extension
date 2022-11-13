@@ -33,5 +33,6 @@ export enum BridgeMessageType {
 export enum TransportType {
   LEDGERLIVE = 'ledgerLive',
   U2F = 'u2f',
-  WEBHID = 'webhid'
+  WEBHID = 'webhid',
+  WEBAUTHN = 'webauthn'
 }

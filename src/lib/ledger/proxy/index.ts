@@ -63,7 +63,7 @@ class TempleLedgerSignerProxy implements Signer {
     args?: RequestMessageBase['args']
   ) {
     const message: RequestMessageBase = {
-      type: 'LEDGER_MV3_REQUEST',
+      type: 'LEDGER_PROXY_REQUEST',
       instanceId: this.id,
       creatorArgs: this.creatorArgs,
       method,

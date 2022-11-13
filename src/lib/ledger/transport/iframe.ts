@@ -1,8 +1,7 @@
-import 'regenerator-runtime/runtime';
-
 import Transport from '@ledgerhq/hw-transport';
 import WebSocketTransport from '@ledgerhq/hw-transport-http/lib/WebSocketTransport';
 import U2FTransport from '@ledgerhq/hw-transport-u2f';
+import WebAuthnTransport from '@ledgerhq/hw-transport-webauthn';
 import TransportWebHID from '@ledgerhq/hw-transport-webhid';
 
 import { TransportType, BridgeMessageType, BridgeRequest, BridgeResponse } from './types';
@@ -93,6 +92,8 @@ export class LedgerTempleBridgeIFrame {
       this.transport = await WebSocketTransport.open(BRIDGE_URL);
     } else if (transportType === TransportType.WEBHID) {
       this.transport = await TransportWebHID.create();
+    } else if (transportType === TransportType.WEBAUTHN) {
+      this.transport = await WebAuthnTransport.create();
     } else {
       this.transport = await U2FTransport.create();
     }

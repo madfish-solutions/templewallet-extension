@@ -1,18 +1,50 @@
 import browser from 'webextension-polyfill';
 
+import { getLedgerTransportType } from 'lib/temple/ledger';
+
 import { createLedgerSigner } from '../creator';
 import type { TempleLedgerSigner } from '../signer';
+import { TransportType } from '../transport';
 import type { RequestMessage, ForegroundResponse, CreatorArguments } from './types';
 import { stringToUInt8Array } from './utils';
 
+let windowIsActive = document.hasFocus();
+
+window.onfocus = () => {
+  windowIsActive = true;
+};
+
+window.onblur = () => {
+  windowIsActive = false;
+};
+
 browser.runtime.onMessage.addListener((message: unknown) => {
   if (!isKnownMessage(message)) return;
+  if (!isForThisPage()) return;
 
   return buildSignerCallResponse(message);
 });
 
 const isKnownMessage = (msg: any): msg is RequestMessage =>
-  typeof msg === 'object' && msg !== null && msg.type === 'LEDGER_MV3_REQUEST';
+  typeof msg === 'object' && msg !== null && msg.type === 'LEDGER_PROXY_REQUEST';
+
+const isForThisPage = (): boolean => {
+  const transportType = getLedgerTransportType();
+  if (windowIsActive) return true;
+  if (transportType === TransportType.LEDGERLIVE) return getPagesWindows()[0]! === window;
+  return false;
+};
+
+function getPagesWindows() {
+  const windows = browser.extension.getViews();
+  const bgWindow: Window | null = browser.extension.getBackgroundPage();
+  if (bgWindow) {
+    const index = windows.indexOf(bgWindow);
+    if (index > -1) windows.splice(index, 1);
+  }
+
+  return windows;
+}
 
 const buildSignerCallResponse = async (message: RequestMessage): Promise<ForegroundResponse> => {
   try {
