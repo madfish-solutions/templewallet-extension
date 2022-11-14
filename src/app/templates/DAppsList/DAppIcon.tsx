@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 
 import classNames from 'clsx';
 
 import { useAppEnv } from 'app/env';
+import { Image } from 'lib/ui/Image';
 
 type DAppIconProps = {
   name: string;
@@ -10,8 +11,11 @@ type DAppIconProps = {
   className?: string;
 };
 
-const DAppIcon: React.FC<DAppIconProps> = ({ name, logo, className }) => {
+export const DAppIcon: React.FC<DAppIconProps> = ({ name, logo, className }) => {
   const { popup } = useAppEnv();
+
+  const fallbackElement = useMemo(() => <span className="text-gray-700 text-xs">{name}</span>, [name]);
+
   return (
     <div
       className={classNames(
@@ -21,13 +25,7 @@ const DAppIcon: React.FC<DAppIconProps> = ({ name, logo, className }) => {
       )}
       style={popup ? { width: '4.5rem', height: '4.5rem' } : undefined}
     >
-      {logo ? (
-        <img className="rounded-2xl" alt={name} src={logo} />
-      ) : (
-        <span className="text-gray-700 text-xs">{name}</span>
-      )}
+      <Image src={logo} className="rounded-2xl" alt={name} loader={fallbackElement} fallback={fallbackElement} />
     </div>
   );
 };
-
-export default DAppIcon;
