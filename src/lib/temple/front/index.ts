@@ -34,8 +34,6 @@ export {
 
 export { validateDerivationPath, validateContractAddress } from './helpers';
 
-export { useAssetUSDPrice, useUSDPrices } from './usdprice';
-
 export { useBlockTriggers, useOnBlock } from './chain';
 
 export { useBalance, getBalanceSWRKey } from './balance';

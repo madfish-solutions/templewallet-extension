@@ -34,5 +34,3 @@ export interface FiatCurrencyOption {
 export interface CoingeckoFiatInterface {
   tezos: Record<string, number>;
 }
-
-export type ExchangeRateRecord = Record<string, number>;

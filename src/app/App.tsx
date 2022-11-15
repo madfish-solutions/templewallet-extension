@@ -18,7 +18,7 @@ import { TempleProvider, ABTestGroupProvider } from 'lib/temple/front';
 import { DialogsProvider } from 'lib/ui/dialog';
 import * as Woozie from 'lib/woozie';
 
-import { persistor, store } from './store/store';
+import { persistor, store } from './store';
 
 interface Props extends Partial<PropsWithChildren> {
   env: ComponentProps<typeof AppEnvProvider>;

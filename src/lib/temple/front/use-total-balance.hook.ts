@@ -2,10 +2,10 @@ import { useMemo } from 'react';
 
 import { BigNumber } from 'bignumber.js';
 
+import { useSelector } from 'app/store';
 import { useFiatCurrency } from 'lib/fiat-currency';
 
 import { useSyncBalances } from './sync-balances';
-import { useUSDPrices } from './usdprice';
 
 export const useTotalBalance = () => {
   const {
@@ -13,7 +13,7 @@ export const useTotalBalance = () => {
     selectedFiatCurrency: { name: selectedFiatCurrencyName }
   } = useFiatCurrency();
 
-  const exchangeRates = useUSDPrices();
+  const exchangeRates = useSelector(state => state.currency.usdToTokenRates.data);
   const tokensBalances = useSyncBalances();
 
   const totalBalance = useMemo(() => {
