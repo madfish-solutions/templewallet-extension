@@ -3,7 +3,7 @@ import React, { FC, useCallback, useMemo, useState } from 'react';
 import classNames from 'clsx';
 
 import { openInFullPage, useAppEnv } from 'app/env';
-import DAppIcon from 'app/templates/DAppsList/DAppIcon';
+import { DAppIcon } from 'app/templates/DAppsList/DAppIcon';
 import DAppItem from 'app/templates/DAppsList/DAppItem';
 import SearchField from 'app/templates/SearchField';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
