@@ -2,7 +2,7 @@
 import { TransportError } from '@ledgerhq/errors';
 import Transport from '@ledgerhq/hw-transport';
 
-import { LedgerTempleBridgeIFrame } from './iframe';
+import { TempleLedgerBridgeIFrame } from './iframe';
 import { BridgeExchangeRequest, BridgeMessageType, TransportType } from './types';
 
 export class TempleLedgerTransport extends Transport {
@@ -24,12 +24,12 @@ export class TempleLedgerTransport extends Transport {
 
   scrambleKey?: Buffer;
   transportType: TransportType;
-  private iframe: LedgerTempleBridgeIFrame;
+  private iframe: TempleLedgerBridgeIFrame;
 
   constructor(transportType: TransportType = TransportType.U2F) {
     super();
     this.transportType = transportType;
-    this.iframe = new LedgerTempleBridgeIFrame();
+    this.iframe = new TempleLedgerBridgeIFrame();
   }
 
   exchange(apdu: Buffer) {
