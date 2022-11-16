@@ -13,18 +13,19 @@ const BRIDGE_URL = 'ws://localhost:8435';
 const TRANSPORT_CHECK_DELAY = 1000;
 const TRANSPORT_CHECK_LIMIT = 120;
 
-export class LedgerTempleBridgeIFrame {
-  private transport?: Transport | TransportWebHID;
+export class TempleLedgerBridgeIFrame {
+  private transport?: Transport | U2FTransport;
 
   async postMessage(data: BridgeRequest): Promise<BridgeResponse | undefined> {
     try {
       const res = await this.handleRequest(data);
       if (res) return res;
-    } catch (err) {
-      if (err && err instanceof Error)
+    } catch (error) {
+      console.error(error);
+      if (error && error instanceof Error)
         return {
           type: BridgeMessageType.ErrorResponse,
-          message: err.message ?? 'Unexpected error'
+          message: error.message ?? 'Unexpected error'
         };
     }
     return;
@@ -58,7 +59,7 @@ export class LedgerTempleBridgeIFrame {
     return resultBuf.toString('hex');
   }
 
-  private async getOrCreateTransport(transportType: TransportType): Promise<Transport<string> | TransportWebHID> {
+  private async getOrCreateTransport(transportType: TransportType) {
     const transport = this.transport;
     if (transport) {
       if (transportType === TransportType.LEDGERLIVE) {

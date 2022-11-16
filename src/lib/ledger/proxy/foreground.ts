@@ -30,9 +30,9 @@ const isKnownMessage = (msg: any): msg is RequestMessage =>
 
 const isForThisPage = (): boolean => {
   const transportType = getLedgerTransportType();
-  if (windowIsActive) return true;
-  if (transportType === TransportType.LEDGERLIVE) return getPagesWindows()[0]! === window;
-  return false;
+  if ([TransportType.WEBAUTHN, TransportType.U2F].includes(transportType)) return windowIsActive;
+
+  return getPagesWindows()[0]! === window;
 };
 
 function getPagesWindows() {
