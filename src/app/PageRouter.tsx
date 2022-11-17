@@ -24,7 +24,8 @@ import { useTempleClient } from 'lib/temple/front';
 import * as Woozie from 'lib/woozie';
 
 import RootSuspenseFallback from './a11y/RootSuspenseFallback';
-import { useAdvertising } from './hooks/use-advertising.hook';
+import { useAdvertisingLoading } from './hooks/use-advertising.hook';
+import { useExchangeRatesLoading } from './hooks/use-exchange-rates.hook';
 import { Buy } from './pages/Buy/Buy';
 import { AliceBobTopUp } from './pages/Buy/Debit/AliceBob/AliceBobTopUp';
 import { Utorg } from './pages/Buy/Debit/Utorg/Utorg';
@@ -100,7 +101,9 @@ const ROUTE_MAP = Woozie.createMap<RouteContext>([
 
 export const PageRouter: FC = () => {
   const { trigger, pathname, search } = Woozie.useLocation();
-  useAdvertising();
+
+  useExchangeRatesLoading();
+  useAdvertisingLoading();
 
   // Scroll to top after new location pushed.
   useLayoutEffect(() => {
