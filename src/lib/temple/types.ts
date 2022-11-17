@@ -1,3 +1,4 @@
+import { DerivationType } from '@taquito/ledger-signer';
 import { Estimate } from '@taquito/taquito';
 import { TempleDAppMetadata, TempleDAppNetwork } from '@temple-wallet/dapp/dist/types';
 
@@ -11,6 +12,8 @@ import {
 } from './analytics-types';
 
 type NonEmptyArray<T> = [T, ...T[]];
+
+export { DerivationType };
 
 export interface ReadyTempleState extends TempleState {
   status: TempleStatus.Ready;
@@ -60,12 +63,6 @@ export type TempleAccount =
   | TempleLedgerAccount
   | TempleManagedKTAccount
   | TempleWatchOnlyAccount;
-
-export enum DerivationType {
-  ED25519 = 0,
-  SECP256K1 = 1,
-  P256 = 2
-}
 
 interface TempleLedgerAccount extends TempleAccountBase {
   type: TempleAccountType.Ledger;
