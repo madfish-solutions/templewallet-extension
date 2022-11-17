@@ -822,7 +822,7 @@ const WatchOnlyForm: FC = () => {
         control={control}
         rules={{
           required: true,
-          validate: (value: any) => validateDelegate(value, canUseDomainNames, domainsClient, t, validateAddress)
+          validate: (value: any) => validateDelegate(value, domainsClient, validateAddress)
         }}
         onChange={([v]) => v}
         onFocus={() => addressFieldRef.current?.focus()}
@@ -855,7 +855,7 @@ const WatchOnlyForm: FC = () => {
   );
 };
 
-function validateAddress(value: any) {
+function validateAddress(value: string) {
   switch (false) {
     case value?.length > 0:
       return true;

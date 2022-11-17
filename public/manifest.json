@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Temple - Tezos Wallet",
-  "version": "1.15.1",
+  "version": "1.15.2",
 
   "icons": {
     "16": "misc/icon-16.png",
@@ -26,7 +26,6 @@
     "https://api.better-call.dev/",
     "https://*.tzkt.io/",
     "https://api.baking-bad.org/v2/",
-    "https://api.templewallet.com/",
     "https://quipuswap.com/"
   ],
   "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",

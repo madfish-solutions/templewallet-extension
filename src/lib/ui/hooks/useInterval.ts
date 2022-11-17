@@ -1,6 +1,6 @@
 import { DependencyList, useEffect } from 'react';
 
-export const useTimerEffect = (callback: EmptyFn, refreshInterval: number, deps: DependencyList) =>
+export const useInterval = (callback: EmptyFn, refreshInterval: number, deps: DependencyList) =>
   useEffect(() => {
     callback();
 

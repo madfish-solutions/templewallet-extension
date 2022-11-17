@@ -1,15 +1,6 @@
-import { useSelector } from 'react-redux';
+import { useSelector } from '../index';
 
-import { AdvertisingPromotion } from 'lib/templewallet-api';
-
-import { AdvertisingRootState } from './state';
-
-export const useActivePromotionSelector = () =>
-  useSelector<AdvertisingRootState, AdvertisingPromotion | undefined>(
-    ({ advertising }) => advertising.activePromotion.data
-  );
+export const useActivePromotionSelector = () => useSelector(({ advertising }) => advertising.activePromotion.data);
 
 export const useIsNewPromotionAvailableSelector = () =>
-  useSelector<AdvertisingRootState, boolean>(
-    ({ advertising }) => advertising.lastSeenPromotionName !== advertising.activePromotion.data?.name
-  );
+  useSelector(({ advertising }) => advertising.lastSeenPromotionName !== advertising.activePromotion.data?.name);

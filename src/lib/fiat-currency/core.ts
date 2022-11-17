@@ -1,23 +1,24 @@
 import { useMemo } from 'react';
 
+import axios from 'axios';
 import { BigNumber } from 'bignumber.js';
-import constate from 'constate';
 
-import makeBuildQueryFn from 'lib/makeBuildQueryFn';
-import { useRetryableSWR } from 'lib/swr';
-import { useAssetUSDPrice, useStorage } from 'lib/temple/front';
+import { useSelector } from 'app/store';
+import { useStorage } from 'lib/temple/front';
 
 import { FIAT_CURRENCIES } from './consts';
-import { CoingeckoFiatInterface, ExchangeRateRecord, FiatCurrencyOption } from './types';
-
-const buildQuery = makeBuildQueryFn<Record<string, unknown>, any>('https://api.coingecko.com/api/v3/');
-
-const getFiatCurrencies = buildQuery<{}, CoingeckoFiatInterface>(
-  'GET',
-  `/simple/price?ids=tezos&vs_currencies=${FIAT_CURRENCIES.map(({ apiLabel }) => apiLabel).join(',')}`
-);
+import type { FiatCurrencyOption, CoingeckoFiatInterface } from './types';
 
 const FIAT_CURRENCY_STORAGE_KEY = 'fiat_currency';
+
+function useAssetUSDPrice(slug: string) {
+  const prices = useSelector(state => state.currency.usdToTokenRates.data);
+
+  return useMemo(() => {
+    const rawValue = prices[slug];
+    return rawValue ? Number(rawValue) : null;
+  }, [slug, prices]);
+}
 
 export function useAssetFiatCurrencyPrice(slug: string): BigNumber {
   const exchangeRate = useAssetUSDPrice(slug);
@@ -32,36 +33,37 @@ export function useAssetFiatCurrencyPrice(slug: string): BigNumber {
   }, [fiatRates, exchangeRate, exchangeRateTezos, selectedFiatCurrency.name]);
 }
 
-export const [FiatCurrencyProvider, useFiatCurrency] = constate((params: { suspense?: boolean }) => {
-  const { data } = useRetryableSWR('fiat-currencies', fetchFiatCurrencies, {
-    refreshInterval: 5 * 60 * 1_000,
-    dedupingInterval: 30_000,
-    suspense: params.suspense
-  });
+export const useFiatCurrency = () => {
+  const { data } = useSelector(state => state.currency.fiatToTezosRates);
+
   const [selectedFiatCurrency, setSelectedFiatCurrency] = useStorage<FiatCurrencyOption>(
     FIAT_CURRENCY_STORAGE_KEY,
     FIAT_CURRENCIES[0]!
   );
+
   return {
     selectedFiatCurrency,
     setSelectedFiatCurrency,
     fiatRates: data
   };
-});
+};
 
-async function fetchFiatCurrencies() {
-  const mappedRates: ExchangeRateRecord = {};
+const coingeckoApi = axios.create({ baseURL: 'https://api.coingecko.com/api/v3/' });
 
-  try {
-    const data = await getFiatCurrencies({});
-    const tezosData = Object.keys(data.tezos);
+export const fetchFiatToTezosRates = () =>
+  coingeckoApi
+    .get<CoingeckoFiatInterface>(
+      `/simple/price?ids=tezos&vs_currencies=${FIAT_CURRENCIES.map(({ apiLabel }) => apiLabel).join(',')}`
+    )
+    .then(({ data }) => {
+      const mappedRates: Record<string, number> = {};
+      const tezosData = Object.keys(data.tezos);
 
-    for (const fiatCurrency of tezosData) {
-      mappedRates[fiatCurrency] = +data.tezos[fiatCurrency];
-    }
-  } catch {}
+      for (const quote of tezosData) {
+        mappedRates[quote] = data.tezos[quote];
+      }
 
-  return mappedRates;
-}
+      return mappedRates;
+    });
 
 export const getFiatCurrencyKey = ({ name }: FiatCurrencyOption) => name;
