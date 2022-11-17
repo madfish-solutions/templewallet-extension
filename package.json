@@ -1,6 +1,6 @@
 {
   "name": "temple-wallet",
-  "version": "1.15.1",
+  "version": "1.15.2",
   "private": true,
   "scripts": {
     "start": "cross-env NODE_ENV=development webpack --watch --stats errors-warnings",
