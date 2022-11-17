@@ -18,7 +18,7 @@ export interface CreatorArguments {
 }
 
 export interface RequestMessageBase {
-  type: 'LEDGER_MV3_REQUEST';
+  type: 'LEDGER_PROXY_REQUEST';
   instanceId: number;
   creatorArgs: CreatorArguments;
   method: string;

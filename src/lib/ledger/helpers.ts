@@ -1,14 +1,19 @@
-import { TransportType } from '@temple-wallet/ledger-bridge';
-
 import { PublicError } from 'lib/temple/back/PublicError';
+
+import { TransportType } from './transport';
 
 export const removeMFromDerivationPath = (dPath: string) => (dPath.startsWith('m/') ? dPath.substring(2) : dPath);
 
 export const pickTransportType = (isLedgerLive: boolean) => {
   if (isLedgerLive) return TransportType.LEDGERLIVE;
-  const navigator: Navigator | undefined = window.navigator;
-  return navigator && navigator.hid ? TransportType.WEBHID : TransportType.U2F;
+  if (isSupportedHID()) return TransportType.WEBHID;
+  if (isSupportedWebAuthn()) return TransportType.WEBAUTHN;
+  return TransportType.U2F;
 };
+
+const isSupportedHID = () => Boolean(navigator?.hid);
+
+const isSupportedWebAuthn = () => Boolean(navigator?.credentials);
 
 export const toLedgerError = (error: string | { message: string }) => {
   const message = typeof error === 'object' ? error.message : error;
