@@ -1,22 +1,17 @@
 import { TaquitoTezosDomainsClient } from '@tezos-domains/taquito-client';
 
+import { t } from 'lib/i18n';
 import { isDomainNameValid } from 'lib/temple/front';
 import { isAddressValid } from 'lib/temple/helpers';
 
 export const validateDelegate = async (
-  value: any,
-  canUseDomainNames: boolean,
+  value: string | null | undefined,
   domainsClient: TaquitoTezosDomainsClient,
-  t: any,
-  validateAddress: (value: any) => boolean | string
+  validateAddress: (value: string) => boolean | string
 ) => {
-  if (!value?.length || value.length < 0) {
-    return false;
-  }
+  if (!value) return false;
 
-  if (!canUseDomainNames) {
-    return validateAddress(value);
-  }
+  if (!domainsClient.isSupported) return validateAddress(value);
 
   if (isDomainNameValid(value, domainsClient)) {
     const resolved = await domainsClient.resolver.resolveNameToAddress(value);

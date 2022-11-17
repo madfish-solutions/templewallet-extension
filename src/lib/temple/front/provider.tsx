@@ -1,7 +1,6 @@
 import React, { FC, useMemo } from 'react';
 
 import { CustomRpsContext } from 'lib/analytics';
-import { FiatCurrencyProvider } from 'lib/fiat-currency';
 import { PropsWithChildren } from 'lib/props-with-children';
 
 import { TokensMetadataProvider } from './assets';
@@ -10,7 +9,6 @@ import { TempleClientProvider, useTempleClient } from './client';
 import { ReadyTempleProvider, useNetwork } from './ready';
 import { SyncBalancesProvider } from './sync-balances';
 import { SyncTokensProvider } from './sync-tokens';
-import { USDPriceProvider } from './usdprice';
 
 export const TempleProvider: FC<PropsWithChildren> = ({ children }) => (
   <CustomRpsContext.Provider value={undefined}>
@@ -29,15 +27,11 @@ const ConditionalReadyTemple: FC<PropsWithChildren> = ({ children }) => {
         <ReadyTempleProvider>
           <WalletRpcProvider>
             <TokensMetadataProvider>
-              <USDPriceProvider>
-                <FiatCurrencyProvider>
-                  <SyncTokensProvider>
-                    <SyncBalancesProvider>
-                      <NewBlockTriggersProvider>{children}</NewBlockTriggersProvider>
-                    </SyncBalancesProvider>
-                  </SyncTokensProvider>
-                </FiatCurrencyProvider>
-              </USDPriceProvider>
+              <SyncTokensProvider>
+                <SyncBalancesProvider>
+                  <NewBlockTriggersProvider>{children}</NewBlockTriggersProvider>
+                </SyncBalancesProvider>
+              </SyncTokensProvider>
             </TokensMetadataProvider>
           </WalletRpcProvider>
         </ReadyTempleProvider>

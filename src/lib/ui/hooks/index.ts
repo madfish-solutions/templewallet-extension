@@ -6,6 +6,6 @@ export { useDidUpdate } from './useDidUpdate';
 
 export { useSafeState } from './useSafeState';
 
-export { useTimerEffect } from './useTimerEffect';
+export { useInterval } from './useInterval';
 
 export { useStopper } from './useStopper';

@@ -1,5 +1,5 @@
 import { configureStore } from '@reduxjs/toolkit';
-import { Middleware } from 'redux';
+import { Middleware, Reducer } from 'redux';
 import { combineEpics, createEpicMiddleware, Epic, StateObservable } from 'redux-observable';
 import { FLUSH, PAUSE, PERSIST, persistReducer, persistStore, PURGE, REGISTER, REHYDRATE } from 'redux-persist';
 import autoMergeLevel2 from 'redux-persist/lib/stateReconciler/autoMergeLevel2';
@@ -9,15 +9,17 @@ import { Observable } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
 import { advertisingReducer } from './advertising/reducers';
-import { AdvertisingRootState } from './advertising/state';
+import { currencyReducer } from './currency/reducers';
 import { rootStateReducer } from './root-state.reducers';
-import { walletReducer } from './wallet/reducers';
-import { WalletRootState } from './wallet/state';
 
-export type RootState = WalletRootState & AdvertisingRootState;
+const rootReducer = rootStateReducer({
+  advertising: advertisingReducer,
+  currency: currencyReducer
+});
 
-const epicMiddleware = createEpicMiddleware();
-const middlewares: Array<Middleware<{}, RootState>> = [epicMiddleware];
+type GetStateType<R> = R extends Reducer<infer S> ? S : never;
+
+export type RootState = GetStateType<typeof rootReducer>;
 
 const persistConfig: PersistConfig<RootState> = {
   key: 'temple-root',
@@ -26,12 +28,10 @@ const persistConfig: PersistConfig<RootState> = {
   stateReconciler: autoMergeLevel2
 };
 
-const rootReducer = rootStateReducer<RootState>({
-  wallet: walletReducer,
-  advertising: advertisingReducer
-});
-
 const persistedReducer = persistReducer(persistConfig, rootReducer);
+
+const epicMiddleware = createEpicMiddleware();
+const middlewares: Middleware<{}, RootState>[] = [epicMiddleware];
 
 export const createStore = (...epics: Epic[]) => {
   const rootEpic = (action$: Observable<any>, store$: StateObservable<any>, dependencies: any) =>

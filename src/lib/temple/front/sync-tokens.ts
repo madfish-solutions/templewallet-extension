@@ -5,13 +5,14 @@ import constate from 'constate';
 import { useSWRConfig } from 'swr';
 import { ScopedMutator } from 'swr/dist/types';
 
+import { useSelector } from 'app/store';
 import {
   toTokenSlug,
   fetchDisplayedFungibleTokens,
   fetchCollectibleTokens,
   getPredefinedTokensSlugs
 } from 'lib/temple/assets';
-import { useChainId, useAccount, useUSDPrices, useTokensMetadata } from 'lib/temple/front';
+import { useChainId, useAccount, useTokensMetadata } from 'lib/temple/front';
 import { AssetMetadata, DetailedAssetMetdata, toBaseMetadata } from 'lib/temple/metadata';
 import * as Repo from 'lib/temple/repo';
 import { TempleChainId } from 'lib/temple/types';
@@ -19,7 +20,7 @@ import { getTokensMetadata } from 'lib/templewallet-api';
 import { fetchWhitelistTokenSlugs } from 'lib/templewallet-api/whitelist-tokens';
 import { fetchTzktTokens } from 'lib/tzkt';
 import { TzktAccountToken } from 'lib/tzkt/types';
-import { useTimerEffect } from 'lib/ui/hooks';
+import { useInterval } from 'lib/ui/hooks';
 
 const SYNCING_INTERVAL = 60_000;
 
@@ -30,7 +31,8 @@ export const [SyncTokensProvider, useSyncTokens] = constate(() => {
 
   const { allTokensBaseMetadataRef, setTokensBaseMetadata, setTokensDetailedMetadata, fetchMetadata } =
     useTokensMetadata();
-  const usdPrices = useUSDPrices();
+
+  const usdPrices = useSelector(state => state.currency.usdToTokenRates.data);
 
   const [isSyncing, setIsSyncing] = useState<boolean | null>(null);
 
@@ -60,7 +62,7 @@ export const [SyncTokensProvider, useSyncTokens] = constate(() => {
     mutate
   ]);
 
-  useTimerEffect(sync, SYNCING_INTERVAL, [chainId, accountPkh]);
+  useInterval(sync, SYNCING_INTERVAL, [chainId, accountPkh]);
 
   return isSyncing;
 });
