@@ -4,11 +4,7 @@
 */
 
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
-const CopyWebpackPlugin = require('copy-webpack-plugin');
-const fs = require('fs');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 const path = require('path');
 const ForkTsCheckerWebpackPlugin = require('react-dev-utils/ForkTsCheckerWebpackPlugin');
 const getCSSModuleLocalIdent = require('react-dev-utils/getCSSModuleLocalIdent');
@@ -19,85 +15,26 @@ const resolve = require('resolve');
 const TerserPlugin = require('terser-webpack-plugin');
 const webpack = require('webpack');
 const ESLintPlugin = require('eslint-webpack-plugin');
-const ExtensionReloader = require('webpack-ext-reloader-mv3');
-const WebpackBar = require('webpackbar');
 
-const pkg = require('./package.json');
-const tsConfig = require('./tsconfig.json');
+const pkg = require('../package.json');
+const tsConfig = require('../tsconfig.json');
 
-require('./webpack/cleanup');
+const {
+  NODE_ENV, TARGET_BROWSER, SOURCE_MAP_ENV, IMAGE_INLINE_SIZE_LIMIT_ENV,
+  CWD_PATH, NODE_MODULES_PATH, SOURCE_PATH, PUBLIC_PATH, DEST_PATH, WASM_PATH, OUTPUT_PATH, SCRIPTS_PATH
+} = require('./consts');
 
-const { NODE_ENV = 'development' } = process.env;
-const dotenvPath = path.resolve(__dirname, '.env');
+require('./cleanup');
 
-// https://github.com/bkeepers/dotenv#what-other-env-files-can-i-use
-const dotenvFiles = [
-  `${dotenvPath}.${NODE_ENV}.local`,
-  // Don't include `.env.local` for `test` environment
-  // since normally you expect tests to produce the same
-  // results for everyone
-  NODE_ENV !== 'test' && `${dotenvPath}.local`,
-  `${dotenvPath}.${NODE_ENV}`,
-  dotenvPath
-].filter(Boolean);
-
-// Load environment variables from .env* files. Suppress warnings using silent
-// if this file is missing. dotenv will never modify any environment variables
-// that have already been set.  Variable expansion is supported in .env files.
-// https://github.com/motdotla/dotenv
-// https://github.com/motdotla/dotenv-expand
-dotenvFiles.forEach(dotenvFile => {
-  if (fs.existsSync(dotenvFile)) {
-    require('dotenv-expand')(
-      require('dotenv').config({
-        path: dotenvFile
-      })
-    );
-  }
-});
 
 // Grab NODE_ENV and TEMPLE_WALLET_* environment variables and prepare them to be
 // injected into the application via DefinePlugin in Webpack configuration.
 const TEMPLE_WALLET = /^TEMPLE_WALLET_/i;
-const {
-  TARGET_BROWSER = 'chrome',
-  SOURCE_MAP: SOURCE_MAP_ENV,
-  IMAGE_INLINE_SIZE_LIMIT: IMAGE_INLINE_SIZE_LIMIT_ENV = '10000'
-} = process.env;
 
 const VERSION = pkg.version;
 const SOURCE_MAP = NODE_ENV !== 'production' && SOURCE_MAP_ENV !== 'false';
 const IMAGE_INLINE_SIZE_LIMIT = parseInt(IMAGE_INLINE_SIZE_LIMIT_ENV);
-const CWD_PATH = fs.realpathSync(process.cwd());
-const NODE_MODULES_PATH = path.join(CWD_PATH, 'node_modules');
-const SOURCE_PATH = path.join(CWD_PATH, 'src');
-const PUBLIC_PATH = path.join(CWD_PATH, 'public');
-const DEST_PATH = path.join(CWD_PATH, 'dist');
-const WASM_PATH = path.join(NODE_MODULES_PATH, 'wasm-themis/src/libthemis.wasm');
-const OUTPUT_PATH = path.join(DEST_PATH, `${TARGET_BROWSER}_unpacked`);
-const SCRIPTS_PATH = path.join(OUTPUT_PATH, 'scripts/');
 
-const HTML_TEMPLATES = [
-  {
-    name: 'popup',
-    path: path.join(PUBLIC_PATH, 'popup.html')
-  },
-  {
-    name: 'fullpage',
-    path: path.join(PUBLIC_PATH, 'fullpage.html')
-  },
-  {
-    name: 'confirm',
-    path: path.join(PUBLIC_PATH, 'confirm.html')
-  },
-  {
-    name: 'options',
-    path: path.join(PUBLIC_PATH, 'options.html')
-  }
-];
-
-const SEPARATED_CHUNKS = new Set(['background', 'contentScript']);
-const MANIFEST_PATH = path.join(PUBLIC_PATH, 'manifest.json');
 const MODULE_FILE_EXTENSIONS = ['.js', '.mjs', '.jsx', '.ts', '.tsx', '.json'];
 const ADDITIONAL_MODULE_PATHS = [
   tsConfig.compilerOptions.baseUrl && path.join(CWD_PATH, tsConfig.compilerOptions.baseUrl)
@@ -350,37 +287,6 @@ module.exports.buildBaseConfig = () => ({
 
     new WatchMissingNodeModulesPlugin(NODE_MODULES_PATH),
 
-    // new MiniCssExtractPlugin({
-    //   filename: 'styles/[name].css',
-    //   chunkFilename: 'styles/[name].chunk.css'
-    // }),
-
-    // ...HTML_TEMPLATES.map(
-    //   htmlTemplate =>
-    //     new HtmlWebpackPlugin({
-    //       template: htmlTemplate.path,
-    //       filename: path.basename(htmlTemplate.path),
-    //       chunks: [htmlTemplate.name, 'commons'],
-    //       inject: 'body',
-    //       ...(NODE_ENV === 'production'
-    //         ? {
-    //             minify: {
-    //               removeComments: true,
-    //               collapseWhitespace: true,
-    //               removeRedundantAttributes: true,
-    //               useShortDoctype: true,
-    //               removeEmptyAttributes: true,
-    //               removeStyleLinkTypeAttributes: true,
-    //               keepClosingSlash: true,
-    //               minifyJS: true,
-    //               minifyCSS: true,
-    //               minifyURLs: true
-    //             }
-    //           }
-    //         : {})
-    //     })
-    // ),
-
     new ForkTsCheckerWebpackPlugin({
       typescript: resolve.sync('typescript', {
         basedir: NODE_MODULES_PATH
@@ -394,59 +300,11 @@ module.exports.buildBaseConfig = () => ({
       formatter: typescriptFormatter
     }),
 
-    // new CopyWebpackPlugin({
-    //   patterns: [
-    //     {
-    //       from: PUBLIC_PATH,
-    //       to: OUTPUT_PATH,
-    //       globOptions: {
-    //         /*
-    //           - HTML files are taken care of by the `html-webpack-plugin`. Copying them here leads to:
-    //             `ERROR in Conflict: Multiple assets emit different content to the same filename [name].html`
-    //           - Manifest file is copied next with transformation of it.
-    //         */
-    //         ignore: ['**/*.html', '**/manifest.json']
-    //       }
-    //     },
-    //     {
-    //       from: MANIFEST_PATH,
-    //       to: path.join(OUTPUT_PATH, 'manifest.json'),
-    //       toType: 'file',
-    //       transform: content => {
-    //         const manifest = transformManifestKeys(JSON.parse(content), TARGET_BROWSER);
-    //         return JSON.stringify(manifest, null, 2);
-    //       }
-    //     },
-    //     {
-    //       from: WASM_PATH,
-    //       to: SCRIPTS_PATH
-    //     }
-    //   ]
-    // }),
-
-    // new WebpackBar({
-    //   name: 'Temple Wallet FG',
-    //   color: '#ed8936'
-    // }),
-
-    // plugin to enable browser reloading in development mode
-
-    // NODE_ENV === 'development' &&
-    //   new ExtensionReloader({
-    //     port: 9091,
-    //     reloadPage: true,
-    //     // manifest: path.join(OUTPUT_PATH, "manifest.json"),
-    //     entries: {
-    //       contentScript: 'contentScript',
-    //       extensionPage: ['popup', 'fullpage', 'confirm', 'options', 'commons.chunk']
-    //     }
-    //   }),
-
     new ESLintPlugin({
       extensions: ['js', 'mjs', 'jsx', 'ts', 'tsx'],
       formatter: require.resolve('react-dev-utils/eslintFormatter'),
       eslintPath: require.resolve('eslint'),
-      resolvePluginsRelativeTo: __dirname,
+      resolvePluginsRelativeTo: CWD_PATH,
       cache: true,
       cacheLocation: path.resolve(
         NODE_MODULES_PATH,
@@ -458,17 +316,9 @@ module.exports.buildBaseConfig = () => ({
   ].filter(Boolean),
 
   optimization: {
-    // splitChunks: {
-    //   cacheGroups: {
-    //     commons: {
-    //       name: (module, chunks, cacheGroupKey) => `${cacheGroupKey}.chunk`,
-    //       minChunks: 2,
-    //       chunks: chunk => !SEPARATED_CHUNKS.has(chunk.name)
-    //     }
-    //   }
-    // },
 
     minimizer: [
+
       new TerserPlugin({
         terserOptions: {
           sourceMap: SOURCE_MAP,
@@ -492,9 +342,6 @@ module.exports.buildBaseConfig = () => ({
           }
         }
       }),
-
-      // // This is only used in production mode
-      // new CssMinimizerPlugin(),
 
     ]
   },
@@ -537,38 +384,3 @@ function getStyleLoaders(cssOptions = {}) {
     }
   ].filter(Boolean);
 }
-
-/**
- *  Fork of `wext-manifest`
- */
-const browserVendors = ['chrome', 'firefox', 'opera', 'edge', 'safari'];
-const vendorRegExp = new RegExp(`^__((?:(?:${browserVendors.join('|')})\\|?)+)__(.*)`);
-
-const transformManifestKeys = (manifest, vendor) => {
-  if (Array.isArray(manifest)) {
-    return manifest.map(newManifest => {
-      return transformManifestKeys(newManifest, vendor);
-    });
-  }
-
-  if (typeof manifest === 'object') {
-    return Object.entries(manifest).reduce((newManifest, [key, value]) => {
-      const match = key.match(vendorRegExp);
-
-      if (match) {
-        const vendors = match[1].split('|');
-
-        // Swap key with non prefixed name
-        if (vendors.indexOf(vendor) > -1) {
-          newManifest[match[2]] = value;
-        }
-      } else {
-        newManifest[key] = transformManifestKeys(value, vendor);
-      }
-
-      return newManifest;
-    }, {});
-  }
-
-  return manifest;
-};

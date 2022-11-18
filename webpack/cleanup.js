@@ -1,9 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 
-const { TARGET_BROWSER = 'chrome' } = process.env;
+const { TARGET_BROWSER, CWD_PATH } = require('./consts');
 
-const CWD_PATH = fs.realpathSync(process.cwd());
 const DIST_PATH = path.join(CWD_PATH, 'dist');
 const UNPACKED_PATH = path.join(DIST_PATH, `${TARGET_BROWSER}_unpacked`);
 
