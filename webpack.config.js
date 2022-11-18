@@ -4,22 +4,25 @@
 */
 
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 const path = require('path');
 const ExtensionReloader = require('webpack-ext-reloader-mv3');
 const WebpackBar = require('webpackbar');
 
+const { buildBaseConfig } = require('./webpack/base.config');
 const {
-  NODE_ENV, TARGET_BROWSER, SOURCE_MAP_ENV, IMAGE_INLINE_SIZE_LIMIT_ENV,
-  CWD_PATH, NODE_MODULES_PATH, SOURCE_PATH, PUBLIC_PATH, DEST_PATH, WASM_PATH, OUTPUT_PATH, SCRIPTS_PATH,
+  NODE_ENV,
+  TARGET_BROWSER,
+  SOURCE_PATH,
+  PUBLIC_PATH,
+  WASM_PATH,
+  OUTPUT_PATH,
+  SCRIPTS_PATH
 } = require('./webpack/consts');
 
 require('./webpack/cleanup');
-
-const { buildBaseConfig } = require('./webpack/base.config');
-
 
 const HTML_TEMPLATES = [
   {
@@ -54,85 +57,87 @@ const mainConfig = (() => {
     contentScript: path.join(SOURCE_PATH, 'contentScript.ts')
   };
 
-  config.plugins.push(...[
-    new MiniCssExtractPlugin({
-      filename: 'styles/[name].css',
-      chunkFilename: 'styles/[name].chunk.css'
-    }),
+  config.plugins.push(
+    ...[
+      new MiniCssExtractPlugin({
+        filename: 'styles/[name].css',
+        chunkFilename: 'styles/[name].chunk.css'
+      }),
 
-    ...HTML_TEMPLATES.map(
-      htmlTemplate =>
-        new HtmlWebpackPlugin({
-          template: htmlTemplate.path,
-          filename: path.basename(htmlTemplate.path),
-          chunks: [htmlTemplate.name, 'commons'],
-          inject: 'body',
-          ...(NODE_ENV === 'production'
-            ? {
-                minify: {
-                  removeComments: true,
-                  collapseWhitespace: true,
-                  removeRedundantAttributes: true,
-                  useShortDoctype: true,
-                  removeEmptyAttributes: true,
-                  removeStyleLinkTypeAttributes: true,
-                  keepClosingSlash: true,
-                  minifyJS: true,
-                  minifyCSS: true,
-                  minifyURLs: true
+      ...HTML_TEMPLATES.map(
+        htmlTemplate =>
+          new HtmlWebpackPlugin({
+            template: htmlTemplate.path,
+            filename: path.basename(htmlTemplate.path),
+            chunks: [htmlTemplate.name, 'commons'],
+            inject: 'body',
+            ...(NODE_ENV === 'production'
+              ? {
+                  minify: {
+                    removeComments: true,
+                    collapseWhitespace: true,
+                    removeRedundantAttributes: true,
+                    useShortDoctype: true,
+                    removeEmptyAttributes: true,
+                    removeStyleLinkTypeAttributes: true,
+                    keepClosingSlash: true,
+                    minifyJS: true,
+                    minifyCSS: true,
+                    minifyURLs: true
+                  }
                 }
-              }
-            : {})
-        })
-    ),
+              : {})
+          })
+      ),
 
-    new CopyWebpackPlugin({
-      patterns: [
-        {
-          from: PUBLIC_PATH,
-          to: OUTPUT_PATH,
-          globOptions: {
-            /*
+      new CopyWebpackPlugin({
+        patterns: [
+          {
+            from: PUBLIC_PATH,
+            to: OUTPUT_PATH,
+            globOptions: {
+              /*
               - HTML files are taken care of by the `html-webpack-plugin`. Copying them here leads to:
                 `ERROR in Conflict: Multiple assets emit different content to the same filename [name].html`
               - Manifest file is copied next with transformation of it.
             */
-            ignore: ['**/*.html', '**/manifest.json']
+              ignore: ['**/*.html', '**/manifest.json']
+            }
+          },
+          {
+            from: MANIFEST_PATH,
+            to: path.join(OUTPUT_PATH, 'manifest.json'),
+            toType: 'file',
+            transform: content => {
+              const manifest = transformManifestKeys(JSON.parse(content), TARGET_BROWSER);
+              return JSON.stringify(manifest, null, 2);
+            }
+          },
+          {
+            from: WASM_PATH,
+            to: SCRIPTS_PATH
           }
-        },
-        {
-          from: MANIFEST_PATH,
-          to: path.join(OUTPUT_PATH, 'manifest.json'),
-          toType: 'file',
-          transform: content => {
-            const manifest = transformManifestKeys(JSON.parse(content), TARGET_BROWSER);
-            return JSON.stringify(manifest, null, 2);
-          }
-        },
-        {
-          from: WASM_PATH,
-          to: SCRIPTS_PATH
-        }
-      ]
-    }),
-
-    new WebpackBar({
-      name: 'Temple Wallet | Main',
-      color: '#ed8936'
-    }),
-
-    // plugin to enable browser reloading in development mode
-    NODE_ENV === 'development' &&
-      new ExtensionReloader({
-        port: 9091,
-        reloadPage: true,
-        // manifest: path.join(OUTPUT_PATH, "manifest.json"),
-        entries: {
-          contentScript: 'contentScript',
-          extensionPage: ['popup', 'fullpage', 'confirm', 'options', 'commons.chunk']
-        }
+        ]
       }),
-  ].filter(Boolean));
+
+      new WebpackBar({
+        name: 'Temple Wallet | Main',
+        color: '#ed8936'
+      }),
+
+      // plugin to enable browser reloading in development mode
+      NODE_ENV === 'development' &&
+        new ExtensionReloader({
+          port: 9091,
+          reloadPage: true,
+          // manifest: path.join(OUTPUT_PATH, "manifest.json"),
+          entries: {
+            contentScript: 'contentScript',
+            extensionPage: ['popup', 'fullpage', 'confirm', 'options', 'commons.chunk']
+          }
+        })
+    ].filter(Boolean)
+  );
 
   config.optimization.splitChunks = {
     cacheGroups: {
@@ -146,7 +151,7 @@ const mainConfig = (() => {
 
   config.optimization.minimizer.push(
     // This is only used in production mode
-    new CssMinimizerPlugin(),
+    new CssMinimizerPlugin()
   );
 
   return config;
@@ -158,33 +163,34 @@ const backgroundConfig = (() => {
   config.target = 'webworker';
 
   config.entry = {
-    background: path.join(SOURCE_PATH, 'background.ts'),
+    background: path.join(SOURCE_PATH, 'background.ts')
   };
 
-  config.plugins.push(...[
-    new WebpackBar({
-      name: 'Temple Wallet | Background',
-      color: '#ed8936'
-    }),
-
-    // plugin to enable browser reloading in development mode
-    NODE_ENV === 'development' &&
-      new ExtensionReloader({
-        port: 9090,
-        reloadPage: true,
-        // manifest: path.join(OUTPUT_PATH, "manifest.json"),
-        entries: {
-          background: 'background',
-        }
+  config.plugins.push(
+    ...[
+      new WebpackBar({
+        name: 'Temple Wallet | Background',
+        color: '#ed8936'
       }),
-  ].filter(Boolean));
+
+      // plugin to enable browser reloading in development mode
+      NODE_ENV === 'development' &&
+        new ExtensionReloader({
+          port: 9090,
+          reloadPage: true,
+          // manifest: path.join(OUTPUT_PATH, "manifest.json"),
+          entries: {
+            background: 'background'
+          }
+        })
+    ].filter(Boolean)
+  );
 
   return config;
 })();
 
 module.exports = [mainConfig, backgroundConfig];
 // module.exports.parallelism = 1;
-
 
 /**
  *  Fork of `wext-manifest`

@@ -4,6 +4,7 @@
 */
 
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const ESLintPlugin = require('eslint-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const path = require('path');
 const ForkTsCheckerWebpackPlugin = require('react-dev-utils/ForkTsCheckerWebpackPlugin');
@@ -14,18 +15,21 @@ const WatchMissingNodeModulesPlugin = require('react-dev-utils/WatchMissingNodeM
 const resolve = require('resolve');
 const TerserPlugin = require('terser-webpack-plugin');
 const webpack = require('webpack');
-const ESLintPlugin = require('eslint-webpack-plugin');
 
 const pkg = require('../package.json');
 const tsConfig = require('../tsconfig.json');
-
 const {
-  NODE_ENV, TARGET_BROWSER, SOURCE_MAP_ENV, IMAGE_INLINE_SIZE_LIMIT_ENV,
-  CWD_PATH, NODE_MODULES_PATH, SOURCE_PATH, PUBLIC_PATH, DEST_PATH, WASM_PATH, OUTPUT_PATH, SCRIPTS_PATH
+  NODE_ENV,
+  TARGET_BROWSER,
+  SOURCE_MAP_ENV,
+  IMAGE_INLINE_SIZE_LIMIT_ENV,
+  CWD_PATH,
+  NODE_MODULES_PATH,
+  SOURCE_PATH,
+  OUTPUT_PATH
 } = require('./consts');
 
 require('./cleanup');
-
 
 // Grab NODE_ENV and TEMPLE_WALLET_* environment variables and prepare them to be
 // injected into the application via DefinePlugin in Webpack configuration.
@@ -80,7 +84,7 @@ module.exports.buildBaseConfig = () => ({
         Exports of `punycode@2.1.1/punycode.js` & `punycode@2.1.1/punycode.es6.js` are different.
         We need the former ones (e.g. `idna-uts46-hx` relies on it).
       */
-      punycode$: require.resolve('punycode/punycode.js'),
+      punycode$: require.resolve('punycode/punycode.js')
     },
 
     plugins: [
@@ -256,7 +260,7 @@ module.exports.buildBaseConfig = () => ({
       process: 'process/browser',
       Buffer: ['buffer', 'Buffer'],
       // Seen 'setImmediate' in: 'scryptsy'
-      setImmediate: ['timers-browserify', 'setImmediate'],
+      setImmediate: ['timers-browserify', 'setImmediate']
     }),
 
     new webpack.IgnorePlugin({ resourceRegExp: /^\.\/wordlists\/(?!english)/, contextRegExp: /bip39\/src$/ }),
@@ -306,19 +310,13 @@ module.exports.buildBaseConfig = () => ({
       eslintPath: require.resolve('eslint'),
       resolvePluginsRelativeTo: CWD_PATH,
       cache: true,
-      cacheLocation: path.resolve(
-        NODE_MODULES_PATH,
-        '.cache/.eslintcache'
-      ),
-      failOnError: true,
-    }),
-
+      cacheLocation: path.resolve(NODE_MODULES_PATH, '.cache/.eslintcache'),
+      failOnError: true
+    })
   ].filter(Boolean),
 
   optimization: {
-
     minimizer: [
-
       new TerserPlugin({
         terserOptions: {
           sourceMap: SOURCE_MAP,
@@ -341,8 +339,7 @@ module.exports.buildBaseConfig = () => ({
             ascii_only: true
           }
         }
-      }),
-
+      })
     ]
   },
 

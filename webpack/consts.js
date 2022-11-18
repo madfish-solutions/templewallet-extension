@@ -17,7 +17,6 @@ const WASM_PATH = path.join(NODE_MODULES_PATH, 'wasm-themis/src/libthemis.wasm')
 const OUTPUT_PATH = path.join(DEST_PATH, `${TARGET_BROWSER}_unpacked`);
 const SCRIPTS_PATH = path.join(OUTPUT_PATH, 'scripts/');
 
-
 const dotenvPath = path.resolve(CWD_PATH, '.env');
 
 // https://github.com/bkeepers/dotenv#what-other-env-files-can-i-use
@@ -46,8 +45,17 @@ dotenvFiles.forEach(dotenvFile => {
   }
 });
 
-
 module.exports = {
-  NODE_ENV, TARGET_BROWSER, SOURCE_MAP_ENV, IMAGE_INLINE_SIZE_LIMIT_ENV,
-  CWD_PATH, NODE_MODULES_PATH, SOURCE_PATH, PUBLIC_PATH, DEST_PATH, WASM_PATH, OUTPUT_PATH, SCRIPTS_PATH,
+  NODE_ENV,
+  TARGET_BROWSER,
+  SOURCE_MAP_ENV,
+  IMAGE_INLINE_SIZE_LIMIT_ENV,
+  CWD_PATH,
+  NODE_MODULES_PATH,
+  SOURCE_PATH,
+  PUBLIC_PATH,
+  DEST_PATH,
+  WASM_PATH,
+  OUTPUT_PATH,
+  SCRIPTS_PATH
 };
