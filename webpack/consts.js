@@ -15,27 +15,50 @@ const RELOADER_PORTS = {
   FOREGROUND: 9091
 };
 
-const CWD_PATH = fs.realpathSync(process.cwd());
-const NODE_MODULES_PATH = path.join(CWD_PATH, 'node_modules');
-const SOURCE_PATH = path.join(CWD_PATH, 'src');
-const PUBLIC_PATH = path.join(CWD_PATH, 'public');
-const DEST_PATH = path.join(CWD_PATH, 'dist');
-const OUTPUT_PATH = path.join(DEST_PATH, `${TARGET_BROWSER}_unpacked`);
-const OUTPUT_SCRIPTS_PATH = path.join(OUTPUT_PATH, 'scripts/');
-const WASM_PATH = path.join(NODE_MODULES_PATH, 'wasm-themis/src/libthemis.wasm');
+const PACKED_EXTENSION = (() => {
+  switch (TARGET_BROWSER) {
+    case 'opera':
+      return 'crx';
 
-const PATHS = {
-  CWD: CWD_PATH,
-  NODE_MODULES: NODE_MODULES_PATH,
-  SOURCE: SOURCE_PATH,
-  PUBLIC: PUBLIC_PATH,
-  DEST: DEST_PATH,
-  OUTPUT: OUTPUT_PATH,
-  OUTPUT_SCRIPTS: OUTPUT_SCRIPTS_PATH,
-  WASM: WASM_PATH
+    case 'firefox':
+      return 'xpi';
+
+    default:
+      return 'zip';
+  }
+})();
+
+const DEST_RELATIVE_PATH_OUTPUT = `${TARGET_BROWSER}_unpacked`;
+const DEST_RELATIVE_PATH_OUTPUT_PACKED = `${TARGET_BROWSER}.${PACKED_EXTENSION}`;
+
+const PATH_CWD = fs.realpathSync(process.cwd());
+const PATH_NODE_MODULES = path.join(PATH_CWD, 'node_modules');
+const PATH_SOURCE = path.join(PATH_CWD, 'src');
+const PATH_PUBLIC = path.join(PATH_CWD, 'public');
+const PATH_DEST = path.join(PATH_CWD, 'dist');
+const PATH_OUTPUT = path.join(PATH_DEST, DEST_RELATIVE_PATH_OUTPUT);
+const PATH_OUTPUT_PACKED = path.join(PATH_DEST, DEST_RELATIVE_PATH_OUTPUT_PACKED);
+const PATH_OUTPUT_SCRIPTS = path.join(PATH_OUTPUT, 'scripts/');
+const PATH_WASM = path.join(PATH_NODE_MODULES, 'wasm-themis/src/libthemis.wasm');
+
+const DEST_RELATIVE_PATHS = {
+  OUTPUT: DEST_RELATIVE_PATH_OUTPUT,
+  OUTPUT_PACKED: DEST_RELATIVE_PATH_OUTPUT_PACKED
 };
 
-const dotenvPath = path.resolve(CWD_PATH, '.env');
+const PATHS = {
+  CWD: PATH_CWD,
+  NODE_MODULES: PATH_NODE_MODULES,
+  SOURCE: PATH_SOURCE,
+  PUBLIC: PATH_PUBLIC,
+  DEST: PATH_DEST,
+  OUTPUT: PATH_OUTPUT,
+  OUTPUT_PACKED: PATH_OUTPUT_PACKED,
+  OUTPUT_SCRIPTS: PATH_OUTPUT_SCRIPTS,
+  WASM: PATH_WASM
+};
+
+const dotenvPath = path.resolve(PATH_CWD, '.env');
 
 // https://github.com/bkeepers/dotenv#what-other-env-files-can-i-use
 const dotenvFiles = [
@@ -69,6 +92,7 @@ module.exports = {
   TARGET_BROWSER,
   SOURCE_MAP_ENV,
   IMAGE_INLINE_SIZE_LIMIT_ENV,
+  DEST_RELATIVE_PATHS,
   PATHS,
   RELOADER_PORTS
 };

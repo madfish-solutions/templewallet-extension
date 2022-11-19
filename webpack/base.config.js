@@ -3,7 +3,6 @@
   https://github.com/facebook/create-react-app/blob/main/packages/react-scripts/config/webpack.config.js
 */
 
-const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const ESLintPlugin = require('eslint-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const path = require('path');
@@ -24,8 +23,6 @@ const {
   IMAGE_INLINE_SIZE_LIMIT_ENV,
   PATHS
 } = require('./consts');
-
-require('./cleanup');
 
 // Grab NODE_ENV and TEMPLE_WALLET_* environment variables and prepare them to be
 // injected into the application via DefinePlugin in Webpack configuration.
@@ -51,7 +48,10 @@ module.exports.buildBaseConfig = () => ({
     path: PATHS.OUTPUT,
     pathinfo: DEVELOPMENT_ENV ? 'verbose' : false,
     filename: 'scripts/[name].js',
-    /* Not working like in WP4 `optimization.splitChunks.cacheGroups.{cacheGroupKey}.name` overrides this. */
+    /*
+      Not working like in WebPack v4.
+      `optimization.splitChunks.cacheGroups.{cacheGroupKey}.name` overrides this.
+    */
     chunkFilename: 'scripts/[name].chunk.js',
     /* For `rule.type = 'asset' | 'asset/resource'` */
     assetModuleFilename: 'media/[hash:8][ext]'
@@ -260,12 +260,6 @@ module.exports.buildBaseConfig = () => ({
     }),
 
     new WebPack.IgnorePlugin({ resourceRegExp: /^\.\/wordlists\/(?!english)/, contextRegExp: /bip39\/src$/ }),
-
-    new CleanWebpackPlugin({
-      cleanOnceBeforeBuildPatterns: [],
-      cleanStaleWebpackAssets: false,
-      verbose: false
-    }),
 
     new ModuleNotFoundPlugin(PATHS.SOURCE),
 

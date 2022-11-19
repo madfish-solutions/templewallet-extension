@@ -3,6 +3,7 @@
   https://github.com/facebook/create-react-app/blob/main/packages/react-scripts/config/webpack.config.js
 */
 
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
@@ -13,8 +14,6 @@ const WebpackBar = require('webpackbar');
 
 const { buildBaseConfig } = require('./webpack/base.config');
 const { NODE_ENV, DEVELOPMENT_ENV, TARGET_BROWSER, PATHS, RELOADER_PORTS } = require('./webpack/consts');
-
-require('./webpack/cleanup');
 
 const HTML_TEMPLATES = [
   {
@@ -50,6 +49,17 @@ const mainConfig = (() => {
 
   config.plugins.push(
     ...[
+      new WebpackBar({
+        name: 'Temple Wallet | Main',
+        color: '#ed8936'
+      }),
+
+      new CleanWebpackPlugin({
+        cleanOnceBeforeBuildPatterns: [`**/*`, `!background/**`, PATHS.OUTPUT_PACKED],
+        cleanStaleWebpackAssets: false,
+        verbose: false
+      }),
+
       new MiniCssExtractPlugin({
         filename: 'styles/[name].css',
         chunkFilename: 'styles/[name].chunk.css'
@@ -108,11 +118,6 @@ const mainConfig = (() => {
         ]
       }),
 
-      new WebpackBar({
-        name: 'Temple Wallet | Main',
-        color: '#ed8936'
-      }),
-
       // plugin to enable browser reloading in development mode
       DEVELOPMENT_ENV &&
         new ExtensionReloader({
@@ -154,11 +159,19 @@ const backgroundConfig = (() => {
     background: path.join(PATHS.SOURCE, 'background.ts')
   };
 
+  config.output.filename = 'background/index.js';
+
   config.plugins.push(
     ...[
       new WebpackBar({
         name: 'Temple Wallet | Background',
         color: '#ed8936'
+      }),
+
+      new CleanWebpackPlugin({
+        cleanOnceBeforeBuildPatterns: ['background/**'],
+        cleanStaleWebpackAssets: false,
+        verbose: false
       }),
 
       // plugin to enable browser reloading in development mode
