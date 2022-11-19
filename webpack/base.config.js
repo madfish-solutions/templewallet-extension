@@ -10,23 +10,19 @@ const path = require('path');
 const ForkTsCheckerWebpackPlugin = require('react-dev-utils/ForkTsCheckerWebpackPlugin');
 const getCSSModuleLocalIdent = require('react-dev-utils/getCSSModuleLocalIdent');
 const ModuleNotFoundPlugin = require('react-dev-utils/ModuleNotFoundPlugin');
-const typescriptFormatter = require('react-dev-utils/typescriptFormatter');
-const WatchMissingNodeModulesPlugin = require('react-dev-utils/WatchMissingNodeModulesPlugin');
 const resolve = require('resolve');
 const TerserPlugin = require('terser-webpack-plugin');
-const webpack = require('webpack');
+const WebPack = require('webpack');
 
-const pkg = require('../package.json');
+const packageJSON = require('../package.json');
 const tsConfig = require('../tsconfig.json');
 const {
   NODE_ENV,
+  DEVELOPMENT_ENV,
   TARGET_BROWSER,
   SOURCE_MAP_ENV,
   IMAGE_INLINE_SIZE_LIMIT_ENV,
-  CWD_PATH,
-  NODE_MODULES_PATH,
-  SOURCE_PATH,
-  OUTPUT_PATH
+  PATHS
 } = require('./consts');
 
 require('./cleanup');
@@ -35,13 +31,13 @@ require('./cleanup');
 // injected into the application via DefinePlugin in Webpack configuration.
 const TEMPLE_WALLET = /^TEMPLE_WALLET_/i;
 
-const VERSION = pkg.version;
+const VERSION = packageJSON.version;
 const SOURCE_MAP = NODE_ENV !== 'production' && SOURCE_MAP_ENV !== 'false';
 const IMAGE_INLINE_SIZE_LIMIT = parseInt(IMAGE_INLINE_SIZE_LIMIT_ENV);
 
 const MODULE_FILE_EXTENSIONS = ['.js', '.mjs', '.jsx', '.ts', '.tsx', '.json'];
 const ADDITIONAL_MODULE_PATHS = [
-  tsConfig.compilerOptions.baseUrl && path.join(CWD_PATH, tsConfig.compilerOptions.baseUrl)
+  tsConfig.compilerOptions.baseUrl && path.join(PATHS.CWD, tsConfig.compilerOptions.baseUrl)
 ].filter(Boolean);
 const CSS_REGEX = /\.css$/;
 const CSS_MODULE_REGEX = /\.module\.css$/;
@@ -52,8 +48,8 @@ module.exports.buildBaseConfig = () => ({
   devtool: SOURCE_MAP && 'inline-cheap-module-source-map',
 
   output: {
-    path: OUTPUT_PATH,
-    pathinfo: NODE_ENV === 'development' ? 'verbose' : false,
+    path: PATHS.OUTPUT,
+    pathinfo: DEVELOPMENT_ENV ? 'verbose' : false,
     filename: 'scripts/[name].js',
     /* Not working like in WP4 `optimization.splitChunks.cacheGroups.{cacheGroupKey}.name` overrides this. */
     chunkFilename: 'scripts/[name].chunk.js',
@@ -62,7 +58,7 @@ module.exports.buildBaseConfig = () => ({
   },
 
   resolve: {
-    modules: [NODE_MODULES_PATH, ...ADDITIONAL_MODULE_PATHS],
+    modules: [PATHS.NODE_MODULES, ...ADDITIONAL_MODULE_PATHS],
     extensions: MODULE_FILE_EXTENSIONS,
 
     /*
@@ -165,7 +161,7 @@ module.exports.buildBaseConfig = () => ({
           // The preset includes JSX, Flow, TypeScript, and some ESnext features.
           {
             test: /\.(js|mjs|jsx|ts|tsx)$/,
-            include: SOURCE_PATH,
+            include: PATHS.SOURCE,
             loader: require.resolve('babel-loader'),
             options: {
               customize: require.resolve('babel-preset-react-app/webpack-overrides'),
@@ -256,14 +252,14 @@ module.exports.buildBaseConfig = () => ({
       Some dependencies do not perform checks on `typeof nodeSpecificAsset !== undefined`.
       WebPack v4 injected `nodeSpecificAsset` automatically.
     */
-    new webpack.ProvidePlugin({
+    new WebPack.ProvidePlugin({
       process: 'process/browser',
       Buffer: ['buffer', 'Buffer'],
       // Seen 'setImmediate' in: 'scryptsy'
       setImmediate: ['timers-browserify', 'setImmediate']
     }),
 
-    new webpack.IgnorePlugin({ resourceRegExp: /^\.\/wordlists\/(?!english)/, contextRegExp: /bip39\/src$/ }),
+    new WebPack.IgnorePlugin({ resourceRegExp: /^\.\/wordlists\/(?!english)/, contextRegExp: /bip39\/src$/ }),
 
     new CleanWebpackPlugin({
       cleanOnceBeforeBuildPatterns: [],
@@ -271,9 +267,9 @@ module.exports.buildBaseConfig = () => ({
       verbose: false
     }),
 
-    new ModuleNotFoundPlugin(SOURCE_PATH),
+    new ModuleNotFoundPlugin(PATHS.SOURCE),
 
-    new webpack.DefinePlugin({
+    new WebPack.DefinePlugin({
       SharedArrayBuffer: '_SharedArrayBuffer',
       'process.env.NODE_ENV': JSON.stringify(NODE_ENV),
       'process.env.VERSION': JSON.stringify(VERSION),
@@ -289,28 +285,55 @@ module.exports.buildBaseConfig = () => ({
       })()
     }),
 
-    new WatchMissingNodeModulesPlugin(NODE_MODULES_PATH),
-
     new ForkTsCheckerWebpackPlugin({
-      typescript: resolve.sync('typescript', {
-        basedir: NODE_MODULES_PATH
-      }),
-      async: false,
-      silent: true,
-      useTypescriptIncrementalApi: true,
-      checkSyntacticErrors: true,
-      tsconfig: path.join(CWD_PATH, 'tsconfig.json'),
-      reportFiles: ['**', '!**/__tests__/**', '!**/?(*.)(spec|test).*', '!**/src/setupProxy.*', '!**/src/setupTests.*'],
-      formatter: typescriptFormatter
+      async: DEVELOPMENT_ENV,
+      typescript: {
+        typescriptPath: resolve.sync('typescript', {
+          basedir: PATHS.NODE_MODULES
+        }),
+        configOverwrite: {
+          compilerOptions: {
+            sourceMap: DEVELOPMENT_ENV,
+            skipLibCheck: true,
+            inlineSourceMap: false,
+            declarationMap: false,
+            noEmit: true,
+            incremental: true,
+            tsBuildInfoFile: false
+          }
+        },
+        // context: paths.appPath,
+        diagnosticOptions: {
+          syntactic: true
+        },
+        mode: 'write-references'
+        // profile: true
+      },
+      issue: {
+        // This one is specifically to match during CI tests,
+        // as micromatch doesn't match
+        // '../cra-template-typescript/template/src/App.tsx'
+        // otherwise.
+        include: [{ file: '../**/src/**/*.{ts,tsx}' }, { file: '**/src/**/*.{ts,tsx}' }],
+        exclude: [
+          { file: '**/src/**/__tests__/**' },
+          { file: '**/src/**/?(*.){spec|test}.*' },
+          { file: '**/src/setupProxy.*' },
+          { file: '**/src/setupTests.*' }
+        ]
+      },
+      logger: {
+        infrastructure: 'silent'
+      }
     }),
 
     new ESLintPlugin({
       extensions: ['js', 'mjs', 'jsx', 'ts', 'tsx'],
       formatter: require.resolve('react-dev-utils/eslintFormatter'),
       eslintPath: require.resolve('eslint'),
-      resolvePluginsRelativeTo: CWD_PATH,
+      resolvePluginsRelativeTo: PATHS.CWD,
       cache: true,
-      cacheLocation: path.resolve(NODE_MODULES_PATH, '.cache/.eslintcache'),
+      cacheLocation: path.resolve(PATHS.NODE_MODULES, '.cache/.eslintcache'),
       failOnError: true
     })
   ].filter(Boolean),

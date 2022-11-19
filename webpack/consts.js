@@ -8,14 +8,32 @@ const {
   IMAGE_INLINE_SIZE_LIMIT: IMAGE_INLINE_SIZE_LIMIT_ENV = '10000'
 } = process.env;
 
+const DEVELOPMENT_ENV = NODE_ENV === 'development';
+
+const RELOADER_PORTS = {
+  BACKGROUND: 9090,
+  FOREGROUND: 9091
+};
+
 const CWD_PATH = fs.realpathSync(process.cwd());
 const NODE_MODULES_PATH = path.join(CWD_PATH, 'node_modules');
 const SOURCE_PATH = path.join(CWD_PATH, 'src');
 const PUBLIC_PATH = path.join(CWD_PATH, 'public');
 const DEST_PATH = path.join(CWD_PATH, 'dist');
-const WASM_PATH = path.join(NODE_MODULES_PATH, 'wasm-themis/src/libthemis.wasm');
 const OUTPUT_PATH = path.join(DEST_PATH, `${TARGET_BROWSER}_unpacked`);
-const SCRIPTS_PATH = path.join(OUTPUT_PATH, 'scripts/');
+const OUTPUT_SCRIPTS_PATH = path.join(OUTPUT_PATH, 'scripts/');
+const WASM_PATH = path.join(NODE_MODULES_PATH, 'wasm-themis/src/libthemis.wasm');
+
+const PATHS = {
+  CWD: CWD_PATH,
+  NODE_MODULES: NODE_MODULES_PATH,
+  SOURCE: SOURCE_PATH,
+  PUBLIC: PUBLIC_PATH,
+  DEST: DEST_PATH,
+  OUTPUT: OUTPUT_PATH,
+  OUTPUT_SCRIPTS: OUTPUT_SCRIPTS_PATH,
+  WASM: WASM_PATH
+};
 
 const dotenvPath = path.resolve(CWD_PATH, '.env');
 
@@ -47,15 +65,10 @@ dotenvFiles.forEach(dotenvFile => {
 
 module.exports = {
   NODE_ENV,
+  DEVELOPMENT_ENV,
   TARGET_BROWSER,
   SOURCE_MAP_ENV,
   IMAGE_INLINE_SIZE_LIMIT_ENV,
-  CWD_PATH,
-  NODE_MODULES_PATH,
-  SOURCE_PATH,
-  PUBLIC_PATH,
-  DEST_PATH,
-  WASM_PATH,
-  OUTPUT_PATH,
-  SCRIPTS_PATH
+  PATHS,
+  RELOADER_PORTS
 };

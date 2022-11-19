@@ -1,12 +1,9 @@
-import * as fs from 'fs';
 import * as path from 'path';
 import { zip } from 'zip-a-folder';
 
-const { TARGET_BROWSER = 'chrome' } = process.env;
+import { TARGET_BROWSER, PATHS } from './consts';
 
-const CWD_PATH = fs.realpathSync(process.cwd());
-const DIST_PATH = path.join(CWD_PATH, 'dist');
-const UNPACKED_PATH = path.join(DIST_PATH, `${TARGET_BROWSER}_unpacked`);
+const UNPACKED_PATH = PATHS.OUTPUT;
 
 const PACKED_EXTENSION = (() => {
   switch (TARGET_BROWSER) {
@@ -23,8 +20,8 @@ const PACKED_EXTENSION = (() => {
 
 const fileName = `${TARGET_BROWSER}.${PACKED_EXTENSION}`;
 
-const PACKED_PATH = path.join(CWD_PATH, `dist/${fileName}`);
+const PACKED_PATH = path.join(PATHS.DEST, fileName);
 
-console.log('Will zip to:', `dist/${fileName}`);
+console.log(`Will zip as: ${fileName}`);
 
 zip(UNPACKED_PATH, PACKED_PATH);

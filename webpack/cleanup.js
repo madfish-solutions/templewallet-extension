@@ -1,9 +1,9 @@
 const fs = require('fs');
 const path = require('path');
 
-const { TARGET_BROWSER, CWD_PATH } = require('./consts');
+const { TARGET_BROWSER, PATHS } = require('./consts');
 
-const DIST_PATH = path.join(CWD_PATH, 'dist');
+const DIST_PATH = path.join(PATHS.CWD, 'dist');
 const UNPACKED_PATH = path.join(DIST_PATH, `${TARGET_BROWSER}_unpacked`);
 
 const PACKED_EXTENSION = (() => {
@@ -21,7 +21,7 @@ const PACKED_EXTENSION = (() => {
 
 const fileName = `${TARGET_BROWSER}.${PACKED_EXTENSION}`;
 
-const PACKED_PATH = path.join(CWD_PATH, `dist/${fileName}`);
+const PACKED_PATH = path.join(PATHS.CWD, `dist/${fileName}`);
 
 fs.rmSync(UNPACKED_PATH, { recursive: true, force: true });
 

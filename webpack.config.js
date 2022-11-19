@@ -12,49 +12,40 @@ const ExtensionReloader = require('webpack-ext-reloader-mv3');
 const WebpackBar = require('webpackbar');
 
 const { buildBaseConfig } = require('./webpack/base.config');
-const {
-  NODE_ENV,
-  TARGET_BROWSER,
-  SOURCE_PATH,
-  PUBLIC_PATH,
-  WASM_PATH,
-  OUTPUT_PATH,
-  SCRIPTS_PATH
-} = require('./webpack/consts');
+const { NODE_ENV, DEVELOPMENT_ENV, TARGET_BROWSER, PATHS, RELOADER_PORTS } = require('./webpack/consts');
 
 require('./webpack/cleanup');
 
 const HTML_TEMPLATES = [
   {
     name: 'popup',
-    path: path.join(PUBLIC_PATH, 'popup.html')
+    path: path.join(PATHS.PUBLIC, 'popup.html')
   },
   {
     name: 'fullpage',
-    path: path.join(PUBLIC_PATH, 'fullpage.html')
+    path: path.join(PATHS.PUBLIC, 'fullpage.html')
   },
   {
     name: 'confirm',
-    path: path.join(PUBLIC_PATH, 'confirm.html')
+    path: path.join(PATHS.PUBLIC, 'confirm.html')
   },
   {
     name: 'options',
-    path: path.join(PUBLIC_PATH, 'options.html')
+    path: path.join(PATHS.PUBLIC, 'options.html')
   }
 ];
 
 const SEPARATED_CHUNKS = new Set(['background', 'contentScript']);
-const MANIFEST_PATH = path.join(PUBLIC_PATH, 'manifest.json');
 
 const mainConfig = (() => {
   const config = buildBaseConfig();
 
   config.entry = {
-    popup: path.join(SOURCE_PATH, 'popup.tsx'),
-    fullpage: path.join(SOURCE_PATH, 'fullpage.tsx'),
-    confirm: path.join(SOURCE_PATH, 'confirm.tsx'),
-    options: path.join(SOURCE_PATH, 'options.tsx'),
-    contentScript: path.join(SOURCE_PATH, 'contentScript.ts')
+    popup: path.join(PATHS.SOURCE, 'popup.tsx'),
+    fullpage: path.join(PATHS.SOURCE, 'fullpage.tsx'),
+    confirm: path.join(PATHS.SOURCE, 'confirm.tsx'),
+    options: path.join(PATHS.SOURCE, 'options.tsx'),
+    contentScript: path.join(PATHS.SOURCE, 'contentScript.ts')
   };
 
   config.plugins.push(
@@ -93,30 +84,27 @@ const mainConfig = (() => {
       new CopyWebpackPlugin({
         patterns: [
           {
-            from: PUBLIC_PATH,
-            to: OUTPUT_PATH,
+            from: PATHS.PUBLIC,
+            to: PATHS.OUTPUT,
             globOptions: {
               /*
-              - HTML files are taken care of by the `html-webpack-plugin`. Copying them here leads to:
-                `ERROR in Conflict: Multiple assets emit different content to the same filename [name].html`
-              - Manifest file is copied next with transformation of it.
-            */
+                - HTML files are taken care of by the `html-webpack-plugin`. Copying them here leads to:
+                  `ERROR in Conflict: Multiple assets emit different content to the same filename [name].html`
+                - Manifest file is copied next, along with transformation of it.
+              */
               ignore: ['**/*.html', '**/manifest.json']
             }
           },
           {
-            from: MANIFEST_PATH,
-            to: path.join(OUTPUT_PATH, 'manifest.json'),
+            from: path.join(PATHS.PUBLIC, 'manifest.json'),
+            to: path.join(PATHS.OUTPUT, 'manifest.json'),
             toType: 'file',
             transform: content => {
               const manifest = transformManifestKeys(JSON.parse(content), TARGET_BROWSER);
               return JSON.stringify(manifest, null, 2);
             }
           },
-          {
-            from: WASM_PATH,
-            to: SCRIPTS_PATH
-          }
+          { from: PATHS.WASM, to: PATHS.OUTPUT_SCRIPTS }
         ]
       }),
 
@@ -126,9 +114,9 @@ const mainConfig = (() => {
       }),
 
       // plugin to enable browser reloading in development mode
-      NODE_ENV === 'development' &&
+      DEVELOPMENT_ENV &&
         new ExtensionReloader({
-          port: 9091,
+          port: RELOADER_PORTS.FOREGROUND,
           reloadPage: true,
           // manifest: path.join(OUTPUT_PATH, "manifest.json"),
           entries: {
@@ -163,7 +151,7 @@ const backgroundConfig = (() => {
   config.target = 'webworker';
 
   config.entry = {
-    background: path.join(SOURCE_PATH, 'background.ts')
+    background: path.join(PATHS.SOURCE, 'background.ts')
   };
 
   config.plugins.push(
@@ -174,14 +162,12 @@ const backgroundConfig = (() => {
       }),
 
       // plugin to enable browser reloading in development mode
-      NODE_ENV === 'development' &&
+      DEVELOPMENT_ENV &&
         new ExtensionReloader({
-          port: 9090,
+          port: RELOADER_PORTS.BACKGROUND,
           reloadPage: true,
           // manifest: path.join(OUTPUT_PATH, "manifest.json"),
-          entries: {
-            background: 'background'
-          }
+          entries: { background: 'background' }
         })
     ].filter(Boolean)
   );
