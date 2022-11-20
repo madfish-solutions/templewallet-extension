@@ -1,12 +1,21 @@
-const fs = require('fs');
-const path = require('path');
+import * as fs from 'fs';
+import * as path from 'path';
+
+import { isTruthy } from './utils';
 
 const {
   NODE_ENV = 'development',
   TARGET_BROWSER = 'chrome',
   SOURCE_MAP: SOURCE_MAP_ENV,
   IMAGE_INLINE_SIZE_LIMIT: IMAGE_INLINE_SIZE_LIMIT_ENV = '10000'
-} = process.env;
+} = process.env as {
+  NODE_ENV: 'development' | 'production' | 'test';
+  TARGET_BROWSER: string;
+  SOURCE_MAP?: 'true' | 'false';
+  IMAGE_INLINE_SIZE_LIMIT?: string;
+};
+
+const WEBPACK_MODE = NODE_ENV === 'test' ? 'none' : NODE_ENV;
 
 const DEVELOPMENT_ENV = NODE_ENV === 'development';
 
@@ -63,19 +72,23 @@ const dotenvPath = path.resolve(PATH_CWD, '.env');
 // https://github.com/bkeepers/dotenv#what-other-env-files-can-i-use
 const dotenvFiles = [
   `${dotenvPath}.${NODE_ENV}.local`,
-  // Don't include `.env.local` for `test` environment
-  // since normally you expect tests to produce the same
-  // results for everyone
+  /*
+    Don't include `.env.local` for `test` environment
+    since normally you expect tests to produce the same
+    results for everyone
+  */
   NODE_ENV !== 'test' && `${dotenvPath}.local`,
   `${dotenvPath}.${NODE_ENV}`,
   dotenvPath
-].filter(Boolean);
+].filter(isTruthy);
 
-// Load environment variables from .env* files. Suppress warnings using silent
-// if this file is missing. dotenv will never modify any environment variables
-// that have already been set.  Variable expansion is supported in .env files.
-// https://github.com/motdotla/dotenv
-// https://github.com/motdotla/dotenv-expand
+/*
+  Load environment variables from .env* files. Suppress warnings using silent
+  if this file is missing. dotenv will never modify any environment variables
+  that have already been set.  Variable expansion is supported in .env files.
+  - https://github.com/motdotla/dotenv
+  - https://github.com/motdotla/dotenv-expand
+*/
 dotenvFiles.forEach(dotenvFile => {
   if (fs.existsSync(dotenvFile)) {
     require('dotenv-expand')(
@@ -86,8 +99,9 @@ dotenvFiles.forEach(dotenvFile => {
   }
 });
 
-module.exports = {
+export {
   NODE_ENV,
+  WEBPACK_MODE,
   DEVELOPMENT_ENV,
   TARGET_BROWSER,
   SOURCE_MAP_ENV,

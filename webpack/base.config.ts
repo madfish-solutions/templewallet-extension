@@ -3,26 +3,29 @@
   https://github.com/facebook/create-react-app/blob/main/packages/react-scripts/config/webpack.config.js
 */
 
-const ESLintPlugin = require('eslint-webpack-plugin');
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const path = require('path');
-const ForkTsCheckerWebpackPlugin = require('react-dev-utils/ForkTsCheckerWebpackPlugin');
-const getCSSModuleLocalIdent = require('react-dev-utils/getCSSModuleLocalIdent');
-const ModuleNotFoundPlugin = require('react-dev-utils/ModuleNotFoundPlugin');
-const resolve = require('resolve');
-const TerserPlugin = require('terser-webpack-plugin');
-const WebPack = require('webpack');
+import ESLintPlugin from 'eslint-webpack-plugin';
+import MiniCssExtractPlugin from 'mini-css-extract-plugin';
+import * as path from 'path';
+// @ts-ignore
+import ForkTsCheckerWebpackPlugin from 'react-dev-utils/ForkTsCheckerWebpackPlugin';
+import getCSSModuleLocalIdent from 'react-dev-utils/getCSSModuleLocalIdent';
+// @ts-ignore
+import ModuleNotFoundPlugin from 'react-dev-utils/ModuleNotFoundPlugin';
+import resolve from 'resolve';
+import TerserPlugin from 'terser-webpack-plugin';
+import WebPack from 'webpack';
 
-const packageJSON = require('../package.json');
-const tsConfig = require('../tsconfig.json');
-const {
+import packageJSON from '../package.json';
+import tsConfig from '../tsconfig.json';
+import {
   NODE_ENV,
+  WEBPACK_MODE,
   DEVELOPMENT_ENV,
   TARGET_BROWSER,
   SOURCE_MAP_ENV,
   IMAGE_INLINE_SIZE_LIMIT_ENV,
   PATHS
-} = require('./consts');
+} from './consts';
 
 // Grab NODE_ENV and TEMPLE_WALLET_* environment variables and prepare them to be
 // injected into the application via DefinePlugin in Webpack configuration.
@@ -39,8 +42,8 @@ const ADDITIONAL_MODULE_PATHS = [
 const CSS_REGEX = /\.css$/;
 const CSS_MODULE_REGEX = /\.module\.css$/;
 
-module.exports.buildBaseConfig = () => ({
-  mode: NODE_ENV,
+export const buildBaseConfig = (): WebPack.Configuration => ({
+  mode: WEBPACK_MODE,
   bail: NODE_ENV === 'production',
   devtool: SOURCE_MAP && 'inline-cheap-module-source-map',
 
@@ -81,32 +84,7 @@ module.exports.buildBaseConfig = () => ({
         We need the former ones (e.g. `idna-uts46-hx` relies on it).
       */
       punycode$: require.resolve('punycode/punycode.js')
-    },
-
-    plugins: [
-      {
-        apply(resolver) {
-          const target = resolver.ensureHook('resolve');
-
-          resolver.getHook('resolve').tapAsync('TaquitoSignerResolverPlugin', (request, resolveContext, callback) => {
-            if (/@taquito\/signer$/.test(request.request) && /@taquito\/taquito/.test(request.context.issuer)) {
-              return resolver.doResolve(
-                target,
-                {
-                  ...request,
-                  request: 'lib/taquito-signer-stub'
-                },
-                null,
-                resolveContext,
-                callback
-              );
-            }
-
-            callback();
-          });
-        }
-      }
-    ]
+    }
   },
 
   module: {
@@ -269,7 +247,7 @@ module.exports.buildBaseConfig = () => ({
       'process.env.VERSION': JSON.stringify(VERSION),
       'process.env.TARGET_BROWSER': JSON.stringify(TARGET_BROWSER),
       ...(() => {
-        const appEnvs = {};
+        const appEnvs: Record<`process.env.${string}`, string> = {};
         for (const k of Object.keys(process.env)) {
           if (TEMPLE_WALLET.test(k)) {
             appEnvs[`process.env.${k}`] = JSON.stringify(process.env[k]);
@@ -333,26 +311,54 @@ module.exports.buildBaseConfig = () => ({
   ].filter(Boolean),
 
   optimization: {
+    minimize: NODE_ENV === 'production',
+
     minimizer: [
+      // This is only used in production mode
       new TerserPlugin({
         terserOptions: {
           sourceMap: SOURCE_MAP,
           parse: {
-            ecma: 8
+            /*
+              We want terser to parse ecma 8 code. However, we don't want it
+              to apply any minification steps that turns valid ecma 5 code
+              into invalid ecma 5 code. This is why the 'compress' and 'output'
+              sections only apply transformations that are ecma 5 safe
+              https://github.com/facebook/create-react-app/pull/4234
+            */
+            ecma: 2017 // ES8
           },
           compress: {
             ecma: 5,
             warnings: false,
+            /*
+              Disabled because of an issue with Uglify breaking seemingly valid code:
+              https://github.com/facebook/create-react-app/issues/2376
+              Pending further investigation:
+              https://github.com/mishoo/UglifyJS2/issues/2011
+            */
             comparisons: false,
+            /*
+              Disabled because of an issue with Terser breaking valid code:
+              https://github.com/facebook/create-react-app/issues/5250
+              Pending further investigation:
+              https://github.com/terser-js/terser/issues/120
+            */
             inline: 2,
             drop_console: NODE_ENV === 'production'
           },
           mangle: {
             safari10: true
           },
+          keep_classnames: false,
+          keep_fnames: false,
           output: {
             ecma: 5,
             comments: false,
+            /*
+              Turned on because emoji and regex is not minified properly using default
+              https://github.com/facebook/create-react-app/issues/2488
+            */
             ascii_only: true
           }
         }

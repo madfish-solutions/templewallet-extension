@@ -3,17 +3,20 @@
   https://github.com/facebook/create-react-app/blob/main/packages/react-scripts/config/webpack.config.js
 */
 
-const { CleanWebpackPlugin } = require('clean-webpack-plugin');
-const CopyWebpackPlugin = require('copy-webpack-plugin');
-const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const path = require('path');
-const ExtensionReloader = require('webpack-ext-reloader-mv3');
-const WebpackBar = require('webpackbar');
+import { CleanWebpackPlugin } from 'clean-webpack-plugin';
+import CopyWebpackPlugin from 'copy-webpack-plugin';
+import CssMinimizerPlugin from 'css-minimizer-webpack-plugin';
+import HtmlWebpackPlugin from 'html-webpack-plugin';
+import MiniCssExtractPlugin from 'mini-css-extract-plugin';
+import * as path from 'path';
+import ExtensionReloaderBadlyTyped, { ExtensionReloader as ExtensionReloaderType } from 'webpack-ext-reloader-mv3';
+import WebpackBar from 'webpackbar';
 
-const { buildBaseConfig } = require('./webpack/base.config');
-const { NODE_ENV, DEVELOPMENT_ENV, TARGET_BROWSER, PATHS, RELOADER_PORTS } = require('./webpack/consts');
+import { buildBaseConfig } from './webpack/base.config';
+import { NODE_ENV, DEVELOPMENT_ENV, TARGET_BROWSER, PATHS, RELOADER_PORTS } from './webpack/consts';
+import { isTruthy } from './webpack/utils';
+
+const ExtensionReloader = ExtensionReloaderBadlyTyped as ExtensionReloaderType;
 
 const HTML_TEMPLATES = [
   {
@@ -47,7 +50,7 @@ const mainConfig = (() => {
     contentScript: path.join(PATHS.SOURCE, 'contentScript.ts')
   };
 
-  config.plugins.push(
+  config.plugins!.push(
     ...[
       new WebpackBar({
         name: 'Temple Wallet | Main',
@@ -110,7 +113,7 @@ const mainConfig = (() => {
             to: path.join(PATHS.OUTPUT, 'manifest.json'),
             toType: 'file',
             transform: content => {
-              const manifest = transformManifestKeys(JSON.parse(content), TARGET_BROWSER);
+              const manifest = transformManifestKeys(JSON.parse(content.toString()), TARGET_BROWSER);
               return JSON.stringify(manifest, null, 2);
             }
           },
@@ -129,20 +132,20 @@ const mainConfig = (() => {
             extensionPage: ['popup', 'fullpage', 'confirm', 'options', 'commons.chunk']
           }
         })
-    ].filter(Boolean)
+    ].filter(isTruthy)
   );
 
-  config.optimization.splitChunks = {
+  config.optimization!.splitChunks = {
     cacheGroups: {
       commons: {
-        name: (module, chunks, cacheGroupKey) => `${cacheGroupKey}.chunk`,
+        name: (_module: unknown, _chunks: unknown, cacheGroupKey: string) => `${cacheGroupKey}.chunk`,
         minChunks: 2,
         chunks: chunk => !SEPARATED_CHUNKS.has(chunk.name)
       }
     }
   };
 
-  config.optimization.minimizer.push(
+  config.optimization!.minimizer!.push(
     // This is only used in production mode
     new CssMinimizerPlugin()
   );
@@ -159,9 +162,9 @@ const backgroundConfig = (() => {
     background: path.join(PATHS.SOURCE, 'background.ts')
   };
 
-  config.output.filename = 'background/index.js';
+  config.output!.filename = 'background/index.js';
 
-  config.plugins.push(
+  config.plugins!.push(
     ...[
       new WebpackBar({
         name: 'Temple Wallet | Background',
@@ -182,7 +185,7 @@ const backgroundConfig = (() => {
           // manifest: path.join(OUTPUT_PATH, "manifest.json"),
           entries: { background: 'background' }
         })
-    ].filter(Boolean)
+    ].filter(isTruthy)
   );
 
   return config;
@@ -197,7 +200,9 @@ module.exports = [mainConfig, backgroundConfig];
 const browserVendors = ['chrome', 'firefox', 'opera', 'edge', 'safari'];
 const vendorRegExp = new RegExp(`^__((?:(?:${browserVendors.join('|')})\\|?)+)__(.*)`);
 
-const transformManifestKeys = (manifest, vendor) => {
+type ManifestType = Record<string, any>;
+
+const transformManifestKeys = (manifest: ManifestType, vendor: string): ManifestType => {
   if (Array.isArray(manifest)) {
     return manifest.map(newManifest => {
       return transformManifestKeys(newManifest, vendor);
@@ -205,6 +210,7 @@ const transformManifestKeys = (manifest, vendor) => {
   }
 
   if (typeof manifest === 'object') {
+    const newManifest: ManifestType = {};
     return Object.entries(manifest).reduce((newManifest, [key, value]) => {
       const match = key.match(vendorRegExp);
 
@@ -220,7 +226,7 @@ const transformManifestKeys = (manifest, vendor) => {
       }
 
       return newManifest;
-    }, {});
+    }, newManifest);
   }
 
   return manifest;
