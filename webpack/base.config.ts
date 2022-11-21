@@ -6,10 +6,8 @@
 import ESLintPlugin from 'eslint-webpack-plugin';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import * as path from 'path';
-// @ts-ignore
 import ForkTsCheckerWebpackPlugin from 'react-dev-utils/ForkTsCheckerWebpackPlugin';
 import getCSSModuleLocalIdent from 'react-dev-utils/getCSSModuleLocalIdent';
-// @ts-ignore
 import ModuleNotFoundPlugin from 'react-dev-utils/ModuleNotFoundPlugin';
 import resolve from 'resolve';
 import TerserPlugin from 'terser-webpack-plugin';

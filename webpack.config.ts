@@ -5,6 +5,7 @@
 
 import { CleanWebpackPlugin } from 'clean-webpack-plugin';
 import CopyWebpackPlugin from 'copy-webpack-plugin';
+import CreateFileWebpack from 'create-file-webpack';
 import CssMinimizerPlugin from 'css-minimizer-webpack-plugin';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
@@ -14,9 +15,12 @@ import WebpackBar from 'webpackbar';
 
 import { buildBaseConfig } from './webpack/base.config';
 import { NODE_ENV, DEVELOPMENT_ENV, TARGET_BROWSER, PATHS, RELOADER_PORTS } from './webpack/consts';
-import { isTruthy, buildManifest } from './webpack/utils';
+import { getManifestVersion, buildManifest } from './webpack/manifest';
+import { isTruthy } from './webpack/utils';
 
 const ExtensionReloader = ExtensionReloaderBadlyTyped as ExtensionReloaderType;
+
+const MANIFEST_VERSION = getManifestVersion(TARGET_BROWSER);
 
 const HTML_TEMPLATES = [
   {
@@ -105,21 +109,20 @@ const mainConfig = (() => {
                   `ERROR in Conflict: Multiple assets emit different content to the same filename [name].html`
                 - Manifest file is copied next, along with transformation of it.
               */
-              ignore: ['**/*.html', '**/manifest.json']
-            }
-          },
-          {
-            from: path.join(PATHS.PUBLIC, 'manifest.json'),
-            to: path.join(PATHS.OUTPUT, 'manifest.json'),
-            toType: 'file',
-            transform: content => {
-              const manifestDraft = JSON.parse(content.toString());
-              const manifest = buildManifest(manifestDraft, TARGET_BROWSER);
-              return JSON.stringify(manifest, null, 2);
+              ignore: ['**/*.html']
             }
           },
           { from: PATHS.WASM, to: PATHS.OUTPUT_SCRIPTS }
         ]
+      }),
+
+      new CreateFileWebpack({
+        path: PATHS.OUTPUT,
+        fileName: 'manifest.json',
+        content: (() => {
+          const manifest = buildManifest(TARGET_BROWSER);
+          return JSON.stringify(manifest, null, 2);
+        })()
       }),
 
       // plugin to enable browser reloading in development mode
@@ -157,7 +160,7 @@ const mainConfig = (() => {
 const backgroundConfig = (() => {
   const config = buildBaseConfig();
 
-  config.target = 'webworker';
+  if (MANIFEST_VERSION === 3) config.target = 'webworker';
 
   config.entry = {
     background: path.join(PATHS.SOURCE, 'background.ts')
