@@ -34,7 +34,7 @@ const AddressChip: FC<AddressChipProps> = ({ pkh, className, small }) => {
   useEffect(() => {
     (async () => {
       try {
-        const val = await fetchFromStorage(domainDisplayedKey);
+        const val = await fetchFromStorage<boolean>(domainDisplayedKey);
         setDomainDisplayed(val ?? true);
       } catch {}
     })();

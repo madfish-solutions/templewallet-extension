@@ -13,6 +13,7 @@ import { AssetIcon } from 'app/templates/AssetIcon';
 import { T } from 'lib/i18n';
 import { fromFa2TokenSlug } from 'lib/temple/assets';
 import { useAccount, useBalance, useAssetMetadata } from 'lib/temple/front';
+import { getAssetName } from 'lib/temple/metadata';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 import { navigate } from 'lib/woozie';
 
@@ -33,10 +34,12 @@ const CollectiblePage: FC<Props> = ({ assetSlug }) => {
   });
 
   const { copy } = useCopyToClipboard();
-  const collectibleData = useAssetMetadata(assetSlug)!;
+  const collectibleData = useAssetMetadata(assetSlug);
+
+  const collectibleName = getAssetName(collectibleData);
 
   return (
-    <PageLayout pageTitle={collectibleData.name}>
+    <PageLayout pageTitle={collectibleName}>
       <div style={{ maxWidth: '360px', margin: 'auto' }} className="text-center pb-4">
         <div className={classNames('w-full max-w-sm mx-auto')}>
           <div style={{ borderRadius: '12px', width: '320px' }} className={'border border-gray-300 p-6 mx-auto my-10'}>
@@ -48,7 +51,7 @@ const CollectiblePage: FC<Props> = ({ assetSlug }) => {
           <p className="text-gray-600 text-xs">
             <T id={'name'} />
           </p>
-          <p className="text-xs text-gray-910">{collectibleData.name}</p>
+          <p className="text-xs text-gray-910">{collectibleName}</p>
         </div>
         <div className="flex justify-between items-baseline mt-4 mb-4">
           <p className="text-gray-600 text-xs">

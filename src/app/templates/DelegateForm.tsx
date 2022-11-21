@@ -312,7 +312,7 @@ const DelegateForm: FC = () => {
           as={<NoSpaceField ref={toFieldRef} />}
           control={control}
           rules={{
-            validate: (value: any) => validateDelegate(value, canUseDomainNames, domainsClient, t, validateAddress)
+            validate: (value: any) => validateDelegate(value, domainsClient, validateAddress)
           }}
           onChange={([v]) => v}
           onFocus={() => toFieldRef.current?.focus()}
@@ -748,7 +748,7 @@ class UnchangedError extends Error {}
 
 class UnregisteredDelegateError extends Error {}
 
-function validateAddress(value: any) {
+function validateAddress(value: string) {
   switch (false) {
     case value?.length > 0:
       return true;

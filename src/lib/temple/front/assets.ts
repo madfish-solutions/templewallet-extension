@@ -31,7 +31,7 @@ import {
   PRESERVED_TOKEN_METADATA,
   TEZOS_METADATA
 } from '../metadata';
-import { useTezos, useChainId, useAccount } from './ready';
+import { useTezosRef, useChainId, useAccount } from './ready';
 import { onStorageChanged, putToStorage, usePassiveStorage } from './storage';
 
 const ALL_TOKENS_BASE_METADATA_STORAGE_KEY = 'tokens_base_metadata';
@@ -110,8 +110,7 @@ export const useGasToken = () => {
       };
 };
 
-export function useAssetMetadata(slug: string) {
-  const tezos = useTezos();
+export function useAssetMetadata(slug: string): AssetMetadata | null {
   const forceUpdate = useForceUpdate();
   const { metadata } = useGasToken();
 
@@ -128,31 +127,34 @@ export function useAssetMetadata(slug: string) {
     [slug, allTokensBaseMetadataRef, forceUpdate]
   );
 
+  const getCurrentBaseMetadata = useMemo(
+    () => (): AssetMetadata | null => allTokensBaseMetadataRef.current[slug] ?? null,
+    [slug, allTokensBaseMetadataRef]
+  );
+
   const tezAsset = isTezAsset(slug);
-  const tokenMetadata = allTokensBaseMetadataRef.current[slug] ?? null;
+  const tokenMetadata = getCurrentBaseMetadata();
   const exist = Boolean(tokenMetadata);
 
-  // Load token metadata if missing
-  const tezosRef = useRef(tezos);
   useEffect(() => {
-    tezosRef.current = tezos;
-  }, [tezos]);
-
-  useEffect(() => {
-    if (!isTezAsset(slug) && !exist && !autoFetchMetadataFails.has(slug)) {
-      enqueueAutoFetchMetadata(() => fetchMetadata(slug))
-        .then(metadata => {
-          if (metadata !== null) {
-            return Promise.all([
-              setTokensBaseMetadata({ [slug]: metadata.base }),
-              setTokensDetailedMetadata({ [slug]: metadata.detailed })
-            ]);
-          }
-          throw new Error('');
-        })
-        .catch(() => autoFetchMetadataFails.add(slug));
-    }
-  }, [slug, exist, fetchMetadata, setTokensBaseMetadata, setTokensDetailedMetadata]);
+    if (isTezAsset(slug) || exist || autoFetchMetadataFails.has(slug)) return;
+    enqueueAutoFetchMetadata(async () => {
+      if (getCurrentBaseMetadata()) return;
+      const metadata = await fetchMetadata(slug);
+      if (metadata == null) throw new Error('');
+      return metadata;
+    })
+      .then(metadata => {
+        return (
+          metadata &&
+          Promise.all([
+            setTokensBaseMetadata({ [slug]: metadata.base }),
+            setTokensDetailedMetadata({ [slug]: metadata.detailed })
+          ])
+        );
+      })
+      .catch(() => autoFetchMetadataFails.add(slug));
+  }, [slug, exist, getCurrentBaseMetadata, fetchMetadata, setTokensBaseMetadata, setTokensDetailedMetadata]);
 
   // Tezos
   if (tezAsset) {
@@ -185,13 +187,9 @@ export const [TokensMetadataProvider, useTokensMetadata] = constate(() => {
     []
   );
 
-  const tezos = useTezos();
-  const tezosRef = useRef(tezos);
-  useEffect(() => {
-    tezosRef.current = tezos;
-  }, [tezos]);
+  const tezosRef = useTezosRef();
 
-  const fetchMetadata = useCallback((slug: string) => fetchTokenMetadata(tezosRef.current, slug), []);
+  const fetchMetadata = (slug: string) => fetchTokenMetadata(tezosRef.current, slug);
 
   const setTokensBaseMetadata = useCallback(
     (toSet: Record<string, AssetMetadata>) =>
@@ -223,7 +221,7 @@ export const useGetTokenMetadata = () => {
   const { metadata } = useGasToken();
 
   return useCallback(
-    (slug: string) => {
+    (slug: string): AssetMetadata | undefined => {
       if (isTezAsset(slug)) {
         return metadata;
       }

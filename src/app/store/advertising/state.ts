@@ -12,7 +12,3 @@ export const advertisingInitialState: AdvertisingState = {
   activePromotion: createEntity(undefined),
   lastSeenPromotionName: undefined
 };
-
-export interface AdvertisingRootState {
-  advertising: AdvertisingState;
-}

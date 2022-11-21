@@ -11,7 +11,7 @@ import { AssetIcon } from '../../../../templates/AssetIcon';
 import { AssetsSelectors } from '../../Assets.selectors';
 import styles from '../Tokens.module.css';
 import { toExploreAssetLink } from '../utils';
-import Balance from './Balance';
+import { Balance } from './Balance';
 import { DelegateButton } from './DelegateButton';
 
 interface ListItemProps {
@@ -30,6 +30,8 @@ export const ListItem = memo<ListItemProps>(({ active, assetSlug, latestBalances
   }, [assetSlug, latestBalances]);
 
   const metadata = useAssetMetadata(assetSlug);
+
+  if (metadata == null) return null;
 
   return (
     <Link
@@ -55,13 +57,11 @@ export const ListItem = memo<ListItemProps>(({ active, assetSlug, latestBalances
             <div className={classNames(styles['tokenSymbol'])}>{getAssetSymbol(metadata)}</div>
             {assetSlug === 'tez' && <DelegateButton />}
           </div>
-          <Balance assetSlug={assetSlug} latestBalance={latestBalance} />
+          <Balance assetSlug={assetSlug} value={latestBalance} />
         </div>
         <div className="flex justify-between w-full mb-1">
-          <div className={classNames('text-xs font-normal text-gray-700 truncate flex-1')}>
-            {getAssetName(metadata)}
-          </div>
-          <Balance assetSlug={assetSlug} latestBalance={latestBalance} inFiat />
+          <div className="text-xs font-normal text-gray-700 truncate flex-1">{getAssetName(metadata)}</div>
+          <Balance assetSlug={assetSlug} value={latestBalance} inFiat />
         </div>
       </div>
     </Link>

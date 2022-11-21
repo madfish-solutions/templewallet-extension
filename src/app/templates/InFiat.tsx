@@ -6,12 +6,12 @@ import Money from 'app/atoms/Money';
 import { useAssetFiatCurrencyPrice, useFiatCurrency } from 'lib/fiat-currency';
 import { useNetwork } from 'lib/temple/front';
 
-type OutputProps = {
+interface OutputProps {
   balance: ReactNode;
   symbol: string;
-};
+}
 
-type InFiatProps = {
+interface InFiatProps {
   volume: BigNumber | number | string;
   assetSlug?: string;
   children: (output: OutputProps) => ReactElement;
@@ -20,7 +20,7 @@ type InFiatProps = {
   smallFractionFont?: boolean;
   mainnet?: boolean;
   showCents?: boolean;
-};
+}
 
 const InFiat: FC<InFiatProps> = ({
   volume,

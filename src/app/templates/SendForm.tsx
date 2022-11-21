@@ -277,7 +277,7 @@ const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested })
       const to = toResolved;
       const tez = isTezAsset(assetSlug);
 
-      const balanceBN = (await mutateBalance(fetchBalance(tezos, assetSlug, assetMetadata, accountPkh)))!;
+      const balanceBN = (await mutateBalance(fetchBalance(tezos, assetSlug, accountPkh, assetMetadata)))!;
       if (balanceBN.isZero()) {
         throw new ZeroBalanceError();
       }
@@ -519,7 +519,7 @@ const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested })
         }
         control={control}
         rules={{
-          validate: (value: any) => validateDelegate(value, canUseDomainNames, domainsClient, t, validateAddress)
+          validate: (value: any) => validateDelegate(value, domainsClient, validateAddress)
         }}
         onChange={([v]) => v}
         onBlur={handleToFieldBlur}
@@ -665,7 +665,7 @@ const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested })
 
 interface TokenToFiatProps {
   amountValue: string;
-  assetMetadata: AssetMetadata;
+  assetMetadata: AssetMetadata | null;
   shoudUseFiat: boolean;
   assetSlug: string;
   toAssetAmount: (fiatAmount: BigNumber.Value) => string;
@@ -787,7 +787,7 @@ const FeeComponent: React.FC<FeeComponentProps> = ({
   );
 };
 
-function validateAddress(value: any) {
+function validateAddress(value: string) {
   switch (false) {
     case value?.length > 0:
       return true;

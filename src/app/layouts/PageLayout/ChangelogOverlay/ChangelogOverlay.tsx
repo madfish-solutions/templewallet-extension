@@ -18,10 +18,7 @@ const currentVersion = PackageJSON.version;
 export const ChangelogOverlay: FC = () => {
   const { popup } = useAppEnv();
   const { ready } = useTempleClient();
-  const [lastShownVersion, setLastShownVersion] = useStorage<string | undefined | null>(
-    `last_shown_changelog_version`,
-    currentVersion
-  );
+  const [lastShownVersion, setLastShownVersion] = useStorage(`last_shown_changelog_version`, currentVersion);
 
   const handleContinue = () => {
     setLastShownVersion(currentVersion);
