@@ -14,7 +14,7 @@ import WebpackBar from 'webpackbar';
 
 import { buildBaseConfig } from './webpack/base.config';
 import { NODE_ENV, DEVELOPMENT_ENV, TARGET_BROWSER, PATHS, RELOADER_PORTS } from './webpack/consts';
-import { isTruthy } from './webpack/utils';
+import { isTruthy, buildManifest } from './webpack/utils';
 
 const ExtensionReloader = ExtensionReloaderBadlyTyped as ExtensionReloaderType;
 
@@ -113,7 +113,8 @@ const mainConfig = (() => {
             to: path.join(PATHS.OUTPUT, 'manifest.json'),
             toType: 'file',
             transform: content => {
-              const manifest = transformManifestKeys(JSON.parse(content.toString()), TARGET_BROWSER);
+              const manifestDraft = JSON.parse(content.toString());
+              const manifest = buildManifest(manifestDraft, TARGET_BROWSER);
               return JSON.stringify(manifest, null, 2);
             }
           },
@@ -193,41 +194,3 @@ const backgroundConfig = (() => {
 
 module.exports = [mainConfig, backgroundConfig];
 // module.exports.parallelism = 1;
-
-/**
- *  Fork of `wext-manifest`
- */
-const browserVendors = ['chrome', 'firefox', 'opera', 'edge', 'safari'];
-const vendorRegExp = new RegExp(`^__((?:(?:${browserVendors.join('|')})\\|?)+)__(.*)`);
-
-type ManifestType = Record<string, any>;
-
-const transformManifestKeys = (manifest: ManifestType, vendor: string): ManifestType => {
-  if (Array.isArray(manifest)) {
-    return manifest.map(newManifest => {
-      return transformManifestKeys(newManifest, vendor);
-    });
-  }
-
-  if (typeof manifest === 'object') {
-    const newManifest: ManifestType = {};
-    return Object.entries(manifest).reduce((newManifest, [key, value]) => {
-      const match = key.match(vendorRegExp);
-
-      if (match) {
-        const vendors = match[1].split('|');
-
-        // Swap key with non prefixed name
-        if (vendors.indexOf(vendor) > -1) {
-          newManifest[match[2]] = value;
-        }
-      } else {
-        newManifest[key] = transformManifestKeys(value, vendor);
-      }
-
-      return newManifest;
-    }, newManifest);
-  }
-
-  return manifest;
-};

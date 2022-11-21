@@ -1,7 +1,6 @@
 {
   "manifest_version": 3,
   "name": "Temple - Tezos Wallet",
-  "version": "1.15.2",
 
   "icons": {
     "16": "misc/icon-16.png",
