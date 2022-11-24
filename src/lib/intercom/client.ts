@@ -8,7 +8,7 @@ export class IntercomClient {
   private reqId: number;
 
   constructor() {
-    this.port = browser.runtime.connect();
+    this.port = this.buildPort();
     this.reqId = 0;
   }
 
@@ -62,5 +62,15 @@ export class IntercomClient {
 
   private send(msg: RequestMessage) {
     this.port.postMessage(msg);
+  }
+
+  private buildPort() {
+    const port = browser.runtime.connect();
+    port.onDisconnect.addListener(() => {
+      const port = this.buildPort();
+      this.port = port;
+    });
+
+    return port;
   }
 }
