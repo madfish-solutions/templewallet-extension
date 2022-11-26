@@ -14,10 +14,11 @@ import browser from 'webextension-polyfill';
 import { PublicError } from 'lib/temple/back/PublicError';
 
 import type {
-  SignerMethodsReturns,
+  ProxiedMethodName,
+  MethodsSerialArgs,
+  MethodsReturns,
   CreatorArguments,
-  RequestMessageBase,
-  RequestMessageSignMethodCall,
+  RequestMessageGeneral,
   ForegroundResponse
 } from './types';
 import { uInt8ArrayToString } from './utils';
@@ -42,34 +43,29 @@ class TempleLedgerSignerProxy implements Signer {
     this.id = Date.now();
   }
 
-  publicKey = () => this.requestMethodCall<SignerMethodsReturns['publicKey']>('publicKey');
+  publicKey = () => this.requestMethodCall('publicKey');
 
-  publicKeyHash = () => this.requestMethodCall<SignerMethodsReturns['publicKeyHash']>('publicKeyHash');
+  publicKeyHash = () => this.requestMethodCall('publicKeyHash');
 
   async secretKey(): Promise<string | undefined> {
     throw new Error('Secret key cannot be exposed');
   }
 
-  sign(op: string, magicByte?: Uint8Array) {
-    const args: RequestMessageSignMethodCall['args'] = {
+  sign = (op: string, magicByte?: Uint8Array) =>
+    this.requestMethodCall('sign', {
       op,
       magicByte: magicByte && uInt8ArrayToString(magicByte)
-    };
-    return this.requestMethodCall<SignerMethodsReturns['sign']>('sign', args);
-  }
+    });
 
-  private async requestMethodCall<R extends JSONifiable>(
-    method: RequestMessageBase['method'],
-    args?: RequestMessageBase['args']
-  ) {
-    const message: RequestMessageBase = {
+  private async requestMethodCall<N extends ProxiedMethodName>(method: N, args?: MethodsSerialArgs[N]) {
+    const message: RequestMessageGeneral = {
       type: 'LEDGER_PROXY_REQUEST',
       instanceId: this.id,
       creatorArgs: this.creatorArgs,
       method,
       args
     };
-    const response: ForegroundResponse<R> = await browser.runtime.sendMessage(message);
+    const response: ForegroundResponse<MethodsReturns[N]> = await browser.runtime.sendMessage(message);
     if (response.type === 'success') return response.value;
     throw new PublicError(response.message);
   }

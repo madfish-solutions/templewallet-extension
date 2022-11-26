@@ -66,10 +66,11 @@ export const OpenInFullPage: FC = () => {
   return null;
 };
 
-export function openInFullPage() {
+export function openInFullPage(active: boolean = true) {
   const { search, hash } = window.location;
   const url = createUrl('fullpage.html', search, hash);
   browser.tabs.create({
-    url: browser.runtime.getURL(url)
+    url: browser.runtime.getURL(url),
+    active
   });
 }

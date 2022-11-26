@@ -30,6 +30,7 @@ const isKnownMessage = (msg: any): msg is RequestMessage =>
 
 const isForThisPage = (): boolean => {
   const transportType = getLedgerTransportType();
+
   if ([TransportType.WEBAUTHN, TransportType.U2F].includes(transportType)) return windowIsActive;
 
   return getPagesWindows()[0]! === window;
