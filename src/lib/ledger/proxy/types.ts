@@ -1,10 +1,19 @@
 import type { DerivationType } from '@taquito/ledger-signer';
 
 import type { TempleLedgerSigner } from '../signer';
+import { TransportType } from '../transport';
+
+export type ProxiedMethodName = 'publicKey' | 'publicKeyHash' | 'sign';
+
+export interface MethodsSerialArgs {
+  publicKey: undefined;
+  publicKeyHash: undefined;
+  sign: { op: string; magicByte?: string };
+}
 
 type AwaitedReturn<T extends (...args: any[]) => any> = Awaited<ReturnType<T>>;
 
-export interface SignerMethodsReturns {
+export interface MethodsReturns {
   publicKey: AwaitedReturn<TempleLedgerSigner['publicKey']>;
   publicKeyHash: AwaitedReturn<TempleLedgerSigner['publicKeyHash']>;
   sign: AwaitedReturn<TempleLedgerSigner['sign']>;
@@ -17,26 +26,26 @@ export interface CreatorArguments {
   publicKeyHash?: string;
 }
 
-export interface RequestMessageBase {
+export interface RequestMessageGeneral {
   type: 'LEDGER_PROXY_REQUEST';
   instanceId: number;
   creatorArgs: CreatorArguments;
-  method: string;
+  method: ProxiedMethodName;
   args?: { [key in string]?: string };
 }
 
-interface RequestMessageEmptyMethodCall extends RequestMessageBase {
+interface RequestMessageEmptyMethodCall extends RequestMessageGeneral {
   method: 'publicKey' | 'publicKeyHash';
 }
 
-export interface RequestMessageSignMethodCall extends RequestMessageBase {
+interface RequestMessageSignMethodCall extends RequestMessageGeneral {
   method: 'sign';
-  args: { op: string; magicByte?: string };
+  args: MethodsSerialArgs['sign'];
 }
 
 export type RequestMessage = RequestMessageEmptyMethodCall | RequestMessageSignMethodCall;
 
-export type ForegroundResponse<T extends JSONifiable = JSONifiable> =
+export type ForegroundResponse<T extends JSONifiable | unknown = unknown> =
   | {
       type: 'success';
       value: T;
@@ -44,4 +53,8 @@ export type ForegroundResponse<T extends JSONifiable = JSONifiable> =
   | {
       type: 'error';
       message: string;
+    }
+  | {
+      type: 'refusal';
+      transportType: TransportType;
     };

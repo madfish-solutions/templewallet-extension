@@ -32,7 +32,10 @@ export enum BridgeMessageType {
 
 export enum TransportType {
   LEDGERLIVE = 'ledgerLive',
+  /** Relies on `globalThis.u2f` interface. */
   U2F = 'u2f',
+  /** Relies on `globalThis.navigator.hid` interface. */
   WEBHID = 'webhid',
+  /** Relies on `globalThis.navigator.credentials` interface. */
   WEBAUTHN = 'webauthn'
 }
