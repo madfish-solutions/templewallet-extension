@@ -1,7 +1,7 @@
 import { TransportError } from '@ledgerhq/errors';
 import Transport from '@ledgerhq/hw-transport';
 
-import type { TempleLedgerBridgeIFrame } from './iframe';
+import type { TransportBridge } from './bridge';
 import { BridgeExchangeRequest, BridgeMessageType, TransportType } from './types';
 
 export class TempleLedgerTransport extends Transport {
@@ -23,7 +23,7 @@ export class TempleLedgerTransport extends Transport {
 
   scrambleKey?: Buffer;
   transportType: TransportType;
-  private iframe?: TempleLedgerBridgeIFrame;
+  private bridge?: TransportBridge;
 
   constructor(transportType: TransportType = TransportType.U2F) {
     super();
@@ -31,7 +31,7 @@ export class TempleLedgerTransport extends Transport {
   }
 
   async exchange(apdu: Buffer) {
-    const iframe = await this.getIFrame();
+    const bridge = await this.getBridge();
     return new Promise<Buffer>(async (resolve, reject) => {
       const exchangeTimeout: number = (this as any).exchangeTimeout;
       const msg: BridgeExchangeRequest = {
@@ -42,7 +42,7 @@ export class TempleLedgerTransport extends Transport {
         transportType: this.transportType
       };
 
-      iframe.postMessage(msg).then(res => {
+      bridge.postMessage(msg).then(res => {
         switch (res?.type) {
           case BridgeMessageType.ExchangeResponse:
             resolve(Buffer.from(res.result, 'hex'));
@@ -71,13 +71,13 @@ export class TempleLedgerTransport extends Transport {
   }
 
   async close() {
-    if (this.iframe) return this.iframe.close();
+    if (this.bridge) return this.bridge.close();
   }
 
-  private async getIFrame() {
-    if (this.iframe) return this.iframe;
-    const TempleLedgerBridgeIFrame = (await import('./iframe')).TempleLedgerBridgeIFrame;
-    const iframe = new TempleLedgerBridgeIFrame();
-    return (this.iframe = iframe);
+  private async getBridge() {
+    if (this.bridge) return this.bridge;
+    const TransportBridge = (await import('./bridge')).TransportBridge;
+    const bridge = new TransportBridge();
+    return (this.bridge = bridge);
   }
 }

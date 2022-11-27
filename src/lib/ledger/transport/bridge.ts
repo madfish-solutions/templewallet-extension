@@ -13,7 +13,7 @@ const BRIDGE_URL = 'ws://localhost:8435';
 const TRANSPORT_CHECK_DELAY = 1000;
 const TRANSPORT_CHECK_LIMIT = 120;
 
-export class TempleLedgerBridgeIFrame {
+export class TransportBridge {
   private transport?: Transport | U2FTransport;
 
   async postMessage(data: BridgeRequest): Promise<BridgeResponse | undefined> {
@@ -36,7 +36,7 @@ export class TempleLedgerBridgeIFrame {
       try {
         await this.transport.close();
       } catch (error) {
-        console.error(`LedgerTempleBridgeIFrame.close() error:`, error);
+        console.error(`TempleLedgerTransportBridge.close() error:`, error);
       }
   }
 
