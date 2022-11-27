@@ -66,11 +66,12 @@ export const OpenInFullPage: FC = () => {
   return null;
 };
 
-export function openInFullPage(active: boolean = true) {
+export const isPopupWindow = () => browser.extension.getViews({ type: 'popup' }).includes(window);
+
+export function openInFullPage() {
   const { search, hash } = window.location;
   const url = createUrl('fullpage.html', search, hash);
   browser.tabs.create({
-    url: browser.runtime.getURL(url),
-    active
+    url: browser.runtime.getURL(url)
   });
 }

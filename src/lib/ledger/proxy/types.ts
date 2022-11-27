@@ -1,6 +1,7 @@
 import type { DerivationType } from '@taquito/ledger-signer';
 
 import type { TempleLedgerSigner } from '../signer';
+import { TransportType } from '../transport';
 
 export type ProxiedMethodName = 'publicKey' | 'publicKeyHash' | 'sign';
 
@@ -44,7 +45,7 @@ interface RequestMessageSignMethodCall extends RequestMessageGeneral {
 
 export type RequestMessage = RequestMessageEmptyMethodCall | RequestMessageSignMethodCall;
 
-export type ForegroundResponse<T extends JSONifiable = JSONifiable> =
+export type ForegroundResponse<T extends JSONifiable | unknown = unknown> =
   | {
       type: 'success';
       value: T;
@@ -52,4 +53,8 @@ export type ForegroundResponse<T extends JSONifiable = JSONifiable> =
   | {
       type: 'error';
       message: string;
+    }
+  | {
+      type: 'refusal';
+      transportType: TransportType;
     };

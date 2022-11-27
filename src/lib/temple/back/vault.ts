@@ -8,13 +8,13 @@ import * as Bip39 from 'bip39';
 import * as Ed25519 from 'ed25519-hd-key';
 import { initialize, SecureCellSeal } from 'wasm-themis';
 
-import { createLedgerSignerProxy } from 'lib/ledger/proxy';
 import { formatOpParamsBeforeSend, loadFastRpcClient, michelEncoder } from 'lib/temple/helpers';
 import * as Passworder from 'lib/temple/passworder';
 import { clearAsyncStorages } from 'lib/temple/reset';
 import { TempleAccount, TempleAccountType, TempleContact, TempleSettings } from 'lib/temple/types';
 
 import { fetchMessage, transformHttpResponseError } from './helpers';
+import { createLedgerSigner } from './ledger';
 import { PublicError } from './PublicError';
 import {
   encryptAndSaveMany,
@@ -417,7 +417,7 @@ export class Vault {
     return withError('Failed to connect Ledger account', async () => {
       if (!derivationPath) derivationPath = getMainDerivationPath(0);
 
-      const { signer, cleanup } = await createLedgerSignerProxy(derivationPath, derivationType);
+      const { signer, cleanup } = await createLedgerSigner(derivationPath, derivationType);
 
       try {
         const accPublicKey = await signer.publicKey();
@@ -533,7 +533,7 @@ export class Vault {
     switch (acc.type) {
       case TempleAccountType.Ledger:
         const publicKey = await this.revealPublicKey(accPublicKeyHash);
-        return await createLedgerSignerProxy(acc.derivationPath, acc.derivationType, publicKey, accPublicKeyHash);
+        return await createLedgerSigner(acc.derivationPath, acc.derivationType, publicKey, accPublicKeyHash);
 
       case TempleAccountType.WatchOnly:
         throw new PublicError('Cannot sign Watch-only account');
