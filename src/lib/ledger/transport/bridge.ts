@@ -3,6 +3,7 @@ import WebSocketTransport from '@ledgerhq/hw-transport-http/lib/WebSocketTranspo
 import U2FTransport from '@ledgerhq/hw-transport-u2f';
 import WebAuthnTransport from '@ledgerhq/hw-transport-webauthn';
 import TransportWebHID from '@ledgerhq/hw-transport-webhid';
+import browser from 'webextension-polyfill';
 
 import { TransportType, BridgeMessageType, BridgeRequest, BridgeResponse } from './types';
 
@@ -86,7 +87,7 @@ export class TransportBridge {
       try {
         await WebSocketTransport.check(BRIDGE_URL);
       } catch (_err) {
-        window.open('ledgerlive://bridge?appName=Tezos Wallet');
+        browser.tabs.create({ url: 'ledgerlive://bridge?appName=Tezos Wallet' });
         await checkLedgerLiveTransport();
       }
 

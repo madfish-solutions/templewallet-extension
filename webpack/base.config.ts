@@ -49,12 +49,6 @@ export const buildBaseConfig = (): WebPack.Configuration => ({
   output: {
     path: PATHS.OUTPUT,
     pathinfo: DEVELOPMENT_ENV ? 'verbose' : false,
-    filename: 'scripts/[name].js',
-    /*
-      Not working like in WebPack v4.
-      `optimization.splitChunks.cacheGroups.{cacheGroupKey}.name` overrides this.
-    */
-    chunkFilename: 'scripts/[name].chunk.js',
     /* For `rule.type = 'asset' | 'asset/resource'` */
     assetModuleFilename: 'media/[hash:8][ext]'
   },

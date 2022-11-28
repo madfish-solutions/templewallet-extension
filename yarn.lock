@@ -10513,6 +10513,11 @@ webpack-sources@^3.2.3:
   resolved "https://registry.yarnpkg.com/webpack-sources/-/webpack-sources-3.2.3.tgz#2d4daab8451fd4b240cc27055ff6a0c2ccea0cde"
   integrity sha512-/DyMEOrDgLKKIG0fmvtz+4dUX/3Ghozwgm6iPp8KRhvn+eQf9+Q7GWxVNMk3+uCPWfdXYC4ExGBckIXdFEfH1w==
 
+webpack-target-webextension@^1.0.4:
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/webpack-target-webextension/-/webpack-target-webextension-1.0.4.tgz#c0c97af2016dd7807c1ea37e8b5d6cae1aba138b"
+  integrity sha512-bxvB7a+R587DY4V39RsmcA04hcBDQAVwNvAITIA5m02wnjwSymF+H1CpHmheSa0HTh3mAp0KPAt4AWzzoUvTkw==
+
 webpack@^5, webpack@^5.74.0:
   version "5.74.0"
   resolved "https://registry.yarnpkg.com/webpack/-/webpack-5.74.0.tgz#02a5dac19a17e0bb47093f2be67c695102a55980"

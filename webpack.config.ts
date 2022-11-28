@@ -11,6 +11,7 @@ import HtmlWebpackPlugin from 'html-webpack-plugin';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import * as path from 'path';
 import ExtensionReloaderBadlyTyped, { ExtensionReloader as ExtensionReloaderType } from 'webpack-ext-reloader-mv3';
+import WebExtension from 'webpack-target-webextension';
 import WebpackBar from 'webpackbar';
 
 import { buildBaseConfig } from './webpack/base.config';
@@ -39,7 +40,7 @@ const HTML_TEMPLATES = [
   }
 ];
 
-const SEPARATED_CHUNKS = new Set(['background', 'contentScript']);
+const SEPARATED_CHUNKS = new Set(['contentScript']);
 
 const mainConfig = (() => {
   const config = buildBaseConfig();
@@ -50,6 +51,16 @@ const mainConfig = (() => {
     confirm: path.join(PATHS.SOURCE, 'confirm.tsx'),
     options: path.join(PATHS.SOURCE, 'options.tsx'),
     contentScript: path.join(PATHS.SOURCE, 'contentScript.ts')
+  };
+
+  config.output = {
+    ...config.output,
+    filename: 'scripts/[name].js',
+    /*
+      Not working like in WebPack v4.
+      `optimization.splitChunks.cacheGroups.{cacheGroupKey}.name` overrides this.
+    */
+    chunkFilename: 'scripts/[name].chunk.js'
   };
 
   config.plugins!.push(
@@ -109,8 +120,7 @@ const mainConfig = (() => {
               */
               ignore: ['**/*.html']
             }
-          },
-          { from: PATHS.WASM, to: PATHS.OUTPUT_SCRIPTS }
+          }
         ]
       }),
 
@@ -164,7 +174,11 @@ const backgroundConfig = (() => {
     background: path.join(PATHS.SOURCE, 'background.ts')
   };
 
-  config.output!.filename = 'background/index.js';
+  config.output = {
+    ...config.output,
+    filename: 'background/index.js',
+    chunkFilename: 'background/[name].chunk.js'
+  };
 
   config.plugins!.push(
     ...[
@@ -177,6 +191,17 @@ const backgroundConfig = (() => {
         cleanOnceBeforeBuildPatterns: ['background/**'],
         cleanStaleWebpackAssets: false,
         verbose: false
+      }),
+
+      new CopyWebpackPlugin({
+        patterns: [{ from: PATHS.WASM, to: PATHS.OUTPUT_BACKGROUND }]
+      }),
+
+      MANIFEST_VERSION === 3 && new WebExtension({
+        background: {
+          entry: 'background',
+          manifest: MANIFEST_VERSION
+        }
       }),
 
       // plugin to enable browser reloading in development mode

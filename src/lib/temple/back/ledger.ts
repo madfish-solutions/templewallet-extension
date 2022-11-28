@@ -1,9 +1,7 @@
 import type { CreatorArgumentsTuple } from 'lib/ledger';
 
-const MANIFEST_VERSION = process.env.MANIFEST_VERSION;
-
 export const createLedgerSigner = async (...args: CreatorArgumentsTuple) => {
-  if (MANIFEST_VERSION === '3') {
+  if (process.env.MANIFEST_VERSION === '3') {
     const createLedgerSignerProxy = (await import('lib/ledger/proxy')).createLedgerSignerProxy;
     return createLedgerSignerProxy(...args);
   }
