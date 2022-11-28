@@ -59,7 +59,7 @@ const buildManifestV2 = (vendor: string): Manifest.WebExtensionManifest => {
     },
 
     background: {
-      scripts: ['scripts/background.js'],
+      scripts: ['background/index.js'],
       ...withVendors('chrome', 'opera')({ persistent: true })
     }
   };
