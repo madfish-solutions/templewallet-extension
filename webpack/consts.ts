@@ -1,6 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
+import { getManifestVersion } from './manifest';
 import { isTruthy } from './utils';
 
 const {
@@ -23,6 +24,8 @@ const RELOADER_PORTS = {
   BACKGROUND: 9090,
   FOREGROUND: 9091
 };
+
+const MANIFEST_VERSION = getManifestVersion(TARGET_BROWSER);
 
 const PACKED_EXTENSION = (() => {
   switch (TARGET_BROWSER) {
@@ -105,6 +108,7 @@ export {
   DEVELOPMENT_ENV,
   TARGET_BROWSER,
   SOURCE_MAP_ENV,
+  MANIFEST_VERSION,
   IMAGE_INLINE_SIZE_LIMIT_ENV,
   DEST_RELATIVE_PATHS,
   PATHS,

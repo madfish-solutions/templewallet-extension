@@ -21,6 +21,7 @@ import {
   DEVELOPMENT_ENV,
   TARGET_BROWSER,
   SOURCE_MAP_ENV,
+  MANIFEST_VERSION,
   IMAGE_INLINE_SIZE_LIMIT_ENV,
   PATHS
 } from './consts';
@@ -243,6 +244,7 @@ export const buildBaseConfig = (): WebPack.Configuration => ({
       SharedArrayBuffer: '_SharedArrayBuffer',
       'process.env.NODE_ENV': JSON.stringify(NODE_ENV),
       'process.env.VERSION': JSON.stringify(VERSION),
+      'process.env.MANIFEST_VERSION': JSON.stringify(MANIFEST_VERSION.toString()),
       'process.env.TARGET_BROWSER': JSON.stringify(TARGET_BROWSER),
       ...(() => {
         const appEnvs: Record<`process.env.${string}`, string> = {};

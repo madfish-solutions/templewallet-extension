@@ -14,13 +14,11 @@ import ExtensionReloaderBadlyTyped, { ExtensionReloader as ExtensionReloaderType
 import WebpackBar from 'webpackbar';
 
 import { buildBaseConfig } from './webpack/base.config';
-import { NODE_ENV, DEVELOPMENT_ENV, TARGET_BROWSER, PATHS, RELOADER_PORTS } from './webpack/consts';
-import { getManifestVersion, buildManifest } from './webpack/manifest';
+import { NODE_ENV, DEVELOPMENT_ENV, TARGET_BROWSER, MANIFEST_VERSION, PATHS, RELOADER_PORTS } from './webpack/consts';
+import { buildManifest } from './webpack/manifest';
 import { isTruthy } from './webpack/utils';
 
 const ExtensionReloader = ExtensionReloaderBadlyTyped as ExtensionReloaderType;
-
-const MANIFEST_VERSION = getManifestVersion(TARGET_BROWSER);
 
 const HTML_TEMPLATES = [
   {

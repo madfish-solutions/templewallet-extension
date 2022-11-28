@@ -1,6 +1,6 @@
 import type { CreatorArgumentsTuple } from 'lib/ledger';
 
-const MANIFEST_VERSION = (process.env.MANIFEST_VERSION as '3' | '2' | undefined) || '2';
+const MANIFEST_VERSION = process.env.MANIFEST_VERSION;
 
 export const createLedgerSigner = async (...args: CreatorArgumentsTuple) => {
   if (MANIFEST_VERSION === '3') {
