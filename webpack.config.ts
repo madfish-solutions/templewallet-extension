@@ -21,10 +21,10 @@ import {
   TARGET_BROWSER,
   MANIFEST_VERSION,
   BACKGROUND_IS_WORKER,
-  PATHS,
   RELOADER_PORTS
-} from './webpack/consts';
+} from './webpack/env';
 import { buildManifest } from './webpack/manifest';
+import { PATHS } from './webpack/paths';
 import { isTruthy } from './webpack/utils';
 
 const ExtensionReloader = ExtensionReloaderBadlyTyped as ExtensionReloaderType;

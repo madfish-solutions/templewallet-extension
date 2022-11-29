@@ -6,19 +6,9 @@
 import type { Manifest } from 'webextension-polyfill';
 
 import packageJSON from '../package.json';
-
-type Vendor = 'chrome' | 'brave' | 'firefox' | 'opera';
+import { Vendor, getManifestVersion } from './env';
 
 const isKnownVendor = (vendor: string): vendor is Vendor => ['chrome', 'brave', 'firefox', 'opera'].includes(vendor);
-
-const MANIFEST_VERSION_BY_VENDORS: Record<Vendor, 2 | 3> = {
-  chrome: 3,
-  brave: 3,
-  firefox: 2,
-  opera: 2
-};
-
-export const getManifestVersion = (vendor: string) => MANIFEST_VERSION_BY_VENDORS[vendor as Vendor] || 2;
 
 export const buildManifest = (vendor: string) => {
   if (!isKnownVendor(vendor)) throw new Error('Vendor is unknown');

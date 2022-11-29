@@ -23,9 +23,9 @@ import {
   TARGET_BROWSER,
   SOURCE_MAP_ENV,
   MANIFEST_VERSION,
-  IMAGE_INLINE_SIZE_LIMIT_ENV,
-  PATHS
-} from './consts';
+  IMAGE_INLINE_SIZE_LIMIT_ENV
+} from './env';
+import { PATHS } from './paths';
 
 // Grab NODE_ENV and TEMPLE_WALLET_* environment variables and prepare them to be
 // injected into the application via DefinePlugin in Webpack configuration.

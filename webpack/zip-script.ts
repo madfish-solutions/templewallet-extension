@@ -5,7 +5,7 @@
 import * as path from 'path';
 import { zip } from 'zip-a-folder';
 
-import { PATHS } from './consts';
+import { PATHS } from './paths';
 
 const fileName = path.basename(PATHS.OUTPUT_PACKED);
 

@@ -1,33 +1,8 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-import { getManifestVersion } from './manifest';
+import { NODE_ENV, TARGET_BROWSER } from './env';
 import { isTruthy } from './utils';
-
-const {
-  NODE_ENV = 'development',
-  TARGET_BROWSER = 'chrome',
-  SOURCE_MAP: SOURCE_MAP_ENV,
-  IMAGE_INLINE_SIZE_LIMIT: IMAGE_INLINE_SIZE_LIMIT_ENV = '10000'
-} = process.env as {
-  NODE_ENV: 'development' | 'production' | 'test';
-  TARGET_BROWSER: string;
-  SOURCE_MAP?: 'true' | 'false';
-  IMAGE_INLINE_SIZE_LIMIT?: string;
-};
-
-const WEBPACK_MODE = NODE_ENV === 'test' ? 'none' : NODE_ENV;
-
-const DEVELOPMENT_ENV = NODE_ENV === 'development';
-const PRODUCTION_ENV = NODE_ENV === 'production';
-
-const RELOADER_PORTS = {
-  BACKGROUND: 9090,
-  FOREGROUND: 9091
-};
-
-const MANIFEST_VERSION = getManifestVersion(TARGET_BROWSER);
-const BACKGROUND_IS_WORKER = MANIFEST_VERSION === 3;
 
 const PACKED_EXTENSION = (() => {
   switch (TARGET_BROWSER) {
@@ -106,17 +81,4 @@ dotenvFiles.forEach(dotenvFile => {
   }
 });
 
-export {
-  NODE_ENV,
-  WEBPACK_MODE,
-  DEVELOPMENT_ENV,
-  PRODUCTION_ENV,
-  TARGET_BROWSER,
-  SOURCE_MAP_ENV,
-  MANIFEST_VERSION,
-  BACKGROUND_IS_WORKER,
-  IMAGE_INLINE_SIZE_LIMIT_ENV,
-  DEST_RELATIVE_PATHS,
-  PATHS,
-  RELOADER_PORTS
-};
+export { DEST_RELATIVE_PATHS, PATHS };
