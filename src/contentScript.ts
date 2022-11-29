@@ -1,5 +1,12 @@
+/*
+  For more information about Content Scripts, see:
+  https://developer.chrome.com/docs/extensions/mv3/content_scripts
+*/
+
 import { TemplePageMessage, TemplePageMessageType } from '@temple-wallet/dapp/dist/types';
 import browser from 'webextension-polyfill';
+
+import 'lib/keep-bg-worker-alive/script';
 
 import { IntercomClient } from 'lib/intercom/client';
 import { serealizeError } from 'lib/intercom/helpers';

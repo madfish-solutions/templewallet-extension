@@ -15,7 +15,14 @@ import WebExtension from 'webpack-target-webextension';
 import WebpackBar from 'webpackbar';
 
 import { buildBaseConfig } from './webpack/base.config';
-import { NODE_ENV, DEVELOPMENT_ENV, TARGET_BROWSER, MANIFEST_VERSION, PATHS, RELOADER_PORTS } from './webpack/consts';
+import {
+  DEVELOPMENT_ENV,
+  PRODUCTION_ENV,
+  TARGET_BROWSER,
+  MANIFEST_VERSION,
+  PATHS,
+  RELOADER_PORTS
+} from './webpack/consts';
 import { buildManifest } from './webpack/manifest';
 import { isTruthy } from './webpack/utils';
 
@@ -88,7 +95,7 @@ const mainConfig = (() => {
             filename: path.basename(htmlTemplate.path),
             chunks: [htmlTemplate.name, 'commons'],
             inject: 'body',
-            ...(NODE_ENV === 'production'
+            ...(PRODUCTION_ENV
               ? {
                   minify: {
                     removeComments: true,
@@ -197,12 +204,13 @@ const backgroundConfig = (() => {
         patterns: [{ from: PATHS.WASM, to: PATHS.OUTPUT_BACKGROUND }]
       }),
 
-      MANIFEST_VERSION === 3 && new WebExtension({
-        background: {
-          entry: 'background',
-          manifest: MANIFEST_VERSION
-        }
-      }),
+      MANIFEST_VERSION === 3 &&
+        new WebExtension({
+          background: {
+            entry: 'background',
+            manifest: MANIFEST_VERSION
+          }
+        }),
 
       // plugin to enable browser reloading in development mode
       DEVELOPMENT_ENV &&

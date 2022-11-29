@@ -76,7 +76,7 @@ export class IntercomClient {
   }
 
   private buildPort() {
-    const port = browser.runtime.connect();
+    const port = browser.runtime.connect({ name: 'INTERCOM' });
     port.onMessage.addListener(this.onMessage.bind(this));
     port.onDisconnect.addListener(() => {
       this.port = this.buildPort();

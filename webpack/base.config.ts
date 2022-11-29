@@ -19,6 +19,7 @@ import {
   NODE_ENV,
   WEBPACK_MODE,
   DEVELOPMENT_ENV,
+  PRODUCTION_ENV,
   TARGET_BROWSER,
   SOURCE_MAP_ENV,
   MANIFEST_VERSION,
@@ -43,7 +44,7 @@ const CSS_MODULE_REGEX = /\.module\.css$/;
 
 export const buildBaseConfig = (): WebPack.Configuration => ({
   mode: WEBPACK_MODE,
-  bail: NODE_ENV === 'production',
+  bail: PRODUCTION_ENV,
   devtool: SOURCE_MAP && 'inline-cheap-module-source-map',
 
   output: {
@@ -142,7 +143,7 @@ export const buildBaseConfig = (): WebPack.Configuration => ({
               cacheDirectory: true,
               // See #6846 for context on why cacheCompression is disabled
               cacheCompression: false,
-              compact: NODE_ENV === 'production'
+              compact: PRODUCTION_ENV
             }
           },
           // Process any JS outside of the app with Babel.
@@ -305,7 +306,7 @@ export const buildBaseConfig = (): WebPack.Configuration => ({
   ].filter(Boolean),
 
   optimization: {
-    minimize: NODE_ENV === 'production',
+    minimize: PRODUCTION_ENV,
 
     minimizer: [
       // This is only used in production mode
@@ -339,7 +340,7 @@ export const buildBaseConfig = (): WebPack.Configuration => ({
               https://github.com/terser-js/terser/issues/120
             */
             inline: 2,
-            drop_console: NODE_ENV === 'production'
+            drop_console: PRODUCTION_ENV
           },
           mangle: {
             safari10: true

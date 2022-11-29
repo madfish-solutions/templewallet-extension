@@ -19,6 +19,7 @@ const {
 const WEBPACK_MODE = NODE_ENV === 'test' ? 'none' : NODE_ENV;
 
 const DEVELOPMENT_ENV = NODE_ENV === 'development';
+const PRODUCTION_ENV = NODE_ENV === 'production';
 
 const RELOADER_PORTS = {
   BACKGROUND: 9090,
@@ -108,6 +109,7 @@ export {
   NODE_ENV,
   WEBPACK_MODE,
   DEVELOPMENT_ENV,
+  PRODUCTION_ENV,
   TARGET_BROWSER,
   SOURCE_MAP_ENV,
   MANIFEST_VERSION,

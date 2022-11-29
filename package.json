@@ -55,6 +55,7 @@
     "@tezos-domains/taquito-client": "1.21.0",
     "@types/analytics-node": "3.1.9",
     "@types/async-retry": "1.4.3",
+    "@types/bs58check": "^2.1.0",
     "@types/debounce-promise": "3.1.4",
     "@types/elliptic": "6.4.14",
     "@types/fontfaceobserver": "0.0.6",

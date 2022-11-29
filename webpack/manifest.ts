@@ -2,10 +2,13 @@ import type { Manifest } from 'webextension-polyfill';
 
 import packageJSON from '../package.json';
 
-type Vendor = 'chrome' | 'firefox' | 'opera';
+type Vendor = 'chrome' | 'brave' | 'firefox' | 'opera';
+
+const isKnownVendor = (vendor: string): vendor is Vendor => ['chrome', 'brave', 'firefox', 'opera'].includes(vendor);
 
 const MANIFEST_VERSION_BY_VENDORS: Record<Vendor, 2 | 3> = {
   chrome: 3,
+  brave: 3,
   firefox: 2,
   opera: 2
 };
@@ -13,7 +16,13 @@ const MANIFEST_VERSION_BY_VENDORS: Record<Vendor, 2 | 3> = {
 export const getManifestVersion = (vendor: string) => MANIFEST_VERSION_BY_VENDORS[vendor as Vendor] || 2;
 
 export const buildManifest = (vendor: string) => {
+  if (!isKnownVendor(vendor)) throw new Error('Vendor is unknown');
+
   const manifestVersion = getManifestVersion(vendor);
+
+  /* Remove this, if want to start building differently for the Brave */
+  if (vendor === 'brave') vendor = 'chrome';
+
   if (manifestVersion === 3) return buildManifestV3(vendor);
   return buildManifestV2(vendor);
 };
@@ -131,7 +140,12 @@ const buildManifestCommons = (vendor: string): Omit<Manifest.WebExtensionManifes
 
     content_scripts: [
       {
-        matches: ['http://localhost/*', 'http://127.0.0.1/*', 'https://*/*'],
+        matches: [
+          'http://localhost/*',
+          'http://127.0.0.1/*',
+          /* For URLs from `HOST_PERMISSIONS` & active tabs (with `activeTab` permission) */
+          'https://*/*'
+        ],
         js: ['scripts/contentScript.js'],
         run_at: 'document_start',
         all_frames: true
