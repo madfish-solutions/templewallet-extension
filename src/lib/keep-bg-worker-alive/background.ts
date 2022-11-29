@@ -4,9 +4,9 @@
 
 import browser from 'webextension-polyfill';
 
-import { MANIFEST_VERSION, KEEP_BACKGROUND_WORKER_ALIVE } from './utils';
+import { BACKGROUND_IS_WORKER, KEEP_BACKGROUND_WORKER_ALIVE } from './utils';
 
-if (MANIFEST_VERSION === 3) {
+if (BACKGROUND_IS_WORKER) {
   browser.runtime.onMessage.addListener((message: unknown) =>
     isKeepAliveMessage(message) ? Promise.resolve(true) : void 0
   );

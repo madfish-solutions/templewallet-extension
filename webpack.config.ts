@@ -20,6 +20,7 @@ import {
   PRODUCTION_ENV,
   TARGET_BROWSER,
   MANIFEST_VERSION,
+  BACKGROUND_IS_WORKER,
   PATHS,
   RELOADER_PORTS
 } from './webpack/consts';
@@ -47,7 +48,9 @@ const HTML_TEMPLATES = [
   }
 ];
 
-const SEPARATED_CHUNKS = new Set(['contentScript']);
+const CONTENT_SCRIPTS = ['contentScript'];
+if (BACKGROUND_IS_WORKER) CONTENT_SCRIPTS.push('keepBackgroundWorkerAlive');
+const SEPARATED_CHUNKS = new Set(CONTENT_SCRIPTS);
 
 const mainConfig = (() => {
   const config = buildBaseConfig();
@@ -59,6 +62,9 @@ const mainConfig = (() => {
     options: path.join(PATHS.SOURCE, 'options.tsx'),
     contentScript: path.join(PATHS.SOURCE, 'contentScript.ts')
   };
+
+  if (BACKGROUND_IS_WORKER)
+    config.entry.keepBackgroundWorkerAlive = path.join(PATHS.SOURCE, 'keepBackgroundWorkerAlive.ts');
 
   config.output = {
     ...config.output,
@@ -147,7 +153,7 @@ const mainConfig = (() => {
           reloadPage: true,
           // manifest: path.join(OUTPUT_PATH, "manifest.json"),
           entries: {
-            contentScript: 'contentScript',
+            contentScript: CONTENT_SCRIPTS,
             extensionPage: ['popup', 'fullpage', 'confirm', 'options', 'commons.chunk']
           }
         })
@@ -175,7 +181,7 @@ const mainConfig = (() => {
 const backgroundConfig = (() => {
   const config = buildBaseConfig();
 
-  if (MANIFEST_VERSION === 3) config.target = 'webworker';
+  if (BACKGROUND_IS_WORKER) config.target = 'webworker';
 
   config.entry = {
     background: path.join(PATHS.SOURCE, 'background.ts')
@@ -204,7 +210,7 @@ const backgroundConfig = (() => {
         patterns: [{ from: PATHS.WASM, to: PATHS.OUTPUT_BACKGROUND }]
       }),
 
-      MANIFEST_VERSION === 3 &&
+      BACKGROUND_IS_WORKER &&
         new WebExtension({
           background: {
             entry: 'background',

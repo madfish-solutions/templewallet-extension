@@ -4,9 +4,9 @@
 
 import browser from 'webextension-polyfill';
 
-import { MANIFEST_VERSION, KEEP_BACKGROUND_WORKER_ALIVE, ping } from './utils';
+import { BACKGROUND_IS_WORKER, KEEP_BACKGROUND_WORKER_ALIVE, ping } from './utils';
 
-if (MANIFEST_VERSION === 3) {
+if (BACKGROUND_IS_WORKER) {
   let port: browser.Runtime.Port;
   (function connect() {
     port = browser.runtime.connect({ name: KEEP_BACKGROUND_WORKER_ALIVE });

@@ -1,3 +1,8 @@
+/*
+  For the file format, see:
+  https://developer.chrome.com/docs/extensions/mv3/manifest
+*/
+
 import type { Manifest } from 'webextension-polyfill';
 
 import packageJSON from '../package.json';
@@ -27,26 +32,43 @@ export const buildManifest = (vendor: string) => {
   return buildManifestV2(vendor);
 };
 
-const buildManifestV3 = (vendor: string): Manifest.WebExtensionManifest => ({
-  manifest_version: 3,
+const buildManifestV3 = (vendor: string): Manifest.WebExtensionManifest => {
+  const commons = buildManifestCommons(vendor);
 
-  ...buildManifestCommons(vendor),
+  commons.content_scripts!.push({
+    matches: [
+      /* For all URLs from `HOST_PERMISSIONS` & active tabs (with `activeTab` permission) */
+      '<all_urls>'
+    ],
+    js: ['scripts/keepBackgroundWorkerAlive.js'],
+    run_at: 'document_start',
+    all_frames: true,
+    match_about_blank: true,
+    // @ts-ignore
+    match_origin_as_fallback: true
+  });
 
-  permissions: PERMISSIONS,
-  host_permissions: HOST_PERMISSIONS,
+  return {
+    manifest_version: 3,
 
-  content_security_policy: {
-    extension_pages: "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
-  },
+    ...commons,
 
-  action: buildBrowserAction(vendor),
+    permissions: PERMISSIONS,
+    host_permissions: HOST_PERMISSIONS,
 
-  options_ui: OPTIONS_UI,
+    content_security_policy: {
+      extension_pages: "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
+    },
 
-  background: {
-    service_worker: 'background/index.js'
-  }
-});
+    action: buildBrowserAction(vendor),
+
+    options_ui: OPTIONS_UI,
+
+    background: {
+      service_worker: 'background/index.js'
+    }
+  };
+};
 
 const buildManifestV2 = (vendor: string): Manifest.WebExtensionManifest => {
   const withVendors = makeWithVendors(vendor);
@@ -143,7 +165,7 @@ const buildManifestCommons = (vendor: string): Omit<Manifest.WebExtensionManifes
         matches: [
           'http://localhost/*',
           'http://127.0.0.1/*',
-          /* For URLs from `HOST_PERMISSIONS` & active tabs (with `activeTab` permission) */
+          /* For some URLs from `HOST_PERMISSIONS` & active tabs (with `activeTab` permission) */
           'https://*/*'
         ],
         js: ['scripts/contentScript.js'],

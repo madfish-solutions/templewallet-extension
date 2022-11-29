@@ -1,3 +1,7 @@
+/*
+  There is no WebPack-based solution to zip output of multiple configurations.
+*/
+
 import * as path from 'path';
 import { zip } from 'zip-a-folder';
 

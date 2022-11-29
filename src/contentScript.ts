@@ -6,8 +6,6 @@
 import { TemplePageMessage, TemplePageMessageType } from '@temple-wallet/dapp/dist/types';
 import browser from 'webextension-polyfill';
 
-import 'lib/keep-bg-worker-alive/script';
-
 import { IntercomClient } from 'lib/intercom/client';
 import { serealizeError } from 'lib/intercom/helpers';
 import { TempleMessageType, TempleResponse } from 'lib/temple/types';

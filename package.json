@@ -6,7 +6,7 @@
     "start-run": "cross-env TS_NODE_PROJECT=\"webpack/tsconfig.json\" webpack --watch --stats errors-warnings",
     "start": "cross-env NODE_ENV=development run-s start-run",
     "start:firefox": "cross-env TARGET_BROWSER=firefox run-s start",
-    "build-run": "cross-env TS_NODE_PROJECT=\"webpack/tsconfig.json\" webpack && ts-node webpack/zip.ts",
+    "build-run": "cross-env TS_NODE_PROJECT=\"webpack/tsconfig.json\" webpack && ts-node webpack/zip-script.ts",
     "build": "cross-env NODE_ENV=production run-s build-run",
     "build-all": "run-s build:*",
     "build:chrome": "cross-env TARGET_BROWSER=chrome run-s build",
