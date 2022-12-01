@@ -5,7 +5,7 @@ import CSSTransition from 'react-transition-group/CSSTransition';
 
 import { ReactComponent as LedgerNanoIcon } from 'app/misc/ledger.svg';
 import { T } from 'lib/i18n';
-import { TransportType } from 'lib/ledger/transport';
+import { TransportType } from 'lib/ledger';
 import { getLedgerTransportType } from 'lib/temple/ledger';
 
 type ConfirmLedgerOverlayProps = {

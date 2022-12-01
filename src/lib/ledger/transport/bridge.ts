@@ -3,7 +3,6 @@ import WebSocketTransport from '@ledgerhq/hw-transport-http/lib/WebSocketTranspo
 import U2FTransport from '@ledgerhq/hw-transport-u2f';
 import WebAuthnTransport from '@ledgerhq/hw-transport-webauthn';
 import TransportWebHID from '@ledgerhq/hw-transport-webhid';
-import browser from 'webextension-polyfill';
 
 import { TransportType, BridgeMessageType, BridgeRequest, BridgeResponse } from './types';
 
@@ -87,7 +86,7 @@ export class TransportBridge {
       try {
         await WebSocketTransport.check(BRIDGE_URL);
       } catch (_err) {
-        browser.tabs.create({ url: 'ledgerlive://bridge?appName=Tezos Wallet' });
+        openLedgerLiveApp();
         await checkLedgerLiveTransport();
       }
 
@@ -113,3 +112,25 @@ function checkLedgerLiveTransport(i = 0): Promise<unknown> {
     }
   });
 }
+
+const openLedgerLiveApp = async () => {
+  const url = 'ledgerlive://bridge?appName=Tezos Wallet';
+
+  try {
+    // @ts-ignore
+    await browser.tabs.create({ url });
+  } catch {
+    try {
+      // @ts-ignore
+      await chrome.tabs.create({ url });
+    } catch {
+      if (typeof window === 'undefined') {
+        /* Implying Service Worker environment */
+        // @ts-ignore
+        await clients.openWindow(url);
+      } else {
+        window.open(url);
+      }
+    }
+  }
+};
