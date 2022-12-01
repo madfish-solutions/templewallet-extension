@@ -86,7 +86,7 @@ export class TransportBridge {
       try {
         await WebSocketTransport.check(BRIDGE_URL);
       } catch (_err) {
-        window.open('ledgerlive://bridge?appName=Tezos Wallet');
+        openLedgerLiveApp();
         await checkLedgerLiveTransport();
       }
 
@@ -112,3 +112,25 @@ function checkLedgerLiveTransport(i = 0): Promise<unknown> {
     }
   });
 }
+
+const openLedgerLiveApp = async () => {
+  const url = 'ledgerlive://bridge?appName=Tezos Wallet';
+
+  try {
+    // @ts-ignore
+    await browser.tabs.create({ url });
+  } catch {
+    try {
+      // @ts-ignore
+      await chrome.tabs.create({ url });
+    } catch {
+      if (typeof window === 'undefined') {
+        /* Implying Service Worker environment */
+        // @ts-ignore
+        await clients.openWindow(url);
+      } else {
+        window.open(url);
+      }
+    }
+  }
+};

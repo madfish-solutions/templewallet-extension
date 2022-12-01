@@ -4,6 +4,9 @@ import { removeMFromDerivationPath } from './helpers';
 import { TempleLedgerSigner } from './signer';
 import { TransportType, TempleLedgerTransport } from './transport';
 
+export { TransportType } from './transport';
+export { pickTransportType } from './helpers';
+
 export type CreatorArgumentsTuple = [
   derivationPath: string,
   derivationType?: DerivationType,
