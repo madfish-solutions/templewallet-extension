@@ -5,6 +5,7 @@ import WebAuthnTransport from '@ledgerhq/hw-transport-webauthn';
 import TransportWebHID from '@ledgerhq/hw-transport-webhid';
 
 import { TransportType, BridgeMessageType, BridgeRequest, BridgeResponse } from './types';
+import { openLedgerLiveApp } from './utils';
 
 // URL which triggers Ledger Live app to open and handle communication
 const BRIDGE_URL = 'ws://localhost:8435';
@@ -112,25 +113,3 @@ function checkLedgerLiveTransport(i = 0): Promise<unknown> {
     }
   });
 }
-
-const openLedgerLiveApp = async () => {
-  const url = 'ledgerlive://bridge?appName=Tezos Wallet';
-
-  try {
-    // @ts-ignore
-    await browser.tabs.create({ url });
-  } catch {
-    try {
-      // @ts-ignore
-      await chrome.tabs.create({ url });
-    } catch {
-      if (typeof window === 'undefined') {
-        /* Implying Service Worker environment */
-        // @ts-ignore
-        await clients.openWindow(url);
-      } else {
-        window.open(url);
-      }
-    }
-  }
-};

@@ -21,6 +21,7 @@ import {
   DEVELOPMENT_ENV,
   PRODUCTION_ENV,
   TARGET_BROWSER,
+  DROP_CONSOLE_IN_PROD,
   SOURCE_MAP_ENV,
   MANIFEST_VERSION,
   IMAGE_INLINE_SIZE_LIMIT_ENV
@@ -340,7 +341,7 @@ export const buildBaseConfig = (): WebPack.Configuration => ({
               https://github.com/terser-js/terser/issues/120
             */
             inline: 2,
-            drop_console: PRODUCTION_ENV
+            drop_console: DROP_CONSOLE_IN_PROD && PRODUCTION_ENV
           },
           mangle: {
             safari10: true
