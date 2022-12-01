@@ -22,13 +22,16 @@ const RELOADER_PORTS = {
   FOREGROUND: 9091
 };
 
-export type Vendor = 'chrome' | 'brave' | 'firefox' | 'opera';
+export const ALL_VENDORS = ['chrome', 'brave', 'firefox', 'opera', 'safari'] as const;
+
+export type Vendor = typeof ALL_VENDORS[number];
 
 const MANIFEST_VERSION_BY_VENDORS: Record<Vendor, 2 | 3> = {
   chrome: 3,
-  brave: 3,
+  brave: 2,
   firefox: 2,
-  opera: 2
+  opera: 2,
+  safari: 2
 };
 
 export const getManifestVersion = (vendor: string) => MANIFEST_VERSION_BY_VENDORS[vendor as Vendor] || 2;

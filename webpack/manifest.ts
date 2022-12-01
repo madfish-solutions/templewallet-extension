@@ -6,9 +6,9 @@
 import type { Manifest } from 'webextension-polyfill';
 
 import packageJSON from '../package.json';
-import { Vendor, getManifestVersion } from './env';
+import { Vendor, ALL_VENDORS, getManifestVersion } from './env';
 
-const isKnownVendor = (vendor: string): vendor is Vendor => ['chrome', 'brave', 'firefox', 'opera'].includes(vendor);
+const isKnownVendor = (vendor: string): vendor is Vendor => ALL_VENDORS.includes(vendor as Vendor);
 
 export const buildManifest = (vendor: string) => {
   if (!isKnownVendor(vendor)) throw new Error('Vendor is unknown');
