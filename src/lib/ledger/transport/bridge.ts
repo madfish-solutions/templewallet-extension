@@ -3,6 +3,7 @@ import WebSocketTransport from '@ledgerhq/hw-transport-http/lib/WebSocketTranspo
 import U2FTransport from '@ledgerhq/hw-transport-u2f';
 import WebAuthnTransport from '@ledgerhq/hw-transport-webauthn';
 import TransportWebHID from '@ledgerhq/hw-transport-webhid';
+import type Browser from 'webextension-polyfill';
 
 import { TransportType, BridgeMessageType, BridgeRequest, BridgeResponse } from './types';
 
@@ -117,20 +118,56 @@ const openLedgerLiveApp = async () => {
   const url = 'ledgerlive://bridge?appName=Tezos Wallet';
 
   try {
-    // @ts-ignore
-    await browser.tabs.create({ url });
+    await openLedgerLiveAppWithBrowserTab(url);
   } catch {
-    try {
+    if (typeof window === 'undefined') {
+      /* Implying Service Worker environment */
       // @ts-ignore
-      await chrome.tabs.create({ url });
-    } catch {
-      if (typeof window === 'undefined') {
-        /* Implying Service Worker environment */
-        // @ts-ignore
-        await clients.openWindow(url);
-      } else {
-        window.open(url);
-      }
+      await clients.openWindow(url);
+    } else {
+      window.open(url);
     }
   }
+};
+
+// @ts-ignore
+// eslint-disable-next-line @typescript-eslint/no-use-before-define
+const browser: typeof Browser = globalThis.browser || globalThis.chrome;
+
+const openLedgerLiveAppWithBrowserTab = async (url: string) => {
+  const tab = await browser.tabs.create({ url });
+
+  const tabId = tab.id!;
+  const windowId = tab.windowId!;
+
+  await browser.windows.update(windowId, { focused: true });
+
+  const removeTab = () => browser.tabs.remove(tabId).catch(() => {});
+
+  const tabListener = (info: Browser.Tabs.OnActivatedActiveInfoType) => {
+    console.log('tab:', info);
+    if (info.tabId !== tabId && info.previousTabId !== tabId) {
+      browser.tabs.onActivated.removeListener(tabListener);
+      removeTab();
+    }
+  };
+
+  browser.tabs.onActivated.addListener(tabListener);
+
+  const winListener = () => {
+    browser.windows.get(windowId).then(
+      tabWindow => {
+        console.log(1, tabWindow.focused);
+        if (tabWindow.focused) return;
+        browser.windows.onFocusChanged.removeListener(winListener);
+        removeTab();
+      },
+      (err: any) => {
+        console.log(2, err, browser.runtime.lastError);
+        browser.windows.onFocusChanged.removeListener(winListener);
+      }
+    );
+  };
+
+  browser.windows.onFocusChanged.addListener(winListener);
 };

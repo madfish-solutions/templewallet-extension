@@ -26,7 +26,8 @@ browser.runtime.onMessage.addListener((message: unknown): Promise<ForegroundResp
 
   if ([TransportType.WEBAUTHN, TransportType.U2F].includes(transportType)) {
     /* These transports require an active window only */
-    if (windowIsActive === false) return;
+    if (windowIsActive) return buildSignerCallResponse(message, transportType);
+    else return;
   }
 
   const pagesWindows = getPagesWindows();
