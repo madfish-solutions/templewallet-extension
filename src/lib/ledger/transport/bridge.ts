@@ -1,97 +1,73 @@
 import Transport from '@ledgerhq/hw-transport';
-import WebSocketTransport from '@ledgerhq/hw-transport-http/lib/WebSocketTransport';
 import U2FTransport from '@ledgerhq/hw-transport-u2f';
 import WebAuthnTransport from '@ledgerhq/hw-transport-webauthn';
 import TransportWebHID from '@ledgerhq/hw-transport-webhid';
 
-import { TransportType, BridgeMessageType, BridgeRequest, BridgeResponse } from './types';
-import { openLedgerLiveApp } from './utils';
-
-// URL which triggers Ledger Live app to open and handle communication
-const BRIDGE_URL = 'ws://localhost:8435';
-
-// Number of milliseconds to poll for Ledger Live and Ethereum app opening
-const TRANSPORT_CHECK_DELAY = 1000;
-const TRANSPORT_CHECK_LIMIT = 120;
+import { isLedgerLiveAppOpen, openLedgerLiveApp, openLedgerLiveTransport } from './ledger-live.utils';
+import { TransportType, BridgeExchangeRequest } from './types';
 
 export class TransportBridge {
   private transport?: Transport | U2FTransport;
 
-  async postMessage(data: BridgeRequest): Promise<BridgeResponse | undefined> {
+  async requestExchange(data: BridgeExchangeRequest) {
     try {
-      const res = await this.handleRequest(data);
-      if (res) return res;
+      return await this.exchange(data.apdu, data.transportType, data.scrambleKey, data.exchangeTimeout);
     } catch (error) {
-      console.error(error);
-      if (error && error instanceof Error)
-        return {
-          type: BridgeMessageType.ErrorResponse,
-          message: error.message ?? 'Unexpected error'
-        };
+      console.error(`TransportBridge.requestExchange() error:`, error);
+      if (error && error instanceof Error) throw new Error(error.message ?? 'Unexpected error');
     }
-    return;
+    throw new Error('Unknown error');
   }
 
   async close() {
-    if (this.transport)
-      try {
-        await this.transport.close();
-      } catch (error) {
-        console.error(`TempleLedgerTransportBridge.close() error:`, error);
-      }
-  }
-
-  private async handleRequest(req: BridgeRequest): Promise<BridgeResponse | void> {
-    switch (req.type) {
-      case BridgeMessageType.ExchangeRequest:
-        const result = await this.exchange(req.apdu, req.transportType, req.scrambleKey, req.exchangeTimeout);
-        return {
-          type: BridgeMessageType.ExchangeResponse,
-          result
-        };
+    if (this.transport == null) return;
+    try {
+      await this.transport.close();
+    } catch (error) {
+      console.error(`TransportBridge.close() error:`, error);
     }
+    delete this.transport;
   }
 
   private async exchange(apdu: string, transportType: TransportType, scrambleKey?: string, exchangeTimeout?: number) {
-    const t = await this.getOrCreateTransport(transportType);
-    if (exchangeTimeout) t.setExchangeTimeout(exchangeTimeout);
-    if (scrambleKey) t.setScrambleKey(scrambleKey);
-    const resultBuf = await t.exchange(Buffer.from(apdu, 'hex'));
+    const transport = await this.getOrCreateTransport(transportType);
+    if (exchangeTimeout) transport.setExchangeTimeout(exchangeTimeout);
+    if (scrambleKey) transport.setScrambleKey(scrambleKey);
+    const resultBuf = await transport.exchange(Buffer.from(apdu, 'hex'));
     return resultBuf.toString('hex');
   }
 
   private async getOrCreateTransport(transportType: TransportType) {
     const transport = this.transport;
-    if (transport) {
-      if (transportType === TransportType.LEDGERLIVE) {
-        try {
-          await WebSocketTransport.check(BRIDGE_URL);
-          return transport;
-        } catch (_err) {}
-      } else {
-        if (transportType === TransportType.WEBHID && transport instanceof TransportWebHID) {
-          const device = transport && transport.device;
-          const nameOfDeviceType = device && device.constructor.name;
-          const deviceIsOpen = device && device.opened;
-          if (nameOfDeviceType === 'HIDDevice' && deviceIsOpen) {
-            return transport;
-          }
-          const bufferTransport = await TransportWebHID.openConnected();
-          if (bufferTransport) this.transport = bufferTransport;
-        }
-        return this.transport!;
-      }
-    }
+
+    if (transport == null) return await this.createTransport(transportType);
 
     if (transportType === TransportType.LEDGERLIVE) {
-      try {
-        await WebSocketTransport.check(BRIDGE_URL);
-      } catch (_err) {
-        openLedgerLiveApp();
-        await checkLedgerLiveTransport();
+      if (await isLedgerLiveAppOpen()) return transport;
+      else {
+        await openLedgerLiveApp();
+        this.transport = await openLedgerLiveTransport();
+        return this.transport!;
+      }
+    } else {
+      if (transportType === TransportType.WEBHID && transport instanceof TransportWebHID) {
+        const device = transport.device;
+        const nameOfDeviceType = device && device.constructor.name;
+        const deviceIsOpen = device && device.opened;
+        if (nameOfDeviceType === 'HIDDevice' && deviceIsOpen) return transport;
+
+        const bufferTransport = await TransportWebHID.openConnected();
+        if (bufferTransport) this.transport = bufferTransport;
       }
 
-      this.transport = await WebSocketTransport.open(BRIDGE_URL);
+      return this.transport!;
+    }
+  }
+
+  private async createTransport(transportType: TransportType) {
+    if (transportType === TransportType.LEDGERLIVE) {
+      if (!(await isLedgerLiveAppOpen())) await openLedgerLiveApp();
+      this.transport = await openLedgerLiveTransport();
     } else if (transportType === TransportType.WEBHID) {
       this.transport = await TransportWebHID.create();
     } else if (transportType === TransportType.WEBAUTHN) {
@@ -99,17 +75,7 @@ export class TransportBridge {
     } else {
       this.transport = await U2FTransport.create();
     }
+
     return this.transport!;
   }
-}
-
-function checkLedgerLiveTransport(i = 0): Promise<unknown> {
-  return WebSocketTransport.check(BRIDGE_URL).catch(async () => {
-    await new Promise(r => setTimeout(r, TRANSPORT_CHECK_DELAY));
-    if (i < TRANSPORT_CHECK_LIMIT) {
-      return checkLedgerLiveTransport(i + 1);
-    } else {
-      throw new Error('Ledger transport check timeout');
-    }
-  });
 }
