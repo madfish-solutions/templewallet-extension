@@ -2,7 +2,7 @@ import { TransportError } from '@ledgerhq/errors';
 import Transport from '@ledgerhq/hw-transport';
 
 import type { TransportBridge } from './bridge';
-import { BridgeExchangeRequest, BridgeMessageType, TransportType } from './types';
+import { BridgeExchangeRequest, TransportType } from './types';
 
 export class TempleLedgerTransport extends Transport {
   static async isSupported() {
@@ -32,34 +32,23 @@ export class TempleLedgerTransport extends Transport {
 
   async exchange(apdu: Buffer) {
     const bridge = await this.getBridge();
-    return new Promise<Buffer>(async (resolve, reject) => {
-      const exchangeTimeout: number = (this as any).exchangeTimeout;
-      const msg: BridgeExchangeRequest = {
-        type: BridgeMessageType.ExchangeRequest,
-        apdu: apdu.toString('hex'),
-        scrambleKey: this.scrambleKey?.toString('ascii'),
-        exchangeTimeout,
-        transportType: this.transportType
-      };
 
-      bridge.postMessage(msg).then(res => {
-        switch (res?.type) {
-          case BridgeMessageType.ExchangeResponse:
-            resolve(Buffer.from(res.result, 'hex'));
-            break;
+    const msg: BridgeExchangeRequest = {
+      apdu: apdu.toString('hex'),
+      scrambleKey: this.scrambleKey?.toString('ascii'),
+      exchangeTimeout: this.exchangeTimeout,
+      transportType: this.transportType
+    };
 
-          case BridgeMessageType.ErrorResponse:
-            reject(
-              // @ts-ignore
-              new TransportError(res.message)
-            );
-            break;
+    let result: string;
+    try {
+      result = await bridge.requestExchange(msg);
+    } catch (error: any) {
+      console.error(`TempleLedgerTransport.exchange() error:`, error);
+      throw new TransportError(error.message, 'id');
+    }
 
-          default:
-            return;
-        }
-      });
-    });
+    return Buffer.from(result, 'hex');
   }
 
   updateTransportType(transportType: TransportType) {

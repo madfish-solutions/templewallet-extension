@@ -160,7 +160,9 @@ module.exports = {
       stream: require.resolve('stream-browserify'),
       crypto: require.resolve('crypto-browserify'),
       util: require.resolve('util/'),
-      assert: require.resolve('assert/')
+      assert: require.resolve('assert/'),
+      /* Current package version has a bug with false import path */
+      '@ledgerhq/devices/hid-framing': require.resolve('@ledgerhq/devices/lib-es/hid-framing'),
     },
 
     alias: {
