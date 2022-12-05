@@ -91,6 +91,8 @@ function useAllKnownCollectibleTokenSlugs(chainId: string) {
 const enqueueAutoFetchMetadata = createQueue();
 const autoFetchMetadataFails = new Set<string>();
 
+export const TEZ_TOKEN_SLUG = 'tez';
+
 export const useGasToken = () => {
   const network = useNetwork();
 
