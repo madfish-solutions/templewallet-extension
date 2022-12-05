@@ -15,7 +15,7 @@ export const AdvertisingBanner: FC = () => {
 
   return isDefined(activePromotion) ? (
     <a
-      className={classNames('flex items-center justify-center mr-3')}
+      className="flex items-center justify-center mr-3"
       style={{
         height: 28,
         paddingLeft: popup ? 4 : 8,

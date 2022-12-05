@@ -12,8 +12,8 @@ export const NotificationsBell = () => {
 
   return (
     <Link
-      to={'/notifications'}
-      className={classNames('flex items-center justify-center mr-3')}
+      to="/notifications"
+      className="flex items-center justify-center mr-3"
       style={{
         position: 'relative',
         height: 28,
