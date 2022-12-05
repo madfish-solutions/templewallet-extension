@@ -33,7 +33,7 @@ type Confirmation = {
   error?: any;
 };
 
-const intercom = new IntercomClient();
+export const intercom = new IntercomClient();
 
 export const [TempleClientProvider, useTempleClient] = constate(() => {
   /**
