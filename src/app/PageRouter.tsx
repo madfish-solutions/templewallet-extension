@@ -20,12 +20,13 @@ import { Swap } from 'app/pages/Swap/Swap';
 import Unlock from 'app/pages/Unlock';
 import Welcome from 'app/pages/Welcome';
 import { usePageRouterAnalytics } from 'lib/analytics';
+import { Notifications, NotificationsItem } from 'lib/notifications';
 import { useTempleClient } from 'lib/temple/front';
 import * as Woozie from 'lib/woozie';
 
 import RootSuspenseFallback from './a11y/RootSuspenseFallback';
 import { useAdvertisingLoading } from './hooks/use-advertising.hook';
-import { useExchangeRatesLoading } from './hooks/use-exchange-rates.hook';
+import { useLongRefreshLoading } from './hooks/use-long-refresh-loading.hook';
 import { Buy } from './pages/Buy/Buy';
 import { AliceBobTopUp } from './pages/Buy/Debit/AliceBob/AliceBobTopUp';
 import { Utorg } from './pages/Buy/Debit/Utorg/Utorg';
@@ -96,13 +97,15 @@ const ROUTE_MAP = Woozie.createMap<RouteContext>([
   ['/withdraw', onlyReady(onlyInFullPage(() => <Withdraw />))],
   ['/withdraw/debit/alice-bob', onlyReady(onlyInFullPage(() => <AliceBobWithdraw />))],
   ['/attention', onlyReady(onlyInFullPage(() => <AttentionPage />))],
+  ['/notifications', onlyReady(() => <Notifications />)],
+  ['/notifications/:id', onlyReady(({ id }) => <NotificationsItem id={Number(id) ?? 0} />)],
   ['*', () => <Woozie.Redirect to="/" />]
 ]);
 
 export const PageRouter: FC = () => {
   const { trigger, pathname, search } = Woozie.useLocation();
 
-  useExchangeRatesLoading();
+  useLongRefreshLoading();
   useAdvertisingLoading();
 
   // Scroll to top after new location pushed.

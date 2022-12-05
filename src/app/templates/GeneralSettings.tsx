@@ -7,6 +7,7 @@ import LedgerLiveSettings from 'app/templates/LedgerLiveSettings';
 import LocaleSelect from 'app/templates/LocaleSelect';
 import LockUpSettings from 'app/templates/LockUpSettings';
 import PopupSettings from 'app/templates/PopupSettings';
+import { NotificationsSettings } from 'lib/notifications';
 
 const GeneralSettings: FC = () => {
   return (
@@ -23,6 +24,8 @@ const GeneralSettings: FC = () => {
       <AnalyticsSettings />
 
       <LedgerLiveSettings />
+
+      <NotificationsSettings />
     </div>
   );
 };

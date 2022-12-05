@@ -1,4 +1,5 @@
-import { createActions } from '../create-actions';
+import { createActions } from 'lib/store';
+
 import { ExchangeRateRecord } from './state';
 
 interface ExchangeRateInterface {
