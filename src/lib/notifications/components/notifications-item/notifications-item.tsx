@@ -62,7 +62,7 @@ export const NotificationsItem: FC<Props> = ({ id }) => {
                 rel="noopener noreferrer"
                 className="uppercase font-medium text-blue-500"
               >
-                READ IN ORIGINAL
+                <T id="readInOriginal" />
               </a>
             </>
           )}

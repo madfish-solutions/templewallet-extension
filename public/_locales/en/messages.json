@@ -2896,5 +2896,8 @@
   },
   "notificationsNotFound": {
     "message": "Notifications not found"
+  },
+  "readInOriginal": {
+    "message": "Read in original"
   }
 }
