@@ -60,7 +60,13 @@ const getAssertBrowser = () => {
 const openXDGLinkWithBrowserExtensionTab = async (url: string) => {
   const browser = getAssertBrowser();
 
-  const tab = await openBrowserExtensionTabNextToCurrent(url);
+  const tab = await new Promise<Browser.Tabs.Tab>(resolve =>
+    browser.tabs.create(
+      { url },
+      // @ts-ignore
+      resolve
+    )
+  );
 
   const tabId = tab.id!;
   const windowId = tab.windowId!;
@@ -97,28 +103,4 @@ const openXDGLinkWithBrowserExtensionTab = async (url: string) => {
   };
 
   browser.windows.onFocusChanged.addListener(windowListener);
-};
-
-const openBrowserExtensionTabNextToCurrent = async (url: string) => {
-  const browser = getAssertBrowser();
-
-  const currentTab = (
-    await new Promise<Browser.Tabs.Tab[]>(resolve =>
-      browser.tabs.query(
-        { active: true, currentWindow: true },
-        // @ts-ignore
-        resolve
-      )
-    )
-  )[0];
-
-  const index = currentTab ? currentTab.index + 1 : undefined;
-
-  return await new Promise<Browser.Tabs.Tab>(resolve =>
-    browser.tabs.create(
-      { url, index, openerTabId: currentTab?.id },
-      // @ts-ignore
-      resolve
-    )
-  );
 };
