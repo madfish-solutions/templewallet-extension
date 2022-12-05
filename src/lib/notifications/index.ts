@@ -6,3 +6,4 @@ export { NotificationsSettings } from './components/notifications-settings/notif
 export { loadNotificationsAction } from './store/actions';
 export { notificationsEpics } from './store/epics';
 export { notificationsReducers } from './store/reducers';
+export { mockNotificationsState } from './store/state.mock';
