@@ -28,7 +28,7 @@ export const NotificationsItem: FC<Props> = ({ id }) => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => void dispatch(readNotificationsItemAction(notification?.id ?? 0)), [notification?.id]);
 
-  if (!isDefined(notification)) {
+  if (notification == null) {
     return null;
   }
 
@@ -45,6 +45,7 @@ export const NotificationsItem: FC<Props> = ({ id }) => {
       <div className={classNames(['max-w-sm mx-auto px-4 pb-15', popup ? 'pt-4' : 'pt-6'])}>
         <img
           src={notification.extensionImageUrl}
+          alt="Notification image"
           className="w-full items-center rounded-md overflow-hidden bg-orange-10 mb-6"
         />
         <p className="font-inter text-gray-900 font-semibold mb-4" style={{ fontSize: 19 }}>

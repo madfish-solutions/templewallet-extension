@@ -17,7 +17,7 @@ export const NotificationsSettings: FC = () => {
 
   return (
     <>
-      <label className="mb-4 leading-tight flex flex-col" htmlFor="notifications">
+      <label className="mb-4 leading-tight flex flex-col">
         <span className="text-base font-semibold text-gray-700">
           <T id="notifications" />
         </span>
