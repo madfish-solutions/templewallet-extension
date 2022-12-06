@@ -5,10 +5,10 @@ import classNames from 'clsx';
 import { AlertTriangleIcon, ArrowRightIcon, NewsIcon, NotificationDotIcon, UpdateIcon } from 'lib/icons';
 import { Link } from 'lib/woozie';
 
-import { NotificationStatus } from '../../../enums/notification-status.enum';
-import { NotificationType } from '../../../enums/notification-type.enum';
-import { NotificationInterface } from '../../../interfaces/notification.interface';
-import { formatDateOutput } from '../../../utils/date.utils';
+import { NotificationStatus } from '../../enums/notification-status.enum';
+import { NotificationType } from '../../enums/notification-type.enum';
+import { NotificationInterface } from '../../interfaces/notification.interface';
+import { formatDateOutput } from '../../utils/date.utils';
 
 const NotificationsIconMap: Record<NotificationType, ImportedSVGComponent> = {
   [NotificationType.News]: NewsIcon,

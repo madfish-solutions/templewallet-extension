@@ -14,7 +14,7 @@ import { goBack } from 'lib/woozie';
 import { readNotificationsItemAction } from '../../store/actions';
 import { useNotificationsItemSelector } from '../../store/selectors';
 import { formatDateOutput } from '../../utils/date.utils';
-import { NotificationsItemContent } from './notifications-item-content/notifications-item-content';
+import { NotificationsItemContent } from './content';
 
 interface Props {
   id: number;
@@ -45,7 +45,7 @@ export const NotificationsItem: FC<Props> = ({ id }) => {
       <div className={classNames(['max-w-sm mx-auto px-4 pb-15', popup ? 'pt-4' : 'pt-6'])}>
         <img
           src={notification.extensionImageUrl}
-          alt="Notification image"
+          alt="Notification"
           className="w-full items-center rounded-md overflow-hidden bg-orange-10 mb-6"
         />
         <p className="font-inter text-gray-900 font-semibold mb-4" style={{ fontSize: 19 }}>
