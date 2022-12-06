@@ -1,7 +1,6 @@
 import React, { FC } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
-import classNames from 'clsx';
 
 import { useAppEnv } from 'app/env';
 import { useActivePromotionSelector } from 'app/store/advertising/selectors';

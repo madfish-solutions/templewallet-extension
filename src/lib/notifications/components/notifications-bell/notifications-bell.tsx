@@ -1,7 +1,5 @@
 import React from 'react';
 
-import classNames from 'clsx';
-
 import { BellIcon, NotificationDotIcon } from 'lib/icons';
 import { Link } from 'lib/woozie';
 
