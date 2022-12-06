@@ -5,8 +5,8 @@ import { useDispatch } from 'react-redux';
 import { FormCheckbox } from 'app/atoms';
 import { T, t } from 'lib/i18n';
 
-import { setIsNewsEnabledAction } from '../../store/actions';
-import { useIsNewsEnabledSelector } from '../../store/selectors';
+import { setIsNewsEnabledAction } from '../store/actions';
+import { useIsNewsEnabledSelector } from '../store/selectors';
 
 export const NotificationsSettings: FC = () => {
   const dispatch = useDispatch();

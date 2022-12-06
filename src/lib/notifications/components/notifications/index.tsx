@@ -9,7 +9,7 @@ import { BellIcon } from 'lib/icons';
 
 import { viewAllNotificationsAction } from '../../store/actions';
 import { useNotificationsSelector } from '../../store/selectors';
-import { NotificationPreviewItem } from './notifications-preview-item/notifications-preview-item';
+import { NotificationPreviewItem } from './preview-item';
 
 const VIEW_ALL_NOTIFICATIONS_TIMEOUT = 5 * 1000;
 

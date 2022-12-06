@@ -1,6 +1,6 @@
 import React, { FC } from 'react';
 
-import { NotificationInterface } from '../../../interfaces/notification.interface';
+import { NotificationInterface } from '../../interfaces/notification.interface';
 
 type Props = Pick<NotificationInterface, 'content'>;
 

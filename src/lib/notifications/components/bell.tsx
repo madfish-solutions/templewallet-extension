@@ -3,7 +3,7 @@ import React from 'react';
 import { BellIcon, NotificationDotIcon } from 'lib/icons';
 import { Link } from 'lib/woozie';
 
-import { useIsNewNotificationsAvailableSelector } from '../../store/selectors';
+import { useIsNewNotificationsAvailableSelector } from '../store/selectors';
 
 export const NotificationsBell = () => {
   const isNewNotificationsAvailable = useIsNewNotificationsAvailableSelector();
