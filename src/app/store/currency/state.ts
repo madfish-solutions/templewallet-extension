@@ -1,5 +1,4 @@
-import { createEntity } from '../create-entity';
-import { LoadableEntityState } from '../types';
+import { createEntity, LoadableEntityState } from 'lib/store';
 
 export type ExchangeRateRecord<V = string> = Record<string, V>;
 
