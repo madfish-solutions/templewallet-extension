@@ -3,24 +3,24 @@ import React, { memo, useMemo } from 'react';
 import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
 
+import { AssetIcon } from 'app/templates/AssetIcon';
 import { useAssetMetadata } from 'lib/temple/front';
 import { getAssetName, getAssetSymbol } from 'lib/temple/metadata';
 import { Link } from 'lib/woozie';
 
-import { AssetIcon } from '../../../../templates/AssetIcon';
 import { AssetsSelectors } from '../../Assets.selectors';
 import styles from '../Tokens.module.css';
 import { toExploreAssetLink } from '../utils';
 import { Balance } from './Balance';
 import { DelegateButton } from './DelegateButton';
 
-interface ListItemProps {
+interface Props {
   active: boolean;
   assetSlug: string;
   latestBalances: Record<string, BigNumber>;
 }
 
-export const ListItem = memo<ListItemProps>(({ active, assetSlug, latestBalances }) => {
+export const ListItem = memo<Props>(({ active, assetSlug, latestBalances }) => {
   const latestBalance = useMemo(() => {
     if (latestBalances.hasOwnProperty(assetSlug)) {
       return latestBalances[assetSlug];

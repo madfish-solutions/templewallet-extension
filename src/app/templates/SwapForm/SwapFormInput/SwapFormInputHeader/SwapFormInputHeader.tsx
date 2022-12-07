@@ -88,7 +88,7 @@ export const SwapFormInputHeader = forwardRef<HTMLDivElement, Props>(
           {selectedAssetSlug && (
             <span className={classNames(opened && 'hidden', 'text-xs text-gray-500 flex items-baseline')}>
               <span className="mr-1">
-                <T id="balance" />
+                <T id="balance" />:
               </span>
               {balance && (
                 <span className={classNames('text-sm mr-1 text-gray-700', balance.eq(0) && 'text-red-700')}>
