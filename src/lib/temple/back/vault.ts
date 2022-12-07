@@ -4,13 +4,18 @@ import { localForger } from '@taquito/local-forging';
 import { InMemorySigner } from '@taquito/signer';
 import { CompositeForger, RpcForger, Signer, TezosOperationError, TezosToolkit } from '@taquito/taquito';
 import * as TaquitoUtils from '@taquito/utils';
-import { LedgerTempleBridgeTransport } from '@temple-wallet/ledger-bridge';
 import * as Bip39 from 'bip39';
 import * as Ed25519 from 'ed25519-hd-key';
 import { initialize, SecureCellSeal } from 'wasm-themis';
 
-import { PublicError } from 'lib/temple/back/defaults';
-import { TempleLedgerSigner } from 'lib/temple/back/ledger-signer';
+import { formatOpParamsBeforeSend, loadFastRpcClient, michelEncoder } from 'lib/temple/helpers';
+import * as Passworder from 'lib/temple/passworder';
+import { clearAsyncStorages } from 'lib/temple/reset';
+import { TempleAccount, TempleAccountType, TempleContact, TempleSettings } from 'lib/temple/types';
+
+import { fetchMessage, transformHttpResponseError } from './helpers';
+import { createLedgerSigner } from './ledger';
+import { PublicError } from './PublicError';
 import {
   encryptAndSaveMany,
   encryptAndSaveManyLegacy,
@@ -22,14 +27,7 @@ import {
   removeMany,
   removeManyLegacy,
   savePlain
-} from 'lib/temple/back/safe-storage';
-import { formatOpParamsBeforeSend, loadFastRpcClient, michelEncoder } from 'lib/temple/helpers';
-import { pickLedgerTransport } from 'lib/temple/ledger-live';
-import * as Passworder from 'lib/temple/passworder';
-import { clearStorage } from 'lib/temple/reset';
-import { TempleAccount, TempleAccountType, TempleContact, TempleSettings } from 'lib/temple/types';
-
-import { fetchMessage, transformHttpResponseError } from './helpers';
+} from './safe-storage';
 
 const TEMPLE_SYNC_PREFIX = 'templesync';
 const TEZOS_BIP44_COINTYPE = 1729;
@@ -94,14 +92,7 @@ export class Vault {
 
       const passKey = await Passworder.generateKey(password);
 
-      const onboarding = localStorage.getItem('onboarding');
-      const analytics = localStorage.getItem('analytics');
-
-      await clearStorage();
-      try {
-        localStorage.setItem('onboarding', onboarding!);
-        localStorage.setItem('analytics', analytics!);
-      } catch {}
+      await clearAsyncStorages();
 
       await encryptAndSaveMany(
         [
@@ -532,7 +523,7 @@ export class Vault {
     }
   }
 
-  private async getSigner(accPublicKeyHash: string) {
+  private async getSigner(accPublicKeyHash: string): Promise<{ signer: Signer; cleanup: () => void }> {
     const allAccounts = await this.fetchAccounts();
     const acc = allAccounts.find(a => a.publicKeyHash === accPublicKeyHash);
     if (!acc) {
@@ -542,17 +533,15 @@ export class Vault {
     switch (acc.type) {
       case TempleAccountType.Ledger:
         const publicKey = await this.revealPublicKey(accPublicKeyHash);
-        return createLedgerSigner(acc.derivationPath, acc.derivationType, publicKey, accPublicKeyHash);
+        return await createLedgerSigner(acc.derivationPath, acc.derivationType, publicKey, accPublicKeyHash);
 
       case TempleAccountType.WatchOnly:
         throw new PublicError('Cannot sign Watch-only account');
 
       default:
         const privateKey = await fetchAndDecryptOne<string>(accPrivKeyStrgKey(accPublicKeyHash), this.passKey);
-        return createMemorySigner(privateKey).then(signer => ({
-          signer,
-          cleanup: () => {}
-        }));
+        const signer = await createMemorySigner(privateKey);
+        return { signer, cleanup: () => {} };
     }
   }
 }
@@ -684,10 +673,6 @@ function generateCheck() {
   return Bip39.generateMnemonic(128);
 }
 
-function removeMFromDerivationPath(dPath: string) {
-  return dPath.startsWith('m/') ? dPath.substring(2) : dPath;
-}
-
 function concatAccount(current: TempleAccount[], newOne: TempleAccount) {
   if (current.every(a => a.publicKeyHash !== newOne.publicKeyHash)) {
     return [...current, newOne];
@@ -709,42 +694,6 @@ async function getPublicKeyAndHash(privateKey: string) {
 
 async function createMemorySigner(privateKey: string, encPassword?: string) {
   return InMemorySigner.fromSecretKey(privateKey, encPassword);
-}
-
-let transport: LedgerTempleBridgeTransport;
-
-async function createLedgerSigner(
-  derivationPath: string,
-  derivationType?: DerivationType,
-  publicKey?: string,
-  publicKeyHash?: string
-) {
-  const transportType = await pickLedgerTransport();
-
-  if (transport) await transport?.close();
-
-  const bridgeUrl = process.env.TEMPLE_WALLET_LEDGER_BRIDGE_URL;
-  if (!bridgeUrl) {
-    throw new Error("Require a 'TEMPLE_WALLET_LEDGER_BRIDGE_URL' environment variable to be set");
-  }
-
-  transport = await LedgerTempleBridgeTransport.open(bridgeUrl);
-  transport.updateTransportType(transportType);
-
-  // After Ledger Live bridge was setuped, we don't close transport
-  // Probably we do not need to close it
-  // But if we need, we can close it after not use timeout
-  const cleanup = () => {};
-  const signer = new TempleLedgerSigner(
-    transport,
-    removeMFromDerivationPath(derivationPath),
-    true,
-    derivationType,
-    publicKey,
-    publicKeyHash
-  );
-
-  return { signer, cleanup };
 }
 
 function seedToHDPrivateKey(seed: Buffer, hdAccIndex: number) {
