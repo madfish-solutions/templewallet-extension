@@ -2014,7 +2014,7 @@
     "message": "Max"
   },
   "balance": {
-    "message": "Balance:"
+    "message": "Balance"
   },
   "from": {
     "message": "From"
@@ -2884,5 +2884,20 @@
   },
   "buyWithChainBitsDescription": {
     "message": "Buying Crypto Was Never This Easy"
+  },
+  "news": {
+    "message": "News"
+  },
+  "notifications": {
+    "message": "Notifications"
+  },
+  "notificationsSettingsDescription": {
+    "message": "Configure the notifications you want to receive. (Platform updates and emergency notifications can’t be disabled)"
+  },
+  "notificationsNotFound": {
+    "message": "Notifications not found"
+  },
+  "readInOriginal": {
+    "message": "Read in original"
   }
 }

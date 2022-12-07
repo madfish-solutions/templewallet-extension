@@ -1,6 +1,5 @@
-import { LoadableEntityState } from './types';
+import { LoadableEntityState } from '../interfaces/loadable-entity-state.interface';
 
-// ts-prune-ignore-next
 export const createEntity = <T>(data: T, isLoading = false, error?: string): LoadableEntityState<T> => ({
   data,
   isLoading,
