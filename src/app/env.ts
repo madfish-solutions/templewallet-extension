@@ -66,6 +66,8 @@ export const OpenInFullPage: FC = () => {
   return null;
 };
 
+export const isPopupWindow = () => browser.extension.getViews({ type: 'popup' }).includes(window);
+
 export function openInFullPage() {
   const { search, hash } = window.location;
   const url = createUrl('fullpage.html', search, hash);
