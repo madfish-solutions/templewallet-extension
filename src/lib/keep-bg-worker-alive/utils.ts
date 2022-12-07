@@ -1,4 +1,11 @@
-import browser from 'webextension-polyfill';
+import type Browser from 'webextension-polyfill';
+
+export const browser = (() => {
+  // @ts-ignore
+  const browser: typeof Browser | undefined = globalThis.chrome || globalThis.browser;
+  if (browser == null) throw new Error('Not browser extension');
+  return browser;
+})();
 
 const MANIFEST_VERSION = browser.runtime.getManifest().manifest_version;
 
@@ -11,7 +18,7 @@ export const KEEP_BACKGROUND_WORKER_ALIVE = 'KEEP_BACKGROUND_WORKER_ALIVE';
  */
 const contentScriptIsStillValid = () => Boolean(browser.runtime.id);
 
-export const ping = (port?: browser.Runtime.Port) => {
+export const ping = (port?: Browser.Runtime.Port) => {
   if (contentScriptIsStillValid() === false) return;
 
   const message = { type: KEEP_BACKGROUND_WORKER_ALIVE };

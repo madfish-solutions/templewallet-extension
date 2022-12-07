@@ -2,12 +2,12 @@
   Inject this script into Content Script of every possible opened tab.
 */
 
-import browser from 'webextension-polyfill';
+import type Browser from 'webextension-polyfill';
 
-import { BACKGROUND_IS_WORKER, KEEP_BACKGROUND_WORKER_ALIVE, ping } from './utils';
+import { browser, BACKGROUND_IS_WORKER, KEEP_BACKGROUND_WORKER_ALIVE, ping } from './utils';
 
 if (BACKGROUND_IS_WORKER) {
-  let port: browser.Runtime.Port;
+  let port: Browser.Runtime.Port;
   (function connect() {
     port = browser.runtime.connect({ name: KEEP_BACKGROUND_WORKER_ALIVE });
     port.onDisconnect.addListener(connect);
