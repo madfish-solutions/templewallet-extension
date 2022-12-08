@@ -1,5 +1,5 @@
 import { detectTokenStandard } from 'lib/temple/assets/tokenStandard';
-import { ReactiveTezosToolkit } from 'lib/temple/front';
+import { TEZ_TOKEN_SLUG, ReactiveTezosToolkit } from 'lib/temple/front';
 import { TempleAccount } from 'lib/temple/types';
 import { TzktApiChainId, TzktOperation } from 'lib/tzkt';
 import * as TZKT from 'lib/tzkt/api';
@@ -7,7 +7,6 @@ import * as TZKT from 'lib/tzkt/api';
 import type { Activity, OperationsGroup } from './types';
 import { operationsGroupToActivity } from './utils';
 
-const TEZ_TOKEN_SLUG = 'tez';
 const LIQUIDITY_BAKING_DEX_ADDRESS = 'KT1TxqZ8QtKvLu3V3JH7Gx58n7Co8pgtpQU5';
 
 export default async function fetchActivities(

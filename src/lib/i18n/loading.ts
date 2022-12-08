@@ -17,8 +17,8 @@ export function onInited(callback: () => void) {
   initPromise.then(callback);
 }
 
-export function updateLocale(locale: string) {
-  saveLocale(locale);
+export async function updateLocale(locale: string) {
+  await saveLocale(locale);
   notifyOthers();
   refresh();
 }
@@ -27,6 +27,6 @@ function notifyOthers() {
   browser.runtime.sendMessage({ type: REFRESH_MSGTYPE });
 }
 
-async function refresh() {
+function refresh() {
   window.location.reload();
 }

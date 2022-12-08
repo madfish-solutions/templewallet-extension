@@ -2,16 +2,8 @@ import { b58cdecode, hex2buf } from '@taquito/utils';
 import { crypto_generichash, ready } from 'libsodium-wrappers';
 import toBuffer from 'typedarray-to-buffer';
 
-import {
-  curves,
-  getSig,
-  pref,
-  safeSignEdData,
-  safeSignP2Data,
-  safeSignSpData,
-  toLedgerError,
-  verifySignature
-} from './ledger-signer';
+import { toLedgerError } from './helpers';
+import { curves, getSig, pref, safeSignEdData, safeSignP2Data, safeSignSpData, verifySignature } from './signer';
 
 const PAYLOAD = {
   ed: '0501313230363136653739323037333734373236393665363732303734363836313734323037373639366336633230363236353230373336393637366536353634',

@@ -12,7 +12,7 @@ type DryRunParams = {
   sourcePublicKey: string;
 };
 
-interface DryRunResult {
+export interface DryRunResult {
   error?: Array<any>;
   result?: {
     bytesToSign?: string;
