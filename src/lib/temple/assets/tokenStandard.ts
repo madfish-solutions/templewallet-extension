@@ -1,3 +1,4 @@
+import { HttpResponseError } from '@taquito/http-utils';
 import { TezosToolkit, WalletContract, Contract, ChainIds } from '@taquito/taquito';
 import retry from 'async-retry';
 
@@ -44,43 +45,20 @@ export const detectTokenStandard = async (
   }
 };
 
-export const assertEntrypointWorking = async (
-  tezos: TezosToolkit,
-  contract: WalletContract,
-  standard: TokenStandard,
-  fa2TokenId = 0
-) => {
+export const assertFa2TokenDeployed = async (tezos: TezosToolkit, contract: WalletContract, tokenId = 0) => {
   const chainId = (await tezos.rpc.getChainId()) as ChainIds;
 
-  await (standard === 'fa2'
-    ? assertEntrypointWorkingForFa2(contract, chainId, fa2TokenId)
-    : assertEntrypointWorkingForFa12(contract, chainId));
-};
-
-const assertEntrypointWorkingForFa12 = async (contract: WalletContract, chainId: ChainIds) => {
-  const entrypoint = 'getTotalSupply';
   try {
-    return await retry(() => contract.views[entrypoint]([['Unit']]).read(chainId), RETRY_PARAMS);
-  } catch (error) {
+    await contract.views.balance_of([{ owner: NULL_ADDRESS, token_id: tokenId }]).read(chainId);
+  } catch (error: unknown) {
     console.error(error);
-    throw new Error(getMessage('unknownErrorCheckingSomeEntrypoint', entrypoint));
-  }
-};
-
-const assertEntrypointWorkingForFa2 = async (contract: WalletContract, chainId: ChainIds, tokenId = 0) => {
-  const entrypoint = 'balance_of';
-  try {
-    await retry(
-      () => contract.views[entrypoint]([{ owner: NULL_ADDRESS, token_id: tokenId }]).read(chainId),
-      RETRY_PARAMS
-    );
-  } catch (error: any) {
-    console.error(error);
-    if (error?.value?.string === 'FA2_TOKEN_UNDEFINED') {
-      throw new IncorrectTokenIdError(getMessage('incorrectTokenIdErrorMessage'));
-    } else {
-      throw new Error(getMessage('unknownErrorCheckingSomeEntrypoint', entrypoint));
+    if (error instanceof HttpResponseError) {
+      const issues = error.status === 500 && error.body ? JSON.parse(error.body) : null;
+      if (Array.isArray(issues) && issues.find(issue => issue.with?.string === 'FA2_TOKEN_UNDEFINED'))
+        throw new IncorrectTokenIdError(getMessage('incorrectTokenIdErrorMessage'));
     }
+
+    throw new Error(getMessage('unknownErrorCheckingSomeEntrypoint', 'balance_of'));
   }
 };
 

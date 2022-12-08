@@ -14,7 +14,7 @@ import { T, t } from 'lib/i18n';
 import {
   NotMatchingStandardError,
   toTokenSlug,
-  assertEntrypointWorking,
+  assertFa2TokenDeployed,
   detectTokenStandard,
   IncorrectTokenIdError
 } from 'lib/temple/assets';
@@ -131,7 +131,7 @@ const Form: FC = () => {
         throw new NotMatchingStandardError('Failed when detecting token standard');
       }
 
-      await assertEntrypointWorking(tezos, contract, tokenStandard, tokenId);
+      if (tokenStandard === 'fa2') await assertFa2TokenDeployed(tezos, contract, tokenId);
 
       const slug = toTokenSlug(contractAddress, tokenId);
       const metadata = await fetchMetadata(slug);
