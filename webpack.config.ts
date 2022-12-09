@@ -9,7 +9,7 @@ import CreateFileWebpack from 'create-file-webpack';
 import CssMinimizerPlugin from 'css-minimizer-webpack-plugin';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
-import * as path from 'path';
+import * as Path from 'path';
 import ExtensionReloaderBadlyTyped, { ExtensionReloader as ExtensionReloaderType } from 'webpack-ext-reloader';
 import ExtensionReloaderMV3BadlyTyped, {
   ExtensionReloader as ExtensionReloaderMV3Type
@@ -33,24 +33,12 @@ import { isTruthy } from './webpack/utils';
 const ExtensionReloader = ExtensionReloaderBadlyTyped as ExtensionReloaderType;
 const ExtensionReloaderMV3 = ExtensionReloaderMV3BadlyTyped as ExtensionReloaderMV3Type;
 
-const HTML_TEMPLATES = [
-  {
-    name: 'popup',
-    path: path.join(PATHS.PUBLIC, 'popup.html')
-  },
-  {
-    name: 'fullpage',
-    path: path.join(PATHS.PUBLIC, 'fullpage.html')
-  },
-  {
-    name: 'confirm',
-    path: path.join(PATHS.PUBLIC, 'confirm.html')
-  },
-  {
-    name: 'options',
-    path: path.join(PATHS.PUBLIC, 'options.html')
-  }
-];
+const PAGES_NAMES = ['popup', 'fullpage', 'confirm', 'options'];
+const HTML_TEMPLATES = PAGES_NAMES.map(name => {
+  const filename = `${name}.html`;
+  const path = Path.join(PATHS.PUBLIC, filename);
+  return { name, filename, path };
+});
 
 const CONTENT_SCRIPTS = ['contentScript'];
 if (BACKGROUND_IS_WORKER) CONTENT_SCRIPTS.push('keepBackgroundWorkerAlive');
@@ -60,20 +48,16 @@ const mainConfig = (() => {
   const config = buildBaseConfig();
 
   config.entry = {
-    popup: path.join(PATHS.SOURCE, 'popup.tsx'),
-    fullpage: path.join(PATHS.SOURCE, 'fullpage.tsx'),
-    confirm: path.join(PATHS.SOURCE, 'confirm.tsx'),
-    options: path.join(PATHS.SOURCE, 'options.tsx'),
-    contentScript: path.join(PATHS.SOURCE, 'contentScript.ts')
+    popup: Path.join(PATHS.SOURCE, 'popup.tsx'),
+    fullpage: Path.join(PATHS.SOURCE, 'fullpage.tsx'),
+    confirm: Path.join(PATHS.SOURCE, 'confirm.tsx'),
+    options: Path.join(PATHS.SOURCE, 'options.tsx')
   };
-
-  if (BACKGROUND_IS_WORKER)
-    config.entry.keepBackgroundWorkerAlive = path.join(PATHS.SOURCE, 'keepBackgroundWorkerAlive.ts');
 
   config.output = {
     ...config.output,
-    filename: 'scripts/[name].js',
-    chunkFilename: 'scripts/[name].chunk.js'
+    filename: 'pages/[name].js',
+    chunkFilename: 'pages/[name].chunk.js'
   };
 
   config.plugins!.push(
@@ -84,7 +68,7 @@ const mainConfig = (() => {
       }),
 
       new CleanWebpackPlugin({
-        cleanOnceBeforeBuildPatterns: [`**/*`, `!background/**`, PATHS.OUTPUT_PACKED],
+        cleanOnceBeforeBuildPatterns: [`**/*`, `!scripts/**`, `!background/**`, PATHS.OUTPUT_PACKED],
         cleanStaleWebpackAssets: false,
         verbose: false
       }),
@@ -95,11 +79,11 @@ const mainConfig = (() => {
       }),
 
       ...HTML_TEMPLATES.map(
-        htmlTemplate =>
+        ({ name, filename, path }) =>
           new HtmlWebpackPlugin({
-            template: htmlTemplate.path,
-            filename: path.basename(htmlTemplate.path),
-            chunks: [htmlTemplate.name],
+            template: path,
+            filename,
+            chunks: [name],
             inject: 'body',
             ...(PRODUCTION_ENV
               ? {
@@ -149,13 +133,10 @@ const mainConfig = (() => {
       /* Page reloading in development mode */
       DEVELOPMENT_ENV &&
         new ExtensionReloader({
-          port: RELOADER_PORTS.FOREGROUND,
+          port: RELOADER_PORTS.PAGES,
           reloadPage: true,
-          // manifest: path.join(OUTPUT_PATH, "manifest.json"),
           entries: {
-            background: '',
-            contentScript: CONTENT_SCRIPTS,
-            extensionPage: ['popup', 'fullpage', 'confirm', 'options', 'commons.chunk']
+            extensionPage: [...PAGES_NAMES, 'commons.chunk']
           }
         })
     ].filter(isTruthy)
@@ -179,13 +160,58 @@ const mainConfig = (() => {
   return config;
 })();
 
+const scriptsConfig = (() => {
+  const config = buildBaseConfig();
+
+  config.entry = {
+    contentScript: Path.join(PATHS.SOURCE, 'contentScript.ts')
+  };
+
+  if (BACKGROUND_IS_WORKER)
+    config.entry.keepBackgroundWorkerAlive = Path.join(PATHS.SOURCE, 'keepBackgroundWorkerAlive.ts');
+
+  config.output = {
+    ...config.output,
+    filename: 'scripts/[name].js',
+    chunkFilename: 'scripts/[name].chunk.js'
+  };
+
+  config.plugins!.push(
+    ...[
+      new WebpackBar({
+        name: 'Temple Wallet | Scripts',
+        color: '#ed8936'
+      }),
+
+      new CleanWebpackPlugin({
+        cleanOnceBeforeBuildPatterns: ['scripts/**'],
+        cleanStaleWebpackAssets: false,
+        verbose: false
+      }),
+
+      /* Page reloading in development mode */
+      DEVELOPMENT_ENV &&
+        new ExtensionReloader({
+          port: RELOADER_PORTS.SCRIPTS,
+          reloadPage: true,
+          entries: {
+            background: '',
+            contentScript: CONTENT_SCRIPTS
+          }
+        })
+    ].filter(isTruthy)
+  );
+
+  return config;
+})();
+
 const backgroundConfig = (() => {
   const config = buildBaseConfig();
 
   if (BACKGROUND_IS_WORKER) config.target = 'webworker';
 
   config.entry = {
-    background: path.join(PATHS.SOURCE, 'background.ts')
+    background: Path.join(PATHS.SOURCE, 'background.ts')
   };
 
   config.output = {
@@ -223,7 +249,7 @@ const backgroundConfig = (() => {
           }
         }),
 
-      // plugin to enable browser reloading in development mode
+      /* Page reloading in development mode */
       DEVELOPMENT_ENV &&
         new ExtensionReloaderMV3({
           port: RELOADER_PORTS.BACKGROUND,
@@ -236,5 +262,5 @@ const backgroundConfig = (() => {
   return config;
 })();
 
-module.exports = [mainConfig, backgroundConfig];
+module.exports = [mainConfig, scriptsConfig, backgroundConfig];
 // module.exports.parallelism = 1;

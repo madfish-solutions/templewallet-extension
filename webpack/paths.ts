@@ -27,7 +27,6 @@ const PATH_PUBLIC = path.join(PATH_CWD, 'public');
 const PATH_DEST = path.join(PATH_CWD, 'dist');
 const PATH_OUTPUT = path.join(PATH_DEST, DEST_RELATIVE_PATH_OUTPUT);
 const PATH_OUTPUT_PACKED = path.join(PATH_DEST, DEST_RELATIVE_PATH_OUTPUT_PACKED);
-const PATH_OUTPUT_SCRIPTS = path.join(PATH_OUTPUT, 'scripts/');
 const PATH_OUTPUT_BACKGROUND = path.join(PATH_OUTPUT, 'background/');
 const PATH_WASM = path.join(PATH_NODE_MODULES, 'wasm-themis/src/libthemis.wasm');
 
@@ -44,7 +43,6 @@ const PATHS = {
   DEST: PATH_DEST,
   OUTPUT: PATH_OUTPUT,
   OUTPUT_PACKED: PATH_OUTPUT_PACKED,
-  OUTPUT_SCRIPTS: PATH_OUTPUT_SCRIPTS,
   OUTPUT_BACKGROUND: PATH_OUTPUT_BACKGROUND,
   WASM: PATH_WASM
 };

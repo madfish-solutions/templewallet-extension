@@ -23,7 +23,8 @@ const DROP_CONSOLE_IN_PROD = true;
 
 const RELOADER_PORTS = {
   BACKGROUND: 9090,
-  FOREGROUND: 9091
+  SCRIPTS: 9091,
+  PAGES: 9092
 };
 
 export const ALL_VENDORS = ['chrome', 'brave', 'firefox', 'opera', 'safari'] as const;
