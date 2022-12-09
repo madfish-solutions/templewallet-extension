@@ -33,7 +33,7 @@ export type Vendor = typeof ALL_VENDORS[number];
 
 const MANIFEST_VERSION_BY_VENDORS: Record<Vendor, 2 | 3> = {
   chrome: 3,
-  brave: 2,
+  brave: 3,
   firefox: 2,
   opera: 2,
   safari: 2

@@ -7,7 +7,6 @@ import { CleanWebpackPlugin } from 'clean-webpack-plugin';
 import CopyWebpackPlugin from 'copy-webpack-plugin';
 import CreateFileWebpack from 'create-file-webpack';
 import CssMinimizerPlugin from 'css-minimizer-webpack-plugin';
-import HandmadeLiveReload from 'handmade-livereload-webpack-plugin';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import * as Path from 'path';
@@ -27,6 +26,7 @@ import {
   BACKGROUND_IS_WORKER,
   RELOADER_PORTS
 } from './webpack/env';
+import usePagesLiveReload from './webpack/live-reload';
 import { buildManifest } from './webpack/manifest';
 import { PATHS } from './webpack/paths';
 import { isTruthy } from './webpack/utils';
@@ -48,16 +48,8 @@ const SEPARATED_CHUNKS = new Set(CONTENT_SCRIPTS);
 const mainConfig = (() => {
   const config = buildBaseConfig();
 
-  /* Page reloading in development mode
-    Can only be used once, i.e. in a single configuration with single port value.
-    Reloads all pages at once.
-  */
-  const liveReload =
-    DEVELOPMENT_ENV &&
-    HandmadeLiveReload({
-      port: RELOADER_PORTS.PAGES,
-      host: 'localhost'
-    });
+  /* Page reloading in development mode */
+  const liveReload = DEVELOPMENT_ENV && usePagesLiveReload(RELOADER_PORTS.PAGES);
 
   config.entry = {
     popup: Path.join(PATHS.SOURCE, 'popup.tsx'),
@@ -66,7 +58,7 @@ const mainConfig = (() => {
     options: Path.join(PATHS.SOURCE, 'options.tsx')
   };
 
-  if (liveReload) config.entry.live_reload = liveReload.path_to_client;
+  if (liveReload) config.entry.live_reload = liveReload.client_entry;
 
   config.output = {
     ...config.output,
@@ -144,7 +136,7 @@ const mainConfig = (() => {
         })()
       }),
 
-      liveReload && new liveReload.plugin()
+      ...(liveReload ? liveReload.plugins : [])
     ].filter(isTruthy)
   );
 
@@ -260,7 +252,7 @@ const backgroundConfig = (() => {
         new ExtensionReloaderMV3({
           port: RELOADER_PORTS.BACKGROUND,
           reloadPage: true,
-          entries: { background: 'background', contentScript: '' }
+          entries: { background: 'background', contentScript: [] }
         })
     ].filter(isTruthy)
   );
