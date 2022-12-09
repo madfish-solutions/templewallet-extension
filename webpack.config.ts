@@ -260,5 +260,7 @@ const backgroundConfig = (() => {
   return config;
 })();
 
-module.exports = [mainConfig, scriptsConfig, backgroundConfig];
-// module.exports.parallelism = 1;
+const configurations = [mainConfig, scriptsConfig, backgroundConfig];
+
+export default configurations;
+// export const parallelism = 1;
