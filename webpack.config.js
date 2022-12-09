@@ -247,6 +247,7 @@ module.exports = {
               configFile: false,
               compact: false,
               presets: [[require.resolve('babel-preset-react-app/dependencies'), { helpers: true }]],
+              plugins: ["@babel/plugin-proposal-class-properties"],
               cacheDirectory: true,
               // See #6846 for context on why cacheCompression is disabled
               cacheCompression: false,
@@ -256,6 +257,7 @@ module.exports = {
               sourceMaps: SOURCE_MAP,
               inputSourceMap: SOURCE_MAP
             }
+            
           },
           // "postcss" loader applies autoprefixer to our CSS.
           // "css" loader resolves paths in CSS and adds assets as dependencies.

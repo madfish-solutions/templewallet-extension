@@ -1,11 +1,11 @@
 import {
-  DekuToolkit,
+  DekuCClient,
   fromMemorySigner
   //AddressType,
   //AmountType,
   //OptOptions,
   //OperationHashType
-} from '@marigold-dev/deku-toolkit';
+} from '@marigold-dev/deku';
 import { HttpResponseError } from '@taquito/http-utils';
 import { DerivationType } from '@taquito/ledger-signer';
 import { localForger } from '@taquito/local-forging';
@@ -549,8 +549,9 @@ export class Vault {
   ): Promise<string> {
     //OperationHashType> {
     return this.withSigner(accPublicKeyHash, async signer => {
+      console.log(rpc, receiver, amount, ticketer, data, options, signer);
       try {
-        const dekuClient = new DekuToolkit({ dekuRpc: rpc, dekuSigner: fromMemorySigner(signer) });
+        const dekuClient = new DekuCClient({ dekuRpc: rpc, dekuSigner: fromMemorySigner(signer) });
         return dekuClient.transferTo(receiver, Number.parseFloat(amount), ticketer, data, options);
       } catch (err: any) {
         alert('sendBlockchainOperations error: ' + JSON.stringify(err));
