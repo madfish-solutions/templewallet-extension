@@ -17,6 +17,8 @@ const WEBPACK_MODE = NODE_ENV === 'test' ? 'none' : NODE_ENV;
 const DEVELOPMENT_ENV = NODE_ENV === 'development';
 const PRODUCTION_ENV = NODE_ENV === 'production';
 
+const SOURCE_MAP = NODE_ENV !== 'production' && SOURCE_MAP_ENV !== 'false';
+
 const DROP_CONSOLE_IN_PROD = true;
 
 const RELOADER_PORTS = {
@@ -47,7 +49,7 @@ export {
   DEVELOPMENT_ENV,
   PRODUCTION_ENV,
   TARGET_BROWSER,
-  SOURCE_MAP_ENV,
+  SOURCE_MAP,
   DROP_CONSOLE_IN_PROD,
   MANIFEST_VERSION,
   BACKGROUND_IS_WORKER,

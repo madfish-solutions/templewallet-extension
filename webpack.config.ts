@@ -10,8 +10,11 @@ import CssMinimizerPlugin from 'css-minimizer-webpack-plugin';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import * as path from 'path';
-import ExtensionReloaderBadlyTyped, { ExtensionReloader as ExtensionReloaderType } from 'webpack-ext-reloader-mv3';
-import WebExtension from 'webpack-target-webextension';
+import ExtensionReloaderBadlyTyped, { ExtensionReloader as ExtensionReloaderType } from 'webpack-ext-reloader';
+import ExtensionReloaderMV3BadlyTyped, {
+  ExtensionReloader as ExtensionReloaderMV3Type
+} from 'webpack-ext-reloader-mv3';
+import WebExtensionTargetPlugin from 'webpack-target-webextension';
 import WebpackBar from 'webpackbar';
 
 import { buildBaseConfig } from './webpack/base.config';
@@ -28,6 +31,7 @@ import { PATHS } from './webpack/paths';
 import { isTruthy } from './webpack/utils';
 
 const ExtensionReloader = ExtensionReloaderBadlyTyped as ExtensionReloaderType;
+const ExtensionReloaderMV3 = ExtensionReloaderMV3BadlyTyped as ExtensionReloaderMV3Type;
 
 const HTML_TEMPLATES = [
   {
@@ -69,10 +73,6 @@ const mainConfig = (() => {
   config.output = {
     ...config.output,
     filename: 'scripts/[name].js',
-    /*
-      Not working like in WebPack v4.
-      `optimization.splitChunks.cacheGroups.{cacheGroupKey}.name` overrides this.
-    */
     chunkFilename: 'scripts/[name].chunk.js'
   };
 
@@ -99,7 +99,7 @@ const mainConfig = (() => {
           new HtmlWebpackPlugin({
             template: htmlTemplate.path,
             filename: path.basename(htmlTemplate.path),
-            chunks: [htmlTemplate.name, 'commons'],
+            chunks: [htmlTemplate.name],
             inject: 'body',
             ...(PRODUCTION_ENV
               ? {
@@ -146,13 +146,14 @@ const mainConfig = (() => {
         })()
       }),
 
-      // plugin to enable browser reloading in development mode
+      /* Page reloading in development mode */
       DEVELOPMENT_ENV &&
         new ExtensionReloader({
           port: RELOADER_PORTS.FOREGROUND,
           reloadPage: true,
           // manifest: path.join(OUTPUT_PATH, "manifest.json"),
           entries: {
+            background: '',
             contentScript: CONTENT_SCRIPTS,
             extensionPage: ['popup', 'fullpage', 'confirm', 'options', 'commons.chunk']
           }
@@ -163,7 +164,7 @@ const mainConfig = (() => {
   config.optimization!.splitChunks = {
     cacheGroups: {
       commons: {
-        name: (_module: unknown, _chunks: unknown, cacheGroupKey: string) => `${cacheGroupKey}.chunk`,
+        name: 'commons.chunk',
         minChunks: 2,
         chunks: chunk => !SEPARATED_CHUNKS.has(chunk.name)
       }
@@ -210,8 +211,12 @@ const backgroundConfig = (() => {
         patterns: [{ from: PATHS.WASM, to: PATHS.OUTPUT_BACKGROUND }]
       }),
 
+      /*
+        Handling dynamic imports, converted to ServiceWorker's `importScripts`, and failing
+        over being called deferred, not at the root of the script.
+      */
       BACKGROUND_IS_WORKER &&
-        new WebExtension({
+        new WebExtensionTargetPlugin({
           background: {
             entry: 'background',
             manifest: MANIFEST_VERSION
@@ -220,11 +225,10 @@ const backgroundConfig = (() => {
 
       // plugin to enable browser reloading in development mode
       DEVELOPMENT_ENV &&
-        new ExtensionReloader({
+        new ExtensionReloaderMV3({
           port: RELOADER_PORTS.BACKGROUND,
           reloadPage: true,
-          // manifest: path.join(OUTPUT_PATH, "manifest.json"),
-          entries: { background: 'background' }
+          entries: { background: 'background', contentScript: '' }
         })
     ].filter(isTruthy)
   );

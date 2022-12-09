@@ -22,7 +22,7 @@ import {
   PRODUCTION_ENV,
   TARGET_BROWSER,
   DROP_CONSOLE_IN_PROD,
-  SOURCE_MAP_ENV,
+  SOURCE_MAP,
   MANIFEST_VERSION,
   IMAGE_INLINE_SIZE_LIMIT_ENV
 } from './env';
@@ -33,7 +33,6 @@ import { PATHS } from './paths';
 const TEMPLE_WALLET = /^TEMPLE_WALLET_/i;
 
 const VERSION = packageJSON.version;
-const SOURCE_MAP = NODE_ENV !== 'production' && SOURCE_MAP_ENV !== 'false';
 const IMAGE_INLINE_SIZE_LIMIT = parseInt(IMAGE_INLINE_SIZE_LIMIT_ENV);
 
 const MODULE_FILE_EXTENSIONS = ['.js', '.mjs', '.jsx', '.ts', '.tsx', '.json'];
@@ -43,7 +42,7 @@ const ADDITIONAL_MODULE_PATHS = [
 const CSS_REGEX = /\.css$/;
 const CSS_MODULE_REGEX = /\.module\.css$/;
 
-export const buildBaseConfig = (): WebPack.Configuration => ({
+export const buildBaseConfig = (): WebPack.Configuration & Pick<WebPack.WebpackOptionsNormalized, 'devServer'> => ({
   mode: WEBPACK_MODE,
   bail: PRODUCTION_ENV,
   devtool: SOURCE_MAP && 'inline-cheap-module-source-map',
