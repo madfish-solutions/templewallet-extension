@@ -7,6 +7,7 @@ import { CleanWebpackPlugin } from 'clean-webpack-plugin';
 import CopyWebpackPlugin from 'copy-webpack-plugin';
 import CreateFileWebpack from 'create-file-webpack';
 import CssMinimizerPlugin from 'css-minimizer-webpack-plugin';
+import HandmadeLiveReload from 'handmade-livereload-webpack-plugin';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import * as Path from 'path';
@@ -47,12 +48,25 @@ const SEPARATED_CHUNKS = new Set(CONTENT_SCRIPTS);
 const mainConfig = (() => {
   const config = buildBaseConfig();
 
+  /* Page reloading in development mode
+    Can only be used once, i.e. in a single configuration with single port value.
+    Reloads all pages at once.
+  */
+  const liveReload =
+    DEVELOPMENT_ENV &&
+    HandmadeLiveReload({
+      port: RELOADER_PORTS.PAGES,
+      host: 'localhost'
+    });
+
   config.entry = {
     popup: Path.join(PATHS.SOURCE, 'popup.tsx'),
     fullpage: Path.join(PATHS.SOURCE, 'fullpage.tsx'),
     confirm: Path.join(PATHS.SOURCE, 'confirm.tsx'),
     options: Path.join(PATHS.SOURCE, 'options.tsx')
   };
+
+  if (liveReload) config.entry.live_reload = liveReload.path_to_client;
 
   config.output = {
     ...config.output,
@@ -83,7 +97,7 @@ const mainConfig = (() => {
           new HtmlWebpackPlugin({
             template: path,
             filename,
-            chunks: [name],
+            chunks: liveReload ? [name, 'live_reload'] : [name],
             inject: 'body',
             ...(PRODUCTION_ENV
               ? {
@@ -130,15 +144,7 @@ const mainConfig = (() => {
         })()
       }),
 
-      /* Page reloading in development mode */
-      DEVELOPMENT_ENV &&
-        new ExtensionReloader({
-          port: RELOADER_PORTS.PAGES,
-          reloadPage: true,
-          entries: {
-            extensionPage: [...PAGES_NAMES, 'commons.chunk']
-          }
-        })
+      liveReload && new liveReload.plugin()
     ].filter(isTruthy)
   );
 
