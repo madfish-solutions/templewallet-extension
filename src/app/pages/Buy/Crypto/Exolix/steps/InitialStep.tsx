@@ -9,7 +9,7 @@ import Divider from 'app/atoms/Divider';
 import styles from 'app/pages/Buy/Crypto/Exolix/Exolix.module.css';
 import ErrorComponent from 'app/pages/Buy/Crypto/Exolix/steps/ErrorComponent';
 import WarningComponent from 'app/pages/Buy/Crypto/Exolix/steps/WarningComponent';
-import { useAssetFiatCurrencyPrice } from 'lib/fiat-currency';
+import { useAssetUSDPrice } from 'lib/fiat-currency';
 import { T } from 'lib/i18n';
 import { useAccount } from 'lib/temple/front';
 
@@ -27,9 +27,8 @@ const INITIAL_COIN_FROM = {
   network: 'BTC',
   networkFullName: 'Bitcoin'
 };
-const MAX_DOLLAR_VALUE = 10000;
+const MAX_DOLLAR_VALUE = 10_000;
 const AVERAGE_COMMISSION = 300;
-const COIN_LIST_REFETCH_INTERVAL = 3600000;
 
 interface Props {
   exchangeData: ExchangeDataInterface | null;
@@ -40,22 +39,22 @@ interface Props {
 }
 
 const InitialStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isError, setIsError }) => {
-  const [maxAmount, setMaxAmount] = useState('');
+  const { publicKeyHash } = useAccount();
+
   const [amount, setAmount] = useState<number | undefined>(undefined);
   const [coinFrom, setCoinFrom] = useState(INITIAL_COIN_FROM);
-  const [coinTo, setCoinTo] = useState(outputTokensList[0]);
+  const [coinTo, setCoinTo] = useState(outputTokensList[0]!);
   const [lastMinAmount, setLastMinAmount] = useState(new BigNumber(0));
   const [lastMaxAmount, setLastMaxAmount] = useState('0');
 
   const [depositAmount, setDepositAmount] = useState(0);
-  const { publicKeyHash } = useAccount();
   const [disabledProceed, setDisableProceed] = useState(true);
-  const [debouncedAmount] = useDebounce(amount, 500);
-  const coinToPrice = useAssetFiatCurrencyPrice(coinTo.slug!);
 
-  const { data: currencies, isValidating: isCurrenciesLoading } = useSWR(['/api/currency'], getCurrencies, {
-    dedupingInterval: COIN_LIST_REFETCH_INTERVAL
-  });
+  const [debouncedAmount] = useDebounce(amount, 500);
+
+  const coinToPrice = useAssetUSDPrice(coinTo.slug!);
+
+  const { data: currencies, isValidating: isCurrenciesLoading } = useSWR(['/api/currency'], getCurrencies);
 
   const currenciesCount = useCurrenciesCount();
 
@@ -93,25 +92,30 @@ const InitialStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
       getRate({
         coinFrom: coinFrom.code,
         coinFromNetwork: coinFrom.network,
+        amount: amount ?? 0,
         coinTo: coinTo.code,
-        coinToNetwork: coinTo.network,
-        amount: amount ?? 0
+        coinToNetwork: coinTo.network
       })
   );
 
   useEffect(() => {
     (async () => {
       try {
-        const { rate, ...rest } = await getRate({
+        const safeCoinToPrice = coinToPrice || new BigNumber(0);
+        const coinToAmount = new BigNumber(MAX_DOLLAR_VALUE + AVERAGE_COMMISSION).div(safeCoinToPrice);
+        const { toAmount } = await getRate({
           coinFrom: coinTo.code,
           coinFromNetwork: coinTo.network,
+          amount: coinToAmount.toNumber(),
           coinTo: coinFrom.code,
-          coinToNetwork: coinFrom.network,
-          amount: new BigNumber(MAX_DOLLAR_VALUE + AVERAGE_COMMISSION).div(coinToPrice!).toNumber()
+          coinToNetwork: coinFrom.network
         });
 
-        setMaxAmount(new BigNumber(rest.toAmount).toFixed(Number(rest.toAmount) > 100 ? 2 : 6));
-      } catch {}
+        const maxAmount = new BigNumber(toAmount).toFixed(toAmount > 100 ? 2 : 6);
+        setLastMaxAmount(maxAmount === 'Infinity' ? '---' : maxAmount);
+      } catch (error) {
+        console.error(error);
+      }
     })();
   }, [coinFrom, coinTo, coinToPrice]);
 
@@ -136,15 +140,10 @@ const InitialStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
     if (rates.minAmount > 0) {
       setLastMinAmount(new BigNumber(rates.minAmount));
     }
-    if (maxAmount !== 'Infinity') {
-      setLastMaxAmount(maxAmount);
-    } else {
-      setLastMaxAmount('---');
-    }
     if (isMaxAmountError) {
       setDisableProceed(true);
     }
-  }, [rates, amount, maxAmount, isMaxAmountError, coinFrom]);
+  }, [rates, amount, isMaxAmountError, coinFrom]);
 
   return (
     <>
@@ -153,10 +152,13 @@ const InitialStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
           <p className={styles['title']}>
             <T id={'exchangeDetails'} />
           </p>
+
           <p className={styles['description']}>
             <T id={'exchangeDetailsDescription'} substitutions={[currenciesCount]} />
           </p>
+
           <WarningComponent currency={coinFrom} />
+
           <Divider style={{ marginBottom: '10px' }} />
 
           <TopUpInput
@@ -167,7 +169,7 @@ const InitialStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
             label={<T id="send" />}
             setCurrency={setCoinFrom}
             onAmountChange={handleAmountChange}
-            minAmount={rates.minAmount}
+            minAmount={String(rates.minAmount)}
             maxAmount={lastMaxAmount}
             isMinAmountError={isMinAmountError}
             isMaxAmountError={isMaxAmountError}
@@ -175,6 +177,7 @@ const InitialStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
           />
 
           <br />
+
           <TopUpInput
             currency={coinTo}
             currenciesList={outputTokensList}
@@ -184,7 +187,9 @@ const InitialStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
             amount={depositAmount}
             setCurrency={setCoinTo}
           />
+
           <Divider style={{ marginTop: '40px', marginBottom: '20px' }} />
+
           <div className={styles['exchangeRateBlock']}>
             <p className={styles['exchangeTitle']}>
               <T id={'exchangeRate'} />
@@ -193,6 +198,7 @@ const InitialStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
               1 {coinFrom.code} = {rates.rate} {coinTo.code}
             </p>
           </div>
+
           <FormSubmitButton
             className="w-full justify-center border-none"
             style={{
@@ -206,6 +212,7 @@ const InitialStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
           >
             <T id={'topUp'} />
           </FormSubmitButton>
+
           <p className={styles['privacyAndPolicy']}>
             <T
               id="privacyAndPolicyLinks"

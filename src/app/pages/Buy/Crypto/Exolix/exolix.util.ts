@@ -59,15 +59,7 @@ export const getRate = (data: {
   coinTo: string;
   coinToNetwork: string;
   amount: number;
-}) =>
-  api
-    .get('/rate', { params: { ...data, rateType: 'fixed' } })
-    .then(r => r.data as GetRateData)
-    .catch(error => {
-      if (error.response) {
-        return error.response.data;
-      }
-    });
+}) => api.get<GetRateData>('/rate', { params: { ...data, rateType: 'fixed' } }).then(r => r.data);
 
 export const submitExchange = (data: {
   coinFrom: string;
