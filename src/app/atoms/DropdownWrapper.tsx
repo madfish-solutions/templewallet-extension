@@ -7,12 +7,14 @@ type DropdownWrapperProps = HTMLAttributes<HTMLDivElement> & {
   opened: boolean;
   hiddenOverflow?: boolean;
   scaleAnimation?: boolean;
+  onAnimationEnded?: (displayed: boolean) => void;
 };
 
 const DropdownWrapper: FC<DropdownWrapperProps> = ({
   opened,
   hiddenOverflow = true,
   scaleAnimation = true,
+  onAnimationEnded,
   className,
   style = {},
   ...rest
@@ -30,6 +32,8 @@ const DropdownWrapper: FC<DropdownWrapperProps> = ({
       exit: classNames('transform opacity-0', scaleAnimation && 'scale-95', 'transition ease-in duration-100')
     }}
     unmountOnExit
+    onEntered={onAnimationEnded && (() => onAnimationEnded(true))}
+    onExited={onAnimationEnded && (() => onAnimationEnded(false))}
   >
     <div
       className={classNames(
