@@ -6,9 +6,9 @@ import { FormSubmitButton } from 'app/atoms';
 import Divider from 'app/atoms/Divider';
 import { ReactComponent as AttentionRedIcon } from 'app/icons/attentionRed.svg';
 import PageLayout from 'app/layouts/PageLayout';
+import { createOrder } from 'lib/apis/utorg';
 import { T } from 'lib/i18n';
 import { useAccount } from 'lib/temple/front';
-import { createOrder } from 'lib/utorg-api';
 
 import { BuySelectors } from '../../Buy.selectors';
 import styles from '../../Crypto/Exolix/Exolix.module.css';

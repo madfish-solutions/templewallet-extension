@@ -5,7 +5,6 @@ import { YUPANA_LEND_LINK, KORDFI_LEND_LINK } from './utils';
 type TokenSlug = string;
 
 export type TokenApyInfo = { rate: number; link: string };
-export type TokensApyInfo = Record<TokenSlug, TokenApyInfo>;
 
 export interface DAppsState {
   tokensApyInfo: Record<TokenSlug, TokenApyInfo>;

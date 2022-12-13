@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 
 import BigNumber from 'bignumber.js';
 
-import { getAliceBobPairInfo } from 'lib/templewallet-api';
+import { getAliceBobPairInfo } from 'lib/apis/temple';
 
 const PENNY = 0.000001;
 

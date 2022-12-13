@@ -5,7 +5,8 @@ export type {
   TzktRewardsEntry,
   TzktAlias,
   TzktOperationType,
-  TzktTransactionOperation
+  TzktTransactionOperation,
+  TzktAccountToken
 } from './types';
 
 export type { TzktApiChainId } from './api';

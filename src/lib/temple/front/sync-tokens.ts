@@ -6,6 +6,8 @@ import { useSWRConfig } from 'swr';
 import { ScopedMutator } from 'swr/dist/types';
 
 import { useSelector } from 'app/store';
+import { getTokensMetadata, fetchWhitelistTokenSlugs } from 'lib/apis/temple';
+import { TzktAccountToken, fetchTzktTokens } from 'lib/apis/tzkt';
 import {
   toTokenSlug,
   fetchDisplayedFungibleTokens,
@@ -16,10 +18,6 @@ import { useChainId, useAccount, useTokensMetadata } from 'lib/temple/front';
 import { AssetMetadata, DetailedAssetMetdata, toBaseMetadata } from 'lib/temple/metadata';
 import * as Repo from 'lib/temple/repo';
 import { TempleChainId } from 'lib/temple/types';
-import { getTokensMetadata } from 'lib/templewallet-api';
-import { fetchWhitelistTokenSlugs } from 'lib/templewallet-api/whitelist-tokens';
-import { fetchTzktTokens } from 'lib/tzkt';
-import { TzktAccountToken } from 'lib/tzkt/types';
 import { useInterval } from 'lib/ui/hooks';
 import { filterUnique } from 'lib/utils';
 

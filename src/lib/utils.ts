@@ -6,6 +6,27 @@ export const isTruthy = <T>(value: T): value is Truthy<T> => Boolean(value);
 /** With strict equality check (i.e. `===`) */
 export const filterUnique = <T>(array: T[]) => Array.from(new Set(array));
 
+class AssertionError extends Error {
+  constructor(message?: string, public actual?: any) {
+    super(message);
+  }
+}
+
+export function assert(value: any, errorMessage = `The value ${value} is not truthy`): asserts value {
+  if (!value) {
+    throw new AssertionError(errorMessage, value);
+  }
+}
+
+export const createQueue = () => {
+  let worker: Promise<any> = Promise.resolve();
+
+  return <T>(factory: () => Promise<T>): Promise<T> =>
+    new Promise((res, rej) => {
+      worker = worker.then(() => factory().then(res).catch(rej));
+    });
+};
+
 export const openLink = (href: string, newTab = true, noreferrer = false) => {
   const anchor = document.createElement('a');
   anchor.href = href;

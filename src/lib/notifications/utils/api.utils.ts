@@ -1,7 +1,7 @@
 import { from } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { templeWalletApi } from 'lib/templewallet-api';
+import { templeWalletApi } from 'lib/apis/temple';
 
 import { NotificationPlatformType } from '../enums/notification-platform-type.enum';
 import { NotificationStatus } from '../enums/notification-status.enum';

@@ -3,7 +3,7 @@ import { useEffect, useMemo } from 'react';
 import constate from 'constate';
 
 import { useAnalyticsState } from 'lib/analytics/use-analytics-state.hook';
-import { ABTestGroup, getABGroup } from 'lib/templewallet-api';
+import { ABTestGroup, getABGroup } from 'lib/apis/temple';
 
 import { usePassiveStorage } from './storage';
 
