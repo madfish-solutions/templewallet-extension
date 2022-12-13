@@ -12,10 +12,11 @@ import React, {
   useState
 } from 'react';
 
-import { Instance, Options, Modifier, createPopper } from '@popperjs/core';
+import { Instance, Options, createPopper } from '@popperjs/core';
 import useOnClickOutside from 'use-onclickoutside';
 
 import Portal from 'lib/ui/Portal';
+import { isTruthy } from 'lib/utils';
 
 export interface PopperRenderProps {
   opened: boolean;
@@ -58,9 +59,11 @@ const Popper = memo<PopperProps>(({ popup, children, fallbackPlacementsEnabled =
       : null
   );
 
+  /* See: https://popper.js.org/docs/v2/lifecycle */
   const finalOptions = useMemo(
     () => ({
       ...popperOptions,
+      /* See: https://popper.js.org/docs/v2/modifiers */
       modifiers: [
         {
           name: 'preventOverflow',
@@ -78,7 +81,7 @@ const Popper = memo<PopperProps>(({ popup, children, fallbackPlacementsEnabled =
           name: 'hide'
         },
         ...(popperOptions.modifiers ?? [])
-      ].filter(Boolean) as Partial<Modifier<any, any>>[]
+      ].filter(isTruthy)
     }),
     [popperOptions, fallbackPlacementsEnabled]
   );

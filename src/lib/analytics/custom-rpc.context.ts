@@ -1,3 +1,3 @@
 import { createContext } from 'react';
 
-export const CustomRpsContext = createContext<string | undefined>(undefined);
+export const CustomRpcContext = createContext<string | undefined>(undefined);

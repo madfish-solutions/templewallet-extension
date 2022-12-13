@@ -33,7 +33,8 @@ import {
   TempleRequest,
   TempleDAppPayload,
   TempleDAppSession,
-  TempleDAppSessions
+  TempleDAppSessions,
+  TempleNotification
 } from 'lib/temple/types';
 
 const CONFIRM_WINDOW_WIDTH = 380;
@@ -108,6 +109,11 @@ export async function requestPermission(
               publicKey: accountPublicKey,
               rpc: networkRpc
             });
+            const broadcastMsg: TempleNotification = {
+              type: TempleMessageType.SelectedAccountChanged,
+              accountPublicKeyHash
+            };
+            intercom.broadcast(broadcastMsg);
           } else {
             decline();
           }
