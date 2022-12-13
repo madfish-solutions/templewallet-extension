@@ -6,7 +6,7 @@ import { ActivitySpinner } from 'app/atoms';
 import { useAppEnv } from 'app/env';
 import { ReactComponent as AddToListIcon } from 'app/icons/add-to-list.svg';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
-import { useSelector } from 'app/store';
+import { useTokensApyInfoSelector } from 'app/store/d-apps';
 import SearchAssetField from 'app/templates/SearchAssetField';
 import { T } from 'lib/i18n';
 import { useAccount, useChainId, useDisplayedFungibleTokens, useFilteredAssets } from 'lib/temple/front';
@@ -24,7 +24,7 @@ export const Tokens: FC = () => {
   const isSyncing = useSyncTokens();
   const { popup } = useAppEnv();
   const latestBalances = useSyncBalances();
-  const apyInfo = useSelector(({ dApps }) => dApps.tokensApyInfo);
+  const apyInfo = useTokensApyInfoSelector();
 
   const { data: tokens = [] } = useDisplayedFungibleTokens(chainId, publicKeyHash);
 
