@@ -218,6 +218,7 @@ export enum TempleMessageType {
   StateUpdated = 'TEMPLE_STATE_UPDATED',
   ConfirmationRequested = 'TEMPLE_CONFIRMATION_REQUESTED',
   ConfirmationExpired = 'TEMPLE_CONFIRMATION_EXPIRED',
+  SelectedAccountChanged = 'TEMPLE_SELECTED_ACCOUNT_CHANGED',
   // Request-Response pairs
   GetStateRequest = 'TEMPLE_GET_STATE_REQUEST',
   GetStateResponse = 'TEMPLE_GET_STATE_RESPONSE',
@@ -281,7 +282,11 @@ export enum TempleMessageType {
   SendPageEventResponse = 'SEND_PAGE_EVENT_RESPONSE'
 }
 
-export type TempleNotification = TempleStateUpdated | TempleConfirmationRequested | TempleConfirmationExpired;
+export type TempleNotification =
+  | TempleStateUpdated
+  | TempleConfirmationRequested
+  | TempleConfirmationExpired
+  | TempleSelectedAccountChanged;
 
 export type TempleRequest =
   | TempleAcknowledgeRequest
@@ -367,6 +372,11 @@ interface TempleConfirmationRequested extends TempleMessageBase {
 interface TempleConfirmationExpired extends TempleMessageBase {
   type: TempleMessageType.ConfirmationExpired;
   id: string;
+}
+
+interface TempleSelectedAccountChanged extends TempleMessageBase {
+  type: TempleMessageType.SelectedAccountChanged;
+  accountPublicKeyHash: string;
 }
 
 interface TempleGetStateRequest extends TempleMessageBase {

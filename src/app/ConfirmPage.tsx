@@ -22,7 +22,7 @@ import DAppLogo from 'app/templates/DAppLogo';
 import { ModifyFeeAndLimit } from 'app/templates/ExpensesView/ExpensesView';
 import NetworkBanner from 'app/templates/NetworkBanner';
 import OperationView from 'app/templates/OperationView';
-import { CustomRpsContext } from 'lib/analytics';
+import { CustomRpcContext } from 'lib/analytics';
 import { T, t } from 'lib/i18n';
 import { useRetryableSWR } from 'lib/swr';
 import { useTempleClient, useAccount, useRelevantAccounts, useCustomChainId, useGasToken } from 'lib/temple/front';
@@ -86,15 +86,13 @@ const PayloadContent: React.FC<PayloadContentProps> = ({
   return payload.type === 'connect' ? (
     <div className={classNames('w-full', 'flex flex-col')}>
       <h2 className={classNames('mb-2', 'leading-tight', 'flex flex-col')}>
-        <T id="account">{message => <span className="text-base font-semibold text-gray-700">{message}</span>}</T>
+        <span className="text-base font-semibold text-gray-700">
+          <T id="account" />
+        </span>
 
-        <T id="toBeConnectedWithDApp">
-          {message => (
-            <span className={classNames('mt-px', 'text-xs font-light text-gray-600')} style={{ maxWidth: '90%' }}>
-              {message}
-            </span>
-          )}
-        </T>
+        <span className={classNames('mt-px', 'text-xs font-light text-gray-600')} style={{ maxWidth: '90%' }}>
+          <T id="toBeConnectedWithDApp" />
+        </span>
       </h2>
 
       <CustomSelect<TempleAccount, string>
@@ -336,7 +334,7 @@ const ConfirmDAppForm: FC = () => {
   );
 
   return (
-    <CustomRpsContext.Provider value={payload.networkRpc}>
+    <CustomRpcContext.Provider value={payload.networkRpc}>
       <div
         className={classNames('relative bg-white rounded-md shadow-md overflow-y-auto', 'flex flex-col')}
         style={{
@@ -426,7 +424,7 @@ const ConfirmDAppForm: FC = () => {
 
         <ConfirmLedgerOverlay displayed={confirming && connectedAccount?.type === TempleAccountType.Ledger} />
       </div>
-    </CustomRpsContext.Provider>
+    </CustomRpcContext.Provider>
   );
 };
 
