@@ -1,3 +1,4 @@
+import { HttpResponseError } from '@taquito/http-utils';
 import { TezosToolkit, WalletContract, Contract, ChainIds } from '@taquito/taquito';
 import retry from 'async-retry';
 
@@ -5,8 +6,8 @@ import { getMessage } from 'lib/i18n';
 
 import { TokenStandard } from './types';
 
-const STUB_TEZOS_ADDRESS = 'tz1TTXUmQaxe1dTLPtyD4WMQP6aKYK9C8fKw';
-const RETRY_PARAMS = { retries: 3, minTimeout: 0, maxTimeout: 0 };
+const NULL_ADDRESS = 'tz1Ke2h7sDdakHJQh8WX4Z372du1KChsksyU';
+const RETRY_PARAMS = { retries: 2, minTimeout: 0, maxTimeout: 0 };
 
 const FA1_2_ENTRYPOINTS_SCHEMA = [
   ['approve', 'pair', 'address', 'nat'],
@@ -23,10 +24,10 @@ const FA2_ENTRYPOINTS_SCHEMA = [
   ['update_operators', 'list', 'or']
 ];
 
-export async function detectTokenStandard(
+export const detectTokenStandard = async (
   tezos: TezosToolkit,
   contract: string | Contract | WalletContract
-): Promise<TokenStandard | null> {
+): Promise<TokenStandard | null> => {
   const { entrypoints } =
     typeof contract === 'string'
       ? await retry(() => tezos.rpc.getEntrypoints(contract), RETRY_PARAMS)
@@ -42,39 +43,29 @@ export async function detectTokenStandard(
     default:
       return null;
   }
-}
+};
 
-export async function assertGetBalance(
-  tezos: TezosToolkit,
-  contract: WalletContract,
-  standard: TokenStandard,
-  fa2TokenId = 0
-) {
+export const assertFa2TokenDefined = async (tezos: TezosToolkit, contract: WalletContract, tokenId = 0) => {
   const chainId = (await tezos.rpc.getChainId()) as ChainIds;
 
   try {
-    await retry(
-      () =>
-        standard === 'fa2'
-          ? contract.views.balance_of([{ owner: STUB_TEZOS_ADDRESS, token_id: fa2TokenId }]).read(chainId)
-          : contract.views.getBalance(STUB_TEZOS_ADDRESS).read(chainId),
-      RETRY_PARAMS
-    );
-  } catch (err: any) {
-    if (err?.value?.string === 'FA2_TOKEN_UNDEFINED') {
-      throw new IncorrectTokenIdError(getMessage('incorrectTokenIdErrorMessage'));
-    } else {
-      throw new Error(
-        getMessage('unknownErrorCheckingSomeEntrypoint', standard === 'fa2' ? 'balance_of' : 'getBalance')
-      );
+    await contract.views.balance_of([{ owner: NULL_ADDRESS, token_id: tokenId }]).read(chainId);
+  } catch (error: unknown) {
+    console.error(error);
+    if (error instanceof HttpResponseError) {
+      const issues = error.status === 500 && error.body ? JSON.parse(error.body) : null;
+      if (Array.isArray(issues) && issues.find(issue => issue.with?.string === 'FA2_TOKEN_UNDEFINED'))
+        throw new IncorrectTokenIdError(getMessage('incorrectTokenIdErrorMessage'));
     }
+
+    throw new Error(getMessage('unknownErrorCheckingSomeEntrypoint', 'balance_of'));
   }
-}
+};
 
 export class NotMatchingStandardError extends Error {}
 export class IncorrectTokenIdError extends NotMatchingStandardError {}
 
-function isEntrypointsMatched(entrypoints: Record<string, any>, schema: string[][]) {
+const isEntrypointsMatched = (entrypoints: Record<string, any>, schema: string[][]) => {
   try {
     for (const [name, prim, ...args] of schema) {
       const entry = entrypoints[name];
@@ -94,4 +85,4 @@ function isEntrypointsMatched(entrypoints: Record<string, any>, schema: string[]
 
     return false;
   }
-}
+};
