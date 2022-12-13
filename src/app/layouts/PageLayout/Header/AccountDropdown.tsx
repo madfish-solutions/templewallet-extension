@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useMemo, useState } from 'react';
+import React, { FC, useCallback, useMemo, useState, useRef, useEffect } from 'react';
 
 import classNames from 'clsx';
 
@@ -22,6 +22,7 @@ import SearchField from 'app/templates/SearchField';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
 import { TID, T, t } from 'lib/i18n';
 import { useAccount, useRelevantAccounts, useSetAccountPkh, useTempleClient, useGasToken } from 'lib/temple/front';
+import { TempleAccount } from 'lib/temple/types';
 import { PopperRenderProps } from 'lib/ui/Popper';
 import { Link } from 'lib/woozie';
 
@@ -44,8 +45,10 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
   const allAccounts = useRelevantAccounts();
   const account = useAccount();
   const setAccountPkh = useSetAccountPkh();
+  const { assetName: gasTokenName } = useGasToken();
+
   const [searchValue, setSearchValue] = useState('');
-  const { assetName } = useGasToken();
+  const [attractSelectedAccount, setAttractSelectedAccount] = useState(true);
 
   const isShowSearch = useMemo(() => allAccounts.length > 5, [allAccounts.length]);
 
@@ -75,6 +78,17 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
       closeDropdown();
     }
   }, [appEnv.popup, closeDropdown]);
+
+  const handleAccountClick = useCallback(
+    (publicKeyHash: string) => {
+      const selected = publicKeyHash === account.publicKeyHash;
+      if (!selected) {
+        setAccountPkh(publicKeyHash);
+      }
+      setOpened(false);
+    },
+    [account, setAccountPkh, setOpened]
+  );
 
   const actions = useMemo(
     (): TDropdownAction[] => [
@@ -123,6 +137,11 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
     ],
     [appEnv.fullPage, closeDropdown, handleMaximiseViewClick]
   );
+
+  useEffect(() => {
+    if (searchValue) setAttractSelectedAccount(false);
+    else if (opened === false) setAttractSelectedAccount(true);
+  }, [opened, searchValue]);
 
   return (
     <DropdownWrapper
@@ -197,62 +216,16 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
                 <T id="noResults" />
               </p>
             ) : (
-              filteredAccounts.map(acc => {
-                const selected = acc.publicKeyHash === account.publicKeyHash;
-                const handleAccountClick = () => {
-                  if (!selected) {
-                    setAccountPkh(acc.publicKeyHash);
-                  }
-                  setOpened(false);
-                };
-
-                return (
-                  <Button
-                    key={acc.publicKeyHash}
-                    className={classNames(
-                      'block w-full p-2',
-                      'overflow-hidden',
-                      'flex items-center',
-                      'text-white text-shadow-black',
-                      'transition ease-in-out duration-200',
-                      selected && 'shadow',
-                      selected ? 'bg-gray-700 bg-opacity-40' : 'hover:bg-white hover:bg-opacity-5',
-                      !selected && 'opacity-65 hover:opacity-100'
-                    )}
-                    onClick={handleAccountClick}
-                    testID={AccountDropdownSelectors.AccountItemButton}
-                  >
-                    <Identicon
-                      type="bottts"
-                      hash={acc.publicKeyHash}
-                      size={46}
-                      className="flex-shrink-0 shadow-xs-white"
-                    />
-
-                    <div style={{ marginLeft: '10px' }} className="flex flex-col items-start">
-                      <Name className="text-sm font-medium">{acc.name}</Name>
-                      <div className={classNames('text-xs', 'text-gray-500')}>
-                        <HashShortView hash={acc.publicKeyHash} />
-                      </div>
-
-                      <div className="flex flex-wrap items-end">
-                        <Balance address={acc.publicKeyHash}>
-                          {bal => (
-                            <span className={classNames('text-xs leading-tight flex items-baseline', 'text-gray-500 ')}>
-                              <Money smallFractionFont={false} tooltip={false}>
-                                {bal}
-                              </Money>
-                              <span className="ml-1">{assetName.toUpperCase()}</span>
-                            </span>
-                          )}
-                        </Balance>
-
-                        <AccountTypeBadge account={acc} darkTheme />
-                      </div>
-                    </div>
-                  </Button>
-                );
-              })
+              filteredAccounts.map(acc => (
+                <AccountItem
+                  key={acc.publicKeyHash}
+                  account={acc}
+                  selected={acc.publicKeyHash === account.publicKeyHash}
+                  gasTokenName={gasTokenName}
+                  attractSelf={attractSelectedAccount}
+                  onClick={() => handleAccountClick(acc.publicKeyHash)}
+                />
+              ))
             )}
           </div>
         </div>
@@ -301,3 +274,68 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
 };
 
 export default AccountDropdown;
+
+interface AccountItemProps {
+  account: TempleAccount;
+  selected: boolean;
+  gasTokenName: string;
+  attractSelf: boolean;
+  onClick: () => void;
+}
+
+const AccountItem: React.FC<AccountItemProps> = ({ account, selected, gasTokenName, attractSelf, onClick }) => {
+  const { name, publicKeyHash } = account;
+
+  const elemRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (selected && attractSelf) {
+      setTimeout(() => {
+        elemRef.current?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      }, 0);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  return (
+    <Button
+      ref={elemRef}
+      className={classNames(
+        'block w-full p-2',
+        'overflow-hidden',
+        'flex items-center',
+        'text-white text-shadow-black',
+        'transition ease-in-out duration-200',
+        selected && 'shadow',
+        selected ? 'bg-gray-700 bg-opacity-40' : 'hover:bg-white hover:bg-opacity-5',
+        !selected && 'opacity-65 hover:opacity-100'
+      )}
+      onClick={onClick}
+      testID={AccountDropdownSelectors.AccountItemButton}
+    >
+      <Identicon type="bottts" hash={publicKeyHash} size={46} className="flex-shrink-0 shadow-xs-white" />
+
+      <div style={{ marginLeft: '10px' }} className="flex flex-col items-start">
+        <Name className="text-sm font-medium">{name}</Name>
+        <div className="text-xs text-gray-500">
+          <HashShortView hash={publicKeyHash} />
+        </div>
+
+        <div className="flex flex-wrap items-end">
+          <Balance address={publicKeyHash}>
+            {bal => (
+              <span className="text-xs leading-tight flex items-baseline text-gray-500">
+                <Money smallFractionFont={false} tooltip={false}>
+                  {bal}
+                </Money>
+                <span className="ml-1">{gasTokenName.toUpperCase()}</span>
+              </span>
+            )}
+          </Balance>
+
+          <AccountTypeBadge account={account} darkTheme />
+        </div>
+      </div>
+    </Button>
+  );
+};
