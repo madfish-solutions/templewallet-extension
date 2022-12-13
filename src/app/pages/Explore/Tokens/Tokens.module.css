@@ -9,6 +9,10 @@
   color: #ffffff;
 }
 
+.yieldTag:hover {
+  background-color: #68ADE7;
+}
+
 .tokenInfoWidth {
   max-width: 19rem;
 }

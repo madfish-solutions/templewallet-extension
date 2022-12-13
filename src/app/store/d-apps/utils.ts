@@ -17,11 +17,11 @@ interface GetApyFromYupanaResponse {
   asset: [{ rates: { supply_apy: string }[] }];
 }
 
-export const fetchKUSDApy$ = () => fetchYupanaApy$(KNOWN_TOKENS_SLUGS.KUSD, 'KUSD', 2);
+export const fetchKUSDApy$ = () => fetchApyFromYupana$(KNOWN_TOKENS_SLUGS.KUSD, 'KUSD', 2);
 
-export const fetchUSDTApy$ = () => fetchYupanaApy$(KNOWN_TOKENS_SLUGS.USDT, 'USDT', 6);
+export const fetchUSDTApy$ = () => fetchApyFromYupana$(KNOWN_TOKENS_SLUGS.USDT, 'USDT', 6);
 
-const fetchYupanaApy$ = (slug: string, yName: string, yId: number) =>
+const fetchApyFromYupana$ = (slug: string, yName: string, yId: number) =>
   apolloYupanaClient.query<GetApyFromYupanaResponse>(buildGetApyFromYupanaGqlQuery(yName, yId)).pipe(
     map(data => {
       const { rates } = data.asset[0];
