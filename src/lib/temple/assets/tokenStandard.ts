@@ -45,7 +45,7 @@ export const detectTokenStandard = async (
   }
 };
 
-export const assertFa2TokenDeployed = async (tezos: TezosToolkit, contract: WalletContract, tokenId = 0) => {
+export const assertFa2TokenDefined = async (tezos: TezosToolkit, contract: WalletContract, tokenId = 0) => {
   const chainId = (await tezos.rpc.getChainId()) as ChainIds;
 
   try {
