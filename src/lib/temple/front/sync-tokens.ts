@@ -21,6 +21,7 @@ import { fetchWhitelistTokenSlugs } from 'lib/templewallet-api/whitelist-tokens'
 import { fetchTzktTokens } from 'lib/tzkt';
 import { TzktAccountToken } from 'lib/tzkt/types';
 import { useInterval } from 'lib/ui/hooks';
+import { filterUnique } from 'lib/utils';
 
 const SYNCING_INTERVAL = 60_000;
 
@@ -99,12 +100,12 @@ const makeSync = async (
     ({ tokenSlug }) => tokenSlug
   );
 
-  const tokenSlugs = [
+  const tokenSlugs = filterUnique([
+    ...getPredefinedTokensSlugs(chainId),
     ...tzktTokens.map(balance => toTokenSlug(balance.token.contract.address, balance.token.tokenId)),
     ...displayedTokenSlugs,
-    ...whitelistTokenSlugs,
-    ...getPredefinedTokensSlugs(chainId)
-  ].filter(onlyUnique);
+    ...whitelistTokenSlugs
+  ]);
 
   const tokenRepoKeys = tokenSlugs.map(slug => Repo.toAccountTokenKey(chainId, accountPkh, slug));
 
@@ -243,5 +244,3 @@ const updateTokenSlugs = (
     latestUSDBalance: usdBalance
   };
 };
-
-const onlyUnique = (value: string, index: number, self: string[]) => self.indexOf(value) === index;
