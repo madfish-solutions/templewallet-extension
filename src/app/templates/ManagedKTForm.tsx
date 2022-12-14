@@ -11,12 +11,12 @@ import Name from 'app/atoms/Name';
 import Balance from 'app/templates/Balance';
 import CustomSelect, { OptionRenderProps } from 'app/templates/CustomSelect';
 import { useFormAnalytics } from 'lib/analytics';
+import { getOneUserContracts, TzktRelatedContract, isKnownChainId } from 'lib/apis/tzkt';
 import { T, t } from 'lib/i18n';
 import { useRetryableSWR } from 'lib/swr';
 import { useRelevantAccounts, useTezos, useTempleClient, useChainId } from 'lib/temple/front';
 import { isAddressValid } from 'lib/temple/helpers';
 import { TempleAccountType, ImportAccountFormType } from 'lib/temple/types';
-import { getOneUserContracts, TzktRelatedContract, isKnownChainId } from 'lib/tzkt';
 
 type ImportKTAccountFormData = {
   contractAddress: string;

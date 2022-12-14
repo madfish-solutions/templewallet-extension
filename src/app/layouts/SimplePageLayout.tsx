@@ -6,7 +6,6 @@ import DocBg from 'app/a11y/DocBg';
 import Logo from 'app/atoms/Logo';
 import { useAppEnv } from 'app/env';
 import ContentContainer from 'app/layouts/ContentContainer';
-import { PropsWithChildren } from 'lib/props-with-children';
 
 interface SimplePageLayoutProps extends PropsWithChildren {
   title: ReactNode;

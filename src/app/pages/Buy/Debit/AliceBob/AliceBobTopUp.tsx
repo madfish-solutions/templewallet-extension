@@ -10,9 +10,9 @@ import { useOutputEstimation } from 'app/hooks/AliceBob/useOutputEstimation';
 import { ReactComponent as AttentionRedIcon } from 'app/icons/attentionRed.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import { useAnalyticsState } from 'lib/analytics/use-analytics-state.hook';
+import { createAliceBobOrder } from 'lib/apis/temple';
 import { T } from 'lib/i18n/react';
 import { useAccount } from 'lib/temple/front';
-import { createAliceBobOrder } from 'lib/templewallet-api';
 
 import { BuySelectors } from '../../Buy.selectors';
 import styles from '../../Crypto/Exolix/Exolix.module.css';

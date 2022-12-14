@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client';
 import { map, of, catchError } from 'rxjs';
 
-import { getApolloConfigurableClient } from 'lib/apollo';
+import { getApolloConfigurableClient } from './apollo';
 
 const KORD_FI_API = 'https://back-mainnet.kord.fi/v1/graphql';
 

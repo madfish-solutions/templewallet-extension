@@ -7,8 +7,8 @@ import CopyButton from 'app/atoms/CopyButton';
 import Divider from 'app/atoms/Divider';
 import { ReactComponent as CopyIcon } from 'app/icons/copy.svg';
 import { WithdrawSelectors } from 'app/pages/Withdraw/Withdraw.selectors';
+import { AliceBobOrderStatus } from 'lib/apis/temple';
 import { T, TID } from 'lib/i18n';
-import { AliceBobOrderStatus } from 'lib/templewallet-api';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 
 import { useUpdatedOrderInfo } from '../hooks/useUpdatedOrderInfo';

@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 
-import { AliceBobOrderInfo, getAliceBobOrderInfo } from 'lib/templewallet-api';
+import { AliceBobOrderInfo, getAliceBobOrderInfo } from 'lib/apis/temple';
 
 const UPDATE_INTERVAL = 5_000;
 

@@ -13,14 +13,13 @@ import { AppEnvProvider } from 'app/env';
 import ErrorBoundary from 'app/ErrorBoundary';
 import Dialogs from 'app/layouts/Dialogs';
 import { PageRouter } from 'app/PageRouter';
-import { PropsWithChildren } from 'lib/props-with-children';
 import { TempleProvider, ABTestGroupProvider } from 'lib/temple/front';
 import { DialogsProvider } from 'lib/ui/dialog';
 import * as Woozie from 'lib/woozie';
 
 import { persistor, store } from './store';
 
-interface Props extends Partial<PropsWithChildren> {
+interface Props extends React.PropsWithChildren {
   env: ComponentProps<typeof AppEnvProvider>;
 }
 
