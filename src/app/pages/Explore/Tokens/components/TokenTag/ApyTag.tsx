@@ -30,7 +30,7 @@ export const TokenApyTag: FC<Props> = ({ slug, symbol, apy }) => {
       }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      testID={AssetsSelectors.AssetItemYieldButton}
+      testID={AssetsSelectors.AssetItemApyButton}
       testIDProperties={{ slug, symbol, apyRate: apy.rate }}
       className={classNames('ml-2 px-2 py-1', modStyles['apyTag'])}
       style={{ backgroundColor: hovered ? colors.bgHover : colors.bg }}
