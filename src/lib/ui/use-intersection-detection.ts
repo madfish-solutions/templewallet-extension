@@ -29,6 +29,5 @@ export const useIntersectionDetection = (ref: RefObject<HTMLDivElement>, callbac
       };
     }
     return undefined;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [callback, predicate]);
 };

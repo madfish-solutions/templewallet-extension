@@ -27,7 +27,6 @@ export const useMinMaxExchangeAmounts = (setIsApiError: (v: boolean) => void, is
       })
       .catch(() => setIsApiError(true))
       .finally(() => setIsMinMaxLoading(false));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isWithdraw]);
 
   useEffect(() => {

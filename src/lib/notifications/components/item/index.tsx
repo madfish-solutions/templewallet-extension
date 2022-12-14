@@ -24,8 +24,6 @@ export const NotificationsItem: FC<Props> = ({ id }) => {
   const { popup } = useAppEnv();
   const dispatch = useDispatch();
   const notification = useNotificationsItemSelector(id);
-
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => void dispatch(readNotificationsItemAction(notification?.id ?? 0)), [notification?.id]);
 
   if (notification == null) {
