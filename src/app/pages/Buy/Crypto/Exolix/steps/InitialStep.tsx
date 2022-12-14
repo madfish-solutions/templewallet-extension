@@ -195,7 +195,7 @@ const InitialStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
               <T id={'exchangeRate'} />
             </p>
             <p className={styles['exchangeData']}>
-              1 {coinFrom.code} = {rates.rate} {coinTo.code}
+              {rates.rate ? `1 ${coinFrom.code} = ${rates.rate} ${coinTo.code}` : '---'}
             </p>
           </div>
 
