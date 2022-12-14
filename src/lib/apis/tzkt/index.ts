@@ -10,4 +10,13 @@ export type {
 } from './types';
 
 export type { TzktApiChainId } from './api';
-export { isKnownChainId, getDelegatorRewards, getOneUserContracts, fetchTzktTokens } from './api';
+export {
+  isKnownChainId,
+  getDelegatorRewards,
+  getOneUserContracts,
+  fetchTzktTokens,
+  fetchGetOperationsTransactions,
+  fetchGetAccountOperations,
+  fetchGetOperationsByHash,
+  refetchOnce429
+} from './api';

@@ -12,11 +12,12 @@ class AssertionError extends Error {
   }
 }
 
-export function assert(value: any, errorMessage = `The value ${value} is not truthy`): asserts value {
-  if (!value) {
-    throw new AssertionError(errorMessage, value);
-  }
-}
+export const assert: (value: any, errorMessage?: string) => asserts value = (
+  value,
+  errorMessage = `The value ${value} is not truthy`
+) => {
+  if (!value) throw new AssertionError(errorMessage, value);
+};
 
 export const createQueue = () => {
   let worker: Promise<any> = Promise.resolve();
