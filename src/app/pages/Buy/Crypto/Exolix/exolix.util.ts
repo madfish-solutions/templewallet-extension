@@ -6,6 +6,7 @@ import {
   CurrencyInterface,
   ExchangeDataInterface,
   ExolixCurrenciesInterface,
+  GetRateRequestData,
   GetRateResponse,
   GetRateResponseWithAmountTooLow
 } from './exolix.interface';
@@ -59,13 +60,7 @@ const getCurrency = (page = 1) =>
 
 export const getCurrenciesCount = () => api.get<ExolixCurrenciesInterface>('/currencies').then(r => r.data.count);
 
-export const getRate = (data: {
-  coinFrom: string;
-  coinFromNetwork: string;
-  coinTo: string;
-  coinToNetwork: string;
-  amount: number;
-}) =>
+export const queryExchange = (data: GetRateRequestData) =>
   api.get<GetRateResponse>('/rate', { params: { ...data, rateType: 'fixed' } }).then(
     r => r.data,
     (error: unknown) => {
@@ -73,6 +68,7 @@ export const getRate = (data: {
         const data = error.response.data;
         if (data && data.error == null) return data as GetRateResponseWithAmountTooLow;
       }
+      console.error(error);
       throw error;
     }
   );

@@ -1,6 +1,6 @@
-import React, { FC, useEffect, useState } from 'react';
+import React, { FC, useEffect, useState, useMemo } from 'react';
 
-import BigNumber from 'bignumber.js';
+import classNames from 'clsx';
 import useSWR from 'swr';
 import { useDebounce } from 'use-debounce';
 
@@ -17,7 +17,7 @@ import { TopUpInput } from '../components/TopUpInput/TopUpInput';
 import { EXOLIX_PRIVICY_LINK, EXOLIX_TERMS_LINK, outputTokensList } from '../config';
 import { ExchangeDataInterface, ExchangeDataStatusEnum } from '../exolix.interface';
 import { ExolixSelectors } from '../Exolix.selectors';
-import { getCurrencies, getRate, submitExchange } from '../exolix.util';
+import { getCurrencies, queryExchange, submitExchange } from '../exolix.util';
 import { useCurrenciesCount } from '../hooks/useCurrenciesCount.hook';
 
 const INITIAL_COIN_FROM = {
@@ -29,6 +29,7 @@ const INITIAL_COIN_FROM = {
 };
 const MAX_DOLLAR_VALUE = 10_000;
 const AVERAGE_COMMISSION = 300;
+const VALUE_PLACEHOLDER = '---';
 
 interface Props {
   exchangeData: ExchangeDataInterface | null;
@@ -41,27 +42,19 @@ interface Props {
 const InitialStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isError, setIsError }) => {
   const { publicKeyHash } = useAccount();
 
-  const [amount, setAmount] = useState<number | undefined>(undefined);
   const [coinFrom, setCoinFrom] = useState(INITIAL_COIN_FROM);
   const [coinTo, setCoinTo] = useState(outputTokensList[0]!);
-  const [lastMinAmount, setLastMinAmount] = useState(new BigNumber(0));
-  const [lastMaxAmount, setLastMaxAmount] = useState('0');
 
-  const [depositAmount, setDepositAmount] = useState(0);
-  const [disabledProceed, setDisableProceed] = useState(true);
+  const [amount, setAmount] = useState<number | undefined>();
+  const [maxAmountFetched, setMaxAmountFetched] = useState<number | nullish>();
 
   const [debouncedAmount] = useDebounce(amount, 500);
 
-  const coinToPrice = useAssetUSDPrice(coinTo.slug!);
+  const coinToPriceUSD = useAssetUSDPrice(coinTo.slug!);
 
-  const { data: currencies, isValidating: isCurrenciesLoading } = useSWR(['/api/currency'], getCurrencies);
+  const { data: currencies, isValidating: isCurrenciesLoading } = useSWR(['exolix/api/currencies'], getCurrencies);
 
   const currenciesCount = useCurrenciesCount();
-
-  const handleAmountChange = (amount?: number) => {
-    setDisableProceed(true);
-    setAmount(amount);
-  };
 
   const submitExchangeHandler = async () => {
     try {
@@ -86,156 +79,148 @@ const InitialStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
       setIsError(true);
     }
   };
-  const { data: rates = { toAmount: 0, rate: 0, minAmount: 0 } } = useSWR(
-    ['/api/currency', coinTo, coinFrom, amount],
-    () =>
-      getRate({
-        coinFrom: coinFrom.code,
-        coinFromNetwork: coinFrom.network,
-        amount: amount ?? 0,
-        coinTo: coinTo.code,
-        coinToNetwork: coinTo.network
-      })
+
+  const { data: ratesData } = useSWR(['exolix/api/rate', coinFrom, coinTo, amount], () =>
+    queryExchange({
+      coinFrom: coinFrom.code,
+      coinFromNetwork: coinFrom.network,
+      amount: amount ?? 0,
+      coinTo: coinTo.code,
+      coinToNetwork: coinTo.network
+    })
   );
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const safeCoinToPrice = coinToPrice || new BigNumber(0);
-        const coinToAmount = new BigNumber(MAX_DOLLAR_VALUE + AVERAGE_COMMISSION).div(safeCoinToPrice);
-        const { toAmount } = await getRate({
-          coinFrom: coinTo.code,
-          coinFromNetwork: coinTo.network,
-          amount: coinToAmount.toNumber(),
-          coinTo: coinFrom.code,
-          coinToNetwork: coinFrom.network
-        });
+  const { rate, minAmount, toAmount } = ratesData || { rate: null, minAmount: 0, toAmount: 0 };
 
-        const maxAmount = new BigNumber(toAmount).toFixed(toAmount > 100 ? 2 : 6);
-        setLastMaxAmount(maxAmount === 'Infinity' ? '---' : maxAmount);
-      } catch (error) {
-        console.error(error);
-      }
+  useEffect(() => {
+    setMaxAmountFetched(undefined);
+    (async (): Promise<void> => {
+      const maxCoinToAmount = (MAX_DOLLAR_VALUE + AVERAGE_COMMISSION) / (coinToPriceUSD ?? 0);
+
+      if (!Number.isFinite(maxCoinToAmount)) return void setMaxAmountFetched(null);
+
+      const { toAmount: maxCoinFromAmount } = await queryExchange({
+        coinFrom: coinTo.code,
+        coinFromNetwork: coinTo.network,
+        amount: maxCoinToAmount,
+        coinTo: coinFrom.code,
+        coinToNetwork: coinFrom.network
+      });
+
+      setMaxAmountFetched(maxCoinFromAmount);
     })();
-  }, [coinFrom, coinTo, coinToPrice]);
+  }, [coinFrom, coinTo, coinToPriceUSD]);
 
-  const isMinAmountError = amount !== 0 && (lastMinAmount ? lastMinAmount.toNumber() : 0) > Number(amount);
+  const maxAmount = useMemo(() => {
+    if (ratesData == null || maxAmountFetched == null) return;
+    if (maxAmountFetched < minAmount) return null;
+    return maxAmountFetched;
+  }, [ratesData, maxAmountFetched, minAmount]);
 
-  const isMaxAmountError =
-    lastMaxAmount !== 'Infinity' && debouncedAmount !== 0 && Number(debouncedAmount) > Number(lastMaxAmount);
+  const isMinAmountError = minAmount > Number(amount);
+  const isMaxAmountError = maxAmount != null && debouncedAmount !== 0 && Number(debouncedAmount) > maxAmount;
 
-  useEffect(() => {
-    setDepositAmount(rates.toAmount);
-    if (amount === 0 || amount === undefined) {
-      setDisableProceed(true);
-    } else if (rates.minAmount === 0) {
-      setDisableProceed(true);
-    } else if (rates.minAmount > amount) {
-      setDisableProceed(true);
-    } else if (rates.toAmount === 0) {
-      setDisableProceed(true);
-    } else {
-      setDisableProceed(false);
-    }
-    if (rates.minAmount > 0) {
-      setLastMinAmount(new BigNumber(rates.minAmount));
-    }
-    if (isMaxAmountError) {
-      setDisableProceed(true);
-    }
-  }, [rates, amount, isMaxAmountError, coinFrom]);
+  const proceedForbidden = useMemo(() => {
+    if (ratesData == null) return true;
+    if (isMinAmountError || isMaxAmountError) return true;
+    if (Number(rate) <= 0 || toAmount <= 0) return true;
+
+    return false;
+  }, [ratesData, rate, toAmount, isMinAmountError, isMaxAmountError]);
+
+  if (isError)
+    return (
+      <ErrorComponent
+        exchangeData={exchangeData}
+        setIsError={setIsError}
+        setExchangeData={setExchangeData}
+        setStep={setStep}
+      />
+    );
+
+  const minAmountString = minAmount == null ? '0' : String(minAmount);
+  const maxAmountString = maxAmount === null ? ' ∞' : maxAmount == null ? VALUE_PLACEHOLDER : String(maxAmount);
 
   return (
     <>
-      {!isError ? (
-        <>
-          <p className={styles['title']}>
-            <T id={'exchangeDetails'} />
-          </p>
+      <p className={styles['title']}>
+        <T id={'exchangeDetails'} />
+      </p>
 
-          <p className={styles['description']}>
-            <T id={'exchangeDetailsDescription'} substitutions={[currenciesCount]} />
-          </p>
+      <p className={styles['description']}>
+        <T id={'exchangeDetailsDescription'} substitutions={[currenciesCount]} />
+      </p>
 
-          <WarningComponent currency={coinFrom} />
+      <WarningComponent currency={coinFrom} />
 
-          <Divider style={{ marginBottom: '10px' }} />
+      <Divider style={{ marginBottom: '10px' }} />
 
-          <TopUpInput
-            amount={amount}
-            currency={coinFrom}
-            currenciesList={currencies ?? []}
-            isCurrenciesLoading={isCurrenciesLoading}
-            label={<T id="send" />}
-            setCurrency={setCoinFrom}
-            onAmountChange={handleAmountChange}
-            minAmount={String(rates.minAmount)}
-            maxAmount={lastMaxAmount}
-            isMinAmountError={isMinAmountError}
-            isMaxAmountError={isMaxAmountError}
-            isSearchable
-          />
+      <TopUpInput
+        amount={amount}
+        currency={coinFrom}
+        currenciesList={currencies ?? []}
+        isCurrenciesLoading={isCurrenciesLoading}
+        label={<T id="send" />}
+        setCurrency={setCoinFrom}
+        onAmountChange={setAmount}
+        minAmount={minAmountString}
+        maxAmount={maxAmountString}
+        isMinAmountError={isMinAmountError}
+        isMaxAmountError={isMaxAmountError}
+        isSearchable
+      />
 
-          <br />
+      <br />
 
-          <TopUpInput
-            currency={coinTo}
-            currenciesList={outputTokensList}
-            label={<T id="get" />}
-            readOnly={true}
-            amountInputDisabled={true}
-            amount={depositAmount}
-            setCurrency={setCoinTo}
-          />
+      <TopUpInput
+        currency={coinTo}
+        currenciesList={outputTokensList}
+        label={<T id="get" />}
+        readOnly={true}
+        amountInputDisabled={true}
+        amount={toAmount}
+        setCurrency={setCoinTo}
+      />
 
-          <Divider style={{ marginTop: '40px', marginBottom: '20px' }} />
+      <Divider style={{ marginTop: '40px', marginBottom: '20px' }} />
 
-          <div className={styles['exchangeRateBlock']}>
-            <p className={styles['exchangeTitle']}>
-              <T id={'exchangeRate'} />
-            </p>
-            <p className={styles['exchangeData']}>
-              {rates.rate ? `1 ${coinFrom.code} = ${rates.rate} ${coinTo.code}` : '---'}
-            </p>
-          </div>
+      <div className={classNames('flex justify-between', Number(rate) < 0 ? 'text-red-700' : 'text-gray-600')}>
+        <p className={styles['exchangeTitle']}>
+          <T id={'exchangeRate'} />
+        </p>
+        <p className={styles['exchangeData']}>
+          {rate ? `1 ${coinFrom.code} = ${rate} ${coinTo.code}` : VALUE_PLACEHOLDER}
+        </p>
+      </div>
 
-          <FormSubmitButton
-            className="w-full justify-center border-none"
-            style={{
-              padding: '10px 2rem',
-              background: '#4299e1',
-              marginTop: '24px'
-            }}
-            onClick={submitExchangeHandler}
-            disabled={disabledProceed}
-            testID={ExolixSelectors.TopupFirstStepSubmit}
-          >
-            <T id={'topUp'} />
-          </FormSubmitButton>
+      <FormSubmitButton
+        className="w-full justify-center border-none"
+        style={{
+          padding: '10px 2rem',
+          background: '#4299e1',
+          marginTop: '24px'
+        }}
+        onClick={submitExchangeHandler}
+        disabled={proceedForbidden}
+        testID={ExolixSelectors.TopupFirstStepSubmit}
+      >
+        <T id={'topUp'} />
+      </FormSubmitButton>
 
-          <p className={styles['privacyAndPolicy']}>
-            <T
-              id="privacyAndPolicyLinks"
-              substitutions={[
-                <T id={'topUp'} />,
-                <a className={styles['link']} rel="noreferrer" href={EXOLIX_TERMS_LINK} target="_blank">
-                  <T id={'termsOfUse'} />
-                </a>,
-                <a className={styles['link']} rel="noreferrer" href={EXOLIX_PRIVICY_LINK} target="_blank">
-                  <T id={'privacyPolicy'} />
-                </a>
-              ]}
-            />
-          </p>
-        </>
-      ) : (
-        <ErrorComponent
-          exchangeData={exchangeData}
-          setIsError={setIsError}
-          setExchangeData={setExchangeData}
-          setStep={setStep}
+      <p className={styles['privacyAndPolicy']}>
+        <T
+          id="privacyAndPolicyLinks"
+          substitutions={[
+            <T id={'topUp'} />,
+            <a className={styles['link']} rel="noreferrer" href={EXOLIX_TERMS_LINK} target="_blank">
+              <T id={'termsOfUse'} />
+            </a>,
+            <a className={styles['link']} rel="noreferrer" href={EXOLIX_PRIVICY_LINK} target="_blank">
+              <T id={'privacyPolicy'} />
+            </a>
+          ]}
         />
-      )}
+      </p>
     </>
   );
 };

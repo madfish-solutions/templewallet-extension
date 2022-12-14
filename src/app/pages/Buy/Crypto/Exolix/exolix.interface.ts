@@ -40,6 +40,14 @@ export enum ExchangeDataStatusEnum {
   REFUNDED = 'refunded'
 }
 
+export interface GetRateRequestData {
+  coinFrom: string;
+  coinFromNetwork: string;
+  coinTo: string;
+  coinToNetwork: string;
+  amount: number;
+}
+
 export interface GetRateResponse {
   toAmount: number;
   minAmount: number;
