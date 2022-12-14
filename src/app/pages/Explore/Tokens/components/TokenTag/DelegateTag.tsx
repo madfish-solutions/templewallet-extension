@@ -15,7 +15,7 @@ export const DelegateTezosTag: FC = () => (
       e.stopPropagation();
       navigate('/explore/tez/?tab=delegation');
     }}
-    className={classNames('ml-2 px-2 py-1', modStyles['yieldTag'])}
+    className={classNames('ml-2 px-2 py-1', modStyles['apyTag'])}
   >
     <T id="delegate" />
   </Button>

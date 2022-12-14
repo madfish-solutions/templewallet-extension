@@ -16,7 +16,7 @@ interface Props {
   apy: TokenApyInfo;
 }
 
-export const TokenYieldTag: FC<Props> = ({ slug, symbol, apy }) => {
+export const TokenApyTag: FC<Props> = ({ slug, symbol, apy }) => {
   const [hovered, setHovered] = useState(false);
 
   const colors = useMemo(() => TOKENS_BRAND_COLORS[slug], [slug]);
@@ -32,7 +32,7 @@ export const TokenYieldTag: FC<Props> = ({ slug, symbol, apy }) => {
       onMouseLeave={() => setHovered(false)}
       testID={AssetsSelectors.AssetItemYieldButton}
       testIDProperties={{ slug, symbol, apyRate: apy.rate }}
-      className={classNames('ml-2 px-2 py-1', modStyles['yieldTag'])}
+      className={classNames('ml-2 px-2 py-1', modStyles['apyTag'])}
       style={{ backgroundColor: hovered ? colors.bgHover : colors.bg }}
     >
       APY: {apy.rate}%
