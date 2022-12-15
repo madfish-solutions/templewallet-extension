@@ -2,7 +2,14 @@ import axios from 'axios';
 
 import { outputTokensList } from 'app/pages/Buy/Crypto/Exolix/config';
 
-import { CurrencyInterface, ExchangeDataInterface, ExolixCurrenciesInterface, GetRateData } from './exolix.interface';
+import {
+  CurrencyInterface,
+  ExchangeDataInterface,
+  ExolixCurrenciesInterface,
+  GetRateRequestData,
+  GetRateResponse,
+  GetRateResponseWithAmountTooLow
+} from './exolix.interface';
 
 const API_KEY = process.env.TEMPLE_WALLET_EXOLIX_API_KEY;
 
@@ -53,21 +60,18 @@ const getCurrency = (page = 1) =>
 
 export const getCurrenciesCount = () => api.get<ExolixCurrenciesInterface>('/currencies').then(r => r.data.count);
 
-export const getRate = (data: {
-  coinFrom: string;
-  coinFromNetwork: string;
-  coinTo: string;
-  coinToNetwork: string;
-  amount: number;
-}) =>
-  api
-    .get('/rate', { params: { ...data, rateType: 'fixed' } })
-    .then(r => r.data as GetRateData)
-    .catch(error => {
-      if (error.response) {
-        return error.response.data;
+export const queryExchange = (data: GetRateRequestData) =>
+  api.get<GetRateResponse>('/rate', { params: { ...data, rateType: 'fixed' } }).then(
+    r => r.data,
+    (error: unknown) => {
+      if (axios.isAxiosError(error) && error.response && error.response.status === 422) {
+        const data = error.response.data;
+        if (data && data.error == null) return data as GetRateResponseWithAmountTooLow;
       }
-    });
+      console.error(error);
+      throw error;
+    }
+  );
 
 export const submitExchange = (data: {
   coinFrom: string;

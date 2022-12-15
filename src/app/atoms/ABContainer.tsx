@@ -1,7 +1,7 @@
 import React, { FC, ReactNode } from 'react';
 
+import { ABTestGroup } from 'lib/apis/temple';
 import { useAB } from 'lib/temple/front';
-import { ABTestGroup } from 'lib/templewallet-api';
 
 interface ABContainerProps {
   groupAComponent: ReactNode;

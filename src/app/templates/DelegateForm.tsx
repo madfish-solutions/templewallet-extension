@@ -17,7 +17,8 @@ import BakerBanner from 'app/templates/BakerBanner';
 import InFiat from 'app/templates/InFiat';
 import OperationStatus from 'app/templates/OperationStatus';
 import { useFormAnalytics } from 'lib/analytics';
-import { submitDelegation } from 'lib/everstake-api';
+import { submitDelegation } from 'lib/apis/everstake';
+import { ABTestGroup } from 'lib/apis/temple';
 import { TID, T, t } from 'lib/i18n';
 import { setDelegate } from 'lib/michelson';
 import { fetchTezosBalance } from 'lib/temple/assets';
@@ -38,7 +39,6 @@ import {
 } from 'lib/temple/front';
 import { tzToMutez, mutezToTz, isAddressValid, isKTAddress, hasManager } from 'lib/temple/helpers';
 import { TempleAccountType } from 'lib/temple/types';
-import { ABTestGroup } from 'lib/templewallet-api';
 import { useSafeState } from 'lib/ui/hooks';
 import { Link, useLocation } from 'lib/woozie';
 

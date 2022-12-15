@@ -9,7 +9,6 @@ import {
 } from '@temple-wallet/dapp/dist/types';
 import browser, { Runtime } from 'webextension-polyfill';
 
-import { createQueue } from 'lib/queue';
 import { addLocalOperation } from 'lib/temple/activity';
 import {
   getCurrentPermission,
@@ -43,6 +42,9 @@ import {
   TempleSettings,
   TempleSharedStorageKey
 } from 'lib/temple/types';
+import { createQueue } from 'lib/utils';
+
+import type { DryRunResult } from './dryrun';
 
 const ACCOUNT_NAME_PATTERN = /^.{0,16}$/;
 const AUTODECLINE_AFTER = 60_000;
@@ -236,14 +238,14 @@ export function sendOperations(
 }
 
 const promisableUnlock = async (
-  resolve: any,
-  reject: any,
+  resolve: (arg: { opHash: string }) => void,
+  reject: (err: Error) => void,
   port: Runtime.Port,
   id: string,
   sourcePkh: string,
   networkRpc: string,
   opParams: any[],
-  dryRunResult: any
+  dryRunResult: DryRunResult | null
 ) => {
   intercom.notify(port, {
     type: TempleMessageType.ConfirmationRequested,

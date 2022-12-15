@@ -7,7 +7,6 @@ import { useDebounce } from 'use-debounce';
 import useForceUpdate from 'use-force-update';
 import browser from 'webextension-polyfill';
 
-import { createQueue } from 'lib/queue';
 import { useRetryableSWR } from 'lib/swr';
 import {
   AssetTypesEnum,
@@ -22,6 +21,7 @@ import {
 } from 'lib/temple/assets';
 import { useNetwork } from 'lib/temple/front';
 import { ITokenStatus } from 'lib/temple/repo';
+import { createQueue } from 'lib/utils';
 
 import {
   AssetMetadata,
@@ -90,6 +90,8 @@ function useAllKnownCollectibleTokenSlugs(chainId: string) {
 
 const enqueueAutoFetchMetadata = createQueue();
 const autoFetchMetadataFails = new Set<string>();
+
+export const TEZ_TOKEN_SLUG = 'tez';
 
 export const useGasToken = () => {
   const network = useNetwork();

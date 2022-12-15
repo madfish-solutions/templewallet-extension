@@ -17,7 +17,6 @@ import { ActivityComponent } from 'app/templates/activity/Activity';
 import AssetInfo from 'app/templates/AssetInfo';
 import { TestIDProps } from 'lib/analytics';
 import { T, t } from 'lib/i18n';
-import { PropsWithChildren } from 'lib/props-with-children';
 import { isTezAsset } from 'lib/temple/assets';
 import { useAccount, useNetwork, useAssetMetadata } from 'lib/temple/front';
 import { getAssetSymbol } from 'lib/temple/metadata';

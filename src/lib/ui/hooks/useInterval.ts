@@ -7,5 +7,4 @@ export const useInterval = (callback: EmptyFn, refreshInterval: number, deps: De
     const interval = setInterval(callback, refreshInterval);
 
     return () => clearInterval(interval);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, deps);

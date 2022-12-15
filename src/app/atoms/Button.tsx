@@ -15,6 +15,7 @@ export const Button = React.forwardRef<HTMLButtonElement, Props>(
 
       return onClick !== undefined && onClick(e);
     };
+
     return <button ref={ref} onClick={handleClick} {...props} />;
   }
 );

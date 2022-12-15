@@ -1,7 +1,6 @@
 import React, { FC } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
-import classNames from 'clsx';
 
 import { useAppEnv } from 'app/env';
 import { useActivePromotionSelector } from 'app/store/advertising/selectors';
@@ -15,7 +14,7 @@ export const AdvertisingBanner: FC = () => {
 
   return isDefined(activePromotion) ? (
     <a
-      className={classNames('flex items-center justify-center mr-3')}
+      className="flex items-center justify-center mr-3"
       style={{
         height: 28,
         paddingLeft: popup ? 4 : 8,

@@ -76,8 +76,6 @@ export const [SyncBalancesProvider, useSyncBalances] = constate(() => {
     accountRef.current = publicKeyHash;
 
     return stopUpdate;
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSyncing, chainId, publicKeyHash]);
 
   return assetSlugsWithUpdatedBalances;

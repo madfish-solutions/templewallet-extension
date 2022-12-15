@@ -19,7 +19,7 @@ const resolve = require('resolve');
 const TerserPlugin = require('terser-webpack-plugin');
 const webpack = require('webpack');
 const ESLintPlugin = require('eslint-webpack-plugin');
-const ExtensionReloader = require('webpack-ext-reloader-mv3');
+const ExtensionReloader = require('webpack-ext-reloader');
 const WebpackBar = require('webpackbar');
 const ZipPlugin = require('zip-webpack-plugin');
 
@@ -128,10 +128,11 @@ const ADDITIONAL_MODULE_PATHS = [
 const CSS_REGEX = /\.css$/;
 const CSS_MODULE_REGEX = /\.module\.css$/;
 
+/** @type {webpack.Configuration} */
 module.exports = {
   mode: NODE_ENV,
   bail: NODE_ENV === 'production',
-  devtool: SOURCE_MAP && 'inline-cheap-module-source-map',
+  devtool: SOURCE_MAP && 'eval',
 
   entry: ENTRIES,
 
@@ -139,7 +140,6 @@ module.exports = {
     path: OUTPUT_PATH,
     pathinfo: NODE_ENV === 'development' ? 'verbose' : false,
     filename: 'scripts/[name].js',
-    /* Not working like in WP4 `optimization.splitChunks.cacheGroups.{cacheGroupKey}.name` overrides this. */
     chunkFilename: 'scripts/[name].chunk.js',
     /* For `rule.type = 'asset' | 'asset/resource'` */
     assetModuleFilename: 'media/[hash:8][ext]'
@@ -160,7 +160,17 @@ module.exports = {
       stream: require.resolve('stream-browserify'),
       crypto: require.resolve('crypto-browserify'),
       util: require.resolve('util/'),
-      assert: require.resolve('assert/')
+      assert: require.resolve('assert/'),
+      /* Current package version has a bug with false import path */
+      '@ledgerhq/devices/hid-framing': require.resolve('@ledgerhq/devices/lib-es/hid-framing'),
+    },
+
+    alias: {
+      /*
+        Exports of `punycode@2.1.1/punycode.js` & `punycode@2.1.1/punycode.es6.js` are different.
+        We need the former ones (e.g. `idna-uts46-hx` relies on it).
+      */
+      punycode$: require.resolve('punycode/punycode.js'),
     },
 
     alias: {
@@ -341,7 +351,7 @@ module.exports = {
       WebPack v4 injected `nodeSpecificAsset` automatically.
     */
     new webpack.ProvidePlugin({
-      process: 'process/browser',
+      process: 'process/browser.js',
       Buffer: ['buffer', 'Buffer'],
       // Seen 'setImmediate' in: 'scryptsy'
       setImmediate: ['timers-browserify', 'setImmediate'],
@@ -385,7 +395,7 @@ module.exports = {
         new HtmlWebpackPlugin({
           template: htmlTemplate.path,
           filename: path.basename(htmlTemplate.path),
-          chunks: [htmlTemplate.name, 'commons'],
+          chunks: [htmlTemplate.name],
           inject: 'body',
           ...(NODE_ENV === 'production'
             ? {
@@ -482,7 +492,7 @@ module.exports = {
     splitChunks: {
       cacheGroups: {
         commons: {
-          name: (module, chunks, cacheGroupKey) => `${cacheGroupKey}.chunk`,
+          name: 'commons.chunk',
           minChunks: 2,
           chunks: chunk => !SEPARATED_CHUNKS.has(chunk.name)
         }

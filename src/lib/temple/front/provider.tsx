@@ -1,7 +1,6 @@
 import React, { FC, useMemo } from 'react';
 
-import { CustomRpsContext } from 'lib/analytics';
-import { PropsWithChildren } from 'lib/props-with-children';
+import { CustomRpcContext } from 'lib/analytics';
 
 import { TokensMetadataProvider } from './assets';
 import { NewBlockTriggersProvider } from './chain';
@@ -11,11 +10,11 @@ import { SyncBalancesProvider } from './sync-balances';
 import { SyncTokensProvider } from './sync-tokens';
 
 export const TempleProvider: FC<PropsWithChildren> = ({ children }) => (
-  <CustomRpsContext.Provider value={undefined}>
+  <CustomRpcContext.Provider value={undefined}>
     <TempleClientProvider>
       <ConditionalReadyTemple>{children}</ConditionalReadyTemple>
     </TempleClientProvider>
-  </CustomRpsContext.Provider>
+  </CustomRpcContext.Provider>
 );
 
 const ConditionalReadyTemple: FC<PropsWithChildren> = ({ children }) => {
@@ -45,5 +44,5 @@ const ConditionalReadyTemple: FC<PropsWithChildren> = ({ children }) => {
 const WalletRpcProvider: FC<PropsWithChildren> = ({ children }) => {
   const network = useNetwork();
 
-  return <CustomRpsContext.Provider value={network.rpcBaseURL}>{children}</CustomRpsContext.Provider>;
+  return <CustomRpcContext.Provider value={network.rpcBaseURL}>{children}</CustomRpcContext.Provider>;
 };

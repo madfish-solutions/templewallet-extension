@@ -7,7 +7,7 @@ import { DAppIcon } from 'app/templates/DAppsList/DAppIcon';
 import DAppItem from 'app/templates/DAppsList/DAppItem';
 import SearchField from 'app/templates/SearchField';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
-import { DappEnum, getDApps } from 'lib/custom-dapps-api';
+import { DappEnum, getDApps } from 'lib/apis/temple';
 import { TID, t } from 'lib/i18n';
 import { useRetryableSWR } from 'lib/swr';
 

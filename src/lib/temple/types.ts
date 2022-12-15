@@ -1,3 +1,4 @@
+import { DerivationType } from '@taquito/ledger-signer';
 import { Estimate } from '@taquito/taquito';
 import { TempleDAppMetadata, TempleDAppNetwork } from '@temple-wallet/dapp/dist/types';
 
@@ -11,6 +12,8 @@ import {
 } from './analytics-types';
 
 type NonEmptyArray<T> = [T, ...T[]];
+
+export { DerivationType };
 
 export interface ReadyTempleState extends TempleState {
   status: TempleStatus.Ready;
@@ -37,6 +40,7 @@ export enum TempleChainId {
   Mainnet = 'NetXdQprcVkpaWU',
   Ghostnet = 'NetXnHfVqm9iesp',
   Jakartanet = 'NetXLH1uAxK7CCh',
+  Limanet = 'NetXizpkH94bocH',
   Kathmandunet = 'NetXdnUSgMs7Xc3',
   Monday = 'NetXaqtQ8b5nihx',
   Daily = 'NetXxkAx4woPLyu',
@@ -60,12 +64,6 @@ export type TempleAccount =
   | TempleLedgerAccount
   | TempleManagedKTAccount
   | TempleWatchOnlyAccount;
-
-export enum DerivationType {
-  ED25519 = 0,
-  SECP256K1 = 1,
-  P256 = 2
-}
 
 interface TempleLedgerAccount extends TempleAccountBase {
   type: TempleAccountType.Ledger;
@@ -221,6 +219,7 @@ export enum TempleMessageType {
   StateUpdated = 'TEMPLE_STATE_UPDATED',
   ConfirmationRequested = 'TEMPLE_CONFIRMATION_REQUESTED',
   ConfirmationExpired = 'TEMPLE_CONFIRMATION_EXPIRED',
+  SelectedAccountChanged = 'TEMPLE_SELECTED_ACCOUNT_CHANGED',
   // Request-Response pairs
   GetStateRequest = 'TEMPLE_GET_STATE_REQUEST',
   GetStateResponse = 'TEMPLE_GET_STATE_RESPONSE',
@@ -284,7 +283,11 @@ export enum TempleMessageType {
   SendPageEventResponse = 'SEND_PAGE_EVENT_RESPONSE'
 }
 
-export type TempleNotification = TempleStateUpdated | TempleConfirmationRequested | TempleConfirmationExpired;
+export type TempleNotification =
+  | TempleStateUpdated
+  | TempleConfirmationRequested
+  | TempleConfirmationExpired
+  | TempleSelectedAccountChanged;
 
 export type TempleRequest =
   | TempleAcknowledgeRequest
@@ -370,6 +373,11 @@ interface TempleConfirmationRequested extends TempleMessageBase {
 interface TempleConfirmationExpired extends TempleMessageBase {
   type: TempleMessageType.ConfirmationExpired;
   id: string;
+}
+
+interface TempleSelectedAccountChanged extends TempleMessageBase {
+  type: TempleMessageType.SelectedAccountChanged;
+  accountPublicKeyHash: string;
 }
 
 interface TempleGetStateRequest extends TempleMessageBase {

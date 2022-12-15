@@ -22,3 +22,5 @@ export { TabSwitcher } from './TabSwitcher';
 export { SeedPhraseInput } from './SeedPhraseInput';
 
 export { Stepper } from './Stepper/Stepper';
+
+export { DataPlaceholder } from './DataPlaceholder';

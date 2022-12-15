@@ -1,6 +1,6 @@
 export { AnalyticsEventEnum, AnalyticsEventCategory } from 'lib/temple/analytics-types';
 
-export { CustomRpsContext } from './custom-rpc.context';
+export { CustomRpcContext } from './custom-rpc.context';
 
 export { useAnalyticsSettings } from './use-analytics-settings.hook';
 export { useAnalytics } from './use-analytics.hook';

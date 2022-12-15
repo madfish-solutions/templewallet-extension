@@ -8,9 +8,16 @@ import constate from 'constate';
 import { IS_DEV_ENV } from 'lib/env';
 import { useRetryableSWR } from 'lib/swr';
 import { loadChainId, michelEncoder, loadFastRpcClient } from 'lib/temple/helpers';
-import { ReadyTempleState, TempleAccountType, TempleStatus, TempleState } from 'lib/temple/types';
+import {
+  ReadyTempleState,
+  TempleAccountType,
+  TempleStatus,
+  TempleState,
+  TempleNotification,
+  TempleMessageType
+} from 'lib/temple/types';
 
-import { useTempleClient } from './client';
+import { intercom, useTempleClient } from './client';
 import { usePassiveStorage } from './storage';
 
 export enum ActivationStatus {
@@ -76,6 +83,16 @@ function useReadyTemple() {
 
   const defaultAcc = allAccounts[0];
   const [accountPkh, setAccountPkh] = usePassiveStorage('account_publickeyhash', defaultAcc.publicKeyHash);
+
+  useEffect(() => {
+    return intercom.subscribe((msg: TempleNotification) => {
+      switch (msg?.type) {
+        case TempleMessageType.SelectedAccountChanged:
+          setAccountPkh(msg.accountPublicKeyHash);
+          break;
+      }
+    });
+  }, [setAccountPkh]);
 
   useEffect(() => {
     if (allAccounts.every(a => a.publicKeyHash !== accountPkh)) {

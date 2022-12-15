@@ -1,8 +1,10 @@
 import browser from 'webextension-polyfill';
 
+import { fetchFromStorage } from 'lib/storage';
+
 import type { LocaleMessage, LocaleMessages, Substitutions } from './types';
 
-const TEMPLATE_RGX = /\$(.*?)\$/g;
+export const STORAGE_KEY = 'locale';
 
 export function getNativeLocale() {
   return browser.i18n.getUILanguage();
@@ -19,6 +21,10 @@ export function areLocalesEqual(a: string, b: string) {
 
 export function toList<T, U>(term: T | U[]): (T | U)[] {
   return Array.isArray(term) ? term : [term];
+}
+
+export function asyncGetSavedLocale() {
+  return fetchFromStorage<string>(STORAGE_KEY);
 }
 
 export async function fetchLocaleMessages(locale: string) {
@@ -71,8 +77,10 @@ export function applySubstitutions(value: LocaleMessage, substitutions?: Substit
   }
 }
 
-function processTemplate(str: string, mix: any) {
-  return str.replace(TEMPLATE_RGX, (_: any, key) => {
+const TEMPLATE_RGX = /\$(.*?)\$/g;
+
+const processTemplate = (str: string, mix: any) =>
+  str.replace(TEMPLATE_RGX, (_: any, key) => {
     let x = 0;
     let y = mix;
     key = key.trim().split('.');
@@ -81,4 +89,3 @@ function processTemplate(str: string, mix: any) {
     }
     return y != null ? y : '';
   });
-}

@@ -16,6 +16,7 @@ import toBuffer from 'typedarray-to-buffer';
 
 import { IntercomClient } from 'lib/intercom';
 import { useRetryableSWR } from 'lib/swr';
+import { clearLocalStorage } from 'lib/temple/reset';
 import {
   TempleConfirmationPayload,
   TempleMessageType,
@@ -33,7 +34,7 @@ type Confirmation = {
   error?: any;
 };
 
-const intercom = new IntercomClient();
+export const intercom = new IntercomClient();
 
 export const [TempleClientProvider, useTempleClient] = constate(() => {
   /**
@@ -106,6 +107,7 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
       mnemonic
     });
     assertResponse(res.type === TempleMessageType.NewWalletResponse);
+    clearLocalStorage(['onboarding', 'analytics']);
   }, []);
 
   const unlock = useCallback(async (password: string) => {

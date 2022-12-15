@@ -1,8 +1,7 @@
 import { createAction } from '@reduxjs/toolkit';
 
-import { AdvertisingPromotion } from 'lib/templewallet-api';
-
-import { createActions } from '../create-actions';
+import { AdvertisingPromotion } from 'lib/apis/temple';
+import { createActions } from 'lib/store';
 
 export const loadAdvertisingPromotionActions = createActions<void, AdvertisingPromotion | undefined, string>(
   'advertising/LOAD_PROMOTION'

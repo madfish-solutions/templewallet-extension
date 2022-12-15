@@ -1,13 +1,13 @@
 import { BigNumber } from 'bignumber.js';
 
-import { TzktOperation, TzktTransactionOperation } from 'lib/tzkt';
+import { TzktOperation, TzktTransactionOperation } from 'lib/apis/tzkt';
 import {
   isTzktOperParam,
   isTzktOperParam_Fa12,
   isTzktOperParam_Fa2,
   isTzktOperParam_LiquidityBaking,
   ParameterFa2
-} from 'lib/tzkt/utils';
+} from 'lib/apis/tzkt/utils';
 
 import type {
   OperationsGroup,

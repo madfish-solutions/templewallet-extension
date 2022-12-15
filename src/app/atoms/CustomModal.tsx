@@ -3,9 +3,7 @@ import React, { FC } from 'react';
 import classNames from 'clsx';
 import Modal from 'react-modal';
 
-import { PropsWithChildren } from 'lib/props-with-children';
-
-export type CustomModalProps = Modal.Props & Partial<PropsWithChildren>;
+export type CustomModalProps = Modal.Props & React.PropsWithChildren;
 
 const CustomModal: FC<CustomModalProps> = props => {
   const { className, overlayClassName, ...restProps } = props;

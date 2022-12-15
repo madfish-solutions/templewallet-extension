@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import BigNumber from 'bignumber.js';
 
-import { estimateAliceBobOutput } from 'lib/templewallet-api';
+import { estimateAliceBobOutput } from 'lib/apis/temple';
 
 export const useOutputEstimation = (
   inputAmount = 0,
