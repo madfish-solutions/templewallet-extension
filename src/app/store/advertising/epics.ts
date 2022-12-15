@@ -4,7 +4,7 @@ import { catchError, map, switchMap } from 'rxjs/operators';
 import { Action } from 'ts-action';
 import { ofType } from 'ts-action-operators';
 
-import { getAdvertisingInfo$ } from 'lib/templewallet-api';
+import { getAdvertisingInfo$ } from 'lib/apis/temple';
 
 import { loadAdvertisingPromotionActions } from './actions';
 

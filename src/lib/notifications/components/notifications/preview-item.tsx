@@ -9,6 +9,7 @@ import { NotificationStatus } from '../../enums/notification-status.enum';
 import { NotificationType } from '../../enums/notification-type.enum';
 import { NotificationInterface } from '../../interfaces/notification.interface';
 import { formatDateOutput } from '../../utils/date.utils';
+import { PreviewItemSelectors } from './preview-item.selectors';
 
 const NotificationsIconMap: Record<NotificationType, ImportedSVGComponent> = {
   [NotificationType.News]: NewsIcon,
@@ -31,6 +32,8 @@ export const NotificationPreviewItem: FC<Props> = ({ notification }) => {
         notification.status === NotificationStatus.Read && 'bg-gray-10',
         'border-b border-gray-300'
       ])}
+      testID={PreviewItemSelectors.NavigationButton}
+      testIDProperties={{ id: notification.id, type: notification.type }}
     >
       <div className="relative">
         {notification.status === NotificationStatus.New && (

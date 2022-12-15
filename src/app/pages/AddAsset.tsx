@@ -14,7 +14,7 @@ import { T, t } from 'lib/i18n';
 import {
   NotMatchingStandardError,
   toTokenSlug,
-  assertGetBalance,
+  assertFa2TokenDefined,
   detectTokenStandard,
   IncorrectTokenIdError
 } from 'lib/temple/assets';
@@ -131,7 +131,7 @@ const Form: FC = () => {
         throw new NotMatchingStandardError('Failed when detecting token standard');
       }
 
-      await assertGetBalance(tezos, contract, tokenStandard, tokenId);
+      if (tokenStandard === 'fa2') await assertFa2TokenDefined(tezos, contract, tokenId);
 
       const slug = toTokenSlug(contractAddress, tokenId);
       const metadata = await fetchMetadata(slug);
@@ -418,23 +418,23 @@ const BottomSection: FC<BottomSectionProps> = props => {
 };
 
 const errorHandler = (err: any, contractAddress: string, setValue: any) => {
-  if (err instanceof ContractNotFoundError) {
+  if (err instanceof ContractNotFoundError)
     return {
       tokenValidationError: t('referredByTokenContractNotFound', contractAddress)
     };
-  } else if (err instanceof NotMatchingStandardError) {
+
+  if (err instanceof NotMatchingStandardError) {
     const errorMessage = err instanceof IncorrectTokenIdError ? `: ${err.message}` : '';
     return {
       tokenValidationError: `${t('tokenDoesNotMatchStandard', 'FA')}${errorMessage}`
     };
-  } else {
-    const errorMessage = t(
-      err instanceof NotFoundTokenMetadata ? 'failedToParseMetadata' : 'unknownParseErrorOccurred'
-    );
-    setValue([{ symbol: '' }, { name: '' }, { decimals: 0 }]);
-    return {
-      bottomSectionVisible: true,
-      tokenDataError: errorMessage
-    };
   }
+
+  const errorMessage = t(err instanceof NotFoundTokenMetadata ? 'failedToParseMetadata' : 'unknownParseErrorOccurred');
+  setValue([{ symbol: '' }, { name: '' }, { decimals: 0 }]);
+
+  return {
+    bottomSectionVisible: true,
+    tokenDataError: errorMessage
+  };
 };

@@ -1,7 +1,7 @@
 import { OperationContentsAndResult } from '@taquito/rpc';
 import Dexie from 'dexie';
 
-import { TzktOperation, TzktTokenTransfer } from 'lib/tzkt';
+import { TzktOperation, TzktTokenTransfer } from 'lib/apis/tzkt';
 
 enum Table {
   AccountTokens = 'accountTokens',

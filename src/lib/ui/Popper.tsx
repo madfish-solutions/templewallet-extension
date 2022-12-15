@@ -59,9 +59,11 @@ const Popper = memo<PopperProps>(({ popup, children, fallbackPlacementsEnabled =
       : null
   );
 
+  /* See: https://popper.js.org/docs/v2/lifecycle */
   const finalOptions = useMemo(
     () => ({
       ...popperOptions,
+      /* See: https://popper.js.org/docs/v2/modifiers */
       modifiers: [
         {
           name: 'preventOverflow',

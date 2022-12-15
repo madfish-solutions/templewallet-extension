@@ -4,8 +4,8 @@ import { catchError, switchMap } from 'rxjs/operators';
 import { Action } from 'ts-action';
 import { ofType } from 'ts-action-operators';
 
+import { fetchUsdToTokenRates } from 'lib/apis/temple';
 import { fetchFiatToTezosRates } from 'lib/fiat-currency';
-import { fetchUsdToTokenRates } from 'lib/templewallet-api';
 
 import { loadExchangeRates } from './actions';
 

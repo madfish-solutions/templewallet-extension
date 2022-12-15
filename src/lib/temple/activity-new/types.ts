@@ -1,4 +1,4 @@
-import { TzktOperation, TzktAlias, TzktOperationType } from 'lib/tzkt';
+import { TzktOperation, TzktAlias, TzktOperationType } from 'lib/apis/tzkt';
 
 export interface OperationsGroup {
   hash: string;

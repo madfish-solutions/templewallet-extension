@@ -1,8 +1,8 @@
 import { useCallback } from 'react';
 
+import { ABTestGroup } from 'lib/apis/temple';
 import { AnalyticsEventCategory } from 'lib/temple/analytics-types';
 import { useAB } from 'lib/temple/front';
-import { ABTestGroup } from 'lib/templewallet-api';
 
 import { useAnalyticsNetwork } from './use-analytics-network.hook';
 import { sendPageEvent, sendTrackEvent, useAnalyticsState } from './use-analytics-state.hook';

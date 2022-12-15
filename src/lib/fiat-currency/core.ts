@@ -11,7 +11,7 @@ import type { FiatCurrencyOption, CoingeckoFiatInterface } from './types';
 
 const FIAT_CURRENCY_STORAGE_KEY = 'fiat_currency';
 
-function useAssetUSDPrice(slug: string) {
+export function useAssetUSDPrice(slug: string) {
   const prices = useSelector(state => state.currency.usdToTokenRates.data);
 
   return useMemo(() => {

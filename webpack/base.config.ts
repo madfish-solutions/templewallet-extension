@@ -227,7 +227,7 @@ export const buildBaseConfig = (): WebPack.Configuration & Pick<WebPack.WebpackO
       WebPack v4 injected `nodeSpecificAsset` automatically.
     */
     new WebPack.ProvidePlugin({
-      process: 'process/browser',
+      process: 'process/browser.js',
       Buffer: ['buffer', 'Buffer'],
       // Seen 'setImmediate' in: 'scryptsy'
       setImmediate: ['timers-browserify', 'setImmediate']

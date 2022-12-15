@@ -3,8 +3,6 @@ import React, { FC } from 'react';
 import FontFaceObserver from 'fontfaceobserver';
 import useSWR from 'swr';
 
-import { PropsWithChildren } from 'lib/props-with-children';
-
 interface AwaitFontsProps extends PropsWithChildren {
   name: string;
   weights: number[];
