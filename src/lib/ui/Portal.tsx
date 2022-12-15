@@ -2,8 +2,6 @@ import { FC, useEffect, useMemo } from 'react';
 
 import * as ReactDOM from 'react-dom';
 
-import { PropsWithChildren } from 'lib/props-with-children';
-
 const Portal: FC<PropsWithChildren> = ({ children }) => {
   const portalEl = useMemo(() => document.createElement('div'), []);
   useEffect(() => {

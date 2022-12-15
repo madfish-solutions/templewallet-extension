@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 
 import BigNumber from 'bignumber.js';
 
-import { getAliceBobPairInfo } from 'lib/templewallet-api';
+import { getAliceBobPairInfo } from 'lib/apis/temple';
 
 const PENNY = 0.000001;
 
@@ -27,7 +27,6 @@ export const useMinMaxExchangeAmounts = (setIsApiError: (v: boolean) => void, is
       })
       .catch(() => setIsApiError(true))
       .finally(() => setIsMinMaxLoading(false));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isWithdraw]);
 
   useEffect(() => {

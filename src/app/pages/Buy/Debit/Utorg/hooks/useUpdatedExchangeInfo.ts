@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 
-import { getAvailableFiatCurrencies, getMinMaxExchangeValue } from '../../../../../../lib/utorg-api';
+import { getAvailableFiatCurrencies, getMinMaxExchangeValue } from 'lib/apis/utorg';
+
 import { booleanSetter } from '../config';
 
 export const useUpdatedExchangeInfo = (setLoading: booleanSetter, setIsApiError: booleanSetter) => {

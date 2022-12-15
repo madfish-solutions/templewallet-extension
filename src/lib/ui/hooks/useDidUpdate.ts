@@ -19,7 +19,6 @@ export function useDidUpdate(callback: EmptyFn, conditions?: unknown[]) {
     if (hasMountedRef.current) {
       callback();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, internalConditions);
   useDidMount(() => {
     hasMountedRef.current = true;

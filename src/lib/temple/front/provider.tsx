@@ -1,7 +1,6 @@
 import React, { FC, useMemo } from 'react';
 
 import { CustomRpcContext } from 'lib/analytics';
-import { PropsWithChildren } from 'lib/props-with-children';
 
 import { TokensMetadataProvider } from './assets';
 import { NewBlockTriggersProvider } from './chain';

@@ -4,9 +4,8 @@ import classNames from 'clsx';
 
 import { ReactComponent as DangerIcon } from 'app/icons/danger.svg';
 import { T } from 'lib/i18n';
-import { PropsWithChildren } from 'lib/props-with-children';
 
-interface ErrorBoundaryProps extends PropsWithChildren {
+interface ErrorBoundaryProps extends React.PropsWithChildren {
   className?: string;
   whileMessage?: string;
 }

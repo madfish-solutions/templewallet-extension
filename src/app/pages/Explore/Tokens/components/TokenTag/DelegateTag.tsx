@@ -6,17 +6,17 @@ import { Button } from 'app/atoms/Button';
 import { T } from 'lib/i18n';
 import { navigate } from 'lib/woozie';
 
-import styles from '../Tokens.module.css';
+import modStyles from '../../Tokens.module.css';
 
-export const DelegateButton: FC = () => (
+export const DelegateTezosTag: FC = () => (
   <Button
     onClick={e => {
       e.preventDefault();
       e.stopPropagation();
       navigate('/explore/tez/?tab=delegation');
     }}
-    className={classNames('ml-2 px-2 py-1', styles['apyBadge'])}
+    className={classNames('ml-2 px-2 py-1', modStyles['apyTag'])}
   >
-    {<T id="delegate" />}
+    <T id="delegate" />
   </Button>
 );
