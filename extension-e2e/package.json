@@ -1,0 +1,16 @@
+{
+  "name": "temple-wallet-extension-e2e",
+  "version": "1.0.0",
+  "private": true,
+  "license": "MIT",
+  "scripts": {
+    "start:dev": "npm start -- --tags @dev",
+    "ts": "tsc --pretty",
+    "start": "./node_modules/.bin/cucumber-js"
+  },
+  "dependencies": {
+    "@cucumber/cucumber": "^8.7.0",
+    "puppeteer": "^19.4.0",
+    "ts-node": "^10.9.1"
+  }
+}

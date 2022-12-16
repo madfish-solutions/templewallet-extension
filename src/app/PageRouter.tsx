@@ -18,7 +18,7 @@ import Send from 'app/pages/Send';
 import Settings from 'app/pages/Settings';
 import { Swap } from 'app/pages/Swap/Swap';
 import Unlock from 'app/pages/Unlock';
-import Welcome from 'app/pages/Welcome';
+import Welcome from 'app/pages/Welcome/Welcome';
 import { usePageRouterAnalytics } from 'lib/analytics';
 import { Notifications, NotificationsItem } from 'lib/notifications';
 import { useTempleClient } from 'lib/temple/front';

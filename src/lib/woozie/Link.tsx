@@ -75,7 +75,7 @@ const LinkAnchor: FC<LinkAnchorProps> = ({
   );
 
   return (
-    <a onClick={handleClick} target={target} {...rest}>
+    <a onClick={handleClick} target={target} data-testid={testID} {...rest}>
       {children}
     </a>
   );
