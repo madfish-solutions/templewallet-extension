@@ -90,16 +90,7 @@ const AUTHOR_URL = 'https://madfish.solutions';
 
 const PERMISSIONS = ['storage', 'unlimitedStorage', 'clipboardWrite', 'activeTab'];
 
-const HOST_PERMISSIONS = [
-  'http://localhost:8732/',
-  'https://*.giganode.io/',
-  'https://*.tzstats.com/',
-  'https://api.tezos-nodes.com/',
-  'https://api.better-call.dev/',
-  'https://*.tzkt.io/',
-  'https://api.baking-bad.org/v2/',
-  'https://quipuswap.com/'
-];
+const HOST_PERMISSIONS: string[] = ['http://localhost:8732/'];
 
 const OPTIONS_UI = {
   page: 'options.html',

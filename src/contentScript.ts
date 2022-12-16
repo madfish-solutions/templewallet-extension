@@ -1,8 +1,3 @@
-/*
-  For more information about Content Scripts, see:
-  https://developer.chrome.com/docs/extensions/mv3/content_scripts
-*/
-
 import { TemplePageMessage, TemplePageMessageType } from '@temple-wallet/dapp/dist/types';
 import browser from 'webextension-polyfill';
 

@@ -51,12 +51,7 @@ const mainConfig = (() => {
   /* Page reloading in development mode */
   const liveReload = DEVELOPMENT_ENV && usePagesLiveReload(RELOADER_PORTS.PAGES);
 
-  config.entry = {
-    popup: Path.join(PATHS.SOURCE, 'popup.tsx'),
-    fullpage: Path.join(PATHS.SOURCE, 'fullpage.tsx'),
-    confirm: Path.join(PATHS.SOURCE, 'confirm.tsx'),
-    options: Path.join(PATHS.SOURCE, 'options.tsx')
-  };
+  config.entry = Object.fromEntries(PAGES_NAMES.map(name => [name, Path.join(PATHS.SOURCE, `${name}.tsx`)]));
 
   if (liveReload) config.entry.live_reload = liveReload.client_entry;
 
@@ -263,4 +258,3 @@ const backgroundConfig = (() => {
 const configurations = [mainConfig, scriptsConfig, backgroundConfig];
 
 export default configurations;
-// export const parallelism = 1;
