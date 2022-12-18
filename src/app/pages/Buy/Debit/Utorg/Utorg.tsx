@@ -21,10 +21,11 @@ import { useUpdatedExchangeInfo } from './hooks/useUpdatedExchangeInfo';
 
 const DEFAULT_CURRENCY = 'USD';
 const REQUEST_LATENCY = 300;
+const VALUE_PLACEHOLDER = '---';
 
 export const Utorg = () => {
   const [inputCurrency, setInputCurrency] = useState(DEFAULT_CURRENCY);
-  const [inputAmount, setInputAmount] = useState<number | undefined>(undefined);
+  const [inputAmount, setInputAmount] = useState<number | undefined>();
 
   const [link, setLink] = useState('');
 
@@ -36,33 +37,30 @@ export const Utorg = () => {
   const exchangeRate = useExchangeRate(inputAmount, inputCurrency, setLoading);
   const outputAmount = useOutputAmount(inputAmount, inputCurrency, setLoading);
 
-  const { currencies, minXtzExchangeAmount, maxXtzExchangeAmount, isMinMaxLoading } = useUpdatedExchangeInfo(
+  const { currencies, minAmount, maxAmount, isMinMaxLoading } = useUpdatedExchangeInfo(
+    inputCurrency,
     setLoading,
     setIsApiError
   );
 
   const { isMinAmountError, isMaxAmountError, disabledProceed } = useDisabledProceed(
     inputAmount,
-    outputAmount,
-    minXtzExchangeAmount,
-    maxXtzExchangeAmount,
+    minAmount,
+    maxAmount,
     isApiError
   );
 
   const linkRequest = useCallback(() => {
-    if (!disabledProceed) {
-      setLoading(true);
-      createOrder(outputAmount, inputCurrency, publicKeyHash)
-        .then(url => setLink(url))
-        .finally(() => setLoading(false));
-    }
+    if (disabledProceed) return;
+    setLoading(true);
+    createOrder(outputAmount, inputCurrency, publicKeyHash)
+      .then(setLink)
+      .finally(() => setLoading(false));
   }, [outputAmount, disabledProceed, inputCurrency, publicKeyHash]);
 
   const debouncedLinkRequest = useDebouncedCallback(linkRequest, REQUEST_LATENCY);
 
   useEffect(() => debouncedLinkRequest(), [debouncedLinkRequest, inputAmount, inputCurrency]);
-
-  const handleInputAmountChange = useCallback((amount?: number) => setInputAmount(amount), []);
 
   return (
     <PageLayout
@@ -80,6 +78,7 @@ export const Utorg = () => {
           </h3>
         </div>
       )}
+
       <div className="max-w-sm mx-auto mt-4 mb-10 text-center font-inter font-normal text-gray-700">
         <TopUpInput
           isSearchable
@@ -87,13 +86,18 @@ export const Utorg = () => {
           amount={inputAmount}
           currencyName={inputCurrency}
           currenciesList={currencies}
+          minAmount={String(minAmount)}
+          maxAmount={String(maxAmount || VALUE_PLACEHOLDER)}
+          isMinAmountError={isMinAmountError}
+          isMaxAmountError={isMaxAmountError}
           setCurrencyName={setInputCurrency}
-          onAmountChange={handleInputAmountChange}
+          onAmountChange={setInputAmount}
           amountInputDisabled={isMinMaxLoading}
           className="mb-4"
         />
 
         <br />
+
         <TopUpInput
           readOnly
           singleToken
@@ -101,21 +105,20 @@ export const Utorg = () => {
           label={<T id="get" />}
           currencyName="TEZ"
           currenciesList={[]}
-          minAmount={minXtzExchangeAmount.toString()}
-          maxAmount={maxXtzExchangeAmount.toString()}
-          isMinAmountError={isMinAmountError}
-          isMaxAmountError={isMaxAmountError}
           amount={outputAmount}
         />
+
         <Divider style={{ marginTop: '40px', marginBottom: '20px' }} />
+
         <div className={styles['exchangeRateBlock']}>
           <p className={styles['exchangeTitle']}>
             <T id={'exchangeRate'} />
           </p>
           <p className={styles['exchangeData']}>
-            1 {inputCurrency} ≈ {exchangeRate} TEZ
+            1 TEZ ≈ {exchangeRate} {inputCurrency}
           </p>
         </div>
+
         <FormSubmitButton
           className="w-full justify-center border-none mt-6"
           style={{
@@ -139,6 +142,7 @@ export const Utorg = () => {
             <T id="next" />
           </a>
         </FormSubmitButton>
+
         <div className="border-solid border-gray-300" style={{ borderTopWidth: 1 }}>
           <p className="mt-6">
             <T
