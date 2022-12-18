@@ -9,6 +9,7 @@ interface Props {
 }
 
 const EXOLIX_FALLBACK_IMAGE_SRC = 'https://exolix.com/img/crypto.png';
+// const UTORG_FALLBACK_IMAGE_SRC = browser.runtime.getURL('misc/token-logos/fallback.svg');
 
 export const StaticCurrencyImage: FC<Props> = ({ currencyCode, imageSrc, style = {} }) => {
   const [isFailed, setIsFailed] = useState(false);
@@ -18,7 +19,7 @@ export const StaticCurrencyImage: FC<Props> = ({ currencyCode, imageSrc, style =
   return (
     <>
       <img
-        alt="currencyImage"
+        alt="currency"
         style={{ ...style, ...conditionalStyle }}
         src={
           currencyCode === 'TEZ' || currencyCode === 'XTZ'

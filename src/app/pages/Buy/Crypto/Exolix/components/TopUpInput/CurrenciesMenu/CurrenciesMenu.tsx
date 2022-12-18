@@ -7,22 +7,22 @@ import Spinner from 'app/atoms/Spinner/Spinner';
 import { useAppEnvStyle } from 'app/hooks/use-app-env-style.hook';
 import { T } from 'lib/i18n';
 
-import { CurrencyInterface } from '../../../exolix.interface';
+import { CurrencyBase } from '../TopUpInput.props';
 import { CurrencyOption } from './CurrencyOption/CurrencyOption';
 
 interface Props {
-  value: CurrencyInterface;
-  options: CurrencyInterface[];
+  value: CurrencyBase;
+  options: CurrencyBase[];
   isLoading?: boolean;
   opened: boolean;
   setOpened: (newValue: boolean) => void;
-  onChange: (newValue: CurrencyInterface) => void;
+  onChange: (newValue: CurrencyBase) => void;
 }
 
 export const CurrenciesMenu: FC<Props> = ({ value, options, isLoading = false, opened, setOpened, onChange }) => {
   const { dropdownWidth } = useAppEnvStyle();
 
-  const handleOptionClick = (newValue: CurrencyInterface) => {
+  const handleOptionClick = (newValue: CurrencyBase) => {
     if (value.code !== newValue.code || value.network !== newValue.network) {
       onChange(newValue);
     }

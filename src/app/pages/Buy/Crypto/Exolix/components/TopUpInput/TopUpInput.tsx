@@ -1,33 +1,18 @@
-import React, { FC } from 'react';
+import React from 'react';
 
 import { Modifier } from '@popperjs/core';
 import classNames from 'clsx';
 
 import Popper from 'lib/ui/Popper';
 
-import { useFilteredCurrencies } from '../../hooks/useFilteredCurrencies.hook';
 import { CurrenciesMenu } from './CurrenciesMenu/CurrenciesMenu';
-import { TopUpInputProps } from './TopUpInput.props';
+import { TopUpInputPropsGeneric, CurrencyBase, TopUpInputPropsBase } from './TopUpInput.props';
 import { TopUpInputHeader } from './TopUpInputHeader/TopUpInputHeader';
+import { useFilteredCurrencies } from './utils';
 
-const sameWidthModifiers: Array<Modifier<string, any>> = [
-  {
-    name: 'sameWidth',
-    enabled: true,
-    phase: 'beforeWrite',
-    requires: ['computeStyles'],
-    fn: ({ state }) => {
-      state.styles.popper.width = `${state.rects.reference.width}px`;
-    },
-    effect: ({ state }) => {
-      state.elements.popper.style.width = `${(state.elements.reference as any).offsetWidth}px`;
-      return () => {};
-    }
-  }
-];
-
-export const TopUpInput: FC<TopUpInputProps> = props => {
-  const { currency, currenciesList, setCurrency, className, isCurrenciesLoading } = props;
+export const TopUpInput = <C extends CurrencyBase>(_props: TopUpInputPropsGeneric<C>) => {
+  const props = _props as unknown as TopUpInputPropsBase;
+  const { currency, currenciesList, onCurrencySelect, className, isCurrenciesLoading } = props;
 
   const { filteredCurrencies, searchValue, setSearchValue } = useFilteredCurrencies(currenciesList);
 
@@ -45,7 +30,7 @@ export const TopUpInput: FC<TopUpInputProps> = props => {
             isLoading={isCurrenciesLoading}
             opened={opened}
             setOpened={setOpened}
-            onChange={currency => setCurrency(currency)}
+            onChange={onCurrencySelect}
           />
         )}
       >
@@ -64,3 +49,19 @@ export const TopUpInput: FC<TopUpInputProps> = props => {
     </div>
   );
 };
+
+const sameWidthModifiers: Modifier<string, any>[] = [
+  {
+    name: 'sameWidth',
+    enabled: true,
+    phase: 'beforeWrite',
+    requires: ['computeStyles'],
+    fn: ({ state }) => {
+      state.styles.popper.width = `${state.rects.reference.width}px`;
+    },
+    effect: ({ state }) => {
+      state.elements.popper.style.width = `${(state.elements.reference as any).offsetWidth}px`;
+      return () => {};
+    }
+  }
+];

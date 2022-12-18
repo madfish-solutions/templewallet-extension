@@ -10,11 +10,11 @@ import { emptyFn } from 'app/utils/function.utils';
 import { toLocalFormat, T, t } from 'lib/i18n';
 import { PopperRenderProps } from 'lib/ui/Popper';
 
-import { getProperNetworkFullName } from '../../../exolix.util';
 import { StaticCurrencyImage } from '../StaticCurrencyImage/StaticCurrencyImage';
-import { TopUpInputProps } from '../TopUpInput.props';
+import { TopUpInputPropsBase } from '../TopUpInput.props';
+import { getProperNetworkFullName } from '../utils';
 
-interface Props extends PopperRenderProps, TopUpInputProps {
+interface Props extends PopperRenderProps, TopUpInputPropsBase {
   searchString: string;
   onSearchChange: (e: ChangeEvent<HTMLInputElement>) => void;
 }
@@ -22,6 +22,7 @@ interface Props extends PopperRenderProps, TopUpInputProps {
 export const TopUpInputHeader = forwardRef<HTMLDivElement, Props>(
   (
     {
+      currenciesList,
       currency,
       amount,
       label,
@@ -34,6 +35,7 @@ export const TopUpInputHeader = forwardRef<HTMLDivElement, Props>(
       maxAmount,
       isMinAmountError,
       isMaxAmountError,
+      isInsufficientTezBalanceError,
       isSearchable = false,
       onAmountChange = emptyFn,
       onSearchChange
@@ -68,6 +70,8 @@ export const TopUpInputHeader = forwardRef<HTMLDivElement, Props>(
       const newValue = newInputValue ? Number(newInputValue) : undefined;
       onAmountChange(newValue);
     };
+
+    const singleToken = currenciesList.length < 2;
 
     return (
       <div className="w-full text-gray-700">
@@ -113,8 +117,11 @@ export const TopUpInputHeader = forwardRef<HTMLDivElement, Props>(
             style={{ height: '4.5rem' }}
           >
             <div
-              className="border-r border-gray-300 pl-4 pr-3 flex py-5 items-center cursor-pointer"
-              onClick={toggleOpened}
+              className={classNames(
+                'border-r border-gray-300 pl-4 pr-3 flex py-5 items-center',
+                !singleToken && 'cursor-pointer'
+              )}
+              onClick={singleToken ? undefined : toggleOpened}
             >
               <StaticCurrencyImage
                 currencyCode={currency.code}
@@ -133,11 +140,15 @@ export const TopUpInputHeader = forwardRef<HTMLDivElement, Props>(
                   className="text-indigo-500 font-medium overflow-ellipsis overflow-hidden w-12"
                   style={{ fontSize: 11 }}
                 >
-                  {currency.networkShortName ?? getProperNetworkFullName(currency)}
+                  {currency.network?.shortName ?? getProperNetworkFullName(currency)}
                 </span>
               </div>
 
-              <ChevronDownIcon className="w-4 ml-2 h-auto text-gray-700 stroke-current stroke-2" />
+              {singleToken ? (
+                <span className="w-4 ml-2"></span>
+              ) : (
+                <ChevronDownIcon className="w-4 ml-2 h-auto text-gray-700 stroke-current stroke-2" />
+              )}
             </div>
             <div
               className={classNames(
@@ -180,30 +191,42 @@ export const TopUpInputHeader = forwardRef<HTMLDivElement, Props>(
           </div>
         </div>
         {maxAmount && !opened && (
-          <MaxAmountErrorComponent isMaxAmountError={isMaxAmountError} maxAmount={maxAmount} coin={currency.code} />
+          <ErrorsComponent
+            isInsufficientTezBalanceError={isInsufficientTezBalanceError}
+            isMaxAmountError={isMaxAmountError}
+            maxAmount={maxAmount}
+            coin={currency.code}
+          />
         )}
       </div>
     );
   }
 );
 
-interface MaxAmountErrorComponentProps {
+interface ErrorsComponentProps {
+  isInsufficientTezBalanceError?: boolean;
   isMaxAmountError?: boolean;
   maxAmount?: string;
   coin: string;
 }
 
-const MaxAmountErrorComponent: React.FC<MaxAmountErrorComponentProps> = ({ isMaxAmountError, maxAmount, coin }) => (
-  <div className="flex justify-end items-baseline mt-1">
+const ErrorsComponent: React.FC<ErrorsComponentProps> = ({
+  isInsufficientTezBalanceError,
+  isMaxAmountError,
+  maxAmount,
+  coin
+}) => (
+  <div className="flex justify-between items-baseline mt-1">
+    <p className={classNames(isInsufficientTezBalanceError ? 'text-red-700' : 'text-transparent')}>
+      <T id={'insufficientTezBalance'} />
+    </p>
     <p className={getSmallErrorText(isMaxAmountError)}>
       <CurrencyText className={getBigErrorText(isMaxAmountError)} coin={coin} maxAmount={maxAmount} />
     </p>
   </div>
 );
 
-const CurrencyText: React.FC<
-  Omit<MaxAmountErrorComponentProps, 'isCoinFromType' | 'isMaxAmountError'> & { className: string }
-> = ({ className, coin, maxAmount }) => (
+const CurrencyText: React.FC<ErrorsComponentProps & { className: string }> = ({ className, coin, maxAmount }) => (
   <>
     <T id={'max'} />
     {':'}

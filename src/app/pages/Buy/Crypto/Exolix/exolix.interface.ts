@@ -1,3 +1,5 @@
+import { CurrencyToken } from './components/TopUpInput/TopUpInput.props';
+
 interface ExchangeCoin {
   coinCode: string;
   coinName: string;
@@ -63,16 +65,7 @@ export interface GetRateResponseWithAmountTooLow {
   message: string;
 }
 
-export interface CurrencyInterface {
-  name: string;
-  code: string;
-  network: string;
-  networkFullName: string;
-  icon: string;
-  networkShortName?: string | null;
-}
-
-export interface OutputCurrencyInterface extends CurrencyInterface {
+export interface OutputCurrencyInterface extends CurrencyToken {
   slug?: string;
 }
 

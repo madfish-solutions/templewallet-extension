@@ -3,14 +3,14 @@ import React, { FC } from 'react';
 import classNames from 'clsx';
 import { ListRowProps } from 'react-virtualized';
 
-import { CurrencyInterface } from '../../../../exolix.interface';
-import { getProperNetworkFullName } from '../../../../exolix.util';
 import { StaticCurrencyImage } from '../../StaticCurrencyImage/StaticCurrencyImage';
+import { CurrencyBase } from '../../TopUpInput.props';
+import { getProperNetworkFullName } from '../../utils';
 
 interface Props extends Partial<Pick<ListRowProps, 'style'>> {
-  currency: CurrencyInterface;
+  currency: CurrencyBase;
   isSelected: boolean;
-  onClick: (newValue: CurrencyInterface) => void;
+  onClick: (newValue: CurrencyBase) => void;
 }
 
 export const CurrencyOption: FC<Props> = ({ currency, isSelected, style, onClick }) => (

@@ -2,8 +2,8 @@ import axios from 'axios';
 
 import { outputTokensList } from 'app/pages/Buy/Crypto/Exolix/config';
 
+import { CurrencyToken } from './components/TopUpInput/TopUpInput.props';
 import {
-  CurrencyInterface,
   ExchangeDataInterface,
   ExolixCurrenciesInterface,
   GetRateRequestData,
@@ -41,15 +41,18 @@ export const getCurrencies = async () => {
         code,
         icon,
         name,
-        network: network.network,
-        networkFullName: network.name,
-        networkShortName: network.shortName === '' ? null : network.shortName
+        network: {
+          code: network.network,
+          fullName: network.name,
+          shortName: network.shortName === '' ? null : network.shortName
+        }
       }))
     )
     .flat()
     .filter(
       ({ name, network }) =>
-        outputTokensList.find(outputToken => outputToken.name === name && outputToken.network === network) === undefined
+        outputTokensList.find(outputToken => outputToken.name === name && outputToken.network.code === network.code) ===
+        undefined
     );
 };
 
@@ -86,9 +89,10 @@ export const submitExchange = (data: {
 export const getExchangeData = (exchangeId: string) =>
   api.get<ExchangeDataInterface>(`/transactions/${exchangeId}`).then(r => r.data);
 
-export const getProperNetworkFullName = (currency?: CurrencyInterface) =>
-  currency
-    ? currency.name === currency.networkFullName
-      ? currency.networkFullName + ' Mainnet'
-      : currency.networkFullName
-    : '';
+export const getProperNetworkFullName = (currency?: CurrencyToken) => {
+  if (currency == null) return '';
+
+  const { fullName: networkFullName } = currency.network!;
+
+  return currency.name === networkFullName ? networkFullName + ' Mainnet' : networkFullName;
+};

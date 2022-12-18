@@ -4,12 +4,12 @@ import classNames from 'clsx';
 
 import { T } from 'lib/i18n';
 
+import { CurrencyToken } from '../components/TopUpInput/TopUpInput.props';
 import { EXOLIX_CONTACT_LINK } from '../config';
-import { CurrencyInterface } from '../exolix.interface';
 import { getProperNetworkFullName } from '../exolix.util';
 
 interface Props {
-  currency?: CurrencyInterface;
+  currency?: CurrencyToken;
   amountAttention?: boolean;
 }
 
