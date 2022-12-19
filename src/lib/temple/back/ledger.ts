@@ -1,4 +1,4 @@
-import type { TransportType, CreatorArgumentsTuple } from 'lib/ledger';
+import type { TransportType, CreatorArgumentsTuple } from 'lib/ledger/types';
 
 const MANIFEST_VERSION = (process.env.MANIFEST_VERSION as '3' | '2' | undefined) || '2';
 

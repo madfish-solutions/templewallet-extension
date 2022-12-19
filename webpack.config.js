@@ -494,6 +494,8 @@ module.exports = {
         commons: {
           name: 'commons.chunk',
           minChunks: 2,
+          /* Firefox limitation of 4MB per chunk */
+          maxSize: 4_000_000,
           chunks: chunk => !SEPARATED_CHUNKS.has(chunk.name)
         }
       }

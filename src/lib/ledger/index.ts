@@ -1,18 +1,7 @@
-import type { DerivationType } from '@taquito/ledger-signer';
-
 import { removeMFromDerivationPath } from './helpers';
 import { TempleLedgerSigner } from './signer';
 import { TransportType, TempleLedgerTransport } from './transport';
-
-export { TransportType } from './transport';
-export { pickTransportType } from './helpers';
-
-export type CreatorArgumentsTuple = [
-  derivationPath: string,
-  derivationType?: DerivationType,
-  publicKey?: string,
-  publicKeyHash?: string
-];
+import type { CreatorArgumentsTuple } from './types';
 
 export const createLedgerSigner = async (
   transportType: TransportType,
