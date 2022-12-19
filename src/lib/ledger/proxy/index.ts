@@ -7,7 +7,7 @@
   (!) You need to inject './foreground' script into every foreground page.
 */
 
-import type { CreatorArgumentsTuple } from '../index';
+import type { CreatorArgumentsTuple } from '../types';
 import { TempleLedgerSignerProxy } from './signer';
 
 export const createLedgerSignerProxy = async (

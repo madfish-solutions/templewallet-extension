@@ -1,4 +1,4 @@
-import type { TransportType, CreatorArgumentsTuple } from 'lib/ledger';
+import type { TransportType, CreatorArgumentsTuple } from 'lib/ledger/types';
 
 export const createLedgerSigner = async (...args: CreatorArgumentsTuple) => {
   if (process.env.MANIFEST_VERSION === '3') return createLedgerSignerProxy(...args);
