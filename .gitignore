@@ -12,7 +12,8 @@ node_modules/
 /dist
 
 # Env
-.env.*
+.env*
+!.env.dist
 
 # misc
 .DS_Store

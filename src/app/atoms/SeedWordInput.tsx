@@ -4,6 +4,7 @@ import classNames from 'clsx';
 
 import { T } from 'lib/i18n';
 
+import { setTestID } from '../../lib/analytics';
 import { ReactComponent as LockAltIcon } from '../icons/lock-alt.svg';
 
 interface SeedWordInputProps {
@@ -17,6 +18,7 @@ interface SeedWordInputProps {
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onPaste?: (e: React.ClipboardEvent<HTMLInputElement>) => void;
   className?: string;
+  testID?: string;
 }
 
 export const SeedWordInput: FC<SeedWordInputProps> = ({
@@ -29,7 +31,8 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
   setShowSeed,
   onChange,
   onPaste,
-  className
+  className,
+  testID
 }) => {
   const [focused, setFocused] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -110,6 +113,7 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
           'text-center',
           className
         )}
+        {...setTestID(testID)}
       />
       {isWordHidden && (
         <div

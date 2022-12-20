@@ -20,6 +20,7 @@ import { T } from 'lib/i18n';
 import { blurHandler, checkedHandler, focusHandler } from 'lib/ui/inputHandlers';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 
+import { setTestID } from '../../lib/analytics';
 import usePasswordToggle from './usePasswordToggle.hook';
 
 export const PASSWORD_ERROR_CAPTION = 'PASSWORD_ERROR_CAPTION';
@@ -45,6 +46,7 @@ interface FormFieldProps extends FormFieldAttrs {
   labelPaddingClassName?: string;
   dropdownInner?: ReactNode;
   copyable?: boolean;
+  testID?: string;
 }
 
 export const FormField = forwardRef<FormFieldRef, FormFieldProps>(
@@ -78,6 +80,7 @@ export const FormField = forwardRef<FormFieldRef, FormFieldProps>(
       fieldWrapperBottomMargin = true,
       labelPaddingClassName = 'mb-4',
       copyable,
+      testID,
       ...rest
     },
     ref
@@ -192,6 +195,7 @@ export const FormField = forwardRef<FormFieldRef, FormFieldProps>(
             onFocus={handleFocus}
             onBlur={handleBlur}
             {...rest}
+            {...setTestID(testID)}
           />
 
           {localValue !== '' && isPasswordInput && TogglePasswordIcon}

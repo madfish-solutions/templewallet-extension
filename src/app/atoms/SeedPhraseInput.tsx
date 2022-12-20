@@ -20,6 +20,7 @@ interface SeedPhraseInputProps {
   onChange: (seed: string) => void;
   setSeedError: (e: string) => void;
   reset: () => void;
+  testID?: string;
 }
 
 const defaultNumberOfWords = 12;
@@ -32,7 +33,8 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
   labelWarning,
   onChange,
   setSeedError,
-  reset
+  reset,
+  testID
 }) => {
   const { popup } = useAppEnv();
 
@@ -179,6 +181,7 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
                 onSeedWordChange(index, e);
               }}
               value={draftSeed[index]}
+              testID={testID}
               onPaste={(e: React.ClipboardEvent<HTMLInputElement>) => {
                 const newSeed = e.clipboardData.getData('text');
 

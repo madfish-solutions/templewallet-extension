@@ -9,7 +9,7 @@ import { useTempleClient } from '../../../lib/temple/front';
 import { NewSeedBackup } from './create/NewSeedBackup';
 import { NewSeedVerify } from './create/NewSeedVerify';
 import { LockedWalletExists } from './LockedWalletExists';
-import { SetWalletPassword } from './SetWalletPassword';
+import { SetWalletPassword } from './setWalletPassword/SetWalletPassword';
 import { Template } from './Template';
 
 export const CreateWallet: FC = () => {

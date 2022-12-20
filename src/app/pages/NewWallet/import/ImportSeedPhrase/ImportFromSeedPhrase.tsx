@@ -39,6 +39,7 @@ export const ImportFromSeedPhrase: FC<ImportFromSeedPhraseProps> = ({
         onChange={setSeedPhrase}
         setSeedError={setSeedError}
         reset={reset}
+        testID={ImportFromSeedPhraseTestIds.wordInput}
       />
       <FormSubmitButton
         style={{ display: 'block', width: 384, margin: '40px auto', fontSize: 14, fontWeight: 500 }}

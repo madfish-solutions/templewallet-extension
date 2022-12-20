@@ -5,13 +5,16 @@ import classNames from 'clsx';
 import { ReactComponent as OkIcon } from 'app/icons/ok.svg';
 import { blurHandler, checkedHandler, focusHandler } from 'lib/ui/inputHandlers';
 
+import { setTestID } from '../../lib/analytics';
+
 type CheckboxProps = InputHTMLAttributes<HTMLInputElement> & {
   containerClassName?: string;
   errored?: boolean;
+  testID?: string;
 };
 
 const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
-  ({ containerClassName, errored = false, className, checked, onChange, onFocus, onBlur, ...rest }, ref) => {
+  ({ containerClassName, errored = false, className, checked, onChange, onFocus, onBlur, testID, ...rest }, ref) => {
     const [localChecked, setLocalChecked] = useState(() => checked ?? false);
 
     useEffect(() => {
@@ -75,6 +78,7 @@ const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
           onChange={handleChange}
           onFocus={handleFocus}
           onBlur={handleBlur}
+          {...setTestID(testID)}
           {...rest}
         />
 
