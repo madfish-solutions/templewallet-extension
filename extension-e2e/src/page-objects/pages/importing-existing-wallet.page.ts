@@ -1,12 +1,11 @@
+import { ImportFromSeedPhraseTestIds } from '../../../../src/app/pages/NewWallet/import/ImportSeedPhrase/ImportFromSeedPhrase.test-ids';
+import { Page } from '../../classes/page.class';
 import { createPageElement } from '../../utils/search.utils';
-import { Page } from '../page.class';
 
 export class ImportExistingWalletPage extends Page {
-  seedPhraseInput = createPageElement('ImportWalletFromSeedPhraseSelectors.SeedPhraseInput');
-  nextButton = createPageElement('ImportWalletFromSeedPhraseSelectors.NextButton');
+  nextButton = createPageElement(ImportFromSeedPhraseTestIds.nextButton);
 
   async isVisible() {
-    await this.seedPhraseInput.waitForDisplayed();
     await this.nextButton.waitForDisplayed();
   }
 }

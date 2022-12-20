@@ -4,9 +4,9 @@
   "private": true,
   "license": "MIT",
   "scripts": {
+    "start": "./node_modules/.bin/cucumber-js",
     "start:dev": "npm start -- --tags @dev",
-    "ts": "tsc --pretty",
-    "start": "./node_modules/.bin/cucumber-js"
+    "ts": "tsc --pretty"
   },
   "dependencies": {
     "@cucumber/cucumber": "^8.7.0",
