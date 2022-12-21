@@ -22,9 +22,6 @@ import { nanoid } from 'nanoid';
 import browser, { Runtime } from 'webextension-polyfill';
 
 import { addLocalOperation } from 'lib/temple/activity';
-import { intercom } from 'lib/temple/back/defaults';
-import { buildFinalOpParmas, dryRunOpParams } from 'lib/temple/back/dryrun';
-import { withUnlocked } from 'lib/temple/back/store';
 import * as Beacon from 'lib/temple/beacon';
 import { loadChainId, isAddressValid } from 'lib/temple/helpers';
 import { NETWORKS } from 'lib/temple/networks';
@@ -36,6 +33,10 @@ import {
   TempleDAppSessions,
   TempleNotification
 } from 'lib/temple/types';
+
+import { intercom } from './defaults';
+import { buildFinalOpParmas, dryRunOpParams } from './dryrun';
+import { withUnlocked } from './store';
 
 const CONFIRM_WINDOW_WIDTH = 380;
 const CONFIRM_WINDOW_HEIGHT = 632;
