@@ -1,7 +1,8 @@
+import { BACKGROUND_IS_WORKER } from 'lib/env';
 import type { TransportType, CreatorArgumentsTuple } from 'lib/ledger/types';
 
 export const createLedgerSigner = async (...args: CreatorArgumentsTuple) => {
-  if (process.env.MANIFEST_VERSION === '3') return createLedgerSignerProxy(...args);
+  if (BACKGROUND_IS_WORKER) return createLedgerSignerProxy(...args);
 
   const transportType = (await import('lib/temple/ledger')).getLedgerTransportType();
 

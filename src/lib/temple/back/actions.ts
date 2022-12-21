@@ -9,6 +9,7 @@ import {
 } from '@temple-wallet/dapp/dist/types';
 import browser, { Runtime } from 'webextension-polyfill';
 
+import { BACKGROUND_IS_WORKER } from 'lib/env';
 import { addLocalOperation } from 'lib/temple/activity';
 import {
   getCurrentPermission,
@@ -61,7 +62,8 @@ export async function init() {
 export async function getFrontState(): Promise<TempleState> {
   const state = store.getState();
   if (state.inited) {
-    return toFront(state);
+    if (BACKGROUND_IS_WORKER) return await enqueueUnlock(async () => toFront(store.getState()));
+    else return toFront(state);
   } else {
     await new Promise(r => setTimeout(r, 10));
     return getFrontState();
@@ -90,6 +92,7 @@ export function registerNewWallet(password: string, mnemonic?: string) {
 
 export function lock() {
   return withInited(async () => {
+    if (BACKGROUND_IS_WORKER) await Vault.forgetForSession();
     locked();
   });
 }
@@ -97,12 +100,22 @@ export function lock() {
 export function unlock(password: string) {
   return withInited(() =>
     enqueueUnlock(async () => {
-      const vault = await Vault.setup(password);
+      const vault = await Vault.setup(password, BACKGROUND_IS_WORKER);
       const accounts = await vault.fetchAccounts();
       const settings = await vault.fetchSettings();
       unlocked({ vault, accounts, settings });
     })
   );
+}
+
+export async function unlockFromSession() {
+  await enqueueUnlock(async () => {
+    const vault = await Vault.recoverFromSession();
+    if (vault == null) return;
+    const accounts = await vault.fetchAccounts();
+    const settings = await vault.fetchSettings();
+    unlocked({ vault, accounts, settings });
+  });
 }
 
 export function createHDAccount(name?: string) {

@@ -24,6 +24,7 @@ import {
   DROP_CONSOLE_IN_PROD,
   SOURCE_MAP,
   MANIFEST_VERSION,
+  BACKGROUND_IS_WORKER,
   IMAGE_INLINE_SIZE_LIMIT_ENV
 } from './env';
 import { PATHS } from './paths';
@@ -241,7 +242,8 @@ export const buildBaseConfig = (): WebPack.Configuration & Pick<WebPack.WebpackO
       SharedArrayBuffer: '_SharedArrayBuffer',
       'process.env.NODE_ENV': JSON.stringify(NODE_ENV),
       'process.env.VERSION': JSON.stringify(VERSION),
-      'process.env.MANIFEST_VERSION': JSON.stringify(MANIFEST_VERSION.toString()),
+      'process.env.MANIFEST_VERSION': JSON.stringify(String(MANIFEST_VERSION)),
+      'process.env.BACKGROUND_IS_WORKER': JSON.stringify(String(BACKGROUND_IS_WORKER)),
       'process.env.TARGET_BROWSER': JSON.stringify(TARGET_BROWSER),
       ...(() => {
         const appEnvs: Record<`process.env.${string}`, string> = {};

@@ -1,5 +1,6 @@
 import { Runtime } from 'webextension-polyfill';
 
+import { BACKGROUND_IS_WORKER } from 'lib/env';
 import * as Actions from 'lib/temple/back/actions';
 import * as Analytics from 'lib/temple/back/analytics';
 import { intercom } from 'lib/temple/back/defaults';
@@ -10,15 +11,24 @@ import { encodeMessage, encryptMessage, getSenderId, MessageType, Response } fro
 
 const frontStore = store.map(toFront);
 
-export async function start() {
-  intercom.onRequest(processRequest);
+export const start = async () => {
+  intercom.onRequest(processRequestWithErrorsLogged);
   await Actions.init();
+
+  if (BACKGROUND_IS_WORKER) await Actions.unlockFromSession().catch(e => console.error(e));
+
   frontStore.watch(() => {
     intercom.broadcast({ type: TempleMessageType.StateUpdated });
   });
-}
+};
 
-async function processRequest(req: TempleRequest, port: Runtime.Port): Promise<TempleResponse | void> {
+const processRequestWithErrorsLogged = (...args: Parameters<typeof processRequest>) =>
+  processRequest(...args).catch(error => {
+    console.error(error);
+    throw error;
+  });
+
+const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<TempleResponse | void> => {
   switch (req?.type) {
     case TempleMessageType.SendTrackEventRequest:
       await Analytics.trackEvent(req);
@@ -228,4 +238,4 @@ async function processRequest(req: TempleRequest, port: Runtime.Port): Promise<T
       }
       break;
   }
-}
+};

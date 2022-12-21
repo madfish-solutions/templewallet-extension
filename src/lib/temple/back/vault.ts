@@ -28,6 +28,7 @@ import {
   removeManyLegacy,
   savePlain
 } from './safe-storage';
+import * as SessionStore from './session-store';
 
 const TEMPLE_SYNC_PREFIX = 'templesync';
 const TEZOS_BIP44_COINTYPE = 1729;
@@ -62,13 +63,27 @@ export class Vault {
     return isStoredLegacy(checkStrgKey);
   }
 
-  static async setup(password: string) {
+  static async setup(password: string, saveForSession = false) {
     return withError('Failed to unlock wallet', async () => {
       await Vault.runMigrations(password);
 
-      const passKey = await Vault.toValidPassKey(password);
+      const { passHash, passKey } = await Vault.toValidPassKey(password);
+
+      if (saveForSession) await SessionStore.savePassHash(passHash);
+
       return new Vault(passKey);
     });
+  }
+
+  static async recoverFromSession() {
+    const passHash = await SessionStore.getPassHash();
+    if (!passHash) return null;
+    const passKey = await Passworder.importKey(passHash);
+    return new Vault(passKey);
+  }
+
+  static forgetForSession() {
+    return SessionStore.removePassHash();
   }
 
   static async spawn(password: string, mnemonic?: string) {
@@ -91,6 +106,8 @@ export class Vault {
       const newAccounts = [initialAccount];
 
       const passKey = await Passworder.generateKey(password);
+
+      await SessionStore.removePassHash();
 
       await clearAsyncStorages();
 
@@ -171,7 +188,7 @@ export class Vault {
   }
 
   static async revealMnemonic(password: string) {
-    const passKey = await Vault.toValidPassKey(password);
+    const { passKey } = await Vault.toValidPassKey(password);
     return withError('Failed to reveal seed phrase', () => fetchAndDecryptOne<string>(mnemonicStrgKey, passKey));
   }
 
@@ -179,7 +196,7 @@ export class Vault {
     try {
       await initialize();
     } catch {}
-    const passKey = await Vault.toValidPassKey(password);
+    const { passKey } = await Vault.toValidPassKey(password);
     return withError('Failed to generate sync payload', async () => {
       const [mnemonic, allAccounts] = await Promise.all([
         fetchAndDecryptOne<string>(mnemonicStrgKey, passKey),
@@ -199,7 +216,7 @@ export class Vault {
   }
 
   static async revealPrivateKey(accPublicKeyHash: string, password: string) {
-    const passKey = await Vault.toValidPassKey(password);
+    const { passKey } = await Vault.toValidPassKey(password);
     return withError('Failed to reveal private key', async () => {
       const privateKeySeed = await fetchAndDecryptOne<string>(accPrivKeyStrgKey(accPublicKeyHash), passKey);
       const signer = await createMemorySigner(privateKeySeed);
@@ -208,7 +225,7 @@ export class Vault {
   }
 
   static async removeAccount(accPublicKeyHash: string, password: string) {
-    const passKey = await Vault.toValidPassKey(password);
+    const { passKey } = await Vault.toValidPassKey(password);
     return withError('Failed to remove account', async doThrow => {
       const allAccounts = await fetchAndDecryptOne<TempleAccount[]>(accountsStrgKey, passKey);
       const acc = allAccounts.find(a => a.publicKeyHash === accPublicKeyHash);
@@ -227,14 +244,15 @@ export class Vault {
 
   private static toValidPassKey(password: string) {
     return withError('Invalid password', async doThrow => {
-      const passKey = await Passworder.generateKey(password);
+      const passHash = await Passworder.generateHash(password);
+      const passKey = await Passworder.importKey(passHash);
       try {
         await fetchAndDecryptOne<any>(checkStrgKey, passKey);
       } catch (err: any) {
         console.log(err);
         doThrow();
       }
-      return passKey;
+      return { passHash, passKey };
     });
   }
 
