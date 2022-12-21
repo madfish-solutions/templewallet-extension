@@ -1,4 +1,4 @@
-import React, { memo, FC } from 'react';
+import React, { memo, FC, useState } from 'react';
 
 import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
@@ -13,6 +13,8 @@ import { TEZ_TOKEN_SLUG, useAssetMetadata, useBalance, useGasToken, useNetwork }
 import { useTotalBalance } from 'lib/temple/front/use-total-balance.hook';
 import { getAssetName, getAssetSymbol } from 'lib/temple/metadata';
 
+import { FiatIcon, TezosLogoIcon } from '../../../lib/icons';
+import { Button } from '../../atoms';
 import AddressChip from './AddressChip';
 
 interface Props {
@@ -30,19 +32,36 @@ const MainBanner = memo<Props>(({ assetSlug, accountPkh }) => {
 
 export default MainBanner;
 
-interface TotalVolumeBannerProps {
+enum TvlMode {
+  Fiat = 'fiat',
+  Tezos = 'tezos'
+}
+interface TotalVolumeBannerRootProps {
   accountPkh: string;
 }
 
-const TotalVolumeBanner: FC<TotalVolumeBannerProps> = ({ accountPkh }) => {
+const TotalVolumeBanner: FC<TotalVolumeBannerRootProps> = ({ accountPkh }) => {
   const network = useNetwork();
 
-  if (network.type === 'main') return <TotalVolumeBannerInFiat accountPkh={accountPkh} />;
+  const [tvlMode, setTvlMode] = useState<TvlMode>(TvlMode.Fiat);
 
-  return <TotalVolumeBannerInGasToken accountPkh={accountPkh} />;
+  const shouldShowFiatBanner = network.type === 'main' && tvlMode === TvlMode.Fiat;
+
+  const handleTvlModeToggle = () => setTvlMode(prev => (prev === TvlMode.Fiat ? TvlMode.Tezos : TvlMode.Fiat));
+
+  return shouldShowFiatBanner ? (
+    <TotalVolumeBannerInFiat accountPkh={accountPkh} tvlMode={tvlMode} onTvlModeToggle={handleTvlModeToggle} />
+  ) : (
+    <TotalVolumeBannerInGasToken accountPkh={accountPkh} tvlMode={tvlMode} onTvlModeToggle={handleTvlModeToggle} />
+  );
 };
 
-const TotalVolumeBannerInFiat: FC<TotalVolumeBannerProps> = ({ accountPkh }) => {
+interface TotalVolumeBannerProps extends TotalVolumeBannerRootProps {
+  tvlMode: TvlMode;
+  onTvlModeToggle: () => void;
+}
+
+const TotalVolumeBannerInFiat: FC<TotalVolumeBannerProps> = ({ accountPkh, tvlMode, onTvlModeToggle }) => {
   const { selectedFiatCurrency } = useFiatCurrency();
 
   const volumeInFiat = useTotalBalance();
@@ -50,6 +69,8 @@ const TotalVolumeBannerInFiat: FC<TotalVolumeBannerProps> = ({ accountPkh }) => 
   return (
     <TotalVolumeBannerBase
       accountPkh={accountPkh}
+      tvlMode={tvlMode}
+      onTvlModeToggle={onTvlModeToggle}
       titleNode={<T id="totalEquityValue" />}
       balanceNode={
         <>
@@ -64,7 +85,7 @@ const TotalVolumeBannerInFiat: FC<TotalVolumeBannerProps> = ({ accountPkh }) => 
   );
 };
 
-const TotalVolumeBannerInGasToken: FC<TotalVolumeBannerProps> = ({ accountPkh }) => {
+const TotalVolumeBannerInGasToken: FC<TotalVolumeBannerProps> = ({ accountPkh, tvlMode, onTvlModeToggle }) => {
   const { name, symbol } = useGasToken().metadata;
 
   const { data: balance } = useBalance(TEZ_TOKEN_SLUG, accountPkh);
@@ -73,6 +94,8 @@ const TotalVolumeBannerInGasToken: FC<TotalVolumeBannerProps> = ({ accountPkh })
   return (
     <TotalVolumeBannerBase
       accountPkh={accountPkh}
+      tvlMode={tvlMode}
+      onTvlModeToggle={onTvlModeToggle}
       titleNode={
         <>
           {name} <T id="balance" />
@@ -88,22 +111,50 @@ const TotalVolumeBannerInGasToken: FC<TotalVolumeBannerProps> = ({ accountPkh })
   );
 };
 
-interface TotalVolumeBannerBaseProps {
-  accountPkh: string;
+interface TotalVolumeBannerBaseProps extends TotalVolumeBannerProps {
   titleNode: React.ReactNode;
   balanceNode: React.ReactNode;
 }
 
-const TotalVolumeBannerBase: FC<TotalVolumeBannerBaseProps> = ({ accountPkh, titleNode, balanceNode }) => (
-  <div className="w-full max-w-sm mx-auto mb-4">
-    <div className="flex justify-between items-center mb-2">
-      <div className="text-sm font-medium text-gray-700">{titleNode}</div>
+const TotalVolumeBannerBase: FC<TotalVolumeBannerBaseProps> = ({
+  accountPkh,
+  titleNode,
+  balanceNode,
+  tvlMode,
+  onTvlModeToggle
+}) => {
+  const network = useNetwork();
 
-      <AddressChip pkh={accountPkh} />
+  return (
+    <div className="w-full max-w-sm mx-auto mb-4">
+      <div className="flex justify-between items-center mb-2">
+        <div className="flex justify-between items-center">
+          {network.type === 'main' && (
+            <Button
+              className={classNames(
+                'mr-1',
+                'p-1',
+                'bg-gray-100',
+                'rounded-sm shadow-xs',
+                'text-sm',
+                'hover:text-gray-600 text-gray-500 leading-none select-none',
+                'transition ease-in-out duration-300',
+                'inline-flex items-center justify-center'
+              )}
+              onClick={onTvlModeToggle}
+            >
+              {tvlMode === TvlMode.Fiat ? <FiatIcon /> : <TezosLogoIcon />}
+            </Button>
+          )}
+          <div className="text-sm font-medium text-gray-700">{titleNode}</div>
+        </div>
+
+        <AddressChip pkh={accountPkh} />
+      </div>
+      <div className="flex items-center text-2xl">{balanceNode}</div>
     </div>
-    <div className="flex items-center text-2xl">{balanceNode}</div>
-  </div>
-);
+  );
+};
 
 interface AssetBannerProps {
   assetSlug: string;
