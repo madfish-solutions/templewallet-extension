@@ -50,6 +50,7 @@ import type { DryRunResult } from './dryrun';
 const ACCOUNT_NAME_PATTERN = /^.{0,16}$/;
 const AUTODECLINE_AFTER = 60_000;
 const BEACON_ID = `temple_wallet_${browser.runtime.id}`;
+let initLocked = false;
 
 const enqueueDApp = createQueue();
 const enqueueUnlock = createQueue();
@@ -57,6 +58,11 @@ const enqueueUnlock = createQueue();
 export async function init() {
   const vaultExist = await Vault.isExist();
   inited(vaultExist);
+
+  if (initLocked) {
+    initLocked = false;
+    locked();
+  }
 }
 
 export async function getFrontState(): Promise<TempleState> {
@@ -90,9 +96,10 @@ export function registerNewWallet(password: string, mnemonic?: string) {
   });
 }
 
-export function lock() {
-  return withInited(async () => {
-    if (BACKGROUND_IS_WORKER) await Vault.forgetForSession();
+export async function lock() {
+  if (!store.getState().inited) initLocked = true;
+  if (BACKGROUND_IS_WORKER) await Vault.forgetForSession();
+  return withInited(() => {
     locked();
   });
 }
