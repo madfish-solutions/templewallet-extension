@@ -1,6 +1,6 @@
 import { PublicError } from 'lib/temple/back/PublicError';
 
-import { TransportType } from './transport';
+import { TransportType } from './transport/types';
 
 export const removeMFromDerivationPath = (dPath: string) => (dPath.startsWith('m/') ? dPath.substring(2) : dPath);
 

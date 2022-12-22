@@ -27,6 +27,7 @@ import * as Woozie from 'lib/woozie';
 import RootSuspenseFallback from './a11y/RootSuspenseFallback';
 import { useAdvertisingLoading } from './hooks/use-advertising.hook';
 import { useLongRefreshLoading } from './hooks/use-long-refresh-loading.hook';
+import { useTokensApyLoading } from './hooks/use-tokens-apy-loading';
 import { Buy } from './pages/Buy/Buy';
 import { AliceBobTopUp } from './pages/Buy/Debit/AliceBob/AliceBobTopUp';
 import { Utorg } from './pages/Buy/Debit/Utorg/Utorg';
@@ -107,6 +108,7 @@ export const PageRouter: FC = () => {
 
   useLongRefreshLoading();
   useAdvertisingLoading();
+  useTokensApyLoading();
 
   // Scroll to top after new location pushed.
   useLayoutEffect(() => {

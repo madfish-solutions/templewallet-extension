@@ -13,7 +13,8 @@ const getLastMonday = (date = new Date()) => {
 export const NETWORK_IDS = new Map<string, string>([
   [TempleChainId.Mainnet, 'mainnet'],
   [TempleChainId.Ghostnet, 'ghostnet'],
-  [TempleChainId.Jakartanet, 'jakartanet']
+  [TempleChainId.Jakartanet, 'jakartanet'],
+  [TempleChainId.Limanet, 'limanet']
 ]);
 
 export const NETWORKS: TempleNetwork[] = [
@@ -77,6 +78,15 @@ export const NETWORKS: TempleNetwork[] = [
     description: 'Jakartanet testnet',
     type: 'test',
     rpcBaseURL: 'https://jakartanet.tezos.marigold.dev/',
+    color: '#232380',
+    disabled: false
+  },
+  {
+    id: 'limanet',
+    name: 'Limanet Testnet',
+    description: 'Limanet testnet',
+    type: 'test',
+    rpcBaseURL: 'https://rpc.limanet.teztnets.xyz/',
     color: '#232380',
     disabled: false
   },

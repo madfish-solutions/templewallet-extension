@@ -16,6 +16,7 @@ import {
 const TZKT_API_BASE_URLS = {
   [TempleChainId.Mainnet]: 'https://api.tzkt.io/v1',
   [TempleChainId.Jakartanet]: 'https://api.jakartanet.tzkt.io/v1',
+  [TempleChainId.Limanet]: 'https://api.limanet.tzkt.io/v1',
   [TempleChainId.Ghostnet]: 'https://api.ghostnet.tzkt.io/v1',
   [TempleChainId.Dcp]: 'https://explorer.tlnt.net:8001/v1',
   [TempleChainId.DcpTest]: 'https://explorer.tlnt.net:8009/v1'

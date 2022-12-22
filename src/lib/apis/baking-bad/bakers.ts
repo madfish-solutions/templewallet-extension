@@ -1,6 +1,5 @@
-import { buildQuery } from 'lib/build-query';
-
 import { api } from './base';
+import { buildQuery } from './build-query';
 
 export const bakingBadGetBaker = buildQuery<BakingBadGetBakerParams, BakingBadGetBakerResponse>(
   api,

@@ -12,8 +12,8 @@ import styles from 'app/pages/Buy/Crypto/Exolix/Exolix.module.css';
 import { TopUpInput } from 'app/pages/Buy/Debit/Utorg/components/TopUpInput/TopUpInput';
 import { WithdrawSelectors } from 'app/pages/Withdraw/Withdraw.selectors';
 import { useAnalyticsState } from 'lib/analytics/use-analytics-state.hook';
+import { createAliceBobOrder } from 'lib/apis/temple';
 import { t, T } from 'lib/i18n/react';
-import { createAliceBobOrder } from 'lib/templewallet-api';
 
 import { CardNumberInput } from '../components/CardNumberInput';
 import { useCardNumberInput } from '../components/use-card-number-input.hook';

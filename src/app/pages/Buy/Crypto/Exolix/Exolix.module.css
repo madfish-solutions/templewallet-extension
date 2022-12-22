@@ -18,16 +18,15 @@
 .exchangeRateBlock {
   display: flex;
   justify-content: space-between;
+  color: #718096;
 }
 .exchangeTitle {
   font-family: 'Inter', sans-serif;
   font-size: 12px;
-  color: #718096;
 }
 .exchangeData {
   font-family: 'Inter', sans-serif;
   font-size: 12px;
-  color: #718096;
 }
 .privacyAndPolicy {
   margin-top: 24px;
