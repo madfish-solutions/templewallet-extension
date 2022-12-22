@@ -1,7 +1,5 @@
 import browser from 'webextension-polyfill';
 
-import 'lib/keep-bg-worker-alive/background';
-
 import { start } from 'lib/temple/back/main';
 
 browser.runtime.onInstalled.addListener(({ reason }) => (reason === 'install' ? openFullPage() : null));
