@@ -11,29 +11,6 @@ import browser, { Runtime } from 'webextension-polyfill';
 
 import { BACKGROUND_IS_WORKER } from 'lib/env';
 import { addLocalOperation } from 'lib/temple/activity';
-import {
-  getCurrentPermission,
-  requestPermission,
-  requestOperation,
-  requestSign,
-  requestBroadcast,
-  getAllDApps,
-  removeDApp
-} from 'lib/temple/back/dapp';
-import { intercom } from 'lib/temple/back/defaults';
-import { buildFinalOpParmas, dryRunOpParams } from 'lib/temple/back/dryrun';
-import {
-  toFront,
-  store,
-  inited,
-  locked,
-  unlocked,
-  accountsUpdated,
-  settingsUpdated,
-  withInited,
-  withUnlocked
-} from 'lib/temple/back/store';
-import { Vault } from 'lib/temple/back/vault';
 import * as Beacon from 'lib/temple/beacon';
 import { loadChainId } from 'lib/temple/helpers';
 import {
@@ -45,7 +22,30 @@ import {
 } from 'lib/temple/types';
 import { createQueue } from 'lib/utils';
 
+import {
+  getCurrentPermission,
+  requestPermission,
+  requestOperation,
+  requestSign,
+  requestBroadcast,
+  getAllDApps,
+  removeDApp
+} from './dapp';
+import { intercom } from './defaults';
 import type { DryRunResult } from './dryrun';
+import { buildFinalOpParmas, dryRunOpParams } from './dryrun';
+import {
+  toFront,
+  store,
+  inited,
+  locked,
+  unlocked,
+  accountsUpdated,
+  settingsUpdated,
+  withInited,
+  withUnlocked
+} from './store';
+import { Vault } from './vault';
 
 const ACCOUNT_NAME_PATTERN = /^.{0,16}$/;
 const AUTODECLINE_AFTER = 60_000;

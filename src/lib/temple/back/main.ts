@@ -1,13 +1,13 @@
 import { Runtime } from 'webextension-polyfill';
 
 import { BACKGROUND_IS_WORKER } from 'lib/env';
-import * as Actions from 'lib/temple/back/actions';
-import * as Analytics from 'lib/temple/back/analytics';
-import { intercom } from 'lib/temple/back/defaults';
-import { store, toFront } from 'lib/temple/back/store';
+import { encodeMessage, encryptMessage, getSenderId, MessageType, Response } from 'lib/temple/beacon';
 import { TempleMessageType, TempleRequest, TempleResponse } from 'lib/temple/types';
 
-import { encodeMessage, encryptMessage, getSenderId, MessageType, Response } from '../beacon';
+import * as Actions from './actions';
+import * as Analytics from './analytics';
+import { intercom } from './defaults';
+import { store, toFront } from './store';
 
 const frontStore = store.map(toFront);
 
