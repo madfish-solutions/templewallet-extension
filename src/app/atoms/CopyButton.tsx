@@ -26,8 +26,8 @@ const CopyButton: FC<CopyButtonProps> = ({
   type = 'button',
   rounded = 'sm',
   textShade = 600,
-  testID,
-  testIDProperties,
+  trackID,
+  trackProperties,
   ...rest
 }) => {
   const { trackEvent } = useAnalytics();
@@ -52,7 +52,7 @@ const CopyButton: FC<CopyButtonProps> = ({
   const smallClassName = small ? 'text-xs p-1' : 'text-sm py-1 px-2';
 
   const handleCopyPress = () => {
-    testID !== undefined && trackEvent(testID, AnalyticsEventCategory.ButtonPress, testIDProperties);
+    trackID !== undefined && trackEvent(trackID, AnalyticsEventCategory.ButtonPress, trackProperties);
 
     return copy();
   };

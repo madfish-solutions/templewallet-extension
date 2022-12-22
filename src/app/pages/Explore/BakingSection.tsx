@@ -121,7 +121,7 @@ const BakingSection = memo(() => {
         !canDelegate && 'opacity-50',
         'w-full'
       ),
-      testID: BakingSectionSelectors.DelegateNowButton,
+      trackID: BakingSectionSelectors.DelegateNowButton,
       children: <T id="delegate" />
     }),
     [canDelegate]
@@ -136,7 +136,7 @@ const BakingSection = memo(() => {
         'transition ease-in-out duration-300',
         !canDelegate && 'opacity-50'
       ),
-      testID: BakingSectionSelectors.ReDelegateButton,
+      trackID: BakingSectionSelectors.ReDelegateButton,
       children: <T id="reDelegate" />
     }),
     [canDelegate]
@@ -323,7 +323,7 @@ interface DelegateLinkProps {
   delegateButtonRef: React.RefObject<HTMLButtonElement>;
   delegateButtonProps: {
     className: string;
-    testID: BakingSectionSelectors;
+    trackID: BakingSectionSelectors;
     children: JSX.Element;
   };
 }

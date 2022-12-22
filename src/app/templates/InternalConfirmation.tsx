@@ -88,13 +88,13 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
           key: 'preview',
           name: t('preview'),
           Icon: EyeIcon,
-          testID: InternalConfirmationSelectors.PreviewTab
+          trackID: InternalConfirmationSelectors.PreviewTab
         },
         {
           key: 'raw',
           name: t('raw'),
           Icon: CodeAltIcon,
-          testID: InternalConfirmationSelectors.RawTab
+          trackID: InternalConfirmationSelectors.RawTab
         },
         ...(payload.bytesToSign
           ? [
@@ -102,7 +102,7 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
                 key: 'bytes',
                 name: t('bytes'),
                 Icon: HashIcon,
-                testID: InternalConfirmationSelectors.BytesTab
+                trackID: InternalConfirmationSelectors.BytesTab
               }
             ]
           : [])
@@ -114,13 +114,13 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
         key: 'preview',
         name: t('preview'),
         Icon: EyeIcon,
-        testID: InternalConfirmationSelectors.PreviewTab
+        trackID: InternalConfirmationSelectors.PreviewTab
       },
       {
         key: 'bytes',
         name: t('bytes'),
         Icon: HashIcon,
-        testID: InternalConfirmationSelectors.BytesTab
+        trackID: InternalConfirmationSelectors.BytesTab
       }
     ];
   }, [payload]);
@@ -311,7 +311,7 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
                   loading={declining}
                   disabled={declining}
                   onClick={handleDeclineClick}
-                  testID={InternalConfirmationSelectors.DeclineButton}
+                  trackID={InternalConfirmationSelectors.DeclineButton}
                 >
                   {message}
                 </FormSecondaryButton>
@@ -328,7 +328,7 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
                   disabled={gasFeeError}
                   loading={confirming}
                   onClick={handleConfirmClick}
-                  testID={
+                  trackID={
                     error ? InternalConfirmationSelectors.RetryButton : InternalConfirmationSelectors.ConfirmButton
                   }
                 >

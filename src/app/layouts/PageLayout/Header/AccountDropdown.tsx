@@ -173,7 +173,7 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
             'hover:opacity-100'
           )}
           onClick={handleLogoutClick}
-          testID={AccountDropdownSelectors.LogoutButton}
+          trackID={AccountDropdownSelectors.LogoutButton}
         >
           <LockIcon className="mr-1 h-4 w-auto" />
           <T id="lock" />
@@ -310,7 +310,7 @@ const AccountItem: React.FC<AccountItemProps> = ({ account, selected, gasTokenNa
         !selected && 'opacity-65 hover:opacity-100'
       )}
       onClick={onClick}
-      testID={AccountDropdownSelectors.AccountItemButton}
+      trackID={AccountDropdownSelectors.AccountItemButton}
     >
       <Identicon type="bottts" hash={publicKeyHash} size={46} className="flex-shrink-0 shadow-xs-white" />
 

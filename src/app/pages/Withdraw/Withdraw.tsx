@@ -14,7 +14,7 @@ export const Withdraw: FC = () => {
         slug: 'debit',
         title: t('topUpDebit'),
         Component: Debit,
-        testID: WithdrawSelectors.Debit
+        trackID: WithdrawSelectors.Debit
       }
     ];
   }, []);

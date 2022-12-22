@@ -128,7 +128,7 @@ const EditableTitle: FC = () => {
                     'opacity-75 hover:opacity-100 focus:opacity-100'
                   )}
                   onClick={handleCancelClick}
-                  testID={EditableTitleSelectors.CancelButton}
+                  trackID={EditableTitleSelectors.CancelButton}
                 >
                   {message}
                 </Button>
@@ -147,7 +147,7 @@ const EditableTitle: FC = () => {
                     'hover:bg-black hover:bg-opacity-5',
                     'opacity-75 hover:opacity-100 focus:opacity-100'
                   )}
-                  testID={EditableTitleSelectors.SaveButton}
+                  trackID={EditableTitleSelectors.SaveButton}
                 >
                   {message}
                 </Button>
@@ -174,7 +174,7 @@ const EditableTitle: FC = () => {
                 'opacity-75 hover:opacity-100 focus:opacity-100'
               )}
               onClick={handleEditClick}
-              testID={EditableTitleSelectors.EditButton}
+              trackID={EditableTitleSelectors.EditButton}
             >
               <EditIcon className={classNames('h-4 w-auto stroke-current stroke-2')} />
             </Button>

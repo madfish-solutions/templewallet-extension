@@ -95,7 +95,7 @@ const ManageAssetsContent: FC<Props> = ({ assetType }) => {
             'hover:bg-gray-100',
             'opacity-75 hover:opacity-100 focus:opacity-100'
           )}
-          testID={ManageAssetsSelectors.AddTokenButton}
+          trackID={ManageAssetsSelectors.AddTokenButton}
         >
           <AddIcon className={classNames('mr-1 h-5 w-auto stroke-current stroke-2')} />
           <T id={assetType === AssetTypesEnum.Collectibles ? 'addCollectible' : 'addToken'} />

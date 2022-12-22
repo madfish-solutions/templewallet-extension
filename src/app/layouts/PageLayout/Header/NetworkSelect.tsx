@@ -108,7 +108,7 @@ const NetworkSelect: FC<NetworkSelectProps> = () => {
                         handleNetworkSelect(id, rpcBaseURL, selected, setOpened);
                       }
                     }}
-                    testID={NetworkSelectSelectors.NetworkItemButton}
+                    trackID={NetworkSelectSelectors.NetworkItemButton}
                   >
                     <div
                       className={classNames('mr-2 w-3 h-3', 'border border-primary-white', 'rounded-full', 'shadow-xs')}
@@ -144,7 +144,7 @@ const NetworkSelect: FC<NetworkSelectProps> = () => {
             'select-none'
           )}
           onClick={toggleOpened}
-          testID={NetworkSelectSelectors.SelectedNetworkButton}
+          trackID={NetworkSelectSelectors.SelectedNetworkButton}
         >
           <div
             className={classNames('mr-2', 'w-3 h-3', 'border border-primary-white', 'rounded-full', 'shadow-xs')}

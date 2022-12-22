@@ -32,8 +32,8 @@ export const NotificationPreviewItem: FC<Props> = ({ notification }) => {
         notification.status === NotificationStatus.Read && 'bg-gray-10',
         'border-b border-gray-300'
       ])}
-      testID={PreviewItemSelectors.NavigationButton}
-      testIDProperties={{ id: notification.id, type: notification.type }}
+      trackID={PreviewItemSelectors.NavigationButton}
+      trackProperties={{ id: notification.id, type: notification.type }}
     >
       <div className="relative">
         {notification.status === NotificationStatus.New && (

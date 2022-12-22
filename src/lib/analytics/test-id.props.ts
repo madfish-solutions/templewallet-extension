@@ -1,4 +1,4 @@
 export interface TestIDProps {
-  testID?: string;
-  testIDProperties?: object;
+  trackID?: string;
+  trackProperties?: object;
 }

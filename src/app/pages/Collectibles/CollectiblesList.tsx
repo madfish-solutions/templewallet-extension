@@ -44,7 +44,7 @@ export const CollectiblesList = () => {
               'hover:bg-gray-100',
               'opacity-75 hover:opacity-100 focus:opacity-100'
             )}
-            testID={AssetsSelectors.ManageButton}
+            trackID={AssetsSelectors.ManageButton}
           >
             <AddToListIcon className={classNames('mr-1 h-5 w-auto stroke-current stroke-2')} />
             <T id="manage" />

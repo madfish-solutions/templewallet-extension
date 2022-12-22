@@ -43,7 +43,7 @@ interface Tab {
   Component: React.FC;
   color: string;
   descriptionI18nKey: TID;
-  testID?: SettingsSelectors;
+  trackID?: SettingsSelectors;
 }
 
 const TABS: Tab[] = [
@@ -54,7 +54,7 @@ const TABS: Tab[] = [
     Component: GeneralSettings,
     color: '#667EEA',
     descriptionI18nKey: 'generalSettingsDescription',
-    testID: SettingsSelectors.GeneralButton
+    trackID: SettingsSelectors.GeneralButton
   },
   {
     slug: 'synchronization',
@@ -63,7 +63,7 @@ const TABS: Tab[] = [
     Component: SyncSettings,
     color: '#7ED9A7',
     descriptionI18nKey: 'synchronizationSettingsDescription',
-    testID: SettingsSelectors.SynchronizationButton
+    trackID: SettingsSelectors.SynchronizationButton
   },
   {
     slug: 'address-book',
@@ -72,7 +72,7 @@ const TABS: Tab[] = [
     Component: AddressBook,
     color: '#d53f8c',
     descriptionI18nKey: 'addressBookDescription',
-    testID: SettingsSelectors.AddressBookButton
+    trackID: SettingsSelectors.AddressBookButton
   },
   {
     slug: 'reveal-private-key',
@@ -81,7 +81,7 @@ const TABS: Tab[] = [
     Component: RevealPrivateKey,
     color: '#3182CE',
     descriptionI18nKey: 'revealPrivateKeyDescription',
-    testID: SettingsSelectors.RevealPrivateKeyButton
+    trackID: SettingsSelectors.RevealPrivateKeyButton
   },
   {
     slug: 'reveal-seed-phrase',
@@ -90,7 +90,7 @@ const TABS: Tab[] = [
     Component: RevealSeedPhrase,
     color: '#F6AD55',
     descriptionI18nKey: 'revealSeedPhraseDescription',
-    testID: SettingsSelectors.RevealSeedPhraseButton
+    trackID: SettingsSelectors.RevealSeedPhraseButton
   },
   {
     slug: 'dapps',
@@ -99,7 +99,7 @@ const TABS: Tab[] = [
     Component: DAppSettings,
     color: '#9F7AEA',
     descriptionI18nKey: 'dAppsDescription',
-    testID: SettingsSelectors.DAppsButton
+    trackID: SettingsSelectors.DAppsButton
   },
   {
     slug: 'networks',
@@ -108,7 +108,7 @@ const TABS: Tab[] = [
     Component: CustomNetworksSettings,
     color: '#F6C90E',
     descriptionI18nKey: 'networksDescription',
-    testID: SettingsSelectors.NetworksButton
+    trackID: SettingsSelectors.NetworksButton
   },
   {
     slug: 'activate-account',
@@ -117,7 +117,7 @@ const TABS: Tab[] = [
     Component: ActivateAccount,
     color: 'rgb(131, 179, 0)',
     descriptionI18nKey: 'activateAccountDescription',
-    testID: SettingsSelectors.ActivateAccountButton
+    trackID: SettingsSelectors.ActivateAccountButton
   },
   {
     slug: 'remove-account',
@@ -126,7 +126,7 @@ const TABS: Tab[] = [
     Component: RemoveAccount,
     color: 'rgb(245, 101, 101)',
     descriptionI18nKey: 'removeAccountDescription',
-    testID: SettingsSelectors.RemoveAccountButton
+    trackID: SettingsSelectors.RemoveAccountButton
   },
   {
     slug: 'about',
@@ -135,7 +135,7 @@ const TABS: Tab[] = [
     Component: About,
     color: '#A0AEC0',
     descriptionI18nKey: 'aboutDescription',
-    testID: SettingsSelectors.AboutButton
+    trackID: SettingsSelectors.AboutButton
   },
   {
     slug: 'help-and-community',
@@ -193,12 +193,17 @@ const Settings: FC<SettingsProps> = ({ tabSlug }) => {
             <activeTab.Component />
           ) : (
             <ul className="md:grid md:grid-cols-2 md:gap-x-8 md:gap-y-10">
-              {TABS.map(({ slug, titleI18nKey, descriptionI18nKey, Icon, color, testID }, i) => {
+              {TABS.map(({ slug, titleI18nKey, descriptionI18nKey, Icon, color, trackID }, i) => {
                 const first = i === 0;
                 const linkTo = `/settings/${slug}`;
 
                 return (
-                  <Link to={linkTo} key={slug} className={classNames(!first && 'mt-10 md:mt-0 block')} testID={testID}>
+                  <Link
+                    to={linkTo}
+                    key={slug}
+                    className={classNames(!first && 'mt-10 md:mt-0 block')}
+                    trackID={trackID}
+                  >
                     <div className="flex">
                       <div className="ml-2 flex-shrink-0">
                         <div

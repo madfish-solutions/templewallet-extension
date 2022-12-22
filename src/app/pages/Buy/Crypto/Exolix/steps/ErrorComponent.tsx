@@ -19,7 +19,7 @@ interface Props extends TestIDProps {
   setStep: (step: number) => void;
 }
 
-const ErrorComponent: FC<Props> = ({ exchangeData, testIDProperties, setIsError, setExchangeData, setStep }) => {
+const ErrorComponent: FC<Props> = ({ exchangeData, trackProperties, setIsError, setExchangeData, setStep }) => {
   const { copy } = useCopyToClipboard();
   const { trackEvent } = useAnalytics();
 
@@ -28,9 +28,9 @@ const ErrorComponent: FC<Props> = ({ exchangeData, testIDProperties, setIsError,
       void trackEvent(
         ExolixSelectors.TopupFirstStepTransactionOverdue,
         AnalyticsEventCategory.General,
-        testIDProperties
+        trackProperties
       ),
-    [trackEvent, testIDProperties]
+    [trackEvent, trackProperties]
   );
 
   const restartTopUpHandler = () => {
@@ -78,7 +78,7 @@ const ErrorComponent: FC<Props> = ({ exchangeData, testIDProperties, setIsError,
           marginTop: '24px'
         }}
         onClick={restartTopUpHandler}
-        testID={ExolixSelectors.TopupFirstStepSubmitAgain}
+        trackID={ExolixSelectors.TopupFirstStepSubmitAgain}
       >
         <T id={'topUpAgain'} />
       </FormSubmitButton>

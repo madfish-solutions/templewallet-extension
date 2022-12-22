@@ -384,7 +384,7 @@ export const SwapForm: FC = () => {
         }}
         loading={isSubmitting}
         onClick={handleSubmitButtonClick}
-        testID={SwapFormSelectors.SwapSubmit}
+        trackID={SwapFormSelectors.SwapSubmit}
       >
         <T id="swap" />
       </FormSubmitButton>

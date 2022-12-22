@@ -61,7 +61,7 @@ const ViewsSwitcherItem: FC<Props> = ({ currentItem, currentItemIndex, activeIte
         'truncate'
       )}
       onClick={handleClick}
-      testID={currentItem.testID}
+      trackID={currentItem.trackID}
     >
       <currentItem.Icon className={classNames('h-4 w-auto mr-1', 'stroke-current')} />
       <span className={classNames('truncate')}>{currentItem.name}</span>

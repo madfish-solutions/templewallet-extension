@@ -7,11 +7,11 @@ interface Props
     TestIDProps {}
 
 export const Button = React.forwardRef<HTMLButtonElement, Props>(
-  ({ testID, testIDProperties, onClick, ...props }, ref) => {
+  ({ trackID, trackProperties, onClick, ...props }, ref) => {
     const { trackEvent } = useAnalytics();
 
     const handleClick = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-      testID !== undefined && trackEvent(testID, AnalyticsEventCategory.ButtonPress, testIDProperties);
+      trackID !== undefined && trackEvent(trackID, AnalyticsEventCategory.ButtonPress, trackProperties);
 
       return onClick !== undefined && onClick(e);
     };

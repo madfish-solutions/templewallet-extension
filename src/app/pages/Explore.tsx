@@ -98,7 +98,7 @@ const Explore: FC<ExploreProps> = ({ assetSlug }) => {
             label={<T id="receive" />}
             Icon={ReceiveIcon}
             to="/receive"
-            testID={ExploreSelectors.ReceiveButton}
+            trackID={ExploreSelectors.ReceiveButton}
           />
 
           <ActionButton
@@ -106,14 +106,14 @@ const Explore: FC<ExploreProps> = ({ assetSlug }) => {
             Icon={BuyIcon}
             to={`/buy?tab=${network.type === 'dcp' ? 'debit' : 'crypto'}`}
             disabled={!NETWORK_TYPES_WITH_BUY_BUTTON.includes(network.type)}
-            testID={ExploreSelectors.BuyButton}
+            trackID={ExploreSelectors.BuyButton}
           />
           <ActionButton
             label={<T id="withdrawButton" />}
             Icon={WithdrawIcon}
             to="/withdraw"
             disabled={!canSend || network.type !== 'main'}
-            testID={ExploreSelectors.WithdrawButton}
+            trackID={ExploreSelectors.WithdrawButton}
           />
           <ActionButton
             label={<T id="swap" />}
@@ -124,7 +124,7 @@ const Explore: FC<ExploreProps> = ({ assetSlug }) => {
             }}
             disabled={!canSend}
             tippyProps={tippyPropsMock}
-            testID={ExploreSelectors.SwapButton}
+            trackID={ExploreSelectors.SwapButton}
           />
           <ActionButton
             label={<T id="send" />}
@@ -132,7 +132,7 @@ const Explore: FC<ExploreProps> = ({ assetSlug }) => {
             to={sendLink}
             disabled={!canSend}
             tippyProps={tippyPropsMock}
-            testID={ExploreSelectors.SendButton}
+            trackID={ExploreSelectors.SendButton}
           />
         </div>
       </div>
@@ -160,8 +160,8 @@ const ActionButton: FC<ActionButtonProps> = ({
   to,
   disabled,
   tippyProps = {},
-  testID,
-  testIDProperties
+  trackID,
+  trackProperties
 }) => {
   const buttonRef = useTippy<HTMLButtonElement>({
     ...tippyProps,
@@ -196,7 +196,7 @@ const ActionButton: FC<ActionButtonProps> = ({
   return disabled ? (
     <button ref={buttonRef} {...commonButtonProps} />
   ) : (
-    <Link testID={testID} testIDProperties={testIDProperties} to={to} {...commonButtonProps} />
+    <Link trackID={trackID} trackProperties={trackProperties} to={to} {...commonButtonProps} />
   );
 };
 
@@ -230,7 +230,7 @@ const SecondarySection: FC<SecondarySectionProps> = ({ assetSlug, className }) =
       slug: string;
       title: string;
       Component: FC;
-      testID: string;
+      trackID: string;
     }[]
   >(() => {
     if (!assetSlug) {
@@ -239,19 +239,19 @@ const SecondarySection: FC<SecondarySectionProps> = ({ assetSlug, className }) =
           slug: 'tokens',
           title: t('tokens'),
           Component: Tokens,
-          testID: ExploreSelectors.AssetsTab
+          trackID: ExploreSelectors.AssetsTab
         },
         {
           slug: 'collectibles',
           title: t('collectibles'),
           Component: CollectiblesList,
-          testID: ExploreSelectors.CollectiblesTab
+          trackID: ExploreSelectors.CollectiblesTab
         },
         {
           slug: 'activity',
           title: t('activity'),
           Component: ActivityTab,
-          testID: ExploreSelectors.ActivityTab
+          trackID: ExploreSelectors.ActivityTab
         }
       ];
     }
@@ -260,14 +260,14 @@ const SecondarySection: FC<SecondarySectionProps> = ({ assetSlug, className }) =
       slug: 'activity',
       title: t('activity'),
       Component: () => <ActivityTab assetSlug={assetSlug} />,
-      testID: ExploreSelectors.ActivityTab
+      trackID: ExploreSelectors.ActivityTab
     };
 
     const info = {
       slug: 'info',
       title: t('info'),
       Component: () => <AssetInfo assetSlug={assetSlug} />,
-      testID: ExploreSelectors.AboutTab
+      trackID: ExploreSelectors.AboutTab
     };
 
     if (isTezAsset(assetSlug)) {
@@ -277,7 +277,7 @@ const SecondarySection: FC<SecondarySectionProps> = ({ assetSlug, className }) =
           slug: 'delegation',
           title: t('delegate'),
           Component: Delegation,
-          testID: ExploreSelectors.DelegationTab
+          trackID: ExploreSelectors.DelegationTab
         }
       ];
     }
@@ -311,7 +311,7 @@ const SecondarySection: FC<SecondarySectionProps> = ({ assetSlug, className }) =
                 'transition ease-in-out duration-300',
                 'truncate'
               )}
-              testID={currentTab.testID}
+              trackID={currentTab.trackID}
             >
               {currentTab.title}
             </Link>

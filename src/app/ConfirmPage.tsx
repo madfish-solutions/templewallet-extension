@@ -403,7 +403,7 @@ const ConfirmDAppForm: FC = () => {
               className="justify-center w-full"
               loading={declining}
               onClick={handleDeclineClick}
-              testID={content.declineActionTestID}
+              trackID={content.declineActionTestID}
             >
               {content.declineActionTitle}
             </FormSecondaryButton>
@@ -415,7 +415,7 @@ const ConfirmDAppForm: FC = () => {
               className="justify-center w-full"
               loading={confirming}
               onClick={handleConfirmClick}
-              testID={content.confirmActionTestID}
+              trackID={content.confirmActionTestID}
             >
               {content.confirmActionTitle}
             </FormSubmitButton>

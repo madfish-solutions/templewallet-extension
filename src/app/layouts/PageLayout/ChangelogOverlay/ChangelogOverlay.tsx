@@ -83,7 +83,7 @@ export const ChangelogOverlay: FC = () => {
                   s.overlay_ok_button
                 )}
                 onClick={handleContinue}
-                testID={ChangelogOverlaySelectors.Continue}
+                trackID={ChangelogOverlaySelectors.Continue}
                 style={{
                   width: popup ? 270 : 384
                 }}

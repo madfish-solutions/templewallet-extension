@@ -119,7 +119,7 @@ const ApproveStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
             </p>
             <span>
               <p className="text-xs inline align-text-bottom text-gray-910">{exchangeData.id}</p>
-              <CopyButton text={exchangeData.id} type="link" testID={ExolixSelectors.TopupSecondStepCopy}>
+              <CopyButton text={exchangeData.id} type="link" trackID={ExolixSelectors.TopupSecondStepCopy}>
                 <CopyIcon
                   style={{ verticalAlign: 'inherit' }}
                   className={classNames('h-4 ml-1 w-auto inline', 'stroke-orange stroke-2')}

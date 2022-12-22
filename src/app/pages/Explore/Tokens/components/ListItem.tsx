@@ -51,8 +51,8 @@ export const ListItem = memo<Props>(({ active, assetSlug, balances, apyInfo }) =
         'transition ease-in-out duration-200',
         'focus:outline-none'
       )}
-      testID={AssetsSelectors.AssetItemButton}
-      testIDProperties={{ key: assetSlug }}
+      trackID={AssetsSelectors.AssetItemButton}
+      trackProperties={{ key: assetSlug }}
     >
       <AssetIcon assetSlug={assetSlug} size={40} className="mr-2 flex-shrink-0" />
 

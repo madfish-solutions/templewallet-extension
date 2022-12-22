@@ -430,7 +430,7 @@ const BakerForm: React.FC<BakerFormProps> = ({
         disabled={Boolean(estimationError)}
         {...(baker && baker.address === sponsoredBaker
           ? {
-              testID:
+              trackID:
                 abGroup === ABTestGroup.B
                   ? DelegateFormSelectors.KnownBakerItemButtonSubmitB
                   : DelegateFormSelectors.KnownBakerItemButtonSubmitA
@@ -498,22 +498,22 @@ const KnownDelegatorsList: React.FC<{ setValue: any; triggerValidation: any }> =
       {
         key: 'rank',
         title: t('rank'),
-        testID: DelegateFormSelectors.SortBakerByRankTab
+        trackID: DelegateFormSelectors.SortBakerByRankTab
       },
       {
         key: 'fee',
         title: t('fee'),
-        testID: DelegateFormSelectors.SortBakerByFeeTab
+        trackID: DelegateFormSelectors.SortBakerByFeeTab
       },
       {
         key: 'space',
         title: t('space'),
-        testID: DelegateFormSelectors.SortBakerBySpaceTab
+        trackID: DelegateFormSelectors.SortBakerBySpaceTab
       },
       {
         key: 'staking',
         title: t('staking'),
-        testID: DelegateFormSelectors.SortBakerByStakingTab
+        trackID: DelegateFormSelectors.SortBakerByStakingTab
       }
     ],
     []
@@ -580,7 +580,7 @@ const KnownDelegatorsList: React.FC<{ setValue: any; triggerValidation: any }> =
 
       <div className={classNames('mb-2', 'flex items-center')}>
         <T id="sortBy">{message => <span className={classNames('mr-1', 'text-xs text-gray-500')}>{message}</span>}</T>
-        {bakerSortTypes.map(({ key, title, testID }, i, arr) => {
+        {bakerSortTypes.map(({ key, title, trackID }, i, arr) => {
           const first = i === 0;
           const last = i === arr.length - 1;
           const selected = sortBakersBy.key === key;
@@ -610,7 +610,7 @@ const KnownDelegatorsList: React.FC<{ setValue: any; triggerValidation: any }> =
                 'px-2 py-px',
                 'text-xs text-gray-600'
               )}
-              testID={testID}
+              trackID={trackID}
             >
               {title}
             </Link>
@@ -664,8 +664,8 @@ const KnownDelegatorsList: React.FC<{ setValue: any; triggerValidation: any }> =
               type="button"
               className={classnames}
               onClick={handleBakerClick}
-              testID={testId}
-              testIDProperties={{ bakerAddress: baker.address }}
+              trackID={testId}
+              trackProperties={{ bakerAddress: baker.address }}
             >
               <BakerBanner
                 bakerPkh={baker.address}

@@ -14,7 +14,7 @@ export interface TabInterface {
   slug: string;
   title: string;
   Component: FC;
-  testID: string;
+  trackID: string;
 }
 
 interface Props {
@@ -72,7 +72,7 @@ export const TabsPageLayout: FC<Props> = ({ tabs, icon, title, description }) =>
                     'transition ease-in-out duration-300',
                     'truncate'
                   )}
-                  testID={currentTab.testID}
+                  trackID={currentTab.trackID}
                 >
                   {currentTab.title}
                 </Link>
