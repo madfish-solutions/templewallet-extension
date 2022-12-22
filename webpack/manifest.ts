@@ -25,19 +25,6 @@ export const buildManifest = (vendor: string) => {
 const buildManifestV3 = (vendor: string): Manifest.WebExtensionManifest => {
   const commons = buildManifestCommons(vendor);
 
-  commons.content_scripts!.push({
-    matches: [
-      /* For all URLs from `HOST_PERMISSIONS` & active tabs (with `activeTab` permission) */
-      '<all_urls>'
-    ],
-    js: ['scripts/keepBackgroundWorkerAlive.js'],
-    run_at: 'document_start',
-    all_frames: true,
-    match_about_blank: true,
-    // @ts-ignore
-    match_origin_as_fallback: true
-  });
-
   return {
     manifest_version: 3,
 

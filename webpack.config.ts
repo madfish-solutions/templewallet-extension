@@ -42,7 +42,6 @@ const HTML_TEMPLATES = PAGES_NAMES.map(name => {
 });
 
 const CONTENT_SCRIPTS = ['contentScript'];
-if (BACKGROUND_IS_WORKER) CONTENT_SCRIPTS.push('keepBackgroundWorkerAlive');
 const SEPARATED_CHUNKS = new Set(CONTENT_SCRIPTS);
 
 const mainConfig = (() => {
@@ -161,9 +160,6 @@ const scriptsConfig = (() => {
   config.entry = {
     contentScript: Path.join(PATHS.SOURCE, 'contentScript.ts')
   };
-
-  if (BACKGROUND_IS_WORKER)
-    config.entry.keepBackgroundWorkerAlive = Path.join(PATHS.SOURCE, 'keepBackgroundWorkerAlive.ts');
 
   config.output = {
     ...config.output,
