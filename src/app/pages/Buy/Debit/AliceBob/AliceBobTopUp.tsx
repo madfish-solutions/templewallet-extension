@@ -29,7 +29,7 @@ export const AliceBobTopUp: FC = () => {
   const [link, setLink] = useState('');
 
   const [isApiError, setIsApiError] = useState(false);
-  const [isLoading, setLoading] = useState(false);
+  const [linkIsLoading, setLinkIsLoading] = useState(false);
 
   const { minExchangeAmount, maxExchangeAmount, isMinMaxLoading } = useMinMaxExchangeAmounts(setIsApiError);
 
@@ -39,7 +39,12 @@ export const AliceBobTopUp: FC = () => {
     maxExchangeAmount
   );
 
-  const outputAmount = useOutputEstimation(inputAmount, isMinAmountError, isMaxAmountError, setLoading, setIsApiError);
+  const { estimationIsLoading, outputAmount } = useOutputEstimation(
+    inputAmount,
+    isMinAmountError,
+    isMaxAmountError,
+    setIsApiError
+  );
 
   const exchangeRate = useMemo(
     () => (inputAmount && inputAmount > 0 ? (outputAmount / inputAmount).toFixed(4) : 0),
@@ -49,11 +54,11 @@ export const AliceBobTopUp: FC = () => {
   const linkRequest = useCallback(
     (amount = 0) => {
       if (!disabledProceed) {
-        setLoading(true);
+        setLinkIsLoading(true);
         createAliceBobOrder(false, amount.toString(), analyticsState.userId, walletAddress)
           .then(response => setLink(response.data.orderInfo.payUrl))
           .catch(() => setIsApiError(true))
-          .finally(() => setLoading(false));
+          .finally(() => setLinkIsLoading(false));
       }
     },
     [disabledProceed, analyticsState.userId, walletAddress]
@@ -63,11 +68,14 @@ export const AliceBobTopUp: FC = () => {
 
   const handleInputAmountChange = useCallback(
     (amount?: number) => {
+      setLink('');
       setInputAmount(amount);
       debouncedLinkRequest(amount);
     },
     [debouncedLinkRequest]
   );
+
+  const isLoading = linkIsLoading || estimationIsLoading;
 
   return (
     <PageLayout
@@ -85,6 +93,7 @@ export const AliceBobTopUp: FC = () => {
           </h3>
         </div>
       )}
+
       <div className="max-w-sm mx-auto mt-4 mb-10 text-center font-inter font-normal text-gray-700">
         <TopUpInput
           singleToken
@@ -103,6 +112,7 @@ export const AliceBobTopUp: FC = () => {
         />
 
         <br />
+
         <TopUpInput
           readOnly
           singleToken
@@ -113,20 +123,23 @@ export const AliceBobTopUp: FC = () => {
           currenciesList={[]}
           amount={outputAmount}
         />
+
         <Divider style={{ marginTop: '40px', marginBottom: '20px' }} />
+
         <div className={styles['exchangeRateBlock']}>
           <p className={styles['exchangeTitle']}>
             <T id={'exchangeRate'} />
           </p>
           <p className={styles['exchangeData']}>1 TEZ ≈ {exchangeRate} UAH</p>
         </div>
+
         <FormSubmitButton
           className="w-full justify-center border-none mt-6"
           style={{
             background: '#4299e1',
             padding: 0
           }}
-          disabled={disabledProceed || link === ''}
+          disabled={disabledProceed || !link}
           loading={isLoading || isMinMaxLoading}
           testID={BuySelectors.AliceBob}
         >
@@ -143,6 +156,7 @@ export const AliceBobTopUp: FC = () => {
             <T id="next" />
           </a>
         </FormSubmitButton>
+
         <div className="border-solid border-gray-300" style={{ borderTopWidth: 1 }}>
           <p className="mt-6">
             <T
@@ -158,6 +172,7 @@ export const AliceBobTopUp: FC = () => {
               ]}
             />
           </p>
+
           <p className="mt-6">
             <T id="warningTopUpServiceMessage" />
           </p>
