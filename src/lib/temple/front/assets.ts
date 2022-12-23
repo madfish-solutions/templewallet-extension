@@ -318,6 +318,8 @@ export function useFilteredAssets(assetSlugs: string[]) {
 }
 
 function searchAssets(searchValue: string, assetSlugs: string[], allTokensBaseMetadata: Record<string, AssetMetadata>) {
+  console.log('searchAssets', searchValue, assetSlugs, allTokensBaseMetadata);
+  console.log('*******************************************************');
   if (!searchValue) return assetSlugs;
 
   const fuse = new Fuse(
@@ -327,15 +329,19 @@ function searchAssets(searchValue: string, assetSlugs: string[], allTokensBaseMe
     })),
     {
       keys: [
-        { name: 'metadata.name', weight: 0.9 },
-        { name: 'metadata.symbol', weight: 0.7 },
-        { name: 'slug', weight: 0.3 }
+        { name: 'metadata.symbol', weight: 1 },
+        { name: 'metadata.name', weight: 0.25 },
+        { name: 'slug', weight: 0.1 }
       ],
-      threshold: 1
+      threshold: 0.2
     }
   );
 
-  return fuse.search(searchValue).map(({ item: { slug } }) => slug);
+  const result = fuse.search(searchValue);
+
+  console.log('result', result);
+
+  return result.map(({ item: { slug } }) => slug);
 }
 
 function getDetailedMetadataStorageKey(slug: string) {
