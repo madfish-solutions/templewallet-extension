@@ -335,11 +335,7 @@ function searchAssets(searchValue: string, assetSlugs: string[], allTokensBaseMe
     }
   );
 
-  const result = fuse.search(searchValue);
-
-  console.log('result', result);
-
-  return result.map(({ item: { slug } }) => slug);
+  return fuse.search(searchValue).map(({ item: { slug } }) => slug);
 }
 
 function getDetailedMetadataStorageKey(slug: string) {
