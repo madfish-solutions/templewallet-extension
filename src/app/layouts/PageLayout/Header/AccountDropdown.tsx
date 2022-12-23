@@ -301,7 +301,6 @@ const AccountItem: React.FC<AccountItemProps> = ({ account, selected, gasTokenNa
         elemRef.current?.scrollIntoView({ block: 'center', behavior: 'smooth' });
       }, 0);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

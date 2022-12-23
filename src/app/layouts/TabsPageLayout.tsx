@@ -4,7 +4,6 @@ import classNames from 'clsx';
 
 import Spinner from 'app/atoms/Spinner/Spinner';
 import { useTabSlug } from 'app/atoms/useTabSlug';
-import { PropsWithChildren } from 'lib/props-with-children';
 import { Link } from 'lib/woozie';
 
 import { useAppEnv } from '../env';

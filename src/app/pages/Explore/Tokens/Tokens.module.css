@@ -1,4 +1,4 @@
-.apyBadge {
+.apyTag {
   background: #4299e1;
   border-radius: 4px;
   font-family: Inter, Helvetica, Arial, Verdana, Tahoma, sans-serif;
@@ -7,6 +7,10 @@
   font-size: 0.75rem;
   line-height: 15px;
   color: #ffffff;
+}
+
+.apyTag:hover {
+  background-color: #68ADE7;
 }
 
 .tokenInfoWidth {

@@ -1,5 +1,5 @@
+import { AdvertisingPromotion } from 'lib/apis/temple';
 import { createEntity, LoadableEntityState } from 'lib/store';
-import { AdvertisingPromotion } from 'lib/templewallet-api';
 
 export interface AdvertisingState {
   activePromotion: LoadableEntityState<AdvertisingPromotion | undefined>;

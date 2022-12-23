@@ -173,6 +173,14 @@ module.exports = {
       punycode$: require.resolve('punycode/punycode.js'),
     },
 
+    alias: {
+      /*
+        Exports of `punycode@2.1.1/punycode.js` & `punycode@2.1.1/punycode.es6.js` are different.
+        We need the former ones (e.g. `idna-uts46-hx` relies on it).
+      */
+      punycode$: require.resolve('punycode/punycode.js'),
+    },
+
     plugins: [
       {
         apply(resolver) {
@@ -343,7 +351,7 @@ module.exports = {
       WebPack v4 injected `nodeSpecificAsset` automatically.
     */
     new webpack.ProvidePlugin({
-      process: 'process/browser',
+      process: 'process/browser.js',
       Buffer: ['buffer', 'Buffer'],
       // Seen 'setImmediate' in: 'scryptsy'
       setImmediate: ['timers-browserify', 'setImmediate'],
@@ -486,6 +494,8 @@ module.exports = {
         commons: {
           name: 'commons.chunk',
           minChunks: 2,
+          /* Firefox limitation of 4MB per chunk */
+          maxSize: 4_000_000,
           chunks: chunk => !SEPARATED_CHUNKS.has(chunk.name)
         }
       }

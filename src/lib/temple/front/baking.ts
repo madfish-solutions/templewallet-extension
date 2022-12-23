@@ -8,9 +8,9 @@ import {
   BakingBadBakerValueHistoryItem,
   bakingBadGetBaker,
   getAllBakersBakingBad
-} from 'lib/baking-bad';
+} from 'lib/apis/baking-bad';
+import type { TzktRewardsEntry } from 'lib/apis/tzkt';
 import { useRetryableSWR } from 'lib/swr';
-import { TzktRewardsEntry } from 'lib/tzkt';
 
 import { useNetwork, useTezos } from './ready';
 

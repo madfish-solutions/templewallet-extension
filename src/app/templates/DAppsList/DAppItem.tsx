@@ -3,7 +3,7 @@ import React, { FC, SVGProps, useCallback } from 'react';
 import { ReactComponent as TagIcon } from 'app/icons/tag.svg';
 import { DAppIcon } from 'app/templates/DAppsList/DAppIcon';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
-import { CustomDAppInfo } from 'lib/custom-dapps-api';
+import { CustomDAppInfo } from 'lib/apis/temple';
 
 import { DAppStoreSelectors } from '../DAppsList.selectors';
 

@@ -3,9 +3,8 @@ import browser from 'webextension-polyfill';
 import { isPopupWindow } from 'app/env';
 import { getLedgerTransportType } from 'lib/temple/ledger';
 
-import { createLedgerSigner } from '../index';
 import type { TempleLedgerSigner } from '../signer';
-import { TransportType } from '../transport';
+import { TransportType } from '../types';
 import type { RequestMessage, ForegroundResponse, CreatorArguments } from './types';
 import { stringToUInt8Array } from './utils';
 
@@ -91,6 +90,7 @@ const createKeptLedgerSigner = async (
 ) => {
   if (keptSigner?.instanceId !== instanceId) {
     const { derivationPath, derivationType, publicKey, publicKeyHash } = creatorArgs;
+    const createLedgerSigner = (await import('../index')).createLedgerSigner;
     const { signer } = await createLedgerSigner(
       transportType,
       derivationPath,

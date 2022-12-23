@@ -11,7 +11,6 @@ import { ReactComponent as ChevronLeftIcon } from 'app/icons/chevron-left.svg';
 import ContentContainer from 'app/layouts/ContentContainer';
 import { T } from 'lib/i18n';
 import { NotificationsBell } from 'lib/notifications';
-import { PropsWithChildren } from 'lib/props-with-children';
 import { goBack, HistoryAction, navigate, useLocation } from 'lib/woozie';
 
 import { DonationBanner } from '../atoms/DonationBanner';

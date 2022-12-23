@@ -1,4 +1,4 @@
-import { AdvertisingPromotion } from 'lib/templewallet-api';
+import { AdvertisingPromotion } from 'lib/apis/temple';
 
 export const advertisingPromotionMock: AdvertisingPromotion = {
   name: 'Mock',

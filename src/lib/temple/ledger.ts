@@ -1,4 +1,4 @@
-import { pickTransportType } from 'lib/ledger';
+import { pickTransportType } from 'lib/ledger/helpers';
 import { TempleSharedStorageKey } from 'lib/temple/types';
 
 export function getLedgerTransportType() {

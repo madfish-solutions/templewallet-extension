@@ -3,9 +3,9 @@ import { TokenMetadata, tzip12 } from '@taquito/tzip12';
 import { DEFAULT_HANDLERS, MetadataInterface, MetadataProvider, tzip16 } from '@taquito/tzip16';
 import retry from 'async-retry';
 
-import assert from 'lib/assert';
 import { isTezAsset } from 'lib/temple/assets';
 import { isValidContractAddress } from 'lib/temple/helpers';
+import { assert } from 'lib/utils';
 
 import { TEZOS_METADATA } from './defaults';
 import { PRESERVED_TOKEN_METADATA } from './fixtures';

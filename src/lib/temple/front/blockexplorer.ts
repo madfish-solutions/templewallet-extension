@@ -38,6 +38,13 @@ export const BLOCK_EXPLORERS: BlockExplorer[] = [
           account: 'https://jakartanet.tzkt.io',
           transaction: 'https://jakartanet.tzkt.io'
         }
+      ],
+      [
+        TempleChainId.Limanet,
+        {
+          account: 'https://limanet.tzkt.io',
+          transaction: 'https://limanet.tzkt.io'
+        }
       ]
     ])
   },

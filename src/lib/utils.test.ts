@@ -1,4 +1,4 @@
-import { createQueue } from './queue';
+import { createQueue } from './utils';
 
 describe('Queue', () => {
   it('queue', async () => {

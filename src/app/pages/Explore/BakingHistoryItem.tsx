@@ -17,10 +17,10 @@ import { ReactComponent as ShieldCancelIcon } from 'app/icons/shield-cancel.svg'
 import { ReactComponent as ShieldOkIcon } from 'app/icons/shield-ok.svg';
 import { ReactComponent as TimeIcon } from 'app/icons/time.svg';
 import HashChip from 'app/templates/HashChip';
+import { TzktRewardsEntry } from 'lib/apis/tzkt';
 import { getPluralKey, toLocalFormat, T } from 'lib/i18n';
 import { getRewardsStats, useKnownBaker, useExplorerBaseUrls, useGasToken } from 'lib/temple/front';
 import { mutezToTz } from 'lib/temple/helpers';
-import { TzktRewardsEntry } from 'lib/tzkt';
 
 import styles from './BakingHistoryItem.module.css';
 

@@ -9,7 +9,6 @@ import {
 } from '@temple-wallet/dapp/dist/types';
 import browser, { Runtime } from 'webextension-polyfill';
 
-import { createQueue } from 'lib/queue';
 import { addLocalOperation } from 'lib/temple/activity';
 import {
   getCurrentPermission,
@@ -43,6 +42,7 @@ import {
   TempleSettings,
   TempleSharedStorageKey
 } from 'lib/temple/types';
+import { createQueue } from 'lib/utils';
 
 import type { DryRunResult } from './dryrun';
 
