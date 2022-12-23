@@ -318,8 +318,6 @@ export function useFilteredAssets(assetSlugs: string[]) {
 }
 
 function searchAssets(searchValue: string, assetSlugs: string[], allTokensBaseMetadata: Record<string, AssetMetadata>) {
-  console.log('searchAssets', searchValue, assetSlugs, allTokensBaseMetadata);
-  console.log('*******************************************************');
   if (!searchValue) return assetSlugs;
 
   const fuse = new Fuse(
