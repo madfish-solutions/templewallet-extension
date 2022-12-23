@@ -61,13 +61,13 @@ export class Vault {
     return isStoredLegacy(checkStrgKey);
   }
 
-  static async setup(password: string, saveForSession = false) {
+  static async setup(password: string, saveSession = false) {
     return withError('Failed to unlock wallet', async () => {
       await Vault.runMigrations(password);
 
       const { passHash, passKey } = await Vault.toValidPassKey(password);
 
-      if (saveForSession) await SessionStore.savePassHash(passHash);
+      if (saveSession) await SessionStore.savePassHash(passHash);
 
       return new Vault(passKey);
     });
@@ -80,7 +80,7 @@ export class Vault {
     return new Vault(passKey);
   }
 
-  static forgetForSession() {
+  static forgetSession() {
     return SessionStore.removePassHash();
   }
 
