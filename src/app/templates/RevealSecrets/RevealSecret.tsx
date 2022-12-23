@@ -10,6 +10,8 @@ import { T, t } from 'lib/i18n';
 import { useAccount, useSecretState, useTempleClient } from 'lib/temple/front';
 import { TempleAccountType } from 'lib/temple/types';
 
+import { RevealSecretsTestIDS } from './RevealSecrets.test-ids';
+
 const SUBMIT_ERROR_TYPE = 'submit-error';
 
 type FormData = {
@@ -224,6 +226,7 @@ const RevealSecret: FC<RevealSecretProps> = ({ reveal }) => {
             containerClassName="mb-4"
             className="resize-none notranslate"
             value={secret}
+            testID={RevealSecretsTestIDS.RevealSecretsValue}
           />
 
           <Alert title={t('attentionExclamation')} description={<p>{texts.attention}</p>} className="my-4" />
@@ -244,9 +247,16 @@ const RevealSecret: FC<RevealSecretProps> = ({ reveal }) => {
           errorCaption={errors.password?.message}
           containerClassName="mb-4"
           onChange={() => clearError()}
+          testID={RevealSecretsTestIDS.RevealPasswordField}
         />
 
-        <T id="reveal">{message => <FormSubmitButton loading={submitting}>{message}</FormSubmitButton>}</T>
+        <T id="reveal">
+          {message => (
+            <FormSubmitButton loading={submitting} testID={RevealSecretsTestIDS.RevealButton}>
+              {message}
+            </FormSubmitButton>
+          )}
+        </T>
       </form>
     );
   }, [

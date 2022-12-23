@@ -5,7 +5,7 @@ export { Button } from './Button';
 export type { FileInputProps } from './FileInput';
 export { FileInput } from './FileInput';
 
-export { PASSWORD_ERROR_CAPTION, FormField } from './FormField';
+export { PASSWORD_ERROR_CAPTION, FormField } from './FormField/FormField';
 
 export { FormSubmitButton } from './FormSubmitButton';
 

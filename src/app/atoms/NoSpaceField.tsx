@@ -1,6 +1,6 @@
 import React, { ComponentProps, forwardRef, useCallback } from 'react';
 
-import { FormField } from './FormField';
+import { FormField } from './FormField/FormField';
 
 type NoSpaceFieldProps = ComponentProps<typeof FormField> & {
   value?: string;

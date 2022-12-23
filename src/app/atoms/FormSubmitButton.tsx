@@ -11,6 +11,7 @@ type FormSubmitButtonProps = ButtonHTMLAttributes<HTMLButtonElement> &
   TestIDProps & {
     loading?: boolean;
     small?: boolean;
+    testID?: string;
   };
 
 export const FormSubmitButton: FC<FormSubmitButtonProps> = ({
