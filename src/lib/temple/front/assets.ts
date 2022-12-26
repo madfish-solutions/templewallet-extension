@@ -331,7 +331,7 @@ function searchAssets(searchValue: string, assetSlugs: string[], allTokensBaseMe
         { name: 'metadata.name', weight: 0.25 },
         { name: 'slug', weight: 0.1 }
       ],
-      threshold: 0.2
+      threshold: 0.1
     }
   );
 
