@@ -43,7 +43,7 @@ export const AliceBobTopUp: FC = () => {
   const outputAmount = useOutputEstimation(inputAmount, isMinAmountError, isMaxAmountError, setLoading, setIsApiError);
 
   const exchangeRate = useMemo(
-    () => (inputAmount && inputAmount > 0 ? (outputAmount / inputAmount).toFixed(4) : 0),
+    () => (inputAmount && outputAmount > 0 ? (inputAmount / outputAmount).toFixed(4) : 0),
     [inputAmount, outputAmount]
   );
 
@@ -86,6 +86,7 @@ export const AliceBobTopUp: FC = () => {
           </h3>
         </div>
       )}
+
       <div className="max-w-sm mx-auto mt-4 mb-10 text-center font-inter font-normal text-gray-700">
         <TopUpInput
           amountInputDisabled={isMinMaxLoading}
@@ -102,6 +103,7 @@ export const AliceBobTopUp: FC = () => {
         />
 
         <br />
+
         <TopUpInput
           readOnly
           amountInputDisabled
@@ -111,12 +113,14 @@ export const AliceBobTopUp: FC = () => {
           amount={outputAmount}
         />
         <Divider style={{ marginTop: '40px', marginBottom: '20px' }} />
+
         <div className={styles['exchangeRateBlock']}>
           <p className={styles['exchangeTitle']}>
             <T id={'exchangeRate'} />
           </p>
           <p className={styles['exchangeData']}>1 TEZ ≈ {exchangeRate} UAH</p>
         </div>
+
         <FormSubmitButton
           className="w-full justify-center border-none mt-6"
           style={{
@@ -140,6 +144,7 @@ export const AliceBobTopUp: FC = () => {
             <T id="next" />
           </a>
         </FormSubmitButton>
+
         <div className="border-solid border-gray-300" style={{ borderTopWidth: 1 }}>
           <p className="mt-6">
             <T
@@ -155,6 +160,7 @@ export const AliceBobTopUp: FC = () => {
               ]}
             />
           </p>
+
           <p className="mt-6">
             <T id="warningTopUpServiceMessage" />
           </p>
