@@ -9,14 +9,15 @@ import { useMinMaxExchangeAmounts } from 'app/hooks/AliceBob/useMinMaxExchangeAm
 import { useOutputEstimation } from 'app/hooks/AliceBob/useOutputEstimation';
 import { ReactComponent as AttentionRedIcon } from 'app/icons/attentionRed.svg';
 import PageLayout from 'app/layouts/PageLayout';
+import { TopUpInput } from 'app/templates/TopUpInput';
 import { useAnalyticsState } from 'lib/analytics/use-analytics-state.hook';
 import { createAliceBobOrder } from 'lib/apis/temple';
 import { T } from 'lib/i18n/react';
+import { FIAT_ICONS_SRC } from 'lib/icons';
 import { useAccount } from 'lib/temple/front';
 
 import { BuySelectors } from '../../Buy.selectors';
 import styles from '../../Crypto/Exolix/Exolix.module.css';
-import { TopUpInput } from '../Utorg/components/TopUpInput/TopUpInput';
 import { ALICE_BOB_PRIVACY_LINK, ALICE_BOB_TERMS_LINK } from './config';
 
 const REQUEST_LATENCY = 500;
@@ -87,12 +88,10 @@ export const AliceBobTopUp: FC = () => {
       )}
       <div className="max-w-sm mx-auto mt-4 mb-10 text-center font-inter font-normal text-gray-700">
         <TopUpInput
-          singleToken
-          isDefaultUahIcon
           amountInputDisabled={isMinMaxLoading}
           label={<T id="send" />}
           amount={inputAmount}
-          currencyName="UAH"
+          currency={{ code: 'UAH', icon: FIAT_ICONS_SRC.UAH }}
           currenciesList={[]}
           minAmount={minExchangeAmount.toString()}
           maxAmount={maxExchangeAmount.toString()}
@@ -105,11 +104,9 @@ export const AliceBobTopUp: FC = () => {
         <br />
         <TopUpInput
           readOnly
-          singleToken
-          isDefaultUahIcon
           amountInputDisabled
           label={<T id="get" />}
-          currencyName="TEZ"
+          currency={{ code: 'TEZ' }}
           currenciesList={[]}
           amount={outputAmount}
         />

@@ -5,14 +5,16 @@ import classNames from 'clsx';
 
 import Popper from 'lib/ui/Popper';
 
-import { CurrenciesMenu } from './CurrenciesMenu/CurrenciesMenu';
-import { TopUpInputPropsGeneric, CurrencyBase, TopUpInputPropsBase } from './TopUpInput.props';
-import { TopUpInputHeader } from './TopUpInputHeader/TopUpInputHeader';
+import { CurrenciesMenu } from './CurrenciesMenu';
+import { TopUpInputHeader } from './TopUpInputHeader';
+import { TopUpInputPropsGeneric, CurrencyBase, TopUpInputPropsBase } from './types';
 import { useFilteredCurrencies } from './utils';
+
+export type { CurrencyToken } from './types';
 
 export const TopUpInput = <C extends CurrencyBase>(_props: TopUpInputPropsGeneric<C>) => {
   const props = _props as unknown as TopUpInputPropsBase;
-  const { currency, currenciesList, onCurrencySelect, className, isCurrenciesLoading } = props;
+  const { currency, currenciesList, isCurrenciesLoading, fitIcons, className, onCurrencySelect } = props;
 
   const { filteredCurrencies, searchValue, setSearchValue } = useFilteredCurrencies(currenciesList);
 
@@ -29,6 +31,7 @@ export const TopUpInput = <C extends CurrencyBase>(_props: TopUpInputPropsGeneri
             options={filteredCurrencies}
             isLoading={isCurrenciesLoading}
             opened={opened}
+            fitIcons={fitIcons}
             setOpened={setOpened}
             onChange={onCurrencySelect}
           />

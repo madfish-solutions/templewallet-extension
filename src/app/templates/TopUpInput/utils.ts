@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 
 import { useDebounce } from 'use-debounce';
 
-import { CurrencyBase } from './TopUpInput.props';
+import { CurrencyBase } from './types';
 
 export const getProperNetworkFullName = (currency?: CurrencyBase) => {
   if (currency == null || !currency.network?.fullName) return '';
@@ -23,7 +23,7 @@ export const useFilteredCurrencies = (currencies: CurrencyBase[]) => {
       for (const currency of currencies) {
         const { name, code } = currency;
 
-        if (name.toLowerCase().includes(lowerCaseSearchValue) || code.toLowerCase().includes(lowerCaseSearchValue)) {
+        if (name?.toLowerCase().includes(lowerCaseSearchValue) || code.toLowerCase().includes(lowerCaseSearchValue)) {
           result.push(currency);
         }
       }

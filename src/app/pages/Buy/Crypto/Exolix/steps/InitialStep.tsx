@@ -9,11 +9,11 @@ import Divider from 'app/atoms/Divider';
 import styles from 'app/pages/Buy/Crypto/Exolix/Exolix.module.css';
 import ErrorComponent from 'app/pages/Buy/Crypto/Exolix/steps/ErrorComponent';
 import WarningComponent from 'app/pages/Buy/Crypto/Exolix/steps/WarningComponent';
+import { TopUpInput } from 'app/templates/TopUpInput';
 import { useAssetUSDPrice } from 'lib/fiat-currency';
 import { T } from 'lib/i18n';
 import { useAccount } from 'lib/temple/front';
 
-import { TopUpInput } from '../components/TopUpInput/TopUpInput';
 import { EXOLIX_PRIVICY_LINK, EXOLIX_TERMS_LINK, outputTokensList } from '../config';
 import { ExchangeDataInterface, ExchangeDataStatusEnum, OutputCurrencyInterface } from '../exolix.interface';
 import { ExolixSelectors } from '../Exolix.selectors';

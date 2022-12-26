@@ -2,9 +2,9 @@ import React, { FC } from 'react';
 
 import classNames from 'clsx';
 
+import { CurrencyToken } from 'app/templates/TopUpInput';
 import { T } from 'lib/i18n';
 
-import { CurrencyToken } from '../components/TopUpInput/TopUpInput.props';
 import { EXOLIX_CONTACT_LINK } from '../config';
 import { getProperNetworkFullName } from '../exolix.util';
 

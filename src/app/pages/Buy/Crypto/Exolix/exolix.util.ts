@@ -1,8 +1,8 @@
 import axios from 'axios';
 
 import { outputTokensList } from 'app/pages/Buy/Crypto/Exolix/config';
+import { CurrencyToken } from 'app/templates/TopUpInput';
 
-import { CurrencyToken } from './components/TopUpInput/TopUpInput.props';
 import {
   ExchangeDataInterface,
   ExolixCurrenciesInterface,

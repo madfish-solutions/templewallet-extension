@@ -5,7 +5,7 @@ enum currencyInfoType {
   FIAT = 'FIAT'
 }
 
-interface utorgCurrencyInfo {
+interface UtorgCurrencyInfo {
   currency: string;
   symbol: string;
   chain: string;
@@ -67,7 +67,7 @@ export const getExchangeRate = async (inputAmount: number, fromCurrency: string)
   return await convertFiatAmountToXtz(inputAmount, fromCurrency).then(res => inputAmount / res);
 };
 
-const getCurrenciesInfo = () => api.post<{ data: utorgCurrencyInfo[] }>('/settings/currency').then(r => r.data.data);
+const getCurrenciesInfo = () => api.post<{ data: UtorgCurrencyInfo[] }>('/settings/currency').then(r => r.data.data);
 
 export const getMinMaxExchangeValue = (currency: string) =>
   getCurrenciesInfo().then(currenciesInfo => {

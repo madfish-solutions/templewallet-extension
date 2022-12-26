@@ -1,9 +1,10 @@
 import { ReactNode } from 'react';
 
 export interface CurrencyBase {
-  name: string;
   code: string;
-  icon: string;
+  name?: string;
+  icon?: string;
+  fitIcon?: boolean;
   network?: {
     code: string;
     fullName: string;
@@ -13,26 +14,24 @@ export interface CurrencyBase {
 
 export type CurrencyToken = WithRequired<CurrencyBase, 'network'>;
 
-export type CurrencyFiat = CurrencyBase;
-
 export interface TopUpInputPropsGeneric<C extends CurrencyBase> {
   label: ReactNode;
-  amountInputDisabled?: boolean;
+  currency: C;
+  currenciesList: C[];
+  onCurrencySelect?: (value: C) => void;
   readOnly?: boolean;
+  amountInputDisabled?: boolean;
   minAmount?: string;
   maxAmount?: string;
   amount?: number;
-  className?: string;
+  onAmountChange?: (value?: number) => void;
   isCurrenciesLoading?: boolean;
   isSearchable?: boolean;
   isMinAmountError?: boolean;
   isMaxAmountError?: boolean;
   isInsufficientTezBalanceError?: boolean;
-  onAmountChange?: (value?: number) => void;
-  //
-  currency: C;
-  currenciesList: C[];
-  onCurrencySelect: (value: C) => void;
+  fitIcons?: boolean;
+  className?: string;
 }
 
 export type TopUpInputPropsBase = TopUpInputPropsGeneric<CurrencyBase>;

@@ -6,13 +6,13 @@ import { FormSubmitButton } from 'app/atoms';
 import Divider from 'app/atoms/Divider';
 import { ReactComponent as AttentionRedIcon } from 'app/icons/attentionRed.svg';
 import PageLayout from 'app/layouts/PageLayout';
+import { TopUpInput } from 'app/templates/TopUpInput';
 import { createOrder } from 'lib/apis/utorg';
 import { T } from 'lib/i18n';
 import { useAccount } from 'lib/temple/front';
 
 import { BuySelectors } from '../../Buy.selectors';
 import styles from '../../Crypto/Exolix/Exolix.module.css';
-import { TopUpInput } from './components/TopUpInput/TopUpInput';
 import { UTORG_PRIVICY_LINK, UTORG_TERMS_LINK } from './config';
 import { useDisabledProceed } from './hooks/useDisabledProceed';
 import { useExchangeRate } from './hooks/useExchangeRate';
@@ -84,15 +84,16 @@ export const Utorg = () => {
           isSearchable
           label={<T id="send" />}
           amount={inputAmount}
-          currencyName={inputCurrency}
-          currenciesList={currencies}
+          currency={{ code: inputCurrency, icon: buildIconSrc(inputCurrency) }}
+          currenciesList={currencies.map(inputCurrency => ({ code: inputCurrency, icon: buildIconSrc(inputCurrency) }))}
           minAmount={String(minAmount)}
           maxAmount={String(maxAmount || VALUE_PLACEHOLDER)}
           isMinAmountError={isMinAmountError}
           isMaxAmountError={isMaxAmountError}
-          setCurrencyName={setInputCurrency}
+          onCurrencySelect={currency => setInputCurrency(currency.code)}
           onAmountChange={setInputAmount}
           amountInputDisabled={isMinMaxLoading}
+          fitIcons={true}
           className="mb-4"
         />
 
@@ -100,10 +101,9 @@ export const Utorg = () => {
 
         <TopUpInput
           readOnly
-          singleToken
           amountInputDisabled
           label={<T id="get" />}
-          currencyName="TEZ"
+          currency={{ code: 'TEZ' }}
           currenciesList={[]}
           amount={outputAmount}
         />
@@ -166,3 +166,7 @@ export const Utorg = () => {
     </PageLayout>
   );
 };
+
+const UTORG_FIAT_ICONS_BASE_URL = 'https://utorg.pro/img/flags2/icon-';
+
+const buildIconSrc = (currencyCode: string) => `${UTORG_FIAT_ICONS_BASE_URL}${currencyCode.slice(0, -1)}.svg`;

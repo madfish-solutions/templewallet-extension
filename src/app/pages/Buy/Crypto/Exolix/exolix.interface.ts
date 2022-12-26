@@ -1,4 +1,4 @@
-import { CurrencyToken } from './components/TopUpInput/TopUpInput.props';
+import { CurrencyToken } from 'app/templates/TopUpInput';
 
 interface ExchangeCoin {
   coinCode: string;
