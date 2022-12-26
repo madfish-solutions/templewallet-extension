@@ -21,7 +21,6 @@ import { useUpdatedExchangeInfo } from './hooks/useUpdatedExchangeInfo';
 
 const DEFAULT_CURRENCY = 'USD';
 const REQUEST_LATENCY = 300;
-const VALUE_PLACEHOLDER = '---';
 
 export const Utorg = () => {
   const [inputCurrency, setInputCurrency] = useState(DEFAULT_CURRENCY);
@@ -30,18 +29,18 @@ export const Utorg = () => {
   const [link, setLink] = useState('');
 
   const [isApiError, setIsApiError] = useState(false);
-  const [isLoading, setLoading] = useState(false);
+  const [isOrderLinkLoading, setOrderLinkLoading] = useState(false);
 
   const { publicKeyHash } = useAccount();
 
-  const exchangeRate = useExchangeRate(inputAmount, inputCurrency, setLoading);
-  const outputAmount = useOutputAmount(inputAmount, inputCurrency, setLoading);
+  const { isOutputLoading, outputAmount } = useOutputAmount(inputAmount, inputCurrency);
 
-  const { currencies, minAmount, maxAmount, isMinMaxLoading } = useUpdatedExchangeInfo(
+  const { isCurrenciesLoading, currencies, minAmount, maxAmount, isMinMaxLoading } = useUpdatedExchangeInfo(
     inputCurrency,
-    setLoading,
     setIsApiError
   );
+
+  const { isRateLoading, exchangeRate } = useExchangeRate(inputAmount, minAmount, inputCurrency);
 
   const { isMinAmountError, isMaxAmountError, disabledProceed } = useDisabledProceed(
     inputAmount,
@@ -52,15 +51,17 @@ export const Utorg = () => {
 
   const linkRequest = useCallback(() => {
     if (disabledProceed) return;
-    setLoading(true);
+    setOrderLinkLoading(true);
     createOrder(outputAmount, inputCurrency, publicKeyHash)
       .then(setLink)
-      .finally(() => setLoading(false));
+      .finally(() => setOrderLinkLoading(false));
   }, [outputAmount, disabledProceed, inputCurrency, publicKeyHash]);
 
   const debouncedLinkRequest = useDebouncedCallback(linkRequest, REQUEST_LATENCY);
 
   useEffect(() => debouncedLinkRequest(), [debouncedLinkRequest, inputAmount, inputCurrency]);
+
+  const isLoading = isOutputLoading || isRateLoading || isOrderLinkLoading || isCurrenciesLoading;
 
   return (
     <PageLayout
@@ -87,7 +88,7 @@ export const Utorg = () => {
           currency={{ code: inputCurrency, icon: buildIconSrc(inputCurrency) }}
           currenciesList={currencies.map(inputCurrency => ({ code: inputCurrency, icon: buildIconSrc(inputCurrency) }))}
           minAmount={String(minAmount)}
-          maxAmount={String(maxAmount || VALUE_PLACEHOLDER)}
+          maxAmount={String(maxAmount || '---')}
           isMinAmountError={isMinAmountError}
           isMaxAmountError={isMaxAmountError}
           onCurrencySelect={currency => setInputCurrency(currency.code)}

@@ -2,10 +2,9 @@ import { useCallback, useEffect, useState } from 'react';
 
 import { getAvailableFiatCurrencies, getMinMaxExchangeValue } from 'lib/apis/utorg';
 
-import { booleanSetter } from '../config';
-
-export const useUpdatedExchangeInfo = (currency: string, setLoading: booleanSetter, setIsApiError: booleanSetter) => {
+export const useUpdatedExchangeInfo = (currency: string, setIsApiError: (v: boolean) => void) => {
   const [isMinMaxLoading, setIsMinMaxLoading] = useState(false);
+  const [isLoading, setLoading] = useState(false);
 
   const [currencies, setCurrencies] = useState<string[]>([]);
   const [minAmount, setMinAmount] = useState(0);
@@ -45,6 +44,7 @@ export const useUpdatedExchangeInfo = (currency: string, setLoading: booleanSett
   }, [updateMinMaxRequest, updateCurrenciesRequest]);
 
   return {
+    isCurrenciesLoading: isLoading,
     currencies,
     minAmount,
     maxAmount,

@@ -2,20 +2,21 @@ import { useEffect, useState } from 'react';
 
 import { getExchangeRate } from 'lib/apis/utorg';
 
-import { booleanSetter } from '../config';
-
-export const useExchangeRate = (inputAmount = 0, inputCurrency: string, setLoading: booleanSetter) => {
+export const useExchangeRate = (inputAmount = 0, minAmount = 0, inputCurrency: string) => {
   const [exchangeRate, setExchangeRate] = useState(0);
+  const [isLoading, setLoading] = useState(false);
+
+  const amount = inputAmount < minAmount ? minAmount : inputAmount;
 
   useEffect(() => {
     setLoading(true);
-    getExchangeRate(inputAmount, inputCurrency)
+    getExchangeRate(amount, inputCurrency)
       .then((fetchedRate = 0) => {
         const rate = Number(fetchedRate.toPrecision(4)) || 0;
         setExchangeRate(rate);
       })
       .finally(() => setLoading(false));
-  }, [inputAmount, inputCurrency, setLoading]);
+  }, [amount, inputCurrency, setLoading]);
 
-  return exchangeRate;
+  return { isRateLoading: isLoading, exchangeRate };
 };
