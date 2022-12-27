@@ -1,12 +1,15 @@
 import { useCallback, useEffect, useState } from 'react';
 
+import { CurrencyFiat } from 'app/templates/TopUpInput/types';
 import { getAvailableFiatCurrencies, getMinMaxExchangeValue } from 'lib/apis/utorg';
+
+import { buildIconSrc } from '../utils';
 
 export const useUpdatedExchangeInfo = (currency: string, setIsApiError: (v: boolean) => void) => {
   const [isMinMaxLoading, setIsMinMaxLoading] = useState(false);
   const [isLoading, setLoading] = useState(false);
 
-  const [currencies, setCurrencies] = useState<string[]>([]);
+  const [currencies, setCurrencies] = useState<CurrencyFiat[]>([]);
   const [minAmount, setMinAmount] = useState(0);
   const [maxAmount, setMaxAmount] = useState(NaN);
 
@@ -28,8 +31,8 @@ export const useUpdatedExchangeInfo = (currency: string, setIsApiError: (v: bool
   const updateCurrenciesRequest = useCallback(() => {
     setLoading(true);
     getAvailableFiatCurrencies()
-      .then(currencies => {
-        setCurrencies(currencies);
+      .then(codes => {
+        setCurrencies(codes.map(code => ({ code, icon: buildIconSrc(code) })));
         setLoading(false);
       })
       .catch(() => {

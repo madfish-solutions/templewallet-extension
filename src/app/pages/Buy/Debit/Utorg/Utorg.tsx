@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { useDebouncedCallback } from 'use-debounce';
 
@@ -7,23 +7,24 @@ import Divider from 'app/atoms/Divider';
 import { ReactComponent as AttentionRedIcon } from 'app/icons/attentionRed.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import { TopUpInput } from 'app/templates/TopUpInput';
+import { CurrencyFiat } from 'app/templates/TopUpInput/types';
 import { createOrder } from 'lib/apis/utorg';
 import { T } from 'lib/i18n';
 import { useAccount } from 'lib/temple/front';
 
 import { BuySelectors } from '../../Buy.selectors';
 import styles from '../../Crypto/Exolix/Exolix.module.css';
-import { UTORG_PRIVICY_LINK, UTORG_TERMS_LINK } from './config';
 import { useDisabledProceed } from './hooks/useDisabledProceed';
 import { useExchangeRate } from './hooks/useExchangeRate';
 import { useOutputAmount } from './hooks/useOutputAmount';
 import { useUpdatedExchangeInfo } from './hooks/useUpdatedExchangeInfo';
+import { UTORG_PRIVICY_LINK, UTORG_TERMS_LINK, buildIconSrc } from './utils';
 
 const DEFAULT_CURRENCY = 'USD';
 const REQUEST_LATENCY = 300;
 
 export const Utorg = () => {
-  const [inputCurrency, setInputCurrency] = useState(DEFAULT_CURRENCY);
+  const [inputCurrencyCode, setInputCurrencyCode] = useState(DEFAULT_CURRENCY);
   const [inputAmount, setInputAmount] = useState<number | undefined>();
 
   const [link, setLink] = useState('');
@@ -33,14 +34,14 @@ export const Utorg = () => {
 
   const { publicKeyHash } = useAccount();
 
-  const { isOutputLoading, outputAmount } = useOutputAmount(inputAmount, inputCurrency);
+  const { isOutputLoading, outputAmount } = useOutputAmount(inputAmount, inputCurrencyCode);
 
   const { isCurrenciesLoading, currencies, minAmount, maxAmount, isMinMaxLoading } = useUpdatedExchangeInfo(
-    inputCurrency,
+    inputCurrencyCode,
     setIsApiError
   );
 
-  const { isRateLoading, exchangeRate } = useExchangeRate(inputAmount, minAmount, inputCurrency);
+  const { isRateLoading, exchangeRate } = useExchangeRate(inputAmount, minAmount, inputCurrencyCode);
 
   const { isMinAmountError, isMaxAmountError, disabledProceed } = useDisabledProceed(
     inputAmount,
@@ -49,17 +50,22 @@ export const Utorg = () => {
     isApiError
   );
 
+  const inputCurrency: CurrencyFiat = useMemo(
+    () => ({ code: inputCurrencyCode, icon: buildIconSrc(inputCurrencyCode) }),
+    [inputCurrencyCode]
+  );
+
   const linkRequest = useCallback(() => {
     if (disabledProceed) return;
     setOrderLinkLoading(true);
-    createOrder(outputAmount, inputCurrency, publicKeyHash)
+    createOrder(outputAmount, inputCurrencyCode, publicKeyHash)
       .then(setLink)
       .finally(() => setOrderLinkLoading(false));
-  }, [outputAmount, disabledProceed, inputCurrency, publicKeyHash]);
+  }, [outputAmount, disabledProceed, inputCurrencyCode, publicKeyHash]);
 
   const debouncedLinkRequest = useDebouncedCallback(linkRequest, REQUEST_LATENCY);
 
-  useEffect(() => debouncedLinkRequest(), [debouncedLinkRequest, inputAmount, inputCurrency]);
+  useEffect(() => debouncedLinkRequest(), [debouncedLinkRequest, inputAmount, inputCurrencyCode]);
 
   const isLoading = isOutputLoading || isRateLoading || isOrderLinkLoading || isCurrenciesLoading;
 
@@ -85,13 +91,13 @@ export const Utorg = () => {
           isSearchable
           label={<T id="send" />}
           amount={inputAmount}
-          currency={{ code: inputCurrency, icon: buildIconSrc(inputCurrency) }}
-          currenciesList={currencies.map(inputCurrency => ({ code: inputCurrency, icon: buildIconSrc(inputCurrency) }))}
+          currency={inputCurrency}
+          currenciesList={currencies}
           minAmount={String(minAmount)}
           maxAmount={String(maxAmount || '---')}
           isMinAmountError={isMinAmountError}
           isMaxAmountError={isMaxAmountError}
-          onCurrencySelect={currency => setInputCurrency(currency.code)}
+          onCurrencySelect={currency => setInputCurrencyCode(currency.code)}
           onAmountChange={setInputAmount}
           amountInputDisabled={isMinMaxLoading}
           fitIcons={true}
@@ -116,7 +122,7 @@ export const Utorg = () => {
             <T id={'exchangeRate'} />
           </p>
           <p className={styles['exchangeData']}>
-            1 TEZ ≈ {exchangeRate} {inputCurrency}
+            1 TEZ ≈ {exchangeRate} {inputCurrencyCode}
           </p>
         </div>
 
@@ -167,7 +173,3 @@ export const Utorg = () => {
     </PageLayout>
   );
 };
-
-const UTORG_FIAT_ICONS_BASE_URL = 'https://utorg.pro/img/flags2/icon-';
-
-const buildIconSrc = (currencyCode: string) => `${UTORG_FIAT_ICONS_BASE_URL}${currencyCode.slice(0, -1)}.svg`;
