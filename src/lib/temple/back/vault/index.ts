@@ -4,7 +4,7 @@ import { localForger } from '@taquito/local-forging';
 import { CompositeForger, RpcForger, Signer, TezosOperationError, TezosToolkit } from '@taquito/taquito';
 import * as TaquitoUtils from '@taquito/utils';
 import * as Bip39 from 'bip39';
-import { initialize, SecureCellSeal } from 'wasm-themis';
+import * as WasmThemis from 'wasm-themis';
 
 import { formatOpParamsBeforeSend, loadFastRpcClient, michelEncoder } from 'lib/temple/helpers';
 import * as Passworder from 'lib/temple/passworder';
@@ -52,6 +52,7 @@ import {
 
 const TEMPLE_SYNC_PREFIX = 'templesync';
 const DEFAULT_SETTINGS: TempleSettings = {};
+const libthemisWasmSrc = '/wasm/libthemis.wasm';
 
 export class Vault {
   static async isExist() {
@@ -192,7 +193,7 @@ export class Vault {
 
   static async generateSyncPayload(password: string) {
     try {
-      await initialize();
+      await WasmThemis.initialize(libthemisWasmSrc);
     } catch {}
     const { passKey } = await Vault.toValidPassKey(password);
     return withError('Failed to generate sync payload', async () => {
@@ -206,7 +207,7 @@ export class Vault {
       const data = [mnemonic, hdAccounts.length];
 
       const payload = Uint8Array.from(Buffer.from(JSON.stringify(data)));
-      const cell = SecureCellSeal.withPassphrase(password);
+      const cell = WasmThemis.SecureCellSeal.withPassphrase(password);
       const encrypted = cell.encrypt(payload);
 
       return [TEMPLE_SYNC_PREFIX, encrypted].map(item => Buffer.from(item).toString('base64')).join('');
@@ -561,3 +562,5 @@ export class Vault {
     }
   }
 }
+
+// console.log('test', testSrc);

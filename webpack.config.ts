@@ -117,7 +117,12 @@ const mainConfig = (() => {
               */
               ignore: ['**/*.html']
             }
-          }
+          },
+          /*
+            Using `asset/resource` rule type with `webworker` target isn't working.
+            See: https://github.com/vercel/next.js/issues/22581
+          */
+          { from: PATHS.LIBTHEMIS_WASM_FILE, to: PATHS.OUTPUT_WASM }
         ]
       }),
 
@@ -222,10 +227,6 @@ const backgroundConfig = (() => {
         cleanOnceBeforeBuildPatterns: ['background/**'],
         cleanStaleWebpackAssets: false,
         verbose: false
-      }),
-
-      new CopyWebpackPlugin({
-        patterns: [{ from: PATHS.WASM, to: PATHS.OUTPUT_BACKGROUND }]
       }),
 
       /*

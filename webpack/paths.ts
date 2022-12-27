@@ -28,7 +28,8 @@ const PATH_DEST = path.join(PATH_CWD, 'dist');
 const PATH_OUTPUT = path.join(PATH_DEST, DEST_RELATIVE_PATH_OUTPUT);
 const PATH_OUTPUT_PACKED = path.join(PATH_DEST, DEST_RELATIVE_PATH_OUTPUT_PACKED);
 const PATH_OUTPUT_BACKGROUND = path.join(PATH_OUTPUT, 'background/');
-const PATH_WASM = path.join(PATH_NODE_MODULES, 'wasm-themis/src/libthemis.wasm');
+const PATH_OUTPUT_WASM = path.join(PATH_OUTPUT, 'wasm/');
+const PATH_LIBTHEMIS_WASM_FILE = path.join(PATH_NODE_MODULES, 'wasm-themis/src/libthemis.wasm');
 
 const DEST_RELATIVE_PATHS = {
   OUTPUT: DEST_RELATIVE_PATH_OUTPUT,
@@ -44,7 +45,8 @@ const PATHS = {
   OUTPUT: PATH_OUTPUT,
   OUTPUT_PACKED: PATH_OUTPUT_PACKED,
   OUTPUT_BACKGROUND: PATH_OUTPUT_BACKGROUND,
-  WASM: PATH_WASM
+  OUTPUT_WASM: PATH_OUTPUT_WASM,
+  LIBTHEMIS_WASM_FILE: PATH_LIBTHEMIS_WASM_FILE
 };
 
 const dotenvPath = path.resolve(PATH_CWD, '.env');
