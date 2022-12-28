@@ -65,13 +65,14 @@ export const AdvertisingOverlay: FC = () => {
 
         <Button
           className={classNames(
-            'absolute top-0 right-3 p-3 hover:opacity-50',
-            'font-inter font-normal text-sm text-white self-end mt-3',
+            'absolute top-0 right-3 px-3 py-2 hover:opacity-50',
+            'font-inter font-medium text-sm text-white self-end mt-3',
+            'rounded bg-blue-500',
             popup ? 'mr-1' : 'mr-6'
           )}
           onClick={handleSkipPress}
         >
-          <T id="skip" />
+          <T id="skipAd" />
         </Button>
       </ContentContainer>
     </>

@@ -115,6 +115,9 @@
   "skip": {
     "message": "Skip"
   },
+  "skipAd": {
+    "message": "SKIP AD"
+  },
   "checkNow": {
     "message": "Check now"
   },
