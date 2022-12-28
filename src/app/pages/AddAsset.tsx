@@ -382,16 +382,24 @@ const BottomSection: FC<BottomSectionProps> = props => {
         ref={register({
           validate: (val: string) => {
             if (!val) return true;
-            if (val.match(/(https:\/\/.*)/i) || val.match(/(ipfs:\/\/.*)/i)) {
+            if (val.match(/(https:\/\/.*)/i) || val.match(/(ipfs:\/\/.*)/i) || val.match(/(data:image\/.*)/i)) {
               return true;
             }
 
             return (
               <ul className="list-disc list-inside">
-                <T id="validImageURL">{message => <li>{message}</li>}</T>
-                <T id="onlyHTTPS">{message => <li>{message}</li>}</T>
-                <T id="formatsAllowed">{message => <li>{message}</li>}</T>
-                <T id="orIPFSImageURL">{message => <li>{message}</li>}</T>
+                <li>
+                  <T id="validImageURL" />
+                </li>
+                <li>
+                  <T id="onlyHTTPS" />
+                </li>
+                <li>
+                  <T id="formatsAllowed" />
+                </li>
+                <li>
+                  <T id="orIPFSImageURL" />
+                </li>
               </ul>
             );
           }
@@ -401,18 +409,22 @@ const BottomSection: FC<BottomSectionProps> = props => {
         label={
           <>
             <T id="iconURL" />{' '}
-            <T id="optionalComment">{message => <span className="text-sm font-light text-gray-600">{message}</span>}</T>
+            <span className="text-sm font-light text-gray-600">
+              <T id="optionalComment" />
+            </span>
           </>
         }
         labelDescription={t('iconURLInputDescription')}
         placeholder="e.g. https://cdn.com/mytoken.png"
-        errorCaption={errors.iconUrl?.message}
+        errorCaption={errors.thumbnailUri?.message}
         containerClassName="mb-6"
       />
 
       {submitError && <Alert type="error" title={t('error')} autoFocus description={submitError} className="mb-6" />}
 
-      <T id="addToken">{message => <FormSubmitButton loading={formState.isSubmitting}>{message}</FormSubmitButton>}</T>
+      <FormSubmitButton loading={formState.isSubmitting}>
+        <T id="addToken" />
+      </FormSubmitButton>
     </>
   );
 };
