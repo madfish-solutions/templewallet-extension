@@ -1,0 +1,33 @@
+name: End-to-end tests
+
+description: Installs dependencies and runs e2e tests
+
+inputs:
+  DEFAULT_SEED_PHRASE:
+    required: true
+  DEFAULT_PASSWORD:
+    required: true
+  DEFAULT_HD_ACCOUNT_PRIVATE_KEY:
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - working-directory: ./e2e
+      shell: bash
+      run: yarn install
+
+    - name: Secrets setup
+      working-directory: ./e2e
+      shell: bash
+      run: |
+        cat << EOF > .env
+        DEFAULT_SEED_PHRASE=${{ inputs.DEFAULT_SEED_PHRASE }}
+        DEFAULT_PASSWORD=${{ inputs.DEFAULT_PASSWORD }}
+        DEFAULT_HD_ACCOUNT_PRIVATE_KEY=${{ inputs.DEFAULT_HD_ACCOUNT_PRIVATE_KEY }}
+        EOF
+
+    - name: Run tests
+      working-directory: ./e2e
+      shell: bash
+      run: yarn test
