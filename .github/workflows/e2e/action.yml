@@ -32,9 +32,12 @@ runs:
 
     - name: Run tests
       working-directory: ./e2e
+      shell: bash
       env:
         PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true'
         CI: 'true'
-      uses: mujo-code/puppeteer-headful@18.9.0
-      with:
-        args: yarn test
+      run: |
+        export DISPLAY=:99
+        chromedriver --url-base=/wd/hub &
+        sudo Xvfb -ac :99 -screen 0 1280x1024x24 > /dev/null 2>&1 & # optional
+        yarn test
