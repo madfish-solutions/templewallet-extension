@@ -4,11 +4,14 @@ description: Installs dependencies and runs e2e tests
 
 inputs:
   DEFAULT_SEED_PHRASE:
-    required: true
+    required: false
+    default: 'disorder woman erosion pelican fatal flip finish rice rapid family ancient hope'
   DEFAULT_PASSWORD:
-    required: true
+    required: false
+    default: 'Test@1234'
   DEFAULT_HD_ACCOUNT_PRIVATE_KEY:
-    required: true
+    required: false
+    default: 'Pass@1234'
 
 runs:
   using: 'composite'
@@ -32,6 +35,7 @@ runs:
       shell: bash
       env:
         PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true'
+        CI: 'true'
       run: |
         export DISPLAY=:99
         chromedriver --url-base=/wd/hub &
