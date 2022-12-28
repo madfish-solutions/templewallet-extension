@@ -50,10 +50,10 @@ jobs:
 
       - name: Perform end-to-end tests
         uses: ./.github/workflows/e2e
-        # with:
-        #   DEFAULT_SEED_PHRASE: ${{ secrets.DEFAULT_SEED_PHRASE }}
-        #   DEFAULT_PASSWORD: ${{ secrets.DEFAULT_PASSWORD }}
-        #   DEFAULT_HD_ACCOUNT_PRIVATE_KEY: ${{ secrets.DEFAULT_HD_ACCOUNT_PRIVATE_KEY }}
+        with:
+          DEFAULT_SEED_PHRASE: ${{ secrets.DEFAULT_SEED_PHRASE }}
+          DEFAULT_PASSWORD: ${{ secrets.DEFAULT_PASSWORD }}
+          DEFAULT_HD_ACCOUNT_PRIVATE_KEY: ${{ secrets.DEFAULT_HD_ACCOUNT_PRIVATE_KEY }}
 
       - name: Upload artifact
         uses: actions/upload-artifact@v2

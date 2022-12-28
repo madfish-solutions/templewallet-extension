@@ -4,14 +4,11 @@ description: Prepares and runs e2e tests
 
 inputs:
   DEFAULT_SEED_PHRASE:
-    required: false
-    default: 'disorder woman erosion pelican fatal flip finish rice rapid family ancient hope'
+    required: true
   DEFAULT_PASSWORD:
-    required: false
-    default: 'Test@1234'
+    required: true
   DEFAULT_HD_ACCOUNT_PRIVATE_KEY:
-    required: false
-    default: 'Pass@1234'
+    required: true
 
 runs:
   using: 'composite'
