@@ -1,20 +1,21 @@
-import React, { memo, FC, useState } from 'react';
+import React, { memo, FC, useState, useMemo } from 'react';
 
 import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
 
+import { Button } from 'app/atoms';
 import Money from 'app/atoms/Money';
 import { AssetIcon } from 'app/templates/AssetIcon';
 import Balance from 'app/templates/Balance';
 import InFiat from 'app/templates/InFiat';
 import { useFiatCurrency } from 'lib/fiat-currency';
-import { T } from 'lib/i18n';
+import { t, T } from 'lib/i18n';
+import { FiatIcon, TezosLogoIcon } from 'lib/icons';
 import { TEZ_TOKEN_SLUG, useAssetMetadata, useBalance, useGasToken, useNetwork } from 'lib/temple/front';
 import { useTotalBalance } from 'lib/temple/front/use-total-balance.hook';
 import { getAssetName, getAssetSymbol } from 'lib/temple/metadata';
+import useTippy from 'lib/ui/useTippy';
 
-import { FiatIcon, TezosLogoIcon } from '../../../lib/icons';
-import { Button } from '../../atoms';
 import AddressChip from './AddressChip';
 
 interface Props {
@@ -34,7 +35,7 @@ export default MainBanner;
 
 enum TvlMode {
   Fiat = 'fiat',
-  Tezos = 'tezos'
+  Gas = 'gas'
 }
 interface TotalVolumeBannerRootProps {
   accountPkh: string;
@@ -47,7 +48,7 @@ const TotalVolumeBanner: FC<TotalVolumeBannerRootProps> = ({ accountPkh }) => {
 
   const shouldShowFiatBanner = network.type === 'main' && tvlMode === TvlMode.Fiat;
 
-  const handleTvlModeToggle = () => setTvlMode(prev => (prev === TvlMode.Fiat ? TvlMode.Tezos : TvlMode.Fiat));
+  const handleTvlModeToggle = () => setTvlMode(prev => (prev === TvlMode.Fiat ? TvlMode.Gas : TvlMode.Fiat));
 
   return shouldShowFiatBanner ? (
     <TotalVolumeBannerInFiat accountPkh={accountPkh} tvlMode={tvlMode} onTvlModeToggle={handleTvlModeToggle} />
@@ -123,6 +124,17 @@ const TotalVolumeBannerBase: FC<TotalVolumeBannerBaseProps> = ({
   tvlMode,
   onTvlModeToggle
 }) => {
+  const tippyProps = useMemo(
+    () => ({
+      trigger: 'mouseenter',
+      hideOnClick: false,
+      content: t('copyHashToClipboard'),
+      animation: 'shift-away-subtle'
+    }),
+    []
+  );
+
+  const buttonRef = useTippy<HTMLButtonElement>(tippyProps);
   const network = useNetwork();
 
   return (
@@ -131,6 +143,7 @@ const TotalVolumeBannerBase: FC<TotalVolumeBannerBaseProps> = ({
         <div className="flex justify-between items-center">
           {network.type === 'main' && (
             <Button
+              ref={buttonRef}
               className={classNames(
                 'mr-1',
                 'p-1',
