@@ -91,6 +91,9 @@
   "copyHashToClipboard": {
     "message": "Копіювати в буфер обміну"
   },
+  "showInTezOrUsd": {
+    "message": "Показати в TEZ/USD"
+  },
   "accounts": {
     "message": "Аккаунти"
   },

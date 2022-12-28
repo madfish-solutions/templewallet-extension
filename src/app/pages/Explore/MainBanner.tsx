@@ -124,11 +124,13 @@ const TotalVolumeBannerBase: FC<TotalVolumeBannerBaseProps> = ({
   tvlMode,
   onTvlModeToggle
 }) => {
+  console.log('content: ', t('showInTezOrUsd'));
+
   const tippyProps = useMemo(
     () => ({
       trigger: 'mouseenter',
       hideOnClick: false,
-      content: t('copyHashToClipboard'),
+      content: t('showInTezOrUsd'),
       animation: 'shift-away-subtle'
     }),
     []

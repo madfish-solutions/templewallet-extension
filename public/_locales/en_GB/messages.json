@@ -94,6 +94,9 @@
   "copyHashToClipboard": {
     "message": "Copy to clipboard"
   },
+  "showInTezOrUsd": {
+    "message": "Show in TEZ/USD"
+  },
   "accounts": {
     "message": "Accounts"
   },

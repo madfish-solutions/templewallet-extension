@@ -38,6 +38,9 @@
   "copyHashToClipboard": {
     "message": "Скопировать хэш в буфер обмена"
   },
+  "showInTezOrUsd": {
+    "message": "Показать в TEZ/USD"
+  },
   "defaultAccount": {
     "message": "Аккаунт по умолчанию (первый)"
   },
