@@ -39,7 +39,15 @@
     "message": "Скопировать хэш в буфер обмена"
   },
   "showInTezOrUsd": {
-    "message": "Показать в TEZ/USD"
+    "message": "Показать в $gasToken$/$fiatCurrency$",
+    "placeholders": {
+      "gasToken": {
+        "content": "$1"
+      },
+      "fiatCurrency": {
+        "content": "$2"
+      }
+    }
   },
   "defaultAccount": {
     "message": "Аккаунт по умолчанию (первый)"

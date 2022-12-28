@@ -10,7 +10,7 @@ import Balance from 'app/templates/Balance';
 import InFiat from 'app/templates/InFiat';
 import { useFiatCurrency } from 'lib/fiat-currency';
 import { t, T } from 'lib/i18n';
-import { FiatIcon, TezosLogoIcon } from 'lib/icons';
+import { TezosLogoIcon } from 'lib/icons';
 import { TEZ_TOKEN_SLUG, useAssetMetadata, useBalance, useGasToken, useNetwork } from 'lib/temple/front';
 import { useTotalBalance } from 'lib/temple/front/use-total-balance.hook';
 import { getAssetName, getAssetSymbol } from 'lib/temple/metadata';
@@ -124,13 +124,14 @@ const TotalVolumeBannerBase: FC<TotalVolumeBannerBaseProps> = ({
   tvlMode,
   onTvlModeToggle
 }) => {
-  console.log('content: ', t('showInTezOrUsd'));
+  const { symbol: gasSymbol } = useGasToken().metadata;
+  const { symbol: fiatSymbol, name: fiatName } = useFiatCurrency().selectedFiatCurrency;
 
   const tippyProps = useMemo(
     () => ({
       trigger: 'mouseenter',
       hideOnClick: false,
-      content: t('showInTezOrUsd'),
+      content: t('showInTezOrUsd', [gasSymbol, fiatName]),
       animation: 'shift-away-subtle'
     }),
     []
@@ -147,18 +148,18 @@ const TotalVolumeBannerBase: FC<TotalVolumeBannerBaseProps> = ({
             <Button
               ref={buttonRef}
               className={classNames(
-                'mr-1',
+                'w-6 mr-1',
                 'p-1',
                 'bg-gray-100',
                 'rounded-sm shadow-xs',
-                'text-sm',
+                'text-base font-medium',
                 'hover:text-gray-600 text-gray-500 leading-none select-none',
                 'transition ease-in-out duration-300',
                 'inline-flex items-center justify-center'
               )}
               onClick={onTvlModeToggle}
             >
-              {tvlMode === TvlMode.Fiat ? <FiatIcon /> : <TezosLogoIcon />}
+              {tvlMode === TvlMode.Fiat ? fiatSymbol : <TezosLogoIcon />}
             </Button>
           )}
           <div className="text-sm font-medium text-gray-700">{titleNode}</div>

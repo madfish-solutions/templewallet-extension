@@ -95,7 +95,15 @@
     "message": "Copy to clipboard"
   },
   "showInTezOrUsd": {
-    "message": "Show in TEZ/USD"
+    "message": "Show in $gasToken$/$fiatCurrency$",
+    "placeholders": {
+      "gasToken": {
+        "content": "$1"
+      },
+      "fiatCurrency": {
+        "content": "$2"
+      }
+    }
   },
   "accounts": {
     "message": "Accounts"

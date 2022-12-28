@@ -92,7 +92,15 @@
     "message": "Копіювати в буфер обміну"
   },
   "showInTezOrUsd": {
-    "message": "Показати в TEZ/USD"
+    "message": "Показати в $gasToken$/$fiatCurrency$",
+    "placeholders": {
+      "gasToken": {
+        "content": "$1"
+      },
+      "fiatCurrency": {
+        "content": "$2"
+      }
+    }
   },
   "accounts": {
     "message": "Аккаунти"
