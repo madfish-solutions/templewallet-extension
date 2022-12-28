@@ -1,6 +1,6 @@
 name: End-to-end tests
 
-description: Installs dependencies and runs e2e tests
+description: Prepares and runs e2e tests
 
 inputs:
   DEFAULT_SEED_PHRASE:
@@ -32,12 +32,9 @@ runs:
 
     - name: Run tests
       working-directory: ./e2e
-      shell: bash
       env:
         PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true'
         CI: 'true'
-      run: |
-        export DISPLAY=:99
-        chromedriver --url-base=/wd/hub &
-        sudo Xvfb -ac :99 -screen 0 1280x1024x24 > /dev/null 2>&1 & # optional
-        yarn test
+      uses: mujo-code/puppeteer-headful@18.9.0
+      with:
+        args: yarn test

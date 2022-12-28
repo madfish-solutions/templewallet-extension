@@ -1,5 +1,5 @@
 name: Code quality check
-description: Installs dependencies and checks if ts, lint, unit tests
+description: Installs dependencies and checks TS, linting, dead code
 runs:
   using: 'composite'
   steps:
@@ -16,8 +16,4 @@ runs:
 
     - name: Check ESLint
       run: yarn lint
-      shell: bash
-
-    - name: Run Unit tests
-      run: yarn test:coverage
       shell: bash

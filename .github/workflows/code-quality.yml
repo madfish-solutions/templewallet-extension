@@ -15,7 +15,7 @@ env:
 
 jobs:
   pull-request-check:
-    name: Checks if ts, lint, unit tests & build works
+    name: Checks if ts, lint, tests & build work
     runs-on: ubuntu-latest
     environment: production
     steps:
@@ -39,8 +39,11 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-yarn-
 
-      - name: Install dependencies and code quality
+      - name: Install dependencies and code quality check
         uses: ./.github/workflows/code-quality-check
+
+      - name: Perform unit tests
+        run: yarn test:coverage
 
       - name: Create Chrome build
         run: yarn build:chrome
