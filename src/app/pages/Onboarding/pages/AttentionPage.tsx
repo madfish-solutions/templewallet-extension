@@ -3,13 +3,15 @@ import React, { FC } from 'react';
 import { Button } from 'app/atoms/Button';
 import { useAppEnv } from 'app/env';
 import PageLayout from 'app/layouts/PageLayout';
-import { isSafeBrowserVersion } from 'lib/browser-info';
+import { isBrowserVersionSafe } from 'lib/browser';
 import { T } from 'lib/i18n';
 
 import styles from '../Onboarding.module.css';
 
 const AttentionPage: FC = () => {
   const { onBack } = useAppEnv();
+
+  const browserVersionIsSafe = isBrowserVersionSafe();
 
   return (
     <PageLayout
@@ -23,12 +25,12 @@ const AttentionPage: FC = () => {
         <p className={styles['title']}>
           <T id={'attention'} />
         </p>
-        {!isSafeBrowserVersion && (
+        {!browserVersionIsSafe && (
           <p className={styles['alert']}>
             <T id={'browserVersionIsOutOfDate'} />
           </p>
         )}
-        <p className={styles['description']} style={isSafeBrowserVersion ? {} : { marginTop: 24 }}>
+        <p className={styles['description']} style={browserVersionIsSafe ? {} : { marginTop: 24 }}>
           <T id={'attentionDescription'} />
         </p>
         <p className={styles['description']} style={{ textAlign: 'start', marginBottom: 20 }}>

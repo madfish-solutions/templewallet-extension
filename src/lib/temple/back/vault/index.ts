@@ -562,5 +562,3 @@ export class Vault {
     }
   }
 }
-
-// console.log('test', testSrc);

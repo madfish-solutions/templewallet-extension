@@ -3,14 +3,8 @@ import { MichelCodecPacker } from '@taquito/taquito';
 import { validateAddress, ValidationResult } from '@taquito/utils';
 import BigNumber from 'bignumber.js';
 import memoize from 'micro-memoize';
-import type { Browser, Storage as BrowserStorage } from 'webextension-polyfill';
-import browser from 'webextension-polyfill';
 
 import { FastRpcClient } from 'lib/taquito-fast-rpc';
-
-export const browserWithSessionStorage = browser as Browser & {
-  storage: { session?: BrowserStorage.LocalStorageArea };
-};
 
 export const loadFastRpcClient = memoize((rpc: string) => new FastRpcClient(rpc));
 

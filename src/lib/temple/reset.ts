@@ -1,6 +1,4 @@
-import browser from 'webextension-polyfill';
-
-import { browserWithSessionStorage } from 'lib/temple/helpers';
+import { browser } from 'lib/browser';
 import * as Repo from 'lib/temple/repo';
 
 export async function clearAllStorages() {
@@ -12,7 +10,7 @@ export async function clearAsyncStorages() {
   await Repo.db.delete();
   await Repo.db.open();
   await browser.storage.local.clear();
-  await browserWithSessionStorage.storage.session?.clear();
+  await browser.storage.session?.clear();
 }
 
 export function clearLocalStorage(exceptionsKeys?: string[]) {
