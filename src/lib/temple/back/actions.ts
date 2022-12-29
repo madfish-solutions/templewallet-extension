@@ -9,30 +9,8 @@ import {
 } from '@temple-wallet/dapp/dist/types';
 import browser, { Runtime } from 'webextension-polyfill';
 
+import { BACKGROUND_IS_WORKER } from 'lib/env';
 import { addLocalOperation } from 'lib/temple/activity';
-import {
-  getCurrentPermission,
-  requestPermission,
-  requestOperation,
-  requestSign,
-  requestBroadcast,
-  getAllDApps,
-  removeDApp
-} from 'lib/temple/back/dapp';
-import { intercom } from 'lib/temple/back/defaults';
-import { buildFinalOpParmas, dryRunOpParams } from 'lib/temple/back/dryrun';
-import {
-  toFront,
-  store,
-  inited,
-  locked,
-  unlocked,
-  accountsUpdated,
-  settingsUpdated,
-  withInited,
-  withUnlocked
-} from 'lib/temple/back/store';
-import { Vault } from 'lib/temple/back/vault';
 import * as Beacon from 'lib/temple/beacon';
 import { loadChainId } from 'lib/temple/helpers';
 import {
@@ -44,11 +22,35 @@ import {
 } from 'lib/temple/types';
 import { createQueue } from 'lib/utils';
 
+import {
+  getCurrentPermission,
+  requestPermission,
+  requestOperation,
+  requestSign,
+  requestBroadcast,
+  getAllDApps,
+  removeDApp
+} from './dapp';
+import { intercom } from './defaults';
 import type { DryRunResult } from './dryrun';
+import { buildFinalOpParmas, dryRunOpParams } from './dryrun';
+import {
+  toFront,
+  store,
+  inited,
+  locked,
+  unlocked,
+  accountsUpdated,
+  settingsUpdated,
+  withInited,
+  withUnlocked
+} from './store';
+import { Vault } from './vault';
 
 const ACCOUNT_NAME_PATTERN = /^.{0,16}$/;
 const AUTODECLINE_AFTER = 60_000;
 const BEACON_ID = `temple_wallet_${browser.runtime.id}`;
+let initLocked = false;
 
 const enqueueDApp = createQueue();
 const enqueueUnlock = createQueue();
@@ -56,12 +58,18 @@ const enqueueUnlock = createQueue();
 export async function init() {
   const vaultExist = await Vault.isExist();
   inited(vaultExist);
+
+  if (initLocked) {
+    initLocked = false;
+    locked();
+  }
 }
 
 export async function getFrontState(): Promise<TempleState> {
   const state = store.getState();
   if (state.inited) {
-    return toFront(state);
+    if (BACKGROUND_IS_WORKER) return await enqueueUnlock(async () => toFront(store.getState()));
+    else return toFront(state);
   } else {
     await new Promise(r => setTimeout(r, 10));
     return getFrontState();
@@ -88,8 +96,10 @@ export function registerNewWallet(password: string, mnemonic?: string) {
   });
 }
 
-export function lock() {
-  return withInited(async () => {
+export async function lock() {
+  if (!store.getState().inited) initLocked = true;
+  if (BACKGROUND_IS_WORKER) await Vault.forgetSession();
+  return withInited(() => {
     locked();
   });
 }
@@ -97,12 +107,22 @@ export function lock() {
 export function unlock(password: string) {
   return withInited(() =>
     enqueueUnlock(async () => {
-      const vault = await Vault.setup(password);
+      const vault = await Vault.setup(password, BACKGROUND_IS_WORKER);
       const accounts = await vault.fetchAccounts();
       const settings = await vault.fetchSettings();
       unlocked({ vault, accounts, settings });
     })
   );
+}
+
+export async function unlockFromSession() {
+  await enqueueUnlock(async () => {
+    const vault = await Vault.recoverFromSession();
+    if (vault == null) return;
+    const accounts = await vault.fetchAccounts();
+    const settings = await vault.fetchSettings();
+    unlocked({ vault, accounts, settings });
+  });
 }
 
 export function createHDAccount(name?: string) {

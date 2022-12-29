@@ -1,9 +1,18 @@
 {
-  "extends": ["react-app", "plugin:import/errors", "plugin:import/warnings", "plugin:import/typescript"],
+  "extends": [
+    "react-app",
+    "plugin:import/errors",
+    "plugin:import/warnings",
+    "plugin:import/typescript"
+  ],
   "plugins": ["import", "prettier"],
+  "parser": "@typescript-eslint/parser",
   "settings": {
     "import/resolver": {
-      "typescript": {}
+      "typescript": {},
+      "node": {
+        "extensions": [".d.ts"]
+      }
     }
   },
   "rules": {
