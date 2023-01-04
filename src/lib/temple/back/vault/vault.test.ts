@@ -1,7 +1,7 @@
 import browser from 'webextension-polyfill';
 
-import { TempleAccountType, TempleSettings } from '../types';
-import { Vault } from './vault';
+import { TempleAccountType, TempleSettings } from '../../types';
+import { Vault } from './index';
 
 const password = 'Test123!';
 const mnemonic = 'street seminar popular skill actress route treat coral ready bar program affair';

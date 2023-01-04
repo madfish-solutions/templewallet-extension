@@ -3,7 +3,7 @@
  * https://jestjs.io/docs/en/configuration.html
  */
 
-export default {
+const config = {
   coverageProvider: 'v8',
   moduleNameMapper: {
     '^lib/(.*)$': '<rootDir>/src/lib/$1'
@@ -17,3 +17,5 @@ export default {
   setupFiles: ['dotenv/config', '@serh11p/jest-webextension-mock'],
   setupFilesAfterEnv: ['./jest.setup.js']
 };
+
+export default config;
