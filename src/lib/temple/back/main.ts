@@ -1,5 +1,4 @@
 import { Runtime } from 'webextension-polyfill';
-
 import { BACKGROUND_IS_WORKER } from 'lib/env';
 import { encodeMessage, encryptMessage, getSenderId, MessageType, Response } from 'lib/temple/beacon';
 import { TempleMessageType, TempleRequest, TempleResponse } from 'lib/temple/types';
