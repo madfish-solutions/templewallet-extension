@@ -7,7 +7,7 @@ const secureBrowserVersions: Record<string, number> = {
   Safari: 12
 };
 
-const browserInfo = (() => {
+const getBrowserInfo = () => {
   const ua = navigator.userAgent;
   let tem,
     M = ua.match(/(opera|chrome|safari|firefox|msie|trident(?=\/))\/?\s*(\d+)/i) || [];
@@ -31,14 +31,19 @@ const browserInfo = (() => {
   }
 
   return { name: M[0], version: M[1] };
-})();
+};
 
-export const isSafeBrowserVersion = (() => {
+let browserVersionIsSafe: boolean | undefined;
+
+export const isBrowserVersionSafe = () => {
+  if (browserVersionIsSafe != null) return browserVersionIsSafe;
+
+  const browserInfo = getBrowserInfo();
   if (secureBrowserVersions.hasOwnProperty(browserInfo.name)) {
     if (parseInt(browserInfo.version) >= secureBrowserVersions[browserInfo.name]) {
-      return true;
+      return (browserVersionIsSafe = true);
     }
   }
 
-  return false;
-})();
+  return (browserVersionIsSafe = false);
+};

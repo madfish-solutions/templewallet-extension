@@ -11,6 +11,8 @@ export class IntercomServer {
 
   constructor() {
     browser.runtime.onConnect.addListener(port => {
+      if (port.name !== 'INTERCOM') return;
+
       this.addPort(port);
 
       port.onDisconnect.addListener(() => {

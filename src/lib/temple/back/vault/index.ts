@@ -1,24 +1,34 @@
 import { HttpResponseError } from '@taquito/http-utils';
 import { DerivationType } from '@taquito/ledger-signer';
 import { localForger } from '@taquito/local-forging';
-import { InMemorySigner } from '@taquito/signer';
 import { CompositeForger, RpcForger, Signer, TezosOperationError, TezosToolkit } from '@taquito/taquito';
 import * as TaquitoUtils from '@taquito/utils';
 import * as Bip39 from 'bip39';
-import * as Ed25519 from 'ed25519-hd-key';
-import { initialize, SecureCellSeal } from 'wasm-themis';
+import * as WasmThemis from 'wasm-themis';
 
 import { formatOpParamsBeforeSend, loadFastRpcClient, michelEncoder } from 'lib/temple/helpers';
 import * as Passworder from 'lib/temple/passworder';
 import { clearAsyncStorages } from 'lib/temple/reset';
-import { TempleAccount, TempleAccountType, TempleContact, TempleSettings } from 'lib/temple/types';
+import { TempleAccount, TempleAccountType, TempleSettings } from 'lib/temple/types';
 
-import { fetchMessage, transformHttpResponseError } from './helpers';
-import { createLedgerSigner } from './ledger';
-import { PublicError } from './PublicError';
+import { createLedgerSigner } from '../ledger';
+import { PublicError } from '../PublicError';
+import { transformHttpResponseError } from './helpers';
+import { MIGRATIONS } from './migrations';
+import {
+  seedToHDPrivateKey,
+  seedToPrivateKey,
+  deriveSeed,
+  generateCheck,
+  fetchNewAccountName,
+  concatAccount,
+  createMemorySigner,
+  getMainDerivationPath,
+  getPublicKeyAndHash,
+  withError
+} from './misc';
 import {
   encryptAndSaveMany,
-  encryptAndSaveManyLegacy,
   fetchAndDecryptOne,
   fetchAndDecryptOneLegacy,
   getPlain,
@@ -28,31 +38,21 @@ import {
   removeManyLegacy,
   savePlain
 } from './safe-storage';
+import * as SessionStore from './session-store';
+import {
+  checkStrgKey,
+  migrationLevelStrgKey,
+  mnemonicStrgKey,
+  accPrivKeyStrgKey,
+  accPubKeyStrgKey,
+  accountsStrgKey,
+  settingsStrgKey,
+  legacyMigrationLevelStrgKey
+} from './storage-keys';
 
 const TEMPLE_SYNC_PREFIX = 'templesync';
-const TEZOS_BIP44_COINTYPE = 1729;
-const STORAGE_KEY_PREFIX = 'vault';
 const DEFAULT_SETTINGS: TempleSettings = {};
-
-enum StorageEntity {
-  Check = 'check',
-  MigrationLevel = 'migration',
-  Mnemonic = 'mnemonic',
-  AccPrivKey = 'accprivkey',
-  AccPubKey = 'accpubkey',
-  Accounts = 'accounts',
-  Settings = 'settings',
-  LegacyMigrationLevel = 'mgrnlvl'
-}
-
-const checkStrgKey = createStorageKey(StorageEntity.Check);
-const migrationLevelStrgKey = createStorageKey(StorageEntity.MigrationLevel);
-const mnemonicStrgKey = createStorageKey(StorageEntity.Mnemonic);
-const accPrivKeyStrgKey = createDynamicStorageKey(StorageEntity.AccPrivKey);
-const accPubKeyStrgKey = createDynamicStorageKey(StorageEntity.AccPubKey);
-const accountsStrgKey = createStorageKey(StorageEntity.Accounts);
-const settingsStrgKey = createStorageKey(StorageEntity.Settings);
-const legacyMigrationLevelStrgKey = createStorageKey(StorageEntity.LegacyMigrationLevel);
+const libthemisWasmSrc = '/wasm/libthemis.wasm';
 
 export class Vault {
   static async isExist() {
@@ -62,13 +62,27 @@ export class Vault {
     return isStoredLegacy(checkStrgKey);
   }
 
-  static async setup(password: string) {
+  static async setup(password: string, saveSession = false) {
     return withError('Failed to unlock wallet', async () => {
       await Vault.runMigrations(password);
 
-      const passKey = await Vault.toValidPassKey(password);
+      const { passHash, passKey } = await Vault.toValidPassKey(password);
+
+      if (saveSession) await SessionStore.savePassHash(passHash);
+
       return new Vault(passKey);
     });
+  }
+
+  static async recoverFromSession() {
+    const passHash = await SessionStore.getPassHash();
+    if (!passHash) return null;
+    const passKey = await Passworder.importKey(passHash);
+    return new Vault(passKey);
+  }
+
+  static forgetSession() {
+    return SessionStore.removePassHash();
   }
 
   static async spawn(password: string, mnemonic?: string) {
@@ -91,6 +105,8 @@ export class Vault {
       const newAccounts = [initialAccount];
 
       const passKey = await Passworder.generateKey(password);
+
+      await SessionStore.removePassHash();
 
       await clearAsyncStorages();
 
@@ -171,15 +187,15 @@ export class Vault {
   }
 
   static async revealMnemonic(password: string) {
-    const passKey = await Vault.toValidPassKey(password);
+    const { passKey } = await Vault.toValidPassKey(password);
     return withError('Failed to reveal seed phrase', () => fetchAndDecryptOne<string>(mnemonicStrgKey, passKey));
   }
 
   static async generateSyncPayload(password: string) {
     try {
-      await initialize();
+      await WasmThemis.initialize(libthemisWasmSrc);
     } catch {}
-    const passKey = await Vault.toValidPassKey(password);
+    const { passKey } = await Vault.toValidPassKey(password);
     return withError('Failed to generate sync payload', async () => {
       const [mnemonic, allAccounts] = await Promise.all([
         fetchAndDecryptOne<string>(mnemonicStrgKey, passKey),
@@ -191,7 +207,7 @@ export class Vault {
       const data = [mnemonic, hdAccounts.length];
 
       const payload = Uint8Array.from(Buffer.from(JSON.stringify(data)));
-      const cell = SecureCellSeal.withPassphrase(password);
+      const cell = WasmThemis.SecureCellSeal.withPassphrase(password);
       const encrypted = cell.encrypt(payload);
 
       return [TEMPLE_SYNC_PREFIX, encrypted].map(item => Buffer.from(item).toString('base64')).join('');
@@ -199,7 +215,7 @@ export class Vault {
   }
 
   static async revealPrivateKey(accPublicKeyHash: string, password: string) {
-    const passKey = await Vault.toValidPassKey(password);
+    const { passKey } = await Vault.toValidPassKey(password);
     return withError('Failed to reveal private key', async () => {
       const privateKeySeed = await fetchAndDecryptOne<string>(accPrivKeyStrgKey(accPublicKeyHash), passKey);
       const signer = await createMemorySigner(privateKeySeed);
@@ -208,7 +224,7 @@ export class Vault {
   }
 
   static async removeAccount(accPublicKeyHash: string, password: string) {
-    const passKey = await Vault.toValidPassKey(password);
+    const { passKey } = await Vault.toValidPassKey(password);
     return withError('Failed to remove account', async doThrow => {
       const allAccounts = await fetchAndDecryptOne<TempleAccount[]>(accountsStrgKey, passKey);
       const acc = allAccounts.find(a => a.publicKeyHash === accPublicKeyHash);
@@ -227,14 +243,15 @@ export class Vault {
 
   private static toValidPassKey(password: string) {
     return withError('Invalid password', async doThrow => {
-      const passKey = await Passworder.generateKey(password);
+      const passHash = await Passworder.generateHash(password);
+      const passKey = await Passworder.importKey(passHash);
       try {
         await fetchAndDecryptOne<any>(checkStrgKey, passKey);
       } catch (err: any) {
         console.log(err);
         doThrow();
       }
-      return passKey;
+      return { passHash, passKey };
     });
   }
 
@@ -543,200 +560,5 @@ export class Vault {
         const signer = await createMemorySigner(privateKey);
         return { signer, cleanup: () => {} };
     }
-  }
-}
-
-/**
- * Migrations
- *
- * -> -> ->
- */
-
-const MIGRATIONS = [
-  // [1] Fix derivation
-  async (password: string) => {
-    const passKey = await Passworder.generateKeyLegacy(password);
-
-    const [mnemonic, accounts] = await Promise.all([
-      fetchAndDecryptOneLegacy<string>(mnemonicStrgKey, passKey),
-      fetchAndDecryptOneLegacy<TempleAccount[]>(accountsStrgKey, passKey)
-    ]);
-    const migratedAccounts = accounts.map(acc =>
-      acc.type === TempleAccountType.HD
-        ? {
-            ...acc,
-            type: TempleAccountType.Imported
-          }
-        : acc
-    );
-
-    const seed = Bip39.mnemonicToSeedSync(mnemonic);
-    const hdAccIndex = 0;
-    const accPrivateKey = seedToHDPrivateKey(seed, hdAccIndex);
-    const [accPublicKey, accPublicKeyHash] = await getPublicKeyAndHash(accPrivateKey);
-
-    const newInitialAccount: TempleAccount = {
-      type: TempleAccountType.HD,
-      name: await fetchNewAccountName(accounts),
-      publicKeyHash: accPublicKeyHash,
-      hdIndex: hdAccIndex
-    };
-    const newAccounts = [newInitialAccount, ...migratedAccounts];
-
-    await encryptAndSaveManyLegacy(
-      [
-        [accPrivKeyStrgKey(accPublicKeyHash), accPrivateKey],
-        [accPubKeyStrgKey(accPublicKeyHash), accPublicKey],
-        [accountsStrgKey, newAccounts]
-      ],
-      passKey
-    );
-  },
-
-  // [2] Add hdIndex prop to HD Accounts
-  async (password: string) => {
-    const passKey = await Passworder.generateKeyLegacy(password);
-    const accounts = await fetchAndDecryptOneLegacy<TempleAccount[]>(accountsStrgKey, passKey);
-
-    let hdAccIndex = 0;
-    const newAccounts = accounts.map(acc =>
-      acc.type === TempleAccountType.HD ? { ...acc, hdIndex: hdAccIndex++ } : acc
-    );
-
-    await encryptAndSaveManyLegacy([[accountsStrgKey, newAccounts]], passKey);
-  },
-
-  // [3] Improve token managing flow
-  // Migrate from tokens{netId}: TempleToken[] + hiddenTokens{netId}: TempleToken[]
-  // to tokens{chainId}: TempleToken[]
-  async () => {
-    // The code base for this migration has been removed
-    // because it is no longer needed,
-    // but this migration is required for version compatibility.
-  },
-
-  // [4] Improve crypto security
-  // Migrate legacy crypto storage
-  // New crypto updates:
-  // - Use password hash in memory when unlocked(instead of plain password)
-  // - Wrap storage keys in sha256(instead of plain)
-  // - Concat storage values to bytes(instead of json)
-  // - Increase PBKDF rounds
-  async (password: string) => {
-    const legacyPassKey = await Passworder.generateKeyLegacy(password);
-
-    const fetchLegacySafe = async <T>(storageKey: string) => {
-      try {
-        return await fetchAndDecryptOneLegacy<T>(storageKey, legacyPassKey);
-      } catch {
-        return undefined;
-      }
-    };
-
-    const [mnemonic, accounts, settings] = await Promise.all([
-      fetchLegacySafe<string>(mnemonicStrgKey),
-      fetchLegacySafe<TempleAccount[]>(accountsStrgKey),
-      fetchLegacySafe<TempleSettings>(settingsStrgKey)
-    ]);
-
-    // Address book contacts migration
-    const contacts = await getPlain<TempleContact[]>('contacts');
-
-    const accountsStrgKeys = accounts!
-      .map(acc => [accPrivKeyStrgKey(acc.publicKeyHash), accPubKeyStrgKey(acc.publicKeyHash)])
-      .flat();
-
-    const accountsStrgValues = await Promise.all(accountsStrgKeys.map(fetchLegacySafe));
-
-    const toSave = [
-      [checkStrgKey, generateCheck()],
-      [mnemonicStrgKey, mnemonic],
-      [accountsStrgKey, accounts],
-      [settingsStrgKey, { ...settings, contacts }],
-      ...accountsStrgKeys.map((key, i) => [key, accountsStrgValues[i]])
-    ].filter(([_key, value]) => value !== undefined) as [string, any][];
-
-    // Save new storage items
-    const passKey = await Passworder.generateKey(password);
-    await encryptAndSaveMany(toSave, passKey);
-
-    // Remove old
-    await removeManyLegacy([...toSave.map(([key]) => key), 'contacts']);
-  }
-];
-
-/**
- * Misc
- */
-
-function generateCheck() {
-  return Bip39.generateMnemonic(128);
-}
-
-function concatAccount(current: TempleAccount[], newOne: TempleAccount) {
-  if (current.every(a => a.publicKeyHash !== newOne.publicKeyHash)) {
-    return [...current, newOne];
-  }
-
-  throw new PublicError('Account already exists');
-}
-
-type NewAccountName = 'defaultAccountName' | 'defaultManagedKTAccountName' | 'defaultWatchOnlyAccountName';
-
-function fetchNewAccountName(allAccounts: TempleAccount[], templateI18nKey: NewAccountName = 'defaultAccountName') {
-  return fetchMessage(templateI18nKey, String(allAccounts.length + 1));
-}
-
-async function getPublicKeyAndHash(privateKey: string) {
-  const signer = await createMemorySigner(privateKey);
-  return Promise.all([signer.publicKey(), signer.publicKeyHash()]);
-}
-
-async function createMemorySigner(privateKey: string, encPassword?: string) {
-  return InMemorySigner.fromSecretKey(privateKey, encPassword);
-}
-
-function seedToHDPrivateKey(seed: Buffer, hdAccIndex: number) {
-  return seedToPrivateKey(deriveSeed(seed, getMainDerivationPath(hdAccIndex)));
-}
-
-function getMainDerivationPath(accIndex: number) {
-  return `m/44'/${TEZOS_BIP44_COINTYPE}'/${accIndex}'/0'`;
-}
-
-function seedToPrivateKey(seed: Buffer) {
-  return TaquitoUtils.b58cencode(seed.slice(0, 32), TaquitoUtils.prefix.edsk2);
-}
-
-function deriveSeed(seed: Buffer, derivationPath: string) {
-  try {
-    const { key } = Ed25519.derivePath(derivationPath, seed.toString('hex'));
-    return key;
-  } catch (_err) {
-    throw new PublicError('Invalid derivation path');
-  }
-}
-
-function createStorageKey(id: StorageEntity) {
-  return combineStorageKey(STORAGE_KEY_PREFIX, id);
-}
-
-function createDynamicStorageKey(id: StorageEntity) {
-  const keyBase = combineStorageKey(STORAGE_KEY_PREFIX, id);
-  return (...subKeys: (number | string)[]) => combineStorageKey(keyBase, ...subKeys);
-}
-
-function combineStorageKey(...parts: (string | number)[]) {
-  return parts.join('_');
-}
-
-async function withError<T>(errMessage: string, factory: (doThrow: () => void) => Promise<T>) {
-  try {
-    return await factory(() => {
-      throw new Error('<stub>');
-    });
-  } catch (err: any) {
-    console.error(err);
-    throw err instanceof PublicError ? err : new PublicError(errMessage);
   }
 }

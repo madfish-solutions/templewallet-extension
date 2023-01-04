@@ -1,5 +1,6 @@
 import { getMessage } from 'lib/i18n';
 import { isAddressValid, isKTAddress } from 'lib/temple/helpers';
+import { isTruthy } from 'lib/utils';
 
 export function validateDerivationPath(p: string) {
   if (p.length === 0) return true;
@@ -10,7 +11,7 @@ export function validateDerivationPath(p: string) {
     return getMessage('derivationSeparatorMustBeSlash');
   }
 
-  const parts = p.replace('m', '').split('/').filter(Boolean);
+  const parts = p.replace('m', '').split('/').filter(isTruthy);
   if (
     !parts.every(itemPart => {
       const pNum = +(itemPart.includes("'") ? itemPart.replace("'", '') : itemPart);

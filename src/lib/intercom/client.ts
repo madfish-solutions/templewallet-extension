@@ -6,9 +6,10 @@ import { MessageType, RequestMessage } from './types';
 export class IntercomClient {
   private port: Runtime.Port;
   private reqId: number;
+  private subscribers: ((data: any) => void)[] = [];
 
   constructor() {
-    this.port = browser.runtime.connect();
+    this.port = this.buildPort();
     this.reqId = 0;
   }
 
@@ -46,14 +47,12 @@ export class IntercomClient {
    * Allows to subscribe to notifications channel from background process
    */
   subscribe(callback: (data: any) => void) {
-    const listener = (msg: any) => {
-      if (msg?.type === MessageType.Sub) {
-        callback(msg.data);
-      }
-    };
+    this.subscribers.push(callback);
 
-    this.port.onMessage.addListener(listener);
-    return () => this.port.onMessage.removeListener(listener);
+    return () => {
+      const index = this.subscribers.findIndex(callback);
+      if (index > -1) this.subscribers.splice(index, 1);
+    };
   }
 
   destroy() {
@@ -62,5 +61,27 @@ export class IntercomClient {
 
   private send(msg: RequestMessage) {
     this.port.postMessage(msg);
+  }
+
+  private onMessage(message: any) {
+    if (message?.type !== MessageType.Sub) return;
+
+    for (const subscriber of this.subscribers) {
+      try {
+        subscriber(message.data);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+  }
+
+  private buildPort() {
+    const port = browser.runtime.connect({ name: 'INTERCOM' });
+    port.onMessage.addListener(this.onMessage.bind(this));
+    port.onDisconnect.addListener(() => {
+      this.port = this.buildPort();
+    });
+
+    return port;
   }
 }

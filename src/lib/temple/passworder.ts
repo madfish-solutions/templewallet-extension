@@ -53,8 +53,12 @@ export async function decrypt<T = any>(
   return JSON.parse(stuffStr);
 }
 
+export function generateHash(password: string) {
+  return crypto.subtle.digest('SHA-256', Buffer.from(password, 'utf-8'));
+}
+
 export async function generateKey(password: string) {
-  const hash = await crypto.subtle.digest('SHA-256', Buffer.from(password, 'utf-8'));
+  const hash = await generateHash(password);
   return importKey(hash);
 }
 
@@ -79,7 +83,7 @@ export function generateSalt(byteCount = 32) {
   return view;
 }
 
-function importKey(keyData: ArrayBuffer) {
+export function importKey(keyData: ArrayBuffer) {
   return crypto.subtle.importKey('raw', keyData, 'PBKDF2', false, ['deriveBits', 'deriveKey']);
 }
 

@@ -2,6 +2,7 @@ import type { Signer } from '@taquito/taquito';
 import browser from 'webextension-polyfill';
 
 import { PublicError } from 'lib/temple/back/PublicError';
+import { uInt8ArrayToString } from 'lib/utils';
 
 import type {
   ProxiedMethodName,
@@ -11,7 +12,6 @@ import type {
   RequestMessageGeneral,
   ForegroundResponse
 } from './types';
-import { uInt8ArrayToString } from './utils';
 
 export class TempleLedgerSignerProxy implements Signer {
   private creatorArgs: CreatorArguments;

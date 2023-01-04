@@ -2,11 +2,11 @@ import browser from 'webextension-polyfill';
 
 import { isPopupWindow } from 'app/env';
 import { getLedgerTransportType } from 'lib/temple/ledger';
+import { stringToUInt8Array } from 'lib/utils';
 
 import type { TempleLedgerSigner } from '../signer';
 import { TransportType } from '../types';
 import type { RequestMessage, ForegroundResponse, CreatorArguments } from './types';
-import { stringToUInt8Array } from './utils';
 
 let windowIsActive = document.hasFocus();
 

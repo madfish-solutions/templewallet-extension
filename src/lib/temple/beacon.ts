@@ -1,3 +1,4 @@
+import bs58check from 'bs58check';
 import { Buffer } from 'buffer';
 import {
   crypto_generichash,
@@ -19,8 +20,6 @@ import {
 } from 'libsodium-wrappers';
 import memoize from 'p-memoize';
 import browser from 'webextension-polyfill';
-
-import * as bs58check from 'bs58check';
 
 interface AppMetadata {
   senderId: string;
