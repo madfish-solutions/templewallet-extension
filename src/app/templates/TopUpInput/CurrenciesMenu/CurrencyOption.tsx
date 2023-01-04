@@ -3,31 +3,29 @@ import React, { FC } from 'react';
 import classNames from 'clsx';
 import { ListRowProps } from 'react-virtualized';
 
-import { CurrencyInterface } from '../../../../exolix.interface';
-import { getProperNetworkFullName } from '../../../../exolix.util';
-import { StaticCurrencyImage } from '../../StaticCurrencyImage/StaticCurrencyImage';
+import { StaticCurrencyImage } from '../StaticCurrencyImage';
+import { CurrencyBase } from '../types';
+import { getProperNetworkFullName } from '../utils';
 
 interface Props extends Partial<Pick<ListRowProps, 'style'>> {
-  currency: CurrencyInterface;
+  currency: CurrencyBase;
   isSelected: boolean;
-  onClick: (newValue: CurrencyInterface) => void;
+  fitIcons?: boolean;
+  onClick?: (newValue: CurrencyBase) => void;
 }
 
-export const CurrencyOption: FC<Props> = ({ currency, isSelected, style, onClick }) => (
+export const CurrencyOption: FC<Props> = ({ currency, isSelected, fitIcons, style, onClick }) => (
   <button
     type="button"
     style={style}
     className={classNames('p-4 w-full flex items-center', isSelected && 'bg-gray-200')}
-    onClick={() => onClick(currency)}
+    onClick={onClick && (() => onClick(currency))}
   >
     <StaticCurrencyImage
       currencyCode={currency.code}
+      isFiat={Boolean(currency.network)}
       imageSrc={currency.icon}
-      style={{
-        borderRadius: '50%',
-        width: 32,
-        height: 32
-      }}
+      fitImg={fitIcons}
     />
     <div className="flex flex-col ml-2 text-left">
       <div className="flex items-center">

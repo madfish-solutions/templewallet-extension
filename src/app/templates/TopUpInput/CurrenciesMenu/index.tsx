@@ -7,27 +7,38 @@ import Spinner from 'app/atoms/Spinner/Spinner';
 import { useAppEnvStyle } from 'app/hooks/use-app-env-style.hook';
 import { T } from 'lib/i18n';
 
-import { CurrencyInterface } from '../../../exolix.interface';
-import { CurrencyOption } from './CurrencyOption/CurrencyOption';
+import { CurrencyBase } from '../types';
+import { CurrencyOption } from './CurrencyOption';
 
 interface Props {
-  value: CurrencyInterface;
-  options: CurrencyInterface[];
+  value: CurrencyBase;
+  options: CurrencyBase[];
   isLoading?: boolean;
   opened: boolean;
+  fitIcons?: boolean;
   setOpened: (newValue: boolean) => void;
-  onChange: (newValue: CurrencyInterface) => void;
+  onChange?: (newValue: CurrencyBase) => void;
 }
 
-export const CurrenciesMenu: FC<Props> = ({ value, options, isLoading = false, opened, setOpened, onChange }) => {
+export const CurrenciesMenu: FC<Props> = ({
+  value,
+  options,
+  isLoading = false,
+  opened,
+  fitIcons,
+  setOpened,
+  onChange
+}) => {
   const { dropdownWidth } = useAppEnvStyle();
 
-  const handleOptionClick = (newValue: CurrencyInterface) => {
-    if (value.code !== newValue.code || value.network !== newValue.network) {
-      onChange(newValue);
-    }
-    setOpened(false);
-  };
+  const handleOptionClick = onChange
+    ? (newValue: CurrencyBase) => {
+        if (value.code !== newValue.code || value.network !== newValue.network) {
+          onChange(newValue);
+        }
+        setOpened(false);
+      }
+    : undefined;
 
   return (
     <DropdownWrapper
@@ -61,6 +72,7 @@ export const CurrenciesMenu: FC<Props> = ({ value, options, isLoading = false, o
             key={key}
             currency={options[index]}
             isSelected={value.code === options[index].code && value.network === options[index].network}
+            fitIcons={fitIcons}
             style={style}
             onClick={handleOptionClick}
           />

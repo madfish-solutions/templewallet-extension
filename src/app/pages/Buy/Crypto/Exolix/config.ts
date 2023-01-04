@@ -11,17 +11,21 @@ export const outputTokensList: OutputCurrencyInterface[] = [
     code: 'XTZ',
     name: 'Tezos',
     icon: 'https://exolix.com/icons/coins/XTZ.png',
-    network: 'XTZ',
-    networkFullName: 'Tezos',
+    network: {
+      code: 'XTZ',
+      fullName: 'Tezos'
+    },
     slug: 'tez'
   },
   {
     code: 'USDT',
     icon: 'https://exolix.com/icons/coins/USDT.png',
     name: 'TetherUS',
-    network: 'XTZ',
-    networkFullName: 'Tezos Mainnet',
-    networkShortName: 'Tezos',
+    network: {
+      code: 'XTZ',
+      fullName: 'Tezos Mainnet',
+      shortName: 'Tezos'
+    },
     slug: 'KT1XnTn74bUtxHfDtBmm2bGZAQfhPbvKWR8o_0'
   }
 ];

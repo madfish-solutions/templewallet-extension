@@ -9,11 +9,12 @@ import { useMinMaxExchangeAmounts } from 'app/hooks/AliceBob/useMinMaxExchangeAm
 import { useOutputEstimation } from 'app/hooks/AliceBob/useOutputEstimation';
 import { ReactComponent as AlertIcon } from 'app/icons/alert.svg';
 import styles from 'app/pages/Buy/Crypto/Exolix/Exolix.module.css';
-import { TopUpInput } from 'app/pages/Buy/Debit/Utorg/components/TopUpInput/TopUpInput';
 import { WithdrawSelectors } from 'app/pages/Withdraw/Withdraw.selectors';
+import { TopUpInput } from 'app/templates/TopUpInput';
 import { useAnalyticsState } from 'lib/analytics/use-analytics-state.hook';
 import { createAliceBobOrder } from 'lib/apis/temple';
 import { t, T } from 'lib/i18n/react';
+import { FIAT_ICONS_SRC } from 'lib/icons';
 
 import { CardNumberInput } from '../components/CardNumberInput';
 import { useCardNumberInput } from '../components/use-card-number-input.hook';
@@ -98,12 +99,10 @@ export const InitialStep: FC<Omit<StepProps, 'orderInfo'>> = ({ isApiError, setO
 
       <div className="mx-auto mt-10 text-center font-inter font-normal text-gray-700">
         <TopUpInput
-          singleToken
-          isDefaultUahIcon
           amountInputDisabled={isMinMaxLoading}
           amount={inputAmount}
           label={<T id="send" />}
-          currencyName="TEZ"
+          currency={{ code: 'TEZ' }}
           currenciesList={[]}
           minAmount={minExchangeAmount.toString()}
           maxAmount={maxExchangeAmount.toString()}
@@ -117,11 +116,9 @@ export const InitialStep: FC<Omit<StepProps, 'orderInfo'>> = ({ isApiError, setO
         <br />
         <TopUpInput
           readOnly
-          singleToken
-          isDefaultUahIcon
           amountInputDisabled
           label={<T id="get" />}
-          currencyName="UAH"
+          currency={{ code: 'UAH', icon: FIAT_ICONS_SRC.UAH }}
           currenciesList={[]}
           amount={outputAmount}
         />
