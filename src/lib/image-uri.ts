@@ -10,15 +10,11 @@ export const formatAssetUri = (url = '') => {
     return `${MEDIA_HOST}/media/${MEDIA_SIZE}/web/${url.replace(/^https?:\/\//, '')}`;
   }
 
-  if (url.startsWith('chrome-extension')) {
+  if (url.startsWith('data:image/') || url.startsWith('chrome-extension') || url.startsWith('moz-extension')) {
     return url;
   }
 
-  if (url.startsWith('moz-extension')) {
-    return url;
-  }
-
-  return '';
+  return;
 };
 
 export const formatObjktSmallAssetUri = (assetSlug: string) => {
