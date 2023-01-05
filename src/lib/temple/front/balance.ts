@@ -32,7 +32,7 @@ export function useBalance(assetSlug: string, address: string, opts: UseBalanceO
 
   const fetchBalanceLocal = useCallback(async () => {
     if (assetMetadata) return fetchBalance(tezos, assetSlug, address, assetMetadata);
-    throw new Error('Metadata missing, when fetching balance');
+    throw new Error('Metadata missing, when fetching balance-mode');
   }, [tezos, address, assetSlug, assetMetadata]);
 
   const displayed = opts.displayed ?? true;

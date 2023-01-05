@@ -91,7 +91,7 @@ export type DetailedAssetMetdata = AssetMetadata &
     // [default: false]
     // Describes whether an account can have an amount of exactly 0 or 1.
     // The purpose of this field is for wallets to determine whether or not
-    // to display balance information and an amount field when transferring.
+    // to display balance-mode information and an amount field when transferring.
     isBooleanAmount: boolean;
 
     // The object is an array with all elements.
