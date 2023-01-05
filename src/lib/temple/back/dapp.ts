@@ -529,9 +529,7 @@ async function createConfirmationWindow(confirmationId: string) {
 
     // Firefox currently ignores left/top for create, but it works for update
     if (left != null && confirmWin.id && confirmWin.state !== 'fullscreen' && confirmWin.left !== left)
-      try {
-        await browser.windows.update(confirmWin.id, { left, top });
-      } catch {}
+      await browser.windows.update(confirmWin.id, { left, top }).catch(() => void 0);
 
     return confirmWin;
   } catch {
