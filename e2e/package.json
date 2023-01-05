@@ -5,7 +5,8 @@
   "license": "MIT",
   "scripts": {
     "start": "./node_modules/.bin/cucumber-js",
-    "start:dev": "npm start -- --tags @dev",
+    "start:dev": "yarn start --tags @dev",
+    "test": "yarn start --exit",
     "ts": "tsc --pretty"
   },
   "dependencies": {
