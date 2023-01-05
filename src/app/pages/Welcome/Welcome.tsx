@@ -9,7 +9,10 @@ import { ReactComponent as LedgerNanoIcon } from 'app/misc/ledger.svg';
 import { TID, T } from 'lib/i18n';
 import { Link } from 'lib/woozie';
 
-interface TSign {
+import { TestIDProps } from '../../../lib/analytics';
+import { WelcomeTestIds } from './Welcome.test-ids';
+
+interface TSign extends TestIDProps {
   key: string;
   linkTo: string;
   filled: boolean;
@@ -27,7 +30,8 @@ const SIGNS: TSign[] = [
       <EntranceIcon className={classNames('transform rotate-90', className)} {...rest} />
     ),
     titleI18nKey: 'importExistingWallet',
-    descriptionI18nKey: 'importExistingWalletDescription'
+    descriptionI18nKey: 'importExistingWalletDescription',
+    testID: WelcomeTestIds.importExistingWallet
   },
   {
     key: 'create',
@@ -35,7 +39,8 @@ const SIGNS: TSign[] = [
     filled: true,
     Icon: FolderAddIcon,
     titleI18nKey: 'createNewWallet',
-    descriptionI18nKey: 'createNewWalletDescription'
+    descriptionI18nKey: 'createNewWalletDescription',
+    testID: WelcomeTestIds.createNewWallet
   }
 ];
 
@@ -58,7 +63,7 @@ const Welcome: FC = () => {
       </div>
 
       <div className={classNames('w-full', 'my-4', 'flex items-stretch')}>
-        {SIGNS.map(({ key, linkTo, filled, Icon, titleI18nKey, descriptionI18nKey }) => (
+        {SIGNS.map(({ key, linkTo, filled, Icon, titleI18nKey, descriptionI18nKey, testID }) => (
           <div key={key} className={classNames('w-1/2', 'p-4')}>
             <Link
               to={linkTo}
@@ -71,6 +76,7 @@ const Welcome: FC = () => {
                 'transform hover:scale-110 focus:scale-110',
                 'shadow-md hover:shadow-lg focus:shadow-lg'
               )}
+              testID={testID}
             >
               <div className={classNames('absolute inset-0', 'p-1')}>
                 <div

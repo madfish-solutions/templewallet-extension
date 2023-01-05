@@ -4,7 +4,7 @@ import classNames from 'clsx';
 import { Controller, useForm } from 'react-hook-form';
 
 import { PASSWORD_ERROR_CAPTION, FormField, FormSubmitButton, FormCheckbox } from 'app/atoms';
-import { AnalyticsEventCategory, useAnalytics, useAnalyticsSettings } from 'lib/analytics';
+import { AnalyticsEventCategory, TestIDProps, useAnalytics, useAnalyticsSettings } from 'lib/analytics';
 import { T, t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
 import PasswordStrengthIndicator, { PasswordValidation } from 'lib/ui/PasswordStrengthIndicator';
@@ -16,12 +16,13 @@ import {
   PASSWORD_PATTERN,
   specialCharacterRegx,
   uppercaseLowercaseMixtureRegx
-} from '../../defaults';
-import { useOnboardingProgress } from '../Onboarding/hooks/useOnboardingProgress.hook';
+} from '../../../defaults';
+import { useOnboardingProgress } from '../../Onboarding/hooks/useOnboardingProgress.hook';
+import { setWalletPasswordTestIDS } from './SetWalletPassword.test-ids';
 
 const MIN_PASSWORD_LENGTH = 8;
 
-interface FormData {
+interface FormData extends TestIDProps {
   shouldUseKeystorePassword?: boolean;
   password?: string;
   repeatPassword?: string;
@@ -34,6 +35,7 @@ interface SetWalletPasswordProps {
   ownMnemonic?: boolean;
   seedPhrase: string;
   keystorePassword?: string;
+  testID?: string;
 }
 
 export const SetWalletPassword: FC<SetWalletPasswordProps> = ({
@@ -178,6 +180,7 @@ export const SetWalletPassword: FC<SetWalletPasswordProps> = ({
             errorCaption={errors.password?.message}
             onFocus={() => setFocused(true)}
             onChange={handlePasswordChange}
+            testID={setWalletPasswordTestIDS.passwordField}
           />
 
           {passwordValidation && (
@@ -204,6 +207,7 @@ export const SetWalletPassword: FC<SetWalletPasswordProps> = ({
             placeholder="********"
             errorCaption={errors.repeatPassword?.message}
             containerClassName="my-6"
+            testID={setWalletPasswordTestIDS.repeatPasswordField}
           />
         </>
       )}
@@ -238,10 +242,11 @@ export const SetWalletPassword: FC<SetWalletPasswordProps> = ({
       <Controller
         control={control}
         name="skipOnboarding"
-        as={FormCheckbox}
+        as={p => <FormCheckbox {...p} testID={setWalletPasswordTestIDS.skipOnboardingCheckbox} />}
         label={t('skipOnboarding')}
         labelDescription={t('advancedUser')}
         containerClassName="mb-4"
+        testID={setWalletPasswordTestIDS.skipOnboardingCheckbox}
       />
 
       <FormCheckbox
@@ -251,6 +256,7 @@ export const SetWalletPassword: FC<SetWalletPasswordProps> = ({
         errorCaption={errors.termsAccepted?.message}
         name="termsAccepted"
         label={t('acceptTerms')}
+        testID={setWalletPasswordTestIDS.acceptTermsCheckbox}
         labelDescription={
           <T
             id="acceptTermsInputDescription"
@@ -285,7 +291,11 @@ export const SetWalletPassword: FC<SetWalletPasswordProps> = ({
         containerClassName="mb-8"
       />
 
-      <FormSubmitButton loading={submitting} style={{ display: 'block', width: '100%', fontSize: 14, fontWeight: 500 }}>
+      <FormSubmitButton
+        loading={submitting}
+        style={{ display: 'block', width: '100%', fontSize: 14, fontWeight: 500 }}
+        testID={setWalletPasswordTestIDS.importButton}
+      >
         <T id={ownMnemonic ? 'import' : 'create'} />
       </FormSubmitButton>
     </form>

@@ -3,17 +3,19 @@ import React, { ComponentProps, forwardRef, ReactNode } from 'react';
 import classNames from 'clsx';
 
 import Checkbox from 'app/atoms/Checkbox';
+import { setTestID, TestIDProps } from 'lib/analytics';
 
-type FormCheckboxProps = ComponentProps<typeof Checkbox> & {
-  label?: ReactNode;
-  labelDescription?: ReactNode;
-  errorCaption?: ReactNode;
-  containerClassName?: string;
-  labelClassName?: string;
-};
+type FormCheckboxProps = TestIDProps &
+  ComponentProps<typeof Checkbox> & {
+    label?: ReactNode;
+    labelDescription?: ReactNode;
+    errorCaption?: ReactNode;
+    containerClassName?: string;
+    labelClassName?: string;
+  };
 
 export const FormCheckbox = forwardRef<HTMLInputElement, FormCheckboxProps>(
-  ({ label, labelDescription, errorCaption, containerClassName, labelClassName, ...rest }, ref) => (
+  ({ label, labelDescription, errorCaption, containerClassName, labelClassName, testID, ...rest }, ref) => (
     <div className={classNames('flex flex-col', containerClassName)}>
       <label
         className={classNames(
@@ -26,6 +28,7 @@ export const FormCheckbox = forwardRef<HTMLInputElement, FormCheckboxProps>(
           'flex items-center',
           labelClassName
         )}
+        {...setTestID(testID)}
       >
         <Checkbox ref={ref} errored={Boolean(errorCaption)} {...rest} />
 

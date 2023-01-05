@@ -1,6 +1,6 @@
 import React, { AnchorHTMLAttributes, FC, MouseEventHandler, useCallback, useMemo } from 'react';
 
-import { TestIDProps, useAnalytics, AnalyticsEventCategory } from 'lib/analytics';
+import { TestIDProps, useAnalytics, AnalyticsEventCategory, setTestID } from 'lib/analytics';
 
 import { USE_LOCATION_HASH_AS_URL } from './config';
 import { HistoryAction, createUrl, changeState } from './history';
@@ -11,9 +11,8 @@ interface LinkProps extends AnchorHTMLAttributes<HTMLAnchorElement>, TestIDProps
   replace?: boolean;
 }
 
-export const Link: FC<LinkProps> = ({ to, replace, testID, testIDProperties, ...rest }) => {
+export const Link: FC<LinkProps> = ({ to, replace, ...rest }) => {
   const lctn = useLocation();
-  const { trackEvent } = useAnalytics();
 
   const { pathname, search, hash, state } = useMemo(() => createLocationUpdates(to, lctn), [to, lctn]);
 
@@ -22,11 +21,10 @@ export const Link: FC<LinkProps> = ({ to, replace, testID, testIDProperties, ...
   const href = useMemo(() => (USE_LOCATION_HASH_AS_URL ? `${window.location.pathname}#${url}` : url), [url]);
 
   const handleNavigate = useCallback(() => {
-    testID !== undefined && trackEvent(testID, AnalyticsEventCategory.ButtonPress, testIDProperties);
     const action =
       replace || url === createUrl(lctn.pathname, lctn.search, lctn.hash) ? HistoryAction.Replace : HistoryAction.Push;
     changeState(action, state, url);
-  }, [replace, state, url, lctn, testID, testIDProperties, trackEvent]);
+  }, [replace, state, url, lctn]);
 
   return <LinkAnchor {...rest} href={href} onNavigate={handleNavigate} />;
 };
@@ -75,7 +73,7 @@ const LinkAnchor: FC<LinkAnchorProps> = ({
   );
 
   return (
-    <a onClick={handleClick} target={target} {...rest}>
+    <a onClick={handleClick} target={target} {...rest} {...setTestID(testID)}>
       {children}
     </a>
   );
