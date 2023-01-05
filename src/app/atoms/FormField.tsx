@@ -16,18 +16,18 @@ import CleanButton from 'app/atoms/CleanButton';
 import CopyButton from 'app/atoms/CopyButton';
 import { ReactComponent as CopyIcon } from 'app/icons/copy.svg';
 import { ReactComponent as LockAltIcon } from 'app/icons/lock-alt.svg';
+import { setTestID, TestIDProps } from 'lib/analytics';
 import { T } from 'lib/i18n';
 import { blurHandler, checkedHandler, focusHandler } from 'lib/ui/inputHandlers';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 
-import { setTestID } from '../../lib/analytics';
 import usePasswordToggle from './usePasswordToggle.hook';
 
 export const PASSWORD_ERROR_CAPTION = 'PASSWORD_ERROR_CAPTION';
 
 type FormFieldRef = HTMLInputElement | HTMLTextAreaElement;
 type FormFieldAttrs = InputHTMLAttributes<HTMLInputElement> & TextareaHTMLAttributes<HTMLTextAreaElement>;
-interface FormFieldProps extends FormFieldAttrs {
+interface FormFieldProps extends TestIDProps, FormFieldAttrs {
   extraSection?: ReactNode;
   label?: ReactNode;
   labelDescription?: ReactNode;
@@ -46,7 +46,6 @@ interface FormFieldProps extends FormFieldAttrs {
   labelPaddingClassName?: string;
   dropdownInner?: ReactNode;
   copyable?: boolean;
-  testID?: string;
 }
 
 export const FormField = forwardRef<FormFieldRef, FormFieldProps>(

@@ -4,7 +4,7 @@ import classNames from 'clsx';
 import { Controller, useForm } from 'react-hook-form';
 
 import { PASSWORD_ERROR_CAPTION, FormField, FormSubmitButton, FormCheckbox } from 'app/atoms';
-import { AnalyticsEventCategory, useAnalytics, useAnalyticsSettings } from 'lib/analytics';
+import { AnalyticsEventCategory, TestIDProps, useAnalytics, useAnalyticsSettings } from 'lib/analytics';
 import { T, t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
 import PasswordStrengthIndicator, { PasswordValidation } from 'lib/ui/PasswordStrengthIndicator';
@@ -22,14 +22,13 @@ import { setWalletPasswordTestIDS } from './SetWalletPassword.test-ids';
 
 const MIN_PASSWORD_LENGTH = 8;
 
-interface FormData {
+interface FormData extends TestIDProps {
   shouldUseKeystorePassword?: boolean;
   password?: string;
   repeatPassword?: string;
   termsAccepted: boolean;
   analytics?: boolean;
   skipOnboarding?: boolean;
-  testID?: string;
 }
 
 interface SetWalletPasswordProps {

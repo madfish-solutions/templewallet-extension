@@ -2,12 +2,12 @@ import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from 're
 
 import classNames from 'clsx';
 
+import { setTestID, TestIDProps } from 'lib/analytics';
 import { T } from 'lib/i18n';
 
-import { setTestID } from '../../lib/analytics';
 import { ReactComponent as LockAltIcon } from '../icons/lock-alt.svg';
 
-interface SeedWordInputProps {
+interface SeedWordInputProps extends TestIDProps {
   id: number;
   submitted: boolean;
   showSeed: boolean;
@@ -18,7 +18,6 @@ interface SeedWordInputProps {
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onPaste?: (e: React.ClipboardEvent<HTMLInputElement>) => void;
   className?: string;
-  testID?: string;
 }
 
 export const SeedWordInput: FC<SeedWordInputProps> = ({
