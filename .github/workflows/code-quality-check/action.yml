@@ -17,3 +17,7 @@ runs:
     - name: Check ESLint
       run: yarn lint
       shell: bash
+
+    - name: Perform unit tests
+      run: yarn test:coverage
+      shell: bash

@@ -42,9 +42,6 @@ jobs:
       - name: Install dependencies and code quality check
         uses: ./.github/workflows/code-quality-check
 
-      - name: Perform unit tests
-        run: yarn test:coverage
-
       - name: Create Chrome build
         run: yarn build:chrome
 
