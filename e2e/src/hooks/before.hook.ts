@@ -1,7 +1,7 @@
 import { Before } from '@cucumber/cucumber';
 
 import { E2eRequest, E2eMessageType } from '../../../src/lib/e2e/types';
-import { BrowserContext, defaultPassword, defaultSeedPhrase } from '../classes/browser-context.class';
+import { BrowserContext } from '../classes/browser-context.class';
 
 const clearStorageMessage: E2eRequest = { type: E2eMessageType.ResetRequest };
 
@@ -15,8 +15,6 @@ Before(async () => {
     clearStorageMessage
   );
   await BrowserContext.page.evaluate(() => void localStorage.clear());
-  BrowserContext.seedPhrase = defaultSeedPhrase;
-  BrowserContext.password = defaultPassword;
 
   const { browser } = BrowserContext;
   const blankPage = await browser.newPage();

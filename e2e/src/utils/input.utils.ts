@@ -1,14 +1,14 @@
-import { BrowserContext } from '../classes/browser-context.class';
+import { defaultSeedPhrase, defaultPassword } from '../classes/browser-context.class';
 
 export const getInputText = (inputType: string) => {
   let inputText = '';
 
   switch (inputType) {
     case 'seed':
-      inputText = BrowserContext.seedPhrase;
+      inputText = defaultSeedPhrase;
       break;
     case 'password':
-      inputText = BrowserContext.password;
+      inputText = defaultPassword;
       break;
   }
 

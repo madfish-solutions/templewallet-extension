@@ -1,35 +1,38 @@
 import { useCallback, useEffect, useState } from 'react';
 
+import { CurrencyFiat } from 'app/templates/TopUpInput/types';
 import { getAvailableFiatCurrencies, getMinMaxExchangeValue } from 'lib/apis/utorg';
 
-import { booleanSetter } from '../config';
+import { buildIconSrc } from '../utils';
 
-export const useUpdatedExchangeInfo = (setLoading: booleanSetter, setIsApiError: booleanSetter) => {
+export const useUpdatedExchangeInfo = (currency: string, setIsApiError: (v: boolean) => void) => {
   const [isMinMaxLoading, setIsMinMaxLoading] = useState(false);
+  const [isLoading, setLoading] = useState(false);
 
-  const [currencies, setCurrencies] = useState<string[]>([]);
-  const [minXtzExchangeAmount, setMinXtzExchangeAmount] = useState(15);
-  const [maxXtzExchangeAmount, setMaxXtzExchangeAmount] = useState(5000);
+  const [currencies, setCurrencies] = useState<CurrencyFiat[]>([]);
+  const [minAmount, setMinAmount] = useState(0);
+  const [maxAmount, setMaxAmount] = useState(NaN);
 
   const updateMinMaxRequest = useCallback(() => {
     setIsMinMaxLoading(true);
-    getMinMaxExchangeValue()
+    getMinMaxExchangeValue(currency)
       .then(({ minAmount, maxAmount }) => {
-        setMinXtzExchangeAmount(minAmount);
-        setMaxXtzExchangeAmount(maxAmount);
+        setMinAmount(minAmount);
+        setMaxAmount(maxAmount);
         setIsMinMaxLoading(false);
       })
-      .catch(() => {
+      .catch(error => {
+        console.error(error);
         setIsApiError(true);
         setIsMinMaxLoading(false);
       });
-  }, [setIsApiError, setIsMinMaxLoading]);
+  }, [currency, setIsApiError, setIsMinMaxLoading]);
 
   const updateCurrenciesRequest = useCallback(() => {
     setLoading(true);
     getAvailableFiatCurrencies()
-      .then(currencies => {
-        setCurrencies(currencies);
+      .then(codes => {
+        setCurrencies(codes.map(code => ({ code, icon: buildIconSrc(code) })));
         setLoading(false);
       })
       .catch(() => {
@@ -44,9 +47,10 @@ export const useUpdatedExchangeInfo = (setLoading: booleanSetter, setIsApiError:
   }, [updateMinMaxRequest, updateCurrenciesRequest]);
 
   return {
+    isCurrenciesLoading: isLoading,
     currencies,
-    minXtzExchangeAmount,
-    maxXtzExchangeAmount,
+    minAmount,
+    maxAmount,
     isMinMaxLoading
   };
 };

@@ -2,19 +2,20 @@ import { useMemo } from 'react';
 
 export const useDisabledProceed = (
   inputAmount: number | undefined,
-  outputAmount: number,
-  minXtzExchangeAmount: number,
-  maxXtzExchangeAmount: number,
+  minAmount: number,
+  maxAmount: number,
   isApiError: boolean
 ) => {
   const isMinAmountError = useMemo(
-    () => inputAmount !== undefined && inputAmount !== 0 && outputAmount < minXtzExchangeAmount,
-    [inputAmount, outputAmount, minXtzExchangeAmount]
+    () => inputAmount != null && inputAmount > 0 && inputAmount < minAmount,
+    [inputAmount, minAmount]
   );
+
   const isMaxAmountError = useMemo(
-    () => inputAmount !== undefined && inputAmount !== 0 && outputAmount > maxXtzExchangeAmount,
-    [inputAmount, outputAmount, maxXtzExchangeAmount]
+    () => inputAmount != null && inputAmount > 0 && inputAmount > maxAmount,
+    [inputAmount, maxAmount]
   );
+
   const disabledProceed = useMemo(
     () => isMinAmountError || isMaxAmountError || inputAmount === 0 || inputAmount === undefined || isApiError,
     [isMinAmountError, isMaxAmountError, inputAmount, isApiError]

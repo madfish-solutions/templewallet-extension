@@ -2,10 +2,9 @@ import { useCallback, useEffect, useState } from 'react';
 
 import { convertFiatAmountToXtz } from 'lib/apis/utorg';
 
-import { booleanSetter } from '../config';
-
-export const useOutputAmount = (inputAmountDebounced = 0, inputCurrency: string, setLoading: booleanSetter) => {
+export const useOutputAmount = (inputAmountDebounced = 0, inputCurrency: string) => {
   const [outputAmount, setOutputAmount] = useState(0);
+  const [isLoading, setLoading] = useState(false);
 
   const updateOutputRequest = useCallback(() => {
     setLoading(true);
@@ -18,5 +17,5 @@ export const useOutputAmount = (inputAmountDebounced = 0, inputCurrency: string,
     updateOutputRequest();
   }, [updateOutputRequest]);
 
-  return outputAmount;
+  return { isOutputLoading: isLoading, outputAmount };
 };

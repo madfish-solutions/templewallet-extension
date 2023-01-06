@@ -9,13 +9,13 @@ import Divider from 'app/atoms/Divider';
 import styles from 'app/pages/Buy/Crypto/Exolix/Exolix.module.css';
 import ErrorComponent from 'app/pages/Buy/Crypto/Exolix/steps/ErrorComponent';
 import WarningComponent from 'app/pages/Buy/Crypto/Exolix/steps/WarningComponent';
+import { TopUpInput } from 'app/templates/TopUpInput';
 import { useAssetUSDPrice } from 'lib/fiat-currency';
 import { T } from 'lib/i18n';
 import { useAccount } from 'lib/temple/front';
 
-import { TopUpInput } from '../components/TopUpInput/TopUpInput';
 import { EXOLIX_PRIVICY_LINK, EXOLIX_TERMS_LINK, outputTokensList } from '../config';
-import { ExchangeDataInterface, ExchangeDataStatusEnum } from '../exolix.interface';
+import { ExchangeDataInterface, ExchangeDataStatusEnum, OutputCurrencyInterface } from '../exolix.interface';
 import { ExolixSelectors } from '../Exolix.selectors';
 import { getCurrencies, queryExchange, submitExchange } from '../exolix.util';
 import { useCurrenciesCount } from '../hooks/useCurrenciesCount.hook';
@@ -24,8 +24,10 @@ const INITIAL_COIN_FROM = {
   code: 'BTC',
   name: 'Bitcoin',
   icon: 'https://exolix.com/icons/coins/BTC.png',
-  network: 'BTC',
-  networkFullName: 'Bitcoin'
+  network: {
+    code: 'BTC',
+    fullName: 'Bitcoin'
+  }
 };
 const MAX_DOLLAR_VALUE = 10_000;
 const AVERAGE_COMMISSION = 300;
@@ -42,8 +44,8 @@ interface Props {
 const InitialStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isError, setIsError }) => {
   const { publicKeyHash } = useAccount();
 
-  const [coinFrom, setCoinFrom] = useState(INITIAL_COIN_FROM);
-  const [coinTo, setCoinTo] = useState(outputTokensList[0]!);
+  const [coinFrom, setCoinFrom] = useState<OutputCurrencyInterface>(INITIAL_COIN_FROM);
+  const [coinTo, setCoinTo] = useState<OutputCurrencyInterface>(outputTokensList[0]!);
 
   const [amount, setAmount] = useState<number | undefined>();
   const [maxAmountFetched, setMaxAmountFetched] = useState<number | nullish>();
@@ -60,9 +62,9 @@ const InitialStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
     try {
       const data = await submitExchange({
         coinFrom: coinFrom.code,
-        networkFrom: coinFrom.network,
+        networkFrom: coinFrom.network.code,
         coinTo: coinTo.code,
-        networkTo: coinTo.network,
+        networkTo: coinTo.network.code,
         amount: amount ?? 0,
         withdrawalAddress: publicKeyHash,
         withdrawalExtraId: ''
@@ -83,10 +85,10 @@ const InitialStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
   const { data: ratesData } = useSWR(['exolix/api/rate', coinFrom, coinTo, amount], () =>
     queryExchange({
       coinFrom: coinFrom.code,
-      coinFromNetwork: coinFrom.network,
+      coinFromNetwork: coinFrom.network!.code,
       amount: amount ?? 0,
       coinTo: coinTo.code,
-      coinToNetwork: coinTo.network
+      coinToNetwork: coinTo!.network.code
     })
   );
 
@@ -101,10 +103,10 @@ const InitialStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
 
       const { toAmount: maxCoinFromAmount } = await queryExchange({
         coinFrom: coinTo.code,
-        coinFromNetwork: coinTo.network,
+        coinFromNetwork: coinTo.network!.code,
         amount: maxCoinToAmount,
         coinTo: coinFrom.code,
-        coinToNetwork: coinFrom.network
+        coinToNetwork: coinFrom.network!.code
       });
 
       setMaxAmountFetched(maxCoinFromAmount);
@@ -161,7 +163,7 @@ const InitialStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
         currenciesList={currencies ?? []}
         isCurrenciesLoading={isCurrenciesLoading}
         label={<T id="send" />}
-        setCurrency={setCoinFrom}
+        onCurrencySelect={setCoinFrom}
         onAmountChange={setAmount}
         minAmount={minAmountString}
         maxAmount={maxAmountString}
@@ -179,7 +181,7 @@ const InitialStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
         readOnly={true}
         amountInputDisabled={true}
         amount={toAmount}
-        setCurrency={setCoinTo}
+        onCurrencySelect={setCoinTo}
       />
 
       <Divider style={{ marginTop: '40px', marginBottom: '20px' }} />

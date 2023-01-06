@@ -1,6 +1,6 @@
 import { Given } from '@cucumber/cucumber';
 
-import { BrowserContext } from '../classes/browser-context.class';
+import { defaultPassword } from '../classes/browser-context.class';
 import { Pages } from '../page-objects';
 import { getInputText } from '../utils/input.utils';
 import { createPageElement } from '../utils/search.utils';
@@ -36,8 +36,8 @@ Given(/I have imported an existing account/, async () => {
   await Pages.ImportExistingWallet.nextButton.click();
 
   await Pages.SetWallet.isVisible();
-  await Pages.SetWallet.passwordField.type(BrowserContext.password);
-  await Pages.SetWallet.repeatPasswordField.type(BrowserContext.password);
+  await Pages.SetWallet.passwordField.type(defaultPassword);
+  await Pages.SetWallet.repeatPasswordField.type(defaultPassword);
   await Pages.SetWallet.skipOnboarding.click();
   await Pages.SetWallet.acceptTerms.click();
   await Pages.SetWallet.importButton.click();
