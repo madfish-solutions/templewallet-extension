@@ -27,7 +27,12 @@ Given(
   }
 );
 
-Given(/I have imported an existing account/, async () => {
+/*
+ * Since extension reload is now done in the `After` hook, we might need to wait
+ * somewhat longer than default 5_000 ms here, for extension wake-up and page get ready.
+ * Thus, timeout is set.
+ */
+Given(/I have imported an existing account/, { timeout: 15_000 }, async () => {
   await Pages.Welcome.isVisible();
   await Pages.Welcome.importExistingWalletButton.click();
 

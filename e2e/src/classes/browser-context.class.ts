@@ -10,6 +10,7 @@ if (!defaultSeedPhrase) throw new Error('process.env.DEFAULT_SEED_PHRASE not fou
 if (!defaultPassword) throw new Error('process.env.DEFAULT_PASSWORD not found.');
 
 export class BrowserContext {
-  public static browser: Browser;
-  public static page: Page;
+  static EXTENSION_ID: string;
+  static browser: Browser;
+  static page: Page;
 }
