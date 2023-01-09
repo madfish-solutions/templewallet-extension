@@ -4,7 +4,7 @@ import classNames from 'clsx';
 
 import Identicon from 'app/atoms/Identicon';
 import { ReactComponent as CollectiblePlaceholder } from 'app/icons/collectible-placeholder.svg';
-import { formatObjktSmallAssetUri, formatAssetUri } from 'lib/image-uri';
+import { buildTokenIconURLs, buildCollectibleImageURLs } from 'lib/image-uri';
 import { useAssetMetadata } from 'lib/temple/front';
 import { AssetMetadata, getAssetSymbol } from 'lib/temple/metadata';
 import { Image } from 'lib/ui/Image';
@@ -36,16 +36,8 @@ export const AssetIcon: FC<Props> = ({ assetSlug, className, size }) => {
   const isCollectible = Boolean(metadata?.artifactUri);
 
   const src = useMemo(() => {
-    if (isCollectible) {
-      if (metadata)
-        return [
-          formatObjktSmallAssetUri(assetSlug),
-          formatAssetUri(metadata.displayUri),
-          formatAssetUri(metadata.artifactUri),
-          formatAssetUri(metadata.thumbnailUri)
-        ];
-      return formatObjktSmallAssetUri(assetSlug);
-    } else return formatAssetUri(metadata?.thumbnailUri);
+    if (isCollectible) return buildCollectibleImageURLs(assetSlug, metadata, size == null);
+    else return buildTokenIconURLs(metadata?.thumbnailUri, size == null);
   }, [metadata, assetSlug]);
 
   return (
