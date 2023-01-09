@@ -5,6 +5,7 @@ import { Pages } from '../page-objects';
 import { getInputText } from '../utils/input.utils';
 import { createPageElement } from '../utils/search.utils';
 import { enterMyMnemonicStep } from '../utils/shared-steps.utils';
+import { LONG_TIMEOUT } from '../utils/timing.utils';
 
 Given(/^I am on the (\w+) page$/, async (page: keyof typeof Pages) => {
   await Pages[page].isVisible();
@@ -27,12 +28,7 @@ Given(
   }
 );
 
-/*
- * Since extension reload is now done in the `After` hook, we might need to wait
- * somewhat longer than default 5_000 ms here, for extension wake-up and page get ready.
- * Thus, timeout is set.
- */
-Given(/I have imported an existing account/, { timeout: 15_000 }, async () => {
+Given(/I have imported an existing account/, { timeout: LONG_TIMEOUT }, async () => {
   await Pages.Welcome.isVisible();
   await Pages.Welcome.importExistingWalletButton.click();
 
