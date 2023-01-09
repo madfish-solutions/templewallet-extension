@@ -24,7 +24,7 @@ type AssetSelectProps = {
 const AssetSelect: FC<AssetSelectProps> = ({ value, assets, onChange, className }) => {
   const title = useMemo(
     () => (
-      <h2 className={classNames('mb-4', 'leading-tight', 'flex flex-col')}>
+      <h2 className="mb-4 leading-tight flex flex-col">
         <span className="text-base font-semibold text-gray-700">
           <T id="asset" />
         </span>

@@ -11,7 +11,7 @@ const formatAssetUriToAllSizes = (url?: string, includeLarge = false) => {
   if (url.startsWith('ipfs://') || url.startsWith('http'))
     return [
       includeLarge ? formatTcInfraImgUri(url, 'large') : undefined,
-      formatTcInfraImgUri(url, 'medium'),
+      includeLarge ? formatTcInfraImgUri(url, 'medium') : undefined,
       formatTcInfraImgUri(url, 'small')
     ];
 
