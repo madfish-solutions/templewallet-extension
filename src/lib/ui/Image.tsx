@@ -24,20 +24,11 @@ delete ReactImageFallback.prototype.componentWillReceiveProps;
 export const Image: React.FC<Props> = ({ src: sources, alt, loader, fallback, ...rest }) => {
   const localFallback = useMemo(() => fallback || <img alt={alt} {...rest} />, [alt, rest]);
 
-  let src: string | undefined;
-  let fallbackImage: React.ReactElement | (undefined | string | React.ReactElement)[];
-  if (Array.isArray(sources)) {
-    src = sources[0];
-    fallbackImage = [...sources.slice(1), localFallback];
-  } else {
-    src = sources;
-    fallbackImage = localFallback;
-  }
-
-  useMemo(() => {
+  const { src, fallbackImage } = useMemo(() => {
     let src: string | undefined;
     let fallbackImage: React.ReactElement | (undefined | string | React.ReactElement)[];
     if (Array.isArray(sources)) {
+      sources = sources.filter(Boolean);
       src = sources[0];
       fallbackImage = [...sources.slice(1), localFallback];
     } else {
@@ -49,6 +40,13 @@ export const Image: React.FC<Props> = ({ src: sources, alt, loader, fallback, ..
   }, [sources, localFallback]);
 
   return (
-    <ReactImageFallback src={src} alt={alt} initialImage={loader} fallbackImage={fallbackImage as any} {...rest} />
+    <ReactImageFallback
+      key={src} // We force component recreation on src change
+      src={src}
+      alt={alt}
+      initialImage={loader}
+      fallbackImage={fallbackImage as any}
+      {...rest}
+    />
   );
 };
