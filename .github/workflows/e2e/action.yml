@@ -1,0 +1,40 @@
+name: End-to-end tests
+
+description: Prepares and runs e2e tests
+
+inputs:
+  DEFAULT_SEED_PHRASE:
+    required: true
+  DEFAULT_PASSWORD:
+    required: true
+  DEFAULT_HD_ACCOUNT_PRIVATE_KEY:
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - working-directory: ./e2e
+      shell: bash
+      run: yarn install
+
+    - name: Secrets setup
+      working-directory: ./e2e
+      shell: bash
+      run: |
+        cat << EOF > .env
+        DEFAULT_SEED_PHRASE=${{ inputs.DEFAULT_SEED_PHRASE }}
+        DEFAULT_PASSWORD=${{ inputs.DEFAULT_PASSWORD }}
+        DEFAULT_HD_ACCOUNT_PRIVATE_KEY=${{ inputs.DEFAULT_HD_ACCOUNT_PRIVATE_KEY }}
+        EOF
+
+    - name: Run tests
+      working-directory: ./e2e
+      shell: bash
+      env:
+        PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true'
+        CI: 'true'
+      run: |
+        export DISPLAY=:99
+        chromedriver --url-base=/wd/hub &
+        sudo Xvfb -ac :99 -screen 0 1280x1024x24 > /dev/null 2>&1 & # optional
+        yarn test

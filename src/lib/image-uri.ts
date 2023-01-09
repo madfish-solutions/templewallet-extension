@@ -1,27 +1,55 @@
-const MEDIA_HOST = 'https://static.tcinfra.net';
-const MEDIA_SIZE = 'small';
+import type { AssetMetadata } from 'lib/temple/metadata';
 
-export const formatAssetUri = (url = '') => {
+type TcInfraMediaSize = 'small' | 'medium' | 'large';
+
+const MEDIA_HOST = 'https://static.tcinfra.net';
+const DEFAULT_MEDIA_SIZE: TcInfraMediaSize = 'small';
+
+const formatAssetUriToAllSizes = (url?: string, includeLarge = false) => {
+  if (!url) return [];
+
+  if (url.startsWith('ipfs://') || url.startsWith('http'))
+    return [
+      includeLarge ? formatTcInfraImgUri(url, 'large') : undefined,
+      includeLarge ? formatTcInfraImgUri(url, 'medium') : undefined,
+      formatTcInfraImgUri(url, 'small')
+    ];
+
+  if (url.startsWith('data:image/') || url.startsWith('chrome-extension') || url.startsWith('moz-extension')) {
+    return [url];
+  }
+
+  return [];
+};
+
+export { formatAssetUriToAllSizes as buildTokenIconURLs };
+
+export const buildCollectibleImageURLs = (assetSlug: string, metadata?: AssetMetadata | null, includeLarge = false) => {
+  if (metadata == null) return formatObjktSmallAssetUri(assetSlug);
+
+  return [
+    formatObjktSmallAssetUri(assetSlug),
+    ...formatAssetUriToAllSizes(metadata.displayUri, includeLarge),
+    ...formatAssetUriToAllSizes(metadata.artifactUri, includeLarge),
+    ...formatAssetUriToAllSizes(metadata.thumbnailUri, includeLarge)
+  ];
+};
+
+const formatTcInfraImgUri = (url?: string, size: TcInfraMediaSize = DEFAULT_MEDIA_SIZE) => {
+  if (!url) return;
+
   if (url.startsWith('ipfs://')) {
-    return `${MEDIA_HOST}/media/${MEDIA_SIZE}/ipfs/${url.substring(7)}`;
+    return `${MEDIA_HOST}/media/${size}/ipfs/${url.substring(7)}`;
   }
 
   if (url.startsWith('http')) {
-    return `${MEDIA_HOST}/media/${MEDIA_SIZE}/web/${url.replace(/^https?:\/\//, '')}`;
+    return `${MEDIA_HOST}/media/${size}/web/${url.replace(/^https?:\/\//, '')}`;
   }
 
-  if (url.startsWith('chrome-extension')) {
-    return url;
-  }
-
-  if (url.startsWith('moz-extension')) {
-    return url;
-  }
-
-  return '';
+  return;
 };
 
-export const formatObjktSmallAssetUri = (assetSlug: string) => {
+const formatObjktSmallAssetUri = (assetSlug: string) => {
   const [address, id] = assetSlug.split('_');
 
   return `https://assets.objkt.media/file/assets-003/${address}/${id}/thumb288`;

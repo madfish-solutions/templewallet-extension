@@ -5,7 +5,7 @@ enum currencyInfoType {
   FIAT = 'FIAT'
 }
 
-interface utorgCurrencyInfo {
+interface UtorgCurrencyInfo {
   currency: string;
   symbol: string;
   chain: string;
@@ -58,20 +58,24 @@ export const convertFiatAmountToXtz = (paymentAmount: number, fromCurrency: stri
     })
     .then(r => r.data.data);
 
-export const getExchangeRate = (paymentAmount: number, fromCurrency: string) => {
-  const finalPaymentAmount = paymentAmount === 0 ? 1 : paymentAmount;
+/**
+ * @returns Tezos to currency exchange rate
+ */
+export const getExchangeRate = async (inputAmount: number, fromCurrency: string) => {
+  if (!Number.isFinite(inputAmount) || inputAmount <= 0) return;
 
-  return convertFiatAmountToXtz(finalPaymentAmount, fromCurrency).then(
-    res => Math.round((res / finalPaymentAmount) * 10000) / 10000
-  );
+  return await convertFiatAmountToXtz(inputAmount, fromCurrency).then(res => inputAmount / res);
 };
-const getCurrenciesInfo = () => api.post<{ data: utorgCurrencyInfo[] }>('/settings/currency').then(r => r.data.data);
 
-export const getMinMaxExchangeValue = () =>
+const getCurrenciesInfo = () => api.post<{ data: UtorgCurrencyInfo[] }>('/settings/currency').then(r => r.data.data);
+
+export const getMinMaxExchangeValue = (currency: string) =>
   getCurrenciesInfo().then(currenciesInfo => {
-    const tezInfo = currenciesInfo.find(currencyInfo => currencyInfo.currency === 'XTZ')!;
+    const tezInfo = currenciesInfo.find(currencyInfo => currencyInfo.currency === currency);
 
-    return { minAmount: tezInfo.withdrawalMin, maxAmount: tezInfo.withdrawalMax };
+    if (tezInfo == null) throw new Error('Unknown Utorg currency');
+
+    return { minAmount: tezInfo.depositMin, maxAmount: tezInfo.depositMax };
   });
 
 export const getAvailableFiatCurrencies = () =>

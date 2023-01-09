@@ -3,6 +3,7 @@ import React, { FC, useCallback, useMemo, useState } from 'react';
 import { validateMnemonic } from 'bip39';
 import classNames from 'clsx';
 
+import { TestIDProps } from 'lib/analytics';
 import { T, t } from 'lib/i18n';
 import { clearClipboard } from 'lib/ui/util';
 
@@ -11,7 +12,7 @@ import { useAppEnv } from '../env';
 import { SeedLengthSelect } from './SeedLengthSelect';
 import { SeedWordInput } from './SeedWordInput';
 
-interface SeedPhraseInputProps {
+interface SeedPhraseInputProps extends TestIDProps {
   isFirstAccount?: boolean;
   submitted: boolean;
   seedError: string;
@@ -32,7 +33,8 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
   labelWarning,
   onChange,
   setSeedError,
-  reset
+  reset,
+  testID
 }) => {
   const { popup } = useAppEnv();
 
@@ -179,6 +181,7 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
                 onSeedWordChange(index, e);
               }}
               value={draftSeed[index]}
+              testID={testID}
               onPaste={(e: React.ClipboardEvent<HTMLInputElement>) => {
                 const newSeed = e.clipboardData.getData('text');
 

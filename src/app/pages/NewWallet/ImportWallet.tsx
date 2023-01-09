@@ -6,9 +6,9 @@ import { TID, t } from 'lib/i18n';
 import { useTempleClient } from '../../../lib/temple/front';
 import ImportTabSwitcher from '../../atoms/ImportTabSwitcher';
 import { ImportFromKeystoreFile } from './import/ImportFromKeystoreFile';
-import { ImportFromSeedPhrase } from './import/ImportFromSeedPhrase';
+import { ImportFromSeedPhrase } from './import/ImportSeedPhrase/ImportFromSeedPhrase';
 import { LockedWalletExists } from './LockedWalletExists';
-import { SetWalletPassword } from './SetWalletPassword';
+import { SetWalletPassword } from './setWalletPassword/SetWalletPassword';
 
 interface ImportWalletProps {
   tabSlug?: string;

@@ -1,0 +1,12 @@
+{
+  "extends": "../tsconfig.json",
+
+  "files": [ "../webpack.config.ts", "./plugins.d.ts" ],
+  "include": [ "./" ],
+
+  "compilerOptions": {
+    "baseUrl": ".",
+    "target": "ES5",
+    "module": "CommonJS"
+  }
+}

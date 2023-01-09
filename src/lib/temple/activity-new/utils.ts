@@ -8,6 +8,7 @@ import {
   isTzktOperParam_LiquidityBaking,
   ParameterFa2
 } from 'lib/apis/tzkt/utils';
+import { isTruthy } from 'lib/utils';
 
 import type {
   OperationsGroup,
@@ -37,9 +38,7 @@ export function operationsGroupToActivity({ hash, operations }: OperationsGroup,
 }
 
 function reduceTzktOperations(operations: TzktOperation[], address: string): ActivityOperation[] {
-  const reducedOperations = operations
-    .map(op => reduceOneTzktOperation(op, address))
-    .filter(Boolean) as ActivityOperation[];
+  const reducedOperations = operations.map(op => reduceOneTzktOperation(op, address)).filter(isTruthy);
 
   return reducedOperations;
 }

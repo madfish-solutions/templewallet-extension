@@ -2,11 +2,12 @@ import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from 're
 
 import classNames from 'clsx';
 
+import { setTestID, TestIDProps } from 'lib/analytics';
 import { T } from 'lib/i18n';
 
 import { ReactComponent as LockAltIcon } from '../icons/lock-alt.svg';
 
-interface SeedWordInputProps {
+interface SeedWordInputProps extends TestIDProps {
   id: number;
   submitted: boolean;
   showSeed: boolean;
@@ -29,7 +30,8 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
   setShowSeed,
   onChange,
   onPaste,
-  className
+  className,
+  testID
 }) => {
   const [focused, setFocused] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -110,6 +112,7 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
           'text-center',
           className
         )}
+        {...setTestID(testID)}
       />
       {isWordHidden && (
         <div

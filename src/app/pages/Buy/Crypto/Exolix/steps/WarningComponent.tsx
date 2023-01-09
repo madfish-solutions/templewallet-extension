@@ -2,14 +2,14 @@ import React, { FC } from 'react';
 
 import classNames from 'clsx';
 
+import { CurrencyToken } from 'app/templates/TopUpInput';
 import { T } from 'lib/i18n';
 
 import { EXOLIX_CONTACT_LINK } from '../config';
-import { CurrencyInterface } from '../exolix.interface';
 import { getProperNetworkFullName } from '../exolix.util';
 
 interface Props {
-  currency?: CurrencyInterface;
+  currency?: CurrencyToken;
   amountAttention?: boolean;
 }
 

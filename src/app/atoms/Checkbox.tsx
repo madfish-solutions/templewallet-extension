@@ -3,15 +3,17 @@ import React, { forwardRef, InputHTMLAttributes, useCallback, useEffect, useStat
 import classNames from 'clsx';
 
 import { ReactComponent as OkIcon } from 'app/icons/ok.svg';
+import { setTestID, TestIDProps } from 'lib/analytics';
 import { blurHandler, checkedHandler, focusHandler } from 'lib/ui/inputHandlers';
 
-type CheckboxProps = InputHTMLAttributes<HTMLInputElement> & {
-  containerClassName?: string;
-  errored?: boolean;
-};
+type CheckboxProps = TestIDProps &
+  InputHTMLAttributes<HTMLInputElement> & {
+    containerClassName?: string;
+    errored?: boolean;
+  };
 
 const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
-  ({ containerClassName, errored = false, className, checked, onChange, onFocus, onBlur, ...rest }, ref) => {
+  ({ containerClassName, errored = false, className, checked, onChange, onFocus, onBlur, testID, ...rest }, ref) => {
     const [localChecked, setLocalChecked] = useState(() => checked ?? false);
 
     useEffect(() => {
@@ -75,6 +77,7 @@ const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
           onChange={handleChange}
           onFocus={handleFocus}
           onBlur={handleBlur}
+          {...setTestID(testID)}
           {...rest}
         />
 
