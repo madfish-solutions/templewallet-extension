@@ -1,6 +1,8 @@
+import retry from 'async-retry';
 import path from 'path';
-import { launch } from 'puppeteer';
+import { Browser, launch } from 'puppeteer';
 
+import { RETRY_OPTIONS } from './timing.utils';
 const EXTENSION_PATH = path.resolve(__dirname, '../../../dist/chrome_unpacked');
 
 export const initBrowser = () =>
@@ -8,3 +10,21 @@ export const initBrowser = () =>
     headless: false,
     args: [`--disable-extensions-except=${EXTENSION_PATH}`, `--load-extension=${EXTENSION_PATH}`]
   });
+
+export const getExtensionId = async (browser: Browser) => {
+  const background = await retry(async () => {
+    const background = browser
+      .targets()
+      .find(
+        target =>
+          target.url().startsWith('chrome-extension://') &&
+          ['service_worker', 'background_page'].includes(target.type())
+      );
+
+    if (background == null) throw new Error(`Extension not found`);
+
+    return background;
+  }, RETRY_OPTIONS);
+
+  return new URL(background.url()).hostname;
+};
