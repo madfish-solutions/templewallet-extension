@@ -19,7 +19,7 @@ import { ReactComponent as MaximiseIcon } from 'app/icons/maximise.svg';
 import { ReactComponent as SettingsIcon } from 'app/icons/settings.svg';
 import Balance from 'app/templates/Balance';
 import SearchField from 'app/templates/SearchField';
-import { AnalyticsEventCategory, TestIDProps, useAnalytics } from "lib/analytics";
+import { AnalyticsEventCategory, TestIDProps, useAnalytics } from 'lib/analytics';
 import { TID, T, t } from 'lib/i18n';
 import { useAccount, useRelevantAccounts, useSetAccountPkh, useTempleClient, useGasToken } from 'lib/temple/front';
 import { TempleAccount } from 'lib/temple/types';
