@@ -13,6 +13,8 @@
     "@cucumber/cucumber": "^8.7.0",
     "puppeteer": "^19.4.0",
     "ts-node": "^10.9.1",
-    "dotenv": "^16.0.3"
+    "dotenv": "^16.0.3",
+    "@types/chai": "^4.3.4",
+    "chai": "^4.3.7"
   }
 }

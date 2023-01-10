@@ -21,7 +21,7 @@ import { T } from 'lib/i18n';
 import { blurHandler, checkedHandler, focusHandler } from 'lib/ui/inputHandlers';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 
-import usePasswordToggle from '../usePasswordToggle.hook';
+import usePasswordToggle from './usePasswordToggle.hook';
 
 export const PASSWORD_ERROR_CAPTION = 'PASSWORD_ERROR_CAPTION';
 
