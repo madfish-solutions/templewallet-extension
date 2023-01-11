@@ -441,38 +441,7 @@ async function requestConfirm({ id, payload, onDecline, handleIntercomRequest }:
     }
   });
 
-  const isWin = (await browser.runtime.getPlatformInfo()).os === 'win';
-
-  let left = 0;
-  let top = 0;
-  try {
-    const lastFocused = await browser.windows.getLastFocused();
-    // Position window in top right corner of lastFocused window.
-
-    top = Math.round(lastFocused.top! + lastFocused.height! / 2 - CONFIRM_WINDOW_HEIGHT / 2);
-    left = Math.round(lastFocused.left! + lastFocused.width! / 2 - CONFIRM_WINDOW_WIDTH / 2);
-  } catch {
-    // The following properties are more than likely 0, due to being
-    // opened from the background chrome process for the extension that
-    // has no physical dimensions
-    const { screenX, screenY, outerWidth, outerHeight } = window;
-    top = Math.round(screenY + outerHeight / 2 - CONFIRM_WINDOW_HEIGHT / 2);
-    left = Math.round(screenX + outerWidth / 2 - CONFIRM_WINDOW_WIDTH / 2);
-  }
-
-  const confirmWin = await browser.windows.create({
-    type: 'popup',
-    url: browser.runtime.getURL(`confirm.html#?id=${id}`),
-    width: isWin ? CONFIRM_WINDOW_WIDTH + 16 : CONFIRM_WINDOW_WIDTH,
-    height: isWin ? CONFIRM_WINDOW_HEIGHT + 17 : CONFIRM_WINDOW_HEIGHT,
-    top: Math.max(top, 20),
-    left: Math.max(left, 20)
-  });
-
-  // Firefox currently ignores left/top for create, but it works for update
-  if (confirmWin.id && confirmWin.left !== left && confirmWin.state !== 'fullscreen') {
-    await browser.windows.update(confirmWin.id, { left, top });
-  }
+  const confirmWin = await createConfirmationWindow(id);
 
   const closeWindow = async () => {
     if (confirmWin.id) {
@@ -537,4 +506,45 @@ function isNetworkEquals(fNet: TempleDAppNetwork, sNet: TempleDAppNetwork) {
 
 function removeLastSlash(str: string) {
   return str.endsWith('/') ? str.slice(0, -1) : str;
+}
+
+async function createConfirmationWindow(confirmationId: string) {
+  const isWin = (await browser.runtime.getPlatformInfo()).os === 'win';
+
+  const height = isWin ? CONFIRM_WINDOW_HEIGHT + 17 : CONFIRM_WINDOW_HEIGHT;
+  const width = isWin ? CONFIRM_WINDOW_WIDTH + 16 : CONFIRM_WINDOW_WIDTH;
+
+  const [top, left] = (await getCenterPositionForWindow(width, height)) || [];
+
+  const options: browser.Windows.CreateCreateDataType = {
+    type: 'popup',
+    url: browser.runtime.getURL(`confirm.html#?id=${confirmationId}`),
+    width,
+    height
+  };
+
+  try {
+    /* Trying, because must have 50% of window in a viewport. Otherwise, error thrown. */
+    const confirmWin = await browser.windows.create({ ...options, top, left });
+
+    // Firefox currently ignores left/top for create, but it works for update
+    if (left != null && confirmWin.id && confirmWin.state !== 'fullscreen' && confirmWin.left !== left)
+      await browser.windows.update(confirmWin.id, { left, top }).catch(() => void 0);
+
+    return confirmWin;
+  } catch {
+    return await browser.windows.create(options);
+  }
+}
+
+/** Position window in the center of lastFocused window */
+async function getCenterPositionForWindow(width: number, height: number): Promise<[number, number] | undefined> {
+  const lastFocused = await browser.windows.getLastFocused().catch(() => void 0);
+
+  if (lastFocused == null || lastFocused.width == null) return;
+
+  const top = Math.round(lastFocused.top! + lastFocused.height! / 2 - height / 2);
+  const left = Math.round(lastFocused.left! + lastFocused.width! / 2 - width / 2);
+
+  return [top, left];
 }
