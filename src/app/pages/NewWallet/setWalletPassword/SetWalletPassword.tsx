@@ -29,6 +29,7 @@ interface FormData extends TestIDProps {
   termsAccepted: boolean;
   analytics?: boolean;
   skipOnboarding?: boolean;
+  testID?: string;
 }
 
 interface SetWalletPasswordProps {

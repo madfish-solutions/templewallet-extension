@@ -8,8 +8,10 @@ const defaultPrivateKey = getEnv('DEFAULT_HD_ACCOUNT_PRIVATE_KEY');
 
 if (!defaultSeedPhrase) throw new Error('process.env.DEFAULT_SEED_PHRASE not found.');
 if (!defaultPassword) throw new Error('process.env.DEFAULT_PASSWORD not found.');
+if (!defaultPrivateKey) throw new Error('process.env.DEFAULT_PASSWORD not found.');
 
 export class BrowserContext {
+  public static EXTENSION_ID: string;
   public static browser: Browser;
   public static page: Page;
   public static seedPhrase = defaultSeedPhrase;

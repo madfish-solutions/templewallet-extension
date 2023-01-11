@@ -18,6 +18,7 @@ interface SeedWordInputProps extends TestIDProps {
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onPaste?: (e: React.ClipboardEvent<HTMLInputElement>) => void;
   className?: string;
+  testID?: string;
 }
 
 export const SeedWordInput: FC<SeedWordInputProps> = ({

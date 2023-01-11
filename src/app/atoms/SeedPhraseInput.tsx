@@ -21,6 +21,7 @@ interface SeedPhraseInputProps extends TestIDProps {
   onChange: (seed: string) => void;
   setSeedError: (e: string) => void;
   reset: () => void;
+  testID?: string;
 }
 
 const defaultNumberOfWords = 12;
