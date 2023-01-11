@@ -46,7 +46,6 @@ interface FormFieldProps extends TestIDProps, FormFieldAttrs {
   labelPaddingClassName?: string;
   dropdownInner?: ReactNode;
   copyable?: boolean;
-  testID?: string;
 }
 
 export const FormField = forwardRef<FormFieldRef, FormFieldProps>(
