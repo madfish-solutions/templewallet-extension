@@ -1,0 +1,15 @@
+name: Secrets setup
+
+description: Writes secrets
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Create e2e/.env file
+      shell: bash
+      run: |
+        cat << EOF > e2e/.env
+        DEFAULT_SEED_PHRASE=${{ inputs.DEFAULT_SEED_PHRASE }}
+        DEFAULT_PASSWORD=${{ inputs.DEFAULT_PASSWORD }}
+        DEFAULT_HD_ACCOUNT_PRIVATE_KEY=${{ inputs.DEFAULT_HD_ACCOUNT_PRIVATE_KEY }}
+        EOF

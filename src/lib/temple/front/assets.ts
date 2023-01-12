@@ -327,11 +327,11 @@ function searchAssets(searchValue: string, assetSlugs: string[], allTokensBaseMe
     })),
     {
       keys: [
-        { name: 'metadata.name', weight: 0.9 },
-        { name: 'metadata.symbol', weight: 0.7 },
-        { name: 'slug', weight: 0.3 }
+        { name: 'metadata.symbol', weight: 1 },
+        { name: 'metadata.name', weight: 0.25 },
+        { name: 'slug', weight: 0.1 }
       ],
-      threshold: 1
+      threshold: 0.1
     }
   );
 

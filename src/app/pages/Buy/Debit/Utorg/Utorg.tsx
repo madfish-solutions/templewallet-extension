@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { useDebouncedCallback } from 'use-debounce';
 
@@ -6,63 +6,68 @@ import { FormSubmitButton } from 'app/atoms';
 import Divider from 'app/atoms/Divider';
 import { ReactComponent as AttentionRedIcon } from 'app/icons/attentionRed.svg';
 import PageLayout from 'app/layouts/PageLayout';
+import { TopUpInput } from 'app/templates/TopUpInput';
+import { CurrencyFiat } from 'app/templates/TopUpInput/types';
 import { createOrder } from 'lib/apis/utorg';
 import { T } from 'lib/i18n';
 import { useAccount } from 'lib/temple/front';
 
 import { BuySelectors } from '../../Buy.selectors';
 import styles from '../../Crypto/Exolix/Exolix.module.css';
-import { TopUpInput } from './components/TopUpInput/TopUpInput';
-import { UTORG_PRIVICY_LINK, UTORG_TERMS_LINK } from './config';
 import { useDisabledProceed } from './hooks/useDisabledProceed';
 import { useExchangeRate } from './hooks/useExchangeRate';
 import { useOutputAmount } from './hooks/useOutputAmount';
 import { useUpdatedExchangeInfo } from './hooks/useUpdatedExchangeInfo';
+import { UTORG_PRIVICY_LINK, UTORG_TERMS_LINK, buildIconSrc } from './utils';
 
 const DEFAULT_CURRENCY = 'USD';
 const REQUEST_LATENCY = 300;
 
 export const Utorg = () => {
-  const [inputCurrency, setInputCurrency] = useState(DEFAULT_CURRENCY);
-  const [inputAmount, setInputAmount] = useState<number | undefined>(undefined);
+  const [inputCurrencyCode, setInputCurrencyCode] = useState(DEFAULT_CURRENCY);
+  const [inputAmount, setInputAmount] = useState<number | undefined>();
 
   const [link, setLink] = useState('');
 
   const [isApiError, setIsApiError] = useState(false);
-  const [isLoading, setLoading] = useState(false);
+  const [isOrderLinkLoading, setOrderLinkLoading] = useState(false);
 
   const { publicKeyHash } = useAccount();
 
-  const exchangeRate = useExchangeRate(inputAmount, inputCurrency, setLoading);
-  const outputAmount = useOutputAmount(inputAmount, inputCurrency, setLoading);
+  const { isOutputLoading, outputAmount } = useOutputAmount(inputAmount, inputCurrencyCode);
 
-  const { currencies, minXtzExchangeAmount, maxXtzExchangeAmount, isMinMaxLoading } = useUpdatedExchangeInfo(
-    setLoading,
+  const { isCurrenciesLoading, currencies, minAmount, maxAmount, isMinMaxLoading } = useUpdatedExchangeInfo(
+    inputCurrencyCode,
     setIsApiError
   );
 
+  const { isRateLoading, exchangeRate } = useExchangeRate(inputAmount, minAmount, inputCurrencyCode);
+
   const { isMinAmountError, isMaxAmountError, disabledProceed } = useDisabledProceed(
     inputAmount,
-    outputAmount,
-    minXtzExchangeAmount,
-    maxXtzExchangeAmount,
+    minAmount,
+    maxAmount,
     isApiError
   );
 
+  const inputCurrency: CurrencyFiat = useMemo(
+    () => ({ code: inputCurrencyCode, icon: buildIconSrc(inputCurrencyCode) }),
+    [inputCurrencyCode]
+  );
+
   const linkRequest = useCallback(() => {
-    if (!disabledProceed) {
-      setLoading(true);
-      createOrder(outputAmount, inputCurrency, publicKeyHash)
-        .then(url => setLink(url))
-        .finally(() => setLoading(false));
-    }
-  }, [outputAmount, disabledProceed, inputCurrency, publicKeyHash]);
+    if (disabledProceed) return;
+    setOrderLinkLoading(true);
+    createOrder(outputAmount, inputCurrencyCode, publicKeyHash)
+      .then(setLink)
+      .finally(() => setOrderLinkLoading(false));
+  }, [outputAmount, disabledProceed, inputCurrencyCode, publicKeyHash]);
 
   const debouncedLinkRequest = useDebouncedCallback(linkRequest, REQUEST_LATENCY);
 
-  useEffect(() => debouncedLinkRequest(), [debouncedLinkRequest, inputAmount, inputCurrency]);
+  useEffect(() => debouncedLinkRequest(), [debouncedLinkRequest, inputAmount, inputCurrencyCode]);
 
-  const handleInputAmountChange = useCallback((amount?: number) => setInputAmount(amount), []);
+  const isLoading = isOutputLoading || isRateLoading || isOrderLinkLoading || isCurrenciesLoading;
 
   return (
     <PageLayout
@@ -80,42 +85,47 @@ export const Utorg = () => {
           </h3>
         </div>
       )}
+
       <div className="max-w-sm mx-auto mt-4 mb-10 text-center font-inter font-normal text-gray-700">
         <TopUpInput
           isSearchable
           label={<T id="send" />}
           amount={inputAmount}
-          currencyName={inputCurrency}
+          currency={inputCurrency}
           currenciesList={currencies}
-          setCurrencyName={setInputCurrency}
-          onAmountChange={handleInputAmountChange}
+          minAmount={String(minAmount)}
+          maxAmount={String(maxAmount || '---')}
+          isMinAmountError={isMinAmountError}
+          isMaxAmountError={isMaxAmountError}
+          onCurrencySelect={currency => setInputCurrencyCode(currency.code)}
+          onAmountChange={setInputAmount}
           amountInputDisabled={isMinMaxLoading}
+          fitIcons={true}
           className="mb-4"
         />
 
         <br />
+
         <TopUpInput
           readOnly
-          singleToken
           amountInputDisabled
           label={<T id="get" />}
-          currencyName="TEZ"
+          currency={{ code: 'TEZ' }}
           currenciesList={[]}
-          minAmount={minXtzExchangeAmount.toString()}
-          maxAmount={maxXtzExchangeAmount.toString()}
-          isMinAmountError={isMinAmountError}
-          isMaxAmountError={isMaxAmountError}
           amount={outputAmount}
         />
+
         <Divider style={{ marginTop: '40px', marginBottom: '20px' }} />
+
         <div className={styles['exchangeRateBlock']}>
           <p className={styles['exchangeTitle']}>
             <T id={'exchangeRate'} />
           </p>
           <p className={styles['exchangeData']}>
-            1 {inputCurrency} ≈ {exchangeRate} TEZ
+            1 TEZ ≈ {exchangeRate} {inputCurrencyCode}
           </p>
         </div>
+
         <FormSubmitButton
           className="w-full justify-center border-none mt-6"
           style={{
@@ -139,6 +149,7 @@ export const Utorg = () => {
             <T id="next" />
           </a>
         </FormSubmitButton>
+
         <div className="border-solid border-gray-300" style={{ borderTopWidth: 1 }}>
           <p className="mt-6">
             <T
