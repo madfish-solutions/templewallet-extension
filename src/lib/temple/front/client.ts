@@ -467,7 +467,7 @@ function formatOpParams(op: any) {
     case 'origination':
       return {
         ...op,
-        mutez: true // The balance-mode was already converted from Tez (ꜩ) to Mutez (uꜩ)
+        mutez: true // The balance was already converted from Tez (ꜩ) to Mutez (uꜩ)
       };
     case 'transaction':
       const { destination, amount, parameters, ...txRest } = op;
