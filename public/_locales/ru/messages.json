@@ -38,7 +38,7 @@
   "copyHashToClipboard": {
     "message": "Скопировать хэш в буфер обмена"
   },
-  "showInTezOrUsd": {
+  "showInGasOrFiat": {
     "message": "Показать в $gasToken$/$fiatCurrency$",
     "placeholders": {
       "gasToken": {

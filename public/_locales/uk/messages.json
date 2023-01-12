@@ -91,7 +91,7 @@
   "copyHashToClipboard": {
     "message": "Копіювати в буфер обміну"
   },
-  "showInTezOrUsd": {
+  "showInGasOrFiat": {
     "message": "Показати в $gasToken$/$fiatCurrency$",
     "placeholders": {
       "gasToken": {

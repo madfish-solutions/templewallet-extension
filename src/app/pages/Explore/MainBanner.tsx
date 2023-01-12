@@ -6,6 +6,9 @@ import { useDispatch } from 'react-redux';
 
 import { Button } from 'app/atoms';
 import Money from 'app/atoms/Money';
+import { toggleBalanceMode } from 'app/store/balance-mode/actions';
+import { useBalanceModeSelector } from 'app/store/balance-mode/selectors';
+import { BalanceMode } from 'app/store/balance-mode/state';
 import { AssetIcon } from 'app/templates/AssetIcon';
 import Balance from 'app/templates/Balance';
 import InFiat from 'app/templates/InFiat';
@@ -17,9 +20,6 @@ import { useTotalBalance } from 'lib/temple/front/use-total-balance.hook';
 import { getAssetName, getAssetSymbol } from 'lib/temple/metadata';
 import useTippy from 'lib/ui/useTippy';
 
-import { toggleBalanceMode } from '../../store/balance-mode/actions';
-import { useBalanceModeSelector } from '../../store/balance-mode/selectors';
-import { BalanceMode } from '../../store/balance-mode/state';
 import AddressChip from './AddressChip';
 
 interface Props {
@@ -31,9 +31,7 @@ const MainBanner = memo<Props>(({ assetSlug, accountPkh }) => {
   return assetSlug ? (
     <AssetBanner assetSlug={assetSlug ?? 'tez'} accountPkh={accountPkh} />
   ) : (
-    <>
-      <TotalVolumeBanner accountPkh={accountPkh} />
-    </>
+    <TotalVolumeBanner accountPkh={accountPkh} />
   );
 });
 
@@ -65,7 +63,7 @@ const BalanceInfo: FC<TotalVolumeBannerProps> = ({ accountPkh }) => {
     () => ({
       trigger: 'mouseenter',
       hideOnClick: false,
-      content: t('showInTezOrUsd', [fiatName, gasTokenSymbol]),
+      content: t('showInGasOrFiat', [fiatName, gasTokenSymbol]),
       animation: 'shift-away-subtle'
     }),
     []

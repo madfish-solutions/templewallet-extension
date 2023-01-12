@@ -94,7 +94,7 @@
   "copyHashToClipboard": {
     "message": "Copy to clipboard"
   },
-  "showInTezOrUsd": {
+  "showInGasOrFiat": {
     "message": "Show in $gasToken$/$fiatCurrency$",
     "placeholders": {
       "gasToken": {
