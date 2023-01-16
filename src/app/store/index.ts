@@ -8,6 +8,7 @@ import { createStore, GetStateType, rootStateReducer } from 'lib/store';
 
 import { advertisingEpics } from './advertising/epics';
 import { advertisingReducer } from './advertising/reducers';
+import { balanceModeReducer } from './balance-mode/reducers';
 import { currencyEpics } from './currency/epics';
 import { currencyReducer } from './currency/reducers';
 import { dAppsEpics } from './d-apps/epics';
@@ -17,7 +18,8 @@ const baseReducer = rootStateReducer({
   advertising: advertisingReducer,
   currency: currencyReducer,
   notifications: notificationsReducers,
-  dApps: dAppsReducer
+  dApps: dAppsReducer,
+  balanceMode: balanceModeReducer
 });
 
 export type RootState = GetStateType<typeof baseReducer>;

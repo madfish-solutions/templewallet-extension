@@ -1,17 +1,24 @@
-import React, { memo, FC } from 'react';
+import React, { memo, FC, useMemo } from 'react';
 
 import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
+import { useDispatch } from 'react-redux';
 
+import { Button } from 'app/atoms';
 import Money from 'app/atoms/Money';
+import { toggleBalanceMode } from 'app/store/balance-mode/actions';
+import { useBalanceModeSelector } from 'app/store/balance-mode/selectors';
+import { BalanceMode } from 'app/store/balance-mode/state';
 import { AssetIcon } from 'app/templates/AssetIcon';
 import Balance from 'app/templates/Balance';
 import InFiat from 'app/templates/InFiat';
 import { useFiatCurrency } from 'lib/fiat-currency';
-import { T } from 'lib/i18n';
+import { t, T } from 'lib/i18n';
+import { TezosLogoIcon } from 'lib/icons';
 import { TEZ_TOKEN_SLUG, useAssetMetadata, useBalance, useGasToken, useNetwork } from 'lib/temple/front';
 import { useTotalBalance } from 'lib/temple/front/use-total-balance.hook';
 import { getAssetName, getAssetSymbol } from 'lib/temple/metadata';
+import useTippy from 'lib/ui/useTippy';
 
 import AddressChip from './AddressChip';
 
@@ -34,75 +41,110 @@ interface TotalVolumeBannerProps {
   accountPkh: string;
 }
 
-const TotalVolumeBanner: FC<TotalVolumeBannerProps> = ({ accountPkh }) => {
+const TotalVolumeBanner: FC<TotalVolumeBannerProps> = ({ accountPkh }) => (
+  <div className="flex items-start justify-between w-full max-w-sm mx-auto mb-4">
+    <BalanceInfo accountPkh={accountPkh} />
+    <AddressChip pkh={accountPkh} />
+  </div>
+);
+
+const BalanceInfo: FC<TotalVolumeBannerProps> = ({ accountPkh }) => {
+  const dispatch = useDispatch();
   const network = useNetwork();
-
-  if (network.type === 'main') return <TotalVolumeBannerInFiat accountPkh={accountPkh} />;
-
-  return <TotalVolumeBannerInGasToken accountPkh={accountPkh} />;
-};
-
-const TotalVolumeBannerInFiat: FC<TotalVolumeBannerProps> = ({ accountPkh }) => {
-  const { selectedFiatCurrency } = useFiatCurrency();
-
   const volumeInFiat = useTotalBalance();
+  const balanceMode = useBalanceModeSelector();
 
-  return (
-    <TotalVolumeBannerBase
-      accountPkh={accountPkh}
-      titleNode={<T id="totalEquityValue" />}
-      balanceNode={
-        <>
-          <span className="mr-1">≈</span>
-          <Money smallFractionFont={false} fiat>
-            {volumeInFiat}
-          </Money>
-          <span className="ml-1">{selectedFiatCurrency.symbol}</span>
-        </>
-      }
-    />
+  const {
+    selectedFiatCurrency: { name: fiatName, symbol: fiatSymbol }
+  } = useFiatCurrency();
+  const { name: gasTokenName, symbol: gasTokenSymbol } = useGasToken().metadata;
+
+  const tippyProps = useMemo(
+    () => ({
+      trigger: 'mouseenter',
+      hideOnClick: false,
+      content: t('showInGasOrFiat', [fiatName, gasTokenSymbol]),
+      animation: 'shift-away-subtle'
+    }),
+    []
   );
-};
 
-const TotalVolumeBannerInGasToken: FC<TotalVolumeBannerProps> = ({ accountPkh }) => {
-  const { name, symbol } = useGasToken().metadata;
+  const buttonRef = useTippy<HTMLButtonElement>(tippyProps);
 
   const { data: balance } = useBalance(TEZ_TOKEN_SLUG, accountPkh);
-  const volume = balance || new BigNumber(0);
+  const volumeInGas = balance || new BigNumber(0);
+
+  const handleTvlModeToggle = () =>
+    dispatch(toggleBalanceMode(balanceMode === BalanceMode.Fiat ? BalanceMode.Gas : BalanceMode.Fiat));
+
+  const isMainNetwork = network.type === 'main';
+  const isFiatMode = balanceMode === BalanceMode.Fiat;
+  const shouldShowFiatBanner = isMainNetwork && isFiatMode;
 
   return (
-    <TotalVolumeBannerBase
-      accountPkh={accountPkh}
-      titleNode={
-        <>
-          {name} <T id="balance" />
-        </>
-      }
-      balanceNode={
-        <>
-          <Money smallFractionFont={false}>{volume}</Money>
-          <span className="ml-1">{symbol}</span>
-        </>
-      }
-    />
+    <div className="flex flex-col justify-between items-start">
+      <div className="flex items-center">
+        {isMainNetwork && (
+          <Button
+            ref={buttonRef}
+            style={{ height: '22px', width: '22px' }}
+            className={classNames(
+              'mr-1',
+              'p-1',
+              'bg-gray-100',
+              'rounded-sm shadow-xs',
+              'text-base font-medium',
+              'hover:text-gray-600 text-gray-500 leading-none select-none',
+              'transition ease-in-out duration-300',
+              'inline-flex items-center justify-center'
+            )}
+            onClick={handleTvlModeToggle}
+          >
+            {isFiatMode ? fiatSymbol : <TezosLogoIcon />}
+          </Button>
+        )}
+
+        <div className="text-sm font-medium text-gray-700">
+          {shouldShowFiatBanner ? (
+            <T id="totalEquityValue" />
+          ) : (
+            <>
+              {gasTokenName} <T id="balance" />
+            </>
+          )}
+        </div>
+      </div>
+
+      <div className="flex items-center text-2xl">
+        {shouldShowFiatBanner ? (
+          <BalanceFiat volume={volumeInFiat} currency={fiatSymbol} />
+        ) : (
+          <BalanceGas volume={volumeInGas} currency={gasTokenSymbol} />
+        )}
+      </div>
+    </div>
   );
 };
 
-interface TotalVolumeBannerBaseProps {
-  accountPkh: string;
-  titleNode: React.ReactNode;
-  balanceNode: React.ReactNode;
+interface BalanceProps {
+  volume: number | string | BigNumber;
+  currency: string;
 }
+const BalanceFiat: FC<BalanceProps> = ({ volume, currency }) => (
+  <>
+    <span className="mr-1">≈</span>
+    <Money smallFractionFont={false} fiat>
+      {volume}
+    </Money>
+    <span className="ml-1">{currency}</span>
+  </>
+);
 
-const TotalVolumeBannerBase: FC<TotalVolumeBannerBaseProps> = ({ accountPkh, titleNode, balanceNode }) => (
-  <div className="w-full max-w-sm mx-auto mb-4">
-    <div className="flex justify-between items-center mb-2">
-      <div className="text-sm font-medium text-gray-700">{titleNode}</div>
-
-      <AddressChip pkh={accountPkh} />
-    </div>
-    <div className="flex items-center text-2xl">{balanceNode}</div>
-  </div>
+const BalanceGas: FC<BalanceProps> = ({ volume, currency }) => (
+  <>
+    <Money smallFractionFont={false}>{volume}</Money>
+    <span className="ml-1">{currency}</span>
+  </>
 );
 
 interface AssetBannerProps {
