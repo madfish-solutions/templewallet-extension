@@ -8,11 +8,11 @@ export const useOutputEstimation = (
   inputAmount = 0,
   isMinAmountError: boolean,
   isMaxAmountError: boolean,
-  setLoading: (v: boolean) => void,
   setIsApiError: (v: boolean) => void,
   isWithdraw = false
 ) => {
   const [outputAmount, setOutputAmount] = useState(0);
+  const [estimationIsLoading, setLoading] = useState(false);
 
   const isValidInput = useMemo(
     () => inputAmount > 0 && !isMinAmountError && !isMaxAmountError,
@@ -42,5 +42,5 @@ export const useOutputEstimation = (
     }
   }, [isValidInput, outputAmount]);
 
-  return outputAmount;
+  return { estimationIsLoading, outputAmount };
 };
