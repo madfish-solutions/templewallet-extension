@@ -25,7 +25,7 @@ const NOT_UKRAINIAN_CARD_ERROR_MESSAGE = 'Ukrainian bank card is required.';
 export const InitialStep: FC<Omit<StepProps, 'orderInfo'>> = ({ isApiError, setOrderInfo, setStep, setIsApiError }) => {
   const { analyticsState } = useAnalyticsState();
 
-  const [isLoading, setLoading] = useState(false);
+  const [orderIsProcessing, setOrderIsProcessing] = useState(false);
   const [isFormSubmitted, setIsFormSubmitted] = useState(false);
 
   const [inputAmount, setInputAmount] = useState<number | undefined>(undefined);
@@ -45,11 +45,10 @@ export const InitialStep: FC<Omit<StepProps, 'orderInfo'>> = ({ isApiError, setO
     [disabledProceed, isApiError, cardNumberInput.isValid, cardNumberInput.isTouched]
   );
 
-  const outputAmount = useOutputEstimation(
+  const { estimationIsLoading, outputAmount } = useOutputEstimation(
     inputAmount,
     isMinAmountError,
     isMaxAmountError,
-    setLoading,
     setIsApiError,
     true
   );
@@ -69,7 +68,7 @@ export const InitialStep: FC<Omit<StepProps, 'orderInfo'>> = ({ isApiError, setO
       return;
     }
 
-    setLoading(true);
+    setOrderIsProcessing(true);
 
     createAliceBobOrder(true, inputAmount?.toString() ?? '0', analyticsState.userId, undefined, cardNumberInput.value)
       .then(response => {
@@ -83,10 +82,12 @@ export const InitialStep: FC<Omit<StepProps, 'orderInfo'>> = ({ isApiError, setO
           setIsApiError(true);
         }
       })
-      .finally(() => setLoading(false));
+      .finally(() => setOrderIsProcessing(false));
   };
 
   const handleInputAmountChange = (amount?: number) => setInputAmount(amount);
+
+  const isLoading = orderIsProcessing || estimationIsLoading || isMinMaxLoading;
 
   return (
     <>
@@ -156,7 +157,7 @@ export const InitialStep: FC<Omit<StepProps, 'orderInfo'>> = ({ isApiError, setO
             paddingTop: '0.625rem',
             paddingBottom: '0.625rem'
           }}
-          loading={isLoading || isMinMaxLoading}
+          loading={isLoading}
           testID={WithdrawSelectors.AliceBobNextButton}
           onClick={handleSubmit}
         >

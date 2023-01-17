@@ -30,7 +30,7 @@ export const AliceBobTopUp: FC = () => {
   const [link, setLink] = useState('');
 
   const [isApiError, setIsApiError] = useState(false);
-  const [isLoading, setLoading] = useState(false);
+  const [linkIsLoading, setLinkIsLoading] = useState(false);
 
   const { minExchangeAmount, maxExchangeAmount, isMinMaxLoading } = useMinMaxExchangeAmounts(setIsApiError);
 
@@ -40,7 +40,12 @@ export const AliceBobTopUp: FC = () => {
     maxExchangeAmount
   );
 
-  const outputAmount = useOutputEstimation(inputAmount, isMinAmountError, isMaxAmountError, setLoading, setIsApiError);
+  const { estimationIsLoading, outputAmount } = useOutputEstimation(
+    inputAmount,
+    isMinAmountError,
+    isMaxAmountError,
+    setIsApiError
+  );
 
   const exchangeRate = useMemo(
     () => (inputAmount && outputAmount > 0 ? (inputAmount / outputAmount).toFixed(4) : 0),
@@ -50,11 +55,11 @@ export const AliceBobTopUp: FC = () => {
   const linkRequest = useCallback(
     (amount = 0) => {
       if (!disabledProceed) {
-        setLoading(true);
+        setLinkIsLoading(true);
         createAliceBobOrder(false, amount.toString(), analyticsState.userId, walletAddress)
           .then(response => setLink(response.data.orderInfo.payUrl))
           .catch(() => setIsApiError(true))
-          .finally(() => setLoading(false));
+          .finally(() => setLinkIsLoading(false));
       }
     },
     [disabledProceed, analyticsState.userId, walletAddress]
@@ -64,11 +69,14 @@ export const AliceBobTopUp: FC = () => {
 
   const handleInputAmountChange = useCallback(
     (amount?: number) => {
+      setLink('');
       setInputAmount(amount);
       debouncedLinkRequest(amount);
     },
     [debouncedLinkRequest]
   );
+
+  const isLoading = linkIsLoading || estimationIsLoading;
 
   return (
     <PageLayout
@@ -112,6 +120,7 @@ export const AliceBobTopUp: FC = () => {
           currenciesList={[]}
           amount={outputAmount}
         />
+
         <Divider style={{ marginTop: '40px', marginBottom: '20px' }} />
 
         <div className={styles['exchangeRateBlock']}>
@@ -127,7 +136,7 @@ export const AliceBobTopUp: FC = () => {
             background: '#4299e1',
             padding: 0
           }}
-          disabled={disabledProceed || link === ''}
+          disabled={disabledProceed || !link}
           loading={isLoading || isMinMaxLoading}
           testID={BuySelectors.AliceBob}
         >

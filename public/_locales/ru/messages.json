@@ -38,6 +38,17 @@
   "copyHashToClipboard": {
     "message": "Скопировать хэш в буфер обмена"
   },
+  "showInGasOrFiat": {
+    "message": "Показать в $gasToken$/$fiatCurrency$",
+    "placeholders": {
+      "gasToken": {
+        "content": "$1"
+      },
+      "fiatCurrency": {
+        "content": "$2"
+      }
+    }
+  },
   "defaultAccount": {
     "message": "Аккаунт по умолчанию (первый)"
   },

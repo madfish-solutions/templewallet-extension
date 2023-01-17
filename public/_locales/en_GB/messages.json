@@ -94,6 +94,17 @@
   "copyHashToClipboard": {
     "message": "Copy to clipboard"
   },
+  "showInGasOrFiat": {
+    "message": "Show in $gasToken$/$fiatCurrency$",
+    "placeholders": {
+      "gasToken": {
+        "content": "$1"
+      },
+      "fiatCurrency": {
+        "content": "$2"
+      }
+    }
+  },
   "accounts": {
     "message": "Accounts"
   },

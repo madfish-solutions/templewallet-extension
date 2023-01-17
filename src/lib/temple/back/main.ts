@@ -1,6 +1,9 @@
-import { Runtime } from 'webextension-polyfill';
+import browser, { Runtime } from 'webextension-polyfill';
+
+import { E2eMessageType } from 'lib/e2e/types';
 import { BACKGROUND_IS_WORKER } from 'lib/env';
 import { encodeMessage, encryptMessage, getSenderId, MessageType, Response } from 'lib/temple/beacon';
+import { clearAsyncStorages } from 'lib/temple/reset';
 import { TempleMessageType, TempleRequest, TempleResponse } from 'lib/temple/types';
 
 import * as Actions from './actions';
@@ -238,3 +241,13 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
       break;
   }
 };
+
+browser.runtime.onMessage.addListener(msg => {
+  if (msg?.type === E2eMessageType.ResetRequest) {
+    return new Promise(async resolve => {
+      await clearAsyncStorages();
+      resolve({ type: E2eMessageType.ResetResponse });
+    });
+  }
+  return;
+});
