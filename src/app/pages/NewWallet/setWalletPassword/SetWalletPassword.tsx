@@ -295,7 +295,7 @@ export const SetWalletPassword: FC<SetWalletPasswordProps> = ({
       <FormSubmitButton
         loading={submitting}
         style={{ display: 'block', width: '100%', fontSize: 14, fontWeight: 500 }}
-        testID={setWalletPasswordTestIDS.importButton}
+        testID={setWalletPasswordTestIDS.completeButton}
       >
         <T id={ownMnemonic ? 'import' : 'create'} />
       </FormSubmitButton>

@@ -1,5 +1,5 @@
 Feature: Reveal private key
-@dev
+
   Scenario: As a user, I'd like to reveal my seed phrase
     Given I have imported an existing account
 

@@ -3,13 +3,16 @@ import React, { FC } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { Alert, FormField, FormSubmitButton, FormCheckbox } from 'app/atoms';
+import { TestIDProps } from 'lib/analytics';
 import { T, t } from 'lib/i18n';
+
+import { NewSeedBackupTestIds } from './NewSeedBackup.test-ids';
 
 interface BackupFormData {
   backuped: boolean;
 }
 
-interface NewSeedBackupProps {
+interface NewSeedBackupProps extends TestIDProps {
   seedPhrase: string;
   onBackupComplete: () => void;
 }
@@ -44,6 +47,7 @@ export const NewSeedBackup: FC<NewSeedBackupProps> = ({ seedPhrase, onBackupComp
         label={t('mnemonicInputLabel')}
         labelDescription={t('youWillNeedThisSeedPhrase')}
         id="backup-mnemonic"
+        testID={NewSeedBackupTestIds.seedPhraseValue}
         spellCheck={false}
         containerClassName="mb-4"
         className="resize-none notranslate"
@@ -60,11 +64,13 @@ export const NewSeedBackup: FC<NewSeedBackupProps> = ({ seedPhrase, onBackupComp
           label={t('backupedInputLabel')}
           labelDescription={<T id="backupedInputDescription" />}
           containerClassName="mb-6"
+          testID={NewSeedBackupTestIds.iMadeSeedPhraseBackupCheckBox}
         />
 
         <FormSubmitButton
           loading={submitting}
           style={{ display: 'block', width: '100%', marginTop: 32, fontSize: 14, fontWeight: 500 }}
+          testID={NewSeedBackupTestIds.nextButton}
         >
           <T id="next" />
         </FormSubmitButton>

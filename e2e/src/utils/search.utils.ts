@@ -1,10 +1,11 @@
 import { isDefined } from '@rnw-community/shared';
+import { ElementHandle } from 'puppeteer';
 
 import { BrowserContext } from '../classes/browser-context.class';
 
 const getSelector = (testID: string) => `[data-testid="${testID}"]`;
 
-const findElement = async (testID: string) => {
+export const findElement = async (testID: string) => {
   const selector = getSelector(testID);
 
   const element = await BrowserContext.page.waitForSelector(selector, { visible: true, timeout: 3000 });
@@ -44,3 +45,12 @@ export const createPageElement = (testID: string) => ({
     return element.evaluate(innerElement => innerElement.textContent);
   }
 });
+
+export const getElementText = (element: ElementHandle<Element>) => {
+  return element.evaluate(innerElement => innerElement.textContent);
+};
+
+export const getInputElementText = (element: ElementHandle<Element>) => {
+  // @ts-ignore
+  return element.evaluate(innerElement => innerElement.value);
+};
