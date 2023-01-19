@@ -49,9 +49,6 @@ jobs:
           TEMPLE_WALLET_API_URL: ${{ secrets.TEMPLE_WALLET_API_URL }}
           TEMPLE_WALLET_METADATA_API_URL: ${{ secrets.TEMPLE_WALLET_METADATA_API_URL }}
           TEMPLE_WALLET_DEXES_API_URL: ${{ secrets.TEMPLE_WALLET_DEXES_API_URL }}
-          DEFAULT_SEED_PHRASE: ${{ secrets.DEFAULT_SEED_PHRASE }}
-          DEFAULT_PASSWORD: ${{ secrets.DEFAULT_PASSWORD }}
-          DEFAULT_HD_ACCOUNT_PRIVATE_KEY: ${{ secrets.DEFAULT_HD_ACCOUNT_PRIVATE_KEY }}
 
       - name: Install dependencies and code quality
         uses: ./.github/workflows/code-quality-check
