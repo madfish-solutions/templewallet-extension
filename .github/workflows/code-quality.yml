@@ -40,9 +40,9 @@ jobs:
           TEMPLE_WALLET_EVERSTAKE_API_KEY: ${{ secrets.TEMPLE_WALLET_EVERSTAKE_API_KEY }}
           TEMPLE_WALLET_EVERSTAKE_LINK_ID: ${{ secrets.TEMPLE_WALLET_EVERSTAKE_LINK_ID }}
           TEMPLE_WALLET_UTORG_SID: ${{ secrets.TEMPLE_WALLET_UTORG_SID }}
-          TEMPLE_WALLET_API_URL: ${{ secrets.TEMPLE_WALLET_API_URL }}
-          TEMPLE_WALLET_METADATA_API_URL: ${{ secrets.TEMPLE_WALLET_METADATA_API_URL }}
-          TEMPLE_WALLET_DEXES_API_URL: ${{ secrets.TEMPLE_WALLET_DEXES_API_URL }}
+          TEMPLE_WALLET_API_URL: ${{ vars.TEMPLE_WALLET_API_URL }}
+          TEMPLE_WALLET_METADATA_API_URL: ${{ vars.TEMPLE_WALLET_METADATA_API_URL }}
+          TEMPLE_WALLET_DEXES_API_URL: ${{ vars.TEMPLE_WALLET_DEXES_API_URL }}
           DEFAULT_SEED_PHRASE: ${{ secrets.DEFAULT_SEED_PHRASE }}
           DEFAULT_PASSWORD: ${{ secrets.DEFAULT_PASSWORD }}
           DEFAULT_HD_ACCOUNT_PRIVATE_KEY: ${{ secrets.DEFAULT_HD_ACCOUNT_PRIVATE_KEY }}
@@ -53,8 +53,8 @@ jobs:
       - name: Create Chrome build
         run: yarn build:chrome
 
-#      - name: Perform end-to-end tests
-#        uses: ./.github/workflows/e2e
+      - name: Perform end-to-end tests
+        uses: ./.github/workflows/e2e
 
       - name: Upload artifact
         uses: actions/upload-artifact@v2
