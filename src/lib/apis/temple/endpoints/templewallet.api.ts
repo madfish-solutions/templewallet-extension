@@ -1,5 +1,9 @@
 import axios from 'axios';
 
-const host = process.env.TEMPLE_WALLET_API_HOST || 'https://temple-api-mainnet.prod.templewallet.com';
+const TEMPLE_WALLET_API_URL = process.env.TEMPLE_WALLET_API_URL;
 
-export const templeWalletApi = axios.create({ baseURL: `${host}/api` });
+if (!TEMPLE_WALLET_API_URL) {
+  throw new Error('TEMPLE_WALLET_API_URL is not defined');
+}
+
+export const templeWalletApi = axios.create({ baseURL: TEMPLE_WALLET_API_URL + '/api' });
