@@ -12,18 +12,11 @@ on:
         description: Firefox build
         required: false
 
-env:
-  TEMPLE_WALLET_SEGMENT_WRITE_KEY: ${{ secrets.TEMPLE_WALLET_SEGMENT_WRITE_KEY }}
-  TEMPLE_WALLET_EXOLIX_API_KEY: ${{ secrets.TEMPLE_WALLET_EXOLIX_API_KEY }}
-  TEMPLE_WALLET_EVERSTAKE_API_KEY: ${{ secrets.TEMPLE_WALLET_EVERSTAKE_API_KEY }}
-  TEMPLE_WALLET_EVERSTAKE_LINK_ID: ${{ secrets.TEMPLE_WALLET_EVERSTAKE_LINK_ID }}
-  TEMPLE_WALLET_UTORG_SID: ${{ secrets.TEMPLE_WALLET_UTORG_SID }}
-
 jobs:
   additional-builds:
     name: Creates builds for a specific browsers
     runs-on: ubuntu-latest
-    environment: production
+    environment: development
     steps:
       - name: Clone repository
         uses: actions/checkout@v2
@@ -44,6 +37,21 @@ jobs:
           key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-yarn-
+
+      - name: Secrets setup
+        uses: ./.github/workflows/secrets-setup
+        with:
+          TEMPLE_WALLET_SEGMENT_WRITE_KEY: ${{ secrets.TEMPLE_WALLET_SEGMENT_WRITE_KEY }}
+          TEMPLE_WALLET_EXOLIX_API_KEY: ${{ secrets.TEMPLE_WALLET_EXOLIX_API_KEY }}
+          TEMPLE_WALLET_EVERSTAKE_API_KEY: ${{ secrets.TEMPLE_WALLET_EVERSTAKE_API_KEY }}
+          TEMPLE_WALLET_EVERSTAKE_LINK_ID: ${{ secrets.TEMPLE_WALLET_EVERSTAKE_LINK_ID }}
+          TEMPLE_WALLET_UTORG_SID: ${{ secrets.TEMPLE_WALLET_UTORG_SID }}
+          TEMPLE_WALLET_API_URL: ${{ secrets.TEMPLE_WALLET_API_URL }}
+          TEMPLE_WALLET_METADATA_API_URL: ${{ secrets.TEMPLE_WALLET_METADATA_API_URL }}
+          TEMPLE_WALLET_DEXES_API_URL: ${{ secrets.TEMPLE_WALLET_DEXES_API_URL }}
+          DEFAULT_SEED_PHRASE: ${{ secrets.DEFAULT_SEED_PHRASE }}
+          DEFAULT_PASSWORD: ${{ secrets.DEFAULT_PASSWORD }}
+          DEFAULT_HD_ACCOUNT_PRIVATE_KEY: ${{ secrets.DEFAULT_HD_ACCOUNT_PRIVATE_KEY }}
 
       - name: Install dependencies and code quality
         uses: ./.github/workflows/code-quality-check
