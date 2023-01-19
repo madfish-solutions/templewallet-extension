@@ -129,8 +129,8 @@ export interface TempleSettings {
 
 export enum TempleSharedStorageKey {
   DAppEnabled = 'dappenabled',
-  LocaleCode = 'localecode',
   UseLedgerLive = 'useledgerlive',
+  LockUpEnabled = 'lock_up',
   PasswordAttempts = 'passwordAttempts',
   TimeLock = 'timelock'
 }

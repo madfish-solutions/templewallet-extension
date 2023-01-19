@@ -7,8 +7,9 @@ import { Alert, FormField, FormSubmitButton } from 'app/atoms';
 import SimplePageLayout from 'app/layouts/SimplePageLayout';
 import { useFormAnalytics } from 'lib/analytics';
 import { T, t } from 'lib/i18n';
-import { useLocalStorage, useTempleClient } from 'lib/temple/front';
+import { useTempleClient } from 'lib/temple/front';
 import { TempleSharedStorageKey } from 'lib/temple/types';
+import { useLocalStorage } from 'lib/ui/local-storage';
 import { Link } from 'lib/woozie';
 
 interface UnlockProps {
