@@ -123,7 +123,7 @@ const buildManifestCommons = (vendor: string): Omit<Manifest.WebExtensionManifes
       }
     }),
 
-    ...withVendors('chrome')({ minimum_chrome_version: '49' }),
+    ...withVendors('chrome')({ minimum_chrome_version: '88' }),
     ...withVendors('opera')({ minimum_opera_version: '36' }),
 
     ...withVendors('chrome', 'opera')({ options_page: 'options.html' }),

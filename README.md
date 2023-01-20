@@ -38,7 +38,11 @@ git clone https://github.com/madfish-solutions/templewallet-extension && cd temp
 yarn
 ```
 
-### 3) Build
+### 3) Create `.env` file
+
+Make copy of `.env.dist` and do changes if needed.
+
+### 4) Build
 
 Builds the extension for production to the `dist` folder.<br>
 It correctly bundles in production mode and optimizes the build for the best performance.
@@ -62,7 +66,7 @@ yarn build:opera
 yarn build-all
 ```
 
-### 4) Load extension to your Browser
+### 5) Load extension to your Browser
 
 ![TempleWallet_Load](https://user-images.githubusercontent.com/11996139/73763346-f8435a80-4779-11ea-9e9d-4c1db9560f64.gif)
 
