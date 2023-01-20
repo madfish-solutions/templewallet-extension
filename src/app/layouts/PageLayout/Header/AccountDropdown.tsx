@@ -245,7 +245,6 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
 
           const baseProps = {
             key,
-            ...setTestID(testID),
             className: classNames(
               'block w-full',
               'rounded overflow-hidden',
@@ -272,7 +271,11 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
             )
           };
 
-          return linkTo ? <Link {...baseProps} to={linkTo} /> : <button {...baseProps} />;
+          return linkTo ? (
+            <Link {...baseProps} to={linkTo} testID={testID} />
+          ) : (
+            <button {...baseProps} {...setTestID(testID)} />
+          );
         })}
       </div>
     </DropdownWrapper>
