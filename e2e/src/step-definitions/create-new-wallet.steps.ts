@@ -13,7 +13,7 @@ Given(/I save my mnemonic/, async () => {
 Given(/I verify my mnemonic/, async () => {
   const labels = await Pages.VerifyMnemonic.getWordsLabels();
   const labelsValues = await Promise.all(labels.map(item => getElementText(item)));
-  const sixWordsNumbers = labelsValues.map(str => Number(str!.split(' ')[1]!));
+  const sixWordsNumbers = labelsValues.map(str => Number(str!.split(' ')[1]));
 
   const inputs = await Pages.VerifyMnemonic.getWordsInputs();
   const inputsValues = await Promise.all(inputs.map(elem => getElementText(elem)));
@@ -27,16 +27,16 @@ Given(/I verify my mnemonic/, async () => {
   const firstEmptyIndex = twoEmptyIndexes[0]!;
   const secondEmptyIndex = twoEmptyIndexes[1]!;
 
-  const firstWordNumber = sixWordsNumbers[firstEmptyIndex]!;
-  const secondWordNumber = sixWordsNumbers[secondEmptyIndex]!;
+  const firstWordNumber = sixWordsNumbers[firstEmptyIndex];
+  const secondWordNumber = sixWordsNumbers[secondEmptyIndex];
 
   const mnemonic = BrowserContext.seedPhrase.split(' ');
 
-  const firstWord = mnemonic[firstWordNumber - 1]!;
-  const secondWord = mnemonic[secondWordNumber - 1]!;
+  const firstWord = mnemonic[firstWordNumber - 1];
+  const secondWord = mnemonic[secondWordNumber - 1];
 
-  const firstInput = inputs[firstEmptyIndex]!;
-  const secondInput = inputs[secondEmptyIndex]!;
+  const firstInput = inputs[firstEmptyIndex];
+  const secondInput = inputs[secondEmptyIndex];
 
   await firstInput.type(firstWord);
   await secondInput.type(secondWord);
