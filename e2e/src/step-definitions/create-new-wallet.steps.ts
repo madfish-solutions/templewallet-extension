@@ -1,7 +1,7 @@
 import { Given } from '@cucumber/cucumber';
 
 import { Pages } from '../page-objects';
-import { getElementText, getInputElementText } from '../utils/search.utils';
+import { getElementText } from '../utils/search.utils';
 
 let temporaryMnemonic = '';
 
@@ -16,7 +16,7 @@ Given(/I verify my mnemonic/, async () => {
   const sixWordsNumbers = labelsValues.map(str => Number(str!.split(' ')[1]!));
 
   const inputs = await Pages.VerifyMnemonic.getWordsInputs();
-  const inputsValues = await Promise.all(inputs.map(elem => getInputElementText(elem)));
+  const inputsValues = await Promise.all(inputs.map(elem => getElementText(elem)));
   const twoEmptyIndexes = inputsValues
     .map((str, index) => {
       if (str) return undefined;

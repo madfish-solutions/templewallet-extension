@@ -42,15 +42,12 @@ export const createPageElement = (testID: string) => ({
   getText: async () => {
     const element = await findElement(testID);
 
-    return element.evaluate(innerElement => innerElement.textContent);
+    return getElementText(element);
   }
 });
 
-export const getElementText = (element: ElementHandle<Element>) => {
-  return element.evaluate(innerElement => innerElement.textContent);
-};
-
-export const getInputElementText = (element: ElementHandle<Element>) => {
-  // @ts-ignore
-  return element.evaluate(innerElement => innerElement.value);
-};
+export const getElementText = (element: ElementHandle) =>
+  element.evaluate(innerElement => {
+    if (innerElement instanceof HTMLInputElement) return innerElement.value;
+    return innerElement.textContent;
+  });
