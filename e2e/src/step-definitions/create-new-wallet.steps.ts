@@ -1,13 +1,13 @@
 import { Given } from '@cucumber/cucumber';
 
+import { BrowserContext } from '../classes/browser-context.class';
 import { Pages } from '../page-objects';
 import { getElementText } from '../utils/search.utils';
 
-let temporaryMnemonic = '';
-
 Given(/I save my mnemonic/, async () => {
-  // @ts-ignore
-  temporaryMnemonic = await Pages.NewSeedBackup.seedPhraseValue.getText();
+  const value = await Pages.NewSeedBackup.seedPhraseValue.getText();
+  if (!value) throw new Error("Couldn't read mnemonic");
+  BrowserContext.seedPhrase = value;
 });
 
 Given(/I verify my mnemonic/, async () => {
@@ -30,7 +30,7 @@ Given(/I verify my mnemonic/, async () => {
   const firstWordNumber = sixWordsNumbers[firstEmptyIndex]!;
   const secondWordNumber = sixWordsNumbers[secondEmptyIndex]!;
 
-  const mnemonic = temporaryMnemonic.split(' ');
+  const mnemonic = BrowserContext.seedPhrase.split(' ');
 
   const firstWord = mnemonic[firstWordNumber - 1]!;
   const secondWord = mnemonic[secondWordNumber - 1]!;
