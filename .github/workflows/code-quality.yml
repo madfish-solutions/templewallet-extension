@@ -22,10 +22,10 @@ jobs:
       - name: Clone repository
         uses: actions/checkout@v2
 
-      - name: Use Node 14.x
-        uses: actions/setup-node@v2
+      - name: Use Node 6.x
+        uses: actions/setup-node@v3
         with:
-          node-version: '14.x'
+          node-version: '16.x'
 
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
