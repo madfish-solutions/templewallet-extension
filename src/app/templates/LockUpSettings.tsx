@@ -2,10 +2,10 @@ import React, { FC } from 'react';
 
 import { FormCheckbox } from 'app/atoms';
 import { t, T } from 'lib/i18n';
-import { getIsLockUpEnabled, saveIsLockUpEnabled } from 'lib/lock-up';
+import { useIsLockUpEnabled } from 'lib/lock-up';
 
 const LockUpSettings: FC<{}> = () => {
-  const isLockUpEnabled = getIsLockUpEnabled();
+  const [isLockUpEnabled, saveIsLockUpEnabled] = useIsLockUpEnabled();
 
   const handleLockUpChange = (evt: React.ChangeEvent<HTMLInputElement>) => {
     saveIsLockUpEnabled(evt.target.checked);

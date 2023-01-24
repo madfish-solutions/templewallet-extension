@@ -1,5 +1,3 @@
-export { useLocalStorage } from './local-storage';
-
 export { useStorage, fetchFromStorage, putToStorage } from './storage';
 
 export { useTempleClient, request, assertResponse } from './client';
@@ -65,3 +63,5 @@ export { useSecretState } from './use-secret-state.hook';
 export { useFilteredContacts } from './use-filtered-contacts.hook';
 
 export { decryptKukaiSeedPhrase } from './kukai';
+
+export { buildTokenIconURLs, buildCollectibleImageURLs } from './image-uri';
