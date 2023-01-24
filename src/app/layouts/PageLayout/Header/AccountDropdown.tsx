@@ -19,7 +19,7 @@ import { ReactComponent as MaximiseIcon } from 'app/icons/maximise.svg';
 import { ReactComponent as SettingsIcon } from 'app/icons/settings.svg';
 import Balance from 'app/templates/Balance';
 import SearchField from 'app/templates/SearchField';
-import { AnalyticsEventCategory, TestIDProps, useAnalytics } from 'lib/analytics';
+import { AnalyticsEventCategory, setTestID, TestIDProps, useAnalytics } from 'lib/analytics';
 import { TID, T, t } from 'lib/i18n';
 import { useAccount, useRelevantAccounts, useSetAccountPkh, useTempleClient, useGasToken } from 'lib/temple/front';
 import { TempleAccount } from 'lib/temple/types';
@@ -245,7 +245,6 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
 
           const baseProps = {
             key,
-            testID,
             className: classNames(
               'block w-full',
               'rounded overflow-hidden',
@@ -272,7 +271,11 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
             )
           };
 
-          return linkTo ? <Link {...baseProps} to={linkTo} /> : <button {...baseProps} />;
+          return linkTo ? (
+            <Link {...baseProps} to={linkTo} testID={testID} />
+          ) : (
+            <button {...baseProps} {...setTestID(testID)} />
+          );
         })}
       </div>
     </DropdownWrapper>
