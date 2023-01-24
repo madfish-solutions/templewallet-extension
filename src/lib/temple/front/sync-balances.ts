@@ -4,12 +4,13 @@ import BigNumber from 'bignumber.js';
 import constate from 'constate';
 import { flushSync } from 'react-dom';
 
-import { isTezAsset, fetchBalance } from 'lib/temple/assets';
+import { isTezAsset, fetchBalance, fetchBalanceFromTzkt } from 'lib/temple/assets';
 import {
   useAccount,
   useAllTokensBaseMetadata,
   useChainId,
   useDisplayedFungibleTokens,
+  useExplorerBaseUrls,
   useTezos
 } from 'lib/temple/front/index';
 import { useSyncTokens } from 'lib/temple/front/sync-tokens';
@@ -24,6 +25,8 @@ export const [SyncBalancesProvider, useSyncBalances] = constate(() => {
   const isSyncing = useSyncTokens();
   const { publicKeyHash } = useAccount();
   const chainId = useChainId(true)!;
+  const tzktApiUrl = useExplorerBaseUrls().api;
+  console.log('tzktApiUrl: ', tzktApiUrl);
   const allTokensBaseMetadata = useAllTokensBaseMetadata();
   const { data: tokens = [] } = useDisplayedFungibleTokens(chainId, publicKeyHash);
 
@@ -47,7 +50,7 @@ export const [SyncBalancesProvider, useSyncBalances] = constate(() => {
 
   const { stop: stopUpdate, stopAndBuildChecker } = useStopper();
 
-  const updateBalances = async (shouldStop: () => boolean) => {
+  const updateBalancesFromChain = async (shouldStop: () => boolean) => {
     for (const { tokenSlug } of tokensWithTez) {
       const tokenMetadata: AssetMetadata | undefined = allTokensBaseMetadata[tokenSlug];
 
@@ -69,7 +72,11 @@ export const [SyncBalancesProvider, useSyncBalances] = constate(() => {
       stopUpdate();
       setAssetSlugsWithUpdatedBalances({});
     } else if (isSyncing === false) {
-      updateBalances(stopAndBuildChecker());
+      if (tzktApiUrl !== undefined) {
+        fetchBalanceFromTzkt(tzktApiUrl, publicKeyHash).then(balances => setAssetSlugsWithUpdatedBalances(balances));
+      } else {
+        updateBalancesFromChain(stopAndBuildChecker());
+      }
     }
 
     chainIdRef.current = chainId;
