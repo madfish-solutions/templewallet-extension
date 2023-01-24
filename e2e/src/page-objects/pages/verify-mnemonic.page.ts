@@ -10,7 +10,7 @@ export class VerifyMnemonicPage extends Page {
     await this.nextButton.waitForDisplayed();
     await this.firstMnemonicInput.waitForDisplayed();
   }
-  async getWordsLabels() {
+  async getWordNumberSpans() {
     return findElements(NewSeedVerifyTestIds.mnemonicWordNumber);
   }
   async getWordsInputs() {

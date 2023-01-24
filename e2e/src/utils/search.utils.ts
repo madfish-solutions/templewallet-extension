@@ -48,6 +48,13 @@ export const createPageElement = (testID: string) => ({
 
 export const getElementText = (element: ElementHandle) =>
   element.evaluate(innerElement => {
-    if (innerElement instanceof HTMLInputElement) return innerElement.value;
-    return innerElement.textContent;
+    if (innerElement instanceof HTMLInputElement) {
+      return innerElement.value;
+    }
+
+    if (innerElement.textContent) {
+      return innerElement.textContent;
+    }
+
+    throw new Error('Element text not found');
   });

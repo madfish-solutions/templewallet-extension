@@ -11,33 +11,30 @@ Given(/I save my mnemonic/, async () => {
 });
 
 Given(/I verify my mnemonic/, async () => {
-  const labels = await Pages.VerifyMnemonic.getWordsLabels();
-  const labelsValues = await Promise.all(labels.map(item => getElementText(item)));
-  const sixWordsNumbers = labelsValues.map(str => Number(str!.split(' ')[1]));
+  const wordNumberSpans = await Pages.VerifyMnemonic.getWordNumberSpans();
+  const wordNumberTexts = await Promise.all(wordNumberSpans.map(item => getElementText(item)));
 
-  const inputs = await Pages.VerifyMnemonic.getWordsInputs();
-  const inputsValues = await Promise.all(inputs.map(elem => getElementText(elem)));
-  const twoEmptyIndexes = inputsValues
-    .map((str, index) => {
-      if (str) return undefined;
+  const wordNumbers = wordNumberTexts.map(fullText => {
+    const numberText = fullText.split(' ')[1];
+
+    return Number(numberText);
+  });
+
+  const wordInputs = await Pages.VerifyMnemonic.getWordsInputs();
+  const wordInputTexts = await Promise.all(wordInputs.map(item => getElementText(item)));
+  const emptyWordInputIndexes = wordInputTexts
+    .map((text, index) => {
+      if (text) return undefined;
       return index;
     })
-    .filter(index => index !== undefined);
+    .filter(index => index !== undefined) as number[];
 
-  const firstEmptyIndex = twoEmptyIndexes[0]!;
-  const secondEmptyIndex = twoEmptyIndexes[1]!;
+  for (const index of emptyWordInputIndexes) {
+    const input = wordInputs[index];
 
-  const firstWordNumber = sixWordsNumbers[firstEmptyIndex];
-  const secondWordNumber = sixWordsNumbers[secondEmptyIndex];
+    const wordIndex = wordNumbers[index] - 1;
+    const word = BrowserContext.seedPhrase.split(' ')[wordIndex];
 
-  const mnemonic = BrowserContext.seedPhrase.split(' ');
-
-  const firstWord = mnemonic[firstWordNumber - 1];
-  const secondWord = mnemonic[secondWordNumber - 1];
-
-  const firstInput = inputs[firstEmptyIndex];
-  const secondInput = inputs[secondEmptyIndex];
-
-  await firstInput.type(firstWord);
-  await secondInput.type(secondWord);
+    await input.type(word);
+  }
 });
