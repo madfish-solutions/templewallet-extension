@@ -24,12 +24,7 @@ import OperationStatus from 'app/templates/OperationStatus';
 import { useFormAnalytics } from 'lib/analytics';
 import { T, t } from 'lib/i18n';
 import { getRoutingFeeTransferParams } from 'lib/swap-router';
-import {
-  ROUTING_FEE_ADDRESS,
-  ROUTING_FEE_PERCENT,
-  ROUTING_FEE_RATIO,
-  TEZOS_DEXES_API_URL
-} from 'lib/swap-router/config';
+import { ROUTING_FEE_ADDRESS, ROUTING_FEE_PERCENT, ROUTING_FEE_RATIO } from 'lib/swap-router/config';
 import { useAccount, useTezos, useAssetMetadata } from 'lib/temple/front';
 import { atomsToTokens, tokensToAtoms } from 'lib/temple/helpers';
 import useTippy from 'lib/ui/useTippy';
@@ -46,6 +41,12 @@ import { SwapFormInput } from './SwapFormInput/SwapFormInput';
 import { SwapMinimumReceived } from './SwapMinimumReceived/SwapMinimumReceived';
 import { SwapPriceUpdateBar } from './SwapPriceUpdateBar/SwapPriceUpdateBar';
 import { SwapRoute } from './SwapRoute/SwapRoute';
+
+const TEMPLE_WALLET_DEXES_API_URL = process.env.TEMPLE_WALLET_DEXES_API_URL;
+
+if (!TEMPLE_WALLET_DEXES_API_URL) {
+  throw new Error('TEMPLE_WALLET_DEXES_API_URL is not defined');
+}
 
 const KNOWN_DEX_TYPES = [
   DexTypeEnum.QuipuSwap,
@@ -84,7 +85,7 @@ export const SwapForm: FC = () => {
   const inputAssetMetadata = useAssetMetadata(inputValue.assetSlug ?? 'tez')!;
   const outputAssetMetadata = useAssetMetadata(outputValue.assetSlug ?? 'tez')!;
 
-  const allRoutePairs = useAllRoutePairs(TEZOS_DEXES_API_URL);
+  const allRoutePairs = useAllRoutePairs(TEMPLE_WALLET_DEXES_API_URL);
   const filteredRoutePairs = useMemo(
     () => allRoutePairs.data.filter(routePair => KNOWN_DEX_TYPES.includes(routePair.dexType)),
     [allRoutePairs.data]

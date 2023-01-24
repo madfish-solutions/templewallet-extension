@@ -6,23 +6,16 @@ on:
       - master
       - development
 
-env:
-  TEMPLE_WALLET_SEGMENT_WRITE_KEY: ${{ secrets.TEMPLE_WALLET_SEGMENT_WRITE_KEY }}
-  TEMPLE_WALLET_EXOLIX_API_KEY: ${{ secrets.TEMPLE_WALLET_EXOLIX_API_KEY }}
-  TEMPLE_WALLET_EVERSTAKE_API_KEY: ${{ secrets.TEMPLE_WALLET_EVERSTAKE_API_KEY }}
-  TEMPLE_WALLET_EVERSTAKE_LINK_ID: ${{ secrets.TEMPLE_WALLET_EVERSTAKE_LINK_ID }}
-  TEMPLE_WALLET_UTORG_SID: ${{ secrets.TEMPLE_WALLET_UTORG_SID }}
-
 jobs:
   pull-request-check:
     name: Checks if ts, lint, tests & build work
     runs-on: ubuntu-latest
-    environment: production
+    environment: development
     steps:
       - name: Clone repository
         uses: actions/checkout@v2
 
-      - name: Use Node 6.x
+      - name: Use Node 16.x
         uses: actions/setup-node@v3
         with:
           node-version: '16.x'
@@ -39,6 +32,21 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-yarn-
 
+      - name: Secrets setup
+        uses: ./.github/workflows/secrets-setup
+        with:
+          TEMPLE_WALLET_SEGMENT_WRITE_KEY: ${{ secrets.TEMPLE_WALLET_SEGMENT_WRITE_KEY }}
+          TEMPLE_WALLET_EXOLIX_API_KEY: ${{ secrets.TEMPLE_WALLET_EXOLIX_API_KEY }}
+          TEMPLE_WALLET_EVERSTAKE_API_KEY: ${{ secrets.TEMPLE_WALLET_EVERSTAKE_API_KEY }}
+          TEMPLE_WALLET_EVERSTAKE_LINK_ID: ${{ secrets.TEMPLE_WALLET_EVERSTAKE_LINK_ID }}
+          TEMPLE_WALLET_UTORG_SID: ${{ secrets.TEMPLE_WALLET_UTORG_SID }}
+          TEMPLE_WALLET_API_URL: ${{ vars.TEMPLE_WALLET_API_URL }}
+          TEMPLE_WALLET_METADATA_API_URL: ${{ vars.TEMPLE_WALLET_METADATA_API_URL }}
+          TEMPLE_WALLET_DEXES_API_URL: ${{ vars.TEMPLE_WALLET_DEXES_API_URL }}
+          DEFAULT_SEED_PHRASE: ${{ secrets.DEFAULT_SEED_PHRASE }}
+          DEFAULT_PASSWORD: ${{ secrets.DEFAULT_PASSWORD }}
+          DEFAULT_HD_ACCOUNT_PRIVATE_KEY: ${{ secrets.DEFAULT_HD_ACCOUNT_PRIVATE_KEY }}
+
       - name: Install dependencies and code quality check
         uses: ./.github/workflows/code-quality-check
 
@@ -47,10 +55,6 @@ jobs:
 
       - name: Perform end-to-end tests
         uses: ./.github/workflows/e2e
-        with:
-          DEFAULT_SEED_PHRASE: ${{ secrets.DEFAULT_SEED_PHRASE }}
-          DEFAULT_PASSWORD: ${{ secrets.DEFAULT_PASSWORD }}
-          DEFAULT_HD_ACCOUNT_PRIVATE_KEY: ${{ secrets.DEFAULT_HD_ACCOUNT_PRIVATE_KEY }}
 
       - name: Upload artifact
         uses: actions/upload-artifact@v2
