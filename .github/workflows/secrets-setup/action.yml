@@ -1,0 +1,55 @@
+name: Secrets setup
+
+description: Writes secrets
+
+inputs:
+  TEMPLE_WALLET_SEGMENT_WRITE_KEY:
+    required: true
+  TEMPLE_WALLET_EXOLIX_API_KEY:
+    required: false
+  TEMPLE_WALLET_EVERSTAKE_API_KEY:
+    required: false
+  TEMPLE_WALLET_EVERSTAKE_LINK_ID:
+    required: false
+  TEMPLE_WALLET_UTORG_SID:
+    required: false
+  TEMPLE_WALLET_API_URL:
+    required: true
+  TEMPLE_WALLET_METADATA_API_URL:
+    required: true
+  TEMPLE_WALLET_DEXES_API_URL:
+    required: true
+  DEFAULT_SEED_PHRASE:
+    required: false
+  DEFAULT_PASSWORD:
+    required: false
+  DEFAULT_HD_ACCOUNT_PRIVATE_KEY:
+    required: false
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Create .env file
+      shell: bash
+      run: |
+        cat << EOF > .env
+        TEMPLE_WALLET_SEGMENT_WRITE_KEY=${{ inputs.TEMPLE_WALLET_SEGMENT_WRITE_KEY }}
+
+        TEMPLE_WALLET_EXOLIX_API_KEY=${{ inputs.TEMPLE_WALLET_EXOLIX_API_KEY }}
+        TEMPLE_WALLET_EVERSTAKE_API_KEY=${{ inputs.TEMPLE_WALLET_EVERSTAKE_API_KEY }}
+        TEMPLE_WALLET_EVERSTAKE_LINK_ID=${{ inputs.TEMPLE_WALLET_EVERSTAKE_LINK_ID }}
+        TEMPLE_WALLET_UTORG_SID=${{ inputs.TEMPLE_WALLET_UTORG_SID }}
+
+        TEMPLE_WALLET_API_URL=${{ inputs.TEMPLE_WALLET_API_URL }}
+        TEMPLE_WALLET_METADATA_API_URL=${{ inputs.TEMPLE_WALLET_METADATA_API_URL }}
+        TEMPLE_WALLET_DEXES_API_URL=${{ inputs.TEMPLE_WALLET_DEXES_API_URL }}
+        EOF
+
+    - name: Create e2e/.env file
+      shell: bash
+      run: |
+        cat << EOF > e2e/.env
+        DEFAULT_SEED_PHRASE=${{ inputs.DEFAULT_SEED_PHRASE }}
+        DEFAULT_PASSWORD=${{ inputs.DEFAULT_PASSWORD }}
+        DEFAULT_HD_ACCOUNT_PRIVATE_KEY=${{ inputs.DEFAULT_HD_ACCOUNT_PRIVATE_KEY }}
+        EOF

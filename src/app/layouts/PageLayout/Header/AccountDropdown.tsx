@@ -19,7 +19,7 @@ import { ReactComponent as MaximiseIcon } from 'app/icons/maximise.svg';
 import { ReactComponent as SettingsIcon } from 'app/icons/settings.svg';
 import Balance from 'app/templates/Balance';
 import SearchField from 'app/templates/SearchField';
-import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
+import { AnalyticsEventCategory, setTestID, TestIDProps, useAnalytics } from 'lib/analytics';
 import { TID, T, t } from 'lib/i18n';
 import { useAccount, useRelevantAccounts, useSetAccountPkh, useTempleClient, useGasToken } from 'lib/temple/front';
 import { TempleAccount } from 'lib/temple/types';
@@ -30,7 +30,7 @@ import { AccountDropdownSelectors } from './AccountDropdown.selectors';
 
 type AccountDropdownProps = PopperRenderProps;
 
-interface TDropdownAction {
+interface TDropdownAction extends TestIDProps {
   key: string;
   Icon: React.FC<React.SVGProps<SVGSVGElement>>;
   i18nKey: TID;
@@ -97,6 +97,7 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
         Icon: AddIcon,
         i18nKey: 'createAccount',
         linkTo: '/create-account',
+        testID: AccountDropdownSelectors.CreateOrRestoreAccountButton,
         onClick: closeDropdown
       },
       {
@@ -104,6 +105,7 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
         Icon: DownloadIcon,
         i18nKey: 'importAccount',
         linkTo: '/import-account',
+        testID: AccountDropdownSelectors.ImportAccountButton,
         onClick: closeDropdown
       },
       {
@@ -111,6 +113,7 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
         Icon: LinkIcon,
         i18nKey: 'connectLedger',
         linkTo: '/connect-ledger',
+        testID: AccountDropdownSelectors.ConnectLedgerButton,
         onClick: closeDropdown
       },
       {
@@ -118,6 +121,7 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
         Icon: DAppsIcon,
         i18nKey: 'dApps',
         linkTo: '/dApps',
+        testID: AccountDropdownSelectors.DAppsButton,
         onClick: closeDropdown
       },
       {
@@ -125,6 +129,7 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
         Icon: SettingsIcon,
         i18nKey: 'settings',
         linkTo: '/settings',
+        testID: AccountDropdownSelectors.SettingsButton,
         onClick: closeDropdown
       },
       {
@@ -232,7 +237,7 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
       </div>
 
       <div className="mt-2">
-        {actions.map(({ key, Icon, i18nKey, linkTo, onClick }) => {
+        {actions.map(({ key, Icon, i18nKey, linkTo, testID, onClick }) => {
           const handleClick = () => {
             trackEvent(AccountDropdownSelectors.ActionButton, AnalyticsEventCategory.ButtonPress, { type: key });
             return onClick();
@@ -266,7 +271,11 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
             )
           };
 
-          return linkTo ? <Link {...baseProps} to={linkTo} /> : <button {...baseProps} />;
+          return linkTo ? (
+            <Link {...baseProps} to={linkTo} testID={testID} />
+          ) : (
+            <button {...baseProps} {...setTestID(testID)} />
+          );
         })}
       </div>
     </DropdownWrapper>

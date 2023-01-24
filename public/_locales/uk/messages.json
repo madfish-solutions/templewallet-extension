@@ -91,6 +91,17 @@
   "copyHashToClipboard": {
     "message": "Копіювати в буфер обміну"
   },
+  "showInGasOrFiat": {
+    "message": "Показати в $gasToken$/$fiatCurrency$",
+    "placeholders": {
+      "gasToken": {
+        "content": "$1"
+      },
+      "fiatCurrency": {
+        "content": "$2"
+      }
+    }
+  },
   "accounts": {
     "message": "Аккаунти"
   },
