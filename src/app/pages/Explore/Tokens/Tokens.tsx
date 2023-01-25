@@ -24,7 +24,6 @@ export const Tokens: FC = () => {
   const isSyncing = useSyncTokens();
   const { popup } = useAppEnv();
   const latestBalances = useSyncBalances();
-  console.log('latestBalances: ', latestBalances);
   const apyInfo = useTokensApyInfoSelector();
 
   const { data: tokens = [] } = useDisplayedFungibleTokens(chainId, publicKeyHash);

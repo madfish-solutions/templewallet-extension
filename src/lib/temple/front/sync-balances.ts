@@ -26,7 +26,6 @@ export const [SyncBalancesProvider, useSyncBalances] = constate(() => {
   const { publicKeyHash } = useAccount();
   const chainId = useChainId(true)!;
   const tzktApiUrl = useExplorerBaseUrls().api;
-  console.log('tzktApiUrl: ', tzktApiUrl);
   const allTokensBaseMetadata = useAllTokensBaseMetadata();
   const { data: tokens = [] } = useDisplayedFungibleTokens(chainId, publicKeyHash);
 

@@ -1,7 +1,7 @@
 import { ChainIds, TezosToolkit } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
 
-import { TzktBalanceItemInterface } from 'app/interfaces/tzkt-balance.interface';
+import { TzktAccountToken } from 'lib/apis/tzkt';
 import { loadContract } from 'lib/temple/contract';
 
 import { TEZOS_METADATA } from '../metadata/defaults';
@@ -62,17 +62,17 @@ export const fetchBalanceFromTzkt = async (apiUrl: string, publicKeyHash: string
     fetch(`${apiUrl}/v1/tokens/balances?account=${publicKeyHash}`)
   ]);
 
-  const [tezBalance, tokenBalances]: [number, Array<TzktBalanceItemInterface>] = await Promise.all([
+  const [tezBalance, tokenBalances]: [number, Array<TzktAccountToken>] = await Promise.all([
     tezBalanceResponse.json(),
     tokenBalancesResponse.json()
   ]);
 
   const result: Record<string, BigNumber> = { tez: new BigNumber(tezBalance).div(10 ** TEZOS_METADATA.decimals) };
 
-  tokenBalances.forEach(balanceItem => {
-    const value = new BigNumber(balanceItem.balance);
-    result[`${balanceItem.token.contract.address}_${balanceItem.token.tokenId}`] = value.div(
-      10 ** parseInt(balanceItem.token.metadata?.decimals ?? '0')
+  tokenBalances.forEach(item => {
+    const value = new BigNumber(item.balance);
+    result[`${item.token.contract.address}_${item.token.tokenId}`] = value.div(
+      10 ** parseInt(item.token.metadata?.decimals ?? '0')
     );
   });
 
