@@ -22,4 +22,5 @@ Before({ timeout: MEDIUM_TIMEOUT }, async () => {
   }, RETRY_OPTIONS);
 
   BrowserContext.page = page;
+  BrowserContext.resetPrivates();
 });
