@@ -1,4 +1,7 @@
-const STORAGE_KEY = 'lock_up';
+import { TempleSharedStorageKey } from 'lib/temple/types';
+import { useLocalStorage } from 'lib/ui/local-storage';
+
+const STORAGE_KEY = TempleSharedStorageKey.LockUpEnabled;
 const DEFAULT_VALUE = true;
 
 export const getIsLockUpEnabled = () => {
@@ -6,6 +9,4 @@ export const getIsLockUpEnabled = () => {
   return stored ? stored === 'true' : DEFAULT_VALUE;
 };
 
-export const saveIsLockUpEnabled = (value: boolean) => {
-  localStorage.setItem(STORAGE_KEY, String(value));
-};
+export const useIsLockUpEnabled = () => useLocalStorage(STORAGE_KEY, DEFAULT_VALUE);
