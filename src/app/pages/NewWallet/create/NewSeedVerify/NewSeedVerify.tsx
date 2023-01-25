@@ -4,7 +4,7 @@ import classNames from 'clsx';
 import { useForm } from 'react-hook-form';
 
 import { FormField, FormSubmitButton } from 'app/atoms';
-import { setTestID, TestIDProps } from 'lib/analytics';
+import { setTestID } from 'lib/analytics';
 import { T } from 'lib/i18n';
 
 import { NewSeedVerifyTestIds } from './NewSeedVerify.test-ids';
@@ -32,7 +32,7 @@ const shuffle = (array: any[]) => {
   return result;
 };
 
-interface NewSeedVerifyProps extends TestIDProps {
+interface NewSeedVerifyProps {
   seedPhrase: string;
   onVerificationComplete: () => void;
 }

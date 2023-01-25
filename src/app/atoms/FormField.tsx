@@ -263,8 +263,8 @@ const SecretBanner: React.FC<SecretBannerProps> = ({ secretBannerDisplayed, hand
         bottom: 2,
         left: 2
       }}
-      {...setTestID(NewSeedBackupTestIds.protectedMask)}
       onClick={handleSecretBannerClick}
+      {...setTestID(NewSeedBackupTestIds.protectedMask)}
     >
       <p
         className={classNames(

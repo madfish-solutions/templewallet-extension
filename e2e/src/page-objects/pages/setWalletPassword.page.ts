@@ -7,13 +7,12 @@ export class setWalletPage extends Page {
   repeatPasswordField = createPageElement(setWalletPasswordTestIDS.repeatPasswordField);
   skipOnboarding = createPageElement(setWalletPasswordTestIDS.skipOnboardingCheckbox);
   acceptTerms = createPageElement(setWalletPasswordTestIDS.acceptTermsCheckbox);
-  completeButton = createPageElement(setWalletPasswordTestIDS.completeButton);
+  importButton = createPageElement(setWalletPasswordTestIDS.importButton);
 
   async isVisible() {
     await this.passwordField.waitForDisplayed();
     await this.repeatPasswordField.waitForDisplayed();
     await this.skipOnboarding.waitForDisplayed();
     await this.acceptTerms.waitForDisplayed();
-    await this.completeButton.waitForDisplayed();
   }
 }

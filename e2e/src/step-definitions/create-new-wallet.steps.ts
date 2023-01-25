@@ -1,4 +1,5 @@
 import { Given } from '@cucumber/cucumber';
+import { expect } from 'chai';
 
 import { BrowserContext } from '../classes/browser-context.class';
 import { Pages } from '../page-objects';
@@ -6,7 +7,7 @@ import { getElementText } from '../utils/search.utils';
 
 Given(/I save my mnemonic/, async () => {
   const value = await Pages.NewSeedBackup.seedPhraseValue.getText();
-  if (!value) throw new Error("Couldn't read mnemonic");
+  expect(value).eql(await Pages.NewSeedBackup.seedPhraseValue.getText());
   BrowserContext.seedPhrase = value;
 });
 

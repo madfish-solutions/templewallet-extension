@@ -3,7 +3,6 @@ import React, { FC } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { Alert, FormField, FormSubmitButton, FormCheckbox } from 'app/atoms';
-import { TestIDProps } from 'lib/analytics';
 import { T, t } from 'lib/i18n';
 
 import { NewSeedBackupTestIds } from './NewSeedBackup.test-ids';
@@ -12,7 +11,7 @@ interface BackupFormData {
   backuped: boolean;
 }
 
-interface NewSeedBackupProps extends TestIDProps {
+interface NewSeedBackupProps {
   seedPhrase: string;
   onBackupComplete: () => void;
 }
