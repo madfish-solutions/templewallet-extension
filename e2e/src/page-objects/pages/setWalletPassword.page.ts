@@ -14,6 +14,5 @@ export class setWalletPage extends Page {
     await this.repeatPasswordField.waitForDisplayed();
     await this.skipOnboarding.waitForDisplayed();
     await this.acceptTerms.waitForDisplayed();
-    await this.importButton.waitForDisplayed();
   }
 }
