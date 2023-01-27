@@ -1,13 +1,14 @@
 import { isDefined } from '@rnw-community/shared';
+import { ElementHandle } from 'puppeteer';
 
 import { BrowserContext } from '../classes/browser-context.class';
 
 const getSelector = (testID: string) => `[data-testid="${testID}"]`;
 
-const findElement = async (testID: string) => {
+export const findElement = async (testID: string) => {
   const selector = getSelector(testID);
 
-  const element = await BrowserContext.page.waitForSelector(selector, { visible: true, timeout: 3000 });
+  const element = await BrowserContext.page.waitForSelector(selector, { visible: true, timeout: 5000 });
 
   if (isDefined(element)) {
     return element;
@@ -41,6 +42,19 @@ export const createPageElement = (testID: string) => ({
   getText: async () => {
     const element = await findElement(testID);
 
-    return element.evaluate(innerElement => innerElement.textContent);
+    return getElementText(element);
   }
 });
+
+export const getElementText = (element: ElementHandle) =>
+  element.evaluate(innerElement => {
+    if (innerElement instanceof HTMLInputElement) {
+      return innerElement.value;
+    }
+
+    if (innerElement.textContent) {
+      return innerElement.textContent;
+    }
+
+    throw new Error('Element text not found');
+  });

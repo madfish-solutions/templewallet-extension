@@ -3,7 +3,7 @@ import React, { FC, useCallback, useLayoutEffect, useState } from 'react';
 import classNames from 'clsx';
 import { Controller, useForm } from 'react-hook-form';
 
-import { PASSWORD_ERROR_CAPTION, FormField, FormSubmitButton, FormCheckbox } from 'app/atoms';
+import { FormCheckbox, FormField, FormSubmitButton, PASSWORD_ERROR_CAPTION } from 'app/atoms';
 import { AnalyticsEventCategory, TestIDProps, useAnalytics, useAnalyticsSettings } from 'lib/analytics';
 import { T, t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
@@ -295,7 +295,7 @@ export const SetWalletPassword: FC<SetWalletPasswordProps> = ({
       <FormSubmitButton
         loading={submitting}
         style={{ display: 'block', width: '100%', fontSize: 14, fontWeight: 500 }}
-        testID={setWalletPasswordTestIDS.importButton}
+        testID={ownMnemonic ? setWalletPasswordTestIDS.importButton : setWalletPasswordTestIDS.createButton}
       >
         <T id={ownMnemonic ? 'import' : 'create'} />
       </FormSubmitButton>

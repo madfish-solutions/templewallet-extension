@@ -4,7 +4,10 @@ import classNames from 'clsx';
 import { useForm } from 'react-hook-form';
 
 import { FormField, FormSubmitButton } from 'app/atoms';
+import { setTestID } from 'lib/analytics';
 import { T } from 'lib/i18n';
+
+import { NewSeedVerifyTestIds } from './NewSeedVerify.test-ids';
 
 const WORDS_TO_FILL = 2;
 
@@ -103,6 +106,7 @@ export const NewSeedVerify: FC<NewSeedVerifyProps> = ({ seedPhrase, onVerificati
         <FormSubmitButton
           disabled={!filled}
           style={{ display: 'block', width: 384, margin: '8px auto', fontSize: 14, fontWeight: 500 }}
+          testID={NewSeedVerifyTestIds.nextButton}
         >
           <T id="next" />
         </FormSubmitButton>
@@ -139,7 +143,11 @@ const WordsRow = memo<WordsRowProps>(({ allWords, indexToFill, onFill }) => {
         return (
           <div key={i} className="p-2">
             <FormField
-              label={<T id="word" substitutions={i + 1} />}
+              label={
+                <span {...setTestID(NewSeedVerifyTestIds.mnemonicWordNumber)}>
+                  <T id="word" substitutions={i + 1} />
+                </span>
+              }
               {...(toFill
                 ? {
                     value: fillValue,
@@ -149,6 +157,7 @@ const WordsRow = memo<WordsRowProps>(({ allWords, indexToFill, onFill }) => {
                     disabled: true,
                     defaultValue: allWords[i]
                   })}
+              testID={NewSeedVerifyTestIds.firstMnemonicInput}
             />
           </div>
         );
