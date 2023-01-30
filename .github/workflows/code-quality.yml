@@ -54,8 +54,8 @@ jobs:
       - name: Create Chrome build
         run: yarn build:chrome
 
-#      - name: Perform end-to-end tests
-#        uses: ./.github/workflows/e2e
+      - name: Perform end-to-end tests
+        uses: ./.github/workflows/e2e
 
       - name: Upload artifact
         uses: actions/upload-artifact@v2
