@@ -15,7 +15,7 @@ Given(/I press (.*) on the (.*) page/, async (elementName: string, pageName: str
   await createPageElement(`${pageName}/${elementName}`).click();
 });
 
-Given(/I enter my mnemonic/, async () => {
+Given(/I enter default mnemonic/, async () => {
   await enterMyMnemonicStep();
 });
 

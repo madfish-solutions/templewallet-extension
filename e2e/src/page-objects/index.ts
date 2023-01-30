@@ -1,5 +1,11 @@
 import { AccountsDropdown } from './pages/drop-down-lists/accounts.drop-down';
 import { HeaderPage } from './pages/header.page';
+import {
+  ImportAccountTab,
+  ImportAccountMnemonicTab,
+  ImportAccountPrivateKeyTab,
+  ImportAccountWatchOnlyTab
+} from './pages/import-account.page';
 import { ImportExistingWalletPage } from './pages/importing-existing-wallet.page';
 import { NewSeedBackupPage } from './pages/new-seed-backup.page';
 import { RevealSecretsPage } from './pages/reveal-secrets.page';
@@ -17,5 +23,9 @@ export const Pages = {
   Settings: new SettingsPage(),
   RevealSecrets: new RevealSecretsPage(),
   NewSeedBackup: new NewSeedBackupPage(),
-  VerifyMnemonic: new VerifyMnemonicPage()
+  VerifyMnemonic: new VerifyMnemonicPage(),
+  ImportAccountTab: new ImportAccountTab(),
+  ImportAccountPrivateKey: new ImportAccountPrivateKeyTab(),
+  ImportAccountMnemonic: new ImportAccountMnemonicTab(),
+  ImportAccountWatchOnly: new ImportAccountWatchOnlyTab()
 };

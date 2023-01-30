@@ -41,6 +41,8 @@ import { useSafeState } from 'lib/ui/hooks';
 import { clearClipboard } from 'lib/ui/util';
 import { navigate } from 'lib/woozie';
 
+import { ImportAccountTestIds } from './ImportAccount.test-ids';
+
 type ImportAccountProps = {
   tabSlug: string | null;
 };
@@ -195,6 +197,7 @@ const ByPrivateKeyForm: FC = () => {
         className="resize-none"
         containerClassName="mb-6"
         onPaste={() => clearClipboard()}
+        testID={ImportAccountTestIds.privateKeyInput}
       />
 
       {encrypted && (
@@ -218,7 +221,9 @@ const ByPrivateKeyForm: FC = () => {
         />
       )}
 
-      <FormSubmitButton loading={formState.isSubmitting}>{t('importAccount')}</FormSubmitButton>
+      <FormSubmitButton loading={formState.isSubmitting} testID={ImportAccountTestIds.privateKeyImportButton}>
+        {t('importAccount')}
+      </FormSubmitButton>
     </form>
   );
 };
@@ -309,6 +314,7 @@ const ByMnemonicForm: FC = () => {
           setSeedError={setSeedError}
           onChange={setSeedPhrase}
           reset={reset}
+          testID={ImportAccountTestIds.mnemonicWordInput}
         />
       </div>
 
@@ -408,9 +414,14 @@ const ByMnemonicForm: FC = () => {
         placeholder="*********"
         errorCaption={errors.password?.message}
         containerClassName="mb-6"
+        testID={ImportAccountTestIds.mnemonicPasswordField}
       />
 
-      <FormSubmitButton loading={formState.isSubmitting} className="mt-8">
+      <FormSubmitButton
+        loading={formState.isSubmitting}
+        className="mt-8"
+        testID={ImportAccountTestIds.mnemonicImportButton}
+      >
         <T id="importAccount" />
       </FormSubmitButton>
     </form>
@@ -661,7 +672,7 @@ const FromFaucetForm: FC = () => {
                 id="faucetFileInputPrompt"
                 substitutions={[
                   <a
-                    href="https://teztnets.xyz/"
+                    href="app/pages/ImportAccount/ImportAccount"
                     key="link"
                     target="_blank"
                     rel="noopener noreferrer"
@@ -832,6 +843,7 @@ const WatchOnlyForm: FC = () => {
         onClean={cleanAddressField}
         id="watch-address"
         label={t('address')}
+        testID={ImportAccountTestIds.watchOnlyInput}
         labelDescription={
           <T id={canUseDomainNames ? 'addressInputDescriptionWithDomain' : 'addressInputDescription'} />
         }
@@ -850,7 +862,9 @@ const WatchOnlyForm: FC = () => {
         </div>
       )}
 
-      <FormSubmitButton loading={formState.isSubmitting}>{t('importAccount')}</FormSubmitButton>
+      <FormSubmitButton loading={formState.isSubmitting} testID={ImportAccountTestIds.watchOnlyImportButton}>
+        {t('importAccount')}
+      </FormSubmitButton>
     </form>
   );
 };

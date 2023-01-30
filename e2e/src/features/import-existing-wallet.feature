@@ -4,7 +4,7 @@ Feature: Import existing wallet
     And I press Import Existing Wallet button on the Welcome page
 
     And I am on the ImportExistingWallet page
-    And I enter my mnemonic
+    And I enter default mnemonic
     And I press Next button on the Import Existing Seed Phrase page
 
     And I am on the SetWallet page
