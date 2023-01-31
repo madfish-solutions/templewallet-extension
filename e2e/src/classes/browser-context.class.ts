@@ -6,7 +6,7 @@ const defaultSeedPhrase = getEnv('DEFAULT_SEED_PHRASE');
 const defaultPassword = getEnv('DEFAULT_PASSWORD');
 const defaultPrivateKey = getEnv('DEFAULT_HD_ACCOUNT_PRIVATE_KEY');
 const secondSeedPhrase = getEnv('SECOND_SEED_PHRASE');
-const privateKeyOfSecondSeedPhrase = getEnv('PRIVATE_KEY_OF_SECOND_SEED_PHRASE');
+const privateKeyOfSecondSeedPhrase = getEnv('SECOND_SEED_PHRASE_PRIVATE_KEY');
 
 if (!defaultSeedPhrase) throw new Error('process.env.DEFAULT_SEED_PHRASE not found.');
 if (!defaultPassword) throw new Error('process.env.DEFAULT_PASSWORD not found.');
