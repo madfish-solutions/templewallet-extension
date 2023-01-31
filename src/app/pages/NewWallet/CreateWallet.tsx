@@ -6,8 +6,8 @@ import PageLayout from 'app/layouts/PageLayout';
 import { t } from 'lib/i18n';
 
 import { useTempleClient } from '../../../lib/temple/front';
-import { NewSeedBackup } from './create/NewSeedBackup';
-import { NewSeedVerify } from './create/NewSeedVerify';
+import { NewSeedBackup } from './create/NewSeedBackup/NewSeedBackup';
+import { NewSeedVerify } from './create/NewSeedVerify/NewSeedVerify';
 import { LockedWalletExists } from './LockedWalletExists';
 import { SetWalletPassword } from './setWalletPassword/SetWalletPassword';
 import { Template } from './Template';

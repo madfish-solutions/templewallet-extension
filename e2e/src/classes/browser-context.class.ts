@@ -17,4 +17,9 @@ export class BrowserContext {
   public static seedPhrase = defaultSeedPhrase;
   public static password = defaultPassword;
   public static privateKey = defaultPrivateKey;
+  public static resetPrivates = () => {
+    BrowserContext.seedPhrase = defaultSeedPhrase;
+    BrowserContext.password = defaultPassword;
+    BrowserContext.privateKey = defaultPrivateKey;
+  };
 }
