@@ -672,7 +672,7 @@ const FromFaucetForm: FC = () => {
                 id="faucetFileInputPrompt"
                 substitutions={[
                   <a
-                    href="app/pages/ImportAccount/ImportAccount"
+                    href="https://teztnets.xyz/"
                     key="link"
                     target="_blank"
                     rel="noopener noreferrer"
