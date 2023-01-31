@@ -47,7 +47,7 @@ jobs:
           DEFAULT_PASSWORD: ${{ secrets.DEFAULT_PASSWORD }}
           DEFAULT_HD_ACCOUNT_PRIVATE_KEY: ${{ secrets.DEFAULT_HD_ACCOUNT_PRIVATE_KEY }}
           SECOND_SEED_PHRASE: ${{ secrets.SECOND_SEED_PHRASE }}
-          PRIVATE_KEY_OF_SECOND_SEED_PHRASE: ${{ secrets.PRIVATE_KEY_OF_SECOND_SEED_PHRASE }}
+          SECOND_SEED_PHRASE_PRIVATE_KEY: ${{ secrets.SECOND_SEED_PHRASE_PRIVATE_KEY }}
 
       - name: Install dependencies and code quality check
         uses: ./.github/workflows/code-quality-check
