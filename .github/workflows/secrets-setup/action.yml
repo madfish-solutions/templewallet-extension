@@ -25,6 +25,10 @@ inputs:
     required: false
   DEFAULT_HD_ACCOUNT_PRIVATE_KEY:
     required: false
+  SECOND_SEED_PHRASE:
+    required: false
+  PRIVATE_KEY_OF_SECOND_SEED_PHRASE:
+    required: false
 
 runs:
   using: 'composite'
