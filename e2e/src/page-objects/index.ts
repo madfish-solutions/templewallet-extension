@@ -1,5 +1,6 @@
 import { AccountsDropdown } from './pages/drop-down-lists/accounts.drop-down';
 import { HeaderPage } from './pages/header.page';
+import { HomePage } from './pages/home.page';
 import {
   ImportAccountTab,
   ImportAccountMnemonicTab,
@@ -27,5 +28,6 @@ export const Pages = {
   ImportAccountTab: new ImportAccountTab(),
   ImportAccountPrivateKey: new ImportAccountPrivateKeyTab(),
   ImportAccountMnemonic: new ImportAccountMnemonicTab(),
-  ImportAccountWatchOnly: new ImportAccountWatchOnlyTab()
+  ImportAccountWatchOnly: new ImportAccountWatchOnlyTab(),
+  Home: new HomePage()
 };

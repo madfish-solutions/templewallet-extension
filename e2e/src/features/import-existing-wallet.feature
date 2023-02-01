@@ -14,5 +14,5 @@ Feature: Import existing wallet
     And I press Accept Terms Checkbox on the Register Form page
     And I press Import Button on the Register Form page
 
-    Then I am on the Header page
+    Then I am on the Home page
 

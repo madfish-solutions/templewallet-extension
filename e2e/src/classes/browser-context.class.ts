@@ -12,7 +12,7 @@ if (!defaultSeedPhrase) throw new Error('process.env.DEFAULT_SEED_PHRASE not fou
 if (!defaultPassword) throw new Error('process.env.DEFAULT_PASSWORD not found.');
 if (!defaultPrivateKey) throw new Error('process.env.DEFAULT_PASSWORD not found.');
 if (!secondSeedPhrase) throw new Error('process.env.SECOND_SEED_PHRASE not found.');
-if (!privateKeyOfSecondSeedPhrase) throw new Error('process.env.PRIVATE_KEY_OF_SECOND_SEED_PHRASE not found.');
+if (!privateKeyOfSecondSeedPhrase) throw new Error('process.env.SECOND_SEED_PHRASE_PRIVATE_KEY not found.');
 
 export class BrowserContext {
   public static EXTENSION_ID: string;

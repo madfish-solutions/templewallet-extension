@@ -20,5 +20,5 @@ Feature: Create a new wallet
     And I press Accept Terms Checkbox on the Register Form page
     And I press Create Button on the Register Form page
 
-    Then I am on the Header page
+    Then I am on the Home page
 

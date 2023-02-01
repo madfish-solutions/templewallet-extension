@@ -13,5 +13,6 @@ Feature: Reveal private key
     And I am on the RevealSecrets page
     And I enter password into Reveal Password Field on the RevealSecrets page
     And I press Reveal Button on the RevealSecrets page
-    And I compare my Private Key to Revealed value
+
+    Then I compare my Private Key to Revealed value
 

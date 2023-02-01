@@ -10,7 +10,16 @@ export class ImportExistingWalletPage extends Page {
     await this.nextButton.waitForDisplayed();
     await this.wordInput.waitForDisplayed();
   }
-  async getWordsInputs() {
-    return findElements(ImportFromSeedPhraseTestIds.wordInput);
+
+  async enterSeedPhrase(seedPhrase: string) {
+    const wordsArray = seedPhrase.split(' ');
+    const wordsInputs = await findElements(ImportFromSeedPhraseTestIds.wordInput);
+
+    for (let i = 0; i < wordsArray.length; i++) {
+      const word = wordsArray[i];
+      const input = wordsInputs[i];
+
+      await input.type(word);
+    }
   }
 }

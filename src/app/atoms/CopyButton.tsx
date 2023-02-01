@@ -2,10 +2,12 @@ import React, { FC, HTMLAttributes, useMemo } from 'react';
 
 import classNames from 'clsx';
 
-import { AnalyticsEventCategory, TestIDProps, useAnalytics } from 'lib/analytics';
+import { AnalyticsEventCategory, setTestID, TestIDProps, useAnalytics } from 'lib/analytics';
 import { t } from 'lib/i18n';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 import useTippy from 'lib/ui/useTippy';
+
+import { ExploreSelectors } from '../pages/Explore.selectors';
 
 export type CopyButtonProps = HTMLAttributes<HTMLButtonElement> &
   TestIDProps & {
@@ -96,11 +98,12 @@ const CopyButton: FC<CopyButtonProps> = ({
         }
         {...rest}
         onClick={handleCopyPress}
+        {...setTestID(ExploreSelectors.valueButton)}
       >
         {children}
       </button>
 
-      <input ref={fieldRef} value={text} readOnly className="sr-only" />
+      <input ref={fieldRef} value={text} readOnly className="sr-only" {...setTestID(ExploreSelectors.valueInput)} />
     </>
   );
 };
