@@ -59,7 +59,7 @@ const toSafeBignum = (x: any): BigNumber =>
 export const fetchBalanceFromTzkt = async (apiUrl: string, publicKeyHash: string) => {
   const [tezBalanceResponse, tokenBalancesResponse] = await Promise.all([
     fetch(`${apiUrl}/v1/accounts/${publicKeyHash}/balance`),
-    fetch(`${apiUrl}/v1/tokens/balances?account=${publicKeyHash}`)
+    fetch(`${apiUrl}/v1/tokens/balances?account=${publicKeyHash}&limit=10000`)
   ]);
 
   const [tezBalance, tokenBalances]: [number, Array<TzktAccountToken>] = await Promise.all([
