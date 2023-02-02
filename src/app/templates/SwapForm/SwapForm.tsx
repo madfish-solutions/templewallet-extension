@@ -7,10 +7,9 @@ import { Controller, useForm } from 'react-hook-form';
 import {
   DexTypeEnum,
   getBestTradeExactInput,
-  getTradeOpParams,
   getTradeOutputAmount,
   getTradeOutputOperation,
-  parseTransferParamsToParamsWithKind,
+  // parseTransferParamsToParamsWithKind,
   Trade,
   useAllRoutePairs,
   useRoutePairsCombinations,
@@ -22,14 +21,16 @@ import { ReactComponent as InfoIcon } from 'app/icons/info.svg';
 import { ReactComponent as ToggleIcon } from 'app/icons/toggle.svg';
 import OperationStatus from 'app/templates/OperationStatus';
 import { useFormAnalytics } from 'lib/analytics';
+import { getRoute3SwapParams } from 'lib/apis/route3/get-route3-swap-params';
 import { T, t } from 'lib/i18n';
-import { getRoutingFeeTransferParams } from 'lib/swap-router';
-import { ROUTING_FEE_ADDRESS, ROUTING_FEE_PERCENT, ROUTING_FEE_RATIO } from 'lib/swap-router/config';
-import { useAccount, useTezos, useAssetMetadata } from 'lib/temple/front';
+import { ROUTING_FEE_PERCENT, ROUTING_FEE_RATIO } from 'lib/swap-router/config';
+import { useAssetMetadata } from 'lib/temple/front';
 import { atomsToTokens, tokensToAtoms } from 'lib/temple/helpers';
 import useTippy from 'lib/ui/useTippy';
 import { HistoryAction, navigate } from 'lib/woozie';
 
+import { toTokenSlug } from '../../../lib/temple/assets';
+import { useRoute3TokensSelector } from '../../store/route3/selectors';
 import { SwapExchangeRate } from './SwapExchangeRate/SwapExchangeRate';
 import { SwapFormValue, SwapInputValue, useSwapFormDefaultValue } from './SwapForm.form';
 import styles from './SwapForm.module.css';
@@ -66,8 +67,8 @@ const KNOWN_DEX_TYPES = [
 ];
 
 export const SwapForm: FC = () => {
-  const tezos = useTezos();
-  const account = useAccount();
+  // const tezos = useTezos();
+  // const account = useAccount();
   const formAnalytics = useFormAnalytics('SwapForm');
 
   const feeInfoIconRef = useTippy<HTMLSpanElement>(feeInfoTippyProps);
@@ -84,6 +85,7 @@ export const SwapForm: FC = () => {
 
   const inputAssetMetadata = useAssetMetadata(inputValue.assetSlug ?? 'tez')!;
   const outputAssetMetadata = useAssetMetadata(outputValue.assetSlug ?? 'tez')!;
+  const { data: route3tokens } = useRoute3TokensSelector();
 
   const allRoutePairs = useAllRoutePairs(TEMPLE_WALLET_DEXES_API_URL);
   const filteredRoutePairs = useMemo(
@@ -201,30 +203,57 @@ export const SwapForm: FC = () => {
 
     formAnalytics.trackSubmit(analyticsProperties);
 
+    const fromRoute3Token = route3tokens.find(
+      ({ contract, tokenId }) => toTokenSlug(contract ?? '', tokenId ?? 0) === inputValue.assetSlug
+    );
+    const toRoute3Token = route3tokens.find(
+      ({ contract, tokenId }) => toTokenSlug(contract ?? '', tokenId ?? 0) === outputValue.assetSlug
+    );
+
+    if (fromRoute3Token === undefined || toRoute3Token === undefined || inputValue.amount === undefined) {
+      return;
+    }
+
     try {
       setOperation(undefined);
-      const routingFeeOpParams = await getRoutingFeeTransferParams(
-        bestTradeWithSlippageTolerance,
-        feeAmount,
-        account.publicKeyHash,
-        tezos
-      );
-      const tradeOpParams = await getTradeOpParams(
-        bestTradeWithSlippageTolerance,
-        account.publicKeyHash,
-        tezos,
-        ROUTING_FEE_ADDRESS
-      );
+      const tradeOpParams = await getRoute3SwapParams({
+        fromSymbol: fromRoute3Token.symbol,
+        toSymbol: toRoute3Token.symbol,
+        amount: inputValue.amount.toFixed()
+      });
 
-      const opParams = [...tradeOpParams, ...routingFeeOpParams].map(transferParams =>
-        parseTransferParamsToParamsWithKind(transferParams)
-      );
+      console.log('tradeOpParams: ', tradeOpParams);
 
-      const batchOperation = await tezos.wallet.batch(opParams).send();
+      const param = {
+        app_id: 2,
+        min_out: tradeOpParams.output * (slippageTolerance ?? 1),
+        receiver: '',
+        token_in_id: fromRoute3Token.id,
+        token_out_id: toRoute3Token.id,
+        hops: new Map()
+      };
+
+      for (let i = 0; i < tradeOpParams.chains.length; i++) {
+        const chain = tradeOpParams.chains[i];
+        for (let j = 0; j < chain.hops.length; j++) {
+          const hop = chain.hops[j];
+          param.hops.set(param.hops.size, {
+            code: (j === 0 ? 1 : 0) + (hop.forward ? 2 : 0),
+            dex_id: hop.dex,
+            amount_opt: j === 0 ? chain.input : undefined
+          });
+        }
+      }
+
+      console.log('param: ', param);
+
+      // const opParams = [...tradeOpParams].map(transferParams => parseTransferParamsToParamsWithKind(transferParams));
+
+      // const batchOperation = await tezos.wallet.batch(opParams).send();
 
       setError(undefined);
       formAnalytics.trackSubmitSuccess(analyticsProperties);
-      setOperation(batchOperation);
+      // setOperation(batchOperation);
     } catch (err: any) {
       if (err.message !== 'Declined') {
         setError(err);

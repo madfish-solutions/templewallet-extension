@@ -13,13 +13,16 @@ import { currencyEpics } from './currency/epics';
 import { currencyReducer } from './currency/reducers';
 import { dAppsEpics } from './d-apps/epics';
 import { dAppsReducer } from './d-apps/reducers';
+import { route3Epics } from './route3/epics';
+import { route3Reducer } from './route3/reducers';
 
 const baseReducer = rootStateReducer({
   advertising: advertisingReducer,
   currency: currencyReducer,
   notifications: notificationsReducers,
   dApps: dAppsReducer,
-  balanceMode: balanceModeReducer
+  balanceMode: balanceModeReducer,
+  route3: route3Reducer
 });
 
 export type RootState = GetStateType<typeof baseReducer>;
@@ -31,7 +34,7 @@ const persistConfig: PersistConfig<RootState> = {
   stateReconciler: autoMergeLevel2
 };
 
-const epics = [currencyEpics, advertisingEpics, notificationsEpics, dAppsEpics];
+const epics = [currencyEpics, advertisingEpics, notificationsEpics, dAppsEpics, route3Epics];
 
 export const { store, persistor } = createStore(persistConfig, baseReducer, epics);
 

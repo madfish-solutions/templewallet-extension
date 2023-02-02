@@ -3,10 +3,13 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import constate from 'constate';
 import deepEqual from 'fast-deep-equal';
 import Fuse from 'fuse.js';
+import { useDispatch } from 'react-redux';
 import { useDebounce } from 'use-debounce';
 import useForceUpdate from 'use-force-update';
 import browser from 'webextension-polyfill';
 
+import { loadRoute3TokensAction } from 'app/store/route3/actions';
+import { useRoute3TokensSelector } from 'app/store/route3/selectors';
 import { useRetryableSWR } from 'lib/swr';
 import {
   AssetTypesEnum,
@@ -294,6 +297,31 @@ export const useAvailableAssets = (assetType: AssetTypesEnum) => {
   );
 
   return { availableAssets, assetsStatuses, isLoading, mutate };
+};
+
+export const useAvailableRoute3Tokens = () => {
+  const dispatch = useDispatch();
+  const { data: route3tokens, isLoading } = useRoute3TokensSelector();
+
+  useEffect(() => void dispatch(loadRoute3TokensAction.submit()), []);
+
+  const route3tokensSlugs = useMemo(() => {
+    const result: Array<string> = [];
+
+    for (const { contract, tokenId } of route3tokens) {
+      if (contract !== null) {
+        result.push(toTokenSlug(contract, tokenId ?? 0));
+      }
+    }
+
+    return result;
+  }, [route3tokens]);
+
+  return {
+    isLoading,
+    route3tokens,
+    route3tokensSlugs
+  };
 };
 
 export function useFilteredAssets(assetSlugs: string[]) {
