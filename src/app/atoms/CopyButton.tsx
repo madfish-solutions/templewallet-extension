@@ -7,8 +7,6 @@ import { t } from 'lib/i18n';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 import useTippy from 'lib/ui/useTippy';
 
-import { ExploreSelectors } from '../pages/Explore.selectors';
-
 export type CopyButtonProps = HTMLAttributes<HTMLButtonElement> &
   TestIDProps & {
     bgShade?: 100 | 200;
@@ -98,12 +96,12 @@ const CopyButton: FC<CopyButtonProps> = ({
         }
         {...rest}
         onClick={handleCopyPress}
-        {...setTestID(ExploreSelectors.valueButton)}
+        {...setTestID(testID)}
       >
         {children}
       </button>
 
-      <input ref={fieldRef} value={text} readOnly className="sr-only" {...setTestID(ExploreSelectors.valueInput)} />
+      <input ref={fieldRef} value={text} readOnly className="sr-only" />
     </>
   );
 };

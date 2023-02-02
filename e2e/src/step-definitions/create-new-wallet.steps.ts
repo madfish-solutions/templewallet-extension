@@ -1,10 +1,8 @@
 import { Given } from '@cucumber/cucumber';
 import { expect } from 'chai';
 
-import { NewSeedVerifyTestIds } from '../../../src/app/pages/NewWallet/create/NewSeedVerify/NewSeedVerify.test-ids';
 import { BrowserContext } from '../classes/browser-context.class';
 import { Pages } from '../page-objects';
-import { findElements, getElementText } from '../utils/search.utils';
 
 Given(/I save my mnemonic/, async () => {
   const value = await Pages.NewSeedBackup.seedPhraseValue.getText();
@@ -13,30 +11,5 @@ Given(/I save my mnemonic/, async () => {
 });
 
 Given(/I verify my mnemonic/, async () => {
-  const wordNumberSpans = await findElements(NewSeedVerifyTestIds.mnemonicWordNumber);
-  const wordNumberTexts = await Promise.all(wordNumberSpans.map(item => getElementText(item)));
-
-  const wordNumbers = wordNumberTexts.map(fullText => {
-    const numberText = fullText.split(' ')[1];
-
-    return Number(numberText);
-  });
-
-  const wordInputs = await findElements(NewSeedVerifyTestIds.firstMnemonicInput);
-  const wordInputTexts = await Promise.all(wordInputs.map(item => getElementText(item)));
-  const emptyWordInputIndexes = wordInputTexts
-    .map((text, index) => {
-      if (text) return undefined;
-      return index;
-    })
-    .filter(index => index !== undefined) as number[];
-
-  for (const index of emptyWordInputIndexes) {
-    const input = wordInputs[index];
-
-    const wordIndex = wordNumbers[index] - 1;
-    const word = BrowserContext.seedPhrase.split(' ')[wordIndex];
-
-    await input.type(word);
-  }
+  await Pages.VerifyMnemonic.enterSeedPhraseVerification();
 });

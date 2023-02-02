@@ -1,25 +1,15 @@
 import { Given } from '@cucumber/cucumber';
 import { expect } from 'chai';
 
-import { ImportAccountTestIds } from '../../../src/app/pages/ImportAccount/ImportAccount.test-ids';
 import { BrowserContext } from '../classes/browser-context.class';
 import { Pages } from '../page-objects';
-import { findElements, getElementText } from '../utils/search.utils';
 
 Given(/I enter second mnemonic/, async () => {
   await Pages.ImportAccountMnemonic.enterSeedPhrase(BrowserContext.secondSeedPhrase);
 });
 
 Given(/I select (.*) tab/, async (tabName: string) => {
-  const tabElements = await findElements(ImportAccountTestIds.tabSwitcher);
-
-  for (const tabElement of tabElements) {
-    const getTabValue = await getElementText(tabElement);
-
-    if (getTabValue === tabName) {
-      await tabElement.click();
-    }
-  }
+  await Pages.ImportAccountTab.selectTab(tabName);
 });
 
 Given(/I reveal a private key and compare with private key of second seed phrase/, async () => {

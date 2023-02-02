@@ -11,8 +11,7 @@ export class HomePage extends Page {
   AssetsTab = createPageElement(ExploreSelectors.AssetsTab);
   ActivityTab = createPageElement(ExploreSelectors.ActivityTab);
   CollectiblesTab = createPageElement(ExploreSelectors.CollectiblesTab);
-  valueButton = createPageElement(ExploreSelectors.valueButton);
-  valueInput = createPageElement(ExploreSelectors.valueInput);
+  PublicAddressButton = createPageElement(ExploreSelectors.PublicAddressButton);
 
   async isVisible() {
     await this.ReceiveButton.waitForDisplayed();
@@ -23,7 +22,6 @@ export class HomePage extends Page {
     await this.AssetsTab.waitForDisplayed();
     await this.ActivityTab.waitForDisplayed();
     await this.CollectiblesTab.waitForDisplayed();
-    await this.valueButton.waitForDisplayed();
-    await this.valueInput.waitForDisplayed();
+    await this.PublicAddressButton.waitForDisplayed();
   }
 }
