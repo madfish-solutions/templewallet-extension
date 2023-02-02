@@ -22,6 +22,7 @@ import { ReactComponent as InfoIcon } from 'app/icons/info.svg';
 import { ReactComponent as ToggleIcon } from 'app/icons/toggle.svg';
 import OperationStatus from 'app/templates/OperationStatus';
 import { useFormAnalytics } from 'lib/analytics';
+import { EnvVars } from 'lib/env';
 import { T, t } from 'lib/i18n';
 import { getRoutingFeeTransferParams } from 'lib/swap-router';
 import { ROUTING_FEE_ADDRESS, ROUTING_FEE_PERCENT, ROUTING_FEE_RATIO } from 'lib/swap-router/config';
@@ -42,11 +43,7 @@ import { SwapMinimumReceived } from './SwapMinimumReceived/SwapMinimumReceived';
 import { SwapPriceUpdateBar } from './SwapPriceUpdateBar/SwapPriceUpdateBar';
 import { SwapRoute } from './SwapRoute/SwapRoute';
 
-const TEMPLE_WALLET_DEXES_API_URL = process.env.TEMPLE_WALLET_DEXES_API_URL;
-
-if (!TEMPLE_WALLET_DEXES_API_URL) {
-  throw new Error('process.env.TEMPLE_WALLET_DEXES_API_URL is not defined');
-}
+const TEMPLE_WALLET_DEXES_API_URL = EnvVars.TEMPLE_WALLET_DEXES_API_URL;
 
 const KNOWN_DEX_TYPES = [
   DexTypeEnum.QuipuSwap,

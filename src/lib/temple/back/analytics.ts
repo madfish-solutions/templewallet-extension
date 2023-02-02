@@ -1,14 +1,11 @@
 import fetchAdapter from '@vespaiach/axios-fetch-adapter';
 import Analytics from 'analytics-node';
 
+import { EnvVars } from 'lib/env';
 import { TempleSendPageEventRequest, TempleSendTrackEventRequest } from 'lib/temple/analytics-types';
 import { loadChainId } from 'lib/temple/helpers';
 
-const WRITE_KEY = process.env.TEMPLE_WALLET_SEGMENT_WRITE_KEY;
-
-if (!WRITE_KEY) {
-  throw new Error("Require a 'TEMPLE_WALLET_SEGMENT_WRITE_KEY' environment variable to be set");
-}
+const WRITE_KEY = EnvVars.TEMPLE_WALLET_SEGMENT_WRITE_KEY;
 
 const client = new Analytics(WRITE_KEY, {
   axiosConfig: { adapter: fetchAdapter }

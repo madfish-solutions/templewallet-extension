@@ -1,10 +1,8 @@
 import axios from 'axios';
 
-const API_KEY = process.env.TEMPLE_WALLET_EVERSTAKE_API_KEY;
-const LINK_ID = process.env.TEMPLE_WALLET_EVERSTAKE_LINK_ID;
+import { EnvVars } from 'lib/env';
 
-if (!API_KEY) throw new Error('process.env.TEMPLE_WALLET_EVERSTAKE_API_KEY is not defined');
-if (!LINK_ID) throw new Error('process.env.TEMPLE_WALLET_EVERSTAKE_LINK_ID is not defined');
+const { TEMPLE_WALLET_EVERSTAKE_API_KEY: API_KEY, TEMPLE_WALLET_EVERSTAKE_LINK_ID: LINK_ID } = EnvVars;
 
 const api = axios.create({
   baseURL: 'https://aff-api.everstake.one/temple',
