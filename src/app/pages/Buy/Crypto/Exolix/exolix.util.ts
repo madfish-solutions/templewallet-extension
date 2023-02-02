@@ -2,6 +2,7 @@ import axios from 'axios';
 
 import { outputTokensList } from 'app/pages/Buy/Crypto/Exolix/config';
 import { CurrencyToken } from 'app/templates/TopUpInput';
+import { EnvVars } from 'lib/env';
 
 import {
   ExchangeDataInterface,
@@ -11,7 +12,7 @@ import {
   GetRateResponseWithAmountTooLow
 } from './exolix.interface';
 
-const API_KEY = process.env.TEMPLE_WALLET_EXOLIX_API_KEY;
+const API_KEY = EnvVars.TEMPLE_WALLET_EXOLIX_API_KEY;
 
 const api = axios.create({
   baseURL: 'https://exolix.com/api/v2',
