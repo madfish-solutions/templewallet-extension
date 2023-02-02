@@ -45,7 +45,7 @@ import { SwapRoute } from './SwapRoute/SwapRoute';
 const TEMPLE_WALLET_DEXES_API_URL = process.env.TEMPLE_WALLET_DEXES_API_URL;
 
 if (!TEMPLE_WALLET_DEXES_API_URL) {
-  throw new Error('TEMPLE_WALLET_DEXES_API_URL is not defined');
+  throw new Error('process.env.TEMPLE_WALLET_DEXES_API_URL is not defined');
 }
 
 const KNOWN_DEX_TYPES = [
