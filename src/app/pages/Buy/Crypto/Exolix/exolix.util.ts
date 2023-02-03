@@ -16,11 +16,9 @@ const API_KEY = EnvVars.TEMPLE_WALLET_EXOLIX_API_KEY;
 
 const api = axios.create({
   baseURL: 'https://exolix.com/api/v2',
-  ...(API_KEY && {
-    headers: {
-      Authorization: API_KEY
-    }
-  })
+  headers: {
+    Authorization: API_KEY
+  }
 });
 
 const currenciesLimit = 100;
