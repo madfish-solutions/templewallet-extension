@@ -3,7 +3,9 @@ name: Secrets setup
 description: Writes secrets
 
 inputs:
-  TEMPLE_WALLET_SEGMENT_WRITE_KEY:
+  TEMPLE_WALLET_JITSU_TRACKING_HOST:
+    required: true
+  TEMPLE_WALLET_JITSU_WRITE_KEY:
     required: true
   TEMPLE_WALLET_EXOLIX_API_KEY:
     required: false
@@ -37,7 +39,8 @@ runs:
       shell: bash
       run: |
         cat << EOF > .env
-        TEMPLE_WALLET_SEGMENT_WRITE_KEY=${{ inputs.TEMPLE_WALLET_SEGMENT_WRITE_KEY }}
+        TEMPLE_WALLET_JITSU_TRACKING_HOST=${{ inputs.TEMPLE_WALLET_JITSU_TRACKING_HOST }}
+        TEMPLE_WALLET_JITSU_WRITE_KEY=${{ inputs.TEMPLE_WALLET_JITSU_WRITE_KEY }}
 
         TEMPLE_WALLET_EXOLIX_API_KEY=${{ inputs.TEMPLE_WALLET_EXOLIX_API_KEY }}
         TEMPLE_WALLET_EVERSTAKE_API_KEY=${{ inputs.TEMPLE_WALLET_EVERSTAKE_API_KEY }}
