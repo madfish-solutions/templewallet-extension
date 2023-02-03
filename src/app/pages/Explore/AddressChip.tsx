@@ -6,15 +6,16 @@ import useSWR from 'swr';
 import { ReactComponent as HashIcon } from 'app/icons/hash.svg';
 import { ReactComponent as LanguageIcon } from 'app/icons/language.svg';
 import HashChip from 'app/templates/HashChip';
+import { TestIDProps } from 'lib/analytics';
 import { useTezos, useTezosDomainsClient, fetchFromStorage, putToStorage } from 'lib/temple/front';
 
-type AddressChipProps = {
+type AddressChipProps = TestIDProps & {
   pkh: string;
   className?: string;
   small?: boolean;
 };
 
-const AddressChip: FC<AddressChipProps> = ({ pkh, className, small }) => {
+const AddressChip: FC<AddressChipProps> = ({ pkh, className, small, ...rest }) => {
   const tezos = useTezos();
   const { resolver: domainsResolver } = useTezosDomainsClient();
 
@@ -53,9 +54,9 @@ const AddressChip: FC<AddressChipProps> = ({ pkh, className, small }) => {
   return (
     <div className={classNames('flex items-center', className)}>
       {reverseName && domainDisplayed ? (
-        <HashChip hash={reverseName} firstCharsCount={7} lastCharsCount={10} small={small} />
+        <HashChip hash={reverseName} firstCharsCount={7} lastCharsCount={10} small={small} {...rest} />
       ) : (
-        <HashChip hash={pkh} small={small} />
+        <HashChip hash={pkh} small={small} {...rest} />
       )}
 
       {reverseName && (

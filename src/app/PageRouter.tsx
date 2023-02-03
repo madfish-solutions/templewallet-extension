@@ -9,7 +9,7 @@ import CreateAccount from 'app/pages/CreateAccount';
 import DApps from 'app/pages/DApps';
 import Delegate from 'app/pages/Delegate';
 import Explore from 'app/pages/Explore';
-import ImportAccount from 'app/pages/ImportAccount';
+import ImportAccount from 'app/pages/ImportAccount/ImportAccount';
 import ManageAssets from 'app/pages/ManageAssets';
 import { CreateWallet } from 'app/pages/NewWallet/CreateWallet';
 import { ImportWallet } from 'app/pages/NewWallet/ImportWallet';

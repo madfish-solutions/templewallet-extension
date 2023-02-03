@@ -13,5 +13,6 @@ Feature: Reveal seed phrase
     And I am on the RevealSecrets page
     And I enter password into Reveal Password Field on the RevealSecrets page
     And I press Reveal Button on the RevealSecrets page
-    And I compare my Seed Phrase to Revealed value
+
+    Then I compare my Seed Phrase to Revealed value
 

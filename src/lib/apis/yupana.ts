@@ -8,10 +8,22 @@ const YUPANA_API = 'https://mainnet-api.yupana.finance/v1/graphql/';
 const apolloYupanaClient = getApolloConfigurableClient(YUPANA_API);
 
 enum TOKENS_IDS {
+  /** KT1UpeXdK6AJbX58GJ92pLZVCucn2DR8Nu4b_0 */
+  'WTEZ' = 0,
+  /** KT1SjXiUX63QvdNMcM2m492f7kuf8JxXRLp4_0 */
+  'CTEZ' = 1,
+  /** KT1K9gCRgaLRFKTErYt1wVxA3Frb9FjasjTV_0 */
+  'KUSD' = 2,
+  /** KT1XRPEPXbZK25r3Htzp2o1x7xdMMmfocKNW_0 */
+  'UUSD' = 3,
+  /** KT1PWx2mnDueood7fEmfbBDKx1D9BAnnXitn_0 */
+  'TZBTC' = 4,
+  /** KT1XRPEPXbZK25r3Htzp2o1x7xdMMmfocKNW_2 */
+  'UBTC' = 5,
   /** KT1XnTn74bUtxHfDtBmm2bGZAQfhPbvKWR8o_0 */
   'USDT' = 6,
-  /** KT1K9gCRgaLRFKTErYt1wVxA3Frb9FjasjTV_0 */
-  'KUSD' = 2
+  /** KT1AafHA1C1vk959wvHWBispY9Y2f3fxBUUo_0 */
+  'SIRS' = 7
 }
 
 interface GetApyFromYupanaResponse {

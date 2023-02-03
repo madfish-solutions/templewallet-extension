@@ -2,7 +2,7 @@ import React, { FC, HTMLAttributes, useMemo } from 'react';
 
 import classNames from 'clsx';
 
-import { AnalyticsEventCategory, TestIDProps, useAnalytics } from 'lib/analytics';
+import { AnalyticsEventCategory, setTestID, TestIDProps, useAnalytics } from 'lib/analytics';
 import { t } from 'lib/i18n';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 import useTippy from 'lib/ui/useTippy';
@@ -96,6 +96,7 @@ const CopyButton: FC<CopyButtonProps> = ({
         }
         {...rest}
         onClick={handleCopyPress}
+        {...setTestID(testID)}
       >
         {children}
       </button>
