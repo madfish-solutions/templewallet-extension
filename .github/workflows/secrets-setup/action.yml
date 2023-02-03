@@ -25,6 +25,10 @@ inputs:
     required: false
   DEFAULT_HD_ACCOUNT_PRIVATE_KEY:
     required: false
+  SECOND_SEED_PHRASE:
+    required: false
+  SECOND_SEED_PHRASE_PRIVATE_KEY:
+    required: false
 
 runs:
   using: 'composite'
@@ -52,4 +56,6 @@ runs:
         DEFAULT_SEED_PHRASE=${{ inputs.DEFAULT_SEED_PHRASE }}
         DEFAULT_PASSWORD=${{ inputs.DEFAULT_PASSWORD }}
         DEFAULT_HD_ACCOUNT_PRIVATE_KEY=${{ inputs.DEFAULT_HD_ACCOUNT_PRIVATE_KEY }}
+        SECOND_SEED_PHRASE=${{ inputs.SECOND_SEED_PHRASE }}
+        SECOND_SEED_PHRASE_PRIVATE_KEY=${{ inputs.SECOND_SEED_PHRASE_PRIVATE_KEY }}
         EOF
