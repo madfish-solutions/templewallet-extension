@@ -10,7 +10,8 @@ export const KNOWN_TOKENS_SLUGS = {
   wWBTC: toTokenSlug('KT18fp5rcTW7mbWDmzFwjLDUhs5MeJmagDSZ', 19),
   USDT: toTokenSlug('KT1XnTn74bUtxHfDtBmm2bGZAQfhPbvKWR8o', 0),
   uBTC: toTokenSlug('KT1XRPEPXbZK25r3Htzp2o1x7xdMMmfocKNW', 2),
-  YOU: toTokenSlug('KT1Xobej4mc6XgEjDoJoHtTKgbD1ELMvcQuL', 0)
+  YOU: toTokenSlug('KT1Xobej4mc6XgEjDoJoHtTKgbD1ELMvcQuL', 0),
+  SIRS: toTokenSlug('KT1AafHA1C1vk959wvHWBispY9Y2f3fxBUUo', 0)
 };
 
 const PREDEFINED_TOKENS_BY_CHAIN_ID: Record<string, string[]> = {

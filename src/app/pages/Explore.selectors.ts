@@ -8,5 +8,6 @@ export enum ExploreSelectors {
   DelegationTab = 'Explore/DelegationTab',
   ActivityTab = 'Explore/ActivityTab',
   AboutTab = 'Explore/AboutTab',
-  CollectiblesTab = 'Explore/CollectiblesTab'
+  CollectiblesTab = 'Explore/CollectiblesTab',
+  PublicAddressButton = 'Explore/Public Address Button'
 }
