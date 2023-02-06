@@ -72,7 +72,9 @@ export const [SyncBalancesProvider, useSyncBalances] = constate(() => {
       setAssetSlugsWithUpdatedBalances({});
     } else if (isSyncing === false) {
       if (tzktApiUrl !== undefined) {
-        fetchBalanceFromTzkt(tzktApiUrl, publicKeyHash, allTokensBaseMetadata).then(balances => setAssetSlugsWithUpdatedBalances(balances));
+        fetchBalanceFromTzkt(tzktApiUrl, publicKeyHash, allTokensBaseMetadata).then(balances =>
+          setAssetSlugsWithUpdatedBalances(balances)
+        );
       } else {
         updateBalancesFromChain(stopAndBuildChecker());
       }
