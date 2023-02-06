@@ -4,9 +4,8 @@ import BigNumber from 'bignumber.js';
 import { TzktAccountToken } from 'lib/apis/tzkt';
 import { loadContract } from 'lib/temple/contract';
 
-import { TEZOS_METADATA } from '../metadata/defaults';
-import { AssetMetadata } from '../metadata/types';
-import { fromAssetSlug, isFA2Token } from './utils';
+import { TEZOS_METADATA, AssetMetadata } from '../metadata';
+import { fromAssetSlug, isFA2Token, toTokenSlug } from './utils';
 
 export async function fetchTezosBalance(tezos: TezosToolkit, account: string) {
   let nat = (await getBalanceSafe(tezos, account)) ?? new BigNumber(0);
@@ -56,7 +55,11 @@ const getBalanceSafe = async (tezos: TezosToolkit, account: string) => {
 const toSafeBignum = (x: any): BigNumber =>
   !x || (typeof x === 'object' && typeof x.isNaN === 'function' && x.isNaN()) ? new BigNumber(0) : new BigNumber(x);
 
-export const fetchBalanceFromTzkt = async (apiUrl: string, publicKeyHash: string) => {
+export const fetchBalanceFromTzkt = async (
+  apiUrl: string,
+  publicKeyHash: string,
+  tokensBaseMetadata: Record<string, AssetMetadata>
+) => {
   const [tezBalanceResponse, tokenBalancesResponse] = await Promise.all([
     fetch(`${apiUrl}/v1/accounts/${publicKeyHash}/balance`),
     fetch(`${apiUrl}/v1/tokens/balances?account=${publicKeyHash}&limit=10000`)
@@ -71,9 +74,10 @@ export const fetchBalanceFromTzkt = async (apiUrl: string, publicKeyHash: string
 
   tokenBalances.forEach(item => {
     const value = new BigNumber(item.balance);
-    result[`${item.token.contract.address}_${item.token.tokenId}`] = value.div(
-      10 ** parseInt(item.token.metadata?.decimals ?? '0')
-    );
+    const slug = toTokenSlug(item.token.contract.address, item.token.tokenId);
+    const decimals = tokensBaseMetadata[slug]?.decimals ?? 0;
+
+    result[slug] = value.div(10 ** decimals);
   });
 
   return result;
