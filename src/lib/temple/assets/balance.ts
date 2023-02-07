@@ -76,7 +76,9 @@ export const fetchBalanceFromTzkt = async (
   tokenBalances.forEach(item => {
     const value = new BigNumber(item.balance);
     const slug = toTokenSlug(item.token.contract.address, item.token.tokenId);
-    const decimals = tokensBaseMetadata[slug]?.decimals ?? 0;
+    const decimals = tokensBaseMetadata[slug]?.decimals ?? Number(item.token.metadata.decimals);
+    console.log('decimals: ', decimals);
+    console.log('slug: ', slug);
 
     result[slug] = atomsToTokens(value, decimals);
   });
