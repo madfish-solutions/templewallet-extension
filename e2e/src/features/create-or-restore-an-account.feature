@@ -12,6 +12,6 @@ Feature: Create or restore an account
     And I press Create Or Restore Button on the Create Account page
     And I am on the Home page
 
-    Then I reveal a private key and compare with private key of created account
+    Then I reveal a private key and compare with private key created account
 
 

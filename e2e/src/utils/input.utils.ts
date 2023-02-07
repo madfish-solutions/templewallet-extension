@@ -1,32 +1,18 @@
-import { AccountsTestData } from '../classes/accounts';
+import { AccountsTestData } from '../classes/accounts-test-data.class';
 import { BrowserContext } from '../classes/browser-context.class';
 
 export const getInputText = (inputType: AccountsTestData) => {
-  let inputText = '';
-
   switch (inputType) {
-    case AccountsTestData.defaultSeedPhrase:
-      inputText = BrowserContext.seedPhrase;
-      break;
-    case AccountsTestData.defaultPassword:
-      inputText = BrowserContext.password;
-      break;
+    case AccountsTestData.seedPhrase:
+      return BrowserContext.seedPhrase;
+
+    case AccountsTestData.password:
+      return BrowserContext.password;
+
+    case AccountsTestData.privateKeySecondSeed:
+      return BrowserContext.privateKeyOfSecondSeedPhrase;
+
+    case AccountsTestData.privateKeyCreatedAccountHD:
+      return BrowserContext.privateKeyOfCreatedAccountHD;
   }
-
-  return inputText;
-};
-
-export const getPrivateKeyText = (compareType: AccountsTestData) => {
-  let comparePrivateKey = '';
-
-  switch (compareType) {
-    case AccountsTestData.secondSeedPhrasePrivateKey:
-      comparePrivateKey = BrowserContext.privateKeyOfSecondSeedPhrase;
-      break;
-    case AccountsTestData.CreatedOrRestoredAccountPrivateKey:
-      comparePrivateKey = BrowserContext.privateKeyOfCreatedOrRestoredAccount;
-      break;
-  }
-
-  return comparePrivateKey;
 };

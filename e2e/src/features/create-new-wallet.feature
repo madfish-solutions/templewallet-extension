@@ -14,8 +14,8 @@ Feature: Create a new wallet
     And I press Next Button on the NewSeedVerify page
 
     And I am on the SetWallet page
-    And I enter default password into Password Field on the Register Form page
-    And I enter default password into Repeat Password Field on the Register Form page
+    And I enter password into Password Field on the Register Form page
+    And I enter password into Repeat Password Field on the Register Form page
     And I press Skip Onboarding Checkbox on the Register Form page
     And I press Accept Terms Checkbox on the Register Form page
     And I press Create Button on the Register Form page

@@ -1,6 +1,6 @@
 import { Given } from '@cucumber/cucumber';
 
-import { AccountsTestData } from '../classes/accounts';
+import { AccountsTestData } from '../classes/accounts-test-data.class';
 import { BrowserContext } from '../classes/browser-context.class';
 import { Pages } from '../page-objects';
 import { getInputText } from '../utils/input.utils';
@@ -16,7 +16,7 @@ Given(/I press (.*) on the (.*) page/, async (elementName: string, pageName: str
 });
 
 Given(
-  /I enter (default seed|default password) into (.*) on the (.*) page/,
+  /I enter (seed|password|private key second seed) into (.*) on the (.*) page/,
   async (inputType: AccountsTestData, elementName: string, pageName: string) => {
     const inputText = getInputText(inputType);
 
