@@ -15,7 +15,7 @@ Given(/I press (.*) on the (.*) page/, async (elementName: string, pageName: str
 });
 
 Given(
-  /I enter (seed|password) into (.*) on the (.*) page/,
+  /I enter (seed|password|second private key) into (.*) on the (.*) page/,
   async (inputType: string, elementName: string, pageName: string) => {
     const inputText = getInputText(inputType);
 
