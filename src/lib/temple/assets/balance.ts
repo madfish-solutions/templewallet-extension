@@ -3,6 +3,7 @@ import BigNumber from 'bignumber.js';
 
 import { TzktAccountToken } from 'lib/apis/tzkt';
 import { loadContract } from 'lib/temple/contract';
+import { atomsToTokens } from 'lib/temple/helpers';
 
 import { TEZOS_METADATA, AssetMetadata } from '../metadata';
 import { fromAssetSlug, isFA2Token, toTokenSlug } from './utils';
@@ -77,7 +78,7 @@ export const fetchBalanceFromTzkt = async (
     const slug = toTokenSlug(item.token.contract.address, item.token.tokenId);
     const decimals = tokensBaseMetadata[slug]?.decimals ?? 0;
 
-    result[slug] = value.div(10 ** decimals);
+    result[slug] = atomsToTokens(value, decimals);
   });
 
   return result;
