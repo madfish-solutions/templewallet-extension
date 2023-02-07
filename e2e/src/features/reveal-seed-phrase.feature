@@ -11,7 +11,7 @@ Feature: Reveal seed phrase
     And I press RevealSeedPhraseButton on the Settings page
 
     And I am on the RevealSecrets page
-    And I enter password into Reveal Password Field on the RevealSecrets page
+    And I enter default password into Reveal Password Field on the RevealSecrets page
     And I press Reveal Button on the RevealSecrets page
 
     Then I compare my Seed Phrase to Revealed value

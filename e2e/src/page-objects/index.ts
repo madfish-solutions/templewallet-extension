@@ -1,3 +1,4 @@
+import { CreateOrRestoreAnAccountPage } from './pages/create-or-restore-an-account.page';
 import { AccountsDropdown } from './pages/drop-down-lists/accounts.drop-down';
 import { HeaderPage } from './pages/header.page';
 import { HomePage } from './pages/home.page';
@@ -27,5 +28,6 @@ export const Pages = {
   ImportAccountPrivateKey: new ImportAccountPrivateKeyTab(),
   ImportAccountMnemonic: new ImportAccountMnemonicTab(),
   ImportAccountWatchOnly: new ImportAccountWatchOnlyTab(),
-  Home: new HomePage()
+  Home: new HomePage(),
+  CreateOrRestoreAnAccount: new CreateOrRestoreAnAccountPage()
 };
