@@ -11,7 +11,7 @@ interface Route3Hop {
   forward: boolean;
 }
 
-interface Route3Chain {
+export interface Route3Chain {
   input: number;
   output: number;
   hops: Array<Route3Hop>;

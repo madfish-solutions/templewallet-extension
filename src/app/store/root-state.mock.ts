@@ -5,6 +5,7 @@ import { mockBalanceModeState } from './balance-mode/state.mock';
 import { mockCurrencyState } from './currency/state.mock';
 import { mockDAppsState } from './d-apps/state.mock';
 import { RootState } from './index';
+import { route3StateMock } from './route3/state.mock';
 
 // ts-prune-ignore-next
 export const mockRootState: RootState = {
@@ -12,5 +13,6 @@ export const mockRootState: RootState = {
   currency: mockCurrencyState,
   notifications: mockNotificationsState,
   dApps: mockDAppsState,
-  balanceMode: mockBalanceModeState
+  balanceMode: mockBalanceModeState,
+  route3: route3StateMock
 };
