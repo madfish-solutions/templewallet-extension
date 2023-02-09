@@ -10,6 +10,9 @@ export const getInputText = (inputType: string) => {
     case 'password':
       inputText = BrowserContext.password;
       break;
+    case 'second private key':
+      inputText = BrowserContext.privateKeyOfSecondSeedPhrase;
+      break;
   }
 
   return inputText;

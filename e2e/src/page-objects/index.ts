@@ -1,5 +1,10 @@
 import { AccountsDropdown } from './pages/drop-down-lists/accounts.drop-down';
 import { HeaderPage } from './pages/header.page';
+import { HomePage } from './pages/home.page';
+import { ImportAccountMnemonicTab } from './pages/import-account-tabs/import-account-mnemonic-tab.page';
+import { ImportAccountPrivateKeyTab } from './pages/import-account-tabs/import-account-private-key-tab.page';
+import { ImportAccountTab } from './pages/import-account-tabs/import-account-tab-switcher.page';
+import { ImportAccountWatchOnlyTab } from './pages/import-account-tabs/import-account-watch-only-tab.page';
 import { ImportExistingWalletPage } from './pages/importing-existing-wallet.page';
 import { NewSeedBackupPage } from './pages/new-seed-backup.page';
 import { RevealSecretsPage } from './pages/reveal-secrets.page';
@@ -17,5 +22,10 @@ export const Pages = {
   Settings: new SettingsPage(),
   RevealSecrets: new RevealSecretsPage(),
   NewSeedBackup: new NewSeedBackupPage(),
-  VerifyMnemonic: new VerifyMnemonicPage()
+  VerifyMnemonic: new VerifyMnemonicPage(),
+  ImportAccountTab: new ImportAccountTab(),
+  ImportAccountPrivateKey: new ImportAccountPrivateKeyTab(),
+  ImportAccountMnemonic: new ImportAccountMnemonicTab(),
+  ImportAccountWatchOnly: new ImportAccountWatchOnlyTab(),
+  Home: new HomePage()
 };

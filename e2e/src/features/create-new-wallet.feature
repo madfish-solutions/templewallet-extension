@@ -1,5 +1,4 @@
 Feature: Create a new wallet
-  @dev
   Scenario: As a user, i'd like to create a new wallet
     Given I am on the Welcome page
     And I press Create New Wallet button on the Welcome page
@@ -21,5 +20,5 @@ Feature: Create a new wallet
     And I press Accept Terms Checkbox on the Register Form page
     And I press Create Button on the Register Form page
 
-    Then I am on the Header page
+    Then I am on the Home page
 

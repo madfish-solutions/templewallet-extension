@@ -35,7 +35,8 @@ jobs:
       - name: Secrets setup
         uses: ./.github/workflows/secrets-setup
         with:
-          TEMPLE_WALLET_SEGMENT_WRITE_KEY: ${{ secrets.TEMPLE_WALLET_SEGMENT_WRITE_KEY }}
+          TEMPLE_WALLET_JITSU_TRACKING_HOST: ${{ vars.TEMPLE_WALLET_JITSU_TRACKING_HOST }}
+          TEMPLE_WALLET_JITSU_WRITE_KEY: ${{ vars.TEMPLE_WALLET_JITSU_WRITE_KEY }}
           TEMPLE_WALLET_EXOLIX_API_KEY: ${{ secrets.TEMPLE_WALLET_EXOLIX_API_KEY }}
           TEMPLE_WALLET_EVERSTAKE_API_KEY: ${{ secrets.TEMPLE_WALLET_EVERSTAKE_API_KEY }}
           TEMPLE_WALLET_EVERSTAKE_LINK_ID: ${{ secrets.TEMPLE_WALLET_EVERSTAKE_LINK_ID }}
@@ -46,6 +47,8 @@ jobs:
           DEFAULT_SEED_PHRASE: ${{ secrets.DEFAULT_SEED_PHRASE }}
           DEFAULT_PASSWORD: ${{ secrets.DEFAULT_PASSWORD }}
           DEFAULT_HD_ACCOUNT_PRIVATE_KEY: ${{ secrets.DEFAULT_HD_ACCOUNT_PRIVATE_KEY }}
+          SECOND_SEED_PHRASE: ${{ secrets.SECOND_SEED_PHRASE }}
+          SECOND_SEED_PHRASE_PRIVATE_KEY: ${{ secrets.SECOND_SEED_PHRASE_PRIVATE_KEY }}
 
       - name: Install dependencies and code quality check
         uses: ./.github/workflows/code-quality-check
