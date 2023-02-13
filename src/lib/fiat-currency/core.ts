@@ -17,28 +17,36 @@ export function useAssetUSDPrice(slug: string) {
   const usdToTokenRates = useSelector(state => state.currency.usdToTokenRates.data);
 
   return useMemo(() => {
-    const rawValue = usdToTokenRates[slug];
-    return rawValue ? Number(rawValue) : null;
+    const rateStr = usdToTokenRates[slug];
+    return rateStr ? Number(rateStr) : undefined;
   }, [slug, usdToTokenRates]);
 }
 
-export function useAssetFiatCurrencyPrice(slug: string): BigNumber {
+export const useFiatToUsdRate = () => {
   const {
     fiatRates,
     selectedFiatCurrency: { name: selectedFiatCurrencyName }
   } = useFiatCurrency();
 
-  const usdToTokenRate = useAssetUSDPrice(slug);
-
   return useMemo(() => {
-    if (!isDefined(fiatRates) || !isTruthy(usdToTokenRate)) return new BigNumber(0);
+    if (!isDefined(fiatRates)) return;
 
     const fiatRate = fiatRates[selectedFiatCurrencyName.toLowerCase()] ?? 1;
     const usdRate = fiatRates['usd'] ?? 1;
-    const fiatToUsdRate = fiatRate / usdRate;
+
+    return fiatRate / usdRate;
+  }, [fiatRates, selectedFiatCurrencyName]);
+};
+
+export function useAssetFiatCurrencyPrice(slug: string): BigNumber {
+  const fiatToUsdRate = useFiatToUsdRate();
+  const usdToTokenRate = useAssetUSDPrice(slug);
+
+  return useMemo(() => {
+    if (!isTruthy(usdToTokenRate) || !isTruthy(fiatToUsdRate)) return new BigNumber(0);
 
     return BigNumber(fiatToUsdRate).times(usdToTokenRate);
-  }, [fiatRates, usdToTokenRate, selectedFiatCurrencyName]);
+  }, [fiatToUsdRate, usdToTokenRate]);
 }
 
 export const useFiatCurrency = () => {

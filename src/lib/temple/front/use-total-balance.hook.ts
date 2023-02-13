@@ -4,7 +4,7 @@ import { isDefined } from '@rnw-community/shared';
 import { BigNumber } from 'bignumber.js';
 
 import { useSelector } from 'app/store';
-import { useFiatCurrency } from 'lib/fiat-currency';
+import { useFiatToUsdRate } from 'lib/fiat-currency';
 import { isTruthy } from 'lib/utils';
 
 import { TEZ_TOKEN_SLUG, useDisplayedFungibleTokens } from './assets';
@@ -17,22 +17,10 @@ export const useTotalBalance = () => {
   const { publicKeyHash } = useAccount();
   const { data: tokens } = useDisplayedFungibleTokens(chainId, publicKeyHash);
 
-  const {
-    fiatRates,
-    selectedFiatCurrency: { name: selectedFiatCurrencyName }
-  } = useFiatCurrency();
-
   const tokensBalances = useSyncBalances();
   const allUsdToTokenRates = useSelector(state => state.currency.usdToTokenRates.data);
 
-  const fiatToUsdRate = useMemo(() => {
-    if (!isDefined(fiatRates)) return;
-
-    const fiatRate = fiatRates[selectedFiatCurrencyName.toLowerCase()] ?? 1;
-    const usdRate = fiatRates['usd'] ?? 1;
-
-    return fiatRate / usdRate;
-  }, [fiatRates, selectedFiatCurrencyName]);
+  const fiatToUsdRate = useFiatToUsdRate();
 
   const slugs = useMemo(
     () => (tokens ? [TEZ_TOKEN_SLUG, ...tokens.map(token => token.tokenSlug)] : [TEZ_TOKEN_SLUG]),
@@ -42,7 +30,7 @@ export const useTotalBalance = () => {
   const totalBalance = useMemo(() => {
     let dollarValue = new BigNumber(0);
 
-    if (fiatToUsdRate == null) return dollarValue;
+    if (!isTruthy(fiatToUsdRate)) return dollarValue;
 
     for (const slug of slugs) {
       const balance = tokensBalances[slug];
