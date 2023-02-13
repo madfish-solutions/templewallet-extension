@@ -35,7 +35,7 @@ export class VerifyMnemonicPage extends Page {
       const input = wordInputs[index];
 
       const wordIndex = wordNumbers[index] - 1;
-      const word = BrowserContext.DEFAULT_HD_ACCOUNT_SEED_PHRASE.split(' ')[wordIndex];
+      const word = BrowserContext.defaultSeedPhrase.split(' ')[wordIndex];
 
       await input.type(word);
     }

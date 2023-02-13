@@ -1,8 +1,8 @@
 import { BrowserContext } from './browser-context.class';
 
 export const testDataForInput = {
-  DEFAULT_HD_ACCOUNT_SEED_PHRASE: BrowserContext.DEFAULT_HD_ACCOUNT_SEED_PHRASE,
-  DEFAULT_HD_ACCOUNT_SECOND_PRIVATE_KEY: BrowserContext.DEFAULT_HD_ACCOUNT_SECOND_PRIVATE_KEY,
-  DEFAULT_PASSWORD: BrowserContext.DEFAULT_PASSWORD,
-  IMPORTED_HD_ACCOUNT_FIRST_PRIVATE_KEY: BrowserContext.IMPORTED_HD_ACCOUNT_FIRST_PRIVATE_KEY
+  defaultSeedPhrase: BrowserContext.defaultSeedPhrase,
+  defaultSecondPrivateKey: BrowserContext.defaultSecondPrivateKey,
+  defaultPassword: BrowserContext.defaultPassword,
+  importedFirstPrivateKey: BrowserContext.importedFirstPrivateKey
 };

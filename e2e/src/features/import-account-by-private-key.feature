@@ -12,7 +12,7 @@ Feature: Import Account by Private Key
     And I select Private Key tab
     And I am on the ImportAccountPrivateKey page
 
-    And I enter IMPORTED_HD_ACCOUNT_FIRST_PRIVATE_KEY into Private Key Input on the Import Account(Private Key) page
+    And I enter importedFirstPrivateKey into Private Key Input on the Import Account(Private Key) page
     And I press Private Key Import Button on the Import Account(Private Key) page
 
-    Then I reveal a private key and compare with IMPORTED_HD_ACCOUNT_FIRST_PRIVATE_KEY
+    Then I reveal a private key and compare with importedFirstPrivateKey
