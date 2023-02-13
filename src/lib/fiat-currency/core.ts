@@ -1,10 +1,12 @@
 import { useMemo } from 'react';
 
+import { isDefined } from '@rnw-community/shared';
 import axios from 'axios';
 import { BigNumber } from 'bignumber.js';
 
 import { useSelector } from 'app/store';
 import { useStorage } from 'lib/temple/front';
+import { isTruthy } from 'lib/utils';
 
 import { FIAT_CURRENCIES } from './consts';
 import type { FiatCurrencyOption, CoingeckoFiatInterface } from './types';
@@ -12,25 +14,31 @@ import type { FiatCurrencyOption, CoingeckoFiatInterface } from './types';
 const FIAT_CURRENCY_STORAGE_KEY = 'fiat_currency';
 
 export function useAssetUSDPrice(slug: string) {
-  const prices = useSelector(state => state.currency.usdToTokenRates.data);
+  const usdToTokenRates = useSelector(state => state.currency.usdToTokenRates.data);
 
   return useMemo(() => {
-    const rawValue = prices[slug];
+    const rawValue = usdToTokenRates[slug];
     return rawValue ? Number(rawValue) : null;
-  }, [slug, prices]);
+  }, [slug, usdToTokenRates]);
 }
 
 export function useAssetFiatCurrencyPrice(slug: string): BigNumber {
-  const exchangeRate = useAssetUSDPrice(slug);
-  const exchangeRateTezos = useAssetUSDPrice('tez');
-  const { fiatRates, selectedFiatCurrency } = useFiatCurrency();
+  const {
+    fiatRates,
+    selectedFiatCurrency: { name: selectedFiatCurrencyName }
+  } = useFiatCurrency();
+
+  const usdToTokenRate = useAssetUSDPrice(slug);
 
   return useMemo(() => {
-    if (!fiatRates || !exchangeRate || !exchangeRateTezos) return new BigNumber(0);
-    const fiatToUsdRate = new BigNumber(fiatRates[selectedFiatCurrency.name.toLowerCase()]).div(exchangeRateTezos);
-    const trueExchangeRate = fiatToUsdRate.times(exchangeRate);
-    return trueExchangeRate;
-  }, [fiatRates, exchangeRate, exchangeRateTezos, selectedFiatCurrency.name]);
+    if (!isDefined(fiatRates) || !isTruthy(usdToTokenRate)) return new BigNumber(0);
+
+    const fiatRate = fiatRates[selectedFiatCurrencyName.toLowerCase()] ?? 1;
+    const usdRate = fiatRates['usd'] ?? 1;
+    const fiatToUsdRate = fiatRate / usdRate;
+
+    return BigNumber(fiatToUsdRate).times(usdToTokenRate);
+  }, [fiatRates, usdToTokenRate, selectedFiatCurrencyName]);
 }
 
 export const useFiatCurrency = () => {

@@ -1,5 +1,6 @@
 import React, { FC, ReactElement, ReactNode, useMemo } from 'react';
 
+import { isDefined } from '@rnw-community/shared';
 import BigNumber from 'bignumber.js';
 
 import Money from 'app/atoms/Money';
@@ -39,10 +40,10 @@ const InFiat: FC<InFiatProps> = ({
   if (mainnet === undefined) {
     mainnet = walletNetwork.type === 'main';
   }
+
   const roundedInFiat = useMemo(() => {
-    if (price === null) {
-      return new BigNumber(0);
-    }
+    if (!isDefined(price)) return new BigNumber(0);
+
     const inFiat = new BigNumber(volume).times(price);
     if (showCents) {
       return inFiat;
@@ -52,7 +53,7 @@ const InFiat: FC<InFiatProps> = ({
 
   const cryptoDecimals = showCents ? undefined : 0;
 
-  return mainnet && price !== null
+  return mainnet && isDefined(price)
     ? children({
         balance: (
           <Money
