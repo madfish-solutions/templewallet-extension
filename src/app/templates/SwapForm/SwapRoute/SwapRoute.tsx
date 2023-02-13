@@ -1,46 +1,55 @@
-import React, { FC } from 'react';
+import React, { FC, useState } from 'react';
 
-import { Trade } from 'swap-router-sdk';
+import classNames from 'clsx';
 
-import { t } from 'lib/i18n';
+import { ReactComponent as ChevronDown } from 'app/icons/chevron-down.svg';
+import { ReactComponent as ChevronUp } from 'app/icons/chevron-up.svg';
+import { useRoute3SwapParamsSelector } from 'app/store/route3/selectors';
+import { T } from 'lib/i18n';
 
-import { SwapInputValue } from '../SwapForm.form';
-import { SwapRouteInfo } from './SwapRouteItem/SwapRouteInfo/SwapRouteInfo';
 import { SwapRouteItem } from './SwapRouteItem/SwapRouteItem';
 
 interface Props {
-  trade: Trade;
-  inputValue: SwapInputValue;
-  outputValue: SwapInputValue;
-  loadingHasFailed: boolean;
+  className?: string;
 }
 
-export const SwapRoute: FC<Props> = ({ trade, inputValue, outputValue, loadingHasFailed }) => {
-  if (loadingHasFailed) {
-    return <SwapRouteInfo text={t('swapRouteLoadingHasFailed')} className="text-red-700" />;
-  }
+export const SwapRoute: FC<Props> = ({ className }) => {
+  const { data: swapParams } = useRoute3SwapParamsSelector();
 
-  if (!inputValue.assetSlug || !outputValue.assetSlug) {
-    return <SwapRouteInfo text={t('selectTokensToSwap')} />;
-  }
+  const [isVisible, setIsVisible] = useState(false);
 
-  if (!inputValue.amount && !outputValue.amount) {
-    return <SwapRouteInfo text={t('enterSwapAmount')} />;
-  }
+  const chainsCount = swapParams.chains.length;
+  const dexesCount = swapParams.chains.reduce((accum, chain) => accum + chain.hops.length, 0);
 
-  if (trade.length === 0) {
-    return <SwapRouteInfo text={t('noQuotesAvailable')} />;
-  }
+  const hadleToggleVisible = () => setIsVisible(prev => !prev);
+
+  const Chevron = isVisible ? ChevronUp : ChevronDown;
 
   return (
-    <div style={{ height: '4.625rem' }} className="flex justify-between items-center mb-2">
-      {trade.map((item, index) => (
-        <SwapRouteItem
-          key={`${index}_${item.dexType}_${item.aTokenSlug}_${item.bTokenSlug}`}
-          tradeOperation={item}
-          isShowNextArrow={index !== trade.length - 1}
-        />
-      ))}
-    </div>
+    <>
+      <p className="flex justify-between items-center text-xs text-gray-500 mb-1">
+        <T id="swapRoute" />
+        <span className="flex items-center gap-1">
+          <span>
+            {chainsCount} chains / {dexesCount} dexes
+          </span>
+          <span onClick={hadleToggleVisible}>
+            <Chevron className={classNames('h-4 w-auto stroke-3 stroke-current')} />
+          </span>
+        </span>
+      </p>
+      {isVisible && swapParams.chains.length > 0 && (
+        <div className={classNames(className, 'flex flex-col gap-2 mb-2')}>
+          {swapParams.chains.map((chain, index) => (
+            <SwapRouteItem
+              key={index}
+              chain={chain}
+              baseInput={swapParams.input ?? 0}
+              baseOutput={swapParams.output ?? 0}
+            />
+          ))}
+        </div>
+      )}
+    </>
   );
 };

@@ -4,35 +4,29 @@ import { BatchWalletOperation } from '@taquito/taquito/dist/types/wallet/batch-o
 import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
 import { Controller, useForm } from 'react-hook-form';
-import {
-  DexTypeEnum,
-  getBestTradeExactInput,
-  getTradeOutputAmount,
-  getTradeOutputOperation,
-  parseTransferParamsToParamsWithKind,
-  Trade,
-  useAllRoutePairs,
-  useRoutePairsCombinations,
-  useTradeWithSlippageTolerance
-} from 'swap-router-sdk';
+import { useDispatch } from 'react-redux';
+import { parseTransferParamsToParamsWithKind } from 'swap-router-sdk';
 
 import { Alert, FormSubmitButton } from 'app/atoms';
 import { useRoute3 } from 'app/hooks/use-route3.hook';
 import { ReactComponent as InfoIcon } from 'app/icons/info.svg';
 import { ReactComponent as ToggleIcon } from 'app/icons/toggle.svg';
+import {
+  loadRoute3DexesAction,
+  loadRoute3SwapParamsAction,
+  resetRoute3SwapParamsAction
+} from 'app/store/route3/actions';
+import { useRoute3SwapParamsSelector, useRoute3TokenSelector } from 'app/store/route3/selectors';
 import OperationStatus from 'app/templates/OperationStatus';
 import { useFormAnalytics } from 'lib/analytics';
 import { T, t } from 'lib/i18n';
 import { ROUTE3_CONTRACT } from 'lib/route3/constants';
-import { getRoute3TokenBySlug } from 'lib/route3/utils/get-route3-token-by-slug';
-import { ROUTING_FEE_PERCENT, ROUTING_FEE_RATIO } from 'lib/swap-router/config';
+import { ROUTING_FEE_PERCENT } from 'lib/swap-router/config';
 import { useAccount, useAssetMetadata, useTezos } from 'lib/temple/front';
-import { atomsToTokens, tokensToAtoms } from 'lib/temple/helpers';
 import useTippy from 'lib/ui/useTippy';
 import { getTransferPermissions } from 'lib/utils/get-transfer-permissions';
 import { HistoryAction, navigate } from 'lib/woozie';
 
-import { useRoute3TokensSelector } from '../../store/route3/selectors';
 import { SwapExchangeRate } from './SwapExchangeRate/SwapExchangeRate';
 import { SwapFormValue, SwapInputValue, useSwapFormDefaultValue } from './SwapForm.form';
 import styles from './SwapForm.module.css';
@@ -42,7 +36,6 @@ import { SlippageToleranceInput } from './SwapFormInput/SlippageToleranceInput/S
 import { slippageToleranceInputValidationFn } from './SwapFormInput/SlippageToleranceInput/SlippageToleranceInput.validation';
 import { SwapFormInput } from './SwapFormInput/SwapFormInput';
 import { SwapMinimumReceived } from './SwapMinimumReceived/SwapMinimumReceived';
-import { SwapPriceUpdateBar } from './SwapPriceUpdateBar/SwapPriceUpdateBar';
 import { SwapRoute } from './SwapRoute/SwapRoute';
 
 const TEMPLE_WALLET_DEXES_API_URL = process.env.TEMPLE_WALLET_DEXES_API_URL;
@@ -51,27 +44,13 @@ if (!TEMPLE_WALLET_DEXES_API_URL) {
   throw new Error('TEMPLE_WALLET_DEXES_API_URL is not defined');
 }
 
-const KNOWN_DEX_TYPES = [
-  DexTypeEnum.QuipuSwap,
-  DexTypeEnum.QuipuSwap20,
-  DexTypeEnum.QuipuSwapTokenToTokenDex,
-  DexTypeEnum.QuipuSwapCurveLike,
-  DexTypeEnum.Plenty,
-  DexTypeEnum.PlentyBridge,
-  DexTypeEnum.PlentyStableSwap,
-  DexTypeEnum.PlentyVolatileSwap,
-  DexTypeEnum.PlentyCtez,
-  DexTypeEnum.LiquidityBaking,
-  DexTypeEnum.Youves,
-  DexTypeEnum.Vortex,
-  DexTypeEnum.Spicy,
-  DexTypeEnum.SpicyWrap
-];
-
 export const SwapForm: FC = () => {
+  const dispatch = useDispatch();
   const tezos = useTezos();
   const { publicKeyHash } = useAccount();
   const { getRoute3SwapOpParams } = useRoute3();
+  const { data: swapParams } = useRoute3SwapParamsSelector();
+
   const formAnalytics = useFormAnalytics('SwapForm');
 
   const feeInfoIconRef = useTippy<HTMLSpanElement>(feeInfoTippyProps);
@@ -86,38 +65,53 @@ export const SwapForm: FC = () => {
   const outputValue = watch('output');
   const slippageTolerance = watch('slippageTolerance');
 
+  const fromRoute3Token = useRoute3TokenSelector(inputValue.assetSlug ?? '');
+  const toRoute3Token = useRoute3TokenSelector(outputValue.assetSlug ?? '');
+
   const inputAssetMetadata = useAssetMetadata(inputValue.assetSlug ?? 'tez')!;
   const outputAssetMetadata = useAssetMetadata(outputValue.assetSlug ?? 'tez')!;
-  const { data: route3tokens } = useRoute3TokensSelector();
-
-  const allRoutePairs = useAllRoutePairs(TEMPLE_WALLET_DEXES_API_URL);
-  const filteredRoutePairs = useMemo(
-    () => allRoutePairs.data.filter(routePair => KNOWN_DEX_TYPES.includes(routePair.dexType)),
-    [allRoutePairs.data]
-  );
-  const routePairsCombinations = useRoutePairsCombinations(
-    inputValue.assetSlug,
-    outputValue.assetSlug,
-    filteredRoutePairs
-  );
-
-  const inputMutezAmount = useMemo(
-    () => (inputValue.amount ? tokensToAtoms(inputValue.amount, inputAssetMetadata.decimals) : undefined),
-    [inputValue.amount, inputAssetMetadata.decimals]
-  );
-
-  const bestTrade = useMemo<Trade>(
-    () =>
-      inputMutezAmount && routePairsCombinations.length > 0
-        ? getBestTradeExactInput(inputMutezAmount, routePairsCombinations)
-        : [],
-    [inputMutezAmount, routePairsCombinations]
-  );
 
   const [error, setError] = useState<Error>();
   const [operation, setOperation] = useState<BatchWalletOperation>();
   const isSubmitButtonPressedRef = useRef(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const slippageRatio = useMemo(() => (100 - (slippageTolerance ?? 0)) / 100, [slippageTolerance]);
+  const minimumReceivedAmount = useMemo(
+    () => slippageRatio * (outputValue.amount?.toNumber() ?? 0),
+    [slippageRatio, outputValue.amount]
+  );
+
+  useEffect(() => {
+    const subscription = tezos.stream.subscribeBlock('head');
+    subscription.on('data', () => {
+      if (fromRoute3Token && toRoute3Token && inputValue.amount) {
+        dispatch(
+          loadRoute3SwapParamsAction.submit({
+            fromSymbol: fromRoute3Token.symbol,
+            toSymbol: toRoute3Token.symbol,
+            amount: inputValue.amount?.toFixed() ?? '0'
+          })
+        );
+      }
+    });
+
+    return () => subscription.close();
+  }, []);
+
+  useEffect(() => {
+    if (!fromRoute3Token || !toRoute3Token || !inputValue.amount) {
+      return;
+    }
+
+    dispatch(
+      loadRoute3SwapParamsAction.submit({
+        fromSymbol: fromRoute3Token.symbol,
+        toSymbol: toRoute3Token.symbol,
+        amount: inputValue.amount.toFixed()
+      })
+    );
+  }, [inputValue.assetSlug, outputValue.assetSlug, inputValue.amount]);
 
   useEffect(
     () =>
@@ -128,43 +122,21 @@ export const SwapForm: FC = () => {
     [inputValue.assetSlug, outputValue.assetSlug]
   );
 
-  const bestTradeWithSlippageTolerance = useTradeWithSlippageTolerance(inputMutezAmount, bestTrade, slippageTolerance);
-
-  const { feeAmount, minimumReceivedAmount } = useMemo(() => {
-    const bestTradeWithSlippageToleranceOutput = getTradeOutputAmount(bestTradeWithSlippageTolerance);
-    const tradeOutputOperation = getTradeOutputOperation(bestTradeWithSlippageTolerance);
-
-    if (bestTradeWithSlippageToleranceOutput && tradeOutputOperation) {
-      const feeAmount = bestTradeWithSlippageToleranceOutput.minus(
-        tradeOutputOperation.bTokenAmount.multipliedBy(ROUTING_FEE_RATIO).dividedToIntegerBy(1)
-      );
-      const minimumReceivedAmount = bestTradeWithSlippageToleranceOutput.minus(feeAmount);
-
-      return { feeAmount, minimumReceivedAmount };
-    } else {
-      const feeAmount = new BigNumber(0);
-      const minimumReceivedAmount = undefined;
-
-      return { feeAmount, minimumReceivedAmount };
-    }
-  }, [bestTradeWithSlippageTolerance]);
+  useEffect(() => {
+    dispatch(loadRoute3DexesAction.submit());
+    return () => void dispatch(resetRoute3SwapParamsAction());
+  }, []);
 
   useEffect(() => {
-    if (bestTrade.length > 0) {
-      const bestTradeOutput = getTradeOutputAmount(bestTrade) ?? new BigNumber(0);
-      const displayedBestTradeOutput = bestTradeOutput.minus(feeAmount);
-      setValue('output', {
-        assetSlug: outputValue.assetSlug,
-        amount: atomsToTokens(displayedBestTradeOutput, outputAssetMetadata.decimals)
-      });
-    } else {
-      setValue('output', { assetSlug: outputValue.assetSlug, amount: undefined });
-    }
+    setValue('output', {
+      assetSlug: outputValue.assetSlug,
+      amount: swapParams.output === undefined ? undefined : new BigNumber(swapParams.output)
+    });
 
     if (isSubmitButtonPressedRef.current) {
       triggerValidation();
     }
-  }, [bestTrade, feeAmount, outputAssetMetadata.decimals, outputValue.assetSlug, setValue, triggerValidation]);
+  }, [outputAssetMetadata.decimals, outputValue.assetSlug, swapParams.output, setValue, triggerValidation]);
 
   useEffect(() => {
     register('input', {
@@ -206,10 +178,7 @@ export const SwapForm: FC = () => {
 
     formAnalytics.trackSubmit(analyticsProperties);
 
-    const fromRoute3Token = getRoute3TokenBySlug(route3tokens, inputValue.assetSlug);
-    const toRoute3Token = getRoute3TokenBySlug(route3tokens, outputValue.assetSlug);
-
-    if (fromRoute3Token === undefined || toRoute3Token === undefined || inputValue.amount === undefined) {
+    if (!fromRoute3Token || !toRoute3Token || !inputValue.amount) {
       return;
     }
 
@@ -220,7 +189,7 @@ export const SwapForm: FC = () => {
         fromRoute3Token,
         toRoute3Token,
         inputValue.amount,
-        slippageTolerance
+        slippageRatio
       );
 
       const { approve, revoke } = await getTransferPermissions(
@@ -264,6 +233,10 @@ export const SwapForm: FC = () => {
 
     if (newInputValue.assetSlug === outputValue.assetSlug) {
       setValue('output', {});
+    }
+
+    if (newInputValue.amount === undefined) {
+      dispatch(resetRoute3SwapParamsAction());
     }
   };
   const handleOutputChange = (newOutputValue: SwapInputValue) => {
@@ -314,15 +287,18 @@ export const SwapForm: FC = () => {
         onChange={handleOutputChange}
       />
 
-      <p className="text-xs text-gray-500 mb-1">
-        <T id="swapRoute" />
-      </p>
-      <SwapRoute
-        trade={bestTrade}
-        inputValue={inputValue}
-        outputValue={outputValue}
-        loadingHasFailed={allRoutePairs.hasFailed}
-      />
+      <FormSubmitButton
+        className="w-full justify-center border-none mb-6"
+        style={{
+          padding: '10px 2rem',
+          background: isValid ? '#4299e1' : '#c2c2c2'
+        }}
+        loading={isSubmitting}
+        onClick={handleSubmitButtonClick}
+        testID={SwapFormSelectors.SwapSubmit}
+      >
+        <T id="swap" />
+      </FormSubmitButton>
 
       <table className={classNames('w-full text-xs text-gray-500 mb-2', styles['swap-form-table'])}>
         <tbody>
@@ -345,7 +321,8 @@ export const SwapForm: FC = () => {
             </td>
             <td className="text-right text-gray-600">
               <SwapExchangeRate
-                trade={bestTrade}
+                inputAmount={swapParams.input}
+                outputAmount={swapParams.output}
                 inputAssetMetadata={inputAssetMetadata}
                 outputAssetMetadata={outputAssetMetadata}
               />
@@ -379,8 +356,6 @@ export const SwapForm: FC = () => {
         </tbody>
       </table>
 
-      <SwapPriceUpdateBar lastUpdateBlock={allRoutePairs.block} />
-
       {error && (
         <Alert
           className="mb-6"
@@ -392,18 +367,14 @@ export const SwapForm: FC = () => {
         />
       )}
 
-      <FormSubmitButton
-        className="w-full justify-center border-none"
-        style={{
-          padding: '10px 2rem',
-          background: isValid ? '#4299e1' : '#c2c2c2'
-        }}
-        loading={isSubmitting}
-        onClick={handleSubmitButtonClick}
-        testID={SwapFormSelectors.SwapSubmit}
-      >
-        <T id="swap" />
-      </FormSubmitButton>
+      <SwapRoute className="mb-6" />
+
+      <p className="text-center text-gray-700">
+        <span className="mr-1">Temple wallet provides an interface to interact with the</span>
+        <a className="underline" href="https://3route.io" target="_blank" rel="noreferrer">
+          3route DEX aggregator.
+        </a>
+      </p>
     </form>
   );
 };

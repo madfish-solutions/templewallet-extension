@@ -1,48 +1,36 @@
 import React, { FC } from 'react';
 
-import classNames from 'clsx';
-import { getDexName, TradeOperation } from 'swap-router-sdk';
+import { ReactComponent as Separator } from 'app/icons/separator.svg';
+import { Route3Chain } from 'lib/apis/route3/fetch-route3-swap-params';
 
-import { AssetIcon } from 'app/templates/AssetIcon';
-import { DexTypeIcon, getPoolName } from 'lib/swap-router';
-import { useAssetMetadata } from 'lib/temple/front';
-import useTippy from 'lib/ui/useTippy';
-
-import { ReactComponent as NextArrow } from './icons/next-arrow.svg';
+import { HopItem } from './hop-item';
 
 interface Props {
-  tradeOperation: TradeOperation;
-  isShowNextArrow: boolean;
+  baseInput: number;
+  baseOutput: number;
+  chain: Route3Chain;
 }
 
-export const SwapRouteItem: FC<Props> = ({ tradeOperation, isShowNextArrow }) => {
-  const aTokenMetadata = useAssetMetadata(tradeOperation.aTokenSlug);
-  const bTokenMetadata = useAssetMetadata(tradeOperation.bTokenSlug);
+const DECIMALS_COUNT = 2;
 
-  const swapInfoDivRef = useTippy<HTMLDivElement>({
-    trigger: 'mouseenter',
-    hideOnClick: false,
-    content: `Dex: ${getDexName(tradeOperation.dexType)} \nPool: ${getPoolName(
-      tradeOperation.direction,
-      aTokenMetadata,
-      bTokenMetadata
-    )}`,
-    animation: 'shift-away-subtle'
-  });
+const calculatePercentage = (base: number, part: number) => ((100 * part) / base).toFixed(DECIMALS_COUNT);
 
-  return (
-    <>
-      <div
-        ref={swapInfoDivRef}
-        className={classNames('flex flex-col items-center', 'px-4 py-2', 'border rounded-md border-gray-300')}
-      >
-        <DexTypeIcon dexType={tradeOperation.dexType} />
-        <div className="flex mt-2">
-          <AssetIcon assetSlug={tradeOperation.aTokenSlug} size={24} />
-          <AssetIcon assetSlug={tradeOperation.bTokenSlug} size={24} className="-ml-1" />
-        </div>
-      </div>
-      {isShowNextArrow && <NextArrow />}
-    </>
-  );
-};
+export const SwapRouteItem: FC<Props> = ({ chain, baseInput, baseOutput }) => (
+  <div className="flex justify-between relative">
+    <div className="absolute w-full h-full flex items-center justify-center">
+      <Separator />
+    </div>
+    <div className="z-10">
+      <div className="text-gray-600">{chain.input.toFixed(DECIMALS_COUNT)}</div>
+      <div className="text-blue-500">{calculatePercentage(baseInput, chain.input)}%</div>
+    </div>
+    {chain.hops.map(({ dex }, index) => (
+      <HopItem className="z-10" key={index} dexId={dex} />
+    ))}
+
+    <div className="z-10">
+      <div className="text-right text-gray-600">{chain.output.toFixed(DECIMALS_COUNT)}</div>
+      <div className="text-right text-blue-500">{calculatePercentage(baseOutput, chain.output)}%</div>
+    </div>
+  </div>
+);

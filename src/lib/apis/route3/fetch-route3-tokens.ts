@@ -11,5 +11,5 @@ export interface Route3Token {
   tokenId: null | string;
 }
 
-export const getRoute3Tokens$ = () =>
+export const fetchgetRoute3Tokens = () =>
   from(route3Api.get<Array<Route3Token>>('/tokens')).pipe(map(response => response.data));

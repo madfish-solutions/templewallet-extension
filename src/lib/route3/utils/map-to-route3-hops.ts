@@ -1,6 +1,6 @@
 import { BigNumber } from 'bignumber.js';
 
-import { Route3Chain } from 'lib/apis/route3/get-route3-swap-params';
+import { Route3Chain } from 'lib/apis/route3/fetch-route3-swap-params';
 import { tokensToAtoms } from 'lib/temple/helpers';
 
 import { Hop } from '../interfaces';

@@ -1,8 +1,9 @@
 import React, { FC } from 'react';
 
-import { DexTypeEnum } from 'swap-router-sdk';
+import { AssetIcon } from 'app/templates/AssetIcon';
+import { Route3DexTypeEnum } from 'lib/apis/route3/fetch-route3-dexes';
 
-import { ReactComponent as LiquidityBackingIcon } from './icons/liquidity-backing-icon.svg';
+import { ReactComponent as CtezIcon } from './icons/ctez-icon.svg';
 import { ReactComponent as PlentyIcon } from './icons/plenty.svg';
 import { ReactComponent as QuipuSwapIcon } from './icons/quipu-swap-icon.svg';
 import { ReactComponent as SpicyIcon } from './icons/spicy.svg';
@@ -10,30 +11,34 @@ import { ReactComponent as VortexIcon } from './icons/vortex.svg';
 import { ReactComponent as YouvesIcon } from './icons/youves.svg';
 
 interface Props {
-  dexType: DexTypeEnum;
+  dexType: Route3DexTypeEnum | null;
 }
 
 export const DexTypeIcon: FC<Props> = ({ dexType }) => {
   switch (dexType) {
-    case DexTypeEnum.QuipuSwap:
-    case DexTypeEnum.QuipuSwap20:
-    case DexTypeEnum.QuipuSwapTokenToTokenDex:
-    case DexTypeEnum.QuipuSwapCurveLike:
+    case Route3DexTypeEnum.QuipuSwapDex2:
+    case Route3DexTypeEnum.QuipuSwapTezToTokenFa12:
+    case Route3DexTypeEnum.QuipuSwapTezToTokenFa2:
+    case Route3DexTypeEnum.QuipuSwapTokenToToken:
+    case Route3DexTypeEnum.QuipuSwapTokenToTokenStable:
       return <QuipuSwapIcon />;
-    case DexTypeEnum.Plenty:
-    case DexTypeEnum.PlentyBridge:
-    case DexTypeEnum.PlentyStableSwap:
-    case DexTypeEnum.PlentyVolatileSwap:
-    case DexTypeEnum.PlentyCtez:
+    case Route3DexTypeEnum.PlentyCtezStable:
+    case Route3DexTypeEnum.PlentyTokenToToken:
+    case Route3DexTypeEnum.PlentyTokenToTokenStable:
+    case Route3DexTypeEnum.PlentyTokenToTokenVolatile:
+    case Route3DexTypeEnum.PlentyWrappedTokenBridgeSwap:
       return <PlentyIcon />;
-    case DexTypeEnum.LiquidityBaking:
-      return <LiquidityBackingIcon />;
-    case DexTypeEnum.Youves:
+    case Route3DexTypeEnum.FlatYouvesStable:
       return <YouvesIcon />;
-    case DexTypeEnum.Vortex:
+    case Route3DexTypeEnum.VortexTokenToTokenFa12:
+    case Route3DexTypeEnum.VortexTokenToTokenFa2:
       return <VortexIcon />;
-    case DexTypeEnum.Spicy:
-    case DexTypeEnum.SpicyWrap:
+    case Route3DexTypeEnum.SpicyTokenToToken:
       return <SpicyIcon />;
+    case Route3DexTypeEnum.CtezToXtz:
+      return <CtezIcon />;
+
+    default:
+      return <AssetIcon assetSlug="" size={24} />;
   }
 };
