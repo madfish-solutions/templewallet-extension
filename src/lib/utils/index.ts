@@ -1,7 +1,7 @@
 export { arrayBufferToString, stringToArrayBuffer, uInt8ArrayToString, stringToUInt8Array } from './buffers';
 
 /** From lodash */
-type Truthy<T> = T extends false | '' | 0 | null | undefined ? never : T;
+type Truthy<T> = T extends null | undefined | false | '' | 0 | 0n ? never : T;
 
 export const isTruthy = <T>(value: T): value is Truthy<T> => Boolean(value);
 

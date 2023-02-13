@@ -1,3 +1,3 @@
 import { useSelector } from '../index';
 
-export const useTokensApyInfoSelector = () => useSelector(({ dApps }) => dApps.tokensApyInfo);
+export const useTokensApyRatesSelector = () => useSelector(({ dApps }) => dApps.tokensApyRates);
