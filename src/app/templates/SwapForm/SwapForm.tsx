@@ -83,23 +83,6 @@ export const SwapForm: FC = () => {
   );
 
   useEffect(() => {
-    const subscription = tezos.stream.subscribeBlock('head');
-    subscription.on('data', () => {
-      if (fromRoute3Token && toRoute3Token && inputValue.amount) {
-        dispatch(
-          loadRoute3SwapParamsAction.submit({
-            fromSymbol: fromRoute3Token.symbol,
-            toSymbol: toRoute3Token.symbol,
-            amount: inputValue.amount?.toFixed() ?? '0'
-          })
-        );
-      }
-    });
-
-    return () => subscription.close();
-  }, []);
-
-  useEffect(() => {
     if (!fromRoute3Token || !toRoute3Token || !inputValue.amount) {
       return;
     }
@@ -124,7 +107,22 @@ export const SwapForm: FC = () => {
 
   useEffect(() => {
     dispatch(loadRoute3DexesAction.submit());
-    return () => void dispatch(resetRoute3SwapParamsAction());
+    dispatch(resetRoute3SwapParamsAction());
+
+    const subscription = tezos.stream.subscribeBlock('head');
+    subscription.on('data', () => {
+      if (fromRoute3Token && toRoute3Token && inputValue.amount) {
+        dispatch(
+          loadRoute3SwapParamsAction.submit({
+            fromSymbol: fromRoute3Token.symbol,
+            toSymbol: toRoute3Token.symbol,
+            amount: inputValue.amount?.toFixed() ?? '0'
+          })
+        );
+      }
+    });
+
+    return () => subscription.close();
   }, []);
 
   useEffect(() => {
