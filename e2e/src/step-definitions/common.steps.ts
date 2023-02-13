@@ -1,9 +1,8 @@
 import { Given } from '@cucumber/cucumber';
 
-import { AccountsTestData } from '../classes/accounts-test-data.class';
 import { BrowserContext } from '../classes/browser-context.class';
+import { testDataForInput } from '../classes/test-data-for-input.class';
 import { Pages } from '../page-objects';
-import { getInputText } from '../utils/input.utils';
 import { createPageElement } from '../utils/search.utils';
 import { LONG_TIMEOUT } from '../utils/timing.utils';
 
@@ -16,9 +15,9 @@ Given(/I press (.*) on the (.*) page/, async (elementName: string, pageName: str
 });
 
 Given(
-  /I enter (seed|password|private key second seed) into (.*) on the (.*) page/,
-  async (inputType: AccountsTestData, elementName: string, pageName: string) => {
-    const inputText = getInputText(inputType);
+  /I enter (.*) into (.*) on the (.*) page/,
+  async (inputType: keyof typeof testDataForInput, elementName: string, pageName: string) => {
+    const inputText = testDataForInput[inputType];
 
     await createPageElement(`${pageName}/${elementName}`).type(inputText);
   }
@@ -29,12 +28,12 @@ Given(/I have imported an existing account/, { timeout: LONG_TIMEOUT }, async ()
   await Pages.Welcome.importExistingWalletButton.click();
 
   await Pages.ImportExistingWallet.isVisible();
-  await Pages.ImportExistingWallet.enterSeedPhrase(BrowserContext.seedPhrase);
+  await Pages.ImportExistingWallet.enterSeedPhrase(BrowserContext.DEFAULT_HD_ACCOUNT_SEED_PHRASE);
   await Pages.ImportExistingWallet.nextButton.click();
 
   await Pages.SetWallet.isVisible();
-  await Pages.SetWallet.passwordField.type(BrowserContext.password);
-  await Pages.SetWallet.repeatPasswordField.type(BrowserContext.password);
+  await Pages.SetWallet.passwordField.type(BrowserContext.DEFAULT_PASSWORD);
+  await Pages.SetWallet.repeatPasswordField.type(BrowserContext.DEFAULT_PASSWORD);
   await Pages.SetWallet.skipOnboarding.click();
   await Pages.SetWallet.acceptTerms.click();
   await Pages.SetWallet.importButton.click();

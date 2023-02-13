@@ -7,5 +7,5 @@ import { Pages } from '../page-objects';
 Given(/I compare my Seed Phrase to Revealed value/, async () => {
   const revealedSecretsValue = await Pages.RevealSecrets.revealSecretsValue.getText();
 
-  expect(revealedSecretsValue).eql(BrowserContext.seedPhrase);
+  expect(revealedSecretsValue).eql(BrowserContext.DEFAULT_HD_ACCOUNT_SEED_PHRASE);
 });

@@ -1,4 +1,5 @@
 Feature: Create a new wallet
+
   Scenario: As a user, i'd like to create a new wallet
     Given I am on the Welcome page
     And I press Create New Wallet button on the Welcome page
@@ -14,8 +15,8 @@ Feature: Create a new wallet
     And I press Next Button on the NewSeedVerify page
 
     And I am on the SetWallet page
-    And I enter password into Password Field on the Register Form page
-    And I enter password into Repeat Password Field on the Register Form page
+    And I enter DEFAULT_PASSWORD into Password Field on the Register Form page
+    And I enter DEFAULT_PASSWORD into Repeat Password Field on the Register Form page
     And I press Skip Onboarding Checkbox on the Register Form page
     And I press Accept Terms Checkbox on the Register Form page
     And I press Create Button on the Register Form page

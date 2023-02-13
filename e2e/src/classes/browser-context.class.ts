@@ -2,33 +2,36 @@ import { Browser, Page } from 'puppeteer';
 
 import { getEnv } from '../utils/env.utils';
 
-const defaultSeedPhrase = getEnv('DEFAULT_SEED_PHRASE');
-const defaultPassword = getEnv('DEFAULT_PASSWORD');
-const defaultPrivateKey = getEnv('DEFAULT_HD_ACCOUNT_PRIVATE_KEY');
-const secondSeedPhrase = getEnv('SECOND_SEED_PHRASE');
-const privateKeyOfSecondSeedPhrase = getEnv('SECOND_SEED_PHRASE_PRIVATE_KEY');
-const privateKeyOfCreatedAccountHD = getEnv('CREATED_ACCOUNT_HD_PRIVATE_KEY');
+const DEFAULT_HD_ACCOUNT_SEED_PHRASE = getEnv('DEFAULT_HD_ACCOUNT_SEED_PHRASE');
+const DEFAULT_HD_ACCOUNT_FIRST_PRIVATE_KEY = getEnv('DEFAULT_HD_ACCOUNT_FIRST_PRIVATE_KEY');
+const DEFAULT_HD_ACCOUNT_SECOND_PRIVATE_KEY = getEnv('DEFAULT_HD_ACCOUNT_SECOND_PRIVATE_KEY');
+const DEFAULT_PASSWORD = getEnv('DEFAULT_PASSWORD');
+const IMPORTED_HD_ACCOUNT_SEED_PHRASE = getEnv('IMPORTED_HD_ACCOUNT_SEED_PHRASE');
+const IMPORTED_HD_ACCOUNT_FIRST_PRIVATE_KEY = getEnv('IMPORTED_HD_ACCOUNT_FIRST_PRIVATE_KEY');
 
-if (!defaultSeedPhrase) throw new Error('process.env.DEFAULT_SEED_PHRASE not found.');
-if (!defaultPassword) throw new Error('process.env.DEFAULT_PASSWORD not found.');
-if (!defaultPrivateKey) throw new Error('process.env.DEFAULT_PASSWORD not found.');
-if (!secondSeedPhrase) throw new Error('process.env.SECOND_SEED_PHRASE not found.');
-if (!privateKeyOfSecondSeedPhrase) throw new Error('process.env.SECOND_SEED_PHRASE_PRIVATE_KEY not found.');
-if (!privateKeyOfCreatedAccountHD) throw new Error('process.env.CREATED_ACCOUNT_HD_PRIVATE_KEY not found.');
+if (!DEFAULT_HD_ACCOUNT_SEED_PHRASE) throw new Error('process.env.DEFAULT_HD_ACCOUNT_SEED_PHRASE not found.');
+if (!DEFAULT_PASSWORD) throw new Error('process.env.DEFAULT_PASSWORD not found.');
+if (!DEFAULT_HD_ACCOUNT_FIRST_PRIVATE_KEY)
+  throw new Error('process.env.DEFAULT_HD_ACCOUNT_FIRST_PRIVATE_KEY not found.');
+if (!DEFAULT_HD_ACCOUNT_SECOND_PRIVATE_KEY)
+  throw new Error('process.env.DEFAULT_HD_ACCOUNT_SECOND_PRIVATE_KEY not found.');
+if (!IMPORTED_HD_ACCOUNT_SEED_PHRASE) throw new Error('process.env.IMPORTED_HD_ACCOUNT_SEED_PHRASE not found.');
+if (!IMPORTED_HD_ACCOUNT_FIRST_PRIVATE_KEY)
+  throw new Error('process.env.IMPORTED_HD_ACCOUNT_FIRST_PRIVATE_KEY not found.');
 
 export class BrowserContext {
   public static EXTENSION_ID: string;
   public static browser: Browser;
   public static page: Page;
-  public static seedPhrase = defaultSeedPhrase;
-  public static password = defaultPassword;
-  public static privateKey = defaultPrivateKey;
-  public static secondSeedPhrase = secondSeedPhrase;
-  public static privateKeyOfSecondSeedPhrase = privateKeyOfSecondSeedPhrase;
-  public static privateKeyOfCreatedAccountHD = privateKeyOfCreatedAccountHD;
+  public static DEFAULT_HD_ACCOUNT_SEED_PHRASE = DEFAULT_HD_ACCOUNT_SEED_PHRASE;
+  public static DEFAULT_HD_ACCOUNT_FIRST_PRIVATE_KEY = DEFAULT_HD_ACCOUNT_FIRST_PRIVATE_KEY;
+  public static DEFAULT_HD_ACCOUNT_SECOND_PRIVATE_KEY = DEFAULT_HD_ACCOUNT_SECOND_PRIVATE_KEY;
+  public static DEFAULT_PASSWORD = DEFAULT_PASSWORD;
+  public static IMPORTED_HD_ACCOUNT_SEED_PHRASE = IMPORTED_HD_ACCOUNT_SEED_PHRASE;
+  public static IMPORTED_HD_ACCOUNT_FIRST_PRIVATE_KEY = IMPORTED_HD_ACCOUNT_FIRST_PRIVATE_KEY;
   public static resetPrivates = () => {
-    BrowserContext.seedPhrase = defaultSeedPhrase;
-    BrowserContext.password = defaultPassword;
-    BrowserContext.privateKey = defaultPrivateKey;
+    BrowserContext.DEFAULT_HD_ACCOUNT_SEED_PHRASE = DEFAULT_HD_ACCOUNT_SEED_PHRASE;
+    BrowserContext.DEFAULT_PASSWORD = DEFAULT_PASSWORD;
+    BrowserContext.DEFAULT_HD_ACCOUNT_FIRST_PRIVATE_KEY = DEFAULT_HD_ACCOUNT_FIRST_PRIVATE_KEY;
   };
 }

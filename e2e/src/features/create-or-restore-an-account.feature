@@ -1,5 +1,5 @@
 Feature: Create or restore an account
-  @dev
+
   Scenario: As a user, I'd like to create or restore an account
     Given I have imported an existing account
 
@@ -12,6 +12,6 @@ Feature: Create or restore an account
     And I press Create Or Restore Button on the Create Account page
     And I am on the Home page
 
-    Then I reveal a private key and compare with private key created account
+    Then I reveal a private key and compare with DEFAULT_HD_ACCOUNT_SECOND_PRIVATE_KEY
 
 

@@ -14,4 +14,4 @@ Feature: Import Account by Mnemonic
     And I enter second mnemonic
     And I press Mnemonic Import Button on the Import Account(Mnemonic) page
 
-    Then I reveal a private key and compare with private key second seed phrase
+    Then I reveal a private key and compare with IMPORTED_HD_ACCOUNT_FIRST_PRIVATE_KEY

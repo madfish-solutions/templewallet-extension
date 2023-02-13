@@ -7,5 +7,5 @@ import { Pages } from '../page-objects';
 Given(/I compare my Private Key to Revealed value/, async () => {
   const revealedSecretsValue = await Pages.RevealSecrets.revealSecretsValue.getText();
 
-  expect(revealedSecretsValue).eql(BrowserContext.privateKey);
+  expect(revealedSecretsValue).eql(BrowserContext.DEFAULT_HD_ACCOUNT_FIRST_PRIVATE_KEY);
 });
