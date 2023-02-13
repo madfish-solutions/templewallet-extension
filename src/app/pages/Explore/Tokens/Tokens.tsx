@@ -78,7 +78,7 @@ export const Tokens: FC = () => {
   }, [activeAssetSlug, setActiveIndex]);
 
   return (
-    <div className={classNames('w-full max-w-sm mx-auto')}>
+    <div className="w-full max-w-sm mx-auto">
       <div className={classNames('mt-3', popup && 'mx-4')}>
         <div className="mb-3 w-full flex items-strech">
           <SearchAssetField
@@ -102,15 +102,15 @@ export const Tokens: FC = () => {
             )}
             testID={AssetsSelectors.ManageButton}
           >
-            <AddToListIcon className={classNames('mr-1 h-5 w-auto stroke-current stroke-2')} />
+            <AddToListIcon className="mr-1 h-5 w-auto stroke-current stroke-2" />
             <T id="manage" />
           </Link>
         </div>
       </div>
 
       {filteredAssets.length === 0 ? (
-        <div className={classNames('my-8', 'flex flex-col items-center justify-center', 'text-gray-500')}>
-          <p className={classNames('mb-2', 'flex items-center justify-center', 'text-gray-600 text-base font-light')}>
+        <div className="my-8 flex flex-col items-center justify-center text-gray-500">
+          <p className="mb-2 flex items-center justify-center text-gray-600 text-base font-light">
             {searchValueExist && <SearchIcon className="w-5 h-auto mr-1 stroke-current" />}
 
             <span>
@@ -118,7 +118,7 @@ export const Tokens: FC = () => {
             </span>
           </p>
 
-          <p className={classNames('text-center text-xs font-light')}>
+          <p className="text-center text-xs font-light">
             <T
               id="ifYouDontSeeYourAsset"
               substitutions={[
