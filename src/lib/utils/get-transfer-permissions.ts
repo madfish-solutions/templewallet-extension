@@ -62,7 +62,5 @@ export const getTransferPermissions = async (
     permissions.revoke.push(reset);
   }
 
-  console.log('permissions: ', permissions);
-
   return permissions;
 };

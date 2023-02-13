@@ -368,9 +368,11 @@ export const SwapForm: FC = () => {
       <SwapRoute className="mb-6" />
 
       <p className="text-center text-gray-700">
-        <span className="mr-1">Temple wallet provides an interface to interact with the</span>
+        <span className="mr-1">
+          <T id="swapRoute3Description" />
+        </span>
         <a className="underline" href="https://3route.io" target="_blank" rel="noreferrer">
-          3route DEX aggregator.
+          <T id="swapRoute3Link" />
         </a>
       </p>
     </form>

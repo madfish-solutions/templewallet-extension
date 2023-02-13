@@ -1741,5 +1741,22 @@
   },
   "swapTokenSearchInputPlaceholder": {
     "message": "Enter name or address"
+  },
+  "route3ChainsDexes": {
+    "message": "$chainsCount$ chains / $dexesCount$ dexes",
+    "placeholders": {
+      "chainsCount": {
+        "content": "$1"
+      },
+      "dexesCount": {
+        "content": "$2"
+      }
+    }
+  },
+  "swapRoute3Description": {
+    "message": "Temple wallet provides an interface to interact with the"
+  },
+  "swapRoute3Link": {
+    "message": "3route DEX aggregator."
   }
 }

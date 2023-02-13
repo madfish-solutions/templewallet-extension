@@ -27,13 +27,16 @@ export const SwapRoute: FC<Props> = ({ className }) => {
 
   return (
     <>
-      <p className="flex justify-between items-center text-xs text-gray-500 mb-1">
+      <p
+        className="flex justify-between items-center text-xs text-gray-500 mb-1 cursor-pointer"
+        onClick={hadleToggleVisible}
+      >
         <T id="swapRoute" />
         <span className="flex items-center gap-1">
           <span>
-            {chainsCount} chains / {dexesCount} dexes
+            <T id="route3ChainsDexes" substitutions={[chainsCount, dexesCount]} />
           </span>
-          <span onClick={hadleToggleVisible}>
+          <span>
             <Chevron className={classNames('h-4 w-auto stroke-3 stroke-current')} />
           </span>
         </span>
