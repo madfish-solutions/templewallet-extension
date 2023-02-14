@@ -3,7 +3,7 @@ import React, { memo, useMemo } from 'react';
 import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
 
-import { TokenApyInfo } from 'app/store/d-apps';
+import { useTokenApyInfo } from 'app/hooks/use-token-apy.hook';
 import { AssetIcon } from 'app/templates/AssetIcon';
 import { useAssetMetadata } from 'lib/temple/front';
 import { getAssetName, getAssetSymbol } from 'lib/temple/metadata';
@@ -19,10 +19,9 @@ interface Props {
   active: boolean;
   assetSlug: string;
   balances: Record<string, BigNumber>;
-  apyInfo?: TokenApyInfo;
 }
 
-export const ListItem = memo<Props>(({ active, assetSlug, balances, apyInfo }) => {
+export const ListItem = memo<Props>(({ active, assetSlug, balances }) => {
   const latestBalance = useMemo(() => {
     if (balances.hasOwnProperty(assetSlug)) {
       return balances[assetSlug];
@@ -32,6 +31,8 @@ export const ListItem = memo<Props>(({ active, assetSlug, balances, apyInfo }) =
   }, [assetSlug, balances]);
 
   const metadata = useAssetMetadata(assetSlug);
+
+  const apyInfo = useTokenApyInfo(assetSlug);
 
   if (metadata == null) return null;
 

@@ -1,17 +1,10 @@
 import { jitsuClient } from '@jitsu/sdk-js';
 
+import { EnvVars } from 'lib/env';
 import { TempleSendPageEventRequest, TempleSendTrackEventRequest } from 'lib/temple/analytics-types';
 import { loadChainId } from 'lib/temple/helpers';
 
-const WRITE_KEY = process.env.TEMPLE_WALLET_JITSU_WRITE_KEY;
-if (!WRITE_KEY) {
-  throw new Error("Require a 'TEMPLE_WALLET_JITSU_WRITE_KEY' environment variable to be set");
-}
-
-const TRACKING_HOST = process.env.TEMPLE_WALLET_JITSU_TRACKING_HOST;
-if (!TRACKING_HOST) {
-  throw new Error("Require a 'TEMPLE_WALLET_JITSU_TRACKING_HOST' environment variable to be set");
-}
+const { TEMPLE_WALLET_JITSU_WRITE_KEY: WRITE_KEY, TEMPLE_WALLET_JITSU_TRACKING_HOST: TRACKING_HOST } = EnvVars;
 
 const client = jitsuClient({
   key: WRITE_KEY,
