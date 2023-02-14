@@ -5,7 +5,7 @@
   "include": [ "./" ],
 
   "compilerOptions": {
-    "baseUrl": ".",
+    "baseUrl": "../",
     "target": "ES5",
     "module": "CommonJS"
   }
