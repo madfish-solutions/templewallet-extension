@@ -38,12 +38,6 @@ import { SwapFormInput } from './SwapFormInput/SwapFormInput';
 import { SwapMinimumReceived } from './SwapMinimumReceived/SwapMinimumReceived';
 import { SwapRoute } from './SwapRoute/SwapRoute';
 
-const TEMPLE_WALLET_DEXES_API_URL = process.env.TEMPLE_WALLET_DEXES_API_URL;
-
-if (!TEMPLE_WALLET_DEXES_API_URL) {
-  throw new Error('TEMPLE_WALLET_DEXES_API_URL is not defined');
-}
-
 export const SwapForm: FC = () => {
   const dispatch = useDispatch();
   const tezos = useTezos();
