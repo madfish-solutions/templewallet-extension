@@ -1,9 +1,5 @@
 import axios from 'axios';
 
-const TEMPLE_WALLET_API_URL = process.env.TEMPLE_WALLET_API_URL;
+import { EnvVars } from 'lib/env';
 
-if (!TEMPLE_WALLET_API_URL) {
-  throw new Error('TEMPLE_WALLET_API_URL is not defined');
-}
-
-export const templeWalletApi = axios.create({ baseURL: TEMPLE_WALLET_API_URL + '/api' });
+export const templeWalletApi = axios.create({ baseURL: EnvVars.TEMPLE_WALLET_API_URL + '/api' });
