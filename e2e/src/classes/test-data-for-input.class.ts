@@ -1,8 +1,8 @@
-import { BrowserContext } from './browser-context.class';
+import { envVars } from './browser-context.class';
 
 export const testDataForInput = {
-  defaultSeedPhrase: BrowserContext.defaultSeedPhrase,
-  defaultSecondPrivateKey: BrowserContext.defaultSecondPrivateKey,
-  defaultPassword: BrowserContext.defaultPassword,
-  importedFirstPrivateKey: BrowserContext.importedFirstPrivateKey
+  defaultSeedPhrase: envVars.DEFAULT_HD_ACCOUNT_SEED_PHRASE,
+  defaultSecondPrivateKey: envVars.DEFAULT_HD_ACCOUNT_SECOND_PRIVATE_KEY,
+  defaultPassword: envVars.DEFAULT_PASSWORD,
+  importedFirstPrivateKey: envVars.IMPORTED_HD_ACCOUNT_FIRST_PRIVATE_KEY
 };

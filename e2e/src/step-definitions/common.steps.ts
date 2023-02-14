@@ -28,12 +28,12 @@ Given(/I have imported an existing account/, { timeout: LONG_TIMEOUT }, async ()
   await Pages.Welcome.importExistingWalletButton.click();
 
   await Pages.ImportExistingWallet.isVisible();
-  await Pages.ImportExistingWallet.enterSeedPhrase(BrowserContext.defaultSeedPhrase);
+  await Pages.ImportExistingWallet.enterSeedPhrase(BrowserContext.seedPhrase);
   await Pages.ImportExistingWallet.nextButton.click();
 
   await Pages.SetWallet.isVisible();
-  await Pages.SetWallet.passwordField.type(BrowserContext.defaultPassword);
-  await Pages.SetWallet.repeatPasswordField.type(BrowserContext.defaultPassword);
+  await Pages.SetWallet.passwordField.type(BrowserContext.password);
+  await Pages.SetWallet.repeatPasswordField.type(BrowserContext.password);
   await Pages.SetWallet.skipOnboarding.click();
   await Pages.SetWallet.acceptTerms.click();
   await Pages.SetWallet.importButton.click();

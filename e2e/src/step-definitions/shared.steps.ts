@@ -13,7 +13,7 @@ Given(/I reveal a private key and compare with (.*)/, async (inputType: keyof ty
   await Pages.Settings.isVisible();
   await Pages.Settings.revealPrivateKeyButton.click();
   await Pages.RevealSecrets.isVisible();
-  await Pages.RevealSecrets.revealPasswordField.type(BrowserContext.defaultPassword);
+  await Pages.RevealSecrets.revealPasswordField.type(BrowserContext.password);
   await Pages.RevealSecrets.revealButton.click();
   await Pages.RevealSecrets.revealSecretsValue.getText();
   const revealedSecretsValue = await Pages.RevealSecrets.revealSecretsValue.getText();
