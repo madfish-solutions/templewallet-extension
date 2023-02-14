@@ -109,13 +109,6 @@ const Explore: FC<ExploreProps> = ({ assetSlug }) => {
             testID={ExploreSelectors.BuyButton}
           />
           <ActionButton
-            label={<T id="withdrawButton" />}
-            Icon={WithdrawIcon}
-            to="/withdraw"
-            disabled={!canSend || network.type !== 'main'}
-            testID={ExploreSelectors.WithdrawButton}
-          />
-          <ActionButton
             label={<T id="swap" />}
             Icon={SwapIcon}
             to={{
@@ -125,6 +118,13 @@ const Explore: FC<ExploreProps> = ({ assetSlug }) => {
             disabled={!canSend}
             tippyProps={tippyPropsMock}
             testID={ExploreSelectors.SwapButton}
+          />
+          <ActionButton
+            label={<T id="withdraw" />}
+            Icon={WithdrawIcon}
+            to="/withdraw"
+            disabled={!canSend || network.type !== 'main'}
+            testID={ExploreSelectors.WithdrawButton}
           />
           <ActionButton
             label={<T id="send" />}
