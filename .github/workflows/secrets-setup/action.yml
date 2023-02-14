@@ -3,7 +3,9 @@ name: Secrets setup
 description: Writes secrets
 
 inputs:
-  TEMPLE_WALLET_SEGMENT_WRITE_KEY:
+  TEMPLE_WALLET_JITSU_TRACKING_HOST:
+    required: true
+  TEMPLE_WALLET_JITSU_WRITE_KEY:
     required: true
   TEMPLE_WALLET_EXOLIX_API_KEY:
     required: false
@@ -25,6 +27,10 @@ inputs:
     required: false
   DEFAULT_HD_ACCOUNT_PRIVATE_KEY:
     required: false
+  SECOND_SEED_PHRASE:
+    required: false
+  SECOND_SEED_PHRASE_PRIVATE_KEY:
+    required: false
 
 runs:
   using: 'composite'
@@ -33,7 +39,8 @@ runs:
       shell: bash
       run: |
         cat << EOF > .env
-        TEMPLE_WALLET_SEGMENT_WRITE_KEY=${{ inputs.TEMPLE_WALLET_SEGMENT_WRITE_KEY }}
+        TEMPLE_WALLET_JITSU_TRACKING_HOST=${{ inputs.TEMPLE_WALLET_JITSU_TRACKING_HOST }}
+        TEMPLE_WALLET_JITSU_WRITE_KEY=${{ inputs.TEMPLE_WALLET_JITSU_WRITE_KEY }}
 
         TEMPLE_WALLET_EXOLIX_API_KEY=${{ inputs.TEMPLE_WALLET_EXOLIX_API_KEY }}
         TEMPLE_WALLET_EVERSTAKE_API_KEY=${{ inputs.TEMPLE_WALLET_EVERSTAKE_API_KEY }}
@@ -52,4 +59,6 @@ runs:
         DEFAULT_SEED_PHRASE=${{ inputs.DEFAULT_SEED_PHRASE }}
         DEFAULT_PASSWORD=${{ inputs.DEFAULT_PASSWORD }}
         DEFAULT_HD_ACCOUNT_PRIVATE_KEY=${{ inputs.DEFAULT_HD_ACCOUNT_PRIVATE_KEY }}
+        SECOND_SEED_PHRASE=${{ inputs.SECOND_SEED_PHRASE }}
+        SECOND_SEED_PHRASE_PRIVATE_KEY=${{ inputs.SECOND_SEED_PHRASE_PRIVATE_KEY }}
         EOF

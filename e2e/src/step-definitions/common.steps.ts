@@ -4,7 +4,6 @@ import { BrowserContext } from '../classes/browser-context.class';
 import { Pages } from '../page-objects';
 import { getInputText } from '../utils/input.utils';
 import { createPageElement } from '../utils/search.utils';
-import { enterMyMnemonicStep } from '../utils/shared-steps.utils';
 import { LONG_TIMEOUT } from '../utils/timing.utils';
 
 Given(/^I am on the (\w+) page$/, async (page: keyof typeof Pages) => {
@@ -15,12 +14,8 @@ Given(/I press (.*) on the (.*) page/, async (elementName: string, pageName: str
   await createPageElement(`${pageName}/${elementName}`).click();
 });
 
-Given(/I enter my mnemonic/, async () => {
-  await enterMyMnemonicStep();
-});
-
 Given(
-  /I enter (seed|password) into (.*) on the (.*) page/,
+  /I enter (seed|password|second private key) into (.*) on the (.*) page/,
   async (inputType: string, elementName: string, pageName: string) => {
     const inputText = getInputText(inputType);
 
@@ -33,7 +28,7 @@ Given(/I have imported an existing account/, { timeout: LONG_TIMEOUT }, async ()
   await Pages.Welcome.importExistingWalletButton.click();
 
   await Pages.ImportExistingWallet.isVisible();
-  await enterMyMnemonicStep();
+  await Pages.ImportExistingWallet.enterSeedPhrase(BrowserContext.seedPhrase);
   await Pages.ImportExistingWallet.nextButton.click();
 
   await Pages.SetWallet.isVisible();
@@ -43,5 +38,5 @@ Given(/I have imported an existing account/, { timeout: LONG_TIMEOUT }, async ()
   await Pages.SetWallet.acceptTerms.click();
   await Pages.SetWallet.importButton.click();
 
-  await Pages.Header.isVisible();
+  await Pages.Home.isVisible();
 });

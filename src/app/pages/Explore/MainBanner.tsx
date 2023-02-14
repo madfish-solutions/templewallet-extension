@@ -20,6 +20,7 @@ import { useTotalBalance } from 'lib/temple/front/use-total-balance.hook';
 import { getAssetName, getAssetSymbol } from 'lib/temple/metadata';
 import useTippy from 'lib/ui/useTippy';
 
+import { ExploreSelectors } from '../Explore.selectors';
 import AddressChip from './AddressChip';
 
 interface Props {
@@ -44,7 +45,7 @@ interface TotalVolumeBannerProps {
 const TotalVolumeBanner: FC<TotalVolumeBannerProps> = ({ accountPkh }) => (
   <div className="flex items-start justify-between w-full max-w-sm mx-auto mb-4">
     <BalanceInfo accountPkh={accountPkh} />
-    <AddressChip pkh={accountPkh} />
+    <AddressChip pkh={accountPkh} testID={ExploreSelectors.PublicAddressButton} />
   </div>
 );
 
