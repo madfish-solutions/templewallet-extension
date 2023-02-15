@@ -1,8 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-import { NODE_ENV, TARGET_BROWSER } from './env';
-import { isTruthy } from './utils';
+import { TARGET_BROWSER } from './env';
 
 const PACKED_EXTENSION = (() => {
   switch (TARGET_BROWSER) {
@@ -48,37 +47,5 @@ const PATHS = {
   OUTPUT_WASM: PATH_OUTPUT_WASM,
   LIBTHEMIS_WASM_FILE: PATH_LIBTHEMIS_WASM_FILE
 };
-
-const dotenvPath = path.resolve(PATH_CWD, '.env');
-
-// https://github.com/bkeepers/dotenv#what-other-env-files-can-i-use
-const dotenvFiles = [
-  `${dotenvPath}.${NODE_ENV}.local`,
-  /*
-    Don't include `.env.local` for `test` environment
-    since normally you expect tests to produce the same
-    results for everyone
-  */
-  NODE_ENV !== 'test' && `${dotenvPath}.local`,
-  `${dotenvPath}.${NODE_ENV}`,
-  dotenvPath
-].filter(isTruthy);
-
-/*
-  Load environment variables from .env* files. Suppress warnings using silent
-  if this file is missing. dotenv will never modify any environment variables
-  that have already been set.  Variable expansion is supported in .env files.
-  - https://github.com/motdotla/dotenv
-  - https://github.com/motdotla/dotenv-expand
-*/
-dotenvFiles.forEach(dotenvFile => {
-  if (fs.existsSync(dotenvFile)) {
-    require('dotenv-expand')(
-      require('dotenv').config({
-        path: dotenvFile
-      })
-    );
-  }
-});
 
 export { DEST_RELATIVE_PATHS, PATHS };

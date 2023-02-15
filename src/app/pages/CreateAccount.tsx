@@ -12,6 +12,8 @@ import { useTempleClient, useAllAccounts, useSetAccountPkh } from 'lib/temple/fr
 import { TempleAccountType } from 'lib/temple/types';
 import { navigate } from 'lib/woozie';
 
+import { CreateAccountSelectors } from './CreateAccount.selectors';
+
 type FormData = {
   name: string;
 };
@@ -99,11 +101,16 @@ const CreateAccount: FC = () => {
             placeholder={defaultName}
             errorCaption={errors.name?.message}
             containerClassName="mb-4"
+            testID={CreateAccountSelectors.accountNameInputField}
           />
 
           <T id="createAccount">
             {message => (
-              <FormSubmitButton className="capitalize" loading={submitting}>
+              <FormSubmitButton
+                className="capitalize"
+                loading={submitting}
+                testID={CreateAccountSelectors.createOrRestoreButton}
+              >
                 {message}
               </FormSubmitButton>
             )}
