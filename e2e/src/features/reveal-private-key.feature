@@ -11,7 +11,7 @@ Feature: Reveal private key
     And I press RevealPrivateKeyButton on the Settings page
 
     And I am on the RevealSecrets page
-    And I enter password into Reveal Password Field on the RevealSecrets page
+    And I enter defaultPassword into Reveal Password Field on the RevealSecrets page
     And I press Reveal Button on the RevealSecrets page
 
     Then I compare my Private Key to Revealed value

@@ -1,8 +1,8 @@
 import { Given } from '@cucumber/cucumber';
 
 import { BrowserContext } from '../classes/browser-context.class';
+import { testDataForInput } from '../classes/test-data-for-input.class';
 import { Pages } from '../page-objects';
-import { getInputText } from '../utils/input.utils';
 import { createPageElement } from '../utils/search.utils';
 import { LONG_TIMEOUT } from '../utils/timing.utils';
 
@@ -15,9 +15,9 @@ Given(/I press (.*) on the (.*) page/, async (elementName: string, pageName: str
 });
 
 Given(
-  /I enter (seed|password|second private key) into (.*) on the (.*) page/,
-  async (inputType: string, elementName: string, pageName: string) => {
-    const inputText = getInputText(inputType);
+  /I enter (.*) into (.*) on the (.*) page/,
+  async (inputType: keyof typeof testDataForInput, elementName: string, pageName: string) => {
+    const inputText = testDataForInput[inputType];
 
     await createPageElement(`${pageName}/${elementName}`).type(inputText);
   }

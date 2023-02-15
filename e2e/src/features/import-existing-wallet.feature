@@ -8,8 +8,8 @@ Feature: Import existing wallet
     And I press Next button on the Import Existing Seed Phrase page
 
     And I am on the SetWallet page
-    And I enter password into Password Field on the Register Form page
-    And I enter password into Repeat Password Field on the Register Form page
+    And I enter defaultPassword into Password Field on the Register Form page
+    And I enter defaultPassword into Repeat Password Field on the Register Form page
     And I press Skip Onboarding Checkbox on the Register Form page
     And I press Accept Terms Checkbox on the Register Form page
     And I press Import Button on the Register Form page

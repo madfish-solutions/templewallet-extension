@@ -2567,9 +2567,6 @@
   "totalBalance": {
     "message": "Total Balance"
   },
-  "withdrawButton": {
-    "message": "Withdraw"
-  },
   "buyButton": {
     "message": "Buy"
   },
