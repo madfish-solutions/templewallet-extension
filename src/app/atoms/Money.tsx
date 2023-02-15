@@ -15,7 +15,6 @@ type MoneyProps = {
   shortened?: boolean;
   smallFractionFont?: boolean;
   tooltip?: boolean;
-  isSpan?: boolean;
 };
 
 const DEFAULT_CRYPTO_DECIMALS = 6;
@@ -29,8 +28,7 @@ const Money = memo<MoneyProps>(
     roundingMode = BigNumber.ROUND_DOWN,
     shortened,
     smallFractionFont = true,
-    tooltip = true,
-    isSpan = false
+    tooltip = true
   }) => {
     const bn = new BigNumber(children);
     const decimalsLength = bn.decimalPlaces() ?? 0;
@@ -54,13 +52,12 @@ const Money = memo<MoneyProps>(
     );
 
     if (indexOfDecimal === -1) {
-      return <JustMoney isSpan={isSpan} tooltip={tooltip} result={result} className={tippyClassName} bn={bn} />;
+      return <JustMoney tooltip={tooltip} result={result} className={tippyClassName} bn={bn} />;
     }
 
     if (!fiat && decimalsLength > cryptoDecimals && !shortened) {
       return (
         <MoneyWithoutFormat
-          isSpan={isSpan}
           tooltip={tooltip}
           className={tippyClassName}
           bn={bn}
@@ -73,7 +70,6 @@ const Money = memo<MoneyProps>(
 
     return (
       <MoneyWithFormat
-        isSpan={isSpan}
         tooltip={tooltip}
         result={result}
         className={tippyClassName}
@@ -93,11 +89,10 @@ interface JustMoneyProps {
   bn: BigNumber;
   className: string;
   result: string;
-  isSpan?: boolean;
 }
 
-const JustMoney: FC<JustMoneyProps> = ({ tooltip, bn, className, result, isSpan = false }) => (
-  <FullAmountTippy isSpan={isSpan} enabled={tooltip} fullAmount={bn} className={className}>
+const JustMoney: FC<JustMoneyProps> = ({ tooltip, bn, className, result }) => (
+  <FullAmountTippy enabled={tooltip} fullAmount={bn} className={className}>
     {result}
   </FullAmountTippy>
 );
@@ -109,7 +104,6 @@ interface MoneyWithoutFormatProps {
   cryptoDecimals: number;
   roundingMode?: BigNumber.RoundingMode;
   smallFractionFont: boolean;
-  isSpan?: boolean;
 }
 
 const MoneyWithoutFormat: FC<MoneyWithoutFormatProps> = ({
@@ -118,8 +112,7 @@ const MoneyWithoutFormat: FC<MoneyWithoutFormatProps> = ({
   className,
   cryptoDecimals,
   roundingMode,
-  smallFractionFont,
-  isSpan = false
+  smallFractionFont
 }) => {
   const { decimal } = getNumberSymbols();
   const result = toLocalFormat(bn, {
@@ -129,7 +122,7 @@ const MoneyWithoutFormat: FC<MoneyWithoutFormatProps> = ({
   const indexOfDecimal = result.indexOf(decimal);
 
   return (
-    <FullAmountTippy isSpan={isSpan} enabled={tooltip} fullAmount={bn} className={className} showAmountTooltip>
+    <FullAmountTippy enabled={tooltip} fullAmount={bn} className={className} showAmountTooltip>
       {result.slice(0, indexOfDecimal + 1)}
       <span style={{ fontSize: smallFractionFont ? '0.9em' : undefined }}>
         {result.slice(indexOfDecimal + 1, result.length)}
@@ -146,7 +139,6 @@ interface MoneyWithFormatProps {
   indexOfDecimal: number;
   smallFractionFont: boolean;
   isFiat?: boolean;
-  isSpan?: boolean;
 }
 
 const MoneyWithFormat: FC<MoneyWithFormatProps> = ({
@@ -156,15 +148,9 @@ const MoneyWithFormat: FC<MoneyWithFormatProps> = ({
   result,
   indexOfDecimal,
   isFiat,
-  smallFractionFont,
-  isSpan = false
+  smallFractionFont
 }) => (
-  <FullAmountTippy
-    isSpan={isSpan}
-    enabled={tooltip}
-    fullAmount={isFiat ? new BigNumber(bn.toFixed(2)) : bn}
-    className={className}
-  >
+  <FullAmountTippy enabled={tooltip} fullAmount={isFiat ? new BigNumber(bn.toFixed(2)) : bn} className={className}>
     {result.slice(0, indexOfDecimal + 1)}
     <span style={{ fontSize: smallFractionFont ? '0.9em' : undefined }}>
       {result.slice(indexOfDecimal + 1, result.length)}
@@ -172,11 +158,10 @@ const MoneyWithFormat: FC<MoneyWithFormatProps> = ({
   </FullAmountTippy>
 );
 
-type FullAmountTippyProps = HTMLAttributes<HTMLDivElement> & {
+type FullAmountTippyProps = HTMLAttributes<HTMLSpanElement> & {
   fullAmount: BigNumber;
   showAmountTooltip?: boolean;
   enabled?: boolean;
-  isSpan?: boolean;
 };
 
 const FullAmountTippy: FC<FullAmountTippyProps> = ({
@@ -184,7 +169,6 @@ const FullAmountTippy: FC<FullAmountTippyProps> = ({
   onClick,
   showAmountTooltip,
   enabled = true,
-  isSpan = false,
   ...rest
 }) => {
   const fullAmountStr = useMemo(() => toLocalFixed(fullAmount), [fullAmount]);
@@ -222,10 +206,10 @@ const FullAmountTippy: FC<FullAmountTippyProps> = ({
     [tippyContent, showAmountTooltip, setCopied]
   );
 
-  const ref = useTippy<HTMLDivElement>(tippyProps);
+  const ref = useTippy<HTMLSpanElement>(tippyProps);
 
   const handleClick = useCallback(
-    (evt: React.MouseEvent<HTMLDivElement>) => {
+    (evt: React.MouseEvent<HTMLSpanElement>) => {
       evt.preventDefault();
       evt.stopPropagation();
 
@@ -239,23 +223,13 @@ const FullAmountTippy: FC<FullAmountTippyProps> = ({
     [copy, onClick, showAmountTooltip]
   );
 
-  if (isSpan) {
-    return enabled ? (
+  if (enabled)
+    return (
       <>
-        <span ref={ref} onClick={handleClick} {...(rest as HTMLAttributes<HTMLDivElement>)} />
+        <span ref={ref} onClick={handleClick} {...rest} />
         <input ref={fieldRef} value={fullAmountStr} readOnly className="sr-only" />
       </>
-    ) : (
-      <span {...(rest as HTMLAttributes<HTMLDivElement>)} />
     );
-  }
 
-  return enabled ? (
-    <>
-      <div ref={ref} onClick={handleClick} {...(rest as HTMLAttributes<HTMLDivElement>)} />
-      <input ref={fieldRef} value={fullAmountStr} readOnly className="sr-only" />
-    </>
-  ) : (
-    <div {...(rest as HTMLAttributes<HTMLDivElement>)} />
-  );
+  return <span {...rest} />;
 };
