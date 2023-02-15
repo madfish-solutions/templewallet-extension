@@ -1,5 +1,4 @@
 Feature: Import Account by Mnemonic
-
   Scenario: As a user, I'd like to import account by mnemonic
     Given I have imported an existing account
 
@@ -15,4 +14,4 @@ Feature: Import Account by Mnemonic
     And I enter second mnemonic
     And I press Mnemonic Import Button on the Import Account(Mnemonic) page
 
-    Then I reveal a private key and compare with private key of second seed phrase
+    Then I reveal a private key and compare with importedFirstPrivateKey
