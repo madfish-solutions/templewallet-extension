@@ -474,7 +474,7 @@ const BakerBannerComponent: React.FC<BakerBannerComponentProps> = ({ tzError, ba
               id="minDelegationAmountDescription"
               substitutions={[
                 <span className="font-normal" key="minDelegationsAmount">
-                  <Money isSpan>{baker.minDelegation}</Money> <span style={{ fontSize: '0.75em' }}>{symbol}</span>
+                  <Money>{baker.minDelegation}</Money> <span style={{ fontSize: '0.75em' }}>{symbol}</span>
                 </span>
               ]}
             />
