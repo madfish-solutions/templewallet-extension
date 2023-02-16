@@ -3,7 +3,7 @@ import { useCallback } from 'react';
 import { BigNumber } from 'bignumber.js';
 
 import { Route3Token } from 'lib/apis/route3/fetch-route3-tokens';
-import { EnvVars } from 'lib/env';
+import { ROUTE3_CONTRACT } from 'lib/route3/constants';
 import { Route3ContractInterface } from 'lib/route3/interfaces';
 import { mapToRoute3ExecuteHops } from 'lib/route3/utils/map-to-route3-hops';
 import { useAccount, useTezos } from 'lib/temple/front';
@@ -32,9 +32,7 @@ export const useRoute3 = () => {
         hops: mapToRoute3ExecuteHops(swapParams.chains, fromRoute3Token.decimals)
       };
 
-      const route3ContractInstance = await tezos.contract.at<Route3ContractInterface>(
-        EnvVars.TEMPLE_WALLET_ROUTE3_CONTRACT
-      );
+      const route3ContractInstance = await tezos.contract.at<Route3ContractInterface>(ROUTE3_CONTRACT);
 
       const swapOpParams = route3ContractInstance.methods.execute(
         param.token_in_id,

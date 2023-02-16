@@ -19,8 +19,8 @@ import {
 import { useRoute3SwapParamsSelector, useRoute3TokenSelector } from 'app/store/route3/selectors';
 import OperationStatus from 'app/templates/OperationStatus';
 import { useFormAnalytics } from 'lib/analytics';
-import { EnvVars } from 'lib/env';
 import { T, t } from 'lib/i18n';
+import { ROUTE3_CONTRACT } from 'lib/route3/constants';
 import { ROUTING_FEE_PERCENT } from 'lib/swap-router/config';
 import { useAccount, useAssetMetadata, useTezos } from 'lib/temple/front';
 import useTippy from 'lib/ui/useTippy';
@@ -186,7 +186,7 @@ export const SwapForm: FC = () => {
 
       const { approve, revoke } = await getTransferPermissions(
         tezos,
-        EnvVars.TEMPLE_WALLET_ROUTE3_CONTRACT,
+        ROUTE3_CONTRACT,
         publicKeyHash,
         fromRoute3Token,
         inputValue.amount
