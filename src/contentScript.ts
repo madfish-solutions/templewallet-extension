@@ -161,3 +161,33 @@ function getIntercom() {
   }
   return intercom;
 }
+
+const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+let isInitialized = false;
+const init = () => {
+  const header = document.querySelector('.header-desktop');
+  console.log(header);
+
+  if (header) {
+    isInitialized = true;
+
+    const a = document.createElement('a');
+    a.href = 'https://templewallet.com';
+    a.target = '_blank';
+    a.innerHTML = 'Temple button';
+    a.style.marginLeft = '10px';
+    a.style.color = '#ED8936';
+
+    header.appendChild(a);
+  }
+};
+
+const app = async () => {
+  do {
+    init();
+    await sleep(1000);
+  } while (!isInitialized);
+};
+
+app();
