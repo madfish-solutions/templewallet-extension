@@ -21,6 +21,8 @@ inputs:
     required: true
   TEMPLE_WALLET_DEXES_API_URL:
     required: true
+  TEMPLE_WALLET_ROUTE3_CONTRACT:
+    required: true
   DEFAULT_HD_ACCOUNT_SEED_PHRASE:
     required: false
   DEFAULT_HD_ACCOUNT_FIRST_PRIVATE_KEY:
