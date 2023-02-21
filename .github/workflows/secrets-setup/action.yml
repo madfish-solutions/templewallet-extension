@@ -33,6 +33,8 @@ inputs:
     required: false
   IMPORTED_HD_ACCOUNT_FIRST_PRIVATE_KEY:
     required: false
+  TEMPLE_WALLET_ROUTE3_AUTH_TOKEN:
+    required: true
 
 runs:
   using: 'composite'
@@ -52,6 +54,7 @@ runs:
         TEMPLE_WALLET_API_URL=${{ inputs.TEMPLE_WALLET_API_URL }}
         TEMPLE_WALLET_METADATA_API_URL=${{ inputs.TEMPLE_WALLET_METADATA_API_URL }}
         TEMPLE_WALLET_DEXES_API_URL=${{ inputs.TEMPLE_WALLET_DEXES_API_URL }}
+        TEMPLE_WALLET_ROUTE3_AUTH_TOKEN=${{ inputs.TEMPLE_WALLET_ROUTE3_AUTH_TOKEN }}
         EOF
 
     - name: Create e2e/.env file
