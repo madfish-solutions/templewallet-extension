@@ -8,8 +8,8 @@ import { useDebounce } from 'use-debounce';
 import useForceUpdate from 'use-force-update';
 import browser from 'webextension-polyfill';
 
-import { loadRoute3TokensAction } from 'app/store/route3/actions';
-import { useRoute3TokensSelector } from 'app/store/route3/selectors';
+import { loadRoute3TokensAction } from 'app/store/swap/actions';
+import { useSwapTokensSelector } from 'app/store/swap/selectors';
 import { useRetryableSWR } from 'lib/swr';
 import {
   AssetTypesEnum,
@@ -301,7 +301,7 @@ export const useAvailableAssets = (assetType: AssetTypesEnum) => {
 
 export const useAvailableRoute3Tokens = () => {
   const dispatch = useDispatch();
-  const { data: route3tokens, isLoading } = useRoute3TokensSelector();
+  const { data: route3tokens, isLoading } = useSwapTokensSelector();
 
   useEffect(() => void dispatch(loadRoute3TokensAction.submit()), []);
 

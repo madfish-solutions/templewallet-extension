@@ -2,7 +2,7 @@ import React, { FC } from 'react';
 
 import classNames from 'clsx';
 
-import { useRoute3DexesSelector } from 'app/store/route3/selectors';
+import { useSwapDexesSelector } from 'app/store/swap/selectors';
 import { AssetIcon } from 'app/templates/AssetIcon';
 import { getDexName } from 'lib/route3/utils/get-dex-name';
 import { DexTypeIcon } from 'lib/swap-router';
@@ -15,7 +15,7 @@ interface Props {
 }
 
 export const HopItem: FC<Props> = ({ dexId, className }) => {
-  const { data: route3Dexes } = useRoute3DexesSelector();
+  const { data: route3Dexes } = useSwapDexesSelector();
   const dex = route3Dexes.find(dex => dex.id === dexId);
 
   const dexInfoDivRef = useTippy<HTMLDivElement>({

@@ -13,8 +13,8 @@ import { currencyEpics } from './currency/epics';
 import { currencyReducer } from './currency/reducers';
 import { dAppsEpics } from './d-apps/epics';
 import { dAppsReducer } from './d-apps/reducers';
-import { route3Epics } from './route3/epics';
-import { route3Reducer } from './route3/reducers';
+import { route3Epics } from './swap/epics';
+import { swapReducer } from './swap/reducers';
 
 const baseReducer = rootStateReducer({
   advertising: advertisingReducer,
@@ -22,7 +22,7 @@ const baseReducer = rootStateReducer({
   notifications: notificationsReducers,
   dApps: dAppsReducer,
   balanceMode: balanceModeReducer,
-  route3: route3Reducer
+  swap: swapReducer
 });
 
 export type RootState = GetStateType<typeof baseReducer>;

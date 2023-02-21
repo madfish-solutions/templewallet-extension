@@ -1,18 +1,10 @@
 import { from, map } from 'rxjs';
 
+import { Route3Token } from './fetch-route3-tokens';
 import { route3Api } from './route3.api';
 
-interface Route3Token {
-  id: number;
-  symbol: string;
-  standard: 'fa12' | 'fa2' | 'xtz';
-  contract: string | null;
-  tokenId: string | null;
-  decimals: number;
-}
-
 export interface Route3Dex {
-  id: 97;
+  id: number;
   type: Route3DexTypeEnum;
   contract: string;
   token1: Route3Token;

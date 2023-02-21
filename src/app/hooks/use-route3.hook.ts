@@ -9,53 +9,51 @@ import { mapToRoute3ExecuteHops } from 'lib/route3/utils/map-to-route3-hops';
 import { useAccount, useTezos } from 'lib/temple/front';
 import { tokensToAtoms } from 'lib/temple/helpers';
 import { TEZOS_METADATA } from 'lib/temple/metadata';
+import { getTransferPermissions } from 'lib/utils/get-transfer-permissions';
 
-import { useRoute3SwapParamsSelector } from '../store/route3/selectors';
+import { useSwapParamsSelector } from '../store/swap/selectors';
 
 const APP_ID = 2;
 
 export const useRoute3 = () => {
   const tezos = useTezos();
   const { publicKeyHash } = useAccount();
-  const { data: swapParams } = useRoute3SwapParamsSelector();
+  const { data: swapParams } = useSwapParamsSelector();
 
-  const getRoute3SwapOpParams = useCallback(
-    async (fromRoute3Token: Route3Token, toRoute3Token: Route3Token, inputAmount: BigNumber, slippageRatio: number) => {
-      const param = {
-        app_id: APP_ID,
-        min_out: tokensToAtoms(new BigNumber(swapParams.output ?? 0), toRoute3Token.decimals)
-          .multipliedBy(slippageRatio)
-          .integerValue(),
-        receiver: publicKeyHash,
-        token_in_id: fromRoute3Token.id,
-        token_out_id: toRoute3Token.id,
-        hops: mapToRoute3ExecuteHops(swapParams.chains, fromRoute3Token.decimals)
-      };
-
+  return useCallback(
+    async (fromRoute3Token: Route3Token, toRoute3Token: Route3Token, minimumReceived: BigNumber) => {
       const route3ContractInstance = await tezos.contract.at<Route3ContractInterface>(ROUTE3_CONTRACT);
 
       const swapOpParams = route3ContractInstance.methods.execute(
-        param.token_in_id,
-        param.token_out_id,
-        param.min_out,
-        param.receiver,
-        param.hops,
-        param.app_id
+        fromRoute3Token.id,
+        toRoute3Token.id,
+        minimumReceived,
+        publicKeyHash,
+        mapToRoute3ExecuteHops(swapParams.chains, fromRoute3Token.decimals),
+        APP_ID
+      );
+
+      const { approve, revoke } = await getTransferPermissions(
+        tezos,
+        ROUTE3_CONTRACT,
+        publicKeyHash,
+        fromRoute3Token,
+        new BigNumber(swapParams.input ?? 0)
       );
 
       if (fromRoute3Token.symbol === 'XTZ') {
-        return swapOpParams.toTransferParams({
-          amount: tokensToAtoms(inputAmount, TEZOS_METADATA.decimals).toNumber(),
-          mutez: true
-        });
+        return [
+          ...approve,
+          swapOpParams.toTransferParams({
+            amount: tokensToAtoms(new BigNumber(swapParams.input ?? 0), TEZOS_METADATA.decimals).toNumber(),
+            mutez: true
+          }),
+          ...revoke
+        ];
       }
 
-      return swapOpParams.toTransferParams();
+      return [...approve, swapOpParams.toTransferParams(), ...revoke];
     },
     [tezos, publicKeyHash, swapParams.chains, swapParams.output]
   );
-
-  return {
-    getRoute3SwapOpParams
-  };
 };

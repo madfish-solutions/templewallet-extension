@@ -1,8 +1,8 @@
 import { createEntity } from 'lib/store';
 
-import { Route3State } from './state';
+import { SwapState } from './state';
 
-export const route3StateMock: Route3State = {
+export const mockSwapState: SwapState = {
   dexes: createEntity([]),
   tokens: createEntity([]),
   swapParams: createEntity({ input: 0, output: 0, chains: [] })

@@ -11,20 +11,17 @@ import { Alert, FormSubmitButton } from 'app/atoms';
 import { useRoute3 } from 'app/hooks/use-route3.hook';
 import { ReactComponent as InfoIcon } from 'app/icons/info.svg';
 import { ReactComponent as ToggleIcon } from 'app/icons/toggle.svg';
-import {
-  loadRoute3DexesAction,
-  loadRoute3SwapParamsAction,
-  resetRoute3SwapParamsAction
-} from 'app/store/route3/actions';
-import { useRoute3SwapParamsSelector, useRoute3TokenSelector } from 'app/store/route3/selectors';
+import { loadRoute3DexesAction, loadRoute3SwapParamsAction, resetRoute3SwapParamsAction } from 'app/store/swap/actions';
+import { useSwapParamsSelector, useSwapTokenSelector } from 'app/store/swap/selectors';
 import OperationStatus from 'app/templates/OperationStatus';
 import { useFormAnalytics } from 'lib/analytics';
 import { T, t } from 'lib/i18n';
-import { ROUTE3_CONTRACT } from 'lib/route3/constants';
+import { ROUTING_FEE_RATIO } from 'lib/route3/constants';
+import { getRoutingFeeTransferParams } from 'lib/route3/utils/get-routing-fee-transfer-params';
 import { ROUTING_FEE_PERCENT } from 'lib/swap-router/config';
 import { useAccount, useAssetMetadata, useTezos } from 'lib/temple/front';
+import { tokensToAtoms } from 'lib/temple/helpers';
 import useTippy from 'lib/ui/useTippy';
-import { getTransferPermissions } from 'lib/utils/get-transfer-permissions';
 import { HistoryAction, navigate } from 'lib/woozie';
 
 import { SwapExchangeRate } from './SwapExchangeRate/SwapExchangeRate';
@@ -42,8 +39,8 @@ export const SwapForm: FC = () => {
   const dispatch = useDispatch();
   const tezos = useTezos();
   const { publicKeyHash } = useAccount();
-  const { getRoute3SwapOpParams } = useRoute3();
-  const { data: swapParams } = useRoute3SwapParamsSelector();
+  const getRoute3SwapOpParams = useRoute3();
+  const { data: swapParams } = useSwapParamsSelector();
 
   const formAnalytics = useFormAnalytics('SwapForm');
 
@@ -59,8 +56,9 @@ export const SwapForm: FC = () => {
   const outputValue = watch('output');
   const slippageTolerance = watch('slippageTolerance');
 
-  const fromRoute3Token = useRoute3TokenSelector(inputValue.assetSlug ?? '');
-  const toRoute3Token = useRoute3TokenSelector(outputValue.assetSlug ?? '');
+  const fromRoute3Token = useSwapTokenSelector(inputValue.assetSlug ?? '');
+
+  const toRoute3Token = useSwapTokenSelector(outputValue.assetSlug ?? '');
 
   const inputAssetMetadata = useAssetMetadata(inputValue.assetSlug ?? 'tez')!;
   const outputAssetMetadata = useAssetMetadata(outputValue.assetSlug ?? 'tez')!;
@@ -71,10 +69,23 @@ export const SwapForm: FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const slippageRatio = useMemo(() => (100 - (slippageTolerance ?? 0)) / 100, [slippageTolerance]);
-  const minimumReceivedAmount = useMemo(
-    () => slippageRatio * (outputValue.amount?.toNumber() ?? 0),
-    [slippageRatio, outputValue.amount]
-  );
+  const { routingFreeAtomic, minimumReceivedAmountAtomic } = useMemo(() => {
+    if (swapParams.output !== undefined) {
+      const swapOutputAtomic = tokensToAtoms(new BigNumber(swapParams.output), outputAssetMetadata.decimals);
+      const routingFreeAtomic = swapOutputAtomic.minus(swapOutputAtomic.multipliedBy(ROUTING_FEE_RATIO)).integerValue();
+      const minimumReceivedAmountAtomic = swapOutputAtomic
+        .minus(routingFreeAtomic)
+        .multipliedBy(slippageRatio)
+        .integerValue();
+
+      return { routingFreeAtomic, minimumReceivedAmountAtomic };
+    } else {
+      const routingFreeAtomic = new BigNumber(0);
+      const minimumReceivedAmountAtomic = new BigNumber(0);
+
+      return { routingFreeAtomic, minimumReceivedAmountAtomic };
+    }
+  }, [slippageRatio, outputValue.amount]);
 
   useEffect(() => {
     if (!fromRoute3Token || !toRoute3Token || !inputValue.amount) {
@@ -177,22 +188,20 @@ export const SwapForm: FC = () => {
     try {
       setOperation(undefined);
 
+      const routingFeeOpParams = await getRoutingFeeTransferParams(
+        toRoute3Token,
+        routingFreeAtomic,
+        publicKeyHash,
+        tezos
+      );
+
       const route3SwapOpParams = await getRoute3SwapOpParams(
         fromRoute3Token,
         toRoute3Token,
-        inputValue.amount,
-        slippageRatio
+        minimumReceivedAmountAtomic
       );
 
-      const { approve, revoke } = await getTransferPermissions(
-        tezos,
-        ROUTE3_CONTRACT,
-        publicKeyHash,
-        fromRoute3Token,
-        inputValue.amount
-      );
-
-      const opParams = [...approve, route3SwapOpParams, ...revoke].map(param =>
+      const opParams = [...route3SwapOpParams, ...routingFeeOpParams].map(param =>
         parseTransferParamsToParamsWithKind(param)
       );
 
@@ -340,7 +349,7 @@ export const SwapForm: FC = () => {
             </td>
             <td className="text-right text-gray-600">
               <SwapMinimumReceived
-                minimumReceivedAmount={minimumReceivedAmount}
+                minimumReceivedAmount={minimumReceivedAmountAtomic}
                 outputAssetMetadata={outputAssetMetadata}
               />
             </td>

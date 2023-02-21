@@ -4,7 +4,7 @@ import classNames from 'clsx';
 
 import { ReactComponent as ChevronDown } from 'app/icons/chevron-down.svg';
 import { ReactComponent as ChevronUp } from 'app/icons/chevron-up.svg';
-import { useRoute3SwapParamsSelector } from 'app/store/route3/selectors';
+import { useSwapParamsSelector } from 'app/store/swap/selectors';
 import { T } from 'lib/i18n';
 
 import { SwapRouteItem } from './SwapRouteItem/SwapRouteItem';
@@ -14,7 +14,7 @@ interface Props {
 }
 
 export const SwapRoute: FC<Props> = ({ className }) => {
-  const { data: swapParams } = useRoute3SwapParamsSelector();
+  const { data: swapParams } = useSwapParamsSelector();
 
   const [isVisible, setIsVisible] = useState(false);
 

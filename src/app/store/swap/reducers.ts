@@ -8,9 +8,9 @@ import {
   loadRoute3TokensAction,
   resetRoute3SwapParamsAction
 } from './actions';
-import { route3InitialState } from './state';
+import { swapInitialState } from './state';
 
-export const route3Reducer = createReducer(route3InitialState, builder => {
+export const swapReducer = createReducer(swapInitialState, builder => {
   builder.addCase(loadRoute3TokensAction.submit, state => {
     state.tokens = createEntity([...state.tokens.data], true);
   });
