@@ -8,6 +8,7 @@ import { useDispatch } from 'react-redux';
 import { parseTransferParamsToParamsWithKind } from 'swap-router-sdk';
 
 import { Alert, FormSubmitButton } from 'app/atoms';
+import { useBlockLevel } from 'app/hooks/use-block-level.hook';
 import { useRoute3 } from 'app/hooks/use-route3.hook';
 import { ReactComponent as InfoIcon } from 'app/icons/info.svg';
 import { ReactComponent as ToggleIcon } from 'app/icons/toggle.svg';
@@ -38,6 +39,7 @@ import { SwapRoute } from './SwapRoute/SwapRoute';
 export const SwapForm: FC = () => {
   const dispatch = useDispatch();
   const tezos = useTezos();
+  const blockLevel = useBlockLevel();
   const { publicKeyHash } = useAccount();
   const getRoute3SwapOpParams = useRoute3();
   const { data: swapParams } = useSwapParamsSelector();
@@ -72,11 +74,13 @@ export const SwapForm: FC = () => {
   const { routingFreeAtomic, minimumReceivedAmountAtomic } = useMemo(() => {
     if (swapParams.output !== undefined) {
       const swapOutputAtomic = tokensToAtoms(new BigNumber(swapParams.output), outputAssetMetadata.decimals);
-      const routingFreeAtomic = swapOutputAtomic.minus(swapOutputAtomic.multipliedBy(ROUTING_FEE_RATIO)).integerValue();
+      const routingFreeAtomic = swapOutputAtomic
+        .minus(swapOutputAtomic.multipliedBy(ROUTING_FEE_RATIO))
+        .integerValue(BigNumber.ROUND_DOWN);
       const minimumReceivedAmountAtomic = swapOutputAtomic
         .minus(routingFreeAtomic)
         .multipliedBy(slippageRatio)
-        .integerValue();
+        .integerValue(BigNumber.ROUND_DOWN);
 
       return { routingFreeAtomic, minimumReceivedAmountAtomic };
     } else {
@@ -113,7 +117,9 @@ export const SwapForm: FC = () => {
   useEffect(() => {
     dispatch(loadRoute3DexesAction.submit());
     dispatch(resetRoute3SwapParamsAction());
+  }, []);
 
+  useEffect(() => {
     const subscription = tezos.stream.subscribeBlock('head');
     subscription.on('data', () => {
       if (fromRoute3Token && toRoute3Token && inputValue.amount) {
@@ -121,14 +127,14 @@ export const SwapForm: FC = () => {
           loadRoute3SwapParamsAction.submit({
             fromSymbol: fromRoute3Token.symbol,
             toSymbol: toRoute3Token.symbol,
-            amount: inputValue.amount?.toFixed() ?? '0'
+            amount: inputValue.amount.toFixed()
           })
         );
       }
     });
 
     return () => subscription.close();
-  }, []);
+  }, [blockLevel]);
 
   useEffect(() => {
     setValue('output', {
@@ -188,17 +194,21 @@ export const SwapForm: FC = () => {
     try {
       setOperation(undefined);
 
+      const route3SwapOpParams = await getRoute3SwapOpParams(
+        fromRoute3Token,
+        toRoute3Token,
+        minimumReceivedAmountAtomic
+      );
+
+      if (!route3SwapOpParams) {
+        return;
+      }
+
       const routingFeeOpParams = await getRoutingFeeTransferParams(
         toRoute3Token,
         routingFreeAtomic,
         publicKeyHash,
         tezos
-      );
-
-      const route3SwapOpParams = await getRoute3SwapOpParams(
-        fromRoute3Token,
-        toRoute3Token,
-        minimumReceivedAmountAtomic
       );
 
       const opParams = [...route3SwapOpParams, ...routingFeeOpParams].map(param =>

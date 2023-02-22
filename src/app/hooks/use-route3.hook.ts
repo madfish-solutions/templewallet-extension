@@ -1,5 +1,6 @@
-import { useCallback } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 
+import { TransferParams } from '@taquito/taquito';
 import { BigNumber } from 'bignumber.js';
 
 import { Route3Token } from 'lib/apis/route3/fetch-route3-tokens';
@@ -20,11 +21,19 @@ export const useRoute3 = () => {
   const { publicKeyHash } = useAccount();
   const { data: swapParams } = useSwapParamsSelector();
 
+  const [swapContract, setSwapContract] = useState<Route3ContractInterface>();
+
+  useEffect(() => void tezos.contract.at<Route3ContractInterface>(ROUTE3_CONTRACT).then(setSwapContract), []);
+
   return useCallback(
     async (fromRoute3Token: Route3Token, toRoute3Token: Route3Token, minimumReceived: BigNumber) => {
-      const route3ContractInstance = await tezos.contract.at<Route3ContractInterface>(ROUTE3_CONTRACT);
+      if (swapContract === undefined) {
+        return;
+      }
 
-      const swapOpParams = route3ContractInstance.methods.execute(
+      const resultParams: Array<TransferParams> = [];
+
+      const swapOpParams = swapContract.methods.execute(
         fromRoute3Token.id,
         toRoute3Token.id,
         minimumReceived,
@@ -33,26 +42,31 @@ export const useRoute3 = () => {
         APP_ID
       );
 
+      const inputAmount = new BigNumber(swapParams.input ?? 0);
+
+      if (fromRoute3Token.symbol === 'XTZ') {
+        resultParams.push(
+          swapOpParams.toTransferParams({
+            amount: tokensToAtoms(inputAmount, TEZOS_METADATA.decimals).toNumber(),
+            mutez: true
+          })
+        );
+      } else {
+        resultParams.push(swapOpParams.toTransferParams());
+      }
+
       const { approve, revoke } = await getTransferPermissions(
         tezos,
         ROUTE3_CONTRACT,
         publicKeyHash,
         fromRoute3Token,
-        new BigNumber(swapParams.input ?? 0)
+        inputAmount
       );
 
-      if (fromRoute3Token.symbol === 'XTZ') {
-        return [
-          ...approve,
-          swapOpParams.toTransferParams({
-            amount: tokensToAtoms(new BigNumber(swapParams.input ?? 0), TEZOS_METADATA.decimals).toNumber(),
-            mutez: true
-          }),
-          ...revoke
-        ];
-      }
+      resultParams.unshift(...approve);
+      resultParams.push(...revoke);
 
-      return [...approve, swapOpParams.toTransferParams(), ...revoke];
+      return resultParams;
     },
     [tezos, publicKeyHash, swapParams.chains, swapParams.output]
   );
