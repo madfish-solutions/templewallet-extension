@@ -180,7 +180,7 @@ export interface TzktAccountToken {
     metadata: {
       artifactUri: string;
       creators: Array<string>;
-      decimals: string;
+      decimals?: string;
       description: string;
       displayUri: string;
       formats: Array<{ uri: string; mimeType: string }>;
@@ -220,4 +220,76 @@ export interface TzktTokenTransfer {
     tokenId: string;
   };
   transactionId: number;
+}
+
+export interface TzktAccountInfo {
+  id: number;
+  type: string;
+  address: string;
+  active: boolean;
+  alias: string;
+  publicKey: string;
+  revealed: boolean;
+  balance: number;
+  rollupBonds: number;
+  frozenDeposit?: number;
+  counter: number;
+  activationLevel: number;
+  activationTime: string;
+  stakingBalance: number;
+  delegatedBalance: number;
+  numContracts: number;
+  rollupsCount: number;
+  activeTokensCount: number;
+  tokenBalancesCount: number;
+  tokenTransfersCount: number;
+  numDelegators: number;
+  numBlocks: number;
+  numEndorsements: number;
+  numPreendorsements: number;
+  numBallots: number;
+  numProposals: number;
+  numActivations: number;
+  numDoubleBaking: number;
+  numDoubleEndorsing: number;
+  numDoublePreendorsing: number;
+  numNonceRevelations: number;
+  vdfRevelationsCount: number;
+  numRevelationPenalties: number;
+  numEndorsingRewards: number;
+  numDelegations: number;
+  numOriginations: number;
+  numTransactions: number;
+  numReveals: number;
+  numRegisterConstants: number;
+  numSetDepositsLimits: number;
+  numMigrations: number;
+  txRollupOriginationCount: number;
+  txRollupSubmitBatchCount: number;
+  txRollupCommitCount: number;
+  txRollupReturnBondCount: number;
+  txRollupFinalizeCommitmentCount: number;
+  txRollupRemoveCommitmentCount: number;
+  txRollupRejectionCount: number;
+  txRollupDispatchTicketsCount: number;
+  transferTicketCount: number;
+  increasePaidStorageCount: number;
+  updateConsensusKeyCount: number;
+  drainDelegateCount: number;
+  firstActivity: number;
+  firstActivityTime: string;
+  lastActivity: number;
+  lastActivityTime: string;
+  software: {
+    version: string;
+    date: string;
+  };
+  frozenDeposits: number;
+  frozenRewards: number;
+  frozenFees: number;
+  metadata: {
+    alias: string;
+    email: string;
+    description: string;
+  };
 }

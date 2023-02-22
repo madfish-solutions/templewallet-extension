@@ -2,6 +2,7 @@ import { ChainIds, TezosToolkit } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
 
 import { TzktAccountToken } from 'lib/apis/tzkt';
+import { TzktAccountInfo } from 'lib/apis/tzkt/types';
 import { loadContract } from 'lib/temple/contract';
 import { atomsToTokens } from 'lib/temple/helpers';
 
@@ -61,22 +62,24 @@ export const fetchBalanceFromTzkt = async (
   publicKeyHash: string,
   tokensBaseMetadata: Record<string, AssetMetadata>
 ) => {
-  const [tezBalanceResponse, tokenBalancesResponse] = await Promise.all([
-    fetch(`${apiUrl}/v1/accounts/${publicKeyHash}/balance`),
+  const [accountInfoResponse, tokenBalancesResponse] = await Promise.all([
+    fetch(`${apiUrl}/v1/accounts/${publicKeyHash}`),
     fetch(`${apiUrl}/v1/tokens/balances?account=${publicKeyHash}&limit=10000`)
   ]);
 
-  const [tezBalance, tokenBalances]: [number, Array<TzktAccountToken>] = await Promise.all([
-    tezBalanceResponse.json(),
+  const [accountInfo, tokenBalances]: [TzktAccountInfo, Array<TzktAccountToken>] = await Promise.all([
+    accountInfoResponse.json(),
     tokenBalancesResponse.json()
   ]);
 
-  const result: Record<string, BigNumber> = { tez: new BigNumber(tezBalance).div(10 ** TEZOS_METADATA.decimals) };
+  const result: Record<string, BigNumber> = {
+    tez: new BigNumber(accountInfo.balance).minus(accountInfo.frozenDeposit ?? 0).div(10 ** TEZOS_METADATA.decimals)
+  };
 
   tokenBalances.forEach(item => {
     const value = new BigNumber(item.balance);
     const slug = toTokenSlug(item.token.contract.address, item.token.tokenId);
-    const decimals = tokensBaseMetadata[slug]?.decimals ?? Number(item.token.metadata.decimals);
+    const decimals = tokensBaseMetadata[slug]?.decimals ?? Number(item.token.metadata?.decimals);
 
     result[slug] = atomsToTokens(value, decimals);
   });
