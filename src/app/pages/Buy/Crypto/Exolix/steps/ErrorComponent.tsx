@@ -26,7 +26,7 @@ const ErrorComponent: FC<Props> = ({ exchangeData, testIDProperties, setIsError,
   useEffect(
     () =>
       void trackEvent(
-        ExolixSelectors.TopupFirstStepTransactionOverdue,
+        ExolixSelectors.topupFirstStepTransactionOverdue,
         AnalyticsEventCategory.General,
         testIDProperties
       ),
@@ -78,7 +78,7 @@ const ErrorComponent: FC<Props> = ({ exchangeData, testIDProperties, setIsError,
           marginTop: '24px'
         }}
         onClick={restartTopUpHandler}
-        testID={ExolixSelectors.TopupFirstStepSubmitAgain}
+        testID={ExolixSelectors.topupFirstStepSubmitAgain}
       >
         <T id={'topUpAgain'} />
       </FormSubmitButton>

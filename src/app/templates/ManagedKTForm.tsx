@@ -18,6 +18,8 @@ import { useRelevantAccounts, useTezos, useTempleClient, useChainId } from 'lib/
 import { isAddressValid } from 'lib/temple/helpers';
 import { TempleAccountType, ImportAccountFormType } from 'lib/temple/types';
 
+import { ImportAccountSelectors } from '../pages/ImportAccount/ImportAccount.selectors';
+
 type ImportKTAccountFormData = {
   contractAddress: string;
 };
@@ -191,9 +193,10 @@ const ManagedKTForm: FC = () => {
           resize: 'none'
         }}
         containerClassName="mb-4"
+        testID={ImportAccountSelectors.managedContractInput}
       />
 
-      <FormSubmitButton loading={formState.isSubmitting}>
+      <FormSubmitButton loading={formState.isSubmitting} testID={ImportAccountSelectors.managedKTImportButton}>
         <T id="importAccount" />
       </FormSubmitButton>
 

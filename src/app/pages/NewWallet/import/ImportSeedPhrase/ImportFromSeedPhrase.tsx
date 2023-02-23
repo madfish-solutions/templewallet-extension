@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { FormSubmitButton, SeedPhraseInput } from 'app/atoms';
 import { T, t } from 'lib/i18n';
 
-import { ImportFromSeedPhraseTestIds } from './ImportFromSeedPhrase.test-ids';
+import { ImportFromSeedPhraseSelectors } from './ImportFromSeedPhrase.selectors';
 
 interface ImportFromSeedPhraseProps {
   seedPhrase: string;
@@ -39,11 +39,11 @@ export const ImportFromSeedPhrase: FC<ImportFromSeedPhraseProps> = ({
         onChange={setSeedPhrase}
         setSeedError={setSeedError}
         reset={reset}
-        testID={ImportFromSeedPhraseTestIds.wordInput}
+        testID={ImportFromSeedPhraseSelectors.wordInput}
       />
       <FormSubmitButton
         style={{ display: 'block', width: 384, margin: '40px auto', fontSize: 14, fontWeight: 500 }}
-        testID={ImportFromSeedPhraseTestIds.nextButton}
+        testID={ImportFromSeedPhraseSelectors.nextButton}
       >
         <T id="next" />
       </FormSubmitButton>

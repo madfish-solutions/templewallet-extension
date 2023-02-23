@@ -35,7 +35,8 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
   label,
   name,
   amountInputDisabled,
-  onChange
+  onChange,
+  testID
 }) => {
   const { trackChange } = useFormAnalytics('SwapForm');
   const { assetSlug, amount } = value;
@@ -160,6 +161,7 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
             amountInputDisabled={amountInputDisabled}
             onAmountChange={handleAmountChange}
             onSearchChange={handleSearchChange}
+            testID={testID}
           />
         )}
       </Popper>

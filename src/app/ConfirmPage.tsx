@@ -13,7 +13,7 @@ import Spinner from 'app/atoms/Spinner/Spinner';
 import SubTitle from 'app/atoms/SubTitle';
 import ErrorBoundary from 'app/ErrorBoundary';
 import ContentContainer from 'app/layouts/ContentContainer';
-import Unlock from 'app/pages/Unlock';
+import Unlock from 'app/pages/Unlock/Unlock';
 import AccountBanner from 'app/templates/AccountBanner';
 import Balance from 'app/templates/Balance';
 import ConnectBanner from 'app/templates/ConnectBanner';

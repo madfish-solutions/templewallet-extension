@@ -3,8 +3,8 @@ import { Page } from '../../classes/page.class';
 import { createPageElement } from '../../utils/search.utils';
 
 export class HeaderPage extends Page {
-  accountIconButton = createPageElement(HeaderSelectors.AccountIcon);
-  templeLogoButton = createPageElement(HeaderSelectors.TempleLogo);
+  accountIconButton = createPageElement(HeaderSelectors.accountIcon);
+  templeLogoButton = createPageElement(HeaderSelectors.templeLogo);
 
   async isVisible() {
     await this.accountIconButton.waitForDisplayed();

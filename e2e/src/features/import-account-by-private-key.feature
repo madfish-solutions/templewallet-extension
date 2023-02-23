@@ -1,5 +1,4 @@
 Feature: Import Account by Private Key
-  @dev
   Scenario: As a user, I'd like to import account by private key
     Given I have imported an existing account
 

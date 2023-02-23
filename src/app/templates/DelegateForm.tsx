@@ -12,7 +12,7 @@ import Money from 'app/atoms/Money';
 import Spinner from 'app/atoms/Spinner/Spinner';
 import { ArtificialError, NotEnoughFundsError, ZeroBalanceError } from 'app/defaults';
 import { useAppEnv } from 'app/env';
-import AdditionalFeeInput from 'app/templates/AdditionalFeeInput';
+import AdditionalFeeInput from 'app/templates/AdditionalFeeInput/AdditionalFeeInput';
 import BakerBanner from 'app/templates/BakerBanner';
 import InFiat from 'app/templates/InFiat';
 import OperationStatus from 'app/templates/OperationStatus';

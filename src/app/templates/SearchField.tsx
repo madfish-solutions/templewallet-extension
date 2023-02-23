@@ -5,16 +5,19 @@ import classNames from 'clsx';
 import CleanButton from 'app/atoms/CleanButton';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
 
-type SearchFieldProps = InputHTMLAttributes<HTMLInputElement> & {
-  bottomOffset?: string;
-  containerClassName?: string;
-  searchIconClassName?: string;
-  searchIconWrapperClassName?: string;
-  cleanButtonStyle?: React.CSSProperties;
-  cleanButtonIconStyle?: React.CSSProperties;
-  value: string;
-  onValueChange: (v: string) => void;
-};
+import { setTestID, TestIDProps } from '../../lib/analytics';
+
+type SearchFieldProps = InputHTMLAttributes<HTMLInputElement> &
+  TestIDProps & {
+    bottomOffset?: string;
+    containerClassName?: string;
+    searchIconClassName?: string;
+    searchIconWrapperClassName?: string;
+    cleanButtonStyle?: React.CSSProperties;
+    cleanButtonIconStyle?: React.CSSProperties;
+    value: string;
+    onValueChange: (v: string) => void;
+  };
 
 const SearchField: FC<SearchFieldProps> = ({
   bottomOffset = '0.45rem',
@@ -26,6 +29,7 @@ const SearchField: FC<SearchFieldProps> = ({
   searchIconWrapperClassName,
   cleanButtonStyle,
   cleanButtonIconStyle,
+  testID,
   ...rest
 }) => {
   const handleChange = useCallback(
@@ -49,6 +53,7 @@ const SearchField: FC<SearchFieldProps> = ({
           spellCheck={false}
           autoComplete="off"
           onChange={handleChange}
+          {...setTestID(testID)}
           {...rest}
         />
 

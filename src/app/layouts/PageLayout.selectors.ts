@@ -1,3 +1,3 @@
 export enum PageLayoutSelectors {
-  BackButton = 'PageLayout/BackButton'
+  backButton = 'PageLayout/BackButton'
 }

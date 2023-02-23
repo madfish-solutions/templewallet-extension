@@ -6,7 +6,7 @@ import { FormSubmitButton } from 'app/atoms';
 import CopyButton from 'app/atoms/CopyButton';
 import { ReactComponent as CopyIcon } from 'app/icons/copy.svg';
 import { WithdrawSelectors } from 'app/pages/Withdraw/Withdraw.selectors';
-import { AnalyticsEventCategory, useAnalytics, useFormAnalytics } from 'lib/analytics';
+import { AnalyticsEventCategory, setTestID, useAnalytics, useFormAnalytics } from 'lib/analytics';
 import { AliceBobOrderStatus, cancelAliceBobOrder } from 'lib/apis/temple';
 import { T, TID } from 'lib/i18n';
 import { toTransferParams } from 'lib/temple/assets';
@@ -47,7 +47,7 @@ export const SellStep: FC<StepProps> = ({ orderInfo, isApiError, setStep, setOrd
     setStep(0);
     setOrderInfo(null);
 
-    trackEvent(WithdrawSelectors.AliceBobCancelOrderButton, AnalyticsEventCategory.ButtonPress);
+    trackEvent(WithdrawSelectors.aliceBobCancelOrderButton, AnalyticsEventCategory.ButtonPress);
 
     await cancelAliceBobOrder(orderId);
   }, [orderId, setOrderInfo, setStep, trackEvent]);
@@ -148,6 +148,7 @@ export const SellStep: FC<StepProps> = ({ orderInfo, isApiError, setStep, setOrd
         disabled={status !== AliceBobOrderStatus.WAITING || isApiError}
         loading={isLoading}
         onClick={sendButtonHandler}
+        testID={WithdrawSelectors.aliceBobSellButton}
       >
         <T id="sell" />
       </FormSubmitButton>
@@ -155,6 +156,7 @@ export const SellStep: FC<StepProps> = ({ orderInfo, isApiError, setStep, setOrd
       <p
         onClick={cancelButtonHandler}
         className="font inter font-medium text-red-700 text-sm mt-4 inline-block cursor-pointer inline-block w-auto"
+        {...setTestID(WithdrawSelectors.aliceBobCancelButton)}
       >
         <T id="cancel" />
       </p>

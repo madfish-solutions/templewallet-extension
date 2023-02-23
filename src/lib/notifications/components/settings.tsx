@@ -5,6 +5,7 @@ import { useDispatch } from 'react-redux';
 import { FormCheckbox } from 'app/atoms';
 import { T, t } from 'lib/i18n';
 
+import { SettingsGeneralSelectors } from '../../../app/templates/SettingsGeneral/SettingsGeneral.selectors';
 import { setIsNewsEnabledAction } from '../store/actions';
 import { useIsNewsEnabledSelector } from '../store/selectors';
 
@@ -33,6 +34,7 @@ export const NotificationsSettings: FC = () => {
         containerClassName="mb-4"
         checked={isNewsEnabled}
         onChange={handleNewsNotificationsChange}
+        testID={SettingsGeneralSelectors.notificationCheckBox}
       />
     </>
   );

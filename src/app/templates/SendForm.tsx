@@ -27,7 +27,7 @@ import { ArtificialError, NotEnoughFundsError, ZeroBalanceError, ZeroTEZBalanceE
 import { useAppEnv } from 'app/env';
 import { ReactComponent as ChevronDownIcon } from 'app/icons/chevron-down.svg';
 import { ReactComponent as ChevronUpIcon } from 'app/icons/chevron-up.svg';
-import AdditionalFeeInput from 'app/templates/AdditionalFeeInput';
+import AdditionalFeeInput from 'app/templates/AdditionalFeeInput/AdditionalFeeInput';
 import AssetSelect from 'app/templates/AssetSelect/AssetSelect';
 import Balance from 'app/templates/Balance';
 import InFiat from 'app/templates/InFiat';

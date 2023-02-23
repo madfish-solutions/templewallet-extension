@@ -13,9 +13,10 @@ import { toLocalFormat, T, t } from 'lib/i18n';
 import { AssetMetadata } from 'lib/temple/metadata';
 import { PopperRenderProps } from 'lib/ui/Popper';
 
+import { setTestID, TestIDProps } from '../../../../../lib/analytics';
 import { SwapFormInputProps } from '../SwapFormInput.props';
 
-interface Props extends PopperRenderProps, Pick<SwapFormInputProps, 'label'> {
+interface Props extends PopperRenderProps, Pick<SwapFormInputProps, 'label'>, TestIDProps {
   amount?: BigNumber;
   balance?: BigNumber;
   searchString: string;
@@ -45,7 +46,8 @@ export const SwapFormInputHeader = forwardRef<HTMLDivElement, Props>(
       amountInputDisabled,
       onTokenIdChange,
       onAmountChange,
-      onSearchChange
+      onSearchChange,
+      testID
     },
     ref
   ) => {
@@ -123,6 +125,7 @@ export const SwapFormInputHeader = forwardRef<HTMLDivElement, Props>(
                   onBlur={handleBlur}
                   onFocus={handleFocus}
                   onChange={onSearchChange}
+                  {...setTestID(testID)}
                 />
               </div>
               {showTokenIdInput && (
@@ -139,6 +142,7 @@ export const SwapFormInputHeader = forwardRef<HTMLDivElement, Props>(
                     onBlur={handleBlur}
                     onFocus={handleFocus}
                     onChange={handleTokenIdChange}
+                    testID={testID}
                   />
                 </div>
               )}
@@ -148,6 +152,7 @@ export const SwapFormInputHeader = forwardRef<HTMLDivElement, Props>(
             <div
               className="border-r border-gray-300 pl-4 pr-3 flex py-5 items-center cursor-pointer"
               onClick={toggleOpened}
+              {...setTestID(`loh`)}
             >
               {selectedAssetSlug ? (
                 <>

@@ -10,7 +10,7 @@ import { TID, T } from 'lib/i18n';
 import { Link } from 'lib/woozie';
 
 import { TestIDProps } from '../../../lib/analytics';
-import { WelcomeTestIds } from './Welcome.test-ids';
+import { WelcomeSelectors } from './Welcome.selectors';
 
 interface TSign extends TestIDProps {
   key: string;
@@ -31,7 +31,7 @@ const SIGNS: TSign[] = [
     ),
     titleI18nKey: 'importExistingWallet',
     descriptionI18nKey: 'importExistingWalletDescription',
-    testID: WelcomeTestIds.importExistingWallet
+    testID: WelcomeSelectors.importExistingWallet
   },
   {
     key: 'create',
@@ -40,7 +40,7 @@ const SIGNS: TSign[] = [
     Icon: FolderAddIcon,
     titleI18nKey: 'createNewWallet',
     descriptionI18nKey: 'createNewWalletDescription',
-    testID: WelcomeTestIds.createNewWallet
+    testID: WelcomeSelectors.createNewWallet
   }
 ];
 

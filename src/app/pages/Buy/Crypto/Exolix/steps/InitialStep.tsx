@@ -204,7 +204,7 @@ const InitialStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
         }}
         onClick={submitExchangeHandler}
         disabled={proceedForbidden}
-        testID={ExolixSelectors.TopupFirstStepSubmit}
+        testID={ExolixSelectors.topupFirstStepSubmit}
       >
         <T id={'topUp'} />
       </FormSubmitButton>
