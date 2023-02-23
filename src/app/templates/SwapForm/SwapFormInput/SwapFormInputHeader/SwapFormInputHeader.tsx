@@ -9,14 +9,14 @@ import { ReactComponent as ChevronDownIcon } from 'app/icons/chevron-down.svg';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
 import { AssetIcon } from 'app/templates/AssetIcon';
 import InFiat from 'app/templates/InFiat';
+import { setTestID } from 'lib/analytics';
 import { toLocalFormat, T, t } from 'lib/i18n';
 import { AssetMetadata } from 'lib/temple/metadata';
 import { PopperRenderProps } from 'lib/ui/Popper';
 
-import { setTestID, TestIDProps } from '../../../../../lib/analytics';
-import { SwapFormInputProps } from '../SwapFormInput.props';
+import { SwapFormInputProps, SwapFormTestIDs } from '../SwapFormInput.props';
 
-interface Props extends PopperRenderProps, Pick<SwapFormInputProps, 'label'>, TestIDProps {
+interface Props extends PopperRenderProps, Pick<SwapFormInputProps, 'label'> {
   amount?: BigNumber;
   balance?: BigNumber;
   searchString: string;
@@ -25,6 +25,7 @@ interface Props extends PopperRenderProps, Pick<SwapFormInputProps, 'label'>, Te
   showTokenIdInput: boolean;
   tokenId?: number;
   amountInputDisabled?: boolean;
+  testIDs?: SwapFormTestIDs;
   onTokenIdChange: (value?: number) => void;
   onAmountChange: (amount?: BigNumber) => void;
   onSearchChange: (e: ChangeEvent<HTMLInputElement>) => void;
@@ -47,7 +48,7 @@ export const SwapFormInputHeader = forwardRef<HTMLDivElement, Props>(
       onTokenIdChange,
       onAmountChange,
       onSearchChange,
-      testID
+      testIDs
     },
     ref
   ) => {
@@ -125,7 +126,7 @@ export const SwapFormInputHeader = forwardRef<HTMLDivElement, Props>(
                   onBlur={handleBlur}
                   onFocus={handleFocus}
                   onChange={onSearchChange}
-                  {...setTestID(testID)}
+                  {...setTestID(testIDs?.searchInput)}
                 />
               </div>
               {showTokenIdInput && (
@@ -142,7 +143,6 @@ export const SwapFormInputHeader = forwardRef<HTMLDivElement, Props>(
                     onBlur={handleBlur}
                     onFocus={handleFocus}
                     onChange={handleTokenIdChange}
-                    testID={testID}
                   />
                 </div>
               )}
@@ -152,7 +152,7 @@ export const SwapFormInputHeader = forwardRef<HTMLDivElement, Props>(
             <div
               className="border-r border-gray-300 pl-4 pr-3 flex py-5 items-center cursor-pointer"
               onClick={toggleOpened}
-              {...setTestID(`loh`)}
+              {...setTestID(testIDs?.assetSelector)}
             >
               {selectedAssetSlug ? (
                 <>
@@ -197,6 +197,7 @@ export const SwapFormInputHeader = forwardRef<HTMLDivElement, Props>(
                   onBlur={handleBlur}
                   onFocus={handleAmountFieldFocus}
                   onChange={handleAmountChange}
+                  testID={testIDs?.input}
                 />
 
                 <InFiat

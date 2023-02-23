@@ -34,7 +34,7 @@ import { HistoryAction, navigate } from 'lib/woozie';
 import { SwapExchangeRate } from './SwapExchangeRate/SwapExchangeRate';
 import { SwapFormValue, SwapInputValue, useSwapFormDefaultValue } from './SwapForm.form';
 import styles from './SwapForm.module.css';
-import { SwapFormSelectors } from './SwapForm.selectors';
+import { SwapFormSelectors, SwapFormFromInputSelectors, SwapFormToInputSelectors } from './SwapForm.selectors';
 import { feeInfoTippyProps } from './SwapForm.tippy';
 import { SlippageToleranceInput } from './SwapFormInput/SlippageToleranceInput/SlippageToleranceInput';
 import { slippageToleranceInputValidationFn } from './SwapFormInput/SlippageToleranceInput/SlippageToleranceInput.validation';
@@ -277,7 +277,11 @@ export const SwapForm: FC = () => {
         error={errors.input?.message}
         label={<T id="from" />}
         onChange={handleInputChange}
-        testID={SwapFormSelectors.fromInput}
+        testIDs={{
+          input: SwapFormFromInputSelectors.input,
+          searchInput: SwapFormFromInputSelectors.searchInput,
+          assetSelector: SwapFormFromInputSelectors.assetSelector
+        }}
       />
 
       <div className="w-full my-4 flex justify-center">
@@ -295,6 +299,11 @@ export const SwapForm: FC = () => {
         label={<T id="toAsset" />}
         amountInputDisabled={true}
         onChange={handleOutputChange}
+        testIDs={{
+          input: SwapFormToInputSelectors.input,
+          searchInput: SwapFormToInputSelectors.searchInput,
+          assetSelector: SwapFormToInputSelectors.assetSelector
+        }}
       />
 
       <p className="text-xs text-gray-500 mb-1">

@@ -11,4 +11,11 @@ export interface SwapFormInputProps extends TestIDProps {
   name: string;
   amountInputDisabled?: boolean;
   onChange: (value: SwapInputValue) => void;
+  testIDs?: SwapFormTestIDs;
+}
+
+export interface SwapFormTestIDs {
+  input?: string;
+  searchInput?: string;
+  assetSelector?: string;
 }

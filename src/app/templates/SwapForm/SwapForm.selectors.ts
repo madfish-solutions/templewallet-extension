@@ -11,3 +11,15 @@ export enum SwapFormSelectors {
   slippageToleranceButton = 'Swap Form/Slippage Tolerance Button',
   searchAssetsInDropDownInput = 'Swap Form/Search Assets Input'
 }
+
+export enum SwapFormFromInputSelectors {
+  input = 'SwapForm/FromInput/Input',
+  searchInput = 'SwapForm/FromInput/SearchInput',
+  assetSelector = 'SwapForm/FromInput/AssetSelector'
+}
+
+export enum SwapFormToInputSelectors {
+  input = 'SwapForm/ToInput/Input',
+  searchInput = 'SwapForm/ToInput/SearchInput',
+  assetSelector = 'SwapForm/ToInput/AssetSelector'
+}
