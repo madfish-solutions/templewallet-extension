@@ -12,7 +12,7 @@ import { useBlockLevel } from 'app/hooks/use-block-level.hook';
 import { useRoute3 } from 'app/hooks/use-route3.hook';
 import { ReactComponent as InfoIcon } from 'app/icons/info.svg';
 import { ReactComponent as ToggleIcon } from 'app/icons/toggle.svg';
-import { loadRoute3DexesAction, loadRoute3SwapParamsAction, resetRoute3SwapParamsAction } from 'app/store/swap/actions';
+import { loadSwapDexesAction, loadSwapParamsAction, resetSwapParamsAction } from 'app/store/swap/actions';
 import { useSwapParamsSelector, useSwapTokenSelector } from 'app/store/swap/selectors';
 import OperationStatus from 'app/templates/OperationStatus';
 import { useFormAnalytics } from 'lib/analytics';
@@ -97,7 +97,7 @@ export const SwapForm: FC = () => {
     }
 
     dispatch(
-      loadRoute3SwapParamsAction.submit({
+      loadSwapParamsAction.submit({
         fromSymbol: fromRoute3Token.symbol,
         toSymbol: toRoute3Token.symbol,
         amount: inputValue.amount.toFixed()
@@ -115,25 +115,20 @@ export const SwapForm: FC = () => {
   );
 
   useEffect(() => {
-    dispatch(loadRoute3DexesAction.submit());
-    dispatch(resetRoute3SwapParamsAction());
+    dispatch(loadSwapDexesAction.submit());
+    dispatch(resetSwapParamsAction());
   }, []);
 
   useEffect(() => {
-    const subscription = tezos.stream.subscribeBlock('head');
-    subscription.on('data', () => {
-      if (fromRoute3Token && toRoute3Token && inputValue.amount) {
-        dispatch(
-          loadRoute3SwapParamsAction.submit({
-            fromSymbol: fromRoute3Token.symbol,
-            toSymbol: toRoute3Token.symbol,
-            amount: inputValue.amount.toFixed()
-          })
-        );
-      }
-    });
-
-    return () => subscription.close();
+    if (fromRoute3Token && toRoute3Token && inputValue.amount) {
+      dispatch(
+        loadSwapParamsAction.submit({
+          fromSymbol: fromRoute3Token.symbol,
+          toSymbol: toRoute3Token.symbol,
+          amount: inputValue.amount.toFixed()
+        })
+      );
+    }
   }, [blockLevel]);
 
   useEffect(() => {
@@ -247,7 +242,7 @@ export const SwapForm: FC = () => {
     }
 
     if (newInputValue.amount === undefined) {
-      dispatch(resetRoute3SwapParamsAction());
+      dispatch(resetSwapParamsAction());
     }
   };
   const handleOutputChange = (newOutputValue: SwapInputValue) => {

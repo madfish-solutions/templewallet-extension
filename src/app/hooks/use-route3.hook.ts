@@ -68,6 +68,6 @@ export const useRoute3 = () => {
 
       return resultParams;
     },
-    [tezos, publicKeyHash, swapParams.chains, swapParams.output]
+    [tezos, publicKeyHash, swapParams.chains, swapParams.output, swapContract]
   );
 };

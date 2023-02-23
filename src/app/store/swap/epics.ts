@@ -8,40 +8,40 @@ import { fetchRoute3Dexes$ } from 'lib/apis/route3/fetch-route3-dexes';
 import { fetchRoute3SwapParams$ } from 'lib/apis/route3/fetch-route3-swap-params';
 import { fetchgetRoute3Tokens } from 'lib/apis/route3/fetch-route3-tokens';
 
-import { loadRoute3DexesAction, loadRoute3SwapParamsAction, loadRoute3TokensAction } from './actions';
+import { loadSwapDexesAction, loadSwapParamsAction, loadSwapTokensAction } from './actions';
 
-const loadRoute3TokensEpic: Epic = (action$: Observable<Action>) =>
+const loadSwapTokensEpic: Epic = (action$: Observable<Action>) =>
   action$.pipe(
-    ofType(loadRoute3TokensAction.submit),
+    ofType(loadSwapTokensAction.submit),
     switchMap(() =>
       fetchgetRoute3Tokens().pipe(
-        map(tokens => loadRoute3TokensAction.success(tokens)),
-        catchError(err => of(loadRoute3TokensAction.fail(err.message)))
+        map(tokens => loadSwapTokensAction.success(tokens)),
+        catchError(err => of(loadSwapTokensAction.fail(err.message)))
       )
     )
   );
 
-const loadRoute3SwapParamsEpic: Epic = (action$: Observable<Action>) =>
+const loadSwapParamsEpic: Epic = (action$: Observable<Action>) =>
   action$.pipe(
-    ofType(loadRoute3SwapParamsAction.submit),
+    ofType(loadSwapParamsAction.submit),
     toPayload(),
     switchMap(payload =>
       fetchRoute3SwapParams$(payload).pipe(
-        map(swapParams => loadRoute3SwapParamsAction.success(swapParams)),
-        catchError(err => of(loadRoute3SwapParamsAction.fail(err.message)))
+        map(swapParams => loadSwapParamsAction.success(swapParams)),
+        catchError(err => of(loadSwapParamsAction.fail(err.message)))
       )
     )
   );
 
-const loadRoute3DexesEpic: Epic = (action$: Observable<Action>) =>
+const loadSwapDexesEpic: Epic = (action$: Observable<Action>) =>
   action$.pipe(
-    ofType(loadRoute3DexesAction.submit),
+    ofType(loadSwapDexesAction.submit),
     switchMap(() =>
       fetchRoute3Dexes$().pipe(
-        map(dexes => loadRoute3DexesAction.success(dexes)),
-        catchError(err => of(loadRoute3DexesAction.fail(err.message)))
+        map(dexes => loadSwapDexesAction.success(dexes)),
+        catchError(err => of(loadSwapDexesAction.fail(err.message)))
       )
     )
   );
 
-export const route3Epics = combineEpics(loadRoute3TokensEpic, loadRoute3SwapParamsEpic, loadRoute3DexesEpic);
+export const swapEpics = combineEpics(loadSwapTokensEpic, loadSwapParamsEpic, loadSwapDexesEpic);

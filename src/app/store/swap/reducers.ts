@@ -2,43 +2,38 @@ import { createReducer } from '@reduxjs/toolkit';
 
 import { createEntity } from 'lib/store';
 
-import {
-  loadRoute3DexesAction,
-  loadRoute3SwapParamsAction,
-  loadRoute3TokensAction,
-  resetRoute3SwapParamsAction
-} from './actions';
+import { loadSwapDexesAction, loadSwapParamsAction, loadSwapTokensAction, resetSwapParamsAction } from './actions';
 import { swapInitialState } from './state';
 
 export const swapReducer = createReducer(swapInitialState, builder => {
-  builder.addCase(loadRoute3TokensAction.submit, state => {
+  builder.addCase(loadSwapTokensAction.submit, state => {
     state.tokens = createEntity([...state.tokens.data], true);
   });
-  builder.addCase(loadRoute3TokensAction.success, (state, { payload }) => {
+  builder.addCase(loadSwapTokensAction.success, (state, { payload }) => {
     state.tokens = createEntity(payload, false);
   });
-  builder.addCase(loadRoute3TokensAction.fail, (state, { payload }) => {
+  builder.addCase(loadSwapTokensAction.fail, (state, { payload }) => {
     state.tokens = createEntity([], false, payload);
   });
-  builder.addCase(loadRoute3SwapParamsAction.submit, state => {
+  builder.addCase(loadSwapParamsAction.submit, state => {
     state.swapParams = createEntity({ ...state.swapParams.data }, true);
   });
-  builder.addCase(loadRoute3SwapParamsAction.success, (state, { payload }) => {
+  builder.addCase(loadSwapParamsAction.success, (state, { payload }) => {
     state.swapParams = createEntity(payload, false);
   });
-  builder.addCase(loadRoute3SwapParamsAction.fail, (state, { payload }) => {
+  builder.addCase(loadSwapParamsAction.fail, (state, { payload }) => {
     state.swapParams = createEntity({ input: 0, output: 0, chains: [] }, false, payload);
   });
-  builder.addCase(resetRoute3SwapParamsAction, state => {
+  builder.addCase(resetSwapParamsAction, state => {
     state.swapParams = createEntity({ input: undefined, output: undefined, chains: [] }, false);
   });
-  builder.addCase(loadRoute3DexesAction.submit, state => {
+  builder.addCase(loadSwapDexesAction.submit, state => {
     state.dexes = createEntity([...state.dexes.data], true);
   });
-  builder.addCase(loadRoute3DexesAction.success, (state, { payload }) => {
+  builder.addCase(loadSwapDexesAction.success, (state, { payload }) => {
     state.dexes = createEntity(payload, false);
   });
-  builder.addCase(loadRoute3DexesAction.fail, (state, { payload }) => {
+  builder.addCase(loadSwapDexesAction.fail, (state, { payload }) => {
     state.dexes = createEntity([], false, payload);
   });
 });
