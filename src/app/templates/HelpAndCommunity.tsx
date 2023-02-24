@@ -75,7 +75,7 @@ const HelpAndCommunity: FC = () => {
 
 export default HelpAndCommunity;
 
-export type ResourceLinkProps = {
+type ResourceLinkProps = {
   name: string;
   href: string;
   background?: string;
