@@ -1,5 +1,5 @@
 export enum RevealSecretsSelectors {
-  RevealButton = 'RevealSecrets/Reveal Button',
-  RevealPasswordInput = 'RevealSecrets/Reveal Password Input',
-  RevealSecretsValue = 'RevealSecrets/Reveal Secrets Value'
+  RevealButton = 'Reveal Secrets/Reveal Button',
+  RevealPasswordInput = 'Reveal Secrets/Reveal Password Input',
+  RevealSecretsValue = 'Reveal Secrets/Reveal Secrets Value'
 }

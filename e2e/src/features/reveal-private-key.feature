@@ -1,18 +1,18 @@
 Feature: Reveal private key
 
-  Scenario: As a user, I'd like to reveal my seed phrase
+  Scenario: As a user, I'd like to reveal my private key
     Given I have imported an existing account
 
-    And I press AccountIcon on the Header page
+    And I press Account Icon on the Header page
     And I am on the AccountsDropdown page
-    And I press SettingsButton on the AccountsDropdown page
+    And I press Settings Button on the Accounts Drop-down page
 
     And I am on the Settings page
-    And I press RevealPrivateKeyButton on the Settings page
+    And I press Reveal Private Key Button on the Settings page
 
     And I am on the RevealSecrets page
-    And I enter defaultPassword into Reveal Password Field on the RevealSecrets page
-    And I press Reveal Button on the RevealSecrets page
+    And I enter defaultPassword into Reveal Password Input on the Reveal Secrets page
+    And I press Reveal Button on the Reveal Secrets page
 
     Then I compare my Private Key to Revealed value
 
