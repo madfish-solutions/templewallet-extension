@@ -1,7 +1,5 @@
 import React, { FC, useCallback, useMemo } from 'react';
 
-import classNames from 'clsx';
-
 import Money from 'app/atoms/Money';
 import { AssetIcon } from 'app/templates/AssetIcon';
 import Balance from 'app/templates/Balance';
@@ -65,34 +63,47 @@ export default AssetSelect;
 type AssetSelectOptionRenderProps = IconifiedSelectOptionRenderProps<IAsset>;
 
 const OptionIcon: FC<AssetSelectOptionRenderProps> = ({ option }) => (
-  <AssetIcon assetSlug={getSlug(option)} className="h-8 w-auto mr-3" size={32} />
+  <AssetIcon assetSlug={getSlug(option)} className="mr-2" size={32} />
 );
 
 const OptionSelectedIcon: FC<AssetSelectOptionRenderProps> = ({ option }) => (
-  <AssetIcon assetSlug={getSlug(option)} className="h-12 w-auto mr-3" size={48} />
+  <AssetIcon assetSlug={getSlug(option)} className="mr-2" size={48} />
 );
 
 const AssetInMenuContent: FC<AssetSelectOptionRenderProps> = ({ option: asset }) => {
-  const account = useAccount();
+  const { publicKeyHash } = useAccount();
   const assetSlug = getSlug(asset);
   const metadata = useAssetMetadata(assetSlug);
 
   return (
-    <div className="flex flex-col items-start">
-      <span className="text-gray-700 text-sm">{getAssetName(metadata)}</span>
-      <span className={classNames('text-gray-600', 'text-sm leading-none flex items-baseline')}>
-        <Balance assetSlug={assetSlug} address={account.publicKeyHash}>
-          {balance => (
-            <>
-              <Money>{balance}</Money>
-              <span className="text-gray-500 ml-1" style={{ fontSize: '0.75em' }}>
-                {getAssetSymbol(metadata)}
-              </span>
-            </>
-          )}
-        </Balance>
-      </span>
-    </div>
+    <>
+      <div className="flex flex-col items-start mr-2">
+        <span className="text-gray-910 text-lg">{getAssetSymbol(metadata)}</span>
+        <span className="text-gray-600 text-xs">{getAssetName(metadata)}</span>
+      </div>
+      <div className="flex-1 flex flex-col items-end">
+        <span className="text-gray-910 text-lg">
+          <Balance assetSlug={assetSlug} address={publicKeyHash}>
+            {balance => <Money>{balance}</Money>}
+          </Balance>
+        </span>
+        <span className="text-xs text-gray-600">
+          <Balance assetSlug={assetSlug} address={publicKeyHash}>
+            {volume => (
+              <InFiat assetSlug={assetSlug} volume={volume} smallFractionFont={false}>
+                {({ balance, symbol }) => (
+                  <>
+                    <span className="mr-1">≈</span>
+                    {balance}
+                    <span className="ml-1">{symbol}</span>
+                  </>
+                )}
+              </InFiat>
+            )}
+          </Balance>
+        </span>
+      </div>
+    </>
   );
 };
 

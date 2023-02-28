@@ -85,6 +85,7 @@ export const SwapFormInputHeader = forwardRef<HTMLDivElement, Props>(
       <div className="w-full text-gray-700">
         <div className="w-full flex mb-1 items-center justify-between">
           <span className="text-xl text-gray-900">{label}</span>
+
           {selectedAssetSlug && (
             <span className={classNames(opened && 'hidden', 'text-xs text-gray-500 flex items-baseline')}>
               <span className="mr-1">
@@ -101,6 +102,7 @@ export const SwapFormInputHeader = forwardRef<HTMLDivElement, Props>(
             </span>
           )}
         </div>
+
         <div
           className={classNames(
             isActive && 'border-orange-500 bg-gray-100',
@@ -144,6 +146,7 @@ export const SwapFormInputHeader = forwardRef<HTMLDivElement, Props>(
               )}
             </div>
           </div>
+
           <div className={classNames('w-full flex items-stretch', opened && 'hidden')} style={{ height: '4.5rem' }}>
             <div
               className="border-r border-gray-300 pl-4 pr-3 flex py-5 items-center cursor-pointer"

@@ -49,6 +49,7 @@ const FiatCurrencySelect: FC<FiatCurrencySelectProps> = ({ className }) => {
       onChange={handleFiatCurrencyChange}
       title={title}
       className={className}
+      padded
     />
   );
 };

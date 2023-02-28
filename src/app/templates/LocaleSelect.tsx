@@ -141,6 +141,7 @@ const LocaleSelect: FC<LocaleSelectProps> = ({ className }) => {
       onChange={handleLocaleChange}
       title={title}
       className={className}
+      padded
     />
   );
 };

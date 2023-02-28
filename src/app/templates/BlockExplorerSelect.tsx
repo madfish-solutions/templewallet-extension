@@ -58,6 +58,7 @@ const BlockExplorerSelect: FC<BlockExplorerSelectProps> = ({ className }) => {
       onChange={handleBlockExplorerChange}
       title={title}
       className={className}
+      padded
     />
   );
 };

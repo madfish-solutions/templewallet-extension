@@ -26,6 +26,7 @@ type IconifiedSelectProps<T> = {
   onChange?: (a: T) => void;
   className?: string;
   title: ReactNode;
+  padded?: boolean;
 };
 
 const IconifiedSelect = <T extends unknown>({
@@ -39,7 +40,8 @@ const IconifiedSelect = <T extends unknown>({
   value,
   onChange,
   className,
-  title
+  title,
+  padded
 }: IconifiedSelectProps<T>) => {
   return (
     <div className={className}>
@@ -63,6 +65,7 @@ const IconifiedSelect = <T extends unknown>({
                 getKey={getKey}
                 options={options}
                 value={value}
+                padded={padded}
               />
             )}
           >
@@ -94,7 +97,7 @@ type IconifiedSelectMenuProps<T> = PopperRenderProps &
   Omit<IconifiedSelectProps<T>, 'className' | 'title' | 'OptionSelectedContent' | 'OptionSelectedIcon'>;
 
 const IconifiedSelectMenu = <T extends unknown>(props: IconifiedSelectMenuProps<T>) => {
-  const { isDisabled, opened, setOpened, onChange, options, value, getKey, Icon, OptionInMenuContent } = props;
+  const { isDisabled, opened, setOpened, onChange, options, value, padded, getKey, Icon, OptionInMenuContent } = props;
   const handleOptionClick = useCallback(
     (newValue: T) => {
       if (getKey(newValue) !== getKey(value)) {
@@ -108,7 +111,7 @@ const IconifiedSelectMenu = <T extends unknown>(props: IconifiedSelectMenuProps<
   return (
     <DropdownWrapper
       opened={opened}
-      className="origin-top overflow-x-hidden overflow-y-auto"
+      className={classNames('origin-top overflow-x-hidden overflow-y-auto', padded && 'p-2')}
       style={{
         maxHeight: '11rem',
         backgroundColor: 'white',
@@ -148,15 +151,15 @@ const IconifiedSelectOption = <T extends unknown>(props: IconifiedSelectOptionPr
     <button
       type="button"
       className={classNames(
-        'flex items-center w-full mb-1 text-left rounded transition easy-in-out duration-200',
+        'flex items-center w-full py-3 px-4 mb-1 text-left rounded transition easy-in-out duration-200',
         selected ? 'bg-gray-200' : !disabled && 'hover:bg-gray-100',
         disabled && 'opacity-25',
         disabled ? 'cursor-default' : 'cursor-pointer'
       )}
       disabled={disabled}
-      style={{
-        padding: '0.375rem 1.5rem 0.375rem 0.5rem'
-      }}
+      // style={{
+      //   padding: '0.375rem 1.5rem 0.375rem 0.5rem'
+      // }}
       autoFocus={selected}
       onClick={disabled ? undefined : handleClick}
     >
