@@ -118,7 +118,7 @@ export const SwapFormInputHeader = forwardRef<HTMLDivElement, Props>(
                 <input
                   ref={searchInputRef}
                   value={searchString}
-                  className="w-full px-2 bg-transparent"
+                  className="w-full px-2 bg-transparent placeholder-gray-500"
                   placeholder={t('swapTokenSearchInputPlaceholder')}
                   onBlur={handleBlur}
                   onFocus={handleFocus}

@@ -148,15 +148,10 @@ const IconifiedSelectOption = <T extends unknown>(props: IconifiedSelectOptionPr
     <button
       type="button"
       className={classNames(
-        'w-full',
-        'mb-1',
-        'rounded',
-        'transition easy-in-out duration-200',
+        'flex items-center w-full mb-1 text-left rounded transition easy-in-out duration-200',
         selected ? 'bg-gray-200' : !disabled && 'hover:bg-gray-100',
-        'flex items-center',
         disabled && 'opacity-25',
-        disabled ? 'cursor-default' : 'cursor-pointer',
-        'text-left'
+        disabled ? 'cursor-default' : 'cursor-pointer'
       )}
       disabled={disabled}
       style={{
@@ -185,9 +180,7 @@ const SelectButton = forwardRef<HTMLButtonElement, SelectButtonProps>(
         ref={ref}
         type="button"
         className={classNames(
-          'w-full p-2',
-          'border rounded-md',
-          'flex items-center',
+          'w-full p-2 border rounded-md flex items-center',
           dropdown ? 'cursor-pointer' : 'cursor-default',
           className
         )}
@@ -205,7 +198,7 @@ const SelectButton = forwardRef<HTMLButtonElement, SelectButtonProps>(
           <>
             <div className="flex-1" />
 
-            <ChevronDownIcon className={classNames('mx-2 h-5 w-auto', 'text-gray-600', 'stroke-current stroke-2')} />
+            <ChevronDownIcon className="mx-2 h-5 w-auto text-gray-600 stroke-current stroke-2" />
           </>
         )}
       </button>
