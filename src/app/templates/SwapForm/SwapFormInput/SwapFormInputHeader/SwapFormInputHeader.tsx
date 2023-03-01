@@ -1,4 +1,4 @@
-import React, { ChangeEvent, forwardRef, FocusEvent, useEffect, useRef, useState } from 'react';
+import React, { ChangeEvent, forwardRef, FocusEvent, useRef, useState } from 'react';
 
 import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
@@ -11,6 +11,7 @@ import { AssetIcon } from 'app/templates/AssetIcon';
 import InFiat from 'app/templates/InFiat';
 import { toLocalFormat, T, t } from 'lib/i18n';
 import { AssetMetadata } from 'lib/temple/metadata';
+import { useFocusOnElement } from 'lib/ui/hooks';
 import { PopperRenderProps } from 'lib/ui/Popper';
 
 import { SwapFormInputProps } from '../SwapFormInput.props';
@@ -50,17 +51,8 @@ export const SwapFormInputHeader = forwardRef<HTMLDivElement, Props>(
     ref
   ) => {
     const amountFieldRef = useRef<HTMLInputElement>(null);
-    const searchInputRef = useRef<HTMLInputElement>(null);
+    const searchInputRef = useFocusOnElement<HTMLInputElement>(opened);
     const [isActive, setIsActive] = useState(false);
-
-    const prevOpenedRef = useRef(opened);
-
-    useEffect(() => {
-      if (!prevOpenedRef.current && opened) {
-        searchInputRef.current?.focus();
-      }
-      prevOpenedRef.current = opened;
-    }, [opened]);
 
     const handleFocus = () => setIsActive(true);
     const handleBlur = () => setIsActive(false);
@@ -105,9 +97,8 @@ export const SwapFormInputHeader = forwardRef<HTMLDivElement, Props>(
 
         <div
           className={classNames(
-            isActive && 'border-orange-500 bg-gray-100',
-            'transition ease-in-out duration-200',
-            'w-full border rounded-md border-gray-300'
+            'transition ease-in-out duration-200 w-full border rounded-md',
+            isActive ? 'border-orange-500 bg-gray-100' : 'border-gray-300'
           )}
           ref={ref}
         >

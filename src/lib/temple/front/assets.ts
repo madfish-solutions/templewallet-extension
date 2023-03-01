@@ -304,7 +304,7 @@ export function useFilteredAssets(assetSlugs: string[]) {
   const [searchValueDebounced] = useDebounce(tokenId ? toTokenSlug(searchValue, tokenId) : searchValue, 300);
 
   const filteredAssets = useMemo(
-    () => searchAssets(searchValueDebounced, assetSlugs, allTokensBaseMetadata),
+    () => searchAssetsBySlugs(searchValueDebounced, assetSlugs, allTokensBaseMetadata),
     [searchValueDebounced, assetSlugs, allTokensBaseMetadata]
   );
 
@@ -317,25 +317,32 @@ export function useFilteredAssets(assetSlugs: string[]) {
   };
 }
 
-function searchAssets(searchValue: string, assetSlugs: string[], allTokensBaseMetadata: Record<string, AssetMetadata>) {
-  if (!searchValue) return assetSlugs;
-
-  const fuse = new Fuse(
+export const searchAssetsBySlugs = (
+  searchValue: string,
+  assetSlugs: string[],
+  allTokensBaseMetadata: Record<string, AssetMetadata>
+) =>
+  searchAssets(
+    searchValue,
     assetSlugs.map(slug => ({
       slug,
       metadata: isTezAsset(slug) ? TEZOS_METADATA : allTokensBaseMetadata[slug]
-    })),
-    {
-      keys: [
-        { name: 'metadata.symbol', weight: 1 },
-        { name: 'metadata.name', weight: 0.25 },
-        { name: 'slug', weight: 0.1 }
-      ],
-      threshold: 0.1
-    }
-  );
+    }))
+  )?.map(({ item: { slug } }) => slug) || [];
 
-  return fuse.search(searchValue).map(({ item: { slug } }) => slug);
+function searchAssets<T>(searchValue: string, assets: T[]) {
+  if (!searchValue || assets.length < 1) return null;
+
+  const fuse = new Fuse(assets, {
+    keys: [
+      { name: 'metadata.symbol', weight: 1 },
+      { name: 'metadata.name', weight: 0.25 },
+      { name: 'slug', weight: 0.1 }
+    ],
+    threshold: 0.1
+  });
+
+  return fuse.search(searchValue);
 }
 
 function getDetailedMetadataStorageKey(slug: string) {

@@ -3,10 +3,11 @@ import React, { FC, useCallback, useMemo } from 'react';
 import Money from 'app/atoms/Money';
 import { AssetIcon } from 'app/templates/AssetIcon';
 import Balance from 'app/templates/Balance';
-import IconifiedSelect, { IconifiedSelectOptionRenderProps } from 'app/templates/IconifiedSelect';
+import IconifiedSelect, { IconifiedSelectOptionRenderProps } from 'app/templates/IconifiedSelectWithSearch';
 import InFiat from 'app/templates/InFiat';
-import { T } from 'lib/i18n';
+import { T, t } from 'lib/i18n';
 import { useAccount, useAssetMetadata } from 'lib/temple/front';
+import { searchAssetsBySlugs, useAllTokensBaseMetadata } from 'lib/temple/front/assets';
 import { getAssetName, getAssetSymbol } from 'lib/temple/metadata';
 
 import { IAsset } from './interfaces';
@@ -20,6 +21,21 @@ type AssetSelectProps = {
 };
 
 const AssetSelect: FC<AssetSelectProps> = ({ value, assets, onChange, className }) => {
+  const allTokensBaseMetadata = useAllTokensBaseMetadata();
+
+  const searchItems = useCallback(
+    (searchString: string) => {
+      const searched = searchAssetsBySlugs(
+        searchString,
+        assets.map(item => getSlug(item)),
+        allTokensBaseMetadata
+      );
+
+      return assets.filter(item => searched.some(slug => slug === getSlug(item)));
+    },
+    [assets]
+  );
+
   const title = useMemo(
     () => (
       <h2 className="mb-4 leading-tight flex flex-col">
@@ -54,6 +70,10 @@ const AssetSelect: FC<AssetSelectProps> = ({ value, assets, onChange, className 
       onChange={handleChange}
       title={title}
       className={className}
+      search={{
+        placeholder: t('swapTokenSearchInputPlaceholder'),
+        filterItems: searchItems
+      }}
     />
   );
 };
