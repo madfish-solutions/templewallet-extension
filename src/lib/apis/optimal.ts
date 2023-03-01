@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { from, map } from 'rxjs';
 
-export const optimalApi = axios.create({ baseURL: 'https://i.useoptimal.xyz' });
+const optimalApi = axios.create({ baseURL: 'https://i.useoptimal.xyz' });
 
 export interface OptimalPromotionInterface {
   body: string;
