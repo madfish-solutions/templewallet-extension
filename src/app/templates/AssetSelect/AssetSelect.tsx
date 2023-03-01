@@ -3,7 +3,7 @@ import React, { FC, useCallback, useMemo } from 'react';
 import Money from 'app/atoms/Money';
 import { AssetIcon } from 'app/templates/AssetIcon';
 import Balance from 'app/templates/Balance';
-import IconifiedSelect, { IconifiedSelectOptionRenderProps } from 'app/templates/IconifiedSelectWithSearch';
+import IconifiedSelect, { IconifiedSelectOptionRenderProps } from 'app/templates/IconifiedSelect';
 import InFiat from 'app/templates/InFiat';
 import { T, t } from 'lib/i18n';
 import { useAccount, useAssetMetadata } from 'lib/temple/front';
