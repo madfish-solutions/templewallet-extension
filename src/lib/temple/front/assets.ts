@@ -321,18 +321,19 @@ export const searchAssetsBySlugs = (
   searchValue: string,
   assetSlugs: string[],
   allTokensBaseMetadata: Record<string, AssetMetadata>
-) =>
-  searchAssets(
+) => {
+  if (!searchValue) return assetSlugs;
+
+  return searchAssets(
     searchValue,
     assetSlugs.map(slug => ({
       slug,
       metadata: isTezAsset(slug) ? TEZOS_METADATA : allTokensBaseMetadata[slug]
     }))
-  )?.map(({ item: { slug } }) => slug) || [];
+  ).map(({ item: { slug } }) => slug);
+};
 
 function searchAssets<T>(searchValue: string, assets: T[]) {
-  if (!searchValue || assets.length < 1) return null;
-
   const fuse = new Fuse(assets, {
     keys: [
       { name: 'metadata.symbol', weight: 1 },

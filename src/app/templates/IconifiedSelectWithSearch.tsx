@@ -39,6 +39,7 @@ type IconifiedSelectProps<T> = {
   className?: string;
   title: ReactNode;
   padded?: boolean;
+  fieldStyle?: React.CSSProperties;
   search?: {
     placeholder?: string;
     filterItems(searchString: string): T[];
@@ -58,6 +59,7 @@ const IconifiedSelectWithSearch = <T extends unknown>({
   className,
   title,
   padded,
+  fieldStyle,
   search
 }: IconifiedSelectProps<T>) => {
   const [searchString, setSearchString] = useState<string>();
@@ -97,13 +99,14 @@ const IconifiedSelectWithSearch = <T extends unknown>({
           )}
         >
           {({ ref, opened, toggleOpened }) => (
-            <SelectField
+            <IconifiedSelectField
               ref={ref as unknown as React.RefObject<HTMLDivElement>}
               Content={OptionSelectedContent}
               Icon={OptionSelectedIcon}
               opened={opened}
               value={value}
               dropdown
+              style={fieldStyle}
               onClick={toggleOpened}
               search={
                 search
@@ -224,12 +227,15 @@ const IconifiedSelectOption = <T extends unknown>(props: IconifiedSelectOptionPr
   );
 };
 
-type FieldInnerComponentProps = HTMLAttributes<HTMLButtonElement> &
+type FieldComponentBaseProps = HTMLAttributes<HTMLButtonElement> &
   Pick<IconifiedSelectProps<any>, 'Icon' | 'value'> & {
     Content: IconifiedSelectProps<any>['OptionSelectedContent'];
     dropdown?: boolean;
-    hidden?: boolean;
   };
+
+interface FieldInnerComponentProps extends FieldComponentBaseProps {
+  hidden?: boolean;
+}
 
 const FieldInnerComponent = forwardRef<HTMLButtonElement, FieldInnerComponentProps>(
   ({ Content, Icon, value, hidden, dropdown, className, ...rest }, ref) => (
@@ -264,13 +270,13 @@ const FieldInnerComponent = forwardRef<HTMLButtonElement, FieldInnerComponentPro
 );
 
 interface FieldContainerProps {
-  active: boolean;
+  active?: boolean;
   className?: string;
   style?: React.CSSProperties;
 }
 
 const FieldContainer = forwardRef<HTMLDivElement, PropsWithChildren<FieldContainerProps>>(
-  ({ active, className, style, children }, ref) => (
+  ({ active = false, className, style, children }, ref) => (
     <div
       ref={ref as unknown as React.RefObject<HTMLDivElement>}
       className={classNames(
@@ -291,12 +297,12 @@ interface SearchProps {
   onChange: (value: string) => void;
 }
 
-interface SelectFieldProps extends FieldInnerComponentProps {
+interface IconifiedSelectFieldProps extends FieldComponentBaseProps {
   opened: boolean;
   search?: SearchProps;
 }
 
-const SelectField = forwardRef<HTMLDivElement, SelectFieldProps>((props, ref) => {
+const IconifiedSelectField = forwardRef<HTMLDivElement, IconifiedSelectFieldProps>((props, ref) => {
   const { search, ...rest } = props;
 
   if (search) return <SelectFieldWithSearch ref={ref} {...rest} search={search} />;
@@ -309,11 +315,11 @@ interface SelectFieldWithoutSearchProps extends FieldInnerComponentProps {
 }
 
 const SelectFieldWithoutSearch = forwardRef<HTMLDivElement, SelectFieldWithoutSearchProps>((props, ref) => {
-  const { opened, className, ...rest } = props;
+  const { opened, className, style, ...rest } = props;
 
   return (
-    <FieldContainer ref={ref} active={opened} className={className} style={{ minHeight: '4.5rem' }}>
-      <FieldInnerComponent {...rest} hidden={opened} />
+    <FieldContainer ref={ref} className={className} style={style}>
+      <FieldInnerComponent {...rest} />
     </FieldContainer>
   );
 });
@@ -324,12 +330,12 @@ interface SelectFieldWithSearchProps extends FieldInnerComponentProps {
 }
 
 const SelectFieldWithSearch = forwardRef<HTMLDivElement, SelectFieldWithSearchProps>((props, ref) => {
-  const { opened, search, className, ...rest } = props;
+  const { opened, search, className, style, ...rest } = props;
 
   const searchInputRef = useFocusOnElement<HTMLInputElement>(opened);
 
   return (
-    <FieldContainer ref={ref} active={opened} className={className} style={{ minHeight: '4.5rem' }}>
+    <FieldContainer ref={ref} active={opened} className={className} style={style}>
       <FieldInnerComponent {...rest} hidden={opened} />
 
       <div className={opened ? 'contents' : 'hidden'}>

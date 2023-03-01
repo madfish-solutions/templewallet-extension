@@ -70,6 +70,7 @@ const AssetSelect: FC<AssetSelectProps> = ({ value, assets, onChange, className 
       onChange={handleChange}
       title={title}
       className={className}
+      fieldStyle={{ minHeight: '4.5rem' }}
       search={{
         placeholder: t('swapTokenSearchInputPlaceholder'),
         filterItems: searchItems
