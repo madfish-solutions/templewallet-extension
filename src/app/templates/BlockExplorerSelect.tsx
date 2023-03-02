@@ -7,6 +7,7 @@ import Flag from 'app/atoms/Flag';
 import { T } from 'lib/i18n';
 import { BlockExplorer, useChainId, BLOCK_EXPLORERS, useBlockExplorer } from 'lib/temple/front';
 import { isKnownChainId } from 'lib/temple/types';
+import { searchAndFilterItems } from 'lib/utils/search-items';
 
 import IconifiedSelect, { IconifiedSelectOptionRenderProps } from './IconifiedSelect';
 
@@ -27,6 +28,8 @@ const BlockExplorerSelect: FC<BlockExplorerSelectProps> = ({ className }) => {
 
     return [];
   }, [chainId]);
+
+  const searchItems = useCallback((searchString: string) => searchBlockExplorer(searchString, options), [options]);
 
   const title = useMemo(
     () => (
@@ -59,6 +62,7 @@ const BlockExplorerSelect: FC<BlockExplorerSelectProps> = ({ className }) => {
       title={title}
       className={className}
       padded
+      search={{ filterItems: searchItems }}
     />
   );
 };
@@ -78,3 +82,17 @@ const BlockExplorerSelectContent: FC<IconifiedSelectOptionRenderProps<BlockExplo
     <span className="text-xl text-gray-700">{option.name}</span>
   </div>
 );
+
+const searchBlockExplorer = (searchString: string, options: BlockExplorer[]) =>
+  searchAndFilterItems(
+    options,
+    searchString,
+    [
+      { name: 'name', weight: 1 },
+      { name: 'urls', weight: 0.25 }
+    ],
+    ({ name, baseUrls }) => ({
+      name,
+      urls: Array.from(baseUrls.values()).map(item => item.transaction)
+    })
+  );

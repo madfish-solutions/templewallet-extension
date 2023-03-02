@@ -7,7 +7,7 @@ import IconifiedSelect, { IconifiedSelectOptionRenderProps } from 'app/templates
 import InFiat from 'app/templates/InFiat';
 import { T, t } from 'lib/i18n';
 import { useAccount, useAssetMetadata } from 'lib/temple/front';
-import { searchAssetsBySlugs, useAllTokensBaseMetadata } from 'lib/temple/front/assets';
+import { searchAssetsWithNoMeta, useAllTokensBaseMetadata } from 'lib/temple/front/assets';
 import { getAssetSymbol } from 'lib/temple/metadata';
 
 import { AssetItemContent } from '../AssetItemContent';
@@ -25,15 +25,7 @@ const AssetSelect: FC<AssetSelectProps> = ({ value, assets, onChange, className 
   const allTokensBaseMetadata = useAllTokensBaseMetadata();
 
   const searchItems = useCallback(
-    (searchString: string) => {
-      const searched = searchAssetsBySlugs(
-        searchString,
-        assets.map(item => getSlug(item)),
-        allTokensBaseMetadata
-      );
-
-      return assets.filter(item => searched.some(slug => slug === getSlug(item)));
-    },
+    (searchString: string) => searchAssetsWithNoMeta(searchString, assets, allTokensBaseMetadata, getSlug),
     [assets]
   );
 

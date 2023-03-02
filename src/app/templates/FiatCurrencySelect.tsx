@@ -5,6 +5,7 @@ import classNames from 'clsx';
 import { AnalyticsEventCategory, AnalyticsEventEnum, useAnalytics } from 'lib/analytics';
 import { FIAT_CURRENCIES, FiatCurrencyOption, getFiatCurrencyKey, useFiatCurrency } from 'lib/fiat-currency';
 import { T } from 'lib/i18n';
+import { searchAndFilterItems } from 'lib/utils/search-items';
 
 import IconifiedSelect, { IconifiedSelectOptionRenderProps } from './IconifiedSelect';
 
@@ -50,6 +51,7 @@ const FiatCurrencySelect: FC<FiatCurrencySelectProps> = ({ className }) => {
       title={title}
       className={className}
       padded
+      search={{ filterItems: searchFiatCurrencyOptions }}
     />
   );
 };
@@ -82,3 +84,15 @@ const FiatCurrencyContent: FC<IconifiedSelectOptionRenderProps<FiatCurrencyOptio
     </div>
   );
 };
+
+const searchFiatCurrencyOptions = (searchString: string) =>
+  searchAndFilterItems(
+    FIAT_CURRENCIES,
+    searchString,
+    [
+      { name: 'name', weight: 1 },
+      { name: 'fullname', weight: 0.75 }
+    ],
+    null,
+    0.25
+  );

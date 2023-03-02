@@ -11,7 +11,7 @@ import { IconifiedSelectProps } from './types';
 
 export type { IconifiedSelectOptionRenderProps } from './types';
 
-const IconifiedSelectWithSearch = <T extends unknown>({
+const IconifiedSelect = <T extends unknown>({
   Icon,
   OptionInMenuContent,
   OptionSelectedIcon,
@@ -32,9 +32,9 @@ const IconifiedSelectWithSearch = <T extends unknown>({
   const [searchStringDebounced] = useDebounce(searchString, 300);
 
   const searchedOptions = useMemo(() => {
-    if (!search || !searchStringDebounced) return options;
+    if (!search) return options;
 
-    return search.filterItems(searchStringDebounced);
+    return search.filterItems(searchStringDebounced || '');
   }, [searchStringDebounced, options]);
 
   return (
@@ -94,7 +94,7 @@ const IconifiedSelectWithSearch = <T extends unknown>({
   );
 };
 
-export default IconifiedSelectWithSearch;
+export default IconifiedSelect;
 
 const sameWidth: Modifier<string, any> = {
   name: 'sameWidth',

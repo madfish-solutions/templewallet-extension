@@ -6,6 +6,7 @@ import browser from 'webextension-polyfill';
 import Flag from 'app/atoms/Flag';
 import { AnalyticsEventCategory, AnalyticsEventEnum, useAnalytics } from 'lib/analytics';
 import { getCurrentLocale, updateLocale, T } from 'lib/i18n';
+import { searchAndFilterItems } from 'lib/utils/search-items';
 
 import IconifiedSelect, { IconifiedSelectOptionRenderProps } from './IconifiedSelect';
 
@@ -20,7 +21,7 @@ type LocaleOption = {
   label: string;
 };
 
-const localeOptions: LocaleOption[] = [
+const LOCALE_OPTIONS: LocaleOption[] = [
   {
     code: 'en',
     flagName: 'us',
@@ -105,7 +106,7 @@ const LocaleSelect: FC<LocaleSelectProps> = ({ className }) => {
   const { trackEvent } = useAnalytics();
 
   const value = useMemo(
-    () => localeOptions.find(({ code }) => code === selectedLocale) || localeOptions[0],
+    () => LOCALE_OPTIONS.find(({ code }) => code === selectedLocale) || LOCALE_OPTIONS[0],
     [selectedLocale]
   );
 
@@ -136,12 +137,13 @@ const LocaleSelect: FC<LocaleSelectProps> = ({ className }) => {
       OptionSelectedContent={LocaleSelectContent}
       getKey={getLocaleCode}
       isDisabled={localeIsDisabled}
-      options={localeOptions}
+      options={LOCALE_OPTIONS}
       value={value}
       onChange={handleLocaleChange}
       title={title}
       className={className}
       padded
+      search={{ filterItems: searchLocale }}
     />
   );
 };
@@ -182,3 +184,10 @@ const LocaleSelectContent: FC<IconifiedSelectOptionRenderProps<LocaleOption>> = 
     </div>
   );
 };
+
+const searchLocale = (searchString: string) =>
+  searchAndFilterItems(LOCALE_OPTIONS, searchString, [
+    { name: 'code', weight: 0.75 },
+    { name: 'flagName', weight: 1 },
+    { name: 'label', weight: 0.5 }
+  ]);
