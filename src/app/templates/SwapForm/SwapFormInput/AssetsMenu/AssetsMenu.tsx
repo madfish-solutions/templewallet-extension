@@ -10,7 +10,7 @@ import { T } from 'lib/i18n';
 import { useAccount, useChainId } from 'lib/temple/front';
 import * as Repo from 'lib/temple/repo';
 
-import { AssetOption } from './AssetOption/AssetOption';
+import { AssetOption } from './AssetOption';
 
 interface Props {
   value?: string;
@@ -93,9 +93,19 @@ export const AssetsMenu: FC<Props> = ({
         height={240}
         rowCount={options.length}
         rowHeight={65}
-        rowRenderer={({ key, index, style }) => (
-          <AssetOption key={key} assetSlug={options[index]} style={style} onClick={handleOptionClick} />
-        )}
+        rowRenderer={({ key, index, style }) => {
+          const option = options[index];
+
+          return (
+            <AssetOption
+              key={key}
+              assetSlug={option}
+              selected={value === option}
+              style={style}
+              onClick={handleOptionClick}
+            />
+          );
+        }}
       />
     </DropdownWrapper>
   );

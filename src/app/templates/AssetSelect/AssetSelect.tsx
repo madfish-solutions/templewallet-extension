@@ -8,8 +8,9 @@ import InFiat from 'app/templates/InFiat';
 import { T, t } from 'lib/i18n';
 import { useAccount, useAssetMetadata } from 'lib/temple/front';
 import { searchAssetsBySlugs, useAllTokensBaseMetadata } from 'lib/temple/front/assets';
-import { getAssetName, getAssetSymbol } from 'lib/temple/metadata';
+import { getAssetSymbol } from 'lib/temple/metadata';
 
+import { AssetItemContent } from '../AssetItemContent';
 import { IAsset } from './interfaces';
 import { getSlug } from './utils';
 
@@ -91,42 +92,9 @@ const OptionSelectedIcon: FC<AssetSelectOptionRenderProps> = ({ option }) => (
   <AssetIcon assetSlug={getSlug(option)} className="mr-2" size={48} />
 );
 
-const AssetInMenuContent: FC<AssetSelectOptionRenderProps> = ({ option: asset }) => {
-  const { publicKeyHash } = useAccount();
-  const assetSlug = getSlug(asset);
-  const metadata = useAssetMetadata(assetSlug);
-
-  return (
-    <>
-      <div className="flex flex-col items-start mr-2">
-        <span className="text-gray-910 text-lg">{getAssetSymbol(metadata)}</span>
-        <span className="text-gray-600 text-xs">{getAssetName(metadata)}</span>
-      </div>
-      <div className="flex-1 flex flex-col items-end">
-        <span className="text-gray-910 text-lg">
-          <Balance assetSlug={assetSlug} address={publicKeyHash}>
-            {balance => <Money>{balance}</Money>}
-          </Balance>
-        </span>
-        <span className="text-xs text-gray-600">
-          <Balance assetSlug={assetSlug} address={publicKeyHash}>
-            {volume => (
-              <InFiat assetSlug={assetSlug} volume={volume} smallFractionFont={false}>
-                {({ balance, symbol }) => (
-                  <>
-                    <span className="mr-1">≈</span>
-                    {balance}
-                    <span className="ml-1">{symbol}</span>
-                  </>
-                )}
-              </InFiat>
-            )}
-          </Balance>
-        </span>
-      </div>
-    </>
-  );
-};
+const AssetInMenuContent: FC<AssetSelectOptionRenderProps> = ({ option: asset }) => (
+  <AssetItemContent slug={getSlug(asset)} />
+);
 
 const AssetSelectedContent: FC<AssetSelectOptionRenderProps> = ({ option }) => {
   const account = useAccount();

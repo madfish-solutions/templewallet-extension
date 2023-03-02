@@ -90,9 +90,6 @@ export const IconifiedSelectOption = <T extends unknown>(props: IconifiedSelectO
         disabled ? 'cursor-default' : 'cursor-pointer'
       )}
       disabled={disabled}
-      // style={{
-      //   padding: '0.375rem 1.5rem 0.375rem 0.5rem'
-      // }}
       autoFocus={!withSearch && selected}
       onClick={disabled ? undefined : handleClick}
     >
