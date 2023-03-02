@@ -1,4 +1,3 @@
 export enum ChangelogOverlaySelectors {
-  continue = 'Change log Overlay/Continue',
-  skip = 'Change log Overlay/Skip'
+  continueButton = 'Change log Overlay/Continue Button'
 }

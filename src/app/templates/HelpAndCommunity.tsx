@@ -10,6 +10,7 @@ import { ReactComponent as YoutubeIcon } from 'app/icons/youtube.svg';
 import { T } from 'lib/i18n';
 
 import { setTestID } from '../../lib/analytics';
+import { HelpAndCommunitySelectors } from './HelpAndCommunity.selectors';
 
 const links = [
   {
@@ -90,7 +91,7 @@ const ResourceLink: FC<ResourceLinkProps> = ({ name, href, background, Icon }) =
         target="_blank"
         rel="noopener noreferrer"
         className="flex items-center py-1 my-1 hover:underline text-blue-600"
-        {...setTestID(`Help&Community/${name} link`)}
+        {...setTestID(HelpAndCommunitySelectors.linkButton)}
       >
         <div
           className="mr-4 w-8 h-8 flex justify-center items-center rounded-md"
