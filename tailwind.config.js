@@ -333,7 +333,7 @@ module.exports = {
       3: '0.75rem',
       4: '1rem',
       8: '2rem',
-      16: '3rem',
+      12: '3rem',
       '1/2': '50%',
       auto: 'auto'
     },

@@ -16,7 +16,7 @@ export const PartnersPromotion: FC = () => {
       <div className="relative z-0 rounded-lg max-w-sm">
         <div className="absolute px-3 rounded-tl-lg rounded-br-lg bg-blue-500 text-sm font-semibold text-white">AD</div>
         <button
-          className="absolute top-2 right-16 z-10 p-1 bg-blue-500"
+          className="absolute top-2 right-12 z-10 p-1 bg-blue-500"
           style={{ borderRadius: '50%' }}
           onClick={() => dispatch(skipPartnersPromotionAction())}
         >
