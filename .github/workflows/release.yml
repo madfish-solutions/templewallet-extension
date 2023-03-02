@@ -45,6 +45,7 @@ jobs:
           TEMPLE_WALLET_API_URL: ${{ vars.TEMPLE_WALLET_API_URL }}
           TEMPLE_WALLET_METADATA_API_URL: ${{ vars.TEMPLE_WALLET_METADATA_API_URL }}
           TEMPLE_WALLET_DEXES_API_URL: ${{ vars.TEMPLE_WALLET_DEXES_API_URL }}
+          TEMPLE_WALLET_ROUTE3_AUTH_TOKEN: ${{ vars.TEMPLE_WALLET_ROUTE3_AUTH_TOKEN }}
 
       - name: Install dependencies and code quality
         uses: ./.github/workflows/code-quality-check
