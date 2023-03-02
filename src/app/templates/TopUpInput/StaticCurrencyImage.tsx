@@ -9,9 +9,10 @@ interface Props {
   isFiat?: boolean;
   imageSrc?: string;
   fitImg?: boolean;
+  className?: string;
 }
 
-export const StaticCurrencyImage: FC<Props> = ({ currencyCode, isFiat, imageSrc, fitImg }) => {
+export const StaticCurrencyImage: FC<Props> = ({ currencyCode, isFiat, imageSrc, fitImg, className }) => {
   const [isFailed, setIsFailed] = useState(false);
 
   const conditionalStyle = useMemo(() => ({ display: isFailed ? 'none' : undefined }), [isFailed]);
@@ -22,12 +23,18 @@ export const StaticCurrencyImage: FC<Props> = ({ currencyCode, isFiat, imageSrc,
 
   if (isFailed || !src)
     return (
-      <img alt={currencyCode} style={ROUNDING_STYLE} src={isFiat ? FIAT_FALLBACK_ICON_SRC : TOKEN_FALLBACK_ICON_SRC} />
+      <img
+        src={isFiat ? FIAT_FALLBACK_ICON_SRC : TOKEN_FALLBACK_ICON_SRC}
+        alt={currencyCode}
+        className={className}
+        style={ROUNDING_STYLE}
+      />
     );
 
   const imgProps = {
     alt: currencyCode,
     src,
+    className,
     onLoad: () => setIsFailed(false),
     onError: () => setIsFailed(true)
   };

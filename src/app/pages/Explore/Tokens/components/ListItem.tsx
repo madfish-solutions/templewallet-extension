@@ -43,7 +43,7 @@ export const ListItem = memo<Props>(({ active, assetSlug, balances }) => {
     <Link
       to={toExploreAssetLink(assetSlug)}
       className={classNames(
-        'relative block w-full overflow-hidden flex items-center px-4 py-3 rounded-md',
+        'relative block w-full overflow-hidden flex items-center px-4 py-3 rounded',
         'hover:bg-gray-200 text-gray-700 transition ease-in-out duration-200 focus:outline-none',
         active && 'focus:bg-gray-200'
       )}
