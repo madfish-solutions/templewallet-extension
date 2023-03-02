@@ -13,7 +13,7 @@ export const PartnersPromotion: FC = () => {
 
   if (isAvailablePartnersPromo) {
     return (
-      <a href={link} target="_blank" rel="noreferrer" className="relative z-0 rounded-lg max-w-sm shadow-lg">
+      <div className="relative z-0 rounded-lg max-w-sm">
         <div className="absolute px-3 rounded-tl-lg rounded-br-lg bg-blue-500 text-sm font-semibold text-white">AD</div>
         <button
           className="absolute top-2 right-16 z-10 p-1 bg-blue-500"
@@ -22,8 +22,10 @@ export const PartnersPromotion: FC = () => {
         >
           <CloseIcon className="w-auto h-5" style={{ strokeWidth: 2 }} />
         </button>
-        <img src={image} alt="Partners promotion" className="rounded-lg" />
-      </a>
+        <a href={link} target="_blank" rel="noreferrer">
+          <img src={image} alt="Partners promotion" className="shadow-lg rounded-lg" />
+        </a>
+      </div>
     );
   }
 
