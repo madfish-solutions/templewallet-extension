@@ -72,7 +72,7 @@ type IconifiedSelectOptionProps<T> = Pick<IconifiedSelectProps<T>, 'Icon' | 'Opt
   onClick?: IconifiedSelectProps<T>['onChange'];
 };
 
-export const IconifiedSelectOption = <T extends unknown>(props: IconifiedSelectOptionProps<T>) => {
+const IconifiedSelectOption = <T extends unknown>(props: IconifiedSelectOptionProps<T>) => {
   const { disabled, value, selected, padded, withSearch, onClick, Icon, OptionInMenuContent } = props;
 
   const handleClick = useCallback(() => {

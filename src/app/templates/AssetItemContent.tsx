@@ -6,35 +6,35 @@ import InFiat from 'app/templates/InFiat';
 import { useAccount, useAssetMetadata } from 'lib/temple/front';
 import { AssetMetadata, getAssetName, getAssetSymbol } from 'lib/temple/metadata';
 
-interface AssetItemContentProps {
+interface Props {
   slug: string;
   metadata?: AssetMetadata | null;
 }
 
-export const AssetItemContent: FC<AssetItemContentProps> = ({ slug, metadata }) => {
+export const AssetItemContent: FC<Props> = ({ slug, metadata }) => {
   const { publicKeyHash } = useAccount();
 
-  if (metadata) return <AssetItemContentWithNoMeta slug={slug} metadata={metadata} publicKeyHash={publicKeyHash} />;
+  if (metadata) return <AssetItemContentComponent slug={slug} metadata={metadata} publicKeyHash={publicKeyHash} />;
 
-  return <AssetItemContentWithoutMeta slug={slug} publicKeyHash={publicKeyHash} />;
+  return <AssetItemContentWithUseMeta slug={slug} publicKeyHash={publicKeyHash} />;
 };
 
-interface AssetItemContentWithMetaProps {
+interface AssetItemContentWithUseMetaProps {
   slug: string;
   publicKeyHash: string;
 }
 
-const AssetItemContentWithoutMeta: FC<AssetItemContentWithMetaProps> = ({ slug, publicKeyHash }) => {
+const AssetItemContentWithUseMeta: FC<AssetItemContentWithUseMetaProps> = ({ slug, publicKeyHash }) => {
   const metadata = useAssetMetadata(slug);
 
-  return <AssetItemContentWithNoMeta slug={slug} metadata={metadata} publicKeyHash={publicKeyHash} />;
+  return <AssetItemContentComponent slug={slug} metadata={metadata} publicKeyHash={publicKeyHash} />;
 };
 
-interface AssetItemContentWithNoMetaProps extends AssetItemContentWithMetaProps {
+interface AssetItemContentComponentProps extends AssetItemContentWithUseMetaProps {
   metadata?: AssetMetadata | null;
 }
 
-const AssetItemContentWithNoMeta: FC<AssetItemContentWithNoMetaProps> = ({ slug, metadata = null, publicKeyHash }) => (
+const AssetItemContentComponent: FC<AssetItemContentComponentProps> = ({ slug, metadata = null, publicKeyHash }) => (
   <>
     <div className="flex flex-col items-start mr-2">
       <span className="text-gray-910 text-lg">{getAssetSymbol(metadata)}</span>
