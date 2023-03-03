@@ -1,3 +1,3 @@
 export enum DAppStoreSelectors {
-  DAppOpened = 'DApp Store/DApp Opened'
+  DAppOpened = 'DApp (Some DApp)/DApp Opened'
 }

@@ -1,3 +1,3 @@
 export enum AssetOptionSelectors {
-  assetsMenuAssetName = 'Asset Option/Assets Menu Asset Name'
+  assetsMenuAssetItem = 'Asset Option/Assets Menu Asset Item'
 }

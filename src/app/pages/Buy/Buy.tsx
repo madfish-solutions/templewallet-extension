@@ -18,13 +18,13 @@ export const Buy: FC = () => {
         slug: 'crypto',
         title: t('topUpCrypto'),
         Component: Crypto,
-        testID: BuySelectors.crypto
+        testID: BuySelectors.cryptoTab
       },
       {
         slug: 'debit',
         title: t('topUpDebit'),
         Component: Debit,
-        testID: BuySelectors.debit
+        testID: BuySelectors.debitTab
       }
     ];
   }, []);

@@ -278,9 +278,9 @@ export const SwapForm: FC = () => {
         label={<T id="from" />}
         onChange={handleInputChange}
         testIDs={{
-          input: SwapFormFromInputSelectors.input,
+          input: SwapFormFromInputSelectors.assetInput,
           searchInput: SwapFormFromInputSelectors.searchInput,
-          assetSelector: SwapFormFromInputSelectors.assetSelector
+          assetSelector: SwapFormFromInputSelectors.assetItem
         }}
       />
 
@@ -300,9 +300,9 @@ export const SwapForm: FC = () => {
         amountInputDisabled={true}
         onChange={handleOutputChange}
         testIDs={{
-          input: SwapFormToInputSelectors.input,
+          input: SwapFormToInputSelectors.assetInput,
           searchInput: SwapFormToInputSelectors.searchInput,
-          assetSelector: SwapFormToInputSelectors.assetSelector
+          assetSelector: SwapFormToInputSelectors.assetItem
         }}
       />
 

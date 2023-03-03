@@ -1,9 +1,9 @@
 export enum SettingsGeneralSelectors {
-  languageName = 'Settings General/Language',
+  languageitem = 'Settings General/Language Item',
   languageDropDown = 'Settings General/Language Drop-down',
-  currencyName = 'Settings General/Currency',
+  currencyItem = 'Settings General/Currency Item',
   currenctyDropDown = 'Settings General/Currency Drop-down',
-  blockExplorerName = 'Settings General/Block Explorer Name',
+  blockExplorerItem = 'Settings General/Block Explorer Item',
   blockExplorerDropDown = 'Settings General/Block Explorer Drop-down',
   popUpCheckBox = 'Setting General/Pop-up Check Box',
   extensionLockUpCheckBox = 'Setting General/Extension Lock-up Check Box',

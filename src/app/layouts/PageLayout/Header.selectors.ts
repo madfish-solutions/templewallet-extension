@@ -1,4 +1,4 @@
 export enum HeaderSelectors {
-  templeLogo = 'Header/Temple Logo',
+  templeLogoIcon = 'Header/Temple Logo Icon',
   accountIcon = 'Header/Account Icon'
 }

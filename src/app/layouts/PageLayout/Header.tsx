@@ -26,7 +26,7 @@ const Header: FC = () => {
       <ContentContainer className="py-4">
         <div className={classNames(appEnv.fullPage && 'px-4')}>
           <div className="flex items-stretch">
-            <Link to="/" className="flex-shrink-0 pr-4" testID={HeaderSelectors.templeLogo}>
+            <Link to="/" className="flex-shrink-0 pr-4" testID={HeaderSelectors.templeLogoIcon}>
               <div className="flex items-center">
                 <Logo hasTitle={appEnv.fullPage} white />
               </div>

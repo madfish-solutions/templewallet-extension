@@ -63,7 +63,7 @@ const FiatCurrencyInMenuContent: FC<IconifiedSelectOptionRenderProps<FiatCurrenc
   return (
     <div
       className={classNames('relative w-full text-lg text-gray-700')}
-      {...setTestID(SettingsGeneralSelectors.currencyName)}
+      {...setTestID(SettingsGeneralSelectors.currencyItem)}
     >
       {name} ({fullname})
     </div>

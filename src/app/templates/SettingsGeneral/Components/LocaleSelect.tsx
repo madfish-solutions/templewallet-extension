@@ -157,7 +157,7 @@ const LocaleInMenuContent: FC<IconifiedSelectOptionRenderProps<LocaleOption>> = 
   return (
     <div
       className={classNames('relative w-full text-lg text-gray-700')}
-      {...setTestID(SettingsGeneralSelectors.languageName)}
+      {...setTestID(SettingsGeneralSelectors.languageitem)}
     >
       {label}
 

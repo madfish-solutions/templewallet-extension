@@ -74,7 +74,7 @@ const BlockExplorerIcon: FC<IconifiedSelectOptionRenderProps<BlockExplorer>> = (
 const BlockExplorerInMenuContent: FC<IconifiedSelectOptionRenderProps<BlockExplorer>> = ({ option: { name } }) => (
   <div
     className={classNames('relative w-full text-lg text-gray-700')}
-    {...setTestID(SettingsGeneralSelectors.blockExplorerName)}
+    {...setTestID(SettingsGeneralSelectors.blockExplorerItem)}
   >
     {name}
   </div>

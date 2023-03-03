@@ -119,7 +119,7 @@ const ApproveStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
             </p>
             <span>
               <p className="text-xs inline align-text-bottom text-gray-910">{exchangeData.id}</p>
-              <CopyButton text={exchangeData.id} type="link" testID={ExolixSelectors.topupSecondStepCopy}>
+              <CopyButton text={exchangeData.id} type="link" testID={ExolixSelectors.topupSecondStepCopyButton}>
                 <CopyIcon
                   style={{ verticalAlign: 'inherit' }}
                   className={classNames('h-4 ml-1 w-auto inline', 'stroke-orange stroke-2')}
@@ -179,7 +179,7 @@ const ApproveStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
           <div>
             <p
               onClick={() => {
-                trackEvent(ExolixSelectors.topupSecondStepCancel, AnalyticsEventCategory.ButtonPress);
+                trackEvent(ExolixSelectors.topupSecondStepCancelButton, AnalyticsEventCategory.ButtonPress);
                 setStep(0);
               }}
               className="font inter font-medium text-red-700 text-sm mb-8 inline-block cursor-pointer inline-block w-auto"

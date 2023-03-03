@@ -20,7 +20,7 @@ export const NotificationsBell = () => {
         borderRadius: 4,
         backgroundColor: '#E5F2FF'
       }}
-      testID={HomeSelectors.notificationIcon}
+      testID={HomeSelectors.notificationIconButton}
     >
       {isNewNotificationsAvailable && (
         <NotificationDotIcon

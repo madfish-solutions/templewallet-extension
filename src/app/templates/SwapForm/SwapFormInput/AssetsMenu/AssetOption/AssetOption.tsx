@@ -23,7 +23,7 @@ export const AssetOption: FC<Props> = ({ assetSlug, style, onClick }) => {
   return assetMetadata ? (
     <button type="button" style={style} className="p-4 w-full flex items-center" onClick={handleClick}>
       <AssetIcon assetSlug={assetSlug} size={32} className="mr-2" />
-      <span className="text-gray-700 text-lg mr-2" {...setTestID(AssetOptionSelectors.assetsMenuAssetName)}>
+      <span className="text-gray-700 text-lg mr-2" {...setTestID(AssetOptionSelectors.assetsMenuAssetItem)}>
         {assetMetadata.symbol}{' '}
       </span>
       <div className="flex-1 text-right text-lg text-gray-600">

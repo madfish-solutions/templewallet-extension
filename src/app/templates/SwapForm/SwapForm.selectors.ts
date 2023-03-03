@@ -4,13 +4,13 @@ export enum SwapFormSelectors {
 }
 
 export enum SwapFormFromInputSelectors {
-  input = 'Swap Form (From) Input/Input',
+  assetInput = 'Swap Form (From) Input/Asset Input',
   searchInput = 'Swap Form (From) Input/Search Input',
-  assetSelector = 'Swap Form (From) Input/Asset Selector'
+  assetItem = 'Swap Form (From) Input/Asset Item'
 }
 
 export enum SwapFormToInputSelectors {
-  input = 'Swap Form (To) Input/Input',
-  searchInput = 'Swap Form (To) Input/SearchInput',
-  assetSelector = 'Swap Form (To) Input/AssetSelector'
+  assetInput = 'Swap Form (To) Input/Asset Input',
+  searchInput = 'Swap Form (To) Input/Search Input',
+  assetItem = 'Swap Form (To) Input/Asset Item'
 }

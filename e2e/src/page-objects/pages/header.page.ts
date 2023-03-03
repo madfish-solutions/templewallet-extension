@@ -4,7 +4,7 @@ import { createPageElement } from '../../utils/search.utils';
 
 export class HeaderPage extends Page {
   accountIconButton = createPageElement(HeaderSelectors.accountIcon);
-  templeLogoButton = createPageElement(HeaderSelectors.templeLogo);
+  templeLogoButton = createPageElement(HeaderSelectors.templeLogoIcon);
 
   async isVisible() {
     await this.accountIconButton.waitForDisplayed();

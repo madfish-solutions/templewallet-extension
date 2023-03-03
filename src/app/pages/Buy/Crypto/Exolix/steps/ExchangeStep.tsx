@@ -111,7 +111,9 @@ const ExchangeStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, step,
                   <CopyButton
                     text={exchangeData.id}
                     type="link"
-                    testID={step === 2 ? ExolixSelectors.topupThirdStepCopy : ExolixSelectors.topupFourthStepCopy}
+                    testID={
+                      step === 2 ? ExolixSelectors.topupThirdStepCopyButton : ExolixSelectors.topupFourthStepCopyButton
+                    }
                   >
                     <CopyIcon
                       style={{ verticalAlign: 'inherit' }}
@@ -255,7 +257,7 @@ const ExchangeStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, step,
               background: '#4299e1',
               marginTop: '24px'
             }}
-            testID={ExolixSelectors.topupFourthStepSubmit}
+            testID={ExolixSelectors.topupFourthStepSubmitButton}
             onClick={() => {
               setStep(0);
               setExchangeData(null);
