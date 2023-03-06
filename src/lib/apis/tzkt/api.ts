@@ -149,3 +149,19 @@ export async function refetchOnce429<R>(fetcher: () => Promise<R>, delayAroundIn
 }
 
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+export const fecthTezosBalanceFromTzkt = (
+  apiUrl: string,
+  account: string
+): Promise<{ frozenDeposit?: string; balance: string }> =>
+  fetch(`${apiUrl}/v1/accounts/${account}`)
+    .then(res => res.json())
+    .then(({ frozenDeposit, balance }) => ({ frozenDeposit, balance }));
+
+const LIMIT = 10000;
+const TEZOS_DOMAINS_NAME_REGISTRY_ADDRESS = 'KT1GBZmSxmnKJXGMdMLbugPfLyUPmuLSMwKS';
+
+export const fecthTokensBalancesFromTzkt = (apiUrl: string, account: string): Promise<Array<TzktAccountToken>> =>
+  fetch(
+    `${apiUrl}/v1/tokens/balances?account=${account}&token.contract.ne=${TEZOS_DOMAINS_NAME_REGISTRY_ADDRESS}&balance.gt=0&limit=${LIMIT}`
+  ).then(res => res.json());

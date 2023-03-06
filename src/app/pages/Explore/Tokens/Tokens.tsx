@@ -4,12 +4,13 @@ import classNames from 'clsx';
 
 import { ActivitySpinner } from 'app/atoms';
 import { useAppEnv } from 'app/env';
+import { usePrepareBalances } from 'app/hooks/use-prepare-balances.hook';
 import { ReactComponent as AddToListIcon } from 'app/icons/add-to-list.svg';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
 import SearchAssetField from 'app/templates/SearchAssetField';
 import { T } from 'lib/i18n';
 import { useAccount, useChainId, useDisplayedFungibleTokens, useFilteredAssets } from 'lib/temple/front';
-import { useSyncBalances } from 'lib/temple/front/sync-balances';
+import { useLoadBalances } from 'lib/temple/front/load-balances';
 import { useSyncTokens } from 'lib/temple/front/sync-tokens';
 import { Link, navigate } from 'lib/woozie';
 
@@ -18,11 +19,14 @@ import { ListItem } from './components/ListItem';
 import { toExploreAssetLink } from './utils';
 
 export const Tokens: FC = () => {
+  useLoadBalances();
+
   const chainId = useChainId(true)!;
+  const balances = usePrepareBalances();
+
   const { publicKeyHash } = useAccount();
   const isSyncing = useSyncTokens();
   const { popup } = useAppEnv();
-  const latestBalances = useSyncBalances();
 
   const { data: tokens = [] } = useDisplayedFungibleTokens(chainId, publicKeyHash);
 
@@ -139,7 +143,7 @@ export const Tokens: FC = () => {
           {filteredAssets.map(assetSlug => {
             const active = activeAssetSlug ? assetSlug === activeAssetSlug : false;
 
-            return <ListItem key={assetSlug} assetSlug={assetSlug} active={active} balances={latestBalances} />;
+            return <ListItem key={assetSlug} assetSlug={assetSlug} active={active} balances={balances} />;
           })}
         </div>
       )}

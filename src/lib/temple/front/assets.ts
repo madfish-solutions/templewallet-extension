@@ -171,7 +171,28 @@ export function useAssetMetadata(slug: string): AssetMetadata | null {
   return tokenMetadata;
 }
 
-const defaultAllTokensBaseMetadata = {};
+const defaultAllTokensBaseMetadata = {
+  tez: {
+    decimals: 6,
+    symbol: 'TEZ',
+    name: 'Tezos'
+  },
+  KT1Rk86CX85DjBKmuyBhrCyNsHyudHVtASec_0: {
+    decimals: 6,
+    symbol: 'y-XTZ',
+    name: 'Yupana XTZ'
+  },
+  KT1Rk86CX85DjBKmuyBhrCyNsHyudHVtASec_4: {
+    decimals: 8,
+    symbol: 'y-tzBTC',
+    name: 'Yupana tzBTC'
+  },
+  KT1Rk86CX85DjBKmuyBhrCyNsHyudHVtASec_5: {
+    decimals: 12,
+    symbol: 'y-uBTC',
+    name: 'Yupana uBTC'
+  }
+};
 const enqueueSetAllTokensBaseMetadata = createQueue();
 
 export const [TokensMetadataProvider, useTokensMetadata] = constate(() => {
