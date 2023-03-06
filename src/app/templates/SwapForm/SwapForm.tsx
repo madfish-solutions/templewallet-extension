@@ -21,7 +21,7 @@ import { Alert, FormSubmitButton } from 'app/atoms';
 import { ReactComponent as InfoIcon } from 'app/icons/info.svg';
 import { ReactComponent as ToggleIcon } from 'app/icons/toggle.svg';
 import OperationStatus from 'app/templates/OperationStatus';
-import { useFormAnalytics } from 'lib/analytics';
+import { setTestID, useFormAnalytics } from 'lib/analytics';
 import { EnvVars } from 'lib/env';
 import { T, t } from 'lib/i18n';
 import { getRoutingFeeTransferParams } from 'lib/swap-router';
@@ -34,7 +34,7 @@ import { HistoryAction, navigate } from 'lib/woozie';
 import { SwapExchangeRate } from './SwapExchangeRate/SwapExchangeRate';
 import { SwapFormValue, SwapInputValue, useSwapFormDefaultValue } from './SwapForm.form';
 import styles from './SwapForm.module.css';
-import { SwapFormSelectors } from './SwapForm.selectors';
+import { SwapFormSelectors, SwapFormFromInputSelectors, SwapFormToInputSelectors } from './SwapForm.selectors';
 import { feeInfoTippyProps } from './SwapForm.tippy';
 import { SlippageToleranceInput } from './SwapFormInput/SlippageToleranceInput/SlippageToleranceInput';
 import { slippageToleranceInputValidationFn } from './SwapFormInput/SlippageToleranceInput/SlippageToleranceInput.validation';
@@ -277,10 +277,15 @@ export const SwapForm: FC = () => {
         error={errors.input?.message}
         label={<T id="from" />}
         onChange={handleInputChange}
+        testIDs={{
+          input: SwapFormFromInputSelectors.assetInput,
+          searchInput: SwapFormFromInputSelectors.searchInput,
+          assetSelector: SwapFormFromInputSelectors.assetItem
+        }}
       />
 
       <div className="w-full my-4 flex justify-center">
-        <button onClick={handleToggleIconClick} type="button">
+        <button onClick={handleToggleIconClick} type="button" {...setTestID(SwapFormSelectors.swapPlacesButton)}>
           <ToggleIcon className="w-6 h-auto stroke-2 stroke-current text-blue-500" />
         </button>
       </div>
@@ -294,6 +299,11 @@ export const SwapForm: FC = () => {
         label={<T id="toAsset" />}
         amountInputDisabled={true}
         onChange={handleOutputChange}
+        testIDs={{
+          input: SwapFormToInputSelectors.assetInput,
+          searchInput: SwapFormToInputSelectors.searchInput,
+          assetSelector: SwapFormToInputSelectors.assetItem
+        }}
       />
 
       <p className="text-xs text-gray-500 mb-1">
@@ -382,7 +392,7 @@ export const SwapForm: FC = () => {
         }}
         loading={isSubmitting}
         onClick={handleSubmitButtonClick}
-        testID={SwapFormSelectors.SwapSubmit}
+        testID={SwapFormSelectors.swapButton}
       >
         <T id="swap" />
       </FormSubmitButton>

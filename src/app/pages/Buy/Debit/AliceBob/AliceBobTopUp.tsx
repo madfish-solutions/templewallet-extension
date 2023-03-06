@@ -138,7 +138,7 @@ export const AliceBobTopUp: FC = () => {
           }}
           disabled={disabledProceed || !link}
           loading={isLoading || isMinMaxLoading}
-          testID={BuySelectors.AliceBob}
+          testID={BuySelectors.AliceBobButton}
         >
           <a
             href={link}

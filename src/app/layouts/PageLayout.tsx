@@ -190,7 +190,7 @@ const Toolbar: FC<ToolbarProps> = ({
               'opacity-90 hover:opacity-100'
             )}
             onClick={step ? onStepBack : onBack}
-            testID={PageLayoutSelectors.BackButton}
+            testID={PageLayoutSelectors.backButton}
           >
             <ChevronLeftIcon className={classNames('-ml-2', 'h-5 w-auto', 'stroke-current', 'stroke-2')} />
             <T id="back" />

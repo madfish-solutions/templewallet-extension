@@ -1,23 +1,23 @@
 import React, { FC, useLayoutEffect, useMemo } from 'react';
 
 import { OpenInFullPage, useAppEnv } from 'app/env';
-import AddAsset from 'app/pages/AddAsset';
+import AddAsset from 'app/pages/AddAsset/AddAsset';
 import Exolix from 'app/pages/Buy/Crypto/Exolix/Exolix';
 import CollectiblePage from 'app/pages/Collectibles/CollectiblePage';
-import ConnectLedger from 'app/pages/ConnectLedger';
-import CreateAccount from 'app/pages/CreateAccount';
+import ConnectLedger from 'app/pages/ConnectLedger/ConnectLedger';
+import CreateAccount from 'app/pages/CreateAccount/CreateAccount';
 import DApps from 'app/pages/DApps';
 import Delegate from 'app/pages/Delegate';
-import Explore from 'app/pages/Explore';
+import Home from 'app/pages/Home/Home';
 import ImportAccount from 'app/pages/ImportAccount/ImportAccount';
-import ManageAssets from 'app/pages/ManageAssets';
+import ManageAssets from 'app/pages/ManageAssets/ManageAssets';
 import { CreateWallet } from 'app/pages/NewWallet/CreateWallet';
 import { ImportWallet } from 'app/pages/NewWallet/ImportWallet';
-import Receive from 'app/pages/Receive';
+import Receive from 'app/pages/Receive/Receive';
 import Send from 'app/pages/Send';
-import Settings from 'app/pages/Settings';
+import Settings from 'app/pages/Settings/Settings';
 import { Swap } from 'app/pages/Swap/Swap';
-import Unlock from 'app/pages/Unlock';
+import Unlock from 'app/pages/Unlock/Unlock';
 import Welcome from 'app/pages/Welcome/Welcome';
 import { usePageRouterAnalytics } from 'lib/analytics';
 import { Notifications, NotificationsItem } from 'lib/notifications';
@@ -76,8 +76,8 @@ const ROUTE_MAP = Woozie.createMap<RouteContext>([
     }
   ],
   ['/loading', (_p, ctx) => (ctx.ready ? <Woozie.Redirect to={'/'} /> : <RootSuspenseFallback />)],
-  ['/', (_p, ctx) => (ctx.ready ? <Explore /> : <Welcome />)],
-  ['/explore/:assetSlug?', onlyReady(({ assetSlug }) => <Explore assetSlug={assetSlug} />)],
+  ['/', (_p, ctx) => (ctx.ready ? <Home /> : <Welcome />)],
+  ['/explore/:assetSlug?', onlyReady(({ assetSlug }) => <Home assetSlug={assetSlug} />)],
   ['/create-wallet', onlyNotReady(() => <CreateWallet />)],
   ['/create-account', onlyReady(() => <CreateAccount />)],
   ['/import-account/:tabSlug?', onlyReady(({ tabSlug }) => <ImportAccount tabSlug={tabSlug} />)],

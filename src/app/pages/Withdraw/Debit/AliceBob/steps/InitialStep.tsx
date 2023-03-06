@@ -158,7 +158,7 @@ export const InitialStep: FC<Omit<StepProps, 'orderInfo'>> = ({ isApiError, setO
             paddingBottom: '0.625rem'
           }}
           loading={isLoading}
-          testID={WithdrawSelectors.AliceBobNextButton}
+          testID={WithdrawSelectors.aliceBobNextButton}
           onClick={handleSubmit}
         >
           <T id="next" />

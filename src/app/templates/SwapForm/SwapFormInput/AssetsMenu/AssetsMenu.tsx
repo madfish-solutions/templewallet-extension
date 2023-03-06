@@ -10,6 +10,7 @@ import { T } from 'lib/i18n';
 import { useAccount, useChainId } from 'lib/temple/front';
 import * as Repo from 'lib/temple/repo';
 
+import { SwapFormTestIDs } from '../SwapFormInput.props';
 import { AssetOption } from './AssetOption/AssetOption';
 
 interface Props {
@@ -20,6 +21,7 @@ interface Props {
   searchAssetSlug: string;
   showTokenIdInput: boolean;
   opened: boolean;
+  testIDs?: SwapFormTestIDs;
   setOpened: (newValue: boolean) => void;
   onChange: (newValue: string) => void;
 }

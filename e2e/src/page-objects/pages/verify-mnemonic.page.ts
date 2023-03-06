@@ -1,11 +1,11 @@
-import { NewSeedVerifyTestIds } from '../../../../src/app/pages/NewWallet/create/NewSeedVerify/NewSeedVerify.test-ids';
+import { NewSeedVerifySelectors } from '../../../../src/app/pages/NewWallet/create/NewSeedVerify/NewSeedVerify.selectors';
 import { BrowserContext } from '../../classes/browser-context.class';
 import { Page } from '../../classes/page.class';
 import { createPageElement, findElements, getElementText } from '../../utils/search.utils';
 
 export class VerifyMnemonicPage extends Page {
-  nextButton = createPageElement(NewSeedVerifyTestIds.nextButton);
-  firstMnemonicInput = createPageElement(NewSeedVerifyTestIds.firstMnemonicInput);
+  nextButton = createPageElement(NewSeedVerifySelectors.nextButton);
+  firstMnemonicInput = createPageElement(NewSeedVerifySelectors.firstMnemonicInput);
 
   async isVisible() {
     await this.nextButton.waitForDisplayed();
@@ -13,7 +13,7 @@ export class VerifyMnemonicPage extends Page {
   }
 
   async enterSeedPhraseVerification() {
-    const wordNumberSpans = await findElements(NewSeedVerifyTestIds.mnemonicWordNumber);
+    const wordNumberSpans = await findElements(NewSeedVerifySelectors.mnemonicWordNumber);
     const wordNumberTexts = await Promise.all(wordNumberSpans.map(item => getElementText(item)));
 
     const wordNumbers = wordNumberTexts.map(fullText => {
@@ -22,7 +22,7 @@ export class VerifyMnemonicPage extends Page {
       return Number(numberText);
     });
 
-    const wordInputs = await findElements(NewSeedVerifyTestIds.firstMnemonicInput);
+    const wordInputs = await findElements(NewSeedVerifySelectors.firstMnemonicInput);
     const wordInputTexts = await Promise.all(wordInputs.map(item => getElementText(item)));
     const emptyWordInputIndexes = wordInputTexts
       .map((text, index) => {
