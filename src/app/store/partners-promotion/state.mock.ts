@@ -23,5 +23,6 @@ export const mockPartnersPromotion = {
 };
 
 export const mockPartnersPromotionState: PartnersPromotionState = {
-  promotion: createEntity(mockPartnersPromotion)
+  promotion: createEntity(mockPartnersPromotion),
+  seenPromotionIds: []
 };
