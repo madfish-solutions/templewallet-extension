@@ -6,11 +6,11 @@ import { ReactComponent as ChevronDownIcon } from 'app/icons/chevron-down.svg';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
 import { useFocusOnElement } from 'lib/ui/hooks';
 
-import { IconifiedSelectProps } from './types';
+import { IconifiedSelectPropsBase, IconifiedSelectRenderComponent } from './types';
 
 type FieldBaseProps = HTMLAttributes<HTMLButtonElement> &
-  Pick<IconifiedSelectProps<any>, 'Icon' | 'value'> & {
-    Content: IconifiedSelectProps<any>['OptionSelectedContent'];
+  Pick<IconifiedSelectPropsBase<any>, 'Icon' | 'value'> & {
+    Content: IconifiedSelectRenderComponent<any>;
     dropdown?: boolean;
   };
 

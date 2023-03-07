@@ -5,7 +5,7 @@ import browser from 'webextension-polyfill';
 
 import Flag from 'app/atoms/Flag';
 import { AnalyticsEventCategory, AnalyticsEventEnum, useAnalytics } from 'lib/analytics';
-import { getCurrentLocale, updateLocale, T } from 'lib/i18n';
+import { getCurrentLocale, updateLocale, T, t } from 'lib/i18n';
 import { searchAndFilterItems } from 'lib/utils/search-items';
 
 import IconifiedSelect, { IconifiedSelectOptionRenderProps } from './IconifiedSelect';
@@ -137,12 +137,14 @@ const LocaleSelect: FC<LocaleSelectProps> = ({ className }) => {
       OptionSelectedContent={LocaleSelectContent}
       getKey={getLocaleCode}
       isDisabled={localeIsDisabled}
+      onChange={handleLocaleChange}
       options={LOCALE_OPTIONS}
       value={value}
-      onChange={handleLocaleChange}
+      noItemsText={t('noItemsFound')}
       title={title}
       className={className}
       padded
+      fieldStyle={{ minHeight: '3.375rem' }}
       search={{ filterItems: searchLocale }}
     />
   );

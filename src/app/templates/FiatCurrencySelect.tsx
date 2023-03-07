@@ -4,7 +4,7 @@ import classNames from 'clsx';
 
 import { AnalyticsEventCategory, AnalyticsEventEnum, useAnalytics } from 'lib/analytics';
 import { FIAT_CURRENCIES, FiatCurrencyOption, getFiatCurrencyKey, useFiatCurrency } from 'lib/fiat-currency';
-import { T } from 'lib/i18n';
+import { T, t } from 'lib/i18n';
 import { searchAndFilterItems } from 'lib/utils/search-items';
 
 import IconifiedSelect, { IconifiedSelectOptionRenderProps } from './IconifiedSelect';
@@ -45,12 +45,14 @@ const FiatCurrencySelect: FC<FiatCurrencySelectProps> = ({ className }) => {
       OptionInMenuContent={FiatCurrencyInMenuContent}
       OptionSelectedContent={FiatCurrencyContent}
       getKey={getFiatCurrencyKey}
+      onChange={handleFiatCurrencyChange}
       options={FIAT_CURRENCIES}
       value={value}
-      onChange={handleFiatCurrencyChange}
+      noItemsText={t('noItemsFound')}
       title={title}
       className={className}
       padded
+      fieldStyle={{ minHeight: '3.375rem' }}
       search={{ filterItems: searchFiatCurrencyOptions }}
     />
   );

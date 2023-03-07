@@ -4,7 +4,7 @@ import classNames from 'clsx';
 import browser from 'webextension-polyfill';
 
 import Flag from 'app/atoms/Flag';
-import { T } from 'lib/i18n';
+import { T, t } from 'lib/i18n';
 import { BlockExplorer, useChainId, BLOCK_EXPLORERS, useBlockExplorer } from 'lib/temple/front';
 import { isKnownChainId } from 'lib/temple/types';
 import { searchAndFilterItems } from 'lib/utils/search-items';
@@ -56,12 +56,14 @@ const BlockExplorerSelect: FC<BlockExplorerSelectProps> = ({ className }) => {
       OptionInMenuContent={BlockExplorerInMenuContent}
       OptionSelectedContent={BlockExplorerSelectContent}
       getKey={getBlockExplorerId}
+      onChange={handleBlockExplorerChange}
       options={options}
       value={explorer}
-      onChange={handleBlockExplorerChange}
+      noItemsText={t('noItemsFound')}
       title={title}
       className={className}
       padded
+      fieldStyle={{ minHeight: '3.375rem' }}
       search={{ filterItems: searchItems }}
     />
   );

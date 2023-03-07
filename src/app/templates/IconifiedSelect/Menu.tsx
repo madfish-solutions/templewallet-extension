@@ -3,22 +3,26 @@ import React, { useCallback } from 'react';
 import classNames from 'clsx';
 
 import DropdownWrapper from 'app/atoms/DropdownWrapper';
+import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
 import { PopperRenderProps } from 'lib/ui/Popper';
 
-import { IconifiedSelectProps } from './types';
+import { IconifiedSelectProps, IconifiedSelectPropsBase } from './types';
 
-type IconifiedSelectMenuProps<T> = PopperRenderProps &
-  Omit<IconifiedSelectProps<T>, 'className' | 'title' | 'OptionSelectedContent' | 'OptionSelectedIcon'> & {
-    withSearch: boolean;
+type Props<T> = PopperRenderProps &
+  IconifiedSelectPropsBase<T> & {
+    search?: {
+      value?: string;
+    };
   };
 
-export const IconifiedSelectMenu = <T extends unknown>(props: IconifiedSelectMenuProps<T>) => {
+export const IconifiedSelectMenu = <T extends unknown>(props: Props<T>) => {
   const {
     opened,
     options,
     value,
     padded,
-    withSearch,
+    noItemsText,
+    search,
     isDisabled,
     setOpened,
     onChange,
@@ -26,6 +30,9 @@ export const IconifiedSelectMenu = <T extends unknown>(props: IconifiedSelectMen
     Icon,
     OptionInMenuContent
   } = props;
+
+  const withSearch = Boolean(search);
+
   const handleOptionClick = useCallback(
     (newValue: T) => {
       if (getKey(newValue) !== getKey(value)) {
@@ -46,19 +53,27 @@ export const IconifiedSelectMenu = <T extends unknown>(props: IconifiedSelectMen
         borderColor: '#e2e8f0'
       }}
     >
-      {options.map(option => (
-        <IconifiedSelectOption
-          disabled={isDisabled?.(option)}
-          key={getKey(option)}
-          value={option}
-          selected={getKey(option) === getKey(value)}
-          onClick={handleOptionClick}
-          Icon={Icon}
-          OptionInMenuContent={OptionInMenuContent}
-          padded={padded}
-          withSearch={withSearch}
-        />
-      ))}
+      {options.length ? (
+        options.map(option => (
+          <IconifiedSelectOption
+            disabled={isDisabled?.(option)}
+            key={getKey(option)}
+            value={option}
+            selected={getKey(option) === getKey(value)}
+            onClick={handleOptionClick}
+            Icon={Icon}
+            OptionInMenuContent={OptionInMenuContent}
+            padded={padded}
+            withSearch={withSearch}
+          />
+        ))
+      ) : (
+        <p className="flex items-center justify-center text-gray-600 text-base font-light">
+          {search?.value ? <SearchIcon className="w-5 h-auto mr-1 stroke-current" /> : null}
+
+          <span>{noItemsText}</span>
+        </p>
+      )}
     </DropdownWrapper>
   );
 };

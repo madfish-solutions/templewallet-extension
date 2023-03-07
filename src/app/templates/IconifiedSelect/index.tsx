@@ -18,9 +18,10 @@ const IconifiedSelect = <T extends unknown>({
   OptionSelectedContent,
   getKey,
   isDisabled,
+  onChange,
   options,
   value,
-  onChange,
+  noItemsText,
   className,
   title,
   padded,
@@ -59,7 +60,12 @@ const IconifiedSelect = <T extends unknown>({
               options={searchedOptions}
               value={value}
               padded={padded}
-              withSearch={!!search}
+              noItemsText={noItemsText}
+              search={
+                search && {
+                  value: searchString
+                }
+              }
             />
           )}
         >
@@ -74,13 +80,11 @@ const IconifiedSelect = <T extends unknown>({
               style={fieldStyle}
               onClick={toggleOpened}
               search={
-                search
-                  ? {
-                      value: searchString,
-                      placeholder: search?.placeholder,
-                      onChange: setSearchString
-                    }
-                  : undefined
+                search && {
+                  value: searchString,
+                  placeholder: search?.placeholder,
+                  onChange: setSearchString
+                }
               }
             />
           )}
