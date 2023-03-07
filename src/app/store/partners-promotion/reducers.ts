@@ -18,8 +18,8 @@ export const partnersPromotionRucer = createReducer(partnersPromotionInitialStat
     ...state,
     promotion: createEntity(state.promotion.data, false, payload)
   }));
-  builder.addCase(skipPartnersPromotionAction, state => ({
+  builder.addCase(skipPartnersPromotionAction, (state, { payload }) => ({
     ...state,
-    lastSeenPromotionId: state.promotion.data.id
+    seenPromotionIds: [...state.seenPromotionIds, payload]
   }));
 });

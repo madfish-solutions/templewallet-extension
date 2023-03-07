@@ -7,4 +7,4 @@ export const loadPartnersPromoAction = createActions<void, OptimalPromotionInter
   'partnersPromo/LOAD_PARTNERS_PROMOTION'
 );
 
-export const skipPartnersPromotionAction = createAction<void>('partnersPromo/SKIP_PARTNERS_PROMOTION');
+export const skipPartnersPromotionAction = createAction<string>('partnersPromo/SKIP_PARTNERS_PROMOTION');

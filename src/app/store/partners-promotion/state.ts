@@ -5,9 +5,10 @@ import { mockPartnersPromotion } from './state.mock';
 
 export interface PartnersPromotionState {
   promotion: LoadableEntityState<OptimalPromotionInterface>;
-  lastSeenPromotionId?: string;
+  seenPromotionIds: Array<string>;
 }
 
 export const partnersPromotionInitialState: PartnersPromotionState = {
-  promotion: createEntity(mockPartnersPromotion)
+  promotion: createEntity(mockPartnersPromotion),
+  seenPromotionIds: []
 };
