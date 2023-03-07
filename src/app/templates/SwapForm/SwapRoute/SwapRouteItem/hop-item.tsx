@@ -4,19 +4,23 @@ import classNames from 'clsx';
 
 import { useSwapDexesSelector } from 'app/store/swap/selectors';
 import { AssetIcon } from 'app/templates/AssetIcon';
+import { Route3Hop } from 'lib/apis/route3/fetch-route3-swap-params';
 import { getDexName } from 'lib/route3/utils/get-dex-name';
 import { DexTypeIcon } from 'lib/swap-router';
 import { toTokenSlug } from 'lib/temple/assets';
 import useTippy from 'lib/ui/useTippy';
 
 interface Props {
-  dexId: number;
+  hop: Route3Hop;
   className?: string;
 }
 
-export const HopItem: FC<Props> = ({ dexId, className }) => {
+export const HopItem: FC<Props> = ({ hop, className }) => {
   const { data: route3Dexes } = useSwapDexesSelector();
-  const dex = route3Dexes.find(dex => dex.id === dexId);
+  const dex = route3Dexes.find(dex => dex.id === hop.dex);
+
+  const aToken = hop.forward ? dex?.token1 : dex?.token2;
+  const bToken = hop.forward ? dex?.token2 : dex?.token1;
 
   const dexInfoDivRef = useTippy<HTMLDivElement>({
     trigger: 'mouseenter',
@@ -27,13 +31,13 @@ export const HopItem: FC<Props> = ({ dexId, className }) => {
   const tokenAInfoDivRef = useTippy<HTMLDivElement>({
     trigger: 'mouseenter',
     hideOnClick: false,
-    content: `${dex?.token1.symbol}`,
+    content: `${aToken?.symbol}`,
     animation: 'shift-away-subtle'
   });
   const tokenBInfoDivRef = useTippy<HTMLDivElement>({
     trigger: 'mouseenter',
     hideOnClick: false,
-    content: `${dex?.token2.symbol}`,
+    content: `${bToken?.symbol}`,
     animation: 'shift-away-subtle'
   });
 
@@ -46,19 +50,19 @@ export const HopItem: FC<Props> = ({ dexId, className }) => {
         <div ref={tokenAInfoDivRef}>
           <AssetIcon
             assetSlug={toTokenSlug(
-              dex?.token1.contract === null ? 'tez' : dex?.token1.contract ?? '',
-              dex?.token1.tokenId ?? undefined
+              aToken?.contract === null ? 'tez' : aToken?.contract ?? '',
+              aToken?.tokenId ?? undefined
             )}
-            size={24}
+            size={20}
           />
         </div>
-        <div ref={tokenBInfoDivRef}>
+        <div ref={tokenBInfoDivRef} style={{ marginLeft: -8 }}>
           <AssetIcon
             assetSlug={toTokenSlug(
-              dex?.token2.contract === null ? 'tez' : dex?.token2.contract ?? '',
-              dex?.token2.tokenId ?? undefined
+              bToken?.contract === null ? 'tez' : bToken?.contract ?? '',
+              bToken?.tokenId ?? undefined
             )}
-            size={24}
+            size={20}
           />
         </div>
       </div>

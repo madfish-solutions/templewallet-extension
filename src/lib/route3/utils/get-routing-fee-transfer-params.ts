@@ -26,7 +26,7 @@ export const getRoutingFeeTransferParams = async (
   if (token.standard === 'fa12') {
     return [
       assetContract.methods
-        .transfer(senderPublicKeyHash, ROUTING_FEE_ADDRESS, feeAmountAtomic)
+        .transfer(senderPublicKeyHash, ROUTING_FEE_ADDRESS, feeAmountAtomic.toNumber())
         .toTransferParams({ mutez: true })
     ];
   }
@@ -39,8 +39,8 @@ export const getRoutingFeeTransferParams = async (
             txs: [
               {
                 to_: ROUTING_FEE_ADDRESS,
-                token_id: token.id,
-                amount: feeAmountAtomic
+                token_id: token.tokenId,
+                amount: feeAmountAtomic.toNumber()
               }
             ]
           }

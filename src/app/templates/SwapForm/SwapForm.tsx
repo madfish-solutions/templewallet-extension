@@ -71,25 +71,25 @@ export const SwapForm: FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const slippageRatio = useMemo(() => (100 - (slippageTolerance ?? 0)) / 100, [slippageTolerance]);
-  const { routingFreeAtomic, minimumReceivedAmountAtomic } = useMemo(() => {
+  const { routingFeeAtomic, minimumReceivedAmountAtomic } = useMemo(() => {
     if (swapParams.output !== undefined) {
       const swapOutputAtomic = tokensToAtoms(new BigNumber(swapParams.output), outputAssetMetadata.decimals);
-      const routingFreeAtomic = swapOutputAtomic
+      const routingFeeAtomic = swapOutputAtomic
         .minus(swapOutputAtomic.multipliedBy(ROUTING_FEE_RATIO))
         .integerValue(BigNumber.ROUND_DOWN);
       const minimumReceivedAmountAtomic = swapOutputAtomic
-        .minus(routingFreeAtomic)
+        .minus(routingFeeAtomic)
         .multipliedBy(slippageRatio)
         .integerValue(BigNumber.ROUND_DOWN);
 
-      return { routingFreeAtomic, minimumReceivedAmountAtomic };
+      return { routingFeeAtomic, minimumReceivedAmountAtomic };
     } else {
-      const routingFreeAtomic = new BigNumber(0);
+      const routingFeeAtomic = new BigNumber(0);
       const minimumReceivedAmountAtomic = new BigNumber(0);
 
-      return { routingFreeAtomic, minimumReceivedAmountAtomic };
+      return { routingFeeAtomic, minimumReceivedAmountAtomic };
     }
-  }, [slippageRatio, outputValue.amount]);
+  }, [slippageRatio, outputValue.amount, swapParams.output]);
 
   useEffect(() => {
     if (!fromRoute3Token || !toRoute3Token || !inputValue.amount) {
@@ -201,7 +201,7 @@ export const SwapForm: FC = () => {
 
       const routingFeeOpParams = await getRoutingFeeTransferParams(
         toRoute3Token,
-        routingFreeAtomic,
+        routingFeeAtomic,
         publicKeyHash,
         tezos
       );
@@ -375,7 +375,7 @@ export const SwapForm: FC = () => {
 
       <SwapRoute className="mb-6" />
 
-      <p className="text-center text-gray-700">
+      <p className="text-center text-gray-700 max-w-xs">
         <span className="mr-1">
           <T id="swapRoute3Description" />
         </span>

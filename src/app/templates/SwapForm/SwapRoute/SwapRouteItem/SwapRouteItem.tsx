@@ -11,7 +11,7 @@ interface Props {
   chain: Route3Chain;
 }
 
-const DECIMALS_COUNT = 2;
+const DECIMALS_COUNT = 1;
 
 const calculatePercentage = (base: number, part: number) => ((100 * part) / base).toFixed(DECIMALS_COUNT);
 
@@ -24,8 +24,8 @@ export const SwapRouteItem: FC<Props> = ({ chain, baseInput, baseOutput }) => (
       <div className="text-gray-600">{chain.input.toFixed(DECIMALS_COUNT)}</div>
       <div className="text-blue-500">{calculatePercentage(baseInput, chain.input)}%</div>
     </div>
-    {chain.hops.map(({ dex }, index) => (
-      <HopItem className="z-10" key={index} dexId={dex} />
+    {chain.hops.map((hop, index) => (
+      <HopItem className="z-10" key={index} hop={hop} />
     ))}
 
     <div className="z-10">

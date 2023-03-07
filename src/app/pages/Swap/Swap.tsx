@@ -6,8 +6,6 @@ import { SwapForm } from 'app/templates/SwapForm/SwapForm';
 import { t, T } from 'lib/i18n';
 import { useNetwork } from 'lib/temple/front';
 
-import { SwapDisclaimer } from './SwapDisclaimer/SwapDisclaimer';
-
 export const Swap: FC = () => {
   const network = useNetwork();
 
@@ -21,8 +19,6 @@ export const Swap: FC = () => {
     >
       <div className="py-4">
         <div className="w-full max-w-sm mx-auto">
-          <SwapDisclaimer />
-
           <Suspense fallback={null}>
             {network.type === 'main' ? (
               <SwapForm />

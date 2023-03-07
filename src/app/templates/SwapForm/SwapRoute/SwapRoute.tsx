@@ -28,7 +28,7 @@ export const SwapRoute: FC<Props> = ({ className }) => {
   return (
     <>
       <p
-        className="flex justify-between items-center text-xs text-gray-500 mb-1 cursor-pointer"
+        className={classNames(className, 'flex justify-between items-center text-xs text-gray-500 cursor-pointer')}
         onClick={hadleToggleVisible}
       >
         <T id="swapRoute" />
@@ -37,12 +37,12 @@ export const SwapRoute: FC<Props> = ({ className }) => {
             <T id="route3ChainsDexes" substitutions={[chainsCount, dexesCount]} />
           </span>
           <span>
-            <Chevron className={classNames('h-4 w-auto stroke-3 stroke-current')} />
+            <Chevron className={'h-4 w-auto stroke-3 stroke-current'} />
           </span>
         </span>
       </p>
       {isVisible && swapParams.chains.length > 0 && (
-        <div className={classNames(className, 'flex flex-col gap-2 mb-2')}>
+        <div className="flex flex-col gap-2 mb-2">
           {swapParams.chains.map((chain, index) => (
             <SwapRouteItem
               key={index}
