@@ -11,17 +11,19 @@ import { T } from 'lib/i18n';
 import { useAccount, useAssetMetadata } from 'lib/temple/front';
 import { getAssetName, getAssetSymbol } from 'lib/temple/metadata';
 
+import { setTestID, TestIDProps } from '../../../lib/analytics';
+import { SendFormSelectors } from '../SendForm.selectors';
 import { IAsset } from './interfaces';
 import { getSlug } from './utils';
 
-type AssetSelectProps = {
+type AssetSelectProps = TestIDProps & {
   value: IAsset;
   assets: IAsset[];
   onChange?: (assetSlug: string) => void;
   className?: string;
 };
 
-const AssetSelect: FC<AssetSelectProps> = ({ value, assets, onChange, className }) => {
+const AssetSelect: FC<AssetSelectProps> = ({ value, assets, onChange, className, testID }) => {
   const title = useMemo(
     () => (
       <h2 className="mb-4 leading-tight flex flex-col">
@@ -56,6 +58,7 @@ const AssetSelect: FC<AssetSelectProps> = ({ value, assets, onChange, className 
       onChange={handleChange}
       title={title}
       className={className}
+      testID={testID}
     />
   );
 };
@@ -79,7 +82,9 @@ const AssetInMenuContent: FC<AssetSelectOptionRenderProps> = ({ option: asset })
 
   return (
     <div className="flex flex-col items-start">
-      <span className="text-gray-700 text-sm">{getAssetName(metadata)}</span>
+      <span className="text-gray-700 text-sm" {...setTestID(SendFormSelectors.assetName)}>
+        {getAssetName(metadata)}
+      </span>
       <span className={classNames('text-gray-600', 'text-sm leading-none flex items-baseline')}>
         <Balance assetSlug={assetSlug} address={account.publicKeyHash}>
           {balance => (

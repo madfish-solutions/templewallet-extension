@@ -7,6 +7,8 @@ import DropdownWrapper from 'app/atoms/DropdownWrapper';
 import { ReactComponent as ChevronDownIcon } from 'app/icons/chevron-down.svg';
 import Popper, { PopperRenderProps } from 'lib/ui/Popper';
 
+import { setTestID, TestIDProps } from '../../lib/analytics';
+
 export type IconifiedSelectOptionRenderProps<T> = {
   option: T;
   index?: number;
@@ -26,6 +28,7 @@ type IconifiedSelectProps<T> = {
   onChange?: (a: T) => void;
   className?: string;
   title: ReactNode;
+  testID?: string;
 };
 
 const IconifiedSelect = <T extends unknown>({
@@ -39,7 +42,8 @@ const IconifiedSelect = <T extends unknown>({
   value,
   onChange,
   className,
-  title
+  title,
+  testID
 }: IconifiedSelectProps<T>) => {
   return (
     <div className={className}>
@@ -74,6 +78,7 @@ const IconifiedSelect = <T extends unknown>({
                 value={value}
                 dropdown
                 onClick={toggleOpened}
+                {...setTestID(testID)}
               />
             )}
           </Popper>
@@ -173,7 +178,8 @@ const IconifiedSelectOption = <T extends unknown>(props: IconifiedSelectOptionPr
 };
 
 type SelectButtonProps = HTMLAttributes<HTMLButtonElement> &
-  Pick<IconifiedSelectProps<any>, 'Icon' | 'value'> & {
+  Pick<IconifiedSelectProps<any>, 'Icon' | 'value'> &
+  TestIDProps & {
     Content: IconifiedSelectProps<any>['OptionSelectedContent'];
     dropdown?: boolean;
   };

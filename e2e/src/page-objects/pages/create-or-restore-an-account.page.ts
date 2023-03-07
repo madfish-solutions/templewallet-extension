@@ -1,4 +1,4 @@
-import { CreateAccountSelectors } from '../../../../src/app/pages/CreateAccount.selectors';
+import { CreateAccountSelectors } from '../../../../src/app/pages/CreateAccount/CreateAccount.selectors';
 import { Page } from '../../classes/page.class';
 import { createPageElement } from '../../utils/search.utils';
 

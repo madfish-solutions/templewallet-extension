@@ -26,7 +26,7 @@ const Header: FC = () => {
       <ContentContainer className="py-4">
         <div className={classNames(appEnv.fullPage && 'px-4')}>
           <div className="flex items-stretch">
-            <Link to="/" className="flex-shrink-0 pr-4" testID={HeaderSelectors.TempleLogo}>
+            <Link to="/" className="flex-shrink-0 pr-4" testID={HeaderSelectors.templeLogoIcon}>
               <div className="flex items-center">
                 <Logo hasTitle={appEnv.fullPage} white />
               </div>
@@ -82,7 +82,7 @@ const Control: FC = () => {
               'cursor-pointer'
             )}
             onClick={toggleOpened}
-            testID={HeaderSelectors.AccountIcon}
+            testID={HeaderSelectors.accountIcon}
           >
             <Identicon type="bottts" hash={account.publicKeyHash} size={48} />
           </Button>

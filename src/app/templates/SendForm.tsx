@@ -27,7 +27,7 @@ import { ArtificialError, NotEnoughFundsError, ZeroBalanceError, ZeroTEZBalanceE
 import { useAppEnv } from 'app/env';
 import { ReactComponent as ChevronDownIcon } from 'app/icons/chevron-down.svg';
 import { ReactComponent as ChevronUpIcon } from 'app/icons/chevron-up.svg';
-import AdditionalFeeInput from 'app/templates/AdditionalFeeInput';
+import AdditionalFeeInput from 'app/templates/AdditionalFeeInput/AdditionalFeeInput';
 import AssetSelect from 'app/templates/AssetSelect/AssetSelect';
 import Balance from 'app/templates/Balance';
 import InFiat from 'app/templates/InFiat';
@@ -97,7 +97,7 @@ const SendForm: FC<SendFormProps> = ({ assetSlug = 'tez' }) => {
 
   const handleAssetChange = useCallback(
     (aSlug: string) => {
-      trackEvent(SendFormSelectors.AssetItemButton, AnalyticsEventCategory.ButtonPress);
+      trackEvent(SendFormSelectors.assetItemButton, AnalyticsEventCategory.ButtonPress);
       navigate(`/send/${aSlug}`, HistoryAction.Replace);
     },
     [trackEvent]
@@ -118,7 +118,13 @@ const SendForm: FC<SendFormProps> = ({ assetSlug = 'tez' }) => {
     <>
       {operation && <OperationStatus typeTitle={t('transaction')} operation={operation} />}
 
-      <AssetSelect value={selectedAsset} assets={assets} onChange={handleAssetChange} className="mb-6" />
+      <AssetSelect
+        value={selectedAsset}
+        assets={assets}
+        onChange={handleAssetChange}
+        className="mb-6"
+        testID={SendFormSelectors.assetDropDown}
+      />
 
       <Suspense fallback={<SpinnerSection />}>
         <Form
@@ -561,6 +567,7 @@ const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested })
           resize: 'none'
         }}
         containerClassName="mb-4"
+        testID={SendFormSelectors.recipientInput}
       />
 
       {resolvedAddress && (
@@ -641,6 +648,7 @@ const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested })
         errorCaption={restFormDisplayed && errors.amount?.message}
         containerClassName="mb-4"
         autoFocus={Boolean(maxAmount)}
+        testID={SendFormSelectors.amountInput}
       />
 
       {estimateFallbackDisplayed ? (
@@ -780,7 +788,11 @@ const FeeComponent: React.FC<FeeComponentProps> = ({
         id="send-fee"
       />
 
-      <FormSubmitButton loading={isSubmitting} disabled={Boolean(estimationError)}>
+      <FormSubmitButton
+        loading={isSubmitting}
+        disabled={Boolean(estimationError)}
+        testID={SendFormSelectors.sendButton}
+      >
         <T id="send" />
       </FormSubmitButton>
     </>

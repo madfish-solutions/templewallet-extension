@@ -134,7 +134,7 @@ export const Utorg = () => {
           }}
           disabled={disabledProceed || link === ''}
           loading={isLoading || isMinMaxLoading}
-          testID={BuySelectors.Utorg}
+          testID={BuySelectors.UtorgButton}
         >
           <a
             href={link}
