@@ -44,6 +44,7 @@ export const DexTypeIcon: FC<Props> = ({ dexType }) => {
     case Route3DexTypeEnum.DexterLb:
       return <img src={DexterLogoSrc} height={20} width={20} alt="Dexter logo" />;
     case Route3DexTypeEnum.WTZSwap:
+    case Route3DexTypeEnum.wTEZSwap:
       return <img src={WtzLogoSrc} height={20} width={20} alt="Dexter logo" />;
 
     default:

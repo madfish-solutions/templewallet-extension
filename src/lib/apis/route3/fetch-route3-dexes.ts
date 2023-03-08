@@ -29,6 +29,7 @@ export enum Route3DexTypeEnum {
   VortexTokenToTokenFa2 = 'VortexTokenToTokenFa2',
   SpicyTokenToToken = 'SpicyTokenToToken',
   WTZSwap = 'WTZSwap',
+  wTEZSwap = 'wTEZSwap',
   CtezToXtz = 'CtezToXtz',
   PlentyWrappedTokenBridgeSwap = 'PlentyWrappedTokenBridgeSwap'
 }
