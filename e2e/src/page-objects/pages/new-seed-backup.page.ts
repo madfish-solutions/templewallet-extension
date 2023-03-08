@@ -1,12 +1,12 @@
-import { NewSeedBackupTestIds } from '../../../../src/app/pages/NewWallet/create/NewSeedBackup/NewSeedBackup.test-ids';
+import { NewSeedBackupSelectors } from '../../../../src/app/pages/NewWallet/create/NewSeedBackup/NewSeedBackup.selectors';
 import { Page } from '../../classes/page.class';
 import { createPageElement } from '../../utils/search.utils';
 
 export class NewSeedBackupPage extends Page {
-  protectedMask = createPageElement(NewSeedBackupTestIds.protectedMask);
-  seedPhraseValue = createPageElement(NewSeedBackupTestIds.seedPhraseValue);
-  iMadeSeedPhraseBackupCheckBox = createPageElement(NewSeedBackupTestIds.iMadeSeedPhraseBackupCheckBox);
-  nextButton = createPageElement(NewSeedBackupTestIds.nextButton);
+  protectedMask = createPageElement(NewSeedBackupSelectors.protectedMask);
+  seedPhraseValue = createPageElement(NewSeedBackupSelectors.seedPhraseValue);
+  iMadeSeedPhraseBackupCheckBox = createPageElement(NewSeedBackupSelectors.iMadeSeedPhraseBackupCheckBox);
+  nextButton = createPageElement(NewSeedBackupSelectors.nextButton);
 
   async isVisible() {
     await this.protectedMask.waitForDisplayed();

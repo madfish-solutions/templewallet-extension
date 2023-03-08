@@ -100,7 +100,7 @@ export const AliceBobWithdraw: FC = () => {
               target="_blank"
               rel="noreferrer"
               className="text-blue-500 text-sm mt-6 cursor-pointer inline-block w-auto"
-              onClick={() => trackEvent(WithdrawSelectors.AliceBobSupportButton, AnalyticsEventCategory.ButtonPress)}
+              onClick={() => trackEvent(WithdrawSelectors.aliceBobSupportButton, AnalyticsEventCategory.ButtonPress)}
             >
               <T id={'support'} />
             </a>

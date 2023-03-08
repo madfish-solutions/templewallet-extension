@@ -41,7 +41,7 @@ import { useSafeState } from 'lib/ui/hooks';
 import { clearClipboard } from 'lib/ui/util';
 import { navigate } from 'lib/woozie';
 
-import { ImportAccountTestIds } from './ImportAccount.test-ids';
+import { ImportAccountSelectors } from './ImportAccount.selectors';
 
 type ImportAccountProps = {
   tabSlug: string | null;
@@ -197,7 +197,7 @@ const ByPrivateKeyForm: FC = () => {
         className="resize-none"
         containerClassName="mb-6"
         onPaste={() => clearClipboard()}
-        testID={ImportAccountTestIds.privateKeyInput}
+        testID={ImportAccountSelectors.privateKeyInput}
       />
 
       {encrypted && (
@@ -221,7 +221,7 @@ const ByPrivateKeyForm: FC = () => {
         />
       )}
 
-      <FormSubmitButton loading={formState.isSubmitting} testID={ImportAccountTestIds.privateKeyImportButton}>
+      <FormSubmitButton loading={formState.isSubmitting} testID={ImportAccountSelectors.privateKeyImportButton}>
         {t('importAccount')}
       </FormSubmitButton>
     </form>
@@ -314,7 +314,7 @@ const ByMnemonicForm: FC = () => {
           setSeedError={setSeedError}
           onChange={setSeedPhrase}
           reset={reset}
-          testID={ImportAccountTestIds.mnemonicWordInput}
+          testID={ImportAccountSelectors.mnemonicWordInput}
         />
       </div>
 
@@ -414,13 +414,13 @@ const ByMnemonicForm: FC = () => {
         placeholder="*********"
         errorCaption={errors.password?.message}
         containerClassName="mb-6"
-        testID={ImportAccountTestIds.mnemonicPasswordField}
+        testID={ImportAccountSelectors.mnemonicPasswordInput}
       />
 
       <FormSubmitButton
         loading={formState.isSubmitting}
         className="mt-8"
-        testID={ImportAccountTestIds.mnemonicImportButton}
+        testID={ImportAccountSelectors.mnemonicImportButton}
       >
         <T id="importAccount" />
       </FormSubmitButton>
@@ -475,6 +475,7 @@ const ByFundraiserForm: FC = () => {
         placeholder="email@example.com"
         errorCaption={errors.email?.message}
         containerClassName="mb-4"
+        testID={ImportAccountSelectors.fundraiserEmailInput}
       />
 
       <FormField
@@ -486,6 +487,7 @@ const ByFundraiserForm: FC = () => {
         placeholder="*********"
         errorCaption={errors.password?.message}
         containerClassName="mb-4"
+        testID={ImportAccountSelectors.fundraiserPasswordInput}
       />
 
       <FormField
@@ -505,9 +507,12 @@ const ByFundraiserForm: FC = () => {
         spellCheck={false}
         containerClassName="mb-6"
         className="resize-none"
+        testID={ImportAccountSelectors.fundraiserSeedPhraseInput}
       />
 
-      <FormSubmitButton loading={formState.isSubmitting}>{t('importAccount')}</FormSubmitButton>
+      <FormSubmitButton loading={formState.isSubmitting} testID={ImportAccountSelectors.fundraiserImportButton}>
+        {t('importAccount')}
+      </FormSubmitButton>
     </form>
   );
 };
@@ -843,7 +848,7 @@ const WatchOnlyForm: FC = () => {
         onClean={cleanAddressField}
         id="watch-address"
         label={t('address')}
-        testID={ImportAccountTestIds.watchOnlyInput}
+        testID={ImportAccountSelectors.watchOnlyInput}
         labelDescription={
           <T id={canUseDomainNames ? 'addressInputDescriptionWithDomain' : 'addressInputDescription'} />
         }
@@ -862,7 +867,7 @@ const WatchOnlyForm: FC = () => {
         </div>
       )}
 
-      <FormSubmitButton loading={formState.isSubmitting} testID={ImportAccountTestIds.watchOnlyImportButton}>
+      <FormSubmitButton loading={formState.isSubmitting} testID={ImportAccountSelectors.watchOnlyImportButton}>
         {t('importAccount')}
       </FormSubmitButton>
     </form>

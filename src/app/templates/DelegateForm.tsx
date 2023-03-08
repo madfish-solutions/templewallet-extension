@@ -12,7 +12,7 @@ import Money from 'app/atoms/Money';
 import Spinner from 'app/atoms/Spinner/Spinner';
 import { ArtificialError, NotEnoughFundsError, ZeroBalanceError } from 'app/defaults';
 import { useAppEnv } from 'app/env';
-import AdditionalFeeInput from 'app/templates/AdditionalFeeInput';
+import AdditionalFeeInput from 'app/templates/AdditionalFeeInput/AdditionalFeeInput';
 import BakerBanner from 'app/templates/BakerBanner';
 import InFiat from 'app/templates/InFiat';
 import OperationStatus from 'app/templates/OperationStatus';
@@ -432,8 +432,8 @@ const BakerForm: React.FC<BakerFormProps> = ({
           ? {
               testID:
                 abGroup === ABTestGroup.B
-                  ? DelegateFormSelectors.KnownBakerItemButtonSubmitB
-                  : DelegateFormSelectors.KnownBakerItemButtonSubmitA
+                  ? DelegateFormSelectors.KnownBakerItemSubmitB_Button
+                  : DelegateFormSelectors.KnownBakerItemSubmitA_Button
             }
           : {})}
       >
@@ -645,9 +645,9 @@ const KnownDelegatorsList: React.FC<{ setValue: any; triggerValidation: any }> =
           );
 
           if (baker.address === sponsoredBaker) {
-            testId = DelegateFormSelectors.KnownBakerItemButtonA;
+            testId = DelegateFormSelectors.KnownBakerItemA_Button;
             if (abGroup === ABTestGroup.B) {
-              testId = DelegateFormSelectors.KnownBakerItemButtonB;
+              testId = DelegateFormSelectors.KnownBakerItemB_Button;
               classnames = classNames(
                 'hover:bg-gray-100 focus:bg-gray-100',
                 'transition ease-in-out duration-200',

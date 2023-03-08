@@ -5,7 +5,7 @@ import classNames from 'clsx';
 import { TID, T } from 'lib/i18n';
 import { Link } from 'lib/woozie';
 
-import { ImportAccountTestIds } from '../pages/ImportAccount/ImportAccount.test-ids';
+import { ImportAccountSelectors } from '../pages/ImportAccount/ImportAccount.selectors';
 
 type TabDescriptor = {
   slug: string;
@@ -35,7 +35,7 @@ export const TabSwitcher: React.FC<TabSwitcherProps> = ({ className, tabs, activ
             active ? 'text-primary-orange bg-primary-orange bg-opacity-10' : 'hover:bg-gray-100 focus:bg-gray-100',
             'transition ease-in-out duration-200'
           )}
-          testID={ImportAccountTestIds.tabSwitcher}
+          testID={ImportAccountSelectors.tabSwitcher}
         >
           <T id={i18nKey} />
         </Link>

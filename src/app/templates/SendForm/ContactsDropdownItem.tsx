@@ -32,7 +32,7 @@ const ContactsDropdownItem: FC<ContactsDropdownItemProps> = ({ contact, active, 
     <Button
       ref={ref}
       type="button"
-      testID={SendFormSelectors.ContactItemButton}
+      testID={SendFormSelectors.contactItemButton}
       className={classNames(
         'w-full flex items-center',
         'p-2 text-left',

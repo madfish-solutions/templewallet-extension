@@ -21,7 +21,7 @@ import { T } from 'lib/i18n';
 import { blurHandler, checkedHandler, focusHandler } from 'lib/ui/inputHandlers';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 
-import { NewSeedBackupTestIds } from '../pages/NewWallet/create/NewSeedBackup/NewSeedBackup.test-ids';
+import { NewSeedBackupSelectors } from '../pages/NewWallet/create/NewSeedBackup/NewSeedBackup.selectors';
 import usePasswordToggle from './usePasswordToggle.hook';
 
 export const PASSWORD_ERROR_CAPTION = 'PASSWORD_ERROR_CAPTION';
@@ -264,7 +264,7 @@ const SecretBanner: React.FC<SecretBannerProps> = ({ secretBannerDisplayed, hand
         left: 2
       }}
       onClick={handleSecretBannerClick}
-      {...setTestID(NewSeedBackupTestIds.protectedMask)}
+      {...setTestID(NewSeedBackupSelectors.protectedMask)}
     >
       <p
         className={classNames(

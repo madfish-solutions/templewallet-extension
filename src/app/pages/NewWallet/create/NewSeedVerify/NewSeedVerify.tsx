@@ -7,7 +7,7 @@ import { FormField, FormSubmitButton } from 'app/atoms';
 import { setTestID } from 'lib/analytics';
 import { T } from 'lib/i18n';
 
-import { NewSeedVerifyTestIds } from './NewSeedVerify.test-ids';
+import { NewSeedVerifySelectors } from './NewSeedVerify.selectors';
 
 const WORDS_TO_FILL = 2;
 
@@ -106,7 +106,7 @@ export const NewSeedVerify: FC<NewSeedVerifyProps> = ({ seedPhrase, onVerificati
         <FormSubmitButton
           disabled={!filled}
           style={{ display: 'block', width: 384, margin: '8px auto', fontSize: 14, fontWeight: 500 }}
-          testID={NewSeedVerifyTestIds.nextButton}
+          testID={NewSeedVerifySelectors.nextButton}
         >
           <T id="next" />
         </FormSubmitButton>
@@ -144,7 +144,7 @@ const WordsRow = memo<WordsRowProps>(({ allWords, indexToFill, onFill }) => {
           <div key={i} className="p-2">
             <FormField
               label={
-                <span {...setTestID(NewSeedVerifyTestIds.mnemonicWordNumber)}>
+                <span {...setTestID(NewSeedVerifySelectors.mnemonicWordNumber)}>
                   <T id="word" substitutions={i + 1} />
                 </span>
               }
@@ -157,7 +157,7 @@ const WordsRow = memo<WordsRowProps>(({ allWords, indexToFill, onFill }) => {
                     disabled: true,
                     defaultValue: allWords[i]
                   })}
-              testID={NewSeedVerifyTestIds.firstMnemonicInput}
+              testID={NewSeedVerifySelectors.firstMnemonicInput}
             />
           </div>
         );
