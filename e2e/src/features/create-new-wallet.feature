@@ -5,14 +5,14 @@ Feature: Create a new wallet
     And I press Create New Wallet button on the Welcome page
 
     And I am on the NewSeedBackup page
-    And I press Protected Mask on the NewSeedBackup page
+    And I press Protected Mask on the New Seed Back-up page
     And I save my mnemonic
-    And I press I made Seed Phrase Backup Check Box on the NewSeedBackup page
-    And I press Next Button on the NewSeedBackup page
+    And I press I made Seed Phrase Backup Check Box on the New Seed Back-up page
+    And I press Next Button on the New Seed Back-up page
 
     And I am on the VerifyMnemonic page
     And I verify my mnemonic
-    And I press Next Button on the NewSeedVerify page
+    And I press Next Button on the New Seed Verify page
 
     And I am on the SetWallet page
     And I enter defaultPassword into Password Field on the Register Form page

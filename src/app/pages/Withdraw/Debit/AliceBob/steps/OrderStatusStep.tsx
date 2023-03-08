@@ -71,7 +71,7 @@ export const OrderStatusStep: FC<StepProps> = ({ orderInfo, setStep, setOrderInf
           paddingBottom: '0.625rem'
         }}
         disabled={exchangeInProgress}
-        testID={WithdrawSelectors.AliceBobNewSellButton}
+        testID={WithdrawSelectors.aliceBobNewSellButton}
         onClick={newSellButtonHandler}
       >
         <T id="newSell" />

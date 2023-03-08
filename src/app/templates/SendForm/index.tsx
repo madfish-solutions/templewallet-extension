@@ -36,7 +36,7 @@ const SendForm: FC<SendFormProps> = ({ assetSlug = 'tez' }) => {
 
   const handleAssetChange = useCallback(
     (aSlug: string) => {
-      trackEvent(SendFormSelectors.AssetItemButton, AnalyticsEventCategory.ButtonPress);
+      trackEvent(SendFormSelectors.assetItemButton, AnalyticsEventCategory.ButtonPress);
       navigate(`/send/${aSlug}`, HistoryAction.Replace);
     },
     [trackEvent]
@@ -57,7 +57,13 @@ const SendForm: FC<SendFormProps> = ({ assetSlug = 'tez' }) => {
     <>
       {operation && <OperationStatus typeTitle={t('transaction')} operation={operation} />}
 
-      <AssetSelect value={selectedAsset} assets={assets} onChange={handleAssetChange} className="mb-6" />
+      <AssetSelect
+        value={selectedAsset}
+        assets={assets}
+        onChange={handleAssetChange}
+        className="mb-6"
+        testID={SendFormSelectors.assetDropDown}
+      />
 
       <Suspense fallback={<SpinnerSection />}>
         <Form

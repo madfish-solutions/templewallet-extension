@@ -5,10 +5,13 @@ import classNames from 'clsx';
 import SearchField from 'app/templates/SearchField';
 import { t } from 'lib/i18n';
 
-type SearchAssetFieldProps = InputHTMLAttributes<HTMLInputElement> & {
-  value: string;
-  onValueChange: (v: string) => void;
-};
+import { TestIDProps } from '../../lib/analytics';
+
+type SearchAssetFieldProps = InputHTMLAttributes<HTMLInputElement> &
+  TestIDProps & {
+    value: string;
+    onValueChange: (v: string) => void;
+  };
 
 const SearchAssetField: FC<SearchAssetFieldProps> = ({ className, ...rest }) => {
   return (

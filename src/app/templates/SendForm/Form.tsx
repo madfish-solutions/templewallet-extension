@@ -52,6 +52,7 @@ import { useSafeState } from 'lib/ui/hooks';
 
 import ContactsDropdown, { ContactsDropdownProps } from './ContactsDropdown';
 import { FeeSection } from './FeeSection';
+import { SendFormSelectors } from './selectors';
 import { SpinnerSection } from './SpinnerSection';
 
 interface FormData {
@@ -134,6 +135,7 @@ export const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactReque
     },
     [setShouldUseFiat, shoudUseFiat, getValues, assetPrice, setValue]
   );
+
   useEffect(() => {
     if (!canToggleFiat && prevCanToggleFiat.current && shoudUseFiat) {
       setShouldUseFiat(false);
@@ -489,6 +491,7 @@ export const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactReque
           resize: 'none'
         }}
         containerClassName="mb-4"
+        testID={SendFormSelectors.recipientInput}
       />
 
       {resolvedAddress && (
@@ -567,6 +570,7 @@ export const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactReque
         errorCaption={restFormDisplayed && errors.amount?.message}
         containerClassName="mb-4"
         autoFocus={Boolean(maxAmount)}
+        testID={SendFormSelectors.amountInput}
       />
 
       {estimateFallbackDisplayed ? (
@@ -605,6 +609,7 @@ const TokenToFiat: React.FC<TokenToFiatProps> = ({
   toAssetAmount
 }) => {
   if (!amountValue) return null;
+
   return (
     <>
       <br />
@@ -718,8 +723,10 @@ const getBaseFeeError = (baseFee: BigNumber | ArtificialError | undefined, estim
   baseFee instanceof Error ? baseFee : estimateBaseFeeError;
 
 const getFeeError = (estimating: boolean, feeError: any) => (!estimating ? feeError : null);
+
 const getEstimateFallBackDisplayed = (toFilled: boolean | '', baseFee: any, estimating: boolean) =>
   toFilled && !baseFee && estimating;
+
 const getRestFormDisplayed = (toFilled: boolean | '', baseFee: any, estimationError: any) =>
   Boolean(toFilled && (baseFee || estimationError));
 
@@ -729,7 +736,9 @@ const InnerDropDownComponentGuard: React.FC<ContactsDropdownProps> = ({ contacts
 };
 
 const getFilled = (toFilled: boolean | '', toFieldFocused: boolean) => (!toFilled ? toFieldFocused : false);
+
 const getDomainTextError = (canUseDomainNames: boolean) =>
   canUseDomainNames ? 'recipientInputPlaceholderWithDomain' : 'recipientInputPlaceholder';
+
 const getAssetDomainName = (canUseDomainNames: boolean) =>
   canUseDomainNames ? 'tokensRecepientInputDescriptionWithDomain' : 'tokensRecepientInputDescription';

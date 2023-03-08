@@ -4,6 +4,7 @@ import classNames from 'clsx';
 
 import { ReactComponent as ChevronDownIcon } from 'app/icons/chevron-down.svg';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
+import { setTestID, TestIDProps } from 'lib/analytics';
 import { useFocusOnElement } from 'lib/ui/hooks';
 
 import { IconifiedSelectProps, IconifiedSelectPropsBase } from './types';
@@ -20,7 +21,7 @@ interface SearchProps {
   onChange: (value: string) => void;
 }
 
-interface IconifiedSelectFieldProps extends FieldBaseProps {
+interface IconifiedSelectFieldProps extends FieldBaseProps, TestIDProps {
   opened: boolean;
   search?: SearchProps;
   BeforeContent: IconifiedSelectProps<any>['BeforeContent'];
@@ -34,17 +35,17 @@ export const IconifiedSelectField = forwardRef<HTMLDivElement, IconifiedSelectFi
   return <FieldWithNoSearch ref={ref} {...rest} />;
 });
 
-interface FieldWithNoSearchProps extends FieldBaseProps {
+interface FieldWithNoSearchProps extends FieldBaseProps, TestIDProps {
   opened: boolean;
   BeforeContent: IconifiedSelectProps<any>['BeforeContent'];
 }
 
 const FieldWithNoSearch = forwardRef<HTMLDivElement, FieldWithNoSearchProps>((props, ref) => {
-  const { opened, className, style, BeforeContent, ...rest } = props;
+  const { opened, className, style, testID, BeforeContent, ...rest } = props;
 
   return (
     <FieldContainer ref={ref} className={className} style={style} BeforeContent={BeforeContent}>
-      <FieldInnerComponent {...rest} />
+      <FieldInnerComponent testID={testID} {...rest} />
     </FieldContainer>
   );
 });
@@ -54,13 +55,13 @@ interface FieldWithSearchProps extends FieldWithNoSearchProps {
 }
 
 const FieldWithSearch = forwardRef<HTMLDivElement, FieldWithSearchProps>((props, ref) => {
-  const { opened, search, className, style, BeforeContent, ...rest } = props;
+  const { opened, search, className, style, testID, BeforeContent, ...rest } = props;
 
   const searchInputRef = useFocusOnElement<HTMLInputElement>(opened);
 
   return (
     <FieldContainer ref={ref} opened={opened} className={className} style={style} BeforeContent={BeforeContent}>
-      <FieldInnerComponent {...rest} hidden={opened} />
+      <FieldInnerComponent testID={testID} {...rest} hidden={opened} />
 
       <div className={opened ? 'contents' : 'hidden'}>
         <div className="flex items-center pl-5 pr-3 py-3">
@@ -110,12 +111,12 @@ export const FieldContainer = forwardRef<HTMLDivElement, PropsWithChildren<Field
   )
 );
 
-interface FieldInnerComponentProps extends FieldBaseProps {
+interface FieldInnerComponentProps extends FieldBaseProps, TestIDProps {
   hidden?: boolean;
 }
 
 export const FieldInnerComponent = forwardRef<HTMLButtonElement, FieldInnerComponentProps>(
-  ({ Content, value, hidden, dropdown, className, ...rest }, ref) => (
+  ({ Content, value, hidden, dropdown, className, testID, ...rest }, ref) => (
     <button
       ref={ref}
       type="button"
@@ -125,6 +126,7 @@ export const FieldInnerComponent = forwardRef<HTMLButtonElement, FieldInnerCompo
         dropdown ? 'cursor-pointer' : 'cursor-default',
         className
       )}
+      {...setTestID(testID)}
       {...rest}
     >
       <Content option={value} />

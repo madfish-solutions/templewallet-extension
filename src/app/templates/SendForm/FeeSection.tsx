@@ -4,10 +4,11 @@ import BigNumber from 'bignumber.js';
 import { FieldError } from 'react-hook-form';
 
 import { Alert, FormSubmitButton } from 'app/atoms';
-import AdditionalFeeInput from 'app/templates/AdditionalFeeInput';
+import AdditionalFeeInput from 'app/templates/AdditionalFeeInput/AdditionalFeeInput';
 import { t, T } from 'lib/i18n';
 import { useAccount, useGasToken } from 'lib/temple/front';
 
+import { SendFormSelectors } from './selectors';
 import SendErrorAlert from './SendErrorAlert';
 
 interface FeeComponentProps extends FeeAlertPropsBase {
@@ -49,7 +50,11 @@ export const FeeSection: React.FC<FeeComponentProps> = ({
         id="send-fee"
       />
 
-      <FormSubmitButton loading={isSubmitting} disabled={Boolean(estimationError)}>
+      <FormSubmitButton
+        loading={isSubmitting}
+        disabled={Boolean(estimationError)}
+        testID={SendFormSelectors.sendButton}
+      >
         <T id="send" />
       </FormSubmitButton>
     </>

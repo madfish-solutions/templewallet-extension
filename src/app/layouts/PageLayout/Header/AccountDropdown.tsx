@@ -97,7 +97,7 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
         Icon: AddIcon,
         i18nKey: 'createAccount',
         linkTo: '/create-account',
-        testID: AccountDropdownSelectors.CreateOrRestoreAccountButton,
+        testID: AccountDropdownSelectors.createOrRestoreAccountButton,
         onClick: closeDropdown
       },
       {
@@ -105,7 +105,7 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
         Icon: DownloadIcon,
         i18nKey: 'importAccount',
         linkTo: '/import-account',
-        testID: AccountDropdownSelectors.ImportAccountButton,
+        testID: AccountDropdownSelectors.importAccountButton,
         onClick: closeDropdown
       },
       {
@@ -113,7 +113,7 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
         Icon: LinkIcon,
         i18nKey: 'connectLedger',
         linkTo: '/connect-ledger',
-        testID: AccountDropdownSelectors.ConnectLedgerButton,
+        testID: AccountDropdownSelectors.connectLedgerButton,
         onClick: closeDropdown
       },
       {
@@ -121,7 +121,7 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
         Icon: DAppsIcon,
         i18nKey: 'dApps',
         linkTo: '/dApps',
-        testID: AccountDropdownSelectors.DAppsButton,
+        testID: AccountDropdownSelectors.dAppsButton,
         onClick: closeDropdown
       },
       {
@@ -129,7 +129,7 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
         Icon: SettingsIcon,
         i18nKey: 'settings',
         linkTo: '/settings',
-        testID: AccountDropdownSelectors.SettingsButton,
+        testID: AccountDropdownSelectors.settingsButton,
         onClick: closeDropdown
       },
       {
@@ -178,7 +178,7 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
             'hover:opacity-100'
           )}
           onClick={handleLogoutClick}
-          testID={AccountDropdownSelectors.LogoutButton}
+          testID={AccountDropdownSelectors.logoutButton}
         >
           <LockIcon className="mr-1 h-4 w-auto" />
           <T id="lock" />
@@ -239,7 +239,7 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
       <div className="mt-2">
         {actions.map(({ key, Icon, i18nKey, linkTo, testID, onClick }) => {
           const handleClick = () => {
-            trackEvent(AccountDropdownSelectors.ActionButton, AnalyticsEventCategory.ButtonPress, { type: key });
+            trackEvent(AccountDropdownSelectors.actionButton, AnalyticsEventCategory.ButtonPress, { type: key });
             return onClick();
           };
 
@@ -319,7 +319,7 @@ const AccountItem: React.FC<AccountItemProps> = ({ account, selected, gasTokenNa
         !selected && 'opacity-65 hover:opacity-100'
       )}
       onClick={onClick}
-      testID={AccountDropdownSelectors.AccountItemButton}
+      testID={AccountDropdownSelectors.accountItemButton}
     >
       <Identicon type="bottts" hash={publicKeyHash} size={46} className="flex-shrink-0 shadow-xs-white" />
 

@@ -5,23 +5,25 @@ import { AssetIcon } from 'app/templates/AssetIcon';
 import Balance from 'app/templates/Balance';
 import IconifiedSelect, { IconifiedSelectOptionRenderProps } from 'app/templates/IconifiedSelect';
 import InFiat from 'app/templates/InFiat';
+import { TestIDProps } from 'lib/analytics';
 import { T, t } from 'lib/i18n';
 import { useAccount, useAssetMetadata } from 'lib/temple/front';
 import { searchAssetsWithNoMeta, useAllTokensBaseMetadata } from 'lib/temple/front/assets';
 import { getAssetSymbol } from 'lib/temple/metadata';
 
 import { AssetItemContent } from '../AssetItemContent';
+import { SendFormSelectors } from '../SendForm/selectors';
 import { IAsset } from './interfaces';
 import { getSlug } from './utils';
 
-type AssetSelectProps = {
+interface AssetSelectProps extends TestIDProps {
   value: IAsset;
   assets: IAsset[];
   onChange?: (assetSlug: string) => void;
   className?: string;
-};
+}
 
-const AssetSelect: FC<AssetSelectProps> = ({ value, assets, onChange, className }) => {
+const AssetSelect: FC<AssetSelectProps> = ({ value, assets, onChange, className, testID }) => {
   const allTokensBaseMetadata = useAllTokensBaseMetadata();
 
   const searchItems = useCallback(
@@ -52,6 +54,7 @@ const AssetSelect: FC<AssetSelectProps> = ({ value, assets, onChange, className 
         placeholder: t('swapTokenSearchInputPlaceholder'),
         filterItems: searchItems
       }}
+      testID={testID}
     />
   );
 };
@@ -114,7 +117,7 @@ const AssetOptionContent: FC<AssetSelectOptionRenderProps> = ({ option }) => {
     <div className="flex items-center w-full py-1.5">
       <AssetIcon assetSlug={slug} className="mx-2" size={32} />
 
-      <AssetItemContent slug={slug} />
+      <AssetItemContent slug={slug} nameTestID={SendFormSelectors.assetName} />
     </div>
   );
 };

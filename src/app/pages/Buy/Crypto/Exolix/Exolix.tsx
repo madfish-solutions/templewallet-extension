@@ -43,13 +43,13 @@ const BuyCryptoContent: FC = () => {
     let event: ExolixSelectors;
     switch (step) {
       case 2:
-        event = ExolixSelectors.TopupSecondStepSupport;
+        event = ExolixSelectors.topupSecondStepSupportButton;
         break;
       case 3:
-        event = ExolixSelectors.TopupThirdStepSupport;
+        event = ExolixSelectors.topupThirdStepSupportButton;
         break;
       default:
-        event = ExolixSelectors.TopupFourthStepSubmit;
+        event = ExolixSelectors.topupFourthStepSubmitButton;
         break;
     }
     return trackEvent(event, AnalyticsEventCategory.ButtonPress);

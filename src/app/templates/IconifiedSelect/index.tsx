@@ -24,7 +24,8 @@ const IconifiedSelect = <T extends unknown>({
   className,
   padded,
   fieldStyle,
-  search
+  search,
+  testID
 }: IconifiedSelectProps<T>) => {
   const [searchString, setSearchString] = useState<string>();
 
@@ -40,7 +41,7 @@ const IconifiedSelect = <T extends unknown>({
     return (
       <div className={className}>
         <FieldContainer active={false} BeforeContent={BeforeContent}>
-          <FieldInnerComponent Content={FieldContent} value={value} />
+          <FieldInnerComponent Content={FieldContent} value={value} testID={testID} />
         </FieldContainer>
       </div>
     );
@@ -82,6 +83,7 @@ const IconifiedSelect = <T extends unknown>({
             dropdown
             style={fieldStyle}
             onClick={toggleOpened}
+            testID={testID}
             search={
               search && {
                 value: searchString,
