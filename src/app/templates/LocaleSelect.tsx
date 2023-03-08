@@ -109,17 +109,6 @@ const LocaleSelect: FC<LocaleSelectProps> = ({ className }) => {
     [selectedLocale]
   );
 
-  const title = useMemo(
-    () => (
-      <h2 className="mb-4 leading-tight flex flex-col">
-        <span className="text-base font-semibold text-gray-700">
-          <T id="languageAndCountry" />
-        </span>
-      </h2>
-    ),
-    []
-  );
-
   const handleLocaleChange = useCallback(
     ({ code }: LocaleOption) => {
       trackEvent(AnalyticsEventEnum.LanguageChanged, AnalyticsEventCategory.ButtonPress, { code });
@@ -130,6 +119,7 @@ const LocaleSelect: FC<LocaleSelectProps> = ({ className }) => {
 
   return (
     <IconifiedSelect
+      BeforeContent={LocaleTitle}
       FieldContent={LocaleFieldContent}
       OptionContent={LocaleOptionContent}
       getKey={getLocaleCode}
@@ -138,7 +128,6 @@ const LocaleSelect: FC<LocaleSelectProps> = ({ className }) => {
       options={LOCALE_OPTIONS}
       value={value}
       noItemsText={t('noItemsFound')}
-      title={title}
       className={className}
       padded
       fieldStyle={{ minHeight: '3.375rem' }}
@@ -148,6 +137,14 @@ const LocaleSelect: FC<LocaleSelectProps> = ({ className }) => {
 };
 
 export default LocaleSelect;
+
+const LocaleTitle: FC = () => (
+  <h2 className="mb-4 leading-tight flex flex-col">
+    <span className="text-base font-semibold text-gray-700">
+      <T id="languageAndCountry" />
+    </span>
+  </h2>
+);
 
 type SelectItemProps = IconifiedSelectOptionRenderProps<LocaleOption>;
 
@@ -160,9 +157,7 @@ const LocaleFieldContent: FC<SelectItemProps> = ({ option }) => {
     <>
       <LocaleIcon option={option} />
 
-      <div className="flex flex-col items-start py-2 leading-none">
-        <span className="text-xl text-gray-700">{option.label}</span>
-      </div>
+      <span className="text-xl text-gray-700">{option.label}</span>
     </>
   );
 };

@@ -14,6 +14,7 @@ export type { IconifiedSelectOptionRenderProps } from './types';
 const IconifiedSelect = <T extends unknown>({
   FieldContent,
   OptionContent,
+  BeforeContent,
   getKey,
   isDisabled,
   onChange,
@@ -21,7 +22,6 @@ const IconifiedSelect = <T extends unknown>({
   value,
   noItemsText,
   className,
-  title,
   padded,
   fieldStyle,
   search
@@ -36,60 +36,62 @@ const IconifiedSelect = <T extends unknown>({
     return search.filterItems(searchStringDebounced || '');
   }, [searchStringDebounced, options]);
 
-  return (
-    <div className={className}>
-      {title}
-
-      {options.length > 1 ? (
-        <Popper
-          placement="bottom"
-          strategy="fixed"
-          modifiers={[sameWidth]}
-          popup={({ opened, setOpened, toggleOpened }) => (
-            <IconifiedSelectMenu
-              isDisabled={isDisabled}
-              setOpened={setOpened}
-              toggleOpened={toggleOpened}
-              getKey={getKey}
-              onChange={onChange}
-              OptionContent={OptionContent}
-              opened={opened}
-              options={searchedOptions}
-              value={value}
-              padded={padded}
-              noItemsText={noItemsText}
-              search={
-                search && {
-                  value: searchString
-                }
-              }
-            />
-          )}
-        >
-          {({ ref, opened, toggleOpened }) => (
-            <IconifiedSelectField
-              ref={ref as unknown as React.RefObject<HTMLDivElement>}
-              Content={FieldContent}
-              opened={opened}
-              value={value}
-              dropdown
-              style={fieldStyle}
-              onClick={toggleOpened}
-              search={
-                search && {
-                  value: searchString,
-                  placeholder: search?.placeholder,
-                  onChange: setSearchString
-                }
-              }
-            />
-          )}
-        </Popper>
-      ) : (
-        <FieldContainer active={false}>
+  if (options.length < 2)
+    return (
+      <div className={className}>
+        <FieldContainer active={false} BeforeContent={BeforeContent}>
           <FieldInnerComponent Content={FieldContent} value={value} />
         </FieldContainer>
-      )}
+      </div>
+    );
+
+  return (
+    <div className={className}>
+      <Popper
+        placement="bottom"
+        strategy="fixed"
+        modifiers={[sameWidth]}
+        popup={({ opened, setOpened, toggleOpened }) => (
+          <IconifiedSelectMenu
+            isDisabled={isDisabled}
+            setOpened={setOpened}
+            toggleOpened={toggleOpened}
+            getKey={getKey}
+            onChange={onChange}
+            OptionContent={OptionContent}
+            opened={opened}
+            options={searchedOptions}
+            value={value}
+            padded={padded}
+            noItemsText={noItemsText}
+            search={
+              search && {
+                value: searchString
+              }
+            }
+          />
+        )}
+      >
+        {({ ref, opened, toggleOpened }) => (
+          <IconifiedSelectField
+            ref={ref as unknown as React.RefObject<HTMLDivElement>}
+            Content={FieldContent}
+            BeforeContent={BeforeContent}
+            opened={opened}
+            value={value}
+            dropdown
+            style={fieldStyle}
+            onClick={toggleOpened}
+            search={
+              search && {
+                value: searchString,
+                placeholder: search?.placeholder,
+                onChange: setSearchString
+              }
+            }
+          />
+        )}
+      </Popper>
     </div>
   );
 };

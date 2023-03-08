@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback, FC } from 'react';
+import React, { useCallback, FC } from 'react';
 
 import { AnalyticsEventCategory, AnalyticsEventEnum, useAnalytics } from 'lib/analytics';
 import { FIAT_CURRENCIES, FiatCurrencyOption, getFiatCurrencyKey, useFiatCurrency } from 'lib/fiat-currency';
@@ -17,17 +17,6 @@ const FiatCurrencySelect: FC<FiatCurrencySelectProps> = ({ className }) => {
 
   const value = selectedFiatCurrency;
 
-  const title = useMemo(
-    () => (
-      <h2 className="mb-4 leading-tight flex flex-col">
-        <span className="text-base font-semibold text-gray-700">
-          <T id="fiatCurrency" />
-        </span>
-      </h2>
-    ),
-    []
-  );
-
   const handleFiatCurrencyChange = useCallback(
     (fiatOption: FiatCurrencyOption) => {
       trackEvent(AnalyticsEventEnum.FiatCurrencyChanged, AnalyticsEventCategory.ButtonPress, { name: fiatOption.name });
@@ -38,6 +27,7 @@ const FiatCurrencySelect: FC<FiatCurrencySelectProps> = ({ className }) => {
 
   return (
     <IconifiedSelect
+      BeforeContent={FiatCurrencyTitle}
       FieldContent={FiatCurrencyFieldContent}
       OptionContent={FiatCurrencyOptionContent}
       getKey={getFiatCurrencyKey}
@@ -45,7 +35,6 @@ const FiatCurrencySelect: FC<FiatCurrencySelectProps> = ({ className }) => {
       options={FIAT_CURRENCIES}
       value={value}
       noItemsText={t('noItemsFound')}
-      title={title}
       className={className}
       padded
       fieldStyle={{ minHeight: '3.375rem' }}
@@ -55,6 +44,14 @@ const FiatCurrencySelect: FC<FiatCurrencySelectProps> = ({ className }) => {
 };
 
 export default FiatCurrencySelect;
+
+const FiatCurrencyTitle: FC = () => (
+  <h2 className="mb-4 leading-tight flex flex-col">
+    <span className="text-base font-semibold text-gray-700">
+      <T id="fiatCurrency" />
+    </span>
+  </h2>
+);
 
 type SelectItemProps = IconifiedSelectOptionRenderProps<FiatCurrencyOption>;
 
@@ -72,9 +69,7 @@ const FiatCurrencyFieldContent: FC<SelectItemProps> = ({ option }) => {
     <>
       <FiatCurrencyIcon option={option} />
 
-      <div className="flex flex-col items-start py-2 leading-none">
-        <span className="text-xl text-gray-700">{option.name}</span>
-      </div>
+      <span className="text-xl text-gray-700">{option.name}</span>
     </>
   );
 };
@@ -84,7 +79,7 @@ const FiatCurrencyOptionContent: FC<SelectItemProps> = ({ option }) => {
     <>
       <FiatCurrencyIcon option={option} />
 
-      <div className="relative w-full text-lg text-gray-700">
+      <div className="w-full text-lg text-gray-700">
         {option.name} ({option.fullname})
       </div>
     </>

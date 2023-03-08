@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useMemo } from 'react';
+import React, { FC, useCallback } from 'react';
 
 import Money from 'app/atoms/Money';
 import { AssetIcon } from 'app/templates/AssetIcon';
@@ -29,21 +29,6 @@ const AssetSelect: FC<AssetSelectProps> = ({ value, assets, onChange, className 
     [assets]
   );
 
-  const title = useMemo(
-    () => (
-      <h2 className="mb-4 leading-tight flex flex-col">
-        <span className="text-base font-semibold text-gray-700">
-          <T id="asset" />
-        </span>
-
-        <span className="mt-1 text-xs font-light text-gray-600" style={{ maxWidth: '90%' }}>
-          <T id="selectAnotherAssetPrompt" />
-        </span>
-      </h2>
-    ),
-    []
-  );
-
   const handleChange = useCallback(
     (asset: IAsset) => {
       onChange?.(getSlug(asset));
@@ -53,6 +38,7 @@ const AssetSelect: FC<AssetSelectProps> = ({ value, assets, onChange, className 
 
   return (
     <IconifiedSelect
+      BeforeContent={AssetSelectTitle}
       FieldContent={AssetFieldContent}
       OptionContent={AssetOptionContent}
       getKey={getSlug}
@@ -60,7 +46,6 @@ const AssetSelect: FC<AssetSelectProps> = ({ value, assets, onChange, className 
       options={assets}
       value={value}
       noItemsText={t('noAssetsFound')}
-      title={title}
       className={className}
       fieldStyle={{ minHeight: '4.5rem' }}
       search={{
@@ -72,6 +57,18 @@ const AssetSelect: FC<AssetSelectProps> = ({ value, assets, onChange, className 
 };
 
 export default AssetSelect;
+
+const AssetSelectTitle: FC = () => (
+  <h2 className="mb-4 leading-tight flex flex-col">
+    <span className="text-base font-semibold text-gray-700">
+      <T id="asset" />
+    </span>
+
+    <span className="mt-1 text-xs font-light text-gray-600" style={{ maxWidth: '90%' }}>
+      <T id="selectAnotherAssetPrompt" />
+    </span>
+  </h2>
+);
 
 type AssetSelectOptionRenderProps = IconifiedSelectOptionRenderProps<IAsset>;
 

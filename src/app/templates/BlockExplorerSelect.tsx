@@ -30,17 +30,6 @@ const BlockExplorerSelect: FC<BlockExplorerSelectProps> = ({ className }) => {
 
   const searchItems = useCallback((searchString: string) => searchBlockExplorer(searchString, options), [options]);
 
-  const title = useMemo(
-    () => (
-      <h2 className="mb-4 leading-tight flex flex-col">
-        <span className="text-base font-semibold text-gray-700">
-          <T id="blockExplorer" />
-        </span>
-      </h2>
-    ),
-    []
-  );
-
   const handleBlockExplorerChange = useCallback(
     (option: BlockExplorer) => {
       setExplorerId(option.id);
@@ -50,6 +39,7 @@ const BlockExplorerSelect: FC<BlockExplorerSelectProps> = ({ className }) => {
 
   return (
     <IconifiedSelect
+      BeforeContent={BlockExplorerTitle}
       FieldContent={BlockExplorerFieldContent}
       OptionContent={BlockExplorerOptionContent}
       getKey={getBlockExplorerId}
@@ -57,7 +47,6 @@ const BlockExplorerSelect: FC<BlockExplorerSelectProps> = ({ className }) => {
       options={options}
       value={explorer}
       noItemsText={t('noItemsFound')}
-      title={title}
       className={className}
       padded
       fieldStyle={{ minHeight: '3.375rem' }}
@@ -68,6 +57,14 @@ const BlockExplorerSelect: FC<BlockExplorerSelectProps> = ({ className }) => {
 
 export default BlockExplorerSelect;
 
+const BlockExplorerTitle: FC = () => (
+  <h2 className="mb-4 leading-tight flex flex-col">
+    <span className="text-base font-semibold text-gray-700">
+      <T id="blockExplorer" />
+    </span>
+  </h2>
+);
+
 const BlockExplorerIcon: FC<IconifiedSelectOptionRenderProps<BlockExplorer>> = ({ option: { id, name } }) => (
   <Flag alt={name} className="ml-2 mr-3" src={browser.runtime.getURL(`/misc/explorer-logos/${id}.ico`)} />
 );
@@ -77,9 +74,7 @@ const BlockExplorerFieldContent: FC<IconifiedSelectOptionRenderProps<BlockExplor
     <>
       <BlockExplorerIcon option={option} />
 
-      <div className="flex flex-col items-start py-2 leading-none">
-        <span className="text-xl text-gray-700">{option.name}</span>
-      </div>
+      <span className="text-xl text-gray-700">{option.name}</span>
     </>
   );
 };
@@ -89,7 +84,7 @@ const BlockExplorerOptionContent: FC<IconifiedSelectOptionRenderProps<BlockExplo
     <>
       <BlockExplorerIcon option={option} />
 
-      <div className="relative w-full text-lg text-gray-700">{option.name}</div>
+      <div className="w-full text-lg text-gray-700">{option.name}</div>
     </>
   );
 };

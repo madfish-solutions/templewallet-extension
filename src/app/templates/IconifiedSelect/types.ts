@@ -1,17 +1,11 @@
-import { ComponentType, ReactNode } from 'react';
+import { ComponentType } from 'react';
 
-/** TODO: Rename */
 export type IconifiedSelectOptionRenderProps<T> = {
   option: T;
   index?: number;
 };
 
-export type OptionContentComponentProps<T> = {
-  option: T;
-  index?: number;
-};
-
-export type OptionContentComponent<T> = ComponentType<OptionContentComponentProps<T>>;
+type OptionContentComponent<T> = ComponentType<IconifiedSelectOptionRenderProps<T>>;
 
 export interface IconifiedSelectPropsBase<T> {
   OptionContent: OptionContentComponent<T>;
@@ -26,8 +20,8 @@ export interface IconifiedSelectPropsBase<T> {
 
 export interface IconifiedSelectProps<T> extends IconifiedSelectPropsBase<T> {
   FieldContent: OptionContentComponent<T>;
+  BeforeContent?: ComponentType<{ opened: boolean }>;
   className?: string;
-  title: ReactNode;
   fieldStyle?: React.CSSProperties;
   search?: {
     placeholder?: string;
