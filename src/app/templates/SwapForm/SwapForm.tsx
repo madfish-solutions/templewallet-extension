@@ -18,6 +18,7 @@ import OperationStatus from 'app/templates/OperationStatus';
 import { useFormAnalytics } from 'lib/analytics';
 import { T, t } from 'lib/i18n';
 import { ROUTING_FEE_RATIO } from 'lib/route3/constants';
+import { getPercentageRatio } from 'lib/route3/utils/get-percentage-ratio';
 import { getRoutingFeeTransferParams } from 'lib/route3/utils/get-routing-fee-transfer-params';
 import { ROUTING_FEE_PERCENT } from 'lib/swap-router/config';
 import { useAccount, useAssetMetadata, useTezos } from 'lib/temple/front';
@@ -70,7 +71,7 @@ export const SwapForm: FC = () => {
   const isSubmitButtonPressedRef = useRef(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const slippageRatio = useMemo(() => (100 - (slippageTolerance ?? 0)) / 100, [slippageTolerance]);
+  const slippageRatio = useMemo(() => getPercentageRatio(slippageTolerance ?? 0), [slippageTolerance]);
   const { routingFeeAtomic, minimumReceivedAmountAtomic } = useMemo(() => {
     if (swapParams.output !== undefined) {
       const swapOutputAtomic = tokensToAtoms(new BigNumber(swapParams.output), outputAssetMetadata.decimals);
