@@ -15,7 +15,7 @@ import { useSyncTokens } from 'lib/temple/front/sync-tokens';
 export const useLoadBalances = () => {
   const dispatch = useDispatch();
 
-  const chainId = useChainId(true)!;
+  const chainId = useChainId(true) ?? '';
   const isSyncing = useSyncTokens();
   const network = useNetwork();
 
@@ -24,16 +24,18 @@ export const useLoadBalances = () => {
   const { data: tokens = [] } = useDisplayedFungibleTokens(chainId, publicKeyHash);
 
   useEffect(() => {
-    if (apiUrl !== undefined) {
-      dispatch(loadTokensBalancesFromTzktAction.submit({ apiUrl, accountPublicKeyHash: publicKeyHash }));
-    } else {
-      dispatch(
-        loadTokensBalancesFromChainAction.submit({
-          rpcUrl: network.rpcBaseURL,
-          tokens,
-          accountPublicKeyHash: publicKeyHash
-        })
-      );
+    if (!isSyncing) {
+      if (apiUrl !== undefined) {
+        dispatch(loadTokensBalancesFromTzktAction.submit({ apiUrl, accountPublicKeyHash: publicKeyHash }));
+      } else {
+        dispatch(
+          loadTokensBalancesFromChainAction.submit({
+            rpcUrl: network.rpcBaseURL,
+            tokens,
+            accountPublicKeyHash: publicKeyHash
+          })
+        );
+      }
     }
   }, [isSyncing, chainId, publicKeyHash, apiUrl, network.rpcBaseURL]);
 };

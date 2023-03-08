@@ -162,7 +162,7 @@ export function useTezosRef() {
 
 export function useChainId(suspense?: boolean) {
   const tezos = useTezos();
-  const rpcUrl = useMemo(() => tezos.rpc.getRpcUrl(), [tezos]);
+  const rpcUrl = useMemo(() => tezos.rpc?.getRpcUrl(), [tezos]);
   return useCustomChainId(rpcUrl, suspense);
 }
 

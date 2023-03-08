@@ -22,6 +22,7 @@ import Welcome from 'app/pages/Welcome/Welcome';
 import { usePageRouterAnalytics } from 'lib/analytics';
 import { Notifications, NotificationsItem } from 'lib/notifications';
 import { useTempleClient } from 'lib/temple/front';
+import { useLoadBalances } from 'lib/temple/front/load-balances';
 import * as Woozie from 'lib/woozie';
 
 import RootSuspenseFallback from './a11y/RootSuspenseFallback';
@@ -135,6 +136,7 @@ export const PageRouter: FC = () => {
   );
 
   usePageRouterAnalytics(pathname, search, ctx.ready);
+  useLoadBalances();
 
   return useMemo(() => Woozie.resolve(ROUTE_MAP, pathname, ctx), [pathname, ctx]);
 };

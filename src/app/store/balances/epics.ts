@@ -5,7 +5,7 @@ import { catchError, forkJoin, from, map, Observable, of, switchMap } from 'rxjs
 import { Action } from 'ts-action';
 import { ofType, toPayload } from 'ts-action-operators';
 
-import { fecthTezosBalanceFromTzkt, fecthTokensBalancesFromTzkt } from 'lib/apis/tzkt/api';
+import { fecthTezosBalanceFromTzkt, fetchAllTokensBalancesFromTzkt } from 'lib/apis/tzkt/api';
 import { fetchBalance, fetchTezosBalanceAtomic, toTokenSlug } from 'lib/temple/assets';
 import { atomsToTokens } from 'lib/temple/helpers';
 import { IAccountToken } from 'lib/temple/repo';
@@ -20,7 +20,7 @@ const YUPANA_TOKENS = [
 const YUPANA_MULTIPLIER = 18;
 
 const fetchTokensBalances$ = (apiUrl: string, account: string) =>
-  forkJoin([fecthTezosBalanceFromTzkt(apiUrl, account), fecthTokensBalancesFromTzkt(apiUrl, account)]);
+  forkJoin([fecthTezosBalanceFromTzkt(apiUrl, account), fetchAllTokensBalancesFromTzkt(apiUrl, account)]);
 
 const loadTokensBalancesFromTzktEpic: Epic = (action$: Observable<Action>) =>
   action$.pipe(
@@ -53,12 +53,17 @@ const fetchTokensBalancesFromChain = async (tokens: Array<IAccountToken>, rpcUrl
 
   const balances: Record<string, string> = {};
 
-  for (const { tokenSlug } of tokens) {
-    const latestBalance = await fetchBalance(tezos, tokenSlug, publicKeyHash);
-    balances[tokenSlug] = latestBalance.toFixed();
-  }
+  const tokenBalancesPromise = tokens.map(async ({ tokenSlug }) => await fetchBalance(tezos, tokenSlug, publicKeyHash));
+  const [tezosBalance, ...tokensBalancesResolved] = await Promise.all([
+    fetchTezosBalanceAtomic(tezos, publicKeyHash),
+    ...tokenBalancesPromise
+  ]);
 
-  const tezosBalance = await fetchTezosBalanceAtomic(tezos, publicKeyHash);
+  tokensBalancesResolved.forEach((balance, index) => {
+    const { tokenSlug } = tokens[index];
+    balances[tokenSlug] = balance.toFixed();
+  });
+
   balances.tez = tezosBalance.toFixed();
 
   return balances;

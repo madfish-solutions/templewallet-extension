@@ -154,14 +154,43 @@ export const fecthTezosBalanceFromTzkt = (
   apiUrl: string,
   account: string
 ): Promise<{ frozenDeposit?: string; balance: string }> =>
-  fetch(`${apiUrl}/v1/accounts/${account}`)
-    .then(res => res.json())
-    .then(({ frozenDeposit, balance }) => ({ frozenDeposit, balance }));
+  axios
+    .get(`${apiUrl}/v1/accounts/${account}`)
+    .then(({ data: { frozenDeposit, balance } }) => ({ frozenDeposit, balance }));
 
 const LIMIT = 10000;
 const TEZOS_DOMAINS_NAME_REGISTRY_ADDRESS = 'KT1GBZmSxmnKJXGMdMLbugPfLyUPmuLSMwKS';
 
-export const fecthTokensBalancesFromTzkt = (apiUrl: string, account: string): Promise<Array<TzktAccountToken>> =>
-  fetch(
-    `${apiUrl}/v1/tokens/balances?account=${account}&token.contract.ne=${TEZOS_DOMAINS_NAME_REGISTRY_ADDRESS}&balance.gt=0&limit=${LIMIT}`
-  ).then(res => res.json());
+const fecthTokensBalancesFromTzktOnce = (
+  apiUrl: string,
+  account: string,
+  limit: number,
+  offset = 0
+): Promise<Array<TzktAccountToken>> =>
+  axios
+    .get<Array<TzktAccountToken>>(`${apiUrl}/v1/tokens/balances`, {
+      params: {
+        account,
+        'token.contract.ne': TEZOS_DOMAINS_NAME_REGISTRY_ADDRESS,
+        'balance.gt': 0,
+        limit,
+        offset
+      }
+    })
+    .then(({ data }) => data);
+
+export const fetchAllTokensBalancesFromTzkt = async (selectedRpcUrl: string, account: string) => {
+  const balances: TzktAccountToken[] = [];
+
+  await (async function recourse(offset: number) {
+    const data = await fecthTokensBalancesFromTzktOnce(selectedRpcUrl, account, LIMIT, offset);
+
+    balances.push(...data);
+
+    if (data.length === LIMIT) {
+      await recourse(offset + LIMIT);
+    }
+  })(0);
+
+  return balances;
+};

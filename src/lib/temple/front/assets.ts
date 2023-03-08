@@ -176,21 +176,6 @@ const defaultAllTokensBaseMetadata = {
     decimals: 6,
     symbol: 'TEZ',
     name: 'Tezos'
-  },
-  KT1Rk86CX85DjBKmuyBhrCyNsHyudHVtASec_0: {
-    decimals: 6,
-    symbol: 'y-XTZ',
-    name: 'Yupana XTZ'
-  },
-  KT1Rk86CX85DjBKmuyBhrCyNsHyudHVtASec_4: {
-    decimals: 8,
-    symbol: 'y-tzBTC',
-    name: 'Yupana tzBTC'
-  },
-  KT1Rk86CX85DjBKmuyBhrCyNsHyudHVtASec_5: {
-    decimals: 12,
-    symbol: 'y-uBTC',
-    name: 'Yupana uBTC'
   }
 };
 const enqueueSetAllTokensBaseMetadata = createQueue();

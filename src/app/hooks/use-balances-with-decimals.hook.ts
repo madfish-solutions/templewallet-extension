@@ -7,7 +7,7 @@ import { useAllTokensBaseMetadata } from 'lib/temple/front';
 import { atomsToTokens } from 'lib/temple/helpers';
 import { TEZOS_METADATA } from 'lib/temple/metadata';
 
-export const usePrepareBalances = () => {
+export const useBalancesWithDecimals = () => {
   const { data: balancesRaw } = useBalancesSelector();
   const allTokensMetadata = useAllTokensBaseMetadata();
 
@@ -17,10 +17,14 @@ export const usePrepareBalances = () => {
     const balancesBN: Record<string, BigNumber> = {};
 
     for (const tokenSlug in balancesRaw) {
-      balancesBN[tokenSlug] = atomsToTokens(
-        new BigNumber(balancesRaw[tokenSlug]),
-        allTokensMetadata[tokenSlug]?.decimals ?? TEZOS_METADATA.decimals
-      );
+      if (tokenSlug !== 'tez') {
+        balancesBN[tokenSlug] = atomsToTokens(
+          new BigNumber(balancesRaw[tokenSlug]),
+          allTokensMetadata[tokenSlug]?.decimals ?? 0
+        );
+      } else {
+        balancesBN[tokenSlug] = atomsToTokens(new BigNumber(balancesRaw[tokenSlug]), TEZOS_METADATA.decimals);
+      }
     }
 
     setBalances(balancesBN);
