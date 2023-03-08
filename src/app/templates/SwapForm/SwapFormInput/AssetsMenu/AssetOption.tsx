@@ -27,14 +27,16 @@ export const AssetOption: FC<Props> = ({ assetSlug, selected, style, onClick }) 
       type="button"
       style={style}
       className={classNames(
-        'py-3 px-4 w-full flex items-center rounded',
+        'py-1.5 px-2 w-full flex items-center rounded',
         selected ? 'bg-gray-200' : 'hover:bg-gray-100'
       )}
       onClick={handleClick}
     >
-      <AssetIcon assetSlug={assetSlug} size={32} className="mr-2" />
+      <AssetIcon assetSlug={assetSlug} size={32} className="mx-2" />
 
+      {/* <div className="flex items-center"> */}
       <AssetItemContent slug={assetSlug} metadata={assetMetadata} />
+      {/* </div> */}
     </button>
   );
 };

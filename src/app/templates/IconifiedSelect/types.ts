@@ -1,15 +1,20 @@
 import { ComponentType, ReactNode } from 'react';
 
+/** TODO: Rename */
 export type IconifiedSelectOptionRenderProps<T> = {
   option: T;
   index?: number;
 };
 
-export type IconifiedSelectRenderComponent<T> = ComponentType<IconifiedSelectOptionRenderProps<T>>;
+export type OptionContentComponentProps<T> = {
+  option: T;
+  index?: number;
+};
+
+export type OptionContentComponent<T> = ComponentType<OptionContentComponentProps<T>>;
 
 export interface IconifiedSelectPropsBase<T> {
-  Icon: IconifiedSelectRenderComponent<T>;
-  OptionInMenuContent: IconifiedSelectRenderComponent<T>;
+  OptionContent: OptionContentComponent<T>;
   getKey: (option: T) => string | number | undefined;
   isDisabled?: (option: T) => boolean;
   onChange?: (a: T) => void;
@@ -20,8 +25,7 @@ export interface IconifiedSelectPropsBase<T> {
 }
 
 export interface IconifiedSelectProps<T> extends IconifiedSelectPropsBase<T> {
-  OptionSelectedIcon: IconifiedSelectRenderComponent<T>;
-  OptionSelectedContent: IconifiedSelectRenderComponent<T>;
+  FieldContent: OptionContentComponent<T>;
   className?: string;
   title: ReactNode;
   fieldStyle?: React.CSSProperties;

@@ -1,6 +1,5 @@
 import React, { useMemo, useCallback, FC } from 'react';
 
-import classNames from 'clsx';
 import browser from 'webextension-polyfill';
 
 import Flag from 'app/atoms/Flag';
@@ -112,7 +111,7 @@ const LocaleSelect: FC<LocaleSelectProps> = ({ className }) => {
 
   const title = useMemo(
     () => (
-      <h2 className={classNames('mb-4', 'leading-tight', 'flex flex-col')}>
+      <h2 className="mb-4 leading-tight flex flex-col">
         <span className="text-base font-semibold text-gray-700">
           <T id="languageAndCountry" />
         </span>
@@ -131,10 +130,8 @@ const LocaleSelect: FC<LocaleSelectProps> = ({ className }) => {
 
   return (
     <IconifiedSelect
-      Icon={LocaleIcon}
-      OptionSelectedIcon={LocaleIcon}
-      OptionInMenuContent={LocaleInMenuContent}
-      OptionSelectedContent={LocaleSelectContent}
+      FieldContent={LocaleFieldContent}
+      OptionContent={LocaleOptionContent}
       getKey={getLocaleCode}
       isDisabled={localeIsDisabled}
       onChange={handleLocaleChange}
@@ -152,38 +149,41 @@ const LocaleSelect: FC<LocaleSelectProps> = ({ className }) => {
 
 export default LocaleSelect;
 
-const LocaleIcon: FC<IconifiedSelectOptionRenderProps<LocaleOption>> = ({ option: { flagName, code } }) => (
+type SelectItemProps = IconifiedSelectOptionRenderProps<LocaleOption>;
+
+const LocaleIcon: FC<SelectItemProps> = ({ option: { flagName, code } }) => (
   <Flag alt={code} className="ml-2 mr-3" src={browser.runtime.getURL(`/misc/country-flags/${flagName}.svg`)} />
 );
 
-const LocaleInMenuContent: FC<IconifiedSelectOptionRenderProps<LocaleOption>> = ({ option: { disabled, label } }) => {
+const LocaleFieldContent: FC<SelectItemProps> = ({ option }) => {
   return (
-    <div className={classNames('relative w-full text-lg text-gray-700')}>
-      {label}
+    <>
+      <LocaleIcon option={option} />
 
-      {disabled && (
-        <div className={classNames('absolute top-0 bottom-0 right-0', 'flex items-center')}>
-          <div
-            className={classNames(
-              'mr-2 px-1',
-              'bg-orange-500 rounded-sm shadow-md',
-              'text-white',
-              'text-xs font-semibold uppercase'
-            )}
-          >
-            <T id="soon" />
-          </div>
-        </div>
-      )}
-    </div>
+      <div className="flex flex-col items-start py-2 leading-none">
+        <span className="text-xl text-gray-700">{option.label}</span>
+      </div>
+    </>
   );
 };
 
-const LocaleSelectContent: FC<IconifiedSelectOptionRenderProps<LocaleOption>> = ({ option }) => {
+const LocaleOptionContent: FC<SelectItemProps> = ({ option }) => {
   return (
-    <div className="flex flex-col items-start py-2">
-      <span className="text-xl text-gray-700">{option.label}</span>
-    </div>
+    <>
+      <LocaleIcon option={option} />
+
+      <div className="relative w-full text-lg text-gray-700">
+        {option.label}
+
+        {option.disabled && (
+          <div className="absolute top-0 bottom-0 right-0 flex items-center">
+            <div className="mr-2 px-1 bg-orange-500 rounded-sm shadow-md text-white text-xs font-semibold uppercase">
+              <T id="soon" />
+            </div>
+          </div>
+        )}
+      </div>
+    </>
   );
 };
 

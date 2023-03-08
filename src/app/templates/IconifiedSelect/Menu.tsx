@@ -27,8 +27,7 @@ export const IconifiedSelectMenu = <T extends unknown>(props: Props<T>) => {
     setOpened,
     onChange,
     getKey,
-    Icon,
-    OptionInMenuContent
+    OptionContent
   } = props;
 
   const withSearch = Boolean(search);
@@ -61,8 +60,7 @@ export const IconifiedSelectMenu = <T extends unknown>(props: Props<T>) => {
             value={option}
             selected={getKey(option) === getKey(value)}
             onClick={handleOptionClick}
-            Icon={Icon}
-            OptionInMenuContent={OptionInMenuContent}
+            OptionContent={OptionContent}
             padded={padded}
             withSearch={withSearch}
           />
@@ -83,7 +81,7 @@ export const IconifiedSelectMenu = <T extends unknown>(props: Props<T>) => {
   );
 };
 
-type IconifiedSelectOptionProps<T> = Pick<IconifiedSelectProps<T>, 'Icon' | 'OptionInMenuContent' | 'value'> & {
+type IconifiedSelectOptionProps<T> = Pick<IconifiedSelectProps<T>, 'OptionContent' | 'value'> & {
   disabled?: boolean;
   value: T;
   selected: boolean;
@@ -93,7 +91,7 @@ type IconifiedSelectOptionProps<T> = Pick<IconifiedSelectProps<T>, 'Icon' | 'Opt
 };
 
 const IconifiedSelectOption = <T extends unknown>(props: IconifiedSelectOptionProps<T>) => {
-  const { disabled, value, selected, padded, withSearch, onClick, Icon, OptionInMenuContent } = props;
+  const { disabled, value, selected, padded, withSearch, onClick, OptionContent } = props;
 
   const handleClick = useCallback(() => {
     onClick?.(value);
@@ -103,19 +101,16 @@ const IconifiedSelectOption = <T extends unknown>(props: IconifiedSelectOptionPr
     <button
       type="button"
       className={classNames(
-        'flex items-center w-full py-3 px-4 text-left rounded transition easy-in-out duration-200',
+        'flex items-center w-full py-1.5 px-2 text-left rounded transition easy-in-out duration-200',
         padded && 'mb-1',
         selected ? 'bg-gray-200' : !disabled && 'hover:bg-gray-100',
-        disabled && 'opacity-25',
-        disabled ? 'cursor-default' : 'cursor-pointer'
+        disabled ? 'opacity-25 cursor-default' : 'cursor-pointer'
       )}
       disabled={disabled}
       autoFocus={!withSearch && selected}
       onClick={disabled ? undefined : handleClick}
     >
-      <Icon option={value} />
-
-      <OptionInMenuContent option={value} />
+      <OptionContent option={value} />
     </button>
   );
 };

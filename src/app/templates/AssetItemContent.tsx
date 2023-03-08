@@ -36,13 +36,13 @@ interface AssetItemContentComponentProps extends AssetItemContentWithUseMetaProp
 
 const AssetItemContentComponent: FC<AssetItemContentComponentProps> = ({ slug, metadata = null, publicKeyHash }) => (
   <>
-    <div className="flex flex-col items-start mr-2">
-      <span className="text-gray-910 text-lg">{getAssetSymbol(metadata)}</span>
+    <div className="flex flex-col items-start mr-2 leading-none">
+      <span className="text-gray-910 text-lg mb-2">{getAssetSymbol(metadata)}</span>
       <span className="text-gray-600 text-xs">{getAssetName(metadata)}</span>
     </div>
 
-    <div className="flex-1 flex flex-col items-end text-right">
-      <span className="text-gray-910 text-lg">
+    <div className="flex-1 flex flex-col items-end text-right leading-none">
+      <span className="text-gray-910 text-lg mb-2">
         <Balance assetSlug={slug} address={publicKeyHash}>
           {balance => (
             <Money smallFractionFont={false} tooltip={false}>

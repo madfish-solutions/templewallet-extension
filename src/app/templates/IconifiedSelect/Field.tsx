@@ -6,11 +6,11 @@ import { ReactComponent as ChevronDownIcon } from 'app/icons/chevron-down.svg';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
 import { useFocusOnElement } from 'lib/ui/hooks';
 
-import { IconifiedSelectPropsBase, IconifiedSelectRenderComponent } from './types';
+import { IconifiedSelectPropsBase, OptionContentComponent } from './types';
 
 type FieldBaseProps = HTMLAttributes<HTMLButtonElement> &
-  Pick<IconifiedSelectPropsBase<any>, 'Icon' | 'value'> & {
-    Content: IconifiedSelectRenderComponent<any>;
+  Pick<IconifiedSelectPropsBase<any>, 'value'> & {
+    Content: OptionContentComponent<any>;
     dropdown?: boolean;
   };
 
@@ -64,6 +64,7 @@ const FieldWithSearch = forwardRef<HTMLDivElement, FieldWithSearchProps>((props,
         <div className="flex items-center pl-5 pr-3 py-3">
           <SearchIcon className="w-6 h-auto text-gray-500 stroke-current stroke-2" />
         </div>
+
         <div className="text-lg flex flex-1 items-stretch">
           <div className="flex-1 flex items-stretch mr-2">
             <input
@@ -107,25 +108,19 @@ interface FieldInnerComponentProps extends FieldBaseProps {
 }
 
 export const FieldInnerComponent = forwardRef<HTMLButtonElement, FieldInnerComponentProps>(
-  ({ Content, Icon, value, hidden, dropdown, className, ...rest }, ref) => (
+  ({ Content, value, hidden, dropdown, className, ...rest }, ref) => (
     <button
       ref={ref}
       type="button"
       className={classNames(
-        'w-full p-2 flex items-center',
+        'w-full p-2 flex items-center font-light',
         hidden && 'hidden',
         dropdown ? 'cursor-pointer' : 'cursor-default',
         className
       )}
       {...rest}
     >
-      <Icon option={value} />
-
-      <div className="font-light leading-none">
-        <div className="flex items-center">
-          <Content option={value} />
-        </div>
-      </div>
+      <Content option={value} />
 
       {dropdown && (
         <>

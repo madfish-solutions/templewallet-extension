@@ -68,10 +68,9 @@ export const AssetsMenu: FC<Props> = ({
       opened={opened}
       className="origin-top overflow-x-hidden overflow-y-auto"
       style={{
-        maxHeight: '15.75rem',
+        maxHeight: '15.125rem',
         backgroundColor: 'white',
-        borderColor: '#e2e8f0',
-        padding: 0
+        borderColor: '#e2e8f0'
       }}
     >
       {isShowSearchOption && <AssetOption assetSlug={searchAssetSlug} onClick={handleSearchOptionClick} />}
@@ -96,7 +95,7 @@ export const AssetsMenu: FC<Props> = ({
         width={dropdownWidth}
         height={240}
         rowCount={options.length}
-        rowHeight={65}
+        rowHeight={64}
         rowRenderer={({ key, index, style }) => {
           const option = options[index];
 

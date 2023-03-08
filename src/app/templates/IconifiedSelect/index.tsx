@@ -12,10 +12,8 @@ import { IconifiedSelectProps } from './types';
 export type { IconifiedSelectOptionRenderProps } from './types';
 
 const IconifiedSelect = <T extends unknown>({
-  Icon,
-  OptionInMenuContent,
-  OptionSelectedIcon,
-  OptionSelectedContent,
+  FieldContent,
+  OptionContent,
   getKey,
   isDisabled,
   onChange,
@@ -50,13 +48,12 @@ const IconifiedSelect = <T extends unknown>({
           popup={({ opened, setOpened, toggleOpened }) => (
             <IconifiedSelectMenu
               isDisabled={isDisabled}
-              opened={opened}
               setOpened={setOpened}
               toggleOpened={toggleOpened}
-              onChange={onChange}
-              Icon={Icon}
-              OptionInMenuContent={OptionInMenuContent}
               getKey={getKey}
+              onChange={onChange}
+              OptionContent={OptionContent}
+              opened={opened}
               options={searchedOptions}
               value={value}
               padded={padded}
@@ -72,8 +69,7 @@ const IconifiedSelect = <T extends unknown>({
           {({ ref, opened, toggleOpened }) => (
             <IconifiedSelectField
               ref={ref as unknown as React.RefObject<HTMLDivElement>}
-              Content={OptionSelectedContent}
-              Icon={OptionSelectedIcon}
+              Content={FieldContent}
               opened={opened}
               value={value}
               dropdown
@@ -91,7 +87,7 @@ const IconifiedSelect = <T extends unknown>({
         </Popper>
       ) : (
         <FieldContainer active={false}>
-          <FieldInnerComponent Icon={OptionSelectedIcon} Content={OptionSelectedContent} value={value} />
+          <FieldInnerComponent Content={FieldContent} value={value} />
         </FieldContainer>
       )}
     </div>

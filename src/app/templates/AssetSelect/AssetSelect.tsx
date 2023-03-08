@@ -53,10 +53,8 @@ const AssetSelect: FC<AssetSelectProps> = ({ value, assets, onChange, className 
 
   return (
     <IconifiedSelect
-      Icon={OptionIcon}
-      OptionSelectedIcon={OptionSelectedIcon}
-      OptionInMenuContent={AssetInMenuContent}
-      OptionSelectedContent={AssetSelectedContent}
+      FieldContent={AssetFieldContent}
+      OptionContent={AssetOptionContent}
       getKey={getSlug}
       onChange={handleChange}
       options={assets}
@@ -77,45 +75,49 @@ export default AssetSelect;
 
 type AssetSelectOptionRenderProps = IconifiedSelectOptionRenderProps<IAsset>;
 
-const OptionIcon: FC<AssetSelectOptionRenderProps> = ({ option }) => (
-  <AssetIcon assetSlug={getSlug(option)} className="mr-2" size={32} />
-);
-
-const OptionSelectedIcon: FC<AssetSelectOptionRenderProps> = ({ option }) => (
-  <AssetIcon assetSlug={getSlug(option)} className="mr-2" size={48} />
-);
-
-const AssetInMenuContent: FC<AssetSelectOptionRenderProps> = ({ option: asset }) => (
-  <AssetItemContent slug={getSlug(asset)} />
-);
-
-const AssetSelectedContent: FC<AssetSelectOptionRenderProps> = ({ option }) => {
+const AssetFieldContent: FC<AssetSelectOptionRenderProps> = ({ option }) => {
   const account = useAccount();
   const assetSlug = getSlug(option);
   const metadata = useAssetMetadata(assetSlug);
 
   return (
-    <Balance assetSlug={assetSlug} address={account.publicKeyHash}>
-      {balance => (
-        <div className="flex flex-col items-start">
-          <span className="text-xl text-gray-800 flex items-baseline">
-            <Money smallFractionFont={false}>{balance}</Money>{' '}
-            <span className="ml-2" style={{ fontSize: '0.75em' }}>
-              {getAssetSymbol(metadata)}
-            </span>
-          </span>
+    <>
+      <AssetIcon assetSlug={getSlug(option)} className="mr-3" size={48} />
 
-          <InFiat smallFractionFont={false} assetSlug={assetSlug} volume={balance}>
-            {({ balance, symbol }) => (
-              <div className="mt-1 text-sm text-gray-500 flex">
-                <span className="mr-1">≈</span>
-                {balance}
-                <span className="ml-1">{symbol}</span>
-              </div>
-            )}
-          </InFiat>
-        </div>
-      )}
-    </Balance>
+      <Balance assetSlug={assetSlug} address={account.publicKeyHash}>
+        {balance => (
+          <div className="flex flex-col items-start leading-none">
+            <span className="text-xl text-gray-800 flex items-baseline">
+              <Money smallFractionFont={false}>{balance}</Money>{' '}
+              <span className="ml-2" style={{ fontSize: '0.75em' }}>
+                {getAssetSymbol(metadata)}
+              </span>
+            </span>
+
+            <InFiat smallFractionFont={false} assetSlug={assetSlug} volume={balance}>
+              {({ balance, symbol }) => (
+                <div className="mt-1 text-sm text-gray-500 flex">
+                  <span className="mr-1">≈</span>
+                  {balance}
+                  <span className="ml-1">{symbol}</span>
+                </div>
+              )}
+            </InFiat>
+          </div>
+        )}
+      </Balance>
+    </>
+  );
+};
+
+const AssetOptionContent: FC<AssetSelectOptionRenderProps> = ({ option }) => {
+  const slug = getSlug(option);
+
+  return (
+    <div className="flex items-center w-full py-1.5">
+      <AssetIcon assetSlug={slug} className="mx-2" size={32} />
+
+      <AssetItemContent slug={slug} />
+    </div>
   );
 };
