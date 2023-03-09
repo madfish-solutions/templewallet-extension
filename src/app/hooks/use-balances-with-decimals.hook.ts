@@ -17,11 +17,12 @@ export const useBalancesWithDecimals = () => {
     const balancesBN: Record<string, BigNumber> = {};
 
     for (const tokenSlug in balancesRaw) {
+      const metadata = allTokensMetadata[tokenSlug];
+
       if (tokenSlug !== 'tez') {
-        balancesBN[tokenSlug] = atomsToTokens(
-          new BigNumber(balancesRaw[tokenSlug]),
-          allTokensMetadata[tokenSlug]?.decimals ?? 0
-        );
+        if (metadata) {
+          balancesBN[tokenSlug] = atomsToTokens(new BigNumber(balancesRaw[tokenSlug]), metadata.decimals);
+        }
       } else {
         balancesBN[tokenSlug] = atomsToTokens(new BigNumber(balancesRaw[tokenSlug]), TEZOS_METADATA.decimals);
       }

@@ -24,18 +24,18 @@ export const useLoadBalances = () => {
   const { data: tokens = [] } = useDisplayedFungibleTokens(chainId, publicKeyHash);
 
   useEffect(() => {
-    if (!isSyncing) {
-      if (apiUrl !== undefined) {
-        dispatch(loadTokensBalancesFromTzktAction.submit({ apiUrl, accountPublicKeyHash: publicKeyHash }));
-      } else {
-        dispatch(
-          loadTokensBalancesFromChainAction.submit({
-            rpcUrl: network.rpcBaseURL,
-            tokens,
-            accountPublicKeyHash: publicKeyHash
-          })
-        );
-      }
+    if (isSyncing) return;
+
+    if (apiUrl !== undefined) {
+      dispatch(loadTokensBalancesFromTzktAction.submit({ apiUrl, accountPublicKeyHash: publicKeyHash }));
+    } else {
+      dispatch(
+        loadTokensBalancesFromChainAction.submit({
+          rpcUrl: network.rpcBaseURL,
+          tokens,
+          accountPublicKeyHash: publicKeyHash
+        })
+      );
     }
   }, [isSyncing, chainId, publicKeyHash, apiUrl, network.rpcBaseURL]);
 };
