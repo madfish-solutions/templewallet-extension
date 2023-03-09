@@ -33,6 +33,10 @@ inputs:
     required: false
   IMPORTED_HD_ACCOUNT_FIRST_PRIVATE_KEY:
     required: false
+  WATCH_ONLY_PUBLIC_KEY:
+    required: false
+  WATCH_ONLY_PUBLIC_HASH:
+    required: false
 
 runs:
   using: 'composite'
@@ -64,4 +68,6 @@ runs:
         DEFAULT_PASSWORD=${{ inputs.DEFAULT_PASSWORD }}
         IMPORTED_HD_ACCOUNT_SEED_PHRASE=${{ inputs.IMPORTED_HD_ACCOUNT_SEED_PHRASE }}
         IMPORTED_HD_ACCOUNT_FIRST_PRIVATE_KEY=${{ inputs.IMPORTED_HD_ACCOUNT_FIRST_PRIVATE_KEY }}
+        WATCH_ONLY_PUBLIC_KEY=${{ inputs.WATCH_ONLY_PUBLIC_KEY }}
+        WATCH_ONLY_PUBLIC_HASH=${{ inputs.WATCH_ONLY_PUBLIC_HASH }}
         EOF
