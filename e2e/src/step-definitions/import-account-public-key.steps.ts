@@ -7,5 +7,5 @@ import { Pages } from '../page-objects';
 Given(/I compare my Watch-only Public hash with imported account/, async () => {
   const getPublicHash = await Pages.Home.PublicAddressButton.getText();
 
-  expect(getPublicHash).eql(envVars.WATCH_ONLY_PUBLIC_HASH);
+  expect(getPublicHash).eql(envVars.WATCH_ONLY_PUBLIC_KEY_HASH_SHORT_FORM);
 });
