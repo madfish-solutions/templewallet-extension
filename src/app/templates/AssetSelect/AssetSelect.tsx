@@ -82,7 +82,7 @@ const AssetFieldContent: FC<AssetSelectOptionRenderProps> = ({ option }) => {
 
   return (
     <>
-      <AssetIcon assetSlug={getSlug(option)} className="mr-3" size={48} />
+      <AssetIcon assetSlug={assetSlug} className="mr-3" size={48} />
 
       <Balance assetSlug={assetSlug} address={account.publicKeyHash}>
         {balance => (

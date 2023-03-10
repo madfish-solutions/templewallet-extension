@@ -31,11 +31,10 @@ const IconifiedSelect = <T extends unknown>({
 
   const [searchStringDebounced] = useDebounce(searchString, 300);
 
-  const searchedOptions = useMemo(() => {
-    if (!search) return options;
-
-    return search.filterItems(searchStringDebounced || '');
-  }, [searchStringDebounced, options]);
+  const searchedOptions = useMemo(
+    () => (search && searchStringDebounced ? search.filterItems(searchStringDebounced) : options),
+    [search?.filterItems, searchStringDebounced, options]
+  );
 
   if (options.length < 2)
     return (

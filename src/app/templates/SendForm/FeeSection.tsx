@@ -30,15 +30,14 @@ export const FeeSection: React.FC<FeeComponentProps> = ({
   isSubmitting,
   ...rest
 }) => {
-  const acc = useAccount();
+  const { publicKeyHash } = useAccount();
   const { metadata } = useGasToken();
 
-  const accountPkh = acc.publicKeyHash;
   if (!restFormDisplayed) return null;
 
   return (
     <>
-      <FeeAlert {...rest} estimationError={estimationError} accountPkh={accountPkh} />
+      <FeeAlert {...rest} estimationError={estimationError} accountPkh={publicKeyHash} />
 
       <AdditionalFeeInput
         name="fee"
@@ -62,8 +61,8 @@ export const FeeSection: React.FC<FeeComponentProps> = ({
 };
 
 interface FeeAlertPropsBase {
-  submitError: any;
-  estimationError: any;
+  submitError: unknown;
+  estimationError: unknown;
   toResolved: string;
   toFilledWithKTAddress: boolean;
 }
