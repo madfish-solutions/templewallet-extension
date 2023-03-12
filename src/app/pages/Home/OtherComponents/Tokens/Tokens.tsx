@@ -10,6 +10,7 @@ import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
 import SearchAssetField from 'app/templates/SearchAssetField';
 import { T } from 'lib/i18n';
 import { useAccount, useChainId, useDisplayedFungibleTokens, useFilteredAssets } from 'lib/temple/front';
+import { useLoadBalances } from 'lib/temple/front/load-balances';
 import { useSyncTokens } from 'lib/temple/front/sync-tokens';
 import { Link, navigate } from 'lib/woozie';
 
@@ -19,6 +20,7 @@ import { ListItem } from './components/ListItem';
 import { toExploreAssetLink } from './utils';
 
 export const Tokens: FC = () => {
+  useLoadBalances();
   const chainId = useChainId(true)!;
   const balances = useBalancesWithDecimals();
 
