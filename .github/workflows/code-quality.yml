@@ -50,6 +50,8 @@ jobs:
           DEFAULT_PASSWORD: ${{ secrets.DEFAULT_PASSWORD }}
           IMPORTED_HD_ACCOUNT_SEED_PHRASE: ${{ secrets.IMPORTED_HD_ACCOUNT_SEED_PHRASE }}
           IMPORTED_HD_ACCOUNT_FIRST_PRIVATE_KEY: ${{ secrets.IMPORTED_HD_ACCOUNT_FIRST_PRIVATE_KEY }}
+          WATCH_ONLY_PUBLIC_KEY_HASH: ${{ secrets.WATCH_ONLY_PUBLIC_KEY_HASH }}
+          WATCH_ONLY_PUBLIC_KEY_HASH_SHORT_FORM: ${{ secrets.WATCH_ONLY_PUBLIC_KEY_HASH_SHORT_FORM }}
 
       - name: Install dependencies and code quality check
         uses: ./.github/workflows/code-quality-check
