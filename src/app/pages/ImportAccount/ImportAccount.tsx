@@ -318,8 +318,8 @@ const ByMnemonicForm: FC = () => {
         />
       </div>
 
-      <div className={classNames('mb-4', 'flex flex-col')}>
-        <h2 className={classNames('mb-4', 'leading-tight', 'flex flex-col')}>
+      <div className="mb-4 flex flex-col">
+        <h2 className="mb-4 leading-tight flex flex-col">
           <span className="text-base font-semibold text-gray-700">
             <T id="derivation" />{' '}
             <span className="text-sm font-light text-gray-600">
@@ -327,7 +327,7 @@ const ByMnemonicForm: FC = () => {
             </span>
           </span>
 
-          <span className={classNames('mt-1', 'text-xs font-light text-gray-600')} style={{ maxWidth: '90%' }}>
+          <span className="mt-1 text-xs font-light text-gray-600" style={{ maxWidth: '90%' }}>
             <T id="addDerivationPathPrompt" />
           </span>
         </h2>
@@ -371,7 +371,7 @@ const ByMnemonicForm: FC = () => {
                 <div className="flex-1" />
                 {selected && (
                   <OkIcon
-                    className={classNames('mx-2 h-4 w-auto stroke-2')}
+                    className="mx-2 h-4 w-auto stroke-2"
                     style={{
                       stroke: '#777'
                     }}
@@ -667,12 +667,12 @@ const FromFaucetForm: FC = () => {
         )}
 
         <div className="flex flex-col w-full">
-          <label className={classNames('mb-4', 'leading-tight', 'flex flex-col')}>
+          <label className="mb-4 leading-tight flex flex-col">
             <span className="text-base font-semibold text-gray-700">
               <T id="faucetFile" />
             </span>
 
-            <span className={classNames('mt-1', 'text-xs font-light text-gray-600')} style={{ maxWidth: '90%' }}>
+            <span className="mt-1 text-xs font-light text-gray-600" style={{ maxWidth: '90%' }}>
               <T
                 id="faucetFileInputPrompt"
                 substitutions={[
@@ -861,7 +861,7 @@ const WatchOnlyForm: FC = () => {
       />
 
       {resolvedAddress && (
-        <div className={classNames('mb-4 -mt-3', 'text-xs font-light text-gray-600', 'flex flex-wrap items-center')}>
+        <div className="mb-4 -mt-3 text-xs font-light text-gray-600 flex flex-wrap items-center">
           <span className="mr-1 whitespace-nowrap">{t('resolvedAddress')}:</span>
           <span className="font-normal">{resolvedAddress}</span>
         </div>

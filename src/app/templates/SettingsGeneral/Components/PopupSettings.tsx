@@ -12,12 +12,12 @@ const PopupSettings: FC<{}> = () => {
   const [error, setError] = useState<any>(null);
 
   const handlePopupModeChange = useCallback(
-    (evt: React.ChangeEvent<HTMLInputElement>) => {
+    (checked: boolean) => {
       if (changingRef.current) return;
       changingRef.current = true;
       setError(null);
 
-      setPopupMode(evt.target.checked);
+      setPopupMode(checked);
       changingRef.current = false;
       window.location.reload();
     },

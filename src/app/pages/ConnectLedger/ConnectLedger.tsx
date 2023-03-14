@@ -143,14 +143,10 @@ const ConnectLedger: FC = () => {
   return (
     <PageLayout
       pageTitle={
-        <T id="connectLedger">
-          {message => (
-            <>
-              <LinkIcon className="w-auto h-4 mr-1 stroke-current" />
-              {message}
-            </>
-          )}
-        </T>
+        <>
+          <LinkIcon className="w-auto h-4 mr-1 stroke-current" />
+          <T id="connectLedger" />
+        </>
       }
     >
       <div className="relative w-full">
@@ -242,17 +238,13 @@ const ConnectLedger: FC = () => {
               />
             )}
 
-            <T id="addLedgerAccount">
-              {message => (
-                <FormSubmitButton
-                  loading={submitting}
-                  className="mt-8"
-                  testID={ConnectLedgerSelectors.addLedgerAccountButton}
-                >
-                  {message}
-                </FormSubmitButton>
-              )}
-            </T>
+            <FormSubmitButton
+              loading={submitting}
+              className="mt-8"
+              testID={ConnectLedgerSelectors.addLedgerAccountButton}
+            >
+              <T id="addLedgerAccount" />
+            </FormSubmitButton>
           </form>
         </div>
 

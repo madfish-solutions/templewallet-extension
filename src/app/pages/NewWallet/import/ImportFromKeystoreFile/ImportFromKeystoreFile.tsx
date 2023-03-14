@@ -57,11 +57,11 @@ export const ImportFromKeystoreFile: FC<ImportFromKeystoreFileProps> = ({
 
   return (
     <form className="w-full max-w-sm mx-auto my-8 pb-8" onSubmit={handleSubmit(onSubmit)}>
-      <label className={classNames('mb-4 leading-tight flex flex-col')}>
+      <label className="mb-4 leading-tight flex flex-col">
         <span className="text-base font-semibold text-gray-700">
           <T id="file" />
         </span>
-        <span className={classNames('mt-1', 'text-xs font-light text-gray-600')} style={{ maxWidth: '90%' }}>
+        <span className="mt-1 text-xs font-light text-gray-600" style={{ maxWidth: '90%' }}>
           <T id="keystoreFileFieldDescription" />
         </span>
       </label>

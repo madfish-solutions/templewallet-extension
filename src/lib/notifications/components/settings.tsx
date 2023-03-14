@@ -13,8 +13,7 @@ export const NotificationsSettings: FC = () => {
   const dispatch = useDispatch();
   const isNewsEnabled = useIsNewsEnabledSelector();
 
-  const handleNewsNotificationsChange = (evt: React.ChangeEvent<HTMLInputElement>) =>
-    dispatch(setIsNewsEnabledAction(evt.target.checked));
+  const handleNewsNotificationsChange = (checked: boolean) => dispatch(setIsNewsEnabledAction(checked));
 
   return (
     <>

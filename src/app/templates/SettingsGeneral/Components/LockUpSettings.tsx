@@ -9,10 +9,6 @@ import { SettingsGeneralSelectors } from '../SettingsGeneral.selectors';
 const LockUpSettings: FC<{}> = () => {
   const [isLockUpEnabled, saveIsLockUpEnabled] = useIsLockUpEnabled();
 
-  const handleLockUpChange = (evt: React.ChangeEvent<HTMLInputElement>) => {
-    saveIsLockUpEnabled(evt.target.checked);
-  };
-
   return (
     <>
       <label className="mb-4 leading-tight flex flex-col" htmlFor="lockUpSettings">
@@ -27,7 +23,7 @@ const LockUpSettings: FC<{}> = () => {
 
       <FormCheckbox
         checked={isLockUpEnabled}
-        onChange={handleLockUpChange}
+        onChange={saveIsLockUpEnabled}
         name="isLockUpEnabled"
         label={t(isLockUpEnabled ? 'enabled' : 'disabled')}
         containerClassName="mb-4"

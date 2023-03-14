@@ -4,19 +4,19 @@ import classNames from 'clsx';
 import { Controller, useForm } from 'react-hook-form';
 
 import { FormCheckbox, FormField, FormSubmitButton, PASSWORD_ERROR_CAPTION } from 'app/atoms';
-import { AnalyticsEventCategory, TestIDProps, useAnalytics, useAnalyticsSettings } from 'lib/analytics';
-import { T, t } from 'lib/i18n';
-import { useTempleClient } from 'lib/temple/front';
-import PasswordStrengthIndicator, { PasswordValidation } from 'lib/ui/PasswordStrengthIndicator';
-import { navigate } from 'lib/woozie';
-
 import {
   formatMnemonic,
   lettersNumbersMixtureRegx,
   PASSWORD_PATTERN,
   specialCharacterRegx,
   uppercaseLowercaseMixtureRegx
-} from '../../../defaults';
+} from 'app/defaults';
+import { AnalyticsEventCategory, TestIDProps, useAnalytics, useAnalyticsSettings } from 'lib/analytics';
+import { T, t } from 'lib/i18n';
+import { useTempleClient } from 'lib/temple/front';
+import PasswordStrengthIndicator, { PasswordValidation } from 'lib/ui/PasswordStrengthIndicator';
+import { navigate } from 'lib/woozie';
+
 import { useOnboardingProgress } from '../../Onboarding/hooks/useOnboardingProgress.hook';
 import { setWalletPasswordSelectors } from './SetWalletPassword.selectors';
 
@@ -223,18 +223,14 @@ export const SetWalletPassword: FC<SetWalletPasswordProps> = ({
           <T
             id="analyticsInputDescription"
             substitutions={[
-              <T id="analyticsCollecting" key="analyticsLink">
-                {message => (
-                  <a
-                    href="https://templewallet.com/analytics-collecting"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="underline text-secondary"
-                  >
-                    {message}
-                  </a>
-                )}
-              </T>
+              <a
+                href="https://templewallet.com/analytics-collecting"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline text-secondary"
+              >
+                <T id="analyticsCollecting" key="analyticsLink" />
+              </a>
             ]}
           />
         }
@@ -263,30 +259,22 @@ export const SetWalletPassword: FC<SetWalletPasswordProps> = ({
           <T
             id="acceptTermsInputDescription"
             substitutions={[
-              <T id="termsOfUsage" key="termsLink">
-                {message => (
-                  <a
-                    href="https://templewallet.com/terms"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="underline text-secondary"
-                  >
-                    {message}
-                  </a>
-                )}
-              </T>,
-              <T id="privacyPolicy" key="privacyPolicyLink">
-                {message => (
-                  <a
-                    href="https://templewallet.com/privacy"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="underline text-secondary"
-                  >
-                    {message}
-                  </a>
-                )}
-              </T>
+              <a
+                href="https://templewallet.com/terms"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline text-secondary"
+              >
+                <T id="termsOfUsage" key="termsLink" />
+              </a>,
+              <a
+                href="https://templewallet.com/privacy"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline text-secondary"
+              >
+                <T id="privacyPolicy" key="privacyPolicyLink" />
+              </a>
             ]}
           />
         }

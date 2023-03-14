@@ -1,28 +1,50 @@
-import React, { forwardRef, InputHTMLAttributes, useCallback, useEffect, useState } from 'react';
+import React, { forwardRef, InputHTMLAttributes, useCallback, useEffect, useMemo, useState } from 'react';
 
 import classNames from 'clsx';
 
 import { ReactComponent as OkIcon } from 'app/icons/ok.svg';
-import { setTestID, TestIDProps } from 'lib/analytics';
+import { TestIDProps, setTestID, useAnalytics, AnalyticsEventCategory } from 'lib/analytics';
 import { blurHandler, checkedHandler, focusHandler } from 'lib/ui/inputHandlers';
 
-type CheckboxProps = TestIDProps &
-  InputHTMLAttributes<HTMLInputElement> & {
+export type CheckboxProps = TestIDProps &
+  Pick<InputHTMLAttributes<HTMLInputElement>, 'name' | 'checked' | 'className' | 'onFocus' | 'onBlur' | 'onClick'> & {
     containerClassName?: string;
     errored?: boolean;
+    onChange?: (checked: boolean) => void;
   };
 
 const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
-  ({ containerClassName, errored = false, className, checked, onChange, onFocus, onBlur, testID, ...rest }, ref) => {
+  (
+    {
+      containerClassName,
+      errored = false,
+      className,
+      checked,
+      onChange,
+      onFocus,
+      onBlur,
+      testID,
+      testIDProperties,
+      ...rest
+    },
+    ref
+  ) => {
     const [localChecked, setLocalChecked] = useState(() => checked ?? false);
+
+    const { trackEvent } = useAnalytics();
 
     useEffect(() => {
       setLocalChecked(prevChecked => checked ?? prevChecked);
     }, [setLocalChecked, checked]);
 
     const handleChange = useCallback(
-      (e: React.ChangeEvent<HTMLInputElement>) => checkedHandler(e, onChange!, setLocalChecked),
-      [onChange, setLocalChecked]
+      (event: React.ChangeEvent<HTMLInputElement>) => {
+        const { checked } = event.target;
+        checkedHandler(event, onChange && (() => onChange(checked)), setLocalChecked);
+
+        testID && trackEvent(testID, AnalyticsEventCategory.CheckboxChange, { checked, ...testIDProperties });
+      },
+      [onChange, setLocalChecked, trackEvent, testID, testIDProperties]
     );
 
     /**
@@ -39,36 +61,33 @@ const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
       [onBlur, setLocalFocused]
     );
 
-    return (
-      <div
-        className={classNames(
-          'h-6 w-6 flex-shrink-0',
+    const classNameMemo = useMemo(
+      () =>
+        classNames(
+          'flex justify-center items-center h-6 w-6 flex-shrink-0',
+          'text-white border rounded-md overflow-hidden',
+          'transition ease-in-out duration-200 disable-outline-for-click',
           localChecked ? 'bg-primary-orange' : 'bg-black-40',
-          'border',
+          localFocused && 'shadow-outline',
           (() => {
             switch (true) {
               case localChecked:
                 return 'border-primary-orange-dark';
-
               case localFocused:
                 return 'border-primary-orange';
-
-              case Boolean(errored):
+              case errored:
                 return 'border-red-400';
-
               default:
                 return 'border-gray-400';
             }
           })(),
-          'rounded-md overflow-hidden',
-          'disable-outline-for-click',
-          localFocused && 'shadow-outline',
-          'transition ease-in-out duration-200',
-          'text-white',
-          'flex justify-center items-center',
           containerClassName
-        )}
-      >
+        ),
+      [localChecked, localFocused, errored, containerClassName]
+    );
+
+    return (
+      <div className={classNameMemo}>
         <input
           ref={ref}
           type="checkbox"
@@ -82,7 +101,7 @@ const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
         />
 
         <OkIcon
-          className={classNames(localChecked ? 'block' : 'hidden', 'h-4 w-4', 'pointer-events-none', 'stroke-current')}
+          className={classNames(localChecked ? 'block' : 'hidden', 'h-4 w-4 pointer-events-none stroke-current')}
           style={{ strokeWidth: 2 }}
         />
       </div>

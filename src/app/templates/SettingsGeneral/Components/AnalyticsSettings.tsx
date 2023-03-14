@@ -9,10 +9,6 @@ import { SettingsGeneralSelectors } from '../SettingsGeneral.selectors';
 const AnalyticsSettings: React.FC = () => {
   const { analyticsEnabled, setAnalyticsEnabled } = useAnalyticsSettings();
 
-  const handlePopupModeChange = (evt: React.ChangeEvent<HTMLInputElement>) => {
-    setAnalyticsEnabled(evt.target.checked);
-  };
-
   return (
     <>
       <label className="mb-4 leading-tight flex flex-col" htmlFor="analyticsSettings">
@@ -27,7 +23,7 @@ const AnalyticsSettings: React.FC = () => {
 
       <FormCheckbox
         checked={analyticsEnabled}
-        onChange={handlePopupModeChange}
+        onChange={setAnalyticsEnabled}
         name="analyticsEnabled"
         label={t(analyticsEnabled ? 'enabled' : 'disabled')}
         containerClassName="mb-4"

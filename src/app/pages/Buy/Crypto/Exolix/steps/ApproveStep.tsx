@@ -1,6 +1,5 @@
 import React, { FC, useEffect } from 'react';
 
-import classNames from 'clsx';
 import Countdown from 'react-countdown';
 import { QRCode } from 'react-qr-svg';
 
@@ -122,7 +121,7 @@ const ApproveStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
               <CopyButton text={exchangeData.id} type="link" testID={ExolixSelectors.topupSecondStepCopyButton}>
                 <CopyIcon
                   style={{ verticalAlign: 'inherit' }}
-                  className={classNames('h-4 ml-1 w-auto inline', 'stroke-orange stroke-2')}
+                  className="h-4 ml-1 w-auto inline stroke-orange stroke-2"
                   onClick={() => copy()}
                 />
               </CopyButton>

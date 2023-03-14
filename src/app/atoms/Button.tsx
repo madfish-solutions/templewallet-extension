@@ -11,7 +11,7 @@ export const Button = React.forwardRef<HTMLButtonElement, Props>(
     const { trackEvent } = useAnalytics();
 
     const handleClick = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-      testID !== undefined && trackEvent(testID, AnalyticsEventCategory.ButtonPress, testIDProperties);
+      testID && trackEvent(testID, AnalyticsEventCategory.ButtonPress, testIDProperties);
 
       return onClick !== undefined && onClick(e);
     };

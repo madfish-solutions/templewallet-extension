@@ -110,28 +110,17 @@ const CustomNetworksSettings: FC = () => {
   return (
     <div className="w-full max-w-sm p-2 pb-4 mx-auto">
       <div className="flex flex-col mb-8">
-        <h2 className={classNames('mb-4', 'leading-tight', 'flex flex-col')}>
-          <T id="currentNetworks">
-            {message => <span className="text-base font-semibold text-gray-700">{message}</span>}
-          </T>
+        <h2 className="mb-4 leading-tight flex flex-col">
+          <span className="text-base font-semibold text-gray-700">
+            <T id="currentNetworks" />
+          </span>
 
-          <T id="deleteNetworkHint">
-            {message => (
-              <span className={classNames('mt-1', 'text-xs font-light text-gray-600')} style={{ maxWidth: '90%' }}>
-                {message}
-              </span>
-            )}
-          </T>
+          <span className="mt-1 text-xs font-light text-gray-600" style={{ maxWidth: '90%' }}>
+            <T id="deleteNetworkHint" />
+          </span>
         </h2>
 
-        <div
-          className={classNames(
-            'rounded-md overflow-hidden',
-            'border',
-            'flex flex-col',
-            'text-gray-700 text-sm leading-tight'
-          )}
-        >
+        <div className="flex flex-col text-gray-700 text-sm leading-tight border rounded-md overflow-hidden">
           {customNetworks.map(network => (
             <NetworksListItem
               canRemove
@@ -191,13 +180,9 @@ const CustomNetworksSettings: FC = () => {
           testID={CustomNetworkSettingsSelectors.RPCbaseURLinput}
         />
 
-        <T id="addNetwork">
-          {message => (
-            <FormSubmitButton loading={submitting} testID={CustomNetworkSettingsSelectors.addNetworkButton}>
-              {message}
-            </FormSubmitButton>
-          )}
-        </T>
+        <FormSubmitButton loading={submitting} testID={CustomNetworkSettingsSelectors.addNetworkButton}>
+          <T id="addNetwork" />
+        </FormSubmitButton>
       </form>
     </div>
   );
@@ -238,7 +223,7 @@ const NetworksListItem: FC<NetworksListItemProps> = props => {
       }}
     >
       <div
-        className={classNames('mt-1 ml-2 mr-3', 'w-3 h-3', 'border border-primary-white', 'rounded-full shadow-xs')}
+        className="mt-1 ml-2 mr-3 w-3 h-3 border border-primary-white rounded-full shadow-xs"
         style={{ background: color }}
       />
 
@@ -248,7 +233,7 @@ const NetworksListItem: FC<NetworksListItemProps> = props => {
         </Name>
 
         <div
-          className={classNames('text-xs text-gray-700 font-light', 'flex items-center')}
+          className="text-xs text-gray-700 font-light flex items-center"
           style={{
             marginBottom: '0.125rem'
           }}
@@ -259,11 +244,7 @@ const NetworksListItem: FC<NetworksListItemProps> = props => {
 
       {canRemove && (
         <button
-          className={classNames(
-            'flex-none p-2',
-            'text-gray-500 hover:text-gray-600',
-            'transition ease-in-out duration-200'
-          )}
+          className="flex-none p-2 text-gray-500 hover:text-gray-600 transition ease-in-out duration-200"
           onClick={handleRemoveClick}
         >
           <CloseIcon className="w-auto h-5 stroke-current stroke-2" title={t('delete')} />

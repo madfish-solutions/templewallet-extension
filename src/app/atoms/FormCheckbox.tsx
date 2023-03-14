@@ -1,49 +1,68 @@
-import React, { ComponentProps, forwardRef, ReactNode } from 'react';
+import React, { forwardRef, ReactNode, useCallback } from 'react';
 
 import classNames from 'clsx';
 
-import Checkbox from 'app/atoms/Checkbox';
-import { setTestID, TestIDProps } from 'lib/analytics';
+import Checkbox, { CheckboxProps } from 'app/atoms/Checkbox';
+import { AnalyticsEventCategory, setTestID, useAnalytics } from 'lib/analytics';
 
-type FormCheckboxProps = TestIDProps &
-  ComponentProps<typeof Checkbox> & {
-    label?: ReactNode;
-    labelDescription?: ReactNode;
-    errorCaption?: ReactNode;
-    containerClassName?: string;
-    labelClassName?: string;
-  };
+type FormCheckboxProps = CheckboxProps & {
+  label?: ReactNode;
+  labelDescription?: ReactNode;
+  errorCaption?: ReactNode;
+  containerClassName?: string;
+  labelClassName?: string;
+};
 
 export const FormCheckbox = forwardRef<HTMLInputElement, FormCheckboxProps>(
-  ({ label, labelDescription, errorCaption, containerClassName, labelClassName, testID, ...rest }, ref) => (
-    <div className={classNames('flex flex-col', containerClassName)}>
-      <label
-        className={classNames(
-          'mb-2',
-          'p-4',
-          'bg-gray-100',
-          'border-2 border-gray-300',
-          'rounded-md overflow-hidden',
-          'cursor-pointer',
-          'flex items-center',
-          labelClassName
-        )}
-        {...setTestID(testID)}
-      >
-        <Checkbox ref={ref} errored={Boolean(errorCaption)} {...rest} />
+  (
+    {
+      label,
+      labelDescription,
+      errorCaption,
+      containerClassName,
+      labelClassName,
+      onChange,
+      testID,
+      testIDProperties,
+      ...rest
+    },
+    ref
+  ) => {
+    const { trackEvent } = useAnalytics();
 
-        {label ? (
-          <div className={classNames('ml-4', 'leading-tight', 'flex flex-col')}>
-            <span className={classNames('text-sm font-semibold text-gray-700')}>{label}</span>
+    const handleChange = useCallback(
+      (checked: boolean) => {
+        onChange?.(checked);
 
-            {labelDescription && (
-              <span className={classNames('mt-1', 'text-xs font-light text-gray-600')}>{labelDescription}</span>
-            )}
-          </div>
-        ) : null}
-      </label>
+        testID && trackEvent(testID, AnalyticsEventCategory.CheckboxChange, { checked, ...testIDProperties });
+      },
+      [onChange, trackEvent, testID, testIDProperties]
+    );
 
-      {errorCaption ? <div className="text-xs text-red-500">{errorCaption}</div> : null}
-    </div>
-  )
+    return (
+      <div className={classNames('flex flex-col', containerClassName)}>
+        <label
+          className={classNames(
+            'flex items-center mb-2 p-4',
+            'bg-gray-100 border-2 border-gray-300',
+            'rounded-md overflow-hidden cursor-pointer',
+            labelClassName
+          )}
+          {...setTestID(testID)}
+        >
+          <Checkbox ref={ref} errored={Boolean(errorCaption)} onChange={handleChange} {...rest} />
+
+          {label && (
+            <div className="ml-4 leading-tight flex flex-col">
+              <span className="text-sm font-semibold text-gray-700">{label}</span>
+
+              {labelDescription && <span className="mt-1 text-xs font-light text-gray-600">{labelDescription}</span>}
+            </div>
+          )}
+        </label>
+
+        {errorCaption ? <div className="text-xs text-red-500">{errorCaption}</div> : null}
+      </div>
+    );
+  }
 );

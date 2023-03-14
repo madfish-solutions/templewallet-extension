@@ -13,10 +13,6 @@ const LedgerLiveSettings: React.FC<{}> = () => {
     false
   );
 
-  const handlePopupModeChange = (evt: React.ChangeEvent<HTMLInputElement>) => {
-    setLedgerLiveEnabled(evt.target.checked);
-  };
-
   const ledgerLabel = ledgerLiveEnabled ? 'enabled' : 'disabled';
 
   return (
@@ -33,7 +29,7 @@ const LedgerLiveSettings: React.FC<{}> = () => {
 
       <FormCheckbox
         checked={ledgerLiveEnabled}
-        onChange={handlePopupModeChange}
+        onChange={setLedgerLiveEnabled}
         name="ledgerLiveEnabled"
         label={t(ledgerLabel)}
         containerClassName="mb-4"

@@ -41,12 +41,12 @@ const DAppSettings: FC = () => {
   const [error, setError] = useState<any>(null);
 
   const handleChange = useCallback(
-    async (evt: React.ChangeEvent<HTMLInputElement>) => {
+    async (checked: boolean) => {
       if (changingRef.current) return;
       changingRef.current = true;
       setError(null);
 
-      setDAppEnabled(evt.target.checked).catch((err: any) => setError(err));
+      setDAppEnabled(checked).catch((err: any) => setError(err));
 
       changingRef.current = false;
     },
