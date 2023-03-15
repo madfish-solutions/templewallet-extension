@@ -43,14 +43,9 @@ export const ListItem = memo<Props>(({ active, assetSlug, balances }) => {
     <Link
       to={toExploreAssetLink(assetSlug)}
       className={classNames(
-        'relative',
-        'block w-full',
-        'overflow-hidden',
-        active ? 'hover:bg-gray-200' : 'hover:bg-gray-200 focus:bg-gray-200',
-        'flex items-center px-4 py-3',
-        'text-gray-700',
-        'transition ease-in-out duration-200',
-        'focus:outline-none'
+        'relative block w-full overflow-hidden flex items-center px-4 py-3 rounded',
+        'hover:bg-gray-200 text-gray-700 transition ease-in-out duration-200 focus:outline-none',
+        active && 'focus:bg-gray-200'
       )}
       testID={AssetsSelectors.assetItemButton}
       testIDProperties={{ key: assetSlug }}
@@ -65,6 +60,7 @@ export const ListItem = memo<Props>(({ active, assetSlug, balances }) => {
           </div>
           <Balance assetSlug={assetSlug} value={latestBalance} />
         </div>
+
         <div className="flex justify-between w-full mb-1">
           <div className="text-xs font-normal text-gray-700 truncate flex-1">{assetName}</div>
           <Balance assetSlug={assetSlug} value={latestBalance} inFiat />

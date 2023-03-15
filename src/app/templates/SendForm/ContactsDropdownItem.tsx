@@ -9,7 +9,7 @@ import Name from 'app/atoms/Name';
 import { T } from 'lib/i18n';
 import { TempleContact } from 'lib/temple/types';
 
-import { SendFormSelectors } from '../SendForm.selectors';
+import { SendFormSelectors } from './selectors';
 
 type ContactsDropdownItemProps = ComponentProps<typeof Button> & {
   contact: TempleContact;

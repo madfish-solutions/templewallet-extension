@@ -11,7 +11,7 @@ import { useAccount, useChainId } from 'lib/temple/front';
 import * as Repo from 'lib/temple/repo';
 
 import { SwapFormTestIDs } from '../SwapFormInput.props';
-import { AssetOption } from './AssetOption/AssetOption';
+import { AssetOption } from './AssetOption';
 
 interface Props {
   value?: string;
@@ -70,13 +70,13 @@ export const AssetsMenu: FC<Props> = ({
       opened={opened}
       className="origin-top overflow-x-hidden overflow-y-auto"
       style={{
-        maxHeight: '15.75rem',
+        maxHeight: '15.125rem',
         backgroundColor: 'white',
-        borderColor: '#e2e8f0',
-        padding: 0
+        borderColor: '#e2e8f0'
       }}
     >
       {isShowSearchOption && <AssetOption assetSlug={searchAssetSlug} onClick={handleSearchOptionClick} />}
+
       {(options.length === 0 || isLoading) && (
         <div className="my-8 flex flex-col items-center justify-center text-gray-500">
           {isLoading ? (
@@ -85,19 +85,32 @@ export const AssetsMenu: FC<Props> = ({
             <p className="flex items-center justify-center text-gray-600 text-base font-light">
               {searchString ? <SearchIcon className="w-5 h-auto mr-1 stroke-current" /> : null}
 
-              <span>{showTokenIdInput ? <T id="specifyTokenId" /> : <T id="noAssetsFound" />}</span>
+              <span>
+                <T id={showTokenIdInput ? 'specifyTokenId' : 'noAssetsFound'} />
+              </span>
             </p>
           )}
         </div>
       )}
+
       <List
         width={dropdownWidth}
         height={240}
         rowCount={options.length}
-        rowHeight={65}
-        rowRenderer={({ key, index, style }) => (
-          <AssetOption key={key} assetSlug={options[index]} style={style} onClick={handleOptionClick} />
-        )}
+        rowHeight={64}
+        rowRenderer={({ key, index, style }) => {
+          const option = options[index];
+
+          return (
+            <AssetOption
+              key={key}
+              assetSlug={option}
+              selected={value === option}
+              style={style}
+              onClick={handleOptionClick}
+            />
+          );
+        }}
       />
     </DropdownWrapper>
   );
