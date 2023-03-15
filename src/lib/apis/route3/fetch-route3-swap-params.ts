@@ -1,5 +1,3 @@
-import { from, map } from 'rxjs';
-
 import { route3Api } from './route3.api';
 
 export interface Route3SwapParamsRequest {
@@ -25,7 +23,5 @@ export interface Route3SwapParamsResponse {
   chains: Array<Route3Chain>;
 }
 
-export const fetchRoute3SwapParams$ = ({ fromSymbol, toSymbol, amount }: Route3SwapParamsRequest) =>
-  from(route3Api.get<Route3SwapParamsResponse>(`/swap/${fromSymbol}/${toSymbol}/${amount}`)).pipe(
-    map(response => response.data)
-  );
+export const fetchRoute3SwapParams = ({ fromSymbol, toSymbol, amount }: Route3SwapParamsRequest) =>
+  route3Api.get<Route3SwapParamsResponse>(`/swap/${fromSymbol}/${toSymbol}/${amount}`).then(({ data }) => data);

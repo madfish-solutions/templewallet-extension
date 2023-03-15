@@ -2,7 +2,7 @@ import { createReducer } from '@reduxjs/toolkit';
 
 import { createEntity } from 'lib/store';
 
-import { loadSwapDexesAction, loadSwapParamsAction, loadSwapTokensAction, resetSwapParamsAction } from './actions';
+import { loadSwapDexesAction, loadSwapTokensAction } from './actions';
 import { swapInitialState } from './state';
 
 export const swapReducer = createReducer(swapInitialState, builder => {
@@ -14,18 +14,6 @@ export const swapReducer = createReducer(swapInitialState, builder => {
   });
   builder.addCase(loadSwapTokensAction.fail, (state, { payload }) => {
     state.tokens = createEntity([], false, payload);
-  });
-  builder.addCase(loadSwapParamsAction.submit, state => {
-    state.swapParams = createEntity({ ...state.swapParams.data }, true);
-  });
-  builder.addCase(loadSwapParamsAction.success, (state, { payload }) => {
-    state.swapParams = createEntity(payload, false);
-  });
-  builder.addCase(loadSwapParamsAction.fail, (state, { payload }) => {
-    state.swapParams = createEntity({ input: 0, output: 0, chains: [] }, false, payload);
-  });
-  builder.addCase(resetSwapParamsAction, state => {
-    state.swapParams = createEntity({ input: undefined, output: undefined, chains: [] }, false);
   });
   builder.addCase(loadSwapDexesAction.submit, state => {
     state.dexes = createEntity([...state.dexes.data], true);

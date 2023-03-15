@@ -4,7 +4,6 @@ import { BatchWalletOperation } from '@taquito/taquito/dist/types/wallet/batch-o
 import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
 import { Controller, useForm } from 'react-hook-form';
-import { useDispatch } from 'react-redux';
 import { parseTransferParamsToParamsWithKind } from 'swap-router-sdk';
 
 import { Alert, FormSubmitButton } from 'app/atoms';
@@ -12,14 +11,15 @@ import { useBlockLevel } from 'app/hooks/use-block-level.hook';
 import { useRoute3 } from 'app/hooks/use-route3.hook';
 import { ReactComponent as InfoIcon } from 'app/icons/info.svg';
 import { ReactComponent as ToggleIcon } from 'app/icons/toggle.svg';
-import { loadSwapDexesAction, loadSwapParamsAction, resetSwapParamsAction } from 'app/store/swap/actions';
-import { useSwapParamsSelector, useSwapTokenSelector } from 'app/store/swap/selectors';
+import { useSwapTokenSelector } from 'app/store/swap/selectors';
 import OperationStatus from 'app/templates/OperationStatus';
 import { setTestID, useFormAnalytics } from 'lib/analytics';
+import { fetchRoute3SwapParams, Route3SwapParamsResponse } from 'lib/apis/route3/fetch-route3-swap-params';
 import { T, t } from 'lib/i18n';
 import { ROUTING_FEE_RATIO } from 'lib/route3/constants';
 import { getPercentageRatio } from 'lib/route3/utils/get-percentage-ratio';
 import { getRoutingFeeTransferParams } from 'lib/route3/utils/get-routing-fee-transfer-params';
+import { createEntity, LoadableEntityState } from 'lib/store';
 import { ROUTING_FEE_PERCENT } from 'lib/swap-router/config';
 import { useAccount, useAssetMetadata, useTezos } from 'lib/temple/front';
 import { tokensToAtoms } from 'lib/temple/helpers';
@@ -38,12 +38,13 @@ import { SwapMinimumReceived } from './SwapMinimumReceived/SwapMinimumReceived';
 import { SwapRoute } from './SwapRoute/SwapRoute';
 
 export const SwapForm: FC = () => {
-  const dispatch = useDispatch();
   const tezos = useTezos();
   const blockLevel = useBlockLevel();
   const { publicKeyHash } = useAccount();
   const getRoute3SwapOpParams = useRoute3();
-  const { data: swapParams } = useSwapParamsSelector();
+  const [swapParams, setSwapParams] = useState<LoadableEntityState<Route3SwapParamsResponse>>(
+    createEntity({ input: 0, output: 0, chains: [] })
+  );
 
   const formAnalytics = useFormAnalytics('SwapForm');
 
@@ -70,11 +71,12 @@ export const SwapForm: FC = () => {
   const [operation, setOperation] = useState<BatchWalletOperation>();
   const isSubmitButtonPressedRef = useRef(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isAlertVisible, setIsAlertVisible] = useState<boolean>(false);
 
   const slippageRatio = useMemo(() => getPercentageRatio(slippageTolerance ?? 0), [slippageTolerance]);
   const { routingFeeAtomic, minimumReceivedAmountAtomic } = useMemo(() => {
-    if (swapParams.output !== undefined) {
-      const swapOutputAtomic = tokensToAtoms(new BigNumber(swapParams.output), outputAssetMetadata.decimals);
+    if (swapParams.data.output !== undefined) {
+      const swapOutputAtomic = tokensToAtoms(new BigNumber(swapParams.data.output), outputAssetMetadata.decimals);
       const routingFeeAtomic = swapOutputAtomic
         .minus(swapOutputAtomic.multipliedBy(ROUTING_FEE_RATIO))
         .integerValue(BigNumber.ROUND_DOWN);
@@ -90,21 +92,33 @@ export const SwapForm: FC = () => {
 
       return { routingFeeAtomic, minimumReceivedAmountAtomic };
     }
-  }, [slippageRatio, outputValue.amount, swapParams.output]);
+  }, [slippageRatio, outputValue.amount, swapParams.data.output]);
 
-  useEffect(() => {
+  const loadSwapParams = () => {
     if (!fromRoute3Token || !toRoute3Token || !inputValue.amount) {
       return;
     }
+    setSwapParams(prevState => createEntity(prevState.data, true));
 
-    dispatch(
-      loadSwapParamsAction.submit({
-        fromSymbol: fromRoute3Token.symbol,
-        toSymbol: toRoute3Token.symbol,
-        amount: inputValue.amount.toFixed()
+    fetchRoute3SwapParams({
+      fromSymbol: fromRoute3Token.symbol,
+      toSymbol: toRoute3Token.symbol,
+      amount: inputValue.amount.toFixed()
+    })
+      .then(params => {
+        setSwapParams(createEntity(params));
+
+        if ((params.input ?? 0) > 0 && params.chains.length === 0) {
+          setIsAlertVisible(true);
+        } else {
+          setIsAlertVisible(false);
+        }
       })
-    );
-  }, [inputValue.assetSlug, outputValue.assetSlug, inputValue.amount]);
+      .catch(error => setSwapParams(prevState => createEntity(prevState.data, false, error.message)));
+  };
+
+  useEffect(() => loadSwapParams(), [blockLevel]);
+  useEffect(() => loadSwapParams(), [inputValue.assetSlug, outputValue.assetSlug, inputValue.amount]);
 
   useEffect(
     () =>
@@ -116,32 +130,15 @@ export const SwapForm: FC = () => {
   );
 
   useEffect(() => {
-    dispatch(loadSwapDexesAction.submit());
-    dispatch(resetSwapParamsAction());
-  }, []);
-
-  useEffect(() => {
-    if (fromRoute3Token && toRoute3Token && inputValue.amount) {
-      dispatch(
-        loadSwapParamsAction.submit({
-          fromSymbol: fromRoute3Token.symbol,
-          toSymbol: toRoute3Token.symbol,
-          amount: inputValue.amount.toFixed()
-        })
-      );
-    }
-  }, [blockLevel]);
-
-  useEffect(() => {
     setValue('output', {
       assetSlug: outputValue.assetSlug,
-      amount: swapParams.output === undefined ? undefined : new BigNumber(swapParams.output)
+      amount: swapParams.data.output === undefined ? undefined : new BigNumber(swapParams.data.output)
     });
 
     if (isSubmitButtonPressedRef.current) {
       triggerValidation();
     }
-  }, [outputAssetMetadata.decimals, outputValue.assetSlug, swapParams.output, setValue, triggerValidation]);
+  }, [outputAssetMetadata.decimals, outputValue.assetSlug, swapParams.data.output, setValue, triggerValidation]);
 
   useEffect(() => {
     register('input', {
@@ -193,7 +190,9 @@ export const SwapForm: FC = () => {
       const route3SwapOpParams = await getRoute3SwapOpParams(
         fromRoute3Token,
         toRoute3Token,
-        minimumReceivedAmountAtomic
+        inputValue.amount,
+        minimumReceivedAmountAtomic,
+        swapParams.data.chains
       );
 
       if (!route3SwapOpParams) {
@@ -240,24 +239,35 @@ export const SwapForm: FC = () => {
 
     if (newInputValue.assetSlug === outputValue.assetSlug) {
       setValue('output', {});
-    }
-
-    if (newInputValue.amount === undefined) {
-      dispatch(resetSwapParamsAction());
+      setSwapParams(createEntity({ input: 0, output: 0, chains: [] }));
     }
   };
+
   const handleOutputChange = (newOutputValue: SwapInputValue) => {
     setValue('output', newOutputValue);
 
     if (newOutputValue.assetSlug === inputValue.assetSlug) {
       setValue('input', {});
+      setSwapParams(createEntity({ input: 0, output: 0, chains: [] }));
     }
   };
 
   const handleSubmitButtonClick = () => (isSubmitButtonPressedRef.current = true);
 
+  const handleCloseAlert = () => setIsAlertVisible(false);
+
   return (
     <form className="mb-8" onSubmit={handleSubmit(onSubmit)}>
+      {isAlertVisible && (
+        <Alert
+          closable
+          className="mb-4"
+          type="error"
+          description={<T id="noRoutesFound" />}
+          onClose={handleCloseAlert}
+        />
+      )}
+
       {operation && (
         <OperationStatus
           className="mb-6"
@@ -311,6 +321,7 @@ export const SwapForm: FC = () => {
           background: isValid ? '#4299e1' : '#c2c2c2'
         }}
         loading={isSubmitting}
+        searchingRoute={swapParams.isLoading}
         onClick={handleSubmitButtonClick}
         testID={SwapFormSelectors.swapButton}
       >
@@ -338,8 +349,8 @@ export const SwapForm: FC = () => {
             </td>
             <td className="text-right text-gray-600">
               <SwapExchangeRate
-                inputAmount={swapParams.input}
-                outputAmount={swapParams.output}
+                inputAmount={swapParams.data.input}
+                outputAmount={swapParams.data.output}
                 inputAssetMetadata={inputAssetMetadata}
                 outputAssetMetadata={outputAssetMetadata}
               />
@@ -384,9 +395,9 @@ export const SwapForm: FC = () => {
         />
       )}
 
-      <SwapRoute className="mb-6" />
+      <SwapRoute className="mb-6" swapParams={swapParams.data} />
 
-      <p className="text-center text-gray-700 max-w-xs">
+      <p className="text-center text-gray-700 max-w-xs m-auto">
         <span className="mr-1">
           <T id="swapRoute3Description" />
         </span>

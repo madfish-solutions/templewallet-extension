@@ -3,12 +3,10 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import constate from 'constate';
 import deepEqual from 'fast-deep-equal';
 import Fuse from 'fuse.js';
-import { useDispatch } from 'react-redux';
 import { useDebounce } from 'use-debounce';
 import useForceUpdate from 'use-force-update';
 import browser from 'webextension-polyfill';
 
-import { loadSwapTokensAction } from 'app/store/swap/actions';
 import { useSwapTokensSelector } from 'app/store/swap/selectors';
 import { useRetryableSWR } from 'lib/swr';
 import {
@@ -300,10 +298,7 @@ export const useAvailableAssets = (assetType: AssetTypesEnum) => {
 };
 
 export const useAvailableRoute3Tokens = () => {
-  const dispatch = useDispatch();
   const { data: route3tokens, isLoading } = useSwapTokensSelector();
-
-  useEffect(() => void dispatch(loadSwapTokensAction.submit()), []);
 
   const route3tokensSlugs = useMemo(() => {
     const result: Array<string> = [];
