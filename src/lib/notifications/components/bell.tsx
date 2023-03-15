@@ -3,6 +3,7 @@ import React from 'react';
 import { BellIcon, NotificationDotIcon } from 'lib/icons';
 import { Link } from 'lib/woozie';
 
+import { HomeSelectors } from '../../../app/pages/Home/Home.selectors';
 import { useIsNewNotificationsAvailableSelector } from '../store/selectors';
 
 export const NotificationsBell = () => {
@@ -19,6 +20,7 @@ export const NotificationsBell = () => {
         borderRadius: 4,
         backgroundColor: '#E5F2FF'
       }}
+      testID={HomeSelectors.notificationIconButton}
     >
       {isNewNotificationsAvailable && (
         <NotificationDotIcon

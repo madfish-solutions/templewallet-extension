@@ -29,7 +29,7 @@ export const MoonPay = () => {
       href={signedUrl}
       target="_blank"
       rel="noopener noreferrer"
-      onClick={() => trackEvent(BuySelectors.MoonPay, AnalyticsEventCategory.ButtonPress)}
+      onClick={() => trackEvent(BuySelectors.MoonPayButton, AnalyticsEventCategory.ButtonPress)}
     >
       <T id="continue" />
     </a>
