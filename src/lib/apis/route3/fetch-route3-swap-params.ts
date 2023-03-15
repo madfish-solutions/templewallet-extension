@@ -1,6 +1,6 @@
 import { route3Api } from './route3.api';
 
-export interface Route3SwapParamsRequest {
+interface Route3SwapParamsRequest {
   fromSymbol: string;
   toSymbol: string;
   amount: string;
