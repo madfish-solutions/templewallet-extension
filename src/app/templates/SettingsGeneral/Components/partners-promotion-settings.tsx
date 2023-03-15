@@ -1,0 +1,41 @@
+import React, { FC } from 'react';
+
+import { useDispatch } from 'react-redux';
+
+import { FormCheckbox } from 'app/atoms';
+import { togglePartnersPromotionAction } from 'app/store/partners-promotion/actions';
+import { useShouldShowPartnersPromoSelector } from 'app/store/partners-promotion/selectors';
+import { T, t } from 'lib/i18n';
+
+import { SettingsGeneralSelectors } from '../SettingsGeneral.selectors';
+
+export const PartnersPromotionSettings: FC = () => {
+  const dispatch = useDispatch();
+
+  const shouldShowPartnersPromo = useShouldShowPartnersPromoSelector();
+
+  const togglePartnersPromotion = () => dispatch(togglePartnersPromotionAction(!shouldShowPartnersPromo));
+
+  return (
+    <>
+      <label className="mb-4 leading-tight flex flex-col" htmlFor="shouldShowPartnersPromo">
+        <span className="text-base font-semibold text-gray-700">
+          <T id="partnersPromoSettings" />
+        </span>
+
+        <span className="mt-1 text-xs font-light text-gray-600" style={{ maxWidth: '90%' }}>
+          <T id="partnersPromoDescription" />
+        </span>
+      </label>
+
+      <FormCheckbox
+        checked={shouldShowPartnersPromo}
+        onChange={togglePartnersPromotion}
+        name="shouldShowPartnersPromo"
+        label={t(shouldShowPartnersPromo ? 'enabled' : 'disabled')}
+        containerClassName="mb-4"
+        testID={SettingsGeneralSelectors.partnersPromotion}
+      />
+    </>
+  );
+};

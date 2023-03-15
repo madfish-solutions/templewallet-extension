@@ -2,7 +2,7 @@ import { createReducer } from '@reduxjs/toolkit';
 
 import { createEntity } from 'lib/store';
 
-import { loadPartnersPromoAction, skipPartnersPromotionAction } from './actions';
+import { loadPartnersPromoAction, togglePartnersPromotionAction } from './actions';
 import { partnersPromotionInitialState } from './state';
 
 export const partnersPromotionRucer = createReducer(partnersPromotionInitialState, builder => {
@@ -18,8 +18,8 @@ export const partnersPromotionRucer = createReducer(partnersPromotionInitialStat
     ...state,
     promotion: createEntity(state.promotion.data, false, payload)
   }));
-  builder.addCase(skipPartnersPromotionAction, (state, { payload }) => ({
+  builder.addCase(togglePartnersPromotionAction, (state, { payload }) => ({
     ...state,
-    seenPromotionIds: [...state.seenPromotionIds, payload]
+    shouldShowPromotion: payload
   }));
 });

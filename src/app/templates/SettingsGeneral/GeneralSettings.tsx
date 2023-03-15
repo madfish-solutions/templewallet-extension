@@ -9,6 +9,8 @@ import LockUpSettings from 'app/templates/SettingsGeneral/Components/LockUpSetti
 import PopupSettings from 'app/templates/SettingsGeneral/Components/PopupSettings';
 import { NotificationsSettings } from 'lib/notifications';
 
+import { PartnersPromotionSettings } from './Components/partners-promotion-settings';
+
 const GeneralSettings: FC = () => {
   return (
     <div className="w-full max-w-sm mx-auto my-8">
@@ -26,6 +28,8 @@ const GeneralSettings: FC = () => {
       <LedgerLiveSettings />
 
       <NotificationsSettings />
+
+      <PartnersPromotionSettings />
     </div>
   );
 };
