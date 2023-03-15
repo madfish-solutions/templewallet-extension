@@ -2,7 +2,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import constate from 'constate';
 import deepEqual from 'fast-deep-equal';
-import Fuse from 'fuse.js';
 import { useDebounce } from 'use-debounce';
 import useForceUpdate from 'use-force-update';
 import browser from 'webextension-polyfill';
@@ -22,6 +21,7 @@ import {
 import { useNetwork } from 'lib/temple/front';
 import { ITokenStatus } from 'lib/temple/repo';
 import { createQueue } from 'lib/utils';
+import { searchAndFilterItems } from 'lib/utils/search-items';
 
 import {
   AssetMetadata,
@@ -304,7 +304,7 @@ export function useFilteredAssets(assetSlugs: string[]) {
   const [searchValueDebounced] = useDebounce(tokenId ? toTokenSlug(searchValue, tokenId) : searchValue, 300);
 
   const filteredAssets = useMemo(
-    () => searchAssets(searchValueDebounced, assetSlugs, allTokensBaseMetadata),
+    () => searchAssetsWithNoMeta(searchValueDebounced, assetSlugs, allTokensBaseMetadata, slug => slug),
     [searchValueDebounced, assetSlugs, allTokensBaseMetadata]
   );
 
@@ -317,25 +317,28 @@ export function useFilteredAssets(assetSlugs: string[]) {
   };
 }
 
-function searchAssets(searchValue: string, assetSlugs: string[], allTokensBaseMetadata: Record<string, AssetMetadata>) {
-  if (!searchValue) return assetSlugs;
-
-  const fuse = new Fuse(
-    assetSlugs.map(slug => ({
-      slug,
-      metadata: isTezAsset(slug) ? TEZOS_METADATA : allTokensBaseMetadata[slug]
-    })),
-    {
-      keys: [
-        { name: 'metadata.symbol', weight: 1 },
-        { name: 'metadata.name', weight: 0.25 },
-        { name: 'slug', weight: 0.1 }
-      ],
-      threshold: 0.1
+export function searchAssetsWithNoMeta<T>(
+  searchValue: string,
+  assets: T[],
+  allTokensBaseMetadata: Record<string, AssetMetadata>,
+  getSlug: (asset: T) => string
+) {
+  return searchAndFilterItems(
+    assets,
+    searchValue,
+    [
+      { name: 'metadata.symbol', weight: 1 },
+      { name: 'metadata.name', weight: 0.25 },
+      { name: 'slug', weight: 0.1 }
+    ],
+    asset => {
+      const slug = getSlug(asset);
+      return {
+        slug,
+        metadata: isTezAsset(slug) ? TEZOS_METADATA : allTokensBaseMetadata[slug]
+      };
     }
   );
-
-  return fuse.search(searchValue).map(({ item: { slug } }) => slug);
 }
 
 function getDetailedMetadataStorageKey(slug: string) {

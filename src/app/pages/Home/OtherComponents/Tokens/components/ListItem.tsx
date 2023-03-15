@@ -37,10 +37,9 @@ export const ListItem = memo<Props>(({ active, assetSlug, balances }) => {
   const classNameMemo = useMemo(
     () =>
       classNames(
-        'relative block w-full flex items-center px-4 py-3 overflow-hidden',
-        'text-gray-700 focus:outline-none',
-        active ? 'hover:bg-gray-200' : 'hover:bg-gray-200 focus:bg-gray-200',
-        'transition ease-in-out duration-200'
+        'relative block w-full overflow-hidden flex items-center px-4 py-3 rounded',
+        'hover:bg-gray-200 text-gray-700 transition ease-in-out duration-200 focus:outline-none',
+        active && 'focus:bg-gray-200'
       ),
     [active]
   );

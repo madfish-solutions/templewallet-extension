@@ -2,7 +2,6 @@ import React, {
   Dispatch,
   FC,
   FocusEventHandler,
-  Suspense,
   useCallback,
   useEffect,
   useLayoutEffect,
@@ -18,21 +17,17 @@ import classNames from 'clsx';
 import { Controller, FieldError, useForm } from 'react-hook-form';
 import useSWR from 'swr';
 
-import { Alert, FormSubmitButton, NoSpaceField } from 'app/atoms';
+import { NoSpaceField } from 'app/atoms';
 import AssetField from 'app/atoms/AssetField';
 import Identicon from 'app/atoms/Identicon';
 import Money from 'app/atoms/Money';
-import Spinner from 'app/atoms/Spinner/Spinner';
 import { ArtificialError, NotEnoughFundsError, ZeroBalanceError, ZeroTEZBalanceError } from 'app/defaults';
 import { useAppEnv } from 'app/env';
 import { ReactComponent as ChevronDownIcon } from 'app/icons/chevron-down.svg';
 import { ReactComponent as ChevronUpIcon } from 'app/icons/chevron-up.svg';
-import AdditionalFeeInput from 'app/templates/AdditionalFeeInput/AdditionalFeeInput';
-import AssetSelect from 'app/templates/AssetSelect/AssetSelect';
 import Balance from 'app/templates/Balance';
 import InFiat from 'app/templates/InFiat';
-import OperationStatus from 'app/templates/OperationStatus';
-import { AnalyticsEventCategory, useAnalytics, useFormAnalytics } from 'lib/analytics';
+import { useFormAnalytics } from 'lib/analytics';
 import { useAssetFiatCurrencyPrice, useFiatCurrency } from 'lib/fiat-currency';
 import { toLocalFixed, T, t } from 'lib/i18n';
 import { transferImplicit, transferToContract } from 'lib/michelson';
@@ -43,30 +38,23 @@ import {
   isDomainNameValid,
   useAccount,
   useBalance,
-  useChainId,
   useNetwork,
   useTezos,
   useTezosDomainsClient,
   useAssetMetadata,
-  useCollectibleTokens,
-  useDisplayedFungibleTokens,
   useFilteredContacts,
-  validateDelegate,
-  useGasToken
+  validateDelegate
 } from 'lib/temple/front';
 import { hasManager, isAddressValid, isKTAddress, mutezToTz, tzToMutez } from 'lib/temple/helpers';
 import { AssetMetadata, getAssetSymbol } from 'lib/temple/metadata';
 import { TempleAccountType, TempleAccount, TempleNetworkType } from 'lib/temple/types';
 import { useSafeState } from 'lib/ui/hooks';
 import { useScrollIntoView } from 'lib/ui/use-scroll-into-view';
-import { HistoryAction, navigate } from 'lib/woozie';
 
-import { IAsset } from './AssetSelect/interfaces';
-import { getSlug } from './AssetSelect/utils';
-import { SendFormSelectors } from './SendForm.selectors';
-import AddContactModal from './SendForm/AddContactModal';
-import ContactsDropdown, { ContactsDropdownProps } from './SendForm/ContactsDropdown';
-import SendErrorAlert from './SendForm/SendErrorAlert';
+import ContactsDropdown, { ContactsDropdownProps } from './ContactsDropdown';
+import { FeeSection } from './FeeSection';
+import { SendFormSelectors } from './selectors';
+import { SpinnerSection } from './SpinnerSection';
 
 interface FormData {
   to: string;
@@ -77,78 +65,13 @@ interface FormData {
 const PENNY = 0.000001;
 const RECOMMENDED_ADD_FEE = 0.0001;
 
-type SendFormProps = {
-  assetSlug?: string | null;
-};
-
-const SendForm: FC<SendFormProps> = ({ assetSlug = 'tez' }) => {
-  const chainId = useChainId(true)!;
-  const account = useAccount();
-
-  const { data: tokens = [] } = useDisplayedFungibleTokens(chainId, account.publicKeyHash);
-  const { data: collectibles = [] } = useCollectibleTokens(chainId, account.publicKeyHash, true);
-
-  const assets = useMemo<IAsset[]>(() => ['tez' as const, ...tokens, ...collectibles], [tokens, collectibles]);
-  const selectedAsset = useMemo(() => assets.find(a => getSlug(a) === assetSlug) ?? 'tez', [assets, assetSlug]);
-
-  const tezos = useTezos();
-  const [operation, setOperation] = useSafeState<any>(null, tezos.checksum);
-  const [addContactModalAddress, setAddContactModalAddress] = useState<string | null>(null);
-  const { trackEvent } = useAnalytics();
-
-  const handleAssetChange = useCallback(
-    (aSlug: string) => {
-      trackEvent(SendFormSelectors.assetItemButton, AnalyticsEventCategory.ButtonPress);
-      navigate(`/send/${aSlug}`, HistoryAction.Replace);
-    },
-    [trackEvent]
-  );
-
-  const handleAddContactRequested = useCallback(
-    (address: string) => {
-      setAddContactModalAddress(address);
-    },
-    [setAddContactModalAddress]
-  );
-
-  const closeContactModal = useCallback(() => {
-    setAddContactModalAddress(null);
-  }, [setAddContactModalAddress]);
-
-  return (
-    <>
-      {operation && <OperationStatus typeTitle={t('transaction')} operation={operation} />}
-
-      <AssetSelect
-        value={selectedAsset}
-        assets={assets}
-        onChange={handleAssetChange}
-        className="mb-6"
-        testID={SendFormSelectors.assetDropDown}
-      />
-
-      <Suspense fallback={<SpinnerSection />}>
-        <Form
-          assetSlug={getSlug(selectedAsset)}
-          setOperation={setOperation}
-          onAddContactRequested={handleAddContactRequested}
-        />
-      </Suspense>
-
-      <AddContactModal address={addContactModalAddress} onClose={closeContactModal} />
-    </>
-  );
-};
-
-export default SendForm;
-
 type FormProps = {
   assetSlug: string;
   setOperation: Dispatch<any>;
   onAddContactRequested: (address: string) => void;
 };
 
-const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested }) => {
+export const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested }) => {
   const { registerBackHandler } = useAppEnv();
 
   const assetMetadata = useAssetMetadata(assetSlug);
@@ -213,6 +136,7 @@ const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested })
     },
     [setShouldUseFiat, shoudUseFiat, getValues, assetPrice, setValue]
   );
+
   useEffect(() => {
     if (!canToggleFiat && prevCanToggleFiat.current && shoudUseFiat) {
       setShouldUseFiat(false);
@@ -543,7 +467,7 @@ const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested })
               <div className="ml-1 mr-px font-normal">{filledContact.name}</div> (
               <Balance assetSlug={assetSlug} address={filledContact.address}>
                 {bal => (
-                  <span className={classNames('text-xs leading-none flex items-baseline')}>
+                  <span className="text-xs leading-none flex items-baseline">
                     <Money>{bal}</Money>{' '}
                     <span className="ml-1" style={{ fontSize: '0.75em' }}>
                       {assetSymbol}
@@ -567,14 +491,14 @@ const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested })
       />
 
       {resolvedAddress && (
-        <div className={classNames('mb-4 -mt-3', 'text-xs font-light text-gray-600', 'flex flex-wrap items-center')}>
+        <div className="mb-4 -mt-3 text-xs font-light text-gray-600 flex flex-wrap items-center">
           <span className="mr-1 whitespace-nowrap">{t('resolvedAddress')}:</span>
           <span className="font-normal">{resolvedAddress}</span>
         </div>
       )}
 
       {toFilled && !filledContact ? (
-        <div className={classNames('mb-4 -mt-3', 'text-xs font-light text-gray-600', 'flex flex-wrap items-center')}>
+        <div className="mb-4 -mt-3 text-xs font-light text-gray-600 flex flex-wrap items-center">
           <button
             type="button"
             className="text-xs font-light text-gray-600 underline"
@@ -601,9 +525,7 @@ const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested })
               type="button"
               onClick={handleFiatToggle}
               className={classNames(
-                'px-1 rounded-md',
-                'flex items-center',
-                'font-light',
+                'px-1 rounded-md flex items-center font-light',
                 'hover:bg-black hover:bg-opacity-5',
                 'trasition ease-in-out duration-200',
                 'cursor-pointer pointer-events-auto'
@@ -626,7 +548,7 @@ const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested })
           maxAmount && (
             <>
               <T id="availableToSend" />{' '}
-              <button type="button" className={classNames('underline')} onClick={handleSetMaxAmount}>
+              <button type="button" className="underline" onClick={handleSetMaxAmount}>
                 {shoudUseFiat ? <span className="pr-px">{selectedFiatCurrency.symbol}</span> : null}
                 {toLocalFixed(maxAmount)}
               </button>
@@ -650,7 +572,7 @@ const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested })
       {estimateFallbackDisplayed ? (
         <SpinnerSection />
       ) : (
-        <FeeComponent
+        <FeeSection
           restFormDisplayed={restFormDisplayed}
           submitError={submitError}
           estimationError={estimationError}
@@ -683,6 +605,7 @@ const TokenToFiat: React.FC<TokenToFiatProps> = ({
   toAssetAmount
 }) => {
   if (!amountValue) return null;
+
   return (
     <>
       <br />
@@ -723,78 +646,6 @@ interface FeeComponentProps {
   isSubmitting: boolean;
 }
 
-const FeeComponent: React.FC<FeeComponentProps> = ({
-  restFormDisplayed,
-  submitError,
-  estimationError,
-  toResolved,
-  toFilledWithKTAddress,
-  control,
-  handleFeeFieldChange,
-  baseFee,
-  error,
-  isSubmitting
-}) => {
-  const acc = useAccount();
-  const { metadata } = useGasToken();
-  const accountPkh = acc.publicKeyHash;
-  if (!restFormDisplayed) return null;
-  return (
-    <>
-      {(() => {
-        switch (true) {
-          case Boolean(submitError):
-            return <SendErrorAlert type="submit" error={submitError} />;
-
-          case Boolean(estimationError):
-            return <SendErrorAlert type="estimation" error={estimationError} />;
-
-          case toResolved === accountPkh:
-            return (
-              <Alert
-                type="warn"
-                title={t('attentionExclamation')}
-                description={<T id="tryingToTransferToYourself" />}
-                className="mt-6 mb-4"
-              />
-            );
-
-          case toFilledWithKTAddress:
-            return (
-              <Alert
-                type="warn"
-                title={t('attentionExclamation')}
-                description={<T id="tryingToTransferToContract" />}
-                className="mt-6 mb-4"
-              />
-            );
-
-          default:
-            return null;
-        }
-      })()}
-
-      <AdditionalFeeInput
-        name="fee"
-        control={control}
-        onChange={handleFeeFieldChange}
-        assetSymbol={metadata.symbol}
-        baseFee={baseFee}
-        error={error}
-        id="send-fee"
-      />
-
-      <FormSubmitButton
-        loading={isSubmitting}
-        disabled={Boolean(estimationError)}
-        testID={SendFormSelectors.sendButton}
-      >
-        <T id="send" />
-      </FormSubmitButton>
-    </>
-  );
-};
-
 function validateAddress(value: string) {
   switch (false) {
     case value?.length > 0:
@@ -807,12 +658,6 @@ function validateAddress(value: string) {
       return true;
   }
 }
-
-const SpinnerSection: FC = () => (
-  <div className="flex justify-center my-8">
-    <Spinner className="w-20" />
-  </div>
-);
 
 const getMaxAmountFiat = (assetPrice: number | null, maxAmountAsset: BigNumber) =>
   assetPrice ? maxAmountAsset.times(assetPrice).decimalPlaces(2, BigNumber.ROUND_FLOOR) : new BigNumber(0);
@@ -874,8 +719,10 @@ const getBaseFeeError = (baseFee: BigNumber | ArtificialError | undefined, estim
   baseFee instanceof Error ? baseFee : estimateBaseFeeError;
 
 const getFeeError = (estimating: boolean, feeError: any) => (!estimating ? feeError : null);
+
 const getEstimateFallBackDisplayed = (toFilled: boolean | '', baseFee: any, estimating: boolean) =>
   toFilled && !baseFee && estimating;
+
 const getRestFormDisplayed = (toFilled: boolean | '', baseFee: any, estimationError: any) =>
   Boolean(toFilled && (baseFee || estimationError));
 
@@ -885,7 +732,9 @@ const InnerDropDownComponentGuard: React.FC<ContactsDropdownProps> = ({ contacts
 };
 
 const getFilled = (toFilled: boolean | '', toFieldFocused: boolean) => (!toFilled ? toFieldFocused : false);
+
 const getDomainTextError = (canUseDomainNames: boolean) =>
   canUseDomainNames ? 'recipientInputPlaceholderWithDomain' : 'recipientInputPlaceholder';
+
 const getAssetDomainName = (canUseDomainNames: boolean) =>
   canUseDomainNames ? 'tokensRecepientInputDescriptionWithDomain' : 'tokensRecepientInputDescription';

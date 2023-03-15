@@ -1,11 +1,11 @@
 import React, { useMemo, useCallback, FC } from 'react';
 
-import classNames from 'clsx';
 import browser from 'webextension-polyfill';
 
 import Flag from 'app/atoms/Flag';
-import { AnalyticsEventCategory, AnalyticsEventEnum, setTestID, useAnalytics } from 'lib/analytics';
-import { getCurrentLocale, updateLocale, T } from 'lib/i18n';
+import { AnalyticsEventCategory, AnalyticsEventEnum, useAnalytics, setTestID } from 'lib/analytics';
+import { getCurrentLocale, updateLocale, T, t } from 'lib/i18n';
+import { searchAndFilterItems } from 'lib/utils/search-items';
 
 import IconifiedSelect, { IconifiedSelectOptionRenderProps } from '../../IconifiedSelect';
 import { SettingsGeneralSelectors } from '../SettingsGeneral.selectors';
@@ -21,7 +21,7 @@ type LocaleOption = {
   label: string;
 };
 
-const localeOptions: LocaleOption[] = [
+const LOCALE_OPTIONS: LocaleOption[] = [
   {
     code: 'en',
     flagName: 'us',
@@ -106,19 +106,8 @@ const LocaleSelect: FC<LocaleSelectProps> = ({ className }) => {
   const { trackEvent } = useAnalytics();
 
   const value = useMemo(
-    () => localeOptions.find(({ code }) => code === selectedLocale) || localeOptions[0],
+    () => LOCALE_OPTIONS.find(({ code }) => code === selectedLocale) ?? LOCALE_OPTIONS[0],
     [selectedLocale]
-  );
-
-  const title = useMemo(
-    () => (
-      <h2 className={classNames('mb-4', 'leading-tight', 'flex flex-col')}>
-        <span className="text-base font-semibold text-gray-700">
-          <T id="languageAndCountry" />
-        </span>
-      </h2>
-    ),
-    []
   );
 
   const handleLocaleChange = useCallback(
@@ -131,17 +120,19 @@ const LocaleSelect: FC<LocaleSelectProps> = ({ className }) => {
 
   return (
     <IconifiedSelect
-      Icon={LocaleIcon}
-      OptionSelectedIcon={LocaleIcon}
-      OptionInMenuContent={LocaleInMenuContent}
-      OptionSelectedContent={LocaleSelectContent}
+      BeforeContent={LocaleTitle}
+      FieldContent={LocaleFieldContent}
+      OptionContent={LocaleOptionContent}
       getKey={getLocaleCode}
       isDisabled={localeIsDisabled}
-      options={localeOptions}
-      value={value}
       onChange={handleLocaleChange}
-      title={title}
+      options={LOCALE_OPTIONS}
+      value={value}
+      noItemsText={t('noItemsFound')}
       className={className}
+      padded
+      fieldStyle={{ minHeight: '3.375rem' }}
+      search={{ filterItems: searchLocale }}
       testID={SettingsGeneralSelectors.languageDropDown}
     />
   );
@@ -149,40 +140,53 @@ const LocaleSelect: FC<LocaleSelectProps> = ({ className }) => {
 
 export default LocaleSelect;
 
-const LocaleIcon: FC<IconifiedSelectOptionRenderProps<LocaleOption>> = ({ option: { flagName, code } }) => (
+const LocaleTitle: FC = () => (
+  <h2 className="mb-4 leading-tight flex flex-col">
+    <span className="text-base font-semibold text-gray-700">
+      <T id="languageAndCountry" />
+    </span>
+  </h2>
+);
+
+type SelectItemProps = IconifiedSelectOptionRenderProps<LocaleOption>;
+
+const LocaleIcon: FC<SelectItemProps> = ({ option: { flagName, code } }) => (
   <Flag alt={code} className="ml-2 mr-3" src={browser.runtime.getURL(`/misc/country-flags/${flagName}.svg`)} />
 );
 
-const LocaleInMenuContent: FC<IconifiedSelectOptionRenderProps<LocaleOption>> = ({ option: { disabled, label } }) => {
+const LocaleFieldContent: FC<SelectItemProps> = ({ option }) => {
   return (
-    <div
-      className={classNames('relative w-full text-lg text-gray-700')}
-      {...setTestID(SettingsGeneralSelectors.languageitem)}
-    >
-      {label}
+    <>
+      <LocaleIcon option={option} />
 
-      {disabled && (
-        <div className={classNames('absolute top-0 bottom-0 right-0', 'flex items-center')}>
-          <div
-            className={classNames(
-              'mr-2 px-1',
-              'bg-orange-500 rounded-sm shadow-md',
-              'text-white',
-              'text-xs font-semibold uppercase'
-            )}
-          >
-            <T id="soon" />
-          </div>
-        </div>
-      )}
-    </div>
-  );
-};
-
-const LocaleSelectContent: FC<IconifiedSelectOptionRenderProps<LocaleOption>> = ({ option }) => {
-  return (
-    <div className="flex flex-col items-start py-2">
       <span className="text-xl text-gray-700">{option.label}</span>
-    </div>
+    </>
   );
 };
+
+const LocaleOptionContent: FC<SelectItemProps> = ({ option }) => {
+  return (
+    <>
+      <LocaleIcon option={option} />
+
+      <div className="relative w-full text-lg text-gray-700" {...setTestID(SettingsGeneralSelectors.languageitem)}>
+        {option.label}
+
+        {option.disabled && (
+          <div className="absolute top-0 bottom-0 right-0 flex items-center">
+            <div className="mr-2 px-1 bg-orange-500 rounded-sm shadow-md text-white text-xs font-semibold uppercase">
+              <T id="soon" />
+            </div>
+          </div>
+        )}
+      </div>
+    </>
+  );
+};
+
+const searchLocale = (searchString: string) =>
+  searchAndFilterItems(LOCALE_OPTIONS, searchString, [
+    { name: 'code', weight: 0.75 },
+    { name: 'flagName', weight: 1 },
+    { name: 'label', weight: 0.5 }
+  ]);

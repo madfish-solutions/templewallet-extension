@@ -10,7 +10,7 @@ import { T } from 'lib/i18n';
 import { TempleContact } from 'lib/temple/types';
 import { useScrollIntoView } from 'lib/ui/use-scroll-into-view';
 
-import { SendFormSelectors } from '../SendForm.selectors';
+import { SendFormSelectors } from './selectors';
 
 type ContactsDropdownItemProps = ComponentProps<typeof Button> & {
   contact: TempleContact;
