@@ -209,14 +209,10 @@ const NetworksListItem: FC<NetworksListItemProps> = props => {
   return (
     <div
       className={classNames(
-        'block w-full',
-        'overflow-hidden',
+        'flex items-stretch block w-full overflow-hidden text-gray-700',
         !last && 'border-b border-gray-200',
-        'flex items-stretch',
-        'text-gray-700',
-        'transition ease-in-out duration-200',
-        'focus:outline-none',
-        'opacity-90 hover:opacity-100'
+        'opacity-90 hover:opacity-100 focus:outline-none',
+        'transition ease-in-out duration-200'
       )}
       style={{
         padding: '0.4rem 0.375rem 0.4rem 0.375rem'

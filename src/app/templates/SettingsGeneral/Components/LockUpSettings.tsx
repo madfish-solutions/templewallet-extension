@@ -7,7 +7,7 @@ import { useIsLockUpEnabled } from 'lib/lock-up';
 import { SettingsGeneralSelectors } from '../SettingsGeneral.selectors';
 
 const LockUpSettings: FC<{}> = () => {
-  const [isLockUpEnabled, saveIsLockUpEnabled] = useIsLockUpEnabled();
+  const [enabled, saveIsLockUpEnabled] = useIsLockUpEnabled();
 
   return (
     <>
@@ -22,12 +22,13 @@ const LockUpSettings: FC<{}> = () => {
       </label>
 
       <FormCheckbox
-        checked={isLockUpEnabled}
+        checked={enabled}
         onChange={saveIsLockUpEnabled}
         name="isLockUpEnabled"
-        label={t(isLockUpEnabled ? 'enabled' : 'disabled')}
+        label={t(enabled ? 'enabled' : 'disabled')}
         containerClassName="mb-4"
         testID={SettingsGeneralSelectors.extensionLockUpCheckBox}
+        testIDProperties={{ enabled }}
       />
     </>
   );

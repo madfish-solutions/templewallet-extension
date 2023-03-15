@@ -65,6 +65,7 @@ const ApproveStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
           <T id={'depositDescription'} />
         </p>
       </div>
+
       {isError || !exchangeData ? (
         <ErrorComponent
           exchangeData={exchangeData}
@@ -86,8 +87,11 @@ const ApproveStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
               setExchangeData(data);
             }}
           />
+
           <WarningComponent amountAttention />
+
           <Divider style={{ marginBottom: '1.5rem', marginTop: '2rem' }} />
+
           <div className="flex justify-between items-baseline">
             <p className="text-gray-600 text-xs">
               <T id={'sendByOneTransaction'} />
@@ -96,6 +100,7 @@ const ApproveStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
               {exchangeData.amount} {exchangeData.coinFrom.coinCode}
             </p>
           </div>
+
           <div className="flex justify-between items-baseline">
             <p className="text-gray-600 text-xs">
               <T id={'youGet'} />
@@ -104,6 +109,7 @@ const ApproveStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
               {exchangeData.amountTo} {exchangeData.coinTo.coinCode}
             </p>
           </div>
+
           <div className="flex justify-between items-baseline">
             <p className="text-gray-600 text-xs">
               <T id={'fixedRate'} />
@@ -112,6 +118,7 @@ const ApproveStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
               1 {exchangeData.coinFrom.coinCode} = {exchangeData.rate} {exchangeData.coinTo.coinCode}
             </p>
           </div>
+
           <div className="flex justify-between items-baseline">
             <p className="text-gray-600 text-xs">
               <T id={'transactionId'} />
@@ -127,10 +134,13 @@ const ApproveStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
               </CopyButton>
             </span>
           </div>
+
           <p className="text-gray-600 text-xs text-center mt-6">
             <T id={'depositAddressText'} substitutions={[exchangeData.coinFrom.networkName]} />
           </p>
+
           <QRCode value={exchangeData.depositAddress} style={{ width: '160px', margin: '24px auto' }} />
+
           <FormField
             rows={2}
             size={36}
@@ -167,6 +177,7 @@ const ApproveStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
           )}
 
           <Divider style={{ marginTop: '2.5rem' }} />
+
           <div className="flex justify-between items-baseline mt-4 mb-12">
             <p className="text-gray-600 text-xs">
               <T id={'recipientAddress'} />
@@ -175,6 +186,7 @@ const ApproveStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
               <HashShortView hash={exchangeData.depositAddress} />
             </p>
           </div>
+
           <div>
             <p
               onClick={() => {

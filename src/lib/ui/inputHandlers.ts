@@ -1,61 +1,47 @@
-import React from 'react';
+import type {
+  SyntheticEvent,
+  ChangeEvent,
+  ChangeEventHandler,
+  EventHandler,
+  FocusEvent,
+  FocusEventHandler
+} from 'react';
 
 export const inputChangeHandler = (
-  evt: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-  onChange: React.ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement> | undefined,
+  evt: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  onChange: ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement> | undefined,
   setValue: (value: string) => void
-): void => {
-  if (onChange) {
-    onChange(evt);
-    if (evt.defaultPrevented) {
-      return;
-    }
-  }
-
-  setValue(evt.target.value);
-};
+) => baseHandler(evt, onChange, () => setValue(evt.target.value));
 
 export const checkedHandler = (
-  evt: React.ChangeEvent<HTMLInputElement>,
-  onChange: React.ChangeEventHandler<HTMLInputElement> | undefined,
+  evt: ChangeEvent<HTMLInputElement>,
+  onChange: ChangeEventHandler<HTMLInputElement> | undefined,
   setValue: (value: boolean) => void
-): void => {
-  if (onChange) {
-    onChange(evt);
-    if (evt.defaultPrevented) {
-      return;
-    }
-  }
-
-  setValue(evt.target.checked);
-};
+) => baseHandler(evt, onChange, () => setValue(evt.target.checked));
 
 export const focusHandler = (
-  evt: React.FocusEvent,
-  onFocus: React.FocusEventHandler | undefined,
+  evt: FocusEvent,
+  onFocus: FocusEventHandler | undefined,
   setFocus: (value: boolean) => void
-): void => {
-  if (onFocus) {
-    onFocus(evt);
-    if (evt.defaultPrevented) {
-      return;
-    }
-  }
-
-  setFocus(true);
-};
+) => baseHandler(evt, onFocus, () => setFocus(true));
 
 export const blurHandler = (
-  evt: React.FocusEvent,
-  onBlur: React.FocusEventHandler | undefined,
+  evt: FocusEvent,
+  onBlur: FocusEventHandler | undefined,
   setFocus: (value: boolean) => void
+) => baseHandler(evt, onBlur, () => setFocus(false));
+
+const baseHandler = <E extends SyntheticEvent>(
+  evt: E,
+  onEvent: EventHandler<E> | undefined,
+  setValue: () => void
 ): void => {
-  if (onBlur) {
-    onBlur(evt);
+  if (onEvent) {
+    onEvent(evt);
     if (evt.defaultPrevented) {
       return;
     }
   }
 
-  setFocus(false);
+  setValue();
 };

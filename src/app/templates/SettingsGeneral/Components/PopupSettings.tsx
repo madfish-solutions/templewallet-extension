@@ -7,7 +7,7 @@ import { isPopupModeEnabled, setPopupMode } from 'lib/popup-mode';
 import { SettingsGeneralSelectors } from '../SettingsGeneral.selectors';
 
 const PopupSettings: FC<{}> = () => {
-  const popupEnabled = isPopupModeEnabled();
+  const enabled = isPopupModeEnabled();
   const changingRef = useRef(false);
   const [error, setError] = useState<any>(null);
 
@@ -37,14 +37,15 @@ const PopupSettings: FC<{}> = () => {
       </label>
 
       <FormCheckbox
-        checked={popupEnabled}
+        checked={enabled}
         onChange={handlePopupModeChange}
         name="popupEnabled"
-        label={t(popupEnabled ? 'popupEnabled' : 'popupDisabled')}
+        label={t(enabled ? 'popupEnabled' : 'popupDisabled')}
         // labelDescription={t("enablePopup")}
         errorCaption={error?.message}
         containerClassName="mb-4"
         testID={SettingsGeneralSelectors.popUpCheckBox}
+        testIDProperties={{ enabled }}
       />
     </>
   );

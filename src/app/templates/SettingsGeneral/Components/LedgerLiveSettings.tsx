@@ -8,12 +8,7 @@ import { useLocalStorage } from 'lib/ui/local-storage';
 import { SettingsGeneralSelectors } from '../SettingsGeneral.selectors';
 
 const LedgerLiveSettings: React.FC<{}> = () => {
-  const [ledgerLiveEnabled, setLedgerLiveEnabled] = useLocalStorage<boolean>(
-    TempleSharedStorageKey.UseLedgerLive,
-    false
-  );
-
-  const ledgerLabel = ledgerLiveEnabled ? 'enabled' : 'disabled';
+  const [enabled, setLedgerLiveEnabled] = useLocalStorage<boolean>(TempleSharedStorageKey.UseLedgerLive, false);
 
   return (
     <>
@@ -28,12 +23,13 @@ const LedgerLiveSettings: React.FC<{}> = () => {
       </label>
 
       <FormCheckbox
-        checked={ledgerLiveEnabled}
+        checked={enabled}
         onChange={setLedgerLiveEnabled}
         name="ledgerLiveEnabled"
-        label={t(ledgerLabel)}
+        label={t(enabled ? 'enabled' : 'disabled')}
         containerClassName="mb-4"
         testID={SettingsGeneralSelectors.useLedgerLiveCheckBox}
+        testIDProperties={{ enabled }}
       />
     </>
   );

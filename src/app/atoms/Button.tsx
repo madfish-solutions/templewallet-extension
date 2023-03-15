@@ -2,11 +2,12 @@ import * as React from 'react';
 
 import { AnalyticsEventCategory, setTestID, TestIDProps, useAnalytics } from 'lib/analytics';
 
-interface Props
-  extends React.DetailedHTMLProps<React.ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement>,
-    TestIDProps {}
+export type ButtonProps = React.PropsWithRef<
+  React.DetailedHTMLProps<React.ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement>
+> &
+  TestIDProps;
 
-export const Button = React.forwardRef<HTMLButtonElement, Props>(
+export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ testID, testIDProperties, onClick, ...props }, ref) => {
     const { trackEvent } = useAnalytics();
 

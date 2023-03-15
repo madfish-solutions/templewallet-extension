@@ -1,4 +1,4 @@
-import { AccountDropdownSelectors } from '../../../../../src/app/layouts/PageLayout/Header/AccountDropdown.selectors';
+import { AccountDropdownSelectors } from '../../../../../src/app/layouts/PageLayout/Header/AccountDropdown/selectors';
 import { Page } from '../../../classes/page.class';
 import { createPageElement } from '../../../utils/search.utils';
 

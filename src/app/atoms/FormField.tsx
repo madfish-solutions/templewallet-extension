@@ -16,7 +16,7 @@ import CleanButton from 'app/atoms/CleanButton';
 import CopyButton from 'app/atoms/CopyButton';
 import { ReactComponent as CopyIcon } from 'app/icons/copy.svg';
 import { ReactComponent as LockAltIcon } from 'app/icons/lock-alt.svg';
-import { setTestID, TestIDProps } from 'lib/analytics';
+import { setTestID, TestIDProperty } from 'lib/analytics';
 import { T } from 'lib/i18n';
 import { blurHandler, focusHandler, inputChangeHandler } from 'lib/ui/inputHandlers';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
@@ -28,7 +28,8 @@ export const PASSWORD_ERROR_CAPTION = 'PASSWORD_ERROR_CAPTION';
 
 type FormFieldRef = HTMLInputElement | HTMLTextAreaElement;
 type FormFieldAttrs = InputHTMLAttributes<HTMLInputElement> & TextareaHTMLAttributes<HTMLTextAreaElement>;
-interface FormFieldProps extends TestIDProps, Omit<FormFieldAttrs, 'type'> {
+
+export interface FormFieldProps extends TestIDProperty, Omit<FormFieldAttrs, 'type'> {
   type?: 'text' | 'number' | 'password';
   extraSection?: ReactNode;
   label?: ReactNode;
@@ -82,7 +83,6 @@ export const FormField = forwardRef<FormFieldRef, FormFieldProps>(
       labelPaddingClassName = 'mb-4',
       copyable,
       testID,
-      testIDProperties,
       ...rest
     },
     ref

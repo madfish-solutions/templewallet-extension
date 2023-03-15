@@ -34,6 +34,17 @@ export const ListItem = memo<Props>(({ active, assetSlug, balances }) => {
 
   const apyInfo = useTokenApyInfo(assetSlug);
 
+  const classNameMemo = useMemo(
+    () =>
+      classNames(
+        'relative block w-full flex items-center px-4 py-3 overflow-hidden',
+        'text-gray-700 focus:outline-none',
+        active ? 'hover:bg-gray-200' : 'hover:bg-gray-200 focus:bg-gray-200',
+        'transition ease-in-out duration-200'
+      ),
+    [active]
+  );
+
   if (metadata == null) return null;
 
   const assetSymbol = getAssetSymbol(metadata);
@@ -42,16 +53,7 @@ export const ListItem = memo<Props>(({ active, assetSlug, balances }) => {
   return (
     <Link
       to={toExploreAssetLink(assetSlug)}
-      className={classNames(
-        'relative',
-        'block w-full',
-        'overflow-hidden',
-        active ? 'hover:bg-gray-200' : 'hover:bg-gray-200 focus:bg-gray-200',
-        'flex items-center px-4 py-3',
-        'text-gray-700',
-        'transition ease-in-out duration-200',
-        'focus:outline-none'
-      )}
+      className={classNameMemo}
       testID={AssetsSelectors.assetItemButton}
       testIDProperties={{ key: assetSlug }}
     >
@@ -63,8 +65,10 @@ export const ListItem = memo<Props>(({ active, assetSlug, balances }) => {
             <div className={styles['tokenSymbol']}>{assetSymbol}</div>
             <TokenTag assetSlug={assetSlug} assetSymbol={assetSymbol} apyInfo={apyInfo} />
           </div>
+
           <Balance assetSlug={assetSlug} value={latestBalance} />
         </div>
+
         <div className="flex justify-between w-full mb-1">
           <div className="text-xs font-normal text-gray-700 truncate flex-1">{assetName}</div>
           <Balance assetSlug={assetSlug} value={latestBalance} inFiat />

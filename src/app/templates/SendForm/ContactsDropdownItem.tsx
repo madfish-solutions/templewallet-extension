@@ -1,4 +1,4 @@
-import React, { ComponentProps, FC, useEffect, useRef } from 'react';
+import React, { ComponentProps, FC } from 'react';
 
 import classNames from 'clsx';
 
@@ -8,6 +8,7 @@ import Identicon from 'app/atoms/Identicon';
 import Name from 'app/atoms/Name';
 import { T } from 'lib/i18n';
 import { TempleContact } from 'lib/temple/types';
+import { useScrollIntoView } from 'lib/ui/use-scroll-into-view';
 
 import { SendFormSelectors } from '../SendForm.selectors';
 
@@ -17,16 +18,7 @@ type ContactsDropdownItemProps = ComponentProps<typeof Button> & {
 };
 
 const ContactsDropdownItem: FC<ContactsDropdownItemProps> = ({ contact, active, ...rest }) => {
-  const ref = useRef<HTMLButtonElement>(null);
-
-  useEffect(() => {
-    if (active) {
-      ref.current?.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start'
-      });
-    }
-  }, [active]);
+  const ref = useScrollIntoView<HTMLButtonElement>(active, { behavior: 'smooth', block: 'start' });
 
   return (
     <Button
