@@ -3,6 +3,7 @@ import React, { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import classNames from 'clsx';
 
 import { ActivitySpinner } from 'app/atoms';
+import { PartnersPromotion, PartnersPromotionVariant } from 'app/atoms/partners-promotion';
 import { useAppEnv } from 'app/env';
 import { ReactComponent as AddToListIcon } from 'app/icons/add-to-list.svg';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
@@ -138,8 +139,17 @@ export const Tokens: FC = () => {
             'text-gray-700 text-sm leading-tight'
           )}
         >
-          {filteredAssets.map(assetSlug => {
+          {filteredAssets.map((assetSlug, index) => {
             const active = activeAssetSlug ? assetSlug === activeAssetSlug : false;
+
+            if (index === 0) {
+              return (
+                <>
+                  <ListItem key={assetSlug} assetSlug={assetSlug} active={active} balances={latestBalances} />
+                  <PartnersPromotion variant={PartnersPromotionVariant.Text} />
+                </>
+              );
+            }
 
             return <ListItem key={assetSlug} assetSlug={assetSlug} active={active} balances={latestBalances} />;
           })}
