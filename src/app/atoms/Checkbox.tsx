@@ -39,10 +39,10 @@ const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
 
     const handleChange = useCallback(
       (event: React.ChangeEvent<HTMLInputElement>) => {
-        const { checked } = event.target;
-        checkedHandler(event, onChange && (() => onChange(checked)), setLocalChecked);
+        const { checked: toChecked } = event.target;
+        checkedHandler(event, onChange && (() => onChange(toChecked)), setLocalChecked);
 
-        testID && trackEvent(testID, AnalyticsEventCategory.CheckboxChange, { checked, ...testIDProperties });
+        testID && trackEvent(testID, AnalyticsEventCategory.CheckboxChange, { toChecked, ...testIDProperties });
       },
       [onChange, setLocalChecked, trackEvent, testID, testIDProperties]
     );

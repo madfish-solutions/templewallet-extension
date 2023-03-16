@@ -7,7 +7,7 @@ import { t, T } from 'lib/i18n';
 import { SettingsGeneralSelectors } from '../SettingsGeneral.selectors';
 
 const AnalyticsSettings: React.FC = () => {
-  const { analyticsEnabled: enabled, setAnalyticsEnabled } = useAnalyticsSettings();
+  const { analyticsEnabled, setAnalyticsEnabled } = useAnalyticsSettings();
 
   return (
     <>
@@ -22,13 +22,12 @@ const AnalyticsSettings: React.FC = () => {
       </label>
 
       <FormCheckbox
-        checked={enabled}
+        checked={analyticsEnabled}
         onChange={setAnalyticsEnabled}
         name="analyticsEnabled"
-        label={t(enabled ? 'enabled' : 'disabled')}
+        label={t(analyticsEnabled ? 'enabled' : 'disabled')}
         containerClassName="mb-4"
         testID={SettingsGeneralSelectors.anonymousAnalyticsCheckBox}
-        testIDProperties={{ enabled }}
       />
     </>
   );

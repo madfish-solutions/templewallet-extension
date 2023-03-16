@@ -87,7 +87,6 @@ const DAppSettings: FC = () => {
         errorCaption={error?.message}
         containerClassName="mb-4"
         testID={DAppSettingsSelectors.DAppInteractionCheckBox}
-        testIDProperties={{ enabled: dAppEnabled }}
       />
 
       {dAppEntries.length > 0 && (

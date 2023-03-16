@@ -13,7 +13,6 @@ import { useSyncBalances } from 'lib/temple/front/sync-balances';
 import { useSyncTokens } from 'lib/temple/front/sync-tokens';
 import { Link, navigate } from 'lib/woozie';
 
-// import { setTestID } from '../../../../../lib/analytics';
 import { AssetsSelectors } from '../Assets.selectors';
 import { ListItem } from './components/ListItem';
 import { toExploreAssetLink } from './utils';

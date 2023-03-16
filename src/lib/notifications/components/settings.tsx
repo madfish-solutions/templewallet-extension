@@ -11,7 +11,7 @@ import { useIsNewsEnabledSelector } from '../store/selectors';
 
 export const NotificationsSettings: FC = () => {
   const dispatch = useDispatch();
-  const enabled = useIsNewsEnabledSelector();
+  const isNewsEnabled = useIsNewsEnabledSelector();
 
   const handleNewsNotificationsChange = (checked: boolean) => dispatch(setIsNewsEnabledAction(checked));
 
@@ -31,10 +31,9 @@ export const NotificationsSettings: FC = () => {
         name="newsNotificationsEnabled"
         label={t('news')}
         containerClassName="mb-4"
-        checked={enabled}
+        checked={isNewsEnabled}
         onChange={handleNewsNotificationsChange}
         testID={SettingsGeneralSelectors.notificationCheckBox}
-        testIDProperties={{ enabled }}
       />
     </>
   );
