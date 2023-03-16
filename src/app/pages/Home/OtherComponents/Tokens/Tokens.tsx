@@ -53,9 +53,7 @@ export const Tokens: FC = () => {
     tokensJsx.splice(1, 0, <PartnersPromotion key="promo-token-item" variant={PartnersPromotionVariant.Text} />);
 
     return tokensJsx;
-  }, [filteredAssets, activeAssetSlug]);
-
-  console.log('tokensView: ', tokensView);
+  }, [filteredAssets, activeAssetSlug, latestBalances]);
 
   useEffect(() => {
     if (activeIndex !== 0 && activeIndex >= filteredAssets.length) {
@@ -127,29 +125,27 @@ export const Tokens: FC = () => {
       </div>
 
       {filteredAssets.length === 0 ? (
-        <>
-          <div className="my-8 flex flex-col items-center justify-center text-gray-500">
-            <PartnersPromotion key="promo-token-item" variant={PartnersPromotionVariant.Text} />
-            <p className="mb-2 flex items-center justify-center text-gray-600 text-base font-light">
-              {searchValueExist && <SearchIcon className="w-5 h-auto mr-1 stroke-current" />}
+        <div className="my-8 flex flex-col items-center justify-center text-gray-500">
+          <PartnersPromotion key="promo-token-item" variant={PartnersPromotionVariant.Text} />
+          <p className="mb-2 flex items-center justify-center text-gray-600 text-base font-light">
+            {searchValueExist && <SearchIcon className="w-5 h-auto mr-1 stroke-current" />}
 
-              <span>
-                <T id="noAssetsFound" />
-              </span>
-            </p>
+            <span>
+              <T id="noAssetsFound" />
+            </span>
+          </p>
 
-            <p className="text-center text-xs font-light">
-              <T
-                id="ifYouDontSeeYourAsset"
-                substitutions={[
-                  <b>
-                    <T id="manage" />
-                  </b>
-                ]}
-              />
-            </p>
-          </div>
-        </>
+          <p className="text-center text-xs font-light">
+            <T
+              id="ifYouDontSeeYourAsset"
+              substitutions={[
+                <b>
+                  <T id="manage" />
+                </b>
+              ]}
+            />
+          </p>
+        </div>
       ) : (
         <div
           className={classNames(
