@@ -40,6 +40,23 @@ export const Tokens: FC = () => {
     return searchFocused && searchValueExist && filteredAssets[activeIndex] ? filteredAssets[activeIndex] : null;
   }, [filteredAssets, searchFocused, searchValueExist, activeIndex]);
 
+  const tokensView = useMemo<Array<JSX.Element>>(() => {
+    const tokensJsx = filteredAssets.map(assetSlug => (
+      <ListItem
+        key={assetSlug}
+        assetSlug={assetSlug}
+        active={activeAssetSlug ? assetSlug === activeAssetSlug : false}
+        balances={latestBalances}
+      />
+    ));
+
+    tokensJsx.splice(1, 0, <PartnersPromotion key="promo-token-item" variant={PartnersPromotionVariant.Text} />);
+
+    return tokensJsx;
+  }, [filteredAssets, activeAssetSlug]);
+
+  console.log('tokensView: ', tokensView);
+
   useEffect(() => {
     if (activeIndex !== 0 && activeIndex >= filteredAssets.length) {
       setActiveIndex(0);
@@ -110,26 +127,29 @@ export const Tokens: FC = () => {
       </div>
 
       {filteredAssets.length === 0 ? (
-        <div className="my-8 flex flex-col items-center justify-center text-gray-500">
-          <p className="mb-2 flex items-center justify-center text-gray-600 text-base font-light">
-            {searchValueExist && <SearchIcon className="w-5 h-auto mr-1 stroke-current" />}
+        <>
+          <div className="my-8 flex flex-col items-center justify-center text-gray-500">
+            <PartnersPromotion key="promo-token-item" variant={PartnersPromotionVariant.Text} />
+            <p className="mb-2 flex items-center justify-center text-gray-600 text-base font-light">
+              {searchValueExist && <SearchIcon className="w-5 h-auto mr-1 stroke-current" />}
 
-            <span>
-              <T id="noAssetsFound" />
-            </span>
-          </p>
+              <span>
+                <T id="noAssetsFound" />
+              </span>
+            </p>
 
-          <p className="text-center text-xs font-light">
-            <T
-              id="ifYouDontSeeYourAsset"
-              substitutions={[
-                <b>
-                  <T id="manage" />
-                </b>
-              ]}
-            />
-          </p>
-        </div>
+            <p className="text-center text-xs font-light">
+              <T
+                id="ifYouDontSeeYourAsset"
+                substitutions={[
+                  <b>
+                    <T id="manage" />
+                  </b>
+                ]}
+              />
+            </p>
+          </div>
+        </>
       ) : (
         <div
           className={classNames(
@@ -139,20 +159,7 @@ export const Tokens: FC = () => {
             'text-gray-700 text-sm leading-tight'
           )}
         >
-          {filteredAssets.map((assetSlug, index) => {
-            const active = activeAssetSlug ? assetSlug === activeAssetSlug : false;
-
-            if (index === 0) {
-              return (
-                <>
-                  <ListItem key={assetSlug} assetSlug={assetSlug} active={active} balances={latestBalances} />
-                  <PartnersPromotion variant={PartnersPromotionVariant.Text} />
-                </>
-              );
-            }
-
-            return <ListItem key={assetSlug} assetSlug={assetSlug} active={active} balances={latestBalances} />;
-          })}
+          {tokensView}
         </div>
       )}
       {isSyncing && (

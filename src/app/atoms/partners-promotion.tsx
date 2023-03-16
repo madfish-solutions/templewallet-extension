@@ -29,12 +29,12 @@ export const PartnersPromotion: FC<Props> = ({ variant }) => {
   const shouldShowPartnersPromo = useShouldShowPartnersPromoSelector();
 
   const handleClosePartnersPromoClick = useCallback(async () => {
-    if (
-      !(await confirm({
-        title: t('closePartnersPromotion'),
-        children: t('closePartnersPromoConfirm')
-      }))
-    ) {
+    const confirmed = await confirm({
+      title: t('closePartnersPromotion'),
+      children: t('closePartnersPromoConfirm')
+    });
+
+    if (!confirmed) {
       return;
     }
 
@@ -47,7 +47,7 @@ export const PartnersPromotion: FC<Props> = ({ variant }) => {
 
   if (variant === PartnersPromotionVariant.Text) {
     return (
-      <div className="relative flex items-start justify-between gap-2 p-4 bg-gray-100">
+      <div className="relative flex items-start justify-between gap-2 p-4 max-w-sm w-full bg-gray-100">
         <img style={{ height: 32, width: 32, borderRadius: '50%' }} src={image} alt="Partners promotion" />
         <div className="flex flex-col gap-1">
           <div className="flex gap-1">
