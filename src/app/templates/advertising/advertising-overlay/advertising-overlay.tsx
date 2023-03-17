@@ -4,21 +4,18 @@ import { isDefined } from '@rnw-community/shared';
 import classNames from 'clsx';
 import { useDispatch } from 'react-redux';
 
-import { Button } from 'app/atoms/Button';
+import { Anchor, Button } from 'app/atoms';
 import { useAppEnv } from 'app/env';
 import ContentContainer from 'app/layouts/ContentContainer';
 import { skipAdvertisingPromotionAction } from 'app/store/advertising/actions';
 import { useActivePromotionSelector, useIsNewPromotionAvailableSelector } from 'app/store/advertising/selectors';
-import { useAnalytics } from 'lib/analytics';
 import { T } from 'lib/i18n/react';
-import { AnalyticsEventCategory } from 'lib/temple/analytics-types';
 import { useTempleClient } from 'lib/temple/front';
 
 export const AdvertisingOverlay: FC = () => {
   const { popup } = useAppEnv();
   const { ready } = useTempleClient();
   const dispatch = useDispatch();
-  const analytics = useAnalytics();
   const activePromotion = useActivePromotionSelector();
   const isNewPromotionAvailable = useIsNewPromotionAvailableSelector();
 
@@ -26,26 +23,23 @@ export const AdvertisingOverlay: FC = () => {
   const analyticsEventPrefix = `${activePromotion?.name}_${popup ? 'POPUP' : 'FULLPAGE'}`;
 
   const handleSkipPress = () => {
-    analytics.trackEvent(`${analyticsEventPrefix}_SKIP`, AnalyticsEventCategory.ButtonPress);
     dispatch(skipAdvertisingPromotionAction());
   };
   const handleBannerPress = () => {
-    analytics.trackEvent(`${analyticsEventPrefix}_BANNER`, AnalyticsEventCategory.ButtonPress);
     dispatch(skipAdvertisingPromotionAction());
   };
 
   return ready && isNewPromotionAvailable && isDefined(activePromotion) ? (
     <>
-      <button
+      <Button
         className={'fixed left-0 right-0 top-0 bottom-0 opacity-20 bg-gray-700 z-50'}
         onClick={handleSkipPress}
-      ></button>
-      <ContentContainer
-        className={classNames('fixed z-50', 'max-h-full', 'overflow-y-auto', popupClassName)}
-        padding={false}
-      >
-        <a
-          className={classNames('flex items-center justify-center m-auto')}
+        testID={`${analyticsEventPrefix}_SKIP`}
+      ></Button>
+
+      <ContentContainer className={classNames('fixed z-50 max-h-full overflow-y-auto', popupClassName)} padding={false}>
+        <Anchor
+          className="flex items-center justify-center m-auto"
           style={{
             width: popup ? 360 : 600,
             height: popup ? 600 : 700,
@@ -56,12 +50,14 @@ export const AdvertisingOverlay: FC = () => {
           rel="noopener noreferrer"
           href={activePromotion.url}
           onClick={handleBannerPress}
+          testID={`${analyticsEventPrefix}_BANNER`}
+          treatAsButton={true}
         >
           <img
             alt={activePromotion.name}
             src={popup ? activePromotion.popupBannerUrl : activePromotion.fullPageBannerUrl}
           />
-        </a>
+        </Anchor>
 
         <Button
           className={classNames(
@@ -71,6 +67,7 @@ export const AdvertisingOverlay: FC = () => {
             popup ? 'mr-1' : 'mr-6'
           )}
           onClick={handleSkipPress}
+          testID={`${analyticsEventPrefix}_SKIP`}
         >
           <T id="skipAd" />
         </Button>

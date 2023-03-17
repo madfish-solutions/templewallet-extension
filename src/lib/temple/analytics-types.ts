@@ -3,6 +3,7 @@ import { TempleMessageBase, TempleMessageType } from './types';
 export enum AnalyticsEventCategory {
   General = 'General',
   ButtonPress = 'ButtonPress',
+  LinkPress = 'LinkPress',
   CheckboxChange = 'CheckboxChange',
   FormChange = 'FormChange',
   FormSubmit = 'FormSubmit',

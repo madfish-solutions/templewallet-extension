@@ -2,18 +2,18 @@ import React, { FC } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
 
+import { Anchor } from 'app/atoms/Anchor';
 import { useAppEnv } from 'app/env';
 import { useActivePromotionSelector } from 'app/store/advertising/selectors';
-import { useAnalytics } from 'lib/analytics';
-import { AnalyticsEventCategory } from 'lib/temple/analytics-types';
 
 export const AdvertisingBanner: FC = () => {
   const activePromotion = useActivePromotionSelector();
   const { popup } = useAppEnv();
-  const { trackEvent } = useAnalytics();
 
-  return isDefined(activePromotion) ? (
-    <a
+  if (!isDefined(activePromotion)) return null;
+
+  return (
+    <Anchor
       className="flex items-center justify-center mr-3"
       style={{
         height: 28,
@@ -25,11 +25,10 @@ export const AdvertisingBanner: FC = () => {
       href={activePromotion.url}
       target="_blank"
       rel="noopener noreferrer"
-      onClick={() =>
-        trackEvent(`${activePromotion?.name}_${popup ? 'POPUP' : 'FULLPAGE'}_LOGO`, AnalyticsEventCategory.ButtonPress)
-      }
+      testID={`${activePromotion?.name}_${popup ? 'POPUP' : 'FULLPAGE'}_LOGO`}
+      treatAsButton={true}
     >
       <img alt={activePromotion.name} src={popup ? activePromotion.popupLogoUrl : activePromotion.fullPageLogoUrl} />
-    </a>
-  ) : null;
+    </Anchor>
+  );
 };

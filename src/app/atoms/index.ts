@@ -1,5 +1,7 @@
 export { Alert } from './Alert';
 
+export { Anchor } from './Anchor';
+
 export { Button } from './Button';
 
 export type { FileInputProps } from './FileInput';
