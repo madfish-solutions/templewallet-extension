@@ -2,7 +2,7 @@ import * as React from 'react';
 
 import { AnalyticsEventCategory, setTestID, TestIDProps, useAnalytics } from 'lib/analytics';
 
-export type AnchorProps = React.PropsWithRef<
+type AnchorProps = React.PropsWithRef<
   React.DetailedHTMLProps<React.AnchorHTMLAttributes<HTMLAnchorElement>, HTMLAnchorElement>
 > &
   TestIDProps & {

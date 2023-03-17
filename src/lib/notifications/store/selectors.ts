@@ -25,9 +25,4 @@ export const useNewNotificationsNumberSelector = () =>
       getFilteredNotifications(state).filter(notification => notification.status === NotificationStatus.New).length
   );
 
-export const useIsNewNotificationsAvailableSelector = () =>
-  useSelector(state =>
-    getFilteredNotifications(state).some(notification => notification.status === NotificationStatus.New)
-  );
-
 export const useIsNewsEnabledSelector = () => useSelector(({ notifications }) => notifications.isNewsEnabled);
