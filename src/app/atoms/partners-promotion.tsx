@@ -8,6 +8,8 @@ import { useShouldShowPartnersPromoSelector, usePartnersPromoSelector } from 'ap
 import { t } from 'lib/i18n';
 import { useConfirm } from 'lib/ui/dialog';
 
+import Spinner from './Spinner/Spinner';
+
 export enum PartnersPromotionVariant {
   Text = 'Text',
   Image = 'Image'
@@ -21,11 +23,7 @@ export const PartnersPromotion: FC<Props> = ({ variant }) => {
   const confirm = useConfirm();
   const dispatch = useDispatch();
 
-  const {
-    image,
-    link,
-    copy: { headline, content }
-  } = usePartnersPromoSelector();
+  const { data: promo, isLoading } = usePartnersPromoSelector();
   const shouldShowPartnersPromo = useShouldShowPartnersPromoSelector();
 
   const handleClosePartnersPromoClick = useCallback(async () => {
@@ -45,16 +43,24 @@ export const PartnersPromotion: FC<Props> = ({ variant }) => {
     return null;
   }
 
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center rounded-lg max-w-sm bg-gray-100" style={{ height: 112 }}>
+        <Spinner className="w-16 h-4" theme="gray" />
+      </div>
+    );
+  }
+
   if (variant === PartnersPromotionVariant.Text) {
     return (
       <div className="relative flex items-start justify-between gap-2 p-4 max-w-sm w-full bg-gray-100">
-        <img style={{ height: 32, width: 32, borderRadius: '50%' }} src={image} alt="Partners promotion" />
+        <img style={{ height: 32, width: 32, borderRadius: '50%' }} src={promo.image} alt="Partners promotion" />
         <div className="flex flex-col gap-1">
           <div className="flex gap-1">
-            <span className="color-gray-910 font-medium">{headline}</span>
+            <span className="color-gray-910 font-medium">{promo.copy.headline}</span>
             <div className="flex items-center px-1 rounded bg-blue-500 text-xs font-medium text-white">AD</div>
           </div>
-          <span>{content}</span>
+          <span>{promo.copy.content}</span>
         </div>
         <button
           className="relative bottom-2 z-10 p-1 border-gray-300 border rounded"
@@ -76,8 +82,8 @@ export const PartnersPromotion: FC<Props> = ({ variant }) => {
       >
         <CloseIcon className="w-auto h-5" style={{ strokeWidth: 2 }} />
       </button>
-      <a href={link} target="_blank" rel="noreferrer">
-        <img src={image} alt="Partners promotion" className="shadow-lg rounded-lg" />
+      <a href={promo.link} target="_blank" rel="noreferrer">
+        <img src={promo.image} alt="Partners promotion" className="shadow-lg rounded-lg" />
       </a>
     </div>
   );

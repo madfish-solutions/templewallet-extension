@@ -3,6 +3,13 @@ import { from, map } from 'rxjs';
 
 const optimalApi = axios.create({ baseURL: 'https://i.useoptimal.xyz' });
 
+export enum OptimalPromoVariantEnum {
+  Fullview = 'tw-fullview',
+  Popup = 'tw-popup',
+  Mobile = 'tw-mobile',
+  Token = 'tw-token'
+}
+
 export interface OptimalPromotionInterface {
   body: string;
   campaign_type: string;
@@ -23,12 +30,12 @@ export interface OptimalPromotionInterface {
   view_url: string;
 }
 
-export const getOptimalPromotion$ = () =>
+export const getOptimalPromotionImage$ = (variant: OptimalPromoVariantEnum) =>
   from(
     optimalApi.get<OptimalPromotionInterface>('api/v1/decision', {
       params: {
         publisher: 'templewallet', // your-publisher-slug
-        ad_types: 'tw-fullview', // tw-fullview | tw-popup | tw-mobile
+        ad_types: variant,
         div_ids: 'ad'
       }
     })

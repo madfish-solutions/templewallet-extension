@@ -9,6 +9,7 @@ import { PartnersPromotion, PartnersPromotionVariant } from 'app/atoms/partners-
 import { useAppEnv } from 'app/env';
 import { ReactComponent as LayersIcon } from 'app/icons/layers.svg';
 import { loadPartnersPromoAction } from 'app/store/partners-promotion/actions';
+import { OptimalPromoVariantEnum } from 'lib/apis/optimal';
 import { T } from 'lib/i18n/react';
 import useActivities from 'lib/temple/activity-new/hook';
 import { useAccount } from 'lib/temple/front';
@@ -30,7 +31,7 @@ export const ActivityComponent: React.FC<Props> = ({ assetSlug }) => {
 
   const { publicKeyHash: accountAddress } = useAccount();
 
-  useEffect(() => void dispatch(loadPartnersPromoAction.submit()), []);
+  useEffect(() => void dispatch(loadPartnersPromoAction.submit(OptimalPromoVariantEnum.Fullview)), []);
 
   if (activities.length === 0 && !loading && reachedTheEnd) {
     return (

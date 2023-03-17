@@ -1,13 +1,16 @@
 import React, { FC, useCallback, useEffect, useMemo, useState } from 'react';
 
 import classNames from 'clsx';
+import { useDispatch } from 'react-redux';
 
 import { ActivitySpinner } from 'app/atoms';
 import { PartnersPromotion, PartnersPromotionVariant } from 'app/atoms/partners-promotion';
 import { useAppEnv } from 'app/env';
 import { ReactComponent as AddToListIcon } from 'app/icons/add-to-list.svg';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
+import { loadPartnersPromoAction } from 'app/store/partners-promotion/actions';
 import SearchAssetField from 'app/templates/SearchAssetField';
+import { OptimalPromoVariantEnum } from 'lib/apis/optimal';
 import { T } from 'lib/i18n';
 import { useAccount, useChainId, useDisplayedFungibleTokens, useFilteredAssets } from 'lib/temple/front';
 import { useSyncBalances } from 'lib/temple/front/sync-balances';
@@ -20,6 +23,7 @@ import { ListItem } from './components/ListItem';
 import { toExploreAssetLink } from './utils';
 
 export const Tokens: FC = () => {
+  const dispatch = useDispatch();
   const chainId = useChainId(true)!;
   const { publicKeyHash } = useAccount();
   const isSyncing = useSyncTokens();
@@ -54,6 +58,8 @@ export const Tokens: FC = () => {
 
     return tokensJsx;
   }, [filteredAssets, activeAssetSlug, latestBalances]);
+
+  useEffect(() => void dispatch(loadPartnersPromoAction.submit(OptimalPromoVariantEnum.Token)), []);
 
   useEffect(() => {
     if (activeIndex !== 0 && activeIndex >= filteredAssets.length) {
