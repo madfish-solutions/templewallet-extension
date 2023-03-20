@@ -30,8 +30,8 @@ const Money = memo<MoneyProps>(
     smallFractionFont = true,
     tooltip = true
   }) => {
-    const childrenBN = new BigNumber(children);
-    const bn = childrenBN.gte(1000) ? childrenBN.decimalPlaces(2) : childrenBN;
+    const bn = new BigNumber(children);
+
     const decimalsLength = bn.decimalPlaces() ?? 0;
     const intLength = bn.integerValue().toFixed().length;
     if (intLength >= ENOUGH_INT_LENGTH) {
@@ -43,6 +43,7 @@ const Money = memo<MoneyProps>(
 
     const decimals = fiat ? 2 : deciamlsLimit;
     const result = shortened ? toShortened(bn) : toLocalFormat(bn, { decimalPlaces: decimals, roundingMode });
+
     const indexOfDecimal = result.indexOf(decimal) === -1 ? result.indexOf('.') : result.indexOf(decimal);
 
     const tippyClassName = classNames(
@@ -107,6 +108,16 @@ interface MoneyWithoutFormatProps {
   smallFractionFont: boolean;
 }
 
+const formatted = (bn: BigNumber) => {
+  const gte1000 = bn.gte(1000);
+  const n = Number(bn);
+  const calc = Math.floor(n * 100) / 100;
+
+  const amount = gte1000 ? new BigNumber(calc.toFixed(2)) : bn;
+
+  return { amount, gte1000 };
+};
+
 const MoneyWithoutFormat: FC<MoneyWithoutFormatProps> = ({
   tooltip,
   bn,
@@ -116,8 +127,11 @@ const MoneyWithoutFormat: FC<MoneyWithoutFormatProps> = ({
   smallFractionFont
 }) => {
   const { decimal } = getNumberSymbols();
-  const result = toLocalFormat(bn, {
-    decimalPlaces: Math.max(cryptoDecimals, 0),
+
+  const { amount, gte1000 } = formatted(bn);
+
+  const result = toLocalFormat(amount, {
+    decimalPlaces: gte1000 ? 2 : Math.max(cryptoDecimals, 0),
     roundingMode
   });
   const indexOfDecimal = result.indexOf(decimal);
@@ -150,14 +164,22 @@ const MoneyWithFormat: FC<MoneyWithFormatProps> = ({
   indexOfDecimal,
   isFiat,
   smallFractionFont
-}) => (
-  <FullAmountTippy enabled={tooltip} fullAmount={isFiat ? new BigNumber(bn.toFixed(2)) : bn} className={className}>
-    {result.slice(0, indexOfDecimal + 1)}
-    <span style={{ fontSize: smallFractionFont ? '0.9em' : undefined }}>
-      {result.slice(indexOfDecimal + 1, result.length)}
-    </span>
-  </FullAmountTippy>
-);
+}) => {
+  const { amount } = formatted(bn);
+
+  return (
+    <FullAmountTippy
+      enabled={tooltip}
+      fullAmount={isFiat ? new BigNumber(amount.toFixed(2)) : bn}
+      className={className}
+    >
+      {result.slice(0, indexOfDecimal + 1)}
+      <span style={{ fontSize: smallFractionFont ? '0.9em' : undefined }}>
+        {result.slice(indexOfDecimal + 1, result.length)}
+      </span>
+    </FullAmountTippy>
+  );
+};
 
 type FullAmountTippyProps = HTMLAttributes<HTMLSpanElement> & {
   fullAmount: BigNumber;
