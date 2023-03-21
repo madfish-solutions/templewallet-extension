@@ -108,12 +108,15 @@ interface MoneyWithoutFormatProps {
   smallFractionFont: boolean;
 }
 
-const formatted = (bn: BigNumber) => {
+const formatAmount = (bn: BigNumber) => {
   const gte1000 = bn.gte(1000);
+
+  if (!gte1000) return { amount: bn, gte1000 };
+
   const n = Number(bn);
   const calc = Math.floor(n * 100) / 100;
 
-  const amount = gte1000 ? new BigNumber(calc.toFixed(2)) : bn;
+  const amount = new BigNumber(calc.toFixed(2));
 
   return { amount, gte1000 };
 };
@@ -128,7 +131,7 @@ const MoneyWithoutFormat: FC<MoneyWithoutFormatProps> = ({
 }) => {
   const { decimal } = getNumberSymbols();
 
-  const { amount, gte1000 } = formatted(bn);
+  const { amount, gte1000 } = formatAmount(bn);
 
   const result = toLocalFormat(amount, {
     decimalPlaces: gte1000 ? 2 : Math.max(cryptoDecimals, 0),
@@ -165,14 +168,16 @@ const MoneyWithFormat: FC<MoneyWithFormatProps> = ({
   isFiat,
   smallFractionFont
 }) => {
-  const { amount } = formatted(bn);
+  const fullAmount = useMemo(() => {
+    if (!isFiat) return bn;
+
+    const { amount } = formatAmount(bn);
+
+    return new BigNumber(amount.toFixed(2));
+  }, [bn.toString(), isFiat]);
 
   return (
-    <FullAmountTippy
-      enabled={tooltip}
-      fullAmount={isFiat ? new BigNumber(amount.toFixed(2)) : bn}
-      className={className}
-    >
+    <FullAmountTippy enabled={tooltip} fullAmount={fullAmount} className={className}>
       {result.slice(0, indexOfDecimal + 1)}
       <span style={{ fontSize: smallFractionFont ? '0.9em' : undefined }}>
         {result.slice(indexOfDecimal + 1, result.length)}
