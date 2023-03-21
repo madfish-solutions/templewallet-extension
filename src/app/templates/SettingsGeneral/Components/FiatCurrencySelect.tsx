@@ -1,10 +1,9 @@
-import React, { useMemo, useCallback, FC } from 'react';
-
-import classNames from 'clsx';
+import React, { useCallback, FC } from 'react';
 
 import { AnalyticsEventCategory, AnalyticsEventEnum, setTestID, useAnalytics } from 'lib/analytics';
 import { FIAT_CURRENCIES, FiatCurrencyOption, getFiatCurrencyKey, useFiatCurrency } from 'lib/fiat-currency';
-import { T } from 'lib/i18n';
+import { T, t } from 'lib/i18n';
+import { searchAndFilterItems } from 'lib/utils/search-items';
 
 import IconifiedSelect, { IconifiedSelectOptionRenderProps } from '../../IconifiedSelect';
 import { SettingsGeneralSelectors } from '../SettingsGeneral.selectors';
@@ -19,17 +18,6 @@ const FiatCurrencySelect: FC<FiatCurrencySelectProps> = ({ className }) => {
 
   const value = selectedFiatCurrency;
 
-  const title = useMemo(
-    () => (
-      <h2 className={classNames('mb-4', 'leading-tight', 'flex flex-col')}>
-        <span className="text-base font-semibold text-gray-700">
-          <T id="fiatCurrency" />
-        </span>
-      </h2>
-    ),
-    []
-  );
-
   const handleFiatCurrencyChange = useCallback(
     (fiatOption: FiatCurrencyOption) => {
       trackEvent(AnalyticsEventEnum.FiatCurrencyChanged, AnalyticsEventCategory.ButtonPress, { name: fiatOption.name });
@@ -40,16 +28,18 @@ const FiatCurrencySelect: FC<FiatCurrencySelectProps> = ({ className }) => {
 
   return (
     <IconifiedSelect
-      Icon={FiatCurrencyIcon}
-      OptionSelectedIcon={FiatCurrencyIcon}
-      OptionInMenuContent={FiatCurrencyInMenuContent}
-      OptionSelectedContent={FiatCurrencyContent}
+      BeforeContent={FiatCurrencyTitle}
+      FieldContent={FiatCurrencyFieldContent}
+      OptionContent={FiatCurrencyOptionContent}
       getKey={getFiatCurrencyKey}
+      onChange={handleFiatCurrencyChange}
       options={FIAT_CURRENCIES}
       value={value}
-      onChange={handleFiatCurrencyChange}
-      title={title}
+      noItemsText={t('noItemsFound')}
       className={className}
+      padded
+      fieldStyle={{ minHeight: '3.375rem' }}
+      search={{ filterItems: searchFiatCurrencyOptions }}
       testID={SettingsGeneralSelectors.currenctyDropDown}
     />
   );
@@ -57,32 +47,55 @@ const FiatCurrencySelect: FC<FiatCurrencySelectProps> = ({ className }) => {
 
 export default FiatCurrencySelect;
 
-const FiatCurrencyInMenuContent: FC<IconifiedSelectOptionRenderProps<FiatCurrencyOption>> = ({
-  option: { name, fullname }
-}) => {
-  return (
-    <div
-      className={classNames('relative w-full text-lg text-gray-700')}
-      {...setTestID(SettingsGeneralSelectors.currencyItem)}
-    >
-      {name} ({fullname})
-    </div>
-  );
-};
+const FiatCurrencyTitle: FC = () => (
+  <h2 className="mb-4 leading-tight flex flex-col">
+    <span className="text-base font-semibold text-gray-700">
+      <T id="fiatCurrency" />
+    </span>
+  </h2>
+);
 
-const FiatCurrencyIcon: FC<IconifiedSelectOptionRenderProps<FiatCurrencyOption>> = ({ option: { symbol } }) => (
+type SelectItemProps = IconifiedSelectOptionRenderProps<FiatCurrencyOption>;
+
+const FiatCurrencyIcon: FC<SelectItemProps> = ({ option: { symbol } }) => (
   <div
-    className={classNames('w-6 flex justify-center items-center ml-2 mr-3 text-xl text-gray-700')}
+    className="w-6 flex justify-center items-center ml-2 mr-3 text-xl text-gray-700 font-normal"
     style={{ height: '1.3125rem' }}
   >
     {symbol}
   </div>
 );
 
-const FiatCurrencyContent: FC<IconifiedSelectOptionRenderProps<FiatCurrencyOption>> = ({ option: { name } }) => {
+const FiatCurrencyFieldContent: FC<SelectItemProps> = ({ option }) => {
   return (
-    <div className="flex flex-col items-start py-2">
-      <span className="text-xl text-gray-700">{name}</span>
-    </div>
+    <>
+      <FiatCurrencyIcon option={option} />
+
+      <span className="text-xl text-gray-700">{option.name}</span>
+    </>
   );
 };
+
+const FiatCurrencyOptionContent: FC<SelectItemProps> = ({ option }) => {
+  return (
+    <>
+      <FiatCurrencyIcon option={option} />
+
+      <div className="w-full text-lg text-gray-700" {...setTestID(SettingsGeneralSelectors.currencyItem)}>
+        {option.name} ({option.fullname})
+      </div>
+    </>
+  );
+};
+
+const searchFiatCurrencyOptions = (searchString: string) =>
+  searchAndFilterItems(
+    FIAT_CURRENCIES,
+    searchString,
+    [
+      { name: 'name', weight: 1 },
+      { name: 'fullname', weight: 0.75 }
+    ],
+    null,
+    0.25
+  );

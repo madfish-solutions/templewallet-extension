@@ -160,18 +160,10 @@ export const TopUpInputHeader = forwardRef<HTMLDivElement, Props>(
                   value={amount?.toString()}
                   readOnly={readOnly}
                   className={classNames(
-                    'appearance-none',
-                    'w-full',
-                    'py-3',
-                    'border-2',
-                    'border-gray-300',
-                    'focus:border-primary-orange',
-                    'bg-gray-100 focus:bg-transparent',
-                    'focus:outline-none focus:shadow-outline',
-                    'transition ease-in-out duration-200',
-                    'rounded-md leading-tight placeholder-alphagray',
-                    'text-gray-700 text-2xl text-right border-none bg-opacity-0',
-                    'pl-0 focus:shadow-none'
+                    'appearance-none w-full py-3 pl-0 border-2 border-gray-300 bg-gray-100 rounded-md leading-tight',
+                    'focus:bg-transparent focus:border-primary-orange focus:outline-none focus:shadow-outline, focus:shadow-none',
+                    'text-gray-700 text-2xl text-right placeholder-alphagray border-none bg-opacity-0',
+                    'transition ease-in-out duration-200'
                   )}
                   style={{ padding: 0, borderRadius: 0 }}
                   placeholder={toLocalFormat(0, { decimalPlaces: 2 })}
