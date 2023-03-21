@@ -1,3 +1,7 @@
 import { useSelector } from '..';
+import { PublicKeyHashWithChainId } from './state';
 
-export const useBalancesSelector = () => useSelector(state => state.balances.balancesAtomic);
+const EMPTY_BALANCES_RECORD = {};
+
+export const useBalancesSelector = (publicKeyHashWithChainId: PublicKeyHashWithChainId) =>
+  useSelector(state => state.balances.balancesAtomic[publicKeyHashWithChainId]?.data ?? EMPTY_BALANCES_RECORD);

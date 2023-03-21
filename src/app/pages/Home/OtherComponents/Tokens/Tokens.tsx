@@ -1,5 +1,6 @@
 import React, { FC, useCallback, useEffect, useMemo, useState } from 'react';
 
+import { BigNumber } from 'bignumber.js';
 import classNames from 'clsx';
 
 import { ActivitySpinner } from 'app/atoms';
@@ -10,17 +11,14 @@ import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
 import SearchAssetField from 'app/templates/SearchAssetField';
 import { T } from 'lib/i18n';
 import { useAccount, useChainId, useDisplayedFungibleTokens, useFilteredAssets } from 'lib/temple/front';
-import { useLoadBalances } from 'lib/temple/front/load-balances';
 import { useSyncTokens } from 'lib/temple/front/sync-tokens';
 import { Link, navigate } from 'lib/woozie';
 
-// import { setTestID } from '../../../../../lib/analytics';
 import { AssetsSelectors } from '../Assets.selectors';
 import { ListItem } from './components/ListItem';
 import { toExploreAssetLink } from './utils';
 
 export const Tokens: FC = () => {
-  useLoadBalances();
   const chainId = useChainId(true)!;
   const balances = useBalancesWithDecimals();
 
@@ -143,8 +141,9 @@ export const Tokens: FC = () => {
         >
           {filteredAssets.map(assetSlug => {
             const active = activeAssetSlug ? assetSlug === activeAssetSlug : false;
+            const balance = balances[assetSlug] ?? new BigNumber(0);
 
-            return <ListItem key={assetSlug} assetSlug={assetSlug} active={active} balances={balances} />;
+            return <ListItem key={assetSlug} assetSlug={assetSlug} active={active} balance={balance} />;
           })}
         </div>
       )}

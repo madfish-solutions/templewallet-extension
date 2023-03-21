@@ -1,10 +1,11 @@
 import { LoadableEntityState } from 'lib/store/interfaces/loadable-entity-state.interface';
-import { createEntity } from 'lib/store/utils/entity.utils';
+
+export type PublicKeyHashWithChainId = string;
 
 export interface BalancesStateInterface {
-  balancesAtomic: LoadableEntityState<Record<string, string>>;
+  balancesAtomic: Record<PublicKeyHashWithChainId, LoadableEntityState<Record<string, string>>>;
 }
 
 export const balancesInitialState: BalancesStateInterface = {
-  balancesAtomic: createEntity({})
+  balancesAtomic: {}
 };

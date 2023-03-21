@@ -159,7 +159,6 @@ export const fecthTezosBalanceFromTzkt = (
     .then(({ data: { frozenDeposit, balance } }) => ({ frozenDeposit, balance }));
 
 const LIMIT = 10000;
-const TEZOS_DOMAINS_NAME_REGISTRY_ADDRESS = 'KT1GBZmSxmnKJXGMdMLbugPfLyUPmuLSMwKS';
 
 const fecthTokensBalancesFromTzktOnce = (
   apiUrl: string,
@@ -171,7 +170,6 @@ const fecthTokensBalancesFromTzktOnce = (
     .get<Array<TzktAccountToken>>(`${apiUrl}/v1/tokens/balances`, {
       params: {
         account,
-        'token.contract.ne': TEZOS_DOMAINS_NAME_REGISTRY_ADDRESS,
         'balance.gt': 0,
         limit,
         offset
