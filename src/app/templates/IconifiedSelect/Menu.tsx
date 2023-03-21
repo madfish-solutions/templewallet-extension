@@ -1,19 +1,19 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 
 import classNames from 'clsx';
 
 import DropdownWrapper from 'app/atoms/DropdownWrapper';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
+import { AnalyticsEventCategory, TestIDProperty, useAnalytics } from 'lib/analytics';
 import { PopperRenderProps } from 'lib/ui/Popper';
 
 import { IconifiedSelectProps, IconifiedSelectPropsBase } from './types';
 
-type Props<T> = PopperRenderProps &
-  IconifiedSelectPropsBase<T> & {
-    search?: {
-      value?: string;
-    };
+interface Props<T> extends PopperRenderProps, TestIDProperty, IconifiedSelectPropsBase<T> {
+  search?: {
+    value?: string;
   };
+}
 
 export const IconifiedSelectMenu = <T extends unknown>(props: Props<T>) => {
   const {
@@ -23,12 +23,19 @@ export const IconifiedSelectMenu = <T extends unknown>(props: Props<T>) => {
     padded,
     noItemsText,
     search,
+    testID,
     isDisabled,
     setOpened,
     onChange,
     getKey,
     OptionContent
   } = props;
+
+  const { trackEvent } = useAnalytics();
+
+  useEffect(() => {
+    if (testID && opened) trackEvent(testID, AnalyticsEventCategory.DropdownOpened);
+  }, [opened]);
 
   const withSearch = Boolean(search);
 

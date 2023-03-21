@@ -1,4 +1,4 @@
-import React, { FC, useMemo } from 'react';
+import React, { FC, useEffect, useMemo } from 'react';
 
 import { List } from 'react-virtualized';
 
@@ -6,14 +6,14 @@ import DropdownWrapper from 'app/atoms/DropdownWrapper';
 import Spinner from 'app/atoms/Spinner/Spinner';
 import { useAppEnvStyle } from 'app/hooks/use-app-env-style.hook';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
+import { AnalyticsEventCategory, TestIDProperty, useAnalytics } from 'lib/analytics';
 import { T } from 'lib/i18n';
 import { useAccount, useChainId } from 'lib/temple/front';
 import * as Repo from 'lib/temple/repo';
 
-import { SwapFormTestIDs } from '../SwapFormInput.props';
 import { AssetOption } from './AssetOption';
 
-interface Props {
+interface Props extends TestIDProperty {
   value?: string;
   options: string[];
   isLoading: boolean;
@@ -21,7 +21,6 @@ interface Props {
   searchAssetSlug: string;
   showTokenIdInput: boolean;
   opened: boolean;
-  testIDs?: SwapFormTestIDs;
   setOpened: (newValue: boolean) => void;
   onChange: (newValue: string) => void;
 }
@@ -34,6 +33,7 @@ export const AssetsMenu: FC<Props> = ({
   searchAssetSlug,
   showTokenIdInput,
   opened,
+  testID,
   setOpened,
   onChange
 }) => {
@@ -41,6 +41,12 @@ export const AssetsMenu: FC<Props> = ({
   const chainId = useChainId(true)!;
   const account = useAccount();
   const isShowSearchOption = useMemo(() => !options.includes(searchAssetSlug), [options, searchAssetSlug]);
+
+  const { trackEvent } = useAnalytics();
+
+  useEffect(() => {
+    if (testID && opened) trackEvent(testID, AnalyticsEventCategory.DropdownOpened);
+  }, [opened]);
 
   const handleOptionClick = (newValue: string) => {
     if (value !== newValue) {
