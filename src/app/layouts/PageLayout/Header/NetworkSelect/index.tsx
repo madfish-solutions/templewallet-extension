@@ -105,8 +105,9 @@ const NetworkSelect: FC<NetworkSelectProps> = () => {
             'border border-primary-orange border-opacity-25',
             'text-primary-white text-shadow-black',
             'transition ease-in-out duration-200',
-            opened ? 'shadow-md' : 'shadow hover:shadow-md focus:shadow-md',
-            opened ? 'opacity-100' : 'opacity-90 hover:opacity-100 focus:opacity-100'
+            opened
+              ? 'shadow-md opacity-100'
+              : 'shadow hover:shadow-md focus:shadow-md opacity-90 hover:opacity-100 focus:opacity-100'
           )}
           onClick={toggleOpened}
           testID={NetworkSelectSelectors.selectedNetworkButton}

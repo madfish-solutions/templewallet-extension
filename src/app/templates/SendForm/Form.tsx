@@ -334,6 +334,7 @@ export const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactReque
       setOperation(null);
 
       formAnalytics.trackSubmit();
+
       try {
         let op: WalletOperation;
         if (isKTAddress(acc.publicKeyHash)) {

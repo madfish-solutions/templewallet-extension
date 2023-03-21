@@ -21,7 +21,7 @@ export const Anchor = React.forwardRef<HTMLAnchorElement, AnchorProps>(
           testIDProperties
         );
 
-      if (onClick != null) return onClick(e);
+      return onClick?.(e);
     };
 
     return (

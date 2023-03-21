@@ -14,7 +14,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     const handleClick = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
       testID && trackEvent(testID, AnalyticsEventCategory.ButtonPress, testIDProperties);
 
-      if (onClick != null) return onClick(e);
+      return onClick?.(e);
     };
 
     return <button ref={ref} onClick={handleClick} {...props} {...setTestID(testID)} />;
