@@ -556,7 +556,7 @@ const KnownDelegatorsList: React.FC<{ setValue: any; triggerValidation: any }> =
           <T id="delegateToRecommendedBakers" />
         </span>
 
-        <span className="mt-1 text-xs font-light text-gray-600max-w-9/10">
+        <span className="mt-1 text-xs font-light text-gray-600 max-w-9/10">
           <T
             id="clickOnBakerPrompt"
             substitutions={[

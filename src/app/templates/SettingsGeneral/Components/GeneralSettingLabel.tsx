@@ -14,7 +14,7 @@ export const GeneralSettingLabel = ({ titleI18nKey, descriptionI18nKey }: Props)
         <T id={titleI18nKey} />
       </span>
 
-      <span className="mt-1 text-xs font-light text-gray-600max-w-9/10">
+      <span className="mt-1 text-xs font-light text-gray-600 max-w-9/10">
         <T id={descriptionI18nKey} />
       </span>
     </label>
