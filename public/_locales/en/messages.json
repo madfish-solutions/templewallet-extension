@@ -2570,8 +2570,14 @@
   "partnersPromoSettings": {
     "message": "Advertising"
   },
-  "partnersPromoDescription": {
-    "message": "Here you can configure displaying of ads in Temple wallet. Remember, you get cash back at Temple Keys for viewing ads"
+  "cashBack":{
+    "message": "cash back"
+  },
+  "partnersPromoDescriptionP1": {
+    "message": "Here you can configure displaying of ads in Temple wallet. Remember, you get"
+  },
+  "partnersPromoDescriptionP2": {
+    "message": "at Temple Keys for viewing ads"
   },
   "totalEquityValue": {
     "message": "Total Equity Value"

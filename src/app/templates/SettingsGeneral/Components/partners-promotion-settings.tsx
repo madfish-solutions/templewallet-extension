@@ -24,7 +24,15 @@ export const PartnersPromotionSettings: FC = () => {
         </span>
 
         <span className="mt-1 text-xs font-light text-gray-600" style={{ maxWidth: '90%' }}>
-          <T id="partnersPromoDescription" />
+          <span>
+            <T id="partnersPromoDescriptionP1" />
+          </span>
+          <span className="mx-1 font-semibold">
+            <T id="cashBack" />
+          </span>
+          <span>
+            <T id="partnersPromoDescriptionP2" />
+          </span>
         </span>
       </label>
 

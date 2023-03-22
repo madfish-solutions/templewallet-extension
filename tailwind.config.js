@@ -217,7 +217,8 @@ module.exports = {
       md: '0.375rem',
       lg: '0.5rem',
       '2xl': '0.75rem',
-      full: '9999px'
+      full: '9999px',
+      circle: '50%'
     },
     borderWidth: {
       DEFAULT: '1px',

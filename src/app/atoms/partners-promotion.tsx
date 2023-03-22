@@ -1,4 +1,4 @@
-import React, { FC, useCallback } from 'react';
+import React, { FC, memo, useCallback } from 'react';
 
 import { useDispatch } from 'react-redux';
 
@@ -19,17 +19,18 @@ interface Props {
   variant: PartnersPromotionVariant;
 }
 
-export const PartnersPromotion: FC<Props> = ({ variant }) => {
+export const PartnersPromotion: FC<Props> = memo(({ variant }) => {
   const confirm = useConfirm();
   const dispatch = useDispatch();
 
-  const { data: promo, isLoading } = usePartnersPromoSelector();
+  const { data: promo, isLoading, error } = usePartnersPromoSelector();
   const shouldShowPartnersPromo = useShouldShowPartnersPromoSelector();
 
   const handleClosePartnersPromoClick = useCallback(async () => {
     const confirmed = await confirm({
       title: t('closePartnersPromotion'),
-      children: t('closePartnersPromoConfirm')
+      children: t('closePartnersPromoConfirm'),
+      comfirmButtonText: t('disable')
     });
 
     if (!confirmed) {
@@ -39,7 +40,7 @@ export const PartnersPromotion: FC<Props> = ({ variant }) => {
     dispatch(togglePartnersPromotionAction(false));
   }, [confirm]);
 
-  if (!shouldShowPartnersPromo) {
+  if (!shouldShowPartnersPromo || Boolean(error)) {
     return null;
   }
 
@@ -53,17 +54,28 @@ export const PartnersPromotion: FC<Props> = ({ variant }) => {
 
   if (variant === PartnersPromotionVariant.Text) {
     return (
-      <div className="relative flex items-start justify-between gap-2 p-4 max-w-sm w-full bg-gray-100">
-        <img style={{ height: 32, width: 32, borderRadius: '50%' }} src={promo.image} alt="Partners promotion" />
-        <div className="flex flex-col gap-1">
-          <div className="flex gap-1">
-            <span className="color-gray-910 font-medium">{promo.copy.headline}</span>
-            <div className="flex items-center px-1 rounded bg-blue-500 text-xs font-medium text-white">AD</div>
+      <div className="relative bg-gray-100">
+        <a
+          className="flex items-start justify-start gap-2 p-4 max-w-sm w-full"
+          href="https://templewallet.com/"
+          target="_blank"
+          rel="noreferrer"
+        >
+          <img
+            className="h-10 w-10 rounded-circle"
+            src={'https://cdn-icons-png.flaticon.com/512/7016/7016544.png'}
+            alt="Partners promotion"
+          />
+          <div className="flex flex-col gap-1">
+            <div className="flex gap-1">
+              <span className="color-gray-910 font-medium">{promo.copy.headline}</span>
+              <div className="flex items-center px-1 rounded bg-blue-500 text-xs font-medium text-white">AD</div>
+            </div>
+            <span>{promo.copy.content}</span>
           </div>
-          <span>{promo.copy.content}</span>
-        </div>
+        </a>
         <button
-          className="relative bottom-2 z-10 p-1 border-gray-300 border rounded"
+          className="absolute top-2 right-2 z-10 p-1 border-gray-300 border rounded"
           onClick={handleClosePartnersPromoClick}
         >
           <CloseIcon className="w-auto h-4" style={{ stroke: '#718096', strokeWidth: 2 }} />
@@ -73,18 +85,17 @@ export const PartnersPromotion: FC<Props> = ({ variant }) => {
   }
 
   return (
-    <div className="relative flex z-0 rounded-lg max-w-sm" style={{ height: 112 }}>
+    <div className="relative flex rounded-lg max-w-sm" style={{ height: 112 }}>
       <div className="absolute px-3 rounded-tl-lg rounded-br-lg bg-blue-500 text-sm font-semibold text-white">AD</div>
       <button
-        className="absolute top-2 right-4 z-10 p-1 bg-blue-500"
-        style={{ borderRadius: '50%' }}
+        className="absolute top-2 right-4 h-6 w-6 z-10 bg-blue-500 rounded-circle"
         onClick={handleClosePartnersPromoClick}
       >
-        <CloseIcon className="w-auto h-5" style={{ strokeWidth: 2 }} />
+        <CloseIcon className="w-4 h-4 m-auto" style={{ strokeWidth: 3 }} />
       </button>
       <a href={promo.link} target="_blank" rel="noreferrer">
         <img src={promo.image} alt="Partners promotion" className="shadow-lg rounded-lg" />
       </a>
     </div>
   );
-};
+});
