@@ -108,17 +108,18 @@ interface MoneyWithoutFormatProps {
   smallFractionFont: boolean;
 }
 
-const formatAmount = (bn: BigNumber) => {
-  const gte1000 = bn.gte(1000);
+const FORMATTING_THRESHOLD = 1000;
+const PRECISION_MULTIPLIER = 100;
 
-  if (!gte1000) return { amount: bn, gte1000 };
+const formatAmount = (amount: BigNumber) => {
+  const isLessThanThreshold = amount.isLessThanOrEqualTo(FORMATTING_THRESHOLD);
 
-  const n = Number(bn);
-  const calc = Math.floor(n * 100) / 100;
+  if (isLessThanThreshold) return { amount, isLessThanThreshold };
 
-  const amount = new BigNumber(calc.toFixed(2));
+  const numberAmount = Number(amount);
+  const roundingAccuracy = Math.floor(numberAmount * PRECISION_MULTIPLIER) / PRECISION_MULTIPLIER;
 
-  return { amount, gte1000 };
+  return { amount: new BigNumber(roundingAccuracy.toFixed(2)), isLessThanThreshold };
 };
 
 const MoneyWithoutFormat: FC<MoneyWithoutFormatProps> = ({
@@ -131,10 +132,10 @@ const MoneyWithoutFormat: FC<MoneyWithoutFormatProps> = ({
 }) => {
   const { decimal } = getNumberSymbols();
 
-  const { amount, gte1000 } = formatAmount(bn);
+  const { amount, isLessThanThreshold } = formatAmount(bn);
 
   const result = toLocalFormat(amount, {
-    decimalPlaces: gte1000 ? 2 : Math.max(cryptoDecimals, 0),
+    decimalPlaces: isLessThanThreshold ? Math.max(cryptoDecimals, 0) : 2,
     roundingMode
   });
   const indexOfDecimal = result.indexOf(decimal);
