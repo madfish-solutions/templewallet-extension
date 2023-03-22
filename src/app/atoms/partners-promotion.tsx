@@ -57,15 +57,11 @@ export const PartnersPromotion: FC<Props> = memo(({ variant }) => {
       <div className="relative bg-gray-100">
         <a
           className="flex items-start justify-start gap-2 p-4 max-w-sm w-full"
-          href="https://templewallet.com/"
+          href={promo.link}
           target="_blank"
           rel="noreferrer"
         >
-          <img
-            className="h-10 w-10 rounded-circle"
-            src={'https://cdn-icons-png.flaticon.com/512/7016/7016544.png'}
-            alt="Partners promotion"
-          />
+          <img className="h-10 w-10 rounded-circle" src={promo.image} alt="Partners promotion" />
           <div className="flex flex-col gap-1">
             <div className="flex gap-1">
               <span className="color-gray-910 font-medium">{promo.copy.headline}</span>
