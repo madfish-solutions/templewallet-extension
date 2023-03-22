@@ -41,8 +41,6 @@ const OpenInExplorerChip: FC<OpenInExplorerChipProps> = ({
     <Anchor
       ref={ref}
       href={`${baseUrl}/${hash}`}
-      target="_blank"
-      rel="noopener noreferrer"
       className={classNames(
         (() => {
           switch (bgShade) {

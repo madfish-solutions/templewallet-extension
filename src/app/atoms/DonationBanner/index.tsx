@@ -16,8 +16,6 @@ export const DonationBanner: FC = () => (
       backgroundColor: '#E5F2FF'
     }}
     href="https://donate.tezos.org.ua"
-    target="_blank"
-    rel="noopener noreferrer"
     testID={DonationBannerSelectors.ukraineDonationBanner}
   >
     <div className="flex flex-row justify-center px-2 items-center">

@@ -14,7 +14,6 @@ const DAppItem: FC<DAppItemProps> = ({ dappUrl, name, logo, categories }) => (
     <Anchor
       className="mr-4"
       href={dappUrl}
-      target="_blank"
       rel="noreferrer"
       testID={DAppStoreSelectors.DAppOpened}
       testIDProperties={{ dappUrl, name, promoted: false }}

@@ -81,7 +81,6 @@ const DAppsList = () => {
               className="mx-4 py-1 flex flex-col items-center"
               key={slug}
               href={dappUrl}
-              target="_blank"
               rel="noreferrer"
               testID={DAppStoreSelectors.DAppOpened}
               testIDProperties={{ website: dappUrl, name, promoted: true }}

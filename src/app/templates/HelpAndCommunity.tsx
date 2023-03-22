@@ -88,8 +88,6 @@ const ResourceLink: FC<ResourceLinkProps> = ({ name, href, background, Icon }) =
     <li>
       <Anchor
         href={href}
-        target="_blank"
-        rel="noopener noreferrer"
         className="flex items-center py-1 my-1 hover:underline text-blue-600"
         testID={HelpAndCommunitySelectors.linkButton}
       >

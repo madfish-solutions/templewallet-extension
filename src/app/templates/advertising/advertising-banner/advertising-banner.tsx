@@ -23,8 +23,6 @@ export const AdvertisingBanner: FC = () => {
         backgroundColor: '#E5F2FF'
       }}
       href={activePromotion.url}
-      target="_blank"
-      rel="noopener noreferrer"
       testID={`${activePromotion?.name}_${popup ? 'POPUP' : 'FULLPAGE'}_LOGO`}
       treatAsButton={true}
     >

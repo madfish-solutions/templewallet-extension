@@ -95,7 +95,6 @@ export const AliceBobWithdraw: FC = () => {
 
             <Anchor
               href={ALICE_BOB_CONTACT_LINK}
-              target="_blank"
               rel="noreferrer"
               className="text-blue-500 text-sm mt-6 cursor-pointer inline-block w-auto"
               testID={WithdrawSelectors.aliceBobSupportButton}

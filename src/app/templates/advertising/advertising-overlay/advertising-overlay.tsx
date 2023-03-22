@@ -46,8 +46,6 @@ export const AdvertisingOverlay: FC = () => {
             borderRadius: popup ? 0 : 4,
             backgroundColor: '#E5F2FF'
           }}
-          target="_blank"
-          rel="noopener noreferrer"
           href={activePromotion.url}
           onClick={handleBannerPress}
           testID={`${analyticsEventPrefix}_BANNER`}

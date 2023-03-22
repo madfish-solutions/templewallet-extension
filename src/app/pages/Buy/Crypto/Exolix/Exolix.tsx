@@ -82,7 +82,6 @@ const BuyCryptoContent: FC = () => {
       {step >= 1 && (
         <Anchor
           href={EXOLIX_CONTACT_LINK}
-          target="_blank"
           rel="noreferrer"
           className="text-blue-500 text-sm mb-8 cursor-pointer inline-block w-auto"
           testID={CONTACT_LINK_TEST_IDS[step] || ExolixSelectors.topupFourthStepSubmitButton}

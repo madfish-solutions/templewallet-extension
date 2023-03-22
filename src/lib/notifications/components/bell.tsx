@@ -4,11 +4,11 @@ import { HomeSelectors } from 'app/pages/Home/Home.selectors';
 import { BellIcon, NotificationDotIcon } from 'lib/icons';
 import { Link } from 'lib/woozie';
 
-import { useNewNotificationsNumberSelector } from '../store/selectors';
+import { useNewNotificationsAmountSelector } from '../store/selectors';
 
 export const NotificationsBell = () => {
-  const newNotificationsNumber = useNewNotificationsNumberSelector();
-  const isNewNotificationsAvailable = newNotificationsNumber > 0;
+  const newNotificationsAmount = useNewNotificationsAmountSelector();
+  const isNewNotificationsAvailable = newNotificationsAmount > 0;
 
   return (
     <Link
@@ -22,7 +22,7 @@ export const NotificationsBell = () => {
         backgroundColor: '#E5F2FF'
       }}
       testID={HomeSelectors.notificationIconButton}
-      testIDProperties={{ newNotificationsNumber }}
+      testIDProperties={{ newNotificationsAmount }}
     >
       {isNewNotificationsAvailable && (
         <NotificationDotIcon

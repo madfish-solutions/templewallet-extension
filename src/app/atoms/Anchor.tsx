@@ -2,15 +2,17 @@ import * as React from 'react';
 
 import { AnalyticsEventCategory, setTestID, TestIDProps, useAnalytics } from 'lib/analytics';
 
-type AnchorProps = React.PropsWithRef<
-  React.DetailedHTMLProps<React.AnchorHTMLAttributes<HTMLAnchorElement>, HTMLAnchorElement>
-> &
-  TestIDProps & {
-    treatAsButton?: boolean;
-  };
+interface Props
+  extends React.PropsWithRef<React.DetailedHTMLProps<React.AnchorHTMLAttributes<HTMLAnchorElement>, HTMLAnchorElement>>,
+    TestIDProps {
+  treatAsButton?: boolean;
+}
 
-export const Anchor = React.forwardRef<HTMLAnchorElement, AnchorProps>(
-  ({ testID, testIDProperties, treatAsButton, onClick, ...props }, ref) => {
+export const Anchor = React.forwardRef<HTMLAnchorElement, Props>(
+  (
+    { target = '_blank', rel = 'noopener noreferrer', testID, testIDProperties, treatAsButton, onClick, ...props },
+    ref
+  ) => {
     const { trackEvent } = useAnalytics();
 
     const handleClick = (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
@@ -25,7 +27,7 @@ export const Anchor = React.forwardRef<HTMLAnchorElement, AnchorProps>(
     };
 
     return (
-      <a ref={ref} onClick={handleClick} {...props} {...setTestID(testID)}>
+      <a target={target} ref={ref} onClick={handleClick} {...props} {...setTestID(testID)}>
         {props.children}
       </a>
     );

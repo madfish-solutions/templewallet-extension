@@ -8,13 +8,13 @@ import { TempleNetwork } from 'lib/temple/types';
 
 import { NetworkSelectSelectors } from './selectors';
 
-interface NetworkButtonProps {
+interface Props {
   network: TempleNetwork;
   selected: boolean;
-  onClick: () => void;
+  onClick: EmptyFn;
 }
 
-export const NetworkButton: React.FC<NetworkButtonProps> = ({ network, selected, onClick }) => {
+export const NetworkButton: React.FC<Props> = ({ network, selected, onClick }) => {
   const { id, name, color, disabled, nameI18nKey } = network;
 
   return (

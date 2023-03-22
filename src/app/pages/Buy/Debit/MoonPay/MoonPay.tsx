@@ -26,8 +26,6 @@ export const MoonPay = () => {
         'w-full'
       )}
       href={signedUrl}
-      target="_blank"
-      rel="noopener noreferrer"
       testID={BuySelectors.MoonPayButton}
       treatAsButton={true}
     >

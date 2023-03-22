@@ -72,8 +72,6 @@ const About: FC = () => (
           <Anchor
             href="https://madfish.solutions"
             key="link"
-            target="_blank"
-            rel="noopener noreferrer"
             className="font-normal hover:underline"
             style={{ color: '#98c630' }}
             testID={AboutSelectors.madFishLink}
@@ -90,14 +88,7 @@ const About: FC = () => (
 
     <div className="text-center">
       {LINKS.map(({ key, link, testID }) => (
-        <Anchor
-          key={key}
-          href={link}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="block mb-2 text-base text-blue-600 hover:underline"
-          testID={testID}
-        >
+        <Anchor key={key} href={link} className="block mb-2 text-base text-blue-600 hover:underline" testID={testID}>
           <T id={key} />
         </Anchor>
       ))}

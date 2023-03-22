@@ -19,7 +19,7 @@ export const useNotificationsSelector = () => useSelector(state => getFilteredNo
 export const useNotificationsItemSelector = (id: number) =>
   useSelector(state => state.notifications.list.data.find(notification => notification.id === id));
 
-export const useNewNotificationsNumberSelector = () =>
+export const useNewNotificationsAmountSelector = () =>
   useSelector(
     state =>
       getFilteredNotifications(state).filter(notification => notification.status === NotificationStatus.New).length
