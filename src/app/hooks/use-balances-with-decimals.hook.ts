@@ -2,7 +2,6 @@ import { useMemo } from 'react';
 
 import { BigNumber } from 'bignumber.js';
 
-import { getKeyForBalancesRecord } from 'app/store/balances/reducers';
 import { useBalancesSelector } from 'app/store/balances/selectors';
 import { useAccount, useAllTokensBaseMetadata, useChainId } from 'lib/temple/front';
 import { atomsToTokens } from 'lib/temple/helpers';
@@ -12,7 +11,7 @@ export const useBalancesWithDecimals = () => {
   const { publicKeyHash } = useAccount();
   const chainId = useChainId(true)!;
 
-  const balancesRaw = useBalancesSelector(getKeyForBalancesRecord(publicKeyHash, chainId));
+  const balancesRaw = useBalancesSelector(publicKeyHash, chainId);
   const allTokensMetadata = useAllTokensBaseMetadata();
 
   return useMemo(() => {

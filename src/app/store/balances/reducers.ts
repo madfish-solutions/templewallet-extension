@@ -1,11 +1,10 @@
 import { createReducer } from '@reduxjs/toolkit';
 
+import { getKeyForBalancesRecord } from 'lib/balances';
 import { createEntity } from 'lib/store/utils/entity.utils';
 
 import { loadTokensBalancesFromChainAction, loadTokensBalancesFromTzktAction } from './actions';
 import { balancesInitialState } from './state';
-
-export const getKeyForBalancesRecord = (publiKeyHash: string, chainId: string) => `${publiKeyHash}_${chainId}`;
 
 export const balancesReducer = createReducer(balancesInitialState, builder => {
   builder.addCase(loadTokensBalancesFromTzktAction.submit, (state, { payload }) => {

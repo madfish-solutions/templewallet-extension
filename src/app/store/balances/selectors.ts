@@ -1,7 +1,10 @@
+import { getKeyForBalancesRecord } from 'lib/balances';
+
 import { useSelector } from '..';
-import { PublicKeyHashWithChainId } from './state';
 
 const EMPTY_BALANCES_RECORD = {};
 
-export const useBalancesSelector = (publicKeyHashWithChainId: PublicKeyHashWithChainId) =>
-  useSelector(state => state.balances.balancesAtomic[publicKeyHashWithChainId]?.data ?? EMPTY_BALANCES_RECORD);
+export const useBalancesSelector = (publicKeyHash: string, chainId: string) => {
+  const publicKeyHashWithChainId = getKeyForBalancesRecord(publicKeyHash, chainId);
+  return useSelector(state => state.balances.balancesAtomic[publicKeyHashWithChainId]?.data ?? EMPTY_BALANCES_RECORD);
+};
