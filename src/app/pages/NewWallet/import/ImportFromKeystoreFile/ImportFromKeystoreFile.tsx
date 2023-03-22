@@ -61,7 +61,7 @@ export const ImportFromKeystoreFile: FC<ImportFromKeystoreFileProps> = ({
         <span className="text-base font-semibold text-gray-700">
           <T id="file" />
         </span>
-        <span className="mt-1 text-xs font-light text-gray-600" style={{ maxWidth: '90%' }}>
+        <span className="mt-1 text-xs font-light text-gray-600max-w-9/10">
           <T id="keystoreFileFieldDescription" />
         </span>
       </label>

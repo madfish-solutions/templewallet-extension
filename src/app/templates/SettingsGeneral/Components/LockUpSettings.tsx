@@ -1,25 +1,18 @@
 import React, { FC } from 'react';
 
 import { FormCheckbox } from 'app/atoms';
-import { t, T } from 'lib/i18n';
+import { t } from 'lib/i18n';
 import { useIsLockUpEnabled } from 'lib/lock-up';
 
 import { SettingsGeneralSelectors } from '../SettingsGeneral.selectors';
+import { GeneralSettingLabel } from './GeneralSettingLabel';
 
 const LockUpSettings: FC<{}> = () => {
   const [isLockUpEnabled, saveIsLockUpEnabled] = useIsLockUpEnabled();
 
   return (
     <>
-      <label className="mb-4 leading-tight flex flex-col" htmlFor="lockUpSettings">
-        <span className="text-base font-semibold text-gray-700">
-          <T id="lockUpSettings" />
-        </span>
-
-        <span className="mt-1 text-xs font-light text-gray-600" style={{ maxWidth: '90%' }}>
-          <T id="lockUpSettingsDescription" />
-        </span>
-      </label>
+      <GeneralSettingLabel titleI18nKey="lockUpSettings" descriptionI18nKey="lockUpSettingsDescription" />
 
       <FormCheckbox
         checked={isLockUpEnabled}

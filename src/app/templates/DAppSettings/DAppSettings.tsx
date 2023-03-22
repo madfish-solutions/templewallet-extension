@@ -73,7 +73,7 @@ const DAppSettings: FC = () => {
   return (
     <div className="w-full max-w-sm mx-auto my-8">
       <h2 className="w-full mb-4 leading-tight flex flex-col">
-        <span className="text-xs font-light text-gray-600" style={{ maxWidth: '90%' }}>
+        <span className="text-xs font-light text-gray-600max-w-9/10">
           <T id="dAppsCheckmarkPrompt" substitutions={t(dAppEnabled ? 'disable' : 'enable')} />
         </span>
       </h2>
@@ -98,7 +98,7 @@ const DAppSettings: FC = () => {
           </h2>
 
           <div className="mb-4">
-            <span className="text-xs font-light text-gray-600" style={{ maxWidth: '90%' }}>
+            <span className="text-xs font-light text-gray-600max-w-9/10">
               <T id="clickIconToResetPermissions" />
             </span>
           </div>

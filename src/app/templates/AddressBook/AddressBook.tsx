@@ -65,7 +65,7 @@ const AddressBook: React.FC = () => {
           <T id="currentContacts" />
         </span>
 
-        <span className="mt-1 text-xs font-light text-gray-600" style={{ maxWidth: '90%' }}>
+        <span className="mt-1 text-xs font-light text-gray-600max-w-9/10">
           <T id="updateContactDescription" />
         </span>
       </div>

@@ -85,7 +85,7 @@ const PayloadContent: React.FC<PayloadContentProps> = ({
           <T id="account" />
         </span>
 
-        <span className="mt-px text-xs font-light text-gray-600" style={{ maxWidth: '90%' }}>
+        <span className="mt-px text-xs font-light text-gray-600 max-w-9/10">
           <T id="toBeConnectedWithDApp" />
         </span>
       </h2>

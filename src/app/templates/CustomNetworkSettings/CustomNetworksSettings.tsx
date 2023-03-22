@@ -115,7 +115,7 @@ const CustomNetworksSettings: FC = () => {
             <T id="currentNetworks" />
           </span>
 
-          <span className="mt-1 text-xs font-light text-gray-600" style={{ maxWidth: '90%' }}>
+          <span className="mt-1 text-xs font-light text-gray-600max-w-9/10">
             <T id="deleteNetworkHint" />
           </span>
         </h2>

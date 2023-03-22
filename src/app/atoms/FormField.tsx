@@ -329,17 +329,9 @@ const LabelComponent: React.FC<LabelComponentProps> = ({ label, className, descr
     <label className={classNames(className, 'leading-tight flex flex-col')} htmlFor={id}>
       <span className="text-base font-semibold text-gray-700">{label}</span>
 
-      {description && (
-        <span className="mt-1 text-xs font-light text-gray-600" style={{ maxWidth: '90%' }}>
-          {description}
-        </span>
-      )}
+      {description && <span className="mt-1 text-xs font-light text-gray-600 max-w-9/10">{description}</span>}
 
-      {warning && (
-        <span className="mt-1 text-xs font-medium text-red-600" style={{ maxWidth: '90%' }}>
-          {warning}
-        </span>
-      )}
+      {warning && <span className="mt-1 text-xs font-medium text-red-600 max-w-9/10">{warning}</span>}
     </label>
   ) : null;
 

@@ -327,7 +327,7 @@ const ByMnemonicForm: FC = () => {
             </span>
           </span>
 
-          <span className="mt-1 text-xs font-light text-gray-600" style={{ maxWidth: '90%' }}>
+          <span className="mt-1 text-xs font-light text-gray-600 max-w-9/10">
             <T id="addDerivationPathPrompt" />
           </span>
         </h2>
@@ -672,7 +672,7 @@ const FromFaucetForm: FC = () => {
               <T id="faucetFile" />
             </span>
 
-            <span className="mt-1 text-xs font-light text-gray-600" style={{ maxWidth: '90%' }}>
+            <span className="mt-1 text-xs font-light text-gray-600 max-w-9/10">
               <T
                 id="faucetFileInputPrompt"
                 substitutions={[
