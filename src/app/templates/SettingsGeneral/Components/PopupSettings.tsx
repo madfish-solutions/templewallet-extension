@@ -1,11 +1,9 @@
 import React, { FC, useCallback, useRef, useState } from 'react';
 
-import { FormCheckbox } from 'app/atoms';
-import { t } from 'lib/i18n';
 import { isPopupModeEnabled, setPopupMode } from 'lib/popup-mode';
 
-import { SettingsGeneralSelectors } from '../SettingsGeneral.selectors';
-import { GeneralSettingLabel } from './GeneralSettingLabel';
+import { SettingsGeneralSelectors } from '../selectors';
+import { EnablingSetting } from './EnablingSetting';
 
 const PopupSettings: FC<{}> = () => {
   const popupEnabled = isPopupModeEnabled();
@@ -26,18 +24,14 @@ const PopupSettings: FC<{}> = () => {
   );
 
   return (
-    <>
-      <GeneralSettingLabel titleI18nKey="popupSettings" descriptionI18nKey="popupSettingsDescription" />
-
-      <FormCheckbox
-        checked={popupEnabled}
-        onChange={handlePopupModeChange}
-        label={t(popupEnabled ? 'popupEnabled' : 'popupDisabled')}
-        errorCaption={error?.message}
-        containerClassName="mb-4"
-        testID={SettingsGeneralSelectors.popUpCheckBox}
-      />
-    </>
+    <EnablingSetting
+      titleI18nKey="popupSettings"
+      descriptionI18nKey="popupSettingsDescription"
+      enabled={popupEnabled}
+      onChange={handlePopupModeChange}
+      errorCaption={error?.message}
+      testID={SettingsGeneralSelectors.popUpCheckBox}
+    />
   );
 };
 

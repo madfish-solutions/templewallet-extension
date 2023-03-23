@@ -1,27 +1,21 @@
 import React from 'react';
 
-import { FormCheckbox } from 'app/atoms';
 import { useAnalyticsSettings } from 'lib/analytics';
-import { t } from 'lib/i18n';
 
-import { SettingsGeneralSelectors } from '../SettingsGeneral.selectors';
-import { GeneralSettingLabel } from './GeneralSettingLabel';
+import { SettingsGeneralSelectors } from '../selectors';
+import { EnablingSetting } from './EnablingSetting';
 
 const AnalyticsSettings: React.FC = () => {
   const { analyticsEnabled, setAnalyticsEnabled } = useAnalyticsSettings();
 
   return (
-    <>
-      <GeneralSettingLabel titleI18nKey="analyticsSettings" descriptionI18nKey="analyticsSettingsDescription" />
-
-      <FormCheckbox
-        checked={analyticsEnabled}
-        onChange={setAnalyticsEnabled}
-        label={t(analyticsEnabled ? 'enabled' : 'disabled')}
-        containerClassName="mb-4"
-        testID={SettingsGeneralSelectors.anonymousAnalyticsCheckBox}
-      />
-    </>
+    <EnablingSetting
+      titleI18nKey="analyticsSettings"
+      descriptionI18nKey="analyticsSettingsDescription"
+      enabled={analyticsEnabled}
+      onChange={setAnalyticsEnabled}
+      testID={SettingsGeneralSelectors.anonymousAnalyticsCheckBox}
+    />
   );
 };
 

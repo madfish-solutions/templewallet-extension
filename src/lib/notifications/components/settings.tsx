@@ -2,10 +2,8 @@ import React, { FC } from 'react';
 
 import { useDispatch } from 'react-redux';
 
-import { FormCheckbox } from 'app/atoms';
-import { GeneralSettingLabel } from 'app/templates/SettingsGeneral/Components/GeneralSettingLabel';
-import { SettingsGeneralSelectors } from 'app/templates/SettingsGeneral/SettingsGeneral.selectors';
-import { t } from 'lib/i18n';
+import { EnablingSetting } from 'app/templates/SettingsGeneral/Components/EnablingSetting';
+import { SettingsGeneralSelectors } from 'app/templates/SettingsGeneral/selectors';
 
 import { setIsNewsEnabledAction } from '../store/actions';
 import { useIsNewsEnabledSelector } from '../store/selectors';
@@ -17,16 +15,12 @@ export const NotificationsSettings: FC = () => {
   const handleNewsNotificationsChange = (checked: boolean) => dispatch(setIsNewsEnabledAction(checked));
 
   return (
-    <>
-      <GeneralSettingLabel titleI18nKey="notifications" descriptionI18nKey="notificationsSettingsDescription" />
-
-      <FormCheckbox
-        checked={isNewsEnabled}
-        onChange={handleNewsNotificationsChange}
-        label={t(isNewsEnabled ? 'enabled' : 'disabled')}
-        containerClassName="mb-4"
-        testID={SettingsGeneralSelectors.notificationCheckBox}
-      />
-    </>
+    <EnablingSetting
+      titleI18nKey="notifications"
+      descriptionI18nKey="notificationsSettingsDescription"
+      enabled={isNewsEnabled}
+      onChange={handleNewsNotificationsChange}
+      testID={SettingsGeneralSelectors.notificationCheckBox}
+    />
   );
 };
