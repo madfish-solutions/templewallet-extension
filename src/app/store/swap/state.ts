@@ -10,5 +10,4 @@ export interface SwapState {
 export const swapInitialState: SwapState = {
   dexes: createEntity([]),
   tokens: createEntity([])
-  // swapParams: createEntity({ input: 0, output: 0, chains: [] })
 };
