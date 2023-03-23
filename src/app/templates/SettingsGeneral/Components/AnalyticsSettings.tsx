@@ -17,7 +17,6 @@ const AnalyticsSettings: React.FC = () => {
       <FormCheckbox
         checked={analyticsEnabled}
         onChange={setAnalyticsEnabled}
-        name="analyticsEnabled"
         label={t(analyticsEnabled ? 'enabled' : 'disabled')}
         containerClassName="mb-4"
         testID={SettingsGeneralSelectors.anonymousAnalyticsCheckBox}

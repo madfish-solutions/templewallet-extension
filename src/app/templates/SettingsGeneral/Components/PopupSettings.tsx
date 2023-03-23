@@ -32,7 +32,6 @@ const PopupSettings: FC<{}> = () => {
       <FormCheckbox
         checked={popupEnabled}
         onChange={handlePopupModeChange}
-        name="popupEnabled"
         label={t(popupEnabled ? 'popupEnabled' : 'popupDisabled')}
         errorCaption={error?.message}
         containerClassName="mb-4"

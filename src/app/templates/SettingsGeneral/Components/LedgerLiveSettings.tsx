@@ -21,7 +21,6 @@ const LedgerLiveSettings: React.FC<{}> = () => {
       <FormCheckbox
         checked={ledgerLiveEnabled}
         onChange={setLedgerLiveEnabled}
-        name="ledgerLiveEnabled"
         label={t(ledgerLiveEnabled ? 'enabled' : 'disabled')}
         containerClassName="mb-4"
         testID={SettingsGeneralSelectors.useLedgerLiveCheckBox}

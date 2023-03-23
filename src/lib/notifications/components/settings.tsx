@@ -21,11 +21,10 @@ export const NotificationsSettings: FC = () => {
       <GeneralSettingLabel titleI18nKey="notifications" descriptionI18nKey="notificationsSettingsDescription" />
 
       <FormCheckbox
-        name="newsNotificationsEnabled"
-        label={t('news')}
-        containerClassName="mb-4"
         checked={isNewsEnabled}
         onChange={handleNewsNotificationsChange}
+        label={t(isNewsEnabled ? 'enabled' : 'disabled')}
+        containerClassName="mb-4"
         testID={SettingsGeneralSelectors.notificationCheckBox}
       />
     </>

@@ -17,7 +17,6 @@ const LockUpSettings: FC<{}> = () => {
       <FormCheckbox
         checked={isLockUpEnabled}
         onChange={saveIsLockUpEnabled}
-        name="isLockUpEnabled"
         label={t(isLockUpEnabled ? 'enabled' : 'disabled')}
         containerClassName="mb-4"
         testID={SettingsGeneralSelectors.extensionLockUpCheckBox}
