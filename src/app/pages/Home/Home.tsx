@@ -19,6 +19,7 @@ import { TestIDProps } from 'lib/analytics';
 import { T, t } from 'lib/i18n';
 import { isTezAsset } from 'lib/temple/assets';
 import { useAccount, useNetwork, useAssetMetadata } from 'lib/temple/front';
+import { useLoadBalances } from 'lib/temple/front/load-balances';
 import { getAssetSymbol } from 'lib/temple/metadata';
 import { TempleAccountType, TempleNetworkType } from 'lib/temple/types';
 import useTippy from 'lib/ui/useTippy';
@@ -47,6 +48,8 @@ const tippyPropsMock = {
 const NETWORK_TYPES_WITH_BUY_BUTTON: TempleNetworkType[] = ['main', 'dcp'];
 
 const Home: FC<ExploreProps> = ({ assetSlug }) => {
+  useLoadBalances();
+
   const { fullPage, registerBackHandler } = useAppEnv();
   const { onboardingCompleted } = useOnboardingProgress();
   const account = useAccount();
