@@ -2,14 +2,12 @@ import { isDefined } from '@rnw-community/shared';
 import { ElementHandle } from 'puppeteer';
 
 import { BrowserContext } from '../classes/browser-context.class';
-import { SHORT_TIMEOUT } from './timing.utils';
-
 const getSelector = (testID: string) => `[data-testid="${testID}"]`;
 
 const findElement = async (testID: string) => {
   const selector = getSelector(testID);
 
-  const element = await BrowserContext.page.waitForSelector(selector, { visible: true, timeout: SHORT_TIMEOUT });
+  const element = await BrowserContext.page.waitForSelector(selector, { visible: true, timeout: 12000 });
 
   if (isDefined(element)) {
     return element;
