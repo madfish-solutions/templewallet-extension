@@ -2,14 +2,14 @@ import { isDefined } from '@rnw-community/shared';
 import { ElementHandle } from 'puppeteer';
 
 import { BrowserContext } from '../classes/browser-context.class';
-import { MEDIUM_TIMEOUT } from './timing.utils';
+import { LONG_TIMEOUT } from './timing.utils';
 
 const getSelector = (testID: string) => `[data-testid="${testID}"]`;
 
 const findElement = async (testID: string) => {
   const selector = getSelector(testID);
 
-  const element = await BrowserContext.page.waitForSelector(selector, { visible: true, timeout: MEDIUM_TIMEOUT });
+  const element = await BrowserContext.page.waitForSelector(selector, { visible: true, timeout: LONG_TIMEOUT });
 
   if (isDefined(element)) {
     return element;
