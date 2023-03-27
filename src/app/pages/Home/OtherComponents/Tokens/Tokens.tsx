@@ -132,7 +132,6 @@ export const Tokens: FC = () => {
 
       {filteredAssets.length === 0 ? (
         <div className="my-8 flex flex-col items-center justify-center text-gray-500">
-          <PartnersPromotion key="promo-token-item" variant={PartnersPromotionVariant.Text} />
           <p className="mb-2 flex items-center justify-center text-gray-600 text-base font-light">
             {searchValueExist && <SearchIcon className="w-5 h-auto mr-1 stroke-current" />}
 
