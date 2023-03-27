@@ -6,6 +6,7 @@ import { Button } from 'app/atoms/Button';
 import { T } from 'lib/i18n';
 import { navigate } from 'lib/woozie';
 
+import { AssetsSelectors } from '../../../Assets.selectors';
 import modStyles from '../../Tokens.module.css';
 
 export const DelegateTezosTag: FC = () => (
@@ -16,6 +17,7 @@ export const DelegateTezosTag: FC = () => (
       navigate('/explore/tez/?tab=delegation');
     }}
     className={classNames('ml-2 px-2 py-1', modStyles['apyTag'])}
+    testID={AssetsSelectors.assetItemDelegateButton}
   >
     <T id="delegate" />
   </Button>
