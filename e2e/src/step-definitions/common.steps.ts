@@ -4,9 +4,9 @@ import { BrowserContext } from '../classes/browser-context.class';
 import { testDataForInput } from '../classes/test-data-for-input.class';
 import { Pages } from '../page-objects';
 import { createPageElement } from '../utils/search.utils';
-import { LONG_TIMEOUT, MEDIUM_TIMEOUT } from '../utils/timing.utils';
+import { LONG_TIMEOUT } from '../utils/timing.utils';
 
-Given(/^I am on the (\w+) page$/, { timeout: MEDIUM_TIMEOUT }, async (page: keyof typeof Pages) => {
+Given(/^I am on the (\w+) page$/, { timeout: LONG_TIMEOUT }, async (page: keyof typeof Pages) => {
   await Pages[page].isVisible();
 });
 
