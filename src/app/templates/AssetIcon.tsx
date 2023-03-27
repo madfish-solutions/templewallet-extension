@@ -1,4 +1,4 @@
-import React, { FC, useMemo } from 'react';
+import React, { FC, memo, useMemo } from 'react';
 
 import classNames from 'clsx';
 
@@ -29,7 +29,7 @@ interface Props {
   size?: number;
 }
 
-export const AssetIcon: FC<Props> = ({ assetSlug, className, size }) => {
+export const AssetIcon: FC<Props> = memo<Props>(({ assetSlug, className, size }) => {
   const metadata = useAssetMetadata(assetSlug);
 
   const isCollectible = Boolean(metadata?.artifactUri);
@@ -56,4 +56,4 @@ export const AssetIcon: FC<Props> = ({ assetSlug, className, size }) => {
       />
     </div>
   );
-};
+});

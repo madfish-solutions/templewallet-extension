@@ -3,13 +3,13 @@ import { useMemo } from 'react';
 import { isDefined } from '@rnw-community/shared';
 import { BigNumber } from 'bignumber.js';
 
+import { useBalancesWithDecimals } from 'app/hooks/use-balances-with-decimals.hook';
 import { useSelector } from 'app/store';
 import { useFiatToUsdRate } from 'lib/fiat-currency';
 import { isTruthy } from 'lib/utils';
 
 import { TEZ_TOKEN_SLUG, useDisplayedFungibleTokens } from './assets';
 import { useAccount, useChainId } from './ready';
-import { useSyncBalances } from './sync-balances';
 
 /** Total fiat volume of displayed tokens */
 export const useTotalBalance = () => {
@@ -17,7 +17,7 @@ export const useTotalBalance = () => {
   const { publicKeyHash } = useAccount();
   const { data: tokens } = useDisplayedFungibleTokens(chainId, publicKeyHash);
 
-  const tokensBalances = useSyncBalances();
+  const tokensBalances = useBalancesWithDecimals();
   const allUsdToTokenRates = useSelector(state => state.currency.usdToTokenRates.data);
 
   const fiatToUsdRate = useFiatToUsdRate();

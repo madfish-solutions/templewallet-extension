@@ -4,6 +4,7 @@
     "target": "es5",
     "module": "commonjs",
     "moduleResolution": "node",
+    "noEmit": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,

@@ -15,6 +15,7 @@ const GeneralSettings: FC = () => {
   return (
     <div className="w-full max-w-sm mx-auto my-8">
       <LocaleSelect className="mb-8" />
+
       <FiatCurrencySelect className="mb-8" />
 
       <BlockExplorerSelect className="mb-8" />

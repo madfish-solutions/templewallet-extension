@@ -43,7 +43,7 @@ export const CurrenciesMenu: FC<Props> = ({
   return (
     <DropdownWrapper
       opened={opened}
-      className="origin-top overflow-x-hidden overflow-y-auto"
+      className="origin-top overflow-x-hidden overflow-y-auto p-2"
       style={{
         maxHeight: '15.75rem',
         backgroundColor: 'white',

@@ -1,11 +1,13 @@
 import React, { FC, useCallback, useEffect, useMemo, useState } from 'react';
 
+import { BigNumber } from 'bignumber.js';
 import classNames from 'clsx';
 import { useDispatch } from 'react-redux';
 
 import { ActivitySpinner } from 'app/atoms';
 import { PartnersPromotion, PartnersPromotionVariant } from 'app/atoms/partners-promotion';
 import { useAppEnv } from 'app/env';
+import { useBalancesWithDecimals } from 'app/hooks/use-balances-with-decimals.hook';
 import { ReactComponent as AddToListIcon } from 'app/icons/add-to-list.svg';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
 import { loadPartnersPromoAction } from 'app/store/partners-promotion/actions';
@@ -13,11 +15,9 @@ import SearchAssetField from 'app/templates/SearchAssetField';
 import { OptimalPromoVariantEnum } from 'lib/apis/optimal';
 import { T } from 'lib/i18n';
 import { useAccount, useChainId, useDisplayedFungibleTokens, useFilteredAssets } from 'lib/temple/front';
-import { useSyncBalances } from 'lib/temple/front/sync-balances';
 import { useSyncTokens } from 'lib/temple/front/sync-tokens';
 import { Link, navigate } from 'lib/woozie';
 
-// import { setTestID } from '../../../../../lib/analytics';
 import { AssetsSelectors } from '../Assets.selectors';
 import { ListItem } from './components/ListItem';
 import { toExploreAssetLink } from './utils';
@@ -25,10 +25,11 @@ import { toExploreAssetLink } from './utils';
 export const Tokens: FC = () => {
   const dispatch = useDispatch();
   const chainId = useChainId(true)!;
+  const balances = useBalancesWithDecimals();
+
   const { publicKeyHash } = useAccount();
   const isSyncing = useSyncTokens();
   const { popup } = useAppEnv();
-  const latestBalances = useSyncBalances();
 
   const { data: tokens = [] } = useDisplayedFungibleTokens(chainId, publicKeyHash);
 
@@ -50,14 +51,14 @@ export const Tokens: FC = () => {
         key={assetSlug}
         assetSlug={assetSlug}
         active={activeAssetSlug ? assetSlug === activeAssetSlug : false}
-        balances={latestBalances}
+        balance={balances[assetSlug] ?? new BigNumber(0)}
       />
     ));
 
     tokensJsx.splice(1, 0, <PartnersPromotion key="promo-token-item" variant={PartnersPromotionVariant.Text} />);
 
     return tokensJsx;
-  }, [filteredAssets, activeAssetSlug, latestBalances]);
+  }, [filteredAssets, activeAssetSlug, balances]);
 
   useEffect(() => void dispatch(loadPartnersPromoAction.submit(OptimalPromoVariantEnum.Token)), []);
 

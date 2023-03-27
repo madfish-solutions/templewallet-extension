@@ -151,7 +151,7 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
   return (
     <DropdownWrapper
       opened={opened}
-      className="origin-top-right"
+      className="origin-top-right p-2"
       style={{
         minWidth: '16rem',
         transform: 'translate(3.25rem, 3.25rem)',

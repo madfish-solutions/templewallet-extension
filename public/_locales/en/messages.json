@@ -1676,6 +1676,9 @@
   "manageTokens": {
     "message": "Manage Tokens"
   },
+  "noItemsFound": {
+    "message": "No items found"
+  },
   "noAssetsFound": {
     "message": "No assets found"
   },
