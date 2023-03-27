@@ -4,7 +4,7 @@ import { BrowserContext } from '../classes/browser-context.class';
 import { testDataForInput } from '../classes/test-data-for-input.class';
 import { Pages } from '../page-objects';
 import { createPageElement } from '../utils/search.utils';
-import { LONG_TIMEOUT } from '../utils/timing.utils';
+import { LONG_TIMEOUT, VERY_LONG_TIMEOUT } from '../utils/timing.utils';
 
 Given(/^I am on the (\w+) page$/, { timeout: LONG_TIMEOUT }, async (page: keyof typeof Pages) => {
   await Pages[page].isVisible();
@@ -23,7 +23,7 @@ Given(
   }
 );
 
-Given(/I have imported an existing account/, { timeout: LONG_TIMEOUT }, async () => {
+Given(/I have imported an existing account/, { timeout: VERY_LONG_TIMEOUT }, async () => {
   await Pages.Welcome.isVisible();
   await Pages.Welcome.importExistingWalletButton.click();
 

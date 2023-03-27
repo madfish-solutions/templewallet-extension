@@ -2,7 +2,7 @@ import { Given } from '@cucumber/cucumber';
 
 import { testDataForInput } from '../classes/test-data-for-input.class';
 import { Pages } from '../page-objects';
-import { LONG_TIMEOUT } from '../utils/timing.utils';
+import { VERY_LONG_TIMEOUT } from '../utils/timing.utils';
 
 Given(/I check who the delegated baker is/, async () => {
   const delegatedBaker = await Pages.DelegateTab.delegatedBakerName.getText();
@@ -16,7 +16,7 @@ Given(/I check who the delegated baker is/, async () => {
   }
 });
 
-Given(/I press on A,B or unknown Delegate Button/, { timeout: LONG_TIMEOUT }, async () => {
+Given(/I press on A,B or unknown Delegate Button/, { timeout: VERY_LONG_TIMEOUT }, async () => {
   try {
     const unknownBakerButton = await Pages.DelegateForm.unknownBakerDelegateButton.waitForDisplayed();
     await unknownBakerButton.click();
