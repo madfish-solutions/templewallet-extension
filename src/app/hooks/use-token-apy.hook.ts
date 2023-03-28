@@ -6,11 +6,15 @@ import { useTokensApyRatesSelector } from 'app/store/d-apps';
 import { KNOWN_TOKENS_SLUGS } from 'lib/temple/assets';
 
 const YUPANA_LEND_LINK = 'https://app.yupana.finance/lending';
+const YOUVES_LINK = 'https://app.youves.com/earn';
 
 const TOKEN_APY_LINKS: Readonly<Record<string, string | undefined>> = {
   [KNOWN_TOKENS_SLUGS.KUSD]: YUPANA_LEND_LINK,
   [KNOWN_TOKENS_SLUGS.USDT]: YUPANA_LEND_LINK,
-  [KNOWN_TOKENS_SLUGS.tzBTC]: YUPANA_LEND_LINK
+  [KNOWN_TOKENS_SLUGS.tzBTC]: YUPANA_LEND_LINK,
+  [KNOWN_TOKENS_SLUGS.uUSD]: YOUVES_LINK,
+  [KNOWN_TOKENS_SLUGS.uBTC]: YOUVES_LINK,
+  [KNOWN_TOKENS_SLUGS.YOU]: YOUVES_LINK
 };
 
 export interface TokenApyInfo {

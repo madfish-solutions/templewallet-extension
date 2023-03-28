@@ -4,7 +4,7 @@ import classNames from 'clsx';
 
 import { Button } from 'app/atoms/Button';
 import type { TokenApyInfo } from 'app/hooks/use-token-apy.hook';
-import { TOKENS_BRAND_COLORS } from 'lib/temple/assets';
+import { KNOWN_TOKENS_SLUGS, TOKENS_BRAND_COLORS } from 'lib/temple/assets';
 import { isTruthy, openLink } from 'lib/utils';
 
 import { AssetsSelectors } from '../../../Assets.selectors';
@@ -16,10 +16,16 @@ interface Props {
   apyInfo: TokenApyInfo;
 }
 
+const APR = 'APR';
+const APY = 'APY';
+const YOUVES_TOKENS_WITH_APR = [KNOWN_TOKENS_SLUGS.uUSD, KNOWN_TOKENS_SLUGS.uBTC, KNOWN_TOKENS_SLUGS.YOU];
+
 export const TokenApyTag: FC<Props> = ({ slug, symbol, apyInfo }) => {
   const [hovered, setHovered] = useState(false);
 
   const colors = useMemo(() => TOKENS_BRAND_COLORS[slug], [slug]);
+
+  const label = useMemo(() => (YOUVES_TOKENS_WITH_APR.includes(KNOWN_TOKENS_SLUGS[slug]) ? APR : APY), [slug]);
 
   const { rate, link } = apyInfo;
 
@@ -39,7 +45,7 @@ export const TokenApyTag: FC<Props> = ({ slug, symbol, apyInfo }) => {
       className={classNames('ml-2 px-2 py-1', modStyles['apyTag'])}
       style={{ backgroundColor: hovered ? colors.bgHover : colors.bg }}
     >
-      APY: {rate}%
+      {label}: {rate}%
     </Button>
   );
 };

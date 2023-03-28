@@ -2,7 +2,7 @@ import { TempleChainId } from 'lib/temple/types';
 
 import { toTokenSlug } from './utils';
 
-export const KNOWN_TOKENS_SLUGS = {
+export const KNOWN_TOKENS_SLUGS: Record<string, string> = {
   tzBTC: toTokenSlug('KT1PWx2mnDueood7fEmfbBDKx1D9BAnnXitn', 0),
   KUSD: toTokenSlug('KT1K9gCRgaLRFKTErYt1wVxA3Frb9FjasjTV', 0),
   uUSD: toTokenSlug('KT1XRPEPXbZK25r3Htzp2o1x7xdMMmfocKNW', 0),
@@ -32,5 +32,8 @@ export const getPredefinedTokensSlugs = (chainId: string) => PREDEFINED_TOKENS_B
 export const TOKENS_BRAND_COLORS: Record<string, { bg: string; bgHover?: string }> = {
   [KNOWN_TOKENS_SLUGS.KUSD]: { bg: '#3EBD93', bgHover: '#65CAA9' },
   [KNOWN_TOKENS_SLUGS.tzBTC]: { bg: '#1373E4', bgHover: '#428FE9' },
-  [KNOWN_TOKENS_SLUGS.USDT]: { bg: '#009393', bgHover: '#52AF95' }
+  [KNOWN_TOKENS_SLUGS.USDT]: { bg: '#009393', bgHover: '#52AF95' },
+  [KNOWN_TOKENS_SLUGS.uUSD]: { bg: '#00939', bgHover: '#52AF95' },
+  [KNOWN_TOKENS_SLUGS.uBTC]: { bg: '#00939', bgHover: '#52AF95' },
+  [KNOWN_TOKENS_SLUGS.YOU]: { bg: '#00939', bgHover: '#52AF95' }
 };
