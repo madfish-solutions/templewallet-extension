@@ -12,7 +12,7 @@ import { Link } from 'lib/woozie';
 import { AssetsSelectors } from '../../Assets.selectors';
 import styles from '../Tokens.module.css';
 import { toExploreAssetLink } from '../utils';
-import { Balance } from './Balance';
+import { CryptoBalance, FiatBalance } from './Balance';
 import { TokenTag } from './TokenTag';
 
 interface Props {
@@ -57,11 +57,11 @@ export const ListItem = memo<Props>(
               <div className={styles['tokenSymbol']}>{assetSymbol}</div>
               <TokenTag assetSlug={assetSlug} assetSymbol={assetSymbol} apyInfo={apyInfo} />
             </div>
-            <Balance assetSlug={assetSlug} value={balance} />
+            <CryptoBalance value={balance} testID={AssetsSelectors.assetItemCryptoBalanceButton} />
           </div>
           <div className="flex justify-between w-full mb-1">
             <div className="text-xs font-normal text-gray-700 truncate flex-1">{assetName}</div>
-            <Balance assetSlug={assetSlug} value={balance} inFiat />
+            <FiatBalance assetSlug={assetSlug} value={balance} testID={AssetsSelectors.assetItemFiatBalanceButton} />
           </div>
         </div>
       </Link>

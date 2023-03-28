@@ -86,6 +86,7 @@ const NetworkSelect: FC<NetworkSelectProps> = () => {
 
               return (
                 <NetworkButton
+                  key={id}
                   network={network}
                   selected={selected}
                   onClick={() => handleNetworkSelect(id, rpcBaseURL, selected, setOpened)}
