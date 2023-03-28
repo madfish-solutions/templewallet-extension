@@ -18,7 +18,7 @@ Given(/I check who the delegated baker is/, async () => {
 });
 
 Given(/I press on A,B or unknown Delegate Button/, { timeout: TWENTY_SECONDS_TIMEOUT }, async () => {
-  const TIMEOUT = 1000;
+  const TIMEOUT = 3000;
   const bakerButtons = [
     Pages.DelegateForm.knownBakerItemDelegateAButton,
     Pages.DelegateForm.knownBakerItemDelegateBButton,
