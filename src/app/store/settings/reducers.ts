@@ -1,6 +1,6 @@
 import { createReducer } from '@reduxjs/toolkit';
 
-import { setIsAnalyticsEnabledAction } from './actions';
+import { setIsAnalyticsEnabledAction, toggleBalanceModeAction } from './actions';
 import { settingsInitialState, SettingsState } from './state';
 
 export const settingsReducer = createReducer<SettingsState>(settingsInitialState, builder => {
@@ -8,4 +8,7 @@ export const settingsReducer = createReducer<SettingsState>(settingsInitialState
     ...state,
     isAnalyticsEnabled
   }));
+  builder.addCase(toggleBalanceModeAction, (state, { payload }) => {
+    state.balanceMode = payload;
+  });
 });

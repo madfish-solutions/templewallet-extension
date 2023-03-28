@@ -1,11 +1,18 @@
 import { nanoid } from '@reduxjs/toolkit';
 
+export enum BalanceMode {
+  Fiat = 'fiat',
+  Gas = 'gas'
+}
+
 export interface SettingsState {
-  isAnalyticsEnabled: boolean;
   userId: string;
+  isAnalyticsEnabled: boolean;
+  balanceMode: BalanceMode;
 }
 
 export const settingsInitialState: SettingsState = {
+  userId: nanoid(),
   isAnalyticsEnabled: true,
-  userId: nanoid()
+  balanceMode: BalanceMode.Fiat
 };
