@@ -57,11 +57,20 @@ export const ListItem = memo<Props>(
               <div className={styles['tokenSymbol']}>{assetSymbol}</div>
               <TokenTag assetSlug={assetSlug} assetSymbol={assetSymbol} apyInfo={apyInfo} />
             </div>
-            <CryptoBalance value={balance} testID={AssetsSelectors.assetItemCryptoBalanceButton} />
+            <CryptoBalance
+              value={balance}
+              testID={AssetsSelectors.assetItemCryptoBalanceButton}
+              testIDProperties={{ assetSlug }}
+            />
           </div>
           <div className="flex justify-between w-full mb-1">
             <div className="text-xs font-normal text-gray-700 truncate flex-1">{assetName}</div>
-            <FiatBalance assetSlug={assetSlug} value={balance} testID={AssetsSelectors.assetItemFiatBalanceButton} />
+            <FiatBalance
+              assetSlug={assetSlug}
+              value={balance}
+              testID={AssetsSelectors.assetItemFiatBalanceButton}
+              testIDProperties={{ assetSlug }}
+            />
           </div>
         </div>
       </Link>

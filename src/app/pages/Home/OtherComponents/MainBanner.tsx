@@ -75,8 +75,9 @@ const BalanceInfo: FC<TotalVolumeBannerProps> = ({ accountPkh }) => {
   const { data: balance } = useBalance(TEZ_TOKEN_SLUG, accountPkh);
   const volumeInGas = balance || new BigNumber(0);
 
-  const handleTvlModeToggle = () =>
-    dispatch(toggleBalanceModeAction(balanceMode === BalanceMode.Fiat ? BalanceMode.Gas : BalanceMode.Fiat));
+  const nextBalanceMode = balanceMode === BalanceMode.Fiat ? BalanceMode.Gas : BalanceMode.Fiat;
+
+  const handleTvlModeToggle = () => dispatch(toggleBalanceModeAction(nextBalanceMode));
 
   const isMainNetwork = network.type === 'main';
   const isFiatMode = balanceMode === BalanceMode.Fiat;
@@ -101,6 +102,7 @@ const BalanceInfo: FC<TotalVolumeBannerProps> = ({ accountPkh }) => {
             )}
             onClick={handleTvlModeToggle}
             testID={HomeSelectors.fiatTezSwitchButton}
+            testIDProperties={{ toValue: nextBalanceMode }}
           >
             {isFiatMode ? fiatSymbol : <TezosLogoIcon />}
           </Button>
