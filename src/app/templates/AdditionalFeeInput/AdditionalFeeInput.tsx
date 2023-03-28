@@ -86,7 +86,8 @@ const AdditionalFeeInput: FC<AdditionalFeeInputProps> = props => {
 
   const handleChange: EventFunction = event => {
     trackEvent(AdditionalFeeInputSelectors.FeeButton, AnalyticsEventCategory.ButtonPress);
-    return onChange !== undefined && onChange(event);
+
+    return onChange?.(event);
   };
 
   return (

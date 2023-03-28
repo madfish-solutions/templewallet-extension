@@ -37,7 +37,7 @@ export const CurrenciesMenu: FC<Props> = ({
 
   useEffect(() => {
     if (testID && opened) trackEvent(testID, AnalyticsEventCategory.DropdownOpened);
-  }, [opened]);
+  }, [opened, trackEvent]);
 
   const handleOptionClick = onChange
     ? (newValue: CurrencyBase) => {

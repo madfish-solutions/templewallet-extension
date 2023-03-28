@@ -35,7 +35,7 @@ export const IconifiedSelectMenu = <T extends unknown>(props: Props<T>) => {
 
   useEffect(() => {
     if (testID && opened) trackEvent(testID, AnalyticsEventCategory.DropdownOpened);
-  }, [opened]);
+  }, [opened, trackEvent]);
 
   const withSearch = Boolean(search);
 

@@ -46,7 +46,7 @@ export const AssetsMenu: FC<Props> = ({
 
   useEffect(() => {
     if (testID && opened) trackEvent(testID, AnalyticsEventCategory.DropdownOpened);
-  }, [opened]);
+  }, [opened, trackEvent]);
 
   const handleOptionClick = (newValue: string) => {
     if (value !== newValue) {
