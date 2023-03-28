@@ -9,7 +9,7 @@ on:
 jobs:
   pull-request-check:
     name: Checks if ts, lint, tests & build work
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     environment: development
     steps:
       - name: Clone repository
