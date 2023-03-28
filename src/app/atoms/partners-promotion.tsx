@@ -38,11 +38,9 @@ export const PartnersPromotion: FC<Props> = memo(({ variant }) => {
       comfirmButtonText: t('disable')
     });
 
-    if (!confirmed) {
-      return;
+    if (confirmed) {
+      dispatch(togglePartnersPromotionAction(false));
     }
-
-    dispatch(togglePartnersPromotionAction(false));
   }, [confirm]);
 
   if (!shouldShowPartnersPromo || Boolean(error)) {
