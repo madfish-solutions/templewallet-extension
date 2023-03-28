@@ -19,26 +19,29 @@ Given(/I check who the delegated baker is/, async () => {
 
 Given(/I press on A,B or unknown Delegate Button/, { timeout: TWENTY_SECONDS_TIMEOUT }, async () => {
   const TIMEOUT = 1000;
+  const bakerButtons = [
+    Pages.DelegateForm.knownBakerItemDelegateAButton,
+    Pages.DelegateForm.knownBakerItemDelegateBButton,
+    Pages.DelegateForm.unknownBakerDelegateButton
+  ];
 
-  try {
-    const unknownBakerButton = await Promise.race([
-      Pages.DelegateForm.unknownBakerDelegateButton.waitForDisplayed(),
-      new Promise(resolve => setTimeout(resolve, TIMEOUT))
-    ]);
-    await (unknownBakerButton as ElementHandle).click();
-  } catch (error1) {
+  let buttonClicked = false;
+
+  for (const button of [...bakerButtons]) {
     try {
-      const knownBakerItemAButton = await Promise.race([
-        Pages.DelegateForm.knownBakerItemDelegateAButton.waitForDisplayed(),
+      const element = (await Promise.race([
+        button.waitForDisplayed(),
         new Promise(resolve => setTimeout(resolve, TIMEOUT))
-      ]);
-      await (knownBakerItemAButton as ElementHandle).click();
-    } catch (error2) {
-      const knownBakerItemBButton = await Promise.race([
-        Pages.DelegateForm.knownBakerItemDelegateBButton.waitForDisplayed(),
-        new Promise(resolve => setTimeout(resolve, TIMEOUT))
-      ]);
-      await (knownBakerItemBButton as ElementHandle).click();
-    }
+      ])) as ElementHandle;
+      if (element) {
+        await element.click();
+        buttonClicked = true;
+        break;
+      }
+    } catch (error) {}
+  }
+
+  if (!buttonClicked) {
+    throw new Error('No delegate button found');
   }
 });
