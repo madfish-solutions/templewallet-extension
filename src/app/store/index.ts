@@ -15,8 +15,10 @@ import { currencyEpics } from './currency/epics';
 import { currencyReducer } from './currency/reducers';
 import { dAppsEpics } from './d-apps/epics';
 import { dAppsReducer } from './d-apps/reducers';
+import { settingsReducer } from './settings/reducers';
 
 const baseReducer = rootStateReducer({
+  settings: settingsReducer,
   advertising: advertisingReducer,
   currency: currencyReducer,
   notifications: notificationsReducers,
