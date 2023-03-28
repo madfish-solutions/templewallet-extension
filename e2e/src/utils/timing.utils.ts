@@ -1,4 +1,4 @@
-export const FORTY_SECONDS_TIMEOUT = 40_000;
+export const FIFTY_SECONDS_TIMEOUT = 50_000;
 
 export const THIRTY_SECONDS_TIMEOUT = 30_000;
 
