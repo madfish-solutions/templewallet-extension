@@ -16,7 +16,7 @@ import OperationStatus from 'app/templates/OperationStatus';
 import { setTestID, useFormAnalytics } from 'lib/analytics';
 import { fetchRoute3SwapParams, Route3SwapParamsResponse } from 'lib/apis/route3/fetch-route3-swap-params';
 import { T, t } from 'lib/i18n';
-import { ROUTING_FEE_RATIO } from 'lib/route3/constants';
+import { ROUTING_FEE_RATIO, ZERO } from 'lib/route3/constants';
 import { getPercentageRatio } from 'lib/route3/utils/get-percentage-ratio';
 import { getRoutingFeeTransferParams } from 'lib/route3/utils/get-routing-fee-transfer-params';
 import { createEntity, LoadableEntityState } from 'lib/store';
@@ -43,7 +43,7 @@ export const SwapForm: FC = () => {
   const { publicKeyHash } = useAccount();
   const getRoute3SwapOpParams = useRoute3();
   const [swapParams, setSwapParams] = useState<LoadableEntityState<Route3SwapParamsResponse>>(
-    createEntity({ input: 0, output: 0, chains: [] })
+    createEntity({ input: ZERO, output: ZERO, chains: [] })
   );
 
   const formAnalytics = useFormAnalytics('SwapForm');
@@ -87,10 +87,7 @@ export const SwapForm: FC = () => {
 
       return { routingFeeAtomic, minimumReceivedAmountAtomic };
     } else {
-      const routingFeeAtomic = new BigNumber(0);
-      const minimumReceivedAmountAtomic = new BigNumber(0);
-
-      return { routingFeeAtomic, minimumReceivedAmountAtomic };
+      return { routingFeeAtomic: ZERO, minimumReceivedAmountAtomic: ZERO };
     }
   }, [slippageRatio, outputValue.amount, swapParams.data.output]);
 
@@ -108,7 +105,7 @@ export const SwapForm: FC = () => {
       .then(params => {
         setSwapParams(createEntity(params));
 
-        if ((params.input ?? 0) > 0 && params.chains.length === 0) {
+        if (params.input?.isGreaterThan(ZERO) && params.chains.length === 0) {
           setIsAlertVisible(true);
         } else {
           setIsAlertVisible(false);
@@ -239,7 +236,7 @@ export const SwapForm: FC = () => {
 
     if (newInputValue.assetSlug === outputValue.assetSlug) {
       setValue('output', {});
-      setSwapParams(createEntity({ input: 0, output: 0, chains: [] }));
+      setSwapParams(createEntity({ input: ZERO, output: ZERO, chains: [] }));
     }
   };
 
@@ -248,7 +245,7 @@ export const SwapForm: FC = () => {
 
     if (newOutputValue.assetSlug === inputValue.assetSlug) {
       setValue('input', {});
-      setSwapParams(createEntity({ input: 0, output: 0, chains: [] }));
+      setSwapParams(createEntity({ input: ZERO, output: ZERO, chains: [] }));
     }
   };
 

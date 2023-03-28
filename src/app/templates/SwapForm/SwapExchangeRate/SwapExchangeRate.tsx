@@ -6,8 +6,8 @@ import Money from 'app/atoms/Money';
 import { AssetMetadata } from 'lib/temple/metadata';
 
 interface Props {
-  inputAmount: number | undefined;
-  outputAmount: number | undefined;
+  inputAmount: BigNumber | undefined;
+  outputAmount: BigNumber | undefined;
   inputAssetMetadata: AssetMetadata;
   outputAssetMetadata: AssetMetadata;
 }
@@ -15,10 +15,7 @@ interface Props {
 export const SwapExchangeRate: FC<Props> = ({ inputAmount, outputAmount, inputAssetMetadata, outputAssetMetadata }) => {
   const exchangeRate = useMemo(() => {
     if (inputAmount && outputAmount) {
-      const tradeInput = new BigNumber(inputAmount);
-      const tradeOutput = new BigNumber(outputAmount);
-
-      return tradeInput.dividedBy(tradeOutput);
+      return inputAmount.dividedBy(outputAmount);
     }
 
     return undefined;

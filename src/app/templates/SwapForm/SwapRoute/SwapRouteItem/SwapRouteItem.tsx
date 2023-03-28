@@ -1,19 +1,23 @@
 import React, { FC } from 'react';
 
+import { BigNumber } from 'bignumber.js';
+
 import { ReactComponent as Separator } from 'app/icons/separator.svg';
 import { Route3Chain } from 'lib/apis/route3/fetch-route3-swap-params';
 
 import { HopItem } from './hop-item';
 
 interface Props {
-  baseInput: number;
-  baseOutput: number;
+  baseInput: BigNumber;
+  baseOutput: BigNumber;
   chain: Route3Chain;
 }
 
 const DECIMALS_COUNT = 1;
+const PERCENTAGE = new BigNumber(100);
 
-const calculatePercentage = (base: number, part: number) => ((100 * part) / base).toFixed(DECIMALS_COUNT);
+const calculatePercentage = (base: BigNumber, part: number) =>
+  PERCENTAGE.multipliedBy(part).dividedBy(base).toFixed(DECIMALS_COUNT);
 
 export const SwapRouteItem: FC<Props> = ({ chain, baseInput, baseOutput }) => (
   <div className="flex justify-between relative">

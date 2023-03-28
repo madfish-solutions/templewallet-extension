@@ -6,6 +6,7 @@ import { ReactComponent as ChevronDown } from 'app/icons/chevron-down.svg';
 import { ReactComponent as ChevronUp } from 'app/icons/chevron-up.svg';
 import { Route3SwapParamsResponse } from 'lib/apis/route3/fetch-route3-swap-params';
 import { T } from 'lib/i18n';
+import { ZERO } from 'lib/route3/constants';
 
 import { SwapRouteItem } from './SwapRouteItem/SwapRouteItem';
 
@@ -46,8 +47,8 @@ export const SwapRoute: FC<Props> = ({ className, swapParams }) => {
             <SwapRouteItem
               key={index}
               chain={chain}
-              baseInput={swapParams.input ?? 0}
-              baseOutput={swapParams.output ?? 0}
+              baseInput={swapParams.input ?? ZERO}
+              baseOutput={swapParams.output ?? ZERO}
             />
           ))}
         </div>
