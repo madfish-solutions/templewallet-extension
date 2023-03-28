@@ -1,7 +1,5 @@
 import React, { FC } from 'react';
 
-import classNames from 'clsx';
-
 import { Alert } from 'app/atoms';
 import { NotEnoughFundsError, ZeroBalanceError, ZeroTEZBalanceError } from 'app/defaults';
 import { T, t } from 'lib/i18n';
@@ -9,7 +7,7 @@ import { useGasToken } from 'lib/temple/front';
 
 type SendErrorAlertProps = {
   type: 'submit' | 'estimation';
-  error: Error;
+  error: unknown;
 };
 
 const SendErrorAlert: FC<SendErrorAlertProps> = ({ type, error }) => {
@@ -60,7 +58,7 @@ const SendErrorAlert: FC<SendErrorAlertProps> = ({ type, error }) => {
         }
       })()}
       autoFocus
-      className={classNames('mt-6 mb-4')}
+      className="mt-6 mb-4"
     />
   );
 };

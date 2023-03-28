@@ -1,4 +1,4 @@
-import React, { ChangeEvent, forwardRef, FocusEvent, useEffect, useRef, useState } from 'react';
+import React, { ChangeEvent, forwardRef, FocusEvent, useRef, useState } from 'react';
 
 import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
@@ -12,6 +12,7 @@ import InFiat from 'app/templates/InFiat';
 import { setTestID } from 'lib/analytics';
 import { toLocalFormat, T, t } from 'lib/i18n';
 import { AssetMetadata } from 'lib/temple/metadata';
+import { useFocusOnElement } from 'lib/ui/hooks';
 import { PopperRenderProps } from 'lib/ui/Popper';
 
 import { SwapFormInputProps, SwapFormTestIDs } from '../SwapFormInput.props';
@@ -53,17 +54,8 @@ export const SwapFormInputHeader = forwardRef<HTMLDivElement, Props>(
     ref
   ) => {
     const amountFieldRef = useRef<HTMLInputElement>(null);
-    const searchInputRef = useRef<HTMLInputElement>(null);
+    const searchInputRef = useFocusOnElement<HTMLInputElement>(opened);
     const [isActive, setIsActive] = useState(false);
-
-    const prevOpenedRef = useRef(opened);
-
-    useEffect(() => {
-      if (!prevOpenedRef.current && opened) {
-        searchInputRef.current?.focus();
-      }
-      prevOpenedRef.current = opened;
-    }, [opened]);
 
     const handleFocus = () => setIsActive(true);
     const handleBlur = () => setIsActive(false);
@@ -88,6 +80,7 @@ export const SwapFormInputHeader = forwardRef<HTMLDivElement, Props>(
       <div className="w-full text-gray-700">
         <div className="w-full flex mb-1 items-center justify-between">
           <span className="text-xl text-gray-900">{label}</span>
+
           {selectedAssetSlug && (
             <span className={classNames(opened && 'hidden', 'text-xs text-gray-500 flex items-baseline')}>
               <span className="mr-1">
@@ -104,11 +97,11 @@ export const SwapFormInputHeader = forwardRef<HTMLDivElement, Props>(
             </span>
           )}
         </div>
+
         <div
           className={classNames(
-            isActive && 'border-orange-500 bg-gray-100',
-            'transition ease-in-out duration-200',
-            'w-full border rounded-md border-gray-300'
+            'transition ease-in-out duration-200 w-full border rounded-md',
+            isActive ? 'border-orange-500 bg-gray-100' : 'border-gray-300'
           )}
           ref={ref}
         >
@@ -121,7 +114,7 @@ export const SwapFormInputHeader = forwardRef<HTMLDivElement, Props>(
                 <input
                   ref={searchInputRef}
                   value={searchString}
-                  className="w-full px-2 bg-transparent"
+                  className="w-full px-2 bg-transparent placeholder-gray-500"
                   placeholder={t('swapTokenSearchInputPlaceholder')}
                   onBlur={handleBlur}
                   onFocus={handleFocus}
@@ -148,6 +141,7 @@ export const SwapFormInputHeader = forwardRef<HTMLDivElement, Props>(
               )}
             </div>
           </div>
+
           <div className={classNames('w-full flex items-stretch', opened && 'hidden')} style={{ height: '4.5rem' }}>
             <div
               className="border-r border-gray-300 pl-4 pr-3 flex py-5 items-center cursor-pointer"
