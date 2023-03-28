@@ -1,7 +1,7 @@
 export enum AccountDropdownSelectors {
-  accountItemButton = 'Account Drop-down/Account Item Button',
-  actionButton = 'Account Drop-down/Action Button',
-  logoutButton = 'Account Drop-down/Logout Button',
+  accountItemButton = 'Accounts Drop-down/Account Item Button',
+  actionButton = 'Accounts Drop-down/Action Button',
+  logoutButton = 'Accounts Drop-down/Logout Button',
   createOrRestoreAccountButton = 'Accounts Drop-down/Create Or Restore Account Button',
   importAccountButton = 'Accounts Drop-down/Import Account Button',
   connectLedgerButton = 'Accounts Drop-down/Connect Ledger Button',
