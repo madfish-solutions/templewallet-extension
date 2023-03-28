@@ -131,7 +131,7 @@ export function useAssetMetadata(slug: string): AssetMetadata | null {
 
   const getCurrentBaseMetadata = useMemo(
     () => (): AssetMetadata | null => allTokensBaseMetadataRef.current[slug] ?? null,
-    [slug, allTokensBaseMetadataRef]
+    [slug, allTokensBaseMetadataRef.current]
   );
 
   const tezAsset = isTezAsset(slug);
@@ -171,7 +171,13 @@ export function useAssetMetadata(slug: string): AssetMetadata | null {
   return tokenMetadata;
 }
 
-const defaultAllTokensBaseMetadata = {};
+const defaultAllTokensBaseMetadata = {
+  tez: {
+    decimals: 6,
+    symbol: 'TEZ',
+    name: 'Tezos'
+  }
+};
 const enqueueSetAllTokensBaseMetadata = createQueue();
 
 export const [TokensMetadataProvider, useTokensMetadata] = constate(() => {
@@ -181,13 +187,6 @@ export const [TokensMetadataProvider, useTokensMetadata] = constate(() => {
   );
 
   const allTokensBaseMetadataRef = useRef(initialAllTokensBaseMetadata);
-  useEffect(
-    () =>
-      onStorageChanged(ALL_TOKENS_BASE_METADATA_STORAGE_KEY, newValue => {
-        allTokensBaseMetadataRef.current = newValue;
-      }),
-    []
-  );
 
   const tezosRef = useTezosRef();
 
@@ -195,12 +194,13 @@ export const [TokensMetadataProvider, useTokensMetadata] = constate(() => {
 
   const setTokensBaseMetadata = useCallback(
     (toSet: Record<string, AssetMetadata>) =>
-      enqueueSetAllTokensBaseMetadata(() =>
-        putToStorage(ALL_TOKENS_BASE_METADATA_STORAGE_KEY, {
+      enqueueSetAllTokensBaseMetadata(() => {
+        allTokensBaseMetadataRef.current = {
           ...allTokensBaseMetadataRef.current,
           ...toSet
-        })
-      ),
+        };
+        return putToStorage(ALL_TOKENS_BASE_METADATA_STORAGE_KEY, allTokensBaseMetadataRef.current);
+      }),
     []
   );
 

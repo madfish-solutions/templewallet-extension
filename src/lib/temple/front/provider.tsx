@@ -6,7 +6,6 @@ import { TokensMetadataProvider } from './assets';
 import { NewBlockTriggersProvider } from './chain';
 import { TempleClientProvider, useTempleClient } from './client';
 import { ReadyTempleProvider, useNetwork } from './ready';
-import { SyncBalancesProvider } from './sync-balances';
 import { SyncTokensProvider } from './sync-tokens';
 
 export const TempleProvider: FC<PropsWithChildren> = ({ children }) => (
@@ -27,9 +26,7 @@ const ConditionalReadyTemple: FC<PropsWithChildren> = ({ children }) => {
           <WalletRpcProvider>
             <TokensMetadataProvider>
               <SyncTokensProvider>
-                <SyncBalancesProvider>
-                  <NewBlockTriggersProvider>{children}</NewBlockTriggersProvider>
-                </SyncBalancesProvider>
+                <NewBlockTriggersProvider>{children}</NewBlockTriggersProvider>
               </SyncTokensProvider>
             </TokensMetadataProvider>
           </WalletRpcProvider>
