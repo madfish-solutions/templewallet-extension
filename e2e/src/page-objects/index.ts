@@ -11,6 +11,7 @@ import { NewSeedBackupPage } from './pages/new-seed-backup.page';
 import { RevealSecretsPage } from './pages/reveal-secrets.page';
 import { SettingsPage } from './pages/settings.page';
 import { setWalletPage } from './pages/setWalletPassword.page';
+import { UnlockScreenPage } from './pages/unlock-screen.page';
 import { VerifyMnemonicPage } from './pages/verify-mnemonic.page';
 import { WelcomePage } from './pages/welcome.page';
 
@@ -29,5 +30,6 @@ export const Pages = {
   ImportAccountMnemonic: new ImportAccountMnemonicTab(),
   ImportAccountWatchOnly: new ImportAccountWatchOnlyTab(),
   Home: new HomePage(),
-  CreateOrRestoreAnAccount: new CreateOrRestoreAnAccountPage()
+  CreateOrRestoreAnAccount: new CreateOrRestoreAnAccountPage(),
+  UnlockScreen: new UnlockScreenPage()
 };
