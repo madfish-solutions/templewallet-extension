@@ -5,7 +5,7 @@ Feature: Reveal private key
 
     And I press Account Icon on the Header page
     And I am on the AccountsDropdown page
-    And I press Settings Button on the Accounts Drop-down page
+    And I press Settings Button on the Account Drop-down page
 
     And I am on the Settings page
     And I press Reveal Private Key Button on the Settings page
