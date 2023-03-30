@@ -1,4 +1,5 @@
-import { HomeSelectors } from '../../../../src/app/pages/Home/Home.selectors';
+import { HomeSelectors } from 'src/app/pages/Home/Home.selectors';
+
 import { Page } from '../../classes/page.class';
 import { createPageElement } from '../../utils/search.utils';
 
