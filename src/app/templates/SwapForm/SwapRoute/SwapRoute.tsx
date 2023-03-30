@@ -16,10 +16,10 @@ interface Props {
 }
 
 export const SwapRoute: FC<Props> = ({ className, swapParams }) => {
-  const [isVisible, setIsVisible] = useState(false);
-
   const chainsCount = swapParams.chains.length;
   const dexesCount = swapParams.chains.reduce((accum, chain) => accum + chain.hops.length, 0);
+
+  const [isVisible, setIsVisible] = useState(chainsCount > 0);
 
   const hadleToggleVisible = () => setIsVisible(prev => !prev);
 

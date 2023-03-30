@@ -1,5 +1,3 @@
-import { BigNumber } from 'bignumber.js';
-
 import { Route3Chain } from 'lib/apis/route3/fetch-route3-swap-params';
 import { tokensToAtoms } from 'lib/temple/helpers';
 
@@ -14,7 +12,7 @@ export const mapToRoute3ExecuteHops = (chains: Array<Route3Chain>, decimals: num
       hops.push({
         code: (j === 0 ? 1 : 0) + (hop.forward ? 2 : 0),
         dex_id: hop.dex,
-        amount_opt: j === 0 ? tokensToAtoms(new BigNumber(chain.input), decimals) : null
+        amount_opt: j === 0 ? tokensToAtoms(chain.input, decimals) : null
       });
     }
   }

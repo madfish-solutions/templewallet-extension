@@ -6,15 +6,8 @@ import classNames from 'clsx';
 import { useFormAnalytics } from 'lib/analytics';
 import { t } from 'lib/i18n';
 import { toTokenSlug } from 'lib/temple/assets';
-import {
-  useAccount,
-  useBalance,
-  useAssetMetadata,
-  useGetTokenMetadata,
-  useOnBlock,
-  useFilteredAssets
-} from 'lib/temple/front';
-import { useAvailableRoute3Tokens } from 'lib/temple/front/assets';
+import { useAccount, useBalance, useAssetMetadata, useGetTokenMetadata, useOnBlock } from 'lib/temple/front';
+import { useAvailableRoute3Tokens, useFilteredSwapAssets } from 'lib/temple/front/assets';
 import { EMPTY_ASSET_METADATA } from 'lib/temple/metadata';
 import Popper from 'lib/ui/Popper';
 
@@ -54,10 +47,8 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
   const balance = useBalance(assetSlugWithFallback, account.publicKeyHash, { suspense: false });
   useOnBlock(_ => balance.mutate());
 
-  const { route3tokensSlugs, isLoading } = useAvailableRoute3Tokens();
-  const availableAssetsWithTezos = useMemo(() => ['tez', ...route3tokensSlugs], [route3tokensSlugs]);
-  const { filteredAssets, searchValue, setSearchValue, tokenId, setTokenId } =
-    useFilteredAssets(availableAssetsWithTezos);
+  const { isLoading } = useAvailableRoute3Tokens();
+  const { filteredAssets, searchValue, setSearchValue, tokenId, setTokenId } = useFilteredSwapAssets(name);
 
   const showTokenIdInput = useSwapFormTokenIdInput(searchValue);
   const searchAssetSlug = toTokenSlug(searchValue, tokenId);

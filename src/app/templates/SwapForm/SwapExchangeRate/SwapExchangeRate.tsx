@@ -3,6 +3,7 @@ import React, { FC, useMemo } from 'react';
 import { BigNumber } from 'bignumber.js';
 
 import Money from 'app/atoms/Money';
+import { ZERO } from 'lib/route3/constants';
 import { AssetMetadata } from 'lib/temple/metadata';
 
 interface Props {
@@ -14,7 +15,7 @@ interface Props {
 
 export const SwapExchangeRate: FC<Props> = ({ inputAmount, outputAmount, inputAssetMetadata, outputAssetMetadata }) => {
   const exchangeRate = useMemo(() => {
-    if (inputAmount && outputAmount) {
+    if (inputAmount && outputAmount && outputAmount.isGreaterThan(ZERO)) {
       return inputAmount.dividedBy(outputAmount);
     }
 

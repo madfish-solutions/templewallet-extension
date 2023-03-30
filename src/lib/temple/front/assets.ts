@@ -6,6 +6,7 @@ import { useDebounce } from 'use-debounce';
 import useForceUpdate from 'use-force-update';
 import browser from 'webextension-polyfill';
 
+import { useBalancesSelector } from 'app/store/balances/selectors';
 import { useSwapTokensSelector } from 'app/store/swap/selectors';
 import { useRetryableSWR } from 'lib/swr';
 import {
@@ -321,6 +322,48 @@ export const useAvailableRoute3Tokens = () => {
 
 export function useFilteredAssets(assetSlugs: string[]) {
   const allTokensBaseMetadata = useAllTokensBaseMetadata();
+
+  const [searchValue, setSearchValue] = useState('');
+  const [tokenId, setTokenId] = useState<number>();
+  const [searchValueDebounced] = useDebounce(tokenId ? toTokenSlug(searchValue, tokenId) : searchValue, 300);
+
+  const filteredAssets = useMemo(
+    () => searchAssetsWithNoMeta(searchValueDebounced, assetSlugs, allTokensBaseMetadata, slug => slug),
+    [searchValueDebounced, assetSlugs, allTokensBaseMetadata]
+  );
+
+  return {
+    filteredAssets,
+    searchValue,
+    setSearchValue,
+    tokenId,
+    setTokenId
+  };
+}
+export function useFilteredSwapAssets(inputName: 'input' | 'output' = 'input') {
+  const allTokensBaseMetadata = useAllTokensBaseMetadata();
+  const { route3tokensSlugs } = useAvailableRoute3Tokens();
+  const { publicKeyHash } = useAccount();
+  const chainId = useChainId(true)!;
+  const balances = useBalancesSelector(publicKeyHash, chainId);
+
+  const assetSlugs = useMemo(() => {
+    if (inputName === 'input') {
+      const result: Array<string> = [TEZ_TOKEN_SLUG];
+
+      for (const slug of route3tokensSlugs) {
+        const balance = balances[slug];
+
+        if (balance !== undefined && balance !== '0') {
+          result.push(slug);
+        }
+      }
+
+      return result;
+    }
+
+    return [TEZ_TOKEN_SLUG, ...route3tokensSlugs];
+  }, [route3tokensSlugs, balances]);
 
   const [searchValue, setSearchValue] = useState('');
   const [tokenId, setTokenId] = useState<number>();

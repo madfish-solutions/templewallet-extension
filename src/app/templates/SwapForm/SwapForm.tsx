@@ -37,14 +37,14 @@ import { SwapFormInput } from './SwapFormInput/SwapFormInput';
 import { SwapMinimumReceived } from './SwapMinimumReceived/SwapMinimumReceived';
 import { SwapRoute } from './SwapRoute/SwapRoute';
 
+const DEFAULT_SWAP_PARAMS = createEntity({ input: ZERO, output: ZERO, chains: [] });
+
 export const SwapForm: FC = () => {
   const tezos = useTezos();
   const blockLevel = useBlockLevel();
   const { publicKeyHash } = useAccount();
   const getRoute3SwapOpParams = useRoute3();
-  const [swapParams, setSwapParams] = useState<LoadableEntityState<Route3SwapParamsResponse>>(
-    createEntity({ input: ZERO, output: ZERO, chains: [] })
-  );
+  const [swapParams, setSwapParams] = useState<LoadableEntityState<Route3SwapParamsResponse>>(DEFAULT_SWAP_PARAMS);
 
   const formAnalytics = useFormAnalytics('SwapForm');
 
@@ -76,7 +76,7 @@ export const SwapForm: FC = () => {
   const slippageRatio = useMemo(() => getPercentageRatio(slippageTolerance ?? 0), [slippageTolerance]);
   const { routingFeeAtomic, minimumReceivedAmountAtomic } = useMemo(() => {
     if (swapParams.data.output !== undefined) {
-      const swapOutputAtomic = tokensToAtoms(new BigNumber(swapParams.data.output), outputAssetMetadata.decimals);
+      const swapOutputAtomic = tokensToAtoms(swapParams.data.output, outputAssetMetadata.decimals);
       const routingFeeAtomic = swapOutputAtomic
         .minus(swapOutputAtomic.multipliedBy(ROUTING_FEE_RATIO))
         .integerValue(BigNumber.ROUND_DOWN);
@@ -92,9 +92,15 @@ export const SwapForm: FC = () => {
   }, [slippageRatio, outputValue.amount, swapParams.data.output]);
 
   const loadSwapParams = () => {
-    if (!fromRoute3Token || !toRoute3Token || !inputValue.amount) {
-      return;
+    if (!fromRoute3Token || !toRoute3Token) {
+      setSwapParams(DEFAULT_SWAP_PARAMS);
+      return setIsAlertVisible(true);
     }
+
+    if (!inputValue.amount) {
+      return setSwapParams(DEFAULT_SWAP_PARAMS);
+    }
+
     setSwapParams(prevState => createEntity(prevState.data, true));
 
     fetchRoute3SwapParams({
@@ -129,7 +135,7 @@ export const SwapForm: FC = () => {
   useEffect(() => {
     setValue('output', {
       assetSlug: outputValue.assetSlug,
-      amount: swapParams.data.output === undefined ? undefined : new BigNumber(swapParams.data.output)
+      amount: swapParams.data.output === undefined ? undefined : swapParams.data.output
     });
 
     if (isSubmitButtonPressedRef.current) {
@@ -178,6 +184,8 @@ export const SwapForm: FC = () => {
     formAnalytics.trackSubmit(analyticsProperties);
 
     if (!fromRoute3Token || !toRoute3Token || !inputValue.amount) {
+      setSwapParams(DEFAULT_SWAP_PARAMS);
+      setIsAlertVisible(true);
       return;
     }
 
@@ -226,17 +234,14 @@ export const SwapForm: FC = () => {
   const handleOperationClose = () => setOperation(undefined);
 
   const handleToggleIconClick = () =>
-    setValue([
-      { input: { assetSlug: outputValue.assetSlug, amount: inputValue.amount } },
-      { output: { assetSlug: inputValue.assetSlug } }
-    ]);
+    setValue([{ input: { assetSlug: outputValue.assetSlug } }, { output: { assetSlug: inputValue.assetSlug } }]);
 
   const handleInputChange = (newInputValue: SwapInputValue) => {
     setValue('input', newInputValue);
 
     if (newInputValue.assetSlug === outputValue.assetSlug) {
       setValue('output', {});
-      setSwapParams(createEntity({ input: ZERO, output: ZERO, chains: [] }));
+      setSwapParams(DEFAULT_SWAP_PARAMS);
     }
   };
 
@@ -245,7 +250,7 @@ export const SwapForm: FC = () => {
 
     if (newOutputValue.assetSlug === inputValue.assetSlug) {
       setValue('input', {});
-      setSwapParams(createEntity({ input: ZERO, output: ZERO, chains: [] }));
+      setSwapParams(DEFAULT_SWAP_PARAMS);
     }
   };
 
@@ -318,6 +323,7 @@ export const SwapForm: FC = () => {
           background: isValid ? '#4299e1' : '#c2c2c2'
         }}
         loading={isSubmitting}
+        disabled={isAlertVisible}
         searchingRoute={swapParams.isLoading}
         onClick={handleSubmitButtonClick}
         testID={SwapFormSelectors.swapButton}

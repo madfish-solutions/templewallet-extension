@@ -8,14 +8,14 @@ interface Route3SwapParamsRequest {
   amount: string;
 }
 
-export interface Route3Hop {
+interface Route3Hop {
   dex: number;
   forward: boolean;
 }
 
 export interface Route3Chain {
-  input: number;
-  output: number;
+  input: BigNumber;
+  output: BigNumber;
   hops: Array<Route3Hop>;
 }
 
@@ -26,14 +26,16 @@ export interface Route3SwapParamsResponse {
 }
 
 const parser = (origJSON: string): ReturnType<typeof JSON['parse']> => {
-  const stringedJSON = origJSON.replace(/:\s*([-+Ee0-9.]+)/g, ': "uniqueprefix$1"');
+  const stringedJSON = origJSON
+    .replace(/input":\s*([-+Ee0-9.]+)/g, 'input":"$1"')
+    .replace(/output":\s*([-+Ee0-9.]+)/g, 'output":"$1"');
 
-  return JSON.parse(stringedJSON, (_, value) => {
-    if (typeof value !== 'string' || !value.startsWith('uniqueprefix')) return value;
+  return JSON.parse(stringedJSON, (key, value) => {
+    if (key === 'input' || key === 'output') {
+      return new BigNumber(value);
+    }
 
-    value = value.slice('uniqueprefix'.length);
-
-    return new BigNumber(value);
+    return value;
   });
 };
 
