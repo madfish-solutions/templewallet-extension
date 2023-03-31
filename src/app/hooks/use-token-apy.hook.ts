@@ -1,3 +1,5 @@
+import { useMemo } from 'react';
+
 import { isDefined } from '@rnw-community/shared';
 
 import { useTokensApyRatesSelector } from 'app/store/d-apps';
@@ -23,12 +25,14 @@ export const useTokenApyInfo = (slug: string): TokenApyInfo | undefined => {
 
   const link = TOKEN_APY_LINKS[slug];
 
-  if (!isDefined(link) && rate === 0) {
-    return;
-  }
+  return useMemo(() => {
+    if (!isDefined(link) && rate === 0) {
+      return;
+    }
 
-  return {
-    rate,
-    link
-  };
+    return {
+      rate,
+      link
+    };
+  }, [rate, link]);
 };

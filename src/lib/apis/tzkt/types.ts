@@ -180,7 +180,7 @@ export interface TzktAccountToken {
     metadata: {
       artifactUri: string;
       creators: Array<string>;
-      decimals: string;
+      decimals?: string;
       description: string;
       displayUri: string;
       formats: Array<{ uri: string; mimeType: string }>;
