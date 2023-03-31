@@ -70,7 +70,7 @@ export const PartnersPromotion: FC<Props> = memo(({ variant }) => {
               <span className="text-gray-910 font-medium">{promo.copy.headline}</span>
               <div className="flex items-center px-1 rounded bg-blue-500 text-xs font-medium text-white">AD</div>
             </div>
-            <span className="text-gray-600">{promo.copy.content}</span>
+            <span className="text-xs text-gray-600">{promo.copy.content}</span>
           </div>
         </a>
         <button
