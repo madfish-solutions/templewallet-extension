@@ -4,7 +4,8 @@ import { catchError, map, switchMap } from 'rxjs/operators';
 import { Action } from 'ts-action';
 import { ofType } from 'ts-action-operators';
 
-import { getABGroup$ } from '../../../lib/apis/temple';
+import { getABGroup$ } from 'lib/apis/temple';
+
 import { getUserTestingGroupName } from './actions';
 
 const getUserTestingGroupNameEpic = (action$: Observable<Action>) =>
