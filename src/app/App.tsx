@@ -16,7 +16,7 @@ import { AppEnvProvider } from 'app/env';
 import ErrorBoundary from 'app/ErrorBoundary';
 import Dialogs from 'app/layouts/Dialogs';
 import { PageRouter } from 'app/PageRouter';
-import { TempleProvider, ABTestGroupProvider } from 'lib/temple/front';
+import { TempleProvider } from 'lib/temple/front';
 import { DialogsProvider } from 'lib/ui/dialog';
 import * as Woozie from 'lib/woozie';
 
@@ -28,9 +28,9 @@ interface Props extends React.PropsWithChildren {
 
 export const App: FC<Props> = ({ env }) => (
   <ErrorBoundary whileMessage="booting a wallet" className="min-h-screen">
-    <DialogsProvider>
-      <Suspense fallback={<RootSuspenseFallback />}>
-        <AppProvider env={env}>
+    <Suspense fallback={<RootSuspenseFallback />}>
+      <AppProvider env={env}>
+        <DialogsProvider>
           <Dialogs />
 
           <DisableOutlinesForClick />
@@ -40,9 +40,9 @@ export const App: FC<Props> = ({ env }) => (
           <AwaitFonts name="Inter" weights={[300, 400, 500, 600]} className="antialiased font-inter">
             <BootAnimation>{env.confirmWindow ? <ConfirmPage /> : <PageRouter />}</BootAnimation>
           </AwaitFonts>
-        </AppProvider>
-      </Suspense>
-    </DialogsProvider>
+        </DialogsProvider>
+      </AppProvider>
+    </Suspense>
   </ErrorBoundary>
 );
 
@@ -50,11 +50,9 @@ const AppProvider: FC<Props> = ({ children, env }) => (
   <AppEnvProvider {...env}>
     <Provider store={store}>
       <PersistGate persistor={persistor} loading={null}>
-        <ABTestGroupProvider>
-          <Woozie.Provider>
-            <TempleProvider>{children}</TempleProvider>
-          </Woozie.Provider>
-        </ABTestGroupProvider>
+        <Woozie.Provider>
+          <TempleProvider>{children}</TempleProvider>
+        </Woozie.Provider>
       </PersistGate>
     </Provider>
   </AppEnvProvider>

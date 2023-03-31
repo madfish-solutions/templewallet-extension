@@ -1,6 +1,7 @@
-import React, { ComponentProps, FC } from 'react';
+import React, { ComponentProps, FC, useEffect } from 'react';
 
 import classNames from 'clsx';
+import { useDispatch } from 'react-redux';
 
 import Logo from 'app/atoms/Logo';
 import { ReactComponent as EntranceIcon } from 'app/icons/entrance.svg';
@@ -10,6 +11,7 @@ import { TID, T } from 'lib/i18n';
 import { Link } from 'lib/woozie';
 
 import { TestIDProps } from '../../../lib/analytics';
+import { getUserTestingGroupName } from '../../store/ab-testing/actions';
 import { WelcomeSelectors } from './Welcome.selectors';
 
 interface TSign extends TestIDProps {
@@ -45,6 +47,12 @@ const SIGNS: TSign[] = [
 ];
 
 const Welcome: FC = () => {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(getUserTestingGroupName.submit());
+  }, []);
+
   return (
     <div
       className={classNames(

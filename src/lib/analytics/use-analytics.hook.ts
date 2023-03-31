@@ -1,14 +1,11 @@
 import { useCallback } from 'react';
 
-import { ABTestGroup } from 'lib/apis/temple';
 import { AnalyticsEventCategory } from 'lib/temple/analytics-types';
-import { useAB } from 'lib/temple/front';
 
 import { useAnalyticsNetwork } from './use-analytics-network.hook';
 import { sendPageEvent, sendTrackEvent, useAnalyticsState } from './use-analytics-state.hook';
 
 export const useAnalytics = () => {
-  const abGroup = useAB();
   const { analyticsState } = useAnalyticsState();
   const rpc = useAnalyticsNetwork();
 
@@ -24,8 +21,8 @@ export const useAnalytics = () => {
 
   const trackABEvent = useCallback(
     (event: string, category: AnalyticsEventCategory, properties?: object, isAnalyticsEnabled?: boolean) =>
-      abGroup !== ABTestGroup.Unknown && trackEvent(event, category, properties, isAnalyticsEnabled),
-    [abGroup, trackEvent]
+      trackEvent(event, category, properties, isAnalyticsEnabled),
+    [trackEvent]
   );
 
   const pageEvent = useCallback(

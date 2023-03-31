@@ -1,5 +1,6 @@
 import { mockNotificationsState } from 'lib/notifications';
 
+import { mockABTestingState } from './ab-testing/state.mock';
 import { mockAdvertisingState } from './advertising/state.mock';
 import { mockBalanceModeState } from './balance-mode/state.mock';
 import { mockBalancesState } from './balances/state.mock';
@@ -14,5 +15,6 @@ export const mockRootState: RootState = {
   notifications: mockNotificationsState,
   dApps: mockDAppsState,
   balanceMode: mockBalanceModeState,
-  balances: mockBalancesState
+  balances: mockBalancesState,
+  abTesting: mockABTestingState
 };

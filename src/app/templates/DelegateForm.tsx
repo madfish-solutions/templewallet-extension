@@ -31,7 +31,6 @@ import {
   isDomainNameValid,
   useNetwork,
   useTezos,
-  useAB,
   useKnownBaker,
   useKnownBakers,
   validateDelegate,
@@ -42,6 +41,7 @@ import { TempleAccountType } from 'lib/temple/types';
 import { useSafeState } from 'lib/ui/hooks';
 import { Link, useLocation } from 'lib/woozie';
 
+import { useUserTestingGroupNameSelector } from '../store/ab-testing/selectors';
 import { DelegateFormSelectors } from './DelegateForm.selectors';
 
 const PENNY = 0.000001;
@@ -398,7 +398,7 @@ const BakerForm: React.FC<BakerFormProps> = ({
   formState
 }) => {
   const assetSymbol = 'ꜩ';
-  const abGroup = useAB();
+  const abGroup = useUserTestingGroupNameSelector();
   const estimateFallbackDisplayed = toFilled && !baseFee && (estimating || bakerValidating);
   if (estimateFallbackDisplayed) {
     return (
@@ -491,7 +491,7 @@ const BakerBannerComponent: React.FC<BakerBannerComponentProps> = ({ tzError, ba
 const KnownDelegatorsList: React.FC<{ setValue: any; triggerValidation: any }> = ({ setValue, triggerValidation }) => {
   const knownBakers = useKnownBakers();
   const { search } = useLocation();
-  const abGroup = useAB();
+  const abGroup = useUserTestingGroupNameSelector();
 
   const bakerSortTypes = useMemo(
     () => [
