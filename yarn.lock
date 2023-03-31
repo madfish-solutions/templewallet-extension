@@ -1393,10 +1393,9 @@
     "@types/yargs" "^17.0.8"
     chalk "^4.0.0"
 
-"@jitsu/sdk-js@^3.1.5":
-  version "3.1.5"
-  resolved "https://registry.yarnpkg.com/@jitsu/sdk-js/-/sdk-js-3.1.5.tgz#3d0d92ccc01b621cbe67484c6e246d5ff8721de8"
-  integrity sha512-e7P8uvGBNwWCC864MItcYSv0IT2+nwYiX8QXZ0lfyG8hutEXXX9Yt2/+MynXuGxMIoIrJ+j0bWVu20k9rrhxSg==
+"@jitsu/sdk-js@madfish-solutions/jitsu-js#28ada4e0d352a494937722429d072c274c4ab30f":
+  version "3.0.0"
+  resolved "https://codeload.github.com/madfish-solutions/jitsu-js/tar.gz/28ada4e0d352a494937722429d072c274c4ab30f"
 
 "@jridgewell/gen-mapping@^0.1.0":
   version "0.1.1"
