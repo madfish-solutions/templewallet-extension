@@ -5,7 +5,6 @@ import { AssetIcon } from 'app/templates/AssetIcon';
 import Balance from 'app/templates/Balance';
 import IconifiedSelect, { IconifiedSelectOptionRenderProps } from 'app/templates/IconifiedSelect';
 import InFiat from 'app/templates/InFiat';
-import { TestIDProps } from 'lib/analytics';
 import { T, t } from 'lib/i18n';
 import { useAccount, useAssetMetadata } from 'lib/temple/front';
 import { searchAssetsWithNoMeta, useAllTokensBaseMetadata } from 'lib/temple/front/assets';
@@ -16,14 +15,18 @@ import { SendFormSelectors } from '../SendForm/selectors';
 import { IAsset } from './interfaces';
 import { getSlug } from './utils';
 
-interface AssetSelectProps extends TestIDProps {
+interface AssetSelectProps {
   value: IAsset;
   assets: IAsset[];
   onChange?: (assetSlug: string) => void;
   className?: string;
+  testIDs?: {
+    main: string;
+    searchInput: string;
+  };
 }
 
-const AssetSelect: FC<AssetSelectProps> = ({ value, assets, onChange, className, testID }) => {
+const AssetSelect: FC<AssetSelectProps> = ({ value, assets, onChange, className, testIDs }) => {
   const allTokensBaseMetadata = useAllTokensBaseMetadata();
 
   const searchItems = useCallback(
@@ -52,9 +55,10 @@ const AssetSelect: FC<AssetSelectProps> = ({ value, assets, onChange, className,
       fieldStyle={{ minHeight: '4.5rem' }}
       search={{
         placeholder: t('swapTokenSearchInputPlaceholder'),
-        filterItems: searchItems
+        filterItems: searchItems,
+        inputTestID: testIDs?.searchInput
       }}
-      testID={testID}
+      testID={testIDs?.main}
     />
   );
 };

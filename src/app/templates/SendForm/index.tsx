@@ -62,7 +62,10 @@ const SendForm: FC<SendFormProps> = ({ assetSlug = 'tez' }) => {
         assets={assets}
         onChange={handleAssetChange}
         className="mb-6"
-        testID={SendFormSelectors.assetDropDown}
+        testIDs={{
+          main: SendFormSelectors.assetDropDown,
+          searchInput: SendFormSelectors.assetDropDownSearchInput
+        }}
       />
 
       <Suspense fallback={<SpinnerSection />}>
