@@ -1,7 +1,7 @@
 import { OperationStatusAlert } from './pages/alerts/operation-status.alert';
 import { CreateOrRestoreAnAccountPage } from './pages/create-or-restore-an-account.page';
+import { DelegateFormPage } from './pages/delegate-form.page';
 import { DelegateTab } from './pages/delegate-tab.page';
-import { DelegateFormPage } from './pages/delegateForm.page';
 import { AccountsDropdown } from './pages/drop-down-lists/accounts.drop-down';
 import { HeaderPage } from './pages/header.page';
 import { HomePage } from './pages/home.page';

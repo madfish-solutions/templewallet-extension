@@ -3,11 +3,11 @@ import retry from 'async-retry';
 
 import { E2eMessageType } from '../../../src/lib/e2e/types';
 import { BrowserContext } from '../classes/browser-context.class';
-import { RETRY_OPTIONS, TEN_SECONDS_TIMEOUT } from '../utils/timing.utils';
+import { RETRY_OPTIONS, SHORT_TIMEOUT } from '../utils/timing.utils';
 
 const FAILED_RESET_ERROR = new Error('Failed to reset extension');
 
-After({ timeout: TEN_SECONDS_TIMEOUT }, async () => {
+After({ timeout: SHORT_TIMEOUT }, async () => {
   // [ Extension storages full reset ]
 
   await BrowserContext.page.evaluate(

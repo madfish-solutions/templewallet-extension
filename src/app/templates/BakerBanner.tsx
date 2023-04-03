@@ -10,11 +10,11 @@ import Name from 'app/atoms/Name';
 import OpenInExplorerChip from 'app/atoms/OpenInExplorerChip';
 import { useAppEnv } from 'app/env';
 import { ReactComponent as ChevronRightIcon } from 'app/icons/chevron-right.svg';
+import { BakingSectionSelectors } from 'app/pages/Home/OtherComponents/BakingSection.selectors';
 import { toLocalFormat, T } from 'lib/i18n';
 import { useRelevantAccounts, useAccount, useNetwork, useKnownBaker, useExplorerBaseUrls } from 'lib/temple/front';
 import { TempleAccount } from 'lib/temple/types';
 
-import { BakingSectionSelectors } from '../pages/Home/OtherComponents/BakingSection.selectors';
 import HashChip from './HashChip';
 
 type BakerBannerProps = HTMLAttributes<HTMLDivElement> & {

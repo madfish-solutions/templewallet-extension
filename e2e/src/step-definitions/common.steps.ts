@@ -4,9 +4,9 @@ import { BrowserContext } from '../classes/browser-context.class';
 import { testDataForInput } from '../classes/test-data-for-input.class';
 import { Pages } from '../page-objects';
 import { createPageElement } from '../utils/search.utils';
-import { TWENTY_SECONDS_TIMEOUT, THIRTY_SECONDS_TIMEOUT } from '../utils/timing.utils';
+import { MEDIUM_TIMEOUT } from '../utils/timing.utils';
 
-Given(/^I am on the (\w+) page$/, { timeout: THIRTY_SECONDS_TIMEOUT }, async (page: keyof typeof Pages) => {
+Given(/^I am on the (\w+) page$/, { timeout: MEDIUM_TIMEOUT }, async (page: keyof typeof Pages) => {
   await Pages[page].isVisible();
 });
 
@@ -23,7 +23,7 @@ Given(
   }
 );
 
-Given(/I have imported an existing account/, { timeout: TWENTY_SECONDS_TIMEOUT }, async () => {
+Given(/I have imported an existing account/, { timeout: MEDIUM_TIMEOUT }, async () => {
   await Pages.Welcome.isVisible();
   await Pages.Welcome.importExistingWalletButton.click();
 
