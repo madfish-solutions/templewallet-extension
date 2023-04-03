@@ -55,7 +55,9 @@ const NetworkSelect: FC<NetworkSelectProps> = () => {
         } else if (currentChainId !== chainId) {
           setExplorerId('tzkt');
         }
-      } catch {}
+      } catch (error) {
+        console.error(error);
+      }
 
       setNetworkId(netId);
     },

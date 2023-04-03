@@ -11,16 +11,19 @@ import 'lib/ledger/proxy/foreground';
 
 import DisableOutlinesForClick from 'app/a11y/DisableOutlinesForClick';
 import Dialogs from 'app/layouts/Dialogs';
+import { StoreProvider } from 'app/store/provider';
 import { getMessage, T } from 'lib/i18n';
 import { clearAllStorages } from 'lib/temple/reset';
 import { AlertFn, ConfirmFn, DialogsProvider, useAlert, useConfirm } from 'lib/ui/dialog';
 
 const OptionsWrapper: FC = () => (
-  <DialogsProvider>
-    <Options />
-    <Dialogs />
-    <DisableOutlinesForClick />
-  </DialogsProvider>
+  <StoreProvider>
+    <DialogsProvider>
+      <Options />
+      <Dialogs />
+      <DisableOutlinesForClick />
+    </DialogsProvider>
+  </StoreProvider>
 );
 
 const Options: FC = () => {

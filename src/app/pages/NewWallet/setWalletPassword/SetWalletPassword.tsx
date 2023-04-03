@@ -51,7 +51,7 @@ export const SetWalletPassword: FC<SetWalletPasswordProps> = ({
 
   const dispatch = useDispatch();
 
-  const setAnalyticsEnabled = (analyticsEnabled: boolean) => dispatch(setIsAnalyticsEnabledAction(!analyticsEnabled));
+  const setAnalyticsEnabled = (analyticsEnabled: boolean) => dispatch(setIsAnalyticsEnabledAction(analyticsEnabled));
   const { setOnboardingCompleted } = useOnboardingProgress();
 
   const isImportFromKeystoreFile = Boolean(keystorePassword);
