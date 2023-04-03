@@ -429,16 +429,15 @@ const BakerForm: React.FC<BakerFormProps> = ({
       <FormSubmitButton
         loading={formState.isSubmitting}
         disabled={Boolean(estimationError)}
-        {...(baker && baker.address === sponsoredBaker
-          ? {
-              testID:
-                abGroup === ABTestGroup.B
-                  ? DelegateFormSelectors.knownBakerItemDelegateBButton
-                  : DelegateFormSelectors.knownBakerItemDelegateAButton
-            }
-          : {
-              testID: DelegateFormSelectors.unknownBakerDelegateButton
-            })}
+        testID={DelegateFormSelectors.bakerDelegateButton}
+        testIDProperties={{
+          baker:
+            baker?.address === sponsoredBaker
+              ? abGroup === ABTestGroup.B
+                ? 'Known B Delegate Button'
+                : 'Known A Delegate Button'
+              : 'Unknown Delegate Button'
+        }}
       >
         {t('delegate')}
       </FormSubmitButton>

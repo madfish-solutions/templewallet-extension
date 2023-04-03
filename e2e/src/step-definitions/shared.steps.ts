@@ -5,7 +5,7 @@ import { OperationStatusSelectors } from '../../../src/app/templates/OperationSt
 import { BrowserContext } from '../classes/browser-context.class';
 import { testDataForInput } from '../classes/test-data-for-input.class';
 import { Pages } from '../page-objects';
-import { FIFTY_SECONDS_TIMEOUT } from '../utils/timing.utils';
+import { LONG_TIMEOUT } from '../utils/timing.utils';
 
 Given(/I reveal a private key and compare with (.*)/, async (inputType: keyof typeof testDataForInput) => {
   await Pages.Home.isVisible();
@@ -24,8 +24,8 @@ Given(/I reveal a private key and compare with (.*)/, async (inputType: keyof ty
   expect(revealedSecretsValue).eql(privateKeyType);
 });
 
-Given(/I'm waiting for 'success ✓' operation status/, { timeout: FIFTY_SECONDS_TIMEOUT }, async function () {
+Given(/I'm waiting for 'success ✓' operation status/, { timeout: LONG_TIMEOUT }, async function () {
   await BrowserContext.page.waitForSelector(`[data-testid="${OperationStatusSelectors.successDoneOperation}"]`, {
-    timeout: FIFTY_SECONDS_TIMEOUT
+    timeout: LONG_TIMEOUT
   });
 });

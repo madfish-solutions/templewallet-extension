@@ -10,7 +10,7 @@ Feature: Delegate
 
     And I am on the DelegateForm page
     And I enter bakerAddress into Baker Input on the Delegate Form page
-    And I press on A,B or unknown Delegate Button
+    And I press Baker Item Delegate Button on the Delegate Form page
 
     And I am on the InternalConfirmation page
     And I press Confirm Button on the Internal Confirmation page
