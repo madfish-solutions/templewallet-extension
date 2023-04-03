@@ -340,7 +340,7 @@ export function useFilteredAssets(assetSlugs: string[]) {
     setTokenId
   };
 }
-export function useFilteredSwapAssets(inputName: 'input' | 'output' = 'input') {
+export function useFilteredSwapAssets(inputName: string = 'input') {
   const allTokensBaseMetadata = useAllTokensBaseMetadata();
   const { route3tokensSlugs } = useAvailableRoute3Tokens();
   const { publicKeyHash } = useAccount();

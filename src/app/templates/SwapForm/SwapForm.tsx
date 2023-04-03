@@ -57,6 +57,7 @@ export const SwapForm: FC = () => {
   const isValid = Object.keys(errors).length === 0;
 
   const inputValue = watch('input');
+
   const outputValue = watch('output');
   const slippageTolerance = watch('slippageTolerance');
 
@@ -71,7 +72,7 @@ export const SwapForm: FC = () => {
   const [operation, setOperation] = useState<BatchWalletOperation>();
   const isSubmitButtonPressedRef = useRef(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isAlertVisible, setIsAlertVisible] = useState<boolean>(false);
+  const [isAlertVisible, setIsAlertVisible] = useState(false);
 
   const slippageRatio = useMemo(() => getPercentageRatio(slippageTolerance ?? 0), [slippageTolerance]);
   const { routingFeeAtomic, minimumReceivedAmountAtomic } = useMemo(() => {
@@ -92,12 +93,7 @@ export const SwapForm: FC = () => {
   }, [slippageRatio, outputValue.amount, swapParams.data.output]);
 
   const loadSwapParams = () => {
-    if (!fromRoute3Token || !toRoute3Token) {
-      setSwapParams(DEFAULT_SWAP_PARAMS);
-      return setIsAlertVisible(true);
-    }
-
-    if (!inputValue.amount) {
+    if (!fromRoute3Token || !toRoute3Token || !inputValue.amount) {
       return setSwapParams(DEFAULT_SWAP_PARAMS);
     }
 
@@ -108,20 +104,26 @@ export const SwapForm: FC = () => {
       toSymbol: toRoute3Token.symbol,
       amount: inputValue.amount.toFixed()
     })
-      .then(params => {
-        setSwapParams(createEntity(params));
-
-        if (params.input?.isGreaterThan(ZERO) && params.chains.length === 0) {
-          setIsAlertVisible(true);
-        } else {
-          setIsAlertVisible(false);
-        }
-      })
-      .catch(error => setSwapParams(prevState => createEntity(prevState.data, false, error.message)));
+      .then(params => setSwapParams(createEntity(params)))
+      .catch(() => setSwapParams(DEFAULT_SWAP_PARAMS));
   };
 
   useEffect(() => loadSwapParams(), [blockLevel]);
   useEffect(() => loadSwapParams(), [inputValue.assetSlug, outputValue.assetSlug, inputValue.amount]);
+  useEffect(() => {
+    const isATokenFrom3Route = inputValue.assetSlug === undefined ? true : fromRoute3Token;
+    const isBTokenFrom3Route = outputValue.assetSlug === undefined ? true : toRoute3Token;
+
+    if (
+      !isATokenFrom3Route ||
+      !isBTokenFrom3Route ||
+      (swapParams.data.input?.isGreaterThan(ZERO) && swapParams.data.chains.length === 0)
+    ) {
+      setIsAlertVisible(true);
+    } else {
+      setIsAlertVisible(false);
+    }
+  }, [swapParams.data, inputValue.assetSlug, outputValue.assetSlug]);
 
   useEffect(
     () =>
@@ -135,7 +137,7 @@ export const SwapForm: FC = () => {
   useEffect(() => {
     setValue('output', {
       assetSlug: outputValue.assetSlug,
-      amount: swapParams.data.output === undefined ? undefined : swapParams.data.output
+      amount: swapParams.data.output
     });
 
     if (isSubmitButtonPressedRef.current) {
@@ -156,6 +158,7 @@ export const SwapForm: FC = () => {
         return true;
       }
     });
+
     register('output', {
       validate: ({ assetSlug, amount }: SwapInputValue) => {
         if (!assetSlug) {
@@ -184,8 +187,6 @@ export const SwapForm: FC = () => {
     formAnalytics.trackSubmit(analyticsProperties);
 
     if (!fromRoute3Token || !toRoute3Token || !inputValue.amount) {
-      setSwapParams(DEFAULT_SWAP_PARAMS);
-      setIsAlertVisible(true);
       return;
     }
 
@@ -320,10 +321,9 @@ export const SwapForm: FC = () => {
         className="w-full justify-center border-none mb-6"
         style={{
           padding: '10px 2rem',
-          background: isValid ? '#4299e1' : '#c2c2c2'
+          background: isValid && !isAlertVisible ? '#4299e1' : '#c2c2c2'
         }}
         loading={isSubmitting}
-        disabled={isAlertVisible}
         searchingRoute={swapParams.isLoading}
         onClick={handleSubmitButtonClick}
         testID={SwapFormSelectors.swapButton}
