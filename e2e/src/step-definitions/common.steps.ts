@@ -4,7 +4,7 @@ import { BrowserContext } from '../classes/browser-context.class';
 import { testDataForInput } from '../classes/test-data-for-input.class';
 import { Pages } from '../page-objects';
 import { createPageElement } from '../utils/search.utils';
-import { MEDIUM_TIMEOUT } from '../utils/timing.utils';
+import { MEDIUM_TIMEOUT, SHORT_TIMEOUT } from '../utils/timing.utils';
 
 Given(/^I am on the (\w+) page$/, { timeout: MEDIUM_TIMEOUT }, async (page: keyof typeof Pages) => {
   await Pages[page].isVisible();
@@ -16,6 +16,7 @@ Given(/I press (.*) on the (.*) page/, async (elementName: string, pageName: str
 
 Given(
   /I enter (.*) into (.*) on the (.*) page/,
+  { timeout: SHORT_TIMEOUT },
   async (inputType: keyof typeof testDataForInput, elementName: string, pageName: string) => {
     const inputText = testDataForInput[inputType];
 
