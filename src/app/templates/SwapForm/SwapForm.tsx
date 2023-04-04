@@ -134,8 +134,6 @@ export const SwapForm: FC = () => {
   useEffect(() => {
     register('input', {
       validate: ({ assetSlug, amount }: SwapInputValue) => {
-        console.log('validate input');
-
         if (!assetSlug) {
           return t('assetMustBeSelected');
         }
