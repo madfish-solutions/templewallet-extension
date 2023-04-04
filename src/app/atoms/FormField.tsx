@@ -4,7 +4,6 @@ import React, {
   ReactNode,
   TextareaHTMLAttributes,
   useCallback,
-  useEffect,
   useMemo,
   useRef,
   useState
@@ -19,7 +18,9 @@ import { ReactComponent as LockAltIcon } from 'app/icons/lock-alt.svg';
 import { setTestID, TestIDProps } from 'lib/analytics';
 import { T } from 'lib/i18n';
 import { blurHandler, checkedHandler, focusHandler } from 'lib/ui/inputHandlers';
+import { useBlurElementOnTimeout } from 'lib/ui/use-blur-on-timeout';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
+import { combineRefs } from 'lib/ui/util';
 
 import { NewSeedBackupSelectors } from '../pages/NewWallet/create/NewSeedBackup/NewSeedBackup.selectors';
 import usePasswordToggle from './usePasswordToggle.hook';
@@ -115,47 +116,20 @@ export const FormField = forwardRef<FormFieldRef, FormFieldProps>(
       [onBlur, setFocused]
     );
 
-    const getFieldEl = useCallback(() => {
-      const selector = 'input, textarea';
-      return rootRef.current?.querySelector<HTMLFormElement>(selector);
-    }, []);
-
-    useEffect(() => {
-      if (secret && focused) {
-        const handleLocalBlur = () => {
-          getFieldEl()?.blur();
-        };
-        const t = setTimeout(() => {
-          handleLocalBlur();
-        }, 30_000);
-        window.addEventListener('blur', handleLocalBlur);
-        return () => {
-          clearTimeout(t);
-          window.removeEventListener('blur', handleLocalBlur);
-        };
-      }
-      return undefined;
-    }, [secret, focused, getFieldEl]);
-
     const secretBannerDisplayed = useMemo(
       () => Boolean(secret && localValue !== '' && !focused),
       [secret, localValue, focused]
     );
 
-    const rootRef = useRef<HTMLDivElement>(null);
+    const spareRef = useRef<FormFieldRef>();
 
-    const handleSecretBannerClick = useCallback(() => {
-      getFieldEl()?.focus();
-    }, [getFieldEl]);
+    useBlurElementOnTimeout(spareRef, Boolean(secret && focused));
 
-    const handleCleanClick = useCallback(() => {
-      if (onClean) {
-        onClean();
-      }
-    }, [onClean]);
+    const handleSecretBannerClick = () => void spareRef.current?.focus();
+    const handleCleanClick = useCallback(() => void onClean?.(), [onClean]);
 
     return (
-      <div ref={rootRef} className={classNames('w-full flex flex-col', containerClassName)} style={containerStyle}>
+      <div className={classNames('w-full flex flex-col', containerClassName)} style={containerStyle}>
         <LabelComponent
           label={label}
           warning={labelWarning}
@@ -168,7 +142,7 @@ export const FormField = forwardRef<FormFieldRef, FormFieldProps>(
 
         <div className={classNames('relative', fieldWrapperBottomMargin && 'mb-2', 'flex items-stretch')}>
           <Field
-            ref={ref as any}
+            ref={combineRefs(ref, spareRef)}
             className={classNames(
               'appearance-none',
               'w-full',

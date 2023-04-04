@@ -29,6 +29,7 @@ import Balance from 'app/templates/Balance';
 import InFiat from 'app/templates/InFiat';
 import { useFormAnalytics } from 'lib/analytics';
 import { useAssetFiatCurrencyPrice, useFiatCurrency } from 'lib/fiat-currency';
+import { BLOCK_DURATION } from 'lib/fixed-times';
 import { toLocalFixed, T, t } from 'lib/i18n';
 import { transferImplicit, transferToContract } from 'lib/michelson';
 import { fetchBalance, fetchTezosBalance, isTezAsset, toPenny, toTransferParams } from 'lib/temple/assets';
@@ -259,7 +260,7 @@ export const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactReque
     {
       shouldRetryOnError: false,
       focusThrottleInterval: 10_000,
-      dedupingInterval: 30_000
+      dedupingInterval: BLOCK_DURATION
     }
   );
   const feeError = getBaseFeeError(baseFee, estimateBaseFeeError);

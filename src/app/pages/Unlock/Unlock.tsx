@@ -6,6 +6,7 @@ import { OnSubmit, useForm } from 'react-hook-form';
 import { Alert, FormField, FormSubmitButton } from 'app/atoms';
 import SimplePageLayout from 'app/layouts/SimplePageLayout';
 import { useFormAnalytics } from 'lib/analytics';
+import { USER_ACTION_TIMEOUT } from 'lib/fixed-times';
 import { T, t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
 import { TempleSharedStorageKey } from 'lib/temple/types';
@@ -23,7 +24,7 @@ type FormData = {
 };
 
 const SUBMIT_ERROR_TYPE = 'submit-error';
-const LOCK_TIME = 60_000;
+const LOCK_TIME = 2 * USER_ACTION_TIMEOUT;
 const LAST_ATTEMPT = 3;
 
 const checkTime = (i: number) => (i < 10 ? '0' + i : i);

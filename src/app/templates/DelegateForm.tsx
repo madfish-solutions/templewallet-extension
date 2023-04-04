@@ -19,6 +19,7 @@ import OperationStatus from 'app/templates/OperationStatus';
 import { useFormAnalytics } from 'lib/analytics';
 import { submitDelegation } from 'lib/apis/everstake';
 import { ABTestGroup } from 'lib/apis/temple';
+import { BLOCK_DURATION } from 'lib/fixed-times';
 import { TID, T, t } from 'lib/i18n';
 import { setDelegate } from 'lib/michelson';
 import { fetchTezosBalance } from 'lib/temple/assets';
@@ -185,7 +186,7 @@ const DelegateForm: FC = () => {
   } = useSWR(() => (toFilled ? ['delegate-base-fee', tezos.checksum, accountPkh, toResolved] : null), estimateBaseFee, {
     shouldRetryOnError: false,
     focusThrottleInterval: 10_000,
-    dedupingInterval: 30_000
+    dedupingInterval: BLOCK_DURATION
   });
   const baseFeeError = baseFee instanceof Error ? baseFee : estimateBaseFeeError;
   const estimationError = !estimating ? baseFeeError : null;

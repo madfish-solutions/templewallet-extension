@@ -1,8 +1,9 @@
 import { BlockResponse, OperationEntry } from '@taquito/rpc';
 import { TezosToolkit } from '@taquito/taquito';
 
+import { CONFIRM_TIMEOUT } from 'lib/fixed-times';
+
 const SYNC_INTERVAL = 10_000;
-const CONFIRM_TIMEOUT = 60_000 * 5;
 
 type ConfirmOperationOptions = {
   initializedAt?: number;
