@@ -1,4 +1,5 @@
 import { HomeSelectors } from '../../../../src/app/pages/Home/Home.selectors';
+import { AssetsSelectors } from '../../../../src/app/pages/Home/OtherComponents/Assets.selectors';
 import { Page } from '../../classes/page.class';
 import { createPageElement } from '../../utils/search.utils';
 
@@ -12,6 +13,7 @@ export class HomePage extends Page {
   ActivityTab = createPageElement(HomeSelectors.activityTab);
   CollectiblesTab = createPageElement(HomeSelectors.collectiblesTab);
   PublicAddressButton = createPageElement(HomeSelectors.publicAddressButton);
+  AssetDelegateButton = createPageElement(AssetsSelectors.assetItemDelegateButton);
 
   async isVisible() {
     await this.ReceiveButton.waitForDisplayed();
@@ -23,5 +25,6 @@ export class HomePage extends Page {
     await this.ActivityTab.waitForDisplayed();
     await this.CollectiblesTab.waitForDisplayed();
     await this.PublicAddressButton.waitForDisplayed();
+    await this.AssetDelegateButton.waitForDisplayed();
   }
 }
