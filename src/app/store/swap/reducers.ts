@@ -2,8 +2,9 @@ import { createReducer } from '@reduxjs/toolkit';
 
 import { createEntity } from 'lib/store';
 
-import { loadSwapDexesAction, loadSwapTokensAction } from './actions';
+import { loadSwapDexesAction, loadSwapParamsAction, loadSwapTokensAction, resetSwapParamsAction } from './actions';
 import { swapInitialState } from './state';
+import { DEFAULT_SWAP_PARAMS } from './state.mock';
 
 export const swapReducer = createReducer(swapInitialState, builder => {
   builder.addCase(loadSwapTokensAction.submit, state => {
@@ -23,5 +24,17 @@ export const swapReducer = createReducer(swapInitialState, builder => {
   });
   builder.addCase(loadSwapDexesAction.fail, (state, { payload }) => {
     state.dexes = createEntity([], false, payload);
+  });
+  builder.addCase(resetSwapParamsAction, state => {
+    state.swapParams = createEntity(DEFAULT_SWAP_PARAMS);
+  });
+  builder.addCase(loadSwapParamsAction.submit, state => {
+    state.swapParams = createEntity(DEFAULT_SWAP_PARAMS, true);
+  });
+  builder.addCase(loadSwapParamsAction.success, (state, { payload }) => {
+    state.swapParams = createEntity(payload, false);
+  });
+  builder.addCase(loadSwapParamsAction.fail, (state, { payload }) => {
+    state.swapParams = createEntity(DEFAULT_SWAP_PARAMS, false, payload);
   });
 });

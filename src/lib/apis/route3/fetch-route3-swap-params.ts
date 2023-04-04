@@ -1,8 +1,11 @@
-import { BigNumber } from 'bignumber.js';
-
 import { EnvVars } from 'lib/env';
 
-interface Route3SwapParamsRequest {
+export interface Route3SwapParamsRequestRaw {
+  fromSymbol: string;
+  toSymbol: string;
+  amount: string | undefined;
+}
+export interface Route3SwapParamsRequest {
   fromSymbol: string;
   toSymbol: string;
   amount: string;
@@ -14,14 +17,14 @@ interface Route3Hop {
 }
 
 export interface Route3Chain {
-  input: BigNumber;
-  output: BigNumber;
+  input: string;
+  output: string;
   hops: Array<Route3Hop>;
 }
 
 export interface Route3SwapParamsResponse {
-  input: BigNumber | undefined;
-  output: BigNumber | undefined;
+  input: string | undefined;
+  output: string | undefined;
   chains: Array<Route3Chain>;
 }
 
@@ -30,13 +33,7 @@ const parser = (origJSON: string): ReturnType<typeof JSON['parse']> => {
     .replace(/input":\s*([-+Ee0-9.]+)/g, 'input":"$1"')
     .replace(/output":\s*([-+Ee0-9.]+)/g, 'output":"$1"');
 
-  return JSON.parse(stringedJSON, (key, value) => {
-    if (key === 'input' || key === 'output') {
-      return new BigNumber(value);
-    }
-
-    return value;
-  });
+  return JSON.parse(stringedJSON);
 };
 
 export const fetchRoute3SwapParams = ({

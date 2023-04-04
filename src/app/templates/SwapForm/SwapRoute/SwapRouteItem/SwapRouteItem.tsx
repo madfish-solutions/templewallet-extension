@@ -9,17 +9,28 @@ import { Route3Chain } from 'lib/apis/route3/fetch-route3-swap-params';
 import { HopItem } from './hop-item';
 
 interface Props {
-  baseInput: BigNumber;
-  baseOutput: BigNumber;
+  baseInput: string | undefined;
+  baseOutput: string | undefined;
   chain: Route3Chain;
 }
 
-const DECIMALS_COUNT = 1;
-const PERCENTAGE = 100;
+const BASE = new BigNumber(100);
+const PERCENTAGE_DECIMALS = 1;
+const AMOUNT_DECIMALS = 2;
 
-const calculatePercentage = (base: BigNumber, part: BigNumber) =>
-  part.multipliedBy(PERCENTAGE).dividedBy(base).toFixed(DECIMALS_COUNT);
+const calculatePercentage = (base: string | undefined, part: string) => {
+  if (base === undefined) {
+    return;
+  }
 
+  const amountToFormat = BASE.multipliedBy(part).dividedBy(base);
+
+  if (amountToFormat.isGreaterThanOrEqualTo(BASE)) {
+    return BASE.toFixed();
+  }
+
+  return amountToFormat.toFixed(PERCENTAGE_DECIMALS);
+};
 export const SwapRouteItem: FC<Props> = ({ chain, baseInput, baseOutput }) => {
   const { data: route3Dexes } = useSwapDexesSelector();
 
@@ -29,7 +40,7 @@ export const SwapRouteItem: FC<Props> = ({ chain, baseInput, baseOutput }) => {
         <Separator />
       </div>
       <div className="z-10">
-        <div className="text-gray-600">{chain.input.toFixed(DECIMALS_COUNT)}</div>
+        <div className="text-gray-600">{new BigNumber(chain.input).toFixed(AMOUNT_DECIMALS)}</div>
         <div className="text-blue-500">{calculatePercentage(baseInput, chain.input)}%</div>
       </div>
       {chain.hops.map((hop, index) => {
@@ -42,7 +53,7 @@ export const SwapRouteItem: FC<Props> = ({ chain, baseInput, baseOutput }) => {
       })}
 
       <div className="z-10">
-        <div className="text-right text-gray-600">{chain.output.toFixed(DECIMALS_COUNT)}</div>
+        <div className="text-right text-gray-600">{new BigNumber(chain.output).toFixed(AMOUNT_DECIMALS)}</div>
         <div className="text-right text-blue-500">{calculatePercentage(baseOutput, chain.output)}%</div>
       </div>
     </div>

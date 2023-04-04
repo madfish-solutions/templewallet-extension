@@ -1,23 +1,19 @@
 import React, { FC, useState } from 'react';
 
-import classNames from 'clsx';
-
 import { ReactComponent as ChevronDown } from 'app/icons/chevron-down.svg';
 import { ReactComponent as ChevronUp } from 'app/icons/chevron-up.svg';
-import { Route3SwapParamsResponse } from 'lib/apis/route3/fetch-route3-swap-params';
+import { useSwapParamsSelector } from 'app/store/swap/selectors';
 import { T } from 'lib/i18n';
-import { ZERO } from 'lib/route3/constants';
 
 import { SwapRouteItem } from './SwapRouteItem/SwapRouteItem';
 
-interface Props {
-  className?: string;
-  swapParams: Route3SwapParamsResponse;
-}
+export const SwapRoute: FC = () => {
+  const {
+    data: { chains, input, output }
+  } = useSwapParamsSelector();
 
-export const SwapRoute: FC<Props> = ({ className, swapParams }) => {
-  const chainsCount = swapParams.chains.length;
-  const dexesCount = swapParams.chains.reduce((accum, chain) => accum + chain.hops.length, 0);
+  const chainsCount = chains.length;
+  const dexesCount = chains.reduce((accum, chain) => accum + chain.hops.length, 0);
 
   const [isVisible, setIsVisible] = useState(chainsCount > 0);
 
@@ -28,7 +24,7 @@ export const SwapRoute: FC<Props> = ({ className, swapParams }) => {
   return (
     <>
       <p
-        className={classNames(className, 'flex justify-between items-center text-xs text-gray-500 cursor-pointer')}
+        className="flex justify-between items-center text-xs text-gray-500 cursor-pointer"
         onClick={hadleToggleVisible}
       >
         <T id="swapRoute" />
@@ -41,15 +37,10 @@ export const SwapRoute: FC<Props> = ({ className, swapParams }) => {
           </span>
         </span>
       </p>
-      {isVisible && swapParams.chains.length > 0 && (
+      {isVisible && chains.length > 0 && (
         <div className="flex flex-col gap-2 mb-2">
-          {swapParams.chains.map((chain, index) => (
-            <SwapRouteItem
-              key={index}
-              chain={chain}
-              baseInput={swapParams.input ?? ZERO}
-              baseOutput={swapParams.output ?? ZERO}
-            />
+          {chains.map((chain, index) => (
+            <SwapRouteItem key={index} chain={chain} baseInput={input} baseOutput={output} />
           ))}
         </div>
       )}

@@ -21,7 +21,7 @@ export const useRoute3 = () => {
 
   const [swapContract, setSwapContract] = useState<Route3ContractInterface>();
 
-  useEffect(() => void tezos.contract.at<Route3ContractInterface>(ROUTE3_CONTRACT).then(setSwapContract), []);
+  useEffect(() => void tezos.contract.at<Route3ContractInterface>(ROUTE3_CONTRACT).then(setSwapContract), [tezos]);
 
   return useCallback(
     async (
@@ -46,7 +46,7 @@ export const useRoute3 = () => {
         APP_ID
       );
 
-      if (fromRoute3Token.symbol === 'XTZ') {
+      if (fromRoute3Token.symbol.toLowerCase() === 'xtz') {
         resultParams.push(
           swapOpParams.toTransferParams({
             amount: tokensToAtoms(inputAmount, TEZOS_METADATA.decimals).toNumber(),
