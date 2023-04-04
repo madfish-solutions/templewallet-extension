@@ -6,5 +6,11 @@ export const testDataForInput = {
   defaultPassword: envVars.DEFAULT_PASSWORD,
   importedFirstPrivateKey: envVars.IMPORTED_HD_ACCOUNT_FIRST_PRIVATE_KEY,
   watchOnlyPublicKey: envVars.WATCH_ONLY_PUBLIC_KEY_HASH,
-  bakerAddress: ''
+  bakerAddress: '',
+
+  // For transactions
+  low_amount: '0.0001',
+  medium_amount: '0.001',
+  high_amount: '1',
+  KUSD: 'Kolibri'
 };

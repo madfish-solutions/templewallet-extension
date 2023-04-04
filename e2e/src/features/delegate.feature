@@ -16,4 +16,4 @@ Feature: Delegate
     And I press Confirm Button on the Internal Confirmation page
 
     And I am on the OperationStatusAlert page
-    And I'm waiting for 'success ✓' operation status
+    Then I'm waiting for 'success ✓' operation status
