@@ -397,8 +397,8 @@ const BakerForm: React.FC<BakerFormProps> = ({
   triggerValidation,
   formState
 }) => {
+  const testGroupName = useUserTestingGroupNameSelector();
   const assetSymbol = 'ꜩ';
-  const abGroup = useUserTestingGroupNameSelector();
   const estimateFallbackDisplayed = toFilled && !baseFee && (estimating || bakerValidating);
   if (estimateFallbackDisplayed) {
     return (
@@ -431,11 +431,12 @@ const BakerForm: React.FC<BakerFormProps> = ({
         {...(baker && baker.address === sponsoredBaker
           ? {
               testID:
-                abGroup === ABTestGroup.B
+                testGroupName === ABTestGroup.B
                   ? DelegateFormSelectors.KnownBakerItemSubmitB_Button
                   : DelegateFormSelectors.KnownBakerItemSubmitA_Button
             }
-          : {})}
+          : { testID: DelegateFormSelectors.DelegateButtonSubmit })}
+        testIDProperties={{ abTestingCategory: testGroupName }}
       >
         {t('delegate')}
       </FormSubmitButton>
@@ -491,7 +492,7 @@ const BakerBannerComponent: React.FC<BakerBannerComponentProps> = ({ tzError, ba
 const KnownDelegatorsList: React.FC<{ setValue: any; triggerValidation: any }> = ({ setValue, triggerValidation }) => {
   const knownBakers = useKnownBakers();
   const { search } = useLocation();
-  const abGroup = useUserTestingGroupNameSelector();
+  const testGroupName = useUserTestingGroupNameSelector();
 
   const bakerSortTypes = useMemo(
     () => [
@@ -646,7 +647,7 @@ const KnownDelegatorsList: React.FC<{ setValue: any; triggerValidation: any }> =
 
           if (baker.address === sponsoredBaker) {
             testId = DelegateFormSelectors.KnownBakerItemA_Button;
-            if (abGroup === ABTestGroup.B) {
+            if (testGroupName === ABTestGroup.B) {
               testId = DelegateFormSelectors.KnownBakerItemB_Button;
               classnames = classNames(
                 'hover:bg-gray-100 focus:bg-gray-100',
@@ -665,7 +666,7 @@ const KnownDelegatorsList: React.FC<{ setValue: any; triggerValidation: any }> =
               className={classnames}
               onClick={handleBakerClick}
               testID={testId}
-              testIDProperties={{ bakerAddress: baker.address }}
+              testIDProperties={{ bakerAddress: baker.address, abTestingCategory: testGroupName }}
             >
               <BakerBanner
                 bakerPkh={baker.address}

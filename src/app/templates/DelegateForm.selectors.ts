@@ -7,5 +7,6 @@ export enum DelegateFormSelectors {
   KnownBakerItemA_Button = 'Delegate Form/Known Baker Item Everstake A Button',
   KnownBakerItemB_Button = 'Delegate Form/Known Baker Item Everstake B Button',
   KnownBakerItemSubmitA_Button = 'Delegate Form/Known Baker Item Everstake A-Delegate Button',
-  KnownBakerItemSubmitB_Button = 'Delegate Form/Known Baker Item Everstake B-Delegate Button'
+  KnownBakerItemSubmitB_Button = 'Delegate Form/Known Baker Item Everstake B-Delegate Button',
+  DelegateButtonSubmit = 'Delegate Form/Submit delegate'
 }

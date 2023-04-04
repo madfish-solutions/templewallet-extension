@@ -25,6 +25,7 @@ import { TempleAccountType, TempleNetworkType } from 'lib/temple/types';
 import useTippy from 'lib/ui/useTippy';
 import { HistoryAction, Link, navigate, To, useLocation } from 'lib/woozie';
 
+import { useUserTestingGroupNameSelector } from '../../store/ab-testing/selectors';
 import { CollectiblesList } from '../Collectibles/CollectiblesList';
 import { useOnboardingProgress } from '../Onboarding/hooks/useOnboardingProgress.hook';
 import Onboarding from '../Onboarding/Onboarding';
@@ -227,6 +228,7 @@ type SecondarySectionProps = {
 const SecondarySection: FC<SecondarySectionProps> = ({ assetSlug, className }) => {
   const { fullPage } = useAppEnv();
   const tabSlug = useTabSlug();
+  const testGroupName = useUserTestingGroupNameSelector();
 
   const tabs = useMemo<
     {
@@ -315,6 +317,9 @@ const SecondarySection: FC<SecondarySectionProps> = ({ assetSlug, className }) =
                 'truncate'
               )}
               testID={currentTab.testID}
+              testIDProperties={{
+                ...(currentTab.slug === 'delegation' && { abTestingCategory: testGroupName })
+              }}
             >
               {currentTab.title}
             </Link>

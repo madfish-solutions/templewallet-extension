@@ -19,12 +19,6 @@ export const useAnalytics = () => {
     [analyticsState.enabled, analyticsState.userId, rpc]
   );
 
-  const trackABEvent = useCallback(
-    (event: string, category: AnalyticsEventCategory, properties?: object, isAnalyticsEnabled?: boolean) =>
-      trackEvent(event, category, properties, isAnalyticsEnabled),
-    [trackEvent]
-  );
-
   const pageEvent = useCallback(
     (path: string, search: string, additionalProperties = {}) =>
       analyticsState.enabled && sendPageEvent(analyticsState.userId, rpc, path, search, additionalProperties),
@@ -33,7 +27,6 @@ export const useAnalytics = () => {
 
   return {
     trackEvent,
-    trackABEvent,
     pageEvent
   };
 };
