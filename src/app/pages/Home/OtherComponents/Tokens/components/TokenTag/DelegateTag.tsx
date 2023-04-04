@@ -13,6 +13,7 @@ import { T } from 'lib/i18n';
 import { useAccount, useDelegate } from 'lib/temple/front';
 import { navigate } from 'lib/woozie';
 
+import { AssetsSelectors } from '../../../Assets.selectors';
 import modStyles from '../../Tokens.module.css';
 
 export const DelegateTezosTag: FC = () => {
@@ -35,6 +36,7 @@ export const DelegateTezosTag: FC = () => {
       <Button
         onClick={event => handleTagClick(event, ABTestGroup.A)}
         className={classNames('inline-flex items-center pl-1 ml-2 py-1 pr-1.5', modStyles['apyTag'])}
+        testID={AssetsSelectors.assetItemDelegateButton}
       >
         <AlertIcon className="animate-fade-in mr-1 stroke-current" />
         <T id="delegate" />
@@ -48,6 +50,7 @@ export const DelegateTezosTag: FC = () => {
       <Button
         onClick={event => handleTagClick(event, ABTestGroup.B)}
         className={classNames('uppercase ml-2 px-1.5 py-1', modStyles['apyTag'])}
+        testID={AssetsSelectors.assetItemDelegateButton}
       >
         <T id="notDelegated" />
       </Button>
@@ -60,6 +63,7 @@ export const DelegateTezosTag: FC = () => {
       <Button
         onClick={event => handleTagClick(event, groupName)}
         className={classNames('inline-flex items-center px-1.5 ml-2 py-1', modStyles['apyTag'])}
+        testID={AssetsSelectors.assetItemApyButton}
       >
         APY: 5.6%
       </Button>
