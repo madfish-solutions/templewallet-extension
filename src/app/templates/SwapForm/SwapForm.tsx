@@ -129,11 +129,13 @@ export const SwapForm: FC = () => {
     if (isSubmitButtonPressedRef.current) {
       triggerValidation();
     }
-  }, [outputAssetMetadata.decimals, outputValue.assetSlug, swapParams.data.output, setValue, triggerValidation]);
+  }, [swapParams.data.output, setValue, triggerValidation]);
 
   useEffect(() => {
     register('input', {
       validate: ({ assetSlug, amount }: SwapInputValue) => {
+        console.log('validate input');
+
         if (!assetSlug) {
           return t('assetMustBeSelected');
         }

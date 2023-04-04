@@ -29,7 +29,7 @@ export const swapReducer = createReducer(swapInitialState, builder => {
     state.swapParams = createEntity(DEFAULT_SWAP_PARAMS);
   });
   builder.addCase(loadSwapParamsAction.submit, state => {
-    state.swapParams = createEntity(DEFAULT_SWAP_PARAMS, true);
+    state.swapParams = createEntity(state.swapParams.data, true);
   });
   builder.addCase(loadSwapParamsAction.success, (state, { payload }) => {
     state.swapParams = createEntity(payload, false);
