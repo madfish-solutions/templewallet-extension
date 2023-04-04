@@ -3,7 +3,7 @@ import React, { FC, ReactNode, useCallback, useLayoutEffect, useMemo, useRef } f
 import { DEFAULT_FEE, WalletOperation } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
-import { useForm, Controller, Control, FieldError, NestDataObject, FormStateProxy } from 'react-hook-form';
+import { Control, Controller, FieldError, FormStateProxy, NestDataObject, useForm } from 'react-hook-form';
 import useSWR from 'swr';
 import browser from 'webextension-polyfill';
 
@@ -19,25 +19,25 @@ import OperationStatus from 'app/templates/OperationStatus';
 import { useFormAnalytics } from 'lib/analytics';
 import { submitDelegation } from 'lib/apis/everstake';
 import { ABTestGroup } from 'lib/apis/temple';
-import { TID, T, t } from 'lib/i18n';
+import { T, t, TID } from 'lib/i18n';
 import { setDelegate } from 'lib/michelson';
 import { fetchTezosBalance } from 'lib/temple/assets';
 import { loadContract } from 'lib/temple/contract';
 import {
   Baker,
+  isDomainNameValid,
+  useAB,
   useAccount,
   useBalance,
-  useTezosDomainsClient,
-  isDomainNameValid,
-  useNetwork,
-  useTezos,
-  useAB,
+  useGasToken,
   useKnownBaker,
   useKnownBakers,
-  validateDelegate,
-  useGasToken
+  useNetwork,
+  useTezos,
+  useTezosDomainsClient,
+  validateDelegate
 } from 'lib/temple/front';
-import { tzToMutez, mutezToTz, isAddressValid, isKTAddress, hasManager } from 'lib/temple/helpers';
+import { hasManager, isAddressValid, isKTAddress, mutezToTz, tzToMutez } from 'lib/temple/helpers';
 import { TempleAccountType } from 'lib/temple/types';
 import { useSafeState } from 'lib/ui/hooks';
 import { Link, useLocation } from 'lib/woozie';
@@ -335,6 +335,7 @@ const DelegateForm: FC = () => {
             resize: 'none'
           }}
           containerClassName="mb-4"
+          testID={DelegateFormSelectors.bakerInput}
         />
 
         {resolvedAddress && (
@@ -428,14 +429,15 @@ const BakerForm: React.FC<BakerFormProps> = ({
       <FormSubmitButton
         loading={formState.isSubmitting}
         disabled={Boolean(estimationError)}
-        {...(baker && baker.address === sponsoredBaker
-          ? {
-              testID:
-                abGroup === ABTestGroup.B
-                  ? DelegateFormSelectors.KnownBakerItemSubmitB_Button
-                  : DelegateFormSelectors.KnownBakerItemSubmitA_Button
-            }
-          : {})}
+        testID={DelegateFormSelectors.bakerDelegateButton}
+        testIDProperties={{
+          baker:
+            baker?.address === sponsoredBaker
+              ? abGroup === ABTestGroup.B
+                ? 'Known B Delegate Button'
+                : 'Known A Delegate Button'
+              : 'Unknown Delegate Button'
+        }}
       >
         {t('delegate')}
       </FormSubmitButton>
@@ -498,22 +500,22 @@ const KnownDelegatorsList: React.FC<{ setValue: any; triggerValidation: any }> =
       {
         key: 'rank',
         title: t('rank'),
-        testID: DelegateFormSelectors.SortBakerByRankTab
+        testID: DelegateFormSelectors.sortBakerByRankTab
       },
       {
         key: 'fee',
         title: t('fee'),
-        testID: DelegateFormSelectors.SortBakerByFeeTab
+        testID: DelegateFormSelectors.sortBakerByFeeTab
       },
       {
         key: 'space',
         title: t('space'),
-        testID: DelegateFormSelectors.SortBakerBySpaceTab
+        testID: DelegateFormSelectors.sortBakerBySpaceTab
       },
       {
         key: 'staking',
         title: t('staking'),
-        testID: DelegateFormSelectors.SortBakerByStakingTab
+        testID: DelegateFormSelectors.sortBakerByStakingTab
       }
     ],
     []
@@ -616,7 +618,7 @@ const KnownDelegatorsList: React.FC<{ setValue: any; triggerValidation: any }> =
             window.scrollTo(0, 0);
           };
 
-          let testId = DelegateFormSelectors.KnownBakerItemButton;
+          let testId = DelegateFormSelectors.knownBakerItemButton;
           let classnames = classNames(
             'hover:bg-gray-100 focus:bg-gray-100',
             'transition ease-in-out duration-200',
@@ -625,9 +627,9 @@ const KnownDelegatorsList: React.FC<{ setValue: any; triggerValidation: any }> =
           );
 
           if (baker.address === sponsoredBaker) {
-            testId = DelegateFormSelectors.KnownBakerItemA_Button;
+            testId = DelegateFormSelectors.knownBakerItemAButton;
             if (abGroup === ABTestGroup.B) {
-              testId = DelegateFormSelectors.KnownBakerItemB_Button;
+              testId = DelegateFormSelectors.knownBakerItemBButton;
               classnames = classNames(
                 'hover:bg-gray-100 focus:bg-gray-100',
                 'transition ease-in-out duration-200',
