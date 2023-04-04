@@ -4,7 +4,7 @@
   "private": true,
   "license": "MIT",
   "scripts": {
-    "start": "./node_modules/.bin/cucumber-js",
+    "start": "./node_modules/.bin/cucumber-js --fail-fast",
     "start:dev": "yarn start --tags @dev",
     "test": "yarn start --exit",
     "ts": "tsc --pretty"

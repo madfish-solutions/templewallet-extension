@@ -10,6 +10,9 @@ import { useTezos, useExplorerBaseUrls, useBlockTriggers } from 'lib/temple/fron
 import { FailedOpError } from 'lib/temple/operation';
 import { useSafeState } from 'lib/ui/hooks';
 
+import { setTestID } from '../../lib/analytics';
+import { OperationStatusSelectors } from './OperationStatus.selectors';
+
 type OperationStatusProps = {
   className?: string;
   closable?: boolean;
@@ -41,11 +44,11 @@ const OperationStatus: FC<OperationStatusProps> = ({ typeTitle, operation, class
 
   const [alert, setAlert] = useSafeState<{
     type: 'success' | 'error';
-    title: string;
+    title: ReactNode;
     description: ReactNode;
   }>(() => ({
     type: 'success',
-    title: `${t('success')} 🛫`,
+    title: <span {...setTestID(OperationStatusSelectors.successEstimatedOperation)}>{`${t('success')} 🛫`}</span>,
     description: (
       <>
         <T id="requestSent" substitutions={typeTitle} />
@@ -64,7 +67,7 @@ const OperationStatus: FC<OperationStatusProps> = ({ typeTitle, operation, class
       .then(() => {
         setAlert(a => ({
           ...a,
-          title: `${t('success')} ✅`,
+          title: <span {...setTestID(OperationStatusSelectors.successDoneOperation)}>{`${t('success')} ✅`}</span>,
           description: (
             <>
               <T id="operationSuccessfullyProcessed" substitutions={typeTitle} />
