@@ -25,6 +25,5 @@ export class HomePage extends Page {
     await this.ActivityTab.waitForDisplayed();
     await this.CollectiblesTab.waitForDisplayed();
     await this.PublicAddressButton.waitForDisplayed();
-    await this.AssetDelegateButton.waitForDisplayed();
   }
 }
