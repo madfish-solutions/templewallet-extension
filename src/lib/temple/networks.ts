@@ -55,6 +55,24 @@ export const NETWORKS: TempleNetwork[] = [
     disabled: false
   },
   {
+    id: 'flashbake-mainnet',
+    name: 'Flashbake Mainnet',
+    description: 'A private mempool relay for Tezos Mainnet. Learn more: flashbake.xyz',
+    type: 'main',
+    rpcBaseURL: 'https://relay.flashbake.xyz',
+    color: '#2e8555',
+    disabled: false
+  },
+  {
+    id: 'flashbake-testnet',
+    name: 'Flashbake Testnet',
+    description: 'A private mempool relay for Tezos Testnet. Learn more: flashbake.xyz',
+    type: 'test',
+    rpcBaseURL: 'https://ghostnet.relay.flashbake.xyz',
+    color: '#60b582',
+    disabled: false
+  },
+  {
     id: 't4l3nt-testnet',
     name: 'T4L3NT Testnet',
     description: 'Decentralized pictures testnet',
