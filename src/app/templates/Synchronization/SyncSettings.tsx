@@ -1,6 +1,5 @@
 import React, { FC, useCallback, useLayoutEffect, useRef } from 'react';
 
-import classNames from 'clsx';
 import { OnSubmit, useForm } from 'react-hook-form';
 import { QRCode } from 'react-qr-svg';
 
@@ -68,7 +67,7 @@ const SyncSettings: FC = () => {
             <T id="scanQRWithTempleMobile" />
           </p>
 
-          <div className={classNames('mb-8 p-1', 'bg-gray-100 border-2 border-gray-300', 'rounded')}>
+          <div className="mb-8 p-1 bg-gray-100 border-2 border-gray-300 rounded">
             <QRCode value={payload} bgColor="#f7fafc" fgColor="#000000" level="Q" style={{ width: '100%' }} />
           </div>
 

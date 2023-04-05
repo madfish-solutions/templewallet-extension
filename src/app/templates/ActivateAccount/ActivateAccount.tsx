@@ -116,7 +116,11 @@ const ActivateAccount: FC = () => {
         testID={ActivateAccountSelectors.secretInput}
       />
 
-      <FormSubmitButton loading={submitting} testID={ActivateAccountSelectors.activateButton}>
+      <FormSubmitButton
+        loading={submitting}
+        testID={ActivateAccountSelectors.activateButton}
+        testIDProperties={{ accountTypeEnum: account.type }}
+      >
         <T id="activate" />
       </FormSubmitButton>
     </form>

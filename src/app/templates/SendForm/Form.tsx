@@ -50,6 +50,7 @@ import { hasManager, isAddressValid, isKTAddress, mutezToTz, tzToMutez } from 'l
 import { AssetMetadata, getAssetSymbol } from 'lib/temple/metadata';
 import { TempleAccountType, TempleAccount, TempleNetworkType } from 'lib/temple/types';
 import { useSafeState } from 'lib/ui/hooks';
+import { useScrollIntoView } from 'lib/ui/use-scroll-into-view';
 
 import ContactsDropdown, { ContactsDropdownProps } from './ContactsDropdown';
 import { FeeSection } from './FeeSection';
@@ -149,7 +150,6 @@ export const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactReque
   const amountValue = watch('amount');
   const feeValue = watch('fee') ?? RECOMMENDED_ADD_FEE;
 
-  const toFieldRef = useRef<HTMLTextAreaElement>(null);
   const amountFieldRef = useRef<HTMLInputElement>(null);
 
   const toFilledWithAddress = useMemo(() => Boolean(toValue && isAddressValid(toValue)), [toValue]);
@@ -187,11 +187,7 @@ export const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactReque
     triggerValidation('to');
   }, [setValue, triggerValidation]);
 
-  useLayoutEffect(() => {
-    if (toFilled) {
-      toFieldRef.current?.scrollIntoView({ block: 'center' });
-    }
-  }, [toFilled]);
+  const toFieldRef = useScrollIntoView<HTMLTextAreaElement>(Boolean(toFilled), { block: 'center' });
 
   useLayoutEffect(() => {
     if (toFilled) {
@@ -339,6 +335,7 @@ export const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactReque
       setOperation(null);
 
       formAnalytics.trackSubmit();
+
       try {
         let op: WalletOperation;
         if (isKTAddress(acc.publicKeyHash)) {

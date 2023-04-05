@@ -109,6 +109,7 @@ export const SwapFormInputHeader = forwardRef<HTMLDivElement, Props>(
             <div className="items-center ml-5 mr-3 my-6">
               <SearchIcon className="w-6 h-auto text-gray-500 stroke-current stroke-2" />
             </div>
+
             <div className="text-lg flex flex-1 items-stretch">
               <div className="flex-1 flex items-stretch mr-2">
                 <input
@@ -122,6 +123,7 @@ export const SwapFormInputHeader = forwardRef<HTMLDivElement, Props>(
                   {...setTestID(testIDs?.searchInput)}
                 />
               </div>
+
               {showTokenIdInput && (
                 <div className="w-24 flex items-stretch border-l border-gray-300">
                   <AssetField
@@ -168,6 +170,7 @@ export const SwapFormInputHeader = forwardRef<HTMLDivElement, Props>(
 
               <ChevronDownIcon className="w-4 h-auto text-gray-700 stroke-current stroke-2" />
             </div>
+
             <div
               className={classNames(
                 'flex-1 px-2 flex items-center justify-between',

@@ -1,4 +1,5 @@
-import { NewSeedVerifySelectors } from '../../../../src/app/pages/NewWallet/create/NewSeedVerify/NewSeedVerify.selectors';
+import { NewSeedVerifySelectors } from 'src/app/pages/NewWallet/create/NewSeedVerify/NewSeedVerify.selectors';
+
 import { BrowserContext } from '../../classes/browser-context.class';
 import { Page } from '../../classes/page.class';
 import { createPageElement, findElements, getElementText } from '../../utils/search.utils';

@@ -1,6 +1,5 @@
 import React, { FC, memo, useCallback, useMemo, useState } from 'react';
 
-import classNames from 'clsx';
 import { useForm } from 'react-hook-form';
 
 import { FormField, FormSubmitButton } from 'app/atoms';
@@ -88,7 +87,7 @@ export const NewSeedVerify: FC<NewSeedVerifyProps> = ({ seedPhrase, onVerificati
   return (
     <div className="w-full max-w-md mx-auto my-8">
       <form className="w-full mt-8" onSubmit={handleSubmit(onVerificationComplete)}>
-        <h3 className={classNames('mt-2 mb-8', 'text-gray-600 text-xl font-light', 'text-center')}>
+        <h3 className="mt-2 mb-8 text-gray-600 text-xl font-light text-center">
           <T id="verifySeedPhraseDescription" />
         </h3>
 
@@ -136,7 +135,7 @@ const WordsRow = memo<WordsRowProps>(({ allWords, indexToFill, onFill }) => {
   );
 
   return (
-    <div className={classNames('mb-6', '-mx-2', 'flex items-stretch')}>
+    <div className="mb-6 -mx-2 flex items-stretch">
       {indexes.map(i => {
         const toFill = i === indexToFill;
 

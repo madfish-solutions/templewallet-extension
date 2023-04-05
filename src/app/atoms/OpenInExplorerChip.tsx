@@ -3,9 +3,9 @@ import React, { FC, useMemo } from 'react';
 import classNames from 'clsx';
 
 import { ReactComponent as ArrowRightTopIcon } from 'app/icons/arrow-right-top.svg';
-import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
 import useTippy from 'lib/ui/useTippy';
 
+import { Anchor } from './Anchor';
 import { OpenInExplorerChipSelectors } from './OpenInExplorerChip.selectors';
 
 type OpenInExplorerChipProps = {
@@ -25,7 +25,6 @@ const OpenInExplorerChip: FC<OpenInExplorerChipProps> = ({
   textShade = 600,
   rounded = 'sm'
 }) => {
-  const { trackEvent } = useAnalytics();
   const tippyProps = useMemo(
     () => ({
       trigger: 'mouseenter',
@@ -38,16 +37,10 @@ const OpenInExplorerChip: FC<OpenInExplorerChipProps> = ({
 
   const ref = useTippy<HTMLAnchorElement>(tippyProps);
 
-  const handleClick = () => {
-    trackEvent(OpenInExplorerChipSelectors.ViewOnBlockExplorerLink, AnalyticsEventCategory.ButtonPress);
-  };
-
   return (
-    <a
+    <Anchor
       ref={ref}
       href={`${baseUrl}/${hash}`}
-      target="_blank"
-      rel="noopener noreferrer"
       className={classNames(
         (() => {
           switch (bgShade) {
@@ -76,10 +69,11 @@ const OpenInExplorerChip: FC<OpenInExplorerChipProps> = ({
         'flex items-center justify-center',
         className
       )}
-      onClick={handleClick}
+      testID={OpenInExplorerChipSelectors.ViewOnBlockExplorerLink}
+      treatAsButton={true}
     >
       <ArrowRightTopIcon className="h-5 w-auto fill-current" />
-    </a>
+    </Anchor>
   );
 };
 

@@ -7,6 +7,17 @@ import { t } from 'lib/i18n';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 import useTippy from 'lib/ui/useTippy';
 
+const TEXT_SHADES = {
+  500: 'text-gray-500',
+  600: 'text-gray-600',
+  700: 'text-gray-700'
+};
+
+const BG_SHADES = {
+  100: 'bg-gray-100 hover:bg-gray-200',
+  200: 'bg-gray-200 hover:bg-gray-300'
+};
+
 export type CopyButtonProps = HTMLAttributes<HTMLButtonElement> &
   TestIDProps & {
     bgShade?: 100 | 200;
@@ -48,52 +59,34 @@ const CopyButton: FC<CopyButtonProps> = ({
 
   const buttonRef = useTippy<HTMLButtonElement>(tippyProps);
 
-  const roundedClassName = rounded === 'base' ? 'rounded' : 'rounded-sm';
-  const smallClassName = small ? 'text-xs p-1' : 'text-sm py-1 px-2';
-
   const handleCopyPress = () => {
-    testID !== undefined && trackEvent(testID, AnalyticsEventCategory.ButtonPress, testIDProperties);
+    testID && trackEvent(testID, AnalyticsEventCategory.ButtonPress, testIDProperties);
 
     return copy();
   };
+
+  const classNameMemo = useMemo(
+    () =>
+      type === 'button'
+        ? classNames(
+            'font-tnum leading-none select-none',
+            'transition ease-in-out duration-300',
+            rounded === 'base' ? 'rounded' : 'rounded-sm',
+            small ? 'text-xs p-1' : 'text-sm py-1 px-2',
+            BG_SHADES[bgShade],
+            TEXT_SHADES[textShade],
+            className
+          )
+        : classNames('hover:underline', className),
+    [type, className, rounded, small, bgShade, textShade]
+  );
 
   return (
     <>
       <button
         ref={buttonRef}
         type="button"
-        className={
-          type === 'button'
-            ? classNames(
-                (() => {
-                  switch (bgShade) {
-                    case 100:
-                      return 'bg-gray-100 hover:bg-gray-200';
-
-                    case 200:
-                      return 'bg-gray-200 hover:bg-gray-300';
-                  }
-                })(),
-                (() => {
-                  switch (textShade) {
-                    case 500:
-                      return 'text-gray-500';
-
-                    case 600:
-                      return 'text-gray-600';
-
-                    case 700:
-                      return 'text-gray-700';
-                  }
-                })(),
-                roundedClassName,
-                smallClassName,
-                'font-tnum leading-none select-none',
-                'transition ease-in-out duration-300',
-                className
-              )
-            : classNames('hover:underline', className)
-        }
+        className={classNameMemo}
         {...rest}
         onClick={handleCopyPress}
         {...setTestID(testID)}

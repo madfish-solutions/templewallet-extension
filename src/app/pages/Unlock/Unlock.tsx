@@ -106,7 +106,9 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
         <>
           <T id="unlockWallet" />
           <br />
-          <T id="toContinue">{message => <span style={{ fontSize: '0.9em' }}>{message}</span>}</T>
+          <span style={{ fontSize: '0.9em' }}>
+            <T id="toContinue" />
+          </span>
         </>
       }
     >
@@ -140,27 +142,23 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
 
         {canImportNew && (
           <div className="my-6">
-            <T id="importNewAccountTitle">
-              {message => <h3 className="text-sm font-light text-gray-600">{message}</h3>}
-            </T>
+            <h3 className="text-sm font-light text-gray-600">
+              <T id="importNewAccountTitle" />
+            </h3>
 
-            <T id="importWalletUsingSeedPhrase">
-              {message => (
-                <Link
-                  to="/import-wallet"
-                  className={classNames(
-                    'text-primary-orange',
-                    'text-sm font-semibold',
-                    'transition duration-200 ease-in-out',
-                    'opacity-75 hover:opacity-100 focus:opacity-100',
-                    'hover:underline'
-                  )}
-                  testID={UnlockSelectors.importWalletUsingSeedPhrase}
-                >
-                  {message}
-                </Link>
+            <Link
+              to="/import-wallet"
+              className={classNames(
+                'text-primary-orange',
+                'text-sm font-semibold',
+                'transition duration-200 ease-in-out',
+                'opacity-75 hover:opacity-100 focus:opacity-100',
+                'hover:underline'
               )}
-            </T>
+              testID={UnlockSelectors.importWalletUsingSeedPhrase}
+            >
+              <T id="importWalletUsingSeedPhrase" />
+            </Link>
           </div>
         )}
       </form>
