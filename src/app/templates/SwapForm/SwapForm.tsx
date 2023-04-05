@@ -5,7 +5,6 @@ import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
 import { Controller, useForm } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
-import { parseTransferParamsToParamsWithKind } from 'swap-router-sdk';
 
 import { Alert, FormSubmitButton } from 'app/atoms';
 import { useBlockLevel } from 'app/hooks/use-block-level.hook';
@@ -25,6 +24,7 @@ import { ROUTING_FEE_PERCENT } from 'lib/swap-router/config';
 import { useAccount, useAssetMetadata, useTezos } from 'lib/temple/front';
 import { tokensToAtoms } from 'lib/temple/helpers';
 import useTippy from 'lib/ui/useTippy';
+import { parseTransferParamsToParamsWithKind } from 'lib/utils/parse-transfer-params';
 import { HistoryAction, navigate } from 'lib/woozie';
 
 import { SwapExchangeRate } from './SwapExchangeRate/SwapExchangeRate';
