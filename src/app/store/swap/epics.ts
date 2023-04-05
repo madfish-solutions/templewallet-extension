@@ -17,9 +17,7 @@ import { loadSwapDexesAction, loadSwapParamsAction, loadSwapTokensAction, resetS
 const isAmountDefined = (
   requestParams: Route3SwapParamsRequest | Route3SwapParamsRequestRaw
 ): requestParams is Route3SwapParamsRequest =>
-  isDefined(requestParams.amount) !== undefined &&
-  requestParams.fromSymbol.length > 0 &&
-  requestParams.toSymbol.length > 0;
+  isDefined(requestParams.amount) && requestParams.fromSymbol.length > 0 && requestParams.toSymbol.length > 0;
 
 const loadSwapParamsEpic = (action$: Observable<Action>) =>
   action$.pipe(
