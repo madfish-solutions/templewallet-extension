@@ -401,6 +401,19 @@ const BakerForm: React.FC<BakerFormProps> = ({
   const testGroupName = useUserTestingGroupNameSelector();
   const assetSymbol = 'ꜩ';
   const estimateFallbackDisplayed = toFilled && !baseFee && (estimating || bakerValidating);
+
+  const bakerTestMessage = useMemo(() => {
+    if (baker?.address !== sponsoredBaker) {
+      return 'Unknown Delegate Button';
+    }
+
+    if (testGroupName === ABTestGroup.B) {
+      return 'Known B Delegate Button';
+    }
+
+    return 'Known A Delegate Button';
+  }, [baker?.address, sponsoredBaker]);
+
   if (estimateFallbackDisplayed) {
     return (
       <div className="flex justify-center my-8">
@@ -410,6 +423,7 @@ const BakerForm: React.FC<BakerFormProps> = ({
   }
   const restFormDisplayed = Boolean(toFilled && (baseFee || estimationError));
   const tzError = submitError || estimationError;
+
   return restFormDisplayed ? (
     <>
       <BakerBannerComponent baker={baker} tzError={tzError} />
@@ -431,12 +445,7 @@ const BakerForm: React.FC<BakerFormProps> = ({
         disabled={Boolean(estimationError)}
         testID={DelegateFormSelectors.bakerDelegateButton}
         testIDProperties={{
-          baker:
-            baker?.address === sponsoredBaker
-              ? testGroupName === ABTestGroup.B
-                ? 'Known B Delegate Button'
-                : 'Known A Delegate Button'
-              : 'Unknown Delegate Button',
+          baker: bakerTestMessage,
           abTestingCategory: testGroupName
         }}
       >
