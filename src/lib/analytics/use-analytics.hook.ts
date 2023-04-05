@@ -1,12 +1,14 @@
 import { useCallback } from 'react';
 
+import { useAnalyticsEnabledSelector, useUserIdSelector } from 'app/store/settings/selectors';
 import { AnalyticsEventCategory } from 'lib/temple/analytics-types';
 
+import { sendPageEvent, sendTrackEvent } from './send-events.utils';
 import { useAnalyticsNetwork } from './use-analytics-network.hook';
-import { sendPageEvent, sendTrackEvent, useAnalyticsState } from './use-analytics-state.hook';
 
 export const useAnalytics = () => {
-  const { analyticsState } = useAnalyticsState();
+  const analyticsEnabled = useAnalyticsEnabledSelector();
+  const userId = useUserIdSelector();
   const rpc = useAnalyticsNetwork();
 
   const trackEvent = useCallback(
@@ -14,15 +16,15 @@ export const useAnalytics = () => {
       event: string,
       category: AnalyticsEventCategory = AnalyticsEventCategory.General,
       properties?: object,
-      isAnalyticsEnabled = analyticsState.enabled
-    ) => isAnalyticsEnabled && sendTrackEvent(analyticsState.userId, rpc, event, category, properties),
-    [analyticsState.enabled, analyticsState.userId, rpc]
+      isAnalyticsEnabled = analyticsEnabled
+    ) => isAnalyticsEnabled && sendTrackEvent(userId, rpc, event, category, properties),
+    [analyticsEnabled, userId, rpc]
   );
 
   const pageEvent = useCallback(
     (path: string, search: string, additionalProperties = {}) =>
-      analyticsState.enabled && sendPageEvent(analyticsState.userId, rpc, path, search, additionalProperties),
-    [analyticsState.enabled, analyticsState.userId, rpc]
+      analyticsEnabled && sendPageEvent(userId, rpc, path, search, additionalProperties),
+    [analyticsEnabled, userId, rpc]
   );
 
   return {

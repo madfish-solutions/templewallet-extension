@@ -1,4 +1,5 @@
-import { WelcomeSelectors } from '../../../../src/app/pages/Welcome/Welcome.selectors';
+import { WelcomeSelectors } from 'src/app/pages/Welcome/Welcome.selectors';
+
 import { Page } from '../../classes/page.class';
 import { createPageElement } from '../../utils/search.utils';
 

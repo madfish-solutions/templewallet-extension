@@ -65,7 +65,7 @@ const AddressBook: React.FC = () => {
           <T id="currentContacts" />
         </span>
 
-        <span className={classNames('mt-1', 'text-xs font-light text-gray-600')} style={{ maxWidth: '90%' }}>
+        <span className="mt-1 text-xs font-light text-gray-600 max-w-9/10">
           <T id="updateContactDescription" />
         </span>
       </div>
@@ -210,13 +210,8 @@ const ContactContent: React.FC<OptionRenderProps<TempleContact, string, ContactA
       <div className="flex items-center">
         <span
           className={classNames(
-            'mx-1',
-            'rounded-sm',
-            'border border-opacity-25',
-            'px-1 py-px',
-            'leading-tight',
-            'text-opacity-50',
-            'border-black text-black'
+            'mx-1 px-1 py-px leading-tight text-opacity-50',
+            'rounded-sm border border-opacity-25 border-black text-black'
           )}
           style={{ fontSize: '0.6rem' }}
         >
@@ -225,11 +220,7 @@ const ContactContent: React.FC<OptionRenderProps<TempleContact, string, ContactA
       </div>
     ) : (
       <button
-        className={classNames(
-          'flex-none p-2',
-          'text-gray-500 hover:text-gray-600',
-          'transition ease-in-out duration-200'
-        )}
+        className="flex-none p-2 text-gray-500 hover:text-gray-600 transition ease-in-out duration-200"
         onClick={evt => {
           evt.stopPropagation();
           actions?.remove(item.address);

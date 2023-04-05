@@ -1,4 +1,5 @@
-import { NewSeedBackupSelectors } from '../../../../src/app/pages/NewWallet/create/NewSeedBackup/NewSeedBackup.selectors';
+import { NewSeedBackupSelectors } from 'src/app/pages/NewWallet/create/NewSeedBackup/NewSeedBackup.selectors';
+
 import { Page } from '../../classes/page.class';
 import { createPageElement } from '../../utils/search.utils';
 

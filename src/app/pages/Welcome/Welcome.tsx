@@ -7,10 +7,10 @@ import Logo from 'app/atoms/Logo';
 import { ReactComponent as EntranceIcon } from 'app/icons/entrance.svg';
 import { ReactComponent as FolderAddIcon } from 'app/icons/folder-add.svg';
 import { ReactComponent as LedgerNanoIcon } from 'app/misc/ledger.svg';
+import { TestIDProps } from 'lib/analytics';
 import { TID, T } from 'lib/i18n';
 import { Link } from 'lib/woozie';
 
-import { TestIDProps } from '../../../lib/analytics';
 import { getUserTestingGroupName } from '../../store/ab-testing/actions';
 import { WelcomeSelectors } from './Welcome.selectors';
 

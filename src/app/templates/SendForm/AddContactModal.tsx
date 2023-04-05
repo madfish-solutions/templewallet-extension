@@ -1,6 +1,5 @@
 import React, { FC, useCallback } from 'react';
 
-import classNames from 'clsx';
 import { useForm } from 'react-hook-form';
 
 import { FormField, FormSubmitButton, FormSecondaryButton } from 'app/atoms';
@@ -59,7 +58,7 @@ const AddContactModal: FC<AddContactModalProps> = ({ address, onClose }) => {
             <Identicon type="bottts" hash={address ?? ''} size={32} className="flex-shrink-0 shadow-xs" />
 
             <div className="ml-3 flex-1 flex items-center">
-              <span className={classNames('text-base text-gray-700')}>
+              <span className="text-base text-gray-700">
                 <HashShortView hash={address ?? ''} />
               </span>
             </div>
@@ -79,10 +78,12 @@ const AddContactModal: FC<AddContactModalProps> = ({ address, onClose }) => {
             maxLength={50}
           />
         </div>
+
         <div className="flex justify-end">
           <FormSecondaryButton type="button" small className="mr-3" onClick={onClose}>
             <T id="cancel" />
           </FormSecondaryButton>
+
           <FormSubmitButton small loading={submitting}>
             <T id="addContact" />
           </FormSubmitButton>

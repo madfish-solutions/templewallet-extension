@@ -1,39 +1,27 @@
 import React from 'react';
 
-import { FormCheckbox } from 'app/atoms';
-import { useAnalyticsSettings } from 'lib/analytics';
-import { t, T } from 'lib/i18n';
+import { useDispatch } from 'react-redux';
 
-import { SettingsGeneralSelectors } from '../SettingsGeneral.selectors';
+import { setIsAnalyticsEnabledAction } from 'app/store/settings/actions';
+import { useAnalyticsEnabledSelector } from 'app/store/settings/selectors';
+
+import { SettingsGeneralSelectors } from '../selectors';
+import { EnablingSetting } from './EnablingSetting';
 
 const AnalyticsSettings: React.FC = () => {
-  const { analyticsEnabled, setAnalyticsEnabled } = useAnalyticsSettings();
+  const dispatch = useDispatch();
+  const analyticsEnabled = useAnalyticsEnabledSelector();
 
-  const handlePopupModeChange = (evt: React.ChangeEvent<HTMLInputElement>) => {
-    setAnalyticsEnabled(evt.target.checked);
-  };
+  const setAnalyticsEnabled = () => dispatch(setIsAnalyticsEnabledAction(!analyticsEnabled));
 
   return (
-    <>
-      <label className="mb-4 leading-tight flex flex-col" htmlFor="analyticsSettings">
-        <span className="text-base font-semibold text-gray-700">
-          <T id="analyticsSettings" />
-        </span>
-
-        <span className="mt-1 text-xs font-light text-gray-600" style={{ maxWidth: '90%' }}>
-          <T id="analyticsSettingsDescription" />
-        </span>
-      </label>
-
-      <FormCheckbox
-        checked={analyticsEnabled}
-        onChange={handlePopupModeChange}
-        name="analyticsEnabled"
-        label={t(analyticsEnabled ? 'enabled' : 'disabled')}
-        containerClassName="mb-4"
-        testID={SettingsGeneralSelectors.anonymousAnalyticsCheckBox}
-      />
-    </>
+    <EnablingSetting
+      titleI18nKey="analyticsSettings"
+      descriptionI18nKey="analyticsSettingsDescription"
+      enabled={analyticsEnabled}
+      onChange={setAnalyticsEnabled}
+      testID={SettingsGeneralSelectors.anonymousAnalyticsCheckBox}
+    />
   );
 };
 

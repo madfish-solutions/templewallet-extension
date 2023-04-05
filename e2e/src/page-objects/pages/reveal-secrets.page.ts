@@ -1,4 +1,5 @@
-import { RevealSecretsSelectors } from '../../../../src/app/templates/RevealSecrets/RevealSecrets.selectors';
+import { RevealSecretsSelectors } from 'src/app/templates/RevealSecrets/RevealSecrets.selectors';
+
 import { Page } from '../../classes/page.class';
 import { createPageElement } from '../../utils/search.utils';
 

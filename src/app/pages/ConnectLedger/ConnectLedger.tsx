@@ -143,14 +143,10 @@ const ConnectLedger: FC = () => {
   return (
     <PageLayout
       pageTitle={
-        <T id="connectLedger">
-          {message => (
-            <>
-              <LinkIcon className="w-auto h-4 mr-1 stroke-current" />
-              {message}
-            </>
-          )}
-        </T>
+        <>
+          <LinkIcon className="w-auto h-4 mr-1 stroke-current" />
+          <T id="connectLedger" />
+        </>
       }
     >
       <div className="relative w-full">
@@ -185,15 +181,15 @@ const ConnectLedger: FC = () => {
                   </span>
                 </span>
 
-                <span className="mt-1 text-xs font-light text-gray-600" style={{ maxWidth: '90%' }}>
+                <span className="mt-1 text-xs font-light text-gray-600 max-w-9/10">
                   <T id="derivationTypeFieldDescription" />
                 </span>
               </h2>
               <Controller as={TypeSelect} control={control} name="derivationType" options={DERIVATION_TYPES} />
             </div>
 
-            <div className={classNames('mb-4', 'flex flex-col')}>
-              <h2 className={classNames('mb-4', 'leading-tight', 'flex flex-col')}>
+            <div className="mb-4 flex flex-col">
+              <h2 className="mb-4 leading-tight flex flex-col">
                 <span className="text-base font-semibold text-gray-700">
                   <T id="derivationPath" />{' '}
                   <span className="text-sm font-light text-gray-600">
@@ -201,7 +197,7 @@ const ConnectLedger: FC = () => {
                   </span>
                 </span>
 
-                <span className={classNames('mt-1', 'text-xs font-light text-gray-600')} style={{ maxWidth: '90%' }}>
+                <span className="mt-1 text-xs font-light text-gray-600 max-w-9/10">
                   <T id="defaultDerivationPathLabel" substitutions={[<b>44'/1729'/0'/0'</b>]} />
                   <br />
                   <T id="clickOnCustomDerivationPath" />
@@ -242,17 +238,13 @@ const ConnectLedger: FC = () => {
               />
             )}
 
-            <T id="addLedgerAccount">
-              {message => (
-                <FormSubmitButton
-                  loading={submitting}
-                  className="mt-8"
-                  testID={ConnectLedgerSelectors.addLedgerAccountButton}
-                >
-                  {message}
-                </FormSubmitButton>
-              )}
-            </T>
+            <FormSubmitButton
+              loading={submitting}
+              className="mt-8"
+              testID={ConnectLedgerSelectors.addLedgerAccountButton}
+            >
+              <T id="addLedgerAccount" />
+            </FormSubmitButton>
           </form>
         </div>
 
@@ -280,10 +272,8 @@ const TypeSelect = <T extends string | number>(props: TypeSelectProps<T>) => {
   return (
     <div
       className={classNames(
-        'rounded-md overflow-hidden',
-        'border-2 bg-gray-100',
-        'flex flex-col',
-        'text-gray-700 text-sm leading-tight'
+        'flex flex-col rounded-md overflow-hidden',
+        'text-gray-700 text-sm leading-tight border-2 bg-gray-100'
       )}
     >
       {options.map((option, index) => (
@@ -315,15 +305,11 @@ const TypeSelectItem = <T extends string | number>(props: TypeSelectItemProps<T>
     <button
       type="button"
       className={classNames(
-        'block w-full',
-        'overflow-hidden',
-        !last && 'border-b border-gray-200',
-        selected ? 'bg-gray-300' : 'hover:bg-gray-200 focus:bg-gray-200',
-        'flex items-center',
-        'text-gray-700',
+        'flex items-center block w-full overflow-hidden',
+        'text-gray-700 opacity-90 hover:opacity-100 focus:outline-none',
         'transition ease-in-out duration-200',
-        'focus:outline-none',
-        'opacity-90 hover:opacity-100'
+        !last && 'border-b border-gray-200',
+        selected ? 'bg-gray-300' : 'hover:bg-gray-200 focus:bg-gray-200'
       )}
       style={{
         padding: '0.4rem 0.375rem 0.4rem 0.375rem'
@@ -334,7 +320,7 @@ const TypeSelectItem = <T extends string | number>(props: TypeSelectItemProps<T>
       <div className="flex-1" />
       {selected && (
         <OkIcon
-          className={classNames('mx-2 h-4 w-auto stroke-2')}
+          className="mx-2 h-4 w-auto stroke-2"
           style={{
             stroke: '#777'
           }}

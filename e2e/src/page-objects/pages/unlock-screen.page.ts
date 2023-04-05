@@ -1,4 +1,5 @@
-import { UnlockSelectors } from '../../../../src/app/pages/Unlock/Unlock.selectors';
+import { UnlockSelectors } from 'src/app/pages/Unlock/Unlock.selectors';
+
 import { Page } from '../../classes/page.class';
 import { createPageElement } from '../../utils/search.utils';
 

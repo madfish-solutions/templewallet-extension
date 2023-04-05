@@ -1,8 +1,5 @@
 import React, { ComponentProps, FC, Suspense } from 'react';
 
-import { Provider } from 'react-redux';
-import { PersistGate } from 'redux-persist/integration/react';
-
 import 'lib/lock-up/run-checks';
 import 'lib/ledger/proxy/foreground';
 
@@ -20,7 +17,7 @@ import { TempleProvider } from 'lib/temple/front';
 import { DialogsProvider } from 'lib/ui/dialog';
 import * as Woozie from 'lib/woozie';
 
-import { persistor, store } from './store';
+import { StoreProvider } from './store/provider';
 
 interface Props extends React.PropsWithChildren {
   env: ComponentProps<typeof AppEnvProvider>;
@@ -48,12 +45,10 @@ export const App: FC<Props> = ({ env }) => (
 
 const AppProvider: FC<Props> = ({ children, env }) => (
   <AppEnvProvider {...env}>
-    <Provider store={store}>
-      <PersistGate persistor={persistor} loading={null}>
-        <Woozie.Provider>
-          <TempleProvider>{children}</TempleProvider>
-        </Woozie.Provider>
-      </PersistGate>
-    </Provider>
+    <StoreProvider>
+      <Woozie.Provider>
+        <TempleProvider>{children}</TempleProvider>
+      </Woozie.Provider>
+    </StoreProvider>
   </AppEnvProvider>
 );
