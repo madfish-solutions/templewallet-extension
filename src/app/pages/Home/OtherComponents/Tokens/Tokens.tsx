@@ -55,7 +55,11 @@ export const Tokens: FC = () => {
       />
     ));
 
-    tokensJsx.splice(1, 0, <PartnersPromotion key="promo-token-item" variant={PartnersPromotionVariant.Text} />);
+    if (filteredAssets.length < 5) {
+      tokensJsx.push(<PartnersPromotion key="promo-token-item" variant={PartnersPromotionVariant.Text} />);
+    } else {
+      tokensJsx.splice(1, 0, <PartnersPromotion key="promo-token-item" variant={PartnersPromotionVariant.Text} />);
+    }
 
     return tokensJsx;
   }, [filteredAssets, activeAssetSlug, balances]);

@@ -36,7 +36,6 @@ export const ActivityComponent: React.FC<Props> = ({ assetSlug }) => {
   if (activities.length === 0 && !loading && reachedTheEnd) {
     return (
       <div className={classNames('mt-4 mb-12', 'flex flex-col items-center justify-center', 'text-gray-500')}>
-        <PartnersPromotion variant={PartnersPromotionVariant.Image} />
         <LayersIcon className="w-16 h-auto mb-2 stroke-current" />
 
         <h3 className="text-sm font-light text-center" style={{ maxWidth: '20rem' }}>

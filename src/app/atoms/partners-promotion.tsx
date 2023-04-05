@@ -67,10 +67,10 @@ export const PartnersPromotion: FC<Props> = memo(({ variant }) => {
           <img className="h-10 w-10 rounded-circle" src={promo.image} alt="Partners promotion" />
           <div className="flex flex-col gap-1">
             <div className="flex gap-1">
-              <span className="color-gray-910 font-medium">{promo.copy.headline}</span>
+              <span className="text-gray-910 font-medium">{promo.copy.headline}</span>
               <div className="flex items-center px-1 rounded bg-blue-500 text-xs font-medium text-white">AD</div>
             </div>
-            <span className="text-gray-910">{promo.copy.content}</span>
+            <span className="text-xs text-gray-600">{promo.copy.content}</span>
           </div>
         </a>
         <button

@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import React, { ChangeEvent, FC } from 'react';
 
 import { useDispatch } from 'react-redux';
 
@@ -6,15 +6,35 @@ import { FormCheckbox } from 'app/atoms';
 import { togglePartnersPromotionAction } from 'app/store/partners-promotion/actions';
 import { useShouldShowPartnersPromoSelector } from 'app/store/partners-promotion/selectors';
 import { T, t } from 'lib/i18n';
+import { useConfirm } from 'lib/ui/dialog';
 
 import { SettingsGeneralSelectors } from '../SettingsGeneral.selectors';
 
 export const PartnersPromotionSettings: FC = () => {
   const dispatch = useDispatch();
+  const confirm = useConfirm();
 
   const shouldShowPartnersPromo = useShouldShowPartnersPromoSelector();
 
-  const togglePartnersPromotion = () => dispatch(togglePartnersPromotionAction(!shouldShowPartnersPromo));
+  const handleHidePromotion = async () => {
+    const confirmed = await confirm({
+      title: t('closePartnersPromotion'),
+      children: t('closePartnersPromoConfirm'),
+      comfirmButtonText: t('disable')
+    });
+
+    if (confirmed) {
+      dispatch(togglePartnersPromotionAction(false));
+    }
+  };
+
+  const handleShowPromotion = () => dispatch(togglePartnersPromotionAction(true));
+
+  const togglePartnersPromotion = (event: ChangeEvent<HTMLInputElement>) => {
+    event.preventDefault();
+
+    return shouldShowPartnersPromo ? handleHidePromotion() : handleShowPromotion();
+  };
 
   return (
     <>
@@ -37,6 +57,7 @@ export const PartnersPromotionSettings: FC = () => {
       </label>
 
       <FormCheckbox
+        value={String(shouldShowPartnersPromo)}
         checked={shouldShowPartnersPromo}
         onChange={togglePartnersPromotion}
         name="shouldShowPartnersPromo"
