@@ -24,6 +24,7 @@ import { ROUTING_FEE_PERCENT } from 'lib/swap-router/config';
 import { useAccount, useAssetMetadata, useTezos } from 'lib/temple/front';
 import { tokensToAtoms } from 'lib/temple/helpers';
 import useTippy from 'lib/ui/useTippy';
+import { isDefined } from 'lib/utils/is-defined';
 import { parseTransferParamsToParamsWithKind } from 'lib/utils/parse-transfer-params';
 import { HistoryAction, navigate } from 'lib/woozie';
 
@@ -92,7 +93,7 @@ export const SwapForm: FC = () => {
   }, [slippageRatio, outputValue.amount, swapParams.data.output]);
 
   useEffect(() => {
-    if (fromRoute3Token !== undefined && toRoute3Token !== undefined && inputValue.amount !== undefined) {
+    if (isDefined(fromRoute3Token) && isDefined(toRoute3Token) && isDefined(inputValue.amount)) {
       dispatch(
         loadSwapParamsAction.submit({
           fromSymbol: fromRoute3Token.symbol,
@@ -123,7 +124,7 @@ export const SwapForm: FC = () => {
   useEffect(() => {
     setValue('output', {
       assetSlug: outputValue.assetSlug,
-      amount: swapParams.data.output !== undefined ? new BigNumber(swapParams.data.output) : undefined
+      amount: isDefined(swapParams.data.output) ? new BigNumber(swapParams.data.output) : undefined
     });
 
     if (isSubmitButtonPressedRef.current) {

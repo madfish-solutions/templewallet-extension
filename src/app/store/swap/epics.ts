@@ -1,6 +1,5 @@
 import { combineEpics, Epic } from 'redux-observable';
-import { from, map, Observable, of, switchMap } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { catchError, from, map, Observable, of, switchMap } from 'rxjs';
 import { Action } from 'ts-action';
 import { ofType, toPayload } from 'ts-action-operators';
 
@@ -11,18 +10,16 @@ import {
   Route3SwapParamsRequestRaw
 } from 'lib/apis/route3/fetch-route3-swap-params';
 import { fetchgetRoute3Tokens } from 'lib/apis/route3/fetch-route3-tokens';
+import { isDefined } from 'lib/utils/is-defined';
 
 import { loadSwapDexesAction, loadSwapParamsAction, loadSwapTokensAction, resetSwapParamsAction } from './actions';
 
 const isAmountDefined = (
   requestParams: Route3SwapParamsRequest | Route3SwapParamsRequestRaw
-): requestParams is Route3SwapParamsRequest => {
-  if (requestParams.amount !== undefined && requestParams.fromSymbol.length > 0 && requestParams.toSymbol.length > 0) {
-    return true;
-  }
-
-  return false;
-};
+): requestParams is Route3SwapParamsRequest =>
+  isDefined(requestParams.amount) !== undefined &&
+  requestParams.fromSymbol.length > 0 &&
+  requestParams.toSymbol.length > 0;
 
 const loadSwapParamsEpic = (action$: Observable<Action>) =>
   action$.pipe(
