@@ -35,10 +35,7 @@ const SendForm: FC<SendFormProps> = ({ assetSlug = 'tez' }) => {
   const assetsSortPredicate = useAssetsSortPredicate();
 
   const assets = useMemo<IAsset[]>(
-    () =>
-      ['tez' as const, ...tokens, ...collectibles].sort((a, b) =>
-        assetsSortPredicate(typeof a === 'string' ? a : a.tokenSlug, typeof b === 'string' ? b : b.tokenSlug)
-      ),
+    () => ['tez' as const, ...tokens, ...collectibles].sort((a, b) => assetsSortPredicate(getSlug(a), getSlug(b))),
     [tokens, collectibles, assetsSortPredicate]
   );
   const selectedAsset = useMemo(() => assets.find(a => getSlug(a) === assetSlug) ?? 'tez', [assets, assetSlug]);
