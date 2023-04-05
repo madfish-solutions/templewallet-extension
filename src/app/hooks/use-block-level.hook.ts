@@ -13,7 +13,7 @@ export const useBlockLevel = () => {
     subscription.on('data', block => setBlockLevel(block.header.level));
 
     return () => subscription.close();
-  }, []);
+  }, [tezos]);
 
   return blockLevel;
 };
