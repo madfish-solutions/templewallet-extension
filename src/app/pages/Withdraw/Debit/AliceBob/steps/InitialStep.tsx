@@ -10,8 +10,8 @@ import { useOutputEstimation } from 'app/hooks/AliceBob/useOutputEstimation';
 import { ReactComponent as AlertIcon } from 'app/icons/alert.svg';
 import styles from 'app/pages/Buy/Crypto/Exolix/Exolix.module.css';
 import { WithdrawSelectors } from 'app/pages/Withdraw/Withdraw.selectors';
+import { useUserIdSelector } from 'app/store/settings/selectors';
 import { TopUpInput } from 'app/templates/TopUpInput';
-import { useAnalyticsState } from 'lib/analytics/use-analytics-state.hook';
 import { createAliceBobOrder } from 'lib/apis/temple';
 import { t, T } from 'lib/i18n/react';
 import { FIAT_ICONS_SRC } from 'lib/icons';
@@ -23,7 +23,7 @@ import { StepProps } from './step.props';
 const NOT_UKRAINIAN_CARD_ERROR_MESSAGE = 'Ukrainian bank card is required.';
 
 export const InitialStep: FC<Omit<StepProps, 'orderInfo'>> = ({ isApiError, setOrderInfo, setStep, setIsApiError }) => {
-  const { analyticsState } = useAnalyticsState();
+  const userId = useUserIdSelector();
 
   const [orderIsProcessing, setOrderIsProcessing] = useState(false);
   const [isFormSubmitted, setIsFormSubmitted] = useState(false);
@@ -70,7 +70,7 @@ export const InitialStep: FC<Omit<StepProps, 'orderInfo'>> = ({ isApiError, setO
 
     setOrderIsProcessing(true);
 
-    createAliceBobOrder(true, inputAmount?.toString() ?? '0', analyticsState.userId, undefined, cardNumberInput.value)
+    createAliceBobOrder(true, inputAmount?.toString() ?? '0', userId, undefined, cardNumberInput.value)
       .then(response => {
         setOrderInfo(response.data.orderInfo);
         setStep(1);

@@ -28,18 +28,16 @@ const AccountBanner = memo<AccountBannerProps>(
     return (
       <div className={classNames('flex flex-col', className)}>
         {(labelWithFallback || labelDescription) && (
-          <h2 className={classNames(labelIndent === 'md' ? 'mb-4' : 'mb-2', 'leading-tight', 'flex flex-col')}>
+          <h2 className={classNames(labelIndent === 'md' ? 'mb-4' : 'mb-2', 'leading-tight flex flex-col')}>
             {labelWithFallback && <span className="text-base font-semibold text-gray-700">{labelWithFallback}</span>}
 
             {labelDescription && (
-              <span className={classNames('mt-1', 'text-xs font-light text-gray-600')} style={{ maxWidth: '90%' }}>
-                {labelDescription}
-              </span>
+              <span className="mt-1 text-xs font-light text-gray-600 max-w-9/10">{labelDescription}</span>
             )}
           </h2>
         )}
 
-        <div className={classNames('w-full', 'border rounded-md', 'p-2', 'flex items-center')}>
+        <div className="w-full border rounded-md p-2 flex items-center">
           <Identicon type="bottts" hash={account.publicKeyHash} size={32} className="flex-shrink-0 shadow-xs" />
 
           <div className="flex flex-col items-start ml-2">
@@ -50,7 +48,7 @@ const AccountBanner = memo<AccountBannerProps>(
             </div>
 
             <div className="flex flex-wrap items-center mt-1">
-              <div className={classNames('text-xs leading-none', 'text-gray-700')}>
+              <div className="text-xs leading-none text-gray-700">
                 {(() => {
                   const val = account.publicKeyHash;
                   const ln = val.length;
@@ -67,7 +65,7 @@ const AccountBanner = memo<AccountBannerProps>(
               {displayBalance && (
                 <Balance address={account.publicKeyHash} networkRpc={networkRpc}>
                   {bal => (
-                    <div className={classNames('ml-2', 'text-xs leading-none flex items-baseline', 'text-gray-600')}>
+                    <div className="ml-2 text-xs leading-none flex items-baseline text-gray-600">
                       <Money>{bal}</Money>
                       <span className="ml-1" style={{ fontSize: '0.75em' }}>
                         {metadata.symbol}

@@ -1,4 +1,5 @@
-import { ImportAccountSelectors } from '../../../../../src/app/pages/ImportAccount/ImportAccount.selectors';
+import { ImportAccountSelectors } from 'src/app/pages/ImportAccount/ImportAccount.selectors';
+
 import { Page } from '../../../classes/page.class';
 import { createPageElement } from '../../../utils/search.utils';
 
