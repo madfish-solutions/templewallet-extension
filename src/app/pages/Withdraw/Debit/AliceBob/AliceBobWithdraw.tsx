@@ -1,6 +1,7 @@
 import React, { FC, useState } from 'react';
 
 import { Stepper } from 'app/atoms';
+import { Anchor } from 'app/atoms/Anchor';
 import { ReactComponent as AttentionRedIcon } from 'app/icons/attentionRed.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import styles from 'app/pages/Buy/Crypto/Exolix/Exolix.module.css';
@@ -9,10 +10,8 @@ import {
   ALICE_BOB_PRIVACY_LINK,
   ALICE_BOB_TERMS_LINK
 } from 'app/pages/Buy/Debit/AliceBob/config';
-import { useAnalytics } from 'lib/analytics';
 import { AliceBobOrderInfo, AliceBobOrderStatus } from 'lib/apis/temple';
 import { t, T } from 'lib/i18n/react';
-import { AnalyticsEventCategory } from 'lib/temple/analytics-types';
 import { useAccount, useNetwork, useStorage } from 'lib/temple/front';
 import { TempleAccountType } from 'lib/temple/types';
 import { Redirect } from 'lib/woozie';
@@ -26,7 +25,6 @@ export const AliceBobWithdraw: FC = () => {
   const network = useNetwork();
   const account = useAccount();
   const { publicKeyHash } = account;
-  const { trackEvent } = useAnalytics();
 
   const [step, setStep] = useStorage<number>(`alice_bob_withdraw_step_state_${publicKeyHash}`, 0);
   const [isApiError, setIsApiError] = useState(false);
@@ -95,15 +93,14 @@ export const AliceBobWithdraw: FC = () => {
               setIsApiError={setIsApiError}
             />
 
-            <a
+            <Anchor
               href={ALICE_BOB_CONTACT_LINK}
-              target="_blank"
               rel="noreferrer"
               className="text-blue-500 text-sm mt-6 cursor-pointer inline-block w-auto"
-              onClick={() => trackEvent(WithdrawSelectors.aliceBobSupportButton, AnalyticsEventCategory.ButtonPress)}
+              testID={WithdrawSelectors.aliceBobSupportButton}
             >
               <T id={'support'} />
-            </a>
+            </Anchor>
           </>
         )}
 

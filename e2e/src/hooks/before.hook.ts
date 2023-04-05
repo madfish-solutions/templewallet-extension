@@ -2,7 +2,7 @@ import { Before } from '@cucumber/cucumber';
 import retry from 'async-retry';
 
 import { BrowserContext } from '../classes/browser-context.class';
-import { MEDIUM_TIMEOUT, RETRY_OPTIONS } from '../utils/timing.utils';
+import { RETRY_OPTIONS, MEDIUM_TIMEOUT } from '../utils/timing.utils';
 
 Before({ timeout: MEDIUM_TIMEOUT }, async () => {
   await BrowserContext.page.close().catch(() => void 0);

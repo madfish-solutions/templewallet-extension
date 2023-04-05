@@ -10,6 +10,7 @@ import Name from 'app/atoms/Name';
 import OpenInExplorerChip from 'app/atoms/OpenInExplorerChip';
 import { useAppEnv } from 'app/env';
 import { ReactComponent as ChevronRightIcon } from 'app/icons/chevron-right.svg';
+import { BakingSectionSelectors } from 'app/pages/Home/OtherComponents/BakingSection.selectors';
 import { toLocalFormat, T } from 'lib/i18n';
 import { useRelevantAccounts, useAccount, useNetwork, useKnownBaker, useExplorerBaseUrls } from 'lib/temple/front';
 import { TempleAccount } from 'lib/temple/types';
@@ -66,7 +67,12 @@ const BakerBanner = memo<BakerBannerProps>(
                     'leading-none'
                   )}
                 >
-                  <Name style={{ fontSize: '17px', lineHeight: '20px' }}>{baker.name}</Name>
+                  <Name
+                    style={{ fontSize: '17px', lineHeight: '20px' }}
+                    testID={BakingSectionSelectors.delegatedBakerName}
+                  >
+                    {baker.name}
+                  </Name>
                   {promoted && <ABContainer groupAComponent={<SponsoredBaker />} groupBComponent={<PromotedBaker />} />}
                   {displayAddress && (
                     <div className="ml-2 flex flex-wrap items-center">

@@ -6,7 +6,7 @@ import { T, t } from 'lib/i18n';
 import { searchAndFilterItems } from 'lib/utils/search-items';
 
 import IconifiedSelect, { IconifiedSelectOptionRenderProps } from '../../IconifiedSelect';
-import { SettingsGeneralSelectors } from '../SettingsGeneral.selectors';
+import { SettingsGeneralSelectors } from '../selectors';
 
 type FiatCurrencySelectProps = {
   className?: string;

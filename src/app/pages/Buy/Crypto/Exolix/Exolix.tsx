@@ -1,11 +1,10 @@
-import React, { FC, useCallback, useState } from 'react';
+import React, { FC, useState } from 'react';
 
-import { Stepper } from 'app/atoms';
+import { Anchor, Stepper } from 'app/atoms';
 import PageLayout from 'app/layouts/PageLayout';
 import ApproveStep from 'app/pages/Buy/Crypto/Exolix/steps/ApproveStep';
 import ExchangeStep from 'app/pages/Buy/Crypto/Exolix/steps/ExchangeStep';
 import InitialStep from 'app/pages/Buy/Crypto/Exolix/steps/InitialStep';
-import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
 import { T, t } from 'lib/i18n';
 import { useAccount, useNetwork, useStorage } from 'lib/temple/front';
 import { Redirect } from 'lib/woozie';
@@ -29,7 +28,6 @@ const Exolix: FC = () => (
 export default Exolix;
 
 const BuyCryptoContent: FC = () => {
-  const { trackEvent } = useAnalytics();
   const network = useNetwork();
   const { publicKeyHash } = useAccount();
   const [step, setStep] = useStorage<number>(`topup_step_state_${publicKeyHash}`, 0);
@@ -39,21 +37,10 @@ const BuyCryptoContent: FC = () => {
     null
   );
 
-  const handleTrackSupportSubmit = useCallback(() => {
-    let event: ExolixSelectors;
-    switch (step) {
-      case 2:
-        event = ExolixSelectors.topupSecondStepSupportButton;
-        break;
-      case 3:
-        event = ExolixSelectors.topupThirdStepSupportButton;
-        break;
-      default:
-        event = ExolixSelectors.topupFourthStepSubmitButton;
-        break;
-    }
-    return trackEvent(event, AnalyticsEventCategory.ButtonPress);
-  }, [step, trackEvent]);
+  const CONTACT_LINK_TEST_IDS: Record<number, ExolixSelectors> = {
+    2: ExolixSelectors.topupSecondStepSupportButton,
+    3: ExolixSelectors.topupThirdStepSupportButton
+  };
 
   if (network.type !== 'main') {
     return <Redirect to={'/'} />;
@@ -93,15 +80,15 @@ const BuyCryptoContent: FC = () => {
         />
       )}
       {step >= 1 && (
-        <a
+        <Anchor
           href={EXOLIX_CONTACT_LINK}
-          target="_blank"
           rel="noreferrer"
           className="text-blue-500 text-sm mb-8 cursor-pointer inline-block w-auto"
-          onClick={handleTrackSupportSubmit}
+          testID={CONTACT_LINK_TEST_IDS[step] || ExolixSelectors.topupFourthStepSubmitButton}
+          treatAsButton={true}
         >
           <T id={'support'} />
-        </a>
+        </Anchor>
       )}
       <p className={'mt-6 text-gray-600'}>
         <T id={'warningTopUpServiceMessage'} />

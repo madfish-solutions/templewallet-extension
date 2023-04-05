@@ -5,7 +5,7 @@ Feature: Import Account by Private Key
     And I press Account Icon on the Header page
     And I am on the AccountsDropdown page
 
-    And I press Import Account Button on the Accounts Drop-down page
+    And I press Import Account Button on the Account Drop-down page
     And I am on the ImportAccountTab page
 
     And I select Private Key tab

@@ -29,12 +29,14 @@ export const ChangelogOverlay: FC = () => {
   if (!isNewerVersion) {
     return null;
   }
+
   const filteredChangelog = filterByVersion(lastShownVersion, changelogData);
 
   return ready && lastShownVersion !== currentVersion ? (
     <>
       <div className={'fixed left-0 right-0 top-0 bottom-0 opacity-20 bg-gray-700 z-50'}></div>
-      <ContentContainer className={classNames('fixed z-50', 'max-h-full', popupClassName)} padding={!popup}>
+
+      <ContentContainer className={classNames('fixed z-50 max-h-full', popupClassName)} padding={!popup}>
         <div
           className={classNames(
             'bg-white shadow-lg relative',
@@ -52,11 +54,13 @@ export const ChangelogOverlay: FC = () => {
             <p className="text-xl font-inter font-semibold" style={{ fontSize: 23, color: '#ED8936' }}>
               <T id="changelogTitle" />
             </p>
+
             {filteredChangelog.map(({ version, data }) => (
               <React.Fragment key={version}>
                 <p className="mb-5 mt-8 font-inter" style={{ fontSize: 16 }}>
                   <T id="update" /> {version}
                 </p>
+
                 <ul>
                   {data?.map((value, index) => (
                     <li className="mb-1" style={{ listStyleType: 'disc' }} key={index}>
@@ -66,6 +70,7 @@ export const ChangelogOverlay: FC = () => {
                 </ul>
               </React.Fragment>
             ))}
+
             <div
               className={classNames(s.overlay_ok_container)}
               style={{
@@ -77,9 +82,7 @@ export const ChangelogOverlay: FC = () => {
             >
               <Button
                 className={classNames(
-                  'py-2',
-                  'text-white font-inter rounded font-semibold uppercase',
-                  'mx-auto',
+                  'mx-auto py-2 text-white font-inter rounded font-semibold uppercase',
                   s.overlay_ok_button
                 )}
                 onClick={handleContinue}

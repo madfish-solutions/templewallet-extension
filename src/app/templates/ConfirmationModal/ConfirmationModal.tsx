@@ -6,10 +6,10 @@ import { t } from 'lib/i18n';
 
 import { ConfirmatonModalSelectors } from './ConfirmatonModal.selectors';
 
-export type ConfirmationModalProps = ModalWithTitleProps & {
+export interface ConfirmationModalProps extends ModalWithTitleProps {
   onConfirm: () => void;
   comfirmButtonText?: string;
-};
+}
 
 const ConfirmationModal: FC<ConfirmationModalProps> = props => {
   const { onRequestClose, children, onConfirm, comfirmButtonText = t('ok'), ...restProps } = props;
