@@ -2,11 +2,11 @@ import React, { FC, useCallback, useMemo, useState } from 'react';
 
 import classNames from 'clsx';
 
+import { Anchor } from 'app/atoms/Anchor';
 import { openInFullPage, useAppEnv } from 'app/env';
 import { DAppIcon } from 'app/templates/DAppsList/DAppIcon';
 import DAppItem from 'app/templates/DAppsList/DAppItem';
 import SearchField from 'app/templates/SearchField';
-import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
 import { DappEnum, getDApps } from 'lib/apis/temple';
 import { TID, t } from 'lib/i18n';
 import { useRetryableSWR } from 'lib/swr';
@@ -17,7 +17,6 @@ const USED_TAGS = Object.values(DappEnum).filter(x => typeof x !== 'number') as 
 const TOP_DAPPS_SLUGS = ['quipuswap', 'objkt.com', 'youves'];
 
 const DAppsList = () => {
-  const { trackEvent } = useAnalytics();
   const { popup } = useAppEnv();
   const { data } = useRetryableSWR('dapps-list', getDApps, { suspense: true });
 
@@ -64,13 +63,6 @@ const DAppsList = () => {
     );
   }, [dApps, searchString, selectedTags]);
 
-  const handleFeaturedClick = useCallback(
-    (website: string, name: string) => {
-      trackEvent(DAppStoreSelectors.DAppOpened, AnalyticsEventCategory.ButtonPress, { website, name, promoted: true });
-    },
-    [trackEvent]
-  );
-
   return (
     <div
       className={classNames(
@@ -85,13 +77,13 @@ const DAppsList = () => {
           className={classNames(popup ? 'py-2 mb-4' : 'py-6 mb-6', 'rounded-lg bg-gray-100 w-full flex justify-center')}
         >
           {featuredDApps.slice(0, 3).map(({ slug, name, logo, dappUrl }) => (
-            <a
+            <Anchor
               className="mx-4 py-1 flex flex-col items-center"
               key={slug}
               href={dappUrl}
-              target="_blank"
               rel="noreferrer"
-              onClick={() => handleFeaturedClick(dappUrl, name)}
+              testID={DAppStoreSelectors.DAppOpened}
+              testIDProperties={{ website: dappUrl, name, promoted: true }}
             >
               <DAppIcon className="mb-2" name={name} logo={logo} />
               <span
@@ -103,7 +95,7 @@ const DAppsList = () => {
               >
                 {name}
               </span>
-            </a>
+            </Anchor>
           ))}
         </div>
         <SearchField

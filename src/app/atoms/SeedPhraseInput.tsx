@@ -3,16 +3,16 @@ import React, { FC, useCallback, useMemo, useState } from 'react';
 import { validateMnemonic } from 'bip39';
 import classNames from 'clsx';
 
-import { TestIDProps } from 'lib/analytics';
+import { formatMnemonic } from 'app/defaults';
+import { useAppEnv } from 'app/env';
+import { TestIDProperty } from 'lib/analytics';
 import { T, t } from 'lib/i18n';
 import { clearClipboard } from 'lib/ui/util';
 
-import { formatMnemonic } from '../defaults';
-import { useAppEnv } from '../env';
 import { SeedLengthSelect } from './SeedLengthSelect';
 import { SeedWordInput } from './SeedWordInput';
 
-interface SeedPhraseInputProps extends TestIDProps {
+interface SeedPhraseInputProps extends TestIDProperty {
   isFirstAccount?: boolean;
   submitted: boolean;
   seedError: string;
@@ -21,7 +21,6 @@ interface SeedPhraseInputProps extends TestIDProps {
   onChange: (seed: string) => void;
   setSeedError: (e: string) => void;
   reset: () => void;
-  testID?: string;
 }
 
 const defaultNumberOfWords = 12;
@@ -121,19 +120,18 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
 
   return (
     <div>
-      <div className={classNames('flex justify-between', 'mb-6')}>
+      <div className="flex justify-between mb-6">
         <h1
           className={classNames(
-            'font-inter',
-            'flex self-center',
-            'text-gray-800',
+            'font-inter flex self-center text-gray-800',
             !isFirstAccount && 'font-semibold text-gray-500'
           )}
           style={{ fontSize: isFirstAccount ? 23 : 16 }}
         >
           {label}
         </h1>
-        <div className={classNames('relative w-64 h-10')} style={{ width: popup ? 220 : undefined }}>
+
+        <div className="relative w-64 h-10" style={{ width: popup ? 220 : undefined }}>
           <SeedLengthSelect
             options={numberOfWordsOptions}
             currentOption={draftSeed.length.toString()}
@@ -153,18 +151,19 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
           />
         </div>
       </div>
+
       {!isFirstAccount && <div className="text-xs font-medium text-red-600 text-center">{labelWarning}</div>}
+
       {!isFirstAccount && (
         <div className="text-xs font-medium text-red-600 text-center mb-6">
           <T id="seedPhraseAttention" />
         </div>
       )}
-      <div
-        className={classNames('w-full text-center', 'pb-2 mb-6', 'text-gray-700', 'border-b-2')}
-        style={{ borderBottomWidth: 1 }}
-      >
+
+      <div className="w-full text-center pb-2 mb-6 text-gray-700 border-b-2" style={{ borderBottomWidth: 1 }}>
         <p>{t('seedPhraseTip')}</p>
       </div>
+
       <div className={classNames('grid', isFirstAccount ? 'grid-cols-3 gap-4' : 'grid-cols-2 gap-2')}>
         {[...Array(numberOfWords).keys()].map(index => {
           const key = `import-seed-word-${index}`;
@@ -195,7 +194,9 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
           );
         })}
       </div>
+
       {submitted && seedError ? <div className="text-xs text-red-700 mt-4">{seedError}</div> : null}
+
       {pasteFailed ? (
         <div className="text-xs text-red-700 mt-4">
           <T id="seedPasteFailedTooManyWords" />

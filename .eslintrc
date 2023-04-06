@@ -9,7 +9,9 @@
   "parser": "@typescript-eslint/parser",
   "settings": {
     "import/resolver": {
-      "typescript": {},
+      "typescript": {
+        "project": ["tsconfig.json", "e2e/tsconfig.json"]
+      },
       "node": {
         "extensions": [".d.ts"]
       }

@@ -130,9 +130,9 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
             searchAssetSlug={searchAssetSlug}
             showTokenIdInput={showTokenIdInput}
             opened={opened}
+            testID={testIDs?.dropdown}
             setOpened={setOpened}
             onChange={handleSelectedAssetChange}
-            testIDs={testIDs}
           />
         )}
       >

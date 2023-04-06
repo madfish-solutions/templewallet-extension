@@ -1,16 +1,17 @@
-import React, { FC } from 'react';
+import React, { FC, useEffect } from 'react';
 
 import { List } from 'react-virtualized';
 
 import DropdownWrapper from 'app/atoms/DropdownWrapper';
 import Spinner from 'app/atoms/Spinner/Spinner';
 import { useAppEnvStyle } from 'app/hooks/use-app-env-style.hook';
+import { AnalyticsEventCategory, TestIDProperty, useAnalytics } from 'lib/analytics';
 import { T } from 'lib/i18n';
 
 import { CurrencyBase } from '../types';
 import { CurrencyOption } from './CurrencyOption';
 
-interface Props {
+interface Props extends TestIDProperty {
   value: CurrencyBase;
   options: CurrencyBase[];
   isLoading?: boolean;
@@ -26,10 +27,17 @@ export const CurrenciesMenu: FC<Props> = ({
   isLoading = false,
   opened,
   fitIcons,
+  testID,
   setOpened,
   onChange
 }) => {
   const { dropdownWidth } = useAppEnvStyle();
+
+  const { trackEvent } = useAnalytics();
+
+  useEffect(() => {
+    if (testID && opened) trackEvent(testID, AnalyticsEventCategory.DropdownOpened);
+  }, [opened, trackEvent]);
 
   const handleOptionClick = onChange
     ? (newValue: CurrencyBase) => {

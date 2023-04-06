@@ -28,7 +28,7 @@ const AssetInfo: FC<AssetInfoProps> = ({ assetSlug }) => {
 
   return (
     <div className={classNames(popup && 'mx-4')}>
-      <div className={classNames('w-full max-w-sm mx-auto')}>
+      <div className="w-full max-w-sm mx-auto">
         <InfoField
           textarea
           rows={2}
@@ -86,7 +86,7 @@ const InfoField: FC<InfoFieldProps> = props => {
           <T id="copiedAddress" />
         ) : (
           <>
-            <CopyIcon className={classNames('mr-1', 'h-4 w-auto', 'stroke-current stroke-2')} />
+            <CopyIcon className="mr-1 h-4 w-auto stroke-current stroke-2" />
             <T id="copyAddressToClipboard" />
           </>
         )}

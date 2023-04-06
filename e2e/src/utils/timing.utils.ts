@@ -6,5 +6,5 @@ export const SHORT_TIMEOUT = 15_000;
 
 export const RETRY_OPTIONS = {
   minTimeout: 300,
-  maxRetryTime: 5_000
+  maxRetryTime: 15_000
 };

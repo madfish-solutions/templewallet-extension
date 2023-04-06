@@ -1,19 +1,17 @@
-import React, { ButtonHTMLAttributes, FC } from 'react';
+import React, { FC } from 'react';
 
 import classNames from 'clsx';
 
 import Spinner from 'app/atoms/Spinner/Spinner';
-import { TestIDProps } from 'lib/analytics';
 import { T } from 'lib/i18n';
 
-import { Button } from './Button';
+import { ButtonProps, Button } from './Button';
 
-type FormSubmitButtonProps = ButtonHTMLAttributes<HTMLButtonElement> &
-  TestIDProps & {
-    loading?: boolean;
-    searchingRoute?: boolean;
-    small?: boolean;
-  };
+interface FormSubmitButtonProps extends ButtonProps {
+  searchingRoute?: boolean;
+  loading?: boolean;
+  small?: boolean;
+}
 
 export const FormSubmitButton: FC<FormSubmitButtonProps> = ({
   loading,

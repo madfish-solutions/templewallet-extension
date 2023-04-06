@@ -2,32 +2,32 @@ import { useEffect, useMemo } from 'react';
 
 import constate from 'constate';
 
-import { useAnalyticsState } from 'lib/analytics/use-analytics-state.hook';
+import { useAnalyticsEnabledSelector } from 'app/store/settings/selectors';
 import { ABTestGroup, getABGroup } from 'lib/apis/temple';
 
 import { usePassiveStorage } from './storage';
 
 export function useAB() {
   const abGroup = useABGroup();
-  const { analyticsState } = useAnalyticsState();
+  const analyticsEnabled = useAnalyticsEnabledSelector();
 
   return useMemo(() => {
-    if (analyticsState.enabled) {
+    if (analyticsEnabled) {
       return abGroup;
     }
     return ABTestGroup.Unknown;
-  }, [analyticsState, abGroup]);
+  }, [analyticsEnabled, abGroup]);
 }
 
 const [ABTestGroupProvider, useABGroup] = constate(() => {
   const [localABGroup, setLocalABGroup] = usePassiveStorage<ABTestGroup>('ab-test-value', ABTestGroup.Unknown);
-  const { analyticsState } = useAnalyticsState();
+  const analyticsEnabled = useAnalyticsEnabledSelector();
 
   useEffect(() => {
-    if (analyticsState.enabled && localABGroup === ABTestGroup.Unknown) {
+    if (analyticsEnabled && localABGroup === ABTestGroup.Unknown) {
       getABGroup().then(group => setLocalABGroup(group));
     }
-  }, [setLocalABGroup, localABGroup, analyticsState.enabled]);
+  }, [setLocalABGroup, localABGroup, analyticsEnabled]);
 
   return localABGroup;
 });

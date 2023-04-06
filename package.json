@@ -31,7 +31,7 @@
     "@dicebear/avatars": "4.2.5",
     "@dicebear/avatars-bottts-sprites": "4.2.5",
     "@dicebear/avatars-jdenticon-sprites": "4.2.5",
-    "@jitsu/sdk-js": "^3.1.5",
+    "@jitsu/sdk-js": "madfish-solutions/jitsu-js#d45c7ba34c24f3e36ac35e49f8a13cc621683230",
     "@ledgerhq/errors": "^6",
     "@ledgerhq/hw-transport": "6.27.8",
     "@ledgerhq/hw-transport-http": "6.27.8",

@@ -1,5 +1,6 @@
-import { HomeSelectors } from '../../../../src/app/pages/Home/Home.selectors';
-import { AssetsSelectors } from '../../../../src/app/pages/Home/OtherComponents/Assets.selectors';
+import { HomeSelectors } from 'src/app/pages/Home/Home.selectors';
+import { AssetsSelectors } from 'src/app/pages/Home/OtherComponents/Assets.selectors';
+
 import { Page } from '../../classes/page.class';
 import { createPageElement } from '../../utils/search.utils';
 

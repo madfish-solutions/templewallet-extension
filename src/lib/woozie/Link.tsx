@@ -48,7 +48,7 @@ const LinkAnchor: FC<LinkAnchorProps> = ({
 
   const handleClick = useCallback(
     (evt: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
-      testID !== undefined && trackEvent(testID, AnalyticsEventCategory.ButtonPress, testIDProperties);
+      testID && trackEvent(testID, AnalyticsEventCategory.ButtonPress, testIDProperties);
 
       try {
         if (onClick) {
