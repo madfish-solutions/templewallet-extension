@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
 
-import { useUserTestingGroupNameSelector } from '../../app/store/ab-testing/selectors';
 import { useAnalytics } from './use-analytics.hook';
 
 const pageRoutesWithToken = ['/explore', '/send', '/collectible'];
@@ -8,7 +7,6 @@ const pageRoutesWithQueryParams = ['/swap'];
 
 export const usePageRouterAnalytics = (pathname: string, search: string, isContextReady: boolean) => {
   const { pageEvent } = useAnalytics();
-  const testGroupName = useUserTestingGroupNameSelector();
 
   useEffect(() => {
     if (pathname === '/' && !isContextReady) {
@@ -21,8 +19,7 @@ export const usePageRouterAnalytics = (pathname: string, search: string, isConte
 
       return void pageEvent(`/${route}`, search, {
         tokenAddress,
-        tokenId,
-        ...(tokenAddress === 'tez' && { apTestingCategory: testGroupName })
+        tokenId
       });
     }
 

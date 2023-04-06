@@ -6,15 +6,15 @@ import { ofType } from 'ts-action-operators';
 
 import { getABGroup$ } from 'lib/apis/temple';
 
-import { getUserTestingGroupName } from './actions';
+import { getUserTestingGroupNameActions } from './actions';
 
 const getUserTestingGroupNameEpic = (action$: Observable<Action>) =>
   action$.pipe(
-    ofType(getUserTestingGroupName.submit),
+    ofType(getUserTestingGroupNameActions.submit),
     switchMap(() =>
       getABGroup$().pipe(
-        map(testingGroupName => getUserTestingGroupName.success(testingGroupName)),
-        catchError(err => of(getUserTestingGroupName.fail(err.message)))
+        map(testingGroupName => getUserTestingGroupNameActions.success(testingGroupName)),
+        catchError(err => of(getUserTestingGroupNameActions.fail(err.message)))
       )
     )
   );

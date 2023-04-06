@@ -25,9 +25,9 @@ interface Props extends React.PropsWithChildren {
 
 export const App: FC<Props> = ({ env }) => (
   <ErrorBoundary whileMessage="booting a wallet" className="min-h-screen">
-    <Suspense fallback={<RootSuspenseFallback />}>
-      <AppProvider env={env}>
-        <DialogsProvider>
+    <DialogsProvider>
+      <Suspense fallback={<RootSuspenseFallback />}>
+        <AppProvider env={env}>
           <Dialogs />
 
           <DisableOutlinesForClick />
@@ -37,9 +37,9 @@ export const App: FC<Props> = ({ env }) => (
           <AwaitFonts name="Inter" weights={[300, 400, 500, 600]} className="antialiased font-inter">
             <BootAnimation>{env.confirmWindow ? <ConfirmPage /> : <PageRouter />}</BootAnimation>
           </AwaitFonts>
-        </DialogsProvider>
-      </AppProvider>
-    </Suspense>
+        </AppProvider>
+      </Suspense>
+    </DialogsProvider>
   </ErrorBoundary>
 );
 
