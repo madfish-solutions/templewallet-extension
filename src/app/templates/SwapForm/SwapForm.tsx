@@ -11,7 +11,7 @@ import { useBlockLevel } from 'app/hooks/use-block-level.hook';
 import { useRoute3 } from 'app/hooks/use-route3.hook';
 import { ReactComponent as InfoIcon } from 'app/icons/info.svg';
 import { ReactComponent as ToggleIcon } from 'app/icons/toggle.svg';
-import { loadSwapParamsAction } from 'app/store/swap/actions';
+import { loadSwapParamsAction, resetSwapParamsAction } from 'app/store/swap/actions';
 import { useSwapParamsSelector, useSwapTokenSelector, useSwapTokensSelector } from 'app/store/swap/selectors';
 import OperationStatus from 'app/templates/OperationStatus';
 import { setTestID, useFormAnalytics } from 'lib/analytics';
@@ -221,8 +221,10 @@ export const SwapForm: FC = () => {
   const handleErrorClose = () => setError(undefined);
   const handleOperationClose = () => setOperation(undefined);
 
-  const handleToggleIconClick = () =>
+  const handleToggleIconClick = () => {
     setValue([{ input: { assetSlug: outputValue.assetSlug } }, { output: { assetSlug: inputValue.assetSlug } }]);
+    dispatch(resetSwapParamsAction());
+  };
 
   const handleInputChange = (newInputValue: SwapInputValue) => {
     setValue('input', newInputValue);
