@@ -445,8 +445,7 @@ const BakerForm: React.FC<BakerFormProps> = ({
         disabled={Boolean(estimationError)}
         testID={DelegateFormSelectors.bakerDelegateButton}
         testIDProperties={{
-          message: bakerTestMessage,
-          abTestingCategory: testGroupName
+          message: bakerTestMessage
         }}
       >
         {t('delegate')}

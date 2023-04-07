@@ -21,14 +21,14 @@ export const useAnalytics = () => {
       isAnalyticsEnabled = analyticsEnabled
     ) =>
       isAnalyticsEnabled &&
-      sendTrackEvent(userId, rpc, event, category, { ...properties, ABTestingCategory: testGroupName }),
+      sendTrackEvent(userId, rpc, event, category, { ...properties, abTestingCategory: testGroupName }),
     [analyticsEnabled, userId, rpc]
   );
 
   const pageEvent = useCallback(
     (path: string, search: string, additionalProperties = {}) =>
       analyticsEnabled &&
-      sendPageEvent(userId, rpc, path, search, { ...additionalProperties, ABTestingCategory: testGroupName }),
+      sendPageEvent(userId, rpc, path, search, { ...additionalProperties, abTestingCategory: testGroupName }),
     [analyticsEnabled, userId, rpc]
   );
 
