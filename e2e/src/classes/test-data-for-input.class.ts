@@ -12,5 +12,7 @@ export const testDataForInput = {
   low_amount: '0.0001',
   medium_amount: '0.001',
   high_amount: '1',
-  KUSD: 'Kolibri'
+  KUSD: 'Kolibri',
+  uUSD: 'youves uUSD',
+  OBJKTCOM: 'Temple NFT'
 };

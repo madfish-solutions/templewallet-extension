@@ -14,6 +14,10 @@ Given(/I press (.*) on the (.*) page/, async (elementName: string, pageName: str
   await createPageElement(`${pageName}/${elementName}`).click();
 });
 
+Given(/I clear (.*) value on the (.*) page/, async (elementName: string, pageName: string) => {
+  await createPageElement(`${pageName}/${elementName}`).clearInput();
+});
+
 Given(
   /I enter (.*) into (.*) on the (.*) page/,
   { timeout: SHORT_TIMEOUT },

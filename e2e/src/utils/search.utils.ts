@@ -2,7 +2,7 @@ import { isDefined } from '@rnw-community/shared';
 import { ElementHandle } from 'puppeteer';
 
 import { BrowserContext } from '../classes/browser-context.class';
-import { MEDIUM_TIMEOUT } from './timing.utils';
+import { MEDIUM_TIMEOUT, sleep } from './timing.utils';
 
 const getSelector = (testID: string) => `[data-testid="${testID}"]`;
 
@@ -46,6 +46,12 @@ class PageElement {
   async type(text: string) {
     const element = await this.findElement();
     await element.type(text);
+  }
+  async clearInput() {
+    await BrowserContext.page.keyboard.down('Shift');
+    await BrowserContext.page.keyboard.press('Home');
+    await BrowserContext.page.keyboard.press('Backspace');
+    await sleep(500);
   }
   async getText() {
     const element = await this.findElement();

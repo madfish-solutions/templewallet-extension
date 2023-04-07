@@ -32,6 +32,6 @@ Given(/I'm waiting for 'success ✓' operation status/, { timeout: LONG_TIMEOUT 
   });
 });
 
-Given(/I select (.*) token in the token drop-down list/, async (tokenName: string) => {
+Given(/I select (.*) token in the token drop-down list on the Send page/, async (tokenName: string) => {
   await Pages.Send.selectToken(tokenName);
 });

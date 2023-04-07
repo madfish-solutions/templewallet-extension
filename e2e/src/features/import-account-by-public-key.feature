@@ -15,4 +15,4 @@ Feature: Import an account by public key (Watch-only)
     And I enter watchOnlyPublicKey into Watch Only Input on the Import Account(Watch-Only) page
     And I press Watch Only Import Button on the Import Account(Watch-Only) page
 
-    And I compare my Watch-only Public hash with imported account
+    Then I compare my Watch-only Public hash with imported account

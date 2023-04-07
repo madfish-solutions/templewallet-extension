@@ -24,6 +24,7 @@ export class SendPage extends Page {
 
       if (getTokenName === tokenName) {
         await tokenItem.click();
+        break;
       }
     }
   }
