@@ -22,7 +22,7 @@ import DAppSettings from 'app/templates/DAppSettings/DAppSettings';
 import HelpAndCommunity from 'app/templates/HelpAndCommunity';
 import RemoveAccount from 'app/templates/RemoveAccount/RemoveAccount';
 import RevealSecret from 'app/templates/RevealSecrets/RevealSecret';
-import GeneralSettings from 'app/templates/SettingsGeneral/GeneralSettings';
+import GeneralSettings from 'app/templates/SettingsGeneral';
 import SyncSettings from 'app/templates/Synchronization/SyncSettings';
 import { TID, T } from 'lib/i18n';
 import { Link } from 'lib/woozie';

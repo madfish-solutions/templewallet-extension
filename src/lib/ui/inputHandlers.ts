@@ -1,44 +1,47 @@
-export const focusHandler = (
-  evt: any,
-  onFocus: React.FocusEventHandler<HTMLInputElement>,
-  setFocus: (value: boolean) => void
-): void => {
-  if (onFocus) {
-    onFocus(evt);
-    if (evt.defaultPrevented) {
-      return;
-    }
-  }
+import type {
+  SyntheticEvent,
+  ChangeEvent,
+  ChangeEventHandler,
+  EventHandler,
+  FocusEvent,
+  FocusEventHandler
+} from 'react';
 
-  setFocus(true);
-};
+export const inputChangeHandler = (
+  evt: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  onChange: ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement> | undefined,
+  setValue: (value: string) => void
+) => baseHandler(evt, onChange, () => setValue(evt.target.value));
 
 export const checkedHandler = (
-  evt: any,
-  onChange: React.ChangeEventHandler<HTMLInputElement>,
-  setValue: (value: any) => void
-): void => {
-  if (onChange) {
-    onChange(evt);
-    if (evt.defaultPrevented) {
-      return;
-    }
-  }
+  evt: ChangeEvent<HTMLInputElement>,
+  onChange: ChangeEventHandler<HTMLInputElement> | undefined,
+  setValue: (value: boolean) => void
+) => baseHandler(evt, onChange, () => setValue(evt.target.checked));
 
-  setValue(evt.target.checked);
-};
+export const focusHandler = (
+  evt: FocusEvent,
+  onFocus: FocusEventHandler | undefined,
+  setFocus: (value: boolean) => void
+) => baseHandler(evt, onFocus, () => setFocus(true));
 
 export const blurHandler = (
-  evt: any,
-  onBlur: React.FocusEventHandler<HTMLInputElement>,
+  evt: FocusEvent,
+  onBlur: FocusEventHandler | undefined,
   setFocus: (value: boolean) => void
+) => baseHandler(evt, onBlur, () => setFocus(false));
+
+const baseHandler = <E extends SyntheticEvent>(
+  evt: E,
+  onEvent: EventHandler<E> | undefined,
+  setValue: () => void
 ): void => {
-  if (onBlur) {
-    onBlur(evt);
+  if (onEvent) {
+    onEvent(evt);
     if (evt.defaultPrevented) {
       return;
     }
   }
 
-  setFocus(false);
+  setValue();
 };

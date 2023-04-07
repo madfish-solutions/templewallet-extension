@@ -64,6 +64,7 @@ const IconifiedSelect = <T extends unknown>({
             value={value}
             padded={padded}
             noItemsText={noItemsText}
+            testID={testID}
             search={
               search && {
                 value: searchString

@@ -1,6 +1,6 @@
 import { ComponentType } from 'react';
 
-import { TestIDProps } from 'lib/analytics';
+import { TestIDProperty } from 'lib/analytics';
 
 export type IconifiedSelectOptionRenderProps<T> = {
   option: T;
@@ -20,7 +20,7 @@ export interface IconifiedSelectPropsBase<T> {
   padded?: boolean;
 }
 
-export interface IconifiedSelectProps<T> extends IconifiedSelectPropsBase<T>, TestIDProps {
+export interface IconifiedSelectProps<T> extends IconifiedSelectPropsBase<T>, TestIDProperty {
   FieldContent: OptionContentComponent<T>;
   BeforeContent?: ComponentType<{ opened: boolean }>;
   className?: string;

@@ -91,7 +91,12 @@ const RemoveAccount: FC = () => {
             testID={RemoveAccountSelectors.passwordInput}
           />
 
-          <FormSubmitButton loading={submitting} disabled={submitting} testID={RemoveAccountSelectors.removeButton}>
+          <FormSubmitButton
+            loading={submitting}
+            disabled={submitting}
+            testID={RemoveAccountSelectors.removeButton}
+            testIDProperties={{ accountTypeEnum: account.type }}
+          >
             <T id="remove" />
           </FormSubmitButton>
         </form>

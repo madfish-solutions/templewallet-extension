@@ -1,4 +1,5 @@
-import { HeaderSelectors } from '../../../../src/app/layouts/PageLayout/Header.selectors';
+import { HeaderSelectors } from 'src/app/layouts/PageLayout/Header.selectors';
+
 import { Page } from '../../classes/page.class';
 import { createPageElement } from '../../utils/search.utils';
 

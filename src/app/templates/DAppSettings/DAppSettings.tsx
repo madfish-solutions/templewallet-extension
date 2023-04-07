@@ -41,12 +41,12 @@ const DAppSettings: FC = () => {
   const [error, setError] = useState<any>(null);
 
   const handleChange = useCallback(
-    async (evt: React.ChangeEvent<HTMLInputElement>) => {
+    async (checked: boolean) => {
       if (changingRef.current) return;
       changingRef.current = true;
       setError(null);
 
-      setDAppEnabled(evt.target.checked).catch((err: any) => setError(err));
+      setDAppEnabled(checked).catch((err: any) => setError(err));
 
       changingRef.current = false;
     },
@@ -72,14 +72,10 @@ const DAppSettings: FC = () => {
 
   return (
     <div className="w-full max-w-sm mx-auto my-8">
-      <h2 className={classNames('w-full mb-4', 'leading-tight', 'flex flex-col')}>
-        <T id="dAppsCheckmarkPrompt" substitutions={t(dAppEnabled ? 'disable' : 'enable')}>
-          {message => (
-            <span className={classNames('text-xs font-light text-gray-600')} style={{ maxWidth: '90%' }}>
-              {message}
-            </span>
-          )}
-        </T>
+      <h2 className="w-full mb-4 leading-tight flex flex-col">
+        <span className="text-xs font-light text-gray-600 max-w-9/10">
+          <T id="dAppsCheckmarkPrompt" substitutions={t(dAppEnabled ? 'disable' : 'enable')} />
+        </span>
       </h2>
 
       <FormCheckbox
@@ -96,19 +92,15 @@ const DAppSettings: FC = () => {
       {dAppEntries.length > 0 && (
         <>
           <h2>
-            <T id="authorizedDApps">
-              {message => <span className="text-base font-semibold text-gray-700">{message}</span>}
-            </T>
+            <span className="text-base font-semibold text-gray-700">
+              <T id="authorizedDApps" />
+            </span>
           </h2>
 
           <div className="mb-4">
-            <T id="clickIconToResetPermissions">
-              {message => (
-                <span className="text-xs font-light text-gray-600" style={{ maxWidth: '90%' }}>
-                  {message}
-                </span>
-              )}
-            </T>
+            <span className="text-xs font-light text-gray-600 max-w-9/10">
+              <T id="clickIconToResetPermissions" />
+            </span>
           </div>
 
           <CustomSelect

@@ -1,14 +1,6 @@
-import { nanoid } from 'nanoid';
-
 import { AnalyticsEventCategory } from 'lib/temple/analytics-types';
 import { assertResponse, request } from 'lib/temple/front';
 import { TempleMessageType } from 'lib/temple/types';
-import { useLocalStorage } from 'lib/ui/local-storage';
-
-interface AnalyticsStateInterface {
-  enabled?: boolean;
-  userId: string;
-}
 
 export const sendTrackEvent = async (
   userId: string,
@@ -44,16 +36,4 @@ export const sendPageEvent = async (
     additionalProperties
   });
   assertResponse(res.type === TempleMessageType.SendPageEventResponse);
-};
-
-export const useAnalyticsState = () => {
-  const [analyticsState, setAnalyticsState] = useLocalStorage<AnalyticsStateInterface>('analytics', {
-    enabled: undefined,
-    userId: nanoid()
-  });
-
-  return {
-    analyticsState,
-    setAnalyticsState
-  };
 };

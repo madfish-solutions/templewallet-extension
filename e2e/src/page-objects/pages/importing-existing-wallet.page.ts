@@ -1,4 +1,5 @@
-import { ImportFromSeedPhraseSelectors } from '../../../../src/app/pages/NewWallet/import/ImportSeedPhrase/ImportFromSeedPhrase.selectors';
+import { ImportFromSeedPhraseSelectors } from 'src/app/pages/NewWallet/import/ImportSeedPhrase/ImportFromSeedPhrase.selectors';
+
 import { Page } from '../../classes/page.class';
 import { createPageElement, findElements } from '../../utils/search.utils';
 

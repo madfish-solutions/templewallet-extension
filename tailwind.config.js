@@ -168,6 +168,7 @@ module.exports = {
       1: '0.25rem',
       1.5: '0.375rem',
       2: '0.5rem',
+      2.5: '0.625rem',
       3: '0.75rem',
       4: '1rem',
       5: '1.25rem',
@@ -384,6 +385,7 @@ module.exports = {
       '4xl': '56rem',
       '5xl': '64rem',
       '6xl': '72rem',
+      '9/10': '90%',
       full: '100%',
       ...breakpoints(theme('screens'))
     }),

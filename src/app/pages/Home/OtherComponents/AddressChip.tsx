@@ -1,19 +1,24 @@
-import React, { FC, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { FC, useCallback, useEffect, useState } from 'react';
 
 import classNames from 'clsx';
 import useSWR from 'swr';
 
+import { Button } from 'app/atoms';
 import { ReactComponent as HashIcon } from 'app/icons/hash.svg';
 import { ReactComponent as LanguageIcon } from 'app/icons/language.svg';
 import HashChip from 'app/templates/HashChip';
 import { TestIDProps } from 'lib/analytics';
 import { useTezos, useTezosDomainsClient, fetchFromStorage, putToStorage } from 'lib/temple/front';
 
+import { HomeSelectors } from '../Home.selectors';
+
 type AddressChipProps = TestIDProps & {
   pkh: string;
   className?: string;
   small?: boolean;
 };
+
+const domainDisplayedKey = 'domain-displayed';
 
 const AddressChip: FC<AddressChipProps> = ({ pkh, className, small, ...rest }) => {
   const tezos = useTezos();
@@ -30,7 +35,6 @@ const AddressChip: FC<AddressChipProps> = ({ pkh, className, small, ...rest }) =
   });
 
   const [domainDisplayed, setDomainDisplayed] = useState(false);
-  const domainDisplayedKey = useMemo(() => 'domain-displayed', []);
 
   useEffect(() => {
     (async () => {
@@ -60,24 +64,23 @@ const AddressChip: FC<AddressChipProps> = ({ pkh, className, small, ...rest }) =
       )}
 
       {reverseName && (
-        <button
+        <Button
           type="button"
           className={classNames(
-            'ml-2',
-            'bg-gray-100',
-            'rounded-sm shadow-xs',
+            'inline-flex items-center justify-center ml-2 rounded-sm',
+            'bg-gray-100 shadow-xs hover:text-gray-600 text-gray-500 leading-none select-none',
             small ? 'text-xs' : 'text-sm',
-            'hover:text-gray-600 text-gray-500 leading-none select-none',
-            'transition ease-in-out duration-300',
-            'inline-flex items-center justify-center'
+            'transition ease-in-out duration-300'
           )}
           style={{
             padding: 3
           }}
           onClick={handleToggleDomainClick}
+          testID={HomeSelectors.addressModeSwitchButton}
+          testIDProperties={{ toDomainMode: !domainDisplayed }}
         >
           <Icon className={classNames('w-auto stroke-current', small ? 'h-3' : 'h-4')} />
-        </button>
+        </Button>
       )}
     </div>
   );

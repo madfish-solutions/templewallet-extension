@@ -11,5 +11,6 @@ export enum HomeSelectors {
   collectiblesTab = 'Home/Collectibles Tab',
   publicAddressButton = 'Home/Public Address Button',
   fiatTezSwitchButton = 'Home/Fiat-Tez Switch Button',
+  addressModeSwitchButton = 'Home/Address Mode Switch Button',
   notificationIconButton = 'Home/Notification Icon Button'
 }

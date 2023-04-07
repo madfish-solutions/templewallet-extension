@@ -6,9 +6,9 @@ import { useDispatch } from 'react-redux';
 
 import { Button } from 'app/atoms';
 import Money from 'app/atoms/Money';
-import { toggleBalanceMode } from 'app/store/balance-mode/actions';
-import { useBalanceModeSelector } from 'app/store/balance-mode/selectors';
-import { BalanceMode } from 'app/store/balance-mode/state';
+import { toggleBalanceModeAction } from 'app/store/settings/actions';
+import { useBalanceModeSelector } from 'app/store/settings/selectors';
+import { BalanceMode } from 'app/store/settings/state';
 import { AssetIcon } from 'app/templates/AssetIcon';
 import Balance from 'app/templates/Balance';
 import InFiat from 'app/templates/InFiat';
@@ -75,8 +75,9 @@ const BalanceInfo: FC<TotalVolumeBannerProps> = ({ accountPkh }) => {
   const { data: balance } = useBalance(TEZ_TOKEN_SLUG, accountPkh);
   const volumeInGas = balance || new BigNumber(0);
 
-  const handleTvlModeToggle = () =>
-    dispatch(toggleBalanceMode(balanceMode === BalanceMode.Fiat ? BalanceMode.Gas : BalanceMode.Fiat));
+  const nextBalanceMode = balanceMode === BalanceMode.Fiat ? BalanceMode.Gas : BalanceMode.Fiat;
+
+  const handleTvlModeToggle = () => dispatch(toggleBalanceModeAction(nextBalanceMode));
 
   const isMainNetwork = network.type === 'main';
   const isFiatMode = balanceMode === BalanceMode.Fiat;
@@ -101,6 +102,7 @@ const BalanceInfo: FC<TotalVolumeBannerProps> = ({ accountPkh }) => {
             )}
             onClick={handleTvlModeToggle}
             testID={HomeSelectors.fiatTezSwitchButton}
+            testIDProperties={{ toValue: nextBalanceMode }}
           >
             {isFiatMode ? fiatSymbol : <TezosLogoIcon />}
           </Button>
