@@ -7,7 +7,7 @@ import { RETRY_OPTIONS, MEDIUM_TIMEOUT } from '../utils/timing.utils';
 
 const FAILED_RESET_ERROR = new Error('Failed to reset extension');
 
-After({ timeout: SHORT_TIMEOUT }, async () => {
+After({ timeout: MEDIUM_TIMEOUT }, async () => {
   // [ Extension storages full reset ]
 
   await BrowserContext.page.evaluate(

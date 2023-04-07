@@ -4,7 +4,7 @@ import retry from 'async-retry';
 import { BrowserContext } from '../classes/browser-context.class';
 import { RETRY_OPTIONS, MEDIUM_TIMEOUT } from '../utils/timing.utils';
 
-Before({ timeout: SHORT_TIMEOUT }, async () => {
+Before({ timeout: MEDIUM_TIMEOUT }, async () => {
   await BrowserContext.page.close().catch(() => void 0);
 
   const url = `chrome-extension://${BrowserContext.EXTENSION_ID}/fullpage.html`;
