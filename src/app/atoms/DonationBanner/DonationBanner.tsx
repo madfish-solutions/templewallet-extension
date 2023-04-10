@@ -6,10 +6,12 @@ import { T } from 'lib/i18n';
 
 import { DonationBannerSelectors } from './selectors';
 
+const DONATE_MAD_FISH_URL = 'https://donate.mad.fish';
+
 export const DonationBanner: FC = () => (
   <Anchor
     className="flex flex-col items-center justify-center rounded h-7 bg-blue-150 max-w-100"
-    href="https://donate.mad.fish"
+    href={DONATE_MAD_FISH_URL}
     testID={DonationBannerSelectors.ukraineDonationBanner}
   >
     <div className="flex flex-row justify-center px-2 items-center">
