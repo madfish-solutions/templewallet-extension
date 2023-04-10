@@ -13,7 +13,7 @@ import { T } from 'lib/i18n';
 import { NotificationsBell } from 'lib/notifications';
 import { goBack, HistoryAction, navigate, useLocation } from 'lib/woozie';
 
-import { DonationBanner } from '../atoms/DonationBanner';
+import { DonationBanner } from '../atoms/DonationBanner/DonationBanner';
 import { useOnboardingProgress } from '../pages/Onboarding/hooks/useOnboardingProgress.hook';
 import { AdvertisingBanner } from '../templates/advertising/advertising-banner/advertising-banner';
 import { AdvertisingOverlay } from '../templates/advertising/advertising-overlay/advertising-overlay';
