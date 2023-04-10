@@ -15,14 +15,15 @@ import { loadSwapParamsAction, resetSwapParamsAction } from 'app/store/swap/acti
 import { useSwapParamsSelector, useSwapTokenSelector, useSwapTokensSelector } from 'app/store/swap/selectors';
 import OperationStatus from 'app/templates/OperationStatus';
 import { setTestID, useFormAnalytics } from 'lib/analytics';
+import { fetchRoute3SwapParams } from 'lib/apis/route3/fetch-route3-swap-params';
 import { T, t } from 'lib/i18n';
-import { ROUTING_FEE_RATIO, ZERO } from 'lib/route3/constants';
+import { ROUTING_FEE_RATIO, TEMPLE_TOKEN, ZERO } from 'lib/route3/constants';
 import { getPercentageRatio } from 'lib/route3/utils/get-percentage-ratio';
 import { getRoute3TokenBySlug } from 'lib/route3/utils/get-route3-token-by-slug';
 import { getRoutingFeeTransferParams } from 'lib/route3/utils/get-routing-fee-transfer-params';
 import { ROUTING_FEE_PERCENT } from 'lib/swap-router/config';
 import { useAccount, useAssetMetadata, useTezos } from 'lib/temple/front';
-import { tokensToAtoms } from 'lib/temple/helpers';
+import { atomsToTokens, tokensToAtoms } from 'lib/temple/helpers';
 import useTippy from 'lib/ui/useTippy';
 import { isDefined } from 'lib/utils/is-defined';
 import { parseTransferParamsToParamsWithKind } from 'lib/utils/parse-transfer-params';
@@ -183,7 +184,7 @@ export const SwapForm: FC = () => {
       const route3SwapOpParams = await getRoute3SwapOpParams(
         fromRoute3Token,
         toRoute3Token,
-        inputValue.amount,
+        tokensToAtoms(inputValue.amount, fromRoute3Token.decimals),
         minimumReceivedAmountAtomic,
         swapParams.data.chains
       );
@@ -192,22 +193,66 @@ export const SwapForm: FC = () => {
         return;
       }
 
-      const routingFeeOpParams = await getRoutingFeeTransferParams(
-        toRoute3Token,
-        routingFeeAtomic,
-        publicKeyHash,
-        tezos
-      );
+      if (
+        outputValue.assetSlug !== undefined &&
+        outputValue.assetSlug !== `${TEMPLE_TOKEN.contract}_${TEMPLE_TOKEN.tokenId}`
+      ) {
+        const swapToTempleParams = await fetchRoute3SwapParams({
+          fromSymbol: toRoute3Token.symbol,
+          toSymbol: TEMPLE_TOKEN.symbol,
+          amount: atomsToTokens(routingFeeAtomic, toRoute3Token.decimals).toFixed()
+        });
 
-      const opParams = [...route3SwapOpParams, ...routingFeeOpParams].map(param =>
-        parseTransferParamsToParamsWithKind(param)
-      );
+        const templeOutputAtomic = tokensToAtoms(
+          new BigNumber(swapToTempleParams.output ?? '0'),
+          TEMPLE_TOKEN.decimals
+        );
+        const swapToTempleTokenOpParams = await getRoute3SwapOpParams(
+          toRoute3Token,
+          TEMPLE_TOKEN,
+          routingFeeAtomic,
+          templeOutputAtomic,
+          swapToTempleParams.chains
+        );
 
-      const batchOperation = await tezos.wallet.batch(opParams).send();
+        if (!swapToTempleTokenOpParams) {
+          return;
+        }
 
-      setError(undefined);
-      formAnalytics.trackSubmitSuccess(analyticsProperties);
-      setOperation(batchOperation);
+        const routingFeeOpParams = await getRoutingFeeTransferParams(
+          TEMPLE_TOKEN,
+          templeOutputAtomic.dividedBy(2),
+          publicKeyHash,
+          tezos
+        );
+
+        const opParams = [...route3SwapOpParams, ...swapToTempleTokenOpParams, ...routingFeeOpParams].map(param =>
+          parseTransferParamsToParamsWithKind(param)
+        );
+
+        const batchOperation = await tezos.wallet.batch(opParams).send();
+
+        setError(undefined);
+        formAnalytics.trackSubmitSuccess(analyticsProperties);
+        setOperation(batchOperation);
+      } else {
+        const routingFeeOpParams = await getRoutingFeeTransferParams(
+          toRoute3Token,
+          routingFeeAtomic.dividedBy(2),
+          publicKeyHash,
+          tezos
+        );
+
+        const opParams = [...route3SwapOpParams, ...routingFeeOpParams].map(param =>
+          parseTransferParamsToParamsWithKind(param)
+        );
+
+        const batchOperation = await tezos.wallet.batch(opParams).send();
+
+        setError(undefined);
+        formAnalytics.trackSubmitSuccess(analyticsProperties);
+        setOperation(batchOperation);
+      }
     } catch (err: any) {
       if (err.message !== 'Declined') {
         setError(err);
