@@ -203,10 +203,13 @@ export const SwapForm: FC = () => {
           amount: atomsToTokens(routingFeeAtomic, toRoute3Token.decimals).toFixed()
         });
 
-        const templeOutputAtomic = tokensToAtoms(
-          new BigNumber(swapToTempleParams.output ?? '0'),
-          TEMPLE_TOKEN.decimals
-        );
+        console.log('swapToTempleParams: ', swapToTempleParams);
+
+        const templeOutputAtomic = tokensToAtoms(new BigNumber(swapToTempleParams.output ?? '0'), TEMPLE_TOKEN.decimals)
+          .multipliedBy(0.99)
+          .integerValue(BigNumber.ROUND_DOWN);
+        console.log('templeOutputAtomic: ', templeOutputAtomic.toFixed());
+
         const swapToTempleTokenOpParams = await getRoute3SwapOpParams(
           toRoute3Token,
           TEMPLE_TOKEN,
@@ -221,7 +224,7 @@ export const SwapForm: FC = () => {
 
         const routingFeeOpParams = await getRoutingFeeTransferParams(
           TEMPLE_TOKEN,
-          templeOutputAtomic.dividedBy(2),
+          templeOutputAtomic.dividedToIntegerBy(2),
           publicKeyHash,
           tezos
         );
