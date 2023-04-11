@@ -79,12 +79,12 @@ export const SwapForm: FC = () => {
   const { routingFeeAtomic, minimumReceivedAmountAtomic } = useMemo(() => {
     if (swapParams.data.output !== undefined) {
       const swapOutputAtomic = tokensToAtoms(new BigNumber(swapParams.data.output), outputAssetMetadata.decimals);
-      const routingFeeAtomic = swapOutputAtomic
-        .minus(swapOutputAtomic.multipliedBy(ROUTING_FEE_RATIO))
+      const minimumReceivedWithSlippage = swapOutputAtomic.multipliedBy(slippageRatio);
+      const minimumReceivedAmountAtomic = minimumReceivedWithSlippage
+        .multipliedBy(ROUTING_FEE_RATIO)
         .integerValue(BigNumber.ROUND_DOWN);
-      const minimumReceivedAmountAtomic = swapOutputAtomic
-        .minus(routingFeeAtomic)
-        .multipliedBy(slippageRatio)
+      const routingFeeAtomic = minimumReceivedWithSlippage
+        .minus(minimumReceivedAmountAtomic)
         .integerValue(BigNumber.ROUND_DOWN);
 
       return { routingFeeAtomic, minimumReceivedAmountAtomic };
