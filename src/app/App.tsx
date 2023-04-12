@@ -13,7 +13,7 @@ import { AppEnvProvider } from 'app/env';
 import ErrorBoundary from 'app/ErrorBoundary';
 import Dialogs from 'app/layouts/Dialogs';
 import { PageRouter } from 'app/PageRouter';
-import { TempleProvider, ABTestGroupProvider } from 'lib/temple/front';
+import { TempleProvider } from 'lib/temple/front';
 import { DialogsProvider } from 'lib/ui/dialog';
 import * as Woozie from 'lib/woozie';
 
@@ -46,11 +46,9 @@ export const App: FC<Props> = ({ env }) => (
 const AppProvider: FC<Props> = ({ children, env }) => (
   <AppEnvProvider {...env}>
     <StoreProvider>
-      <ABTestGroupProvider>
-        <Woozie.Provider>
-          <TempleProvider>{children}</TempleProvider>
-        </Woozie.Provider>
-      </ABTestGroupProvider>
+      <Woozie.Provider>
+        <TempleProvider>{children}</TempleProvider>
+      </Woozie.Provider>
     </StoreProvider>
   </AppEnvProvider>
 );

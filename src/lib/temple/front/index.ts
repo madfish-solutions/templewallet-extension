@@ -54,8 +54,6 @@ export { tryParseExpenses } from './expenses';
 
 export { TempleProvider } from './provider';
 
-export { ABTestGroupProvider, useAB } from './ab-test.provider';
-
 export { validateDelegate } from './validate-delegate';
 
 export { useSecretState } from './use-secret-state.hook';

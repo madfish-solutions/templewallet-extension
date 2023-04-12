@@ -26,7 +26,6 @@ import { loadContract } from 'lib/temple/contract';
 import {
   Baker,
   isDomainNameValid,
-  useAB,
   useAccount,
   useBalance,
   useGasToken,
@@ -42,6 +41,7 @@ import { TempleAccountType } from 'lib/temple/types';
 import { useSafeState } from 'lib/ui/hooks';
 import { Link, useLocation } from 'lib/woozie';
 
+import { useUserTestingGroupNameSelector } from '../store/ab-testing/selectors';
 import { DelegateFormSelectors } from './DelegateForm.selectors';
 
 const PENNY = 0.000001;
@@ -398,9 +398,22 @@ const BakerForm: React.FC<BakerFormProps> = ({
   triggerValidation,
   formState
 }) => {
+  const testGroupName = useUserTestingGroupNameSelector();
   const assetSymbol = 'ꜩ';
-  const abGroup = useAB();
   const estimateFallbackDisplayed = toFilled && !baseFee && (estimating || bakerValidating);
+
+  const bakerTestMessage = useMemo(() => {
+    if (baker?.address !== sponsoredBaker) {
+      return 'Unknown Delegate Button';
+    }
+
+    if (testGroupName === ABTestGroup.B) {
+      return 'Known B Delegate Button';
+    }
+
+    return 'Known A Delegate Button';
+  }, [baker?.address, sponsoredBaker]);
+
   if (estimateFallbackDisplayed) {
     return (
       <div className="flex justify-center my-8">
@@ -410,6 +423,7 @@ const BakerForm: React.FC<BakerFormProps> = ({
   }
   const restFormDisplayed = Boolean(toFilled && (baseFee || estimationError));
   const tzError = submitError || estimationError;
+
   return restFormDisplayed ? (
     <>
       <BakerBannerComponent baker={baker} tzError={tzError} />
@@ -431,12 +445,7 @@ const BakerForm: React.FC<BakerFormProps> = ({
         disabled={Boolean(estimationError)}
         testID={DelegateFormSelectors.bakerDelegateButton}
         testIDProperties={{
-          baker:
-            baker?.address === sponsoredBaker
-              ? abGroup === ABTestGroup.B
-                ? 'Known B Delegate Button'
-                : 'Known A Delegate Button'
-              : 'Unknown Delegate Button'
+          message: bakerTestMessage
         }}
       >
         {t('delegate')}
@@ -493,7 +502,7 @@ const BakerBannerComponent: React.FC<BakerBannerComponentProps> = ({ tzError, ba
 const KnownDelegatorsList: React.FC<{ setValue: any; triggerValidation: any }> = ({ setValue, triggerValidation }) => {
   const knownBakers = useKnownBakers();
   const { search } = useLocation();
-  const abGroup = useAB();
+  const testGroupName = useUserTestingGroupNameSelector();
 
   const bakerSortTypes = useMemo(
     () => [
@@ -628,7 +637,7 @@ const KnownDelegatorsList: React.FC<{ setValue: any; triggerValidation: any }> =
 
           if (baker.address === sponsoredBaker) {
             testId = DelegateFormSelectors.knownBakerItemAButton;
-            if (abGroup === ABTestGroup.B) {
+            if (testGroupName === ABTestGroup.B) {
               testId = DelegateFormSelectors.knownBakerItemBButton;
               classnames = classNames(
                 'hover:bg-gray-100 focus:bg-gray-100',
@@ -647,7 +656,7 @@ const KnownDelegatorsList: React.FC<{ setValue: any; triggerValidation: any }> =
               className={classnames}
               onClick={handleBakerClick}
               testID={testId}
-              testIDProperties={{ bakerAddress: baker.address }}
+              testIDProperties={{ bakerAddress: baker.address, abTestingCategory: testGroupName }}
             >
               <BakerBanner
                 bakerPkh={baker.address}

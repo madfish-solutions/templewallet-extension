@@ -2,6 +2,7 @@ import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from 're
 
 import classNames from 'clsx';
 import { OnSubmit, useForm } from 'react-hook-form';
+import { useDispatch } from 'react-redux';
 
 import { Alert, FormField, FormSubmitButton } from 'app/atoms';
 import SimplePageLayout from 'app/layouts/SimplePageLayout';
@@ -12,6 +13,9 @@ import { TempleSharedStorageKey } from 'lib/temple/types';
 import { useLocalStorage } from 'lib/ui/local-storage';
 import { Link } from 'lib/woozie';
 
+import { ABTestGroup } from '../../../lib/apis/temple';
+import { getUserTestingGroupNameActions } from '../../store/ab-testing/actions';
+import { useUserTestingGroupNameSelector } from '../../store/ab-testing/selectors';
 import { UnlockSelectors } from './Unlock.selectors';
 
 interface UnlockProps {
@@ -38,6 +42,7 @@ const getTimeLeft = (start: number, end: number) => {
 
 const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
   const { unlock } = useTempleClient();
+  const dispatch = useDispatch();
   const formAnalytics = useFormAnalytics('UnlockWallet');
 
   const [attempt, setAttempt] = useLocalStorage<number>(TempleSharedStorageKey.PasswordAttempts, 1);
@@ -45,6 +50,14 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
   const lockLevel = LOCK_TIME * Math.floor(attempt / 3);
 
   const [timeleft, setTimeleft] = useState(getTimeLeft(timelock, lockLevel));
+
+  const testGroupName = useUserTestingGroupNameSelector();
+
+  useEffect(() => {
+    if (testGroupName === ABTestGroup.Unknown) {
+      dispatch(getUserTestingGroupNameActions.submit());
+    }
+  }, [testGroupName]);
 
   const formRef = useRef<HTMLFormElement>(null);
 
