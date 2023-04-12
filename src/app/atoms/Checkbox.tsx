@@ -10,7 +10,7 @@ export type CheckboxProps = TestIDProps &
   Pick<InputHTMLAttributes<HTMLInputElement>, 'name' | 'checked' | 'className' | 'onFocus' | 'onBlur' | 'onClick'> & {
     containerClassName?: string;
     errored?: boolean;
-    onChange?: (checked: boolean, event?: React.ChangeEvent<HTMLInputElement>) => void;
+    onChange?: (checked: boolean, event: React.ChangeEvent<HTMLInputElement>) => void;
   };
 
 const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(

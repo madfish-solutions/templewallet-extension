@@ -30,7 +30,7 @@ export const PartnersPromotionSettings: FC = () => {
 
   const handleShowPromotion = (toChecked: boolean) => dispatch(togglePartnersPromotionAction(toChecked));
 
-  const togglePartnersPromotion = (toChecked: boolean, event?: ChangeEvent<HTMLInputElement>) => {
+  const togglePartnersPromotion = (toChecked: boolean, event: ChangeEvent<HTMLInputElement>) => {
     event?.preventDefault();
 
     return toChecked ? handleShowPromotion(toChecked) : handleHidePromotion(toChecked);

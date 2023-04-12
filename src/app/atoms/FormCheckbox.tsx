@@ -31,7 +31,7 @@ export const FormCheckbox = forwardRef<HTMLInputElement, FormCheckboxProps>(
     const { trackEvent } = useAnalytics();
 
     const handleChange = useCallback(
-      (toChecked: boolean, event?: React.ChangeEvent<HTMLInputElement>) => {
+      (toChecked: boolean, event: React.ChangeEvent<HTMLInputElement>) => {
         onChange?.(toChecked, event);
 
         testID && trackEvent(testID, AnalyticsEventCategory.CheckboxChange, { toChecked, ...testIDProperties });
