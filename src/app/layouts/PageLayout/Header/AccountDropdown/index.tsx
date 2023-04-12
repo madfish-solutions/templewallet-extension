@@ -1,14 +1,9 @@
-import React, { FC, useCallback, useMemo, useState, useRef, useEffect } from 'react';
+import React, { FC, useCallback, useMemo, useState, useEffect } from 'react';
 
 import classNames from 'clsx';
 
-import AccountTypeBadge from 'app/atoms/AccountTypeBadge';
 import { Button } from 'app/atoms/Button';
 import DropdownWrapper from 'app/atoms/DropdownWrapper';
-import HashShortView from 'app/atoms/HashShortView';
-import Identicon from 'app/atoms/Identicon';
-import Money from 'app/atoms/Money';
-import Name from 'app/atoms/Name';
 import { openInFullPage, useAppEnv } from 'app/env';
 import { ReactComponent as AddIcon } from 'app/icons/add.svg';
 import { ReactComponent as DAppsIcon } from 'app/icons/apps-alt.svg';
@@ -17,31 +12,24 @@ import { ReactComponent as LinkIcon } from 'app/icons/link.svg';
 import { ReactComponent as LockIcon } from 'app/icons/lock.svg';
 import { ReactComponent as MaximiseIcon } from 'app/icons/maximise.svg';
 import { ReactComponent as SettingsIcon } from 'app/icons/settings.svg';
-import Balance from 'app/templates/Balance';
 import SearchField from 'app/templates/SearchField';
-import { AnalyticsEventCategory, setTestID, TestIDProps, useAnalytics } from 'lib/analytics';
-import { TID, T, t } from 'lib/i18n';
+import { T, t } from 'lib/i18n';
 import { useAccount, useRelevantAccounts, useSetAccountPkh, useTempleClient, useGasToken } from 'lib/temple/front';
-import { TempleAccount } from 'lib/temple/types';
 import { PopperRenderProps } from 'lib/ui/Popper';
-import { Link } from 'lib/woozie';
 
-import { AccountDropdownSelectors } from './AccountDropdown.selectors';
+import { AccountItem } from './AccountItem';
+import { ActionButtonProps, ActionButton } from './ActionButton';
+import { AccountDropdownSelectors } from './selectors';
 
 type AccountDropdownProps = PopperRenderProps;
 
-interface TDropdownAction extends TestIDProps {
+interface TDropdownAction extends ActionButtonProps {
   key: string;
-  Icon: React.FC<React.SVGProps<SVGSVGElement>>;
-  i18nKey: TID;
-  linkTo: string | null;
-  onClick: () => void;
 }
 
 const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
   const appEnv = useAppEnv();
   const { lock } = useTempleClient();
-  const { trackEvent } = useAnalytics();
   const allAccounts = useRelevantAccounts();
   const account = useAccount();
   const setAccountPkh = useSetAccountPkh();
@@ -133,10 +121,11 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
         onClick: closeDropdown
       },
       {
-        key: 'maximise',
+        key: 'maximize',
         Icon: MaximiseIcon,
         i18nKey: appEnv.fullPage ? 'openNewTab' : 'maximiseView',
         linkTo: null,
+        testID: appEnv.fullPage ? AccountDropdownSelectors.newTabButton : AccountDropdownSelectors.maximizeButton,
         onClick: handleMaximiseViewClick
       }
     ],
@@ -159,7 +148,7 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
       }}
     >
       <div className="flex items-center mb-2">
-        <h3 className={classNames('flex items-center', 'text-sm text-white opacity-20')}>
+        <h3 className="flex items-center text-sm text-white opacity-20">
           <T id="accounts" />
         </h3>
 
@@ -206,11 +195,10 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
             onValueChange={setSearchValue}
           />
         )}
+
         <div
           className={classNames(
-            'overflow-y-auto',
-            'border border-gray-700 shadow-inner',
-            'rounded',
+            'overflow-y-auto rounded border border-gray-700 shadow-inner',
             isShowSearch && 'border-t-0 rounded-t-none'
           )}
           style={{ maxHeight: isShowSearch ? '12rem' : '14.25rem' }}
@@ -237,113 +225,12 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
       </div>
 
       <div className="mt-2">
-        {actions.map(({ key, Icon, i18nKey, linkTo, testID, onClick }) => {
-          const handleClick = () => {
-            trackEvent(AccountDropdownSelectors.actionButton, AnalyticsEventCategory.ButtonPress, { type: key });
-            return onClick();
-          };
-
-          const baseProps = {
-            key,
-            className: classNames(
-              'block w-full',
-              'rounded overflow-hidden',
-              'flex items-center',
-              'px-2',
-              'transition ease-in-out duration-200',
-              'hover:bg-white hover:bg-opacity-10',
-              'text-white text-shadow-black text-sm',
-              'whitespace-nowrap'
-            ),
-            style: {
-              paddingTop: '0.375rem',
-              paddingBottom: '0.375rem'
-            },
-            onClick: handleClick,
-            children: (
-              <>
-                <div className="flex items-center w-8">
-                  <Icon className="w-auto h-6 stroke-current" />
-                </div>
-
-                <T id={i18nKey} />
-              </>
-            )
-          };
-
-          return linkTo ? (
-            <Link {...baseProps} to={linkTo} testID={testID} />
-          ) : (
-            <button {...baseProps} {...setTestID(testID)} />
-          );
-        })}
+        {actions.map(action => (
+          <ActionButton {...action} />
+        ))}
       </div>
     </DropdownWrapper>
   );
 };
 
 export default AccountDropdown;
-
-interface AccountItemProps {
-  account: TempleAccount;
-  selected: boolean;
-  gasTokenName: string;
-  attractSelf: boolean;
-  onClick: () => void;
-}
-
-const AccountItem: React.FC<AccountItemProps> = ({ account, selected, gasTokenName, attractSelf, onClick }) => {
-  const { name, publicKeyHash } = account;
-
-  const elemRef = useRef<HTMLButtonElement>(null);
-
-  useEffect(() => {
-    if (selected && attractSelf) {
-      setTimeout(() => {
-        elemRef.current?.scrollIntoView({ block: 'center', behavior: 'smooth' });
-      }, 0);
-    }
-  }, []);
-
-  return (
-    <Button
-      ref={elemRef}
-      className={classNames(
-        'block w-full p-2',
-        'overflow-hidden',
-        'flex items-center',
-        'text-white text-shadow-black',
-        'transition ease-in-out duration-200',
-        selected && 'shadow',
-        selected ? 'bg-gray-700 bg-opacity-40' : 'hover:bg-white hover:bg-opacity-5',
-        !selected && 'opacity-65 hover:opacity-100'
-      )}
-      onClick={onClick}
-      testID={AccountDropdownSelectors.accountItemButton}
-    >
-      <Identicon type="bottts" hash={publicKeyHash} size={46} className="flex-shrink-0 shadow-xs-white" />
-
-      <div style={{ marginLeft: '10px' }} className="flex flex-col items-start">
-        <Name className="text-sm font-medium">{name}</Name>
-        <div className="text-xs text-gray-500">
-          <HashShortView hash={publicKeyHash} />
-        </div>
-
-        <div className="flex flex-wrap items-end">
-          <Balance address={publicKeyHash}>
-            {bal => (
-              <span className="text-xs leading-tight flex items-baseline text-gray-500">
-                <Money smallFractionFont={false} tooltip={false}>
-                  {bal}
-                </Money>
-                <span className="ml-1">{gasTokenName.toUpperCase()}</span>
-              </span>
-            )}
-          </Balance>
-
-          <AccountTypeBadge account={account} darkTheme />
-        </div>
-      </div>
-    </Button>
-  );
-};

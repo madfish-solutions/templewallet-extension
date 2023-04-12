@@ -1,8 +1,7 @@
-import { useSelector } from 'react-redux';
+import { useSelector } from 'app/store';
 
 import { NotificationStatus } from '../enums/notification-status.enum';
 import { NotificationType } from '../enums/notification-type.enum';
-import { NotificationInterface } from '../interfaces/notification.interface';
 import { NotificationsRootState } from './state';
 
 const getFilteredNotifications = (state: NotificationsRootState) => {
@@ -15,18 +14,15 @@ const getFilteredNotifications = (state: NotificationsRootState) => {
   return notifications;
 };
 
-export const useNotificationsSelector = () =>
-  useSelector<NotificationsRootState, NotificationInterface[]>(state => getFilteredNotifications(state));
+export const useNotificationsSelector = () => useSelector(state => getFilteredNotifications(state));
 
 export const useNotificationsItemSelector = (id: number) =>
-  useSelector<NotificationsRootState, NotificationInterface | undefined>(state =>
-    state.notifications.list.data.find(notification => notification.id === id)
+  useSelector(state => state.notifications.list.data.find(notification => notification.id === id));
+
+export const useNewNotificationsAmountSelector = () =>
+  useSelector(
+    state =>
+      getFilteredNotifications(state).filter(notification => notification.status === NotificationStatus.New).length
   );
 
-export const useIsNewNotificationsAvailableSelector = () =>
-  useSelector<NotificationsRootState, boolean>(state =>
-    getFilteredNotifications(state).some(notification => notification.status === NotificationStatus.New)
-  );
-
-export const useIsNewsEnabledSelector = () =>
-  useSelector<NotificationsRootState, boolean>(({ notifications }) => notifications.isNewsEnabled);
+export const useIsNewsEnabledSelector = () => useSelector(({ notifications }) => notifications.isNewsEnabled);

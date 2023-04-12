@@ -1,35 +1,41 @@
 import React, { FC } from 'react';
 
+import { Anchor } from 'app/atoms/Anchor';
 import Logo from 'app/atoms/Logo';
 import SubTitle from 'app/atoms/SubTitle';
 import { TID, T } from 'lib/i18n';
 
-import { setTestID } from '../../../lib/analytics';
 import { AboutSelectors } from './About.selectors';
 
 const LINKS: {
   key: TID;
   link: string;
+  testID: string;
 }[] = [
   {
     key: 'website',
-    link: 'https://templewallet.com'
+    link: 'https://templewallet.com',
+    testID: AboutSelectors.websiteLink
   },
   {
     key: 'repo',
-    link: 'https://github.com/madfish-solutions/templewallet-extension'
+    link: 'https://github.com/madfish-solutions/templewallet-extension',
+    testID: AboutSelectors.repoLink
   },
   {
     key: 'privacyPolicy',
-    link: 'https://templewallet.com/privacy'
+    link: 'https://templewallet.com/privacy',
+    testID: AboutSelectors.privacyPolicyLink
   },
   {
     key: 'termsOfUse',
-    link: 'https://templewallet.com/terms'
+    link: 'https://templewallet.com/terms',
+    testID: AboutSelectors.termsOfUseLink
   },
   {
     key: 'contact',
-    link: 'https://templewallet.com/contact'
+    link: 'https://templewallet.com/contact',
+    testID: AboutSelectors.contactLink
   }
 ];
 
@@ -63,17 +69,15 @@ const About: FC = () => (
           <span role="img" aria-label="love" key="heart">
             ❤️
           </span>,
-          <a
+          <Anchor
             href="https://madfish.solutions"
             key="link"
-            target="_blank"
-            rel="noopener noreferrer"
             className="font-normal hover:underline"
             style={{ color: '#98c630' }}
-            {...setTestID(AboutSelectors.madFishLink)}
+            testID={AboutSelectors.madFishLink}
           >
             Madfish.Solutions
-          </a>
+          </Anchor>
         ]}
       />
     </p>
@@ -83,17 +87,10 @@ const About: FC = () => (
     </SubTitle>
 
     <div className="text-center">
-      {LINKS.map(({ key, link }) => (
-        <a
-          key={key}
-          href={link}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="block mb-2 text-base text-blue-600 hover:underline"
-          {...setTestID(`About/${key} link`)}
-        >
+      {LINKS.map(({ key, link, testID }) => (
+        <Anchor key={key} href={link} className="block mb-2 text-base text-blue-600 hover:underline" testID={testID}>
           <T id={key} />
-        </a>
+        </Anchor>
       ))}
     </div>
   </div>

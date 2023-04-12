@@ -8,7 +8,7 @@ import { useShouldShowPartnersPromoSelector } from 'app/store/partners-promotion
 import { T, t } from 'lib/i18n';
 import { useConfirm } from 'lib/ui/dialog';
 
-import { SettingsGeneralSelectors } from '../SettingsGeneral.selectors';
+import { SettingsGeneralSelectors } from '../selectors';
 
 export const PartnersPromotionSettings: FC = () => {
   const dispatch = useDispatch();
@@ -16,7 +16,7 @@ export const PartnersPromotionSettings: FC = () => {
 
   const shouldShowPartnersPromo = useShouldShowPartnersPromoSelector();
 
-  const handleHidePromotion = async () => {
+  const handleHidePromotion = async (toChecked: boolean) => {
     const confirmed = await confirm({
       title: t('closePartnersPromotion'),
       children: t('closePartnersPromoConfirm'),
@@ -24,16 +24,16 @@ export const PartnersPromotionSettings: FC = () => {
     });
 
     if (confirmed) {
-      dispatch(togglePartnersPromotionAction(false));
+      dispatch(togglePartnersPromotionAction(toChecked));
     }
   };
 
-  const handleShowPromotion = () => dispatch(togglePartnersPromotionAction(true));
+  const handleShowPromotion = (toChecked: boolean) => dispatch(togglePartnersPromotionAction(toChecked));
 
-  const togglePartnersPromotion = (event: ChangeEvent<HTMLInputElement>) => {
-    event.preventDefault();
+  const togglePartnersPromotion = (toChecked: boolean, event?: ChangeEvent<HTMLInputElement>) => {
+    event?.preventDefault();
 
-    return shouldShowPartnersPromo ? handleHidePromotion() : handleShowPromotion();
+    return toChecked ? handleShowPromotion(toChecked) : handleHidePromotion(toChecked);
   };
 
   return (
@@ -57,7 +57,6 @@ export const PartnersPromotionSettings: FC = () => {
       </label>
 
       <FormCheckbox
-        value={String(shouldShowPartnersPromo)}
         checked={shouldShowPartnersPromo}
         onChange={togglePartnersPromotion}
         name="shouldShowPartnersPromo"

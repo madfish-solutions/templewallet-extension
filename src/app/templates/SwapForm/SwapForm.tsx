@@ -278,6 +278,7 @@ export const SwapForm: FC = () => {
         label={<T id="from" />}
         onChange={handleInputChange}
         testIDs={{
+          dropdown: SwapFormFromInputSelectors.dropdown,
           input: SwapFormFromInputSelectors.assetInput,
           searchInput: SwapFormFromInputSelectors.searchInput,
           assetSelector: SwapFormFromInputSelectors.assetItem
@@ -300,6 +301,7 @@ export const SwapForm: FC = () => {
         amountInputDisabled={true}
         onChange={handleOutputChange}
         testIDs={{
+          dropdown: SwapFormToInputSelectors.dropdown,
           input: SwapFormToInputSelectors.assetInput,
           searchInput: SwapFormToInputSelectors.searchInput,
           assetSelector: SwapFormToInputSelectors.assetItem

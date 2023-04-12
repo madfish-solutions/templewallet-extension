@@ -10,7 +10,7 @@ import { isKnownChainId } from 'lib/temple/types';
 import { searchAndFilterItems } from 'lib/utils/search-items';
 
 import IconifiedSelect, { IconifiedSelectOptionRenderProps } from '../../IconifiedSelect';
-import { SettingsGeneralSelectors } from '../SettingsGeneral.selectors';
+import { SettingsGeneralSelectors } from '../selectors';
 
 type BlockExplorerSelectProps = {
   className?: string;

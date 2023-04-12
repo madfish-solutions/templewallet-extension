@@ -91,14 +91,9 @@ const ManageAssetsContent: FC<Props> = ({ assetType }) => {
         <Link
           to="/add-asset"
           className={classNames(
-            'ml-2 flex-shrink-0',
-            'px-3 py-1',
-            'rounded overflow-hidden',
-            'flex items-center',
-            'text-gray-600 text-sm',
-            'transition ease-in-out duration-200',
-            'hover:bg-gray-100',
-            'opacity-75 hover:opacity-100 focus:opacity-100'
+            'flex items-center ml-2 flex-shrink-0 px-3 py-1 text-gray-600 text-sm rounded overflow-hidden',
+            'opacity-75 hover:bg-gray-100 hover:opacity-100 focus:opacity-100',
+            'transition ease-in-out duration-200'
           )}
           testID={
             assetType === AssetTypesEnum.Collectibles
@@ -106,20 +101,13 @@ const ManageAssetsContent: FC<Props> = ({ assetType }) => {
               : ManageAssetsSelectors.addAssetButton
           }
         >
-          <AddIcon className={classNames('mr-1 h-5 w-auto stroke-current stroke-2')} />
+          <AddIcon className="mr-1 h-5 w-auto stroke-current stroke-2" />
           <T id={assetType === AssetTypesEnum.Collectibles ? 'addCollectible' : 'addToken'} />
         </Link>
       </div>
 
       {filteredAssets.length > 0 ? (
-        <div
-          className={classNames(
-            'w-full overflow-hidden',
-            'border rounded-md',
-            'flex flex-col',
-            'text-gray-700 text-sm leading-tight'
-          )}
-        >
+        <div className="flex flex-col w-full overflow-hidden border rounded-md text-gray-700 text-sm leading-tight">
           {filteredAssets.map((slug, i, arr) => {
             const last = i === arr.length - 1;
 
@@ -154,8 +142,8 @@ const ListItem = memo<ListItemProps>(({ assetSlug, last, checked, onUpdate }) =>
   const metadata = useAssetMetadata(assetSlug);
 
   const handleCheckboxChange = useCallback(
-    (evt: React.ChangeEvent<HTMLInputElement>) => {
-      onUpdate(assetSlug, evt.target.checked ? ITokenStatus.Enabled : ITokenStatus.Disabled);
+    (checked: boolean) => {
+      onUpdate(assetSlug, checked ? ITokenStatus.Enabled : ITokenStatus.Disabled);
     },
     [assetSlug, onUpdate]
   );
@@ -163,30 +151,23 @@ const ListItem = memo<ListItemProps>(({ assetSlug, last, checked, onUpdate }) =>
   return (
     <label
       className={classNames(
-        'block w-full',
-        'overflow-hidden',
         !last && 'border-b border-gray-200',
         checked ? 'bg-gray-100' : 'hover:bg-gray-100 focus:bg-gray-100',
-        'flex items-center py-2 px-3',
-        'text-gray-700',
-        'transition ease-in-out duration-200',
-        'focus:outline-none',
-        'cursor-pointer'
+        'block w-full flex items-center py-2 px-3 text-gray-700',
+        'focus:outline-none overflow-hidden cursor-pointer',
+        'transition ease-in-out duration-200'
       )}
     >
       <AssetIcon assetSlug={assetSlug} size={32} className="mr-3 flex-shrink-0" />
 
       <div className={classNames('flex items-center', styles.tokenInfoWidth)}>
         <div className="flex flex-col items-start w-full">
-          <div
-            className={classNames('text-sm font-normal text-gray-700 truncate w-full')}
-            style={{ marginBottom: '0.125rem' }}
-          >
+          <div className="text-sm font-normal text-gray-700 truncate w-full" style={{ marginBottom: '0.125rem' }}>
             {getAssetName(metadata)}
           </div>
 
           <div
-            className={classNames('text-xs font-light text-gray-600 truncate w-full')}
+            className="text-xs font-light text-gray-600 truncate w-full"
             {...setTestID(ManageAssetsSelectors.tokenTicket)}
           >
             {getAssetSymbol(metadata)}
@@ -198,10 +179,8 @@ const ListItem = memo<ListItemProps>(({ assetSlug, last, checked, onUpdate }) =>
 
       <div
         className={classNames(
-          'mr-2 p-1',
-          'rounded-full',
-          'text-gray-400 hover:text-gray-600',
-          'hover:bg-black hover:bg-opacity-5',
+          'mr-2 p-1 rounded-full text-gray-400',
+          'hover:text-gray-600 hover:bg-black hover:bg-opacity-5',
           'transition ease-in-out duration-200'
         )}
         onClick={evt => {
@@ -226,8 +205,8 @@ interface LoadingComponentProps {
 
 const LoadingComponent: React.FC<LoadingComponentProps> = ({ loading, searchValue, assetType }) => {
   return loading ? null : (
-    <div className={classNames('my-8', 'flex flex-col items-center justify-center', 'text-gray-500')}>
-      <p className={classNames('mb-2', 'flex items-center justify-center', 'text-gray-600 text-base font-light')}>
+    <div className="my-8 flex flex-col items-center justify-center text-gray-500">
+      <p className="mb-2 flex items-center justify-center text-gray-600 text-base font-light">
         {Boolean(searchValue) && <SearchIcon className="w-5 h-auto mr-1 stroke-current" />}
 
         <span>
@@ -235,12 +214,13 @@ const LoadingComponent: React.FC<LoadingComponentProps> = ({ loading, searchValu
         </span>
       </p>
 
-      <p className={classNames('text-center text-xs font-light')}>
+      <p className="text-center text-xs font-light">
         <T id="ifYouDontSeeYourAsset" substitutions={[<RenderAssetComponent assetType={assetType} />]} />
       </p>
     </div>
   );
 };
+
 const RenderAssetComponent: React.FC<{ assetType: string }> = ({ assetType }) => (
   <b>{assetType === AssetTypesEnum.Collectibles ? <T id={'addCollectible'} /> : <T id={'addToken'} />}</b>
 );

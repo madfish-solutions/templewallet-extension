@@ -119,14 +119,9 @@ const RevealSecret: FC<RevealSecretProps> = ({ reveal }) => {
               </label>
               <input
                 className={classNames(
-                  'appearance-none',
-                  'w-full',
-                  'py-3 pl-4',
-                  'border-2',
-                  'border-gray-300',
-                  'bg-transparent',
-                  'rounded-md',
-                  'text-gray-700 text-lg leading-tight'
+                  'appearance-none w-full py-3 pl-4',
+                  'rounded-md border-2 border-gray-300',
+                  'bg-transparent text-gray-700 text-lg leading-tight'
                 )}
                 disabled={true}
                 value={account.derivationPath}
@@ -142,28 +137,21 @@ const RevealSecret: FC<RevealSecretProps> = ({ reveal }) => {
           name: t('seedPhrase'),
           accountBanner: null,
           derivationPathBanner: (
-            <div className={classNames('mb-6', 'flex flex-col')}>
-              <h2 className={classNames('mb-4', 'leading-tight', 'flex flex-col')}>
-                <T id="derivationPath">
-                  {message => <span className="text-base font-semibold text-gray-700">{message}</span>}
-                </T>
+            <div className="mb-6 flex flex-col">
+              <h2 className="mb-4 leading-tight flex flex-col">
+                <span className="text-base font-semibold text-gray-700">
+                  <T id="derivationPath" />
+                </span>
 
-                <T id="pathForHDAccounts">
-                  {message => (
-                    <span
-                      className={classNames('mt-1', 'text-xs font-light text-gray-600')}
-                      style={{ maxWidth: '90%' }}
-                    >
-                      {message}
-                    </span>
-                  )}
-                </T>
+                <span className="mt-1 text-xs font-light text-gray-600 max-w-9/10">
+                  <T id="pathForHDAccounts" />
+                </span>
               </h2>
 
-              <div className={classNames('w-full', 'border rounded-md', 'p-2', 'flex items-center')}>
-                <T id="derivationPathExample">
-                  {message => <span className="text-sm font-medium text-gray-800">{message}</span>}
-                </T>
+              <div className="w-full border rounded-md p-2 flex items-center">
+                <span className="text-sm font-medium text-gray-800">
+                  <T id="derivationPathExample" />
+                </span>
               </div>
             </div>
           ),
@@ -193,7 +181,7 @@ const RevealSecret: FC<RevealSecretProps> = ({ reveal }) => {
                 substitutions={[
                   <span
                     key="account-type"
-                    className={classNames('rounded-sm', 'border', 'px-1 py-px', 'font-normal leading-tight')}
+                    className="rounded-sm border px-1 py-px font-normal leading-tight"
                     style={{
                       fontSize: '0.75em',
                       borderColor: 'currentColor'
@@ -250,13 +238,9 @@ const RevealSecret: FC<RevealSecretProps> = ({ reveal }) => {
           testID={RevealSecretsSelectors.RevealPasswordInput}
         />
 
-        <T id="reveal">
-          {message => (
-            <FormSubmitButton loading={submitting} testID={RevealSecretsSelectors.RevealButton}>
-              {message}
-            </FormSubmitButton>
-          )}
-        </T>
+        <FormSubmitButton loading={submitting} testID={RevealSecretsSelectors.RevealButton}>
+          <T id="reveal" />
+        </FormSubmitButton>
       </form>
     );
   }, [

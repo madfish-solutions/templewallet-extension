@@ -1393,10 +1393,9 @@
     "@types/yargs" "^17.0.8"
     chalk "^4.0.0"
 
-"@jitsu/sdk-js@^3.1.5":
-  version "3.1.5"
-  resolved "https://registry.yarnpkg.com/@jitsu/sdk-js/-/sdk-js-3.1.5.tgz#3d0d92ccc01b621cbe67484c6e246d5ff8721de8"
-  integrity sha512-e7P8uvGBNwWCC864MItcYSv0IT2+nwYiX8QXZ0lfyG8hutEXXX9Yt2/+MynXuGxMIoIrJ+j0bWVu20k9rrhxSg==
+"@jitsu/sdk-js@madfish-solutions/jitsu-js#d45c7ba34c24f3e36ac35e49f8a13cc621683230":
+  version "3.0.0"
+  resolved "https://codeload.github.com/madfish-solutions/jitsu-js/tar.gz/d45c7ba34c24f3e36ac35e49f8a13cc621683230"
 
 "@jridgewell/gen-mapping@^0.1.0":
   version "0.1.1"
@@ -3913,9 +3912,9 @@ caniuse-api@^3.0.0:
     lodash.uniq "^4.5.0"
 
 caniuse-lite@^1.0.0, caniuse-lite@^1.0.30001214, caniuse-lite@^1.0.30001297:
-  version "1.0.30001409"
-  resolved "https://registry.npmjs.org/caniuse-lite/-/caniuse-lite-1.0.30001409.tgz"
-  integrity sha512-V0mnJ5dwarmhYv8/MzhJ//aW68UpvnQBXv8lJ2QUsvn2pHcmAuNtu8hQEDz37XnA1iE+lRR9CIfGWWpgJ5QedQ==
+  version "1.0.30001473"
+  resolved "https://registry.npmjs.org/caniuse-lite/-/caniuse-lite-1.0.30001473.tgz"
+  integrity sha512-ewDad7+D2vlyy+E4UJuVfiBsU69IL+8oVmTuZnH5Q6CIUbxNfI50uVpRHbUPDD6SUaN2o0Lh4DhTrvLG/Tn1yg==
 
 canvas-renderer@~2.1.1:
   version "2.1.1"

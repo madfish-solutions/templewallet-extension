@@ -3,7 +3,7 @@ import React, { FC, ReactNode, useCallback, useLayoutEffect, useMemo, useRef } f
 import { DEFAULT_FEE, WalletOperation } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
-import { useForm, Controller, Control, FieldError, NestDataObject, FormStateProxy } from 'react-hook-form';
+import { Control, Controller, FieldError, FormStateProxy, NestDataObject, useForm } from 'react-hook-form';
 import useSWR from 'swr';
 import browser from 'webextension-polyfill';
 
@@ -19,25 +19,25 @@ import OperationStatus from 'app/templates/OperationStatus';
 import { useFormAnalytics } from 'lib/analytics';
 import { submitDelegation } from 'lib/apis/everstake';
 import { ABTestGroup } from 'lib/apis/temple';
-import { TID, T, t } from 'lib/i18n';
+import { T, t, TID } from 'lib/i18n';
 import { setDelegate } from 'lib/michelson';
 import { fetchTezosBalance } from 'lib/temple/assets';
 import { loadContract } from 'lib/temple/contract';
 import {
   Baker,
+  isDomainNameValid,
+  useAB,
   useAccount,
   useBalance,
-  useTezosDomainsClient,
-  isDomainNameValid,
-  useNetwork,
-  useTezos,
-  useAB,
+  useGasToken,
   useKnownBaker,
   useKnownBakers,
-  validateDelegate,
-  useGasToken
+  useNetwork,
+  useTezos,
+  useTezosDomainsClient,
+  validateDelegate
 } from 'lib/temple/front';
-import { tzToMutez, mutezToTz, isAddressValid, isKTAddress, hasManager } from 'lib/temple/helpers';
+import { hasManager, isAddressValid, isKTAddress, mutezToTz, tzToMutez } from 'lib/temple/helpers';
 import { TempleAccountType } from 'lib/temple/types';
 import { useSafeState } from 'lib/ui/hooks';
 import { Link, useLocation } from 'lib/woozie';
@@ -278,7 +278,7 @@ const DelegateForm: FC = () => {
       <form onSubmit={handleSubmit(onSubmit)}>
         {useMemo(
           () => (
-            <div className={classNames('mb-6', 'border rounded-md', 'p-2', 'flex items-center')}>
+            <div className="mb-6 border rounded-md p-2 flex items-center">
               <img src={browser.runtime.getURL(logo)} alt={symbol} className="w-auto h-12 mr-3" />
 
               <div className="font-light leading-none">
@@ -335,10 +335,11 @@ const DelegateForm: FC = () => {
             resize: 'none'
           }}
           containerClassName="mb-4"
+          testID={DelegateFormSelectors.bakerInput}
         />
 
         {resolvedAddress && (
-          <div className={classNames('mb-4 -mt-3', 'text-xs font-light text-gray-600', 'flex flex-wrap items-center')}>
+          <div className="mb-4 -mt-3 text-xs font-light text-gray-600 flex flex-wrap items-center">
             <span className="mr-1 whitespace-nowrap">{t('resolvedAddress')}:</span>
             <span className="font-normal">{resolvedAddress}</span>
           </div>
@@ -428,14 +429,15 @@ const BakerForm: React.FC<BakerFormProps> = ({
       <FormSubmitButton
         loading={formState.isSubmitting}
         disabled={Boolean(estimationError)}
-        {...(baker && baker.address === sponsoredBaker
-          ? {
-              testID:
-                abGroup === ABTestGroup.B
-                  ? DelegateFormSelectors.KnownBakerItemSubmitB_Button
-                  : DelegateFormSelectors.KnownBakerItemSubmitA_Button
-            }
-          : {})}
+        testID={DelegateFormSelectors.bakerDelegateButton}
+        testIDProperties={{
+          baker:
+            baker?.address === sponsoredBaker
+              ? abGroup === ABTestGroup.B
+                ? 'Known B Delegate Button'
+                : 'Known A Delegate Button'
+              : 'Unknown Delegate Button'
+        }}
       >
         {t('delegate')}
       </FormSubmitButton>
@@ -461,7 +463,7 @@ const BakerBannerComponent: React.FC<BakerBannerComponentProps> = ({ tzError, ba
   const { symbol } = useGasToken();
   return baker ? (
     <>
-      <div className={classNames('-mt-2 mb-6', 'flex flex-col items-center')}>
+      <div className="-mt-2 mb-6 flex flex-col items-center">
         <BakerBanner bakerPkh={baker.address} style={{ width: undefined }} />
       </div>
 
@@ -498,22 +500,22 @@ const KnownDelegatorsList: React.FC<{ setValue: any; triggerValidation: any }> =
       {
         key: 'rank',
         title: t('rank'),
-        testID: DelegateFormSelectors.SortBakerByRankTab
+        testID: DelegateFormSelectors.sortBakerByRankTab
       },
       {
         key: 'fee',
         title: t('fee'),
-        testID: DelegateFormSelectors.SortBakerByFeeTab
+        testID: DelegateFormSelectors.sortBakerByFeeTab
       },
       {
         key: 'space',
         title: t('space'),
-        testID: DelegateFormSelectors.SortBakerBySpaceTab
+        testID: DelegateFormSelectors.sortBakerBySpaceTab
       },
       {
         key: 'staking',
         title: t('staking'),
-        testID: DelegateFormSelectors.SortBakerByStakingTab
+        testID: DelegateFormSelectors.sortBakerByStakingTab
       }
     ],
     []
@@ -550,36 +552,35 @@ const KnownDelegatorsList: React.FC<{ setValue: any; triggerValidation: any }> =
     ...baseSortedKnownBakers.filter(baker => baker.address !== sponsoredBaker)
   ];
   return (
-    <div className={classNames('my-6', 'flex flex-col')}>
-      <h2 className={classNames('mb-4', 'leading-tight', 'flex flex-col')}>
-        <T id="delegateToRecommendedBakers">
-          {message => <span className="text-base font-semibold text-gray-700">{message}</span>}
-        </T>
+    <div className="my-6 flex flex-col">
+      <h2 className="mb-4 leading-tight flex flex-col">
+        <span className="text-base font-semibold text-gray-700">
+          <T id="delegateToRecommendedBakers" />
+        </span>
 
-        <T
-          id="clickOnBakerPrompt"
-          substitutions={[
-            <a
-              href="https://baking-bad.org/"
-              key="link"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-normal underline"
-            >
-              Baking Bad
-            </a>
-          ]}
-        >
-          {message => (
-            <span className={classNames('mt-1', 'text-xs font-light text-gray-600')} style={{ maxWidth: '90%' }}>
-              {message}
-            </span>
-          )}
-        </T>
+        <span className="mt-1 text-xs font-light text-gray-600 max-w-9/10">
+          <T
+            id="clickOnBakerPrompt"
+            substitutions={[
+              <a
+                href="https://baking-bad.org/"
+                key="link"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-normal underline"
+              >
+                Baking Bad
+              </a>
+            ]}
+          />
+        </span>
       </h2>
 
-      <div className={classNames('mb-2', 'flex items-center')}>
-        <T id="sortBy">{message => <span className={classNames('mr-1', 'text-xs text-gray-500')}>{message}</span>}</T>
+      <div className="mb-2 flex items-center">
+        <span className="mr-1 text-xs text-gray-500">
+          <T id="sortBy" />
+        </span>
+
         {bakerSortTypes.map(({ key, title, testID }, i, arr) => {
           const first = i === 0;
           const last = i === arr.length - 1;
@@ -594,21 +595,9 @@ const KnownDelegatorsList: React.FC<{ setValue: any; triggerValidation: any }> =
               }}
               replace
               className={classNames(
-                (() => {
-                  switch (true) {
-                    case first:
-                      return classNames('rounded rounded-r-none', 'border');
-
-                    case last:
-                      return classNames('rounded rounded-l-none', 'border border-l-0');
-
-                    default:
-                      return 'border border-l-0';
-                  }
-                })(),
-                selected && 'bg-gray-100',
-                'px-2 py-px',
-                'text-xs text-gray-600'
+                'border px-2 py-px text-xs text-gray-600',
+                first ? 'rounded rounded-r-none' : last ? 'rounded rounded-l-none border-l-0' : 'border-l-0',
+                selected && 'bg-gray-100'
               )}
               testID={testID}
             >
@@ -620,14 +609,7 @@ const KnownDelegatorsList: React.FC<{ setValue: any; triggerValidation: any }> =
         <div className="flex-1" />
       </div>
 
-      <div
-        className={classNames(
-          'rounded-md overflow-hidden',
-          'border',
-          'flex flex-col',
-          'text-gray-700 text-sm leading-tight'
-        )}
-      >
+      <div className="flex flex-col rounded-md overflow-hidden border text-gray-700 text-sm leading-tight">
         {sortedKnownBakers.map((baker, i, arr) => {
           const last = i === arr.length - 1;
           const handleBakerClick = () => {
@@ -636,7 +618,7 @@ const KnownDelegatorsList: React.FC<{ setValue: any; triggerValidation: any }> =
             window.scrollTo(0, 0);
           };
 
-          let testId = DelegateFormSelectors.KnownBakerItemButton;
+          let testId = DelegateFormSelectors.knownBakerItemButton;
           let classnames = classNames(
             'hover:bg-gray-100 focus:bg-gray-100',
             'transition ease-in-out duration-200',
@@ -645,9 +627,9 @@ const KnownDelegatorsList: React.FC<{ setValue: any; triggerValidation: any }> =
           );
 
           if (baker.address === sponsoredBaker) {
-            testId = DelegateFormSelectors.KnownBakerItemA_Button;
+            testId = DelegateFormSelectors.knownBakerItemAButton;
             if (abGroup === ABTestGroup.B) {
-              testId = DelegateFormSelectors.KnownBakerItemB_Button;
+              testId = DelegateFormSelectors.knownBakerItemBButton;
               classnames = classNames(
                 'hover:bg-gray-100 focus:bg-gray-100',
                 'transition ease-in-out duration-200',
@@ -726,20 +708,26 @@ const DelegateErrorAlert: FC<DelegateErrorAlertProps> = ({ type, error }) => {
                   id="unableToPerformActionToBaker"
                   substitutions={t(type === 'submit' ? 'delegate' : 'estimateDelegation').toLowerCase()}
                 />
+
                 <br />
+
                 <T id="thisMayHappenBecause" />
+
                 <ul className="mt-1 ml-2 text-xs list-disc list-inside">
-                  <T id="minimalFeeGreaterThanBalanceVerbose" substitutions={symbol}>
-                    {message => <li>{message}</li>}
-                  </T>
-                  <T id="networkOrOtherIssue">{message => <li>{message}</li>}</T>
+                  <li>
+                    <T id="minimalFeeGreaterThanBalanceVerbose" substitutions={symbol} />
+                  </li>
+
+                  <li>
+                    <T id="networkOrOtherIssue" />
+                  </li>
                 </ul>
               </>
             );
         }
       })()}
       autoFocus
-      className={classNames('mt-6 mb-4')}
+      className="mt-6 mb-4"
     />
   );
 };
