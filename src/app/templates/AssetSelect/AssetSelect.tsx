@@ -5,6 +5,7 @@ import { AssetIcon } from 'app/templates/AssetIcon';
 import Balance from 'app/templates/Balance';
 import IconifiedSelect, { IconifiedSelectOptionRenderProps } from 'app/templates/IconifiedSelect';
 import InFiat from 'app/templates/InFiat';
+import { setTestID, setAnotherSelector } from 'lib/analytics';
 import { T, t } from 'lib/i18n';
 import { useAccount, useAssetMetadata } from 'lib/temple/front';
 import { searchAssetsWithNoMeta, useAllTokensBaseMetadata } from 'lib/temple/front/assets';
@@ -118,10 +119,14 @@ const AssetOptionContent: FC<AssetSelectOptionRenderProps> = ({ option }) => {
   const slug = getSlug(option);
 
   return (
-    <div className="flex items-center w-full py-1.5">
+    <div
+      className="flex items-center w-full py-1.5"
+      {...setTestID(SendFormSelectors.assetDropDownItem)}
+      {...setAnotherSelector('slug', slug)}
+    >
       <AssetIcon assetSlug={slug} className="mx-2" size={32} />
 
-      <AssetItemContent slug={slug} nameTestID={SendFormSelectors.assetName} />
+      <AssetItemContent slug={slug} />
     </div>
   );
 };

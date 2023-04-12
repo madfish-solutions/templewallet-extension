@@ -1,7 +1,7 @@
 import { Given } from '@cucumber/cucumber';
 
-import { envVars } from '../classes/browser-context.class';
 import { Pages } from '../page-objects';
+import { envVars } from '../utils/env.utils';
 
 Given(/I enter second mnemonic/, async () => {
   await Pages.ImportAccountMnemonic.enterSeedPhrase(envVars.IMPORTED_HD_ACCOUNT_SEED_PHRASE);

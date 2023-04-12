@@ -1,13 +1,13 @@
 import { Given } from '@cucumber/cucumber';
 import { expect } from 'chai';
+import { OperationStatusSelectors } from 'src/app/templates/OperationStatus.selectors';
 
-import { OperationStatusSelectors } from '../../../src/app/templates/OperationStatus.selectors';
 import { BrowserContext } from '../classes/browser-context.class';
-import { testDataForInput } from '../classes/test-data-for-input.class';
 import { Pages } from '../page-objects';
+import { iComparePrivateKeys, iSelectTokenSlugs } from '../utils/input-data.utils';
 import { LONG_TIMEOUT } from '../utils/timing.utils';
 
-Given(/I reveal a private key and compare with (.*)/, async (inputType: keyof typeof testDataForInput) => {
+Given(/I reveal a private key and compare with (.*)/, async (key: keyof typeof iComparePrivateKeys) => {
   await Pages.Home.isVisible();
   await Pages.Header.accountIconButton.click();
   await Pages.AccountsDropdown.isVisible();
@@ -19,7 +19,7 @@ Given(/I reveal a private key and compare with (.*)/, async (inputType: keyof ty
   await Pages.RevealSecrets.revealButton.click();
   await Pages.RevealSecrets.revealSecretsValue.getText();
   const revealedSecretsValue = await Pages.RevealSecrets.revealSecretsValue.getText();
-  const privateKeyType = testDataForInput[inputType];
+  const privateKeyType = iComparePrivateKeys[key];
 
   expect(revealedSecretsValue).eql(privateKeyType);
 });
@@ -30,6 +30,11 @@ Given(/I'm waiting for 'success ✓' operation status/, { timeout: LONG_TIMEOUT 
   });
 });
 
-Given(/I select (.*) token in the token drop-down list on the Send page/, async (tokenName: string) => {
-  await Pages.Send.selectToken(tokenName);
-});
+Given(
+  /I select (.*) token in the token drop-down list on the Send page/,
+  async (key: keyof typeof iSelectTokenSlugs) => {
+    const slug = iSelectTokenSlugs[key];
+
+    await Pages.Send.selectToken(slug);
+  }
+);

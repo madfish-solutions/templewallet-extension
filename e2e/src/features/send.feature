@@ -20,7 +20,7 @@ Feature: Send
 # Send uUSD
     And I press Asset Drop-down on the Send Form page
     And I enter uUSD into Asset Drop-down Search Input on the Send Form page
-    And I select youves uUSD token in the token drop-down list on the Send page
+    And I select UUSD token in the token drop-down list on the Send page
     And I enter watchOnlyPublicKey into Recipient Input on the Send Form page
     And I enter low_amount into Amount Input on the Send Form page
     And I press Send Button on the Send Form page
@@ -35,8 +35,8 @@ Feature: Send
 # Send KUSD
     And I press Asset Drop-down on the Send Form page
     And I clear Asset Drop-down Search Input value on the Send Form page
-    And I enter KUSD into Asset Drop-down Search Input on the Send Form page
-    And I select Kolibri token in the token drop-down list on the Send page
+    And I enter kUSD into Asset Drop-down Search Input on the Send Form page
+    And I select KUSD token in the token drop-down list on the Send page
     And I enter watchOnlyPublicKey into Recipient Input on the Send Form page
     And I enter low_amount into Amount Input on the Send Form page
     And I press Send Button on the Send Form page
@@ -52,7 +52,7 @@ Feature: Send
     And I press Asset Drop-down on the Send Form page
     And I clear Asset Drop-down Search Input value on the Send Form page
     And I enter OBJKTCOM into Asset Drop-down Search Input on the Send Form page
-    And I select Temple NFT token in the token drop-down list on the Send page
+    And I select OBJKTCOM token in the token drop-down list on the Send page
     And I enter watchOnlyPublicKey into Recipient Input on the Send Form page
     And I enter high_amount into Amount Input on the Send Form page
     And I press Send Button on the Send Form page

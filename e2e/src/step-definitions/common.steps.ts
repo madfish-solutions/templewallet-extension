@@ -1,10 +1,10 @@
 import { Given } from '@cucumber/cucumber';
 
 import { BrowserContext } from '../classes/browser-context.class';
-import { testDataForInput } from '../classes/test-data-for-input.class';
 import { Pages } from '../page-objects';
+import { iEnterValues, IEnterValuesKey } from '../utils/input-data.utils';
 import { createPageElement } from '../utils/search.utils';
-import { MEDIUM_TIMEOUT, SHORT_TIMEOUT } from '../utils/timing.utils';
+import { LONG_TIMEOUT, MEDIUM_TIMEOUT, SHORT_TIMEOUT } from '../utils/timing.utils';
 
 Given(/^I am on the (\w+) page$/, { timeout: MEDIUM_TIMEOUT }, async (page: keyof typeof Pages) => {
   await Pages[page].isVisible();
@@ -21,14 +21,14 @@ Given(/I clear (.*) value on the (.*) page/, async (elementName: string, pageNam
 Given(
   /I enter (.*) into (.*) on the (.*) page/,
   { timeout: SHORT_TIMEOUT },
-  async (inputType: keyof typeof testDataForInput, elementName: string, pageName: string) => {
-    const inputText = testDataForInput[inputType];
+  async (key: IEnterValuesKey, elementName: string, pageName: string) => {
+    const inputText = iEnterValues[key];
 
     await createPageElement(`${pageName}/${elementName}`).type(inputText);
   }
 );
 
-Given(/I have imported an existing account/, { timeout: MEDIUM_TIMEOUT }, async () => {
+Given(/I have imported an existing account/, { timeout: LONG_TIMEOUT }, async () => {
   await Pages.Welcome.isVisible();
   await Pages.Welcome.importExistingWalletButton.click();
 

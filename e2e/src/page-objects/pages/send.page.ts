@@ -1,10 +1,10 @@
-import { SendFormSelectors } from '../../../../src/app/templates/SendForm/selectors';
+import { SendFormSelectors } from 'src/app/templates/SendForm/selectors';
+
 import { Page } from '../../classes/page.class';
-import { createPageElement, findElements, getElementText } from '../../utils/search.utils';
+import { createPageElement, findElement } from '../../utils/search.utils';
 
 export class SendPage extends Page {
   assetDropDown = createPageElement(SendFormSelectors.assetDropDown);
-  assetName = createPageElement(SendFormSelectors.assetName);
   assetDropDownSearchInput = createPageElement(SendFormSelectors.assetDropDownSearchInput);
   amountInput = createPageElement(SendFormSelectors.amountInput);
   recipientInput = createPageElement(SendFormSelectors.recipientInput);
@@ -16,16 +16,9 @@ export class SendPage extends Page {
     await this.amountInput.waitForDisplayed();
   }
 
-  async selectToken(tokenName: string) {
-    const tokenItems = await findElements(SendFormSelectors.assetName);
+  async selectToken(slug: string) {
+    const tokenItemElem = await findElement(SendFormSelectors.assetDropDownItem, { slug });
 
-    for (const tokenItem of tokenItems) {
-      const getTokenName = await getElementText(tokenItem);
-
-      if (getTokenName === tokenName) {
-        await tokenItem.click();
-        break;
-      }
-    }
+    await tokenItemElem.click();
   }
 }
