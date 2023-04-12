@@ -46,7 +46,7 @@ export const useTotalBalance = () => {
   const totalBalanceInGasToken = useMemo(() => {
     const tezosToUsdRate = allUsdToTokenRates[TEZ_TOKEN_SLUG];
 
-    return totalBalanceInFiat.dividedBy(tezosToUsdRate).decimalPlaces(gasToken.metadata.decimals);
+    return totalBalanceInFiat.dividedBy(tezosToUsdRate).decimalPlaces(gasToken.metadata.decimals) || new BigNumber(0);
   }, [totalBalanceInFiat, allUsdToTokenRates, gasToken.metadata.decimals]);
 
   return { totalBalanceInFiat, totalBalanceInGasToken };

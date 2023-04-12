@@ -44,12 +44,12 @@ interface TotalVolumeBannerProps {
 
 const TotalVolumeBanner: FC<TotalVolumeBannerProps> = ({ accountPkh }) => (
   <div className="flex items-start justify-between w-full max-w-sm mx-auto mb-4">
-    <BalanceInfo accountPkh={accountPkh} />
+    <BalanceInfo />
     <AddressChip pkh={accountPkh} testID={HomeSelectors.publicAddressButton} />
   </div>
 );
 
-const BalanceInfo: FC<TotalVolumeBannerProps> = ({ accountPkh }) => {
+const BalanceInfo: FC = () => {
   const dispatch = useDispatch();
   const network = useNetwork();
   const { totalBalanceInFiat, totalBalanceInGasToken } = useTotalBalance();
@@ -71,9 +71,6 @@ const BalanceInfo: FC<TotalVolumeBannerProps> = ({ accountPkh }) => {
   );
 
   const buttonRef = useTippy<HTMLButtonElement>(tippyProps);
-
-  const { data: balance } = useBalance(TEZ_TOKEN_SLUG, accountPkh);
-  const volumeInGas = balance || new BigNumber(0);
 
   const nextBalanceMode = balanceMode === BalanceMode.Fiat ? BalanceMode.Gas : BalanceMode.Fiat;
 
