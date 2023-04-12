@@ -52,7 +52,7 @@ const TotalVolumeBanner: FC<TotalVolumeBannerProps> = ({ accountPkh }) => (
 const BalanceInfo: FC<TotalVolumeBannerProps> = ({ accountPkh }) => {
   const dispatch = useDispatch();
   const network = useNetwork();
-  const volumeInFiat = useTotalBalance();
+  const { totalBalanceInFiat, totalBalanceInGasToken } = useTotalBalance();
   const balanceMode = useBalanceModeSelector();
 
   const {
@@ -121,9 +121,9 @@ const BalanceInfo: FC<TotalVolumeBannerProps> = ({ accountPkh }) => {
 
       <div className="flex items-center text-2xl">
         {shouldShowFiatBanner ? (
-          <BalanceFiat volume={volumeInFiat} currency={fiatSymbol} />
+          <BalanceFiat volume={totalBalanceInFiat} currency={fiatSymbol} />
         ) : (
-          <BalanceGas volume={volumeInGas} currency={gasTokenSymbol} />
+          <BalanceGas volume={totalBalanceInGasToken} currency={gasTokenSymbol} />
         )}
       </div>
     </div>
