@@ -8,7 +8,7 @@ import { useSelector } from 'app/store';
 import { useFiatToUsdRate } from 'lib/fiat-currency';
 import { isTruthy } from 'lib/utils';
 
-import { TEZ_TOKEN_SLUG, useDisplayedFungibleTokens } from './assets';
+import { TEZ_TOKEN_SLUG, useDisplayedFungibleTokens, useGasToken } from './assets';
 import { useAccount, useChainId } from './ready';
 
 /** Total fiat volume of displayed tokens */
@@ -16,6 +16,7 @@ export const useTotalBalance = () => {
   const chainId = useChainId(true)!;
   const { publicKeyHash } = useAccount();
   const { data: tokens } = useDisplayedFungibleTokens(chainId, publicKeyHash);
+  const gasToken = useGasToken();
 
   const tokensBalances = useBalancesWithDecimals();
   const allUsdToTokenRates = useSelector(state => state.currency.usdToTokenRates.data);
@@ -27,7 +28,7 @@ export const useTotalBalance = () => {
     [tokens]
   );
 
-  const totalBalance = useMemo(() => {
+  const totalBalanceInFiat = useMemo(() => {
     let dollarValue = new BigNumber(0);
 
     if (!isTruthy(fiatToUsdRate)) return dollarValue;
@@ -42,5 +43,11 @@ export const useTotalBalance = () => {
     return dollarValue.times(fiatToUsdRate);
   }, [slugs, tokensBalances, allUsdToTokenRates, fiatToUsdRate]);
 
-  return totalBalance;
+  const totalBalanceInGasToken = useMemo(() => {
+    const tezosToUsdRate = allUsdToTokenRates[TEZ_TOKEN_SLUG];
+
+    return totalBalanceInFiat.dividedBy(tezosToUsdRate).decimalPlaces(gasToken.metadata.decimals) || new BigNumber(0);
+  }, [totalBalanceInFiat, allUsdToTokenRates, gasToken.metadata.decimals]);
+
+  return { totalBalanceInFiat, totalBalanceInGasToken };
 };
