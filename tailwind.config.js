@@ -100,11 +100,13 @@ module.exports = {
         },
         blue: {
           100: '#ebf8ff',
+          150: '#E5F2FF',
           200: '#bee3f8',
           300: '#90cdf4',
           400: '#63b3ed',
           500: '#4299e1',
           600: '#3182ce',
+          650: '#007AFF',
           700: '#2b6cb0',
           800: '#2c5282',
           900: '#2a4365'
@@ -380,6 +382,7 @@ module.exports = {
     },
     maxWidth: (theme, { breakpoints }) => ({
       none: 'none',
+      100: '6.25rem',
       xs: '20rem',
       sm: '24rem',
       md: '28rem',

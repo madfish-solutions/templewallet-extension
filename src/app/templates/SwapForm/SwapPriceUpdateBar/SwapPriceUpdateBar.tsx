@@ -2,11 +2,11 @@ import React, { FC, useEffect, useMemo, useRef, useState } from 'react';
 
 import { BlockInterface } from 'swap-router-sdk';
 
+import { BLOCK_DURATION } from 'lib/fixed-times';
+
 interface Props {
   lastUpdateBlock: BlockInterface;
 }
-
-const BLOCK_DURATION = 30000;
 
 export const SwapPriceUpdateBar: FC<Props> = ({ lastUpdateBlock }) => {
   const [nowTimestamp, setNowTimestamp] = useState(new Date().getTime());

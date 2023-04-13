@@ -18,6 +18,7 @@ import { ReactComponent as ClockIcon } from 'app/icons/time.svg';
 import { ReactComponent as UnlockIcon } from 'app/icons/unlock.svg';
 //
 import BakingHistoryItem from 'app/pages/Home/OtherComponents/BakingHistoryItem';
+import { useUserTestingGroupNameSelector } from 'app/store/ab-testing/selectors';
 import BakerBanner from 'app/templates/BakerBanner';
 import { getDelegatorRewards, isKnownChainId } from 'lib/apis/tzkt';
 import { T, t } from 'lib/i18n';
@@ -73,6 +74,7 @@ const BakingSection = memo(() => {
   const canDelegate = acc.type !== TempleAccountType.WatchOnly;
   const chainId = useChainId(true);
   const { isDcpNetwork } = useGasToken();
+  const testGroupName = useUserTestingGroupNameSelector();
 
   const { popup } = useAppEnv();
 
@@ -122,6 +124,7 @@ const BakingSection = memo(() => {
         'w-full'
       ),
       testID: BakingSectionSelectors.delegateNowButton,
+      testIDProperties: { abTestingCategory: testGroupName },
       children: <T id="delegate" />
     }),
     [canDelegate]
@@ -137,6 +140,7 @@ const BakingSection = memo(() => {
         !canDelegate && 'opacity-50'
       ),
       testID: BakingSectionSelectors.reDelegateButton,
+      testIDProperties: { abTestingCategory: testGroupName },
       children: <T id="reDelegate" />
     }),
     [canDelegate]
