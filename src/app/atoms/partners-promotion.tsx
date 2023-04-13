@@ -9,9 +9,9 @@ import { useShouldShowPartnersPromoSelector, usePartnersPromoSelector } from 'ap
 import { t } from 'lib/i18n';
 import { useConfirm } from 'lib/ui/dialog';
 
-import Spinner from './Spinner/Spinner';
 import { Anchor } from './Anchor';
 import { PartnersPromotionSelectors } from './partners-promotion.selectors';
+import Spinner from './Spinner/Spinner';
 
 export enum PartnersPromotionVariant {
   Text = 'Text',
