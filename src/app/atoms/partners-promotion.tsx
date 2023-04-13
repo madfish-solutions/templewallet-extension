@@ -10,6 +10,8 @@ import { t } from 'lib/i18n';
 import { useConfirm } from 'lib/ui/dialog';
 
 import Spinner from './Spinner/Spinner';
+import { Anchor } from './Anchor';
+import { PartnersPromotionSelectors } from './partners-promotion.selectors';
 
 export enum PartnersPromotionVariant {
   Text = 'Text',
@@ -58,11 +60,13 @@ export const PartnersPromotion: FC<Props> = memo(({ variant }) => {
   if (variant === PartnersPromotionVariant.Text) {
     return (
       <div className="relative bg-gray-100 w-full max-w-sm overflow-hidden">
-        <a
+        <Anchor
           className="flex items-start justify-start gap-2 p-4 max-w-sm w-full"
           href={promo.link}
           target="_blank"
           rel="noreferrer"
+          testID={PartnersPromotionSelectors.promoLink}
+          testIDProperties={{ variant, href: promo.link }}
         >
           <img className="h-10 w-10 rounded-circle" src={promo.image} alt="Partners promotion" />
           <div className="flex flex-col gap-1">
@@ -72,7 +76,7 @@ export const PartnersPromotion: FC<Props> = memo(({ variant }) => {
             </div>
             <span className="text-xs text-gray-600">{promo.copy.content}</span>
           </div>
-        </a>
+        </Anchor>
         <button
           className="absolute top-2 right-2 z-10 p-1 border-gray-300 border rounded"
           onClick={handleClosePartnersPromoClick}
@@ -95,9 +99,15 @@ export const PartnersPromotion: FC<Props> = memo(({ variant }) => {
       >
         <CloseIcon className="w-4 h-4 m-auto" style={{ strokeWidth: 3 }} />
       </button>
-      <a href={promo.link} target="_blank" rel="noreferrer">
+      <Anchor
+        href={promo.link}
+        target="_blank"
+        rel="noreferrer"
+        testID={PartnersPromotionSelectors.promoLink}
+        testIDProperties={{ variant, href: promo.link }}
+      >
         <img src={promo.image} alt="Partners promotion" className="shadow-lg rounded-lg" />
-      </a>
+      </Anchor>
     </div>
   );
 });
