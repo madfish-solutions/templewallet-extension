@@ -1,6 +1,6 @@
 import { combineEpics, Epic } from 'redux-observable';
-import { from, Observable } from 'rxjs';
-import { map, switchMap } from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
+import { catchError, map, switchMap } from 'rxjs/operators';
 import { Action } from 'ts-action';
 import { ofType, toPayload } from 'ts-action-operators';
 
@@ -14,17 +14,8 @@ const loadPartnersPromotionEpic: Epic = (action$: Observable<Action>) =>
     toPayload(),
     switchMap(adType =>
       getOptimalPromotionImage$(adType).pipe(
-        switchMap(optimalPromo =>
-          from(fetch(optimalPromo.image)).pipe(
-            map(res => {
-              if (res.ok) {
-                return loadPartnersPromoAction.success(optimalPromo);
-              }
-
-              return loadPartnersPromoAction.fail('Promotion loading failed');
-            })
-          )
-        )
+        map(optimalPromo => loadPartnersPromoAction.success(optimalPromo)),
+        catchError(() => of(loadPartnersPromoAction.fail('Promotion loading failed')))
       )
     )
   );
