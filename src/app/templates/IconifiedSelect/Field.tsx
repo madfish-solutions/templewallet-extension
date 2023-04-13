@@ -19,6 +19,7 @@ interface SearchProps {
   value?: string;
   placeholder?: string;
   onChange: (value: string) => void;
+  inputTestID?: string;
 }
 
 interface IconifiedSelectFieldProps extends FieldBaseProps, TestIDProps {
@@ -76,6 +77,7 @@ const FieldWithSearch = forwardRef<HTMLDivElement, FieldWithSearchProps>((props,
               className="w-full px-2 bg-transparent placeholder-gray-500"
               placeholder={search.placeholder}
               onChange={event => search.onChange(event.target.value)}
+              {...setTestID(search.inputTestID)}
             />
           </div>
         </div>

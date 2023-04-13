@@ -88,7 +88,8 @@ const IconifiedSelect = <T extends unknown>({
               search && {
                 value: searchString,
                 placeholder: search?.placeholder,
-                onChange: setSearchString
+                onChange: setSearchString,
+                inputTestID: search.inputTestID
               }
             }
           />
