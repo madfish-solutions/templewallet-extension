@@ -24,6 +24,7 @@ export {
   useTokensMetadata,
   useAvailableAssets,
   useAllTokensBaseMetadata,
+  useAssetsSortPredicate,
   useCollectibleTokens,
   useDisplayedFungibleTokens,
   useGetTokenMetadata,
@@ -53,8 +54,6 @@ export type { RawOperationAssetExpense, RawOperationExpenses } from './expenses'
 export { tryParseExpenses } from './expenses';
 
 export { TempleProvider } from './provider';
-
-export { ABTestGroupProvider, useAB } from './ab-test.provider';
 
 export { validateDelegate } from './validate-delegate';
 

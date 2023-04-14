@@ -14,6 +14,6 @@ export const fetchUSDTApy$ = () => {
 };
 
 export const fetchTzBtcApy$ = () => {
-  const slug = KNOWN_TOKENS_SLUGS.tzBTC;
+  const slug = KNOWN_TOKENS_SLUGS.TZBTC;
   return fetchApyFromYupana$('TZBTC').pipe(map(val => ({ [slug]: val })));
 };

@@ -6,6 +6,8 @@ import { PersistConfig } from 'redux-persist/lib/types';
 import { notificationsEpics, notificationsReducers } from 'lib/notifications';
 import { createStore, GetStateType, rootStateReducer } from 'lib/store';
 
+import { abTestingEpics } from './ab-testing/epics';
+import { abTestingReducer } from './ab-testing/reducers';
 import { advertisingEpics } from './advertising/epics';
 import { advertisingReducer } from './advertising/reducers';
 import { balancesEpics } from './balances/epics';
@@ -25,7 +27,8 @@ const baseReducer = rootStateReducer({
   notifications: notificationsReducers,
   dApps: dAppsReducer,
   swap: swapReducer,
-  balances: balancesReducer
+  balances: balancesReducer,
+  abTesting: abTestingReducer
 });
 
 export type RootState = GetStateType<typeof baseReducer>;
@@ -37,7 +40,15 @@ const persistConfig: PersistConfig<RootState> = {
   stateReconciler: autoMergeLevel2
 };
 
-const epics = [currencyEpics, advertisingEpics, notificationsEpics, dAppsEpics, swapEpics, balancesEpics];
+const epics = [
+  currencyEpics,
+  advertisingEpics,
+  notificationsEpics,
+  dAppsEpics,
+  swapEpics,
+  balancesEpics,
+  abTestingEpics
+];
 
 export const { store, persistor } = createStore(persistConfig, baseReducer, epics);
 

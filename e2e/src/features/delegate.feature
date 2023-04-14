@@ -1,8 +1,8 @@
 Feature: Delegate
-@dev
+
   Scenario: As a user, i'd like to re-delegate TEZ to a baker
     Given I have imported an existing account
-    And I press Asset Item Delegate Button on the Assets page
+    And I press Asset Item Apy Button on the Assets page
 
     And I am on the DelegateTab page
     And I check who the delegated baker is
@@ -16,4 +16,5 @@ Feature: Delegate
     And I press Confirm Button on the Internal Confirmation page
 
     And I am on the OperationStatusAlert page
-    And I'm waiting for 'success ✓' operation status
+
+    Then I'm waiting for 'success ✓' operation status

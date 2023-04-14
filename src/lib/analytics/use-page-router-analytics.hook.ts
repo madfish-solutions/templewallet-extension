@@ -17,7 +17,10 @@ export const usePageRouterAnalytics = (pathname: string, search: string, isConte
       const [, route = '', tokenSlug = 'tez'] = pathname.split('/');
       const [tokenAddress, tokenId = '0'] = tokenSlug.split('_');
 
-      return void pageEvent(`/${route}`, search, { tokenAddress, tokenId });
+      return void pageEvent(`/${route}`, search, {
+        tokenAddress,
+        tokenId
+      });
     }
 
     if (pageRoutesWithQueryParams.some(route => pathname.startsWith(route))) {

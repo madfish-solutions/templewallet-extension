@@ -10,7 +10,7 @@ const YUPANA_LEND_LINK = 'https://app.yupana.finance/lending';
 const TOKEN_APY_LINKS: Readonly<Record<string, string | undefined>> = {
   [KNOWN_TOKENS_SLUGS.KUSD]: YUPANA_LEND_LINK,
   [KNOWN_TOKENS_SLUGS.USDT]: YUPANA_LEND_LINK,
-  [KNOWN_TOKENS_SLUGS.tzBTC]: YUPANA_LEND_LINK
+  [KNOWN_TOKENS_SLUGS.TZBTC]: YUPANA_LEND_LINK
 };
 
 export interface TokenApyInfo {

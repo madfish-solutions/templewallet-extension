@@ -28,5 +28,6 @@ export interface IconifiedSelectProps<T> extends IconifiedSelectPropsBase<T>, Te
   search?: {
     placeholder?: string;
     filterItems(searchString: string): T[];
+    inputTestID?: string;
   };
 }
