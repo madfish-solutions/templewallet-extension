@@ -16,6 +16,8 @@ import { currencyEpics } from './currency/epics';
 import { currencyReducer } from './currency/reducers';
 import { dAppsEpics } from './d-apps/epics';
 import { dAppsReducer } from './d-apps/reducers';
+import { partnersPromotionEpics } from './partners-promotion/epics';
+import { partnersPromotionRucer } from './partners-promotion/reducers';
 import { settingsReducer } from './settings/reducers';
 
 const baseReducer = rootStateReducer({
@@ -24,6 +26,7 @@ const baseReducer = rootStateReducer({
   currency: currencyReducer,
   notifications: notificationsReducers,
   dApps: dAppsReducer,
+  partnersPromotion: partnersPromotionRucer,
   balances: balancesReducer,
   abTesting: abTestingReducer
 });
@@ -37,7 +40,15 @@ const persistConfig: PersistConfig<RootState> = {
   stateReconciler: autoMergeLevel2
 };
 
-const epics = [currencyEpics, advertisingEpics, notificationsEpics, dAppsEpics, balancesEpics, abTestingEpics];
+const epics = [
+  currencyEpics,
+  advertisingEpics,
+  notificationsEpics,
+  dAppsEpics,
+  partnersPromotionEpics,
+  balancesEpics,
+  abTestingEpics
+];
 
 export const { store, persistor } = createStore(persistConfig, baseReducer, epics);
 
