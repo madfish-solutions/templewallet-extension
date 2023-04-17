@@ -15,9 +15,19 @@ export const loadChainId = memoize(fetchChainId, {
   maxSize: 100
 });
 
+export const loadProtocols = memoize(fetchProtocols, {
+  isPromise: true,
+  maxSize: 100
+});
+
 function fetchChainId(rpcUrl: string) {
   const rpc = new RpcClient(rpcUrl);
   return rpc.getChainId();
+}
+
+function fetchProtocols(rpcUrl: string) {
+  const rpc = new RpcClient(rpcUrl);
+  return rpc.getProtocols({ block: 'head' });
 }
 
 export function hasManager(manager: ManagerKeyResponse) {

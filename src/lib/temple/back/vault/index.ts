@@ -1,12 +1,12 @@
 import { HttpResponseError } from '@taquito/http-utils';
 import { DerivationType } from '@taquito/ledger-signer';
-import { localForger } from '@taquito/local-forging';
+import { LocalForger, ProtocolsHash } from '@taquito/local-forging';
 import { CompositeForger, RpcForger, Signer, TezosOperationError, TezosToolkit } from '@taquito/taquito';
 import * as TaquitoUtils from '@taquito/utils';
 import * as Bip39 from 'bip39';
 import * as WasmThemis from 'wasm-themis';
 
-import { formatOpParamsBeforeSend, loadFastRpcClient, michelEncoder } from 'lib/temple/helpers';
+import { formatOpParamsBeforeSend, loadFastRpcClient, loadProtocols, michelEncoder } from 'lib/temple/helpers';
 import * as Passworder from 'lib/temple/passworder';
 import { clearAsyncStorages } from 'lib/temple/reset';
 import { TempleAccount, TempleAccountType, TempleSettings } from 'lib/temple/types';
@@ -501,11 +501,17 @@ export class Vault {
     );
   }
 
+  async getProtocolsHash(rpc: string) {
+    const protocols = await loadProtocols(rpc);
+    return protocols.protocol as ProtocolsHash;
+  }
+
   async sendOperations(accPublicKeyHash: string, rpc: string, opParams: any[]) {
     return this.withSigner(accPublicKeyHash, async signer => {
       const batch = await withError('Failed to send operations', async () => {
         const tezos = new TezosToolkit(loadFastRpcClient(rpc));
         tezos.setSignerProvider(signer);
+        const localForger = new LocalForger(await this.getProtocolsHash(rpc));
         tezos.setForgerProvider(new CompositeForger([tezos.getFactory(RpcForger)(), localForger]));
         tezos.setPackerProvider(michelEncoder);
         return tezos.contract.batch(opParams.map(formatOpParamsBeforeSend));
