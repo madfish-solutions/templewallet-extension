@@ -74,32 +74,27 @@ export const SwapForm: FC = () => {
   const isSubmitButtonPressedRef = useRef(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isAlertVisible, setIsAlertVisible] = useState(false);
+  const [routingFeeAtomic, setRoutingFeeAtomic] = useState<BigNumber>();
+  const [swapInputAtomicWithoutFee, setSwapInputAtomicWithoutFee] = useState<BigNumber>();
 
   const slippageRatio = useMemo(() => getPercentageRatio(slippageTolerance ?? 0), [slippageTolerance]);
-  const { routingFeeAtomic, minimumReceivedAmountAtomic } = useMemo(() => {
-    if (swapParams.data.output !== undefined) {
-      const swapOutputAtomic = tokensToAtoms(new BigNumber(swapParams.data.output), outputAssetMetadata.decimals);
-      const routingFeeAtomic = swapOutputAtomic
-        .minus(swapOutputAtomic.multipliedBy(ROUTING_FEE_RATIO))
-        .integerValue(BigNumber.ROUND_DOWN);
-      const minimumReceivedAmountAtomic = swapOutputAtomic
-        .minus(routingFeeAtomic)
+  const minimumReceivedAmountAtomic = useMemo(() => {
+    if (isDefined(swapParams.data.output)) {
+      return tokensToAtoms(new BigNumber(swapParams.data.output), outputAssetMetadata.decimals)
         .multipliedBy(slippageRatio)
         .integerValue(BigNumber.ROUND_DOWN);
-
-      return { routingFeeAtomic, minimumReceivedAmountAtomic };
     } else {
-      return { routingFeeAtomic: ZERO, minimumReceivedAmountAtomic: ZERO };
+      return ZERO;
     }
-  }, [slippageRatio, outputValue.amount, swapParams.data.output]);
+  }, [slippageRatio, swapParams.data.output, outputAssetMetadata.decimals]);
 
   useEffect(() => {
-    if (isDefined(fromRoute3Token) && isDefined(toRoute3Token) && isDefined(inputValue.amount)) {
+    if (isDefined(fromRoute3Token) && isDefined(toRoute3Token) && isDefined(swapInputAtomicWithoutFee)) {
       dispatch(
         loadSwapParamsAction.submit({
           fromSymbol: fromRoute3Token.symbol,
           toSymbol: toRoute3Token.symbol,
-          amount: inputValue.amount.toFixed()
+          amount: atomsToTokens(swapInputAtomicWithoutFee, fromRoute3Token.decimals).toFixed()
         })
       );
     }
@@ -174,7 +169,7 @@ export const SwapForm: FC = () => {
 
     formAnalytics.trackSubmit(analyticsProperties);
 
-    if (!fromRoute3Token || !toRoute3Token || !inputValue.amount) {
+    if (!fromRoute3Token || !toRoute3Token || !swapInputAtomicWithoutFee || !routingFeeAtomic) {
       return;
     }
 
@@ -184,7 +179,7 @@ export const SwapForm: FC = () => {
       const route3SwapOpParams = await getRoute3SwapOpParams(
         fromRoute3Token,
         toRoute3Token,
-        tokensToAtoms(inputValue.amount, fromRoute3Token.decimals),
+        swapInputAtomicWithoutFee,
         minimumReceivedAmountAtomic,
         swapParams.data.chains
       );
@@ -194,24 +189,22 @@ export const SwapForm: FC = () => {
       }
 
       if (
-        outputValue.assetSlug !== undefined &&
-        outputValue.assetSlug !== `${TEMPLE_TOKEN.contract}_${TEMPLE_TOKEN.tokenId}`
+        inputValue.assetSlug !== undefined &&
+        inputValue.assetSlug !== `${TEMPLE_TOKEN.contract}_${TEMPLE_TOKEN.tokenId}`
       ) {
         const swapToTempleParams = await fetchRoute3SwapParams({
-          fromSymbol: toRoute3Token.symbol,
+          fromSymbol: fromRoute3Token.symbol,
           toSymbol: TEMPLE_TOKEN.symbol,
-          amount: atomsToTokens(routingFeeAtomic, toRoute3Token.decimals).toFixed()
+          amount: atomsToTokens(routingFeeAtomic, fromRoute3Token.decimals).toFixed(),
+          chainsLimit: '1'
         });
-
-        console.log('swapToTempleParams: ', swapToTempleParams);
 
         const templeOutputAtomic = tokensToAtoms(new BigNumber(swapToTempleParams.output ?? '0'), TEMPLE_TOKEN.decimals)
           .multipliedBy(0.99)
           .integerValue(BigNumber.ROUND_DOWN);
-        console.log('templeOutputAtomic: ', templeOutputAtomic.toFixed());
 
         const swapToTempleTokenOpParams = await getRoute3SwapOpParams(
-          toRoute3Token,
+          fromRoute3Token,
           TEMPLE_TOKEN,
           routingFeeAtomic,
           templeOutputAtomic,
@@ -229,7 +222,7 @@ export const SwapForm: FC = () => {
           tezos
         );
 
-        const opParams = [...route3SwapOpParams, ...swapToTempleTokenOpParams, ...routingFeeOpParams].map(param =>
+        const opParams = [...swapToTempleTokenOpParams, ...routingFeeOpParams, ...route3SwapOpParams].map(param =>
           parseTransferParamsToParamsWithKind(param)
         );
 
@@ -240,13 +233,13 @@ export const SwapForm: FC = () => {
         setOperation(batchOperation);
       } else {
         const routingFeeOpParams = await getRoutingFeeTransferParams(
-          toRoute3Token,
-          routingFeeAtomic.dividedBy(2),
+          fromRoute3Token,
+          routingFeeAtomic.dividedToIntegerBy(2),
           publicKeyHash,
           tezos
         );
 
-        const opParams = [...route3SwapOpParams, ...routingFeeOpParams].map(param =>
+        const opParams = [...routingFeeOpParams, ...route3SwapOpParams].map(param =>
           parseTransferParamsToParamsWithKind(param)
         );
 
@@ -281,13 +274,26 @@ export const SwapForm: FC = () => {
       setValue('output', {});
     }
 
+    const newFromToken = getRoute3TokenBySlug(route3Tokens, newInputValue.assetSlug);
+
+    const swapInputAtomic = tokensToAtoms(
+      new BigNumber(newInputValue.amount ?? 0),
+      newFromToken?.decimals ?? 0
+    ).integerValue(BigNumber.ROUND_DOWN);
+    const swapInputAtomicWithoutFee = swapInputAtomic
+      .multipliedBy(ROUTING_FEE_RATIO)
+      .integerValue(BigNumber.ROUND_DOWN);
+
     dispatch(
       loadSwapParamsAction.submit({
-        fromSymbol: getRoute3TokenBySlug(route3Tokens, newInputValue.assetSlug)?.symbol ?? '',
+        fromSymbol: newFromToken?.symbol ?? '',
         toSymbol: toRoute3Token?.symbol ?? '',
-        amount: newInputValue.amount?.toFixed()
+        amount: atomsToTokens(swapInputAtomicWithoutFee, newFromToken?.decimals ?? 0).toFixed()
       })
     );
+
+    setRoutingFeeAtomic(swapInputAtomic.minus(swapInputAtomicWithoutFee));
+    setSwapInputAtomicWithoutFee(swapInputAtomicWithoutFee);
   };
 
   const handleOutputChange = (newOutputValue: SwapInputValue) => {
@@ -301,7 +307,7 @@ export const SwapForm: FC = () => {
       loadSwapParamsAction.submit({
         fromSymbol: fromRoute3Token?.symbol ?? '',
         toSymbol: getRoute3TokenBySlug(route3Tokens, newOutputValue.assetSlug)?.symbol ?? '',
-        amount: inputValue.amount?.toFixed()
+        amount: atomsToTokens(swapInputAtomicWithoutFee ?? ZERO, fromRoute3Token?.decimals ?? 0).toFixed()
       })
     );
   };
