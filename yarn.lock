@@ -8592,7 +8592,7 @@ prettier-linter-helpers@^1.0.0:
   dependencies:
     fast-diff "^1.1.2"
 
-prettier@^2.7.0, prettier@^2.7.1:
+prettier@^2.7.1:
   version "2.7.1"
   resolved "https://registry.yarnpkg.com/prettier/-/prettier-2.7.1.tgz#e235806850d057f97bb08368a4f7d899f7760c64"
   integrity sha512-ujppO+MkdPqoVINuDFDRLClm7D78qbDt0/NR+wp5FqEZOoTNAjPHWj17QRhu7geIHJfcNhRk1XVQmF8Bp3ye+g==
@@ -9815,17 +9815,6 @@ svgson@^4.0.0:
     deep-rename-keys "^0.2.1"
     omit-deep "0.3.0"
     xml-reader "2.4.3"
-
-swap-router-sdk@1.19.2:
-  version "1.19.2"
-  resolved "https://registry.yarnpkg.com/swap-router-sdk/-/swap-router-sdk-1.19.2.tgz#124f73a4854ad6e0737b75f2628f445c39ed65cf"
-  integrity sha512-Lkx9l3ABc+SngBPEv0rvqH2t3bcYGUjATBC8uHwWsmuC/Hnys79Ihm4cKnBCtqNPfBs9sBHueTWFbpzOJQz6Sw==
-  dependencies:
-    "@taquito/taquito" "15.0.1"
-    async-retry "1.3.3"
-    bignumber.js "^9.1.0"
-    eslint "^8.17.0"
-    prettier "^2.7.0"
 
 swr@1.3.0:
   version "1.3.0"

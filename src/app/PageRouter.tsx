@@ -1,4 +1,6 @@
-import React, { FC, useLayoutEffect, useMemo } from 'react';
+import React, { FC, useEffect, useLayoutEffect, useMemo } from 'react';
+
+import { useDispatch } from 'react-redux';
 
 import { OpenInFullPage, useAppEnv } from 'app/env';
 import AddAsset from 'app/pages/AddAsset/AddAsset';
@@ -34,6 +36,7 @@ import { Utorg } from './pages/Buy/Debit/Utorg/Utorg';
 import AttentionPage from './pages/Onboarding/pages/AttentionPage';
 import { AliceBobWithdraw } from './pages/Withdraw/Debit/AliceBob/AliceBobWithdraw';
 import { Withdraw } from './pages/Withdraw/Withdraw';
+import { loadSwapDexesAction, loadSwapTokensAction } from './store/swap/actions';
 
 interface RouteContext {
   popup: boolean;
@@ -104,11 +107,17 @@ const ROUTE_MAP = Woozie.createMap<RouteContext>([
 ]);
 
 export const PageRouter: FC = () => {
+  const dispatch = useDispatch();
   const { trigger, pathname, search } = Woozie.useLocation();
 
   useLongRefreshLoading();
   useAdvertisingLoading();
   useTokensApyLoading();
+
+  useEffect(() => {
+    dispatch(loadSwapDexesAction.submit());
+    dispatch(loadSwapTokensAction.submit());
+  }, [dispatch]);
 
   // Scroll to top after new location pushed.
   useLayoutEffect(() => {

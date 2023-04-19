@@ -40,6 +40,7 @@ export const AssetsMenu: FC<Props> = ({
   const { dropdownWidth } = useAppEnvStyle();
   const chainId = useChainId(true)!;
   const account = useAccount();
+
   const isShowSearchOption = useMemo(() => !options.includes(searchAssetSlug), [options, searchAssetSlug]);
 
   const { trackEvent } = useAnalytics();

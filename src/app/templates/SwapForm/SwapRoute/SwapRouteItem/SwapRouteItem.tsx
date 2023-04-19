@@ -1,48 +1,61 @@
 import React, { FC } from 'react';
 
-import classNames from 'clsx';
-import { getDexName, TradeOperation } from 'swap-router-sdk';
+import { BigNumber } from 'bignumber.js';
 
-import { AssetIcon } from 'app/templates/AssetIcon';
-import { DexTypeIcon, getPoolName } from 'lib/swap-router';
-import { useAssetMetadata } from 'lib/temple/front';
-import useTippy from 'lib/ui/useTippy';
+import { ReactComponent as Separator } from 'app/icons/separator.svg';
+import { useSwapDexesSelector } from 'app/store/swap/selectors';
+import { Route3Chain } from 'lib/apis/route3/fetch-route3-swap-params';
 
-import { ReactComponent as NextArrow } from './icons/next-arrow.svg';
+import { HopItem } from './hop-item';
 
 interface Props {
-  tradeOperation: TradeOperation;
-  isShowNextArrow: boolean;
+  baseInput: string | undefined;
+  baseOutput: string | undefined;
+  chain: Route3Chain;
 }
 
-export const SwapRouteItem: FC<Props> = ({ tradeOperation, isShowNextArrow }) => {
-  const aTokenMetadata = useAssetMetadata(tradeOperation.aTokenSlug);
-  const bTokenMetadata = useAssetMetadata(tradeOperation.bTokenSlug);
+const BASE = new BigNumber(100);
+const PERCENTAGE_DECIMALS = 1;
+const AMOUNT_DECIMALS = 2;
 
-  const swapInfoDivRef = useTippy<HTMLDivElement>({
-    trigger: 'mouseenter',
-    hideOnClick: false,
-    content: `Dex: ${getDexName(tradeOperation.dexType)} \nPool: ${getPoolName(
-      tradeOperation.direction,
-      aTokenMetadata,
-      bTokenMetadata
-    )}`,
-    animation: 'shift-away-subtle'
-  });
+const calculatePercentage = (base: string | undefined, part: string) => {
+  if (base === undefined) {
+    return;
+  }
+
+  const amountToFormat = BASE.multipliedBy(part).dividedBy(base);
+
+  if (amountToFormat.isGreaterThanOrEqualTo(BASE)) {
+    return BASE.toFixed();
+  }
+
+  return amountToFormat.toFixed(PERCENTAGE_DECIMALS);
+};
+export const SwapRouteItem: FC<Props> = ({ chain, baseInput, baseOutput }) => {
+  const { data: route3Dexes } = useSwapDexesSelector();
 
   return (
-    <>
-      <div
-        ref={swapInfoDivRef}
-        className={classNames('flex flex-col items-center', 'px-4 py-2', 'border rounded-md border-gray-300')}
-      >
-        <DexTypeIcon dexType={tradeOperation.dexType} />
-        <div className="flex mt-2">
-          <AssetIcon assetSlug={tradeOperation.aTokenSlug} size={24} />
-          <AssetIcon assetSlug={tradeOperation.bTokenSlug} size={24} className="-ml-1" />
-        </div>
+    <div className="flex justify-between relative">
+      <div className="absolute w-full h-full flex items-center justify-center">
+        <Separator />
       </div>
-      {isShowNextArrow && <NextArrow />}
-    </>
+      <div className="z-10">
+        <div className="text-gray-600">{new BigNumber(chain.input).toFixed(AMOUNT_DECIMALS)}</div>
+        <div className="text-blue-500">{calculatePercentage(baseInput, chain.input)}%</div>
+      </div>
+      {chain.hops.map((hop, index) => {
+        const dex = route3Dexes.find(dex => dex.id === hop.dex);
+
+        const aToken = hop.forward ? dex?.token1 : dex?.token2;
+        const bToken = hop.forward ? dex?.token2 : dex?.token1;
+
+        return <HopItem className="z-10" key={index} dex={dex} aToken={aToken} bToken={bToken} />;
+      })}
+
+      <div className="z-10">
+        <div className="text-right text-gray-600">{new BigNumber(chain.output).toFixed(AMOUNT_DECIMALS)}</div>
+        <div className="text-right text-blue-500">{calculatePercentage(baseOutput, chain.output)}%</div>
+      </div>
+    </div>
   );
 };

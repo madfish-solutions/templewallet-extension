@@ -19,6 +19,8 @@ import { dAppsReducer } from './d-apps/reducers';
 import { partnersPromotionEpics } from './partners-promotion/epics';
 import { partnersPromotionRucer } from './partners-promotion/reducers';
 import { settingsReducer } from './settings/reducers';
+import { swapEpics } from './swap/epics';
+import { swapReducer } from './swap/reducers';
 
 const baseReducer = rootStateReducer({
   settings: settingsReducer,
@@ -26,6 +28,7 @@ const baseReducer = rootStateReducer({
   currency: currencyReducer,
   notifications: notificationsReducers,
   dApps: dAppsReducer,
+  swap: swapReducer,
   partnersPromotion: partnersPromotionRucer,
   balances: balancesReducer,
   abTesting: abTestingReducer
@@ -45,6 +48,7 @@ const epics = [
   advertisingEpics,
   notificationsEpics,
   dAppsEpics,
+  swapEpics,
   partnersPromotionEpics,
   balancesEpics,
   abTestingEpics
