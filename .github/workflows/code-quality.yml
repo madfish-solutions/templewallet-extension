@@ -62,6 +62,15 @@ jobs:
       - name: Perform end-to-end tests
         uses: ./.github/workflows/e2e
 
+      - name: Upload E2E video to Slack
+        if: always()
+        uses: adrey/slack-file-upload-action@master
+        with:
+          token: ${{ secrets.SLACK_E2E_VIDEO_UPLOADER_TOKEN }}
+          path: e2e/video-rep/test-runs.mp4
+          channel: temple-test-runs
+          initial_comment: <https://github.com/madfish-solutions/templewallet-extension/pull/${{ github.event.number }}|${{ github.event.pull_request.title }}>  (Run <https://github.com/madfish-solutions/templewallet-extension/actions/runs/${{ github.run_id }}|№${{ github.run_number }}>)
+
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:

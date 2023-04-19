@@ -9,6 +9,7 @@ const FAILED_RESET_ERROR = new Error('Failed to reset extension');
 
 After({ timeout: MEDIUM_TIMEOUT }, async () => {
   // [ Extension storages full reset ]
+  await BrowserContext.recorder.stop();
 
   await BrowserContext.page.evaluate(
     // @ts-ignore
