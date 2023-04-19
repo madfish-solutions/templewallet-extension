@@ -10,7 +10,7 @@ export interface Route3SwapParamsRequest {
   fromSymbol: string;
   toSymbol: string;
   amount: string;
-  chainsLimit?: string;
+  chainsLimit?: number;
 }
 
 interface Route3Hop {
@@ -42,7 +42,7 @@ export const fetchRoute3SwapParams = ({
   fromSymbol,
   toSymbol,
   amount,
-  chainsLimit = '4'
+  chainsLimit = 3
 }: Route3SwapParamsRequest): Promise<Route3SwapParamsResponse> =>
   fetch(`https://temple.3route.io/swap/${fromSymbol}/${toSymbol}/${amount}?chainsLimit=${chainsLimit}`, {
     headers: {

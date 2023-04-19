@@ -1,5 +1,6 @@
 import React, { FC, useEffect, useMemo, useRef, useState } from 'react';
 
+import { TransferParams } from '@taquito/taquito';
 import { BatchWalletOperation } from '@taquito/taquito/dist/types/wallet/batch-operation';
 import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
@@ -17,10 +18,11 @@ import OperationStatus from 'app/templates/OperationStatus';
 import { setTestID, useFormAnalytics } from 'lib/analytics';
 import { fetchRoute3SwapParams } from 'lib/apis/route3/fetch-route3-swap-params';
 import { T, t } from 'lib/i18n';
-import { ROUTING_FEE_RATIO, TEMPLE_TOKEN, ZERO } from 'lib/route3/constants';
+import { ROUTING_FEE_RATIO, ROUTING_FEE_SLIPPAGE_RATIO, TEMPLE_TOKEN, ZERO } from 'lib/route3/constants';
 import { getPercentageRatio } from 'lib/route3/utils/get-percentage-ratio';
 import { getRoute3TokenBySlug } from 'lib/route3/utils/get-route3-token-by-slug';
 import { getRoutingFeeTransferParams } from 'lib/route3/utils/get-routing-fee-transfer-params';
+import { isInputTokenEqualToTempleToken } from 'lib/route3/utils/is-input-token-equal-to-temple-token';
 import { ROUTING_FEE_PERCENT } from 'lib/swap-router/config';
 import { useAccount, useAssetMetadata, useTezos } from 'lib/temple/front';
 import { atomsToTokens, tokensToAtoms } from 'lib/temple/helpers';
@@ -78,15 +80,6 @@ export const SwapForm: FC = () => {
   const [swapInputAtomicWithoutFee, setSwapInputAtomicWithoutFee] = useState<BigNumber>();
 
   const slippageRatio = useMemo(() => getPercentageRatio(slippageTolerance ?? 0), [slippageTolerance]);
-  const minimumReceivedAmountAtomic = useMemo(() => {
-    if (isDefined(swapParams.data.output)) {
-      return tokensToAtoms(new BigNumber(swapParams.data.output), outputAssetMetadata.decimals)
-        .multipliedBy(slippageRatio)
-        .integerValue(BigNumber.ROUND_DOWN);
-    } else {
-      return ZERO;
-    }
-  }, [slippageRatio, swapParams.data.output, outputAssetMetadata.decimals]);
 
   useEffect(() => {
     if (isDefined(fromRoute3Token) && isDefined(toRoute3Token) && isDefined(swapInputAtomicWithoutFee)) {
@@ -169,12 +162,26 @@ export const SwapForm: FC = () => {
 
     formAnalytics.trackSubmit(analyticsProperties);
 
-    if (!fromRoute3Token || !toRoute3Token || !swapInputAtomicWithoutFee || !routingFeeAtomic) {
+    if (
+      !fromRoute3Token ||
+      !toRoute3Token ||
+      !swapInputAtomicWithoutFee ||
+      !routingFeeAtomic ||
+      !swapParams.data.output
+    ) {
       return;
     }
 
     try {
       setOperation(undefined);
+
+      const allSwapParams: Array<TransferParams> = [];
+      const minimumReceivedAmountAtomic = tokensToAtoms(
+        new BigNumber(swapParams.data.output),
+        outputAssetMetadata.decimals
+      )
+        .multipliedBy(slippageRatio)
+        .integerValue(BigNumber.ROUND_DOWN);
 
       const route3SwapOpParams = await getRoute3SwapOpParams(
         fromRoute3Token,
@@ -188,19 +195,16 @@ export const SwapForm: FC = () => {
         return;
       }
 
-      if (
-        inputValue.assetSlug !== undefined &&
-        inputValue.assetSlug !== `${TEMPLE_TOKEN.contract}_${TEMPLE_TOKEN.tokenId}`
-      ) {
+      if (isInputTokenEqualToTempleToken(inputValue.assetSlug)) {
         const swapToTempleParams = await fetchRoute3SwapParams({
           fromSymbol: fromRoute3Token.symbol,
           toSymbol: TEMPLE_TOKEN.symbol,
           amount: atomsToTokens(routingFeeAtomic, fromRoute3Token.decimals).toFixed(),
-          chainsLimit: '1'
+          chainsLimit: 1
         });
 
         const templeOutputAtomic = tokensToAtoms(new BigNumber(swapToTempleParams.output ?? '0'), TEMPLE_TOKEN.decimals)
-          .multipliedBy(0.99)
+          .multipliedBy(ROUTING_FEE_SLIPPAGE_RATIO)
           .integerValue(BigNumber.ROUND_DOWN);
 
         const swapToTempleTokenOpParams = await getRoute3SwapOpParams(
@@ -214,41 +218,23 @@ export const SwapForm: FC = () => {
         if (!swapToTempleTokenOpParams) {
           return;
         }
-
-        const routingFeeOpParams = await getRoutingFeeTransferParams(
-          TEMPLE_TOKEN,
-          templeOutputAtomic.dividedToIntegerBy(2),
-          publicKeyHash,
-          tezos
-        );
-
-        const opParams = [...swapToTempleTokenOpParams, ...routingFeeOpParams, ...route3SwapOpParams].map(param =>
-          parseTransferParamsToParamsWithKind(param)
-        );
-
-        const batchOperation = await tezos.wallet.batch(opParams).send();
-
-        setError(undefined);
-        formAnalytics.trackSubmitSuccess(analyticsProperties);
-        setOperation(batchOperation);
-      } else {
-        const routingFeeOpParams = await getRoutingFeeTransferParams(
-          fromRoute3Token,
-          routingFeeAtomic.dividedToIntegerBy(2),
-          publicKeyHash,
-          tezos
-        );
-
-        const opParams = [...routingFeeOpParams, ...route3SwapOpParams].map(param =>
-          parseTransferParamsToParamsWithKind(param)
-        );
-
-        const batchOperation = await tezos.wallet.batch(opParams).send();
-
-        setError(undefined);
-        formAnalytics.trackSubmitSuccess(analyticsProperties);
-        setOperation(batchOperation);
+        allSwapParams.push(...swapToTempleTokenOpParams);
       }
+      const routingFeeOpParams = await getRoutingFeeTransferParams(
+        fromRoute3Token,
+        routingFeeAtomic.dividedToIntegerBy(2),
+        publicKeyHash,
+        tezos
+      );
+      allSwapParams.push(...routingFeeOpParams);
+      allSwapParams.push(...route3SwapOpParams);
+      const opParams = allSwapParams.map(param => parseTransferParamsToParamsWithKind(param));
+
+      const batchOperation = await tezos.wallet.batch(opParams).send();
+
+      setError(undefined);
+      formAnalytics.trackSubmitSuccess(analyticsProperties);
+      setOperation(batchOperation);
     } catch (err: any) {
       if (err.message !== 'Declined') {
         setError(err);

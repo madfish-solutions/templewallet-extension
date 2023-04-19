@@ -9,6 +9,8 @@ export const ROUTING_FEE_ADDRESS = 'tz1burnburnburnburnburnburnburjAYjjX';
 
 const ROUTING_FEE_PERCENT = 0.35;
 export const ROUTING_FEE_RATIO = getPercentageRatio(ROUTING_FEE_PERCENT);
+export const ROUTING_FEE_SLIPPAGE_RATIO = 0.99;
+export const MAX_ROUTING_FEE_CHAINS = 0.99;
 
 export const ZERO = new BigNumber(0);
 export const TEMPLE_TOKEN: Route3Token = {
