@@ -63,7 +63,7 @@ jobs:
         uses: ./.github/workflows/e2e
 
       - name: Upload E2E video to Slack
-        if: always()
+        if: failure()
         uses: adrey/slack-file-upload-action@master
         with:
           token: ${{ secrets.SLACK_E2E_VIDEO_UPLOADER_TOKEN }}
