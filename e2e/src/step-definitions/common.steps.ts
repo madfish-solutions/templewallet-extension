@@ -10,7 +10,7 @@ Given(/^I am on the (\w+) page$/, { timeout: MEDIUM_TIMEOUT }, async (page: keyo
   await Pages[page].isVisible();
 });
 
-Given(/I press (.*) on the (.*) page/, async (elementName: string, pageName: string) => {
+Given(/I press (.*) on the (.*) page/, { timeout: MEDIUM_TIMEOUT }, async (elementName: string, pageName: string) => {
   await createPageElement(`${pageName}/${elementName}`).click();
 });
 

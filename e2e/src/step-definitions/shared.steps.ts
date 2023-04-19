@@ -24,8 +24,9 @@ Given(
     const revealedSecretsValue = await Pages.RevealSecrets.revealSecretsValue.getText();
     const privateKeyType = iComparePrivateKeys[key];
 
-  expect(revealedSecretsValue).eql(privateKeyType);
-});
+    expect(revealedSecretsValue).eql(privateKeyType);
+  }
+);
 
 Given(/I'm waiting for 'success ✓' operation status/, { timeout: LONG_TIMEOUT }, async () => {
   await BrowserContext.page.waitForSelector(`[data-testid="${OperationStatusSelectors.successDoneOperation}"]`, {
