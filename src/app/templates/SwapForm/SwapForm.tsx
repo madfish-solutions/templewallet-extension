@@ -80,6 +80,15 @@ export const SwapForm: FC = () => {
   const [swapInputAtomicWithoutFee, setSwapInputAtomicWithoutFee] = useState<BigNumber>();
 
   const slippageRatio = useMemo(() => getPercentageRatio(slippageTolerance ?? 0), [slippageTolerance]);
+  const minimumReceivedAmountAtomic = useMemo(() => {
+    if (isDefined(swapParams.data.output)) {
+      return tokensToAtoms(new BigNumber(swapParams.data.output), outputAssetMetadata.decimals)
+        .multipliedBy(slippageRatio)
+        .integerValue(BigNumber.ROUND_DOWN);
+    } else {
+      return ZERO;
+    }
+  }, [swapParams.data.output, outputAssetMetadata.decimals, slippageRatio]);
 
   useEffect(() => {
     if (isDefined(fromRoute3Token) && isDefined(toRoute3Token) && isDefined(swapInputAtomicWithoutFee)) {
@@ -176,12 +185,6 @@ export const SwapForm: FC = () => {
       setOperation(undefined);
 
       const allSwapParams: Array<TransferParams> = [];
-      const minimumReceivedAmountAtomic = tokensToAtoms(
-        new BigNumber(swapParams.data.output),
-        outputAssetMetadata.decimals
-      )
-        .multipliedBy(slippageRatio)
-        .integerValue(BigNumber.ROUND_DOWN);
 
       const route3SwapOpParams = await getRoute3SwapOpParams(
         fromRoute3Token,
