@@ -1,4 +1,5 @@
 Feature: Import Account by Mnemonic
+  @dev
   Scenario: As a user, I'd like to import account by mnemonic
     Given I have imported an existing account
 
