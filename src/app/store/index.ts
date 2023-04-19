@@ -16,6 +16,8 @@ import { currencyEpics } from './currency/epics';
 import { currencyReducer } from './currency/reducers';
 import { dAppsEpics } from './d-apps/epics';
 import { dAppsReducer } from './d-apps/reducers';
+import { partnersPromotionEpics } from './partners-promotion/epics';
+import { partnersPromotionRucer } from './partners-promotion/reducers';
 import { settingsReducer } from './settings/reducers';
 import { swapEpics } from './swap/epics';
 import { swapReducer } from './swap/reducers';
@@ -27,6 +29,7 @@ const baseReducer = rootStateReducer({
   notifications: notificationsReducers,
   dApps: dAppsReducer,
   swap: swapReducer,
+  partnersPromotion: partnersPromotionRucer,
   balances: balancesReducer,
   abTesting: abTestingReducer
 });
@@ -46,6 +49,7 @@ const epics = [
   notificationsEpics,
   dAppsEpics,
   swapEpics,
+  partnersPromotionEpics,
   balancesEpics,
   abTestingEpics
 ];

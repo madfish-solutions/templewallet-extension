@@ -1,11 +1,15 @@
-import React from 'react';
+import React, { Fragment, useEffect } from 'react';
 
 import classNames from 'clsx';
 import InfiniteScroll from 'react-infinite-scroll-component';
+import { useDispatch } from 'react-redux';
 
 import { ActivitySpinner } from 'app/atoms';
+import { PartnersPromotion, PartnersPromotionVariant } from 'app/atoms/partners-promotion';
 import { useAppEnv } from 'app/env';
 import { ReactComponent as LayersIcon } from 'app/icons/layers.svg';
+import { loadPartnersPromoAction } from 'app/store/partners-promotion/actions';
+import { OptimalPromoVariantEnum } from 'lib/apis/optimal';
 import { T } from 'lib/i18n/react';
 import useActivities from 'lib/temple/activity-new/hook';
 import { useAccount } from 'lib/temple/front';
@@ -20,11 +24,14 @@ interface Props {
 }
 
 export const ActivityComponent: React.FC<Props> = ({ assetSlug }) => {
+  const dispatch = useDispatch();
   const { loading, reachedTheEnd, list: activities, loadMore } = useActivities(INITIAL_NUMBER, assetSlug);
 
   const { popup } = useAppEnv();
 
   const { publicKeyHash: accountAddress } = useAccount();
+
+  useEffect(() => void dispatch(loadPartnersPromoAction.submit(OptimalPromoVariantEnum.Fullview)), []);
 
   if (activities.length === 0 && !loading && reachedTheEnd) {
     return (
@@ -55,8 +62,11 @@ export const ActivityComponent: React.FC<Props> = ({ assetSlug }) => {
           loader={loading && <ActivitySpinner height="2.5rem" />}
           onScroll={onScroll}
         >
-          {activities.map(activity => (
-            <ActivityItem key={activity.hash} address={accountAddress} activity={activity} />
+          {activities.map((activity, index) => (
+            <Fragment key={activity.hash}>
+              <ActivityItem address={accountAddress} activity={activity} />
+              {index === 0 && <PartnersPromotion variant={PartnersPromotionVariant.Image} />}
+            </Fragment>
           ))}
         </InfiniteScroll>
       </div>

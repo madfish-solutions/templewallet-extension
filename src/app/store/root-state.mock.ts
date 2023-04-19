@@ -6,6 +6,7 @@ import { mockBalancesState } from './balances/state.mock';
 import { mockCurrencyState } from './currency/state.mock';
 import { mockDAppsState } from './d-apps/state.mock';
 import { RootState } from './index';
+import { mockPartnersPromotionState } from './partners-promotion/state.mock';
 import { mockSettingsState } from './settings/state.mock';
 import { mockSwapState } from './swap/state.mock';
 
@@ -17,6 +18,7 @@ export const mockRootState: RootState = {
   notifications: mockNotificationsState,
   dApps: mockDAppsState,
   swap: mockSwapState,
+  partnersPromotion: mockPartnersPromotionState,
   balances: mockBalancesState,
   abTesting: mockABTestingState
 };

@@ -1944,6 +1944,9 @@
   "actionConfirmation": {
     "message": "Confirm the action"
   },
+  "closePartnersPromotion": {
+    "message": "Are you sure you want to turn off all ads?"
+  },
   "domainDoesntResolveToAddress": {
     "message": "Domain \"$value$\" doesn't resolve to an address",
     "placeholders": {
@@ -2379,6 +2382,9 @@
   "deleteContactConfirm": {
     "message": "Are you sure you want to delete this contact?"
   },
+  "closePartnersPromoConfirm": {
+    "message": "Pay attention: you can receive cashback in USDt tokens for enabling advertisement in our wallet. If you turned off ADS, you can always activate it in the settings."
+  },
   "ownAccount": {
     "message": "Own"
   },
@@ -2566,6 +2572,18 @@
   },
   "lockUpSettingsDescription": {
     "message": "The extension will be automatically blocked after 5 minutes of inactivity."
+  },
+  "partnersPromoSettings": {
+    "message": "Advertising"
+  },
+  "cashBack":{
+    "message": "cash back"
+  },
+  "partnersPromoDescriptionP1": {
+    "message": "Here you can configure displaying of ads in Temple wallet. Remember, you get"
+  },
+  "partnersPromoDescriptionP2": {
+    "message": "at Temple Keys for viewing ads"
   },
   "totalEquityValue": {
     "message": "Total Equity Value"

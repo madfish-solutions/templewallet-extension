@@ -9,5 +9,6 @@ export enum SettingsGeneralSelectors {
   extensionLockUpCheckBox = 'Setting General/Extension Lock-up Check Box',
   anonymousAnalyticsCheckBox = 'Setting General/Anonymous Analytics Check Box',
   useLedgerLiveCheckBox = 'Setting General/Use Ledger Live Check Box',
-  notificationCheckBox = 'Setting General/Notification Check Box'
+  notificationCheckBox = 'Setting General/Notification Check Box',
+  partnersPromotion = 'Setting General/Partners Promotion Check Box'
 }
