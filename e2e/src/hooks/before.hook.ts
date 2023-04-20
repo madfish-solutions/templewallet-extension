@@ -5,7 +5,7 @@ import { PuppeteerScreenRecorder } from 'puppeteer-screen-recorder';
 import { BrowserContext } from '../classes/browser-context.class';
 import { RETRY_OPTIONS, MEDIUM_TIMEOUT } from '../utils/timing.utils';
 
-const SAVE_PATH = 'video-rep/test-runs.mp4';
+const RECORDING_PATH = 'video-rep/test-runs.mp4';
 
 Before({ timeout: MEDIUM_TIMEOUT }, async () => {
   await BrowserContext.page.close().catch(() => void 0);
@@ -26,7 +26,7 @@ Before({ timeout: MEDIUM_TIMEOUT }, async () => {
 
   const recorder = new PuppeteerScreenRecorder(page);
 
-  await recorder.start(SAVE_PATH);
+  await recorder.start(RECORDING_PATH);
 
   BrowserContext.page = page;
   BrowserContext.recorder = recorder;
