@@ -100,11 +100,13 @@ module.exports = {
         },
         blue: {
           100: '#ebf8ff',
+          150: '#E5F2FF',
           200: '#bee3f8',
           300: '#90cdf4',
           400: '#63b3ed',
           500: '#4299e1',
           600: '#3182ce',
+          650: '#007AFF',
           700: '#2b6cb0',
           800: '#2c5282',
           900: '#2a4365'
@@ -219,7 +221,8 @@ module.exports = {
       md: '0.375rem',
       lg: '0.5rem',
       '2xl': '0.75rem',
-      full: '9999px'
+      full: '9999px',
+      circle: '50%'
     },
     borderWidth: {
       DEFAULT: '1px',
@@ -332,7 +335,11 @@ module.exports = {
     inset: {
       0: '0',
       1: '0.25rem',
+      2: '0.5rem',
       3: '0.75rem',
+      4: '1rem',
+      8: '2rem',
+      12: '3rem',
       '1/2': '50%',
       auto: 'auto'
     },
@@ -376,6 +383,7 @@ module.exports = {
     },
     maxWidth: (theme, { breakpoints }) => ({
       none: 'none',
+      100: '6.25rem',
       xs: '20rem',
       sm: '24rem',
       md: '28rem',

@@ -1,9 +1,10 @@
-import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { FC, useCallback, useMemo, useRef, useState } from 'react';
 
 import classNames from 'clsx';
 
 import { setTestID, TestIDProperty } from 'lib/analytics';
 import { T } from 'lib/i18n';
+import { useBlurElementOnTimeout } from 'lib/ui/use-blur-on-timeout';
 
 import { ReactComponent as LockAltIcon } from '../icons/lock-alt.svg';
 
@@ -44,23 +45,7 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
     return !showSeed;
   }, [focused, showSeed, value]);
 
-  useEffect(() => {
-    if (showSeed) {
-      const handleLocalBlur = () => {
-        inputRef.current?.blur();
-        setShowSeed(false);
-      };
-      const t = setTimeout(() => {
-        handleLocalBlur();
-      }, 30_000);
-      window.addEventListener('blur', handleLocalBlur);
-      return () => {
-        clearTimeout(t);
-        window.removeEventListener('blur', handleLocalBlur);
-      };
-    }
-    return undefined;
-  }, [showSeed, inputRef, setShowSeed]);
+  useBlurElementOnTimeout(inputRef, showSeed, undefined, () => setShowSeed(false));
 
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {

@@ -14,6 +14,7 @@ import { ImportExistingWalletPage } from './pages/importing-existing-wallet.page
 import { InternalConfirmationPage } from './pages/internal-confirmation.page';
 import { NewSeedBackupPage } from './pages/new-seed-backup.page';
 import { RevealSecretsPage } from './pages/reveal-secrets.page';
+import { SendPage } from './pages/send.page';
 import { SettingsPage } from './pages/settings.page';
 import { setWalletPage } from './pages/setWalletPassword.page';
 import { UnlockScreenPage } from './pages/unlock-screen.page';
@@ -40,5 +41,6 @@ export const Pages = {
   DelegateTab: new DelegateTab(),
   DelegateForm: new DelegateFormPage(),
   InternalConfirmation: new InternalConfirmationPage(),
-  OperationStatusAlert: new OperationStatusAlert()
+  OperationStatusAlert: new OperationStatusAlert(),
+  Send: new SendPage()
 };

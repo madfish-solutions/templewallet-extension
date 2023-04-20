@@ -4,7 +4,7 @@ export interface Route3SwapParamsRequestRaw {
   fromSymbol: string;
   toSymbol: string;
   amount: string | undefined;
-  chainsLimit?: string;
+  chainsLimit?: number;
 }
 export interface Route3SwapParamsRequest {
   fromSymbol: string;

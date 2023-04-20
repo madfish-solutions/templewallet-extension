@@ -10,7 +10,7 @@ export type CheckboxProps = TestIDProps &
   Pick<InputHTMLAttributes<HTMLInputElement>, 'name' | 'checked' | 'className' | 'onFocus' | 'onBlur' | 'onClick'> & {
     containerClassName?: string;
     errored?: boolean;
-    onChange?: (checked: boolean) => void;
+    onChange?: (checked: boolean, event: React.ChangeEvent<HTMLInputElement>) => void;
   };
 
 const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
@@ -40,7 +40,7 @@ const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
     const handleChange = useCallback(
       (event: React.ChangeEvent<HTMLInputElement>) => {
         const { checked: toChecked } = event.target;
-        checkedHandler(event, onChange && (() => onChange(toChecked)), setLocalChecked);
+        checkedHandler(event, onChange && (() => onChange(toChecked, event)), setLocalChecked);
 
         testID && trackEvent(testID, AnalyticsEventCategory.CheckboxChange, { toChecked, ...testIDProperties });
       },

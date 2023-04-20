@@ -2,13 +2,17 @@ import React, { FC, useCallback, useEffect, useMemo, useState } from 'react';
 
 import { BigNumber } from 'bignumber.js';
 import classNames from 'clsx';
+import { useDispatch } from 'react-redux';
 
 import { ActivitySpinner } from 'app/atoms';
+import { PartnersPromotion, PartnersPromotionVariant } from 'app/atoms/partners-promotion';
 import { useAppEnv } from 'app/env';
 import { useBalancesWithDecimals } from 'app/hooks/use-balances-with-decimals.hook';
 import { ReactComponent as AddToListIcon } from 'app/icons/add-to-list.svg';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
+import { loadPartnersPromoAction } from 'app/store/partners-promotion/actions';
 import SearchAssetField from 'app/templates/SearchAssetField';
+import { OptimalPromoVariantEnum } from 'lib/apis/optimal';
 import { T } from 'lib/i18n';
 import { useAccount, useChainId, useDisplayedFungibleTokens, useFilteredAssets } from 'lib/temple/front';
 import { useSyncTokens } from 'lib/temple/front/sync-tokens';
@@ -19,6 +23,7 @@ import { ListItem } from './components/ListItem';
 import { toExploreAssetLink } from './utils';
 
 export const Tokens: FC = () => {
+  const dispatch = useDispatch();
   const chainId = useChainId(true)!;
   const balances = useBalancesWithDecimals();
 
@@ -39,6 +44,27 @@ export const Tokens: FC = () => {
   const activeAssetSlug = useMemo(() => {
     return searchFocused && searchValueExist && filteredAssets[activeIndex] ? filteredAssets[activeIndex] : null;
   }, [filteredAssets, searchFocused, searchValueExist, activeIndex]);
+
+  const tokensView = useMemo<Array<JSX.Element>>(() => {
+    const tokensJsx = filteredAssets.map(assetSlug => (
+      <ListItem
+        key={assetSlug}
+        assetSlug={assetSlug}
+        active={activeAssetSlug ? assetSlug === activeAssetSlug : false}
+        balance={balances[assetSlug] ?? new BigNumber(0)}
+      />
+    ));
+
+    if (filteredAssets.length < 5) {
+      tokensJsx.push(<PartnersPromotion key="promo-token-item" variant={PartnersPromotionVariant.Text} />);
+    } else {
+      tokensJsx.splice(1, 0, <PartnersPromotion key="promo-token-item" variant={PartnersPromotionVariant.Text} />);
+    }
+
+    return tokensJsx;
+  }, [filteredAssets, activeAssetSlug, balances]);
+
+  useEffect(() => void dispatch(loadPartnersPromoAction.submit(OptimalPromoVariantEnum.Token)), []);
 
   useEffect(() => {
     if (activeIndex !== 0 && activeIndex >= filteredAssets.length) {
@@ -139,12 +165,7 @@ export const Tokens: FC = () => {
             'text-gray-700 text-sm leading-tight'
           )}
         >
-          {filteredAssets.map(assetSlug => {
-            const active = activeAssetSlug ? assetSlug === activeAssetSlug : false;
-            const balance = balances[assetSlug] ?? new BigNumber(0);
-
-            return <ListItem key={assetSlug} assetSlug={assetSlug} active={active} balance={balance} />;
-          })}
+          {tokensView}
         </div>
       )}
       {isSyncing && (

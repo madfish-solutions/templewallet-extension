@@ -18,7 +18,7 @@ const CustomModal: FC<CustomModalProps> = props => {
         'fixed inset-0 z-30',
         'bg-black bg-opacity-75',
         'flex items-center justify-center',
-        'p-6',
+        'p-4',
         overlayClassName
       )}
       onAfterOpen={() => {

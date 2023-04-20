@@ -8,6 +8,7 @@ import { ScopedMutator } from 'swr/dist/types';
 import { useSelector } from 'app/store';
 import { getTokensMetadata, fetchWhitelistTokenSlugs } from 'lib/apis/temple';
 import { TzktAccountToken, fetchTzktTokens } from 'lib/apis/tzkt';
+import { METADATA_SYNC_INTERVAL } from 'lib/fixed-times';
 import {
   toTokenSlug,
   fetchDisplayedFungibleTokens,
@@ -20,8 +21,6 @@ import * as Repo from 'lib/temple/repo';
 import { TempleChainId } from 'lib/temple/types';
 import { useInterval } from 'lib/ui/hooks';
 import { filterUnique } from 'lib/utils';
-
-const SYNCING_INTERVAL = 60_000;
 
 export const [SyncTokensProvider, useSyncTokens] = constate(() => {
   const { mutate } = useSWRConfig();
@@ -61,7 +60,7 @@ export const [SyncTokensProvider, useSyncTokens] = constate(() => {
     mutate
   ]);
 
-  useInterval(sync, SYNCING_INTERVAL, [chainId, accountPkh]);
+  useInterval(sync, METADATA_SYNC_INTERVAL, [chainId, accountPkh]);
 
   return isSyncing;
 });

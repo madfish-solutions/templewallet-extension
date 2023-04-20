@@ -15,7 +15,7 @@ import InFiat from 'app/templates/InFiat';
 import { useFiatCurrency } from 'lib/fiat-currency';
 import { t, T } from 'lib/i18n';
 import { TezosLogoIcon } from 'lib/icons';
-import { TEZ_TOKEN_SLUG, useAssetMetadata, useBalance, useGasToken, useNetwork } from 'lib/temple/front';
+import { useAssetMetadata, useGasToken, useNetwork } from 'lib/temple/front';
 import { useTotalBalance } from 'lib/temple/front/use-total-balance.hook';
 import { getAssetName, getAssetSymbol } from 'lib/temple/metadata';
 import useTippy from 'lib/ui/useTippy';
@@ -44,15 +44,15 @@ interface TotalVolumeBannerProps {
 
 const TotalVolumeBanner: FC<TotalVolumeBannerProps> = ({ accountPkh }) => (
   <div className="flex items-start justify-between w-full max-w-sm mx-auto mb-4">
-    <BalanceInfo accountPkh={accountPkh} />
+    <BalanceInfo />
     <AddressChip pkh={accountPkh} testID={HomeSelectors.publicAddressButton} />
   </div>
 );
 
-const BalanceInfo: FC<TotalVolumeBannerProps> = ({ accountPkh }) => {
+const BalanceInfo: FC = () => {
   const dispatch = useDispatch();
   const network = useNetwork();
-  const volumeInFiat = useTotalBalance();
+  const { totalBalanceInFiat, totalBalanceInGasToken } = useTotalBalance();
   const balanceMode = useBalanceModeSelector();
 
   const {
@@ -71,9 +71,6 @@ const BalanceInfo: FC<TotalVolumeBannerProps> = ({ accountPkh }) => {
   );
 
   const buttonRef = useTippy<HTMLButtonElement>(tippyProps);
-
-  const { data: balance } = useBalance(TEZ_TOKEN_SLUG, accountPkh);
-  const volumeInGas = balance || new BigNumber(0);
 
   const nextBalanceMode = balanceMode === BalanceMode.Fiat ? BalanceMode.Gas : BalanceMode.Fiat;
 
@@ -121,9 +118,9 @@ const BalanceInfo: FC<TotalVolumeBannerProps> = ({ accountPkh }) => {
 
       <div className="flex items-center text-2xl">
         {shouldShowFiatBanner ? (
-          <BalanceFiat volume={volumeInFiat} currency={fiatSymbol} />
+          <BalanceFiat volume={totalBalanceInFiat} currency={fiatSymbol} />
         ) : (
-          <BalanceGas volume={volumeInGas} currency={gasTokenSymbol} />
+          <BalanceGas volume={totalBalanceInGasToken} currency={gasTokenSymbol} />
         )}
       </div>
     </div>

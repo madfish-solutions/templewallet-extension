@@ -1,13 +1,16 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
+import { BigNumber } from 'bignumber.js';
 import constate from 'constate';
 import deepEqual from 'fast-deep-equal';
 import { useDebounce } from 'use-debounce';
 import useForceUpdate from 'use-force-update';
 import browser from 'webextension-polyfill';
 
+import { useBalancesWithDecimals } from 'app/hooks/use-balances-with-decimals.hook';
 import { useBalancesSelector } from 'app/store/balances/selectors';
 import { useSwapTokensSelector } from 'app/store/swap/selectors';
+import { useUsdToTokenRates } from 'lib/fiat-currency/core';
 import { useRetryableSWR } from 'lib/swr';
 import {
   AssetTypesEnum,
@@ -319,17 +322,54 @@ export const useAvailableRoute3Tokens = () => {
     route3tokensSlugs
   };
 };
+function makeAssetsSortPredicate(balances: Record<string, BigNumber>, fiatToTokenRates: Record<string, string>) {
+  return (tokenASlug: string, tokenBSlug: string) => {
+    if (tokenASlug === TEZ_TOKEN_SLUG) {
+      return -1;
+    }
+
+    if (tokenBSlug === TEZ_TOKEN_SLUG) {
+      return 1;
+    }
+
+    const tokenABalance = balances[tokenASlug] ?? new BigNumber(0);
+    const tokenBBalance = balances[tokenBSlug] ?? new BigNumber(0);
+    const tokenAEquity = tokenABalance.multipliedBy(fiatToTokenRates[tokenASlug] ?? 0);
+    const tokenBEquity = tokenBBalance.multipliedBy(fiatToTokenRates[tokenBSlug] ?? 0);
+
+    if (tokenAEquity.isEqualTo(tokenBEquity)) {
+      return tokenBBalance.comparedTo(tokenABalance);
+    }
+
+    return tokenBEquity.comparedTo(tokenAEquity);
+  };
+}
+
+export function useAssetsSortPredicate() {
+  const balances = useBalancesWithDecimals();
+  const usdToTokenRates = useUsdToTokenRates();
+
+  return useCallback(
+    (tokenASlug: string, tokenBSlug: string) =>
+      makeAssetsSortPredicate(balances, usdToTokenRates)(tokenASlug, tokenBSlug),
+    [balances, usdToTokenRates]
+  );
+}
 
 export function useFilteredAssets(assetSlugs: string[]) {
   const allTokensBaseMetadata = useAllTokensBaseMetadata();
+  const assetsSortPredicate = useAssetsSortPredicate();
 
   const [searchValue, setSearchValue] = useState('');
   const [tokenId, setTokenId] = useState<number>();
   const [searchValueDebounced] = useDebounce(tokenId ? toTokenSlug(searchValue, tokenId) : searchValue, 300);
 
   const filteredAssets = useMemo(
-    () => searchAssetsWithNoMeta(searchValueDebounced, assetSlugs, allTokensBaseMetadata, slug => slug),
-    [searchValueDebounced, assetSlugs, allTokensBaseMetadata]
+    () =>
+      searchAssetsWithNoMeta(searchValueDebounced, assetSlugs, allTokensBaseMetadata, slug => slug).sort(
+        assetsSortPredicate
+      ),
+    [searchValueDebounced, assetSlugs, allTokensBaseMetadata, assetsSortPredicate]
   );
 
   return {
