@@ -12,13 +12,23 @@ import { useBlockLevel } from 'app/hooks/use-block-level.hook';
 import { useRoute3 } from 'app/hooks/use-route3.hook';
 import { ReactComponent as InfoIcon } from 'app/icons/info.svg';
 import { ReactComponent as ToggleIcon } from 'app/icons/toggle.svg';
+import { useSelector } from 'app/store';
 import { loadSwapParamsAction, resetSwapParamsAction } from 'app/store/swap/actions';
 import { useSwapParamsSelector, useSwapTokenSelector, useSwapTokensSelector } from 'app/store/swap/selectors';
 import OperationStatus from 'app/templates/OperationStatus';
 import { setTestID, useFormAnalytics } from 'lib/analytics';
 import { fetchRoute3SwapParams } from 'lib/apis/route3/fetch-route3-swap-params';
 import { T, t } from 'lib/i18n';
-import { ROUTING_FEE_RATIO, ROUTING_FEE_SLIPPAGE_RATIO, TEMPLE_TOKEN, ZERO } from 'lib/route3/constants';
+import {
+  BURN_ADDREESS,
+  MAX_ROUTING_FEE_CHAINS,
+  ROUTING_FEE_ADDRESS,
+  ROUTING_FEE_RATIO,
+  ROUTING_FEE_SLIPPAGE_RATIO,
+  SWAP_THRESHOLD_TO_GET_CASHBACK,
+  TEMPLE_TOKEN,
+  ZERO
+} from 'lib/route3/constants';
 import { getPercentageRatio } from 'lib/route3/utils/get-percentage-ratio';
 import { getRoute3TokenBySlug } from 'lib/route3/utils/get-route3-token-by-slug';
 import { getRoutingFeeTransferParams } from 'lib/route3/utils/get-routing-fee-transfer-params';
@@ -50,6 +60,7 @@ export const SwapForm: FC = () => {
   const getRoute3SwapOpParams = useRoute3();
   const { data: route3Tokens } = useSwapTokensSelector();
   const swapParams = useSwapParamsSelector();
+  const allUsdToTokenRates = useSelector(state => state.currency.usdToTokenRates.data);
 
   const formAnalytics = useFormAnalytics('SwapForm');
 
@@ -176,7 +187,8 @@ export const SwapForm: FC = () => {
       !toRoute3Token ||
       !swapInputAtomicWithoutFee ||
       !routingFeeAtomic ||
-      !swapParams.data.output
+      !swapParams.data.output ||
+      !inputValue.assetSlug
     ) {
       return;
     }
@@ -203,10 +215,13 @@ export const SwapForm: FC = () => {
           fromSymbol: fromRoute3Token.symbol,
           toSymbol: TEMPLE_TOKEN.symbol,
           amount: atomsToTokens(routingFeeAtomic, fromRoute3Token.decimals).toFixed(),
-          chainsLimit: 1
+          chainsLimit: MAX_ROUTING_FEE_CHAINS
         });
 
-        const templeOutputAtomic = tokensToAtoms(new BigNumber(swapToTempleParams.output ?? '0'), TEMPLE_TOKEN.decimals)
+        const templeOutputAtomic = tokensToAtoms(
+          new BigNumber(swapToTempleParams.output ?? ZERO),
+          TEMPLE_TOKEN.decimals
+        )
           .multipliedBy(ROUTING_FEE_SLIPPAGE_RATIO)
           .integerValue(BigNumber.ROUND_DOWN);
 
@@ -223,14 +238,34 @@ export const SwapForm: FC = () => {
         }
         allSwapParams.push(...swapToTempleTokenOpParams);
       }
-      const routingFeeOpParams = await getRoutingFeeTransferParams(
-        fromRoute3Token,
-        routingFeeAtomic.dividedToIntegerBy(2),
-        publicKeyHash,
-        tezos
+      const inputTokenExhangeRate = allUsdToTokenRates[inputValue.assetSlug];
+      const inputAmountInUsd = atomsToTokens(
+        swapInputAtomicWithoutFee.multipliedBy(inputTokenExhangeRate),
+        fromRoute3Token.decimals
       );
-      allSwapParams.push(...routingFeeOpParams);
+
+      if (inputAmountInUsd.isGreaterThanOrEqualTo(SWAP_THRESHOLD_TO_GET_CASHBACK)) {
+        const routingFeeOpParams = await getRoutingFeeTransferParams(
+          fromRoute3Token,
+          routingFeeAtomic.dividedToIntegerBy(2),
+          publicKeyHash,
+          BURN_ADDREESS,
+          tezos
+        );
+        allSwapParams.push(...routingFeeOpParams);
+      } else {
+        const routingFeeOpParams = await getRoutingFeeTransferParams(
+          fromRoute3Token,
+          routingFeeAtomic,
+          publicKeyHash,
+          ROUTING_FEE_ADDRESS,
+          tezos
+        );
+        allSwapParams.push(...routingFeeOpParams);
+      }
+
       allSwapParams.push(...route3SwapOpParams);
+
       const opParams = allSwapParams.map(param => parseTransferParamsToParamsWithKind(param));
 
       const batchOperation = await tezos.wallet.batch(opParams).send();
@@ -446,7 +481,11 @@ export const SwapForm: FC = () => {
         />
       )}
 
-      <SwapRoute />
+      <SwapRoute className="mb-6" />
+
+      <p className="text-center text-gray-700 max-w-xs m-auto mb-3">
+        <span>Swap more than 10$ and receive 0.175% from the swapped amount in the TKEY token as a cashback</span>
+      </p>
 
       <p className="text-center text-gray-700 max-w-xs m-auto">
         <span className="mr-1">
