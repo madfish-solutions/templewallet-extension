@@ -87,9 +87,10 @@ const Form: FC = () => {
 
   const formAnalytics = useFormAnalytics('AddAsset');
 
-  const { register, handleSubmit, errors, formState, watch, setValue, triggerValidation } = useForm<FormData>({
-    mode: 'onChange'
-  });
+  const { register, handleSubmit, errors, formState, watch, setValue, triggerValidation, clearError } =
+    useForm<FormData>({
+      mode: 'onChange'
+    });
 
   const contractAddress = watch('address');
   const tokenId = watch('id') || 0;
@@ -177,6 +178,7 @@ const Form: FC = () => {
 
   useEffect(() => {
     if (formValid) {
+      clearError();
       loadMetadataRef.current();
     } else {
       setState(INITIAL_STATE);
