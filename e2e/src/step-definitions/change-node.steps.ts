@@ -14,7 +14,7 @@ Given(
 
 Given(/I check that (.*) node is selected correctly/, { timeout: MEDIUM_TIMEOUT }, async (networkName: string) => {
   // need a little timeout to wait until changed node is loaded
-  await sleep(500);
+  await sleep(1500);
 
   const networkButtonName = await Pages.Header.selectedNetworkButtonName.getText();
   expect(networkButtonName).eql(networkName);
