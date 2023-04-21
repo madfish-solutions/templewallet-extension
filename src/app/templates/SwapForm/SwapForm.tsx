@@ -32,8 +32,8 @@ import {
 import { getPercentageRatio } from 'lib/route3/utils/get-percentage-ratio';
 import { getRoute3TokenBySlug } from 'lib/route3/utils/get-route3-token-by-slug';
 import { getRoutingFeeTransferParams } from 'lib/route3/utils/get-routing-fee-transfer-params';
-import { isInputTokenEqualToTempleToken } from 'lib/route3/utils/is-input-token-equal-to-temple-token';
 import { ROUTING_FEE_PERCENT, SWAP_CASHBACK_PERCENT } from 'lib/swap-router/config';
+import { KNOWN_TOKENS_SLUGS } from 'lib/temple/assets';
 import { useAccount, useAssetMetadata, useTezos } from 'lib/temple/front';
 import { atomsToTokens, tokensToAtoms } from 'lib/temple/helpers';
 import useTippy from 'lib/ui/useTippy';
@@ -217,7 +217,7 @@ export const SwapForm: FC = () => {
         fromRoute3Token.decimals
       );
 
-      const isInputTokenTempleToken = isInputTokenEqualToTempleToken(inputValue.assetSlug);
+      const isInputTokenTempleToken = inputValue.assetSlug === KNOWN_TOKENS_SLUGS.TEMPLE;
       const isSwapAmountMoreThreshold = inputAmountInUsd.isGreaterThanOrEqualTo(SWAP_THRESHOLD_TO_GET_CASHBACK);
 
       if (isInputTokenTempleToken && isSwapAmountMoreThreshold) {
