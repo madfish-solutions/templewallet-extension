@@ -211,7 +211,34 @@ export const SwapForm: FC = () => {
         return;
       }
 
-      if (isInputTokenEqualToTempleToken(inputValue.assetSlug)) {
+      const inputTokenExhangeRate = allUsdToTokenRates[inputValue.assetSlug];
+      const inputAmountInUsd = atomsToTokens(
+        swapInputAtomicWithoutFee.multipliedBy(inputTokenExhangeRate),
+        fromRoute3Token.decimals
+      );
+
+      const isInputTokenTempleToken = isInputTokenEqualToTempleToken(inputValue.assetSlug);
+      const isSwapAmountMoreThreshold = inputAmountInUsd.isGreaterThanOrEqualTo(SWAP_THRESHOLD_TO_GET_CASHBACK);
+
+      if (isInputTokenTempleToken && isSwapAmountMoreThreshold) {
+        const routingFeeOpParams = await getRoutingFeeTransferParams(
+          fromRoute3Token,
+          routingFeeAtomic.dividedToIntegerBy(2),
+          publicKeyHash,
+          BURN_ADDREESS,
+          tezos
+        );
+        allSwapParams.push(...routingFeeOpParams);
+      } else if (isInputTokenTempleToken && !isSwapAmountMoreThreshold) {
+        const routingFeeOpParams = await getRoutingFeeTransferParams(
+          TEMPLE_TOKEN,
+          routingFeeAtomic,
+          publicKeyHash,
+          ROUTING_FEE_ADDRESS,
+          tezos
+        );
+        allSwapParams.push(...routingFeeOpParams);
+      } else if (!isInputTokenTempleToken && isSwapAmountMoreThreshold) {
         const swapToTempleParams = await fetchRoute3SwapParams({
           fromSymbol: fromRoute3Token.symbol,
           toSymbol: TEMPLE_TOKEN.symbol,
@@ -238,23 +265,16 @@ export const SwapForm: FC = () => {
           return;
         }
         allSwapParams.push(...swapToTempleTokenOpParams);
-      }
-      const inputTokenExhangeRate = allUsdToTokenRates[inputValue.assetSlug];
-      const inputAmountInUsd = atomsToTokens(
-        swapInputAtomicWithoutFee.multipliedBy(inputTokenExhangeRate),
-        fromRoute3Token.decimals
-      );
 
-      if (inputAmountInUsd.isGreaterThanOrEqualTo(SWAP_THRESHOLD_TO_GET_CASHBACK)) {
         const routingFeeOpParams = await getRoutingFeeTransferParams(
-          fromRoute3Token,
+          TEMPLE_TOKEN,
           routingFeeAtomic.dividedToIntegerBy(2),
           publicKeyHash,
           BURN_ADDREESS,
           tezos
         );
         allSwapParams.push(...routingFeeOpParams);
-      } else {
+      } else if (!isInputTokenTempleToken && !isSwapAmountMoreThreshold) {
         const routingFeeOpParams = await getRoutingFeeTransferParams(
           fromRoute3Token,
           routingFeeAtomic,
