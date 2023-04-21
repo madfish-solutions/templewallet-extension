@@ -1767,5 +1767,11 @@
   },
   "noRoutesFound": {
     "message": "No routes found"
+  },
+  "swapCashback": {
+    "message": "Cashback"
+  },
+  "swapCashbackDescription": {
+    "message": "Swap more than 10$ and receive 0.175% from the swapped amount in the TKEY token as a cashback"
   }
 }

@@ -1,1 +1,2 @@
 export const ROUTING_FEE_PERCENT = 0.35;
+export const SWAP_CASHBACK_PERCENT = 0.175;

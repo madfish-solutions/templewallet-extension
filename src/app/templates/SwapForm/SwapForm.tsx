@@ -33,7 +33,7 @@ import { getPercentageRatio } from 'lib/route3/utils/get-percentage-ratio';
 import { getRoute3TokenBySlug } from 'lib/route3/utils/get-route3-token-by-slug';
 import { getRoutingFeeTransferParams } from 'lib/route3/utils/get-routing-fee-transfer-params';
 import { isInputTokenEqualToTempleToken } from 'lib/route3/utils/is-input-token-equal-to-temple-token';
-import { ROUTING_FEE_PERCENT } from 'lib/swap-router/config';
+import { ROUTING_FEE_PERCENT, SWAP_CASHBACK_PERCENT } from 'lib/swap-router/config';
 import { useAccount, useAssetMetadata, useTezos } from 'lib/temple/front';
 import { atomsToTokens, tokensToAtoms } from 'lib/temple/helpers';
 import useTippy from 'lib/ui/useTippy';
@@ -45,7 +45,7 @@ import { SwapExchangeRate } from './SwapExchangeRate/SwapExchangeRate';
 import { SwapFormValue, SwapInputValue, useSwapFormDefaultValue } from './SwapForm.form';
 import styles from './SwapForm.module.css';
 import { SwapFormSelectors, SwapFormFromInputSelectors, SwapFormToInputSelectors } from './SwapForm.selectors';
-import { feeInfoTippyProps } from './SwapForm.tippy';
+import { cashbackInfoTippyProps, feeInfoTippyProps } from './SwapForm.tippy';
 import { SlippageToleranceInput } from './SwapFormInput/SlippageToleranceInput/SlippageToleranceInput';
 import { slippageToleranceInputValidationFn } from './SwapFormInput/SlippageToleranceInput/SlippageToleranceInput.validation';
 import { SwapFormInput } from './SwapFormInput/SwapFormInput';
@@ -65,6 +65,7 @@ export const SwapForm: FC = () => {
   const formAnalytics = useFormAnalytics('SwapForm');
 
   const feeInfoIconRef = useTippy<HTMLSpanElement>(feeInfoTippyProps);
+  const cashbackInfoIconRef = useTippy<HTMLSpanElement>(cashbackInfoTippyProps);
 
   const defaultValues = useSwapFormDefaultValue();
   const { handleSubmit, errors, watch, setValue, control, register, triggerValidation } = useForm<SwapFormValue>({
@@ -414,61 +415,76 @@ export const SwapForm: FC = () => {
         <T id="swap" />
       </FormSubmitButton>
 
-      <table className={classNames('w-full text-xs text-gray-500 mb-2', styles['swap-form-table'])}>
-        <tbody>
-          <tr>
-            <td>
-              <span
-                ref={feeInfoIconRef}
-                className={classNames('flex w-fit items-center hover:bg-gray-100', 'text-gray-500')}
-              >
-                <T id="routingFee" />
-                &nbsp;
-                <InfoIcon className="w-3 h-auto stroke-current" />
-              </span>
-            </td>
-            <td className={classNames('text-right', 'text-gray-600')}>{ROUTING_FEE_PERCENT} %</td>
-          </tr>
-          <tr>
-            <td>
-              <T id="exchangeRate" />
-            </td>
-            <td className="text-right text-gray-600">
-              <SwapExchangeRate
-                inputAmount={swapParams.data.input !== undefined ? new BigNumber(swapParams.data.input) : undefined}
-                outputAmount={swapParams.data.output !== undefined ? new BigNumber(swapParams.data.output) : undefined}
-                inputAssetMetadata={inputAssetMetadata}
-                outputAssetMetadata={outputAssetMetadata}
-              />
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <T id="slippageTolerance" />
-            </td>
-            <td className="justify-end text-gray-600 flex">
-              <Controller
-                control={control}
-                as={SlippageToleranceInput}
-                error={!!errors.slippageTolerance}
-                name="slippageTolerance"
-                rules={{ validate: slippageToleranceInputValidationFn }}
-              />
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <T id="minimumReceived" />
-            </td>
-            <td className="text-right text-gray-600">
-              <SwapMinimumReceived
-                minimumReceivedAmount={minimumReceivedAmountAtomic}
-                outputAssetMetadata={outputAssetMetadata}
-              />
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <div className="pb-2 mb-2 w-full border-b">
+        <table className={classNames('w-full text-xs text-gray-500', styles['swap-form-table'])}>
+          <tbody>
+            <tr>
+              <td>
+                <span ref={feeInfoIconRef} className="flex w-fit items-center hover:bg-gray-100 text-gray-500">
+                  <T id="routingFee" />
+                  &nbsp;
+                  <InfoIcon className="w-3 h-auto stroke-current" />
+                </span>
+              </td>
+              <td className="text-right text-gray-600">{ROUTING_FEE_PERCENT}%</td>
+            </tr>
+            <tr>
+              <td>
+                <T id="exchangeRate" />
+              </td>
+              <td className="text-right text-gray-600">
+                <SwapExchangeRate
+                  inputAmount={swapParams.data.input !== undefined ? new BigNumber(swapParams.data.input) : undefined}
+                  outputAmount={
+                    swapParams.data.output !== undefined ? new BigNumber(swapParams.data.output) : undefined
+                  }
+                  inputAssetMetadata={inputAssetMetadata}
+                  outputAssetMetadata={outputAssetMetadata}
+                />
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <T id="slippageTolerance" />
+              </td>
+              <td className="justify-end text-gray-600 flex">
+                <Controller
+                  control={control}
+                  as={SlippageToleranceInput}
+                  error={!!errors.slippageTolerance}
+                  name="slippageTolerance"
+                  rules={{ validate: slippageToleranceInputValidationFn }}
+                />
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <T id="minimumReceived" />
+              </td>
+              <td className="text-right text-gray-600">
+                <SwapMinimumReceived
+                  minimumReceivedAmount={minimumReceivedAmountAtomic}
+                  outputAssetMetadata={outputAssetMetadata}
+                />
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <T id="swapCashback" />
+              </td>
+              <td>
+                <span
+                  ref={cashbackInfoIconRef}
+                  className="flex w-fit ml-auto justify-end items-center hover:bg-gray-100 text-gray-600"
+                >
+                  {SWAP_CASHBACK_PERCENT}% &nbsp;
+                  <InfoIcon className="w-3 h-auto stroke-current" />
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
       {error && (
         <Alert
@@ -482,10 +498,6 @@ export const SwapForm: FC = () => {
       )}
 
       <SwapRoute className="mb-6" />
-
-      <p className="text-center text-gray-700 max-w-xs m-auto mb-3">
-        <span>Swap more than 10$ and receive 0.175% from the swapped amount in the TKEY token as a cashback</span>
-      </p>
 
       <p className="text-center text-gray-700 max-w-xs m-auto">
         <span className="mr-1">
