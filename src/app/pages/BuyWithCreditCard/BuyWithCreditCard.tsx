@@ -12,15 +12,17 @@ import { SpinnerSection } from 'app/templates/SendForm/SpinnerSection';
 import { TopUpInput } from 'app/templates/TopUpInput';
 import { TopUpInputType } from 'lib/buy-with-credit-card/top-up-input-type.enum';
 import { TopUpProviderId } from 'lib/buy-with-credit-card/top-up-provider-id.enum';
-import { PaymentProviderInterface } from 'lib/buy-with-credit-card/topup.interface';
-import { T, t } from 'lib/i18n';
+import { PaymentProviderInterface, TopUpInputInterface } from 'lib/buy-with-credit-card/topup.interface';
+import { T, t, toLocalFixed, toLocalFormat } from 'lib/i18n';
 
 import { useAllCryptoCurrencies } from './hooks/use-all-crypto-currencies';
 import { useAllFiatCurrencies } from './hooks/use-all-fiat-currencies';
 
+const MOONPAY_ASSETS_BASE_URL = 'https://static.moonpay.com';
+
 const DEFAULT_INPUT_CURRENCY = {
   code: 'USD',
-  icon: 'https://static.moonpay.com/widget/currencies/usd.svg',
+  icon: `${MOONPAY_ASSETS_BASE_URL}/widget/currencies/usd.svg`,
   name: 'US Dollar',
   network: {
     code: '',
@@ -35,9 +37,9 @@ const DEFAULT_OUTPUT_TOKEN = {
   name: 'Tezos',
   icon: 'https://exolix.com/icons/coins/XTZ.png',
   network: {
-    code: 'XTZ',
-    fullName: 'Tezos Mainnet',
-    shortName: 'Tezos'
+    code: '',
+    fullName: '',
+    shortName: ''
   },
   slug: 'tez',
   type: TopUpInputType.Crypto
@@ -78,6 +80,8 @@ const mockOptions: PaymentProviderInterface[] = [
   }
 ];
 
+const fitFiatIconFn = (currency: TopUpInputInterface) => !currency.icon.startsWith(MOONPAY_ASSETS_BASE_URL);
+
 export const BuyWithCreditCard: FC = () => {
   const dispatch = useDispatch();
   // const [isLoading, setIsLoading] = useState(false);
@@ -98,14 +102,14 @@ export const BuyWithCreditCard: FC = () => {
                 amount={undefined}
                 currency={DEFAULT_INPUT_CURRENCY}
                 currenciesList={allFiatCurrencies}
-                minAmount={String(0)}
-                maxAmount={String(1000 || '---')}
+                minAmount={toLocalFormat(0, { decimalPlaces: DEFAULT_INPUT_CURRENCY.precision })}
+                maxAmount={toLocalFormat(1000, { decimalPlaces: DEFAULT_INPUT_CURRENCY.precision })}
                 isMinAmountError={false}
                 isMaxAmountError={false}
                 onCurrencySelect={console.log}
                 onAmountChange={console.log}
                 amountInputDisabled={false}
-                fitIcons={true}
+                fitIcons={fitFiatIconFn}
               />
 
               <ArrowDownIcon stroke="#4299E1" className="w-6 h-6" />

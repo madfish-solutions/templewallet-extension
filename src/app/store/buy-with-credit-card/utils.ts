@@ -30,9 +30,9 @@ const aliceBobTezos = {
   name: 'Tezos',
   code: 'XTZ',
   network: {
-    code: 'XTZ',
-    fullName: 'Tezos Mainnet',
-    shortName: 'Tezos'
+    code: '',
+    fullName: '',
+    shortName: ''
   },
   icon: 'https://static.moonpay.com/widget/currencies/xtz.svg',
   precision: 6,
@@ -64,9 +64,9 @@ export const mapMoonPayProviderCurrencies = ([fiatCurrencies, cryptoCurrencies]:
       name,
       code: code.toUpperCase(),
       network: {
-        code: 'XTZ',
-        fullName: 'Tezos Mainnet',
-        shortName: 'Tezos'
+        code: '',
+        fullName: '',
+        shortName: ''
       },
       icon,
       precision,
@@ -98,9 +98,9 @@ export const mapUtorgProviderCurrencies = (currencies: UtorgCurrencyInfo[]) => (
       name: symbol,
       code: symbol,
       network: {
-        code: 'XTZ',
-        fullName: 'Tezos Mainnet',
-        shortName: 'Tezos'
+        code: '',
+        fullName: '',
+        shortName: ''
       },
       icon: `${UTORG_CRYPTO_ICONS_BASE_URL}/${currency}.svg`,
       precision,

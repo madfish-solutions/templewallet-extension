@@ -34,8 +34,9 @@ export interface TopUpInputPropsGeneric<C extends CurrencyBase> extends TestIDPr
   isMinAmountError?: boolean;
   isMaxAmountError?: boolean;
   isInsufficientTezBalanceError?: boolean;
-  fitIcons?: boolean;
+  fitIcons?: boolean | ((currency: C) => boolean);
   className?: string;
+  decimals?: number;
 }
 
 export type TopUpInputPropsBase = TopUpInputPropsGeneric<CurrencyBase>;

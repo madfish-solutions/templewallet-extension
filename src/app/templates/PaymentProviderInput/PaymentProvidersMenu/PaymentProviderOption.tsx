@@ -9,15 +9,17 @@ import { PaymentProviderInterface } from 'lib/buy-with-credit-card/topup.interfa
 import { t, toLocalFixed } from 'lib/i18n';
 import { isDefined } from 'lib/utils/is-defined';
 
+import { MoneyRange } from '../MoneyRange';
 import { PaymentProviderTag, PaymentProviderTagProps } from './PaymentProviderTag';
 
 interface Props extends Partial<Pick<ListRowProps, 'style'>> {
   value: PaymentProviderInterface;
   isSelected: boolean;
+  shouldShowSeparator: boolean;
   onClick?: (newValue: PaymentProviderInterface) => void;
 }
 
-export const PaymentProviderOption: FC<Props> = ({ value, isSelected, style, onClick }) => {
+export const PaymentProviderOption: FC<Props> = ({ value, isSelected, shouldShowSeparator, style, onClick }) => {
   const cryptoCurrencies = useCryptoCurrenciesSelector(value.id);
 
   const tagsProps = useMemo(() => {
@@ -43,13 +45,14 @@ export const PaymentProviderOption: FC<Props> = ({ value, isSelected, style, onC
       type="button"
       style={style}
       className={classNames(
-        'px-4 py-3 w-full flex flex-col gap-2 border-b border-gray-300',
+        'px-4 py-3 w-full flex flex-col gap-2 border-gray-300',
+        shouldShowSeparator && 'border-b',
         isSelected ? 'bg-gray-200' : 'hover:bg-gray-100'
       )}
       onClick={() => onClick?.(value)}
     >
       {tagsProps.length > 0 && (
-        <div className="flex gap-1">
+        <div className="flex gap-1 flex-wrap">
           {tagsProps.map(({ text, bgColor }) => (
             <PaymentProviderTag key={text} text={text} bgColor={bgColor} />
           ))}
@@ -68,14 +71,17 @@ export const PaymentProviderOption: FC<Props> = ({ value, isSelected, style, onC
                 : '-'}
             </span>
           </div>
-          <div className="flex justify-between text-xs text-gray-600 leading-relaxed">
-            <span>
-              {toLocalFixed(value.minInputAmount ?? 0, value.inputDecimals ?? 2)}
-              {' - '}
-              {toLocalFixed(value.maxInputAmount ?? Infinity)} {value.inputSymbol}
-            </span>
-            <span>
-              {toLocalFixed(value.inputAmount ?? 0, value.inputDecimals ?? 2)} {value.inputSymbol}
+          <div className="flex justify-between">
+            <MoneyRange
+              minAmount={value.minInputAmount}
+              maxAmount={value.maxInputAmount}
+              currencySymbol={value.inputSymbol}
+              decimalPlaces={value.inputDecimals ?? 2}
+            />
+            <span className="text-xs text-gray-600 leading-relaxed">
+              {isDefined(value.inputAmount)
+                ? `${toLocalFixed(value.inputAmount, value.inputDecimals ?? 2)} ${value.inputSymbol}`
+                : '-'}
             </span>
           </div>
         </div>

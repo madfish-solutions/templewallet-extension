@@ -16,10 +16,12 @@ interface Props extends TestIDProperty {
   options: CurrencyBase[];
   isLoading?: boolean;
   opened: boolean;
-  fitIcons?: boolean;
+  fitIcons?: boolean | ((currency: CurrencyBase) => boolean);
   setOpened: (newValue: boolean) => void;
   onChange?: (newValue: CurrencyBase) => void;
 }
+
+const ROW_HEIGHT = 65;
 
 export const CurrenciesMenu: FC<Props> = ({
   value,
@@ -72,14 +74,14 @@ export const CurrenciesMenu: FC<Props> = ({
       )}
       <List
         width={dropdownWidth}
-        height={options.length > 2 ? 240 : 132}
+        height={options.length > 2 ? 240 : options.length * ROW_HEIGHT}
         rowCount={options.length}
-        rowHeight={65}
+        rowHeight={ROW_HEIGHT}
         rowRenderer={({ key, index, style }) => (
           <CurrencyOption
             key={key}
             currency={options[index]}
-            isSelected={value.code === options[index].code && value.network === options[index].network}
+            isSelected={value.code === options[index].code && value.network?.code === options[index].network?.code}
             fitIcons={fitIcons}
             style={style}
             onClick={handleOptionClick}

@@ -1,11 +1,12 @@
 import React, { forwardRef } from 'react';
 
 import { ReactComponent as ChevronDownIcon } from 'app/icons/chevron-down.svg';
-import { T, toLocalFixed } from 'lib/i18n';
+import { T } from 'lib/i18n';
 import { PopperRenderProps } from 'lib/ui/Popper';
 import { isDefined } from 'lib/utils/is-defined';
 
 import { TopUpProviderIcon } from '../TopUpProviderIcon';
+import { MoneyRange } from './MoneyRange';
 import { PaymentProviderInputProps } from './types';
 
 interface Props extends PopperRenderProps, Pick<PaymentProviderInputProps, 'value' | 'options'> {}
@@ -24,11 +25,12 @@ export const PaymentProviderInputHeader = forwardRef<HTMLDivElement, Props>(({ v
         {isDefined(currentOption) ? (
           <>
             <span className="font-normal text-ulg text-gray-700 leading-tight">{currentOption.name}</span>
-            <span className="font-normal text-xs text-gray-600 leading-relaxed">
-              {toLocalFixed(currentOption.minInputAmount ?? 0, currentOption.inputDecimals ?? 2)}
-              {' - '}
-              {toLocalFixed(currentOption.maxInputAmount ?? Infinity)} {currentOption.inputSymbol}
-            </span>
+            <MoneyRange
+              minAmount={currentOption.minInputAmount}
+              maxAmount={currentOption.maxInputAmount}
+              currencySymbol={currentOption.inputSymbol}
+              decimalPlaces={currentOption.inputDecimals ?? 2}
+            />
           </>
         ) : (
           <span className="font-medium text-sm leading-tight text-gray-500">

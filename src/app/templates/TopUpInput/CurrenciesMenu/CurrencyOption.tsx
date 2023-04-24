@@ -10,7 +10,7 @@ import { getProperNetworkFullName } from '../utils';
 interface Props extends Partial<Pick<ListRowProps, 'style'>> {
   currency: CurrencyBase;
   isSelected: boolean;
-  fitIcons?: boolean;
+  fitIcons?: boolean | ((currency: CurrencyBase) => boolean);
   onClick?: (newValue: CurrencyBase) => void;
 }
 
@@ -25,7 +25,7 @@ export const CurrencyOption: FC<Props> = ({ currency, isSelected, fitIcons, styl
       currencyCode={currency.code}
       isFiat={Boolean(currency.network)}
       imageSrc={currency.icon}
-      fitImg={fitIcons}
+      fitImg={typeof fitIcons === 'function' ? fitIcons(currency) : fitIcons}
       className="mr-2"
     />
 

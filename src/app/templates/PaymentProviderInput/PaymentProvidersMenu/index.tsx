@@ -71,11 +71,12 @@ export const PaymentProvidersMenu: FC<Props> = ({
         </div>
       )}
       <div style={{ width: dropdownWidth, height: options.length > 2 ? 240 : 132, overflowY: 'scroll' }}>
-        {options.map(option => (
+        {options.map((option, index) => (
           <PaymentProviderOption
             key={option.id}
             value={option}
             isSelected={value === option.id}
+            shouldShowSeparator={index !== options.length - 1}
             onClick={handleOptionClick}
           />
         ))}
