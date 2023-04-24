@@ -60,7 +60,7 @@ export const Utorg = () => {
   const linkRequest = useCallback(() => {
     if (disabledProceed) return;
     setOrderLinkLoading(true);
-    createOrder(outputAmount, inputCurrencyCode, publicKeyHash)
+    createOrder(outputAmount, inputCurrencyCode, publicKeyHash, 'XTZ')
       .then(setLink)
       .finally(() => setOrderLinkLoading(false));
   }, [outputAmount, disabledProceed, inputCurrencyCode, publicKeyHash]);

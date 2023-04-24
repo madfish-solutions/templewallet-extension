@@ -1,9 +1,9 @@
 import React, { useMemo, useState } from 'react';
 
-import { Modifier } from '@popperjs/core';
 import { useDebounce } from 'use-debounce';
 
 import Popper from 'lib/ui/Popper';
+import { sameWidthModifiers } from 'lib/ui/same-width-modifiers';
 
 import { FieldContainer, FieldInnerComponent, IconifiedSelectField } from './Field';
 import { IconifiedSelectMenu } from './Menu';
@@ -50,7 +50,7 @@ const IconifiedSelect = <T extends unknown>({
       <Popper
         placement="bottom"
         strategy="fixed"
-        modifiers={[sameWidth]}
+        modifiers={sameWidthModifiers}
         popup={({ opened, setOpened, toggleOpened }) => (
           <IconifiedSelectMenu
             isDisabled={isDisabled}
@@ -100,17 +100,3 @@ const IconifiedSelect = <T extends unknown>({
 };
 
 export default IconifiedSelect;
-
-const sameWidth: Modifier<string, any> = {
-  name: 'sameWidth',
-  enabled: true,
-  phase: 'beforeWrite',
-  requires: ['computeStyles'],
-  fn: ({ state }) => {
-    state.styles.popper.width = `${state.rects.reference.width}px`;
-  },
-  effect: ({ state }) => {
-    state.elements.popper.style.width = `${(state.elements.reference as any).offsetWidth}px`;
-    return () => {};
-  }
-};

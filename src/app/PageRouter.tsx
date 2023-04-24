@@ -33,6 +33,7 @@ import { useTokensApyLoading } from './hooks/use-tokens-apy-loading';
 import { Buy } from './pages/Buy/Buy';
 import { AliceBobTopUp } from './pages/Buy/Debit/AliceBob/AliceBobTopUp';
 import { Utorg } from './pages/Buy/Debit/Utorg/Utorg';
+import { BuyWithCreditCard } from './pages/BuyWithCreditCard/BuyWithCreditCard';
 import AttentionPage from './pages/Onboarding/pages/AttentionPage';
 import { AliceBobWithdraw } from './pages/Withdraw/Debit/AliceBob/AliceBobWithdraw';
 import { Withdraw } from './pages/Withdraw/Withdraw';
@@ -96,6 +97,7 @@ const ROUTE_MAP = Woozie.createMap<RouteContext>([
   ['/settings/:tabSlug?', onlyReady(({ tabSlug }) => <Settings tabSlug={tabSlug} />)],
   ['/buy', onlyReady(onlyInFullPage(() => <Buy />))],
   ['/buy/crypto/exolix', onlyReady(onlyInFullPage(() => <Exolix />))],
+  ['/buy/debit', onlyReady(onlyInFullPage(() => <BuyWithCreditCard />))],
   ['/buy/debit/alice-bob', onlyReady(onlyInFullPage(() => <AliceBobTopUp />))],
   ['/buy/debit/utorg', onlyReady(onlyInFullPage(() => <Utorg />))],
   ['/withdraw', onlyReady(onlyInFullPage(() => <Withdraw />))],

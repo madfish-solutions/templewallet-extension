@@ -46,7 +46,7 @@ export interface AliceBobOrderInfo {
   orderExpirationTimetamp: number;
 }
 
-interface AliceBobPairInfo {
+export interface AliceBobPairInfo {
   minAmount: number;
   maxAmount: number;
 }

@@ -1,9 +1,9 @@
 import React from 'react';
 
-import { Modifier } from '@popperjs/core';
 import classNames from 'clsx';
 
 import Popper from 'lib/ui/Popper';
+import { sameWidthModifiers } from 'lib/ui/same-width-modifiers';
 
 import { CurrenciesMenu } from './CurrenciesMenu';
 import { TopUpInputHeader } from './TopUpInputHeader';
@@ -56,19 +56,3 @@ export const TopUpInput = <C extends CurrencyBase>(_props: TopUpInputPropsGeneri
     </div>
   );
 };
-
-const sameWidthModifiers: Modifier<string, any>[] = [
-  {
-    name: 'sameWidth',
-    enabled: true,
-    phase: 'beforeWrite',
-    requires: ['computeStyles'],
-    fn: ({ state }) => {
-      state.styles.popper.width = `${state.rects.reference.width}px`;
-    },
-    effect: ({ state }) => {
-      state.elements.popper.style.width = `${(state.elements.reference as any).offsetWidth}px`;
-      return () => {};
-    }
-  }
-];

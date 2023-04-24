@@ -35,6 +35,8 @@ inputs:
     required: false
   TEMPLE_WALLET_ROUTE3_AUTH_TOKEN:
     required: true
+  TEMPLE_WALLET_MOONPAY_API_KEY:
+    required: true
   WATCH_ONLY_PUBLIC_KEY_HASH:
     required: false
   WATCH_ONLY_PUBLIC_KEY_HASH_SHORT_FORM:
@@ -59,6 +61,7 @@ runs:
         TEMPLE_WALLET_METADATA_API_URL=${{ inputs.TEMPLE_WALLET_METADATA_API_URL }}
         TEMPLE_WALLET_DEXES_API_URL=${{ inputs.TEMPLE_WALLET_DEXES_API_URL }}
         TEMPLE_WALLET_ROUTE3_AUTH_TOKEN=${{ inputs.TEMPLE_WALLET_ROUTE3_AUTH_TOKEN }}
+        TEMPLE_WALLET_MOONPAY_API_KEY: ${{ vars.TEMPLE_WALLET_MOONPAY_API_KEY }}
         EOF
 
     - name: Create e2e/.env file

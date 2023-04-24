@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 
-import { convertFiatAmountToXtz } from 'lib/apis/utorg';
+import { convertFiatAmountToCrypto } from 'lib/apis/utorg';
 
 export const useOutputAmount = (inputAmountDebounced = 0, inputCurrency: string) => {
   const [outputAmount, setOutputAmount] = useState(0);
@@ -8,7 +8,7 @@ export const useOutputAmount = (inputAmountDebounced = 0, inputCurrency: string)
 
   const updateOutputRequest = useCallback(() => {
     setLoading(true);
-    convertFiatAmountToXtz(inputAmountDebounced, inputCurrency)
+    convertFiatAmountToCrypto(inputAmountDebounced, inputCurrency, 'XTZ')
       .then(outputAmount => setOutputAmount(outputAmount))
       .finally(() => setLoading(false));
   }, [inputAmountDebounced, inputCurrency, setLoading]);

@@ -10,7 +10,7 @@ export const useExchangeRate = (inputAmount = 0, minAmount = 0, inputCurrency: s
 
   useEffect(() => {
     setLoading(true);
-    getExchangeRate(amount, inputCurrency)
+    getExchangeRate(amount, inputCurrency, 'XTZ')
       .then((fetchedRate = 0) => {
         const rate = Number(fetchedRate.toPrecision(4)) || 0;
         setExchangeRate(rate);
