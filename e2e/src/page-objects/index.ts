@@ -1,3 +1,5 @@
+import { NetworksDropDown } from 'e2e/src/page-objects/pages/drop-down-lists/networks.drop-down';
+
 import { OperationStatusAlert } from './pages/alerts/operation-status.alert';
 import { CreateOrRestoreAnAccountPage } from './pages/create-or-restore-an-account.page';
 import { DelegateFormPage } from './pages/delegate-form.page';
@@ -42,5 +44,6 @@ export const Pages = {
   DelegateForm: new DelegateFormPage(),
   InternalConfirmation: new InternalConfirmationPage(),
   OperationStatusAlert: new OperationStatusAlert(),
-  Send: new SendPage()
+  Send: new SendPage(),
+  NetworksDropDown: new NetworksDropDown()
 };
