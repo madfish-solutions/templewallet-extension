@@ -10,7 +10,7 @@ import { getTokensMetadata, fetchWhitelistTokenSlugs } from 'lib/apis/temple';
 import { TzktAccountToken, fetchTzktTokens } from 'lib/apis/tzkt';
 import { METADATA_SYNC_INTERVAL } from 'lib/fixed-times';
 import {
-  toTokenSlug,
+  toAssetSlug,
   fetchDisplayedFungibleTokens,
   fetchCollectibleTokens,
   getPredefinedTokensSlugs
@@ -90,7 +90,7 @@ const makeSync = async (
   ]);
 
   const tzktTokensMap = new Map(
-    tzktTokens.map(tzktToken => [toTokenSlug(tzktToken.token.contract.address, tzktToken.token.tokenId), tzktToken])
+    tzktTokens.map(tzktToken => [toAssetSlug(tzktToken.token.contract.address, tzktToken.token.tokenId), tzktToken])
   );
 
   const displayedTokenSlugs = [...displayedFungibleTokens, ...displayedCollectibleTokens].map(
@@ -99,7 +99,7 @@ const makeSync = async (
 
   const tokenSlugs = filterUnique([
     ...getPredefinedTokensSlugs(chainId),
-    ...tzktTokens.map(balance => toTokenSlug(balance.token.contract.address, balance.token.tokenId)),
+    ...tzktTokens.map(balance => toAssetSlug(balance.token.contract.address, balance.token.tokenId)),
     ...displayedTokenSlugs,
     ...whitelistTokenSlugs
   ]);

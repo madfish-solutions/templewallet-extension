@@ -88,8 +88,16 @@ export function fromFa2TokenSlug(slug: string): FA2Token {
   };
 }
 
-export function toTokenSlug(contract: string, id: BigNumber.Value = 0) {
-  return contract === TEZ_TOKEN_SLUG ? TEZ_TOKEN_SLUG : `${contract}_${new BigNumber(id).toFixed()}`;
+export function toAssetSlug(contract: string, id: BigNumber.Value = 0) {
+  return contract === TEZ_TOKEN_SLUG ? TEZ_TOKEN_SLUG : toTokenSlug(contract, id);
+}
+
+function toTokenSlug(contract: string, id: BigNumber.Value = 0) {
+  return `${contract}_${new BigNumber(id).toFixed()}`;
+}
+
+export function tokenToSlug<T extends { address: string; id?: BigNumber.Value }>({ address, id }: T) {
+  return toTokenSlug(address, id);
 }
 
 export function isFA2Asset(asset: Asset): asset is FA2Token {

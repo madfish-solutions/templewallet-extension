@@ -13,7 +13,7 @@ import { useFormAnalytics } from 'lib/analytics';
 import { T, t } from 'lib/i18n';
 import {
   NotMatchingStandardError,
-  toTokenSlug,
+  toAssetSlug,
   assertFa2TokenDefined,
   detectTokenStandard,
   IncorrectTokenIdError
@@ -136,7 +136,7 @@ const Form: FC = () => {
 
       if (tokenStandard === 'fa2') await assertFa2TokenDefined(tezos, contract, tokenId);
 
-      const slug = toTokenSlug(contractAddress, tokenId);
+      const slug = toAssetSlug(contractAddress, tokenId);
       const metadata = await fetchMetadata(slug);
 
       if (metadata) {
@@ -199,7 +199,7 @@ const Form: FC = () => {
 
       formAnalytics.trackSubmit();
       try {
-        const tokenSlug = toTokenSlug(address, id || 0);
+        const tokenSlug = toAssetSlug(address, id || 0);
 
         const baseMetadata = {
           ...(metadataRef.current?.base ?? {}),

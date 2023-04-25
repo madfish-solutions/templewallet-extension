@@ -7,7 +7,7 @@ import { Route3Dex } from 'lib/apis/route3/fetch-route3-dexes';
 import { Route3Token } from 'lib/apis/route3/fetch-route3-tokens';
 import { getDexName } from 'lib/route3/utils/get-dex-name';
 import { DexTypeIcon } from 'lib/swap-router';
-import { toTokenSlug } from 'lib/temple/assets';
+import { toAssetSlug } from 'lib/temple/assets';
 import { TEZ_TOKEN_SLUG } from 'lib/temple/front';
 import useTippy from 'lib/ui/useTippy';
 
@@ -46,7 +46,7 @@ export const HopItem: FC<Props> = ({ dex, aToken, bToken, className }) => {
       <div className="flex items-center ml-2">
         <div ref={tokenAInfoDivRef}>
           <AssetIcon
-            assetSlug={toTokenSlug(
+            assetSlug={toAssetSlug(
               aToken?.contract === null ? TEZ_TOKEN_SLUG : aToken?.contract ?? '',
               aToken?.tokenId ?? undefined
             )}
@@ -55,7 +55,7 @@ export const HopItem: FC<Props> = ({ dex, aToken, bToken, className }) => {
         </div>
         <div ref={tokenBInfoDivRef} style={{ marginLeft: -8 }}>
           <AssetIcon
-            assetSlug={toTokenSlug(
+            assetSlug={toAssetSlug(
               bToken?.contract === null ? TEZ_TOKEN_SLUG : bToken?.contract ?? '',
               bToken?.tokenId ?? undefined
             )}

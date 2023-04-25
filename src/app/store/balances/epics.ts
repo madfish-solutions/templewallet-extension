@@ -6,7 +6,7 @@ import { Action } from 'ts-action';
 import { ofType, toPayload } from 'ts-action-operators';
 
 import { fecthTezosBalanceFromTzkt, fetchAllTokensBalancesFromTzkt } from 'lib/apis/tzkt/api';
-import { fetchBalance, fetchTezosBalanceAtomic, toTokenSlug } from 'lib/temple/assets';
+import { fetchBalance, fetchTezosBalanceAtomic, toAssetSlug } from 'lib/temple/assets';
 import { TEZ_TOKEN_SLUG } from 'lib/temple/front';
 import { atomsToTokens } from 'lib/temple/helpers';
 import { IAccountToken } from 'lib/temple/repo';
@@ -38,7 +38,7 @@ const loadTokensBalancesFromTzktEpic: Epic = (action$: Observable<Action>) =>
           };
 
           tokensBalances.forEach(({ token, balance }) => {
-            balances[toTokenSlug(token.contract.address, token.tokenId)] = balance;
+            balances[toAssetSlug(token.contract.address, token.tokenId)] = balance;
           });
 
           for (const slug of YUPANA_TOKENS) {

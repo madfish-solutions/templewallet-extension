@@ -5,7 +5,7 @@ import classNames from 'clsx';
 
 import { useFormAnalytics } from 'lib/analytics';
 import { t } from 'lib/i18n';
-import { toTokenSlug } from 'lib/temple/assets';
+import { toAssetSlug } from 'lib/temple/assets';
 import { useAccount, useBalance, useAssetMetadata, useGetTokenMetadata, useOnBlock } from 'lib/temple/front';
 import { useAvailableRoute3Tokens, useFilteredSwapAssets } from 'lib/temple/front/assets';
 import { EMPTY_ASSET_METADATA } from 'lib/temple/metadata';
@@ -51,7 +51,7 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
   const { filteredAssets, searchValue, setSearchValue, tokenId, setTokenId } = useFilteredSwapAssets(name);
 
   const showTokenIdInput = useSwapFormTokenIdInput(searchValue);
-  const searchAssetSlug = toTokenSlug(searchValue, tokenId);
+  const searchAssetSlug = toAssetSlug(searchValue, tokenId);
 
   const maxAmount = useMemo(() => {
     if (!assetSlug) {

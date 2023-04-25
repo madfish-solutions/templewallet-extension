@@ -21,7 +21,7 @@ import {
   fetchCollectibleTokens,
   fetchAllKnownCollectibleTokenSlugs,
   isTokenDisplayed,
-  toTokenSlug
+  toAssetSlug
 } from 'lib/temple/assets';
 import { useNetwork } from 'lib/temple/front';
 import { ITokenStatus } from 'lib/temple/repo';
@@ -309,7 +309,7 @@ export const useAvailableRoute3Tokens = () => {
 
     for (const { contract, tokenId } of route3tokens) {
       if (contract !== null) {
-        result.push(toTokenSlug(contract, tokenId ?? 0));
+        result.push(toAssetSlug(contract, tokenId ?? 0));
       }
     }
 
@@ -362,7 +362,7 @@ export function useFilteredAssets(assetSlugs: string[]) {
 
   const [searchValue, setSearchValue] = useState('');
   const [tokenId, setTokenId] = useState<number>();
-  const [searchValueDebounced] = useDebounce(tokenId ? toTokenSlug(searchValue, tokenId) : searchValue, 300);
+  const [searchValueDebounced] = useDebounce(tokenId ? toAssetSlug(searchValue, tokenId) : searchValue, 300);
 
   const filteredAssets = useMemo(
     () =>
@@ -407,7 +407,7 @@ export function useFilteredSwapAssets(inputName: string = 'input') {
 
   const [searchValue, setSearchValue] = useState('');
   const [tokenId, setTokenId] = useState<number>();
-  const [searchValueDebounced] = useDebounce(tokenId ? toTokenSlug(searchValue, tokenId) : searchValue, 300);
+  const [searchValueDebounced] = useDebounce(tokenId ? toAssetSlug(searchValue, tokenId) : searchValue, 300);
 
   const filteredAssets = useMemo(
     () => searchAssetsWithNoMeta(searchValueDebounced, assetSlugs, allTokensBaseMetadata, slug => slug),

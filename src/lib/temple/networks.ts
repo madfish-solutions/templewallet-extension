@@ -19,7 +19,7 @@ export const NETWORK_IDS = new Map<string, string>([
   [TempleChainId.Mumbainet, 'mumbainet']
 ]);
 
-export const DCP_NETWORKS: TempleNetwork[] = [
+const DCP_NETWORKS: TempleNetwork[] = [
   {
     id: 't4l3nt-mainnet',
     name: 'T4L3NT Mainnet',
