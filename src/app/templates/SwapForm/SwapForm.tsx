@@ -1,5 +1,6 @@
 import React, { FC, useEffect, useMemo, useRef, useState } from 'react';
 
+import { isDefined } from '@rnw-community/shared';
 import { BatchWalletOperation } from '@taquito/taquito/dist/types/wallet/batch-operation';
 import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
@@ -24,7 +25,6 @@ import { ROUTING_FEE_PERCENT } from 'lib/swap-router/config';
 import { useAccount, useAssetMetadata, useTezos } from 'lib/temple/front';
 import { tokensToAtoms } from 'lib/temple/helpers';
 import useTippy from 'lib/ui/useTippy';
-import { isDefined } from 'lib/utils/is-defined';
 import { parseTransferParamsToParamsWithKind } from 'lib/utils/parse-transfer-params';
 import { HistoryAction, navigate } from 'lib/woozie';
 

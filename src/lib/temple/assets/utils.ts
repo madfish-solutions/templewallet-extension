@@ -2,6 +2,7 @@ import { OpKind, TezosToolkit } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
 
 import { loadContract } from 'lib/temple/contract';
+import { TEZ_TOKEN_SLUG } from 'lib/temple/front';
 import { isValidContractAddress } from 'lib/temple/helpers';
 import { AssetMetadata } from 'lib/temple/metadata';
 
@@ -88,19 +89,19 @@ export function fromFa2TokenSlug(slug: string): FA2Token {
 }
 
 export function toTokenSlug(contract: string, id: BigNumber.Value = 0) {
-  return contract === 'tez' ? 'tez' : `${contract}_${new BigNumber(id).toFixed()}`;
+  return contract === TEZ_TOKEN_SLUG ? TEZ_TOKEN_SLUG : `${contract}_${new BigNumber(id).toFixed()}`;
 }
 
 export function isFA2Asset(asset: Asset): asset is FA2Token {
-  return asset === 'tez' ? false : typeof asset.id !== 'undefined';
+  return asset === TEZ_TOKEN_SLUG ? false : typeof asset.id !== 'undefined';
 }
 
 export function isFA2Token(token: Token): token is FA2Token {
   return typeof token.id !== 'undefined';
 }
 
-export function isTezAsset(asset: Asset | string): asset is 'tez' {
-  return asset === 'tez';
+export function isTezAsset(asset: Asset | string): asset is typeof TEZ_TOKEN_SLUG {
+  return asset === TEZ_TOKEN_SLUG;
 }
 
 export function toPenny(metadata: AssetMetadata | null) {
