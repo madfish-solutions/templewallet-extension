@@ -5,8 +5,7 @@ import classNames from 'clsx';
 
 import { useTokenApyInfo } from 'app/hooks/use-token-apy.hook';
 import { AssetIcon } from 'app/templates/AssetIcon';
-import { useAssetMetadata } from 'lib/temple/front';
-import { getAssetName, getAssetSymbol } from 'lib/temple/metadata';
+import { useAssetMetadata, getAssetName, getAssetSymbol } from 'lib/metadata';
 import { Link } from 'lib/woozie';
 
 import { AssetsSelectors } from '../../Assets.selectors';

@@ -7,6 +7,7 @@ import Spinner from 'app/atoms/Spinner/Spinner';
 import { useTabSlug } from 'app/atoms/useTabSlug';
 import { useAppEnv } from 'app/env';
 import ErrorBoundary from 'app/ErrorBoundary';
+import { useMetadataLoading } from 'app/hooks/use-metadata-loading';
 import { ReactComponent as BuyIcon } from 'app/icons/buy.svg';
 import { ReactComponent as ReceiveIcon } from 'app/icons/receive.svg';
 import { ReactComponent as SendIcon } from 'app/icons/send-alt.svg';
@@ -17,10 +18,10 @@ import { ActivityComponent } from 'app/templates/activity/Activity';
 import AssetInfo from 'app/templates/AssetInfo';
 import { TestIDProps } from 'lib/analytics';
 import { T, t } from 'lib/i18n';
+import { useAssetMetadata, getAssetSymbol } from 'lib/metadata';
 import { isTezAsset } from 'lib/temple/assets';
-import { useAccount, useNetwork, useAssetMetadata } from 'lib/temple/front';
+import { useAccount, useNetwork, GAS_TOKEN_SLUG } from 'lib/temple/front';
 import { useBalancesLoading } from 'lib/temple/front/load-balances';
-import { getAssetSymbol } from 'lib/temple/metadata';
 import { TempleAccountType, TempleNetworkType } from 'lib/temple/types';
 import useTippy from 'lib/ui/useTippy';
 import { HistoryAction, Link, navigate, To, useLocation } from 'lib/woozie';
@@ -49,6 +50,7 @@ const tippyPropsMock = {
 const NETWORK_TYPES_WITH_BUY_BUTTON: TempleNetworkType[] = ['main', 'dcp'];
 
 const Home: FC<ExploreProps> = ({ assetSlug }) => {
+  useMetadataLoading();
   useBalancesLoading();
 
   const { fullPage, registerBackHandler } = useAppEnv();
@@ -57,7 +59,7 @@ const Home: FC<ExploreProps> = ({ assetSlug }) => {
   const { search } = useLocation();
   const network = useNetwork();
 
-  const assetMetadata = useAssetMetadata(assetSlug ?? 'tez');
+  const assetMetadata = useAssetMetadata(assetSlug || GAS_TOKEN_SLUG);
 
   useLayoutEffect(() => {
     const usp = new URLSearchParams(search);
@@ -94,7 +96,7 @@ const Home: FC<ExploreProps> = ({ assetSlug }) => {
         </div>
       )}
 
-      <div className={classNames('flex flex-col items-center', 'mb-6')}>
+      <div className="flex flex-col items-center mb-6">
         <MainBanner accountPkh={accountPkh} assetSlug={assetSlug} />
 
         <div className="flex justify-between mx-auto w-full max-w-sm">
@@ -297,7 +299,7 @@ const SecondarySection: FC<SecondarySectionProps> = ({ assetSlug, className }) =
 
   return (
     <div className={classNames('-mx-4', 'shadow-top-light', fullPage && 'rounded-t-md', className)}>
-      <div className={classNames('w-full max-w-sm mx-auto', 'flex items-center justify-center')}>
+      <div className="w-full max-w-sm mx-auto flex items-center justify-center">
         {tabs.map(currentTab => {
           const active = slug === currentTab.slug;
 

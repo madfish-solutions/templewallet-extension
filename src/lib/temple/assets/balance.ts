@@ -1,10 +1,10 @@
 import { ChainIds, TezosToolkit } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
 
+import { TEZOS_METADATA, AssetMetadataBase } from 'lib/metadata';
 import { loadContract } from 'lib/temple/contract';
 
 import { atomsToTokens } from '../helpers';
-import { TEZOS_METADATA, AssetMetadata } from '../metadata';
 import { fromAssetSlug, isFA2Token } from './utils';
 
 export async function fetchTezosBalanceAtomic(tezos: TezosToolkit, account: string) {
@@ -24,7 +24,7 @@ export async function fetchBalance(
   tezos: TezosToolkit,
   assetSlug: string,
   account: string,
-  assetMetadata?: Pick<AssetMetadata, 'decimals'> | null
+  assetMetadata?: Pick<AssetMetadataBase, 'decimals'> | nullish
 ) {
   const asset = await fromAssetSlug(tezos, assetSlug);
 

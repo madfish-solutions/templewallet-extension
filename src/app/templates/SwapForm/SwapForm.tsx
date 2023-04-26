@@ -17,12 +17,13 @@ import { useSwapParamsSelector, useSwapTokenSelector, useSwapTokensSelector } fr
 import OperationStatus from 'app/templates/OperationStatus';
 import { setTestID, useFormAnalytics } from 'lib/analytics';
 import { T, t } from 'lib/i18n';
+import { useAssetMetadata } from 'lib/metadata';
 import { ROUTING_FEE_RATIO, ZERO } from 'lib/route3/constants';
 import { getPercentageRatio } from 'lib/route3/utils/get-percentage-ratio';
 import { getRoute3TokenBySlug } from 'lib/route3/utils/get-route3-token-by-slug';
 import { getRoutingFeeTransferParams } from 'lib/route3/utils/get-routing-fee-transfer-params';
 import { ROUTING_FEE_PERCENT } from 'lib/swap-router/config';
-import { useAccount, useAssetMetadata, useTezos } from 'lib/temple/front';
+import { GAS_TOKEN_SLUG, useAccount, useTezos } from 'lib/temple/front';
 import { tokensToAtoms } from 'lib/temple/helpers';
 import useTippy from 'lib/ui/useTippy';
 import { parseTransferParamsToParamsWithKind } from 'lib/utils/parse-transfer-params';
@@ -65,8 +66,8 @@ export const SwapForm: FC = () => {
   const fromRoute3Token = useSwapTokenSelector(inputValue.assetSlug ?? '');
   const toRoute3Token = useSwapTokenSelector(outputValue.assetSlug ?? '');
 
-  const inputAssetMetadata = useAssetMetadata(inputValue.assetSlug ?? 'tez')!;
-  const outputAssetMetadata = useAssetMetadata(outputValue.assetSlug ?? 'tez')!;
+  const inputAssetMetadata = useAssetMetadata(inputValue.assetSlug ?? GAS_TOKEN_SLUG)!;
+  const outputAssetMetadata = useAssetMetadata(outputValue.assetSlug ?? GAS_TOKEN_SLUG)!;
 
   const [error, setError] = useState<Error>();
   const [operation, setOperation] = useState<BatchWalletOperation>();

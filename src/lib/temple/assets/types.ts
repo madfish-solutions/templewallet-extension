@@ -1,6 +1,6 @@
 import type BigNumber from 'bignumber.js';
 
-import { TEZ_TOKEN_SLUG } from 'lib/temple/front';
+import { GAS_TOKEN_SLUG } from 'lib/temple/front';
 
 export interface Token {
   contract: string;
@@ -11,7 +11,7 @@ export interface FA2Token extends Token {
   id: BigNumber.Value;
 }
 
-export type Asset = Token | typeof TEZ_TOKEN_SLUG;
+export type Asset = Token | typeof GAS_TOKEN_SLUG;
 
 export type TokenStandard = 'fa1.2' | 'fa2';
 

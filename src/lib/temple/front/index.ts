@@ -19,12 +19,12 @@ export {
 } from './ready';
 
 export {
+  GAS_TOKEN_SLUG,
   TEZ_TOKEN_SLUG,
-  useAssetMetadata,
   useTokensMetadata,
   useAvailableAssets,
-  useAllTokensBaseMetadata,
   useAssetsSortPredicate,
+  useFungibleTokens,
   useCollectibleTokens,
   useDisplayedFungibleTokens,
   useGetTokenMetadata,

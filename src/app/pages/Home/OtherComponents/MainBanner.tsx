@@ -15,9 +15,9 @@ import InFiat from 'app/templates/InFiat';
 import { useFiatCurrency } from 'lib/fiat-currency';
 import { t, T } from 'lib/i18n';
 import { TezosLogoIcon } from 'lib/icons';
-import { useAssetMetadata, useGasToken, useNetwork } from 'lib/temple/front';
+import { getAssetName, getAssetSymbol, useAssetMetadata } from 'lib/metadata';
+import { useGasToken, useNetwork } from 'lib/temple/front';
 import { useTotalBalance } from 'lib/temple/front/use-total-balance.hook';
-import { getAssetName, getAssetSymbol } from 'lib/temple/metadata';
 import useTippy from 'lib/ui/useTippy';
 
 import { HomeSelectors } from '../Home.selectors';
@@ -58,7 +58,10 @@ const BalanceInfo: FC = () => {
   const {
     selectedFiatCurrency: { name: fiatName, symbol: fiatSymbol }
   } = useFiatCurrency();
-  const { name: gasTokenName, symbol: gasTokenSymbol } = useGasToken().metadata;
+
+  const {
+    metadata: { name: gasTokenName, symbol: gasTokenSymbol }
+  } = useGasToken();
 
   const tippyProps = useMemo(
     () => ({
@@ -161,9 +164,7 @@ const AssetBanner: FC<AssetBannerProps> = ({ assetSlug, accountPkh }) => {
       <div className="flex justify-between items-center mb-3">
         <div className="flex items-center">
           <AssetIcon assetSlug={assetSlug} size={24} className="flex-shrink-0" />
-          <div className={classNames('text-sm font-normal text-gray-700 truncate flex-1 ml-2')}>
-            {getAssetName(assetMetadata)}
-          </div>
+          <div className="text-sm font-normal text-gray-700 truncate flex-1 ml-2">{getAssetName(assetMetadata)}</div>
         </div>
         <AddressChip pkh={accountPkh} />
       </div>

@@ -37,11 +37,15 @@ export const fetchDisplayedFungibleTokens = (chainId: string, account: string) =
 export const fetchFungibleTokens = (chainId: string, account: string) =>
   Repo.accountTokens.where({ type: Repo.ITokenType.Fungible, chainId, account }).toArray();
 
-export const fetchCollectibleTokens = (chainId: string, account: string, isDisplayed: boolean) =>
-  Repo.accountTokens
-    .where({ type: Repo.ITokenType.Collectible, chainId, account })
-    .filter(accountToken => (isDisplayed ? isTokenDisplayed(accountToken) : true))
-    .sortBy('order');
+export const fetchCollectibleTokens = (chainId: string, account: string, onlyDisplayed: boolean = false) => {
+  let collection = Repo.accountTokens.where({ type: Repo.ITokenType.Collectible, chainId, account });
+
+  if (onlyDisplayed) {
+    collection = collection.filter(accountToken => isTokenDisplayed(accountToken));
+  }
+
+  return collection.sortBy('order');
+};
 
 export const fetchAllKnownFungibleTokenSlugs = async (chainId: string) => {
   const allAccountTokens = await Repo.accountTokens.where({ type: Repo.ITokenType.Fungible, chainId }).toArray();

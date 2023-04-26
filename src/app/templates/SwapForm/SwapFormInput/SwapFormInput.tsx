@@ -5,10 +5,10 @@ import classNames from 'clsx';
 
 import { useFormAnalytics } from 'lib/analytics';
 import { t } from 'lib/i18n';
+import { EMPTY_BASE_METADATA, useAssetMetadata } from 'lib/metadata';
 import { toAssetSlug } from 'lib/temple/assets';
-import { useAccount, useBalance, useAssetMetadata, useGetTokenMetadata, useOnBlock } from 'lib/temple/front';
+import { useAccount, useBalance, useGetTokenMetadata, useOnBlock } from 'lib/temple/front';
 import { useAvailableRoute3Tokens, useFilteredSwapAssets } from 'lib/temple/front/assets';
-import { EMPTY_ASSET_METADATA } from 'lib/temple/metadata';
 import Popper from 'lib/ui/Popper';
 
 import { AssetsMenu } from './AssetsMenu/AssetsMenu';
@@ -38,7 +38,7 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
 
   const assetMetadataWithFallback = useAssetMetadata(assetSlugWithFallback)!;
   const assetMetadata = useMemo(
-    () => (assetSlug ? assetMetadataWithFallback : EMPTY_ASSET_METADATA),
+    () => (assetSlug ? assetMetadataWithFallback : EMPTY_BASE_METADATA),
     [assetSlug, assetMetadataWithFallback]
   );
   const getTokenMetadata = useGetTokenMetadata();

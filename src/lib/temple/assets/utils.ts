@@ -1,10 +1,10 @@
 import { OpKind, TezosToolkit } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
 
+import { AssetMetadataBase } from 'lib/metadata';
 import { loadContract } from 'lib/temple/contract';
-import { TEZ_TOKEN_SLUG } from 'lib/temple/front';
+import { GAS_TOKEN_SLUG, TEZ_TOKEN_SLUG } from 'lib/temple/front';
 import { isValidContractAddress } from 'lib/temple/helpers';
-import { AssetMetadata } from 'lib/temple/metadata';
 
 import { detectTokenStandard } from './tokenStandard';
 import { Asset, Token, FA2Token } from './types';
@@ -12,7 +12,7 @@ import { Asset, Token, FA2Token } from './types';
 export async function toTransferParams(
   tezos: TezosToolkit,
   assetSlug: string,
-  assetMetadata: AssetMetadata | null,
+  assetMetadata: AssetMetadataBase | nullish,
   fromPkh: string,
   toPkh: string,
   amount: BigNumber.Value
@@ -89,7 +89,7 @@ export function fromFa2TokenSlug(slug: string): FA2Token {
 }
 
 export function toAssetSlug(contract: string, id: BigNumber.Value = 0) {
-  return contract === TEZ_TOKEN_SLUG ? TEZ_TOKEN_SLUG : toTokenSlug(contract, id);
+  return contract === GAS_TOKEN_SLUG ? GAS_TOKEN_SLUG : toTokenSlug(contract, id);
 }
 
 function toTokenSlug(contract: string, id: BigNumber.Value = 0) {
@@ -101,7 +101,7 @@ export function tokenToSlug<T extends { address: string; id?: BigNumber.Value }>
 }
 
 export function isFA2Asset(asset: Asset): asset is FA2Token {
-  return asset === TEZ_TOKEN_SLUG ? false : typeof asset.id !== 'undefined';
+  return isGasAsset(asset) ? false : typeof asset.id !== 'undefined';
 }
 
 export function isFA2Token(token: Token): token is FA2Token {
@@ -109,9 +109,13 @@ export function isFA2Token(token: Token): token is FA2Token {
 }
 
 export function isTezAsset(asset: Asset | string): asset is typeof TEZ_TOKEN_SLUG {
-  return asset === TEZ_TOKEN_SLUG;
+  return isGasAsset(asset);
 }
 
-export function toPenny(metadata: AssetMetadata | null) {
+export function isGasAsset(asset: Asset | string): asset is typeof GAS_TOKEN_SLUG {
+  return asset === GAS_TOKEN_SLUG;
+}
+
+export function toPenny(metadata: AssetMetadataBase | nullish) {
   return new BigNumber(1).div(10 ** (metadata?.decimals ?? 0));
 }

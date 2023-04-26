@@ -13,9 +13,9 @@ import { ReactComponent as ClipboardIcon } from 'app/icons/clipboard.svg';
 import HashChip from 'app/templates/HashChip';
 import InFiat from 'app/templates/InFiat';
 import { TProps, T, t } from 'lib/i18n';
-import { RawOperationAssetExpense, RawOperationExpenses, useAssetMetadata, useGasToken } from 'lib/temple/front';
+import { useAssetMetadata, getAssetSymbol } from 'lib/metadata';
+import { GAS_TOKEN_SLUG, RawOperationAssetExpense, RawOperationExpenses, useGasToken } from 'lib/temple/front';
 import { mutezToTz, tzToMutez } from 'lib/temple/helpers';
-import { getAssetSymbol } from 'lib/temple/metadata';
 
 import OperationsBanner from '../OperationsBanner';
 import styles from './ExpensesView.module.css';
@@ -447,7 +447,7 @@ type OperationVolumeDisplayProps = {
 };
 
 const OperationVolumeDisplay = memo<OperationVolumeDisplayProps>(({ expense, volume, mainnet }) => {
-  const metadata = useAssetMetadata(expense?.assetSlug ?? 'tez');
+  const metadata = useAssetMetadata(expense?.assetSlug ?? GAS_TOKEN_SLUG);
 
   const finalVolume = expense ? expense.amount.div(10 ** (metadata?.decimals || 0)) : volume;
 

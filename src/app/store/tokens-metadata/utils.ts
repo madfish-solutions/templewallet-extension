@@ -5,30 +5,11 @@ import { map, filter } from 'rxjs/operators';
 
 import { fetchTokenMetadata, fetchTokensMetadata, TokenMetadataResponse } from 'lib/apis/tokens-metadata';
 import { WhitelistResponseToken, fetchWhitelistTokens$ } from 'lib/apis/whitelist';
+import { TokenMetadata, TokenStandardsEnum } from 'lib/metadata';
 import { tokenToSlug } from 'lib/temple/assets';
 import { isDcpNode } from 'lib/temple/networks';
 
-export enum TokenStandardsEnum {
-  Fa2 = 'fa2',
-  Fa12 = 'fa12'
-}
-export interface TokenMetadataInterface {
-  id: number;
-  address: string;
-  name: string;
-  symbol: string;
-  decimals: number;
-  // iconName?: IconNameEnum;
-  thumbnailUri?: string;
-  displayUri?: string;
-  artifactUri?: string;
-  standard?: TokenStandardsEnum | null;
-
-  /** Stored as separate Record */
-  // exchangeRate?: number;
-}
-
-export const mockFA1_2TokenMetadata: TokenMetadataInterface = {
+export const mockFA1_2TokenMetadata: TokenMetadata = {
   id: 0,
   address: 'fa12TokenAddress',
   name: 'Mock FA1.2 token',
@@ -37,7 +18,7 @@ export const mockFA1_2TokenMetadata: TokenMetadataInterface = {
   thumbnailUri: 'https://fakeurl.com/img.png'
 };
 
-export const mockFA2TokenMetadata: TokenMetadataInterface = {
+export const mockFA2TokenMetadata: TokenMetadata = {
   id: 2,
   address: 'fa2TokenAddress',
   name: 'Mock FA2 token',
@@ -47,7 +28,7 @@ export const mockFA2TokenMetadata: TokenMetadataInterface = {
 };
 
 export const loadTokenMetadata$ = memoize(
-  (address: string, id = 0): Observable<TokenMetadataInterface> => {
+  (address: string, id = 0): Observable<TokenMetadata> => {
     const slug = `${address}_${id}`;
     console.log('Loading metadata for:', slug);
 
@@ -60,7 +41,7 @@ export const loadTokenMetadata$ = memoize(
 );
 
 export const loadTokensMetadata$ = memoize(
-  (slugs: string[]): Observable<TokenMetadataInterface[]> =>
+  (slugs: string[]): Observable<TokenMetadata[]> =>
     from(fetchTokensMetadata(slugs)).pipe(
       map(({ data }) =>
         data
@@ -78,7 +59,7 @@ const transformDataToTokenMetadata = (
   token: TokenMetadataResponse | null,
   address: string,
   id: number
-): TokenMetadataInterface | null =>
+): TokenMetadata | null =>
   !isDefined(token)
     ? null
     : {
@@ -95,7 +76,7 @@ const transformWhitelistToTokenMetadata = (
   token: WhitelistResponseToken,
   address: string,
   id: number
-): TokenMetadataInterface => ({
+): TokenMetadata => ({
   id,
   address,
   decimals: token.metadata.decimals,
@@ -105,7 +86,7 @@ const transformWhitelistToTokenMetadata = (
   standard: token.type === 'FA12' ? TokenStandardsEnum.Fa12 : TokenStandardsEnum.Fa2
 });
 
-export const loadWhitelist$ = (selectedRpc: string): Observable<TokenMetadataInterface[]> =>
+export const loadWhitelist$ = (selectedRpc: string): Observable<TokenMetadata[]> =>
   isDcpNode(selectedRpc)
     ? of([])
     : fetchWhitelistTokens$().pipe(

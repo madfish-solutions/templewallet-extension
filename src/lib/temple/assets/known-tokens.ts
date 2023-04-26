@@ -1,4 +1,4 @@
-import { TokenMetadataInterface, TokenStandardsEnum } from 'app/store/tokens-metadata/utils';
+import { TokenMetadata, TokenStandardsEnum } from 'lib/metadata';
 import { TempleChainId } from 'lib/temple/types';
 
 import { toAssetSlug } from './utils';
@@ -36,7 +36,7 @@ export const TOKENS_BRAND_COLORS: Record<string, { bg: string; bgHover?: string 
   [KNOWN_TOKENS_SLUGS.USDT]: { bg: '#009393', bgHover: '#52AF95' }
 };
 
-export const LOCAL_MAINNET_TOKENS_METADATA: TokenMetadataInterface[] = [
+export const LOCAL_MAINNET_TOKENS_METADATA: TokenMetadata[] = [
   {
     id: 0,
     address: 'KT1XnTn74bUtxHfDtBmm2bGZAQfhPbvKWR8o',
@@ -102,7 +102,7 @@ export const LOCAL_MAINNET_TOKENS_METADATA: TokenMetadataInterface[] = [
   }
 ];
 
-export const DCP_TOKENS_METADATA: TokenMetadataInterface[] = [
+export const DCP_TOKENS_METADATA: TokenMetadata[] = [
   {
     id: 0,
     address: 'KT1N7Rh6SgSdExMPxfnYw1tHqrkSm7cm6JDN',

@@ -7,10 +7,10 @@ import { FormField } from 'app/atoms';
 import { useAppEnv } from 'app/env';
 import { ReactComponent as CopyIcon } from 'app/icons/copy.svg';
 import { T } from 'lib/i18n';
+import { getAssetSymbol, useAssetMetadata } from 'lib/metadata';
 import { useRetryableSWR } from 'lib/swr';
 import { fromAssetSlug, isFA2Asset, isTezAsset } from 'lib/temple/assets';
-import { useTezos, useAssetMetadata } from 'lib/temple/front';
-import { getAssetSymbol } from 'lib/temple/metadata';
+import { useTezos } from 'lib/temple/front';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 
 type AssetInfoProps = {

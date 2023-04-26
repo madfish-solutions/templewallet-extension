@@ -1,11 +1,10 @@
 // import { LoadableEntityState, createEntity } from 'lib/store';
+import { TokenMetadata } from 'lib/metadata';
 import { DCP_TOKENS_METADATA, LOCAL_MAINNET_TOKENS_METADATA, tokenToSlug } from 'lib/temple/assets';
 
-import { TokenMetadataInterface } from './utils';
-
 export interface TokensMetadataState {
-  metadataRecord: Record<string, TokenMetadataInterface>;
-  // addTokenSuggestion: LoadableEntityState<TokenMetadataInterface>;
+  metadataRecord: Record<string, TokenMetadata>;
+  // addTokenSuggestion: LoadableEntityState<TokenMetadata>;
 }
 
 export const tokensMetadataInitialState: TokensMetadataState = {
