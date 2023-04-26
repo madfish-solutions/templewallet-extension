@@ -1,21 +1,25 @@
 import React, { forwardRef } from 'react';
 
 import { ReactComponent as ChevronDownIcon } from 'app/icons/chevron-down.svg';
+import { setTestID, TestIDProps } from 'lib/analytics';
+import { PaymentProviderInterface } from 'lib/buy-with-credit-card/topup.interface';
 import { T } from 'lib/i18n';
 import { PopperRenderProps } from 'lib/ui/Popper';
 import { isDefined } from 'lib/utils/is-defined';
 
 import { TopUpProviderIcon } from '../TopUpProviderIcon';
 import { MoneyRange } from './MoneyRange';
-import { PaymentProviderInputProps } from './types';
 
-interface Props extends PopperRenderProps, Pick<PaymentProviderInputProps, 'value'> {}
+interface Props extends PopperRenderProps, TestIDProps {
+  value?: PaymentProviderInterface;
+}
 
-export const PaymentProviderInputHeader = forwardRef<HTMLDivElement, Props>(({ value, toggleOpened }, ref) => (
+export const PaymentProviderInputHeader = forwardRef<HTMLDivElement, Props>(({ value, toggleOpened, testID }, ref) => (
   <div
     className="w-full border-gray-300 border flex flex-row items-center p-2 pr-4 gap-2 rounded-md cursor-pointer"
     ref={ref}
     onClick={toggleOpened}
+    {...setTestID(testID)}
   >
     <TopUpProviderIcon providerId={value?.id} />
     <div className="flex flex-1 flex-col">

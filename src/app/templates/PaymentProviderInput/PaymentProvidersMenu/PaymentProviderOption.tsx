@@ -7,6 +7,7 @@ import { useCryptoCurrenciesSelector } from 'app/store/buy-with-credit-card/sele
 import { TopUpProviderIcon } from 'app/templates/TopUpProviderIcon';
 import { PaymentProviderInterface } from 'lib/buy-with-credit-card/topup.interface';
 import { t, toLocalFixed } from 'lib/i18n';
+import { useScrollIntoView } from 'lib/ui/use-scroll-into-view';
 import { isDefined } from 'lib/utils/is-defined';
 
 import { MoneyRange } from '../MoneyRange';
@@ -21,6 +22,7 @@ interface Props extends Partial<Pick<ListRowProps, 'style'>> {
 
 export const PaymentProviderOption: FC<Props> = ({ value, isSelected, shouldShowSeparator, style, onClick }) => {
   const cryptoCurrencies = useCryptoCurrenciesSelector(value.id);
+  const ref = useScrollIntoView<HTMLButtonElement>(isSelected, { behavior: 'smooth', block: 'start' });
 
   const tagsProps = useMemo(() => {
     const result: PaymentProviderTagProps[] = [];
@@ -50,6 +52,7 @@ export const PaymentProviderOption: FC<Props> = ({ value, isSelected, shouldShow
         isSelected ? 'bg-gray-200' : 'hover:bg-gray-100'
       )}
       onClick={() => onClick?.(value)}
+      ref={ref}
     >
       {tagsProps.length > 0 && (
         <div className="flex gap-1 flex-wrap">

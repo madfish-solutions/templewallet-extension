@@ -10,22 +10,13 @@ import { createAliceBobOrder, getMoonpaySign } from 'lib/apis/temple';
 import { createOrder as createUtorgOrder } from 'lib/apis/utorg';
 import { TopUpInputType } from 'lib/buy-with-credit-card/top-up-input-type.enum';
 import { TopUpProviderId } from 'lib/buy-with-credit-card/top-up-provider-id.enum';
-import {
-  PaymentProviderInterface,
-  TopUpInputInterface,
-  TopUpOutputInterface
-} from 'lib/buy-with-credit-card/topup.interface';
+import { TopUpInputInterface, TopUpOutputInterface } from 'lib/buy-with-credit-card/topup.interface';
 import { useYupValidationResolver } from 'lib/form/use-yup-validation-resolver';
 import { useAccount } from 'lib/temple/front';
 import { isDefined } from 'lib/utils/is-defined';
 
-export interface BuyWithCreditCardFormValues {
-  inputCurrency: TopUpInputInterface;
-  inputAmount?: number;
-  outputToken: TopUpOutputInterface;
-  outputAmount?: number;
-  topUpProvider?: PaymentProviderInterface;
-}
+import { AmountErrorType } from '../types/amount-error-type';
+import { BuyWithCreditCardFormValues } from '../types/buy-with-credit-card-form-values';
 
 const DEFAULT_INPUT_CURRENCY: TopUpInputInterface = {
   code: 'USD',
@@ -58,6 +49,20 @@ const defaultValues = {
   outputToken: DEFAULT_OUTPUT_TOKEN
 };
 
+const validationSchema = objectSchema().shape({
+  inputCurrency: objectSchema().required(),
+  inputAmount: mixedSchema().when('inputCurrency', ([inputCurrency]) =>
+    numberSchema()
+      .positive(AmountErrorType.Min)
+      .min(inputCurrency.minAmount ?? 0, AmountErrorType.Min)
+      .max(inputCurrency.maxAmount ?? Infinity, AmountErrorType.Max)
+      .required(AmountErrorType.Required)
+  ),
+  outputToken: objectSchema().required(),
+  outputAmount: numberSchema().required(AmountErrorType.Required),
+  topUpProvider: objectSchema().required()
+});
+
 export const useBuyWithCreditCardForm = () => {
   const formAnalytics = useFormAnalytics('BuyWithCreditCardForm');
   const { publicKeyHash } = useAccount();
@@ -65,27 +70,6 @@ export const useBuyWithCreditCardForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<Error>();
 
-  const validationSchema = useMemo(
-    () =>
-      objectSchema().shape({
-        inputCurrency: objectSchema().required(),
-        inputAmount: mixedSchema().when('inputCurrency', ([inputCurrency]) =>
-          numberSchema()
-            .min(inputCurrency.minAmount ?? 0, 'minValue')
-            .max(inputCurrency.maxAmount ?? Infinity, 'maxValue')
-            .required('required')
-        ),
-        outputToken: objectSchema().required(),
-        outputAmount: mixedSchema().when('outputToken', ([outputToken]) =>
-          numberSchema()
-            .min(outputToken.minAmount ?? 0, 'minValue')
-            .max(outputToken.maxAmount ?? Infinity, 'maxValue')
-            .required('required')
-        ),
-        topUpProvider: objectSchema().required()
-      }),
-    []
-  );
   const validationResolver = useYupValidationResolver<BuyWithCreditCardFormValues>(validationSchema);
 
   const { handleSubmit, errors, watch, register, ...rest } = useForm<BuyWithCreditCardFormValues>({

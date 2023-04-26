@@ -8,4 +8,5 @@ export interface PaymentProviderInputProps extends TestIDProps {
   options: PaymentProviderInterface[];
   isLoading: boolean;
   onChange: (newValue: PaymentProviderInterface) => void;
+  headerTestID?: string;
 }

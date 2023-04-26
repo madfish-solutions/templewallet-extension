@@ -9,6 +9,8 @@ import { BuyPageOption } from 'app/templates/BuyPageOption';
 import { SpinnerSection } from 'app/templates/SendForm/SpinnerSection';
 import { t } from 'lib/i18n';
 
+import { BuySelectors } from './Buy.selectors';
+
 export const Buy: FC = () => (
   <PageLayout
     pageTitle={
@@ -24,8 +26,18 @@ export const Buy: FC = () => (
       <ErrorBoundary whileMessage="displaying tab">
         <Suspense fallback={<SpinnerSection />}>
           <div className="flex flex-col gap-4 items-center">
-            <BuyPageOption Icon={BuyWithCryptoIcon} title={t('buyWithCrypto')} to="/buy/crypto/exolix" />
-            <BuyPageOption Icon={CreditCardIcon} title={t('buyWithCard')} to="/buy/debit" />
+            <BuyPageOption
+              Icon={BuyWithCryptoIcon}
+              title={t('buyWithCrypto')}
+              to="/buy/crypto/exolix"
+              testID={BuySelectors.cryptoButton}
+            />
+            <BuyPageOption
+              Icon={CreditCardIcon}
+              title={t('buyWithCard')}
+              to="/buy/debit"
+              testID={BuySelectors.debitButton}
+            />
           </div>
         </Suspense>
       </ErrorBoundary>

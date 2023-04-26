@@ -7,3 +7,18 @@ export const useFiatCurrenciesSelector = (topUpProvider: TopUpProviderId) =>
 
 export const useCryptoCurrenciesSelector = (topUpProvider: TopUpProviderId) =>
   useSelector(({ buyWithCreditCard }) => buyWithCreditCard.currencies[topUpProvider].data.crypto);
+
+export const useErrorSelector = (topUpProvider: TopUpProviderId) =>
+  useSelector(({ buyWithCreditCard }) => buyWithCreditCard.currencies[topUpProvider].error);
+
+export const useCurrenciesErrorsSelector = () => {
+  const moonPayError = useErrorSelector(TopUpProviderId.MoonPay);
+  const utorgError = useErrorSelector(TopUpProviderId.Utorg);
+  const aliceBobError = useErrorSelector(TopUpProviderId.AliceBob);
+
+  return {
+    [TopUpProviderId.MoonPay]: moonPayError,
+    [TopUpProviderId.Utorg]: utorgError,
+    [TopUpProviderId.AliceBob]: aliceBobError
+  };
+};

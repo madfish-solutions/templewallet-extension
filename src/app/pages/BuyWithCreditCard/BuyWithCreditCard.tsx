@@ -5,47 +5,61 @@ import debounce from 'debounce-promise';
 import isEqual from 'lodash.isequal';
 import { useDispatch } from 'react-redux';
 
-import { FormSubmitButton } from 'app/atoms';
+import { Alert, FormSubmitButton } from 'app/atoms';
 import ErrorBoundary from 'app/ErrorBoundary';
 import { ReactComponent as ArrowDownIcon } from 'app/icons/arrow-down.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import { loadAllCurrenciesActions } from 'app/store/buy-with-credit-card/actions';
+import { useCurrenciesErrorsSelector } from 'app/store/buy-with-credit-card/selectors';
 import { PaymentProviderInput } from 'app/templates/PaymentProviderInput';
 import { SpinnerSection } from 'app/templates/SendForm/SpinnerSection';
 import { TopUpInput } from 'app/templates/TopUpInput';
 import { MOONPAY_ASSETS_BASE_URL } from 'lib/apis/moonpay';
 import { getPaymentProvidersToDisplay } from 'lib/buy-with-credit-card/get-payment-providers-to-display';
 import { TopUpProviderId } from 'lib/buy-with-credit-card/top-up-provider-id.enum';
-import { PaymentProviderInterface, TopUpInputInterface } from 'lib/buy-with-credit-card/topup.interface';
+import {
+  PaymentProviderInterface,
+  TopUpInputInterface,
+  TopUpOutputInterface
+} from 'lib/buy-with-credit-card/topup.interface';
+import { shouldShowFieldError } from 'lib/form/should-show-field-error';
 import { t, T, toLocalFormat } from 'lib/i18n';
 import { useInterval } from 'lib/ui/hooks';
-import { isTruthy } from 'lib/utils';
+import { getAxiosQueryErrorMessage } from 'lib/utils/get-axios-query-error-message';
 import { isDefined } from 'lib/utils/is-defined';
 
+import { BuyWithCreditCardSelectors } from './BuyWithCreditCard.selectors';
 import { useAllCryptoCurrencies } from './hooks/use-all-crypto-currencies';
 import { useAllFiatCurrencies } from './hooks/use-all-fiat-currencies';
 import { useBuyWithCreditCardForm } from './hooks/use-buy-with-credit-card-form';
 import { usePaymentProviders } from './hooks/use-payment-providers';
+import { AmountErrorType } from './types/amount-error-type';
+import { BuyWithCreditCardFormValues } from './types/buy-with-credit-card-form-values';
 
 const fitFiatIconFn = (currency: TopUpInputInterface) => !currency.icon.startsWith(MOONPAY_ASSETS_BASE_URL);
 
 export const BuyWithCreditCard: FC = () => {
   const dispatch = useDispatch();
   const [isLoading, setIsLoading] = useState(false);
+  const [shouldHideErrorAlert, setShouldHideErrorAlert] = useState(false);
   const allFiatCurrencies = useAllFiatCurrencies();
   const allCryptoCurrencies = useAllCryptoCurrencies();
-  const { formValues, onSubmit, errors, setValue, triggerValidation, formState } = useBuyWithCreditCardForm();
+  const currenciesErrors = useCurrenciesErrorsSelector();
+  const { formValues, onSubmit, errors, setValue, triggerValidation, formState, submitError } =
+    useBuyWithCreditCardForm();
   const { inputAmount, inputCurrency, outputToken, outputAmount, topUpProvider } = formValues;
   const manuallySelectedProviderIdRef = useRef<TopUpProviderId>();
-  const { allPaymentProviders, paymentProvidersToDisplay, updateOutputAmounts } = usePaymentProviders(
-    inputAmount,
-    inputCurrency,
-    outputToken
-  );
+  const { allPaymentProviders, amountsUpdateErrors, paymentProvidersToDisplay, updateOutputAmounts } =
+    usePaymentProviders(inputAmount, inputCurrency, outputToken);
 
+  const inputAmountErrorMessage = errors.inputAmount?.message;
+  const shouldShowInputAmountError = shouldShowFieldError('inputAmount', formState);
+  const isMinAmountError =
+    shouldShowInputAmountError && inputAmountErrorMessage !== AmountErrorType.Max && isDefined(inputAmountErrorMessage);
+  const isMaxAmountError = shouldShowInputAmountError && inputAmountErrorMessage === AmountErrorType.Max;
   const shouldShowPaymentProviderError =
     isDefined(errors.topUpProvider) &&
-    (isTruthy(formState.touched.topUpProvider) || formState.submitCount > 0) &&
+    shouldShowFieldError('topUpProvider', formState) &&
     paymentProvidersToDisplay.length > 0;
 
   const switchPaymentProvider = useCallback(
@@ -63,15 +77,12 @@ export const BuyWithCreditCard: FC = () => {
     const newInputAsset = allFiatCurrencies.find(({ code }) => code === inputCurrency.code);
 
     if (isDefined(newInputAsset) && !isEqual(newInputAsset, inputCurrency)) {
-      setValue([
-        { inputCurrency: newInputAsset },
-        {
-          inputAmount:
-            isDefined(newInputAsset.precision) && isDefined(inputAmount)
-              ? new BigNumber(inputAmount).decimalPlaces(newInputAsset.precision).toNumber()
-              : inputAmount
-        }
-      ]);
+      const changes: Array<Partial<BuyWithCreditCardFormValues>> = [{ inputCurrency: newInputAsset }];
+      if (isDefined(newInputAsset.precision) && isDefined(inputAmount)) {
+        changes.push({ inputAmount: new BigNumber(inputAmount).decimalPlaces(newInputAsset.precision).toNumber() });
+      }
+
+      setValue(changes);
       triggerValidation();
     }
   }, [inputAmount, inputCurrency, allFiatCurrencies, setValue, triggerValidation]);
@@ -91,20 +102,28 @@ export const BuyWithCreditCard: FC = () => {
     return undefined;
   }, [inputAmount, outputAmount]);
 
-  const inputValueRef = useRef({ amount: inputAmount, currency: inputCurrency });
+  const outputCalculationDataRef = useRef({ inputAmount, inputCurrency, outputToken });
   const updateOutput = useMemo(
     () =>
       debounce(
         async (
           newInputAmount: number | undefined,
           newInputAsset: TopUpInputInterface,
+          newOutputAsset: TopUpOutputInterface,
           shouldSwitchBetweenProviders: boolean
         ) => {
-          setValue([{ inputAmount: newInputAmount }, { inputCurrency: newInputAsset }]);
-          const amounts = await updateOutputAmounts(newInputAmount, newInputAsset);
-          const { amount: inputAmountFromRef, currency: currencyFromRef } = inputValueRef.current;
+          const outputCalculationData = {
+            inputAmount: newInputAmount,
+            inputCurrency: newInputAsset,
+            outputToken: newOutputAsset
+          };
+          const correctedNewInputAmount = isDefined(newInputAmount)
+            ? new BigNumber(newInputAmount).decimalPlaces(newInputAsset.precision).toNumber()
+            : undefined;
+          setValue([{ inputAmount: correctedNewInputAmount }, { inputCurrency: newInputAsset }]);
+          const amounts = await updateOutputAmounts(correctedNewInputAmount, newInputAsset, newOutputAsset);
 
-          if (inputAmountFromRef !== newInputAmount || currencyFromRef !== newInputAsset) {
+          if (!isEqual(outputCalculationData, outputCalculationDataRef.current)) {
             return;
           }
 
@@ -112,19 +131,23 @@ export const BuyWithCreditCard: FC = () => {
             allPaymentProviders.map(({ id, ...rest }) => ({
               ...rest,
               id,
+              inputSymbol: newInputAsset.code,
+              inputPrecision: newInputAsset.precision,
+              minInputAmount: newInputAsset.minAmount,
+              maxInputAmount: newInputAsset.maxAmount,
               outputAmount: amounts[id],
               outputSymbol: outputToken.code,
               outputPrecision: outputToken.precision
             })),
             {},
             {},
-            newInputAmount
+            correctedNewInputAmount
           );
           const autoselectedPaymentProvider = patchedPaymentProviders[0];
 
           if (shouldSwitchBetweenProviders && !isDefined(manuallySelectedProviderIdRef.current)) {
             switchPaymentProvider(autoselectedPaymentProvider);
-          } else if (isDefined(newInputAmount)) {
+          } else if (isDefined(correctedNewInputAmount)) {
             const patchedSameProvider = patchedPaymentProviders.find(({ id }) => id === topUpProvider?.id);
             const newPaymentProvider = patchedSameProvider ?? autoselectedPaymentProvider;
             void switchPaymentProvider(newPaymentProvider);
@@ -137,11 +160,11 @@ export const BuyWithCreditCard: FC = () => {
   );
   const handleInputValueChange = useCallback(
     (newInputAmount: number | undefined, newInputAsset: TopUpInputInterface) => {
-      inputValueRef.current = { amount: newInputAmount, currency: newInputAsset };
+      outputCalculationDataRef.current = { inputAmount: newInputAmount, inputCurrency: newInputAsset, outputToken };
       setIsLoading(true);
-      void updateOutput(newInputAmount, newInputAsset, true);
+      void updateOutput(newInputAmount, newInputAsset, outputToken, true);
     },
-    [updateOutput]
+    [updateOutput, outputToken]
   );
   const handleInputAssetChange = useCallback(
     (newValue: TopUpInputInterface) => handleInputValueChange(inputAmount, newValue),
@@ -150,6 +173,14 @@ export const BuyWithCreditCard: FC = () => {
   const handleInputAmountChange = useCallback(
     (newValue?: number) => handleInputValueChange(newValue, inputCurrency),
     [handleInputValueChange, inputCurrency]
+  );
+  const handleOutputTokenChange = useCallback(
+    (newValue: TopUpOutputInterface) => {
+      outputCalculationDataRef.current = { inputAmount, inputCurrency, outputToken: newValue };
+      setIsLoading(true);
+      void updateOutput(inputAmount, inputCurrency, newValue, true);
+    },
+    [inputAmount, inputCurrency, updateOutput]
   );
 
   const handlePaymentProviderChange = useCallback(
@@ -164,13 +195,13 @@ export const BuyWithCreditCard: FC = () => {
     () => {
       dispatch(loadAllCurrenciesActions.submit());
       if (!isLoading) {
-        inputValueRef.current = { amount: inputAmount, currency: inputCurrency };
+        outputCalculationDataRef.current = { inputAmount, inputCurrency, outputToken };
         setIsLoading(true);
-        void updateOutput(inputAmount, inputCurrency, false);
+        void updateOutput(inputAmount, inputCurrency, outputToken, false);
       }
     },
     10000,
-    [updateOutput, dispatch, inputAmount, inputCurrency, isLoading],
+    [updateOutput, dispatch, inputAmount, inputCurrency, outputToken, isLoading],
     false
   );
 
@@ -181,26 +212,70 @@ export const BuyWithCreditCard: FC = () => {
     ? toLocalFormat(inputCurrency.maxAmount, { decimalPlaces: inputCurrency.precision })
     : undefined;
 
+  const alertErrorMessage = useMemo(() => {
+    // TODO: return handling errors for Alice&Bob as soon as this service starts working
+    if (isDefined(submitError)) {
+      return t('errorWhileCreatingOrder', '');
+    }
+
+    const [firstAmountUpdateErrorEntry] = Object.entries(amountsUpdateErrors).filter(
+      ([key, value]) => isDefined(value) && key !== TopUpProviderId.AliceBob
+    );
+
+    if (isDefined(firstAmountUpdateErrorEntry)) {
+      const [providerId, error] = firstAmountUpdateErrorEntry;
+      const providerName = allPaymentProviders.find(({ id }) => id === providerId)!.name;
+
+      return t('errorWhileGettingOutputEstimation', [providerName, getAxiosQueryErrorMessage(error)]);
+    }
+
+    const [firstCurrenciesErrorEntry] = Object.entries(currenciesErrors).filter(
+      ([key, value]) => isDefined(value) && key !== TopUpProviderId.AliceBob
+    );
+
+    if (isDefined(firstCurrenciesErrorEntry)) {
+      const [providerId, error] = firstCurrenciesErrorEntry;
+      const providerName = allPaymentProviders.find(({ id }) => id === providerId)!.name;
+
+      return t('errorWhileGettingCurrenciesList', [providerName, error]);
+    }
+
+    return undefined;
+  }, [submitError, amountsUpdateErrors, allPaymentProviders, currenciesErrors]);
+  useEffect(() => setShouldHideErrorAlert(false), [alertErrorMessage]);
+
   return (
     <PageLayout pageTitle={<T id="buyWithCard" />}>
       <div className="max-w-sm mx-auto">
         <ErrorBoundary>
           <Suspense fallback={<SpinnerSection />}>
             <form className="flex flex-col items-center gap-4 w-full" onSubmit={onSubmit}>
+              {isDefined(alertErrorMessage) && !shouldHideErrorAlert && (
+                <Alert
+                  type="error"
+                  title={<T id="error" />}
+                  description={alertErrorMessage}
+                  closable={true}
+                  onClose={() => setShouldHideErrorAlert(true)}
+                />
+              )}
+
               <TopUpInput
                 isSearchable
                 label={<T id="send" />}
                 amount={inputAmount}
                 currency={inputCurrency}
                 currenciesList={allFiatCurrencies}
+                decimals={inputCurrency.precision}
                 minAmount={minAmount}
                 maxAmount={maxAmount}
-                isMinAmountError={errors.inputAmount?.message === 'minValue'}
-                isMaxAmountError={errors.inputAmount?.message === 'maxValue'}
+                isMinAmountError={isMinAmountError}
+                isMaxAmountError={isMaxAmountError}
                 onCurrencySelect={handleInputAssetChange}
                 onAmountChange={handleInputAmountChange}
                 amountInputDisabled={false}
                 fitIcons={fitFiatIconFn}
+                testID={BuyWithCreditCardSelectors.sendInput}
               />
 
               <ArrowDownIcon stroke="#4299E1" className="w-6 h-6" />
@@ -211,15 +286,19 @@ export const BuyWithCreditCard: FC = () => {
                 label={<T id="get" />}
                 currency={outputToken}
                 currenciesList={allCryptoCurrencies}
+                onCurrencySelect={handleOutputTokenChange}
                 amount={outputAmount}
+                testID={BuyWithCreditCardSelectors.getInput}
               />
 
               <PaymentProviderInput
                 error={shouldShowPaymentProviderError ? t('pleaseSelectPaymentProvider') : undefined}
+                headerTestID={BuyWithCreditCardSelectors.paymentProviderDropdownHeader}
                 options={paymentProvidersToDisplay}
                 isLoading={isLoading}
                 onChange={handlePaymentProviderChange}
                 value={topUpProvider}
+                testID={BuyWithCreditCardSelectors.paymentProviderDropdown}
               />
 
               <div className="w-full flex flex-col mt-2 gap-6 items-center">
@@ -229,8 +308,9 @@ export const BuyWithCreditCard: FC = () => {
                     background: '#4299e1',
                     padding: 0
                   }}
-                  disabled={false}
+                  disabled={Object.keys(errors).length > 0}
                   loading={isLoading}
+                  testID={BuyWithCreditCardSelectors.topUpButton}
                 >
                   <T id="topUp" />
                 </FormSubmitButton>

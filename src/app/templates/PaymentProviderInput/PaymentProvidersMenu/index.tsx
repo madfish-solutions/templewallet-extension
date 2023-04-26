@@ -1,4 +1,4 @@
-import React, { FC, useEffect } from 'react';
+import React, { FC, useEffect, useMemo } from 'react';
 
 import DropdownWrapper from 'app/atoms/DropdownWrapper';
 import Spinner from 'app/atoms/Spinner/Spinner';
@@ -50,7 +50,7 @@ export const PaymentProvidersMenu: FC<Props> = ({
       className="origin-top overflow-x-hidden overflow-y-auto p-2"
       style={{
         marginTop: '0.25rem',
-        maxHeight: '15.75rem',
+        maxHeight: '15rem',
         backgroundColor: 'white',
         borderColor: '#e2e8f0',
         padding: 0
@@ -67,7 +67,7 @@ export const PaymentProvidersMenu: FC<Props> = ({
           )}
         </div>
       )}
-      <div style={{ width: dropdownWidth, height: options.length > 2 ? 240 : 132, overflowY: 'scroll' }}>
+      <div style={{ width: dropdownWidth, overflowY: 'scroll' }}>
         {options.map((option, index) => (
           <PaymentProviderOption
             key={option.id}

@@ -8,7 +8,12 @@ import { estimateAliceBobOutput } from 'lib/apis/temple/endpoints/alice-bob';
 import { convertFiatAmountToCrypto } from 'lib/apis/utorg';
 import { getPaymentProvidersToDisplay } from 'lib/buy-with-credit-card/get-payment-providers-to-display';
 import { TopUpProviderId } from 'lib/buy-with-credit-card/top-up-provider-id.enum';
-import { PaymentProviderInterface, TopUpInputInterface } from 'lib/buy-with-credit-card/topup.interface';
+import {
+  PaymentProviderInterface,
+  TopUpInputInterface,
+  TopUpOutputInterface
+} from 'lib/buy-with-credit-card/topup.interface';
+import { isTruthy } from 'lib/utils';
 import { isDefined } from 'lib/utils/is-defined';
 
 import { useInputLimits } from './use-input-limits';
@@ -16,7 +21,7 @@ import { useInputLimits } from './use-input-limits';
 type getOutputAmountFunction = (
   inputAmount: number,
   inputAsset: TopUpInputInterface,
-  outputAsset: TopUpInputInterface
+  outputAsset: TopUpOutputInterface
 ) => Promise<number>;
 
 type PaymentProviderInitialData = Pick<PaymentProviderInterface, 'name' | 'id' | 'kycRequired'>;
@@ -76,10 +81,10 @@ const usePaymentProvider = (
   providerId: TopUpProviderId,
   inputAmount: number | undefined,
   inputAsset: TopUpInputInterface,
-  outputAsset: TopUpInputInterface
+  outputAsset: TopUpOutputInterface
 ) => {
   const [outputAmount, setOutputAmount] = useState<number>();
-  const [isError, setIsError] = useState(false);
+  const [error, setError] = useState<Error>();
   const [outputAmountLoading, setOutputAmountLoading] = useState<boolean>(false);
   const fiatCurrencies = useFiatCurrenciesSelector(providerId);
   const { minAmount, maxAmount } = useInputLimits(providerId, inputAsset.code);
@@ -88,16 +93,17 @@ const usePaymentProvider = (
 
   const updateOutputAmount = useCallback(
     async (newInputAmount?: number, newInputAsset = inputAsset, newOutputAsset = outputAsset) => {
-      setIsError(false);
+      setError(undefined);
       const currentProviderCurrency = fiatCurrencies.find(({ code }) => code === newInputAsset.code);
       if (
-        !isDefined(newInputAmount) ||
+        !isTruthy(newInputAmount) ||
         !isDefined(currentProviderCurrency?.minAmount) ||
         !isDefined(currentProviderCurrency?.maxAmount)
       ) {
-        setOutputAmount(undefined);
+        const newOutputAmount = newInputAmount === 0 ? 0 : undefined;
+        setOutputAmount(newOutputAmount);
 
-        return undefined;
+        return newOutputAmount;
       }
 
       let newOutputAmount: number | undefined;
@@ -105,9 +111,7 @@ const usePaymentProvider = (
         setOutputAmountLoading(true);
         newOutputAmount = await getOutputAmount(newInputAmount, newInputAsset, newOutputAsset);
       } catch (error) {
-        // TODO: implement displaying error
-        console.error(error);
-        setIsError(true);
+        setError(error as Error);
         newOutputAmount = undefined;
       } finally {
         setOutputAmount(newOutputAmount);
@@ -136,7 +140,7 @@ const usePaymentProvider = (
 
   return {
     provider,
-    isError,
+    error,
     updateOutputAmount,
     loading: outputAmountLoading
   };
@@ -145,22 +149,22 @@ const usePaymentProvider = (
 export const usePaymentProviders = (
   inputAmount: number | undefined,
   inputAsset: TopUpInputInterface,
-  outputAsset: TopUpInputInterface
+  outputAsset: TopUpOutputInterface
 ) => {
   const {
-    isError: moonPayIsError,
+    error: moonPayError,
     provider: moonPayProvider,
     updateOutputAmount: updateMoonPayOutputAmount,
     loading: moonPayLoading
   } = usePaymentProvider(TopUpProviderId.MoonPay, inputAmount, inputAsset, outputAsset);
   const {
-    isError: utorgIsError,
+    error: utorgError,
     provider: utorgProvider,
     updateOutputAmount: updateUtorgOutputAmount,
     loading: utorgLoading
   } = usePaymentProvider(TopUpProviderId.Utorg, inputAmount, inputAsset, outputAsset);
   const {
-    isError: aliceBobIsError,
+    error: aliceBobError,
     provider: aliceBobProvider,
     updateOutputAmount: updateAliceBobOutputAmount,
     loading: aliceBobLoading
@@ -171,15 +175,20 @@ export const usePaymentProviders = (
     [moonPayProvider, utorgProvider, aliceBobProvider]
   );
 
+  const amountsUpdateErrors = useMemo(
+    () => ({
+      [TopUpProviderId.MoonPay]: moonPayError,
+      [TopUpProviderId.Utorg]: utorgError,
+      [TopUpProviderId.AliceBob]: aliceBobError
+    }),
+    [moonPayError, utorgError, aliceBobError]
+  );
+
   const paymentProvidersToDisplay = useMemo(
     () =>
       getPaymentProvidersToDisplay(
         allPaymentProviders,
-        {
-          [TopUpProviderId.MoonPay]: moonPayIsError,
-          [TopUpProviderId.Utorg]: utorgIsError,
-          [TopUpProviderId.AliceBob]: aliceBobIsError
-        },
+        amountsUpdateErrors,
         {
           [TopUpProviderId.MoonPay]: moonPayLoading,
           [TopUpProviderId.Utorg]: utorgLoading,
@@ -187,7 +196,7 @@ export const usePaymentProviders = (
         },
         inputAmount
       ),
-    [allPaymentProviders, moonPayIsError, utorgIsError, aliceBobIsError, moonPayLoading, utorgLoading, aliceBobLoading]
+    [allPaymentProviders, amountsUpdateErrors, moonPayLoading, utorgLoading, aliceBobLoading]
   );
   const updateOutputAmounts = useCallback(
     async (newInputAmount?: number, newInputAsset = inputAsset, newOutputAsset = outputAsset) => {
@@ -207,5 +216,5 @@ export const usePaymentProviders = (
   );
   const loading = moonPayLoading || utorgLoading || aliceBobLoading;
 
-  return { allPaymentProviders, paymentProvidersToDisplay, updateOutputAmounts, loading };
+  return { allPaymentProviders, amountsUpdateErrors, paymentProvidersToDisplay, updateOutputAmounts, loading };
 };

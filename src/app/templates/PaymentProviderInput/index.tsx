@@ -17,6 +17,7 @@ export const PaymentProviderInput: FC<PaymentProviderInputProps> = ({
   options,
   isLoading,
   onChange,
+  headerTestID,
   testID
 }) => (
   <div className={classNames('w-full', className)}>
@@ -44,6 +45,7 @@ export const PaymentProviderInput: FC<PaymentProviderInputProps> = ({
           opened={opened}
           setOpened={setOpened}
           toggleOpened={toggleOpened}
+          testID={headerTestID}
         />
       )}
     </Popper>

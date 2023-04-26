@@ -41,7 +41,7 @@ export const Crypto: FC = () => {
               'w-full'
             )}
             to={'/buy/crypto/exolix'}
-            onClick={() => trackEvent(BuySelectors.ExolixButton, AnalyticsEventCategory.ButtonPress)}
+            onClick={() => trackEvent(BuySelectors.exolixButton, AnalyticsEventCategory.ButtonPress)}
           >
             <T id="continue" />
           </Link>

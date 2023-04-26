@@ -27,7 +27,7 @@ const fiatPurchaseProvidersSortPredicate = (
 
 export const getPaymentProvidersToDisplay = (
   allProviders: PaymentProviderInterface[],
-  providersErrors: Partial<Record<TopUpProviderId, boolean>>,
+  providersErrors: Partial<Record<TopUpProviderId, Error | undefined>>,
   providersLoading: Partial<Record<TopUpProviderId, boolean>>,
   inputAmount?: BigNumber | number
 ) => {
@@ -40,7 +40,7 @@ export const getPaymentProvidersToDisplay = (
 
   const result = allProviders
     .filter(({ id, minInputAmount, maxInputAmount, outputAmount }) => {
-      const isError = Boolean(providersErrors[id]);
+      const isError = isDefined(providersErrors[id]);
       const limitsAreDefined = isDefined(minInputAmount) && isDefined(maxInputAmount);
       const outputAmountIsDefined = isDefined(outputAmount);
 

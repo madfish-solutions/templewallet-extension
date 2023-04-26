@@ -8,6 +8,7 @@ import { getAliceBobPairInfo } from 'lib/apis/temple';
 import { getCurrenciesInfo as getUtorgCurrenciesInfo } from 'lib/apis/utorg';
 import { TopUpProviderId } from 'lib/buy-with-credit-card/top-up-provider-id.enum';
 import { createEntity } from 'lib/store';
+import { getAxiosQueryErrorMessage } from 'lib/utils/get-axios-query-error-message';
 
 import { loadAllCurrenciesActions } from './actions';
 import { TopUpProviderCurrencies } from './state';
@@ -16,7 +17,9 @@ import { mapAliceBobProviderCurrencies, mapMoonPayProviderCurrencies, mapUtorgPr
 const getCurrencies$ = <T>(fetchFn: () => Observable<T>, transformFn: (data: T) => TopUpProviderCurrencies) =>
   fetchFn().pipe(
     map(data => createEntity(transformFn(data))),
-    catchError(err => of(createEntity<TopUpProviderCurrencies>({ fiat: [], crypto: [] }, err.message)))
+    catchError(err =>
+      of(createEntity<TopUpProviderCurrencies>({ fiat: [], crypto: [] }, false, getAxiosQueryErrorMessage(err)))
+    )
   );
 
 const loadAllCurrenciesEpic = (action$: Observable<Action>) =>
