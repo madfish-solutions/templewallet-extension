@@ -14,7 +14,9 @@ export const NETWORK_IDS = new Map<string, string>([
   [TempleChainId.Mainnet, 'mainnet'],
   [TempleChainId.Ghostnet, 'ghostnet'],
   [TempleChainId.Jakartanet, 'jakartanet'],
-  [TempleChainId.Limanet, 'limanet']
+  [TempleChainId.Limanet, 'limanet'],
+  [TempleChainId.Kathmandunet, 'kathmandunet'],
+  [TempleChainId.Mumbainet, 'mumbainet']
 ]);
 
 export const NETWORKS: TempleNetwork[] = [
@@ -73,29 +75,11 @@ export const NETWORKS: TempleNetwork[] = [
     disabled: false
   },
   {
-    id: 'jakartanet',
-    name: 'Jakartanet Testnet',
-    description: 'Jakartanet testnet',
+    id: 'mumbainet',
+    name: 'Mumbainet Testnet',
+    description: 'Mumbainet testnet',
     type: 'test',
-    rpcBaseURL: 'https://jakartanet.tezos.marigold.dev/',
-    color: '#232380',
-    disabled: false
-  },
-  {
-    id: 'limanet',
-    name: 'Limanet Testnet',
-    description: 'Limanet testnet',
-    type: 'test',
-    rpcBaseURL: 'https://rpc.limanet.teztnets.xyz/',
-    color: '#232380',
-    disabled: false
-  },
-  {
-    id: 'kathmandunet',
-    name: 'Kathmandunet Testnet',
-    description: 'Kathmandunet testnet',
-    type: 'test',
-    rpcBaseURL: 'https://rpc.kathmandunet.teztnets.xyz/',
+    rpcBaseURL: 'https://rpc.mumbainet.teztnets.xyz/',
     color: '#FBBF24',
     disabled: false
   },

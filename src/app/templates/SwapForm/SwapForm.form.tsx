@@ -3,6 +3,7 @@ import { useMemo } from 'react';
 import BigNumber from 'bignumber.js';
 import { DeepPartial } from 'react-hook-form';
 
+import { TEZ_TOKEN_SLUG } from 'lib/temple/front';
 import { useLocation } from 'lib/woozie';
 
 export interface SwapInputValue {
@@ -19,19 +20,32 @@ export interface SwapFormValue {
 const getValidAssetSlug = (queryAssetSlug: string | null) =>
   queryAssetSlug && queryAssetSlug.length > 0 ? queryAssetSlug : undefined;
 
+const getAssetsSlugsFromUrl = (fromSlug: null | string, toSlug: null | string) => {
+  if (!Boolean(fromSlug) && !Boolean(toSlug)) {
+    return {
+      fromSlug: TEZ_TOKEN_SLUG,
+      toSlug
+    };
+  }
+
+  return {
+    fromSlug,
+    toSlug
+  };
+};
+
 export const useSwapFormDefaultValue = () => {
   const location = useLocation();
 
   return useMemo<DeepPartial<SwapFormValue>>(() => {
     const usp = new URLSearchParams(location.search);
 
-    const inputAssetSlug = usp.get('from') || 'tez';
-    const outputAssetSlug = usp.get('to');
+    const { fromSlug, toSlug } = getAssetsSlugsFromUrl(usp.get('from'), usp.get('to'));
 
     return {
-      input: { assetSlug: getValidAssetSlug(inputAssetSlug) },
-      output: { assetSlug: getValidAssetSlug(outputAssetSlug) },
-      slippageTolerance: 1.5
+      input: { assetSlug: getValidAssetSlug(fromSlug) },
+      output: { assetSlug: getValidAssetSlug(toSlug) },
+      slippageTolerance: 0.5
     };
   }, [location.search]);
 };

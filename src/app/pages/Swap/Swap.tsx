@@ -1,15 +1,22 @@
-import React, { FC, Suspense } from 'react';
+import React, { FC, Suspense, useEffect } from 'react';
+
+import { useDispatch } from 'react-redux';
 
 import { ReactComponent as SwapIcon } from 'app/icons/swap-header.svg';
 import PageLayout from 'app/layouts/PageLayout';
+import { resetSwapParamsAction } from 'app/store/swap/actions';
 import { SwapForm } from 'app/templates/SwapForm/SwapForm';
 import { t, T } from 'lib/i18n';
 import { useNetwork } from 'lib/temple/front';
 
-import { SwapDisclaimer } from './SwapDisclaimer/SwapDisclaimer';
-
 export const Swap: FC = () => {
+  const dispatch = useDispatch();
+
   const network = useNetwork();
+
+  useEffect(() => {
+    dispatch(resetSwapParamsAction());
+  }, []);
 
   return (
     <PageLayout
@@ -21,8 +28,6 @@ export const Swap: FC = () => {
     >
       <div className="py-4">
         <div className="w-full max-w-sm mx-auto">
-          <SwapDisclaimer />
-
           <Suspense fallback={null}>
             {network.type === 'main' ? (
               <SwapForm />

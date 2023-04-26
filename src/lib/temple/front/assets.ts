@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import BigNumber from 'bignumber.js';
+import { BigNumber } from 'bignumber.js';
 import constate from 'constate';
 import deepEqual from 'fast-deep-equal';
 import { useDebounce } from 'use-debounce';
@@ -8,6 +8,8 @@ import useForceUpdate from 'use-force-update';
 import browser from 'webextension-polyfill';
 
 import { useBalancesWithDecimals } from 'app/hooks/use-balances-with-decimals.hook';
+import { useBalancesSelector } from 'app/store/balances/selectors';
+import { useSwapTokensSelector } from 'app/store/swap/selectors';
 import { useUsdToTokenRates } from 'lib/fiat-currency/core';
 import { useRetryableSWR } from 'lib/swr';
 import {
@@ -299,6 +301,27 @@ export const useAvailableAssets = (assetType: AssetTypesEnum) => {
   return { availableAssets, assetsStatuses, isLoading, mutate };
 };
 
+export const useAvailableRoute3Tokens = () => {
+  const { data: route3tokens, isLoading } = useSwapTokensSelector();
+
+  const route3tokensSlugs = useMemo(() => {
+    const result: Array<string> = [];
+
+    for (const { contract, tokenId } of route3tokens) {
+      if (contract !== null) {
+        result.push(toTokenSlug(contract, tokenId ?? 0));
+      }
+    }
+
+    return result;
+  }, [route3tokens]);
+
+  return {
+    isLoading,
+    route3tokens,
+    route3tokensSlugs
+  };
+};
 function makeAssetsSortPredicate(balances: Record<string, BigNumber>, fiatToTokenRates: Record<string, string>) {
   return (tokenASlug: string, tokenBSlug: string) => {
     if (tokenASlug === TEZ_TOKEN_SLUG) {
@@ -347,6 +370,48 @@ export function useFilteredAssets(assetSlugs: string[]) {
         assetsSortPredicate
       ),
     [searchValueDebounced, assetSlugs, allTokensBaseMetadata, assetsSortPredicate]
+  );
+
+  return {
+    filteredAssets,
+    searchValue,
+    setSearchValue,
+    tokenId,
+    setTokenId
+  };
+}
+export function useFilteredSwapAssets(inputName: string = 'input') {
+  const allTokensBaseMetadata = useAllTokensBaseMetadata();
+  const { route3tokensSlugs } = useAvailableRoute3Tokens();
+  const { publicKeyHash } = useAccount();
+  const chainId = useChainId(true)!;
+  const balances = useBalancesSelector(publicKeyHash, chainId);
+
+  const assetSlugs = useMemo(() => {
+    if (inputName === 'input') {
+      const result: Array<string> = [TEZ_TOKEN_SLUG];
+
+      for (const slug of route3tokensSlugs) {
+        const balance = balances[slug];
+
+        if (balance !== undefined && balance !== '0') {
+          result.push(slug);
+        }
+      }
+
+      return result;
+    }
+
+    return [TEZ_TOKEN_SLUG, ...route3tokensSlugs];
+  }, [route3tokensSlugs, balances]);
+
+  const [searchValue, setSearchValue] = useState('');
+  const [tokenId, setTokenId] = useState<number>();
+  const [searchValueDebounced] = useDebounce(tokenId ? toTokenSlug(searchValue, tokenId) : searchValue, 300);
+
+  const filteredAssets = useMemo(
+    () => searchAssetsWithNoMeta(searchValueDebounced, assetSlugs, allTokensBaseMetadata, slug => slug),
+    [searchValueDebounced, assetSlugs, allTokensBaseMetadata]
   );
 
   return {

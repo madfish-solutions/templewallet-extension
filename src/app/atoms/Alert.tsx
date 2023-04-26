@@ -7,7 +7,7 @@ import { t } from 'lib/i18n';
 
 type AlertProps = Omit<HTMLAttributes<HTMLDivElement>, 'title'> & {
   type?: 'success' | 'warn' | 'error';
-  title: ReactNode;
+  title?: ReactNode;
   description: ReactNode;
   autoFocus?: boolean;
   closable?: boolean;

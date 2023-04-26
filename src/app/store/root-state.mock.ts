@@ -8,6 +8,7 @@ import { mockDAppsState } from './d-apps/state.mock';
 import { RootState } from './index';
 import { mockPartnersPromotionState } from './partners-promotion/state.mock';
 import { mockSettingsState } from './settings/state.mock';
+import { mockSwapState } from './swap/state.mock';
 
 // ts-prune-ignore-next
 export const mockRootState: RootState = {
@@ -16,6 +17,7 @@ export const mockRootState: RootState = {
   currency: mockCurrencyState,
   notifications: mockNotificationsState,
   dApps: mockDAppsState,
+  swap: mockSwapState,
   partnersPromotion: mockPartnersPromotionState,
   balances: mockBalancesState,
   abTesting: mockABTestingState
