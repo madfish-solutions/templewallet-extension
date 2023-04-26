@@ -17,14 +17,12 @@ export const useSignedMoonPayUrl = () => {
 
   const [signedUrl, setSignedUrl] = useState(defaultUrl);
 
-  const url = `${defaultUrl}&walletAddress=${walletAddress}`;
-
   useEffect(
     () =>
-      void getMoonpaySign(url)
-        .then(response => setSignedUrl(response.data.signedUrl))
+      void getMoonpaySign(CURRENCY_CODE, '#ed8936', walletAddress, undefined, undefined)
+        .then(newSignedUrl => setSignedUrl(newSignedUrl))
         .catch(emptyFn),
-    [url]
+    [walletAddress]
   );
 
   return signedUrl;

@@ -41,7 +41,6 @@ export const PaymentProviderInput: FC<PaymentProviderInputProps> = ({
         <PaymentProviderInputHeader
           ref={ref as unknown as React.RefObject<HTMLDivElement>}
           value={value}
-          options={options}
           opened={opened}
           setOpened={setOpened}
           toggleOpened={toggleOpened}

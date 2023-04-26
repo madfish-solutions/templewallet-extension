@@ -2647,6 +2647,9 @@
   "selectPaymentProvider": {
     "message": "Select payment provider"
   },
+  "pleaseSelectPaymentProvider": {
+    "message": "Please select payment provider"
+  },
   "buyWithUtorgDescription": {
     "message": "Licensed fiat-to-crypto gateway. 187+ countries, AI-powered KYC, Apple Pay, Google Pay."
   },

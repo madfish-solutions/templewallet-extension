@@ -1,19 +1,16 @@
 import React, { FC, useEffect } from 'react';
 
-import { List } from 'react-virtualized';
-
 import DropdownWrapper from 'app/atoms/DropdownWrapper';
 import Spinner from 'app/atoms/Spinner/Spinner';
 import { useAppEnvStyle } from 'app/hooks/use-app-env-style.hook';
 import { AnalyticsEventCategory, TestIDProperty, useAnalytics } from 'lib/analytics';
-import { TopUpProviderId } from 'lib/buy-with-credit-card/top-up-provider-id.enum';
 import { PaymentProviderInterface } from 'lib/buy-with-credit-card/topup.interface';
 import { T } from 'lib/i18n';
 
 import { PaymentProviderOption } from './PaymentProviderOption';
 
 interface Props extends TestIDProperty {
-  value?: TopUpProviderId;
+  value?: PaymentProviderInterface;
   options: PaymentProviderInterface[];
   isLoading?: boolean;
   opened: boolean;
@@ -40,7 +37,7 @@ export const PaymentProvidersMenu: FC<Props> = ({
 
   const handleOptionClick = onChange
     ? (newValue: PaymentProviderInterface) => {
-        if (value !== newValue.id) {
+        if (value?.id !== newValue.id) {
           onChange(newValue);
         }
         setOpened(false);
@@ -75,7 +72,7 @@ export const PaymentProvidersMenu: FC<Props> = ({
           <PaymentProviderOption
             key={option.id}
             value={option}
-            isSelected={value === option.id}
+            isSelected={value?.id === option.id}
             shouldShowSeparator={index !== options.length - 1}
             onClick={handleOptionClick}
           />

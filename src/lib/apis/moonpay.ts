@@ -46,9 +46,11 @@ export interface QuoteResponse {
   totalAmount: number;
 }
 
-const MOONPAY_GRAPHQL_API_URL = 'https://api.moonpay.com/graphql';
-const MOONPAY_API_KEY = EnvVars.TEMPLE_WALLET_MOONPAY_API_KEY;
+export const MOONPAY_DOMAIN = 'https://buy.moonpay.com';
+export const MOONPAY_ASSETS_BASE_URL = 'https://static.moonpay.com';
+export const MOONPAY_API_KEY = EnvVars.TEMPLE_WALLET_MOONPAY_API_KEY;
 
+const MOONPAY_GRAPHQL_API_URL = 'https://api.moonpay.com/graphql';
 const apolloMoonPayClient = getApolloConfigurableClient(MOONPAY_GRAPHQL_API_URL);
 
 const CRYPTO_CURRENCIES_QUERY = gql`
