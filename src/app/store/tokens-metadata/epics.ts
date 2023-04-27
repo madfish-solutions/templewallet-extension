@@ -29,8 +29,8 @@ const loadTokenSuggestionEpic = (action$: Observable<Action>) =>
   action$.pipe(
     ofType(loadTokenSuggestionActions.submit),
     toPayload(),
-    switchMap(({ id, address }) =>
-      loadTokenMetadata$(address, id).pipe(
+    switchMap(({ tezos, id, address }) =>
+      loadTokenMetadata$(tezos, address, id).pipe(
         concatMap(tokenMetadata => [
           loadTokenSuggestionActions.success(tokenMetadata),
           addTokensMetadataAction([tokenMetadata])
@@ -48,8 +48,8 @@ const loadTokenMetadataEpic = (action$: Observable<Action>) =>
   action$.pipe(
     ofType(loadTokenMetadataActions.submit),
     toPayload(),
-    concatMap(({ id, address }) =>
-      loadTokenMetadata$(address, id).pipe(
+    concatMap(({ tezos, id, address }) =>
+      loadTokenMetadata$(tezos, address, id).pipe(
         concatMap(tokenMetadata => [
           loadTokenMetadataActions.success(tokenMetadata),
           addTokensMetadataAction([tokenMetadata])
@@ -63,8 +63,8 @@ const loadTokensMetadataEpic = (action$: Observable<Action>) =>
   action$.pipe(
     ofType(loadTokensMetadataAction),
     toPayload(),
-    switchMap(slugs =>
-      loadTokensMetadata$(slugs).pipe(
+    switchMap(({ tezos, slugs }) =>
+      loadTokensMetadata$(tezos, slugs).pipe(
         map(tokensMetadata => addTokensMetadataAction(tokensMetadata)),
         catchError(err => of(loadTokenMetadataActions.fail(err.message)))
       )

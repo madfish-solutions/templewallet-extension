@@ -1,38 +1,20 @@
 import { useEffect } from 'react';
 
 import { useDispatch } from 'react-redux';
-import browser from 'webextension-polyfill';
 
 import { loadTokenMetadataActions } from 'app/store/tokens-metadata/actions';
 import { useTokenMetadataSelector } from 'app/store/tokens-metadata/selectors';
+import { TokenMetadataResponse } from 'lib/apis/temple';
 import { isGasAsset } from 'lib/temple/assets';
 import { GAS_TOKEN_SLUG, useGasToken, useNetwork } from 'lib/temple/front';
 
+import { TEZOS_METADATA, FILM_METADATA } from './defaults';
 import { AssetMetadataBase, TokenMetadata } from './types';
 
 export type { AssetMetadataBase, TokenMetadata } from './types';
 export { TokenStandardsEnum } from './types';
-
-export const TEZOS_METADATA: AssetMetadataBase = {
-  decimals: 6,
-  symbol: 'TEZ',
-  name: 'Tezos',
-  thumbnailUri: browser.runtime.getURL('misc/token-logos/tez.svg')
-};
-
-export const FILM_METADATA: AssetMetadataBase = {
-  decimals: 6,
-  symbol: 'FILM',
-  name: 'FILM',
-  thumbnailUri: browser.runtime.getURL('misc/token-logos/film.png')
-};
-
-export const EMPTY_BASE_METADATA: AssetMetadataBase = {
-  decimals: 0,
-  symbol: '',
-  name: '',
-  thumbnailUri: ''
-};
+export { TEZOS_METADATA, FILM_METADATA, EMPTY_BASE_METADATA } from './defaults';
+export { fetchTokenMetadata, fetchTokensMetadata } from './fetch';
 
 export const useGasTokenMetadata = () => {
   const network = useNetwork();
@@ -47,7 +29,7 @@ export const useAssetMetadata = (slug: string): AssetMetadataBase | undefined =>
   // const dispatch = useDispatch();
   // useEffect(() => {
   //   if (!isGasAsset(slug) && !tokenMetadata) {
-  //     const [address, id] = slug;
+  //     const [address, id = '0'] = slug.split('_');
   //     dispatch(loadTokenMetadataActions.submit({ address, id: Number(id) }));
   //   }
   // }, [slug, tokenMetadata]);

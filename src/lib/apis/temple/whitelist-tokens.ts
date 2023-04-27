@@ -1,8 +1,10 @@
 import axios from 'axios';
+import { from } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 import { TempleChainId } from 'lib/temple/types';
 
-interface TokenListItem {
+export interface WhitelistResponseToken {
   contractAddress: 'tez' | string;
   fa2TokenId?: number;
   network: 'mainnet' | string;
@@ -16,11 +18,11 @@ interface TokenListItem {
 }
 
 interface WhitelistResponse {
-  keywords: Array<string>;
+  keywords: string[];
   logoURI: string;
   name: string;
   timestamp: string;
-  tokens?: Array<TokenListItem>;
+  tokens?: WhitelistResponseToken[];
   version: {
     major: number;
     minor: number;
@@ -31,6 +33,11 @@ interface WhitelistResponse {
 const WHITELIST_TOKENS_BASE_URL = 'https://raw.githubusercontent.com/madfish-solutions/tokens-whitelist/master/';
 
 const api = axios.create({ baseURL: WHITELIST_TOKENS_BASE_URL });
+
+export const fetchWhitelistTokens$ = () =>
+  from(api.get<WhitelistResponse>('tokens/quipuswap.whitelist.json')).pipe(
+    map(({ data }) => data.tokens?.filter(x => x.contractAddress !== 'tez') ?? [])
+  );
 
 export const fetchWhitelistTokenSlugs = (chainId: string) =>
   api

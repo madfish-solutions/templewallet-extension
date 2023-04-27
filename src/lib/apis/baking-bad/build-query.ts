@@ -1,4 +1,5 @@
 import { AxiosInstance, AxiosRequestConfig } from 'axios';
+import { pick } from 'lodash';
 
 type RequestParams<T> = T & Omit<AxiosRequestConfig, 'method' | 'url' | 'params'>;
 
@@ -21,14 +22,4 @@ export function buildQuery<P extends Record<string, unknown>, R = any>(
     });
     return r.data;
   };
-}
-
-function pick<T, U extends keyof T>(obj: T, keys: U[]) {
-  const newObj: Partial<T> = {};
-  keys.forEach(key => {
-    if (key in obj) {
-      newObj[key] = obj[key];
-    }
-  });
-  return newObj as Pick<T, U>;
 }

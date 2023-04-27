@@ -1,11 +1,11 @@
 import { isDefined } from '@rnw-community/shared';
+import { TezosToolkit } from '@taquito/taquito';
 import memoize from 'mem';
 import { of, from, Observable } from 'rxjs';
 import { map, filter } from 'rxjs/operators';
 
-import { fetchTokenMetadata, fetchTokensMetadata, TokenMetadataResponse } from 'lib/apis/tokens-metadata';
-import { WhitelistResponseToken, fetchWhitelistTokens$ } from 'lib/apis/whitelist';
-import { TokenMetadata, TokenStandardsEnum } from 'lib/metadata';
+import { WhitelistResponseToken, fetchWhitelistTokens$, TokenMetadataResponse } from 'lib/apis/temple';
+import { TokenMetadata, TokenStandardsEnum, fetchTokenMetadata, fetchTokensMetadata } from 'lib/metadata';
 import { tokenToSlug } from 'lib/temple/assets';
 import { isDcpNode } from 'lib/temple/networks';
 
@@ -28,22 +28,22 @@ export const mockFA2TokenMetadata: TokenMetadata = {
 };
 
 export const loadTokenMetadata$ = memoize(
-  (address: string, id = 0): Observable<TokenMetadata> => {
+  (tezos: TezosToolkit, address: string, id = 0): Observable<TokenMetadata> => {
     const slug = `${address}_${id}`;
     console.log('Loading metadata for:', slug);
 
-    return from(fetchTokenMetadata(address, id)).pipe(
-      map(({ data }) => transformDataToTokenMetadata(data, address, id)),
+    return from(fetchTokenMetadata(tezos, address, id)).pipe(
+      map(data => transformDataToTokenMetadata(data, address, id)),
       filter(isDefined)
     );
   },
-  { cacheKey: ([address, id]) => tokenToSlug({ address, id }) }
+  { cacheKey: ([, address, id]) => tokenToSlug({ address, id }) }
 );
 
 export const loadTokensMetadata$ = memoize(
-  (slugs: string[]): Observable<TokenMetadata[]> =>
-    from(fetchTokensMetadata(slugs)).pipe(
-      map(({ data }) =>
+  (tezos: TezosToolkit, slugs: string[]): Observable<TokenMetadata[]> =>
+    from(fetchTokensMetadata(tezos, slugs)).pipe(
+      map(data =>
         data
           .map((token, index) => {
             const [address, id] = slugs[index].split('_');
@@ -56,7 +56,7 @@ export const loadTokensMetadata$ = memoize(
 );
 
 const transformDataToTokenMetadata = (
-  token: TokenMetadataResponse | null,
+  token: TokenMetadataResponse | nullish,
   address: string,
   id: number
 ): TokenMetadata | null =>

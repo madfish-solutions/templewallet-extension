@@ -1,4 +1,4 @@
-import { TokenMetadataResponse } from 'lib/apis/tokens-metadata';
+import { TokenMetadataResponse } from 'lib/apis/temple';
 import { rxJsTestingHelper } from 'lib/utils/testing.utils';
 
 import { loadTokenMetadata$ } from './utils';

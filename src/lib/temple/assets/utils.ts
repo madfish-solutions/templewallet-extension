@@ -25,12 +25,12 @@ export async function toTransferParams(
       amount: amount as any
     };
   } else {
-    const contact = await loadContract(tezos, asset.contract);
+    const contract = await loadContract(tezos, asset.contract);
     const pennyAmount = new BigNumber(amount).times(10 ** (assetMetadata?.decimals ?? 0)).toFixed();
     return isFA2Token(asset)
       ? {
           kind: OpKind.TRANSACTION,
-          to: contact.address,
+          to: contract.address,
           amount: 0,
           parameter: {
             entrypoint: 'transfer',
@@ -56,7 +56,7 @@ export async function toTransferParams(
             ]
           }
         }
-      : contact.methods.transfer(fromPkh, toPkh, pennyAmount).toTransferParams();
+      : contract.methods.transfer(fromPkh, toPkh, pennyAmount).toTransferParams();
   }
 }
 
