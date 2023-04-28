@@ -53,7 +53,7 @@ export const mapMoonPayProviderCurrencies = (currencies: Currency[]) => ({
     .map(({ name, code, minBuyAmount, maxBuyAmount, precision }) => ({
       name,
       code: code.toUpperCase(),
-      displaySymbol: code.toUpperCase().split('_')[0],
+      codeToDisplay: code.toUpperCase().split('_')[0],
       network: {
         code: '',
         fullName: '',
@@ -73,7 +73,7 @@ export const mapMoonPayProviderCurrencies = (currencies: Currency[]) => ({
     .map(({ name, code, precision, minBuyAmount, maxBuyAmount, metadata }) => ({
       name,
       code: code.toUpperCase(),
-      displaySymbol: code.toUpperCase().split('_')[0],
+      codeToDisplay: code.toUpperCase().split('_')[0],
       network: {
         code: '',
         fullName: '',
@@ -93,9 +93,10 @@ export const mapMoonPayProviderCurrencies = (currencies: Currency[]) => ({
 export const mapUtorgProviderCurrencies = (currencies: UtorgCurrencyInfo[]) => ({
   fiat: currencies
     .filter(({ type, depositMax }) => type === UtorgCurrencyInfoType.FIAT && depositMax > 0)
-    .map(({ symbol, depositMin, depositMax, precision }) => ({
+    .map(({ display, symbol, depositMin, depositMax, precision }) => ({
       name: knownUtorgFiatCurrenciesNames[symbol] ?? '',
       code: symbol,
+      codeToDisplay: display,
       network: {
         code: '',
         fullName: '',
@@ -114,6 +115,7 @@ export const mapUtorgProviderCurrencies = (currencies: UtorgCurrencyInfo[]) => (
     .map(({ currency, display, precision }) => ({
       name: display,
       code: currency,
+      codeToDisplay: display,
       network: {
         code: '',
         fullName: '',

@@ -4,6 +4,7 @@ import { TopUpProviderId } from './top-up-provider-id.enum';
 export interface TopUpInputInterface {
   name: string;
   code: string;
+  codeToDisplay?: string;
   network: {
     code: string;
     fullName: string;

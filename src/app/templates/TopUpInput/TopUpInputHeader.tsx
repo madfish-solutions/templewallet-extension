@@ -134,7 +134,7 @@ export const TopUpInputHeader = forwardRef<HTMLDivElement, Props>(
               />
               <div className="flex flex-col ml-2 text-left whitespace-nowrap">
                 <span className="text-gray-700 font-normal text-lg overflow-ellipsis overflow-hidden w-16">
-                  {currency.code}
+                  {currency.codeToDisplay ?? currency.code}
                 </span>
                 <span
                   className="text-indigo-500 font-medium overflow-ellipsis overflow-hidden w-12"

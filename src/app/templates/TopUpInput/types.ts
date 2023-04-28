@@ -4,6 +4,7 @@ import { TestIDProperty } from 'lib/analytics';
 
 export interface CurrencyBase {
   code: string;
+  codeToDisplay?: string;
   name?: string;
   icon?: string;
   fitIcon?: boolean;

@@ -30,7 +30,7 @@ export const CurrencyOption: FC<Props> = ({ currency, isSelected, fitIcons, styl
     />
 
     <div className="flex-1 flex flex-col items-stretch">
-      <div className="text-gray-910 text-lg text-left">{currency.code}</div>
+      <div className="text-gray-910 text-lg text-left">{currency.codeToDisplay ?? currency.code}</div>
 
       <div className="flex text-xs">
         <span className="text-gray-600 mr-2">{currency.name}</span>
