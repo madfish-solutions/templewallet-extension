@@ -1,6 +1,6 @@
 import { createReducer } from '@reduxjs/toolkit';
 
-import { tokenToSlug } from 'lib/temple/assets';
+import { tokenToSlug } from 'lib/assets';
 
 import { addTokensMetadataAction, loadWhitelistAction } from './actions';
 import { tokensMetadataInitialState, TokensMetadataState } from './state';

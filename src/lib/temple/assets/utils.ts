@@ -1,9 +1,10 @@
 import { OpKind, TezosToolkit } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
 
+import { GAS_TOKEN_SLUG, toTokenSlug } from 'lib/assets';
 import { AssetMetadataBase } from 'lib/metadata';
 import { loadContract } from 'lib/temple/contract';
-import { GAS_TOKEN_SLUG, TEZ_TOKEN_SLUG } from 'lib/temple/front';
+import { TEZ_TOKEN_SLUG } from 'lib/temple/front';
 import { isValidContractAddress } from 'lib/temple/helpers';
 
 import { detectTokenStandard } from './tokenStandard';
@@ -90,14 +91,6 @@ export function fromFa2TokenSlug(slug: string): FA2Token {
 
 export function toAssetSlug(contract: string, id: BigNumber.Value = 0) {
   return contract === GAS_TOKEN_SLUG ? GAS_TOKEN_SLUG : toTokenSlug(contract, id);
-}
-
-function toTokenSlug(contract: string, id: BigNumber.Value = 0) {
-  return `${contract}_${new BigNumber(id).toFixed()}`;
-}
-
-export function tokenToSlug<T extends { address: string; id?: BigNumber.Value }>({ address, id }: T) {
-  return toTokenSlug(address, id);
 }
 
 export function isFA2Asset(asset: Asset): asset is FA2Token {

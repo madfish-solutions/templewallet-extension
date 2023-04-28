@@ -16,6 +16,7 @@ import { loadSwapParamsAction, resetSwapParamsAction } from 'app/store/swap/acti
 import { useSwapParamsSelector, useSwapTokenSelector, useSwapTokensSelector } from 'app/store/swap/selectors';
 import OperationStatus from 'app/templates/OperationStatus';
 import { setTestID, useFormAnalytics } from 'lib/analytics';
+import { GAS_TOKEN_SLUG } from 'lib/assets';
 import { T, t } from 'lib/i18n';
 import { useAssetMetadata } from 'lib/metadata';
 import { ROUTING_FEE_RATIO, ZERO } from 'lib/route3/constants';
@@ -23,7 +24,7 @@ import { getPercentageRatio } from 'lib/route3/utils/get-percentage-ratio';
 import { getRoute3TokenBySlug } from 'lib/route3/utils/get-route3-token-by-slug';
 import { getRoutingFeeTransferParams } from 'lib/route3/utils/get-routing-fee-transfer-params';
 import { ROUTING_FEE_PERCENT } from 'lib/swap-router/config';
-import { GAS_TOKEN_SLUG, useAccount, useTezos } from 'lib/temple/front';
+import { useAccount, useTezos } from 'lib/temple/front';
 import { tokensToAtoms } from 'lib/temple/helpers';
 import useTippy from 'lib/ui/useTippy';
 import { parseTransferParamsToParamsWithKind } from 'lib/utils/parse-transfer-params';

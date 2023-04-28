@@ -4,7 +4,8 @@ import { BigNumber } from 'bignumber.js';
 
 import { useBalancesSelector } from 'app/store/balances/selectors';
 import { useTokensMetadataSelector } from 'app/store/tokens-metadata/selectors';
-import { GAS_TOKEN_SLUG, useAccount, useChainId, useGasToken } from 'lib/temple/front';
+import { GAS_TOKEN_SLUG } from 'lib/assets';
+import { useAccount, useChainId, useGasToken } from 'lib/temple/front';
 import { atomsToTokens } from 'lib/temple/helpers';
 
 export const useBalancesWithDecimals = () => {

@@ -4,6 +4,8 @@ import { catchError, concatMap, map, switchMap } from 'rxjs/operators';
 import { Action } from 'ts-action';
 import { ofType, toPayload } from 'ts-action-operators';
 
+import { loadTokenMetadata$, loadTokensMetadata$, loadWhitelist$ } from 'lib/metadata';
+
 import {
   addTokensMetadataAction,
   loadTokenMetadataActions,
@@ -11,7 +13,6 @@ import {
   loadTokenSuggestionActions,
   loadWhitelistAction
 } from './actions';
-import { loadTokenMetadata$, loadTokensMetadata$, loadWhitelist$ } from './utils';
 
 const loadWhitelistEpic: Epic = (action$: Observable<Action>) =>
   action$.pipe(

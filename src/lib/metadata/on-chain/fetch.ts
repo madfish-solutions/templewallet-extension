@@ -7,7 +7,7 @@ import { isValidContractAddress } from 'lib/temple/helpers';
 import { assert } from 'lib/utils';
 
 import { PRESERVED_TOKEN_METADATA } from './fixtures';
-import { TokenMetadataOnChain, DetailedTokenMetdataOnChain } from './types';
+import type { TokenMetadataOnChain, DetailedTokenMetdataOnChain } from './types';
 
 const RETRY_PARAMS = {
   retries: 5,

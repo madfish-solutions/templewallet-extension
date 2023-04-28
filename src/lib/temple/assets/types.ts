@@ -1,6 +1,6 @@
 import type BigNumber from 'bignumber.js';
 
-import { GAS_TOKEN_SLUG } from 'lib/temple/front';
+import type { GAS_TOKEN_SLUG } from 'lib/assets';
 
 export interface Token {
   contract: string;

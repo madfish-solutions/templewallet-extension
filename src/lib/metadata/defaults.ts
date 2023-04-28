@@ -1,6 +1,6 @@
 import browser from 'webextension-polyfill';
 
-import { AssetMetadataBase } from './types';
+import type { AssetMetadataBase } from './types';
 
 export const TEZOS_METADATA: AssetMetadataBase = {
   decimals: 6,

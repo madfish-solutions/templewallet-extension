@@ -1,10 +1,8 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 
 import { BigNumber } from 'bignumber.js';
 import constate from 'constate';
-// import deepEqual from 'fast-deep-equal';
 import { useDebounce } from 'use-debounce';
-import useForceUpdate from 'use-force-update';
 import browser from 'webextension-polyfill';
 
 import { useBalancesWithDecimals } from 'app/hooks/use-balances-with-decimals.hook';
@@ -12,7 +10,8 @@ import { useBalancesSelector } from 'app/store/balances/selectors';
 import { useSwapTokensSelector } from 'app/store/swap/selectors';
 import { useTokensMetadataSelector } from 'app/store/tokens-metadata/selectors';
 import { useUsdToTokenRates } from 'lib/fiat-currency/core';
-import { AssetMetadataBase, FILM_METADATA, TEZOS_METADATA } from 'lib/metadata';
+import { FILM_METADATA, TEZOS_METADATA } from 'lib/metadata/defaults';
+import type { AssetMetadataBase } from 'lib/metadata/types';
 import { useRetryableSWR } from 'lib/swr';
 import {
   AssetTypesEnum,
@@ -30,9 +29,9 @@ import { ITokenStatus } from 'lib/temple/repo';
 import { createQueue } from 'lib/utils';
 import { searchAndFilterItems } from 'lib/utils/search-items';
 
-import { AssetMetadata, DetailedAssetMetdata, fetchTokenMetadata, PRESERVED_TOKEN_METADATA } from '../metadata';
+import { AssetMetadata, DetailedAssetMetdata, fetchTokenMetadata } from '../metadata';
 import { useTezosRef, useChainId, useAccount } from './ready';
-import { onStorageChanged, putToStorage, usePassiveStorage } from './storage';
+import { putToStorage, usePassiveStorage } from './storage';
 
 const ALL_TOKENS_BASE_METADATA_STORAGE_KEY = 'tokens_base_metadata';
 
@@ -88,11 +87,7 @@ function useAllKnownCollectibleTokenSlugs(chainId: string) {
   );
 }
 
-// const enqueueAutoFetchMetadata = createQueue();
-// const autoFetchMetadataFails = new Set<string>();
-
 export const TEZ_TOKEN_SLUG = 'tez';
-export const GAS_TOKEN_SLUG = TEZ_TOKEN_SLUG;
 
 export const useGasToken = () => {
   const { type } = useNetwork();
@@ -116,65 +111,6 @@ export const useGasToken = () => {
     [type]
   );
 };
-
-// export function useAssetMetadata(slug: string): AssetMetadata | null {
-//   const forceUpdate = useForceUpdate();
-//   const { metadata } = useGasToken();
-
-//   const { allTokensBaseMetadataRef, fetchMetadata, setTokensBaseMetadata, setTokensDetailedMetadata } =
-//     useTokensMetadata();
-
-//   useEffect(
-//     () =>
-//       onStorageChanged(ALL_TOKENS_BASE_METADATA_STORAGE_KEY, newValue => {
-//         if (!deepEqual(newValue[slug], allTokensBaseMetadataRef.current[slug])) {
-//           forceUpdate();
-//         }
-//       }),
-//     [slug, allTokensBaseMetadataRef, forceUpdate]
-//   );
-
-//   const getCurrentBaseMetadata = useMemo(
-//     () => (): AssetMetadata | null => allTokensBaseMetadataRef.current[slug] ?? null,
-//     [slug, allTokensBaseMetadataRef.current]
-//   );
-
-//   const tezAsset = isTezAsset(slug);
-//   const tokenMetadata = getCurrentBaseMetadata();
-//   const exist = Boolean(tokenMetadata);
-
-//   useEffect(() => {
-//     if (isTezAsset(slug) || exist || autoFetchMetadataFails.has(slug)) return;
-//     enqueueAutoFetchMetadata(async () => {
-//       if (getCurrentBaseMetadata()) return;
-//       const metadata = await fetchMetadata(slug);
-//       if (metadata == null) throw new Error('');
-//       return metadata;
-//     })
-//       .then(metadata => {
-//         return (
-//           metadata &&
-//           Promise.all([
-//             setTokensBaseMetadata({ [slug]: metadata.base }),
-//             setTokensDetailedMetadata({ [slug]: metadata.detailed })
-//           ])
-//         );
-//       })
-//       .catch(() => autoFetchMetadataFails.add(slug));
-//   }, [slug, exist, getCurrentBaseMetadata, fetchMetadata, setTokensBaseMetadata, setTokensDetailedMetadata]);
-
-//   // Tezos
-//   if (tezAsset) {
-//     return metadata;
-//   }
-
-//   // Preserved for legacy tokens
-//   if (!exist && PRESERVED_TOKEN_METADATA.has(slug)) {
-//     return PRESERVED_TOKEN_METADATA.get(slug)!;
-//   }
-
-//   return tokenMetadata;
-// }
 
 const defaultAllTokensBaseMetadata = {
   tez: {
@@ -238,15 +174,6 @@ export const useGetTokenMetadata = () => {
     [allTokensMetadata, metadata]
   );
 };
-
-// export function useAllTokensBaseMetadata() {
-//   const { allTokensBaseMetadataRef } = useTokensMetadata();
-//   const forceUpdate = useForceUpdate();
-
-//   useEffect(() => onStorageChanged(ALL_TOKENS_BASE_METADATA_STORAGE_KEY, forceUpdate), [forceUpdate]);
-
-//   return allTokensBaseMetadataRef.current;
-// }
 
 type TokenStatuses = Record<string, { displayed: boolean; removed: boolean }>;
 

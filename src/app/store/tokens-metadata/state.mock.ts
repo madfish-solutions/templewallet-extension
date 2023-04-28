@@ -1,6 +1,6 @@
 // import { createEntity } from 'lib/store';
 
-import { tokenToSlug } from 'lib/temple/assets';
+import { tokenToSlug } from 'lib/assets';
 
 import { TokensMetadataState } from './state';
 import { mockFA1_2TokenMetadata, mockFA2TokenMetadata } from './utils';

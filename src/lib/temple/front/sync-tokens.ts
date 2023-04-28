@@ -1,64 +1,41 @@
 import { useCallback, useState } from 'react';
 
-import BigNumber from 'bignumber.js';
 import constate from 'constate';
 import { useSWRConfig } from 'swr';
 import { ScopedMutator } from 'swr/dist/types';
 
-import { useSelector } from 'app/store';
-import { getTokensMetadata, fetchWhitelistTokenSlugs } from 'lib/apis/temple';
+import { useTokensMetadataSelector } from 'app/store/tokens-metadata/selectors';
+import { fetchWhitelistTokenSlugs } from 'lib/apis/temple';
 import { TzktAccountToken, fetchTzktTokens } from 'lib/apis/tzkt';
 import { METADATA_SYNC_INTERVAL } from 'lib/fixed-times';
+import { TokenMetadata } from 'lib/metadata';
 import {
   toAssetSlug,
   fetchDisplayedFungibleTokens,
   fetchCollectibleTokens,
   getPredefinedTokensSlugs
 } from 'lib/temple/assets';
-import { useChainId, useAccount, useTokensMetadata } from 'lib/temple/front';
-import { AssetMetadata, DetailedAssetMetdata, toBaseMetadata } from 'lib/temple/metadata';
+import { useChainId, useAccount } from 'lib/temple/front';
 import * as Repo from 'lib/temple/repo';
-import { TempleChainId } from 'lib/temple/types';
 import { useInterval } from 'lib/ui/hooks';
-import { filterUnique } from 'lib/utils';
+import { filterUnique, isTruthy } from 'lib/utils';
 
 export const [SyncTokensProvider, useSyncTokens] = constate(() => {
   const { mutate } = useSWRConfig();
   const chainId = useChainId(true)!;
   const { publicKeyHash: accountPkh } = useAccount();
 
-  const { allTokensBaseMetadataRef, setTokensBaseMetadata, setTokensDetailedMetadata, fetchMetadata } =
-    useTokensMetadata();
-
-  const usdPrices = useSelector(state => state.currency.usdToTokenRates.data);
+  const tokensMetadata = useTokensMetadataSelector();
 
   const [isSyncing, setIsSyncing] = useState<boolean | null>(null);
 
   const sync = useCallback(async () => {
     setIsSyncing(true);
 
-    await makeSync(
-      accountPkh,
-      chainId,
-      allTokensBaseMetadataRef,
-      setTokensBaseMetadata,
-      setTokensDetailedMetadata,
-      usdPrices,
-      fetchMetadata,
-      mutate
-    );
+    await makeSync(accountPkh, chainId, tokensMetadata, mutate);
 
     setIsSyncing(false);
-  }, [
-    accountPkh,
-    chainId,
-    allTokensBaseMetadataRef,
-    setTokensBaseMetadata,
-    setTokensDetailedMetadata,
-    usdPrices,
-    fetchMetadata,
-    mutate
-  ]);
+  }, [accountPkh, chainId, tokensMetadata, mutate]);
 
   useInterval(sync, METADATA_SYNC_INTERVAL, [chainId, accountPkh]);
 
@@ -68,19 +45,10 @@ export const [SyncTokensProvider, useSyncTokens] = constate(() => {
 const makeSync = async (
   accountPkh: string,
   chainId: string,
-  allTokensBaseMetadataRef: any,
-  setTokensBaseMetadata: any,
-  setTokensDetailedMetadata: any,
-  usdPrices: Record<string, string>,
-  fetchMetadata: (slug: string) => Promise<{
-    base: AssetMetadata;
-    detailed: DetailedAssetMetdata;
-  } | null>,
+  tokensMetadata: Record<string, TokenMetadata>,
   mutate: ScopedMutator
 ) => {
   if (!chainId) return;
-
-  const mainnet = chainId === TempleChainId.Mainnet;
 
   const [tzktTokens, displayedFungibleTokens, displayedCollectibleTokens, whitelistTokenSlugs] = await Promise.all([
     fetchTzktTokens(chainId, accountPkh),
@@ -108,84 +76,14 @@ const makeSync = async (
 
   const existingRecords = await Repo.accountTokens.bulkGet(tokenRepoKeys);
 
-  const metadataSlugs = tokenSlugs.filter(slug => !(slug in allTokensBaseMetadataRef.current));
-
-  let metadatas;
-  // Only for mainnet. Try load metadata from API.
-  if (mainnet) {
-    try {
-      const response = await getTokensMetadata(metadataSlugs, 15_000);
-      metadatas = response.map(data => data && { base: toBaseMetadata(data), detailed: data });
-    } catch {}
-  }
-  // Otherwise - fetch from chain.
-  if (!metadatas) {
-    metadatas = await Promise.all(metadataSlugs.map(slug => generateMetadataRequest(slug, mainnet, fetchMetadata)));
-    metadatas = metadatas.filter(x => Boolean(x));
-  }
-
-  const baseMetadatasToSet: Record<string, AssetMetadata> = {};
-  const detailedMetadatasToSet: Record<string, DetailedAssetMetdata> = {};
-
-  for (let i = 0; i < metadatas.length; i++) {
-    const data = metadatas[i];
-
-    if (data) {
-      const slug = metadataSlugs[i];
-      const { base, detailed } = data;
-
-      baseMetadatasToSet[slug] = base;
-      detailedMetadatasToSet[slug] = detailed;
-    }
-  }
-
-  setTokensBaseMetadata(baseMetadatasToSet);
-  setTokensDetailedMetadata(detailedMetadatasToSet);
-
   await Repo.accountTokens.bulkPut(
-    tokenSlugs.map((slug, i) =>
-      updateTokenSlugs(
-        slug,
-        i,
-        chainId,
-        accountPkh,
-        existingRecords,
-        tzktTokensMap,
-        baseMetadatasToSet,
-        allTokensBaseMetadataRef,
-        usdPrices
-      )
-    ),
+    tokenSlugs
+      .map((slug, i) => updateTokenSlugs(slug, i, chainId, accountPkh, existingRecords, tzktTokensMap, tokensMetadata))
+      .filter(isTruthy),
     tokenRepoKeys
   );
 
   await mutate(['displayed-fungible-tokens', chainId, accountPkh]);
-};
-
-const generateMetadataRequest = async (
-  slug: string,
-  mainnet: boolean,
-  fetchMetadata: (slug: string) => Promise<{
-    base: AssetMetadata;
-    detailed: DetailedAssetMetdata;
-  } | null>
-) => {
-  const noMetadataFlag = `no_metadata_${slug}`;
-  if (!mainnet && localStorage.getItem(noMetadataFlag) === 'true') {
-    return null;
-  }
-
-  try {
-    return await fetchMetadata(slug);
-  } catch {
-    if (!mainnet) {
-      try {
-        localStorage.setItem(noMetadataFlag, 'true');
-      } catch {}
-    }
-
-    return null;
-  }
 };
 
 const updateTokenSlugs = (
@@ -195,35 +93,23 @@ const updateTokenSlugs = (
   accountPkh: string,
   existingRecords: Array<Repo.IAccountToken | undefined>,
   tzktTokensMap: Map<string, TzktAccountToken>,
-  baseMetadatasToSet: any,
-  allTokensBaseMetadataRef: any,
-  usdPrices: Record<string, string>
+  tokensMetadata: Record<string, TokenMetadata>
 ) => {
   const existing = existingRecords[i];
   const tzktToken = tzktTokensMap.get(slug);
   const balance = tzktToken?.balance ?? '0';
-  const metadata = baseMetadatasToSet[slug] ?? allTokensBaseMetadataRef.current[slug];
-  const tokenType =
-    metadata?.artifactUri || tzktToken?.token.metadata?.artifactUri
-      ? Repo.ITokenType.Collectible
-      : Repo.ITokenType.Fungible;
+  const metadata = (tokensMetadata[slug] as TokenMetadata | undefined) || tzktToken?.token.metadata;
 
-  const price = usdPrices[slug];
-  const usdBalance =
-    price &&
-    metadata &&
-    new BigNumber(balance)
-      .times(price)
-      .div(10 ** metadata.decimals)
-      .toFixed();
+  if (!metadata) return;
+
+  const tokenType = metadata.artifactUri ? Repo.ITokenType.Collectible : Repo.ITokenType.Fungible;
 
   if (existing) {
     return {
       ...existing,
       type: tokenType,
       order: i,
-      latestBalance: balance,
-      latestUSDBalance: usdBalance
+      latestBalance: balance
     };
   }
 
@@ -237,7 +123,6 @@ const updateTokenSlugs = (
     tokenSlug: slug,
     status,
     addedAt: Date.now(),
-    latestBalance: balance,
-    latestUSDBalance: usdBalance
+    latestBalance: balance
   };
 };

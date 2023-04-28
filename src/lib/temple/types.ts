@@ -2,7 +2,7 @@ import { DerivationType } from '@taquito/ledger-signer';
 import { Estimate } from '@taquito/taquito';
 import { TempleDAppMetadata, TempleDAppNetwork } from '@temple-wallet/dapp/dist/types';
 
-import { TID } from 'lib/i18n';
+import type { TID } from 'lib/i18n/types';
 
 import {
   TempleSendPageEventRequest,

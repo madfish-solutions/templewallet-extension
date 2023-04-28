@@ -45,7 +45,6 @@ export interface IAccountToken {
   status: ITokenStatus;
   addedAt: number;
   latestBalance?: string;
-  latestUSDBalance?: string;
 }
 
 interface IOperation {
