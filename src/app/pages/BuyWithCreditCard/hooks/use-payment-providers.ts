@@ -2,11 +2,12 @@ import { useCallback, useMemo, useState } from 'react';
 
 import { BigNumber } from 'bignumber.js';
 
-import { useFiatCurrenciesSelector } from 'app/store/buy-with-credit-card/selectors';
+import { useFiatCurrenciesSelector, useCryptoCurrenciesSelector } from 'app/store/buy-with-credit-card/selectors';
 import { getMoonPayBuyQuote } from 'lib/apis/moonpay';
 import { estimateAliceBobOutput } from 'lib/apis/temple/endpoints/alice-bob';
 import { convertFiatAmountToCrypto } from 'lib/apis/utorg';
 import { getPaymentProvidersToDisplay } from 'lib/buy-with-credit-card/get-payment-providers-to-display';
+import { getUpdatedFiatLimits } from 'lib/buy-with-credit-card/get-updated-fiat-limits';
 import { TopUpProviderId } from 'lib/buy-with-credit-card/top-up-provider-id.enum';
 import {
   PaymentProviderInterface,
@@ -51,7 +52,7 @@ const getOutputAmountFunctions: Record<TopUpProviderId, getOutputAmountFunction>
     return quoteCurrencyAmount;
   },
   [TopUpProviderId.Utorg]: async (inputAmount, inputAsset, outputAsset) =>
-    convertFiatAmountToCrypto(inputAmount, inputAsset.code, outputAsset.code),
+    convertFiatAmountToCrypto(inputAsset.code, outputAsset.code, inputAmount),
   [TopUpProviderId.AliceBob]: async inputAmount => {
     const response = await estimateAliceBobOutput(false, inputAmount.toString());
 
@@ -87,18 +88,27 @@ const usePaymentProvider = (
   const [error, setError] = useState<Error>();
   const [outputAmountLoading, setOutputAmountLoading] = useState<boolean>(false);
   const fiatCurrencies = useFiatCurrenciesSelector(providerId);
-  const { minAmount, maxAmount } = useInputLimits(providerId, inputAsset.code);
+  const cryptoCurrencies = useCryptoCurrenciesSelector(providerId);
+  const { minAmount, maxAmount } = useInputLimits(providerId, inputAsset.code, outputAsset.code);
   const initialData = initialPaymentProvidersData[providerId];
   const getOutputAmount = getOutputAmountFunctions[providerId];
 
   const updateOutputAmount = useCallback(
     async (newInputAmount?: number, newInputAsset = inputAsset, newOutputAsset = outputAsset) => {
       setError(undefined);
-      const currentProviderCurrency = fiatCurrencies.find(({ code }) => code === newInputAsset.code);
+      const currentProviderFiatCurrency = fiatCurrencies.find(({ code }) => code === newInputAsset.code);
+      const currentProviderCryptoCurrency = cryptoCurrencies.find(({ code }) => code === newOutputAsset.code);
+      const updatedPairLimits =
+        isDefined(currentProviderFiatCurrency) && isDefined(currentProviderCryptoCurrency)
+          ? (await getUpdatedFiatLimits(currentProviderFiatCurrency, currentProviderCryptoCurrency, providerId)).data
+          : undefined;
+
       if (
         !isTruthy(newInputAmount) ||
-        !isDefined(currentProviderCurrency?.minAmount) ||
-        !isDefined(currentProviderCurrency?.maxAmount)
+        !isDefined(updatedPairLimits) ||
+        !isDefined(currentProviderCryptoCurrency) ||
+        newInputAmount < updatedPairLimits.min ||
+        newInputAmount > updatedPairLimits.max
       ) {
         const newOutputAmount = newInputAmount === 0 ? 0 : undefined;
         setOutputAmount(newOutputAmount);
@@ -120,7 +130,7 @@ const usePaymentProvider = (
 
       return newOutputAmount;
     },
-    [inputAsset, outputAsset, getOutputAmount, providerId, fiatCurrencies]
+    [inputAsset, outputAsset, getOutputAmount, providerId, fiatCurrencies, cryptoCurrencies]
   );
 
   const provider = useMemo<PaymentProviderInterface>(
@@ -215,6 +225,8 @@ export const usePaymentProviders = (
     [inputAsset, outputAsset, updateMoonPayOutputAmount, updateUtorgOutputAmount, updateAliceBobOutputAmount]
   );
   const loading = moonPayLoading || utorgLoading || aliceBobLoading;
+
+  // console.log('x1', allPaymentProviders, amountsUpdateErrors, moonPayLoading, utorgLoading, paymentProvidersToDisplay);
 
   return { allPaymentProviders, amountsUpdateErrors, paymentProvidersToDisplay, updateOutputAmounts, loading };
 };

@@ -2683,6 +2683,17 @@
       }
     }
   },
+  "errorWhileUpdatingPairLimits": {
+    "message": "An error occurred while updating pair limits for the specified pair from $provider$: $error$",
+    "placeholders": {
+      "provider": {
+        "content": "$1"
+      },
+      "error": {
+        "content": "$2"
+      }
+    }
+  },
   "noKycRequired": {
     "message": "No KYC"
   },

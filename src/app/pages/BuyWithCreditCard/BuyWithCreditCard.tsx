@@ -9,8 +9,7 @@ import { Alert, FormSubmitButton } from 'app/atoms';
 import ErrorBoundary from 'app/ErrorBoundary';
 import { ReactComponent as ArrowDownIcon } from 'app/icons/arrow-down.svg';
 import PageLayout from 'app/layouts/PageLayout';
-import { loadAllCurrenciesActions } from 'app/store/buy-with-credit-card/actions';
-import { useCurrenciesErrorsSelector } from 'app/store/buy-with-credit-card/selectors';
+import { loadAllCurrenciesActions, updatePairLimitsActions } from 'app/store/buy-with-credit-card/actions';
 import { PaymentProviderInput } from 'app/templates/PaymentProviderInput';
 import { SpinnerSection } from 'app/templates/SendForm/SpinnerSection';
 import { TopUpInput } from 'app/templates/TopUpInput';
@@ -25,32 +24,34 @@ import {
 import { shouldShowFieldError } from 'lib/form/should-show-field-error';
 import { t, T, toLocalFormat } from 'lib/i18n';
 import { useInterval } from 'lib/ui/hooks';
-import { getAxiosQueryErrorMessage } from 'lib/utils/get-axios-query-error-message';
 import { isDefined } from 'lib/utils/is-defined';
 
 import { BuyWithCreditCardSelectors } from './BuyWithCreditCard.selectors';
 import { useAllCryptoCurrencies } from './hooks/use-all-crypto-currencies';
 import { useAllFiatCurrencies } from './hooks/use-all-fiat-currencies';
 import { useBuyWithCreditCardForm } from './hooks/use-buy-with-credit-card-form';
+import { useErrorAlert } from './hooks/use-error-alert';
 import { usePaymentProviders } from './hooks/use-payment-providers';
 import { AmountErrorType } from './types/amount-error-type';
-import { BuyWithCreditCardFormValues } from './types/buy-with-credit-card-form-values';
 
 const fitFiatIconFn = (currency: TopUpInputInterface) => !currency.icon.startsWith(MOONPAY_ASSETS_BASE_URL);
 
 export const BuyWithCreditCard: FC = () => {
   const dispatch = useDispatch();
   const [isLoading, setIsLoading] = useState(false);
-  const [shouldHideErrorAlert, setShouldHideErrorAlert] = useState(false);
-  const allFiatCurrencies = useAllFiatCurrencies();
-  const allCryptoCurrencies = useAllCryptoCurrencies();
-  const currenciesErrors = useCurrenciesErrorsSelector();
-  const { formValues, onSubmit, errors, setValue, triggerValidation, formState, submitError } =
-    useBuyWithCreditCardForm();
+  const form = useBuyWithCreditCardForm();
+  const { formValues, onSubmit, errors, lazySetValue, triggerValidation, formState, getValues } = form;
   const { inputAmount, inputCurrency, outputToken, outputAmount, topUpProvider } = formValues;
   const manuallySelectedProviderIdRef = useRef<TopUpProviderId>();
   const { allPaymentProviders, amountsUpdateErrors, paymentProvidersToDisplay, updateOutputAmounts } =
     usePaymentProviders(inputAmount, inputCurrency, outputToken);
+  const {
+    onAlertClose,
+    shouldHideErrorAlert,
+    message: alertErrorMessage
+  } = useErrorAlert(form, allPaymentProviders, amountsUpdateErrors);
+  const allFiatCurrencies = useAllFiatCurrencies(inputCurrency.code, outputToken.code);
+  const allCryptoCurrencies = useAllCryptoCurrencies();
 
   const inputAmountErrorMessage = errors.inputAmount?.message;
   const shouldShowInputAmountError = shouldShowFieldError('inputAmount', formState);
@@ -65,27 +66,32 @@ export const BuyWithCreditCard: FC = () => {
   const switchPaymentProvider = useCallback(
     (newProvider?: PaymentProviderInterface) => {
       const newOutputAmount = newProvider?.outputAmount;
-      setValue([{ topUpProvider: newProvider }, { outputAmount: newOutputAmount }]);
+      lazySetValue({ topUpProvider: newProvider, outputAmount: newOutputAmount });
       triggerValidation();
     },
-    [setValue, allPaymentProviders, triggerValidation]
+    [lazySetValue, allPaymentProviders, triggerValidation]
   );
 
+  useEffect(() => {
+    const { outputToken } = getValues();
+    dispatch(updatePairLimitsActions.submit({ fiatSymbol: inputCurrency.code, cryptoSymbol: outputToken.code }));
+  }, [dispatch, inputCurrency, getValues]);
   useEffect(() => void dispatch(loadAllCurrenciesActions.submit()), []);
 
   useEffect(() => {
     const newInputAsset = allFiatCurrencies.find(({ code }) => code === inputCurrency.code);
 
     if (isDefined(newInputAsset) && !isEqual(newInputAsset, inputCurrency)) {
-      const changes: Array<Partial<BuyWithCreditCardFormValues>> = [{ inputCurrency: newInputAsset }];
-      if (isDefined(newInputAsset.precision) && isDefined(inputAmount)) {
-        changes.push({ inputAmount: new BigNumber(inputAmount).decimalPlaces(newInputAsset.precision).toNumber() });
-      }
-
-      setValue(changes);
+      lazySetValue({
+        inputCurrency: newInputAsset,
+        inputAmount:
+          isDefined(newInputAsset.precision) && isDefined(inputAmount)
+            ? new BigNumber(inputAmount).decimalPlaces(newInputAsset.precision).toNumber()
+            : inputAmount
+      });
       triggerValidation();
     }
-  }, [inputAmount, inputCurrency, allFiatCurrencies, setValue, triggerValidation]);
+  }, [inputAmount, inputCurrency, allFiatCurrencies, lazySetValue, triggerValidation]);
   useEffect(() => {
     const newPaymentProvider = paymentProvidersToDisplay.find(({ id }) => id === topUpProvider?.id);
 
@@ -120,7 +126,11 @@ export const BuyWithCreditCard: FC = () => {
           const correctedNewInputAmount = isDefined(newInputAmount)
             ? new BigNumber(newInputAmount).decimalPlaces(newInputAsset.precision).toNumber()
             : undefined;
-          setValue([{ inputAmount: correctedNewInputAmount }, { inputCurrency: newInputAsset }]);
+          lazySetValue({
+            inputAmount: correctedNewInputAmount,
+            inputCurrency: newInputAsset,
+            outputToken: newOutputAsset
+          });
           const amounts = await updateOutputAmounts(correctedNewInputAmount, newInputAsset, newOutputAsset);
 
           if (!isEqual(outputCalculationData, outputCalculationDataRef.current)) {
@@ -156,7 +166,7 @@ export const BuyWithCreditCard: FC = () => {
         },
         200
       ),
-    [topUpProvider, updateOutputAmounts, allPaymentProviders, switchPaymentProvider, setValue]
+    [topUpProvider, updateOutputAmounts, allPaymentProviders, switchPaymentProvider, lazySetValue]
   );
   const handleInputValueChange = useCallback(
     (newInputAmount: number | undefined, newInputAsset: TopUpInputInterface) => {
@@ -194,6 +204,7 @@ export const BuyWithCreditCard: FC = () => {
   useInterval(
     () => {
       dispatch(loadAllCurrenciesActions.submit());
+      dispatch(updatePairLimitsActions.submit({ fiatSymbol: inputCurrency.code, cryptoSymbol: outputToken.code }));
       if (!isLoading) {
         outputCalculationDataRef.current = { inputAmount, inputCurrency, outputToken };
         setIsLoading(true);
@@ -212,38 +223,6 @@ export const BuyWithCreditCard: FC = () => {
     ? toLocalFormat(inputCurrency.maxAmount, { decimalPlaces: inputCurrency.precision })
     : undefined;
 
-  const alertErrorMessage = useMemo(() => {
-    // TODO: return handling errors for Alice&Bob as soon as this service starts working
-    if (isDefined(submitError)) {
-      return t('errorWhileCreatingOrder', '');
-    }
-
-    const [firstAmountUpdateErrorEntry] = Object.entries(amountsUpdateErrors).filter(
-      ([key, value]) => isDefined(value) && key !== TopUpProviderId.AliceBob
-    );
-
-    if (isDefined(firstAmountUpdateErrorEntry)) {
-      const [providerId, error] = firstAmountUpdateErrorEntry;
-      const providerName = allPaymentProviders.find(({ id }) => id === providerId)!.name;
-
-      return t('errorWhileGettingOutputEstimation', [providerName, getAxiosQueryErrorMessage(error)]);
-    }
-
-    const [firstCurrenciesErrorEntry] = Object.entries(currenciesErrors).filter(
-      ([key, value]) => isDefined(value) && key !== TopUpProviderId.AliceBob
-    );
-
-    if (isDefined(firstCurrenciesErrorEntry)) {
-      const [providerId, error] = firstCurrenciesErrorEntry;
-      const providerName = allPaymentProviders.find(({ id }) => id === providerId)!.name;
-
-      return t('errorWhileGettingCurrenciesList', [providerName, error]);
-    }
-
-    return undefined;
-  }, [submitError, amountsUpdateErrors, allPaymentProviders, currenciesErrors]);
-  useEffect(() => setShouldHideErrorAlert(false), [alertErrorMessage]);
-
   return (
     <PageLayout pageTitle={<T id="buyWithCard" />}>
       <div className="max-w-sm mx-auto">
@@ -256,7 +235,7 @@ export const BuyWithCreditCard: FC = () => {
                   title={<T id="error" />}
                   description={alertErrorMessage}
                   closable={true}
-                  onClose={() => setShouldHideErrorAlert(true)}
+                  onClose={onAlertClose}
                 />
               )}
 

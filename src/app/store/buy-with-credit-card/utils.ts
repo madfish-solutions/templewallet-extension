@@ -1,9 +1,16 @@
 import { AxiosResponse } from 'axios';
 
-import { CryptoCurrency, FiatCurrency } from 'lib/apis/moonpay';
+import {
+  Currency,
+  CurrencyType as MoonPayCurrencyType,
+  CryptoCurrency as MoonPayCryptoCurrency,
+  FiatCurrency as MoonPayFiatCurrency
+} from 'lib/apis/moonpay';
 import { AliceBobPairInfo } from 'lib/apis/temple/endpoints/alice-bob';
-import { CurrencyInfoType, UtorgCurrencyInfo } from 'lib/apis/utorg';
+import { CurrencyInfoType as UtorgCurrencyInfoType, UtorgCurrencyInfo } from 'lib/apis/utorg';
 import { TopUpInputType } from 'lib/buy-with-credit-card/top-up-input-type.enum';
+import { toTokenSlug } from 'lib/temple/assets';
+import { isDefined } from 'lib/utils/is-defined';
 
 const UTORG_FIAT_ICONS_BASE_URL = 'https://utorg.pro/img/flags2/icon-';
 const UTORG_CRYPTO_ICONS_BASE_URL = 'https://utorg.pro/img/cryptoIcons';
@@ -40,44 +47,52 @@ const aliceBobTezos = {
   type: TopUpInputType.Crypto
 };
 
-export const mapMoonPayProviderCurrencies = ([fiatCurrencies, cryptoCurrencies]: [
-  FiatCurrency[],
-  CryptoCurrency[]
-]) => ({
-  fiat: fiatCurrencies.map(({ name, code, icon, minBuyAmount, maxBuyAmount, precision }) => ({
-    name,
-    code: code.toUpperCase(),
-    network: {
-      code: '',
-      fullName: '',
-      shortName: ''
-    },
-    icon,
-    minAmount: minBuyAmount,
-    maxAmount: maxBuyAmount,
-    precision: Math.min(precision, 2), // Currencies like JOD have 3 decimals but Moonpay fails to process input with 3 decimals
-    type: TopUpInputType.Fiat
-  })),
-  crypto: cryptoCurrencies
-    .filter(({ networkCode }) => networkCode.toLowerCase() === 'tezos')
-    .map(({ name, code, icon, precision }) => ({
+export const mapMoonPayProviderCurrencies = (currencies: Currency[]) => ({
+  fiat: currencies
+    .filter((currency): currency is MoonPayFiatCurrency => currency.type === MoonPayCurrencyType.Fiat)
+    .map(({ name, code, minBuyAmount, maxBuyAmount, precision }) => ({
       name,
       code: code.toUpperCase(),
+      displaySymbol: code.toUpperCase().split('_')[0],
       network: {
         code: '',
         fullName: '',
         shortName: ''
       },
-      icon,
+      icon: `https://static.moonpay.com/widget/currencies/${code}.svg`,
+      minAmount: minBuyAmount,
+      maxAmount: maxBuyAmount,
+      precision: Math.min(precision, 2), // Currencies like JOD have 3 decimals but Moonpay fails to process input with 3 decimals
+      type: TopUpInputType.Fiat
+    })),
+  crypto: currencies
+    .filter(
+      (currency): currency is MoonPayCryptoCurrency =>
+        currency.type === MoonPayCurrencyType.Crypto && currency.metadata.networkCode.toLowerCase() === 'tezos'
+    )
+    .map(({ name, code, precision, minBuyAmount, maxBuyAmount, metadata }) => ({
+      name,
+      code: code.toUpperCase(),
+      displaySymbol: code.toUpperCase().split('_')[0],
+      network: {
+        code: '',
+        fullName: '',
+        shortName: ''
+      },
+      icon: `https://static.moonpay.com/widget/currencies/${code}.svg`,
+      minAmount: minBuyAmount ?? undefined,
+      maxAmount: maxBuyAmount ?? undefined,
       precision,
       type: TopUpInputType.Crypto,
-      slug: '' // TODO: implement making correct slug as soon as any Tezos token is supported by Moonpay
+      slug: isDefined(metadata.contractAddress)
+        ? toTokenSlug(metadata.contractAddress, metadata.coinType ?? undefined)
+        : ''
     }))
 });
 
 export const mapUtorgProviderCurrencies = (currencies: UtorgCurrencyInfo[]) => ({
   fiat: currencies
-    .filter(({ type, depositMax }) => type === CurrencyInfoType.FIAT && depositMax > 0)
+    .filter(({ type, depositMax }) => type === UtorgCurrencyInfoType.FIAT && depositMax > 0)
     .map(({ symbol, depositMin, depositMax, precision }) => ({
       name: knownUtorgFiatCurrenciesNames[symbol] ?? '',
       code: symbol,
@@ -93,10 +108,12 @@ export const mapUtorgProviderCurrencies = (currencies: UtorgCurrencyInfo[]) => (
       maxAmount: depositMax
     })),
   crypto: currencies
-    .filter(({ chain, type, depositMax }) => type === CurrencyInfoType.CRYPTO && depositMax > 0 && chain === 'TEZOS')
-    .map(({ currency, symbol, precision }) => ({
-      name: symbol,
-      code: symbol,
+    .filter(
+      ({ chain, type, depositMax }) => type === UtorgCurrencyInfoType.CRYPTO && depositMax > 0 && chain === 'TEZOS'
+    )
+    .map(({ currency, display, precision }) => ({
+      name: display,
+      code: currency,
       network: {
         code: '',
         fullName: '',

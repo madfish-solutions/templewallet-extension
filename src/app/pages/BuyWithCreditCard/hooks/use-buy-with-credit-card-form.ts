@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { useForm } from 'react-hook-form';
 import { object as objectSchema, number as numberSchema, mixed as mixedSchema } from 'yup';
@@ -72,7 +72,7 @@ export const useBuyWithCreditCardForm = () => {
 
   const validationResolver = useYupValidationResolver<BuyWithCreditCardFormValues>(validationSchema);
 
-  const { handleSubmit, errors, watch, register, ...rest } = useForm<BuyWithCreditCardFormValues>({
+  const { handleSubmit, errors, watch, register, setValue, getValues, ...rest } = useForm<BuyWithCreditCardFormValues>({
     defaultValues,
     validationResolver
   });
@@ -129,6 +129,23 @@ export const useBuyWithCreditCardForm = () => {
     [handleSubmit, formValues, publicKeyHash, userId, formAnalytics, isSubmitting]
   );
 
+  const lazySetValue = useCallback(
+    (newValues: Partial<BuyWithCreditCardFormValues>, shouldValidate?: boolean) => {
+      const currentValues = getValues();
+      const changes: Array<Partial<BuyWithCreditCardFormValues>> = [];
+      for (const fieldName in newValues) {
+        const value = newValues[fieldName as keyof BuyWithCreditCardFormValues];
+        if (value !== currentValues[fieldName as keyof BuyWithCreditCardFormValues]) {
+          changes.push({ [fieldName]: value });
+        }
+      }
+      if (changes.length > 0) {
+        setValue(changes, shouldValidate);
+      }
+    },
+    [setValue, getValues]
+  );
+
   useEffect(() => {
     register('inputCurrency');
     register('inputAmount');
@@ -142,6 +159,9 @@ export const useBuyWithCreditCardForm = () => {
     onSubmit,
     errors,
     submitError,
+    lazySetValue,
+    setValue,
+    getValues,
     ...rest
   };
 };

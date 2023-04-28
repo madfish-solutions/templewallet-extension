@@ -7,8 +7,11 @@ export interface TopUpProviderCurrencies {
   crypto: TopUpOutputInterface[];
 }
 
+export type PairLimits = Record<TopUpProviderId, LoadableEntityState<{ min: number; max: number } | undefined>>;
+
 export interface BuyWithCreditCardState {
   currencies: Record<TopUpProviderId, LoadableEntityState<TopUpProviderCurrencies>>;
+  pairLimits: Record<string, Record<string, PairLimits>>;
 }
 
 export const buyWithCreditCardInitialState: BuyWithCreditCardState = {
@@ -16,7 +19,8 @@ export const buyWithCreditCardInitialState: BuyWithCreditCardState = {
     [TopUpProviderId.MoonPay]: createEntity({ fiat: [], crypto: [] }),
     [TopUpProviderId.Utorg]: createEntity({ fiat: [], crypto: [] }),
     [TopUpProviderId.AliceBob]: createEntity({ fiat: [], crypto: [] })
-  }
+  },
+  pairLimits: {}
 };
 
 export interface BuyWithCreditCardRootState {

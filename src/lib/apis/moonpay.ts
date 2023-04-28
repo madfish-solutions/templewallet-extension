@@ -1,40 +1,41 @@
-import { gql } from '@apollo/client';
 import axios from 'axios';
-import { map } from 'rxjs';
 
 import { EnvVars } from 'lib/env';
 
-import { getApolloConfigurableClient } from './apollo';
+export enum CurrencyType {
+  Fiat = 'fiat',
+  Crypto = 'crypto'
+}
 
-interface Currency {
+interface CurrencyBase {
   id: string;
   name: string;
   code: string;
-  icon: string;
   minBuyAmount: number | null;
   maxBuyAmount: number | null;
   precision: number;
+  type: CurrencyType;
 }
 
-export interface FiatCurrency extends Currency {
+export interface FiatCurrency extends CurrencyBase {
   minBuyAmount: number;
   maxBuyAmount: number;
+  type: CurrencyType.Fiat;
   lowLimitAmount: number;
 }
 
-export interface CryptoCurrency extends Currency {
-  networkCode: string;
+export interface CryptoCurrency extends CurrencyBase {
+  type: CurrencyType.Crypto;
+  metadata: {
+    contractAddress: string | null;
+    coinType: string | null;
+    networkCode: string;
+  };
   supportsLiveMode: boolean;
   isSuspended: boolean;
 }
 
-export interface CryptoCurrenciesResponse {
-  cryptoCurrencies: CryptoCurrency[];
-}
-
-export interface FiatCurrenciesResponse {
-  fiatCurrencies: FiatCurrency[];
-}
+export type Currency = FiatCurrency | CryptoCurrency;
 
 export interface QuoteResponse {
   baseCurrencyAmount: number;
@@ -44,70 +45,48 @@ export interface QuoteResponse {
   feeAmount: number;
   networkFeeAmount: number;
   totalAmount: number;
+  baseCurrency: FiatCurrency;
+  quoteCurrency: CryptoCurrency;
 }
 
 export const MOONPAY_DOMAIN = 'https://buy.moonpay.com';
 export const MOONPAY_ASSETS_BASE_URL = 'https://static.moonpay.com';
 export const MOONPAY_API_KEY = EnvVars.TEMPLE_WALLET_MOONPAY_API_KEY;
 
-const MOONPAY_GRAPHQL_API_URL = 'https://api.moonpay.com/graphql';
-const apolloMoonPayClient = getApolloConfigurableClient(MOONPAY_GRAPHQL_API_URL);
-
-const CRYPTO_CURRENCIES_QUERY = gql`
-  query cryptoCurrencies($apiKey: String!) {
-    cryptoCurrencies(apiKey: $apiKey) {
-      id
-      name
-      code
-      icon
-      minBuyAmount
-      maxBuyAmount
-      networkCode
-      precision
-      supportsLiveMode
-      isSuspended
-      __typename
-    }
-  }
-`;
-
-const FIAT_CURRENCIES_QUERY = gql`
-  query fiatCurrencies($apiKey: String!) {
-    fiatCurrencies(apiKey: $apiKey) {
-      id
-      name
-      code
-      icon
-      precision
-      maxBuyAmount
-      minBuyAmount
-      lowLimitAmount
-      __typename
-    }
-  }
-`;
-
-export const fetchMoonpayCryptoCurrencies$ = () =>
-  apolloMoonPayClient
-    .query<CryptoCurrenciesResponse>(CRYPTO_CURRENCIES_QUERY, { apiKey: MOONPAY_API_KEY })
-    .pipe(map(data => data.cryptoCurrencies));
-
-export const fetchMoonpayFiatCurrencies$ = () =>
-  apolloMoonPayClient
-    .query<FiatCurrenciesResponse>(FIAT_CURRENCIES_QUERY, { apiKey: MOONPAY_API_KEY })
-    .pipe(map(data => data.fiatCurrencies));
-
 const moonPayApi = axios.create({ baseURL: 'https://api.moonpay.com' });
+
+export async function getMoonPayCurrencies() {
+  const result = await moonPayApi.get<Currency[]>('/v3/currencies', {
+    params: {
+      apiKey: MOONPAY_API_KEY
+    }
+  });
+
+  return result.data;
+}
 
 export async function getMoonPayBuyQuote(
   cryptoSymbol: string,
   baseCurrencyCode: string,
   baseCurrencyAmount: string | number
+): Promise<QuoteResponse>;
+export async function getMoonPayBuyQuote(
+  cryptoSymbol: string,
+  baseCurrencyCode: string,
+  baseCurrencyAmount: undefined,
+  quoteCurrencyAmount: string | number
+): Promise<QuoteResponse>;
+export async function getMoonPayBuyQuote(
+  cryptoSymbol: string,
+  baseCurrencyCode: string,
+  baseCurrencyAmount: string | number | undefined,
+  quoteCurrencyAmount?: string | number
 ) {
   const result = await moonPayApi.get<QuoteResponse>(`/v3/currencies/${cryptoSymbol}/buy_quote`, {
     params: {
       apiKey: MOONPAY_API_KEY,
       baseCurrencyAmount,
+      quoteCurrencyAmount,
       baseCurrencyCode,
       fixed: true,
       areFeesIncluded: true,

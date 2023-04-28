@@ -20,7 +20,7 @@ export const Buy: FC = () => (
       </>
     }
   >
-    <div className="text-center text-gray-700 max-w-sm m-auto">{t('topUpDescription')}</div>
+    <div className="text-center text-xs leading-relaxed text-gray-700 max-w-sm m-auto">{t('topUpDescription')}</div>
 
     <div className="mx-4 my-4">
       <ErrorBoundary whileMessage="displaying tab">

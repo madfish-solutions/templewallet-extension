@@ -49,23 +49,32 @@ export const createOrder = (amount: number, paymentCurrency: string, address: st
     })
     .then(r => r.data.data.url);
 
-export const convertFiatAmountToCrypto = (paymentAmount: number, fromCurrency: string, toCurrency: string) =>
-  api
-    .post<{ data: number }>('/tools/convert', {
-      fromCurrency,
-      paymentAmount,
-      toCurrency
-    })
-    .then(r => r.data.data);
+export async function convertFiatAmountToCrypto(
+  fromCurrency: string,
+  toCurrency: string,
+  fiatAmount: number
+): Promise<number>;
+export async function convertFiatAmountToCrypto(
+  fromCurrency: string,
+  toCurrency: string,
+  fiatAmount: undefined,
+  cryptoAmount: number
+): Promise<number>;
+export async function convertFiatAmountToCrypto(
+  fromCurrency: string,
+  toCurrency: string,
+  fiatAmount: number | undefined,
+  cryptoAmount?: number
+): Promise<number> {
+  const response = await api.post<{ data: number }>('/tools/convert', {
+    fromCurrency,
+    paymentAmount: fiatAmount,
+    amount: cryptoAmount,
+    toCurrency
+  });
 
-/**
- * @returns Crypto to fiat currency exchange rate
- */
-export const getExchangeRate = async (inputAmount: number, fromCurrency: string, cryptoCurrency: string) => {
-  if (!Number.isFinite(inputAmount) || inputAmount <= 0) return;
-
-  return await convertFiatAmountToCrypto(inputAmount, fromCurrency, cryptoCurrency).then(res => inputAmount / res);
-};
+  return response.data.data;
+}
 
 export const getCurrenciesInfo = () =>
   api.post<{ data: UtorgCurrencyInfo[] }>('/settings/currency').then(r => r.data.data);
