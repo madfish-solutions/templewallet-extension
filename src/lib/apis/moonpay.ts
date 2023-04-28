@@ -37,7 +37,7 @@ export interface CryptoCurrency extends CurrencyBase {
 
 export type Currency = FiatCurrency | CryptoCurrency;
 
-export interface QuoteResponse {
+interface QuoteResponse {
   baseCurrencyAmount: number;
   quoteCurrencyAmount: number;
   extraFeeAmount: number;

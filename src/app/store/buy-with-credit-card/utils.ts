@@ -6,7 +6,7 @@ import {
   CryptoCurrency as MoonPayCryptoCurrency,
   FiatCurrency as MoonPayFiatCurrency
 } from 'lib/apis/moonpay';
-import { AliceBobPairInfo } from 'lib/apis/temple/endpoints/alice-bob';
+import { AliceBobPairInfo } from 'lib/apis/temple';
 import { CurrencyInfoType as UtorgCurrencyInfoType, UtorgCurrencyInfo } from 'lib/apis/utorg';
 import { TopUpInputType } from 'lib/buy-with-credit-card/top-up-input-type.enum';
 import { toTokenSlug } from 'lib/temple/assets';

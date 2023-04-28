@@ -16,8 +16,6 @@ export interface CurrencyBase {
 
 export type CurrencyToken = WithRequired<CurrencyBase, 'network'>;
 
-export type CurrencyFiat = Omit<CurrencyBase, 'network'>;
-
 export interface TopUpInputPropsGeneric<C extends CurrencyBase> extends TestIDProperty {
   label: ReactNode;
   currency: C;

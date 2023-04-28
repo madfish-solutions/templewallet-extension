@@ -8,7 +8,7 @@ export const useFiatCurrenciesSelector = (topUpProvider: TopUpProviderId) =>
 export const useCryptoCurrenciesSelector = (topUpProvider: TopUpProviderId) =>
   useSelector(({ buyWithCreditCard }) => buyWithCreditCard.currencies[topUpProvider].data.crypto);
 
-export const useCurrenciesErrorSelector = (topUpProvider: TopUpProviderId) =>
+const useCurrenciesErrorSelector = (topUpProvider: TopUpProviderId) =>
   useSelector(({ buyWithCreditCard }) => buyWithCreditCard.currencies[topUpProvider].error);
 
 export const useCurrenciesErrorsSelector = () => {
@@ -23,15 +23,13 @@ export const useCurrenciesErrorsSelector = () => {
   };
 };
 
-export const usePairsLimitsSelector = () => useSelector(({ buyWithCreditCard }) => buyWithCreditCard.pairLimits);
-
-export const useAllProvidersPairLimitsSelector = (fiatSymbol: string, cryptoSymbol: string) =>
+const useAllProvidersPairLimitsSelector = (fiatSymbol: string, cryptoSymbol: string) =>
   useSelector(({ buyWithCreditCard }) => buyWithCreditCard.pairLimits[fiatSymbol]?.[cryptoSymbol]);
 
 export const usePairLimitsSelector = (fiatSymbol: string, cryptoSymbol: string, topUpProvider: TopUpProviderId) =>
   useAllProvidersPairLimitsSelector(fiatSymbol, cryptoSymbol)?.[topUpProvider];
 
-export const usePairLimitsErrorSelector = (fiatSymbol: string, cryptoSymbol: string, topUpProvider: TopUpProviderId) =>
+const usePairLimitsErrorSelector = (fiatSymbol: string, cryptoSymbol: string, topUpProvider: TopUpProviderId) =>
   usePairLimitsSelector(fiatSymbol, cryptoSymbol, topUpProvider)?.error;
 
 export const usePairLimitsErrorsSelector = (fiatSymbol: string, cryptoSymbol: string) => {

@@ -78,19 +78,3 @@ export async function convertFiatAmountToCrypto(
 
 export const getCurrenciesInfo = () =>
   api.post<{ data: UtorgCurrencyInfo[] }>('/settings/currency').then(r => r.data.data);
-
-export const getMinMaxExchangeValue = (currency: string) =>
-  getCurrenciesInfo().then(currenciesInfo => {
-    const currencyInfo = currenciesInfo.find(currencyInfo => currencyInfo.currency === currency);
-
-    if (currencyInfo == null) throw new Error('Unknown Utorg currency');
-
-    return { minAmount: currencyInfo.depositMin, maxAmount: currencyInfo.depositMax };
-  });
-
-export const getAvailableFiatCurrencies = () =>
-  getCurrenciesInfo().then(currenciesInfo =>
-    currenciesInfo
-      .filter(currencyInfo => currencyInfo.type === CurrencyInfoType.FIAT)
-      .map(currencyInfo => currencyInfo.currency)
-  );
