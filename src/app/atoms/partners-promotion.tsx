@@ -6,6 +6,7 @@ import { useAppEnv } from 'app/env';
 import { ReactComponent as CloseIcon } from 'app/icons/close.svg';
 import { togglePartnersPromotionAction } from 'app/store/partners-promotion/actions';
 import { useShouldShowPartnersPromoSelector, usePartnersPromoSelector } from 'app/store/partners-promotion/selectors';
+import { isEmptyPromotion } from 'lib/apis/optimal';
 import { t } from 'lib/i18n';
 import { useConfirm } from 'lib/ui/dialog';
 
@@ -45,7 +46,7 @@ export const PartnersPromotion: FC<Props> = memo(({ variant }) => {
     }
   }, [confirm]);
 
-  if (!shouldShowPartnersPromo || Boolean(error)) {
+  if (!shouldShowPartnersPromo || Boolean(error) || isEmptyPromotion(promo)) {
     return null;
   }
 

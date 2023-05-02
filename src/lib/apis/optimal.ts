@@ -10,7 +10,8 @@ export enum OptimalPromoVariantEnum {
   Token = 'tw-token'
 }
 
-export interface OptimalPromotionInterface {
+type EmptyPromotion = Record<string, undefined>;
+type NormalPromotion = {
   body: string;
   campaign_type: string;
   copy: {
@@ -28,11 +29,17 @@ export interface OptimalPromotionInterface {
   text: string;
   view_time_url: string;
   view_url: string;
+};
+
+export type OptimalPromotionType = EmptyPromotion | NormalPromotion;
+
+export function isEmptyPromotion(promotion: OptimalPromotionType): promotion is EmptyPromotion {
+  return !('link' in promotion && 'image' in promotion);
 }
 
 export const getOptimalPromotionImage$ = (variant: OptimalPromoVariantEnum) =>
   from(
-    optimalApi.get<OptimalPromotionInterface>('api/v1/decision', {
+    optimalApi.get<OptimalPromotionType>('api/v1/decision', {
       params: {
         publisher: 'templewallet', // your-publisher-slug
         ad_types: variant,
