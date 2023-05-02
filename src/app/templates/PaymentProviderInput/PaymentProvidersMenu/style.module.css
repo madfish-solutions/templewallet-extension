@@ -2,3 +2,7 @@
   margin-top: 0.25rem !important;
   max-height: 15rem;
 }
+
+.spinner {
+  width: 3rem;
+}
