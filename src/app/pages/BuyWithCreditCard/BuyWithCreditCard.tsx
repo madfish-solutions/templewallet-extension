@@ -192,7 +192,9 @@ export const BuyWithCreditCard: FC = () => {
                   </span>
                   <span className="text-xs text-gray-600 leading-relaxed">
                     {isDefined(exchangeRate)
-                      ? `1 ${inputCurrency.code} = ${toLocalFormat(exchangeRate, {})} ${outputToken.code}`
+                      ? `1 ${inputCurrency.code} = ${toLocalFormat(exchangeRate, {})} ${
+                          outputToken.codeToDisplay ?? outputToken.code
+                        }`
                       : '-'}
                   </span>
                 </div>
