@@ -10,6 +10,12 @@ import { isDefined } from 'lib/utils/is-defined';
 
 import { useBuyWithCreditCardForm } from './use-buy-with-credit-card-form';
 
+const formDataErrorsMessagesKeys = [
+  'errorWhileUpdatingPairLimits',
+  'errorWhileGettingOutputEstimation',
+  'errorWhileGettingCurrenciesList'
+] as const;
+
 export const useErrorAlert = (
   form: ReturnType<typeof useBuyWithCreditCardForm>,
   allPaymentProviders: PaymentProviderInterface[],
@@ -31,15 +37,10 @@ export const useErrorAlert = (
     }
 
     const paymentProviderFetchErrors = [updatePairLimitsErrors, amountsUpdateErrors, currenciesErrors];
-    const messagesKeys = [
-      'errorWhileUpdatingPairLimits',
-      'errorWhileGettingOutputEstimation',
-      'errorWhileGettingCurrenciesList'
-    ] as const;
 
     for (let i = 0; i < paymentProviderFetchErrors.length; i++) {
       const errors = paymentProviderFetchErrors[i];
-      const messageKey = messagesKeys[i];
+      const messageKey = formDataErrorsMessagesKeys[i];
       const [firstErrorEntry] = Object.entries(errors).filter(
         ([key, value]) => isDefined(value) && key !== TopUpProviderId.AliceBob && value !== PAIR_NOT_FOUND_MESSAGE
       );

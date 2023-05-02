@@ -16,6 +16,7 @@ import {
 } from 'lib/buy-with-credit-card/topup.interface';
 import { isTruthy } from 'lib/utils';
 import { isDefined } from 'lib/utils/is-defined';
+import { percentageToFraction } from 'lib/utils/percentage';
 
 import { useInputLimits } from './use-input-limits';
 
@@ -37,7 +38,7 @@ const getOutputAmountFunctions: Record<TopUpProviderId, getOutputAmountFunction>
         new BigNumber(inputAmount)
           .minus(feeAmount)
           .minus(networkFeeAmount)
-          .div(1 + extraFeePercentage / 100)
+          .div(new BigNumber(1).plus(percentageToFraction(extraFeePercentage)))
           .decimalPlaces(inputAsset.precision ?? 0, BigNumber.ROUND_DOWN),
         0
       );
@@ -118,16 +119,14 @@ const usePaymentProvider = (
       let newOutputAmount: number | undefined;
       try {
         setOutputAmountLoading(true);
-        newOutputAmount = await getOutputAmount(newInputAmount, newInputAsset, newOutputAsset);
+        return await getOutputAmount(newInputAmount, newInputAsset, newOutputAsset);
       } catch (error) {
         setError(error as Error);
-        newOutputAmount = undefined;
+        return undefined;
       } finally {
         setOutputAmount(newOutputAmount);
         setOutputAmountLoading(false);
       }
-
-      return newOutputAmount;
     },
     [inputAsset, outputAsset, getOutputAmount, providerId, fiatCurrencies, cryptoCurrencies]
   );
