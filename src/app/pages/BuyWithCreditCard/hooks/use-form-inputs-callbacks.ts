@@ -6,7 +6,10 @@ import isEqual from 'lodash.isequal';
 import { useDispatch } from 'react-redux';
 
 import { loadAllCurrenciesActions, updatePairLimitsActions } from 'app/store/buy-with-credit-card/actions';
+import { useAllPairsLimitsSelector } from 'app/store/buy-with-credit-card/selectors';
 import { getPaymentProvidersToDisplay } from 'lib/buy-with-credit-card/get-payment-providers-to-display';
+import { intersectLimits } from 'lib/buy-with-credit-card/intersect-limits';
+import { joinLimits } from 'lib/buy-with-credit-card/join-limits';
 import { TopUpProviderId } from 'lib/buy-with-credit-card/top-up-provider-id.enum';
 import {
   PaymentProviderInterface,
@@ -15,6 +18,7 @@ import {
 } from 'lib/buy-with-credit-card/topup.interface';
 import { isDefined } from 'lib/utils/is-defined';
 
+import { useAllFiatCurrencies } from './use-all-fiat-currencies';
 import { useBuyWithCreditCardForm } from './use-buy-with-credit-card-form';
 import { usePaymentProviders } from './use-payment-providers';
 
@@ -30,6 +34,8 @@ export const useFormInputsCallbacks = (
   const outputCalculationDataRef = useRef({ inputAmount, inputCurrency, outputToken });
   const manuallySelectedProviderIdRef = useRef<TopUpProviderId>();
   const dispatch = useDispatch();
+  const { noPairLimitsFiatCurrencies } = useAllFiatCurrencies(inputCurrency.code, outputToken.code);
+  const allPairsLimits = useAllPairsLimitsSelector();
 
   const switchPaymentProvider = useCallback(
     (newProvider?: PaymentProviderInterface) => {
@@ -117,11 +123,22 @@ export const useFormInputsCallbacks = (
   );
   const handleOutputTokenChange = useCallback(
     (newValue: TopUpOutputInterface) => {
-      outputCalculationDataRef.current = { inputAmount, inputCurrency, outputToken: newValue };
+      const noPairLimitsInputCurrency = noPairLimitsFiatCurrencies.find(({ code }) => code === inputCurrency.code);
+      const { min: minInputAmount, max: maxInputAmount } = intersectLimits([
+        { min: noPairLimitsInputCurrency?.minAmount, max: noPairLimitsInputCurrency?.maxAmount },
+        joinLimits(Object.values(allPairsLimits[inputCurrency.code]?.[newValue.code] ?? {}).map(({ data }) => data))
+      ]);
+      const patchedInputCurrency = {
+        ...inputCurrency,
+        minAmount: minInputAmount,
+        maxAmount: maxInputAmount
+      };
+
+      outputCalculationDataRef.current = { inputAmount, inputCurrency: patchedInputCurrency, outputToken: newValue };
       setIsLoading(true);
-      void updateOutput(inputAmount, inputCurrency, newValue, true);
+      void updateOutput(inputAmount, patchedInputCurrency, newValue, true);
     },
-    [inputAmount, inputCurrency, updateOutput]
+    [inputAmount, inputCurrency, updateOutput, noPairLimitsFiatCurrencies, allPairsLimits]
   );
 
   const handlePaymentProviderChange = useCallback(
@@ -144,7 +161,6 @@ export const useFormInputsCallbacks = (
 
   return {
     switchPaymentProvider,
-    updateOutput,
     handleInputAssetChange,
     handleInputAmountChange,
     handleOutputTokenChange,

@@ -8,6 +8,17 @@ export const useFiatCurrenciesSelector = (topUpProvider: TopUpProviderId) =>
 export const useCryptoCurrenciesSelector = (topUpProvider: TopUpProviderId) =>
   useSelector(({ buyWithCreditCard }) => buyWithCreditCard.currencies[topUpProvider].data.crypto);
 
+const useCurrenciesByProviderLoadingSelector = (topUpProvider: TopUpProviderId) =>
+  useSelector(({ buyWithCreditCard }) => buyWithCreditCard.currencies[topUpProvider].isLoading);
+
+export const useCurrenciesLoadingSelector = () => {
+  const moonPayLoading = useCurrenciesByProviderLoadingSelector(TopUpProviderId.MoonPay);
+  const utorgLoading = useCurrenciesByProviderLoadingSelector(TopUpProviderId.Utorg);
+  const aliceBobLoading = useCurrenciesByProviderLoadingSelector(TopUpProviderId.AliceBob);
+
+  return moonPayLoading || utorgLoading || aliceBobLoading;
+};
+
 const useCurrenciesErrorSelector = (topUpProvider: TopUpProviderId) =>
   useSelector(({ buyWithCreditCard }) => buyWithCreditCard.currencies[topUpProvider].error);
 
@@ -22,6 +33,8 @@ export const useCurrenciesErrorsSelector = () => {
     [TopUpProviderId.AliceBob]: aliceBobError
   };
 };
+
+export const useAllPairsLimitsSelector = () => useSelector(({ buyWithCreditCard }) => buyWithCreditCard.pairLimits);
 
 const useAllProvidersPairLimitsSelector = (fiatSymbol: string, cryptoSymbol: string) =>
   useSelector(({ buyWithCreditCard }) => buyWithCreditCard.pairLimits[fiatSymbol]?.[cryptoSymbol]);

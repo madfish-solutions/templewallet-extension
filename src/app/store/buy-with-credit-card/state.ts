@@ -1,5 +1,9 @@
 import { TopUpProviderId } from 'lib/buy-with-credit-card/top-up-provider-id.enum';
-import { TopUpInputInterface, TopUpOutputInterface } from 'lib/buy-with-credit-card/topup.interface';
+import {
+  TopUpInputInterface,
+  TopUpOutputInterface,
+  TopUpProviderPairLimits
+} from 'lib/buy-with-credit-card/topup.interface';
 import { createEntity, LoadableEntityState } from 'lib/store';
 
 export interface TopUpProviderCurrencies {
@@ -7,7 +11,7 @@ export interface TopUpProviderCurrencies {
   crypto: TopUpOutputInterface[];
 }
 
-export type PairLimits = Record<TopUpProviderId, LoadableEntityState<{ min: number; max: number } | undefined>>;
+export type PairLimits = Record<TopUpProviderId, LoadableEntityState<TopUpProviderPairLimits | undefined>>;
 
 export interface BuyWithCreditCardState {
   currencies: Record<TopUpProviderId, LoadableEntityState<TopUpProviderCurrencies>>;

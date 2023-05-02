@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 
 import { usePairLimitsSelector, useFiatCurrenciesSelector } from 'app/store/buy-with-credit-card/selectors';
+import { intersectLimits } from 'lib/buy-with-credit-card/intersect-limits';
 import { TopUpProviderId } from 'lib/buy-with-credit-card/top-up-provider-id.enum';
 import { isDefined } from 'lib/utils/is-defined';
 
@@ -15,23 +16,9 @@ export const useInputLimits = (
 
   return useMemo(() => {
     if (isDefined(pairLimits) && !isDefined(pairLimits.data) && isDefined(pairLimits.error)) {
-      return { minAmount: undefined, maxAmount: undefined };
+      return {};
     }
 
-    const limitsCandidates = [pairLimits?.data, { min: fiatCurrency?.minAmount, max: fiatCurrency?.maxAmount }];
-
-    return limitsCandidates.reduce<{ minAmount?: number; maxAmount?: number }>(
-      (result, limits) => {
-        if (isDefined(limits?.min)) {
-          result.minAmount = Math.max(result.minAmount ?? 0, limits!.min);
-        }
-        if (isDefined(limits?.max)) {
-          result.maxAmount = Math.min(result.maxAmount ?? Infinity, limits!.max);
-        }
-
-        return result;
-      },
-      { minAmount: undefined, maxAmount: undefined }
-    );
+    return intersectLimits([pairLimits?.data, { min: fiatCurrency?.minAmount, max: fiatCurrency?.maxAmount }]);
   }, [pairLimits, fiatCurrency]);
 };

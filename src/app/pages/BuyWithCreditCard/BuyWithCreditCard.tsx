@@ -9,6 +9,7 @@ import ErrorBoundary from 'app/ErrorBoundary';
 import { ReactComponent as ArrowDownIcon } from 'app/icons/arrow-down.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import { loadAllCurrenciesActions, updatePairLimitsActions } from 'app/store/buy-with-credit-card/actions';
+import { useCurrenciesLoadingSelector } from 'app/store/buy-with-credit-card/selectors';
 import { PaymentProviderInput } from 'app/templates/PaymentProviderInput';
 import { SpinnerSection } from 'app/templates/SendForm/SpinnerSection';
 import { TopUpInput } from 'app/templates/TopUpInput';
@@ -51,8 +52,12 @@ export const BuyWithCreditCard: FC = () => {
     shouldHideErrorAlert,
     message: alertErrorMessage
   } = useErrorAlert(form, allPaymentProviders, amountsUpdateErrors);
-  const allFiatCurrencies = useAllFiatCurrencies(inputCurrency.code, outputToken.code);
+  const { fiatCurrenciesWithPairLimits: allFiatCurrencies } = useAllFiatCurrencies(
+    inputCurrency.code,
+    outputToken.code
+  );
   const allCryptoCurrencies = useAllCryptoCurrencies();
+  const currenciesLoading = useCurrenciesLoadingSelector();
 
   const inputAmountErrorMessage = errors.inputAmount?.message;
   const shouldShowInputAmountError = shouldShowFieldError('inputAmount', formState);
@@ -86,7 +91,7 @@ export const BuyWithCreditCard: FC = () => {
   useEffect(() => {
     const newPaymentProvider = paymentProvidersToDisplay.find(({ id }) => id === topUpProvider?.id);
 
-    if (isDefined(newPaymentProvider) && !isEqual(newPaymentProvider, topUpProvider)) {
+    if (!isEqual(newPaymentProvider, topUpProvider)) {
       switchPaymentProvider(newPaymentProvider);
     }
   }, [topUpProvider, paymentProvidersToDisplay, switchPaymentProvider]);
@@ -131,6 +136,7 @@ export const BuyWithCreditCard: FC = () => {
                 currency={inputCurrency}
                 currenciesList={allFiatCurrencies}
                 decimals={inputCurrency.precision}
+                isCurrenciesLoading={currenciesLoading}
                 minAmount={minAmount}
                 maxAmount={maxAmount}
                 isMinAmountError={isMinAmountError}
@@ -150,6 +156,7 @@ export const BuyWithCreditCard: FC = () => {
                 label={<T id="get" />}
                 currency={outputToken}
                 currenciesList={allCryptoCurrencies}
+                isCurrenciesLoading={currenciesLoading}
                 onCurrencySelect={handleOutputTokenChange}
                 amount={outputAmount}
                 testID={BuyWithCreditCardSelectors.getInput}

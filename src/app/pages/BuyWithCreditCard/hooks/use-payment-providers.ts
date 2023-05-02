@@ -89,7 +89,7 @@ const usePaymentProvider = (
   const [outputAmountLoading, setOutputAmountLoading] = useState<boolean>(false);
   const fiatCurrencies = useFiatCurrenciesSelector(providerId);
   const cryptoCurrencies = useCryptoCurrenciesSelector(providerId);
-  const { minAmount, maxAmount } = useInputLimits(providerId, inputAsset.code, outputAsset.code);
+  const { min: minInputAmount, max: maxInputAmount } = useInputLimits(providerId, inputAsset.code, outputAsset.code);
   const initialData = initialPaymentProvidersData[providerId];
   const getOutputAmount = getOutputAmountFunctions[providerId];
 
@@ -106,7 +106,6 @@ const usePaymentProvider = (
       if (
         !isTruthy(newInputAmount) ||
         !isDefined(updatedPairLimits) ||
-        !isDefined(currentProviderCryptoCurrency) ||
         newInputAmount < updatedPairLimits.min ||
         newInputAmount > updatedPairLimits.max
       ) {
@@ -137,15 +136,15 @@ const usePaymentProvider = (
     () => ({
       ...initialData,
       isBestPrice: false,
-      minInputAmount: minAmount,
-      maxInputAmount: maxAmount,
+      minInputAmount,
+      maxInputAmount,
       inputAmount,
       inputDecimals: inputAsset.precision,
       inputSymbol: inputAsset.code,
       outputAmount,
       outputSymbol: outputAsset.code
     }),
-    [initialData, inputAmount, inputAsset, outputAmount, outputAsset, minAmount, maxAmount]
+    [initialData, inputAmount, inputAsset, outputAmount, outputAsset, minInputAmount, maxInputAmount]
   );
 
   return {
