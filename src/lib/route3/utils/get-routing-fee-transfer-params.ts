@@ -10,8 +10,6 @@ export const getRoutingFeeTransferParams = async (
   routingFeeAddress: string,
   tezos: TezosToolkit
 ) => {
-  console.log('feeAmountAtomic: ', feeAmountAtomic.toFixed());
-
   if (token.contract === null) {
     return [
       {
