@@ -3,7 +3,7 @@
 // import type { TokenMetadataResponse } from 'lib/apis/temple';
 // import { rxJsTestingHelper } from 'lib/utils/testing.utils';
 
-// import { loadTokenMetadata$ } from './fetch';
+// import { loadOneTokenMetadata$ } from './fetch';
 
 // const mockTezosMetadataApi = {
 //   get: jest.fn()
@@ -13,7 +13,7 @@
 
 export {};
 
-describe('loadTokenMetadata$', () => {
+describe('loadOneTokenMetadata$', () => {
   it('mock test', () => {});
   /*
   const mockAddress = 'mockAddress';
@@ -30,7 +30,7 @@ describe('loadTokenMetadata$', () => {
   });
 
   it('should return correct TokenMetadataInterface structure', done =>
-    void loadTokenMetadata$(tezos, mockAddress, mockId).subscribe(
+    void loadOneTokenMetadata$(tezos, mockAddress, mockId).subscribe(
       rxJsTestingHelper(tokenMetadata => {
         expect(tokenMetadata.id).toEqual(mockId);
         expect(tokenMetadata.address).toEqual(mockAddress);
@@ -42,7 +42,7 @@ describe('loadTokenMetadata$', () => {
     ));
 
   it('should set default id if it was not provided', done =>
-    void loadTokenMetadata$(tezos, mockAddress).subscribe(
+    void loadOneTokenMetadata$(tezos, mockAddress).subscribe(
       rxJsTestingHelper(tokenMetadata => {
         expect(tokenMetadata.id).toEqual(0);
       }, done)
@@ -56,7 +56,7 @@ describe('loadTokenMetadata$', () => {
 
     mockTezosMetadataApi.get.mockReturnValue(Promise.resolve({ data: mockApiResponseWithoutSymbol }));
 
-    loadTokenMetadata$(tezos, mockAddress).subscribe(
+    loadOneTokenMetadata$(tezos, mockAddress).subscribe(
       rxJsTestingHelper(tokenMetadata => {
         expect(tokenMetadata.symbol).toEqual('Mocked T');
       }, done)
@@ -71,7 +71,7 @@ describe('loadTokenMetadata$', () => {
 
     mockTezosMetadataApi.get.mockReturnValue(Promise.resolve({ data: mockApiResponseWithoutName }));
 
-    loadTokenMetadata$(tezos, mockAddress).subscribe(
+    loadOneTokenMetadata$(tezos, mockAddress).subscribe(
       rxJsTestingHelper(tokenMetadata => {
         expect(tokenMetadata.name).toEqual(mockApiResponseWithoutName.symbol);
       }, done)
@@ -87,7 +87,7 @@ describe('loadTokenMetadata$', () => {
 
     mockTezosMetadataApi.get.mockReturnValue(Promise.resolve({ data: mockApiResponseWithoutSymbolAndName }));
 
-    loadTokenMetadata$(tezos, mockAddress).subscribe(
+    loadOneTokenMetadata$(tezos, mockAddress).subscribe(
       rxJsTestingHelper(tokenMetadata => {
         expect(tokenMetadata.symbol).toEqual('???');
         expect(tokenMetadata.name).toEqual('Unknown Token');

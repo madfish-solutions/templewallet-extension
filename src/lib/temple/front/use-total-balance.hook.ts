@@ -5,10 +5,11 @@ import { BigNumber } from 'bignumber.js';
 
 import { useBalancesWithDecimals } from 'app/hooks/use-balances-with-decimals.hook';
 import { useSelector } from 'app/store';
+import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { useFiatToUsdRate } from 'lib/fiat-currency';
 import { isTruthy } from 'lib/utils';
 
-import { TEZ_TOKEN_SLUG, useDisplayedFungibleTokens, useGasToken } from './assets';
+import { useDisplayedFungibleTokens, useGasToken } from './assets';
 import { useAccount, useChainId } from './ready';
 
 /** Total fiat volume of displayed tokens */

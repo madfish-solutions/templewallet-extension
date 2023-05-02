@@ -1,8 +1,10 @@
 import type BigNumber from 'bignumber.js';
 
-import type { GAS_TOKEN_SLUG } from 'lib/assets';
+export const TEZ_TOKEN_SLUG = 'tez';
 
-export interface Token {
+export const GAS_TOKEN_SLUG = TEZ_TOKEN_SLUG;
+
+interface Token {
   contract: string;
   id?: BigNumber.Value;
 }

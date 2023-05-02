@@ -7,14 +7,10 @@ import { ScopedMutator } from 'swr/dist/types';
 import { useTokensMetadataSelector } from 'app/store/tokens-metadata/selectors';
 import { fetchWhitelistTokenSlugs } from 'lib/apis/temple';
 import { TzktAccountToken, fetchTzktTokens } from 'lib/apis/tzkt';
+import { toAssetSlug } from 'lib/assets';
 import { METADATA_SYNC_INTERVAL } from 'lib/fixed-times';
 import { TokenMetadata } from 'lib/metadata';
-import {
-  toAssetSlug,
-  fetchDisplayedFungibleTokens,
-  fetchCollectibleTokens,
-  getPredefinedTokensSlugs
-} from 'lib/temple/assets';
+import { fetchDisplayedFungibleTokens, fetchCollectibleTokens, getPredefinedTokensSlugs } from 'lib/temple/assets';
 import { useChainId, useAccount } from 'lib/temple/front';
 import * as Repo from 'lib/temple/repo';
 import { useInterval } from 'lib/ui/hooks';
@@ -72,16 +68,17 @@ const makeSync = async (
     ...whitelistTokenSlugs
   ]);
 
-  const tokenRepoKeys = tokenSlugs.map(slug => Repo.toAccountTokenKey(chainId, accountPkh, slug));
+  const tokensRepoKeys = tokenSlugs.map(slug => Repo.toAccountTokenKey(chainId, accountPkh, slug));
 
-  const existingRecords = await Repo.accountTokens.bulkGet(tokenRepoKeys);
+  const existingRecords = await Repo.accountTokens.bulkGet(tokensRepoKeys);
 
-  await Repo.accountTokens.bulkPut(
-    tokenSlugs
-      .map((slug, i) => updateTokenSlugs(slug, i, chainId, accountPkh, existingRecords, tzktTokensMap, tokensMetadata))
-      .filter(isTruthy),
-    tokenRepoKeys
-  );
+  const repoItems = tokenSlugs
+    .map((slug, i) => updateTokenSlugs(slug, i, chainId, accountPkh, existingRecords, tzktTokensMap, tokensMetadata))
+    .filter(isTruthy);
+
+  const repoKeys = repoItems.map(({ tokenSlug }) => Repo.toAccountTokenKey(chainId, accountPkh, tokenSlug));
+
+  await Repo.accountTokens.bulkPut(repoItems, repoKeys);
 
   await mutate(['displayed-fungible-tokens', chainId, accountPkh]);
 };

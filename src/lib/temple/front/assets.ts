@@ -1,39 +1,30 @@
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 import { BigNumber } from 'bignumber.js';
-import constate from 'constate';
 import { useDebounce } from 'use-debounce';
-import browser from 'webextension-polyfill';
 
 import { useBalancesWithDecimals } from 'app/hooks/use-balances-with-decimals.hook';
 import { useBalancesSelector } from 'app/store/balances/selectors';
 import { useSwapTokensSelector } from 'app/store/swap/selectors';
 import { useTokensMetadataSelector } from 'app/store/tokens-metadata/selectors';
+import { AssetTypesEnum, isTezAsset, TEZ_TOKEN_SLUG, toAssetSlug } from 'lib/assets';
 import { useUsdToTokenRates } from 'lib/fiat-currency/core';
 import { FILM_METADATA, TEZOS_METADATA } from 'lib/metadata/defaults';
 import type { AssetMetadataBase } from 'lib/metadata/types';
 import { useRetryableSWR } from 'lib/swr';
 import {
-  AssetTypesEnum,
-  isTezAsset,
   fetchDisplayedFungibleTokens,
   fetchFungibleTokens,
   fetchAllKnownFungibleTokenSlugs,
   fetchCollectibleTokens,
   fetchAllKnownCollectibleTokenSlugs,
-  isTokenDisplayed,
-  toAssetSlug
+  isTokenDisplayed
 } from 'lib/temple/assets';
 import { useNetwork } from 'lib/temple/front';
 import { ITokenStatus } from 'lib/temple/repo';
-import { createQueue } from 'lib/utils';
 import { searchAndFilterItems } from 'lib/utils/search-items';
 
-import { AssetMetadata, DetailedAssetMetdata, fetchTokenMetadata } from '../metadata';
-import { useTezosRef, useChainId, useAccount } from './ready';
-import { putToStorage, usePassiveStorage } from './storage';
-
-const ALL_TOKENS_BASE_METADATA_STORAGE_KEY = 'tokens_base_metadata';
+import { useChainId, useAccount } from './ready';
 
 export function useDisplayedFungibleTokens(chainId: string, account: string) {
   return useRetryableSWR(
@@ -87,8 +78,6 @@ function useAllKnownCollectibleTokenSlugs(chainId: string) {
   );
 }
 
-export const TEZ_TOKEN_SLUG = 'tez';
-
 export const useGasToken = () => {
   const { type } = useNetwork();
 
@@ -111,53 +100,6 @@ export const useGasToken = () => {
     [type]
   );
 };
-
-const defaultAllTokensBaseMetadata = {
-  tez: {
-    decimals: 6,
-    symbol: 'TEZ',
-    name: 'Tezos'
-  }
-};
-const enqueueSetAllTokensBaseMetadata = createQueue();
-
-export const [TokensMetadataProvider, useTokensMetadata] = constate(() => {
-  const [initialAllTokensBaseMetadata] = usePassiveStorage<Record<string, AssetMetadata>>(
-    ALL_TOKENS_BASE_METADATA_STORAGE_KEY,
-    defaultAllTokensBaseMetadata
-  );
-
-  const allTokensBaseMetadataRef = useRef(initialAllTokensBaseMetadata);
-
-  const tezosRef = useTezosRef();
-
-  const fetchMetadata = (slug: string) => fetchTokenMetadata(tezosRef.current, slug);
-
-  const setTokensBaseMetadata = useCallback(
-    (toSet: Record<string, AssetMetadata>) =>
-      enqueueSetAllTokensBaseMetadata(() => {
-        allTokensBaseMetadataRef.current = {
-          ...allTokensBaseMetadataRef.current,
-          ...toSet
-        };
-        return putToStorage(ALL_TOKENS_BASE_METADATA_STORAGE_KEY, allTokensBaseMetadataRef.current);
-      }),
-    []
-  );
-
-  const setTokensDetailedMetadata = useCallback(
-    (toSet: Record<string, DetailedAssetMetdata>) =>
-      browser.storage.local.set(mapObjectKeys(toSet, getDetailedMetadataStorageKey)),
-    []
-  );
-
-  return {
-    allTokensBaseMetadataRef,
-    fetchMetadata,
-    setTokensBaseMetadata,
-    setTokensDetailedMetadata
-  };
-});
 
 export const useGetTokenMetadata = () => {
   const allTokensMetadata = useTokensMetadataSelector();
@@ -251,6 +193,7 @@ export const useAvailableRoute3Tokens = () => {
     route3tokensSlugs
   };
 };
+
 function makeAssetsSortPredicate(balances: Record<string, BigNumber>, fiatToTokenRates: Record<string, string>) {
   return (tokenASlug: string, tokenBSlug: string) => {
     if (tokenASlug === TEZ_TOKEN_SLUG) {
@@ -374,17 +317,4 @@ export function searchAssetsWithNoMeta<T>(
       };
     }
   );
-}
-
-function getDetailedMetadataStorageKey(slug: string) {
-  return `detailed_asset_metadata_${slug}`;
-}
-
-function mapObjectKeys<T extends Record<string, any>>(obj: T, predicate: (key: string) => string): T {
-  const newObj: Record<string, any> = {};
-  for (const key of Object.keys(obj)) {
-    newObj[predicate(key)] = obj[key];
-  }
-
-  return newObj as T;
 }

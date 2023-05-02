@@ -4,9 +4,9 @@ import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
 
 import { useFormAnalytics } from 'lib/analytics';
+import { toAssetSlug } from 'lib/assets';
 import { t } from 'lib/i18n';
 import { EMPTY_BASE_METADATA, useAssetMetadata } from 'lib/metadata';
-import { toAssetSlug } from 'lib/temple/assets';
 import { useAccount, useBalance, useGetTokenMetadata, useOnBlock } from 'lib/temple/front';
 import { useAvailableRoute3Tokens, useFilteredSwapAssets } from 'lib/temple/front/assets';
 import Popper from 'lib/ui/Popper';

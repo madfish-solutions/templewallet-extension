@@ -1,14 +1,13 @@
 import { OpKind, TezosToolkit } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
 
-import { GAS_TOKEN_SLUG, toTokenSlug } from 'lib/assets';
+import { isFA2Token, isTezAsset } from 'lib/assets';
+import { Asset, FA2Token } from 'lib/assets/types';
 import { AssetMetadataBase } from 'lib/metadata';
 import { loadContract } from 'lib/temple/contract';
-import { TEZ_TOKEN_SLUG } from 'lib/temple/front';
 import { isValidContractAddress } from 'lib/temple/helpers';
 
 import { detectTokenStandard } from './tokenStandard';
-import { Asset, Token, FA2Token } from './types';
 
 export async function toTransferParams(
   tezos: TezosToolkit,
@@ -87,26 +86,6 @@ export function fromFa2TokenSlug(slug: string): FA2Token {
     contract: contractAddress,
     id: new BigNumber(tokenIdStr ?? 0)
   };
-}
-
-export function toAssetSlug(contract: string, id: BigNumber.Value = 0) {
-  return contract === GAS_TOKEN_SLUG ? GAS_TOKEN_SLUG : toTokenSlug(contract, id);
-}
-
-export function isFA2Asset(asset: Asset): asset is FA2Token {
-  return isGasAsset(asset) ? false : typeof asset.id !== 'undefined';
-}
-
-export function isFA2Token(token: Token): token is FA2Token {
-  return typeof token.id !== 'undefined';
-}
-
-export function isTezAsset(asset: Asset | string): asset is typeof TEZ_TOKEN_SLUG {
-  return isGasAsset(asset);
-}
-
-export function isGasAsset(asset: Asset | string): asset is typeof GAS_TOKEN_SLUG {
-  return asset === GAS_TOKEN_SLUG;
 }
 
 export function toPenny(metadata: AssetMetadataBase | nullish) {

@@ -5,12 +5,12 @@ import { BigNumber } from 'bignumber.js';
 
 import { Route3Chain } from 'lib/apis/route3/fetch-route3-swap-params';
 import { Route3Token } from 'lib/apis/route3/fetch-route3-tokens';
+import { TEZOS_METADATA } from 'lib/metadata';
 import { ROUTE3_CONTRACT } from 'lib/route3/constants';
 import { Route3ContractInterface } from 'lib/route3/interfaces';
 import { mapToRoute3ExecuteHops } from 'lib/route3/utils/map-to-route3-hops';
 import { useAccount, useTezos } from 'lib/temple/front';
 import { tokensToAtoms } from 'lib/temple/helpers';
-import { TEZOS_METADATA } from 'lib/temple/metadata';
 import { getTransferPermissions } from 'lib/utils/get-transfer-permissions';
 
 const APP_ID = 2;

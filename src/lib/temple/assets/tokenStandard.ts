@@ -2,9 +2,8 @@ import { HttpResponseError } from '@taquito/http-utils';
 import { TezosToolkit, WalletContract, Contract, ChainIds } from '@taquito/taquito';
 import retry from 'async-retry';
 
+import { TokenStandard } from 'lib/assets/types';
 import { getMessage } from 'lib/i18n';
-
-import { TokenStandard } from './types';
 
 const NULL_ADDRESS = 'tz1Ke2h7sDdakHJQh8WX4Z372du1KChsksyU';
 const RETRY_PARAMS = { retries: 2, minTimeout: 0, maxTimeout: 0 };

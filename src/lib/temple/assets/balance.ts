@@ -1,11 +1,12 @@
 import { ChainIds, TezosToolkit } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
 
+import { isFA2Token } from 'lib/assets';
 import { TEZOS_METADATA, AssetMetadataBase } from 'lib/metadata';
 import { loadContract } from 'lib/temple/contract';
 
 import { atomsToTokens } from '../helpers';
-import { fromAssetSlug, isFA2Token } from './utils';
+import { fromAssetSlug } from './utils';
 
 export async function fetchTezosBalanceAtomic(tezos: TezosToolkit, account: string) {
   let nat = (await getBalanceSafe(tezos, account)) ?? new BigNumber(0);

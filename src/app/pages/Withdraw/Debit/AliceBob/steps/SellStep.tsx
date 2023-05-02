@@ -9,9 +9,9 @@ import { WithdrawSelectors } from 'app/pages/Withdraw/Withdraw.selectors';
 import { AnalyticsEventCategory, setTestID, useAnalytics, useFormAnalytics } from 'lib/analytics';
 import { AliceBobOrderStatus, cancelAliceBobOrder } from 'lib/apis/temple';
 import { T, TID } from 'lib/i18n';
+import { TEZOS_METADATA } from 'lib/metadata';
 import { toTransferParams } from 'lib/temple/assets';
 import { useAccount, useTezos } from 'lib/temple/front';
-import { TEZOS_METADATA } from 'lib/temple/metadata';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 
 import { useUpdatedOrderInfo } from '../hooks/useUpdatedOrderInfo';

@@ -1,5 +1,5 @@
 import { useTokenMetadataSelector } from 'app/store/tokens-metadata/selectors';
-import { isGasAsset } from 'lib/temple/assets';
+import { isGasAsset } from 'lib/assets';
 import { useNetwork } from 'lib/temple/front';
 
 import { TEZOS_METADATA, FILM_METADATA } from './defaults';
@@ -7,16 +7,10 @@ import { AssetMetadataBase, TokenMetadata } from './types';
 
 export type { AssetMetadataBase, TokenMetadata } from './types';
 export { TokenStandardsEnum } from './types';
-export { TEZOS_METADATA, FILM_METADATA, EMPTY_BASE_METADATA } from './defaults';
-export {
-  fetchTokenMetadata,
-  fetchTokensMetadata,
-  loadTokenMetadata$,
-  loadTokensMetadata$,
-  loadWhitelist$
-} from './fetch';
+export { TEZOS_METADATA, EMPTY_BASE_METADATA } from './defaults';
+export { fetchOneTokenMetadata, loadOneTokenMetadata$, loadTokensMetadata$, loadWhitelist$ } from './fetch';
 
-export const useGasTokenMetadata = () => {
+const useGasTokenMetadata = () => {
   const network = useNetwork();
 
   return network.type === 'dcp' ? FILM_METADATA : TEZOS_METADATA;

@@ -1,12 +1,11 @@
 import { createAction } from '@reduxjs/toolkit';
-import { TezosToolkit } from '@taquito/taquito';
 
 import { TokenMetadata } from 'lib/metadata';
 import { createActions } from 'lib/store';
 
 export const addTokensMetadataAction = createAction<TokenMetadata[]>('assets/ADD_TOKENS_METADATA');
 
-export const loadTokensMetadataAction = createAction<{ tezos: TezosToolkit; slugs: string[] }>(
+export const loadTokensMetadataAction = createAction<{ rpcUrl: string; slugs: string[] }>(
   'assets/LOAD_TOKENS_METADATA'
 );
 
@@ -15,7 +14,7 @@ export const loadWhitelistAction = createActions<{ selectedRpcUrl: string }, Arr
 );
 
 interface LoadTokenMetadataPayload extends Pick<TokenMetadata, 'id' | 'address'> {
-  tezos: TezosToolkit;
+  rpcUrl: string;
 }
 
 export const loadTokenMetadataActions = createActions<LoadTokenMetadataPayload, TokenMetadata, string>(

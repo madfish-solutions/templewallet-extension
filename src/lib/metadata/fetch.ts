@@ -1,5 +1,5 @@
 import { isDefined } from '@rnw-community/shared';
-import type { TezosToolkit } from '@taquito/taquito';
+import { TezosToolkit } from '@taquito/taquito';
 import { pick } from 'lodash';
 import memoize from 'mem';
 import { of, from, Observable } from 'rxjs';
@@ -16,14 +16,15 @@ import { tokenToSlug } from 'lib/assets';
 import { isDcpNode } from 'lib/temple/networks';
 import { TempleChainId } from 'lib/temple/types';
 
-import { fetchTokenMetadata as fetchTokenMetadataOnChain, TokenMetadataOnChainResponse } from './on-chain';
+import { TokenMetadataOnChain, fetchTokenMetadata as fetchTokenMetadataOnChain } from './on-chain';
 import { TokenMetadata, TokenStandardsEnum } from './types';
 
-export const fetchTokenMetadata = async (
-  tezos: TezosToolkit,
+export const fetchOneTokenMetadata = async (
+  rpcUrl: string,
   address: string,
   id: number = 0
 ): Promise<TokenMetadataResponse | undefined> => {
+  const tezos = new TezosToolkit(rpcUrl);
   const chainId = await tezos.rpc.getChainId();
   const isMainnet = chainId === TempleChainId.Mainnet;
 
@@ -36,12 +37,10 @@ export const fetchTokenMetadata = async (
   return chainTokenMetadataToBase(metadataOnChain) || undefined;
 };
 
-export const fetchTokensMetadata = async (
-  tezos: TezosToolkit,
-  slugs: string[]
-): Promise<(TokenMetadataResponse | null)[]> => {
+const fetchTokensMetadata = async (rpcUrl: string, slugs: string[]): Promise<(TokenMetadataResponse | null)[]> => {
   if (slugs.length === 0) return [];
 
+  const tezos = new TezosToolkit(rpcUrl);
   const chainId = await tezos.rpc.getChainId();
   const isMainnet = chainId === TempleChainId.Mainnet;
 
@@ -57,38 +56,35 @@ export const fetchTokensMetadata = async (
   );
 };
 
-const chainTokenMetadataToBase = (metadata: TokenMetadataOnChainResponse | nullish): TokenMetadataResponse | null =>
-  metadata ? pick(metadata.base, 'name', 'symbol', 'decimals', 'thumbnailUri', 'artifactUri') : null;
+const chainTokenMetadataToBase = (metadata: TokenMetadataOnChain | nullish): TokenMetadataResponse | null =>
+  metadata ? pick(metadata, 'name', 'symbol', 'decimals', 'thumbnailUri', 'artifactUri') : null;
 
-export const loadTokenMetadata$ = memoize(
-  (tezos: TezosToolkit, address: string, id = 0): Observable<TokenMetadata> => {
+export const loadOneTokenMetadata$ = memoize(
+  (rpcUrl: string, address: string, id = 0): Observable<TokenMetadata> => {
     const slug = `${address}_${id}`;
     console.log('Loading metadata for:', slug);
 
-    return from(fetchTokenMetadata(tezos, address, id)).pipe(
-      map(data => transformDataToTokenMetadata(data, address, id)),
+    return from(fetchOneTokenMetadata(rpcUrl, address, id)).pipe(
+      map(data => buildTokenMetadataFromFetched(data, address, id)),
       filter(isDefined)
     );
   },
-  { cacheKey: ([, address, id]) => tokenToSlug({ address, id }) }
+  { cacheKey: ([rpcUrl, address, id]) => `${rpcUrl}/${tokenToSlug({ address, id })}` }
 );
 
-export const loadTokensMetadata$ = memoize(
-  (tezos: TezosToolkit, slugs: string[]): Observable<TokenMetadata[]> =>
-    from(fetchTokensMetadata(tezos, slugs)).pipe(
-      map(data =>
-        data
-          .map((token, index) => {
-            const [address, id] = slugs[index].split('_');
+export const loadTokensMetadata$ = (rpcUrl: string, slugs: string[]): Observable<TokenMetadata[]> =>
+  from(fetchTokensMetadata(rpcUrl, slugs)).pipe(
+    map(data =>
+      data.map((token, index) => {
+        const [address, id] = slugs[index].split('_');
 
-            return transformDataToTokenMetadata(token, address, Number(id));
-          })
-          .filter(isDefined)
-      )
-    )
-);
+        return buildTokenMetadataFromFetched(token, address, Number(id));
+      })
+    ),
+    map(data => data.filter(isDefined))
+  );
 
-const transformDataToTokenMetadata = (
+const buildTokenMetadataFromFetched = (
   token: TokenMetadataResponse | nullish,
   address: string,
   id: number

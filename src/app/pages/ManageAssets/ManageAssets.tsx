@@ -12,9 +12,10 @@ import { ManageAssetsSelectors } from 'app/pages/ManageAssets/ManageAssets.selec
 import { AssetIcon } from 'app/templates/AssetIcon';
 import SearchAssetField from 'app/templates/SearchAssetField';
 import { setTestID } from 'lib/analytics';
+import { AssetTypesEnum } from 'lib/assets/types';
 import { T, t } from 'lib/i18n';
 import { useAssetMetadata, getAssetName, getAssetSymbol } from 'lib/metadata';
-import { AssetTypesEnum, setTokenStatus } from 'lib/temple/assets';
+import { setTokenStatus } from 'lib/temple/assets';
 import { useAccount, useAvailableAssets, useChainId, useFilteredAssets } from 'lib/temple/front';
 import { ITokenStatus, ITokenType } from 'lib/temple/repo';
 import { useConfirm } from 'lib/ui/dialog';

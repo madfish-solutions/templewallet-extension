@@ -12,6 +12,7 @@ export const useMetadataLoading = () => {
   const { publicKeyHash } = useAccount();
   const dispatch = useDispatch();
   const tezos = useTezos();
+  const rpcUrl = tezos.rpc.getRpcUrl();
 
   const { data: tokens } = useFungibleTokens(chainId, publicKeyHash);
   const { data: collectibles } = useCollectibleTokens(chainId, publicKeyHash);
@@ -23,5 +24,5 @@ export const useMetadataLoading = () => {
     return [...tokensSlugs, ...collectiblesSlugs];
   }, [tokens, collectibles]);
 
-  useInterval(() => void dispatch(loadTokensMetadataAction({ tezos, slugs })), METADATA_SYNC_INTERVAL, [tezos, slugs]);
+  useInterval(() => void dispatch(loadTokensMetadataAction({ rpcUrl, slugs })), METADATA_SYNC_INTERVAL, [tezos, slugs]);
 };

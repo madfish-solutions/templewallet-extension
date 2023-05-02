@@ -66,22 +66,18 @@ const getMetadataFromUri = async (
   return metadataFromUri;
 };
 
-export interface TokenMetadataOnChainResponse {
-  base: TokenMetadataOnChain;
-  detailed: DetailedTokenMetdataOnChain;
-}
-
 export async function fetchTokenMetadata(
   tezos: TezosToolkit,
   contractAddress: string,
-  tokenId: number = 0
-): Promise<TokenMetadataOnChainResponse | null> {
+  tokenId: number = 0,
+  detailed: boolean = false
+): Promise<DetailedTokenMetdataOnChain | null> {
   const tokenIdStr = String(tokenId);
   const assetSlug = `${contractAddress}_${tokenIdStr}`;
 
   if (PRESERVED_TOKEN_METADATA.has(assetSlug)) {
     const data = PRESERVED_TOKEN_METADATA.get(assetSlug)!;
-    return { base: data, detailed: data };
+    return data;
   }
 
   if (!isValidContractAddress(contractAddress)) {
@@ -100,7 +96,7 @@ export async function fetchTokenMetadata(
       return null;
     }
 
-    const base: TokenMetadataOnChain = {
+    const baseMetadata: TokenMetadataOnChain = {
       decimals: +rawMetadata.decimals,
       symbol: rawMetadata.symbol || rawMetadata.name!.substr(0, 8),
       name: rawMetadata.name || rawMetadata.symbol!,
@@ -118,24 +114,26 @@ export async function fetchTokenMetadata(
       artifactUri: rawMetadata.artifactUri
     };
 
+    if (detailed === false) return baseMetadata;
+
     const tzip16Metadata = await getTzip16Metadata(contract);
 
-    const detailed: DetailedTokenMetdataOnChain = {
+    const detailedMetadata: DetailedTokenMetdataOnChain = {
       ...tzip16Metadata?.assets?.[tokenIdStr],
       ...rawMetadata,
-      ...base
+      ...baseMetadata
     };
 
-    return { base, detailed };
+    return detailedMetadata;
   } catch (err: any) {
     console.error(err);
 
-    throw new NotFoundTokenMetadataError();
+    throw new TokenMetadataNotFoundError();
   }
 }
 
-export class NotFoundTokenMetadataError extends Error {
-  name = 'NotFoundTokenMetadata';
+export class TokenMetadataNotFoundError extends Error {
+  name = 'TokenMetadataNotFoundError';
   message = "Metadata for token doesn't found";
 }
 

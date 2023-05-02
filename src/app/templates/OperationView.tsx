@@ -9,8 +9,8 @@ import ExpensesView, { ModifyFeeAndLimit } from 'app/templates/ExpensesView/Expe
 import OperationsBanner from 'app/templates/OperationsBanner';
 import RawPayloadView from 'app/templates/RawPayloadView';
 import ViewsSwitcher from 'app/templates/ViewsSwitcher/ViewsSwitcher';
+import { toAssetSlug } from 'lib/assets';
 import { T, t } from 'lib/i18n';
-import { toAssetSlug } from 'lib/temple/assets';
 import { tryParseExpenses } from 'lib/temple/front';
 import { TempleDAppOperationsPayload, TempleDAppSignPayload } from 'lib/temple/types';
 
