@@ -23,11 +23,9 @@ export const useAllFiatCurrencies = (inputCurrencySymbol: string, outputTokenSym
       [moonPayPairLimits, utorgPairLimits, aliceBobPairLimits].reduce<{ minAmount?: number; maxAmount?: number }>(
         (result, limitsEntity) => {
           const limits = limitsEntity?.data;
-          if (isDefined(limits?.min)) {
-            result.minAmount = Math.min(result.minAmount ?? Infinity, limits!.min);
-          }
-          if (isDefined(limits?.max)) {
-            result.maxAmount = Math.max(result.maxAmount ?? 0, limits!.max);
+          if (isDefined(limits)) {
+            result.minAmount = Math.min(result.minAmount ?? Infinity, limits.min);
+            result.maxAmount = Math.max(result.maxAmount ?? 0, limits.max);
           }
 
           return result;

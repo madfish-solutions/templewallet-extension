@@ -226,7 +226,5 @@ export const usePaymentProviders = (
   );
   const loading = moonPayLoading || utorgLoading || aliceBobLoading;
 
-  // console.log('x1', allPaymentProviders, amountsUpdateErrors, moonPayLoading, utorgLoading, paymentProvidersToDisplay);
-
   return { allPaymentProviders, amountsUpdateErrors, paymentProvidersToDisplay, updateOutputAmounts, loading };
 };

@@ -169,7 +169,7 @@ export const TopUpInputHeader = forwardRef<HTMLDivElement, Props>(
                     'transition ease-in-out duration-200'
                   )}
                   style={{ padding: 0, borderRadius: 0 }}
-                  placeholder={toLocalFormat(0, { decimalPlaces: decimals })}
+                  placeholder={toLocalFormat(0, { decimalPlaces: 2 })}
                   type="text"
                   min={0}
                   maxLength={15}
