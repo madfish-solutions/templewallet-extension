@@ -141,9 +141,9 @@ const usePaymentProvider = (
       maxInputAmount,
       inputAmount,
       inputDecimals: inputAsset.precision,
-      inputSymbol: inputAsset.code,
+      inputSymbol: inputAsset.codeToDisplay ?? inputAsset.code,
       outputAmount,
-      outputSymbol: outputAsset.code
+      outputSymbol: outputAsset.codeToDisplay ?? outputAsset.code
     }),
     [initialData, inputAmount, inputAsset, outputAmount, outputAsset, minInputAmount, maxInputAmount]
   );

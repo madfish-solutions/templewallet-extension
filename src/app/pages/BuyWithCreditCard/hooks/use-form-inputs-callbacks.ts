@@ -78,13 +78,13 @@ export const useFormInputsCallbacks = (
             allPaymentProviders.map(({ id, ...rest }) => ({
               ...rest,
               id,
-              inputSymbol: newInputAsset.code,
+              inputSymbol: newInputAsset.codeToDisplay ?? newInputAsset.code,
               inputPrecision: newInputAsset.precision,
               minInputAmount: newInputAsset.minAmount,
               maxInputAmount: newInputAsset.maxAmount,
               outputAmount: amounts[id],
-              outputSymbol: outputToken.code,
-              outputPrecision: outputToken.precision
+              outputSymbol: newOutputAsset.codeToDisplay ?? newOutputAsset.code,
+              outputPrecision: newOutputAsset.precision
             })),
             {},
             {},
