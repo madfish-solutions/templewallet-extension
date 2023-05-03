@@ -7,8 +7,6 @@ import Spinner from 'app/atoms/Spinner/Spinner';
 import { useTabSlug } from 'app/atoms/useTabSlug';
 import { useAppEnv } from 'app/env';
 import ErrorBoundary from 'app/ErrorBoundary';
-import { useMetadataLoading } from 'app/hooks/use-metadata-loading';
-import { useTokensLoading } from 'app/hooks/use-tokens-loading';
 import { ReactComponent as BuyIcon } from 'app/icons/buy.svg';
 import { ReactComponent as ReceiveIcon } from 'app/icons/receive.svg';
 import { ReactComponent as SendIcon } from 'app/icons/send-alt.svg';
@@ -22,7 +20,6 @@ import { TEZ_TOKEN_SLUG, isTezAsset } from 'lib/assets';
 import { T, t } from 'lib/i18n';
 import { useAssetMetadata, getAssetSymbol } from 'lib/metadata';
 import { useAccount, useNetwork } from 'lib/temple/front';
-import { useBalancesLoading } from 'lib/temple/front/load-balances';
 import { TempleAccountType, TempleNetworkType } from 'lib/temple/types';
 import useTippy from 'lib/ui/useTippy';
 import { HistoryAction, Link, navigate, To, useLocation } from 'lib/woozie';
@@ -51,10 +48,6 @@ const tippyPropsMock = {
 const NETWORK_TYPES_WITH_BUY_BUTTON: TempleNetworkType[] = ['main', 'dcp'];
 
 const Home: FC<ExploreProps> = ({ assetSlug }) => {
-  useMetadataLoading();
-  useTokensLoading();
-  useBalancesLoading();
-
   const { fullPage, registerBackHandler } = useAppEnv();
   const { onboardingCompleted } = useOnboardingProgress();
   const account = useAccount();
