@@ -6,6 +6,7 @@ import { Button } from 'app/atoms/Button';
 import { T } from 'lib/i18n';
 import { TempleNetwork } from 'lib/temple/types';
 
+import { setAnotherSelector } from '../../../../../lib/analytics';
 import { NetworkSelectSelectors } from './selectors';
 
 interface Props {
@@ -34,6 +35,7 @@ export const NetworkButton: React.FC<Props> = ({ network, selected, onClick }) =
       onClick={disabled ? undefined : onClick}
       testID={NetworkSelectSelectors.networkItemButton}
       testIDProperties={{ networkType: network.type }}
+      {...setAnotherSelector('name', name)}
     >
       <div
         className="mr-2 w-3 h-3 border border-primary-white rounded-full shadow-xs"
