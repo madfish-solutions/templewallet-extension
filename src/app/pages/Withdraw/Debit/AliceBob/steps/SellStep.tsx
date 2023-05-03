@@ -8,9 +8,9 @@ import { ReactComponent as CopyIcon } from 'app/icons/copy.svg';
 import { WithdrawSelectors } from 'app/pages/Withdraw/Withdraw.selectors';
 import { AnalyticsEventCategory, setTestID, useAnalytics, useFormAnalytics } from 'lib/analytics';
 import { AliceBobOrderStatus, cancelAliceBobOrder } from 'lib/apis/temple';
-import { toTransferParams } from 'lib/assets';
+import { toTransferParams } from 'lib/assets/utils';
 import { T, TID } from 'lib/i18n';
-import { TEZOS_METADATA } from 'lib/metadata';
+import { TEZOS_METADATA } from 'lib/metadata/defaults';
 import { useAccount, useTezos } from 'lib/temple/front';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 

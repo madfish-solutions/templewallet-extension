@@ -7,7 +7,8 @@ import { useBalancesWithDecimals } from 'app/hooks/use-balances-with-decimals.ho
 import { useBalancesSelector } from 'app/store/balances/selectors';
 import { useSwapTokensSelector } from 'app/store/swap/selectors';
 import { useTokensMetadataSelector } from 'app/store/tokens-metadata/selectors';
-import { AssetTypesEnum, isTezAsset, TEZ_TOKEN_SLUG, toAssetSlug } from 'lib/assets';
+import { isTezAsset, TEZ_TOKEN_SLUG, toAssetSlug } from 'lib/assets';
+import { AssetTypesEnum } from 'lib/assets/types';
 import { useUsdToTokenRates } from 'lib/fiat-currency/core';
 import { FILM_METADATA, TEZOS_METADATA } from 'lib/metadata/defaults';
 import type { AssetMetadataBase } from 'lib/metadata/types';

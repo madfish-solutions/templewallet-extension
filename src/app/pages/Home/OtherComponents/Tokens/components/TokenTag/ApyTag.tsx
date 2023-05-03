@@ -4,7 +4,7 @@ import classNames from 'clsx';
 
 import { Button } from 'app/atoms/Button';
 import type { TokenApyInfo } from 'app/hooks/use-token-apy.hook';
-import { TOKENS_BRAND_COLORS } from 'lib/assets';
+import { TOKENS_BRAND_COLORS } from 'lib/assets/known-tokens';
 import { isTruthy, openLink } from 'lib/utils';
 
 import { AssetsSelectors } from '../../../Assets.selectors';

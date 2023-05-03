@@ -1,6 +1,6 @@
 import { createAction } from '@reduxjs/toolkit';
 
-import { TokenMetadata } from 'lib/metadata';
+import type { TokenMetadata } from 'lib/metadata';
 import { createActions } from 'lib/store';
 
 export const addTokensMetadataAction = createAction<TokenMetadata[]>('assets/ADD_TOKENS_METADATA');

@@ -1,6 +1,6 @@
 import type BigNumber from 'bignumber.js';
 
-export const TEZ_TOKEN_SLUG = 'tez';
+import type { TEZ_TOKEN_SLUG } from './index';
 
 interface Token {
   contract: string;

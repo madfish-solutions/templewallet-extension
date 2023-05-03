@@ -80,8 +80,8 @@ const isEntrypointsMatched = (entrypoints: Record<string, any>, schema: string[]
     }
 
     return true;
-  } catch (err: any) {
-    console.error(err);
+  } catch (error) {
+    console.error(error);
 
     return false;
   }

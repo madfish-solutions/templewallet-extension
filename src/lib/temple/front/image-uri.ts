@@ -1,4 +1,4 @@
-import { TokenMetadata } from 'lib/metadata';
+import type { TokenMetadata } from 'lib/metadata';
 
 type TcInfraMediaSize = 'small' | 'medium' | 'large';
 

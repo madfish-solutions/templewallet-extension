@@ -6,9 +6,7 @@ import { TEZOS_METADATA, FILM_METADATA } from './defaults';
 import { AssetMetadataBase, TokenMetadata } from './types';
 
 export type { AssetMetadataBase, TokenMetadata } from './types';
-export { TokenStandardsEnum } from './types';
 export { TEZOS_METADATA, EMPTY_BASE_METADATA } from './defaults';
-export { fetchOneTokenMetadata, loadOneTokenMetadata$, loadTokensMetadata$, loadWhitelist$ } from './fetch';
 
 const useGasTokenMetadata = () => {
   const network = useNetwork();

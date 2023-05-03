@@ -4,7 +4,7 @@ import { catchError, concatMap, map, switchMap } from 'rxjs/operators';
 import { Action } from 'ts-action';
 import { ofType, toPayload } from 'ts-action-operators';
 
-import { loadOneTokenMetadata$, loadTokensMetadata$, loadWhitelist$ } from 'lib/metadata';
+import { loadOneTokenMetadata$, loadTokensMetadata$, loadWhitelist$ } from 'lib/metadata/fetch';
 
 import {
   addTokensMetadataAction,

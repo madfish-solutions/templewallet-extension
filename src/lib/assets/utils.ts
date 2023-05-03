@@ -5,7 +5,7 @@ import { AssetMetadataBase } from 'lib/metadata';
 import { loadContract } from 'lib/temple/contract';
 import { isValidContractAddress } from 'lib/temple/helpers';
 
-import { isFA2Token, isTezAsset } from './main';
+import { isFA2Token, isTezAsset } from './index';
 import { detectTokenStandard } from './standards';
 import { Asset, FA2Token } from './types';
 

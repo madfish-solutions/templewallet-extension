@@ -1,7 +1,8 @@
 import { ChainIds, TezosToolkit } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
 
-import { isFA2Token, fromAssetSlug, TEZ_TOKEN_SLUG } from 'lib/assets';
+import { isFA2Token, TEZ_TOKEN_SLUG } from 'lib/assets';
+import { fromAssetSlug } from 'lib/assets/utils';
 import { TEZOS_METADATA, AssetMetadataBase } from 'lib/metadata';
 import { loadContract } from 'lib/temple/contract';
 import { atomsToTokens } from 'lib/temple/helpers';
