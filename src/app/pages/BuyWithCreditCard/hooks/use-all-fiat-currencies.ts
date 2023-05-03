@@ -22,7 +22,12 @@ export const useAllFiatCurrencies = (inputCurrencySymbol: string, outputTokenSym
 
   const pairLimits = useMemo(
     () =>
-      joinLimits([moonPayPairLimits, utorgPairLimits, aliceBobPairLimits].map(({ data }) => data).filter(isDefined)),
+      joinLimits(
+        [moonPayPairLimits, utorgPairLimits, aliceBobPairLimits]
+          .filter(isDefined)
+          .map(({ data }) => data)
+          .filter(isDefined)
+      ),
     [moonPayPairLimits, utorgPairLimits, aliceBobPairLimits]
   );
 
