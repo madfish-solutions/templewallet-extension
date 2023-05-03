@@ -119,14 +119,16 @@ const usePaymentProvider = (
       let newOutputAmount: number | undefined;
       try {
         setOutputAmountLoading(true);
-        return await getOutputAmount(newInputAmount, newInputAsset, newOutputAsset);
+        newOutputAmount = await getOutputAmount(newInputAmount, newInputAsset, newOutputAsset);
       } catch (error) {
         setError(error as Error);
-        return undefined;
+        newOutputAmount = undefined;
       } finally {
         setOutputAmount(newOutputAmount);
         setOutputAmountLoading(false);
       }
+
+      return newOutputAmount;
     },
     [inputAsset, outputAsset, getOutputAmount, providerId, fiatCurrencies, cryptoCurrencies]
   );
