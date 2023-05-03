@@ -9,12 +9,10 @@ import { fetchWhitelistTokenSlugs } from 'lib/apis/temple';
 import { TzktAccountToken, fetchTzktTokens } from 'lib/apis/tzkt';
 import { toAssetSlug } from 'lib/assets';
 import { getPredefinedTokensSlugs } from 'lib/assets/known-tokens';
-import { METADATA_SYNC_INTERVAL } from 'lib/fixed-times';
 import type { TokenMetadata } from 'lib/metadata';
 import { fetchDisplayedFungibleTokens, fetchCollectibleTokens } from 'lib/temple/assets';
 import { useChainId, useAccount } from 'lib/temple/front';
 import * as Repo from 'lib/temple/repo';
-import { useInterval } from 'lib/ui/hooks';
 import { filterUnique, isTruthy } from 'lib/utils';
 
 export const [SyncTokensProvider, useSyncTokens] = constate(() => {
@@ -26,7 +24,7 @@ export const [SyncTokensProvider, useSyncTokens] = constate(() => {
 
   const [isSyncing, setIsSyncing] = useState<boolean | null>(null);
 
-  const sync = useCallback(async () => {
+  const syncTokens = useCallback(async () => {
     setIsSyncing(true);
 
     await makeSync(accountPkh, chainId, tokensMetadata, mutate);
@@ -34,9 +32,7 @@ export const [SyncTokensProvider, useSyncTokens] = constate(() => {
     setIsSyncing(false);
   }, [accountPkh, chainId, tokensMetadata, mutate]);
 
-  useInterval(sync, METADATA_SYNC_INTERVAL, [chainId, accountPkh]);
-
-  return isSyncing;
+  return { isSyncing, syncTokens };
 });
 
 const makeSync = async (

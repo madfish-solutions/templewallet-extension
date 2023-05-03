@@ -8,6 +8,7 @@ import { useTabSlug } from 'app/atoms/useTabSlug';
 import { useAppEnv } from 'app/env';
 import ErrorBoundary from 'app/ErrorBoundary';
 import { useMetadataLoading } from 'app/hooks/use-metadata-loading';
+import { useTokensLoading } from 'app/hooks/use-tokens-loading';
 import { ReactComponent as BuyIcon } from 'app/icons/buy.svg';
 import { ReactComponent as ReceiveIcon } from 'app/icons/receive.svg';
 import { ReactComponent as SendIcon } from 'app/icons/send-alt.svg';
@@ -51,6 +52,7 @@ const NETWORK_TYPES_WITH_BUY_BUTTON: TempleNetworkType[] = ['main', 'dcp'];
 
 const Home: FC<ExploreProps> = ({ assetSlug }) => {
   useMetadataLoading();
+  useTokensLoading();
   useBalancesLoading();
 
   const { fullPage, registerBackHandler } = useAppEnv();

@@ -18,7 +18,7 @@ export const CollectiblesList = () => {
   const chainId = useChainId(true)!;
   const { popup } = useAppEnv();
   const { publicKeyHash } = useAccount();
-  const isSyncing = useSyncTokens();
+  const { isSyncing } = useSyncTokens();
 
   const { data: collectibles = [] } = useCollectibleTokens(chainId, publicKeyHash, true);
 
