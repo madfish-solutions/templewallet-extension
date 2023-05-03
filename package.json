@@ -22,7 +22,7 @@
     "find-deadcode": "ts-prune --error"
   },
   "engines": {
-    "node": "16"
+    "node": "20"
   },
   "dependencies": {
     "@apollo/client": "^3.7.2",
