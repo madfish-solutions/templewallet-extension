@@ -1,5 +1,5 @@
 import { useTokenMetadataSelector } from 'app/store/tokens-metadata/selectors';
-import { isGasAsset } from 'lib/assets';
+import { isTezAsset } from 'lib/assets';
 import { useNetwork } from 'lib/temple/front';
 
 import { TEZOS_METADATA, FILM_METADATA } from './defaults';
@@ -20,7 +20,7 @@ export const useAssetMetadata = (slug: string): AssetMetadataBase | undefined =>
   const tokenMetadata = useTokenMetadataSelector(slug);
   const gasMetadata = useGasTokenMetadata();
 
-  if (isGasAsset(slug)) return gasMetadata;
+  if (isTezAsset(slug)) return gasMetadata;
 
   return tokenMetadata;
 };

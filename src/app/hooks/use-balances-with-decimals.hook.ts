@@ -4,7 +4,7 @@ import { BigNumber } from 'bignumber.js';
 
 import { useBalancesSelector } from 'app/store/balances/selectors';
 import { useTokensMetadataSelector } from 'app/store/tokens-metadata/selectors';
-import { GAS_TOKEN_SLUG } from 'lib/assets';
+import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { useAccount, useChainId, useGasToken } from 'lib/temple/front';
 import { atomsToTokens } from 'lib/temple/helpers';
 
@@ -22,7 +22,7 @@ export const useBalancesWithDecimals = () => {
     for (const tokenSlug in balancesRaw) {
       const metadata = allTokensMetadata[tokenSlug];
 
-      if (tokenSlug === GAS_TOKEN_SLUG) {
+      if (tokenSlug === TEZ_TOKEN_SLUG) {
         balancesBN[tokenSlug] = atomsToTokens(new BigNumber(balancesRaw[tokenSlug]), gasTokenMetadata.decimals);
       } else {
         if (metadata) {

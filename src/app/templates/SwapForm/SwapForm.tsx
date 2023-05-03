@@ -16,7 +16,7 @@ import { loadSwapParamsAction, resetSwapParamsAction } from 'app/store/swap/acti
 import { useSwapParamsSelector, useSwapTokenSelector, useSwapTokensSelector } from 'app/store/swap/selectors';
 import OperationStatus from 'app/templates/OperationStatus';
 import { setTestID, useFormAnalytics } from 'lib/analytics';
-import { GAS_TOKEN_SLUG } from 'lib/assets';
+import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { T, t } from 'lib/i18n';
 import { useAssetMetadata } from 'lib/metadata';
 import { ROUTING_FEE_RATIO, ZERO } from 'lib/route3/constants';
@@ -67,8 +67,8 @@ export const SwapForm: FC = () => {
   const fromRoute3Token = useSwapTokenSelector(inputValue.assetSlug ?? '');
   const toRoute3Token = useSwapTokenSelector(outputValue.assetSlug ?? '');
 
-  const inputAssetMetadata = useAssetMetadata(inputValue.assetSlug ?? GAS_TOKEN_SLUG)!;
-  const outputAssetMetadata = useAssetMetadata(outputValue.assetSlug ?? GAS_TOKEN_SLUG)!;
+  const inputAssetMetadata = useAssetMetadata(inputValue.assetSlug ?? TEZ_TOKEN_SLUG)!;
+  const outputAssetMetadata = useAssetMetadata(outputValue.assetSlug ?? TEZ_TOKEN_SLUG)!;
 
   const [error, setError] = useState<Error>();
   const [operation, setOperation] = useState<BatchWalletOperation>();

@@ -12,7 +12,7 @@ import { ReactComponent as ChevronDownIcon } from 'app/icons/chevron-down.svg';
 import { ReactComponent as ClipboardIcon } from 'app/icons/clipboard.svg';
 import HashChip from 'app/templates/HashChip';
 import InFiat from 'app/templates/InFiat';
-import { GAS_TOKEN_SLUG } from 'lib/assets';
+import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { TProps, T, t } from 'lib/i18n';
 import { useAssetMetadata, getAssetSymbol } from 'lib/metadata';
 import { RawOperationAssetExpense, RawOperationExpenses, useGasToken } from 'lib/temple/front';
@@ -448,7 +448,7 @@ type OperationVolumeDisplayProps = {
 };
 
 const OperationVolumeDisplay = memo<OperationVolumeDisplayProps>(({ expense, volume, mainnet }) => {
-  const metadata = useAssetMetadata(expense?.assetSlug ?? GAS_TOKEN_SLUG);
+  const metadata = useAssetMetadata(expense?.assetSlug ?? TEZ_TOKEN_SLUG);
 
   const finalVolume = expense ? expense.amount.div(10 ** (metadata?.decimals || 0)) : volume;
 
