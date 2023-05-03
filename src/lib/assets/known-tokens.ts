@@ -1,6 +1,7 @@
-import { toAssetSlug } from 'lib/assets';
 import { TokenMetadata, TokenStandardsEnum } from 'lib/metadata';
 import { TempleChainId } from 'lib/temple/types';
+
+import { toAssetSlug } from './main';
 
 export namespace KNOWN_TOKENS_SLUGS {
   export const TZBTC = toAssetSlug('KT1PWx2mnDueood7fEmfbBDKx1D9BAnnXitn', 0);

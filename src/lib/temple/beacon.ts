@@ -18,7 +18,7 @@ import {
   KeyPair,
   CryptoKX
 } from 'libsodium-wrappers';
-import memoize from 'p-memoize';
+import memoize from 'mem';
 import browser from 'webextension-polyfill';
 
 interface AppMetadata {

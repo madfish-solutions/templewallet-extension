@@ -20,14 +20,6 @@ export const useAssetMetadata = (slug: string): AssetMetadataBase | undefined =>
   const tokenMetadata = useTokenMetadataSelector(slug);
   const gasMetadata = useGasTokenMetadata();
 
-  // const dispatch = useDispatch();
-  // useEffect(() => {
-  //   if (!isGasAsset(slug) && !tokenMetadata) {
-  //     const [address, id = '0'] = slug.split('_');
-  //     dispatch(loadTokenMetadataActions.submit({ address, id: Number(id) }));
-  //   }
-  // }, [slug, tokenMetadata]);
-
   if (isGasAsset(slug)) return gasMetadata;
 
   return tokenMetadata;

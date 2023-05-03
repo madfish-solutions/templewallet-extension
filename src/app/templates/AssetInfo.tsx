@@ -6,11 +6,10 @@ import classNames from 'clsx';
 import { FormField } from 'app/atoms';
 import { useAppEnv } from 'app/env';
 import { ReactComponent as CopyIcon } from 'app/icons/copy.svg';
-import { isFA2Token, isTezAsset } from 'lib/assets';
+import { isFA2Token, isTezAsset, fromAssetSlug } from 'lib/assets';
 import { T } from 'lib/i18n';
 import { getAssetSymbol, useAssetMetadata } from 'lib/metadata';
 import { useRetryableSWR } from 'lib/swr';
-import { fromAssetSlug } from 'lib/temple/assets';
 import { useTezos } from 'lib/temple/front';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 

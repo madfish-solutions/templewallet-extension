@@ -15,7 +15,7 @@ export interface FA2Token extends Token {
 
 export type Asset = Token | typeof GAS_TOKEN_SLUG;
 
-export type TokenStandard = 'fa1.2' | 'fa2';
+export type TokenStandardType = 'fa1.2' | 'fa2';
 
 export enum AssetTypesEnum {
   Collectibles = 'collectibles',

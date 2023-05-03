@@ -2,9 +2,9 @@ import { useCallback, useMemo } from 'react';
 
 import BigNumber from 'bignumber.js';
 
+import { fetchBalance } from 'lib/balances';
 import { useAssetMetadata } from 'lib/metadata';
 import { useRetryableSWR } from 'lib/swr';
-import { fetchBalance } from 'lib/temple/assets';
 import { michelEncoder, loadFastRpcClient } from 'lib/temple/helpers';
 
 import { useTezos, ReactiveTezosToolkit } from './ready';

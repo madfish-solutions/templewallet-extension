@@ -2,8 +2,8 @@ import { useCallback, useMemo, useState } from 'react';
 
 import constate from 'constate';
 
-import { AlertModalProps } from 'app/templates/AlertModal';
-import { ConfirmationModalProps } from 'app/templates/ConfirmationModal/ConfirmationModal';
+import type { AlertModalProps } from 'app/templates/AlertModal';
+import type { ConfirmationModalProps } from 'app/templates/ConfirmationModal/ConfirmationModal';
 
 type AlertParams = Omit<AlertModalProps, 'onRequestClose'>;
 type ConfirmParams = Omit<ConfirmationModalProps, 'onRequestClose' | 'onConfirm'>;

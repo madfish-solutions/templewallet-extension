@@ -13,16 +13,16 @@ import PageLayout from 'app/layouts/PageLayout';
 import { addTokensMetadataAction } from 'app/store/tokens-metadata/actions';
 import { useFormAnalytics } from 'lib/analytics';
 import { TokenMetadataResponse } from 'lib/apis/temple';
-import { toAssetSlug } from 'lib/assets';
-import { T, t } from 'lib/i18n';
-import { fetchOneTokenMetadata, TokenMetadata } from 'lib/metadata';
-import { TokenMetadataNotFoundError } from 'lib/metadata/on-chain';
 import {
+  toAssetSlug,
   NotMatchingStandardError,
   assertFa2TokenDefined,
   detectTokenStandard,
   IncorrectTokenIdError
-} from 'lib/temple/assets';
+} from 'lib/assets';
+import { T, t } from 'lib/i18n';
+import { fetchOneTokenMetadata, TokenMetadata } from 'lib/metadata';
+import { TokenMetadataNotFoundError } from 'lib/metadata/on-chain';
 import { loadContract } from 'lib/temple/contract';
 import {
   useTezos,

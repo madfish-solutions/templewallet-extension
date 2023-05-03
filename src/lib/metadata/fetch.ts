@@ -60,15 +60,11 @@ const chainTokenMetadataToBase = (metadata: TokenMetadataOnChain | nullish): Tok
   metadata ? pick(metadata, 'name', 'symbol', 'decimals', 'thumbnailUri', 'artifactUri') : null;
 
 export const loadOneTokenMetadata$ = memoize(
-  (rpcUrl: string, address: string, id = 0): Observable<TokenMetadata> => {
-    const slug = `${address}_${id}`;
-    console.log('Loading metadata for:', slug);
-
-    return from(fetchOneTokenMetadata(rpcUrl, address, id)).pipe(
+  (rpcUrl: string, address: string, id = 0): Observable<TokenMetadata> =>
+    from(fetchOneTokenMetadata(rpcUrl, address, id)).pipe(
       map(data => buildTokenMetadataFromFetched(data, address, id)),
       filter(isDefined)
-    );
-  },
+    ),
   { cacheKey: ([rpcUrl, address, id]) => `${rpcUrl}/${tokenToSlug({ address, id })}` }
 );
 
