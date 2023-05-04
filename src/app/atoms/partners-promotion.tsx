@@ -1,4 +1,4 @@
-import React, { FC, memo, useCallback } from 'react';
+import React, { FC, memo, useCallback, useState } from 'react';
 
 import { useDispatch } from 'react-redux';
 
@@ -31,6 +31,7 @@ export const PartnersPromotion: FC<Props> = memo(({ variant }) => {
   const dispatch = useDispatch();
   const { popup } = useAppEnv();
 
+  const [isImageBroken, setIsImageBroken] = useState(false);
   const { data: promo, isLoading, error } = usePartnersPromoSelector();
   const shouldShowPartnersPromo = useShouldShowPartnersPromoSelector();
 
@@ -46,7 +47,11 @@ export const PartnersPromotion: FC<Props> = memo(({ variant }) => {
     }
   }, [confirm]);
 
-  if (!shouldShowPartnersPromo || Boolean(error) || isEmptyPromotion(promo)) {
+  const onImageError = useCallback(() => {
+    setIsImageBroken(true);
+  }, []);
+
+  if (!shouldShowPartnersPromo || Boolean(error) || isEmptyPromotion(promo) || isImageBroken) {
     return null;
   }
 
@@ -69,7 +74,7 @@ export const PartnersPromotion: FC<Props> = memo(({ variant }) => {
           testID={PartnersPromotionSelectors.promoLink}
           testIDProperties={{ variant, href: promo.link }}
         >
-          <img className="h-10 w-10 rounded-circle" src={promo.image} alt="Partners promotion" />
+          <img className="h-10 w-10 rounded-circle" src={promo.image} alt="Partners promotion" onError={onImageError} />
           <div className="flex flex-col gap-1">
             <div className="flex gap-1">
               <span className="text-gray-910 font-medium">{promo.copy.headline}</span>
@@ -107,7 +112,7 @@ export const PartnersPromotion: FC<Props> = memo(({ variant }) => {
         testID={PartnersPromotionSelectors.promoLink}
         testIDProperties={{ variant, href: promo.link }}
       >
-        <img src={promo.image} alt="Partners promotion" className="shadow-lg rounded-lg" />
+        <img src={promo.image} alt="Partners promotion" className="shadow-lg rounded-lg" onError={onImageError} />
       </Anchor>
     </div>
   );

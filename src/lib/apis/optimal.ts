@@ -34,7 +34,7 @@ type NormalPromotion = {
 export type OptimalPromotionType = EmptyPromotion | NormalPromotion;
 
 export function isEmptyPromotion(promotion: OptimalPromotionType): promotion is EmptyPromotion {
-  return !('link' in promotion && 'image' in promotion);
+  return !('link' in promotion && 'image' in promotion && 'copy' in promotion);
 }
 
 export const getOptimalPromotionImage$ = (variant: OptimalPromoVariantEnum) =>
