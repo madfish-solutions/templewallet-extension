@@ -1,7 +1,7 @@
 import React, { FC, Suspense, useEffect, useMemo, useState } from 'react';
 
 import BigNumber from 'bignumber.js';
-import isEqual from 'lodash.isequal';
+import { isEqual } from 'lodash';
 import { useDispatch } from 'react-redux';
 
 import { Alert, FormSubmitButton } from 'app/atoms';

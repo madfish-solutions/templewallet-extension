@@ -2,7 +2,7 @@ import { isDefined } from 'lib/utils/is-defined';
 
 import { TopUpProviderPairLimits } from './topup.interface';
 
-export const joinLimits = (limits: Array<Partial<TopUpProviderPairLimits> | undefined>) =>
+export const mergeLimits = (limits: Array<Partial<TopUpProviderPairLimits> | undefined>) =>
   limits.reduce<Partial<TopUpProviderPairLimits>>((result, limits) => {
     const { min, max } = limits ?? {};
 

@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 
 import { useFiatCurrenciesSelector, usePairLimitsSelector } from 'app/store/buy-with-credit-card/selectors';
 import { intersectLimits } from 'lib/buy-with-credit-card/intersect-limits';
-import { joinLimits } from 'lib/buy-with-credit-card/join-limits';
+import { mergeLimits } from 'lib/buy-with-credit-card/merge-limits';
 import { TopUpProviderId } from 'lib/buy-with-credit-card/top-up-provider-id.enum';
 import { TopUpInputInterface } from 'lib/buy-with-credit-card/topup.interface';
 import { isDefined } from 'lib/utils/is-defined';
@@ -22,7 +22,7 @@ export const useAllFiatCurrencies = (inputCurrencySymbol: string, outputTokenSym
 
   const pairLimits = useMemo(
     () =>
-      joinLimits(
+      mergeLimits(
         [moonPayPairLimits, utorgPairLimits, aliceBobPairLimits]
           .filter(isDefined)
           .map(({ data }) => data)

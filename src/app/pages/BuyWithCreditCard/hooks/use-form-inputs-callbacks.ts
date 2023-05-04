@@ -2,14 +2,14 @@ import { useCallback, useMemo, useRef } from 'react';
 
 import BigNumber from 'bignumber.js';
 import debounce from 'debounce-promise';
-import isEqual from 'lodash.isequal';
+import { isEqual } from 'lodash';
 import { useDispatch } from 'react-redux';
 
 import { loadAllCurrenciesActions, updatePairLimitsActions } from 'app/store/buy-with-credit-card/actions';
 import { useAllPairsLimitsSelector } from 'app/store/buy-with-credit-card/selectors';
 import { getPaymentProvidersToDisplay } from 'lib/buy-with-credit-card/get-payment-providers-to-display';
 import { intersectLimits } from 'lib/buy-with-credit-card/intersect-limits';
-import { joinLimits } from 'lib/buy-with-credit-card/join-limits';
+import { mergeLimits } from 'lib/buy-with-credit-card/merge-limits';
 import { TopUpProviderId } from 'lib/buy-with-credit-card/top-up-provider-id.enum';
 import {
   PaymentProviderInterface,
@@ -126,7 +126,7 @@ export const useFormInputsCallbacks = (
       const noPairLimitsInputCurrency = noPairLimitsFiatCurrencies.find(({ code }) => code === inputCurrency.code);
       const { min: minInputAmount, max: maxInputAmount } = intersectLimits([
         { min: noPairLimitsInputCurrency?.minAmount, max: noPairLimitsInputCurrency?.maxAmount },
-        joinLimits(Object.values(allPairsLimits[inputCurrency.code]?.[newValue.code] ?? {}).map(({ data }) => data))
+        mergeLimits(Object.values(allPairsLimits[inputCurrency.code]?.[newValue.code] ?? {}).map(({ data }) => data))
       ]);
       const patchedInputCurrency = {
         ...inputCurrency,
