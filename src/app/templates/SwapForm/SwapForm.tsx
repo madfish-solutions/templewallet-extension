@@ -34,7 +34,7 @@ import { getRoute3TokenBySlug } from 'lib/route3/utils/get-route3-token-by-slug'
 import { getRoutingFeeTransferParams } from 'lib/route3/utils/get-routing-fee-transfer-params';
 import { ROUTING_FEE_PERCENT, SWAP_CASHBACK_PERCENT } from 'lib/swap-router/config';
 import { KNOWN_TOKENS_SLUGS } from 'lib/temple/assets';
-import { useAccount, useAssetMetadata, useTezos } from 'lib/temple/front';
+import { useAccount, useAssetMetadata, useGetTokenMetadata, useTezos } from 'lib/temple/front';
 import { atomsToTokens, tokensToAtoms } from 'lib/temple/helpers';
 import useTippy from 'lib/ui/useTippy';
 import { isDefined } from 'lib/utils/is-defined';
@@ -61,6 +61,7 @@ export const SwapForm: FC = () => {
   const { data: route3Tokens } = useSwapTokensSelector();
   const swapParams = useSwapParamsSelector();
   const allUsdToTokenRates = useSelector(state => state.currency.usdToTokenRates.data);
+  const getTokenMetadata = useGetTokenMetadata();
 
   const formAnalytics = useFormAnalytics('SwapForm');
 
@@ -299,28 +300,26 @@ export const SwapForm: FC = () => {
     }
   };
 
-  const dispatchLoadSwapParams = useCallback(
-    (input: SwapInputValue, output: SwapInputValue) => {
-      if (!input.assetSlug || !output.assetSlug) {
-        return;
-      }
+  const dispatchLoadSwapParams = useCallback((input: SwapInputValue, output: SwapInputValue) => {
+    if (!input.assetSlug || !output.assetSlug) {
+      return;
+    }
+    const inputMetadata = getTokenMetadata(input.assetSlug);
 
-      const { swapInputMinusFeeAtomic: amount } = calculateRoutingInputAndFee(
-        tokensToAtoms(input.amount ?? ZERO, inputAssetMetadata.decimals)
-      );
+    const { swapInputMinusFeeAtomic: amount } = calculateRoutingInputAndFee(
+      tokensToAtoms(input.amount ?? ZERO, inputMetadata?.decimals ?? 0)
+    );
 
-      const route3FromToken = getRoute3TokenBySlug(route3Tokens, input.assetSlug);
+    const route3FromToken = getRoute3TokenBySlug(route3Tokens, input.assetSlug);
 
-      dispatch(
-        loadSwapParamsAction.submit({
-          fromSymbol: route3FromToken?.symbol ?? '',
-          toSymbol: getRoute3TokenBySlug(route3Tokens, output.assetSlug)?.symbol ?? '',
-          amount: amount && atomsToTokens(amount, route3FromToken?.decimals ?? 0).toFixed()
-        })
-      );
-    },
-    [inputAssetMetadata]
-  );
+    dispatch(
+      loadSwapParamsAction.submit({
+        fromSymbol: route3FromToken?.symbol ?? '',
+        toSymbol: getRoute3TokenBySlug(route3Tokens, output.assetSlug)?.symbol ?? '',
+        amount: amount && atomsToTokens(amount, route3FromToken?.decimals ?? 0).toFixed()
+      })
+    );
+  }, []);
 
   const calculateRoutingInputAndFee = useCallback((inputAmountAtomic: BigNumber | undefined) => {
     const swapInputAtomic = (inputAmountAtomic ?? ZERO).integerValue(BigNumber.ROUND_DOWN);
@@ -494,17 +493,13 @@ export const SwapForm: FC = () => {
             </tr>
             <tr>
               <td>
-                <T id="swapCashback" />
-              </td>
-              <td>
-                <span
-                  ref={cashbackInfoIconRef}
-                  className="flex w-fit ml-auto justify-end items-center hover:bg-gray-100 text-gray-600"
-                >
-                  {SWAP_CASHBACK_PERCENT}% &nbsp;
+                <span ref={cashbackInfoIconRef} className="flex w-fit items-center hover:bg-gray-100 text-gray-500">
+                  <T id="swapCashback" />
+                  &nbsp;
                   <InfoIcon className="w-3 h-auto stroke-current" />
                 </span>
               </td>
+              <td className="text-right text-gray-600">{SWAP_CASHBACK_PERCENT}%</td>
             </tr>
           </tbody>
         </table>
