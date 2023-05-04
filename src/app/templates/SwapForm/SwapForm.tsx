@@ -306,8 +306,12 @@ export const SwapForm: FC = () => {
     }
     const inputMetadata = getTokenMetadata(input.assetSlug);
 
+    if (!inputMetadata) {
+      return;
+    }
+
     const { swapInputMinusFeeAtomic: amount } = calculateRoutingInputAndFee(
-      tokensToAtoms(input.amount ?? ZERO, inputMetadata?.decimals ?? 0)
+      tokensToAtoms(input.amount ?? ZERO, inputMetadata.decimals)
     );
 
     const route3FromToken = getRoute3TokenBySlug(route3Tokens, input.assetSlug);
