@@ -13,6 +13,8 @@ import { useChainId, useAccount } from 'lib/temple/front';
 import * as Repo from 'lib/temple/repo';
 import { filterUnique } from 'lib/utils';
 
+import { updateTokensSWR } from './assets';
+
 export const [SyncTokensProvider, useSyncTokens] = constate(() => {
   const { mutate } = useSWRConfig();
   const chainId = useChainId(true)!;
@@ -65,7 +67,7 @@ const makeSync = async (accountPkh: string, chainId: string, mutate: ScopedMutat
 
   await Repo.accountTokens.bulkPut(repoItems, repoKeys);
 
-  await mutate(['use-known-tokens', chainId, accountPkh]);
+  await updateTokensSWR(mutate, chainId, accountPkh);
 };
 
 const updateTokenSlugs = (

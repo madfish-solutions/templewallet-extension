@@ -2,6 +2,7 @@ import { useCallback, useMemo, useState } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
 import { BigNumber } from 'bignumber.js';
+import { ScopedMutator } from 'swr/dist/types';
 import { useDebounce } from 'use-debounce';
 
 import { useBalancesWithDecimals } from 'app/hooks/use-balances-with-decimals.hook';
@@ -351,3 +352,10 @@ export function searchAssetsWithNoMeta<T>(
     }
   );
 }
+
+export const updateTokensSWR = async (mutate: ScopedMutator, chainId: string, account: string) => {
+  await mutate(['use-known-tokens', chainId, account, true]);
+  await mutate(['use-known-tokens', chainId, account, false]);
+  await mutate(['use-all-account-tokens-slugs', chainId, account]);
+  await mutate(['use-all-tokens-slugs', chainId]);
+};
