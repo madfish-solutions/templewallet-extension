@@ -217,7 +217,6 @@ const Form: FC = () => {
 
         await Repo.accountTokens.put(
           {
-            type: Repo.ITokenType.Fungible,
             chainId,
             account: accountPkh,
             tokenSlug,

@@ -247,8 +247,8 @@ export class Vault {
       const passKey = await Passworder.importKey(passHash);
       try {
         await fetchAndDecryptOne<any>(checkStrgKey, passKey);
-      } catch (err: any) {
-        console.log(err);
+      } catch (error) {
+        console.error(error);
         doThrow();
       }
       return { passHash, passKey };

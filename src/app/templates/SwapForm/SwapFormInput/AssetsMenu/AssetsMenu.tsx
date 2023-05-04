@@ -59,7 +59,6 @@ export const AssetsMenu: FC<Props> = ({
   const handleSearchOptionClick = async (newValue: string) => {
     await Repo.accountTokens.put(
       {
-        type: Repo.ITokenType.Fungible,
         chainId,
         account: account.publicKeyHash,
         tokenSlug: newValue,

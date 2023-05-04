@@ -17,7 +17,7 @@ import { T, t } from 'lib/i18n';
 import { useAssetMetadata, getAssetName, getAssetSymbol } from 'lib/metadata';
 import { setTokenStatus } from 'lib/temple/assets';
 import { useAccount, useAvailableAssets, useChainId, useFilteredAssets } from 'lib/temple/front';
-import { ITokenStatus, ITokenType } from 'lib/temple/repo';
+import { ITokenStatus } from 'lib/temple/repo';
 import { useConfirm } from 'lib/ui/dialog';
 import { Link } from 'lib/woozie';
 
@@ -64,13 +64,7 @@ const ManageAssetsContent: FC<Props> = ({ assetType }) => {
           if (!confirmed) return;
         }
 
-        await setTokenStatus(
-          assetType === AssetTypesEnum.Collectibles ? ITokenType.Collectible : ITokenType.Fungible,
-          chainId,
-          address,
-          assetSlug,
-          status
-        );
+        await setTokenStatus(chainId, address, assetSlug, status);
         await mutate();
       } catch (err: any) {
         console.error(err);

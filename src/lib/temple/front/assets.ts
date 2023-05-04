@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useState } from 'react';
 
+import { isDefined } from '@rnw-community/shared';
 import { BigNumber } from 'bignumber.js';
 import { useDebounce } from 'use-debounce';
 
@@ -10,15 +11,15 @@ import { useTokensMetadataSelector } from 'app/store/tokens-metadata/selectors';
 import { isTezAsset, TEZ_TOKEN_SLUG, toAssetSlug } from 'lib/assets';
 import { AssetTypesEnum } from 'lib/assets/types';
 import { useUsdToTokenRates } from 'lib/fiat-currency/core';
+import { TOKENS_SYNC_INTERVAL } from 'lib/fixed-times';
+import { isCollectible } from 'lib/metadata';
 import { FILM_METADATA, TEZOS_METADATA } from 'lib/metadata/defaults';
 import type { AssetMetadataBase } from 'lib/metadata/types';
 import { useRetryableSWR } from 'lib/swr';
 import {
-  fetchDisplayedFungibleTokens,
-  fetchFungibleTokens,
-  fetchAllKnownFungibleTokenSlugs,
-  fetchCollectibleTokens,
-  fetchAllKnownCollectibleTokenSlugs,
+  getStoredTokens,
+  getAllStoredTokensSlugs,
+  getAllStoredAccountTokensSlugs,
   isTokenDisplayed
 } from 'lib/temple/assets';
 import { useNetwork } from 'lib/temple/front';
@@ -27,57 +28,56 @@ import { searchAndFilterItems } from 'lib/utils/search-items';
 
 import { useChainId, useAccount } from './ready';
 
-export function useDisplayedFungibleTokens(chainId: string, account: string) {
-  return useRetryableSWR(
-    ['displayed-fungible-tokens', chainId, account],
-    () => fetchDisplayedFungibleTokens(chainId, account),
+const useKnownTokens = (chainId: string, account: string, fungible = true, onlyDisplayed = true) => {
+  const swrResponse = useRetryableSWR(
+    ['use-known-tokens', chainId, account, onlyDisplayed],
+    () => getStoredTokens(chainId, account, onlyDisplayed),
     {
       revalidateOnMount: true,
-      refreshInterval: 20_000,
-      dedupingInterval: 1_000
+      refreshInterval: TOKENS_SYNC_INTERVAL
     }
   );
-}
 
-export function useFungibleTokens(chainId: string, account: string) {
-  return useRetryableSWR(['fungible-tokens', chainId, account], () => fetchFungibleTokens(chainId, account), {
-    revalidateOnMount: true,
-    refreshInterval: 20_000,
-    dedupingInterval: 5_000
-  });
-}
+  const tokensMetadata = useTokensMetadataSelector();
 
-export function useCollectibleTokens(chainId: string, account: string, onlyDisplayed: boolean = false) {
-  return useRetryableSWR(
-    ['collectible-tokens', chainId, account, onlyDisplayed],
-    () => fetchCollectibleTokens(chainId, account, onlyDisplayed),
+  const tokens = swrResponse.data;
+
+  const data = useMemo(
+    () =>
+      tokens?.filter(token => {
+        const metadata = tokensMetadata[token.tokenSlug];
+        if (!isDefined(metadata)) return false;
+
+        const itIsCollectible = isCollectible(metadata);
+
+        return fungible ? !itIsCollectible : itIsCollectible;
+      }) ?? [],
+    [tokens, tokensMetadata, fungible]
+  );
+
+  return {
+    ...swrResponse,
+    data
+  };
+};
+
+export const useDisplayedFungibleTokens = (chainId: string, account: string) =>
+  useKnownTokens(chainId, account, true, true);
+
+export const useFungibleTokens = (chainId: string, account: string) => useKnownTokens(chainId, account, true, false);
+
+export const useCollectibleTokens = (chainId: string, account: string, onlyDisplayed: boolean = false) =>
+  useKnownTokens(chainId, account, false, onlyDisplayed);
+
+export const useAllStoredAccountTokensSlugs = (chainId: string, account: string) =>
+  useRetryableSWR(
+    ['use-all-account-tokens-slugs', chainId, account],
+    () => getAllStoredAccountTokensSlugs(chainId, account),
     {
       revalidateOnMount: true,
-      refreshInterval: 20_000,
-      dedupingInterval: 5_000
+      refreshInterval: TOKENS_SYNC_INTERVAL
     }
   );
-}
-
-function useAllKnownFungibleTokenSlugs(chainId: string) {
-  return useRetryableSWR(['all-known-fungible-token-slugs', chainId], () => fetchAllKnownFungibleTokenSlugs(chainId), {
-    revalidateOnMount: true,
-    refreshInterval: 60_000,
-    dedupingInterval: 10_000
-  });
-}
-
-function useAllKnownCollectibleTokenSlugs(chainId: string) {
-  return useRetryableSWR(
-    ['all-known-collectible-token-slugs', chainId],
-    () => fetchAllKnownCollectibleTokenSlugs(chainId),
-    {
-      revalidateOnMount: true,
-      refreshInterval: 60_000,
-      dedupingInterval: 10_000
-    }
-  );
-}
 
 export const useGasToken = () => {
   const { type } = useNetwork();
@@ -171,6 +171,38 @@ export const useAvailableAssets = (assetType: AssetTypesEnum) => {
   );
 
   return { availableAssets, assetsStatuses, isLoading, mutate };
+};
+
+const useAllKnownFungibleTokenSlugs = (chainId: string) => useAllKnownTokensSlugs(chainId, true);
+
+const useAllKnownCollectibleTokenSlugs = (chainId: string) => useAllKnownTokensSlugs(chainId, false);
+
+const useAllKnownTokensSlugs = (chainId: string, fungible = true) => {
+  const swrResponse = useRetryableSWR(['use-all-tokens-slugs', chainId], () => getAllStoredTokensSlugs(chainId), {
+    revalidateOnMount: true,
+    refreshInterval: TOKENS_SYNC_INTERVAL
+  });
+  const tokensMetadata = useTokensMetadataSelector();
+
+  const slugs = swrResponse.data;
+
+  const data = useMemo(
+    () =>
+      slugs?.filter(slug => {
+        const metadata = tokensMetadata[slug];
+        if (!isDefined(metadata)) return false;
+
+        const itIsCollectible = isCollectible(metadata);
+
+        return fungible ? !itIsCollectible : itIsCollectible;
+      }) ?? [],
+    [slugs, tokensMetadata, fungible]
+  );
+
+  return {
+    ...swrResponse,
+    data
+  };
 };
 
 export const useAvailableRoute3Tokens = () => {

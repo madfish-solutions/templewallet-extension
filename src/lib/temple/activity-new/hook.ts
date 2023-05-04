@@ -37,7 +37,7 @@ export default function useActivities(initialPseudoLimit: number, assetSlug?: st
     } catch (error) {
       if (shouldStop()) return;
       setLoading(false);
-      console.log(error);
+      console.error(error);
 
       return;
     }
