@@ -1,5 +1,5 @@
 import { RpcClient } from '@taquito/rpc';
-import memoize from 'mem';
+import memoize from 'p-memoize';
 
 interface RPCOptions {
   block: string;
