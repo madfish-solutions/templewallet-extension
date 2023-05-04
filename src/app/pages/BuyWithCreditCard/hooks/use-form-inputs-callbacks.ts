@@ -39,8 +39,7 @@ export const useFormInputsCallbacks = (
 
   const switchPaymentProvider = useCallback(
     (newProvider?: PaymentProviderInterface) => {
-      const newOutputAmount = newProvider?.outputAmount;
-      lazySetValue({ topUpProvider: newProvider, outputAmount: newOutputAmount });
+      lazySetValue({ topUpProvider: newProvider, outputAmount: newProvider?.outputAmount });
       triggerValidation();
     },
     [lazySetValue, allPaymentProviders, triggerValidation]
