@@ -64,7 +64,7 @@ const useKnownTokens = (chainId: string, account: string, fungible = true, onlyD
 export const useDisplayedFungibleTokens = (chainId: string, account: string) =>
   useKnownTokens(chainId, account, true, true);
 
-export const useFungibleTokens = (chainId: string, account: string) => useKnownTokens(chainId, account, true, false);
+const useFungibleTokens = (chainId: string, account: string) => useKnownTokens(chainId, account, true, false);
 
 export const useCollectibleTokens = (chainId: string, account: string, onlyDisplayed: boolean = false) =>
   useKnownTokens(chainId, account, false, onlyDisplayed);

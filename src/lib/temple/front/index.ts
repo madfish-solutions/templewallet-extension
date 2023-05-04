@@ -21,7 +21,6 @@ export {
 export {
   useAvailableAssets,
   useAssetsSortPredicate,
-  useFungibleTokens,
   useCollectibleTokens,
   useDisplayedFungibleTokens,
   useGetTokenMetadata,

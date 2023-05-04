@@ -7,14 +7,13 @@ import { map, filter } from 'rxjs/operators';
 
 import {
   TokenMetadataResponse,
-  fetchTokenMetadata as fetchTokenMetadataOnAPI,
+  fetchOneTokenMetadata as fetchOneTokenMetadataOnAPI,
   fetchTokensMetadata as fetchTokensMetadataOnAPI,
   WhitelistResponseToken,
   fetchWhitelistTokens$
 } from 'lib/apis/temple';
 import { tokenToSlug } from 'lib/assets';
 import { isDcpNode } from 'lib/temple/networks';
-import { TempleChainId } from 'lib/temple/types';
 
 import { TokenMetadataOnChain, fetchTokenMetadata as fetchTokenMetadataOnChain } from './on-chain';
 import { TokenMetadata, TokenStandardsEnum } from './types';
@@ -24,13 +23,11 @@ export const fetchOneTokenMetadata = async (
   address: string,
   id: number = 0
 ): Promise<TokenMetadataResponse | undefined> => {
-  const tezos = new TezosToolkit(rpcUrl);
-  const chainId = await tezos.rpc.getChainId();
-  const isMainnet = chainId === TempleChainId.Mainnet;
-
-  if (isMainnet) {
-    return await fetchTokenMetadataOnAPI(address, id);
+  if (!isLocalhost(rpcUrl)) {
+    return await fetchOneTokenMetadataOnAPI(rpcUrl, address, id);
   }
+
+  const tezos = new TezosToolkit(rpcUrl);
 
   const metadataOnChain = await fetchTokenMetadataOnChain(tezos, address, id);
 
@@ -40,18 +37,23 @@ export const fetchOneTokenMetadata = async (
 const fetchTokensMetadata = async (rpcUrl: string, slugs: string[]): Promise<(TokenMetadataResponse | null)[]> => {
   if (slugs.length === 0) return [];
 
-  const tezos = new TezosToolkit(rpcUrl);
-  const chainId = await tezos.rpc.getChainId();
-  const isMainnet = chainId === TempleChainId.Mainnet;
-
-  if (isMainnet) {
-    return await fetchTokensMetadataOnAPI(slugs);
+  if (!isLocalhost(rpcUrl)) {
+    return await fetchTokensMetadataOnAPI(rpcUrl, slugs);
   }
 
+  const tezos = new TezosToolkit(rpcUrl);
+
   return await Promise.all(
-    slugs.map(slug => {
-      const [address, id = '0'] = slug.split('_');
-      return fetchTokenMetadataOnChain(tezos, address, Number(id)).then(chainTokenMetadataToBase);
+    slugs.map(async slug => {
+      const [address, id = 0] = slug.split('_');
+
+      return await fetchTokenMetadataOnChain(tezos, address, id)
+        .then(chainTokenMetadataToBase)
+        .catch(error => {
+          console.error('Fetching metadata on chain error:', error);
+
+          return null;
+        });
     })
   );
 };
@@ -119,3 +121,11 @@ const transformWhitelistToTokenMetadata = (
   thumbnailUri: token.metadata.thumbnailUri,
   standard: token.type === 'FA12' ? TokenStandardsEnum.Fa12 : TokenStandardsEnum.Fa2
 });
+
+const LOCAL_HOSTNAMES = ['localhost', '127.0.0.1'];
+
+const isLocalhost = (url: string) => {
+  const { hostname } = new URL(url);
+
+  return LOCAL_HOSTNAMES.includes(hostname.toLowerCase());
+};

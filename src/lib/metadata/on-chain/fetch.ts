@@ -6,7 +6,6 @@ import retry from 'async-retry';
 import { isValidContractAddress } from 'lib/temple/helpers';
 import { assert } from 'lib/utils';
 
-import { PRESERVED_TOKEN_METADATA } from './fixtures';
 import type { TokenMetadataOnChain, DetailedTokenMetdataOnChain } from './types';
 
 const RETRY_PARAMS = {
@@ -15,11 +14,11 @@ const RETRY_PARAMS = {
   maxTimeout: 1_000
 };
 
-const getTzip12Metadata = async (contract: ReturnType<typeof tzip12>, tokenId: number) => {
+const getTzip12Metadata = async (contract: ReturnType<typeof tzip12>, tokenId: string | number) => {
   let tzip12Metadata: TokenMetadataWithLogo = {} as TokenMetadataWithLogo;
 
   try {
-    tzip12Metadata = await retry(() => contract.tzip12().getTokenMetadata(tokenId), RETRY_PARAMS);
+    tzip12Metadata = await retry(() => contract.tzip12().getTokenMetadata(Number(tokenId)), RETRY_PARAMS);
   } catch {}
 
   return tzip12Metadata;
@@ -44,7 +43,7 @@ const getTzip16Metadata = async (contract: ReturnType<typeof tzip16>) => {
 
 const getMetadataFromUri = async (
   contract: ContractAbstraction<ContractProvider>,
-  tokenId: string,
+  tokenId: string | number,
   tezos: TezosToolkit
 ) => {
   let metadataFromUri: MetadataInterface & { thumbnail_uri?: string } = {};
@@ -69,16 +68,10 @@ const getMetadataFromUri = async (
 export async function fetchTokenMetadata(
   tezos: TezosToolkit,
   contractAddress: string,
-  tokenId: number = 0,
+  tokenId: string | number = 0,
   detailed: boolean = false
 ): Promise<DetailedTokenMetdataOnChain | null> {
   const tokenIdStr = String(tokenId);
-  const assetSlug = `${contractAddress}_${tokenIdStr}`;
-
-  if (PRESERVED_TOKEN_METADATA.has(assetSlug)) {
-    const data = PRESERVED_TOKEN_METADATA.get(assetSlug)!;
-    return data;
-  }
 
   if (!isValidContractAddress(contractAddress)) {
     throw new Error('Invalid contract address');
@@ -87,8 +80,8 @@ export async function fetchTokenMetadata(
   try {
     const contract = await retry(() => tezos.contract.at(contractAddress, compose(tzip12, tzip16)), RETRY_PARAMS);
 
-    const tzip12Metadata = await getTzip12Metadata(contract, tokenIdStr as any);
-    const metadataFromUri = await getMetadataFromUri(contract, tokenIdStr, tezos);
+    const tzip12Metadata = await getTzip12Metadata(contract, tokenId);
+    const metadataFromUri = await getMetadataFromUri(contract, tokenId, tezos);
 
     const rawMetadata = { ...metadataFromUri, ...tzip12Metadata };
 
@@ -125,8 +118,8 @@ export async function fetchTokenMetadata(
     };
 
     return detailedMetadata;
-  } catch (err: any) {
-    console.error(err);
+  } catch (error) {
+    console.error(error);
 
     throw new TokenMetadataNotFoundError();
   }

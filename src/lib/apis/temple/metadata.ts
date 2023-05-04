@@ -12,12 +12,12 @@ export interface TokenMetadataResponse {
   artifactUri?: string;
 }
 
-export const fetchTokenMetadata = (address: string, id = 0) =>
+export const fetchOneTokenMetadata = (rpcUrl: string, address: string, id = 0) =>
   api
-    .get<TokenMetadataResponse>(`/metadata/${address}/${id}`)
+    .get<TokenMetadataResponse>(`/metadata/${address}/${id}`, { params: { rpcUrl } })
     .then(({ data }) => (data.name === 'Unknown Token' ? undefined : data));
 
-export const fetchTokensMetadata = async (slugs: string[]) => {
+export const fetchTokensMetadata = async (rpcUrl: string, slugs: string[]) => {
   if (slugs.length === 0) return [];
-  return api.post<(TokenMetadataResponse | null)[]>('/', slugs).then(r => r.data);
+  return api.post<(TokenMetadataResponse | null)[]>('/', slugs, { params: { rpcUrl } }).then(r => r.data);
 };
