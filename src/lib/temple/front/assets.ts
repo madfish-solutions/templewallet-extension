@@ -417,7 +417,7 @@ export function useFilteredSwapAssets(inputName: string = 'input') {
       searchAssetsWithNoMeta(searchValueDebounced, assetSlugs, allTokensBaseMetadata, slug => slug).sort(
         assetsSortPredicate
       ),
-    [searchValueDebounced, assetSlugs, allTokensBaseMetadata]
+    [searchValueDebounced, assetSlugs, allTokensBaseMetadata, assetsSortPredicate]
   );
 
   return {
