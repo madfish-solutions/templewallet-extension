@@ -6,7 +6,7 @@ import DropdownWrapper from 'app/atoms/DropdownWrapper';
 import Spinner from 'app/atoms/Spinner/Spinner';
 import { useAppEnvStyle } from 'app/hooks/use-app-env-style.hook';
 import { AnalyticsEventCategory, TestIDProperty, useAnalytics } from 'lib/analytics';
-import { t, T } from 'lib/i18n';
+import { t } from 'lib/i18n';
 
 import { CurrencyBase } from '../types';
 import { CurrencyOption } from './CurrencyOption';
