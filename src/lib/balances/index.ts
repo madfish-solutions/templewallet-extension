@@ -26,11 +26,17 @@ export const fetchBalance = async (
   tezos: TezosToolkit,
   assetSlug: string,
   account: string,
-  assetMetadata?: Pick<AssetMetadataBase, 'decimals'> | nullish
+  assetMetadata: Pick<AssetMetadataBase, 'decimals'>
 ) => {
+  const atomicBalance = await fetchBalanceAtomic(tezos, assetSlug, account);
+
+  return atomsToTokens(atomicBalance, assetMetadata.decimals);
+};
+
+export const fetchBalanceAtomic = async (tezos: TezosToolkit, assetSlug: string, account: string) => {
   const asset = await fromAssetSlug(tezos, assetSlug);
 
-  if (asset === TEZ_TOKEN_SLUG) return await fetchTezosBalance(tezos, account);
+  if (asset === TEZ_TOKEN_SLUG) return await fetchTezosBalanceAtomic(tezos, account);
 
   let nat = new BigNumber(0);
 
@@ -48,9 +54,7 @@ export const fetchBalance = async (
     } catch {}
   }
 
-  nat = toSafeBignum(nat);
-
-  return assetMetadata ? nat.div(10 ** assetMetadata.decimals) : nat;
+  return toSafeBignum(nat);
 };
 
 const getBalanceSafe = async (tezos: TezosToolkit, account: string) => {

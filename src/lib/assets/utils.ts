@@ -3,7 +3,7 @@ import BigNumber from 'bignumber.js';
 
 import { AssetMetadataBase } from 'lib/metadata';
 import { loadContract } from 'lib/temple/contract';
-import { isValidContractAddress } from 'lib/temple/helpers';
+import { isValidContractAddress, tokensToAtoms } from 'lib/temple/helpers';
 
 import { isFA2Token, isTezAsset } from './index';
 import { detectTokenStandard } from './standards';
@@ -12,7 +12,7 @@ import { Asset, FA2Token } from './types';
 export const toTransferParams = async (
   tezos: TezosToolkit,
   assetSlug: string,
-  assetMetadata: AssetMetadataBase | nullish,
+  assetMetadata: AssetMetadataBase,
   fromPkh: string,
   toPkh: string,
   amount: BigNumber.Value
@@ -27,9 +27,13 @@ export const toTransferParams = async (
   }
 
   const contract = await loadContract(tezos, asset.contract);
-  const pennyAmount = new BigNumber(amount).times(10 ** (assetMetadata?.decimals ?? 0)).toFixed();
+  const pennyAmount = tokensToAtoms(amount, assetMetadata.decimals).toFixed();
 
   if (isFA2Token(asset))
+    /*
+     * `contract.methods.transfer` is not working for Rarible contracts.
+     * E.g. `KT18pVpRXKPY2c4U2yFEGSH3ZnhB2kL8kwXS_${63714 | 58076}`
+     */
     return {
       kind: OpKind.TRANSACTION,
       to: contract.address,

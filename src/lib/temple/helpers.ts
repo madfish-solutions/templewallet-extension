@@ -47,12 +47,12 @@ export function mutezToTz(mutez: any) {
   return bigNum.integerValue().div(10 ** 6);
 }
 
-export function atomsToTokens(x: BigNumber, decimals: number) {
-  return x.integerValue().div(new BigNumber(10).pow(decimals));
+export function atomsToTokens(x: BigNumber.Value, decimals: number) {
+  return new BigNumber(x).integerValue().div(new BigNumber(10).pow(decimals));
 }
 
-export function tokensToAtoms(x: BigNumber, decimals: number) {
-  return x.times(10 ** decimals).integerValue();
+export function tokensToAtoms(x: BigNumber.Value, decimals: number) {
+  return new BigNumber(x).times(10 ** decimals).integerValue();
 }
 
 export function isAddressValid(address: string) {

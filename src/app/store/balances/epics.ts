@@ -7,7 +7,7 @@ import { ofType, toPayload } from 'ts-action-operators';
 
 import { fecthTezosBalanceFromTzkt, fetchAllTokensBalancesFromTzkt } from 'lib/apis/tzkt/api';
 import { TEZ_TOKEN_SLUG, toAssetSlug } from 'lib/assets';
-import { fetchBalance, fetchTezosBalanceAtomic } from 'lib/balances';
+import { fetchBalanceAtomic, fetchTezosBalanceAtomic } from 'lib/balances';
 import { atomsToTokens } from 'lib/temple/helpers';
 import { IAccountToken } from 'lib/temple/repo';
 
@@ -58,7 +58,7 @@ const fetchTokensBalancesFromChain = async (tokens: Array<IAccountToken>, rpcUrl
   const balances: Record<string, string> = {};
 
   for (const { tokenSlug } of tokens) {
-    const balance = await fetchBalance(tezos, tokenSlug, publicKeyHash);
+    const balance = await fetchBalanceAtomic(tezos, tokenSlug, publicKeyHash);
     balances[tokenSlug] = balance.toFixed();
   }
 

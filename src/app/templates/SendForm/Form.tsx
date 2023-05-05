@@ -202,6 +202,8 @@ export const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactReque
 
   const estimateBaseFee = useCallback(async () => {
     try {
+      if (!assetMetadata) throw new Error('Metadata not found');
+
       const to = toResolved;
       const tez = isTezAsset(assetSlug);
 
@@ -338,6 +340,8 @@ export const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactReque
       formAnalytics.trackSubmit();
 
       try {
+        if (!assetMetadata) throw new Error('Metadata not found');
+
         let op: WalletOperation;
         if (isKTAddress(acc.publicKeyHash)) {
           const michelsonLambda = isKTAddress(toResolved) ? transferToContract : transferImplicit;

@@ -7,7 +7,6 @@ export interface AssetMetadataBase {
   name: string;
   symbol: string;
   decimals: number;
-  // iconName?: IconNameEnum;
   thumbnailUri?: string;
 }
 

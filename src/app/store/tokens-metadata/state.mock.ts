@@ -1,5 +1,3 @@
-// import { createEntity } from 'lib/store';
-
 import { tokenToSlug } from 'lib/assets';
 
 import { TokensMetadataState } from './state';
@@ -10,5 +8,4 @@ export const mockTokensMetadataState: TokensMetadataState = {
     [tokenToSlug(mockFA1_2TokenMetadata)]: mockFA1_2TokenMetadata,
     [tokenToSlug(mockFA2TokenMetadata)]: mockFA2TokenMetadata
   }
-  // addTokenSuggestion: createEntity(mockFA1_2TokenMetadata)
 };
