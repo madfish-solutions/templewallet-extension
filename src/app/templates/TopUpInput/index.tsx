@@ -13,8 +13,17 @@ import { useFilteredCurrencies } from './utils';
 export type { CurrencyToken } from './types';
 
 export const TopUpInput = <C extends CurrencyBase>(_props: TopUpInputPropsGeneric<C>) => {
-  const { currency, currenciesList, isCurrenciesLoading, fitIcons, className, testID, onCurrencySelect, ...restProps } =
-    _props as unknown as TopUpInputPropsBase;
+  const {
+    currency,
+    currenciesList,
+    isCurrenciesLoading,
+    fitIcons,
+    className,
+    testID,
+    onCurrencySelect,
+    emptyListPlaceholder,
+    ...restProps
+  } = _props as unknown as TopUpInputPropsBase;
   const fitIconsValue = typeof fitIcons === 'function' ? fitIcons(currency) : fitIcons;
 
   const { filteredCurrencies, searchValue, setSearchValue } = useFilteredCurrencies(currenciesList);
@@ -33,6 +42,7 @@ export const TopUpInput = <C extends CurrencyBase>(_props: TopUpInputPropsGeneri
             isLoading={isCurrenciesLoading}
             opened={opened}
             fitIcons={fitIcons}
+            emptyListPlaceholder={emptyListPlaceholder}
             testID={testID}
             setOpened={setOpened}
             onChange={onCurrencySelect}

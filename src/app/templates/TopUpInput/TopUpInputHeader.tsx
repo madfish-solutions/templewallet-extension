@@ -7,6 +7,7 @@ import { ReactComponent as ChevronDownIcon } from 'app/icons/chevron-down.svg';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
 import { getBigErrorText, getSmallErrorText } from 'app/pages/Buy/utils/errorText.utils';
 import { emptyFn } from 'app/utils/function.utils';
+import { getAssetSymbolToDisplay } from 'lib/buy-with-credit-card/get-asset-symbol-to-display';
 import { toLocalFormat, T, t } from 'lib/i18n';
 import { PopperRenderProps } from 'lib/ui/Popper';
 
@@ -134,7 +135,7 @@ export const TopUpInputHeader = forwardRef<HTMLDivElement, Props>(
               />
               <div className="flex flex-col ml-2 text-left whitespace-nowrap">
                 <span className="text-gray-700 font-normal text-lg overflow-ellipsis overflow-hidden w-16">
-                  {currency.codeToDisplay ?? currency.code}
+                  {getAssetSymbolToDisplay(currency)}
                 </span>
                 <span
                   className="text-indigo-500 font-medium overflow-ellipsis overflow-hidden w-12"

@@ -7,6 +7,7 @@ import { useDispatch } from 'react-redux';
 
 import { loadAllCurrenciesActions, updatePairLimitsActions } from 'app/store/buy-with-credit-card/actions';
 import { useAllPairsLimitsSelector } from 'app/store/buy-with-credit-card/selectors';
+import { getAssetSymbolToDisplay } from 'lib/buy-with-credit-card/get-asset-symbol-to-display';
 import { getPaymentProvidersToDisplay } from 'lib/buy-with-credit-card/get-payment-providers-to-display';
 import { intersectLimits } from 'lib/buy-with-credit-card/intersect-limits';
 import { mergeLimits } from 'lib/buy-with-credit-card/merge-limits';
@@ -25,8 +26,8 @@ import { usePaymentProviders } from './use-payment-providers';
 export const useFormInputsCallbacks = (
   form: ReturnType<typeof useBuyWithCreditCardForm>,
   paymentProviders: ReturnType<typeof usePaymentProviders>,
-  isLoading: boolean,
-  setIsLoading: (newValue: boolean) => void
+  formIsLoading: boolean,
+  setFormIsLoading: (newValue: boolean) => void
 ) => {
   const { formValues, lazySetValue, triggerValidation } = form;
   const { allPaymentProviders, updateOutputAmounts } = paymentProviders;
@@ -77,12 +78,12 @@ export const useFormInputsCallbacks = (
             allPaymentProviders.map(({ id, ...rest }) => ({
               ...rest,
               id,
-              inputSymbol: newInputAsset.codeToDisplay ?? newInputAsset.code,
+              inputSymbol: getAssetSymbolToDisplay(newInputAsset),
               inputPrecision: newInputAsset.precision,
               minInputAmount: newInputAsset.minAmount,
               maxInputAmount: newInputAsset.maxAmount,
               outputAmount: amounts[id],
-              outputSymbol: newOutputAsset.codeToDisplay ?? newOutputAsset.code,
+              outputSymbol: getAssetSymbolToDisplay(newOutputAsset),
               outputPrecision: newOutputAsset.precision
             })),
             {},
@@ -98,7 +99,7 @@ export const useFormInputsCallbacks = (
             const newPaymentProvider = patchedSameProvider ?? autoselectedPaymentProvider;
             void switchPaymentProvider(newPaymentProvider);
           }
-          setIsLoading(false);
+          setFormIsLoading(false);
         },
         200
       ),
@@ -107,7 +108,7 @@ export const useFormInputsCallbacks = (
   const handleInputValueChange = useCallback(
     (newInputAmount: number | undefined, newInputAsset: TopUpInputInterface) => {
       outputCalculationDataRef.current = { inputAmount: newInputAmount, inputCurrency: newInputAsset, outputToken };
-      setIsLoading(true);
+      setFormIsLoading(true);
       void updateOutput(newInputAmount, newInputAsset, outputToken, true);
     },
     [updateOutput, outputToken]
@@ -134,7 +135,7 @@ export const useFormInputsCallbacks = (
       };
 
       outputCalculationDataRef.current = { inputAmount, inputCurrency: patchedInputCurrency, outputToken: newValue };
-      setIsLoading(true);
+      setFormIsLoading(true);
       void updateOutput(inputAmount, patchedInputCurrency, newValue, true);
     },
     [inputAmount, inputCurrency, updateOutput, noPairLimitsFiatCurrencies, allPairsLimits]
@@ -151,12 +152,12 @@ export const useFormInputsCallbacks = (
   const refreshForm = useCallback(() => {
     dispatch(loadAllCurrenciesActions.submit());
     dispatch(updatePairLimitsActions.submit({ fiatSymbol: inputCurrency.code, cryptoSymbol: outputToken.code }));
-    if (!isLoading) {
+    if (!formIsLoading) {
       outputCalculationDataRef.current = { inputAmount, inputCurrency, outputToken };
-      setIsLoading(true);
+      setFormIsLoading(true);
       void updateOutput(inputAmount, inputCurrency, outputToken, false);
     }
-  }, [dispatch, inputCurrency, outputToken, updateOutput, isLoading, inputAmount]);
+  }, [dispatch, inputCurrency, outputToken, updateOutput, formIsLoading, inputAmount]);
 
   return {
     switchPaymentProvider,

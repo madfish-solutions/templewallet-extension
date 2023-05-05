@@ -1685,6 +1685,12 @@
   "noAssetsFound": {
     "message": "No assets found"
   },
+  "tokenNotFound": {
+    "message": "Token not found..."
+  },
+  "currencyNotFound": {
+    "message": "Currency not found"
+  },
   "ifYouDontSeeYourAsset": {
     "message": "If you don't see your asset,\ntry to click $toClick$.",
     "placeholders": {
@@ -2607,7 +2613,7 @@
     "message": "Only for Ukrainian banking cards"
   },
   "buyWithCrypto": {
-    "message": "Buy With Crypto"
+    "message": "Buy with Crypto"
   },
   "buyWithExolix": {
     "message": "Buy With Exolix"

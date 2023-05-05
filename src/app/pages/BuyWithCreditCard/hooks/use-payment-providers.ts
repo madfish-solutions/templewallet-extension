@@ -6,6 +6,7 @@ import { useFiatCurrenciesSelector, useCryptoCurrenciesSelector } from 'app/stor
 import { getMoonPayBuyQuote } from 'lib/apis/moonpay';
 import { estimateAliceBobOutput } from 'lib/apis/temple/endpoints/alice-bob';
 import { convertFiatAmountToCrypto } from 'lib/apis/utorg';
+import { getAssetSymbolToDisplay } from 'lib/buy-with-credit-card/get-asset-symbol-to-display';
 import { getPaymentProvidersToDisplay } from 'lib/buy-with-credit-card/get-payment-providers-to-display';
 import { getUpdatedFiatLimits } from 'lib/buy-with-credit-card/get-updated-fiat-limits';
 import { TopUpProviderId } from 'lib/buy-with-credit-card/top-up-provider-id.enum';
@@ -141,9 +142,9 @@ const usePaymentProvider = (
       maxInputAmount,
       inputAmount,
       inputDecimals: inputAsset.precision,
-      inputSymbol: inputAsset.codeToDisplay ?? inputAsset.code,
+      inputSymbol: getAssetSymbolToDisplay(inputAsset),
       outputAmount,
-      outputSymbol: outputAsset.codeToDisplay ?? outputAsset.code
+      outputSymbol: getAssetSymbolToDisplay(outputAsset)
     }),
     [initialData, inputAmount, inputAsset, outputAmount, outputAsset, minInputAmount, maxInputAmount]
   );

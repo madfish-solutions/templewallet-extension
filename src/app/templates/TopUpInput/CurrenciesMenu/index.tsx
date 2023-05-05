@@ -6,7 +6,7 @@ import DropdownWrapper from 'app/atoms/DropdownWrapper';
 import Spinner from 'app/atoms/Spinner/Spinner';
 import { useAppEnvStyle } from 'app/hooks/use-app-env-style.hook';
 import { AnalyticsEventCategory, TestIDProperty, useAnalytics } from 'lib/analytics';
-import { T } from 'lib/i18n';
+import { t, T } from 'lib/i18n';
 
 import { CurrencyBase } from '../types';
 import { CurrencyOption } from './CurrencyOption';
@@ -17,6 +17,7 @@ interface Props extends TestIDProperty {
   isLoading?: boolean;
   opened: boolean;
   fitIcons?: boolean | ((currency: CurrencyBase) => boolean);
+  emptyListPlaceholder?: string;
   setOpened: (newValue: boolean) => void;
   onChange?: (newValue: CurrencyBase) => void;
 }
@@ -29,6 +30,7 @@ export const CurrenciesMenu: FC<Props> = ({
   isLoading = false,
   opened,
   fitIcons,
+  emptyListPlaceholder = t('tokenNotFound'),
   testID,
   setOpened,
   onChange
@@ -62,13 +64,11 @@ export const CurrenciesMenu: FC<Props> = ({
       }}
     >
       {(options.length === 0 || isLoading) && (
-        <div className="my-8 flex flex-col items-center justify-center text-gray-500">
+        <div className="my-8 mx-3 flex flex-col items-center justify-center text-gray-500">
           {isLoading ? (
             <Spinner theme="primary" style={{ width: '3rem' }} />
           ) : (
-            <p className="flex items-center justify-center text-gray-600 text-base font-light">
-              <T id="noAssetsFound" />
-            </p>
+            <p className="text-gray-600 text-ulg font-medium leading-tight w-full">{emptyListPlaceholder}</p>
           )}
         </div>
       )}

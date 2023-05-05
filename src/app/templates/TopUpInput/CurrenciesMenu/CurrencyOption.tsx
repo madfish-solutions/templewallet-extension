@@ -3,6 +3,8 @@ import React, { FC } from 'react';
 import classNames from 'clsx';
 import { ListRowProps } from 'react-virtualized';
 
+import { getAssetSymbolToDisplay } from 'lib/buy-with-credit-card/get-asset-symbol-to-display';
+
 import { StaticCurrencyImage } from '../StaticCurrencyImage';
 import { CurrencyBase } from '../types';
 import { getProperNetworkFullName } from '../utils';
@@ -30,7 +32,7 @@ export const CurrencyOption: FC<Props> = ({ currency, isSelected, fitIcons, styl
     />
 
     <div className="flex-1 flex flex-col items-stretch">
-      <div className="text-gray-910 text-lg text-left">{currency.codeToDisplay ?? currency.code}</div>
+      <div className="text-gray-910 text-lg text-left">{getAssetSymbolToDisplay(currency)}</div>
 
       <div className="flex text-xs">
         <span className="text-gray-600 mr-2">{currency.name}</span>

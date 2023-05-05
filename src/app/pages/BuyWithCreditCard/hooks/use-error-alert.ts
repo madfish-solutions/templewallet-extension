@@ -21,7 +21,7 @@ export const useErrorAlert = (
   allPaymentProviders: PaymentProviderInterface[],
   amountsUpdateErrors: Record<TopUpProviderId, Error | undefined>
 ) => {
-  const { submitError, formValues } = form;
+  const { updateLinkError, formValues } = form;
   const { inputCurrency, outputToken } = formValues;
   const currenciesErrors = useCurrenciesErrorsSelector();
   const updatePairLimitsErrors = usePairLimitsErrorsSelector(inputCurrency.code, outputToken.code);
@@ -32,8 +32,8 @@ export const useErrorAlert = (
 
   const message = useMemo(() => {
     // TODO: return handling errors for Alice&Bob as soon as this service starts working
-    if (isDefined(submitError)) {
-      return t('errorWhileCreatingOrder', getAxiosQueryErrorMessage(submitError));
+    if (isDefined(updateLinkError)) {
+      return t('errorWhileCreatingOrder', getAxiosQueryErrorMessage(updateLinkError));
     }
 
     const paymentProviderFetchErrors = [updatePairLimitsErrors, amountsUpdateErrors, currenciesErrors];
@@ -55,7 +55,7 @@ export const useErrorAlert = (
     }
 
     return undefined;
-  }, [submitError, updatePairLimitsErrors, amountsUpdateErrors, allPaymentProviders, currenciesErrors]);
+  }, [updateLinkError, updatePairLimitsErrors, amountsUpdateErrors, allPaymentProviders, currenciesErrors]);
   useEffect(() => setShouldHideErrorAlert(false), [message]);
 
   return { onAlertClose, shouldHideErrorAlert, message };

@@ -36,6 +36,7 @@ export interface TopUpInputPropsGeneric<C extends CurrencyBase> extends TestIDPr
   fitIcons?: boolean | ((currency: C) => boolean);
   className?: string;
   decimals?: number;
+  emptyListPlaceholder?: string;
 }
 
 export type TopUpInputPropsBase = TopUpInputPropsGeneric<CurrencyBase>;

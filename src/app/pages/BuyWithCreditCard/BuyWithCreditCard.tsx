@@ -4,7 +4,7 @@ import BigNumber from 'bignumber.js';
 import { isEqual } from 'lodash';
 import { useDispatch } from 'react-redux';
 
-import { Alert, FormSubmitButton } from 'app/atoms';
+import { Alert, Anchor, FormSubmitButton } from 'app/atoms';
 import ErrorBoundary from 'app/ErrorBoundary';
 import { ReactComponent as ArrowDownIcon } from 'app/icons/arrow-down.svg';
 import PageLayout from 'app/layouts/PageLayout';
@@ -14,6 +14,7 @@ import { PaymentProviderInput } from 'app/templates/PaymentProviderInput';
 import { SpinnerSection } from 'app/templates/SendForm/SpinnerSection';
 import { TopUpInput } from 'app/templates/TopUpInput';
 import { MOONPAY_ASSETS_BASE_URL } from 'lib/apis/moonpay';
+import { getAssetSymbolToDisplay } from 'lib/buy-with-credit-card/get-asset-symbol-to-display';
 import { TopUpInputInterface } from 'lib/buy-with-credit-card/topup.interface';
 import { shouldShowFieldError } from 'lib/form/should-show-field-error';
 import { t, T, toLocalFormat } from 'lib/i18n';
@@ -33,9 +34,18 @@ const fitFiatIconFn = (currency: TopUpInputInterface) => !currency.icon.startsWi
 
 export const BuyWithCreditCard: FC = () => {
   const dispatch = useDispatch();
-  const [isLoading, setIsLoading] = useState(false);
+  const [formIsLoading, setFormIsLoading] = useState(false);
   const form = useBuyWithCreditCardForm();
-  const { formValues, onSubmit, errors, lazySetValue, triggerValidation, formState, getValues } = form;
+  const {
+    formValues,
+    purchaseLink,
+    purchaseLinkLoading,
+    errors,
+    lazySetValue,
+    triggerValidation,
+    formState,
+    getValues
+  } = form;
   const { inputAmount, inputCurrency, outputToken, outputAmount, topUpProvider } = formValues;
   const paymentProviders = usePaymentProviders(inputAmount, inputCurrency, outputToken);
   const { allPaymentProviders, amountsUpdateErrors, paymentProvidersToDisplay } = paymentProviders;
@@ -46,7 +56,7 @@ export const BuyWithCreditCard: FC = () => {
     handleOutputTokenChange,
     handlePaymentProviderChange,
     refreshForm
-  } = useFormInputsCallbacks(form, paymentProviders, isLoading, setIsLoading);
+  } = useFormInputsCallbacks(form, paymentProviders, formIsLoading, setFormIsLoading);
   const {
     onAlertClose,
     shouldHideErrorAlert,
@@ -118,7 +128,7 @@ export const BuyWithCreditCard: FC = () => {
       <div className="max-w-sm mx-auto">
         <ErrorBoundary>
           <Suspense fallback={<SpinnerSection />}>
-            <form className="flex flex-col items-center gap-4 w-full" onSubmit={onSubmit}>
+            <div className="flex flex-col items-center gap-4 w-full">
               {isDefined(alertErrorMessage) && !shouldHideErrorAlert && (
                 <Alert
                   type="error"
@@ -141,10 +151,11 @@ export const BuyWithCreditCard: FC = () => {
                 maxAmount={maxAmount}
                 isMinAmountError={isMinAmountError}
                 isMaxAmountError={isMaxAmountError}
-                onCurrencySelect={handleInputAssetChange}
-                onAmountChange={handleInputAmountChange}
                 amountInputDisabled={false}
                 fitIcons={fitFiatIconFn}
+                emptyListPlaceholder={t('currencyNotFound')}
+                onCurrencySelect={handleInputAssetChange}
+                onAmountChange={handleInputAmountChange}
                 testID={BuyWithCreditCardSelectors.sendInput}
               />
 
@@ -166,7 +177,7 @@ export const BuyWithCreditCard: FC = () => {
                 error={shouldShowPaymentProviderError ? t('pleaseSelectPaymentProvider') : undefined}
                 headerTestID={BuyWithCreditCardSelectors.paymentProviderDropdownHeader}
                 options={paymentProvidersToDisplay}
-                isLoading={isLoading}
+                isLoading={formIsLoading}
                 onChange={handlePaymentProviderChange}
                 value={topUpProvider}
                 testID={BuyWithCreditCardSelectors.paymentProviderDropdown}
@@ -180,10 +191,14 @@ export const BuyWithCreditCard: FC = () => {
                     padding: 0
                   }}
                   disabled={Object.keys(errors).length > 0}
-                  loading={isLoading}
+                  loading={formIsLoading || purchaseLinkLoading}
                   testID={BuyWithCreditCardSelectors.topUpButton}
                 >
-                  <T id="topUp" />
+                  <Anchor href={purchaseLink} treatAsButton className="w-full h-full flex justify-center items-center">
+                    <span>
+                      <T id="topUp" />
+                    </span>
+                  </Anchor>
                 </FormSubmitButton>
 
                 <div className="flex justify-between w-full">
@@ -192,9 +207,10 @@ export const BuyWithCreditCard: FC = () => {
                   </span>
                   <span className="text-xs text-gray-600 leading-relaxed">
                     {isDefined(exchangeRate)
-                      ? `1 ${inputCurrency.codeToDisplay ?? inputCurrency.code} = ${toLocalFormat(exchangeRate, {})} ${
-                          outputToken.codeToDisplay ?? outputToken.code
-                        }`
+                      ? `1 ${getAssetSymbolToDisplay(inputCurrency)} = ${toLocalFormat(
+                          exchangeRate,
+                          {}
+                        )} ${getAssetSymbolToDisplay(outputToken)}`
                       : '-'}
                   </span>
                 </div>
@@ -203,7 +219,7 @@ export const BuyWithCreditCard: FC = () => {
                   <T id="topUpDescription" />
                 </span>
               </div>
-            </form>
+            </div>
           </Suspense>
         </ErrorBoundary>
       </div>
