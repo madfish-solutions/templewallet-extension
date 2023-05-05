@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { from, map } from 'rxjs';
+import { from } from 'rxjs';
 
 const optimalApi = axios.create({ baseURL: 'https://i.useoptimal.xyz' });
 
@@ -39,11 +39,26 @@ export function isEmptyPromotion(promotion: OptimalPromotionType): promotion is 
 
 export const getOptimalPromotionImage$ = (variant: OptimalPromoVariantEnum) =>
   from(
-    optimalApi.get<OptimalPromotionType>('api/v1/decision', {
-      params: {
-        publisher: 'templewallet', // your-publisher-slug
-        ad_types: variant,
-        div_ids: 'ad'
-      }
-    })
-  ).pipe(map(response => response.data));
+    optimalApi
+      .get<OptimalPromotionType>('api/v1/decision', {
+        params: {
+          publisher: 'templewallet', // your-publisher-slug
+          ad_types: variant,
+          div_ids: 'ad'
+        }
+      })
+      .then(response => {
+        const { data } = response;
+        assertIsObject(data);
+
+        return data;
+      })
+  );
+
+function assertIsObject(likelyAnObject: unknown): void {
+  const isObject = typeof likelyAnObject === 'object' && likelyAnObject !== null && !Array.isArray(likelyAnObject);
+
+  if (!isObject) {
+    throw new Error('Received value is not an object');
+  }
+}
