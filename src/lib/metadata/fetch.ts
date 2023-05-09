@@ -10,7 +10,8 @@ import {
   fetchOneTokenMetadata as fetchOneTokenMetadataOnAPI,
   fetchTokensMetadata as fetchTokensMetadataOnAPI,
   WhitelistResponseToken,
-  fetchWhitelistTokens$
+  fetchWhitelistTokens$,
+  isKnownChainId
 } from 'lib/apis/temple';
 import { tokenToSlug } from 'lib/assets';
 import { isDcpNode } from 'lib/temple/networks';
@@ -23,11 +24,12 @@ export const fetchOneTokenMetadata = async (
   address: string,
   id: number = 0
 ): Promise<TokenMetadataResponse | undefined> => {
-  if (!isLocalhost(rpcUrl)) {
-    return await fetchOneTokenMetadataOnAPI(rpcUrl, address, id);
-  }
-
   const tezos = new TezosToolkit(rpcUrl);
+  const chainId = await tezos.rpc.getChainId();
+
+  if (isKnownChainId(chainId)) {
+    return await fetchOneTokenMetadataOnAPI(chainId, address, id);
+  }
 
   const metadataOnChain = await fetchTokenMetadataOnChain(tezos, address, id);
 
@@ -37,11 +39,12 @@ export const fetchOneTokenMetadata = async (
 const fetchTokensMetadata = async (rpcUrl: string, slugs: string[]): Promise<(TokenMetadataResponse | null)[]> => {
   if (slugs.length === 0) return [];
 
-  if (!isLocalhost(rpcUrl)) {
-    return await fetchTokensMetadataOnAPI(rpcUrl, slugs);
-  }
-
   const tezos = new TezosToolkit(rpcUrl);
+  const chainId = await tezos.rpc.getChainId();
+
+  if (isKnownChainId(chainId)) {
+    return await fetchTokensMetadataOnAPI(chainId, slugs);
+  }
 
   return await Promise.all(
     slugs.map(async slug => {
@@ -121,11 +124,3 @@ const transformWhitelistToTokenMetadata = (
   thumbnailUri: token.metadata.thumbnailUri,
   standard: token.type === 'FA12' ? TokenStandardsEnum.Fa12 : TokenStandardsEnum.Fa2
 });
-
-const LOCAL_HOSTNAMES = ['localhost', '127.0.0.1'];
-
-const isLocalhost = (url: string) => {
-  const { hostname } = new URL(url);
-
-  return LOCAL_HOSTNAMES.includes(hostname.toLowerCase());
-};
