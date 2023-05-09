@@ -1,3 +1,4 @@
+import { TEMPLE_TOKEN } from 'lib/route3/constants';
 import { TempleChainId } from 'lib/temple/types';
 
 import { toTokenSlug } from './utils';
@@ -12,6 +13,7 @@ export namespace KNOWN_TOKENS_SLUGS {
   export const UBTC = toTokenSlug('KT1XRPEPXbZK25r3Htzp2o1x7xdMMmfocKNW', 2);
   export const YOU = toTokenSlug('KT1Xobej4mc6XgEjDoJoHtTKgbD1ELMvcQuL', 0);
   export const SIRS = toTokenSlug('KT1AafHA1C1vk959wvHWBispY9Y2f3fxBUUo', 0);
+  export const TEMPLE = toTokenSlug(TEMPLE_TOKEN.contract!, TEMPLE_TOKEN.tokenId!);
 }
 
 const PREDEFINED_TOKENS_BY_CHAIN_ID: Record<string, string[]> = {

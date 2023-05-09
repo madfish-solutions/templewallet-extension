@@ -3,19 +3,18 @@ import { BigNumber } from 'bignumber.js';
 
 import { Route3Token } from 'lib/apis/route3/fetch-route3-tokens';
 
-import { ROUTING_FEE_ADDRESS } from '../constants';
-
 export const getRoutingFeeTransferParams = async (
   token: Route3Token,
   feeAmountAtomic: BigNumber,
   senderPublicKeyHash: string,
+  routingFeeAddress: string,
   tezos: TezosToolkit
 ) => {
   if (token.contract === null) {
     return [
       {
         amount: feeAmountAtomic.toNumber(),
-        to: ROUTING_FEE_ADDRESS,
+        to: routingFeeAddress,
         mutez: true
       }
     ];
@@ -26,7 +25,7 @@ export const getRoutingFeeTransferParams = async (
   if (token.standard === 'fa12') {
     return [
       assetContract.methods
-        .transfer(senderPublicKeyHash, ROUTING_FEE_ADDRESS, feeAmountAtomic.toNumber())
+        .transfer(senderPublicKeyHash, routingFeeAddress, feeAmountAtomic.toNumber())
         .toTransferParams({ mutez: true })
     ];
   }
@@ -38,7 +37,7 @@ export const getRoutingFeeTransferParams = async (
             from_: senderPublicKeyHash,
             txs: [
               {
-                to_: ROUTING_FEE_ADDRESS,
+                to_: routingFeeAddress,
                 token_id: token.tokenId,
                 amount: feeAmountAtomic.toNumber()
               }

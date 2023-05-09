@@ -4,11 +4,13 @@ export interface Route3SwapParamsRequestRaw {
   fromSymbol: string;
   toSymbol: string;
   amount: string | undefined;
+  chainsLimit?: number;
 }
 export interface Route3SwapParamsRequest {
   fromSymbol: string;
   toSymbol: string;
   amount: string;
+  chainsLimit?: number;
 }
 
 interface Route3Hop {
@@ -39,9 +41,10 @@ const parser = (origJSON: string): ReturnType<typeof JSON['parse']> => {
 export const fetchRoute3SwapParams = ({
   fromSymbol,
   toSymbol,
-  amount
+  amount,
+  chainsLimit = 3
 }: Route3SwapParamsRequest): Promise<Route3SwapParamsResponse> =>
-  fetch(`https://temple.3route.io/swap/${fromSymbol}/${toSymbol}/${amount}`, {
+  fetch(`https://temple.3route.io/swap/${fromSymbol}/${toSymbol}/${amount}?chainsLimit=${chainsLimit}`, {
     headers: {
       Authorization: EnvVars.TEMPLE_WALLET_ROUTE3_AUTH_TOKEN
     }
