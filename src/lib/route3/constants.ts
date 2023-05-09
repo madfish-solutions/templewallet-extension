@@ -16,10 +16,10 @@ export const SWAP_THRESHOLD_TO_GET_CASHBACK = 10;
 
 export const ZERO = new BigNumber(0);
 export const TEMPLE_TOKEN: Route3Token = {
-  id: 14,
-  symbol: 'QUIPU',
+  id: 128,
+  symbol: 'TKEY',
   standard: Route3TokenStandardEnum.fa2,
-  contract: 'KT193D4vozYnhGJQVtw7CoxxqphqUEEwK6Vb',
+  contract: 'KT1WihWRnmzhfebi6zqQ4tvNGiPeVxiGwTi2',
   tokenId: '0',
-  decimals: 6
+  decimals: 18
 };
