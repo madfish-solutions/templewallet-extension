@@ -286,8 +286,10 @@ export function useFilteredAssets(assetSlugs: string[]) {
     setTokenId
   };
 }
+
 export function useFilteredSwapAssets(inputName: string = 'input') {
   const allTokensMetadata = useTokensMetadataSelector();
+  const assetsSortPredicate = useAssetsSortPredicate();
   const { route3tokensSlugs } = useAvailableRoute3Tokens();
   const { publicKeyHash } = useAccount();
   const chainId = useChainId(true)!;
@@ -316,8 +318,11 @@ export function useFilteredSwapAssets(inputName: string = 'input') {
   const [searchValueDebounced] = useDebounce(tokenId ? toTokenSlug(searchValue, tokenId) : searchValue, 300);
 
   const filteredAssets = useMemo(
-    () => searchAssetsWithNoMeta(searchValueDebounced, assetSlugs, allTokensMetadata, slug => slug),
-    [searchValueDebounced, assetSlugs, allTokensMetadata]
+    () =>
+      searchAssetsWithNoMeta(searchValueDebounced, assetSlugs, allTokensMetadata, slug => slug).sort(
+        assetsSortPredicate
+      ),
+    [searchValueDebounced, assetSlugs, allTokensMetadata, assetsSortPredicate]
   );
 
   return {
