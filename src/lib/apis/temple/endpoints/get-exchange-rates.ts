@@ -1,4 +1,4 @@
-import { toAssetSlug } from 'lib/assets';
+import { toTokenSlug } from 'lib/assets';
 
 import { templeWalletApi } from './templewallet.api';
 
@@ -14,7 +14,7 @@ export const fetchUsdToTokenRates = () =>
 
     for (const { tokenAddress, tokenId, exchangeRate } of data) {
       if (tokenAddress) {
-        prices[toAssetSlug(tokenAddress, tokenId)] = exchangeRate;
+        prices[toTokenSlug(tokenAddress, tokenId)] = exchangeRate;
       } else {
         prices.tez = exchangeRate;
       }

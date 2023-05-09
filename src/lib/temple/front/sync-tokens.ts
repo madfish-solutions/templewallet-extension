@@ -6,7 +6,7 @@ import { ScopedMutator } from 'swr/dist/types';
 
 import { fetchWhitelistTokenSlugs } from 'lib/apis/temple';
 import { TzktAccountToken, fetchTzktTokens } from 'lib/apis/tzkt';
-import { toAssetSlug } from 'lib/assets';
+import { toTokenSlug } from 'lib/assets';
 import { getPredefinedTokensSlugs } from 'lib/assets/known-tokens';
 import { getStoredTokens } from 'lib/temple/assets';
 import { useChainId, useAccount } from 'lib/temple/front';
@@ -43,14 +43,14 @@ const makeSync = async (accountPkh: string, chainId: string, mutate: ScopedMutat
   ]);
 
   const tzktTokensMap = new Map(
-    tzktTokens.map(tzktToken => [toAssetSlug(tzktToken.token.contract.address, tzktToken.token.tokenId), tzktToken])
+    tzktTokens.map(tzktToken => [toTokenSlug(tzktToken.token.contract.address, tzktToken.token.tokenId), tzktToken])
   );
 
   const displayedTokenSlugs = displayedTokens.map(({ tokenSlug }) => tokenSlug);
 
   const tokenSlugs = filterUnique([
     ...getPredefinedTokensSlugs(chainId),
-    ...tzktTokens.map(balance => toAssetSlug(balance.token.contract.address, balance.token.tokenId)),
+    ...tzktTokens.map(balance => toTokenSlug(balance.token.contract.address, balance.token.tokenId)),
     ...displayedTokenSlugs,
     ...whitelistTokenSlugs
   ]);

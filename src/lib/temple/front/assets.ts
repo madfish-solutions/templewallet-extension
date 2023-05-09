@@ -9,7 +9,7 @@ import { useBalancesWithDecimals } from 'app/hooks/use-balances-with-decimals.ho
 import { useBalancesSelector } from 'app/store/balances/selectors';
 import { useSwapTokensSelector } from 'app/store/swap/selectors';
 import { useTokensMetadataSelector } from 'app/store/tokens-metadata/selectors';
-import { isTezAsset, TEZ_TOKEN_SLUG, toAssetSlug } from 'lib/assets';
+import { isTezAsset, TEZ_TOKEN_SLUG, toTokenSlug } from 'lib/assets';
 import { AssetTypesEnum } from 'lib/assets/types';
 import { useUsdToTokenRates } from 'lib/fiat-currency/core';
 import { TOKENS_SYNC_INTERVAL } from 'lib/fixed-times';
@@ -214,7 +214,7 @@ export const useAvailableRoute3Tokens = () => {
 
     for (const { contract, tokenId } of route3tokens) {
       if (contract !== null) {
-        result.push(toAssetSlug(contract, tokenId ?? 0));
+        result.push(toTokenSlug(contract, tokenId ?? 0));
       }
     }
 
@@ -268,7 +268,7 @@ export function useFilteredAssets(assetSlugs: string[]) {
 
   const [searchValue, setSearchValue] = useState('');
   const [tokenId, setTokenId] = useState<number>();
-  const [searchValueDebounced] = useDebounce(tokenId ? toAssetSlug(searchValue, tokenId) : searchValue, 300);
+  const [searchValueDebounced] = useDebounce(tokenId ? toTokenSlug(searchValue, tokenId) : searchValue, 300);
 
   const filteredAssets = useMemo(
     () =>
@@ -313,7 +313,7 @@ export function useFilteredSwapAssets(inputName: string = 'input') {
 
   const [searchValue, setSearchValue] = useState('');
   const [tokenId, setTokenId] = useState<number>();
-  const [searchValueDebounced] = useDebounce(tokenId ? toAssetSlug(searchValue, tokenId) : searchValue, 300);
+  const [searchValueDebounced] = useDebounce(tokenId ? toTokenSlug(searchValue, tokenId) : searchValue, 300);
 
   const filteredAssets = useMemo(
     () => searchAssetsWithNoMeta(searchValueDebounced, assetSlugs, allTokensMetadata, slug => slug),

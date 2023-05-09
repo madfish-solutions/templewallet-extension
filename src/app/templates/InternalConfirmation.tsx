@@ -18,7 +18,7 @@ import OperationsBanner from 'app/templates/OperationsBanner';
 import RawPayloadView from 'app/templates/RawPayloadView';
 import ViewsSwitcher from 'app/templates/ViewsSwitcher/ViewsSwitcher';
 import { ViewsSwitcherItemProps } from 'app/templates/ViewsSwitcher/ViewsSwitcherItem';
-import { toAssetSlug } from 'lib/assets';
+import { toTokenSlug } from 'lib/assets';
 import { T, t } from 'lib/i18n';
 import { useRetryableSWR } from 'lib/swr';
 import { useCustomChainId, useNetwork, useRelevantAccounts, tryParseExpenses } from 'lib/temple/front';
@@ -75,7 +75,7 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
   const expensesData = useMemo(() => {
     return rawExpensesData.map(({ expenses, ...restProps }) => ({
       expenses: expenses.map(({ tokenAddress, tokenId, ...restProps }) => ({
-        assetSlug: tokenAddress ? toAssetSlug(tokenAddress, tokenId) : 'tez',
+        assetSlug: tokenAddress ? toTokenSlug(tokenAddress, tokenId) : 'tez',
         ...restProps
       })),
       ...restProps

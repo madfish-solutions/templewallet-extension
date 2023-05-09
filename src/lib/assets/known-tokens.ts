@@ -1,18 +1,18 @@
 import { TokenMetadata, TokenStandardsEnum } from 'lib/metadata/types';
 import { TempleChainId } from 'lib/temple/types';
 
-import { toAssetSlug } from './index';
+import { toTokenSlug } from './index';
 
 export namespace KNOWN_TOKENS_SLUGS {
-  export const TZBTC = toAssetSlug('KT1PWx2mnDueood7fEmfbBDKx1D9BAnnXitn', 0);
-  export const KUSD = toAssetSlug('KT1K9gCRgaLRFKTErYt1wVxA3Frb9FjasjTV', 0);
-  export const UUSD = toAssetSlug('KT1XRPEPXbZK25r3Htzp2o1x7xdMMmfocKNW', 0);
-  export const QUIPU = toAssetSlug('KT193D4vozYnhGJQVtw7CoxxqphqUEEwK6Vb', 0);
-  export const WWBTC = toAssetSlug('KT18fp5rcTW7mbWDmzFwjLDUhs5MeJmagDSZ', 19);
-  export const USDT = toAssetSlug('KT1XnTn74bUtxHfDtBmm2bGZAQfhPbvKWR8o', 0);
-  export const UBTC = toAssetSlug('KT1XRPEPXbZK25r3Htzp2o1x7xdMMmfocKNW', 2);
-  export const YOU = toAssetSlug('KT1Xobej4mc6XgEjDoJoHtTKgbD1ELMvcQuL', 0);
-  export const SIRS = toAssetSlug('KT1AafHA1C1vk959wvHWBispY9Y2f3fxBUUo', 0);
+  export const TZBTC = toTokenSlug('KT1PWx2mnDueood7fEmfbBDKx1D9BAnnXitn', 0);
+  export const KUSD = toTokenSlug('KT1K9gCRgaLRFKTErYt1wVxA3Frb9FjasjTV', 0);
+  export const UUSD = toTokenSlug('KT1XRPEPXbZK25r3Htzp2o1x7xdMMmfocKNW', 0);
+  export const QUIPU = toTokenSlug('KT193D4vozYnhGJQVtw7CoxxqphqUEEwK6Vb', 0);
+  export const WWBTC = toTokenSlug('KT18fp5rcTW7mbWDmzFwjLDUhs5MeJmagDSZ', 19);
+  export const USDT = toTokenSlug('KT1XnTn74bUtxHfDtBmm2bGZAQfhPbvKWR8o', 0);
+  export const UBTC = toTokenSlug('KT1XRPEPXbZK25r3Htzp2o1x7xdMMmfocKNW', 2);
+  export const YOU = toTokenSlug('KT1Xobej4mc6XgEjDoJoHtTKgbD1ELMvcQuL', 0);
+  export const SIRS = toTokenSlug('KT1AafHA1C1vk959wvHWBispY9Y2f3fxBUUo', 0);
 }
 
 const PREDEFINED_TOKENS_BY_CHAIN_ID: Record<string, string[]> = {

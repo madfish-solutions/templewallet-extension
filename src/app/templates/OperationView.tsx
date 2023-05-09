@@ -9,7 +9,7 @@ import ExpensesView, { ModifyFeeAndLimit } from 'app/templates/ExpensesView/Expe
 import OperationsBanner from 'app/templates/OperationsBanner';
 import RawPayloadView from 'app/templates/RawPayloadView';
 import ViewsSwitcher from 'app/templates/ViewsSwitcher/ViewsSwitcher';
-import { toAssetSlug } from 'lib/assets';
+import { TEZ_TOKEN_SLUG, toTokenSlug } from 'lib/assets';
 import { T, t } from 'lib/i18n';
 import { tryParseExpenses } from 'lib/temple/front';
 import { TempleDAppOperationsPayload, TempleDAppSignPayload } from 'lib/temple/types';
@@ -47,7 +47,7 @@ const OperationView: FC<OperationViewProps> = ({
   const expensesData = useMemo(() => {
     return rawExpensesData.map(({ expenses, ...restRaw }) => ({
       expenses: expenses.map(({ tokenAddress, tokenId, ...restProps }) => ({
-        assetSlug: tokenAddress ? toAssetSlug(tokenAddress, tokenId) : 'tez',
+        assetSlug: tokenAddress ? toTokenSlug(tokenAddress, tokenId) : TEZ_TOKEN_SLUG,
         tokenAddress,
         tokenId,
         ...restProps

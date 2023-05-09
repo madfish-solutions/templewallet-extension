@@ -13,7 +13,7 @@ import PageLayout from 'app/layouts/PageLayout';
 import { addTokensMetadataAction } from 'app/store/tokens-metadata/actions';
 import { useFormAnalytics } from 'lib/analytics';
 import { TokenMetadataResponse } from 'lib/apis/temple';
-import { toAssetSlug } from 'lib/assets';
+import { toTokenSlug } from 'lib/assets';
 import {
   NotMatchingStandardError,
   assertFa2TokenDefined,
@@ -198,7 +198,7 @@ const Form: FC = () => {
 
       formAnalytics.trackSubmit();
       try {
-        const tokenSlug = toAssetSlug(address, id || 0);
+        const tokenSlug = toTokenSlug(address, id || 0);
 
         const baseMetadata = {
           ...metadataRef.current,

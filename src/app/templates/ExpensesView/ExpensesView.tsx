@@ -112,10 +112,7 @@ const ExpensesView: FC<ExpensesViewProps> = ({
             : [])
         ].map(({ key, title, value, onChange }, i, arr) => (
           <div key={key} className={classNames('w-full flex items-center', i !== arr.length - 1 && 'mb-1')}>
-            <div
-              className={classNames('whitespace-nowrap overflow-x-auto no-scrollbar', 'opacity-90')}
-              style={{ maxWidth: '45%' }}
-            >
+            <div className="whitespace-nowrap overflow-x-auto no-scrollbar opacity-90" style={{ maxWidth: '45%' }}>
               {title}
             </div>
             <div className="mr-1">:</div>
@@ -394,7 +391,7 @@ const ExpenseViewItem: FC<ExpenseViewItemProps> = ({ item, last, mainnet }) => {
           {argumentDisplayProps && <OperationArgumentDisplay {...argumentDisplayProps} />}
         </div>
 
-        <div className={classNames('flex items-end flex-shrink-0 flex-wrap', 'text-gray-800')}>
+        <div className="flex items-end flex-shrink-0 flex-wrap text-gray-800">
           {item.expenses
             .filter(expense => new BigNumber(expense.amount).isGreaterThan(0))
             .map((expense, index, arr) => (

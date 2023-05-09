@@ -6,16 +6,13 @@ import { Asset, FA2Token } from './types';
 
 export const TEZ_TOKEN_SLUG = 'tez';
 
-const toTokenSlug = (contract: string, id: BigNumber.Value = 0) => {
+export const toTokenSlug = (contract: string, id: BigNumber.Value = 0) => {
   return `${contract}_${new BigNumber(id).toFixed()}`;
 };
 
 export const tokenToSlug = <T extends { address: string; id?: BigNumber.Value }>({ address, id }: T) => {
   return toTokenSlug(address, id);
 };
-
-export const toAssetSlug = (contract: string, id: BigNumber.Value = 0) =>
-  contract === TEZ_TOKEN_SLUG ? TEZ_TOKEN_SLUG : toTokenSlug(contract, id);
 
 export const isFA2Token = (asset: Asset): asset is FA2Token =>
   isTezAsset(asset) ? false : typeof asset.id !== 'undefined';
