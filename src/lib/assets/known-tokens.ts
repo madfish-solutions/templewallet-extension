@@ -2,6 +2,12 @@ import { TokenMetadata, TokenStandardsEnum } from 'lib/metadata/types';
 import { TempleChainId } from 'lib/temple/types';
 
 import { toTokenSlug } from './index';
+import { FA2Token } from './types';
+
+export const TempleToken: FA2Token = {
+  contract: 'KT193D4vozYnhGJQVtw7CoxxqphqUEEwK6Vb',
+  id: 0
+};
 
 export namespace KNOWN_TOKENS_SLUGS {
   export const TZBTC = toTokenSlug('KT1PWx2mnDueood7fEmfbBDKx1D9BAnnXitn', 0);
@@ -13,6 +19,7 @@ export namespace KNOWN_TOKENS_SLUGS {
   export const UBTC = toTokenSlug('KT1XRPEPXbZK25r3Htzp2o1x7xdMMmfocKNW', 2);
   export const YOU = toTokenSlug('KT1Xobej4mc6XgEjDoJoHtTKgbD1ELMvcQuL', 0);
   export const SIRS = toTokenSlug('KT1AafHA1C1vk959wvHWBispY9Y2f3fxBUUo', 0);
+  export const TEMPLE = toTokenSlug(TempleToken.contract, TempleToken.id);
 }
 
 const PREDEFINED_TOKENS_BY_CHAIN_ID: Record<string, string[]> = {

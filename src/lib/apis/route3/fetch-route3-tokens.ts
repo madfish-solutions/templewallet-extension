@@ -2,11 +2,17 @@ import { from, map } from 'rxjs';
 
 import { route3Api } from './route3.api';
 
+export enum Route3TokenStandardEnum {
+  xtz = 'xtz',
+  fa2 = 'fa2',
+  fa12 = 'fa12'
+}
+
 export interface Route3Token {
   contract: null | string;
   decimals: number;
   id: number;
-  standard: 'xtz' | 'fa12' | 'fa2';
+  standard: Route3TokenStandardEnum;
   symbol: string;
   tokenId: null | string;
 }
