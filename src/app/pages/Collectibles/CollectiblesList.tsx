@@ -6,7 +6,7 @@ import { ActivitySpinner } from 'app/atoms';
 import { useAppEnv } from 'app/env';
 import { ReactComponent as AddToListIcon } from 'app/icons/add-to-list.svg';
 import { CollectibleItem } from 'app/pages/Collectibles/CollectibleItem';
-import { AssetsSelectors } from 'app/pages/Explore/Assets.selectors';
+import { AssetsSelectors } from 'app/pages/Home/OtherComponents/Assets.selectors';
 import SearchAssetField from 'app/templates/SearchAssetField';
 import { T } from 'lib/i18n';
 import { AssetTypesEnum } from 'lib/temple/assets';
@@ -30,7 +30,11 @@ export const CollectiblesList = () => {
     <div className={classNames('w-full max-w-sm mx-auto')}>
       <div className={classNames('mt-3', popup && 'mx-4')}>
         <div className="mb-3 w-full flex items-strech">
-          <SearchAssetField value={searchValue} onValueChange={setSearchValue} />
+          <SearchAssetField
+            value={searchValue}
+            onValueChange={setSearchValue}
+            testID={AssetsSelectors.searchAssetsInputCollectibles}
+          />
 
           <Link
             to={`/manage-assets/${AssetTypesEnum.Collectibles}`}
@@ -44,7 +48,7 @@ export const CollectiblesList = () => {
               'hover:bg-gray-100',
               'opacity-75 hover:opacity-100 focus:opacity-100'
             )}
-            testID={AssetsSelectors.ManageButton}
+            testID={AssetsSelectors.manageButton}
           >
             <AddToListIcon className={classNames('mr-1 h-5 w-auto stroke-current stroke-2')} />
             <T id="manage" />

@@ -33,11 +33,7 @@ const DropdownWrapper: FC<DropdownWrapperProps> = ({
   >
     <div
       className={classNames(
-        'mt-2',
-        'border',
-        'rounded-md',
-        'shadow-xl',
-        'p-2',
+        'mt-2 border rounded-md shadow-xl',
         hiddenOverflow && 'overflow-hidden',
         process.env.TARGET_BROWSER === 'firefox' && 'grayscale-firefox-fix',
         className

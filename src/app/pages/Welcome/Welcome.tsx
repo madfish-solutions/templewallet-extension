@@ -6,11 +6,12 @@ import Logo from 'app/atoms/Logo';
 import { ReactComponent as EntranceIcon } from 'app/icons/entrance.svg';
 import { ReactComponent as FolderAddIcon } from 'app/icons/folder-add.svg';
 import { ReactComponent as LedgerNanoIcon } from 'app/misc/ledger.svg';
+import { TestIDProps } from 'lib/analytics';
 import { TID, T } from 'lib/i18n';
 import { Link } from 'lib/woozie';
 
-import { TestIDProps } from '../../../lib/analytics';
-import { WelcomeTestIds } from './Welcome.test-ids';
+import { useABTestingLoading } from '../../hooks/use-ab-testing-loading';
+import { WelcomeSelectors } from './Welcome.selectors';
 
 interface TSign extends TestIDProps {
   key: string;
@@ -31,7 +32,7 @@ const SIGNS: TSign[] = [
     ),
     titleI18nKey: 'importExistingWallet',
     descriptionI18nKey: 'importExistingWalletDescription',
-    testID: WelcomeTestIds.importExistingWallet
+    testID: WelcomeSelectors.importExistingWallet
   },
   {
     key: 'create',
@@ -40,11 +41,13 @@ const SIGNS: TSign[] = [
     Icon: FolderAddIcon,
     titleI18nKey: 'createNewWallet',
     descriptionI18nKey: 'createNewWalletDescription',
-    testID: WelcomeTestIds.createNewWallet
+    testID: WelcomeSelectors.createNewWallet
   }
 ];
 
 const Welcome: FC = () => {
+  useABTestingLoading();
+
   return (
     <div
       className={classNames(

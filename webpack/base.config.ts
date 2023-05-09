@@ -15,6 +15,7 @@ import WebPack from 'webpack';
 
 import packageJSON from '../package.json';
 import tsConfig from '../tsconfig.json';
+import { definedEnvVarsNames } from './dotenv';
 import {
   NODE_ENV,
   WEBPACK_MODE,
@@ -28,10 +29,6 @@ import {
   IMAGE_INLINE_SIZE_LIMIT_ENV
 } from './env';
 import { PATHS } from './paths';
-
-// Grab NODE_ENV and TEMPLE_WALLET_* environment variables and prepare them to be
-// injected into the application via DefinePlugin in Webpack configuration.
-const TEMPLE_WALLET = /^TEMPLE_WALLET_/i;
 
 const VERSION = packageJSON.version;
 const IMAGE_INLINE_SIZE_LIMIT = parseInt(IMAGE_INLINE_SIZE_LIMIT_ENV);
@@ -245,15 +242,12 @@ export const buildBaseConfig = (): WebPack.Configuration & Pick<WebPack.WebpackO
       'process.env.MANIFEST_VERSION': JSON.stringify(String(MANIFEST_VERSION)),
       'process.env.BACKGROUND_IS_WORKER': JSON.stringify(String(BACKGROUND_IS_WORKER)),
       'process.env.TARGET_BROWSER': JSON.stringify(TARGET_BROWSER),
-      ...(() => {
-        const appEnvs: Record<`process.env.${string}`, string> = {};
-        for (const k of Object.keys(process.env)) {
-          if (TEMPLE_WALLET.test(k)) {
-            appEnvs[`process.env.${k}`] = JSON.stringify(process.env[k]);
-          }
-        }
-        return appEnvs;
-      })()
+      ...Object.fromEntries(
+        definedEnvVarsNames.map(name => {
+          const key = `process.env.${name}`;
+          return [key, JSON.stringify(process.env[name])];
+        })
+      )
     }),
 
     new ForkTsCheckerWebpackPlugin({
@@ -329,7 +323,6 @@ export const buildBaseConfig = (): WebPack.Configuration & Pick<WebPack.WebpackO
           },
           compress: {
             ecma: 5,
-            warnings: false,
             /*
               Disabled because of an issue with Uglify breaking seemingly valid code:
               https://github.com/facebook/create-react-app/issues/2376

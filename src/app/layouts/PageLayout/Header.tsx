@@ -26,7 +26,7 @@ const Header: FC = () => {
       <ContentContainer className="py-4">
         <div className={classNames(appEnv.fullPage && 'px-4')}>
           <div className="flex items-stretch">
-            <Link to="/" className="flex-shrink-0 pr-4" testID={HeaderSelectors.TempleLogo}>
+            <Link to="/" className="flex-shrink-0 pr-4" testID={HeaderSelectors.templeLogoIcon}>
               <div className="flex items-center">
                 <Logo hasTitle={appEnv.fullPage} white />
               </div>
@@ -47,13 +47,9 @@ const Control: FC = () => {
 
   return (
     <>
-      <div className={classNames('flex-1', 'flex flex-col items-end')}>
+      <div className="flex-1 flex flex-col items-end">
         <div className="max-w-full overflow-x-hidden">
-          <Name
-            className={classNames('text-primary-white', 'text-sm font-semibold', 'text-shadow-black', 'opacity-90')}
-          >
-            {account.name}
-          </Name>
+          <Name className="text-primary-white text-sm font-semibold text-shadow-black opacity-90">{account.name}</Name>
         </div>
 
         <div className="flex-1" />
@@ -71,18 +67,16 @@ const Control: FC = () => {
           <Button
             ref={ref}
             className={classNames(
-              'ml-2 flex-shrink-0 flex',
-              'bg-white bg-opacity-10',
-              'border border-white border-opacity-25',
-              'rounded-md',
-              'p-px',
+              'ml-2 flex-shrink-0 flex p-px',
+              'rounded-md border border-white border-opacity-25',
+              'bg-white bg-opacity-10 cursor-pointer',
               'transition ease-in-out duration-200',
-              opened ? 'shadow-md' : 'shadow hover:shadow-md focus:shadow-md',
-              opened ? 'opacity-100' : 'opacity-90 hover:opacity-100 focus:opacity-100',
-              'cursor-pointer'
+              opened
+                ? 'shadow-md opacity-100'
+                : 'shadow hover:shadow-md focus:shadow-md opacity-90 hover:opacity-100 focus:opacity-100'
             )}
             onClick={toggleOpened}
-            testID={HeaderSelectors.AccountIcon}
+            testID={HeaderSelectors.accountIcon}
           >
             <Identicon type="bottts" hash={account.publicKeyHash} size={48} />
           </Button>

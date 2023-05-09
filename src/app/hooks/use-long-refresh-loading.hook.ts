@@ -1,20 +1,14 @@
 import { useDispatch } from 'react-redux';
 
 import { loadExchangeRates } from 'app/store/currency/actions';
+import { NOTIFICATIONS_SYNC_INTERVAL, RATES_SYNC_INTERVAL } from 'lib/fixed-times';
 import { loadNotificationsAction } from 'lib/notifications';
 import { useInterval } from 'lib/ui/hooks';
-
-const REFRESH_INTERVAL = 5 * 60 * 1000;
 
 export const useLongRefreshLoading = () => {
   const dispatch = useDispatch();
 
-  useInterval(
-    () => {
-      dispatch(loadExchangeRates.submit());
-      dispatch(loadNotificationsAction.submit());
-    },
-    REFRESH_INTERVAL,
-    []
-  );
+  useInterval(() => dispatch(loadExchangeRates.submit()), RATES_SYNC_INTERVAL, []);
+
+  useInterval(() => dispatch(loadNotificationsAction.submit()), NOTIFICATIONS_SYNC_INTERVAL, []);
 };

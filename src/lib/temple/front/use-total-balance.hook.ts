@@ -1,37 +1,53 @@
 import { useMemo } from 'react';
 
+import { isDefined } from '@rnw-community/shared';
 import { BigNumber } from 'bignumber.js';
 
+import { useBalancesWithDecimals } from 'app/hooks/use-balances-with-decimals.hook';
 import { useSelector } from 'app/store';
-import { useFiatCurrency } from 'lib/fiat-currency';
+import { useFiatToUsdRate } from 'lib/fiat-currency';
+import { isTruthy } from 'lib/utils';
 
-import { useSyncBalances } from './sync-balances';
+import { TEZ_TOKEN_SLUG, useDisplayedFungibleTokens, useGasToken } from './assets';
+import { useAccount, useChainId } from './ready';
 
+/** Total fiat volume of displayed tokens */
 export const useTotalBalance = () => {
-  const {
-    fiatRates,
-    selectedFiatCurrency: { name: selectedFiatCurrencyName }
-  } = useFiatCurrency();
+  const chainId = useChainId(true)!;
+  const { publicKeyHash } = useAccount();
+  const { data: tokens } = useDisplayedFungibleTokens(chainId, publicKeyHash);
+  const gasToken = useGasToken();
 
-  const exchangeRates = useSelector(state => state.currency.usdToTokenRates.data);
-  const tokensBalances = useSyncBalances();
+  const tokensBalances = useBalancesWithDecimals();
+  const allUsdToTokenRates = useSelector(state => state.currency.usdToTokenRates.data);
 
-  const totalBalance = useMemo(() => {
-    if (fiatRates == null) return new BigNumber(0);
+  const fiatToUsdRate = useFiatToUsdRate();
 
-    const usdCurrency = fiatRates['usd'] ?? 1;
-    const fiatToUsdRate = (fiatRates[selectedFiatCurrencyName.toLowerCase()] ?? 1) / usdCurrency;
+  const slugs = useMemo(
+    () => (tokens ? [TEZ_TOKEN_SLUG, ...tokens.map(token => token.tokenSlug)] : [TEZ_TOKEN_SLUG]),
+    [tokens]
+  );
 
+  const totalBalanceInFiat = useMemo(() => {
     let dollarValue = new BigNumber(0);
 
-    for (const tokenSlug of Object.keys(tokensBalances)) {
-      const exchangeRate = new BigNumber(exchangeRates[tokenSlug] ? exchangeRates[tokenSlug] : 0);
-      const tokenDollarValue = exchangeRate.times(tokensBalances[tokenSlug]);
+    if (!isTruthy(fiatToUsdRate)) return dollarValue;
+
+    for (const slug of slugs) {
+      const balance = tokensBalances[slug];
+      const usdToTokenRate = allUsdToTokenRates[slug];
+      const tokenDollarValue = isDefined(balance) && isTruthy(usdToTokenRate) ? balance.times(usdToTokenRate) : 0;
       dollarValue = dollarValue.plus(tokenDollarValue);
     }
 
     return dollarValue.times(fiatToUsdRate);
-  }, [exchangeRates, tokensBalances, fiatRates, selectedFiatCurrencyName]);
+  }, [slugs, tokensBalances, allUsdToTokenRates, fiatToUsdRate]);
 
-  return totalBalance.toFixed();
+  const totalBalanceInGasToken = useMemo(() => {
+    const tezosToUsdRate = allUsdToTokenRates[TEZ_TOKEN_SLUG];
+
+    return totalBalanceInFiat.dividedBy(tezosToUsdRate).decimalPlaces(gasToken.metadata.decimals) || new BigNumber(0);
+  }, [totalBalanceInFiat, allUsdToTokenRates, gasToken.metadata.decimals]);
+
+  return { totalBalanceInFiat, totalBalanceInGasToken };
 };

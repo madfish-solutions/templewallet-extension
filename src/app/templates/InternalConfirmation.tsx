@@ -24,6 +24,7 @@ import { toTokenSlug } from 'lib/temple/assets';
 import { useCustomChainId, useNetwork, useRelevantAccounts, tryParseExpenses } from 'lib/temple/front';
 import { TempleAccountType, TempleChainId, TempleConfirmationPayload } from 'lib/temple/types';
 import { useSafeState } from 'lib/ui/hooks';
+import { isTruthy } from 'lib/utils';
 
 import { InternalConfirmationSelectors } from './InternalConfirmation.selectors';
 
@@ -88,25 +89,21 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
           key: 'preview',
           name: t('preview'),
           Icon: EyeIcon,
-          testID: InternalConfirmationSelectors.PreviewTab
+          testID: InternalConfirmationSelectors.previewTab
         },
         {
           key: 'raw',
           name: t('raw'),
           Icon: CodeAltIcon,
-          testID: InternalConfirmationSelectors.RawTab
+          testID: InternalConfirmationSelectors.rawTab
         },
-        ...(payload.bytesToSign
-          ? [
-              {
-                key: 'bytes',
-                name: t('bytes'),
-                Icon: HashIcon,
-                testID: InternalConfirmationSelectors.BytesTab
-              }
-            ]
-          : [])
-      ];
+        payload.bytesToSign && {
+          key: 'bytes',
+          name: t('bytes'),
+          Icon: HashIcon,
+          testID: InternalConfirmationSelectors.bytesTab
+        }
+      ].filter(isTruthy);
     }
 
     return [
@@ -114,13 +111,13 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
         key: 'preview',
         name: t('preview'),
         Icon: EyeIcon,
-        testID: InternalConfirmationSelectors.PreviewTab
+        testID: InternalConfirmationSelectors.previewTab
       },
       {
         key: 'bytes',
         name: t('bytes'),
         Icon: HashIcon,
-        testID: InternalConfirmationSelectors.BytesTab
+        testID: InternalConfirmationSelectors.bytesTab
       }
     ];
   }, [payload]);
@@ -208,7 +205,7 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
   );
 
   return (
-    <div className={classNames('h-full w-full', 'max-w-sm mx-auto', 'flex flex-col', !popup && 'justify-center px-2')}>
+    <div className={classNames('h-full w-full max-w-sm mx-auto flex flex-col', !popup && 'justify-center px-2')}>
       <div className={classNames('flex flex-col items-center justify-center', popup && 'flex-1')}>
         <div className="flex items-center my-4">
           <Logo hasTitle />
@@ -217,10 +214,8 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
 
       <div
         className={classNames(
-          'relative bg-white shadow-md',
-          popup ? 'border-t border-gray-200' : 'rounded-md',
-          'overflow-y-auto',
-          'flex flex-col'
+          'flex flex-col relative bg-white shadow-md overflow-y-auto',
+          popup ? 'border-t border-gray-200' : 'rounded-md'
         )}
         style={{ height: '34rem' }}
       >
@@ -247,7 +242,7 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
 
               {signPayloadFormats.length > 1 && (
                 <div className="w-full flex justify-end mb-3 items-center">
-                  <span className={classNames('mr-2', 'text-base font-semibold text-gray-700')}>
+                  <span className="mr-2 text-base font-semibold text-gray-700">
                     <T id="operations" />
                   </span>
 
@@ -299,43 +294,31 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
 
         <div className="flex-1" />
 
-        <div
-          className={classNames('sticky bottom-0 w-full', 'bg-white shadow-md', 'flex items-stretch', 'px-4 pt-2 pb-4')}
-        >
+        <div className="sticky bottom-0 w-full bg-white shadow-md flex items-stretch px-4 pt-2 pb-4">
           <div className="w-1/2 pr-2">
-            <T id="decline">
-              {message => (
-                <FormSecondaryButton
-                  type="button"
-                  className="justify-center w-full"
-                  loading={declining}
-                  disabled={declining}
-                  onClick={handleDeclineClick}
-                  testID={InternalConfirmationSelectors.DeclineButton}
-                >
-                  {message}
-                </FormSecondaryButton>
-              )}
-            </T>
+            <FormSecondaryButton
+              type="button"
+              className="justify-center w-full"
+              loading={declining}
+              disabled={declining}
+              onClick={handleDeclineClick}
+              testID={InternalConfirmationSelectors.declineButton}
+            >
+              <T id="decline" />
+            </FormSecondaryButton>
           </div>
 
           <div className="w-1/2 pl-2">
-            <T id={error ? 'retry' : 'confirm'}>
-              {message => (
-                <FormSubmitButton
-                  type="button"
-                  className="justify-center w-full"
-                  disabled={gasFeeError}
-                  loading={confirming}
-                  onClick={handleConfirmClick}
-                  testID={
-                    error ? InternalConfirmationSelectors.RetryButton : InternalConfirmationSelectors.ConfirmButton
-                  }
-                >
-                  {message}
-                </FormSubmitButton>
-              )}
-            </T>
+            <FormSubmitButton
+              type="button"
+              className="justify-center w-full"
+              disabled={gasFeeError}
+              loading={confirming}
+              onClick={handleConfirmClick}
+              testID={error ? InternalConfirmationSelectors.retryButton : InternalConfirmationSelectors.confirmButton}
+            >
+              <T id={error ? 'retry' : 'confirm'} />
+            </FormSubmitButton>
           </div>
         </div>
 

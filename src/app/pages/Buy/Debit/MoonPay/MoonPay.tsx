@@ -2,18 +2,17 @@ import React from 'react';
 
 import classNames from 'clsx';
 
-import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
+import { Anchor } from 'app/atoms';
 import { T } from 'lib/i18n';
 
 import { BuySelectors } from '../../Buy.selectors';
 import { useSignedMoonPayUrl } from './useSignedMoonPayUrl';
 
 export const MoonPay = () => {
-  const { trackEvent } = useAnalytics();
   const signedUrl = useSignedMoonPayUrl();
 
   return (
-    <a
+    <Anchor
       className={classNames(
         'shadow-sm hover:shadow focus:shadow',
         'py-2 px-4 rounded mt-4',
@@ -27,11 +26,10 @@ export const MoonPay = () => {
         'w-full'
       )}
       href={signedUrl}
-      target="_blank"
-      rel="noopener noreferrer"
-      onClick={() => trackEvent(BuySelectors.MoonPay, AnalyticsEventCategory.ButtonPress)}
+      testID={BuySelectors.MoonPayButton}
+      treatAsButton={true}
     >
       <T id="continue" />
-    </a>
+    </Anchor>
   );
 };

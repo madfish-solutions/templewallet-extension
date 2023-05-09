@@ -2,23 +2,25 @@ import React, { FC, useCallback, useLayoutEffect, useState } from 'react';
 
 import classNames from 'clsx';
 import { Controller, useForm } from 'react-hook-form';
+import { useDispatch } from 'react-redux';
 
 import { FormCheckbox, FormField, FormSubmitButton, PASSWORD_ERROR_CAPTION } from 'app/atoms';
-import { AnalyticsEventCategory, TestIDProps, useAnalytics, useAnalyticsSettings } from 'lib/analytics';
-import { T, t } from 'lib/i18n';
-import { useTempleClient } from 'lib/temple/front';
-import PasswordStrengthIndicator, { PasswordValidation } from 'lib/ui/PasswordStrengthIndicator';
-import { navigate } from 'lib/woozie';
-
 import {
   formatMnemonic,
   lettersNumbersMixtureRegx,
   PASSWORD_PATTERN,
   specialCharacterRegx,
   uppercaseLowercaseMixtureRegx
-} from '../../../defaults';
+} from 'app/defaults';
+import { setIsAnalyticsEnabledAction } from 'app/store/settings/actions';
+import { AnalyticsEventCategory, TestIDProps, useAnalytics } from 'lib/analytics';
+import { T, t } from 'lib/i18n';
+import { useTempleClient } from 'lib/temple/front';
+import PasswordStrengthIndicator, { PasswordValidation } from 'lib/ui/PasswordStrengthIndicator';
+import { navigate } from 'lib/woozie';
+
 import { useOnboardingProgress } from '../../Onboarding/hooks/useOnboardingProgress.hook';
-import { setWalletPasswordTestIDS } from './SetWalletPassword.test-ids';
+import { setWalletPasswordSelectors } from './SetWalletPassword.selectors';
 
 const MIN_PASSWORD_LENGTH = 8;
 
@@ -47,7 +49,9 @@ export const SetWalletPassword: FC<SetWalletPasswordProps> = ({
   const { registerWallet } = useTempleClient();
   const { trackEvent } = useAnalytics();
 
-  const { setAnalyticsEnabled } = useAnalyticsSettings();
+  const dispatch = useDispatch();
+
+  const setAnalyticsEnabled = (analyticsEnabled: boolean) => dispatch(setIsAnalyticsEnabledAction(analyticsEnabled));
   const { setOnboardingCompleted } = useOnboardingProgress();
 
   const isImportFromKeystoreFile = Boolean(keystorePassword);
@@ -102,7 +106,7 @@ export const SetWalletPassword: FC<SetWalletPasswordProps> = ({
           : data.password
         : data.password;
       try {
-        setAnalyticsEnabled(data.analytics);
+        setAnalyticsEnabled(!!data.analytics);
         setOnboardingCompleted(data.skipOnboarding!);
 
         await registerWallet(password!, formatMnemonic(seedPhrase));
@@ -153,6 +157,7 @@ export const SetWalletPassword: FC<SetWalletPasswordProps> = ({
                 specialChar: false
               })
             }
+            testID={setWalletPasswordSelectors.useFilePasswordCheckBox}
           />
           {shouldUseKeystorePassword && isKeystorePasswordWeak && (
             <div className="text-xs text-red-500">
@@ -181,7 +186,7 @@ export const SetWalletPassword: FC<SetWalletPasswordProps> = ({
             errorCaption={errors.password?.message}
             onFocus={() => setFocused(true)}
             onChange={handlePasswordChange}
-            testID={setWalletPasswordTestIDS.passwordField}
+            testID={setWalletPasswordSelectors.passwordField}
           />
 
           {passwordValidation && (
@@ -208,7 +213,7 @@ export const SetWalletPassword: FC<SetWalletPasswordProps> = ({
             placeholder="********"
             errorCaption={errors.repeatPassword?.message}
             containerClassName="my-6"
-            testID={setWalletPasswordTestIDS.repeatPasswordField}
+            testID={setWalletPasswordSelectors.repeatPasswordField}
           />
         </>
       )}
@@ -222,18 +227,14 @@ export const SetWalletPassword: FC<SetWalletPasswordProps> = ({
           <T
             id="analyticsInputDescription"
             substitutions={[
-              <T id="analyticsCollecting" key="analyticsLink">
-                {message => (
-                  <a
-                    href="https://templewallet.com/analytics-collecting"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="underline text-secondary"
-                  >
-                    {message}
-                  </a>
-                )}
-              </T>
+              <a
+                href="https://templewallet.com/analytics-collecting"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline text-secondary"
+              >
+                <T id="analyticsCollecting" key="analyticsLink" />
+              </a>
             ]}
           />
         }
@@ -243,11 +244,11 @@ export const SetWalletPassword: FC<SetWalletPasswordProps> = ({
       <Controller
         control={control}
         name="skipOnboarding"
-        as={p => <FormCheckbox {...p} testID={setWalletPasswordTestIDS.skipOnboardingCheckbox} />}
+        as={p => <FormCheckbox {...p} testID={setWalletPasswordSelectors.skipOnboardingCheckbox} />}
         label={t('skipOnboarding')}
         labelDescription={t('advancedUser')}
         containerClassName="mb-4"
-        testID={setWalletPasswordTestIDS.skipOnboardingCheckbox}
+        testID={setWalletPasswordSelectors.skipOnboardingCheckbox}
       />
 
       <FormCheckbox
@@ -257,35 +258,27 @@ export const SetWalletPassword: FC<SetWalletPasswordProps> = ({
         errorCaption={errors.termsAccepted?.message}
         name="termsAccepted"
         label={t('acceptTerms')}
-        testID={setWalletPasswordTestIDS.acceptTermsCheckbox}
+        testID={setWalletPasswordSelectors.acceptTermsCheckbox}
         labelDescription={
           <T
             id="acceptTermsInputDescription"
             substitutions={[
-              <T id="termsOfUsage" key="termsLink">
-                {message => (
-                  <a
-                    href="https://templewallet.com/terms"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="underline text-secondary"
-                  >
-                    {message}
-                  </a>
-                )}
-              </T>,
-              <T id="privacyPolicy" key="privacyPolicyLink">
-                {message => (
-                  <a
-                    href="https://templewallet.com/privacy"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="underline text-secondary"
-                  >
-                    {message}
-                  </a>
-                )}
-              </T>
+              <a
+                href="https://templewallet.com/terms"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline text-secondary"
+              >
+                <T id="termsOfUsage" key="termsLink" />
+              </a>,
+              <a
+                href="https://templewallet.com/privacy"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline text-secondary"
+              >
+                <T id="privacyPolicy" key="privacyPolicyLink" />
+              </a>
             ]}
           />
         }
@@ -295,7 +288,7 @@ export const SetWalletPassword: FC<SetWalletPasswordProps> = ({
       <FormSubmitButton
         loading={submitting}
         style={{ display: 'block', width: '100%', fontSize: 14, fontWeight: 500 }}
-        testID={ownMnemonic ? setWalletPasswordTestIDS.importButton : setWalletPasswordTestIDS.createButton}
+        testID={ownMnemonic ? setWalletPasswordSelectors.importButton : setWalletPasswordSelectors.createButton}
       >
         <T id={ownMnemonic ? 'import' : 'create'} />
       </FormSubmitButton>

@@ -1,12 +1,16 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
+import { BigNumber } from 'bignumber.js';
 import constate from 'constate';
 import deepEqual from 'fast-deep-equal';
-import Fuse from 'fuse.js';
 import { useDebounce } from 'use-debounce';
 import useForceUpdate from 'use-force-update';
 import browser from 'webextension-polyfill';
 
+import { useBalancesWithDecimals } from 'app/hooks/use-balances-with-decimals.hook';
+import { useBalancesSelector } from 'app/store/balances/selectors';
+import { useSwapTokensSelector } from 'app/store/swap/selectors';
+import { useUsdToTokenRates } from 'lib/fiat-currency/core';
 import { useRetryableSWR } from 'lib/swr';
 import {
   AssetTypesEnum,
@@ -22,6 +26,7 @@ import {
 import { useNetwork } from 'lib/temple/front';
 import { ITokenStatus } from 'lib/temple/repo';
 import { createQueue } from 'lib/utils';
+import { searchAndFilterItems } from 'lib/utils/search-items';
 
 import {
   AssetMetadata,
@@ -131,7 +136,7 @@ export function useAssetMetadata(slug: string): AssetMetadata | null {
 
   const getCurrentBaseMetadata = useMemo(
     () => (): AssetMetadata | null => allTokensBaseMetadataRef.current[slug] ?? null,
-    [slug, allTokensBaseMetadataRef]
+    [slug, allTokensBaseMetadataRef.current]
   );
 
   const tezAsset = isTezAsset(slug);
@@ -171,7 +176,13 @@ export function useAssetMetadata(slug: string): AssetMetadata | null {
   return tokenMetadata;
 }
 
-const defaultAllTokensBaseMetadata = {};
+const defaultAllTokensBaseMetadata = {
+  tez: {
+    decimals: 6,
+    symbol: 'TEZ',
+    name: 'Tezos'
+  }
+};
 const enqueueSetAllTokensBaseMetadata = createQueue();
 
 export const [TokensMetadataProvider, useTokensMetadata] = constate(() => {
@@ -181,13 +192,6 @@ export const [TokensMetadataProvider, useTokensMetadata] = constate(() => {
   );
 
   const allTokensBaseMetadataRef = useRef(initialAllTokensBaseMetadata);
-  useEffect(
-    () =>
-      onStorageChanged(ALL_TOKENS_BASE_METADATA_STORAGE_KEY, newValue => {
-        allTokensBaseMetadataRef.current = newValue;
-      }),
-    []
-  );
 
   const tezosRef = useTezosRef();
 
@@ -195,12 +199,13 @@ export const [TokensMetadataProvider, useTokensMetadata] = constate(() => {
 
   const setTokensBaseMetadata = useCallback(
     (toSet: Record<string, AssetMetadata>) =>
-      enqueueSetAllTokensBaseMetadata(() =>
-        putToStorage(ALL_TOKENS_BASE_METADATA_STORAGE_KEY, {
+      enqueueSetAllTokensBaseMetadata(() => {
+        allTokensBaseMetadataRef.current = {
           ...allTokensBaseMetadataRef.current,
           ...toSet
-        })
-      ),
+        };
+        return putToStorage(ALL_TOKENS_BASE_METADATA_STORAGE_KEY, allTokensBaseMetadataRef.current);
+      }),
     []
   );
 
@@ -296,16 +301,76 @@ export const useAvailableAssets = (assetType: AssetTypesEnum) => {
   return { availableAssets, assetsStatuses, isLoading, mutate };
 };
 
+export const useAvailableRoute3Tokens = () => {
+  const { data: route3tokens, isLoading } = useSwapTokensSelector();
+
+  const route3tokensSlugs = useMemo(() => {
+    const result: Array<string> = [];
+
+    for (const { contract, tokenId } of route3tokens) {
+      if (contract !== null) {
+        result.push(toTokenSlug(contract, tokenId ?? 0));
+      }
+    }
+
+    return result;
+  }, [route3tokens]);
+
+  return {
+    isLoading,
+    route3tokens,
+    route3tokensSlugs
+  };
+};
+
+function makeAssetsSortPredicate(balances: Record<string, BigNumber>, fiatToTokenRates: Record<string, string>) {
+  return (tokenASlug: string, tokenBSlug: string) => {
+    if (tokenASlug === TEZ_TOKEN_SLUG) {
+      return -1;
+    }
+
+    if (tokenBSlug === TEZ_TOKEN_SLUG) {
+      return 1;
+    }
+
+    const tokenABalance = balances[tokenASlug] ?? new BigNumber(0);
+    const tokenBBalance = balances[tokenBSlug] ?? new BigNumber(0);
+    const tokenAEquity = tokenABalance.multipliedBy(fiatToTokenRates[tokenASlug] ?? 0);
+    const tokenBEquity = tokenBBalance.multipliedBy(fiatToTokenRates[tokenBSlug] ?? 0);
+
+    if (tokenAEquity.isEqualTo(tokenBEquity)) {
+      return tokenBBalance.comparedTo(tokenABalance);
+    }
+
+    return tokenBEquity.comparedTo(tokenAEquity);
+  };
+}
+
+export function useAssetsSortPredicate() {
+  const balances = useBalancesWithDecimals();
+  const usdToTokenRates = useUsdToTokenRates();
+
+  return useCallback(
+    (tokenASlug: string, tokenBSlug: string) =>
+      makeAssetsSortPredicate(balances, usdToTokenRates)(tokenASlug, tokenBSlug),
+    [balances, usdToTokenRates]
+  );
+}
+
 export function useFilteredAssets(assetSlugs: string[]) {
   const allTokensBaseMetadata = useAllTokensBaseMetadata();
+  const assetsSortPredicate = useAssetsSortPredicate();
 
   const [searchValue, setSearchValue] = useState('');
   const [tokenId, setTokenId] = useState<number>();
   const [searchValueDebounced] = useDebounce(tokenId ? toTokenSlug(searchValue, tokenId) : searchValue, 300);
 
   const filteredAssets = useMemo(
-    () => searchAssets(searchValueDebounced, assetSlugs, allTokensBaseMetadata),
-    [searchValueDebounced, assetSlugs, allTokensBaseMetadata]
+    () =>
+      searchAssetsWithNoMeta(searchValueDebounced, assetSlugs, allTokensBaseMetadata, slug => slug).sort(
+        assetsSortPredicate
+      ),
+    [searchValueDebounced, assetSlugs, allTokensBaseMetadata, assetsSortPredicate]
   );
 
   return {
@@ -317,25 +382,75 @@ export function useFilteredAssets(assetSlugs: string[]) {
   };
 }
 
-function searchAssets(searchValue: string, assetSlugs: string[], allTokensBaseMetadata: Record<string, AssetMetadata>) {
-  if (!searchValue) return assetSlugs;
+export function useFilteredSwapAssets(inputName: string = 'input') {
+  const allTokensBaseMetadata = useAllTokensBaseMetadata();
+  const assetsSortPredicate = useAssetsSortPredicate();
+  const { route3tokensSlugs } = useAvailableRoute3Tokens();
+  const { publicKeyHash } = useAccount();
+  const chainId = useChainId(true)!;
+  const balances = useBalancesSelector(publicKeyHash, chainId);
 
-  const fuse = new Fuse(
-    assetSlugs.map(slug => ({
-      slug,
-      metadata: isTezAsset(slug) ? TEZOS_METADATA : allTokensBaseMetadata[slug]
-    })),
-    {
-      keys: [
-        { name: 'metadata.symbol', weight: 1 },
-        { name: 'metadata.name', weight: 0.25 },
-        { name: 'slug', weight: 0.1 }
-      ],
-      threshold: 0.1
+  const assetSlugs = useMemo(() => {
+    if (inputName === 'input') {
+      const result: Array<string> = [TEZ_TOKEN_SLUG];
+
+      for (const slug of route3tokensSlugs) {
+        const balance = balances[slug];
+
+        if (balance !== undefined && balance !== '0') {
+          result.push(slug);
+        }
+      }
+
+      return result;
     }
+
+    return [TEZ_TOKEN_SLUG, ...route3tokensSlugs];
+  }, [route3tokensSlugs, balances]);
+
+  const [searchValue, setSearchValue] = useState('');
+  const [tokenId, setTokenId] = useState<number>();
+  const [searchValueDebounced] = useDebounce(tokenId ? toTokenSlug(searchValue, tokenId) : searchValue, 300);
+
+  const filteredAssets = useMemo(
+    () =>
+      searchAssetsWithNoMeta(searchValueDebounced, assetSlugs, allTokensBaseMetadata, slug => slug).sort(
+        assetsSortPredicate
+      ),
+    [searchValueDebounced, assetSlugs, allTokensBaseMetadata, assetsSortPredicate]
   );
 
-  return fuse.search(searchValue).map(({ item: { slug } }) => slug);
+  return {
+    filteredAssets,
+    searchValue,
+    setSearchValue,
+    tokenId,
+    setTokenId
+  };
+}
+
+export function searchAssetsWithNoMeta<T>(
+  searchValue: string,
+  assets: T[],
+  allTokensBaseMetadata: Record<string, AssetMetadata>,
+  getSlug: (asset: T) => string
+) {
+  return searchAndFilterItems(
+    assets,
+    searchValue,
+    [
+      { name: 'metadata.symbol', weight: 1 },
+      { name: 'metadata.name', weight: 0.25 },
+      { name: 'slug', weight: 0.1 }
+    ],
+    asset => {
+      const slug = getSlug(asset);
+      return {
+        slug,
+        metadata: isTezAsset(slug) ? TEZOS_METADATA : allTokensBaseMetadata[slug]
+      };
+    }
+  );
 }
 
 function getDetailedMetadataStorageKey(slug: string) {

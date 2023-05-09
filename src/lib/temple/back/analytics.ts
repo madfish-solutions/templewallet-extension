@@ -1,18 +1,15 @@
-import fetchAdapter from '@vespaiach/axios-fetch-adapter';
-import Analytics from 'analytics-node';
+import { jitsuClient } from '@jitsu/sdk-js/packages/javascript-sdk';
 
+import { EnvVars } from 'lib/env';
 import { TempleSendPageEventRequest, TempleSendTrackEventRequest } from 'lib/temple/analytics-types';
 import { loadChainId } from 'lib/temple/helpers';
 
-const WRITE_KEY = process.env.TEMPLE_WALLET_SEGMENT_WRITE_KEY;
+const { TEMPLE_WALLET_JITSU_WRITE_KEY: WRITE_KEY, TEMPLE_WALLET_JITSU_TRACKING_HOST: TRACKING_HOST } = EnvVars;
 
-if (!WRITE_KEY) {
-  throw new Error("Require a 'TEMPLE_WALLET_SEGMENT_WRITE_KEY' environment variable to be set");
-}
-
-const client = new Analytics(WRITE_KEY, {
-  axiosConfig: { adapter: fetchAdapter }
-} as {});
+const client = jitsuClient({
+  key: WRITE_KEY,
+  tracking_host: TRACKING_HOST
+});
 
 export const trackEvent = async ({
   userId,
@@ -23,7 +20,7 @@ export const trackEvent = async ({
 }: Omit<TempleSendTrackEventRequest, 'type'>) => {
   const chainId = rpc && (await loadChainId(rpc));
 
-  client.track({
+  client.track(`${category} ${event}`, {
     userId,
     event: `${category} ${event}`,
     timestamp: new Date(),
@@ -46,7 +43,7 @@ export const pageEvent = async ({
   const url = `${path}${search}`;
   const chainId = rpc && (await loadChainId(rpc));
 
-  client.page({
+  client.track('AnalyticsEventCategory.PageOpened', {
     userId,
     name: path,
     timestamp: new Date(),

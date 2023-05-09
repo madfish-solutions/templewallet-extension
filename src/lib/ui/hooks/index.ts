@@ -9,3 +9,5 @@ export { useSafeState } from './useSafeState';
 export { useInterval } from './useInterval';
 
 export { useStopper } from './useStopper';
+
+export { useFocusOnElement } from './useFocusOnElement';

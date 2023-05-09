@@ -1,13 +1,12 @@
 import React, { FC, memo, useCallback, useMemo, useState } from 'react';
 
-import classNames from 'clsx';
 import { useForm } from 'react-hook-form';
 
 import { FormField, FormSubmitButton } from 'app/atoms';
 import { setTestID } from 'lib/analytics';
 import { T } from 'lib/i18n';
 
-import { NewSeedVerifyTestIds } from './NewSeedVerify.test-ids';
+import { NewSeedVerifySelectors } from './NewSeedVerify.selectors';
 
 const WORDS_TO_FILL = 2;
 
@@ -88,7 +87,7 @@ export const NewSeedVerify: FC<NewSeedVerifyProps> = ({ seedPhrase, onVerificati
   return (
     <div className="w-full max-w-md mx-auto my-8">
       <form className="w-full mt-8" onSubmit={handleSubmit(onVerificationComplete)}>
-        <h3 className={classNames('mt-2 mb-8', 'text-gray-600 text-xl font-light', 'text-center')}>
+        <h3 className="mt-2 mb-8 text-gray-600 text-xl font-light text-center">
           <T id="verifySeedPhraseDescription" />
         </h3>
 
@@ -106,7 +105,7 @@ export const NewSeedVerify: FC<NewSeedVerifyProps> = ({ seedPhrase, onVerificati
         <FormSubmitButton
           disabled={!filled}
           style={{ display: 'block', width: 384, margin: '8px auto', fontSize: 14, fontWeight: 500 }}
-          testID={NewSeedVerifyTestIds.nextButton}
+          testID={NewSeedVerifySelectors.nextButton}
         >
           <T id="next" />
         </FormSubmitButton>
@@ -136,7 +135,7 @@ const WordsRow = memo<WordsRowProps>(({ allWords, indexToFill, onFill }) => {
   );
 
   return (
-    <div className={classNames('mb-6', '-mx-2', 'flex items-stretch')}>
+    <div className="mb-6 -mx-2 flex items-stretch">
       {indexes.map(i => {
         const toFill = i === indexToFill;
 
@@ -144,7 +143,7 @@ const WordsRow = memo<WordsRowProps>(({ allWords, indexToFill, onFill }) => {
           <div key={i} className="p-2">
             <FormField
               label={
-                <span {...setTestID(NewSeedVerifyTestIds.mnemonicWordNumber)}>
+                <span {...setTestID(NewSeedVerifySelectors.mnemonicWordNumber)}>
                   <T id="word" substitutions={i + 1} />
                 </span>
               }
@@ -157,7 +156,7 @@ const WordsRow = memo<WordsRowProps>(({ allWords, indexToFill, onFill }) => {
                     disabled: true,
                     defaultValue: allWords[i]
                   })}
-              testID={NewSeedVerifyTestIds.firstMnemonicInput}
+              testID={NewSeedVerifySelectors.firstMnemonicInput}
             />
           </div>
         );

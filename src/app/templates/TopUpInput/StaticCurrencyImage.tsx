@@ -1,5 +1,7 @@
 import React, { FC, useMemo, useState } from 'react';
 
+import classNames from 'clsx';
+
 import { FIAT_FALLBACK_ICON_SRC, TOKEN_FALLBACK_ICON_SRC, TOKENS_ICONS_SRC } from 'lib/icons';
 
 const ROUNDING_STYLE = { borderRadius: '50%', width: 32, height: 32 };
@@ -9,9 +11,10 @@ interface Props {
   isFiat?: boolean;
   imageSrc?: string;
   fitImg?: boolean;
+  className?: string;
 }
 
-export const StaticCurrencyImage: FC<Props> = ({ currencyCode, isFiat, imageSrc, fitImg }) => {
+export const StaticCurrencyImage: FC<Props> = ({ currencyCode, isFiat, imageSrc, fitImg, className }) => {
   const [isFailed, setIsFailed] = useState(false);
 
   const conditionalStyle = useMemo(() => ({ display: isFailed ? 'none' : undefined }), [isFailed]);
@@ -22,7 +25,12 @@ export const StaticCurrencyImage: FC<Props> = ({ currencyCode, isFiat, imageSrc,
 
   if (isFailed || !src)
     return (
-      <img alt={currencyCode} style={ROUNDING_STYLE} src={isFiat ? FIAT_FALLBACK_ICON_SRC : TOKEN_FALLBACK_ICON_SRC} />
+      <img
+        src={isFiat ? FIAT_FALLBACK_ICON_SRC : TOKEN_FALLBACK_ICON_SRC}
+        alt={currencyCode}
+        className={className}
+        style={ROUNDING_STYLE}
+      />
     );
 
   const imgProps = {
@@ -36,12 +44,12 @@ export const StaticCurrencyImage: FC<Props> = ({ currencyCode, isFiat, imageSrc,
 
   if (fitImg && isTez === false)
     return (
-      <div className="flex justify-center items-center bg-gray-300" style={style}>
+      <div className={classNames('flex justify-center items-center bg-gray-300', className)} style={style}>
         {/* eslint-disable-next-line jsx-a11y/alt-text */}
         <img {...imgProps} width={21} height={15} />
       </div>
     );
 
   // eslint-disable-next-line jsx-a11y/alt-text
-  return <img {...imgProps} style={style} />;
+  return <img className={className} {...imgProps} style={style} />;
 };

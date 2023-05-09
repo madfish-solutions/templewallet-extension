@@ -1,25 +1,17 @@
 import { Browser, Page } from 'puppeteer';
+import { PuppeteerScreenRecorder } from 'puppeteer-screen-recorder';
 
-import { getEnv } from '../utils/env.utils';
-
-const defaultSeedPhrase = getEnv('DEFAULT_SEED_PHRASE');
-const defaultPassword = getEnv('DEFAULT_PASSWORD');
-const defaultPrivateKey = getEnv('DEFAULT_HD_ACCOUNT_PRIVATE_KEY');
-
-if (!defaultSeedPhrase) throw new Error('process.env.DEFAULT_SEED_PHRASE not found.');
-if (!defaultPassword) throw new Error('process.env.DEFAULT_PASSWORD not found.');
-if (!defaultPrivateKey) throw new Error('process.env.DEFAULT_PASSWORD not found.');
+import { envVars } from '../utils/env.utils';
 
 export class BrowserContext {
   public static EXTENSION_ID: string;
   public static browser: Browser;
   public static page: Page;
-  public static seedPhrase = defaultSeedPhrase;
-  public static password = defaultPassword;
-  public static privateKey = defaultPrivateKey;
+  public static seedPhrase = envVars.DEFAULT_HD_ACCOUNT_SEED_PHRASE;
+  public static password = envVars.DEFAULT_PASSWORD;
+  public static recorder: PuppeteerScreenRecorder;
   public static resetPrivates = () => {
-    BrowserContext.seedPhrase = defaultSeedPhrase;
-    BrowserContext.password = defaultPassword;
-    BrowserContext.privateKey = defaultPrivateKey;
+    BrowserContext.seedPhrase = envVars.DEFAULT_HD_ACCOUNT_SEED_PHRASE;
+    BrowserContext.password = envVars.DEFAULT_PASSWORD;
   };
 }

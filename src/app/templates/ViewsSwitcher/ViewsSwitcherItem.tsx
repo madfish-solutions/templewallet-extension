@@ -3,14 +3,14 @@ import React, { FC, FunctionComponent, SVGProps, useMemo } from 'react';
 import classNames from 'clsx';
 
 import { Button } from 'app/atoms/Button';
-import { TestIDProps } from 'lib/analytics';
+import { TestIDProperty } from 'lib/analytics';
 import useTippy from 'lib/ui/useTippy';
 
-export type ViewsSwitcherItemProps = {
+export interface ViewsSwitcherItemProps extends TestIDProperty {
   Icon: FunctionComponent<SVGProps<SVGSVGElement>>;
   key: string;
   name: string;
-} & TestIDProps;
+}
 
 interface Props {
   currentItem: ViewsSwitcherItemProps;
@@ -41,30 +41,16 @@ const ViewsSwitcherItem: FC<Props> = ({ currentItem, currentItemIndex, activeIte
     <Button
       ref={tippyRef}
       className={classNames(
-        (() => {
-          switch (true) {
-            case first:
-              return classNames('rounded rounded-r-none', 'border');
-
-            case last:
-              return classNames('rounded rounded-l-none', 'border border-l-0');
-
-            default:
-              return 'border border-l-0';
-          }
-        })(),
+        'flex flex-1 items-center justify-center px-2 py-1',
+        'text-xs text-gray-600 border truncate',
         selected && 'bg-gray-100',
-        'px-2 py-1',
-        'text-xs text-gray-600',
-        'flex flex-1',
-        'items-center justify-center',
-        'truncate'
+        first ? 'rounded rounded-r-none' : last ? 'rounded rounded-l-none border-l-0' : 'border-l-0'
       )}
       onClick={handleClick}
       testID={currentItem.testID}
     >
-      <currentItem.Icon className={classNames('h-4 w-auto mr-1', 'stroke-current')} />
-      <span className={classNames('truncate')}>{currentItem.name}</span>
+      <currentItem.Icon className="h-4 w-auto mr-1 stroke-current" />
+      <span className="truncate">{currentItem.name}</span>
     </Button>
   );
 };

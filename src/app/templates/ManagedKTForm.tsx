@@ -1,6 +1,5 @@
 import React, { FC, ReactNode, useCallback, useMemo, useRef, useState } from 'react';
 
-import classNames from 'clsx';
 import { Controller, useForm } from 'react-hook-form';
 
 import { Alert, FormSubmitButton, NoSpaceField } from 'app/atoms';
@@ -17,6 +16,8 @@ import { useRetryableSWR } from 'lib/swr';
 import { useRelevantAccounts, useTezos, useTempleClient, useChainId } from 'lib/temple/front';
 import { isAddressValid } from 'lib/temple/helpers';
 import { TempleAccountType, ImportAccountFormType } from 'lib/temple/types';
+
+import { ImportAccountSelectors } from '../pages/ImportAccount/ImportAccount.selectors';
 
 type ImportKTAccountFormData = {
   contractAddress: string;
@@ -171,15 +172,13 @@ const ManagedKTForm: FC = () => {
               <div className="ml-1 mr-px font-normal">
                 <T id="contract" />
               </div>{' '}
-              (
               <Balance assetSlug="tez" address={filledAccount.address}>
                 {bal => (
-                  <span className={classNames('text-xs leading-none')}>
+                  <span className="text-xs leading-none">
                     <Money>{bal}</Money> <span style={{ fontSize: '0.75em' }}>ꜩ</span>
                   </span>
                 )}
               </Balance>
-              )
             </div>
           ) : (
             t('contractAddressInputDescription')
@@ -191,20 +190,21 @@ const ManagedKTForm: FC = () => {
           resize: 'none'
         }}
         containerClassName="mb-4"
+        testID={ImportAccountSelectors.managedContractInput}
       />
 
-      <FormSubmitButton loading={formState.isSubmitting}>
+      <FormSubmitButton loading={formState.isSubmitting} testID={ImportAccountSelectors.managedKTImportButton}>
         <T id="importAccount" />
       </FormSubmitButton>
 
       {remainingUsersContracts.length > 0 && !contractAddressFilled && (
-        <div className={classNames('mt-8 mb-6', 'flex flex-col')}>
-          <h2 className={classNames('mb-4', 'leading-tight', 'flex flex-col')}>
+        <div className="mt-8 mb-6 flex flex-col">
+          <h2 className="mb-4 leading-tight flex flex-col">
             <span className="text-base font-semibold text-gray-700">
               <T id="addKnownManagedContract" />
             </span>
 
-            <span className={classNames('mt-1', 'text-xs font-light text-gray-600')} style={{ maxWidth: '90%' }}>
+            <span className="mt-1 text-xs font-light text-gray-600 max-w-9/10">
               <T id="clickOnContractToImport" />
             </span>
           </h2>
@@ -259,7 +259,7 @@ const ContractOptionContent: FC<ContractOptionRenderProps> = props => {
       </div>
 
       <div className="flex flex-wrap items-center mt-1">
-        <div className={classNames('text-xs leading-none', 'text-gray-700')}>
+        <div className="text-xs leading-none text-gray-700">
           {(() => {
             const val = item.address;
             const ln = val.length;
@@ -275,7 +275,7 @@ const ContractOptionContent: FC<ContractOptionRenderProps> = props => {
 
         <Balance assetSlug="tez" address={item.address}>
           {bal => (
-            <div className={classNames('ml-2', 'text-xs leading-none', 'text-gray-600')}>
+            <div className="ml-2 text-xs leading-none text-gray-600">
               <Money>{bal}</Money> <span style={{ fontSize: '0.75em' }}>tez</span>
             </div>
           )}

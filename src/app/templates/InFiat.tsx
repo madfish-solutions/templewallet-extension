@@ -1,8 +1,10 @@
 import React, { FC, ReactElement, ReactNode, useMemo } from 'react';
 
+import { isDefined } from '@rnw-community/shared';
 import BigNumber from 'bignumber.js';
 
 import Money from 'app/atoms/Money';
+import { TestIDProps } from 'lib/analytics';
 import { useAssetFiatCurrencyPrice, useFiatCurrency } from 'lib/fiat-currency';
 import { useNetwork } from 'lib/temple/front';
 
@@ -11,7 +13,7 @@ interface OutputProps {
   symbol: string;
 }
 
-interface InFiatProps {
+interface InFiatProps extends TestIDProps {
   volume: BigNumber | number | string;
   assetSlug?: string;
   children: (output: OutputProps) => ReactElement;
@@ -30,7 +32,9 @@ const InFiat: FC<InFiatProps> = ({
   shortened,
   smallFractionFont,
   mainnet,
-  showCents = true
+  showCents = true,
+  testID,
+  testIDProperties
 }) => {
   const price = useAssetFiatCurrencyPrice(assetSlug ?? 'tez');
   const { selectedFiatCurrency } = useFiatCurrency();
@@ -39,10 +43,10 @@ const InFiat: FC<InFiatProps> = ({
   if (mainnet === undefined) {
     mainnet = walletNetwork.type === 'main';
   }
+
   const roundedInFiat = useMemo(() => {
-    if (price === null) {
-      return new BigNumber(0);
-    }
+    if (!isDefined(price)) return new BigNumber(0);
+
     const inFiat = new BigNumber(volume).times(price);
     if (showCents) {
       return inFiat;
@@ -52,7 +56,7 @@ const InFiat: FC<InFiatProps> = ({
 
   const cryptoDecimals = showCents ? undefined : 0;
 
-  return mainnet && price !== null
+  return mainnet && isDefined(price)
     ? children({
         balance: (
           <Money
@@ -61,6 +65,8 @@ const InFiat: FC<InFiatProps> = ({
             roundingMode={roundingMode}
             shortened={shortened}
             smallFractionFont={smallFractionFont}
+            testID={testID}
+            testIDProperties={testIDProperties}
           >
             {roundedInFiat}
           </Money>

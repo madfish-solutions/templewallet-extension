@@ -18,7 +18,7 @@ export const CurrencyOption: FC<Props> = ({ currency, isSelected, fitIcons, styl
   <button
     type="button"
     style={style}
-    className={classNames('p-4 w-full flex items-center', isSelected && 'bg-gray-200')}
+    className={classNames('py-3 px-4 w-full flex items-center', isSelected ? 'bg-gray-200' : 'hover:bg-gray-100')}
     onClick={onClick && (() => onClick(currency))}
   >
     <StaticCurrencyImage
@@ -26,17 +26,17 @@ export const CurrencyOption: FC<Props> = ({ currency, isSelected, fitIcons, styl
       isFiat={Boolean(currency.network)}
       imageSrc={currency.icon}
       fitImg={fitIcons}
+      className="mr-2"
     />
-    <div className="flex flex-col ml-2 text-left">
-      <div className="flex items-center">
-        <span className="text-gray-700 mr-2 font-medium" style={{ fontSize: 17 }}>
-          {currency.code}
-        </span>
-        <span className="text-gray-500 text-sm font-normal">{currency.name}</span>
+
+    <div className="flex-1 flex flex-col items-stretch">
+      <div className="text-gray-910 text-lg text-left">{currency.code}</div>
+
+      <div className="flex text-xs">
+        <span className="text-gray-600 mr-2">{currency.name}</span>
+        <span className="flex-1" />
+        <span className="text-indigo-500">{getProperNetworkFullName(currency)}</span>
       </div>
-      <span className="text-indigo-500 font-medium" style={{ fontSize: 11 }}>
-        {getProperNetworkFullName(currency)}
-      </span>
     </div>
   </button>
 );

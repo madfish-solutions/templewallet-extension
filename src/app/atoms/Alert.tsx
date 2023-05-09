@@ -5,9 +5,9 @@ import classNames from 'clsx';
 import { ReactComponent as CloseIcon } from 'app/icons/close.svg';
 import { t } from 'lib/i18n';
 
-type AlertProps = HTMLAttributes<HTMLDivElement> & {
+type AlertProps = Omit<HTMLAttributes<HTMLDivElement>, 'title'> & {
   type?: 'success' | 'warn' | 'error';
-  title: ReactNode;
+  title?: ReactNode;
   description: ReactNode;
   autoFocus?: boolean;
   closable?: boolean;

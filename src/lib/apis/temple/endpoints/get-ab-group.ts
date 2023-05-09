@@ -1,3 +1,5 @@
+import { catchError, from, map, of } from 'rxjs';
+
 import { templeWalletApi } from './templewallet.api';
 
 export enum ABTestGroup {
@@ -10,8 +12,8 @@ interface GetABGroupResponse {
   ab: ABTestGroup.A | ABTestGroup.B;
 }
 
-export const getABGroup = () =>
-  templeWalletApi
-    .get<GetABGroupResponse>('/abtest')
-    .then(response => response.data.ab)
-    .catch(() => ABTestGroup.Unknown);
+export const getABGroup$ = () =>
+  from(templeWalletApi.get<GetABGroupResponse>('/abtest')).pipe(
+    map(response => response.data.ab),
+    catchError(() => of(ABTestGroup.Unknown))
+  );

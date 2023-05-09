@@ -5,7 +5,7 @@ import { isKnownChainId, TempleChainId } from 'lib/temple/types';
 
 type BlockExplorerId = 'tzkt' | 'tzstats' | 'bcd' | 'tezblock' | 't4l3nt';
 
-type BaseUrls = { account?: string; transaction: string };
+type BaseUrls = { account?: string; transaction: string; api?: string };
 
 export type BlockExplorer = {
   id: BlockExplorerId;
@@ -22,14 +22,16 @@ export const BLOCK_EXPLORERS: BlockExplorer[] = [
         TempleChainId.Mainnet,
         {
           account: 'https://tzkt.io',
-          transaction: 'https://tzkt.io'
+          transaction: 'https://tzkt.io',
+          api: 'https://api.tzkt.io'
         }
       ],
       [
         TempleChainId.Ghostnet,
         {
           account: 'https://ghostnet.tzkt.io',
-          transaction: 'https://ghostnet.tzkt.io'
+          transaction: 'https://ghostnet.tzkt.io',
+          api: 'https://api.ghostnet.tzkt.io'
         }
       ],
       [
@@ -43,7 +45,16 @@ export const BLOCK_EXPLORERS: BlockExplorer[] = [
         TempleChainId.Limanet,
         {
           account: 'https://limanet.tzkt.io',
-          transaction: 'https://limanet.tzkt.io'
+          transaction: 'https://limanet.tzkt.io',
+          api: 'https://api.limanet.tzkt.io'
+        }
+      ],
+      [
+        TempleChainId.Mumbainet,
+        {
+          account: 'https://mumbainet.tzkt.io',
+          transaction: 'https://mumbainet.tzkt.io',
+          api: 'https://api.mumbainet.tzkt.io'
         }
       ]
     ])
@@ -56,7 +67,8 @@ export const BLOCK_EXPLORERS: BlockExplorer[] = [
         TempleChainId.Dcp,
         {
           account: 'https://explorer.tlnt.net',
-          transaction: 'https://explorer.tlnt.net'
+          transaction: 'https://explorer.tlnt.net',
+          api: 'https://explorer-api.tlnt.net'
         }
       ],
       [

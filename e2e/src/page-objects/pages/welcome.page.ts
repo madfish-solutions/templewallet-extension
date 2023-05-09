@@ -1,10 +1,11 @@
-import { WelcomeTestIds } from '../../../../src/app/pages/Welcome/Welcome.test-ids';
+import { WelcomeSelectors } from 'src/app/pages/Welcome/Welcome.selectors';
+
 import { Page } from '../../classes/page.class';
 import { createPageElement } from '../../utils/search.utils';
 
 export class WelcomePage extends Page {
-  createNewWalletButton = createPageElement(WelcomeTestIds.createNewWallet);
-  importExistingWalletButton = createPageElement(WelcomeTestIds.importExistingWallet);
+  createNewWalletButton = createPageElement(WelcomeSelectors.createNewWallet);
+  importExistingWalletButton = createPageElement(WelcomeSelectors.importExistingWallet);
 
   async isVisible() {
     await this.createNewWalletButton.waitForDisplayed();

@@ -18,7 +18,7 @@ import { useDisabledProceed } from './hooks/useDisabledProceed';
 import { useExchangeRate } from './hooks/useExchangeRate';
 import { useOutputAmount } from './hooks/useOutputAmount';
 import { useUpdatedExchangeInfo } from './hooks/useUpdatedExchangeInfo';
-import { UTORG_PRIVICY_LINK, UTORG_TERMS_LINK, buildIconSrc } from './utils';
+import { UTORG_PRIVICY_LINK, UTORG_TERMS_LINK, buildIconSrc, supplyCurrenciesNames } from './utils';
 
 const DEFAULT_CURRENCY = 'USD';
 const REQUEST_LATENCY = 300;
@@ -40,6 +40,8 @@ export const Utorg = () => {
     inputCurrencyCode,
     setIsApiError
   );
+
+  const currenciesWithNames = useMemo(() => supplyCurrenciesNames(currencies), [currencies]);
 
   const { isRateLoading, exchangeRate } = useExchangeRate(inputAmount, minAmount, inputCurrencyCode);
 
@@ -92,7 +94,7 @@ export const Utorg = () => {
           label={<T id="send" />}
           amount={inputAmount}
           currency={inputCurrency}
-          currenciesList={currencies}
+          currenciesList={currenciesWithNames}
           minAmount={String(minAmount)}
           maxAmount={String(maxAmount || '---')}
           isMinAmountError={isMinAmountError}
@@ -134,7 +136,7 @@ export const Utorg = () => {
           }}
           disabled={disabledProceed || link === ''}
           loading={isLoading || isMinMaxLoading}
-          testID={BuySelectors.Utorg}
+          testID={BuySelectors.UtorgButton}
         >
           <a
             href={link}

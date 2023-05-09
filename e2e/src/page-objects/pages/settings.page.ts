@@ -1,18 +1,19 @@
-import { SettingsSelectors } from '../../../../src/app/pages/Settings.selectors';
+import { SettingsSelectors } from 'src/app/pages/Settings/Settings.selectors';
+
 import { Page } from '../../classes/page.class';
 import { createPageElement } from '../../utils/search.utils';
 
 export class SettingsPage extends Page {
-  generalButton = createPageElement(SettingsSelectors.GeneralButton);
-  synchronizationButton = createPageElement(SettingsSelectors.SynchronizationButton);
-  addressBookButton = createPageElement(SettingsSelectors.AddressBookButton);
-  revealPrivateKeyButton = createPageElement(SettingsSelectors.RevealPrivateKeyButton);
-  revealSeedPhraseButton = createPageElement(SettingsSelectors.RevealSeedPhraseButton);
-  dappsButton = createPageElement(SettingsSelectors.DAppsButton);
-  networksButton = createPageElement(SettingsSelectors.NetworksButton);
-  activateAccountButton = createPageElement(SettingsSelectors.ActivateAccountButton);
-  removeAccountButton = createPageElement(SettingsSelectors.RemoveAccountButton);
-  aboutButton = createPageElement(SettingsSelectors.AboutButton);
+  generalButton = createPageElement(SettingsSelectors.generalButton);
+  synchronizationButton = createPageElement(SettingsSelectors.synchronizationButton);
+  addressBookButton = createPageElement(SettingsSelectors.addressBookButton);
+  revealPrivateKeyButton = createPageElement(SettingsSelectors.revealPrivateKeyButton);
+  revealSeedPhraseButton = createPageElement(SettingsSelectors.revealSeedPhraseButton);
+  dappsButton = createPageElement(SettingsSelectors.dAppsButton);
+  networksButton = createPageElement(SettingsSelectors.networksButton);
+  activateAccountButton = createPageElement(SettingsSelectors.activateAccountButton);
+  removeAccountButton = createPageElement(SettingsSelectors.removeAccountButton);
+  aboutButton = createPageElement(SettingsSelectors.aboutButton);
 
   async isVisible() {
     await this.generalButton.waitForDisplayed();
