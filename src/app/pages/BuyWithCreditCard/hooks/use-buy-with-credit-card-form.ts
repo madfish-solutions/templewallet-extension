@@ -88,7 +88,6 @@ export const useBuyWithCreditCardForm = () => {
   const updatePurchaseLink = useMemo(
     () =>
       debounce(async () => {
-        console.log('updatePurchaseLink');
         const { inputAmount, inputCurrency, outputAmount, outputToken, topUpProvider } = getValues({ nest: true });
 
         if (
