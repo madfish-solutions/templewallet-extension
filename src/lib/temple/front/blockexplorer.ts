@@ -48,6 +48,14 @@ export const BLOCK_EXPLORERS: BlockExplorer[] = [
           transaction: 'https://limanet.tzkt.io',
           api: 'https://api.limanet.tzkt.io'
         }
+      ],
+      [
+        TempleChainId.Mumbainet,
+        {
+          account: 'https://mumbainet.tzkt.io',
+          transaction: 'https://mumbainet.tzkt.io',
+          api: 'https://api.mumbainet.tzkt.io'
+        }
       ]
     ])
   },

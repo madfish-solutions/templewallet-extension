@@ -4,7 +4,7 @@ import { OperationStatusSelectors } from 'src/app/templates/OperationStatus.sele
 
 import { BrowserContext } from '../classes/browser-context.class';
 import { Pages } from '../page-objects';
-import { iComparePrivateKeys, iSelectTokenSlugs } from '../utils/input-data.utils';
+import { iComparePrivateKeys } from '../utils/input-data.utils';
 import { LONG_TIMEOUT, MEDIUM_TIMEOUT } from '../utils/timing.utils';
 
 Given(
@@ -33,12 +33,3 @@ Given(/I'm waiting for 'success ✓' operation status/, { timeout: LONG_TIMEOUT 
     timeout: LONG_TIMEOUT
   });
 });
-
-Given(
-  /I select (.*) token in the token drop-down list on the Send page/,
-  async (key: keyof typeof iSelectTokenSlugs) => {
-    const slug = iSelectTokenSlugs[key];
-
-    await Pages.Send.selectToken(slug);
-  }
-);

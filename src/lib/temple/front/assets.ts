@@ -322,6 +322,7 @@ export const useAvailableRoute3Tokens = () => {
     route3tokensSlugs
   };
 };
+
 function makeAssetsSortPredicate(balances: Record<string, BigNumber>, fiatToTokenRates: Record<string, string>) {
   return (tokenASlug: string, tokenBSlug: string) => {
     if (tokenASlug === TEZ_TOKEN_SLUG) {
@@ -380,8 +381,10 @@ export function useFilteredAssets(assetSlugs: string[]) {
     setTokenId
   };
 }
+
 export function useFilteredSwapAssets(inputName: string = 'input') {
   const allTokensBaseMetadata = useAllTokensBaseMetadata();
+  const assetsSortPredicate = useAssetsSortPredicate();
   const { route3tokensSlugs } = useAvailableRoute3Tokens();
   const { publicKeyHash } = useAccount();
   const chainId = useChainId(true)!;
@@ -410,8 +413,11 @@ export function useFilteredSwapAssets(inputName: string = 'input') {
   const [searchValueDebounced] = useDebounce(tokenId ? toTokenSlug(searchValue, tokenId) : searchValue, 300);
 
   const filteredAssets = useMemo(
-    () => searchAssetsWithNoMeta(searchValueDebounced, assetSlugs, allTokensBaseMetadata, slug => slug),
-    [searchValueDebounced, assetSlugs, allTokensBaseMetadata]
+    () =>
+      searchAssetsWithNoMeta(searchValueDebounced, assetSlugs, allTokensBaseMetadata, slug => slug).sort(
+        assetsSortPredicate
+      ),
+    [searchValueDebounced, assetSlugs, allTokensBaseMetadata, assetsSortPredicate]
   );
 
   return {

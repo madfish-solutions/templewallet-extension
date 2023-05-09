@@ -120,7 +120,7 @@ const NetworkSelect: FC<NetworkSelectProps> = () => {
             style={{ backgroundColor: currentNetwork.color }}
           />
 
-          <Name style={{ maxWidth: '7rem' }}>
+          <Name style={{ maxWidth: '7rem' }} testID={NetworkSelectSelectors.selectedNetworkButtonName}>
             {(currentNetwork.nameI18nKey && <T id={currentNetwork.nameI18nKey} />) || currentNetwork.name}
           </Name>
 
