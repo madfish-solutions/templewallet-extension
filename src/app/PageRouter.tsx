@@ -31,6 +31,8 @@ import { Notifications, NotificationsItem } from 'lib/notifications';
 import { useTempleClient } from 'lib/temple/front';
 import * as Woozie from 'lib/woozie';
 
+import { WithDataLoading } from './WithDataLoading';
+
 interface RouteContext {
   popup: boolean;
   fullPage: boolean;
@@ -128,7 +130,11 @@ export const PageRouter: FC = () => {
 
   usePageRouterAnalytics(pathname, search, ctx.ready);
 
-  return useMemo(() => Woozie.resolve(ROUTE_MAP, pathname, ctx), [pathname, ctx]);
+  return useMemo(() => {
+    const routedElement = Woozie.resolve(ROUTE_MAP, pathname, ctx);
+
+    return ctx.ready ? <WithDataLoading>{routedElement}</WithDataLoading> : routedElement;
+  }, [pathname, ctx]);
 };
 
 function onlyReady(factory: RouteFactory): RouteFactory {

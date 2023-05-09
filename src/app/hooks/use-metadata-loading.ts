@@ -16,7 +16,7 @@ export const useMetadataLoading = () => {
   const { data: slugs } = useAllStoredAccountTokensSlugs(chainId, publicKeyHash);
 
   useInterval(() => slugs && dispatch(loadTokensMetadataAction({ rpcUrl, slugs })), METADATA_SYNC_INTERVAL, [
-    tezos,
+    rpcUrl,
     slugs
   ]);
 };

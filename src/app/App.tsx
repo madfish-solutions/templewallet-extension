@@ -13,7 +13,6 @@ import { AppEnvProvider } from 'app/env';
 import ErrorBoundary from 'app/ErrorBoundary';
 import Dialogs from 'app/layouts/Dialogs';
 import { PageRouter } from 'app/PageRouter';
-import { UseDataLoading } from 'app/UseDataLoading';
 import { TempleProvider } from 'lib/temple/front';
 import { DialogsProvider } from 'lib/ui/dialog';
 import * as Woozie from 'lib/woozie';
@@ -36,16 +35,7 @@ export const App: FC<Props> = ({ env }) => (
           <AwaitI18N />
 
           <AwaitFonts name="Inter" weights={[300, 400, 500, 600]} className="antialiased font-inter">
-            <BootAnimation>
-              {env.confirmWindow ? (
-                <ConfirmPage />
-              ) : (
-                <>
-                  <UseDataLoading />
-                  <PageRouter />
-                </>
-              )}
-            </BootAnimation>
+            <BootAnimation>{env.confirmWindow ? <ConfirmPage /> : <PageRouter />}</BootAnimation>
           </AwaitFonts>
         </AppProvider>
       </Suspense>

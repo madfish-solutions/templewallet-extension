@@ -8,16 +8,9 @@ import { useMetadataLoading } from 'app/hooks/use-metadata-loading';
 import { useTokensApyLoading } from 'app/hooks/use-tokens-apy-loading';
 import { useTokensLoading } from 'app/hooks/use-tokens-loading';
 import { loadSwapDexesAction, loadSwapTokensAction } from 'app/store/swap/actions';
-import { useTempleClient } from 'lib/temple/front';
 import { useBalancesLoading } from 'lib/temple/front/load-balances';
 
-export const UseDataLoading: FC = () => {
-  const temple = useTempleClient();
-
-  return temple.ready ? <UseDataLoadingOnReady /> : null;
-};
-
-const UseDataLoadingOnReady: FC = () => {
+export const WithDataLoading: FC<PropsWithChildren> = ({ children }) => {
   useMetadataLoading();
   useTokensLoading();
   useBalancesLoading();
@@ -33,5 +26,5 @@ const UseDataLoadingOnReady: FC = () => {
     dispatch(loadSwapTokensAction.submit());
   }, [dispatch]);
 
-  return null;
+  return <>{children}</>;
 };
