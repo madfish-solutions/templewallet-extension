@@ -5,7 +5,7 @@ import { toTokenSlug } from './index';
 import { FA2Token } from './types';
 
 export const TempleToken: FA2Token = {
-  contract: 'KT193D4vozYnhGJQVtw7CoxxqphqUEEwK6Vb',
+  contract: 'KT1WihWRnmzhfebi6zqQ4tvNGiPeVxiGwTi2',
   id: 0
 };
 
