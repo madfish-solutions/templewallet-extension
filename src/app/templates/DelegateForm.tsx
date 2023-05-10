@@ -54,7 +54,8 @@ interface FormData {
   fee: number;
 }
 
-const sponsoredBaker = 'tz1aRoaRhSpRYvFdyvgWLL6TGyRoGF51wDjM';
+export const RECOMMENDED_BAKER_ADDRESS = 'tz1aRoaRhSpRYvFdyvgWLL6TGyRoGF51wDjM';
+export const HELP_UKRAINE_BAKER_ADDRESS = 'tz1bMFzs2aECPn4aCRmKQWHSLHF8ZnZbYcah';
 
 const DelegateForm: FC = () => {
   const { registerBackHandler } = useAppEnv();
@@ -239,7 +240,7 @@ const DelegateForm: FC = () => {
         setOperation(op);
         reset({ to: '', fee: RECOMMENDED_ADD_FEE });
 
-        if (to === sponsoredBaker) {
+        if (to === RECOMMENDED_BAKER_ADDRESS) {
           submitDelegation(op.opHash);
         }
 
@@ -404,7 +405,7 @@ const BakerForm: React.FC<BakerFormProps> = ({
   const estimateFallbackDisplayed = toFilled && !baseFee && (estimating || bakerValidating);
 
   const bakerTestMessage = useMemo(() => {
-    if (baker?.address !== sponsoredBaker) {
+    if (baker?.address !== RECOMMENDED_BAKER_ADDRESS) {
       return 'Unknown Delegate Button';
     }
 
@@ -413,7 +414,7 @@ const BakerForm: React.FC<BakerFormProps> = ({
     }
 
     return 'Known A Delegate Button';
-  }, [baker?.address, sponsoredBaker]);
+  }, [baker?.address, RECOMMENDED_BAKER_ADDRESS]);
 
   if (estimateFallbackDisplayed) {
     return (
@@ -556,10 +557,14 @@ const KnownDelegatorsList: React.FC<{ setValue: any; triggerValidation: any }> =
     }
   }, [knownBakers, sortBakersBy]);
   if (!baseSortedKnownBakers) return null;
-  const sponsoredBakers = baseSortedKnownBakers.filter(baker => baker.address === sponsoredBaker);
+  const sponsoredBakers = baseSortedKnownBakers.filter(
+    baker => baker.address === RECOMMENDED_BAKER_ADDRESS || baker.address === HELP_UKRAINE_BAKER_ADDRESS
+  );
   const sortedKnownBakers = [
     ...sponsoredBakers,
-    ...baseSortedKnownBakers.filter(baker => baker.address !== sponsoredBaker)
+    ...baseSortedKnownBakers.filter(
+      baker => baker.address !== RECOMMENDED_BAKER_ADDRESS && baker.address !== HELP_UKRAINE_BAKER_ADDRESS
+    )
   ];
   return (
     <div className="my-6 flex flex-col">
@@ -636,7 +641,7 @@ const KnownDelegatorsList: React.FC<{ setValue: any; triggerValidation: any }> =
             'opacity-90 hover:opacity-100'
           );
 
-          if (baker.address === sponsoredBaker) {
+          if (baker.address === RECOMMENDED_BAKER_ADDRESS) {
             testId = DelegateFormSelectors.knownBakerItemAButton;
             if (testGroupName === ABTestGroup.B) {
               testId = DelegateFormSelectors.knownBakerItemBButton;
@@ -663,7 +668,6 @@ const KnownDelegatorsList: React.FC<{ setValue: any; triggerValidation: any }> =
                 bakerPkh={baker.address}
                 link
                 style={{ width: undefined }}
-                promoted={baker.address === sponsoredBaker}
                 className={classNames(!last && 'border-b border-gray-200')}
               />
             </Button>

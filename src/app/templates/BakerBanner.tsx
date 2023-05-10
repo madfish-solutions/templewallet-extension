@@ -1,4 +1,4 @@
-import React, { HTMLAttributes, memo, useMemo } from 'react';
+import React, { FC, HTMLAttributes, memo, useMemo } from 'react';
 
 import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
@@ -15,159 +15,157 @@ import { toLocalFormat, T } from 'lib/i18n';
 import { useRelevantAccounts, useAccount, useNetwork, useKnownBaker, useExplorerBaseUrls } from 'lib/temple/front';
 import { TempleAccount } from 'lib/temple/types';
 
+import { HELP_UKRAINE_BAKER_ADDRESS, RECOMMENDED_BAKER_ADDRESS } from './DelegateForm';
 import HashChip from './HashChip';
 
 type BakerBannerProps = HTMLAttributes<HTMLDivElement> & {
   bakerPkh: string;
-  promoted?: boolean;
   link?: boolean;
   displayAddress?: boolean;
 };
 
-const BakerBanner = memo<BakerBannerProps>(
-  ({ bakerPkh, link = false, promoted = false, displayAddress = false, className, style }) => {
-    const allAccounts = useRelevantAccounts();
-    const account = useAccount();
-    const { popup } = useAppEnv();
-    const { data: baker } = useKnownBaker(bakerPkh);
-    const { account: accountBaseUrl } = useExplorerBaseUrls();
+const BakerBanner = memo<BakerBannerProps>(({ bakerPkh, link = false, displayAddress = false, className, style }) => {
+  const allAccounts = useRelevantAccounts();
+  const account = useAccount();
+  const { popup } = useAppEnv();
+  const { data: baker } = useKnownBaker(bakerPkh);
+  const { account: accountBaseUrl } = useExplorerBaseUrls();
 
-    const bakerAcc = useMemo(
-      () => allAccounts.find(acc => acc.publicKeyHash === bakerPkh) ?? null,
-      [allAccounts, bakerPkh]
-    );
+  const bakerAcc = useMemo(
+    () => allAccounts.find(acc => acc.publicKeyHash === bakerPkh) ?? null,
+    [allAccounts, bakerPkh]
+  );
 
-    return (
-      <div
-        className={classNames('w-full', 'border rounded-md', 'p-3', className)}
-        style={{
-          maxWidth: undefined,
-          ...style
-        }}
-      >
-        {baker ? (
-          <>
-            <div className={classNames('flex items-stretch', 'text-gray-700')}>
-              <div>
-                <img
-                  src={baker.logo}
-                  alt={baker.name}
-                  className={classNames('flex-shrink-0', 'w-16 h-16', 'bg-white rounded shadow-xs')}
+  const isRecommendedBaker = bakerPkh === RECOMMENDED_BAKER_ADDRESS;
+  const isHelpUkraineBaker = bakerPkh === HELP_UKRAINE_BAKER_ADDRESS;
+
+  return (
+    <div
+      className={classNames('w-full', 'border rounded-md', 'p-3', className)}
+      style={{
+        maxWidth: undefined,
+        ...style
+      }}
+    >
+      {baker ? (
+        <>
+          <div className={classNames('flex items-stretch', 'text-gray-700')}>
+            <div>
+              <img
+                src={baker.logo}
+                alt={baker.name}
+                className={classNames('flex-shrink-0', 'w-16 h-16', 'bg-white rounded shadow-xs')}
+                style={{
+                  minHeight: '2rem'
+                }}
+              />
+            </div>
+
+            <div className="flex flex-col items-start flex-1 ml-2 relative">
+              <div
+                className={classNames(
+                  'w-full mb-2 text-lg text-gray-900',
+                  'flex flex-wrap items-center',
+                  'leading-none'
+                )}
+              >
+                <Name
                   style={{
-                    minHeight: '2rem'
+                    fontSize: '17px',
+                    lineHeight: '20px',
+                    maxWidth: isHelpUkraineBaker ? (popup ? '5rem' : '8rem') : '12rem'
                   }}
-                />
-              </div>
-
-              <div className="flex flex-col items-start flex-1 ml-2 relative">
-                <div
-                  className={classNames(
-                    'w-full mb-2 text-lg text-gray-900',
-                    'flex flex-wrap items-center',
-                    'leading-none'
-                  )}
+                  testID={BakingSectionSelectors.delegatedBakerName}
                 >
-                  <Name
-                    style={{ fontSize: '17px', lineHeight: '20px' }}
-                    testID={BakingSectionSelectors.delegatedBakerName}
-                  >
-                    {baker.name}
-                  </Name>
-                  {promoted && <ABContainer groupAComponent={<SponsoredBaker />} groupBComponent={<PromotedBaker />} />}
-                  {displayAddress && (
-                    <div className="ml-2 flex flex-wrap items-center">
-                      {accountBaseUrl && (
-                        <OpenInExplorerChip
-                          bgShade={200}
-                          textShade={500}
-                          rounded="base"
-                          hash={baker.address}
-                          baseUrl={accountBaseUrl}
-                        />
-                      )}
-                    </div>
-                  )}
-                </div>
-
-                <div className="flex flex-wrap items-center w-full">
-                  <div className={classNames('flex-1 flex items-start', popup ? (link ? 'mr-3' : 'mr-7') : 'mr-8')}>
-                    <div
-                      className={classNames(
-                        'text-xs leading-tight flex',
-                        'text-gray-500 flex-col',
-                        'items-start flex-1'
-                      )}
-                    >
-                      <T id="staking" />:
-                      <span style={{ marginTop: 2 }} className="text-gray-600 flex">
-                        <Money>{(baker.stakingBalance / 1000).toFixed(0)}</Money>K
-                      </span>
-                    </div>
-                  </div>
-                  <div className={classNames('flex-1 flex items-start', popup ? (link ? 'mr-3' : 'mr-7') : 'mr-8')}>
-                    <div
-                      className={classNames(
-                        'text-xs leading-tight flex',
-                        'text-gray-500 flex-col',
-                        'items-start flex-1'
-                      )}
-                    >
-                      <T id="space" />:
-                      <span style={{ marginTop: 2 }} className="text-gray-600 flex">
-                        <Money>{(baker.freeSpace / 1000).toFixed(0)}</Money>K
-                      </span>
-                    </div>
-                  </div>
-                  <div className={classNames('flex-1 flex items-start', popup ? 'mr-9' : 'mr-16')}>
-                    <div
-                      className={classNames(
-                        'text-xs leading-tight',
-                        'text-gray-500 flex flex-col',
-                        'items-start flex-1'
-                      )}
-                    >
-                      <T id="fee" />:
-                      <span style={{ marginTop: 2 }} className="text-gray-600">
-                        {toLocalFormat(new BigNumber(baker.fee).times(100), {
-                          decimalPlaces: 2
-                        })}
-                        %
-                      </span>
-                    </div>
-                  </div>
-                </div>
-                {link && (
-                  <div className={classNames('absolute right-0 top-0 bottom-0', 'flex items-center', 'text-gray-500')}>
-                    <ChevronRightIcon className="h-5 w-auto stroke-current" />
+                  {baker.name}
+                </Name>
+                {(isRecommendedBaker || isHelpUkraineBaker) && (
+                  <ABContainer
+                    groupAComponent={<SponsoredBaker isRecommendedBaker={isRecommendedBaker} />}
+                    groupBComponent={<PromotedBaker isRecommendedBaker={isRecommendedBaker} />}
+                  />
+                )}
+                {displayAddress && (
+                  <div className="ml-2 flex flex-wrap items-center">
+                    {accountBaseUrl && (
+                      <OpenInExplorerChip
+                        bgShade={200}
+                        textShade={500}
+                        rounded="base"
+                        hash={baker.address}
+                        baseUrl={accountBaseUrl}
+                      />
+                    )}
                   </div>
                 )}
               </div>
-            </div>
-          </>
-        ) : (
-          <div className={classNames('flex items-stretch', 'text-gray-700')}>
-            <div>
-              <Identicon type="bottts" hash={bakerPkh} size={40} className="shadow-xs" />
-            </div>
 
-            <div className="flex flex-col items-start flex-1 ml-2">
-              <div className={classNames('mb-px w-full', 'flex flex-wrap items-center', 'leading-none')}>
-                <Name className="pb-1 mr-1 text-lg font-medium">
-                  <BakerAccount
-                    account={account}
-                    bakerAcc={bakerAcc}
-                    bakerPkh={bakerPkh}
-                    accountBaseUrl={accountBaseUrl}
-                  />
-                </Name>
+              <div className="flex flex-wrap items-center w-full">
+                <div className={classNames('flex-1 flex items-start', popup ? (link ? 'mr-3' : 'mr-7') : 'mr-8')}>
+                  <div
+                    className={classNames('text-xs leading-tight flex', 'text-gray-500 flex-col', 'items-start flex-1')}
+                  >
+                    <T id="staking" />:
+                    <span style={{ marginTop: 2 }} className="text-gray-600 flex">
+                      <Money>{(baker.stakingBalance / 1000).toFixed(0)}</Money>K
+                    </span>
+                  </div>
+                </div>
+                <div className={classNames('flex-1 flex items-start', popup ? (link ? 'mr-3' : 'mr-7') : 'mr-8')}>
+                  <div
+                    className={classNames('text-xs leading-tight flex', 'text-gray-500 flex-col', 'items-start flex-1')}
+                  >
+                    <T id="space" />:
+                    <span style={{ marginTop: 2 }} className="text-gray-600 flex">
+                      <Money>{(baker.freeSpace / 1000).toFixed(0)}</Money>K
+                    </span>
+                  </div>
+                </div>
+                <div className={classNames('flex-1 flex items-start', popup ? 'mr-9' : 'mr-16')}>
+                  <div
+                    className={classNames('text-xs leading-tight', 'text-gray-500 flex flex-col', 'items-start flex-1')}
+                  >
+                    <T id="fee" />:
+                    <span style={{ marginTop: 2 }} className="text-gray-600">
+                      {toLocalFormat(new BigNumber(baker.fee).times(100), {
+                        decimalPlaces: 2
+                      })}
+                      %
+                    </span>
+                  </div>
+                </div>
               </div>
+              {link && (
+                <div className={classNames('absolute right-0 top-0 bottom-0', 'flex items-center', 'text-gray-500')}>
+                  <ChevronRightIcon className="h-5 w-auto stroke-current" />
+                </div>
+              )}
             </div>
           </div>
-        )}
-      </div>
-    );
-  }
-);
+        </>
+      ) : (
+        <div className={classNames('flex items-stretch', 'text-gray-700')}>
+          <div>
+            <Identicon type="bottts" hash={bakerPkh} size={40} className="shadow-xs" />
+          </div>
+
+          <div className="flex flex-col items-start flex-1 ml-2">
+            <div className={classNames('mb-px w-full', 'flex flex-wrap items-center', 'leading-none')}>
+              <Name className="pb-1 mr-1 text-lg font-medium">
+                <BakerAccount
+                  account={account}
+                  bakerAcc={bakerAcc}
+                  bakerPkh={bakerPkh}
+                  accountBaseUrl={accountBaseUrl}
+                />
+              </Name>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+});
 
 export default BakerBanner;
 
@@ -207,19 +205,21 @@ const BakerAccount: React.FC<{
   );
 };
 
-const SponsoredBaker = () => (
+const SponsoredBaker: FC<{ isRecommendedBaker: boolean }> = ({ isRecommendedBaker }) => (
   <div
     className={classNames('font-normal text-xs px-2 py-1 bg-blue-500 text-white ml-2')}
     style={{ borderRadius: '10px' }}
   >
-    <T id="recommended" />
+    <T id={isRecommendedBaker ? 'recommended' : 'helpUkraine'} />
+    {!isRecommendedBaker && '🇺🇦'}
   </div>
 );
-const PromotedBaker = () => (
+const PromotedBaker: FC<{ isRecommendedBaker: boolean }> = ({ isRecommendedBaker }) => (
   <div
     className={classNames('font-normal text-xs px-2 py-1 bg-primary-orange text-white ml-2')}
     style={{ borderRadius: '10px' }}
   >
-    <T id="recommended" />
+    <T id={isRecommendedBaker ? 'recommended' : 'helpUkraine'} />
+    {!isRecommendedBaker && '🇺🇦'}
   </div>
 );
