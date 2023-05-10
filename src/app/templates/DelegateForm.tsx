@@ -138,6 +138,8 @@ const DelegateForm: FC = () => {
     return undefined;
   }, [toFilled, registerBackHandler, cleanToField]);
 
+  console.log(1);
+
   const estimateBaseFee = useCallback(async () => {
     try {
       const balanceBN = (await mutateBalance(fetchTezosBalance(tezos, accountPkh)))!;
