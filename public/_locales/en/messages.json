@@ -92,7 +92,7 @@
     "message": "Click to reveal"
   },
   "copiedHash": {
-    "message": "Copied."
+    "message": "Copied"
   },
   "copyHashToClipboard": {
     "message": "Copy to clipboard"
@@ -291,10 +291,10 @@
     }
   },
   "copiedTokenAddress": {
-    "message": "Copied."
+    "message": "Copied"
   },
   "copiedTokenId": {
-    "message": "Copied."
+    "message": "Copied"
   },
   "delegatedTo": {
     "message": "Delegated to:"
@@ -836,7 +836,7 @@
     "message": "Your current account address. Share it to receive funds."
   },
   "copiedAddress": {
-    "message": "Copied."
+    "message": "Copied"
   },
   "copyAddressToClipboard": {
     "message": "Copy to clipboard"
