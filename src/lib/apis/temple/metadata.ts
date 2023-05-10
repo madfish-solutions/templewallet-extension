@@ -10,7 +10,11 @@ if (LOCAL_METADATA_API_URL) console.warn(`process.env.LOCAL_METADATA_API_URL fou
 
 const API_CHAIN_NAMES = {
   [TempleChainId.Mainnet]: 'mainnet',
-  [TempleChainId.Ghostnet]: 'ghostnet'
+  [TempleChainId.Ghostnet]: 'ghostnet',
+  [TempleChainId.Mumbainet]: 'mumbainet',
+  [TempleChainId.Limanet]: 'limanet',
+  [TempleChainId.Dcp]: 'dcp',
+  [TempleChainId.DcpTest]: 'dcptest'
 };
 
 type MetadataApiChainId = keyof typeof API_CHAIN_NAMES;
