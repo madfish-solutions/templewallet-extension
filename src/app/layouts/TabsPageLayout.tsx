@@ -7,7 +7,7 @@ import { useTabSlug } from 'app/atoms/useTabSlug';
 import { TestIDProperty } from 'lib/analytics';
 import { Link } from 'lib/woozie';
 
-import { PageTitle } from '../atoms/PageTitle';
+import { PageTitle } from 'app/atoms/PageTitle';
 import { useAppEnv } from '../env';
 import ErrorBoundary from '../ErrorBoundary';
 import PageLayout from './PageLayout';
