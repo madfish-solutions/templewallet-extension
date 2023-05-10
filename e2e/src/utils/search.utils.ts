@@ -1,4 +1,5 @@
 import { isDefined } from '@rnw-community/shared';
+import retry from 'async-retry';
 import { ElementHandle } from 'puppeteer';
 
 import { BrowserContext } from '../classes/browser-context.class';
@@ -64,6 +65,25 @@ class PageElement {
   async getText() {
     const element = await this.findElement();
     return getElementText(element);
+  }
+  async waitForText(expectedText: string, timeout = MEDIUM_TIMEOUT) {
+    const element = await this.findElement();
+
+    if (timeout > 0) {
+      return await retry(
+        () =>
+          getElementText(element).then(text => {
+            if (text === expectedText) return true;
+
+            const selector = buildSelector(this.testID, this.otherSelectors);
+            throw new Error(`Waiting for expected text in \`${selector}\` timed out (${timeout} ms)`);
+          }),
+        { maxRetryTime: timeout }
+      );
+    }
+
+    const text = await getElementText(element);
+    return text === expectedText;
   }
 }
 
