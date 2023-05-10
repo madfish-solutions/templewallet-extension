@@ -13,15 +13,16 @@ Given(
 );
 
 Given(/I check that (.*) node is selected correctly/, { timeout: MEDIUM_TIMEOUT }, async (networkName: string) => {
-  // need a little timeout to wait until changed node is loaded
-  await sleep(3000);
-
-  const networkButtonName = await Pages.Header.selectedNetworkButtonName.getText();
-  expect(networkButtonName).eql(networkName);
-
   await Pages.Header.templeLogoButton.waitForDisplayed();
   await Pages.Header.accountIconButton.waitForDisplayed();
   await Pages.Home.ReceiveButton.waitForDisplayed();
   await Pages.Home.SwapButton.waitForDisplayed();
   await Pages.Home.SendButton.waitForDisplayed();
+  await Pages.Home.searchAssetsInputTokens.waitForDisplayed();
+
+  // need a little timeout to wait until changed node is loaded
+  await sleep(3000);
+
+  const networkButtonName = await Pages.Header.selectedNetworkButtonName.getText();
+  expect(networkButtonName).eql(networkName);
 });
