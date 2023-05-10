@@ -1,3 +1,5 @@
+import { LONG_TIMEOUT } from 'e2e/src/utils/timing.utils';
+
 import { InternalConfirmationSelectors } from '../../../../src/app/templates/InternalConfirmation.selectors';
 import { Page } from '../../classes/page.class';
 import { createPageElement } from '../../utils/search.utils';
@@ -11,7 +13,7 @@ export class InternalConfirmationPage extends Page {
   retryButton = createPageElement(InternalConfirmationSelectors.retryButton);
 
   async isVisible() {
-    await this.confirmButton.waitForDisplayed();
+    await this.confirmButton.waitForDisplayed(LONG_TIMEOUT);
     await this.declineButton.waitForDisplayed();
     await this.bytesTab.waitForDisplayed();
     await this.rawTab.waitForDisplayed();
