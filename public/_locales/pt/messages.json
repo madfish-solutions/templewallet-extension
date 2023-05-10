@@ -89,7 +89,7 @@
     "message": "Clicar para revelar ou editar este campo"
   },
   "copiedHash": {
-    "message": "Copiado."
+    "message": "Copiado"
   },
   "copyHashToClipboard": {
     "message": "Copiar para a área de transferência"
@@ -199,10 +199,10 @@
     }
   },
   "copiedTokenAddress": {
-    "message": "Copiado."
+    "message": "Copiado"
   },
   "copiedTokenId": {
-    "message": "Copiado."
+    "message": "Copiado"
   },
   "delegatedTo": {
     "message": "Delegado a:"
@@ -680,7 +680,7 @@
     "message": "O endereço da sua conta corrente. Partilhá-lo para receber fundos."
   },
   "copiedAddress": {
-    "message": "Copiado."
+    "message": "Copiado"
   },
   "copyAddressToClipboard": {
     "message": "Copiar para a área de transferência"
