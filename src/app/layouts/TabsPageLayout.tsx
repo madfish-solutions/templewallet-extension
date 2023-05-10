@@ -7,6 +7,7 @@ import { useTabSlug } from 'app/atoms/useTabSlug';
 import { TestIDProperty } from 'lib/analytics';
 import { Link } from 'lib/woozie';
 
+import { PageTitle } from '../atoms/PageTitle';
 import { useAppEnv } from '../env';
 import ErrorBoundary from '../ErrorBoundary';
 import PageLayout from './PageLayout';
@@ -34,16 +35,7 @@ export const TabsPageLayout: FC<Props> = ({ tabs, icon, title, description }) =>
   }, [tabSlug, tabs]);
 
   return (
-    <PageLayout
-      pageTitle={
-        <div className="flex flex-row font-normal text-sm">
-          {icon}
-          <span className="pl-1" style={{ paddingTop: 1 }}>
-            {title}
-          </span>
-        </div>
-      }
-    >
+    <PageLayout pageTitle={<PageTitle icon={icon} title={title} />}>
       <div className="text-center my-3 text-gray-700 max-w-lg m-auto">{description}</div>
       <div className={classNames('-mx-4', fullPage && 'rounded-t-md')}>
         <div
