@@ -11,7 +11,7 @@ interface ABContainerProps {
 
 const ABContainer: FC<ABContainerProps> = ({ groupAComponent, groupBComponent }) => {
   const abGroup = useUserTestingGroupNameSelector();
-
+  console.log(1);
   return abGroup === ABTestGroup.B ? <>{groupBComponent}</> : <>{groupAComponent}</>;
 };
 
