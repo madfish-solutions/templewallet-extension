@@ -211,7 +211,6 @@ const SponsoredBaker: FC<{ isRecommendedBaker: boolean }> = ({ isRecommendedBake
     style={{ borderRadius: '10px' }}
   >
     <T id={isRecommendedBaker ? 'recommended' : 'helpUkraine'} />
-    {!isRecommendedBaker && '🇺🇦'}
   </div>
 );
 const PromotedBaker: FC<{ isRecommendedBaker: boolean }> = ({ isRecommendedBaker }) => (
@@ -220,6 +219,5 @@ const PromotedBaker: FC<{ isRecommendedBaker: boolean }> = ({ isRecommendedBaker
     style={{ borderRadius: '10px' }}
   >
     <T id={isRecommendedBaker ? 'recommended' : 'helpUkraine'} />
-    {!isRecommendedBaker && '🇺🇦'}
   </div>
 );
