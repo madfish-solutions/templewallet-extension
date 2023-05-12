@@ -3,6 +3,8 @@ name: Secrets setup
 description: Writes secrets
 
 inputs:
+  GITHUB_ENV:
+    required: true
   TEMPLE_WALLET_JITSU_TRACKING_HOST:
     required: true
   TEMPLE_WALLET_JITSU_WRITE_KEY:
@@ -45,6 +47,7 @@ runs:
       shell: bash
       run: |
         cat << EOF > .env
+        GITHUB_ENV=${{ inputs.GITHUB_ENV }}
         TEMPLE_WALLET_JITSU_TRACKING_HOST=${{ inputs.TEMPLE_WALLET_JITSU_TRACKING_HOST }}
         TEMPLE_WALLET_JITSU_WRITE_KEY=${{ inputs.TEMPLE_WALLET_JITSU_WRITE_KEY }}
 

@@ -35,6 +35,7 @@ jobs:
       - name: Secrets setup
         uses: ./.github/workflows/secrets-setup
         with:
+          GITHUB_ENV: development
           TEMPLE_WALLET_JITSU_TRACKING_HOST: ${{ vars.TEMPLE_WALLET_JITSU_TRACKING_HOST }}
           TEMPLE_WALLET_JITSU_WRITE_KEY: ${{ vars.TEMPLE_WALLET_JITSU_WRITE_KEY }}
           TEMPLE_WALLET_EXOLIX_API_KEY: ${{ secrets.TEMPLE_WALLET_EXOLIX_API_KEY }}
@@ -77,4 +78,4 @@ jobs:
           name: chrome
           path: dist/chrome.zip
           if-no-files-found: error
-          retention-days: 30
+          retention-days: 10

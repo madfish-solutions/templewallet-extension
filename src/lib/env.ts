@@ -1,5 +1,9 @@
 export const IS_DEV_ENV = process.env.NODE_ENV === 'development';
 
+const IS_DEV_GITHUB_ENV = process.env.GITHUB_ENV === 'development';
+
+export const IS_STAGE_ENV = IS_DEV_ENV || IS_DEV_GITHUB_ENV;
+
 export const BACKGROUND_IS_WORKER = process.env.BACKGROUND_IS_WORKER === 'true';
 
 export const EnvVars = {

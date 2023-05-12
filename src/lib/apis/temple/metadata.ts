@@ -1,7 +1,7 @@
 import axios from 'axios';
 import memoize from 'mem';
 
-import { IS_DEV_ENV } from 'lib/env';
+import { IS_STAGE_ENV } from 'lib/env';
 import { TempleChainId } from 'lib/temple/types';
 
 const LOCAL_METADATA_API_URL = process.env.LOCAL_METADATA_API_URL;
@@ -55,7 +55,7 @@ const buildApiUrl = (chainId: string) => {
 
   if (!chainName) throw new Error('Unknown Chain ID to Temple Metadata service');
 
-  if (IS_DEV_ENV) return `https://metadata-api-${chainName}.stage.madfish.xyz`;
+  if (IS_STAGE_ENV) return `https://metadata-api-${chainName}.stage.madfish.xyz`;
 
   return `https://metadata-api-${chainName}.prod.templewallet.com`;
 };
