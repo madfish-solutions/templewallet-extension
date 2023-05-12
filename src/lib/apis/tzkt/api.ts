@@ -152,31 +152,41 @@ export async function refetchOnce429<R>(fetcher: () => Promise<R>, delayAroundIn
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 export const fecthTezosBalanceFromTzkt = (
-  apiUrl: string,
-  account: string
-): Promise<{ frozenDeposit?: string; balance: string }> =>
-  axios
-    .get(`${apiUrl}/v1/accounts/${account}`)
-    .then(({ data: { frozenDeposit, balance } }) => ({ frozenDeposit, balance }));
+  account: string,
+  chainId: string
+): Promise<{ frozenDeposit?: string; balance: string }> => {
+  if (isKnownChainId(chainId)) {
+    return axios
+      .get(`${TZKT_API_BASE_URLS[chainId]}/accounts/${account}`)
+      .then(({ data: { frozenDeposit, balance } }) => ({ frozenDeposit, balance }));
+  }
+
+  return Promise.resolve({ balance: '0' });
+};
 
 const LIMIT = 10000;
 
 const fecthTokensBalancesFromTzktOnce = (
-  apiUrl: string,
   account: string,
+  chainId: string,
   limit: number,
   offset = 0
-): Promise<Array<TzktAccountToken>> =>
-  axios
-    .get<Array<TzktAccountToken>>(`${apiUrl}/v1/tokens/balances`, {
-      params: {
-        account,
-        'balance.gt': 0,
-        limit,
-        offset
-      }
-    })
-    .then(({ data }) => data);
+): Promise<Array<TzktAccountToken>> => {
+  if (isKnownChainId(chainId)) {
+    return axios
+      .get<Array<TzktAccountToken>>(`${TZKT_API_BASE_URLS[chainId]}/tokens/balances`, {
+        params: {
+          account,
+          'balance.gt': 0,
+          limit,
+          offset
+        }
+      })
+      .then(({ data }) => data);
+  }
+
+  return Promise.resolve([]);
+};
 
 export const fetchAllTokensBalancesFromTzkt = async (selectedRpcUrl: string, account: string) => {
   const balances: TzktAccountToken[] = [];
