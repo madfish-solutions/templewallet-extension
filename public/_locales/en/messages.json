@@ -1175,6 +1175,12 @@
   "notEnoughFunds": {
     "message": "Not enough funds"
   },
+  "helpUkraineDisclainerTitle": {
+    "message": "This Baker helps Ukraine \uD83C\uDDFA\uD83C\uDDE6"
+  },
+  "helpUkraineDisclainerDescription": {
+    "message": "By delegating for this Baker, you agree that all of your rewards will go to support Ukraine.\nThank you for your contribution!"
+  },
   "notEnoughCurrencyFunds": {
     "message": "Not enough $currency$ funds",
     "placeholders": {

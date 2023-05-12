@@ -336,7 +336,7 @@ const DelegateForm: FC = () => {
           style={{
             resize: 'none'
           }}
-          containerClassName="mb-4"
+          containerClassName={baker?.address === HELP_UKRAINE_BAKER_ADDRESS ? 'mb-2' : 'mb-4'}
           testID={DelegateFormSelectors.bakerInput}
         />
 
@@ -428,6 +428,15 @@ const BakerForm: React.FC<BakerFormProps> = ({
 
   return restFormDisplayed ? (
     <>
+      {baker?.address === HELP_UKRAINE_BAKER_ADDRESS && (
+        <Alert
+          type="delegate"
+          title={t('helpUkraineDisclainerTitle')}
+          description={t('helpUkraineDisclainerDescription')}
+          className="mb-6"
+        />
+      )}
+
       <BakerBannerComponent baker={baker} tzError={tzError} />
 
       {tzError && <DelegateErrorAlert type={submitError ? 'submit' : 'estimation'} error={tzError} />}
