@@ -12,7 +12,6 @@ const API_CHAIN_NAMES = {
   [TempleChainId.Mainnet]: 'mainnet',
   [TempleChainId.Ghostnet]: 'ghostnet',
   [TempleChainId.Mumbainet]: 'mumbainet',
-  [TempleChainId.Limanet]: 'limanet',
   [TempleChainId.Dcp]: 'dcp',
   [TempleChainId.DcpTest]: 'dcptest'
 };
