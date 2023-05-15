@@ -42,13 +42,15 @@ export const useTotalBalance = () => {
   }, [slugs, tokensBalances, allUsdToTokenRates]);
 
   const totalBalanceInFiat = useMemo(() => {
-    if (!isTruthy(fiatToUsdRate)) return totalBalanceInDollar;
+    if (!isTruthy(fiatToUsdRate)) return new BigNumber(0);
 
     return totalBalanceInDollar.times(fiatToUsdRate);
   }, [totalBalanceInDollar, fiatToUsdRate]);
 
   const totalBalanceInGasToken = useMemo(() => {
     const tezosToUsdRate = allUsdToTokenRates[TEZ_TOKEN_SLUG];
+
+    if (!isTruthy(tezosToUsdRate)) return new BigNumber(0);
 
     return totalBalanceInDollar.dividedBy(tezosToUsdRate).decimalPlaces(gasToken.metadata.decimals) || new BigNumber(0);
   }, [totalBalanceInDollar, allUsdToTokenRates, gasToken.metadata.decimals]);
