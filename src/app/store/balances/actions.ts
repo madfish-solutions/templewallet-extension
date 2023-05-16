@@ -1,19 +1,14 @@
 import { createActions } from 'lib/store/utils/action.utils';
-import { IAccountToken } from 'lib/temple/repo';
 
-interface BalancesPayloadAbstract {
+interface BalancesTzktPayloadSubmit {
   publicKeyHash: string;
   chainId: string;
 }
-interface BalancesPayloadSuccess extends BalancesPayloadAbstract {
+interface BalancesPayloadSuccess extends BalancesTzktPayloadSubmit {
   balances: Record<string, string>;
 }
-interface BalancesPayloadFail extends BalancesPayloadAbstract {
+interface BalancesPayloadFail extends BalancesTzktPayloadSubmit {
   error: string;
-}
-
-interface BalancesTzktPayloadSubmit extends BalancesPayloadAbstract {
-  apiUrl: string;
 }
 
 export const loadTokensBalancesFromTzktAction = createActions<
@@ -21,13 +16,3 @@ export const loadTokensBalancesFromTzktAction = createActions<
   BalancesPayloadSuccess,
   BalancesPayloadFail
 >('balances/LOAD_TOKENS_BALANCES');
-
-interface BalancesChainPayloadSubmit extends BalancesPayloadAbstract {
-  rpcUrl: string;
-  tokens: Array<IAccountToken>;
-}
-export const loadTokensBalancesFromChainAction = createActions<
-  BalancesChainPayloadSubmit,
-  BalancesPayloadSuccess,
-  BalancesPayloadFail
->('balances/LOAD_TEZOS_BALANCE');
