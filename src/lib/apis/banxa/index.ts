@@ -1,6 +1,8 @@
 import axios, { AxiosError } from 'axios';
 import crypto from 'crypto';
 
+import { openLink } from 'lib/utils';
+
 const HOSTNAME = '';
 const API_KEY = '';
 const SECRET = '';
@@ -62,30 +64,34 @@ const sendPostRequest = async <R>(path: string, payload: string) => {
 
 // sendGetRequest('/api/countries');
 
+const wallet_address = '';
+
 const purchase_reference = Date.now().toString();
 
-sendPostRequest(
+sendPostRequest<{ data: { order: { checkout_url: string } } }>(
   '/api/orders/nft/buy',
   JSON.stringify({
-    account_reference: 'tz1TUAXvQU18pqrHUn3CnndCXLcKQxMB2Vsy',
+    account_reference: wallet_address,
     source: 'USD',
     source_amount: '25',
     target: 'XTZ',
     blockchain: 'XTZ',
     return_url_on_success: 'https://test.com',
-    wallet_address: 'tz1TUAXvQU18pqrHUn3CnndCXLcKQxMB2Vsy',
-    //
-    purchase_reference,
-    //
+    wallet_address: wallet_address,
     meta_data: {
       purchase_reference,
       nft: {
         contract_address: 'KT1CzVSa18hndYupV9NcXy3Qj7p8YFDZKVQv',
-        token_id: '12'
-        // name: 'Banxa nft',
-        // collection: 'Banxa NFT shop',
-        // media: { type: 'image', link: 'https://ipfs.example.cloud/ipfs/QmTWyo67Vd4GNVkbBCs96ddXnZZEJy41Cjc9DkcQRt41Np' }
+        token_id: '12',
+        name: 'Banxa nft',
+        collection: 'Banxa NFT shop',
+        media: {
+          type: 'image',
+          link: 'https://ipfs.sayl.cloud/ipfs/QmTWyo67Vd4GNVkbBCs96ddXnZZEJy41Cjc9DkcQRt41Np'
+        }
       }
     }
   })
-);
+).then(response => {
+  openLink(response.data.data.order.checkout_url);
+});
