@@ -41,7 +41,7 @@ const HTML_TEMPLATES = PAGES_NAMES.map(name => {
   return { name, filename, path };
 });
 
-const CONTENT_SCRIPTS = ['contentScript'];
+const CONTENT_SCRIPTS = ['dApps-requests', 'objkt'];
 const SEPARATED_CHUNKS = new Set(CONTENT_SCRIPTS);
 
 const mainConfig = (() => {
@@ -163,7 +163,7 @@ const scriptsConfig = (() => {
   const config = buildBaseConfig();
 
   config.entry = {
-    contentScript: Path.join(PATHS.SOURCE, 'contentScript.ts')
+    ...Object.fromEntries(CONTENT_SCRIPTS.map(name => [name, Path.join(PATHS.SOURCE, `content-scripts/${name}.ts`)]))
   };
 
   config.output = {

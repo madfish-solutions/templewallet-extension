@@ -23,3 +23,19 @@ const getRxJSApolloClient = <TCacheShape>(client: ApolloClient<TCacheShape>) => 
     query: queryFn
   };
 };
+
+export const buildApolloCustomClient = (uri: string) => {
+  const originalClient = new ApolloClient({
+    link: new HttpLink({ uri }),
+    cache: new InMemoryCache()
+  });
+
+  const queryFn = <T, TVars = object>(query: DocumentNode, variables?: TVars, options?: TVars) =>
+    originalClient
+      .query<T, TVars>({ query, variables, fetchPolicy: 'network-only', ...options })
+      .then(({ data }) => data);
+
+  return {
+    query: queryFn
+  };
+};

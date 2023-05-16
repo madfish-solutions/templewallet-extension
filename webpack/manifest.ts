@@ -136,9 +136,14 @@ const buildManifestCommons = (vendor: string): Omit<Manifest.WebExtensionManifes
           /* For some URLs from `HOST_PERMISSIONS` & active tabs (with `activeTab` permission) */
           'https://*/*'
         ],
-        js: ['scripts/contentScript.js'],
+        js: ['scripts/dApps-requests.js'],
         run_at: 'document_start',
         all_frames: true
+      },
+      {
+        matches: ['https://objkt.com/*'],
+        js: ['scripts/objkt.js'],
+        run_at: 'document_start'
       }
     ]
   };
