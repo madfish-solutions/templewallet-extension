@@ -40,15 +40,25 @@ export function usePassiveStorage<T = any>(key: string, fallback?: T) {
     revalidateOnFocus: false,
     revalidateOnReconnect: false
   });
+
   const finalData = fallback === undefined ? data : data ?? fallback;
+
   const [value, setValue] = useState(finalData);
+
+  useEffect(() => {
+    setValue(finalData);
+  }, [finalData]);
+
   const prevValue = useRef(value);
+
   useEffect(() => {
     if (prevValue.current !== value && value !== undefined) {
       putToStorage(key, value);
     }
+
     prevValue.current = value;
   }, [key, value]);
+
   return [value, setValue];
 }
 

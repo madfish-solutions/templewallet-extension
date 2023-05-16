@@ -1,4 +1,4 @@
-import React, { FC, useMemo } from 'react';
+import React, { FC, useEffect, useMemo } from 'react';
 
 import { List } from 'react-virtualized';
 
@@ -6,14 +6,14 @@ import DropdownWrapper from 'app/atoms/DropdownWrapper';
 import Spinner from 'app/atoms/Spinner/Spinner';
 import { useAppEnvStyle } from 'app/hooks/use-app-env-style.hook';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
+import { AnalyticsEventCategory, TestIDProperty, useAnalytics } from 'lib/analytics';
 import { T } from 'lib/i18n';
 import { useAccount, useChainId } from 'lib/temple/front';
 import * as Repo from 'lib/temple/repo';
 
-import { SwapFormTestIDs } from '../SwapFormInput.props';
-import { AssetOption } from './AssetOption/AssetOption';
+import { AssetOption } from './AssetOption';
 
-interface Props {
+interface Props extends TestIDProperty {
   value?: string;
   options: string[];
   isLoading: boolean;
@@ -21,7 +21,6 @@ interface Props {
   searchAssetSlug: string;
   showTokenIdInput: boolean;
   opened: boolean;
-  testIDs?: SwapFormTestIDs;
   setOpened: (newValue: boolean) => void;
   onChange: (newValue: string) => void;
 }
@@ -34,13 +33,21 @@ export const AssetsMenu: FC<Props> = ({
   searchAssetSlug,
   showTokenIdInput,
   opened,
+  testID,
   setOpened,
   onChange
 }) => {
   const { dropdownWidth } = useAppEnvStyle();
   const chainId = useChainId(true)!;
   const account = useAccount();
+
   const isShowSearchOption = useMemo(() => !options.includes(searchAssetSlug), [options, searchAssetSlug]);
+
+  const { trackEvent } = useAnalytics();
+
+  useEffect(() => {
+    if (testID && opened) trackEvent(testID, AnalyticsEventCategory.DropdownOpened);
+  }, [opened, trackEvent]);
 
   const handleOptionClick = (newValue: string) => {
     if (value !== newValue) {
@@ -70,13 +77,13 @@ export const AssetsMenu: FC<Props> = ({
       opened={opened}
       className="origin-top overflow-x-hidden overflow-y-auto"
       style={{
-        maxHeight: '15.75rem',
+        maxHeight: '15.125rem',
         backgroundColor: 'white',
-        borderColor: '#e2e8f0',
-        padding: 0
+        borderColor: '#e2e8f0'
       }}
     >
       {isShowSearchOption && <AssetOption assetSlug={searchAssetSlug} onClick={handleSearchOptionClick} />}
+
       {(options.length === 0 || isLoading) && (
         <div className="my-8 flex flex-col items-center justify-center text-gray-500">
           {isLoading ? (
@@ -85,19 +92,32 @@ export const AssetsMenu: FC<Props> = ({
             <p className="flex items-center justify-center text-gray-600 text-base font-light">
               {searchString ? <SearchIcon className="w-5 h-auto mr-1 stroke-current" /> : null}
 
-              <span>{showTokenIdInput ? <T id="specifyTokenId" /> : <T id="noAssetsFound" />}</span>
+              <span>
+                <T id={showTokenIdInput ? 'specifyTokenId' : 'noAssetsFound'} />
+              </span>
             </p>
           )}
         </div>
       )}
+
       <List
         width={dropdownWidth}
         height={240}
         rowCount={options.length}
-        rowHeight={65}
-        rowRenderer={({ key, index, style }) => (
-          <AssetOption key={key} assetSlug={options[index]} style={style} onClick={handleOptionClick} />
-        )}
+        rowHeight={64}
+        rowRenderer={({ key, index, style }) => {
+          const option = options[index];
+
+          return (
+            <AssetOption
+              key={key}
+              assetSlug={option}
+              selected={value === option}
+              style={style}
+              onClick={handleOptionClick}
+            />
+          );
+        }}
       />
     </DropdownWrapper>
   );

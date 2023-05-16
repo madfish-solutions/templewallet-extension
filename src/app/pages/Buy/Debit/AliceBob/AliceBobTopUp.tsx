@@ -9,8 +9,8 @@ import { useMinMaxExchangeAmounts } from 'app/hooks/AliceBob/useMinMaxExchangeAm
 import { useOutputEstimation } from 'app/hooks/AliceBob/useOutputEstimation';
 import { ReactComponent as AttentionRedIcon } from 'app/icons/attentionRed.svg';
 import PageLayout from 'app/layouts/PageLayout';
+import { useUserIdSelector } from 'app/store/settings/selectors';
 import { TopUpInput } from 'app/templates/TopUpInput';
-import { useAnalyticsState } from 'lib/analytics/use-analytics-state.hook';
 import { createAliceBobOrder } from 'lib/apis/temple';
 import { T } from 'lib/i18n/react';
 import { FIAT_ICONS_SRC } from 'lib/icons';
@@ -23,7 +23,7 @@ import { ALICE_BOB_PRIVACY_LINK, ALICE_BOB_TERMS_LINK } from './config';
 const REQUEST_LATENCY = 500;
 
 export const AliceBobTopUp: FC = () => {
-  const { analyticsState } = useAnalyticsState();
+  const userId = useUserIdSelector();
   const { publicKeyHash: walletAddress } = useAccount();
 
   const [inputAmount, setInputAmount] = useState<number | undefined>(undefined);
@@ -56,13 +56,13 @@ export const AliceBobTopUp: FC = () => {
     (amount = 0) => {
       if (!disabledProceed) {
         setLinkIsLoading(true);
-        createAliceBobOrder(false, amount.toString(), analyticsState.userId, walletAddress)
+        createAliceBobOrder(false, amount.toString(), userId, walletAddress)
           .then(response => setLink(response.data.orderInfo.payUrl))
           .catch(() => setIsApiError(true))
           .finally(() => setLinkIsLoading(false));
       }
     },
-    [disabledProceed, analyticsState.userId, walletAddress]
+    [disabledProceed, userId, walletAddress]
   );
 
   const debouncedLinkRequest = useDebouncedCallback(linkRequest, REQUEST_LATENCY);

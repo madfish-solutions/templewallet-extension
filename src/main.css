@@ -124,3 +124,12 @@ button,
   padding-bottom: 0;
   padding-top: 0;
 }
+
+@keyframes fade-in {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.animate-fade-in {
+  animation: fade-in 2s ease-in-out infinite;
+}

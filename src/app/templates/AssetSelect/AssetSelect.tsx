@@ -1,42 +1,38 @@
-import React, { FC, useCallback, useMemo } from 'react';
-
-import classNames from 'clsx';
+import React, { FC, useCallback } from 'react';
 
 import Money from 'app/atoms/Money';
 import { AssetIcon } from 'app/templates/AssetIcon';
 import Balance from 'app/templates/Balance';
 import IconifiedSelect, { IconifiedSelectOptionRenderProps } from 'app/templates/IconifiedSelect';
 import InFiat from 'app/templates/InFiat';
-import { T } from 'lib/i18n';
+import { setTestID, setAnotherSelector } from 'lib/analytics';
+import { T, t } from 'lib/i18n';
 import { useAccount, useAssetMetadata } from 'lib/temple/front';
-import { getAssetName, getAssetSymbol } from 'lib/temple/metadata';
+import { searchAssetsWithNoMeta, useAllTokensBaseMetadata } from 'lib/temple/front/assets';
+import { getAssetSymbol } from 'lib/temple/metadata';
 
-import { setTestID, TestIDProps } from '../../../lib/analytics';
-import { SendFormSelectors } from '../SendForm.selectors';
+import { AssetItemContent } from '../AssetItemContent';
+import { SendFormSelectors } from '../SendForm/selectors';
 import { IAsset } from './interfaces';
 import { getSlug } from './utils';
 
-type AssetSelectProps = TestIDProps & {
+interface AssetSelectProps {
   value: IAsset;
   assets: IAsset[];
   onChange?: (assetSlug: string) => void;
   className?: string;
-};
+  testIDs?: {
+    main: string;
+    searchInput: string;
+  };
+}
 
-const AssetSelect: FC<AssetSelectProps> = ({ value, assets, onChange, className, testID }) => {
-  const title = useMemo(
-    () => (
-      <h2 className="mb-4 leading-tight flex flex-col">
-        <span className="text-base font-semibold text-gray-700">
-          <T id="asset" />
-        </span>
+const AssetSelect: FC<AssetSelectProps> = ({ value, assets, onChange, className, testIDs }) => {
+  const allTokensBaseMetadata = useAllTokensBaseMetadata();
 
-        <span className="mt-1 text-xs font-light text-gray-600" style={{ maxWidth: '90%' }}>
-          <T id="selectAnotherAssetPrompt" />
-        </span>
-      </h2>
-    ),
-    []
+  const searchItems = useCallback(
+    (searchString: string) => searchAssetsWithNoMeta(searchString, assets, allTokensBaseMetadata, getSlug),
+    [assets]
   );
 
   const handleChange = useCallback(
@@ -48,86 +44,89 @@ const AssetSelect: FC<AssetSelectProps> = ({ value, assets, onChange, className,
 
   return (
     <IconifiedSelect
-      Icon={OptionIcon}
-      OptionSelectedIcon={OptionSelectedIcon}
-      OptionInMenuContent={AssetInMenuContent}
-      OptionSelectedContent={AssetSelectedContent}
+      BeforeContent={AssetSelectTitle}
+      FieldContent={AssetFieldContent}
+      OptionContent={AssetOptionContent}
       getKey={getSlug}
+      onChange={handleChange}
       options={assets}
       value={value}
-      onChange={handleChange}
-      title={title}
+      noItemsText={t('noAssetsFound')}
       className={className}
-      testID={testID}
+      fieldStyle={{ minHeight: '4.5rem' }}
+      search={{
+        placeholder: t('swapTokenSearchInputPlaceholder'),
+        filterItems: searchItems,
+        inputTestID: testIDs?.searchInput
+      }}
+      testID={testIDs?.main}
     />
   );
 };
 
 export default AssetSelect;
 
+const AssetSelectTitle: FC = () => (
+  <h2 className="mb-4 leading-tight flex flex-col">
+    <span className="text-base font-semibold text-gray-700">
+      <T id="asset" />
+    </span>
+
+    <span className="mt-1 text-xs font-light text-gray-600 max-w-9/10">
+      <T id="selectAnotherAssetPrompt" />
+    </span>
+  </h2>
+);
+
 type AssetSelectOptionRenderProps = IconifiedSelectOptionRenderProps<IAsset>;
 
-const OptionIcon: FC<AssetSelectOptionRenderProps> = ({ option }) => (
-  <AssetIcon assetSlug={getSlug(option)} className="h-8 w-auto mr-3" size={32} />
-);
-
-const OptionSelectedIcon: FC<AssetSelectOptionRenderProps> = ({ option }) => (
-  <AssetIcon assetSlug={getSlug(option)} className="h-12 w-auto mr-3" size={48} />
-);
-
-const AssetInMenuContent: FC<AssetSelectOptionRenderProps> = ({ option: asset }) => {
-  const account = useAccount();
-  const assetSlug = getSlug(asset);
-  const metadata = useAssetMetadata(assetSlug);
-
-  return (
-    <div className="flex flex-col items-start">
-      <span className="text-gray-700 text-sm" {...setTestID(SendFormSelectors.assetName)}>
-        {getAssetName(metadata)}
-      </span>
-      <span className={classNames('text-gray-600', 'text-sm leading-none flex items-baseline')}>
-        <Balance assetSlug={assetSlug} address={account.publicKeyHash}>
-          {balance => (
-            <>
-              <Money>{balance}</Money>
-              <span className="text-gray-500 ml-1" style={{ fontSize: '0.75em' }}>
-                {getAssetSymbol(metadata)}
-              </span>
-            </>
-          )}
-        </Balance>
-      </span>
-    </div>
-  );
-};
-
-const AssetSelectedContent: FC<AssetSelectOptionRenderProps> = ({ option }) => {
+const AssetFieldContent: FC<AssetSelectOptionRenderProps> = ({ option }) => {
   const account = useAccount();
   const assetSlug = getSlug(option);
   const metadata = useAssetMetadata(assetSlug);
 
   return (
-    <Balance assetSlug={assetSlug} address={account.publicKeyHash}>
-      {balance => (
-        <div className="flex flex-col items-start">
-          <span className="text-xl text-gray-800 flex items-baseline">
-            <Money smallFractionFont={false}>{balance}</Money>{' '}
-            <span className="ml-2" style={{ fontSize: '0.75em' }}>
-              {getAssetSymbol(metadata)}
-            </span>
-          </span>
+    <>
+      <AssetIcon assetSlug={assetSlug} className="mr-3" size={48} />
 
-          <InFiat smallFractionFont={false} assetSlug={assetSlug} volume={balance}>
-            {({ balance, symbol }) => (
-              <div className="mt-1 text-sm text-gray-500 flex">
-                <span className="mr-1">≈</span>
-                {balance}
-                <span className="ml-1">{symbol}</span>
-              </div>
-            )}
-          </InFiat>
-        </div>
-      )}
-    </Balance>
+      <Balance assetSlug={assetSlug} address={account.publicKeyHash}>
+        {balance => (
+          <div className="flex flex-col items-start leading-none">
+            <span className="text-xl text-gray-800 flex items-baseline">
+              <Money smallFractionFont={false}>{balance}</Money>{' '}
+              <span className="ml-2" style={{ fontSize: '0.75em' }}>
+                {getAssetSymbol(metadata)}
+              </span>
+            </span>
+
+            <InFiat smallFractionFont={false} assetSlug={assetSlug} volume={balance}>
+              {({ balance, symbol }) => (
+                <div className="mt-1 text-sm text-gray-500 flex">
+                  <span className="mr-1">≈</span>
+                  {balance}
+                  <span className="ml-1">{symbol}</span>
+                </div>
+              )}
+            </InFiat>
+          </div>
+        )}
+      </Balance>
+    </>
+  );
+};
+
+const AssetOptionContent: FC<AssetSelectOptionRenderProps> = ({ option }) => {
+  const slug = getSlug(option);
+
+  return (
+    <div
+      className="flex items-center w-full py-1.5"
+      {...setTestID(SendFormSelectors.assetDropDownItem)}
+      {...setAnotherSelector('slug', slug)}
+    >
+      <AssetIcon assetSlug={slug} className="mx-2" size={32} />
+
+      <AssetItemContent slug={slug} />
+    </div>
   );
 };

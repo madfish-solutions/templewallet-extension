@@ -1393,10 +1393,9 @@
     "@types/yargs" "^17.0.8"
     chalk "^4.0.0"
 
-"@jitsu/sdk-js@^3.1.5":
-  version "3.1.5"
-  resolved "https://registry.yarnpkg.com/@jitsu/sdk-js/-/sdk-js-3.1.5.tgz#3d0d92ccc01b621cbe67484c6e246d5ff8721de8"
-  integrity sha512-e7P8uvGBNwWCC864MItcYSv0IT2+nwYiX8QXZ0lfyG8hutEXXX9Yt2/+MynXuGxMIoIrJ+j0bWVu20k9rrhxSg==
+"@jitsu/sdk-js@madfish-solutions/jitsu-js#d45c7ba34c24f3e36ac35e49f8a13cc621683230":
+  version "3.0.0"
+  resolved "https://codeload.github.com/madfish-solutions/jitsu-js/tar.gz/d45c7ba34c24f3e36ac35e49f8a13cc621683230"
 
 "@jridgewell/gen-mapping@^0.1.0":
   version "0.1.1"
@@ -3913,9 +3912,9 @@ caniuse-api@^3.0.0:
     lodash.uniq "^4.5.0"
 
 caniuse-lite@^1.0.0, caniuse-lite@^1.0.30001214, caniuse-lite@^1.0.30001297:
-  version "1.0.30001409"
-  resolved "https://registry.npmjs.org/caniuse-lite/-/caniuse-lite-1.0.30001409.tgz"
-  integrity sha512-V0mnJ5dwarmhYv8/MzhJ//aW68UpvnQBXv8lJ2QUsvn2pHcmAuNtu8hQEDz37XnA1iE+lRR9CIfGWWpgJ5QedQ==
+  version "1.0.30001473"
+  resolved "https://registry.npmjs.org/caniuse-lite/-/caniuse-lite-1.0.30001473.tgz"
+  integrity sha512-ewDad7+D2vlyy+E4UJuVfiBsU69IL+8oVmTuZnH5Q6CIUbxNfI50uVpRHbUPDD6SUaN2o0Lh4DhTrvLG/Tn1yg==
 
 canvas-renderer@~2.1.1:
   version "2.1.1"
@@ -4543,6 +4542,11 @@ csstype@^3.0.2:
   version "3.0.3"
   resolved "https://registry.yarnpkg.com/csstype/-/csstype-3.0.3.tgz#2b410bbeba38ba9633353aff34b05d9755d065f8"
   integrity sha512-jPl+wbWPOWJ7SXsWyqGRk3lGecbar0Cb0OvZF/r/ZU011R4YqiRehgkQ9p4eQfo9DSDLqLL3wHwfxeJiuIsNag==
+
+currency-list@^1.0.8:
+  version "1.0.8"
+  resolved "https://registry.yarnpkg.com/currency-list/-/currency-list-1.0.8.tgz#544de80a1b64c6192dbd789aefe610371869616e"
+  integrity sha512-KBUtf8AzoP2WYeAKUYFhhNdHRx8Xw2UoOUnBNVir43RxL96T+iSHMtThtT1DFNtYbbVVyD08ETe3aamn+JX7RA==
 
 damerau-levenshtein@^1.0.8:
   version "1.0.8"
@@ -8588,7 +8592,7 @@ prettier-linter-helpers@^1.0.0:
   dependencies:
     fast-diff "^1.1.2"
 
-prettier@^2.7.0, prettier@^2.7.1:
+prettier@^2.7.1:
   version "2.7.1"
   resolved "https://registry.yarnpkg.com/prettier/-/prettier-2.7.1.tgz#e235806850d057f97bb08368a4f7d899f7760c64"
   integrity sha512-ujppO+MkdPqoVINuDFDRLClm7D78qbDt0/NR+wp5FqEZOoTNAjPHWj17QRhu7geIHJfcNhRk1XVQmF8Bp3ye+g==
@@ -9811,17 +9815,6 @@ svgson@^4.0.0:
     deep-rename-keys "^0.2.1"
     omit-deep "0.3.0"
     xml-reader "2.4.3"
-
-swap-router-sdk@1.19.2:
-  version "1.19.2"
-  resolved "https://registry.yarnpkg.com/swap-router-sdk/-/swap-router-sdk-1.19.2.tgz#124f73a4854ad6e0737b75f2628f445c39ed65cf"
-  integrity sha512-Lkx9l3ABc+SngBPEv0rvqH2t3bcYGUjATBC8uHwWsmuC/Hnys79Ihm4cKnBCtqNPfBs9sBHueTWFbpzOJQz6Sw==
-  dependencies:
-    "@taquito/taquito" "15.0.1"
-    async-retry "1.3.3"
-    bignumber.js "^9.1.0"
-    eslint "^8.17.0"
-    prettier "^2.7.0"
 
 swr@1.3.0:
   version "1.3.0"

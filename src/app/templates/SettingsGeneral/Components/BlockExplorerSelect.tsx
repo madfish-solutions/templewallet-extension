@@ -1,16 +1,16 @@
 import React, { useMemo, useCallback, FC } from 'react';
 
-import classNames from 'clsx';
 import browser from 'webextension-polyfill';
 
 import Flag from 'app/atoms/Flag';
-import { T } from 'lib/i18n';
+import { setTestID } from 'lib/analytics';
+import { T, t } from 'lib/i18n';
 import { BlockExplorer, useChainId, BLOCK_EXPLORERS, useBlockExplorer } from 'lib/temple/front';
 import { isKnownChainId } from 'lib/temple/types';
+import { searchAndFilterItems } from 'lib/utils/search-items';
 
-import { setTestID } from '../../../../lib/analytics';
 import IconifiedSelect, { IconifiedSelectOptionRenderProps } from '../../IconifiedSelect';
-import { SettingsGeneralSelectors } from '../SettingsGeneral.selectors';
+import { SettingsGeneralSelectors } from '../selectors';
 
 type BlockExplorerSelectProps = {
   className?: string;
@@ -30,16 +30,7 @@ const BlockExplorerSelect: FC<BlockExplorerSelectProps> = ({ className }) => {
     return [];
   }, [chainId]);
 
-  const title = useMemo(
-    () => (
-      <h2 className={classNames('mb-4', 'leading-tight', 'flex flex-col')}>
-        <span className="text-base font-semibold text-gray-700">
-          <T id="blockExplorer" />
-        </span>
-      </h2>
-    ),
-    []
-  );
+  const searchItems = useCallback((searchString: string) => searchBlockExplorer(searchString, options), [options]);
 
   const handleBlockExplorerChange = useCallback(
     (option: BlockExplorer) => {
@@ -50,16 +41,18 @@ const BlockExplorerSelect: FC<BlockExplorerSelectProps> = ({ className }) => {
 
   return (
     <IconifiedSelect
-      Icon={BlockExplorerIcon}
-      OptionSelectedIcon={BlockExplorerIcon}
-      OptionInMenuContent={BlockExplorerInMenuContent}
-      OptionSelectedContent={BlockExplorerSelectContent}
+      BeforeContent={BlockExplorerTitle}
+      FieldContent={BlockExplorerFieldContent}
+      OptionContent={BlockExplorerOptionContent}
       getKey={getBlockExplorerId}
+      onChange={handleBlockExplorerChange}
       options={options}
       value={explorer}
-      onChange={handleBlockExplorerChange}
-      title={title}
+      noItemsText={t('noItemsFound')}
       className={className}
+      padded
+      fieldStyle={{ minHeight: '3.375rem' }}
+      search={{ filterItems: searchItems }}
       testID={SettingsGeneralSelectors.blockExplorerDropDown}
     />
   );
@@ -67,21 +60,50 @@ const BlockExplorerSelect: FC<BlockExplorerSelectProps> = ({ className }) => {
 
 export default BlockExplorerSelect;
 
+const BlockExplorerTitle: FC = () => (
+  <h2 className="mb-4 leading-tight flex flex-col">
+    <span className="text-base font-semibold text-gray-700">
+      <T id="blockExplorer" />
+    </span>
+  </h2>
+);
+
 const BlockExplorerIcon: FC<IconifiedSelectOptionRenderProps<BlockExplorer>> = ({ option: { id, name } }) => (
   <Flag alt={name} className="ml-2 mr-3" src={browser.runtime.getURL(`/misc/explorer-logos/${id}.ico`)} />
 );
 
-const BlockExplorerInMenuContent: FC<IconifiedSelectOptionRenderProps<BlockExplorer>> = ({ option: { name } }) => (
-  <div
-    className={classNames('relative w-full text-lg text-gray-700')}
-    {...setTestID(SettingsGeneralSelectors.blockExplorerItem)}
-  >
-    {name}
-  </div>
-);
+const BlockExplorerFieldContent: FC<IconifiedSelectOptionRenderProps<BlockExplorer>> = ({ option }) => {
+  return (
+    <>
+      <BlockExplorerIcon option={option} />
 
-const BlockExplorerSelectContent: FC<IconifiedSelectOptionRenderProps<BlockExplorer>> = ({ option }) => (
-  <div className="flex flex-col items-start py-2">
-    <span className="text-xl text-gray-700">{option.name}</span>
-  </div>
-);
+      <span className="text-xl text-gray-700">{option.name}</span>
+    </>
+  );
+};
+
+const BlockExplorerOptionContent: FC<IconifiedSelectOptionRenderProps<BlockExplorer>> = ({ option }) => {
+  return (
+    <>
+      <BlockExplorerIcon option={option} />
+
+      <div className="w-full text-lg text-gray-700" {...setTestID(SettingsGeneralSelectors.blockExplorerItem)}>
+        {option.name}
+      </div>
+    </>
+  );
+};
+
+const searchBlockExplorer = (searchString: string, options: BlockExplorer[]) =>
+  searchAndFilterItems(
+    options,
+    searchString,
+    [
+      { name: 'name', weight: 1 },
+      { name: 'urls', weight: 0.25 }
+    ],
+    ({ name, baseUrls }) => ({
+      name,
+      urls: Array.from(baseUrls.values()).map(item => item.transaction)
+    })
+  );

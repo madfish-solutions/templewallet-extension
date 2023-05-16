@@ -1,5 +1,7 @@
 import { ReactNode } from 'react';
 
+import { TestIDProperty } from 'lib/analytics';
+
 export interface CurrencyBase {
   code: string;
   name?: string;
@@ -16,7 +18,7 @@ export type CurrencyToken = WithRequired<CurrencyBase, 'network'>;
 
 export type CurrencyFiat = Omit<CurrencyBase, 'network'>;
 
-export interface TopUpInputPropsGeneric<C extends CurrencyBase> {
+export interface TopUpInputPropsGeneric<C extends CurrencyBase> extends TestIDProperty {
   label: ReactNode;
   currency: C;
   currenciesList: C[];

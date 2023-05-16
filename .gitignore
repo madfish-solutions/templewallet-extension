@@ -42,3 +42,6 @@ DerivedData
 *.hmap
 *.ipa
 *.xcuserstate
+
+#e2e
+video-rep

@@ -2,13 +2,23 @@ import { isDefined } from '@rnw-community/shared';
 import { ElementHandle } from 'puppeteer';
 
 import { BrowserContext } from '../classes/browser-context.class';
+import { MEDIUM_TIMEOUT } from './timing.utils';
 
-const getSelector = (testID: string) => `[data-testid="${testID}"]`;
+const buildTestIDSelector = (testID: string) => `[data-testid="${testID}"]`;
 
-const findElement = async (testID: string) => {
-  const selector = getSelector(testID);
+type OtherSelectors = Record<string, string>;
 
-  const element = await BrowserContext.page.waitForSelector(selector, { visible: true, timeout: 5000 });
+const buildSelector = (testID: string, otherSelectors?: OtherSelectors) => {
+  const pairs = Object.entries({ ...otherSelectors, testid: testID }).map(
+    ([key, val]) => `data-${key}="${val}"` as const
+  );
+  return `[${pairs.join('][')}]`;
+};
+
+export const findElement = async (testID: string, otherSelectors?: OtherSelectors) => {
+  const selector = buildSelector(testID, otherSelectors);
+
+  const element = await BrowserContext.page.waitForSelector(selector, { visible: true, timeout: MEDIUM_TIMEOUT });
 
   if (isDefined(element)) {
     return element;
@@ -18,7 +28,7 @@ const findElement = async (testID: string) => {
 };
 
 export const findElements = async (testID: string) => {
-  const selector = getSelector(testID);
+  const selector = buildTestIDSelector(testID);
 
   const elements = await BrowserContext.page.$$(selector);
 
@@ -26,14 +36,14 @@ export const findElements = async (testID: string) => {
     return elements;
   }
 
-  throw new Error(`None of "${testID}" elements where found found`);
+  throw new Error(`None of "${testID}" elements were found`);
 };
 
 class PageElement {
-  constructor(public testID: string) {}
+  constructor(public testID: string, public otherSelectors?: OtherSelectors) {}
 
   findElement() {
-    return findElement(this.testID);
+    return findElement(this.testID, this.otherSelectors);
   }
   waitForDisplayed() {
     return this.findElement();
@@ -46,13 +56,19 @@ class PageElement {
     const element = await this.findElement();
     await element.type(text);
   }
+  async clearInput() {
+    await BrowserContext.page.keyboard.down('Shift');
+    await BrowserContext.page.keyboard.press('Home');
+    await BrowserContext.page.keyboard.press('Backspace');
+  }
   async getText() {
     const element = await this.findElement();
     return getElementText(element);
   }
 }
 
-export const createPageElement = (testID: string) => new PageElement(testID);
+export const createPageElement = (testID: string, otherSelectors?: OtherSelectors) =>
+  new PageElement(testID, otherSelectors);
 
 export const getElementText = (element: ElementHandle) =>
   element.evaluate(innerElement => {

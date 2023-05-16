@@ -4,18 +4,19 @@
   "private": true,
   "license": "MIT",
   "scripts": {
-    "start": "./node_modules/.bin/cucumber-js",
+    "start": "./node_modules/.bin/cucumber-js --fail-fast",
     "start:dev": "yarn start --tags @dev",
-    "test": "yarn start --exit",
+    "test": "yarn start --exit --tags 'not @dev'",
     "ts": "tsc --pretty"
   },
   "dependencies": {
     "@cucumber/cucumber": "^8.7.0",
-    "async-retry": "^1.3.3",
-    "puppeteer": "^19.4.0",
-    "ts-node": "^10.9.1",
-    "dotenv": "^16.0.3",
     "@types/chai": "^4.3.4",
-    "chai": "^4.3.7"
+    "async-retry": "^1.3.3",
+    "chai": "^4.3.7",
+    "dotenv": "^16.0.3",
+    "puppeteer-screen-recorder": "^2.1.2",
+    "puppeteer": "^19.4.0",
+    "ts-node": "^10.9.1"
   }
 }

@@ -6,20 +6,32 @@ import { PersistConfig } from 'redux-persist/lib/types';
 import { notificationsEpics, notificationsReducers } from 'lib/notifications';
 import { createStore, GetStateType, rootStateReducer } from 'lib/store';
 
+import { abTestingEpics } from './ab-testing/epics';
+import { abTestingReducer } from './ab-testing/reducers';
 import { advertisingEpics } from './advertising/epics';
 import { advertisingReducer } from './advertising/reducers';
-import { balanceModeReducer } from './balance-mode/reducers';
+import { balancesEpics } from './balances/epics';
+import { balancesReducer } from './balances/reducers';
 import { currencyEpics } from './currency/epics';
 import { currencyReducer } from './currency/reducers';
 import { dAppsEpics } from './d-apps/epics';
 import { dAppsReducer } from './d-apps/reducers';
+import { partnersPromotionEpics } from './partners-promotion/epics';
+import { partnersPromotionRucer } from './partners-promotion/reducers';
+import { settingsReducer } from './settings/reducers';
+import { swapEpics } from './swap/epics';
+import { swapReducer } from './swap/reducers';
 
 const baseReducer = rootStateReducer({
+  settings: settingsReducer,
   advertising: advertisingReducer,
   currency: currencyReducer,
   notifications: notificationsReducers,
   dApps: dAppsReducer,
-  balanceMode: balanceModeReducer
+  swap: swapReducer,
+  partnersPromotion: partnersPromotionRucer,
+  balances: balancesReducer,
+  abTesting: abTestingReducer
 });
 
 export type RootState = GetStateType<typeof baseReducer>;
@@ -31,7 +43,16 @@ const persistConfig: PersistConfig<RootState> = {
   stateReconciler: autoMergeLevel2
 };
 
-const epics = [currencyEpics, advertisingEpics, notificationsEpics, dAppsEpics];
+const epics = [
+  currencyEpics,
+  advertisingEpics,
+  notificationsEpics,
+  dAppsEpics,
+  swapEpics,
+  partnersPromotionEpics,
+  balancesEpics,
+  abTestingEpics
+];
 
 export const { store, persistor } = createStore(persistConfig, baseReducer, epics);
 

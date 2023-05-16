@@ -19,11 +19,13 @@ import { TestIDProps } from 'lib/analytics';
 import { T, t } from 'lib/i18n';
 import { isTezAsset } from 'lib/temple/assets';
 import { useAccount, useNetwork, useAssetMetadata } from 'lib/temple/front';
+import { useBalancesLoading } from 'lib/temple/front/load-balances';
 import { getAssetSymbol } from 'lib/temple/metadata';
 import { TempleAccountType, TempleNetworkType } from 'lib/temple/types';
 import useTippy from 'lib/ui/useTippy';
 import { HistoryAction, Link, navigate, To, useLocation } from 'lib/woozie';
 
+import { useUserTestingGroupNameSelector } from '../../store/ab-testing/selectors';
 import { CollectiblesList } from '../Collectibles/CollectiblesList';
 import { useOnboardingProgress } from '../Onboarding/hooks/useOnboardingProgress.hook';
 import Onboarding from '../Onboarding/Onboarding';
@@ -47,6 +49,8 @@ const tippyPropsMock = {
 const NETWORK_TYPES_WITH_BUY_BUTTON: TempleNetworkType[] = ['main', 'dcp'];
 
 const Home: FC<ExploreProps> = ({ assetSlug }) => {
+  useBalancesLoading();
+
   const { fullPage, registerBackHandler } = useAppEnv();
   const { onboardingCompleted } = useOnboardingProgress();
   const account = useAccount();
@@ -224,6 +228,7 @@ type SecondarySectionProps = {
 const SecondarySection: FC<SecondarySectionProps> = ({ assetSlug, className }) => {
   const { fullPage } = useAppEnv();
   const tabSlug = useTabSlug();
+  const testGroupName = useUserTestingGroupNameSelector();
 
   const tabs = useMemo<
     {
@@ -312,6 +317,9 @@ const SecondarySection: FC<SecondarySectionProps> = ({ assetSlug, className }) =
                 'truncate'
               )}
               testID={currentTab.testID}
+              testIDProperties={{
+                ...(currentTab.slug === 'delegation' && { abTestingCategory: testGroupName })
+              }}
             >
               {currentTab.title}
             </Link>

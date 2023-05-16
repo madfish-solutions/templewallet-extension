@@ -28,9 +28,8 @@ export const NotificationPreviewItem: FC<Props> = ({ notification }) => {
     <Link
       to={`/notifications/${notification.id}`}
       className={classNames([
-        'flex column p-4',
-        notification.status === NotificationStatus.Read && 'bg-gray-10',
-        'border-b border-gray-300'
+        'flex column p-4 border-b border-gray-300',
+        notification.status === NotificationStatus.Read && 'bg-gray-10'
       ])}
       testID={PreviewItemSelectors.NavigationButton}
       testIDProperties={{ id: notification.id, type: notification.type }}
@@ -49,8 +48,10 @@ export const NotificationPreviewItem: FC<Props> = ({ notification }) => {
             }}
           />
         )}
+
         <Icon width={24} height={24} stroke="#718096" />
       </div>
+
       <div className="flex flex-1 flex-col justify-between ml-3">
         <div className="mb-4">
           <p
@@ -63,10 +64,12 @@ export const NotificationPreviewItem: FC<Props> = ({ notification }) => {
           </p>
           <p className="text-gray-600 text-xs">{notification.description}</p>
         </div>
+
         <div className="flex row justify-between items-center">
           <p className="text-gray-500 font-normal" style={{ fontSize: 10 }}>
             {formatDateOutput(notification.createdAt)}
           </p>
+
           <div className="flex row items-center">
             <p className="mr-1 font-medium font-inter text-xs text-primary-orange">Details</p>
             <ArrowRightIcon width={16} height={16} />

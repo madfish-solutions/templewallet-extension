@@ -1,3 +1,5 @@
+import { useMemo } from 'react';
+
 import { isDefined } from '@rnw-community/shared';
 
 import { useTokensApyRatesSelector } from 'app/store/d-apps';
@@ -8,7 +10,7 @@ const YUPANA_LEND_LINK = 'https://app.yupana.finance/lending';
 const TOKEN_APY_LINKS: Readonly<Record<string, string | undefined>> = {
   [KNOWN_TOKENS_SLUGS.KUSD]: YUPANA_LEND_LINK,
   [KNOWN_TOKENS_SLUGS.USDT]: YUPANA_LEND_LINK,
-  [KNOWN_TOKENS_SLUGS.tzBTC]: YUPANA_LEND_LINK
+  [KNOWN_TOKENS_SLUGS.TZBTC]: YUPANA_LEND_LINK
 };
 
 export interface TokenApyInfo {
@@ -23,12 +25,14 @@ export const useTokenApyInfo = (slug: string): TokenApyInfo | undefined => {
 
   const link = TOKEN_APY_LINKS[slug];
 
-  if (!isDefined(link) && rate === 0) {
-    return;
-  }
+  return useMemo(() => {
+    if (!isDefined(link) && rate === 0) {
+      return;
+    }
 
-  return {
-    rate,
-    link
-  };
+    return {
+      rate,
+      link
+    };
+  }, [rate, link]);
 };

@@ -1,4 +1,5 @@
-import { SettingsSelectors } from '../../../../src/app/pages/Settings/Settings.selectors';
+import { SettingsSelectors } from 'src/app/pages/Settings/Settings.selectors';
+
 import { Page } from '../../classes/page.class';
 import { createPageElement } from '../../utils/search.utils';
 

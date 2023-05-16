@@ -4,8 +4,7 @@ import classNames from 'clsx';
 
 import CleanButton from 'app/atoms/CleanButton';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
-
-import { setTestID, TestIDProps } from '../../lib/analytics';
+import { setTestID, TestIDProps } from 'lib/analytics';
 
 type SearchFieldProps = InputHTMLAttributes<HTMLInputElement> &
   TestIDProps & {
@@ -45,7 +44,7 @@ const SearchField: FC<SearchFieldProps> = ({
 
   return (
     <div className={classNames('w-full flex flex-col', containerClassName)}>
-      <div className={classNames('relative', 'flex items-stretch')}>
+      <div className="relative flex items-stretch">
         <input
           type="text"
           className={classNames('appearance-none w-full', className)}
@@ -57,7 +56,7 @@ const SearchField: FC<SearchFieldProps> = ({
           {...rest}
         />
 
-        <div className={classNames('absolute left-0 top-0 bottom-0', 'flex items-center', searchIconWrapperClassName)}>
+        <div className={classNames('absolute left-0 top-0 bottom-0 flex items-center', searchIconWrapperClassName)}>
           <SearchIcon className={classNames('stroke-current', searchIconClassName)} />
         </div>
 

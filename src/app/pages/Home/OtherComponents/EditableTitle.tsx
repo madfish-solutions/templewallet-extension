@@ -13,6 +13,14 @@ import { useAlert } from 'lib/ui/dialog';
 
 import { EditableTitleSelectors } from './EditableTitle.selectors';
 
+const buttonClassNames = [
+  'py-1 rounded overflow-hidden',
+  'text-gray-600 text-sm',
+  'transition ease-in-out duration-200',
+  'hover:bg-black hover:bg-opacity-5',
+  'opacity-75 hover:opacity-100 focus:opacity-100'
+];
+
 const EditableTitle: FC = () => {
   const { editAccountName } = useTempleClient();
   const account = useAccount();
@@ -107,76 +115,40 @@ const EditableTitle: FC = () => {
             pattern={ACCOUNT_NAME_PATTERN.toString().slice(1, -1)}
             title={t('accountNameInputTitle')}
             spellCheck={false}
-            className={classNames('w-full mx-auto max-w-xs', 'text-2xl font-light text-gray-700 text-center')}
+            className="w-full mx-auto max-w-xs text-2xl font-light text-gray-700 text-center"
             style={{ padding: '0.075rem 0' }}
             onFocus={handleEditFieldFocus}
             onBlur={handleEditFieldBlur}
           />
 
           <div className="flex items-stretch mb-2">
-            <T id="cancel">
-              {message => (
-                <Button
-                  type="button"
-                  className={classNames(
-                    'mx-1',
-                    'px-2 py-1',
-                    'rounded overflow-hidden',
-                    'text-gray-600 text-sm',
-                    'transition ease-in-out duration-200',
-                    'hover:bg-black hover:bg-opacity-5',
-                    'opacity-75 hover:opacity-100 focus:opacity-100'
-                  )}
-                  onClick={handleCancelClick}
-                  testID={EditableTitleSelectors.cancelButton}
-                >
-                  {message}
-                </Button>
-              )}
-            </T>
+            <Button
+              type="button"
+              className={classNames(buttonClassNames, 'mx-1 px-2')}
+              onClick={handleCancelClick}
+              testID={EditableTitleSelectors.cancelButton}
+            >
+              <T id="cancel" />
+            </Button>
 
-            <T id="save">
-              {message => (
-                <Button
-                  className={classNames(
-                    'mx-1',
-                    'px-2 py-1',
-                    'rounded overflow-hidden',
-                    'text-gray-600 text-sm',
-                    'transition ease-in-out duration-200',
-                    'hover:bg-black hover:bg-opacity-5',
-                    'opacity-75 hover:opacity-100 focus:opacity-100'
-                  )}
-                  testID={EditableTitleSelectors.saveButton}
-                >
-                  {message}
-                </Button>
-              )}
-            </T>
+            <Button className={classNames(buttonClassNames, 'mx-1 px-2')} testID={EditableTitleSelectors.saveButton}>
+              <T id="save" />
+            </Button>
           </div>
         </form>
       ) : (
         <>
-          <Name
-            className={classNames('pl-1', 'text-gray-700 text-center text-gray-910')}
-            style={{ maxWidth: '24rem', fontSize: 23 }}
-          >
+          <Name className="pl-1 text-gray-700 text-center text-gray-910" style={{ maxWidth: '24rem', fontSize: 23 }}>
             {account.name}
           </Name>
+
           {!editing && (
             <Button
-              className={classNames(
-                'px-1 py-1',
-                'rounded overflow-hidden',
-                'text-gray-600 text-sm',
-                'transition ease-in-out duration-200',
-                'hover:bg-black hover:bg-opacity-5',
-                'opacity-75 hover:opacity-100 focus:opacity-100'
-              )}
+              className={classNames(buttonClassNames, 'px-1')}
               onClick={handleEditClick}
               testID={EditableTitleSelectors.editButton}
             >
-              <EditIcon className={classNames('h-4 w-auto stroke-current stroke-2')} />
+              <EditIcon className="h-4 w-auto stroke-current stroke-2" />
             </Button>
           )}
         </>

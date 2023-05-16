@@ -5,16 +5,9 @@ import classNames from 'clsx';
 
 import { useFormAnalytics } from 'lib/analytics';
 import { t } from 'lib/i18n';
-import { AssetTypesEnum, toTokenSlug } from 'lib/temple/assets';
-import {
-  useAccount,
-  useBalance,
-  useAssetMetadata,
-  useAvailableAssets,
-  useGetTokenMetadata,
-  useOnBlock,
-  useFilteredAssets
-} from 'lib/temple/front';
+import { toTokenSlug } from 'lib/temple/assets';
+import { useAccount, useBalance, useAssetMetadata, useGetTokenMetadata, useOnBlock } from 'lib/temple/front';
+import { useAvailableRoute3Tokens, useFilteredSwapAssets } from 'lib/temple/front/assets';
 import { EMPTY_ASSET_METADATA } from 'lib/temple/metadata';
 import Popper from 'lib/ui/Popper';
 
@@ -54,10 +47,8 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
   const balance = useBalance(assetSlugWithFallback, account.publicKeyHash, { suspense: false });
   useOnBlock(_ => balance.mutate());
 
-  const { availableAssets, isLoading } = useAvailableAssets(AssetTypesEnum.Tokens);
-  const availableAssetsWithTezos = useMemo(() => ['tez', ...availableAssets], [availableAssets]);
-  const { filteredAssets, searchValue, setSearchValue, tokenId, setTokenId } =
-    useFilteredAssets(availableAssetsWithTezos);
+  const { isLoading } = useAvailableRoute3Tokens();
+  const { filteredAssets, searchValue, setSearchValue, tokenId, setTokenId } = useFilteredSwapAssets(name);
 
   const showTokenIdInput = useSwapFormTokenIdInput(searchValue);
   const searchAssetSlug = toTokenSlug(searchValue, tokenId);
@@ -124,6 +115,7 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
   return (
     <div className={classNames('w-full', className)}>
       <input className="hidden" name={name} disabled={amountInputDisabled} />
+
       <Popper
         placement="bottom"
         strategy="fixed"
@@ -138,9 +130,9 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
             searchAssetSlug={searchAssetSlug}
             showTokenIdInput={showTokenIdInput}
             opened={opened}
+            testID={testIDs?.dropdown}
             setOpened={setOpened}
             onChange={handleSelectedAssetChange}
-            testIDs={testIDs}
           />
         )}
       >
@@ -166,6 +158,7 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
           />
         )}
       </Popper>
+
       <div
         className={classNames(
           !amountInputDisabled && 'mt-1',
@@ -174,6 +167,7 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
         )}
       >
         {prettyError && <div className="text-red-700 text-xs">{prettyError}</div>}
+
         {!amountInputDisabled && (
           <div className="flex">
             {PERCENTAGE_BUTTONS.map(percentage => (
