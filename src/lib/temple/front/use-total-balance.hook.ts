@@ -28,10 +28,8 @@ export const useTotalBalance = () => {
     [tokens]
   );
 
-  const totalBalanceInFiat = useMemo(() => {
+  const totalBalanceInDollar = useMemo(() => {
     let dollarValue = new BigNumber(0);
-
-    if (!isTruthy(fiatToUsdRate)) return dollarValue;
 
     for (const slug of slugs) {
       const balance = tokensBalances[slug];
@@ -40,14 +38,22 @@ export const useTotalBalance = () => {
       dollarValue = dollarValue.plus(tokenDollarValue);
     }
 
-    return dollarValue.times(fiatToUsdRate);
-  }, [slugs, tokensBalances, allUsdToTokenRates, fiatToUsdRate]);
+    return dollarValue;
+  }, [slugs, tokensBalances, allUsdToTokenRates]);
+
+  const totalBalanceInFiat = useMemo(() => {
+    if (!isTruthy(fiatToUsdRate)) return new BigNumber(0);
+
+    return totalBalanceInDollar.times(fiatToUsdRate);
+  }, [totalBalanceInDollar, fiatToUsdRate]);
 
   const totalBalanceInGasToken = useMemo(() => {
     const tezosToUsdRate = allUsdToTokenRates[TEZ_TOKEN_SLUG];
 
-    return totalBalanceInFiat.dividedBy(tezosToUsdRate).decimalPlaces(gasToken.metadata.decimals) || new BigNumber(0);
-  }, [totalBalanceInFiat, allUsdToTokenRates, gasToken.metadata.decimals]);
+    if (!isTruthy(tezosToUsdRate)) return new BigNumber(0);
+
+    return totalBalanceInDollar.dividedBy(tezosToUsdRate).decimalPlaces(gasToken.metadata.decimals) || new BigNumber(0);
+  }, [totalBalanceInDollar, allUsdToTokenRates, gasToken.metadata.decimals]);
 
   return { totalBalanceInFiat, totalBalanceInGasToken };
 };
