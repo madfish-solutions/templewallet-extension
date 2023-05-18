@@ -11,7 +11,11 @@ const PATH_CWD = fs.realpathSync(process.cwd());
 const dotenvDistPath = path.resolve(PATH_CWD, '.env.dist');
 const dotenvDistContent = fs.readFileSync(dotenvDistPath, { encoding: 'utf-8' });
 
-const definedEnvVarsNames = Object.keys(Dotenv.parse(dotenvDistContent));
+const requiredEnvFileVarsNames = Object.keys(Dotenv.parse(dotenvDistContent));
+
+const githubPassedVarsNames = ['GITHUB_ENV'];
+
+const envFileVarsNames = requiredEnvFileVarsNames.concat(githubPassedVarsNames);
 
 const dotenvPath = path.resolve(PATH_CWD, '.env');
 
@@ -45,8 +49,10 @@ dotenvFiles.forEach(dotenvFile => {
   }
 });
 
-for (const name of definedEnvVarsNames) {
+for (const name of requiredEnvFileVarsNames) {
   if (!process.env[name]) throw new Error(`process.env.${name} is not set`);
 }
 
-export { definedEnvVarsNames };
+console.info('process.env.GITHUB_ENV=', process.env.GITHUB_ENV);
+
+export { envFileVarsNames };

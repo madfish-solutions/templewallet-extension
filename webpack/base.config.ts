@@ -15,7 +15,7 @@ import WebPack from 'webpack';
 
 import packageJSON from '../package.json';
 import tsConfig from '../tsconfig.json';
-import { definedEnvVarsNames } from './dotenv';
+import { envFileVarsNames } from './dotenv';
 import {
   NODE_ENV,
   WEBPACK_MODE,
@@ -238,13 +238,12 @@ export const buildBaseConfig = (): WebPack.Configuration & Pick<WebPack.WebpackO
     new WebPack.DefinePlugin({
       SharedArrayBuffer: '_SharedArrayBuffer',
       'process.env.NODE_ENV': JSON.stringify(NODE_ENV),
-      'process.env.GITHUB_ENV': JSON.stringify(process.env.GITHUB_ENV),
       'process.env.VERSION': JSON.stringify(VERSION),
       'process.env.MANIFEST_VERSION': JSON.stringify(String(MANIFEST_VERSION)),
       'process.env.BACKGROUND_IS_WORKER': JSON.stringify(String(BACKGROUND_IS_WORKER)),
       'process.env.TARGET_BROWSER': JSON.stringify(TARGET_BROWSER),
       ...Object.fromEntries(
-        definedEnvVarsNames.map(name => {
+        envFileVarsNames.map(name => {
           const key = `process.env.${name}`;
           return [key, JSON.stringify(process.env[name])];
         })
