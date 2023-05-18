@@ -1,17 +1,14 @@
-import { TezosToolkit } from '@taquito/taquito';
 import { BigNumber } from 'bignumber.js';
 import { combineEpics, Epic } from 'redux-observable';
-import { catchError, forkJoin, from, map, Observable, of, switchMap } from 'rxjs';
+import { catchError, forkJoin, map, Observable, of, switchMap } from 'rxjs';
 import { Action } from 'ts-action';
 import { ofType, toPayload } from 'ts-action-operators';
 
 import { fecthTezosBalanceFromTzkt, fetchAllTokensBalancesFromTzkt } from 'lib/apis/tzkt/api';
-import { TEZ_TOKEN_SLUG, toTokenSlug } from 'lib/assets';
-import { fetchBalanceAtomic, fetchTezosBalanceAtomic } from 'lib/balances';
+import { toTokenSlug } from 'lib/assets';
 import { atomsToTokens } from 'lib/temple/helpers';
-import { IAccountToken } from 'lib/temple/repo';
 
-import { loadTokensBalancesFromChainAction, loadTokensBalancesFromTzktAction } from './actions';
+import { loadTokensBalancesFromTzktAction } from './actions';
 
 const YUPANA_TOKENS = [
   'KT1Rk86CX85DjBKmuyBhrCyNsHyudHVtASec_0',
@@ -23,15 +20,15 @@ const YUPANA_TOKENS = [
 ];
 const YUPANA_MULTIPLIER = 18;
 
-const fetchTokensBalances$ = (apiUrl: string, account: string) =>
-  forkJoin([fecthTezosBalanceFromTzkt(apiUrl, account), fetchAllTokensBalancesFromTzkt(apiUrl, account)]);
+const fetchTokensBalances$ = (account: string, chainId: string) =>
+  forkJoin([fecthTezosBalanceFromTzkt(account, chainId), fetchAllTokensBalancesFromTzkt(account, chainId)]);
 
 const loadTokensBalancesFromTzktEpic: Epic = (action$: Observable<Action>) =>
   action$.pipe(
     ofType(loadTokensBalancesFromTzktAction.submit),
     toPayload(),
-    switchMap(({ apiUrl, publicKeyHash, chainId }) =>
-      fetchTokensBalances$(apiUrl, publicKeyHash).pipe(
+    switchMap(({ publicKeyHash, chainId }) =>
+      fetchTokensBalances$(publicKeyHash, chainId).pipe(
         map(([tezosBalances, tokensBalances]) => {
           const balances: Record<string, string> = {
             tez: new BigNumber(tezosBalances.balance ?? 0).minus(tezosBalances.frozenDeposit ?? 0).toFixed()
@@ -52,32 +49,4 @@ const loadTokensBalancesFromTzktEpic: Epic = (action$: Observable<Action>) =>
     )
   );
 
-const fetchTokensBalancesFromChain = async (tokens: Array<IAccountToken>, rpcUrl: string, publicKeyHash: string) => {
-  const tezos = new TezosToolkit(rpcUrl);
-
-  const balances: Record<string, string> = {};
-
-  for (const { tokenSlug } of tokens) {
-    const balance = await fetchBalanceAtomic(tezos, tokenSlug, publicKeyHash);
-    balances[tokenSlug] = balance.toFixed();
-  }
-
-  const tezosBalance = await fetchTezosBalanceAtomic(tezos, publicKeyHash);
-  balances[TEZ_TOKEN_SLUG] = tezosBalance.toFixed();
-
-  return balances;
-};
-
-const loadTokensBalancesFromChainEpic: Epic = (action$: Observable<Action>) =>
-  action$.pipe(
-    ofType(loadTokensBalancesFromChainAction.submit),
-    toPayload(),
-    switchMap(({ rpcUrl, tokens, publicKeyHash, chainId }) =>
-      from(fetchTokensBalancesFromChain(tokens, rpcUrl, publicKeyHash)).pipe(
-        map(balances => loadTokensBalancesFromChainAction.success({ publicKeyHash, chainId, balances })),
-        catchError(err => of(loadTokensBalancesFromChainAction.fail(err.message)))
-      )
-    )
-  );
-
-export const balancesEpics = combineEpics(loadTokensBalancesFromTzktEpic, loadTokensBalancesFromChainEpic);
+export const balancesEpics = combineEpics(loadTokensBalancesFromTzktEpic);

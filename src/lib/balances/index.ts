@@ -9,7 +9,7 @@ import { atomsToTokens } from 'lib/temple/helpers';
 
 export const getKeyForBalancesRecord = (publiKeyHash: string, chainId: string) => `${publiKeyHash}_${chainId}`;
 
-export const fetchTezosBalanceAtomic = async (tezos: TezosToolkit, account: string) => {
+const fetchTezosBalanceAtomic = async (tezos: TezosToolkit, account: string) => {
   let nat = (await getBalanceSafe(tezos, account)) ?? new BigNumber(0);
   nat = toSafeBignum(nat);
 
@@ -33,7 +33,7 @@ export const fetchBalance = async (
   return atomsToTokens(atomicBalance, assetMetadata.decimals);
 };
 
-export const fetchBalanceAtomic = async (tezos: TezosToolkit, assetSlug: string, account: string) => {
+const fetchBalanceAtomic = async (tezos: TezosToolkit, assetSlug: string, account: string) => {
   const asset = await fromAssetSlug(tezos, assetSlug);
 
   if (asset === TEZ_TOKEN_SLUG) return await fetchTezosBalanceAtomic(tezos, account);
