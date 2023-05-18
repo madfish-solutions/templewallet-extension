@@ -13,7 +13,7 @@ const dotenvDistContent = fs.readFileSync(dotenvDistPath, { encoding: 'utf-8' })
 
 const requiredEnvFileVarsNames = Object.keys(Dotenv.parse(dotenvDistContent));
 
-const githubPassedVarsNames = ['GITHUB_ENV'];
+const githubPassedVarsNames = ['GITHUB_ACTION_RUN_ENV'];
 
 const envFileVarsNames = requiredEnvFileVarsNames.concat(githubPassedVarsNames);
 
@@ -52,7 +52,5 @@ dotenvFiles.forEach(dotenvFile => {
 for (const name of requiredEnvFileVarsNames) {
   if (!process.env[name]) throw new Error(`process.env.${name} is not set`);
 }
-
-console.info('process.env.GITHUB_ENV=', process.env.GITHUB_ENV);
 
 export { envFileVarsNames };
