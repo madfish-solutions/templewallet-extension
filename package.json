@@ -111,7 +111,6 @@
     "debounce-promise": "3.1.2",
     "dexie": "3.1.0-alpha.9",
     "dotenv": "8.2.0",
-    "dotenv-expand": "5.1.0",
     "ed25519-hd-key": "1.1.2",
     "effector": "21.2.0",
     "eslint": "^8.17.0",
