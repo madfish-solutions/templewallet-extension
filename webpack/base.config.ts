@@ -238,6 +238,7 @@ export const buildBaseConfig = (): WebPack.Configuration & Pick<WebPack.WebpackO
     new WebPack.DefinePlugin({
       SharedArrayBuffer: '_SharedArrayBuffer',
       'process.env.NODE_ENV': JSON.stringify(NODE_ENV),
+      'process.env.GITHUB_ENV': JSON.stringify(process.env.GITHUB_ENV),
       'process.env.VERSION': JSON.stringify(VERSION),
       'process.env.MANIFEST_VERSION': JSON.stringify(String(MANIFEST_VERSION)),
       'process.env.BACKGROUND_IS_WORKER': JSON.stringify(String(BACKGROUND_IS_WORKER)),
