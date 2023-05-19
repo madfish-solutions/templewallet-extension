@@ -14,7 +14,8 @@ export const buyWithCreditCardReducer = createReducer<BuyWithCreditCardState>(
       currencies: {
         [TopUpProviderId.MoonPay]: createEntity(state.currencies[TopUpProviderId.MoonPay].data, true),
         [TopUpProviderId.Utorg]: createEntity(state.currencies[TopUpProviderId.Utorg].data, true),
-        [TopUpProviderId.AliceBob]: createEntity(state.currencies[TopUpProviderId.AliceBob].data, true)
+        [TopUpProviderId.AliceBob]: createEntity(state.currencies[TopUpProviderId.AliceBob].data, true),
+        [TopUpProviderId.BinanceConnect]: createEntity(state.currencies[TopUpProviderId.BinanceConnect].data, true)
       }
     }));
 
@@ -28,7 +29,12 @@ export const buyWithCreditCardReducer = createReducer<BuyWithCreditCardState>(
       currencies: {
         [TopUpProviderId.MoonPay]: createEntity(state.currencies[TopUpProviderId.MoonPay].data, false, error),
         [TopUpProviderId.Utorg]: createEntity(state.currencies[TopUpProviderId.Utorg].data, false, error),
-        [TopUpProviderId.AliceBob]: createEntity(state.currencies[TopUpProviderId.AliceBob].data, false, error)
+        [TopUpProviderId.AliceBob]: createEntity(state.currencies[TopUpProviderId.AliceBob].data, false, error),
+        [TopUpProviderId.BinanceConnect]: createEntity(
+          state.currencies[TopUpProviderId.BinanceConnect].data,
+          false,
+          error
+        )
       }
     }));
 
@@ -44,7 +50,11 @@ export const buyWithCreditCardReducer = createReducer<BuyWithCreditCardState>(
             [cryptoSymbol]: {
               [TopUpProviderId.MoonPay]: createEntity(previousEntities?.[TopUpProviderId.MoonPay]?.data, true),
               [TopUpProviderId.Utorg]: createEntity(previousEntities?.[TopUpProviderId.Utorg]?.data, true),
-              [TopUpProviderId.AliceBob]: createEntity(previousEntities?.[TopUpProviderId.AliceBob]?.data, true)
+              [TopUpProviderId.AliceBob]: createEntity(previousEntities?.[TopUpProviderId.AliceBob]?.data, true),
+              [TopUpProviderId.BinanceConnect]: createEntity(
+                previousEntities?.[TopUpProviderId.BinanceConnect]?.data,
+                true
+              )
             }
           }
         }
@@ -72,6 +82,11 @@ export const buyWithCreditCardReducer = createReducer<BuyWithCreditCardState>(
               limits[TopUpProviderId.AliceBob].data,
               false,
               limits[TopUpProviderId.AliceBob].error
+            ),
+            [TopUpProviderId.BinanceConnect]: createEntity(
+              limits[TopUpProviderId.BinanceConnect].data,
+              false,
+              limits[TopUpProviderId.BinanceConnect].error
             )
           }
         }
@@ -90,7 +105,16 @@ export const buyWithCreditCardReducer = createReducer<BuyWithCreditCardState>(
             [cryptoSymbol]: {
               [TopUpProviderId.MoonPay]: createEntity(previousEntities?.[TopUpProviderId.MoonPay]?.data, false, error),
               [TopUpProviderId.Utorg]: createEntity(previousEntities?.[TopUpProviderId.Utorg]?.data, false, error),
-              [TopUpProviderId.AliceBob]: createEntity(previousEntities?.[TopUpProviderId.AliceBob]?.data, false, error)
+              [TopUpProviderId.AliceBob]: createEntity(
+                previousEntities?.[TopUpProviderId.AliceBob]?.data,
+                false,
+                error
+              ),
+              [TopUpProviderId.BinanceConnect]: createEntity(
+                previousEntities?.[TopUpProviderId.BinanceConnect]?.data,
+                false,
+                error
+              )
             }
           }
         }

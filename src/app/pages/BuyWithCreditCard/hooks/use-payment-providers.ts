@@ -3,6 +3,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { BigNumber } from 'bignumber.js';
 
 import { useFiatCurrenciesSelector, useCryptoCurrenciesSelector } from 'app/store/buy-with-credit-card/selectors';
+import { estimateBinanceConnectOutput } from 'lib/apis/binance-connect';
 import { getMoonPayBuyQuote } from 'lib/apis/moonpay';
 import { estimateAliceBobOutput } from 'lib/apis/temple/endpoints/alice-bob';
 import { convertFiatAmountToCrypto } from 'lib/apis/utorg';
@@ -59,6 +60,12 @@ const getOutputAmountFunctions: Record<TopUpProviderId, getOutputAmountFunction>
     const response = await estimateAliceBobOutput(false, inputAmount.toString());
 
     return response.data.outputAmount;
+  },
+  [TopUpProviderId.BinanceConnect]: async (inputAmount, inputAsset, outputAsset) => {
+    const response = await estimateBinanceConnectOutput(inputAsset.code, outputAsset.code, String(inputAmount));
+
+    // return response.data.outputAmount;
+    return response;
   }
 };
 
@@ -77,6 +84,11 @@ const initialPaymentProvidersData: Record<TopUpProviderId, PaymentProviderInitia
     name: 'Alice&Bob',
     id: TopUpProviderId.AliceBob,
     kycRequired: false
+  },
+  [TopUpProviderId.BinanceConnect]: {
+    name: 'Binance Connect',
+    id: TopUpProviderId.BinanceConnect,
+    kycRequired: true
   }
 };
 
@@ -180,19 +192,26 @@ export const usePaymentProviders = (
     updateOutputAmount: updateAliceBobOutputAmount,
     loading: aliceBobLoading
   } = usePaymentProvider(TopUpProviderId.AliceBob, inputAmount, inputAsset, outputAsset);
+  const {
+    error: binanceConnectError,
+    provider: binanceConnectProvider,
+    updateOutputAmount: updateBinanceConnectOutputAmount,
+    loading: binanceConnectLoading
+  } = usePaymentProvider(TopUpProviderId.BinanceConnect, inputAmount, inputAsset, outputAsset);
 
   const allPaymentProviders = useMemo(
-    () => [moonPayProvider, utorgProvider, aliceBobProvider],
-    [moonPayProvider, utorgProvider, aliceBobProvider]
+    () => [moonPayProvider, utorgProvider, aliceBobProvider, binanceConnectProvider],
+    [moonPayProvider, utorgProvider, aliceBobProvider, binanceConnectProvider]
   );
 
   const amountsUpdateErrors = useMemo(
     () => ({
       [TopUpProviderId.MoonPay]: moonPayError,
       [TopUpProviderId.Utorg]: utorgError,
-      [TopUpProviderId.AliceBob]: aliceBobError
+      [TopUpProviderId.AliceBob]: aliceBobError,
+      [TopUpProviderId.BinanceConnect]: binanceConnectError
     }),
-    [moonPayError, utorgError, aliceBobError]
+    [moonPayError, utorgError, aliceBobError, binanceConnectError]
   );
 
   const paymentProvidersToDisplay = useMemo(
@@ -203,29 +222,34 @@ export const usePaymentProviders = (
         {
           [TopUpProviderId.MoonPay]: moonPayLoading,
           [TopUpProviderId.Utorg]: utorgLoading,
-          [TopUpProviderId.AliceBob]: aliceBobLoading
+          [TopUpProviderId.AliceBob]: aliceBobLoading,
+          [TopUpProviderId.BinanceConnect]: binanceConnectLoading
         },
         inputAmount
       ),
-    [allPaymentProviders, amountsUpdateErrors, moonPayLoading, utorgLoading, aliceBobLoading]
+    [allPaymentProviders, amountsUpdateErrors, moonPayLoading, utorgLoading, aliceBobLoading, binanceConnectLoading]
   );
+
   const updateOutputAmounts = useCallback(
     async (newInputAmount?: number, newInputAsset = inputAsset, newOutputAsset = outputAsset) => {
-      const [moonPayOutputAmount, utorgOutputAmount, aliceBobOutputAmount] = await Promise.all([
-        updateMoonPayOutputAmount(newInputAmount, newInputAsset, newOutputAsset),
-        updateUtorgOutputAmount(newInputAmount, newInputAsset, newOutputAsset),
-        updateAliceBobOutputAmount(newInputAmount, newInputAsset, newOutputAsset)
-      ]);
+      const [moonPayOutputAmount, utorgOutputAmount, aliceBobOutputAmount, binanceConnectOutputAmount] =
+        await Promise.all([
+          updateMoonPayOutputAmount(newInputAmount, newInputAsset, newOutputAsset),
+          updateUtorgOutputAmount(newInputAmount, newInputAsset, newOutputAsset),
+          updateAliceBobOutputAmount(newInputAmount, newInputAsset, newOutputAsset),
+          updateBinanceConnectOutputAmount(newInputAmount, newInputAsset, newOutputAsset)
+        ]);
 
       return {
         [TopUpProviderId.MoonPay]: moonPayOutputAmount,
         [TopUpProviderId.Utorg]: utorgOutputAmount,
-        [TopUpProviderId.AliceBob]: aliceBobOutputAmount
+        [TopUpProviderId.AliceBob]: aliceBobOutputAmount,
+        [TopUpProviderId.BinanceConnect]: binanceConnectOutputAmount
       };
     },
     [inputAsset, outputAsset, updateMoonPayOutputAmount, updateUtorgOutputAmount, updateAliceBobOutputAmount]
   );
-  const loading = moonPayLoading || utorgLoading || aliceBobLoading;
+  const loading = moonPayLoading || utorgLoading || aliceBobLoading || binanceConnectLoading;
 
   return { allPaymentProviders, amountsUpdateErrors, paymentProvidersToDisplay, updateOutputAmounts, loading };
 };

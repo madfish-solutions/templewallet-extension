@@ -11,24 +11,36 @@ export const useAllFiatCurrencies = (inputCurrencySymbol: string, outputTokenSym
   const moonpayFiatCurrencies = useFiatCurrenciesSelector(TopUpProviderId.MoonPay);
   const utorgFiatCurrencies = useFiatCurrenciesSelector(TopUpProviderId.Utorg);
   const aliceBobFiatCurrencies = useFiatCurrenciesSelector(TopUpProviderId.AliceBob);
+  const binanceConnectFiatCurrencies = useFiatCurrenciesSelector(TopUpProviderId.BinanceConnect);
+
   const moonPayPairLimits = usePairLimitsSelector(inputCurrencySymbol, outputTokenSymbol, TopUpProviderId.MoonPay);
   const utorgPairLimits = usePairLimitsSelector(inputCurrencySymbol, outputTokenSymbol, TopUpProviderId.Utorg);
   const aliceBobPairLimits = usePairLimitsSelector(inputCurrencySymbol, outputTokenSymbol, TopUpProviderId.AliceBob);
+  const binanceConnectPairLimits = usePairLimitsSelector(
+    inputCurrencySymbol,
+    outputTokenSymbol,
+    TopUpProviderId.BinanceConnect
+  );
 
   const allNonUniqueFiatCurrencies = useMemo(
-    () => [...moonpayFiatCurrencies, ...utorgFiatCurrencies, ...aliceBobFiatCurrencies],
-    [moonpayFiatCurrencies, utorgFiatCurrencies, aliceBobFiatCurrencies]
+    () => [
+      ...moonpayFiatCurrencies,
+      ...utorgFiatCurrencies,
+      ...aliceBobFiatCurrencies,
+      ...binanceConnectFiatCurrencies
+    ],
+    [moonpayFiatCurrencies, utorgFiatCurrencies, aliceBobFiatCurrencies, binanceConnectFiatCurrencies]
   );
 
   const pairLimits = useMemo(
     () =>
       mergeLimits(
-        [moonPayPairLimits, utorgPairLimits, aliceBobPairLimits]
+        [moonPayPairLimits, utorgPairLimits, aliceBobPairLimits, binanceConnectPairLimits]
           .filter(isDefined)
           .map(({ data }) => data)
           .filter(isDefined)
       ),
-    [moonPayPairLimits, utorgPairLimits, aliceBobPairLimits]
+    [moonPayPairLimits, utorgPairLimits, aliceBobPairLimits, binanceConnectPairLimits]
   );
 
   const noPairLimitsFiatCurrencies = useMemo(

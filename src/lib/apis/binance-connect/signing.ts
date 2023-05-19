@@ -28,9 +28,9 @@ export async function buildPostSignature(payload: string, timestamp: number, mer
  * -----END PRIVATE KEY-----
  * ```
  */
-export function sign(rawData: string, privateKey: string = PRIVATE_KEY) {
+function sign(rawData: string, privateKey: string = PRIVATE_KEY) {
   // formatting for the case of start & end lines missing
-  privateKey = privateKey.startsWith(PRIVATE_KEY_START_LINE)
+  privateKey = privateKey.trim().startsWith(PRIVATE_KEY_START_LINE)
     ? privateKey
     : `${PRIVATE_KEY_START_LINE}\n${privateKey.trim()}\n${PRIVATE_KEY_END_LINE}`;
 
@@ -43,7 +43,7 @@ export function sign(rawData: string, privateKey: string = PRIVATE_KEY) {
 
 export function validate(rawData: string, sign: string, publicKey: string = PUBLIC_KEY) {
   // formatting for the case of start & end lines missing
-  publicKey = publicKey.startsWith(PUBLIC_KEY_START_LINE)
+  publicKey = publicKey.trim().startsWith(PUBLIC_KEY_START_LINE)
     ? publicKey
     : `${PUBLIC_KEY_START_LINE}\n${publicKey.trim()}\n${PUBLIC_KEY_END_LINE}`;
 
@@ -53,14 +53,3 @@ export function validate(rawData: string, sign: string, publicKey: string = PUBL
 
   return result;
 }
-
-// function generateHash(data: string) {
-// 	return crypto.subtle.digest('SHA-256', Buffer.from(data, 'utf-8'));
-// }
-
-// const arrayBufferToString = (buf: ArrayBuffer) =>
-// 	String.fromCharCode.apply(
-// 		null,
-// 		// @ts-ignore
-// 		new Uint16Array(buf)
-// 	);

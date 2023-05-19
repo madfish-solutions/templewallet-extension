@@ -3,6 +3,7 @@ import { catchError, forkJoin, from, map, Observable, of, switchMap, withLatestF
 import { Action } from 'ts-action';
 import { ofType } from 'ts-action-operators';
 
+import { getBinanceConnectCurrencies } from 'lib/apis/binance-connect';
 import { getMoonPayCurrencies } from 'lib/apis/moonpay';
 import { getAliceBobPairInfo } from 'lib/apis/temple';
 import { getCurrenciesInfo as getUtorgCurrenciesInfo } from 'lib/apis/utorg';
@@ -15,17 +16,28 @@ import { isDefined } from 'lib/utils/is-defined';
 
 import { loadAllCurrenciesActions, updatePairLimitsActions } from './actions';
 import { BuyWithCreditCardRootState, TopUpProviderCurrencies } from './state';
-import { mapAliceBobProviderCurrencies, mapMoonPayProviderCurrencies, mapUtorgProviderCurrencies } from './utils';
+import {
+  mapAliceBobProviderCurrencies,
+  mapMoonPayProviderCurrencies,
+  mapUtorgProviderCurrencies,
+  mapBinanceConnectProviderCurrencies
+} from './utils';
 
 const getCurrencies$ = <T>(fetchFn: () => Promise<T>, transformFn: (data: T) => TopUpProviderCurrencies) =>
   from(fetchFn()).pipe(
     map(data => createEntity(transformFn(data))),
-    catchError(err =>
-      of(createEntity<TopUpProviderCurrencies>({ fiat: [], crypto: [] }, false, getAxiosQueryErrorMessage(err)))
-    )
+    catchError(err => {
+      console.error(err);
+      return of(createEntity<TopUpProviderCurrencies>({ fiat: [], crypto: [] }, false, getAxiosQueryErrorMessage(err)));
+    })
   );
 
-const allTopUpProviderIds = [TopUpProviderId.MoonPay, TopUpProviderId.Utorg, TopUpProviderId.AliceBob];
+const allTopUpProviderIds = [
+  TopUpProviderId.MoonPay,
+  TopUpProviderId.Utorg,
+  TopUpProviderId.AliceBob,
+  TopUpProviderId.BinanceConnect
+];
 
 const loadAllCurrenciesEpic = (action$: Observable<Action>) =>
   action$.pipe(
@@ -34,13 +46,15 @@ const loadAllCurrenciesEpic = (action$: Observable<Action>) =>
       forkJoin([
         getCurrencies$(getMoonPayCurrencies, mapMoonPayProviderCurrencies),
         getCurrencies$(getUtorgCurrenciesInfo, mapUtorgProviderCurrencies),
-        getCurrencies$(() => getAliceBobPairInfo(false), mapAliceBobProviderCurrencies)
+        getCurrencies$(() => getAliceBobPairInfo(false), mapAliceBobProviderCurrencies),
+        getCurrencies$(getBinanceConnectCurrencies, mapBinanceConnectProviderCurrencies)
       ]).pipe(
-        map(([moonpayCurrencies, utorgCurrencies, tezUahPairInfo]) =>
+        map(([moonpayCurrencies, utorgCurrencies, tezUahPairInfo, binanceConnectCurrencies]) =>
           loadAllCurrenciesActions.success({
             [TopUpProviderId.MoonPay]: moonpayCurrencies,
             [TopUpProviderId.Utorg]: utorgCurrencies,
-            [TopUpProviderId.AliceBob]: tezUahPairInfo
+            [TopUpProviderId.AliceBob]: tezUahPairInfo,
+            [TopUpProviderId.BinanceConnect]: binanceConnectCurrencies
           })
         )
       )
@@ -67,14 +81,15 @@ const updatePairLimitsEpic = (action$: Observable<Action>, state$: Observable<Bu
           return of(createEntity(undefined, false, PAIR_NOT_FOUND_MESSAGE));
         })
       ).pipe(
-        map(([moonPayData, utorgData, aliceBobData]) =>
+        map(([moonPayData, utorgData, aliceBobData, binanceConnectData]) =>
           updatePairLimitsActions.success({
             fiatSymbol,
             cryptoSymbol,
             limits: {
               [TopUpProviderId.MoonPay]: moonPayData,
               [TopUpProviderId.Utorg]: utorgData,
-              [TopUpProviderId.AliceBob]: aliceBobData
+              [TopUpProviderId.AliceBob]: aliceBobData,
+              [TopUpProviderId.BinanceConnect]: binanceConnectData
             }
           })
         )

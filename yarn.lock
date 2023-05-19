@@ -3612,6 +3612,11 @@ bignumber.js@^9.0.2:
   resolved "https://registry.yarnpkg.com/bignumber.js/-/bignumber.js-9.0.2.tgz#71c6c6bed38de64e24a65ebe16cfcf23ae693673"
   integrity sha512-GAcQvbpsM0pUb0zw1EI0KhQEZ+lRwR5fYaAp3vPOYuP7aDvGy6cVN6XHLauvF8SOga2y0dcLcjt3iQDTSEliyw==
 
+binance-icons@^0.5.1:
+  version "0.5.1"
+  resolved "https://registry.yarnpkg.com/binance-icons/-/binance-icons-0.5.1.tgz#e86917c9a351d18a82f566232b6ee18a1616bc94"
+  integrity sha512-S9KsVZ4E02qtxEECgGNednR8Ll5j3IiK/tOkXbmmNf/mSpdhRuVMwSzBRTakA25KdQLJ7RmZFkrQuSZGtcfmVg==
+
 binary-extensions@^2.0.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/binary-extensions/-/binary-extensions-2.1.0.tgz#30fa40c9e7fe07dbc895678cd287024dea241dd9"

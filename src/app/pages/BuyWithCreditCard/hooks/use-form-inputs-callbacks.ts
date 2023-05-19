@@ -90,6 +90,7 @@ export const useFormInputsCallbacks = (
             {},
             correctedNewInputAmount
           );
+
           const autoselectedPaymentProvider = patchedPaymentProviders[0];
 
           if (shouldSwitchBetweenProviders && !isDefined(manuallySelectedProviderIdRef.current)) {

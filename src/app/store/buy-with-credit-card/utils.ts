@@ -1,5 +1,8 @@
 import { AxiosResponse } from 'axios';
+import BigNumber from 'bignumber.js';
+import { binanceCryptoIcons, binanceCurrencyIcons } from 'binance-icons';
 
+import { GetBinanceConnectCurrenciesResponse } from 'lib/apis/binance-connect/types';
 import {
   Currency,
   CurrencyType as MoonPayCurrencyType,
@@ -10,10 +13,19 @@ import { AliceBobPairInfo } from 'lib/apis/temple';
 import { CurrencyInfoType as UtorgCurrencyInfoType, UtorgCurrencyInfo } from 'lib/apis/utorg';
 import { TopUpInputType } from 'lib/buy-with-credit-card/top-up-input-type.enum';
 import { toTokenSlug } from 'lib/temple/assets';
+import { filterByStringProperty, isTruthy } from 'lib/utils';
 import { isDefined } from 'lib/utils/is-defined';
+
+import { TopUpProviderCurrencies } from './state';
 
 const UTORG_FIAT_ICONS_BASE_URL = 'https://utorg.pro/img/flags2/icon-';
 const UTORG_CRYPTO_ICONS_BASE_URL = 'https://utorg.pro/img/cryptoIcons';
+
+const CURRENCY_NETWORK_PLUG = {
+  code: '',
+  fullName: '',
+  shortName: ''
+};
 
 const knownUtorgFiatCurrenciesNames: Record<string, string> = {
   PHP: 'Philippine Peso',
@@ -23,11 +35,7 @@ const knownUtorgFiatCurrenciesNames: Record<string, string> = {
 const aliceBobHryvnia = {
   name: 'Ukrainian Hryvnia',
   code: 'UAH',
-  network: {
-    code: '',
-    fullName: '',
-    shortName: ''
-  },
+  network: CURRENCY_NETWORK_PLUG,
   icon: '',
   precision: 2,
   type: TopUpInputType.Fiat
@@ -36,11 +44,7 @@ const aliceBobHryvnia = {
 const aliceBobTezos = {
   name: 'Tezos',
   code: 'XTZ',
-  network: {
-    code: '',
-    fullName: '',
-    shortName: ''
-  },
+  network: CURRENCY_NETWORK_PLUG,
   icon: 'https://static.moonpay.com/widget/currencies/xtz.svg',
   precision: 6,
   slug: 'tez',
@@ -54,11 +58,7 @@ export const mapMoonPayProviderCurrencies = (currencies: Currency[]) => ({
       name,
       code: code.toUpperCase(),
       codeToDisplay: code.toUpperCase().split('_')[0],
-      network: {
-        code: '',
-        fullName: '',
-        shortName: ''
-      },
+      network: CURRENCY_NETWORK_PLUG,
       icon: `https://static.moonpay.com/widget/currencies/${code}.svg`,
       minAmount: minBuyAmount,
       maxAmount: maxBuyAmount,
@@ -74,11 +74,7 @@ export const mapMoonPayProviderCurrencies = (currencies: Currency[]) => ({
       name,
       code: code.toUpperCase(),
       codeToDisplay: code.toUpperCase().split('_')[0],
-      network: {
-        code: '',
-        fullName: '',
-        shortName: ''
-      },
+      network: CURRENCY_NETWORK_PLUG,
       icon: `https://static.moonpay.com/widget/currencies/${code}.svg`,
       minAmount: minBuyAmount ?? undefined,
       maxAmount: maxBuyAmount ?? undefined,
@@ -97,11 +93,7 @@ export const mapUtorgProviderCurrencies = (currencies: UtorgCurrencyInfo[]) => (
       name: knownUtorgFiatCurrenciesNames[symbol] ?? '',
       code: symbol,
       codeToDisplay: display,
-      network: {
-        code: '',
-        fullName: '',
-        shortName: ''
-      },
+      network: CURRENCY_NETWORK_PLUG,
       icon: `${UTORG_FIAT_ICONS_BASE_URL}${symbol.slice(0, -1)}.svg`,
       precision,
       type: TopUpInputType.Fiat,
@@ -116,11 +108,7 @@ export const mapUtorgProviderCurrencies = (currencies: UtorgCurrencyInfo[]) => (
       name: display,
       code: currency,
       codeToDisplay: display,
-      network: {
-        code: '',
-        fullName: '',
-        shortName: ''
-      },
+      network: CURRENCY_NETWORK_PLUG,
       icon: `${UTORG_CRYPTO_ICONS_BASE_URL}/${currency}.svg`,
       precision,
       type: TopUpInputType.Crypto,
@@ -138,3 +126,48 @@ export const mapAliceBobProviderCurrencies = (response: AxiosResponse<{ pairInfo
   ],
   crypto: [aliceBobTezos]
 });
+
+export const mapBinanceConnectProviderCurrencies = (
+  data: GetBinanceConnectCurrenciesResponse
+): TopUpProviderCurrencies => {
+  const fiat = filterByStringProperty(data.pairs, 'fiatCurrency').map(item => {
+    const iconSvgString = binanceCurrencyIcons.get(item.fiatCurrency.toLowerCase());
+    const icon = iconSvgString ? `data:image/svg+xml,${encodeURIComponent(iconSvgString)}` : '';
+
+    return {
+      name: item.fiatCurrency,
+      code: item.fiatCurrency,
+      icon,
+      type: TopUpInputType.Fiat,
+      /** Assumed */
+      precision: 2,
+      network: CURRENCY_NETWORK_PLUG,
+      minAmount: item.minLimit,
+      maxAmount: item.maxLimit
+    };
+  });
+
+  const crypto = data.assets.map(asset => {
+    const precision = isTruthy(asset.withdrawIntegerMultiple)
+      ? new BigNumber(asset.withdrawIntegerMultiple).decimalPlaces()!
+      : 0;
+
+    const iconSvgString = binanceCryptoIcons.get(asset.cryptoCurrency.toLowerCase());
+    const icon = iconSvgString ? `data:image/svg+xml,${encodeURIComponent(iconSvgString)}` : '';
+
+    return {
+      /** No token id available */
+      slug: asset.contractAddress ? toTokenSlug(asset.contractAddress) : '',
+      name: asset.cryptoCurrency,
+      code: asset.cryptoCurrency,
+      icon,
+      type: TopUpInputType.Crypto,
+      precision,
+      network: CURRENCY_NETWORK_PLUG,
+      minAmount: asset.withdrawMin,
+      maxAmount: asset.withdrawMax
+    };
+  });
+
+  return { fiat, crypto };
+};

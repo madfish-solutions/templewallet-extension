@@ -44,6 +44,15 @@ export const getPaymentProvidersToDisplay = (
       const limitsAreDefined = isDefined(minInputAmount) && isDefined(maxInputAmount);
       const outputAmountIsDefined = isDefined(outputAmount);
 
+      console.log(
+        'Filtering provider:',
+        id,
+        !isError,
+        !shouldFilterByLimits || limitsAreDefined,
+        !shouldFilterByOutputAmount || outputAmountIsDefined || Boolean(providersLoading[id]),
+        isInRange(minInputAmount, maxInputAmount, inputAmount)
+      );
+
       return (
         !isError &&
         (!shouldFilterByLimits || limitsAreDefined) &&

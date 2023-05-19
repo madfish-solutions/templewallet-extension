@@ -7,12 +7,31 @@ const api = axios.create({
   baseURL: API_URL
 });
 
+interface SuccessResponse<D> {
+  success: true;
+  data: D;
+  code: '000000000';
+  message: null;
+  messageDetail: null;
+}
+
+interface ErrorResponse {
+  success: false;
+  data: null;
+  code: string;
+  message: string;
+  messageDetail: string | null;
+  errorMessage: string | null;
+}
+
+type ResponseData<D> = SuccessResponse<D> | ErrorResponse;
+
 export const makeGetRequest = async <D>(endpoint: string) => {
   const timestamp = Date.now();
 
   const signature = await buildGetSignature(timestamp);
 
-  return await api.get<{ data: D }>(endpoint, {
+  const response = await api.get<ResponseData<D>>(endpoint, {
     headers: {
       'Content-Type': 'application/json',
       merchantCode: MERCHANT_CODE,
@@ -20,6 +39,10 @@ export const makeGetRequest = async <D>(endpoint: string) => {
       'x-api-signature': signature
     }
   });
+
+  if (!response.data.success) throw new Error(response.data.message);
+
+  return response.data.data;
 };
 
 export const makePostRequest = async <D>(endpoint: string, payload: object) => {
@@ -27,7 +50,7 @@ export const makePostRequest = async <D>(endpoint: string, payload: object) => {
 
   const signature = await buildPostSignature(JSON.stringify(payload), timestamp);
 
-  return await api.post<{ data: D }>(endpoint, payload, {
+  const response = await api.post<ResponseData<D>>(endpoint, payload, {
     headers: {
       'Content-Type': 'application/json',
       merchantCode: MERCHANT_CODE,
@@ -35,4 +58,8 @@ export const makePostRequest = async <D>(endpoint: string, payload: object) => {
       'x-api-signature': signature
     }
   });
+
+  if (!response.data.success) throw new Error(response.data.message);
+
+  return response.data.data;
 };

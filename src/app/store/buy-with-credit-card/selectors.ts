@@ -17,8 +17,9 @@ export const useCurrenciesLoadingSelector = () => {
   const moonPayLoading = useCurrenciesByProviderLoadingSelector(TopUpProviderId.MoonPay);
   const utorgLoading = useCurrenciesByProviderLoadingSelector(TopUpProviderId.Utorg);
   const aliceBobLoading = useCurrenciesByProviderLoadingSelector(TopUpProviderId.AliceBob);
+  const binanceConnectLoading = useCurrenciesByProviderLoadingSelector(TopUpProviderId.BinanceConnect);
 
-  return moonPayLoading || utorgLoading || aliceBobLoading;
+  return moonPayLoading || utorgLoading || aliceBobLoading || binanceConnectLoading;
 };
 
 const useCurrenciesErrorSelector = (topUpProvider: TopUpProviderId) =>
@@ -28,12 +29,14 @@ export const useCurrenciesErrorsSelector = () => {
   const moonPayError = useCurrenciesErrorSelector(TopUpProviderId.MoonPay);
   const utorgError = useCurrenciesErrorSelector(TopUpProviderId.Utorg);
   const aliceBobError = useCurrenciesErrorSelector(TopUpProviderId.AliceBob);
+  const binanceConnectError = useCurrenciesErrorSelector(TopUpProviderId.BinanceConnect);
 
   return useMemo(
     () => ({
       [TopUpProviderId.MoonPay]: moonPayError,
       [TopUpProviderId.Utorg]: utorgError,
-      [TopUpProviderId.AliceBob]: aliceBobError
+      [TopUpProviderId.AliceBob]: aliceBobError,
+      [TopUpProviderId.BinanceConnect]: binanceConnectError
     }),
     [moonPayError, utorgError, aliceBobError]
   );
@@ -54,12 +57,14 @@ export const usePairLimitsErrorsSelector = (fiatSymbol: string, cryptoSymbol: st
   const moonPayError = usePairLimitsErrorSelector(fiatSymbol, cryptoSymbol, TopUpProviderId.MoonPay);
   const utorgError = usePairLimitsErrorSelector(fiatSymbol, cryptoSymbol, TopUpProviderId.Utorg);
   const aliceBobError = usePairLimitsErrorSelector(fiatSymbol, cryptoSymbol, TopUpProviderId.AliceBob);
+  const binanceConnectError = usePairLimitsErrorSelector(fiatSymbol, cryptoSymbol, TopUpProviderId.BinanceConnect);
 
   return useMemo(
     () => ({
       [TopUpProviderId.MoonPay]: moonPayError,
       [TopUpProviderId.Utorg]: utorgError,
-      [TopUpProviderId.AliceBob]: aliceBobError
+      [TopUpProviderId.AliceBob]: aliceBobError,
+      [TopUpProviderId.BinanceConnect]: binanceConnectError
     }),
     [moonPayError, utorgError, aliceBobError]
   );
