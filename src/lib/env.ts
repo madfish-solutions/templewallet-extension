@@ -17,5 +17,3 @@ export const EnvVars = {
   TEMPLE_WALLET_UTORG_SID: process.env.TEMPLE_WALLET_UTORG_SID!,
   TEMPLE_WALLET_ROUTE3_AUTH_TOKEN: process.env.TEMPLE_WALLET_ROUTE3_AUTH_TOKEN!
 } as const;
-
-console.log('EnvVars:', EnvVars);

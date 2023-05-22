@@ -17,12 +17,7 @@ import { isCollectible } from 'lib/metadata';
 import { FILM_METADATA, TEZOS_METADATA } from 'lib/metadata/defaults';
 import type { AssetMetadataBase } from 'lib/metadata/types';
 import { useRetryableSWR } from 'lib/swr';
-import {
-  getStoredTokens,
-  getAllStoredTokensSlugs,
-  getAllStoredAccountTokensSlugs,
-  isTokenDisplayed
-} from 'lib/temple/assets';
+import { getStoredTokens, getAllStoredTokensSlugs, isTokenDisplayed } from 'lib/temple/assets';
 import { useNetwork } from 'lib/temple/front';
 import { ITokenStatus } from 'lib/temple/repo';
 import { searchAndFilterItems } from 'lib/utils/search-items';
@@ -70,15 +65,11 @@ const useFungibleTokens = (chainId: string, account: string) => useKnownTokens(c
 export const useCollectibleTokens = (chainId: string, account: string, onlyDisplayed: boolean = false) =>
   useKnownTokens(chainId, account, false, onlyDisplayed);
 
-export const useAllStoredAccountTokensSlugs = (chainId: string, account: string) =>
-  useRetryableSWR(
-    ['use-all-account-tokens-slugs', chainId, account],
-    () => getAllStoredAccountTokensSlugs(chainId, account),
-    {
-      revalidateOnMount: true,
-      refreshInterval: TOKENS_SYNC_INTERVAL
-    }
-  );
+export const useAllStoredTokensSlugs = (chainId: string) =>
+  useRetryableSWR(['use-tokens-slugs', chainId], () => getAllStoredTokensSlugs(chainId), {
+    revalidateOnMount: true,
+    refreshInterval: TOKENS_SYNC_INTERVAL
+  });
 
 export const useGasToken = () => {
   const { type } = useNetwork();
@@ -179,10 +170,7 @@ const useAllKnownFungibleTokenSlugs = (chainId: string) => useAllKnownTokensSlug
 const useAllKnownCollectibleTokenSlugs = (chainId: string) => useAllKnownTokensSlugs(chainId, false);
 
 const useAllKnownTokensSlugs = (chainId: string, fungible = true) => {
-  const swrResponse = useRetryableSWR(['use-all-tokens-slugs', chainId], () => getAllStoredTokensSlugs(chainId), {
-    revalidateOnMount: true,
-    refreshInterval: TOKENS_SYNC_INTERVAL
-  });
+  const swrResponse = useAllStoredTokensSlugs(chainId);
   const tokensMetadata = useTokensMetadataSelector();
 
   const slugs = swrResponse.data;
@@ -361,6 +349,5 @@ export function searchAssetsWithNoMeta<T>(
 export const updateTokensSWR = async (mutate: ScopedMutator, chainId: string, account: string) => {
   await mutate(['use-known-tokens', chainId, account, true]);
   await mutate(['use-known-tokens', chainId, account, false]);
-  await mutate(['use-all-account-tokens-slugs', chainId, account]);
-  await mutate(['use-all-tokens-slugs', chainId]);
+  await mutate(['use-tokens-slugs', chainId]);
 };
