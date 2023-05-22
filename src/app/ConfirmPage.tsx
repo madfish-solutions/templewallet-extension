@@ -33,29 +33,26 @@ import { ConfirmPageSelectors } from './ConfirmPage.selectors';
 const ConfirmPage: FC = () => {
   const { ready } = useTempleClient();
 
-  return useMemo(
-    () =>
-      ready ? (
-        <ContentContainer padding={false} className="min-h-screen flex flex-col items-center justify-center">
-          <ErrorBoundary whileMessage={t('fetchingConfirmationDetails')}>
-            <Suspense
-              fallback={
-                <div className="flex items-center justify-center h-screen">
-                  <div>
-                    <Spinner theme="primary" className="w-20" />
-                  </div>
+  if (ready)
+    return (
+      <ContentContainer padding={false} className="min-h-screen flex flex-col items-center justify-center">
+        <ErrorBoundary whileMessage={t('fetchingConfirmationDetails')}>
+          <Suspense
+            fallback={
+              <div className="flex items-center justify-center h-screen">
+                <div>
+                  <Spinner theme="primary" className="w-20" />
                 </div>
-              }
-            >
-              <ConfirmDAppForm />
-            </Suspense>
-          </ErrorBoundary>
-        </ContentContainer>
-      ) : (
-        <Unlock canImportNew={false} />
-      ),
-    [ready]
-  );
+              </div>
+            }
+          >
+            <ConfirmDAppForm />
+          </Suspense>
+        </ErrorBoundary>
+      </ContentContainer>
+    );
+
+  return <Unlock canImportNew={false} />;
 };
 
 interface PayloadContentProps {
@@ -376,6 +373,7 @@ const ConfirmDAppForm: FC = () => {
               )}
 
               <NetworkBanner rpc={payload.networkRpc} narrow={payload.type === 'connect'} />
+
               <PayloadContent
                 error={payloadError}
                 payload={payload}
@@ -427,32 +425,33 @@ const AccountIcon: FC<OptionRenderProps<TempleAccount>> = ({ item }) => (
   <Identicon type="bottts" hash={item.publicKeyHash} size={32} className="flex-shrink-0 shadow-xs" />
 );
 
-const AccountOptionContentHOC = (networkRpc: string) => {
-  const { assetName } = useGasToken();
+const AccountOptionContentHOC = (networkRpc: string) =>
+  memo<OptionRenderProps<TempleAccount>>(({ item: acc }) => {
+    const { assetName } = useGasToken();
 
-  return memo<OptionRenderProps<TempleAccount>>(({ item: acc }) => (
-    <>
-      <div className="flex flex-wrap items-center">
-        <Name className="text-sm font-medium leading-tight">{acc.name}</Name>
-        <AccountTypeBadge account={acc} />
-      </div>
-
-      <div className="flex flex-wrap items-center mt-1">
-        <div className="text-xs leading-none text-gray-700">
-          <HashShortView hash={acc.publicKeyHash} />
+    return (
+      <>
+        <div className="flex flex-wrap items-center">
+          <Name className="text-sm font-medium leading-tight">{acc.name}</Name>
+          <AccountTypeBadge account={acc} />
         </div>
 
-        <Balance address={acc.publicKeyHash} networkRpc={networkRpc}>
-          {bal => (
-            <div className="ml-2 text-xs leading-none flex items-baseline text-gray-600">
-              <Money>{bal}</Money>
-              <span className="ml-1" style={{ fontSize: '0.75em' }}>
-                {assetName}
-              </span>
-            </div>
-          )}
-        </Balance>
-      </div>
-    </>
-  ));
-};
+        <div className="flex flex-wrap items-center mt-1">
+          <div className="text-xs leading-none text-gray-700">
+            <HashShortView hash={acc.publicKeyHash} />
+          </div>
+
+          <Balance address={acc.publicKeyHash} networkRpc={networkRpc}>
+            {bal => (
+              <div className="ml-2 text-xs leading-none flex items-baseline text-gray-600">
+                <Money>{bal}</Money>
+                <span className="ml-1" style={{ fontSize: '0.75em' }}>
+                  {assetName}
+                </span>
+              </div>
+            )}
+          </Balance>
+        </div>
+      </>
+    );
+  });

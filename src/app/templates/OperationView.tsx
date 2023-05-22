@@ -102,8 +102,8 @@ const OperationView: FC<OperationViewProps> = ({
   if (payload.type === 'sign' && payload.preview) {
     return (
       <div className="flex flex-col w-full">
-        <h2 className={classNames('mb-3', 'leading-tight', 'flex items-center')}>
-          <span className={classNames('mr-2', 'text-base font-semibold text-gray-700')}>
+        <h2 className="mb-3 leading-tight flex items-center">
+          <span className="mr-2 text-base font-semibold text-gray-700">
             <T id="payloadToSign" />
           </span>
 
@@ -145,8 +145,8 @@ const OperationView: FC<OperationViewProps> = ({
   if (payload.type === 'confirm_operations') {
     return (
       <div className="flex flex-col w-full">
-        <h2 className={classNames('mb-3', 'leading-tight', 'flex items-center')}>
-          <span className={classNames('mr-2', 'text-base font-semibold text-gray-700')}>
+        <h2 className="mb-3 leading-tight flex items-center">
+          <span className="mr-2 text-base font-semibold text-gray-700">
             <T id="operations" />
           </span>
 

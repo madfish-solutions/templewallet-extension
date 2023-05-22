@@ -108,7 +108,7 @@ export enum TempleAccountType {
   WatchOnly
 }
 
-export interface TempleNetwork {
+interface TempleNetworkBase {
   id: string;
   name?: string;
   nameI18nKey?: TID;
@@ -120,6 +120,16 @@ export interface TempleNetwork {
   disabled: boolean;
   hidden?: boolean;
 }
+
+export type TempleNetwork = TempleNetworkBase &
+  (
+    | {
+        nameI18nKey: TID;
+      }
+    | {
+        name: string;
+      }
+  );
 
 export type TempleNetworkType = 'main' | 'test' | 'dcp';
 
