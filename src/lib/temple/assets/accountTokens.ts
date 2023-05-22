@@ -42,12 +42,6 @@ export const getAllStoredTokensSlugs = async (chainId: string) => {
   return filterUnique(allAccountTokens.map(t => t.tokenSlug));
 };
 
-export const getAllStoredAccountTokensSlugs = async (chainId: string, account: string) => {
-  const allAccountTokens = await Repo.accountTokens.where({ chainId, account }).toArray();
-
-  return filterUnique(allAccountTokens.map(t => t.tokenSlug));
-};
-
 export const isTokenDisplayed = (t: Repo.IAccountToken) =>
   t.status === Repo.ITokenStatus.Enabled ||
   (t.status === Repo.ITokenStatus.Idle && new BigNumber(t.latestBalance!).isGreaterThan(0));
