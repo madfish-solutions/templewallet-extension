@@ -5,11 +5,6 @@ export interface TopUpInputInterface {
   name: string;
   code: string;
   codeToDisplay?: string;
-  network: {
-    code: string;
-    fullName: string;
-    shortName: string;
-  };
   icon: string;
   type: TopUpInputType;
   minAmount?: number;

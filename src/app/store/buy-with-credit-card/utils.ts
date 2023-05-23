@@ -21,12 +21,6 @@ import { TopUpProviderCurrencies } from './state';
 const UTORG_FIAT_ICONS_BASE_URL = 'https://utorg.pro/img/flags2/icon-';
 const UTORG_CRYPTO_ICONS_BASE_URL = 'https://utorg.pro/img/cryptoIcons';
 
-const CURRENCY_NETWORK_PLUG = {
-  code: '',
-  fullName: '',
-  shortName: ''
-};
-
 const knownUtorgFiatCurrenciesNames: Record<string, string> = {
   PHP: 'Philippine Peso',
   INR: 'Indian Rupee'
@@ -35,7 +29,6 @@ const knownUtorgFiatCurrenciesNames: Record<string, string> = {
 const aliceBobHryvnia = {
   name: 'Ukrainian Hryvnia',
   code: 'UAH',
-  network: CURRENCY_NETWORK_PLUG,
   icon: '',
   precision: 2,
   type: TopUpInputType.Fiat
@@ -44,7 +37,6 @@ const aliceBobHryvnia = {
 const aliceBobTezos = {
   name: 'Tezos',
   code: 'XTZ',
-  network: CURRENCY_NETWORK_PLUG,
   icon: 'https://static.moonpay.com/widget/currencies/xtz.svg',
   precision: 6,
   slug: 'tez',
@@ -58,7 +50,6 @@ export const mapMoonPayProviderCurrencies = (currencies: Currency[]) => ({
       name,
       code: code.toUpperCase(),
       codeToDisplay: code.toUpperCase().split('_')[0],
-      network: CURRENCY_NETWORK_PLUG,
       icon: `https://static.moonpay.com/widget/currencies/${code}.svg`,
       minAmount: minBuyAmount,
       maxAmount: maxBuyAmount,
@@ -74,7 +65,6 @@ export const mapMoonPayProviderCurrencies = (currencies: Currency[]) => ({
       name,
       code: code.toUpperCase(),
       codeToDisplay: code.toUpperCase().split('_')[0],
-      network: CURRENCY_NETWORK_PLUG,
       icon: `https://static.moonpay.com/widget/currencies/${code}.svg`,
       minAmount: minBuyAmount ?? undefined,
       maxAmount: maxBuyAmount ?? undefined,
@@ -93,7 +83,6 @@ export const mapUtorgProviderCurrencies = (currencies: UtorgCurrencyInfo[]) => (
       name: knownUtorgFiatCurrenciesNames[symbol] ?? '',
       code: symbol,
       codeToDisplay: display,
-      network: CURRENCY_NETWORK_PLUG,
       icon: `${UTORG_FIAT_ICONS_BASE_URL}${symbol.slice(0, -1)}.svg`,
       precision,
       type: TopUpInputType.Fiat,
@@ -108,7 +97,6 @@ export const mapUtorgProviderCurrencies = (currencies: UtorgCurrencyInfo[]) => (
       name: display,
       code: currency,
       codeToDisplay: display,
-      network: CURRENCY_NETWORK_PLUG,
       icon: `${UTORG_CRYPTO_ICONS_BASE_URL}/${currency}.svg`,
       precision,
       type: TopUpInputType.Crypto,
@@ -141,7 +129,6 @@ export const mapBinanceConnectProviderCurrencies = (
       type: TopUpInputType.Fiat,
       /** Assumed */
       precision: 2,
-      network: CURRENCY_NETWORK_PLUG,
       minAmount: item.minLimit,
       maxAmount: item.maxLimit
     };
@@ -163,7 +150,6 @@ export const mapBinanceConnectProviderCurrencies = (
       icon,
       type: TopUpInputType.Crypto,
       precision,
-      network: CURRENCY_NETWORK_PLUG,
       minAmount: asset.withdrawMin,
       maxAmount: asset.withdrawMax
     };

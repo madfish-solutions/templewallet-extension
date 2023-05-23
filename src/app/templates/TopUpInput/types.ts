@@ -19,6 +19,7 @@ export type CurrencyToken = WithRequired<CurrencyBase, 'network'>;
 
 export interface TopUpInputPropsGeneric<C extends CurrencyBase> extends TestIDProperty {
   label: ReactNode;
+  isFiat?: boolean;
   currency: C;
   currenciesList: C[];
   onCurrencySelect?: (value: C) => void;

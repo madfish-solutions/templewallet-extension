@@ -21,17 +21,10 @@ import { isDefined } from 'lib/utils/is-defined';
 import { AmountErrorType } from '../types/amount-error-type';
 import { BuyWithCreditCardFormValues } from '../types/buy-with-credit-card-form-values';
 
-const CURRENCY_NETWORK_PLUG = {
-  code: '',
-  fullName: '',
-  shortName: ''
-};
-
 const DEFAULT_INPUT_CURRENCY: TopUpInputInterface = {
   code: 'USD',
   icon: `${MOONPAY_ASSETS_BASE_URL}/widget/currencies/usd.svg`,
   name: 'US Dollar',
-  network: CURRENCY_NETWORK_PLUG,
   precision: 2,
   type: TopUpInputType.Fiat
 };
@@ -40,7 +33,6 @@ const DEFAULT_OUTPUT_TOKEN: TopUpOutputInterface = {
   code: 'XTZ',
   name: 'Tezos',
   icon: `${MOONPAY_ASSETS_BASE_URL}/widget/currencies/xtz.svg`,
-  network: CURRENCY_NETWORK_PLUG,
   precision: 1,
   slug: 'tez',
   type: TopUpInputType.Crypto

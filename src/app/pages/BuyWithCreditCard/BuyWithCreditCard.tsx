@@ -146,6 +146,7 @@ export const BuyWithCreditCard: FC = () => {
               )}
 
               <TopUpInput
+                isFiat={true}
                 isSearchable
                 label={<T id="send" />}
                 amount={inputAmount}
