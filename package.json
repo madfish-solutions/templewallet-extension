@@ -143,6 +143,7 @@
     "postcss-preset-env": "7.3.3",
     "prettier": "^2.7.1",
     "process": "^0.11.10",
+    "qs": "^6.11.1",
     "react": "18.2.0",
     "react-collapse": "5.1.1",
     "react-countdown": "2.3.2",
@@ -188,6 +189,7 @@
     "webpack-ext-reloader-mv3": "^2.1.1",
     "webpack-target-webextension": "^1.0.4",
     "webpackbar": "^5",
+    "yup": "^1.1.1",
     "zip-a-folder": "^1.1.5"
   },
   "resolutions": {

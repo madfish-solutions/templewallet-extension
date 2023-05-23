@@ -1,8 +1,5 @@
 export enum BuySelectors {
-  cryptoTab = 'Top-Up/Crypto Tab',
-  debitTab = 'Top-Up/Card Tab',
-  MoonPayButton = 'Top-Up/MoonPay Continue Button',
-  ExolixButton = 'Top-Up/Exolix Continue Button',
-  UtorgButton = 'Top-Up/Utorg Next Button',
-  AliceBobButton = 'Top-Up/Alice Bob Next Button'
+  cryptoButton = 'Top-Up/Crypto Button',
+  debitButton = 'Top-Up/Card Button',
+  exolixButton = 'Top-Up/Exolix Continue Button'
 }

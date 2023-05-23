@@ -16,7 +16,7 @@ import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 
 import { ExchangeDataInterface, ExchangeDataStatusEnum } from '../exolix.interface';
 import { ExolixSelectors } from '../Exolix.selectors';
-import { getExchangeData } from '../exolix.util';
+import { getCoinCodeToDisplay, getExchangeData } from '../exolix.util';
 import WarningComponent from './WarningComponent';
 
 interface Props {
@@ -97,7 +97,7 @@ const ApproveStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
               <T id={'sendByOneTransaction'} />
             </p>
             <p className="text-2xl text-gray-910">
-              {exchangeData.amount} {exchangeData.coinFrom.coinCode}
+              {exchangeData.amount} {getCoinCodeToDisplay(exchangeData.coinFrom)}
             </p>
           </div>
 
@@ -106,7 +106,7 @@ const ApproveStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
               <T id={'youGet'} />
             </p>
             <p className="text-xs text-gray-910">
-              {exchangeData.amountTo} {exchangeData.coinTo.coinCode}
+              {exchangeData.amountTo} {getCoinCodeToDisplay(exchangeData.coinTo)}
             </p>
           </div>
 
@@ -115,7 +115,8 @@ const ApproveStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
               <T id={'fixedRate'} />
             </p>
             <p className="text-xs text-gray-910">
-              1 {exchangeData.coinFrom.coinCode} = {exchangeData.rate} {exchangeData.coinTo.coinCode}
+              1 {getCoinCodeToDisplay(exchangeData.coinFrom)} = {exchangeData.rate}{' '}
+              {getCoinCodeToDisplay(exchangeData.coinTo)}
             </p>
           </div>
 

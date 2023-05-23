@@ -5,8 +5,7 @@ import { OpenInFullPage, useAppEnv } from 'app/env';
 import AddAsset from 'app/pages/AddAsset/AddAsset';
 import { Buy } from 'app/pages/Buy/Buy';
 import Exolix from 'app/pages/Buy/Crypto/Exolix/Exolix';
-import { AliceBobTopUp } from 'app/pages/Buy/Debit/AliceBob/AliceBobTopUp';
-import { Utorg } from 'app/pages/Buy/Debit/Utorg/Utorg';
+import { BuyWithCreditCard } from 'app/pages/BuyWithCreditCard/BuyWithCreditCard';
 import CollectiblePage from 'app/pages/Collectibles/CollectiblePage';
 import ConnectLedger from 'app/pages/ConnectLedger/ConnectLedger';
 import CreateAccount from 'app/pages/CreateAccount/CreateAccount';
@@ -91,8 +90,7 @@ const ROUTE_MAP = Woozie.createMap<RouteContext>([
   ['/settings/:tabSlug?', onlyReady(({ tabSlug }) => <Settings tabSlug={tabSlug} />)],
   ['/buy', onlyReady(onlyInFullPage(() => <Buy />))],
   ['/buy/crypto/exolix', onlyReady(onlyInFullPage(() => <Exolix />))],
-  ['/buy/debit/alice-bob', onlyReady(onlyInFullPage(() => <AliceBobTopUp />))],
-  ['/buy/debit/utorg', onlyReady(onlyInFullPage(() => <Utorg />))],
+  ['/buy/debit', onlyReady(onlyInFullPage(() => <BuyWithCreditCard />))],
   ['/withdraw', onlyReady(onlyInFullPage(() => <Withdraw />))],
   ['/withdraw/debit/alice-bob', onlyReady(onlyInFullPage(() => <AliceBobWithdraw />))],
   ['/attention', onlyReady(onlyInFullPage(() => <AttentionPage />))],

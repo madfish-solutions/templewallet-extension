@@ -10,10 +10,10 @@ import { EMPTY_BASE_METADATA, useAssetMetadata } from 'lib/metadata';
 import { useAccount, useBalance, useGetTokenMetadata, useOnBlock } from 'lib/temple/front';
 import { useAvailableRoute3Tokens, useFilteredSwapAssets } from 'lib/temple/front/assets';
 import Popper from 'lib/ui/Popper';
+import { sameWidthModifiers } from 'lib/ui/same-width-modifiers';
 
 import { AssetsMenu } from './AssetsMenu/AssetsMenu';
 import { PercentageButton } from './PercentageButton/PercentageButton';
-import { sameWidthModifiers } from './SwapFormInput.popper';
 import { SwapFormInputProps } from './SwapFormInput.props';
 import { SwapFormInputHeader } from './SwapFormInputHeader/SwapFormInputHeader';
 import { useSwapFormTokenIdInput } from './SwapFormTokenIdInput.hook';

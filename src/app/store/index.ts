@@ -12,6 +12,8 @@ import { advertisingEpics } from './advertising/epics';
 import { advertisingReducer } from './advertising/reducers';
 import { balancesEpics } from './balances/epics';
 import { balancesReducer } from './balances/reducers';
+import { buyWithCreditCardEpics } from './buy-with-credit-card/epics';
+import { buyWithCreditCardReducer } from './buy-with-credit-card/reducers';
 import { currencyEpics } from './currency/epics';
 import { currencyReducer } from './currency/reducers';
 import { dAppsEpics } from './d-apps/epics';
@@ -34,7 +36,8 @@ const baseReducer = rootStateReducer({
   partnersPromotion: partnersPromotionRucer,
   balances: balancesReducer,
   tokensMetadata: tokensMetadataReducer,
-  abTesting: abTestingReducer
+  abTesting: abTestingReducer,
+  buyWithCreditCard: buyWithCreditCardReducer
 });
 
 export type RootState = GetStateType<typeof baseReducer>;
@@ -55,7 +58,8 @@ const epics = [
   partnersPromotionEpics,
   balancesEpics,
   tokensMetadataEpics,
-  abTestingEpics
+  abTestingEpics,
+  buyWithCreditCardEpics
 ];
 
 export const { store, persistor } = createStore(persistConfig, baseReducer, epics);

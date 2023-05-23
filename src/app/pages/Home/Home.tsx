@@ -3,6 +3,7 @@ import React, { FC, FunctionComponent, ReactNode, Suspense, SVGProps, useLayoutE
 import classNames from 'clsx';
 import { Props as TippyProps } from 'tippy.js';
 
+import { Anchor } from 'app/atoms';
 import Spinner from 'app/atoms/Spinner/Spinner';
 import { useTabSlug } from 'app/atoms/useTabSlug';
 import { useAppEnv } from 'app/env';
@@ -22,7 +23,8 @@ import { useAssetMetadata, getAssetSymbol } from 'lib/metadata';
 import { useAccount, useNetwork } from 'lib/temple/front';
 import { TempleAccountType, TempleNetworkType } from 'lib/temple/types';
 import useTippy from 'lib/ui/useTippy';
-import { HistoryAction, Link, navigate, To, useLocation } from 'lib/woozie';
+import { createUrl, HistoryAction, Link, navigate, To, useLocation } from 'lib/woozie';
+import { createLocationState } from 'lib/woozie/location';
 
 import { useUserTestingGroupNameSelector } from '../../store/ab-testing/selectors';
 import { CollectiblesList } from '../Collectibles/CollectiblesList';
@@ -105,7 +107,8 @@ const Home: FC<ExploreProps> = ({ assetSlug }) => {
           <ActionButton
             label={<T id="buyButton" />}
             Icon={BuyIcon}
-            to={`/buy?tab=${network.type === 'dcp' ? 'debit' : 'crypto'}`}
+            to={network.type === 'dcp' ? 'https://buy.chainbits.com' : '/buy'}
+            isAnchor={network.type === 'dcp'}
             disabled={!NETWORK_TYPES_WITH_BUY_BUTTON.includes(network.type)}
             testID={HomeSelectors.buyButton}
           />
@@ -152,6 +155,7 @@ interface ActionButtonProps extends TestIDProps {
   Icon: FunctionComponent<SVGProps<SVGSVGElement>>;
   to: To;
   disabled?: boolean;
+  isAnchor?: boolean;
   tippyProps?: Partial<TippyProps>;
 }
 
@@ -160,6 +164,7 @@ const ActionButton: FC<ActionButtonProps> = ({
   Icon,
   to,
   disabled,
+  isAnchor,
   tippyProps = {},
   testID,
   testIDProperties
@@ -194,11 +199,24 @@ const ActionButton: FC<ActionButtonProps> = ({
     }),
     [disabled, Icon, label]
   );
-  return disabled ? (
-    <button ref={buttonRef} {...commonButtonProps} />
-  ) : (
-    <Link testID={testID} testIDProperties={testIDProperties} to={to} {...commonButtonProps} />
-  );
+
+  if (disabled) {
+    return <button ref={buttonRef} {...commonButtonProps} />;
+  }
+
+  if (isAnchor) {
+    let href: string;
+    if (typeof to === 'string') {
+      href = to;
+    } else {
+      const { pathname, search, hash } = typeof to === 'function' ? to(createLocationState()) : to;
+      href = createUrl(pathname, search, hash);
+    }
+
+    return <Anchor testID={testID} testIDProperties={testIDProperties} href={href} {...commonButtonProps} />;
+  }
+
+  return <Link testID={testID} testIDProperties={testIDProperties} to={to} {...commonButtonProps} />;
 };
 
 const Delegation: FC = () => (
