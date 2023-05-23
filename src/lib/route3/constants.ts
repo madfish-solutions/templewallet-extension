@@ -4,7 +4,7 @@ import { Route3Token, Route3TokenStandardEnum } from 'lib/apis/route3/fetch-rout
 
 import { getPercentageRatio } from './utils/get-percentage-ratio';
 
-export const ROUTE3_CONTRACT = 'KT1Tuta6vbpHhZ15ixsYD3qJdhnpEAuogLQ9';
+export const ROUTE3_CONTRACT = 'KT1R7WEtNNim3YgkxPt8wPMczjH3eyhbJMtz';
 export const BURN_ADDREESS = 'tz1burnburnburnburnburnburnburjAYjjX';
 export const ROUTING_FEE_ADDRESS = 'tz1UbRzhYjQKTtWYvGUWcRtVT4fN3NESDVYT';
 
