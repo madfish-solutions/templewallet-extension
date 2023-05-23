@@ -1,9 +1,10 @@
 import { useMemo } from 'react';
 
+import { isDefined } from '@rnw-community/shared';
+
 import { usePairLimitsSelector, useFiatCurrenciesSelector } from 'app/store/buy-with-credit-card/selectors';
 import { intersectLimits } from 'lib/buy-with-credit-card/intersect-limits';
 import { TopUpProviderId } from 'lib/buy-with-credit-card/top-up-provider-id.enum';
-import { isDefined } from 'lib/utils/is-defined';
 
 export const useInputLimits = (
   topUpProvider: TopUpProviderId,

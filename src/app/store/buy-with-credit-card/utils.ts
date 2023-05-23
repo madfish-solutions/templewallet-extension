@@ -1,3 +1,4 @@
+import { isDefined } from '@rnw-community/shared';
 import { AxiosResponse } from 'axios';
 
 import {
@@ -8,9 +9,8 @@ import {
 } from 'lib/apis/moonpay';
 import { AliceBobPairInfo } from 'lib/apis/temple';
 import { CurrencyInfoType as UtorgCurrencyInfoType, UtorgCurrencyInfo } from 'lib/apis/utorg';
+import { toTokenSlug } from 'lib/assets';
 import { TopUpInputType } from 'lib/buy-with-credit-card/top-up-input-type.enum';
-import { toTokenSlug } from 'lib/temple/assets';
-import { isDefined } from 'lib/utils/is-defined';
 
 const UTORG_FIAT_ICONS_BASE_URL = 'https://utorg.pro/img/flags2/icon-';
 const UTORG_CRYPTO_ICONS_BASE_URL = 'https://utorg.pro/img/cryptoIcons';

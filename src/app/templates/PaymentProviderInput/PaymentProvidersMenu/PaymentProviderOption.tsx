@@ -1,5 +1,6 @@
 import React, { FC, useMemo } from 'react';
 
+import { isDefined } from '@rnw-community/shared';
 import classNames from 'clsx';
 import { ListRowProps } from 'react-virtualized';
 
@@ -8,7 +9,6 @@ import { TopUpProviderIcon } from 'app/templates/TopUpProviderIcon';
 import { PaymentProviderInterface } from 'lib/buy-with-credit-card/topup.interface';
 import { t, toLocalFixed } from 'lib/i18n';
 import { useScrollIntoView } from 'lib/ui/use-scroll-into-view';
-import { isDefined } from 'lib/utils/is-defined';
 
 import { MoneyRange } from '../MoneyRange';
 import { PaymentProviderTag, PaymentProviderTagProps } from './PaymentProviderTag';
