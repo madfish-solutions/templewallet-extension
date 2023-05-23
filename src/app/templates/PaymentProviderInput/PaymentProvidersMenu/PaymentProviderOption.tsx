@@ -8,6 +8,7 @@ import { TopUpProviderIcon } from 'app/templates/TopUpProviderIcon';
 import { PaymentProviderInterface } from 'lib/buy-with-credit-card/topup.interface';
 import { t, toLocalFixed } from 'lib/i18n';
 import { useScrollIntoView } from 'lib/ui/use-scroll-into-view';
+import { formatAmountToTargetSize } from 'lib/utils/amounts';
 import { isDefined } from 'lib/utils/is-defined';
 
 import { MoneyRange } from '../MoneyRange';
@@ -42,6 +43,18 @@ export const PaymentProviderOption: FC<Props> = ({ value, isSelected, shouldShow
     return result;
   }, [value, cryptoCurrencies]);
 
+  const outputAmountStr = useMemo(() => {
+    if (!isDefined(value.outputAmount) || !isDefined(value.outputSymbol)) return '-';
+
+    return `≈ ${toLocalFixed(formatAmountToTargetSize(value.outputAmount))} ${value.outputSymbol}`;
+  }, [value.outputAmount, value.outputSymbol]);
+
+  const inputAmountStr = useMemo(() => {
+    if (!isDefined(value.inputAmount)) return '-';
+
+    return `${toLocalFixed(value.inputAmount, value.inputDecimals ?? 2)} ${value.inputSymbol}`;
+  }, [value.inputAmount, value.inputDecimals, value.inputSymbol]);
+
   return (
     <button
       type="button"
@@ -68,11 +81,7 @@ export const PaymentProviderOption: FC<Props> = ({ value, isSelected, shouldShow
         <div className="flex-1 flex flex-col">
           <div className="flex justify-between text-gray-700 text-lg leading-tight w-full">
             <span>{value.name}</span>
-            <span>
-              {isDefined(value.outputAmount) && isDefined(value.outputSymbol)
-                ? `≈ ${toLocalFixed(value.outputAmount)} ${value.outputSymbol}`
-                : '-'}
-            </span>
+            <span>{outputAmountStr}</span>
           </div>
           <div className="flex justify-between">
             <MoneyRange
@@ -81,11 +90,7 @@ export const PaymentProviderOption: FC<Props> = ({ value, isSelected, shouldShow
               currencySymbol={value.inputSymbol}
               decimalPlaces={value.inputDecimals ?? 2}
             />
-            <span className="text-xs text-gray-600 leading-relaxed">
-              {isDefined(value.inputAmount)
-                ? `${toLocalFixed(value.inputAmount, value.inputDecimals ?? 2)} ${value.inputSymbol}`
-                : '-'}
-            </span>
+            <span className="text-xs text-gray-600 leading-relaxed">{inputAmountStr}</span>
           </div>
         </div>
       </div>
