@@ -7,6 +7,7 @@ import { ReactComponent as ChevronDownIcon } from 'app/icons/chevron-down.svg';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
 import { getBigErrorText, getSmallErrorText } from 'app/pages/Buy/utils/errorText.utils';
 import { emptyFn } from 'app/utils/function.utils';
+import { getAssetSymbolToDisplay } from 'lib/buy-with-credit-card/get-asset-symbol-to-display';
 import { toLocalFormat, T, t } from 'lib/i18n';
 import { PopperRenderProps } from 'lib/ui/Popper';
 
@@ -14,7 +15,8 @@ import { StaticCurrencyImage } from './StaticCurrencyImage';
 import { TopUpInputPropsBase } from './types';
 import { getProperNetworkFullName } from './utils';
 
-interface Props extends PopperRenderProps, TopUpInputPropsBase {
+interface Props extends PopperRenderProps, Omit<TopUpInputPropsBase, 'fitIcons'> {
+  fitIcons?: boolean;
   searchString: string;
   onSearchChange: (e: ChangeEvent<HTMLInputElement>) => void;
 }
@@ -25,6 +27,7 @@ export const TopUpInputHeader = forwardRef<HTMLDivElement, Props>(
       currenciesList,
       currency,
       amount,
+      decimals = 2,
       label,
       readOnly,
       opened,
@@ -77,11 +80,11 @@ export const TopUpInputHeader = forwardRef<HTMLDivElement, Props>(
     return (
       <div className="w-full text-gray-700">
         <div className="w-full flex mb-1 items-center justify-between">
-          <span className="text-xl text-gray-900">{label}</span>
+          <span className="text-xl text-gray-900 leading-tight">{label}</span>
           {minAmount && !opened && (
-            <p className={getSmallErrorText(isMinAmountError)} style={{ marginBottom: -10 }}>
+            <p className={getSmallErrorText(isMinAmountError)}>
               <T id="min" /> <span className={classNames(minAmountErrorClassName, 'text-sm')}>{' ' + minAmount}</span>{' '}
-              <span className={classNames(minAmountErrorClassName, 'text-xs')}>{currency.code}</span>
+              <span className={minAmountErrorClassName}>{currency.code}</span>
             </p>
           )}
         </div>
@@ -132,7 +135,7 @@ export const TopUpInputHeader = forwardRef<HTMLDivElement, Props>(
               />
               <div className="flex flex-col ml-2 text-left whitespace-nowrap">
                 <span className="text-gray-700 font-normal text-lg overflow-ellipsis overflow-hidden w-16">
-                  {currency.code}
+                  {getAssetSymbolToDisplay(currency)}
                 </span>
                 <span
                   className="text-indigo-500 font-medium overflow-ellipsis overflow-hidden w-12"
@@ -158,6 +161,7 @@ export const TopUpInputHeader = forwardRef<HTMLDivElement, Props>(
                 <AssetField
                   ref={amountFieldRef}
                   value={amount?.toString()}
+                  assetDecimals={decimals}
                   readOnly={readOnly}
                   className={classNames(
                     'appearance-none w-full py-3 pl-0 border-2 border-gray-300 bg-gray-100 rounded-md leading-tight',
@@ -208,7 +212,7 @@ const ErrorsComponent: React.FC<ErrorsComponentProps> = ({
 }) => (
   <div className="flex justify-between items-baseline mt-1">
     <p className={classNames(isInsufficientTezBalanceError ? 'text-red-700' : 'text-transparent')}>
-      <T id={'insufficientTezBalance'} />
+      <T id="insufficientTezBalance" />
     </p>
     <p className={getSmallErrorText(isMaxAmountError)}>
       <CurrencyText className={getBigErrorText(isMaxAmountError)} coin={coin} maxAmount={maxAmount} />
@@ -218,7 +222,7 @@ const ErrorsComponent: React.FC<ErrorsComponentProps> = ({
 
 const CurrencyText: React.FC<ErrorsComponentProps & { className: string }> = ({ className, coin, maxAmount }) => (
   <>
-    <T id={'max'} />
+    <T id="max" />
     {':'}
     <span className={classNames(className, 'text-sm')}> {maxAmount !== 'Infinity' ? maxAmount : '0'}</span>{' '}
     <span className={classNames(className, 'text-xs')}>{coin}</span>

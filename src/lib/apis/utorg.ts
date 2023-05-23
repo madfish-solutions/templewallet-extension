@@ -2,12 +2,12 @@ import axios from 'axios';
 
 import { EnvVars } from 'lib/env';
 
-enum currencyInfoType {
+export enum CurrencyInfoType {
   CRYPTO = 'CRYPTO',
   FIAT = 'FIAT'
 }
 
-interface UtorgCurrencyInfo {
+export interface UtorgCurrencyInfo {
   currency: string;
   symbol: string;
   chain: string;
@@ -15,7 +15,7 @@ interface UtorgCurrencyInfo {
   caption: string;
   explorerTx: string;
   explorerAddr: string;
-  type: currencyInfoType;
+  type: CurrencyInfoType;
   enabled: boolean;
   depositMin: number;
   depositMax: number;
@@ -37,11 +37,11 @@ const api = axios.create({
   }
 });
 
-export const createOrder = (amount: number, paymentCurrency: string, address: string) =>
+export const createOrder = (amount: number, paymentCurrency: string, address: string, cryptoCurrency: string) =>
   api
     .post<{ data: { url: string } }>('/order/init', {
       type: 'FIAT_TO_CRYPTO',
-      currency: 'XTZ',
+      currency: cryptoCurrency,
       amount,
       paymentCurrency,
       address,
@@ -49,38 +49,32 @@ export const createOrder = (amount: number, paymentCurrency: string, address: st
     })
     .then(r => r.data.data.url);
 
-export const convertFiatAmountToXtz = (paymentAmount: number, fromCurrency: string) =>
-  api
-    .post<{ data: number }>('/tools/convert', {
-      fromCurrency,
-      paymentAmount,
-      toCurrency: 'XTZ'
-    })
-    .then(r => r.data.data);
-
-/**
- * @returns Tezos to currency exchange rate
- */
-export const getExchangeRate = async (inputAmount: number, fromCurrency: string) => {
-  if (!Number.isFinite(inputAmount) || inputAmount <= 0) return;
-
-  return await convertFiatAmountToXtz(inputAmount, fromCurrency).then(res => inputAmount / res);
-};
-
-const getCurrenciesInfo = () => api.post<{ data: UtorgCurrencyInfo[] }>('/settings/currency').then(r => r.data.data);
-
-export const getMinMaxExchangeValue = (currency: string) =>
-  getCurrenciesInfo().then(currenciesInfo => {
-    const tezInfo = currenciesInfo.find(currencyInfo => currencyInfo.currency === currency);
-
-    if (tezInfo == null) throw new Error('Unknown Utorg currency');
-
-    return { minAmount: tezInfo.depositMin, maxAmount: tezInfo.depositMax };
+export async function convertFiatAmountToCrypto(
+  fromCurrency: string,
+  toCurrency: string,
+  fiatAmount: number
+): Promise<number>;
+export async function convertFiatAmountToCrypto(
+  fromCurrency: string,
+  toCurrency: string,
+  fiatAmount: undefined,
+  cryptoAmount: number
+): Promise<number>;
+export async function convertFiatAmountToCrypto(
+  fromCurrency: string,
+  toCurrency: string,
+  fiatAmount: number | undefined,
+  cryptoAmount?: number
+): Promise<number> {
+  const response = await api.post<{ data: number }>('/tools/convert', {
+    fromCurrency,
+    paymentAmount: fiatAmount,
+    amount: cryptoAmount,
+    toCurrency
   });
 
-export const getAvailableFiatCurrencies = () =>
-  getCurrenciesInfo().then(currenciesInfo =>
-    currenciesInfo
-      .filter(currencyInfo => currencyInfo.type === currencyInfoType.FIAT)
-      .map(currencyInfo => currencyInfo.currency)
-  );
+  return response.data.data;
+}
+
+export const getCurrenciesInfo = () =>
+  api.post<{ data: UtorgCurrencyInfo[] }>('/settings/currency').then(r => r.data.data);
