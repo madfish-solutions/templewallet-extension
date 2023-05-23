@@ -1,4 +1,4 @@
-import { makeGetRequest, makePostRequest } from './requests';
+import { BinanceConnectError, makeGetRequest, makePostRequest } from './requests';
 import {
   GetBinanceConnectCurrenciesResponse,
   GetCryptoNetworksResponseItem,
@@ -47,9 +47,15 @@ export const estimateBinanceConnectOutput = async (
     // countryCode: 'US'
   };
 
-  const data = await makePostRequest<GetQuoteResponse>('/get-quote', payload);
+  try {
+    const data = await makePostRequest<GetQuoteResponse>('/get-quote', payload);
 
-  return data.cryptoAmount;
+    return data.cryptoAmount;
+  } catch (error) {
+    if (error instanceof BinanceConnectError && error.code === 'OPE100000031') return 0;
+
+    throw error;
+  }
 };
 
 export const createBinanceConnectTradeOrder = async (

@@ -41,6 +41,7 @@ export const BuyWithCreditCard: FC = () => {
     purchaseLink,
     purchaseLinkLoading,
     errors,
+    updateLinkError,
     lazySetValue,
     triggerValidation,
     formState,
@@ -124,6 +125,10 @@ export const BuyWithCreditCard: FC = () => {
     ? toLocalFormat(inputCurrency.maxAmount, { decimalPlaces: inputCurrency.precision })
     : undefined;
 
+  const outputAmountIsLegit = outputAmount && outputAmount > 0;
+  const submitDisabled =
+    !purchaseLink || isDefined(updateLinkError) || Object.keys(errors).length > 0 || !outputAmountIsLegit;
+
   return (
     <PageLayout pageTitle={<T id="buyWithCard" />}>
       <div className="max-w-sm mx-auto">
@@ -191,7 +196,7 @@ export const BuyWithCreditCard: FC = () => {
                     background: '#4299e1',
                     padding: 0
                   }}
-                  disabled={Object.keys(errors).length > 0}
+                  disabled={submitDisabled}
                   loading={formIsLoading || purchaseLinkLoading}
                   testID={BuyWithCreditCardSelectors.topUpButton}
                 >

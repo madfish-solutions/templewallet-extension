@@ -86,7 +86,7 @@ const initialPaymentProvidersData: Record<TopUpProviderId, PaymentProviderInitia
     kycRequired: false
   },
   [TopUpProviderId.BinanceConnect]: {
-    name: 'Binance Connect',
+    name: 'Binance',
     id: TopUpProviderId.BinanceConnect,
     kycRequired: true
   }

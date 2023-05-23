@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import debounce from 'debounce-promise';
 import { useForm } from 'react-hook-form';
@@ -15,6 +15,7 @@ import { TopUpProviderId } from 'lib/buy-with-credit-card/top-up-provider-id.enu
 import { TopUpInputInterface, TopUpOutputInterface } from 'lib/buy-with-credit-card/topup.interface';
 import { useYupValidationResolver } from 'lib/form/use-yup-validation-resolver';
 import { useAccount } from 'lib/temple/front';
+import { useStopper } from 'lib/ui/hooks';
 import { isDefined } from 'lib/utils/is-defined';
 
 import { AmountErrorType } from '../types/amount-error-type';
@@ -68,14 +69,11 @@ export const useBuyWithCreditCardForm = () => {
   const formAnalytics = useFormAnalytics('BuyWithCreditCardForm');
   const { publicKeyHash } = useAccount();
   const userId = useUserIdSelector();
+
   const [purchaseLinkLoading, setPurchaseLinkLoading] = useState(false);
-  const purchaseLinkLoadingRef = useRef(purchaseLinkLoading);
   const [purchaseLink, setPurchaseLink] = useState<string>();
   const [updateLinkError, setUpdateLinkError] = useState<Error>();
-
-  useEffect(() => {
-    purchaseLinkLoadingRef.current = purchaseLinkLoading;
-  }, [purchaseLinkLoading]);
+  const loadingPurchaseLinkStopper = useStopper();
 
   const validationResolver = useYupValidationResolver<BuyWithCreditCardFormValues>(validationSchema);
 
@@ -83,34 +81,25 @@ export const useBuyWithCreditCardForm = () => {
     defaultValues,
     validationResolver
   });
+
   const formValues = watch({ nest: true });
 
   const updatePurchaseLink = useMemo(
     () =>
-      debounce(async () => {
+      debounce(async (shouldStop: () => boolean) => {
+        setPurchaseLink(undefined);
+        setUpdateLinkError(undefined);
+
         const { inputAmount, inputCurrency, outputAmount, outputToken, topUpProvider } = getValues({ nest: true });
 
-        if (
-          purchaseLinkLoadingRef.current ||
-          !isDefined(inputAmount) ||
-          !isDefined(outputAmount) ||
-          !isDefined(topUpProvider)
-        ) {
+        if (!isDefined(inputAmount) || !isDefined(outputAmount) || !isDefined(topUpProvider)) {
+          setPurchaseLinkLoading(false);
           return;
         }
 
-        const analyticsProperties = {
-          inputAmount,
-          inputAsset: inputCurrency.code,
-          outputAmount,
-          outputAsset: outputToken.code,
-          provider: topUpProvider.id
-        };
-        try {
-          setUpdateLinkError(undefined);
-          purchaseLinkLoadingRef.current = true;
-          setPurchaseLinkLoading(true);
+        setPurchaseLinkLoading(true);
 
+        try {
           let newPurchaseLink: string;
           switch (topUpProvider.id) {
             case TopUpProviderId.MoonPay:
@@ -142,29 +131,42 @@ export const useBuyWithCreditCardForm = () => {
               const { data } = await createAliceBobOrder(false, inputAmount.toFixed(), userId, publicKeyHash);
               newPurchaseLink = data.orderInfo.payUrl;
           }
+
+          if (shouldStop()) return;
           setPurchaseLink(newPurchaseLink);
         } catch (error: any) {
+          if (shouldStop()) return;
           setUpdateLinkError(error);
+
+          const analyticsProperties = {
+            inputAmount,
+            inputAsset: inputCurrency.code,
+            outputAmount,
+            outputAsset: outputToken.code,
+            provider: topUpProvider.id
+          };
           formAnalytics.trackSubmitFail(analyticsProperties);
         } finally {
-          purchaseLinkLoadingRef.current = false;
+          if (shouldStop()) return;
           setPurchaseLinkLoading(false);
         }
       }, 250),
     [publicKeyHash, userId, formAnalytics, getValues]
   );
 
-  useEffect(
-    () => void updatePurchaseLink(),
-    [
-      formValues.inputCurrency.code,
-      formValues.inputAmount,
-      formValues.outputToken.code,
-      formValues.outputAmount,
-      formValues.topUpProvider?.id,
-      updatePurchaseLink
-    ]
-  );
+  useEffect(() => {
+    updatePurchaseLink(loadingPurchaseLinkStopper.stopAndBuildChecker());
+
+    return loadingPurchaseLinkStopper.stop;
+  }, [
+    formValues.inputCurrency.code,
+    formValues.inputAmount,
+    formValues.outputToken.code,
+    formValues.outputAmount,
+    formValues.topUpProvider?.id,
+    updatePurchaseLink,
+    loadingPurchaseLinkStopper
+  ]);
 
   const lazySetValue = useCallback(
     (newValues: Partial<BuyWithCreditCardFormValues>, shouldValidate?: boolean) => {

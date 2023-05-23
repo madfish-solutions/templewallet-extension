@@ -2,7 +2,8 @@ import React, { FC } from 'react';
 
 import classNames from 'clsx';
 
-import { ReactComponent as AliceBobIcon, ReactComponent as BinanceConnectIcon } from 'app/icons/alice-bob.svg';
+import { ReactComponent as AliceBobIcon } from 'app/icons/alice-bob.svg';
+import { ReactComponent as BinanceConnectIcon } from 'app/icons/binance.svg';
 import { ReactComponent as MoonPayIcon } from 'app/icons/moonpay.svg';
 import { ReactComponent as PartnersLogo } from 'app/icons/partners-logo.svg';
 import { ReactComponent as UtorgIcon } from 'app/icons/utorg.svg';

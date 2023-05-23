@@ -26,6 +26,12 @@ interface ErrorResponse {
 
 type ResponseData<D> = SuccessResponse<D> | ErrorResponse;
 
+export class BinanceConnectError extends Error {
+  constructor(readonly code: string, message: string) {
+    super(message);
+  }
+}
+
 export const makeGetRequest = async <D>(endpoint: string) => {
   const timestamp = Date.now();
 
@@ -40,7 +46,7 @@ export const makeGetRequest = async <D>(endpoint: string) => {
     }
   });
 
-  if (!response.data.success) throw new Error(response.data.message);
+  if (!response.data.success) throw new BinanceConnectError(response.data.code, response.data.message);
 
   return response.data.data;
 };
@@ -59,7 +65,7 @@ export const makePostRequest = async <D>(endpoint: string, payload: object) => {
     }
   });
 
-  if (!response.data.success) throw new Error(response.data.message);
+  if (!response.data.success) throw new BinanceConnectError(response.data.code, response.data.message);
 
   return response.data.data;
 };
