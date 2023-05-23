@@ -1,6 +1,6 @@
 import { AxiosResponse } from 'axios';
 import BigNumber from 'bignumber.js';
-import { binanceCryptoIcons, binanceCurrencyIcons } from 'binance-icons';
+import { binanceCryptoIcons } from 'binance-icons';
 
 import { GetBinanceConnectCurrenciesResponse } from 'lib/apis/binance-connect/types';
 import {
@@ -119,13 +119,12 @@ export const mapBinanceConnectProviderCurrencies = (
   data: GetBinanceConnectCurrenciesResponse
 ): TopUpProviderCurrencies => {
   const fiat = filterByStringProperty(data.pairs, 'fiatCurrency').map(item => {
-    const iconSvgString = binanceCurrencyIcons.get(item.fiatCurrency.toLowerCase());
-    const icon = iconSvgString ? `data:image/svg+xml,${encodeURIComponent(iconSvgString)}` : '';
+    const symbol = item.fiatCurrency;
 
     return {
-      name: item.fiatCurrency,
-      code: item.fiatCurrency,
-      icon,
+      name: symbol,
+      code: symbol,
+      icon: `${UTORG_FIAT_ICONS_BASE_URL}${symbol.slice(0, -1)}.svg`,
       type: TopUpInputType.Fiat,
       /** Assumed */
       precision: 2,
