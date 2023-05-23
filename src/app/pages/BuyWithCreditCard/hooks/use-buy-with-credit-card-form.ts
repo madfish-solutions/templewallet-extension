@@ -66,15 +66,6 @@ const validationSchema = objectSchema().shape({
 });
 
 export const useBuyWithCreditCardForm = () => {
-  const formAnalytics = useFormAnalytics('BuyWithCreditCardForm');
-  const { publicKeyHash } = useAccount();
-  const userId = useUserIdSelector();
-
-  const [purchaseLinkLoading, setPurchaseLinkLoading] = useState(false);
-  const [purchaseLink, setPurchaseLink] = useState<string>();
-  const [updateLinkError, setUpdateLinkError] = useState<Error>();
-  const loadingPurchaseLinkStopper = useStopper();
-
   const validationResolver = useYupValidationResolver<BuyWithCreditCardFormValues>(validationSchema);
 
   const { errors, watch, register, setValue, getValues, ...rest } = useForm<BuyWithCreditCardFormValues>({
@@ -84,13 +75,62 @@ export const useBuyWithCreditCardForm = () => {
 
   const formValues = watch({ nest: true });
 
+  const purchaseLinkVars = usePurchaseLink(formValues);
+
+  const lazySetValue = useCallback(
+    (newValues: Partial<BuyWithCreditCardFormValues>, shouldValidate?: boolean) => {
+      const currentValues = getValues();
+      const changes: Array<Partial<BuyWithCreditCardFormValues>> = [];
+      for (const fieldName in newValues) {
+        const value = newValues[fieldName as keyof BuyWithCreditCardFormValues];
+        if (value !== currentValues[fieldName as keyof BuyWithCreditCardFormValues]) {
+          changes.push({ [fieldName]: value });
+        }
+      }
+      if (changes.length > 0) {
+        setValue(changes, shouldValidate);
+      }
+    },
+    [setValue, getValues]
+  );
+
+  useEffect(() => {
+    register('inputCurrency');
+    register('inputAmount');
+    register('outputToken');
+    register('outputAmount');
+    register('topUpProvider');
+  }, [register]);
+
+  return {
+    formValues,
+    errors,
+    lazySetValue,
+    setValue,
+    getValues,
+    ...purchaseLinkVars,
+    ...rest
+  };
+};
+
+const usePurchaseLink = (formValues: BuyWithCreditCardFormValues) => {
+  const formAnalytics = useFormAnalytics('BuyWithCreditCardForm');
+  const { publicKeyHash } = useAccount();
+  const userId = useUserIdSelector();
+
+  const [purchaseLinkLoading, setPurchaseLinkLoading] = useState(false);
+  const [purchaseLink, setPurchaseLink] = useState<string>();
+  const [updateLinkError, setUpdateLinkError] = useState<Error>();
+
+  const loadingPurchaseLinkStopper = useStopper();
+
   const updatePurchaseLink = useMemo(
     () =>
       debounce(async (shouldStop: () => boolean) => {
         setPurchaseLink(undefined);
         setUpdateLinkError(undefined);
 
-        const { inputAmount, inputCurrency, outputAmount, outputToken, topUpProvider } = getValues({ nest: true });
+        const { inputAmount, inputCurrency, outputAmount, outputToken, topUpProvider } = formValues;
 
         if (!isDefined(inputAmount) || !isDefined(outputAmount) || !isDefined(topUpProvider)) {
           setPurchaseLinkLoading(false);
@@ -151,7 +191,16 @@ export const useBuyWithCreditCardForm = () => {
           setPurchaseLinkLoading(false);
         }
       }, 250),
-    [publicKeyHash, userId, formAnalytics, getValues]
+    [
+      formValues.inputCurrency.code,
+      formValues.inputAmount,
+      formValues.outputToken.code,
+      formValues.outputAmount,
+      formValues.topUpProvider?.id,
+      publicKeyHash,
+      userId,
+      formAnalytics
+    ]
   );
 
   useEffect(() => {
@@ -159,49 +208,18 @@ export const useBuyWithCreditCardForm = () => {
 
     return loadingPurchaseLinkStopper.stop;
   }, [
-    formValues.inputCurrency.code,
-    formValues.inputAmount,
-    formValues.outputToken.code,
-    formValues.outputAmount,
-    formValues.topUpProvider?.id,
+    // formValues.inputCurrency.code,
+    // formValues.inputAmount,
+    // formValues.outputToken.code,
+    // formValues.outputAmount,
+    // formValues.topUpProvider?.id,
     updatePurchaseLink,
     loadingPurchaseLinkStopper
   ]);
 
-  const lazySetValue = useCallback(
-    (newValues: Partial<BuyWithCreditCardFormValues>, shouldValidate?: boolean) => {
-      const currentValues = getValues();
-      const changes: Array<Partial<BuyWithCreditCardFormValues>> = [];
-      for (const fieldName in newValues) {
-        const value = newValues[fieldName as keyof BuyWithCreditCardFormValues];
-        if (value !== currentValues[fieldName as keyof BuyWithCreditCardFormValues]) {
-          changes.push({ [fieldName]: value });
-        }
-      }
-      if (changes.length > 0) {
-        setValue(changes, shouldValidate);
-      }
-    },
-    [setValue, getValues]
-  );
-
-  useEffect(() => {
-    register('inputCurrency');
-    register('inputAmount');
-    register('outputToken');
-    register('outputAmount');
-    register('topUpProvider');
-  }, [register]);
-
   return {
-    formValues,
     purchaseLink,
     purchaseLinkLoading,
-    errors,
-    updateLinkError,
-    lazySetValue,
-    setValue,
-    getValues,
-    ...rest
+    updateLinkError
   };
 };
