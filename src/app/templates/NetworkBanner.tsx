@@ -36,7 +36,7 @@ const NetworkBanner: FC<NetworkBannerProps> = ({ rpc, narrow = false }) => {
             </span>
           </div>
         ) : (
-          <div className="w-full mb-1 lex items-center">
+          <div className="w-full mb-1 flex items-center">
             <div
               className={classNames(
                 'flex-shrink-0 mr-1 w-3 h-3 bg-red-500',
