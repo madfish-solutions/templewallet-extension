@@ -1,3 +1,5 @@
+import axios from 'axios';
+
 import { BinanceConnectError, makeGetRequest, makePostRequest } from './requests';
 import {
   GetBinanceConnectCurrenciesResponse,
@@ -38,13 +40,19 @@ export const estimateBinanceConnectOutput = async (
   outputCryptoCode: string,
   inputAmount: string
 ) => {
+  const countryCode = await getCountryCodeByIP('91.222.113.102').catch(error => {
+    console.error(error);
+
+    return undefined;
+  });
+
   const payload: GetQuoteRequestPayload = {
     fiatCurrency: inputFiatCode,
     cryptoCurrency: outputCryptoCode,
     cryptoNetwork: 'XTZ',
     paymentMethod: 'CARD',
-    fiatAmount: Number(inputAmount)
-    // countryCode: 'US'
+    fiatAmount: Number(inputAmount),
+    countryCode
   };
 
   try {
@@ -59,22 +67,22 @@ export const estimateBinanceConnectOutput = async (
 };
 
 export const createBinanceConnectTradeOrder = async (
-  fiatCurrency: string,
-  cryptoCurrency: string,
-  amount: number,
+  inputFiatCode: string,
+  outputCryptoCode: string,
+  inputAmount: number,
   accountPkh: string
 ) => {
   const merchantOrderId = String(Date.now());
   const merchantUserId = accountPkh;
 
   const payload: PostTradeOrderRequestPayload = {
-    baseCurrency: fiatCurrency,
+    baseCurrency: inputFiatCode,
     businessType: 'BUY',
-    cryptoCurrency: cryptoCurrency,
-    fiatCurrency: fiatCurrency,
+    cryptoCurrency: outputCryptoCode,
+    fiatCurrency: inputFiatCode,
     merchantOrderId,
     merchantUserId,
-    orderAmount: amount,
+    orderAmount: inputAmount,
     withdrawCryptoInfo: {
       cryptoAddress: accountPkh,
       cryptoNetwork: 'XTZ'
@@ -87,4 +95,10 @@ export const createBinanceConnectTradeOrder = async (
   const data = await makePostRequest<PostTradeResponse>('/trade', payload);
 
   return data.eternalRedirectUrl;
+};
+
+const getCountryCodeByIP = async (ip: string) => {
+  const { data } = await axios.get<{ country_code: string }>(`https://ipapi.co/${ip}/json`);
+
+  return data.country_code;
 };
