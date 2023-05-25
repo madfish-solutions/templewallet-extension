@@ -3,8 +3,8 @@ import { useCallback, useMemo, useState } from 'react';
 import { BigNumber } from 'bignumber.js';
 
 import { useFiatCurrenciesSelector, useCryptoCurrenciesSelector } from 'app/store/buy-with-credit-card/selectors';
-import { estimateBinanceConnectOutput } from 'lib/apis/binance-connect';
 import { getMoonPayBuyQuote } from 'lib/apis/moonpay';
+import { estimateBinanceConnectOutput } from 'lib/apis/temple';
 import { estimateAliceBobOutput } from 'lib/apis/temple/endpoints/alice-bob';
 import { convertFiatAmountToCrypto } from 'lib/apis/utorg';
 import { getAssetSymbolToDisplay } from 'lib/buy-with-credit-card/get-asset-symbol-to-display';
@@ -64,7 +64,6 @@ const getOutputAmountFunctions: Record<TopUpProviderId, getOutputAmountFunction>
   [TopUpProviderId.BinanceConnect]: async (inputAmount, inputAsset, outputAsset) => {
     const response = await estimateBinanceConnectOutput(inputAsset.code, outputAsset.code, String(inputAmount));
 
-    // return response.data.outputAmount;
     return response;
   }
 };

@@ -2,14 +2,13 @@ import { AxiosResponse } from 'axios';
 import BigNumber from 'bignumber.js';
 import { binanceCryptoIcons } from 'binance-icons';
 
-import { GetBinanceConnectCurrenciesResponse } from 'lib/apis/binance-connect/types';
 import {
   Currency,
   CurrencyType as MoonPayCurrencyType,
   CryptoCurrency as MoonPayCryptoCurrency,
   FiatCurrency as MoonPayFiatCurrency
 } from 'lib/apis/moonpay';
-import { AliceBobPairInfo } from 'lib/apis/temple';
+import { GetBinanceConnectCurrenciesResponse, AliceBobPairInfo } from 'lib/apis/temple';
 import { CurrencyInfoType as UtorgCurrencyInfoType, UtorgCurrencyInfo } from 'lib/apis/utorg';
 import { TopUpInputType } from 'lib/buy-with-credit-card/top-up-input-type.enum';
 import { toTokenSlug } from 'lib/temple/assets';

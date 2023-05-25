@@ -3,9 +3,8 @@ import { catchError, forkJoin, from, map, Observable, of, switchMap, withLatestF
 import { Action } from 'ts-action';
 import { ofType } from 'ts-action-operators';
 
-import { getBinanceConnectCurrencies } from 'lib/apis/binance-connect';
 import { getMoonPayCurrencies } from 'lib/apis/moonpay';
-import { getAliceBobPairInfo } from 'lib/apis/temple';
+import { getBinanceConnectCurrencies, getAliceBobPairInfo } from 'lib/apis/temple';
 import { getCurrenciesInfo as getUtorgCurrenciesInfo } from 'lib/apis/utorg';
 import { PAIR_NOT_FOUND_MESSAGE } from 'lib/buy-with-credit-card/constants';
 import { getUpdatedFiatLimits } from 'lib/buy-with-credit-card/get-updated-fiat-limits';

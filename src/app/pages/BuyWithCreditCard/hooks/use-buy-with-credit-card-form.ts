@@ -6,9 +6,8 @@ import { object as objectSchema, number as numberSchema, mixed as mixedSchema } 
 
 import { useUserIdSelector } from 'app/store/settings/selectors';
 import { useFormAnalytics } from 'lib/analytics';
-import { createBinanceConnectTradeOrder } from 'lib/apis/binance-connect';
 import { MOONPAY_ASSETS_BASE_URL } from 'lib/apis/moonpay';
-import { createAliceBobOrder, getMoonpaySign } from 'lib/apis/temple';
+import { createBinanceConnectTradeOrder, createAliceBobOrder, getMoonpaySign } from 'lib/apis/temple';
 import { createOrder as createUtorgOrder } from 'lib/apis/utorg';
 import { TopUpInputType } from 'lib/buy-with-credit-card/top-up-input-type.enum';
 import { TopUpProviderId } from 'lib/buy-with-credit-card/top-up-provider-id.enum';
@@ -155,7 +154,7 @@ const usePurchaseLink = (formValues: BuyWithCreditCardFormValues) => {
               newPurchaseLink = await createBinanceConnectTradeOrder(
                 inputCurrency.code,
                 outputToken.code,
-                inputAmount,
+                String(inputAmount),
                 publicKeyHash
               );
               break;
