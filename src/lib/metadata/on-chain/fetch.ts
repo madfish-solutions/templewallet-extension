@@ -43,7 +43,7 @@ const getTzip16Metadata = async (contract: ReturnType<typeof tzip16>) => {
 
 const getMetadataFromUri = async (
   contract: ContractAbstraction<ContractProvider>,
-  tokenId: string | number,
+  tokenId: string,
   tezos: TezosToolkit
 ) => {
   let metadataFromUri: MetadataInterface & { thumbnail_uri?: string } = {};
@@ -81,7 +81,7 @@ export async function fetchTokenMetadata(
     const contract = await retry(() => tezos.contract.at(contractAddress, compose(tzip12, tzip16)), RETRY_PARAMS);
 
     const tzip12Metadata = await getTzip12Metadata(contract, tokenId);
-    const metadataFromUri = await getMetadataFromUri(contract, tokenId, tezos);
+    const metadataFromUri = await getMetadataFromUri(contract, tokenIdStr, tezos);
 
     const rawMetadata = { ...metadataFromUri, ...tzip12Metadata };
 
