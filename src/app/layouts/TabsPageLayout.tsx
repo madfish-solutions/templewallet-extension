@@ -2,6 +2,7 @@ import React, { FC, ReactNode, Suspense, useMemo } from 'react';
 
 import classNames from 'clsx';
 
+import { PageTitle } from 'app/atoms/PageTitle';
 import Spinner from 'app/atoms/Spinner/Spinner';
 import { useTabSlug } from 'app/atoms/useTabSlug';
 import { TestIDProperty } from 'lib/analytics';
@@ -34,16 +35,7 @@ export const TabsPageLayout: FC<Props> = ({ tabs, icon, title, description }) =>
   }, [tabSlug, tabs]);
 
   return (
-    <PageLayout
-      pageTitle={
-        <div className="flex flex-row font-normal text-sm">
-          {icon}
-          <span className="pl-1" style={{ paddingTop: 1 }}>
-            {title}
-          </span>
-        </div>
-      }
-    >
+    <PageLayout pageTitle={<PageTitle icon={icon} title={title} />}>
       <div className="text-center my-3 text-gray-700 max-w-lg m-auto">{description}</div>
       <div className={classNames('-mx-4', fullPage && 'rounded-t-md')}>
         <div

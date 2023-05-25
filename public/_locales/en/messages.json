@@ -92,7 +92,7 @@
     "message": "Click to reveal"
   },
   "copiedHash": {
-    "message": "Copied."
+    "message": "Copied"
   },
   "copyHashToClipboard": {
     "message": "Copy to clipboard"
@@ -291,10 +291,10 @@
     }
   },
   "copiedTokenAddress": {
-    "message": "Copied."
+    "message": "Copied"
   },
   "copiedTokenId": {
-    "message": "Copied."
+    "message": "Copied"
   },
   "delegatedTo": {
     "message": "Delegated to:"
@@ -836,7 +836,7 @@
     "message": "Your current account address. Share it to receive funds."
   },
   "copiedAddress": {
-    "message": "Copied."
+    "message": "Copied"
   },
   "copyAddressToClipboard": {
     "message": "Copy to clipboard"
@@ -1043,6 +1043,9 @@
   "recommended": {
     "message": "Recommended"
   },
+  "helpUkraine": {
+    "message": "Help Ukraine \uD83C\uDDFA\uD83C\uDDE6"
+  },
   "partnership": {
     "message": "Partnership"
   },
@@ -1171,6 +1174,12 @@
   },
   "notEnoughFunds": {
     "message": "Not enough funds"
+  },
+  "helpUkraineDisclainerTitle": {
+    "message": "This Baker helps Ukraine \uD83C\uDDFA\uD83C\uDDE6"
+  },
+  "helpUkraineDisclainerDescription": {
+    "message": "By delegating for this Baker, you agree that all of your rewards will go to support Ukraine.\nThank you for your contribution!"
   },
   "notEnoughCurrencyFunds": {
     "message": "Not enough $currency$ funds",
@@ -2582,7 +2591,7 @@
   "partnersPromoSettings": {
     "message": "Advertising"
   },
-  "cashBack":{
+  "cashBack": {
     "message": "cash back"
   },
   "partnersPromoDescriptionP1": {
@@ -2994,5 +3003,11 @@
   },
   "noRoutesFound": {
     "message": "No routes found"
+  },
+  "swapCashback": {
+    "message": "Cashback"
+  },
+  "swapCashbackDescription": {
+    "message": "Swap more than 10$ and receive 0.175% from the swapped amount in the TKEY token as a cashback"
   }
 }

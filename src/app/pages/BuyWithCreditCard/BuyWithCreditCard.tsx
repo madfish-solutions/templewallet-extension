@@ -50,7 +50,6 @@ export const BuyWithCreditCard: FC = () => {
   const { inputAmount, inputCurrency, outputToken, outputAmount, topUpProvider } = formValues;
   const paymentProviders = usePaymentProviders(inputAmount, inputCurrency, outputToken);
   const { allPaymentProviders, amountsUpdateErrors, paymentProvidersToDisplay } = paymentProviders;
-
   const {
     switchPaymentProvider,
     handleInputAssetChange,

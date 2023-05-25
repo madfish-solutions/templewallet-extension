@@ -86,7 +86,7 @@
     "message": "點擊可顯示或編輯此欄位"
   },
   "copiedHash": {
-    "message": "已複製。"
+    "message": "已複製"
   },
   "copyHashToClipboard": {
     "message": "複製到剪貼簿"
@@ -196,10 +196,10 @@
     }
   },
   "copiedTokenAddress": {
-    "message": "已複製。"
+    "message": "已複製"
   },
   "copiedTokenId": {
-    "message": "已複製。"
+    "message": "已複製"
   },
   "delegatedTo": {
     "message": "委託予："
@@ -641,7 +641,7 @@
     "message": "您目前的帳戶地址。對外分享以收取資金。"
   },
   "copiedAddress": {
-    "message": "已複製。"
+    "message": "已複製"
   },
   "copyAddressToClipboard": {
     "message": "複製到剪貼簿"

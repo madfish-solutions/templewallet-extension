@@ -1,9 +1,9 @@
 import { createAction } from '@reduxjs/toolkit';
 
-import { OptimalPromotionInterface, OptimalPromoVariantEnum } from 'lib/apis/optimal';
+import { OptimalPromotionType, OptimalPromoVariantEnum } from 'lib/apis/optimal';
 import { createActions } from 'lib/store';
 
-export const loadPartnersPromoAction = createActions<OptimalPromoVariantEnum, OptimalPromotionInterface, string>(
+export const loadPartnersPromoAction = createActions<OptimalPromoVariantEnum, OptimalPromotionType, string>(
   'partnersPromo/LOAD_PARTNERS'
 );
 

@@ -1,7 +1,7 @@
 import { TezosToolkit, TransferParams } from '@taquito/taquito';
-import BigNumber from 'bignumber.js';
+import { BigNumber } from 'bignumber.js';
 
-import { tokensToAtoms } from 'lib/temple/helpers';
+import { ZERO } from 'lib/route3/constants';
 
 interface TokenToSpend {
   contract: string | null;
@@ -15,7 +15,7 @@ export const getTransferPermissions = async (
   spender: string,
   owner: string,
   tokenToSpend: TokenToSpend,
-  amount: BigNumber
+  amountAtomic: BigNumber
 ) => {
   const permissions: { approve: Array<TransferParams>; revoke: Array<TransferParams> } = {
     approve: [],
@@ -28,10 +28,8 @@ export const getTransferPermissions = async (
 
   const assetContract = await tezos.wallet.at(tokenToSpend.contract);
   if (tokenToSpend.standard === 'fa12') {
-    const reset = assetContract.methods.approve(spender, new BigNumber(0)).toTransferParams({ mutez: true });
-    const spend = assetContract.methods
-      .approve(spender, tokensToAtoms(amount, tokenToSpend.decimals))
-      .toTransferParams({ mutez: true });
+    const reset = assetContract.methods.approve(spender, ZERO).toTransferParams({ mutez: true });
+    const spend = assetContract.methods.approve(spender, amountAtomic).toTransferParams({ mutez: true });
     permissions.approve.push(reset);
     permissions.approve.push(spend);
   } else {

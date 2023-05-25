@@ -86,7 +86,7 @@
     "message": "클릭하여 이 필드를 공개 혹은 편집하세요"
   },
   "copiedHash": {
-    "message": "복사됨."
+    "message": "복사됨"
   },
   "copyHashToClipboard": {
     "message": "클립보드로 복사"
@@ -196,10 +196,10 @@
     }
   },
   "copiedTokenAddress": {
-    "message": "복사되었습니다."
+    "message": "복사되었습니다"
   },
   "copiedTokenId": {
-    "message": "복사되었습니다."
+    "message": "복사되었습니다"
   },
   "delegatedTo": {
     "message": "위임 대상자:"
@@ -641,7 +641,7 @@
     "message": "회원님의 현재 계정 주소입니다. 이를 공유하여 자금을 받으세요."
   },
   "copiedAddress": {
-    "message": "복사됨."
+    "message": "복사됨"
   },
   "copyAddressToClipboard": {
     "message": "클립보드로 복사"

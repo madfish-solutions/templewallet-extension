@@ -89,7 +89,7 @@
     "message": "Click to reveal or edit this field"
   },
   "copiedHash": {
-    "message": "Copied."
+    "message": "Copied"
   },
   "copyHashToClipboard": {
     "message": "Copy to clipboard"
@@ -210,10 +210,10 @@
     }
   },
   "copiedTokenAddress": {
-    "message": "Copied."
+    "message": "Copied"
   },
   "copiedTokenId": {
-    "message": "Copied."
+    "message": "Copied"
   },
   "delegatedTo": {
     "message": "Delegated to:"
@@ -661,7 +661,7 @@
     "message": "Your current account address. Share it to receive funds."
   },
   "copiedAddress": {
-    "message": "Copied."
+    "message": "Copied"
   },
   "copyAddressToClipboard": {
     "message": "Copy to clipboard"
@@ -1767,5 +1767,11 @@
   },
   "noRoutesFound": {
     "message": "No routes found"
+  },
+  "swapCashback": {
+    "message": "Cashback"
+  },
+  "swapCashbackDescription": {
+    "message": "Swap more than 10$ and receive 0.175% from the swapped amount in the TKEY token as a cashback"
   }
 }

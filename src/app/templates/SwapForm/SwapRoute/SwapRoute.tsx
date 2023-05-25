@@ -7,7 +7,11 @@ import { T } from 'lib/i18n';
 
 import { SwapRouteItem } from './SwapRouteItem/SwapRouteItem';
 
-export const SwapRoute: FC = () => {
+interface Props {
+  className?: string;
+}
+
+export const SwapRoute: FC<Props> = ({ className }) => {
   const {
     data: { chains, input, output }
   } = useSwapParamsSelector();
@@ -22,7 +26,7 @@ export const SwapRoute: FC = () => {
   const Chevron = isVisible ? ChevronUp : ChevronDown;
 
   return (
-    <>
+    <div className={className}>
       <p
         className="flex justify-between items-center text-xs text-gray-500 cursor-pointer"
         onClick={hadleToggleVisible}
@@ -44,6 +48,6 @@ export const SwapRoute: FC = () => {
           ))}
         </div>
       )}
-    </>
+    </div>
   );
 };
