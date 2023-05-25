@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useMemo } from 'react';
+import React, { FC, useEffect } from 'react';
 
 import { List } from 'react-virtualized';
 
@@ -8,8 +8,6 @@ import { useAppEnvStyle } from 'app/hooks/use-app-env-style.hook';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
 import { AnalyticsEventCategory, TestIDProperty, useAnalytics } from 'lib/analytics';
 import { T } from 'lib/i18n';
-import { useAccount, useChainId } from 'lib/temple/front';
-import * as Repo from 'lib/temple/repo';
 
 import { AssetOption } from './AssetOption';
 
@@ -18,7 +16,6 @@ interface Props extends TestIDProperty {
   options: string[];
   isLoading: boolean;
   searchString?: string;
-  searchAssetSlug: string;
   showTokenIdInput: boolean;
   opened: boolean;
   setOpened: (newValue: boolean) => void;
@@ -30,7 +27,6 @@ export const AssetsMenu: FC<Props> = ({
   options,
   isLoading,
   searchString,
-  searchAssetSlug,
   showTokenIdInput,
   opened,
   testID,
@@ -38,10 +34,6 @@ export const AssetsMenu: FC<Props> = ({
   onChange
 }) => {
   const { dropdownWidth } = useAppEnvStyle();
-  const chainId = useChainId(true)!;
-  const account = useAccount();
-
-  const isShowSearchOption = useMemo(() => !options.includes(searchAssetSlug), [options, searchAssetSlug]);
 
   const { trackEvent } = useAnalytics();
 
@@ -56,21 +48,6 @@ export const AssetsMenu: FC<Props> = ({
     setOpened(false);
   };
 
-  const handleSearchOptionClick = async (newValue: string) => {
-    await Repo.accountTokens.put(
-      {
-        chainId,
-        account: account.publicKeyHash,
-        tokenSlug: newValue,
-        status: Repo.ITokenStatus.Enabled,
-        addedAt: Date.now()
-      },
-      Repo.toAccountTokenKey(chainId, account.publicKeyHash, newValue)
-    );
-
-    handleOptionClick(newValue);
-  };
-
   return (
     <DropdownWrapper
       opened={opened}
@@ -81,8 +58,6 @@ export const AssetsMenu: FC<Props> = ({
         borderColor: '#e2e8f0'
       }}
     >
-      {isShowSearchOption && <AssetOption assetSlug={searchAssetSlug} onClick={handleSearchOptionClick} />}
-
       {(options.length === 0 || isLoading) && (
         <div className="my-8 flex flex-col items-center justify-center text-gray-500">
           {isLoading ? (

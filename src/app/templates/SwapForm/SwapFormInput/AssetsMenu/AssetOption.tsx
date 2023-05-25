@@ -7,7 +7,6 @@ import { AssetIcon } from 'app/templates/AssetIcon';
 import { AssetItemContent } from 'app/templates/AssetItemContent';
 import { setTestID } from 'lib/analytics';
 import { useAssetMetadata } from 'lib/metadata';
-import { isTruthy } from 'lib/utils';
 
 import { AssetsMenuSelectors } from './selectors';
 
@@ -21,8 +20,6 @@ export const AssetOption: FC<Props> = ({ assetSlug, selected, style, onClick }) 
   const assetMetadata = useAssetMetadata(assetSlug);
 
   const handleClick = () => onClick(assetSlug);
-
-  if (!isTruthy(assetMetadata)) return null;
 
   return (
     <button

@@ -18,7 +18,7 @@ const NetworkBanner: FC<NetworkBannerProps> = ({ rpc, narrow = false }) => {
   return (
     <div className={classNames('flex flex-col w-full', narrow ? '-mt-1 mb-2' : 'mb-4')}>
       <h2 className="leading-tight flex flex-col">
-        <span className={classNames(narrow ? 'mb-1' : 'mb-2 text-base font-semibold text-gray-700')}>
+        <span className={classNames(narrow ? 'mb-1' : 'mb-2', 'text-base font-semibold text-gray-700')}>
           <T id="network" />
         </span>
 

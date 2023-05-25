@@ -211,7 +211,6 @@ export const useAvailableRoute3Tokens = () => {
 
   return {
     isLoading,
-    route3tokens,
     route3tokensSlugs
   };
 };
@@ -299,7 +298,7 @@ export function useFilteredSwapAssets(inputName: string = 'input') {
     }
 
     return [TEZ_TOKEN_SLUG, ...route3tokensSlugs];
-  }, [route3tokensSlugs, balances]);
+  }, [inputName, route3tokensSlugs, balances]);
 
   const [searchValue, setSearchValue] = useState('');
   const [tokenId, setTokenId] = useState<number>();
