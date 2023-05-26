@@ -10,8 +10,7 @@ import {
   allInt32ParameterKeys,
   TzktGetRewardsParams,
   TzktGetRewardsResponse,
-  TzktRelatedContract,
-  TzktTokenMetadata
+  TzktRelatedContract
 } from './types';
 
 const TZKT_API_BASE_URLS = {
@@ -191,20 +190,4 @@ export const fetchAllTokensBalancesFromTzkt = async (selectedRpcUrl: string, acc
   })(0);
 
   return balances;
-};
-
-// @ts-prune-ignore-next
-export const fetchTokenMetadata = async (chainId: string, address: string, tokenId = 0) => {
-  if (!isKnownChainId(chainId)) return;
-
-  const [token] = await fetchGet<{ metadata: TzktTokenMetadata | null }[]>(chainId, '/tokens', {
-    'contract.eq': address,
-    'tokenId.eq': tokenId
-  });
-
-  const metadata = token?.metadata;
-
-  if (!metadata?.decimals) return;
-
-  return metadata;
 };

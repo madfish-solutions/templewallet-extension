@@ -221,14 +221,3 @@ export interface TzktTokenTransfer {
   };
   transactionId: number;
 }
-
-export interface TzktTokenMetadata {
-  decimals?: string;
-  description: string;
-  name: string;
-  symbol: string;
-  shouldPreferSymbol: boolean;
-  thumbnailUri: string;
-  displayUri: string;
-  artifactUri?: string;
-}
