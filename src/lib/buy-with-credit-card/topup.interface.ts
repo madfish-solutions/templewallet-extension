@@ -1,4 +1,3 @@
-import { TopUpInputType } from './top-up-input-type.enum';
 import { TopUpProviderId } from './top-up-provider-id.enum';
 
 export interface TopUpInputInterface {
@@ -6,7 +5,6 @@ export interface TopUpInputInterface {
   code: string;
   codeToDisplay?: string;
   icon: string;
-  type: TopUpInputType;
   minAmount?: number;
   maxAmount?: number;
   precision: number;

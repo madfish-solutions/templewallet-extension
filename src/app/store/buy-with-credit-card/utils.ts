@@ -11,7 +11,6 @@ import {
 import { AliceBobPairInfo } from 'lib/apis/temple';
 import { GetBinanceConnectCurrenciesResponse } from 'lib/apis/temple-static';
 import { CurrencyInfoType as UtorgCurrencyInfoType, UtorgCurrencyInfo } from 'lib/apis/utorg';
-import { TopUpInputType } from 'lib/buy-with-credit-card/top-up-input-type.enum';
 import { toTokenSlug } from 'lib/temple/assets';
 import { filterByStringProperty, isTruthy } from 'lib/utils';
 import { isDefined } from 'lib/utils/is-defined';
@@ -30,8 +29,7 @@ const aliceBobHryvnia = {
   name: 'Ukrainian Hryvnia',
   code: 'UAH',
   icon: '',
-  precision: 2,
-  type: TopUpInputType.Fiat
+  precision: 2
 };
 
 const aliceBobTezos = {
@@ -39,8 +37,7 @@ const aliceBobTezos = {
   code: 'XTZ',
   icon: 'https://static.moonpay.com/widget/currencies/xtz.svg',
   precision: 6,
-  slug: 'tez',
-  type: TopUpInputType.Crypto
+  slug: 'tez'
 };
 
 export const mapMoonPayProviderCurrencies = (currencies: Currency[]) => ({
@@ -53,8 +50,8 @@ export const mapMoonPayProviderCurrencies = (currencies: Currency[]) => ({
       icon: `https://static.moonpay.com/widget/currencies/${code}.svg`,
       minAmount: minBuyAmount,
       maxAmount: maxBuyAmount,
-      precision: Math.min(precision, 2), // Currencies like JOD have 3 decimals but Moonpay fails to process input with 3 decimals
-      type: TopUpInputType.Fiat
+      precision: Math.min(precision, 2) // Currencies like JOD have 3 decimals but Moonpay fails to process input with 3 decimals
+      // type: TopUpInputType.Fiat
     })),
   crypto: currencies
     .filter(
@@ -69,7 +66,6 @@ export const mapMoonPayProviderCurrencies = (currencies: Currency[]) => ({
       minAmount: minBuyAmount ?? undefined,
       maxAmount: maxBuyAmount ?? undefined,
       precision,
-      type: TopUpInputType.Crypto,
       slug: isDefined(metadata.contractAddress)
         ? toTokenSlug(metadata.contractAddress, metadata.coinType ?? undefined)
         : ''
@@ -85,7 +81,6 @@ export const mapUtorgProviderCurrencies = (currencies: UtorgCurrencyInfo[]) => (
       codeToDisplay: display,
       icon: `${UTORG_FIAT_ICONS_BASE_URL}${symbol.slice(0, -1)}.svg`,
       precision,
-      type: TopUpInputType.Fiat,
       minAmount: depositMin,
       maxAmount: depositMax
     })),
@@ -99,7 +94,6 @@ export const mapUtorgProviderCurrencies = (currencies: UtorgCurrencyInfo[]) => (
       codeToDisplay: display,
       icon: `${UTORG_CRYPTO_ICONS_BASE_URL}/${currency}.svg`,
       precision,
-      type: TopUpInputType.Crypto,
       slug: '' // TODO: implement making correct slug as soon as any Tezos token is supported by Utorg
     }))
 });
@@ -125,7 +119,6 @@ export const mapBinanceConnectProviderCurrencies = (
       name: symbol,
       code: symbol,
       icon: `${UTORG_FIAT_ICONS_BASE_URL}${symbol.slice(0, -1)}.svg`,
-      type: TopUpInputType.Fiat,
       /** Assumed */
       precision: 2,
       minAmount: item.minLimit,
@@ -147,7 +140,6 @@ export const mapBinanceConnectProviderCurrencies = (
       name: asset.cryptoCurrency,
       code: asset.cryptoCurrency,
       icon,
-      type: TopUpInputType.Crypto,
       precision,
       minAmount: asset.withdrawMin,
       maxAmount: asset.withdrawMax

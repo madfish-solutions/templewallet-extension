@@ -10,7 +10,6 @@ import { MOONPAY_ASSETS_BASE_URL } from 'lib/apis/moonpay';
 import { createAliceBobOrder, getMoonpaySign } from 'lib/apis/temple';
 import { createBinanceConnectTradeOrder } from 'lib/apis/temple-static';
 import { createOrder as createUtorgOrder } from 'lib/apis/utorg';
-import { TopUpInputType } from 'lib/buy-with-credit-card/top-up-input-type.enum';
 import { TopUpProviderId } from 'lib/buy-with-credit-card/top-up-provider-id.enum';
 import { TopUpInputInterface, TopUpOutputInterface } from 'lib/buy-with-credit-card/topup.interface';
 import { useYupValidationResolver } from 'lib/form/use-yup-validation-resolver';
@@ -25,8 +24,7 @@ const DEFAULT_INPUT_CURRENCY: TopUpInputInterface = {
   code: 'USD',
   icon: `${MOONPAY_ASSETS_BASE_URL}/widget/currencies/usd.svg`,
   name: 'US Dollar',
-  precision: 2,
-  type: TopUpInputType.Fiat
+  precision: 2
 };
 
 const DEFAULT_OUTPUT_TOKEN: TopUpOutputInterface = {
@@ -34,8 +32,7 @@ const DEFAULT_OUTPUT_TOKEN: TopUpOutputInterface = {
   name: 'Tezos',
   icon: `${MOONPAY_ASSETS_BASE_URL}/widget/currencies/xtz.svg`,
   precision: 1,
-  slug: 'tez',
-  type: TopUpInputType.Crypto
+  slug: 'tez'
 };
 
 const defaultValues = {
