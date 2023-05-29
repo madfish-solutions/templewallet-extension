@@ -77,7 +77,7 @@ export const LOCAL_MAINNET_TOKENS_METADATA: TokenMetadata[] = [
     name: 'Tezos BTC',
     symbol: 'tzBTC',
     decimals: 8,
-    // iconName: IconNameEnum.TzBtcToken,
+    thumbnailUri: 'https://tzbtc.io/wp-content/uploads/2020/03/tzbtc_logo_single.svg',
     standard: TokenStandardsEnum.Fa12
   },
   {
