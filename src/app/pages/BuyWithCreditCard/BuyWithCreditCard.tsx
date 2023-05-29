@@ -1,5 +1,6 @@
 import React, { FC, Suspense, useEffect, useMemo, useState } from 'react';
 
+import { isNotEmptyString } from '@rnw-community/shared';
 import BigNumber from 'bignumber.js';
 import { isEqual } from 'lodash';
 import { useDispatch } from 'react-redux';
@@ -124,9 +125,8 @@ export const BuyWithCreditCard: FC = () => {
     ? toLocalFormat(inputCurrency.maxAmount, { decimalPlaces: inputCurrency.precision })
     : undefined;
 
-  const outputAmountIsLegit = outputAmount && outputAmount > 0;
-  const submitDisabled =
-    !purchaseLink || isDefined(updateLinkError) || Object.keys(errors).length > 0 || !outputAmountIsLegit;
+  const someErrorOccured = isDefined(updateLinkError) || Object.keys(errors).length > 0;
+  const submitDisabled = !isNotEmptyString(purchaseLink) || someErrorOccured || !isDefined(outputAmount);
 
   return (
     <PageLayout pageTitle={<T id="buyWithCard" />}>

@@ -51,7 +51,6 @@ export const mapMoonPayProviderCurrencies = (currencies: Currency[]) => ({
       minAmount: minBuyAmount,
       maxAmount: maxBuyAmount,
       precision: Math.min(precision, 2) // Currencies like JOD have 3 decimals but Moonpay fails to process input with 3 decimals
-      // type: TopUpInputType.Fiat
     })),
   crypto: currencies
     .filter(

@@ -10,7 +10,7 @@ export const formatAmountToTargetSize = (value: string | number, targetSize = 6)
 
   const bn = new BigNumber(value);
 
-  if (bn.isGreaterThanOrEqualTo(`1${'0'.repeat(targetSize - 1)}`))
+  if (bn.isGreaterThanOrEqualTo(10 ** (targetSize - 1)))
     return bn.decimalPlaces(0, BigNumber.ROUND_HALF_EVEN).toString();
 
   return bn.toPrecision(targetSize, BigNumber.ROUND_HALF_EVEN).toString();
