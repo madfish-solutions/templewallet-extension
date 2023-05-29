@@ -8,7 +8,8 @@ import {
   CryptoCurrency as MoonPayCryptoCurrency,
   FiatCurrency as MoonPayFiatCurrency
 } from 'lib/apis/moonpay';
-import { GetBinanceConnectCurrenciesResponse, AliceBobPairInfo } from 'lib/apis/temple';
+import { AliceBobPairInfo } from 'lib/apis/temple';
+import { GetBinanceConnectCurrenciesResponse } from 'lib/apis/temple-static';
 import { CurrencyInfoType as UtorgCurrencyInfoType, UtorgCurrencyInfo } from 'lib/apis/utorg';
 import { TopUpInputType } from 'lib/buy-with-credit-card/top-up-input-type.enum';
 import { toTokenSlug } from 'lib/temple/assets';

@@ -4,7 +4,7 @@ import { BigNumber } from 'bignumber.js';
 
 import { useFiatCurrenciesSelector, useCryptoCurrenciesSelector } from 'app/store/buy-with-credit-card/selectors';
 import { getMoonPayBuyQuote } from 'lib/apis/moonpay';
-import { estimateBinanceConnectOutput } from 'lib/apis/temple';
+import { estimateBinanceConnectOutput } from 'lib/apis/temple-static';
 import { estimateAliceBobOutput } from 'lib/apis/temple/endpoints/alice-bob';
 import { convertFiatAmountToCrypto } from 'lib/apis/utorg';
 import { getAssetSymbolToDisplay } from 'lib/buy-with-credit-card/get-asset-symbol-to-display';

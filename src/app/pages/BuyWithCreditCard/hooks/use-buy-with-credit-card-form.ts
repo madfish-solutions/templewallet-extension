@@ -7,7 +7,8 @@ import { object as objectSchema, number as numberSchema, mixed as mixedSchema } 
 import { useUserIdSelector } from 'app/store/settings/selectors';
 import { useFormAnalytics } from 'lib/analytics';
 import { MOONPAY_ASSETS_BASE_URL } from 'lib/apis/moonpay';
-import { createBinanceConnectTradeOrder, createAliceBobOrder, getMoonpaySign } from 'lib/apis/temple';
+import { createAliceBobOrder, getMoonpaySign } from 'lib/apis/temple';
+import { createBinanceConnectTradeOrder } from 'lib/apis/temple-static';
 import { createOrder as createUtorgOrder } from 'lib/apis/utorg';
 import { TopUpInputType } from 'lib/buy-with-credit-card/top-up-input-type.enum';
 import { TopUpProviderId } from 'lib/buy-with-credit-card/top-up-provider-id.enum';

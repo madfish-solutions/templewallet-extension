@@ -1,13 +1,13 @@
-import { templeWalletApi } from '../templewallet.api';
+import { axiosApi } from '../axios-api';
 import { GetBinanceConnectCurrenciesResponse } from './types';
 
 export type { GetBinanceConnectCurrenciesResponse };
 
 export const getBinanceConnectCurrencies = () =>
-  templeWalletApi.get<GetBinanceConnectCurrenciesResponse>('/binance-connect/currencies').then(({ data }) => data);
+  axiosApi.get<GetBinanceConnectCurrenciesResponse>('/binance-connect/currencies').then(({ data }) => data);
 
 export const estimateBinanceConnectOutput = (inputFiatCode: string, outputCryptoCode: string, inputAmount: string) =>
-  templeWalletApi
+  axiosApi
     .get<{ outputAmount: number }>('/binance-connect/output', {
       params: { inputFiatCode, outputCryptoCode, inputAmount }
     })
@@ -19,7 +19,7 @@ export const createBinanceConnectTradeOrder = (
   inputAmount: string,
   accountPkh: string
 ) =>
-  templeWalletApi
+  axiosApi
     .post<{ checkoutUrl: string }>('/binance-connect/create-order', null, {
       params: { inputFiatCode, outputCryptoCode, inputAmount, accountPkh }
     })
