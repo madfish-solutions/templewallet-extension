@@ -15,7 +15,7 @@ import WebPack from 'webpack';
 
 import packageJSON from '../package.json';
 import tsConfig from '../tsconfig.json';
-import { definedEnvVarsNames } from './dotenv';
+import { envFilesData } from './dotenv';
 import {
   NODE_ENV,
   WEBPACK_MODE,
@@ -243,9 +243,9 @@ export const buildBaseConfig = (): WebPack.Configuration & Pick<WebPack.WebpackO
       'process.env.BACKGROUND_IS_WORKER': JSON.stringify(String(BACKGROUND_IS_WORKER)),
       'process.env.TARGET_BROWSER': JSON.stringify(TARGET_BROWSER),
       ...Object.fromEntries(
-        definedEnvVarsNames.map(name => {
+        Object.entries(envFilesData).map(([name, value]) => {
           const key = `process.env.${name}`;
-          return [key, JSON.stringify(process.env[name])];
+          return [key, JSON.stringify(value)];
         })
       )
     }),

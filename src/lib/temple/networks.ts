@@ -19,6 +19,27 @@ export const NETWORK_IDS = new Map<string, string>([
   [TempleChainId.Mumbainet, 'mumbainet']
 ]);
 
+const DCP_NETWORKS: TempleNetwork[] = [
+  {
+    id: 't4l3nt-mainnet',
+    name: 'T4L3NT Mainnet',
+    description: 'Decentralized pictures Betanet',
+    type: 'dcp',
+    rpcBaseURL: 'https://rpc.decentralized.pictures',
+    color: '#047857',
+    disabled: false
+  },
+  {
+    id: 't4l3nt-testnet',
+    name: 'T4L3NT Testnet',
+    description: 'Decentralized pictures testnet',
+    type: 'dcp',
+    rpcBaseURL: 'https://staging-rpc.decentralized.pictures/',
+    color: '#131380',
+    disabled: false
+  }
+];
+
 export const NETWORKS: TempleNetwork[] = [
   {
     id: 'mainnet',
@@ -47,24 +68,7 @@ export const NETWORKS: TempleNetwork[] = [
     color: '#047857',
     disabled: false
   },
-  {
-    id: 't4l3nt-mainnet',
-    name: 'T4L3NT Mainnet',
-    description: 'Decentralized pictures Betanet',
-    type: 'dcp',
-    rpcBaseURL: 'https://rpc.decentralized.pictures',
-    color: '#047857',
-    disabled: false
-  },
-  {
-    id: 't4l3nt-testnet',
-    name: 'T4L3NT Testnet',
-    description: 'Decentralized pictures testnet',
-    type: 'dcp',
-    rpcBaseURL: 'https://staging-rpc.decentralized.pictures/',
-    color: '#131380',
-    disabled: false
-  },
+  ...DCP_NETWORKS,
   {
     id: 'ghostnet',
     name: 'Ghostnet Testnet',
@@ -132,3 +136,8 @@ export const NETWORKS: TempleNetwork[] = [
     hidden: true
   }
 ];
+
+export const isDcpNode = (rpcBaseURL: string) => {
+  const href = new URL(rpcBaseURL).href;
+  return DCP_NETWORKS.some(network => new URL(network.rpcBaseURL).href === href);
+};

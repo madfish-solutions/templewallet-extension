@@ -1,12 +1,13 @@
 import { useMemo, useEffect, useState } from 'react';
 
+import { isDefined } from '@rnw-community/shared';
+
 import { useCurrenciesErrorsSelector, usePairLimitsErrorsSelector } from 'app/store/buy-with-credit-card/selectors';
 import { PAIR_NOT_FOUND_MESSAGE } from 'lib/buy-with-credit-card/constants';
 import { TopUpProviderId } from 'lib/buy-with-credit-card/top-up-provider-id.enum';
 import { PaymentProviderInterface } from 'lib/buy-with-credit-card/topup.interface';
 import { t } from 'lib/i18n';
 import { getAxiosQueryErrorMessage } from 'lib/utils/get-axios-query-error-message';
-import { isDefined } from 'lib/utils/is-defined';
 
 import { useBuyWithCreditCardForm } from './use-buy-with-credit-card-form';
 

@@ -2,6 +2,7 @@ import React, { FC, ReactNode, useCallback, useEffect, useRef, useMemo } from 'r
 
 import classNames from 'clsx';
 import { FormContextValues, useForm } from 'react-hook-form';
+import { useDispatch } from 'react-redux';
 import { useSWRConfig } from 'swr';
 import { useDebouncedCallback } from 'use-debounce';
 
@@ -9,26 +10,29 @@ import { Alert, FormField, FormSubmitButton, NoSpaceField } from 'app/atoms';
 import Spinner from 'app/atoms/Spinner/Spinner';
 import { ReactComponent as AddIcon } from 'app/icons/add.svg';
 import PageLayout from 'app/layouts/PageLayout';
+import { addTokensMetadataAction } from 'app/store/tokens-metadata/actions';
 import { useFormAnalytics } from 'lib/analytics';
-import { T, t } from 'lib/i18n';
+import { TokenMetadataResponse } from 'lib/apis/temple';
+import { toTokenSlug } from 'lib/assets';
 import {
   NotMatchingStandardError,
-  toTokenSlug,
   assertFa2TokenDefined,
   detectTokenStandard,
   IncorrectTokenIdError
-} from 'lib/temple/assets';
+} from 'lib/assets/standards';
+import { T, t } from 'lib/i18n';
+import type { TokenMetadata } from 'lib/metadata';
+import { fetchOneTokenMetadata } from 'lib/metadata/fetch';
+import { TokenMetadataNotFoundError } from 'lib/metadata/on-chain';
 import { loadContract } from 'lib/temple/contract';
 import {
   useTezos,
   useNetwork,
   useChainId,
   useAccount,
-  useTokensMetadata,
   getBalanceSWRKey,
   validateContractAddress
 } from 'lib/temple/front';
-import { AssetMetadata, DetailedAssetMetdata, NotFoundTokenMetadata } from 'lib/temple/metadata';
 import * as Repo from 'lib/temple/repo';
 import { useSafeState } from 'lib/ui/hooks';
 import { withErrorHumanDelay } from 'lib/ui/humanDelay';
@@ -83,9 +87,8 @@ const Form: FC = () => {
   const { publicKeyHash: accountPkh } = useAccount();
   const { cache: swrCache } = useSWRConfig();
 
-  const { fetchMetadata, setTokensBaseMetadata, setTokensDetailedMetadata } = useTokensMetadata();
-
   const formAnalytics = useFormAnalytics('AddAsset');
+  const dispatch = useDispatch();
 
   const { register, handleSubmit, errors, formState, watch, setValue, triggerValidation, clearError } =
     useForm<FormData>({
@@ -105,10 +108,7 @@ const Form: FC = () => {
   const [submitError, setSubmitError] = useSafeState<ReactNode>(null);
 
   const attemptRef = useRef(0);
-  const metadataRef = useRef<{
-    base: AssetMetadata;
-    detailed: DetailedAssetMetdata;
-  }>();
+  const metadataRef = useRef<TokenMetadataResponse>();
 
   const loadMetadataPure = useCallback(async () => {
     if (!formValid) return;
@@ -136,18 +136,17 @@ const Form: FC = () => {
 
       if (tokenStandard === 'fa2') await assertFa2TokenDefined(tezos, contract, tokenId);
 
-      const slug = toTokenSlug(contractAddress, tokenId);
-      const metadata = await fetchMetadata(slug);
+      const rpcUrl = tezos.rpc.getRpcUrl();
+      const metadata = await fetchOneTokenMetadata(rpcUrl, contractAddress, tokenId);
 
       if (metadata) {
         metadataRef.current = metadata;
 
-        const { base } = metadata;
         setValue([
-          { symbol: base.symbol },
-          { name: base.name },
-          { decimals: base.decimals },
-          { thumbnailUri: base.thumbnailUri }
+          { symbol: metadata.symbol },
+          { name: metadata.name },
+          { decimals: metadata.decimals },
+          { thumbnailUri: metadata.thumbnailUri }
         ]);
       }
 
@@ -167,7 +166,7 @@ const Form: FC = () => {
         processing: false
       }));
     }
-  }, [tezos, setValue, setState, fetchMetadata, formValid, contractAddress, tokenId]);
+  }, [tezos, setValue, setState, formValid, contractAddress, tokenId]);
 
   const loadMetadata = useDebouncedCallback(loadMetadataPure, 500);
 
@@ -202,23 +201,22 @@ const Form: FC = () => {
         const tokenSlug = toTokenSlug(address, id || 0);
 
         const baseMetadata = {
-          ...(metadataRef.current?.base ?? {}),
+          ...metadataRef.current,
           symbol,
           name,
           decimals: decimals ? +decimals : 0,
           thumbnailUri
         };
+        const tokenMetadata: TokenMetadata = {
+          ...baseMetadata,
+          address: contractAddress,
+          id: tokenId
+        };
 
-        await setTokensBaseMetadata({ [tokenSlug]: baseMetadata });
-        if (metadataRef.current?.detailed) {
-          await setTokensDetailedMetadata({
-            [tokenSlug]: metadataRef.current.detailed
-          });
-        }
+        dispatch(addTokensMetadataAction([tokenMetadata]));
 
         await Repo.accountTokens.put(
           {
-            type: Repo.ITokenType.Fungible,
             chainId,
             account: accountPkh,
             tokenSlug,
@@ -253,9 +251,10 @@ const Form: FC = () => {
       chainId,
       accountPkh,
       setSubmitError,
-      setTokensBaseMetadata,
-      setTokensDetailedMetadata,
-      formAnalytics
+      formAnalytics,
+      dispatch,
+      contractAddress,
+      tokenId
     ]
   );
 
@@ -448,7 +447,9 @@ const errorHandler = (err: any, contractAddress: string, setValue: any) => {
     };
   }
 
-  const errorMessage = t(err instanceof NotFoundTokenMetadata ? 'failedToParseMetadata' : 'unknownParseErrorOccurred');
+  const errorMessage = t(
+    err instanceof TokenMetadataNotFoundError ? 'failedToParseMetadata' : 'unknownParseErrorOccurred'
+  );
   setValue([{ symbol: '' }, { name: '' }, { decimals: 0 }]);
 
   return {

@@ -1,4 +1,4 @@
-export type AssetMetadata = {
+export type TokenMetadataOnChain = {
   // Common
   decimals: number;
   symbol: string;
@@ -25,7 +25,7 @@ export type AssetMetadata = {
   artifactUri?: string;
 };
 
-export type DetailedAssetMetdata = AssetMetadata &
+export type DetailedTokenMetdataOnChain = TokenMetadataOnChain &
   Partial<{
     // General notes, abstracts, or summaries about the contents of an asset.
     description: string;

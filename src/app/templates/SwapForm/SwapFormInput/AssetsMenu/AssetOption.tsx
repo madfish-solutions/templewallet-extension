@@ -6,8 +6,7 @@ import { ListRowProps } from 'react-virtualized';
 import { AssetIcon } from 'app/templates/AssetIcon';
 import { AssetItemContent } from 'app/templates/AssetItemContent';
 import { setTestID } from 'lib/analytics';
-import { useAssetMetadata } from 'lib/temple/front';
-import { AssetMetadata } from 'lib/temple/metadata';
+import { useAssetMetadata } from 'lib/metadata';
 import { isTruthy } from 'lib/utils';
 
 import { AssetsMenuSelectors } from './selectors';
@@ -19,7 +18,7 @@ interface Props extends Partial<Pick<ListRowProps, 'style'>> {
 }
 
 export const AssetOption: FC<Props> = ({ assetSlug, selected, style, onClick }) => {
-  const assetMetadata: AssetMetadata | null = useAssetMetadata(assetSlug);
+  const assetMetadata = useAssetMetadata(assetSlug);
 
   const handleClick = () => onClick(assetSlug);
 

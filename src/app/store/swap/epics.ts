@@ -1,3 +1,4 @@
+import { isDefined } from '@rnw-community/shared';
 import { BigNumber } from 'bignumber.js';
 import { combineEpics, Epic } from 'redux-observable';
 import { catchError, from, map, Observable, of, switchMap } from 'rxjs';
@@ -11,7 +12,6 @@ import {
   Route3SwapParamsRequestRaw
 } from 'lib/apis/route3/fetch-route3-swap-params';
 import { fetchgetRoute3Tokens } from 'lib/apis/route3/fetch-route3-tokens';
-import { isDefined } from 'lib/utils/is-defined';
 
 import { loadSwapDexesAction, loadSwapParamsAction, loadSwapTokensAction, resetSwapParamsAction } from './actions';
 

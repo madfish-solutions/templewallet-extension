@@ -1,5 +1,6 @@
 import React, { FC } from 'react';
 
+import { isDefined } from '@rnw-community/shared';
 import classNames from 'clsx';
 
 import { ReactComponent as AliceBobIcon } from 'app/icons/alice-bob.svg';
@@ -7,7 +8,6 @@ import { ReactComponent as MoonPayIcon } from 'app/icons/moonpay.svg';
 import { ReactComponent as PartnersLogo } from 'app/icons/partners-logo.svg';
 import { ReactComponent as UtorgIcon } from 'app/icons/utorg.svg';
 import { TopUpProviderId } from 'lib/buy-with-credit-card/top-up-provider-id.enum';
-import { isDefined } from 'lib/utils/is-defined';
 
 interface TopUpProviderIconProps {
   providerId?: TopUpProviderId;

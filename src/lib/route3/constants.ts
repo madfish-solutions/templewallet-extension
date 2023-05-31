@@ -1,6 +1,7 @@
 import { BigNumber } from 'bignumber.js';
 
 import { Route3Token, Route3TokenStandardEnum } from 'lib/apis/route3/fetch-route3-tokens';
+import { TempleToken } from 'lib/assets/known-tokens';
 
 import { getPercentageRatio } from './utils/get-percentage-ratio';
 
@@ -15,11 +16,12 @@ export const MAX_ROUTING_FEE_CHAINS = 1;
 export const SWAP_THRESHOLD_TO_GET_CASHBACK = 10;
 
 export const ZERO = new BigNumber(0);
+
 export const TEMPLE_TOKEN: Route3Token = {
   id: 128,
   symbol: 'TKEY',
   standard: Route3TokenStandardEnum.fa2,
-  contract: 'KT1WihWRnmzhfebi6zqQ4tvNGiPeVxiGwTi2',
-  tokenId: '0',
+  contract: TempleToken.contract,
+  tokenId: String(TempleToken.id),
   decimals: 18
 };

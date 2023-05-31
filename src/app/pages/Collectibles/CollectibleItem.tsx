@@ -1,8 +1,7 @@
 import React, { FC, useCallback, useRef, useState } from 'react';
 
 import { AssetIcon } from 'app/templates/AssetIcon';
-import { useAssetMetadata } from 'lib/temple/front';
-import { getAssetName } from 'lib/temple/metadata';
+import { useAssetMetadata, getAssetName } from 'lib/metadata';
 import { useIntersectionDetection } from 'lib/ui/use-intersection-detection';
 import { Link } from 'lib/woozie';
 

@@ -1,4 +1,4 @@
-import { toTokenSlug } from 'lib/temple/assets';
+import { toTokenSlug } from 'lib/assets';
 
 import { templeWalletApi } from './templewallet.api';
 

@@ -5,7 +5,7 @@ import { Action } from 'ts-action';
 import { ofType, toPayload } from 'ts-action-operators';
 
 import { fecthTezosBalanceFromTzkt, fetchAllTokensBalancesFromTzkt } from 'lib/apis/tzkt/api';
-import { toTokenSlug } from 'lib/temple/assets';
+import { toTokenSlug } from 'lib/assets';
 import { atomsToTokens } from 'lib/temple/helpers';
 
 import { loadTokensBalancesFromTzktAction } from './actions';
