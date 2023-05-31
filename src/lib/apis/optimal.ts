@@ -62,3 +62,18 @@ function assertIsObject(likelyAnObject: unknown): void {
     throw new Error('Received value is not an object');
   }
 }
+
+export const optimalFetchEnableAds = async (address: string) => {
+  try {
+    await optimalApi.get('api/v1/decision', {
+      params: {
+        publisher: 'templewallet',
+        ad_types: 'tw-fullview',
+        div_ids: 'ad',
+        wallets: `1729:${address}`
+      }
+    });
+  } catch (err) {
+    console.log('Failed to fetch optimal promotion api.');
+  }
+};

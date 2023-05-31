@@ -28,7 +28,17 @@ export const PartnersPromotionSettings: FC = () => {
     }
   };
 
-  const handleShowPromotion = (toChecked: boolean) => dispatch(togglePartnersPromotionAction(toChecked));
+  const handleShowPromotion = async (toChecked: boolean) => {
+    const confirmed = await confirm({
+      title: t('enablePartnersPromotionConfirm'),
+      children: t('enablePartnersPromotionDescriptionConfirm'),
+      comfirmButtonText: t('enable')
+    });
+
+    if (confirmed) {
+      dispatch(togglePartnersPromotionAction(toChecked));
+    }
+  };
 
   const togglePartnersPromotion = (toChecked: boolean, event: ChangeEvent<HTMLInputElement>) => {
     event?.preventDefault();

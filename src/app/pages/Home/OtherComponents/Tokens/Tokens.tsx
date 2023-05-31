@@ -10,14 +10,18 @@ import { useAppEnv } from 'app/env';
 import { useBalancesWithDecimals } from 'app/hooks/use-balances-with-decimals.hook';
 import { ReactComponent as AddToListIcon } from 'app/icons/add-to-list.svg';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
-import { loadPartnersPromoAction } from 'app/store/partners-promotion/actions';
+import { loadPartnersPromoAction, togglePartnersPromotionAction } from 'app/store/partners-promotion/actions';
 import SearchAssetField from 'app/templates/SearchAssetField';
-import { OptimalPromoVariantEnum } from 'lib/apis/optimal';
+import { OptimalPromoVariantEnum, optimalFetchEnableAds } from 'lib/apis/optimal';
 import { T } from 'lib/i18n';
 import { useAccount, useChainId, useDisplayedFungibleTokens, useFilteredAssets } from 'lib/temple/front';
 import { useSyncTokens } from 'lib/temple/front/sync-tokens';
 import { Link, navigate } from 'lib/woozie';
 
+import { Banner } from '../../../../atoms/Banner';
+import { useBanner } from '../../../../hooks/use-banner.hook';
+import { setIsEnableAdsBannerAction } from '../../../../store/settings/actions';
+import { useIsEnabledAdsBannerSelector } from '../../../../store/settings/selectors';
 import { AssetsSelectors } from '../Assets.selectors';
 import { ListItem } from './components/ListItem';
 import { toExploreAssetLink } from './utils';
@@ -36,6 +40,10 @@ export const Tokens: FC = () => {
   const tokenSlugsWithTez = useMemo(() => ['tez', ...tokens.map(({ tokenSlug }) => tokenSlug)], [tokens]);
 
   const { filteredAssets, searchValue, setSearchValue } = useFilteredAssets(tokenSlugsWithTez);
+
+  const isEnabledAdsBanner = useIsEnabledAdsBannerSelector();
+
+  const { isShowBanner, hideBanner } = useBanner(isEnabledAdsBanner);
 
   const [searchFocused, setSearchFocused] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -103,6 +111,17 @@ export const Tokens: FC = () => {
     return () => window.removeEventListener('keyup', handleKeyup);
   }, [activeAssetSlug, setActiveIndex]);
 
+  const handleEnableBannerButton = async () => {
+    dispatch(togglePartnersPromotionAction(true));
+    hideBanner(() => dispatch(setIsEnableAdsBannerAction()));
+    optimalFetchEnableAds(publicKeyHash);
+  };
+
+  const handleDisableBannerButton = () => {
+    dispatch(togglePartnersPromotionAction(false));
+    hideBanner(() => dispatch(setIsEnableAdsBannerAction()));
+  };
+
   return (
     <div className="w-full max-w-sm mx-auto">
       <div className={classNames('mt-3', popup && 'mx-4')}>
@@ -134,6 +153,16 @@ export const Tokens: FC = () => {
           </Link>
         </div>
       </div>
+
+      {isShowBanner && (
+        <Banner
+          text="Earn by viewing ads in Temple Wallet"
+          description="Support the development team and earn tokens by viewing ads inside the wallet. To enable this feature, we request your permission to trace your Wallet Address and IP address. You can always disable ads in the settings."
+          enableButtonText="enableAds"
+          onDisable={handleDisableBannerButton}
+          onEnable={handleEnableBannerButton}
+        />
+      )}
 
       {filteredAssets.length === 0 ? (
         <div className="my-8 flex flex-col items-center justify-center text-gray-500">

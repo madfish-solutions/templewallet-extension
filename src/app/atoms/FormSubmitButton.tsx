@@ -11,6 +11,7 @@ interface FormSubmitButtonProps extends ButtonProps {
   searchingRoute?: boolean;
   loading?: boolean;
   small?: boolean;
+  textClassNames?: string;
 }
 
 export const FormSubmitButton: FC<FormSubmitButtonProps> = ({
@@ -20,6 +21,7 @@ export const FormSubmitButton: FC<FormSubmitButtonProps> = ({
   disabled,
   className,
   style,
+  textClassNames,
   children,
   ...rest
 }) => {
