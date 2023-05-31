@@ -1,6 +1,13 @@
 import browser from 'webextension-polyfill';
 
+const DEPRECATED_KEYS = [
+  'tokens_base_metadata',
+  'detailed_asset_metadata_' // `detailed_asset_metadata_${slug}`
+];
+
 export async function fetchFromStorage<T = any>(key: string): Promise<T | null> {
+  if (DEPRECATED_KEYS.some(k => key.startsWith(k))) throw new Error(`Storage key ${key} is deprecated`);
+
   const items = await browser.storage.local.get([key]);
   if (key in items) {
     return items[key];

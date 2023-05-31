@@ -1,6 +1,6 @@
 import React, { FC, Suspense, useEffect, useMemo, useState } from 'react';
 
-import { isNotEmptyString } from '@rnw-community/shared';
+import { isNotEmptyString, isDefined } from '@rnw-community/shared';
 import BigNumber from 'bignumber.js';
 import { isEqual } from 'lodash';
 import { useDispatch } from 'react-redux';
@@ -20,7 +20,6 @@ import { TopUpInputInterface } from 'lib/buy-with-credit-card/topup.interface';
 import { shouldShowFieldError } from 'lib/form/should-show-field-error';
 import { t, T, toLocalFormat } from 'lib/i18n';
 import { useInterval } from 'lib/ui/hooks';
-import { isDefined } from 'lib/utils/is-defined';
 
 import { BuyWithCreditCardSelectors } from './BuyWithCreditCard.selectors';
 import { useAllCryptoCurrencies } from './hooks/use-all-crypto-currencies';

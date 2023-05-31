@@ -1,7 +1,7 @@
 import { map } from 'rxjs';
 
 import { fetchApyFromYupana$ } from 'lib/apis/yupana';
-import { KNOWN_TOKENS_SLUGS } from 'lib/temple/assets';
+import { KNOWN_TOKENS_SLUGS } from 'lib/assets/known-tokens';
 
 export const fetchKUSDApy$ = () => {
   const slug = KNOWN_TOKENS_SLUGS.KUSD;

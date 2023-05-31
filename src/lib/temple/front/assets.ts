@@ -1,262 +1,125 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
+import { isDefined } from '@rnw-community/shared';
 import { BigNumber } from 'bignumber.js';
-import constate from 'constate';
-import deepEqual from 'fast-deep-equal';
+import { ScopedMutator } from 'swr/dist/types';
 import { useDebounce } from 'use-debounce';
-import useForceUpdate from 'use-force-update';
-import browser from 'webextension-polyfill';
 
 import { useBalancesWithDecimals } from 'app/hooks/use-balances-with-decimals.hook';
 import { useBalancesSelector } from 'app/store/balances/selectors';
 import { useSwapTokensSelector } from 'app/store/swap/selectors';
+import { useTokensMetadataSelector } from 'app/store/tokens-metadata/selectors';
+import { isTezAsset, TEZ_TOKEN_SLUG, toTokenSlug } from 'lib/assets';
+import { AssetTypesEnum } from 'lib/assets/types';
 import { useUsdToTokenRates } from 'lib/fiat-currency/core';
+import { TOKENS_SYNC_INTERVAL } from 'lib/fixed-times';
+import { isCollectible } from 'lib/metadata';
+import { FILM_METADATA, TEZOS_METADATA } from 'lib/metadata/defaults';
+import type { AssetMetadataBase } from 'lib/metadata/types';
 import { useRetryableSWR } from 'lib/swr';
-import {
-  AssetTypesEnum,
-  isTezAsset,
-  fetchDisplayedFungibleTokens,
-  fetchFungibleTokens,
-  fetchAllKnownFungibleTokenSlugs,
-  fetchCollectibleTokens,
-  fetchAllKnownCollectibleTokenSlugs,
-  isTokenDisplayed,
-  toTokenSlug
-} from 'lib/temple/assets';
+import { getStoredTokens, getAllStoredTokensSlugs, isTokenDisplayed } from 'lib/temple/assets';
 import { useNetwork } from 'lib/temple/front';
 import { ITokenStatus } from 'lib/temple/repo';
-import { createQueue } from 'lib/utils';
 import { searchAndFilterItems } from 'lib/utils/search-items';
 
-import {
-  AssetMetadata,
-  DetailedAssetMetdata,
-  fetchTokenMetadata,
-  FILM_METADATA,
-  PRESERVED_TOKEN_METADATA,
-  TEZOS_METADATA
-} from '../metadata';
-import { useTezosRef, useChainId, useAccount } from './ready';
-import { onStorageChanged, putToStorage, usePassiveStorage } from './storage';
+import { useChainId, useAccount } from './ready';
 
-const ALL_TOKENS_BASE_METADATA_STORAGE_KEY = 'tokens_base_metadata';
-
-export function useDisplayedFungibleTokens(chainId: string, account: string) {
-  return useRetryableSWR(
-    ['displayed-fungible-tokens', chainId, account],
-    () => fetchDisplayedFungibleTokens(chainId, account),
+const useKnownTokens = (chainId: string, account: string, fungible = true, onlyDisplayed = true) => {
+  const swrResponse = useRetryableSWR(
+    ['use-known-tokens', chainId, account, onlyDisplayed],
+    () => getStoredTokens(chainId, account, onlyDisplayed),
     {
       revalidateOnMount: true,
-      refreshInterval: 20_000,
-      dedupingInterval: 1_000
+      refreshInterval: TOKENS_SYNC_INTERVAL
     }
   );
-}
 
-function useFungibleTokens(chainId: string, account: string) {
-  return useRetryableSWR(['fungible-tokens', chainId, account], () => fetchFungibleTokens(chainId, account), {
-    revalidateOnMount: true,
-    refreshInterval: 20_000,
-    dedupingInterval: 5_000
-  });
-}
+  const tokensMetadata = useTokensMetadataSelector();
 
-export function useCollectibleTokens(chainId: string, account: string, isDisplayed: boolean) {
-  return useRetryableSWR(
-    ['collectible-tokens', chainId, account, isDisplayed],
-    () => fetchCollectibleTokens(chainId, account, isDisplayed),
-    {
-      revalidateOnMount: true,
-      refreshInterval: 20_000,
-      dedupingInterval: 5_000
-    }
-  );
-}
+  const tokens = swrResponse.data;
 
-function useAllKnownFungibleTokenSlugs(chainId: string) {
-  return useRetryableSWR(['all-known-fungible-token-slugs', chainId], () => fetchAllKnownFungibleTokenSlugs(chainId), {
-    revalidateOnMount: true,
-    refreshInterval: 60_000,
-    dedupingInterval: 10_000
-  });
-}
-
-function useAllKnownCollectibleTokenSlugs(chainId: string) {
-  return useRetryableSWR(
-    ['all-known-collectible-token-slugs', chainId],
-    () => fetchAllKnownCollectibleTokenSlugs(chainId),
-    {
-      revalidateOnMount: true,
-      refreshInterval: 60_000,
-      dedupingInterval: 10_000
-    }
-  );
-}
-
-const enqueueAutoFetchMetadata = createQueue();
-const autoFetchMetadataFails = new Set<string>();
-
-export const TEZ_TOKEN_SLUG = 'tez';
-
-export const useGasToken = () => {
-  const network = useNetwork();
-
-  return network.type === 'dcp'
-    ? {
-        logo: 'misc/token-logos/film.png',
-        symbol: 'ф',
-        assetName: 'FILM',
-        metadata: FILM_METADATA,
-        isDcpNetwork: true
-      }
-    : {
-        logo: 'misc/token-logos/tez.svg',
-        symbol: 'ꜩ',
-        assetName: 'tez',
-        metadata: TEZOS_METADATA
-      };
-};
-
-export function useAssetMetadata(slug: string): AssetMetadata | null {
-  const forceUpdate = useForceUpdate();
-  const { metadata } = useGasToken();
-
-  const { allTokensBaseMetadataRef, fetchMetadata, setTokensBaseMetadata, setTokensDetailedMetadata } =
-    useTokensMetadata();
-
-  useEffect(
+  const data = useMemo(
     () =>
-      onStorageChanged(ALL_TOKENS_BASE_METADATA_STORAGE_KEY, newValue => {
-        if (!deepEqual(newValue[slug], allTokensBaseMetadataRef.current[slug])) {
-          forceUpdate();
-        }
-      }),
-    [slug, allTokensBaseMetadataRef, forceUpdate]
-  );
+      tokens?.filter(token => {
+        const metadata = tokensMetadata[token.tokenSlug];
+        if (!isDefined(metadata)) return false;
 
-  const getCurrentBaseMetadata = useMemo(
-    () => (): AssetMetadata | null => allTokensBaseMetadataRef.current[slug] ?? null,
-    [slug, allTokensBaseMetadataRef.current]
-  );
+        const itIsCollectible = isCollectible(metadata);
 
-  const tezAsset = isTezAsset(slug);
-  const tokenMetadata = getCurrentBaseMetadata();
-  const exist = Boolean(tokenMetadata);
-
-  useEffect(() => {
-    if (isTezAsset(slug) || exist || autoFetchMetadataFails.has(slug)) return;
-    enqueueAutoFetchMetadata(async () => {
-      if (getCurrentBaseMetadata()) return;
-      const metadata = await fetchMetadata(slug);
-      if (metadata == null) throw new Error('');
-      return metadata;
-    })
-      .then(metadata => {
-        return (
-          metadata &&
-          Promise.all([
-            setTokensBaseMetadata({ [slug]: metadata.base }),
-            setTokensDetailedMetadata({ [slug]: metadata.detailed })
-          ])
-        );
-      })
-      .catch(() => autoFetchMetadataFails.add(slug));
-  }, [slug, exist, getCurrentBaseMetadata, fetchMetadata, setTokensBaseMetadata, setTokensDetailedMetadata]);
-
-  // Tezos
-  if (tezAsset) {
-    return metadata;
-  }
-
-  // Preserved for legacy tokens
-  if (!exist && PRESERVED_TOKEN_METADATA.has(slug)) {
-    return PRESERVED_TOKEN_METADATA.get(slug)!;
-  }
-
-  return tokenMetadata;
-}
-
-const defaultAllTokensBaseMetadata = {
-  tez: {
-    decimals: 6,
-    symbol: 'TEZ',
-    name: 'Tezos'
-  }
-};
-const enqueueSetAllTokensBaseMetadata = createQueue();
-
-export const [TokensMetadataProvider, useTokensMetadata] = constate(() => {
-  const [initialAllTokensBaseMetadata] = usePassiveStorage<Record<string, AssetMetadata>>(
-    ALL_TOKENS_BASE_METADATA_STORAGE_KEY,
-    defaultAllTokensBaseMetadata
-  );
-
-  const allTokensBaseMetadataRef = useRef(initialAllTokensBaseMetadata);
-
-  const tezosRef = useTezosRef();
-
-  const fetchMetadata = (slug: string) => fetchTokenMetadata(tezosRef.current, slug);
-
-  const setTokensBaseMetadata = useCallback(
-    (toSet: Record<string, AssetMetadata>) =>
-      enqueueSetAllTokensBaseMetadata(() => {
-        allTokensBaseMetadataRef.current = {
-          ...allTokensBaseMetadataRef.current,
-          ...toSet
-        };
-        return putToStorage(ALL_TOKENS_BASE_METADATA_STORAGE_KEY, allTokensBaseMetadataRef.current);
-      }),
-    []
-  );
-
-  const setTokensDetailedMetadata = useCallback(
-    (toSet: Record<string, DetailedAssetMetdata>) =>
-      browser.storage.local.set(mapObjectKeys(toSet, getDetailedMetadataStorageKey)),
-    []
+        return fungible ? !itIsCollectible : itIsCollectible;
+      }) ?? [],
+    [tokens, tokensMetadata, fungible]
   );
 
   return {
-    allTokensBaseMetadataRef,
-    fetchMetadata,
-    setTokensBaseMetadata,
-    setTokensDetailedMetadata
+    ...swrResponse,
+    data
   };
-});
+};
+
+export const useDisplayedFungibleTokens = (chainId: string, account: string) =>
+  useKnownTokens(chainId, account, true, true);
+
+const useFungibleTokens = (chainId: string, account: string) => useKnownTokens(chainId, account, true, false);
+
+export const useCollectibleTokens = (chainId: string, account: string, onlyDisplayed: boolean = false) =>
+  useKnownTokens(chainId, account, false, onlyDisplayed);
+
+export const useAllStoredTokensSlugs = (chainId: string) =>
+  useRetryableSWR(['use-tokens-slugs', chainId], () => getAllStoredTokensSlugs(chainId), {
+    revalidateOnMount: true,
+    refreshInterval: TOKENS_SYNC_INTERVAL
+  });
+
+export const useGasToken = () => {
+  const { type } = useNetwork();
+
+  return useMemo(
+    () =>
+      type === 'dcp'
+        ? {
+            logo: 'misc/token-logos/film.png',
+            symbol: 'ф',
+            assetName: 'FILM',
+            metadata: FILM_METADATA,
+            isDcpNetwork: true
+          }
+        : {
+            logo: 'misc/token-logos/tez.svg',
+            symbol: 'ꜩ',
+            assetName: 'tez',
+            metadata: TEZOS_METADATA
+          },
+    [type]
+  );
+};
 
 export const useGetTokenMetadata = () => {
-  const { allTokensBaseMetadataRef } = useTokensMetadata();
+  const allTokensMetadata = useTokensMetadataSelector();
   const { metadata } = useGasToken();
 
   return useCallback(
-    (slug: string): AssetMetadata | undefined => {
+    (slug: string): AssetMetadataBase | undefined => {
       if (isTezAsset(slug)) {
         return metadata;
       }
 
-      return allTokensBaseMetadataRef.current[slug];
+      return allTokensMetadata[slug];
     },
-    [allTokensBaseMetadataRef, metadata]
+    [allTokensMetadata, metadata]
   );
 };
-
-export function useAllTokensBaseMetadata() {
-  const { allTokensBaseMetadataRef } = useTokensMetadata();
-  const forceUpdate = useForceUpdate();
-
-  useEffect(() => onStorageChanged(ALL_TOKENS_BASE_METADATA_STORAGE_KEY, forceUpdate), [forceUpdate]);
-
-  return allTokensBaseMetadataRef.current;
-}
 
 type TokenStatuses = Record<string, { displayed: boolean; removed: boolean }>;
 
 export const useAvailableAssets = (assetType: AssetTypesEnum) => {
   const chainId = useChainId(true)!;
   const account = useAccount();
-  const allTokensBaseMetadata = useAllTokensBaseMetadata();
+  const allTokensMetadata = useTokensMetadataSelector();
 
   const { data: allCollectiblesSlugs = [], isValidating: allKnownCollectiblesTokenSlugsLoading } =
     useAllKnownCollectibleTokenSlugs(chainId);
+
   const {
     data: collectibles = [],
     mutate: mutateCollectibles,
@@ -265,6 +128,7 @@ export const useAvailableAssets = (assetType: AssetTypesEnum) => {
 
   const { data: allTokenSlugs = [], isValidating: allKnownFungibleTokenSlugsLoading } =
     useAllKnownFungibleTokenSlugs(chainId);
+
   const {
     data: tokens = [],
     mutate: mutateTokens,
@@ -294,11 +158,40 @@ export const useAvailableAssets = (assetType: AssetTypesEnum) => {
   }, [assets]);
 
   const availableAssets = useMemo(
-    () => slugs.filter(slug => slug in allTokensBaseMetadata && !assetsStatuses[slug]?.removed),
-    [slugs, allTokensBaseMetadata, assetsStatuses]
+    () => slugs.filter(slug => slug in allTokensMetadata && !assetsStatuses[slug]?.removed),
+    [slugs, allTokensMetadata, assetsStatuses]
   );
 
   return { availableAssets, assetsStatuses, isLoading, mutate };
+};
+
+const useAllKnownFungibleTokenSlugs = (chainId: string) => useAllKnownTokensSlugs(chainId, true);
+
+const useAllKnownCollectibleTokenSlugs = (chainId: string) => useAllKnownTokensSlugs(chainId, false);
+
+const useAllKnownTokensSlugs = (chainId: string, fungible = true) => {
+  const swrResponse = useAllStoredTokensSlugs(chainId);
+  const tokensMetadata = useTokensMetadataSelector();
+
+  const slugs = swrResponse.data;
+
+  const data = useMemo(
+    () =>
+      slugs?.filter(slug => {
+        const metadata = tokensMetadata[slug];
+        if (!isDefined(metadata)) return false;
+
+        const itIsCollectible = isCollectible(metadata);
+
+        return fungible ? !itIsCollectible : itIsCollectible;
+      }) ?? [],
+    [slugs, tokensMetadata, fungible]
+  );
+
+  return {
+    ...swrResponse,
+    data
+  };
 };
 
 export const useAvailableRoute3Tokens = () => {
@@ -318,7 +211,6 @@ export const useAvailableRoute3Tokens = () => {
 
   return {
     isLoading,
-    route3tokens,
     route3tokensSlugs
   };
 };
@@ -358,7 +250,7 @@ export function useAssetsSortPredicate() {
 }
 
 export function useFilteredAssets(assetSlugs: string[]) {
-  const allTokensBaseMetadata = useAllTokensBaseMetadata();
+  const allTokensMetadata = useTokensMetadataSelector();
   const assetsSortPredicate = useAssetsSortPredicate();
 
   const [searchValue, setSearchValue] = useState('');
@@ -367,10 +259,10 @@ export function useFilteredAssets(assetSlugs: string[]) {
 
   const filteredAssets = useMemo(
     () =>
-      searchAssetsWithNoMeta(searchValueDebounced, assetSlugs, allTokensBaseMetadata, slug => slug).sort(
+      searchAssetsWithNoMeta(searchValueDebounced, assetSlugs, allTokensMetadata, slug => slug).sort(
         assetsSortPredicate
       ),
-    [searchValueDebounced, assetSlugs, allTokensBaseMetadata, assetsSortPredicate]
+    [searchValueDebounced, assetSlugs, allTokensMetadata, assetsSortPredicate]
   );
 
   return {
@@ -383,7 +275,7 @@ export function useFilteredAssets(assetSlugs: string[]) {
 }
 
 export function useFilteredSwapAssets(inputName: string = 'input') {
-  const allTokensBaseMetadata = useAllTokensBaseMetadata();
+  const allTokensMetadata = useTokensMetadataSelector();
   const assetsSortPredicate = useAssetsSortPredicate();
   const { route3tokensSlugs } = useAvailableRoute3Tokens();
   const { publicKeyHash } = useAccount();
@@ -406,7 +298,7 @@ export function useFilteredSwapAssets(inputName: string = 'input') {
     }
 
     return [TEZ_TOKEN_SLUG, ...route3tokensSlugs];
-  }, [route3tokensSlugs, balances]);
+  }, [inputName, route3tokensSlugs, balances]);
 
   const [searchValue, setSearchValue] = useState('');
   const [tokenId, setTokenId] = useState<number>();
@@ -414,10 +306,10 @@ export function useFilteredSwapAssets(inputName: string = 'input') {
 
   const filteredAssets = useMemo(
     () =>
-      searchAssetsWithNoMeta(searchValueDebounced, assetSlugs, allTokensBaseMetadata, slug => slug).sort(
+      searchAssetsWithNoMeta(searchValueDebounced, assetSlugs, allTokensMetadata, slug => slug).sort(
         assetsSortPredicate
       ),
-    [searchValueDebounced, assetSlugs, allTokensBaseMetadata, assetsSortPredicate]
+    [searchValueDebounced, assetSlugs, allTokensMetadata, assetsSortPredicate]
   );
 
   return {
@@ -432,7 +324,7 @@ export function useFilteredSwapAssets(inputName: string = 'input') {
 export function searchAssetsWithNoMeta<T>(
   searchValue: string,
   assets: T[],
-  allTokensBaseMetadata: Record<string, AssetMetadata>,
+  tokensMetadata: Record<string, AssetMetadataBase>,
   getSlug: (asset: T) => string
 ) {
   return searchAndFilterItems(
@@ -447,21 +339,14 @@ export function searchAssetsWithNoMeta<T>(
       const slug = getSlug(asset);
       return {
         slug,
-        metadata: isTezAsset(slug) ? TEZOS_METADATA : allTokensBaseMetadata[slug]
+        metadata: isTezAsset(slug) ? TEZOS_METADATA : tokensMetadata[slug]
       };
     }
   );
 }
 
-function getDetailedMetadataStorageKey(slug: string) {
-  return `detailed_asset_metadata_${slug}`;
-}
-
-function mapObjectKeys<T extends Record<string, any>>(obj: T, predicate: (key: string) => string): T {
-  const newObj: Record<string, any> = {};
-  for (const key of Object.keys(obj)) {
-    newObj[predicate(key)] = obj[key];
-  }
-
-  return newObj as T;
-}
+export const updateTokensSWR = async (mutate: ScopedMutator, chainId: string, account: string) => {
+  await mutate(['use-known-tokens', chainId, account, true]);
+  await mutate(['use-known-tokens', chainId, account, false]);
+  await mutate(['use-tokens-slugs', chainId]);
+};

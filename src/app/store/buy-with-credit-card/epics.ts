@@ -1,3 +1,4 @@
+import { isDefined } from '@rnw-community/shared';
 import { combineEpics } from 'redux-observable';
 import { catchError, forkJoin, from, map, Observable, of, switchMap, withLatestFrom } from 'rxjs';
 import { Action } from 'ts-action';
@@ -12,7 +13,6 @@ import { getUpdatedFiatLimits } from 'lib/buy-with-credit-card/get-updated-fiat-
 import { TopUpProviderId } from 'lib/buy-with-credit-card/top-up-provider-id.enum';
 import { createEntity } from 'lib/store';
 import { getAxiosQueryErrorMessage } from 'lib/utils/get-axios-query-error-message';
-import { isDefined } from 'lib/utils/is-defined';
 
 import { loadAllCurrenciesActions, updatePairLimitsActions } from './actions';
 import { BuyWithCreditCardRootState, TopUpProviderCurrencies } from './state';

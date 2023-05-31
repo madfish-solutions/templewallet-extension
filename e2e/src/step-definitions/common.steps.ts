@@ -6,7 +6,7 @@ import { iEnterValues, IEnterValuesKey } from '../utils/input-data.utils';
 import { createPageElement } from '../utils/search.utils';
 import { LONG_TIMEOUT, MEDIUM_TIMEOUT, SHORT_TIMEOUT } from '../utils/timing.utils';
 
-Given(/^I am on the (\w+) page$/, { timeout: MEDIUM_TIMEOUT }, async (page: keyof typeof Pages) => {
+Given(/^I am on the (\w+) page$/, { timeout: LONG_TIMEOUT }, async (page: keyof typeof Pages) => {
   await Pages[page].isVisible();
 });
 

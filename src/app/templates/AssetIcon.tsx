@@ -4,19 +4,17 @@ import classNames from 'clsx';
 
 import Identicon from 'app/atoms/Identicon';
 import { ReactComponent as CollectiblePlaceholder } from 'app/icons/collectible-placeholder.svg';
-import { useAssetMetadata, buildTokenIconURLs, buildCollectibleImageURLs } from 'lib/temple/front';
-import { AssetMetadata, getAssetSymbol } from 'lib/temple/metadata';
+import { AssetMetadataBase, getAssetSymbol, isCollectible, useAssetMetadata } from 'lib/metadata';
+import { buildTokenIconURLs, buildCollectibleImageURLs } from 'lib/temple/front';
 import { Image } from 'lib/ui/Image';
 
 interface PlaceholderProps {
-  metadata: AssetMetadata | null;
+  metadata: AssetMetadataBase | nullish;
   size?: number;
 }
 
 const AssetIconPlaceholder: FC<PlaceholderProps> = ({ metadata, size }) => {
-  const isCollectible = Boolean(metadata?.artifactUri);
-
-  return isCollectible ? (
+  return metadata && isCollectible(metadata) ? (
     <CollectiblePlaceholder style={{ maxWidth: `${size}px`, width: '100%', height: '100%' }} />
   ) : (
     <Identicon type="initials" hash={getAssetSymbol(metadata)} size={size} />
@@ -32,10 +30,8 @@ interface Props {
 export const AssetIcon: FC<Props> = memo<Props>(({ assetSlug, className, size }) => {
   const metadata = useAssetMetadata(assetSlug);
 
-  const isCollectible = Boolean(metadata?.artifactUri);
-
   const src = useMemo(() => {
-    if (isCollectible) return buildCollectibleImageURLs(assetSlug, metadata, size == null);
+    if (metadata && isCollectible(metadata)) return buildCollectibleImageURLs(assetSlug, metadata, size == null);
     else return buildTokenIconURLs(metadata?.thumbnailUri, size == null);
   }, [metadata, assetSlug]);
 

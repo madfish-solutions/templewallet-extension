@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useState } from 'react';
 
+import { isDefined } from '@rnw-community/shared';
 import { BigNumber } from 'bignumber.js';
 
 import { useFiatCurrenciesSelector, useCryptoCurrenciesSelector } from 'app/store/buy-with-credit-card/selectors';
@@ -17,7 +18,6 @@ import {
   TopUpOutputInterface
 } from 'lib/buy-with-credit-card/topup.interface';
 import { isTruthy } from 'lib/utils';
-import { isDefined } from 'lib/utils/is-defined';
 import { percentageToFraction } from 'lib/utils/percentage';
 
 import { useInputLimits } from './use-input-limits';

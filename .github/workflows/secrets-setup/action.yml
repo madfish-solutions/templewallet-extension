@@ -3,6 +3,8 @@ name: Secrets setup
 description: Writes secrets
 
 inputs:
+  GITHUB_ACTION_RUN_ENV:
+    required: true
   TEMPLE_WALLET_JITSU_TRACKING_HOST:
     required: true
   TEMPLE_WALLET_JITSU_WRITE_KEY:
@@ -18,8 +20,6 @@ inputs:
   TEMPLE_WALLET_API_URL:
     required: true
   TEMPLE_WALLET_STATIC_API_URL:
-    required: true
-  TEMPLE_WALLET_METADATA_API_URL:
     required: true
   TEMPLE_WALLET_DEXES_API_URL:
     required: true
@@ -51,6 +51,7 @@ runs:
       shell: bash
       run: |
         cat << EOF > .env
+        GITHUB_ACTION_RUN_ENV=${{ inputs.GITHUB_ACTION_RUN_ENV }}
         TEMPLE_WALLET_JITSU_TRACKING_HOST=${{ inputs.TEMPLE_WALLET_JITSU_TRACKING_HOST }}
         TEMPLE_WALLET_JITSU_WRITE_KEY=${{ inputs.TEMPLE_WALLET_JITSU_WRITE_KEY }}
 
@@ -61,7 +62,6 @@ runs:
 
         TEMPLE_WALLET_API_URL=${{ inputs.TEMPLE_WALLET_API_URL }}
         TEMPLE_WALLET_STATIC_API_URL=${{ inputs.TEMPLE_WALLET_STATIC_API_URL }}
-        TEMPLE_WALLET_METADATA_API_URL=${{ inputs.TEMPLE_WALLET_METADATA_API_URL }}
         TEMPLE_WALLET_DEXES_API_URL=${{ inputs.TEMPLE_WALLET_DEXES_API_URL }}
         TEMPLE_WALLET_ROUTE3_AUTH_TOKEN=${{ inputs.TEMPLE_WALLET_ROUTE3_AUTH_TOKEN }}
         TEMPLE_WALLET_MOONPAY_API_KEY=${{ inputs.TEMPLE_WALLET_MOONPAY_API_KEY }}

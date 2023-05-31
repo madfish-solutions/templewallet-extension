@@ -1,3 +1,4 @@
+import { isDefined } from '@rnw-community/shared';
 import { AxiosResponse } from 'axios';
 import BigNumber from 'bignumber.js';
 import { binanceCryptoIcons } from 'binance-icons';
@@ -11,9 +12,8 @@ import {
 import { AliceBobPairInfo } from 'lib/apis/temple';
 import { GetBinanceConnectCurrenciesResponse } from 'lib/apis/temple-static';
 import { CurrencyInfoType as UtorgCurrencyInfoType, UtorgCurrencyInfo } from 'lib/apis/utorg';
-import { toTokenSlug } from 'lib/temple/assets';
+import { toTokenSlug } from 'lib/assets';
 import { filterByStringProperty, isTruthy } from 'lib/utils';
-import { isDefined } from 'lib/utils/is-defined';
 
 import { TopUpProviderCurrencies } from './state';
 

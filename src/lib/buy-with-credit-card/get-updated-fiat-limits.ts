@@ -1,3 +1,4 @@
+import { isDefined } from '@rnw-community/shared';
 import axios from 'axios';
 
 import { PairLimits } from 'app/store/buy-with-credit-card/state';
@@ -5,7 +6,6 @@ import { getMoonPayBuyQuote } from 'lib/apis/moonpay';
 import { convertFiatAmountToCrypto as utorgConvertFiatAmountToCrypto } from 'lib/apis/utorg';
 import { createEntity } from 'lib/store';
 import { getAxiosQueryErrorMessage } from 'lib/utils/get-axios-query-error-message';
-import { isDefined } from 'lib/utils/is-defined';
 
 import { TopUpProviderId } from './top-up-provider-id.enum';
 import { TopUpInputInterface, TopUpOutputInterface } from './topup.interface';

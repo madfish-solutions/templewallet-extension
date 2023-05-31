@@ -3,14 +3,14 @@ import React, { FC, useMemo } from 'react';
 import { BigNumber } from 'bignumber.js';
 
 import Money from 'app/atoms/Money';
+import { AssetMetadataBase } from 'lib/metadata';
 import { ZERO } from 'lib/route3/constants';
-import { AssetMetadata } from 'lib/temple/metadata';
 
 interface Props {
   inputAmount: BigNumber | undefined;
   outputAmount: BigNumber | undefined;
-  inputAssetMetadata: AssetMetadata;
-  outputAssetMetadata: AssetMetadata;
+  inputAssetMetadata: AssetMetadataBase;
+  outputAssetMetadata: AssetMetadataBase;
 }
 
 export const SwapExchangeRate: FC<Props> = ({ inputAmount, outputAmount, inputAssetMetadata, outputAssetMetadata }) => {
