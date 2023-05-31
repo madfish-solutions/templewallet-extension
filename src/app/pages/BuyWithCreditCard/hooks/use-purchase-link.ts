@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 
+import { isDefined } from '@rnw-community/shared';
 import debounce from 'debounce-promise';
 
 import { useUserIdSelector } from 'app/store/settings/selectors';
@@ -10,7 +11,6 @@ import { createOrder as createUtorgOrder } from 'lib/apis/utorg';
 import { TopUpProviderId } from 'lib/buy-with-credit-card/top-up-provider-id.enum';
 import { useAccount } from 'lib/temple/front';
 import { useStopper } from 'lib/ui/hooks';
-import { isDefined } from 'lib/utils/is-defined';
 
 import { BuyWithCreditCardFormValues } from '../types/buy-with-credit-card-form-values';
 

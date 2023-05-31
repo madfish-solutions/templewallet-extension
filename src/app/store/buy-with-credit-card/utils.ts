@@ -2,6 +2,7 @@ import { isDefined } from '@rnw-community/shared';
 import { AxiosResponse } from 'axios';
 import BigNumber from 'bignumber.js';
 import { binanceCryptoIcons } from 'binance-icons';
+import CurrenciesCodes from 'currency-codes';
 
 import {
   Currency,
@@ -13,7 +14,8 @@ import { AliceBobPairInfo } from 'lib/apis/temple';
 import { GetBinanceConnectCurrenciesResponse } from 'lib/apis/temple-static';
 import { CurrencyInfoType as UtorgCurrencyInfoType, UtorgCurrencyInfo } from 'lib/apis/utorg';
 import { toTokenSlug } from 'lib/assets';
-import { filterByStringProperty, isTruthy } from 'lib/utils';
+import { LOCAL_MAINNET_TOKENS_METADATA } from 'lib/assets/known-tokens';
+import { filterByStringProperty } from 'lib/utils';
 
 import { TopUpProviderCurrencies } from './state';
 
@@ -112,12 +114,12 @@ export const mapBinanceConnectProviderCurrencies = (
   data: GetBinanceConnectCurrenciesResponse
 ): TopUpProviderCurrencies => {
   const fiat = filterByStringProperty(data.pairs, 'fiatCurrency').map(item => {
-    const symbol = item.fiatCurrency;
+    const code = item.fiatCurrency;
 
     return {
-      name: symbol,
-      code: symbol,
-      icon: `${UTORG_FIAT_ICONS_BASE_URL}${symbol.slice(0, -1)}.svg`,
+      name: CurrenciesCodes.code(code)?.currency ?? code,
+      code,
+      icon: `${UTORG_FIAT_ICONS_BASE_URL}${code.slice(0, -1)}.svg`,
       /** Assumed */
       precision: 2,
       minAmount: item.minLimit,
@@ -126,18 +128,21 @@ export const mapBinanceConnectProviderCurrencies = (
   });
 
   const crypto = data.assets.map(asset => {
-    const precision = isTruthy(asset.withdrawIntegerMultiple)
-      ? new BigNumber(asset.withdrawIntegerMultiple).decimalPlaces()!
-      : 0;
+    const { contractAddress, cryptoCurrency: code, withdrawIntegerMultiple } = asset;
 
-    const iconSvgString = binanceCryptoIcons.get(asset.cryptoCurrency.toLowerCase());
-    const icon = iconSvgString ? `data:image/svg+xml,${encodeURIComponent(iconSvgString)}` : '';
+    const precision =
+      withdrawIntegerMultiple && Number.isFinite(withdrawIntegerMultiple)
+        ? new BigNumber(withdrawIntegerMultiple).decimalPlaces()!
+        : 0;
+
+    const iconSvgString = binanceCryptoIcons.get(code.toLowerCase());
+    const icon = iconSvgString ? `data:image/svg+xml;charset=utf-8,${encodeURIComponent(iconSvgString)}` : '';
 
     return {
       /** No token id available */
-      slug: asset.contractAddress ? toTokenSlug(asset.contractAddress) : '',
-      name: asset.cryptoCurrency,
-      code: asset.cryptoCurrency,
+      slug: contractAddress ? toTokenSlug(contractAddress) : '',
+      name: getBinanceConnectCryptoCurrencyName(code, contractAddress),
+      code,
       icon,
       precision,
       minAmount: asset.withdrawMin,
@@ -146,4 +151,12 @@ export const mapBinanceConnectProviderCurrencies = (
   });
 
   return { fiat, crypto };
+};
+
+const getBinanceConnectCryptoCurrencyName = (code: string, address: string | null) => {
+  if (!address || code === 'XTZ') {
+    return 'Tezos';
+  }
+
+  return LOCAL_MAINNET_TOKENS_METADATA.find(m => m.address === address && m.id === 0)?.name ?? code;
 };
