@@ -13,7 +13,9 @@ import {
   toTokenSlug,
   fetchDisplayedFungibleTokens,
   fetchCollectibleTokens,
-  getPredefinedTokensSlugs
+  getPredefinedTokensSlugs,
+  KNOWN_TOKENS_SLUGS,
+  DEPRECATED_TKEY_METADATA
 } from 'lib/temple/assets';
 import { useChainId, useAccount, useTokensMetadata } from 'lib/temple/front';
 import { AssetMetadata, DetailedAssetMetdata, toBaseMetadata } from 'lib/temple/metadata';
@@ -137,6 +139,13 @@ const makeSync = async (
       baseMetadatasToSet[slug] = base;
       detailedMetadatasToSet[slug] = detailed;
     }
+  }
+
+  // Deprecated TKEY patch
+  const DEPRECATED_TKEY_SLUG = KNOWN_TOKENS_SLUGS.DEPRECATED_TKEY;
+  if (allTokensBaseMetadataRef.current[DEPRECATED_TKEY_SLUG]?.symbol !== DEPRECATED_TKEY_METADATA.symbol) {
+    baseMetadatasToSet[DEPRECATED_TKEY_SLUG] = DEPRECATED_TKEY_METADATA;
+    detailedMetadatasToSet[DEPRECATED_TKEY_SLUG] = DEPRECATED_TKEY_METADATA;
   }
 
   setTokensBaseMetadata(baseMetadatasToSet);

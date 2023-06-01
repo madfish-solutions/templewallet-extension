@@ -1,6 +1,7 @@
 import { TEMPLE_TOKEN } from 'lib/route3/constants';
 import { TempleChainId } from 'lib/temple/types';
 
+import type { AssetMetadata } from '../metadata';
 import { toTokenSlug } from './utils';
 
 export namespace KNOWN_TOKENS_SLUGS {
@@ -14,6 +15,7 @@ export namespace KNOWN_TOKENS_SLUGS {
   export const YOU = toTokenSlug('KT1Xobej4mc6XgEjDoJoHtTKgbD1ELMvcQuL', 0);
   export const SIRS = toTokenSlug('KT1AafHA1C1vk959wvHWBispY9Y2f3fxBUUo', 0);
   export const TEMPLE = toTokenSlug(TEMPLE_TOKEN.contract!, TEMPLE_TOKEN.tokenId!);
+  export const DEPRECATED_TKEY = toTokenSlug('KT1WihWRnmzhfebi6zqQ4tvNGiPeVxiGwTi2', 0);
 }
 
 const PREDEFINED_TOKENS_BY_CHAIN_ID: Record<string, string[]> = {
@@ -35,4 +37,11 @@ export const TOKENS_BRAND_COLORS: Record<string, { bg: string; bgHover?: string 
   [KNOWN_TOKENS_SLUGS.KUSD]: { bg: '#3EBD93', bgHover: '#65CAA9' },
   [KNOWN_TOKENS_SLUGS.TZBTC]: { bg: '#1373E4', bgHover: '#428FE9' },
   [KNOWN_TOKENS_SLUGS.USDT]: { bg: '#009393', bgHover: '#52AF95' }
+};
+
+export const DEPRECATED_TKEY_METADATA: AssetMetadata = {
+  name: 'Deprecated Temple Key',
+  symbol: 'TKEY_OLD',
+  decimals: 18,
+  shouldPreferSymbol: false
 };

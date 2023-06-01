@@ -15,11 +15,12 @@ export const MAX_ROUTING_FEE_CHAINS = 1;
 export const SWAP_THRESHOLD_TO_GET_CASHBACK = 10;
 
 export const ZERO = new BigNumber(0);
+
 export const TEMPLE_TOKEN: Route3Token = {
-  id: 128,
+  id: 138,
   symbol: 'TKEY',
   standard: Route3TokenStandardEnum.fa2,
-  contract: 'KT1WihWRnmzhfebi6zqQ4tvNGiPeVxiGwTi2',
+  contract: 'KT1VaEsVNiBoA56eToEK6n6BcPgh1tdx9eXi',
   tokenId: '0',
   decimals: 18
 };
