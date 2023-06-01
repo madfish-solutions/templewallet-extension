@@ -1,7 +1,7 @@
 import { localForger } from '@taquito/local-forging';
 import { valueDecoder } from '@taquito/local-forging/dist/lib/michelson/codec';
 import { Uint8ArrayConsumer } from '@taquito/local-forging/dist/lib/uint8array-consumer';
-import { emitMicheline } from '@taquito/michel-codec';
+import { emitMicheline, unpackDataBytes, StringLiteral } from '@taquito/michel-codec';
 import { RpcClient } from '@taquito/rpc';
 import { TezosOperationError } from '@taquito/taquito';
 import {
@@ -263,26 +263,30 @@ const generatePromisifySign = async (
 
   let preview: any;
   try {
-    const value = valueDecoder(Uint8ArrayConsumer.fromHexString(req.payload.slice(2)));
-    const parsed = emitMicheline(value, {
-      indent: '  ',
-      newline: '\n'
-    }).slice(1, -1);
-
     if (req.payload.match(TEZ_MSG_SIGN_PATTERN)) {
-      preview = value.string;
+      preview = (unpackDataBytes({ bytes: req.payload }) as StringLiteral).string;
     } else {
-      if (parsed.length > 0) {
-        preview = parsed;
+      const value = valueDecoder(Uint8ArrayConsumer.fromHexString(req.payload));
+      const parsedMicheline = emitMicheline(value, {
+        indent: '  ',
+        newline: '\n'
+      });
+
+      if (parsedMicheline.length > 0) {
+        preview = parsedMicheline;
       } else {
-        const parsed = await localForger.parse(req.payload);
-        if (parsed.contents.length > 0) {
-          preview = parsed;
+        const parsedParams = await localForger.parse(req.payload);
+        if (parsedParams.contents.length > 0) {
+          preview = parsedParams;
         }
       }
     }
   } catch {
-    preview = null;
+    const utf8Payload = Buffer.from(req.payload, 'hex').toString('utf8');
+    const gibberishRegex = /[^ A-Za-z0-9_@.,!?/#&+-\d\s:]/g;
+    const maxGibberishLength = utf8Payload.length / 10;
+    const gibberishLength = utf8Payload.match(gibberishRegex)?.length ?? 0;
+    preview = gibberishLength > maxGibberishLength ? req.payload : utf8Payload;
   }
 
   await requestConfirm({
@@ -425,6 +429,8 @@ async function requestConfirm({ id, payload, onDecline, handleIntercomRequest }:
           };
         }
       }
+
+      console.log('payload', payload);
 
       return {
         type: TempleMessageType.DAppGetPayloadResponse,
