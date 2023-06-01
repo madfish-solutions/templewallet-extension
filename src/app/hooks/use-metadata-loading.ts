@@ -1,13 +1,14 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
 import { useDispatch } from 'react-redux';
 
-import { loadTokensMetadataAction } from 'app/store/tokens-metadata/actions';
+import { loadTokensMetadataAction, loadWhitelistAction } from 'app/store/tokens-metadata/actions';
 import { useTokensMetadataSelector } from 'app/store/tokens-metadata/selectors';
 import { METADATA_SYNC_INTERVAL } from 'lib/fixed-times';
 import { useChainId, useTezos } from 'lib/temple/front';
 import { useAllStoredTokensSlugs } from 'lib/temple/front/assets';
+import { TempleChainId } from 'lib/temple/types';
 import { useInterval } from 'lib/ui/hooks';
 
 export const useMetadataLoading = () => {
@@ -23,6 +24,10 @@ export const useMetadataLoading = () => {
     () => tokensSlugs?.filter(slug => !isDefined(tokensMetadata[slug])),
     [tokensSlugs, tokensMetadata]
   );
+
+  useEffect(() => {
+    if (chainId === TempleChainId.Mainnet) dispatch(loadWhitelistAction.submit());
+  }, [chainId]);
 
   useInterval(
     () => {

@@ -8,7 +8,7 @@ import { loadOneTokenMetadata$, loadTokensMetadata$, loadWhitelist$ } from 'lib/
 
 import {
   addTokensMetadataAction,
-  loadTokenMetadataActions,
+  loadOneTokenMetadataActions,
   loadTokensMetadataAction,
   loadTokenSuggestionActions,
   loadWhitelistAction
@@ -17,9 +17,8 @@ import {
 const loadWhitelistEpic: Epic = (action$: Observable<Action>) =>
   action$.pipe(
     ofType(loadWhitelistAction.submit),
-    toPayload(),
-    switchMap(({ selectedRpcUrl }) =>
-      loadWhitelist$(selectedRpcUrl).pipe(
+    switchMap(() =>
+      loadWhitelist$().pipe(
         concatMap(tokensMetadata => [loadWhitelistAction.success(tokensMetadata)]),
         catchError(err => of(loadWhitelistAction.fail(err.message)))
       )
@@ -45,17 +44,17 @@ const loadTokenSuggestionEpic = (action$: Observable<Action>) =>
     )
   );
 
-const loadTokenMetadataEpic = (action$: Observable<Action>) =>
+const loadOneTokenMetadataEpic = (action$: Observable<Action>) =>
   action$.pipe(
-    ofType(loadTokenMetadataActions.submit),
+    ofType(loadOneTokenMetadataActions.submit),
     toPayload(),
     concatMap(({ rpcUrl, id, address }) =>
       loadOneTokenMetadata$(rpcUrl, address, id).pipe(
         concatMap(tokenMetadata => [
-          loadTokenMetadataActions.success(tokenMetadata),
+          loadOneTokenMetadataActions.success(tokenMetadata),
           addTokensMetadataAction([tokenMetadata])
         ]),
-        catchError(err => of(loadTokenMetadataActions.fail(err.message)))
+        catchError(err => of(loadOneTokenMetadataActions.fail(err.message)))
       )
     )
   );
@@ -67,7 +66,7 @@ const loadTokensMetadataEpic = (action$: Observable<Action>) =>
     switchMap(({ rpcUrl, slugs }) =>
       loadTokensMetadata$(rpcUrl, slugs).pipe(
         map(tokensMetadata => addTokensMetadataAction(tokensMetadata)),
-        catchError(err => of(loadTokenMetadataActions.fail(err.message)))
+        catchError(err => of(loadOneTokenMetadataActions.fail(err.message)))
       )
     )
   );
@@ -75,6 +74,6 @@ const loadTokensMetadataEpic = (action$: Observable<Action>) =>
 export const tokensMetadataEpics = combineEpics(
   loadWhitelistEpic,
   loadTokenSuggestionEpic,
-  loadTokenMetadataEpic,
+  loadOneTokenMetadataEpic,
   loadTokensMetadataEpic
 );
