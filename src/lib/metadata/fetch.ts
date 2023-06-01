@@ -2,7 +2,7 @@ import { isDefined } from '@rnw-community/shared';
 import { TezosToolkit } from '@taquito/taquito';
 import { pick } from 'lodash';
 import memoize from 'mem';
-import { of, from, Observable } from 'rxjs';
+import { from, Observable } from 'rxjs';
 import { map, filter } from 'rxjs/operators';
 
 import {
@@ -14,7 +14,6 @@ import {
   isKnownChainId
 } from 'lib/apis/temple';
 import { tokenToSlug } from 'lib/assets';
-import { isDcpNode } from 'lib/temple/networks';
 
 import { TokenMetadataOnChain, fetchTokenMetadata as fetchTokenMetadataOnChain } from './on-chain';
 import { TokenMetadata, TokenStandardsEnum } from './types';
@@ -102,14 +101,12 @@ const buildTokenMetadataFromFetched = (
         artifactUri: token.artifactUri
       };
 
-export const loadWhitelist$ = (selectedRpc: string): Observable<TokenMetadata[]> =>
-  isDcpNode(selectedRpc)
-    ? of([])
-    : fetchWhitelistTokens$().pipe(
-        map(tokens =>
-          tokens.map(token => transformWhitelistToTokenMetadata(token, token.contractAddress, token.fa2TokenId ?? 0))
-        )
-      );
+export const loadWhitelist$ = (): Observable<TokenMetadata[]> =>
+  fetchWhitelistTokens$().pipe(
+    map(tokens =>
+      tokens.map(token => transformWhitelistToTokenMetadata(token, token.contractAddress, token.fa2TokenId ?? 0))
+    )
+  );
 
 const transformWhitelistToTokenMetadata = (
   token: WhitelistResponseToken,
