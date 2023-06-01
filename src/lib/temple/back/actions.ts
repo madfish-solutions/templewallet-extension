@@ -405,7 +405,6 @@ export async function processDApp(origin: string, req: TempleDAppRequest): Promi
       return withInited(() => enqueueDApp(() => requestOperation(origin, req)));
 
     case TempleDAppMessageType.SignRequest:
-      console.log('payload 0', req.payload);
       return withInited(() => enqueueDApp(() => requestSign(origin, req)));
 
     case TempleDAppMessageType.BroadcastRequest:
