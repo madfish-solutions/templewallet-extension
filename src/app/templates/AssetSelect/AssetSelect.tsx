@@ -66,7 +66,7 @@ const AssetSelect: FC<AssetSelectProps> = ({ value, assets, onChange, className,
 
 export default AssetSelect;
 
-const AssetSelectTitle: FC = () => (
+export const AssetSelectTitle: FC = () => (
   <h2 className="mb-4 leading-tight flex flex-col">
     <span className="text-base font-semibold text-gray-700">
       <T id="asset" />
@@ -80,7 +80,7 @@ const AssetSelectTitle: FC = () => (
 
 type AssetSelectOptionRenderProps = IconifiedSelectOptionRenderProps<IAsset>;
 
-const AssetFieldContent: FC<AssetSelectOptionRenderProps> = ({ option }) => {
+export const AssetFieldContent: FC<AssetSelectOptionRenderProps> = ({ option }) => {
   const account = useAccount();
   const assetSlug = getSlug(option);
   const metadata = useAssetMetadata(assetSlug);
@@ -115,7 +115,7 @@ const AssetFieldContent: FC<AssetSelectOptionRenderProps> = ({ option }) => {
   );
 };
 
-const AssetOptionContent: FC<AssetSelectOptionRenderProps> = ({ option }) => {
+export const AssetOptionContent: FC<AssetSelectOptionRenderProps> = ({ option }) => {
   const slug = getSlug(option);
 
   return (
