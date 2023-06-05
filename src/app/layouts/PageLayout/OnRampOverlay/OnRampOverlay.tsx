@@ -18,12 +18,16 @@ export const OnRampOverlay: FC = () => {
   const { popup } = useAppEnv();
   //const { trackEvent } = useAnalytics();
 
-  const popupClassName = popup ? 'inset-0' : 'top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2';
+  const popupClassName = popup ? 'inset-0 p-4' : 'top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2';
 
   return (
     <>
       <div className={'fixed left-0 right-0 top-0 bottom-0 opacity-20 bg-gray-700 z-50'}></div>
-      <ContentContainer className={classNames('fixed z-50', 'overflow-y-auto p-4', popupClassName)} padding={!popup}>
+      <ContentContainer
+        className={classNames('fixed z-50', 'overflow-y-auto', popupClassName)}
+        style={{ maxWidth: '37.5rem' }}
+        padding={false}
+      >
         <div
           className={classNames(
             'flex flex-col text-center bg-white shadow-lg bg-no-repeat rounded-md p-6',
@@ -49,7 +53,10 @@ export const OnRampOverlay: FC = () => {
           <h1 className="font-inter font-normal text-gray-910 mt-25" style={{ fontSize: '1.438rem' }}>
             <T id="jumpInTezos" />
           </h1>
-          <p className="font-inter font-normal text-gray-700 mt-4" style={{ fontSize: '1.063rem' }}>
+          <p
+            className={classNames('font-inter font-normal text-gray-700 mt-4', !popup && 'px-10')}
+            style={{ fontSize: '1.063rem' }}
+          >
             <T
               id="onRampDesription"
               substitutions={[
@@ -59,7 +66,7 @@ export const OnRampOverlay: FC = () => {
               ]}
             />
           </p>
-          <div className="flex flex-row justify-between mt-8">
+          <div className={classNames('flex flex-row justify-between mt-8', !popup && 'px-14')}>
             <OnRampSmileButton smile="🙂" amount={50} testID={OnRampOverlaySelectors.fiftyDollarButton} />
             <OnRampSmileButton
               smile="🤩"
@@ -83,7 +90,13 @@ export const OnRampOverlay: FC = () => {
             <T id="customAmount" />
             <ArrowRightIcon className="ml-2 h-3 w-auto stroke-current stroke-2" />
           </Anchor>
-          <p className={classNames('font-inter font-normal mt-auto pl-5 pr-5', 'text-xs text-gray-600')}>
+          <p
+            className={classNames(
+              'font-inter font-normal mt-auto px-5',
+              'text-xs text-gray-600',
+              popup ? 'mt-29' : 'pt-29'
+            )}
+          >
             <T id="thirdParty" />
           </p>
         </div>

@@ -25,10 +25,9 @@ export const OnRampSmileButton: FC<OnRumpSmileButtonProps> = ({ smile, amount, c
         'shadow-md hover:bg-gray-100',
         'transition ease-in-out duration-200',
         'cursor-pointer',
-        !popup && 'w-35',
         className
       )}
-      style={{ height: '5.438rem', width: popup ? '5.5rem' : 'unset' }}
+      style={{ height: '5.438rem', width: popup ? '5.5rem' : '8.75rem' }}
       testID={testID}
     >
       <span className="h-7 text-2xl-plus">{smile}</span>
