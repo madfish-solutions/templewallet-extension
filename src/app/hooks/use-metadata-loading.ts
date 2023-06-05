@@ -1,9 +1,9 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
 import { useDispatch } from 'react-redux';
 
-import { loadTokensMetadataAction } from 'app/store/tokens-metadata/actions';
+import { loadTokensMetadataAction, resetTokenMetadataLoadingAction } from 'app/store/tokens-metadata/actions';
 import { useTokensMetadataSelector } from 'app/store/tokens-metadata/selectors';
 import { METADATA_SYNC_INTERVAL } from 'lib/fixed-times';
 import { useChainId, useTezos } from 'lib/temple/front';
@@ -23,6 +23,12 @@ export const useMetadataLoading = () => {
     () => tokensSlugs?.filter(slug => !isDefined(tokensMetadata[slug])),
     [tokensSlugs, tokensMetadata]
   );
+
+  useEffect(() => {
+    dispatch(resetTokenMetadataLoadingAction());
+
+    return () => void dispatch(resetTokenMetadataLoadingAction());
+  }, []);
 
   useInterval(
     () => {

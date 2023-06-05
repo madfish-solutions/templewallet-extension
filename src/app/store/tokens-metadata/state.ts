@@ -4,6 +4,7 @@ import type { TokenMetadata } from 'lib/metadata';
 
 export interface TokensMetadataState {
   metadataRecord: Record<string, TokenMetadata>;
+  metadataLoading: boolean;
 }
 
 export const tokensMetadataInitialState: TokensMetadataState = {
@@ -13,5 +14,6 @@ export const tokensMetadataInitialState: TokensMetadataState = {
       [tokenToSlug(tokenMetadata)]: tokenMetadata
     }),
     {}
-  )
+  ),
+  metadataLoading: false
 };
