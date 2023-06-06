@@ -3,13 +3,24 @@ import { isDefined } from '@rnw-community/shared';
 
 import { tokenToSlug } from 'lib/assets';
 
-import { addTokensMetadataAction, loadWhitelistAction } from './actions';
+import {
+  addTokensMetadataAction,
+  loadWhitelistAction,
+  loadTokensMetadataAction,
+  loadOneTokenMetadataActions,
+  resetTokensMetadataLoadingAction
+} from './actions';
 import { tokensMetadataInitialState, TokensMetadataState } from './state';
 import { patchMetadatas } from './utils';
 
 export const tokensMetadataReducer = createReducer<TokensMetadataState>(tokensMetadataInitialState, builder => {
   builder.addCase(addTokensMetadataAction, (state, { payload: tokensMetadata }) => {
-    if (tokensMetadata.length < 1) return state;
+    if (tokensMetadata.length < 1) {
+      return {
+        ...state,
+        metadataLoading: false
+      };
+    }
 
     const metadataRecord = tokensMetadata.reduce((prevState, tokenMetadata) => {
       const slug = tokenToSlug(tokenMetadata);
@@ -25,7 +36,8 @@ export const tokensMetadataReducer = createReducer<TokensMetadataState>(tokensMe
 
     return {
       ...state,
-      metadataRecord
+      metadataRecord,
+      metadataLoading: false
     };
   });
 
@@ -51,4 +63,19 @@ export const tokensMetadataReducer = createReducer<TokensMetadataState>(tokensMe
       )
     };
   });
+
+  builder.addCase(loadTokensMetadataAction, state => ({
+    ...state,
+    metadataLoading: true
+  }));
+
+  builder.addCase(resetTokensMetadataLoadingAction, state => ({
+    ...state,
+    metadataLoading: false
+  }));
+
+  builder.addCase(loadOneTokenMetadataActions.fail, state => ({
+    ...state,
+    metadataLoading: false
+  }));
 });

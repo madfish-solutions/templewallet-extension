@@ -1,14 +1,16 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
 import { BigNumber } from 'bignumber.js';
+import { useDispatch } from 'react-redux';
 import { ScopedMutator } from 'swr/dist/types';
 import { useDebounce } from 'use-debounce';
 
 import { useBalancesWithDecimals } from 'app/hooks/use-balances-with-decimals.hook';
 import { useBalancesSelector } from 'app/store/balances/selectors';
 import { useSwapTokensSelector } from 'app/store/swap/selectors';
-import { useTokensMetadataSelector } from 'app/store/tokens-metadata/selectors';
+import { loadTokensMetadataAction } from 'app/store/tokens-metadata/actions';
+import { useTokensMetadataSelector, useTokensMetadataLoadingSelector } from 'app/store/tokens-metadata/selectors';
 import { isTezAsset, TEZ_TOKEN_SLUG, toTokenSlug } from 'lib/assets';
 import { AssetTypesEnum } from 'lib/assets/types';
 import { useUsdToTokenRates } from 'lib/fiat-currency/core';
@@ -20,6 +22,7 @@ import { useRetryableSWR } from 'lib/swr';
 import { getStoredTokens, getAllStoredTokensSlugs, isTokenDisplayed } from 'lib/temple/assets';
 import { useNetwork } from 'lib/temple/front';
 import { ITokenStatus } from 'lib/temple/repo';
+import { isTruthy } from 'lib/utils';
 import { searchAndFilterItems } from 'lib/utils/search-items';
 
 import { useChainId, useAccount } from './ready';
@@ -281,6 +284,9 @@ export function useFilteredSwapAssets(inputName: string = 'input') {
   const { publicKeyHash } = useAccount();
   const chainId = useChainId(true)!;
   const balances = useBalancesSelector(publicKeyHash, chainId);
+  const tokensMetadataLoading = useTokensMetadataLoadingSelector();
+  const { rpcBaseURL: rpcUrl } = useNetwork();
+  const dispatch = useDispatch();
 
   const assetSlugs = useMemo(() => {
     if (inputName === 'input') {
@@ -303,6 +309,20 @@ export function useFilteredSwapAssets(inputName: string = 'input') {
   const [searchValue, setSearchValue] = useState('');
   const [tokenId, setTokenId] = useState<number>();
   const [searchValueDebounced] = useDebounce(tokenId ? toTokenSlug(searchValue, tokenId) : searchValue, 300);
+
+  useEffect(() => {
+    if (inputName !== 'output') {
+      return;
+    }
+
+    const metadataMissingAssetsSlugs = assetSlugs.filter(
+      assetSlug => !isTruthy(allTokensMetadata[assetSlug]) && !isTezAsset(assetSlug)
+    );
+
+    if (metadataMissingAssetsSlugs.length > 0 && !tokensMetadataLoading) {
+      dispatch(loadTokensMetadataAction({ rpcUrl, slugs: metadataMissingAssetsSlugs }));
+    }
+  }, [inputName, assetSlugs, allTokensMetadata, tokensMetadataLoading, dispatch, rpcUrl]);
 
   const filteredAssets = useMemo(
     () =>

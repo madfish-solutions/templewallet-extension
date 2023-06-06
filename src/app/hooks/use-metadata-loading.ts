@@ -3,7 +3,11 @@ import { useEffect, useMemo } from 'react';
 import { isDefined } from '@rnw-community/shared';
 import { useDispatch } from 'react-redux';
 
-import { loadTokensMetadataAction, loadWhitelistAction } from 'app/store/tokens-metadata/actions';
+import {
+  loadTokensMetadataAction,
+  loadWhitelistAction,
+  resetTokensMetadataLoadingAction
+} from 'app/store/tokens-metadata/actions';
 import { useTokensMetadataSelector } from 'app/store/tokens-metadata/selectors';
 import { METADATA_SYNC_INTERVAL } from 'lib/fixed-times';
 import { useChainId, useTezos } from 'lib/temple/front';
@@ -28,6 +32,12 @@ export const useMetadataLoading = () => {
   useEffect(() => {
     if (chainId === TempleChainId.Mainnet) dispatch(loadWhitelistAction.submit());
   }, [chainId]);
+
+  useEffect(() => {
+    dispatch(resetTokensMetadataLoadingAction());
+
+    return () => void dispatch(resetTokensMetadataLoadingAction());
+  }, []);
 
   useInterval(
     () => {

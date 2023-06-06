@@ -6,3 +6,6 @@ export const useTokenMetadataSelector = (slug: string): TokenMetadata | undefine
   useSelector(state => state.tokensMetadata.metadataRecord[slug]);
 
 export const useTokensMetadataSelector = () => useSelector(({ tokensMetadata }) => tokensMetadata.metadataRecord);
+
+export const useTokensMetadataLoadingSelector = () =>
+  useSelector(({ tokensMetadata }) => tokensMetadata.metadataLoading);
