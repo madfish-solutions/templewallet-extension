@@ -12,7 +12,7 @@ import {
   specialCharacterRegx,
   uppercaseLowercaseMixtureRegx
 } from 'app/defaults';
-import { setIsAnalyticsEnabledAction } from 'app/store/settings/actions';
+import { setIsAnalyticsEnabledAction, setOnRampPossibilityAction } from 'app/store/settings/actions';
 import { AnalyticsEventCategory, TestIDProps, useAnalytics } from 'lib/analytics';
 import { T, t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
@@ -117,6 +117,7 @@ export const SetWalletPassword: FC<SetWalletPasswordProps> = ({
           data.analytics
         );
         navigate('/loading');
+        !ownMnemonic && dispatch(setOnRampPossibilityAction(true));
       } catch (err: any) {
         console.error(err);
 

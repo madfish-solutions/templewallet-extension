@@ -7,17 +7,28 @@ import { useAppEnv } from 'app/env';
 import { TestIDProps } from 'lib/analytics';
 
 interface OnRumpSmileButtonProps extends TestIDProps {
+  href: string;
   smile: string;
   amount: number;
   className?: string;
   titleClassName?: string;
+  onClick?: () => void;
 }
 
-export const OnRampSmileButton: FC<OnRumpSmileButtonProps> = ({ smile, amount, className, titleClassName, testID }) => {
+export const OnRampSmileButton: FC<OnRumpSmileButtonProps> = ({
+  href,
+  smile,
+  amount,
+  className,
+  titleClassName,
+  onClick,
+  testID
+}) => {
   const { popup } = useAppEnv();
 
   return (
     <Anchor
+      href={href}
       className={classNames(
         'flex flex-col',
         'justify-center items-center',
@@ -28,6 +39,7 @@ export const OnRampSmileButton: FC<OnRumpSmileButtonProps> = ({ smile, amount, c
         className
       )}
       style={{ height: '5.438rem', width: popup ? '5.5rem' : '8.75rem' }}
+      onClick={onClick}
       testID={testID}
     >
       <span className="h-7 text-2xl-plus">{smile}</span>

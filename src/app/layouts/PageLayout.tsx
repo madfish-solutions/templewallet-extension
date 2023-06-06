@@ -9,6 +9,7 @@ import { useAppEnv } from 'app/env';
 import ErrorBoundary from 'app/ErrorBoundary';
 import { ReactComponent as ChevronLeftIcon } from 'app/icons/chevron-left.svg';
 import ContentContainer from 'app/layouts/ContentContainer';
+import { useOnRampPossibilitySelector } from 'app/store/settings/selectors';
 import { T } from 'lib/i18n';
 import { NotificationsBell } from 'lib/notifications';
 import { goBack, HistoryAction, navigate, useLocation } from 'lib/woozie';
@@ -29,6 +30,7 @@ interface PageLayoutProps extends PropsWithChildren, ToolbarProps {
 
 const PageLayout: FC<PageLayoutProps> = ({ children, contentContainerStyle, ...toolbarProps }) => {
   const { fullPage } = useAppEnv();
+  const isOnRampPossibility = useOnRampPossibilitySelector();
 
   return (
     <>
@@ -51,7 +53,7 @@ const PageLayout: FC<PageLayoutProps> = ({ children, contentContainerStyle, ...t
       <AdvertisingOverlay />
       <ConfirmationOverlay />
       <ChangelogOverlay />
-      <OnRampOverlay />
+      {isOnRampPossibility && <OnRampOverlay />}
     </>
   );
 };

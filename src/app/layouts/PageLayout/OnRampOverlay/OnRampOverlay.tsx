@@ -1,24 +1,33 @@
-import React, { FC } from 'react';
+import React, { FC, useMemo } from 'react';
 
 import classNames from 'clsx';
+import { useDispatch } from 'react-redux';
 
 import { Anchor, Button } from 'app/atoms';
 import { useAppEnv } from 'app/env';
 import { ReactComponent as ArrowRightIcon } from 'app/icons/arrow-right.svg';
 import { ReactComponent as CloseIcon } from 'app/icons/close.svg';
 import ContentContainer from 'app/layouts/ContentContainer';
+import { setOnRampPossibilityAction } from 'app/store/settings/actions';
 import { T } from 'lib/i18n/react';
+import { useAccount } from 'lib/temple/front';
 
 import OnRampOverlayBgPopupImg from './assets/on-ramp-overlay-bg-popup.png';
 import OnRampOverlayBgImg from './assets/on-ramp-overlay-bg.png';
 import { OnRampOverlaySelectors } from './OnRampOverlay.selectors';
 import { OnRampSmileButton } from './OnRampSmileButton/OnRampSmileButton';
+import { getWertLink } from './utils/getWertLink.util';
 
 export const OnRampOverlay: FC = () => {
+  const dispatch = useDispatch();
+  const { publicKeyHash } = useAccount();
   const { popup } = useAppEnv();
-  //const { trackEvent } = useAnalytics();
 
-  const popupClassName = popup ? 'inset-0 p-4' : 'top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2';
+  const popupClassName = useMemo(
+    () => (popup ? 'inset-0 p-4' : 'top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2'),
+    [popup]
+  );
+  const close = () => void dispatch(setOnRampPossibilityAction(false));
 
   return (
     <>
@@ -46,6 +55,8 @@ export const OnRampOverlay: FC = () => {
               'hover:opacity-90 relative'
             )}
             style={{ top: '-0.75rem', right: '-0.75rem' }}
+            onClick={close}
+            testID={OnRampOverlaySelectors.closeButton}
           >
             <T id="close" />
             <CloseIcon className="ml-2 h-4 w-auto stroke-current stroke-2" />
@@ -67,17 +78,32 @@ export const OnRampOverlay: FC = () => {
             />
           </p>
           <div className={classNames('flex flex-row justify-between mt-8', !popup && 'px-14')}>
-            <OnRampSmileButton smile="🙂" amount={50} testID={OnRampOverlaySelectors.fiftyDollarButton} />
             <OnRampSmileButton
+              href={getWertLink(publicKeyHash, 50)}
+              smile="🙂"
+              amount={50}
+              onClick={close}
+              testID={OnRampOverlaySelectors.fiftyDollarButton}
+            />
+            <OnRampSmileButton
+              href={getWertLink(publicKeyHash, 100)}
               smile="🤩"
               amount={100}
               className={classNames('hover:shadow hover:opacity-90 hover:bg-orange-500', 'bg-orange-500')}
               titleClassName="text-primary-white"
+              onClick={close}
               testID={OnRampOverlaySelectors.oneHundredDollarButton}
             />
-            <OnRampSmileButton smile="🤑" amount={200} testID={OnRampOverlaySelectors.twoHundredDollarButton} />
+            <OnRampSmileButton
+              href={getWertLink(publicKeyHash, 200)}
+              smile="🤑"
+              amount={200}
+              onClick={close}
+              testID={OnRampOverlaySelectors.twoHundredDollarButton}
+            />
           </div>
           <Anchor
+            href={getWertLink(publicKeyHash)}
             className={classNames(
               'w-32',
               'mt-4 font-inter text-gray-600',
@@ -86,6 +112,8 @@ export const OnRampOverlay: FC = () => {
               'hover:bg-gray-100 cursor-pointer'
             )}
             style={{ width: '9.438rem', height: '2.063rem' }}
+            onClick={close}
+            testID={OnRampOverlaySelectors.customAmountButton}
           >
             <T id="customAmount" />
             <ArrowRightIcon className="ml-2 h-3 w-auto stroke-current stroke-2" />
