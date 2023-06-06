@@ -31,11 +31,13 @@ export const OnRampOverlay: FC = () => {
   );
   const close = () => void dispatch(setOnRampPossibilityAction(false));
 
-  return isOnRampPossibility ? (
+  if (!isOnRampPossibility) return null;
+
+  return (
     <>
-      <div className={'fixed left-0 right-0 top-0 bottom-0 opacity-20 bg-gray-700 z-50'}></div>
+      <div className="fixed left-0 right-0 top-0 bottom-0 opacity-20 bg-gray-700 z-50"></div>
       <ContentContainer
-        className={classNames('fixed z-50', 'overflow-y-auto', popupClassName)}
+        className={classNames('fixed z-50 overflow-y-auto', popupClassName)}
         style={{ maxWidth: '37.5rem' }}
         padding={false}
       >
@@ -91,7 +93,7 @@ export const OnRampOverlay: FC = () => {
               href={getWertLink(publicKeyHash, 100)}
               smile="🤩"
               amount={100}
-              className={classNames('hover:shadow hover:opacity-90 hover:bg-orange-500', 'bg-orange-500')}
+              className="hover:shadow hover:opacity-90 hover:bg-orange-500 bg-orange-500"
               titleClassName="text-primary-white"
               onClick={close}
               testID={OnRampOverlaySelectors.oneHundredDollarButton}
@@ -122,8 +124,7 @@ export const OnRampOverlay: FC = () => {
           </Anchor>
           <p
             className={classNames(
-              'font-inter font-normal mt-auto px-5',
-              'text-xs text-gray-600',
+              'font-inter font-normal mt-auto px-5 text-xs text-gray-600',
               popup ? 'mt-29' : 'pt-29'
             )}
           >
@@ -132,5 +133,5 @@ export const OnRampOverlay: FC = () => {
         </div>
       </ContentContainer>
     </>
-  ) : null;
+  );
 };

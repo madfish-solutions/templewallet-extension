@@ -44,7 +44,7 @@ export const OnRampSmileButton: FC<OnRumpSmileButtonProps> = ({
     >
       <span className="h-7 text-2xl-plus">{smile}</span>
       <p
-        className={classNames('font-inter', 'font-semibold text-orange-500', 'mt-2', titleClassName)}
+        className={classNames('font-inter font-semibold text-orange-500 mt-2', titleClassName)}
         style={{ fontSize: '1.188rem' }}
       >
         {amount}$
