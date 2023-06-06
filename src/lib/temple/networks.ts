@@ -136,8 +136,3 @@ export const NETWORKS: TempleNetwork[] = [
     hidden: true
   }
 ];
-
-export const isDcpNode = (rpcBaseURL: string) => {
-  const href = new URL(rpcBaseURL).href;
-  return DCP_NETWORKS.some(network => new URL(network.rpcBaseURL).href === href);
-};

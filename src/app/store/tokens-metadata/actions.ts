@@ -9,15 +9,13 @@ export const loadTokensMetadataAction = createAction<{ rpcUrl: string; slugs: st
   'assets/LOAD_TOKENS_METADATA'
 );
 
-export const loadWhitelistAction = createActions<{ selectedRpcUrl: string }, Array<TokenMetadata>>(
-  'assets/LOAD_WHITELIST_METADATA'
-);
+export const loadWhitelistAction = createActions<undefined, TokenMetadata[]>('assets/LOAD_WHITELIST_METADATA');
 
 interface LoadTokenMetadataPayload extends Pick<TokenMetadata, 'id' | 'address'> {
   rpcUrl: string;
 }
 
-export const loadTokenMetadataActions = createActions<LoadTokenMetadataPayload, TokenMetadata, string>(
+export const loadOneTokenMetadataActions = createActions<LoadTokenMetadataPayload, TokenMetadata, string>(
   'assets/LOAD_TOKEN_METADATA'
 );
 
@@ -25,4 +23,4 @@ export const loadTokenSuggestionActions = createActions<LoadTokenMetadataPayload
   'assets/LOAD_TOKEN_SUGGESTION'
 );
 
-export const resetTokenMetadataLoadingAction = createAction('assets/RESET_TOKEN_METADATA_LOADING');
+export const resetTokensMetadataLoadingAction = createAction('assets/RESET_TOKENS_METADATA_LOADING');

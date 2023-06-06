@@ -5,7 +5,7 @@ import { toTokenSlug } from './index';
 import { FA2Token } from './types';
 
 export const TempleToken: FA2Token = {
-  contract: 'KT1WihWRnmzhfebi6zqQ4tvNGiPeVxiGwTi2',
+  contract: 'KT1VaEsVNiBoA56eToEK6n6BcPgh1tdx9eXi',
   id: 0
 };
 
@@ -43,7 +43,17 @@ export const TOKENS_BRAND_COLORS: Record<string, { bg: string; bgHover?: string 
   [KNOWN_TOKENS_SLUGS.USDT]: { bg: '#009393', bgHover: '#52AF95' }
 };
 
+export const DEPRECATED_TKEY_METADATA: TokenMetadata = {
+  id: 0,
+  address: 'KT1WihWRnmzhfebi6zqQ4tvNGiPeVxiGwTi2',
+  name: 'Deprecated Temple Key',
+  symbol: 'TKEY_OLD',
+  decimals: 18,
+  standard: TokenStandardsEnum.Fa2
+};
+
 export const LOCAL_MAINNET_TOKENS_METADATA: TokenMetadata[] = [
+  DEPRECATED_TKEY_METADATA,
   {
     id: 0,
     address: 'KT1XnTn74bUtxHfDtBmm2bGZAQfhPbvKWR8o',
