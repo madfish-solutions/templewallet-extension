@@ -1,5 +1,7 @@
 import React, { useCallback, FC } from 'react';
 
+import { InputGeneral } from 'app/templates/InputGeneral/InputGeneral';
+import { SelectGeneral } from 'app/templates/InputGeneral/SelectGeneral';
 import { AnalyticsEventCategory, AnalyticsEventEnum, setTestID, useAnalytics } from 'lib/analytics';
 import { FIAT_CURRENCIES, FiatCurrencyOption, getFiatCurrencyKey, useFiatCurrency } from 'lib/fiat-currency';
 import { T, t } from 'lib/i18n';
@@ -11,6 +13,8 @@ import { SettingsGeneralSelectors } from '../selectors';
 type FiatCurrencySelectProps = {
   className?: string;
 };
+
+const renderOptionContent = (option: FiatCurrencyOption) => <FiatCurrencyOptionContent option={option} />;
 
 const FiatCurrencySelect: FC<FiatCurrencySelectProps> = ({ className }) => {
   const { trackEvent } = useAnalytics();
@@ -27,21 +31,43 @@ const FiatCurrencySelect: FC<FiatCurrencySelectProps> = ({ className }) => {
   );
 
   return (
-    <IconifiedSelect
-      BeforeContent={FiatCurrencyTitle}
-      FieldContent={FiatCurrencyFieldContent}
-      OptionContent={FiatCurrencyOptionContent}
-      getKey={getFiatCurrencyKey}
-      onChange={handleFiatCurrencyChange}
-      options={FIAT_CURRENCIES}
-      value={value}
-      noItemsText={t('noItemsFound')}
-      className={className}
-      padded
-      fieldStyle={{ minHeight: '3.375rem' }}
-      search={{ filterItems: searchFiatCurrencyOptions }}
-      testID={SettingsGeneralSelectors.currenctyDropDown}
-    />
+    <>
+      <InputGeneral
+        header={<FiatCurrencyTitle />}
+        mainContent={
+          <>
+            <SelectGeneral
+              DropdownFaceContent={<FiatCurrencyFieldContent option={value} />}
+              optionsProps={{
+                options: FIAT_CURRENCIES,
+                noItemsText: 'No items',
+                renderOptionContent,
+                onOptionChange: handleFiatCurrencyChange
+              }}
+              searchProps={{
+                searchValue: 'qwe',
+                onSearchChange: () => console.log('qweqwe')
+              }}
+            />
+          </>
+        }
+      />
+      <IconifiedSelect
+        BeforeContent={FiatCurrencyTitle}
+        FieldContent={FiatCurrencyFieldContent}
+        OptionContent={FiatCurrencyOptionContent}
+        getKey={getFiatCurrencyKey}
+        onChange={handleFiatCurrencyChange}
+        options={FIAT_CURRENCIES}
+        value={value}
+        noItemsText={t('noItemsFound')}
+        className={className}
+        padded
+        fieldStyle={{ minHeight: '3.375rem' }}
+        search={{ filterItems: searchFiatCurrencyOptions }}
+        testID={SettingsGeneralSelectors.currenctyDropDown}
+      />
+    </>
   );
 };
 
@@ -68,11 +94,11 @@ const FiatCurrencyIcon: FC<SelectItemProps> = ({ option: { symbol } }) => (
 
 const FiatCurrencyFieldContent: FC<SelectItemProps> = ({ option }) => {
   return (
-    <>
+    <div className="flex items-center">
       <FiatCurrencyIcon option={option} />
 
       <span className="text-xl text-gray-700">{option.name}</span>
-    </>
+    </div>
   );
 };
 

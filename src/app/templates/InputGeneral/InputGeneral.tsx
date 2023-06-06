@@ -12,9 +12,9 @@ interface Props {
 export const InputGeneral: FC<Props> = ({ className, header, mainContent, footer }) => {
   return (
     <div className={classNames(className, 'w-full flex flex-col gap-1')}>
-      {header}
-      {mainContent}
-      {footer}
+      <div>{header}</div>
+      <div>{mainContent}</div>
+      <div>{footer}</div>
     </div>
   );
 };

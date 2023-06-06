@@ -12,21 +12,28 @@ import Popper from 'lib/ui/Popper';
 import { sameWidthModifiers } from 'lib/ui/same-width-modifiers';
 import { isDefined } from 'lib/utils/is-defined';
 
+export enum DropdownSize {
+  Large,
+  Small
+}
 interface Props<T> {
   DropdownFaceContent: ReactNode;
   Input?: ReactNode;
   className?: string;
   searchProps: SelectSearchProps;
   optionsProps: SelectOptionsPropsBase<T>;
+  dropdownSize?: DropdownSize;
 }
 
 export const SelectGeneral = <T extends unknown>({
   DropdownFaceContent,
   Input,
   searchProps,
-  optionsProps
+  optionsProps,
+  dropdownSize = DropdownSize.Small
 }: Props<T>) => {
   const isInputDefined = isDefined(Input);
+
   return (
     <Popper
       placement="top"
@@ -36,20 +43,21 @@ export const SelectGeneral = <T extends unknown>({
     >
       {({ opened, toggleOpened }) =>
         opened ? (
-          <SelectSearch {...searchProps} />
+          <SelectSearch dropdownSize={dropdownSize} {...searchProps} />
         ) : (
           <div
-            className="w-full flex items-center justify-between border rounded-md border-gray-300"
-            style={{ height: '4.5rem' }}
+            className="w-full flex items-center justify-between border rounded-md border-gray-300 overflow-hidden"
+            style={{ height: dropdownSize === DropdownSize.Small ? '46px' : '4.5rem' }}
           >
             <button
               className={classNames(
-                'flex gap-2 py-5 pl-4 pr-3 items-center',
+                'flex gap-2 items-center',
+                dropdownSize === DropdownSize.Large ? 'pl-4 pr-3 py-5' : 'overflow-hidden p-2',
                 isInputDefined && 'border-r border-gray-300',
                 !isInputDefined && 'w-full justify-between'
               )}
               onClick={toggleOpened}
-              style={{ height: '4.5rem' }}
+              style={{ height: dropdownSize === DropdownSize.Large ? '4.5rem' : 'auto' }}
             >
               {DropdownFaceContent}
               <ChevronDownIcon className="text-gray-600 stroke-current stroke-2" style={{ height: 16, width: 16 }} />
@@ -117,6 +125,7 @@ const SelectOptions = <T extends unknown>({
 };
 
 interface SelectSearchProps {
+  dropdownSize?: DropdownSize;
   searchValue: string;
   tokenIdValue?: string;
   showTokenIdInput?: boolean;
@@ -126,17 +135,21 @@ interface SelectSearchProps {
 const SelectSearch: FC<SelectSearchProps> = ({
   searchValue,
   tokenIdValue,
+  dropdownSize = DropdownSize.Small,
   showTokenIdInput = false,
   onSearchChange,
   onTokenIdChange
 }) => {
   return (
     <div
-      className="w-full flex items-stretch transition ease-in-out duration-200 w-full border rounded-md border-orange-500 bg-gray-100"
-      style={{ height: '4.5rem' }}
+      className={classNames(
+        'w-full flex items-center transition ease-in-out duration-200 w-full border rounded-md border-orange-500 bg-gray-100',
+        dropdownSize === DropdownSize.Small ? 'p-2' : 'pl-4 pr-3 py-5'
+      )}
+      style={{ height: dropdownSize === DropdownSize.Small ? '46px' : '4.5rem' }}
     >
-      <div className="items-center ml-5 mr-3 my-6">
-        <SearchIcon className="w-6 h-auto text-gray-500 stroke-current stroke-2" />
+      <div className="items-center">
+        <SearchIcon className={classNames('w-6 h-auto text-gray-500 stroke-current stroke-2')} />
       </div>
 
       <div className="text-lg flex flex-1 items-stretch">
@@ -144,7 +157,7 @@ const SelectSearch: FC<SelectSearchProps> = ({
           <input
             autoFocus
             value={searchValue}
-            className="w-full px-2 bg-transparent placeholder-gray-500"
+            className="w-full bg-transparent placeholder-gray-500"
             placeholder={t('swapTokenSearchInputPlaceholder')}
             onChange={onSearchChange}
           />
@@ -158,7 +171,7 @@ const SelectSearch: FC<SelectSearchProps> = ({
               assetDecimals={0}
               fieldWrapperBottomMargin={false}
               placeholder={t('tokenId')}
-              style={{ padding: '0 0.5rem', borderRadius: 0 }}
+              style={{ borderRadius: 0 }}
               containerStyle={{ flexDirection: 'row' }}
               containerClassName="items-stretch"
               className="text-lg border-none bg-opacity-0 focus:shadow-none"

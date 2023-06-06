@@ -1,4 +1,4 @@
-import React, { ChangeEvent, FC, useMemo } from 'react';
+import React, { ChangeEvent, FC, ReactNode, useMemo } from 'react';
 
 import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
@@ -8,7 +8,7 @@ import Money from 'app/atoms/Money';
 import { AssetIcon } from 'app/templates/AssetIcon';
 import InFiat from 'app/templates/InFiat';
 import { InputGeneral } from 'app/templates/InputGeneral/InputGeneral';
-import { SelectGeneral } from 'app/templates/InputGeneral/SelectGeneral';
+import { DropdownSize, SelectGeneral } from 'app/templates/InputGeneral/SelectGeneral';
 import { useFormAnalytics } from 'lib/analytics';
 import { T, t, toLocalFormat } from 'lib/i18n';
 import { useAccount, useBalance, useAssetMetadata, useGetTokenMetadata, useOnBlock } from 'lib/temple/front';
@@ -16,17 +16,18 @@ import { useFilteredSwapAssets } from 'lib/temple/front/assets';
 import { AssetMetadata, EMPTY_ASSET_METADATA } from 'lib/temple/metadata';
 import { isDefined } from 'lib/utils/is-defined';
 
+import { AssetOption } from './AssetsMenu/AssetOption';
 import { PercentageButton } from './PercentageButton/PercentageButton';
 import { SwapFormInputProps } from './SwapFormInput.props';
 
 const EXCHANGE_XTZ_RESERVE = new BigNumber('0.3');
 const PERCENTAGE_BUTTONS = [25, 50, 75, 100];
 
-const renderOptionContent = (option: string) => {
-  return <div>{option}</div>;
-};
+const renderOptionContent = (option: string, onClick: (value: string) => void) => (
+  <AssetOption assetSlug={option} onClick={onClick} />
+);
 
-export const SwapFormInput: FC<SwapFormInputProps> = ({ value, error, name, onChange, amountInputDisabled }) => {
+export const SwapFormInput: FC<SwapFormInputProps> = ({ value, label, error, name, onChange, amountInputDisabled }) => {
   const { trackChange } = useFormAnalytics('SwapForm');
 
   const { assetSlug, amount } = value;
@@ -109,37 +110,34 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({ value, error, name, onCh
     <InputGeneral
       header={
         <SwapInputHeader
-          label="From"
+          label={label}
           selectedAssetSlug={assetSlugWithFallback}
           selectedAssetSymbol={assetMetadataWithFallback.symbol}
         />
       }
       mainContent={
-        <>
-          <SelectGeneral
-            DropdownFaceContent={
-              <SwapDropdownFace selectedAssetSlug={assetSlug} selectedAssetMetadata={assetMetadata} />
-            }
-            searchProps={{
-              searchValue,
-              onSearchChange: handleSearchChange
-            }}
-            Input={
-              <SwapInput
-                amount={value.amount}
-                amountInputDisabled={Boolean(amountInputDisabled)}
-                onChange={handleAmountChange}
-                selectedAssetMetadata={assetMetadata}
-              />
-            }
-            optionsProps={{
-              options: filteredAssets,
-              noItemsText: 'No items',
-              renderOptionContent,
-              onOptionChange: handleSelectedAssetChange
-            }}
-          />
-        </>
+        <SelectGeneral
+          dropdownSize={DropdownSize.Large}
+          DropdownFaceContent={<SwapDropdownFace selectedAssetSlug={assetSlug} selectedAssetMetadata={assetMetadata} />}
+          searchProps={{
+            searchValue,
+            onSearchChange: handleSearchChange
+          }}
+          Input={
+            <SwapInput
+              amount={value.amount}
+              amountInputDisabled={Boolean(amountInputDisabled)}
+              onChange={handleAmountChange}
+              selectedAssetMetadata={assetMetadata}
+            />
+          }
+          optionsProps={{
+            options: filteredAssets,
+            noItemsText: 'No items',
+            renderOptionContent: option => renderOptionContent(option, handleSelectedAssetChange),
+            onOptionChange: handleSelectedAssetChange
+          }}
+        />
       }
       footer={
         <div className={classNames('w-full flex items-center', prettyError ? 'justify-between' : 'justify-end')}>
@@ -193,7 +191,7 @@ const SwapInput: FC<SwapInputProps> = ({
     onChange(Boolean(newAmount) && isDefined(newAmount) ? new BigNumber(newAmount) : undefined);
 
   return (
-    <div className="w-full flex items-stretch h-full">
+    <div className="w-full flex items-stretch h-full" style={{ height: '4.5rem' }}>
       <div
         className={classNames(
           'flex-1 px-2 flex items-center justify-between rounded-r-md',
@@ -229,7 +227,7 @@ const SwapInput: FC<SwapInputProps> = ({
   );
 };
 
-const SwapInputHeader: FC<{ label: string; selectedAssetSlug: string; selectedAssetSymbol: string }> = ({
+const SwapInputHeader: FC<{ label: ReactNode; selectedAssetSlug: string; selectedAssetSymbol: string }> = ({
   selectedAssetSlug,
   selectedAssetSymbol,
   label

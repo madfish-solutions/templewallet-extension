@@ -5,12 +5,11 @@ import browser from 'webextension-polyfill';
 import Flag from 'app/atoms/Flag';
 import { InputGeneral } from 'app/templates/InputGeneral/InputGeneral';
 import { SelectGeneral } from 'app/templates/InputGeneral/SelectGeneral';
-import { AnalyticsEventCategory, AnalyticsEventEnum, useAnalytics, setTestID } from 'lib/analytics';
-import { getCurrentLocale, updateLocale, T, t } from 'lib/i18n';
+import { AnalyticsEventCategory, AnalyticsEventEnum, useAnalytics } from 'lib/analytics';
+import { getCurrentLocale, updateLocale, T } from 'lib/i18n';
 import { searchAndFilterItems } from 'lib/utils/search-items';
 
-import IconifiedSelect, { IconifiedSelectOptionRenderProps } from '../../IconifiedSelect';
-import { SettingsGeneralSelectors } from '../selectors';
+import { IconifiedSelectOptionRenderProps } from '../../IconifiedSelect';
 
 type LocaleSelectProps = {
   className?: string;
@@ -99,11 +98,7 @@ const LOCALE_OPTIONS: LocaleOption[] = [
   }
 ];
 
-const localeIsDisabled = ({ disabled }: LocaleOption) => !!disabled;
-
-const getLocaleCode = ({ code }: LocaleOption) => code;
-
-const LocaleSelect: FC<LocaleSelectProps> = ({ className }) => {
+const LocaleSelect: FC<LocaleSelectProps> = () => {
   const selectedLocale = getCurrentLocale();
   const { trackEvent } = useAnalytics();
 
@@ -140,7 +135,6 @@ const LocaleSelect: FC<LocaleSelectProps> = ({ className }) => {
           />
         </>
       }
-      footer={undefined}
     />
   );
 };
@@ -158,12 +152,12 @@ const LocaleTitle: FC = () => (
 type SelectItemProps = IconifiedSelectOptionRenderProps<LocaleOption>;
 
 const LocaleIcon: FC<SelectItemProps> = ({ option: { flagName, code } }) => (
-  <Flag alt={code} src={browser.runtime.getURL(`/misc/country-flags/${flagName}.svg`)} />
+  <Flag alt={code} className="ml-2 mr-3" src={browser.runtime.getURL(`/misc/country-flags/${flagName}.svg`)} />
 );
 
 const LocaleFieldContent = (option: LocaleOption) => {
   return (
-    <div className="flex gap-2 items-center">
+    <div className="flex items-center">
       <LocaleIcon option={option} />
 
       <span className="text-xl text-gray-700">{option.label}</span>

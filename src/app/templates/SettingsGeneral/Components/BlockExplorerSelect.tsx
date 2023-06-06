@@ -3,6 +3,8 @@ import React, { useMemo, useCallback, FC } from 'react';
 import browser from 'webextension-polyfill';
 
 import Flag from 'app/atoms/Flag';
+import { InputGeneral } from 'app/templates/InputGeneral/InputGeneral';
+import { SelectGeneral } from 'app/templates/InputGeneral/SelectGeneral';
 import { setTestID } from 'lib/analytics';
 import { T, t } from 'lib/i18n';
 import { BlockExplorer, useChainId, BLOCK_EXPLORERS, useBlockExplorer } from 'lib/temple/front';
@@ -17,6 +19,8 @@ type BlockExplorerSelectProps = {
 };
 
 const getBlockExplorerId = ({ id }: BlockExplorer) => id;
+
+const renderOptionContent = (option: BlockExplorer) => <BlockExplorerOptionContent option={option} />;
 
 const BlockExplorerSelect: FC<BlockExplorerSelectProps> = ({ className }) => {
   const { explorer, setExplorerId } = useBlockExplorer();
@@ -40,21 +44,43 @@ const BlockExplorerSelect: FC<BlockExplorerSelectProps> = ({ className }) => {
   );
 
   return (
-    <IconifiedSelect
-      BeforeContent={BlockExplorerTitle}
-      FieldContent={BlockExplorerFieldContent}
-      OptionContent={BlockExplorerOptionContent}
-      getKey={getBlockExplorerId}
-      onChange={handleBlockExplorerChange}
-      options={options}
-      value={explorer}
-      noItemsText={t('noItemsFound')}
-      className={className}
-      padded
-      fieldStyle={{ minHeight: '3.375rem' }}
-      search={{ filterItems: searchItems }}
-      testID={SettingsGeneralSelectors.blockExplorerDropDown}
-    />
+    <>
+      <InputGeneral
+        header={<BlockExplorerTitle />}
+        mainContent={
+          <>
+            <SelectGeneral
+              DropdownFaceContent={<BlockExplorerFieldContent option={explorer} />}
+              optionsProps={{
+                options: options,
+                noItemsText: 'No items',
+                renderOptionContent,
+                onOptionChange: handleBlockExplorerChange
+              }}
+              searchProps={{
+                searchValue: 'qwe',
+                onSearchChange: () => console.log('qweqwe')
+              }}
+            />
+          </>
+        }
+      />
+      <IconifiedSelect
+        BeforeContent={BlockExplorerTitle}
+        FieldContent={BlockExplorerFieldContent}
+        OptionContent={BlockExplorerOptionContent}
+        getKey={getBlockExplorerId}
+        onChange={handleBlockExplorerChange}
+        options={options}
+        value={explorer}
+        noItemsText={t('noItemsFound')}
+        className={className}
+        padded
+        fieldStyle={{ minHeight: '3.375rem' }}
+        search={{ filterItems: searchItems }}
+        testID={SettingsGeneralSelectors.blockExplorerDropDown}
+      />
+    </>
   );
 };
 
@@ -74,11 +100,11 @@ const BlockExplorerIcon: FC<IconifiedSelectOptionRenderProps<BlockExplorer>> = (
 
 const BlockExplorerFieldContent: FC<IconifiedSelectOptionRenderProps<BlockExplorer>> = ({ option }) => {
   return (
-    <>
+    <div className="flex items-center">
       <BlockExplorerIcon option={option} />
 
       <span className="text-xl text-gray-700">{option.name}</span>
-    </>
+    </div>
   );
 };
 
