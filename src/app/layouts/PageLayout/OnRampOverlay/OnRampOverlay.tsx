@@ -9,6 +9,7 @@ import { ReactComponent as ArrowRightIcon } from 'app/icons/arrow-right.svg';
 import { ReactComponent as CloseIcon } from 'app/icons/close.svg';
 import ContentContainer from 'app/layouts/ContentContainer';
 import { setOnRampPossibilityAction } from 'app/store/settings/actions';
+import { useOnRampPossibilitySelector } from 'app/store/settings/selectors';
 import { T } from 'lib/i18n/react';
 import { useAccount } from 'lib/temple/front';
 
@@ -22,6 +23,7 @@ export const OnRampOverlay: FC = () => {
   const dispatch = useDispatch();
   const { publicKeyHash } = useAccount();
   const { popup } = useAppEnv();
+  const isOnRampPossibility = useOnRampPossibilitySelector();
 
   const popupClassName = useMemo(
     () => (popup ? 'inset-0 p-4' : 'top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2'),
@@ -29,7 +31,7 @@ export const OnRampOverlay: FC = () => {
   );
   const close = () => void dispatch(setOnRampPossibilityAction(false));
 
-  return (
+  return isOnRampPossibility ? (
     <>
       <div className={'fixed left-0 right-0 top-0 bottom-0 opacity-20 bg-gray-700 z-50'}></div>
       <ContentContainer
@@ -130,5 +132,5 @@ export const OnRampOverlay: FC = () => {
         </div>
       </ContentContainer>
     </>
-  );
+  ) : null;
 };
