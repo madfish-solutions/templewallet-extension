@@ -1,5 +1,6 @@
-import React, { ChangeEventHandler, ReactNode, FC, Dispatch, SetStateAction, useMemo } from 'react';
+import React, { ChangeEventHandler, ReactNode, FC, Dispatch, SetStateAction } from 'react';
 
+import { isDefined } from '@rnw-community/shared';
 import classNames from 'clsx';
 import { List } from 'react-virtualized';
 
@@ -12,7 +13,6 @@ import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
 import { t } from 'lib/i18n';
 import Popper from 'lib/ui/Popper';
 import { sameWidthModifiers } from 'lib/ui/same-width-modifiers';
-import { isDefined } from 'lib/utils/is-defined';
 
 export enum DropdownSize {
   Large,

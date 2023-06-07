@@ -1,4 +1,4 @@
-import { ComponentType, ReactNode } from 'react';
+import { ComponentType } from 'react';
 
 import { TestIDProperty } from 'lib/analytics';
 
@@ -19,11 +19,6 @@ export interface IconifiedSelectPropsBase<T> {
   noItemsText: string;
   padded?: boolean;
 }
-export interface IconifiedSelectPropsBase2 {
-  OptionsContent: Array<ReactNode>;
-  noItemsText: string;
-  padded?: boolean;
-}
 
 export interface IconifiedSelectProps<T> extends IconifiedSelectPropsBase<T>, TestIDProperty {
   FieldContent: OptionContentComponent<T>;
@@ -35,10 +30,4 @@ export interface IconifiedSelectProps<T> extends IconifiedSelectPropsBase<T>, Te
     filterItems(searchString: string): T[];
     inputTestID?: string;
   };
-}
-export interface IconifiedSelectProps2 extends IconifiedSelectPropsBase2, TestIDProperty {
-  FieldContent: ReactNode;
-  BeforeContent?: ReactNode;
-  className?: string;
-  fieldStyle?: React.CSSProperties;
 }
