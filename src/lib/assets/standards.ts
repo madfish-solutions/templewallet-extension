@@ -4,7 +4,7 @@ import retry from 'async-retry';
 
 import { getMessage } from 'lib/i18n';
 
-import { TokenStandard } from './types';
+import type { TokenStandardType } from './types';
 
 const NULL_ADDRESS = 'tz1Ke2h7sDdakHJQh8WX4Z372du1KChsksyU';
 const RETRY_PARAMS = { retries: 2, minTimeout: 0, maxTimeout: 0 };
@@ -27,7 +27,7 @@ const FA2_ENTRYPOINTS_SCHEMA = [
 export const detectTokenStandard = async (
   tezos: TezosToolkit,
   contract: string | Contract | WalletContract
-): Promise<TokenStandard | null> => {
+): Promise<TokenStandardType | null> => {
   const { entrypoints } =
     typeof contract === 'string'
       ? await retry(() => tezos.rpc.getEntrypoints(contract), RETRY_PARAMS)
@@ -80,8 +80,8 @@ const isEntrypointsMatched = (entrypoints: Record<string, any>, schema: string[]
     }
 
     return true;
-  } catch (err: any) {
-    console.error(err);
+  } catch (error) {
+    console.error(error);
 
     return false;
   }

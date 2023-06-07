@@ -2,6 +2,8 @@ import React, { ChangeEvent, FC, ReactNode, useMemo } from 'react';
 
 import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
+import { AssetMetadata } from 'lib/temple/metadata';
+import { isDefined } from 'lib/utils/is-defined';
 
 import AssetField from 'app/atoms/AssetField';
 import Money from 'app/atoms/Money';
@@ -11,10 +13,9 @@ import { InputGeneral } from 'app/templates/InputGeneral/InputGeneral';
 import { DropdownSize, SelectGeneral } from 'app/templates/InputGeneral/SelectGeneral';
 import { useFormAnalytics } from 'lib/analytics';
 import { T, t, toLocalFormat } from 'lib/i18n';
-import { useAccount, useBalance, useAssetMetadata, useGetTokenMetadata, useOnBlock } from 'lib/temple/front';
+import { EMPTY_BASE_METADATA, useAssetMetadata } from 'lib/metadata';
+import { useAccount, useBalance, useGetTokenMetadata, useOnBlock } from 'lib/temple/front';
 import { useFilteredSwapAssets } from 'lib/temple/front/assets';
-import { AssetMetadata, EMPTY_ASSET_METADATA } from 'lib/temple/metadata';
-import { isDefined } from 'lib/utils/is-defined';
 
 import { AssetOption } from './AssetsMenu/AssetOption';
 import { PercentageButton } from './PercentageButton/PercentageButton';
@@ -34,7 +35,7 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({ value, label, error, nam
 
   const assetMetadataWithFallback = useAssetMetadata(assetSlugWithFallback)!;
   const assetMetadata = useMemo(
-    () => (assetSlug ? assetMetadataWithFallback : EMPTY_ASSET_METADATA),
+    () => (assetSlug ? assetMetadataWithFallback : EMPTY_BASE_METADATA),
     [assetSlug, assetMetadataWithFallback]
   );
   const getTokenMetadata = useGetTokenMetadata();
@@ -140,7 +141,6 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({ value, label, error, nam
       footer={
         <div className={classNames('w-full flex items-center', prettyError ? 'justify-between' : 'justify-end')}>
           {prettyError && <div className="text-red-700 text-xs">{prettyError}</div>}
-
           <SwapFooter
             amountInputDisabled={Boolean(amountInputDisabled)}
             selectedAssetSlug={assetSlugWithFallback}

@@ -1,15 +1,16 @@
 import React, { FC, useCallback } from 'react';
 
 import Money from 'app/atoms/Money';
+import { useTokensMetadataSelector } from 'app/store/tokens-metadata/selectors';
 import { AssetIcon } from 'app/templates/AssetIcon';
 import Balance from 'app/templates/Balance';
 import IconifiedSelect, { IconifiedSelectOptionRenderProps } from 'app/templates/IconifiedSelect';
 import InFiat from 'app/templates/InFiat';
 import { setTestID, setAnotherSelector } from 'lib/analytics';
 import { T, t } from 'lib/i18n';
-import { useAccount, useAssetMetadata } from 'lib/temple/front';
-import { searchAssetsWithNoMeta, useAllTokensBaseMetadata } from 'lib/temple/front/assets';
-import { getAssetSymbol } from 'lib/temple/metadata';
+import { useAssetMetadata, getAssetSymbol } from 'lib/metadata';
+import { useAccount } from 'lib/temple/front';
+import { searchAssetsWithNoMeta } from 'lib/temple/front/assets';
 
 import { AssetItemContent } from '../AssetItemContent';
 import { SendFormSelectors } from '../SendForm/selectors';
@@ -28,11 +29,11 @@ interface AssetSelectProps {
 }
 
 const AssetSelect: FC<AssetSelectProps> = ({ value, assets, onChange, className, testIDs }) => {
-  const allTokensBaseMetadata = useAllTokensBaseMetadata();
+  const allTokensMetadata = useTokensMetadataSelector();
 
   const searchItems = useCallback(
-    (searchString: string) => searchAssetsWithNoMeta(searchString, assets, allTokensBaseMetadata, getSlug),
-    [assets]
+    (searchString: string) => searchAssetsWithNoMeta(searchString, assets, allTokensMetadata, getSlug),
+    [assets, allTokensMetadata]
   );
 
   const handleChange = useCallback(

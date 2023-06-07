@@ -1,6 +1,5 @@
+import { isDefined } from '@rnw-community/shared';
 import { BigNumber } from 'bignumber.js';
-
-import { isDefined } from 'lib/utils/is-defined';
 
 import { TopUpProviderId } from './top-up-provider-id.enum';
 import { PaymentProviderInterface } from './topup.interface';

@@ -1,4 +1,4 @@
-import { TEZOS_METADATA } from 'lib/temple/metadata';
+import { TEZOS_METADATA } from 'lib/metadata';
 
 interface AssetBase {
   code: string;

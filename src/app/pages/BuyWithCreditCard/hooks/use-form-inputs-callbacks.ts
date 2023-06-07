@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useRef } from 'react';
 
+import { isDefined } from '@rnw-community/shared';
 import BigNumber from 'bignumber.js';
 import debounce from 'debounce-promise';
 import { isEqual } from 'lodash';
@@ -17,7 +18,6 @@ import {
   TopUpInputInterface,
   TopUpOutputInterface
 } from 'lib/buy-with-credit-card/topup.interface';
-import { isDefined } from 'lib/utils/is-defined';
 
 import { useAllFiatCurrencies } from './use-all-fiat-currencies';
 import { useBuyWithCreditCardForm } from './use-buy-with-credit-card-form';

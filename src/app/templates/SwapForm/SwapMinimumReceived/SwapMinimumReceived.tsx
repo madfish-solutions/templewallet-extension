@@ -3,12 +3,12 @@ import React, { FC } from 'react';
 import { BigNumber } from 'bignumber.js';
 
 import Money from 'app/atoms/Money';
+import { AssetMetadataBase } from 'lib/metadata';
 import { atomsToTokens } from 'lib/temple/helpers';
-import { AssetMetadata } from 'lib/temple/metadata';
 
 interface Props {
   minimumReceivedAmount?: BigNumber;
-  outputAssetMetadata: AssetMetadata;
+  outputAssetMetadata: AssetMetadataBase;
 }
 
 export const SwapMinimumReceived: FC<Props> = ({ minimumReceivedAmount, outputAssetMetadata }) => {

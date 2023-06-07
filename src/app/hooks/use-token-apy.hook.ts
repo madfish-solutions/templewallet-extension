@@ -3,7 +3,7 @@ import { useMemo } from 'react';
 import { isDefined } from '@rnw-community/shared';
 
 import { useTokensApyRatesSelector } from 'app/store/d-apps';
-import { KNOWN_TOKENS_SLUGS } from 'lib/temple/assets';
+import { KNOWN_TOKENS_SLUGS } from 'lib/assets/known-tokens';
 
 const YUPANA_LEND_LINK = 'https://app.yupana.finance/lending';
 
