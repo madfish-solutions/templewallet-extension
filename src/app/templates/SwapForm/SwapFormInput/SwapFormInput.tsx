@@ -23,9 +23,7 @@ import { SwapFormInputProps } from './SwapFormInput.props';
 const EXCHANGE_XTZ_RESERVE = new BigNumber('0.3');
 const PERCENTAGE_BUTTONS = [25, 50, 75, 100];
 
-const renderOptionContent = (option: string, onClick: (value: string) => void) => (
-  <AssetOption assetSlug={option} onClick={onClick} />
-);
+const renderOptionContent = (option: string) => <AssetOption assetSlug={option} />;
 
 export const SwapFormInput: FC<SwapFormInputProps> = ({ value, label, error, name, onChange, amountInputDisabled }) => {
   const { trackChange } = useFormAnalytics('SwapForm');
@@ -134,7 +132,7 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({ value, label, error, nam
           optionsProps={{
             options: filteredAssets,
             noItemsText: 'No items',
-            renderOptionContent: option => renderOptionContent(option, handleSelectedAssetChange),
+            renderOptionContent,
             onOptionChange: handleSelectedAssetChange
           }}
         />

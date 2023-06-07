@@ -110,13 +110,13 @@ const BlockExplorerFieldContent: FC<IconifiedSelectOptionRenderProps<BlockExplor
 
 const BlockExplorerOptionContent: FC<IconifiedSelectOptionRenderProps<BlockExplorer>> = ({ option }) => {
   return (
-    <>
+    <div className="w-full flex items-center py-1.5 px-2">
       <BlockExplorerIcon option={option} />
 
       <div className="w-full text-lg text-gray-700" {...setTestID(SettingsGeneralSelectors.blockExplorerItem)}>
         {option.name}
       </div>
-    </>
+    </div>
   );
 };
 

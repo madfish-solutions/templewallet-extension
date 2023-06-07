@@ -1,10 +1,12 @@
-import React, { ChangeEventHandler, ReactNode, FC, Dispatch, SetStateAction } from 'react';
+import React, { ChangeEventHandler, ReactNode, FC, Dispatch, SetStateAction, useMemo } from 'react';
 
 import classNames from 'clsx';
-import { v4 } from 'uuid';
+import { List } from 'react-virtualized';
 
 import AssetField from 'app/atoms/AssetField';
 import DropdownWrapper from 'app/atoms/DropdownWrapper';
+import Spinner from 'app/atoms/Spinner/Spinner';
+import { useAppEnvStyle } from 'app/hooks/use-app-env-style.hook';
 import { ReactComponent as ChevronDownIcon } from 'app/icons/chevron-down.svg';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
 import { t } from 'lib/i18n';
@@ -36,36 +38,39 @@ export const SelectGeneral = <T extends unknown>({
 
   return (
     <Popper
-      placement="top"
+      placement="bottom"
       strategy="fixed"
       modifiers={sameWidthModifiers}
+      fallbackPlacementsEnabled={false}
       popup={({ opened, setOpened }) => <SelectOptions opened={opened} setOpened={setOpened} {...optionsProps} />}
     >
-      {({ opened, toggleOpened }) =>
-        opened ? (
-          <SelectSearch dropdownSize={dropdownSize} {...searchProps} />
-        ) : (
-          <div
-            className="w-full flex items-center justify-between border rounded-md border-gray-300 overflow-hidden"
-            style={{ height: dropdownSize === DropdownSize.Small ? '46px' : '4.5rem' }}
-          >
-            <button
-              className={classNames(
-                'flex gap-2 items-center',
-                dropdownSize === DropdownSize.Large ? 'pl-4 pr-3 py-5' : 'overflow-hidden p-2',
-                isInputDefined && 'border-r border-gray-300',
-                !isInputDefined && 'w-full justify-between'
-              )}
-              onClick={toggleOpened}
-              style={{ height: dropdownSize === DropdownSize.Large ? '4.5rem' : 'auto' }}
+      {({ ref, opened, toggleOpened }) => (
+        <div ref={ref as unknown as React.RefObject<HTMLDivElement>}>
+          {opened ? (
+            <SelectSearch dropdownSize={dropdownSize} {...searchProps} />
+          ) : (
+            <div
+              className="w-full flex items-center justify-between border rounded-md border-gray-300 overflow-hidden"
+              style={{ height: dropdownSize === DropdownSize.Small ? '46px' : '4.5rem' }}
             >
-              {DropdownFaceContent}
-              <ChevronDownIcon className="text-gray-600 stroke-current stroke-2" style={{ height: 16, width: 16 }} />
-            </button>
-            {Input}
-          </div>
-        )
-      }
+              <button
+                className={classNames(
+                  'flex gap-2 items-center',
+                  dropdownSize === DropdownSize.Large ? 'pl-4 pr-3 py-5' : 'overflow-hidden p-2',
+                  isInputDefined && 'border-r border-gray-300',
+                  !isInputDefined && 'w-full justify-between'
+                )}
+                onClick={toggleOpened}
+                style={{ height: dropdownSize === DropdownSize.Large ? '4.5rem' : 'auto' }}
+              >
+                {DropdownFaceContent}
+                <ChevronDownIcon className="text-gray-600 stroke-current stroke-2" style={{ height: 16, width: 16 }} />
+              </button>
+              {Input}
+            </div>
+          )}
+        </div>
+      )}
     </Popper>
   );
 };
@@ -77,18 +82,28 @@ interface SelectOptionsPropsBase<T> {
 }
 interface SelectOptionsProps<T> extends SelectOptionsPropsBase<T> {
   opened: boolean;
+  isLoading?: boolean;
   setOpened: Dispatch<SetStateAction<boolean>>;
 }
+
+const ROW_HEIGHT = 64;
 
 const SelectOptions = <T extends unknown>({
   opened,
   options,
-
   noItemsText,
+  isLoading,
   onOptionChange,
   setOpened,
   renderOptionContent
 }: SelectOptionsProps<T>) => {
+  const { dropdownWidth } = useAppEnvStyle();
+
+  const handleOptionClick = (newValue: T) => {
+    onOptionChange(newValue);
+    setOpened(false);
+  };
+
   return (
     <DropdownWrapper
       opened={opened}
@@ -99,27 +114,33 @@ const SelectOptions = <T extends unknown>({
         borderColor: '#e2e8f0'
       }}
     >
-      {options.length ? (
-        <FlatList
-          data={options}
-          renderItem={(option: T) => (
-            <button
-              className="flex items-center w-full py-1.5 px-2 text-left rounded transition easy-in-out duration-200 mb-1 bg-gray-200 hover:bg-gray-100 opacity-25 cursor-default cursor-pointer"
-              onClick={() => {
-                onOptionChange(option);
-                setOpened(false);
-              }}
-            >
+      {(options.length === 0 || isLoading) && (
+        <div className="my-8 flex flex-col items-center justify-center text-gray-500">
+          {isLoading ? (
+            <Spinner theme="primary" style={{ width: '3rem' }} />
+          ) : (
+            <p className="flex items-center justify-center text-gray-600 text-base font-light">
+              <span>Search</span>
+            </p>
+          )}
+        </div>
+      )}
+
+      <List
+        width={dropdownWidth}
+        height={options.length > 2 ? 240 : options.length * ROW_HEIGHT}
+        rowCount={options.length}
+        rowHeight={ROW_HEIGHT}
+        rowRenderer={({ index }) => {
+          const option = options[index];
+
+          return (
+            <button className="w-full" onClick={() => handleOptionClick(option)}>
               {renderOptionContent(option)}
             </button>
-          )}
-        />
-      ) : (
-        <p className="flex items-center justify-center text-gray-600 text-base font-light p-2">
-          <SearchIcon className="w-5 h-auto mr-1 stroke-current" />
-          <span>{noItemsText}</span>
-        </p>
-      )}
+          );
+        }}
+      />
     </DropdownWrapper>
   );
 };
@@ -181,20 +202,5 @@ const SelectSearch: FC<SelectSearchProps> = ({
         )}
       </div>
     </div>
-  );
-};
-
-interface FlatListProps<T> {
-  data: Array<T>;
-  renderItem: (props: T) => ReactNode;
-}
-
-const FlatList = <T extends unknown>({ data, renderItem }: FlatListProps<T>) => {
-  return (
-    <ul style={{ display: 'flex', flexDirection: 'column' }}>
-      {data.map(prop => (
-        <li key={v4()}>{renderItem(prop)}</li>
-      ))}
-    </ul>
   );
 };

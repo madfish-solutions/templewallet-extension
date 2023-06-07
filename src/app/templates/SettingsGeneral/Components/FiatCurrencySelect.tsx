@@ -46,7 +46,7 @@ const FiatCurrencySelect: FC<FiatCurrencySelectProps> = ({ className }) => {
               }}
               searchProps={{
                 searchValue: 'qwe',
-                onSearchChange: () => console.log('qweqwe')
+                onSearchChange: event => searchFiatCurrencyOptions(event.target.value)
               }}
             />
           </>
@@ -104,13 +104,13 @@ const FiatCurrencyFieldContent: FC<SelectItemProps> = ({ option }) => {
 
 const FiatCurrencyOptionContent: FC<SelectItemProps> = ({ option }) => {
   return (
-    <>
+    <div className="w-full flex items-center">
       <FiatCurrencyIcon option={option} />
 
       <div className="w-full text-lg text-gray-700" {...setTestID(SettingsGeneralSelectors.currencyItem)}>
         {option.name} ({option.fullname})
       </div>
-    </>
+    </div>
   );
 };
 

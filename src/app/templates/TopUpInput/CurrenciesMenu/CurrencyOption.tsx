@@ -13,15 +13,12 @@ interface Props extends Partial<Pick<ListRowProps, 'style'>> {
   currency: CurrencyBase;
   isSelected: boolean;
   fitIcons?: boolean | ((currency: CurrencyBase) => boolean);
-  onClick?: (newValue: CurrencyBase) => void;
 }
 
-export const CurrencyOption: FC<Props> = ({ currency, isSelected, fitIcons, style, onClick }) => (
-  <button
-    type="button"
-    style={style}
-    className={classNames('py-3 px-4 w-full flex items-center', isSelected ? 'bg-gray-200' : 'hover:bg-gray-100')}
-    onClick={onClick && (() => onClick(currency))}
+export const CurrencyOption: FC<Props> = ({ currency, isSelected, fitIcons }) => (
+  <div
+    className={classNames('py-1.5 px-2 w-full flex items-center', isSelected ? 'bg-gray-200' : 'hover:bg-gray-100')}
+    style={{ height: '64px' }}
   >
     <StaticCurrencyImage
       currencyCode={currency.code}
@@ -40,5 +37,5 @@ export const CurrencyOption: FC<Props> = ({ currency, isSelected, fitIcons, styl
         <span className="text-indigo-500">{getProperNetworkFullName(currency)}</span>
       </div>
     </div>
-  </button>
+  </div>
 );
