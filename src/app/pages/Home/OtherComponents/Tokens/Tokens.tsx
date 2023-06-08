@@ -12,15 +12,15 @@ import { ReactComponent as AddToListIcon } from 'app/icons/add-to-list.svg';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
 import { loadPartnersPromoAction, togglePartnersPromotionAction } from 'app/store/partners-promotion/actions';
 import SearchAssetField from 'app/templates/SearchAssetField';
-import { OptimalPromoVariantEnum, optimalFetchEnableAds } from 'lib/apis/optimal';
+import { OptimalPromoVariantEnum } from 'lib/apis/optimal';
 import { T } from 'lib/i18n';
 import { useAccount, useChainId, useDisplayedFungibleTokens, useFilteredAssets } from 'lib/temple/front';
 import { useSyncTokens } from 'lib/temple/front/sync-tokens';
 import { Link, navigate } from 'lib/woozie';
 
 import { Banner } from '../../../../atoms/Banner';
-import { useBanner } from '../../../../hooks/use-banner.hook';
-import { setIsEnableAdsBannerAction } from '../../../../store/settings/actions';
+import { useShouldShowPartnersPromoSelector } from '../../../../store/partners-promotion/selectors';
+import { turnOffAdsBannerAction } from '../../../../store/settings/actions';
 import { useIsEnabledAdsBannerSelector } from '../../../../store/settings/selectors';
 import { AssetsSelectors } from '../Assets.selectors';
 import { ListItem } from './components/ListItem';
@@ -42,8 +42,7 @@ export const Tokens: FC = () => {
   const { filteredAssets, searchValue, setSearchValue } = useFilteredAssets(tokenSlugsWithTez);
 
   const isEnabledAdsBanner = useIsEnabledAdsBannerSelector();
-
-  const { isShowBanner, hideBanner } = useBanner(isEnabledAdsBanner);
+  const isShouldShowPartnersPromoState = useShouldShowPartnersPromoSelector();
 
   const [searchFocused, setSearchFocused] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -72,7 +71,16 @@ export const Tokens: FC = () => {
     return tokensJsx;
   }, [filteredAssets, activeAssetSlug, balances]);
 
-  useEffect(() => void dispatch(loadPartnersPromoAction.submit(OptimalPromoVariantEnum.Token)), []);
+  useEffect(() => {
+    if (isShouldShowPartnersPromoState) {
+      dispatch(
+        loadPartnersPromoAction.submit({
+          optimalPromoVariantEnum: OptimalPromoVariantEnum.Token,
+          accountAddress: publicKeyHash
+        })
+      );
+    }
+  }, [isShouldShowPartnersPromoState]);
 
   useEffect(() => {
     if (activeIndex !== 0 && activeIndex >= filteredAssets.length) {
@@ -113,13 +121,12 @@ export const Tokens: FC = () => {
 
   const handleEnableBannerButton = async () => {
     dispatch(togglePartnersPromotionAction(true));
-    hideBanner(() => dispatch(setIsEnableAdsBannerAction()));
-    optimalFetchEnableAds(publicKeyHash);
+    dispatch(turnOffAdsBannerAction());
   };
 
   const handleDisableBannerButton = () => {
     dispatch(togglePartnersPromotionAction(false));
-    hideBanner(() => dispatch(setIsEnableAdsBannerAction()));
+    dispatch(turnOffAdsBannerAction());
   };
 
   return (
@@ -154,7 +161,7 @@ export const Tokens: FC = () => {
         </div>
       </div>
 
-      {isShowBanner && (
+      {isEnabledAdsBanner && (
         <Banner
           text="Earn by viewing ads in Temple Wallet"
           description="Support the development team and earn tokens by viewing ads inside the wallet. To enable this feature, we request your permission to trace your Wallet Address and IP address. You can always disable ads in the settings."
