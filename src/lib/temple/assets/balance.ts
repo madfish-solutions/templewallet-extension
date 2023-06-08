@@ -7,7 +7,7 @@ import { atomsToTokens } from '../helpers';
 import { TEZOS_METADATA, AssetMetadata } from '../metadata';
 import { fromAssetSlug, isFA2Token } from './utils';
 
-export async function fetchTezosBalanceAtomic(tezos: TezosToolkit, account: string) {
+async function fetchTezosBalanceAtomic(tezos: TezosToolkit, account: string) {
   let nat = (await getBalanceSafe(tezos, account)) ?? new BigNumber(0);
   nat = toSafeBignum(nat);
 

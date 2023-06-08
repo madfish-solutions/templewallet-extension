@@ -14,6 +14,7 @@ import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 
 import { ExchangeDataInterface, ExchangeDataStatusEnum } from '../exolix.interface';
 import { ExolixSelectors } from '../Exolix.selectors';
+import { getCoinCodeToDisplay } from '../exolix.util';
 
 type dateFormatOptionsValue = 'numeric' | '2-digit';
 
@@ -128,7 +129,7 @@ const ExchangeStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, step,
                   <T id={'youSend'} />
                 </p>
                 <p className="text-xs text-gray-910">
-                  {exchangeData.amount} {exchangeData.coinFrom.coinCode}
+                  {exchangeData.amount} {getCoinCodeToDisplay(exchangeData.coinFrom)}
                 </p>
               </div>
               <div className="flex justify-between items-baseline mt-2">
@@ -136,12 +137,12 @@ const ExchangeStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, step,
                   <T id={'youReceive'} />
                 </p>
                 <p className="text-xs text-gray-910">
-                  {exchangeData.amountTo} {exchangeData.coinTo.coinCode}
+                  {exchangeData.amountTo} {getCoinCodeToDisplay(exchangeData.coinTo)}
                 </p>
               </div>
               <div className="flex justify-between items-baseline mt-4">
                 <p className="text-gray-600 text-xs">
-                  <T id={'depositAddressText'} substitutions={[exchangeData.coinFrom.coinCode]} />
+                  <T id={'depositAddressText'} substitutions={[getCoinCodeToDisplay(exchangeData.coinFrom)]} />
                 </p>
                 <p className="text-xs text-gray-910">
                   <HashShortView hash={exchangeData.depositAddress} />
@@ -199,7 +200,7 @@ const ExchangeStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, step,
               <T id={'youSend'} />
             </p>
             <p className="text-xs text-gray-910">
-              {exchangeData.amount} {exchangeData.coinFrom.coinCode}
+              {exchangeData.amount} {getCoinCodeToDisplay(exchangeData.coinFrom)}
             </p>
           </div>
           {exchangeData.hashOut.hash && exchangeData.hashOut.link && (
@@ -216,7 +217,7 @@ const ExchangeStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, step,
           )}
           <div className="flex justify-between items-baseline mt-4">
             <p className="text-gray-600 text-xs">
-              <T id={'depositAddressText'} substitutions={[exchangeData.coinFrom.coinCode]} />
+              <T id={'depositAddressText'} substitutions={[getCoinCodeToDisplay(exchangeData.coinFrom)]} />
             </p>
             <p className="text-xs text-gray-910">
               <HashShortView hash={exchangeData.depositAddress} />
@@ -225,7 +226,7 @@ const ExchangeStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, step,
           <div className="flex justify-between items-baseline mt-4">
             <p className="text-gray-600 text-xs">You receive:</p>
             <p className="text-xs text-gray-910">
-              {exchangeData.amountTo} {exchangeData.coinTo.coinCode}
+              {exchangeData.amountTo} {getCoinCodeToDisplay(exchangeData.coinTo)}
             </p>
           </div>
           {exchangeData.hashIn.hash && exchangeData.hashIn.link && (

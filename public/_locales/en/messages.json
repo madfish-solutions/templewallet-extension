@@ -707,7 +707,7 @@
         "content": "$1"
       },
       "networkName": {
-        "content": "$1"
+        "content": "$2"
       }
     }
   },
@@ -1685,6 +1685,12 @@
   "noAssetsFound": {
     "message": "No assets found"
   },
+  "tokenNotFound": {
+    "message": "Token not found..."
+  },
+  "currencyNotFound": {
+    "message": "Currency not found"
+  },
   "ifYouDontSeeYourAsset": {
     "message": "If you don't see your asset,\ntry to click $toClick$.",
     "placeholders": {
@@ -2607,7 +2613,7 @@
     "message": "Only for Ukrainian banking cards"
   },
   "buyWithCrypto": {
-    "message": "Buy With Crypto"
+    "message": "Buy with Crypto"
   },
   "buyWithExolix": {
     "message": "Buy With Exolix"
@@ -2620,43 +2626,26 @@
       }
     }
   },
-  "buyWithMoonPay": {
-    "message": "Buy With MoonPay"
-  },
-  "buyWithMoonPayDescription": {
-    "message": "Crypto just got easy. Buy TEZ in minutes using Visa, Mastercard, and all major debit and credit cards."
-  },
   "buyWithRamp": {
     "message": "Buy With Ramp"
   },
   "buyWithRampDescription": {
     "message": "Buy TEZ  using Visa, Mastercard, and all major debit and credit cards. Ramp is available in 160+ countries and territories."
   },
-  "buyWithAliceBob": {
-    "message": "Buy TEZ with Alice-Bob (UAH only)"
-  },
   "sellWithAliceBob": {
     "message": "Sell TEZ with Alice-Bob (UAH only)"
-  },
-  "buyWithAliceBobDescription": {
-    "message": "Fast and cost-effective exchange of UAH to TEZ."
   },
   "sellWithAliceBobDescription": {
     "message": "Fast and cost-effective exchange of TEZ to UAH."
   },
-  "buyWithUtorgDescription": {
-    "message": "Licensed fiat-to-crypto gateway. 187+ countries, AI-powered KYC, Apple Pay, Google Pay."
+  "selectPaymentProvider": {
+    "message": "Select payment provider"
+  },
+  "pleaseSelectPaymentProvider": {
+    "message": "Please select payment provider"
   },
   "topUpBuy": {
-    "message": "Top up $gasTokenName$ balance",
-    "placeholders": {
-      "gasTokenName": {
-        "content": "$1"
-      }
-    }
-  },
-  "buyWithUtorg": {
-    "message": "Buy TEZ with UTORG"
+    "message": "Buy"
   },
   "buyWithCard": {
     "message": "Buy with Debit/Credit Card"
@@ -2665,15 +2654,60 @@
     "message": "Sell TEZ"
   },
   "topUpDescription": {
-    "message": "Temple integrated third-party solutions to buy $gasTokenName1$ with crypto or a Debit/Credit card. Choose a provider, follow guides, get $gasTokenName2$ on your account.",
+    "message": "Temple integrated third-party solutions to buy TEZ or USDT with crypto or a Debit/Credit card."
+  },
+  "noTopUpOptionsAvailable": {
+    "message": "No top up options are available"
+  },
+  "errorWhileCreatingOrder": {
+    "message": "An error occurred while creating an order: $error$",
     "placeholders": {
-      "gasTokenName1": {
+      "error": {
+        "content": "$1"
+      }
+    }
+  },
+  "errorWhileGettingOutputEstimation": {
+    "message": "An error occurred while getting output estimation from $provider$: $error$",
+    "placeholders": {
+      "provider": {
         "content": "$1"
       },
-      "gasTokenName2": {
+      "error": {
         "content": "$2"
       }
     }
+  },
+  "errorWhileGettingCurrenciesList": {
+    "message": "An error occurred while getting currencies list from $provider$: $error$",
+    "placeholders": {
+      "provider": {
+        "content": "$1"
+      },
+      "error": {
+        "content": "$2"
+      }
+    }
+  },
+  "errorWhileUpdatingPairLimits": {
+    "message": "An error occurred while updating pair limits for the specified pair from $provider$: $error$",
+    "placeholders": {
+      "provider": {
+        "content": "$1"
+      },
+      "error": {
+        "content": "$2"
+      }
+    }
+  },
+  "noKycRequired": {
+    "message": "No KYC"
+  },
+  "supportsUsdt": {
+    "message": "Supports USDT"
+  },
+  "bestPrice": {
+    "message": "Best price"
   },
   "withdrawDescription": {
     "message": "Temple integrated third-party solutions to sell TEZ. Choose a provider, follow guides, \n get fiat to your Debit/Credit card"
@@ -2868,6 +2902,9 @@
   },
   "min": {
     "message": "Min:"
+  },
+  "exolixWarningTopUpServiceMessage": {
+    "message": "The token exchange feature is provided by Exolix as third party provider. Temple wallet is not responsible for the work of third-party services."
   },
   "warningTopUpServiceMessage": {
     "message": "The token exchange feature is provided by a third party. The Temple Wallet is not responsible for the work of third-party services."

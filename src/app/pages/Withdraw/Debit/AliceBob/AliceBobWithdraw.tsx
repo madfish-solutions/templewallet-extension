@@ -5,11 +5,6 @@ import { Anchor } from 'app/atoms/Anchor';
 import { ReactComponent as AttentionRedIcon } from 'app/icons/attentionRed.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import styles from 'app/pages/Buy/Crypto/Exolix/Exolix.module.css';
-import {
-  ALICE_BOB_CONTACT_LINK,
-  ALICE_BOB_PRIVACY_LINK,
-  ALICE_BOB_TERMS_LINK
-} from 'app/pages/Buy/Debit/AliceBob/config';
 import { AliceBobOrderInfo, AliceBobOrderStatus } from 'lib/apis/temple';
 import { t, T } from 'lib/i18n/react';
 import { useAccount, useNetwork, useStorage } from 'lib/temple/front';
@@ -20,6 +15,12 @@ import { WithdrawSelectors } from '../../Withdraw.selectors';
 import { InitialStep } from './steps/InitialStep';
 import { OrderStatusStep } from './steps/OrderStatusStep';
 import { SellStep } from './steps/SellStep';
+
+const ALICE_BOB_PRIVACY_LINK =
+  'https://oval-rhodium-33f.notion.site/Privacy-Policy-Abex-Eng-d70fa7cc134341a3ac4fd04816358b9e';
+const ALICE_BOB_TERMS_LINK =
+  'https://oval-rhodium-33f.notion.site/End-User-License-Agreement-Abex-Eng-6124123e256d456a83cffc3b2977c4dc';
+const ALICE_BOB_CONTACT_LINK = 'https://t.me/alicebobhelp';
 
 export const AliceBobWithdraw: FC = () => {
   const network = useNetwork();

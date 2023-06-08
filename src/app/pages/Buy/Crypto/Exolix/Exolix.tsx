@@ -91,7 +91,7 @@ const BuyCryptoContent: FC = () => {
         </Anchor>
       )}
       <p className={'mt-6 text-gray-600'}>
-        <T id={'warningTopUpServiceMessage'} />
+        <T id="exolixWarningTopUpServiceMessage" />
       </p>
     </div>
   );
