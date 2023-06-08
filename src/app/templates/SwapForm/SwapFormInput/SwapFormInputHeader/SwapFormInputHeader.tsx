@@ -148,7 +148,7 @@ export const SwapFormInputHeader = forwardRef<HTMLDivElement, Props>(
             <div
               className="border-r border-gray-300 pl-4 pr-3 flex py-5 items-center cursor-pointer"
               onClick={toggleOpened}
-              {...setTestID(testIDs?.assetSelector)}
+              {...setTestID(testIDs?.assetDropDownButton)}
             >
               {selectedAssetSlug ? (
                 <>

@@ -403,7 +403,7 @@ export const SwapForm: FC = () => {
           dropdown: SwapFormFromInputSelectors.dropdown,
           input: SwapFormFromInputSelectors.assetInput,
           searchInput: SwapFormFromInputSelectors.searchInput,
-          assetSelector: SwapFormFromInputSelectors.assetItem
+          assetDropDownButton: SwapFormFromInputSelectors.assetDropDownButton
         }}
       />
 
@@ -426,7 +426,7 @@ export const SwapForm: FC = () => {
           dropdown: SwapFormToInputSelectors.dropdown,
           input: SwapFormToInputSelectors.assetInput,
           searchInput: SwapFormToInputSelectors.searchInput,
-          assetSelector: SwapFormToInputSelectors.assetItem
+          assetDropDownButton: SwapFormToInputSelectors.assetDropDownButton
         }}
       />
 

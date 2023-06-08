@@ -1,5 +1,5 @@
 Feature: Change node
-  @dev
+
   Scenario: As a user, i'd like to change node
     Given I have imported an existing account
     And I am on the Header page

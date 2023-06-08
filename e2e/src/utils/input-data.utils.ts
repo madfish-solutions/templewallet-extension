@@ -14,17 +14,17 @@ export const iEnterValues = {
 
   // For transactions
   low_amount: '0.0001',
-  medium_amount: '0.001',
+  medium_amount: '0.005',
   high_amount: '1',
-  kUSD: 'Kolibri',
-  uUSD: 'youves uUSD',
+  kUSD: 'kUSD',
+  uUSD: 'uUSD',
   OBJKTCOM: 'Temple NFT'
 };
 
 export type IEnterValuesKey = keyof typeof iEnterValues;
 
 export const iSelectTokenSlugs = {
-  KUSD: 'KT1K9gCRgaLRFKTErYt1wVxA3Frb9FjasjTV_0',
-  UUSD: 'KT1XRPEPXbZK25r3Htzp2o1x7xdMMmfocKNW_0',
+  kUSD: 'KT1K9gCRgaLRFKTErYt1wVxA3Frb9FjasjTV_0',
+  uUSD: 'KT1XRPEPXbZK25r3Htzp2o1x7xdMMmfocKNW_0',
   OBJKTCOM: 'KT1DGbb333QNo3e2cpN3YGL5aRwWzkADcPA3_2' // 'Temple NFT'
 };
