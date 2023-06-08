@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import React, { FC, FunctionComponent, SVGProps } from 'react';
 
 import classNames from 'clsx';
 
@@ -8,7 +8,7 @@ import { TestIDProps } from 'lib/analytics';
 
 interface OnRumpSmileButtonProps extends TestIDProps {
   href: string;
-  smile: string;
+  SmileIcon: FunctionComponent<SVGProps<SVGSVGElement>>;
   amount: number;
   className?: string;
   titleClassName?: string;
@@ -17,7 +17,7 @@ interface OnRumpSmileButtonProps extends TestIDProps {
 
 export const OnRampSmileButton: FC<OnRumpSmileButtonProps> = ({
   href,
-  smile,
+  SmileIcon,
   amount,
   className,
   titleClassName,
@@ -42,9 +42,9 @@ export const OnRampSmileButton: FC<OnRumpSmileButtonProps> = ({
       onClick={onClick}
       testID={testID}
     >
-      <span className="h-7 text-2xl-plus">{smile}</span>
+      <SmileIcon className="w-7 h-auto" />
       <p
-        className={classNames('font-inter font-semibold text-orange-500 mt-2', titleClassName)}
+        className={classNames('font-inter font-semibold text-orange-500 mt-1', titleClassName)}
         style={{ fontSize: '1.188rem' }}
       >
         {amount}$

@@ -7,6 +7,9 @@ import { Anchor, Button } from 'app/atoms';
 import { useAppEnv } from 'app/env';
 import { ReactComponent as ArrowRightIcon } from 'app/icons/arrow-right.svg';
 import { ReactComponent as CloseIcon } from 'app/icons/close.svg';
+import { ReactComponent as SmileWithDollarIcon } from 'app/icons/smile-with-dollar.svg';
+import { ReactComponent as SmileWithGlassesIcon } from 'app/icons/smile-with-glasses.svg';
+import { ReactComponent as SmileIcon } from 'app/icons/smile.svg';
 import ContentContainer from 'app/layouts/ContentContainer';
 import { setOnRampPossibilityAction } from 'app/store/settings/actions';
 import { useOnRampPossibilitySelector } from 'app/store/settings/selectors';
@@ -84,14 +87,14 @@ export const OnRampOverlay: FC = () => {
           <div className={classNames('flex flex-row justify-between mt-8', !popup && 'px-14')}>
             <OnRampSmileButton
               href={getWertLink(publicKeyHash, 50)}
-              smile="🙂"
+              SmileIcon={SmileIcon}
               amount={50}
               onClick={close}
               testID={OnRampOverlaySelectors.fiftyDollarButton}
             />
             <OnRampSmileButton
               href={getWertLink(publicKeyHash, 100)}
-              smile="🤩"
+              SmileIcon={SmileWithGlassesIcon}
               amount={100}
               className="hover:shadow hover:opacity-90 hover:bg-orange-500 bg-orange-500"
               titleClassName="text-primary-white"
@@ -100,7 +103,7 @@ export const OnRampOverlay: FC = () => {
             />
             <OnRampSmileButton
               href={getWertLink(publicKeyHash, 200)}
-              smile="🤑"
+              SmileIcon={SmileWithDollarIcon}
               amount={200}
               onClick={close}
               testID={OnRampOverlaySelectors.twoHundredDollarButton}
