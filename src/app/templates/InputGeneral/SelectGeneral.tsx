@@ -2,39 +2,48 @@ import React, { ChangeEventHandler, ReactNode, FC, Dispatch, SetStateAction } fr
 
 import { isDefined } from '@rnw-community/shared';
 import classNames from 'clsx';
-import { List } from 'react-virtualized';
+import { v4 } from 'uuid';
 
 import AssetField from 'app/atoms/AssetField';
 import DropdownWrapper from 'app/atoms/DropdownWrapper';
 import Spinner from 'app/atoms/Spinner/Spinner';
-import { useAppEnvStyle } from 'app/hooks/use-app-env-style.hook';
 import { ReactComponent as ChevronDownIcon } from 'app/icons/chevron-down.svg';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
+import { AnalyticsEventCategory, setTestID, useAnalytics } from 'lib/analytics';
 import { t } from 'lib/i18n';
 import Popper from 'lib/ui/Popper';
 import { sameWidthModifiers } from 'lib/ui/same-width-modifiers';
 
-export enum DropdownSize {
-  Large,
-  Small
-}
 interface Props<T> {
   DropdownFaceContent: ReactNode;
   Input?: ReactNode;
-  className?: string;
+  optionsListClassName?: string;
+  dropdownButtonClassName?: string;
   searchProps: SelectSearchProps;
   optionsProps: SelectOptionsPropsBase<T>;
-  dropdownSize?: DropdownSize;
+  testIds?: {
+    dropdownTestId?: string;
+    searchInputTestId?: string;
+  };
 }
 
 export const SelectGeneral = <T extends unknown>({
-  DropdownFaceContent,
   Input,
   searchProps,
   optionsProps,
-  dropdownSize = DropdownSize.Small
+  testIds,
+  DropdownFaceContent,
+  optionsListClassName,
+  dropdownButtonClassName
 }: Props<T>) => {
   const isInputDefined = isDefined(Input);
+  const { trackEvent } = useAnalytics();
+
+  const trackDropdownClick = () => {
+    if (testIds?.dropdownTestId) {
+      trackEvent(testIds?.dropdownTestId, AnalyticsEventCategory.DropdownOpened);
+    }
+  };
 
   return (
     <Popper
@@ -42,26 +51,36 @@ export const SelectGeneral = <T extends unknown>({
       strategy="fixed"
       modifiers={sameWidthModifiers}
       fallbackPlacementsEnabled={false}
-      popup={({ opened, setOpened }) => <SelectOptions opened={opened} setOpened={setOpened} {...optionsProps} />}
+      popup={({ opened, setOpened }) => (
+        <SelectOptions
+          optionsListClassName={optionsListClassName}
+          opened={opened}
+          setOpened={setOpened}
+          {...optionsProps}
+        />
+      )}
     >
       {({ ref, opened, toggleOpened }) => (
         <div ref={ref as unknown as React.RefObject<HTMLDivElement>}>
           {opened ? (
-            <SelectSearch dropdownSize={dropdownSize} {...searchProps} />
+            <SelectSearch className={dropdownButtonClassName} {...searchProps} />
           ) : (
             <div
-              className="w-full flex items-center justify-between border rounded-md border-gray-300 overflow-hidden"
-              style={{ height: dropdownSize === DropdownSize.Small ? '46px' : '4.5rem' }}
+              className="w-full flex items-center justify-between border rounded-md border-gray-300"
+              style={{ maxHeight: '4.5rem', overflow: 'hidden' }}
             >
               <button
                 className={classNames(
                   'flex gap-2 items-center',
-                  dropdownSize === DropdownSize.Large ? 'pl-4 pr-3 py-5' : 'overflow-hidden p-2',
                   isInputDefined && 'border-r border-gray-300',
-                  !isInputDefined && 'w-full justify-between'
+                  !isInputDefined && 'w-full justify-between',
+                  dropdownButtonClassName
                 )}
-                onClick={toggleOpened}
-                style={{ height: dropdownSize === DropdownSize.Large ? '4.5rem' : 'auto' }}
+                onClick={() => {
+                  toggleOpened();
+                  trackDropdownClick();
+                }}
+                {...setTestID(testIds?.dropdownTestId)}
               >
                 {DropdownFaceContent}
                 <ChevronDownIcon className="text-gray-600 stroke-current stroke-2" style={{ height: 16, width: 16 }} />
@@ -74,32 +93,30 @@ export const SelectGeneral = <T extends unknown>({
     </Popper>
   );
 };
-interface SelectOptionsPropsBase<T> {
-  options: Array<T>;
+interface SelectOptionsPropsBase<Type> {
+  options: Array<Type>;
   noItemsText: ReactNode;
-  onOptionChange: (newValue: T) => void;
-  renderOptionContent: (option: T) => ReactNode;
-}
-interface SelectOptionsProps<T> extends SelectOptionsPropsBase<T> {
-  opened: boolean;
   isLoading?: boolean;
+  optionsListClassName?: string;
+  onOptionChange: (newValue: Type) => void;
+  renderOptionContent: (option: Type) => ReactNode;
+}
+interface SelectOptionsProps<Type> extends SelectOptionsPropsBase<Type> {
+  opened: boolean;
   setOpened: Dispatch<SetStateAction<boolean>>;
 }
 
-const ROW_HEIGHT = 64;
-
-const SelectOptions = <T extends unknown>({
+const SelectOptions = <Type extends unknown>({
   opened,
   options,
   noItemsText,
   isLoading,
+  optionsListClassName,
   onOptionChange,
   setOpened,
   renderOptionContent
-}: SelectOptionsProps<T>) => {
-  const { dropdownWidth } = useAppEnvStyle();
-
-  const handleOptionClick = (newValue: T) => {
+}: SelectOptionsProps<Type>) => {
+  const handleOptionClick = (newValue: Type) => {
     onOptionChange(newValue);
     setOpened(false);
   };
@@ -120,33 +137,28 @@ const SelectOptions = <T extends unknown>({
             <Spinner theme="primary" style={{ width: '3rem' }} />
           ) : (
             <p className="flex items-center justify-center text-gray-600 text-base font-light">
-              <span>Search</span>
+              <span>{noItemsText}</span>
             </p>
           )}
         </div>
       )}
 
-      <List
-        width={dropdownWidth}
-        height={options.length > 2 ? 240 : options.length * ROW_HEIGHT}
-        rowCount={options.length}
-        rowHeight={ROW_HEIGHT}
-        rowRenderer={({ index }) => {
-          const option = options[index];
-
-          return (
-            <button className="w-full" onClick={() => handleOptionClick(option)}>
+      <ul className={optionsListClassName}>
+        {options.map(option => (
+          <li key={v4()}>
+            <button className="w-full" disabled={(option as any)?.disabled} onClick={() => handleOptionClick(option)}>
               {renderOptionContent(option)}
             </button>
-          );
-        }}
-      />
+          </li>
+        ))}
+      </ul>
     </DropdownWrapper>
   );
 };
 
 interface SelectSearchProps {
-  dropdownSize?: DropdownSize;
+  testId?: string;
+  className?: string;
   searchValue: string;
   tokenIdValue?: string;
   showTokenIdInput?: boolean;
@@ -154,9 +166,10 @@ interface SelectSearchProps {
   onTokenIdChange?: (newValue: number | string | undefined) => void;
 }
 const SelectSearch: FC<SelectSearchProps> = ({
+  testId,
+  className,
   searchValue,
   tokenIdValue,
-  dropdownSize = DropdownSize.Small,
   showTokenIdInput = false,
   onSearchChange,
   onTokenIdChange
@@ -165,11 +178,10 @@ const SelectSearch: FC<SelectSearchProps> = ({
     <div
       className={classNames(
         'w-full flex items-center transition ease-in-out duration-200 w-full border rounded-md border-orange-500 bg-gray-100',
-        dropdownSize === DropdownSize.Small ? 'p-2' : 'pl-4 pr-3 py-5'
+        className
       )}
-      style={{ height: dropdownSize === DropdownSize.Small ? '46px' : '4.5rem' }}
     >
-      <div className="items-center">
+      <div className="items-center mr-3">
         <SearchIcon className={classNames('w-6 h-auto text-gray-500 stroke-current stroke-2')} />
       </div>
 
@@ -178,9 +190,10 @@ const SelectSearch: FC<SelectSearchProps> = ({
           <input
             autoFocus
             value={searchValue}
-            className="w-full bg-transparent placeholder-gray-500"
+            className="w-full bg-transparent text-xl text-gray-700 placeholder-gray-500"
             placeholder={t('swapTokenSearchInputPlaceholder')}
             onChange={onSearchChange}
+            {...setTestID(testId)}
           />
         </div>
 

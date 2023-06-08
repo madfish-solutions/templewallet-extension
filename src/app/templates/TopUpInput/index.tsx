@@ -8,7 +8,7 @@ import { getAssetSymbolToDisplay } from 'lib/buy-with-credit-card/get-asset-symb
 import { T, toLocalFormat } from 'lib/i18n';
 
 import { InputGeneral } from '../InputGeneral/InputGeneral';
-import { DropdownSize, SelectGeneral } from '../InputGeneral/SelectGeneral';
+import { SelectGeneral } from '../InputGeneral/SelectGeneral';
 import { CurrencyOption } from './CurrenciesMenu/CurrencyOption';
 import { StaticCurrencyImage } from './StaticCurrencyImage';
 import { TopUpInputPropsGeneric, CurrencyBase, TopUpInputPropsBase } from './types';
@@ -69,7 +69,10 @@ export const TopUpInput = <C extends CurrencyBase>(_props: TopUpInputPropsGeneri
         }
         mainContent={
           <SelectGeneral<CurrencyBase>
-            dropdownSize={DropdownSize.Large}
+            testIds={{
+              dropdownTestId: testID
+            }}
+            dropdownButtonClassName="pl-4 pr-3 py-5"
             DropdownFaceContent={
               <TopUpMainContent singleToken={singleToken} fitIconsValue={fitIconsValue} currency={currency} />
             }
@@ -105,6 +108,7 @@ export const TopUpInput = <C extends CurrencyBase>(_props: TopUpInputPropsGeneri
               </div>
             }
             optionsProps={{
+              isLoading: isCurrenciesLoading,
               options: filteredCurrencies,
               noItemsText: emptyListPlaceholder,
               renderOptionContent: currCurrency =>
