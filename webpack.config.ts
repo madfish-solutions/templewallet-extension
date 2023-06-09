@@ -24,7 +24,8 @@ import {
   TARGET_BROWSER,
   MANIFEST_VERSION,
   BACKGROUND_IS_WORKER,
-  RELOADER_PORTS
+  RELOADER_PORTS,
+  MAX_JS_CHUNK_SIZE_IN_BYTES
 } from './webpack/env';
 import usePagesLiveReload from './webpack/live-reload';
 import { buildManifest } from './webpack/manifest';
@@ -42,7 +43,6 @@ const HTML_TEMPLATES = PAGES_NAMES.map(name => {
 });
 
 const CONTENT_SCRIPTS = ['contentScript'];
-const SEPARATED_CHUNKS = new Set(CONTENT_SCRIPTS);
 
 const mainConfig = (() => {
   const config = buildBaseConfig();
@@ -57,7 +57,7 @@ const mainConfig = (() => {
   config.output = {
     ...config.output,
     filename: 'pages/[name].js',
-    chunkFilename: 'pages/[name].chunk.js'
+    chunkFilename: 'pages/[id].bundle-chunk.js'
   };
 
   config.plugins!.push(
@@ -140,15 +140,10 @@ const mainConfig = (() => {
   );
 
   config.optimization!.splitChunks = {
-    cacheGroups: {
-      commons: {
-        name: 'commons.chunk',
-        minChunks: 2,
-        /* Firefox limitation of 4MB per chunk */
-        maxSize: 4_000_000,
-        chunks: chunk => !SEPARATED_CHUNKS.has(chunk.name)
-      }
-    }
+    chunks: 'all',
+    maxSize: MAX_JS_CHUNK_SIZE_IN_BYTES,
+    enforceSizeThreshold: MAX_JS_CHUNK_SIZE_IN_BYTES,
+    name: (_: any, chunks: any) => chunks.map((chunk: any) => chunk.name).join('-') + '.split-chunk'
   };
 
   config.optimization!.minimizer!.push(
