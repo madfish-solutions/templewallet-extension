@@ -1453,10 +1453,10 @@
     "@jridgewell/resolve-uri" "^3.0.3"
     "@jridgewell/sourcemap-codec" "^1.4.10"
 
-"@keshan3262/wallet-address-validator@^0.4.1":
-  version "0.4.1"
-  resolved "https://registry.yarnpkg.com/@keshan3262/wallet-address-validator/-/wallet-address-validator-0.4.1.tgz#268642be39b632a437b6e5e2f0915315eac0599c"
-  integrity sha512-+jRIz0y1INoya/So8xtKy2m/mVwfonEaWCQ9ruk0lb1c9Q9uwVpzo5WxqiZzx1UndF5+pG+pCf10oZO+2Mh0Cg==
+"@keshan3262/wallet-address-validator@^0.4.2":
+  version "0.4.2"
+  resolved "https://registry.yarnpkg.com/@keshan3262/wallet-address-validator/-/wallet-address-validator-0.4.2.tgz#ebb6a01336e23a5b70b74a072b0b9d81cb1812c0"
+  integrity sha512-P6PSMA16pPkmxhcKkFlPjU3QzFYFD3JgCMv8F+CrN6AT8G5n2YiR4nbgBSTQ5sE+uqtJoEzIAv5IZ/kcTmz89w==
   dependencies:
     base-x "^3.0.4"
     bs58check "^3.0.1"
