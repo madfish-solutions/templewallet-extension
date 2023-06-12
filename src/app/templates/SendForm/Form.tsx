@@ -46,7 +46,7 @@ import {
   useTezos,
   useTezosDomainsClient,
   useFilteredContacts,
-  validateDelegate
+  validateRecipient
 } from 'lib/temple/front';
 import { hasManager, isAddressValid, isKTAddress, mutezToTz, tzToMutez } from 'lib/temple/helpers';
 import { TempleAccountType, TempleAccount, TempleNetworkType } from 'lib/temple/types';
@@ -57,6 +57,7 @@ import ContactsDropdown, { ContactsDropdownProps } from './ContactsDropdown';
 import { FeeSection } from './FeeSection';
 import { SendFormSelectors } from './selectors';
 import { SpinnerSection } from './SpinnerSection';
+import { useAddressFieldAnalytics } from './use-address-field-analytics';
 
 interface FormData {
   to: string;
@@ -152,6 +153,8 @@ export const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactReque
   const feeValue = watch('fee') ?? RECOMMENDED_ADD_FEE;
 
   const amountFieldRef = useRef<HTMLInputElement>(null);
+
+  const { onBlur } = useAddressFieldAnalytics(toValue, 'RECIPIENT_NETWORK');
 
   const toFilledWithAddress = useMemo(() => Boolean(toValue && isAddressValid(toValue)), [toValue]);
 
@@ -418,7 +421,8 @@ export const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactReque
 
   const handleToFieldBlur = useCallback(() => {
     setToFieldFocused(false);
-  }, [setToFieldFocused]);
+    onBlur();
+  }, [setToFieldFocused, onBlur]);
 
   const allContactsWithoutCurrent = useMemo(
     () => allContacts.filter(c => c.address !== accountPkh),
@@ -452,7 +456,7 @@ export const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactReque
         }
         control={control}
         rules={{
-          validate: (value: any) => validateDelegate(value, domainsClient, validateAddress)
+          validate: (value: any) => validateRecipient(value, domainsClient)
         }}
         onChange={([v]) => v}
         onBlur={handleToFieldBlur}
@@ -651,19 +655,6 @@ interface FeeComponentProps {
   baseFee?: BigNumber | Error | undefined;
   error?: FieldError;
   isSubmitting: boolean;
-}
-
-function validateAddress(value: string) {
-  switch (false) {
-    case value?.length > 0:
-      return true;
-
-    case isAddressValid(value):
-      return 'invalidAddress';
-
-    default:
-      return true;
-  }
 }
 
 const getMaxAmountFiat = (assetPrice: number | null, maxAmountAsset: BigNumber) =>

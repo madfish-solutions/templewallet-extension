@@ -1973,6 +1973,14 @@
   "invalidAddressOrDomain": {
     "message": "Invalid address or domain name"
   },
+  "otherNetworkAddressError": {
+    "message": "You entered the $network$ network address. Please enter the Tezos network address",
+    "placeholders": {
+      "network": {
+        "content": "$1"
+      }
+    }
+  },
   "resolvedAddress": {
     "message": "Resolved address"
   },
