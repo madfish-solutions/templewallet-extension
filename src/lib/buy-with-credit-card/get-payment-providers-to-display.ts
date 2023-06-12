@@ -30,7 +30,7 @@ export const getPaymentProvidersToDisplay = (
   providersLoading: Partial<Record<TopUpProviderId, boolean>>,
   inputAmount?: BigNumber | number
 ) => {
-  const shouldFilterByLimits = allProviders.some(
+  const shouldFilterByLimitsDefined = allProviders.some(
     ({ minInputAmount, maxInputAmount }) => isDefined(minInputAmount) && isDefined(maxInputAmount)
   );
   const shouldFilterByOutputAmount = allProviders.some(
@@ -45,7 +45,7 @@ export const getPaymentProvidersToDisplay = (
 
       return (
         !isError &&
-        (!shouldFilterByLimits || limitsAreDefined) &&
+        (!shouldFilterByLimitsDefined || limitsAreDefined) &&
         (!shouldFilterByOutputAmount || outputAmountIsLegit || Boolean(providersLoading[id])) &&
         isInRange(minInputAmount, maxInputAmount, inputAmount)
       );

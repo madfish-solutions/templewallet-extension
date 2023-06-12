@@ -49,7 +49,7 @@ export const BuyWithCreditCard: FC = () => {
   } = form;
   const { inputAmount, inputCurrency, outputToken, outputAmount, topUpProvider } = formValues;
   const paymentProviders = usePaymentProviders(inputAmount, inputCurrency, outputToken);
-  const { allPaymentProviders, amountsUpdateErrors, paymentProvidersToDisplay } = paymentProviders;
+  const { allPaymentProviders, paymentProvidersToDisplay, amountsUpdateErrors } = paymentProviders;
   const {
     switchPaymentProvider,
     handleInputAssetChange,
@@ -73,7 +73,7 @@ export const BuyWithCreditCard: FC = () => {
   const inputAmountErrorMessage = errors.inputAmount?.message;
   const shouldShowInputAmountError = shouldShowFieldError('inputAmount', formState);
   const isMinAmountError =
-    shouldShowInputAmountError && inputAmountErrorMessage !== AmountErrorType.Max && isDefined(inputAmountErrorMessage);
+    shouldShowInputAmountError && isDefined(inputAmountErrorMessage) && inputAmountErrorMessage !== AmountErrorType.Max;
   const isMaxAmountError = shouldShowInputAmountError && inputAmountErrorMessage === AmountErrorType.Max;
   const shouldShowPaymentProviderError =
     isDefined(errors.topUpProvider) &&
@@ -117,12 +117,20 @@ export const BuyWithCreditCard: FC = () => {
 
   useInterval(refreshForm, 10000, [refreshForm], false);
 
-  const minAmount = isDefined(inputCurrency?.minAmount)
-    ? toLocalFormat(inputCurrency.minAmount, { decimalPlaces: inputCurrency.precision })
-    : undefined;
-  const maxAmount = isDefined(inputCurrency?.maxAmount)
-    ? toLocalFormat(inputCurrency.maxAmount, { decimalPlaces: inputCurrency.precision })
-    : undefined;
+  const minAmountStr = useMemo(
+    () =>
+      isDefined(inputCurrency?.minAmount)
+        ? toLocalFormat(inputCurrency.minAmount, { decimalPlaces: inputCurrency.precision })
+        : undefined,
+    [inputCurrency]
+  );
+  const maxAmountStr = useMemo(
+    () =>
+      isDefined(inputCurrency?.maxAmount)
+        ? toLocalFormat(inputCurrency.maxAmount, { decimalPlaces: inputCurrency.precision })
+        : undefined,
+    [inputCurrency]
+  );
 
   const someErrorOccured = isDefined(updateLinkError) || Object.keys(errors).length > 0;
   const submitDisabled = !isNotEmptyString(purchaseLink) || someErrorOccured || !isDefined(outputAmount);
@@ -152,8 +160,8 @@ export const BuyWithCreditCard: FC = () => {
                 currenciesList={allFiatCurrencies}
                 decimals={inputCurrency.precision}
                 isCurrenciesLoading={currenciesLoading}
-                minAmount={minAmount}
-                maxAmount={maxAmount}
+                minAmount={minAmountStr}
+                maxAmount={maxAmountStr}
                 isMinAmountError={isMinAmountError}
                 isMaxAmountError={isMaxAmountError}
                 amountInputDisabled={false}

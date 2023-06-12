@@ -1,10 +1,15 @@
 import { axiosApi } from '../axios-api';
-import { GetBinanceConnectCurrenciesResponse } from './types';
+import { GetBinanceConnectCurrenciesResponse, GetTradePairsResponseItem } from './types';
 
 export type { GetBinanceConnectCurrenciesResponse };
 
 export const getBinanceConnectCurrencies = () =>
   axiosApi.get<GetBinanceConnectCurrenciesResponse>('/binance-connect/currencies').then(({ data }) => data);
+
+export const getBinanceConnectBuyPair = (fiatCode: string, cryptoCode: string) =>
+  axiosApi
+    .get<GetTradePairsResponseItem>('/binance-connect/buy-pair', { params: { fiatCode, cryptoCode } })
+    .then(({ data }) => data);
 
 export const estimateBinanceConnectOutput = (inputFiatCode: string, outputCryptoCode: string, inputAmount: string) =>
   axiosApi

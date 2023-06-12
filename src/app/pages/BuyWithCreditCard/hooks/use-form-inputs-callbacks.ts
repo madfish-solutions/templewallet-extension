@@ -10,8 +10,7 @@ import { loadAllCurrenciesActions, updatePairLimitsActions } from 'app/store/buy
 import { useAllPairsLimitsSelector } from 'app/store/buy-with-credit-card/selectors';
 import { getAssetSymbolToDisplay } from 'lib/buy-with-credit-card/get-asset-symbol-to-display';
 import { getPaymentProvidersToDisplay } from 'lib/buy-with-credit-card/get-payment-providers-to-display';
-import { intersectLimits } from 'lib/buy-with-credit-card/intersect-limits';
-import { mergeLimits } from 'lib/buy-with-credit-card/merge-limits';
+import { mergeProvidersLimits } from 'lib/buy-with-credit-card/merge-limits';
 import { TopUpProviderId } from 'lib/buy-with-credit-card/top-up-provider-id.enum';
 import {
   PaymentProviderInterface,
@@ -124,11 +123,9 @@ export const useFormInputsCallbacks = (
   );
   const handleOutputTokenChange = useCallback(
     (newValue: TopUpOutputInterface) => {
-      const noPairLimitsInputCurrency = noPairLimitsFiatCurrencies.find(({ code }) => code === inputCurrency.code);
-      const { min: minInputAmount, max: maxInputAmount } = intersectLimits([
-        { min: noPairLimitsInputCurrency?.minAmount, max: noPairLimitsInputCurrency?.maxAmount },
-        mergeLimits(Object.values(allPairsLimits[inputCurrency.code]?.[newValue.code] ?? {}).map(({ data }) => data))
-      ]);
+      const pairLimits = allPairsLimits[inputCurrency.code]?.[newValue.code];
+      const { min: minInputAmount, max: maxInputAmount } = mergeProvidersLimits(pairLimits);
+
       const patchedInputCurrency = {
         ...inputCurrency,
         minAmount: minInputAmount,

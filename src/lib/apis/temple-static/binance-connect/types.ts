@@ -61,17 +61,10 @@ interface GetCryptoNetworksResponseItem {
  * }
 * ```
 */
-interface GetTradePairsResponseItem {
+export interface GetTradePairsResponseItem {
   fiatCurrency: string;
   cryptoCurrency: string;
-  paymentMethod: string;
   size: number;
-  /** @deprecated
-    This quotation is just an estimate value, Merchant should not use this value for calculation, ranking or competition.
-
-    If merchant want to get a more precise quotation, please call [3.9 get-quote]
-  */
-  quotation: number;
   /** Regarding fiat */
   minLimit: number;
   /** Regarding fiat */

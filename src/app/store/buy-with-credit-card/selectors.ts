@@ -3,6 +3,7 @@ import { useMemo } from 'react';
 import { TopUpProviderId } from 'lib/buy-with-credit-card/top-up-provider-id.enum';
 
 import { useSelector } from '../index';
+import { PairLimits } from './state';
 
 export const useFiatCurrenciesSelector = (topUpProvider: TopUpProviderId) =>
   useSelector(({ buyWithCreditCard }) => buyWithCreditCard.currencies[topUpProvider].data.fiat);
@@ -44,14 +45,17 @@ export const useCurrenciesErrorsSelector = () => {
 
 export const useAllPairsLimitsSelector = () => useSelector(({ buyWithCreditCard }) => buyWithCreditCard.pairLimits);
 
-const useAllProvidersPairLimitsSelector = (fiatSymbol: string, cryptoSymbol: string) =>
-  useSelector(({ buyWithCreditCard }) => buyWithCreditCard.pairLimits[fiatSymbol]?.[cryptoSymbol]);
-
-export const usePairLimitsSelector = (fiatSymbol: string, cryptoSymbol: string, topUpProvider: TopUpProviderId) =>
-  useAllProvidersPairLimitsSelector(fiatSymbol, cryptoSymbol)?.[topUpProvider];
+export const usePairLimitsSelector = (
+  fiatSymbol: string,
+  cryptoSymbol: string,
+  topUpProvider: TopUpProviderId
+): PairLimits[TopUpProviderId] | undefined =>
+  useSelector(({ buyWithCreditCard }) => buyWithCreditCard.pairLimits[fiatSymbol]?.[cryptoSymbol]?.[topUpProvider]);
 
 const usePairLimitsErrorSelector = (fiatSymbol: string, cryptoSymbol: string, topUpProvider: TopUpProviderId) =>
-  usePairLimitsSelector(fiatSymbol, cryptoSymbol, topUpProvider)?.error;
+  useSelector(
+    ({ buyWithCreditCard }) => buyWithCreditCard.pairLimits[fiatSymbol]?.[cryptoSymbol]?.[topUpProvider]?.error
+  );
 
 export const usePairLimitsErrorsSelector = (fiatSymbol: string, cryptoSymbol: string) => {
   const moonPayError = usePairLimitsErrorSelector(fiatSymbol, cryptoSymbol, TopUpProviderId.MoonPay);

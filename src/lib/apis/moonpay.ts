@@ -8,20 +8,23 @@ export enum CurrencyType {
 }
 
 interface CurrencyBase {
+  type: CurrencyType;
   id: string;
-  name: string;
   code: string;
+  name: string;
+  precision: number;
   minBuyAmount: number | null;
   maxBuyAmount: number | null;
-  precision: number;
-  type: CurrencyType;
 }
 
 export interface FiatCurrency extends CurrencyBase {
+  type: CurrencyType.Fiat;
   minBuyAmount: number;
   maxBuyAmount: number;
-  type: CurrencyType.Fiat;
-  lowLimitAmount: number;
+  /** @deprecated */
+  minAmount: number;
+  /** @deprecated */
+  maxAmount: number;
 }
 
 export interface CryptoCurrency extends CurrencyBase {

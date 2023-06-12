@@ -226,7 +226,15 @@ export const usePaymentProviders = (
         },
         inputAmount
       ),
-    [allPaymentProviders, amountsUpdateErrors, moonPayLoading, utorgLoading, aliceBobLoading, binanceConnectLoading]
+    [
+      allPaymentProviders,
+      amountsUpdateErrors,
+      inputAmount,
+      moonPayLoading,
+      utorgLoading,
+      aliceBobLoading,
+      binanceConnectLoading
+    ]
   );
 
   const updateOutputAmounts = useCallback(
@@ -246,9 +254,23 @@ export const usePaymentProviders = (
         [TopUpProviderId.BinanceConnect]: binanceConnectOutputAmount
       };
     },
-    [inputAsset, outputAsset, updateMoonPayOutputAmount, updateUtorgOutputAmount, updateAliceBobOutputAmount]
+    [
+      inputAsset,
+      outputAsset,
+      updateMoonPayOutputAmount,
+      updateUtorgOutputAmount,
+      updateAliceBobOutputAmount,
+      updateBinanceConnectOutputAmount
+    ]
   );
+
   const loading = moonPayLoading || utorgLoading || aliceBobLoading || binanceConnectLoading;
 
-  return { allPaymentProviders, amountsUpdateErrors, paymentProvidersToDisplay, updateOutputAmounts, loading };
+  return {
+    allPaymentProviders,
+    paymentProvidersToDisplay,
+    amountsUpdateErrors,
+    loading,
+    updateOutputAmounts
+  };
 };
