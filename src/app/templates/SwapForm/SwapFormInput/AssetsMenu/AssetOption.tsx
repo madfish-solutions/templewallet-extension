@@ -24,10 +24,9 @@ export const AssetOption: FC<Props> = ({ assetSlug, selected }) => {
   return (
     <div
       className={classNames(
-        'py-1.5 px-2 w-full flex items-center rounded',
+        'py-1.5 px-2 w-full flex items-center rounded h-16',
         selected ? 'bg-gray-200' : 'hover:bg-gray-100'
       )}
-      style={{ height: '64px' }}
       {...setTestID(AssetsMenuSelectors.assetsMenuAssetItem)}
     >
       <AssetIcon assetSlug={assetSlug} size={32} className="mx-2" />

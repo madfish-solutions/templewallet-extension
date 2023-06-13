@@ -17,8 +17,10 @@ interface Props extends Partial<Pick<ListRowProps, 'style'>> {
 
 export const CurrencyOption: FC<Props> = ({ currency, isSelected, fitIcons }) => (
   <div
-    className={classNames('py-1.5 px-2 w-full flex items-center', isSelected ? 'bg-gray-200' : 'hover:bg-gray-100')}
-    style={{ height: '64px' }}
+    className={classNames(
+      'py-1.5 px-2 w-full flex items-center h-16',
+      isSelected ? 'bg-gray-200' : 'hover:bg-gray-100'
+    )}
   >
     <StaticCurrencyImage
       currencyCode={currency.code}

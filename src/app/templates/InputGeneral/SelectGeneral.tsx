@@ -65,10 +65,7 @@ export const SelectGeneral = <T extends unknown>({
           {opened ? (
             <SelectSearch className={dropdownButtonClassName} {...searchProps} />
           ) : (
-            <div
-              className="w-full flex items-center justify-between border rounded-md border-gray-300"
-              style={{ maxHeight: '4.5rem', overflow: 'hidden' }}
-            >
+            <div className="w-full flex items-center justify-between border rounded-md border-gray-300 overflow-hidden max-h-18">
               <button
                 className={classNames(
                   'flex gap-2 items-center',
@@ -83,7 +80,7 @@ export const SelectGeneral = <T extends unknown>({
                 {...setTestID(testIds?.dropdownTestId)}
               >
                 {DropdownFaceContent}
-                <ChevronDownIcon className="text-gray-600 stroke-current stroke-2" style={{ height: 16, width: 16 }} />
+                <ChevronDownIcon className="text-gray-600 stroke-current stroke-2 h-4 w-4" />
               </button>
               {Input}
             </div>
@@ -134,7 +131,7 @@ const SelectOptions = <Type extends unknown>({
       {(options.length === 0 || isLoading) && (
         <div className="my-8 flex flex-col items-center justify-center text-gray-500">
           {isLoading ? (
-            <Spinner theme="primary" style={{ width: '3rem' }} />
+            <Spinner className="w-12" theme="primary" />
           ) : (
             <p className="flex items-center justify-center text-gray-600 text-base font-light">
               <span>{noItemsText}</span>
@@ -146,7 +143,7 @@ const SelectOptions = <Type extends unknown>({
       <ul className={optionsListClassName}>
         {options.map(option => (
           <li key={v4()}>
-            <button className="w-full" disabled={(option as any)?.disabled} onClick={() => handleOptionClick(option)}>
+            <button className="w-full" disabled={(option as any).disabled} onClick={() => handleOptionClick(option)}>
               {renderOptionContent(option)}
             </button>
           </li>

@@ -188,10 +188,7 @@ const ActionButton: FC<ActionButtonProps> = ({
           >
             <Icon className={classNames('w-6 h-auto', disabled ? 'stroke-gray' : 'stroke-accent-orange')} />
           </div>
-          <span
-            style={{ fontSize: 11 }}
-            className={classNames('text-center', disabled ? 'text-gray-20' : 'text-gray-910')}
-          >
+          <span className={classNames('text-center text-xxs', disabled ? 'text-gray-20' : 'text-gray-910')}>
             {label}
           </span>
         </>

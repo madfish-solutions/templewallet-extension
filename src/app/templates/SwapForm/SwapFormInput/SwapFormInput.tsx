@@ -222,10 +222,9 @@ const SwapInput: FC<SwapInputProps> = ({
   return (
     <div
       className={classNames(
-        'flex-1 px-2 flex items-center justify-between rounded-r-md',
+        'flex-1 px-2 flex items-center justify-between rounded-r-md h-18',
         amountInputDisabled && 'bg-gray-100'
       )}
-      style={{ height: '4.5rem' }}
     >
       <div className="h-full flex-1 flex items-end justify-center flex-col">
         <AssetField

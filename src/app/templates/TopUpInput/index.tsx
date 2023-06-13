@@ -16,6 +16,8 @@ import { getProperNetworkFullName, useFilteredCurrencies } from './utils';
 
 export type { CurrencyToken } from './types';
 
+const TWO_TOKENS_LENGTH = 2;
+
 const renderOptionContent = (currency: CurrencyBase, isSelected: boolean) => (
   <CurrencyOption currency={currency} isSelected={isSelected} />
 );
@@ -45,7 +47,7 @@ export const TopUpInput = <C extends CurrencyBase>(_props: TopUpInputPropsGeneri
   const fitIconsValue = typeof fitIcons === 'function' ? fitIcons(currency) : Boolean(fitIcons);
 
   const { filteredCurrencies, searchValue, setSearchValue } = useFilteredCurrencies(currenciesList);
-  const singleToken = currenciesList.length < 2;
+  const singleToken = currenciesList.length < TWO_TOKENS_LENGTH;
   const minAmountErrorClassName = getBigErrorText(isMinAmountError);
 
   const handleAmountChange = (newInputValue?: string) => {
@@ -79,10 +81,9 @@ export const TopUpInput = <C extends CurrencyBase>(_props: TopUpInputPropsGeneri
             Input={
               <div
                 className={classNames(
-                  'flex-1 flex items-center justify-between px-2',
+                  'flex-1 flex items-center justify-between px-2 h-18',
                   amountInputDisabled && 'bg-gray-100'
                 )}
-                style={{ height: '4.5rem' }}
               >
                 <div className="h-full flex-1 flex items-end justify-center flex-col">
                   <AssetField
@@ -154,7 +155,7 @@ const TopUpMainContent: FC<TopUpMainContentProps> = ({ singleToken, currency, fi
           <span className="text-gray-700 font-normal text-lg overflow-ellipsis overflow-hidden w-16">
             {getAssetSymbolToDisplay(currency)}
           </span>
-          <span className="text-indigo-500 font-medium overflow-ellipsis overflow-hidden w-12" style={{ fontSize: 11 }}>
+          <span className="text-indigo-500 font-medium overflow-ellipsis overflow-hidden w-12 text-xxs">
             {currency.network?.shortName ?? getProperNetworkFullName(currency)}
           </span>
         </div>

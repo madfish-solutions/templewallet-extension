@@ -3,7 +3,7 @@ import React, { useCallback, FC, useState, useMemo } from 'react';
 import classNames from 'clsx';
 
 import { InputGeneral } from 'app/templates/InputGeneral/InputGeneral';
-import { SelectGeneral } from 'app/templates/InputGeneral/SelectGeneral';
+import { GeneralOption, SelectGeneral } from 'app/templates/InputGeneral/SelectGeneral';
 import { AnalyticsEventCategory, AnalyticsEventEnum, setTestID, useAnalytics } from 'lib/analytics';
 import { FIAT_CURRENCIES, FiatCurrencyOption, useFiatCurrency } from 'lib/fiat-currency';
 import { T } from 'lib/i18n';
@@ -27,7 +27,7 @@ const FiatCurrencySelect: FC<FiatCurrencySelectProps> = () => {
 
   const [searchValue, setSearchValue] = useState<string>('');
 
-  const options = useMemo(
+  const options = useMemo<Array<GeneralOption<FiatCurrencyOption>>>(
     () =>
       searchAndFilterItems(
         FIAT_CURRENCIES,
@@ -38,14 +38,16 @@ const FiatCurrencySelect: FC<FiatCurrencySelectProps> = () => {
         ],
         null,
         0.25
-      ),
+      ).map(value => ({ value, disabled: false })),
     [searchValue]
   );
 
   const handleFiatCurrencyChange = useCallback(
-    (fiatOption: FiatCurrencyOption) => {
-      trackEvent(AnalyticsEventEnum.FiatCurrencyChanged, AnalyticsEventCategory.ButtonPress, { name: fiatOption.name });
-      setSelectedFiatCurrency(fiatOption);
+    (fiatOption: GeneralOption<FiatCurrencyOption>) => {
+      trackEvent(AnalyticsEventEnum.FiatCurrencyChanged, AnalyticsEventCategory.ButtonPress, {
+        name: fiatOption.value.name
+      });
+      setSelectedFiatCurrency(fiatOption.value);
     },
     [setSelectedFiatCurrency, trackEvent]
   );
@@ -66,7 +68,7 @@ const FiatCurrencySelect: FC<FiatCurrencySelectProps> = () => {
               options,
               noItemsText: 'No items',
               renderOptionContent: option =>
-                renderOptionContent(option, option.fullname === selectedFiatCurrency.fullname),
+                renderOptionContent(option.value, option.value.fullname === selectedFiatCurrency.fullname),
               onOptionChange: handleFiatCurrencyChange
             }}
             searchProps={{
@@ -106,7 +108,7 @@ const FiatCurrencyIcon: FC<FiatCurrencyOptionContentProps> = ({ option: { symbol
 
 const FiatCurrencyFieldContent: FC<FiatCurrencyOptionContentProps> = ({ option }) => {
   return (
-    <div className="flex items-center ">
+    <div className="flex items-center">
       <FiatCurrencyIcon option={option} />
 
       <span className="text-xl text-gray-700">{option.name}</span>

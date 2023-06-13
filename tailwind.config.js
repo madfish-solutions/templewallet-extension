@@ -111,7 +111,8 @@ module.exports = {
           700: '#2b6cb0',
           750: '#4a5568',
           800: '#2c5282',
-          900: '#2a4365'
+          900: '#2a4365',
+          910: '#212e36'
         },
         indigo: {
           100: '#ebf4ff',
@@ -306,6 +307,7 @@ module.exports = {
       };
     })(),
     fontSize: {
+      xxs: '0.6875rem',
       xs: '0.75rem',
       sm: '0.875rem',
       base: '1rem',
@@ -333,6 +335,7 @@ module.exports = {
       auto: 'auto',
       ...theme('spacing'),
       12: '3rem',
+      18: '4.5rem',
       full: '100%',
       screen: '100vh'
     }),
