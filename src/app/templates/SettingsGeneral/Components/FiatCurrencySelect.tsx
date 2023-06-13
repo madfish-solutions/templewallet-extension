@@ -3,7 +3,7 @@ import React, { useCallback, FC, useState, useMemo } from 'react';
 import classNames from 'clsx';
 
 import { InputGeneral } from 'app/templates/InputGeneral/InputGeneral';
-import { GeneralOption, SelectGeneral } from 'app/templates/InputGeneral/SelectGeneral';
+import { SelectGeneral } from 'app/templates/InputGeneral/SelectGeneral';
 import { AnalyticsEventCategory, AnalyticsEventEnum, setTestID, useAnalytics } from 'lib/analytics';
 import { FIAT_CURRENCIES, FiatCurrencyOption, useFiatCurrency } from 'lib/fiat-currency';
 import { T } from 'lib/i18n';
@@ -27,7 +27,7 @@ const FiatCurrencySelect: FC<FiatCurrencySelectProps> = () => {
 
   const [searchValue, setSearchValue] = useState<string>('');
 
-  const options = useMemo<Array<GeneralOption<FiatCurrencyOption>>>(
+  const options = useMemo<Array<FiatCurrencyOption>>(
     () =>
       searchAndFilterItems(
         FIAT_CURRENCIES,
@@ -38,16 +38,16 @@ const FiatCurrencySelect: FC<FiatCurrencySelectProps> = () => {
         ],
         null,
         0.25
-      ).map(value => ({ value, disabled: false })),
+      ),
     [searchValue]
   );
 
   const handleFiatCurrencyChange = useCallback(
-    (fiatOption: GeneralOption<FiatCurrencyOption>) => {
+    (fiatOption: FiatCurrencyOption) => {
       trackEvent(AnalyticsEventEnum.FiatCurrencyChanged, AnalyticsEventCategory.ButtonPress, {
-        name: fiatOption.value.name
+        name: fiatOption.name
       });
-      setSelectedFiatCurrency(fiatOption.value);
+      setSelectedFiatCurrency(fiatOption);
     },
     [setSelectedFiatCurrency, trackEvent]
   );
@@ -68,7 +68,7 @@ const FiatCurrencySelect: FC<FiatCurrencySelectProps> = () => {
               options,
               noItemsText: 'No items',
               renderOptionContent: option =>
-                renderOptionContent(option.value, option.value.fullname === selectedFiatCurrency.fullname),
+                renderOptionContent(option, option.fullname === selectedFiatCurrency.fullname),
               onOptionChange: handleFiatCurrencyChange
             }}
             searchProps={{
