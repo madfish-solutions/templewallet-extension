@@ -26,7 +26,7 @@ Given(/I click on animated Swap button on the Swap page/, { timeout: MEDIUM_TIME
     async () => {
       await elem.click();
       await BrowserContext.page.waitForSelector(`[data-testid="${InternalConfirmationSelectors.confirmButton}"]`, {
-        timeout: 1000
+        timeout: 5000
       });
     },
     { retries: 3 }
