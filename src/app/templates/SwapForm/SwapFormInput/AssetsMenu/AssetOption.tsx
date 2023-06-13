@@ -34,7 +34,7 @@ export const AssetOption: FC<Props> = ({ assetSlug, selected, style, onClick }) 
       )}
       onClick={handleClick}
       {...setTestID(AssetsMenuSelectors.assetsMenuAssetItem)}
-      {...setAnotherSelector('assetSlug', assetSlug)}
+      {...setAnotherSelector('slug', assetSlug)}
     >
       <AssetIcon assetSlug={assetSlug} size={32} className="mx-2" />
 

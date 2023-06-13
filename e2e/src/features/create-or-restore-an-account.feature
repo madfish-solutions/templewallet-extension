@@ -1,5 +1,5 @@
 Feature: Create or restore an account
-
+@dev
   Scenario: As a user, I'd like to create or restore an account
     Given I have imported an existing account
 

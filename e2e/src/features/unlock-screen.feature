@@ -1,4 +1,5 @@
 Feature: Unlock Screen
+  @dev
   Scenario: As a user, I'd like to unlock my wallet
     Given I have imported an existing account
     And I press Account Icon on the Header page

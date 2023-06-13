@@ -1,9 +1,12 @@
+import retry from 'async-retry';
 import {
   SwapFormFromInputSelectors,
   SwapFormSelectors,
   SwapFormToInputSelectors
 } from 'src/app/templates/SwapForm/SwapForm.selectors';
 import { AssetsMenuSelectors } from 'src/app/templates/SwapForm/SwapFormInput/AssetsMenu/selectors';
+
+import { sleep } from 'e2e/src/utils/timing.utils';
 
 import { Page } from '../../classes/page.class';
 import { createPageElement, findElement } from '../../utils/search.utils';
@@ -29,9 +32,17 @@ export class SwapPage extends Page {
     await this.assetItemTo.waitForDisplayed();
   }
 
-  async selectAsset(assetsSlug: string) {
-    const tokenItemElem = await findElement(AssetsMenuSelectors.assetsMenuAssetItem, { assetsSlug });
-
-    await tokenItemElem.click();
+  async selectAsset(slug: string) {
+    // Retrying here, because sometimes element reference is lost between
+    // finding it and clicking. Common for drop-down menus.
+    await retry(
+      async () => {
+        const tokenItemElem = await findElement(AssetsMenuSelectors.assetsMenuAssetItem, { slug });
+        console.log('result is', tokenItemElem);
+        await sleep(1000);
+        await tokenItemElem.click();
+      },
+      { retries: 10 }
+    );
   }
 }

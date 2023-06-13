@@ -1,5 +1,5 @@
 Feature: Reveal seed phrase
-
+@dev
   Scenario: As a user, I'd like to reveal my seed phrase
     Given I have imported an existing account
 
