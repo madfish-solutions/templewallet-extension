@@ -6,21 +6,16 @@ import { useCurrenciesErrorsSelector, usePairLimitsErrorsSelector } from 'app/st
 import { PAIR_NOT_FOUND_MESSAGE } from 'lib/buy-with-credit-card/constants';
 import { TopUpProviderId } from 'lib/buy-with-credit-card/top-up-provider-id.enum';
 import { PaymentProviderInterface } from 'lib/buy-with-credit-card/topup.interface';
-import { t } from 'lib/i18n';
+import { ProviderErrors } from 'lib/buy-with-credit-card/types';
+import { t, TID } from 'lib/i18n';
 import { getAxiosQueryErrorMessage } from 'lib/utils/get-axios-query-error-message';
 
 import { useBuyWithCreditCardForm } from './use-buy-with-credit-card-form';
 
-const formDataErrorsMessagesKeys = [
-  'errorWhileUpdatingPairLimits',
-  'errorWhileGettingOutputEstimation',
-  'errorWhileGettingCurrenciesList'
-] as const;
-
 export const useErrorAlert = (
   form: ReturnType<typeof useBuyWithCreditCardForm>,
   allPaymentProviders: PaymentProviderInterface[],
-  amountsUpdateErrors: Record<TopUpProviderId, Error | undefined>
+  allProvidersErrors: Record<TopUpProviderId, ProviderErrors>
 ) => {
   const { updateLinkError, formValues } = form;
   const { inputCurrency, outputToken } = formValues;
@@ -37,27 +32,52 @@ export const useErrorAlert = (
       return t('errorWhileCreatingOrder', getAxiosQueryErrorMessage(updateLinkError));
     }
 
-    const paymentProviderFetchErrors = [updatePairLimitsErrors, amountsUpdateErrors, currenciesErrors];
+    for (const providerId in allProvidersErrors) {
+      if (providerId === TopUpProviderId.AliceBob) continue;
 
-    for (let i = 0; i < paymentProviderFetchErrors.length; i++) {
-      const errors = paymentProviderFetchErrors[i];
-      const messageKey = formDataErrorsMessagesKeys[i];
-      const [firstErrorEntry] = Object.entries(errors).filter(
-        ([key, value]) => isDefined(value) && key !== TopUpProviderId.AliceBob && value !== PAIR_NOT_FOUND_MESSAGE
-      );
+      const errors = allProvidersErrors[providerId as TopUpProviderId];
 
-      if (isDefined(firstErrorEntry)) {
-        const [providerId, error] = firstErrorEntry;
+      if (errors.currencies === PAIR_NOT_FOUND_MESSAGE || errors.limits === PAIR_NOT_FOUND_MESSAGE) continue;
 
-        const providerName = allPaymentProviders.find(({ id }) => id === providerId)!.name;
+      const leadingError = getLeadingError(errors);
+      if (!isDefined(leadingError)) continue;
 
-        return t(messageKey, [providerName, typeof error === 'string' ? error : getAxiosQueryErrorMessage(error)]);
-      }
+      const { i18nKey, error } = leadingError;
+      const providerName = allPaymentProviders.find(({ id }) => id === providerId)!.name;
+
+      return t(i18nKey, [providerName, typeof error === 'string' ? error : getAxiosQueryErrorMessage(error)]);
     }
 
     return undefined;
-  }, [updateLinkError, updatePairLimitsErrors, amountsUpdateErrors, allPaymentProviders, currenciesErrors]);
+  }, [updateLinkError, updatePairLimitsErrors, allProvidersErrors, allPaymentProviders, currenciesErrors]);
+
   useEffect(() => setShouldHideErrorAlert(false), [message]);
 
   return { onAlertClose, shouldHideErrorAlert, message };
+};
+
+interface LeadingError {
+  i18nKey: TID;
+  error: string | Error;
+}
+
+const getLeadingError = (errors: ProviderErrors): LeadingError | undefined => {
+  if (isDefined(errors.currencies))
+    return {
+      i18nKey: 'errorWhileGettingCurrenciesList',
+      error: errors.currencies
+    };
+
+  if (isDefined(errors.limits))
+    return {
+      i18nKey: 'errorWhileUpdatingPairLimits',
+      error: errors.limits
+    };
+
+  if (isDefined(errors.output))
+    return {
+      i18nKey: 'errorWhileGettingOutputEstimation',
+      error: errors.output
+    };
+  return undefined;
 };

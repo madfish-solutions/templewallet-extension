@@ -27,6 +27,7 @@ import { useAllFiatCurrencies } from './hooks/use-all-fiat-currencies';
 import { useBuyWithCreditCardForm } from './hooks/use-buy-with-credit-card-form';
 import { useErrorAlert } from './hooks/use-error-alert';
 import { useFormInputsCallbacks } from './hooks/use-form-inputs-callbacks';
+import { usePairLimitsAreLoading } from './hooks/use-input-limits';
 import { usePaymentProviders } from './hooks/use-payment-providers';
 import { AmountErrorType } from './types/amount-error-type';
 
@@ -49,7 +50,7 @@ export const BuyWithCreditCard: FC = () => {
   } = form;
   const { inputAmount, inputCurrency, outputToken, outputAmount, topUpProvider } = formValues;
   const paymentProviders = usePaymentProviders(inputAmount, inputCurrency, outputToken);
-  const { allPaymentProviders, paymentProvidersToDisplay, amountsUpdateErrors } = paymentProviders;
+  const { allPaymentProviders, paymentProvidersToDisplay, providersErrors } = paymentProviders;
   const {
     switchPaymentProvider,
     handleInputAssetChange,
@@ -62,13 +63,14 @@ export const BuyWithCreditCard: FC = () => {
     onAlertClose,
     shouldHideErrorAlert,
     message: alertErrorMessage
-  } = useErrorAlert(form, allPaymentProviders, amountsUpdateErrors);
+  } = useErrorAlert(form, allPaymentProviders, providersErrors);
   const { fiatCurrenciesWithPairLimits: allFiatCurrencies } = useAllFiatCurrencies(
     inputCurrency.code,
     outputToken.code
   );
   const allCryptoCurrencies = useAllCryptoCurrencies();
   const currenciesLoading = useCurrenciesLoadingSelector();
+  const pairLimitsLoading = usePairLimitsAreLoading(inputCurrency.code, outputToken.code);
 
   const inputAmountErrorMessage = errors.inputAmount?.message;
   const shouldShowInputAmountError = shouldShowFieldError('inputAmount', formState);
@@ -132,6 +134,7 @@ export const BuyWithCreditCard: FC = () => {
     [inputCurrency]
   );
 
+  const isLoading = formIsLoading || currenciesLoading || pairLimitsLoading || purchaseLinkLoading;
   const someErrorOccured = isDefined(updateLinkError) || Object.keys(errors).length > 0;
   const submitDisabled = !isNotEmptyString(purchaseLink) || someErrorOccured || !isDefined(outputAmount);
 
@@ -204,7 +207,7 @@ export const BuyWithCreditCard: FC = () => {
                     padding: 0
                   }}
                   disabled={submitDisabled}
-                  loading={formIsLoading || purchaseLinkLoading}
+                  loading={isLoading}
                   testID={BuyWithCreditCardSelectors.topUpButton}
                 >
                   <Anchor href={purchaseLink} treatAsButton className="w-full h-full flex justify-center items-center">

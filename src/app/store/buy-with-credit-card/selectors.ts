@@ -5,6 +5,9 @@ import { TopUpProviderId } from 'lib/buy-with-credit-card/top-up-provider-id.enu
 import { useSelector } from '../index';
 import { PairLimits } from './state';
 
+export const useProviderCurrenciesErrorSelector = (topUpProvider: TopUpProviderId) =>
+  useSelector(({ buyWithCreditCard }) => buyWithCreditCard.currencies[topUpProvider].error);
+
 export const useFiatCurrenciesSelector = (topUpProvider: TopUpProviderId) =>
   useSelector(({ buyWithCreditCard }) => buyWithCreditCard.currencies[topUpProvider].data.fiat);
 
@@ -45,7 +48,10 @@ export const useCurrenciesErrorsSelector = () => {
 
 export const useAllPairsLimitsSelector = () => useSelector(({ buyWithCreditCard }) => buyWithCreditCard.pairLimits);
 
-export const usePairLimitsSelector = (
+export const usePairLimitsSelector = (fiatSymbol: string, cryptoSymbol: string): PairLimits | undefined =>
+  useSelector(({ buyWithCreditCard }) => buyWithCreditCard.pairLimits[fiatSymbol]?.[cryptoSymbol]);
+
+export const useProviderPairLimitsSelector = (
   fiatSymbol: string,
   cryptoSymbol: string,
   topUpProvider: TopUpProviderId

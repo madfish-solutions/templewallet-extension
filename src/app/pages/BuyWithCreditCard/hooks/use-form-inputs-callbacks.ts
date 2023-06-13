@@ -51,8 +51,7 @@ export const useFormInputsCallbacks = (
         async (
           newInputAmount: number | undefined,
           newInputAsset: TopUpInputInterface,
-          newOutputAsset: TopUpOutputInterface,
-          shouldSwitchBetweenProviders: boolean
+          newOutputAsset: TopUpOutputInterface
         ) => {
           const outputCalculationData = {
             inputAmount: newInputAmount,
@@ -62,6 +61,7 @@ export const useFormInputsCallbacks = (
           const correctedNewInputAmount = isDefined(newInputAmount)
             ? new BigNumber(newInputAmount).decimalPlaces(newInputAsset.precision).toNumber()
             : undefined;
+
           lazySetValue({
             inputAmount: correctedNewInputAmount,
             inputCurrency: newInputAsset,
@@ -70,6 +70,8 @@ export const useFormInputsCallbacks = (
           const amounts = await updateOutputAmounts(correctedNewInputAmount, newInputAsset, newOutputAsset);
 
           if (!isEqual(outputCalculationData, outputCalculationDataRef.current)) {
+            console.log(1, outputCalculationData);
+            setFormIsLoading(false);
             return;
           }
 
@@ -90,26 +92,30 @@ export const useFormInputsCallbacks = (
             correctedNewInputAmount
           );
 
-          const autoselectedPaymentProvider = patchedPaymentProviders[0];
+          const patchedPossibleProviders = patchedPaymentProviders.filter(({ id }) => {
+            const pairLimits = allPairsLimits[newInputAsset.code]?.[newOutputAsset.code]?.[id];
+            return isDefined(pairLimits?.data);
+          });
 
-          if (shouldSwitchBetweenProviders && !isDefined(manuallySelectedProviderIdRef.current)) {
-            switchPaymentProvider(autoselectedPaymentProvider);
-          } else if (isDefined(correctedNewInputAmount)) {
-            const patchedSameProvider = patchedPaymentProviders.find(({ id }) => id === topUpProvider?.id);
-            const newPaymentProvider = patchedSameProvider ?? autoselectedPaymentProvider;
-            void switchPaymentProvider(newPaymentProvider);
-          }
+          const autoselectedProvider = patchedPossibleProviders[0];
+          const patchedSamePossibleProvider = patchedPossibleProviders.find(({ id }) => id === topUpProvider?.id);
+          const patchedSameProvider = patchedPaymentProviders.find(({ id }) => id === topUpProvider?.id);
+          const newPaymentProvider = patchedSamePossibleProvider ?? autoselectedProvider ?? patchedSameProvider;
+
+          if (!isEqual(newPaymentProvider, topUpProvider)) switchPaymentProvider(newPaymentProvider);
+
           setFormIsLoading(false);
         },
         200
       ),
-    [topUpProvider, updateOutputAmounts, allPaymentProviders, switchPaymentProvider, lazySetValue]
+    [topUpProvider, updateOutputAmounts, allPaymentProviders, switchPaymentProvider, allPairsLimits, lazySetValue]
   );
+
   const handleInputValueChange = useCallback(
     (newInputAmount: number | undefined, newInputAsset: TopUpInputInterface) => {
       outputCalculationDataRef.current = { inputAmount: newInputAmount, inputCurrency: newInputAsset, outputToken };
       setFormIsLoading(true);
-      void updateOutput(newInputAmount, newInputAsset, outputToken, true);
+      void updateOutput(newInputAmount, newInputAsset, outputToken);
     },
     [updateOutput, outputToken]
   );
@@ -134,7 +140,7 @@ export const useFormInputsCallbacks = (
 
       outputCalculationDataRef.current = { inputAmount, inputCurrency: patchedInputCurrency, outputToken: newValue };
       setFormIsLoading(true);
-      void updateOutput(inputAmount, patchedInputCurrency, newValue, true);
+      updateOutput(inputAmount, patchedInputCurrency, newValue);
     },
     [inputAmount, inputCurrency, updateOutput, noPairLimitsFiatCurrencies, allPairsLimits]
   );
@@ -142,7 +148,7 @@ export const useFormInputsCallbacks = (
   const handlePaymentProviderChange = useCallback(
     (newProvider?: PaymentProviderInterface) => {
       manuallySelectedProviderIdRef.current = newProvider?.id;
-      void switchPaymentProvider(newProvider);
+      switchPaymentProvider(newProvider);
     },
     [switchPaymentProvider]
   );
@@ -153,7 +159,7 @@ export const useFormInputsCallbacks = (
     if (!formIsLoading) {
       outputCalculationDataRef.current = { inputAmount, inputCurrency, outputToken };
       setFormIsLoading(true);
-      void updateOutput(inputAmount, inputCurrency, outputToken, false);
+      updateOutput(inputAmount, inputCurrency, outputToken);
     }
   }, [dispatch, inputCurrency, outputToken, updateOutput, formIsLoading, inputAmount]);
 

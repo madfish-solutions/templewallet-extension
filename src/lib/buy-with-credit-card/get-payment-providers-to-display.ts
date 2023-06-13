@@ -3,6 +3,7 @@ import { BigNumber } from 'bignumber.js';
 
 import { TopUpProviderId } from './top-up-provider-id.enum';
 import { PaymentProviderInterface } from './topup.interface';
+import { ProviderErrors } from './types';
 
 const isInRange = (min = 0, max = Infinity, inputAmount?: BigNumber | number) => {
   const inputAmountBN = isDefined(inputAmount) ? new BigNumber(inputAmount) : undefined;
@@ -26,7 +27,7 @@ const fiatPurchaseProvidersSortPredicate = (
 
 export const getPaymentProvidersToDisplay = (
   allProviders: PaymentProviderInterface[],
-  providersErrors: Partial<Record<TopUpProviderId, Error | undefined>>,
+  providersErrors: Partial<Record<TopUpProviderId, ProviderErrors>>,
   providersLoading: Partial<Record<TopUpProviderId, boolean>>,
   inputAmount?: BigNumber | number
 ) => {
@@ -39,7 +40,8 @@ export const getPaymentProvidersToDisplay = (
 
   const result = allProviders
     .filter(({ id, minInputAmount, maxInputAmount, outputAmount }) => {
-      const isError = isDefined(providersErrors[id]);
+      const errors = providersErrors[id];
+      const isError = isDefined(errors?.output) || isDefined(errors?.currencies);
       const limitsAreDefined = isDefined(minInputAmount) && isDefined(maxInputAmount);
       const outputAmountIsLegit = outputAmount && outputAmount > 0;
 
