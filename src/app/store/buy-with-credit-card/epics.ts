@@ -68,12 +68,18 @@ const updatePairLimitsEpic = (action$: Observable<Action>, state$: Observable<Bu
     switchMap(([{ payload }, rootState]) => {
       const { fiatSymbol, cryptoSymbol } = payload;
       const { currencies } = rootState.buyWithCreditCard;
+      const currentLimits = rootState.buyWithCreditCard.pairLimits[fiatSymbol]?.[cryptoSymbol];
 
       return forkJoin(
         allTopUpProviderIds.map(providerId => {
           const fiatCurrencies = currencies[providerId].data.fiat;
           const cryptoCurrencies = currencies[providerId].data.crypto;
           if (fiatCurrencies.length < 1 || cryptoCurrencies.length < 1) return of(createEntity(undefined));
+
+          const prevEntity = currentLimits?.[providerId];
+          if (prevEntity?.error === PAIR_NOT_FOUND_MESSAGE)
+            return of(createEntity(undefined, false, PAIR_NOT_FOUND_MESSAGE));
+
           const fiatCurrency = fiatCurrencies.find(({ code }) => code === fiatSymbol);
           const cryptoCurrency = cryptoCurrencies.find(({ code }) => code === cryptoSymbol);
 

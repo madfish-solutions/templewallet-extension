@@ -1,6 +1,8 @@
 import { isDefined } from '@rnw-community/shared';
 import { BigNumber } from 'bignumber.js';
 
+import { isPositiveNumber } from 'lib/utils/numbers';
+
 import { TopUpProviderId } from './top-up-provider-id.enum';
 import { PaymentProviderInterface } from './topup.interface';
 import { ProviderErrors } from './types';
@@ -31,6 +33,26 @@ export const getPaymentProvidersToDisplay = (
   providersLoading: Partial<Record<TopUpProviderId, boolean>>,
   inputAmount?: BigNumber | number
 ) => {
+  const filtered = filterPaymentProviders(allProviders, providersErrors, providersLoading, inputAmount);
+
+  if (filtered.length < 2) {
+    return filtered;
+  }
+
+  const sorted = filtered.sort(fiatPurchaseProvidersSortPredicate);
+
+  return sorted.map((provider, index) => ({
+    ...provider,
+    isBestPrice: index === 0 && isPositiveNumber(provider.outputAmount)
+  }));
+};
+
+const filterPaymentProviders = (
+  allProviders: PaymentProviderInterface[],
+  providersErrors: Partial<Record<TopUpProviderId, ProviderErrors>>,
+  providersLoading: Partial<Record<TopUpProviderId, boolean>>,
+  inputAmount?: BigNumber | number
+) => {
   const shouldFilterByLimitsDefined = allProviders.some(
     ({ minInputAmount, maxInputAmount }) => isDefined(minInputAmount) && isDefined(maxInputAmount)
   );
@@ -38,37 +60,17 @@ export const getPaymentProvidersToDisplay = (
     ({ outputAmount, id }) => isDefined(outputAmount) || providersLoading[id]
   );
 
-  const result = allProviders
-    .filter(({ id, minInputAmount, maxInputAmount, outputAmount }) => {
-      const errors = providersErrors[id];
-      const isError = isDefined(errors?.output) || isDefined(errors?.currencies);
-      const limitsAreDefined = isDefined(minInputAmount) && isDefined(maxInputAmount);
-      const outputAmountIsLegit = outputAmount && outputAmount > 0;
+  return allProviders.filter(({ id, minInputAmount, maxInputAmount, outputAmount }) => {
+    const errors = providersErrors[id];
+    if (isDefined(errors) && Object.values(errors).some(isDefined)) return false;
 
-      return (
-        !isError &&
-        (!shouldFilterByLimitsDefined || limitsAreDefined) &&
-        (!shouldFilterByOutputAmount || outputAmountIsLegit || Boolean(providersLoading[id])) &&
-        isInRange(minInputAmount, maxInputAmount, inputAmount)
-      );
-    })
-    .sort(fiatPurchaseProvidersSortPredicate);
+    const limitsAreDefined = isDefined(minInputAmount) && isDefined(maxInputAmount);
+    const outputAmountIsLegit = outputAmount && outputAmount > 0;
 
-  if (result.length < 2) {
-    return result;
-  }
-
-  let bestPriceOptionIndex = 0;
-  for (let i = 1; i < result.length; i++) {
-    const currentBestOutput = result[bestPriceOptionIndex].outputAmount ?? 0;
-    const currentOutput = result[i].outputAmount ?? 0;
-    if (currentOutput > currentBestOutput) {
-      bestPriceOptionIndex = i;
-    }
-  }
-
-  return result.map((provider, index) => ({
-    ...provider,
-    isBestPrice: index === bestPriceOptionIndex
-  }));
+    return (
+      (!shouldFilterByLimitsDefined || limitsAreDefined) &&
+      (!shouldFilterByOutputAmount || outputAmountIsLegit || Boolean(providersLoading[id])) &&
+      isInRange(minInputAmount, maxInputAmount, inputAmount)
+    );
+  });
 };

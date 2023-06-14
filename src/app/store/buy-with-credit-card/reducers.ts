@@ -1,4 +1,5 @@
 import { createReducer } from '@reduxjs/toolkit';
+import { isDefined } from '@rnw-community/shared';
 
 import { TopUpProviderId } from 'lib/buy-with-credit-card/top-up-provider-id.enum';
 import { createEntity } from 'lib/store';
@@ -36,26 +37,28 @@ export const buyWithCreditCardReducer = createReducer<BuyWithCreditCardState>(
     }));
 
     builder.addCase(updatePairLimitsActions.submit, (state, { payload: { fiatSymbol, cryptoSymbol } }) => {
-      const previousEntities = state.pairLimits[fiatSymbol]?.[cryptoSymbol];
+      if (!state.pairLimits[fiatSymbol]) state.pairLimits[fiatSymbol] = {};
 
-      return {
-        ...state,
-        pairLimits: {
-          ...state.pairLimits,
-          [fiatSymbol]: {
-            ...(state.pairLimits[fiatSymbol] ?? {}),
-            [cryptoSymbol]: {
-              [TopUpProviderId.MoonPay]: createEntity(previousEntities?.[TopUpProviderId.MoonPay]?.data, true),
-              [TopUpProviderId.Utorg]: createEntity(previousEntities?.[TopUpProviderId.Utorg]?.data, true),
-              [TopUpProviderId.AliceBob]: createEntity(previousEntities?.[TopUpProviderId.AliceBob]?.data, true),
-              [TopUpProviderId.BinanceConnect]: createEntity(
-                previousEntities?.[TopUpProviderId.BinanceConnect]?.data,
-                true
-              )
-            }
-          }
-        }
-      };
+      const dataPerFiat = state.pairLimits[fiatSymbol];
+
+      if (isDefined(dataPerFiat[cryptoSymbol])) {
+        const dataPerFiatPerCrypto = dataPerFiat[cryptoSymbol];
+        const updatePerProvider = (providerId: TopUpProviderId) => {
+          dataPerFiatPerCrypto[providerId].isLoading = true;
+        };
+
+        updatePerProvider(TopUpProviderId.MoonPay);
+        updatePerProvider(TopUpProviderId.Utorg);
+        updatePerProvider(TopUpProviderId.AliceBob);
+        updatePerProvider(TopUpProviderId.BinanceConnect);
+      } else {
+        dataPerFiat[cryptoSymbol] = {
+          [TopUpProviderId.MoonPay]: createEntity(undefined, true),
+          [TopUpProviderId.Utorg]: createEntity(undefined, true),
+          [TopUpProviderId.AliceBob]: createEntity(undefined, true),
+          [TopUpProviderId.BinanceConnect]: createEntity(undefined, true)
+        };
+      }
     });
 
     builder.addCase(updatePairLimitsActions.success, (state, { payload: { fiatSymbol, cryptoSymbol, limits } }) => ({
@@ -64,28 +67,7 @@ export const buyWithCreditCardReducer = createReducer<BuyWithCreditCardState>(
         ...state.pairLimits,
         [fiatSymbol]: {
           ...(state.pairLimits[fiatSymbol] ?? {}),
-          [cryptoSymbol]: {
-            [TopUpProviderId.MoonPay]: createEntity(
-              limits[TopUpProviderId.MoonPay].data,
-              false,
-              limits[TopUpProviderId.MoonPay].error
-            ),
-            [TopUpProviderId.Utorg]: createEntity(
-              limits[TopUpProviderId.Utorg].data,
-              false,
-              limits[TopUpProviderId.Utorg].error
-            ),
-            [TopUpProviderId.AliceBob]: createEntity(
-              limits[TopUpProviderId.AliceBob].data,
-              false,
-              limits[TopUpProviderId.AliceBob].error
-            ),
-            [TopUpProviderId.BinanceConnect]: createEntity(
-              limits[TopUpProviderId.BinanceConnect].data,
-              false,
-              limits[TopUpProviderId.BinanceConnect].error
-            )
-          }
+          [cryptoSymbol]: limits // They come with `isLoading === false`
         }
       }
     }));

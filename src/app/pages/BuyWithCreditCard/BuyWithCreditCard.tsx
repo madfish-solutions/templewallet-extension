@@ -29,6 +29,7 @@ import { useErrorAlert } from './hooks/use-error-alert';
 import { useFormInputsCallbacks } from './hooks/use-form-inputs-callbacks';
 import { usePairLimitsAreLoading } from './hooks/use-input-limits';
 import { usePaymentProviders } from './hooks/use-payment-providers';
+import { useUpdateCurrentProvider } from './hooks/use-update-current-provider';
 import { AmountErrorType } from './types/amount-error-type';
 
 const fitFiatIconFn = (currency: TopUpInputInterface) => !currency.icon.startsWith(MOONPAY_ASSETS_BASE_URL);
@@ -48,16 +49,20 @@ export const BuyWithCreditCard: FC = () => {
     formState
   } = form;
   const { inputAmount, inputCurrency, outputToken, outputAmount, topUpProvider } = formValues;
-  const paymentProviders = usePaymentProviders(inputAmount, inputCurrency, outputToken);
-  const { allPaymentProviders, paymentProvidersToDisplay, providersErrors } = paymentProviders;
+  const { allPaymentProviders, paymentProvidersToDisplay, providersErrors, updateOutputAmounts } = usePaymentProviders(
+    inputAmount,
+    inputCurrency,
+    outputToken
+  );
   const {
-    switchPaymentProvider,
     handleInputAssetChange,
     handleInputAmountChange,
     handleOutputTokenChange,
     handlePaymentProviderChange,
+    setPaymentProvider,
+    manuallySelectedProviderIdRef,
     refreshForm
-  } = useFormInputsCallbacks(form, paymentProviders, formIsLoading, setFormIsLoading);
+  } = useFormInputsCallbacks(form, updateOutputAmounts, formIsLoading, setFormIsLoading);
   const {
     onAlertClose,
     shouldHideErrorAlert,
@@ -102,14 +107,6 @@ export const BuyWithCreditCard: FC = () => {
     }
   }, [inputAmount, inputCurrency, allFiatCurrencies, lazySetValue, triggerValidation]);
 
-  useEffect(() => {
-    const newPaymentProvider = paymentProvidersToDisplay.find(({ id }) => id === topUpProvider?.id);
-
-    if (!isEqual(newPaymentProvider, topUpProvider)) {
-      switchPaymentProvider(newPaymentProvider);
-    }
-  }, [topUpProvider, paymentProvidersToDisplay, switchPaymentProvider]);
-
   const exchangeRate = useMemo(() => {
     if (isDefined(inputAmount) && inputAmount > 0 && isDefined(outputAmount) && outputAmount > 0) {
       return new BigNumber(outputAmount).div(inputAmount).decimalPlaces(6);
@@ -117,6 +114,16 @@ export const BuyWithCreditCard: FC = () => {
 
     return undefined;
   }, [inputAmount, outputAmount]);
+
+  const isLoading = formIsLoading || currenciesLoading || pairLimitsLoading || purchaseLinkLoading;
+
+  useUpdateCurrentProvider(
+    paymentProvidersToDisplay,
+    topUpProvider,
+    manuallySelectedProviderIdRef,
+    setPaymentProvider,
+    isLoading
+  );
 
   useInterval(refreshForm, 10000, [refreshForm], false);
 
@@ -135,7 +142,6 @@ export const BuyWithCreditCard: FC = () => {
     [inputCurrency]
   );
 
-  const isLoading = formIsLoading || currenciesLoading || pairLimitsLoading || purchaseLinkLoading;
   const someErrorOccured = isDefined(updateLinkError) || Object.keys(errors).length > 0;
   const submitDisabled = !isNotEmptyString(purchaseLink) || someErrorOccured || !isDefined(outputAmount);
 
