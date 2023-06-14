@@ -17,7 +17,7 @@ export const useAddressFieldAnalytics = (value: string, addressFromNetworkEventN
         network: networkSlug,
         isValidAddress: isDefined(networkSlug)
       }),
-    [analytics, addressFromNetworkEventName]
+    [analytics.trackEvent, addressFromNetworkEventName]
   );
 
   useEffect(() => {
