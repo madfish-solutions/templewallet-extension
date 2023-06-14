@@ -1,7 +1,8 @@
 import type { TzktApiChainId, TzktOperation } from 'lib/apis/tzkt';
 import * as TZKT from 'lib/apis/tzkt';
-import { detectTokenStandard } from 'lib/temple/assets/tokenStandard';
-import { TEZ_TOKEN_SLUG, ReactiveTezosToolkit } from 'lib/temple/front';
+import { TEZ_TOKEN_SLUG } from 'lib/assets';
+import { detectTokenStandard } from 'lib/assets/standards';
+import { ReactiveTezosToolkit } from 'lib/temple/front';
 import { TempleAccount } from 'lib/temple/types';
 import { filterUnique } from 'lib/utils';
 

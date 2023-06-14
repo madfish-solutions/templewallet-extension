@@ -1,6 +1,5 @@
 import { Route3Token } from 'lib/apis/route3/fetch-route3-tokens';
-import { toTokenSlug } from 'lib/temple/assets';
-import { TEZ_TOKEN_SLUG } from 'lib/temple/front';
+import { toTokenSlug, TEZ_TOKEN_SLUG } from 'lib/assets';
 
 const ROUTE3_TEZOS_SLUG = '_0';
 

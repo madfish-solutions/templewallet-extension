@@ -19,11 +19,7 @@ export {
 } from './ready';
 
 export {
-  TEZ_TOKEN_SLUG,
-  useAssetMetadata,
-  useTokensMetadata,
   useAvailableAssets,
-  useAllTokensBaseMetadata,
   useAssetsSortPredicate,
   useCollectibleTokens,
   useDisplayedFungibleTokens,

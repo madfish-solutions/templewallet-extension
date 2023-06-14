@@ -1,6 +1,5 @@
+import { isDefined } from '@rnw-community/shared';
 import axios from 'axios';
-
-import { isDefined } from './is-defined';
 
 export const getAxiosQueryErrorMessage = (error: unknown, fallbackErrorMessage = 'Unknown error') => {
   if (axios.isAxiosError(error)) {

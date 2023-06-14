@@ -1,10 +1,11 @@
-import React, { FC, useEffect, useLayoutEffect, useMemo } from 'react';
+import React, { FC, useLayoutEffect, useMemo } from 'react';
 
-import { useDispatch } from 'react-redux';
-
+import RootSuspenseFallback from 'app/a11y/RootSuspenseFallback';
 import { OpenInFullPage, useAppEnv } from 'app/env';
 import AddAsset from 'app/pages/AddAsset/AddAsset';
+import { Buy } from 'app/pages/Buy/Buy';
 import Exolix from 'app/pages/Buy/Crypto/Exolix/Exolix';
+import { BuyWithCreditCard } from 'app/pages/BuyWithCreditCard/BuyWithCreditCard';
 import CollectiblePage from 'app/pages/Collectibles/CollectiblePage';
 import ConnectLedger from 'app/pages/ConnectLedger/ConnectLedger';
 import CreateAccount from 'app/pages/CreateAccount/CreateAccount';
@@ -15,27 +16,21 @@ import ImportAccount from 'app/pages/ImportAccount/ImportAccount';
 import ManageAssets from 'app/pages/ManageAssets/ManageAssets';
 import { CreateWallet } from 'app/pages/NewWallet/CreateWallet';
 import { ImportWallet } from 'app/pages/NewWallet/ImportWallet';
+import AttentionPage from 'app/pages/Onboarding/pages/AttentionPage';
 import Receive from 'app/pages/Receive/Receive';
 import Send from 'app/pages/Send';
 import Settings from 'app/pages/Settings/Settings';
 import { Swap } from 'app/pages/Swap/Swap';
 import Unlock from 'app/pages/Unlock/Unlock';
 import Welcome from 'app/pages/Welcome/Welcome';
+import { AliceBobWithdraw } from 'app/pages/Withdraw/Debit/AliceBob/AliceBobWithdraw';
+import { Withdraw } from 'app/pages/Withdraw/Withdraw';
 import { usePageRouterAnalytics } from 'lib/analytics';
 import { Notifications, NotificationsItem } from 'lib/notifications';
 import { useTempleClient } from 'lib/temple/front';
 import * as Woozie from 'lib/woozie';
 
-import RootSuspenseFallback from './a11y/RootSuspenseFallback';
-import { useAdvertisingLoading } from './hooks/use-advertising.hook';
-import { useLongRefreshLoading } from './hooks/use-long-refresh-loading.hook';
-import { useTokensApyLoading } from './hooks/use-tokens-apy-loading';
-import { Buy } from './pages/Buy/Buy';
-import { BuyWithCreditCard } from './pages/BuyWithCreditCard/BuyWithCreditCard';
-import AttentionPage from './pages/Onboarding/pages/AttentionPage';
-import { AliceBobWithdraw } from './pages/Withdraw/Debit/AliceBob/AliceBobWithdraw';
-import { Withdraw } from './pages/Withdraw/Withdraw';
-import { loadSwapDexesAction, loadSwapTokensAction } from './store/swap/actions';
+import { WithDataLoading } from './WithDataLoading';
 
 interface RouteContext {
   popup: boolean;
@@ -105,17 +100,7 @@ const ROUTE_MAP = Woozie.createMap<RouteContext>([
 ]);
 
 export const PageRouter: FC = () => {
-  const dispatch = useDispatch();
   const { trigger, pathname, search } = Woozie.useLocation();
-
-  useLongRefreshLoading();
-  useAdvertisingLoading();
-  useTokensApyLoading();
-
-  useEffect(() => {
-    dispatch(loadSwapDexesAction.submit());
-    dispatch(loadSwapTokensAction.submit());
-  }, [dispatch]);
 
   // Scroll to top after new location pushed.
   useLayoutEffect(() => {
@@ -143,7 +128,11 @@ export const PageRouter: FC = () => {
 
   usePageRouterAnalytics(pathname, search, ctx.ready);
 
-  return useMemo(() => Woozie.resolve(ROUTE_MAP, pathname, ctx), [pathname, ctx]);
+  return useMemo(() => {
+    const routedElement = Woozie.resolve(ROUTE_MAP, pathname, ctx);
+
+    return ctx.ready ? <WithDataLoading>{routedElement}</WithDataLoading> : routedElement;
+  }, [pathname, ctx]);
 };
 
 function onlyReady(factory: RouteFactory): RouteFactory {

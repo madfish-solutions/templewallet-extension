@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
+import { isDefined } from '@rnw-community/shared';
 import debounce from 'debounce-promise';
 import { useForm } from 'react-hook-form';
 import { object as objectSchema, number as numberSchema, mixed as mixedSchema } from 'yup';
@@ -14,7 +15,6 @@ import { TopUpProviderId } from 'lib/buy-with-credit-card/top-up-provider-id.enu
 import { TopUpInputInterface, TopUpOutputInterface } from 'lib/buy-with-credit-card/topup.interface';
 import { useYupValidationResolver } from 'lib/form/use-yup-validation-resolver';
 import { useAccount } from 'lib/temple/front';
-import { isDefined } from 'lib/utils/is-defined';
 
 import { AmountErrorType } from '../types/amount-error-type';
 import { BuyWithCreditCardFormValues } from '../types/buy-with-credit-card-form-values';

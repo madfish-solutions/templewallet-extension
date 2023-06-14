@@ -1,11 +1,12 @@
 import React, { forwardRef } from 'react';
 
+import { isDefined } from '@rnw-community/shared';
+
 import { ReactComponent as ChevronDownIcon } from 'app/icons/chevron-down.svg';
 import { setTestID, TestIDProps } from 'lib/analytics';
 import { PaymentProviderInterface } from 'lib/buy-with-credit-card/topup.interface';
 import { T } from 'lib/i18n';
 import { PopperRenderProps } from 'lib/ui/Popper';
-import { isDefined } from 'lib/utils/is-defined';
 
 import { TopUpProviderIcon } from '../TopUpProviderIcon';
 import { MoneyRange } from './MoneyRange';

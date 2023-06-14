@@ -3,7 +3,7 @@ import autoMergeLevel2 from 'redux-persist/lib/stateReconciler/autoMergeLevel2';
 import storage from 'redux-persist/lib/storage';
 import { PersistConfig } from 'redux-persist/lib/types';
 
-import { notificationsEpics, notificationsReducers } from 'lib/notifications';
+import { notificationsEpics, notificationsReducer } from 'lib/notifications';
 import { createStore, GetStateType, rootStateReducer } from 'lib/store';
 
 import { abTestingEpics } from './ab-testing/epics';
@@ -23,16 +23,19 @@ import { partnersPromotionRucer } from './partners-promotion/reducers';
 import { settingsReducer } from './settings/reducers';
 import { swapEpics } from './swap/epics';
 import { swapReducer } from './swap/reducers';
+import { tokensMetadataEpics } from './tokens-metadata/epics';
+import { tokensMetadataReducer } from './tokens-metadata/reducers';
 
 const baseReducer = rootStateReducer({
   settings: settingsReducer,
   advertising: advertisingReducer,
   currency: currencyReducer,
-  notifications: notificationsReducers,
+  notifications: notificationsReducer,
   dApps: dAppsReducer,
   swap: swapReducer,
   partnersPromotion: partnersPromotionRucer,
   balances: balancesReducer,
+  tokensMetadata: tokensMetadataReducer,
   abTesting: abTestingReducer,
   buyWithCreditCard: buyWithCreditCardReducer
 });
@@ -54,6 +57,7 @@ const epics = [
   swapEpics,
   partnersPromotionEpics,
   balancesEpics,
+  tokensMetadataEpics,
   abTestingEpics,
   buyWithCreditCardEpics
 ];

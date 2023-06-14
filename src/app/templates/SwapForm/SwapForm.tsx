@@ -1,5 +1,6 @@
 import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
+import { isDefined } from '@rnw-community/shared';
 import { TransferParams } from '@taquito/taquito';
 import { BatchWalletOperation } from '@taquito/taquito/dist/types/wallet/batch-operation';
 import BigNumber from 'bignumber.js';
@@ -18,26 +19,27 @@ import { useSwapParamsSelector, useSwapTokenSelector, useSwapTokensSelector } fr
 import OperationStatus from 'app/templates/OperationStatus';
 import { setTestID, useFormAnalytics } from 'lib/analytics';
 import { fetchRoute3SwapParams } from 'lib/apis/route3/fetch-route3-swap-params';
+import { TEZ_TOKEN_SLUG } from 'lib/assets';
+import { KNOWN_TOKENS_SLUGS } from 'lib/assets/known-tokens';
 import { T, t } from 'lib/i18n';
+import { useAssetMetadata } from 'lib/metadata';
 import {
+  ZERO,
+  ROUTING_FEE_RATIO,
   BURN_ADDREESS,
   MAX_ROUTING_FEE_CHAINS,
   ROUTING_FEE_ADDRESS,
-  ROUTING_FEE_RATIO,
   ROUTING_FEE_SLIPPAGE_RATIO,
   SWAP_THRESHOLD_TO_GET_CASHBACK,
-  TEMPLE_TOKEN,
-  ZERO
+  TEMPLE_TOKEN
 } from 'lib/route3/constants';
 import { getPercentageRatio } from 'lib/route3/utils/get-percentage-ratio';
 import { getRoute3TokenBySlug } from 'lib/route3/utils/get-route3-token-by-slug';
 import { getRoutingFeeTransferParams } from 'lib/route3/utils/get-routing-fee-transfer-params';
 import { ROUTING_FEE_PERCENT, SWAP_CASHBACK_PERCENT } from 'lib/swap-router/config';
-import { KNOWN_TOKENS_SLUGS } from 'lib/temple/assets';
-import { useAccount, useAssetMetadata, useGetTokenMetadata, useTezos } from 'lib/temple/front';
+import { useAccount, useGetTokenMetadata, useTezos } from 'lib/temple/front';
 import { atomsToTokens, tokensToAtoms } from 'lib/temple/helpers';
 import useTippy from 'lib/ui/useTippy';
-import { isDefined } from 'lib/utils/is-defined';
 import { parseTransferParamsToParamsWithKind } from 'lib/utils/parse-transfer-params';
 import { HistoryAction, navigate } from 'lib/woozie';
 
@@ -81,8 +83,8 @@ export const SwapForm: FC = () => {
   const fromRoute3Token = useSwapTokenSelector(inputValue.assetSlug ?? '');
   const toRoute3Token = useSwapTokenSelector(outputValue.assetSlug ?? '');
 
-  const inputAssetMetadata = useAssetMetadata(inputValue.assetSlug ?? 'tez')!;
-  const outputAssetMetadata = useAssetMetadata(outputValue.assetSlug ?? 'tez')!;
+  const inputAssetMetadata = useAssetMetadata(inputValue.assetSlug ?? TEZ_TOKEN_SLUG)!;
+  const outputAssetMetadata = useAssetMetadata(outputValue.assetSlug ?? TEZ_TOKEN_SLUG)!;
 
   const [error, setError] = useState<Error>();
   const [operation, setOperation] = useState<BatchWalletOperation>();

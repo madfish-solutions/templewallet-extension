@@ -3,7 +3,7 @@ import axios from 'axios';
 import { outputTokensList } from 'app/pages/Buy/Crypto/Exolix/config';
 import { CurrencyToken } from 'app/templates/TopUpInput';
 import { EnvVars } from 'lib/env';
-import { TEZOS_METADATA } from 'lib/temple/metadata';
+import { TEZOS_METADATA } from 'lib/metadata';
 
 import {
   ExchangeCoin,

@@ -32,7 +32,7 @@ export const Tokens: FC = () => {
   const balances = useBalancesWithDecimals();
 
   const { publicKeyHash } = useAccount();
-  const isSyncing = useSyncTokens();
+  const { isSyncing } = useSyncTokens();
   const { popup } = useAppEnv();
 
   const { data: tokens = [] } = useDisplayedFungibleTokens(chainId, publicKeyHash);

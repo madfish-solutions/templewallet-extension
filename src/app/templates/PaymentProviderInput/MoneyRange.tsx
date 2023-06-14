@@ -1,9 +1,9 @@
 import React, { FC } from 'react';
 
+import { isDefined } from '@rnw-community/shared';
 import BigNumber from 'bignumber.js';
 
 import { toLocalFormat } from 'lib/i18n';
-import { isDefined } from 'lib/utils/is-defined';
 
 interface Props {
   minAmount?: BigNumber.Value;

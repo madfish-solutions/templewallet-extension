@@ -1,4 +1,4 @@
-import type { AssetMetadata } from 'lib/temple/metadata';
+import type { TokenMetadata } from 'lib/metadata';
 
 type TcInfraMediaSize = 'small' | 'medium' | 'large';
 
@@ -24,7 +24,7 @@ const formatAssetUriToAllSizes = (url?: string, includeLarge = false) => {
 
 export { formatAssetUriToAllSizes as buildTokenIconURLs };
 
-export const buildCollectibleImageURLs = (assetSlug: string, metadata?: AssetMetadata | null, includeLarge = false) => {
+export const buildCollectibleImageURLs = (assetSlug: string, metadata: TokenMetadata, includeLarge = false) => {
   if (metadata == null) return formatObjktSmallAssetUri(assetSlug);
 
   return [

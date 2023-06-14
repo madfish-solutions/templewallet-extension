@@ -9,8 +9,8 @@ import ExpensesView, { ModifyFeeAndLimit } from 'app/templates/ExpensesView/Expe
 import OperationsBanner from 'app/templates/OperationsBanner';
 import RawPayloadView from 'app/templates/RawPayloadView';
 import ViewsSwitcher from 'app/templates/ViewsSwitcher/ViewsSwitcher';
+import { TEZ_TOKEN_SLUG, toTokenSlug } from 'lib/assets';
 import { T, t } from 'lib/i18n';
-import { toTokenSlug } from 'lib/temple/assets';
 import { tryParseExpenses } from 'lib/temple/front';
 import { TempleDAppOperationsPayload, TempleDAppSignPayload } from 'lib/temple/types';
 
@@ -47,7 +47,7 @@ const OperationView: FC<OperationViewProps> = ({
   const expensesData = useMemo(() => {
     return rawExpensesData.map(({ expenses, ...restRaw }) => ({
       expenses: expenses.map(({ tokenAddress, tokenId, ...restProps }) => ({
-        assetSlug: tokenAddress ? toTokenSlug(tokenAddress, tokenId) : 'tez',
+        assetSlug: tokenAddress ? toTokenSlug(tokenAddress, tokenId) : TEZ_TOKEN_SLUG,
         tokenAddress,
         tokenId,
         ...restProps
@@ -102,8 +102,8 @@ const OperationView: FC<OperationViewProps> = ({
   if (payload.type === 'sign' && payload.preview) {
     return (
       <div className="flex flex-col w-full">
-        <h2 className={classNames('mb-3', 'leading-tight', 'flex items-center')}>
-          <span className={classNames('mr-2', 'text-base font-semibold text-gray-700')}>
+        <h2 className="mb-3 leading-tight flex items-center">
+          <span className="mr-2 text-base font-semibold text-gray-700">
             <T id="payloadToSign" />
           </span>
 
@@ -145,8 +145,8 @@ const OperationView: FC<OperationViewProps> = ({
   if (payload.type === 'confirm_operations') {
     return (
       <div className="flex flex-col w-full">
-        <h2 className={classNames('mb-3', 'leading-tight', 'flex items-center')}>
-          <span className={classNames('mr-2', 'text-base font-semibold text-gray-700')}>
+        <h2 className="mb-3 leading-tight flex items-center">
+          <span className="mr-2 text-base font-semibold text-gray-700">
             <T id="operations" />
           </span>
 

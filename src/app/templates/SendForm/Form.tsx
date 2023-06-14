@@ -28,11 +28,14 @@ import { ReactComponent as ChevronUpIcon } from 'app/icons/chevron-up.svg';
 import Balance from 'app/templates/Balance';
 import InFiat from 'app/templates/InFiat';
 import { useFormAnalytics } from 'lib/analytics';
+import { isTezAsset, toPenny } from 'lib/assets';
+import { toTransferParams } from 'lib/assets/utils';
+import { fetchBalance, fetchTezosBalance } from 'lib/balances';
 import { useAssetFiatCurrencyPrice, useFiatCurrency } from 'lib/fiat-currency';
 import { BLOCK_DURATION } from 'lib/fixed-times';
 import { toLocalFixed, T, t } from 'lib/i18n';
+import { AssetMetadataBase, useAssetMetadata, getAssetSymbol } from 'lib/metadata';
 import { transferImplicit, transferToContract } from 'lib/michelson';
-import { fetchBalance, fetchTezosBalance, isTezAsset, toPenny, toTransferParams } from 'lib/temple/assets';
 import { loadContract } from 'lib/temple/contract';
 import {
   ReactiveTezosToolkit,
@@ -42,12 +45,10 @@ import {
   useNetwork,
   useTezos,
   useTezosDomainsClient,
-  useAssetMetadata,
   useFilteredContacts,
   validateDelegate
 } from 'lib/temple/front';
 import { hasManager, isAddressValid, isKTAddress, mutezToTz, tzToMutez } from 'lib/temple/helpers';
-import { AssetMetadata, getAssetSymbol } from 'lib/temple/metadata';
 import { TempleAccountType, TempleAccount, TempleNetworkType } from 'lib/temple/types';
 import { useSafeState } from 'lib/ui/hooks';
 import { useScrollIntoView } from 'lib/ui/use-scroll-into-view';
@@ -201,6 +202,8 @@ export const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactReque
 
   const estimateBaseFee = useCallback(async () => {
     try {
+      if (!assetMetadata) throw new Error('Metadata not found');
+
       const to = toResolved;
       const tez = isTezAsset(assetSlug);
 
@@ -337,6 +340,8 @@ export const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactReque
       formAnalytics.trackSubmit();
 
       try {
+        if (!assetMetadata) throw new Error('Metadata not found');
+
         let op: WalletOperation;
         if (isKTAddress(acc.publicKeyHash)) {
           const michelsonLambda = isKTAddress(toResolved) ? transferToContract : transferImplicit;
@@ -593,7 +598,7 @@ export const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactReque
 
 interface TokenToFiatProps {
   amountValue: string;
-  assetMetadata: AssetMetadata | null;
+  assetMetadata: AssetMetadataBase | nullish;
   shoudUseFiat: boolean;
   assetSlug: string;
   toAssetAmount: (fiatAmount: BigNumber.Value) => string;

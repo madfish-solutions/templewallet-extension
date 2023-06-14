@@ -1,4 +1,4 @@
-import { isDefined } from 'lib/utils/is-defined';
+import { isDefined } from '@rnw-community/shared';
 
 import { TopUpProviderPairLimits } from './topup.interface';
 

@@ -17,11 +17,10 @@ import PageLayout from 'app/layouts/PageLayout';
 import { ActivityComponent } from 'app/templates/activity/Activity';
 import AssetInfo from 'app/templates/AssetInfo';
 import { TestIDProps } from 'lib/analytics';
+import { TEZ_TOKEN_SLUG, isTezAsset } from 'lib/assets';
 import { T, t } from 'lib/i18n';
-import { isTezAsset } from 'lib/temple/assets';
-import { useAccount, useNetwork, useAssetMetadata } from 'lib/temple/front';
-import { useBalancesLoading } from 'lib/temple/front/load-balances';
-import { getAssetSymbol } from 'lib/temple/metadata';
+import { useAssetMetadata, getAssetSymbol } from 'lib/metadata';
+import { useAccount, useNetwork } from 'lib/temple/front';
 import { TempleAccountType, TempleNetworkType } from 'lib/temple/types';
 import useTippy from 'lib/ui/useTippy';
 import { createUrl, HistoryAction, Link, navigate, To, useLocation } from 'lib/woozie';
@@ -51,15 +50,13 @@ const tippyPropsMock = {
 const NETWORK_TYPES_WITH_BUY_BUTTON: TempleNetworkType[] = ['main', 'dcp'];
 
 const Home: FC<ExploreProps> = ({ assetSlug }) => {
-  useBalancesLoading();
-
   const { fullPage, registerBackHandler } = useAppEnv();
   const { onboardingCompleted } = useOnboardingProgress();
   const account = useAccount();
   const { search } = useLocation();
   const network = useNetwork();
 
-  const assetMetadata = useAssetMetadata(assetSlug ?? 'tez');
+  const assetMetadata = useAssetMetadata(assetSlug || TEZ_TOKEN_SLUG);
 
   useLayoutEffect(() => {
     const usp = new URLSearchParams(search);
@@ -96,7 +93,7 @@ const Home: FC<ExploreProps> = ({ assetSlug }) => {
         </div>
       )}
 
-      <div className={classNames('flex flex-col items-center', 'mb-6')}>
+      <div className="flex flex-col items-center mb-6">
         <MainBanner accountPkh={accountPkh} assetSlug={assetSlug} />
 
         <div className="flex justify-between mx-auto w-full max-w-sm">
@@ -315,7 +312,7 @@ const SecondarySection: FC<SecondarySectionProps> = ({ assetSlug, className }) =
 
   return (
     <div className={classNames('-mx-4', 'shadow-top-light', fullPage && 'rounded-t-md', className)}>
-      <div className={classNames('w-full max-w-sm mx-auto', 'flex items-center justify-center')}>
+      <div className="w-full max-w-sm mx-auto flex items-center justify-center">
         {tabs.map(currentTab => {
           const active = slug === currentTab.slug;
 

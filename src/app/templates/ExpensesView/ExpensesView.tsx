@@ -12,10 +12,11 @@ import { ReactComponent as ChevronDownIcon } from 'app/icons/chevron-down.svg';
 import { ReactComponent as ClipboardIcon } from 'app/icons/clipboard.svg';
 import HashChip from 'app/templates/HashChip';
 import InFiat from 'app/templates/InFiat';
+import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { TProps, T, t } from 'lib/i18n';
-import { RawOperationAssetExpense, RawOperationExpenses, useAssetMetadata, useGasToken } from 'lib/temple/front';
+import { useAssetMetadata, getAssetSymbol } from 'lib/metadata';
+import { RawOperationAssetExpense, RawOperationExpenses, useGasToken } from 'lib/temple/front';
 import { mutezToTz, tzToMutez } from 'lib/temple/helpers';
-import { getAssetSymbol } from 'lib/temple/metadata';
 
 import OperationsBanner from '../OperationsBanner';
 import styles from './ExpensesView.module.css';
@@ -111,10 +112,7 @@ const ExpensesView: FC<ExpensesViewProps> = ({
             : [])
         ].map(({ key, title, value, onChange }, i, arr) => (
           <div key={key} className={classNames('w-full flex items-center', i !== arr.length - 1 && 'mb-1')}>
-            <div
-              className={classNames('whitespace-nowrap overflow-x-auto no-scrollbar', 'opacity-90')}
-              style={{ maxWidth: '45%' }}
-            >
+            <div className="whitespace-nowrap overflow-x-auto no-scrollbar opacity-90" style={{ maxWidth: '45%' }}>
               {title}
             </div>
             <div className="mr-1">:</div>
@@ -393,7 +391,7 @@ const ExpenseViewItem: FC<ExpenseViewItemProps> = ({ item, last, mainnet }) => {
           {argumentDisplayProps && <OperationArgumentDisplay {...argumentDisplayProps} />}
         </div>
 
-        <div className={classNames('flex items-end flex-shrink-0 flex-wrap', 'text-gray-800')}>
+        <div className="flex items-end flex-shrink-0 flex-wrap text-gray-800">
           {item.expenses
             .filter(expense => new BigNumber(expense.amount).isGreaterThan(0))
             .map((expense, index, arr) => (
@@ -447,7 +445,7 @@ type OperationVolumeDisplayProps = {
 };
 
 const OperationVolumeDisplay = memo<OperationVolumeDisplayProps>(({ expense, volume, mainnet }) => {
-  const metadata = useAssetMetadata(expense?.assetSlug ?? 'tez');
+  const metadata = useAssetMetadata(expense?.assetSlug ?? TEZ_TOKEN_SLUG);
 
   const finalVolume = expense ? expense.amount.div(10 ** (metadata?.decimals || 0)) : volume;
 

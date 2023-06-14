@@ -4,5 +4,6 @@ export const mockSettingsState: SettingsState = {
   isAnalyticsEnabled: true,
   userId: '0',
   balanceMode: BalanceMode.Fiat,
-  isEnableAdsBanner: true
+  isEnableAdsBanner: true,
+  isOnRampPossibility: false
 };

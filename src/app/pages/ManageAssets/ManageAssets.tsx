@@ -12,11 +12,12 @@ import { ManageAssetsSelectors } from 'app/pages/ManageAssets/ManageAssets.selec
 import { AssetIcon } from 'app/templates/AssetIcon';
 import SearchAssetField from 'app/templates/SearchAssetField';
 import { setTestID } from 'lib/analytics';
+import { AssetTypesEnum } from 'lib/assets/types';
 import { T, t } from 'lib/i18n';
-import { AssetTypesEnum, setTokenStatus } from 'lib/temple/assets';
-import { useAccount, useAssetMetadata, useAvailableAssets, useChainId, useFilteredAssets } from 'lib/temple/front';
-import { getAssetName, getAssetSymbol } from 'lib/temple/metadata';
-import { ITokenStatus, ITokenType } from 'lib/temple/repo';
+import { useAssetMetadata, getAssetName, getAssetSymbol } from 'lib/metadata';
+import { setTokenStatus } from 'lib/temple/assets';
+import { useAccount, useAvailableAssets, useChainId, useFilteredAssets } from 'lib/temple/front';
+import { ITokenStatus } from 'lib/temple/repo';
 import { useConfirm } from 'lib/ui/dialog';
 import { Link } from 'lib/woozie';
 
@@ -63,13 +64,7 @@ const ManageAssetsContent: FC<Props> = ({ assetType }) => {
           if (!confirmed) return;
         }
 
-        await setTokenStatus(
-          assetType === AssetTypesEnum.Collectibles ? ITokenType.Collectible : ITokenType.Fungible,
-          chainId,
-          address,
-          assetSlug,
-          status
-        );
+        await setTokenStatus(chainId, address, assetSlug, status);
         await mutate();
       } catch (err: any) {
         console.error(err);

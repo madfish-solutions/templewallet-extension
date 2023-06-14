@@ -1,7 +1,9 @@
-import React, { FC, useCallback, useMemo } from 'react';
+import React, { FC, useCallback, useEffect, useMemo } from 'react';
 
 import { localForger } from '@taquito/local-forging';
+import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
+import { useDispatch } from 'react-redux';
 
 import { Alert, FormSubmitButton, FormSecondaryButton } from 'app/atoms';
 import ConfirmLedgerOverlay from 'app/atoms/ConfirmLedgerOverlay';
@@ -11,6 +13,7 @@ import { useAppEnv } from 'app/env';
 import { ReactComponent as CodeAltIcon } from 'app/icons/code-alt.svg';
 import { ReactComponent as EyeIcon } from 'app/icons/eye.svg';
 import { ReactComponent as HashIcon } from 'app/icons/hash.svg';
+import { setOnRampPossibilityAction } from 'app/store/settings/actions';
 import AccountBanner from 'app/templates/AccountBanner';
 import ExpensesView, { ModifyFeeAndLimit } from 'app/templates/ExpensesView/ExpensesView';
 import NetworkBanner from 'app/templates/NetworkBanner';
@@ -18,10 +21,11 @@ import OperationsBanner from 'app/templates/OperationsBanner';
 import RawPayloadView from 'app/templates/RawPayloadView';
 import ViewsSwitcher from 'app/templates/ViewsSwitcher/ViewsSwitcher';
 import { ViewsSwitcherItemProps } from 'app/templates/ViewsSwitcher/ViewsSwitcherItem';
+import { toTokenSlug } from 'lib/assets';
 import { T, t } from 'lib/i18n';
 import { useRetryableSWR } from 'lib/swr';
-import { toTokenSlug } from 'lib/temple/assets';
-import { useCustomChainId, useNetwork, useRelevantAccounts, tryParseExpenses } from 'lib/temple/front';
+import { useCustomChainId, useNetwork, useRelevantAccounts, tryParseExpenses, useBalance } from 'lib/temple/front';
+import { tzToMutez } from 'lib/temple/helpers';
 import { TempleAccountType, TempleChainId, TempleConfirmationPayload } from 'lib/temple/types';
 import { useSafeState } from 'lib/ui/hooks';
 import { isTruthy } from 'lib/utils';
@@ -39,6 +43,7 @@ const MIN_GAS_FEE = 0;
 const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfirm, error: payloadError }) => {
   const { rpcBaseURL: currentNetworkRpc } = useNetwork();
   const { popup } = useAppEnv();
+  const dispatch = useDispatch();
 
   const getContentToParse = useCallback(async () => {
     switch (payload.type) {
@@ -81,6 +86,26 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
       ...restProps
     }));
   }, [rawExpensesData]);
+
+  const { data: tezBalanceData } = useBalance('tez', account.publicKeyHash);
+  const tezBalance = tezBalanceData!;
+
+  const totalTransactionCost = useMemo(() => {
+    if (payload.type === 'operations') {
+      return payload.opParams.reduce(
+        (accumulator, currentOpParam) => accumulator.plus(currentOpParam.amount),
+        new BigNumber(0)
+      );
+    }
+
+    return new BigNumber(0);
+  }, [payload]);
+
+  useEffect(() => {
+    if (tzToMutez(tezBalance).isLessThanOrEqualTo(totalTransactionCost)) {
+      dispatch(setOnRampPossibilityAction(true));
+    }
+  }, [tezBalance, totalTransactionCost]);
 
   const signPayloadFormats: ViewsSwitcherItemProps[] = useMemo(() => {
     if (payload.type === 'operations') {

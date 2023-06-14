@@ -10,11 +10,13 @@ export interface SettingsState {
   isAnalyticsEnabled: boolean;
   balanceMode: BalanceMode;
   isEnableAdsBanner: boolean;
+  isOnRampPossibility: boolean;
 }
 
 export const settingsInitialState: SettingsState = {
   userId: nanoid(),
   isAnalyticsEnabled: true,
   balanceMode: BalanceMode.Fiat,
-  isEnableAdsBanner: true
+  isEnableAdsBanner: true,
+  isOnRampPossibility: false
 };

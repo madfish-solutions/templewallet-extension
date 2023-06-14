@@ -10,6 +10,7 @@ enum Table {
 }
 
 export const db = new Dexie('TempleMain');
+
 db.version(1).stores({
   [Table.Operations]: indexes('&hash', 'chainId', '*members', '*assetIds', 'addedAt', '[chainId+addedAt]'),
   [Table.SyncTimes]: indexes('[service+chainId+address]')
@@ -17,17 +18,16 @@ db.version(1).stores({
 db.version(2).stores({
   [Table.AccountTokens]: indexes('', '[chainId+account+type]', '[chainId+type]')
 });
+db.version(3).stores({
+  [Table.AccountTokens]: indexes('', '[chainId+account]', '[chainId]')
+});
 
 export const accountTokens = db.table<IAccountToken, string>(Table.AccountTokens);
+
 export const operations = db.table<IOperation, string>(Table.Operations);
 
 export function toAccountTokenKey(chainId: string, account: string, tokenSlug: string) {
   return [chainId, account, tokenSlug].join('_');
-}
-
-export enum ITokenType {
-  Fungible,
-  Collectible
 }
 
 export enum ITokenStatus {
@@ -38,14 +38,12 @@ export enum ITokenStatus {
 }
 
 export interface IAccountToken {
-  type: ITokenType;
   chainId: string;
   account: string;
   tokenSlug: string;
   status: ITokenStatus;
   addedAt: number;
   latestBalance?: string;
-  latestUSDBalance?: string;
 }
 
 interface IOperation {

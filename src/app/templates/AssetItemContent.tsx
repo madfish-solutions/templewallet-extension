@@ -3,12 +3,12 @@ import React, { FC } from 'react';
 import Money from 'app/atoms/Money';
 import Balance from 'app/templates/Balance';
 import InFiat from 'app/templates/InFiat';
-import { useAccount, useAssetMetadata } from 'lib/temple/front';
-import { AssetMetadata, getAssetName, getAssetSymbol } from 'lib/temple/metadata';
+import { AssetMetadataBase, useAssetMetadata, getAssetName, getAssetSymbol } from 'lib/metadata';
+import { useAccount } from 'lib/temple/front';
 
 interface Props {
   slug: string;
-  metadata?: AssetMetadata | null;
+  metadata?: AssetMetadataBase | nullish;
 }
 
 export const AssetItemContent: FC<Props> = ({ slug, metadata }) => {
@@ -31,7 +31,7 @@ const AssetItemContentWithUseMeta: FC<AssetItemContentWithUseMetaProps> = ({ slu
 };
 
 interface AssetItemContentComponentProps extends AssetItemContentWithUseMetaProps {
-  metadata?: AssetMetadata | null;
+  metadata?: AssetMetadataBase | nullish;
 }
 
 const AssetItemContentComponent: FC<AssetItemContentComponentProps> = ({ slug, metadata = null, publicKeyHash }) => (

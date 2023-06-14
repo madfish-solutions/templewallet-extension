@@ -1,11 +1,12 @@
 import { useMemo } from 'react';
 
+import { isDefined } from '@rnw-community/shared';
+
 import { useFiatCurrenciesSelector, usePairLimitsSelector } from 'app/store/buy-with-credit-card/selectors';
 import { intersectLimits } from 'lib/buy-with-credit-card/intersect-limits';
 import { mergeLimits } from 'lib/buy-with-credit-card/merge-limits';
 import { TopUpProviderId } from 'lib/buy-with-credit-card/top-up-provider-id.enum';
 import { TopUpInputInterface } from 'lib/buy-with-credit-card/topup.interface';
-import { isDefined } from 'lib/utils/is-defined';
 
 export const useAllFiatCurrencies = (inputCurrencySymbol: string, outputTokenSymbol: string) => {
   const moonpayFiatCurrencies = useFiatCurrenciesSelector(TopUpProviderId.MoonPay);
