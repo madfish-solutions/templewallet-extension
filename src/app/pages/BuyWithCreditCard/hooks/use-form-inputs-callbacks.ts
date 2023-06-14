@@ -70,7 +70,6 @@ export const useFormInputsCallbacks = (
           const amounts = await updateOutputAmounts(correctedNewInputAmount, newInputAsset, newOutputAsset);
 
           if (!isEqual(outputCalculationData, outputCalculationDataRef.current)) {
-            console.log(1, outputCalculationData);
             setFormIsLoading(false);
             return;
           }
@@ -92,10 +91,10 @@ export const useFormInputsCallbacks = (
             correctedNewInputAmount
           );
 
-          const patchedPossibleProviders = patchedPaymentProviders.filter(({ id }) => {
-            const pairLimits = allPairsLimits[newInputAsset.code]?.[newOutputAsset.code]?.[id];
-            return isDefined(pairLimits?.data);
-          });
+          const pairLimits = allPairsLimits[newInputAsset.code]?.[newOutputAsset.code];
+          const patchedPossibleProviders = patchedPaymentProviders.filter(({ id }) =>
+            isDefined(pairLimits?.[id]?.data)
+          );
 
           const autoselectedProvider = patchedPossibleProviders[0];
           const patchedSamePossibleProvider = patchedPossibleProviders.find(({ id }) => id === topUpProvider?.id);

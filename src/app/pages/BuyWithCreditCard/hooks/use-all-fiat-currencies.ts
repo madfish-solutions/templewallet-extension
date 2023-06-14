@@ -12,6 +12,7 @@ export const useAllFiatCurrencies = (inputCurrencySymbol: string, outputTokenSym
   const utorgFiatCurrencies = useFiatCurrenciesSelector(TopUpProviderId.Utorg);
   const aliceBobFiatCurrencies = useFiatCurrenciesSelector(TopUpProviderId.AliceBob);
   const binanceConnectFiatCurrencies = useFiatCurrenciesSelector(TopUpProviderId.BinanceConnect);
+
   const allPairsLimits = useAllPairsLimitsSelector();
 
   const allNonUniqueFiatCurrencies = useMemo(

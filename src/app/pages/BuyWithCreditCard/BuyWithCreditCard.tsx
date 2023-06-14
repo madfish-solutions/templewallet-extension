@@ -45,8 +45,7 @@ export const BuyWithCreditCard: FC = () => {
     updateLinkError,
     lazySetValue,
     triggerValidation,
-    formState,
-    getValues
+    formState
   } = form;
   const { inputAmount, inputCurrency, outputToken, outputAmount, topUpProvider } = formValues;
   const paymentProviders = usePaymentProviders(inputAmount, inputCurrency, outputToken);
@@ -82,10 +81,11 @@ export const BuyWithCreditCard: FC = () => {
     shouldShowFieldError('topUpProvider', formState) &&
     paymentProvidersToDisplay.length > 0;
 
+  useEffect(() => void dispatch(loadAllCurrenciesActions.submit()), []);
+
   useEffect(() => {
     dispatch(updatePairLimitsActions.submit({ fiatSymbol: inputCurrency.code, cryptoSymbol: outputToken.code }));
-  }, [dispatch, inputCurrency.code, getValues, outputToken.code]);
-  useEffect(() => void dispatch(loadAllCurrenciesActions.submit()), []);
+  }, [dispatch, inputCurrency.code, outputToken.code, allFiatCurrencies.length, allCryptoCurrencies.length]);
 
   useEffect(() => {
     const newInputAsset = allFiatCurrencies.find(({ code }) => code === inputCurrency.code);
@@ -101,6 +101,7 @@ export const BuyWithCreditCard: FC = () => {
       triggerValidation();
     }
   }, [inputAmount, inputCurrency, allFiatCurrencies, lazySetValue, triggerValidation]);
+
   useEffect(() => {
     const newPaymentProvider = paymentProvidersToDisplay.find(({ id }) => id === topUpProvider?.id);
 

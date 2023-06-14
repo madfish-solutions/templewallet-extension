@@ -6,7 +6,8 @@ import { BigNumber } from 'bignumber.js';
 import {
   useFiatCurrenciesSelector,
   useCryptoCurrenciesSelector,
-  useProviderCurrenciesErrorSelector
+  useProviderCurrenciesErrorSelector,
+  usePairLimitsErrorsSelector
 } from 'app/store/buy-with-credit-card/selectors';
 import { getMoonPayBuyQuote } from 'lib/apis/moonpay';
 import { estimateBinanceConnectOutput } from 'lib/apis/temple-static';
@@ -107,6 +108,7 @@ const usePaymentProvider = (
   const fiatCurrencies = useFiatCurrenciesSelector(providerId);
   const cryptoCurrencies = useCryptoCurrenciesSelector(providerId);
   const currenciesError = useProviderCurrenciesErrorSelector(providerId);
+  const limitsErrors = usePairLimitsErrorsSelector(inputAsset.code, outputAsset.code);
   const { min: minInputAmount, max: maxInputAmount } = useInputLimits(providerId, inputAsset.code, outputAsset.code);
   const initialData = initialPaymentProvidersData[providerId];
   const getOutputAmount = getOutputAmountFunctions[providerId];
@@ -168,9 +170,10 @@ const usePaymentProvider = (
   const errors: ProviderErrors = useMemo(
     () => ({
       currencies: currenciesError,
+      limits: limitsErrors?.[providerId],
       output: outputError
     }),
-    [currenciesError, outputError]
+    [currenciesError, limitsErrors, outputError]
   );
 
   return {
