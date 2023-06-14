@@ -26,6 +26,7 @@ import useTippy from 'lib/ui/useTippy';
 import { createUrl, HistoryAction, Link, navigate, To, useLocation } from 'lib/woozie';
 import { createLocationState } from 'lib/woozie/location';
 
+import { useCheckProjectBuildVersion } from '../../hooks/use-check-project-build-version.hook';
 import { useUserTestingGroupNameSelector } from '../../store/ab-testing/selectors';
 import { CollectiblesList } from '../Collectibles/CollectiblesList';
 import { useOnboardingProgress } from '../Onboarding/hooks/useOnboardingProgress.hook';
@@ -57,6 +58,8 @@ const Home: FC<ExploreProps> = ({ assetSlug }) => {
   const network = useNetwork();
 
   const assetMetadata = useAssetMetadata(assetSlug || TEZ_TOKEN_SLUG);
+
+  useCheckProjectBuildVersion();
 
   useLayoutEffect(() => {
     const usp = new URLSearchParams(search);

@@ -9,3 +9,5 @@ export const useBalanceModeSelector = () => useSelector(({ settings }) => settin
 export const useIsEnabledAdsBannerSelector = () => useSelector(({ settings }) => settings.isEnableAdsBanner);
 
 export const useOnRampPossibilitySelector = () => useSelector(({ settings }) => settings.isOnRampPossibility);
+
+export const useLastProjectBuildVersionSelector = () => useSelector(({ settings }) => settings.buildVersion);

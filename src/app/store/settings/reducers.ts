@@ -2,9 +2,10 @@ import { createReducer } from '@reduxjs/toolkit';
 
 import {
   setIsAnalyticsEnabledAction,
+  setLastProjectBuildVersion,
   setOnRampPossibilityAction,
   toggleBalanceModeAction,
-  turnOffAdsBannerAction
+  setAdsBannerVisibilityAction
 } from './actions';
 import { SettingsState, settingsInitialState } from './state';
 
@@ -16,12 +17,16 @@ export const settingsReducer = createReducer<SettingsState>(settingsInitialState
   builder.addCase(toggleBalanceModeAction, (state, { payload }) => {
     state.balanceMode = payload;
   });
-  builder.addCase(turnOffAdsBannerAction, state => ({
+  builder.addCase(setAdsBannerVisibilityAction, (state, { payload }) => ({
     ...state,
-    isEnableAdsBanner: false
+    isEnableAdsBanner: payload
   }));
   builder.addCase(setOnRampPossibilityAction, (state, { payload: isOnRampPossibility }) => ({
     ...state,
     isOnRampPossibility
+  }));
+  builder.addCase(setLastProjectBuildVersion, (state, { payload: lastBuildVersion }) => ({
+    ...state,
+    buildVersion: lastBuildVersion
   }));
 });

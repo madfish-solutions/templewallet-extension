@@ -20,7 +20,7 @@ import { Link, navigate } from 'lib/woozie';
 
 import { Banner } from '../../../../atoms/Banner';
 import { useShouldShowPartnersPromoSelector } from '../../../../store/partners-promotion/selectors';
-import { turnOffAdsBannerAction } from '../../../../store/settings/actions';
+import { setAdsBannerVisibilityAction } from '../../../../store/settings/actions';
 import { useIsEnabledAdsBannerSelector } from '../../../../store/settings/selectors';
 import { AssetsSelectors } from '../Assets.selectors';
 import { ListItem } from './components/ListItem';
@@ -121,12 +121,12 @@ export const Tokens: FC = () => {
 
   const handleEnableBannerButton = async () => {
     dispatch(togglePartnersPromotionAction(true));
-    dispatch(turnOffAdsBannerAction());
+    dispatch(setAdsBannerVisibilityAction(false));
   };
 
   const handleDisableBannerButton = () => {
     dispatch(togglePartnersPromotionAction(false));
-    dispatch(turnOffAdsBannerAction());
+    dispatch(setAdsBannerVisibilityAction(false));
   };
 
   return (

@@ -6,5 +6,8 @@ export const setIsAnalyticsEnabledAction = createAction<boolean>('settings/SET_I
 
 export const toggleBalanceModeAction = createAction<BalanceMode>('settings/TOGGLE_BALANCE_MODE');
 
-export const turnOffAdsBannerAction = createAction('settings/TURN_OFF_ADS_BANNER_ACTION');
+export const setAdsBannerVisibilityAction = createAction<boolean>('settings/TURN_OFF_ADS_BANNER_ACTION');
+
 export const setOnRampPossibilityAction = createAction<boolean>('settings/SET_ON_RAMP_POSSIBILITY_ACTION');
+
+export const setLastProjectBuildVersion = createAction<string>('settings/GET_PROJECT_BUILD_VERSION');
