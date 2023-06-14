@@ -9,7 +9,6 @@ import { useYupValidationResolver } from 'lib/form/use-yup-validation-resolver';
 
 import { AmountErrorType } from '../types/amount-error-type';
 import { BuyWithCreditCardFormValues } from '../types/buy-with-credit-card-form-values';
-import { usePurchaseLink } from './use-purchase-link';
 
 const DEFAULT_INPUT_CURRENCY: TopUpInputInterface = {
   code: 'USD',
@@ -55,8 +54,6 @@ export const useBuyWithCreditCardForm = () => {
 
   const formValues = watch({ nest: true });
 
-  const purchaseLinkVars = usePurchaseLink(formValues);
-
   const lazySetValue = useCallback(
     (newValues: Partial<BuyWithCreditCardFormValues>, shouldValidate?: boolean) => {
       const currentValues = getValues();
@@ -88,7 +85,6 @@ export const useBuyWithCreditCardForm = () => {
     lazySetValue,
     setValue,
     getValues,
-    ...purchaseLinkVars,
     ...rest
   };
 };

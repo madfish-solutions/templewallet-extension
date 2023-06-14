@@ -15,9 +15,10 @@ import { useBuyWithCreditCardForm } from './use-buy-with-credit-card-form';
 export const useErrorAlert = (
   form: ReturnType<typeof useBuyWithCreditCardForm>,
   allPaymentProviders: PaymentProviderInterface[],
-  allProvidersErrors: Record<TopUpProviderId, ProviderErrors>
+  allProvidersErrors: Record<TopUpProviderId, ProviderErrors>,
+  updateLinkError?: Error
 ) => {
-  const { updateLinkError, formValues } = form;
+  const { formValues } = form;
   const { inputCurrency, outputToken } = formValues;
   const currenciesErrors = useCurrenciesErrorsSelector();
   const updatePairLimitsErrors = usePairLimitsErrorsSelector(inputCurrency.code, outputToken.code);

@@ -29,6 +29,7 @@ import { useErrorAlert } from './hooks/use-error-alert';
 import { useFormInputsCallbacks } from './hooks/use-form-inputs-callbacks';
 import { usePairLimitsAreLoading } from './hooks/use-input-limits';
 import { usePaymentProviders } from './hooks/use-payment-providers';
+import { usePurchaseLink } from './hooks/use-purchase-link';
 import { useUpdateCurrentProvider } from './hooks/use-update-current-provider';
 import { AmountErrorType } from './types/amount-error-type';
 
@@ -38,22 +39,15 @@ export const BuyWithCreditCard: FC = () => {
   const dispatch = useDispatch();
   const [formIsLoading, setFormIsLoading] = useState(false);
   const form = useBuyWithCreditCardForm();
-  const {
-    formValues,
-    purchaseLink,
-    purchaseLinkLoading,
-    errors,
-    updateLinkError,
-    lazySetValue,
-    triggerValidation,
-    formState
-  } = form;
+  const { formValues, errors, lazySetValue, triggerValidation, formState } = form;
   const { inputAmount, inputCurrency, outputToken, outputAmount, topUpProvider } = formValues;
+
   const { allPaymentProviders, paymentProvidersToDisplay, providersErrors, updateOutputAmounts } = usePaymentProviders(
     inputAmount,
     inputCurrency,
     outputToken
   );
+
   const {
     handleInputAssetChange,
     handleInputAmountChange,
@@ -63,11 +57,15 @@ export const BuyWithCreditCard: FC = () => {
     manuallySelectedProviderIdRef,
     refreshForm
   } = useFormInputsCallbacks(form, updateOutputAmounts, formIsLoading, setFormIsLoading);
+
+  const { purchaseLink, purchaseLinkLoading, updateLinkError } = usePurchaseLink(formValues);
+
   const {
     onAlertClose,
     shouldHideErrorAlert,
     message: alertErrorMessage
-  } = useErrorAlert(form, allPaymentProviders, providersErrors);
+  } = useErrorAlert(form, allPaymentProviders, providersErrors, updateLinkError);
+
   const { fiatCurrenciesWithPairLimits: allFiatCurrencies } = useAllFiatCurrencies(
     inputCurrency.code,
     outputToken.code

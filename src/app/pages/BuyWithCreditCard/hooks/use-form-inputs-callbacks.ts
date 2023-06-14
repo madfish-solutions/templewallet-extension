@@ -20,12 +20,12 @@ import { usePaymentProviders } from './use-payment-providers';
 
 export const useFormInputsCallbacks = (
   form: ReturnType<typeof useBuyWithCreditCardForm>,
-  updateOutputAmounts: ReturnType<typeof usePaymentProviders>['updateOutputAmounts'],
+  updateProvidersOutputs: ReturnType<typeof usePaymentProviders>['updateOutputAmounts'],
   formIsLoading: boolean,
   setFormIsLoading: (newValue: boolean) => void
 ) => {
   const { formValues, lazySetValue, triggerValidation } = form;
-  const { inputAmount, inputCurrency, outputToken } = formValues;
+  const { inputAmount, inputCurrency, outputToken, topUpProvider } = formValues;
   const outputCalculationDataRef = useRef({ inputAmount, inputCurrency, outputToken });
   const manuallySelectedProviderIdRef = useRef<TopUpProviderId>();
   const dispatch = useDispatch();
@@ -57,13 +57,17 @@ export const useFormInputsCallbacks = (
             outputToken: newOutputAsset
           });
 
-          await updateOutputAmounts(correctedNewInputAmount, newInputAsset, newOutputAsset);
+          // Discarding current provider's output instead of provider itself (i.e. `setPaymentProvider(undefined)`)
+          // Thus purchase link loading is delayed till provider is updated
+          if (isDefined(topUpProvider)) setPaymentProvider({ ...topUpProvider, outputAmount: undefined });
+
+          await updateProvidersOutputs(correctedNewInputAmount, newInputAsset, newOutputAsset);
 
           setFormIsLoading(false);
         },
         200
       ),
-    [updateOutputAmounts, lazySetValue]
+    [updateProvidersOutputs, lazySetValue, topUpProvider, setPaymentProvider]
   );
 
   const handleInputValueChange = useCallback(

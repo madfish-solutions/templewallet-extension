@@ -33,7 +33,12 @@ export const usePurchaseLink = (formValues: BuyWithCreditCardFormValues) => {
 
         const { inputAmount, inputCurrency, outputAmount, outputToken, topUpProvider } = formValues;
 
-        if (!isDefined(inputAmount) || !isDefined(outputAmount) || !isDefined(topUpProvider)) {
+        if (
+          !isDefined(topUpProvider?.outputAmount) ||
+          !isDefined(inputAmount) ||
+          !isDefined(outputAmount) ||
+          !isDefined(topUpProvider)
+        ) {
           setPurchaseLinkLoading(false);
           return;
         }
@@ -41,7 +46,7 @@ export const usePurchaseLink = (formValues: BuyWithCreditCardFormValues) => {
         setPurchaseLinkLoading(true);
 
         try {
-          let newPurchaseLink: string;
+          let newPurchaseLink: string | undefined;
           switch (topUpProvider.id) {
             case TopUpProviderId.MoonPay:
               newPurchaseLink = await getMoonpaySign(
@@ -68,9 +73,12 @@ export const usePurchaseLink = (formValues: BuyWithCreditCardFormValues) => {
                 publicKeyHash
               );
               break;
-            default:
+            case TopUpProviderId.AliceBob:
               const { data } = await createAliceBobOrder(false, inputAmount.toFixed(), userId, publicKeyHash);
               newPurchaseLink = data.orderInfo.payUrl;
+              break;
+            default:
+              newPurchaseLink = undefined;
           }
 
           if (shouldStop()) return;
@@ -98,6 +106,7 @@ export const usePurchaseLink = (formValues: BuyWithCreditCardFormValues) => {
       formValues.outputToken.code,
       formValues.outputAmount,
       formValues.topUpProvider?.id,
+      formValues.topUpProvider?.outputAmount,
       publicKeyHash,
       userId,
       formAnalytics
