@@ -45,7 +45,7 @@ export const useAddressFieldAnalytics = (value: string, addressFromNetworkEventN
 
         const matchingOtherNetwork = otherNetworks.find(({ name }) => result.includes(name));
         if (isDefined(matchingOtherNetwork)) {
-          trackNetworkEvent(matchingOtherNetwork.slug);
+          trackNetworkEvent(matchingOtherNetwork.analyticsSlug);
         }
       })
       .catch(console.error);
