@@ -7,5 +7,6 @@ export const mockTokensMetadataState: TokensMetadataState = {
   metadataRecord: {
     [tokenToSlug(mockFA1_2TokenMetadata)]: mockFA1_2TokenMetadata,
     [tokenToSlug(mockFA2TokenMetadata)]: mockFA2TokenMetadata
-  }
+  },
+  metadataLoading: false
 };

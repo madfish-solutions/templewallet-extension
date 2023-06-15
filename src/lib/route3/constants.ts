@@ -18,7 +18,7 @@ export const SWAP_THRESHOLD_TO_GET_CASHBACK = 10;
 export const ZERO = new BigNumber(0);
 
 export const TEMPLE_TOKEN: Route3Token = {
-  id: 128,
+  id: 138,
   symbol: 'TKEY',
   standard: Route3TokenStandardEnum.fa2,
   contract: TempleToken.contract,

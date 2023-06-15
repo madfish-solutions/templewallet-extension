@@ -3009,5 +3009,28 @@
   },
   "swapCashbackDescription": {
     "message": "Swap more than 10$ and receive 0.175% from the swapped amount in the TKEY token as a cashback"
+  },
+  "jumpInTezos": {
+    "message": "Jump in Tezos right now!"
+  },
+  "onRampDesription": {
+    "message": "Buy TEZ using $text$ and start working with the Tezos blockchain immediately.",
+    "placeholders": {
+      "text": {
+        "content": "$1"
+      }
+    }
+  },
+  "customAmount": {
+    "message": "Custom amount"
+  },
+  "close": {
+    "message": "Close"
+  },
+  "thirdParty": {
+    "message": "The token exchange feature is provided by third-party."
+  },
+  "creditCard": {
+    "message": "credit card"
   }
 }

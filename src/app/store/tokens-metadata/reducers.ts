@@ -3,12 +3,24 @@ import { isDefined } from '@rnw-community/shared';
 
 import { tokenToSlug } from 'lib/assets';
 
-import { addTokensMetadataAction, loadWhitelistAction } from './actions';
+import {
+  addTokensMetadataAction,
+  loadWhitelistAction,
+  loadTokensMetadataAction,
+  loadOneTokenMetadataActions,
+  resetTokensMetadataLoadingAction
+} from './actions';
 import { tokensMetadataInitialState, TokensMetadataState } from './state';
+import { patchMetadatas } from './utils';
 
 export const tokensMetadataReducer = createReducer<TokensMetadataState>(tokensMetadataInitialState, builder => {
   builder.addCase(addTokensMetadataAction, (state, { payload: tokensMetadata }) => {
-    if (tokensMetadata.every(record => !isDefined(record))) return state;
+    if (tokensMetadata.length < 1) {
+      return {
+        ...state,
+        metadataLoading: false
+      };
+    }
 
     const metadataRecord = tokensMetadata.reduce((prevState, tokenMetadata) => {
       const slug = tokenToSlug(tokenMetadata);
@@ -24,18 +36,46 @@ export const tokensMetadataReducer = createReducer<TokensMetadataState>(tokensMe
 
     return {
       ...state,
-      metadataRecord
+      metadataRecord,
+      metadataLoading: false
     };
   });
 
-  builder.addCase(loadWhitelistAction.success, (state, { payload: tokensMetadata }) => ({
+  builder.addCase(loadWhitelistAction.success, (state, { payload: tokensMetadata }) => {
+    tokensMetadata = tokensMetadata.filter(metadata => {
+      const slug = tokenToSlug(metadata);
+
+      return !isDefined(state.metadataRecord[slug]);
+    });
+
+    tokensMetadata = patchMetadatas(tokensMetadata);
+
+    if (tokensMetadata.length < 1) return state;
+
+    return {
+      ...state,
+      metadataRecord: tokensMetadata.reduce(
+        (obj, tokenMetadata) => ({
+          ...obj,
+          [tokenToSlug(tokenMetadata)]: tokenMetadata
+        }),
+        state.metadataRecord
+      )
+    };
+  });
+
+  builder.addCase(loadTokensMetadataAction, state => ({
     ...state,
-    metadataRecord: tokensMetadata.reduce(
-      (obj, tokenMetadata) => ({
-        ...obj,
-        [tokenToSlug(tokenMetadata)]: tokenMetadata
-      }),
-      state.metadataRecord
-    )
+    metadataLoading: true
+  }));
+
+  builder.addCase(resetTokensMetadataLoadingAction, state => ({
+    ...state,
+    metadataLoading: false
+  }));
+
+  builder.addCase(loadOneTokenMetadataActions.fail, state => ({
+    ...state,
+    metadataLoading: false
   }));
 });
