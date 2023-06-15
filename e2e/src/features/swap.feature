@@ -132,7 +132,6 @@ Feature: Swap
     And I'm waiting for 'success ✓' operation status
 
 
-
     And I am on the Swap page
    # 10.Swap wUSDT -> uUSD (FA2 -> FA2)
     And I press Swap Places Button on the Swap Form page

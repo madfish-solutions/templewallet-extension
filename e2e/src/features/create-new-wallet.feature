@@ -1,5 +1,5 @@
 Feature: Create a new wallet
-@dev
+
   Scenario: As a user, i'd like to create a new wallet
     Given I am on the Welcome page
     And I press Create New Wallet button on the Welcome page

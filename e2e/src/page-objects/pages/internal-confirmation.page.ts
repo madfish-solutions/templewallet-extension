@@ -1,3 +1,5 @@
+import { OperationsBannerSelectors } from 'src/app/templates/OperationsBanner/OperationsBanner.selectors';
+
 import { LONG_TIMEOUT } from 'e2e/src/utils/timing.utils';
 
 import { InternalConfirmationSelectors } from '../../../../src/app/templates/InternalConfirmation.selectors';
@@ -11,6 +13,9 @@ export class InternalConfirmationPage extends Page {
   rawTab = createPageElement(InternalConfirmationSelectors.rawTab);
   previewTab = createPageElement(InternalConfirmationSelectors.previewTab);
   retryButton = createPageElement(InternalConfirmationSelectors.retryButton);
+  errorText = createPageElement(OperationsBannerSelectors.errorText);
+  errorDropDownButton = createPageElement(OperationsBannerSelectors.errorDropDownButton);
+  errorValue = createPageElement(OperationsBannerSelectors.errorValue);
 
   async isVisible() {
     await this.confirmButton.waitForDisplayed(LONG_TIMEOUT);
@@ -18,5 +23,17 @@ export class InternalConfirmationPage extends Page {
     await this.bytesTab.waitForDisplayed();
     await this.rawTab.waitForDisplayed();
     await this.previewTab.waitForDisplayed();
+  }
+
+  async isErrorDisplayed() {
+    try {
+      await this.errorText.waitForDisplayed(5000);
+      await this.errorDropDownButton.click();
+
+      const errorLog = await this.errorValue.getText();
+      console.log('ERROR is  ', errorLog);
+    } catch (error) {
+      await this.isVisible();
+    }
   }
 }

@@ -38,7 +38,6 @@ export class SwapPage extends Page {
     await retry(
       async () => {
         const tokenItemElem = await findElement(AssetsMenuSelectors.assetsMenuAssetItem, { slug });
-        console.log('result is', tokenItemElem);
         await sleep(1000);
         await tokenItemElem.click();
       },

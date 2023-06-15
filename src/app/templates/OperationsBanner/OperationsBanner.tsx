@@ -4,8 +4,11 @@ import classNames from 'clsx';
 import ReactJson from 'react-json-view';
 
 import { ReactComponent as CopyIcon } from 'app/icons/copy.svg';
+import { setTestID } from 'lib/analytics';
 import { T } from 'lib/i18n';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
+
+import { OperationsBannerSelectors } from './OperationsBanner.selectors';
 
 type ContentsItem = {
   kind: string;
@@ -59,6 +62,7 @@ const OperationsBanner = memo<OperationsBannerProps>(
               height: '10rem',
               ...jsonViewStyle
             }}
+            {...setTestID(OperationsBannerSelectors.errorValue)}
           >
             {typeof opParams === 'string' ? (
               <div className={classNames('p-1', 'text-lg text-gray-700 font-normal whitespace-pre-line')}>
