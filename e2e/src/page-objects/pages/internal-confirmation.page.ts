@@ -18,22 +18,18 @@ export class InternalConfirmationPage extends Page {
   errorValue = createPageElement(OperationsBannerSelectors.errorValue);
 
   async isVisible() {
-    await this.confirmButton.waitForDisplayed(LONG_TIMEOUT);
-    await this.declineButton.waitForDisplayed();
-    await this.bytesTab.waitForDisplayed();
-    await this.rawTab.waitForDisplayed();
-    await this.previewTab.waitForDisplayed();
-  }
-
-  async isErrorDisplayed() {
     try {
       await this.errorText.waitForDisplayed(5000);
       await this.errorDropDownButton.click();
 
       const errorLog = await this.errorValue.getText();
-      console.log('ERROR is  ', errorLog);
+      console.log('Confirmation page includes error logs:', errorLog);
     } catch (error) {
-      await this.isVisible();
+      await this.confirmButton.waitForDisplayed(LONG_TIMEOUT);
+      await this.declineButton.waitForDisplayed();
+      await this.bytesTab.waitForDisplayed();
+      await this.rawTab.waitForDisplayed();
+      await this.previewTab.waitForDisplayed();
     }
   }
 }
