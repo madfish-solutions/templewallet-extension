@@ -11,6 +11,7 @@ import { createOrder as createUtorgOrder } from 'lib/apis/utorg';
 import { TopUpProviderId } from 'lib/buy-with-credit-card/top-up-provider-id.enum';
 import { useAccount } from 'lib/temple/front';
 import { useStopper } from 'lib/ui/hooks';
+import { assertUnreachable } from 'lib/utils/switch-cases';
 
 import { BuyWithCreditCardFormValues } from '../types/buy-with-credit-card-form-values';
 
@@ -46,7 +47,7 @@ export const usePurchaseLink = (formValues: BuyWithCreditCardFormValues) => {
         setPurchaseLinkLoading(true);
 
         try {
-          let newPurchaseLink: string | undefined;
+          let newPurchaseLink: string;
           switch (topUpProvider.id) {
             case TopUpProviderId.MoonPay:
               newPurchaseLink = await getMoonpaySign(
@@ -78,7 +79,7 @@ export const usePurchaseLink = (formValues: BuyWithCreditCardFormValues) => {
               newPurchaseLink = data.orderInfo.payUrl;
               break;
             default:
-              newPurchaseLink = undefined;
+              return assertUnreachable(topUpProvider.id);
           }
 
           if (shouldStop()) return;
