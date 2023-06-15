@@ -1,8 +1,8 @@
+import { InternalConfirmationSelectors } from 'src/app/templates/InternalConfirmation.selectors';
 import { OperationsBannerSelectors } from 'src/app/templates/OperationsBanner/OperationsBanner.selectors';
 
 import { LONG_TIMEOUT } from 'e2e/src/utils/timing.utils';
 
-import { InternalConfirmationSelectors } from '../../../../src/app/templates/InternalConfirmation.selectors';
 import { Page } from '../../classes/page.class';
 import { createPageElement } from '../../utils/search.utils';
 
