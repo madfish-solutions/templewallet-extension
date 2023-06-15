@@ -22,12 +22,12 @@ Given(
 
 Given(/I click on animated Swap button on the Swap page/, { timeout: MEDIUM_TIMEOUT }, async () => {
   const elem = createPageElement(SwapFormSelectors.swapButton, undefined, { loading: '' });
+  const confirmButton = createPageElement(InternalConfirmationSelectors.confirmButton);
+
   await retry(
     async () => {
       await elem.click();
-      await BrowserContext.page.waitForSelector(`[data-testid="${InternalConfirmationSelectors.confirmButton}"]`, {
-        timeout: 5000
-      });
+      await confirmButton.waitForDisplayed(5000);
     },
     { retries: 3 }
   );
