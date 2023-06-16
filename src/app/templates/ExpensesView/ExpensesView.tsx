@@ -18,7 +18,9 @@ import { useAssetMetadata, getAssetSymbol } from 'lib/metadata';
 import { RawOperationAssetExpense, RawOperationExpenses, useGasToken } from 'lib/temple/front';
 import { mutezToTz, tzToMutez } from 'lib/temple/helpers';
 
-import OperationsBanner from '../OperationsBanner';
+import { setTestID } from '../../../lib/analytics';
+import OperationsBanner from '../OperationsBanner/OperationsBanner';
+import { OperationsBannerSelectors } from '../OperationsBanner/OperationsBanner.selectors';
 import styles from './ExpensesView.module.css';
 
 type OperationAssetExpense = Omit<RawOperationAssetExpense, 'tokenAddress'> & {
@@ -247,7 +249,7 @@ const ExpensesView: FC<ExpensesViewProps> = ({
       {error && (
         <div className="rounded-lg flex flex-col border border-red-700 my-2 py-2 px-4 justify-center">
           <div className="relative flex justify-center">
-            <span className="text-red-700 text-center">
+            <span className="text-red-700 text-center" {...setTestID(OperationsBannerSelectors.errorText)}>
               <T id="txIsLikelyToFail" />
             </span>
             <button
@@ -257,6 +259,7 @@ const ExpensesView: FC<ExpensesViewProps> = ({
                 showDetails && 'rotate-180'
               )}
               onClick={toggleShowDetails}
+              {...setTestID(OperationsBannerSelectors.errorDropDownButton)}
             >
               <ChevronDownIcon className="w-4 h-4 stroke-1 stroke-current" />
             </button>
