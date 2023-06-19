@@ -1,6 +1,5 @@
-import React, { FC, useMemo, useEffect, useState } from 'react';
+import React, { FC, useMemo, useState } from 'react';
 
-import axios from 'axios';
 import classNames from 'clsx';
 import { useForm } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
@@ -11,13 +10,11 @@ import Spinner from 'app/atoms/Spinner/Spinner';
 import { useAppEnv } from 'app/env';
 import { ReactComponent as CloseIcon } from 'app/icons/close.svg';
 import ContentContainer from 'app/layouts/ContentContainer';
-import { addNewsletterEmailAction, shouldShowNewsletterModalAction } from 'app/store/newsletter/newsletter-actions';
-import {
-  useNewsletterEmailsSelector,
-  useShouldShowNewsletterModalSelector
-} from 'app/store/newsletter/newsletter-selectors';
+import { shouldShowNewsletterModalAction } from 'app/store/newsletter/newsletter-actions';
+import { useShouldShowNewsletterModalSelector } from 'app/store/newsletter/newsletter-selectors';
+import { newsletterApi } from 'lib/apis/newsletter';
 import { useYupValidationResolver } from 'lib/form/use-yup-validation-resolver';
-import { T } from 'lib/i18n/react';
+import { T, t } from 'lib/i18n/react';
 
 import NewsletterImage from './NewsletterImage.png';
 
@@ -25,45 +22,23 @@ interface FormValues {
   email: string;
 }
 
-export const newsletterApi = axios.create({
-  baseURL: 'https://jellyfish-app-deove.ondigitalocean.app/'
+const validationSchema = object().shape({
+  email: string().required('Required field').email('Must be a valid email')
 });
-
-const useNewsletterValidation = () => {
-  const emails = useNewsletterEmailsSelector();
-
-  return object().shape({
-    email: string()
-      .required('Required field')
-      .notOneOf(emails, 'You have already subscribed to the newsletter with this email ')
-      .email('Must be a valid email')
-  });
-};
 
 export const NewsletterOverlay: FC = () => {
   const dispatch = useDispatch();
   const { popup } = useAppEnv();
   const shouldShowNewsletterModal = useShouldShowNewsletterModalSelector();
-  const emails = useNewsletterEmailsSelector();
-
-  const validationSchema = object().shape({
-    email: string().required('Required field').email('Must be a valid email')
-  });
 
   const validationResolver = useYupValidationResolver<FormValues>(validationSchema);
 
   const { errors, handleSubmit, watch, register } = useForm<FormValues>({
     defaultValues: { email: '' },
-    // mode: 'onChange',
     validationResolver
   });
   const email = watch('email');
-
   const isValid = Object.keys(errors).length === 0;
-
-  useEffect(() => console.log('email: ', email), [email]);
-  console.log('email: ', email);
-  console.log('errors: ', errors);
 
   const [isLoading, setIsLoading] = useState(false);
   const [successSubscribing, setSuccessSubscribing] = useState(false);
@@ -83,7 +58,7 @@ export const NewsletterOverlay: FC = () => {
       })
       .then(() => {
         setSuccessSubscribing(true);
-        dispatch(addNewsletterEmailAction(email));
+        dispatch(shouldShowNewsletterModalAction(false));
       })
       .finally(() => setIsLoading(false));
   };
@@ -132,20 +107,12 @@ export const NewsletterOverlay: FC = () => {
               <CloseIcon className="ml-2 h-4 w-auto stroke-current stroke-2" />
             </Button>
             <img src={NewsletterImage} className="mb-4" alt="Newsletter" />
-            <div
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                maxWidth: '384px',
-                margin: '0 auto',
-                width: '100%'
-              }}
-            >
-              <h1 className="mb-1 font-inter text-base text-gray-910 text-left">Subscribe to our Newsletter</h1>
-              <span className="mb-1 text-xs text-left text-gray-600">Keep up with the latest news from Madfish</span>
+            <div className="flex flex-col w-full max-w-sm mx-auto">
+              <h1 className="mb-1 font-inter text-base text-gray-910 text-left">{t('subscribeToNewsletter')}</h1>
+              <span className="mb-1 text-xs text-left text-gray-600">{t('keepLatestNews')}</span>
               <div className="w-full mb-4">
                 <input
-                  ref={register}
+                  ref={register()}
                   name="email"
                   className="w-full p-4 rounded-md border text-sm text-gray-910"
                   placeholder="example@mail.com"
