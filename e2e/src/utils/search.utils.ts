@@ -9,23 +9,20 @@ const buildTestIDSelector = (testID: string) => `[data-testid="${testID}"]`;
 
 type OtherSelectors = Record<string, string>;
 
-const buildSelector = (testID: string, otherSelectors?: OtherSelectors) => {
-  const pairs = Object.entries({ ...otherSelectors, testid: testID }).map(
-    ([key, val]) => `data-${key}="${val}"` as const
-  );
-  return `[${pairs.join('][')}]`;
-};
-
 export const findElement = async (testID: string, otherSelectors?: OtherSelectors, timeout = MEDIUM_TIMEOUT) => {
   const selector = buildSelector(testID, otherSelectors);
 
-  const element = await BrowserContext.page.waitForSelector(selector, { visible: true, timeout });
+  return await findElementBySelectors(selector, timeout);
+};
+
+export const findElementBySelectors = async (selectors: string, timeout = MEDIUM_TIMEOUT) => {
+  const element = await BrowserContext.page.waitForSelector(selectors, { visible: true, timeout });
 
   if (isDefined(element)) {
     return element;
   }
 
-  throw new Error(`"${testID}" not found`);
+  throw new Error(`${selectors} not found`);
 };
 
 export const findElements = async (testID: string) => {
@@ -41,10 +38,13 @@ export const findElements = async (testID: string) => {
 };
 
 class PageElement {
-  constructor(public testID: string, public otherSelectors?: OtherSelectors) {}
+  constructor(public testID: string, public otherSelectors?: OtherSelectors, public notSelectors?: OtherSelectors) {}
 
   findElement(timeout?: number) {
-    return findElement(this.testID, this.otherSelectors, timeout);
+    let selectors = buildSelector(this.testID, this.otherSelectors);
+    if (this.notSelectors) selectors += buildNotSelector(this.notSelectors);
+
+    return findElementBySelectors(selectors, timeout);
   }
   waitForDisplayed(timeout?: number) {
     return this.findElement(timeout);
@@ -58,8 +58,10 @@ class PageElement {
     await element.type(text);
   }
   async clearInput() {
+    await BrowserContext.page.keyboard.press('End');
     await BrowserContext.page.keyboard.down('Shift');
     await BrowserContext.page.keyboard.press('Home');
+    await BrowserContext.page.keyboard.up('Shift');
     await BrowserContext.page.keyboard.press('Backspace');
   }
   async getText() {
@@ -87,8 +89,8 @@ class PageElement {
   }
 }
 
-export const createPageElement = (testID: string, otherSelectors?: OtherSelectors) =>
-  new PageElement(testID, otherSelectors);
+export const createPageElement = (testID: string, otherSelectors?: OtherSelectors, notSelectors?: OtherSelectors) =>
+  new PageElement(testID, otherSelectors, notSelectors);
 
 export const getElementText = (element: ElementHandle) =>
   element.evaluate(innerElement => {
@@ -102,3 +104,19 @@ export const getElementText = (element: ElementHandle) =>
 
     throw new Error('Element text not found');
   });
+
+const buildSelectorPairs = (selectors: OtherSelectors) => {
+  return Object.entries(selectors).map(([key, val]) =>
+    val ? (`data-${key}="${val}"` as const) : (`data-${key}` as const)
+  );
+};
+
+const buildSelector = (testID: string, otherSelectors?: OtherSelectors) => {
+  const pairs = buildSelectorPairs({ ...otherSelectors, testid: testID });
+  return `[${pairs.join('][')}]`;
+};
+
+const buildNotSelector = (notSelectors: OtherSelectors) => {
+  const pairs = buildSelectorPairs(notSelectors);
+  return `:not([${pairs.join(']):not([')}])`;
+};
