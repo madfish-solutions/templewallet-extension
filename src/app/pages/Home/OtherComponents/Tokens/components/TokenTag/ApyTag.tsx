@@ -1,5 +1,6 @@
 import React, { FC, useState, useMemo } from 'react';
 
+import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
 
 import { Button } from 'app/atoms/Button';
@@ -31,6 +32,8 @@ export const TokenApyTag: FC<Props> = ({ slug, symbol, apyInfo }) => {
 
   if (!isTruthy(rate) || !isTruthy(link)) return null;
 
+  const displayRate = Number(new BigNumber(rate).decimalPlaces(2));
+
   return (
     <Button
       onClick={e => {
@@ -45,7 +48,7 @@ export const TokenApyTag: FC<Props> = ({ slug, symbol, apyInfo }) => {
       className={classNames('ml-2 px-2 py-1', modStyles['apyTag'])}
       style={{ backgroundColor: hovered ? colors.bgHover : colors.bg }}
     >
-      {label}: {rate}%
+      {label}: {displayRate}%
     </Button>
   );
 };

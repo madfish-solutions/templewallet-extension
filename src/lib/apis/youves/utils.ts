@@ -1,5 +1,4 @@
-import { contracts } from 'youves-sdk/src/networks';
-import { AssetDefinition } from 'youves-sdk/src/networks.base';
+import { contracts, AssetDefinition } from 'youves-sdk';
 
 import { YouvesTokensEnum } from './enums';
 

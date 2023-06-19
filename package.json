@@ -124,6 +124,7 @@
     "fontfaceobserver": "2.1.0",
     "fuse.js": "6.4.6",
     "graphql": "^16.6.0",
+    "graphql-request": "^6.1.0",
     "html-webpack-plugin": "^5.5.0",
     "inter-ui": "3.13.1",
     "jest": "27.4.5",
@@ -188,8 +189,8 @@
     "webpack-ext-reloader-mv3": "^2.1.1",
     "webpack-target-webextension": "^1.0.4",
     "webpackbar": "^5",
-    "zip-a-folder": "^1.1.5",
-    "youves-sdk": "https://github.com/youves-com/youves-sdk"
+    "youves-sdk": "^0.0.6",
+    "zip-a-folder": "^1.1.5"
   },
   "resolutions": {
     "@taquito/**/braces": "2.3.1",
@@ -219,6 +220,7 @@
     "@taquito/beacon-wallet": "15.0.1",
     "@taquito/contracts-library": "15.0.1",
     "@taquito/tzip16": "15.0.1",
-    "bignumber.js": "9.1.0"
+    "bignumber.js": "9.1.0",
+    "graphql-request": "^6.1.0"
   }
 }

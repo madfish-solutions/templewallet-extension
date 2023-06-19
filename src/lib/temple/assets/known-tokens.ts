@@ -33,7 +33,7 @@ export const TOKENS_BRAND_COLORS: Record<string, { bg: string; bgHover?: string 
   [KNOWN_TOKENS_SLUGS.KUSD]: { bg: '#3EBD93', bgHover: '#65CAA9' },
   [KNOWN_TOKENS_SLUGS.tzBTC]: { bg: '#1373E4', bgHover: '#428FE9' },
   [KNOWN_TOKENS_SLUGS.USDT]: { bg: '#009393', bgHover: '#52AF95' },
-  [KNOWN_TOKENS_SLUGS.uUSD]: { bg: '#00939', bgHover: '#52AF95' },
-  [KNOWN_TOKENS_SLUGS.uBTC]: { bg: '#00939', bgHover: '#52AF95' },
-  [KNOWN_TOKENS_SLUGS.YOU]: { bg: '#00939', bgHover: '#52AF95' }
+  [KNOWN_TOKENS_SLUGS.uUSD]: { bg: '#143A3A', bgHover: '#4F6B6B' },
+  [KNOWN_TOKENS_SLUGS.uBTC]: { bg: '#143A3A', bgHover: '#4F6B6B' },
+  [KNOWN_TOKENS_SLUGS.YOU]: { bg: '#143A3A', bgHover: '#4F6B6B' }
 };
