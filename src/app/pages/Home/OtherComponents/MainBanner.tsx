@@ -6,18 +6,18 @@ import { useDispatch } from 'react-redux';
 
 import { Button } from 'app/atoms';
 import Money from 'app/atoms/Money';
-import { toggleBalanceMode } from 'app/store/balance-mode/actions';
-import { useBalanceModeSelector } from 'app/store/balance-mode/selectors';
-import { BalanceMode } from 'app/store/balance-mode/state';
+import { toggleBalanceModeAction } from 'app/store/settings/actions';
+import { useBalanceModeSelector } from 'app/store/settings/selectors';
+import { BalanceMode } from 'app/store/settings/state';
 import { AssetIcon } from 'app/templates/AssetIcon';
 import Balance from 'app/templates/Balance';
 import InFiat from 'app/templates/InFiat';
 import { useFiatCurrency } from 'lib/fiat-currency';
 import { t, T } from 'lib/i18n';
 import { TezosLogoIcon } from 'lib/icons';
-import { TEZ_TOKEN_SLUG, useAssetMetadata, useBalance, useGasToken, useNetwork } from 'lib/temple/front';
+import { getAssetName, getAssetSymbol, useAssetMetadata } from 'lib/metadata';
+import { useGasToken, useNetwork } from 'lib/temple/front';
 import { useTotalBalance } from 'lib/temple/front/use-total-balance.hook';
-import { getAssetName, getAssetSymbol } from 'lib/temple/metadata';
 import useTippy from 'lib/ui/useTippy';
 
 import { HomeSelectors } from '../Home.selectors';
@@ -44,21 +44,24 @@ interface TotalVolumeBannerProps {
 
 const TotalVolumeBanner: FC<TotalVolumeBannerProps> = ({ accountPkh }) => (
   <div className="flex items-start justify-between w-full max-w-sm mx-auto mb-4">
-    <BalanceInfo accountPkh={accountPkh} />
+    <BalanceInfo />
     <AddressChip pkh={accountPkh} testID={HomeSelectors.publicAddressButton} />
   </div>
 );
 
-const BalanceInfo: FC<TotalVolumeBannerProps> = ({ accountPkh }) => {
+const BalanceInfo: FC = () => {
   const dispatch = useDispatch();
   const network = useNetwork();
-  const volumeInFiat = useTotalBalance();
+  const { totalBalanceInFiat, totalBalanceInGasToken } = useTotalBalance();
   const balanceMode = useBalanceModeSelector();
 
   const {
     selectedFiatCurrency: { name: fiatName, symbol: fiatSymbol }
   } = useFiatCurrency();
-  const { name: gasTokenName, symbol: gasTokenSymbol } = useGasToken().metadata;
+
+  const {
+    metadata: { name: gasTokenName, symbol: gasTokenSymbol }
+  } = useGasToken();
 
   const tippyProps = useMemo(
     () => ({
@@ -72,11 +75,9 @@ const BalanceInfo: FC<TotalVolumeBannerProps> = ({ accountPkh }) => {
 
   const buttonRef = useTippy<HTMLButtonElement>(tippyProps);
 
-  const { data: balance } = useBalance(TEZ_TOKEN_SLUG, accountPkh);
-  const volumeInGas = balance || new BigNumber(0);
+  const nextBalanceMode = balanceMode === BalanceMode.Fiat ? BalanceMode.Gas : BalanceMode.Fiat;
 
-  const handleTvlModeToggle = () =>
-    dispatch(toggleBalanceMode(balanceMode === BalanceMode.Fiat ? BalanceMode.Gas : BalanceMode.Fiat));
+  const handleTvlModeToggle = () => dispatch(toggleBalanceModeAction(nextBalanceMode));
 
   const isMainNetwork = network.type === 'main';
   const isFiatMode = balanceMode === BalanceMode.Fiat;
@@ -101,6 +102,7 @@ const BalanceInfo: FC<TotalVolumeBannerProps> = ({ accountPkh }) => {
             )}
             onClick={handleTvlModeToggle}
             testID={HomeSelectors.fiatTezSwitchButton}
+            testIDProperties={{ toValue: nextBalanceMode }}
           >
             {isFiatMode ? fiatSymbol : <TezosLogoIcon />}
           </Button>
@@ -119,9 +121,9 @@ const BalanceInfo: FC<TotalVolumeBannerProps> = ({ accountPkh }) => {
 
       <div className="flex items-center text-2xl">
         {shouldShowFiatBanner ? (
-          <BalanceFiat volume={volumeInFiat} currency={fiatSymbol} />
+          <BalanceFiat volume={totalBalanceInFiat} currency={fiatSymbol} />
         ) : (
-          <BalanceGas volume={volumeInGas} currency={gasTokenSymbol} />
+          <BalanceGas volume={totalBalanceInGasToken} currency={gasTokenSymbol} />
         )}
       </div>
     </div>
@@ -162,9 +164,7 @@ const AssetBanner: FC<AssetBannerProps> = ({ assetSlug, accountPkh }) => {
       <div className="flex justify-between items-center mb-3">
         <div className="flex items-center">
           <AssetIcon assetSlug={assetSlug} size={24} className="flex-shrink-0" />
-          <div className={classNames('text-sm font-normal text-gray-700 truncate flex-1 ml-2')}>
-            {getAssetName(assetMetadata)}
-          </div>
+          <div className="text-sm font-normal text-gray-700 truncate flex-1 ml-2">{getAssetName(assetMetadata)}</div>
         </div>
         <AddressChip pkh={accountPkh} />
       </div>

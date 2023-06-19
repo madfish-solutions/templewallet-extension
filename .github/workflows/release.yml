@@ -36,6 +36,7 @@ jobs:
       - name: Secrets setup
         uses: ./.github/workflows/secrets-setup
         with:
+          GITHUB_ACTION_RUN_ENV: production
           TEMPLE_WALLET_JITSU_TRACKING_HOST: ${{ vars.TEMPLE_WALLET_JITSU_TRACKING_HOST }}
           TEMPLE_WALLET_JITSU_WRITE_KEY: ${{ vars.TEMPLE_WALLET_JITSU_WRITE_KEY }}
           TEMPLE_WALLET_EXOLIX_API_KEY: ${{ secrets.TEMPLE_WALLET_EXOLIX_API_KEY }}
@@ -43,8 +44,9 @@ jobs:
           TEMPLE_WALLET_EVERSTAKE_LINK_ID: ${{ secrets.TEMPLE_WALLET_EVERSTAKE_LINK_ID }}
           TEMPLE_WALLET_UTORG_SID: ${{ secrets.TEMPLE_WALLET_UTORG_SID }}
           TEMPLE_WALLET_API_URL: ${{ vars.TEMPLE_WALLET_API_URL }}
-          TEMPLE_WALLET_METADATA_API_URL: ${{ vars.TEMPLE_WALLET_METADATA_API_URL }}
           TEMPLE_WALLET_DEXES_API_URL: ${{ vars.TEMPLE_WALLET_DEXES_API_URL }}
+          TEMPLE_WALLET_ROUTE3_AUTH_TOKEN: ${{ vars.TEMPLE_WALLET_ROUTE3_AUTH_TOKEN }}
+          TEMPLE_WALLET_MOONPAY_API_KEY: ${{ secrets.TEMPLE_WALLET_MOONPAY_API_KEY }}
 
       - name: Install dependencies and code quality
         uses: ./.github/workflows/code-quality-check

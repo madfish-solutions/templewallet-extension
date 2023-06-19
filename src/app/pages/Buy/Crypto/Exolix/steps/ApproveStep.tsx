@@ -1,6 +1,5 @@
 import React, { FC, useEffect } from 'react';
 
-import classNames from 'clsx';
 import Countdown from 'react-countdown';
 import { QRCode } from 'react-qr-svg';
 
@@ -17,7 +16,7 @@ import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 
 import { ExchangeDataInterface, ExchangeDataStatusEnum } from '../exolix.interface';
 import { ExolixSelectors } from '../Exolix.selectors';
-import { getExchangeData } from '../exolix.util';
+import { getCoinCodeToDisplay, getExchangeData } from '../exolix.util';
 import WarningComponent from './WarningComponent';
 
 interface Props {
@@ -66,6 +65,7 @@ const ApproveStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
           <T id={'depositDescription'} />
         </p>
       </div>
+
       {isError || !exchangeData ? (
         <ErrorComponent
           exchangeData={exchangeData}
@@ -87,32 +87,39 @@ const ApproveStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
               setExchangeData(data);
             }}
           />
+
           <WarningComponent amountAttention />
+
           <Divider style={{ marginBottom: '1.5rem', marginTop: '2rem' }} />
+
           <div className="flex justify-between items-baseline">
             <p className="text-gray-600 text-xs">
               <T id={'sendByOneTransaction'} />
             </p>
             <p className="text-2xl text-gray-910">
-              {exchangeData.amount} {exchangeData.coinFrom.coinCode}
+              {exchangeData.amount} {getCoinCodeToDisplay(exchangeData.coinFrom)}
             </p>
           </div>
+
           <div className="flex justify-between items-baseline">
             <p className="text-gray-600 text-xs">
               <T id={'youGet'} />
             </p>
             <p className="text-xs text-gray-910">
-              {exchangeData.amountTo} {exchangeData.coinTo.coinCode}
+              {exchangeData.amountTo} {getCoinCodeToDisplay(exchangeData.coinTo)}
             </p>
           </div>
+
           <div className="flex justify-between items-baseline">
             <p className="text-gray-600 text-xs">
               <T id={'fixedRate'} />
             </p>
             <p className="text-xs text-gray-910">
-              1 {exchangeData.coinFrom.coinCode} = {exchangeData.rate} {exchangeData.coinTo.coinCode}
+              1 {getCoinCodeToDisplay(exchangeData.coinFrom)} = {exchangeData.rate}{' '}
+              {getCoinCodeToDisplay(exchangeData.coinTo)}
             </p>
           </div>
+
           <div className="flex justify-between items-baseline">
             <p className="text-gray-600 text-xs">
               <T id={'transactionId'} />
@@ -122,16 +129,19 @@ const ApproveStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
               <CopyButton text={exchangeData.id} type="link" testID={ExolixSelectors.topupSecondStepCopyButton}>
                 <CopyIcon
                   style={{ verticalAlign: 'inherit' }}
-                  className={classNames('h-4 ml-1 w-auto inline', 'stroke-orange stroke-2')}
+                  className="h-4 ml-1 w-auto inline stroke-orange stroke-2"
                   onClick={() => copy()}
                 />
               </CopyButton>
             </span>
           </div>
+
           <p className="text-gray-600 text-xs text-center mt-6">
             <T id={'depositAddressText'} substitutions={[exchangeData.coinFrom.networkName]} />
           </p>
+
           <QRCode value={exchangeData.depositAddress} style={{ width: '160px', margin: '24px auto' }} />
+
           <FormField
             rows={2}
             size={36}
@@ -168,6 +178,7 @@ const ApproveStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
           )}
 
           <Divider style={{ marginTop: '2.5rem' }} />
+
           <div className="flex justify-between items-baseline mt-4 mb-12">
             <p className="text-gray-600 text-xs">
               <T id={'recipientAddress'} />
@@ -176,6 +187,7 @@ const ApproveStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
               <HashShortView hash={exchangeData.depositAddress} />
             </p>
           </div>
+
           <div>
             <p
               onClick={() => {

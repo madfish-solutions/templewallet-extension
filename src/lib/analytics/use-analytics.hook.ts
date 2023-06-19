@@ -1,42 +1,39 @@
 import { useCallback } from 'react';
 
-import { ABTestGroup } from 'lib/apis/temple';
+import { useAnalyticsEnabledSelector, useUserIdSelector } from 'app/store/settings/selectors';
 import { AnalyticsEventCategory } from 'lib/temple/analytics-types';
-import { useAB } from 'lib/temple/front';
 
+import { useUserTestingGroupNameSelector } from '../../app/store/ab-testing/selectors';
+import { sendPageEvent, sendTrackEvent } from './send-events.utils';
 import { useAnalyticsNetwork } from './use-analytics-network.hook';
-import { sendPageEvent, sendTrackEvent, useAnalyticsState } from './use-analytics-state.hook';
 
 export const useAnalytics = () => {
-  const abGroup = useAB();
-  const { analyticsState } = useAnalyticsState();
+  const analyticsEnabled = useAnalyticsEnabledSelector();
+  const userId = useUserIdSelector();
   const rpc = useAnalyticsNetwork();
+  const testGroupName = useUserTestingGroupNameSelector();
 
   const trackEvent = useCallback(
     (
       event: string,
       category: AnalyticsEventCategory = AnalyticsEventCategory.General,
       properties?: object,
-      isAnalyticsEnabled = analyticsState.enabled
-    ) => isAnalyticsEnabled && sendTrackEvent(analyticsState.userId, rpc, event, category, properties),
-    [analyticsState.enabled, analyticsState.userId, rpc]
-  );
-
-  const trackABEvent = useCallback(
-    (event: string, category: AnalyticsEventCategory, properties?: object, isAnalyticsEnabled?: boolean) =>
-      abGroup !== ABTestGroup.Unknown && trackEvent(event, category, properties, isAnalyticsEnabled),
-    [abGroup, trackEvent]
+      isAnalyticsEnabled = analyticsEnabled
+    ) =>
+      isAnalyticsEnabled &&
+      sendTrackEvent(userId, rpc, event, category, { ...properties, abTestingCategory: testGroupName }),
+    [analyticsEnabled, userId, rpc, testGroupName]
   );
 
   const pageEvent = useCallback(
     (path: string, search: string, additionalProperties = {}) =>
-      analyticsState.enabled && sendPageEvent(analyticsState.userId, rpc, path, search, additionalProperties),
-    [analyticsState.enabled, analyticsState.userId, rpc]
+      analyticsEnabled &&
+      sendPageEvent(userId, rpc, path, search, { ...additionalProperties, abTestingCategory: testGroupName }),
+    [analyticsEnabled, userId, rpc, testGroupName]
   );
 
   return {
     trackEvent,
-    trackABEvent,
     pageEvent
   };
 };

@@ -1,7 +1,9 @@
-import React, { FC, useCallback, useMemo } from 'react';
+import React, { FC, useCallback, useEffect, useMemo } from 'react';
 
 import { localForger } from '@taquito/local-forging';
+import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
+import { useDispatch } from 'react-redux';
 
 import { Alert, FormSubmitButton, FormSecondaryButton } from 'app/atoms';
 import ConfirmLedgerOverlay from 'app/atoms/ConfirmLedgerOverlay';
@@ -11,6 +13,7 @@ import { useAppEnv } from 'app/env';
 import { ReactComponent as CodeAltIcon } from 'app/icons/code-alt.svg';
 import { ReactComponent as EyeIcon } from 'app/icons/eye.svg';
 import { ReactComponent as HashIcon } from 'app/icons/hash.svg';
+import { setOnRampPossibilityAction } from 'app/store/settings/actions';
 import AccountBanner from 'app/templates/AccountBanner';
 import ExpensesView, { ModifyFeeAndLimit } from 'app/templates/ExpensesView/ExpensesView';
 import NetworkBanner from 'app/templates/NetworkBanner';
@@ -18,12 +21,14 @@ import OperationsBanner from 'app/templates/OperationsBanner';
 import RawPayloadView from 'app/templates/RawPayloadView';
 import ViewsSwitcher from 'app/templates/ViewsSwitcher/ViewsSwitcher';
 import { ViewsSwitcherItemProps } from 'app/templates/ViewsSwitcher/ViewsSwitcherItem';
+import { toTokenSlug } from 'lib/assets';
 import { T, t } from 'lib/i18n';
 import { useRetryableSWR } from 'lib/swr';
-import { toTokenSlug } from 'lib/temple/assets';
-import { useCustomChainId, useNetwork, useRelevantAccounts, tryParseExpenses } from 'lib/temple/front';
+import { useCustomChainId, useNetwork, useRelevantAccounts, tryParseExpenses, useBalance } from 'lib/temple/front';
+import { tzToMutez } from 'lib/temple/helpers';
 import { TempleAccountType, TempleChainId, TempleConfirmationPayload } from 'lib/temple/types';
 import { useSafeState } from 'lib/ui/hooks';
+import { isTruthy } from 'lib/utils';
 
 import { InternalConfirmationSelectors } from './InternalConfirmation.selectors';
 
@@ -38,6 +43,7 @@ const MIN_GAS_FEE = 0;
 const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfirm, error: payloadError }) => {
   const { rpcBaseURL: currentNetworkRpc } = useNetwork();
   const { popup } = useAppEnv();
+  const dispatch = useDispatch();
 
   const getContentToParse = useCallback(async () => {
     switch (payload.type) {
@@ -81,6 +87,26 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
     }));
   }, [rawExpensesData]);
 
+  const { data: tezBalanceData } = useBalance('tez', account.publicKeyHash);
+  const tezBalance = tezBalanceData!;
+
+  const totalTransactionCost = useMemo(() => {
+    if (payload.type === 'operations') {
+      return payload.opParams.reduce(
+        (accumulator, currentOpParam) => accumulator.plus(currentOpParam.amount),
+        new BigNumber(0)
+      );
+    }
+
+    return new BigNumber(0);
+  }, [payload]);
+
+  useEffect(() => {
+    if (tzToMutez(tezBalance).isLessThanOrEqualTo(totalTransactionCost)) {
+      dispatch(setOnRampPossibilityAction(true));
+    }
+  }, [tezBalance, totalTransactionCost]);
+
   const signPayloadFormats: ViewsSwitcherItemProps[] = useMemo(() => {
     if (payload.type === 'operations') {
       return [
@@ -96,17 +122,13 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
           Icon: CodeAltIcon,
           testID: InternalConfirmationSelectors.rawTab
         },
-        ...(payload.bytesToSign
-          ? [
-              {
-                key: 'bytes',
-                name: t('bytes'),
-                Icon: HashIcon,
-                testID: InternalConfirmationSelectors.bytesTab
-              }
-            ]
-          : [])
-      ];
+        payload.bytesToSign && {
+          key: 'bytes',
+          name: t('bytes'),
+          Icon: HashIcon,
+          testID: InternalConfirmationSelectors.bytesTab
+        }
+      ].filter(isTruthy);
     }
 
     return [
@@ -208,7 +230,7 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
   );
 
   return (
-    <div className={classNames('h-full w-full', 'max-w-sm mx-auto', 'flex flex-col', !popup && 'justify-center px-2')}>
+    <div className={classNames('h-full w-full max-w-sm mx-auto flex flex-col', !popup && 'justify-center px-2')}>
       <div className={classNames('flex flex-col items-center justify-center', popup && 'flex-1')}>
         <div className="flex items-center my-4">
           <Logo hasTitle />
@@ -217,10 +239,8 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
 
       <div
         className={classNames(
-          'relative bg-white shadow-md',
-          popup ? 'border-t border-gray-200' : 'rounded-md',
-          'overflow-y-auto',
-          'flex flex-col'
+          'flex flex-col relative bg-white shadow-md overflow-y-auto',
+          popup ? 'border-t border-gray-200' : 'rounded-md'
         )}
         style={{ height: '34rem' }}
       >
@@ -247,7 +267,7 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
 
               {signPayloadFormats.length > 1 && (
                 <div className="w-full flex justify-end mb-3 items-center">
-                  <span className={classNames('mr-2', 'text-base font-semibold text-gray-700')}>
+                  <span className="mr-2 text-base font-semibold text-gray-700">
                     <T id="operations" />
                   </span>
 
@@ -299,43 +319,31 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
 
         <div className="flex-1" />
 
-        <div
-          className={classNames('sticky bottom-0 w-full', 'bg-white shadow-md', 'flex items-stretch', 'px-4 pt-2 pb-4')}
-        >
+        <div className="sticky bottom-0 w-full bg-white shadow-md flex items-stretch px-4 pt-2 pb-4">
           <div className="w-1/2 pr-2">
-            <T id="decline">
-              {message => (
-                <FormSecondaryButton
-                  type="button"
-                  className="justify-center w-full"
-                  loading={declining}
-                  disabled={declining}
-                  onClick={handleDeclineClick}
-                  testID={InternalConfirmationSelectors.declineButton}
-                >
-                  {message}
-                </FormSecondaryButton>
-              )}
-            </T>
+            <FormSecondaryButton
+              type="button"
+              className="justify-center w-full"
+              loading={declining}
+              disabled={declining}
+              onClick={handleDeclineClick}
+              testID={InternalConfirmationSelectors.declineButton}
+            >
+              <T id="decline" />
+            </FormSecondaryButton>
           </div>
 
           <div className="w-1/2 pl-2">
-            <T id={error ? 'retry' : 'confirm'}>
-              {message => (
-                <FormSubmitButton
-                  type="button"
-                  className="justify-center w-full"
-                  disabled={gasFeeError}
-                  loading={confirming}
-                  onClick={handleConfirmClick}
-                  testID={
-                    error ? InternalConfirmationSelectors.retryButton : InternalConfirmationSelectors.confirmButton
-                  }
-                >
-                  {message}
-                </FormSubmitButton>
-              )}
-            </T>
+            <FormSubmitButton
+              type="button"
+              className="justify-center w-full"
+              disabled={gasFeeError}
+              loading={confirming}
+              onClick={handleConfirmClick}
+              testID={error ? InternalConfirmationSelectors.retryButton : InternalConfirmationSelectors.confirmButton}
+            >
+              <T id={error ? 'retry' : 'confirm'} />
+            </FormSubmitButton>
           </div>
         </div>
 

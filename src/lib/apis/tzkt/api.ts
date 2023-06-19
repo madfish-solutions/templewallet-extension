@@ -17,6 +17,7 @@ const TZKT_API_BASE_URLS = {
   [TempleChainId.Mainnet]: 'https://api.tzkt.io/v1',
   [TempleChainId.Jakartanet]: 'https://api.jakartanet.tzkt.io/v1',
   [TempleChainId.Limanet]: 'https://api.limanet.tzkt.io/v1',
+  [TempleChainId.Mumbainet]: 'https://api.mumbainet.tzkt.io/v1',
   [TempleChainId.Ghostnet]: 'https://api.ghostnet.tzkt.io/v1',
   [TempleChainId.Dcp]: 'https://explorer-api.tlnt.net/v1',
   [TempleChainId.DcpTest]: 'https://explorer.tlnt.net:8009/v1'
@@ -150,32 +151,30 @@ export async function refetchOnce429<R>(fetcher: () => Promise<R>, delayAroundIn
 
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-export const fecthTezosBalanceFromTzkt = (
-  apiUrl: string,
-  account: string
-): Promise<{ frozenDeposit?: string; balance: string }> =>
-  axios
-    .get(`${apiUrl}/v1/accounts/${account}`)
-    .then(({ data: { frozenDeposit, balance } }) => ({ frozenDeposit, balance }));
+interface GetAccountResponse {
+  frozenDeposit?: string;
+  balance: string;
+}
+
+export const fecthTezosBalanceFromTzkt = async (account: string, chainId: string): Promise<GetAccountResponse> =>
+  isKnownChainId(chainId)
+    ? await fetchGet<GetAccountResponse>(chainId, `/accounts/${account}`).then(({ frozenDeposit, balance }) => ({
+        frozenDeposit,
+        balance
+      }))
+    : { balance: '0' };
 
 const LIMIT = 10000;
 
-const fecthTokensBalancesFromTzktOnce = (
-  apiUrl: string,
-  account: string,
-  limit: number,
-  offset = 0
-): Promise<Array<TzktAccountToken>> =>
-  axios
-    .get<Array<TzktAccountToken>>(`${apiUrl}/v1/tokens/balances`, {
-      params: {
+const fecthTokensBalancesFromTzktOnce = async (account: string, chainId: string, limit: number, offset = 0) =>
+  isKnownChainId(chainId)
+    ? await fetchGet<TzktAccountToken[]>(chainId, '/tokens/balances', {
         account,
         'balance.gt': 0,
         limit,
         offset
-      }
-    })
-    .then(({ data }) => data);
+      })
+    : [];
 
 export const fetchAllTokensBalancesFromTzkt = async (selectedRpcUrl: string, account: string) => {
   const balances: TzktAccountToken[] = [];

@@ -17,6 +17,7 @@ import { useAccount, useTezos, useTezosDomainsClient } from 'lib/temple/front';
 import { useSafeState } from 'lib/ui/hooks';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 
+import { PageTitle } from '../../atoms/PageTitle';
 import { ReceiveSelectors } from './Receive.selectors';
 
 const ADDRESS_FIELD_VIEWS = [
@@ -59,16 +60,9 @@ const Receive: FC = () => {
   }, [isSupported, setActiveView]);
 
   return (
-    <PageLayout
-      pageTitle={
-        <>
-          <QRIcon className="w-auto h-4 mr-1 stroke-current" />
-          <T id="receive" />
-        </>
-      }
-    >
+    <PageLayout pageTitle={<PageTitle icon={<QRIcon className="w-auto h-4 stroke-current" />} title={t('receive')} />}>
       <div className="py-4">
-        <div className={classNames('w-full max-w-sm mx-auto')}>
+        <div className="w-full max-w-sm mx-auto">
           <FormField
             extraSection={reverseName && <AddressFieldExtraSection activeView={activeView} onSwitch={setActiveView} />}
             textarea
@@ -90,17 +84,11 @@ const Receive: FC = () => {
           <button
             type="button"
             className={classNames(
-              'mx-auto mb-6',
-              'py-1 px-2 w-40',
-              'bg-primary-orange rounded',
-              'border border-primary-orange',
-              'flex items-center justify-center',
-              'text-primary-orange-lighter text-shadow-black-orange',
-              'text-sm font-semibold',
-              'transition duration-300 ease-in-out',
-              'opacity-90 hover:opacity-100 focus:opacity-100',
-              'shadow-sm',
-              'hover:shadow focus:shadow'
+              'flex items-center justify-center mx-auto mb-6 py-1 px-2 w-40',
+              'border rounded border-primary-orange bg-primary-orange shadow-sm',
+              'text-sm font-semibold text-primary-orange-lighter text-shadow-black-orange',
+              'opacity-90 hover:opacity-100 focus:opacity-100 hover:shadow focus:shadow',
+              'transition duration-300 ease-in-out'
             )}
             onClick={copy}
             {...setTestID(ReceiveSelectors.copyToClipboardButton)}
@@ -109,7 +97,7 @@ const Receive: FC = () => {
               <T id="copiedAddress" />
             ) : (
               <>
-                <CopyIcon className={classNames('mr-1', 'h-4 w-auto', 'stroke-current stroke-2')} />
+                <CopyIcon className="mr-1 h-4 w-auto stroke-current stroke-2" />
                 <T id="copyAddressToClipboard" />
               </>
             )}
@@ -117,7 +105,9 @@ const Receive: FC = () => {
 
           <div className="flex flex-col items-center">
             <div className="mb-2 leading-tight text-center">
-              <T id="qrCode">{message => <span className="text-sm font-semibold text-gray-700">{message}</span>}</T>
+              <span className="text-sm font-semibold text-gray-700">
+                <T id="qrCode" />
+              </span>
             </div>
 
             <div className="p-1 bg-gray-100 border-2 border-gray-300 rounded" style={{ maxWidth: '60%' }}>

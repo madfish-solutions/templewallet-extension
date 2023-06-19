@@ -3,7 +3,7 @@ import BigNumber from 'bignumber.js';
 import { map, Observable, withLatestFrom } from 'rxjs';
 
 import { fetchApyFromYupana$ } from 'lib/apis/yupana';
-import { KNOWN_TOKENS_SLUGS } from 'lib/temple/assets';
+import { KNOWN_TOKENS_SLUGS } from 'lib/assets/known-tokens';
 
 import { getYOUTokenApr$, getYouvesTokenApr$ } from '../../../lib/apis/youves';
 import { YouvesTokensEnum } from '../../../lib/apis/youves/enums';
@@ -22,18 +22,18 @@ export const fetchUSDTApy$ = () => {
 };
 
 export const fetchTzBtcApy$ = () => {
-  const slug = KNOWN_TOKENS_SLUGS.tzBTC;
+  const slug = KNOWN_TOKENS_SLUGS.TZBTC;
   return fetchApyFromYupana$('TZBTC').pipe(map(val => ({ [slug]: val })));
 };
 
 export const fetchUBTCApr$ = (tezos: TezosToolkit) => {
-  const slug = KNOWN_TOKENS_SLUGS.uBTC;
+  const slug = KNOWN_TOKENS_SLUGS.UBTC;
 
   return getYouvesTokenApr$(tezos, youvesTokensRecord[YouvesTokensEnum.UBTC]).pipe(map(value => ({ [slug]: value })));
 };
 
 export const fetchUUSDCApr$ = (tezos: TezosToolkit) => {
-  const slug = KNOWN_TOKENS_SLUGS.uUSD;
+  const slug = KNOWN_TOKENS_SLUGS.UUSD;
 
   return getYouvesTokenApr$(tezos, youvesTokensRecord[YouvesTokensEnum.UUSD]).pipe(map(value => ({ [slug]: value })));
 };

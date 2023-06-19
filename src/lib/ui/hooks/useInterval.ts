@@ -1,8 +1,15 @@
 import { DependencyList, useEffect } from 'react';
 
-export const useInterval = (callback: EmptyFn, refreshInterval: number, deps: DependencyList) =>
+export const useInterval = (
+  callback: EmptyFn,
+  refreshInterval: number,
+  deps: DependencyList,
+  shouldCallImmediately = true
+) =>
   useEffect(() => {
-    callback();
+    if (shouldCallImmediately) {
+      callback();
+    }
 
     const interval = setInterval(callback, refreshInterval);
 

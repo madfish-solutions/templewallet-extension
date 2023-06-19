@@ -13,7 +13,7 @@ import { T } from 'lib/i18n';
 import { NotificationsBell } from 'lib/notifications';
 import { goBack, HistoryAction, navigate, useLocation } from 'lib/woozie';
 
-import { DonationBanner } from '../atoms/DonationBanner';
+import { DonationBanner } from '../atoms/DonationBanner/DonationBanner';
 import { useOnboardingProgress } from '../pages/Onboarding/hooks/useOnboardingProgress.hook';
 import { AdvertisingBanner } from '../templates/advertising/advertising-banner/advertising-banner';
 import { AdvertisingOverlay } from '../templates/advertising/advertising-overlay/advertising-overlay';
@@ -21,6 +21,7 @@ import { PageLayoutSelectors } from './PageLayout.selectors';
 import { ChangelogOverlay } from './PageLayout/ChangelogOverlay/ChangelogOverlay';
 import ConfirmationOverlay from './PageLayout/ConfirmationOverlay';
 import Header from './PageLayout/Header';
+import { OnRampOverlay } from './PageLayout/OnRampOverlay/OnRampOverlay';
 
 interface PageLayoutProps extends PropsWithChildren, ToolbarProps {
   contentContainerStyle?: React.CSSProperties;
@@ -50,6 +51,7 @@ const PageLayout: FC<PageLayoutProps> = ({ children, contentContainerStyle, ...t
       <AdvertisingOverlay />
       <ConfirmationOverlay />
       <ChangelogOverlay />
+      <OnRampOverlay />
     </>
   );
 };
@@ -64,7 +66,7 @@ const ContentPaper: FC<ContentPaparProps> = ({ className, style = {}, children, 
   return appEnv.fullPage ? (
     <ContentContainer>
       <div
-        className={classNames('bg-white', 'rounded-md shadow-lg', className)}
+        className={classNames('bg-white rounded-md shadow-lg', className)}
         style={{ minHeight: '20rem', ...style }}
         {...rest}
       >
@@ -159,14 +161,10 @@ const Toolbar: FC<ToolbarProps> = ({
     <div
       ref={rootRef}
       className={classNames(
-        'sticky z-20',
+        'sticky z-20 flex items-center py-2 px-4',
         fullPage && !sticked && 'rounded-t',
         sticked ? 'shadow' : 'shadow-sm',
-        'bg-gray-100',
-        'overflow-hidden',
-        'py-2 px-4',
-        'flex items-center',
-        'transition ease-in-out duration-300'
+        'bg-gray-100 overflow-hidden transition ease-in-out duration-300'
       )}
       style={{
         // The top value needs to be -1px or the element will never intersect
@@ -178,6 +176,7 @@ const Toolbar: FC<ToolbarProps> = ({
     >
       <div className="flex-1">
         {!isBackButtonAvailable && adShow && <DonationBanner />}
+
         {isBackButtonAvailable && (
           <Button
             className={classNames(
@@ -192,40 +191,35 @@ const Toolbar: FC<ToolbarProps> = ({
             onClick={step ? onStepBack : onBack}
             testID={PageLayoutSelectors.backButton}
           >
-            <ChevronLeftIcon className={classNames('-ml-2', 'h-5 w-auto', 'stroke-current', 'stroke-2')} />
+            <ChevronLeftIcon className="-ml-2 h-5 w-auto stroke-current stroke-2" />
             <T id="back" />
           </Button>
         )}
       </div>
 
       {pageTitle && (
-        <h2
-          className={classNames('px-1', 'flex items-center', 'text-gray-700', 'font-normal leading-none')}
-          style={{ fontSize: 17 }}
-        >
+        <h2 className="px-1 flex items-center text-gray-700 font-normal leading-none" style={{ fontSize: 17 }}>
           {pageTitle}
         </h2>
       )}
 
       <div className="flex-1" />
+
       {attention && (
         <div className="flex items-center content-end absolute right-0">
           <AdvertisingBanner />
           <NotificationsBell />
         </div>
       )}
+
       {skip && (
         <div className="flex content-end">
           <Button
             className={classNames(
-              'px-4 py-2',
-              'rounded',
-              'flex items-center',
-              'text-gray-600 text-shadow-black',
-              'text-sm font-semibold leading-none',
-              'hover:bg-black hover:bg-opacity-5',
-              'transition duration-300 ease-in-out',
-              'opacity-90 hover:opacity-100'
+              'flex items-center px-4 py-2 rounded',
+              'text-sm font-semibold leading-none text-gray-600 text-shadow-black',
+              'opacity-90 hover:opacity-100 hover:bg-black hover:bg-opacity-5',
+              'transition duration-300 ease-in-out'
             )}
             onClick={() => setOnboardingCompleted(true)}
           >

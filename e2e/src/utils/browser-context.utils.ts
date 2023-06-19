@@ -1,5 +1,6 @@
 import retry from 'async-retry';
 import { Browser } from 'puppeteer';
+import { PuppeteerScreenRecorder } from 'puppeteer-screen-recorder';
 
 import { BrowserContext } from '../classes/browser-context.class';
 import { getExtensionId } from './browser.utils';
@@ -24,4 +25,5 @@ export const initBrowserContext = async (browser: Browser) => {
   BrowserContext.EXTENSION_ID = extensionId;
   BrowserContext.browser = browser;
   BrowserContext.page = page;
+  BrowserContext.recorder = new PuppeteerScreenRecorder(BrowserContext.page);
 };

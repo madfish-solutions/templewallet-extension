@@ -8,7 +8,12 @@ const EXTENSION_PATH = path.resolve(__dirname, '../../../dist/chrome_unpacked');
 export const initBrowser = () =>
   launch({
     headless: false,
-    args: [`--disable-extensions-except=${EXTENSION_PATH}`, `--load-extension=${EXTENSION_PATH}`]
+    args: [
+      `--disable-extensions-except=${EXTENSION_PATH}`,
+      `--load-extension=${EXTENSION_PATH}`,
+      '--user-agent=E2EPipeline/0.0.1'
+    ],
+    slowMo: 10
   });
 
 export const getExtensionId = async (browser: Browser) => {

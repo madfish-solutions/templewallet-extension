@@ -5,7 +5,7 @@ import classNames from 'clsx';
 
 import { Button } from 'app/atoms/Button';
 import type { TokenApyInfo } from 'app/hooks/use-token-apy.hook';
-import { KNOWN_TOKENS_SLUGS, TOKENS_BRAND_COLORS } from 'lib/temple/assets';
+import { KNOWN_TOKENS_SLUGS, TOKENS_BRAND_COLORS } from 'lib/assets/known-tokens';
 import { isTruthy, openLink } from 'lib/utils';
 
 import { AssetsSelectors } from '../../../Assets.selectors';
@@ -19,14 +19,14 @@ interface Props {
 
 const APR = 'APR';
 const APY = 'APY';
-const YOUVES_TOKENS_WITH_APR = [KNOWN_TOKENS_SLUGS.uUSD, KNOWN_TOKENS_SLUGS.uBTC, KNOWN_TOKENS_SLUGS.YOU];
+const YOUVES_TOKENS_WITH_APR = [KNOWN_TOKENS_SLUGS.UUSD, KNOWN_TOKENS_SLUGS.UBTC, KNOWN_TOKENS_SLUGS.YOU];
 
 export const TokenApyTag: FC<Props> = ({ slug, symbol, apyInfo }) => {
   const [hovered, setHovered] = useState(false);
 
   const colors = useMemo(() => TOKENS_BRAND_COLORS[slug], [slug]);
 
-  const label = useMemo(() => (YOUVES_TOKENS_WITH_APR.includes(KNOWN_TOKENS_SLUGS[slug]) ? APR : APY), [slug]);
+  const label = useMemo(() => (YOUVES_TOKENS_WITH_APR.includes(slug) ? APR : APY), [slug]);
 
   const { rate, link } = apyInfo;
 

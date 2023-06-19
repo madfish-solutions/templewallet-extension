@@ -6,11 +6,12 @@ import classNames from 'clsx';
 import { FormField } from 'app/atoms';
 import { useAppEnv } from 'app/env';
 import { ReactComponent as CopyIcon } from 'app/icons/copy.svg';
+import { isFA2Token, isTezAsset } from 'lib/assets';
+import { fromAssetSlug } from 'lib/assets/utils';
 import { T } from 'lib/i18n';
+import { getAssetSymbol, useAssetMetadata } from 'lib/metadata';
 import { useRetryableSWR } from 'lib/swr';
-import { fromAssetSlug, isFA2Asset, isTezAsset } from 'lib/temple/assets';
-import { useTezos, useAssetMetadata } from 'lib/temple/front';
-import { getAssetSymbol } from 'lib/temple/metadata';
+import { useTezos } from 'lib/temple/front';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 
 type AssetInfoProps = {
@@ -28,7 +29,7 @@ const AssetInfo: FC<AssetInfoProps> = ({ assetSlug }) => {
 
   return (
     <div className={classNames(popup && 'mx-4')}>
-      <div className={classNames('w-full max-w-sm mx-auto')}>
+      <div className="w-full max-w-sm mx-auto">
         <InfoField
           textarea
           rows={2}
@@ -42,7 +43,7 @@ const AssetInfo: FC<AssetInfoProps> = ({ assetSlug }) => {
           }}
         />
 
-        {isFA2Asset(asset) && (
+        {isFA2Token(asset) && (
           <InfoField id="token-id" label={<T id="tokenId" />} value={new BigNumber(asset.id).toFixed()} />
         )}
 
@@ -86,7 +87,7 @@ const InfoField: FC<InfoFieldProps> = props => {
           <T id="copiedAddress" />
         ) : (
           <>
-            <CopyIcon className={classNames('mr-1', 'h-4 w-auto', 'stroke-current stroke-2')} />
+            <CopyIcon className="mr-1 h-4 w-auto stroke-current stroke-2" />
             <T id="copyAddressToClipboard" />
           </>
         )}

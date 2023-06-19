@@ -1,34 +1,39 @@
 import React, { FC, useCallback } from 'react';
 
 import Money from 'app/atoms/Money';
+import { useTokensMetadataSelector } from 'app/store/tokens-metadata/selectors';
 import { AssetIcon } from 'app/templates/AssetIcon';
 import Balance from 'app/templates/Balance';
 import IconifiedSelect, { IconifiedSelectOptionRenderProps } from 'app/templates/IconifiedSelect';
 import InFiat from 'app/templates/InFiat';
-import { TestIDProps } from 'lib/analytics';
+import { setTestID, setAnotherSelector } from 'lib/analytics';
 import { T, t } from 'lib/i18n';
-import { useAccount, useAssetMetadata } from 'lib/temple/front';
-import { searchAssetsWithNoMeta, useAllTokensBaseMetadata } from 'lib/temple/front/assets';
-import { getAssetSymbol } from 'lib/temple/metadata';
+import { useAssetMetadata, getAssetSymbol } from 'lib/metadata';
+import { useAccount } from 'lib/temple/front';
+import { searchAssetsWithNoMeta } from 'lib/temple/front/assets';
 
 import { AssetItemContent } from '../AssetItemContent';
 import { SendFormSelectors } from '../SendForm/selectors';
 import { IAsset } from './interfaces';
 import { getSlug } from './utils';
 
-interface AssetSelectProps extends TestIDProps {
+interface AssetSelectProps {
   value: IAsset;
   assets: IAsset[];
   onChange?: (assetSlug: string) => void;
   className?: string;
+  testIDs?: {
+    main: string;
+    searchInput: string;
+  };
 }
 
-const AssetSelect: FC<AssetSelectProps> = ({ value, assets, onChange, className, testID }) => {
-  const allTokensBaseMetadata = useAllTokensBaseMetadata();
+const AssetSelect: FC<AssetSelectProps> = ({ value, assets, onChange, className, testIDs }) => {
+  const allTokensMetadata = useTokensMetadataSelector();
 
   const searchItems = useCallback(
-    (searchString: string) => searchAssetsWithNoMeta(searchString, assets, allTokensBaseMetadata, getSlug),
-    [assets]
+    (searchString: string) => searchAssetsWithNoMeta(searchString, assets, allTokensMetadata, getSlug),
+    [assets, allTokensMetadata]
   );
 
   const handleChange = useCallback(
@@ -52,9 +57,10 @@ const AssetSelect: FC<AssetSelectProps> = ({ value, assets, onChange, className,
       fieldStyle={{ minHeight: '4.5rem' }}
       search={{
         placeholder: t('swapTokenSearchInputPlaceholder'),
-        filterItems: searchItems
+        filterItems: searchItems,
+        inputTestID: testIDs?.searchInput
       }}
-      testID={testID}
+      testID={testIDs?.main}
     />
   );
 };
@@ -67,7 +73,7 @@ const AssetSelectTitle: FC = () => (
       <T id="asset" />
     </span>
 
-    <span className="mt-1 text-xs font-light text-gray-600" style={{ maxWidth: '90%' }}>
+    <span className="mt-1 text-xs font-light text-gray-600 max-w-9/10">
       <T id="selectAnotherAssetPrompt" />
     </span>
   </h2>
@@ -114,10 +120,14 @@ const AssetOptionContent: FC<AssetSelectOptionRenderProps> = ({ option }) => {
   const slug = getSlug(option);
 
   return (
-    <div className="flex items-center w-full py-1.5">
+    <div
+      className="flex items-center w-full py-1.5"
+      {...setTestID(SendFormSelectors.assetDropDownItem)}
+      {...setAnotherSelector('slug', slug)}
+    >
       <AssetIcon assetSlug={slug} className="mx-2" size={32} />
 
-      <AssetItemContent slug={slug} nameTestID={SendFormSelectors.assetName} />
+      <AssetItemContent slug={slug} />
     </div>
   );
 };

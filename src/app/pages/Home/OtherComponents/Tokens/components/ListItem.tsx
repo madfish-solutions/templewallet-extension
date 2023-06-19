@@ -1,18 +1,17 @@
-import React, { memo } from 'react';
+import React, { memo, useMemo } from 'react';
 
 import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
 
 import { useTokenApyInfo } from 'app/hooks/use-token-apy.hook';
 import { AssetIcon } from 'app/templates/AssetIcon';
-import { useAssetMetadata } from 'lib/temple/front';
-import { getAssetName, getAssetSymbol } from 'lib/temple/metadata';
+import { useAssetMetadata, getAssetName, getAssetSymbol } from 'lib/metadata';
 import { Link } from 'lib/woozie';
 
 import { AssetsSelectors } from '../../Assets.selectors';
 import styles from '../Tokens.module.css';
 import { toExploreAssetLink } from '../utils';
-import { Balance } from './Balance';
+import { CryptoBalance, FiatBalance } from './Balance';
 import { TokenTag } from './TokenTag';
 
 interface Props {
@@ -27,6 +26,16 @@ export const ListItem = memo<Props>(
 
     const apyInfo = useTokenApyInfo(assetSlug);
 
+    const classNameMemo = useMemo(
+      () =>
+        classNames(
+          'relative block w-full overflow-hidden flex items-center px-4 py-3 rounded',
+          'hover:bg-gray-200 text-gray-700 transition ease-in-out duration-200 focus:outline-none',
+          active && 'focus:bg-gray-200'
+        ),
+      [active]
+    );
+
     if (metadata == null) return null;
 
     const assetSymbol = getAssetSymbol(metadata);
@@ -35,16 +44,7 @@ export const ListItem = memo<Props>(
     return (
       <Link
         to={toExploreAssetLink(assetSlug)}
-        className={classNames(
-          'relative',
-          'block w-full',
-          'overflow-hidden',
-          active ? 'hover:bg-gray-200' : 'hover:bg-gray-200 focus:bg-gray-200',
-          'flex items-center px-4 py-3',
-          'text-gray-700',
-          'transition ease-in-out duration-200',
-          'focus:outline-none'
-        )}
+        className={classNameMemo}
         testID={AssetsSelectors.assetItemButton}
         testIDProperties={{ key: assetSlug }}
       >
@@ -56,11 +56,20 @@ export const ListItem = memo<Props>(
               <div className={styles['tokenSymbol']}>{assetSymbol}</div>
               <TokenTag assetSlug={assetSlug} assetSymbol={assetSymbol} apyInfo={apyInfo} />
             </div>
-            <Balance assetSlug={assetSlug} value={balance} />
+            <CryptoBalance
+              value={balance}
+              testID={AssetsSelectors.assetItemCryptoBalanceButton}
+              testIDProperties={{ assetSlug }}
+            />
           </div>
           <div className="flex justify-between w-full mb-1">
             <div className="text-xs font-normal text-gray-700 truncate flex-1">{assetName}</div>
-            <Balance assetSlug={assetSlug} value={balance} inFiat />
+            <FiatBalance
+              assetSlug={assetSlug}
+              value={balance}
+              testID={AssetsSelectors.assetItemFiatBalanceButton}
+              testIDProperties={{ assetSlug }}
+            />
           </div>
         </div>
       </Link>

@@ -3,6 +3,7 @@ import React, { FC, FunctionComponent, ReactNode, Suspense, SVGProps, useLayoutE
 import classNames from 'clsx';
 import { Props as TippyProps } from 'tippy.js';
 
+import { Anchor } from 'app/atoms';
 import Spinner from 'app/atoms/Spinner/Spinner';
 import { useTabSlug } from 'app/atoms/useTabSlug';
 import { useAppEnv } from 'app/env';
@@ -16,15 +17,16 @@ import PageLayout from 'app/layouts/PageLayout';
 import { ActivityComponent } from 'app/templates/activity/Activity';
 import AssetInfo from 'app/templates/AssetInfo';
 import { TestIDProps } from 'lib/analytics';
+import { TEZ_TOKEN_SLUG, isTezAsset } from 'lib/assets';
 import { T, t } from 'lib/i18n';
-import { isTezAsset } from 'lib/temple/assets';
-import { useAccount, useNetwork, useAssetMetadata } from 'lib/temple/front';
-import { useLoadBalances } from 'lib/temple/front/load-balances';
-import { getAssetSymbol } from 'lib/temple/metadata';
+import { useAssetMetadata, getAssetSymbol } from 'lib/metadata';
+import { useAccount, useNetwork } from 'lib/temple/front';
 import { TempleAccountType, TempleNetworkType } from 'lib/temple/types';
 import useTippy from 'lib/ui/useTippy';
-import { HistoryAction, Link, navigate, To, useLocation } from 'lib/woozie';
+import { createUrl, HistoryAction, Link, navigate, To, useLocation } from 'lib/woozie';
+import { createLocationState } from 'lib/woozie/location';
 
+import { useUserTestingGroupNameSelector } from '../../store/ab-testing/selectors';
 import { CollectiblesList } from '../Collectibles/CollectiblesList';
 import { useOnboardingProgress } from '../Onboarding/hooks/useOnboardingProgress.hook';
 import Onboarding from '../Onboarding/Onboarding';
@@ -48,15 +50,13 @@ const tippyPropsMock = {
 const NETWORK_TYPES_WITH_BUY_BUTTON: TempleNetworkType[] = ['main', 'dcp'];
 
 const Home: FC<ExploreProps> = ({ assetSlug }) => {
-  useLoadBalances();
-
   const { fullPage, registerBackHandler } = useAppEnv();
   const { onboardingCompleted } = useOnboardingProgress();
   const account = useAccount();
   const { search } = useLocation();
   const network = useNetwork();
 
-  const assetMetadata = useAssetMetadata(assetSlug ?? 'tez');
+  const assetMetadata = useAssetMetadata(assetSlug || TEZ_TOKEN_SLUG);
 
   useLayoutEffect(() => {
     const usp = new URLSearchParams(search);
@@ -93,7 +93,7 @@ const Home: FC<ExploreProps> = ({ assetSlug }) => {
         </div>
       )}
 
-      <div className={classNames('flex flex-col items-center', 'mb-6')}>
+      <div className="flex flex-col items-center mb-6">
         <MainBanner accountPkh={accountPkh} assetSlug={assetSlug} />
 
         <div className="flex justify-between mx-auto w-full max-w-sm">
@@ -107,7 +107,8 @@ const Home: FC<ExploreProps> = ({ assetSlug }) => {
           <ActionButton
             label={<T id="buyButton" />}
             Icon={BuyIcon}
-            to={`/buy?tab=${network.type === 'dcp' ? 'debit' : 'crypto'}`}
+            to={network.type === 'dcp' ? 'https://buy.chainbits.com' : '/buy'}
+            isAnchor={network.type === 'dcp'}
             disabled={!NETWORK_TYPES_WITH_BUY_BUTTON.includes(network.type)}
             testID={HomeSelectors.buyButton}
           />
@@ -154,6 +155,7 @@ interface ActionButtonProps extends TestIDProps {
   Icon: FunctionComponent<SVGProps<SVGSVGElement>>;
   to: To;
   disabled?: boolean;
+  isAnchor?: boolean;
   tippyProps?: Partial<TippyProps>;
 }
 
@@ -162,6 +164,7 @@ const ActionButton: FC<ActionButtonProps> = ({
   Icon,
   to,
   disabled,
+  isAnchor,
   tippyProps = {},
   testID,
   testIDProperties
@@ -196,11 +199,24 @@ const ActionButton: FC<ActionButtonProps> = ({
     }),
     [disabled, Icon, label]
   );
-  return disabled ? (
-    <button ref={buttonRef} {...commonButtonProps} />
-  ) : (
-    <Link testID={testID} testIDProperties={testIDProperties} to={to} {...commonButtonProps} />
-  );
+
+  if (disabled) {
+    return <button ref={buttonRef} {...commonButtonProps} />;
+  }
+
+  if (isAnchor) {
+    let href: string;
+    if (typeof to === 'string') {
+      href = to;
+    } else {
+      const { pathname, search, hash } = typeof to === 'function' ? to(createLocationState()) : to;
+      href = createUrl(pathname, search, hash);
+    }
+
+    return <Anchor testID={testID} testIDProperties={testIDProperties} href={href} {...commonButtonProps} />;
+  }
+
+  return <Link testID={testID} testIDProperties={testIDProperties} to={to} {...commonButtonProps} />;
 };
 
 const Delegation: FC = () => (
@@ -227,6 +243,7 @@ type SecondarySectionProps = {
 const SecondarySection: FC<SecondarySectionProps> = ({ assetSlug, className }) => {
   const { fullPage } = useAppEnv();
   const tabSlug = useTabSlug();
+  const testGroupName = useUserTestingGroupNameSelector();
 
   const tabs = useMemo<
     {
@@ -295,7 +312,7 @@ const SecondarySection: FC<SecondarySectionProps> = ({ assetSlug, className }) =
 
   return (
     <div className={classNames('-mx-4', 'shadow-top-light', fullPage && 'rounded-t-md', className)}>
-      <div className={classNames('w-full max-w-sm mx-auto', 'flex items-center justify-center')}>
+      <div className="w-full max-w-sm mx-auto flex items-center justify-center">
         {tabs.map(currentTab => {
           const active = slug === currentTab.slug;
 
@@ -315,6 +332,9 @@ const SecondarySection: FC<SecondarySectionProps> = ({ assetSlug, className }) =
                 'truncate'
               )}
               testID={currentTab.testID}
+              testIDProperties={{
+                ...(currentTab.slug === 'delegation' && { abTestingCategory: testGroupName })
+              }}
             >
               {currentTab.title}
             </Link>

@@ -12,7 +12,7 @@ import {
 } from './actions';
 import { notificationsInitialState, NotificationsState } from './state';
 
-export const notificationsReducers = createReducer<NotificationsState>(notificationsInitialState, builder => {
+export const notificationsReducer = createReducer<NotificationsState>(notificationsInitialState, builder => {
   builder.addCase(loadNotificationsAction.submit, state => ({
     ...state,
     list: createEntity(state.list.data, true)

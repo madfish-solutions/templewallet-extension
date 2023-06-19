@@ -1,13 +1,14 @@
-import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { FC, useCallback, useMemo, useRef, useState } from 'react';
 
 import classNames from 'clsx';
 
-import { setTestID, TestIDProps } from 'lib/analytics';
+import { setTestID, TestIDProperty } from 'lib/analytics';
 import { T } from 'lib/i18n';
+import { useBlurElementOnTimeout } from 'lib/ui/use-blur-on-timeout';
 
 import { ReactComponent as LockAltIcon } from '../icons/lock-alt.svg';
 
-interface SeedWordInputProps extends TestIDProps {
+interface SeedWordInputProps extends TestIDProperty {
   id: number;
   submitted: boolean;
   showSeed: boolean;
@@ -18,7 +19,6 @@ interface SeedWordInputProps extends TestIDProps {
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onPaste?: (e: React.ClipboardEvent<HTMLInputElement>) => void;
   className?: string;
-  testID?: string;
 }
 
 export const SeedWordInput: FC<SeedWordInputProps> = ({
@@ -45,23 +45,7 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
     return !showSeed;
   }, [focused, showSeed, value]);
 
-  useEffect(() => {
-    if (showSeed) {
-      const handleLocalBlur = () => {
-        inputRef.current?.blur();
-        setShowSeed(false);
-      };
-      const t = setTimeout(() => {
-        handleLocalBlur();
-      }, 30_000);
-      window.addEventListener('blur', handleLocalBlur);
-      return () => {
-        clearTimeout(t);
-        window.removeEventListener('blur', handleLocalBlur);
-      };
-    }
-    return undefined;
-  }, [showSeed, inputRef, setShowSeed]);
+  useBlurElementOnTimeout(inputRef, showSeed, undefined, () => setShowSeed(false));
 
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -83,10 +67,11 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
   );
 
   return (
-    <div className={classNames('relative', 'flex flex-col items-center', isFirstAccount ? 'w-40' : 'w-44')}>
+    <div className={classNames('relative flex flex-col items-center', isFirstAccount ? 'w-40' : 'w-44')}>
       <label htmlFor={id.toString()} className={isError ? 'text-red-600' : 'text-gray-600'}>
         <p style={{ fontSize: 14 }}>{`#${id + 1}`}</p>
       </label>
+
       <input
         ref={inputRef}
         id={id.toString()}
@@ -115,11 +100,11 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
         )}
         {...setTestID(testID)}
       />
+
       {isWordHidden && (
         <div
           className={classNames(
-            'absolute',
-            'rounded-md bg-gray-200 w-full',
+            'absolute rounded-md bg-gray-200 w-full',
             'cursor-pointer flex items-center justify-center'
           )}
           style={{ top: 20, height: 44 }}
@@ -128,8 +113,8 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
             setShowSeed(true);
           }}
         >
-          <p className={classNames('flex items-center', 'text-gray-500 text-sm')}>
-            <LockAltIcon className={classNames('mr-1', 'h-4 w-auto', 'stroke-current stroke-2')} />
+          <p className="flex items-center text-gray-500 text-sm">
+            <LockAltIcon className="mr-1 h-4 w-auto stroke-current stroke-2" />
             <span>
               <T id="clickToReveal" />
             </span>

@@ -14,8 +14,31 @@ export const NETWORK_IDS = new Map<string, string>([
   [TempleChainId.Mainnet, 'mainnet'],
   [TempleChainId.Ghostnet, 'ghostnet'],
   [TempleChainId.Jakartanet, 'jakartanet'],
-  [TempleChainId.Limanet, 'limanet']
+  [TempleChainId.Limanet, 'limanet'],
+  [TempleChainId.Kathmandunet, 'kathmandunet'],
+  [TempleChainId.Mumbainet, 'mumbainet']
 ]);
+
+const DCP_NETWORKS: TempleNetwork[] = [
+  {
+    id: 't4l3nt-mainnet',
+    name: 'T4L3NT Mainnet',
+    description: 'Decentralized pictures Betanet',
+    type: 'dcp',
+    rpcBaseURL: 'https://rpc.decentralized.pictures',
+    color: '#047857',
+    disabled: false
+  },
+  {
+    id: 't4l3nt-testnet',
+    name: 'T4L3NT Testnet',
+    description: 'Decentralized pictures testnet',
+    type: 'dcp',
+    rpcBaseURL: 'https://staging-rpc.decentralized.pictures/',
+    color: '#131380',
+    disabled: false
+  }
+];
 
 export const NETWORKS: TempleNetwork[] = [
   {
@@ -45,24 +68,7 @@ export const NETWORKS: TempleNetwork[] = [
     color: '#047857',
     disabled: false
   },
-  {
-    id: 't4l3nt-mainnet',
-    name: 'T4L3NT Mainnet',
-    description: 'Decentralized pictures Betanet',
-    type: 'dcp',
-    rpcBaseURL: 'https://rpc.decentralized.pictures',
-    color: '#047857',
-    disabled: false
-  },
-  {
-    id: 't4l3nt-testnet',
-    name: 'T4L3NT Testnet',
-    description: 'Decentralized pictures testnet',
-    type: 'dcp',
-    rpcBaseURL: 'https://staging-rpc.decentralized.pictures/',
-    color: '#131380',
-    disabled: false
-  },
+  ...DCP_NETWORKS,
   {
     id: 'ghostnet',
     name: 'Ghostnet Testnet',
@@ -73,29 +79,11 @@ export const NETWORKS: TempleNetwork[] = [
     disabled: false
   },
   {
-    id: 'jakartanet',
-    name: 'Jakartanet Testnet',
-    description: 'Jakartanet testnet',
+    id: 'mumbainet',
+    name: 'Mumbainet Testnet',
+    description: 'Mumbainet testnet',
     type: 'test',
-    rpcBaseURL: 'https://jakartanet.tezos.marigold.dev/',
-    color: '#232380',
-    disabled: false
-  },
-  {
-    id: 'limanet',
-    name: 'Limanet Testnet',
-    description: 'Limanet testnet',
-    type: 'test',
-    rpcBaseURL: 'https://rpc.limanet.teztnets.xyz/',
-    color: '#232380',
-    disabled: false
-  },
-  {
-    id: 'kathmandunet',
-    name: 'Kathmandunet Testnet',
-    description: 'Kathmandunet testnet',
-    type: 'test',
-    rpcBaseURL: 'https://rpc.kathmandunet.teztnets.xyz/',
+    rpcBaseURL: 'https://rpc.mumbainet.teztnets.xyz/',
     color: '#FBBF24',
     disabled: false
   },

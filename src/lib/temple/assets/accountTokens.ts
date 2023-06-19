@@ -4,7 +4,6 @@ import * as Repo from 'lib/temple/repo';
 import { filterUnique } from 'lib/utils';
 
 export const setTokenStatus = async (
-  type: Repo.ITokenType,
   chainId: string,
   account: string,
   tokenSlug: string,
@@ -16,7 +15,6 @@ export const setTokenStatus = async (
   return Repo.accountTokens.put(
     {
       ...(existing ?? {
-        type,
         chainId,
         account,
         tokenSlug,
@@ -28,29 +26,18 @@ export const setTokenStatus = async (
   );
 };
 
-export const fetchDisplayedFungibleTokens = (chainId: string, account: string) =>
-  Repo.accountTokens
-    .where({ type: Repo.ITokenType.Fungible, chainId, account })
-    .filter(isTokenDisplayed)
-    .sortBy('order');
+export const getStoredTokens = (chainId: string, account: string, onlyDisplayed: boolean = false) => {
+  let collection = Repo.accountTokens.where({ chainId, account });
 
-export const fetchFungibleTokens = (chainId: string, account: string) =>
-  Repo.accountTokens.where({ type: Repo.ITokenType.Fungible, chainId, account }).toArray();
+  if (onlyDisplayed) {
+    collection = collection.filter(accountToken => isTokenDisplayed(accountToken));
+  }
 
-export const fetchCollectibleTokens = (chainId: string, account: string, isDisplayed: boolean) =>
-  Repo.accountTokens
-    .where({ type: Repo.ITokenType.Collectible, chainId, account })
-    .filter(accountToken => (isDisplayed ? isTokenDisplayed(accountToken) : true))
-    .sortBy('order');
-
-export const fetchAllKnownFungibleTokenSlugs = async (chainId: string) => {
-  const allAccountTokens = await Repo.accountTokens.where({ type: Repo.ITokenType.Fungible, chainId }).toArray();
-
-  return filterUnique(allAccountTokens.map(t => t.tokenSlug));
+  return collection.sortBy('order');
 };
 
-export const fetchAllKnownCollectibleTokenSlugs = async (chainId: string) => {
-  const allAccountTokens = await Repo.accountTokens.where({ type: Repo.ITokenType.Collectible, chainId }).toArray();
+export const getAllStoredTokensSlugs = async (chainId: string) => {
+  const allAccountTokens = await Repo.accountTokens.where({ chainId }).toArray();
 
   return filterUnique(allAccountTokens.map(t => t.tokenSlug));
 };

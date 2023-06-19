@@ -89,7 +89,7 @@
     "message": "Klicken Sie hier, um dieses Feld anzuzeigen oder zu bearbeiten"
   },
   "copiedHash": {
-    "message": "Kopiert."
+    "message": "Kopiert"
   },
   "copyHashToClipboard": {
     "message": "In die Zwischenablage kopieren"
@@ -199,10 +199,10 @@
     }
   },
   "copiedTokenAddress": {
-    "message": "Kopiert."
+    "message": "Kopiert"
   },
   "copiedTokenId": {
-    "message": "Kopiert."
+    "message": "Kopiert"
   },
   "delegatedTo": {
     "message": "Delegiert an:"
@@ -680,7 +680,7 @@
     "message": "Ihre aktuelle Kontoadresse. Teilen Sie sie, um Geld zu erhalten."
   },
   "copiedAddress": {
-    "message": "Kopiert."
+    "message": "Kopiert"
   },
   "copyAddressToClipboard": {
     "message": "In die Zwischenablage kopieren"

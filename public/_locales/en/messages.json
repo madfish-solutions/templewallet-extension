@@ -92,7 +92,7 @@
     "message": "Click to reveal"
   },
   "copiedHash": {
-    "message": "Copied."
+    "message": "Copied"
   },
   "copyHashToClipboard": {
     "message": "Copy to clipboard"
@@ -291,10 +291,10 @@
     }
   },
   "copiedTokenAddress": {
-    "message": "Copied."
+    "message": "Copied"
   },
   "copiedTokenId": {
-    "message": "Copied."
+    "message": "Copied"
   },
   "delegatedTo": {
     "message": "Delegated to:"
@@ -682,6 +682,9 @@
   "delegate": {
     "message": "Delegate"
   },
+  "notDelegated": {
+    "message": "Not delegated"
+  },
   "explore": {
     "message": "Explore"
   },
@@ -704,7 +707,7 @@
         "content": "$1"
       },
       "networkName": {
-        "content": "$1"
+        "content": "$2"
       }
     }
   },
@@ -833,7 +836,7 @@
     "message": "Your current account address. Share it to receive funds."
   },
   "copiedAddress": {
-    "message": "Copied."
+    "message": "Copied"
   },
   "copyAddressToClipboard": {
     "message": "Copy to clipboard"
@@ -1040,6 +1043,9 @@
   "recommended": {
     "message": "Recommended"
   },
+  "helpUkraine": {
+    "message": "Help Ukraine \uD83C\uDDFA\uD83C\uDDE6"
+  },
   "partnership": {
     "message": "Partnership"
   },
@@ -1168,6 +1174,12 @@
   },
   "notEnoughFunds": {
     "message": "Not enough funds"
+  },
+  "helpUkraineDisclainerTitle": {
+    "message": "This Baker helps Ukraine \uD83C\uDDFA\uD83C\uDDE6"
+  },
+  "helpUkraineDisclainerDescription": {
+    "message": "By delegating for this Baker, you agree that all of your rewards will go to support Ukraine.\nThank you for your contribution!"
   },
   "notEnoughCurrencyFunds": {
     "message": "Not enough $currency$ funds",
@@ -1682,6 +1694,12 @@
   "noAssetsFound": {
     "message": "No assets found"
   },
+  "tokenNotFound": {
+    "message": "Token not found..."
+  },
+  "currencyNotFound": {
+    "message": "Currency not found"
+  },
   "ifYouDontSeeYourAsset": {
     "message": "If you don't see your asset,\ntry to click $toClick$.",
     "placeholders": {
@@ -1940,6 +1958,9 @@
   },
   "actionConfirmation": {
     "message": "Confirm the action"
+  },
+  "closePartnersPromotion": {
+    "message": "Are you sure you want to turn off all ads?"
   },
   "domainDoesntResolveToAddress": {
     "message": "Domain \"$value$\" doesn't resolve to an address",
@@ -2376,6 +2397,9 @@
   "deleteContactConfirm": {
     "message": "Are you sure you want to delete this contact?"
   },
+  "closePartnersPromoConfirm": {
+    "message": "Pay attention: you can receive cashback in USDt tokens for enabling advertisement in our wallet. If you turned off ADS, you can always activate it in the settings."
+  },
   "ownAccount": {
     "message": "Own"
   },
@@ -2564,6 +2588,18 @@
   "lockUpSettingsDescription": {
     "message": "The extension will be automatically blocked after 5 minutes of inactivity."
   },
+  "partnersPromoSettings": {
+    "message": "Advertising"
+  },
+  "cashBack": {
+    "message": "cash back"
+  },
+  "partnersPromoDescriptionP1": {
+    "message": "Here you can configure displaying of ads in Temple wallet. Remember, you get"
+  },
+  "partnersPromoDescriptionP2": {
+    "message": "at Temple Keys for viewing ads"
+  },
   "totalEquityValue": {
     "message": "Total Equity Value"
   },
@@ -2586,7 +2622,7 @@
     "message": "Only for Ukrainian banking cards"
   },
   "buyWithCrypto": {
-    "message": "Buy With Crypto"
+    "message": "Buy with Crypto"
   },
   "buyWithExolix": {
     "message": "Buy With Exolix"
@@ -2599,43 +2635,26 @@
       }
     }
   },
-  "buyWithMoonPay": {
-    "message": "Buy With MoonPay"
-  },
-  "buyWithMoonPayDescription": {
-    "message": "Crypto just got easy. Buy TEZ in minutes using Visa, Mastercard, and all major debit and credit cards."
-  },
   "buyWithRamp": {
     "message": "Buy With Ramp"
   },
   "buyWithRampDescription": {
     "message": "Buy TEZ  using Visa, Mastercard, and all major debit and credit cards. Ramp is available in 160+ countries and territories."
   },
-  "buyWithAliceBob": {
-    "message": "Buy TEZ with Alice-Bob (UAH only)"
-  },
   "sellWithAliceBob": {
     "message": "Sell TEZ with Alice-Bob (UAH only)"
-  },
-  "buyWithAliceBobDescription": {
-    "message": "Fast and cost-effective exchange of UAH to TEZ."
   },
   "sellWithAliceBobDescription": {
     "message": "Fast and cost-effective exchange of TEZ to UAH."
   },
-  "buyWithUtorgDescription": {
-    "message": "Licensed fiat-to-crypto gateway. 187+ countries, AI-powered KYC, Apple Pay, Google Pay."
+  "selectPaymentProvider": {
+    "message": "Select payment provider"
+  },
+  "pleaseSelectPaymentProvider": {
+    "message": "Please select payment provider"
   },
   "topUpBuy": {
-    "message": "Top up $gasTokenName$ balance",
-    "placeholders": {
-      "gasTokenName": {
-        "content": "$1"
-      }
-    }
-  },
-  "buyWithUtorg": {
-    "message": "Buy TEZ with UTORG"
+    "message": "Buy"
   },
   "buyWithCard": {
     "message": "Buy with Debit/Credit Card"
@@ -2644,15 +2663,60 @@
     "message": "Sell TEZ"
   },
   "topUpDescription": {
-    "message": "Temple integrated third-party solutions to buy $gasTokenName1$ with crypto or a Debit/Credit card. Choose a provider, follow guides, get $gasTokenName2$ on your account.",
+    "message": "Temple integrated third-party solutions to buy TEZ or USDT with crypto or a Debit/Credit card."
+  },
+  "noTopUpOptionsAvailable": {
+    "message": "No top up options are available"
+  },
+  "errorWhileCreatingOrder": {
+    "message": "An error occurred while creating an order: $error$",
     "placeholders": {
-      "gasTokenName1": {
+      "error": {
+        "content": "$1"
+      }
+    }
+  },
+  "errorWhileGettingOutputEstimation": {
+    "message": "An error occurred while getting output estimation from $provider$: $error$",
+    "placeholders": {
+      "provider": {
         "content": "$1"
       },
-      "gasTokenName2": {
+      "error": {
         "content": "$2"
       }
     }
+  },
+  "errorWhileGettingCurrenciesList": {
+    "message": "An error occurred while getting currencies list from $provider$: $error$",
+    "placeholders": {
+      "provider": {
+        "content": "$1"
+      },
+      "error": {
+        "content": "$2"
+      }
+    }
+  },
+  "errorWhileUpdatingPairLimits": {
+    "message": "An error occurred while updating pair limits for the specified pair from $provider$: $error$",
+    "placeholders": {
+      "provider": {
+        "content": "$1"
+      },
+      "error": {
+        "content": "$2"
+      }
+    }
+  },
+  "noKycRequired": {
+    "message": "No KYC"
+  },
+  "supportsUsdt": {
+    "message": "Supports USDT"
+  },
+  "bestPrice": {
+    "message": "Best price"
   },
   "withdrawDescription": {
     "message": "Temple integrated third-party solutions to sell TEZ. Choose a provider, follow guides, \n get fiat to your Debit/Credit card"
@@ -2848,6 +2912,9 @@
   "min": {
     "message": "Min:"
   },
+  "exolixWarningTopUpServiceMessage": {
+    "message": "The token exchange feature is provided by Exolix as third party provider. Temple wallet is not responsible for the work of third-party services."
+  },
   "warningTopUpServiceMessage": {
     "message": "The token exchange feature is provided by a third party. The Temple Wallet is not responsible for the work of third-party services."
   },
@@ -2913,5 +2980,57 @@
   },
   "readInOriginal": {
     "message": "Read in original"
+  },
+  "route3ChainsDexes": {
+    "message": "$chainsCount$ chains / $dexesCount$ dexes",
+    "placeholders": {
+      "chainsCount": {
+        "content": "$1"
+      },
+      "dexesCount": {
+        "content": "$2"
+      }
+    }
+  },
+  "swapRoute3Description": {
+    "message": "Temple wallet provides an interface to interact with the"
+  },
+  "swapRoute3Link": {
+    "message": "3route DEX aggregator."
+  },
+  "searchingTheBestRoute": {
+    "message": "Searching the best route"
+  },
+  "noRoutesFound": {
+    "message": "No routes found"
+  },
+  "swapCashback": {
+    "message": "Cashback"
+  },
+  "swapCashbackDescription": {
+    "message": "Swap more than 10$ and receive 0.175% from the swapped amount in the TKEY token as a cashback"
+  },
+  "jumpInTezos": {
+    "message": "Jump in Tezos right now!"
+  },
+  "onRampDesription": {
+    "message": "Buy TEZ using $text$ and start working with the Tezos blockchain immediately.",
+    "placeholders": {
+      "text": {
+        "content": "$1"
+      }
+    }
+  },
+  "customAmount": {
+    "message": "Custom amount"
+  },
+  "close": {
+    "message": "Close"
+  },
+  "thirdParty": {
+    "message": "The token exchange feature is provided by third-party."
+  },
+  "creditCard": {
+    "message": "credit card"
   }
 }

@@ -2,16 +2,21 @@ import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from 're
 
 import classNames from 'clsx';
 import { OnSubmit, useForm } from 'react-hook-form';
+import { useDispatch } from 'react-redux';
 
 import { Alert, FormField, FormSubmitButton } from 'app/atoms';
 import SimplePageLayout from 'app/layouts/SimplePageLayout';
 import { useFormAnalytics } from 'lib/analytics';
+import { USER_ACTION_TIMEOUT } from 'lib/fixed-times';
 import { T, t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
 import { TempleSharedStorageKey } from 'lib/temple/types';
 import { useLocalStorage } from 'lib/ui/local-storage';
 import { Link } from 'lib/woozie';
 
+import { ABTestGroup } from '../../../lib/apis/temple';
+import { getUserTestingGroupNameActions } from '../../store/ab-testing/actions';
+import { useUserTestingGroupNameSelector } from '../../store/ab-testing/selectors';
 import { UnlockSelectors } from './Unlock.selectors';
 
 interface UnlockProps {
@@ -23,7 +28,7 @@ type FormData = {
 };
 
 const SUBMIT_ERROR_TYPE = 'submit-error';
-const LOCK_TIME = 60_000;
+const LOCK_TIME = 2 * USER_ACTION_TIMEOUT;
 const LAST_ATTEMPT = 3;
 
 const checkTime = (i: number) => (i < 10 ? '0' + i : i);
@@ -38,6 +43,7 @@ const getTimeLeft = (start: number, end: number) => {
 
 const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
   const { unlock } = useTempleClient();
+  const dispatch = useDispatch();
   const formAnalytics = useFormAnalytics('UnlockWallet');
 
   const [attempt, setAttempt] = useLocalStorage<number>(TempleSharedStorageKey.PasswordAttempts, 1);
@@ -45,6 +51,14 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
   const lockLevel = LOCK_TIME * Math.floor(attempt / 3);
 
   const [timeleft, setTimeleft] = useState(getTimeLeft(timelock, lockLevel));
+
+  const testGroupName = useUserTestingGroupNameSelector();
+
+  useEffect(() => {
+    if (testGroupName === ABTestGroup.Unknown) {
+      dispatch(getUserTestingGroupNameActions.submit());
+    }
+  }, [testGroupName]);
 
   const formRef = useRef<HTMLFormElement>(null);
 
@@ -105,7 +119,9 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
         <>
           <T id="unlockWallet" />
           <br />
-          <T id="toContinue">{message => <span style={{ fontSize: '0.9em' }}>{message}</span>}</T>
+          <span style={{ fontSize: '0.9em' }}>
+            <T id="toContinue" />
+          </span>
         </>
       }
     >
@@ -139,27 +155,23 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
 
         {canImportNew && (
           <div className="my-6">
-            <T id="importNewAccountTitle">
-              {message => <h3 className="text-sm font-light text-gray-600">{message}</h3>}
-            </T>
+            <h3 className="text-sm font-light text-gray-600">
+              <T id="importNewAccountTitle" />
+            </h3>
 
-            <T id="importWalletUsingSeedPhrase">
-              {message => (
-                <Link
-                  to="/import-wallet"
-                  className={classNames(
-                    'text-primary-orange',
-                    'text-sm font-semibold',
-                    'transition duration-200 ease-in-out',
-                    'opacity-75 hover:opacity-100 focus:opacity-100',
-                    'hover:underline'
-                  )}
-                  testID={UnlockSelectors.importWalletUsingSeedPhrase}
-                >
-                  {message}
-                </Link>
+            <Link
+              to="/import-wallet"
+              className={classNames(
+                'text-primary-orange',
+                'text-sm font-semibold',
+                'transition duration-200 ease-in-out',
+                'opacity-75 hover:opacity-100 focus:opacity-100',
+                'hover:underline'
               )}
-            </T>
+              testID={UnlockSelectors.importWalletUsingSeedPhrase}
+            >
+              <T id="importWalletUsingSeedPhrase" />
+            </Link>
           </div>
         )}
       </form>

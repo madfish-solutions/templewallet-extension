@@ -1,8 +1,11 @@
 import { Before } from '@cucumber/cucumber';
 import retry from 'async-retry';
+import { PuppeteerScreenRecorder } from 'puppeteer-screen-recorder';
 
 import { BrowserContext } from '../classes/browser-context.class';
-import { MEDIUM_TIMEOUT, RETRY_OPTIONS } from '../utils/timing.utils';
+import { RETRY_OPTIONS, MEDIUM_TIMEOUT } from '../utils/timing.utils';
+
+const RECORDING_PATH = 'video-rep/test-runs.mp4';
 
 Before({ timeout: MEDIUM_TIMEOUT }, async () => {
   await BrowserContext.page.close().catch(() => void 0);
@@ -21,6 +24,11 @@ Before({ timeout: MEDIUM_TIMEOUT }, async () => {
     }
   }, RETRY_OPTIONS);
 
+  const recorder = new PuppeteerScreenRecorder(page);
+
+  await recorder.start(RECORDING_PATH);
+
   BrowserContext.page = page;
+  BrowserContext.recorder = recorder;
   BrowserContext.resetPrivates();
 });

@@ -5,9 +5,9 @@ import classNames from 'clsx';
 import { ReactComponent as CloseIcon } from 'app/icons/close.svg';
 import { t } from 'lib/i18n';
 
-type AlertProps = HTMLAttributes<HTMLDivElement> & {
-  type?: 'success' | 'warn' | 'error';
-  title: ReactNode;
+type AlertProps = Omit<HTMLAttributes<HTMLDivElement>, 'title'> & {
+  type?: 'success' | 'warn' | 'error' | 'delegate';
+  title?: ReactNode;
   description: ReactNode;
   autoFocus?: boolean;
   closable?: boolean;
@@ -32,14 +32,16 @@ export const Alert: FC<AlertProps> = ({
     }
   }, [autoFocus]);
 
-  const [bgColorClassName, borderColorClassName, textColorClassName] = (() => {
+  const [bgColorClassName, borderColorClassName, textColorClassName, titleColorClassName] = (() => {
     switch (type) {
       case 'success':
-        return ['bg-green-100', 'border-green-400', 'text-green-700'];
+        return ['bg-green-100', 'border-green-400', 'text-green-700', 'text-green-700'];
       case 'warn':
-        return ['bg-yellow-100', 'border-yellow-400', 'text-yellow-700'];
+        return ['bg-yellow-100', 'border-yellow-400', 'text-yellow-700', 'text-yellow-700'];
       case 'error':
-        return ['bg-red-100', 'border-red-400', 'text-red-700'];
+        return ['bg-red-100', 'border-red-400', 'text-red-700', 'text-red-700'];
+      case 'delegate':
+        return ['bg-blue-150', 'border-blue-500', 'text-blue-750', 'text-blue-500'];
     }
   })();
 
@@ -52,7 +54,6 @@ export const Alert: FC<AlertProps> = ({
         'border',
         borderColorClassName,
         'rounded-md',
-        textColorClassName,
         className
       )}
       tabIndex={-1}
@@ -60,10 +61,10 @@ export const Alert: FC<AlertProps> = ({
       aria-label={t('alert')}
       {...rest}
     >
-      {title && <h2 className="mb-1 text-lg font-semibold">{title}</h2>}
+      {title && <h2 className={classNames('mb-1 text-lg font-semibold', titleColorClassName)}>{title}</h2>}
       {description && (
         <div
-          className={classNames('pb-3 text-sm font-light break-words', 'overflow-y-auto')}
+          className={classNames('pb-3 text-sm font-light break-words', 'overflow-y-auto', textColorClassName)}
           style={{ maxHeight: '8rem' }}
         >
           {description}

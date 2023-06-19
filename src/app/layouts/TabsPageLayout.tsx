@@ -2,19 +2,20 @@ import React, { FC, ReactNode, Suspense, useMemo } from 'react';
 
 import classNames from 'clsx';
 
+import { PageTitle } from 'app/atoms/PageTitle';
 import Spinner from 'app/atoms/Spinner/Spinner';
 import { useTabSlug } from 'app/atoms/useTabSlug';
+import { TestIDProperty } from 'lib/analytics';
 import { Link } from 'lib/woozie';
 
 import { useAppEnv } from '../env';
 import ErrorBoundary from '../ErrorBoundary';
 import PageLayout from './PageLayout';
 
-export interface TabInterface {
+export interface TabInterface extends Required<TestIDProperty> {
   slug: string;
   title: string;
   Component: FC;
-  testID: string;
 }
 
 interface Props {
@@ -34,16 +35,7 @@ export const TabsPageLayout: FC<Props> = ({ tabs, icon, title, description }) =>
   }, [tabSlug, tabs]);
 
   return (
-    <PageLayout
-      pageTitle={
-        <div className="flex flex-row font-normal text-sm">
-          {icon}
-          <span className="pl-1" style={{ paddingTop: 1 }}>
-            {title}
-          </span>
-        </div>
-      }
-    >
+    <PageLayout pageTitle={<PageTitle icon={icon} title={title} />}>
       <div className="text-center my-3 text-gray-700 max-w-lg m-auto">{description}</div>
       <div className={classNames('-mx-4', fullPage && 'rounded-t-md')}>
         <div
@@ -52,36 +44,33 @@ export const TabsPageLayout: FC<Props> = ({ tabs, icon, title, description }) =>
             borderBottomWidth: 1
           }}
         >
-          <div className={classNames('w-full max-w-sm mx-auto mt-6', 'flex items-center justify-center')}>
-            {tabs.map(currentTab => {
-              const active = slug === currentTab.slug;
+          <div className="w-full max-w-sm mx-auto mt-6 flex items-center justify-center">
+            {tabs.map(tab => {
+              const active = slug === tab.slug;
 
               return (
                 <Link
-                  key={currentTab.slug}
-                  to={lctn => ({ ...lctn, search: `?tab=${currentTab.slug}` })}
+                  key={tab.slug}
+                  to={lctn => ({ ...lctn, search: `?tab=${tab.slug}` })}
                   replace
                   className={classNames(
-                    'flex1 w-full',
-                    'text-center cursor-pointer pb-2',
-                    'text-gray-700 text-lg',
-                    'border-b-2',
+                    'flex1 w-full text-center cursor-pointer pb-2',
+                    'border-b-2 text-gray-700 text-lg truncate',
                     tabs.length === 1 && 'mx-20',
                     active ? 'border-primary-orange' : 'border-transparent',
                     active ? 'text-primary-orange' : 'hover:text-primary-orange',
-                    'transition ease-in-out duration-300',
-                    'truncate'
+                    'transition ease-in-out duration-300'
                   )}
-                  testID={currentTab.testID}
+                  testID={tab.testID}
                 >
-                  {currentTab.title}
+                  {tab.title}
                 </Link>
               );
             })}
           </div>
         </div>
 
-        <div className={'mx-4 mb-4 mt-6'}>
+        <div className="mx-4 mb-4 mt-6">
           <SuspenseContainer whileMessage="displaying tab">{Component && <Component />}</SuspenseContainer>
         </div>
       </div>

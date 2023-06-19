@@ -4,6 +4,7 @@ import { isDefined } from '@rnw-community/shared';
 import BigNumber from 'bignumber.js';
 
 import Money from 'app/atoms/Money';
+import { TestIDProps } from 'lib/analytics';
 import { useAssetFiatCurrencyPrice, useFiatCurrency } from 'lib/fiat-currency';
 import { useNetwork } from 'lib/temple/front';
 
@@ -12,7 +13,7 @@ interface OutputProps {
   symbol: string;
 }
 
-interface InFiatProps {
+interface InFiatProps extends TestIDProps {
   volume: BigNumber | number | string;
   assetSlug?: string;
   children: (output: OutputProps) => ReactElement;
@@ -31,7 +32,9 @@ const InFiat: FC<InFiatProps> = ({
   shortened,
   smallFractionFont,
   mainnet,
-  showCents = true
+  showCents = true,
+  testID,
+  testIDProperties
 }) => {
   const price = useAssetFiatCurrencyPrice(assetSlug ?? 'tez');
   const { selectedFiatCurrency } = useFiatCurrency();
@@ -62,6 +65,8 @@ const InFiat: FC<InFiatProps> = ({
             roundingMode={roundingMode}
             shortened={shortened}
             smallFractionFont={smallFractionFont}
+            testID={testID}
+            testIDProperties={testIDProperties}
           >
             {roundedInFiat}
           </Money>

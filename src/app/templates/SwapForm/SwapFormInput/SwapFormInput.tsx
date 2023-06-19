@@ -5,22 +5,14 @@ import classNames from 'clsx';
 
 import { useFormAnalytics } from 'lib/analytics';
 import { t } from 'lib/i18n';
-import { AssetTypesEnum, toTokenSlug } from 'lib/temple/assets';
-import {
-  useAccount,
-  useBalance,
-  useAssetMetadata,
-  useAvailableAssets,
-  useGetTokenMetadata,
-  useOnBlock,
-  useFilteredAssets
-} from 'lib/temple/front';
-import { EMPTY_ASSET_METADATA } from 'lib/temple/metadata';
+import { EMPTY_BASE_METADATA, useAssetMetadata } from 'lib/metadata';
+import { useAccount, useBalance, useGetTokenMetadata, useOnBlock } from 'lib/temple/front';
+import { useAvailableRoute3Tokens, useFilteredSwapAssets } from 'lib/temple/front/assets';
 import Popper from 'lib/ui/Popper';
+import { sameWidthModifiers } from 'lib/ui/same-width-modifiers';
 
 import { AssetsMenu } from './AssetsMenu/AssetsMenu';
 import { PercentageButton } from './PercentageButton/PercentageButton';
-import { sameWidthModifiers } from './SwapFormInput.popper';
 import { SwapFormInputProps } from './SwapFormInput.props';
 import { SwapFormInputHeader } from './SwapFormInputHeader/SwapFormInputHeader';
 import { useSwapFormTokenIdInput } from './SwapFormTokenIdInput.hook';
@@ -45,7 +37,7 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
 
   const assetMetadataWithFallback = useAssetMetadata(assetSlugWithFallback)!;
   const assetMetadata = useMemo(
-    () => (assetSlug ? assetMetadataWithFallback : EMPTY_ASSET_METADATA),
+    () => (assetSlug ? assetMetadataWithFallback : EMPTY_BASE_METADATA),
     [assetSlug, assetMetadataWithFallback]
   );
   const getTokenMetadata = useGetTokenMetadata();
@@ -54,13 +46,10 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
   const balance = useBalance(assetSlugWithFallback, account.publicKeyHash, { suspense: false });
   useOnBlock(_ => balance.mutate());
 
-  const { availableAssets, isLoading } = useAvailableAssets(AssetTypesEnum.Tokens);
-  const availableAssetsWithTezos = useMemo(() => ['tez', ...availableAssets], [availableAssets]);
-  const { filteredAssets, searchValue, setSearchValue, tokenId, setTokenId } =
-    useFilteredAssets(availableAssetsWithTezos);
+  const { isLoading } = useAvailableRoute3Tokens();
+  const { filteredAssets, searchValue, setSearchValue, tokenId, setTokenId } = useFilteredSwapAssets(name);
 
   const showTokenIdInput = useSwapFormTokenIdInput(searchValue);
-  const searchAssetSlug = toTokenSlug(searchValue, tokenId);
 
   const maxAmount = useMemo(() => {
     if (!assetSlug) {
@@ -136,12 +125,11 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
             options={filteredAssets}
             isLoading={isLoading}
             searchString={searchValue}
-            searchAssetSlug={searchAssetSlug}
             showTokenIdInput={showTokenIdInput}
             opened={opened}
+            testID={testIDs?.dropdown}
             setOpened={setOpened}
             onChange={handleSelectedAssetChange}
-            testIDs={testIDs}
           />
         )}
       >

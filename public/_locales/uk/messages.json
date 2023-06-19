@@ -86,7 +86,7 @@
     "message": "Клацніть, щоб відкрити або відредагувати це поле"
   },
   "copiedHash": {
-    "message": "Скопійовано."
+    "message": "Скопійовано"
   },
   "copyHashToClipboard": {
     "message": "Копіювати в буфер обміну"
@@ -207,10 +207,10 @@
     }
   },
   "copiedTokenAddress": {
-    "message": "Скопійовано."
+    "message": "Скопійовано"
   },
   "copiedTokenId": {
-    "message": "Скопійовано."
+    "message": "Скопійовано"
   },
   "delegatedTo": {
     "message": "Делеговано:"
@@ -658,7 +658,7 @@
     "message": "Адреса вашого аккаунту. Поділіться нею, щоб отримати кошти."
   },
   "copiedAddress": {
-    "message": "Скопійовано."
+    "message": "Скопійовано"
   },
   "copyAddressToClipboard": {
     "message": "Копіювати в буфер обміну"

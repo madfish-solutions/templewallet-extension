@@ -1,7 +1,5 @@
 import React, { FC, Fragment, memo, Suspense, useCallback, useMemo, useState } from 'react';
 
-import classNames from 'clsx';
-
 import { Alert, FormSubmitButton, FormSecondaryButton } from 'app/atoms';
 import AccountTypeBadge from 'app/atoms/AccountTypeBadge';
 import ConfirmLedgerOverlay from 'app/atoms/ConfirmLedgerOverlay';
@@ -35,32 +33,26 @@ import { ConfirmPageSelectors } from './ConfirmPage.selectors';
 const ConfirmPage: FC = () => {
   const { ready } = useTempleClient();
 
-  return useMemo(
-    () =>
-      ready ? (
-        <ContentContainer
-          padding={false}
-          className={classNames('min-h-screen', 'flex flex-col items-center justify-center')}
-        >
-          <ErrorBoundary whileMessage={t('fetchingConfirmationDetails')}>
-            <Suspense
-              fallback={
-                <div className="flex items-center justify-center h-screen">
-                  <div>
-                    <Spinner theme="primary" className="w-20" />
-                  </div>
+  if (ready)
+    return (
+      <ContentContainer padding={false} className="min-h-screen flex flex-col items-center justify-center">
+        <ErrorBoundary whileMessage={t('fetchingConfirmationDetails')}>
+          <Suspense
+            fallback={
+              <div className="flex items-center justify-center h-screen">
+                <div>
+                  <Spinner theme="primary" className="w-20" />
                 </div>
-              }
-            >
-              <ConfirmDAppForm />
-            </Suspense>
-          </ErrorBoundary>
-        </ContentContainer>
-      ) : (
-        <Unlock canImportNew={false} />
-      ),
-    [ready]
-  );
+              </div>
+            }
+          >
+            <ConfirmDAppForm />
+          </Suspense>
+        </ErrorBoundary>
+      </ContentContainer>
+    );
+
+  return <Unlock canImportNew={false} />;
 };
 
 interface PayloadContentProps {
@@ -84,13 +76,13 @@ const PayloadContent: React.FC<PayloadContentProps> = ({
   const mainnet = chainId === TempleChainId.Mainnet;
 
   return payload.type === 'connect' ? (
-    <div className={classNames('w-full', 'flex flex-col')}>
-      <h2 className={classNames('mb-2', 'leading-tight', 'flex flex-col')}>
+    <div className="w-full flex flex-col">
+      <h2 className="mb-2 leading-tight flex flex-col">
         <span className="text-base font-semibold text-gray-700">
           <T id="account" />
         </span>
 
-        <span className={classNames('mt-px', 'text-xs font-light text-gray-600')} style={{ maxWidth: '90%' }}>
+        <span className="mt-px text-xs font-light text-gray-600 max-w-9/10">
           <T id="toBeConnectedWithDApp" />
         </span>
       </h2>
@@ -240,17 +232,17 @@ const ConfirmDAppForm: FC = () => {
             ? ConfirmPageSelectors.ConnectAction_RetryButton
             : ConfirmPageSelectors.ConnectAction_ConnectButton,
           want: (
-            <T
-              id="appWouldLikeToConnectToYourWallet"
-              substitutions={[
-                <Fragment key="appName">
-                  <span className="font-semibold">{payload.origin}</span>
-                  <br />
-                </Fragment>
-              ]}
-            >
-              {message => <p className="mb-2 text-sm text-center text-gray-700">{message}</p>}
-            </T>
+            <p className="mb-2 text-sm text-center text-gray-700">
+              <T
+                id="appWouldLikeToConnectToYourWallet"
+                substitutions={[
+                  <Fragment key="appName">
+                    <span className="font-semibold">{payload.origin}</span>
+                    <br />
+                  </Fragment>
+                ]}
+              />
+            </p>
           )
         };
 
@@ -264,7 +256,7 @@ const ConfirmDAppForm: FC = () => {
             ? ConfirmPageSelectors.ConfirmOperationsAction_RetryButton
             : ConfirmPageSelectors.ConfirmOperationsAction_ConfirmButton,
           want: (
-            <div className={classNames('mb-2 text-sm text-center text-gray-700', 'flex flex-col items-center')}>
+            <div className="mb-2 text-sm text-center text-gray-700 flex flex-col items-center">
               <div className="flex items-center justify-center">
                 <DAppLogo icon={payload.appMeta.icon} origin={payload.origin} size={16} className="mr-1" />
                 <Name className="font-semibold" style={{ maxWidth: '10rem' }}>
@@ -291,7 +283,7 @@ const ConfirmDAppForm: FC = () => {
           confirmActionTitle: t('signAction'),
           confirmActionTestID: ConfirmPageSelectors.SignAction_SignButton,
           want: (
-            <div className={classNames('mb-2 text-sm text-center text-gray-700', 'flex flex-col items-center')}>
+            <div className="mb-2 text-sm text-center text-gray-700 flex flex-col items-center">
               <div className="flex items-center justify-center">
                 <DAppLogo icon={payload.appMeta.icon} origin={payload.origin} size={16} className="mr-1" />
                 <Name className="font-semibold" style={{ maxWidth: '10rem' }}>
@@ -336,7 +328,7 @@ const ConfirmDAppForm: FC = () => {
   return (
     <CustomRpcContext.Provider value={payload.networkRpc}>
       <div
-        className={classNames('relative bg-white rounded-md shadow-md overflow-y-auto', 'flex flex-col')}
+        className="relative bg-white rounded-md shadow-md overflow-y-auto flex flex-col"
         style={{
           width: 380,
           height: 610
@@ -354,9 +346,9 @@ const ConfirmDAppForm: FC = () => {
           {content.want}
 
           {payload.type === 'connect' && (
-            <T id="viewAccountAddressWarning">
-              {message => <p className="mb-4 text-xs font-light text-center text-gray-700">{message}</p>}
-            </T>
+            <p className="mb-4 text-xs font-light text-center text-gray-700">
+              <T id="viewAccountAddressWarning" />
+            </p>
           )}
 
           {error ? (
@@ -381,6 +373,7 @@ const ConfirmDAppForm: FC = () => {
               )}
 
               <NetworkBanner rpc={payload.networkRpc} narrow={payload.type === 'connect'} />
+
               <PayloadContent
                 error={payloadError}
                 payload={payload}
@@ -394,9 +387,7 @@ const ConfirmDAppForm: FC = () => {
 
         <div className="flex-1" />
 
-        <div
-          className={classNames('sticky bottom-0 w-full', 'bg-white shadow-md', 'flex items-stretch', 'px-4 pt-2 pb-4')}
-        >
+        <div className="sticky bottom-0 w-full bg-white shadow-md flex items-stretch px-4 pt-2 pb-4">
           <div className="w-1/2 pr-2">
             <FormSecondaryButton
               type="button"
@@ -404,6 +395,7 @@ const ConfirmDAppForm: FC = () => {
               loading={declining}
               onClick={handleDeclineClick}
               testID={content.declineActionTestID}
+              testIDProperties={{ operationType: payload.type }}
             >
               {content.declineActionTitle}
             </FormSecondaryButton>
@@ -416,6 +408,7 @@ const ConfirmDAppForm: FC = () => {
               loading={confirming}
               onClick={handleConfirmClick}
               testID={content.confirmActionTestID}
+              testIDProperties={{ operationType: payload.type }}
             >
               {content.confirmActionTitle}
             </FormSubmitButton>
@@ -432,32 +425,33 @@ const AccountIcon: FC<OptionRenderProps<TempleAccount>> = ({ item }) => (
   <Identicon type="bottts" hash={item.publicKeyHash} size={32} className="flex-shrink-0 shadow-xs" />
 );
 
-const AccountOptionContentHOC = (networkRpc: string) => {
-  const { assetName } = useGasToken();
+const AccountOptionContentHOC = (networkRpc: string) =>
+  memo<OptionRenderProps<TempleAccount>>(({ item: acc }) => {
+    const { assetName } = useGasToken();
 
-  return memo<OptionRenderProps<TempleAccount>>(({ item: acc }) => (
-    <>
-      <div className="flex flex-wrap items-center">
-        <Name className="text-sm font-medium leading-tight">{acc.name}</Name>
-        <AccountTypeBadge account={acc} />
-      </div>
-
-      <div className="flex flex-wrap items-center mt-1">
-        <div className={classNames('text-xs leading-none', 'text-gray-700')}>
-          <HashShortView hash={acc.publicKeyHash} />
+    return (
+      <>
+        <div className="flex flex-wrap items-center">
+          <Name className="text-sm font-medium leading-tight">{acc.name}</Name>
+          <AccountTypeBadge account={acc} />
         </div>
 
-        <Balance address={acc.publicKeyHash} networkRpc={networkRpc}>
-          {bal => (
-            <div className={classNames('ml-2', 'text-xs leading-none flex items-baseline', 'text-gray-600')}>
-              <Money>{bal}</Money>
-              <span className="ml-1" style={{ fontSize: '0.75em' }}>
-                {assetName}
-              </span>
-            </div>
-          )}
-        </Balance>
-      </div>
-    </>
-  ));
-};
+        <div className="flex flex-wrap items-center mt-1">
+          <div className="text-xs leading-none text-gray-700">
+            <HashShortView hash={acc.publicKeyHash} />
+          </div>
+
+          <Balance address={acc.publicKeyHash} networkRpc={networkRpc}>
+            {bal => (
+              <div className="ml-2 text-xs leading-none flex items-baseline text-gray-600">
+                <Money>{bal}</Money>
+                <span className="ml-1" style={{ fontSize: '0.75em' }}>
+                  {assetName}
+                </span>
+              </div>
+            )}
+          </Balance>
+        </div>
+      </>
+    );
+  });

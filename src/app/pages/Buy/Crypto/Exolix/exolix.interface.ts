@@ -1,6 +1,6 @@
 import { CurrencyToken } from 'app/templates/TopUpInput';
 
-interface ExchangeCoin {
+export interface ExchangeCoin {
   coinCode: string;
   coinName: string;
   icon: string;

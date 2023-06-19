@@ -1,4 +1,5 @@
-import { setWalletPasswordSelectors } from '../../../../src/app/pages/NewWallet/setWalletPassword/SetWalletPassword.selectors';
+import { setWalletPasswordSelectors } from 'src/app/pages/NewWallet/setWalletPassword/SetWalletPassword.selectors';
+
 import { Page } from '../../classes/page.class';
 import { createPageElement } from '../../utils/search.utils';
 

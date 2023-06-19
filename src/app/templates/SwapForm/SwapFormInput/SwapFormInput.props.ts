@@ -1,6 +1,7 @@
 import React from 'react';
 
-import { TestIDProps } from '../../../../lib/analytics';
+import { TestIDProps } from 'lib/analytics';
+
 import { SwapInputValue } from '../SwapForm.form';
 
 export interface SwapFormInputProps extends TestIDProps {
@@ -15,6 +16,7 @@ export interface SwapFormInputProps extends TestIDProps {
 }
 
 export interface SwapFormTestIDs {
+  dropdown: string;
   input?: string;
   searchInput?: string;
   assetSelector?: string;

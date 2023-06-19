@@ -86,7 +86,8 @@ const AdditionalFeeInput: FC<AdditionalFeeInputProps> = props => {
 
   const handleChange: EventFunction = event => {
     trackEvent(AdditionalFeeInputSelectors.FeeButton, AnalyticsEventCategory.ButtonPress);
-    return onChange !== undefined && onChange(event);
+
+    return onChange?.(event);
   };
 
   return (
@@ -158,9 +159,7 @@ const AdditionalFeeInputContent: FC<AdditionalFeeInputContentProps> = props => {
           <span className="text-base font-semibold text-gray-700">{label}</span>
 
           {labelDescription && (
-            <span className={classNames('mt-1', 'text-xs font-light text-gray-600')} style={{ maxWidth: '90%' }}>
-              {labelDescription}
-            </span>
+            <span className="mt-1 text-xs font-light text-gray-600 max-w-9/10">{labelDescription}</span>
           )}
         </label>
       ) : null}

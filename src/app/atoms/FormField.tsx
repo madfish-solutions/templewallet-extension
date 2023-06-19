@@ -1,10 +1,9 @@
 import React, {
   forwardRef,
   InputHTMLAttributes,
-  ReactNode,
   TextareaHTMLAttributes,
+  ReactNode,
   useCallback,
-  useEffect,
   useMemo,
   useRef,
   useState
@@ -16,10 +15,12 @@ import CleanButton from 'app/atoms/CleanButton';
 import CopyButton from 'app/atoms/CopyButton';
 import { ReactComponent as CopyIcon } from 'app/icons/copy.svg';
 import { ReactComponent as LockAltIcon } from 'app/icons/lock-alt.svg';
-import { setTestID, TestIDProps } from 'lib/analytics';
+import { setTestID, TestIDProperty } from 'lib/analytics';
 import { T } from 'lib/i18n';
-import { blurHandler, checkedHandler, focusHandler } from 'lib/ui/inputHandlers';
+import { blurHandler, focusHandler, inputChangeHandler } from 'lib/ui/inputHandlers';
+import { useBlurElementOnTimeout } from 'lib/ui/use-blur-on-timeout';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
+import { combineRefs } from 'lib/ui/util';
 
 import { NewSeedBackupSelectors } from '../pages/NewWallet/create/NewSeedBackup/NewSeedBackup.selectors';
 import usePasswordToggle from './usePasswordToggle.hook';
@@ -28,7 +29,9 @@ export const PASSWORD_ERROR_CAPTION = 'PASSWORD_ERROR_CAPTION';
 
 type FormFieldRef = HTMLInputElement | HTMLTextAreaElement;
 type FormFieldAttrs = InputHTMLAttributes<HTMLInputElement> & TextareaHTMLAttributes<HTMLTextAreaElement>;
-interface FormFieldProps extends TestIDProps, FormFieldAttrs {
+
+export interface FormFieldProps extends TestIDProperty, Omit<FormFieldAttrs, 'type'> {
+  type?: 'text' | 'number' | 'password';
   extraSection?: ReactNode;
   label?: ReactNode;
   labelDescription?: ReactNode;
@@ -98,64 +101,32 @@ export const FormField = forwardRef<FormFieldRef, FormFieldProps>(
     const [focused, setFocused] = useState(false);
 
     const handleChange = useCallback(
-      (e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>) => {
-        checkedHandler(e, onChange!, setLocalValue);
+      (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        inputChangeHandler(e, onChange, setLocalValue);
       },
       [onChange, setLocalValue]
     );
 
     const handleFocus = useCallback(
-      (e: React.FocusEvent<HTMLInputElement> | React.FocusEvent<HTMLTextAreaElement>) =>
-        focusHandler(e, onFocus!, setFocused),
+      (e: React.FocusEvent) => focusHandler(e, onFocus, setFocused),
       [onFocus, setFocused]
     );
-    const handleBlur = useCallback(
-      (e: React.FocusEvent<HTMLInputElement> | React.FocusEvent<HTMLTextAreaElement>) =>
-        blurHandler(e, onBlur!, setFocused),
-      [onBlur, setFocused]
-    );
-
-    const getFieldEl = useCallback(() => {
-      const selector = 'input, textarea';
-      return rootRef.current?.querySelector<HTMLFormElement>(selector);
-    }, []);
-
-    useEffect(() => {
-      if (secret && focused) {
-        const handleLocalBlur = () => {
-          getFieldEl()?.blur();
-        };
-        const t = setTimeout(() => {
-          handleLocalBlur();
-        }, 30_000);
-        window.addEventListener('blur', handleLocalBlur);
-        return () => {
-          clearTimeout(t);
-          window.removeEventListener('blur', handleLocalBlur);
-        };
-      }
-      return undefined;
-    }, [secret, focused, getFieldEl]);
+    const handleBlur = useCallback((e: React.FocusEvent) => blurHandler(e, onBlur, setFocused), [onBlur, setFocused]);
 
     const secretBannerDisplayed = useMemo(
       () => Boolean(secret && localValue !== '' && !focused),
       [secret, localValue, focused]
     );
 
-    const rootRef = useRef<HTMLDivElement>(null);
+    const spareRef = useRef<FormFieldRef>();
 
-    const handleSecretBannerClick = useCallback(() => {
-      getFieldEl()?.focus();
-    }, [getFieldEl]);
+    useBlurElementOnTimeout(spareRef, Boolean(secret && focused));
 
-    const handleCleanClick = useCallback(() => {
-      if (onClean) {
-        onClean();
-      }
-    }, [onClean]);
+    const handleSecretBannerClick = () => void spareRef.current?.focus();
+    const handleCleanClick = useCallback(() => void onClean?.(), [onClean]);
 
     return (
-      <div ref={rootRef} className={classNames('w-full flex flex-col', containerClassName)} style={containerStyle}>
+      <div className={classNames('w-full flex flex-col', containerClassName)} style={containerStyle}>
         <LabelComponent
           label={label}
           warning={labelWarning}
@@ -166,23 +137,16 @@ export const FormField = forwardRef<FormFieldRef, FormFieldProps>(
 
         {extraSection}
 
-        <div className={classNames('relative', fieldWrapperBottomMargin && 'mb-2', 'flex items-stretch')}>
+        <div className={classNames('relative flex items-stretch', fieldWrapperBottomMargin && 'mb-2')}>
           <Field
-            ref={ref as any}
+            ref={combineRefs(ref, spareRef)}
             className={classNames(
-              'appearance-none',
-              'w-full',
-              'py-3 pl-4',
-              getInnerClassName(isPasswordInput, extraInner),
-              'border-2',
-              errorCaption ? 'border-red-500' : 'border-gray-300',
-              'focus:border-primary-orange',
-              'bg-gray-100 focus:bg-transparent',
-              'focus:outline-none focus:shadow-outline',
+              'appearance-none w-full py-3 pl-4 border-2 rounded-md bg-gray-100',
+              'focus:border-primary-orange focus:bg-transparent focus:outline-none focus:shadow-outline',
               'transition ease-in-out duration-200',
-              'rounded-md',
-              'text-gray-700 text-lg leading-tight',
-              'placeholder-alphagray',
+              'text-gray-700 text-lg leading-tight placeholder-alphagray',
+              getInnerClassName(isPasswordInput, extraInner),
+              errorCaption ? 'border-red-500' : 'border-gray-300',
               className
             )}
             id={id}
@@ -229,11 +193,8 @@ const ExtraInner: React.FC<ExtraInnerProps> = ({ useDefaultInnerWrapper, innerCo
     return (
       <div
         className={classNames(
-          'overflow-hidden',
-          'absolute inset-y-0 right-0 w-32',
-          'flex items-center justify-end',
-          'opacity-50',
-          'pointer-events-none'
+          'absolute flex items-center justify-end inset-y-0 right-0 w-32',
+          'opacity-50 pointer-events-none overflow-hidden'
         )}
       >
         <span className="mx-4 text-lg font-light text-gray-900">{innerComponent}</span>
@@ -250,13 +211,7 @@ interface SecretBannerProps {
 const SecretBanner: React.FC<SecretBannerProps> = ({ secretBannerDisplayed, handleSecretBannerClick }) =>
   secretBannerDisplayed ? (
     <div
-      className={classNames(
-        'absolute',
-        'bg-gray-200',
-        'rounded-md',
-        'flex flex-col items-center justify-center',
-        'cursor-text'
-      )}
+      className="absolute flex flex-col items-center justify-center rounded-md bg-gray-200 cursor-text"
       style={{
         top: 2,
         right: 2,
@@ -268,20 +223,17 @@ const SecretBanner: React.FC<SecretBannerProps> = ({ secretBannerDisplayed, hand
     >
       <p
         className={classNames(
-          'mb-1',
-          'flex items-center',
-          'text-gray-600 text-lg font-semibold',
-          'uppercase',
-          'text-shadow-black'
+          'flex items-center mb-1',
+          'uppercase text-gray-600 text-lg font-semibold text-shadow-black'
         )}
       >
-        <LockAltIcon className={classNames('-ml-2 mr-1', 'h-6 w-auto', 'stroke-current stroke-2')} />
+        <LockAltIcon className="-ml-2 mr-1 h-6 w-auto stroke-current stroke-2" />
         <span>
           <T id="protectedFormField" />
         </span>
       </p>
 
-      <p className={classNames('mb-1', 'flex items-center', 'text-gray-500 text-sm')}>
+      <p className="mb-1 flex items-center text-gray-500 text-sm">
         <span>
           <T id="clickToRevealField" />
         </span>
@@ -317,7 +269,7 @@ const Copyable: React.FC<CopyableProps> = ({ copy, cleanable, value, copyable })
     >
       <CopyIcon
         style={{ verticalAlign: 'inherit' }}
-        className={classNames('h-4 ml-1 w-auto inline', 'stroke-orange stroke-2')}
+        className="h-4 ml-1 w-auto inline stroke-orange stroke-2"
         onClick={() => copy()}
       />
     </CopyButton>
@@ -345,20 +297,12 @@ interface LabelComponentProps {
 
 const LabelComponent: React.FC<LabelComponentProps> = ({ label, className, description, warning, id }) =>
   label ? (
-    <label className={classNames(className, 'leading-tight', 'flex flex-col')} htmlFor={id}>
+    <label className={classNames(className, 'leading-tight flex flex-col')} htmlFor={id}>
       <span className="text-base font-semibold text-gray-700">{label}</span>
 
-      {description && (
-        <span className={classNames('mt-1', 'text-xs font-light text-gray-600')} style={{ maxWidth: '90%' }}>
-          {description}
-        </span>
-      )}
+      {description && <span className="mt-1 text-xs font-light text-gray-600 max-w-9/10">{description}</span>}
 
-      {warning && (
-        <span className={classNames('mt-1', 'text-xs font-medium text-red-600')} style={{ maxWidth: '90%' }}>
-          {warning}
-        </span>
-      )}
+      {warning && <span className="mt-1 text-xs font-medium text-red-600 max-w-9/10">{warning}</span>}
     </label>
   ) : null;
 

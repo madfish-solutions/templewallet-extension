@@ -2,7 +2,6 @@ import React, { FC, useMemo } from 'react';
 
 import { CustomRpcContext } from 'lib/analytics';
 
-import { TokensMetadataProvider } from './assets';
 import { NewBlockTriggersProvider } from './chain';
 import { TempleClientProvider, useTempleClient } from './client';
 import { ReadyTempleProvider, useNetwork } from './ready';
@@ -24,11 +23,9 @@ const ConditionalReadyTemple: FC<PropsWithChildren> = ({ children }) => {
       ready ? (
         <ReadyTempleProvider>
           <WalletRpcProvider>
-            <TokensMetadataProvider>
-              <SyncTokensProvider>
-                <NewBlockTriggersProvider>{children}</NewBlockTriggersProvider>
-              </SyncTokensProvider>
-            </TokensMetadataProvider>
+            <SyncTokensProvider>
+              <NewBlockTriggersProvider>{children}</NewBlockTriggersProvider>
+            </SyncTokensProvider>
           </WalletRpcProvider>
         </ReadyTempleProvider>
       ) : (
