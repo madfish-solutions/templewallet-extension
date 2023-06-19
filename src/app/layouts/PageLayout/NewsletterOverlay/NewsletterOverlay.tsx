@@ -32,7 +32,7 @@ export const newsletterApi = axios.create({
 const useNewsletterValidation = () => {
   const emails = useNewsletterEmailsSelector();
 
-  return object({
+  return object().shape({
     email: string()
       .required('Required field')
       .notOneOf(emails, 'You have already subscribed to the newsletter with this email ')
@@ -44,16 +44,21 @@ export const NewsletterOverlay: FC = () => {
   const dispatch = useDispatch();
   const { popup } = useAppEnv();
   const shouldShowNewsletterModal = useShouldShowNewsletterModalSelector();
-  const validationSchema = useNewsletterValidation();
+  const emails = useNewsletterEmailsSelector();
+
+  const validationSchema = object().shape({
+    email: string().required('Required field').email('Must be a valid email')
+  });
 
   const validationResolver = useYupValidationResolver<FormValues>(validationSchema);
 
   const { errors, handleSubmit, watch, register } = useForm<FormValues>({
     defaultValues: { email: '' },
-    mode: 'onChange',
+    // mode: 'onChange',
     validationResolver
   });
   const email = watch('email');
+
   const isValid = Object.keys(errors).length === 0;
 
   useEffect(() => console.log('email: ', email), [email]);
