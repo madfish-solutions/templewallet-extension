@@ -1453,16 +1453,6 @@
     "@jridgewell/resolve-uri" "^3.0.3"
     "@jridgewell/sourcemap-codec" "^1.4.10"
 
-"@keshan3262/wallet-address-validator@^0.4.2":
-  version "0.4.2"
-  resolved "https://registry.yarnpkg.com/@keshan3262/wallet-address-validator/-/wallet-address-validator-0.4.2.tgz#ebb6a01336e23a5b70b74a072b0b9d81cb1812c0"
-  integrity sha512-P6PSMA16pPkmxhcKkFlPjU3QzFYFD3JgCMv8F+CrN6AT8G5n2YiR4nbgBSTQ5sE+uqtJoEzIAv5IZ/kcTmz89w==
-  dependencies:
-    base-x "^3.0.4"
-    bs58check "^3.0.1"
-    crc "^3.8.0"
-    jssha "2.3.1"
-
 "@ledgerhq/devices@^5.34.0", "@ledgerhq/devices@^5.51.1":
   version "5.51.1"
   resolved "https://registry.yarnpkg.com/@ledgerhq/devices/-/devices-5.51.1.tgz#d741a4a5d8f17c2f9d282fd27147e6fe1999edb7"
@@ -2079,6 +2069,16 @@
   integrity sha512-IIeHTowHXOp7/JnttfzMyCJjFWwhqOauDN7S2vU0GzHkpT5gH6FBXqB3kvZUyPfoxY0PXuXg+HKh++qABx+g9A==
   dependencies:
     nanoid "^3.1.25"
+
+"@temple-wallet/wallet-address-validator@^0.4.2":
+  version "0.4.2"
+  resolved "https://registry.yarnpkg.com/@temple-wallet/wallet-address-validator/-/wallet-address-validator-0.4.2.tgz#1334a67aa71d0c397dd7c20a94245a612fd7feff"
+  integrity sha512-FPsHW+IYKBu1/qvGDGtwaCfyP60xPIKMPhGgbU+mUVN/AMsdgNf3FkG2hTuBC0jylToxuI+ijGGSzpIj+Yl1Qg==
+  dependencies:
+    base-x "^3.0.4"
+    bs58check "^3.0.1"
+    crc "^3.8.0"
+    jssha "2.3.1"
 
 "@tezos-domains/core@1.21.0", "@tezos-domains/core@^1.21.0":
   version "1.21.0"
