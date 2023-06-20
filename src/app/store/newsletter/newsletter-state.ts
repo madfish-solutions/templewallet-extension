@@ -5,7 +5,3 @@ export interface NewsletterState {
 export const newsletterInitialState: NewsletterState = {
   shouldShowNewsletterModal: false
 };
-
-export interface NewsletterRootState {
-  newsletter: NewsletterState;
-}
