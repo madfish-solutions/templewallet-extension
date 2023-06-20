@@ -12,6 +12,7 @@ import {
   specialCharacterRegx,
   uppercaseLowercaseMixtureRegx
 } from 'app/defaults';
+import { shouldShowNewsletterModalAction } from 'app/store/newsletter/newsletter-actions';
 import { setIsAnalyticsEnabledAction, setOnRampPossibilityAction } from 'app/store/settings/actions';
 import { AnalyticsEventCategory, TestIDProps, useAnalytics } from 'lib/analytics';
 import { T, t } from 'lib/i18n';
@@ -118,6 +119,7 @@ export const SetWalletPassword: FC<SetWalletPasswordProps> = ({
         );
         navigate('/loading');
         !ownMnemonic && dispatch(setOnRampPossibilityAction(true));
+        dispatch(shouldShowNewsletterModalAction(true));
       } catch (err: any) {
         console.error(err);
 

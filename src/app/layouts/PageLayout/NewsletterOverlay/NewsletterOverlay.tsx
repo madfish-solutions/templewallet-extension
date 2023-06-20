@@ -12,10 +12,10 @@ import { ReactComponent as CloseIcon } from 'app/icons/close.svg';
 import ContentContainer from 'app/layouts/ContentContainer';
 import { shouldShowNewsletterModalAction } from 'app/store/newsletter/newsletter-actions';
 import { useShouldShowNewsletterModalSelector } from 'app/store/newsletter/newsletter-selectors';
+import { useOnRampPossibilitySelector } from 'app/store/settings/selectors';
 import { newsletterApi } from 'lib/apis/newsletter';
 import { useYupValidationResolver } from 'lib/form/use-yup-validation-resolver';
 import { T, t } from 'lib/i18n/react';
-import { useLocation } from 'lib/woozie';
 
 import NewsletterImage from './NewsletterImage.png';
 
@@ -28,10 +28,10 @@ const validationSchema = object().shape({
 });
 
 export const NewsletterOverlay: FC = () => {
-  const location = useLocation();
   const dispatch = useDispatch();
   const { popup } = useAppEnv();
   const shouldShowNewsletterModal = useShouldShowNewsletterModalSelector();
+  const isOnRampPossibility = useOnRampPossibilitySelector();
 
   const validationResolver = useYupValidationResolver<FormValues>(validationSchema);
 
@@ -77,14 +77,14 @@ export const NewsletterOverlay: FC = () => {
     return 'Subscribe';
   }, [successSubscribing, isLoading]);
 
-  if (!shouldShowNewsletterModal || location.pathname.includes('import-wallet')) return null;
+  if (!shouldShowNewsletterModal || isOnRampPossibility) return null;
 
   return (
     <>
-      <div className="fixed left-0 right-0 top-0 bottom-0 opacity-20 bg-gray-700 z-50"></div>
+      <div className="fixed left-0 right-0 top-0 bottom-0 opacity-20 bg-gray-700 z-40"></div>
       <form onSubmit={handleSubmit(onSubmit)}>
         <ContentContainer
-          className={classNames('fixed z-50 overflow-y-auto', popupClassName)}
+          className={classNames('fixed z-40 overflow-y-auto', popupClassName)}
           style={{ maxWidth: '37.5rem' }}
           padding={false}
         >
