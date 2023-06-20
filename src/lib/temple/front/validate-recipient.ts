@@ -1,5 +1,5 @@
-import { validate as multinetworkValidateAddress } from '@temple-wallet/wallet-address-validator';
 import { isDefined } from '@rnw-community/shared';
+import { validate as multinetworkValidateAddress } from '@temple-wallet/wallet-address-validator';
 import { TaquitoTezosDomainsClient } from '@tezos-domains/taquito-client';
 
 import { t } from 'lib/i18n';
