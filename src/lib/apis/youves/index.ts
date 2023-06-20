@@ -39,11 +39,7 @@ export const getYOUTokenApr$ = (
 
   return from(unifiedStaking.getAPR(assetToUsdExchangeRate, governanceToUsdExchangeRate)).pipe(
     map(value => Number(value.multipliedBy(MULTIPLIER))),
-    catchError(error => {
-      console.log('Youves error: get YOU token APR', error);
-
-      return of(0);
-    })
+    catchError(() => of(0))
   );
 };
 
@@ -60,10 +56,6 @@ export const getYouvesTokenApr$ = (tezos: TezosToolkit, token: AssetDefinition):
 
   return from(youves.getSavingsPoolV3YearlyInterestRate()).pipe(
     map(value => Number(value.multipliedBy(MULTIPLIER))),
-    catchError(error => {
-      console.log(`Youves error: get ${token.id} token APR`, error);
-
-      return of(0);
-    })
+    catchError(() => of(0))
   );
 };
