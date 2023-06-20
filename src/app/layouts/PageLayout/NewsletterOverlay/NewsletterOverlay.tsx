@@ -15,6 +15,7 @@ import { useShouldShowNewsletterModalSelector } from 'app/store/newsletter/newsl
 import { newsletterApi } from 'lib/apis/newsletter';
 import { useYupValidationResolver } from 'lib/form/use-yup-validation-resolver';
 import { T, t } from 'lib/i18n/react';
+import { useLocation } from 'lib/woozie';
 
 import NewsletterImage from './NewsletterImage.png';
 
@@ -27,6 +28,7 @@ const validationSchema = object().shape({
 });
 
 export const NewsletterOverlay: FC = () => {
+  const location = useLocation();
   const dispatch = useDispatch();
   const { popup } = useAppEnv();
   const shouldShowNewsletterModal = useShouldShowNewsletterModalSelector();
@@ -75,7 +77,7 @@ export const NewsletterOverlay: FC = () => {
     return 'Subscribe';
   }, [successSubscribing, isLoading]);
 
-  if (!shouldShowNewsletterModal) return null;
+  if (!shouldShowNewsletterModal || location.pathname.includes('import-wallet')) return null;
 
   return (
     <>
