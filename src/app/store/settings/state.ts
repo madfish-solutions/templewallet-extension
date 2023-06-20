@@ -11,7 +11,6 @@ export interface SettingsState {
   balanceMode: BalanceMode;
   isEnableAdsBanner: boolean;
   isOnRampPossibility: boolean;
-  buildVersion: string;
 }
 
 export const settingsInitialState: SettingsState = {
@@ -19,6 +18,5 @@ export const settingsInitialState: SettingsState = {
   isAnalyticsEnabled: true,
   balanceMode: BalanceMode.Fiat,
   isEnableAdsBanner: true,
-  isOnRampPossibility: false,
-  buildVersion: '1.0'
+  isOnRampPossibility: false
 };

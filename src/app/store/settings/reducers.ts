@@ -2,7 +2,6 @@ import { createReducer } from '@reduxjs/toolkit';
 
 import {
   setIsAnalyticsEnabledAction,
-  setLastProjectBuildVersion,
   setOnRampPossibilityAction,
   toggleBalanceModeAction,
   setAdsBannerVisibilityAction
@@ -24,9 +23,5 @@ export const settingsReducer = createReducer<SettingsState>(settingsInitialState
   builder.addCase(setOnRampPossibilityAction, (state, { payload: isOnRampPossibility }) => ({
     ...state,
     isOnRampPossibility
-  }));
-  builder.addCase(setLastProjectBuildVersion, (state, { payload: lastBuildVersion }) => ({
-    ...state,
-    buildVersion: lastBuildVersion
   }));
 });
