@@ -19,7 +19,6 @@ export function isDomainNameValid(name: string, client: TaquitoTezosDomainsClien
 }
 
 export function useTezosDomainsClient() {
-  console.log(1);
   const chainId = useChainId(true)!;
   const tezos = useTezos();
 
