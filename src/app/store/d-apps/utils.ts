@@ -1,6 +1,6 @@
 import { TezosToolkit } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
-import { map, Observable, withLatestFrom } from 'rxjs';
+import { map } from 'rxjs';
 
 import { fetchApyFromYupana$ } from 'lib/apis/yupana';
 import { KNOWN_TOKENS_SLUGS } from 'lib/assets/known-tokens';
@@ -9,7 +9,6 @@ import { getYOUTokenApr$, getYouvesTokenApr$ } from '../../../lib/apis/youves';
 import { YouvesTokensEnum } from '../../../lib/apis/youves/enums';
 import { youvesTokensRecord } from '../../../lib/apis/youves/utils';
 import { ExchangeRateRecord } from '../currency/state';
-import { RootState } from '../index';
 
 export const fetchKUSDApy$ = () => {
   const slug = KNOWN_TOKENS_SLUGS.KUSD;
@@ -44,10 +43,3 @@ export const fetchYOUApr$ = (tezos: TezosToolkit, tokenUsdExchangeRates: Exchang
 
   return getYOUTokenApr$(tezos, assetToUsdExchangeRate, assetToUsdExchangeRate).pipe(map(value => ({ [slug]: value })));
 };
-
-export const withUsdToTokenRates =
-  <T>(state$: Observable<RootState>) =>
-  (observable$: Observable<T>) =>
-    observable$.pipe(
-      withLatestFrom(state$, (value, { currency }): [T, ExchangeRateRecord] => [value, currency.usdToTokenRates.data])
-    );
