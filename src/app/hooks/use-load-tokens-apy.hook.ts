@@ -15,7 +15,7 @@ import {
   fetchYOUApr$
 } from '../store/d-apps/utils';
 
-export const useLoadTokensApy = () => {
+export const useTokensApyLoading = () => {
   const dispatch = useDispatch();
   const tezos = useTezos();
   const usdToTokenRates = useUsdToTokenRatesSelector();

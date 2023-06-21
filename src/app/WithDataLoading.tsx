@@ -9,7 +9,7 @@ import { useTokensLoading } from 'app/hooks/use-tokens-loading';
 import { loadSwapDexesAction, loadSwapTokensAction } from 'app/store/swap/actions';
 import { useBalancesLoading } from 'lib/temple/front/load-balances';
 
-import { useLoadTokensApy } from './hooks/use-load-tokens-apy.hook';
+import { useTokensApyLoading } from './hooks/use-load-tokens-apy.hook';
 
 export const WithDataLoading: FC<PropsWithChildren> = ({ children }) => {
   useMetadataLoading();
@@ -18,7 +18,7 @@ export const WithDataLoading: FC<PropsWithChildren> = ({ children }) => {
 
   useLongRefreshLoading();
   useAdvertisingLoading();
-  useLoadTokensApy();
+  useTokensApyLoading();
 
   const dispatch = useDispatch();
 
