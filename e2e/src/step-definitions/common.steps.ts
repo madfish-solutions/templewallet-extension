@@ -4,7 +4,7 @@ import { BrowserContext } from '../classes/browser-context.class';
 import { Pages } from '../page-objects';
 import { iEnterValues, IEnterValuesKey } from '../utils/input-data.utils';
 import { createPageElement } from '../utils/search.utils';
-import { LONG_TIMEOUT, MEDIUM_TIMEOUT, SHORT_TIMEOUT } from '../utils/timing.utils';
+import { LONG_TIMEOUT, MEDIUM_TIMEOUT, SHORT_TIMEOUT, sleep } from '../utils/timing.utils';
 
 Given(/^I am on the (\w+) page$/, { timeout: LONG_TIMEOUT }, async (page: keyof typeof Pages) => {
   await Pages[page].isVisible();
@@ -46,6 +46,10 @@ Given(/I have imported an existing account/, { timeout: LONG_TIMEOUT }, async ()
   await Pages.SetWallet.skipOnboarding.click();
   await Pages.SetWallet.acceptTerms.click();
   await Pages.SetWallet.importButton.click();
+
+  await Pages.Home.NewsletterCloseButton.waitForDisplayed();
+  await sleep(1000);
+  await Pages.Home.NewsletterCloseButton.click();
 
   await Pages.Home.isVisible();
 });

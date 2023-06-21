@@ -17,7 +17,9 @@ import { newsletterApi } from 'lib/apis/newsletter';
 import { useYupValidationResolver } from 'lib/form/use-yup-validation-resolver';
 import { T, t } from 'lib/i18n/react';
 
+import { setTestID } from '../../../../lib/analytics';
 import NewsletterImage from './NewsletterImage.png';
+import { NewsletterOverlaySelectors } from './NewsletterOverlay.selectors';
 
 interface FormValues {
   email: string;
@@ -104,6 +106,7 @@ export const NewsletterOverlay: FC = () => {
               )}
               style={{ top: '-0.75rem', right: '-0.75rem' }}
               onClick={close}
+              testID={NewsletterOverlaySelectors.closeButton}
             >
               <T id="close" />
               <CloseIcon className="ml-2 h-4 w-auto stroke-current stroke-2" />
@@ -118,6 +121,7 @@ export const NewsletterOverlay: FC = () => {
                   name="email"
                   className="w-full p-4 rounded-md border text-sm text-gray-910"
                   placeholder="example@mail.com"
+                  {...setTestID(NewsletterOverlaySelectors.emailInput)}
                 />
                 {!isValid && <div className="mt-1 text-xs text-left text-red-700">{errors.email?.message}</div>}
               </div>
@@ -128,6 +132,7 @@ export const NewsletterOverlay: FC = () => {
                   'w-full h-12 flex items-center justify-center font-semibold rounded-md text-base px-16 py-3 text-white',
                   isValid ? 'bg-orange-500' : 'bg-blue-100'
                 )}
+                {...setTestID(NewsletterOverlaySelectors.subscribeButton)}
               >
                 {buttonContent}
               </button>
