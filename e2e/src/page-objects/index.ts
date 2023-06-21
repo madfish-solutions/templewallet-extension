@@ -1,3 +1,5 @@
+import { SwapPage } from 'e2e/src/page-objects/pages/swap.page';
+
 import { NetworksDropDown } from 'e2e/src/page-objects/pages/drop-down-lists/networks.drop-down';
 import { NewsletterModalPage } from 'e2e/src/page-objects/pages/newsletter-modal.page';
 import { OnRumModalPage } from 'e2e/src/page-objects/pages/on-rum-modal.page';
@@ -49,5 +51,6 @@ export const Pages = {
   Send: new SendPage(),
   NetworksDropDown: new NetworksDropDown(),
   OnRumpModal: new OnRumModalPage(),
-  NewsletterModal: new NewsletterModalPage()
+  NewsletterModal: new NewsletterModalPage(),
+  Swap: new SwapPage()
 };

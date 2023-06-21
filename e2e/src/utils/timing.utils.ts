@@ -1,3 +1,5 @@
+export const VERY_LONG_TIMEOUT = 120_000;
+
 export const LONG_TIMEOUT = 60_000;
 
 export const MEDIUM_TIMEOUT = 30_000;
