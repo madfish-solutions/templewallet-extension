@@ -1,4 +1,3 @@
-import { NewsletterOverlaySelectors } from 'src/app/layouts/PageLayout/NewsletterOverlay/NewsletterOverlay.selectors';
 import { HomeSelectors } from 'src/app/pages/Home/Home.selectors';
 
 import { Page } from '../../classes/page.class';
@@ -14,7 +13,6 @@ export class HomePage extends Page {
   ActivityTab = createPageElement(HomeSelectors.activityTab);
   CollectiblesTab = createPageElement(HomeSelectors.collectiblesTab);
   PublicAddressButton = createPageElement(HomeSelectors.publicAddressButton);
-  NewsletterCloseButton = createPageElement(NewsletterOverlaySelectors.closeButton);
 
   async isVisible() {
     await this.ReceiveButton.waitForDisplayed();
