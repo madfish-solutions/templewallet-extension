@@ -72,7 +72,7 @@ export const Tokens: FC = () => {
   }, [filteredAssets, activeAssetSlug, balances]);
 
   useEffect(() => {
-    if (isShouldShowPartnersPromoState) {
+    if (isShouldShowPartnersPromoState && !isEnabledAdsBanner) {
       dispatch(
         loadPartnersPromoAction.submit({
           optimalPromoVariantEnum: OptimalPromoVariantEnum.Token,
@@ -80,7 +80,7 @@ export const Tokens: FC = () => {
         })
       );
     }
-  }, [isShouldShowPartnersPromoState]);
+  }, [isShouldShowPartnersPromoState, isEnabledAdsBanner]);
 
   useEffect(() => {
     if (activeIndex !== 0 && activeIndex >= filteredAssets.length) {
