@@ -2095,50 +2095,51 @@
   dependencies:
     nanoid "^3.1.25"
 
-"@tezos-domains/core@1.25.1", "@tezos-domains/core@^1.25.1":
-  version "1.25.1"
-  resolved "https://registry.yarnpkg.com/@tezos-domains/core/-/core-1.25.1.tgz#c21ead108d4841302446ec32f109e08f0ae1839d"
-  integrity sha512-cka+MJnziwcAVxxW/vVRewQBMcHjYB1AhpoUVXsIfqHtsCoW1nTo3pLW97XC7XjhftqFNVrB/CKk7lHaOnWA2w==
+"@tezos-domains/core@1.26.0", "@tezos-domains/core@^1.26.0":
+  version "1.26.0"
+  resolved "https://registry.yarnpkg.com/@tezos-domains/core/-/core-1.26.0.tgz#ed106476ad8f27931a2f4700cb0972451fad50de"
+  integrity sha512-Ux11MPiTbV6M56ZyQ6GmPO1Hu2rMWdKy4hmc0vlsSa8/31XO6VTZujHI5sPJs0sIinX3wBYGu9T5FM2ms1DvzQ==
   dependencies:
     idna-uts46-hx "^3.3.0"
+    lodash.isplainobject "4.0.6"
 
-"@tezos-domains/manager@^1.25.1":
-  version "1.25.1"
-  resolved "https://registry.yarnpkg.com/@tezos-domains/manager/-/manager-1.25.1.tgz#f54ff6e884fa7668f0f3aa12eb5305c51997a0be"
-  integrity sha512-/ycqIReZVUmR87p6h7A1cU9F2NDeHpNAF3y1Ql9MUIDm61SvneUAKYBF8u6aAGFsN7Mxv2v351tswGyw5HnGpA==
+"@tezos-domains/manager@^1.26.0":
+  version "1.26.0"
+  resolved "https://registry.yarnpkg.com/@tezos-domains/manager/-/manager-1.26.0.tgz#2b9a4d0f692dfb38f1d7678fa50ed3fa404ae2c6"
+  integrity sha512-IMcCAT1sYpuz1dCRag0qNIuYhgwFvP21CCn0z3gU8zXhal0aOP+bgc2ThlGvvs6hfOG+Xa8A6riFTVaev0FiZw==
   dependencies:
-    "@tezos-domains/core" "^1.25.1"
-    "@tezos-domains/taquito" "^1.25.1"
+    "@tezos-domains/core" "^1.26.0"
+    "@tezos-domains/taquito" "^1.26.0"
     "@types/sha.js" "^2.4.0"
     bignumber.js "^9.1.0"
     sha.js "^2.4.11"
 
-"@tezos-domains/resolver@^1.25.1":
-  version "1.25.1"
-  resolved "https://registry.yarnpkg.com/@tezos-domains/resolver/-/resolver-1.25.1.tgz#49b07f6ef39795fdff13d2375e0204d6605464a1"
-  integrity sha512-toTj9PEKMGP7RZ0aWDEODH1nhFyF1is09SwukjmJwQG1S4IUs747a85e/ZVdx6KtKrPwZZJhEsDlvNgxfN0jGQ==
+"@tezos-domains/resolver@^1.26.0":
+  version "1.26.0"
+  resolved "https://registry.yarnpkg.com/@tezos-domains/resolver/-/resolver-1.26.0.tgz#539ca3b3b09b877cdc36cc5049d59c5c8bd5ef35"
+  integrity sha512-l6ncixtBCXDwu8VnOtckDMJjmzy3L/pU5VhBSvEiC07McI79QrQ0Sgs2uPr8GGZqz5XVHQgufXHFCvOpAE05yg==
   dependencies:
-    "@tezos-domains/core" "^1.25.1"
+    "@tezos-domains/core" "^1.26.0"
     node-cache "^5.1.2"
 
-"@tezos-domains/taquito-client@1.25.1":
-  version "1.25.1"
-  resolved "https://registry.yarnpkg.com/@tezos-domains/taquito-client/-/taquito-client-1.25.1.tgz#4cb4422f75808d85d8ca76540f80cb3dfc6fa856"
-  integrity sha512-R8m4dfYZ2DGsuP6lM73NO4otlRpdRAtz/uspkPyTX9Ietpmq8nmbtcQE3D+XvLiQQzVMVnUlb4xKE/0irIR44w==
+"@tezos-domains/taquito-client@1.26.0":
+  version "1.26.0"
+  resolved "https://registry.yarnpkg.com/@tezos-domains/taquito-client/-/taquito-client-1.26.0.tgz#396ada1fc78f2b4621e83a470ebe06bb9013a407"
+  integrity sha512-5bdUxJrmGhbCx7Uaojp6vxZfcgKmhd0bswgP1B3uztnuEG7DnVgizgcP4uM3qSyVc4wa43eg9tfvy20+ZAwjZg==
   dependencies:
-    "@tezos-domains/core" "^1.25.1"
-    "@tezos-domains/manager" "^1.25.1"
-    "@tezos-domains/resolver" "^1.25.1"
-    "@tezos-domains/taquito" "^1.25.1"
+    "@tezos-domains/core" "^1.26.0"
+    "@tezos-domains/manager" "^1.26.0"
+    "@tezos-domains/resolver" "^1.26.0"
+    "@tezos-domains/taquito" "^1.26.0"
     bignumber.js "^9.1.0"
     node-cache "^5.1.2"
 
-"@tezos-domains/taquito@^1.25.1":
-  version "1.25.1"
-  resolved "https://registry.yarnpkg.com/@tezos-domains/taquito/-/taquito-1.25.1.tgz#196927edd4f8b17b21f25de48b088798ef722f7e"
-  integrity sha512-S1U62QIne8vwthlqF0cSY3jXsK9ijp+EaRITeoiY5UM9Ae1g+eX0q/87mI9dKf/T3R1wA0mDrw7/furmIWSixw==
+"@tezos-domains/taquito@^1.26.0":
+  version "1.26.0"
+  resolved "https://registry.yarnpkg.com/@tezos-domains/taquito/-/taquito-1.26.0.tgz#f32ea7a4c37e29f12f59e2faa1e71519f95c739e"
+  integrity sha512-QoITjOC/p2JA8N09KOljwTHPqHiQ4OCBKwrOAGoWcOxBg6mUwHoqeGYZM1eMqLx+fsSIEhLSRTSuV3AuUzKeoA==
   dependencies:
-    "@tezos-domains/core" "^1.25.1"
+    "@tezos-domains/core" "^1.26.0"
     bignumber.js "^9.1.0"
     node-cache "^5.1.2"
 
@@ -7291,7 +7292,7 @@ lodash.flow@^3.3.0:
   resolved "https://registry.yarnpkg.com/lodash.flow/-/lodash.flow-3.5.0.tgz#87bf40292b8cf83e4e8ce1a3ae4209e20071675a"
   integrity sha1-h79AKSuM+D5OjOGjrkIJ4gBxZ1o=
 
-lodash.isplainobject@^4.0.6:
+lodash.isplainobject@4.0.6, lodash.isplainobject@^4.0.6:
   version "4.0.6"
   resolved "https://registry.yarnpkg.com/lodash.isplainobject/-/lodash.isplainobject-4.0.6.tgz#7c526a52d89b45c45cc690b88163be0497f550cb"
   integrity sha512-oSXzaWypCMHkPC3NvBEaPHf0KsA5mvPrOPgQWDsbg8n7orZ290M0BmC/jgRZ4vcJ6DTAhjrsSYgdsW/F+MFOBA==
