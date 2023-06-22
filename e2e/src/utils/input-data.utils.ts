@@ -13,18 +13,23 @@ export const iEnterValues = {
   bakerAddress: '',
 
   // For transactions
-  low_amount: '0.0001',
-  medium_amount: '0.001',
-  high_amount: '1',
-  kUSD: 'Kolibri',
-  uUSD: 'youves uUSD',
+  amount_0_0001: '0.0001',
+  amount_0_005: '0.005',
+  amount_0_03: '0.03',
+  amount_1: '1',
+  kUSD: 'kUSD',
+  uUSD: 'uUSD',
+  WTZ: 'WTZ',
+  wUSDT: 'wUSDT',
   OBJKTCOM: 'Temple NFT'
 };
 
 export type IEnterValuesKey = keyof typeof iEnterValues;
 
 export const iSelectTokenSlugs = {
-  KUSD: 'KT1K9gCRgaLRFKTErYt1wVxA3Frb9FjasjTV_0',
-  UUSD: 'KT1XRPEPXbZK25r3Htzp2o1x7xdMMmfocKNW_0',
+  kUSD: 'KT1K9gCRgaLRFKTErYt1wVxA3Frb9FjasjTV_0',
+  uUSD: 'KT1XRPEPXbZK25r3Htzp2o1x7xdMMmfocKNW_0',
+  WTZ: 'KT1PnUZCp3u2KzWr93pn4DD7HAJnm3rWVrgn_0',
+  wUSDT: 'KT18fp5rcTW7mbWDmzFwjLDUhs5MeJmagDSZ_18',
   OBJKTCOM: 'KT1DGbb333QNo3e2cpN3YGL5aRwWzkADcPA3_2' // 'Temple NFT'
 };
