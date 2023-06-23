@@ -2,8 +2,8 @@ import React, { useCallback, FC, useState, useMemo } from 'react';
 
 import classNames from 'clsx';
 
-import { InputGeneral } from 'app/templates/InputGeneral/InputGeneral';
-import { SelectGeneral } from 'app/templates/InputGeneral/SelectGeneral';
+import { DropdownSelect } from 'app/templates/DropdownSelect/DropdownSelect';
+import { InputContainer } from 'app/templates/InputContainer/InputContainer';
 import { AnalyticsEventCategory, AnalyticsEventEnum, setTestID, useAnalytics } from 'lib/analytics';
 import { FIAT_CURRENCIES, FiatCurrencyOption, useFiatCurrency } from 'lib/fiat-currency';
 import { T } from 'lib/i18n';
@@ -11,15 +11,11 @@ import { searchAndFilterItems } from 'lib/utils/search-items';
 
 import { SettingsGeneralSelectors } from '../selectors';
 
-type FiatCurrencySelectProps = {
-  className?: string;
-};
-
 const renderOptionContent = (option: FiatCurrencyOption, isSelected: boolean) => (
   <FiatCurrencyOptionContent option={option} isSelected={isSelected} />
 );
 
-const FiatCurrencySelect: FC<FiatCurrencySelectProps> = () => {
+const FiatCurrencySelect: FC = () => {
   const { trackEvent } = useAnalytics();
   const { selectedFiatCurrency, setSelectedFiatCurrency } = useFiatCurrency();
 
@@ -53,32 +49,27 @@ const FiatCurrencySelect: FC<FiatCurrencySelectProps> = () => {
   );
 
   return (
-    <div className="mb-8">
-      <InputGeneral
-        header={<FiatCurrencyTitle />}
-        mainContent={
-          <SelectGeneral
-            testIds={{
-              dropdownTestId: SettingsGeneralSelectors.currenctyDropDown
-            }}
-            optionsListClassName="p-2"
-            dropdownButtonClassName="p-3"
-            DropdownFaceContent={<FiatCurrencyFieldContent option={value} />}
-            optionsProps={{
-              options,
-              noItemsText: 'No items',
-              renderOptionContent: option =>
-                renderOptionContent(option, option.fullname === selectedFiatCurrency.fullname),
-              onOptionChange: handleFiatCurrencyChange
-            }}
-            searchProps={{
-              searchValue,
-              onSearchChange: event => setSearchValue(event.target.value)
-            }}
-          />
-        }
+    <InputContainer className="mb-8" header={<FiatCurrencyTitle />}>
+      <DropdownSelect
+        testIds={{
+          dropdownTestId: SettingsGeneralSelectors.currenctyDropDown
+        }}
+        optionsListClassName="p-2"
+        dropdownButtonClassName="p-3"
+        DropdownFaceContent={<FiatCurrencyFieldContent option={value} />}
+        optionsProps={{
+          options,
+          noItemsText: 'No items',
+          getKey: option => option.fullname,
+          renderOptionContent: option => renderOptionContent(option, option.fullname === selectedFiatCurrency.fullname),
+          onOptionChange: handleFiatCurrencyChange
+        }}
+        searchProps={{
+          searchValue,
+          onSearchChange: event => setSearchValue(event.target.value)
+        }}
       />
-    </div>
+    </InputContainer>
   );
 };
 

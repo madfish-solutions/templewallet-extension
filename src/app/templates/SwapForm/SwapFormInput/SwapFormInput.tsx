@@ -7,9 +7,9 @@ import classNames from 'clsx';
 import AssetField from 'app/atoms/AssetField';
 import Money from 'app/atoms/Money';
 import { AssetIcon } from 'app/templates/AssetIcon';
+import { DropdownSelect } from 'app/templates/DropdownSelect/DropdownSelect';
 import InFiat from 'app/templates/InFiat';
-import { InputGeneral } from 'app/templates/InputGeneral/InputGeneral';
-import { SelectGeneral } from 'app/templates/InputGeneral/SelectGeneral';
+import { InputContainer } from 'app/templates/InputContainer/InputContainer';
 import { setTestID, useFormAnalytics } from 'lib/analytics';
 import { T, t, toLocalFormat } from 'lib/i18n';
 import { EMPTY_BASE_METADATA, useAssetMetadata, AssetMetadataBase } from 'lib/metadata';
@@ -118,48 +118,12 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
 
   return (
     <div className={className}>
-      <InputGeneral
+      <InputContainer
         header={
           <SwapInputHeader
             label={label}
             selectedAssetSlug={assetSlugWithFallback}
             selectedAssetSymbol={assetMetadataWithFallback.symbol}
-          />
-        }
-        mainContent={
-          <SelectGeneral
-            testIds={{
-              dropdownTestId: testIDs?.dropdown,
-              searchInputTestId: testIDs?.searchInput
-            }}
-            dropdownButtonClassName="pl-4 pr-3 py-5"
-            DropdownFaceContent={
-              <SwapDropdownFace
-                testId={testIDs?.assetSelector}
-                selectedAssetSlug={assetSlug}
-                selectedAssetMetadata={assetMetadata}
-              />
-            }
-            searchProps={{
-              searchValue,
-              onSearchChange: handleSearchChange
-            }}
-            Input={
-              <SwapInput
-                testId={testIDs?.input}
-                amount={value.amount}
-                amountInputDisabled={Boolean(amountInputDisabled)}
-                onChange={handleAmountChange}
-                selectedAssetMetadata={assetMetadata}
-              />
-            }
-            optionsProps={{
-              isLoading,
-              options: filteredAssets,
-              noItemsText: 'No items',
-              renderOptionContent: option => renderOptionContent(option, value.assetSlug === option),
-              onOptionChange: handleSelectedAssetChange
-            }}
           />
         }
         footer={
@@ -172,7 +136,43 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
             />
           </div>
         }
-      />
+      >
+        <DropdownSelect
+          testIds={{
+            dropdownTestId: testIDs?.dropdown,
+            searchInputTestId: testIDs?.searchInput
+          }}
+          dropdownButtonClassName="pl-4 pr-3 py-5"
+          DropdownFaceContent={
+            <SwapDropdownFace
+              testId={testIDs?.assetSelector}
+              selectedAssetSlug={assetSlug}
+              selectedAssetMetadata={assetMetadata}
+            />
+          }
+          searchProps={{
+            searchValue,
+            onSearchChange: handleSearchChange
+          }}
+          Input={
+            <SwapInput
+              testId={testIDs?.input}
+              amount={value.amount}
+              amountInputDisabled={Boolean(amountInputDisabled)}
+              onChange={handleAmountChange}
+              selectedAssetMetadata={assetMetadata}
+            />
+          }
+          optionsProps={{
+            isLoading,
+            options: filteredAssets,
+            noItemsText: 'No items',
+            getKey: option => option,
+            renderOptionContent: option => renderOptionContent(option, value.assetSlug === option),
+            onOptionChange: handleSelectedAssetChange
+          }}
+        />
+      </InputContainer>
     </div>
   );
 };
@@ -184,7 +184,7 @@ interface SwapFieldProps {
 }
 
 const SwapDropdownFace: FC<SwapFieldProps> = ({ testId, selectedAssetSlug, selectedAssetMetadata }) => (
-  <div {...setTestID(testId)}>
+  <div {...setTestID(testId)} style={{ maxHeight: '4.5rem' }}>
     {selectedAssetSlug ? (
       <div className="flex gap-2 align-center">
         <AssetIcon assetSlug={selectedAssetSlug} size={32} className="w-8" />

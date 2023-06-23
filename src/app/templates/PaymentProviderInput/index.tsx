@@ -8,8 +8,8 @@ import { PaymentProviderInterface } from 'lib/buy-with-credit-card/topup.interfa
 import { T } from 'lib/i18n';
 import { isTruthy } from 'lib/utils';
 
-import { InputGeneral } from '../InputGeneral/InputGeneral';
-import { SelectGeneral } from '../InputGeneral/SelectGeneral';
+import { DropdownSelect } from '../DropdownSelect/DropdownSelect';
+import { InputContainer } from '../InputContainer/InputContainer';
 import { TopUpProviderIcon } from '../TopUpProviderIcon';
 import { MoneyRange } from './MoneyRange';
 import { PaymentProviderOption } from './PaymentProvidersMenu/PaymentProviderOption';
@@ -32,26 +32,24 @@ export const PaymentProviderInput: FC<PaymentProviderInputProps> = ({
   const [searchValue, setSearchValue] = useState<string>('');
   return (
     <div className={classNames('w-full', className)}>
-      <InputGeneral
-        mainContent={
-          <SelectGeneral
-            testIds={{
-              dropdownTestId: testID
-            }}
-            dropdownButtonClassName="p-2 pr-4"
-            DropdownFaceContent={<PaymentProviderDropdownFaceContent value={value} testId={headerTestID} />}
-            searchProps={{ searchValue, onSearchChange: event => setSearchValue(event?.target.value) }}
-            optionsProps={{
-              options,
-              isLoading,
-              noItemsText: 'No Items',
-              renderOptionContent,
-              onOptionChange: onChange
-            }}
-          />
-        }
-        footer={isTruthy(error) && <span className="text-xs text-red-700 leading-relaxed">{error}</span>}
-      />
+      <InputContainer footer={isTruthy(error) && <span className="text-xs text-red-700 leading-relaxed">{error}</span>}>
+        <DropdownSelect
+          testIds={{
+            dropdownTestId: testID
+          }}
+          dropdownButtonClassName="p-2 pr-4"
+          DropdownFaceContent={<PaymentProviderDropdownFaceContent value={value} testId={headerTestID} />}
+          searchProps={{ searchValue, onSearchChange: event => setSearchValue(event?.target.value) }}
+          optionsProps={{
+            options,
+            isLoading,
+            noItemsText: 'No Items',
+            getKey: option => option.id,
+            renderOptionContent,
+            onOptionChange: onChange
+          }}
+        />
+      </InputContainer>
     </div>
   );
 };

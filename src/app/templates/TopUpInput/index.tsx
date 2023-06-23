@@ -7,8 +7,8 @@ import { getBigErrorText, getSmallErrorText } from 'app/pages/Buy/utils/errorTex
 import { getAssetSymbolToDisplay } from 'lib/buy-with-credit-card/get-asset-symbol-to-display';
 import { T, toLocalFormat } from 'lib/i18n';
 
-import { InputGeneral } from '../InputGeneral/InputGeneral';
-import { SelectGeneral } from '../InputGeneral/SelectGeneral';
+import { DropdownSelect } from '../DropdownSelect/DropdownSelect';
+import { InputContainer } from '../InputContainer/InputContainer';
 import { CurrencyOption } from './CurrenciesMenu/CurrencyOption';
 import { StaticCurrencyImage } from './StaticCurrencyImage';
 import { TopUpInputPropsGeneric, CurrencyBase, TopUpInputPropsBase } from './types';
@@ -57,7 +57,7 @@ export const TopUpInput = <C extends CurrencyBase>(_props: TopUpInputPropsGeneri
 
   return (
     <div className={classNames('w-full', className)}>
-      <InputGeneral
+      <InputContainer
         header={
           <div className="w-full flex items-center justify-between">
             <span className="text-xl text-gray-900 leading-tight">{label}</span>
@@ -69,59 +69,6 @@ export const TopUpInput = <C extends CurrencyBase>(_props: TopUpInputPropsGeneri
             )}
           </div>
         }
-        mainContent={
-          <SelectGeneral<CurrencyBase>
-            testIds={{
-              dropdownTestId: testID
-            }}
-            dropdownButtonClassName="pl-4 pr-3 py-5"
-            DropdownFaceContent={
-              <TopUpMainContent singleToken={singleToken} fitIconsValue={fitIconsValue} currency={currency} />
-            }
-            Input={
-              <div
-                className={classNames(
-                  'flex-1 flex items-center justify-between px-2 h-18',
-                  amountInputDisabled && 'bg-gray-100'
-                )}
-              >
-                <div className="h-full flex-1 flex items-end justify-center flex-col">
-                  <AssetField
-                    value={amount?.toString()}
-                    assetDecimals={decimals}
-                    readOnly={readOnly}
-                    className={classNames(
-                      'appearance-none w-full pl-0 border-2 border-gray-300 bg-gray-100 rounded-md leading-tight',
-                      'focus:bg-transparent focus:border-primary-orange focus:outline-none focus:shadow-outline, focus:shadow-none',
-                      'text-gray-700 text-2xl text-right placeholder-alphagray border-none bg-opacity-0',
-                      'transition ease-in-out duration-200'
-                    )}
-                    style={{ padding: 0, borderRadius: 0 }}
-                    placeholder={toLocalFormat(0, { decimalPlaces: 2 })}
-                    type="text"
-                    min={0}
-                    maxLength={15}
-                    disabled={amountInputDisabled}
-                    fieldWrapperBottomMargin={false}
-                    onChange={handleAmountChange}
-                  />
-                </div>
-              </div>
-            }
-            optionsProps={{
-              isLoading: isCurrenciesLoading,
-              options: filteredCurrencies,
-              noItemsText: emptyListPlaceholder,
-              renderOptionContent: currCurrency =>
-                renderOptionContent(currCurrency, JSON.stringify(currCurrency) === JSON.stringify(currency)),
-              onOptionChange: newValue => onCurrencySelect?.(newValue)
-            }}
-            searchProps={{
-              searchValue,
-              onSearchChange: event => setSearchValue(event.target.value)
-            }}
-          />
-        }
         footer={
           <ErrorsComponent
             coin={currency.code}
@@ -130,7 +77,60 @@ export const TopUpInput = <C extends CurrencyBase>(_props: TopUpInputPropsGeneri
             maxAmount={maxAmount}
           />
         }
-      />
+      >
+        <DropdownSelect<CurrencyBase>
+          testIds={{
+            dropdownTestId: testID
+          }}
+          dropdownButtonClassName="pl-4 pr-3 py-5"
+          DropdownFaceContent={
+            <TopUpMainContent singleToken={singleToken} fitIconsValue={fitIconsValue} currency={currency} />
+          }
+          Input={
+            <div
+              className={classNames(
+                'flex-1 flex items-center justify-between px-2 h-18',
+                amountInputDisabled && 'bg-gray-100'
+              )}
+            >
+              <div className="h-full flex-1 flex items-end justify-center flex-col">
+                <AssetField
+                  value={amount?.toString()}
+                  assetDecimals={decimals}
+                  readOnly={readOnly}
+                  className={classNames(
+                    'appearance-none w-full pl-0 border-2 border-gray-300 bg-gray-100 rounded-md leading-tight',
+                    'focus:bg-transparent focus:border-primary-orange focus:outline-none focus:shadow-outline, focus:shadow-none',
+                    'text-gray-700 text-2xl text-right placeholder-alphagray border-none bg-opacity-0',
+                    'transition ease-in-out duration-200'
+                  )}
+                  style={{ padding: 0, borderRadius: 0 }}
+                  placeholder={toLocalFormat(0, { decimalPlaces: 2 })}
+                  type="text"
+                  min={0}
+                  maxLength={15}
+                  disabled={amountInputDisabled}
+                  fieldWrapperBottomMargin={false}
+                  onChange={handleAmountChange}
+                />
+              </div>
+            </div>
+          }
+          optionsProps={{
+            isLoading: isCurrenciesLoading,
+            options: filteredCurrencies,
+            noItemsText: emptyListPlaceholder,
+            getKey: option => option.code,
+            renderOptionContent: currCurrency =>
+              renderOptionContent(currCurrency, JSON.stringify(currCurrency) === JSON.stringify(currency)),
+            onOptionChange: newValue => onCurrencySelect?.(newValue)
+          }}
+          searchProps={{
+            searchValue,
+            onSearchChange: event => setSearchValue(event.target.value)
+          }}
+        />
+      </InputContainer>
     </div>
   );
 };

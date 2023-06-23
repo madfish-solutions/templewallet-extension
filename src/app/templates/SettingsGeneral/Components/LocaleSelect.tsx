@@ -4,17 +4,13 @@ import classNames from 'clsx';
 import browser from 'webextension-polyfill';
 
 import Flag from 'app/atoms/Flag';
-import { InputGeneral } from 'app/templates/InputGeneral/InputGeneral';
-import { SelectGeneral } from 'app/templates/InputGeneral/SelectGeneral';
+import { DropdownSelect } from 'app/templates/DropdownSelect/DropdownSelect';
+import { InputContainer } from 'app/templates/InputContainer/InputContainer';
 import { AnalyticsEventCategory, AnalyticsEventEnum, setTestID, useAnalytics } from 'lib/analytics';
 import { getCurrentLocale, updateLocale, T } from 'lib/i18n';
 import { searchAndFilterItems } from 'lib/utils/search-items';
 
 import { SettingsGeneralSelectors } from '../selectors';
-
-type LocaleSelectProps = {
-  className?: string;
-};
 
 type LocaleOption = {
   code: string;
@@ -99,7 +95,7 @@ const LOCALE_OPTIONS: LocaleOption[] = [
   }
 ];
 
-const LocaleSelect: FC<LocaleSelectProps> = () => {
+const LocaleSelect: FC = () => {
   const selectedLocale = getCurrentLocale();
   const { trackEvent } = useAnalytics();
   const [searchValue, setSearchValue] = useState<string>('');
@@ -128,31 +124,27 @@ const LocaleSelect: FC<LocaleSelectProps> = () => {
   );
 
   return (
-    <div className="mb-8">
-      <InputGeneral
-        header={<LocaleTitle />}
-        mainContent={
-          <SelectGeneral
-            testIds={{
-              dropdownTestId: SettingsGeneralSelectors.languageDropDown
-            }}
-            optionsListClassName="p-2"
-            dropdownButtonClassName="p-3"
-            DropdownFaceContent={<LocaleFieldContent {...value} />}
-            optionsProps={{
-              options,
-              noItemsText: 'No items',
-              renderOptionContent: option => renderOptionContent(option, option.code === value.code),
-              onOptionChange: handleLocaleChange
-            }}
-            searchProps={{
-              searchValue,
-              onSearchChange: event => setSearchValue(event?.target.value)
-            }}
-          />
-        }
+    <InputContainer className="mb-8" header={<LocaleTitle />}>
+      <DropdownSelect
+        testIds={{
+          dropdownTestId: SettingsGeneralSelectors.languageDropDown
+        }}
+        optionsListClassName="p-2"
+        dropdownButtonClassName="p-3"
+        DropdownFaceContent={<LocaleFieldContent {...value} />}
+        optionsProps={{
+          options,
+          noItemsText: 'No items',
+          getKey: option => option.code,
+          renderOptionContent: option => renderOptionContent(option, option.code === value.code),
+          onOptionChange: handleLocaleChange
+        }}
+        searchProps={{
+          searchValue,
+          onSearchChange: event => setSearchValue(event?.target.value)
+        }}
       />
-    </div>
+    </InputContainer>
   );
 };
 

@@ -2,7 +2,6 @@ import React, { ChangeEventHandler, ReactNode, FC, Dispatch, SetStateAction } fr
 
 import { isDefined } from '@rnw-community/shared';
 import classNames from 'clsx';
-import { v4 } from 'uuid';
 
 import AssetField from 'app/atoms/AssetField';
 import DropdownWrapper from 'app/atoms/DropdownWrapper';
@@ -27,7 +26,7 @@ interface Props<T> {
   };
 }
 
-export const SelectGeneral = <T extends unknown>({
+export const DropdownSelect = <T extends unknown>({
   Input,
   searchProps,
   optionsProps,
@@ -65,7 +64,10 @@ export const SelectGeneral = <T extends unknown>({
           {opened ? (
             <SelectSearch className={dropdownButtonClassName} {...searchProps} />
           ) : (
-            <div className="w-full flex items-center justify-between border rounded-md border-gray-300 overflow-hidden max-h-18">
+            <div
+              className="box-border w-full flex items-center justify-between border rounded-md border-gray-300 overflow-hidden max-h-18"
+              style={{ maxHeight: '4.5rem' }}
+            >
               <button
                 className={classNames(
                   'flex gap-2 items-center',
@@ -77,6 +79,7 @@ export const SelectGeneral = <T extends unknown>({
                   toggleOpened();
                   trackDropdownClick();
                 }}
+                style={{ maxHeight: '4.5rem' }}
                 {...setTestID(testIds?.dropdownTestId)}
               >
                 {DropdownFaceContent}
@@ -95,6 +98,7 @@ interface SelectOptionsPropsBase<Type> {
   noItemsText: ReactNode;
   isLoading?: boolean;
   optionsListClassName?: string;
+  getKey: (option: Type) => string;
   onOptionChange: (newValue: Type) => void;
   renderOptionContent: (option: Type) => ReactNode;
 }
@@ -109,6 +113,7 @@ const SelectOptions = <Type extends unknown>({
   noItemsText,
   isLoading,
   optionsListClassName,
+  getKey,
   onOptionChange,
   setOpened,
   renderOptionContent
@@ -142,7 +147,7 @@ const SelectOptions = <Type extends unknown>({
 
       <ul className={optionsListClassName}>
         {options.map(option => (
-          <li key={v4()}>
+          <li key={getKey(option)}>
             <button className="w-full" disabled={(option as any).disabled} onClick={() => handleOptionClick(option)}>
               {renderOptionContent(option)}
             </button>
@@ -177,6 +182,7 @@ const SelectSearch: FC<SelectSearchProps> = ({
         'w-full flex items-center transition ease-in-out duration-200 w-full border rounded-md border-orange-500 bg-gray-100',
         className
       )}
+      style={{ maxHeight: '4.5rem' }}
     >
       <div className="items-center mr-3">
         <SearchIcon className={classNames('w-6 h-auto text-gray-500 stroke-current stroke-2')} />

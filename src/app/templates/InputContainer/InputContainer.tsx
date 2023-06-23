@@ -5,15 +5,15 @@ import classNames from 'clsx';
 interface Props {
   className?: string;
   header?: ReactNode;
-  mainContent: ReactNode;
+  children: ReactNode;
   footer?: ReactNode;
 }
 
-export const InputGeneral: FC<Props> = ({ className, header, mainContent, footer }) => {
+export const InputContainer: FC<Props> = ({ className, header, children, footer }) => {
   return (
     <div className={classNames(className, 'w-full flex flex-col gap-1')}>
       {header && <div>{header}</div>}
-      <div>{mainContent}</div>
+      <div>{children}</div>
       {footer && <div>{footer}</div>}
     </div>
   );

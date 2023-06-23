@@ -4,26 +4,21 @@ import classNames from 'clsx';
 import browser from 'webextension-polyfill';
 
 import Flag from 'app/atoms/Flag';
-import { InputGeneral } from 'app/templates/InputGeneral/InputGeneral';
-import { SelectGeneral } from 'app/templates/InputGeneral/SelectGeneral';
+import { DropdownSelect } from 'app/templates/DropdownSelect/DropdownSelect';
+import { InputContainer } from 'app/templates/InputContainer/InputContainer';
 import { setTestID } from 'lib/analytics';
 import { T } from 'lib/i18n';
 import { BlockExplorer, useChainId, BLOCK_EXPLORERS, useBlockExplorer } from 'lib/temple/front';
 import { isKnownChainId } from 'lib/temple/types';
 import { searchAndFilterItems } from 'lib/utils/search-items';
 
-import { IconifiedSelectOptionRenderProps } from '../../IconifiedSelect';
 import { SettingsGeneralSelectors } from '../selectors';
-
-type BlockExplorerSelectProps = {
-  className?: string;
-};
 
 const renderOptionContent = (option: BlockExplorer, isSelected: boolean) => (
   <BlockExplorerOptionContent option={option} isSelected={isSelected} />
 );
 
-const BlockExplorerSelect: FC<BlockExplorerSelectProps> = () => {
+const BlockExplorerSelect = () => {
   const { explorer, setExplorerId } = useBlockExplorer();
   const chainId = useChainId(true)!;
   const [searchValue, setSearchValue] = useState<string>('');
@@ -47,30 +42,28 @@ const BlockExplorerSelect: FC<BlockExplorerSelectProps> = () => {
 
   return (
     <div className="mb-8">
-      <InputGeneral
-        header={<BlockExplorerTitle />}
-        mainContent={
-          <SelectGeneral
-            testIds={{
-              dropdownTestId: SettingsGeneralSelectors.blockExplorerDropDown
-            }}
-            optionsListClassName="p-2"
-            dropdownButtonClassName="p-3"
-            DropdownFaceContent={<BlockExplorerFieldContent option={explorer} />}
-            optionsProps={{
-              options,
-              noItemsText: 'No items',
-              renderOptionContent: option =>
-                renderOptionContent(option, JSON.stringify(option) === JSON.stringify(explorer)),
-              onOptionChange: handleBlockExplorerChange
-            }}
-            searchProps={{
-              searchValue,
-              onSearchChange: event => setSearchValue(event?.target.value)
-            }}
-          />
-        }
-      />
+      <InputContainer header={<BlockExplorerTitle />}>
+        <DropdownSelect
+          testIds={{
+            dropdownTestId: SettingsGeneralSelectors.blockExplorerDropDown
+          }}
+          optionsListClassName="p-2"
+          dropdownButtonClassName="p-3"
+          DropdownFaceContent={<BlockExplorerFieldContent {...explorer} />}
+          optionsProps={{
+            options,
+            noItemsText: 'No items',
+            getKey: option => option.id,
+            renderOptionContent: option =>
+              renderOptionContent(option, JSON.stringify(option) === JSON.stringify(explorer)),
+            onOptionChange: handleBlockExplorerChange
+          }}
+          searchProps={{
+            searchValue,
+            onSearchChange: event => setSearchValue(event?.target.value)
+          }}
+        />
+      </InputContainer>
     </div>
   );
 };
@@ -85,16 +78,16 @@ const BlockExplorerTitle: FC = () => (
   </h2>
 );
 
-const BlockExplorerIcon: FC<IconifiedSelectOptionRenderProps<BlockExplorer>> = ({ option: { id, name } }) => (
+const BlockExplorerIcon: FC<Pick<BlockExplorer, 'id' | 'name'>> = ({ id, name }) => (
   <Flag alt={name} className="ml-2 mr-3" src={browser.runtime.getURL(`/misc/explorer-logos/${id}.ico`)} />
 );
 
-const BlockExplorerFieldContent: FC<IconifiedSelectOptionRenderProps<BlockExplorer>> = ({ option }) => {
+const BlockExplorerFieldContent: FC<BlockExplorer> = ({ id, name }) => {
   return (
     <div className="flex items-center">
-      <BlockExplorerIcon option={option} />
+      <BlockExplorerIcon id={id} name={name} />
 
-      <span className="text-xl text-gray-700">{option.name}</span>
+      <span className="text-xl text-gray-700">{name}</span>
     </div>
   );
 };
@@ -112,7 +105,7 @@ const BlockExplorerOptionContent: FC<BlockExplorerOptionContentProps> = ({ optio
         isSelected ? 'bg-gray-200' : 'hover:bg-gray-100'
       )}
     >
-      <BlockExplorerIcon option={option} />
+      <BlockExplorerIcon id={option.id} name={option.name} />
 
       <div className="w-full text-lg text-gray-700" {...setTestID(SettingsGeneralSelectors.blockExplorerItem)}>
         {option.name}
