@@ -19,5 +19,5 @@ interface SwapFormTestIDs {
   dropdown: string;
   input?: string;
   searchInput?: string;
-  assetSelector?: string;
+  assetDropDownButton?: string;
 }

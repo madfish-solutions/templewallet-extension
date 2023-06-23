@@ -21,6 +21,7 @@ import { PageLayoutSelectors } from './PageLayout.selectors';
 import { ChangelogOverlay } from './PageLayout/ChangelogOverlay/ChangelogOverlay';
 import ConfirmationOverlay from './PageLayout/ConfirmationOverlay';
 import Header from './PageLayout/Header';
+import { OnRampOverlay } from './PageLayout/OnRampOverlay/OnRampOverlay';
 
 interface PageLayoutProps extends PropsWithChildren, ToolbarProps {
   contentContainerStyle?: React.CSSProperties;
@@ -50,6 +51,7 @@ const PageLayout: FC<PageLayoutProps> = ({ children, contentContainerStyle, ...t
       <AdvertisingOverlay />
       <ConfirmationOverlay />
       <ChangelogOverlay />
+      <OnRampOverlay />
     </>
   );
 };

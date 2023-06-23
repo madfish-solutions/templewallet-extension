@@ -838,7 +838,7 @@ const WatchOnlyForm: FC = () => {
         control={control}
         rules={{
           required: true,
-          validate: (value: any) => validateDelegate(value, domainsClient, validateAddress)
+          validate: (value: any) => validateDelegate(value, domainsClient)
         }}
         onChange={([v]) => v}
         onFocus={() => addressFieldRef.current?.focus()}
@@ -873,19 +873,6 @@ const WatchOnlyForm: FC = () => {
     </form>
   );
 };
-
-function validateAddress(value: string) {
-  switch (false) {
-    case value?.length > 0:
-      return true;
-
-    case isAddressValid(value):
-      return 'invalidAddress';
-
-    default:
-      return true;
-  }
-}
 
 type FaucetFileInputProps = Pick<FileInputProps, 'disabled' | 'onChange'>;
 
