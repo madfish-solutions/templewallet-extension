@@ -145,7 +145,7 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
           dropdownButtonClassName="pl-4 pr-3 py-5"
           DropdownFaceContent={
             <SwapDropdownFace
-              testId={testIDs?.assetSelector}
+              testId={testIDs?.assetDropDownButton}
               selectedAssetSlug={assetSlug}
               selectedAssetMetadata={assetMetadata}
             />
