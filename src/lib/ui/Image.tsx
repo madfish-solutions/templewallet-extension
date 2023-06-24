@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 
 import ReactImageFallback from 'react-image-fallback';
 
-interface Props {
+interface ImageProps {
   src?: string | (string | undefined)[];
   alt?: string;
   className?: string;
@@ -21,7 +21,7 @@ interface Props {
 ReactImageFallback.prototype.componentDidUpdate = ReactImageFallback.prototype.componentWillReceiveProps;
 delete ReactImageFallback.prototype.componentWillReceiveProps;
 
-export const Image: React.FC<Props> = ({ src: sources, alt, loader, fallback, ...rest }) => {
+export const Image: React.FC<ImageProps> = ({ src: sources, alt, loader, fallback, ...rest }) => {
   const localFallback = useMemo(() => fallback || <img alt={alt} {...rest} />, [alt, rest]);
 
   const { src, fallbackImage } = useMemo(() => {

@@ -1,6 +1,7 @@
 import React, { FC, useCallback, useRef, useState } from 'react';
 
-import { AssetIcon } from 'app/templates/AssetIcon';
+import { useAppEnv } from 'app/env';
+import { CollectibleItemImage } from 'app/pages/Collectibles/CollectibleItemImage';
 import { useAssetMetadata, getAssetName } from 'lib/metadata';
 import { useIntersectionDetection } from 'lib/ui/use-intersection-detection';
 import { Link } from 'lib/woozie';
@@ -9,9 +10,11 @@ interface Props {
   assetSlug: string;
   index: number;
   itemsLength: number;
+  detailsShown?: boolean;
 }
 
-export const CollectibleItem: FC<Props> = ({ assetSlug, index, itemsLength }) => {
+export const CollectibleItem: FC<Props> = ({ assetSlug, detailsShown }) => {
+  const { popup } = useAppEnv();
   const metadata = useAssetMetadata(assetSlug);
   const toDisplayRef = useRef<HTMLDivElement>(null);
   const [displayed, setDisplayed] = useState(true);
@@ -25,21 +28,16 @@ export const CollectibleItem: FC<Props> = ({ assetSlug, index, itemsLength }) =>
   if (metadata == null) return null;
 
   return (
-    <Link to={`/collectible/${assetSlug}`}>
-      <div className="flex items-center" style={index === itemsLength - 1 ? {} : { borderBottom: '1px solid #e2e8f0' }}>
-        <div className="p-2">
-          <div
-            ref={toDisplayRef}
-            style={{ borderRadius: '12px' }}
-            className="border border-gray-300 w-16 h-16 flex items-center justify-center overflow-hidden p-2"
-          >
-            {displayed && <AssetIcon assetSlug={assetSlug} className="w-12 h-12" />}
-          </div>
-        </div>
-        <div className="pl-2">
+    <Link to={`/collectible/${assetSlug}`} className="flex flex-col">
+      <div ref={toDisplayRef} style={{ height: popup ? 106 : 125 }}>
+        {displayed && <CollectibleItemImage metadata={metadata} assetSlug={assetSlug} className="m-auto" />}
+      </div>
+
+      {detailsShown && (
+        <div className="mt-2">
           <p className="text-sm text-gray-910">{getAssetName(metadata)}</p>
         </div>
-      </div>
+      )}
     </Link>
   );
 };

@@ -1,6 +1,6 @@
 import React, { FC, memo, useMemo } from 'react';
 
-import classNames from 'clsx';
+import clsx from 'clsx';
 
 import Identicon from 'app/atoms/Identicon';
 import { ReactComponent as CollectiblePlaceholder } from 'app/icons/collectible-placeholder.svg';
@@ -25,9 +25,10 @@ interface Props {
   assetSlug: string;
   className?: string;
   size?: number;
+  style?: React.CSSProperties;
 }
 
-export const AssetIcon: FC<Props> = memo<Props>(({ assetSlug, className, size }) => {
+export const AssetIcon: FC<Props> = memo<Props>(({ assetSlug, className, size, style }) => {
   const metadata = useAssetMetadata(assetSlug);
 
   const src = useMemo(() => {
@@ -36,7 +37,7 @@ export const AssetIcon: FC<Props> = memo<Props>(({ assetSlug, className, size })
   }, [metadata, assetSlug]);
 
   return (
-    <div className={classNames('flex items-center justify-center', className)}>
+    <div className={clsx('flex items-center justify-center', className)} style={style}>
       <Image
         src={src}
         loader={<AssetIconPlaceholder metadata={metadata} size={size} />}

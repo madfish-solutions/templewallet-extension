@@ -22,7 +22,7 @@ import { AssetsSelectors } from '../Assets.selectors';
 import { ListItem } from './components/ListItem';
 import { toExploreAssetLink } from './utils';
 
-export const Tokens: FC = () => {
+export const TokensTab: FC = () => {
   const dispatch = useDispatch();
   const chainId = useChainId(true)!;
   const balances = useBalancesWithDecimals();
