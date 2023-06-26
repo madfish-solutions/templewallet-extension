@@ -1,12 +1,11 @@
 import React, { FC, useCallback, useRef, useState } from 'react';
 
-import Spinner from 'app/atoms/Spinner/Spinner';
 import { useAppEnv } from 'app/env';
-import { ReactComponent as BrokenImageSvg } from 'app/icons/broken-image.svg';
-import { AssetImage } from 'app/templates/AssetImage';
 import { useAssetMetadata, getAssetName } from 'lib/metadata';
 import { useIntersectionDetection } from 'lib/ui/use-intersection-detection';
 import { Link } from 'lib/woozie';
+
+import { CollectibleItemImage } from './CollectibleItemImage';
 
 interface Props {
   assetSlug: string;
@@ -27,24 +26,14 @@ export const CollectibleItem: FC<Props> = ({ assetSlug, detailsShown }) => {
 
   useIntersectionDetection(toDisplayRef, handleIntersection, !displayed);
 
-  if (metadata == null) return null;
-
   return (
-    <Link to={`/collectible/${assetSlug}`} className="flex flex-col">
+    <Link to={`/collectible/${assetSlug}`} className="flex flex-col border border-gray-300 rounded-lg">
       <div
         ref={toDisplayRef}
-        className="bg-blue-50 rounded-lg overflow-hidden hover:opacity-70"
+        className="flex items-center justify-center bg-blue-50 rounded-lg overflow-hidden hover:opacity-70"
         style={{ height: popup ? 106 : 125 }}
       >
-        {displayed && (
-          <AssetImage
-            metadata={metadata}
-            assetSlug={assetSlug}
-            className="m-auto"
-            loader={<ImageLoader />}
-            fallback={<ImageFallback />}
-          />
-        )}
+        {displayed && <CollectibleItemImage metadata={metadata} assetSlug={assetSlug} />}
       </div>
 
       {detailsShown && (
@@ -55,15 +44,3 @@ export const CollectibleItem: FC<Props> = ({ assetSlug, detailsShown }) => {
     </Link>
   );
 };
-
-const ImageLoader: FC = () => (
-  <div className="w-full h-full flex items-center justify-center">
-    <Spinner theme="dark-gray" className="w-8" />
-  </div>
-);
-
-const ImageFallback: FC = () => (
-  <div className="w-full h-full flex items-center justify-center">
-    <BrokenImageSvg height="32%" />
-  </div>
-);
