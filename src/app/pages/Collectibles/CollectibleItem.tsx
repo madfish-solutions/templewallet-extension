@@ -31,7 +31,11 @@ export const CollectibleItem: FC<Props> = ({ assetSlug, detailsShown }) => {
 
   return (
     <Link to={`/collectible/${assetSlug}`} className="flex flex-col">
-      <div ref={toDisplayRef} className="bg-blue-50 rounded-lg overflow-hidden" style={{ height: popup ? 106 : 125 }}>
+      <div
+        ref={toDisplayRef}
+        className="bg-blue-50 rounded-lg overflow-hidden hover:opacity-70"
+        style={{ height: popup ? 106 : 125 }}
+      >
         {displayed && (
           <AssetImage
             metadata={metadata}
