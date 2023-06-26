@@ -1,7 +1,9 @@
 import React, { FC, useCallback, useRef, useState } from 'react';
 
+import Spinner from 'app/atoms/Spinner/Spinner';
 import { useAppEnv } from 'app/env';
-import { CollectibleItemImage } from 'app/pages/Collectibles/CollectibleItemImage';
+import { ReactComponent as BrokenImageSvg } from 'app/icons/broken-image.svg';
+import { AssetImage } from 'app/templates/AssetImage';
 import { useAssetMetadata, getAssetName } from 'lib/metadata';
 import { useIntersectionDetection } from 'lib/ui/use-intersection-detection';
 import { Link } from 'lib/woozie';
@@ -29,8 +31,16 @@ export const CollectibleItem: FC<Props> = ({ assetSlug, detailsShown }) => {
 
   return (
     <Link to={`/collectible/${assetSlug}`} className="flex flex-col">
-      <div ref={toDisplayRef} style={{ height: popup ? 106 : 125 }}>
-        {displayed && <CollectibleItemImage metadata={metadata} assetSlug={assetSlug} className="m-auto" />}
+      <div ref={toDisplayRef} className="bg-blue-50 rounded-lg overflow-hidden" style={{ height: popup ? 106 : 125 }}>
+        {displayed && (
+          <AssetImage
+            metadata={metadata}
+            assetSlug={assetSlug}
+            className="m-auto"
+            loader={<ImageLoader />}
+            fallback={<ImageFallback />}
+          />
+        )}
       </div>
 
       {detailsShown && (
@@ -41,3 +51,15 @@ export const CollectibleItem: FC<Props> = ({ assetSlug, detailsShown }) => {
     </Link>
   );
 };
+
+const ImageLoader: FC = () => (
+  <div className="w-full h-full flex items-center justify-center">
+    <Spinner theme="dark-gray" className="w-8" />
+  </div>
+);
+
+const ImageFallback: FC = () => (
+  <div className="w-full h-full flex items-center justify-center">
+    <BrokenImageSvg height="32%" />
+  </div>
+);

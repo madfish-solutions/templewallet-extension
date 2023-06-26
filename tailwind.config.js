@@ -100,6 +100,7 @@ module.exports = {
           900: '#234e52'
         },
         blue: {
+          50: '#e8f1fd',
           100: '#ebf8ff',
           150: '#E5F2FF',
           200: '#bee3f8',

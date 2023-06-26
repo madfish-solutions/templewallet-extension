@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 
 import ReactImageFallback from 'react-image-fallback';
 
-interface ImageProps {
+export interface ImageProps {
   src?: string | (string | undefined)[];
   alt?: string;
   className?: string;

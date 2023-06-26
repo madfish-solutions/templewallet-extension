@@ -1,19 +1,18 @@
-import React, { FC, memo, useMemo } from 'react';
+import React, { memo, useMemo } from 'react';
 
-import { ReactComponent as CollectiblePlaceholderSvg } from 'app/icons/collectible-placeholder.svg';
 import { AssetMetadataBase, isCollectible } from 'lib/metadata';
 import { buildTokenIconURLs, buildCollectibleImageURLs } from 'lib/temple/front';
-import { Image } from 'lib/ui/Image';
+import { Image, ImageProps } from 'lib/ui/Image';
 
-interface Props {
+export interface AssetImageProps extends Pick<ImageProps, 'loader' | 'fallback'> {
   assetSlug: string;
-  metadata: AssetMetadataBase;
+  metadata?: AssetMetadataBase;
   className?: string;
   size?: number;
   style?: React.CSSProperties;
 }
 
-export const CollectibleItemImage: FC<Props> = memo<Props>(({ metadata, assetSlug, className, size, style }) => {
+export const AssetImage = memo<AssetImageProps>(({ metadata, assetSlug, className, size, style, loader, fallback }) => {
   const src = useMemo(() => {
     if (metadata && isCollectible(metadata)) return buildCollectibleImageURLs(assetSlug, metadata, size == null);
     else return buildTokenIconURLs(metadata?.thumbnailUri, size == null);
@@ -32,8 +31,8 @@ export const CollectibleItemImage: FC<Props> = memo<Props>(({ metadata, assetSlu
   return (
     <Image
       src={src}
-      loader={<ImagePlaceholder metadata={metadata} size={size} />}
-      fallback={<ImagePlaceholder metadata={metadata} size={size} />}
+      loader={loader}
+      fallback={fallback}
       alt={metadata?.name}
       className={className}
       style={styleMemo}
@@ -42,14 +41,3 @@ export const CollectibleItemImage: FC<Props> = memo<Props>(({ metadata, assetSlu
     />
   );
 });
-
-interface PlaceholderProps {
-  metadata: AssetMetadataBase | nullish;
-  size?: number;
-}
-
-const ImagePlaceholder: FC<PlaceholderProps> = ({ size }) => {
-  const styleMemo = useMemo(() => ({ maxWidth: `${size}px`, width: '100%', height: '100%' }), [size]);
-
-  return <CollectiblePlaceholderSvg style={styleMemo} />;
-};
