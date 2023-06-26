@@ -787,6 +787,15 @@
   "enable": {
     "message": "有効にする"
   },
+  "enableAds": {
+    "message": "Enable Ads"
+  },
+  "enablePartnersPromotionConfirm": {
+    "message": "Support the development team and earn tokens by viewing ads inside the wallet."
+  },
+  "enablePartnersPromotionDescriptionConfirm": {
+    "message": "To enable this feature, we request your permission to trace your Wallet Address and IP address. You can always disable ads in the settings."
+  },
   "dAppsCheckmarkPrompt": {
     "message": "チェックマークをクリックして、DAppsインタラクション機能を$action$",
     "description": "DApps = Decentralized Applications",
