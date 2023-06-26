@@ -1,15 +1,18 @@
-import React, { FC, ReactNode, Suspense, useMemo } from 'react';
+import React, { FC, ReactNode, Suspense, useMemo, useRef } from 'react';
 
-import classNames from 'clsx';
+import clsx from 'clsx';
 
 import Spinner from 'app/atoms/Spinner/Spinner';
 import { useTabSlug } from 'app/atoms/useTabSlug';
 import { useAppEnv } from 'app/env';
 import ErrorBoundary from 'app/ErrorBoundary';
+import { ToolbarElement } from 'app/layouts/PageLayout';
 import { ActivityComponent } from 'app/templates/activity/Activity';
 import AssetInfo from 'app/templates/AssetInfo';
+import { ABTestGroup } from 'lib/apis/temple';
 import { isTezAsset } from 'lib/assets';
 import { T, t, TID } from 'lib/i18n';
+import { useDidUpdate } from 'lib/ui/hooks';
 import { Link } from 'lib/woozie';
 
 import { useUserTestingGroupNameSelector } from '../../store/ab-testing/selectors';
@@ -110,36 +113,30 @@ export const ContentSection: FC<Props> = ({ assetSlug, className }) => {
     return tab ?? tabs[0];
   }, [tabSlug, tabs]);
 
-  return (
-    <div className={classNames('-mx-4 shadow-top-light', fullPage && 'rounded-t-md', className)}>
-      <div className="w-full max-w-sm mx-auto flex items-center justify-center">
-        {tabs.map(currentTab => {
-          const active = slug === currentTab.slug;
+  const tabBarElemRef = useRef<HTMLDivElement>(null);
 
-          return (
-            <Link
-              key={assetSlug ? `asset_${currentTab.slug}` : currentTab.slug}
-              to={lctn => ({ ...lctn, search: `?tab=${currentTab.slug}` })}
-              replace
-              className={classNames(
-                'flex1 w-full',
-                'text-center cursor-pointer py-2',
-                'text-gray-500 text-xs font-medium',
-                'border-t-3',
-                active ? 'border-primary-orange' : 'border-transparent',
-                active ? 'text-primary-orange' : 'hover:text-primary-orange',
-                'transition ease-in-out duration-300',
-                'truncate'
-              )}
-              testID={currentTab.testID}
-              testIDProperties={{
-                ...(currentTab.slug === 'delegation' && { abTestingCategory: testGroupName })
-              }}
-            >
-              <T id={currentTab.titleI18nKey} />
-            </Link>
-          );
-        })}
+  useDidUpdate(() => {
+    if (!tabBarElemRef.current) return;
+
+    const stickyBarHeight = ToolbarElement?.scrollHeight ?? 0;
+
+    window.scrollTo({
+      top: window.pageYOffset + tabBarElemRef.current.getBoundingClientRect().top - stickyBarHeight,
+      behavior: 'smooth'
+    });
+  }, [tabSlug]);
+
+  return (
+    <div className={clsx('-mx-4 shadow-top-light', fullPage && 'rounded-t-md', className)}>
+      <div ref={tabBarElemRef} className="w-full max-w-sm mx-auto flex items-center justify-center">
+        {tabs.map(tab => (
+          <TabButton
+            key={assetSlug ? `asset_${tab.slug}` : tab.slug}
+            tab={tab}
+            active={slug === tab.slug}
+            testGroupName={testGroupName}
+          />
+        ))}
       </div>
 
       <SuspenseContainer whileMessage="displaying tab">{Component && <Component />}</SuspenseContainer>
@@ -163,3 +160,34 @@ const SpinnerSection: FC = () => (
     <Spinner theme="gray" className="w-20" />
   </div>
 );
+
+interface TabButtonProps {
+  tab: TabData;
+  active: boolean;
+  testGroupName: ABTestGroup;
+}
+
+const TabButton: FC<TabButtonProps> = ({ tab, active, testGroupName }) => {
+  return (
+    <Link
+      to={lctn => ({ ...lctn, search: `?tab=${tab.slug}` })}
+      replace
+      className={clsx(
+        'flex1 w-full',
+        'text-center cursor-pointer py-2',
+        'text-gray-500 text-xs font-medium',
+        'border-t-3',
+        active ? 'border-primary-orange' : 'border-transparent',
+        active ? 'text-primary-orange' : 'hover:text-primary-orange',
+        'transition ease-in-out duration-300',
+        'truncate'
+      )}
+      testID={tab.testID}
+      testIDProperties={{
+        ...(tab.slug === 'delegation' && { abTestingCategory: testGroupName })
+      }}
+    >
+      <T id={tab.titleI18nKey} />
+    </Link>
+  );
+};
