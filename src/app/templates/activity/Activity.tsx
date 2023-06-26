@@ -14,6 +14,8 @@ import { T } from 'lib/i18n/react';
 import useActivities from 'lib/temple/activity-new/hook';
 import { useAccount } from 'lib/temple/front';
 
+import { useShouldShowPartnersPromoSelector } from '../../store/partners-promotion/selectors';
+import { useIsEnabledAdsBannerSelector } from '../../store/settings/selectors';
 import { ActivityItem } from './ActivityItem';
 
 const INITIAL_NUMBER = 30;
@@ -31,7 +33,19 @@ export const ActivityComponent: React.FC<Props> = ({ assetSlug }) => {
 
   const { publicKeyHash: accountAddress } = useAccount();
 
-  useEffect(() => void dispatch(loadPartnersPromoAction.submit(OptimalPromoVariantEnum.Fullview)), []);
+  const isShouldShowPartnersPromoState = useShouldShowPartnersPromoSelector();
+  const isEnabledAdsBanner = useIsEnabledAdsBannerSelector();
+
+  useEffect(() => {
+    if (isShouldShowPartnersPromoState && !isEnabledAdsBanner) {
+      dispatch(
+        loadPartnersPromoAction.submit({
+          optimalPromoVariantEnum: OptimalPromoVariantEnum.Fullview,
+          accountAddress
+        })
+      );
+    }
+  }, [isShouldShowPartnersPromoState, isEnabledAdsBanner]);
 
   if (activities.length === 0 && !loading && reachedTheEnd) {
     return (
