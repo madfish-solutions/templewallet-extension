@@ -24,6 +24,7 @@ export namespace KNOWN_TOKENS_SLUGS {
 
 const PREDEFINED_TOKENS_BY_CHAIN_ID: Record<string, string[]> = {
   [TempleChainId.Mainnet]: [
+    KNOWN_TOKENS_SLUGS.TEMPLE,
     KNOWN_TOKENS_SLUGS.USDT,
     KNOWN_TOKENS_SLUGS.UUSD,
     KNOWN_TOKENS_SLUGS.KUSD,

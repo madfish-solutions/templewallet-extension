@@ -11,7 +11,7 @@ import { useBalancesSelector } from 'app/store/balances/selectors';
 import { useSwapTokensSelector } from 'app/store/swap/selectors';
 import { loadTokensMetadataAction } from 'app/store/tokens-metadata/actions';
 import { useTokensMetadataSelector, useTokensMetadataLoadingSelector } from 'app/store/tokens-metadata/selectors';
-import { isTezAsset, TEZ_TOKEN_SLUG, toTokenSlug } from 'lib/assets';
+import { isTezAsset, TEMPLE_TOKEN_SLUG, TEZ_TOKEN_SLUG, toTokenSlug } from 'lib/assets';
 import { AssetTypesEnum } from 'lib/assets/types';
 import { useUsdToTokenRates } from 'lib/fiat-currency/core';
 import { TOKENS_SYNC_INTERVAL } from 'lib/fixed-times';
@@ -220,11 +220,16 @@ export const useAvailableRoute3Tokens = () => {
 
 function makeAssetsSortPredicate(balances: Record<string, BigNumber>, fiatToTokenRates: Record<string, string>) {
   return (tokenASlug: string, tokenBSlug: string) => {
-    if (tokenASlug === TEZ_TOKEN_SLUG) {
+    if (tokenASlug === TEZ_TOKEN_SLUG && tokenBSlug === TEMPLE_TOKEN_SLUG) {
       return -1;
     }
-
-    if (tokenBSlug === TEZ_TOKEN_SLUG) {
+    if (tokenBSlug === TEZ_TOKEN_SLUG && tokenASlug === TEMPLE_TOKEN_SLUG) {
+      return 1;
+    }
+    if (tokenASlug === TEZ_TOKEN_SLUG || tokenASlug === TEMPLE_TOKEN_SLUG) {
+      return -1;
+    }
+    if (tokenBSlug === TEZ_TOKEN_SLUG || tokenBSlug === TEMPLE_TOKEN_SLUG) {
       return 1;
     }
 
