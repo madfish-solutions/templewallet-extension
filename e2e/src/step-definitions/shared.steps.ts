@@ -4,6 +4,7 @@ import { OperationStatusSelectors } from 'src/app/templates/OperationStatus.sele
 
 import { BrowserContext } from '../classes/browser-context.class';
 import { Pages } from '../page-objects';
+import { envVars } from '../utils/env.utils';
 import { iComparePrivateKeys } from '../utils/input-data.utils';
 import { LONG_TIMEOUT, MEDIUM_TIMEOUT } from '../utils/timing.utils';
 
@@ -33,3 +34,20 @@ Given(/I'm waiting for 'success ✓' operation status/, { timeout: LONG_TIMEOUT 
     timeout: LONG_TIMEOUT
   });
 });
+
+const hashObject = {
+  defaultAccountShortHash: envVars.DEFAULT_HD_ACCOUNT_FIRST_HASH_SHORT_FORM,
+  importedAccountShortHash: envVars.IMPORTED_HD_ACCOUNT_FIRST_HASH_SHORT_FORM,
+  watchOnlyAccountShortHash: envVars.WATCH_ONLY_PUBLIC_KEY_HASH_SHORT_FORM
+};
+
+Given(
+  /I check if (.*) is corresponded to the selected account/,
+  { timeout: MEDIUM_TIMEOUT },
+  async (hashType: keyof typeof hashObject) => {
+    const getPublicHash = await Pages.Home.PublicAddressButton.getText();
+    const hashValue = hashObject[hashType];
+
+    expect(getPublicHash).eql(hashValue);
+  }
+);

@@ -6,6 +6,7 @@
   "scripts": {
     "start": "./node_modules/.bin/cucumber-js --fail-fast",
     "start:dev": "yarn start --tags @dev",
+    "start:remove_account": "yarn start --tags @remove_account",
     "test": "yarn start --exit --tags 'not @dev'",
     "ts": "tsc --pretty"
   },
