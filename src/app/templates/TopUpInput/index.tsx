@@ -1,6 +1,7 @@
 import React, { FC } from 'react';
 
 import classNames from 'clsx';
+import { isEqual } from 'lodash';
 
 import AssetField from 'app/atoms/AssetField';
 import { getBigErrorText, getSmallErrorText } from 'app/pages/Buy/utils/errorText.utils';
@@ -121,8 +122,7 @@ export const TopUpInput = <C extends CurrencyBase>(_props: TopUpInputPropsGeneri
             options: filteredCurrencies,
             noItemsText: emptyListPlaceholder,
             getKey: option => option.code,
-            renderOptionContent: currCurrency =>
-              renderOptionContent(currCurrency, JSON.stringify(currCurrency) === JSON.stringify(currency)),
+            renderOptionContent: currCurrency => renderOptionContent(currCurrency, isEqual(currCurrency, currency)),
             onOptionChange: newValue => onCurrencySelect?.(newValue)
           }}
           searchProps={{

@@ -1,6 +1,7 @@
 import React, { useMemo, useCallback, FC, useState } from 'react';
 
 import classNames from 'clsx';
+import { isEqual } from 'lodash';
 import browser from 'webextension-polyfill';
 
 import Flag from 'app/atoms/Flag';
@@ -54,8 +55,7 @@ const BlockExplorerSelect = () => {
             options,
             noItemsText: 'No items',
             getKey: option => option.id,
-            renderOptionContent: option =>
-              renderOptionContent(option, JSON.stringify(option) === JSON.stringify(explorer)),
+            renderOptionContent: option => renderOptionContent(option, isEqual(option, explorer)),
             onOptionChange: handleBlockExplorerChange
           }}
           searchProps={{

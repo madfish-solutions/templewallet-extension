@@ -1,6 +1,7 @@
 import React, { FC, useCallback, useMemo, useState } from 'react';
 
 import classNames from 'clsx';
+import { isEqual } from 'lodash';
 import { useDebounce } from 'use-debounce';
 
 import Money from 'app/atoms/Money';
@@ -74,7 +75,7 @@ const AssetSelect: FC<AssetSelectProps> = ({ value, assets, onChange, className,
           noItemsText: t('noAssetsFound'),
           getKey: option => getSlug(option),
           onOptionChange: handleChange,
-          renderOptionContent: asset => renderOptionContent(asset, JSON.stringify(asset) === JSON.stringify(value))
+          renderOptionContent: asset => renderOptionContent(asset, isEqual(asset, value))
         }}
       />
     </InputContainer>
