@@ -218,18 +218,24 @@ export const useAvailableRoute3Tokens = () => {
   };
 };
 
+const FIRST_TOKENS = [TEZ_TOKEN_SLUG, TEMPLE_TOKEN_SLUG];
+
 function makeAssetsSortPredicate(balances: Record<string, BigNumber>, fiatToTokenRates: Record<string, string>) {
   return (tokenASlug: string, tokenBSlug: string) => {
-    if (tokenASlug === TEZ_TOKEN_SLUG && tokenBSlug === TEMPLE_TOKEN_SLUG) {
+    const tokenAIncluded = FIRST_TOKENS.includes(tokenASlug);
+    const tokenBIncluded = FIRST_TOKENS.includes(tokenBSlug);
+
+    if (tokenAIncluded && tokenBIncluded) {
+      const tokenAIndex = FIRST_TOKENS.indexOf(tokenASlug);
+      const tokenBIndex = FIRST_TOKENS.indexOf(tokenBSlug);
+
+      return tokenAIndex - tokenBIndex;
+    }
+    if (tokenAIncluded) {
       return -1;
     }
-    if (tokenBSlug === TEZ_TOKEN_SLUG && tokenASlug === TEMPLE_TOKEN_SLUG) {
-      return 1;
-    }
-    if (tokenASlug === TEZ_TOKEN_SLUG || tokenASlug === TEMPLE_TOKEN_SLUG) {
-      return -1;
-    }
-    if (tokenBSlug === TEZ_TOKEN_SLUG || tokenBSlug === TEMPLE_TOKEN_SLUG) {
+
+    if (tokenBIncluded) {
       return 1;
     }
 
