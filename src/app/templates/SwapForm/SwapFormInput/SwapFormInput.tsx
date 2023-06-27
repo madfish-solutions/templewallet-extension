@@ -184,7 +184,7 @@ interface SwapFieldProps {
 }
 
 const SwapDropdownFace: FC<SwapFieldProps> = ({ testId, selectedAssetSlug, selectedAssetMetadata }) => (
-  <div {...setTestID(testId)} style={{ maxHeight: '4.5rem' }}>
+  <div {...setTestID(testId)} className="max-h-18">
     {selectedAssetSlug ? (
       <div className="flex gap-2 align-center">
         <AssetIcon assetSlug={selectedAssetSlug} size={32} className="w-8" />

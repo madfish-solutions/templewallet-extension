@@ -64,13 +64,10 @@ export const DropdownSelect = <T extends unknown>({
           {opened ? (
             <SelectSearch className={dropdownButtonClassName} {...searchProps} />
           ) : (
-            <div
-              className="box-border w-full flex items-center justify-between border rounded-md border-gray-300 overflow-hidden max-h-18"
-              style={{ maxHeight: '4.5rem' }}
-            >
+            <div className="box-border w-full flex items-center justify-between border rounded-md border-gray-300 overflow-hidden max-h-18">
               <button
                 className={classNames(
-                  'flex gap-2 items-center',
+                  'flex gap-2 items-center max-h-18',
                   isInputDefined && 'border-r border-gray-300',
                   !isInputDefined && 'w-full justify-between',
                   dropdownButtonClassName
@@ -79,7 +76,6 @@ export const DropdownSelect = <T extends unknown>({
                   toggleOpened();
                   trackDropdownClick();
                 }}
-                style={{ maxHeight: '4.5rem' }}
                 {...setTestID(testIds?.dropdownTestId)}
               >
                 {DropdownFaceContent}
@@ -179,10 +175,9 @@ const SelectSearch: FC<SelectSearchProps> = ({
   return (
     <div
       className={classNames(
-        'w-full flex items-center transition ease-in-out duration-200 w-full border rounded-md border-orange-500 bg-gray-100',
+        'w-full flex items-center transition ease-in-out duration-200 w-full border rounded-md border-orange-500 bg-gray-100 max-h-18',
         className
       )}
-      style={{ maxHeight: '4.5rem' }}
     >
       <div className="items-center mr-3">
         <SearchIcon className={classNames('w-6 h-auto text-gray-500 stroke-current stroke-2')} />
