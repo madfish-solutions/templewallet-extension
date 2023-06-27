@@ -1,6 +1,6 @@
 Feature: Remove an account
   @remove_account
-  Scenario: As a user, I'd like to remove an imported account by mnemonic, private key and public key
+  Scenario: [Positive] As a user, I'd like to remove an imported account by mnemonic, private key and public key
     Given I have imported an existing account
 #    Remove an imported account by mnemonic
 
@@ -95,3 +95,12 @@ Feature: Remove an account
     And I am on the Home page
 
     Then I check if defaultAccountShortHash is corresponded to the selected account
+
+
+
+  @remove_account
+  Scenario: [Negative] As a user, I'd like to check validations and another errors on the "Remove Account" page
+    Given I have imported an existing account
+
+
+
