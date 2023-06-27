@@ -14,6 +14,10 @@ Before({ timeout: MEDIUM_TIMEOUT }, async () => {
 
   const page = await retry(async () => {
     const page = await BrowserContext.browser.newPage();
+    await page.setViewport({
+      height: 800,
+      width: 800
+    });
     try {
       const response = await page.goto(url);
       if (response == null || !response.ok) throw new Error('Failed to open page');
