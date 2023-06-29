@@ -311,6 +311,7 @@ module.exports = {
       };
     })(),
     fontSize: {
+      '2xs': '0.625rem',
       xs: '0.75rem',
       sm: '0.875rem',
       base: '1rem',
@@ -343,17 +344,6 @@ module.exports = {
       full: '100%',
       screen: '100vh'
     }),
-    inset: {
-      0: '0',
-      1: '0.25rem',
-      2: '0.5rem',
-      3: '0.75rem',
-      4: '1rem',
-      8: '2rem',
-      12: '3rem',
-      '1/2': '50%',
-      auto: 'auto'
-    },
     letterSpacing: {
       tighter: '-0.05em',
       tight: '-0.025em',

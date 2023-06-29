@@ -63,8 +63,14 @@ export const CollectiblesTab = () => {
         ) : (
           <>
             <div className="grid grid-cols-3 gap-1">
-              {filteredAssets.map((slug, index) => (
-                <CollectibleItem key={slug} assetSlug={slug} index={index} itemsLength={filteredAssets.length} />
+              {filteredAssets.map(slug => (
+                <CollectibleItem
+                  key={slug}
+                  assetSlug={slug}
+                  accountPkh={publicKeyHash}
+                  detailsShown={true}
+                  floorPrice={'1234.0001'}
+                />
               ))}
             </div>
 
