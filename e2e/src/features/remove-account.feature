@@ -33,7 +33,7 @@ Feature: Remove an account
     And I am on the Home page
     And I check if defaultAccountShortHash is corresponded to the selected account
 
-#    Remove an imported account private key
+#    Remove an imported account by private key
 
     And I press Account Icon on the Header page
     And I am on the AccountsDropdown page
@@ -64,7 +64,7 @@ Feature: Remove an account
     And I am on the Home page
     And I check if defaultAccountShortHash is corresponded to the selected account
 
-#    Remove an imported account public key
+#    Remove an imported account by public key
 
     And I press Account Icon on the Header page
     And I am on the AccountsDropdown page
@@ -113,4 +113,33 @@ Feature: Remove an account
     And I am on the RemoveAccount page
     And I got the 'Cannot be removed' error with Alert title Text element on the Alert page
 
+    And I press Account Icon on the Header page
+
+    And I am on the AccountsDropdown page
+    And I press Import Account Button on the Account Drop-down page
+
+    And I am on the ImportAccountTab page
+    And I select Mnemonic tab
+
+    And I am on the ImportAccountMnemonic page
+    And I enter second mnemonic
+    And I press Mnemonic Import Button on the Import Account(Mnemonic) page
+
+    And I am on the Home page
+    And I check if importedAccountShortHash is corresponded to the selected account
+    And I press Account Icon on the Header page
+
+    And I am on the AccountsDropdown page
+    And I press Settings Button on the Account Drop-down page
+
+    And I am on the Settings page
+    And I press Remove Account Button on the Settings page
+
+    And I am on the RemoveAccount page
+    And I press Remove Button on the Remove Account page
+    And I got the 'Required' error with Input Error element on the Universal Component page
+
+    And I enter randomContent into Password Input on the Remove Account page
+    And I press Remove Button on the Remove Account page
+    And I got the 'Invalid password' error with Input Error element on the Universal Component page
 
