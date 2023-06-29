@@ -173,14 +173,10 @@ const TabButton: FC<TabButtonProps> = ({ tab, active, testGroupName }) => {
       to={lctn => ({ ...lctn, search: `?tab=${tab.slug}` })}
       replace
       className={clsx(
-        'flex1 w-full',
-        'text-center cursor-pointer py-2',
-        'text-gray-500 text-xs font-medium',
-        'border-t-3',
-        active ? 'border-primary-orange' : 'border-transparent',
-        active ? 'text-primary-orange' : 'hover:text-primary-orange',
+        'flex1 w-full text-center cursor-pointer py-2 border-t-3',
+        'text-gray-500 text-xs font-medium truncate',
         'transition ease-in-out duration-300',
-        'truncate'
+        active ? 'border-primary-orange text-primary-orange' : 'border-transparent hover:text-primary-orange'
       )}
       testID={tab.testID}
       testIDProperties={{

@@ -4,7 +4,7 @@ import { BigNumber } from 'bignumber.js';
 import classNames from 'clsx';
 import { useDispatch } from 'react-redux';
 
-import { ActivitySpinner } from 'app/atoms';
+import { SyncSpinner } from 'app/atoms';
 import { PartnersPromotion, PartnersPromotionVariant } from 'app/atoms/partners-promotion';
 import { useAppEnv } from 'app/env';
 import { useBalancesWithDecimals } from 'app/hooks/use-balances-with-decimals.hook';
@@ -204,11 +204,8 @@ export const TokensTab: FC = () => {
           {tokensView}
         </div>
       )}
-      {isSyncing && (
-        <div className="mt-4">
-          <ActivitySpinner />
-        </div>
-      )}
+
+      {isSyncing && <SyncSpinner className="mt-4" />}
     </div>
   );
 };

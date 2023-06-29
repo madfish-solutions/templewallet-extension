@@ -2,7 +2,7 @@ import React from 'react';
 
 import clsx from 'clsx';
 
-import { ActivitySpinner } from 'app/atoms';
+import { SyncSpinner } from 'app/atoms';
 import { useAppEnv } from 'app/env';
 import { ReactComponent as ManageIcon } from 'app/icons/manage.svg';
 import { CollectibleItem } from 'app/pages/Collectibles/CollectibleItem';
@@ -53,7 +53,7 @@ export const CollectiblesTab = () => {
         </div>
 
         {isSyncing && filteredAssets.length === 0 ? (
-          <ActivitySpinner />
+          <SyncSpinner className="mt-6" />
         ) : filteredAssets.length === 0 ? (
           <div className="w-full border rounded border-gray-200">
             <p className={'text-gray-600 text-center text-xs py-6'}>
@@ -67,7 +67,8 @@ export const CollectiblesTab = () => {
                 <CollectibleItem key={slug} assetSlug={slug} index={index} itemsLength={filteredAssets.length} />
               ))}
             </div>
-            {isSyncing && <ActivitySpinner className="mt-4" />}
+
+            {isSyncing && <SyncSpinner className="mt-6" />}
           </>
         )}
       </div>
