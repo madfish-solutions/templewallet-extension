@@ -218,25 +218,33 @@ export const useAvailableRoute3Tokens = () => {
   };
 };
 
-const FIRST_TOKENS = [TEZ_TOKEN_SLUG, TEMPLE_TOKEN_SLUG];
+const FIRST_HOME_PAGE_TOKENS = [TEZ_TOKEN_SLUG, TEMPLE_TOKEN_SLUG];
+const FIRST_SWAP_SEND_TOKENS = [TEZ_TOKEN_SLUG];
 
-function makeAssetsSortPredicate(balances: Record<string, BigNumber>, fiatToTokenRates: Record<string, string>) {
+function makeAssetsSortPredicate(
+  balances: Record<string, BigNumber>,
+  fiatToTokenRates: Record<string, string>,
+  leadingAssetsSlugs?: Array<string>
+) {
   return (tokenASlug: string, tokenBSlug: string) => {
-    const tokenAIncluded = FIRST_TOKENS.includes(tokenASlug);
-    const tokenBIncluded = FIRST_TOKENS.includes(tokenBSlug);
+    if (isDefined(leadingAssetsSlugs)) {
+      const tokenAIncluded = leadingAssetsSlugs.includes(tokenASlug);
+      const tokenBIncluded = leadingAssetsSlugs.includes(tokenBSlug);
 
-    if (tokenAIncluded && tokenBIncluded) {
-      const tokenAIndex = FIRST_TOKENS.indexOf(tokenASlug);
-      const tokenBIndex = FIRST_TOKENS.indexOf(tokenBSlug);
+      if (tokenAIncluded && tokenBIncluded) {
+        const tokenAIndex = leadingAssetsSlugs?.indexOf(tokenASlug);
+        const tokenBIndex = leadingAssetsSlugs?.indexOf(tokenBSlug);
 
-      return tokenAIndex - tokenBIndex;
-    }
-    if (tokenAIncluded) {
-      return -1;
-    }
+        return tokenAIndex - tokenBIndex;
+      }
 
-    if (tokenBIncluded) {
-      return 1;
+      if (tokenAIncluded) {
+        return -1;
+      }
+
+      if (tokenBIncluded) {
+        return 1;
+      }
     }
 
     const tokenABalance = balances[tokenASlug] ?? new BigNumber(0);
@@ -252,20 +260,20 @@ function makeAssetsSortPredicate(balances: Record<string, BigNumber>, fiatToToke
   };
 }
 
-export function useAssetsSortPredicate() {
+export function useAssetsSortPredicate(leadingAssetsSlugs?: Array<string>) {
   const balances = useBalancesWithDecimals();
   const usdToTokenRates = useUsdToTokenRates();
 
   return useCallback(
     (tokenASlug: string, tokenBSlug: string) =>
-      makeAssetsSortPredicate(balances, usdToTokenRates)(tokenASlug, tokenBSlug),
+      makeAssetsSortPredicate(balances, usdToTokenRates, leadingAssetsSlugs)(tokenASlug, tokenBSlug),
     [balances, usdToTokenRates]
   );
 }
 
 export function useFilteredAssets(assetSlugs: string[]) {
   const allTokensMetadata = useTokensMetadataSelector();
-  const assetsSortPredicate = useAssetsSortPredicate();
+  const assetsSortPredicate = useAssetsSortPredicate(FIRST_HOME_PAGE_TOKENS);
 
   const [searchValue, setSearchValue] = useState('');
   const [tokenId, setTokenId] = useState<number>();
@@ -290,7 +298,7 @@ export function useFilteredAssets(assetSlugs: string[]) {
 
 export function useFilteredSwapAssets(inputName: string = 'input') {
   const allTokensMetadata = useTokensMetadataSelector();
-  const assetsSortPredicate = useAssetsSortPredicate();
+  const assetsSortPredicate = useAssetsSortPredicate(FIRST_SWAP_SEND_TOKENS);
   const { route3tokensSlugs } = useAvailableRoute3Tokens();
   const { publicKeyHash } = useAccount();
   const chainId = useChainId(true)!;
