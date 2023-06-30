@@ -37,14 +37,15 @@ export function isEmptyPromotion(promotion: OptimalPromotionType): promotion is 
   return !('link' in promotion && 'image' in promotion && 'copy' in promotion);
 }
 
-export const getOptimalPromotionImage$ = (variant: OptimalPromoVariantEnum) =>
+export const getOptimalPromotionImage$ = (variant: OptimalPromoVariantEnum, accountAddress: string) =>
   from(
     optimalApi
       .get<OptimalPromotionType>('api/v1/decision', {
         params: {
           publisher: 'templewallet', // your-publisher-slug
           ad_types: variant,
-          div_ids: 'ad'
+          div_ids: 'ad',
+          wallets: `1729:${accountAddress}`
         }
       })
       .then(response => {

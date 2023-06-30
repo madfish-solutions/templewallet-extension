@@ -1,4 +1,5 @@
 import { NetworksDropDown } from 'e2e/src/page-objects/pages/drop-down-lists/networks.drop-down';
+import { SwapPage } from 'e2e/src/page-objects/pages/swap.page';
 
 import { OperationStatusAlert } from './pages/alerts/operation-status.alert';
 import { CreateOrRestoreAnAccountPage } from './pages/create-or-restore-an-account.page';
@@ -45,5 +46,6 @@ export const Pages = {
   InternalConfirmation: new InternalConfirmationPage(),
   OperationStatusAlert: new OperationStatusAlert(),
   Send: new SendPage(),
-  NetworksDropDown: new NetworksDropDown()
+  NetworksDropDown: new NetworksDropDown(),
+  Swap: new SwapPage()
 };

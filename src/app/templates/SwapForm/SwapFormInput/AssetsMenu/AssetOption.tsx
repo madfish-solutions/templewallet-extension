@@ -5,7 +5,7 @@ import { ListRowProps } from 'react-virtualized';
 
 import { AssetIcon } from 'app/templates/AssetIcon';
 import { AssetItemContent } from 'app/templates/AssetItemContent';
-import { setTestID } from 'lib/analytics';
+import { setAnotherSelector, setTestID } from 'lib/analytics';
 import { useAssetMetadata } from 'lib/metadata';
 import { isTruthy } from 'lib/utils';
 
@@ -34,6 +34,7 @@ export const AssetOption: FC<Props> = ({ assetSlug, selected, style, onClick }) 
       )}
       onClick={handleClick}
       {...setTestID(AssetsMenuSelectors.assetsMenuAssetItem)}
+      {...setAnotherSelector('slug', assetSlug)}
     >
       <AssetIcon assetSlug={assetSlug} size={32} className="mx-2" />
 
