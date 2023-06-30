@@ -224,27 +224,25 @@ const FIRST_SWAP_SEND_TOKENS = [TEZ_TOKEN_SLUG];
 function makeAssetsSortPredicate(
   balances: Record<string, BigNumber>,
   fiatToTokenRates: Record<string, string>,
-  leadingAssetsSlugs?: Array<string>
+  leadingAssetsSlugs: Array<string> = []
 ) {
   return (tokenASlug: string, tokenBSlug: string) => {
-    if (isDefined(leadingAssetsSlugs)) {
-      const tokenAIncluded = leadingAssetsSlugs.includes(tokenASlug);
-      const tokenBIncluded = leadingAssetsSlugs.includes(tokenBSlug);
+    const tokenAIncluded = leadingAssetsSlugs.includes(tokenASlug);
+    const tokenBIncluded = leadingAssetsSlugs.includes(tokenBSlug);
 
-      if (tokenAIncluded && tokenBIncluded) {
-        const tokenAIndex = leadingAssetsSlugs?.indexOf(tokenASlug);
-        const tokenBIndex = leadingAssetsSlugs?.indexOf(tokenBSlug);
+    if (tokenAIncluded && tokenBIncluded) {
+      const tokenAIndex = leadingAssetsSlugs.indexOf(tokenASlug);
+      const tokenBIndex = leadingAssetsSlugs.indexOf(tokenBSlug);
 
-        return tokenAIndex - tokenBIndex;
-      }
+      return tokenAIndex - tokenBIndex;
+    }
 
-      if (tokenAIncluded) {
-        return -1;
-      }
+    if (tokenAIncluded) {
+      return -1;
+    }
 
-      if (tokenBIncluded) {
-        return 1;
-      }
+    if (tokenBIncluded) {
+      return 1;
     }
 
     const tokenABalance = balances[tokenASlug] ?? new BigNumber(0);
