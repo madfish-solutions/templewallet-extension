@@ -3,5 +3,5 @@ export interface NewsletterState {
 }
 
 export const newsletterInitialState: NewsletterState = {
-  shouldShowNewsletterModal: false
+  shouldShowNewsletterModal: true
 };

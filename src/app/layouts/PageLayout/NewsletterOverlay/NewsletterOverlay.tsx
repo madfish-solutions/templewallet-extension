@@ -17,6 +17,7 @@ import { useOnRampPossibilitySelector } from 'app/store/settings/selectors';
 import { newsletterApi } from 'lib/apis/newsletter';
 import { useYupValidationResolver } from 'lib/form/use-yup-validation-resolver';
 import { T, t } from 'lib/i18n/react';
+import { useLocation } from 'lib/woozie';
 
 import { setTestID } from '../../../../lib/analytics';
 import NewsletterImage from './NewsletterImage.png';
@@ -30,9 +31,13 @@ const validationSchema = object().shape({
   email: string().required('Required field').email('Must be a valid email')
 });
 
+const HOME_PAGE_PATH = '/';
+
 export const NewsletterOverlay: FC = () => {
   const dispatch = useDispatch();
   const { popup } = useAppEnv();
+  const { pathname } = useLocation();
+
   const { onboardingCompleted } = useOnboardingProgress();
   const shouldShowNewsletterModal = useShouldShowNewsletterModalSelector();
   const isOnRampPossibility = useOnRampPossibilitySelector();
@@ -90,7 +95,8 @@ export const NewsletterOverlay: FC = () => {
     return 'Subscribe';
   }, [successSubscribing, isLoading]);
 
-  if (!shouldShowNewsletterModal || !onboardingCompleted || isOnRampPossibility) return null;
+  if (!shouldShowNewsletterModal || !onboardingCompleted || isOnRampPossibility || pathname !== HOME_PAGE_PATH)
+    return null;
 
   return (
     <>
