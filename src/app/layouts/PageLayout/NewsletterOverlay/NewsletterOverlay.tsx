@@ -1,4 +1,4 @@
-import React, { FC, useMemo, useState } from 'react';
+import React, { FC, useEffect, useMemo, useState } from 'react';
 
 import classNames from 'clsx';
 import { useForm } from 'react-hook-form';
@@ -10,6 +10,7 @@ import Spinner from 'app/atoms/Spinner/Spinner';
 import { useAppEnv } from 'app/env';
 import { ReactComponent as CloseIcon } from 'app/icons/close.svg';
 import ContentContainer from 'app/layouts/ContentContainer';
+import { useOnboardingProgress } from 'app/pages/Onboarding/hooks/useOnboardingProgress.hook';
 import { shouldShowNewsletterModalAction } from 'app/store/newsletter/newsletter-actions';
 import { useShouldShowNewsletterModalSelector } from 'app/store/newsletter/newsletter-selectors';
 import { useOnRampPossibilitySelector } from 'app/store/settings/selectors';
@@ -30,8 +31,17 @@ const validationSchema = object().shape({
 export const NewsletterOverlay: FC = () => {
   const dispatch = useDispatch();
   const { popup } = useAppEnv();
+  const { onboardingCompleted } = useOnboardingProgress();
   const shouldShowNewsletterModal = useShouldShowNewsletterModalSelector();
   const isOnRampPossibility = useOnRampPossibilitySelector();
+
+  useEffect(() => {
+    if (shouldShowNewsletterModal) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
+    }
+  }, [shouldShowNewsletterModal]);
 
   const validationResolver = useYupValidationResolver<FormValues>(validationSchema);
 
@@ -49,6 +59,7 @@ export const NewsletterOverlay: FC = () => {
     () => (popup ? 'inset-0 p-4' : 'top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2'),
     [popup]
   );
+  const closeButtonClassName = useMemo(() => (popup ? 'top-8 right-8' : 'top-4 right-4'), [popup]);
   const close = () => void dispatch(shouldShowNewsletterModalAction(false));
 
   const onSubmit = () => {
@@ -77,38 +88,44 @@ export const NewsletterOverlay: FC = () => {
     return 'Subscribe';
   }, [successSubscribing, isLoading]);
 
-  if (!shouldShowNewsletterModal || isOnRampPossibility) return null;
+  if (!shouldShowNewsletterModal || !onboardingCompleted || isOnRampPossibility) return null;
 
   return (
     <>
       <div className="fixed left-0 right-0 top-0 bottom-0 opacity-20 bg-gray-700 z-40"></div>
       <form onSubmit={handleSubmit(onSubmit)}>
         <ContentContainer
-          className={classNames('fixed z-40 overflow-y-auto', popupClassName)}
-          style={{ maxWidth: '37.5rem' }}
+          className={classNames('fixed z-40 overflow-y-scroll', popupClassName)}
+          style={{ maxWidth: '37.5rem', maxHeight: 'calc(100vh - 50px)' }}
           padding={false}
         >
           <div
             className={classNames(
-              'flex flex-col text-center bg-orange-100 shadow-lg bg-no-repeat rounded-md p-6',
-              popup && 'h-full'
+              'flex flex-col justify-center text-center bg-orange-100 shadow-lg bg-no-repeat rounded-md',
+              popup ? 'h-full' : 'h-700',
+              popup ? 'p-4' : 'px-3.5 py-4.5'
             )}
           >
             <Button
               className={classNames(
-                'w-24 h-9 uppercase bg-blue-500',
+                'absolute w-24 h-9 uppercase bg-blue-500',
                 'font-inter text-white',
                 'text-sm font-medium rounded',
                 'flex flex-row justify-center items-center self-end',
-                'hover:opacity-90 relative'
+                'hover:opacity-90',
+                closeButtonClassName
               )}
-              style={{ top: '-0.75rem', right: '-0.75rem' }}
               onClick={close}
             >
               <T id="close" />
               <CloseIcon className="ml-2 h-4 w-auto stroke-current stroke-2" />
             </Button>
-            <img src={NewsletterImage} className="mb-4" alt="Newsletter" />
+            <img
+              src={NewsletterImage}
+              style={{ maxHeight: '375px', maxWidth: '496px' }}
+              className="mb-4"
+              alt="Newsletter"
+            />
             <div className="flex flex-col w-full max-w-sm mx-auto">
               <h1 className="mb-1 font-inter text-base text-gray-910 text-left">{t('subscribeToNewsletter')}</h1>
               <span className="mb-1 text-xs text-left text-gray-600">{t('keepLatestNews')}</span>
@@ -116,7 +133,7 @@ export const NewsletterOverlay: FC = () => {
                 <input
                   ref={register()}
                   name="email"
-                  className="w-full p-4 rounded-md border text-sm text-gray-910"
+                  className="w-full max-h-3/25 p-4 rounded-md border text-sm text-gray-910"
                   placeholder="example@mail.com"
                 />
                 {!isValid && <div className="mt-1 text-xs text-left text-red-700">{errors.email?.message}</div>}
