@@ -16,7 +16,6 @@ import { buyWithCreditCardEpics } from './buy-with-credit-card/epics';
 import { buyWithCreditCardReducer } from './buy-with-credit-card/reducers';
 import { currencyEpics } from './currency/epics';
 import { currencyReducer } from './currency/reducers';
-import { dAppsEpics } from './d-apps/epics';
 import { dAppsReducer } from './d-apps/reducers';
 import { newsletterReducers } from './newsletter/newsletter-reducers';
 import { partnersPromotionEpics } from './partners-promotion/epics';
@@ -55,7 +54,6 @@ const epics = [
   currencyEpics,
   advertisingEpics,
   notificationsEpics,
-  dAppsEpics,
   swapEpics,
   partnersPromotionEpics,
   balancesEpics,

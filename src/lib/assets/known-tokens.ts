@@ -40,7 +40,10 @@ export const getPredefinedTokensSlugs = (chainId: string) => PREDEFINED_TOKENS_B
 export const TOKENS_BRAND_COLORS: Record<string, { bg: string; bgHover?: string }> = {
   [KNOWN_TOKENS_SLUGS.KUSD]: { bg: '#3EBD93', bgHover: '#65CAA9' },
   [KNOWN_TOKENS_SLUGS.TZBTC]: { bg: '#1373E4', bgHover: '#428FE9' },
-  [KNOWN_TOKENS_SLUGS.USDT]: { bg: '#009393', bgHover: '#52AF95' }
+  [KNOWN_TOKENS_SLUGS.USDT]: { bg: '#009393', bgHover: '#52AF95' },
+  [KNOWN_TOKENS_SLUGS.UUSD]: { bg: '#143A3A', bgHover: '#4F6B6B' },
+  [KNOWN_TOKENS_SLUGS.UBTC]: { bg: '#143A3A', bgHover: '#4F6B6B' },
+  [KNOWN_TOKENS_SLUGS.YOU]: { bg: '#143A3A', bgHover: '#4F6B6B' }
 };
 
 export const DEPRECATED_TKEY_METADATA: TokenMetadata = {

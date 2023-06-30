@@ -8,6 +8,8 @@ import { useShouldShowPartnersPromoSelector } from 'app/store/partners-promotion
 import { T, t } from 'lib/i18n';
 import { useConfirm } from 'lib/ui/dialog';
 
+import { setAdsBannerVisibilityAction } from '../../../store/settings/actions';
+import { useIsEnabledAdsBannerSelector } from '../../../store/settings/selectors';
 import { SettingsGeneralSelectors } from '../selectors';
 
 export const PartnersPromotionSettings: FC = () => {
@@ -15,6 +17,7 @@ export const PartnersPromotionSettings: FC = () => {
   const confirm = useConfirm();
 
   const shouldShowPartnersPromo = useShouldShowPartnersPromoSelector();
+  const isEnableAdsBanner = useIsEnabledAdsBannerSelector();
 
   const handleHidePromotion = async (toChecked: boolean) => {
     const confirmed = await confirm({
@@ -26,9 +29,25 @@ export const PartnersPromotionSettings: FC = () => {
     if (confirmed) {
       dispatch(togglePartnersPromotionAction(toChecked));
     }
+    if (isEnableAdsBanner) {
+      dispatch(setAdsBannerVisibilityAction(false));
+    }
   };
 
-  const handleShowPromotion = (toChecked: boolean) => dispatch(togglePartnersPromotionAction(toChecked));
+  const handleShowPromotion = async (toChecked: boolean) => {
+    const confirmed = await confirm({
+      title: t('enablePartnersPromotionConfirm'),
+      children: t('enablePartnersPromotionDescriptionConfirm'),
+      comfirmButtonText: t('enable')
+    });
+
+    if (confirmed) {
+      dispatch(togglePartnersPromotionAction(toChecked));
+    }
+    if (isEnableAdsBanner) {
+      dispatch(setAdsBannerVisibilityAction(false));
+    }
+  };
 
   const togglePartnersPromotion = (toChecked: boolean, event: ChangeEvent<HTMLInputElement>) => {
     event?.preventDefault();
