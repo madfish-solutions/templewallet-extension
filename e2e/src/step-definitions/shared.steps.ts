@@ -47,10 +47,10 @@ Given(
   /I check if (.*) is corresponded to the selected account/,
   { timeout: MEDIUM_TIMEOUT },
   async (hashType: keyof typeof hashObject) => {
-    const getPublicHash = await Pages.Home.PublicAddressButton.getText();
-    const hashValue = hashObject[hashType];
+    const pkhFromUI = await Pages.Home.PublicAddressButton.getText();
+    const targetPkh = hashObject[hashType];
 
-    expect(getPublicHash).eql(hashValue);
+    expect(pkhFromUI).eql(targetPkh);
   }
 );
 
