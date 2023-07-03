@@ -88,13 +88,7 @@ export const CollectiblesTab = () => {
           <>
             <div className="grid grid-cols-3 gap-1">
               {filteredAssets.map(slug => (
-                <CollectibleItem
-                  key={slug}
-                  assetSlug={slug}
-                  accountPkh={publicKeyHash}
-                  detailsShown={detailsShown}
-                  floorPrice={'1234.0001'}
-                />
+                <CollectibleItem key={slug} assetSlug={slug} accountPkh={publicKeyHash} detailsShown={detailsShown} />
               ))}
             </div>
 
@@ -112,7 +106,7 @@ interface ManageButtonDropdownProps extends PopperRenderProps {
 }
 
 const ManageButtonDropdown: FC<ManageButtonDropdownProps> = ({ opened, detailsShown, toggleDetailsShown }) => {
-  const buttonClassName = 'flex items-center px-3 py-2.5 rounded hover:bg-gray-200';
+  const buttonClassName = 'flex items-center px-3 py-2.5 rounded hover:bg-gray-200 cursor-pointer';
 
   return (
     <DropdownWrapper

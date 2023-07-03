@@ -1,11 +1,14 @@
 import React, { FC, useCallback, useRef, useState } from 'react';
 
+import { isDefined } from '@rnw-community/shared';
 import clsx from 'clsx';
 
 import Money from 'app/atoms/Money';
 import { useAppEnv } from 'app/env';
+import { useOneCollectibleDetailsSelector } from 'app/store/collectibles/selectors';
 import { useAssetMetadata, getAssetName, TEZOS_METADATA } from 'lib/metadata';
 import { useBalance } from 'lib/temple/front';
+import { atomsToTokens } from 'lib/temple/helpers';
 import { useIntersectionDetection } from 'lib/ui/use-intersection-detection';
 import { Link } from 'lib/woozie';
 
@@ -15,15 +18,17 @@ interface Props {
   assetSlug: string;
   accountPkh: string;
   detailsShown: boolean;
-  floorPrice?: string;
 }
 
-export const CollectibleItem: FC<Props> = ({ assetSlug, accountPkh, detailsShown, floorPrice }) => {
+export const CollectibleItem: FC<Props> = ({ assetSlug, accountPkh, detailsShown }) => {
   const { popup } = useAppEnv();
   const metadata = useAssetMetadata(assetSlug);
   const toDisplayRef = useRef<HTMLDivElement>(null);
   const [displayed, setDisplayed] = useState(true);
   const { data: balance } = useBalance(assetSlug, accountPkh, { displayed });
+  const details = useOneCollectibleDetailsSelector(assetSlug);
+
+  const floorPrice = details?.floorPrice;
 
   const handleIntersection = useCallback(() => {
     setDisplayed(true);
@@ -58,10 +63,16 @@ export const CollectibleItem: FC<Props> = ({ assetSlug, accountPkh, detailsShown
           <h5 className="text-sm leading-5 text-gray-910 truncate">{assetName}</h5>
           <div className="text-2xs leading-3 text-gray-600">
             <span>Floor: </span>
-            <Money smallFractionFont={false} tooltip={true} cryptoDecimals={TEZOS_METADATA.decimals}>
-              {floorPrice ?? 0}
-            </Money>
-            <span> TEZ</span>
+            {isDefined(floorPrice) ? (
+              <>
+                <Money shortened smallFractionFont={false} tooltip={true} cryptoDecimals={TEZOS_METADATA.decimals}>
+                  {atomsToTokens(floorPrice, TEZOS_METADATA.decimals)}
+                </Money>
+                <span> TEZ</span>
+              </>
+            ) : (
+              '---'
+            )}
           </div>
         </div>
       )}

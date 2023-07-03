@@ -14,6 +14,8 @@ import { balancesEpics } from './balances/epics';
 import { balancesReducer } from './balances/reducers';
 import { buyWithCreditCardEpics } from './buy-with-credit-card/epics';
 import { buyWithCreditCardReducer } from './buy-with-credit-card/reducers';
+import { collectiblesEpics } from './collectibles/epics';
+import { collectiblesReducer } from './collectibles/reducer';
 import { currencyEpics } from './currency/epics';
 import { currencyReducer } from './currency/reducers';
 import { dAppsReducer } from './d-apps/reducers';
@@ -36,7 +38,8 @@ const baseReducer = rootStateReducer({
   balances: balancesReducer,
   tokensMetadata: tokensMetadataReducer,
   abTesting: abTestingReducer,
-  buyWithCreditCard: buyWithCreditCardReducer
+  buyWithCreditCard: buyWithCreditCardReducer,
+  collectibles: collectiblesReducer
 });
 
 export type RootState = GetStateType<typeof baseReducer>;
@@ -45,7 +48,8 @@ const persistConfig: PersistConfig<RootState> = {
   key: 'temple-root',
   version: 1,
   storage: storage,
-  stateReconciler: autoMergeLevel2
+  stateReconciler: autoMergeLevel2,
+  blacklist: ['collectibles']
 };
 
 const epics = [
@@ -57,7 +61,8 @@ const epics = [
   balancesEpics,
   tokensMetadataEpics,
   abTestingEpics,
-  buyWithCreditCardEpics
+  buyWithCreditCardEpics,
+  collectiblesEpics
 ];
 
 export const { store, persistor } = createStore(persistConfig, baseReducer, epics);
