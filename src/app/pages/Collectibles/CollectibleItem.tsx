@@ -31,6 +31,8 @@ export const CollectibleItem: FC<Props> = ({ assetSlug, accountPkh, detailsShown
 
   useIntersectionDetection(toDisplayRef, handleIntersection, !displayed);
 
+  const assetName = getAssetName(metadata);
+
   return (
     <Link to={`/collectible/${assetSlug}`} className="flex flex-col border border-gray-300 rounded-lg">
       <div
@@ -39,6 +41,7 @@ export const CollectibleItem: FC<Props> = ({ assetSlug, accountPkh, detailsShown
           'relative flex items-center justify-center bg-blue-50 rounded-lg overflow-hidden hover:opacity-70',
           detailsShown ? 'border-b border-gray-300' : undefined
         )}
+        title={assetName}
         style={{ height: popup ? 106 : 125 }}
       >
         {displayed && <CollectibleItemImage metadata={metadata} assetSlug={assetSlug} />}
@@ -52,7 +55,7 @@ export const CollectibleItem: FC<Props> = ({ assetSlug, accountPkh, detailsShown
 
       {detailsShown && (
         <div className="mt-1 mb-2 mx-1.5">
-          <h5 className="text-sm leading-5 text-gray-910 truncate">{getAssetName(metadata)}</h5>
+          <h5 className="text-sm leading-5 text-gray-910 truncate">{assetName}</h5>
           <div className="text-2xs leading-3 text-gray-600">
             <span>Floor: </span>
             <Money smallFractionFont={false} tooltip={true} cryptoDecimals={TEZOS_METADATA.decimals}>

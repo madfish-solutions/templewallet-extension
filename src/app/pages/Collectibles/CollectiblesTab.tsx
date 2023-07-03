@@ -1,9 +1,13 @@
-import React from 'react';
+import React, { FC, useMemo } from 'react';
 
 import clsx from 'clsx';
 
-import { SyncSpinner } from 'app/atoms';
+import { Button, SyncSpinner } from 'app/atoms';
+import Checkbox from 'app/atoms/Checkbox';
+import Divider from 'app/atoms/Divider';
+import DropdownWrapper from 'app/atoms/DropdownWrapper';
 import { useAppEnv } from 'app/env';
+import { ReactComponent as EditingIcon } from 'app/icons/editing.svg';
 import { ReactComponent as ManageIcon } from 'app/icons/manage.svg';
 import { CollectibleItem } from 'app/pages/Collectibles/CollectibleItem';
 import { AssetsSelectors } from 'app/pages/Home/OtherComponents/Assets.selectors';
@@ -12,17 +16,23 @@ import { AssetTypesEnum } from 'lib/assets/types';
 import { T, t } from 'lib/i18n';
 import { useAccount, useChainId, useCollectibleTokens, useFilteredAssets } from 'lib/temple/front';
 import { useSyncTokens } from 'lib/temple/front/sync-tokens';
+import { useLocalStorage } from 'lib/ui/local-storage';
+import Popper, { PopperRenderProps } from 'lib/ui/Popper';
 import { Link } from 'lib/woozie';
+
+const LOCAL_STORAGE_TOGGLE_KEY = 'collectibles-grid:show-items-details';
+const svgIconClassName = 'w-4 h-4 stroke-current fill-current text-gray-600';
 
 export const CollectiblesTab = () => {
   const chainId = useChainId(true)!;
   const { popup } = useAppEnv();
   const { publicKeyHash } = useAccount();
   const { isSyncing } = useSyncTokens();
+  const [detailsShown, setDetailsShown] = useLocalStorage(LOCAL_STORAGE_TOGGLE_KEY, false);
 
   const { data: collectibles = [] } = useCollectibleTokens(chainId, publicKeyHash, true);
 
-  const collectibleSlugs = collectibles.map(collectible => collectible.tokenSlug);
+  const collectibleSlugs = useMemo(() => collectibles.map(collectible => collectible.tokenSlug), [collectibles]);
 
   const { filteredAssets, searchValue, setSearchValue } = useFilteredAssets(collectibleSlugs);
 
@@ -36,20 +46,34 @@ export const CollectiblesTab = () => {
             testID={AssetsSelectors.searchAssetsInputCollectibles}
           />
 
-          <Link
-            to={`/manage-assets/${AssetTypesEnum.Collectibles}`}
-            title={t('manage')}
-            className={clsx(
-              'flex flex-shrink-0 items-center justify-center',
-              'w-10 ml-2 rounded-lg',
-              'transition ease-in-out duration-200',
-              'hover:bg-gray-100',
-              'opacity-75 hover:opacity-100 focus:opacity-100'
+          <Popper
+            placement="bottom-end"
+            strategy="fixed"
+            popup={props => (
+              <ManageButtonDropdown
+                {...props}
+                detailsShown={detailsShown}
+                toggleDetailsShown={() => void setDetailsShown(!detailsShown)}
+              />
             )}
-            testID={AssetsSelectors.manageButton}
           >
-            <ManageIcon className="h-4" />
-          </Link>
+            {({ ref, opened, toggleOpened }) => (
+              <Button
+                ref={ref}
+                title={t('manage')}
+                className={clsx(
+                  'flex flex-shrink-0 items-center justify-center w-10 ml-2 rounded-lg',
+                  'transition ease-in-out duration-200 hover:bg-gray-200',
+                  'opacity-75 hover:opacity-100 focus:opacity-100',
+                  opened && 'bg-gray-200'
+                )}
+                onClick={toggleOpened}
+                testID={AssetsSelectors.manageButton}
+              >
+                <ManageIcon className={svgIconClassName} />
+              </Button>
+            )}
+          </Popper>
         </div>
 
         {isSyncing && filteredAssets.length === 0 ? (
@@ -68,7 +92,7 @@ export const CollectiblesTab = () => {
                   key={slug}
                   assetSlug={slug}
                   accountPkh={publicKeyHash}
-                  detailsShown={true}
+                  detailsShown={detailsShown}
                   floorPrice={'1234.0001'}
                 />
               ))}
@@ -79,5 +103,47 @@ export const CollectiblesTab = () => {
         )}
       </div>
     </div>
+  );
+};
+
+interface ManageButtonDropdownProps extends PopperRenderProps {
+  detailsShown: boolean;
+  toggleDetailsShown: EmptyFn;
+}
+
+const ManageButtonDropdown: FC<ManageButtonDropdownProps> = ({ opened, detailsShown, toggleDetailsShown }) => {
+  const buttonClassName = 'flex items-center px-3 py-2.5 rounded hover:bg-gray-200';
+
+  return (
+    <DropdownWrapper
+      opened={opened}
+      className="origin-top-right p-2 flex flex-col min-w-40"
+      style={{ backgroundColor: 'white', border: 'unset', marginTop: '0.25rem' }}
+    >
+      <Link
+        to={`/manage-assets/${AssetTypesEnum.Collectibles}`}
+        className={buttonClassName}
+        testID={AssetsSelectors.dropdownManageButton}
+      >
+        <EditingIcon className={svgIconClassName} />
+        <span className="text-sm text-gray-600 ml-2 leading-5">
+          <T id="manage" />
+        </span>
+      </Link>
+
+      <Divider className="my-2" />
+
+      <label className={buttonClassName}>
+        <Checkbox
+          overrideClassNames="h-4 w-4 rounded"
+          checked={detailsShown}
+          onChange={toggleDetailsShown}
+          testID={AssetsSelectors.dropdownShowInfoCheckbox}
+        />
+        <span className="text-sm text-gray-600 ml-2 leading-5">
+          <T id="showInfo" />
+        </span>
+      </label>
+    </DropdownWrapper>
   );
 };
