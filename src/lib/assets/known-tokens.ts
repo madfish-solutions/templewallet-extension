@@ -60,6 +60,15 @@ export const LOCAL_MAINNET_TOKENS_METADATA: TokenMetadata[] = [
   DEPRECATED_TKEY_METADATA,
   {
     id: 0,
+    address: 'KT1VaEsVNiBoA56eToEK6n6BcPgh1tdx9eXi',
+    name: 'Temple Key',
+    symbol: 'TKEY',
+    decimals: 18,
+    thumbnailUri: 'ipfs://Qmb9QUXYn1PW8e7E2CwpBMgEur7gFAPPpq2Zh7H2D7eQcT',
+    standard: TokenStandardsEnum.Fa2
+  },
+  {
+    id: 0,
     address: 'KT1XnTn74bUtxHfDtBmm2bGZAQfhPbvKWR8o',
     name: 'Tether USD',
     symbol: 'USDt',

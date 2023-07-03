@@ -36,6 +36,7 @@ export const Tokens: FC = () => {
   const tokenSlugsWithTez = useMemo(() => ['tez', ...tokens.map(({ tokenSlug }) => tokenSlug)], [tokens]);
 
   const { filteredAssets, searchValue, setSearchValue } = useFilteredAssets(tokenSlugsWithTez);
+  console.log('filteredAssets: ', filteredAssets);
 
   const [searchFocused, setSearchFocused] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
