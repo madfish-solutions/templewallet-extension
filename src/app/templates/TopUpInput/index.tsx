@@ -16,6 +16,7 @@ export const TopUpInput = <C extends CurrencyBase>(_props: TopUpInputPropsGeneri
   const {
     currency,
     currenciesList,
+    isFiat,
     isCurrenciesLoading,
     fitIcons,
     className,
@@ -37,6 +38,7 @@ export const TopUpInput = <C extends CurrencyBase>(_props: TopUpInputPropsGeneri
         fallbackPlacementsEnabled={false}
         popup={({ opened, setOpened }) => (
           <CurrenciesMenu
+            isFiat={isFiat}
             value={currency}
             options={filteredCurrencies}
             isLoading={isCurrenciesLoading}
@@ -54,6 +56,7 @@ export const TopUpInput = <C extends CurrencyBase>(_props: TopUpInputPropsGeneri
             ref={ref as unknown as React.RefObject<HTMLDivElement>}
             currency={currency}
             currenciesList={currenciesList}
+            isFiat={isFiat}
             opened={opened}
             fitIcons={fitIconsValue}
             setOpened={setOpened}
