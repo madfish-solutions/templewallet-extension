@@ -22,7 +22,7 @@ import { useRetryableSWR } from 'lib/swr';
 import { getStoredTokens, getAllStoredTokensSlugs, isTokenDisplayed } from 'lib/temple/assets';
 import { useNetwork } from 'lib/temple/front';
 import { ITokenStatus } from 'lib/temple/repo';
-import { isTruthy } from 'lib/utils';
+import { filterUnique, isTruthy } from 'lib/utils';
 import { searchAndFilterItems } from 'lib/utils/search-items';
 
 import { useChainId, useAccount } from './ready';
@@ -161,7 +161,8 @@ export const useAvailableAssets = (assetType: AssetTypesEnum) => {
   }, [assets]);
 
   const availableAssets = useMemo(
-    () => slugs.filter(slug => slug in allTokensMetadata && !assetsStatuses[slug]?.removed),
+    () =>
+      slugs.filter(slug => slug in allTokensMetadata && !assetsStatuses[slug]?.removed && slug !== TEMPLE_TOKEN_SLUG),
     [slugs, allTokensMetadata, assetsStatuses]
   );
 
@@ -279,7 +280,7 @@ export function useFilteredAssets(assetSlugs: string[]) {
 
   const filteredAssets = useMemo(
     () =>
-      searchAssetsWithNoMeta(searchValueDebounced, assetSlugs, allTokensMetadata, slug => slug).sort(
+      searchAssetsWithNoMeta(searchValueDebounced, filterUnique(assetSlugs), allTokensMetadata, slug => slug).sort(
         assetsSortPredicate
       ),
     [searchValueDebounced, assetSlugs, allTokensMetadata, assetsSortPredicate]

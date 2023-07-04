@@ -1,6 +1,5 @@
 import BigNumber from 'bignumber.js';
 
-import { TEMPLE_TOKEN_SLUG } from 'lib/assets';
 import * as Repo from 'lib/temple/repo';
 import { filterUnique } from 'lib/utils';
 
@@ -45,5 +44,4 @@ export const getAllStoredTokensSlugs = async (chainId: string) => {
 
 export const isTokenDisplayed = (t: Repo.IAccountToken) =>
   t.status === Repo.ITokenStatus.Enabled ||
-  (t.status === Repo.ITokenStatus.Idle && new BigNumber(t.latestBalance!).isGreaterThan(0)) ||
-  t.tokenSlug === TEMPLE_TOKEN_SLUG;
+  (t.status === Repo.ITokenStatus.Idle && new BigNumber(t.latestBalance!).isGreaterThan(0));
