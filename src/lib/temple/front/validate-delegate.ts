@@ -4,10 +4,23 @@ import { t } from 'lib/i18n';
 import { isDomainNameValid } from 'lib/temple/front';
 import { isAddressValid } from 'lib/temple/helpers';
 
+function validateAnyAddress(value: string) {
+  switch (false) {
+    case value?.length > 0:
+      return true;
+
+    case isAddressValid(value):
+      return 'invalidAddress';
+
+    default:
+      return true;
+  }
+}
+
 export const validateDelegate = async (
   value: string | null | undefined,
   domainsClient: TaquitoTezosDomainsClient,
-  validateAddress: (value: string) => boolean | string
+  validateAddress: (value: string) => boolean | string = validateAnyAddress
 ) => {
   if (!value) return false;
 

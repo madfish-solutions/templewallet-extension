@@ -337,6 +337,7 @@ module.exports = {
     height: theme => ({
       auto: 'auto',
       ...theme('spacing'),
+      2.25: '2.25rem',
       12: '3rem',
       700: '700px',
       full: '100%',

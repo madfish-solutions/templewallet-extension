@@ -16,7 +16,6 @@ import { buyWithCreditCardEpics } from './buy-with-credit-card/epics';
 import { buyWithCreditCardReducer } from './buy-with-credit-card/reducers';
 import { currencyEpics } from './currency/epics';
 import { currencyReducer } from './currency/reducers';
-import { dAppsEpics } from './d-apps/epics';
 import { dAppsReducer } from './d-apps/reducers';
 import { newsletterReducers } from './newsletter/newsletter-reducers';
 import { partnersPromotionEpics } from './partners-promotion/epics';
@@ -44,18 +43,20 @@ const baseReducer = rootStateReducer({
 
 export type RootState = GetStateType<typeof baseReducer>;
 
+const persistConfigBlacklist: (keyof RootState)[] = ['buyWithCreditCard'];
+
 const persistConfig: PersistConfig<RootState> = {
   key: 'temple-root',
   version: 1,
   storage: storage,
-  stateReconciler: autoMergeLevel2
+  stateReconciler: autoMergeLevel2,
+  blacklist: persistConfigBlacklist
 };
 
 const epics = [
   currencyEpics,
   advertisingEpics,
   notificationsEpics,
-  dAppsEpics,
   swapEpics,
   partnersPromotionEpics,
   balancesEpics,

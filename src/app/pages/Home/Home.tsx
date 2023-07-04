@@ -1,6 +1,16 @@
-import React, { FC, FunctionComponent, ReactNode, Suspense, SVGProps, useLayoutEffect, useMemo } from 'react';
+import React, {
+  FC,
+  FunctionComponent,
+  ReactNode,
+  Suspense,
+  SVGProps,
+  useEffect,
+  useLayoutEffect,
+  useMemo
+} from 'react';
 
 import classNames from 'clsx';
+import { useDispatch } from 'react-redux';
 import { Props as TippyProps } from 'tippy.js';
 
 import { Anchor } from 'app/atoms';
@@ -27,6 +37,8 @@ import { createUrl, HistoryAction, Link, navigate, To, useLocation } from 'lib/w
 import { createLocationState } from 'lib/woozie/location';
 
 import { useUserTestingGroupNameSelector } from '../../store/ab-testing/selectors';
+import { togglePartnersPromotionAction } from '../../store/partners-promotion/actions';
+import { useIsEnabledAdsBannerSelector } from '../../store/settings/selectors';
 import { CollectiblesList } from '../Collectibles/CollectiblesList';
 import { useOnboardingProgress } from '../Onboarding/hooks/useOnboardingProgress.hook';
 import Onboarding from '../Onboarding/Onboarding';
@@ -55,6 +67,9 @@ const Home: FC<ExploreProps> = ({ assetSlug }) => {
   const account = useAccount();
   const { search } = useLocation();
   const network = useNetwork();
+  const dispatch = useDispatch();
+
+  const isEnabledAdsBanner = useIsEnabledAdsBannerSelector();
 
   const assetMetadata = useAssetMetadata(assetSlug || TEZ_TOKEN_SLUG);
 
@@ -67,6 +82,12 @@ const Home: FC<ExploreProps> = ({ assetSlug }) => {
     }
     return undefined;
   }, [registerBackHandler, assetSlug, search]);
+
+  useEffect(() => {
+    if (isEnabledAdsBanner) {
+      dispatch(togglePartnersPromotionAction(false));
+    }
+  }, [isEnabledAdsBanner]);
 
   const accountPkh = account.publicKeyHash;
   const canSend = account.type !== TempleAccountType.WatchOnly;
