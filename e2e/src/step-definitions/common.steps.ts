@@ -2,9 +2,13 @@ import { Given } from '@cucumber/cucumber';
 
 import { BrowserContext } from '../classes/browser-context.class';
 import { Pages } from '../page-objects';
-import { iEnterValues, IEnterValuesKey } from '../utils/input-data.utils';
+import { iEnterValues, IEnterValuesKey, iWaitValues, IWaitValuesKey } from '../utils/input-data.utils';
 import { createPageElement } from '../utils/search.utils';
-import { LONG_TIMEOUT, MEDIUM_TIMEOUT, SHORT_TIMEOUT } from '../utils/timing.utils';
+import { LONG_TIMEOUT, MEDIUM_TIMEOUT, SHORT_TIMEOUT, sleep } from '../utils/timing.utils';
+
+Given(/I wait (.*)/, { timeout: LONG_TIMEOUT }, async (key: IWaitValuesKey) => {
+  await sleep(iWaitValues[key]);
+});
 
 Given(/^I am on the (\w+) page$/, { timeout: LONG_TIMEOUT }, async (page: keyof typeof Pages) => {
   await Pages[page].isVisible();

@@ -8,6 +8,7 @@ Feature: Send
 # Send TEZ
     And I enter watchOnlyPublicKey into Recipient Input on the Send Form page
     And I enter amount_0_0001 into Amount Input on the Send Form page
+    And I wait 10000_ms
     And I press Send Button on the Send Form page
 
     And I am on the InternalConfirmation page
@@ -23,6 +24,7 @@ Feature: Send
     And I select uUSD token in the token drop-down list on the Send page
     And I enter watchOnlyPublicKey into Recipient Input on the Send Form page
     And I enter amount_0_0001 into Amount Input on the Send Form page
+    And I wait 10000_ms
     And I press Send Button on the Send Form page
 
     And I am on the InternalConfirmation page
@@ -39,6 +41,7 @@ Feature: Send
     And I select kUSD token in the token drop-down list on the Send page
     And I enter watchOnlyPublicKey into Recipient Input on the Send Form page
     And I enter amount_0_0001 into Amount Input on the Send Form page
+    And I wait 10000_ms
     And I press Send Button on the Send Form page
 
     And I am on the InternalConfirmation page
@@ -55,6 +58,7 @@ Feature: Send
     And I select OBJKTCOM token in the token drop-down list on the Send page
     And I enter watchOnlyPublicKey into Recipient Input on the Send Form page
     And I enter amount_1 into Amount Input on the Send Form page
+    And I wait 10000_ms
     And I press Send Button on the Send Form page
 
     And I am on the InternalConfirmation page

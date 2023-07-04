@@ -33,3 +33,9 @@ export const iSelectTokenSlugs = {
   wUSDT: 'KT18fp5rcTW7mbWDmzFwjLDUhs5MeJmagDSZ_18',
   OBJKTCOM: 'KT1DGbb333QNo3e2cpN3YGL5aRwWzkADcPA3_2' // 'Temple NFT'
 };
+
+export const iWaitValues = {
+  '10000_ms': 10000
+};
+
+export type IWaitValuesKey = keyof typeof iWaitValues;
