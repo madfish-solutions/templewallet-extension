@@ -13,6 +13,7 @@ export class HomePage extends Page {
   ActivityTab = createPageElement(HomeSelectors.activityTab);
   CollectiblesTab = createPageElement(HomeSelectors.collectiblesTab);
   PublicAddressButton = createPageElement(HomeSelectors.publicAddressButton);
+  accountNameText = createPageElement(HomeSelectors.accountNameText);
 
   async isVisible() {
     await this.ReceiveButton.waitForDisplayed();
@@ -24,5 +25,6 @@ export class HomePage extends Page {
     await this.ActivityTab.waitForDisplayed();
     await this.CollectiblesTab.waitForDisplayed();
     await this.PublicAddressButton.waitForDisplayed();
+    await this.accountNameText.waitForDisplayed();
   }
 }

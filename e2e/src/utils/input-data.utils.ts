@@ -18,7 +18,8 @@ export const iEnterValues = {
   defaultPassword: envVars.DEFAULT_PASSWORD,
   watchOnlyPublicKey: envVars.WATCH_ONLY_PUBLIC_KEY_HASH,
   bakerAddress: '',
-  randomContent: generateRandomContent(),
+  shortRandomContent: generateRandomContent(),
+  longRandomContent: 'long random content for test + ' + generateRandomContent(),
 
   // For transactions
   amount_0_0001: '0.0001',
