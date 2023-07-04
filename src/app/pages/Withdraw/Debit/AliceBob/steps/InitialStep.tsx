@@ -117,6 +117,7 @@ export const InitialStep: FC<Omit<StepProps, 'orderInfo'>> = ({ isApiError, setO
 
         <br />
         <TopUpInput
+          isFiat
           readOnly
           amountInputDisabled
           label={<T id="get" />}

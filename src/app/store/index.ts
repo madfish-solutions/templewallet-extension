@@ -44,12 +44,14 @@ const baseReducer = rootStateReducer({
 
 export type RootState = GetStateType<typeof baseReducer>;
 
+const persistConfigBlacklist: (keyof RootState)[] = ['buyWithCreditCard', 'collectibles'];
+
 const persistConfig: PersistConfig<RootState> = {
   key: 'temple-root',
   version: 1,
   storage: storage,
   stateReconciler: autoMergeLevel2,
-  blacklist: ['collectibles']
+  blacklist: persistConfigBlacklist
 };
 
 const epics = [
