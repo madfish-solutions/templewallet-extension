@@ -42,8 +42,10 @@ type Props = {
   className?: string;
 };
 
+type TabSlug = 'tokens' | 'collectibles' | 'activity' | 'delegation' | 'info';
+
 interface TabData {
-  slug: string;
+  slug: TabSlug;
   titleI18nKey: TID;
   Component: FC;
   testID: string;
@@ -116,7 +118,7 @@ export const ContentSection: FC<Props> = ({ assetSlug, className }) => {
   const tabBarElemRef = useRef<HTMLDivElement>(null);
 
   useDidUpdate(() => {
-    if (!tabBarElemRef.current) return;
+    if (!tabBarElemRef.current || slug !== 'collectibles') return;
 
     const stickyBarHeight = ToolbarElement?.scrollHeight ?? 0;
 
@@ -124,7 +126,7 @@ export const ContentSection: FC<Props> = ({ assetSlug, className }) => {
       top: window.pageYOffset + tabBarElemRef.current.getBoundingClientRect().top - stickyBarHeight,
       behavior: 'smooth'
     });
-  }, [tabSlug]);
+  }, [slug]);
 
   return (
     <div className={clsx('-mx-4 shadow-top-light', fullPage && 'rounded-t-md', className)}>
