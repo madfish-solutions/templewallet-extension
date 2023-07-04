@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useMemo, useState } from 'react';
+import React, { FC, useMemo, useState } from 'react';
 
 import classNames from 'clsx';
 import { useForm } from 'react-hook-form';
@@ -41,14 +41,6 @@ export const NewsletterOverlay: FC = () => {
   const { onboardingCompleted } = useOnboardingProgress();
   const shouldShowNewsletterModal = useShouldShowNewsletterModalSelector();
   const isOnRampPossibility = useOnRampPossibilitySelector();
-
-  useEffect(() => {
-    if (shouldShowNewsletterModal) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'auto';
-    }
-  }, [shouldShowNewsletterModal]);
 
   const validationResolver = useYupValidationResolver<FormValues>(validationSchema);
 
