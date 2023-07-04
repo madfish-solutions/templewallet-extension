@@ -220,11 +220,11 @@
     "nanoid": "3.1.31",
     "tslib": "2.4.0",
     "@types/react": "18.0.15",
-    "@taquito/taquito": "15.0.1",
-    "@taquito/utils": "15.0.1",
-    "@taquito/beacon-wallet": "15.0.1",
-    "@taquito/contracts-library": "15.0.1",
-    "@taquito/tzip16": "15.0.1",
+    "@taquito/taquito": "17.0.0",
+    "@taquito/utils": "17.0.0",
+    "@taquito/beacon-wallet": "17.0.0",
+    "@taquito/contracts-library": "17.0.0",
+    "@taquito/tzip16": "17.0.0",
     "bignumber.js": "9.1.0",
     "graphql-request": "^6.1.0"
   }
