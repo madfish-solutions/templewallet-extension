@@ -31,7 +31,7 @@ export const CollectiblesTab = () => {
   const { isSyncing: tokensAreSyncing } = useSyncTokens();
   const metadatasLoading = useTokensMetadataLoadingSelector();
 
-  const [detailsShown, setDetailsShown] = useLocalStorage(LOCAL_STORAGE_TOGGLE_KEY, false);
+  const [areDetailsShown, setDetailsShown] = useLocalStorage(LOCAL_STORAGE_TOGGLE_KEY, false);
 
   const { data: collectibles = [], isValidating: readingCollectibles } = useCollectibleTokens(
     chainId,
@@ -61,8 +61,8 @@ export const CollectiblesTab = () => {
             popup={props => (
               <ManageButtonDropdown
                 {...props}
-                detailsShown={detailsShown}
-                toggleDetailsShown={() => void setDetailsShown(!detailsShown)}
+                areDetailsShown={areDetailsShown}
+                toggleDetailsShown={() => void setDetailsShown(!areDetailsShown)}
               />
             )}
           >
@@ -97,7 +97,12 @@ export const CollectiblesTab = () => {
           <>
             <div className="grid grid-cols-3 gap-1">
               {filteredAssets.map(slug => (
-                <CollectibleItem key={slug} assetSlug={slug} accountPkh={publicKeyHash} detailsShown={detailsShown} />
+                <CollectibleItem
+                  key={slug}
+                  assetSlug={slug}
+                  accountPkh={publicKeyHash}
+                  areDetailsShown={areDetailsShown}
+                />
               ))}
             </div>
 
@@ -110,11 +115,11 @@ export const CollectiblesTab = () => {
 };
 
 interface ManageButtonDropdownProps extends PopperRenderProps {
-  detailsShown: boolean;
+  areDetailsShown: boolean;
   toggleDetailsShown: EmptyFn;
 }
 
-const ManageButtonDropdown: FC<ManageButtonDropdownProps> = ({ opened, detailsShown, toggleDetailsShown }) => {
+const ManageButtonDropdown: FC<ManageButtonDropdownProps> = ({ opened, areDetailsShown, toggleDetailsShown }) => {
   const buttonClassName = 'flex items-center px-3 py-2.5 rounded hover:bg-gray-200 cursor-pointer';
 
   return (
@@ -139,7 +144,7 @@ const ManageButtonDropdown: FC<ManageButtonDropdownProps> = ({ opened, detailsSh
       <label className={buttonClassName}>
         <Checkbox
           overrideClassNames="h-4 w-4 rounded"
-          checked={detailsShown}
+          checked={areDetailsShown}
           onChange={toggleDetailsShown}
           testID={AssetsSelectors.dropdownShowInfoCheckbox}
         />

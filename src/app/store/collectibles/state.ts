@@ -1,8 +1,11 @@
 import { createEntity, LoadableEntityState } from 'lib/store';
 
 export interface CollectibleDetails {
-  /** In muTEZ */
-  floorPrice: number | null;
+  listing: {
+    /** In atoms */
+    floorPrice: number;
+    currencyId: number;
+  };
 }
 
 export type CollectibleDetailsRecord = Record<string, CollectibleDetails>;

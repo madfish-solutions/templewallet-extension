@@ -5,6 +5,7 @@ import { ofType, toPayload } from 'ts-action-operators';
 
 import { fetchAllUserObjktCollectibles$ } from 'lib/apis/objkt';
 import { toTokenSlug } from 'lib/assets';
+import { isTruthy } from 'lib/utils';
 
 import { loadCollectiblesDetailsActions } from './actions';
 import { CollectibleDetailsRecord } from './state';
@@ -16,10 +17,18 @@ const loadCollectiblesDetailsEpic: Epic = (action$: Observable<Action>) =>
     switchMap(publicKeyHash =>
       fetchAllUserObjktCollectibles$(publicKeyHash).pipe(
         map(data => {
-          const entries = data.token.map(
-            ({ fa_contract, token_id, lowest_ask }) =>
-              [toTokenSlug(fa_contract, token_id), { floorPrice: lowest_ask }] as const
-          );
+          const entries = data.token
+            .map(({ fa_contract, token_id, listings_active }) => {
+              const cheepestListing = listings_active[0];
+              const listing = cheepestListing && {
+                floorPrice: cheepestListing.price,
+                currencyId: cheepestListing.currency_id
+              };
+
+              return listing && ([toTokenSlug(fa_contract, token_id), { listing }] as const);
+            })
+            .filter(isTruthy);
+
           const details: CollectibleDetailsRecord = Object.fromEntries(entries);
 
           return loadCollectiblesDetailsActions.success(details);

@@ -1,11 +1,13 @@
-import React, { FC, useCallback, useRef, useState } from 'react';
+import React, { FC, useCallback, useRef, useState, useMemo } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
 import clsx from 'clsx';
 
 import Money from 'app/atoms/Money';
 import { useAppEnv } from 'app/env';
-import { useOneCollectibleDetailsSelector } from 'app/store/collectibles/selectors';
+import { useCollectibleDetailsSelector } from 'app/store/collectibles/selectors';
+import { objktCurrencies } from 'lib/apis/objkt';
+import { T } from 'lib/i18n';
 import { useAssetMetadata, getAssetName, TEZOS_METADATA } from 'lib/metadata';
 import { useBalance } from 'lib/temple/front';
 import { atomsToTokens } from 'lib/temple/helpers';
@@ -17,18 +19,27 @@ import { CollectibleItemImage } from './CollectibleItemImage';
 interface Props {
   assetSlug: string;
   accountPkh: string;
-  detailsShown: boolean;
+  areDetailsShown: boolean;
 }
 
-export const CollectibleItem: FC<Props> = ({ assetSlug, accountPkh, detailsShown }) => {
+export const CollectibleItem: FC<Props> = ({ assetSlug, accountPkh, areDetailsShown }) => {
   const { popup } = useAppEnv();
   const metadata = useAssetMetadata(assetSlug);
   const toDisplayRef = useRef<HTMLDivElement>(null);
   const [displayed, setDisplayed] = useState(true);
   const { data: balance } = useBalance(assetSlug, accountPkh, { displayed });
-  const details = useOneCollectibleDetailsSelector(assetSlug);
+  const details = useCollectibleDetailsSelector(assetSlug);
 
-  const floorPrice = details?.floorPrice;
+  const listing = useMemo(() => {
+    if (!isDefined(details)) return null;
+
+    const { floorPrice, currencyId } = details.listing;
+    const currency = objktCurrencies[currencyId];
+
+    if (!isDefined(currency)) return null;
+
+    return { floorPrice, decimals: currency.decimals, symbol: currency.symbol };
+  }, [details]);
 
   const handleIntersection = useCallback(() => {
     setDisplayed(true);
@@ -44,7 +55,7 @@ export const CollectibleItem: FC<Props> = ({ assetSlug, accountPkh, detailsShown
         ref={toDisplayRef}
         className={clsx(
           'relative flex items-center justify-center bg-blue-50 rounded-lg overflow-hidden hover:opacity-70',
-          detailsShown ? 'border-b border-gray-300' : undefined
+          areDetailsShown ? 'border-b border-gray-300' : undefined
         )}
         title={assetName}
         style={{ height: popup ? 106 : 125 }}
@@ -58,20 +69,20 @@ export const CollectibleItem: FC<Props> = ({ assetSlug, accountPkh, detailsShown
         ) : null}
       </div>
 
-      {detailsShown && (
+      {areDetailsShown && (
         <div className="mt-1 mb-2 mx-1.5">
           <h5 className="text-sm leading-5 text-gray-910 truncate">{assetName}</h5>
           <div className="text-2xs leading-3 text-gray-600">
-            <span>Floor: </span>
-            {isDefined(floorPrice) ? (
+            {isDefined(listing) ? (
               <>
+                <span>Floor: </span>
                 <Money shortened smallFractionFont={false} tooltip={true} cryptoDecimals={TEZOS_METADATA.decimals}>
-                  {atomsToTokens(floorPrice, TEZOS_METADATA.decimals)}
+                  {atomsToTokens(listing.floorPrice, listing.decimals)}
                 </Money>
-                <span> TEZ</span>
+                <span> {listing.symbol}</span>
               </>
             ) : (
-              '---'
+              <T id="notListed" />
             )}
           </div>
         </div>
