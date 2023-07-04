@@ -24,6 +24,7 @@ interface Props extends PopperRenderProps, Omit<TopUpInputPropsBase, 'fitIcons'>
 export const TopUpInputHeader = forwardRef<HTMLDivElement, Props>(
   (
     {
+      isFiat,
       currenciesList,
       currency,
       amount,
@@ -129,7 +130,7 @@ export const TopUpInputHeader = forwardRef<HTMLDivElement, Props>(
             >
               <StaticCurrencyImage
                 currencyCode={currency.code}
-                isFiat={Boolean(currency.network)}
+                isFiat={isFiat}
                 imageSrc={currency.icon}
                 fitImg={fitIcons}
               />
