@@ -1,5 +1,5 @@
 Feature: Remove an account
-#  @remove_account
+  @remove_account
   Scenario: [Positive] As a user, I'd like to remove an imported account by mnemonic, private key and public key
     Given I have imported an existing account
 #    Remove an imported account by mnemonic

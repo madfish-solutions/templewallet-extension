@@ -12,6 +12,7 @@ import { CurrencyBase } from '../types';
 import { CurrencyOption } from './CurrencyOption';
 
 interface Props extends TestIDProperty {
+  isFiat?: boolean;
   value: CurrencyBase;
   options: CurrencyBase[];
   isLoading?: boolean;
@@ -25,6 +26,7 @@ interface Props extends TestIDProperty {
 const ROW_HEIGHT = 65;
 
 export const CurrenciesMenu: FC<Props> = ({
+  isFiat,
   value,
   options,
   isLoading = false,
@@ -81,6 +83,7 @@ export const CurrenciesMenu: FC<Props> = ({
           <CurrencyOption
             key={key}
             currency={options[index]}
+            isFiat={isFiat}
             isSelected={value.code === options[index].code && value.network?.code === options[index].network?.code}
             fitIcons={fitIcons}
             style={style}
