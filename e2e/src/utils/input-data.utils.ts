@@ -15,7 +15,7 @@ export const iEnterValues = {
   // For transactions
   amount_0_0001: '0.0001',
   amount_0_005: '0.005',
-  amount_0_03: '0.03',
+  amount_0_1: '0.1',
   amount_1: '1',
   kUSD: 'kUSD',
   uUSD: 'uUSD',
