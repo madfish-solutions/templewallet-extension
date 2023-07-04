@@ -11,6 +11,7 @@ import { ReactComponent as EditingIcon } from 'app/icons/editing.svg';
 import { ReactComponent as ManageIcon } from 'app/icons/manage.svg';
 import { CollectibleItem } from 'app/pages/Collectibles/CollectibleItem';
 import { AssetsSelectors } from 'app/pages/Home/OtherComponents/Assets.selectors';
+import { useTokensMetadataLoadingSelector } from 'app/store/tokens-metadata/selectors';
 import SearchAssetField from 'app/templates/SearchAssetField';
 import { AssetTypesEnum } from 'lib/assets/types';
 import { T, t } from 'lib/i18n';
@@ -27,14 +28,22 @@ export const CollectiblesTab = () => {
   const chainId = useChainId(true)!;
   const { popup } = useAppEnv();
   const { publicKeyHash } = useAccount();
-  const { isSyncing } = useSyncTokens();
+  const { isSyncing: tokensAreSyncing } = useSyncTokens();
+  const metadatasLoading = useTokensMetadataLoadingSelector();
+
   const [detailsShown, setDetailsShown] = useLocalStorage(LOCAL_STORAGE_TOGGLE_KEY, false);
 
-  const { data: collectibles = [] } = useCollectibleTokens(chainId, publicKeyHash, true);
+  const { data: collectibles = [], isValidating: readingCollectibles } = useCollectibleTokens(
+    chainId,
+    publicKeyHash,
+    true
+  );
 
   const collectibleSlugs = useMemo(() => collectibles.map(collectible => collectible.tokenSlug), [collectibles]);
 
   const { filteredAssets, searchValue, setSearchValue } = useFilteredAssets(collectibleSlugs);
+
+  const isSyncing = tokensAreSyncing || metadatasLoading || readingCollectibles;
 
   return (
     <div className="w-full max-w-sm mx-auto">
