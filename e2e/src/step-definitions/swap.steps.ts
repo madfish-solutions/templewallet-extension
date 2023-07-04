@@ -8,8 +8,6 @@ import { iSelectTokenSlugs } from 'e2e/src/utils/input-data.utils';
 import { createPageElement } from 'e2e/src/utils/search.utils';
 import { MEDIUM_TIMEOUT, VERY_LONG_TIMEOUT } from 'e2e/src/utils/timing.utils';
 
-import { BrowserContext } from '../classes/browser-context.class';
-
 Given(
   /I select (.*) token in the token drop-down list on the Swap page/,
   { timeout: VERY_LONG_TIMEOUT },

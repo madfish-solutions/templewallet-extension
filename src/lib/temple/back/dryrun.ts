@@ -55,7 +55,7 @@ export async function dryRunOpParams({
       if (result.every(x => x.isError)) {
         error = result;
       }
-      estimates = result[1]?.map(
+      estimates = result[0]?.map(
         (e: any, i: number) =>
           ({
             ...e,
