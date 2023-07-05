@@ -140,10 +140,9 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
   return (
     <DropdownWrapper
       opened={opened}
+      design="dark"
       className="origin-top-right p-2 min-w-64"
       style={{
-        backgroundColor: '#1b262c',
-        borderColor: '#212e36',
         transform: 'translate(3.25rem, 3.25rem)',
         pointerEvents: 'all'
       }}

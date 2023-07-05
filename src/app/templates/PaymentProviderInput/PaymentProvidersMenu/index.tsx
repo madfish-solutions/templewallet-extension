@@ -47,7 +47,7 @@ export const PaymentProvidersMenu: FC<Props> = ({
   return (
     <DropdownWrapper
       opened={opened}
-      className={'origin-top overflow-x-hidden overflow-y-auto max-h-60 mt-1'}
+      className={'origin-top overflow-x-hidden overflow-y-auto max-h-60'}
       style={{ marginTop: '0.25rem' }}
     >
       {(options.length === 0 || isLoading) && (
