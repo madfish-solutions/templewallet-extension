@@ -19,6 +19,7 @@ import { collectiblesReducer } from './collectibles/reducer';
 import { currencyEpics } from './currency/epics';
 import { currencyReducer } from './currency/reducers';
 import { dAppsReducer } from './d-apps/reducers';
+import { newsletterReducers } from './newsletter/newsletter-reducers';
 import { partnersPromotionEpics } from './partners-promotion/epics';
 import { partnersPromotionRucer } from './partners-promotion/reducers';
 import { settingsReducer } from './settings/reducers';
@@ -39,7 +40,8 @@ const baseReducer = rootStateReducer({
   tokensMetadata: tokensMetadataReducer,
   abTesting: abTestingReducer,
   buyWithCreditCard: buyWithCreditCardReducer,
-  collectibles: collectiblesReducer
+  collectibles: collectiblesReducer,
+  newsletter: newsletterReducers
 });
 
 export type RootState = GetStateType<typeof baseReducer>;

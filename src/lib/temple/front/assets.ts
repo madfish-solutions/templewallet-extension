@@ -11,7 +11,7 @@ import { useBalancesSelector } from 'app/store/balances/selectors';
 import { useSwapTokensSelector } from 'app/store/swap/selectors';
 import { loadTokensMetadataAction } from 'app/store/tokens-metadata/actions';
 import { useTokensMetadataSelector, useTokensMetadataLoadingSelector } from 'app/store/tokens-metadata/selectors';
-import { isTezAsset, TEZ_TOKEN_SLUG, toTokenSlug } from 'lib/assets';
+import { isTezAsset, TEMPLE_TOKEN_SLUG, TEZ_TOKEN_SLUG, toTokenSlug } from 'lib/assets';
 import { AssetTypesEnum } from 'lib/assets/types';
 import { useUsdToTokenRates } from 'lib/fiat-currency/core';
 import { TOKENS_SYNC_INTERVAL } from 'lib/fixed-times';
@@ -161,7 +161,8 @@ export const useAvailableAssets = (assetType: AssetTypesEnum) => {
   }, [assets]);
 
   const availableAssets = useMemo(
-    () => slugs.filter(slug => slug in allTokensMetadata && !assetsStatuses[slug]?.removed),
+    () =>
+      slugs.filter(slug => slug in allTokensMetadata && !assetsStatuses[slug]?.removed && slug !== TEMPLE_TOKEN_SLUG),
     [slugs, allTokensMetadata, assetsStatuses]
   );
 
@@ -218,13 +219,30 @@ export const useAvailableRoute3Tokens = () => {
   };
 };
 
-function makeAssetsSortPredicate(balances: Record<string, BigNumber>, fiatToTokenRates: Record<string, string>) {
+const FIRST_HOME_PAGE_TOKENS = [TEZ_TOKEN_SLUG, TEMPLE_TOKEN_SLUG];
+const FIRST_SWAP_SEND_TOKENS = [TEZ_TOKEN_SLUG];
+
+function makeAssetsSortPredicate(
+  balances: Record<string, BigNumber>,
+  fiatToTokenRates: Record<string, string>,
+  leadingAssetsSlugs: Array<string> = []
+) {
   return (tokenASlug: string, tokenBSlug: string) => {
-    if (tokenASlug === TEZ_TOKEN_SLUG) {
+    const tokenAIncluded = leadingAssetsSlugs.includes(tokenASlug);
+    const tokenBIncluded = leadingAssetsSlugs.includes(tokenBSlug);
+
+    if (tokenAIncluded && tokenBIncluded) {
+      const tokenAIndex = leadingAssetsSlugs.indexOf(tokenASlug);
+      const tokenBIndex = leadingAssetsSlugs.indexOf(tokenBSlug);
+
+      return tokenAIndex - tokenBIndex;
+    }
+
+    if (tokenAIncluded) {
       return -1;
     }
 
-    if (tokenBSlug === TEZ_TOKEN_SLUG) {
+    if (tokenBIncluded) {
       return 1;
     }
 
@@ -241,20 +259,20 @@ function makeAssetsSortPredicate(balances: Record<string, BigNumber>, fiatToToke
   };
 }
 
-export function useAssetsSortPredicate() {
+export function useAssetsSortPredicate(leadingAssetsSlugs?: Array<string>) {
   const balances = useBalancesWithDecimals();
   const usdToTokenRates = useUsdToTokenRates();
 
   return useCallback(
     (tokenASlug: string, tokenBSlug: string) =>
-      makeAssetsSortPredicate(balances, usdToTokenRates)(tokenASlug, tokenBSlug),
+      makeAssetsSortPredicate(balances, usdToTokenRates, leadingAssetsSlugs)(tokenASlug, tokenBSlug),
     [balances, usdToTokenRates]
   );
 }
 
 export function useFilteredAssets(assetSlugs: string[]) {
   const allTokensMetadata = useTokensMetadataSelector();
-  const assetsSortPredicate = useAssetsSortPredicate();
+  const assetsSortPredicate = useAssetsSortPredicate(FIRST_HOME_PAGE_TOKENS);
 
   const [searchValue, setSearchValue] = useState('');
   const [tokenId, setTokenId] = useState<number>();
@@ -279,7 +297,7 @@ export function useFilteredAssets(assetSlugs: string[]) {
 
 export function useFilteredSwapAssets(inputName: string = 'input') {
   const allTokensMetadata = useTokensMetadataSelector();
-  const assetsSortPredicate = useAssetsSortPredicate();
+  const assetsSortPredicate = useAssetsSortPredicate(FIRST_SWAP_SEND_TOKENS);
   const { route3tokensSlugs } = useAvailableRoute3Tokens();
   const { publicKeyHash } = useAccount();
   const chainId = useChainId(true)!;
