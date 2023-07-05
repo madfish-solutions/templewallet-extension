@@ -13,9 +13,11 @@ import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
 import { loadPartnersPromoAction, togglePartnersPromotionAction } from 'app/store/partners-promotion/actions';
 import SearchAssetField from 'app/templates/SearchAssetField';
 import { OptimalPromoVariantEnum } from 'lib/apis/optimal';
+import { TEMPLE_TOKEN_SLUG } from 'lib/assets';
 import { T } from 'lib/i18n';
 import { useAccount, useChainId, useDisplayedFungibleTokens, useFilteredAssets } from 'lib/temple/front';
 import { useSyncTokens } from 'lib/temple/front/sync-tokens';
+import { filterUnique } from 'lib/utils';
 import { Link, navigate } from 'lib/woozie';
 
 import { Banner } from '../../../../atoms/Banner';
@@ -37,9 +39,12 @@ export const TokensTab: FC = () => {
 
   const { data: tokens = [] } = useDisplayedFungibleTokens(chainId, publicKeyHash);
 
-  const tokenSlugsWithTez = useMemo(() => ['tez', ...tokens.map(({ tokenSlug }) => tokenSlug)], [tokens]);
+  const tokenSlugsWithTezAndTkey = useMemo(
+    () => filterUnique(['tez', TEMPLE_TOKEN_SLUG, ...tokens.map(({ tokenSlug }) => tokenSlug)]),
+    [tokens]
+  );
 
-  const { filteredAssets, searchValue, setSearchValue } = useFilteredAssets(tokenSlugsWithTez);
+  const { filteredAssets, searchValue, setSearchValue } = useFilteredAssets(tokenSlugsWithTezAndTkey);
 
   const isEnabledAdsBanner = useIsEnabledAdsBannerSelector();
   const isShouldShowPartnersPromoState = useShouldShowPartnersPromoSelector();
