@@ -55,10 +55,10 @@ export const CollectibleItem: FC<Props> = ({ assetSlug, accountPkh, areDetailsSh
         ref={toDisplayRef}
         className={clsx(
           'relative flex items-center justify-center bg-blue-50 rounded-lg overflow-hidden hover:opacity-70',
-          areDetailsShown ? 'border-b border-gray-300' : undefined
+          areDetailsShown && 'border-b border-gray-300',
+          popup ? 'h-26.5' : 'h-31.25'
         )}
         title={assetName}
-        style={{ height: popup ? 106 : 125 }}
       >
         {displayed && <CollectibleItemImage metadata={metadata} assetSlug={assetSlug} />}
 

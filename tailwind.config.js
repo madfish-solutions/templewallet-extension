@@ -167,37 +167,6 @@ module.exports = {
         ...brandColors
       };
     })(),
-    spacing: {
-      px: '1px',
-      0: '0',
-      1: '0.25rem',
-      1.5: '0.375rem',
-      2: '0.5rem',
-      2.5: '0.625rem',
-      3: '0.75rem',
-      4: '1rem',
-      5: '1.25rem',
-      6: '1.5rem',
-      7: '1.75rem',
-      8: '2rem',
-      9: '2.25rem',
-      10: '2.5rem',
-      12: '3rem',
-      14: '3.5rem',
-      15: '3.75rem',
-      16: '4rem',
-      20: '5rem',
-      24: '6rem',
-      25: '6.25rem',
-      29: '7.25rem',
-      32: '8rem',
-      35: '8.75rem',
-      40: '10rem',
-      48: '12rem',
-      56: '14rem',
-      64: '16rem',
-      96: '24rem'
-    },
     backgroundColor: theme => theme('colors'),
     backgroundOpacity: theme => theme('opacity'),
     backgroundPosition: {
@@ -336,14 +305,6 @@ module.exports = {
       extrabold: '800',
       black: '900'
     },
-    height: theme => ({
-      auto: 'auto',
-      ...theme('spacing'),
-      2.25: '2.25rem',
-      12: '3rem',
-      full: '100%',
-      screen: '100vh'
-    }),
     letterSpacing: {
       tighter: '-0.05em',
       tight: '-0.025em',
@@ -357,11 +318,6 @@ module.exports = {
       disc: 'disc',
       decimal: 'decimal'
     },
-    margin: (theme, { negative }) => ({
-      auto: 'auto',
-      ...theme('spacing'),
-      ...negative(theme('spacing'))
-    }),
     maxHeight: {
       full: '100%',
       screen: '100vh'
@@ -413,42 +369,8 @@ module.exports = {
       11: '11',
       12: '12'
     },
-    padding: theme => ({
-      ...theme('spacing'),
-      '1/2': '50%',
-      '1/3': '33.333333%',
-      '2/3': '66.666667%',
-      '1/4': '25%',
-      '2/4': '50%',
-      '3/4': '75%',
-      '1/5': '20%',
-      '2/5': '40%',
-      '3/5': '60%',
-      '4/5': '80%',
-      '1/6': '16.666667%',
-      '2/6': '33.333333%',
-      '3/6': '50%',
-      '4/6': '66.666667%',
-      '5/6': '83.333333%',
-      '1/12': '8.333333%',
-      '2/12': '16.666667%',
-      '3/12': '25%',
-      '4/12': '33.333333%',
-      '5/12': '41.666667%',
-      '6/12': '50%',
-      '7/12': '58.333333%',
-      '8/12': '66.666667%',
-      '9/12': '75%',
-      '10/12': '83.333333%',
-      '11/12': '91.666667%',
-      full: '100%'
-    }),
     placeholderColor: theme => theme('colors'),
     placeholderOpacity: theme => theme('opacity'),
-    space: (theme, { negative }) => ({
-      ...theme('spacing'),
-      ...negative(theme('spacing'))
-    }),
     stroke: {
       current: 'currentColor',
       'accent-orange': '#FF5B00',
@@ -462,39 +384,6 @@ module.exports = {
     },
     textColor: theme => theme('colors'),
     textOpacity: theme => theme('opacity'),
-    width: theme => ({
-      auto: 'auto',
-      fit: 'fit-content',
-      ...theme('spacing'),
-      '1/2': '50%',
-      '1/3': '33.333333%',
-      '2/3': '66.666667%',
-      '1/4': '25%',
-      '2/4': '50%',
-      '3/4': '75%',
-      '1/5': '20%',
-      '2/5': '40%',
-      '3/5': '60%',
-      '4/5': '80%',
-      '1/6': '16.666667%',
-      '2/6': '33.333333%',
-      '3/6': '50%',
-      '4/6': '66.666667%',
-      '5/6': '83.333333%',
-      '1/12': '8.333333%',
-      '2/12': '16.666667%',
-      '3/12': '25%',
-      '4/12': '33.333333%',
-      '5/12': '41.666667%',
-      '6/12': '50%',
-      '7/12': '58.333333%',
-      '8/12': '66.666667%',
-      '9/12': '75%',
-      '10/12': '83.333333%',
-      '11/12': '91.666667%',
-      full: '100%',
-      screen: '100vw'
-    }),
     zIndex: {
       auto: 'auto',
       0: '0',
@@ -504,7 +393,6 @@ module.exports = {
       40: '40',
       50: '50'
     },
-    gap: theme => theme('spacing'),
     gridTemplateColumns: {
       none: 'none',
       1: 'repeat(1, minmax(0, 1fr))',
@@ -719,6 +607,57 @@ module.exports = {
           animationTimingFunction: 'cubic-bezier(0,0,0.2,1)'
         }
       }
+    },
+    extend: {
+      spacing: {
+        15: '3.75rem',
+        25: '6.25rem',
+        26.5: '6.625rem',
+        29: '7.25rem',
+        31.25: '7.8125rem',
+        35: '8.75rem'
+      },
+      height: theme => theme('spacing'),
+      width: theme => theme('spacing'),
+      margin: (theme, { negative }) => ({
+        ...theme('spacing'),
+        ...negative(theme('spacing'))
+      }),
+      padding: theme => ({
+        ...theme('spacing'),
+        '1/2': '50%',
+        '1/3': '33.333333%',
+        '2/3': '66.666667%',
+        '1/4': '25%',
+        '2/4': '50%',
+        '3/4': '75%',
+        '1/5': '20%',
+        '2/5': '40%',
+        '3/5': '60%',
+        '4/5': '80%',
+        '1/6': '16.666667%',
+        '2/6': '33.333333%',
+        '3/6': '50%',
+        '4/6': '66.666667%',
+        '5/6': '83.333333%',
+        '1/12': '8.333333%',
+        '2/12': '16.666667%',
+        '3/12': '25%',
+        '4/12': '33.333333%',
+        '5/12': '41.666667%',
+        '6/12': '50%',
+        '7/12': '58.333333%',
+        '8/12': '66.666667%',
+        '9/12': '75%',
+        '10/12': '83.333333%',
+        '11/12': '91.666667%',
+        full: '100%'
+      }),
+      space: (theme, { negative }) => ({
+        ...theme('spacing'),
+        ...negative(theme('spacing'))
+      }),
+      gap: theme => theme('spacing')
     }
   },
   variants: {
