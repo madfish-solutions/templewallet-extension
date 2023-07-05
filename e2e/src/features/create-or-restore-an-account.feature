@@ -1,5 +1,5 @@
 Feature: Create or restore an account
-#@create_account
+  @create_account
   Scenario: [Positive] As a user, I'd like to create or restore an account
     Given I have imported an existing account
 
@@ -20,6 +20,7 @@ Feature: Create or restore an account
   Scenario: [Negative] As a user, I'd like to create or restore an account with edited name + validation errors
     Given I have imported an existing account
 
+  #   create an account with edited name
     And I press Account Icon on the Header page
     And I am on the AccountsDropdown page
 
