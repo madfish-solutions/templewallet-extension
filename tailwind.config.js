@@ -100,6 +100,7 @@ module.exports = {
           900: '#234e52'
         },
         blue: {
+          50: '#e8f1fd',
           100: '#ebf8ff',
           150: '#E5F2FF',
           200: '#bee3f8',
@@ -427,19 +428,6 @@ module.exports = {
       'right-bottom': 'right bottom',
       'right-top': 'right top',
       top: 'top'
-    },
-    opacity: {
-      0: '0',
-      5: '0.05',
-      10: '0.1',
-      20: '0.2',
-      25: '0.25',
-      40: '0.4',
-      50: '0.5',
-      65: '0.65',
-      75: '0.75',
-      90: '0.9',
-      100: '1'
     },
     order: {
       first: '-9999',
