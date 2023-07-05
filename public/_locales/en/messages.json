@@ -3049,5 +3049,11 @@
   },
   "creditCard": {
     "message": "credit card"
+  },
+  "subscribeToNewsletter": {
+    "message": "Subscribe to our Newsletter"
+  },
+  "keepLatestNews": {
+    "message": "Keep up with the latest news from Madfish"
   }
 }

@@ -340,6 +340,7 @@ module.exports = {
       ...theme('spacing'),
       2.25: '2.25rem',
       12: '3rem',
+      700: '700px',
       full: '100%',
       screen: '100vh'
     }),
@@ -390,6 +391,7 @@ module.exports = {
     }),
     maxHeight: {
       full: '100%',
+      '3/25': '52px',
       screen: '100vh'
     },
     maxWidth: (theme, { breakpoints }) => ({
@@ -474,6 +476,8 @@ module.exports = {
       '9/12': '75%',
       '10/12': '83.333333%',
       '11/12': '91.666667%',
+      3.5: '52px',
+      4.5: '72px',
       full: '100%'
     }),
     placeholderColor: theme => theme('colors'),
