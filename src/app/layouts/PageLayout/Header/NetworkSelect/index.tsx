@@ -69,7 +69,11 @@ const NetworkSelect: FC<NetworkSelectProps> = () => {
       placement="bottom-end"
       strategy="fixed"
       popup={({ opened, setOpened }) => (
-        <DropdownWrapper opened={opened} className="origin-top-right p-2">
+        <DropdownWrapper
+          opened={opened}
+          className="origin-top-right p-2"
+          style={{ backgroundColor: '#1b262c', borderColor: '#212e36' }}
+        >
           <div className={styles.scroll}>
             <h2
               className={classNames(

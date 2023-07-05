@@ -126,7 +126,7 @@ const ManageButtonDropdown: FC<ManageButtonDropdownProps> = ({ opened, areDetail
     <DropdownWrapper
       opened={opened}
       className="origin-top-right p-2 flex flex-col min-w-40"
-      style={{ backgroundColor: 'white', border: 'unset', marginTop: '0.25rem' }}
+      style={{ border: 'unset', marginTop: '0.25rem' }}
     >
       <Link
         to={`/manage-assets/${AssetTypesEnum.Collectibles}`}

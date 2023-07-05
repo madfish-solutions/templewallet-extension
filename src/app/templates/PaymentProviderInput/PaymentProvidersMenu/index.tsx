@@ -1,7 +1,5 @@
 import React, { FC, useEffect } from 'react';
 
-import classNames from 'clsx';
-
 import DropdownWrapper from 'app/atoms/DropdownWrapper';
 import Spinner from 'app/atoms/Spinner/Spinner';
 import { useAppEnvStyle } from 'app/hooks/use-app-env-style.hook';
@@ -10,7 +8,6 @@ import { PaymentProviderInterface } from 'lib/buy-with-credit-card/topup.interfa
 import { T } from 'lib/i18n';
 
 import { PaymentProviderOption } from './PaymentProviderOption';
-import styles from './style.module.css';
 
 interface Props extends TestIDProperty {
   value?: PaymentProviderInterface;
@@ -50,13 +47,13 @@ export const PaymentProvidersMenu: FC<Props> = ({
   return (
     <DropdownWrapper
       opened={opened}
-      className={classNames('origin-top overflow-x-hidden overflow-y-auto p-0', styles.root)}
-      style={{ backgroundColor: 'white', borderColor: '#e2e8f0' }}
+      className={'origin-top overflow-x-hidden overflow-y-auto max-h-60 mt-1'}
+      style={{ marginTop: '0.25rem' }}
     >
       {(options.length === 0 || isLoading) && (
         <div className="my-8 flex flex-col items-center justify-center text-gray-500">
           {isLoading ? (
-            <Spinner theme="primary" className={styles.spinner} />
+            <Spinner theme="primary" style={{ width: '3rem' }} />
           ) : (
             <p className="flex items-center justify-center text-gray-600 text-base font-light">
               <T id="noTopUpOptionsAvailable" />

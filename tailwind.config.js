@@ -318,29 +318,6 @@ module.exports = {
       disc: 'disc',
       decimal: 'decimal'
     },
-    maxHeight: {
-      full: '100%',
-      screen: '100vh'
-    },
-    maxWidth: (theme, { breakpoints }) => ({
-      none: 'none',
-      100: '6.25rem',
-      xs: '20rem',
-      sm: '24rem',
-      md: '28rem',
-      lg: '32rem',
-      xl: '36rem',
-      '2xl': '42rem',
-      '3xl': '48rem',
-      '4xl': '56rem',
-      '5xl': '64rem',
-      '6xl': '72rem',
-      '9/10': '90%',
-      full: '100%',
-      ...breakpoints(theme('screens'))
-    }),
-    minHeight: theme => theme('height'),
-    minWidth: theme => theme('width'),
     objectPosition: {
       bottom: 'bottom',
       center: 'center',
@@ -615,10 +592,30 @@ module.exports = {
         26.5: '6.625rem',
         29: '7.25rem',
         31.25: '7.8125rem',
-        35: '8.75rem'
+        35: '8.75rem',
+        60.5: '15.125rem',
+        63: '15.75rem'
       },
       height: theme => theme('spacing'),
+      minHeight: theme => theme('height'),
+      maxHeight: theme => theme('height'),
       width: theme => theme('spacing'),
+      minWidth: theme => theme('width'),
+      maxWidth: (theme, { breakpoints }) => ({
+        ...theme('width'),
+        xs: '20rem',
+        sm: '24rem',
+        md: '28rem',
+        lg: '32rem',
+        xl: '36rem',
+        '2xl': '42rem',
+        '3xl': '48rem',
+        '4xl': '56rem',
+        '5xl': '64rem',
+        '6xl': '72rem',
+        '9/10': '90%',
+        ...breakpoints(theme('screens'))
+      }),
       margin: (theme, { negative }) => ({
         ...theme('spacing'),
         ...negative(theme('spacing'))
