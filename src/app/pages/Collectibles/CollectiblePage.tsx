@@ -34,6 +34,10 @@ const CollectiblePage: FC<Props> = ({ assetSlug }) => {
 
   const collectionImage = useMemo(() => formatTcInfraImgUri(collectibleInfo?.fa.logo ?? ''), [collectibleInfo]);
 
+  const collectionName = collectibleInfo?.galleries[0]?.gallery?.name ?? collectibleInfo?.fa.name;
+
+  const creators = collectibleInfo?.creators ?? [];
+
   return (
     <PageLayout pageTitle={collectibleName}>
       <div className="text-center pb-4 max-w-360px m-auto">
@@ -53,21 +57,24 @@ const CollectiblePage: FC<Props> = ({ assetSlug }) => {
                   style={{ width: '24px', height: '24px', border: '1px solid #E2E8F0', borderRadius: '4px' }}
                   src={collectionImage}
                 />
-                <div className="content-center ml-2 text-gray-910 text-sm">{collectibleInfo?.fa.name}</div>
+                <div className="content-center ml-2 text-gray-910 text-sm">{collectionName}</div>
               </div>
             </div>
             <div className="flex text-gray-910 text-2xl mb-3">{collectibleName}</div>
             <div className="text-xs text-gray-910 flex mb-3">{collectibleInfo?.description ?? ''}</div>
-            <div className="flex items-center">
-              <div className="text-gray-600 text-xs">
-                {collectibleInfo?.creators.length ?? 0 > 1 ? <T id="creators" /> : <T id="creator" />}
+
+            {creators.length > 0 && (
+              <div className="flex items-center">
+                <div className="text-gray-600 text-xs">
+                  {collectibleInfo?.creators.length ?? 0 > 1 ? <T id="creators" /> : <T id="creator" />}
+                </div>
+                <div className="text-xs inline align-text-bottom text-gray-600 bg-gray-100 pl-1 pr-1 pb-05 pt-05 rounded-sm ml-1">
+                  {collectibleInfo?.creators.map(creator => (
+                    <AddressChip pkh={creator.holder.address ?? ''} />
+                  ))}
+                </div>
               </div>
-              <div className="text-xs inline align-text-bottom text-gray-600 bg-gray-100 pl-1 pr-1 pb-05 pt-05 rounded-sm ml-1">
-                {collectibleInfo?.creators.map(creator => (
-                  <AddressChip pkh={creator.holder.address ?? ''} />
-                ))}
-              </div>
-            </div>
+            )}
           </>
         )}
       </div>

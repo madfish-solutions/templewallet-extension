@@ -14,4 +14,9 @@ export interface CollectibleInfo {
     name: string;
     logo: string;
   };
+  galleries: {
+    gallery: {
+      name: string;
+    };
+  }[];
 }

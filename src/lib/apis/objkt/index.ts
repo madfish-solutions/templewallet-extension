@@ -9,7 +9,7 @@ export const fetchCollectibleInfo$ = (address: string, tokenId: string): Observa
 
   return apolloObjktClient.query<CollectibleInfoQueryResponse>(request).pipe(
     map(result => {
-      const { description, creators, fa } = result.token[0];
+      const { description, creators, fa, galleries } = result.token[0];
 
       return {
         description,
@@ -17,7 +17,8 @@ export const fetchCollectibleInfo$ = (address: string, tokenId: string): Observa
         fa: {
           name: fa.name,
           logo: fa.logo
-        }
+        },
+        galleries
       };
     })
   );

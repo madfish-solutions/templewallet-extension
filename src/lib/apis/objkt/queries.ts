@@ -28,39 +28,10 @@ export const buildGetCollectibleByAddressAndIdQuery = (address: string, tokenId:
       fa {
         name
         logo
-        items
       }
-      metadata
-      artifact_uri
-      name
-      attributes {
-        attribute {
-          id
-          name
-          value
-        }
-      }
-      timestamp
-      royalties {
-        decimals
-        amount
-      }
-      supply
-      mime
       galleries {
         gallery {
-          items
           name
-        }
-      }
-      lowest_ask
-      listings_active(order_by: {price_xtz: asc}) {
-        bigmap_key
-        currency_id
-        price
-        marketplace_contract
-        currency {
-          type
         }
       }
     }
