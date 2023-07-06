@@ -1,4 +1,4 @@
-import React, { FC, useMemo } from 'react';
+import React, { FC, useEffect, useMemo } from 'react';
 
 import clsx from 'clsx';
 
@@ -24,7 +24,11 @@ import { Link } from 'lib/woozie';
 const LOCAL_STORAGE_TOGGLE_KEY = 'collectibles-grid:show-items-details';
 const svgIconClassName = 'w-4 h-4 stroke-current fill-current text-gray-600';
 
-export const CollectiblesTab = () => {
+interface Props {
+  scrollToTheTabsBar: EmptyFn;
+}
+
+export const CollectiblesTab: FC<Props> = ({ scrollToTheTabsBar }) => {
   const chainId = useChainId(true)!;
   const { popup } = useAppEnv();
   const { publicKeyHash } = useAccount();
@@ -42,6 +46,8 @@ export const CollectiblesTab = () => {
   const collectibleSlugs = useMemo(() => collectibles.map(collectible => collectible.tokenSlug), [collectibles]);
 
   const { filteredAssets, searchValue, setSearchValue } = useFilteredAssets(collectibleSlugs);
+
+  useEffect(() => void scrollToTheTabsBar(), [collectibles.length > 0]);
 
   const isSyncing = tokensAreSyncing || metadatasLoading || readingCollectibles;
 
