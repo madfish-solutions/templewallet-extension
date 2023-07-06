@@ -4,7 +4,7 @@ import { BigNumber } from 'bignumber.js';
 import classNames from 'clsx';
 import { useDispatch } from 'react-redux';
 
-import { ActivitySpinner } from 'app/atoms';
+import { SyncSpinner } from 'app/atoms';
 import { PartnersPromotion, PartnersPromotionVariant } from 'app/atoms/partners-promotion';
 import { useAppEnv } from 'app/env';
 import { useBalancesWithDecimals } from 'app/hooks/use-balances-with-decimals.hook';
@@ -13,9 +13,11 @@ import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
 import { loadPartnersPromoAction, togglePartnersPromotionAction } from 'app/store/partners-promotion/actions';
 import SearchAssetField from 'app/templates/SearchAssetField';
 import { OptimalPromoVariantEnum } from 'lib/apis/optimal';
+import { TEMPLE_TOKEN_SLUG } from 'lib/assets';
 import { T } from 'lib/i18n';
 import { useAccount, useChainId, useDisplayedFungibleTokens, useFilteredAssets } from 'lib/temple/front';
 import { useSyncTokens } from 'lib/temple/front/sync-tokens';
+import { filterUnique } from 'lib/utils';
 import { Link, navigate } from 'lib/woozie';
 
 import { Banner } from '../../../../atoms/Banner';
@@ -26,7 +28,7 @@ import { AssetsSelectors } from '../Assets.selectors';
 import { ListItem } from './components/ListItem';
 import { toExploreAssetLink } from './utils';
 
-export const Tokens: FC = () => {
+export const TokensTab: FC = () => {
   const dispatch = useDispatch();
   const chainId = useChainId(true)!;
   const balances = useBalancesWithDecimals();
@@ -37,9 +39,12 @@ export const Tokens: FC = () => {
 
   const { data: tokens = [] } = useDisplayedFungibleTokens(chainId, publicKeyHash);
 
-  const tokenSlugsWithTez = useMemo(() => ['tez', ...tokens.map(({ tokenSlug }) => tokenSlug)], [tokens]);
+  const tokenSlugsWithTezAndTkey = useMemo(
+    () => filterUnique(['tez', TEMPLE_TOKEN_SLUG, ...tokens.map(({ tokenSlug }) => tokenSlug)]),
+    [tokens]
+  );
 
-  const { filteredAssets, searchValue, setSearchValue } = useFilteredAssets(tokenSlugsWithTez);
+  const { filteredAssets, searchValue, setSearchValue } = useFilteredAssets(tokenSlugsWithTezAndTkey);
 
   const isEnabledAdsBanner = useIsEnabledAdsBannerSelector();
   const isShouldShowPartnersPromoState = useShouldShowPartnersPromoSelector();
@@ -204,11 +209,8 @@ export const Tokens: FC = () => {
           {tokensView}
         </div>
       )}
-      {isSyncing && (
-        <div className="mt-4">
-          <ActivitySpinner />
-        </div>
-      )}
+
+      {isSyncing && <SyncSpinner className="mt-4" />}
     </div>
   );
 };

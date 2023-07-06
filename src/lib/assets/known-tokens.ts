@@ -24,6 +24,7 @@ export namespace KNOWN_TOKENS_SLUGS {
 
 const PREDEFINED_TOKENS_BY_CHAIN_ID: Record<string, string[]> = {
   [TempleChainId.Mainnet]: [
+    KNOWN_TOKENS_SLUGS.TEMPLE,
     KNOWN_TOKENS_SLUGS.USDT,
     KNOWN_TOKENS_SLUGS.UUSD,
     KNOWN_TOKENS_SLUGS.KUSD,
@@ -57,6 +58,15 @@ export const DEPRECATED_TKEY_METADATA: TokenMetadata = {
 
 export const LOCAL_MAINNET_TOKENS_METADATA: TokenMetadata[] = [
   DEPRECATED_TKEY_METADATA,
+  {
+    id: 0,
+    address: 'KT1VaEsVNiBoA56eToEK6n6BcPgh1tdx9eXi',
+    name: 'Temple Key',
+    symbol: 'TKEY',
+    decimals: 18,
+    thumbnailUri: 'ipfs://Qmb9QUXYn1PW8e7E2CwpBMgEur7gFAPPpq2Zh7H2D7eQcT',
+    standard: TokenStandardsEnum.Fa2
+  },
   {
     id: 0,
     address: 'KT1XnTn74bUtxHfDtBmm2bGZAQfhPbvKWR8o',

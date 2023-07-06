@@ -1,4 +1,14 @@
-import React, { ComponentProps, FC, ReactNode, Suspense, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import React, {
+  ComponentProps,
+  FC,
+  ReactNode,
+  Suspense,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState
+} from 'react';
 
 import classNames from 'clsx';
 
@@ -21,6 +31,7 @@ import { PageLayoutSelectors } from './PageLayout.selectors';
 import { ChangelogOverlay } from './PageLayout/ChangelogOverlay/ChangelogOverlay';
 import ConfirmationOverlay from './PageLayout/ConfirmationOverlay';
 import Header from './PageLayout/Header';
+import { NewsletterOverlay } from './PageLayout/NewsletterOverlay/NewsletterOverlay';
 import { OnRampOverlay } from './PageLayout/OnRampOverlay/OnRampOverlay';
 
 interface PageLayoutProps extends PropsWithChildren, ToolbarProps {
@@ -52,6 +63,7 @@ const PageLayout: FC<PageLayoutProps> = ({ children, contentContainerStyle, ...t
       <ConfirmationOverlay />
       <ChangelogOverlay />
       <OnRampOverlay />
+      <NewsletterOverlay />
     </>
   );
 };
@@ -96,6 +108,8 @@ type ToolbarProps = {
   attention?: boolean;
 };
 
+export let ToolbarElement: HTMLDivElement | null = null;
+
 const Toolbar: FC<ToolbarProps> = ({
   pageTitle,
   hasBackAction = true,
@@ -137,7 +151,7 @@ const Toolbar: FC<ToolbarProps> = ({
 
   const [sticked, setSticked] = useState(false);
 
-  const rootRef = useRef<HTMLDivElement>(null);
+  const rootRef = useRef<HTMLDivElement | null>();
 
   useEffect(() => {
     const toolbarEl = rootRef.current;
@@ -157,9 +171,14 @@ const Toolbar: FC<ToolbarProps> = ({
     return undefined;
   }, [setSticked]);
 
+  const updateRootRef = useCallback((elem: HTMLDivElement | null) => {
+    rootRef.current = elem;
+    ToolbarElement = elem;
+  }, []);
+
   return (
     <div
-      ref={rootRef}
+      ref={updateRootRef}
       className={classNames(
         'sticky z-20 flex items-center py-2 px-4',
         fullPage && !sticked && 'rounded-t',

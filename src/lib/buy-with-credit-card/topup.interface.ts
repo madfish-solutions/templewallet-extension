@@ -1,17 +1,10 @@
-import { TopUpInputType } from './top-up-input-type.enum';
 import { TopUpProviderId } from './top-up-provider-id.enum';
 
 export interface TopUpInputInterface {
   name: string;
   code: string;
   codeToDisplay?: string;
-  network: {
-    code: string;
-    fullName: string;
-    shortName: string;
-  };
   icon: string;
-  type: TopUpInputType;
   minAmount?: number;
   maxAmount?: number;
   precision: number;

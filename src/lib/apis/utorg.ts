@@ -10,7 +10,8 @@ export enum CurrencyInfoType {
 export interface UtorgCurrencyInfo {
   currency: string;
   symbol: string;
-  chain: string;
+  /** Crypto only */
+  chain?: string;
   display: string;
   caption: string;
   explorerTx: string;
