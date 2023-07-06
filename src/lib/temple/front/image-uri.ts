@@ -35,7 +35,7 @@ export const buildCollectibleImageURLs = (assetSlug: string, metadata: TokenMeta
   ];
 };
 
-const formatTcInfraImgUri = (url?: string, size: TcInfraMediaSize = DEFAULT_MEDIA_SIZE) => {
+export const formatTcInfraImgUri = (url?: string, size: TcInfraMediaSize = DEFAULT_MEDIA_SIZE) => {
   if (!url) return;
 
   if (url.startsWith('ipfs://')) {

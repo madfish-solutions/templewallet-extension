@@ -406,6 +406,7 @@ module.exports = {
       '6xl': '72rem',
       '9/10': '90%',
       full: '100%',
+      '360px': '360px',
       ...breakpoints(theme('screens'))
     }),
     minHeight: {
@@ -460,6 +461,7 @@ module.exports = {
     },
     padding: theme => ({
       ...theme('spacing'),
+      '05': '2px',
       '1/2': '50%',
       '1/3': '33.333333%',
       '2/3': '66.666667%',

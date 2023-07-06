@@ -1855,5 +1855,11 @@
         "content": "$1"
       }
     }
+  },
+  "creator": {
+    "message": "Автор:"
+  },
+  "creators": {
+    "message": "Автори:"
   }
 }
