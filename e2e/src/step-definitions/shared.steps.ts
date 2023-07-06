@@ -33,7 +33,7 @@ Given(/I'm waiting for 'success ✓' operation status/, { timeout: LONG_TIMEOUT 
   await BrowserContext.page.waitForSelector(`[data-testid="${OperationStatusSelectors.successDoneOperation}"]`, {
     timeout: LONG_TIMEOUT
   });
-  await sleep(10000);
+  await sleep(3000);
 });
 
 const hashObject = {
