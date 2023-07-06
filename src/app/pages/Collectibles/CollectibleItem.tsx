@@ -7,7 +7,6 @@ import Money from 'app/atoms/Money';
 import { useAppEnv } from 'app/env';
 import { useCollectibleDetailsSelector } from 'app/store/collectibles/selectors';
 import { objktCurrencies } from 'lib/apis/objkt';
-import { T } from 'lib/i18n';
 import { useAssetMetadata, getAssetName, TEZOS_METADATA } from 'lib/metadata';
 import { useBalance } from 'lib/temple/front';
 import { atomsToTokens } from 'lib/temple/helpers';
@@ -62,7 +61,7 @@ export const CollectibleItem: FC<Props> = ({ assetSlug, accountPkh, areDetailsSh
       >
         {displayed && <CollectibleItemImage metadata={metadata} assetSlug={assetSlug} />}
 
-        {balance ? (
+        {areDetailsShown && balance ? (
           <div className="absolute bottom-1.5 left-1.5 text-2xs text-white leading-none p-1 bg-black bg-opacity-60 rounded">
             {balance.toFixed()}×
           </div>
@@ -73,16 +72,16 @@ export const CollectibleItem: FC<Props> = ({ assetSlug, accountPkh, areDetailsSh
         <div className="mt-1 mb-2 mx-1.5">
           <h5 className="text-sm leading-5 text-gray-910 truncate">{assetName}</h5>
           <div className="text-2xs leading-3 text-gray-600">
+            <span>Floor: </span>
             {isDefined(listing) ? (
               <>
-                <span>Floor: </span>
                 <Money shortened smallFractionFont={false} tooltip={true} cryptoDecimals={TEZOS_METADATA.decimals}>
                   {atomsToTokens(listing.floorPrice, listing.decimals)}
                 </Money>
                 <span> {listing.symbol}</span>
               </>
             ) : (
-              <T id="notListed" />
+              '-'
             )}
           </div>
         </div>
