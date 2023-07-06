@@ -1,4 +1,5 @@
 import { createReducer } from '@reduxjs/toolkit';
+import { isDefined } from '@rnw-community/shared';
 
 import { TopUpProviderId } from 'lib/buy-with-credit-card/top-up-provider-id.enum';
 import { createEntity } from 'lib/store';
@@ -9,14 +10,12 @@ import { buyWithCreditCardInitialState, BuyWithCreditCardState } from './state';
 export const buyWithCreditCardReducer = createReducer<BuyWithCreditCardState>(
   buyWithCreditCardInitialState,
   builder => {
-    builder.addCase(loadAllCurrenciesActions.submit, state => ({
-      ...state,
-      currencies: {
-        [TopUpProviderId.MoonPay]: createEntity(state.currencies[TopUpProviderId.MoonPay].data, true),
-        [TopUpProviderId.Utorg]: createEntity(state.currencies[TopUpProviderId.Utorg].data, true),
-        [TopUpProviderId.AliceBob]: createEntity(state.currencies[TopUpProviderId.AliceBob].data, true)
-      }
-    }));
+    builder.addCase(loadAllCurrenciesActions.submit, state => {
+      state.currencies[TopUpProviderId.MoonPay].isLoading = true;
+      state.currencies[TopUpProviderId.Utorg].isLoading = true;
+      state.currencies[TopUpProviderId.AliceBob].isLoading = true;
+      state.currencies[TopUpProviderId.BinanceConnect].isLoading = true;
+    });
 
     builder.addCase(loadAllCurrenciesActions.success, (state, { payload: currencies }) => ({
       ...state,
@@ -28,27 +27,38 @@ export const buyWithCreditCardReducer = createReducer<BuyWithCreditCardState>(
       currencies: {
         [TopUpProviderId.MoonPay]: createEntity(state.currencies[TopUpProviderId.MoonPay].data, false, error),
         [TopUpProviderId.Utorg]: createEntity(state.currencies[TopUpProviderId.Utorg].data, false, error),
-        [TopUpProviderId.AliceBob]: createEntity(state.currencies[TopUpProviderId.AliceBob].data, false, error)
+        [TopUpProviderId.AliceBob]: createEntity(state.currencies[TopUpProviderId.AliceBob].data, false, error),
+        [TopUpProviderId.BinanceConnect]: createEntity(
+          state.currencies[TopUpProviderId.BinanceConnect].data,
+          false,
+          error
+        )
       }
     }));
 
     builder.addCase(updatePairLimitsActions.submit, (state, { payload: { fiatSymbol, cryptoSymbol } }) => {
-      const previousEntities = state.pairLimits[fiatSymbol]?.[cryptoSymbol];
+      if (!state.pairLimits[fiatSymbol]) state.pairLimits[fiatSymbol] = {};
 
-      return {
-        ...state,
-        pairLimits: {
-          ...state.pairLimits,
-          [fiatSymbol]: {
-            ...(state.pairLimits[fiatSymbol] ?? {}),
-            [cryptoSymbol]: {
-              [TopUpProviderId.MoonPay]: createEntity(previousEntities?.[TopUpProviderId.MoonPay]?.data, true),
-              [TopUpProviderId.Utorg]: createEntity(previousEntities?.[TopUpProviderId.Utorg]?.data, true),
-              [TopUpProviderId.AliceBob]: createEntity(previousEntities?.[TopUpProviderId.AliceBob]?.data, true)
-            }
-          }
-        }
-      };
+      const dataPerFiat = state.pairLimits[fiatSymbol];
+
+      if (isDefined(dataPerFiat[cryptoSymbol])) {
+        const dataPerFiatPerCrypto = dataPerFiat[cryptoSymbol];
+        const updatePerProvider = (providerId: TopUpProviderId) => {
+          dataPerFiatPerCrypto[providerId].isLoading = true;
+        };
+
+        updatePerProvider(TopUpProviderId.MoonPay);
+        updatePerProvider(TopUpProviderId.Utorg);
+        updatePerProvider(TopUpProviderId.AliceBob);
+        updatePerProvider(TopUpProviderId.BinanceConnect);
+      } else {
+        dataPerFiat[cryptoSymbol] = {
+          [TopUpProviderId.MoonPay]: createEntity(undefined, true),
+          [TopUpProviderId.Utorg]: createEntity(undefined, true),
+          [TopUpProviderId.AliceBob]: createEntity(undefined, true),
+          [TopUpProviderId.BinanceConnect]: createEntity(undefined, true)
+        };
+      }
     });
 
     builder.addCase(updatePairLimitsActions.success, (state, { payload: { fiatSymbol, cryptoSymbol, limits } }) => ({
@@ -57,23 +67,7 @@ export const buyWithCreditCardReducer = createReducer<BuyWithCreditCardState>(
         ...state.pairLimits,
         [fiatSymbol]: {
           ...(state.pairLimits[fiatSymbol] ?? {}),
-          [cryptoSymbol]: {
-            [TopUpProviderId.MoonPay]: createEntity(
-              limits[TopUpProviderId.MoonPay].data,
-              false,
-              limits[TopUpProviderId.MoonPay].error
-            ),
-            [TopUpProviderId.Utorg]: createEntity(
-              limits[TopUpProviderId.Utorg].data,
-              false,
-              limits[TopUpProviderId.Utorg].error
-            ),
-            [TopUpProviderId.AliceBob]: createEntity(
-              limits[TopUpProviderId.AliceBob].data,
-              false,
-              limits[TopUpProviderId.AliceBob].error
-            )
-          }
+          [cryptoSymbol]: limits // They come with `isLoading === false`
         }
       }
     }));
@@ -90,7 +84,16 @@ export const buyWithCreditCardReducer = createReducer<BuyWithCreditCardState>(
             [cryptoSymbol]: {
               [TopUpProviderId.MoonPay]: createEntity(previousEntities?.[TopUpProviderId.MoonPay]?.data, false, error),
               [TopUpProviderId.Utorg]: createEntity(previousEntities?.[TopUpProviderId.Utorg]?.data, false, error),
-              [TopUpProviderId.AliceBob]: createEntity(previousEntities?.[TopUpProviderId.AliceBob]?.data, false, error)
+              [TopUpProviderId.AliceBob]: createEntity(
+                previousEntities?.[TopUpProviderId.AliceBob]?.data,
+                false,
+                error
+              ),
+              [TopUpProviderId.BinanceConnect]: createEntity(
+                previousEntities?.[TopUpProviderId.BinanceConnect]?.data,
+                false,
+                error
+              )
             }
           }
         }

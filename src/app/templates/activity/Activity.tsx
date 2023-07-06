@@ -4,7 +4,7 @@ import classNames from 'clsx';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { useDispatch } from 'react-redux';
 
-import { ActivitySpinner } from 'app/atoms';
+import { SyncSpinner } from 'app/atoms';
 import { PartnersPromotion, PartnersPromotionVariant } from 'app/atoms/partners-promotion';
 import { useAppEnv } from 'app/env';
 import { ReactComponent as LayersIcon } from 'app/icons/layers.svg';
@@ -14,6 +14,8 @@ import { T } from 'lib/i18n/react';
 import useActivities from 'lib/temple/activity-new/hook';
 import { useAccount } from 'lib/temple/front';
 
+import { useShouldShowPartnersPromoSelector } from '../../store/partners-promotion/selectors';
+import { useIsEnabledAdsBannerSelector } from '../../store/settings/selectors';
 import { ActivityItem } from './ActivityItem';
 
 const INITIAL_NUMBER = 30;
@@ -31,7 +33,19 @@ export const ActivityComponent: React.FC<Props> = ({ assetSlug }) => {
 
   const { publicKeyHash: accountAddress } = useAccount();
 
-  useEffect(() => void dispatch(loadPartnersPromoAction.submit(OptimalPromoVariantEnum.Fullview)), []);
+  const isShouldShowPartnersPromoState = useShouldShowPartnersPromoSelector();
+  const isEnabledAdsBanner = useIsEnabledAdsBannerSelector();
+
+  useEffect(() => {
+    if (isShouldShowPartnersPromoState && !isEnabledAdsBanner) {
+      dispatch(
+        loadPartnersPromoAction.submit({
+          optimalPromoVariantEnum: OptimalPromoVariantEnum.Fullview,
+          accountAddress
+        })
+      );
+    }
+  }, [isShouldShowPartnersPromoState, isEnabledAdsBanner]);
 
   if (activities.length === 0 && !loading && reachedTheEnd) {
     return (
@@ -54,12 +68,12 @@ export const ActivityComponent: React.FC<Props> = ({ assetSlug }) => {
 
   return (
     <div className="w-full max-w-sm mx-auto">
-      <div className={classNames('mt-3 flex flex-col', popup && 'mx-4')}>
+      <div className={classNames('my-3 flex flex-col', popup && 'mx-4')}>
         <InfiniteScroll
           dataLength={activities.length}
           hasMore={reachedTheEnd === false}
           next={loadNext}
-          loader={loading && <ActivitySpinner height="2.5rem" />}
+          loader={loading && <SyncSpinner className="mt-4" />}
           onScroll={onScroll}
         >
           {activities.map((activity, index) => (

@@ -10,21 +10,23 @@ import { CurrencyBase } from '../types';
 import { getProperNetworkFullName } from '../utils';
 
 interface Props extends Partial<Pick<ListRowProps, 'style'>> {
+  isFiat?: boolean;
   currency: CurrencyBase;
   isSelected: boolean;
   fitIcons?: boolean | ((currency: CurrencyBase) => boolean);
 }
 
-export const CurrencyOption: FC<Props> = ({ currency, isSelected, fitIcons }) => (
+export const CurrencyOption: FC<Props> = ({ currency, isFiat, isSelected, fitIcons, style }) => (
   <div
     className={classNames(
       'py-1.5 px-2 w-full flex items-center h-16',
       isSelected ? 'bg-gray-200' : 'hover:bg-gray-100'
     )}
+    style={style}
   >
     <StaticCurrencyImage
       currencyCode={currency.code}
-      isFiat={Boolean(currency.network)}
+      isFiat={isFiat}
       imageSrc={currency.icon}
       fitImg={typeof fitIcons === 'function' ? fitIcons(currency) : fitIcons}
       className="mr-2"

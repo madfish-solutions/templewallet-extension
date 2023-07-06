@@ -48,5 +48,8 @@ Given(/I have imported an existing account/, { timeout: LONG_TIMEOUT }, async ()
   await Pages.SetWallet.acceptTerms.click();
   await Pages.SetWallet.importButton.click();
 
+  await Pages.NewsletterModal.isVisible();
+  await Pages.NewsletterModal.closeButton.click();
+
   await Pages.Home.isVisible();
 });

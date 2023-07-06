@@ -813,6 +813,15 @@
   "enable": {
     "message": "enable"
   },
+  "enableAds": {
+    "message": "Enable Ads"
+  },
+  "enablePartnersPromotionConfirm": {
+    "message": "Support the development team and earn tokens by viewing ads inside the wallet."
+  },
+  "enablePartnersPromotionDescriptionConfirm": {
+    "message": "To enable this feature, we request your permission to trace your Wallet Address and IP address. You can always disable ads in the settings."
+  },
   "dAppsCheckmarkPrompt": {
     "message": "Click on the checkmark to $action$ DApps interaction feature",
     "description": "DApps = Decentralized Applications",
@@ -1773,5 +1782,11 @@
   },
   "swapCashbackDescription": {
     "message": "Swap more than 10$ and receive 0.175% from the swapped amount in the TKEY token as a cashback"
+  },
+  "subscribeToNewsletter": {
+    "message": "Subscribe to our Newsletter"
+  },
+  "keepLatestNews": {
+    "message": "Keep up with the latest news from Madfish"
   }
 }

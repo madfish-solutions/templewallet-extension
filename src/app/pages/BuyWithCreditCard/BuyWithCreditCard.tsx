@@ -1,6 +1,6 @@
 import React, { FC, Suspense, useEffect, useMemo, useState } from 'react';
 
-import { isDefined } from '@rnw-community/shared';
+import { isNotEmptyString, isDefined } from '@rnw-community/shared';
 import BigNumber from 'bignumber.js';
 import { isEqual } from 'lodash';
 import { useDispatch } from 'react-redux';
@@ -27,7 +27,10 @@ import { useAllFiatCurrencies } from './hooks/use-all-fiat-currencies';
 import { useBuyWithCreditCardForm } from './hooks/use-buy-with-credit-card-form';
 import { useErrorAlert } from './hooks/use-error-alert';
 import { useFormInputsCallbacks } from './hooks/use-form-inputs-callbacks';
+import { usePairLimitsAreLoading } from './hooks/use-input-limits';
 import { usePaymentProviders } from './hooks/use-payment-providers';
+import { usePurchaseLink } from './hooks/use-purchase-link';
+import { useUpdateCurrentProvider } from './hooks/use-update-current-provider';
 import { AmountErrorType } from './types/amount-error-type';
 
 const fitFiatIconFn = (currency: TopUpInputInterface) => !currency.icon.startsWith(MOONPAY_ASSETS_BASE_URL);
@@ -36,53 +39,56 @@ export const BuyWithCreditCard: FC = () => {
   const dispatch = useDispatch();
   const [formIsLoading, setFormIsLoading] = useState(false);
   const form = useBuyWithCreditCardForm();
-  const {
-    formValues,
-    purchaseLink,
-    purchaseLinkLoading,
-    errors,
-    lazySetValue,
-    triggerValidation,
-    formState,
-    getValues
-  } = form;
+  const { formValues, errors, lazySetValue, triggerValidation, formState } = form;
   const { inputAmount, inputCurrency, outputToken, outputAmount, topUpProvider } = formValues;
-  const paymentProviders = usePaymentProviders(inputAmount, inputCurrency, outputToken);
-  const { allPaymentProviders, amountsUpdateErrors, paymentProvidersToDisplay } = paymentProviders;
+
+  const { allPaymentProviders, paymentProvidersToDisplay, providersErrors, updateOutputAmounts } = usePaymentProviders(
+    inputAmount,
+    inputCurrency,
+    outputToken
+  );
+
   const {
-    switchPaymentProvider,
     handleInputAssetChange,
     handleInputAmountChange,
     handleOutputTokenChange,
     handlePaymentProviderChange,
+    setPaymentProvider,
+    manuallySelectedProviderIdRef,
     refreshForm
-  } = useFormInputsCallbacks(form, paymentProviders, formIsLoading, setFormIsLoading);
+  } = useFormInputsCallbacks(form, updateOutputAmounts, formIsLoading, setFormIsLoading);
+
+  const { purchaseLink, purchaseLinkLoading, updateLinkError } = usePurchaseLink(formValues);
+
   const {
     onAlertClose,
     shouldHideErrorAlert,
     message: alertErrorMessage
-  } = useErrorAlert(form, allPaymentProviders, amountsUpdateErrors);
+  } = useErrorAlert(form, allPaymentProviders, providersErrors, updateLinkError);
+
   const { fiatCurrenciesWithPairLimits: allFiatCurrencies } = useAllFiatCurrencies(
     inputCurrency.code,
     outputToken.code
   );
   const allCryptoCurrencies = useAllCryptoCurrencies();
   const currenciesLoading = useCurrenciesLoadingSelector();
+  const pairLimitsLoading = usePairLimitsAreLoading(inputCurrency.code, outputToken.code);
 
   const inputAmountErrorMessage = errors.inputAmount?.message;
   const shouldShowInputAmountError = shouldShowFieldError('inputAmount', formState);
   const isMinAmountError =
-    shouldShowInputAmountError && inputAmountErrorMessage !== AmountErrorType.Max && isDefined(inputAmountErrorMessage);
+    shouldShowInputAmountError && isDefined(inputAmountErrorMessage) && inputAmountErrorMessage !== AmountErrorType.Max;
   const isMaxAmountError = shouldShowInputAmountError && inputAmountErrorMessage === AmountErrorType.Max;
   const shouldShowPaymentProviderError =
     isDefined(errors.topUpProvider) &&
     shouldShowFieldError('topUpProvider', formState) &&
     paymentProvidersToDisplay.length > 0;
 
+  useEffect(() => void dispatch(loadAllCurrenciesActions.submit()), []);
+
   useEffect(() => {
     dispatch(updatePairLimitsActions.submit({ fiatSymbol: inputCurrency.code, cryptoSymbol: outputToken.code }));
-  }, [dispatch, inputCurrency.code, getValues, outputToken.code]);
-  useEffect(() => void dispatch(loadAllCurrenciesActions.submit()), []);
+  }, [dispatch, inputCurrency.code, outputToken.code, allFiatCurrencies.length, allCryptoCurrencies.length]);
 
   useEffect(() => {
     const newInputAsset = allFiatCurrencies.find(({ code }) => code === inputCurrency.code);
@@ -98,13 +104,6 @@ export const BuyWithCreditCard: FC = () => {
       triggerValidation();
     }
   }, [inputAmount, inputCurrency, allFiatCurrencies, lazySetValue, triggerValidation]);
-  useEffect(() => {
-    const newPaymentProvider = paymentProvidersToDisplay.find(({ id }) => id === topUpProvider?.id);
-
-    if (!isEqual(newPaymentProvider, topUpProvider)) {
-      switchPaymentProvider(newPaymentProvider);
-    }
-  }, [topUpProvider, paymentProvidersToDisplay, switchPaymentProvider]);
 
   const exchangeRate = useMemo(() => {
     if (isDefined(inputAmount) && inputAmount > 0 && isDefined(outputAmount) && outputAmount > 0) {
@@ -114,14 +113,35 @@ export const BuyWithCreditCard: FC = () => {
     return undefined;
   }, [inputAmount, outputAmount]);
 
+  const isLoading = formIsLoading || currenciesLoading || pairLimitsLoading || purchaseLinkLoading;
+
+  useUpdateCurrentProvider(
+    paymentProvidersToDisplay,
+    topUpProvider,
+    manuallySelectedProviderIdRef,
+    setPaymentProvider,
+    isLoading
+  );
+
   useInterval(refreshForm, 10000, [refreshForm], false);
 
-  const minAmount = isDefined(inputCurrency?.minAmount)
-    ? toLocalFormat(inputCurrency.minAmount, { decimalPlaces: inputCurrency.precision })
-    : undefined;
-  const maxAmount = isDefined(inputCurrency?.maxAmount)
-    ? toLocalFormat(inputCurrency.maxAmount, { decimalPlaces: inputCurrency.precision })
-    : undefined;
+  const minAmountStr = useMemo(
+    () =>
+      isDefined(inputCurrency?.minAmount)
+        ? toLocalFormat(inputCurrency.minAmount, { decimalPlaces: inputCurrency.precision })
+        : undefined,
+    [inputCurrency]
+  );
+  const maxAmountStr = useMemo(
+    () =>
+      isDefined(inputCurrency?.maxAmount)
+        ? toLocalFormat(inputCurrency.maxAmount, { decimalPlaces: inputCurrency.precision })
+        : undefined,
+    [inputCurrency]
+  );
+
+  const someErrorOccured = isDefined(updateLinkError) || Object.keys(errors).length > 0;
+  const submitDisabled = !isNotEmptyString(purchaseLink) || someErrorOccured || !isDefined(outputAmount);
 
   return (
     <PageLayout pageTitle={<T id="buyWithCard" />}>
@@ -140,6 +160,7 @@ export const BuyWithCreditCard: FC = () => {
               )}
 
               <TopUpInput
+                isFiat
                 isSearchable
                 label={<T id="send" />}
                 amount={inputAmount}
@@ -147,8 +168,8 @@ export const BuyWithCreditCard: FC = () => {
                 currenciesList={allFiatCurrencies}
                 decimals={inputCurrency.precision}
                 isCurrenciesLoading={currenciesLoading}
-                minAmount={minAmount}
-                maxAmount={maxAmount}
+                minAmount={minAmountStr}
+                maxAmount={maxAmountStr}
                 isMinAmountError={isMinAmountError}
                 isMaxAmountError={isMaxAmountError}
                 amountInputDisabled={false}
@@ -190,8 +211,8 @@ export const BuyWithCreditCard: FC = () => {
                     background: '#4299e1',
                     padding: 0
                   }}
-                  disabled={Object.keys(errors).length > 0}
-                  loading={formIsLoading || purchaseLinkLoading}
+                  disabled={submitDisabled}
+                  loading={isLoading}
                   testID={BuyWithCreditCardSelectors.topUpButton}
                 >
                   <Anchor href={purchaseLink} treatAsButton className="w-full h-full flex justify-center items-center">

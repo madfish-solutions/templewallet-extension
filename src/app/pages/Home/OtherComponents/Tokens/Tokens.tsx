@@ -4,25 +4,31 @@ import { BigNumber } from 'bignumber.js';
 import classNames from 'clsx';
 import { useDispatch } from 'react-redux';
 
-import { ActivitySpinner } from 'app/atoms';
+import { SyncSpinner } from 'app/atoms';
 import { PartnersPromotion, PartnersPromotionVariant } from 'app/atoms/partners-promotion';
 import { useAppEnv } from 'app/env';
 import { useBalancesWithDecimals } from 'app/hooks/use-balances-with-decimals.hook';
 import { ReactComponent as AddToListIcon } from 'app/icons/add-to-list.svg';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
-import { loadPartnersPromoAction } from 'app/store/partners-promotion/actions';
+import { loadPartnersPromoAction, togglePartnersPromotionAction } from 'app/store/partners-promotion/actions';
 import SearchAssetField from 'app/templates/SearchAssetField';
 import { OptimalPromoVariantEnum } from 'lib/apis/optimal';
+import { TEMPLE_TOKEN_SLUG } from 'lib/assets';
 import { T } from 'lib/i18n';
 import { useAccount, useChainId, useDisplayedFungibleTokens, useFilteredAssets } from 'lib/temple/front';
 import { useSyncTokens } from 'lib/temple/front/sync-tokens';
+import { filterUnique } from 'lib/utils';
 import { Link, navigate } from 'lib/woozie';
 
+import { Banner } from '../../../../atoms/Banner';
+import { useShouldShowPartnersPromoSelector } from '../../../../store/partners-promotion/selectors';
+import { setAdsBannerVisibilityAction } from '../../../../store/settings/actions';
+import { useIsEnabledAdsBannerSelector } from '../../../../store/settings/selectors';
 import { AssetsSelectors } from '../Assets.selectors';
 import { ListItem } from './components/ListItem';
 import { toExploreAssetLink } from './utils';
 
-export const Tokens: FC = () => {
+export const TokensTab: FC = () => {
   const dispatch = useDispatch();
   const chainId = useChainId(true)!;
   const balances = useBalancesWithDecimals();
@@ -33,9 +39,15 @@ export const Tokens: FC = () => {
 
   const { data: tokens = [] } = useDisplayedFungibleTokens(chainId, publicKeyHash);
 
-  const tokenSlugsWithTez = useMemo(() => ['tez', ...tokens.map(({ tokenSlug }) => tokenSlug)], [tokens]);
+  const tokenSlugsWithTezAndTkey = useMemo(
+    () => filterUnique(['tez', TEMPLE_TOKEN_SLUG, ...tokens.map(({ tokenSlug }) => tokenSlug)]),
+    [tokens]
+  );
 
-  const { filteredAssets, searchValue, setSearchValue } = useFilteredAssets(tokenSlugsWithTez);
+  const { filteredAssets, searchValue, setSearchValue } = useFilteredAssets(tokenSlugsWithTezAndTkey);
+
+  const isEnabledAdsBanner = useIsEnabledAdsBannerSelector();
+  const isShouldShowPartnersPromoState = useShouldShowPartnersPromoSelector();
 
   const [searchFocused, setSearchFocused] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -64,7 +76,16 @@ export const Tokens: FC = () => {
     return tokensJsx;
   }, [filteredAssets, activeAssetSlug, balances]);
 
-  useEffect(() => void dispatch(loadPartnersPromoAction.submit(OptimalPromoVariantEnum.Token)), []);
+  useEffect(() => {
+    if (isShouldShowPartnersPromoState && !isEnabledAdsBanner) {
+      dispatch(
+        loadPartnersPromoAction.submit({
+          optimalPromoVariantEnum: OptimalPromoVariantEnum.Token,
+          accountAddress: publicKeyHash
+        })
+      );
+    }
+  }, [isShouldShowPartnersPromoState, isEnabledAdsBanner]);
 
   useEffect(() => {
     if (activeIndex !== 0 && activeIndex >= filteredAssets.length) {
@@ -103,6 +124,16 @@ export const Tokens: FC = () => {
     return () => window.removeEventListener('keyup', handleKeyup);
   }, [activeAssetSlug, setActiveIndex]);
 
+  const handleEnableBannerButton = async () => {
+    dispatch(togglePartnersPromotionAction(true));
+    dispatch(setAdsBannerVisibilityAction(false));
+  };
+
+  const handleDisableBannerButton = () => {
+    dispatch(togglePartnersPromotionAction(false));
+    dispatch(setAdsBannerVisibilityAction(false));
+  };
+
   return (
     <div className="w-full max-w-sm mx-auto">
       <div className={classNames('mt-3', popup && 'mx-4')}>
@@ -134,6 +165,16 @@ export const Tokens: FC = () => {
           </Link>
         </div>
       </div>
+
+      {isEnabledAdsBanner && (
+        <Banner
+          text="Earn by viewing ads in Temple Wallet"
+          description="Support the development team and earn tokens by viewing ads inside the wallet. To enable this feature, we request your permission to trace your Wallet Address and IP address. You can always disable ads in the settings."
+          enableButtonText="enableAds"
+          onDisable={handleDisableBannerButton}
+          onEnable={handleEnableBannerButton}
+        />
+      )}
 
       {filteredAssets.length === 0 ? (
         <div className="my-8 flex flex-col items-center justify-center text-gray-500">
@@ -168,11 +209,8 @@ export const Tokens: FC = () => {
           {tokensView}
         </div>
       )}
-      {isSyncing && (
-        <div className="mt-4">
-          <ActivitySpinner />
-        </div>
-      )}
+
+      {isSyncing && <SyncSpinner className="mt-4" />}
     </div>
   );
 };

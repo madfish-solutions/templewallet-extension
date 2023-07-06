@@ -12,8 +12,8 @@ const loadPartnersPromotionEpic: Epic = (action$: Observable<Action>) =>
   action$.pipe(
     ofType(loadPartnersPromoAction.submit),
     toPayload(),
-    switchMap(adType =>
-      getOptimalPromotionImage$(adType).pipe(
+    switchMap(({ optimalPromoVariantEnum, accountAddress }) =>
+      getOptimalPromotionImage$(optimalPromoVariantEnum, accountAddress).pipe(
         map(optimalPromo => loadPartnersPromoAction.success(optimalPromo)),
         catchError(() => of(loadPartnersPromoAction.fail('Promotion loading failed')))
       )
