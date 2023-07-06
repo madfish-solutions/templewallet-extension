@@ -13,7 +13,7 @@ export const initBrowser = () =>
       `--load-extension=${EXTENSION_PATH}`,
       '--user-agent=E2EPipeline/0.0.1'
     ],
-    slowMo: 10
+    slowMo: 100
   });
 
 export const getExtensionId = async (browser: Browser) => {
