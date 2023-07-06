@@ -1,10 +1,9 @@
 import React, { FC, useMemo } from 'react';
 
 import BigNumber from 'bignumber.js';
-import classNames from 'clsx';
 
-import { ActivitySpinner } from 'app/atoms';
 import Divider from 'app/atoms/Divider';
+import Spinner from 'app/atoms/Spinner/Spinner';
 import { useCollectibleInfo } from 'app/hooks/use-collectibles-info.hook';
 import PageLayout from 'app/layouts/PageLayout';
 import { AssetIcon } from 'app/templates/AssetIcon';
@@ -42,21 +41,20 @@ const CollectiblePage: FC<Props> = ({ assetSlug }) => {
     <PageLayout pageTitle={collectibleName}>
       <div className="text-center pb-4 max-w-360px m-auto">
         {isLoading ? (
-          <ActivitySpinner />
+          <Spinner />
         ) : (
           <>
-            <div className={classNames('w-full max-w-sm mx-auto')}>
+            <div className="w-full max-w-sm mx-auto">
               <div className="border border-gray-300">
                 <AssetIcon assetSlug={assetSlug} />
               </div>
             </div>
             <Divider />
             <div className="flex w-full justify-between items-center mt-4 mb-3">
-              <div className=" flex items-center justify-center rounded">
-                <Image
-                  style={{ width: '24px', height: '24px', border: '1px solid #E2E8F0', borderRadius: '4px' }}
-                  src={collectionImage}
-                />
+              <div className="flex items-center justify-center rounded">
+                {collectionImage !== undefined && (
+                  <Image src={collectionImage} className="w-6 h-6 rounded border border-gray-300" />
+                )}
                 <div className="content-center ml-2 text-gray-910 text-sm">{collectionName}</div>
               </div>
             </div>
@@ -68,9 +66,9 @@ const CollectiblePage: FC<Props> = ({ assetSlug }) => {
                 <div className="text-gray-600 text-xs">
                   {collectibleInfo?.creators.length ?? 0 > 1 ? <T id="creators" /> : <T id="creator" />}
                 </div>
-                <div className="text-xs inline align-text-bottom text-gray-600 bg-gray-100 pl-1 pr-1 pb-05 pt-05 rounded-sm ml-1">
+                <div className="text-xs flex align-text-bottom pl-1 pr-1 pb-05 pt-05 rounded-sm ml-1 max-w-full">
                   {collectibleInfo?.creators.map(creator => (
-                    <AddressChip pkh={creator.holder.address ?? ''} />
+                    <AddressChip pkh={creator.holder.address ?? ''} className="mr-1 text-gray-600 bg-gray-100" />
                   ))}
                 </div>
               </div>
