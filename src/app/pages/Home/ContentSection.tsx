@@ -20,22 +20,6 @@ import { HomeSelectors } from './Home.selectors';
 import BakingSection from './OtherComponents/BakingSection';
 import { TokensTab } from './OtherComponents/Tokens/Tokens';
 
-const Delegation: FC = () => (
-  <SuspenseContainer whileMessage={t('delegationInfoWhileMessage')}>
-    <BakingSection />
-  </SuspenseContainer>
-);
-
-type ActivityTabProps = {
-  assetSlug?: string;
-};
-
-const ActivityTab: FC<ActivityTabProps> = ({ assetSlug }) => (
-  <SuspenseContainer whileMessage={t('operationHistoryWhileMessage')}>
-    <ActivityComponent assetSlug={assetSlug} />
-  </SuspenseContainer>
-);
-
 type Props = {
   assetSlug?: string | null;
   className?: string;
@@ -48,6 +32,7 @@ interface TabData {
   titleI18nKey: TID;
   Component: FC;
   testID: string;
+  whileMessageI18nKey?: TID;
 }
 
 export const ContentSection: FC<Props> = ({ assetSlug, className }) => {
@@ -86,8 +71,9 @@ export const ContentSection: FC<Props> = ({ assetSlug, className }) => {
         {
           slug: 'activity',
           titleI18nKey: 'activity',
-          Component: ActivityTab,
-          testID: HomeSelectors.activityTab
+          Component: ActivityComponent,
+          testID: HomeSelectors.activityTab,
+          whileMessageI18nKey: 'operationHistoryWhileMessage'
         }
       ];
     }
@@ -95,7 +81,7 @@ export const ContentSection: FC<Props> = ({ assetSlug, className }) => {
     const activity: TabData = {
       slug: 'activity',
       titleI18nKey: 'activity',
-      Component: () => <ActivityTab assetSlug={assetSlug} />,
+      Component: () => <ActivityComponent assetSlug={assetSlug} />,
       testID: HomeSelectors.activityTab
     };
 
@@ -105,8 +91,9 @@ export const ContentSection: FC<Props> = ({ assetSlug, className }) => {
         {
           slug: 'delegation',
           titleI18nKey: 'delegate',
-          Component: Delegation,
-          testID: HomeSelectors.delegationTab
+          Component: BakingSection,
+          testID: HomeSelectors.delegationTab,
+          whileMessageI18nKey: 'delegationInfoWhileMessage'
         }
       ];
     }
@@ -122,7 +109,7 @@ export const ContentSection: FC<Props> = ({ assetSlug, className }) => {
     ];
   }, [assetSlug, scrollToTheTabsBar]);
 
-  const { slug, Component } = useMemo(() => {
+  const { slug, Component, whileMessageI18nKey } = useMemo(() => {
     const tab = tabSlug ? tabs.find(currentTab => currentTab.slug === tabSlug) : null;
     return tab ?? tabs[0];
   }, [tabSlug, tabs]);
@@ -140,7 +127,9 @@ export const ContentSection: FC<Props> = ({ assetSlug, className }) => {
         ))}
       </div>
 
-      <SuspenseContainer whileMessage="displaying tab">{Component && <Component />}</SuspenseContainer>
+      <SuspenseContainer whileMessage={whileMessageI18nKey ? t(whileMessageI18nKey) : 'displaying tab'}>
+        {Component && <Component />}
+      </SuspenseContainer>
     </div>
   );
 };
