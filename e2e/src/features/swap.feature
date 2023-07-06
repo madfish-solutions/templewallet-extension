@@ -1,6 +1,5 @@
 Feature: Swap
 
-  @dev
   Scenario: As a user, i'd like to swap assets
     Given I have imported an existing account
     And I press Selected Network Button on the Network Select page

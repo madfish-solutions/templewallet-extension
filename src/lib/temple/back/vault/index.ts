@@ -515,7 +515,6 @@ export class Vault {
         return await batch.send();
       } catch (err: any) {
         console.error(err);
-        console.log(1);
 
         switch (true) {
           case err instanceof PublicError:
