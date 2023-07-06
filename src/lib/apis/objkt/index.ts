@@ -1,5 +1,5 @@
 import { apolloObjktClient } from './constants';
-import { buildGetAllUserCollectiblesQuery } from './queries';
+import { buildGetCollectiblesQuery } from './queries';
 
 export { objktCurrencies } from './constants';
 
@@ -18,8 +18,8 @@ interface UserObjktCollectible {
   listings_active: ObjktListing[];
 }
 
-export const fetchAllUserObjktCollectibles$ = (address: string) => {
-  const request = buildGetAllUserCollectiblesQuery(address);
+export const fetchObjktCollectibles$ = (slugs: string[]) => {
+  const request = buildGetCollectiblesQuery(slugs);
 
   return apolloObjktClient.query<GetUserObjktCollectiblesResponse>(request);
 };

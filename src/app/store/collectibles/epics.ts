@@ -3,7 +3,7 @@ import { catchError, map, Observable, of, switchMap } from 'rxjs';
 import { Action } from 'ts-action';
 import { ofType, toPayload } from 'ts-action-operators';
 
-import { fetchAllUserObjktCollectibles$ } from 'lib/apis/objkt';
+import { fetchObjktCollectibles$ } from 'lib/apis/objkt';
 import { toTokenSlug } from 'lib/assets';
 import { isTruthy } from 'lib/utils';
 
@@ -14,8 +14,8 @@ const loadCollectiblesDetailsEpic: Epic = (action$: Observable<Action>) =>
   action$.pipe(
     ofType(loadCollectiblesDetailsActions.submit),
     toPayload(),
-    switchMap(publicKeyHash =>
-      fetchAllUserObjktCollectibles$(publicKeyHash).pipe(
+    switchMap(slugs =>
+      fetchObjktCollectibles$(slugs).pipe(
         map(data => {
           const entries = data.token
             .map(({ fa_contract, token_id, listings_active }) => {
