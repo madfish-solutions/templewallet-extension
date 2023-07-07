@@ -17,6 +17,7 @@ Feature: Create a new wallet
     And I am on the SetWallet page
     And I enter defaultPassword into Password Field on the Register Form page
     And I enter defaultPassword into Repeat Password Field on the Register Form page
+    And I press Analytics Check Box on the Register Form page
     And I press Skip Onboarding Checkbox on the Register Form page
     And I press Accept Terms Checkbox on the Register Form page
     And I press Create Button on the Register Form page
