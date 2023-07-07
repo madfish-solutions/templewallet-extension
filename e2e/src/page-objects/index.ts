@@ -1,4 +1,6 @@
 import { NetworksDropDown } from 'e2e/src/page-objects/pages/drop-down-lists/networks.drop-down';
+import { NewsletterModalPage } from 'e2e/src/page-objects/pages/newsletter-modal.page';
+import { OnRumModalPage } from 'e2e/src/page-objects/pages/on-rum-modal.page';
 import { RemoveAccountPage } from 'e2e/src/page-objects/pages/remove-account.page';
 import { SwapPage } from 'e2e/src/page-objects/pages/swap.page';
 
@@ -48,6 +50,8 @@ export const Pages = {
   OperationStatusAlert: new OperationStatusAlert(),
   Send: new SendPage(),
   NetworksDropDown: new NetworksDropDown(),
+  OnRumpModal: new OnRumModalPage(),
+  NewsletterModal: new NewsletterModalPage(),
   Swap: new SwapPage(),
   RemoveAccount: new RemoveAccountPage()
 };

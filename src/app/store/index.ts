@@ -17,6 +17,7 @@ import { buyWithCreditCardReducer } from './buy-with-credit-card/reducers';
 import { currencyEpics } from './currency/epics';
 import { currencyReducer } from './currency/reducers';
 import { dAppsReducer } from './d-apps/reducers';
+import { newsletterReducers } from './newsletter/newsletter-reducers';
 import { partnersPromotionEpics } from './partners-promotion/epics';
 import { partnersPromotionRucer } from './partners-promotion/reducers';
 import { settingsReducer } from './settings/reducers';
@@ -36,7 +37,8 @@ const baseReducer = rootStateReducer({
   balances: balancesReducer,
   tokensMetadata: tokensMetadataReducer,
   abTesting: abTestingReducer,
-  buyWithCreditCard: buyWithCreditCardReducer
+  buyWithCreditCard: buyWithCreditCardReducer,
+  newsletter: newsletterReducers
 });
 
 export type RootState = GetStateType<typeof baseReducer>;

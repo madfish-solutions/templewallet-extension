@@ -2,6 +2,8 @@ import { Given } from '@cucumber/cucumber';
 import { expect } from 'chai';
 import { OperationStatusSelectors } from 'src/app/templates/OperationStatus.selectors';
 
+import { createPageElement } from 'e2e/src/utils/search.utils';
+
 import { BrowserContext } from '../classes/browser-context.class';
 import { Pages } from '../page-objects';
 import { envVars } from '../utils/env.utils';
@@ -50,5 +52,16 @@ Given(
     const targetPkh = hashObject[hashType];
 
     expect(pkhFromUI).eql(targetPkh);
+  }
+);
+
+Given(
+  /I got the '(.*)' error with (.*) element on the (.*) page/,
+  { timeout: MEDIUM_TIMEOUT },
+  async (errorName: string, elementName: string, pageName: string) => {
+    await createPageElement(`${pageName}/${elementName}`).waitForDisplayed();
+    const getErrorContent = await createPageElement(`${pageName}/${elementName}`).getText();
+
+    expect(getErrorContent).eql(errorName);
   }
 );
