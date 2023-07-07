@@ -39,7 +39,7 @@ const CollectiblePage: FC<Props> = ({ assetSlug }) => {
 
   return (
     <PageLayout pageTitle={collectibleName}>
-      <div className="text-center pb-4 max-w-360px m-auto">
+      <div className="text-center pb-4 max-w-90 m-auto">
         {isLoading ? (
           <Spinner />
         ) : (
@@ -66,7 +66,7 @@ const CollectiblePage: FC<Props> = ({ assetSlug }) => {
                 <div className="text-gray-600 text-xs">
                   {collectibleInfo?.creators.length ?? 0 > 1 ? <T id="creators" /> : <T id="creator" />}
                 </div>
-                <div className="text-xs flex align-text-bottom pl-1 pr-1 pb-05 pt-05 rounded-sm ml-1 max-w-full">
+                <div className="text-xs flex align-text-bottom px-1 py-05 rounded-sm ml-1 max-w-full">
                   {collectibleInfo?.creators.map(creator => (
                     <AddressChip pkh={creator.holder.address ?? ''} className="mr-1 text-gray-600 bg-gray-100" />
                   ))}

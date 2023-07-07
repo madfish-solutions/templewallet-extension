@@ -409,7 +409,7 @@ module.exports = {
       '6xl': '72rem',
       '9/10': '90%',
       full: '100%',
-      '360px': '360px',
+      90: '22.5rem',
       ...breakpoints(theme('screens'))
     }),
     minHeight: {

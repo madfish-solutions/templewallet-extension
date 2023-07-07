@@ -25,7 +25,7 @@ export const useCollectibleInfo = (address: string, id: string) => {
     return () => {
       subscription.unsubscribe();
     };
-  }, []);
+  }, [address, id]);
 
   return { collectibleInfo, isLoading };
 };
