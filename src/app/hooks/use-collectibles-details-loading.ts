@@ -1,6 +1,6 @@
-import { useMemo } from 'react';
-
+import { isEqual } from 'lodash';
 import { useDispatch } from 'react-redux';
+import { useCustomCompareMemo } from 'use-custom-compare';
 
 import { loadCollectiblesDetailsActions } from 'app/store/collectibles/actions';
 import { COLLECTIBLES_DETAILS_SYNC_INTERVAL } from 'lib/fixed-times';
@@ -13,13 +13,11 @@ export const useCollectiblesDetailsLoading = () => {
   const { data: collectibles } = useCollectibleTokens(chainId, publicKeyHash);
   const dispatch = useDispatch();
 
-  const { slugs, checksum } = useMemo(() => {
-    const slugs = collectibles.map(({ tokenSlug }) => tokenSlug);
-
-    const checksum = slugs.sort().join('+');
-
-    return { slugs, checksum };
-  }, [collectibles]);
+  const slugs = useCustomCompareMemo(
+    () => collectibles.map(({ tokenSlug }) => tokenSlug).sort(),
+    [collectibles],
+    isEqual
+  );
 
   useInterval(
     () => {
@@ -28,6 +26,6 @@ export const useCollectiblesDetailsLoading = () => {
       dispatch(loadCollectiblesDetailsActions.submit(slugs));
     },
     COLLECTIBLES_DETAILS_SYNC_INTERVAL,
-    [checksum, dispatch]
+    [slugs, dispatch]
   );
 };

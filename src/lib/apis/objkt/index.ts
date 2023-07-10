@@ -1,3 +1,5 @@
+import { fromFa2TokenSlug } from 'lib/assets/utils';
+
 import { apolloObjktClient } from './constants';
 import { buildGetCollectiblesQuery } from './queries';
 
@@ -19,7 +21,17 @@ interface UserObjktCollectible {
 }
 
 export const fetchObjktCollectibles$ = (slugs: string[]) => {
-  const request = buildGetCollectiblesQuery(slugs);
+  const request = buildGetCollectiblesQuery();
 
-  return apolloObjktClient.query<GetUserObjktCollectiblesResponse>(request);
+  const queryVariables = {
+    where: {
+      _or: slugs.map(slug => {
+        const { contract, id } = fromFa2TokenSlug(slug);
+
+        return { fa_contract: { _eq: contract }, token_id: { _eq: String(id) } };
+      })
+    }
+  };
+
+  return apolloObjktClient.query<GetUserObjktCollectiblesResponse>(request, queryVariables);
 };
