@@ -2149,7 +2149,7 @@
     "message": "No matching dApps were found"
   },
   "thousandFormat": {
-    "message": "$thousand$k",
+    "message": "$thousand$K",
     "placeholders": {
       "thousand": {
         "content": "$1"
