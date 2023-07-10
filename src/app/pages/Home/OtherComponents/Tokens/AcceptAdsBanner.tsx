@@ -62,8 +62,8 @@ const AcceptAdsBannerForTestGroupA: FC<Props> = ({ onEnableButtonClick, onDisabl
 
   return (
     <Banner
-      title={`Get paid to discover exciting services and dApps!\n👀💰`}
-      description={`Here's the deal: share some data with us (wallet address, IP) to see the most relevant ads and we'll *pay you* a fair share monthly. By doing so, you support the developers of Temple Wallet. Change your mind? Easily disable sharing in settings.\n\nStart earning now!`}
+      title="acceptAdsBannerTitle_A"
+      description="acceptAdsBannerText_A"
       enableButton={enableButton}
       disableButton={disableButton}
     />
@@ -88,8 +88,8 @@ const AcceptAdsBannerForTestGroupB: FC<Props> = ({ onEnableButtonClick, onDisabl
 
   return (
     <Banner
-      title="Earn by viewing ads in Temple Wallet"
-      description="Support the development team and earn tokens by viewing ads inside the wallet. To enable this feature, we request your permission to trace your Wallet Address and IP address. You can always disable ads in the settings."
+      title="acceptAdsBannerTitle_B"
+      description="acceptAdsBannerText_B"
       enableButton={enableButton}
       disableButton={disableButton}
     />

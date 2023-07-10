@@ -7,8 +7,8 @@ import { FormSecondaryButton } from './FormSecondaryButton';
 import { FormSubmitButton } from './FormSubmitButton';
 
 interface Props {
-  title: string;
-  description: string;
+  title: TID;
+  description: TID;
   enableButton: BannerButtonProps;
   disableButton: BannerButtonProps;
 }
@@ -20,9 +20,13 @@ export interface BannerButtonProps extends TestIDProps {
 
 export const Banner: FC<Props> = ({ title, description, enableButton, disableButton }) => (
   <div className="p-3 border border-gray-300 rounded-md bg-white mx-4 sm:mx-0 mb-3">
-    <h5 className="text-sm font-medium text-gray-900 mb-1 whitespace-pre-line">{title}</h5>
+    <h5 className="text-sm font-medium text-gray-900 mb-1 whitespace-pre-line">
+      <T id={title} />
+    </h5>
 
-    <p className="text-xs font-normal text-gray-700 mb-4 whitespace-pre-line">{description}</p>
+    <p className="text-xs font-normal text-gray-700 mb-4 whitespace-pre-line">
+      <T id={description} />
+    </p>
 
     <div className="flex flex-wrap gap-x-4 gap-y-2">
       <FormSecondaryButton
