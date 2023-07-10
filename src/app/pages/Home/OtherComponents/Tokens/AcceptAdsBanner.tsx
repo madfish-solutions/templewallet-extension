@@ -2,38 +2,38 @@ import React, { FC, useCallback, useMemo } from 'react';
 
 import { useDispatch } from 'react-redux';
 
+import ABContainer from 'app/atoms/ABContainer';
 import { Banner, BannerButtonProps } from 'app/atoms/Banner';
-import { useUserTestingGroupNameSelector } from 'app/store/ab-testing/selectors';
 import { togglePartnersPromotionAction } from 'app/store/partners-promotion/actions';
 import { setAdsBannerVisibilityAction } from 'app/store/settings/actions';
-import { ABTestGroup } from 'lib/apis/temple';
 
 export const AcceptAdsBanner: FC = () => {
-  const userTestingGroupName = useUserTestingGroupNameSelector();
   const dispatch = useDispatch();
 
   const onEnableButtonClick = useCallback(() => {
     dispatch(togglePartnersPromotionAction(true));
     dispatch(setAdsBannerVisibilityAction(false));
-  }, []);
+  }, [dispatch]);
 
   const onDisableButtonClick = useCallback(() => {
     dispatch(togglePartnersPromotionAction(false));
     dispatch(setAdsBannerVisibilityAction(false));
-  }, []);
-
-  if (userTestingGroupName === ABTestGroup.A)
-    return (
-      <AcceptAdsBannerForATestGroup
-        onEnableButtonClick={onEnableButtonClick}
-        onDisableButtonClick={onDisableButtonClick}
-      />
-    );
+  }, [dispatch]);
 
   return (
-    <AcceptAdsBannerForBTestGroup
-      onEnableButtonClick={onEnableButtonClick}
-      onDisableButtonClick={onDisableButtonClick}
+    <ABContainer
+      groupAComponent={
+        <AcceptAdsBannerForTestGroupA
+          onEnableButtonClick={onEnableButtonClick}
+          onDisableButtonClick={onDisableButtonClick}
+        />
+      }
+      groupBComponent={
+        <AcceptAdsBannerForTestGroupB
+          onEnableButtonClick={onEnableButtonClick}
+          onDisableButtonClick={onDisableButtonClick}
+        />
+      }
     />
   );
 };
@@ -43,7 +43,7 @@ interface Props {
   onDisableButtonClick: EmptyFn;
 }
 
-const AcceptAdsBannerForATestGroup: FC<Props> = ({ onEnableButtonClick, onDisableButtonClick }) => {
+const AcceptAdsBannerForTestGroupA: FC<Props> = ({ onEnableButtonClick, onDisableButtonClick }) => {
   const enableButton: BannerButtonProps = useMemo(
     () => ({
       title: 'payMeForEveryAdISee',
@@ -70,7 +70,7 @@ const AcceptAdsBannerForATestGroup: FC<Props> = ({ onEnableButtonClick, onDisabl
   );
 };
 
-const AcceptAdsBannerForBTestGroup: FC<Props> = ({ onEnableButtonClick, onDisableButtonClick }) => {
+const AcceptAdsBannerForTestGroupB: FC<Props> = ({ onEnableButtonClick, onDisableButtonClick }) => {
   const enableButton: BannerButtonProps = useMemo(
     () => ({
       title: 'enableAds',
