@@ -68,8 +68,7 @@ export const DropdownSelect = <T extends unknown>({
               <button
                 className={classNames(
                   'flex gap-2 items-center max-h-18',
-                  isInputDefined && 'border-r border-gray-300',
-                  !isInputDefined && 'w-full justify-between',
+                  isInputDefined ? 'border-r border-gray-300' : 'w-full justify-between',
                   dropdownButtonClassName
                 )}
                 onClick={() => {

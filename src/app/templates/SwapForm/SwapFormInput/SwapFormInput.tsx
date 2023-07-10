@@ -188,7 +188,7 @@ const SwapDropdownFace: FC<SwapFieldProps> = ({ testId, selectedAssetSlug, selec
     {selectedAssetSlug ? (
       <div className="flex gap-2 align-center">
         <AssetIcon assetSlug={selectedAssetSlug} size={32} className="w-8" />
-        <span className="text-gray-700 text-lg overflow-hidden w-16 leading-8" style={{ textOverflow: 'ellipsis' }}>
+        <span className="text-gray-700 text-lg overflow-hidden w-16 leading-8 text-ellipsis">
           {selectedAssetMetadata.symbol}
         </span>
       </div>
