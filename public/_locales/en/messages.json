@@ -991,9 +991,9 @@
   "enable": {
     "message": "enable"
   },
-  "enableAds": {
-    "message": "Enable Ads"
-  },
+  "enableAds": { "message": "Enable Ads" },
+  "payMeForEveryAdISee": { "message": "Pay me for every ad I see" },
+  "noThanksIhateFreeMoney": { "message": "No thanks, I hate free money" },
   "dAppsCheckmarkPrompt": {
     "message": "Click on the checkmark to $action$ DApps interaction feature",
     "description": "DApps = Decentralized Applications",
