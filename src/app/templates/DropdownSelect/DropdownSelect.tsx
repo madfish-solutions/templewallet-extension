@@ -22,7 +22,6 @@ interface Props<T> {
   optionsProps: SelectOptionsPropsBase<T>;
   testIds?: {
     dropdownTestId?: string;
-    searchInputTestId?: string;
   };
 }
 
@@ -62,7 +61,7 @@ export const DropdownSelect = <T extends unknown>({
       {({ ref, opened, toggleOpened }) => (
         <div ref={ref as unknown as React.RefObject<HTMLDivElement>}>
           {opened ? (
-            <SelectSearch className={dropdownButtonClassName} {...searchProps} />
+            <SelectSearch {...searchProps} className={dropdownButtonClassName} />
           ) : (
             <div className="box-border w-full flex items-center justify-between border rounded-md border-gray-300 overflow-hidden max-h-18">
               <button

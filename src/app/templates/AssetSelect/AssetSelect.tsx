@@ -65,10 +65,11 @@ const AssetSelect: FC<AssetSelectProps> = ({ value, assets, onChange, className,
       <DropdownSelect
         DropdownFaceContent={<AssetFieldContent asset={value} />}
         searchProps={{
+          testId: testIDs?.searchInput,
           searchValue: searchStringDebounced,
           onSearchChange: event => setSearchString(event.target.value)
         }}
-        testIds={{ searchInputTestId: testIDs?.searchInput, dropdownTestId: testIDs?.main }}
+        testIds={{ dropdownTestId: testIDs?.main }}
         dropdownButtonClassName="p-2 h-18"
         optionsProps={{
           options: searchedOptions,

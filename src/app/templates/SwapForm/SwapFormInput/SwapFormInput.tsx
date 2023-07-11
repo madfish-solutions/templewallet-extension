@@ -139,8 +139,7 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
       >
         <DropdownSelect
           testIds={{
-            dropdownTestId: testIDs?.dropdown,
-            searchInputTestId: testIDs?.searchInput
+            dropdownTestId: testIDs?.dropdown
           }}
           dropdownButtonClassName="pl-4 pr-3 py-5"
           DropdownFaceContent={
@@ -152,6 +151,7 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
           }
           searchProps={{
             searchValue,
+            testId: testIDs?.searchInput,
             onSearchChange: handleSearchChange
           }}
           Input={
