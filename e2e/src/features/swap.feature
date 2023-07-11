@@ -1,7 +1,10 @@
 Feature: Swap
- @dev
+
   Scenario: As a user, i'd like to swap assets
     Given I have imported an existing account
+    And I press Selected Network Button on the Network Select page
+    And I select ECAD Labs Mainnet node in the networks drop-down list on the Header page
+    And I check that ECAD Labs Mainnet node is selected correctly
     And I press Swap Button on the Home page
 
     And I am on the Swap page
@@ -119,7 +122,7 @@ Feature: Swap
     And I enter wUSDT into Search Input on the Swap Form (From) Input page
     And I select wUSDT token in the token drop-down list on the Swap page
     And I clear Asset Input value on the Swap Form (From) Input page
-    And I enter amount_0_03 into Asset Input on the Swap Form (From) Input page
+    And I enter amount_0_1 into Asset Input on the Swap Form (From) Input page
     And I press Asset Drop-down Button on the Swap Form (To) Input page
     And I enter uUSD into Search Input on the Swap Form (To) Input page
     And I select uUSD token in the token drop-down list on the Swap page
@@ -135,7 +138,7 @@ Feature: Swap
     And I am on the Swap page
    # 10.Swap wUSDT -> uUSD (FA2 -> FA2)
     And I press Swap Places Button on the Swap Form page
-    And I enter amount_0_03 into Asset Input on the Swap Form (From) Input page
+    And I enter amount_0_1 into Asset Input on the Swap Form (From) Input page
     And I click on animated Swap button on the Swap page
 
     And I am on the InternalConfirmation page
