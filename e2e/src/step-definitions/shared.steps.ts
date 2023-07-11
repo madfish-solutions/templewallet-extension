@@ -8,7 +8,7 @@ import { BrowserContext } from '../classes/browser-context.class';
 import { Pages } from '../page-objects';
 import { envVars } from '../utils/env.utils';
 import { iComparePrivateKeys } from '../utils/input-data.utils';
-import { LONG_TIMEOUT, MEDIUM_TIMEOUT } from '../utils/timing.utils';
+import { LONG_TIMEOUT, MEDIUM_TIMEOUT, sleep } from '../utils/timing.utils';
 
 Given(
   /I reveal a private key and compare with (.*)/,
@@ -35,6 +35,7 @@ Given(/I'm waiting for 'success ✓' operation status/, { timeout: LONG_TIMEOUT 
   await BrowserContext.page.waitForSelector(`[data-testid="${OperationStatusSelectors.successDoneOperation}"]`, {
     timeout: LONG_TIMEOUT
   });
+  await sleep(10000);
 });
 
 const hashObject = {
