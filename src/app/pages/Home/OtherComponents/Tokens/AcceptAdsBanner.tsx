@@ -6,6 +6,10 @@ import ABContainer from 'app/atoms/ABContainer';
 import { Banner, BannerButtonProps } from 'app/atoms/Banner';
 import { togglePartnersPromotionAction } from 'app/store/partners-promotion/actions';
 import { setAdsBannerVisibilityAction } from 'app/store/settings/actions';
+import { T } from 'lib/i18n';
+import { EmojiInlineIcon } from 'lib/icons/emoji';
+
+import { AssetsSelectors } from '../Assets.selectors';
 
 export const AcceptAdsBanner: FC = () => {
   const dispatch = useDispatch();
@@ -47,6 +51,7 @@ const AcceptAdsBannerForTestGroupA: FC<Props> = ({ onEnableButtonClick, onDisabl
   const enableButton: BannerButtonProps = useMemo(
     () => ({
       title: 'payMeForEveryAdISee',
+      testID: AssetsSelectors.acceptAdsBannerEnableButton,
       onClick: onEnableButtonClick
     }),
     [onEnableButtonClick]
@@ -55,6 +60,7 @@ const AcceptAdsBannerForTestGroupA: FC<Props> = ({ onEnableButtonClick, onDisabl
   const disableButton: BannerButtonProps = useMemo(
     () => ({
       title: 'noThanksIhateFreeMoney',
+      testID: AssetsSelectors.acceptAdsBannerDisableButton,
       onClick: onDisableButtonClick
     }),
     [onDisableButtonClick]
@@ -62,7 +68,14 @@ const AcceptAdsBannerForTestGroupA: FC<Props> = ({ onEnableButtonClick, onDisabl
 
   return (
     <Banner
-      title="acceptAdsBannerTitle_A"
+      title={
+        <>
+          <T id="acceptAdsBannerTitle_A" />
+          <br />
+          <EmojiInlineIcon name="eyes-1f440" />
+          <EmojiInlineIcon name="money-bag-1f4b0" />
+        </>
+      }
       description="acceptAdsBannerText_A"
       enableButton={enableButton}
       disableButton={disableButton}
@@ -74,6 +87,7 @@ const AcceptAdsBannerForTestGroupB: FC<Props> = ({ onEnableButtonClick, onDisabl
   const enableButton: BannerButtonProps = useMemo(
     () => ({
       title: 'enableAds',
+      testID: AssetsSelectors.acceptAdsBannerEnableButton,
       onClick: onEnableButtonClick
     }),
     [onEnableButtonClick]
@@ -81,6 +95,9 @@ const AcceptAdsBannerForTestGroupB: FC<Props> = ({ onEnableButtonClick, onDisabl
 
   const disableButton: BannerButtonProps = useMemo(
     () => ({
+      title: 'disable',
+      capitalize: true,
+      testID: AssetsSelectors.acceptAdsBannerDisableButton,
       onClick: onDisableButtonClick
     }),
     [onDisableButtonClick]
@@ -88,7 +105,7 @@ const AcceptAdsBannerForTestGroupB: FC<Props> = ({ onEnableButtonClick, onDisabl
 
   return (
     <Banner
-      title="acceptAdsBannerTitle_B"
+      title={<T id="acceptAdsBannerTitle_B" />}
       description="acceptAdsBannerText_B"
       enableButton={enableButton}
       disableButton={disableButton}
