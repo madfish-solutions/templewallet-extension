@@ -5,7 +5,7 @@ import { useAssetMetadata, getAssetName } from 'lib/metadata';
 import { useIntersectionDetection } from 'lib/ui/use-intersection-detection';
 import { Link } from 'lib/woozie';
 
-import { CollectibleItemImage } from './CollectibleItemImage';
+import { CollectibleImage } from './CollectibleImage';
 
 interface Props {
   assetSlug: string;
@@ -33,7 +33,7 @@ export const CollectibleItem: FC<Props> = ({ assetSlug, detailsShown }) => {
         className="flex items-center justify-center bg-blue-50 rounded-lg overflow-hidden hover:opacity-70"
         style={{ height: popup ? 106 : 125 }}
       >
-        {displayed && <CollectibleItemImage metadata={metadata} assetSlug={assetSlug} />}
+        {displayed && <CollectibleImage metadata={metadata} assetSlug={assetSlug} />}
       </div>
 
       {detailsShown && (

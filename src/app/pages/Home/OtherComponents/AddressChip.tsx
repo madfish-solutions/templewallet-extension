@@ -4,8 +4,8 @@ import classNames from 'clsx';
 import useSWR from 'swr';
 
 import { Button } from 'app/atoms';
+import { ReactComponent as GlobeIcon } from 'app/icons/globe.svg';
 import { ReactComponent as HashIcon } from 'app/icons/hash.svg';
-import { ReactComponent as LanguageIcon } from 'app/icons/language.svg';
 import HashChip from 'app/templates/HashChip';
 import { TestIDProps } from 'lib/analytics';
 import { useTezos, useTezosDomainsClient, fetchFromStorage, putToStorage } from 'lib/temple/front';
@@ -53,10 +53,10 @@ const AddressChip: FC<AddressChipProps> = ({ pkh, className, small, ...rest }) =
     });
   }, [setDomainDisplayed, domainDisplayedKey]);
 
-  const Icon = domainDisplayed ? HashIcon : LanguageIcon;
+  const Icon = domainDisplayed ? HashIcon : GlobeIcon;
 
   return (
-    <div className={classNames('flex items-center', className)}>
+    <div className={classNames('flex', className)}>
       {reverseName && domainDisplayed ? (
         <HashChip hash={reverseName} firstCharsCount={7} lastCharsCount={10} small={small} {...rest} />
       ) : (
@@ -67,19 +67,16 @@ const AddressChip: FC<AddressChipProps> = ({ pkh, className, small, ...rest }) =
         <Button
           type="button"
           className={classNames(
-            'inline-flex items-center justify-center ml-2 rounded-sm',
-            'bg-gray-100 shadow-xs hover:text-gray-600 text-gray-500 leading-none select-none',
+            'inline-flex items-center justify-center ml-2 rounded-sm p-1',
+            'bg-gray-100 hover:shadow-xs hover:text-gray-600 text-gray-500 leading-none select-none',
             small ? 'text-xs' : 'text-sm',
             'transition ease-in-out duration-300'
           )}
-          style={{
-            padding: 3
-          }}
           onClick={handleToggleDomainClick}
           testID={HomeSelectors.addressModeSwitchButton}
           testIDProperties={{ toDomainMode: !domainDisplayed }}
         >
-          <Icon className={classNames('w-auto stroke-current', small ? 'h-3' : 'h-4')} />
+          <Icon className={classNames('w-auto stroke-current fill-current', small ? 'h-3' : 'h-4')} />
         </Button>
       )}
     </div>
