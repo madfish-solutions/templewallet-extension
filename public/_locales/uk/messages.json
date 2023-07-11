@@ -1856,10 +1856,7 @@
       }
     }
   },
-  "creator": {
-    "message": "Автор:"
-  },
-  "creators": {
-    "message": "Автори:"
-  }
+  "showInfo": { "message": "Деталі" },
+  "creator": { "message": "Автор:" },
+  "creators": { "message": "Автори:" }
 }

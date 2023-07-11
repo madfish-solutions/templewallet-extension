@@ -27,11 +27,11 @@ export const Banner: FC<Props> = ({
     <p className="text-xs font-normal text-gray-700 mb-4">{description}</p>
 
     <div className="flex justify-between">
-      <FormSecondaryButton small className="flex-1 mr-4 h-2.25 rounded-md" type="button" onClick={onDisable}>
+      <FormSecondaryButton small className="flex-1 mr-4 h-9 rounded-md" type="button" onClick={onDisable}>
         <span className="capitalize text-base text-center w-full">{t(disableButtonText)}</span>
       </FormSecondaryButton>
 
-      <FormSubmitButton small className="flex-1 h-2.25 rounded-md" onClick={onEnable}>
+      <FormSubmitButton small className="flex-1 h-9 rounded-md" onClick={onEnable}>
         <span className="capitalize text-base text-center w-full whitespace-nowrap">{t(enableButtonText)}</span>
       </FormSubmitButton>
     </div>
