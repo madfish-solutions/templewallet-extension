@@ -1,4 +1,4 @@
-import React, { FC, ReactNode, Suspense, useMemo, useRef } from 'react';
+import React, { FC, ReactNode, Suspense, useCallback, useMemo, useRef } from 'react';
 
 import clsx from 'clsx';
 
@@ -12,7 +12,6 @@ import AssetInfo from 'app/templates/AssetInfo';
 import { ABTestGroup } from 'lib/apis/temple';
 import { isTezAsset } from 'lib/assets';
 import { T, t, TID } from 'lib/i18n';
-import { useDidUpdate } from 'lib/ui/hooks';
 import { Link } from 'lib/woozie';
 
 import { useUserTestingGroupNameSelector } from '../../store/ab-testing/selectors';
@@ -20,22 +19,6 @@ import { CollectiblesTab } from '../Collectibles/CollectiblesTab';
 import { HomeSelectors } from './Home.selectors';
 import BakingSection from './OtherComponents/BakingSection';
 import { TokensTab } from './OtherComponents/Tokens/Tokens';
-
-const Delegation: FC = () => (
-  <SuspenseContainer whileMessage={t('delegationInfoWhileMessage')}>
-    <BakingSection />
-  </SuspenseContainer>
-);
-
-type ActivityTabProps = {
-  assetSlug?: string;
-};
-
-const ActivityTab: FC<ActivityTabProps> = ({ assetSlug }) => (
-  <SuspenseContainer whileMessage={t('operationHistoryWhileMessage')}>
-    <ActivityComponent assetSlug={assetSlug} />
-  </SuspenseContainer>
-);
 
 type Props = {
   assetSlug?: string | null;
@@ -49,12 +32,26 @@ interface TabData {
   titleI18nKey: TID;
   Component: FC;
   testID: string;
+  whileMessageI18nKey?: TID;
 }
 
 export const ContentSection: FC<Props> = ({ assetSlug, className }) => {
   const { fullPage } = useAppEnv();
   const tabSlug = useTabSlug();
   const testGroupName = useUserTestingGroupNameSelector();
+
+  const tabBarElemRef = useRef<HTMLDivElement>(null);
+
+  const scrollToTheTabsBar = useCallback(() => {
+    if (!tabBarElemRef.current) return;
+
+    const stickyBarHeight = ToolbarElement?.scrollHeight ?? 0;
+
+    window.scrollTo({
+      top: window.pageYOffset + tabBarElemRef.current.getBoundingClientRect().top - stickyBarHeight,
+      behavior: 'smooth'
+    });
+  }, []);
 
   const tabs = useMemo<TabData[]>(() => {
     if (!assetSlug) {
@@ -68,14 +65,15 @@ export const ContentSection: FC<Props> = ({ assetSlug, className }) => {
         {
           slug: 'collectibles',
           titleI18nKey: 'collectibles',
-          Component: CollectiblesTab,
+          Component: () => <CollectiblesTab scrollToTheTabsBar={scrollToTheTabsBar} />,
           testID: HomeSelectors.collectiblesTab
         },
         {
           slug: 'activity',
           titleI18nKey: 'activity',
-          Component: ActivityTab,
-          testID: HomeSelectors.activityTab
+          Component: ActivityComponent,
+          testID: HomeSelectors.activityTab,
+          whileMessageI18nKey: 'operationHistoryWhileMessage'
         }
       ];
     }
@@ -83,7 +81,7 @@ export const ContentSection: FC<Props> = ({ assetSlug, className }) => {
     const activity: TabData = {
       slug: 'activity',
       titleI18nKey: 'activity',
-      Component: () => <ActivityTab assetSlug={assetSlug} />,
+      Component: () => <ActivityComponent assetSlug={assetSlug} />,
       testID: HomeSelectors.activityTab
     };
 
@@ -93,8 +91,9 @@ export const ContentSection: FC<Props> = ({ assetSlug, className }) => {
         {
           slug: 'delegation',
           titleI18nKey: 'delegate',
-          Component: Delegation,
-          testID: HomeSelectors.delegationTab
+          Component: BakingSection,
+          testID: HomeSelectors.delegationTab,
+          whileMessageI18nKey: 'delegationInfoWhileMessage'
         }
       ];
     }
@@ -108,25 +107,12 @@ export const ContentSection: FC<Props> = ({ assetSlug, className }) => {
         testID: HomeSelectors.aboutTab
       }
     ];
-  }, [assetSlug]);
+  }, [assetSlug, scrollToTheTabsBar]);
 
-  const { slug, Component } = useMemo(() => {
+  const { slug, Component, whileMessageI18nKey } = useMemo(() => {
     const tab = tabSlug ? tabs.find(currentTab => currentTab.slug === tabSlug) : null;
     return tab ?? tabs[0];
   }, [tabSlug, tabs]);
-
-  const tabBarElemRef = useRef<HTMLDivElement>(null);
-
-  useDidUpdate(() => {
-    if (!tabBarElemRef.current || slug !== 'collectibles') return;
-
-    const stickyBarHeight = ToolbarElement?.scrollHeight ?? 0;
-
-    window.scrollTo({
-      top: window.pageYOffset + tabBarElemRef.current.getBoundingClientRect().top - stickyBarHeight,
-      behavior: 'smooth'
-    });
-  }, [slug]);
 
   return (
     <div className={clsx('-mx-4 shadow-top-light', fullPage && 'rounded-t-md', className)}>
@@ -141,7 +127,9 @@ export const ContentSection: FC<Props> = ({ assetSlug, className }) => {
         ))}
       </div>
 
-      <SuspenseContainer whileMessage="displaying tab">{Component && <Component />}</SuspenseContainer>
+      <SuspenseContainer whileMessage={whileMessageI18nKey ? t(whileMessageI18nKey) : 'displaying tab'}>
+        {Component && <Component />}
+      </SuspenseContainer>
     </div>
   );
 };

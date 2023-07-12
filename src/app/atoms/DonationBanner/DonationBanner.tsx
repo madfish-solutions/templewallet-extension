@@ -10,7 +10,7 @@ const DONATE_MAD_FISH_URL = 'https://donate.mad.fish';
 
 export const DonationBanner: FC = () => (
   <Anchor
-    className="flex flex-col items-center justify-center rounded h-7 bg-blue-150 max-w-100"
+    className="flex flex-col items-center justify-center rounded h-7 bg-blue-150 max-w-25"
     href={DONATE_MAD_FISH_URL}
     testID={DonationBannerSelectors.ukraineDonationBanner}
   >

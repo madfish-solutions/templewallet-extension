@@ -6,17 +6,18 @@ import { ReactComponent as OkIcon } from 'app/icons/ok.svg';
 import { TestIDProps, setTestID, useAnalytics, AnalyticsEventCategory } from 'lib/analytics';
 import { blurHandler, checkedHandler, focusHandler } from 'lib/ui/inputHandlers';
 
-export type CheckboxProps = TestIDProps &
-  Pick<InputHTMLAttributes<HTMLInputElement>, 'name' | 'checked' | 'className' | 'onFocus' | 'onBlur' | 'onClick'> & {
-    containerClassName?: string;
-    errored?: boolean;
-    onChange?: (checked: boolean, event: React.ChangeEvent<HTMLInputElement>) => void;
-  };
+export interface CheckboxProps
+  extends TestIDProps,
+    Pick<InputHTMLAttributes<HTMLInputElement>, 'name' | 'checked' | 'className' | 'onFocus' | 'onBlur' | 'onClick'> {
+  overrideClassNames?: string;
+  errored?: boolean;
+  onChange?: (checked: boolean, event: React.ChangeEvent<HTMLInputElement>) => void;
+}
 
 const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
   (
     {
-      containerClassName,
+      overrideClassNames,
       errored = false,
       className,
       checked,
@@ -64,8 +65,8 @@ const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
     const classNameMemo = useMemo(
       () =>
         classNames(
-          'flex justify-center items-center h-6 w-6 flex-shrink-0',
-          'text-white border rounded-md overflow-hidden',
+          'flex justify-center items-center flex-shrink-0',
+          'text-white border overflow-hidden',
           'transition ease-in-out duration-200 disable-outline-for-click',
           localChecked ? 'bg-primary-orange' : 'bg-black-40',
           localFocused && 'shadow-outline',
@@ -81,9 +82,9 @@ const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
                 return 'border-gray-400';
             }
           })(),
-          containerClassName
+          overrideClassNames || 'h-6 w-6 rounded-md'
         ),
-      [localChecked, localFocused, errored, containerClassName]
+      [localChecked, localFocused, errored]
     );
 
     return (
@@ -101,8 +102,8 @@ const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
         />
 
         <OkIcon
-          className={classNames(localChecked ? 'block' : 'hidden', 'h-4 w-4 pointer-events-none stroke-current')}
-          style={{ strokeWidth: 2 }}
+          className={classNames(localChecked ? 'block' : 'hidden', 'pointer-events-none stroke-current')}
+          style={{ strokeWidth: 2, height: '67%', width: '67%' }}
         />
       </div>
     );
