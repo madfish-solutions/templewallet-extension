@@ -139,7 +139,7 @@ Feature: Remove an account
     And I press Remove Button on the Remove Account page
     And I got the 'Required' error with Input Error element on the Universal Component page
 
-    And I enter randomContent into Password Input on the Remove Account page
+    And I enter shortRandomContent into Password Input on the Remove Account page
     And I press Remove Button on the Remove Account page
     And I got the 'Invalid password' error with Input Error element on the Universal Component page
 

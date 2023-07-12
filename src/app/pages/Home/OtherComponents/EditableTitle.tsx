@@ -11,6 +11,7 @@ import { T, t } from 'lib/i18n';
 import { useTempleClient, useAccount } from 'lib/temple/front';
 import { useAlert } from 'lib/ui/dialog';
 
+import { HomeSelectors } from '../Home.selectors';
 import { EditableTitleSelectors } from './EditableTitle.selectors';
 
 const buttonClassNames = [
@@ -138,7 +139,11 @@ const EditableTitle: FC = () => {
         </form>
       ) : (
         <>
-          <Name className="pl-1 text-gray-700 text-center text-gray-910" style={{ maxWidth: '24rem', fontSize: 23 }}>
+          <Name
+            className="pl-1 text-gray-700 text-center text-gray-910"
+            style={{ maxWidth: '24rem', fontSize: 23 }}
+            testID={HomeSelectors.accountNameText}
+          >
             {account.name}
           </Name>
 
