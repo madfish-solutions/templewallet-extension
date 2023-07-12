@@ -3,6 +3,7 @@ import React, { FC, useMemo } from 'react';
 import { isDefined } from '@rnw-community/shared';
 import BigNumber from 'bignumber.js';
 
+import { FormSubmitButton } from 'app/atoms';
 import Spinner from 'app/atoms/Spinner/Spinner';
 import { useCollectibleInfo } from 'app/hooks/use-collectibles-info.hook';
 import PageLayout from 'app/layouts/PageLayout';
@@ -11,6 +12,7 @@ import { T } from 'lib/i18n';
 import { useAssetMetadata, getAssetName } from 'lib/metadata';
 import { formatTcInfraImgUri } from 'lib/temple/front/image-uri';
 import { Image } from 'lib/ui/Image';
+import { navigate } from 'lib/woozie';
 
 import AddressChip from '../Home/OtherComponents/AddressChip';
 import { CollectibleImage } from './CollectibleImage';
@@ -27,28 +29,28 @@ const CollectiblePage: FC<Props> = ({ assetSlug }) => {
 
   const metadata = useAssetMetadata(assetSlug);
 
-  const { isLoading, collectibleInfo } = useCollectibleInfo(assetContract, assetId.toString());
+  const { isLoading: isInfoLoading, collectibleInfo: info } = useCollectibleInfo(assetContract, assetId.toString());
 
   const collectibleName = getAssetName(metadata);
 
-  const collectionImage = useMemo(() => formatTcInfraImgUri(collectibleInfo?.fa.logo ?? ''), [collectibleInfo]);
+  const collectionImage = useMemo(() => formatTcInfraImgUri(info?.fa.logo ?? ''), [info]);
 
-  const collectionName = collectibleInfo?.galleries[0]?.gallery?.name ?? collectibleInfo?.fa.name;
+  const collectionName = info?.galleries[0]?.gallery?.name ?? info?.fa.name;
 
-  const creators = collectibleInfo?.creators ?? [];
+  const creators = info?.creators ?? [];
 
   return (
     <PageLayout pageTitle={collectibleName}>
       <div className="flex flex-col gap-y-3 max-w-sm w-full mx-auto pt-2 pb-4">
-        {isLoading ? (
-          <Spinner />
+        {isInfoLoading ? (
+          <Spinner className="self-center w-20" />
         ) : (
           <>
             <div
               className="rounded-lg mb-2 border border-gray-300 bg-blue-50 overflow-hidden"
               style={{ aspectRatio: '1/1' }}
             >
-              <CollectibleImage assetSlug={assetSlug} metadata={metadata} large className="w-full" />
+              <CollectibleImage assetSlug={assetSlug} metadata={metadata} large className="h-full w-full" />
             </div>
 
             <div className="flex justify-between items-center">
@@ -62,7 +64,7 @@ const CollectiblePage: FC<Props> = ({ assetSlug }) => {
 
             <div className="text-gray-910 text-2xl truncate">{collectibleName}</div>
 
-            <div className="text-xs text-gray-910 break-words">{collectibleInfo?.description ?? ''}</div>
+            <div className="text-xs text-gray-910 break-words">{info?.description ?? ''}</div>
 
             {creators.length > 0 && (
               <div className="flex items-center">
@@ -77,6 +79,12 @@ const CollectiblePage: FC<Props> = ({ assetSlug }) => {
                 </div>
               </div>
             )}
+
+            <div className="flex flex-col p-4 gap-y-2 rounded-lg border border-gray-300">
+              <FormSubmitButton onClick={() => navigate(`/send/${assetSlug}`)}>
+                <T id={'send'} />
+              </FormSubmitButton>
+            </div>
           </>
         )}
       </div>

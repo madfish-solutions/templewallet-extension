@@ -436,12 +436,12 @@ export const SwapForm: FC = () => {
           padding: '10px 2rem',
           background: isValid && !isAlertVisible ? '#4299e1' : '#c2c2c2'
         }}
-        loading={isSubmitting}
-        searchingRoute={swapParams.isLoading}
+        loading={isSubmitting || swapParams.isLoading}
+        keepChildrenWhenLoading={swapParams.isLoading}
         onClick={handleSubmitButtonClick}
         testID={SwapFormSelectors.swapButton}
       >
-        <T id="swap" />
+        <T id={swapParams.isLoading ? 'searchingTheBestRoute' : 'swap'} />
       </FormSubmitButton>
 
       <div className="pb-2 mb-2 w-full border-b">
