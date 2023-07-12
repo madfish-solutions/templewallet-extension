@@ -1856,7 +1856,7 @@
     "message": "Não foram encontrados dApps correspondentes"
   },
   "thousandFormat": {
-    "message": "$thousand$k",
+    "message": "$thousand$K",
     "placeholders": {
       "thousand": {
         "content": "$1"

@@ -102,9 +102,9 @@ export const NewsletterOverlay: FC = () => {
           <div
             className={classNames(
               'flex flex-col justify-center text-center bg-orange-100 shadow-lg bg-no-repeat rounded-md',
-              popup ? 'h-full' : 'h-700',
-              popup ? 'p-4' : 'px-3.5 py-4.5'
+              popup ? 'p-4' : 'px-13 py-18'
             )}
+            style={{ height: popup ? '100%' : '700px' }}
           >
             <Button
               className={classNames(
@@ -134,7 +134,7 @@ export const NewsletterOverlay: FC = () => {
                 <input
                   ref={register()}
                   name="email"
-                  className="w-full max-h-3/25 p-4 rounded-md border text-sm text-gray-910"
+                  className="w-full max-h-13 p-4 rounded-md border text-sm text-gray-910"
                   placeholder="example@mail.com"
                   {...setTestID(NewsletterOverlaySelectors.emailInput)}
                 />
