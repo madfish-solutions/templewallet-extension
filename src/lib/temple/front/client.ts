@@ -4,9 +4,11 @@ import {
   WalletProvider,
   createOriginationOperation,
   createSetDelegateOperation,
+  createIncreasePaidStorageOperation,
   createTransferOperation,
   WalletDelegateParams,
   WalletOriginateParams,
+  WalletIncreasePaidStorageParams,
   WalletTransferParams
 } from '@taquito/taquito';
 import { buf2hex } from '@taquito/utils';
@@ -396,6 +398,11 @@ class TaquitoWallet implements WalletProvider {
 
   async getPKH() {
     return this.pkh;
+  }
+
+  async mapIncreasePaidStorageWalletParams(params: () => Promise<WalletIncreasePaidStorageParams>) {
+    const walletParams = await params();
+    return withoutFeesOverride(walletParams, await createIncreasePaidStorageOperation(walletParams));
   }
 
   async mapTransferParamsToWalletParams(params: () => Promise<WalletTransferParams>) {
