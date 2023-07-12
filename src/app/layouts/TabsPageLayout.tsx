@@ -57,9 +57,8 @@ export const TabsPageLayout: FC<Props> = ({ tabs, icon, title, description }) =>
                     'flex1 w-full text-center cursor-pointer pb-2',
                     'border-b-2 text-gray-700 text-lg truncate',
                     tabs.length === 1 && 'mx-20',
-                    active
-                      ? 'border-primary-orange text-primary-orange'
-                      : 'border-transparent hover:text-primary-orange',
+                    active ? 'border-primary-orange' : 'border-transparent',
+                    active ? 'text-primary-orange' : 'hover:text-primary-orange',
                     'transition ease-in-out duration-300'
                   )}
                   testID={tab.testID}

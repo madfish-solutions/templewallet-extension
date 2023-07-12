@@ -55,7 +55,16 @@ export const CurrenciesMenu: FC<Props> = ({
     : undefined;
 
   return (
-    <DropdownWrapper opened={opened} className="origin-top overflow-x-hidden overflow-y-auto max-h-63">
+    <DropdownWrapper
+      opened={opened}
+      className="origin-top overflow-x-hidden overflow-y-auto p-2"
+      style={{
+        maxHeight: '15.75rem',
+        backgroundColor: 'white',
+        borderColor: '#e2e8f0',
+        padding: 0
+      }}
+    >
       {(options.length === 0 || isLoading) && (
         <div className="my-8 mx-3 flex flex-col items-center justify-center text-gray-500">
           {isLoading ? (

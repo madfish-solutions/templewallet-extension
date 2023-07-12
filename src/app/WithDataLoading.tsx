@@ -3,7 +3,6 @@ import React, { FC, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 
 import { useAdvertisingLoading } from 'app/hooks/use-advertising.hook';
-import { useCollectiblesDetailsLoading } from 'app/hooks/use-collectibles-details-loading';
 import { useLongRefreshLoading } from 'app/hooks/use-long-refresh-loading.hook';
 import { useMetadataLoading } from 'app/hooks/use-metadata-loading';
 import { useTokensLoading } from 'app/hooks/use-tokens-loading';
@@ -16,7 +15,6 @@ export const WithDataLoading: FC<PropsWithChildren> = ({ children }) => {
   useMetadataLoading();
   useTokensLoading();
   useBalancesLoading();
-  useCollectiblesDetailsLoading();
 
   useLongRefreshLoading();
   useAdvertisingLoading();

@@ -5,13 +5,13 @@ import classNames from 'clsx';
 import Checkbox, { CheckboxProps } from 'app/atoms/Checkbox';
 import { AnalyticsEventCategory, setTestID, useAnalytics } from 'lib/analytics';
 
-export interface FormCheckboxProps extends CheckboxProps {
+export type FormCheckboxProps = CheckboxProps & {
   label?: ReactNode;
   labelDescription?: ReactNode;
   errorCaption?: ReactNode;
   containerClassName?: string;
   labelClassName?: string;
-}
+};
 
 export const FormCheckbox = forwardRef<HTMLInputElement, FormCheckboxProps>(
   (
