@@ -8,6 +8,7 @@ import Identicon from 'app/atoms/Identicon';
 import Name from 'app/atoms/Name';
 import SubTitle from 'app/atoms/SubTitle';
 import { ReactComponent as CloseIcon } from 'app/icons/close.svg';
+import { setAnotherSelector, setTestID } from 'lib/analytics';
 import { t, T } from 'lib/i18n';
 import { isDomainNameValid, useTezosDomainsClient, useContacts, useFilteredContacts } from 'lib/temple/front';
 import { isAddressValid } from 'lib/temple/helpers';
@@ -15,7 +16,6 @@ import { TempleContact } from 'lib/temple/types';
 import { useConfirm } from 'lib/ui/dialog';
 import { withErrorHumanDelay } from 'lib/ui/humanDelay';
 
-import { setAnotherSelector, setTestID } from '../../../lib/analytics';
 import CustomSelect, { OptionRenderProps } from '../CustomSelect';
 import HashChip from '../HashChip';
 // eslint-disable-next-line import/namespace
