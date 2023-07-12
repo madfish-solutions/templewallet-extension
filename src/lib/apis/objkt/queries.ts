@@ -25,6 +25,16 @@ export const buildGetCollectiblesQuery = () => gql`
           name
         }
       }
+      offers_active(distinct_on: price_xtz) {
+        buyer_address
+        collection_offer
+        price_xtz
+        price
+        bigmap_key
+        marketplace_contract
+        fa_contract
+        currency_id
+      }
     }
   }
 `;

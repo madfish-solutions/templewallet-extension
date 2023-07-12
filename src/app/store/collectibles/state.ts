@@ -4,6 +4,8 @@ import { createEntity, LoadableEntityState } from 'lib/store';
 export interface CollectibleDetails extends Pick<UserObjktCollectible, 'fa' | 'description'> {
   /** Cheepest listing */
   listing: null | CollectibleDetailsListing;
+  /** Highest offer */
+  highestOffer?: UserObjktCollectible['offers_active'][number];
   creators: CollectibleDetailsCreator[];
   galleries: CollectibleDetailsGallery[];
 }

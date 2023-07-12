@@ -27,4 +27,14 @@ export interface UserObjktCollectible {
       name: string;
     };
   }[];
+  offers_active: {
+    buyer_address: string;
+    collection_offer: string | null;
+    price: number;
+    price_xtz: number;
+    bigmap_key: number;
+    marketplace_contract: string;
+    fa_contract: string;
+    currency_id: number;
+  }[];
 }

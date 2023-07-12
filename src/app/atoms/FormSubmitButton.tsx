@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import React, { FC, useMemo } from 'react';
 
 import classNames from 'clsx';
 
@@ -20,22 +20,15 @@ export const FormSubmitButton: FC<FormSubmitButtonProps> = ({
   small,
   disabled,
   className,
-  style,
   textClassNames,
   children,
   ...rest
 }) => {
-  const compoundedStyle = {
-    paddingTop: small ? '0.5rem' : '0.625rem',
-    paddingBottom: small ? '0.5rem' : '0.625rem',
-    ...style
-  };
-
-  const compoundedClassName = classNames(
+  const classNameMemo = classNames(
     'relative flex items-center justify-center h-12 gap-x-2',
     'text-primary-orange-lighter font-semibold rounded border-2',
     'transition duration-200 ease-in-out',
-    small ? 'px-6 text-sm' : 'px-8 text-base',
+    small ? 'px-6 py-2 text-sm' : 'px-8 py-2.5 text-base',
     disabled ? 'bg-gray-400 border-gray-400' : 'bg-primary-orange border-primary-orange',
     loading || disabled
       ? 'opacity-75 pointer-events-none'
@@ -43,24 +36,13 @@ export const FormSubmitButton: FC<FormSubmitButtonProps> = ({
     className
   );
 
-  if (loading) {
-    return (
-      <Button
-        className={compoundedClassName}
-        style={compoundedStyle}
-        disabled={disabled}
-        {...rest}
-        {...setAnotherSelector('loading', '')}
-      >
-        <Spinner theme="white" style={{ width: small ? '2rem' : '3rem' }} />
-        {keepChildrenWhenLoading && children}
-      </Button>
-    );
-  }
+  const otherProps = useMemo(() => (loading ? setAnotherSelector('loading', '') : null), [loading]);
 
   return (
-    <Button className={compoundedClassName} style={compoundedStyle} disabled={disabled} {...rest}>
-      {children}
+    <Button className={classNameMemo} disabled={disabled} {...rest} {...otherProps}>
+      {loading && <Spinner theme="white" style={{ width: small ? '2rem' : '3rem' }} />}
+
+      {loading ? keepChildrenWhenLoading && children : children}
     </Button>
   );
 };

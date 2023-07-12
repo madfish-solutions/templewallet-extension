@@ -13,9 +13,12 @@ export const conertCollectibleObjktInfoToStateDetailsType = (info: UserObjktColl
       }
     : null;
 
+  const highestOffer = info.offers_active[0];
+
   return {
     ...pick(info, 'fa', 'description'),
     listing,
+    highestOffer,
     creators: info.creators.map(({ holder: { address, tzdomain } }) => ({ address, tzDomain: tzdomain })),
     galleries: info.galleries.map(({ gallery: { name } }) => ({ title: name }))
   };

@@ -1,8 +1,9 @@
-import React, { FC, useMemo } from 'react';
+import React, { FC, useMemo, useCallback } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
 
-import { FormSubmitButton } from 'app/atoms';
+import { FormSubmitButton, FormSecondaryButton } from 'app/atoms';
+import Money from 'app/atoms/Money';
 import Spinner from 'app/atoms/Spinner/Spinner';
 import PageLayout from 'app/layouts/PageLayout';
 import {
@@ -10,9 +11,11 @@ import {
   useCollectibleDetailsSelector
 } from 'app/store/collectibles/selectors';
 import AddressChip from 'app/templates/AddressChip';
+import { objktCurrencies } from 'lib/apis/objkt';
 import { T } from 'lib/i18n';
 import { useAssetMetadata, getAssetName } from 'lib/metadata';
 import { formatTcInfraImgUri } from 'lib/temple/front/image-uri';
+import { atomsToTokens } from 'lib/temple/helpers';
 import { Image } from 'lib/ui/Image';
 import { navigate } from 'lib/woozie';
 
@@ -41,6 +44,22 @@ const CollectiblePage: FC<Props> = ({ assetSlug }) => {
   );
 
   const creators = details?.creators ?? [];
+
+  const offer = useMemo(() => {
+    const highestOffer = details?.highestOffer;
+    if (!isDefined(highestOffer)) return null;
+
+    const currency = objktCurrencies[highestOffer.currency_id];
+    if (!isDefined(currency)) return null;
+
+    const price = atomsToTokens(highestOffer.price, currency.decimals);
+
+    return { price, symbol: currency.symbol };
+  }, [details]);
+
+  const onSellButtonClick = useCallback(() => {
+    console.log('onSellButtonClick');
+  }, []);
 
   return (
     <PageLayout pageTitle={collectibleName}>
@@ -82,6 +101,27 @@ const CollectiblePage: FC<Props> = ({ assetSlug }) => {
             )}
 
             <div className="flex flex-col p-4 gap-y-2 rounded-lg border border-gray-300">
+              <FormSecondaryButton
+                disabled={!offer}
+                title={offer ? offer.price.toString() : ''}
+                onClick={onSellButtonClick}
+                testID={CollectiblesSelectors.sellButton}
+              >
+                {offer ? (
+                  <div>
+                    <span>
+                      <T id="sellFor" />{' '}
+                    </span>
+                    <Money shortened smallFractionFont={false} tooltip={false}>
+                      {offer.price}
+                    </Money>
+                    <span> {offer.symbol}</span>
+                  </div>
+                ) : (
+                  <T id="noOffersYet" />
+                )}
+              </FormSecondaryButton>
+
               <FormSubmitButton
                 onClick={() => navigate(`/send/${assetSlug}`)}
                 testID={CollectiblesSelectors.sendButton}

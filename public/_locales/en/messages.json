@@ -697,6 +697,9 @@
   "send": {
     "message": "Send"
   },
+  "floorPrice": { "message": "Floor" },
+  "sellFor": { "message": "Sell for" },
+  "noOffersYet": { "message": "No offers yet" },
   "get": {
     "message": "Get"
   },
