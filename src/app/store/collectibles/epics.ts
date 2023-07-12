@@ -17,7 +17,6 @@ const loadCollectiblesDetailsEpic: Epic = (action$: Observable<Action>) =>
     switchMap(slugs =>
       fetchObjktCollectibles$(slugs).pipe(
         map(data => {
-          console.log('data:', data);
           const entries = data.token.map(info => {
             const slug = toTokenSlug(info.fa_contract, info.token_id);
             const details = conertCollectibleObjktInfoToStateDetailsType(info);

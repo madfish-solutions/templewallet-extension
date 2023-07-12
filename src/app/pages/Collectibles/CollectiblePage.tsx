@@ -9,14 +9,15 @@ import {
   useAllCollectiblesDetailsLoadingSelector,
   useCollectibleDetailsSelector
 } from 'app/store/collectibles/selectors';
+import AddressChip from 'app/templates/AddressChip';
 import { T } from 'lib/i18n';
 import { useAssetMetadata, getAssetName } from 'lib/metadata';
 import { formatTcInfraImgUri } from 'lib/temple/front/image-uri';
 import { Image } from 'lib/ui/Image';
 import { navigate } from 'lib/woozie';
 
-import AddressChip from '../Home/OtherComponents/AddressChip';
 import { CollectibleImage } from './CollectibleImage';
+import { CollectiblesSelectors } from './selectors';
 
 interface Props {
   assetSlug: string;
@@ -81,8 +82,11 @@ const CollectiblePage: FC<Props> = ({ assetSlug }) => {
             )}
 
             <div className="flex flex-col p-4 gap-y-2 rounded-lg border border-gray-300">
-              <FormSubmitButton onClick={() => navigate(`/send/${assetSlug}`)}>
-                <T id={'send'} />
+              <FormSubmitButton
+                onClick={() => navigate(`/send/${assetSlug}`)}
+                testID={CollectiblesSelectors.sendButton}
+              >
+                <T id="send" />
               </FormSubmitButton>
             </div>
           </>
