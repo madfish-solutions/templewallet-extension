@@ -68,7 +68,7 @@ const Money = memo<MoneyProps>(
       );
     }
 
-    if (!fiat && decimalsLength > cryptoDecimals && !shortened) {
+    if (!fiat && !shortened && decimalsLength > cryptoDecimals) {
       return (
         <MoneyWithoutFormat
           tooltip={tooltip}

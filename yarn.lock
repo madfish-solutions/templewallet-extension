@@ -11099,6 +11099,11 @@ use-composed-ref@^1.0.0:
   dependencies:
     ts-essentials "^2.0.3"
 
+use-custom-compare@^1.4.0:
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/use-custom-compare/-/use-custom-compare-1.4.0.tgz#3b750ae0487d3c8e8c38ed2da8b633450981e4e9"
+  integrity sha512-3VyBy9aUZgOdHKMVvECAW+o5SXVF1Ly9plXIoXZNBKnkiBz395Z0unTg6Q3SdLWp2RZHyyoG9GEo3HP3obz5Cw==
+
 use-debounce@7.0.1:
   version "7.0.1"
   resolved "https://registry.yarnpkg.com/use-debounce/-/use-debounce-7.0.1.tgz#380e6191cc13ad29f8e2149a12b5c37cc2891190"
