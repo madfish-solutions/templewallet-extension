@@ -49,7 +49,15 @@ export const AssetsMenu: FC<Props> = ({
   };
 
   return (
-    <DropdownWrapper opened={opened} className="origin-top overflow-x-hidden overflow-y-auto max-h-60.5">
+    <DropdownWrapper
+      opened={opened}
+      className="origin-top overflow-x-hidden overflow-y-auto"
+      style={{
+        maxHeight: '15.125rem',
+        backgroundColor: 'white',
+        borderColor: '#e2e8f0'
+      }}
+    >
       {(options.length === 0 || isLoading) && (
         <div className="my-8 flex flex-col items-center justify-center text-gray-500">
           {isLoading ? (

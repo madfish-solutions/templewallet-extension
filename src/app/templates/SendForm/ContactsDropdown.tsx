@@ -57,9 +57,17 @@ const ContactsDropdown = memo<ContactsDropdownProps>(({ contacts, opened, onSele
       scaleAnimation={false}
       opened={opened}
       className={classNames(
-        'z-50 absolute left-0 right-0 top-full max-h-44',
-        'origin-top overflow-x-hidden overflow-y-auto overscroll-contain'
+        'absolute left-0 right-0 p-2',
+        'origin-top overflow-x-hidden overflow-y-auto',
+        'z-50 overscroll-contain'
       )}
+      style={{
+        top: '100%',
+        maxHeight: '11rem',
+        backgroundColor: 'white',
+        borderColor: '#e2e8f0',
+        padding: 0
+      }}
     >
       {filteredContacts.length > 0 ? (
         filteredContacts.map(contact => (

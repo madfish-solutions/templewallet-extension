@@ -46,23 +46,19 @@ const CollectiblePage: FC<Props> = ({ assetSlug }) => {
             <AssetIcon assetSlug={assetSlug} />
           </div>
         </div>
-
         <Divider />
-
         <div className="flex justify-between items-baseline mt-4 mb-4">
           <p className="text-gray-600 text-xs">
             <T id={'name'} />
           </p>
           <p className="text-xs text-gray-910">{collectibleName}</p>
         </div>
-
         <div className="flex justify-between items-baseline mt-4 mb-4">
           <p className="text-gray-600 text-xs">
             <T id={'amount'} />
           </p>
           <p className="text-xs text-gray-910">{collectibleBalance ? collectibleBalance.toFixed() : ''}</p>
         </div>
-
         <div className="flex justify-between items-baseline mb-4">
           <p className="text-gray-600 text-xs">
             <T id={'address'} />
@@ -71,7 +67,6 @@ const CollectiblePage: FC<Props> = ({ assetSlug }) => {
             <p className="text-xs inline align-text-bottom text-gray-910">
               <HashShortView hash={assetContract} />
             </p>
-
             <CopyButton text={assetContract} type="link">
               <CopyIcon
                 style={{ verticalAlign: 'inherit' }}
@@ -81,15 +76,12 @@ const CollectiblePage: FC<Props> = ({ assetSlug }) => {
             </CopyButton>
           </span>
         </div>
-
         <div className="flex justify-between items-baseline mb-4">
           <p className="text-gray-600 text-xs">
             <T id={'id'} />
           </p>
-
           <span className={'flex align-middle'}>
             <p className="text-xs inline align-text-bottom text-gray-910">{assetId.toFixed()}</p>
-
             <CopyButton text={assetId.toFixed()} type="link">
               <CopyIcon
                 style={{ verticalAlign: 'inherit' }}
@@ -99,9 +91,7 @@ const CollectiblePage: FC<Props> = ({ assetSlug }) => {
             </CopyButton>
           </span>
         </div>
-
         <Divider />
-
         <FormSubmitButton
           className="w-full justify-center border-none"
           style={{

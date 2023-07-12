@@ -2161,7 +2161,7 @@
     "message": "No matching dApps were found"
   },
   "thousandFormat": {
-    "message": "$thousand$K",
+    "message": "$thousand$k",
     "placeholders": {
       "thousand": {
         "content": "$1"
@@ -2369,9 +2369,6 @@
   "less": {
     "message": "less",
     "description": "Show less"
-  },
-  "showInfo": {
-    "message": "Show info"
   },
   "recentDestinations": {
     "message": "Recent destinations"
