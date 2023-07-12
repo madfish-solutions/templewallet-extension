@@ -73,10 +73,7 @@ export const Alert: FC<AlertProps> = ({
         </h2>
       )}
       {description && (
-        <div
-          className={classNames('pb-3 text-sm font-light break-words', 'overflow-y-auto', textColorClassName)}
-          style={{ maxHeight: '8rem' }}
-        >
+        <div className={classNames('pb-3 text-sm max-h-32 font-light break-words overflow-y-auto', textColorClassName)}>
           {description}
         </div>
       )}
