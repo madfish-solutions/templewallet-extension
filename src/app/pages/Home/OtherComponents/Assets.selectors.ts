@@ -7,6 +7,8 @@ export enum AssetsSelectors {
   assetItemDelegateButton = 'Assets/Asset Item Delegate Button',
   searchAssetsInputTokens = 'Assets/Search Assets Input (Tokens)',
   searchAssetsInputCollectibles = 'Assets/Search Assets Input (Collectibles)',
-  acceptAdsBannerEnableButton = 'Assets/Accept Ads Banner/Enable Button',
-  acceptAdsBannerDisableButton = 'Assets/Accept Ads Banner/Disable Button'
+  acceptAdsBannerEnableButton_A = 'Assets/Accept Ads Banner/Pay me for every ad I see Button',
+  acceptAdsBannerDisableButton_A = 'Assets/Accept Ads Banner/No thanks, I hate free money Button',
+  acceptAdsBannerEnableButton_B = 'Assets/Accept Ads Banner/Enable Button',
+  acceptAdsBannerDisableButton_B = 'Assets/Accept Ads Banner/Disable Button'
 }

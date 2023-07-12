@@ -51,7 +51,7 @@ const AcceptAdsBannerForTestGroupA: FC<Props> = ({ onEnableButtonClick, onDisabl
   const enableButton: BannerButtonProps = useMemo(
     () => ({
       title: 'payMeForEveryAdISee',
-      testID: AssetsSelectors.acceptAdsBannerEnableButton,
+      testID: AssetsSelectors.acceptAdsBannerEnableButton_A,
       onClick: onEnableButtonClick
     }),
     [onEnableButtonClick]
@@ -60,7 +60,7 @@ const AcceptAdsBannerForTestGroupA: FC<Props> = ({ onEnableButtonClick, onDisabl
   const disableButton: BannerButtonProps = useMemo(
     () => ({
       title: 'noThanksIhateFreeMoney',
-      testID: AssetsSelectors.acceptAdsBannerDisableButton,
+      testID: AssetsSelectors.acceptAdsBannerDisableButton_A,
       onClick: onDisableButtonClick
     }),
     [onDisableButtonClick]
@@ -87,7 +87,7 @@ const AcceptAdsBannerForTestGroupB: FC<Props> = ({ onEnableButtonClick, onDisabl
   const enableButton: BannerButtonProps = useMemo(
     () => ({
       title: 'enableAds',
-      testID: AssetsSelectors.acceptAdsBannerEnableButton,
+      testID: AssetsSelectors.acceptAdsBannerEnableButton_B,
       onClick: onEnableButtonClick
     }),
     [onEnableButtonClick]
@@ -97,7 +97,7 @@ const AcceptAdsBannerForTestGroupB: FC<Props> = ({ onEnableButtonClick, onDisabl
     () => ({
       title: 'disable',
       capitalize: true,
-      testID: AssetsSelectors.acceptAdsBannerDisableButton,
+      testID: AssetsSelectors.acceptAdsBannerDisableButton_B,
       onClick: onDisableButtonClick
     }),
     [onDisableButtonClick]
