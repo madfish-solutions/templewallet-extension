@@ -52,7 +52,12 @@ export const IconifiedSelectMenu = <T extends unknown>(props: Props<T>) => {
   return (
     <DropdownWrapper
       opened={opened}
-      className={classNames('origin-top overflow-x-hidden overflow-y-auto max-h-60.5', padded && 'p-2')}
+      className={classNames('origin-top overflow-x-hidden overflow-y-auto', padded && 'p-2')}
+      style={{
+        maxHeight: '15.125rem',
+        backgroundColor: 'white',
+        borderColor: '#e2e8f0'
+      }}
     >
       {options.length ? (
         options.map(option => (
