@@ -21,5 +21,11 @@ Feature: Create a new wallet
     And I press Accept Terms Checkbox on the Register Form page
     And I press Create Button on the Register Form page
 
+    And I am on the OnRumpModal page
+    And I press Close Button on the On-ramp Modal page
+
+    And I am on the NewsletterModal page
+    And I press Close Button on the Newsletter Modal page
+
     Then I am on the Home page
 
