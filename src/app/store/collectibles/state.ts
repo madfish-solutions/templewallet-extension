@@ -1,11 +1,12 @@
 import { createEntity, LoadableEntityState } from 'lib/store';
 
 export interface CollectibleDetails {
-  listing: {
+  listing?: {
     /** In atoms */
-    floorPrice: number;
-    currencyId: number;
+    floorPrice?: number;
+    currencyId?: number;
   };
+  isAdultContent: boolean;
 }
 
 export type CollectibleDetailsRecord = Record<string, CollectibleDetails>;

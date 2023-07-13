@@ -8,7 +8,6 @@ export const addTokensMetadataAction = createAction<TokenMetadata[]>('assets/ADD
 export const loadTokensMetadataAction = createAction<{
   rpcUrl: string;
   slugs: string[];
-  accountPublicKeyHash: string;
 }>('assets/LOAD_TOKENS_METADATA');
 
 export const loadWhitelistAction = createActions<undefined, TokenMetadata[]>('assets/LOAD_WHITELIST_METADATA');

@@ -33,7 +33,12 @@ export const CollectibleItem: FC<Props> = ({ assetSlug, accountPkh, areDetailsSh
   const listing = useMemo(() => {
     if (!isDefined(details)) return null;
 
-    const { floorPrice, currencyId } = details.listing;
+    const floorPrice = details.listing?.currencyId;
+    const currencyId = details.listing?.currencyId;
+
+    if (!isDefined(floorPrice)) return null;
+    if (!isDefined(currencyId)) return null;
+
     const currency = objktCurrencies[currencyId];
 
     if (!isDefined(currency)) return null;
@@ -60,7 +65,9 @@ export const CollectibleItem: FC<Props> = ({ assetSlug, accountPkh, areDetailsSh
         )}
         title={assetName}
       >
-        {displayed && <CollectibleItemImage metadata={metadata} assetSlug={assetSlug} />}
+        {displayed && (
+          <CollectibleItemImage metadata={metadata} assetSlug={assetSlug} isAdultContent={details?.isAdultContent} />
+        )}
 
         {areDetailsShown && balance ? (
           <div className="absolute bottom-1.5 left-1.5 text-2xs text-white leading-none p-1 bg-black bg-opacity-60 rounded">

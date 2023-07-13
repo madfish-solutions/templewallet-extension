@@ -1,9 +1,7 @@
-import { Observable, map } from 'rxjs';
-
 import { fromFa2TokenSlug } from 'lib/assets/utils';
 
 import { apolloObjktClient } from './constants';
-import { buildGetCollectiblesQuery, buildGetUserAdultCollectiblesQuery } from './queries';
+import { buildGetCollectiblesQuery } from './queries';
 
 export { objktCurrencies } from './constants';
 
@@ -16,19 +14,24 @@ interface ObjktListing {
   price: number;
 }
 
+interface Name {
+  name: string;
+}
+
+interface Tag {
+  tag: Name;
+}
+
+interface Attribute {
+  attribute: Name;
+}
+
 interface UserObjktCollectible {
   fa_contract: string;
   token_id: string;
+  tags: Array<Tag>;
+  attributes: Array<Attribute>;
   listings_active: ObjktListing[];
-}
-
-interface UserAdultCollectibles {
-  fa_contract: string;
-  token_id: string;
-}
-
-interface UserAdultCollectiblesQueryResponse {
-  token: UserAdultCollectibles[];
 }
 
 export const fetchObjktCollectibles$ = (slugs: string[]) => {
@@ -45,9 +48,4 @@ export const fetchObjktCollectibles$ = (slugs: string[]) => {
   };
 
   return apolloObjktClient.query<GetUserObjktCollectiblesResponse>(request, queryVariables);
-};
-export const fetchUserAdultCollectibles$ = (address: string): Observable<UserAdultCollectibles[]> => {
-  const request = buildGetUserAdultCollectiblesQuery(address);
-
-  return apolloObjktClient.query<UserAdultCollectiblesQueryResponse>(request).pipe(map(result => result.token));
 };
