@@ -1,6 +1,7 @@
-import React, { FC, useMemo, useCallback } from 'react';
+import React, { FC, useMemo, useCallback, useState } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
+import BigNumber from 'bignumber.js';
 
 import { FormSubmitButton, FormSecondaryButton } from 'app/atoms';
 import Money from 'app/atoms/Money';
@@ -11,16 +12,23 @@ import {
   useCollectibleDetailsSelector
 } from 'app/store/collectibles/selectors';
 import AddressChip from 'app/templates/AddressChip';
-import { objktCurrencies } from 'lib/apis/objkt';
+import { getObjktMarketplaceContract, objktCurrencies } from 'lib/apis/objkt';
+import { fromFa2TokenSlug } from 'lib/assets/utils';
 import { T } from 'lib/i18n';
 import { useAssetMetadata, getAssetName } from 'lib/metadata';
+import { useAccount, useTezos } from 'lib/temple/front';
 import { formatTcInfraImgUri } from 'lib/temple/front/image-uri';
 import { atomsToTokens } from 'lib/temple/helpers';
+import { TempleAccountType } from 'lib/temple/types';
 import { Image } from 'lib/ui/Image';
+import { getTransferPermissions } from 'lib/utils/get-transfer-permissions';
+import { parseTransferParamsToParamsWithKind } from 'lib/utils/parse-transfer-params';
 import { navigate } from 'lib/woozie';
 
 import { CollectibleImage } from './CollectibleImage';
 import { CollectiblesSelectors } from './selectors';
+
+const DEFAULT_OBJKT_STORAGE_LIMIT = 350;
 
 interface Props {
   assetSlug: string;
@@ -28,6 +36,10 @@ interface Props {
 
 const CollectiblePage: FC<Props> = ({ assetSlug }) => {
   const metadata = useAssetMetadata(assetSlug);
+  const account = useAccount();
+
+  const { publicKeyHash } = account;
+  const accountCanSign = account.type !== TempleAccountType.WatchOnly;
 
   const isInfoLoading = useAllCollectiblesDetailsLoadingSelector();
   const details = useCollectibleDetailsSelector(assetSlug);
@@ -54,12 +66,67 @@ const CollectiblePage: FC<Props> = ({ assetSlug }) => {
 
     const price = atomsToTokens(highestOffer.price, currency.decimals);
 
-    return { price, symbol: currency.symbol };
-  }, [details]);
+    return { price, symbol: currency.symbol, buyerIsMe: highestOffer.buyer_address === publicKeyHash };
+  }, [details, publicKeyHash]);
 
-  const onSellButtonClick = useCallback(() => {
-    console.log('onSellButtonClick');
-  }, []);
+  const tezos = useTezos();
+  const [isSelling, setIsSelling] = useState(false);
+
+  const onSellButtonClick = useCallback(async () => {
+    const offer = details?.highestOffer;
+    if (!offer || isSelling) return;
+    setIsSelling(true);
+
+    const { contract: tokenAddress, id } = fromFa2TokenSlug(assetSlug);
+    const tokenId = Number(id.toString());
+
+    const contract = await getObjktMarketplaceContract(tezos, offer.marketplace_contract);
+
+    const transferParams = (() => {
+      if ('fulfill_offer' in contract.methods) {
+        return contract.methods.fulfill_offer(offer.bigmap_key, tokenId).toTransferParams();
+      } else {
+        return contract.methods.offer_accept(offer.bigmap_key).toTransferParams();
+      }
+    })();
+
+    const tokenToSpend = {
+      standard: 'fa2' as const,
+      contract: tokenAddress,
+      tokenId
+    };
+
+    const { approve, revoke } = await getTransferPermissions(
+      tezos,
+      offer.marketplace_contract,
+      publicKeyHash,
+      tokenToSpend,
+      new BigNumber('0')
+    );
+
+    const operationParams = approve
+      .concat(transferParams)
+      .concat(revoke)
+      .map(params => parseTransferParamsToParamsWithKind({ ...params, storageLimit: DEFAULT_OBJKT_STORAGE_LIMIT }));
+
+    await tezos.wallet
+      .batch(operationParams)
+      .send()
+      .catch(error => {
+        console.error('Operation send error:', error);
+      });
+
+    setIsSelling(false);
+  }, [tezos, isSelling, details, assetSlug, publicKeyHash]);
+
+  const sellButtonTooltipStr = useMemo(() => {
+    if (!offer) return;
+    let value = offer.price.toString();
+    if (offer.buyerIsMe) value += ' [Cannot sell to yourself]';
+    else if (!accountCanSign) value += " [Won't be able to sign transaction]";
+
+    return value;
+  }, [offer, accountCanSign]);
 
   return (
     <PageLayout pageTitle={collectibleName}>
@@ -102,8 +169,8 @@ const CollectiblePage: FC<Props> = ({ assetSlug }) => {
 
             <div className="flex flex-col p-4 gap-y-2 rounded-lg border border-gray-300">
               <FormSecondaryButton
-                disabled={!offer}
-                title={offer ? offer.price.toString() : ''}
+                disabled={!offer || offer.buyerIsMe || isSelling || !accountCanSign}
+                title={sellButtonTooltipStr}
                 onClick={onSellButtonClick}
                 testID={CollectiblesSelectors.sellButton}
               >
@@ -123,6 +190,7 @@ const CollectiblePage: FC<Props> = ({ assetSlug }) => {
               </FormSecondaryButton>
 
               <FormSubmitButton
+                disabled={isSelling}
                 onClick={() => navigate(`/send/${assetSlug}`)}
                 testID={CollectiblesSelectors.sendButton}
               >

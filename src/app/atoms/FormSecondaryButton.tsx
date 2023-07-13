@@ -31,7 +31,7 @@ export const FormSecondaryButton: FC<FormSecondaryButtonProps> = ({
         small ? 'px-6 py-2 text-sm' : 'px-8 py-2.5 text-base',
         disabled ? 'text-gray-350 border-gray-350' : 'text-primary-orange border-primary-orange',
         loading || disabled
-          ? 'opacity-75 shadow-inner pointer-events-none'
+          ? 'opacity-75 shadow-inner cursor-default'
           : 'opacity-90 hover:opacity-100 shadow-sm hover:shadow focus:shadow',
         className
       ),
