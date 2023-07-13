@@ -59,7 +59,7 @@ export const DropdownSelect = <T extends unknown>({
       )}
     >
       {({ ref, opened, toggleOpened }) => (
-        <div ref={ref as unknown as React.RefObject<HTMLDivElement>}>
+        <div ref={ref as unknown as React.RefObject<HTMLDivElement>} {...setTestID(testIds?.dropdownTestId)}>
           {opened ? (
             <SelectSearch {...searchProps} className={dropdownButtonClassName} />
           ) : (
@@ -74,7 +74,6 @@ export const DropdownSelect = <T extends unknown>({
                   toggleOpened();
                   trackDropdownClick();
                 }}
-                {...setTestID(testIds?.dropdownTestId)}
               >
                 {DropdownFaceContent}
                 <ChevronDownIcon className="text-gray-600 stroke-current stroke-2 h-4 w-4" />
