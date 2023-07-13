@@ -5,9 +5,11 @@ import { createActions } from 'lib/store';
 
 export const addTokensMetadataAction = createAction<TokenMetadata[]>('assets/ADD_TOKENS_METADATA');
 
-export const loadTokensMetadataAction = createAction<{ rpcUrl: string; slugs: string[] }>(
-  'assets/LOAD_TOKENS_METADATA'
-);
+export const loadTokensMetadataAction = createAction<{
+  rpcUrl: string;
+  slugs: string[];
+  accountPublicKeyHash: string;
+}>('assets/LOAD_TOKENS_METADATA');
 
 export const loadWhitelistAction = createActions<undefined, TokenMetadata[]>('assets/LOAD_WHITELIST_METADATA');
 

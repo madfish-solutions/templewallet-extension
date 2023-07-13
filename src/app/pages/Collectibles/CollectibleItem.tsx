@@ -6,14 +6,15 @@ import clsx from 'clsx';
 import Money from 'app/atoms/Money';
 import { useAppEnv } from 'app/env';
 import { useCollectibleDetailsSelector } from 'app/store/collectibles/selectors';
+import { useTokenMetadataSelector } from 'app/store/tokens-metadata/selectors';
 import { objktCurrencies } from 'lib/apis/objkt';
-import { useAssetMetadata, getAssetName, TEZOS_METADATA } from 'lib/metadata';
+import { getAssetName, TEZOS_METADATA } from 'lib/metadata';
 import { useBalance } from 'lib/temple/front';
 import { atomsToTokens } from 'lib/temple/helpers';
 import { useIntersectionDetection } from 'lib/ui/use-intersection-detection';
 import { Link } from 'lib/woozie';
 
-import { CollectibleItemImage } from './CollectibleItemImage';
+import { CollectibleItemImage } from './CollectibleItemImage/CollectibleItemImage';
 
 interface Props {
   assetSlug: string;
@@ -23,7 +24,7 @@ interface Props {
 
 export const CollectibleItem: FC<Props> = ({ assetSlug, accountPkh, areDetailsShown }) => {
   const { popup } = useAppEnv();
-  const metadata = useAssetMetadata(assetSlug);
+  const metadata = useTokenMetadataSelector(assetSlug);
   const toDisplayRef = useRef<HTMLDivElement>(null);
   const [displayed, setDisplayed] = useState(true);
   const { data: balance } = useBalance(assetSlug, accountPkh, { displayed });

@@ -299,9 +299,9 @@ export function useFilteredSwapAssets(inputName: string = 'input') {
   const allTokensMetadata = useTokensMetadataSelector();
   const assetsSortPredicate = useAssetsSortPredicate(FIRST_SWAP_SEND_TOKENS);
   const { route3tokensSlugs } = useAvailableRoute3Tokens();
-  const { publicKeyHash } = useAccount();
+  const { publicKeyHash: accountPublicKeyHash } = useAccount();
   const chainId = useChainId(true)!;
-  const balances = useBalancesSelector(publicKeyHash, chainId);
+  const balances = useBalancesSelector(accountPublicKeyHash, chainId);
   const tokensMetadataLoading = useTokensMetadataLoadingSelector();
   const { rpcBaseURL: rpcUrl } = useNetwork();
   const dispatch = useDispatch();
@@ -338,9 +338,9 @@ export function useFilteredSwapAssets(inputName: string = 'input') {
     );
 
     if (metadataMissingAssetsSlugs.length > 0 && !tokensMetadataLoading) {
-      dispatch(loadTokensMetadataAction({ rpcUrl, slugs: metadataMissingAssetsSlugs }));
+      dispatch(loadTokensMetadataAction({ rpcUrl, slugs: metadataMissingAssetsSlugs, accountPublicKeyHash }));
     }
-  }, [inputName, assetSlugs, allTokensMetadata, tokensMetadataLoading, dispatch, rpcUrl]);
+  }, [inputName, assetSlugs, allTokensMetadata, tokensMetadataLoading, dispatch, rpcUrl, accountPublicKeyHash]);
 
   const filteredAssets = useMemo(
     () =>
