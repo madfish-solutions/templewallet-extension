@@ -11,7 +11,7 @@ import { AssetIcon } from 'app/templates/AssetIcon';
 import InFiat from 'app/templates/InFiat';
 import { setTestID } from 'lib/analytics';
 import { toLocalFormat, T, t } from 'lib/i18n';
-import { AssetMetadata } from 'lib/temple/metadata';
+import { AssetMetadataBase } from 'lib/metadata';
 import { useFocusOnElement } from 'lib/ui/hooks';
 import { PopperRenderProps } from 'lib/ui/Popper';
 
@@ -22,7 +22,7 @@ interface Props extends PopperRenderProps, Pick<SwapFormInputProps, 'label'> {
   balance?: BigNumber;
   searchString: string;
   selectedAssetSlug?: string;
-  selectedAssetMetadata: AssetMetadata;
+  selectedAssetMetadata: AssetMetadataBase;
   showTokenIdInput: boolean;
   tokenId?: number;
   amountInputDisabled?: boolean;
@@ -148,7 +148,7 @@ export const SwapFormInputHeader = forwardRef<HTMLDivElement, Props>(
             <div
               className="border-r border-gray-300 pl-4 pr-3 flex py-5 items-center cursor-pointer"
               onClick={toggleOpened}
-              {...setTestID(testIDs?.assetSelector)}
+              {...setTestID(testIDs?.assetDropDownButton)}
             >
               {selectedAssetSlug ? (
                 <>

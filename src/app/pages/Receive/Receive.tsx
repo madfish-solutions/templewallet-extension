@@ -17,6 +17,7 @@ import { useAccount, useTezos, useTezosDomainsClient } from 'lib/temple/front';
 import { useSafeState } from 'lib/ui/hooks';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 
+import { PageTitle } from '../../atoms/PageTitle';
 import { ReceiveSelectors } from './Receive.selectors';
 
 const ADDRESS_FIELD_VIEWS = [
@@ -59,14 +60,7 @@ const Receive: FC = () => {
   }, [isSupported, setActiveView]);
 
   return (
-    <PageLayout
-      pageTitle={
-        <>
-          <QRIcon className="w-auto h-4 mr-1 stroke-current" />
-          <T id="receive" />
-        </>
-      }
-    >
+    <PageLayout pageTitle={<PageTitle icon={<QRIcon className="w-auto h-4 stroke-current" />} title={t('receive')} />}>
       <div className="py-4">
         <div className="w-full max-w-sm mx-auto">
           <FormField

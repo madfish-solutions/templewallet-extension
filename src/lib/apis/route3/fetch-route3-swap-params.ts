@@ -44,7 +44,7 @@ export const fetchRoute3SwapParams = ({
   amount,
   chainsLimit = 3
 }: Route3SwapParamsRequest): Promise<Route3SwapParamsResponse> =>
-  fetch(`https://temple.3route.io/swap/${fromSymbol}/${toSymbol}/${amount}?chainsLimit=${chainsLimit}`, {
+  fetch(`https://temple.3route.io/v3/swap/${fromSymbol}/${toSymbol}/${amount}?chainsLimit=${chainsLimit}`, {
     headers: {
       Authorization: EnvVars.TEMPLE_WALLET_ROUTE3_AUTH_TOKEN
     }

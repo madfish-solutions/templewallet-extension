@@ -19,11 +19,7 @@ export {
 } from './ready';
 
 export {
-  TEZ_TOKEN_SLUG,
-  useAssetMetadata,
-  useTokensMetadata,
   useAvailableAssets,
-  useAllTokensBaseMetadata,
   useAssetsSortPredicate,
   useCollectibleTokens,
   useDisplayedFungibleTokens,
@@ -56,6 +52,8 @@ export { tryParseExpenses } from './expenses';
 export { TempleProvider } from './provider';
 
 export { validateDelegate } from './validate-delegate';
+
+export { validateRecipient } from './validate-recipient';
 
 export { useSecretState } from './use-secret-state.hook';
 

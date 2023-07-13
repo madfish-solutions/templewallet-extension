@@ -86,7 +86,7 @@
     "message": "Клацніть, щоб відкрити або відредагувати це поле"
   },
   "copiedHash": {
-    "message": "Скопійовано."
+    "message": "Скопійовано"
   },
   "copyHashToClipboard": {
     "message": "Копіювати в буфер обміну"
@@ -207,10 +207,10 @@
     }
   },
   "copiedTokenAddress": {
-    "message": "Скопійовано."
+    "message": "Скопійовано"
   },
   "copiedTokenId": {
-    "message": "Скопійовано."
+    "message": "Скопійовано"
   },
   "delegatedTo": {
     "message": "Делеговано:"
@@ -658,7 +658,7 @@
     "message": "Адреса вашого аккаунту. Поділіться нею, щоб отримати кошти."
   },
   "copiedAddress": {
-    "message": "Скопійовано."
+    "message": "Скопійовано"
   },
   "copyAddressToClipboard": {
     "message": "Копіювати в буфер обміну"
@@ -806,6 +806,15 @@
   },
   "enable": {
     "message": "увімкнути"
+  },
+  "enableAds": {
+    "message": "Enable Ads"
+  },
+  "enablePartnersPromotionConfirm": {
+    "message": "Support the development team and earn tokens by viewing ads inside the wallet."
+  },
+  "enablePartnersPromotionDescriptionConfirm": {
+    "message": "To enable this feature, we request your permission to trace your Wallet Address and IP address. You can always disable ads in the settings."
   },
   "dAppsCheckmarkPrompt": {
     "message": "Клацніть на галочку щоб $action$ функцію взаємодію з DApp'ками",

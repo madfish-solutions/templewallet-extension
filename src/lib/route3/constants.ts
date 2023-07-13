@@ -1,10 +1,11 @@
 import { BigNumber } from 'bignumber.js';
 
 import { Route3Token, Route3TokenStandardEnum } from 'lib/apis/route3/fetch-route3-tokens';
+import { TempleToken } from 'lib/assets/known-tokens';
 
 import { getPercentageRatio } from './utils/get-percentage-ratio';
 
-export const ROUTE3_CONTRACT = 'KT1Tuta6vbpHhZ15ixsYD3qJdhnpEAuogLQ9';
+export const ROUTE3_CONTRACT = 'KT1R7WEtNNim3YgkxPt8wPMczjH3eyhbJMtz';
 export const BURN_ADDREESS = 'tz1burnburnburnburnburnburnburjAYjjX';
 export const ROUTING_FEE_ADDRESS = 'tz1UbRzhYjQKTtWYvGUWcRtVT4fN3NESDVYT';
 
@@ -20,7 +21,7 @@ export const TEMPLE_TOKEN: Route3Token = {
   id: 138,
   symbol: 'TKEY',
   standard: Route3TokenStandardEnum.fa2,
-  contract: 'KT1VaEsVNiBoA56eToEK6n6BcPgh1tdx9eXi',
-  tokenId: '0',
+  contract: TempleToken.contract,
+  tokenId: String(TempleToken.id),
   decimals: 18
 };

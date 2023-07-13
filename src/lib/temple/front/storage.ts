@@ -62,7 +62,7 @@ export function usePassiveStorage<T = any>(key: string, fallback?: T) {
   return [value, setValue];
 }
 
-export function onStorageChanged<T = any>(key: string, callback: (newValue: T) => void) {
+function onStorageChanged<T = any>(key: string, callback: (newValue: T) => void) {
   const handleChanged = (
     changes: {
       [s: string]: Storage.StorageChange;

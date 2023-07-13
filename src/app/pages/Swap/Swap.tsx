@@ -9,6 +9,8 @@ import { SwapForm } from 'app/templates/SwapForm/SwapForm';
 import { t, T } from 'lib/i18n';
 import { useNetwork } from 'lib/temple/front';
 
+import { PageTitle } from '../../atoms/PageTitle';
+
 export const Swap: FC = () => {
   const dispatch = useDispatch();
 
@@ -19,13 +21,7 @@ export const Swap: FC = () => {
   }, []);
 
   return (
-    <PageLayout
-      pageTitle={
-        <>
-          <SwapIcon className="w-auto h-4 mr-1 stroke-current" /> {t('swap')}
-        </>
-      }
-    >
+    <PageLayout pageTitle={<PageTitle icon={<SwapIcon className="w-auto h-4 stroke-current" />} title={t('swap')} />}>
       <div className="py-4">
         <div className="w-full max-w-sm mx-auto">
           <Suspense fallback={null}>

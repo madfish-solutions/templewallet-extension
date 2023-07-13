@@ -6,8 +6,7 @@ import classNames from 'clsx';
 import Money from 'app/atoms/Money';
 import { useAppEnv } from 'app/env';
 import InFiat from 'app/templates/InFiat';
-import { useAssetMetadata } from 'lib/temple/front';
-import { getAssetSymbol } from 'lib/temple/metadata';
+import { useAssetMetadata, getAssetSymbol } from 'lib/metadata';
 
 interface Props {
   assetId: string;

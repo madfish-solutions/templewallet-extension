@@ -86,7 +86,7 @@
     "message": "点击以显示或编辑此字段"
   },
   "copiedHash": {
-    "message": "已复制。"
+    "message": "已复制"
   },
   "copyHashToClipboard": {
     "message": "复制到剪贴板"
@@ -196,10 +196,10 @@
     }
   },
   "copiedTokenAddress": {
-    "message": "已复制。"
+    "message": "已复制"
   },
   "copiedTokenId": {
-    "message": "已复制。"
+    "message": "已复制"
   },
   "delegatedTo": {
     "message": "已委托给："
@@ -641,7 +641,7 @@
     "message": "您当前的账户地址。分享该地址来收款。"
   },
   "copiedAddress": {
-    "message": "已复制。"
+    "message": "已复制"
   },
   "copyAddressToClipboard": {
     "message": "复制到剪贴板"
@@ -786,6 +786,15 @@
   },
   "enable": {
     "message": "启用"
+  },
+  "enableAds": {
+    "message": "Enable Ads"
+  },
+  "enablePartnersPromotionConfirm": {
+    "message": "Support the development team and earn tokens by viewing ads inside the wallet."
+  },
+  "enablePartnersPromotionDescriptionConfirm": {
+    "message": "To enable this feature, we request your permission to trace your Wallet Address and IP address. You can always disable ads in the settings."
   },
   "dAppsCheckmarkPrompt": {
     "message": "点击勾号以$action$DApp互动功能",

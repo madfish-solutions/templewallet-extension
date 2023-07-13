@@ -110,18 +110,21 @@ export const InitialStep: FC<Omit<StepProps, 'orderInfo'>> = ({ isApiError, setO
           isMinAmountError={isMinAmountError}
           isMaxAmountError={isMaxAmountError}
           isInsufficientTezBalanceError={isInsufficientTezBalanceError}
+          emptyListPlaceholder={t('noAssetsFound')}
           onAmountChange={handleInputAmountChange}
           className="mb-4"
         />
 
         <br />
         <TopUpInput
+          isFiat
           readOnly
           amountInputDisabled
           label={<T id="get" />}
           currency={{ code: 'UAH', icon: FIAT_ICONS_SRC.UAH }}
           currenciesList={[]}
           amount={outputAmount}
+          emptyListPlaceholder={t('noAssetsFound')}
         />
 
         <div className={classNames(styles['exchangeRateBlock'], 'mt-1 mb-10')}>

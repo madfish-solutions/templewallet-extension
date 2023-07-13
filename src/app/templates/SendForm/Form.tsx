@@ -28,11 +28,14 @@ import { ReactComponent as ChevronUpIcon } from 'app/icons/chevron-up.svg';
 import Balance from 'app/templates/Balance';
 import InFiat from 'app/templates/InFiat';
 import { useFormAnalytics } from 'lib/analytics';
+import { isTezAsset, toPenny } from 'lib/assets';
+import { toTransferParams } from 'lib/assets/utils';
+import { fetchBalance, fetchTezosBalance } from 'lib/balances';
 import { useAssetFiatCurrencyPrice, useFiatCurrency } from 'lib/fiat-currency';
 import { BLOCK_DURATION } from 'lib/fixed-times';
 import { toLocalFixed, T, t } from 'lib/i18n';
+import { AssetMetadataBase, useAssetMetadata, getAssetSymbol } from 'lib/metadata';
 import { transferImplicit, transferToContract } from 'lib/michelson';
-import { fetchBalance, fetchTezosBalance, isTezAsset, toPenny, toTransferParams } from 'lib/temple/assets';
 import { loadContract } from 'lib/temple/contract';
 import {
   ReactiveTezosToolkit,
@@ -42,12 +45,10 @@ import {
   useNetwork,
   useTezos,
   useTezosDomainsClient,
-  useAssetMetadata,
   useFilteredContacts,
-  validateDelegate
+  validateRecipient
 } from 'lib/temple/front';
 import { hasManager, isAddressValid, isKTAddress, mutezToTz, tzToMutez } from 'lib/temple/helpers';
-import { AssetMetadata, getAssetSymbol } from 'lib/temple/metadata';
 import { TempleAccountType, TempleAccount, TempleNetworkType } from 'lib/temple/types';
 import { useSafeState } from 'lib/ui/hooks';
 import { useScrollIntoView } from 'lib/ui/use-scroll-into-view';
@@ -56,6 +57,7 @@ import ContactsDropdown, { ContactsDropdownProps } from './ContactsDropdown';
 import { FeeSection } from './FeeSection';
 import { SendFormSelectors } from './selectors';
 import { SpinnerSection } from './SpinnerSection';
+import { useAddressFieldAnalytics } from './use-address-field-analytics';
 
 interface FormData {
   to: string;
@@ -152,6 +154,8 @@ export const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactReque
 
   const amountFieldRef = useRef<HTMLInputElement>(null);
 
+  const { onBlur } = useAddressFieldAnalytics(toValue, 'RECIPIENT_NETWORK');
+
   const toFilledWithAddress = useMemo(() => Boolean(toValue && isAddressValid(toValue)), [toValue]);
 
   const toFilledWithDomain = useMemo(
@@ -201,6 +205,8 @@ export const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactReque
 
   const estimateBaseFee = useCallback(async () => {
     try {
+      if (!assetMetadata) throw new Error('Metadata not found');
+
       const to = toResolved;
       const tez = isTezAsset(assetSlug);
 
@@ -337,6 +343,8 @@ export const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactReque
       formAnalytics.trackSubmit();
 
       try {
+        if (!assetMetadata) throw new Error('Metadata not found');
+
         let op: WalletOperation;
         if (isKTAddress(acc.publicKeyHash)) {
           const michelsonLambda = isKTAddress(toResolved) ? transferToContract : transferImplicit;
@@ -413,7 +421,8 @@ export const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactReque
 
   const handleToFieldBlur = useCallback(() => {
     setToFieldFocused(false);
-  }, [setToFieldFocused]);
+    onBlur();
+  }, [setToFieldFocused, onBlur]);
 
   const allContactsWithoutCurrent = useMemo(
     () => allContacts.filter(c => c.address !== accountPkh),
@@ -447,7 +456,7 @@ export const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactReque
         }
         control={control}
         rules={{
-          validate: (value: any) => validateDelegate(value, domainsClient, validateAddress)
+          validate: (value: any) => validateRecipient(value, domainsClient)
         }}
         onChange={([v]) => v}
         onBlur={handleToFieldBlur}
@@ -593,7 +602,7 @@ export const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactReque
 
 interface TokenToFiatProps {
   amountValue: string;
-  assetMetadata: AssetMetadata | null;
+  assetMetadata: AssetMetadataBase | nullish;
   shoudUseFiat: boolean;
   assetSlug: string;
   toAssetAmount: (fiatAmount: BigNumber.Value) => string;
@@ -646,19 +655,6 @@ interface FeeComponentProps {
   baseFee?: BigNumber | Error | undefined;
   error?: FieldError;
   isSubmitting: boolean;
-}
-
-function validateAddress(value: string) {
-  switch (false) {
-    case value?.length > 0:
-      return true;
-
-    case isAddressValid(value):
-      return 'invalidAddress';
-
-    default:
-      return true;
-  }
 }
 
 const getMaxAmountFiat = (assetPrice: number | null, maxAmountAsset: BigNumber) =>

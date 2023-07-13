@@ -86,7 +86,7 @@
     "message": "このフィールドを表示または編集"
   },
   "copiedHash": {
-    "message": "コピーしました。"
+    "message": "コピーしました"
   },
   "copyHashToClipboard": {
     "message": "クリップボードにコピー"
@@ -196,10 +196,10 @@
     }
   },
   "copiedTokenAddress": {
-    "message": "コピーしました。"
+    "message": "コピーしました"
   },
   "copiedTokenId": {
-    "message": "コピーしました。"
+    "message": "コピーしました"
   },
   "delegatedTo": {
     "message": "委任先:"
@@ -641,7 +641,7 @@
     "message": "現在のアカウントのアドレスです。共有して資金を受け取ることができます。"
   },
   "copiedAddress": {
-    "message": "コピーしました。"
+    "message": "コピーしました"
   },
   "copyAddressToClipboard": {
     "message": "クリップボードにコピー"
@@ -786,6 +786,15 @@
   },
   "enable": {
     "message": "有効にする"
+  },
+  "enableAds": {
+    "message": "Enable Ads"
+  },
+  "enablePartnersPromotionConfirm": {
+    "message": "Support the development team and earn tokens by viewing ads inside the wallet."
+  },
+  "enablePartnersPromotionDescriptionConfirm": {
+    "message": "To enable this feature, we request your permission to trace your Wallet Address and IP address. You can always disable ads in the settings."
   },
   "dAppsCheckmarkPrompt": {
     "message": "チェックマークをクリックして、DAppsインタラクション機能を$action$",

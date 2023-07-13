@@ -3,14 +3,18 @@ import { useMemo } from 'react';
 import { isDefined } from '@rnw-community/shared';
 
 import { useTokensApyRatesSelector } from 'app/store/d-apps';
-import { KNOWN_TOKENS_SLUGS } from 'lib/temple/assets';
+import { KNOWN_TOKENS_SLUGS } from 'lib/assets/known-tokens';
 
 const YUPANA_LEND_LINK = 'https://app.yupana.finance/lending';
+const YOUVES_LINK = 'https://app.youves.com/earn';
 
 const TOKEN_APY_LINKS: Readonly<Record<string, string | undefined>> = {
   [KNOWN_TOKENS_SLUGS.KUSD]: YUPANA_LEND_LINK,
   [KNOWN_TOKENS_SLUGS.USDT]: YUPANA_LEND_LINK,
-  [KNOWN_TOKENS_SLUGS.TZBTC]: YUPANA_LEND_LINK
+  [KNOWN_TOKENS_SLUGS.TZBTC]: YUPANA_LEND_LINK,
+  [KNOWN_TOKENS_SLUGS.UUSD]: YOUVES_LINK,
+  [KNOWN_TOKENS_SLUGS.UBTC]: YOUVES_LINK,
+  [KNOWN_TOKENS_SLUGS.YOU]: YOUVES_LINK
 };
 
 export interface TokenApyInfo {

@@ -30,6 +30,7 @@ module.exports = {
         gray: {
           10: '#f4f4f4',
           20: '#aeaeb2',
+          30: '#aeaaae',
           100: '#f7fafc',
           200: '#edf2f7',
           300: '#e2e8f0',
@@ -108,6 +109,7 @@ module.exports = {
           600: '#3182ce',
           650: '#007AFF',
           700: '#2b6cb0',
+          750: '#4a5568',
           800: '#2c5282',
           900: '#2a4365'
         },
@@ -177,12 +179,16 @@ module.exports = {
       6: '1.5rem',
       7: '1.75rem',
       8: '2rem',
+      9: '2.25rem',
       10: '2.5rem',
       12: '3rem',
+      14: '3.5rem',
       15: '3.75rem',
       16: '4rem',
       20: '5rem',
       24: '6rem',
+      25: '6.25rem',
+      29: '7.25rem',
       32: '8rem',
       35: '8.75rem',
       40: '10rem',
@@ -220,6 +226,7 @@ module.exports = {
       DEFAULT: '0.25rem',
       md: '0.375rem',
       lg: '0.5rem',
+      xl: '0.625rem',
       '2xl': '0.75rem',
       full: '9999px',
       circle: '50%'
@@ -306,9 +313,11 @@ module.exports = {
       xs: '0.75rem',
       sm: '0.875rem',
       base: '1rem',
+      ulg: '1.0625rem',
       lg: '1.125rem',
       xl: '1.25rem',
       '2xl': '1.5rem',
+      '2xl-plus': '1.75rem',
       '3xl': '1.875rem',
       '4xl': '2.25rem',
       '5xl': '3rem',
@@ -328,7 +337,9 @@ module.exports = {
     height: theme => ({
       auto: 'auto',
       ...theme('spacing'),
+      2.25: '2.25rem',
       12: '3rem',
+      700: '700px',
       full: '100%',
       screen: '100vh'
     }),
@@ -379,6 +390,7 @@ module.exports = {
     }),
     maxHeight: {
       full: '100%',
+      '3/25': '52px',
       screen: '100vh'
     },
     maxWidth: (theme, { breakpoints }) => ({
@@ -476,6 +488,8 @@ module.exports = {
       '9/12': '75%',
       '10/12': '83.333333%',
       '11/12': '91.666667%',
+      3.5: '52px',
+      4.5: '72px',
       full: '100%'
     }),
     placeholderColor: theme => theme('colors'),

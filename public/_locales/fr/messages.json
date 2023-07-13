@@ -86,7 +86,7 @@
     "message": "Cliquez pour révéler ou modifier ce champ"
   },
   "copiedHash": {
-    "message": "Copié."
+    "message": "Copié"
   },
   "copyHashToClipboard": {
     "message": "Copier dans le presse-papier"
@@ -196,10 +196,10 @@
     }
   },
   "copiedTokenAddress": {
-    "message": "Copiée."
+    "message": "Copiée"
   },
   "copiedTokenId": {
-    "message": "Copié."
+    "message": "Copié"
   },
   "delegatedTo": {
     "message": "Délégué à :"
@@ -641,7 +641,7 @@
     "message": "L'adresse de votre compte actuel. Partagez-la pour recevoir des fonds."
   },
   "copiedAddress": {
-    "message": "Copié."
+    "message": "Copié"
   },
   "copyAddressToClipboard": {
     "message": "Copié dans le presse-papier"
@@ -786,6 +786,15 @@
   },
   "enable": {
     "message": "activer"
+  },
+  "enableAds": {
+    "message": "Enable Ads"
+  },
+  "enablePartnersPromotionConfirm": {
+    "message": "Support the development team and earn tokens by viewing ads inside the wallet."
+  },
+  "enablePartnersPromotionDescriptionConfirm": {
+    "message": "To enable this feature, we request your permission to trace your Wallet Address and IP address. You can always disable ads in the settings."
   },
   "dAppsCheckmarkPrompt": {
     "message": "Cliquez sur la coce pour $action$ la fonctionnalité interactions des applications décentralisées",

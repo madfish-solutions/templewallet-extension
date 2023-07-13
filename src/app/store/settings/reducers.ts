@@ -1,7 +1,12 @@
 import { createReducer } from '@reduxjs/toolkit';
 
-import { setIsAnalyticsEnabledAction, toggleBalanceModeAction } from './actions';
-import { settingsInitialState, SettingsState } from './state';
+import {
+  setIsAnalyticsEnabledAction,
+  setOnRampPossibilityAction,
+  toggleBalanceModeAction,
+  setAdsBannerVisibilityAction
+} from './actions';
+import { SettingsState, settingsInitialState } from './state';
 
 export const settingsReducer = createReducer<SettingsState>(settingsInitialState, builder => {
   builder.addCase(setIsAnalyticsEnabledAction, (state, { payload: isAnalyticsEnabled }) => ({
@@ -11,4 +16,12 @@ export const settingsReducer = createReducer<SettingsState>(settingsInitialState
   builder.addCase(toggleBalanceModeAction, (state, { payload }) => {
     state.balanceMode = payload;
   });
+  builder.addCase(setAdsBannerVisibilityAction, (state, { payload }) => ({
+    ...state,
+    isEnableAdsBanner: payload
+  }));
+  builder.addCase(setOnRampPossibilityAction, (state, { payload: isOnRampPossibility }) => ({
+    ...state,
+    isOnRampPossibility
+  }));
 });

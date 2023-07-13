@@ -5,12 +5,14 @@ import classNames from 'clsx';
 import Spinner from 'app/atoms/Spinner/Spinner';
 import { T } from 'lib/i18n';
 
+import { setAnotherSelector } from '../../lib/analytics';
 import { ButtonProps, Button } from './Button';
 
 interface FormSubmitButtonProps extends ButtonProps {
   searchingRoute?: boolean;
   loading?: boolean;
   small?: boolean;
+  textClassNames?: string;
 }
 
 export const FormSubmitButton: FC<FormSubmitButtonProps> = ({
@@ -20,6 +22,7 @@ export const FormSubmitButton: FC<FormSubmitButtonProps> = ({
   disabled,
   className,
   style,
+  textClassNames,
   children,
   ...rest
 }) => {
@@ -53,7 +56,13 @@ export const FormSubmitButton: FC<FormSubmitButtonProps> = ({
 
   if (searchingRoute) {
     return (
-      <Button className={compoundedClassName} style={compoundedStyle} disabled={disabled} {...rest}>
+      <Button
+        className={compoundedClassName}
+        style={compoundedStyle}
+        disabled={disabled}
+        {...rest}
+        {...setAnotherSelector('loading', '')}
+      >
         <div className="flex items-center justify-center gap-x-2">
           <Spinner theme="white" style={{ width: small ? '2rem' : '3rem' }} />
           <span>

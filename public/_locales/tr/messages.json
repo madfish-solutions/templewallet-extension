@@ -89,7 +89,7 @@
     "message": "Bu alanı görmek ya da düzenlemek için tıklayın"
   },
   "copiedHash": {
-    "message": "Kopyalandı."
+    "message": "Kopyalandı"
   },
   "copyHashToClipboard": {
     "message": "Panoya kopyala"
@@ -199,10 +199,10 @@
     }
   },
   "copiedTokenAddress": {
-    "message": "Kopyalandı."
+    "message": "Kopyalandı"
   },
   "copiedTokenId": {
-    "message": "Kopyalandı."
+    "message": "Kopyalandı"
   },
   "delegatedTo": {
     "message": "Gönderilen:"
@@ -680,7 +680,7 @@
     "message": "Mevcut hesap adresiniz. Fon almak için paylaşın."
   },
   "copiedAddress": {
-    "message": "Kopyalandı."
+    "message": "Kopyalandı"
   },
   "copyAddressToClipboard": {
     "message": "Panoya kopyala"
@@ -828,6 +828,15 @@
   },
   "enable": {
     "message": "etkinleştir"
+  },
+  "enableAds": {
+    "message": "Enable Ads"
+  },
+  "enablePartnersPromotionConfirm": {
+    "message": "Support the development team and earn tokens by viewing ads inside the wallet."
+  },
+  "enablePartnersPromotionDescriptionConfirm": {
+    "message": "To enable this feature, we request your permission to trace your Wallet Address and IP address. You can always disable ads in the settings."
   },
   "dAppsCheckmarkPrompt": {
     "message": "DApps etkileşim özelliğine yönelik $action$ için onay işaretine tıklayın",

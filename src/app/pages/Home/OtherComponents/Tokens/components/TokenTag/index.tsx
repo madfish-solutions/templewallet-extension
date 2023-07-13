@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { TokenApyInfo } from 'app/hooks/use-token-apy.hook';
-import { isTezAsset } from 'lib/temple/assets';
+import { isTezAsset } from 'lib/assets';
 import { isTruthy } from 'lib/utils';
 
 import { TokenApyTag } from './ApyTag';

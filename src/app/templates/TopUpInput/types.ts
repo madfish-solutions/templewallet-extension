@@ -4,6 +4,7 @@ import { TestIDProperty } from 'lib/analytics';
 
 export interface CurrencyBase {
   code: string;
+  codeToDisplay?: string;
   name?: string;
   icon?: string;
   fitIcon?: boolean;
@@ -16,10 +17,9 @@ export interface CurrencyBase {
 
 export type CurrencyToken = WithRequired<CurrencyBase, 'network'>;
 
-export type CurrencyFiat = Omit<CurrencyBase, 'network'>;
-
 export interface TopUpInputPropsGeneric<C extends CurrencyBase> extends TestIDProperty {
   label: ReactNode;
+  isFiat?: boolean;
   currency: C;
   currenciesList: C[];
   onCurrencySelect?: (value: C) => void;
@@ -34,8 +34,10 @@ export interface TopUpInputPropsGeneric<C extends CurrencyBase> extends TestIDPr
   isMinAmountError?: boolean;
   isMaxAmountError?: boolean;
   isInsufficientTezBalanceError?: boolean;
-  fitIcons?: boolean;
+  fitIcons?: boolean | ((currency: C) => boolean);
   className?: string;
+  decimals?: number;
+  emptyListPlaceholder?: string;
 }
 
 export type TopUpInputPropsBase = TopUpInputPropsGeneric<CurrencyBase>;

@@ -1,5 +1,4 @@
 import * as Dotenv from 'dotenv';
-import dotenvExpand from 'dotenv-expand';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -8,15 +7,22 @@ import { isTruthy } from './utils';
 
 const PATH_CWD = fs.realpathSync(process.cwd());
 
-const dotenvDistPath = path.resolve(PATH_CWD, '.env.dist');
-const dotenvDistContent = fs.readFileSync(dotenvDistPath, { encoding: 'utf-8' });
+const readDotEnvFile = (path: string) => {
+  if (!fs.existsSync(path)) return null;
+  const contentString = fs.readFileSync(path, { encoding: 'utf-8' });
+  return Dotenv.parse(contentString);
+};
 
-const definedEnvVarsNames = Object.keys(Dotenv.parse(dotenvDistContent));
+const dotenvDistPath = path.resolve(PATH_CWD, '.env.dist');
+
+const distDotEnvFileData = readDotEnvFile(dotenvDistPath);
+
+const requiredEnvFileVarsNames = Object.keys(distDotEnvFileData!);
 
 const dotenvPath = path.resolve(PATH_CWD, '.env');
 
 // https://github.com/bkeepers/dotenv#what-other-env-files-can-i-use
-const dotenvFiles = [
+const dotenvFilesPaths = [
   `${dotenvPath}.${NODE_ENV}.local`,
   /*
     Don't include `.env.local` for `test` environment
@@ -28,25 +34,13 @@ const dotenvFiles = [
   dotenvPath
 ].filter(isTruthy);
 
-/*
-  Load environment variables from .env* files. Suppress warnings using silent
-  if this file is missing. dotenv will never modify any environment variables
-  that have already been set.  Variable expansion is supported in .env files.
-  - https://github.com/motdotla/dotenv
-  - https://github.com/motdotla/dotenv-expand
-*/
-dotenvFiles.forEach(dotenvFile => {
-  if (fs.existsSync(dotenvFile)) {
-    dotenvExpand(
-      Dotenv.config({
-        path: dotenvFile
-      })
-    );
-  }
-});
+const envFilesData: Record<string, string> = dotenvFilesPaths.reduce(
+  (data, path) => ({ ...data, ...readDotEnvFile(path) }),
+  {}
+);
 
-for (const name of definedEnvVarsNames) {
-  if (!process.env[name]) throw new Error(`process.env.${name} is not set`);
+for (const name of requiredEnvFileVarsNames) {
+  if (!envFilesData[name]) throw new Error(`[.env] Required \`${name}\` value is not set in .env files`);
 }
 
-export { definedEnvVarsNames };
+export { envFilesData };

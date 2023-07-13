@@ -3,7 +3,7 @@ import { useMemo } from 'react';
 import BigNumber from 'bignumber.js';
 import { DeepPartial } from 'react-hook-form';
 
-import { TEZ_TOKEN_SLUG } from 'lib/temple/front';
+import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { useLocation } from 'lib/woozie';
 
 export interface SwapInputValue {

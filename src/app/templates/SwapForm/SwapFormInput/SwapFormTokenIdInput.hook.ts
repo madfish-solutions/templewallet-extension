@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 
 import { TezosToolkit } from '@taquito/taquito';
 
-import { fromAssetSlug, isFA2Token } from 'lib/temple/assets';
+import { isFA2Token } from 'lib/assets';
+import { fromAssetSlug } from 'lib/assets/utils';
 import { useTezos } from 'lib/temple/front';
 
 const getIsFa2AssetSlug = async (assetSlug: string | undefined, tezos: TezosToolkit) => {

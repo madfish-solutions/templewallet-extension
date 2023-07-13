@@ -18,7 +18,7 @@ import {
   KeyPair,
   CryptoKX
 } from 'libsodium-wrappers';
-import memoize from 'p-memoize';
+import pMemoize from 'p-memoize';
 import browser from 'webextension-polyfill';
 
 interface AppMetadata {
@@ -320,7 +320,7 @@ export async function createCryptoBox(
   return [Buffer.from(kxSelfPublicKey), Buffer.from(kxSelfPrivateKey), Buffer.from(kxOtherPublicKey)];
 }
 
-export const getOrCreateKeyPair = memoize(
+export const getOrCreateKeyPair = pMemoize(
   async () => {
     const items = await browser.storage.local.get([KEYPAIR_SEED_STORAGE_KEY]);
     const exist = KEYPAIR_SEED_STORAGE_KEY in items;

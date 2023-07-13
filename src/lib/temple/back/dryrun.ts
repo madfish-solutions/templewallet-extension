@@ -44,18 +44,18 @@ export async function dryRunOpParams({
     let estimates: Estimate[] | undefined;
     let error: any = [];
     try {
-      const formated = opParams.map(formatOpParamsBeforeSend);
-      const result = await Promise.all([
-        tezos.contract
-          .batch(formated)
+      const formatted = opParams.map(formatOpParamsBeforeSend);
+      const result = [
+        await tezos.estimate.batch(formatted).catch(e => ({ ...e, isError: true })),
+        await tezos.contract
+          .batch(formatted)
           .send()
-          .catch(e => ({ ...e, isError: true })),
-        tezos.estimate.batch(formated).catch(e => ({ ...e, isError: true }))
-      ]);
+          .catch(e => ({ ...e, isError: true }))
+      ];
       if (result.every(x => x.isError)) {
         error = result;
       }
-      estimates = result[1]?.map(
+      estimates = result[0]?.map(
         (e: any, i: number) =>
           ({
             ...e,

@@ -23,6 +23,7 @@ import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 import { combineRefs } from 'lib/ui/util';
 
 import { NewSeedBackupSelectors } from '../pages/NewWallet/create/NewSeedBackup/NewSeedBackup.selectors';
+import { ErrorCaptionSelectors } from './ErrorCaption.selectors';
 import usePasswordToggle from './usePasswordToggle.hook';
 
 export const PASSWORD_ERROR_CAPTION = 'PASSWORD_ERROR_CAPTION';
@@ -283,7 +284,9 @@ const ErrorCaption: React.FC<ErrorCaptionProps> = ({ errorCaption }) => {
   const isPasswordStrengthIndicator = errorCaption === PASSWORD_ERROR_CAPTION;
 
   return errorCaption && !isPasswordStrengthIndicator ? (
-    <div className="text-xs text-red-500">{errorCaption}</div>
+    <div className="text-xs text-red-500" {...setTestID(ErrorCaptionSelectors.inputError)}>
+      {errorCaption}
+    </div>
   ) : null;
 };
 

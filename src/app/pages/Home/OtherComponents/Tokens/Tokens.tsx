@@ -11,14 +11,19 @@ import { useBalancesWithDecimals } from 'app/hooks/use-balances-with-decimals.ho
 import { ReactComponent as AddToListIcon } from 'app/icons/add-to-list.svg';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
 import { loadPartnersPromoAction } from 'app/store/partners-promotion/actions';
+import { useShouldShowPartnersPromoSelector } from 'app/store/partners-promotion/selectors';
+import { useIsEnabledAdsBannerSelector } from 'app/store/settings/selectors';
 import SearchAssetField from 'app/templates/SearchAssetField';
 import { OptimalPromoVariantEnum } from 'lib/apis/optimal';
+import { TEMPLE_TOKEN_SLUG } from 'lib/assets';
 import { T } from 'lib/i18n';
 import { useAccount, useChainId, useDisplayedFungibleTokens, useFilteredAssets } from 'lib/temple/front';
 import { useSyncTokens } from 'lib/temple/front/sync-tokens';
+import { filterUnique } from 'lib/utils';
 import { Link, navigate } from 'lib/woozie';
 
 import { AssetsSelectors } from '../Assets.selectors';
+import { AcceptAdsBanner } from './AcceptAdsBanner';
 import { ListItem } from './components/ListItem';
 import { toExploreAssetLink } from './utils';
 
@@ -28,14 +33,20 @@ export const Tokens: FC = () => {
   const balances = useBalancesWithDecimals();
 
   const { publicKeyHash } = useAccount();
-  const isSyncing = useSyncTokens();
+  const { isSyncing } = useSyncTokens();
   const { popup } = useAppEnv();
 
   const { data: tokens = [] } = useDisplayedFungibleTokens(chainId, publicKeyHash);
 
-  const tokenSlugsWithTez = useMemo(() => ['tez', ...tokens.map(({ tokenSlug }) => tokenSlug)], [tokens]);
+  const tokenSlugsWithTezAndTkey = useMemo(
+    () => filterUnique(['tez', TEMPLE_TOKEN_SLUG, ...tokens.map(({ tokenSlug }) => tokenSlug)]),
+    [tokens]
+  );
 
-  const { filteredAssets, searchValue, setSearchValue } = useFilteredAssets(tokenSlugsWithTez);
+  const { filteredAssets, searchValue, setSearchValue } = useFilteredAssets(tokenSlugsWithTezAndTkey);
+
+  const isEnabledAdsBanner = useIsEnabledAdsBannerSelector();
+  const isShouldShowPartnersPromoState = useShouldShowPartnersPromoSelector();
 
   const [searchFocused, setSearchFocused] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -64,7 +75,16 @@ export const Tokens: FC = () => {
     return tokensJsx;
   }, [filteredAssets, activeAssetSlug, balances]);
 
-  useEffect(() => void dispatch(loadPartnersPromoAction.submit(OptimalPromoVariantEnum.Token)), []);
+  useEffect(() => {
+    if (isShouldShowPartnersPromoState && !isEnabledAdsBanner) {
+      dispatch(
+        loadPartnersPromoAction.submit({
+          optimalPromoVariantEnum: OptimalPromoVariantEnum.Token,
+          accountAddress: publicKeyHash
+        })
+      );
+    }
+  }, [isShouldShowPartnersPromoState, isEnabledAdsBanner]);
 
   useEffect(() => {
     if (activeIndex !== 0 && activeIndex >= filteredAssets.length) {
@@ -118,14 +138,10 @@ export const Tokens: FC = () => {
           <Link
             to="/manage-assets"
             className={classNames(
-              'ml-2 flex-shrink-0',
-              'px-3 py-1',
-              'rounded overflow-hidden',
-              'flex items-center',
-              'text-gray-600 text-sm',
+              'flex-shrink-0 flex items-center px-3 py-1 ml-2',
+              'text-gray-600 text-sm rounded overflow-hidden',
               'transition ease-in-out duration-200',
-              'hover:bg-gray-100',
-              'opacity-75 hover:opacity-100 focus:opacity-100'
+              'hover:bg-gray-100 opacity-75 hover:opacity-100 focus:opacity-100'
             )}
             testID={AssetsSelectors.manageButton}
           >
@@ -134,6 +150,8 @@ export const Tokens: FC = () => {
           </Link>
         </div>
       </div>
+
+      {isEnabledAdsBanner && <AcceptAdsBanner />}
 
       {filteredAssets.length === 0 ? (
         <div className="my-8 flex flex-col items-center justify-center text-gray-500">

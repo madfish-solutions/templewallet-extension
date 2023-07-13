@@ -6,7 +6,7 @@ import { iEnterValues, IEnterValuesKey } from '../utils/input-data.utils';
 import { createPageElement } from '../utils/search.utils';
 import { LONG_TIMEOUT, MEDIUM_TIMEOUT, SHORT_TIMEOUT } from '../utils/timing.utils';
 
-Given(/^I am on the (\w+) page$/, { timeout: MEDIUM_TIMEOUT }, async (page: keyof typeof Pages) => {
+Given(/^I am on the (\w+) page$/, { timeout: LONG_TIMEOUT }, async (page: keyof typeof Pages) => {
   await Pages[page].isVisible();
 });
 
@@ -18,6 +18,7 @@ Given(
   /I clear (.*) value on the (.*) page/,
   { timeout: MEDIUM_TIMEOUT },
   async (elementName: string, pageName: string) => {
+    await createPageElement(`${pageName}/${elementName}`).click();
     await createPageElement(`${pageName}/${elementName}`).clearInput();
   }
 );
@@ -46,6 +47,9 @@ Given(/I have imported an existing account/, { timeout: LONG_TIMEOUT }, async ()
   await Pages.SetWallet.skipOnboarding.click();
   await Pages.SetWallet.acceptTerms.click();
   await Pages.SetWallet.importButton.click();
+
+  await Pages.NewsletterModal.isVisible();
+  await Pages.NewsletterModal.closeButton.click();
 
   await Pages.Home.isVisible();
 });

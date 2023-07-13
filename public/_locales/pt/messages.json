@@ -89,7 +89,7 @@
     "message": "Clicar para revelar ou editar este campo"
   },
   "copiedHash": {
-    "message": "Copiado."
+    "message": "Copiado"
   },
   "copyHashToClipboard": {
     "message": "Copiar para a área de transferência"
@@ -199,10 +199,10 @@
     }
   },
   "copiedTokenAddress": {
-    "message": "Copiado."
+    "message": "Copiado"
   },
   "copiedTokenId": {
-    "message": "Copiado."
+    "message": "Copiado"
   },
   "delegatedTo": {
     "message": "Delegado a:"
@@ -680,7 +680,7 @@
     "message": "O endereço da sua conta corrente. Partilhá-lo para receber fundos."
   },
   "copiedAddress": {
-    "message": "Copiado."
+    "message": "Copiado"
   },
   "copyAddressToClipboard": {
     "message": "Copiar para a área de transferência"
@@ -828,6 +828,15 @@
   },
   "enable": {
     "message": "ativar"
+  },
+  "enableAds": {
+    "message": "Enable Ads"
+  },
+  "enablePartnersPromotionConfirm": {
+    "message": "Support the development team and earn tokens by viewing ads inside the wallet."
+  },
+  "enablePartnersPromotionDescriptionConfirm": {
+    "message": "To enable this feature, we request your permission to trace your Wallet Address and IP address. You can always disable ads in the settings."
   },
   "dAppsCheckmarkPrompt": {
     "message": "Clique na marca de verificação para $action$ da funcionalidade de interação DApps",
