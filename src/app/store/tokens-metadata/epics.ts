@@ -64,7 +64,7 @@ const loadOneTokenMetadataEpic = (action$: Observable<Action>) =>
     )
   );
 
-export const checkTokensMetadata$ = (tokensMetadata: TokenMetadata[], accountPublicKeyHash: string) =>
+const checkTokensMetadata$ = (tokensMetadata: TokenMetadata[], accountPublicKeyHash: string) =>
   fetchUserAdultCollectibles$(accountPublicKeyHash).pipe(
     map(adultCollectibles => {
       if (isNonEmptyArray(adultCollectibles)) {
