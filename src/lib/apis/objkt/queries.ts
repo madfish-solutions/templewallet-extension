@@ -15,7 +15,7 @@ export const buildGetCollectiblesQuery = () => gql`
   }
 `;
 
-export const ADULT_ATTRIBUTE_NAME = '__nsfw_';
+const ADULT_ATTRIBUTE_NAME = '__nsfw_';
 
 export const buildGetUserAdultCollectiblesQuery = (address: string) =>
   gql`
