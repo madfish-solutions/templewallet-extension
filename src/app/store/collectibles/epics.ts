@@ -3,7 +3,7 @@ import { catchError, map, Observable, of, switchMap } from 'rxjs';
 import { Action } from 'ts-action';
 import { ofType, toPayload } from 'ts-action-operators';
 
-import { fetchObjktCollectibles$ } from 'lib/apis/objkt';
+import { Attribute, fetchObjktCollectibles$, Tag } from 'lib/apis/objkt';
 import { ADULT_CONTENT_TAGS } from 'lib/apis/objkt/adult-tags';
 import { toTokenSlug } from 'lib/assets';
 import { isTruthy } from 'lib/utils';
@@ -11,7 +11,10 @@ import { isTruthy } from 'lib/utils';
 import { loadCollectiblesDetailsActions } from './actions';
 import { CollectibleDetailsRecord } from './state';
 
-const checkForAdult = (tag: string) => ADULT_CONTENT_TAGS.includes(tag);
+const ADULT_ATTRIBUTE_NAME = '__nsfw_';
+const checkForAdultery = (attributes: Attribute[], tags: Tag[]) =>
+  attributes.some(({ attribute }) => attribute.name === ADULT_ATTRIBUTE_NAME) ||
+  tags.some(({ tag }) => ADULT_CONTENT_TAGS.includes(tag.name));
 
 const loadCollectiblesDetailsEpic: Epic = (action$: Observable<Action>) =>
   action$.pipe(
@@ -28,10 +31,7 @@ const loadCollectiblesDetailsEpic: Epic = (action$: Observable<Action>) =>
                 currencyId: cheepestListing.currency_id
               };
 
-              const isAdultAttributes = attributes.some(({ attribute }) => attribute.name === '__nsfw_');
-              const isAdultTag = tags.some(({ tag }) => checkForAdult(tag.name));
-
-              const isAdultContent = isAdultAttributes || isAdultTag;
+              const isAdultContent = checkForAdultery(attributes, tags);
 
               return [
                 toTokenSlug(fa_contract, token_id),

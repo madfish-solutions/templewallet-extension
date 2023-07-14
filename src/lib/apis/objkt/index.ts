@@ -18,19 +18,19 @@ interface Name {
   name: string;
 }
 
-interface Tag {
+export interface Tag {
   tag: Name;
 }
 
-interface Attribute {
+export interface Attribute {
   attribute: Name;
 }
 
 interface UserObjktCollectible {
   fa_contract: string;
   token_id: string;
-  tags: Array<Tag>;
-  attributes: Array<Attribute>;
+  tags: Tag[];
+  attributes: Attribute[];
   listings_active: ObjktListing[];
 }
 

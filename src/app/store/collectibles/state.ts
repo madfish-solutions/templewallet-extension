@@ -3,8 +3,8 @@ import { createEntity, LoadableEntityState } from 'lib/store';
 export interface CollectibleDetails {
   listing?: {
     /** In atoms */
-    floorPrice?: number;
-    currencyId?: number;
+    floorPrice: number;
+    currencyId: number;
   };
   isAdultContent: boolean;
 }

@@ -4,13 +4,13 @@ import { RevealEye } from 'app/atoms/Reveal-Eye';
 import Spinner from 'app/atoms/Spinner/Spinner';
 import { ReactComponent as BrokenImageSvg } from 'app/icons/broken-image.svg';
 import { AssetImage } from 'app/templates/AssetImage';
-import { TokenMetadata } from 'lib/metadata';
+import { AssetMetadataBase } from 'lib/metadata';
 
 import Blur from './bg.png';
 
 interface Props {
   assetSlug: string;
-  metadata?: TokenMetadata;
+  metadata?: AssetMetadataBase;
   isAdultContent?: boolean;
 }
 
