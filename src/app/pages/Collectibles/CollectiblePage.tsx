@@ -1,29 +1,35 @@
 import React, { FC, useCallback, useMemo } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
+import { useDispatch } from 'react-redux';
 
 import { FormSubmitButton, FormSecondaryButton } from 'app/atoms';
 import Money from 'app/atoms/Money';
 import Spinner from 'app/atoms/Spinner/Spinner';
 import PageLayout from 'app/layouts/PageLayout';
+import { loadCollectiblesDetailsActions } from 'app/store/collectibles/actions';
 import {
   useAllCollectiblesDetailsLoadingSelector,
   useCollectibleDetailsSelector
 } from 'app/store/collectibles/selectors';
 import AddressChip from 'app/templates/AddressChip';
 import { objktCurrencies } from 'lib/apis/objkt';
+import { BLOCK_DURATION } from 'lib/fixed-times';
 import { T } from 'lib/i18n';
 import { useAssetMetadata, getAssetName } from 'lib/metadata';
 import { useAccount } from 'lib/temple/front';
 import { formatTcInfraImgUri } from 'lib/temple/front/image-uri';
 import { atomsToTokens } from 'lib/temple/helpers';
 import { TempleAccountType } from 'lib/temple/types';
+import { useInterval } from 'lib/ui/hooks';
 import { Image } from 'lib/ui/Image';
 import { navigate } from 'lib/woozie';
 
 import { CollectibleImage } from './CollectibleImage';
 import { CollectiblesSelectors } from './selectors';
 import { useCollectibleSelling } from './use-collectible-selling.hook';
+
+const DETAILS_SYNC_INTERVAL = 4 * BLOCK_DURATION;
 
 interface Props {
   assetSlug: string;
@@ -55,6 +61,12 @@ const CollectiblePage: FC<Props> = ({ assetSlug }) => {
   const { isSelling, initiateSelling: onSellButtonClick } = useCollectibleSelling(assetSlug, details);
 
   const onSendButtonClick = useCallback(() => navigate(`/send/${assetSlug}`), [assetSlug]);
+
+  const dispatch = useDispatch();
+  useInterval(() => void dispatch(loadCollectiblesDetailsActions.submit([assetSlug])), DETAILS_SYNC_INTERVAL, [
+    dispatch,
+    assetSlug
+  ]);
 
   const offer = useMemo(() => {
     const highestOffer = details?.highestOffer;
