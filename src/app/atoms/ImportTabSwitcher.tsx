@@ -27,10 +27,13 @@ const ImportTabSwitcher: React.FC<ImportTabSwitcherProps> = ({ className, tabs, 
           <Link key={slug} to={`${urlPrefix}/${slug}`} replace>
             <div
               className={classNames(
-                'text-center cursor-pointer pb-1 pt-2 px-4 border-b-2',
-                'text-gray-500 truncate',
+                'text-center cursor-pointer pb-1 pt-2 px-4',
+                'text-gray-500',
+                'border-b-2',
+                active ? 'border-primary-orange' : 'border-transparent',
+                active ? 'text-primary-orange' : 'hover:text-primary-orange',
                 'transition ease-in-out duration-300',
-                active ? 'border-primary-orange text-primary-orange' : 'border-transparent hover:text-primary-orange'
+                'truncate'
               )}
             >
               <T id={i18nKey} />

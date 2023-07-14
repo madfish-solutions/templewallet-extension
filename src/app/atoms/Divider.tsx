@@ -1,7 +1,5 @@
 import React, { FC } from 'react';
 
-import clsx from 'clsx';
-
 interface DividerProps {
   style?: React.CSSProperties;
   className?: string;
@@ -10,10 +8,12 @@ interface DividerProps {
 const Divider: FC<DividerProps> = ({ style, className }) => (
   <div
     style={{
+      width: '100%',
       height: '1px',
+      backgroundColor: '#E2E8F0',
       ...style
     }}
-    className={clsx('w-full bg-gray-300', className)}
+    className={className}
   />
 );
 

@@ -5,7 +5,7 @@ import classNames from 'clsx';
 import styles from './Spinner.module.css';
 
 type SpinnerProps = HTMLAttributes<HTMLDivElement> & {
-  theme?: 'primary' | 'white' | 'gray' | 'dark-gray';
+  theme?: 'primary' | 'white' | 'gray';
 };
 
 const Spinner = memo<SpinnerProps>(({ theme = 'primary', className, ...rest }) => (
@@ -23,9 +23,6 @@ const Spinner = memo<SpinnerProps>(({ theme = 'primary', className, ...rest }) =
 
               case 'white':
                 return 'bg-white shadow-sm';
-
-              case 'dark-gray':
-                return 'bg-gray-600';
 
               case 'gray':
               default:

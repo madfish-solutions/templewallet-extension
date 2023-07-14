@@ -76,23 +76,19 @@ export function toLocalFixed(value: BigNumber.Value, decimalPlaces?: number, rou
 
 export function toShortened(value: BigNumber.Value) {
   let bn = new BigNumber(value);
-  const target = bn.abs().decimalPlaces(2);
-
-  if (target.lt(0.01)) return toLocalFixed(bn.toPrecision(2));
-
-  if (target.lt(10_000)) return toLocalFixed(bn, 2);
-
+  if (bn.abs().lt(1)) {
+    return toLocalFixed(bn.toPrecision(1));
+  }
   bn = bn.integerValue();
-
   const formats: TID[] = ['thousandFormat', 'millionFormat', 'billionFormat'];
-
   let formatIndex = -1;
   while (bn.abs().gte(1000) && formatIndex < formats.length - 1) {
     formatIndex++;
     bn = bn.div(1000);
   }
-
-  if (formatIndex === -1) return toLocalFixed(bn, 2);
-
-  return t(formats[formatIndex], toLocalFixed(bn, 0));
+  bn = bn.decimalPlaces(1, BigNumber.ROUND_FLOOR);
+  if (formatIndex === -1) {
+    return toLocalFixed(bn);
+  }
+  return t(formats[formatIndex], toLocalFixed(bn));
 }
