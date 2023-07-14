@@ -1,7 +1,6 @@
-import React, { FC, useMemo, useCallback, useState } from 'react';
+import React, { FC, useCallback, useMemo } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
-import BigNumber from 'bignumber.js';
 
 import { FormSubmitButton, FormSecondaryButton } from 'app/atoms';
 import Money from 'app/atoms/Money';
@@ -12,23 +11,19 @@ import {
   useCollectibleDetailsSelector
 } from 'app/store/collectibles/selectors';
 import AddressChip from 'app/templates/AddressChip';
-import { getObjktMarketplaceContract, objktCurrencies } from 'lib/apis/objkt';
-import { fromFa2TokenSlug } from 'lib/assets/utils';
+import { objktCurrencies } from 'lib/apis/objkt';
 import { T } from 'lib/i18n';
 import { useAssetMetadata, getAssetName } from 'lib/metadata';
-import { useAccount, useTezos } from 'lib/temple/front';
+import { useAccount } from 'lib/temple/front';
 import { formatTcInfraImgUri } from 'lib/temple/front/image-uri';
 import { atomsToTokens } from 'lib/temple/helpers';
 import { TempleAccountType } from 'lib/temple/types';
 import { Image } from 'lib/ui/Image';
-import { getTransferPermissions } from 'lib/utils/get-transfer-permissions';
-import { parseTransferParamsToParamsWithKind } from 'lib/utils/parse-transfer-params';
 import { navigate } from 'lib/woozie';
 
 import { CollectibleImage } from './CollectibleImage';
 import { CollectiblesSelectors } from './selectors';
-
-const DEFAULT_OBJKT_STORAGE_LIMIT = 350;
+import { useCollectibleSelling } from './use-collectible-selling.hook';
 
 interface Props {
   assetSlug: string;
@@ -41,7 +36,7 @@ const CollectiblePage: FC<Props> = ({ assetSlug }) => {
   const { publicKeyHash } = account;
   const accountCanSign = account.type !== TempleAccountType.WatchOnly;
 
-  const isInfoLoading = useAllCollectiblesDetailsLoadingSelector();
+  const areDetailsLoading = useAllCollectiblesDetailsLoadingSelector();
   const details = useCollectibleDetailsSelector(assetSlug);
 
   const collectibleName = getAssetName(metadata);
@@ -57,6 +52,10 @@ const CollectiblePage: FC<Props> = ({ assetSlug }) => {
 
   const creators = details?.creators ?? [];
 
+  const { isSelling, initiateSelling: onSellButtonClick } = useCollectibleSelling(assetSlug, details);
+
+  const onSendButtonClick = useCallback(() => navigate(`/send/${assetSlug}`), [assetSlug]);
+
   const offer = useMemo(() => {
     const highestOffer = details?.highestOffer;
     if (!isDefined(highestOffer)) return null;
@@ -68,56 +67,6 @@ const CollectiblePage: FC<Props> = ({ assetSlug }) => {
 
     return { price, symbol: currency.symbol, buyerIsMe: highestOffer.buyer_address === publicKeyHash };
   }, [details, publicKeyHash]);
-
-  const tezos = useTezos();
-  const [isSelling, setIsSelling] = useState(false);
-
-  const onSellButtonClick = useCallback(async () => {
-    const offer = details?.highestOffer;
-    if (!offer || isSelling) return;
-    setIsSelling(true);
-
-    const { contract: tokenAddress, id } = fromFa2TokenSlug(assetSlug);
-    const tokenId = Number(id.toString());
-
-    const contract = await getObjktMarketplaceContract(tezos, offer.marketplace_contract);
-
-    const transferParams = (() => {
-      if ('fulfill_offer' in contract.methods) {
-        return contract.methods.fulfill_offer(offer.bigmap_key, tokenId).toTransferParams();
-      } else {
-        return contract.methods.offer_accept(offer.bigmap_key).toTransferParams();
-      }
-    })();
-
-    const tokenToSpend = {
-      standard: 'fa2' as const,
-      contract: tokenAddress,
-      tokenId
-    };
-
-    const { approve, revoke } = await getTransferPermissions(
-      tezos,
-      offer.marketplace_contract,
-      publicKeyHash,
-      tokenToSpend,
-      new BigNumber('0')
-    );
-
-    const operationParams = approve
-      .concat(transferParams)
-      .concat(revoke)
-      .map(params => parseTransferParamsToParamsWithKind({ ...params, storageLimit: DEFAULT_OBJKT_STORAGE_LIMIT }));
-
-    await tezos.wallet
-      .batch(operationParams)
-      .send()
-      .catch(error => {
-        console.error('Operation send error:', error);
-      });
-
-    setIsSelling(false);
-  }, [tezos, isSelling, details, assetSlug, publicKeyHash]);
 
   const sellButtonTooltipStr = useMemo(() => {
     if (!offer) return;
@@ -131,17 +80,17 @@ const CollectiblePage: FC<Props> = ({ assetSlug }) => {
   return (
     <PageLayout pageTitle={collectibleName}>
       <div className="flex flex-col gap-y-3 max-w-sm w-full mx-auto pt-2 pb-4">
-        {isInfoLoading && !isDefined(details) ? (
+        <div
+          className="rounded-lg mb-2 border border-gray-300 bg-blue-50 overflow-hidden"
+          style={{ aspectRatio: '1/1' }}
+        >
+          <CollectibleImage assetSlug={assetSlug} metadata={metadata} large className="h-full w-full" />
+        </div>
+
+        {areDetailsLoading && !details ? (
           <Spinner className="self-center w-20" />
         ) : (
           <>
-            <div
-              className="rounded-lg mb-2 border border-gray-300 bg-blue-50 overflow-hidden"
-              style={{ aspectRatio: '1/1' }}
-            >
-              <CollectibleImage assetSlug={assetSlug} metadata={metadata} large className="h-full w-full" />
-            </div>
-
             <div className="flex justify-between items-center">
               <div className="flex items-center justify-center rounded">
                 <Image src={collection?.logo} className="w-6 h-6 rounded border border-gray-300" />
@@ -191,7 +140,7 @@ const CollectiblePage: FC<Props> = ({ assetSlug }) => {
 
               <FormSubmitButton
                 disabled={isSelling}
-                onClick={() => navigate(`/send/${assetSlug}`)}
+                onClick={onSendButtonClick}
                 testID={CollectiblesSelectors.sendButton}
               >
                 <T id="send" />

@@ -42,7 +42,7 @@ export const FormSecondaryButton: FC<FormSecondaryButtonProps> = ({
     <Button type={type} className={classNameMemo} disabled={disabled} {...rest}>
       {loading ? keepChildrenWhenLoading && children : children}
 
-      {loading && <Spinner theme="primary" style={{ width: small ? '2rem' : '3rem' }} />}
+      {loading && <Spinner theme="primary" className={small ? 'w-8' : 'w-12'} />}
     </Button>
   );
 };

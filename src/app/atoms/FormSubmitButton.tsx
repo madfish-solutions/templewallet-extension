@@ -40,7 +40,7 @@ export const FormSubmitButton: FC<FormSubmitButtonProps> = ({
 
   return (
     <Button className={classNameMemo} disabled={disabled} {...rest} {...otherProps}>
-      {loading && <Spinner theme="white" style={{ width: small ? '2rem' : '3rem' }} />}
+      {loading && <Spinner theme="white" className={small ? 'w-8' : 'w-12'} />}
 
       {loading ? keepChildrenWhenLoading && children : children}
     </Button>
