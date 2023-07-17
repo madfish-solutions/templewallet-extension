@@ -17,31 +17,36 @@ import { TempleProvider } from 'lib/temple/front';
 import { DialogsProvider } from 'lib/ui/dialog';
 import * as Woozie from 'lib/woozie';
 
+import { usePushNotifications } from './hooks/use-push-notifications';
 import { StoreProvider } from './store/provider';
 
 interface Props extends React.PropsWithChildren {
   env: ComponentProps<typeof AppEnvProvider>;
 }
 
-export const App: FC<Props> = ({ env }) => (
-  <ErrorBoundary whileMessage="booting a wallet" className="min-h-screen">
-    <DialogsProvider>
-      <Suspense fallback={<RootSuspenseFallback />}>
-        <AppProvider env={env}>
-          <Dialogs />
+export const App: FC<Props> = ({ env }) => {
+  usePushNotifications();
 
-          <DisableOutlinesForClick />
+  return (
+    <ErrorBoundary whileMessage="booting a wallet" className="min-h-screen">
+      <DialogsProvider>
+        <Suspense fallback={<RootSuspenseFallback />}>
+          <AppProvider env={env}>
+            <Dialogs />
 
-          <AwaitI18N />
+            <DisableOutlinesForClick />
 
-          <AwaitFonts name="Inter" weights={[300, 400, 500, 600]} className="antialiased font-inter">
-            <BootAnimation>{env.confirmWindow ? <ConfirmPage /> : <PageRouter />}</BootAnimation>
-          </AwaitFonts>
-        </AppProvider>
-      </Suspense>
-    </DialogsProvider>
-  </ErrorBoundary>
-);
+            <AwaitI18N />
+
+            <AwaitFonts name="Inter" weights={[300, 400, 500, 600]} className="antialiased font-inter">
+              <BootAnimation>{env.confirmWindow ? <ConfirmPage /> : <PageRouter />}</BootAnimation>
+            </AwaitFonts>
+          </AppProvider>
+        </Suspense>
+      </DialogsProvider>
+    </ErrorBoundary>
+  );
+};
 
 const AppProvider: FC<Props> = ({ children, env }) => (
   <AppEnvProvider {...env}>
