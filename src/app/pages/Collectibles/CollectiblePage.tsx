@@ -69,7 +69,7 @@ const CollectiblePage: FC<Props> = ({ assetSlug }) => {
   ]);
 
   const offer = useMemo(() => {
-    const highestOffer = details?.highestOffer;
+    const highestOffer = details?.offers.find(({ buyer_address }) => buyer_address !== publicKeyHash);
     if (!isDefined(highestOffer)) return null;
 
     const currency = objktCurrencies[highestOffer.currency_id];
@@ -77,20 +77,22 @@ const CollectiblePage: FC<Props> = ({ assetSlug }) => {
 
     const price = atomsToTokens(highestOffer.price, currency.decimals);
 
-    return { price, symbol: currency.symbol, buyerIsMe: highestOffer.buyer_address === publicKeyHash };
+    return { price, symbol: currency.symbol };
   }, [details, publicKeyHash]);
 
   const sellButtonTooltipStr = useMemo(() => {
-    if (!offer) return;
+    if (!offer) {
+      return details?.offers.length ? 'Cannot sell to yourself' : undefined;
+    }
+
     let value = offer.price.toString();
-    if (offer.buyerIsMe) value += ' [Cannot sell to yourself]';
-    else if (!accountCanSign) value += " [Won't be able to sign transaction]";
+    if (!accountCanSign) value += " [Won't be able to sign transaction]";
 
     return value;
-  }, [offer, accountCanSign]);
+  }, [details, offer, accountCanSign]);
 
   return (
-    <PageLayout pageTitle={collectibleName}>
+    <PageLayout pageTitle={<span className="truncate">{collectibleName}</span>}>
       <div className="flex flex-col gap-y-3 max-w-sm w-full mx-auto pt-2 pb-4">
         <div
           className="rounded-lg mb-2 border border-gray-300 bg-blue-50 overflow-hidden"
@@ -130,7 +132,7 @@ const CollectiblePage: FC<Props> = ({ assetSlug }) => {
 
             <div className="flex flex-col p-4 gap-y-2 rounded-lg border border-gray-300">
               <FormSecondaryButton
-                disabled={!offer || offer.buyerIsMe || isSelling || !accountCanSign}
+                disabled={!offer || isSelling || !accountCanSign}
                 title={sellButtonTooltipStr}
                 onClick={onSellButtonClick}
                 testID={CollectiblesSelectors.sellButton}

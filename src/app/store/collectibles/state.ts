@@ -5,7 +5,7 @@ export interface CollectibleDetails extends Pick<UserObjktCollectible, 'fa' | 'd
   /** Cheepest listing */
   listing: null | CollectibleDetailsListing;
   /** Highest offer */
-  highestOffer?: UserObjktCollectible['offers_active'][number];
+  offers: UserObjktCollectible['offers_active'];
   creators: CollectibleDetailsCreator[];
   galleries: CollectibleDetailsGallery[];
 }
