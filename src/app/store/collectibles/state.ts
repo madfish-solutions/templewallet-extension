@@ -17,7 +17,7 @@ export interface CollectibleDetails extends Pick<UserObjktCollectible, 'fa' | 'd
   galleries: CollectibleDetailsGallery[];
   /** Percents */
   royalties?: number;
-  attributes: UserObjktCollectible['attributes'][number]['attribute'][];
+  attributes: CollectibleDetailsAttribute[];
 }
 
 interface CollectibleDetailsListing {
@@ -34,6 +34,11 @@ interface CollectibleDetailsCreator {
 interface CollectibleDetailsGallery {
   title: string;
 }
+
+type CollectibleDetailsAttribute = UserObjktCollectible['attributes'][number]['attribute'] & {
+  /** Percent */
+  rarity: number;
+};
 
 export type CollectibleDetailsRecord = Record<string, CollectibleDetails>;
 

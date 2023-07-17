@@ -2,6 +2,7 @@ import { ContractAbstraction, ContractProvider, ContractMethod } from '@taquito/
 
 export interface GetUserObjktCollectiblesResponse {
   token: UserObjktCollectible[];
+  gallery_attribute_count: ObjktGalleryAttributeCount[];
 }
 
 interface ObjktListing {
@@ -29,10 +30,12 @@ export interface UserObjktCollectible {
   fa: {
     name: string;
     logo: string;
+    editions: number;
   };
   galleries: {
     gallery: {
       name: string;
+      editions: number;
     };
   }[];
   offers_active: {
@@ -51,7 +54,9 @@ export interface UserObjktCollectible {
       id: number;
       name: string;
       value: string;
-      rarity?: number;
+      attribute_counts: {
+        editions: number;
+      }[];
     };
   }[];
   supply: number;
@@ -60,6 +65,11 @@ export interface UserObjktCollectible {
     amount: number;
   }[];
   __typename: 'token';
+}
+
+export interface ObjktGalleryAttributeCount {
+  attribute_id: number;
+  editions: number;
 }
 
 export interface ObjktContractInterface extends ContractAbstraction<ContractProvider> {
