@@ -993,7 +993,7 @@
   },
   "enableAds": { "message": "Enable Ads" },
   "payMeForEveryAdISee": { "message": "Pay me for every ad I see" },
-  "noThanksIhateFreeMoney": { "message": "No thanks, I hate free money" },
+  "noThanksIhateFreeMoney": { "message": "No thanks" },
   "acceptAdsBannerTitle_A": {
     "message": "Get paid to discover exciting services and dApps!"
   },

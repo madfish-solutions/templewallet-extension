@@ -62,7 +62,7 @@ const AcceptAdsBannerForTestGroupA: FC<Props> = ({ onEnableButtonClick, onDisabl
     () => ({
       title: 'noThanksIhateFreeMoney',
       testID: AssetsSelectors.acceptAdsBannerDisableButton,
-      testIDProperties: { buttonText: 'No thanks, I hate free money' },
+      testIDProperties: { buttonText: 'No thanks' },
       onClick: onDisableButtonClick
     }),
     [onDisableButtonClick]
