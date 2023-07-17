@@ -60,7 +60,7 @@ const AcceptAdsBannerForTestGroupA: FC<Props> = ({ onEnableButtonClick, onDisabl
 
   const disableButton: BannerButtonProps = useMemo(
     () => ({
-      title: 'noThanksIhateFreeMoney',
+      title: 'noThanks',
       testID: AssetsSelectors.acceptAdsBannerDisableButton,
       testIDProperties: { buttonText: 'No thanks' },
       onClick: onDisableButtonClick
