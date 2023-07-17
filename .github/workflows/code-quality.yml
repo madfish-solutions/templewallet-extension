@@ -57,6 +57,8 @@ jobs:
           TEMPLE_WALLET_MOONPAY_API_KEY: ${{ secrets.TEMPLE_WALLET_MOONPAY_API_KEY }}
           WATCH_ONLY_PUBLIC_KEY_HASH: ${{ secrets.WATCH_ONLY_PUBLIC_KEY_HASH }}
           WATCH_ONLY_PUBLIC_KEY_HASH_SHORT_FORM: ${{ secrets.WATCH_ONLY_PUBLIC_KEY_HASH_SHORT_FORM }}
+          TEMPLE_FIREBASE_CONFIG: ${{ secrets.TEMPLE_FIREBASE_CONFIG }}
+          TEMPLE_FIREBASE_MESSAGING_VAPID_KEY: ${{ secrets.TEMPLE_FIREBASE_MESSAGING_VAPID_KEY }}
 
       - name: Install dependencies and code quality check
         uses: ./.github/workflows/code-quality-check
