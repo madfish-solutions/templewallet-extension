@@ -10,6 +10,8 @@ export const buildGetCollectiblesQuery = () => gql`
         price
       }
       description
+      timestamp
+      metadata
       creators {
         holder {
           address
@@ -34,6 +36,18 @@ export const buildGetCollectiblesQuery = () => gql`
         marketplace_contract
         fa_contract
         currency_id
+      }
+      attributes {
+        attribute {
+          id
+          name
+          value
+        }
+      }
+      supply
+      royalties {
+        decimals
+        amount
       }
     }
   }

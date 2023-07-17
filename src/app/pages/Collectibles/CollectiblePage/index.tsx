@@ -6,6 +6,7 @@ import { useDispatch } from 'react-redux';
 import { FormSubmitButton, FormSecondaryButton } from 'app/atoms';
 import Money from 'app/atoms/Money';
 import Spinner from 'app/atoms/Spinner/Spinner';
+import { useTabSlug } from 'app/atoms/useTabSlug';
 import PageLayout from 'app/layouts/PageLayout';
 import { loadCollectiblesDetailsActions } from 'app/store/collectibles/actions';
 import {
@@ -13,6 +14,7 @@ import {
   useCollectibleDetailsSelector
 } from 'app/store/collectibles/selectors';
 import AddressChip from 'app/templates/AddressChip';
+import { TabsBar } from 'app/templates/TabBar';
 import { objktCurrencies } from 'lib/apis/objkt';
 import { BLOCK_DURATION } from 'lib/fixed-times';
 import { T } from 'lib/i18n';
@@ -25,9 +27,10 @@ import { useInterval } from 'lib/ui/hooks';
 import { Image } from 'lib/ui/Image';
 import { navigate } from 'lib/woozie';
 
-import { CollectibleImage } from './CollectibleImage';
-import { CollectiblesSelectors } from './selectors';
-import { useCollectibleSelling } from './use-collectible-selling.hook';
+import { CollectibleImage } from '../CollectibleImage';
+import { CollectiblesSelectors } from '../selectors';
+import { useCollectibleSelling } from '../use-collectible-selling.hook';
+import { AttributesItems, PropertiesItems } from './TabsGridContent';
 
 const DETAILS_SYNC_INTERVAL = 4 * BLOCK_DURATION;
 
@@ -89,6 +92,22 @@ const CollectiblePage: FC<Props> = ({ assetSlug }) => {
     return value;
   }, [offer, accountCanSign]);
 
+  const tabNameInUrl = useTabSlug();
+
+  const tabs = useMemo(() => {
+    const propertiesTab = { name: 'properties', titleI18nKey: 'properties' } as const;
+
+    if (!details?.attributes.length) return [propertiesTab];
+
+    return [{ name: 'attributes', titleI18nKey: 'attributes' } as const, propertiesTab];
+  }, [details]);
+
+  const { name: activeTabName } = useMemo(() => {
+    const tab = tabNameInUrl ? tabs.find(({ name }) => name === tabNameInUrl) : null;
+
+    return tab ?? tabs[0]!;
+  }, [tabs, tabNameInUrl]);
+
   return (
     <PageLayout pageTitle={collectibleName}>
       <div className="flex flex-col gap-y-3 max-w-sm w-full mx-auto pt-2 pb-4">
@@ -128,7 +147,7 @@ const CollectiblePage: FC<Props> = ({ assetSlug }) => {
               </div>
             )}
 
-            <div className="flex flex-col p-4 gap-y-2 rounded-lg border border-gray-300">
+            <div className="flex flex-col p-4 gap-y-2 mt-1 mb-3 rounded-lg border border-gray-300">
               <FormSecondaryButton
                 disabled={!offer || offer.buyerIsMe || isSelling || !accountCanSign}
                 title={sellButtonTooltipStr}
@@ -157,6 +176,16 @@ const CollectiblePage: FC<Props> = ({ assetSlug }) => {
               >
                 <T id="send" />
               </FormSubmitButton>
+            </div>
+
+            <TabsBar tabs={tabs} activeTabName={activeTabName} withOutline />
+
+            <div className="grid grid-cols-2 gap-2 text-gray-910">
+              {activeTabName === 'attributes' ? (
+                <AttributesItems details={details} />
+              ) : (
+                <PropertiesItems assetSlug={assetSlug} accountPkh={account.publicKeyHash} details={details} />
+              )}
             </div>
           </>
         )}

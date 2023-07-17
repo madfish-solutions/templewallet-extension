@@ -28,9 +28,10 @@ const loadCollectiblesDetailsEpic: Epic = (action$: Observable<Action>) =>
 
           return loadCollectiblesDetailsActions.success(details);
         }),
-        catchError((error: unknown) =>
-          of(loadCollectiblesDetailsActions.fail(error instanceof Error ? error.message : 'Unknown error'))
-        )
+        catchError((error: unknown) => {
+          console.error(error);
+          return of(loadCollectiblesDetailsActions.fail(error instanceof Error ? error.message : 'Unknown error'));
+        })
       )
     )
   );

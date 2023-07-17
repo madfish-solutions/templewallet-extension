@@ -3079,5 +3079,7 @@
   },
   "keepLatestNews": {
     "message": "Keep up with the latest news from Madfish"
-  }
+  },
+  "attributes": { "message": "Attributes" },
+  "properties": { "message": "Properties" }
 }

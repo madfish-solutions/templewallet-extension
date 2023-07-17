@@ -10,10 +10,16 @@ interface ObjktListing {
 }
 
 export interface UserObjktCollectible {
+  /** Contract address */
   fa_contract: string;
   token_id: string;
   listings_active: ObjktListing[];
   description: string | null;
+  /** Minted on date.
+   * ISO String (e.g. `2023-05-30T09:40:33+00:00`)
+   */
+  timestamp: string;
+  metadata: string | null;
   creators: {
     holder: {
       address: string;
@@ -39,6 +45,19 @@ export interface UserObjktCollectible {
     fa_contract: string;
     currency_id: number;
     __typename: 'offer_active';
+  }[];
+  attributes: {
+    attribute: {
+      id: number;
+      name: string;
+      value: string;
+      rarity?: number;
+    };
+  }[];
+  supply: number;
+  royalties: {
+    decimals: number;
+    amount: number;
   }[];
   __typename: 'token';
 }
