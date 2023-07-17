@@ -13,7 +13,7 @@ import { atomsToTokens } from 'lib/temple/helpers';
 import { useIntersectionDetection } from 'lib/ui/use-intersection-detection';
 import { Link } from 'lib/woozie';
 
-import { CollectibleItemImage } from './CollectibleItemImage';
+import { CollectibleImage } from './CollectibleImage';
 
 interface Props {
   assetSlug: string;
@@ -30,7 +30,7 @@ export const CollectibleItem: FC<Props> = ({ assetSlug, accountPkh, areDetailsSh
   const details = useCollectibleDetailsSelector(assetSlug);
 
   const listing = useMemo(() => {
-    if (!isDefined(details)) return null;
+    if (!details?.listing) return null;
 
     const { floorPrice, currencyId } = details.listing;
     const currency = objktCurrencies[currencyId];
@@ -59,7 +59,7 @@ export const CollectibleItem: FC<Props> = ({ assetSlug, accountPkh, areDetailsSh
         )}
         title={assetName}
       >
-        {displayed && <CollectibleItemImage metadata={metadata} assetSlug={assetSlug} />}
+        {displayed && <CollectibleImage metadata={metadata} assetSlug={assetSlug} />}
 
         {areDetailsShown && balance ? (
           <div className="absolute bottom-1.5 left-1.5 text-2xs text-white leading-none p-1 bg-black bg-opacity-60 rounded">

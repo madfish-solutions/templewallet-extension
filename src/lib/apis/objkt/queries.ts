@@ -9,6 +9,22 @@ export const buildGetCollectiblesQuery = () => gql`
         currency_id
         price
       }
+      description
+      creators {
+        holder {
+          address
+          tzdomain
+        }
+      }
+      fa {
+        name
+        logo
+      }
+      galleries {
+        gallery {
+          name
+        }
+      }
     }
   }
 `;

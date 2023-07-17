@@ -9,6 +9,7 @@ import Money from 'app/atoms/Money';
 import { toggleBalanceModeAction } from 'app/store/settings/actions';
 import { useBalanceModeSelector } from 'app/store/settings/selectors';
 import { BalanceMode } from 'app/store/settings/state';
+import AddressChip from 'app/templates/AddressChip';
 import { AssetIcon } from 'app/templates/AssetIcon';
 import Balance from 'app/templates/Balance';
 import InFiat from 'app/templates/InFiat';
@@ -21,7 +22,6 @@ import { useTotalBalance } from 'lib/temple/front/use-total-balance.hook';
 import useTippy from 'lib/ui/useTippy';
 
 import { HomeSelectors } from '../Home.selectors';
-import AddressChip from './AddressChip';
 
 interface Props {
   assetSlug?: string | null;
@@ -166,7 +166,7 @@ const AssetBanner: FC<AssetBannerProps> = ({ assetSlug, accountPkh }) => {
           <AssetIcon assetSlug={assetSlug} size={24} className="flex-shrink-0" />
           <div className="text-sm font-normal text-gray-700 truncate flex-1 ml-2">{getAssetName(assetMetadata)}</div>
         </div>
-        <AddressChip pkh={accountPkh} />
+        <AddressChip pkh={accountPkh} modeSwitch={{ testID: HomeSelectors.addressModeSwitchButton }} />
       </div>
       <div className="flex items-center text-2xl">
         <Balance address={accountPkh} assetSlug={assetSlug}>

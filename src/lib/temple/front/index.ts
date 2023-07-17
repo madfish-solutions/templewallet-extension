@@ -1,4 +1,4 @@
-export { useStorage, fetchFromStorage, putToStorage } from './storage';
+export { useStorage } from './storage';
 
 export { useTempleClient, request, assertResponse } from './client';
 
