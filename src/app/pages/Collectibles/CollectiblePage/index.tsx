@@ -3,9 +3,7 @@ import React, { FC, useCallback, useMemo } from 'react';
 import { isDefined } from '@rnw-community/shared';
 import { useDispatch } from 'react-redux';
 
-import { FormSubmitButton, FormSecondaryButton } from 'app/atoms';
-import Money from 'app/atoms/Money';
-import Spinner from 'app/atoms/Spinner/Spinner';
+import { FormSubmitButton, FormSecondaryButton, Spinner, Money, Alert } from 'app/atoms';
 import { useTabSlug } from 'app/atoms/useTabSlug';
 import PageLayout from 'app/layouts/PageLayout';
 import { loadCollectiblesDetailsActions } from 'app/store/collectibles/actions';
@@ -14,10 +12,11 @@ import {
   useCollectibleDetailsSelector
 } from 'app/store/collectibles/selectors';
 import AddressChip from 'app/templates/AddressChip';
+import OperationStatus from 'app/templates/OperationStatus';
 import { TabsBar } from 'app/templates/TabBar';
 import { objktCurrencies } from 'lib/apis/objkt';
 import { BLOCK_DURATION } from 'lib/fixed-times';
-import { T } from 'lib/i18n';
+import { t, T } from 'lib/i18n';
 import { useAssetMetadata, getAssetName } from 'lib/metadata';
 import { useAccount } from 'lib/temple/front';
 import { formatTcInfraImgUri } from 'lib/temple/front/image-uri';
@@ -61,7 +60,17 @@ const CollectiblePage: FC<Props> = ({ assetSlug }) => {
 
   const creators = details?.creators ?? [];
 
-  const { isSelling, initiateSelling: onSellButtonClick } = useCollectibleSelling(assetSlug, details);
+  const takableOffer = useMemo(
+    () => details?.offers.find(({ buyer_address }) => buyer_address !== publicKeyHash),
+    [details, publicKeyHash]
+  );
+
+  const {
+    isSelling,
+    initiateSelling: onSellButtonClick,
+    operation,
+    operationError
+  } = useCollectibleSelling(assetSlug, takableOffer);
 
   const onSendButtonClick = useCallback(() => navigate(`/send/${assetSlug}`), [assetSlug]);
 
@@ -71,28 +80,31 @@ const CollectiblePage: FC<Props> = ({ assetSlug }) => {
     assetSlug
   ]);
 
-  const offer = useMemo(() => {
-    const highestOffer = details?.offers.find(({ buyer_address }) => buyer_address !== publicKeyHash);
+  const displayedOffer = useMemo(() => {
+    const highestOffer = details?.offers[0];
     if (!isDefined(highestOffer)) return null;
 
-    const currency = objktCurrencies[highestOffer.currency_id];
+    const offer = takableOffer ?? highestOffer;
+
+    const buyerIsMe = offer.buyer_address === publicKeyHash;
+
+    const currency = objktCurrencies[offer.currency_id];
     if (!isDefined(currency)) return null;
 
-    const price = atomsToTokens(highestOffer.price, currency.decimals);
+    const price = atomsToTokens(offer.price, currency.decimals);
 
-    return { price, symbol: currency.symbol };
-  }, [details, publicKeyHash]);
+    return { price, symbol: currency.symbol, buyerIsMe };
+  }, [details?.offers, takableOffer, publicKeyHash]);
 
   const sellButtonTooltipStr = useMemo(() => {
-    if (!offer) {
-      return details?.offers.length ? 'Cannot sell to yourself' : undefined;
-    }
+    if (!displayedOffer) return;
+    if (displayedOffer.buyerIsMe) return t('cannotSellToYourself');
 
-    let value = offer.price.toString();
-    if (!accountCanSign) value += " [Won't be able to sign transaction]";
+    let value = displayedOffer.price.toString();
+    if (!accountCanSign) value += ` [${t('selectedAccountCannotSignTx')}]`;
 
     return value;
-  }, [details, offer, accountCanSign]);
+  }, [displayedOffer, accountCanSign]);
 
   const tabNameInUrl = useTabSlug();
 
@@ -113,6 +125,17 @@ const CollectiblePage: FC<Props> = ({ assetSlug }) => {
   return (
     <PageLayout pageTitle={<span className="truncate">{collectibleName}</span>}>
       <div className="flex flex-col gap-y-3 max-w-sm w-full mx-auto pt-2 pb-4">
+        {operationError ? (
+          <Alert
+            type="error"
+            title={t('error')}
+            description={operationError instanceof Error ? operationError.message : `${t('unknownError')}`}
+            className="mb-4"
+          />
+        ) : (
+          operation && <OperationStatus typeTitle={t('transaction')} operation={operation} className="mb-4" />
+        )}
+
         <div
           className="rounded-lg mb-2 border border-gray-300 bg-blue-50 overflow-hidden"
           style={{ aspectRatio: '1/1' }}
@@ -151,20 +174,20 @@ const CollectiblePage: FC<Props> = ({ assetSlug }) => {
 
             <div className="flex flex-col p-4 gap-y-2 mt-1 mb-3 rounded-lg border border-gray-300">
               <FormSecondaryButton
-                disabled={!offer || isSelling || !accountCanSign}
+                disabled={!displayedOffer || displayedOffer.buyerIsMe || isSelling || !accountCanSign}
                 title={sellButtonTooltipStr}
                 onClick={onSellButtonClick}
                 testID={CollectiblesSelectors.sellButton}
               >
-                {offer ? (
+                {displayedOffer ? (
                   <div>
                     <span>
                       <T id="sellFor" />{' '}
                     </span>
                     <Money shortened smallFractionFont={false} tooltip={false}>
-                      {offer.price}
+                      {displayedOffer.price}
                     </Money>
-                    <span> {offer.symbol}</span>
+                    <span> {displayedOffer.symbol}</span>
                   </div>
                 ) : (
                   <T id="noOffersYet" />

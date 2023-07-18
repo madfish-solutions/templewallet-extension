@@ -1,8 +1,10 @@
 import { useCallback, useState } from 'react';
 
+import type { WalletOperation } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
 
 import type { CollectibleDetails } from 'app/store/collectibles/state';
+import { useFormAnalytics } from 'lib/analytics';
 import { getObjktMarketplaceContract } from 'lib/apis/objkt';
 import { fromFa2TokenSlug } from 'lib/assets/utils';
 import { useAccount, useTezos } from 'lib/temple/front';
@@ -11,28 +13,31 @@ import { parseTransferParamsToParamsWithKind } from 'lib/utils/parse-transfer-pa
 
 const DEFAULT_OBJKT_STORAGE_LIMIT = 350;
 
-export const useCollectibleSelling = (assetSlug: string, details?: CollectibleDetails) => {
+export const useCollectibleSelling = (assetSlug: string, offer?: CollectibleDetails['offers'][number]) => {
   const tezos = useTezos();
   const { publicKeyHash } = useAccount();
   const [isSelling, setIsSelling] = useState(false);
+  const [operation, setOperation] = useState<WalletOperation | nullish>();
+  const [operationError, setOperationError] = useState<unknown>();
+  const formAnalytics = useFormAnalytics('Collectible Page/Sell By Best Offer Form');
 
   const initiateSelling = useCallback(async () => {
-    const offer = details?.highestOffer;
     if (!offer || isSelling) return;
     setIsSelling(true);
+    setOperation(null);
+    setOperationError(null);
+
+    formAnalytics.trackSubmit({ assetSlug });
 
     const { contract: tokenAddress, id } = fromFa2TokenSlug(assetSlug);
     const tokenId = Number(id.toString());
 
     const contract = await getObjktMarketplaceContract(tezos, offer.marketplace_contract);
 
-    const transferParams = (() => {
-      if ('fulfill_offer' in contract.methods) {
-        return contract.methods.fulfill_offer(offer.bigmap_key, tokenId).toTransferParams();
-      } else {
-        return contract.methods.offer_accept(offer.bigmap_key).toTransferParams();
-      }
-    })();
+    const transferParams =
+      'fulfill_offer' in contract.methods
+        ? contract.methods.fulfill_offer(offer.bigmap_key, tokenId).toTransferParams()
+        : contract.methods.offer_accept(offer.bigmap_key).toTransferParams();
 
     const tokenToSpend = {
       standard: 'fa2' as const,
@@ -56,12 +61,25 @@ export const useCollectibleSelling = (assetSlug: string, details?: CollectibleDe
     await tezos.wallet
       .batch(operationParams)
       .send()
-      .catch(error => {
-        console.error('Operation send error:', error);
-      });
+      .then(
+        operation => {
+          setOperation(operation);
 
-    setIsSelling(false);
-  }, [tezos, isSelling, details, assetSlug, publicKeyHash]);
+          formAnalytics.trackSubmitSuccess({ assetSlug });
+        },
+        error => {
+          setOperation(null);
 
-  return { isSelling, initiateSelling };
+          if (error.message === 'Declined') return;
+          console.error(error);
+
+          setOperationError(error);
+
+          formAnalytics.trackSubmitFail({ assetSlug });
+        }
+      )
+      .finally(() => void setIsSelling(false));
+  }, [tezos, isSelling, offer, assetSlug, publicKeyHash, setOperation, setOperationError, formAnalytics]);
+
+  return { isSelling, initiateSelling, operation, operationError };
 };

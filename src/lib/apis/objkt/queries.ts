@@ -31,13 +31,10 @@ export const buildGetCollectiblesQuery = () => gql`
       }
       offers_active(distinct_on: price_xtz) {
         buyer_address
-        collection_offer
-        price_xtz
         price
+        currency_id
         bigmap_key
         marketplace_contract
-        fa_contract
-        currency_id
       }
       attributes {
         attribute {

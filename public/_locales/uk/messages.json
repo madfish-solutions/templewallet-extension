@@ -1858,5 +1858,8 @@
   },
   "showInfo": { "message": "Деталі" },
   "creator": { "message": "Автор:" },
-  "creators": { "message": "Автори:" }
+  "creators": { "message": "Автори:" },
+  "unknownError": {
+    "message": "Невідома помилка"
+  }
 }
