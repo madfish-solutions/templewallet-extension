@@ -47,6 +47,10 @@ inputs:
     required: false
   WATCH_ONLY_PUBLIC_KEY_HASH_SHORT_FORM:
     required: false
+  TEMPLE_FIREBASE_CONFIG:
+     required: true
+  TEMPLE_FIREBASE_MESSAGING_VAPID_KEY:
+    required: true
 
 runs:
   using: 'composite'
