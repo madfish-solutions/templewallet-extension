@@ -3,9 +3,7 @@ import React, { FC, useCallback, useMemo } from 'react';
 import { isDefined } from '@rnw-community/shared';
 import { useDispatch } from 'react-redux';
 
-import { FormSubmitButton, FormSecondaryButton } from 'app/atoms';
-import Money from 'app/atoms/Money';
-import Spinner from 'app/atoms/Spinner/Spinner';
+import { FormSubmitButton, FormSecondaryButton, Spinner, Money, Alert } from 'app/atoms';
 import PageLayout from 'app/layouts/PageLayout';
 import { loadCollectiblesDetailsActions } from 'app/store/collectibles/actions';
 import {
@@ -64,7 +62,12 @@ const CollectiblePage: FC<Props> = ({ assetSlug }) => {
     [details, publicKeyHash]
   );
 
-  const { isSelling, initiateSelling: onSellButtonClick, operation } = useCollectibleSelling(assetSlug, takableOffer);
+  const {
+    isSelling,
+    initiateSelling: onSellButtonClick,
+    operation,
+    operationError
+  } = useCollectibleSelling(assetSlug, takableOffer);
 
   const onSendButtonClick = useCallback(() => navigate(`/send/${assetSlug}`), [assetSlug]);
 
@@ -92,10 +95,10 @@ const CollectiblePage: FC<Props> = ({ assetSlug }) => {
 
   const sellButtonTooltipStr = useMemo(() => {
     if (!displayedOffer) return;
-    if (displayedOffer.buyerIsMe) return 'Cannot sell to yourself';
+    if (displayedOffer.buyerIsMe) return t('cannotSellToYourself');
 
     let value = displayedOffer.price.toString();
-    if (!accountCanSign) value += " [Won't be able to sign transaction]";
+    if (!accountCanSign) value += ` [${t('selectedAccountCannotSignTx')}]`;
 
     return value;
   }, [displayedOffer, accountCanSign]);
@@ -103,7 +106,16 @@ const CollectiblePage: FC<Props> = ({ assetSlug }) => {
   return (
     <PageLayout pageTitle={<span className="truncate">{collectibleName}</span>}>
       <div className="flex flex-col gap-y-3 max-w-sm w-full mx-auto pt-2 pb-4">
-        {operation && <OperationStatus typeTitle={t('transaction')} operation={operation} className="mb-4" />}
+        {operationError ? (
+          <Alert
+            type="error"
+            title={t('error')}
+            description={operationError instanceof Error ? operationError.message : `${t('unknownError')}`}
+            className="mb-4"
+          />
+        ) : (
+          operation && <OperationStatus typeTitle={t('transaction')} operation={operation} className="mb-4" />
+        )}
 
         <div
           className="rounded-lg mb-2 border border-gray-300 bg-blue-50 overflow-hidden"

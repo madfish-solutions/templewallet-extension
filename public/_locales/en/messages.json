@@ -3079,5 +3079,10 @@
   },
   "keepLatestNews": {
     "message": "Keep up with the latest news from Madfish"
-  }
+  },
+  "unknownError": {
+    "message": "Unknown error"
+  },
+  "cannotSellToYourself": { "message": "Cannot sell to yourself" },
+  "selectedAccountCannotSignTx": { "message": "Selected account cannot sign transactions" }
 }

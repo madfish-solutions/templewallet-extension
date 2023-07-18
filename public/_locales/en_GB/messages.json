@@ -1788,5 +1788,8 @@
   },
   "keepLatestNews": {
     "message": "Keep up with the latest news from Madfish"
+  },
+  "unknownError": {
+    "message": "Unknown error"
   }
 }
