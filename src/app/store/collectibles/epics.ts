@@ -3,18 +3,12 @@ import { catchError, map, Observable, of, switchMap } from 'rxjs';
 import { Action } from 'ts-action';
 import { ofType, toPayload } from 'ts-action-operators';
 
-import { Attribute, fetchObjktCollectibles$, Tag } from 'lib/apis/objkt';
-import { ADULT_CONTENT_TAGS } from 'lib/apis/objkt/adult-tags';
+import { fetchObjktCollectibles$ } from 'lib/apis/objkt';
 import { toTokenSlug } from 'lib/assets';
-import { isTruthy } from 'lib/utils';
 
 import { loadCollectiblesDetailsActions } from './actions';
 import { CollectibleDetailsRecord } from './state';
-
-const ADULT_ATTRIBUTE_NAME = '__nsfw_';
-const checkForAdultery = (attributes: Attribute[], tags: Tag[]) =>
-  attributes.some(({ attribute }) => attribute.name === ADULT_ATTRIBUTE_NAME) ||
-  tags.some(({ tag }) => ADULT_CONTENT_TAGS.includes(tag.name));
+import { conertCollectibleObjktInfoToStateDetailsType } from './utils';
 
 const loadCollectiblesDetailsEpic: Epic = (action$: Observable<Action>) =>
   action$.pipe(
@@ -23,25 +17,12 @@ const loadCollectiblesDetailsEpic: Epic = (action$: Observable<Action>) =>
     switchMap(slugs =>
       fetchObjktCollectibles$(slugs).pipe(
         map(data => {
-          const entries = data.token
-            .map(({ fa_contract, token_id, listings_active, tags, attributes }) => {
-              const cheepestListing = listings_active[0];
-              const listing = cheepestListing && {
-                floorPrice: cheepestListing.price,
-                currencyId: cheepestListing.currency_id
-              };
+          const entries = data.token.map(info => {
+            const slug = toTokenSlug(info.fa_contract, info.token_id);
+            const details = conertCollectibleObjktInfoToStateDetailsType(info);
 
-              const isAdultContent = checkForAdultery(attributes, tags);
-
-              return [
-                toTokenSlug(fa_contract, token_id),
-                {
-                  listing: listing ?? null,
-                  isAdultContent
-                }
-              ] as const;
-            })
-            .filter(isTruthy);
+            return [slug, details] as const;
+          });
 
           const details: CollectibleDetailsRecord = Object.fromEntries(entries);
 

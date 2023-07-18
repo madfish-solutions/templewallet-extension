@@ -5,8 +5,6 @@ import browser, { Storage } from 'webextension-polyfill';
 import { fetchFromStorage, putToStorage } from 'lib/storage';
 import { useRetryableSWR } from 'lib/swr';
 
-export { fetchFromStorage, putToStorage };
-
 export function useStorage<T = any>(key: string): [T | null | undefined, (val: SetStateAction<T>) => Promise<void>];
 export function useStorage<T = any>(key: string, fallback: T): [T, (val: SetStateAction<T>) => Promise<void>];
 export function useStorage<T = any>(key: string, fallback?: T) {

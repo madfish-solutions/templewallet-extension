@@ -3065,6 +3065,12 @@
   "creditCard": {
     "message": "credit card"
   },
+  "creator": {
+    "message": "Creator:"
+  },
+  "creators": {
+    "message": "Creators:"
+  },
   "subscribeToNewsletter": {
     "message": "Subscribe to our Newsletter"
   },

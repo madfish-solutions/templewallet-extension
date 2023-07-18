@@ -6,7 +6,7 @@ import { ReactComponent as RevealEyeSvg } from 'app/icons/reveal-eye.svg';
 import { AssetImage } from 'app/templates/AssetImage';
 import { AssetMetadataBase } from 'lib/metadata';
 
-import Blur from './bg.png';
+import Blur from './Blur.png';
 
 interface Props {
   assetSlug: string;
