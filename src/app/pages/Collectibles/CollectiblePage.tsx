@@ -1,4 +1,4 @@
-import React, { FC, useMemo, useState } from 'react';
+import React, { FC, useEffect, useMemo, useState } from 'react';
 
 import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
@@ -7,10 +7,10 @@ import { FormSubmitButton } from 'app/atoms';
 import CopyButton from 'app/atoms/CopyButton';
 import Divider from 'app/atoms/Divider';
 import HashShortView from 'app/atoms/HashShortView';
-import { RevealEye } from 'app/atoms/Reveal-Eye';
 import { ReactComponent as CopyIcon } from 'app/icons/copy.svg';
+import { ReactComponent as RevealEyeBigSvg } from 'app/icons/reveal-eye-big.svg';
 import PageLayout from 'app/layouts/PageLayout';
-import { useCollectibleDetailsSelector } from 'app/store/collectibles/selectors';
+import { useIsAdultCollectibleSelector } from 'app/store/collectibles/selectors';
 import { useTokenMetadataSelector } from 'app/store/tokens-metadata/selectors';
 import { AssetIcon } from 'app/templates/AssetIcon';
 import { fromFa2TokenSlug } from 'lib/assets/utils';
@@ -27,9 +27,11 @@ interface Props {
 }
 
 const CollectiblePage: FC<Props> = ({ assetSlug }) => {
-  const details = useCollectibleDetailsSelector(assetSlug);
+  const isAdultContent = useIsAdultCollectibleSelector(assetSlug);
 
-  const [isShowBlur, setIsShowBlur] = useState(details?.isAdultContent);
+  const [isShowBlur, setIsShowBlur] = useState(isAdultContent);
+
+  useEffect(() => setIsShowBlur(isAdultContent), [isAdultContent]);
 
   const [assetContract, assetId] = useMemo(
     () => [fromFa2TokenSlug(assetSlug).contract, new BigNumber(fromFa2TokenSlug(assetSlug).id)],
@@ -62,7 +64,7 @@ const CollectiblePage: FC<Props> = ({ assetSlug }) => {
                 <img className="h-full w-full" src={Blur} alt="Adult content" />
 
                 <div className="absolute z-10 flex flex-col justify-center items-center">
-                  <RevealEye className="mb-3" color="#1B262C" size={40} />
+                  <RevealEyeBigSvg className="mb-3" />
 
                   <span className="text-base text-gray-910 font-semibold">Click to reveal</span>
                 </div>

@@ -33,11 +33,7 @@ export const CollectibleItem: FC<Props> = ({ assetSlug, accountPkh, areDetailsSh
   const listing = useMemo(() => {
     if (!details?.listing) return null;
 
-    const floorPrice = details.listing?.currencyId;
-    const currencyId = details.listing?.currencyId;
-
-    if (!isDefined(floorPrice)) return null;
-    if (!isDefined(currencyId)) return null;
+    const { floorPrice, currencyId } = details.listing;
 
     const currency = objktCurrencies[currencyId];
 

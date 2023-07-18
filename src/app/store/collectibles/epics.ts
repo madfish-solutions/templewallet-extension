@@ -36,7 +36,7 @@ const loadCollectiblesDetailsEpic: Epic = (action$: Observable<Action>) =>
               return [
                 toTokenSlug(fa_contract, token_id),
                 {
-                  listing,
+                  listing: listing ?? null,
                   isAdultContent
                 }
               ] as const;

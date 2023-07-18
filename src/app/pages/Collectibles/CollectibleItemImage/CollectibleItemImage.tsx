@@ -1,8 +1,8 @@
 import React, { FC } from 'react';
 
-import { RevealEye } from 'app/atoms/Reveal-Eye';
 import Spinner from 'app/atoms/Spinner/Spinner';
 import { ReactComponent as BrokenImageSvg } from 'app/icons/broken-image.svg';
+import { ReactComponent as RevealEyeSvg } from 'app/icons/reveal-eye.svg';
 import { AssetImage } from 'app/templates/AssetImage';
 import { AssetMetadataBase } from 'lib/metadata';
 
@@ -19,7 +19,7 @@ export const CollectibleItemImage: FC<Props> = ({ metadata, assetSlug, isAdultCo
     return (
       <div className="relative flex justify-center items-center h-full w-full">
         <img src={Blur} alt="Adult content" className="h-full w-full" />
-        <RevealEye className="absolute z-10" color="#718096" size={32} />
+        <RevealEyeSvg className="absolute z-10" />
       </div>
     );
   }
