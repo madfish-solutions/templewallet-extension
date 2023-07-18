@@ -6,7 +6,7 @@ import { ReactComponent as RevealEyeSvg } from 'app/icons/reveal-eye.svg';
 import { AssetImage } from 'app/templates/AssetImage';
 import { AssetMetadataBase } from 'lib/metadata';
 
-import Blur from './Blur.png';
+import BlurImageSrc from './Blur.png';
 
 interface Props {
   assetSlug: string;
@@ -18,7 +18,7 @@ export const CollectibleItemImage: FC<Props> = ({ metadata, assetSlug, isAdultCo
   if (isAdultContent) {
     return (
       <div className="relative flex justify-center items-center h-full w-full">
-        <img src={Blur} alt="Adult content" className="h-full w-full" />
+        <img src={BlurImageSrc} alt="Adult content" className="h-full w-full" />
         <RevealEyeSvg className="absolute z-10" />
       </div>
     );

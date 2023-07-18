@@ -13,13 +13,13 @@ import {
 import { useTokenMetadataSelector } from 'app/store/tokens-metadata/selectors';
 import AddressChip from 'app/templates/AddressChip';
 import { T } from 'lib/i18n';
-import { useAssetMetadata, getAssetName } from 'lib/metadata';
+import { getAssetName } from 'lib/metadata';
 import { formatTcInfraImgUri } from 'lib/temple/front/image-uri';
 import { Image } from 'lib/ui/Image';
 import { navigate } from 'lib/woozie';
 
 import { CollectibleImage } from './CollectibleImage';
-import Blur from './CollectibleItemImage/Blur.png';
+import BlurImageSrc from './CollectibleItemImage/Blur.png';
 import { CollectiblesSelectors } from './selectors';
 
 interface Props {
@@ -36,14 +36,8 @@ const CollectiblePage: FC<Props> = ({ assetSlug }) => {
   const collectibleData = useTokenMetadataSelector(assetSlug);
 
   const collectibleName = getAssetName(collectibleData);
-  const metadata = useAssetMetadata(assetSlug);
 
   const isInfoLoading = useAllCollectiblesDetailsLoadingSelector();
-
-  useEffect(() => console.log('details?.isAdultContent: ', details?.isAdultContent), [details?.isAdultContent]);
-  useEffect(() => console.log('isInfoLoading: ', isInfoLoading), [isInfoLoading]);
-  useEffect(() => console.log('isShowBlur: ', isShowBlur), [isShowBlur]);
-  useEffect(() => console.log('metadata: ', metadata), [metadata]);
 
   const collection = useMemo(
     () =>
@@ -74,7 +68,7 @@ const CollectiblePage: FC<Props> = ({ assetSlug }) => {
                   className="relative flex justify-center items-center h-full w-full"
                   onClick={handleTapToRevealClick}
                 >
-                  <img className="h-full w-full" src={Blur} alt="Adult content" />
+                  <img className="h-full w-full" src={BlurImageSrc} alt="Adult content" />
 
                   <div className="absolute z-10 flex flex-col justify-center items-center">
                     <RevealEyeBigSvg className="mb-3" />
@@ -83,7 +77,7 @@ const CollectiblePage: FC<Props> = ({ assetSlug }) => {
                   </div>
                 </button>
               ) : (
-                <CollectibleImage large assetSlug={assetSlug} metadata={metadata} className="h-full w-full" />
+                <CollectibleImage large assetSlug={assetSlug} metadata={collectibleData} className="h-full w-full" />
               )}
             </div>
 

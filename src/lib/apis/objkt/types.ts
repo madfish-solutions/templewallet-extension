@@ -1,8 +1,3 @@
-interface ObjktListing {
-  currency_id: number;
-  price: number;
-}
-
 interface Name {
   name: string;
 }
