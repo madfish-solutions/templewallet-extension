@@ -1,6 +1,6 @@
 import React, { FC, ReactNode, useEffect, useMemo } from 'react';
 
-import classNames from 'clsx';
+import type { WalletOperation } from '@taquito/taquito';
 
 import { Alert } from 'app/atoms';
 import OpenInExplorerChip from 'app/atoms/OpenInExplorerChip';
@@ -18,14 +18,19 @@ type OperationStatusProps = {
   closable?: boolean;
   onClose?: () => void;
   typeTitle: string;
-  operation: any;
+  operation: WalletOperation;
 };
 
 const OperationStatus: FC<OperationStatusProps> = ({ typeTitle, operation, className, closable, onClose }) => {
   const tezos = useTezos();
   const { confirmOperationAndTriggerNewBlock } = useBlockTriggers();
 
-  const hash = useMemo(() => operation.hash || operation.opHash, [operation]);
+  const hash = useMemo(
+    () =>
+      // @ts-expect-error
+      operation.hash || operation.opHash,
+    [operation]
+  );
 
   const { transaction: transactionBaseUrl } = useExplorerBaseUrls();
 
@@ -93,7 +98,7 @@ const OperationStatus: FC<OperationStatusProps> = ({ typeTitle, operation, class
       title={alert.title}
       description={alert.description}
       autoFocus
-      className={classNames('mb-8', className)}
+      className={className}
       closable={closable}
       onClose={onClose}
     />

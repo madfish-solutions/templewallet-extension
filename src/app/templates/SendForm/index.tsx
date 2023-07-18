@@ -1,5 +1,7 @@
 import React, { FC, Suspense, useCallback, useMemo, useState } from 'react';
 
+import type { WalletOperation } from '@taquito/taquito';
+
 import AssetSelect from 'app/templates/AssetSelect/AssetSelect';
 import { IAsset } from 'app/templates/AssetSelect/interfaces';
 import { getSlug } from 'app/templates/AssetSelect/utils';
@@ -41,7 +43,7 @@ const SendForm: FC<SendFormProps> = ({ assetSlug = 'tez' }) => {
   const selectedAsset = useMemo(() => assets.find(a => getSlug(a) === assetSlug) ?? 'tez', [assets, assetSlug]);
 
   const tezos = useTezos();
-  const [operation, setOperation] = useSafeState<any>(null, tezos.checksum);
+  const [operation, setOperation] = useSafeState<WalletOperation | null>(null, tezos.checksum);
   const [addContactModalAddress, setAddContactModalAddress] = useState<string | null>(null);
   const { trackEvent } = useAnalytics();
 
@@ -66,7 +68,7 @@ const SendForm: FC<SendFormProps> = ({ assetSlug = 'tez' }) => {
 
   return (
     <>
-      {operation && <OperationStatus typeTitle={t('transaction')} operation={operation} />}
+      {operation && <OperationStatus typeTitle={t('transaction')} operation={operation} className="mb-8" />}
 
       <AssetSelect
         value={selectedAsset}

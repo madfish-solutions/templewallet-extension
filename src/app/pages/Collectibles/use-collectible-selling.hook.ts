@@ -1,8 +1,10 @@
 import { useCallback, useState } from 'react';
 
+import type { WalletOperation } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
 
 import type { CollectibleDetails } from 'app/store/collectibles/state';
+import { useFormAnalytics } from 'lib/analytics';
 import { getObjktMarketplaceContract } from 'lib/apis/objkt';
 import { fromFa2TokenSlug } from 'lib/assets/utils';
 import { useAccount, useTezos } from 'lib/temple/front';
@@ -15,10 +17,17 @@ export const useCollectibleSelling = (assetSlug: string, offer?: CollectibleDeta
   const tezos = useTezos();
   const { publicKeyHash } = useAccount();
   const [isSelling, setIsSelling] = useState(false);
+  const [operation, setOperation] = useState<WalletOperation | nullish>();
+  const [operationError, setOperationError] = useState<unknown>();
+  const formAnalytics = useFormAnalytics('Collectible Page/Sell By Best Offer Form');
 
   const initiateSelling = useCallback(async () => {
     if (!offer || isSelling) return;
     setIsSelling(true);
+    setOperation(null);
+    setOperationError(null);
+
+    formAnalytics.trackSubmit({ assetSlug });
 
     const { contract: tokenAddress, id } = fromFa2TokenSlug(assetSlug);
     const tokenId = Number(id.toString());
@@ -52,12 +61,25 @@ export const useCollectibleSelling = (assetSlug: string, offer?: CollectibleDeta
     await tezos.wallet
       .batch(operationParams)
       .send()
-      .catch(error => {
-        console.error('Operation send error:', error);
-      });
+      .then(
+        operation => {
+          setOperation(operation);
 
-    setIsSelling(false);
-  }, [tezos, isSelling, offer, assetSlug, publicKeyHash]);
+          formAnalytics.trackSubmitSuccess({ assetSlug });
+        },
+        error => {
+          setOperation(null);
 
-  return { isSelling, initiateSelling };
+          if (error.message === 'Declined') return;
+          console.error(error);
+
+          setOperationError(error);
+
+          formAnalytics.trackSubmitFail({ assetSlug });
+        }
+      )
+      .finally(() => void setIsSelling(false));
+  }, [tezos, isSelling, offer, assetSlug, publicKeyHash, setOperation, setOperationError, formAnalytics]);
+
+  return { isSelling, initiateSelling, operation, operationError };
 };

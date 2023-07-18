@@ -384,7 +384,7 @@ export const SwapForm: FC = () => {
 
       {operation && (
         <OperationStatus
-          className="mb-6"
+          className="mb-8"
           closable
           typeTitle={t('swapNoun')}
           operation={operation}

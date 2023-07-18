@@ -13,9 +13,10 @@ import {
   useCollectibleDetailsSelector
 } from 'app/store/collectibles/selectors';
 import AddressChip from 'app/templates/AddressChip';
+import OperationStatus from 'app/templates/OperationStatus';
 import { objktCurrencies } from 'lib/apis/objkt';
 import { BLOCK_DURATION } from 'lib/fixed-times';
-import { T } from 'lib/i18n';
+import { t, T } from 'lib/i18n';
 import { useAssetMetadata, getAssetName } from 'lib/metadata';
 import { useAccount } from 'lib/temple/front';
 import { formatTcInfraImgUri } from 'lib/temple/front/image-uri';
@@ -63,7 +64,7 @@ const CollectiblePage: FC<Props> = ({ assetSlug }) => {
     [details, publicKeyHash]
   );
 
-  const { isSelling, initiateSelling: onSellButtonClick } = useCollectibleSelling(assetSlug, takableOffer);
+  const { isSelling, initiateSelling: onSellButtonClick, operation } = useCollectibleSelling(assetSlug, takableOffer);
 
   const onSendButtonClick = useCallback(() => navigate(`/send/${assetSlug}`), [assetSlug]);
 
@@ -102,6 +103,8 @@ const CollectiblePage: FC<Props> = ({ assetSlug }) => {
   return (
     <PageLayout pageTitle={<span className="truncate">{collectibleName}</span>}>
       <div className="flex flex-col gap-y-3 max-w-sm w-full mx-auto pt-2 pb-4">
+        {operation && <OperationStatus typeTitle={t('transaction')} operation={operation} className="mb-4" />}
+
         <div
           className="rounded-lg mb-2 border border-gray-300 bg-blue-50 overflow-hidden"
           style={{ aspectRatio: '1/1' }}
