@@ -11,13 +11,12 @@ import { parseTransferParamsToParamsWithKind } from 'lib/utils/parse-transfer-pa
 
 const DEFAULT_OBJKT_STORAGE_LIMIT = 350;
 
-export const useCollectibleSelling = (assetSlug: string, details?: CollectibleDetails) => {
+export const useCollectibleSelling = (assetSlug: string, offer?: CollectibleDetails['offers'][number]) => {
   const tezos = useTezos();
   const { publicKeyHash } = useAccount();
   const [isSelling, setIsSelling] = useState(false);
 
   const initiateSelling = useCallback(async () => {
-    const offer = details?.highestOffer;
     if (!offer || isSelling) return;
     setIsSelling(true);
 
@@ -26,13 +25,10 @@ export const useCollectibleSelling = (assetSlug: string, details?: CollectibleDe
 
     const contract = await getObjktMarketplaceContract(tezos, offer.marketplace_contract);
 
-    const transferParams = (() => {
-      if ('fulfill_offer' in contract.methods) {
-        return contract.methods.fulfill_offer(offer.bigmap_key, tokenId).toTransferParams();
-      } else {
-        return contract.methods.offer_accept(offer.bigmap_key).toTransferParams();
-      }
-    })();
+    const transferParams =
+      'fulfill_offer' in contract.methods
+        ? contract.methods.fulfill_offer(offer.bigmap_key, tokenId).toTransferParams()
+        : contract.methods.offer_accept(offer.bigmap_key).toTransferParams();
 
     const tokenToSpend = {
       standard: 'fa2' as const,
@@ -61,7 +57,7 @@ export const useCollectibleSelling = (assetSlug: string, details?: CollectibleDe
       });
 
     setIsSelling(false);
-  }, [tezos, isSelling, details, assetSlug, publicKeyHash]);
+  }, [tezos, isSelling, offer, assetSlug, publicKeyHash]);
 
   return { isSelling, initiateSelling };
 };

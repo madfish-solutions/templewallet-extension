@@ -31,13 +31,10 @@ export interface UserObjktCollectible {
   }[];
   offers_active: {
     buyer_address: string;
-    collection_offer: string | null;
     price: number;
-    price_xtz: number;
+    currency_id: number;
     bigmap_key: number;
     marketplace_contract: string;
-    fa_contract: string;
-    currency_id: number;
     __typename: 'offer_active';
   }[];
   __typename: 'token';
