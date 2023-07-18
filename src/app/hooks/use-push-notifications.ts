@@ -18,21 +18,19 @@ export const usePushNotifications = () => {
       const messaging = getMessaging();
 
       Notification.requestPermission().then(async permission => {
-        if (permission === 'granted') {
-          if (!fcmToken) {
-            const token = await getToken(messaging, {
-              vapidKey: EnvVars.TEMPLE_FIREBASE_MESSAGING_VAPID_KEY,
-              serviceWorkerRegistration: await navigator.serviceWorker.getRegistration(
-                browser.runtime.getURL('background/index.js')
-              )
-            });
+        if (permission === 'granted' && !fcmToken) {
+          const token = await getToken(messaging, {
+            vapidKey: EnvVars.TEMPLE_FIREBASE_MESSAGING_VAPID_KEY,
+            serviceWorkerRegistration: await navigator.serviceWorker.getRegistration(
+              browser.runtime.getURL('background/index.js')
+            )
+          });
 
-            if (token) {
-              setFcmToken(token);
-            }
-
-            await trackEvent('PUSH_NOTIFICATIONS_ENABLED', AnalyticsEventCategory.General);
+          if (token) {
+            setFcmToken(token);
           }
+
+          await trackEvent('PUSH_NOTIFICATIONS_ENABLED', AnalyticsEventCategory.General);
         }
       });
     }
