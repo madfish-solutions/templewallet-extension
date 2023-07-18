@@ -4,7 +4,7 @@ import { isDefined } from '@rnw-community/shared';
 
 import { FormSubmitButton } from 'app/atoms';
 import Spinner from 'app/atoms/Spinner/Spinner';
-import { ReactComponent as RevealEyeBigSvg } from 'app/icons/reveal-eye-big.svg';
+import { ReactComponent as RevealEyeSvg } from 'app/icons/reveal-eye.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import {
   useAllCollectiblesDetailsLoadingSelector,
@@ -71,7 +71,7 @@ const CollectiblePage: FC<Props> = ({ assetSlug }) => {
                   <img className="h-full w-full" src={BlurImageSrc} alt="Adult content" />
 
                   <div className="absolute z-10 flex flex-col justify-center items-center">
-                    <RevealEyeBigSvg className="mb-3" />
+                    <RevealEyeSvg className="mb-3" width="40" height="40" />
 
                     <span className="text-base text-gray-910 font-semibold">Click to reveal</span>
                   </div>

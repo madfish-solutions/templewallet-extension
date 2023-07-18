@@ -19,7 +19,7 @@ export const CollectibleItemImage: FC<Props> = ({ metadata, assetSlug, isAdultCo
     return (
       <div className="relative flex justify-center items-center h-full w-full">
         <img src={BlurImageSrc} alt="Adult content" className="h-full w-full" />
-        <RevealEyeSvg className="absolute z-10" />
+        <RevealEyeSvg className="absolute z-10" color="#718096" />
       </div>
     );
   }
