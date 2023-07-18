@@ -20,15 +20,13 @@ export const convertCollectibleObjktInfoToStateDetailsType = (
       }
     : null;
 
-  const highestOffer = info.offers_active[0];
-
   return {
     ...pick(info, 'fa', 'description'),
     metadataHash: info.metadata?.split('/').pop() ?? null,
     mintedTimestamp: info.timestamp,
     supply: info.supply,
     listing,
-    highestOffer,
+    offers: info.offers_active,
     creators: info.creators.map(({ holder: { address, tzdomain } }) => ({ address, tzDomain: tzdomain })),
     galleries: info.galleries.map(({ gallery: { name } }) => ({ title: name })),
     royalties: parseRoyalties(info.royalties),
