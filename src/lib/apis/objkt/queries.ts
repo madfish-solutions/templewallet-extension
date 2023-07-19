@@ -25,7 +25,7 @@ export const buildGetCollectiblesQuery = () => gql`
           name
         }
       }
-      offers_active(distinct_on: price_xtz) {
+      offers_active(order_by: { price_xtz: desc }) {
         buyer_address
         price
         currency_id
