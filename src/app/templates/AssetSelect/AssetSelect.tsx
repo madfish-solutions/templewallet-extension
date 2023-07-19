@@ -41,7 +41,6 @@ const AssetSelect: FC<AssetSelectProps> = ({ value, assets, onChange, className,
   const allTokensMetadata = useTokensMetadataSelector();
 
   const [searchString, setSearchString] = useState<string>('');
-
   const [searchStringDebounced] = useDebounce(searchString, 300);
 
   const searchItems = useCallback(
@@ -66,7 +65,7 @@ const AssetSelect: FC<AssetSelectProps> = ({ value, assets, onChange, className,
         DropdownFaceContent={<AssetFieldContent asset={value} />}
         searchProps={{
           testId: testIDs?.searchInput,
-          searchValue: searchStringDebounced,
+          searchValue: searchString,
           onSearchChange: event => setSearchString(event.target.value)
         }}
         testIds={{ dropdownTestId: testIDs?.main }}
