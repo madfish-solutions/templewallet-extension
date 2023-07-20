@@ -86,7 +86,13 @@ export const PropertiesItems: FC<PropertiesItemsProps> = ({ assetSlug, accountPk
       <div className={itemClassName}>
         <h6 className={itemTitleClassName}>Contract</h6>
         <div className="flex gap-x-1.5">
-          <HashChip hash={contract} firstCharsCount={5} lastCharsCount={5} className="tracking-tighter" />
+          <HashChip
+            hash={contract}
+            firstCharsCount={5}
+            lastCharsCount={5}
+            className="tracking-tighter"
+            rounded="base"
+          />
           <ExternalLinkChip href={new URL(contract, accountExplorerBaseUrl).href} tooltip="Explore contract" />
         </div>
       </div>
@@ -95,7 +101,7 @@ export const PropertiesItems: FC<PropertiesItemsProps> = ({ assetSlug, accountPk
         <h6 className={itemTitleClassName}>Metadata</h6>
         {details?.metadataHash ? (
           <div className="flex gap-x-1.5">
-            <span className="rounded-sm p-1 text-sm leading-4 text-gray-600 bg-gray-100">IPFS</span>
+            <span className="rounded p-1 text-sm leading-4 text-gray-600 bg-gray-100">IPFS</span>
             <ExternalLinkChip href={`https://ipfs.io/ipfs/${details.metadataHash}`} tooltip="Open metadata" />
           </div>
         ) : (
