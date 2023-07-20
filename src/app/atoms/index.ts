@@ -1,3 +1,5 @@
+export { default as Divider } from './Divider';
+
 export { Alert } from './Alert';
 
 export { Anchor } from './Anchor';
@@ -12,6 +14,8 @@ export type { FileInputProps } from './FileInput';
 export { FileInput } from './FileInput';
 
 export { PASSWORD_ERROR_CAPTION, FormField } from './FormField';
+
+export { default as Checkbox } from './Checkbox';
 
 export { FormSubmitButton } from './FormSubmitButton';
 

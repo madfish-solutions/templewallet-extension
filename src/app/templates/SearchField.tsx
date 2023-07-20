@@ -56,7 +56,12 @@ const SearchField: FC<SearchFieldProps> = ({
           {...rest}
         />
 
-        <div className={classNames('absolute left-0 top-0 bottom-0 flex items-center', searchIconWrapperClassName)}>
+        <div
+          className={classNames(
+            'absolute left-0 top-0 bottom-0 flex items-center pointer-events-none',
+            searchIconWrapperClassName
+          )}
+        >
           <SearchIcon className={classNames('stroke-current', searchIconClassName)} />
         </div>
 

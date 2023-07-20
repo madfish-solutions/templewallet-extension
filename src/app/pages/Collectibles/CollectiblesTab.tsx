@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useMemo } from 'react';
+import React, { FC, useCallback, useEffect, useMemo } from 'react';
 
 import clsx from 'clsx';
 
@@ -37,6 +37,8 @@ export const CollectiblesTab: FC<Props> = ({ scrollToTheTabsBar }) => {
 
   const [areDetailsShown, setDetailsShown] = useLocalStorage(LOCAL_STORAGE_TOGGLE_KEY, false);
 
+  const toggleDetailsShown = useCallback(() => void setDetailsShown(val => !val), [setDetailsShown]);
+
   const { data: collectibles = [], isValidating: readingCollectibles } = useCollectibleTokens(
     chainId,
     publicKeyHash,
@@ -47,7 +49,8 @@ export const CollectiblesTab: FC<Props> = ({ scrollToTheTabsBar }) => {
 
   const { filteredAssets, searchValue, setSearchValue } = useFilteredAssets(collectibleSlugs);
 
-  useEffect(() => void scrollToTheTabsBar(), [collectibles.length > 0]);
+  const shouldScrollToTheTabsBar = collectibles.length > 0;
+  useEffect(() => void scrollToTheTabsBar(), [shouldScrollToTheTabsBar, scrollToTheTabsBar]);
 
   const isSyncing = tokensAreSyncing || metadatasLoading || readingCollectibles;
 
@@ -68,7 +71,7 @@ export const CollectiblesTab: FC<Props> = ({ scrollToTheTabsBar }) => {
               <ManageButtonDropdown
                 {...props}
                 areDetailsShown={areDetailsShown}
-                toggleDetailsShown={() => void setDetailsShown(!areDetailsShown)}
+                toggleDetailsShown={toggleDetailsShown}
               />
             )}
           >
@@ -84,6 +87,7 @@ export const CollectiblesTab: FC<Props> = ({ scrollToTheTabsBar }) => {
                 )}
                 onClick={toggleOpened}
                 testID={AssetsSelectors.manageButton}
+                testIDProperties={{ listOf: 'Collectibles' }}
               >
                 <ManageIcon className={svgIconClassName} />
               </Button>
@@ -138,6 +142,7 @@ const ManageButtonDropdown: FC<ManageButtonDropdownProps> = ({ opened, areDetail
         to={`/manage-assets/${AssetTypesEnum.Collectibles}`}
         className={buttonClassName}
         testID={AssetsSelectors.dropdownManageButton}
+        testIDProperties={{ listOf: 'Collectibles' }}
       >
         <EditingIcon className={svgIconClassName} />
         <span className="text-sm text-gray-600 ml-2 leading-5">
