@@ -252,11 +252,10 @@ const ExchangeStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, step,
           </div>
           <Divider style={{ marginTop: '1rem', marginBottom: '2.5rem' }} />
           <FormSubmitButton
-            className="w-full justify-center border-none mb-12"
+            className="w-full justify-center border-none mt-6 mb-12"
             style={{
               padding: '10px 2rem',
-              background: '#4299e1',
-              marginTop: '24px'
+              background: '#4299e1'
             }}
             testID={ExolixSelectors.topupFourthStepSubmitButton}
             onClick={() => {

@@ -1,8 +1,10 @@
+import { TezosToolkit } from '@taquito/taquito';
+
 import { fromFa2TokenSlug } from 'lib/assets/utils';
 
-import { apolloObjktClient } from './constants';
+import { apolloObjktClient, OBJKT_CONTRACT } from './constants';
 import { buildGetCollectiblesQuery } from './queries';
-import type { GetUserObjktCollectiblesResponse } from './types';
+import type { FxHashContractInterface, GetUserObjktCollectiblesResponse, ObjktContractInterface } from './types';
 
 export type { UserObjktCollectible } from './types';
 export { objktCurrencies } from './constants';
@@ -22,3 +24,6 @@ export const fetchObjktCollectibles$ = (slugs: string[]) => {
 
   return apolloObjktClient.query<GetUserObjktCollectiblesResponse>(request, queryVariables);
 };
+
+export const getObjktMarketplaceContract = (tezos: TezosToolkit, address?: string) =>
+  tezos.contract.at<ObjktContractInterface | FxHashContractInterface>(address ?? OBJKT_CONTRACT);

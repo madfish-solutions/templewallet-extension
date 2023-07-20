@@ -25,6 +25,13 @@ export const buildGetCollectiblesQuery = () => gql`
           name
         }
       }
+      offers_active(order_by: { price_xtz: desc }) {
+        buyer_address
+        price
+        currency_id
+        bigmap_key
+        marketplace_contract
+      }
     }
   }
 `;

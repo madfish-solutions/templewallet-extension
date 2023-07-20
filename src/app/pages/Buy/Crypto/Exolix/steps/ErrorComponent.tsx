@@ -71,11 +71,10 @@ const ErrorComponent: FC<Props> = ({ exchangeData, testIDProperties, setIsError,
         </>
       )}
       <FormSubmitButton
-        className="w-full justify-center border-none mb-12"
+        className="w-full justify-center border-none mt-6 mb-12"
         style={{
           padding: '10px 2rem',
-          background: '#4299e1',
-          marginTop: '24px'
+          background: '#4299e1'
         }}
         onClick={restartTopUpHandler}
         testID={ExolixSelectors.topupFirstStepSubmitAgainButton}

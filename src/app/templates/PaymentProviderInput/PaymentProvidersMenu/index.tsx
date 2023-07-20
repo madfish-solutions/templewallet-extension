@@ -53,7 +53,7 @@ export const PaymentProvidersMenu: FC<Props> = ({
       {(options.length === 0 || isLoading) && (
         <div className="my-8 flex flex-col items-center justify-center text-gray-500">
           {isLoading ? (
-            <Spinner theme="primary" style={{ width: '3rem' }} />
+            <Spinner theme="primary" className="w-12" />
           ) : (
             <p className="flex items-center justify-center text-gray-600 text-base font-light">
               <T id="noTopUpOptionsAvailable" />

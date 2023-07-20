@@ -11,7 +11,7 @@ export const collectiblesReducer = createReducer<CollectiblesState>(collectibles
   });
   builder.addCase(loadCollectiblesDetailsActions.success, (state, { payload }) => ({
     ...state,
-    details: createEntity(payload)
+    details: createEntity({ ...state.details.data, ...payload })
   }));
   builder.addCase(loadCollectiblesDetailsActions.fail, (state, { payload }) => {
     state.details.isLoading = false;
