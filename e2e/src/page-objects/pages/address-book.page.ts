@@ -21,6 +21,11 @@ export class AddressBookPage extends Page {
   }
 
   isContactAdded(hash: string) {
-    return findElement(AddressBookSelectors.contactItem, { hash }, VERY_SHORT_TIMEOUT);
+    return findElement(
+      AddressBookSelectors.contactItem,
+      { hash },
+      VERY_SHORT_TIMEOUT,
+      `The contact with address: '${hash}' not found`
+    );
   }
 }
