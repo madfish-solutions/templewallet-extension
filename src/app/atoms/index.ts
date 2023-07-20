@@ -12,11 +12,11 @@ export { default as Name } from './Name';
 
 export { default as Identicon } from './Identicon';
 
+export { default as HashShortView } from './HashShortView';
+
 export { HashChip } from './HashChip';
 
 export { ExternalLinkChip } from './ExternalLinkChip';
-
-export { default as OpenInExplorerChip } from './OpenInExplorerChip';
 
 export { default as SubTitle } from './SubTitle';
 

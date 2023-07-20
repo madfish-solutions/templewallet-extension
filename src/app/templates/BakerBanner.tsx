@@ -3,15 +3,16 @@ import React, { FC, HTMLAttributes, memo, useMemo } from 'react';
 import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
 
-import { Identicon, Name, Money, HashChip, OpenInExplorerChip, ABContainer } from 'app/atoms';
+import { Identicon, Name, Money, HashChip, ABContainer } from 'app/atoms';
 import { useAppEnv } from 'app/env';
 import { ReactComponent as ChevronRightIcon } from 'app/icons/chevron-right.svg';
 import { BakingSectionSelectors } from 'app/pages/Home/OtherComponents/BakingSection.selectors';
 import { toLocalFormat, T } from 'lib/i18n';
-import { useRelevantAccounts, useAccount, useNetwork, useKnownBaker, useExplorerBaseUrls } from 'lib/temple/front';
+import { useRelevantAccounts, useAccount, useNetwork, useKnownBaker } from 'lib/temple/front';
 import { TempleAccount } from 'lib/temple/types';
 
 import { HELP_UKRAINE_BAKER_ADDRESS, RECOMMENDED_BAKER_ADDRESS } from './DelegateForm';
+import { OpenInExplorerChip } from './OpenInExplorerChip';
 
 type BakerBannerProps = HTMLAttributes<HTMLDivElement> & {
   bakerPkh: string;
@@ -24,7 +25,6 @@ const BakerBanner = memo<BakerBannerProps>(({ bakerPkh, link = false, displayAdd
   const account = useAccount();
   const { popup } = useAppEnv();
   const { data: baker } = useKnownBaker(bakerPkh);
-  const { account: accountBaseUrl } = useExplorerBaseUrls();
 
   const bakerAcc = useMemo(
     () => allAccounts.find(acc => acc.publicKeyHash === bakerPkh) ?? null,
@@ -74,23 +74,17 @@ const BakerBanner = memo<BakerBannerProps>(({ bakerPkh, link = false, displayAdd
                 >
                   {baker.name}
                 </Name>
+
                 {(isRecommendedBaker || isHelpUkraineBaker) && (
                   <ABContainer
                     groupAComponent={<SponsoredBaker isRecommendedBaker={isRecommendedBaker} />}
                     groupBComponent={<PromotedBaker isRecommendedBaker={isRecommendedBaker} />}
                   />
                 )}
+
                 {displayAddress && (
                   <div className="ml-2 flex flex-wrap items-center">
-                    {accountBaseUrl && (
-                      <OpenInExplorerChip
-                        bgShade={200}
-                        textShade={500}
-                        rounded="base"
-                        hash={baker.address}
-                        baseUrl={accountBaseUrl}
-                      />
-                    )}
+                    <OpenInExplorerChip hash={baker.address} type="account" small alternativeDesign />
                   </div>
                 )}
               </div>
@@ -147,12 +141,7 @@ const BakerBanner = memo<BakerBannerProps>(({ bakerPkh, link = false, displayAdd
           <div className="flex flex-col items-start flex-1 ml-2">
             <div className={classNames('mb-px w-full', 'flex flex-wrap items-center', 'leading-none')}>
               <Name className="pb-1 mr-1 text-lg font-medium">
-                <BakerAccount
-                  account={account}
-                  bakerAcc={bakerAcc}
-                  bakerPkh={bakerPkh}
-                  accountBaseUrl={accountBaseUrl}
-                />
+                <BakerAccount account={account} bakerAcc={bakerAcc} bakerPkh={bakerPkh} />
               </Name>
             </div>
           </div>
@@ -168,8 +157,7 @@ const BakerAccount: React.FC<{
   bakerAcc: TempleAccount | null;
   account: TempleAccount;
   bakerPkh: string;
-  accountBaseUrl?: string;
-}> = ({ bakerAcc, account, bakerPkh, accountBaseUrl }) => {
+}> = ({ bakerAcc, account, bakerPkh }) => {
   const network = useNetwork();
 
   return bakerAcc ? (
@@ -189,9 +177,8 @@ const BakerAccount: React.FC<{
   ) : network.type === 'dcp' ? (
     <div className="flex">
       <HashChip bgShade={200} rounded="base" className="mr-1" hash={bakerPkh} small textShade={700} />
-      {accountBaseUrl && (
-        <OpenInExplorerChip bgShade={200} textShade={500} rounded="base" hash={bakerPkh} baseUrl={accountBaseUrl} />
-      )}
+
+      <OpenInExplorerChip hash={bakerPkh} type="account" small alternativeDesign />
     </div>
   ) : (
     <T id="unknownBakerTitle">

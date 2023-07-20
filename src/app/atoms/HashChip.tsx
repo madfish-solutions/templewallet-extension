@@ -1,7 +1,7 @@
 import React, { ComponentProps, FC, HTMLAttributes } from 'react';
 
-import CopyButton, { CopyButtonProps } from 'app/atoms/CopyButton';
-import HashShortView from 'app/atoms/HashShortView';
+import CopyButton, { CopyButtonProps } from './CopyButton';
+import HashShortView from './HashShortView';
 
 type HashChipProps = HTMLAttributes<HTMLButtonElement> &
   ComponentProps<typeof HashShortView> &

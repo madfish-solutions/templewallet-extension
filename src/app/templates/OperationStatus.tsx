@@ -2,13 +2,14 @@ import React, { FC, ReactNode, useEffect, useMemo } from 'react';
 
 import type { WalletOperation } from '@taquito/taquito';
 
-import { HashChip, OpenInExplorerChip, Alert } from 'app/atoms';
+import { HashChip, Alert } from 'app/atoms';
 import { T, t } from 'lib/i18n';
-import { useTezos, useExplorerBaseUrls, useBlockTriggers } from 'lib/temple/front';
+import { useTezos, useBlockTriggers } from 'lib/temple/front';
 import { FailedOpError } from 'lib/temple/operation';
 import { useSafeState } from 'lib/ui/hooks';
 
 import { setTestID } from '../../lib/analytics';
+import { OpenInExplorerChip } from './OpenInExplorerChip';
 import { OperationStatusSelectors } from './OperationStatus.selectors';
 
 type OperationStatusProps = {
@@ -30,19 +31,19 @@ const OperationStatus: FC<OperationStatusProps> = ({ typeTitle, operation, class
     [operation]
   );
 
-  const { transaction: transactionBaseUrl } = useExplorerBaseUrls();
-
   const descFooter = useMemo(
     () => (
       <div className="mt-2 text-xs flex items-center">
         <div className="whitespace-nowrap">
           <T id="operationHash" />:{' '}
         </div>
-        <HashChip hash={hash} firstCharsCount={10} lastCharsCount={7} small key="hash" className="ml-2 mr-2" />
-        {transactionBaseUrl && <OpenInExplorerChip baseUrl={transactionBaseUrl} hash={hash} />}
+
+        <HashChip hash={hash} firstCharsCount={10} lastCharsCount={7} small key="hash" className="mx-2" />
+
+        <OpenInExplorerChip hash={hash} small />
       </div>
     ),
-    [hash, transactionBaseUrl]
+    [hash]
   );
 
   const [alert, setAlert] = useSafeState<{

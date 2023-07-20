@@ -3,13 +3,13 @@ import React, { useEffect, useState, useMemo, memo } from 'react';
 import classNames from 'clsx';
 import formatDistanceToNow from 'date-fns/formatDistanceToNow';
 
-import { HashChip, OpenInExplorerChip } from 'app/atoms';
+import { HashChip } from 'app/atoms';
 import { MoneyDiffView } from 'app/templates/activity/MoneyDiffView';
 import { OperStack } from 'app/templates/activity/OperStack';
+import { OpenInExplorerChip } from 'app/templates/OpenInExplorerChip';
 import { getDateFnsLocale } from 'lib/i18n';
 import { t } from 'lib/i18n/react';
 import { Activity, buildOperStack, buildMoneyDiffs } from 'lib/temple/activity-new';
-import { useExplorerBaseUrls } from 'lib/temple/front';
 
 interface Props {
   activity: Activity;
@@ -19,8 +19,6 @@ interface Props {
 export const ActivityItem = memo<Props>(({ activity, address }) => {
   const { hash, addedAt, status } = activity;
 
-  const { transaction: explorerBaseUrl } = useExplorerBaseUrls();
-
   const operStack = useMemo(() => buildOperStack(activity, address), [activity, address]);
   const moneyDiffs = useMemo(() => buildMoneyDiffs(activity), [activity]);
 
@@ -29,7 +27,7 @@ export const ActivityItem = memo<Props>(({ activity, address }) => {
       <div className="w-full flex items-center">
         <HashChip hash={hash} firstCharsCount={10} lastCharsCount={7} small className="mr-2" />
 
-        {explorerBaseUrl && <OpenInExplorerChip baseUrl={explorerBaseUrl} hash={hash} className="mr-2" />}
+        <OpenInExplorerChip hash={hash} className="mr-2" small />
 
         <div className={classNames('flex-1', 'h-px', 'bg-gray-200')} />
       </div>

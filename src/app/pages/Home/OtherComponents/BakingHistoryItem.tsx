@@ -4,7 +4,7 @@ import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
 import { Collapse } from 'react-collapse';
 
-import { Money, HashChip, OpenInExplorerChip } from 'app/atoms';
+import { Money, HashChip } from 'app/atoms';
 import Identicon from 'app/atoms/Identicon';
 import { ReactComponent as BoxCrossedIcon } from 'app/icons/box-crossed.svg';
 import { ReactComponent as BoxIcon } from 'app/icons/box.svg';
@@ -15,9 +15,10 @@ import { ReactComponent as InProgressIcon } from 'app/icons/rotate.svg';
 import { ReactComponent as ShieldCancelIcon } from 'app/icons/shield-cancel.svg';
 import { ReactComponent as ShieldOkIcon } from 'app/icons/shield-ok.svg';
 import { ReactComponent as TimeIcon } from 'app/icons/time.svg';
+import { OpenInExplorerChip } from 'app/templates/OpenInExplorerChip';
 import { TzktRewardsEntry } from 'lib/apis/tzkt';
 import { getPluralKey, toLocalFormat, T } from 'lib/i18n';
-import { getRewardsStats, useKnownBaker, useExplorerBaseUrls, useGasToken } from 'lib/temple/front';
+import { getRewardsStats, useKnownBaker, useGasToken } from 'lib/temple/front';
 import { mutezToTz } from 'lib/temple/helpers';
 
 import styles from './BakingHistoryItem.module.css';
@@ -57,7 +58,6 @@ const BakingHistoryItem: FC<BakingHistoryItemProps> = ({
   } = content;
 
   const { data: bakerDetails } = useKnownBaker(baker.address);
-  const { account: accountBaseUrl } = useExplorerBaseUrls();
   const [showDetails, setShowDetails] = useState(false);
 
   const { isDcpNetwork, symbol } = useGasToken();
@@ -343,21 +343,17 @@ const BakingHistoryItem: FC<BakingHistoryItemProps> = ({
               {bakerDetails?.name ?? <T id="unknownBakerTitle" />}
             </h3>
           )}
+
           <div className="flex">
             <HashChip bgShade={200} rounded="base" className="mr-1" hash={baker.address} small textShade={700} />
-            {accountBaseUrl && (
-              <OpenInExplorerChip
-                bgShade={200}
-                textShade={500}
-                rounded="base"
-                hash={baker.address}
-                baseUrl={accountBaseUrl}
-              />
-            )}
+
+            <OpenInExplorerChip hash={baker.address} type="account" small alternativeDesign />
           </div>
+
           {statsEntriesProps.map(props => (
             <StatsEntry key={props.name} {...props} />
           ))}
+
           {accordionItemsProps.length > 0 && (
             <button
               className={classNames(
@@ -371,6 +367,7 @@ const BakingHistoryItem: FC<BakingHistoryItemProps> = ({
             </button>
           )}
         </div>
+
         <div
           className={classNames(
             'absolute flex items-center right-0',
