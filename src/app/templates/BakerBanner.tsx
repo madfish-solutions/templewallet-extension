@@ -3,11 +3,7 @@ import React, { FC, HTMLAttributes, memo, useMemo } from 'react';
 import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
 
-import ABContainer from 'app/atoms/ABContainer';
-import Identicon from 'app/atoms/Identicon';
-import Money from 'app/atoms/Money';
-import Name from 'app/atoms/Name';
-import OpenInExplorerChip from 'app/atoms/OpenInExplorerChip';
+import { Identicon, Name, Money, HashChip, OpenInExplorerChip, ABContainer } from 'app/atoms';
 import { useAppEnv } from 'app/env';
 import { ReactComponent as ChevronRightIcon } from 'app/icons/chevron-right.svg';
 import { BakingSectionSelectors } from 'app/pages/Home/OtherComponents/BakingSection.selectors';
@@ -16,7 +12,6 @@ import { useRelevantAccounts, useAccount, useNetwork, useKnownBaker, useExplorer
 import { TempleAccount } from 'lib/temple/types';
 
 import { HELP_UKRAINE_BAKER_ADDRESS, RECOMMENDED_BAKER_ADDRESS } from './DelegateForm';
-import HashChip from './HashChip';
 
 type BakerBannerProps = HTMLAttributes<HTMLDivElement> & {
   bakerPkh: string;

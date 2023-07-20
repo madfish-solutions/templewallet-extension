@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
 
+import { HashChip } from 'app/atoms';
 import { ReactComponent as ClipboardIcon } from 'app/icons/clipboard.svg';
-import HashChip from 'app/templates/HashChip';
 import { TID, T } from 'lib/i18n';
 import { OperStackItemInterface, OperStackItemTypeEnum } from 'lib/temple/activity-new/types';
 

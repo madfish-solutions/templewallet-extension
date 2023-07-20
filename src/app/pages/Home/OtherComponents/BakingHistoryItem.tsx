@@ -4,9 +4,8 @@ import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
 import { Collapse } from 'react-collapse';
 
+import { Money, HashChip, OpenInExplorerChip } from 'app/atoms';
 import Identicon from 'app/atoms/Identicon';
-import Money from 'app/atoms/Money';
-import OpenInExplorerChip from 'app/atoms/OpenInExplorerChip';
 import { ReactComponent as BoxCrossedIcon } from 'app/icons/box-crossed.svg';
 import { ReactComponent as BoxIcon } from 'app/icons/box.svg';
 import { ReactComponent as ChevronDownIcon } from 'app/icons/chevron-down.svg';
@@ -16,7 +15,6 @@ import { ReactComponent as InProgressIcon } from 'app/icons/rotate.svg';
 import { ReactComponent as ShieldCancelIcon } from 'app/icons/shield-cancel.svg';
 import { ReactComponent as ShieldOkIcon } from 'app/icons/shield-ok.svg';
 import { ReactComponent as TimeIcon } from 'app/icons/time.svg';
-import HashChip from 'app/templates/HashChip';
 import { TzktRewardsEntry } from 'lib/apis/tzkt';
 import { getPluralKey, toLocalFormat, T } from 'lib/i18n';
 import { getRewardsStats, useKnownBaker, useExplorerBaseUrls, useGasToken } from 'lib/temple/front';

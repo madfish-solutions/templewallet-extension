@@ -7,7 +7,7 @@ type HashChipProps = HTMLAttributes<HTMLButtonElement> &
   ComponentProps<typeof HashShortView> &
   Pick<CopyButtonProps, 'small' | 'type' | 'bgShade' | 'rounded' | 'textShade'>;
 
-const HashChip: FC<HashChipProps> = ({
+export const HashChip: FC<HashChipProps> = ({
   hash,
   trim,
   trimAfter,
@@ -25,5 +25,3 @@ const HashChip: FC<HashChipProps> = ({
     />
   </CopyButton>
 );
-
-export default HashChip;

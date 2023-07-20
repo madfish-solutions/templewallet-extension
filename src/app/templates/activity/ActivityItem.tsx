@@ -3,10 +3,9 @@ import React, { useEffect, useState, useMemo, memo } from 'react';
 import classNames from 'clsx';
 import formatDistanceToNow from 'date-fns/formatDistanceToNow';
 
-import OpenInExplorerChip from 'app/atoms/OpenInExplorerChip';
+import { HashChip, OpenInExplorerChip } from 'app/atoms';
 import { MoneyDiffView } from 'app/templates/activity/MoneyDiffView';
 import { OperStack } from 'app/templates/activity/OperStack';
-import HashChip from 'app/templates/HashChip';
 import { getDateFnsLocale } from 'lib/i18n';
 import { t } from 'lib/i18n/react';
 import { Activity, buildOperStack, buildMoneyDiffs } from 'lib/temple/activity-new';

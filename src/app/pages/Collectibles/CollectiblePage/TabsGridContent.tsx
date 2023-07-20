@@ -2,9 +2,8 @@ import React, { FC, useMemo } from 'react';
 
 import BigNumber from 'bignumber.js';
 
-import { ExternalLinkChip } from 'app/atoms/ExternalLinkChip';
+import { HashChip, ExternalLinkChip } from 'app/atoms';
 import type { CollectibleDetails } from 'app/store/collectibles/state';
-import HashChip from 'app/templates/HashChip';
 import { fromFa2TokenSlug } from 'lib/assets/utils';
 import { useBalance, useExplorerBaseUrls } from 'lib/temple/front';
 

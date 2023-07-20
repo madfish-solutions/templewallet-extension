@@ -2,9 +2,7 @@ import React, { FC, ReactNode, useEffect, useMemo } from 'react';
 
 import type { WalletOperation } from '@taquito/taquito';
 
-import { Alert } from 'app/atoms';
-import OpenInExplorerChip from 'app/atoms/OpenInExplorerChip';
-import HashChip from 'app/templates/HashChip';
+import { HashChip, OpenInExplorerChip, Alert } from 'app/atoms';
 import { T, t } from 'lib/i18n';
 import { useTezos, useExplorerBaseUrls, useBlockTriggers } from 'lib/temple/front';
 import { FailedOpError } from 'lib/temple/operation';

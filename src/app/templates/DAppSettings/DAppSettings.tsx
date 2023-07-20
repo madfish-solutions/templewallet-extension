@@ -2,12 +2,10 @@ import React, { ComponentProps, FC, useCallback, useMemo, useRef, useState } fro
 
 import classNames from 'clsx';
 
-import { FormCheckbox } from 'app/atoms';
-import Name from 'app/atoms/Name';
+import { Name, FormCheckbox, HashChip } from 'app/atoms';
 import { ReactComponent as CloseIcon } from 'app/icons/close.svg';
 import CustomSelect, { OptionRenderProps } from 'app/templates/CustomSelect';
 import DAppLogo from 'app/templates/DAppLogo';
-import HashChip from 'app/templates/HashChip';
 import { TID, T, t } from 'lib/i18n';
 import { useRetryableSWR } from 'lib/swr';
 import { useTempleClient, useStorage } from 'lib/temple/front';
