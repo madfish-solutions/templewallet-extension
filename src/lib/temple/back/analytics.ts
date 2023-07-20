@@ -9,7 +9,7 @@ const { TEMPLE_WALLET_JITSU_WRITE_KEY: WRITE_KEY, TEMPLE_WALLET_JITSU_TRACKING_H
 const client = jitsuClient({
   key: WRITE_KEY,
   tracking_host: TRACKING_HOST,
-  privacy_policy: 'strict'
+  ip_policy: 'strict'
 });
 
 export const trackEvent = async ({
