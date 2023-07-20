@@ -1,7 +1,8 @@
 import { AddressBookSelectors } from 'src/app/templates/AddressBook/AddressBook.selectors';
 
-import { Page } from '../../classes/page.class';
-import { createPageElement, findElement } from '../../utils/search.utils';
+import { Page } from 'e2e/src/classes/page.class';
+import { createPageElement, findElement } from 'e2e/src/utils/search.utils';
+import { VERY_SHORT_TIMEOUT } from 'e2e/src/utils/timing.utils';
 
 export class AddressBookPage extends Page {
   addressInput = createPageElement(AddressBookSelectors.addressInput);
@@ -19,15 +20,7 @@ export class AddressBookPage extends Page {
     await this.contactOwnLabelText.waitForDisplayed();
   }
 
-  async isContactAdded(hash: string) {
-    const timeoutPromise = new Promise<void>((_, reject) => {
-      setTimeout(() => {
-        reject(new Error(`The contact with address: '${hash}' was not found within 5 seconds.`));
-      }, 5000);
-    });
-
-    const findElementPromise = findElement(AddressBookSelectors.contactItem, { hash });
-
-    return Promise.race([findElementPromise, timeoutPromise]);
+  isContactAdded(hash: string) {
+    return findElement(AddressBookSelectors.contactItem, { hash }, VERY_SHORT_TIMEOUT);
   }
 }
