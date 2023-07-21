@@ -1,10 +1,11 @@
 import type { UserObjktCollectible } from 'lib/apis/objkt';
 import { createEntity, LoadableEntityState } from 'lib/store';
 
-export interface CollectibleDetails extends Pick<UserObjktCollectible, 'fa' | 'description'> {
+export interface CollectibleDetails extends Pick<UserObjktCollectible, 'fa' | 'description' | 'mime'> {
   /** Cheepest listing */
   listing: null | CollectibleDetailsListing;
   /** Highest offer */
+  objktArtifactUri: string;
   offers: UserObjktCollectible['offers_active'];
   creators: CollectibleDetailsCreator[];
   galleries: CollectibleDetailsGallery[];

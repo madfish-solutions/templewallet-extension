@@ -10,6 +10,8 @@ export const buildGetCollectiblesQuery = () => gql`
         price
       }
       description
+      mime
+      artifact_uri
       creators {
         holder {
           address

@@ -14,6 +14,8 @@ export interface UserObjktCollectible {
   token_id: string;
   listings_active: ObjktListing[];
   description: string | null;
+  mime: string | null;
+  artifact_uri: string;
   creators: {
     holder: {
       address: string;

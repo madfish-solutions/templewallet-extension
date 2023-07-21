@@ -14,7 +14,7 @@ export const conertCollectibleObjktInfoToStateDetailsType = (info: UserObjktColl
     : null;
 
   return {
-    ...pick(info, 'fa', 'description'),
+    ...pick(info, 'fa', 'description', 'mime'),
     listing,
     offers: info.offers_active,
     creators: info.creators.map(({ holder: { address, tzdomain } }) => ({ address, tzDomain: tzdomain })),

@@ -12,6 +12,8 @@ import { formatCollectibleObjktArtifactUri, isSvgDataUriInUtf8Encoding } from '.
 interface Props {
   assetSlug: string;
   metadata?: AssetMetadataBase;
+  mime?: string | null;
+  objktArtifactUri?: string;
   large?: boolean;
   className?: string;
   style?: React.CSSProperties;
