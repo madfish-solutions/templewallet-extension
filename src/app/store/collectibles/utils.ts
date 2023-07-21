@@ -1,4 +1,3 @@
-import { isDefined } from '@rnw-community/shared';
 import { pick } from 'lodash';
 
 import type { UserObjktCollectible, ObjktGalleryAttributeCount } from 'lib/apis/objkt';
@@ -6,7 +5,7 @@ import { atomsToTokens } from 'lib/temple/helpers';
 
 import type { CollectibleDetails } from './state';
 
-const HIDDEN_ATTRIBUTE_NAME = '__nsfw_';
+const TECHNICAL_ATTRIBUTES = ['__nsfw_', '__hazards_'];
 
 export const convertCollectibleObjktInfoToStateDetailsType = (
   info: UserObjktCollectible,
@@ -31,7 +30,7 @@ export const convertCollectibleObjktInfoToStateDetailsType = (
     galleries: info.galleries.map(({ gallery: { name } }) => ({ title: name })),
     royalties: parseRoyalties(info.royalties),
     attributes: info.attributes
-      .filter(({ attribute: { name } }) => name !== HIDDEN_ATTRIBUTE_NAME)
+      .filter(({ attribute: { name } }) => !TECHNICAL_ATTRIBUTES.includes(name))
       .map(({ attribute }) => {
         const rarity = parseAttributeRarity(attribute, info, galaryAttributeCounts);
 
@@ -40,12 +39,15 @@ export const convertCollectibleObjktInfoToStateDetailsType = (
   };
 };
 
-const parseRoyalties = ([royalties]: { amount: number; decimals: number }[]) => {
-  if (!isDefined(royalties)) return;
+const parseRoyalties = (royalties: { amount: number; decimals: number }[]) => {
+  if (!royalties.length) return;
 
-  const { amount, decimals } = royalties;
+  const royaltiesSumm = royalties.reduce(
+    (acc, { amount, decimals }) => acc + atomsToTokens(amount, decimals).toNumber(),
+    0
+  );
 
-  return atomsToTokens(amount, decimals).multipliedBy(100).toNumber();
+  return royaltiesSumm * 100;
 };
 
 const parseAttributeRarity = (
@@ -53,17 +55,26 @@ const parseAttributeRarity = (
   info: UserObjktCollectible,
   galaryAttributeCounts: ObjktGalleryAttributeCount[]
 ) => {
-  const gallery = info.galleries[0]?.gallery;
-
   const editions = (() => {
-    if (gallery)
+    if (info.galleries.length) {
+      const attribute_id = attribute.id;
+
       return {
-        withAttribute: galaryAttributeCounts.find(({ attribute_id }) => attribute_id === attribute.id)?.editions ?? 0,
-        all: gallery.editions
+        withAttribute: galaryAttributeCounts.reduce(
+          (acc, count) => (count.attribute_id === attribute_id ? acc + count.editions : acc),
+          0
+        ),
+        all: info.galleries.reduce((acc, { gallery: { editions } }) => acc + editions, 0)
       };
+    }
+
+    const fa_contract = info.fa_contract;
 
     return {
-      withAttribute: attribute.attribute_counts[0]?.editions ?? 0,
+      withAttribute: attribute.attribute_counts.reduce(
+        (acc, count) => (count.fa_contract === fa_contract ? acc + count.editions : acc),
+        0
+      ),
       all: info.fa.editions
     };
   })();

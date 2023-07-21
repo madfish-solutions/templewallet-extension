@@ -52,6 +52,7 @@ export interface UserObjktCollectible {
       name: string;
       value: string;
       attribute_counts: {
+        fa_contract: string;
         editions: number;
       }[];
     };

@@ -42,6 +42,7 @@ export const buildGetCollectiblesQuery = () => gql`
           name
           value
           attribute_counts {
+            fa_contract
             editions
           }
         }
