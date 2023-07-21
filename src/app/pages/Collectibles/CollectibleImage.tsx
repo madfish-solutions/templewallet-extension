@@ -3,6 +3,7 @@ import React, { FC, useState } from 'react';
 import Spinner from 'app/atoms/Spinner/Spinner';
 import { ReactComponent as BrokenImageSvg } from 'app/icons/broken-image.svg';
 import { ReactComponent as MusicSvg } from 'app/icons/music.svg';
+import { useAllCollectiblesDetailsLoadingSelector } from 'app/store/collectibles/selectors';
 import { AssetImage } from 'app/templates/AssetImage';
 import { AssetMetadataBase } from 'lib/metadata';
 
@@ -29,51 +30,56 @@ export const CollectibleImage: FC<Props> = ({
   className,
   style
 }) => {
-  const [initialArtifactUri, setInitialArtifactUri] = useState(objktArtifactUri);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isAnimatedRenderFailed, setIsAnimatedRenderFailed] = useState(false);
+  const [isAnimatedLoading, setIsAnimatedLoading] = useState(true);
+  const isDetailsLoading = useAllCollectiblesDetailsLoadingSelector();
 
   const handleError = () => {
-    setInitialArtifactUri(undefined);
-    setIsLoading(false);
+    setIsAnimatedRenderFailed(true);
+    setIsAnimatedLoading(false);
   };
 
-  const handleLoadEnd = () => setIsLoading(false);
+  const handleAnimatedLoadEnd = () => setIsAnimatedLoading(false);
 
-  if (initialArtifactUri && isSvgDataUriInUtf8Encoding(initialArtifactUri)) {
+  if (large && isDetailsLoading) {
+    return <ImageLoader large={large} />;
+  }
+
+  if (objktArtifactUri && isSvgDataUriInUtf8Encoding(objktArtifactUri) && !isAnimatedRenderFailed) {
     return (
       <>
         <img
-          src={initialArtifactUri}
+          src={objktArtifactUri}
           alt={metadata?.name}
           className={className}
           style={style}
-          onLoad={handleLoadEnd}
+          onLoad={handleAnimatedLoadEnd}
           onError={handleError}
         />
-        {isLoading && <ImageLoader large />}
+        {isAnimatedLoading && <ImageLoader large />}
       </>
     );
   }
 
-  if (mime && initialArtifactUri) {
+  if (mime && objktArtifactUri && !isAnimatedRenderFailed) {
     if (mime === NonStaticCollectibleMimeTypes.MODEL) {
       return (
         <>
           <SimpleModelViewer
-            uri={formatCollectibleObjktArtifactUri(initialArtifactUri)}
-            onLoad={handleLoadEnd}
+            uri={formatCollectibleObjktArtifactUri(objktArtifactUri)}
+            onLoad={handleAnimatedLoadEnd}
             onError={handleError}
           />
-          {isLoading && <ImageLoader large />}
+          {isAnimatedLoading && <ImageLoader large />}
         </>
       );
     } else if (mime === NonStaticCollectibleMimeTypes.VIDEO) {
       return (
         <>
-          <video autoPlay loop onLoad={handleLoadEnd} onError={handleError}>
-            <source src={formatCollectibleObjktArtifactUri(initialArtifactUri)} type="video/mp4" />
+          <video autoPlay loop onLoad={handleAnimatedLoadEnd} onError={handleError}>
+            <source src={formatCollectibleObjktArtifactUri(objktArtifactUri)} type="video/mp4" />
           </video>
-          {isLoading && <ImageLoader large />}
+          {isAnimatedLoading && <ImageLoader large />}
         </>
       );
     }
@@ -81,23 +87,23 @@ export const CollectibleImage: FC<Props> = ({
 
   return (
     <>
-      {initialArtifactUri && mime === NonStaticCollectibleMimeTypes.AUDIO && (
+      {objktArtifactUri && mime === NonStaticCollectibleMimeTypes.AUDIO && !isAnimatedRenderFailed && (
         <>
           <audio
             autoPlay
             loop
-            src={formatCollectibleObjktArtifactUri(initialArtifactUri)}
-            onLoad={handleLoadEnd}
+            src={formatCollectibleObjktArtifactUri(objktArtifactUri)}
+            onLoadedData={handleAnimatedLoadEnd}
             onError={handleError}
           />
-          {isLoading && <ImageLoader large />}
+          {isAnimatedLoading && <ImageLoader large />}
         </>
       )}
       <AssetImage
         metadata={metadata}
         assetSlug={assetSlug}
         loader={<ImageLoader large={large} />}
-        fallback={<ImageFallback large={large} />}
+        fallback={<ImageFallback large={large} isAudioCollectible={mime === NonStaticCollectibleMimeTypes.AUDIO} />}
         className={className}
         style={style}
       />
@@ -118,6 +124,7 @@ const ImageLoader: FC<ImageFallbackProps> = ({ large }) => (
 
 const ImageFallback: FC<ImageFallbackProps> = ({ large, isAudioCollectible = false }) => {
   const height = large ? '23%' : '32%';
+
   return (
     <div className="w-full h-full flex items-center justify-center">
       {isAudioCollectible ? <MusicSvg height={height} /> : <BrokenImageSvg height={height} />}
