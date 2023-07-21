@@ -75,12 +75,10 @@ export const CollectibleImage: FC<Props> = ({
       );
     } else if (mime === NonStaticCollectibleMimeTypes.VIDEO) {
       return (
-        <>
-          <video autoPlay loop onLoad={handleAnimatedLoadEnd} onError={handleError}>
-            <source src={formatCollectibleObjktArtifactUri(objktArtifactUri)} type="video/mp4" />
-          </video>
+        <video autoPlay loop onLoadedData={handleAnimatedLoadEnd} onError={handleError}>
+          <source src={formatCollectibleObjktArtifactUri(objktArtifactUri)} type="video/mp4" />
           {isAnimatedLoading && <ImageLoader large />}
-        </>
+        </video>
       );
     }
   }
