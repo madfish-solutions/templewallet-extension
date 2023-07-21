@@ -1700,12 +1700,9 @@
   "activity": {
     "message": "Activity"
   },
-  "manage": {
-    "message": "Manage"
-  },
-  "manageTokens": {
-    "message": "Manage Tokens"
-  },
+  "manage": { "message": "Manage" },
+  "manageTokens": { "message": "Manage Tokens" },
+  "manageAssetsList": { "message": "Manage assets list" },
   "noItemsFound": {
     "message": "No items found"
   },

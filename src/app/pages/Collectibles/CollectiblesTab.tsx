@@ -2,16 +2,16 @@ import React, { FC, useCallback, useEffect, useMemo } from 'react';
 
 import clsx from 'clsx';
 
-import { Button, SyncSpinner } from 'app/atoms';
+import { SyncSpinner } from 'app/atoms';
 import Checkbox from 'app/atoms/Checkbox';
 import Divider from 'app/atoms/Divider';
 import DropdownWrapper from 'app/atoms/DropdownWrapper';
 import { useAppEnv } from 'app/env';
 import { ReactComponent as EditingIcon } from 'app/icons/editing.svg';
-import { ReactComponent as ManageIcon } from 'app/icons/manage.svg';
 import { CollectibleItem } from 'app/pages/Collectibles/CollectibleItem';
 import { AssetsSelectors } from 'app/pages/Home/OtherComponents/Assets.selectors';
 import { useTokensMetadataLoadingSelector } from 'app/store/tokens-metadata/selectors';
+import { ButtonForManageDropdown } from 'app/templates/ManageDropdown';
 import SearchAssetField from 'app/templates/SearchAssetField';
 import { AssetTypesEnum } from 'lib/assets/types';
 import { T, t } from 'lib/i18n';
@@ -22,7 +22,6 @@ import Popper, { PopperRenderProps } from 'lib/ui/Popper';
 import { Link } from 'lib/woozie';
 
 const LOCAL_STORAGE_TOGGLE_KEY = 'collectibles-grid:show-items-details';
-const svgIconClassName = 'w-4 h-4 stroke-current fill-current text-gray-600';
 
 interface Props {
   scrollToTheTabsBar: EmptyFn;
@@ -61,6 +60,7 @@ export const CollectiblesTab: FC<Props> = ({ scrollToTheTabsBar }) => {
           <SearchAssetField
             value={searchValue}
             onValueChange={setSearchValue}
+            className="mr-2"
             testID={AssetsSelectors.searchAssetsInputCollectibles}
           />
 
@@ -76,21 +76,14 @@ export const CollectiblesTab: FC<Props> = ({ scrollToTheTabsBar }) => {
             )}
           >
             {({ ref, opened, toggleOpened }) => (
-              <Button
+              <ButtonForManageDropdown
                 ref={ref}
-                title={t('manage')}
-                className={clsx(
-                  'flex flex-shrink-0 items-center justify-center w-10 ml-2 rounded-lg',
-                  'transition ease-in-out duration-200 hover:bg-gray-200',
-                  'opacity-75 hover:opacity-100 focus:opacity-100',
-                  opened && 'bg-gray-200'
-                )}
+                opened={opened}
+                tooltip={t('manageAssetsList')}
                 onClick={toggleOpened}
                 testID={AssetsSelectors.manageButton}
                 testIDProperties={{ listOf: 'Collectibles' }}
-              >
-                <ManageIcon className={svgIconClassName} />
-              </Button>
+              />
             )}
           </Popper>
         </div>
@@ -144,7 +137,7 @@ const ManageButtonDropdown: FC<ManageButtonDropdownProps> = ({ opened, areDetail
         testID={AssetsSelectors.dropdownManageButton}
         testIDProperties={{ listOf: 'Collectibles' }}
       >
-        <EditingIcon className={svgIconClassName} />
+        <EditingIcon className="w-4 h-4 stroke-current fill-current text-gray-600" />
         <span className="text-sm text-gray-600 ml-2 leading-5">
           <T id="manage" />
         </span>

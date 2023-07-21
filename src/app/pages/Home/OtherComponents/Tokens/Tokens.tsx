@@ -4,17 +4,17 @@ import { BigNumber } from 'bignumber.js';
 import clsx from 'clsx';
 import { useDispatch } from 'react-redux';
 
-import { SyncSpinner, Divider, Button, Checkbox } from 'app/atoms';
+import { SyncSpinner, Divider, Checkbox } from 'app/atoms';
 import DropdownWrapper from 'app/atoms/DropdownWrapper';
 import { PartnersPromotion, PartnersPromotionVariant } from 'app/atoms/partners-promotion';
 import { useAppEnv } from 'app/env';
 import { useBalancesWithDecimals } from 'app/hooks/use-balances-with-decimals.hook';
 import { ReactComponent as EditingIcon } from 'app/icons/editing.svg';
-import { ReactComponent as ManageIcon } from 'app/icons/manage.svg';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
 import { loadPartnersPromoAction } from 'app/store/partners-promotion/actions';
 import { useShouldShowPartnersPromoSelector } from 'app/store/partners-promotion/selectors';
 import { useIsEnabledAdsBannerSelector } from 'app/store/settings/selectors';
+import { ButtonForManageDropdown } from 'app/templates/ManageDropdown';
 import SearchAssetField from 'app/templates/SearchAssetField';
 import { OptimalPromoVariantEnum } from 'lib/apis/optimal';
 import { TEMPLE_TOKEN_SLUG } from 'lib/assets';
@@ -141,6 +141,7 @@ export const TokensTab: FC = () => {
             onValueChange={setSearchValue}
             onFocus={handleSearchFieldFocus}
             onBlur={handleSearchFieldBlur}
+            className="mr-2"
             testID={AssetsSelectors.searchAssetsInputTokens}
           />
 
@@ -156,21 +157,14 @@ export const TokensTab: FC = () => {
             )}
           >
             {({ ref, opened, toggleOpened }) => (
-              <Button
+              <ButtonForManageDropdown
                 ref={ref}
-                title={t('manage')}
-                className={clsx(
-                  'flex flex-shrink-0 items-center justify-center w-10 ml-2 rounded-lg',
-                  'transition ease-in-out duration-200 hover:bg-gray-200',
-                  'opacity-75 hover:opacity-100 focus:opacity-100',
-                  opened && 'bg-gray-200'
-                )}
+                opened={opened}
+                tooltip={t('manageAssetsList')}
                 onClick={toggleOpened}
                 testID={AssetsSelectors.manageButton}
                 testIDProperties={{ listOf: 'Tokens' }}
-              >
-                <ManageIcon className={svgIconClassName} />
-              </Button>
+              />
             )}
           </Popper>
         </div>
