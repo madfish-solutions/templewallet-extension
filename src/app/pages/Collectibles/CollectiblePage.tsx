@@ -24,9 +24,9 @@ import { useInterval } from 'lib/ui/hooks';
 import { Image } from 'lib/ui/Image';
 import { navigate } from 'lib/woozie';
 
-import { CollectibleImage } from './CollectibleImage';
+import { CollectibleImage } from './components/CollectibleImage';
+import { useCollectibleSelling } from './hooks/use-collectible-selling.hook';
 import { CollectiblesSelectors } from './selectors';
-import { useCollectibleSelling } from './use-collectible-selling.hook';
 
 const DETAILS_SYNC_INTERVAL = 4 * BLOCK_DURATION;
 

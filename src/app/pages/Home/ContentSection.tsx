@@ -15,7 +15,7 @@ import { T, t, TID } from 'lib/i18n';
 import { Link } from 'lib/woozie';
 
 import { useUserTestingGroupNameSelector } from '../../store/ab-testing/selectors';
-import { CollectiblesTab } from '../Collectibles/CollectiblesTab';
+import { CollectiblesTab } from '../Collectibles/components/CollectiblesTab';
 import { HomeSelectors } from './Home.selectors';
 import BakingSection from './OtherComponents/BakingSection';
 import { TokensTab } from './OtherComponents/Tokens/Tokens';

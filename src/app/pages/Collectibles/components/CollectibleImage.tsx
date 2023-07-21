@@ -7,9 +7,12 @@ import { useAllCollectiblesDetailsLoadingSelector } from 'app/store/collectibles
 import { AssetImage } from 'app/templates/AssetImage';
 import { AssetMetadataBase } from 'lib/metadata';
 
-import { NonStaticCollectibleMimeTypes } from './NonStaticMimeTypes.enum';
-import { SimpleModelViewer } from './SimpleModelViewer';
-import { formatCollectibleObjktArtifactUri, isSvgDataUriInUtf8Encoding } from './utils/image.utils';
+import { NonStaticCollectibleMimeTypes } from '../enums/NonStaticMimeTypes.enum';
+import { formatCollectibleObjktArtifactUri, isSvgDataUriInUtf8Encoding } from '../utils/image.utils';
+import { AnimatedSvg } from './AnimatedSvg';
+import { AudioCollectible } from './AudioCollectible';
+import { ModelViewer } from './ModelViewer';
+import { VideoCollectible } from './VideoCollectible';
 
 interface Props {
   assetSlug: string;
@@ -30,72 +33,51 @@ export const CollectibleImage: FC<Props> = ({
   className,
   style
 }) => {
-  const [isAnimatedRenderFailed, setIsAnimatedRenderFailed] = useState(false);
-  const [isAnimatedLoading, setIsAnimatedLoading] = useState(true);
+  const [isRenderFailedOnce, setIsRenderFailedOnce] = useState(false);
   const isDetailsLoading = useAllCollectiblesDetailsLoadingSelector();
 
-  const handleError = () => {
-    setIsAnimatedRenderFailed(true);
-    setIsAnimatedLoading(false);
-  };
-
-  const handleAnimatedLoadEnd = () => setIsAnimatedLoading(false);
+  const handleError = () => setIsRenderFailedOnce(true);
 
   if (large && isDetailsLoading) {
     return <ImageLoader large={large} />;
   }
 
-  if (objktArtifactUri && isSvgDataUriInUtf8Encoding(objktArtifactUri) && !isAnimatedRenderFailed) {
-    return (
-      <>
-        <img
-          src={objktArtifactUri}
+  if (objktArtifactUri && !isRenderFailedOnce) {
+    if (isSvgDataUriInUtf8Encoding(objktArtifactUri)) {
+      return (
+        <AnimatedSvg
+          uri={objktArtifactUri}
           alt={metadata?.name}
+          loader={<ImageLoader large={large} />}
           className={className}
           style={style}
-          onLoad={handleAnimatedLoadEnd}
           onError={handleError}
         />
-        {isAnimatedLoading && <ImageLoader large />}
-      </>
-    );
-  }
+      );
+    }
 
-  if (mime && objktArtifactUri && !isAnimatedRenderFailed) {
-    if (mime === NonStaticCollectibleMimeTypes.MODEL) {
-      return (
-        <>
-          <SimpleModelViewer
-            uri={formatCollectibleObjktArtifactUri(objktArtifactUri)}
-            onLoad={handleAnimatedLoadEnd}
-            onError={handleError}
-          />
-          {isAnimatedLoading && <ImageLoader large />}
-        </>
-      );
-    } else if (mime === NonStaticCollectibleMimeTypes.VIDEO) {
-      return (
-        <video autoPlay loop onLoadedData={handleAnimatedLoadEnd} onError={handleError}>
-          <source src={formatCollectibleObjktArtifactUri(objktArtifactUri)} type="video/mp4" />
-          {isAnimatedLoading && <ImageLoader large />}
-        </video>
-      );
+    if (mime) {
+      switch (mime) {
+        case NonStaticCollectibleMimeTypes.MODEL:
+          return (
+            <ModelViewer
+              uri={formatCollectibleObjktArtifactUri(objktArtifactUri)}
+              loader={<ImageLoader large />}
+              onError={handleError}
+            />
+          );
+        case NonStaticCollectibleMimeTypes.VIDEO:
+          return (
+            <VideoCollectible uri={objktArtifactUri} loader={<ImageLoader large={large} />} onError={handleError} />
+          );
+      }
     }
   }
 
   return (
     <>
-      {objktArtifactUri && mime === NonStaticCollectibleMimeTypes.AUDIO && !isAnimatedRenderFailed && (
-        <>
-          <audio
-            autoPlay
-            loop
-            src={formatCollectibleObjktArtifactUri(objktArtifactUri)}
-            onLoadedData={handleAnimatedLoadEnd}
-            onError={handleError}
-          />
-          {isAnimatedLoading && <ImageLoader large />}
-        </>
+      {objktArtifactUri && mime === NonStaticCollectibleMimeTypes.AUDIO && !isRenderFailedOnce && (
+        <AudioCollectible uri={objktArtifactUri} loader={<ImageLoader large={large} />} onError={handleError} />
       )}
       <AssetImage
         metadata={metadata}
