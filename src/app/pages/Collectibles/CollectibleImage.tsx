@@ -2,6 +2,7 @@ import React, { FC, useState } from 'react';
 
 import Spinner from 'app/atoms/Spinner/Spinner';
 import { ReactComponent as BrokenImageSvg } from 'app/icons/broken-image.svg';
+import { ReactComponent as MusicSvg } from 'app/icons/music.svg';
 import { AssetImage } from 'app/templates/AssetImage';
 import { AssetMetadataBase } from 'lib/metadata';
 
@@ -79,19 +80,34 @@ export const CollectibleImage: FC<Props> = ({
   }
 
   return (
-    <AssetImage
-      metadata={metadata}
-      assetSlug={assetSlug}
-      loader={<ImageLoader large={large} />}
-      fallback={<ImageFallback large={large} />}
-      className={className}
-      style={style}
-    />
+    <>
+      {initialArtifactUri && mime === NonStaticCollectibleMimeTypes.AUDIO && (
+        <>
+          <audio
+            autoPlay
+            loop
+            src={formatCollectibleObjktArtifactUri(initialArtifactUri)}
+            onLoad={handleLoadEnd}
+            onError={handleError}
+          />
+          {isLoading && <ImageLoader large />}
+        </>
+      )}
+      <AssetImage
+        metadata={metadata}
+        assetSlug={assetSlug}
+        loader={<ImageLoader large={large} />}
+        fallback={<ImageFallback large={large} />}
+        className={className}
+        style={style}
+      />
+    </>
   );
 };
 
 interface ImageFallbackProps {
   large?: boolean;
+  isAudioCollectible?: boolean;
 }
 
 const ImageLoader: FC<ImageFallbackProps> = ({ large }) => (
@@ -100,8 +116,11 @@ const ImageLoader: FC<ImageFallbackProps> = ({ large }) => (
   </div>
 );
 
-const ImageFallback: FC<ImageFallbackProps> = ({ large }) => (
-  <div className="w-full h-full flex items-center justify-center">
-    <BrokenImageSvg height={large ? '23%' : '32%'} />
-  </div>
-);
+const ImageFallback: FC<ImageFallbackProps> = ({ large, isAudioCollectible = false }) => {
+  const height = large ? '23%' : '32%';
+  return (
+    <div className="w-full h-full flex items-center justify-center">
+      {isAudioCollectible ? <MusicSvg height={height} /> : <BrokenImageSvg height={height} />}
+    </div>
+  );
+};
