@@ -1,4 +1,4 @@
-import React, { CSSProperties, FC, useState } from 'react';
+import React, { CSSProperties, FC, useCallback, useState } from 'react';
 
 import { emptyFn } from 'app/utils/function.utils';
 
@@ -13,16 +13,11 @@ interface Props {
 export const AnimatedSvg: FC<Props> = ({ uri, alt, loader, className, style, onError = emptyFn }) => {
   const [isLoading, setIsLoading] = useState(true);
 
+  const handleLoad = useCallback(() => setIsLoading(false), []);
+
   return (
     <>
-      <img
-        src={uri}
-        alt={alt}
-        className={className}
-        style={style}
-        onLoad={() => setIsLoading(false)}
-        onError={onError}
-      />
+      <img src={uri} alt={alt} className={className} style={style} onLoad={handleLoad} onError={onError} />
       {isLoading && loader}
     </>
   );
