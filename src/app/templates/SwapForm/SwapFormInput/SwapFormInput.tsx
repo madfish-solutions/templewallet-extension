@@ -160,6 +160,7 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
               amount={value.amount}
               amountInputDisabled={Boolean(amountInputDisabled)}
               onChange={handleAmountChange}
+              selectedAssetSlug={assetSlugWithFallback}
               selectedAssetMetadata={assetMetadata}
             />
           }
