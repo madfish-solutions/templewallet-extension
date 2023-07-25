@@ -1,3 +1,4 @@
+import { ContractAbstraction, ContractProvider, ContractMethod } from '@taquito/taquito';
 interface Name {
   name: string;
 }
@@ -7,11 +8,20 @@ export interface Tag {
 }
 
 export interface Attribute {
-  attribute: Name;
+  attribute: {
+    id: number;
+    name: string;
+    value: string;
+    attribute_counts: {
+      fa_contract: string;
+      editions: number;
+    }[];
+  };
 }
 
 export interface GetUserObjktCollectiblesResponse {
   token: UserObjktCollectible[];
+  gallery_attribute_count: ObjktGalleryAttributeCount[];
 }
 
 interface ObjktListing {
@@ -20,10 +30,16 @@ interface ObjktListing {
 }
 
 export interface UserObjktCollectible {
+  /** Contract address */
   fa_contract: string;
   token_id: string;
   listings_active: ObjktListing[];
   description: string | null;
+  /** Minted on date.
+   * ISO String (e.g. `2023-05-30T09:40:33+00:00`)
+   */
+  timestamp: string;
+  metadata: string | null;
   creators: {
     holder: {
       address: string;
@@ -33,12 +49,45 @@ export interface UserObjktCollectible {
   fa: {
     name: string;
     logo: string;
+    editions: number;
   };
   galleries: {
     gallery: {
       name: string;
+      editions: number;
     };
   }[];
   tags: Tag[];
+  offers_active: {
+    buyer_address: string;
+    price: number;
+    currency_id: number;
+    bigmap_key: number;
+    marketplace_contract: string;
+    __typename: 'offer_active';
+  }[];
   attributes: Attribute[];
+  supply: number;
+  royalties: {
+    decimals: number;
+    amount: number;
+  }[];
+  __typename: 'token';
+}
+
+export interface ObjktGalleryAttributeCount {
+  attribute_id: number;
+  editions: number;
+}
+
+export interface ObjktContractInterface extends ContractAbstraction<ContractProvider> {
+  methods: {
+    fulfill_offer: (offer_id: number, token_id: number) => ContractMethod<ContractProvider>;
+  };
+}
+
+export interface FxHashContractInterface extends ContractAbstraction<ContractProvider> {
+  methods: {
+    offer_accept: (offer_id: number) => ContractMethod<ContractProvider>;
+  };
 }

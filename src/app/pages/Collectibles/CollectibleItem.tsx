@@ -8,7 +8,8 @@ import { useAppEnv } from 'app/env';
 import { useCollectibleDetailsSelector } from 'app/store/collectibles/selectors';
 import { useTokenMetadataSelector } from 'app/store/tokens-metadata/selectors';
 import { objktCurrencies } from 'lib/apis/objkt';
-import { getAssetName, TEZOS_METADATA } from 'lib/metadata';
+import { T } from 'lib/i18n';
+import { getAssetName } from 'lib/metadata';
 import { useBalance } from 'lib/temple/front';
 import { atomsToTokens } from 'lib/temple/helpers';
 import { useIntersectionDetection } from 'lib/ui/use-intersection-detection';
@@ -29,6 +30,8 @@ export const CollectibleItem: FC<Props> = ({ assetSlug, accountPkh, areDetailsSh
   const [displayed, setDisplayed] = useState(true);
   const { data: balance } = useBalance(assetSlug, accountPkh, { displayed });
   const details = useCollectibleDetailsSelector(assetSlug);
+
+  console.log('details?.isAdultContent: ', details?.isAdultContent);
 
   const listing = useMemo(() => {
     if (!details?.listing) return null;
@@ -76,10 +79,12 @@ export const CollectibleItem: FC<Props> = ({ assetSlug, accountPkh, areDetailsSh
         <div className="mt-1 mb-2 mx-1.5">
           <h5 className="text-sm leading-5 text-gray-910 truncate">{assetName}</h5>
           <div className="text-2xs leading-3 text-gray-600">
-            <span>Floor: </span>
+            <span>
+              <T id="floorPrice" />:{' '}
+            </span>
             {isDefined(listing) ? (
               <>
-                <Money shortened smallFractionFont={false} tooltip={true} cryptoDecimals={TEZOS_METADATA.decimals}>
+                <Money shortened smallFractionFont={false} tooltip={true}>
                   {atomsToTokens(listing.floorPrice, listing.decimals)}
                 </Money>
                 <span> {listing.symbol}</span>

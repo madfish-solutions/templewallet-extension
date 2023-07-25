@@ -34,6 +34,7 @@ module.exports = {
           100: '#f7fafc',
           200: '#edf2f7',
           300: '#e2e8f0',
+          350: '#d8e0e8',
           400: '#cbd5e0',
           500: '#a0aec0',
           600: '#718096',
@@ -280,21 +281,6 @@ module.exports = {
         inter: ["'Inter'", ...baseFontFamily.sans]
       };
     })(),
-    fontSize: {
-      '2xs': '0.625rem',
-      xs: '0.75rem',
-      sm: '0.875rem',
-      base: '1rem',
-      ulg: '1.0625rem',
-      lg: '1.125rem',
-      xl: '1.25rem',
-      '2xl': '1.5rem',
-      '2xl-plus': '1.75rem',
-      '3xl': '1.875rem',
-      '4xl': '2.25rem',
-      '5xl': '3rem',
-      '6xl': '4rem'
-    },
     fontWeight: {
       hairline: '100',
       thin: '200',
@@ -587,7 +573,13 @@ module.exports = {
       }
     },
     extend: {
+      fontSize: {
+        '2xs': '0.625rem',
+        ulg: '1.0625rem',
+        '2xl-plus': '1.75rem'
+      },
       spacing: {
+        1.5: '0.375rem',
         13: '3.25rem',
         15: '3.75rem',
         18: '4.5rem',
