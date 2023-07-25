@@ -3,10 +3,7 @@ import React, { useCallback, useMemo } from 'react';
 import classNames from 'clsx';
 import { useForm } from 'react-hook-form';
 
-import { FormField, FormSubmitButton } from 'app/atoms';
-import Identicon from 'app/atoms/Identicon';
-import Name from 'app/atoms/Name';
-import SubTitle from 'app/atoms/SubTitle';
+import { Name, Identicon, FormField, FormSubmitButton, HashChip, SubTitle } from 'app/atoms';
 import { ReactComponent as CloseIcon } from 'app/icons/close.svg';
 import { t, T } from 'lib/i18n';
 import { isDomainNameValid, useTezosDomainsClient, useContacts, useFilteredContacts } from 'lib/temple/front';
@@ -16,8 +13,6 @@ import { useConfirm } from 'lib/ui/dialog';
 import { withErrorHumanDelay } from 'lib/ui/humanDelay';
 
 import CustomSelect, { OptionRenderProps } from '../CustomSelect';
-import HashChip from '../HashChip';
-// eslint-disable-next-line import/namespace
 import { AddressBookSelectors } from './AddressBook.selectors';
 
 type ContactActions = {

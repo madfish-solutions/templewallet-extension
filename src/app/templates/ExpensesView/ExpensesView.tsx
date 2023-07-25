@@ -5,12 +5,10 @@ import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
 import { Collapse } from 'react-collapse';
 
-import Identicon from 'app/atoms/Identicon';
-import Money from 'app/atoms/Money';
+import { HashChip, Money, Identicon } from 'app/atoms';
 import PlainAssetInput from 'app/atoms/PlainAssetInput';
 import { ReactComponent as ChevronDownIcon } from 'app/icons/chevron-down.svg';
 import { ReactComponent as ClipboardIcon } from 'app/icons/clipboard.svg';
-import HashChip from 'app/templates/HashChip';
 import InFiat from 'app/templates/InFiat';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { TProps, T, t } from 'lib/i18n';
