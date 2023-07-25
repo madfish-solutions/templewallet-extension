@@ -6,7 +6,7 @@ import classNames from 'clsx';
 import { AnalyticsEventCategory, setTestID, TestIDProps, useAnalytics } from 'lib/analytics';
 import { getNumberSymbols, toLocalFixed, toLocalFormat, toShortened, t } from 'lib/i18n';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
-import useTippy, { TippyInstance, TippyProps } from 'lib/ui/useTippy';
+import useTippy, { TippyInstance, UseTippyOptions } from 'lib/ui/useTippy';
 
 interface MoneyProps extends TestIDProps {
   children: number | string | BigNumber;
@@ -250,7 +250,7 @@ const FullAmountTippy: FC<FullAmountTippyProps> = ({
   }, [copied, showAmountTooltip, fullAmountStr]);
 
   const tippyInstanceRef = useRef<TippyInstance>();
-  const tippyProps = useMemo<TippyProps>(
+  const tippyProps = useMemo<UseTippyOptions>(
     () => ({
       trigger: 'mouseenter',
       hideOnClick: false,

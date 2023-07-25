@@ -95,7 +95,7 @@ export const ImportFromKeystoreFile: FC<ImportFromKeystoreFileProps> = ({
       />
       <FormSubmitButton
         loading={submitting}
-        style={{ display: 'block', width: '100%', margin: '40px auto', fontSize: 14, fontWeight: 500 }}
+        className="w-full my-10 mx-auto"
         testID={ImportFromKeystoreFileSelectors.nextButton}
       >
         <T id="next" />

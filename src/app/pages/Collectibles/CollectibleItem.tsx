@@ -6,15 +6,16 @@ import clsx from 'clsx';
 import Money from 'app/atoms/Money';
 import { useAppEnv } from 'app/env';
 import { useCollectibleDetailsSelector } from 'app/store/collectibles/selectors';
+import { useTokenMetadataSelector } from 'app/store/tokens-metadata/selectors';
 import { objktCurrencies } from 'lib/apis/objkt';
 import { T } from 'lib/i18n';
-import { useAssetMetadata, getAssetName } from 'lib/metadata';
+import { getAssetName } from 'lib/metadata';
 import { useBalance } from 'lib/temple/front';
 import { atomsToTokens } from 'lib/temple/helpers';
 import { useIntersectionDetection } from 'lib/ui/use-intersection-detection';
 import { Link } from 'lib/woozie';
 
-import { CollectibleImage } from './CollectibleImage';
+import { CollectibleItemImage } from './CollectibleItemImage/CollectibleItemImage';
 
 interface Props {
   assetSlug: string;
@@ -24,7 +25,7 @@ interface Props {
 
 export const CollectibleItem: FC<Props> = ({ assetSlug, accountPkh, areDetailsShown }) => {
   const { popup } = useAppEnv();
-  const metadata = useAssetMetadata(assetSlug);
+  const metadata = useTokenMetadataSelector(assetSlug);
   const toDisplayRef = useRef<HTMLDivElement>(null);
   const [displayed, setDisplayed] = useState(true);
   const { data: balance } = useBalance(assetSlug, accountPkh, { displayed });
@@ -34,6 +35,7 @@ export const CollectibleItem: FC<Props> = ({ assetSlug, accountPkh, areDetailsSh
     if (!details?.listing) return null;
 
     const { floorPrice, currencyId } = details.listing;
+
     const currency = objktCurrencies[currencyId];
 
     if (!isDefined(currency)) return null;
@@ -60,7 +62,9 @@ export const CollectibleItem: FC<Props> = ({ assetSlug, accountPkh, areDetailsSh
         )}
         title={assetName}
       >
-        {displayed && <CollectibleImage metadata={metadata} assetSlug={assetSlug} />}
+        {displayed && (
+          <CollectibleItemImage metadata={metadata} assetSlug={assetSlug} isAdultContent={details?.isAdultContent} />
+        )}
 
         {areDetailsShown && balance ? (
           <div className="absolute bottom-1.5 left-1.5 text-2xs text-white leading-none p-1 bg-black bg-opacity-60 rounded">

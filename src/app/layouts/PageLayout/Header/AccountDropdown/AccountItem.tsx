@@ -2,12 +2,8 @@ import React, { useMemo } from 'react';
 
 import classNames from 'clsx';
 
+import { Name, Button, HashShortView, Money, Identicon } from 'app/atoms';
 import AccountTypeBadge from 'app/atoms/AccountTypeBadge';
-import { Button } from 'app/atoms/Button';
-import HashShortView from 'app/atoms/HashShortView';
-import Identicon from 'app/atoms/Identicon';
-import Money from 'app/atoms/Money';
-import Name from 'app/atoms/Name';
 import Balance from 'app/templates/Balance';
 import { TempleAccount } from 'lib/temple/types';
 import { useScrollIntoViewOnMount } from 'lib/ui/use-scroll-into-view';
