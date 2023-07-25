@@ -16,7 +16,7 @@ import { AssetTypesEnum } from 'lib/assets/types';
 import { T, t } from 'lib/i18n';
 import { useAssetMetadata, getAssetName, getAssetSymbol } from 'lib/metadata';
 import { setTokenStatus } from 'lib/temple/assets';
-import { useAccount, useAvailableAssets, useChainId, useFilteredAssets } from 'lib/temple/front';
+import { useAccount, useChainId, useAvailableAssetsSlugs, useFilteredAssetsSlugs } from 'lib/temple/front';
 import { ITokenStatus } from 'lib/temple/repo';
 import { useConfirm } from 'lib/ui/dialog';
 import { Link } from 'lib/woozie';
@@ -47,10 +47,10 @@ const ManageAssetsContent: FC<Props> = ({ assetType }) => {
   const account = useAccount();
   const address = account.publicKeyHash;
 
-  const { availableAssets, assetsStatuses, isLoading, mutate } = useAvailableAssets(
+  const { availableAssets, assetsStatuses, isLoading, mutate } = useAvailableAssetsSlugs(
     assetType === AssetTypesEnum.Collectibles ? AssetTypesEnum.Collectibles : AssetTypesEnum.Tokens
   );
-  const { filteredAssets, searchValue, setSearchValue } = useFilteredAssets(availableAssets);
+  const { filteredAssets, searchValue, setSearchValue } = useFilteredAssetsSlugs(availableAssets, false);
 
   const confirm = useConfirm();
 

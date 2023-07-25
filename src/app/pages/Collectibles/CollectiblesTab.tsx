@@ -1,6 +1,8 @@
-import React, { FC, useCallback, useEffect, useMemo } from 'react';
+import React, { FC, useCallback, useEffect } from 'react';
 
 import clsx from 'clsx';
+import { isEqual } from 'lodash';
+import { useCustomCompareMemo } from 'use-custom-compare';
 
 import { SyncSpinner } from 'app/atoms';
 import Checkbox from 'app/atoms/Checkbox';
@@ -15,7 +17,7 @@ import { ButtonForManageDropdown } from 'app/templates/ManageDropdown';
 import SearchAssetField from 'app/templates/SearchAssetField';
 import { AssetTypesEnum } from 'lib/assets/types';
 import { T, t } from 'lib/i18n';
-import { useAccount, useChainId, useCollectibleTokens, useFilteredAssets } from 'lib/temple/front';
+import { useAccount, useChainId, useCollectibleTokens, useFilteredAssetsSlugs } from 'lib/temple/front';
 import { useSyncTokens } from 'lib/temple/front/sync-tokens';
 import { useLocalStorage } from 'lib/ui/local-storage';
 import Popper, { PopperRenderProps } from 'lib/ui/Popper';
@@ -44,9 +46,13 @@ export const CollectiblesTab: FC<Props> = ({ scrollToTheTabsBar }) => {
     true
   );
 
-  const collectibleSlugs = useMemo(() => collectibles.map(collectible => collectible.tokenSlug), [collectibles]);
+  const collectiblesSlugs = useCustomCompareMemo(
+    () => collectibles.map(collectible => collectible.tokenSlug).sort(),
+    [collectibles],
+    isEqual
+  );
 
-  const { filteredAssets, searchValue, setSearchValue } = useFilteredAssets(collectibleSlugs);
+  const { filteredAssets, searchValue, setSearchValue } = useFilteredAssetsSlugs(collectiblesSlugs, false);
 
   const shouldScrollToTheTabsBar = collectibles.length > 0;
   useEffect(() => void scrollToTheTabsBar(), [shouldScrollToTheTabsBar, scrollToTheTabsBar]);

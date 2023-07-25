@@ -1,28 +1,24 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
 import { BigNumber } from 'bignumber.js';
-import { useDispatch } from 'react-redux';
 import { ScopedMutator } from 'swr/dist/types';
 import { useDebounce } from 'use-debounce';
 
 import { useBalancesWithDecimals } from 'app/hooks/use-balances-with-decimals.hook';
-import { useBalancesSelector } from 'app/store/balances/selectors';
-import { useSwapTokensSelector } from 'app/store/swap/selectors';
-import { loadTokensMetadataAction } from 'app/store/tokens-metadata/actions';
-import { useTokensMetadataSelector, useTokensMetadataLoadingSelector } from 'app/store/tokens-metadata/selectors';
-import { isTezAsset, TEMPLE_TOKEN_SLUG, TEZ_TOKEN_SLUG, toTokenSlug } from 'lib/assets';
+import { useTokensMetadataSelector } from 'app/store/tokens-metadata/selectors';
+import { isTezAsset, TEMPLE_TOKEN_SLUG, toTokenSlug } from 'lib/assets';
 import { AssetTypesEnum } from 'lib/assets/types';
+import { useAccountBalances } from 'lib/balances';
 import { useUsdToTokenRates } from 'lib/fiat-currency/core';
 import { TOKENS_SYNC_INTERVAL } from 'lib/fixed-times';
-import { isCollectible } from 'lib/metadata';
+import { isCollectible, useTokensMetadataWithPresenceCheck } from 'lib/metadata';
 import { FILM_METADATA, TEZOS_METADATA } from 'lib/metadata/defaults';
 import type { AssetMetadataBase } from 'lib/metadata/types';
 import { useRetryableSWR } from 'lib/swr';
 import { getStoredTokens, getAllStoredTokensSlugs, isTokenDisplayed } from 'lib/temple/assets';
 import { useNetwork } from 'lib/temple/front';
 import { ITokenStatus } from 'lib/temple/repo';
-import { isTruthy } from 'lib/utils';
 import { searchAndFilterItems } from 'lib/utils/search-items';
 
 import { useChainId, useAccount } from './ready';
@@ -115,9 +111,9 @@ export const useGetTokenMetadata = () => {
 
 type TokenStatuses = Record<string, { displayed: boolean; removed: boolean }>;
 
-export const useAvailableAssets = (assetType: AssetTypesEnum) => {
+export const useAvailableAssetsSlugs = (assetType: AssetTypesEnum) => {
   const chainId = useChainId(true)!;
-  const account = useAccount();
+  const { publicKeyHash } = useAccount();
   const allTokensMetadata = useTokensMetadataSelector();
 
   const { data: allCollectiblesSlugs = [], isValidating: allKnownCollectiblesTokenSlugsLoading } =
@@ -127,7 +123,7 @@ export const useAvailableAssets = (assetType: AssetTypesEnum) => {
     data: collectibles = [],
     mutate: mutateCollectibles,
     isValidating: collectibleTokensLoading
-  } = useCollectibleTokens(chainId, account.publicKeyHash, false);
+  } = useCollectibleTokens(chainId, publicKeyHash, false);
 
   const { data: allTokenSlugs = [], isValidating: allKnownFungibleTokenSlugsLoading } =
     useAllKnownFungibleTokenSlugs(chainId);
@@ -136,7 +132,7 @@ export const useAvailableAssets = (assetType: AssetTypesEnum) => {
     data: tokens = [],
     mutate: mutateTokens,
     isValidating: fungibleTokensLoading
-  } = useFungibleTokens(chainId, account.publicKeyHash);
+  } = useFungibleTokens(chainId, publicKeyHash);
 
   const isCollectibles = assetType === AssetTypesEnum.Collectibles;
   const assets = isCollectibles ? collectibles : tokens;
@@ -162,7 +158,7 @@ export const useAvailableAssets = (assetType: AssetTypesEnum) => {
 
   const availableAssets = useMemo(
     () =>
-      slugs.filter(slug => slug in allTokensMetadata && !assetsStatuses[slug]?.removed && slug !== TEMPLE_TOKEN_SLUG),
+      slugs.filter(slug => slug !== TEMPLE_TOKEN_SLUG && slug in allTokensMetadata && !assetsStatuses[slug]?.removed),
     [slugs, allTokensMetadata, assetsStatuses]
   );
 
@@ -198,157 +194,89 @@ const useAllKnownTokensSlugs = (chainId: string, fungible = true) => {
   };
 };
 
-export const useAvailableRoute3Tokens = () => {
-  const { data: route3tokens, isLoading } = useSwapTokensSelector();
-
-  const route3tokensSlugs = useMemo(() => {
-    const result: Array<string> = [];
-
-    for (const { contract, tokenId } of route3tokens) {
-      if (contract !== null) {
-        result.push(toTokenSlug(contract, tokenId ?? 0));
-      }
-    }
-
-    return result;
-  }, [route3tokens]);
-
-  return {
-    isLoading,
-    route3tokensSlugs
-  };
-};
-
-const FIRST_HOME_PAGE_TOKENS = [TEZ_TOKEN_SLUG, TEMPLE_TOKEN_SLUG];
-const FIRST_SWAP_SEND_TOKENS = [TEZ_TOKEN_SLUG];
-
-function makeAssetsSortPredicate(
-  balances: Record<string, BigNumber>,
-  fiatToTokenRates: Record<string, string>,
-  leadingAssetsSlugs: Array<string> = []
-) {
-  return (tokenASlug: string, tokenBSlug: string) => {
-    const tokenAIncluded = leadingAssetsSlugs.includes(tokenASlug);
-    const tokenBIncluded = leadingAssetsSlugs.includes(tokenBSlug);
-
-    if (tokenAIncluded && tokenBIncluded) {
-      const tokenAIndex = leadingAssetsSlugs.indexOf(tokenASlug);
-      const tokenBIndex = leadingAssetsSlugs.indexOf(tokenBSlug);
-
-      return tokenAIndex - tokenBIndex;
-    }
-
-    if (tokenAIncluded) {
-      return -1;
-    }
-
-    if (tokenBIncluded) {
-      return 1;
-    }
-
-    const tokenABalance = balances[tokenASlug] ?? new BigNumber(0);
-    const tokenBBalance = balances[tokenBSlug] ?? new BigNumber(0);
-    const tokenAEquity = tokenABalance.multipliedBy(fiatToTokenRates[tokenASlug] ?? 0);
-    const tokenBEquity = tokenBBalance.multipliedBy(fiatToTokenRates[tokenBSlug] ?? 0);
-
-    if (tokenAEquity.isEqualTo(tokenBEquity)) {
-      return tokenBBalance.comparedTo(tokenABalance);
-    }
-
-    return tokenBEquity.comparedTo(tokenAEquity);
-  };
-}
-
-export function useAssetsSortPredicate(leadingAssetsSlugs?: Array<string>) {
+export function useAssetsSortPredicate() {
   const balances = useBalancesWithDecimals();
   const usdToTokenRates = useUsdToTokenRates();
 
   return useCallback(
-    (tokenASlug: string, tokenBSlug: string) =>
-      makeAssetsSortPredicate(balances, usdToTokenRates, leadingAssetsSlugs)(tokenASlug, tokenBSlug),
+    (tokenASlug: string, tokenBSlug: string) => {
+      const tokenABalance = balances[tokenASlug] ?? new BigNumber(0);
+      const tokenBBalance = balances[tokenBSlug] ?? new BigNumber(0);
+      const tokenAEquity = tokenABalance.multipliedBy(usdToTokenRates[tokenASlug] ?? 0);
+      const tokenBEquity = tokenBBalance.multipliedBy(usdToTokenRates[tokenBSlug] ?? 0);
+
+      if (tokenAEquity.isEqualTo(tokenBEquity)) {
+        return tokenBBalance.comparedTo(tokenABalance);
+      }
+
+      return tokenBEquity.comparedTo(tokenAEquity);
+    },
     [balances, usdToTokenRates]
   );
 }
 
-export function useFilteredAssets(assetSlugs: string[]) {
-  const allTokensMetadata = useTokensMetadataSelector();
-  const assetsSortPredicate = useAssetsSortPredicate(FIRST_HOME_PAGE_TOKENS);
+export function useFilteredAssetsSlugs(
+  assetsSlugs: string[],
+  filterZeroBalances = false,
+  leadingAssets?: string[],
+  leadingAssetsAreFilterable = true
+) {
+  const allTokensMetadata = useTokensMetadataWithPresenceCheck(assetsSlugs);
 
-  const [searchValue, setSearchValue] = useState('');
-  const [tokenId, setTokenId] = useState<number>();
-  const [searchValueDebounced] = useDebounce(tokenId ? toTokenSlug(searchValue, tokenId) : searchValue, 300);
-
-  const filteredAssets = useMemo(
-    () =>
-      searchAssetsWithNoMeta(searchValueDebounced, assetSlugs, allTokensMetadata, slug => slug).sort(
-        assetsSortPredicate
-      ),
-    [searchValueDebounced, assetSlugs, allTokensMetadata, assetsSortPredicate]
+  assetsSlugs = useMemo(
+    () => (leadingAssets?.length ? assetsSlugs.filter(slug => leadingAssets.includes(slug)) : assetsSlugs),
+    [assetsSlugs, leadingAssets]
   );
 
-  return {
-    filteredAssets,
-    searchValue,
-    setSearchValue,
-    tokenId,
-    setTokenId
-  };
-}
+  const balances = useAccountBalances();
+  const isNonZeroBalance = useCallback(
+    (slug: string) => {
+      const balance = balances[slug];
+      return isDefined(balance) && balance !== '0';
+    },
+    [balances]
+  );
 
-export function useFilteredSwapAssets(inputName: string = 'input') {
-  const allTokensMetadata = useTokensMetadataSelector();
-  const assetsSortPredicate = useAssetsSortPredicate(FIRST_SWAP_SEND_TOKENS);
-  const { route3tokensSlugs } = useAvailableRoute3Tokens();
-  const { publicKeyHash } = useAccount();
-  const chainId = useChainId(true)!;
-  const balances = useBalancesSelector(publicKeyHash, chainId);
-  const tokensMetadataLoading = useTokensMetadataLoadingSelector();
-  const { rpcBaseURL: rpcUrl } = useNetwork();
-  const dispatch = useDispatch();
-
-  const assetSlugs = useMemo(() => {
-    if (inputName === 'input') {
-      const result: Array<string> = [TEZ_TOKEN_SLUG];
-
-      for (const slug of route3tokensSlugs) {
-        const balance = balances[slug];
-
-        if (balance !== undefined && balance !== '0') {
-          result.push(slug);
-        }
-      }
-
-      return result;
-    }
-
-    return [TEZ_TOKEN_SLUG, ...route3tokensSlugs];
-  }, [inputName, route3tokensSlugs, balances]);
+  const sourceArray = useMemo(
+    () => (filterZeroBalances ? assetsSlugs.filter(isNonZeroBalance) : assetsSlugs),
+    [filterZeroBalances, assetsSlugs, isNonZeroBalance]
+  );
 
   const [searchValue, setSearchValue] = useState('');
   const [tokenId, setTokenId] = useState<number>();
   const [searchValueDebounced] = useDebounce(tokenId ? toTokenSlug(searchValue, tokenId) : searchValue, 300);
 
-  useEffect(() => {
-    if (inputName !== 'output') {
-      return;
-    }
+  const assetsSortPredicate = useAssetsSortPredicate();
 
-    const metadataMissingAssetsSlugs = assetSlugs.filter(
-      assetSlug => !isTruthy(allTokensMetadata[assetSlug]) && !isTezAsset(assetSlug)
+  const searchedSlugs = useMemo(
+    () =>
+      searchAssetsWithNoMeta(searchValueDebounced, sourceArray, allTokensMetadata, slug => slug).sort(
+        assetsSortPredicate
+      ),
+    [searchValueDebounced, sourceArray, allTokensMetadata, assetsSortPredicate]
+  );
+
+  const filteredAssets = useMemo(() => {
+    if (!isDefined(leadingAssets) || !leadingAssets.length) return searchedSlugs;
+
+    const filteredLeadingSlugs = leadingAssetsAreFilterable ? leadingAssets.filter(isNonZeroBalance) : leadingAssets;
+
+    const searchedLeadingSlugs = searchAssetsWithNoMeta(
+      searchValueDebounced,
+      filteredLeadingSlugs,
+      allTokensMetadata,
+      slug => slug
     );
 
-    if (metadataMissingAssetsSlugs.length > 0 && !tokensMetadataLoading) {
-      dispatch(loadTokensMetadataAction({ rpcUrl, slugs: metadataMissingAssetsSlugs }));
-    }
-  }, [inputName, assetSlugs, allTokensMetadata, tokensMetadataLoading, dispatch, rpcUrl]);
-
-  const filteredAssets = useMemo(
-    () =>
-      searchAssetsWithNoMeta(searchValueDebounced, assetSlugs, allTokensMetadata, slug => slug).sort(
-        assetsSortPredicate
-      ),
-    [searchValueDebounced, assetSlugs, allTokensMetadata, assetsSortPredicate]
-  );
+    return searchedLeadingSlugs.length ? searchedLeadingSlugs.concat(searchedSlugs) : searchedSlugs;
+  }, [
+    leadingAssets,
+    leadingAssetsAreFilterable,
+    isNonZeroBalance,
+    searchedSlugs,
+    searchValueDebounced,
+    allTokensMetadata
+  ]);
 
   return {
     filteredAssets,

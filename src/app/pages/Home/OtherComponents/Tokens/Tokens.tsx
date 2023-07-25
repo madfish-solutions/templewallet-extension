@@ -2,7 +2,9 @@ import React, { FC, useCallback, useEffect, useMemo, useState } from 'react';
 
 import { BigNumber } from 'bignumber.js';
 import clsx from 'clsx';
+import { isEqual } from 'lodash';
 import { useDispatch } from 'react-redux';
+import { useCustomCompareMemo } from 'use-custom-compare';
 
 import { SyncSpinner, Divider, Checkbox } from 'app/atoms';
 import DropdownWrapper from 'app/atoms/DropdownWrapper';
@@ -17,13 +19,12 @@ import { useIsEnabledAdsBannerSelector } from 'app/store/settings/selectors';
 import { ButtonForManageDropdown } from 'app/templates/ManageDropdown';
 import SearchAssetField from 'app/templates/SearchAssetField';
 import { OptimalPromoVariantEnum } from 'lib/apis/optimal';
-import { TEMPLE_TOKEN_SLUG } from 'lib/assets';
+import { TEMPLE_TOKEN_SLUG, TEZ_TOKEN_SLUG } from 'lib/assets';
 import { T, t } from 'lib/i18n';
-import { useAccount, useChainId, useDisplayedFungibleTokens, useFilteredAssets } from 'lib/temple/front';
+import { useAccount, useChainId, useDisplayedFungibleTokens, useFilteredAssetsSlugs } from 'lib/temple/front';
 import { useSyncTokens } from 'lib/temple/front/sync-tokens';
 import { useLocalStorage } from 'lib/ui/local-storage';
 import Popper, { PopperRenderProps } from 'lib/ui/Popper';
-import { filterUnique } from 'lib/utils';
 import { Link, navigate } from 'lib/woozie';
 
 import { AssetsSelectors } from '../Assets.selectors';
@@ -33,6 +34,7 @@ import { toExploreAssetLink } from './utils';
 
 const LOCAL_STORAGE_TOGGLE_KEY = 'tokens-list:hide-zero-balances';
 const svgIconClassName = 'w-4 h-4 stroke-current fill-current text-gray-600';
+const LEADING_ASSETS = [TEZ_TOKEN_SLUG, TEMPLE_TOKEN_SLUG];
 
 export const TokensTab: FC = () => {
   const dispatch = useDispatch();
@@ -52,12 +54,14 @@ export const TokensTab: FC = () => {
     [setIsZeroBalancesHidden]
   );
 
-  const tokenSlugsWithTezAndTkey = useMemo(
-    () => filterUnique(['tez', TEMPLE_TOKEN_SLUG, ...tokens.map(({ tokenSlug }) => tokenSlug)]),
-    [tokens]
-  );
+  const slugs = useCustomCompareMemo(() => tokens.map(({ tokenSlug }) => tokenSlug).sort(), [tokens], isEqual);
 
-  const { filteredAssets, searchValue, setSearchValue } = useFilteredAssets(tokenSlugsWithTezAndTkey);
+  const { filteredAssets, searchValue, setSearchValue } = useFilteredAssetsSlugs(
+    slugs,
+    isZeroBalancesHidden,
+    LEADING_ASSETS,
+    true
+  );
 
   const isEnabledAdsBanner = useIsEnabledAdsBannerSelector();
   const isShouldShowPartnersPromoState = useShouldShowPartnersPromoSelector();
