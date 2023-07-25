@@ -31,8 +31,6 @@ export const CollectibleItem: FC<Props> = ({ assetSlug, accountPkh, areDetailsSh
   const { data: balance } = useBalance(assetSlug, accountPkh, { displayed });
   const details = useCollectibleDetailsSelector(assetSlug);
 
-  console.log('details?.isAdultContent: ', details?.isAdultContent);
-
   const listing = useMemo(() => {
     if (!details?.listing) return null;
 
