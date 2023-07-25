@@ -16,8 +16,9 @@ import { useTokensMetadataLoadingSelector } from 'app/store/tokens-metadata/sele
 import { ButtonForManageDropdown } from 'app/templates/ManageDropdown';
 import SearchAssetField from 'app/templates/SearchAssetField';
 import { AssetTypesEnum } from 'lib/assets/types';
+import { useFilteredAssetsSlugs } from 'lib/assets/use-filtered';
 import { T, t } from 'lib/i18n';
-import { useAccount, useChainId, useCollectibleTokens, useFilteredAssetsSlugs } from 'lib/temple/front';
+import { useAccount, useChainId, useCollectibleTokens } from 'lib/temple/front';
 import { useSyncTokens } from 'lib/temple/front/sync-tokens';
 import { useLocalStorage } from 'lib/ui/local-storage';
 import Popper, { PopperRenderProps } from 'lib/ui/Popper';

@@ -7,10 +7,10 @@ import Balance from 'app/templates/Balance';
 import IconifiedSelect, { IconifiedSelectOptionRenderProps } from 'app/templates/IconifiedSelect';
 import InFiat from 'app/templates/InFiat';
 import { setTestID, setAnotherSelector } from 'lib/analytics';
+import { searchAssetsWithNoMeta } from 'lib/assets/search.utils';
 import { T, t } from 'lib/i18n';
 import { useAssetMetadata, getAssetSymbol } from 'lib/metadata';
 import { useAccount } from 'lib/temple/front';
-import { searchAssetsWithNoMeta } from 'lib/temple/front/assets';
 
 import { AssetItemContent } from '../AssetItemContent';
 import { SendFormSelectors } from '../SendForm/selectors';

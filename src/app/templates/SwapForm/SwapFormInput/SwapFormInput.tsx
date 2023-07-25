@@ -5,11 +5,11 @@ import classNames from 'clsx';
 
 import { useFormAnalytics } from 'lib/analytics';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
+import { useFilteredAssetsSlugs } from 'lib/assets/use-filtered';
 import { t } from 'lib/i18n';
 import { EMPTY_BASE_METADATA, useAssetMetadata } from 'lib/metadata';
 import { useAvailableRoute3TokensSlugs } from 'lib/route3/assets';
 import { useAccount, useBalance, useGetTokenMetadata, useOnBlock } from 'lib/temple/front';
-import { useFilteredAssetsSlugs } from 'lib/temple/front/assets';
 import Popper from 'lib/ui/Popper';
 import { sameWidthModifiers } from 'lib/ui/same-width-modifiers';
 

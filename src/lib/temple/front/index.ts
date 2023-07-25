@@ -23,9 +23,7 @@ export {
   useDisplayedFungibleTokens,
   useGetTokenMetadata,
   useGasToken,
-  useAvailableAssetsSlugs,
-  useFilteredAssetsSlugs,
-  useAssetsSortPredicate
+  useAvailableAssetsSlugs
 } from './assets';
 
 export { validateDerivationPath, validateContractAddress } from './helpers';

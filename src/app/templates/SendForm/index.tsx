@@ -8,15 +8,9 @@ import { getSlug } from 'app/templates/AssetSelect/utils';
 import OperationStatus from 'app/templates/OperationStatus';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
+import { useAssetsSortPredicate } from 'lib/assets/use-filtered';
 import { t } from 'lib/i18n';
-import {
-  useAccount,
-  useChainId,
-  useTezos,
-  useCollectibleTokens,
-  useDisplayedFungibleTokens,
-  useAssetsSortPredicate
-} from 'lib/temple/front';
+import { useAccount, useChainId, useTezos, useCollectibleTokens, useDisplayedFungibleTokens } from 'lib/temple/front';
 import { useSafeState } from 'lib/ui/hooks';
 import { HistoryAction, navigate } from 'lib/woozie';
 
