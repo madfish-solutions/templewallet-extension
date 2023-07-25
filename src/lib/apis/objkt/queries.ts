@@ -5,6 +5,16 @@ export const buildGetCollectiblesQuery = () => gql`
     token(where: $token_where_or) {
       fa_contract
       token_id
+      tags {
+        tag {
+          name
+        }
+      }
+      attributes {
+        attribute {
+          name
+        }
+      }
       listings_active(order_by: { price_xtz: asc }) {
         currency_id
         price

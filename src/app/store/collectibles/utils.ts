@@ -1,9 +1,18 @@
 import { pick } from 'lodash';
 
 import type { UserObjktCollectible, ObjktGalleryAttributeCount } from 'lib/apis/objkt';
+import { ADULT_CONTENT_TAGS } from 'lib/apis/objkt/adult-tags';
+import { Attribute, Tag } from 'lib/apis/objkt/types';
 import { atomsToTokens } from 'lib/temple/helpers';
 
 import type { CollectibleDetails } from './state';
+
+const ADULT_ATTRIBUTE_NAME = '__nsfw_';
+const checkForAdultery = (attributes: Attribute[], tags: Tag[]) =>
+  attributes.some(({ attribute }) => attribute.name === ADULT_ATTRIBUTE_NAME) ||
+  tags.some(({ tag }) => {
+    return ADULT_CONTENT_TAGS.includes(tag.name);
+  });
 
 const TECHNICAL_ATTRIBUTES = ['__nsfw_', '__hazards_'];
 
@@ -25,6 +34,7 @@ export const convertCollectibleObjktInfoToStateDetailsType = (
     mintedTimestamp: info.timestamp,
     supply: info.supply,
     listing,
+    isAdultContent: checkForAdultery(info.attributes, info.tags),
     offers: info.offers_active,
     creators: info.creators.map(({ holder: { address, tzdomain } }) => ({ address, tzDomain: tzdomain })),
     galleries: info.galleries.map(({ gallery: { name } }) => ({ title: name })),

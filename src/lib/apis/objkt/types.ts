@@ -1,4 +1,23 @@
 import { ContractAbstraction, ContractProvider, ContractMethod } from '@taquito/taquito';
+interface Name {
+  name: string;
+}
+
+export interface Tag {
+  tag: Name;
+}
+
+export interface Attribute {
+  attribute: {
+    id: number;
+    name: string;
+    value: string;
+    attribute_counts: {
+      fa_contract: string;
+      editions: number;
+    }[];
+  };
+}
 
 export interface GetUserObjktCollectiblesResponse {
   token: UserObjktCollectible[];
@@ -38,6 +57,7 @@ export interface UserObjktCollectible {
       editions: number;
     };
   }[];
+  tags: Tag[];
   offers_active: {
     buyer_address: string;
     price: number;
@@ -46,17 +66,7 @@ export interface UserObjktCollectible {
     marketplace_contract: string;
     __typename: 'offer_active';
   }[];
-  attributes: {
-    attribute: {
-      id: number;
-      name: string;
-      value: string;
-      attribute_counts: {
-        fa_contract: string;
-        editions: number;
-      }[];
-    };
-  }[];
+  attributes: Attribute[];
   supply: number;
   royalties: {
     decimals: number;

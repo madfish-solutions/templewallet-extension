@@ -15,6 +15,7 @@ export interface CollectibleDetails extends Pick<UserObjktCollectible, 'fa' | 'd
   offers: UserObjktCollectible['offers_active'];
   creators: CollectibleDetailsCreator[];
   galleries: CollectibleDetailsGallery[];
+  isAdultContent: boolean;
   /** Percents */
   royalties?: number;
   attributes: CollectibleDetailsAttribute[];
