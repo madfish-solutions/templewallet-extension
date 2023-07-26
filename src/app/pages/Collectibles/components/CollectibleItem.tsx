@@ -62,7 +62,14 @@ export const CollectibleItem: FC<Props> = ({ assetSlug, accountPkh, areDetailsSh
         )}
         title={assetName}
       >
-        {displayed && <CollectibleImage metadata={metadata} mime={details?.mime} assetSlug={assetSlug} isAdultContent={details?.isAdultContent} />}
+        {displayed && (
+          <CollectibleItemImage
+            metadata={metadata}
+            mime={details?.mime}
+            assetSlug={assetSlug}
+            isAdultContent={details?.isAdultContent}
+          />
+        )}
 
         {areDetailsShown && balance ? (
           <div className="absolute bottom-1.5 left-1.5 text-2xs text-white leading-none p-1 bg-black bg-opacity-60 rounded">

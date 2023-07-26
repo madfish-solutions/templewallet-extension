@@ -13,7 +13,6 @@ import { TabsBar } from 'app/templates/TabBar';
 import { isTezAsset } from 'lib/assets';
 import { t, TID } from 'lib/i18n';
 
-import { useUserTestingGroupNameSelector } from '../../store/ab-testing/selectors';
 import { CollectiblesTab } from '../Collectibles/components/CollectiblesTab';
 import { HomeSelectors } from './Home.selectors';
 import BakingSection from './OtherComponents/BakingSection';

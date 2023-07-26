@@ -1,8 +1,5 @@
 import React, { FC, useState } from 'react';
 
-import Spinner from 'app/atoms/Spinner/Spinner';
-import { ReactComponent as BrokenImageSvg } from 'app/icons/broken-image.svg';
-import { ReactComponent as MusicSvg } from 'app/icons/music.svg';
 import { useAllCollectiblesDetailsLoadingSelector } from 'app/store/collectibles/selectors';
 import { AssetImage } from 'app/templates/AssetImage';
 import { AssetMetadataBase } from 'lib/metadata';
@@ -11,6 +8,8 @@ import { NonStaticCollectibleMimeTypes } from '../enums/NonStaticMimeTypes.enum'
 import { formatCollectibleObjktArtifactUri, isSvgDataUriInUtf8Encoding } from '../utils/image.utils';
 import { AnimatedSvg } from './AnimatedSvg';
 import { AudioCollectible } from './AudioCollectible';
+import { CollectibleImageFallback } from './CollectibleImageFallback';
+import { CollectibleImageLoader } from './CollectibleImageLoader';
 import { ModelViewer } from './ModelViewer';
 import { VideoCollectible } from './VideoCollectible';
 
@@ -39,7 +38,7 @@ export const CollectibleImage: FC<Props> = ({
   const handleError = () => setIsRenderFailedOnce(true);
 
   if (large && isDetailsLoading) {
-    return <ImageLoader large={large} />;
+    return <CollectibleImageLoader large={large} />;
   }
 
   if (objktArtifactUri && !isRenderFailedOnce) {
@@ -48,7 +47,7 @@ export const CollectibleImage: FC<Props> = ({
         <AnimatedSvg
           uri={objktArtifactUri}
           alt={metadata?.name}
-          loader={<ImageLoader large={large} />}
+          loader={<CollectibleImageLoader large={large} />}
           className={className}
           style={style}
           onError={handleError}
@@ -63,7 +62,7 @@ export const CollectibleImage: FC<Props> = ({
           return (
             <ModelViewer
               uri={formatCollectibleObjktArtifactUri(objktArtifactUri)}
-              loader={<ImageLoader large />}
+              loader={<CollectibleImageLoader large />}
               onError={handleError}
             />
           );
@@ -72,7 +71,7 @@ export const CollectibleImage: FC<Props> = ({
           return (
             <VideoCollectible
               uri={objktArtifactUri}
-              loader={<ImageLoader large={large} />}
+              loader={<CollectibleImageLoader large={large} />}
               className={className}
               style={style}
               onError={handleError}
@@ -85,39 +84,25 @@ export const CollectibleImage: FC<Props> = ({
   return (
     <>
       {objktArtifactUri && mime === NonStaticCollectibleMimeTypes.AUDIO_MPEG && !isRenderFailedOnce && (
-        <AudioCollectible uri={objktArtifactUri} loader={<ImageLoader large={large} />} onError={handleError} />
+        <AudioCollectible
+          uri={objktArtifactUri}
+          loader={<CollectibleImageLoader large={large} />}
+          onError={handleError}
+        />
       )}
       <AssetImage
         metadata={metadata}
         assetSlug={assetSlug}
-        loader={<ImageLoader large={large} />}
+        loader={<CollectibleImageLoader large={large} />}
         fallback={
-          <ImageFallback large={large} isAudioCollectible={mime === NonStaticCollectibleMimeTypes.AUDIO_MPEG} />
+          <CollectibleImageFallback
+            large={large}
+            isAudioCollectible={mime === NonStaticCollectibleMimeTypes.AUDIO_MPEG}
+          />
         }
         className={className}
         style={style}
       />
     </>
-  );
-};
-
-interface ImageFallbackProps {
-  large?: boolean;
-  isAudioCollectible?: boolean;
-}
-
-const ImageLoader: FC<ImageFallbackProps> = ({ large }) => (
-  <div className="w-full h-full flex items-center justify-center">
-    <Spinner theme="dark-gray" className={large ? 'w-10' : 'w-8'} />
-  </div>
-);
-
-const ImageFallback: FC<ImageFallbackProps> = ({ large, isAudioCollectible = false }) => {
-  const height = large ? '23%' : '32%';
-
-  return (
-    <div className="w-full h-full flex items-center justify-center">
-      {isAudioCollectible ? <MusicSvg height={height} /> : <BrokenImageSvg height={height} />}
-    </div>
   );
 };
