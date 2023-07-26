@@ -21,7 +21,7 @@ export function useFilteredAssetsSlugs(
   const allTokensMetadata = useTokensMetadataWithPresenceCheck(assetsSlugs);
 
   assetsSlugs = useMemo(
-    () => (leadingAssets?.length ? assetsSlugs.filter(slug => leadingAssets.includes(slug)) : assetsSlugs),
+    () => (leadingAssets?.length ? assetsSlugs.filter(slug => !leadingAssets.includes(slug)) : assetsSlugs),
     [assetsSlugs, leadingAssets]
   );
 

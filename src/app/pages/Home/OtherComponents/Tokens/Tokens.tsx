@@ -146,7 +146,7 @@ export const TokensTab: FC = () => {
             onValueChange={setSearchValue}
             onFocus={handleSearchFieldFocus}
             onBlur={handleSearchFieldBlur}
-            className="mr-2"
+            containerClassName="mr-2"
             testID={AssetsSelectors.searchAssetsInputTokens}
           />
 

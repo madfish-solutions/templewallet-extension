@@ -67,7 +67,7 @@ export const CollectiblesTab: FC<Props> = ({ scrollToTheTabsBar }) => {
           <SearchAssetField
             value={searchValue}
             onValueChange={setSearchValue}
-            className="mr-2"
+            containerClassName="mr-2"
             testID={AssetsSelectors.searchAssetsInputCollectibles}
           />
 

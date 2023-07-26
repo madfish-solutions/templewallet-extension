@@ -1,16 +1,14 @@
-import React, { FC, InputHTMLAttributes } from 'react';
+import React, { FC } from 'react';
 
 import clsx from 'clsx';
 
-import SearchField from 'app/templates/SearchField';
-import { TestIDProps } from 'lib/analytics';
+import SearchField, { SearchFieldProps } from 'app/templates/SearchField';
 import { t } from 'lib/i18n';
 
-type SearchAssetFieldProps = InputHTMLAttributes<HTMLInputElement> &
-  TestIDProps & {
-    value: string;
-    onValueChange: (v: string) => void;
-  };
+interface SearchAssetFieldProps extends SearchFieldProps {
+  value: string;
+  onValueChange: (v: string) => void;
+}
 
 const SearchAssetField: FC<SearchAssetFieldProps> = ({ className, ...rest }) => (
   <SearchField
