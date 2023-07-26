@@ -20,7 +20,7 @@ export function useFilteredAssetsSlugs(
 ) {
   const allTokensMetadata = useTokensMetadataWithPresenceCheck(assetsSlugs);
 
-  assetsSlugs = useMemo(
+  const nonLeadingAssets = useMemo(
     () => (leadingAssets?.length ? assetsSlugs.filter(slug => !leadingAssets.includes(slug)) : assetsSlugs),
     [assetsSlugs, leadingAssets]
   );
@@ -35,8 +35,8 @@ export function useFilteredAssetsSlugs(
   );
 
   const sourceArray = useMemo(
-    () => (filterZeroBalances ? assetsSlugs.filter(isNonZeroBalance) : assetsSlugs),
-    [filterZeroBalances, assetsSlugs, isNonZeroBalance]
+    () => (filterZeroBalances ? nonLeadingAssets.filter(isNonZeroBalance) : nonLeadingAssets),
+    [filterZeroBalances, nonLeadingAssets, isNonZeroBalance]
   );
 
   const [searchValue, setSearchValue] = useState('');
