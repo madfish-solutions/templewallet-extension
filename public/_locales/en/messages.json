@@ -3084,5 +3084,7 @@
     "message": "Unknown error"
   },
   "cannotSellToYourself": { "message": "Cannot sell to yourself" },
-  "selectedAccountCannotSignTx": { "message": "Selected account cannot sign transactions" }
+  "selectedAccountCannotSignTx": { "message": "Selected account cannot sign transactions" },
+  "attributes": { "message": "Attributes" },
+  "properties": { "message": "Properties" }
 }

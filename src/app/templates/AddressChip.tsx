@@ -3,10 +3,9 @@ import React, { FC, useCallback } from 'react';
 import classNames from 'clsx';
 import useSWR from 'swr';
 
-import { Button } from 'app/atoms';
+import { Button, HashChip } from 'app/atoms';
 import { ReactComponent as GlobeIcon } from 'app/icons/globe.svg';
 import { ReactComponent as HashIcon } from 'app/icons/hash.svg';
-import HashChip from 'app/templates/HashChip';
 import { TestIDProps } from 'lib/analytics';
 import { useTezos, useTezosDomainsClient, useStorage } from 'lib/temple/front';
 

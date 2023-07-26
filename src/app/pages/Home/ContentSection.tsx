@@ -9,10 +9,9 @@ import ErrorBoundary from 'app/ErrorBoundary';
 import { ToolbarElement } from 'app/layouts/PageLayout';
 import { ActivityComponent } from 'app/templates/activity/Activity';
 import AssetInfo from 'app/templates/AssetInfo';
-import { ABTestGroup } from 'lib/apis/temple';
+import { TabsBar } from 'app/templates/TabBar';
 import { isTezAsset } from 'lib/assets';
-import { T, t, TID } from 'lib/i18n';
-import { Link } from 'lib/woozie';
+import { t, TID } from 'lib/i18n';
 
 import { useUserTestingGroupNameSelector } from '../../store/ab-testing/selectors';
 import { CollectiblesTab } from '../Collectibles/components/CollectiblesTab';
@@ -25,10 +24,10 @@ type Props = {
   className?: string;
 };
 
-type TabSlug = 'tokens' | 'collectibles' | 'activity' | 'delegation' | 'info';
+type TabName = 'tokens' | 'collectibles' | 'activity' | 'delegation' | 'info';
 
 interface TabData {
-  slug: TabSlug;
+  name: TabName;
   titleI18nKey: TID;
   Component: FC;
   testID: string;
@@ -38,7 +37,6 @@ interface TabData {
 export const ContentSection: FC<Props> = ({ assetSlug, className }) => {
   const { fullPage } = useAppEnv();
   const tabSlug = useTabSlug();
-  const testGroupName = useUserTestingGroupNameSelector();
 
   const tabBarElemRef = useRef<HTMLDivElement>(null);
 
@@ -57,19 +55,19 @@ export const ContentSection: FC<Props> = ({ assetSlug, className }) => {
     if (!assetSlug) {
       return [
         {
-          slug: 'tokens',
+          name: 'tokens',
           titleI18nKey: 'tokens',
           Component: TokensTab,
           testID: HomeSelectors.assetsTab
         },
         {
-          slug: 'collectibles',
+          name: 'collectibles',
           titleI18nKey: 'collectibles',
           Component: () => <CollectiblesTab scrollToTheTabsBar={scrollToTheTabsBar} />,
           testID: HomeSelectors.collectiblesTab
         },
         {
-          slug: 'activity',
+          name: 'activity',
           titleI18nKey: 'activity',
           Component: ActivityComponent,
           testID: HomeSelectors.activityTab,
@@ -79,7 +77,7 @@ export const ContentSection: FC<Props> = ({ assetSlug, className }) => {
     }
 
     const activity: TabData = {
-      slug: 'activity',
+      name: 'activity',
       titleI18nKey: 'activity',
       Component: () => <ActivityComponent assetSlug={assetSlug} />,
       testID: HomeSelectors.activityTab
@@ -89,7 +87,7 @@ export const ContentSection: FC<Props> = ({ assetSlug, className }) => {
       return [
         activity,
         {
-          slug: 'delegation',
+          name: 'delegation',
           titleI18nKey: 'delegate',
           Component: BakingSection,
           testID: HomeSelectors.delegationTab,
@@ -101,7 +99,7 @@ export const ContentSection: FC<Props> = ({ assetSlug, className }) => {
     return [
       activity,
       {
-        slug: 'info',
+        name: 'info',
         titleI18nKey: 'info',
         Component: () => <AssetInfo assetSlug={assetSlug} />,
         testID: HomeSelectors.aboutTab
@@ -109,23 +107,14 @@ export const ContentSection: FC<Props> = ({ assetSlug, className }) => {
     ];
   }, [assetSlug, scrollToTheTabsBar]);
 
-  const { slug, Component, whileMessageI18nKey } = useMemo(() => {
-    const tab = tabSlug ? tabs.find(currentTab => currentTab.slug === tabSlug) : null;
+  const { name, Component, whileMessageI18nKey } = useMemo(() => {
+    const tab = tabSlug ? tabs.find(currentTab => currentTab.name === tabSlug) : null;
     return tab ?? tabs[0];
   }, [tabSlug, tabs]);
 
   return (
     <div className={clsx('-mx-4 shadow-top-light', fullPage && 'rounded-t-md', className)}>
-      <div ref={tabBarElemRef} className="w-full max-w-sm mx-auto flex items-center justify-center">
-        {tabs.map(tab => (
-          <TabButton
-            key={assetSlug ? `asset_${tab.slug}` : tab.slug}
-            tab={tab}
-            active={slug === tab.slug}
-            testGroupName={testGroupName}
-          />
-        ))}
-      </div>
+      <TabsBar ref={tabBarElemRef} tabs={tabs} activeTabName={name} />
 
       <SuspenseContainer whileMessage={whileMessageI18nKey ? t(whileMessageI18nKey) : 'displaying tab'}>
         {Component && <Component />}
@@ -150,30 +139,3 @@ const SpinnerSection: FC = () => (
     <Spinner theme="gray" className="w-20" />
   </div>
 );
-
-interface TabButtonProps {
-  tab: TabData;
-  active: boolean;
-  testGroupName: ABTestGroup;
-}
-
-const TabButton: FC<TabButtonProps> = ({ tab, active, testGroupName }) => {
-  return (
-    <Link
-      to={lctn => ({ ...lctn, search: `?tab=${tab.slug}` })}
-      replace
-      className={clsx(
-        'flex1 w-full text-center cursor-pointer py-2 border-t-3',
-        'text-gray-500 text-xs font-medium truncate',
-        'transition ease-in-out duration-300',
-        active ? 'border-primary-orange text-primary-orange' : 'border-transparent hover:text-primary-orange'
-      )}
-      testID={tab.testID}
-      testIDProperties={{
-        ...(tab.slug === 'delegation' && { abTestingCategory: testGroupName })
-      }}
-    >
-      <T id={tab.titleI18nKey} />
-    </Link>
-  );
-};
