@@ -58,7 +58,8 @@ export const CollectibleImage: FC<Props> = ({
 
     if (mime) {
       switch (mime) {
-        case NonStaticCollectibleMimeTypes.MODEL:
+        case NonStaticCollectibleMimeTypes.MODEL_GLTF_BINARY:
+        case NonStaticCollectibleMimeTypes.MODEL_GLTF_JSON:
           return (
             <ModelViewer
               uri={formatCollectibleObjktArtifactUri(objktArtifactUri)}
@@ -66,9 +67,16 @@ export const CollectibleImage: FC<Props> = ({
               onError={handleError}
             />
           );
-        case NonStaticCollectibleMimeTypes.VIDEO:
+        case NonStaticCollectibleMimeTypes.VIDEO_MP4:
+        case NonStaticCollectibleMimeTypes.VIDEO_QUICKTIME:
           return (
-            <VideoCollectible uri={objktArtifactUri} loader={<ImageLoader large={large} />} onError={handleError} />
+            <VideoCollectible
+              uri={objktArtifactUri}
+              loader={<ImageLoader large={large} />}
+              className={className}
+              style={style}
+              onError={handleError}
+            />
           );
       }
     }
@@ -76,14 +84,16 @@ export const CollectibleImage: FC<Props> = ({
 
   return (
     <>
-      {objktArtifactUri && mime === NonStaticCollectibleMimeTypes.AUDIO && !isRenderFailedOnce && (
+      {objktArtifactUri && mime === NonStaticCollectibleMimeTypes.AUDIO_MPEG && !isRenderFailedOnce && (
         <AudioCollectible uri={objktArtifactUri} loader={<ImageLoader large={large} />} onError={handleError} />
       )}
       <AssetImage
         metadata={metadata}
         assetSlug={assetSlug}
         loader={<ImageLoader large={large} />}
-        fallback={<ImageFallback large={large} isAudioCollectible={mime === NonStaticCollectibleMimeTypes.AUDIO} />}
+        fallback={
+          <ImageFallback large={large} isAudioCollectible={mime === NonStaticCollectibleMimeTypes.AUDIO_MPEG} />
+        }
         className={className}
         style={style}
       />
