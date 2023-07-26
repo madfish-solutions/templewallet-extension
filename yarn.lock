@@ -1480,9 +1480,9 @@
     "@types/yargs" "^17.0.8"
     chalk "^4.0.0"
 
-"@jitsu/sdk-js@madfish-solutions/jitsu-js#d45c7ba34c24f3e36ac35e49f8a13cc621683230":
+"@jitsu/sdk-js@madfish-solutions/jitsu-js#87c49de334f5747952f7beda573b95ceb5d86903":
   version "3.0.0"
-  resolved "https://codeload.github.com/madfish-solutions/jitsu-js/tar.gz/d45c7ba34c24f3e36ac35e49f8a13cc621683230"
+  resolved "https://codeload.github.com/madfish-solutions/jitsu-js/tar.gz/87c49de334f5747952f7beda573b95ceb5d86903"
 
 "@jridgewell/gen-mapping@^0.1.0":
   version "0.1.1"
