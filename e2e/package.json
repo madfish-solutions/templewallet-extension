@@ -8,6 +8,7 @@
     "start:dev": "yarn start --tags @dev",
     "start:remove_account": "yarn start --tags @remove_account",
     "start:create_account": "yarn start --tags @create_account",
+    "start:address_book": "yarn start --tags @address_book",
     "test": "yarn start --exit --tags 'not @dev'",
     "ts": "tsc --pretty"
   },

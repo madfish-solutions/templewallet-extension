@@ -17,6 +17,7 @@ export const iEnterValues = {
   defaultSeedPhrase: envVars.DEFAULT_HD_ACCOUNT_SEED_PHRASE,
   defaultPassword: envVars.DEFAULT_PASSWORD,
   watchOnlyPublicKey: envVars.WATCH_ONLY_PUBLIC_KEY_HASH,
+  contactPublicKey: envVars.CONTACT_ADDRESS_PUBLIC_KEY_HASH,
   bakerAddress: '',
   shortRandomContent: generateRandomContent(),
   longRandomContent: 'long random content for test + ' + generateRandomContent(),
