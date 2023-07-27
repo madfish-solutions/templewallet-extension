@@ -1,4 +1,4 @@
-import React, { FC, useState } from 'react';
+import React, { FC, useCallback, useState } from 'react';
 
 import { useAllCollectiblesDetailsLoadingSelector } from 'app/store/collectibles/selectors';
 import { AssetImage } from 'app/templates/AssetImage';
@@ -35,7 +35,7 @@ export const CollectibleImage: FC<Props> = ({
   const [isRenderFailedOnce, setIsRenderFailedOnce] = useState(false);
   const isDetailsLoading = useAllCollectiblesDetailsLoadingSelector();
 
-  const handleError = () => setIsRenderFailedOnce(true);
+  const handleError = useCallback(() => setIsRenderFailedOnce(true), []);
 
   if (large && isDetailsLoading) {
     return <CollectibleImageLoader large={large} />;
