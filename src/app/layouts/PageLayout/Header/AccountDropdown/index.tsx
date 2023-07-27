@@ -16,6 +16,7 @@ import SearchField from 'app/templates/SearchField';
 import { T, t } from 'lib/i18n';
 import { useAccount, useRelevantAccounts, useSetAccountPkh, useTempleClient, useGasToken } from 'lib/temple/front';
 import { PopperRenderProps } from 'lib/ui/Popper';
+import { HistoryAction, navigate } from 'lib/woozie';
 
 import { AccountItem } from './AccountItem';
 import { ActionButtonProps, ActionButton } from './ActionButton';
@@ -74,6 +75,7 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
         setAccountPkh(publicKeyHash);
       }
       setOpened(false);
+      navigate('/', HistoryAction.Replace);
     },
     [account, setAccountPkh, setOpened]
   );
