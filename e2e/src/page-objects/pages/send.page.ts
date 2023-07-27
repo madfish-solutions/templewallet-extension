@@ -9,6 +9,8 @@ export class SendPage extends Page {
   amountInput = createPageElement(SendFormSelectors.amountInput);
   recipientInput = createPageElement(SendFormSelectors.recipientInput);
   sendButton = createPageElement(SendFormSelectors.sendButton);
+  contactItemButton = createPageElement(SendFormSelectors.contactItemButton);
+  contactHashValue = createPageElement(SendFormSelectors.contactHashValue);
 
   async isVisible() {
     await this.assetDropDown.waitForDisplayed();

@@ -242,6 +242,7 @@ export const SetWalletPassword: FC<SetWalletPasswordProps> = ({
           />
         }
         containerClassName="mb-4"
+        testID={setWalletPasswordSelectors.analyticsCheckBox}
       />
 
       <Controller
