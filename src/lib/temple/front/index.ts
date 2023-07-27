@@ -19,13 +19,11 @@ export {
 } from './ready';
 
 export {
-  useAvailableAssets,
-  useAssetsSortPredicate,
   useCollectibleTokens,
   useDisplayedFungibleTokens,
   useGetTokenMetadata,
   useGasToken,
-  useFilteredAssets
+  useAvailableAssetsSlugs
 } from './assets';
 
 export { validateDerivationPath, validateContractAddress } from './helpers';

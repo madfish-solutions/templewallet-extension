@@ -1366,12 +1366,9 @@
   "activity": {
     "message": "Активність"
   },
-  "manage": {
-    "message": "Керувати"
-  },
-  "manageAssets": {
-    "message": "Керувати Активами"
-  },
+  "manage": { "message": "Керувати" },
+  "manageTokens": { "message": "Керувати Токенами" },
+  "manageAssetsList": { "message": "Керувати Активами" },
   "noAssetsFound": {
     "message": "Активів не знайдено"
   },
@@ -1857,6 +1854,7 @@
     }
   },
   "showInfo": { "message": "Деталі" },
+  "hideZeroBalance": { "message": "Сховати нульові баланси" },
   "creator": { "message": "Автор:" },
   "creators": { "message": "Автори:" },
   "unknownError": {

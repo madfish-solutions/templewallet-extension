@@ -5,7 +5,7 @@ import { Action } from 'ts-action';
 import { ofType, toPayload } from 'ts-action-operators';
 
 import { fecthTezosBalanceFromTzkt, fetchAllTokensBalancesFromTzkt } from 'lib/apis/tzkt/api';
-import { toTokenSlug } from 'lib/assets';
+import { TEZ_TOKEN_SLUG, toTokenSlug } from 'lib/assets';
 import { atomsToTokens } from 'lib/temple/helpers';
 
 import { loadTokensBalancesFromTzktAction } from './actions';
@@ -31,7 +31,9 @@ const loadTokensBalancesFromTzktEpic: Epic = (action$: Observable<Action>) =>
       fetchTokensBalances$(publicKeyHash, chainId).pipe(
         map(([tezosBalances, tokensBalances]) => {
           const balances: Record<string, string> = {
-            tez: new BigNumber(tezosBalances.balance ?? 0).minus(tezosBalances.frozenDeposit ?? 0).toFixed()
+            [TEZ_TOKEN_SLUG]: new BigNumber(tezosBalances.balance ?? 0)
+              .minus(tezosBalances.frozenDeposit ?? 0)
+              .toFixed()
           };
 
           tokensBalances.forEach(({ token, balance }) => {

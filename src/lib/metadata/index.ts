@@ -1,6 +1,16 @@
-import { useTokenMetadataSelector } from 'app/store/tokens-metadata/selectors';
+import { useEffect } from 'react';
+
+import { useDispatch } from 'react-redux';
+
+import { loadTokensMetadataAction } from 'app/store/tokens-metadata/actions';
+import {
+  useTokenMetadataSelector,
+  useTokensMetadataLoadingSelector,
+  useTokensMetadataSelector
+} from 'app/store/tokens-metadata/selectors';
 import { isTezAsset } from 'lib/assets';
 import { useNetwork } from 'lib/temple/front';
+import { isTruthy } from 'lib/utils';
 
 import { TEZOS_METADATA, FILM_METADATA } from './defaults';
 import { AssetMetadataBase, TokenMetadata } from './types';
@@ -21,6 +31,28 @@ export const useAssetMetadata = (slug: string): AssetMetadataBase | undefined =>
   if (isTezAsset(slug)) return gasMetadata;
 
   return tokenMetadata;
+};
+
+export const useTokensMetadataWithPresenceCheck = (slugsToCheck?: string[]) => {
+  const allTokensMetadata = useTokensMetadataSelector();
+
+  const tokensMetadataLoading = useTokensMetadataLoadingSelector();
+  const { rpcBaseURL: rpcUrl } = useNetwork();
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (tokensMetadataLoading || !slugsToCheck?.length) return;
+
+    const metadataMissingAssetsSlugs = slugsToCheck.filter(
+      slug => !isTezAsset(slug) && !isTruthy(allTokensMetadata[slug])
+    );
+
+    if (metadataMissingAssetsSlugs.length > 0) {
+      dispatch(loadTokensMetadataAction({ rpcUrl, slugs: metadataMissingAssetsSlugs }));
+    }
+  }, [slugsToCheck, allTokensMetadata, tokensMetadataLoading, dispatch, rpcUrl]);
+
+  return allTokensMetadata;
 };
 
 export function getAssetSymbol(metadata: AssetMetadataBase | nullish, short = false) {
