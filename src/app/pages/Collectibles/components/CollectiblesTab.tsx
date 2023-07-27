@@ -10,7 +10,6 @@ import Divider from 'app/atoms/Divider';
 import DropdownWrapper from 'app/atoms/DropdownWrapper';
 import { useAppEnv } from 'app/env';
 import { ReactComponent as EditingIcon } from 'app/icons/editing.svg';
-import { ReactComponent as ManageIcon } from 'app/icons/manage.svg';
 import { CollectibleItem } from 'app/pages/Collectibles/components/CollectibleItem';
 import { AssetsSelectors } from 'app/pages/Home/OtherComponents/Assets.selectors';
 import { useTokensMetadataLoadingSelector } from 'app/store/tokens-metadata/selectors';
