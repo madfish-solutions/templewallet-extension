@@ -19,6 +19,7 @@ import {
 import { loadChainId } from 'lib/temple/helpers';
 import { isKnownChainId } from 'lib/temple/types';
 import Popper from 'lib/ui/Popper';
+import { HistoryAction, navigate } from 'lib/woozie';
 
 import { NetworkButton } from './NetworkButton';
 import { NetworkSelectSelectors } from './selectors';
@@ -60,6 +61,7 @@ const NetworkSelect: FC<NetworkSelectProps> = () => {
       }
 
       setNetworkId(netId);
+      navigate('/', HistoryAction.Replace);
     },
     [setNetworkId, setExplorerId, chainId]
   );
