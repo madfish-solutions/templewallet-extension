@@ -9,14 +9,24 @@ const buildTestIDSelector = (testID: string) => `[data-testid="${testID}"]`;
 
 type OtherSelectors = Record<string, string>;
 
-export const findElement = async (testID: string, otherSelectors?: OtherSelectors, timeout = MEDIUM_TIMEOUT) => {
+export const findElement = async (
+  testID: string,
+  otherSelectors?: OtherSelectors,
+  timeout = MEDIUM_TIMEOUT,
+  errorTitle?: string
+) => {
   const selector = buildSelector(testID, otherSelectors);
 
-  return await findElementBySelectors(selector, timeout);
+  return await findElementBySelectors(selector, timeout, errorTitle);
 };
 
-export const findElementBySelectors = async (selectors: string, timeout = MEDIUM_TIMEOUT) => {
-  const element = await BrowserContext.page.waitForSelector(selectors, { visible: true, timeout });
+export const findElementBySelectors = async (selectors: string, timeout = MEDIUM_TIMEOUT, errorTitle?: string) => {
+  const element = await BrowserContext.page.waitForSelector(selectors, { visible: true, timeout }).catch(error => {
+    if (errorTitle && error instanceof Error) {
+      error.message = `${errorTitle}\n` + error.message;
+    }
+    throw error;
+  });
 
   if (isDefined(element)) {
     return element;
@@ -40,11 +50,11 @@ export const findElements = async (testID: string) => {
 class PageElement {
   constructor(public testID: string, public otherSelectors?: OtherSelectors, public notSelectors?: OtherSelectors) {}
 
-  findElement(timeout?: number) {
+  findElement(timeout?: number, errorTitle?: string) {
     let selectors = buildSelector(this.testID, this.otherSelectors);
     if (this.notSelectors) selectors += buildNotSelector(this.notSelectors);
 
-    return findElementBySelectors(selectors, timeout);
+    return findElementBySelectors(selectors, timeout, errorTitle);
   }
   waitForDisplayed(timeout?: number) {
     return this.findElement(timeout);

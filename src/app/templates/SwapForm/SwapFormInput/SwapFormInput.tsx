@@ -4,10 +4,12 @@ import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
 
 import { useFormAnalytics } from 'lib/analytics';
+import { TEZ_TOKEN_SLUG } from 'lib/assets';
+import { useFilteredAssetsSlugs } from 'lib/assets/use-filtered';
 import { t } from 'lib/i18n';
 import { EMPTY_BASE_METADATA, useAssetMetadata } from 'lib/metadata';
+import { useAvailableRoute3TokensSlugs } from 'lib/route3/assets';
 import { useAccount, useBalance, useGetTokenMetadata, useOnBlock } from 'lib/temple/front';
-import { useAvailableRoute3Tokens, useFilteredSwapAssets } from 'lib/temple/front/assets';
 import Popper from 'lib/ui/Popper';
 import { sameWidthModifiers } from 'lib/ui/same-width-modifiers';
 
@@ -19,6 +21,7 @@ import { useSwapFormTokenIdInput } from './SwapFormTokenIdInput.hook';
 
 const EXCHANGE_XTZ_RESERVE = new BigNumber('0.3');
 const PERCENTAGE_BUTTONS = [25, 50, 75, 100];
+const LEADING_ASSETS = [TEZ_TOKEN_SLUG];
 
 export const SwapFormInput: FC<SwapFormInputProps> = ({
   value,
@@ -46,8 +49,12 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
   const balance = useBalance(assetSlugWithFallback, account.publicKeyHash, { suspense: false });
   useOnBlock(_ => balance.mutate());
 
-  const { isLoading } = useAvailableRoute3Tokens();
-  const { filteredAssets, searchValue, setSearchValue, tokenId, setTokenId } = useFilteredSwapAssets(name);
+  const { isLoading, route3tokensSlugs } = useAvailableRoute3TokensSlugs();
+  const { filteredAssets, searchValue, setSearchValue, tokenId, setTokenId } = useFilteredAssetsSlugs(
+    route3tokensSlugs,
+    name === 'input',
+    LEADING_ASSETS
+  );
 
   const showTokenIdInput = useSwapFormTokenIdInput(searchValue);
 

@@ -1,8 +1,10 @@
-import React, { FC, useEffect, useMemo } from 'react';
+import React, { FC, useCallback, useEffect } from 'react';
 
 import clsx from 'clsx';
+import { isEqual } from 'lodash';
+import { useCustomCompareMemo } from 'use-custom-compare';
 
-import { Button, SyncSpinner } from 'app/atoms';
+import { SyncSpinner } from 'app/atoms';
 import Checkbox from 'app/atoms/Checkbox';
 import Divider from 'app/atoms/Divider';
 import DropdownWrapper from 'app/atoms/DropdownWrapper';
@@ -12,17 +14,18 @@ import { ReactComponent as ManageIcon } from 'app/icons/manage.svg';
 import { CollectibleItem } from 'app/pages/Collectibles/components/CollectibleItem';
 import { AssetsSelectors } from 'app/pages/Home/OtherComponents/Assets.selectors';
 import { useTokensMetadataLoadingSelector } from 'app/store/tokens-metadata/selectors';
+import { ButtonForManageDropdown } from 'app/templates/ManageDropdown';
 import SearchAssetField from 'app/templates/SearchAssetField';
 import { AssetTypesEnum } from 'lib/assets/types';
+import { useFilteredAssetsSlugs } from 'lib/assets/use-filtered';
 import { T, t } from 'lib/i18n';
-import { useAccount, useChainId, useCollectibleTokens, useFilteredAssets } from 'lib/temple/front';
+import { useAccount, useChainId, useCollectibleTokens } from 'lib/temple/front';
 import { useSyncTokens } from 'lib/temple/front/sync-tokens';
 import { useLocalStorage } from 'lib/ui/local-storage';
 import Popper, { PopperRenderProps } from 'lib/ui/Popper';
 import { Link } from 'lib/woozie';
 
 const LOCAL_STORAGE_TOGGLE_KEY = 'collectibles-grid:show-items-details';
-const svgIconClassName = 'w-4 h-4 stroke-current fill-current text-gray-600';
 
 interface Props {
   scrollToTheTabsBar: EmptyFn;
@@ -37,17 +40,24 @@ export const CollectiblesTab: FC<Props> = ({ scrollToTheTabsBar }) => {
 
   const [areDetailsShown, setDetailsShown] = useLocalStorage(LOCAL_STORAGE_TOGGLE_KEY, false);
 
+  const toggleDetailsShown = useCallback(() => void setDetailsShown(val => !val), [setDetailsShown]);
+
   const { data: collectibles = [], isValidating: readingCollectibles } = useCollectibleTokens(
     chainId,
     publicKeyHash,
     true
   );
 
-  const collectibleSlugs = useMemo(() => collectibles.map(collectible => collectible.tokenSlug), [collectibles]);
+  const collectiblesSlugs = useCustomCompareMemo(
+    () => collectibles.map(collectible => collectible.tokenSlug).sort(),
+    [collectibles],
+    isEqual
+  );
 
-  const { filteredAssets, searchValue, setSearchValue } = useFilteredAssets(collectibleSlugs);
+  const { filteredAssets, searchValue, setSearchValue } = useFilteredAssetsSlugs(collectiblesSlugs, false);
 
-  useEffect(() => void scrollToTheTabsBar(), [collectibles.length > 0]);
+  const shouldScrollToTheTabsBar = collectibles.length > 0;
+  useEffect(() => void scrollToTheTabsBar(), [shouldScrollToTheTabsBar, scrollToTheTabsBar]);
 
   const isSyncing = tokensAreSyncing || metadatasLoading || readingCollectibles;
 
@@ -58,6 +68,7 @@ export const CollectiblesTab: FC<Props> = ({ scrollToTheTabsBar }) => {
           <SearchAssetField
             value={searchValue}
             onValueChange={setSearchValue}
+            containerClassName="mr-2"
             testID={AssetsSelectors.searchAssetsInputCollectibles}
           />
 
@@ -68,25 +79,19 @@ export const CollectiblesTab: FC<Props> = ({ scrollToTheTabsBar }) => {
               <ManageButtonDropdown
                 {...props}
                 areDetailsShown={areDetailsShown}
-                toggleDetailsShown={() => void setDetailsShown(!areDetailsShown)}
+                toggleDetailsShown={toggleDetailsShown}
               />
             )}
           >
             {({ ref, opened, toggleOpened }) => (
-              <Button
+              <ButtonForManageDropdown
                 ref={ref}
-                title={t('manage')}
-                className={clsx(
-                  'flex flex-shrink-0 items-center justify-center w-10 ml-2 rounded-lg',
-                  'transition ease-in-out duration-200 hover:bg-gray-200',
-                  'opacity-75 hover:opacity-100 focus:opacity-100',
-                  opened && 'bg-gray-200'
-                )}
+                opened={opened}
+                tooltip={t('manageAssetsList')}
                 onClick={toggleOpened}
                 testID={AssetsSelectors.manageButton}
-              >
-                <ManageIcon className={svgIconClassName} />
-              </Button>
+                testIDProperties={{ listOf: 'Collectibles' }}
+              />
             )}
           </Popper>
         </div>
@@ -138,8 +143,9 @@ const ManageButtonDropdown: FC<ManageButtonDropdownProps> = ({ opened, areDetail
         to={`/manage-assets/${AssetTypesEnum.Collectibles}`}
         className={buttonClassName}
         testID={AssetsSelectors.dropdownManageButton}
+        testIDProperties={{ listOf: 'Collectibles' }}
       >
-        <EditingIcon className={svgIconClassName} />
+        <EditingIcon className="w-4 h-4 stroke-current fill-current text-gray-600" />
         <span className="text-sm text-gray-600 ml-2 leading-5">
           <T id="manage" />
         </span>

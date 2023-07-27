@@ -1,4 +1,5 @@
 name: Manual builds
+run-name: Manual build of ${{ github.ref_name }} (Chrome=${{ github.event.inputs.chrome == 'true' || github.event.inputs.chromePlusE2E == 'true' }}; Firefox=${{ github.event.inputs.firefox == 'true' }}; E2E=${{ github.event.inputs.chromePlusE2E == 'true' }})
 
 on:
   workflow_dispatch:
@@ -6,6 +7,10 @@ on:
       chrome:
         type: boolean
         description: Chrome build
+        required: false
+      chromePlusE2E:
+        type: boolean
+        description: Chrome build + E2E
         required: false
       firefox:
         type: boolean
@@ -53,22 +58,48 @@ jobs:
           TEMPLE_WALLET_DEXES_API_URL: ${{ vars.TEMPLE_WALLET_DEXES_API_URL }}
           TEMPLE_WALLET_ROUTE3_AUTH_TOKEN: ${{ vars.TEMPLE_WALLET_ROUTE3_AUTH_TOKEN }}
           TEMPLE_WALLET_MOONPAY_API_KEY: ${{ secrets.TEMPLE_WALLET_MOONPAY_API_KEY }}
+          # [e2e]
+          DEFAULT_HD_ACCOUNT_SEED_PHRASE: ${{ secrets.DEFAULT_HD_ACCOUNT_SEED_PHRASE }}
+          DEFAULT_HD_ACCOUNT_FIRST_PRIVATE_KEY: ${{ secrets.DEFAULT_HD_ACCOUNT_FIRST_PRIVATE_KEY }}
+          DEFAULT_HD_ACCOUNT_FIRST_HASH_SHORT_FORM: ${{ secrets.DEFAULT_HD_ACCOUNT_FIRST_HASH_SHORT_FORM }}
+          DEFAULT_HD_ACCOUNT_SECOND_PRIVATE_KEY: ${{ secrets.DEFAULT_HD_ACCOUNT_SECOND_PRIVATE_KEY }}
+          DEFAULT_PASSWORD: ${{ secrets.DEFAULT_PASSWORD }}
+          IMPORTED_HD_ACCOUNT_SEED_PHRASE: ${{ secrets.IMPORTED_HD_ACCOUNT_SEED_PHRASE }}
+          IMPORTED_HD_ACCOUNT_FIRST_PRIVATE_KEY: ${{ secrets.IMPORTED_HD_ACCOUNT_FIRST_PRIVATE_KEY }}
+          IMPORTED_HD_ACCOUNT_FIRST_HASH_SHORT_FORM: ${{ secrets.IMPORTED_HD_ACCOUNT_FIRST_HASH_SHORT_FORM }}
+          WATCH_ONLY_PUBLIC_KEY_HASH: ${{ secrets.WATCH_ONLY_PUBLIC_KEY_HASH }}
+          WATCH_ONLY_PUBLIC_KEY_HASH_SHORT_FORM: ${{ secrets.WATCH_ONLY_PUBLIC_KEY_HASH_SHORT_FORM }}
+          CONTACT_ADDRESS_PUBLIC_KEY_HASH: ${{ secrets.CONTACT_ADDRESS_PUBLIC_KEY_HASH }}
+          CONTACT_ADDRESS_PUBLIC_KEY_HASH_SHORT_FORM: ${{ secrets.CONTACT_ADDRESS_PUBLIC_KEY_HASH_SHORT_FORM }}
 
       - name: Install dependencies and code quality
         uses: ./.github/workflows/code-quality-check
 
       - name: Create Chrome build
-        if: ${{ github.event.inputs.chrome == 'true' }}
+        if: ${{ github.event.inputs.chrome == 'true' || github.event.inputs.chromePlusE2E == 'true' }}
         run: yarn build:chrome
 
       - name: Upload Chrome artifact
-        if: ${{ github.event.inputs.chrome == 'true' }}
+        if: ${{ github.event.inputs.chrome == 'true' || github.event.inputs.chromePlusE2E == 'true' }}
         uses: actions/upload-artifact@v2
         with:
           name: chrome
           path: dist/chrome.zip
           if-no-files-found: error
           retention-days: 30
+
+      - name: Perform end-to-end tests
+        if: ${{ github.event.inputs.chromePlusE2E == 'true' }}
+        uses: ./.github/workflows/e2e
+
+      - name: Upload E2E video to Slack
+        if: ${{ failure() && github.event.inputs.chromePlusE2E == 'true' }}
+        uses: adrey/slack-file-upload-action@master
+        with:
+          token: ${{ secrets.SLACK_E2E_VIDEO_UPLOADER_TOKEN }}
+          path: e2e/video-rep/test-runs.mp4
+          channel: temple-test-runs
+          initial_comment: <https://github.com/madfish-solutions/templewallet-extension/pull/${{ github.event.number }}|${{ github.event.pull_request.title }}>  (Run <https://github.com/madfish-solutions/templewallet-extension/actions/runs/${{ github.run_id }}|№${{ github.run_number }}>)
 
       - name: Create Firefox build
         if: ${{ github.event.inputs.firefox == 'true' }}
