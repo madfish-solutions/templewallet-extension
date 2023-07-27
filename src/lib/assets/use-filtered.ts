@@ -16,7 +16,7 @@ export function useFilteredAssetsSlugs(
   assetsSlugs: string[],
   filterZeroBalances = false,
   leadingAssets?: string[],
-  leadingAssetsAreFilterable = true
+  leadingAssetsAreFilterable = false
 ) {
   const allTokensMetadata = useTokensMetadataWithPresenceCheck(assetsSlugs);
 
@@ -56,7 +56,8 @@ export function useFilteredAssetsSlugs(
   const filteredAssets = useMemo(() => {
     if (!isDefined(leadingAssets) || !leadingAssets.length) return searchedSlugs;
 
-    const filteredLeadingSlugs = leadingAssetsAreFilterable ? leadingAssets.filter(isNonZeroBalance) : leadingAssets;
+    const filteredLeadingSlugs =
+      leadingAssetsAreFilterable && filterZeroBalances ? leadingAssets.filter(isNonZeroBalance) : leadingAssets;
 
     const searchedLeadingSlugs = searchAssetsWithNoMeta(
       searchValueDebounced,
@@ -69,6 +70,7 @@ export function useFilteredAssetsSlugs(
   }, [
     leadingAssets,
     leadingAssetsAreFilterable,
+    filterZeroBalances,
     isNonZeroBalance,
     searchedSlugs,
     searchValueDebounced,

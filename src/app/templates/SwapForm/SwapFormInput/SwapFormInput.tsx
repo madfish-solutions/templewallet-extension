@@ -53,8 +53,7 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
   const { filteredAssets, searchValue, setSearchValue, tokenId, setTokenId } = useFilteredAssetsSlugs(
     route3tokensSlugs,
     name === 'input',
-    LEADING_ASSETS,
-    false
+    LEADING_ASSETS
   );
 
   const showTokenIdInput = useSwapFormTokenIdInput(searchValue);

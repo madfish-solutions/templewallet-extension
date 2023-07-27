@@ -60,8 +60,7 @@ export const TokensTab: FC = () => {
   const { filteredAssets, searchValue, setSearchValue } = useFilteredAssetsSlugs(
     slugs,
     isZeroBalancesHidden,
-    LEADING_ASSETS,
-    true
+    LEADING_ASSETS
   );
 
   const isEnabledAdsBanner = useIsEnabledAdsBannerSelector();
