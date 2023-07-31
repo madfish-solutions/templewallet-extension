@@ -46,6 +46,7 @@ const CollectiblePage: FC<Props> = ({ assetSlug }) => {
 
   const areDetailsLoading = useAllCollectiblesDetailsLoadingSelector();
   const details = useCollectibleDetailsSelector(assetSlug);
+  console.log('isAdultContent: ', details?.isAdultContent);
 
   const collectibleName = getAssetName(metadata);
 
@@ -140,7 +141,13 @@ const CollectiblePage: FC<Props> = ({ assetSlug }) => {
           className="rounded-lg mb-2 border border-gray-300 bg-blue-50 overflow-hidden"
           style={{ aspectRatio: '1/1' }}
         >
-          <CollectibleImage assetSlug={assetSlug} metadata={metadata} large className="h-full w-full" />
+          <CollectibleImage
+            assetSlug={assetSlug}
+            metadata={metadata}
+            isAdultContent={details?.isAdultContent}
+            large
+            className="h-full w-full"
+          />
         </div>
 
         {areDetailsLoading && !details ? (
