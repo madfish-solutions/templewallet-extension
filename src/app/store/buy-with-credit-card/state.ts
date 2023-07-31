@@ -27,7 +27,3 @@ export const buyWithCreditCardInitialState: BuyWithCreditCardState = {
   },
   pairLimits: {}
 };
-
-export interface BuyWithCreditCardRootState {
-  buyWithCreditCard: BuyWithCreditCardState;
-}

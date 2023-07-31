@@ -45,7 +45,7 @@ export const ActivityComponent: React.FC<Props> = ({ assetSlug }) => {
         })
       );
     }
-  }, [isShouldShowPartnersPromoState, isEnabledAdsBanner]);
+  }, [isShouldShowPartnersPromoState, isEnabledAdsBanner, dispatch, accountAddress]);
 
   if (activities.length === 0 && !loading && reachedTheEnd) {
     return (

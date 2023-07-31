@@ -1,9 +1,10 @@
 import { isDefined } from '@rnw-community/shared';
-import { combineEpics } from 'redux-observable';
+import { combineEpics, Epic } from 'redux-observable';
 import { catchError, forkJoin, from, map, Observable, of, switchMap, withLatestFrom } from 'rxjs';
 import { Action } from 'ts-action';
 import { ofType } from 'ts-action-operators';
 
+import type { RootState } from 'app/store/root-state.type';
 import { getMoonPayCurrencies } from 'lib/apis/moonpay';
 import { getAliceBobPairInfo } from 'lib/apis/temple';
 import { getBinanceConnectCurrencies } from 'lib/apis/temple-static';
@@ -15,7 +16,7 @@ import { createEntity } from 'lib/store';
 import { getAxiosQueryErrorMessage } from 'lib/utils/get-axios-query-error-message';
 
 import { loadAllCurrenciesActions, updatePairLimitsActions } from './actions';
-import { BuyWithCreditCardRootState, TopUpProviderCurrencies } from './state';
+import { TopUpProviderCurrencies } from './state';
 import {
   mapAliceBobProviderCurrencies,
   mapMoonPayProviderCurrencies,
@@ -39,7 +40,7 @@ const allTopUpProviderIds = [
   TopUpProviderId.BinanceConnect
 ];
 
-const loadAllCurrenciesEpic = (action$: Observable<Action>) =>
+const loadAllCurrenciesEpic: Epic = (action$: Observable<Action>) =>
   action$.pipe(
     ofType(loadAllCurrenciesActions.submit),
     switchMap(() =>
@@ -61,7 +62,7 @@ const loadAllCurrenciesEpic = (action$: Observable<Action>) =>
     )
   );
 
-const updatePairLimitsEpic = (action$: Observable<Action>, state$: Observable<BuyWithCreditCardRootState>) =>
+const updatePairLimitsEpic: Epic = (action$: Observable<Action>, state$: Observable<RootState>) =>
   action$.pipe(
     ofType(updatePairLimitsActions.submit),
     withLatestFrom(state$),
@@ -106,7 +107,4 @@ const updatePairLimitsEpic = (action$: Observable<Action>, state$: Observable<Bu
     })
   );
 
-export const buyWithCreditCardEpics = combineEpics<Action, Action, BuyWithCreditCardRootState>(
-  loadAllCurrenciesEpic,
-  updatePairLimitsEpic
-);
+export const buyWithCreditCardEpics = combineEpics(loadAllCurrenciesEpic, updatePairLimitsEpic);
