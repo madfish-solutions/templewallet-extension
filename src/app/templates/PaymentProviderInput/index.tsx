@@ -62,7 +62,7 @@ interface PaymentProviderDropdownFaceContentProps {
 const PaymentProviderDropdownFaceContent: FC<PaymentProviderDropdownFaceContentProps> = ({ value, testId }) => (
   <div className="w-full flex flex-row items-center gap-2 rounded-md cursor-pointer" {...setTestID(testId)}>
     <TopUpProviderIcon providerId={value?.id} />
-    <div className="flex flex-1 flex-col">
+    <div className="flex flex-1 flex-col items-start">
       {isDefined(value) ? (
         <>
           <span className="font-normal text-ulg text-gray-700 leading-tight">{value.name}</span>

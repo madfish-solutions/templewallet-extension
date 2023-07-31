@@ -111,13 +111,13 @@ const FiatCurrencyOptionContent: FC<FiatCurrencyOptionContentProps> = ({ option,
   return (
     <div
       className={classNames(
-        'w-full flex items-cente py-1.5 px-2 rounded',
+        'w-full flex items-center py-1.5 px-2 rounded',
         isSelected ? 'bg-gray-200' : 'hover:bg-gray-100'
       )}
     >
       <FiatCurrencyIcon option={option} />
 
-      <div className="w-full text-lg text-gray-700" {...setTestID(SettingsGeneralSelectors.currencyItem)}>
+      <div className="w-full text-left text-lg text-gray-700" {...setTestID(SettingsGeneralSelectors.currencyItem)}>
         {option.name} ({option.fullname})
       </div>
     </div>

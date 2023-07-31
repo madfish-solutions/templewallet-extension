@@ -107,7 +107,10 @@ const BlockExplorerOptionContent: FC<BlockExplorerOptionContentProps> = ({ optio
     >
       <BlockExplorerIcon id={option.id} name={option.name} />
 
-      <div className="w-full text-lg text-gray-700" {...setTestID(SettingsGeneralSelectors.blockExplorerItem)}>
+      <div
+        className="w-full text-left text-lg text-gray-700"
+        {...setTestID(SettingsGeneralSelectors.blockExplorerItem)}
+      >
         {option.name}
       </div>
     </div>

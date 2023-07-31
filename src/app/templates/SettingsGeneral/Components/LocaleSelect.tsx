@@ -187,7 +187,7 @@ const LocaleOptionContent: FC<LocaleOptionContentProps> = ({ option, isSelected 
     >
       <LocaleIcon option={option} />
 
-      <div className="relative w-full text-lg text-gray-700">
+      <div className="relative text-left w-full text-lg text-gray-700">
         {option.label}
 
         {option.disabled && (
