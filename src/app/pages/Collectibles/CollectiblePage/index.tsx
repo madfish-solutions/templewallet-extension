@@ -46,7 +46,6 @@ const CollectiblePage: FC<Props> = ({ assetSlug }) => {
 
   const areDetailsLoading = useAllCollectiblesDetailsLoadingSelector();
   const details = useCollectibleDetailsSelector(assetSlug);
-  console.log('isAdultContent: ', details?.isAdultContent);
 
   const collectibleName = getAssetName(metadata);
 
