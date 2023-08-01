@@ -93,12 +93,12 @@ Install [`@redux-devtools/cli`](https://github.com/reduxjs/redux-devtools) globa
 yarn global add @redux-devtools/cli
 ```
 
-Then start a receiver (with UI) of the Redux state updates:
+Then open an explorer at previously specified port:
 
 ```bash
-redux-devtools --open
+redux-devtools --open --port=8000
 ```
 
-> Other options like `--open=browser` are available.
+> Other UI options like `--open=browser` are available.
 
-Go to settings to enter previously choosen port.
+Go to settings to specify port one more time.
