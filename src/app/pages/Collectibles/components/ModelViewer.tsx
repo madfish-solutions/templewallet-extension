@@ -1,14 +1,6 @@
 import React, { FC, useEffect, useRef } from 'react';
 
 import '@google/model-viewer';
-import { AnimationInterface } from '@google/model-viewer/lib/features/animation';
-import { AnnotationInterface } from '@google/model-viewer/lib/features/annotation';
-import { ARInterface } from '@google/model-viewer/lib/features/ar';
-import { ControlsInterface } from '@google/model-viewer/lib/features/controls';
-import { EnvironmentInterface } from '@google/model-viewer/lib/features/environment';
-import { LoadingInterface } from '@google/model-viewer/lib/features/loading';
-import { SceneGraphInterface } from '@google/model-viewer/lib/features/scene-graph';
-import { StagingInterface } from '@google/model-viewer/lib/features/staging';
 import ModelViewerElementBase from '@google/model-viewer/lib/model-viewer-base';
 import classNames from 'clsx';
 
@@ -32,18 +24,8 @@ interface Props {
   onError?: EmptyFn;
 }
 
-type ModelViewerType = AnnotationInterface &
-  SceneGraphInterface &
-  StagingInterface &
-  EnvironmentInterface &
-  ControlsInterface &
-  ARInterface &
-  LoadingInterface &
-  AnimationInterface &
-  ModelViewerElementBase;
-
 export const ModelViewer: FC<Props> = ({ uri, alt, className, onError = emptyFn }) => {
-  const modelViewerRef = useRef<ModelViewerType>(null);
+  const modelViewerRef = useRef<ModelViewerElementBase>(null);
 
   useEffect(() => {
     const modelViewer = modelViewerRef.current;
