@@ -59,7 +59,7 @@ export const CollectibleImage: FC<Props> = ({
         return (
           <ModelViewer
             uri={formatCollectibleObjktArtifactUri(objktArtifactUri)}
-            loader={<CollectibleImageLoader large />}
+            alt={metadata?.name}
             onError={handleError}
           />
         );

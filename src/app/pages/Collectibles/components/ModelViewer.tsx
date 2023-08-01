@@ -1,33 +1,73 @@
-import React, { FC, Suspense } from 'react';
+import React, { FC, useEffect, useRef } from 'react';
 
-import { OrbitControls, Stage, useGLTF } from '@react-three/drei';
-import { Canvas } from '@react-three/fiber';
+import '@google/model-viewer';
+import { AnimationInterface } from '@google/model-viewer/lib/features/animation';
+import { AnnotationInterface } from '@google/model-viewer/lib/features/annotation';
+import { ARInterface } from '@google/model-viewer/lib/features/ar';
+import { ControlsInterface } from '@google/model-viewer/lib/features/controls';
+import { EnvironmentInterface } from '@google/model-viewer/lib/features/environment';
+import { LoadingInterface } from '@google/model-viewer/lib/features/loading';
+import { SceneGraphInterface } from '@google/model-viewer/lib/features/scene-graph';
+import { StagingInterface } from '@google/model-viewer/lib/features/staging';
+import ModelViewerElementBase from '@google/model-viewer/lib/model-viewer-base';
+import classNames from 'clsx';
 
 import { emptyFn } from 'app/utils/function.utils';
 
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      'model-viewer': React.DetailedHTMLProps<
+        React.AllHTMLAttributes<Partial<globalThis.HTMLElementTagNameMap['model-viewer']>>,
+        Partial<globalThis.HTMLElementTagNameMap['model-viewer']>
+      >;
+    }
+  }
+}
+
 interface Props {
   uri: string;
-  loader?: React.ReactElement;
+  alt?: string;
+  className?: string;
   onError?: EmptyFn;
 }
 
-export const ModelViewer: FC<Props> = ({ uri, loader, onError = emptyFn }) => (
-  <Suspense fallback={loader}>
-    <Canvas onError={onError}>
-      <OrbitControls autoRotate />
-      <Stage preset="rembrandt" environment="warehouse">
-        <Model uri={uri} />
-      </Stage>
-    </Canvas>
-  </Suspense>
-);
+type ModelViewerType = AnnotationInterface &
+  SceneGraphInterface &
+  StagingInterface &
+  EnvironmentInterface &
+  ControlsInterface &
+  ARInterface &
+  LoadingInterface &
+  AnimationInterface &
+  ModelViewerElementBase;
 
-interface ModelProps {
-  uri: string;
-}
+export const ModelViewer: FC<Props> = ({ uri, alt, className, onError = emptyFn }) => {
+  const modelViewerRef = useRef<ModelViewerType>(null);
 
-const Model: FC<ModelProps> = ({ uri }) => {
-  const { scene } = useGLTF(uri);
+  useEffect(() => {
+    const modelViewer = modelViewerRef.current;
 
-  return <primitive object={scene} />;
+    if (modelViewer) {
+      modelViewer?.addEventListener('error', onError);
+
+      return () => modelViewer?.removeEventListener('error', onError);
+    }
+
+    return undefined;
+  }, [modelViewerRef.current]);
+
+  return (
+    <model-viewer
+      ref={modelViewerRef}
+      src={uri}
+      alt={alt}
+      auto-rotate={true}
+      camera-controls={true}
+      autoPlay
+      shadow-intensity="1"
+      //@ts-ignore
+      class={classNames('w-full h-full', className)}
+    ></model-viewer>
+  );
 };
