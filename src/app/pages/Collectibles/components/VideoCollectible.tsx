@@ -16,16 +16,14 @@ interface Props {
 export const VideoCollectible: FC<Props> = ({ uri, loader, className, style, onError = emptyFn }) => {
   const [isLoading, setIsLoading] = useState(true);
 
-  const handleCanPlay = useCallback(() => setIsLoading(false), []);
-  const handleWaiting = useCallback(() => setIsLoading(true), []);
+  const handleLoaded = useCallback(() => setIsLoading(false), []);
 
   return (
     <>
       <video
         autoPlay
         loop
-        onCanPlay={handleCanPlay}
-        onWaiting={handleWaiting}
+        onCanPlayThrough={handleLoaded}
         className={classNames(className, isLoading && 'hidden')}
         style={style}
         onError={onError}
