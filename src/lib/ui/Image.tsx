@@ -11,6 +11,7 @@ export interface ImageProps {
   width?: string | number;
   height?: string | number;
   style?: React.CSSProperties;
+  onLoad?: EmptyFn;
 }
 
 /*
@@ -21,7 +22,7 @@ export interface ImageProps {
 ReactImageFallback.prototype.componentDidUpdate = ReactImageFallback.prototype.componentWillReceiveProps;
 delete ReactImageFallback.prototype.componentWillReceiveProps;
 
-export const Image: React.FC<ImageProps> = ({ src: sources, alt, loader, fallback, ...rest }) => {
+export const Image: React.FC<ImageProps> = ({ src: sources, alt, loader, fallback, onLoad, ...rest }) => {
   const localFallback = useMemo(() => fallback || <img alt={alt} {...rest} />, [alt, rest]);
 
   const { src, fallbackImage } = useMemo(() => {
@@ -46,6 +47,7 @@ export const Image: React.FC<ImageProps> = ({ src: sources, alt, loader, fallbac
       alt={alt}
       initialImage={loader}
       fallbackImage={fallbackImage as any}
+      onLoad={onLoad}
       {...rest}
     />
   );

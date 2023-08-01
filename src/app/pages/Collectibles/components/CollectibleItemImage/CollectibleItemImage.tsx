@@ -1,10 +1,9 @@
-import React, { FC } from 'react';
+import React, { FC, useMemo } from 'react';
 
 import { ReactComponent as RevealEyeSvg } from 'app/icons/reveal-eye.svg';
 import { AssetImage } from 'app/templates/AssetImage';
 import { AssetMetadataBase } from 'lib/metadata';
 
-import { NonStaticCollectibleMimeTypes } from '../../enums/NonStaticMimeTypes.enum';
 import { CollectibleImageFallback } from '../CollectibleImageFallback';
 import { CollectibleImageLoader } from '../CollectibleImageLoader';
 import BlurImageSrc from './Blur.png';
@@ -17,6 +16,8 @@ interface Props {
 }
 
 export const CollectibleItemImage: FC<Props> = ({ metadata, mime, assetSlug, isAdultContent }) => {
+  const isAudioCollectible = useMemo(() => Boolean(mime && mime.startsWith('audio')), [mime]);
+
   if (isAdultContent) {
     return (
       <div className="relative flex justify-center items-center h-full w-full">
@@ -31,7 +32,7 @@ export const CollectibleItemImage: FC<Props> = ({ metadata, mime, assetSlug, isA
       metadata={metadata}
       assetSlug={assetSlug}
       loader={<CollectibleImageLoader />}
-      fallback={<CollectibleImageFallback isAudioCollectible={mime === NonStaticCollectibleMimeTypes.AUDIO_MPEG} />}
+      fallback={<CollectibleImageFallback isAudioCollectible={isAudioCollectible} />}
     />
   );
 };
