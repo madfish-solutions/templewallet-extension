@@ -26,7 +26,7 @@ interface Props {
 
 export const ModelViewer: FC<Props> = ({ uri, alt, className, onError = emptyFn }) => {
   const modelViewerRef = useRef<ModelViewerElementBase>(null);
-
+  console.log(1);
   useEffect(() => {
     const modelViewer = modelViewerRef.current;
 
