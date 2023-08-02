@@ -37,8 +37,7 @@ export const ModelViewer: FC<Props> = ({ uri, alt, className, onError = emptyFn 
     }
 
     return undefined;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [modelViewerRef.current]);
+  }, []);
 
   return (
     <model-viewer
