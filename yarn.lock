@@ -8619,13 +8619,6 @@ loader-utils@^3.2.0:
   resolved "https://registry.yarnpkg.com/loader-utils/-/loader-utils-3.2.1.tgz#4fb104b599daafd82ef3e1a41fb9265f87e1f576"
   integrity sha512-ZvFw1KWS3GVyYBYb7qkmRM/WwL2TQQBxgCK62rlvm4WpVQ23Nb4tYjApUlfjrEGvOs7KHEsmyUn75OHZrJMWPw==
 
-localstorage-migrator@^1.0.8:
-  version "1.0.8"
-  resolved "https://registry.yarnpkg.com/localstorage-migrator/-/localstorage-migrator-1.0.8.tgz#4a63d48a04ab8af1337d018a403285468a9a719d"
-  integrity sha512-J3CJyMfuDrrKr9x0xA1e8tYO+1AR7ogEuW/5GEHSoSQVMPe0STh+D+HVpVROJ/tgy+JQ7oSHND7Kka5/jvwO1w==
-  dependencies:
-    rstolsmark-json-migrator "^1.0.6"
-
 locate-path@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/locate-path/-/locate-path-3.0.0.tgz#dbec3b3ab759758071b58fe59fc41871af21400e"
@@ -10934,11 +10927,6 @@ rn-host-detect@^1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/rn-host-detect/-/rn-host-detect-1.2.0.tgz#8b0396fc05631ec60c1cb8789e5070cdb04d0da0"
   integrity sha512-btNg5kzHcjZZ7t7mvvV/4wNJ9e3MPgrWivkRgWURzXL0JJ0pwWlU4zrbmdlz3HHzHOxhBhHB4D+/dbMFfu4/4A==
-
-rstolsmark-json-migrator@^1.0.6:
-  version "1.0.6"
-  resolved "https://registry.yarnpkg.com/rstolsmark-json-migrator/-/rstolsmark-json-migrator-1.0.6.tgz#f70df876a2e3a4be594be95d9aa8447d43c65852"
-  integrity sha512-qCSOZiuCBw+ddw+PPvQebUqzxDXNJob+kbkjeRMX9+laDeEd0uYcDm/PF79FC/jinZqL1xpOsFhvVgzMXxQLqA==
 
 run-parallel@^1.1.9:
   version "1.2.0"

@@ -1,8 +1,8 @@
 import { isNotEmptyString } from '@rnw-community/shared';
-import * as localStorageMigrator from 'localstorage-migrator';
-import type { IMigration } from 'rstolsmark-json-migrator';
 
-const MIGRATIONS: IMigration[] = [
+import { migrate } from './migrator';
+
+migrate([
   {
     name: '1.17.4',
     up: () => {
@@ -18,6 +18,4 @@ const MIGRATIONS: IMigration[] = [
       }
     }
   }
-];
-
-localStorageMigrator.migrate(MIGRATIONS);
+]);
