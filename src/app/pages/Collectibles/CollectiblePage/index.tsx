@@ -144,6 +144,7 @@ const CollectiblePage: FC<Props> = ({ assetSlug }) => {
             assetSlug={assetSlug}
             metadata={metadata}
             objktArtifactUri={details?.objktArtifactUri}
+            isAdultContent={details?.isAdultContent}
             mime={details?.mime}
             large
             className="h-full w-full"
