@@ -1,11 +1,6 @@
-/**
- * Actually, there is a bunch of other types but only these will be used for now
- */
-export type TzktOperationType = 'delegation' | 'transaction' | 'reveal' | 'origination';
+import { TzktOperationType, TzktOperationStatus } from '@temple-wallet/transactions-parser';
 
 export type TzktQuoteCurrency = 'None' | 'Btc' | 'Eur' | 'Usd' | 'Cny' | 'Jpy' | 'Krw';
-
-type TzktOperationStatus = 'applied' | 'failed' | 'backtracked' | 'skipped';
 
 type TzktContractType = 'delegator_contract' | 'smart_contract';
 
@@ -42,7 +37,7 @@ interface TzktOperationBase {
 type TzktQuote = Partial<Record<TzktQuoteCurrency, number>>;
 
 interface TzktDelegationOperation extends TzktOperationBase {
-  type: 'delegation';
+  type: TzktOperationType.Delegation;
   initiator?: TzktAlias;
   nonce?: number;
   amount?: number;
@@ -50,8 +45,8 @@ interface TzktDelegationOperation extends TzktOperationBase {
   newDelegate?: TzktAlias | null;
 }
 
-export interface TzktTransactionOperation extends TzktOperationBase {
-  type: 'transaction';
+interface TzktTransactionOperation extends TzktOperationBase {
+  type: TzktOperationType.Transaction;
   initiator?: TzktAlias;
   nonce?: number;
   storageLimit: number;
@@ -66,13 +61,13 @@ export interface TzktTransactionOperation extends TzktOperationBase {
 }
 
 interface TzktOriginationOperation extends TzktOperationBase {
-  type: 'origination';
+  type: TzktOperationType.Origination;
   originatedContract?: TzktAlias;
   contractBalance?: string;
 }
 
 interface TzktRevealOperation extends TzktOperationBase {
-  type: 'reveal';
+  type: TzktOperationType.Reveal;
 }
 
 export type TzktOperation =

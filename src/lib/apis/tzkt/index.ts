@@ -4,8 +4,6 @@ export type {
   TzktRelatedContract,
   TzktRewardsEntry,
   TzktAlias,
-  TzktOperationType,
-  TzktTransactionOperation,
   TzktAccountToken
 } from './types';
 

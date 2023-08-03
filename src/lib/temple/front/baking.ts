@@ -146,6 +146,30 @@ export function useKnownBaker(address: string | null, suspense = true) {
   });
 }
 
+export const PAYOUTS_ACCOUNTS = [
+  {
+    address: 'tz1W1en9UpMCH4ZJL8wQCh8JDKCZARyVx2co',
+    name: 'Everstake Payouts',
+    logo: 'https://services.tzkt.io/v1/avatars/tz1W1en9UpMCH4ZJL8wQCh8JDKCZARyVx2co'
+  }
+];
+
+export const PAYOUTS_ALIASES = PAYOUTS_ACCOUNTS.map(({ address, name }) => ({ address, alias: name }));
+
+export function useKnownBakerOrPayoutAccount(address: string | null, suspense = true) {
+  const hookValue = useKnownBaker(address, suspense);
+
+  const knownPayoutAccount = useMemo(
+    () => PAYOUTS_ACCOUNTS.find(({ address: accAddress }) => accAddress === address),
+    [address]
+  );
+
+  return {
+    ...hookValue,
+    data: hookValue.data ?? knownPayoutAccount
+  };
+}
+
 export function useKnownBakers(suspense = true) {
   const net = useNetwork();
   const { data: bakers } = useRetryableSWR(net.type === 'main' ? 'all-bakers' : null, getAllBakersBakingBad, {

@@ -1634,5 +1634,8 @@
   },
   "faucetJsonDescription": {
     "message": "ファイルを追加する代わりに、ここにJSONを貼り付けることができます。"
+  },
+  "listSeparation": {
+    "message": "、"
   }
 }

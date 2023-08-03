@@ -5,7 +5,7 @@ import axios from 'axios';
 import { BigNumber } from 'bignumber.js';
 
 import { useSelector } from 'app/store';
-import { useStorage } from 'lib/temple/front';
+import { useAccount, useCollectibleTokens, useChainId, useStorage } from 'lib/temple/front';
 import { isTruthy } from 'lib/utils';
 
 import { FIAT_CURRENCIES } from './consts';
@@ -49,6 +49,28 @@ export function useAssetFiatCurrencyPrice(slug: string): BigNumber {
 
     return BigNumber(fiatToUsdRate).times(usdToTokenRate);
   }, [fiatToUsdRate, usdToTokenRate]);
+}
+
+export function useManyAssetsFiatCurrencyPrices(slugs: string[], forceZeroRateForNFT = true) {
+  const fiatToUsdRate = useFiatToUsdRate();
+  const usdToTokenRates = useUsdToTokenRates();
+  const chainId = useChainId(true)!;
+  const account = useAccount();
+  const { data: collectibles } = useCollectibleTokens(chainId, account.publicKeyHash);
+
+  const collectiblesSlugs = useMemo(() => collectibles?.map(token => token.tokenSlug) ?? [], [collectibles]);
+
+  return useMemo(
+    () =>
+      slugs.map(slug => {
+        const usdToTokenRate = usdToTokenRates[slug] ?? '0';
+
+        return isDefined(fiatToUsdRate) && (!forceZeroRateForNFT || !collectiblesSlugs.includes(slug))
+          ? new BigNumber(usdToTokenRate).times(fiatToUsdRate)
+          : new BigNumber(0);
+      }),
+    [slugs, fiatToUsdRate, usdToTokenRates, collectiblesSlugs, forceZeroRateForNFT]
+  );
 }
 
 export const useFiatCurrency = () => {

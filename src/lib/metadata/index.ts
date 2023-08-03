@@ -1,4 +1,11 @@
-import { useTokenMetadataSelector } from 'app/store/tokens-metadata/selectors';
+import { useEffect, useMemo, useRef } from 'react';
+
+import { isDefined } from '@rnw-community/shared';
+import { isEqual } from 'lodash';
+import { useDispatch } from 'react-redux';
+
+import { loadTokensMetadataAction } from 'app/store/tokens-metadata/actions';
+import { useTokenMetadataSelector, useTokensMetadataSelector } from 'app/store/tokens-metadata/selectors';
 import { isTezAsset } from 'lib/assets';
 import { useNetwork } from 'lib/temple/front';
 
@@ -21,6 +28,33 @@ export const useAssetMetadata = (slug: string): AssetMetadataBase | undefined =>
   if (isTezAsset(slug)) return gasMetadata;
 
   return tokenMetadata;
+};
+
+export const useManyAssetsMetadata = (slugs: string[]): Array<AssetMetadataBase | undefined> => {
+  const tokensMetadata = useTokensMetadataSelector();
+  const gasMetadata = useGasTokenMetadata();
+  const dispatch = useDispatch();
+  const network = useNetwork();
+
+  const prevSlugsRef = useRef<string[]>([]);
+
+  useEffect(() => {
+    if (isEqual(prevSlugsRef.current, slugs)) {
+      return;
+    }
+
+    prevSlugsRef.current = slugs;
+    const slugsWithoutTokenMetadata = slugs.filter(slug => !isDefined(tokensMetadata[slug]) && !isTezAsset(slug));
+
+    if (slugsWithoutTokenMetadata.length > 0) {
+      dispatch(loadTokensMetadataAction({ slugs: slugsWithoutTokenMetadata, rpcUrl: network.rpcBaseURL }));
+    }
+  }, [dispatch, tokensMetadata, slugs, network.rpcBaseURL]);
+
+  return useMemo(
+    () => slugs.map(slug => (isTezAsset(slug) ? gasMetadata : tokensMetadata[slug])),
+    [slugs, tokensMetadata, gasMetadata]
+  );
 };
 
 export function getAssetSymbol(metadata: AssetMetadataBase | nullish, short = false) {

@@ -1,10 +1,10 @@
+import { TzktOperationType } from '@temple-wallet/transactions-parser';
 import axios, { AxiosError } from 'axios';
 
 import { TempleChainId } from 'lib/temple/types';
 
 import {
   TzktOperation,
-  TzktOperationType,
   TzktQuoteCurrency,
   TzktAccountToken,
   allInt32ParameterKeys,

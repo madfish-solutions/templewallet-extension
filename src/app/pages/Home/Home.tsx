@@ -24,7 +24,7 @@ import { ReactComponent as SendIcon } from 'app/icons/send-alt.svg';
 import { ReactComponent as SwapIcon } from 'app/icons/swap.svg';
 import { ReactComponent as WithdrawIcon } from 'app/icons/withdraw.svg';
 import PageLayout from 'app/layouts/PageLayout';
-import { ActivityComponent } from 'app/templates/activity/Activity';
+import { ActivityComponent } from 'app/templates/activity';
 import AssetInfo from 'app/templates/AssetInfo';
 import { TestIDProps } from 'lib/analytics';
 import { TEZ_TOKEN_SLUG, isTezAsset } from 'lib/assets';

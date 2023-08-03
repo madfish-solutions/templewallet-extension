@@ -1,0 +1,40 @@
+.open-details-icon {
+  animation: opening-icon-rotation 300ms 1;
+  transform: rotate(180deg);
+}
+
+.close-details-icon {
+  animation: closing-icon-rotation 300ms 1;
+}
+
+.hash-chip {
+  font-size: 0.75rem !important;
+}
+
+@keyframes opening-icon-rotation {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  50% {
+    transform: rotate(90deg);
+  }
+
+  100% {
+    transform: rotate(180deg);
+  }
+}
+
+@keyframes closing-icon-rotation {
+  0% {
+    transform: rotate(180deg);
+  }
+
+  50% {
+    transform: rotate(270deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}

@@ -2,7 +2,7 @@ import React, { FC, useMemo } from 'react';
 
 import classNames from 'clsx';
 
-import { ReactComponent as ArrowRightTopIcon } from 'app/icons/arrow-right-top.svg';
+import { ReactComponent as ArrowUpRightIcon } from 'app/icons/arrow-up-right.svg';
 import useTippy from 'lib/ui/useTippy';
 
 import { Anchor } from './Anchor';
@@ -66,13 +66,13 @@ const OpenInExplorerChip: FC<OpenInExplorerChipProps> = ({
         rounded === 'base' ? 'rounded' : 'rounded-sm',
         'leading-none select-none',
         'transition ease-in-out duration-300',
-        'flex items-center justify-center',
+        'flex items-center justify-center p-1',
         className
       )}
       testID={OpenInExplorerChipSelectors.ViewOnBlockExplorerLink}
       treatAsButton={true}
     >
-      <ArrowRightTopIcon className="h-5 w-auto fill-current" />
+      <ArrowUpRightIcon className="h-4 w-auto stroke-current" />
     </Anchor>
   );
 };
