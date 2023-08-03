@@ -1,3 +1,7 @@
+/*
+  Package `three` must also be installed - it is a peer dep for `@google/model-viewer`
+*/
+
 import React, { FC, useEffect, useRef } from 'react';
 
 import '@google/model-viewer';

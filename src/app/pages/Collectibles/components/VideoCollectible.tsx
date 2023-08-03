@@ -3,8 +3,6 @@ import React, { CSSProperties, FC, useCallback, useState } from 'react';
 import { emptyFn } from '@rnw-community/shared';
 import clsx from 'clsx';
 
-import { formatCollectibleObjktArtifactUri } from '../utils/image.utils';
-
 interface Props {
   uri: string;
   loader?: React.ReactElement;
@@ -12,6 +10,7 @@ interface Props {
   style?: CSSProperties;
   onError?: EmptyFn;
 }
+
 export const VideoCollectible: FC<Props> = ({ uri, loader, className, style, onError = emptyFn }) => {
   const [isLoading, setIsLoading] = useState(true);
 
@@ -27,7 +26,7 @@ export const VideoCollectible: FC<Props> = ({ uri, loader, className, style, onE
         style={style}
         onError={onError}
       >
-        <source src={formatCollectibleObjktArtifactUri(uri)} />
+        <source src={uri} />
       </video>
       {isLoading && loader}
     </>

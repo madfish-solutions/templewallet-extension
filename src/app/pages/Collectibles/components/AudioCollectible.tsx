@@ -5,7 +5,6 @@ import { emptyFn } from '@rnw-community/shared';
 import { AssetImage } from 'app/templates/AssetImage';
 import { AssetMetadataBase } from 'lib/metadata';
 
-import { formatCollectibleObjktArtifactUri } from '../utils/image.utils';
 import { CollectibleImageFallback } from './CollectibleImageFallback';
 
 interface Props {
@@ -43,13 +42,8 @@ export const AudioCollectible: FC<Props> = ({
 
   return (
     <>
-      <audio
-        ref={playerRef}
-        src={formatCollectibleObjktArtifactUri(uri)}
-        loop
-        onCanPlayThrough={handleAudioLoaded}
-        onError={onAudioError}
-      />
+      <audio ref={playerRef} src={uri} loop onCanPlayThrough={handleAudioLoaded} onError={onAudioError} />
+
       <AssetImage
         metadata={metadata}
         assetSlug={assetSlug}
@@ -58,6 +52,7 @@ export const AudioCollectible: FC<Props> = ({
         style={style}
         onLoad={handleImageLoaded}
       />
+
       {!ready && loader}
     </>
   );

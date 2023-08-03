@@ -4,8 +4,8 @@ import { Model3DViewer } from 'app/atoms/Model3DViewer';
 import { useAllCollectiblesDetailsLoadingSelector } from 'app/store/collectibles/selectors';
 import { AssetImage } from 'app/templates/AssetImage';
 import { AssetMetadataBase } from 'lib/metadata';
+import { Image } from 'lib/ui/Image';
 
-import { AnimatedSvg } from '../components/AnimatedSvg';
 import { AudioCollectible } from '../components/AudioCollectible';
 import { CollectibleBlur } from '../components/CollectibleBlur';
 import { CollectibleImageFallback } from '../components/CollectibleImageFallback';
@@ -19,7 +19,6 @@ interface Props {
   mime?: string | null;
   objktArtifactUri?: string;
   isAdultContent?: boolean;
-  large?: boolean;
   className?: string;
   style?: React.CSSProperties;
 }
@@ -29,7 +28,6 @@ export const CollectibleImage: FC<Props> = ({
   mime,
   objktArtifactUri,
   assetSlug,
-  large,
   className,
   style,
   isAdultContent = false
@@ -37,10 +35,10 @@ export const CollectibleImage: FC<Props> = ({
   const [isRenderFailedOnce, setIsRenderFailedOnce] = useState(false);
   const isDetailsLoading = useAllCollectiblesDetailsLoadingSelector();
 
-  const [shouldShowBlur, setShouldShowBlur] = useState<boolean>(isAdultContent);
-  const handleBlurClick = useCallback(() => setShouldShowBlur(false), []);
-
+  const [shouldShowBlur, setShouldShowBlur] = useState(isAdultContent);
   useEffect(() => setShouldShowBlur(isAdultContent), [isAdultContent]);
+
+  const handleBlurClick = useCallback(() => setShouldShowBlur(false), []);
 
   const handleError = useCallback(() => setIsRenderFailedOnce(true), []);
 
@@ -48,20 +46,20 @@ export const CollectibleImage: FC<Props> = ({
     return <CollectibleBlur onClick={handleBlurClick} />;
   }
 
-  if (large && isDetailsLoading) {
-    return <CollectibleImageLoader large={large} />;
+  if (isDetailsLoading) {
+    return <CollectibleImageLoader large />;
   }
 
   if (objktArtifactUri && !isRenderFailedOnce) {
     if (isSvgDataUriInUtf8Encoding(objktArtifactUri)) {
       return (
-        <AnimatedSvg
-          uri={objktArtifactUri}
+        <Image
+          src={objktArtifactUri}
           alt={metadata?.name}
-          loader={<CollectibleImageLoader large={large} />}
+          loader={<CollectibleImageLoader large />}
+          onError={handleError}
           className={className}
           style={style}
-          onError={handleError}
         />
       );
     }
@@ -80,8 +78,8 @@ export const CollectibleImage: FC<Props> = ({
       if (mime.startsWith('video')) {
         return (
           <VideoCollectible
-            uri={objktArtifactUri}
-            loader={<CollectibleImageLoader large={large} />}
+            uri={formatCollectibleObjktArtifactUri(objktArtifactUri)}
+            loader={<CollectibleImageLoader large />}
             className={className}
             style={style}
             onError={handleError}
@@ -92,10 +90,10 @@ export const CollectibleImage: FC<Props> = ({
       if (mime.startsWith('audio')) {
         return (
           <AudioCollectible
-            uri={objktArtifactUri}
+            uri={formatCollectibleObjktArtifactUri(objktArtifactUri)}
             assetSlug={assetSlug}
             metadata={metadata}
-            loader={<CollectibleImageLoader large={large} />}
+            loader={<CollectibleImageLoader large />}
             className={className}
             style={style}
             onAudioError={handleError}
@@ -109,8 +107,8 @@ export const CollectibleImage: FC<Props> = ({
     <AssetImage
       metadata={metadata}
       assetSlug={assetSlug}
-      loader={<CollectibleImageLoader large={large} />}
-      fallback={<CollectibleImageFallback large={large} />}
+      loader={<CollectibleImageLoader large />}
+      fallback={<CollectibleImageFallback large />}
       className={className}
       style={style}
     />
