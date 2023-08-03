@@ -71,7 +71,7 @@ const CopyButton: FC<CopyButtonProps> = ({
         ? classNames(
             'font-tnum leading-none select-none',
             'transition ease-in-out duration-300',
-            rounded === 'base' ? 'rounded' : `rounded-${rounded}`,
+            rounded === 'base' ? 'rounded' : 'rounded-sm',
             small ? 'text-xs p-1' : 'text-sm h-6 flex items-center px-2',
             BG_SHADES[bgShade],
             TEXT_SHADES[textShade],

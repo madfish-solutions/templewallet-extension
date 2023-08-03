@@ -34,7 +34,6 @@ export default function useActivities(initialPseudoLimit: number, assetSlug?: st
   async function loadActivities(pseudoLimit: number, activities: DisplayableActivity[], shouldStop: () => boolean) {
     if (!isKnownChainId(chainId)) {
       setLoading(false);
-      console.log('oy vey 1');
       setReachedTheEnd(true);
       return;
     }
@@ -65,7 +64,6 @@ export default function useActivities(initialPseudoLimit: number, assetSlug?: st
     setActivities(activities.concat(newActivities));
     setLoading(false);
     if (newActivities.length === 0) {
-      console.log('oy vey 2');
       setReachedTheEnd(true);
     }
   }

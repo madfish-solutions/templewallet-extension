@@ -36,7 +36,7 @@ export const TokensDeltaView = memo<Props>(({ tokensDeltas, shouldShowNFTCard, i
         if (isDefined(metadata) && isCollectible(metadata)) {
           const { name } = metadata;
 
-          return name.length > MAX_DISPLAYED_NFT_CHARS ? `${name.slice(0, MAX_DISPLAYED_NFT_CHARS)}...` : name;
+          return name.length > MAX_DISPLAYED_NFT_CHARS ? `${name.slice(0, MAX_DISPLAYED_NFT_CHARS)}…` : name;
         }
 
         return getAssetSymbol(metadata, true);
