@@ -96,14 +96,16 @@ export const CollectiblesTab: FC<Props> = ({ scrollToTheTabsBar }) => {
           </Popper>
         </div>
 
-        {isSyncing && filteredAssets.length === 0 ? (
-          <SyncSpinner className="mt-6" />
-        ) : filteredAssets.length === 0 ? (
-          <div className="w-full border rounded border-gray-200">
-            <p className={'text-gray-600 text-center text-xs py-6'}>
-              <T id="zeroCollectibleText" />
-            </p>
-          </div>
+        {filteredAssets.length === 0 ? (
+          isSyncing ? (
+            <SyncSpinner className="mt-6" />
+          ) : (
+            <div className="w-full border rounded border-gray-200">
+              <p className={'text-gray-600 text-center text-xs py-6'}>
+                <T id="zeroCollectibleText" />
+              </p>
+            </div>
+          )
         ) : (
           <>
             <div className="grid grid-cols-3 gap-1">
