@@ -1,7 +1,9 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
+import { isEqual } from 'lodash';
 import { useDispatch } from 'react-redux';
+import { useCustomCompareMemo } from 'use-custom-compare';
 
 import {
   loadTokensMetadataAction,
@@ -24,9 +26,10 @@ export const useMetadataLoading = () => {
 
   const { data: tokensSlugs } = useAllStoredTokensSlugs(chainId);
 
-  const slugsWithoutMetadata = useMemo(
+  const slugsWithoutMetadata = useCustomCompareMemo(
     () => tokensSlugs?.filter(slug => !isDefined(tokensMetadata[slug])),
-    [tokensSlugs, tokensMetadata]
+    [tokensSlugs, tokensMetadata],
+    isEqual
   );
 
   useEffect(() => {
