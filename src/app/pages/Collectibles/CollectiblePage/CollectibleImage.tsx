@@ -1,7 +1,6 @@
 import React, { FC, useCallback, useEffect, useState } from 'react';
 
 import { Model3DViewer } from 'app/atoms/Model3DViewer';
-import { useAllCollectiblesDetailsLoadingSelector } from 'app/store/collectibles/selectors';
 import { AssetImage } from 'app/templates/AssetImage';
 import { AssetMetadataBase } from 'lib/metadata';
 import { Image } from 'lib/ui/Image';
@@ -16,6 +15,7 @@ import { formatCollectibleObjktArtifactUri, isSvgDataUriInUtf8Encoding } from '.
 interface Props {
   assetSlug: string;
   metadata?: AssetMetadataBase;
+  areDetailsLoading: boolean;
   mime?: string | null;
   objktArtifactUri?: string;
   isAdultContent?: boolean;
@@ -30,10 +30,10 @@ export const CollectibleImage: FC<Props> = ({
   assetSlug,
   className,
   style,
+  areDetailsLoading,
   isAdultContent = false
 }) => {
   const [isRenderFailedOnce, setIsRenderFailedOnce] = useState(false);
-  const isDetailsLoading = useAllCollectiblesDetailsLoadingSelector();
 
   const [shouldShowBlur, setShouldShowBlur] = useState(isAdultContent);
   useEffect(() => setShouldShowBlur(isAdultContent), [isAdultContent]);
@@ -46,7 +46,7 @@ export const CollectibleImage: FC<Props> = ({
     return <CollectibleBlur onClick={handleBlurClick} />;
   }
 
-  if (isDetailsLoading) {
+  if (areDetailsLoading) {
     return <CollectibleImageLoader large />;
   }
 

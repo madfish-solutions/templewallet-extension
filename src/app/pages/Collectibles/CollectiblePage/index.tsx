@@ -143,6 +143,7 @@ const CollectiblePage: FC<Props> = ({ assetSlug }) => {
           <CollectibleImage
             assetSlug={assetSlug}
             metadata={metadata}
+            areDetailsLoading={!details && areDetailsLoading}
             objktArtifactUri={details?.objktArtifactUri}
             isAdultContent={details?.isAdultContent}
             mime={details?.mime}
