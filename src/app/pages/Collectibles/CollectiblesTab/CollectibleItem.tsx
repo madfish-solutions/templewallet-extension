@@ -15,7 +15,7 @@ import { atomsToTokens } from 'lib/temple/helpers';
 import { useIntersectionDetection } from 'lib/ui/use-intersection-detection';
 import { Link } from 'lib/woozie';
 
-import { CollectibleItemImage } from './CollectibleItemImage/CollectibleItemImage';
+import { CollectibleItemImage } from './CollectibleItemImage';
 
 interface Props {
   assetSlug: string;
@@ -65,8 +65,8 @@ export const CollectibleItem: FC<Props> = ({ assetSlug, accountPkh, areDetailsSh
         {displayed && (
           <CollectibleItemImage
             metadata={metadata}
-            mime={details?.mime}
             assetSlug={assetSlug}
+            mime={details?.mime}
             isAdultContent={details?.isAdultContent}
           />
         )}

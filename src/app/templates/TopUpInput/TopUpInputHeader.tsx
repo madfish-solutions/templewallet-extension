@@ -1,12 +1,12 @@
 import React, { ChangeEvent, forwardRef, FocusEvent, useEffect, useRef, useState } from 'react';
 
+import { emptyFn } from '@rnw-community/shared';
 import classNames from 'clsx';
 
 import AssetField from 'app/atoms/AssetField';
 import { ReactComponent as ChevronDownIcon } from 'app/icons/chevron-down.svg';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
 import { getBigErrorText, getSmallErrorText } from 'app/pages/Buy/utils/errorText.utils';
-import { emptyFn } from 'app/utils/function.utils';
 import { getAssetSymbolToDisplay } from 'lib/buy-with-credit-card/get-asset-symbol-to-display';
 import { toLocalFormat, T, t } from 'lib/i18n';
 import { PopperRenderProps } from 'lib/ui/Popper';

@@ -26,9 +26,9 @@ import { useInterval } from 'lib/ui/hooks';
 import { Image } from 'lib/ui/Image';
 import { navigate } from 'lib/woozie';
 
-import { CollectibleImage } from '../components/CollectibleImage';
 import { useCollectibleSelling } from '../hooks/use-collectible-selling.hook';
 import { CollectiblesSelectors } from '../selectors';
+import { CollectibleImage } from './CollectibleImage';
 import { AttributesItems, PropertiesItems } from './TabsGridContent';
 
 const DETAILS_SYNC_INTERVAL = 4 * BLOCK_DURATION;

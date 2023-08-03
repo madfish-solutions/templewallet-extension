@@ -1,12 +1,11 @@
 import React, { FC, useMemo } from 'react';
 
-import { ReactComponent as RevealEyeSvg } from 'app/icons/reveal-eye.svg';
 import { AssetImage } from 'app/templates/AssetImage';
 import { AssetMetadataBase } from 'lib/metadata';
 
-import { CollectibleImageFallback } from '../CollectibleImageFallback';
-import { CollectibleImageLoader } from '../CollectibleImageLoader';
-import BlurImageSrc from './Blur.png';
+import { CollectibleBlur } from '../components/CollectibleBlur';
+import { CollectibleImageFallback } from '../components/CollectibleImageFallback';
+import { CollectibleImageLoader } from '../components/CollectibleImageLoader';
 
 interface Props {
   assetSlug: string;
@@ -19,12 +18,7 @@ export const CollectibleItemImage: FC<Props> = ({ metadata, mime, assetSlug, isA
   const isAudioCollectible = useMemo(() => Boolean(mime && mime.startsWith('audio')), [mime]);
 
   if (isAdultContent) {
-    return (
-      <div className="relative flex justify-center items-center h-full w-full">
-        <img src={BlurImageSrc} alt="Adult content" className="h-full w-full" />
-        <RevealEyeSvg className="absolute z-10" color="#718096" />
-      </div>
-    );
+    return <CollectibleBlur />;
   }
 
   return (

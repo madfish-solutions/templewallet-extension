@@ -10,7 +10,6 @@ import Divider from 'app/atoms/Divider';
 import DropdownWrapper from 'app/atoms/DropdownWrapper';
 import { useAppEnv } from 'app/env';
 import { ReactComponent as EditingIcon } from 'app/icons/editing.svg';
-import { CollectibleItem } from 'app/pages/Collectibles/components/CollectibleItem';
 import { AssetsSelectors } from 'app/pages/Home/OtherComponents/Assets.selectors';
 import { useTokensMetadataLoadingSelector } from 'app/store/tokens-metadata/selectors';
 import { ButtonForManageDropdown } from 'app/templates/ManageDropdown';
@@ -23,6 +22,8 @@ import { useSyncTokens } from 'lib/temple/front/sync-tokens';
 import { useLocalStorage } from 'lib/ui/local-storage';
 import Popper, { PopperRenderProps } from 'lib/ui/Popper';
 import { Link } from 'lib/woozie';
+
+import { CollectibleItem } from './CollectibleItem';
 
 const LOCAL_STORAGE_TOGGLE_KEY = 'collectibles-grid:show-items-details';
 

@@ -1,7 +1,8 @@
 import React, { FC, useCallback, useEffect, useRef, useState } from 'react';
 
+import { emptyFn } from '@rnw-community/shared';
+
 import { AssetImage } from 'app/templates/AssetImage';
-import { emptyFn } from 'app/utils/function.utils';
 import { AssetMetadataBase } from 'lib/metadata';
 
 import { formatCollectibleObjktArtifactUri } from '../utils/image.utils';

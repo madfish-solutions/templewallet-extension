@@ -1,8 +1,7 @@
 import React, { CSSProperties, FC, useCallback, useState } from 'react';
 
-import classNames from 'clsx';
-
-import { emptyFn } from 'app/utils/function.utils';
+import { emptyFn } from '@rnw-community/shared';
+import clsx from 'clsx';
 
 import { formatCollectibleObjktArtifactUri } from '../utils/image.utils';
 
@@ -24,7 +23,7 @@ export const VideoCollectible: FC<Props> = ({ uri, loader, className, style, onE
         autoPlay
         loop
         onCanPlayThrough={handleLoaded}
-        className={classNames(className, isLoading && 'hidden')}
+        className={clsx(className, isLoading && 'hidden')}
         style={style}
         onError={onError}
       >

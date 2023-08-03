@@ -6,7 +6,7 @@ const SVG_DATA_URI_UTF8_PREFIX = 'data:image/svg+xml;charset=utf-8,';
 
 export const formatCollectibleObjktArtifactUri = (artifactUri: string) =>
   `${OBJKT_ORIGIN}/${OBJKT_RESIZE_3}/${
-    artifactUri.includes('ipfs://') ? artifactUri.substring(IPFS_PROTOCOL_PREFIX.length) : artifactUri
+    artifactUri.startsWith(IPFS_PROTOCOL_PREFIX) ? artifactUri.substring(IPFS_PROTOCOL_PREFIX.length) : artifactUri
   }/artifact`;
 
 export const isSvgDataUriInUtf8Encoding = (uri: string) =>

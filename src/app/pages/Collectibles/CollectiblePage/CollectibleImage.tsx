@@ -1,18 +1,17 @@
 import React, { FC, useCallback, useEffect, useState } from 'react';
 
-import { ReactComponent as RevealEyeSvg } from 'app/icons/reveal-eye.svg';
+import { Model3DViewer } from 'app/atoms/Model3DViewer';
 import { useAllCollectiblesDetailsLoadingSelector } from 'app/store/collectibles/selectors';
 import { AssetImage } from 'app/templates/AssetImage';
 import { AssetMetadataBase } from 'lib/metadata';
 
+import { AnimatedSvg } from '../components/AnimatedSvg';
+import { AudioCollectible } from '../components/AudioCollectible';
+import { CollectibleBlur } from '../components/CollectibleBlur';
+import { CollectibleImageFallback } from '../components/CollectibleImageFallback';
+import { CollectibleImageLoader } from '../components/CollectibleImageLoader';
+import { VideoCollectible } from '../components/VideoCollectible';
 import { formatCollectibleObjktArtifactUri, isSvgDataUriInUtf8Encoding } from '../utils/image.utils';
-import { AnimatedSvg } from './AnimatedSvg';
-import { AudioCollectible } from './AudioCollectible';
-import { CollectibleImageFallback } from './CollectibleImageFallback';
-import { CollectibleImageLoader } from './CollectibleImageLoader';
-import BlurImageSrc from './CollectibleItemImage/Blur.png';
-import { ModelViewer } from './ModelViewer';
-import { VideoCollectible } from './VideoCollectible';
 
 interface Props {
   assetSlug: string;
@@ -46,12 +45,7 @@ export const CollectibleImage: FC<Props> = ({
   const handleError = useCallback(() => setIsRenderFailedOnce(true), []);
 
   if (shouldShowBlur) {
-    return (
-      <button onClick={handleBlurClick} className="relative flex justify-center items-center h-full w-full">
-        <img src={BlurImageSrc} alt="Adult content" className="h-full w-full" />
-        <RevealEyeSvg className="absolute z-10" color="#718096" />
-      </button>
-    );
+    return <CollectibleBlur onClick={handleBlurClick} />;
   }
 
   if (large && isDetailsLoading) {
@@ -75,7 +69,7 @@ export const CollectibleImage: FC<Props> = ({
     if (mime) {
       if (mime.startsWith('model')) {
         return (
-          <ModelViewer
+          <Model3DViewer
             uri={formatCollectibleObjktArtifactUri(objktArtifactUri)}
             alt={metadata?.name}
             onError={handleError}
