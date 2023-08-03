@@ -1252,13 +1252,6 @@
     minimatch "^3.1.2"
     strip-json-comments "^3.1.1"
 
-"@google/model-viewer@3.1.1":
-  version "3.1.1"
-  resolved "https://registry.yarnpkg.com/@google/model-viewer/-/model-viewer-3.1.1.tgz#60e33f8cde9befa074a238e2bc9457f642017b30"
-  integrity sha512-RSIsFv/5XaHJHx4cWWlcR8fG8AD8bkGhw+rRfgAUKrJmbEzHQy7BZ1Cz6Ry66mNZ8uqQZwzclPsi4ckCMG02tw==
-  dependencies:
-    lit "^2.7.2"
-
 "@firebase/analytics-compat@0.2.6":
   version "0.2.6"
   resolved "https://registry.yarnpkg.com/@firebase/analytics-compat/-/analytics-compat-0.2.6.tgz#50063978c42f13eb800e037e96ac4b17236841f4"
@@ -1631,6 +1624,13 @@
   version "0.10.1"
   resolved "https://registry.yarnpkg.com/@firebase/webchannel-wrapper/-/webchannel-wrapper-0.10.1.tgz#60bb2aaf129f9e00621f8d698722ddba6ee1f8ac"
   integrity sha512-Dq5rYfEpdeel0bLVN+nfD1VWmzCkK+pJbSjIawGE+RY4+NIJqhbUDDQjvV0NUK84fMfwxvtFoCtEe70HfZjFcw==
+
+"@google/model-viewer@3.1.1":
+  version "3.1.1"
+  resolved "https://registry.yarnpkg.com/@google/model-viewer/-/model-viewer-3.1.1.tgz#60e33f8cde9befa074a238e2bc9457f642017b30"
+  integrity sha512-RSIsFv/5XaHJHx4cWWlcR8fG8AD8bkGhw+rRfgAUKrJmbEzHQy7BZ1Cz6Ry66mNZ8uqQZwzclPsi4ckCMG02tw==
+  dependencies:
+    lit "^2.7.2"
 
 "@graphql-typed-document-node/core@^3.1.1":
   version "3.1.1"
@@ -11365,11 +11365,6 @@ thread-stream@^0.15.1:
   integrity sha512-UkEhKIg2pD+fjkHQKyJO3yoIvAP3N6RlNFt2dUhcS1FGvCD1cQa1M/PGknCLFIyZdtJOWQjejp7bdNqmN7zwdA==
   dependencies:
     real-require "^0.1.0"
-
-three@^0.151.2:
-  version "0.151.3"
-  resolved "https://registry.yarnpkg.com/three/-/three-0.151.3.tgz#0b3c7de4b070d5b66b15217f42465d67cbfa6004"
-  integrity sha512-+vbuqxFy8kzLeO5MgpBHUvP/EAiecaDwDuOPPDe6SbrZr96kccF0ktLngXc7xA7bzyd3N0t2f6mw3Z9y6JCojQ==
 
 throat@^6.0.1:
   version "6.0.1"

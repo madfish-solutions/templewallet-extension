@@ -175,7 +175,6 @@
     "swr": "1.3.0",
     "tailwindcss": "2.2.19",
     "terser-webpack-plugin": "5.3.6",
-    "three": "^0.151.2",
     "timers-browserify": "^2.0.12",
     "tippy.js": "6.2.6",
     "ts-action": "^11.0.0",
