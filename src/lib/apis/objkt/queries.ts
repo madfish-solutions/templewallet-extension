@@ -20,6 +20,8 @@ export const buildGetCollectiblesQuery = () => gql`
         price
       }
       description
+      mime
+      artifact_uri
       timestamp
       metadata
       creators {

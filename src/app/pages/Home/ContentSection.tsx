@@ -13,7 +13,7 @@ import { TabsBar } from 'app/templates/TabBar';
 import { isTezAsset } from 'lib/assets';
 import { t, TID } from 'lib/i18n';
 
-import { CollectiblesTab } from '../Collectibles/CollectiblesTab';
+import { CollectiblesTab } from '../Collectibles/components/CollectiblesTab';
 import { HomeSelectors } from './Home.selectors';
 import BakingSection from './OtherComponents/BakingSection';
 import { TokensTab } from './OtherComponents/Tokens/Tokens';

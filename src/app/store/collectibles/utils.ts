@@ -29,12 +29,13 @@ export const convertCollectibleObjktInfoToStateDetailsType = (
     : null;
 
   return {
-    ...pick(info, 'fa', 'description'),
+    ...pick(info, 'fa', 'description', 'mime'),
     metadataHash: info.metadata?.split('/').pop() ?? null,
     mintedTimestamp: info.timestamp,
     supply: info.supply,
     listing,
     isAdultContent: checkForAdultery(info.attributes, info.tags),
+    objktArtifactUri: info.artifact_uri,
     offers: info.offers_active,
     creators: info.creators.map(({ holder: { address, tzdomain } }) => ({ address, tzDomain: tzdomain })),
     galleries: info.galleries.map(({ gallery: { name } }) => ({ title: name })),

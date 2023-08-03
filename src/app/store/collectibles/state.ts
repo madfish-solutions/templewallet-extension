@@ -1,7 +1,7 @@
 import type { UserObjktCollectible } from 'lib/apis/objkt';
 import { createEntity, LoadableEntityState } from 'lib/store';
 
-export interface CollectibleDetails extends Pick<UserObjktCollectible, 'fa' | 'description'> {
+export interface CollectibleDetails extends Pick<UserObjktCollectible, 'fa' | 'description' | 'mime'> {
   metadataHash: string | null;
   /** Minted on date.
    * ISO String (e.g. `2023-05-30T09:40:33+00:00`)
@@ -12,6 +12,7 @@ export interface CollectibleDetails extends Pick<UserObjktCollectible, 'fa' | 'd
   /** Cheepest listing */
   listing: null | CollectibleDetailsListing;
   /** Highest offer */
+  objktArtifactUri: string;
   offers: UserObjktCollectible['offers_active'];
   creators: CollectibleDetailsCreator[];
   galleries: CollectibleDetailsGallery[];

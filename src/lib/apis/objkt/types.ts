@@ -40,6 +40,8 @@ export interface UserObjktCollectible {
    */
   timestamp: string;
   metadata: string | null;
+  mime: string | null;
+  artifact_uri: string;
   creators: {
     holder: {
       address: string;
