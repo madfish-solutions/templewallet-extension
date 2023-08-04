@@ -5,7 +5,10 @@ import clsx from 'clsx';
 
 import Money from 'app/atoms/Money';
 import { useAppEnv } from 'app/env';
-import { useCollectibleDetailsSelector } from 'app/store/collectibles/selectors';
+import {
+  useAllCollectiblesDetailsLoadingSelector,
+  useCollectibleDetailsSelector
+} from 'app/store/collectibles/selectors';
 import { useTokenMetadataSelector } from 'app/store/tokens-metadata/selectors';
 import { objktCurrencies } from 'lib/apis/objkt';
 import { T } from 'lib/i18n';
@@ -29,6 +32,8 @@ export const CollectibleItem: FC<Props> = ({ assetSlug, accountPkh, areDetailsSh
   const toDisplayRef = useRef<HTMLDivElement>(null);
   const [displayed, setDisplayed] = useState(true);
   const { data: balance } = useBalance(assetSlug, accountPkh, { displayed });
+
+  const areDetailsLoading = useAllCollectiblesDetailsLoadingSelector();
   const details = useCollectibleDetailsSelector(assetSlug);
 
   const listing = useMemo(() => {
@@ -66,6 +71,7 @@ export const CollectibleItem: FC<Props> = ({ assetSlug, accountPkh, areDetailsSh
           <CollectibleItemImage
             metadata={metadata}
             assetSlug={assetSlug}
+            areDetailsLoading={!details && areDetailsLoading}
             mime={details?.mime}
             isAdultContent={details?.isAdultContent}
           />

@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useEffect } from 'react';
+import React, { FC, memo, useCallback, useEffect } from 'react';
 
 import clsx from 'clsx';
 import { isEqual } from 'lodash';
@@ -31,7 +31,7 @@ interface Props {
   scrollToTheTabsBar: EmptyFn;
 }
 
-export const CollectiblesTab: FC<Props> = ({ scrollToTheTabsBar }) => {
+export const CollectiblesTab = memo<Props>(({ scrollToTheTabsBar }) => {
   const chainId = useChainId(true)!;
   const { popup } = useAppEnv();
   const { publicKeyHash } = useAccount();
@@ -125,7 +125,7 @@ export const CollectiblesTab: FC<Props> = ({ scrollToTheTabsBar }) => {
       </div>
     </div>
   );
-};
+});
 
 interface ManageButtonDropdownProps extends PopperRenderProps {
   areDetailsShown: boolean;

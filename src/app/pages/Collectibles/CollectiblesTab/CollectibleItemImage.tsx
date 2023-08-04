@@ -10,12 +10,17 @@ import { CollectibleImageLoader } from '../components/CollectibleImageLoader';
 interface Props {
   assetSlug: string;
   metadata?: AssetMetadataBase;
+  areDetailsLoading: boolean;
   mime?: string | null;
   isAdultContent?: boolean;
 }
 
-export const CollectibleItemImage: FC<Props> = ({ metadata, mime, assetSlug, isAdultContent }) => {
+export const CollectibleItemImage: FC<Props> = ({ assetSlug, metadata, areDetailsLoading, mime, isAdultContent }) => {
   const isAudioCollectible = useMemo(() => Boolean(mime && mime.startsWith('audio')), [mime]);
+
+  if (areDetailsLoading) {
+    return <CollectibleImageLoader />;
+  }
 
   if (isAdultContent) {
     return <CollectibleBlur />;

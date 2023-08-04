@@ -42,12 +42,12 @@ export const CollectibleImage: FC<Props> = ({
 
   const handleError = useCallback(() => setIsRenderFailedOnce(true), []);
 
-  if (shouldShowBlur) {
-    return <CollectibleBlur onClick={handleBlurClick} />;
-  }
-
   if (areDetailsLoading) {
     return <CollectibleImageLoader large />;
+  }
+
+  if (shouldShowBlur) {
+    return <CollectibleBlur onClick={handleBlurClick} />;
   }
 
   if (objktArtifactUri && !isRenderFailedOnce) {
