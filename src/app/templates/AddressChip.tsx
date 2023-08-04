@@ -87,7 +87,7 @@ const AddressChip: FC<AddressChipProps> = ({
           className={classNames(
             'inline-flex items-center justify-center ml-1 p-1',
             rounded === 'base' ? 'rounded' : 'rounded-sm',
-            'bg-gray-100 hover:text-gray-600 text-gray-600 leading-none select-none',
+            'bg-gray-100 text-gray-600 leading-none select-none',
             small ? 'text-xs' : 'text-sm',
             'transition ease-in-out duration-300'
           )}
