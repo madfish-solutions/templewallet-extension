@@ -31,7 +31,7 @@ export const CollectibleItem: FC<Props> = ({ assetSlug, accountPkh, areDetailsSh
   const metadata = useTokenMetadataSelector(assetSlug);
   const toDisplayRef = useRef<HTMLDivElement>(null);
   const [displayed, setDisplayed] = useState(true);
-  const { data: balance } = useBalance(assetSlug, accountPkh, { displayed });
+  const { data: balance } = useBalance(assetSlug, accountPkh, { displayed, suspense: false });
 
   const areDetailsLoading = useAllCollectiblesDetailsLoadingSelector();
   const details = useCollectibleDetailsSelector(assetSlug);
