@@ -12,7 +12,7 @@ interface Props {
 }
 
 export const BakerLogo: FC<Props> = ({ bakerAddress }) => {
-  const { data: bakerOrPayoutAccount } = useKnownBakerOrPayoutAccount(bakerAddress);
+  const bakerOrPayoutAccount = useKnownBakerOrPayoutAccount(bakerAddress);
 
   if (!isDefined(bakerOrPayoutAccount)) {
     return <RobotIcon hash={bakerAddress} className="border border-gray-300 mr-2" />;
@@ -21,7 +21,7 @@ export const BakerLogo: FC<Props> = ({ bakerAddress }) => {
   return (
     <div className="flex items-center justify-center w-9 h-9 rounded-md border border-gray-300 mr-2">
       <Image
-        src={bakerOrPayoutAccount.logo}
+        src={bakerOrPayoutAccount.logo ?? undefined}
         loader={<RobotIcon hash={bakerAddress} />}
         fallback={<RobotIcon hash={bakerAddress} />}
         alt={bakerOrPayoutAccount.name}

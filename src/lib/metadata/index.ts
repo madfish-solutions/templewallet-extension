@@ -6,7 +6,7 @@ import { useDispatch } from 'react-redux';
 
 import { loadTokensMetadataAction } from 'app/store/tokens-metadata/actions';
 import { useTokenMetadataSelector, useTokensMetadataSelector } from 'app/store/tokens-metadata/selectors';
-import { isTezAsset } from 'lib/assets';
+import { isTezAsset, TEZ_TOKEN_SLUG } from 'lib/assets';
 import { useNetwork } from 'lib/temple/front';
 
 import { TEZOS_METADATA, FILM_METADATA } from './defaults';
@@ -30,7 +30,7 @@ export const useAssetMetadata = (slug: string): AssetMetadataBase | undefined =>
   return tokenMetadata;
 };
 
-export const useManyAssetsMetadata = (slugs: string[]): Array<AssetMetadataBase | undefined> => {
+export const useManyAssetsMetadata = (slugs: string[]): Record<string, AssetMetadataBase | undefined> => {
   const tokensMetadata = useTokensMetadataSelector();
   const gasMetadata = useGasTokenMetadata();
   const dispatch = useDispatch();
@@ -52,7 +52,11 @@ export const useManyAssetsMetadata = (slugs: string[]): Array<AssetMetadataBase 
   }, [dispatch, tokensMetadata, slugs, network.rpcBaseURL]);
 
   return useMemo(
-    () => slugs.map(slug => (isTezAsset(slug) ? gasMetadata : tokensMetadata[slug])),
+    () =>
+      slugs.reduce(
+        (acc, slug) => ({ ...acc, [slug]: slug === TEZ_TOKEN_SLUG ? gasMetadata : tokensMetadata[slug] }),
+        {}
+      ),
     [slugs, tokensMetadata, gasMetadata]
   );
 };

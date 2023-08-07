@@ -1,18 +1,13 @@
-import { OperationContentsAndResult } from '@taquito/rpc';
 import Dexie from 'dexie';
-
-import { TzktOperation, TzktTokenTransfer } from 'lib/apis/tzkt';
 
 enum Table {
   AccountTokens = 'accountTokens',
-  Operations = 'operations',
   SyncTimes = 'syncTimes'
 }
 
 export const db = new Dexie('TempleMain');
 
 db.version(1).stores({
-  [Table.Operations]: indexes('&hash', 'chainId', '*members', '*assetIds', 'addedAt', '[chainId+addedAt]'),
   [Table.SyncTimes]: indexes('[service+chainId+address]')
 });
 db.version(2).stores({
@@ -23,8 +18,6 @@ db.version(3).stores({
 });
 
 export const accountTokens = db.table<IAccountToken, string>(Table.AccountTokens);
-
-export const operations = db.table<IOperation, string>(Table.Operations);
 
 export function toAccountTokenKey(chainId: string, account: string, tokenSlug: string) {
   return [chainId, account, tokenSlug].join('_');
@@ -46,23 +39,6 @@ export interface IAccountToken {
   latestBalance?: string;
 }
 
-interface IOperation {
-  hash: string;
-  chainId: string;
-  members: Array<string>;
-  assetIds: Array<string>;
-  addedAt: number; // timestamp
-  data: IOperationData;
-}
-
-type IOperationData = AtLeastOne<{
-  localGroup: Array<OperationContentsAndResult>;
-  tzktGroup: Array<TzktOperation>;
-  tzktTokenTransfers: Array<TzktTokenTransfer>;
-}>;
-
 function indexes(...items: string[]) {
   return items.join(',');
 }
-
-type AtLeastOne<T, U = { [K in keyof T]: Pick<T, K> }> = Partial<T> & U[keyof U];

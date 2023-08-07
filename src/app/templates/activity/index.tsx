@@ -1,17 +1,16 @@
 import React, { Fragment, useEffect } from 'react';
 
 import classNames from 'clsx';
-import { format, isSameDay } from 'date-fns';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { useDispatch } from 'react-redux';
 
 import { ActivitySpinner } from 'app/atoms';
+import { DateView } from 'app/atoms/date-view';
 import { PartnersPromotion, PartnersPromotionVariant } from 'app/atoms/partners-promotion';
 import { useAppEnv } from 'app/env';
 import { ReactComponent as LayersIcon } from 'app/icons/layers.svg';
 import { loadPartnersPromoAction } from 'app/store/partners-promotion/actions';
 import { OptimalPromoVariantEnum } from 'lib/apis/optimal';
-import { getDateFnsLocale } from 'lib/i18n';
 import { T } from 'lib/i18n/react';
 import useActivities from 'lib/temple/activity-new/hook';
 import { useAccount } from 'lib/temple/front';
@@ -29,7 +28,6 @@ interface Props {
 
 export const ActivityComponent: React.FC<Props> = ({ assetSlug }) => {
   const dispatch = useDispatch();
-  const dateFnsLocale = getDateFnsLocale();
 
   const { loading, reachedTheEnd, groupedByDayActivities, loadMore } = useActivities(INITIAL_NUMBER, assetSlug);
 
@@ -85,11 +83,7 @@ export const ActivityComponent: React.FC<Props> = ({ assetSlug }) => {
             <Fragment key={activities[0].id}>
               <div className="w-full">
                 <p className="pt-3 pb-1 text-sm text-gray-600 font-medium leading-tight">
-                  {isSameDay(new Date(), new Date(activities[0].timestamp)) ? (
-                    <T id="today" />
-                  ) : (
-                    format(new Date(activities[0].timestamp), 'd MMMM, yyyy', { locale: dateFnsLocale })
-                  )}
+                  <DateView timestamp={activities[0].timestamp} />
                 </p>
                 {activities.map(activity => (
                   <ActivityItem activity={activity} key={activity.id} />

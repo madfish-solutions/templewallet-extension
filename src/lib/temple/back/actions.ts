@@ -10,9 +10,7 @@ import {
 import browser, { Runtime } from 'webextension-polyfill';
 
 import { BACKGROUND_IS_WORKER } from 'lib/env';
-import { addLocalOperation } from 'lib/temple/activity';
 import * as Beacon from 'lib/temple/beacon';
-import { loadChainId } from 'lib/temple/helpers';
 import {
   TempleState,
   TempleMessageType,
@@ -302,8 +300,6 @@ const promisableUnlock = async (
             )
           );
 
-          await safeAddLocalOperation(networkRpc, op);
-
           resolve({ opHash: op.hash });
         } catch (err: any) {
           if (err instanceof TezosOperationError) {
@@ -330,14 +326,6 @@ const promisableUnlock = async (
   // Decline after timeout
   const t = setTimeout(declineAndClose, AUTODECLINE_AFTER);
   const stopTimeout = () => clearTimeout(t);
-};
-
-const safeAddLocalOperation = async (networkRpc: string, op: any) => {
-  try {
-    const chainId = await loadChainId(networkRpc);
-    await addLocalOperation(chainId, op.hash, op.results);
-  } catch {}
-  return undefined;
 };
 
 export function sign(port: Runtime.Port, id: string, sourcePkh: string, bytes: string, watermark?: string) {

@@ -4,7 +4,7 @@ import { isDefined } from '@rnw-community/shared';
 import { isSameDay } from 'date-fns';
 
 import { isKnownChainId } from 'lib/apis/tzkt/api';
-import { PAYOUTS_ALIASES, useTezos, useChainId, useAccount, useKnownBakers } from 'lib/temple/front';
+import { useTezos, useChainId, useAccount, useKnownBakersAndPayoutAccounts } from 'lib/temple/front';
 import { useDidMount, useDidUpdate, useSafeState, useStopper } from 'lib/ui/hooks';
 
 import fetchActivities from './fetch';
@@ -16,7 +16,7 @@ export default function useActivities(initialPseudoLimit: number, assetSlug?: st
   const tezos = useTezos();
   const chainId = useChainId(true);
   const account = useAccount();
-  const knownBakers = useKnownBakers();
+  const knownBakersAndPayouts = useKnownBakersAndPayoutAccounts();
 
   const accountAddress = account.publicKeyHash;
 
@@ -26,9 +26,9 @@ export default function useActivities(initialPseudoLimit: number, assetSlug?: st
 
   const { stop: stopLoading, stopAndBuildChecker } = useStopper();
 
-  const tzktBakersAliases = useMemo(
-    () => (knownBakers ?? []).map(({ address, name }) => ({ address, alias: name })).concat(PAYOUTS_ALIASES),
-    [knownBakers]
+  const tzktBakersOrPayoutsAliases = useMemo(
+    () => knownBakersAndPayouts.map(({ address, name }) => ({ address, alias: name })),
+    [knownBakersAndPayouts]
   );
 
   async function loadActivities(pseudoLimit: number, activities: DisplayableActivity[], shouldStop: () => boolean) {
@@ -49,7 +49,7 @@ export default function useActivities(initialPseudoLimit: number, assetSlug?: st
         assetSlug,
         pseudoLimit,
         tezos,
-        tzktBakersAliases,
+        tzktBakersOrPayoutsAliases,
         lastActivity
       );
       if (shouldStop()) return;

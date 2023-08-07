@@ -18,7 +18,7 @@ export default async function fetchActivities(
   assetSlug: string | undefined,
   pseudoLimit: number,
   tezos: ReactiveTezosToolkit,
-  knownBakers: TzktAlias[],
+  knownBakersAndPayouts: TzktAlias[],
   olderThan?: Activity
 ) {
   const operations = await fetchOperations(chainId, account, assetSlug, pseudoLimit, tezos, olderThan);
@@ -28,7 +28,7 @@ export default async function fetchActivities(
   // TODO: replace filtering with transformation of liquidity baking activities into 'Unknown' activities
   return groups
     .map(({ operations }) =>
-      parseTransactions(operations, account.publicKeyHash, knownBakers).filter(
+      parseTransactions(operations, account.publicKeyHash, knownBakersAndPayouts).filter(
         (activity): activity is DisplayableActivity =>
           activity.type !== ActivityType.LiquidityBakingBurn && activity.type !== ActivityType.LiquidityBakingMint
       )
@@ -99,7 +99,7 @@ const fetchOperations_Contract = (
     sort: 1,
     initiator: accountAddress,
     entrypoint: 'mintOrBurn',
-    'timestamp.lt': olderThan?.timestamp
+    ...buildOlderThanParam(olderThan)
   });
 
 const fetchOperations_Token_Fa_1_2 = (
@@ -115,7 +115,7 @@ const fetchOperations_Token_Fa_1_2 = (
     'sort.desc': 'level',
     target: contractAddress,
     'parameter.in': `[{"from":"${accountAddress}"},{"to":"${accountAddress}"}]`,
-    'timestamp.lt': olderThan?.timestamp
+    ...buildOlderThanParam(olderThan)
   });
 
 const fetchOperations_Token_Fa_2 = (
@@ -132,7 +132,7 @@ const fetchOperations_Token_Fa_2 = (
     'sort.desc': 'level',
     target: contractAddress,
     'parameter.[*].in': `[{"from_":"${accountAddress}","txs":[{"token_id":"${tokenId}"}]},{"txs":[{"to_":"${accountAddress}","token_id":"${tokenId}"}]}]`,
-    'timestamp.lt': olderThan?.timestamp
+    ...buildOlderThanParam(olderThan)
   });
 
 async function fetchOperations_Any(

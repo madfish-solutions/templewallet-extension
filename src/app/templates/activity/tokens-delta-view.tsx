@@ -7,10 +7,11 @@ import classNames from 'clsx';
 
 import Money from 'app/atoms/Money';
 import { AssetIcon } from 'app/templates/AssetIcon';
-import { useManyAssetsFiatCurrencyPrices, useFiatCurrency } from 'lib/fiat-currency';
+import { useManyTokensFiatCurrencyPrices, useFiatCurrency } from 'lib/fiat-currency';
 import { t } from 'lib/i18n';
 import { getAssetSymbol, isCollectible, useManyAssetsMetadata } from 'lib/metadata';
 import { atomsToTokens } from 'lib/temple/helpers';
+import { ZERO } from 'lib/utils/numbers';
 
 interface Props {
   tokensDeltas: TokenDelta[] | TokenDelta;
@@ -18,7 +19,6 @@ interface Props {
   isTotal: boolean;
 }
 
-const ZERO = new BigNumber(0);
 const MAX_DISPLAYED_NFT_CHARS = 15;
 
 export const TokensDeltaView = memo<Props>(({ tokensDeltas, shouldShowNFTCard, isTotal }) => {
@@ -29,10 +29,10 @@ export const TokensDeltaView = memo<Props>(({ tokensDeltas, shouldShowNFTCard, i
   );
   const assetsSlugs = useMemo(() => validatedTokensDeltas.map(({ tokenSlug }) => tokenSlug), [tokensDeltas]);
   const assetsMetadata = useManyAssetsMetadata(assetsSlugs);
-  const fiatCurrencyPrices = useManyAssetsFiatCurrencyPrices(assetsSlugs);
+  const fiatCurrencyPrices = useManyTokensFiatCurrencyPrices(assetsSlugs);
   const assetsSymbolsOrNames = useMemo(
     () =>
-      assetsMetadata.map(metadata => {
+      Object.entries(assetsMetadata).map(([, metadata]) => {
         if (isDefined(metadata) && isCollectible(metadata)) {
           const { name } = metadata;
 
@@ -43,10 +43,9 @@ export const TokensDeltaView = memo<Props>(({ tokensDeltas, shouldShowNFTCard, i
       }),
     [assetsMetadata]
   );
-
   const firstAssetSlug = assetsSlugs[0];
   const firstAtomicDiff = validatedTokensDeltas[0]?.atomicAmount ?? ZERO;
-  const firstAssetMetadata = assetsMetadata[0];
+  const firstAssetMetadata = assetsMetadata[firstAssetSlug];
   const firstAssetSymbolOrName = assetsSymbolsOrNames[0];
   const firstDiff = useMemo(
     () => atomsToTokens(firstAtomicDiff, firstAssetMetadata?.decimals ?? 0),
@@ -56,9 +55,11 @@ export const TokensDeltaView = memo<Props>(({ tokensDeltas, shouldShowNFTCard, i
     () =>
       validatedTokensDeltas
         .reduce(
-          (acc, { atomicAmount }, index) =>
+          (acc, { atomicAmount, tokenSlug }) =>
             acc.plus(
-              atomsToTokens(atomicAmount, assetsMetadata[index]?.decimals ?? 0).times(fiatCurrencyPrices[index] ?? 0)
+              atomsToTokens(atomicAmount, assetsMetadata[tokenSlug]?.decimals ?? 0).times(
+                fiatCurrencyPrices[tokenSlug] ?? 0
+              )
             ),
           new BigNumber(0)
         )

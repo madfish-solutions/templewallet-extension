@@ -4,7 +4,7 @@ export {
   getFiatCurrencyKey,
   useFiatCurrency,
   useFiatToUsdRate,
-  useManyAssetsFiatCurrencyPrices,
+  useManyTokensFiatCurrencyPrices,
   useAssetUSDPrice,
   useAssetFiatCurrencyPrice,
   fetchFiatToTezosRates

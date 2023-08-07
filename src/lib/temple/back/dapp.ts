@@ -21,7 +21,6 @@ import {
 import { nanoid } from 'nanoid';
 import browser, { Runtime } from 'webextension-polyfill';
 
-import { addLocalOperation } from 'lib/temple/activity';
 import * as Beacon from 'lib/temple/beacon';
 import { loadChainId, isAddressValid } from 'lib/temple/helpers';
 import { NETWORKS } from 'lib/temple/networks';
@@ -198,7 +197,7 @@ const handleIntercomRequest = async (
           )
         );
 
-        safeGetChain(networkRpc, op);
+        safeGetChain(networkRpc);
 
         resolve({
           type: TempleDAppMessageType.OperationResponse,
@@ -223,10 +222,9 @@ const handleIntercomRequest = async (
   return undefined;
 };
 
-const safeGetChain = async (networkRpc: string, op: any) => {
+const safeGetChain = async (networkRpc: string) => {
   try {
-    const chainId = await loadChainId(networkRpc);
-    await addLocalOperation(chainId, op.hash, op.results);
+    await loadChainId(networkRpc);
   } catch {}
 };
 

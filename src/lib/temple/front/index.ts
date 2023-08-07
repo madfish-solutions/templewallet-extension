@@ -41,10 +41,10 @@ export { useTezosDomainsClient, isDomainNameValid } from './tzdns';
 export type { Baker } from './baking';
 export {
   getRewardsStats,
-  PAYOUTS_ALIASES,
   useKnownBaker,
   useKnownBakerOrPayoutAccount,
   useKnownBakers,
+  useKnownBakersAndPayoutAccounts,
   useDelegate
 } from './baking';
 

@@ -146,7 +146,7 @@ export function useKnownBaker(address: string | null, suspense = true) {
   });
 }
 
-export const PAYOUTS_ACCOUNTS = [
+const PAYOUTS_ACCOUNTS: Array<Pick<BakingBadBaker, 'address' | 'name' | 'logo'>> = [
   {
     address: 'tz1W1en9UpMCH4ZJL8wQCh8JDKCZARyVx2co',
     name: 'Everstake Payouts',
@@ -154,20 +154,14 @@ export const PAYOUTS_ACCOUNTS = [
   }
 ];
 
-export const PAYOUTS_ALIASES = PAYOUTS_ACCOUNTS.map(({ address, name }) => ({ address, alias: name }));
-
 export function useKnownBakerOrPayoutAccount(address: string | null, suspense = true) {
-  const hookValue = useKnownBaker(address, suspense);
+  const knownBaker = useKnownBaker(address, suspense);
 
-  const knownPayoutAccount = useMemo(
-    () => PAYOUTS_ACCOUNTS.find(({ address: accAddress }) => accAddress === address),
-    [address]
-  );
+  return useMemo(() => {
+    if (knownBaker.data) return knownBaker.data;
 
-  return {
-    ...hookValue,
-    data: hookValue.data ?? knownPayoutAccount
-  };
+    return PAYOUTS_ACCOUNTS.find(acc => acc.address === address);
+  }, [knownBaker.data, address]);
 }
 
 export function useKnownBakers(suspense = true) {
@@ -179,6 +173,12 @@ export function useKnownBakers(suspense = true) {
   });
 
   return useMemo(() => (bakers && bakers.length > 1 ? bakers : null), [bakers]);
+}
+
+export function useKnownBakersAndPayoutAccounts(suspense = true) {
+  const bakers = useKnownBakers(suspense);
+
+  return useMemo(() => PAYOUTS_ACCOUNTS.concat(bakers ?? []), [bakers]);
 }
 
 type RewardsStatsCalculationParams = {
