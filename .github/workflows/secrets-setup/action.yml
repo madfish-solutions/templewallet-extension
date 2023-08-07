@@ -80,7 +80,7 @@ runs:
         TEMPLE_FIREBASE_CONFIG=${{ inputs.TEMPLE_FIREBASE_CONFIG }}
         TEMPLE_FIREBASE_MESSAGING_VAPID_KEY=${{ inputs.TEMPLE_FIREBASE_MESSAGING_VAPID_KEY }}
 
-        TEMPLE_WALLET_DEVELOPMENT_BRANCH_NAME=${{ github.ref }}
+        TEMPLE_WALLET_DEVELOPMENT_BRANCH_NAME=${{ github.ref_name }}
         EOF
 
     - name: Create e2e/.env file
