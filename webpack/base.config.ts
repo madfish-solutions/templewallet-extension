@@ -299,7 +299,8 @@ export const buildBaseConfig = (): WebPack.Configuration & Pick<WebPack.WebpackO
       resolvePluginsRelativeTo: PATHS.CWD,
       cache: true,
       cacheLocation: path.resolve(PATHS.NODE_MODULES, '.cache/.eslintcache'),
-      failOnError: true
+      failOnError: true,
+      quiet: true
     })
   ].filter(Boolean),
 

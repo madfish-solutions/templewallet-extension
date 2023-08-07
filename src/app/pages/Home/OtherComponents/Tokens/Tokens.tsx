@@ -83,7 +83,7 @@ export const Tokens: FC = () => {
         })
       );
     }
-  }, [isShouldShowPartnersPromoState, isEnabledAdsBanner]);
+  }, [isShouldShowPartnersPromoState, isEnabledAdsBanner, publicKeyHash, dispatch]);
 
   useEffect(() => {
     if (activeIndex !== 0 && activeIndex >= filteredAssets.length) {

@@ -1,8 +1,14 @@
-import { RpcClient } from '@taquito/rpc';
+import { EntrypointsResponse, RpcClient } from '@taquito/rpc';
+import debounce from 'debounce';
 import memoize from 'p-memoize';
 
 interface RPCOptions {
   block: string;
+}
+
+interface CachedEntrypointsItem {
+  key: string;
+  entrypoints: EntrypointsResponse;
 }
 
 export class FastRpcClient extends RpcClient {
@@ -73,20 +79,20 @@ export class FastRpcClient extends RpcClient {
     maxAge: this.memoizeMaxAge
   });
 
-  async getEntrypoints(contract: string, opts?: RPCOptions) {
-    const cacheKey = `${this.getRpcUrl()}_${contract}`;
-    try {
-      const cached = localStorage.getItem(cacheKey);
-      if (cached) {
-        return JSON.parse(cached);
-      }
-    } catch (_err) {}
+  // <Entrypoints>
+
+  async getEntrypoints(contract: string, opts?: RPCOptions): Promise<EntrypointsResponse> {
+    const chainID = await this.getChainId();
+    const cacheKey = `${chainID}:${contract}`;
+
+    const cached = this.getCachedEntrypoints(cacheKey);
+    if (cached) return cached;
 
     opts = await this.loadLatestBlock(opts);
     const result = await this.getEntrypointsMemo(contract, opts);
-    try {
-      localStorage.setItem(cacheKey, JSON.stringify(result));
-    } catch {}
+
+    this.setCachedEntrypoints(cacheKey, result);
+
     return result;
   }
 
@@ -94,6 +100,63 @@ export class FastRpcClient extends RpcClient {
     cacheKey: ([contract, opts]) => [contract, toOptsKey(opts)].join(''),
     maxAge: this.memoizeMaxAge
   });
+
+  private ENTRYPOINTS_CACHE_KEY = 'FastRpcClient.cachedEntrypoints';
+  private ENTRYPOINTS_CACHE_SIZE = 30;
+  private cachedEntrypoints = this.readCachedEntrypoints();
+
+  private readCachedEntrypoints(): CachedEntrypointsItem[] {
+    if (typeof localStorage === 'undefined') return [];
+
+    try {
+      const cache = localStorage.getItem(this.ENTRYPOINTS_CACHE_KEY);
+      return cache ? JSON.parse(cache) : [];
+    } catch (error) {
+      console.error(error);
+    }
+    return [];
+  }
+
+  private commitCachedEntrypoints = debounce(() => {
+    if (typeof localStorage === 'undefined') return;
+    this.cachedEntrypoints = this.cachedEntrypoints.slice(0, this.ENTRYPOINTS_CACHE_SIZE * 3);
+
+    try {
+      localStorage.setItem(
+        this.ENTRYPOINTS_CACHE_KEY,
+        JSON.stringify(this.cachedEntrypoints.slice(0, this.ENTRYPOINTS_CACHE_SIZE))
+      );
+    } catch (error) {
+      console.error(error);
+    }
+  }, 2_000);
+
+  private getCachedEntrypoints(key: string): EntrypointsResponse | undefined {
+    const index = this.cachedEntrypoints.findIndex(item => item.key === key);
+    const item = this.cachedEntrypoints[index];
+
+    // Moving used caches to the head of the list
+    if (index > 0) {
+      this.cachedEntrypoints.splice(index, 1);
+      this.cachedEntrypoints.unshift(item!);
+
+      this.commitCachedEntrypoints();
+    }
+
+    return item?.entrypoints;
+  }
+
+  private setCachedEntrypoints(key: string, entrypoints: EntrypointsResponse) {
+    const index = this.cachedEntrypoints.findIndex(item => item.key === key);
+
+    // Moving used caches to the head of the list
+    if (index >= 0) this.cachedEntrypoints.splice(index, 1);
+    this.cachedEntrypoints.unshift({ key, entrypoints });
+
+    this.commitCachedEntrypoints();
+  }
+
+  // </Entrypoints>
 
   async getManagerKey(address: string, opts?: RPCOptions) {
     opts = await this.loadLatestBlock(opts);
