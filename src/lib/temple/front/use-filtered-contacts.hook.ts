@@ -1,5 +1,9 @@
 import { useEffect, useMemo } from 'react';
 
+import { isEqual } from 'lodash';
+
+import { useMemoWithCompare } from 'lib/ui/hooks';
+
 import { TempleContact } from '../types';
 import { useTempleClient } from './client';
 import { useRelevantAccounts, useSettings } from './ready';
@@ -18,12 +22,13 @@ export function useFilteredContacts() {
     [accounts]
   );
 
-  const filteredContacts = useMemo(
+  const filteredContacts = useMemoWithCompare(
     () =>
       contacts
         ? contacts.filter(({ address }) => !accountContacts.some(accContact => address === accContact.address))
         : [],
-    [contacts, accountContacts]
+    [contacts, accountContacts],
+    isEqual
   );
 
   const allContacts = useMemo(() => [...filteredContacts, ...accountContacts], [filteredContacts, accountContacts]);
