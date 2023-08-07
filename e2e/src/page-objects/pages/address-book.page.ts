@@ -2,7 +2,7 @@ import { AddressBookSelectors } from 'src/app/templates/AddressBook/AddressBook.
 
 import { Page } from 'e2e/src/classes/page.class';
 import { createPageElement, findElement } from 'e2e/src/utils/search.utils';
-import { VERY_SHORT_TIMEOUT } from 'e2e/src/utils/timing.utils';
+import { sleep, VERY_SHORT_TIMEOUT } from 'e2e/src/utils/timing.utils';
 
 export class AddressBookPage extends Page {
   addressInput = createPageElement(AddressBookSelectors.addressInput);
@@ -20,12 +20,38 @@ export class AddressBookPage extends Page {
     await this.contactOwnLabelText.waitForDisplayed();
   }
 
-  isContactAdded(hash: string) {
-    return findElement(
+  async isContactAdded(hash: string) {
+    await findElement(
       AddressBookSelectors.contactItem,
       { hash },
       VERY_SHORT_TIMEOUT,
       `The contact with address: '${hash}' not found`
     );
+    const deleteContactButton = await findElement(
+      AddressBookSelectors.deleteContactButton,
+      { hash },
+      VERY_SHORT_TIMEOUT,
+      `The delete contact button related to address: '${hash}' not found`
+    );
+    return deleteContactButton;
+  }
+
+  async deleteContact(hash: string) {
+    const addedContact = await this.isContactAdded(hash);
+    await addedContact.click();
+  }
+
+  async isContactDeleted(hash: string) {
+    await sleep(2000);
+    const notDeletedError = `The contact '${hash}' not deleted`;
+
+    try {
+      await this.isContactAdded(hash).then(() => {
+        throw notDeletedError;
+      });
+    } catch (error) {
+      const errorName = JSON.stringify(error);
+      if (errorName.includes(notDeletedError)) throw errorName;
+    }
   }
 }

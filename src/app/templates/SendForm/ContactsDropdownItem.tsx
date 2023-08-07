@@ -6,7 +6,7 @@ import { Button } from 'app/atoms/Button';
 import HashShortView from 'app/atoms/HashShortView';
 import Identicon from 'app/atoms/Identicon';
 import Name from 'app/atoms/Name';
-import { setTestID } from 'lib/analytics';
+import { setAnotherSelector, setTestID } from 'lib/analytics';
 import { T } from 'lib/i18n';
 import { TempleContact } from 'lib/temple/types';
 import { useScrollIntoView } from 'lib/ui/use-scroll-into-view';
@@ -43,6 +43,7 @@ const ContactsDropdownItem: FC<ContactsDropdownItemProps> = ({ contact, active, 
           <span
             className={classNames('text-xs font-light leading-tight text-gray-600')}
             {...setTestID(SendFormSelectors.contactHashValue)}
+            {...setAnotherSelector('hash', contact.address)}
           >
             <HashShortView hash={contact.address} />
           </span>

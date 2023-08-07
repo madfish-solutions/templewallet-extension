@@ -232,6 +232,7 @@ const ContactContent: React.FC<OptionRenderProps<TempleContact, string, ContactA
           actions?.remove(item.address);
         }}
         {...setTestID(AddressBookSelectors.deleteContactButton)}
+        {...setAnotherSelector('hash', item.address)}
       >
         <CloseIcon className="w-auto h-5 stroke-current stroke-2" title={t('delete')} />
       </button>

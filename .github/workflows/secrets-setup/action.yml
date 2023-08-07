@@ -51,10 +51,6 @@ inputs:
     required: true
   TEMPLE_FIREBASE_MESSAGING_VAPID_KEY:
     required: true
-  CONTACT_ADDRESS_PUBLIC_KEY_HASH:
-    required: false
-  CONTACT_ADDRESS_PUBLIC_KEY_HASH_SHORT_FORM:
-    required: false
 
 runs:
   using: 'composite'
