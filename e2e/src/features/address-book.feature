@@ -15,8 +15,8 @@ Feature: Address book
     And I enter shortRandomContent into Name Input on the Address Book page
     And I press Add Contact Button on the Address Book page
 
-    And I check if added contact = 'tz1aWpVn8k5aZvVaCKPMdcPeX8ccm5662SLL' is displaying 'Current contacts' list
-    Then I check if added contact = 'tz1aWpVn8k5aZvVaCKPMdcPeX8ccm5662SLL' is displayed in the 'Recipient' drop-down on the Send Page
+    And I check if added contact = 'contactPublicKey' is displayed on 'Current contacts' list
+    Then I check if added contact = 'contactPublicKey' is displayed in the 'Recipient' drop-down on the Send Page
 
 
 #@address_book
@@ -36,19 +36,21 @@ Feature: Address book
     And I enter contactPublicKey into Address Input on the Address Book page
     And I enter shortRandomContent into Name Input on the Address Book page
     And I press Add Contact Button on the Address Book page
+    And I check if added contact = 'contactPublicKey' is displayed on 'Current contacts' list
 #  Second contact adding
     And I clear Address Input value on the Address Book page
     And I enter secondContactPublicKey into Address Input on the Address Book page
     And I enter longRandomContent into Name Input on the Address Book page
     And I press Add Contact Button on the Address Book page
+    And I check if added contact = 'secondContactPublicKey' is displayed on 'Current contacts' list
 
 
-    And I find an added contact = 'tz1aWpVn8k5aZvVaCKPMdcPeX8ccm5662SLL' and click to delete it
+    And I find an added contact = 'contactPublicKey' and click to delete it
 
     And I am on the ConfirmationModal page
     And I press Ok Button on the Confirmation Modal page
-    And I check if added contact = 'tz1aWpVn8k5aZvVaCKPMdcPeX8ccm5662SLL' is deleted from the 'Current contacts' list
+    And I check if added contact = 'contactPublicKey' is deleted from the 'Current contacts' list
 
 #  It runs for understanding that other contacts are not deleted
-    Then I check if added contact = 'tz1eSbADvrQzhH6vWP6MUy6VoEiGPJJZj696' is displaying 'Current contacts' list
+    Then I check if added contact = 'secondContactPublicKey' is displayed on 'Current contacts' list
 

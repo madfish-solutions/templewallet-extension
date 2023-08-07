@@ -1,14 +1,11 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 
 import { TempleContact } from '../types';
 import { useTempleClient } from './client';
 import { useRelevantAccounts, useSettings } from './ready';
 
 export function useFilteredContacts() {
-  const { updateSettings } = useTempleClient();
-
-  const settings = useSettings();
-  const settingContacts = useMemo(() => settings.contacts ?? [], [settings.contacts]);
+  const { contacts } = useSettings();
 
   const accounts = useRelevantAccounts();
   const accountContacts = useMemo<TempleContact[]>(
@@ -21,17 +18,20 @@ export function useFilteredContacts() {
     [accounts]
   );
 
-  const allContacts = useMemo(() => {
-    const filteredSettingContacts = settingContacts.filter(
-      contact => !accountContacts.some(intersection => contact.address === intersection.address)
-    );
+  const filteredContacts = useMemo(
+    () =>
+      contacts
+        ? contacts.filter(({ address }) => !accountContacts.some(accContact => address === accContact.address))
+        : [],
+    [contacts, accountContacts]
+  );
 
-    if (filteredSettingContacts.length !== settingContacts.length) {
-      updateSettings({ contacts: filteredSettingContacts });
-    }
+  const allContacts = useMemo(() => [...filteredContacts, ...accountContacts], [filteredContacts, accountContacts]);
 
-    return [...filteredSettingContacts, ...accountContacts];
-  }, [settingContacts, accountContacts, updateSettings]);
+  const { updateSettings } = useTempleClient();
+  useEffect(() => {
+    if (contacts && contacts.length !== filteredContacts.length) updateSettings({ contacts: filteredContacts });
+  }, [contacts, filteredContacts, updateSettings]);
 
-  return { contacts: settingContacts, allContacts };
+  return { contacts: filteredContacts, allContacts };
 }

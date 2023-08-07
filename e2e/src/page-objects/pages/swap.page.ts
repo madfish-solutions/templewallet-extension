@@ -6,10 +6,9 @@ import {
 } from 'src/app/templates/SwapForm/SwapForm.selectors';
 import { AssetsMenuSelectors } from 'src/app/templates/SwapForm/SwapFormInput/AssetsMenu/selectors';
 
+import { Page } from 'e2e/src/classes/page.class';
+import { createPageElement, findElement } from 'e2e/src/utils/search.utils';
 import { sleep } from 'e2e/src/utils/timing.utils';
-
-import { Page } from '../../classes/page.class';
-import { createPageElement, findElement } from '../../utils/search.utils';
 
 export class SwapPage extends Page {
   swapPlacesButton = createPageElement(SwapFormSelectors.swapPlacesButton);
@@ -38,7 +37,7 @@ export class SwapPage extends Page {
     await retry(
       async () => {
         const tokenItemElem = await findElement(AssetsMenuSelectors.assetsMenuAssetItem, { slug });
-        await sleep(1000);
+        await sleep(1_000); // TODO: Try to get rid of it
         await tokenItemElem.click();
       },
       { retries: 10 }

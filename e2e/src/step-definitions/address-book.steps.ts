@@ -2,21 +2,26 @@ import { Given } from '@cucumber/cucumber';
 import { SendFormSelectors } from 'src/app/templates/SendForm/selectors';
 
 import { Pages } from 'e2e/src/page-objects';
+import { iEnterValues } from 'e2e/src/utils/input-data.utils';
 import { findElement } from 'e2e/src/utils/search.utils';
-import { MEDIUM_TIMEOUT, sleep, VERY_SHORT_TIMEOUT } from 'e2e/src/utils/timing.utils';
+import { MEDIUM_TIMEOUT, VERY_SHORT_TIMEOUT } from 'e2e/src/utils/timing.utils';
+
+type ContactVarName = 'contactPublicKey' | 'secondContactPublicKey';
 
 Given(
-  /I check if added contact = '(.*)' is displaying 'Current contacts' list/,
+  /I check if added contact = '(.*)' is displayed on 'Current contacts' list/,
   { timeout: MEDIUM_TIMEOUT },
-  async (contact: string) => {
-    await Pages.AddressBook.isContactAdded(contact);
+  async (contactVarName: ContactVarName) => {
+    await Pages.AddressBook.isContactAdded(iEnterValues[contactVarName]);
   }
 );
 
 Given(
   /I check if added contact = '(.*)' is displayed in the 'Recipient' drop-down on the Send Page/,
   { timeout: MEDIUM_TIMEOUT },
-  async (hash: string) => {
+  async (contactVarName: ContactVarName) => {
+    const hash = iEnterValues[contactVarName];
+
     await Pages.Header.templeLogoButton.click();
     await Pages.Home.isVisible();
     await Pages.Home.SendButton.click();
@@ -36,16 +41,16 @@ Given(
 Given(
   /I find an added contact = '(.*)' and click to delete it/,
   { timeout: MEDIUM_TIMEOUT },
-  async (contact: string) => {
-    await sleep(1000);
-    await Pages.AddressBook.deleteContact(contact);
+  async (contactVarName: ContactVarName) => {
+    // await sleep(60_000);
+    await Pages.AddressBook.clickDeleteContact(iEnterValues[contactVarName]);
   }
 );
 
 Given(
   /I check if added contact = '(.*)' is deleted from the 'Current contacts' list/,
   { timeout: MEDIUM_TIMEOUT },
-  async (contact: string) => {
-    await Pages.AddressBook.isContactDeleted(contact);
+  async (contactVarName: ContactVarName) => {
+    await Pages.AddressBook.isContactDeleted(iEnterValues[contactVarName]);
   }
 );
