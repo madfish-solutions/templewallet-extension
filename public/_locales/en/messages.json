@@ -55,6 +55,9 @@
       }
     }
   },
+  "branchName": {
+    "message": "branch: $branch$"
+  },
   "madeWithLove": {
     "message": "Made with $loveIcon$ by $companyName$",
     "placeholders": {

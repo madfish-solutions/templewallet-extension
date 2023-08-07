@@ -3,6 +3,7 @@ import React, { FC } from 'react';
 import { Anchor } from 'app/atoms/Anchor';
 import Logo from 'app/atoms/Logo';
 import SubTitle from 'app/atoms/SubTitle';
+import { EnvVars } from 'lib/env';
 import { TID, T } from 'lib/i18n';
 
 import { AboutSelectors } from './About.selectors';
@@ -55,6 +56,16 @@ const About: FC = () => (
             substitutions={[
               <span className="font-bold" key="version">
                 {process.env.VERSION}
+              </span>
+            ]}
+          />
+        </p>
+        <p className="text-sm font-light text-gray-800 max-w-xs">
+          <T
+            id="branchName"
+            substitutions={[
+              <span className="font-bold" key="branch">
+                {EnvVars.TEMPLE_WALLET_DEVELOPMENT_BRANCH_NAME}
               </span>
             ]}
           />
