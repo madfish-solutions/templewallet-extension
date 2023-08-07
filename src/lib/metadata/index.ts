@@ -6,7 +6,7 @@ import { useDispatch } from 'react-redux';
 
 import { loadTokensMetadataAction } from 'app/store/tokens-metadata/actions';
 import { useTokenMetadataSelector, useTokensMetadataSelector } from 'app/store/tokens-metadata/selectors';
-import { isTezAsset, TEZ_TOKEN_SLUG } from 'lib/assets';
+import { isTezAsset } from 'lib/assets';
 import { useNetwork } from 'lib/temple/front';
 
 import { TEZOS_METADATA, FILM_METADATA } from './defaults';
@@ -52,11 +52,7 @@ export const useManyAssetsMetadata = (slugs: string[]): Record<string, AssetMeta
   }, [dispatch, tokensMetadata, slugs, network.rpcBaseURL]);
 
   return useMemo(
-    () =>
-      slugs.reduce(
-        (acc, slug) => ({ ...acc, [slug]: slug === TEZ_TOKEN_SLUG ? gasMetadata : tokensMetadata[slug] }),
-        {}
-      ),
+    () => slugs.reduce((acc, slug) => ({ ...acc, [slug]: isTezAsset(slug) ? gasMetadata : tokensMetadata[slug] }), {}),
     [slugs, tokensMetadata, gasMetadata]
   );
 };
