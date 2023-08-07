@@ -53,7 +53,12 @@
     }
   },
   "branchName": {
-    "message": "branch: $branch$"
+    "message": "branch: $branch$",
+    "placeholders": {
+      "branch": {
+        "content": "$1"
+      }
+    }
   },
   "madeWithLove": {
     "message": "Зроблено з $loveIcon$ компанією $companyName$",
