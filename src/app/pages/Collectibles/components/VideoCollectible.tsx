@@ -1,8 +1,7 @@
 import React, { CSSProperties, FC, useCallback, useState } from 'react';
 
+import { emptyFn } from '@rnw-community/shared';
 import classNames from 'clsx';
-
-import { emptyFn } from 'app/utils/function.utils';
 
 import { formatCollectibleObjktArtifactUri } from '../utils/image.utils';
 

@@ -1,6 +1,6 @@
 import React, { CSSProperties, FC, useCallback, useState } from 'react';
 
-import { emptyFn } from 'app/utils/function.utils';
+import { emptyFn } from '@rnw-community/shared';
 
 interface Props {
   uri: string;

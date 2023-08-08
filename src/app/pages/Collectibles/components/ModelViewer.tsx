@@ -2,9 +2,8 @@ import React, { FC, useEffect, useRef } from 'react';
 
 import '@google/model-viewer';
 import ModelViewerElementBase from '@google/model-viewer/lib/model-viewer-base';
+import { emptyFn } from '@rnw-community/shared';
 import classNames from 'clsx';
-
-import { emptyFn } from 'app/utils/function.utils';
 
 declare global {
   namespace JSX {

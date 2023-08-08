@@ -1,14 +1,10 @@
 import { useState } from 'react';
 
-const DEPRECATED_KEYS = [
-  'no_metadata_' // `no_metadata_${slug}`
-];
-
 // TODO: reuse in other places (eg. saving.ts & popup-mode/index.ts)
 export const useLocalStorage = <T>(key: string, initialValue: T): [T, (value: T | ((val: T) => T)) => void] => {
   const [storedValue, setStoredValue] = useState<T>(() => {
     try {
-      const item = getItem(key);
+      const item = localStorage.getItem(key);
 
       return item ? JSON.parse(item) : initialValue;
     } catch (error) {
@@ -29,10 +25,4 @@ export const useLocalStorage = <T>(key: string, initialValue: T): [T, (value: T 
   };
 
   return [storedValue, setValue];
-};
-
-const getItem = (key: string) => {
-  if (DEPRECATED_KEYS.some(k => key.startsWith(k))) throw new Error(`Storage key ${key} is deprecated`);
-
-  return localStorage.getItem(key);
 };
