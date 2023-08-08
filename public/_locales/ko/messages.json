@@ -52,6 +52,14 @@
       }
     }
   },
+  "branchName": {
+    "message": "branch: $branch$",
+    "placeholders": {
+      "branch": {
+        "content": "$1"
+      }
+    }
+  },
   "madeWithLove": {
     "message": "$companyName$ 옆에 $loveIcon$ 포함하여 제작",
     "placeholders": {

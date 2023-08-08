@@ -55,6 +55,14 @@
       }
     }
   },
+  "branchName": {
+    "message": "branch: $branch$",
+    "placeholders": {
+      "branch": {
+        "content": "$1"
+      }
+    }
+  },
   "madeWithLove": {
     "message": "Erstellt mit $loveIcon$ von $companyName$",
     "placeholders": {
