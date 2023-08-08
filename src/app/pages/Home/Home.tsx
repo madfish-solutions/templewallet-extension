@@ -70,7 +70,7 @@ const Home: FC<ExploreProps> = ({ assetSlug }) => {
     if (isEnabledAdsBanner) {
       dispatch(togglePartnersPromotionAction(false));
     }
-  }, [isEnabledAdsBanner]);
+  }, [isEnabledAdsBanner, dispatch]);
 
   const accountPkh = account.publicKeyHash;
   const canSend = account.type !== TempleAccountType.WatchOnly;

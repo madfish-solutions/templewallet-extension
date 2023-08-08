@@ -1,74 +1,55 @@
+import { devToolsEnhancer } from '@redux-devtools/remote';
+import { configureStore } from '@reduxjs/toolkit';
 import { TypedUseSelectorHook, useSelector as useRawSelector } from 'react-redux';
+import { FLUSH, PAUSE, PERSIST, persistReducer, persistStore, PURGE, REGISTER, REHYDRATE } from 'redux-persist';
 import autoMergeLevel2 from 'redux-persist/lib/stateReconciler/autoMergeLevel2';
 import storage from 'redux-persist/lib/storage';
-import { PersistConfig } from 'redux-persist/lib/types';
 
-import { notificationsEpics, notificationsReducer } from 'lib/notifications';
-import { createStore, GetStateType, rootStateReducer } from 'lib/store';
+import { IS_DEV_ENV } from 'lib/env';
 
-import { abTestingEpics } from './ab-testing/epics';
-import { abTestingReducer } from './ab-testing/reducers';
-import { advertisingEpics } from './advertising/epics';
-import { advertisingReducer } from './advertising/reducers';
-import { balancesEpics } from './balances/epics';
-import { balancesReducer } from './balances/reducers';
-import { buyWithCreditCardEpics } from './buy-with-credit-card/epics';
-import { buyWithCreditCardReducer } from './buy-with-credit-card/reducers';
-import { collectiblesEpics } from './collectibles/epics';
-import { collectiblesReducer } from './collectibles/reducer';
-import { currencyEpics } from './currency/epics';
-import { currencyReducer } from './currency/reducers';
-import { dAppsReducer } from './d-apps/reducers';
-import { newsletterReducers } from './newsletter/newsletter-reducers';
-import { partnersPromotionEpics } from './partners-promotion/epics';
-import { partnersPromotionRucer } from './partners-promotion/reducers';
-import { settingsReducer } from './settings/reducers';
-import { swapEpics } from './swap/epics';
-import { swapReducer } from './swap/reducers';
-import { tokensMetadataEpics } from './tokens-metadata/epics';
-import { tokensMetadataReducer } from './tokens-metadata/reducers';
-
-const baseReducer = rootStateReducer({
-  settings: settingsReducer,
-  advertising: advertisingReducer,
-  currency: currencyReducer,
-  notifications: notificationsReducer,
-  dApps: dAppsReducer,
-  swap: swapReducer,
-  partnersPromotion: partnersPromotionRucer,
-  balances: balancesReducer,
-  tokensMetadata: tokensMetadataReducer,
-  abTesting: abTestingReducer,
-  buyWithCreditCard: buyWithCreditCardReducer,
-  collectibles: collectiblesReducer,
-  newsletter: newsletterReducers
-});
-
-export type RootState = GetStateType<typeof baseReducer>;
+import { epicMiddleware, rootEpic } from './root-state.epics';
+import { rootReducer } from './root-state.reducer';
+import type { RootState } from './root-state.type';
 
 const persistConfigBlacklist: (keyof RootState)[] = ['buyWithCreditCard', 'collectibles'];
 
-const persistConfig: PersistConfig<RootState> = {
-  key: 'temple-root',
-  version: 1,
-  storage: storage,
-  stateReconciler: autoMergeLevel2,
-  blacklist: persistConfigBlacklist
-};
+const persistedReducer = persistReducer<RootState>(
+  {
+    key: 'temple-root',
+    version: 1,
+    storage: storage,
+    stateReconciler: autoMergeLevel2,
+    blacklist: persistConfigBlacklist,
+    debug: IS_DEV_ENV
+  },
+  rootReducer
+);
 
-const epics = [
-  currencyEpics,
-  advertisingEpics,
-  notificationsEpics,
-  swapEpics,
-  partnersPromotionEpics,
-  balancesEpics,
-  tokensMetadataEpics,
-  abTestingEpics,
-  buyWithCreditCardEpics,
-  collectiblesEpics
-];
+const REDUX_DEVTOOLS_PORT = IS_DEV_ENV ? process.env.REDUX_DEVTOOLS_PORT : null;
 
-export const { store, persistor } = createStore(persistConfig, baseReducer, epics);
+const store = configureStore({
+  reducer: persistedReducer,
+  middleware: getDefaultMiddleware => {
+    const defMiddleware = getDefaultMiddleware({
+      serializableCheck: {
+        ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER]
+      }
+    });
+
+    return defMiddleware.concat(epicMiddleware);
+  },
+  ...(REDUX_DEVTOOLS_PORT
+    ? {
+        devTools: false,
+        enhancers: [devToolsEnhancer({ realtime: true, port: Number(REDUX_DEVTOOLS_PORT) })]
+      }
+    : {})
+});
+
+const persistor = persistStore(store);
+
+epicMiddleware.run(rootEpic);
+
+export { store, persistor };
 
 export const useSelector: TypedUseSelectorHook<RootState> = useRawSelector;

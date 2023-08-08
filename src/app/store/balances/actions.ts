@@ -1,4 +1,4 @@
-import { createActions } from 'lib/store/utils/action.utils';
+import { createActions } from 'lib/store/action.utils';
 
 interface BalancesTzktPayloadSubmit {
   publicKeyHash: string;

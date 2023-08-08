@@ -1,7 +1,7 @@
 import { createReducer } from '@reduxjs/toolkit';
 
 import { getKeyForBalancesRecord } from 'lib/balances';
-import { createEntity } from 'lib/store/utils/entity.utils';
+import { createEntity } from 'lib/store/entity.utils';
 
 import { loadTokensBalancesFromTzktAction } from './actions';
 import { balancesInitialState } from './state';
