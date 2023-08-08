@@ -2,12 +2,11 @@ import { Given } from '@cucumber/cucumber';
 import { expect } from 'chai';
 import { OperationStatusSelectors } from 'src/app/templates/OperationStatus.selectors';
 
-import { createPageElement } from 'e2e/src/utils/search.utils';
-
 import { BrowserContext } from '../classes/browser-context.class';
 import { Pages } from '../page-objects';
 import { envVars } from '../utils/env.utils';
 import { iComparePrivateKeys } from '../utils/input-data.utils';
+import { createPageElement, findElement } from '../utils/search.utils';
 import { LONG_TIMEOUT, MEDIUM_TIMEOUT, sleep } from '../utils/timing.utils';
 
 Given(
@@ -32,10 +31,9 @@ Given(
 );
 
 Given(/I'm waiting for 'success ✓' operation status/, { timeout: LONG_TIMEOUT }, async () => {
-  await BrowserContext.page.waitForSelector(`[data-testid="${OperationStatusSelectors.successDoneOperation}"]`, {
-    timeout: LONG_TIMEOUT
-  });
-  await sleep(10000);
+  await findElement(OperationStatusSelectors.successDoneOperation, undefined, LONG_TIMEOUT);
+
+  await sleep(10_000); // TODO: Make optional
 });
 
 const hashObject = {
