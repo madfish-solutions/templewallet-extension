@@ -2,13 +2,13 @@ import { pick } from 'lodash';
 
 import type { UserObjktCollectible, ObjktGalleryAttributeCount } from 'lib/apis/objkt';
 import { ADULT_CONTENT_TAGS } from 'lib/apis/objkt/adult-tags';
-import { Attribute, Tag } from 'lib/apis/objkt/types';
+import type { ObjktAttribute, ObjktTag } from 'lib/apis/objkt/types';
 import { atomsToTokens } from 'lib/temple/helpers';
 
 import type { CollectibleDetails } from './state';
 
 const ADULT_ATTRIBUTE_NAME = '__nsfw_';
-const checkForAdultery = (attributes: Attribute[], tags: Tag[]) =>
+const checkForAdultery = (attributes: ObjktAttribute[], tags: ObjktTag[]) =>
   attributes.some(({ attribute }) => attribute.name === ADULT_ATTRIBUTE_NAME) ||
   tags.some(({ tag }) => {
     return ADULT_CONTENT_TAGS.includes(tag.name);

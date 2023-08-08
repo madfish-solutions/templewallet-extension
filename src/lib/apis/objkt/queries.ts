@@ -10,11 +10,6 @@ export const buildGetCollectiblesQuery = () => gql`
           name
         }
       }
-      attributes {
-        attribute {
-          name
-        }
-      }
       listings_active(order_by: { price_xtz: asc }) {
         currency_id
         price
