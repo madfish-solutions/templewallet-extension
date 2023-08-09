@@ -787,9 +787,6 @@
   "enable": {
     "message": "activer"
   },
-  "enableAds": {
-    "message": "Enable Ads"
-  },
   "enablePartnersPromotionConfirm": {
     "message": "Support the development team and earn tokens by viewing ads inside the wallet."
   },
