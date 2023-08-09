@@ -4,12 +4,28 @@ import { Pages } from 'e2e/src/page-objects';
 import { iEnterValues } from 'e2e/src/utils/input-data.utils';
 import { MEDIUM_TIMEOUT } from 'e2e/src/utils/timing.utils';
 
-type customNetworkVarName = 'customNetworkRPC';
+type customNetworkVarName = 'customNetworkRPC' | 'secondCustomNetworkRPC';
 
 Given(
   /I check if added custom network = '(.*)' is displayed on 'Current networks' list/,
   { timeout: MEDIUM_TIMEOUT },
   async (CustomNetworkName: customNetworkVarName) => {
     await Pages.Networks.isCustomNetworkAdded(iEnterValues[CustomNetworkName]);
+  }
+);
+
+Given(
+  /I find an added custom network = '(.*)' and click to delete it/,
+  { timeout: MEDIUM_TIMEOUT },
+  async (CustomNetworkName: customNetworkVarName) => {
+    await Pages.Networks.clickDeleteCustomNetwork(iEnterValues[CustomNetworkName]);
+  }
+);
+
+Given(
+  /I check if added custom network = '(.*)' is deleted from the 'Current networks' list/,
+  { timeout: MEDIUM_TIMEOUT },
+  async (CustomNetworkName: customNetworkVarName) => {
+    await Pages.Networks.isCustomNetworkDeleted(iEnterValues[CustomNetworkName]);
   }
 );

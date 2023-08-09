@@ -20,6 +20,7 @@ export const iEnterValues = {
   contactPublicKey: 'tz1aWpVn8k5aZvVaCKPMdcPeX8ccm5662SLL',
   secondContactPublicKey: 'tz1eSbADvrQzhH6vWP6MUy6VoEiGPJJZj696',
   customNetworkRPC: envVars.CUSTOM_NETWORK_FIRST_RPC_URL,
+  secondCustomNetworkRPC: envVars.CUSTOM_NETWORK_SECOND_RPC_URL,
   customTestName: 'Custom Test Net',
   bakerAddress: '',
   shortRandomContent: generateRandomContent(),
