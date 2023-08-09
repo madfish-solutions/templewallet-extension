@@ -16,7 +16,7 @@ Before({ timeout: MEDIUM_TIMEOUT }, async () => {
     const page = await BrowserContext.browser.newPage();
     await page.setViewport({
       height: 800,
-      width: 1200
+      width: 1300
     });
     try {
       const response = await page.goto(url);
