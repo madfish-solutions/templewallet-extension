@@ -28,6 +28,9 @@ Feature: Add Custom Node
     Then I check that Custom Test Net node is selected correctly
 
 
+@custom_node
+  Scenario: As a user, i'd like to remove added custom network
+     Given I have imported an existing account
 
 
 
