@@ -78,3 +78,27 @@ yarn start
 
 Runs the extension in the development mode for Chrome target.<br>
 It's recommended to use Chrome for developing.
+
+### Debugging
+
+To enable Redux DevTools during development, specify some port in the `.env` file before running `yarn start` like so:
+
+```toml
+REDUX_DEVTOOLS_PORT=8000
+```
+
+Install [`@redux-devtools/cli`](https://github.com/reduxjs/redux-devtools) globally:
+
+```bash
+yarn global add @redux-devtools/cli
+```
+
+Then open an explorer at previously specified port:
+
+```bash
+redux-devtools --open --port=8000
+```
+
+> Other UI options like `--open=browser` are available.
+
+Go to settings to specify port one more time.

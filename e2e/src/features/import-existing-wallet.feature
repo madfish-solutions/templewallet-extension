@@ -12,6 +12,7 @@ Feature: Import existing wallet
     And I enter defaultPassword into Password Field on the Register Form page
     And I enter defaultPassword into Repeat Password Field on the Register Form page
     And I press Skip Onboarding Checkbox on the Register Form page
+    And I press Analytics Check Box on the Register Form page
     And I press Accept Terms Checkbox on the Register Form page
     And I press Import Button on the Register Form page
 

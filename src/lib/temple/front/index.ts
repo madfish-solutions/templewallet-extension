@@ -34,7 +34,7 @@ export { useBlockTriggers, useOnBlock } from './chain';
 
 export { useBalance, getBalanceSWRKey } from './balance';
 
-export { useContacts, searchContacts } from './address-book';
+export { useContactsActions, searchContacts } from './address-book';
 
 export { useTezosDomainsClient, isDomainNameValid } from './tzdns';
 

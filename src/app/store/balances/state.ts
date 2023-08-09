@@ -1,4 +1,4 @@
-import { LoadableEntityState } from 'lib/store/interfaces/loadable-entity-state.interface';
+import type { LoadableEntityState } from 'lib/store';
 
 type PublicKeyHashWithChainId = string;
 

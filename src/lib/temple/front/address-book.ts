@@ -6,7 +6,7 @@ import { TempleContact } from 'lib/temple/types';
 
 import { useFilteredContacts } from './use-filtered-contacts.hook';
 
-export function useContacts() {
+export function useContactsActions() {
   const { updateSettings } = useTempleClient();
   const { contacts, allContacts } = useFilteredContacts();
 
@@ -24,8 +24,8 @@ export function useContacts() {
   );
 
   const removeContact = useCallback(
-    async (address: string) =>
-      await updateSettings({
+    (address: string) =>
+      updateSettings({
         contacts: contacts.filter(c => c.address !== address)
       }),
     [contacts, updateSettings]
