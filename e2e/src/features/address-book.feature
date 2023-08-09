@@ -19,8 +19,7 @@ Feature: Address book
     Then I check if added contact = 'contactPublicKey' is displayed in the 'Recipient' drop-down on the Send Page
 
 
-#@address_book
-@dev
+@address_book
   Scenario: As a user, I'd like to remove contact [Positive]
     Given I have imported an existing account
 
