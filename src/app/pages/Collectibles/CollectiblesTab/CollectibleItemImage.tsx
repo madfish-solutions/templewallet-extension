@@ -8,14 +8,13 @@ import { CollectibleImageFallback } from '../components/CollectibleImageFallback
 import { CollectibleImageLoader } from '../components/CollectibleImageLoader';
 
 interface Props {
-  assetSlug: string;
   metadata?: AssetMetadataBase;
   areDetailsLoading: boolean;
   mime?: string | null;
   isAdultContent?: boolean;
 }
 
-export const CollectibleItemImage: FC<Props> = ({ assetSlug, metadata, areDetailsLoading, mime, isAdultContent }) => {
+export const CollectibleItemImage: FC<Props> = ({ metadata, areDetailsLoading, mime, isAdultContent }) => {
   const isAudioCollectible = useMemo(() => Boolean(mime && mime.startsWith('audio')), [mime]);
 
   if (areDetailsLoading) {
@@ -29,7 +28,6 @@ export const CollectibleItemImage: FC<Props> = ({ assetSlug, metadata, areDetail
   return (
     <AssetImage
       metadata={metadata}
-      assetSlug={assetSlug}
       loader={<CollectibleImageLoader />}
       fallback={<CollectibleImageFallback isAudioCollectible={isAudioCollectible} />}
     />

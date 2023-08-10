@@ -5,19 +5,19 @@ import { buildTokenIconURLs, buildCollectibleImageURLs } from 'lib/temple/front'
 import { Image, ImageProps } from 'lib/ui/Image';
 
 export interface AssetImageProps extends Pick<ImageProps, 'loader' | 'fallback' | 'onLoad'> {
-  assetSlug: string;
   metadata?: AssetMetadataBase;
   className?: string;
   size?: number;
+  large?: boolean;
   style?: React.CSSProperties;
 }
 
 export const AssetImage = memo<AssetImageProps>(
-  ({ metadata, assetSlug, className, size, style, loader, fallback, onLoad }) => {
+  ({ metadata, className, size, large, style, loader, fallback, onLoad }) => {
     const src = useMemo(() => {
-      if (metadata && isCollectible(metadata)) return buildCollectibleImageURLs(assetSlug, metadata, size == null);
-      else return buildTokenIconURLs(metadata?.thumbnailUri, size == null);
-    }, [metadata, assetSlug, size]);
+      if (metadata && isCollectible(metadata)) return buildCollectibleImageURLs(metadata, large);
+      else return buildTokenIconURLs(metadata?.thumbnailUri, large);
+    }, [metadata, large]);
 
     const styleMemo: React.CSSProperties = useMemo(
       () => ({

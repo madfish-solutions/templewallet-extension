@@ -70,7 +70,6 @@ export const CollectibleItem: FC<Props> = ({ assetSlug, accountPkh, areDetailsSh
         {displayed && (
           <CollectibleItemImage
             metadata={metadata}
-            assetSlug={assetSlug}
             areDetailsLoading={!details && areDetailsLoading}
             mime={details?.mime}
             isAdultContent={details?.isAdultContent}

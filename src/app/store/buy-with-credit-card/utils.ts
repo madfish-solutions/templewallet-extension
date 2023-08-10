@@ -15,6 +15,7 @@ import { GetBinanceConnectCurrenciesResponse } from 'lib/apis/temple-static';
 import { CurrencyInfoType as UtorgCurrencyInfoType, UtorgCurrencyInfo } from 'lib/apis/utorg';
 import { toTokenSlug } from 'lib/assets';
 import { LOCAL_MAINNET_TOKENS_METADATA } from 'lib/assets/known-tokens';
+import { SVG_DATA_URI_UTF8_PREFIX } from 'lib/temple/front';
 import { filterByStringProperty } from 'lib/utils';
 
 import { TopUpProviderCurrencies } from './state';
@@ -136,7 +137,7 @@ export const mapBinanceConnectProviderCurrencies = (
         : 0;
 
     const iconSvgString = binanceCryptoIcons.get(code.toLowerCase());
-    const icon = iconSvgString ? `data:image/svg+xml;charset=utf-8,${encodeURIComponent(iconSvgString)}` : '';
+    const icon = iconSvgString ? `${SVG_DATA_URI_UTF8_PREFIX}${encodeURIComponent(iconSvgString)}` : '';
 
     return {
       /** No token id available */

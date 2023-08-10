@@ -8,7 +8,9 @@ import { AssetMetadataBase, getAssetSymbol, isCollectible, useAssetMetadata } fr
 
 import { AssetImage, AssetImageProps } from './AssetImage';
 
-type Props = Omit<AssetImageProps, 'metadata' | 'loader' | 'fallback'>;
+interface Props extends Omit<AssetImageProps, 'metadata' | 'loader' | 'fallback'> {
+  assetSlug: string;
+}
 
 export const AssetIcon: FC<Props> = memo<Props>(({ className, style, ...props }) => {
   const metadata = useAssetMetadata(props.assetSlug);

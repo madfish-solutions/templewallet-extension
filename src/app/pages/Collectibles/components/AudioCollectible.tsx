@@ -9,22 +9,13 @@ import { CollectibleImageFallback } from './CollectibleImageFallback';
 
 interface Props {
   uri: string;
-  assetSlug: string;
   metadata?: AssetMetadataBase;
   loader?: React.ReactElement;
   className?: string;
   style?: React.CSSProperties;
   onAudioError?: EmptyFn;
 }
-export const AudioCollectible: FC<Props> = ({
-  uri,
-  metadata,
-  assetSlug,
-  className,
-  style,
-  loader,
-  onAudioError = emptyFn
-}) => {
+export const AudioCollectible: FC<Props> = ({ uri, metadata, className, style, loader, onAudioError = emptyFn }) => {
   const playerRef = useRef<HTMLAudioElement>(null);
   const [isAudioLoading, setIsAudioLoading] = useState(true);
   const [isImageLoading, setIsImageLoading] = useState(true);
@@ -46,7 +37,7 @@ export const AudioCollectible: FC<Props> = ({
 
       <AssetImage
         metadata={metadata}
-        assetSlug={assetSlug}
+        large
         fallback={<CollectibleImageFallback large isAudioCollectible />}
         className={className}
         style={style}

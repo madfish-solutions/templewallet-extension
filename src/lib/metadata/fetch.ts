@@ -61,7 +61,7 @@ const fetchTokensMetadata = async (rpcUrl: string, slugs: string[]): Promise<(To
 };
 
 const chainTokenMetadataToBase = (metadata: TokenMetadataOnChain | nullish): TokenMetadataResponse | null =>
-  metadata ? pick(metadata, 'name', 'symbol', 'decimals', 'thumbnailUri', 'artifactUri') : null;
+  metadata ? pick(metadata, 'name', 'symbol', 'decimals', 'thumbnailUri', 'displayUri', 'artifactUri') : null;
 
 export const loadOneTokenMetadata$ = memoize(
   (rpcUrl: string, address: string, id = 0): Observable<TokenMetadata> =>
@@ -89,17 +89,15 @@ const buildTokenMetadataFromFetched = (
   address: string,
   id: number
 ): TokenMetadata | null =>
-  !isDefined(token)
-    ? null
-    : {
+  isDefined(token)
+    ? {
         id,
         address,
-        decimals: token.decimals,
+        ...pick(token, ['decimals', 'thumbnailUri', 'displayUri', 'artifactUri']),
         symbol: token.symbol ?? token.name?.substring(0, 8) ?? '???',
-        name: token.name ?? token.symbol ?? 'Unknown Token',
-        thumbnailUri: token.thumbnailUri,
-        artifactUri: token.artifactUri
-      };
+        name: token.name ?? token.symbol ?? 'Unknown Token'
+      }
+    : null;
 
 export const loadWhitelist$ = (): Observable<TokenMetadata[]> =>
   fetchWhitelistTokens$().pipe(

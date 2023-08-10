@@ -59,4 +59,10 @@ export { useFilteredContacts } from './use-filtered-contacts.hook';
 
 export { decryptKukaiSeedPhrase } from './kukai';
 
-export { buildTokenIconURLs, buildCollectibleImageURLs } from './image-uri';
+export {
+  isSvgDataUriInUtf8Encoding,
+  buildTokenIconURLs,
+  buildCollectibleImageURLs,
+  buildObjktCollectibleArtifactUri,
+  SVG_DATA_URI_UTF8_PREFIX
+} from './image-uri';

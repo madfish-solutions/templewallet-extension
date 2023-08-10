@@ -28,7 +28,7 @@ import { navigate } from 'lib/woozie';
 
 import { useCollectibleSelling } from '../hooks/use-collectible-selling.hook';
 import { CollectiblesSelectors } from '../selectors';
-import { CollectibleImage } from './CollectibleImage';
+import { CollectiblePageImage } from './CollectiblePageImage';
 import { AttributesItems, PropertiesItems } from './TabsGridContent';
 
 const DETAILS_SYNC_INTERVAL = 4 * BLOCK_DURATION;
@@ -140,8 +140,7 @@ const CollectiblePage: FC<Props> = ({ assetSlug }) => {
           className="rounded-lg mb-2 border border-gray-300 bg-blue-50 overflow-hidden"
           style={{ aspectRatio: '1/1' }}
         >
-          <CollectibleImage
-            assetSlug={assetSlug}
+          <CollectiblePageImage
             metadata={metadata}
             areDetailsLoading={!details && areDetailsLoading}
             objktArtifactUri={details?.objktArtifactUri}
