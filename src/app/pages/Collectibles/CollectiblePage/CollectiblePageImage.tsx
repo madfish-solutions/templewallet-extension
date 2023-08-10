@@ -98,7 +98,7 @@ export const CollectiblePageImage: FC<Props> = ({
   return (
     <AssetImage
       metadata={metadata}
-      large
+      fullViewCollectible
       loader={<CollectibleImageLoader large />}
       fallback={<CollectibleImageFallback large />}
       className={className}

@@ -19,7 +19,8 @@ const formatAssetUriToAllSizes = (url?: string, includeLarge = false) => {
     return [
       includeLarge ? formatTcInfraImgUri(url, 'raw') : undefined,
       includeLarge ? formatTcInfraImgUri(url, 'large') : undefined,
-      includeLarge ? formatTcInfraImgUri(url, 'medium') : undefined,
+      // Some `small` tokens icons are absent, while `medium` are present
+      formatTcInfraImgUri(url, 'medium'),
       formatTcInfraImgUri(url, 'small')
     ];
 

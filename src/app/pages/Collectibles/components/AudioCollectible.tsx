@@ -37,7 +37,7 @@ export const AudioCollectible: FC<Props> = ({ uri, metadata, className, style, l
 
       <AssetImage
         metadata={metadata}
-        large
+        fullViewCollectible
         fallback={<CollectibleImageFallback large isAudioCollectible />}
         className={className}
         style={style}

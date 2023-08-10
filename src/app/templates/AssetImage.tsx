@@ -8,16 +8,16 @@ export interface AssetImageProps extends Pick<ImageProps, 'loader' | 'fallback' 
   metadata?: AssetMetadataBase;
   className?: string;
   size?: number;
-  large?: boolean;
+  fullViewCollectible?: boolean;
   style?: React.CSSProperties;
 }
 
 export const AssetImage = memo<AssetImageProps>(
-  ({ metadata, className, size, large, style, loader, fallback, onLoad }) => {
+  ({ metadata, className, size, fullViewCollectible, style, loader, fallback, onLoad }) => {
     const src = useMemo(() => {
-      if (metadata && isCollectible(metadata)) return buildCollectibleImageURLs(metadata, large);
-      else return buildTokenIconURLs(metadata?.thumbnailUri, large);
-    }, [metadata, large]);
+      if (metadata && isCollectible(metadata)) return buildCollectibleImageURLs(metadata, fullViewCollectible);
+      else return buildTokenIconURLs(metadata?.thumbnailUri);
+    }, [metadata, fullViewCollectible]);
 
     const styleMemo: React.CSSProperties = useMemo(
       () => ({
