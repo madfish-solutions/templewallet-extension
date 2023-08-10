@@ -3,7 +3,7 @@ import { DEPRECATED_TKEY_METADATA } from 'lib/assets/known-tokens';
 import type { TokenMetadata } from 'lib/metadata';
 
 export const mockFA1_2TokenMetadata: TokenMetadata = {
-  id: 0,
+  id: '0',
   address: 'fa12TokenAddress',
   name: 'Mock FA1.2 token',
   symbol: 'MOCK12',
@@ -12,7 +12,7 @@ export const mockFA1_2TokenMetadata: TokenMetadata = {
 };
 
 export const mockFA2TokenMetadata: TokenMetadata = {
-  id: 2,
+  id: '2',
   address: 'fa2TokenAddress',
   name: 'Mock FA2 token',
   symbol: 'MOCK2',

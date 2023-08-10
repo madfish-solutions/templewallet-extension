@@ -158,5 +158,5 @@ const getBinanceConnectCryptoCurrencyName = (code: string, address: string | nul
     return 'Tezos';
   }
 
-  return LOCAL_MAINNET_TOKENS_METADATA.find(m => m.address === address && m.id === 0)?.name ?? code;
+  return LOCAL_MAINNET_TOKENS_METADATA.find(m => m.address === address && m.id === '0')?.name ?? code;
 };

@@ -22,6 +22,8 @@ export const useMetadataLoading = () => {
 
   const tokensMetadata = useTokensMetadataSelector();
 
+  console.log('tokensMetadata: ', tokensMetadata);
+
   const { data: tokensSlugs } = useAllStoredTokensSlugs(chainId);
 
   const slugsWithoutMetadata = useMemo(

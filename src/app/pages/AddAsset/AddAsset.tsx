@@ -210,7 +210,7 @@ const Form: FC = () => {
         const tokenMetadata: TokenMetadata = {
           ...baseMetadata,
           address: contractAddress,
-          id: tokenId
+          id: tokenId.toFixed()
         };
 
         dispatch(addTokensMetadataAction([tokenMetadata]));
