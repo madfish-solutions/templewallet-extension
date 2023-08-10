@@ -78,7 +78,7 @@ export const loadTokensMetadata$ = (rpcUrl: string, slugs: string[]): Observable
       data.map((token, index) => {
         const [address, id] = slugs[index].split('_');
 
-        return buildTokenMetadataFromFetched(token, address, Number(id));
+        return buildTokenMetadataFromFetched(token, address, id);
       })
     ),
     map(data => data.filter(isDefined))
@@ -87,7 +87,7 @@ export const loadTokensMetadata$ = (rpcUrl: string, slugs: string[]): Observable
 const buildTokenMetadataFromFetched = (
   token: TokenMetadataResponse | nullish,
   address: string,
-  id: number
+  id: string
 ): TokenMetadata | null =>
   !isDefined(token)
     ? null
@@ -104,14 +104,16 @@ const buildTokenMetadataFromFetched = (
 export const loadWhitelist$ = (): Observable<TokenMetadata[]> =>
   fetchWhitelistTokens$().pipe(
     map(tokens =>
-      tokens.map(token => transformWhitelistToTokenMetadata(token, token.contractAddress, token.fa2TokenId ?? 0))
+      tokens.map(token =>
+        transformWhitelistToTokenMetadata(token, token.contractAddress, String(token.fa2TokenId ?? 0))
+      )
     )
   );
 
 const transformWhitelistToTokenMetadata = (
   token: WhitelistResponseToken,
   address: string,
-  id: number
+  id: string
 ): TokenMetadata => ({
   id,
   address,

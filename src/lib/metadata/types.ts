@@ -11,7 +11,7 @@ export interface AssetMetadataBase {
 }
 
 export interface TokenMetadata extends AssetMetadataBase {
-  id: number;
+  id: string;
   address: string;
   displayUri?: string;
   artifactUri?: string;
