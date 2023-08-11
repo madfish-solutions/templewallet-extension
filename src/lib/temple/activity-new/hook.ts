@@ -1,8 +1,9 @@
-import { useMemo } from 'react';
+import { useMemo, useRef } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
 import { isSameDay } from 'date-fns';
 
+import type { TzktOperation } from 'lib/apis/tzkt';
 import { isKnownChainId } from 'lib/apis/tzkt/api';
 import { useTezos, useChainId, useAccount, useKnownBakersAndPayoutAccounts } from 'lib/temple/front';
 import { useDidMount, useDidUpdate, useSafeState, useStopper } from 'lib/ui/hooks';
@@ -16,7 +17,8 @@ export default function useActivities(initialPseudoLimit: number, assetSlug?: st
   const tezos = useTezos();
   const chainId = useChainId(true);
   const account = useAccount();
-  const knownBakersAndPayouts = useKnownBakersAndPayoutAccounts();
+  const knownBakersAndPayouts = useKnownBakersAndPayoutAccounts(false);
+  const oldestOperationRef = useRef<TzktOperation>();
 
   const accountAddress = account.publicKeyHash;
 
@@ -39,19 +41,25 @@ export default function useActivities(initialPseudoLimit: number, assetSlug?: st
     }
 
     setLoading(activities.length ? 'more' : 'init');
-    const lastActivity = activities[activities.length - 1];
 
     let newActivities: DisplayableActivity[];
+    let newReachedTheEnd = false;
+    let newOldestOperation: TzktOperation | undefined;
     try {
-      newActivities = await fetchActivities(
+      ({
+        activities: newActivities,
+        reachedTheEnd: newReachedTheEnd,
+        oldestOperation: newOldestOperation
+      } = await fetchActivities(
         chainId,
         account,
         assetSlug,
         pseudoLimit,
         tezos,
         tzktBakersOrPayoutsAliases,
-        lastActivity
-      );
+        oldestOperationRef.current
+      ));
+      oldestOperationRef.current = newOldestOperation;
       if (shouldStop()) return;
     } catch (error) {
       if (shouldStop()) return;
@@ -63,9 +71,7 @@ export default function useActivities(initialPseudoLimit: number, assetSlug?: st
 
     setActivities(activities.concat(newActivities));
     setLoading(false);
-    if (newActivities.length === 0) {
-      setReachedTheEnd(true);
-    }
+    setReachedTheEnd(newReachedTheEnd);
   }
 
   /** Loads more of older items */

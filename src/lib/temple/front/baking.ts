@@ -12,6 +12,7 @@ import {
 import type { TzktRewardsEntry } from 'lib/apis/tzkt';
 import { useRetryableSWR } from 'lib/swr';
 
+import untypedPayoutsAccounts from './payouts-accounts.json';
 import { useNetwork, useTezos } from './ready';
 
 export function useDelegate(address: string, suspense = true) {
@@ -146,13 +147,7 @@ export function useKnownBaker(address: string | null, suspense = true) {
   });
 }
 
-const PAYOUTS_ACCOUNTS: Array<Pick<BakingBadBaker, 'address' | 'name' | 'logo'>> = [
-  {
-    address: 'tz1W1en9UpMCH4ZJL8wQCh8JDKCZARyVx2co',
-    name: 'Everstake Payouts',
-    logo: 'https://services.tzkt.io/v1/avatars/tz1W1en9UpMCH4ZJL8wQCh8JDKCZARyVx2co'
-  }
-];
+const PAYOUTS_ACCOUNTS: Array<Pick<BakingBadBaker, 'address' | 'name' | 'logo'>> = untypedPayoutsAccounts;
 
 export function useKnownBakerOrPayoutAccount(address: string | null, suspense = true) {
   const knownBaker = useKnownBaker(address, suspense);

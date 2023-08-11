@@ -41,17 +41,30 @@ const activityTypesI18nKeys = {
   [ActivityType.BakingRewards]: 'bakerRewards' as const
 };
 
-const renderAddressChip = (accountPkh: string, explorerBaseUrl?: string, shouldAddBlockExplorerLink = false) => (
+const renderAddressChipFromDetails = (accountPkh: string) => (
+  <AddressChip
+    pkh={accountPkh}
+    testID={ActivitySelectors.addressFromDetailsButton}
+    addressModeSwitchTestID={ActivitySelectors.addressModeSwitchButton}
+    rounded="base"
+    chipClassName={styles['hash-chip']}
+  />
+);
+
+const renderHashChipFromDetails = (accountPkh: string, explorerBaseUrl?: string) => (
   <>
-    <AddressChip
-      pkh={accountPkh}
-      testID={ActivitySelectors.addressFromDetailsButton}
-      addressModeSwitchTestID={ActivitySelectors.addressModeSwitchButton}
+    <HashChip
+      className={classNames(styles['hash-chip'], explorerBaseUrl && 'mr-1')}
+      hash={accountPkh}
       rounded="base"
-      chipClassName={classNames(styles['hash-chip'], shouldAddBlockExplorerLink && 'mr-1')}
+      testID={ActivitySelectors.addressFromDetailsButton}
     />
-    {shouldAddBlockExplorerLink && explorerBaseUrl && (
-      <OpenInExplorerChip baseUrl={explorerBaseUrl} hash={accountPkh} />
+    {explorerBaseUrl && (
+      <OpenInExplorerChip
+        baseUrl={explorerBaseUrl}
+        hash={accountPkh}
+        testID={ActivitySelectors.openAddressInExplorerButton}
+      />
     )}
   </>
 );
@@ -64,6 +77,7 @@ export const ActivityItem = memo<Props>(({ activity }) => {
   const isSend = type === ActivityType.Send;
   const isReceive = type === ActivityType.Recieve;
   const locale = getCurrentLocale();
+  const jsLocaleName = locale.replaceAll('_', '-');
   const { transaction: explorerBaseUrl } = useExplorerBaseUrls();
   const [isOpen, setIsOpen] = useState(false);
 
@@ -115,7 +129,7 @@ export const ActivityItem = memo<Props>(({ activity }) => {
           </span>
         </div>
         <span className="flex-1 text-2xs font-medium text-gray-600">
-          {formatDateOutput(timestamp, locale, {
+          {formatDateOutput(timestamp, jsLocaleName, {
             hour: '2-digit',
             minute: 'numeric',
             second: 'numeric',
@@ -169,9 +183,11 @@ export const ActivityItem = memo<Props>(({ activity }) => {
             <span className="flex-1 text-gray-500 text-xs leading-5">
               <T id={actorPrepositionI18nKey} />:
             </span>
-            {(isSend || isDelegation) && isDefined(to) && renderAddressChip(to.address)}
+            {isDelegation && isDefined(to) && renderHashChipFromDetails(to.address, explorerBaseUrl)}
+            {isSend && isDefined(to) && renderAddressChipFromDetails(to.address)}
             {(isSend || isDelegation) && !isDefined(to) && <span className="text-gray-500 text-xs leading-5">‒</span>}
-            {(isReceive || isBakingRewards) && renderAddressChip(from.address, explorerBaseUrl, isBakingRewards)}
+            {isReceive && renderAddressChipFromDetails(from.address)}
+            {isBakingRewards && renderHashChipFromDetails(from.address, explorerBaseUrl)}
           </div>
 
           <div className="w-full py-3 flex items-center">
@@ -186,7 +202,13 @@ export const ActivityItem = memo<Props>(({ activity }) => {
               className={classNames('mr-1', styles['hash-chip'])}
             />
 
-            {explorerBaseUrl && <OpenInExplorerChip baseUrl={explorerBaseUrl} hash={hash} />}
+            {explorerBaseUrl && (
+              <OpenInExplorerChip
+                baseUrl={explorerBaseUrl}
+                hash={hash}
+                testID={ActivitySelectors.openTransactionInExplorerButton}
+              />
+            )}
           </div>
         </div>
       )}

@@ -3,19 +3,20 @@ import React, { FC, useMemo } from 'react';
 import classNames from 'clsx';
 
 import { ReactComponent as ArrowUpRightIcon } from 'app/icons/arrow-up-right.svg';
+import { TestIDProps } from 'lib/analytics';
 import useTippy from 'lib/ui/useTippy';
 
 import { Anchor } from './Anchor';
 import { OpenInExplorerChipSelectors } from './OpenInExplorerChip.selectors';
 
-type OpenInExplorerChipProps = {
+interface OpenInExplorerChipProps extends TestIDProps {
   baseUrl: string;
   hash: string;
   className?: string;
   bgShade?: 100 | 200;
   textShade?: 500 | 600 | 700;
   rounded?: 'sm' | 'base';
-};
+}
 
 const OpenInExplorerChip: FC<OpenInExplorerChipProps> = ({
   baseUrl,

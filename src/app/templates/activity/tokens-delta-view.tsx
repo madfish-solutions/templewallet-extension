@@ -19,7 +19,7 @@ interface Props {
   isTotal: boolean;
 }
 
-const MAX_DISPLAYED_NFT_CHARS = 15;
+const MAX_DISPLAYED_TOKEN_SYMBOL_CHARS = 15;
 
 export const TokensDeltaView = memo<Props>(({ tokensDeltas, shouldShowNFTCard, isTotal }) => {
   const { selectedFiatCurrency } = useFiatCurrency();
@@ -27,19 +27,18 @@ export const TokensDeltaView = memo<Props>(({ tokensDeltas, shouldShowNFTCard, i
     () => (Array.isArray(tokensDeltas) ? tokensDeltas : [tokensDeltas]),
     [tokensDeltas]
   );
-  const assetsSlugs = useMemo(() => validatedTokensDeltas.map(({ tokenSlug }) => tokenSlug), [tokensDeltas]);
+  const assetsSlugs = useMemo(() => validatedTokensDeltas.map(({ tokenSlug }) => tokenSlug), [validatedTokensDeltas]);
   const assetsMetadata = useManyAssetsMetadata(assetsSlugs);
   const fiatCurrencyPrices = useManyTokensFiatCurrencyPrices(assetsSlugs);
   const assetsSymbolsOrNames = useMemo(
     () =>
       Object.entries(assetsMetadata).map(([, metadata]) => {
-        if (isDefined(metadata) && isCollectible(metadata)) {
-          const { name } = metadata;
+        const fullSymbolOrName =
+          isDefined(metadata) && isCollectible(metadata) ? metadata.name : getAssetSymbol(metadata, false);
 
-          return name.length > MAX_DISPLAYED_NFT_CHARS ? `${name.slice(0, MAX_DISPLAYED_NFT_CHARS)}…` : name;
-        }
-
-        return getAssetSymbol(metadata, true);
+        return fullSymbolOrName.length > MAX_DISPLAYED_TOKEN_SYMBOL_CHARS
+          ? `${fullSymbolOrName.slice(0, MAX_DISPLAYED_TOKEN_SYMBOL_CHARS)}…`
+          : fullSymbolOrName;
       }),
     [assetsMetadata]
   );
@@ -64,7 +63,7 @@ export const TokensDeltaView = memo<Props>(({ tokensDeltas, shouldShowNFTCard, i
           new BigNumber(0)
         )
         .abs(),
-    [tokensDeltas, fiatCurrencyPrices, assetsMetadata]
+    [validatedTokensDeltas, fiatCurrencyPrices, assetsMetadata]
   );
 
   const conditionalDiffClassName = classNames(
