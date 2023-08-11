@@ -50,7 +50,13 @@ export const Image: React.FC<ImageProps> = ({ src: sources, alt, loader, fallbac
       alt={alt}
       initialImage={loader}
       fallbackImage={fallbackImage as any}
+      /** (event: SyntheticEvent | string) => void
+       * Fired twice (bug) on successful source found
+       */
       onLoad={onLoad}
+      /** (event: string) => void
+       * Fired once all sources failed to load
+       */
       onError={onError}
       {...rest}
     />

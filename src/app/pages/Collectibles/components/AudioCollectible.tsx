@@ -15,6 +15,7 @@ interface Props {
   style?: React.CSSProperties;
   onAudioError?: EmptyFn;
 }
+
 export const AudioCollectible: FC<Props> = ({ uri, metadata, className, style, loader, onAudioError = emptyFn }) => {
   const playerRef = useRef<HTMLAudioElement>(null);
   const [isAudioLoading, setIsAudioLoading] = useState(true);
@@ -42,6 +43,7 @@ export const AudioCollectible: FC<Props> = ({ uri, metadata, className, style, l
         className={className}
         style={style}
         onLoad={handleImageLoaded}
+        onError={handleImageLoaded}
       />
 
       {!ready && loader}
