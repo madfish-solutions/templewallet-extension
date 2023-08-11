@@ -168,6 +168,7 @@ export function useCustomChainId(rpcUrl: string, suspense?: boolean) {
   }, [rpcUrl]);
 
   const { data: chainId } = useRetryableSWR(['chain-id', rpcUrl], fetchChainId, { suspense, revalidateOnFocus: false });
+
   return chainId;
 }
 

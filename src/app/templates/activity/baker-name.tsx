@@ -8,7 +8,7 @@ interface Props {
 }
 
 export const BakerName: FC<Props> = ({ bakerAddress }) => {
-  const bakerOrPayoutAccount = useKnownBakerOrPayoutAccount(bakerAddress);
+  const bakerOrPayoutAccount = useKnownBakerOrPayoutAccount(bakerAddress, false);
 
   return <>{bakerOrPayoutAccount?.name ?? <HashShortView hash={bakerAddress} />}</>;
 };

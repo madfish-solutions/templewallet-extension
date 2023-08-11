@@ -12,7 +12,7 @@ interface Props {
 }
 
 export const BakerLogo: FC<Props> = ({ bakerAddress }) => {
-  const bakerOrPayoutAccount = useKnownBakerOrPayoutAccount(bakerAddress);
+  const bakerOrPayoutAccount = useKnownBakerOrPayoutAccount(bakerAddress, false);
 
   if (!isDefined(bakerOrPayoutAccount)) {
     return <RobotIcon hash={bakerAddress} className="border border-gray-300 mr-2" />;

@@ -140,6 +140,7 @@ export function useKnownBaker(address: string | null, suspense = true) {
       return null;
     }
   }, [address]);
+
   return useRetryableSWR(net.type === 'main' && address ? ['baker', address] : null, fetchBaker, {
     refreshInterval: 120_000,
     dedupingInterval: 60_000,
