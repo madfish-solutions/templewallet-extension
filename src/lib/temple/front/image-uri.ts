@@ -49,11 +49,11 @@ export const buildCollectibleImageURLs = (metadata: TokenMetadata, fullView = fa
   */
 
   return fullView
-    ? [...artifactSrc, ...displaySrc, buildObjktImageURI(metadata.artifactUri, 'display')]
+    ? [...artifactSrc, ...displaySrc, buildObjktImageURI(metadata.displayUri, 'display')]
     : [
         ...artifactSrc,
         ...displaySrc,
-        buildObjktImageURI(metadata.artifactUri, 'thumb288'),
+        buildObjktImageURI(metadata.displayUri, 'thumb288'),
         ...formatAssetUriToAllSizes(metadata.thumbnailUri)
       ];
 };
