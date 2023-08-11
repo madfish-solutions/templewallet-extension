@@ -18,7 +18,7 @@ const TECHNICAL_ATTRIBUTES = ['__nsfw_', '__hazards_'];
 
 export const convertCollectibleObjktInfoToStateDetailsType = (
   info: UserObjktCollectible,
-  galaryAttributeCounts: ObjktGalleryAttributeCount[]
+  galleryAttributeCounts: ObjktGalleryAttributeCount[]
 ): CollectibleDetails => {
   const cheepestListing = info.listings_active[0];
   const listing = cheepestListing
@@ -43,7 +43,7 @@ export const convertCollectibleObjktInfoToStateDetailsType = (
     attributes: info.attributes
       .filter(({ attribute: { name } }) => !TECHNICAL_ATTRIBUTES.includes(name))
       .map(({ attribute }) => {
-        const rarity = parseAttributeRarity(attribute, info, galaryAttributeCounts);
+        const rarity = parseAttributeRarity(attribute, info, galleryAttributeCounts);
 
         return { ...attribute, rarity };
       })
@@ -64,14 +64,14 @@ const parseRoyalties = (royalties: { amount: number; decimals: number }[]) => {
 const parseAttributeRarity = (
   attribute: UserObjktCollectible['attributes'][number]['attribute'],
   info: UserObjktCollectible,
-  galaryAttributeCounts: ObjktGalleryAttributeCount[]
+  galleryAttributeCounts: ObjktGalleryAttributeCount[]
 ) => {
   const editions = (() => {
     if (info.galleries.length) {
       const attribute_id = attribute.id;
 
       return {
-        withAttribute: galaryAttributeCounts.reduce(
+        withAttribute: galleryAttributeCounts.reduce(
           (acc, count) => (count.attribute_id === attribute_id ? acc + count.editions : acc),
           0
         ),

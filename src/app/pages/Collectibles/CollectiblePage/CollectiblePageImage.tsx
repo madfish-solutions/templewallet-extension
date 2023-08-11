@@ -3,11 +3,7 @@ import React, { FC, useCallback, useEffect, useState } from 'react';
 import { Model3DViewer } from 'app/atoms/Model3DViewer';
 import { AssetImage } from 'app/templates/AssetImage';
 import { AssetMetadataBase } from 'lib/metadata';
-import {
-  isSvgDataUriInUtf8Encoding,
-  buildObjktCollectibleArtifactUri,
-  buildCollectibleImageURLs
-} from 'lib/temple/front';
+import { isSvgDataUriInUtf8Encoding, buildObjktCollectibleArtifactUri } from 'lib/temple/front';
 import { Image } from 'lib/ui/Image';
 
 import { AudioCollectible } from '../components/AudioCollectible';
@@ -41,16 +37,6 @@ export const CollectiblePageImage: FC<Props> = ({
   const handleBlurClick = useCallback(() => setShouldShowBlur(false), []);
 
   const handleError = useCallback(() => setIsRenderFailedOnce(true), []);
-
-  useEffect(() => {
-    if (!metadata) return;
-    console.log(0, metadata);
-    console.log(1, objktArtifactUri ? buildObjktCollectibleArtifactUri(objktArtifactUri) : null);
-    // @ts-ignore
-    let sources = buildCollectibleImageURLs(metadata, true);
-    if (typeof sources === 'string') sources = [sources];
-    for (const src of sources) console.log(2, src);
-  }, [metadata, objktArtifactUri]);
 
   if (areDetailsLoading) {
     return <CollectibleImageLoader large />;
