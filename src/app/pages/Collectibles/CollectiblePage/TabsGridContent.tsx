@@ -15,7 +15,10 @@ export const AttributesItems: FC<AttributesItemsProps> = ({ details }) => {
   return (
     <>
       {details?.attributes.map(attribute => (
-        <div key={attribute.id} className="flex flex-col items-center gap-y-1 p-2 border border-gray-300 rounded-md">
+        <div
+          key={attribute.id}
+          className="flex flex-col items-center gap-y-1 p-2 border border-gray-300 rounded-md text-center"
+        >
           <span className="text-xs text-gray-600 leading-5">{attribute.name}</span>
           <h6 className="text-base font-semibold leading-5">{attribute.value}</h6>
           <span className="text-xs text-gray-600 leading-5">{attribute.rarity.toFixed(2)}%</span>
