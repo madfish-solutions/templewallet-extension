@@ -20,3 +20,13 @@ export interface TokenMetadata extends AssetMetadataBase {
   /** Stored as separate Record */
   // exchangeRate?: number;
 }
+export interface TokenMetadataV1 extends AssetMetadataBase {
+  id: number;
+  address: string;
+  displayUri?: string;
+  artifactUri?: string;
+  standard?: TokenStandardsEnum | null;
+
+  /** Stored as separate Record */
+  // exchangeRate?: number;
+}

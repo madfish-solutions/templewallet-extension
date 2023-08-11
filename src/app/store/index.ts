@@ -4,9 +4,12 @@ import { TypedUseSelectorHook, useSelector as useRawSelector } from 'react-redux
 import {
   createMigrate,
   FLUSH,
+  MigrationManifest,
   PAUSE,
   PERSIST,
+  PersistedState,
   persistReducer,
+  PersistState,
   persistStore,
   PURGE,
   REGISTER,
@@ -17,31 +20,12 @@ import storage from 'redux-persist/lib/storage';
 
 import { IS_DEV_ENV } from 'lib/env';
 
+import { migrations } from './migrations';
 import { epicMiddleware, rootEpic } from './root-state.epics';
 import { rootReducer } from './root-state.reducer';
 import type { RootState } from './root-state.type';
 
 const persistConfigBlacklist: (keyof RootState)[] = ['buyWithCreditCard', 'collectibles'];
-
-const migrations: any = {
-  2: (state: RootState) => {
-    return {
-      ...state,
-      tokensMetadata: {
-        ...state.tokensMetadata,
-        metadataRecord: Object.fromEntries(
-          Object.entries(state.tokensMetadata.metadataRecord).map(([slug, value]) => [
-            slug,
-            {
-              ...value,
-              id: String(value.id)
-            }
-          ])
-        )
-      }
-    };
-  }
-};
 
 const persistedReducer = persistReducer<RootState>(
   {
