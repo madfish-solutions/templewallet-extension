@@ -14,7 +14,6 @@ import { OptimalPromoVariantEnum } from 'lib/apis/optimal';
 import { T } from 'lib/i18n/react';
 import useActivities from 'lib/temple/activity-new/hook';
 import { useAccount } from 'lib/temple/front';
-import { useWillUnmount } from 'lib/ui/hooks/useWillUnmount';
 
 import { useShouldShowPartnersPromoSelector } from '../../store/partners-promotion/selectors';
 import { useIsEnabledAdsBannerSelector } from '../../store/settings/selectors';
@@ -49,10 +48,6 @@ export const ActivityComponent: React.FC<Props> = ({ assetSlug }) => {
       );
     }
   }, [isShouldShowPartnersPromoState, isEnabledAdsBanner, dispatch, accountAddress]);
-
-  useWillUnmount(() => {
-    console.log('oy vey');
-  });
 
   if (groupedByDayActivities.length === 0 && !loading && reachedTheEnd) {
     return (
@@ -112,12 +107,6 @@ const buildOnScroll =
   ({ target }: { target: EventTarget | null }) => {
     const elem: HTMLElement =
       target instanceof Document ? (target.scrollingElement! as HTMLElement) : (target as HTMLElement);
-    console.log(
-      elem.offsetHeight,
-      elem.clientHeight,
-      elem.scrollTop,
-      elem.offsetHeight - elem.clientHeight - elem.scrollTop
-    );
     const atBottom = elem.offsetHeight - elem.clientHeight - elem.scrollTop < 1;
     if (atBottom) next();
   };

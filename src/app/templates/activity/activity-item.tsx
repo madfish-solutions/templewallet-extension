@@ -80,6 +80,7 @@ export const ActivityItem = memo<Props>(({ activity }) => {
   const jsLocaleName = locale.replaceAll('_', '-');
   const { transaction: explorerBaseUrl } = useExplorerBaseUrls();
   const [isOpen, setIsOpen] = useState(false);
+  const [wasToggled, setWasToggled] = useState(false);
 
   const receivedTokensDeltas = useMemo(
     () => tokensDeltas.filter(({ atomicAmount }) => atomicAmount.gt(0)),
@@ -87,7 +88,10 @@ export const ActivityItem = memo<Props>(({ activity }) => {
   );
   const sentTokensDeltas = useMemo(() => tokensDeltas.filter(({ atomicAmount }) => atomicAmount.lt(0)), [tokensDeltas]);
 
-  const toggleDetails = useCallback(() => setIsOpen(value => !value), []);
+  const toggleDetails = useCallback(() => {
+    setIsOpen(value => !value);
+    setWasToggled(true);
+  }, []);
 
   const actorPrepositionI18nKey = isSend || isDelegation ? 'toAsset' : 'from';
   const actor = isSend || isDelegation ? to : from;
@@ -144,7 +148,8 @@ export const ActivityItem = memo<Props>(({ activity }) => {
           <ChevronUpNewIcon
             className={classNames(
               'w-4 h-4 stroke-current',
-              isOpen ? styles['open-details-icon'] : styles['close-details-icon']
+              isOpen && wasToggled && styles['open-details-icon'],
+              !isOpen && wasToggled && styles['close-details-icon']
             )}
           />
         </Button>
