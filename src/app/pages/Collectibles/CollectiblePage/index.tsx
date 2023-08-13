@@ -11,13 +11,14 @@ import {
   useAllCollectiblesDetailsLoadingSelector,
   useCollectibleDetailsSelector
 } from 'app/store/collectibles/selectors';
+import { useTokenMetadataSelector } from 'app/store/tokens-metadata/selectors';
 import AddressChip from 'app/templates/AddressChip';
 import OperationStatus from 'app/templates/OperationStatus';
 import { TabsBar } from 'app/templates/TabBar';
 import { objktCurrencies } from 'lib/apis/objkt';
 import { BLOCK_DURATION } from 'lib/fixed-times';
 import { t, T } from 'lib/i18n';
-import { useAssetMetadata, getAssetName } from 'lib/metadata';
+import { getAssetName } from 'lib/metadata';
 import { useAccount } from 'lib/temple/front';
 import { formatTcInfraImgUri } from 'lib/temple/front/image-uri';
 import { atomsToTokens } from 'lib/temple/helpers';
@@ -38,7 +39,7 @@ interface Props {
 }
 
 const CollectiblePage: FC<Props> = ({ assetSlug }) => {
-  const metadata = useAssetMetadata(assetSlug);
+  const metadata = useTokenMetadataSelector(assetSlug);
   const account = useAccount();
 
   const { publicKeyHash } = account;

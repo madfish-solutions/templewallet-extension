@@ -2,7 +2,7 @@ import React, { FC, useCallback, useEffect, useState } from 'react';
 
 import { Model3DViewer } from 'app/atoms/Model3DViewer';
 import { AssetImage } from 'app/templates/AssetImage';
-import { AssetMetadataBase } from 'lib/metadata';
+import { TokenMetadata } from 'lib/metadata';
 import { isSvgDataUriInUtf8Encoding, buildObjktCollectibleArtifactUri } from 'lib/temple/front';
 import { Image } from 'lib/ui/Image';
 
@@ -13,7 +13,7 @@ import { CollectibleImageLoader } from '../components/CollectibleImageLoader';
 import { VideoCollectible } from '../components/VideoCollectible';
 
 interface Props {
-  metadata?: AssetMetadataBase;
+  metadata?: TokenMetadata;
   areDetailsLoading: boolean;
   mime?: string | null;
   objktArtifactUri?: string;

@@ -1,6 +1,7 @@
 import type { TokenMetadata } from 'lib/metadata';
 
 type TcInfraMediaSize = 'small' | 'medium' | 'large' | 'raw';
+type ObjktMediaTail = 'display' | 'artifact' | 'thumb288';
 
 const IPFS_PROTOCOL_PREFIX = 'ipfs://';
 const MEDIA_HOST = 'https://static.tcinfra.net';
@@ -33,36 +34,41 @@ const formatAssetUriToAllSizes = (url?: string, includeLarge = false) => {
 
 export { formatAssetUriToAllSizes as buildTokenIconURLs };
 
-export const buildCollectibleImageURLs = (metadata: TokenMetadata, fullView = false) => {
-  // May wanna loose artifactSrc for non-image media
-  const artifactSrc = formatAssetUriToAllSizes(metadata.artifactUri, fullView);
-  const displaySrc = formatAssetUriToAllSizes(metadata.displayUri, fullView);
-
-  /* Not including `thumbnailUri` for the full view of NFTs' images - letting them fallback.
-    Some non-image NFTs have black circle for `thumbnailUri`
-  */
-
-  /* Using OBJKT as a source for some 'broken' ones.
-    Precicely, `KT1RJ6PbjHpwc3M5rw5s2Nbmefwbuwbdxton_282881` has MP4 file @ `artifactUri` & `displayUri`
-    (MIME type does not reflect that - seeing `image/gif` instead).
-    Then, it has a black circle for `thumbnailUri`.
-  */
+export const buildCollectibleImageURLs = (
+  { address, id, artifactUri, displayUri, thumbnailUri }: TokenMetadata,
+  fullView = false
+) => {
+  // May wanna loose artifactSrc entirely for non-image media
+  const artifactSrc = formatAssetUriToAllSizes(artifactUri, fullView);
+  const displaySrc = formatAssetUriToAllSizes(displayUri, fullView);
 
   return fullView
-    ? [...artifactSrc, ...displaySrc, buildObjktImageURI(metadata.displayUri, 'display')]
-    : [
-        ...artifactSrc,
+    ? [
+        buildObjktMediaURI(artifactUri, 'display'),
+        buildObjktMediaURI(displayUri, 'display'),
+        buildObjktMediaURI(thumbnailUri, 'display'),
         ...displaySrc,
-        buildObjktImageURI(metadata.displayUri, 'thumb288'),
-        ...formatAssetUriToAllSizes(metadata.thumbnailUri)
+        ...artifactSrc
+      ]
+    : [
+        buildObjktMediaURI(artifactUri, 'thumb288'),
+        buildObjktMediaURI(displayUri, 'thumb288'),
+        buildObjktMediaURI(thumbnailUri, 'thumb288'),
+        // Some image of video asset (see: KT1RJ6PbjHpwc3M5rw5s2Nbmefwbuwbdxton_773019) only available through this option:
+        buildObjktMediaUriForItemPath(`${address}/${id}`, 'thumb288'),
+        ...formatAssetUriToAllSizes(thumbnailUri),
+        ...displaySrc,
+        ...artifactSrc
       ];
 };
 
 export const formatTcInfraImgUri = (url?: string, size: TcInfraMediaSize = DEFAULT_MEDIA_SIZE) => {
   if (!url) return;
 
-  if (url.startsWith(IPFS_PROTOCOL_PREFIX)) {
-    return `${MEDIA_HOST}/media/${size}/ipfs/${url.substring(7)}`;
+  const itemPath = getIpfsItemPath(url);
+
+  if (typeof itemPath === 'string') {
+    return itemPath ? `${MEDIA_HOST}/media/${size}/ipfs/${itemPath}` : undefined;
   }
 
   if (url.startsWith('http')) {
@@ -73,13 +79,28 @@ export const formatTcInfraImgUri = (url?: string, size: TcInfraMediaSize = DEFAU
 };
 
 export const buildObjktCollectibleArtifactUri = (artifactUri: string) =>
-  buildObjktImageURI(artifactUri, 'artifact') || artifactUri;
+  buildObjktMediaURI(artifactUri, 'artifact') || artifactUri;
 
-const getIpfsItemId = (uri: string) =>
-  uri.startsWith(IPFS_PROTOCOL_PREFIX) ? uri.substring(IPFS_PROTOCOL_PREFIX.length) : undefined;
+/** Black circle in `thumbnailUri`
+ * See:
+ * - KT1M2JnD1wsg7w2B4UXJXtKQPuDUpU2L7cJH_79
+ * - KT1RJ6PbjHpwc3M5rw5s2Nbmefwbuwbdxton_19484
+ * - KT1RJ6PbjHpwc3M5rw5s2Nbmefwbuwbdxton_3312
+ */
+const INVALID_IPFS_PATH = 'QmNrhZHUaEqxhyLfqoq1mtHSipkWHeT31LNHb1QEbDHgnc';
 
-const buildObjktImageURI = (uri: string | undefined, tail: 'display' | 'artifact' | 'thumb288') => {
-  const itemId = uri ? getIpfsItemId(uri) : undefined;
+const getIpfsItemPath = (uri: string) => {
+  if (!uri.startsWith(IPFS_PROTOCOL_PREFIX)) return;
 
-  return itemId ? `${OBJKT_MEDIA_HOST}/${itemId}/${tail}` : undefined;
+  const itemPath = uri.substring(IPFS_PROTOCOL_PREFIX.length);
+
+  return itemPath === INVALID_IPFS_PATH ? '' : itemPath;
 };
+
+const buildObjktMediaURI = (uri: string | undefined, tail: ObjktMediaTail) => {
+  const itemPath = uri && getIpfsItemPath(uri);
+
+  return (itemPath && buildObjktMediaUriForItemPath(itemPath, tail)) || undefined;
+};
+
+const buildObjktMediaUriForItemPath = (itemId: string, tail: ObjktMediaTail) => `${OBJKT_MEDIA_HOST}/${itemId}/${tail}`;
