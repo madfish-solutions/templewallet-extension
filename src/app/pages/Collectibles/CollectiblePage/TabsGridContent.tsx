@@ -8,7 +8,7 @@ import { fromFa2TokenSlug } from 'lib/assets/utils';
 import { useBalance, useExplorerBaseUrls } from 'lib/temple/front';
 
 interface AttributesItemsProps {
-  details?: CollectibleDetails;
+  details?: CollectibleDetails | null;
 }
 
 export const AttributesItems: FC<AttributesItemsProps> = ({ details }) => {
@@ -31,7 +31,7 @@ export const AttributesItems: FC<AttributesItemsProps> = ({ details }) => {
 interface PropertiesItemsProps {
   assetSlug: string;
   accountPkh: string;
-  details?: CollectibleDetails;
+  details?: CollectibleDetails | null;
 }
 
 export const PropertiesItems: FC<PropertiesItemsProps> = ({ assetSlug, accountPkh, details }) => {

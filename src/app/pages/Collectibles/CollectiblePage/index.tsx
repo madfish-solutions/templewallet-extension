@@ -143,7 +143,7 @@ const CollectiblePage: FC<Props> = ({ assetSlug }) => {
         >
           <CollectiblePageImage
             metadata={metadata}
-            areDetailsLoading={!details && areDetailsLoading}
+            areDetailsLoading={areDetailsLoading && details === undefined}
             objktArtifactUri={details?.objktArtifactUri}
             isAdultContent={details?.isAdultContent}
             mime={details?.mime}
@@ -151,7 +151,7 @@ const CollectiblePage: FC<Props> = ({ assetSlug }) => {
           />
         </div>
 
-        {areDetailsLoading && !details ? (
+        {areDetailsLoading && details === undefined ? (
           <Spinner className="self-center w-20" />
         ) : (
           <>

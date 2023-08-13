@@ -42,7 +42,8 @@ type CollectibleDetailsAttribute = UserObjktCollectible['attributes'][number]['a
   rarity: number;
 };
 
-export type CollectibleDetailsRecord = Record<string, CollectibleDetails>;
+/** `null` for no available asset details */
+export type CollectibleDetailsRecord = Record<string, CollectibleDetails | null>;
 
 export interface CollectiblesState {
   details: LoadableEntityState<CollectibleDetailsRecord>;

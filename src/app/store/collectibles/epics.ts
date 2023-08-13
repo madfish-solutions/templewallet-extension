@@ -7,7 +7,7 @@ import { fetchObjktCollectibles$ } from 'lib/apis/objkt';
 import { toTokenSlug } from 'lib/assets';
 
 import { loadCollectiblesDetailsActions } from './actions';
-import { CollectibleDetailsRecord } from './state';
+import { CollectibleDetails, CollectibleDetailsRecord } from './state';
 import { convertCollectibleObjktInfoToStateDetailsType } from './utils';
 
 const loadCollectiblesDetailsEpic: Epic = (action$: Observable<Action>) =>
@@ -17,12 +17,17 @@ const loadCollectiblesDetailsEpic: Epic = (action$: Observable<Action>) =>
     switchMap(slugs =>
       fetchObjktCollectibles$(slugs).pipe(
         map(data => {
-          const entries = data.token.map(info => {
+          const entries: [string, CollectibleDetails | null][] = data.token.map(info => {
             const slug = toTokenSlug(info.fa_contract, info.token_id);
             const details = convertCollectibleObjktInfoToStateDetailsType(info, data.gallery_attribute_count);
 
-            return [slug, details] as const;
+            return [slug, details];
           });
+
+          for (const slug of slugs) {
+            if (!data.token.some(({ fa_contract, token_id }) => toTokenSlug(fa_contract, token_id) === slug))
+              entries.push([slug, null]);
+          }
 
           const details: CollectibleDetailsRecord = Object.fromEntries(entries);
 
