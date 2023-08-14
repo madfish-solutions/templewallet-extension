@@ -16,9 +16,6 @@ export interface TokenMetadata extends AssetMetadataBase {
   displayUri?: string;
   artifactUri?: string;
   standard?: TokenStandardsEnum | null;
-
-  /** Stored as separate Record */
-  // exchangeRate?: number;
 }
 export interface TokenMetadataV1 extends AssetMetadataBase {
   id: number;
@@ -26,7 +23,4 @@ export interface TokenMetadataV1 extends AssetMetadataBase {
   displayUri?: string;
   artifactUri?: string;
   standard?: TokenStandardsEnum | null;
-
-  /** Stored as separate Record */
-  // exchangeRate?: number;
 }
