@@ -51,10 +51,6 @@ inputs:
     required: true
   TEMPLE_FIREBASE_MESSAGING_VAPID_KEY:
     required: true
-  CONTACT_ADDRESS_PUBLIC_KEY_HASH:
-    required: false
-  CONTACT_ADDRESS_PUBLIC_KEY_HASH_SHORT_FORM:
-    required: false
 
 runs:
   using: 'composite'
@@ -79,6 +75,8 @@ runs:
         TEMPLE_WALLET_MOONPAY_API_KEY=${{ inputs.TEMPLE_WALLET_MOONPAY_API_KEY }}
         TEMPLE_FIREBASE_CONFIG=${{ inputs.TEMPLE_FIREBASE_CONFIG }}
         TEMPLE_FIREBASE_MESSAGING_VAPID_KEY=${{ inputs.TEMPLE_FIREBASE_MESSAGING_VAPID_KEY }}
+
+        TEMPLE_WALLET_DEVELOPMENT_BRANCH_NAME=${{ github.ref_name }}
         EOF
 
     - name: Create e2e/.env file

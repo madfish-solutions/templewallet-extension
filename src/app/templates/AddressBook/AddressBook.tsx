@@ -7,7 +7,7 @@ import { Name, Identicon, FormField, FormSubmitButton, HashChip, SubTitle } from
 import { ReactComponent as CloseIcon } from 'app/icons/close.svg';
 import { setAnotherSelector, setTestID } from 'lib/analytics';
 import { t, T } from 'lib/i18n';
-import { isDomainNameValid, useTezosDomainsClient, useContacts, useFilteredContacts } from 'lib/temple/front';
+import { isDomainNameValid, useTezosDomainsClient, useContactsActions, useFilteredContacts } from 'lib/temple/front';
 import { isAddressValid } from 'lib/temple/helpers';
 import { TempleContact } from 'lib/temple/types';
 import { useConfirm } from 'lib/ui/dialog';
@@ -21,7 +21,7 @@ type ContactActions = {
 };
 
 const AddressBook: React.FC = () => {
-  const { removeContact } = useContacts();
+  const { removeContact } = useContactsActions();
   const { allContacts } = useFilteredContacts();
   const confirm = useConfirm();
 
@@ -90,7 +90,7 @@ type ContactFormData = {
 const SUBMIT_ERROR_TYPE = 'submit-error';
 
 const AddNewContactForm: React.FC<{ className?: string }> = ({ className }) => {
-  const { addContact } = useContacts();
+  const { addContact } = useContactsActions();
   const domainsClient = useTezosDomainsClient();
 
   const {
@@ -227,6 +227,7 @@ const ContactContent: React.FC<OptionRenderProps<TempleContact, string, ContactA
           actions?.remove(item.address);
         }}
         {...setTestID(AddressBookSelectors.deleteContactButton)}
+        {...setAnotherSelector('hash', item.address)}
       >
         <CloseIcon className="w-auto h-5 stroke-current stroke-2" title={t('delete')} />
       </button>

@@ -55,6 +55,14 @@
       }
     }
   },
+  "branchName": {
+    "message": "branch: $branch$",
+    "placeholders": {
+      "branch": {
+        "content": "$1"
+      }
+    }
+  },
   "madeWithLove": {
     "message": "$companyName$ tarafından $loveIcon$ ile oluşturulmuştur",
     "placeholders": {
@@ -828,9 +836,6 @@
   },
   "enable": {
     "message": "etkinleştir"
-  },
-  "enableAds": {
-    "message": "Enable Ads"
   },
   "enablePartnersPromotionConfirm": {
     "message": "Support the development team and earn tokens by viewing ads inside the wallet."

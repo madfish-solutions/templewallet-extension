@@ -7,7 +7,7 @@ import HashShortView from 'app/atoms/HashShortView';
 import Identicon from 'app/atoms/Identicon';
 import ModalWithTitle from 'app/templates/ModalWithTitle';
 import { T, t } from 'lib/i18n';
-import { useContacts } from 'lib/temple/front';
+import { useContactsActions } from 'lib/temple/front';
 import { withErrorHumanDelay } from 'lib/ui/humanDelay';
 
 type AddContactModalProps = {
@@ -16,7 +16,7 @@ type AddContactModalProps = {
 };
 
 const AddContactModal: FC<AddContactModalProps> = ({ address, onClose }) => {
-  const { addContact } = useContacts();
+  const { addContact } = useContactsActions();
 
   const {
     register,
