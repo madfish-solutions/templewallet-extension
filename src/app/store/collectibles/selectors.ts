@@ -6,3 +6,6 @@ export const useCollectibleDetailsSelector = (slug: string): CollectibleDetails 
 
 export const useAllCollectiblesDetailsLoadingSelector = () =>
   useSelector(({ collectibles }) => collectibles.details.isLoading);
+
+export const useCollectibleIsAdultSelector = (slug: string): boolean | undefined =>
+  useSelector(({ collectibles }) => collectibles.adultFlags[slug]?.val);

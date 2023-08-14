@@ -1,6 +1,9 @@
 import React, { FC, useCallback, useEffect, useState } from 'react';
 
+import { isDefined } from '@rnw-community/shared';
+
 import { Model3DViewer } from 'app/atoms/Model3DViewer';
+import { useCollectibleIsAdultSelector } from 'app/store/collectibles/selectors';
 import { AssetImage } from 'app/templates/AssetImage';
 import { TokenMetadata } from 'lib/metadata';
 import { isSvgDataUriInUtf8Encoding, buildObjktCollectibleArtifactUri } from 'lib/temple/front';
@@ -13,23 +16,25 @@ import { CollectibleImageLoader } from '../components/CollectibleImageLoader';
 import { VideoCollectible } from '../components/VideoCollectible';
 
 interface Props {
+  assetSlug: string;
   metadata?: TokenMetadata;
   areDetailsLoading: boolean;
   mime?: string | null;
   objktArtifactUri?: string;
-  isAdultContent?: boolean;
   className?: string;
 }
 
 export const CollectiblePageImage: FC<Props> = ({
+  assetSlug,
   metadata,
   mime,
   objktArtifactUri,
   className,
-  areDetailsLoading,
-  isAdultContent = false
+  areDetailsLoading
 }) => {
   const [isRenderFailedOnce, setIsRenderFailedOnce] = useState(false);
+
+  const isAdultContent = useCollectibleIsAdultSelector(assetSlug);
 
   const [shouldShowBlur, setShouldShowBlur] = useState(isAdultContent);
   useEffect(() => setShouldShowBlur(isAdultContent), [isAdultContent]);
@@ -38,7 +43,7 @@ export const CollectiblePageImage: FC<Props> = ({
 
   const handleError = useCallback(() => setIsRenderFailedOnce(true), []);
 
-  if (areDetailsLoading) {
+  if (areDetailsLoading && !isDefined(isAdultContent)) {
     return <CollectibleImageLoader large />;
   }
 

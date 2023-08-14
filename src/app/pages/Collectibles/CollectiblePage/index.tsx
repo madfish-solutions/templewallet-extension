@@ -142,10 +142,10 @@ const CollectiblePage: FC<Props> = ({ assetSlug }) => {
           style={{ aspectRatio: '1/1' }}
         >
           <CollectiblePageImage
+            assetSlug={assetSlug}
             metadata={metadata}
-            areDetailsLoading={areDetailsLoading && details === undefined}
+            areDetailsLoading={areDetailsLoading}
             objktArtifactUri={details?.objktArtifactUri}
-            isAdultContent={details?.isAdultContent}
             mime={details?.mime}
             className="h-full w-full"
           />

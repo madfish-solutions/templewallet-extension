@@ -17,7 +17,7 @@ const persistedReducer = persistReducer<RootState>(
   {
     key: 'temple-root',
     version: 1,
-    storage: storage,
+    storage,
     stateReconciler: autoMergeLevel2,
     blacklist: persistConfigBlacklist,
     debug: IS_DEV_ENV

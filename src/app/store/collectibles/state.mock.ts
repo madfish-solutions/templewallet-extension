@@ -1,7 +1,8 @@
-import { createEntity } from 'lib/store';
+import { createEntity, mockPersistedState } from 'lib/store';
 
-import { CollectiblesState } from './state';
+import type { CollectiblesState } from './state';
 
-export const mockCollectiblesState: CollectiblesState = {
-  details: createEntity({})
-};
+export const mockCollectiblesState = mockPersistedState<CollectiblesState>({
+  details: createEntity({}),
+  adultFlags: {}
+});
