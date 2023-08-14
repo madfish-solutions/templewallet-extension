@@ -15,7 +15,7 @@ const SendErrorAlert: FC<SendErrorAlertProps> = ({ type, error }) => {
 
   return (
     <Alert
-      type={type === 'submit' ? 'error' : 'warn'}
+      type={type === 'submit' ? 'error' : 'warning'}
       title={(() => {
         switch (true) {
           case error instanceof ZeroTEZBalanceError:

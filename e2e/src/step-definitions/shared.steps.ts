@@ -7,7 +7,7 @@ import { Pages } from '../page-objects';
 import { envVars } from '../utils/env.utils';
 import { iComparePrivateKeys } from '../utils/input-data.utils';
 import { createPageElement, findElement } from '../utils/search.utils';
-import { LONG_TIMEOUT, MEDIUM_TIMEOUT, sleep } from '../utils/timing.utils';
+import { LONG_TIMEOUT, MEDIUM_TIMEOUT, sleep, VERY_SHORT_TIMEOUT } from '../utils/timing.utils';
 
 Given(
   /I reveal a private key and compare with (.*)/,
@@ -53,11 +53,32 @@ Given(
   }
 );
 
+// for checking validation errors or other where is no 'type' property
 Given(
-  /I got the '(.*)' error with (.*) element on the (.*) page/,
+  /I got the validation-error '(.*)' with (.*) element on the (.*) page/,
   { timeout: MEDIUM_TIMEOUT },
   async (errorName: string, elementName: string, pageName: string) => {
     await createPageElement(`${pageName}/${elementName}`).waitForDisplayed();
+    const getErrorContent = await createPageElement(`${pageName}/${elementName}`).getText();
+
+    expect(getErrorContent).eql(errorName);
+  }
+);
+
+// For checking alert-type errors/warnings
+Given(
+  /I got the '(.*)' (warning|error) with (.*) element on the (.*) page/,
+  { timeout: MEDIUM_TIMEOUT },
+  async (errorName: string, type, elementName: string, pageName: string) => {
+    await findElement(
+      `${pageName}/${elementName}`,
+      { type },
+      VERY_SHORT_TIMEOUT,
+      `Element with '${type}' type not found. It may be:
+    1) Expected element has another type
+    2) Element is not displayed`
+    );
+
     const getErrorContent = await createPageElement(`${pageName}/${elementName}`).getText();
 
     expect(getErrorContent).eql(errorName);
