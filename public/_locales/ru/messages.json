@@ -88,6 +88,14 @@
       }
     }
   },
+  "branchName": {
+    "message": "ветка: $branch$",
+    "placeholders": {
+      "branch": {
+        "content": "$1"
+      }
+    }
+  },
   "cycles_few": {
     "message": "$amount$ цикла",
     "description": "For plural forms",
@@ -190,9 +198,6 @@
         "content": "$1"
       }
     }
-  },
-  "enableAds": {
-    "message": "Enable Ads"
   },
   "enablePartnersPromotionConfirm": {
     "message": "Support the development team and earn tokens by viewing ads inside the wallet."

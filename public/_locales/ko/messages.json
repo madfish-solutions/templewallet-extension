@@ -52,6 +52,14 @@
       }
     }
   },
+  "branchName": {
+    "message": "branch: $branch$",
+    "placeholders": {
+      "branch": {
+        "content": "$1"
+      }
+    }
+  },
   "madeWithLove": {
     "message": "$companyName$ 옆에 $loveIcon$ 포함하여 제작",
     "placeholders": {
@@ -786,9 +794,6 @@
   },
   "enable": {
     "message": "활성화"
-  },
-  "enableAds": {
-    "message": "Enable Ads"
   },
   "enablePartnersPromotionConfirm": {
     "message": "Support the development team and earn tokens by viewing ads inside the wallet."

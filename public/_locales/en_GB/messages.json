@@ -55,6 +55,14 @@
       }
     }
   },
+  "branchName": {
+    "message": "branch: $branch$",
+    "placeholders": {
+      "branch": {
+        "content": "$1"
+      }
+    }
+  },
   "madeWithLove": {
     "message": "Made with $loveIcon$ by $companyName$",
     "placeholders": {
@@ -812,9 +820,6 @@
   },
   "enable": {
     "message": "enable"
-  },
-  "enableAds": {
-    "message": "Enable Ads"
   },
   "enablePartnersPromotionConfirm": {
     "message": "Support the development team and earn tokens by viewing ads inside the wallet."
