@@ -14,9 +14,7 @@ import classNames from 'clsx';
 import CleanButton from 'app/atoms/CleanButton';
 import CopyButton from 'app/atoms/CopyButton';
 import { ReactComponent as CopyIcon } from 'app/icons/copy.svg';
-import { ReactComponent as LockAltIcon } from 'app/icons/lock-alt.svg';
 import { setTestID, TestIDProperty } from 'lib/analytics';
-import { T } from 'lib/i18n';
 import { blurHandler, focusHandler, inputChangeHandler } from 'lib/ui/inputHandlers';
 import { useBlurElementOnTimeout } from 'lib/ui/use-blur-on-timeout';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
@@ -24,6 +22,8 @@ import { combineRefs } from 'lib/ui/util';
 
 import { NewSeedBackupSelectors } from '../pages/NewWallet/create/NewSeedBackup/NewSeedBackup.selectors';
 import { ErrorCaptionSelectors } from './ErrorCaption.selectors';
+import { FieldLabel } from './FieldLabel';
+import { SecretCover } from './SecretCover';
 import usePasswordToggle from './usePasswordToggle.hook';
 
 export const PASSWORD_ERROR_CAPTION = 'PASSWORD_ERROR_CAPTION';
@@ -128,7 +128,7 @@ export const FormField = forwardRef<FormFieldRef, FormFieldProps>(
 
     return (
       <div className={classNames('w-full flex flex-col', containerClassName)} style={containerStyle}>
-        <LabelComponent
+        <FieldLabel
           label={label}
           warning={labelWarning}
           description={labelDescription}
@@ -170,10 +170,9 @@ export const FormField = forwardRef<FormFieldRef, FormFieldProps>(
 
           {extraButton}
 
-          <SecretBanner
-            handleSecretBannerClick={handleSecretBannerClick}
-            secretBannerDisplayed={secretBannerDisplayed}
-          />
+          {secretBannerDisplayed && (
+            <SecretCover onClick={handleSecretBannerClick} testID={NewSeedBackupSelectors.protectedMask} />
+          )}
 
           <Cleanable cleanable={cleanable} handleCleanClick={handleCleanClick} />
           <Copyable value={value} copy={copy} cleanable={cleanable} copyable={copyable} />
@@ -203,44 +202,6 @@ const ExtraInner: React.FC<ExtraInnerProps> = ({ useDefaultInnerWrapper, innerCo
     );
   return <>{innerComponent}</>;
 };
-
-interface SecretBannerProps {
-  handleSecretBannerClick: () => void;
-  secretBannerDisplayed: boolean;
-}
-
-const SecretBanner: React.FC<SecretBannerProps> = ({ secretBannerDisplayed, handleSecretBannerClick }) =>
-  secretBannerDisplayed ? (
-    <div
-      className="absolute flex flex-col items-center justify-center rounded-md bg-gray-200 cursor-text"
-      style={{
-        top: 2,
-        right: 2,
-        bottom: 2,
-        left: 2
-      }}
-      onClick={handleSecretBannerClick}
-      {...setTestID(NewSeedBackupSelectors.protectedMask)}
-    >
-      <p
-        className={classNames(
-          'flex items-center mb-1',
-          'uppercase text-gray-600 text-lg font-semibold text-shadow-black'
-        )}
-      >
-        <LockAltIcon className="-ml-2 mr-1 h-6 w-auto stroke-current stroke-2" />
-        <span>
-          <T id="protectedFormField" />
-        </span>
-      </p>
-
-      <p className="mb-1 flex items-center text-gray-500 text-sm">
-        <span>
-          <T id="clickToRevealField" />
-        </span>
-      </p>
-    </div>
-  ) : null;
 
 interface CleanableProps {
   handleCleanClick: () => void;
@@ -289,25 +250,6 @@ const ErrorCaption: React.FC<ErrorCaptionProps> = ({ errorCaption }) => {
     </div>
   ) : null;
 };
-
-interface LabelComponentProps {
-  className: string;
-  label: ReactNode;
-  description: ReactNode;
-  warning: ReactNode;
-  id?: string;
-}
-
-const LabelComponent: React.FC<LabelComponentProps> = ({ label, className, description, warning, id }) =>
-  label ? (
-    <label className={classNames(className, 'leading-tight flex flex-col')} htmlFor={id}>
-      <span className="text-base font-semibold text-gray-700">{label}</span>
-
-      {description && <span className="mt-1 text-xs font-light text-gray-600 max-w-9/10">{description}</span>}
-
-      {warning && <span className="mt-1 text-xs font-medium text-red-600 max-w-9/10">{warning}</span>}
-    </label>
-  ) : null;
 
 const getInnerClassName = (isPasswordInput: boolean, extraInner: ReactNode) => {
   const passwordClassName = isPasswordInput ? 'pr-12' : 'pr-4';

@@ -5,7 +5,8 @@ import { QRCode } from 'react-qr-svg';
 
 import { Alert, FormField, FormSubmitButton } from 'app/atoms';
 import { T, t } from 'lib/i18n';
-import { useSecretState, useTempleClient } from 'lib/temple/front';
+import { useTempleClient } from 'lib/temple/front';
+import { useVanishingState } from 'lib/ui/hooks';
 
 import { SyncSettingsSelectors } from './SyncSettings.selectors';
 
@@ -17,7 +18,7 @@ const SyncSettings: FC = () => {
   const { generateSyncPayload } = useTempleClient();
 
   const formRef = useRef<HTMLFormElement>(null);
-  const [payload, setPayload] = useSecretState();
+  const [payload, setPayload] = useVanishingState();
   const { register, handleSubmit, errors, setError, clearError, formState } = useForm<FormData>();
 
   const focusPasswordField = useCallback(
