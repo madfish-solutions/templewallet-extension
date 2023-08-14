@@ -1,13 +1,13 @@
-.open-details-icon {
+.openDetailsIcon {
   animation: opening-icon-rotation 300ms 1;
   transform: rotate(180deg);
 }
 
-.close-details-icon {
+.closeDetailsIcon {
   animation: closing-icon-rotation 300ms 1;
 }
 
-.hash-chip {
+.hashChip {
   font-size: 0.75rem !important;
 }
 

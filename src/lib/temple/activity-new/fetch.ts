@@ -32,6 +32,12 @@ export default async function fetchActivities(
 
   const groups = await fetchOperGroupsForOperations(chainId, operations, olderThan);
 
+  const reachedTheEnd = groups.length === 0;
+
+  if (reachedTheEnd) {
+    return { activities: [], reachedTheEnd };
+  }
+
   // TODO: replace filtering with transformation of liquidity baking activities into 'Unknown' activities
   const activities = groups
     .map(({ operations }) =>
@@ -41,15 +47,15 @@ export default async function fetchActivities(
       )
     )
     .flat();
-  const reachedTheEnd = groups.length === 0;
+
   const flatOperations = groups.map(({ operations }) => operations).flat();
-  const oldestOperation = flatOperations.reduce<TzktOperation | undefined>(
+  const oldestOperation = flatOperations.reduce(
     (bestCandidate, operation) =>
       !isDefined(bestCandidate) || operation.timestamp < bestCandidate.timestamp ? operation : bestCandidate,
     flatOperations[0]
   );
 
-  if (activities.length === 0 && !reachedTheEnd) {
+  if (activities.length === 0) {
     return fetchActivities(chainId, account, assetSlug, pseudoLimit, tezos, knownBakersAndPayouts, oldestOperation);
   }
 

@@ -59,7 +59,7 @@ export default function useActivities(initialPseudoLimit: number, assetSlug?: st
         tzktBakersOrPayoutsAliases,
         oldestOperationRef.current
       ));
-      oldestOperationRef.current = newOldestOperation;
+      oldestOperationRef.current = newOldestOperation ?? oldestOperationRef.current;
       if (shouldStop()) return;
     } catch (error) {
       if (shouldStop()) return;

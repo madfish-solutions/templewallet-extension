@@ -47,14 +47,14 @@ const renderAddressChipFromDetails = (accountPkh: string) => (
     testID={ActivitySelectors.addressFromDetailsButton}
     addressModeSwitchTestID={ActivitySelectors.addressModeSwitchButton}
     rounded="base"
-    chipClassName={styles['hash-chip']}
+    chipClassName={styles.hashChip}
   />
 );
 
 const renderHashChipFromDetails = (accountPkh: string, explorerBaseUrl?: string) => (
   <>
     <HashChip
-      className={classNames(styles['hash-chip'], explorerBaseUrl && 'mr-1')}
+      className={classNames(styles.hashChip, explorerBaseUrl && 'mr-1')}
       hash={accountPkh}
       rounded="base"
       testID={ActivitySelectors.addressFromDetailsButton}
@@ -148,8 +148,7 @@ export const ActivityItem = memo<Props>(({ activity }) => {
           <ChevronUpNewIcon
             className={classNames(
               'w-4 h-4 stroke-current',
-              isOpen && wasToggled && styles['open-details-icon'],
-              !isOpen && wasToggled && styles['close-details-icon']
+              wasToggled && styles[isOpen ? 'openDetailsIcon' : 'closeDetailsIcon']
             )}
           />
         </Button>
@@ -204,7 +203,7 @@ export const ActivityItem = memo<Props>(({ activity }) => {
               hash={hash}
               firstCharsCount={10}
               lastCharsCount={7}
-              className={classNames('mr-1', styles['hash-chip'])}
+              className={classNames('mr-1', styles.hashChip)}
             />
 
             {explorerBaseUrl && (
