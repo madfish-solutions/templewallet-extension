@@ -42,14 +42,11 @@ export default async function fetchActivities(
     )
     .flat();
   const reachedTheEnd = groups.length === 0;
-  const oldestOperation = groups.reduce<TzktOperation | undefined>(
-    (oldestOperationPrevGroups, group) =>
-      group.operations.reduce(
-        (oldestOperation, operation) =>
-          !isDefined(oldestOperation) || operation.timestamp < oldestOperation.timestamp ? operation : oldestOperation,
-        oldestOperationPrevGroups
-      ),
-    groups[0]?.operations[0]
+  const flatOperations = groups.map(({ operations }) => operations).flat();
+  const oldestOperation = flatOperations.reduce<TzktOperation | undefined>(
+    (bestCandidate, operation) =>
+      !isDefined(bestCandidate) || operation.timestamp < bestCandidate.timestamp ? operation : bestCandidate,
+    flatOperations[0]
   );
 
   if (activities.length === 0 && !reachedTheEnd) {
