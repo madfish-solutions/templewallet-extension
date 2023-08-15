@@ -437,14 +437,14 @@ export const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactReque
   const isContactsDropdownOpen = getFilled(toFilled, toFieldFocused);
 
   return (
-    <form style={{ minHeight: '24rem' }} onSubmit={handleSubmit(onSubmit)}>
+    <form className="min-h-96" onSubmit={handleSubmit(onSubmit)}>
       <Controller
         name="to"
         as={
           <NoSpaceField
             ref={toFieldRef}
             onFocus={handleToFieldFocus}
-            dropdownInner={
+            extraInner={
               <InnerDropDownComponentGuard
                 contacts={allContactsWithoutCurrent}
                 opened={isContactsDropdownOpen}
@@ -452,6 +452,7 @@ export const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactReque
                 searchTerm={toValue}
               />
             }
+            extraInnerWrapper="unset"
           />
         }
         control={control}

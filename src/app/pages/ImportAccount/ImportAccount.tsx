@@ -185,9 +185,8 @@ const ByPrivateKeyForm: FC = () => {
 
       <FormField
         ref={register({ required: t('required') })}
-        secret
-        textarea
-        rows={4}
+        type="password"
+        revealForbidden
         name="privateKey"
         id="importacc-privatekey"
         label={t('privateKey')}

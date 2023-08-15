@@ -4,6 +4,7 @@ import clsx from 'clsx';
 
 import { Alert } from 'app/atoms';
 import { FieldLabel } from 'app/atoms/FieldLabel';
+import { FORM_FIELD_CLASS_NAME } from 'app/atoms/FormField';
 import { SecretCover } from 'app/atoms/SecretCover';
 import { t, T } from 'lib/i18n';
 import { selectNodeContent } from 'lib/ui/content-selection';
@@ -50,21 +51,14 @@ export const SecretField: FC<Props> = ({ revealType, value }) => {
   return (
     <>
       <div className="w-full flex flex-col mb-4">
-        <FieldLabel label={texts.name} description={texts.fieldDesc} className="mb-4" id="reveal-secret-secret" />
+        <FieldLabel label={texts.name} description={texts.fieldDesc} className="mb-4" />
 
         <div className="relative flex items-stretch mb-2">
           <p
             ref={fieldRef}
             id="reveal-secret-secret"
             tabIndex={0}
-            className={clsx(
-              'appearance-none w-full py-3 pl-4 border-2 rounded-md bg-gray-100',
-              'focus:border-primary-orange focus:bg-transparent focus:outline-none focus:shadow-outline',
-              'transition ease-in-out duration-200',
-              'text-gray-700 text-lg leading-tight placeholder-alphagray',
-              //
-              'h-32 break-words pr-4 overflow-y-auto'
-            )}
+            className={clsx(FORM_FIELD_CLASS_NAME, 'h-32 break-words pr-4 overflow-y-auto')}
             onFocus={() => void setFocused(true)}
             onBlur={() => void setFocused(false)}
           >

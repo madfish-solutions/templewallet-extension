@@ -1,7 +1,5 @@
 import React from 'react';
 
-import clsx from 'clsx';
-
 import { ReactComponent as LockAltIcon } from 'app/icons/lock-alt.svg';
 import { setTestID, TestIDProps } from 'lib/analytics';
 import { T } from 'lib/i18n';
@@ -22,7 +20,7 @@ export const SecretCover: React.FC<Props> = ({ onClick, testID }) => (
     onClick={onClick}
     {...setTestID(testID)}
   >
-    <p className={clsx('flex items-center mb-1', 'uppercase text-gray-600 text-lg font-semibold text-shadow-black')}>
+    <p className="flex items-center mb-1 uppercase text-gray-600 text-lg font-semibold text-shadow-black">
       <LockAltIcon className="-ml-2 mr-1 h-6 w-auto stroke-current stroke-2" />
       <span>
         <T id="protectedFormField" />
