@@ -490,9 +490,8 @@ const ByFundraiserForm: FC = () => {
       />
 
       <FormField
-        secret
-        textarea
-        rows={4}
+        type="password"
+        revealForbidden
         name="mnemonic"
         ref={register({
           required: t('required'),

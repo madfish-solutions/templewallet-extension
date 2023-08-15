@@ -135,6 +135,7 @@ export const FormField = forwardRef<FormFieldRef, FormFieldProps>(
             ref={combineRefs(ref, spareRef)}
             className={classNames(
               FORM_FIELD_CLASS_NAME,
+              'py-3 pl-4',
               buildPaddingRightClassName(isPasswordInput, extraInnerWrapper === 'unset' ? false : Boolean(extraInner)),
               errorCaption ? 'border-red-500' : 'border-gray-300',
               className
@@ -170,7 +171,7 @@ export const FormField = forwardRef<FormFieldRef, FormFieldProps>(
 );
 
 export const FORM_FIELD_CLASS_NAME = classNames(
-  'appearance-none w-full py-3 pl-4 border-2 rounded-md bg-gray-100',
+  'appearance-none w-full border-2 rounded-md bg-gray-100',
   'focus:border-primary-orange focus:bg-transparent focus:outline-none focus:shadow-outline',
   'transition ease-in-out duration-200',
   'text-gray-700 text-lg leading-tight placeholder-alphagray'

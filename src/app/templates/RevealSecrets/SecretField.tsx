@@ -58,7 +58,7 @@ export const SecretField: FC<Props> = ({ revealType, value }) => {
             ref={fieldRef}
             id="reveal-secret-secret"
             tabIndex={0}
-            className={clsx(FORM_FIELD_CLASS_NAME, 'h-32 break-words pr-4 overflow-y-auto')}
+            className={clsx(FORM_FIELD_CLASS_NAME, 'h-32 break-words py-3 px-4 overflow-y-auto')}
             onFocus={() => void setFocused(true)}
             onBlur={() => void setFocused(false)}
           >

@@ -1,12 +1,12 @@
 import React, { FC, useCallback, useMemo, useRef, useState } from 'react';
 
-import classNames from 'clsx';
+import clsx from 'clsx';
 
 import { setTestID, TestIDProperty } from 'lib/analytics';
-import { T } from 'lib/i18n';
 import { useBlurElementOnTimeout } from 'lib/ui/use-blur-on-timeout';
 
-import { ReactComponent as LockAltIcon } from '../icons/lock-alt.svg';
+import { FORM_FIELD_CLASS_NAME } from './FormField';
+import { SecretCover } from './SecretCover';
 
 interface SeedWordInputProps extends TestIDProperty {
   id: number;
@@ -67,60 +67,43 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
   );
 
   return (
-    <div className={classNames('relative flex flex-col items-center', isFirstAccount ? 'w-40' : 'w-44')}>
-      <label htmlFor={id.toString()} className={isError ? 'text-red-600' : 'text-gray-600'}>
+    <div className={clsx('flex flex-col', isFirstAccount ? 'w-40' : 'w-44')}>
+      <label htmlFor={id.toString()} className={clsx('self-center', isError ? 'text-red-600' : 'text-gray-600')}>
         <p style={{ fontSize: 14 }}>{`#${id + 1}`}</p>
       </label>
 
-      <input
-        ref={inputRef}
-        id={id.toString()}
-        value={value}
-        autoComplete={autoComplete}
-        onChange={handleChange}
-        onPaste={handlePaste}
-        onFocus={() => setFocused(true)}
-        onBlur={() => {
-          setFocused(false);
-          setShowSeed(false);
-        }}
-        className={classNames(
-          'appearance-none',
-          'w-full py-2 border-2',
-          isError ? 'border-red-500' : 'border-gray-300',
-          'focus:border-primary-orange',
-          'bg-gray-100 focus:bg-transparent',
-          'focus:outline-none focus:shadow-outline',
-          'transition ease-in-out duration-200',
-          'rounded-md',
-          'text-gray-700 text-lg leading-tight',
-          'placeholder-alphagray',
-          'text-center',
-          className
-        )}
-        {...setTestID(testID)}
-      />
-
-      {isWordHidden && (
-        <div
-          className={classNames(
-            'absolute rounded-md bg-gray-200 w-full',
-            'cursor-pointer flex items-center justify-center'
-          )}
-          style={{ top: 20, height: 44 }}
-          onClick={() => {
-            inputRef.current?.focus();
-            setShowSeed(true);
+      <div className="relative">
+        <input
+          ref={inputRef}
+          id={id.toString()}
+          value={value}
+          autoComplete={autoComplete}
+          onChange={handleChange}
+          onPaste={handlePaste}
+          onFocus={() => setFocused(true)}
+          onBlur={() => {
+            setFocused(false);
+            setShowSeed(false);
           }}
-        >
-          <p className="flex items-center text-gray-500 text-sm">
-            <LockAltIcon className="mr-1 h-4 w-auto stroke-current stroke-2" />
-            <span>
-              <T id="clickToReveal" />
-            </span>
-          </p>
-        </div>
-      )}
+          className={clsx(
+            FORM_FIELD_CLASS_NAME,
+            'p-2 text-center',
+            isError ? 'border-red-500' : 'border-gray-300',
+            className
+          )}
+          {...setTestID(testID)}
+        />
+
+        {isWordHidden && (
+          <SecretCover
+            singleRow
+            onClick={() => {
+              inputRef.current?.focus();
+              setShowSeed(true);
+            }}
+          />
+        )}
+      </div>
     </div>
   );
 };
