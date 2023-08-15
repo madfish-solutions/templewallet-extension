@@ -19,10 +19,11 @@ interface Props {
 
 export const CollectibleItemImage: FC<Props> = ({ assetSlug, metadata, areDetailsLoading, mime }) => {
   const isAdultContent = useCollectibleIsAdultSelector(assetSlug);
+  const isAdultFlagLoading = areDetailsLoading && !isDefined(isAdultContent);
 
   const isAudioCollectible = useMemo(() => Boolean(mime && mime.startsWith('audio')), [mime]);
 
-  if (areDetailsLoading && !isDefined(isAdultContent)) {
+  if (isAdultFlagLoading) {
     return <CollectibleImageLoader />;
   }
 

@@ -45,8 +45,9 @@ const CollectiblePage: FC<Props> = ({ assetSlug }) => {
   const { publicKeyHash } = account;
   const accountCanSign = account.type !== TempleAccountType.WatchOnly;
 
-  const areDetailsLoading = useAllCollectiblesDetailsLoadingSelector();
   const details = useCollectibleDetailsSelector(assetSlug);
+  const areAnyCollectiblesDetailsLoading = useAllCollectiblesDetailsLoadingSelector();
+  const areDetailsLoading = areAnyCollectiblesDetailsLoading && details === undefined;
 
   const collectibleName = getAssetName(metadata);
 
@@ -54,7 +55,7 @@ const CollectiblePage: FC<Props> = ({ assetSlug }) => {
     () =>
       details && {
         title: details.galleries[0]?.title ?? details.fa.name,
-        logo: formatTcInfraImgUri(details.fa.logo)
+        logo: [formatTcInfraImgUri(details.fa.logo, 'small'), formatTcInfraImgUri(details.fa.logo, 'medium')]
       },
     [details]
   );
@@ -142,25 +143,27 @@ const CollectiblePage: FC<Props> = ({ assetSlug }) => {
           style={{ aspectRatio: '1/1' }}
         >
           <CollectiblePageImage
-            assetSlug={assetSlug}
             metadata={metadata}
             areDetailsLoading={areDetailsLoading}
             objktArtifactUri={details?.objktArtifactUri}
+            isAdultContent={details?.isAdultContent}
             mime={details?.mime}
             className="h-full w-full"
           />
         </div>
 
-        {areDetailsLoading && details === undefined ? (
+        {areDetailsLoading ? (
           <Spinner className="self-center w-20" />
         ) : (
           <>
-            <div className="flex justify-between items-center">
-              <div className="flex items-center justify-center rounded">
-                <Image src={collection?.logo} className="w-6 h-6 rounded border border-gray-300" />
-                <div className="content-center ml-2 text-gray-910 text-sm">{collection?.title ?? ''}</div>
+            {collection && (
+              <div className="flex justify-between items-center">
+                <div className="flex items-center justify-center rounded">
+                  <Image src={collection?.logo} className="w-6 h-6 rounded border border-gray-300" />
+                  <div className="content-center ml-2 text-gray-910 text-sm">{collection?.title ?? ''}</div>
+                </div>
               </div>
-            </div>
+            )}
 
             <div className="text-gray-910 text-2xl truncate">{collectibleName}</div>
 
