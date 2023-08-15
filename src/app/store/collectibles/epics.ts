@@ -31,7 +31,7 @@ const loadCollectiblesDetailsEpic: Epic = (action$: Observable<Action>) =>
 
           const details: CollectibleDetailsRecord = Object.fromEntries(entries);
 
-          return loadCollectiblesDetailsActions.success(details);
+          return loadCollectiblesDetailsActions.success({ details, timestamp: Date.now() });
         }),
         catchError((error: unknown) => {
           console.error(error);

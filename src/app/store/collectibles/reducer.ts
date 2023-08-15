@@ -15,23 +15,25 @@ const collectiblesReducer = createReducer<CollectiblesState>(collectiblesInitial
     state.details.isLoading = true;
   });
   builder.addCase(loadCollectiblesDetailsActions.success, (state, { payload }) => {
+    const { details: detailsRecord, timestamp } = payload;
+
     const adultFlags = { ...state.adultFlags };
-    const now = Math.round(Date.now() / 1_000);
+    const timestampInSeconds = Math.round(timestamp / 1_000);
 
     // Removing expired flags
     for (const [slug, { ts }] of Object.entries(adultFlags)) {
-      if (ts + ADULT_FLAG_TTL < now) delete adultFlags[slug];
+      if (ts + ADULT_FLAG_TTL < timestampInSeconds) delete adultFlags[slug];
     }
 
-    for (const [slug, details] of Object.entries(payload)) {
+    for (const [slug, details] of Object.entries(detailsRecord)) {
       if (details) {
-        adultFlags[slug] = { val: details.isAdultContent, ts: now };
+        adultFlags[slug] = { val: details.isAdultContent, ts: timestampInSeconds };
       }
     }
 
     return {
       ...state,
-      details: createEntity({ ...state.details.data, ...payload }),
+      details: createEntity({ ...state.details.data, ...detailsRecord }),
       adultFlags
     };
   });
