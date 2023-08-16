@@ -1,4 +1,4 @@
-import { TzktOperationType } from '@temple-wallet/transactions-parser';
+import { TzktOperationType, TzktTokenTransfer } from '@temple-wallet/transactions-parser';
 import axios, { AxiosError } from 'axios';
 
 import { TempleChainId } from 'lib/temple/types';
@@ -128,6 +128,15 @@ export const fetchTzktTokens = async (chainId: string, accountAddress: string) =
         account: accountAddress,
         limit: TZKT_FETCH_QUERY_SIZE,
         'sort.desc': 'balance'
+      })
+    : [];
+
+export const fetchGetTokensTransfersByTxIds = async (chainId: string, transactionsIds: number[]) =>
+  isKnownChainId(chainId) && transactionsIds.length > 0
+    ? await fetchGet<TzktTokenTransfer[]>(chainId, '/tokens/transfers', {
+        'transactionId.in': transactionsIds.join(','),
+        limit: TZKT_FETCH_QUERY_SIZE,
+        select: 'id,from,to,transactionId,amount,token.contract,token.tokenId'
       })
     : [];
 

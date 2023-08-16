@@ -7,20 +7,22 @@ import classNames from 'clsx';
 import { Button } from 'app/atoms/Button';
 import HashShortView from 'app/atoms/HashShortView';
 import OpenInExplorerChip from 'app/atoms/OpenInExplorerChip';
+import { ReactComponent as AlertNewIcon } from 'app/icons/alert-new.svg';
 import { ReactComponent as ChevronUpNewIcon } from 'app/icons/chevron-up-new.svg';
 import AddressChip from 'app/templates/AddressChip';
 import HashChip from 'app/templates/HashChip';
-import { T, getCurrentLocale } from 'lib/i18n';
+import { T, getCurrentLocale, t } from 'lib/i18n';
 import { formatDateOutput } from 'lib/notifications/utils/date.utils';
 import { DisplayableActivity } from 'lib/temple/activity-new/types';
 import { useExplorerBaseUrls } from 'lib/temple/front';
+import useTippy from 'lib/ui/useTippy';
 
 import styles from './activity-item.module.css';
 import { BakerLogo } from './baker-logo';
 import { BakerName } from './baker-name';
 import { RobotIcon } from './robot-icon';
 import { ActivitySelectors } from './selectors';
-import { TokensDeltaView } from './tokens-delta-view';
+import { FilteringMode, TokensDeltaView } from './tokens-delta-view';
 
 interface Props {
   activity: DisplayableActivity;
@@ -38,7 +40,8 @@ const activityTypesI18nKeys = {
   [ActivityType.Send]: 'send' as const,
   [ActivityType.Recieve]: 'receive' as const,
   [ActivityType.Delegation]: 'delegation' as const,
-  [ActivityType.BakingRewards]: 'bakerRewards' as const
+  [ActivityType.BakingRewards]: 'bakerRewards' as const,
+  [ActivityType.Interaction]: 'interaction' as const
 };
 
 const renderAddressChipFromDetails = (accountPkh: string) => (
@@ -72,20 +75,24 @@ const renderHashChipFromDetails = (accountPkh: string, explorerBaseUrl?: string)
 export const ActivityItem = memo<Props>(({ activity }) => {
   const { hash, timestamp, status, type, tokensDeltas, from, to } = activity;
 
-  const isDelegation = type === ActivityType.Delegation;
-  const isBakingRewards = type === ActivityType.BakingRewards;
-  const isSend = type === ActivityType.Send;
-  const isReceive = type === ActivityType.Recieve;
   const locale = getCurrentLocale();
   const jsLocaleName = locale.replaceAll('_', '-');
   const { transaction: explorerBaseUrl } = useExplorerBaseUrls();
   const [isOpen, setIsOpen] = useState(false);
   const [wasToggled, setWasToggled] = useState(false);
 
+  const interactionTooltipRef = useTippy<HTMLDivElement>({
+    trigger: 'mouseenter',
+    hideOnClick: false,
+    content: t('interactionTypeTooltip'),
+    animation: 'shift-away-subtle'
+  });
+
   const receivedTokensDeltas = useMemo(
     () => tokensDeltas.filter(({ atomicAmount }) => atomicAmount.gt(0)),
     [tokensDeltas]
   );
+
   const sentTokensDeltas = useMemo(() => tokensDeltas.filter(({ atomicAmount }) => atomicAmount.lt(0)), [tokensDeltas]);
 
   const toggleDetails = useCallback(() => {
@@ -93,36 +100,54 @@ export const ActivityItem = memo<Props>(({ activity }) => {
     setWasToggled(true);
   }, []);
 
+  const isDelegation = type === ActivityType.Delegation;
+  const isBakingRewards = type === ActivityType.BakingRewards;
+  const isSend = type === ActivityType.Send;
+  const isReceive = type === ActivityType.Recieve;
+  const isInteraction = type === ActivityType.Interaction;
   const actorPrepositionI18nKey = isSend || isDelegation ? 'toAsset' : 'from';
   const actor = isSend || isDelegation ? to : from;
+  const shouldShowBaker = (isDelegation || isBakingRewards) && isDefined(actor);
+  const shouldShowActor = isDelegation || isBakingRewards || isSend || isReceive;
 
   return (
     <div className="py-3 flex flex-col gap-3 w-full">
       <div className="w-full flex items-center">
-        {(isDelegation || isBakingRewards) && isDefined(actor) ? (
-          <BakerLogo bakerAddress={actor.address} />
-        ) : (
+        {shouldShowBaker && <BakerLogo bakerAddress={actor.address} />}
+        {!shouldShowBaker && !isInteraction && (
           <RobotIcon hash={actor?.address ?? from.address} className="border border-gray-300 mr-2" />
         )}
 
         <div className="flex-1">
-          <p className="text-sm font-medium leading-tight text-gray-910">
+          <p className="text-sm font-medium leading-tight text-gray-910 flex items-center">
             <T id={activityTypesI18nKeys[type]} />
+            {isInteraction && (
+              <div ref={interactionTooltipRef} className="inline-block ml-1 text-gray-500">
+                <AlertNewIcon className="w-4 h-4 stroke-current" />
+              </div>
+            )}
           </p>
           <p className="text-xs leading-5 text-gray-600">
-            <span className="mr-1">
-              <T id={actorPrepositionI18nKey} />:
-            </span>
+            {shouldShowActor && (
+              <span className="mr-1">
+                <T id={actorPrepositionI18nKey} />:
+              </span>
+            )}
             {(isSend || isReceive) && isDefined(actor) && (
               <HashShortView firstCharsCount={5} lastCharsCount={5} hash={actor.address} />
             )}
-            {(isDelegation || isBakingRewards) && isDefined(actor) && <BakerName bakerAddress={actor.address} />}
-            {!isDefined(actor) && '‒'}
+            {shouldShowBaker && <BakerName bakerAddress={actor.address} />}
+            {(!isDefined(actor) || isInteraction) && '‒'}
           </p>
         </div>
 
         <div>
-          <TokensDeltaView tokensDeltas={tokensDeltas} shouldShowNFTCard={false} isTotal />
+          <TokensDeltaView
+            tokensDeltas={tokensDeltas}
+            shouldShowNFTCard={false}
+            isTotal
+            filteringMode={isInteraction ? FilteringMode.ONLY_POSITIVE_IF_PRESENT : FilteringMode.NONE}
+          />
         </div>
       </div>
 
@@ -182,17 +207,18 @@ export const ActivityItem = memo<Props>(({ activity }) => {
             </div>
           )}
 
-          {/* TODO: remove 'From/To' row for dApps interactions and unknown operations */}
-          <div className="w-full py-3 flex items-center border-b border-gray-300">
-            <span className="flex-1 text-gray-500 text-xs leading-5">
-              <T id={actorPrepositionI18nKey} />:
-            </span>
-            {isDelegation && isDefined(to) && renderHashChipFromDetails(to.address, explorerBaseUrl)}
-            {isSend && isDefined(to) && renderAddressChipFromDetails(to.address)}
-            {(isSend || isDelegation) && !isDefined(to) && <span className="text-gray-500 text-xs leading-5">‒</span>}
-            {isReceive && renderAddressChipFromDetails(from.address)}
-            {isBakingRewards && renderHashChipFromDetails(from.address, explorerBaseUrl)}
-          </div>
+          {shouldShowActor && (
+            <div className="w-full py-3 flex items-center border-b border-gray-300">
+              <span className="flex-1 text-gray-500 text-xs leading-5">
+                <T id={actorPrepositionI18nKey} />:
+              </span>
+              {isDelegation && isDefined(to) && renderHashChipFromDetails(to.address, explorerBaseUrl)}
+              {isSend && isDefined(to) && renderAddressChipFromDetails(to.address)}
+              {(isSend || isDelegation) && !isDefined(to) && <span className="text-gray-500 text-xs leading-5">‒</span>}
+              {isReceive && renderAddressChipFromDetails(from.address)}
+              {isBakingRewards && renderHashChipFromDetails(from.address, explorerBaseUrl)}
+            </div>
+          )}
 
           <div className="w-full py-3 flex items-center">
             <span className="flex-1 text-gray-500 text-xs leading-5">

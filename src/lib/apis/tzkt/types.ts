@@ -58,6 +58,7 @@ interface TzktTransactionOperation extends TzktOperationBase {
   parameter?: unknown;
   entrypoint?: string;
   hasInternals: boolean;
+  tokenTransfersCount?: number;
 }
 
 interface TzktOriginationOperation extends TzktOperationBase {

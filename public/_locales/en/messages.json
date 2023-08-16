@@ -1921,6 +1921,9 @@
   "interaction": {
     "message": "Interaction"
   },
+  "interactionTypeTooltip": {
+    "message": "This transaction type is not currently supported. We are continuously improving our transaction processing capabilities. Thank you for your understanding."
+  },
   "interactionWithContract": {
     "message": "with $contract$",
     "placeholders": {
