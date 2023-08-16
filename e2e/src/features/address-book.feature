@@ -20,7 +20,7 @@ Feature: Address book
 
 
 #@address_book
-@dev
+
   Scenario: As a user, I'd like to remove contact [Positive]
     Given I have imported an existing account
 
