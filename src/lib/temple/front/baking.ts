@@ -12,6 +12,7 @@ import {
 import type { TzktRewardsEntry } from 'lib/apis/tzkt';
 import { useRetryableSWR } from 'lib/swr';
 
+import untypedPayoutsAccounts from './payouts-accounts.json';
 import { useNetwork, useTezos } from './ready';
 
 export function useDelegate(address: string, suspense = true) {
@@ -139,11 +140,24 @@ export function useKnownBaker(address: string | null, suspense = true) {
       return null;
     }
   }, [address]);
+
   return useRetryableSWR(net.type === 'main' && address ? ['baker', address] : null, fetchBaker, {
     refreshInterval: 120_000,
     dedupingInterval: 60_000,
     suspense
   });
+}
+
+const PAYOUTS_ACCOUNTS: Array<Pick<BakingBadBaker, 'address' | 'name' | 'logo'>> = untypedPayoutsAccounts;
+
+export function useKnownBakerOrPayoutAccount(address: string | null, suspense = true) {
+  const knownBaker = useKnownBaker(address, suspense);
+
+  return useMemo(() => {
+    if (knownBaker.data) return knownBaker.data;
+
+    return PAYOUTS_ACCOUNTS.find(acc => acc.address === address);
+  }, [knownBaker.data, address]);
 }
 
 export function useKnownBakers(suspense = true) {
@@ -155,6 +169,12 @@ export function useKnownBakers(suspense = true) {
   });
 
   return useMemo(() => (bakers && bakers.length > 1 ? bakers : null), [bakers]);
+}
+
+export function useKnownBakersAndPayoutAccounts(suspense = true) {
+  const bakers = useKnownBakers(suspense);
+
+  return useMemo(() => PAYOUTS_ACCOUNTS.concat(bakers ?? []), [bakers]);
 }
 
 type RewardsStatsCalculationParams = {

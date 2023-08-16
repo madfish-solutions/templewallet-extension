@@ -51,6 +51,28 @@ export function useAssetFiatCurrencyPrice(slug: string): BigNumber {
   }, [fiatToUsdRate, usdToTokenRate]);
 }
 
+export function useManyTokensFiatCurrencyPrices(slugs: string[]) {
+  const fiatToUsdRate = useFiatToUsdRate();
+  const usdToTokenRates = useUsdToTokenRates();
+
+  return useMemo<Record<string, BigNumber>>(() => {
+    if (!isTruthy(fiatToUsdRate)) return {};
+
+    return slugs.reduce((acc, slug) => {
+      const usdToTokenRate = usdToTokenRates[slug];
+
+      if (!isTruthy(usdToTokenRate)) {
+        return acc;
+      }
+
+      return {
+        ...acc,
+        [slug]: new BigNumber(usdToTokenRate).times(fiatToUsdRate)
+      };
+    }, {});
+  }, [slugs, fiatToUsdRate, usdToTokenRates]);
+}
+
 export const useFiatCurrency = () => {
   const { data } = useSelector(state => state.currency.fiatToTezosRates);
 

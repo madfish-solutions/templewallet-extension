@@ -1642,5 +1642,8 @@
   },
   "faucetJsonDescription": {
     "message": "您可在此貼上 JSON，不須新增檔案"
+  },
+  "listSeparation": {
+    "message": "，"
   }
 }

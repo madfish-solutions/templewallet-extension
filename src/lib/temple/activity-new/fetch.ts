@@ -1,4 +1,7 @@
-import type { TzktApiChainId, TzktOperation } from 'lib/apis/tzkt';
+import { isDefined } from '@rnw-community/shared';
+import { ActivityType, parseTransactions, TzktOperationType } from '@temple-wallet/transactions-parser';
+
+import type { TzktApiChainId, TzktAlias, TzktOperation } from 'lib/apis/tzkt';
 import * as TZKT from 'lib/apis/tzkt';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { detectTokenStandard } from 'lib/assets/standards';
@@ -6,10 +9,15 @@ import { ReactiveTezosToolkit } from 'lib/temple/front';
 import { TempleAccount } from 'lib/temple/types';
 import { filterUnique } from 'lib/utils';
 
-import type { Activity, OperationsGroup } from './types';
-import { operationsGroupToActivity } from './utils';
+import type { DisplayableActivity, OperationsGroup } from './types';
 
 const LIQUIDITY_BAKING_DEX_ADDRESS = 'KT1TxqZ8QtKvLu3V3JH7Gx58n7Co8pgtpQU5';
+
+interface FetchActivitiesReturnValue {
+  activities: DisplayableActivity[];
+  reachedTheEnd: boolean;
+  oldestOperation?: TzktOperation;
+}
 
 export default async function fetchActivities(
   chainId: TzktApiChainId,
@@ -17,13 +25,45 @@ export default async function fetchActivities(
   assetSlug: string | undefined,
   pseudoLimit: number,
   tezos: ReactiveTezosToolkit,
-  olderThan?: Activity
-): Promise<Activity[]> {
+  knownBakersAndPayouts: TzktAlias[],
+  olderThan?: TzktOperation
+): Promise<FetchActivitiesReturnValue> {
   const operations = await fetchOperations(chainId, account, assetSlug, pseudoLimit, tezos, olderThan);
 
   const groups = await fetchOperGroupsForOperations(chainId, operations, olderThan);
 
-  return groups.map(group => operationsGroupToActivity(group, account.publicKeyHash));
+  const reachedTheEnd = groups.length === 0;
+
+  if (reachedTheEnd) {
+    return { activities: [], reachedTheEnd };
+  }
+
+  // TODO: replace filtering with transformation of liquidity baking activities into 'Unknown' activities
+  const activities = groups
+    .map(({ operations }) =>
+      parseTransactions(operations, account.publicKeyHash, knownBakersAndPayouts).filter(
+        (activity): activity is DisplayableActivity =>
+          activity.type !== ActivityType.LiquidityBakingBurn && activity.type !== ActivityType.LiquidityBakingMint
+      )
+    )
+    .flat();
+
+  const flatOperations = groups.map(({ operations }) => operations).flat();
+  const oldestOperation = flatOperations.reduce(
+    (bestCandidate, operation) =>
+      !isDefined(bestCandidate) || operation.timestamp < bestCandidate.timestamp ? operation : bestCandidate,
+    flatOperations[0]
+  );
+
+  if (activities.length === 0) {
+    return fetchActivities(chainId, account, assetSlug, pseudoLimit, tezos, knownBakersAndPayouts, oldestOperation);
+  }
+
+  return {
+    activities,
+    reachedTheEnd,
+    oldestOperation
+  };
 }
 
 /**
@@ -38,7 +78,7 @@ async function fetchOperations(
   assetSlug: string | undefined,
   pseudoLimit: number,
   tezos: ReactiveTezosToolkit,
-  olderThan?: Activity
+  olderThan?: TzktOperation
 ): Promise<TzktOperation[]> {
   const { publicKeyHash: accAddress } = account;
 
@@ -67,7 +107,7 @@ const fetchOperations_TEZ = (
   chainId: TzktApiChainId,
   accountAddress: string,
   pseudoLimit: number,
-  olderThan?: Activity
+  olderThan?: TzktOperation
 ) =>
   TZKT.fetchGetOperationsTransactions(chainId, {
     'anyof.sender.target.initiator': accountAddress,
@@ -81,15 +121,15 @@ const fetchOperations_Contract = (
   chainId: TzktApiChainId,
   accountAddress: string,
   pseudoLimit: number,
-  olderThan?: Activity
+  olderThan?: TzktOperation
 ) =>
   TZKT.fetchGetAccountOperations(chainId, accountAddress, {
-    type: 'transaction',
+    type: TzktOperationType.Transaction,
     limit: pseudoLimit,
     sort: 1,
     initiator: accountAddress,
     entrypoint: 'mintOrBurn',
-    'level.lt': olderThan?.oldestTzktOperation.level
+    ...buildOlderThanParam(olderThan)
   });
 
 const fetchOperations_Token_Fa_1_2 = (
@@ -97,7 +137,7 @@ const fetchOperations_Token_Fa_1_2 = (
   accountAddress: string,
   contractAddress: string,
   pseudoLimit: number,
-  olderThan?: Activity
+  olderThan?: TzktOperation
 ) =>
   TZKT.fetchGetOperationsTransactions(chainId, {
     limit: pseudoLimit,
@@ -105,7 +145,7 @@ const fetchOperations_Token_Fa_1_2 = (
     'sort.desc': 'level',
     target: contractAddress,
     'parameter.in': `[{"from":"${accountAddress}"},{"to":"${accountAddress}"}]`,
-    'level.lt': olderThan?.oldestTzktOperation.level
+    ...buildOlderThanParam(olderThan)
   });
 
 const fetchOperations_Token_Fa_2 = (
@@ -114,7 +154,7 @@ const fetchOperations_Token_Fa_2 = (
   contractAddress: string,
   tokenId = '0',
   pseudoLimit: number,
-  olderThan?: Activity
+  olderThan?: TzktOperation
 ) =>
   TZKT.fetchGetOperationsTransactions(chainId, {
     limit: pseudoLimit,
@@ -122,19 +162,19 @@ const fetchOperations_Token_Fa_2 = (
     'sort.desc': 'level',
     target: contractAddress,
     'parameter.[*].in': `[{"from_":"${accountAddress}","txs":[{"token_id":"${tokenId}"}]},{"txs":[{"to_":"${accountAddress}","token_id":"${tokenId}"}]}]`,
-    'level.lt': olderThan?.oldestTzktOperation.level
+    ...buildOlderThanParam(olderThan)
   });
 
 async function fetchOperations_Any(
   chainId: TzktApiChainId,
   accountAddress: string,
   pseudoLimit: number,
-  olderThan?: Activity
+  olderThan?: TzktOperation
 ) {
   const limit = pseudoLimit;
 
   const accOperations = await TZKT.fetchGetAccountOperations(chainId, accountAddress, {
-    type: ['delegation', 'origination', 'transaction'],
+    type: [TzktOperationType.Delegation, TzktOperationType.Origination, TzktOperationType.Transaction],
     ...buildOlderThanParam(olderThan),
     limit,
     sort: 1
@@ -168,7 +208,7 @@ function fetchIncomingOperTransactions_Fa_1_2(
   chainId: TzktApiChainId,
   accountAddress: string,
   endLimitation: { limit: number } | { newerThen: string },
-  olderThan?: Activity
+  olderThan?: TzktOperation
 ) {
   const bottomParams = 'limit' in endLimitation ? endLimitation : { 'timestamp.ge': endLimitation.newerThen };
 
@@ -188,7 +228,7 @@ function fetchIncomingOperTransactions_Fa_2(
   chainId: TzktApiChainId,
   accountAddress: string,
   endLimitation: { limit: number } | { newerThen: string },
-  olderThan?: Activity
+  olderThan?: TzktOperation
 ) {
   const bottomParams = 'limit' in endLimitation ? endLimitation : { 'timestamp.ge': endLimitation.newerThen };
 
@@ -212,7 +252,7 @@ function fetchIncomingOperTransactions_Fa_2(
 async function fetchOperGroupsForOperations(
   chainId: TzktApiChainId,
   operations: TzktOperation[],
-  olderThan?: Activity
+  olderThan?: TzktOperation
 ) {
   const uniqueHashes = filterUnique(operations.map(d => d.hash));
 
@@ -236,4 +276,4 @@ async function fetchOperGroupsForOperations(
  * > `{"code":400,"errors":{"lastId":"The value '331626822238208' is not valid."}}`
  * > when it's not true!
  */
-const buildOlderThanParam = (olderThan?: Activity) => ({ 'timestamp.lt': olderThan?.oldestTzktOperation?.timestamp });
+const buildOlderThanParam = (olderThan?: TzktOperation) => ({ 'timestamp.lt': olderThan?.timestamp });

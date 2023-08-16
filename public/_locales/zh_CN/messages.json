@@ -1642,5 +1642,8 @@
   },
   "faucetJsonDescription": {
     "message": "您可以通过在此粘贴JSON来代替添加文件"
+  },
+  "listSeparation": {
+    "message": "，"
   }
 }

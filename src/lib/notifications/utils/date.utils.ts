@@ -1,8 +1,13 @@
-export const formatDateOutput = (date: number | string) =>
-  new Date(date).toLocaleString('en-GB', {
-    day: 'numeric',
-    month: 'numeric',
-    year: 'numeric',
-    hour: 'numeric',
-    minute: 'numeric'
-  });
+const defaultFormatDateOptions: Intl.DateTimeFormatOptions = {
+  day: 'numeric',
+  month: 'numeric',
+  year: 'numeric',
+  hour: 'numeric',
+  minute: 'numeric'
+};
+
+export const formatDateOutput = (
+  date: number | string,
+  locale = 'en-GB',
+  formatDateOptions = defaultFormatDateOptions
+) => new Date(date).toLocaleString(locale, formatDateOptions);

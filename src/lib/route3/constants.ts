@@ -1,5 +1,3 @@
-import { BigNumber } from 'bignumber.js';
-
 import { Route3Token, Route3TokenStandardEnum } from 'lib/apis/route3/fetch-route3-tokens';
 import { TempleToken } from 'lib/assets/known-tokens';
 
@@ -14,8 +12,6 @@ export const ROUTING_FEE_RATIO = getPercentageRatio(ROUTING_FEE_PERCENT);
 export const ROUTING_FEE_SLIPPAGE_RATIO = 0.995;
 export const MAX_ROUTING_FEE_CHAINS = 1;
 export const SWAP_THRESHOLD_TO_GET_CASHBACK = 10;
-
-export const ZERO = new BigNumber(0);
 
 export const TEMPLE_TOKEN: Route3Token = {
   id: 138,

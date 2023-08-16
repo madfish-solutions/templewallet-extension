@@ -1,9 +1,15 @@
+import { useMemo, useRef } from 'react';
+
+import { isDefined } from '@rnw-community/shared';
+import { isSameDay } from 'date-fns';
+
+import type { TzktOperation } from 'lib/apis/tzkt';
 import { isKnownChainId } from 'lib/apis/tzkt/api';
-import { useTezos, useChainId, useAccount } from 'lib/temple/front';
+import { useTezos, useChainId, useAccount, useKnownBakersAndPayoutAccounts } from 'lib/temple/front';
 import { useDidMount, useDidUpdate, useSafeState, useStopper } from 'lib/ui/hooks';
 
 import fetchActivities from './fetch';
-import type { Activity } from './types';
+import { DisplayableActivity } from './types';
 
 type TLoading = 'init' | 'more' | false;
 
@@ -11,16 +17,23 @@ export default function useActivities(initialPseudoLimit: number, assetSlug?: st
   const tezos = useTezos();
   const chainId = useChainId(true);
   const account = useAccount();
+  const knownBakersAndPayouts = useKnownBakersAndPayoutAccounts(false);
+  const oldestOperationRef = useRef<TzktOperation>();
 
   const accountAddress = account.publicKeyHash;
 
   const [loading, setLoading] = useSafeState<TLoading>(isKnownChainId(chainId) && 'init');
-  const [activities, setActivities] = useSafeState<Activity[]>([]);
+  const [activities, setActivities] = useSafeState<DisplayableActivity[]>([]);
   const [reachedTheEnd, setReachedTheEnd] = useSafeState(false);
 
   const { stop: stopLoading, stopAndBuildChecker } = useStopper();
 
-  async function loadActivities(pseudoLimit: number, activities: Activity[], shouldStop: () => boolean) {
+  const tzktBakersOrPayoutsAliases = useMemo(
+    () => knownBakersAndPayouts.map(({ address, name }) => ({ address, alias: name })),
+    [knownBakersAndPayouts]
+  );
+
+  async function loadActivities(pseudoLimit: number, activities: DisplayableActivity[], shouldStop: () => boolean) {
     if (!isKnownChainId(chainId)) {
       setLoading(false);
       setReachedTheEnd(true);
@@ -28,11 +41,25 @@ export default function useActivities(initialPseudoLimit: number, assetSlug?: st
     }
 
     setLoading(activities.length ? 'more' : 'init');
-    const lastActivity = activities[activities.length - 1];
 
-    let newActivities: Activity[];
+    let newActivities: DisplayableActivity[];
+    let newReachedTheEnd = false;
+    let newOldestOperation: TzktOperation | undefined;
     try {
-      newActivities = await fetchActivities(chainId, account, assetSlug, pseudoLimit, tezos, lastActivity);
+      ({
+        activities: newActivities,
+        reachedTheEnd: newReachedTheEnd,
+        oldestOperation: newOldestOperation
+      } = await fetchActivities(
+        chainId,
+        account,
+        assetSlug,
+        pseudoLimit,
+        tezos,
+        tzktBakersOrPayoutsAliases,
+        oldestOperationRef.current
+      ));
+      oldestOperationRef.current = newOldestOperation ?? oldestOperationRef.current;
       if (shouldStop()) return;
     } catch (error) {
       if (shouldStop()) return;
@@ -44,7 +71,7 @@ export default function useActivities(initialPseudoLimit: number, assetSlug?: st
 
     setActivities(activities.concat(newActivities));
     setLoading(false);
-    if (newActivities.length === 0) setReachedTheEnd(true);
+    setReachedTheEnd(newReachedTheEnd);
   }
 
   /** Loads more of older items */
@@ -67,10 +94,30 @@ export default function useActivities(initialPseudoLimit: number, assetSlug?: st
     loadActivities(initialPseudoLimit, [], stopAndBuildChecker());
   }, [chainId, accountAddress, assetSlug]);
 
+  const groupedByDayActivities = useMemo(
+    () =>
+      activities.reduce<DisplayableActivity[][]>((acc, activity) => {
+        const firstDayActivities = acc[acc.length - 1];
+        const firstDayActivityTimestamp = firstDayActivities?.[0]?.timestamp;
+
+        if (
+          isDefined(firstDayActivityTimestamp) &&
+          isSameDay(new Date(firstDayActivityTimestamp), new Date(activity.timestamp))
+        ) {
+          firstDayActivities.push(activity);
+        } else {
+          acc.push([activity]);
+        }
+
+        return acc;
+      }, []),
+    [activities]
+  );
+
   return {
     loading,
     reachedTheEnd,
-    list: activities,
+    groupedByDayActivities,
     loadMore
   };
 }

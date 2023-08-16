@@ -482,6 +482,9 @@
   "operationHash": {
     "message": "Operation Hash"
   },
+  "txHash": {
+    "message": "TxHash:"
+  },
   "alert": {
     "message": "Alert"
   },
@@ -1107,6 +1110,9 @@
   },
   "baker": {
     "message": "Baker"
+  },
+  "bakerRewards": {
+    "message": "Baker rewards"
   },
   "bakerInputDescription": {
     "message": "Address of a registered baker."
@@ -2109,6 +2115,12 @@
   "minimumReceived": {
     "message": "Minimum received"
   },
+  "received": {
+    "message": "Received:"
+  },
+  "sent": {
+    "message": "Sent:"
+  },
   "inputOutputAssetsCannotBeSame": {
     "message": "Input and output assets cannot be the same"
   },
@@ -3075,5 +3087,22 @@
   },
   "keepLatestNews": {
     "message": "Keep up with the latest news from Madfish"
+  },
+  "listSeparation": {
+    "message": ", "
+  },
+  "tokenAndSeveralOthers": {
+    "message": "$token$ and $amount$ others",
+    "placeholders": {
+      "token": {
+        "content": "$1"
+      },
+      "amount": {
+        "content": "$2"
+      }
+    }
+  },
+  "today": {
+    "message": "Today"
   }
 }

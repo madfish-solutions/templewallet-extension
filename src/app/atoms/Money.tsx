@@ -16,10 +16,12 @@ interface MoneyProps extends TestIDProps {
   shortened?: boolean;
   smallFractionFont?: boolean;
   tooltip?: boolean;
+  forceUseFormattingThreshold?: boolean;
 }
 
 const DEFAULT_CRYPTO_DECIMALS = 6;
 const ENOUGH_INT_LENGTH = 4;
+const FORMATTING_THRESHOLD = 1000;
 
 const Money = memo<MoneyProps>(
   ({
@@ -30,6 +32,7 @@ const Money = memo<MoneyProps>(
     shortened,
     smallFractionFont = true,
     tooltip = true,
+    forceUseFormattingThreshold = false,
     testID,
     testIDProperties
   }) => {
@@ -68,7 +71,10 @@ const Money = memo<MoneyProps>(
       );
     }
 
-    if (!fiat && decimalsLength > cryptoDecimals && !shortened) {
+    if (
+      (!fiat && decimalsLength > cryptoDecimals && !shortened) ||
+      (forceUseFormattingThreshold && bn.gt(FORMATTING_THRESHOLD))
+    ) {
       return (
         <MoneyWithoutFormat
           tooltip={tooltip}
@@ -132,7 +138,6 @@ interface MoneyWithoutFormatProps extends MoneyAnyFormatPropsBase {
   roundingMode?: BigNumber.RoundingMode;
 }
 
-const FORMATTING_THRESHOLD = 1000;
 const PRECISION_MULTIPLIER = 100;
 
 const formatAmount = (amount: BigNumber) => {
