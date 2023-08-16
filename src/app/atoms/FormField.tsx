@@ -6,7 +6,8 @@ import React, {
   useCallback,
   useMemo,
   useRef,
-  useState
+  useState,
+  useEffect
 } from 'react';
 
 import classNames from 'clsx';
@@ -15,7 +16,8 @@ import CleanButton from 'app/atoms/CleanButton';
 import CopyButton from 'app/atoms/CopyButton';
 import { ReactComponent as CopyIcon } from 'app/icons/copy.svg';
 import { setTestID, TestIDProperty } from 'lib/analytics';
-import { blurHandler, focusHandler, inputChangeHandler } from 'lib/ui/inputHandlers';
+import { useDidUpdate } from 'lib/ui/hooks';
+import { blurHandler, focusHandler, inputChangeHandler, inputPasteHandler } from 'lib/ui/inputHandlers';
 import { useBlurElementOnTimeout } from 'lib/ui/use-blur-on-timeout';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 import { combineRefs } from 'lib/ui/util';
@@ -49,6 +51,7 @@ export interface FormFieldProps extends TestIDProperty, Omit<FormFieldAttrs, 'ty
   extraInner?: ReactNode;
   extraInnerWrapper?: 'default' | 'none' | 'unset';
   onClean?: () => void;
+  smallPaddings?: boolean;
   fieldWrapperBottomMargin?: boolean;
   copyable?: boolean;
 }
@@ -74,12 +77,14 @@ export const FormField = forwardRef<FormFieldRef, FormFieldProps>(
       value,
       defaultValue,
       onChange,
+      onPaste,
       onFocus,
       onBlur,
       onClean,
       className,
       spellCheck = false,
       autoComplete = 'off',
+      smallPaddings = false,
       fieldWrapperBottomMargin = true,
       copyable,
       testID,
@@ -90,13 +95,15 @@ export const FormField = forwardRef<FormFieldRef, FormFieldProps>(
     const secret = secretProp && textarea;
     const Field = textarea ? 'textarea' : 'input';
 
-    const [passwordInputType, RevealPasswordIcon] = usePasswordToggle();
+    const [passwordInputType, RevealPasswordIcon] = usePasswordToggle(smallPaddings);
     const isPasswordInput = type === 'password';
     const inputType = isPasswordInput ? passwordInputType : type;
 
     const { copy } = useCopyToClipboard();
 
     const [localValue, setLocalValue] = useState(value ?? defaultValue ?? '');
+    useDidUpdate(() => void setLocalValue(value ?? ''), [value]);
+
     const [focused, setFocused] = useState(false);
 
     const handleChange = useCallback(
@@ -104,6 +111,13 @@ export const FormField = forwardRef<FormFieldRef, FormFieldProps>(
         inputChangeHandler(e, onChange, setLocalValue);
       },
       [onChange, setLocalValue]
+    );
+
+    const handlePaste = useCallback(
+      (e: React.ClipboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        inputPasteHandler(e, onPaste, setLocalValue);
+      },
+      [onPaste, setLocalValue]
     );
 
     const handleFocus = useCallback(
@@ -119,7 +133,7 @@ export const FormField = forwardRef<FormFieldRef, FormFieldProps>(
 
     const spareRef = useRef<FormFieldRef>();
 
-    useBlurElementOnTimeout(spareRef, Boolean(secret && focused));
+    useBlurElementOnTimeout(spareRef, focused && Boolean(secret || isPasswordInput));
 
     const handleSecretBannerClick = () => void spareRef.current?.focus();
     const handleCleanClick = useCallback(() => void onClean?.(), [onClean]);
@@ -135,8 +149,12 @@ export const FormField = forwardRef<FormFieldRef, FormFieldProps>(
             ref={combineRefs(ref, spareRef)}
             className={classNames(
               FORM_FIELD_CLASS_NAME,
-              'py-3 pl-4',
-              buildPaddingRightClassName(isPasswordInput, extraInnerWrapper === 'unset' ? false : Boolean(extraInner)),
+              smallPaddings ? 'py-2 pl-2' : 'py-3 pl-4',
+              buildPaddingRightClassName(
+                isPasswordInput,
+                extraInnerWrapper === 'unset' ? false : Boolean(extraInner),
+                smallPaddings
+              ),
               errorCaption ? 'border-red-500' : 'border-gray-300',
               className
             )}
@@ -147,13 +165,15 @@ export const FormField = forwardRef<FormFieldRef, FormFieldProps>(
             spellCheck={spellCheck}
             autoComplete={autoComplete}
             onChange={handleChange}
+            // onPaste={handlePaste}
+            onPaste={onPaste}
             onFocus={handleFocus}
             onBlur={handleBlur}
             {...rest}
             {...setTestID(testID)}
           />
 
-          {localValue !== '' && isPasswordInput && !revealForbidden && RevealPasswordIcon}
+          {isPasswordInput && !revealForbidden && localValue !== '' && RevealPasswordIcon}
 
           <ExtraInner innerComponent={extraInner} useDefaultWrapper={extraInnerWrapper === 'default'} />
 
@@ -164,6 +184,7 @@ export const FormField = forwardRef<FormFieldRef, FormFieldProps>(
           <Cleanable cleanable={cleanable} handleCleanClick={handleCleanClick} />
           <Copyable value={value} copy={copy} cleanable={cleanable} copyable={copyable} />
         </div>
+
         <ErrorCaption errorCaption={errorCaption} />
       </div>
     );
@@ -245,7 +266,10 @@ const ErrorCaption: React.FC<ErrorCaptionProps> = ({ errorCaption }) => {
   ) : null;
 };
 
-const buildPaddingRightClassName = (isPasswordInput: boolean, withExtraInner: boolean) => {
+const buildPaddingRightClassName = (isPasswordInput: boolean, withExtraInner: boolean, smallPaddings: boolean) => {
   if (withExtraInner) return 'pr-32';
-  return isPasswordInput ? 'pr-12' : 'pr-4';
+
+  if (isPasswordInput) return smallPaddings ? 'pr-11' : 'pr-12';
+
+  return smallPaddings ? 'pr-2' : 'pr-4';
 };

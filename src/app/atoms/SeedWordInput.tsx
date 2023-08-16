@@ -5,7 +5,7 @@ import clsx from 'clsx';
 import { setTestID, TestIDProperty } from 'lib/analytics';
 import { useBlurElementOnTimeout } from 'lib/ui/use-blur-on-timeout';
 
-import { FORM_FIELD_CLASS_NAME } from './FormField';
+import { FORM_FIELD_CLASS_NAME, FormField } from './FormField';
 import { SecretCover } from './SecretCover';
 
 interface SeedWordInputProps extends TestIDProperty {
@@ -14,10 +14,9 @@ interface SeedWordInputProps extends TestIDProperty {
   showSeed: boolean;
   isFirstAccount?: boolean;
   value?: string;
-  autoComplete?: string;
   setShowSeed: (value: boolean) => void;
-  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onPaste?: (e: React.ClipboardEvent<HTMLInputElement>) => void;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  onPaste?: (e: React.ClipboardEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   className?: string;
 }
 
@@ -27,7 +26,6 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
   showSeed,
   value,
   isFirstAccount,
-  autoComplete = 'off',
   setShowSeed,
   onChange,
   onPaste,
@@ -48,22 +46,52 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
   useBlurElementOnTimeout(inputRef, showSeed, undefined, () => setShowSeed(false));
 
   const handleChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      if (onChange) {
-        onChange(e);
-      }
-    },
+    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void onChange?.(e),
     [onChange]
   );
 
   const handlePaste = useCallback(
-    (e: React.ClipboardEvent<HTMLInputElement>) => {
+    (e: React.ClipboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       if (onPaste) {
         inputRef.current?.blur();
         onPaste(e);
       }
     },
     [onPaste]
+  );
+
+  return (
+    <div className="flex flex-col">
+      <label htmlFor={id.toString()} className={clsx('self-center', isError ? 'text-red-600' : 'text-gray-600')}>
+        <p style={{ fontSize: 14 }}>{`#${id + 1}`}</p>
+      </label>
+
+      <FormField
+        ref={inputRef}
+        type="password"
+        id={id.toString()}
+        value={value}
+        onChange={handleChange}
+        onPaste={handlePaste}
+        autoComplete="off"
+        smallPaddings
+        fieldWrapperBottomMargin={false}
+        // name="password"
+        // label={
+        //   <>
+        //     <T id="password" />{' '}
+        //     <span className="text-sm font-light text-gray-600">
+        //       <T id="optionalComment" />
+        //     </span>
+        //   </>
+        // }
+        // labelDescription={t('passwordInputDescription')}
+        // placeholder="*********"
+        // errorCaption={errors.password?.message}
+        // containerClassName="mb-6"
+        testID={testID}
+      />
+    </div>
   );
 
   return (
@@ -77,7 +105,7 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
           ref={inputRef}
           id={id.toString()}
           value={value}
-          autoComplete={autoComplete}
+          autoComplete="off"
           onChange={handleChange}
           onPaste={handlePaste}
           onFocus={() => setFocused(true)}

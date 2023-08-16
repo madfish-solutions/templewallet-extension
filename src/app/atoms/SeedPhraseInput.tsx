@@ -39,7 +39,7 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
   const { popup } = useAppEnv();
 
   const [pasteFailed, setPasteFailed] = useState(false);
-  const [draftSeed, setDraftSeed] = useState(new Array(defaultNumberOfWords).fill(''));
+  const [draftSeed, setDraftSeed] = useState(new Array<string>(defaultNumberOfWords).fill(''));
   const [showSeed, setShowSeed] = useState(true);
   const [numberOfWords, setNumberOfWords] = useState(defaultNumberOfWords);
 
@@ -64,7 +64,7 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
   );
 
   const onSeedWordChange = useCallback(
-    (index: number, event: React.ChangeEvent<HTMLInputElement>) => {
+    (index: number, event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       if (pasteFailed) {
         setPasteFailed(false);
       }
@@ -176,13 +176,13 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
               submitted={submitted}
               showSeed={showSeed}
               setShowSeed={setShowSeed}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+              onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
                 e.preventDefault();
                 onSeedWordChange(index, e);
               }}
               value={draftSeed[index]}
               testID={testID}
-              onPaste={(e: React.ClipboardEvent<HTMLInputElement>) => {
+              onPaste={(e: React.ClipboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
                 const newSeed = e.clipboardData.getData('text');
 
                 if (newSeed.trim().match(/\s/u)) {

@@ -2,6 +2,8 @@ import type {
   SyntheticEvent,
   ChangeEvent,
   ChangeEventHandler,
+  ClipboardEvent,
+  ClipboardEventHandler,
   EventHandler,
   FocusEvent,
   FocusEventHandler
@@ -12,6 +14,12 @@ export const inputChangeHandler = (
   onChange: ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement> | undefined,
   setValue: (value: string) => void
 ) => baseHandler(evt, onChange, () => setValue(evt.target.value));
+
+export const inputPasteHandler = (
+  evt: ClipboardEvent<HTMLInputElement | HTMLTextAreaElement>,
+  onPaste: ClipboardEventHandler<HTMLInputElement | HTMLTextAreaElement> | undefined,
+  setValue: (value: string) => void
+) => baseHandler(evt, onPaste, () => setValue(evt.clipboardData.getData('text')));
 
 export const checkedHandler = (
   evt: ChangeEvent<HTMLInputElement>,
@@ -38,9 +46,8 @@ const baseHandler = <E extends SyntheticEvent>(
 ): void => {
   if (onEvent) {
     onEvent(evt);
-    if (evt.defaultPrevented) {
-      return;
-    }
+
+    if (evt.defaultPrevented) return;
   }
 
   setValue();
