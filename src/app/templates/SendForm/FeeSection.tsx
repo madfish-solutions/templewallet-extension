@@ -85,7 +85,7 @@ const FeeAlert: React.FC<FeeAlertProps> = ({
   if (toResolved === accountPkh)
     return (
       <Alert
-        type="warn"
+        type="warning"
         title={t('attentionExclamation')}
         description={<T id="tryingToTransferToYourself" />}
         className="mt-6 mb-4"
@@ -95,7 +95,7 @@ const FeeAlert: React.FC<FeeAlertProps> = ({
   if (toFilledWithKTAddress)
     return (
       <Alert
-        type="warn"
+        type="warning"
         title={t('attentionExclamation')}
         description={<T id="tryingToTransferToContract" />}
         className="mt-6 mb-4"

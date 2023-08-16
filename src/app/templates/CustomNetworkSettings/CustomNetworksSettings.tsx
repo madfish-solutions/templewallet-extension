@@ -8,6 +8,7 @@ import Name from 'app/atoms/Name';
 import SubTitle from 'app/atoms/SubTitle';
 import { URL_PATTERN } from 'app/defaults';
 import { ReactComponent as CloseIcon } from 'app/icons/close.svg';
+import { setAnotherSelector, setTestID } from 'lib/analytics';
 import { T, t } from 'lib/i18n';
 import { useSettings, useTempleClient } from 'lib/temple/front';
 import { loadChainId } from 'lib/temple/helpers';
@@ -217,6 +218,8 @@ const NetworksListItem: FC<NetworksListItemProps> = props => {
       style={{
         padding: '0.4rem 0.375rem 0.4rem 0.375rem'
       }}
+      {...setTestID(CustomNetworkSettingsSelectors.networkItem)}
+      {...setAnotherSelector('url', rpcBaseURL)}
     >
       <div
         className="mt-1 ml-2 mr-3 w-3 h-3 border border-primary-white rounded-full shadow-xs"
@@ -242,6 +245,8 @@ const NetworksListItem: FC<NetworksListItemProps> = props => {
         <button
           className="flex-none p-2 text-gray-500 hover:text-gray-600 transition ease-in-out duration-200"
           onClick={handleRemoveClick}
+          {...setTestID(CustomNetworkSettingsSelectors.deleteCustomNetworkButton)}
+          {...setAnotherSelector('url', rpcBaseURL)}
         >
           <CloseIcon className="w-auto h-5 stroke-current stroke-2" title={t('delete')} />
         </button>

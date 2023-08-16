@@ -1,9 +1,9 @@
-import { AddAssetPage } from 'e2e/src/page-objects/pages/add-asset.page';
 import { AddressBookPage } from 'e2e/src/page-objects/pages/address-book.page';
 import { ConfirmationModalPage } from 'e2e/src/page-objects/pages/confirmation-modal.page';
 import { NetworksDropDown } from 'e2e/src/page-objects/pages/drop-down-lists/networks.drop-down';
 import { ManageAssetsCollectiblesPage } from 'e2e/src/page-objects/pages/manage-assets-collectibles.page';
 import { ManageAssetsTokensPage } from 'e2e/src/page-objects/pages/manage-assets-tokens.page';
+import { NetworksPage } from 'e2e/src/page-objects/pages/networks.page';
 import { NewsletterModalPage } from 'e2e/src/page-objects/pages/newsletter-modal.page';
 import { OnRumModalPage } from 'e2e/src/page-objects/pages/on-rum-modal.page';
 import { RemoveAccountPage } from 'e2e/src/page-objects/pages/remove-account.page';
@@ -61,6 +61,7 @@ export const Pages = {
   RemoveAccount: new RemoveAccountPage(),
   AddressBook: new AddressBookPage(),
   ConfirmationModal: new ConfirmationModalPage(),
+  Networks: new NetworksPage(),
   ManageAssetsCollectibles: new ManageAssetsCollectiblesPage(),
   ManageAssetsTokens: new ManageAssetsTokensPage(),
   AddAsset: new AddAssetPage()
