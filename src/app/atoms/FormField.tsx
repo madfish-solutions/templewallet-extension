@@ -29,7 +29,7 @@ import usePasswordToggle from './usePasswordToggle.hook';
 
 export const PASSWORD_ERROR_CAPTION = 'PASSWORD_ERROR_CAPTION';
 
-type FormFieldElement = HTMLInputElement | HTMLTextAreaElement;
+export type FormFieldElement = HTMLInputElement | HTMLTextAreaElement;
 type FormFieldAttrs = InputHTMLAttributes<HTMLInputElement> & TextareaHTMLAttributes<HTMLTextAreaElement>;
 
 export interface FormFieldProps extends TestIDProperty, Omit<FormFieldAttrs, 'type'> {
@@ -42,14 +42,20 @@ export interface FormFieldProps extends TestIDProperty, Omit<FormFieldAttrs, 'ty
   containerClassName?: string;
   containerStyle?: React.CSSProperties;
   textarea?: boolean;
-  /** Only for conjunction with `textarea=true` */
+  /** `textarea=true` only */
   secret?: boolean;
-  /** Only for conjunction with `type='password'` */
+  /** `type='password'` only */
   revealForbidden?: boolean;
+  /**
+   * Any value, whose change will result in password un-reveal.
+   * `type='password'` only
+   */
+  revealRef?: unknown;
   cleanable?: boolean;
   extraInner?: ReactNode;
   extraInnerWrapper?: 'default' | 'none' | 'unset';
-  onClean?: () => void;
+  onClean?: EmptyFn;
+  onReveal?: EmptyFn;
   smallPaddings?: boolean;
   fieldWrapperBottomMargin?: boolean;
   copyable?: boolean;
@@ -68,6 +74,7 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
       textarea,
       secret: secretProp,
       revealForbidden = false,
+      revealRef,
       cleanable,
       extraInner = null,
       extraInnerWrapper = 'default',
@@ -79,6 +86,7 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
       onFocus,
       onBlur,
       onClean,
+      onReveal,
       className,
       spellCheck = false,
       autoComplete = 'off',
@@ -93,7 +101,7 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
     const secret = secretProp && textarea;
     const Field = textarea ? 'textarea' : 'input';
 
-    const [passwordInputType, RevealPasswordIcon] = usePasswordToggle(smallPaddings);
+    const [passwordInputType, RevealPasswordIcon] = usePasswordToggle(smallPaddings, onReveal, revealRef);
     const isPasswordInput = type === 'password';
     const inputType = isPasswordInput ? passwordInputType : type;
 

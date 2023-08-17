@@ -1,5 +1,8 @@
 import { useEffect } from 'react';
 
+/**
+ * @arg callback // Must be memoized
+ */
 export const useTimeout = (callback: EmptyFn, timeout: number, condition = true) => {
   useEffect(() => {
     if (!condition) return;

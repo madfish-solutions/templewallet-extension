@@ -2,24 +2,34 @@ import React, { FC, useCallback, useRef } from 'react';
 
 import clsx from 'clsx';
 
-import { TestIDProperty } from 'lib/analytics';
-
-import { FormField } from './FormField';
+import { FormField, FormFieldElement } from 'app/atoms/FormField';
+import type { TestIDProperty } from 'lib/analytics';
 
 export interface SeedWordInputProps extends TestIDProperty {
   id: number;
   submitted: boolean;
   value?: string;
-  onChange?: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
-  onPaste?: (e: React.ClipboardEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  onChange?: (e: React.ChangeEvent<FormFieldElement>) => void;
+  onPaste?: (e: React.ClipboardEvent<FormFieldElement>) => void;
+  revealRef: unknown;
+  onReveal: EmptyFn;
 }
 
-export const SeedWordInput: FC<SeedWordInputProps> = ({ id, submitted, value, onChange, onPaste, testID }) => {
+export const SeedWordInput: FC<SeedWordInputProps> = ({
+  id,
+  submitted,
+  value,
+  onChange,
+  onPaste,
+  revealRef,
+  onReveal,
+  testID
+}) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const isError = submitted ? !value : false;
 
   const handlePaste = useCallback(
-    (e: React.ClipboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    (e: React.ClipboardEvent<FormFieldElement>) => {
       if (onPaste) {
         inputRef.current?.blur();
         onPaste(e);
@@ -41,6 +51,8 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({ id, submitted, value, on
         value={value}
         onChange={onChange}
         onPaste={handlePaste}
+        revealRef={revealRef}
+        onReveal={onReveal}
         autoComplete="off"
         smallPaddings
         fieldWrapperBottomMargin={false}

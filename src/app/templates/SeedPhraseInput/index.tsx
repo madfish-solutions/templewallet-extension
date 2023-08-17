@@ -11,6 +11,7 @@ import { clearClipboard } from 'lib/ui/util';
 
 import { SeedLengthSelect } from './SeedLengthSelect';
 import { SeedWordInput, SeedWordInputProps } from './SeedWordInput';
+import { useRevealRef } from './use-reveal-ref.hook';
 
 interface SeedPhraseInputProps extends TestIDProperty {
   isFirstAccount?: boolean;
@@ -41,6 +42,8 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
   const [pasteFailed, setPasteFailed] = useState(false);
   const [draftSeed, setDraftSeed] = useState(new Array<string>(defaultNumberOfWords).fill(''));
   const [numberOfWords, setNumberOfWords] = useState(defaultNumberOfWords);
+
+  const { getRevealRef, onReveal, resetRevealRef } = useRevealRef();
 
   const onSeedChange = useCallback(
     (newDraftSeed: Array<string>) => {
@@ -101,10 +104,11 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
       if (newDraftSeed.length < newNumberOfWords) {
         newDraftSeed = newDraftSeed.concat(new Array(newNumberOfWords - newDraftSeed.length).fill(''));
       }
+      resetRevealRef();
       onSeedChange(newDraftSeed);
       clearClipboard();
     },
-    [numberOfWords, onSeedChange, pasteFailed, setPasteFailed]
+    [numberOfWords, onSeedChange, pasteFailed, setPasteFailed, resetRevealRef]
   );
 
   const onSeedWordPaste = useCallback<Defined<SeedWordInputProps['onPaste']>>(
@@ -184,6 +188,8 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
                 event.preventDefault();
                 onSeedWordChange(index, event.target.value);
               }}
+              revealRef={getRevealRef(index)}
+              onReveal={() => onReveal(index)}
               value={draftSeed[index]}
               testID={testID}
               onPaste={onSeedWordPaste}
