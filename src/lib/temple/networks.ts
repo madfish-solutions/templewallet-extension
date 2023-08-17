@@ -15,8 +15,7 @@ export const NETWORK_IDS = new Map<string, string>([
   [TempleChainId.Ghostnet, 'ghostnet'],
   [TempleChainId.Jakartanet, 'jakartanet'],
   [TempleChainId.Limanet, 'limanet'],
-  [TempleChainId.Kathmandunet, 'kathmandunet'],
-  [TempleChainId.Mumbainet, 'mumbainet']
+  [TempleChainId.Kathmandunet, 'kathmandunet']
 ]);
 
 const DCP_NETWORKS: TempleNetwork[] = [
@@ -76,15 +75,6 @@ export const NETWORKS: TempleNetwork[] = [
     type: 'test',
     rpcBaseURL: 'https://uoi3x99n7c.ghostnet.tezosrpc.midl.dev',
     color: '#131380',
-    disabled: false
-  },
-  {
-    id: 'mumbainet',
-    name: 'Mumbainet Testnet',
-    description: 'Mumbainet testnet',
-    type: 'test',
-    rpcBaseURL: 'https://rpc.mumbainet.teztnets.xyz/',
-    color: '#FBBF24',
     disabled: false
   },
   {
