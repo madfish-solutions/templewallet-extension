@@ -15,9 +15,9 @@ import { T, t } from 'lib/i18n';
 import { useRetryableSWR } from 'lib/swr';
 import { useRelevantAccounts, useTezos, useTempleClient, useChainId } from 'lib/temple/front';
 import { isAddressValid } from 'lib/temple/helpers';
-import { TempleAccountType, ImportAccountFormType } from 'lib/temple/types';
+import { TempleAccountType } from 'lib/temple/types';
 
-import { ImportAccountSelectors } from '../pages/ImportAccount/ImportAccount.selectors';
+import { ImportAccountSelectors, ImportAccountFormType } from './selectors';
 
 type ImportKTAccountFormData = {
   contractAddress: string;
@@ -25,7 +25,7 @@ type ImportKTAccountFormData = {
 
 const getContractAddress = (contract: TzktRelatedContract) => contract.address;
 
-const ManagedKTForm: FC = () => {
+export const ManagedKTForm: FC = () => {
   const accounts = useRelevantAccounts();
   const tezos = useTezos();
   const { importKTManagedAccount } = useTempleClient();
@@ -222,8 +222,6 @@ const ManagedKTForm: FC = () => {
     </form>
   );
 };
-
-export default ManagedKTForm;
 
 const getUsersContracts = async (_k: string, chainId: string, ...accounts: string[]) => {
   if (!isKnownChainId(chainId)) {
