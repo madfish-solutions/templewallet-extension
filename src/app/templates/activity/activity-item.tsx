@@ -81,6 +81,16 @@ export const ActivityItem = memo<Props>(({ activity }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [wasToggled, setWasToggled] = useState(false);
 
+  const isDelegation = type === ActivityType.Delegation;
+  const isBakingRewards = type === ActivityType.BakingRewards;
+  const isSend = type === ActivityType.Send;
+  const isReceive = type === ActivityType.Recieve;
+  const isInteraction = type === ActivityType.Interaction;
+  const actorPrepositionI18nKey = isSend || isDelegation ? 'toAsset' : 'from';
+  const actor = isSend || isDelegation ? to : from;
+  const shouldShowBaker = (isDelegation || isBakingRewards) && isDefined(actor);
+  const shouldShowActor = isDelegation || isBakingRewards || isSend || isReceive;
+
   const interactionTooltipRef = useTippy<HTMLDivElement>({
     trigger: 'mouseenter',
     hideOnClick: false,
@@ -92,23 +102,12 @@ export const ActivityItem = memo<Props>(({ activity }) => {
     () => tokensDeltas.filter(({ atomicAmount }) => atomicAmount.gt(0)),
     [tokensDeltas]
   );
-
   const sentTokensDeltas = useMemo(() => tokensDeltas.filter(({ atomicAmount }) => atomicAmount.lt(0)), [tokensDeltas]);
 
   const toggleDetails = useCallback(() => {
     setIsOpen(value => !value);
     setWasToggled(true);
   }, []);
-
-  const isDelegation = type === ActivityType.Delegation;
-  const isBakingRewards = type === ActivityType.BakingRewards;
-  const isSend = type === ActivityType.Send;
-  const isReceive = type === ActivityType.Recieve;
-  const isInteraction = type === ActivityType.Interaction;
-  const actorPrepositionI18nKey = isSend || isDelegation ? 'toAsset' : 'from';
-  const actor = isSend || isDelegation ? to : from;
-  const shouldShowBaker = (isDelegation || isBakingRewards) && isDefined(actor);
-  const shouldShowActor = isDelegation || isBakingRewards || isSend || isReceive;
 
   return (
     <div className="py-3 flex flex-col gap-3 w-full">

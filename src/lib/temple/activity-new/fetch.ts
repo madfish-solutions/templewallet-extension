@@ -25,7 +25,7 @@ export default async function fetchActivities(
   assetSlug: string | undefined,
   pseudoLimit: number,
   tezos: ReactiveTezosToolkit,
-  knownBakersAndPayouts: TzktAlias[],
+  knownBakers: TzktAlias[],
   olderThan?: TzktOperation
 ): Promise<FetchActivitiesReturnValue> {
   const operations = await fetchOperations(chainId, account, assetSlug, pseudoLimit, tezos, olderThan);
@@ -40,7 +40,7 @@ export default async function fetchActivities(
 
   const rawActivities = groups
     .map(({ operations, tokensTransfers }) =>
-      parseOperations(operations, account.publicKeyHash, knownBakersAndPayouts, tokensTransfers)
+      parseOperations(operations, account.publicKeyHash, knownBakers, tokensTransfers)
     )
     .flat();
   const activities = rawActivities.map<DisplayableActivity>(activity => {
@@ -62,7 +62,7 @@ export default async function fetchActivities(
   );
 
   if (activities.length === 0) {
-    return fetchActivities(chainId, account, assetSlug, pseudoLimit, tezos, knownBakersAndPayouts, oldestOperation);
+    return fetchActivities(chainId, account, assetSlug, pseudoLimit, tezos, knownBakers, oldestOperation);
   }
 
   return {

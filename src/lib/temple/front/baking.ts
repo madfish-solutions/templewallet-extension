@@ -13,6 +13,7 @@ import {
 import type { TzktRewardsEntry } from 'lib/apis/tzkt';
 import { useRetryableSWR } from 'lib/swr';
 
+import untypedPayoutsAccounts from './payouts-accounts.json';
 import { useNetwork, useTezos } from './ready';
 
 export function useDelegate(address: string, suspense = true) {
@@ -175,6 +176,12 @@ export function useKnownBakers(suspense = true) {
   });
 
   return useMemo(() => (bakers && bakers.length > 1 ? bakers : null), [bakers]);
+}
+
+export function useKnownBakersAndPayoutAccounts(suspense = true) {
+  const bakers = useKnownBakers(suspense);
+
+  return useMemo(() => PAYOUTS_ACCOUNTS.concat(bakers ?? []), [bakers]);
 }
 
 type RewardsStatsCalculationParams = {
