@@ -11,6 +11,7 @@ import { ReactComponent as SmileWithDollarIcon } from 'app/icons/smile-with-doll
 import { ReactComponent as SmileWithGlassesIcon } from 'app/icons/smile-with-glasses.svg';
 import { ReactComponent as SmileIcon } from 'app/icons/smile.svg';
 import ContentContainer from 'app/layouts/ContentContainer';
+import { useOnboardingProgress } from 'app/pages/Onboarding/hooks/useOnboardingProgress.hook';
 import { setOnRampPossibilityAction } from 'app/store/settings/actions';
 import { useOnRampPossibilitySelector } from 'app/store/settings/selectors';
 import { T } from 'lib/i18n/react';
@@ -27,6 +28,7 @@ export const OnRampOverlay: FC = () => {
   const { publicKeyHash } = useAccount();
   const { popup } = useAppEnv();
   const isOnRampPossibility = useOnRampPossibilitySelector();
+  const { onboardingCompleted } = useOnboardingProgress();
 
   const popupClassName = useMemo(
     () => (popup ? 'inset-0 p-4' : 'top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2'),
@@ -34,7 +36,7 @@ export const OnRampOverlay: FC = () => {
   );
   const close = () => void dispatch(setOnRampPossibilityAction(false));
 
-  if (!isOnRampPossibility) return null;
+  if (!isOnRampPossibility || !onboardingCompleted) return null;
 
   return (
     <>
