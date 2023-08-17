@@ -12,6 +12,7 @@ import { BalanceMode } from 'app/store/settings/state';
 import { AssetIcon } from 'app/templates/AssetIcon';
 import Balance from 'app/templates/Balance';
 import InFiat from 'app/templates/InFiat';
+import { setAnotherSelector, setTestID } from 'lib/analytics';
 import { useFiatCurrency } from 'lib/fiat-currency';
 import { t, T } from 'lib/i18n';
 import { TezosLogoIcon } from 'lib/icons';
@@ -21,6 +22,7 @@ import { useTotalBalance } from 'lib/temple/front/use-total-balance.hook';
 import useTippy from 'lib/ui/useTippy';
 
 import { HomeSelectors } from '../Home.selectors';
+import { TokenPageSelectors } from '../Token-page.selectors';
 import AddressChip from './AddressChip';
 
 interface Props {
@@ -164,9 +166,15 @@ const AssetBanner: FC<AssetBannerProps> = ({ assetSlug, accountPkh }) => {
       <div className="flex justify-between items-center mb-3">
         <div className="flex items-center">
           <AssetIcon assetSlug={assetSlug} size={24} className="flex-shrink-0" />
-          <div className="text-sm font-normal text-gray-700 truncate flex-1 ml-2">{getAssetName(assetMetadata)}</div>
+          <div
+            className="text-sm font-normal text-gray-700 truncate flex-1 ml-2"
+            {...setTestID(TokenPageSelectors.tokenName)}
+            {...setAnotherSelector('name', getAssetName(assetMetadata))}
+          >
+            {getAssetName(assetMetadata)}
+          </div>
         </div>
-        <AddressChip pkh={accountPkh} />
+        <AddressChip pkh={accountPkh} testID={TokenPageSelectors.publicAddressButton} />
       </div>
       <div className="flex items-center text-2xl">
         <Balance address={accountPkh} assetSlug={assetSlug}>

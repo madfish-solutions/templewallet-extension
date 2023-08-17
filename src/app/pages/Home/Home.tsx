@@ -26,7 +26,7 @@ import { ReactComponent as WithdrawIcon } from 'app/icons/withdraw.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import { ActivityComponent } from 'app/templates/activity/Activity';
 import AssetInfo from 'app/templates/AssetInfo';
-import { TestIDProps } from 'lib/analytics';
+import { setAnotherSelector, setTestID, TestIDProps } from 'lib/analytics';
 import { TEZ_TOKEN_SLUG, isTezAsset } from 'lib/assets';
 import { T, t } from 'lib/i18n';
 import { useAssetMetadata, getAssetSymbol } from 'lib/metadata';
@@ -47,6 +47,7 @@ import BakingSection from './OtherComponents/BakingSection';
 import EditableTitle from './OtherComponents/EditableTitle';
 import MainBanner from './OtherComponents/MainBanner';
 import { Tokens } from './OtherComponents/Tokens/Tokens';
+import { TokenPageSelectors } from './Token-page.selectors';
 
 type ExploreProps = {
   assetSlug?: string | null;
@@ -99,7 +100,13 @@ const Home: FC<ExploreProps> = ({ assetSlug }) => {
         <>
           {assetSlug && (
             <>
-              <span className="font-normal">{getAssetSymbol(assetMetadata)}</span>
+              <span
+                className="font-normal"
+                {...setTestID(TokenPageSelectors.pageName)}
+                {...setAnotherSelector('symbol', getAssetSymbol(assetMetadata))}
+              >
+                {getAssetSymbol(assetMetadata)}
+              </span>
             </>
           )}
         </>
@@ -308,7 +315,7 @@ const SecondarySection: FC<SecondarySectionProps> = ({ assetSlug, className }) =
       slug: 'info',
       title: t('info'),
       Component: () => <AssetInfo assetSlug={assetSlug} />,
-      testID: HomeSelectors.aboutTab
+      testID: HomeSelectors.infoTab
     };
 
     if (isTezAsset(assetSlug)) {

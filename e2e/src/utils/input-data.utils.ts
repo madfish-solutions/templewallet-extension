@@ -17,13 +17,16 @@ export const iEnterValues = {
   defaultSeedPhrase: envVars.DEFAULT_HD_ACCOUNT_SEED_PHRASE,
   defaultPassword: envVars.DEFAULT_PASSWORD,
   watchOnlyPublicKey: envVars.WATCH_ONLY_PUBLIC_KEY_HASH,
-  contactPublicKey: 'tz1aWpVn8k5aZvVaCKPMdcPeX8ccm5662SLL',
-  secondContactPublicKey: 'tz1eSbADvrQzhH6vWP6MUy6VoEiGPJJZj696',
-  customNetworkRPC: envVars.CUSTOM_NETWORK_RPC_URL,
-  customTestName: 'Custom Test Net',
   bakerAddress: '',
   shortRandomContent: generateRandomContent(),
   longRandomContent: 'long random content for test + ' + generateRandomContent(),
+
+  // For adding assets, contacts, etc ...
+  contactPublicKey: 'tz1aWpVn8k5aZvVaCKPMdcPeX8ccm5662SLL',
+  secondContactPublicKey: 'tz1eSbADvrQzhH6vWP6MUy6VoEiGPJJZj696',
+  customNetworkRPC: envVars.CUSTOM_NETWORK_FIRST_RPC_URL,
+  customTestName: 'Custom Test Net',
+  shitTokenContractAddress: 'KT1Td6a28ydPMXKJS5yS5Usadj4Qx5drsCfY', // 'KLL (Killer) token'
 
   // For transactions
   amount_0_0001: '0.0001',

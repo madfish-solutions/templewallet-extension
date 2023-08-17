@@ -15,10 +15,15 @@ export class AddAssetPage extends Page {
   async isVisible() {
     await this.addressInput.waitForDisplayed();
     await this.assetIDInput.waitForDisplayed();
-    // await this.addAssetButton.waitForDisplayed();
-    // await this.symbolInput.waitForDisplayed();
-    // await this.nameInput.waitForDisplayed();
-    // await this.decimalsInput.waitForDisplayed();
-    // await this.addAssetButton.waitForDisplayed();
+  }
+
+  async waitForOtherInputs() {
+    await this.addressInput.waitForDisplayed();
+    await this.assetIDInput.waitForDisplayed();
+    await this.addAssetButton.waitForDisplayed();
+    await this.symbolInput.waitForDisplayed();
+    await this.nameInput.waitForDisplayed();
+    await this.decimalsInput.waitForDisplayed();
+    await this.iconURLInput.waitForDisplayed();
   }
 }
