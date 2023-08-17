@@ -1,6 +1,4 @@
-import React from 'react';
-
-import { T, t } from 'lib/i18n';
+import { t } from 'lib/i18n';
 import { TempleAccount, TempleAccountType } from 'lib/temple/types';
 
 export const OP_STACK_PREVIEW_SIZE = 2;
@@ -28,14 +26,6 @@ export const specialCharacterRegx = /[!@#$%^&*()_+\-=\]{};':"\\|,.<>?]/;
 
 export const URL_PATTERN =
   /(^(https:\/\/)?[\w.-]+(?:\.[\w.-]+)+[\w\-._~:/?#[\]@!$&'()*+,;=.]+$)|(^http(s)?:\/\/localhost:[0-9]+$)/;
-
-export const MNEMONIC_ERROR_CAPTION = (
-  <ul className="list-disc list-inside">
-    <T id="mnemonicWordsAmountConstraint">{message => <li>{message}</li>}</T>
-    <T id="mnemonicSpacingConstraint">{message => <li>{message}</li>}</T>
-    <T id="justValidPreGeneratedMnemonic">{message => <li>{message}</li>}</T>
-  </ul>
-);
 
 export function formatMnemonic(m: string) {
   return m.replace(/\n/g, ' ').trim();

@@ -1,17 +1,16 @@
 import React, { FC, ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { validateMnemonic } from 'bip39';
-import classNames from 'clsx';
+import clsx from 'clsx';
 import { useForm, Controller } from 'react-hook-form';
 import useSWR from 'swr';
 
 import { Alert, FileInputProps, FileInput, FormField, FormSubmitButton, NoSpaceField, TabSwitcher } from 'app/atoms';
-import { MNEMONIC_ERROR_CAPTION, formatMnemonic } from 'app/defaults';
+import { formatMnemonic } from 'app/defaults';
 import { ReactComponent as DownloadIcon } from 'app/icons/download.svg';
 import { ReactComponent as OkIcon } from 'app/icons/ok.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import ManagedKTForm from 'app/templates/ManagedKTForm';
-import { SeedPhraseInput } from 'app/templates/SeedPhraseInput';
+import { isSeedPhraseFilled, SeedPhraseInput } from 'app/templates/SeedPhraseInput';
 import { useFormAnalytics } from 'lib/analytics';
 import { TID, T, t } from 'lib/i18n';
 import {
@@ -261,9 +260,10 @@ const ByMnemonicForm: FC = () => {
     async ({ password, customDerivationPath }: ByMnemonicFormData) => {
       if (formState.isSubmitting) return;
 
-      if (seedPhrase && !seedPhrase.split(' ').includes('') && !seedError) {
+      if (!seedError && isSeedPhraseFilled(seedPhrase)) {
         formAnalytics.trackSubmit();
         setError(null);
+
         try {
           await importMnemonicAccount(
             formatMnemonic(seedPhrase),
@@ -298,8 +298,7 @@ const ByMnemonicForm: FC = () => {
 
       <div className="mb-8">
         <SeedPhraseInput
-          label={t('seedPhrase')}
-          labelWarning={t('mnemonicInputWarning')}
+          labelWarning={`${t('mnemonicInputWarning')}\n${t('seedPhraseAttention')}`}
           submitted={formState.submitCount !== 0}
           seedError={seedError}
           setSeedError={setSeedError}
@@ -324,7 +323,7 @@ const ByMnemonicForm: FC = () => {
         </h2>
 
         <div
-          className={classNames(
+          className={clsx(
             'rounded-md overflow-hidden',
             'border-2 bg-gray-100',
             'flex flex-col',
@@ -342,7 +341,7 @@ const ByMnemonicForm: FC = () => {
               <button
                 key={dp.type}
                 type="button"
-                className={classNames(
+                className={clsx(
                   'block w-full',
                   'overflow-hidden',
                   !last && 'border-b border-gray-200',
@@ -431,28 +430,37 @@ const ByFundraiserForm: FC = () => {
   const [error, setError] = useState<ReactNode>(null);
   const formAnalytics = useFormAnalytics(ImportAccountFormType.Fundraiser);
 
+  const [seedPhrase, setSeedPhrase] = useState('');
+  const [seedError, setSeedError] = useState('');
+
   const onSubmit = useCallback<(data: ByFundraiserFormData) => void>(
     async data => {
       if (formState.isSubmitting) return;
 
-      formAnalytics.trackSubmit();
-      setError(null);
-      try {
-        await importFundraiserAccount(data.email, data.password, formatMnemonic(data.mnemonic));
+      if (!seedError && isSeedPhraseFilled(seedPhrase)) {
+        formAnalytics.trackSubmit();
+        setError(null);
+        try {
+          await importFundraiserAccount(data.email, data.password, formatMnemonic(seedPhrase));
 
-        formAnalytics.trackSubmitSuccess();
-      } catch (err: any) {
-        formAnalytics.trackSubmitFail();
+          formAnalytics.trackSubmitSuccess();
+        } catch (err: any) {
+          formAnalytics.trackSubmitFail();
 
-        console.error(err);
+          console.error(err);
 
-        // Human delay
-        await new Promise(r => setTimeout(r, 300));
-        setError(err.message);
+          // Human delay
+          await new Promise(r => setTimeout(r, 300));
+          setError(err.message);
+        }
+      } else if (seedError === '') {
+        setSeedError(t('mnemonicWordsAmountConstraint'));
       }
     },
-    [importFundraiserAccount, formState.isSubmitting, setError, formAnalytics]
+    [seedPhrase, importFundraiserAccount, formState.isSubmitting, setError, seedError, formAnalytics]
   );
+
+  const resetSeedPhrase = useCallback(() => void setSeedPhrase(''), []);
 
   return (
     <form className="w-full max-w-sm mx-auto my-8" onSubmit={handleSubmit(onSubmit)}>
@@ -477,30 +485,25 @@ const ByFundraiserForm: FC = () => {
         label={t('password')}
         placeholder="*********"
         errorCaption={errors.password?.message}
-        containerClassName="mb-4"
+        containerClassName="mb-6"
         testID={ImportAccountSelectors.fundraiserPasswordInput}
       />
 
-      <FormField
-        type="password"
-        revealForbidden
-        name="mnemonic"
-        ref={register({
-          required: t('required'),
-          validate: val => validateMnemonic(formatMnemonic(val)) || MNEMONIC_ERROR_CAPTION
-        })}
-        errorCaption={errors.mnemonic?.message}
-        label={t('mnemonicInputLabel')}
-        labelDescription={t('mnemonicInputDescription')}
-        id="importfundacc-mnemonic"
-        placeholder={t('mnemonicInputPlaceholder')}
-        spellCheck={false}
-        containerClassName="mb-6"
-        className="resize-none"
+      <SeedPhraseInput
+        labelWarning={t('mnemonicInputWarning')}
+        submitted={formState.submitCount !== 0}
+        seedError={seedError}
+        setSeedError={setSeedError}
+        onChange={setSeedPhrase}
+        reset={resetSeedPhrase}
         testID={ImportAccountSelectors.fundraiserSeedPhraseInput}
       />
 
-      <FormSubmitButton loading={formState.isSubmitting} testID={ImportAccountSelectors.fundraiserImportButton}>
+      <FormSubmitButton
+        className="mt-8"
+        loading={formState.isSubmitting}
+        testID={ImportAccountSelectors.fundraiserImportButton}
+      >
         {t('importAccount')}
       </FormSubmitButton>
     </form>
@@ -875,7 +878,7 @@ const FaucetFileInput: React.FC<FaucetFileInputProps> = ({ disabled, onChange })
     onChange={onChange}
   >
     <div
-      className={classNames(
+      className={clsx(
         'w-full',
         'px-4 py-6',
         'border-2 border-dashed',

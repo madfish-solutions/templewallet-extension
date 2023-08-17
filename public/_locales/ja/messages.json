@@ -593,9 +593,6 @@
   "mnemonicInputLabel": {
     "message": "シードフレーズ"
   },
-  "mnemonicInputPlaceholder": {
-    "message": "例: venue sock milk update..."
-  },
   "passwordInputDescription": {
     "message": "ウォレットパスワードではありません。\n追加的なニーモニックの導出に使用されます。"
   },

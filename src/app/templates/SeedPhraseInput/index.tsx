@@ -17,7 +17,6 @@ interface SeedPhraseInputProps extends TestIDProperty {
   isFirstAccount?: boolean;
   submitted: boolean;
   seedError: string;
-  label: string;
   labelWarning?: string;
   onChange: (seed: string) => void;
   setSeedError: (e: string) => void;
@@ -30,7 +29,6 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
   isFirstAccount,
   submitted,
   seedError,
-  label,
   labelWarning,
   onChange,
   setSeedError,
@@ -140,7 +138,7 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
             isFirstAccount ? 'text-2xl' : 'text-base font-semibold text-gray-500'
           )}
         >
-          {label}
+          <T id="seedPhrase" />
         </h1>
 
         <div className="relative w-64 h-10" style={{ width: popup ? 220 : undefined }}>
@@ -163,12 +161,8 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
         </div>
       </div>
 
-      {!isFirstAccount && <div className="text-xs font-medium text-red-600 text-center">{labelWarning}</div>}
-
-      {!isFirstAccount && (
-        <div className="text-xs font-medium text-red-600 text-center mb-6">
-          <T id="seedPhraseAttention" />
-        </div>
+      {labelWarning && (
+        <div className="text-xs font-medium text-red-600 text-center whitespace-pre-line mb-6">{labelWarning}</div>
       )}
 
       <div className="w-full text-center pb-2 mb-6 text-gray-700 border-b-2" style={{ borderBottomWidth: 1 }}>
@@ -208,3 +202,5 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
     </div>
   );
 };
+
+export const isSeedPhraseFilled = (seedPhrase: string) => seedPhrase && !seedPhrase.split(' ').includes('');
