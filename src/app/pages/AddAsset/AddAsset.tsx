@@ -300,7 +300,13 @@ const Form: FC = () => {
       )}
 
       {tokenDataError && (
-        <Alert type="warn" title={t('failedToParseMetadata')} autoFocus description={tokenDataError} className="mb-8" />
+        <Alert
+          type="warning"
+          title={t('failedToParseMetadata')}
+          autoFocus
+          description={tokenDataError}
+          className="mb-8"
+        />
       )}
 
       <div

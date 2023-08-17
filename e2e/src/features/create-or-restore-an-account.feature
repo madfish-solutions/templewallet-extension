@@ -45,4 +45,4 @@ Feature: Create or restore an account
     And I enter longRandomContent into Account Name Input on the Create Account page
     And I press Create Or Restore Button on the Create Account page
 
-    Then I got the 'Invalid name. It should be: 1-16 characters, without special' error with Input Error element on the Universal Component page
+    Then I got the validation-error 'Invalid name. It should be: 1-16 characters, without special' with Input Error element on the Universal Component page
