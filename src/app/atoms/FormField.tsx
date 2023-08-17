@@ -6,8 +6,7 @@ import React, {
   useCallback,
   useMemo,
   useRef,
-  useState,
-  useEffect
+  useState
 } from 'react';
 
 import classNames from 'clsx';
@@ -17,7 +16,7 @@ import CopyButton from 'app/atoms/CopyButton';
 import { ReactComponent as CopyIcon } from 'app/icons/copy.svg';
 import { setTestID, TestIDProperty } from 'lib/analytics';
 import { useDidUpdate } from 'lib/ui/hooks';
-import { blurHandler, focusHandler, inputChangeHandler, inputPasteHandler } from 'lib/ui/inputHandlers';
+import { blurHandler, focusHandler, inputChangeHandler } from 'lib/ui/inputHandlers';
 import { useBlurElementOnTimeout } from 'lib/ui/use-blur-on-timeout';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 import { combineRefs } from 'lib/ui/util';
@@ -30,7 +29,7 @@ import usePasswordToggle from './usePasswordToggle.hook';
 
 export const PASSWORD_ERROR_CAPTION = 'PASSWORD_ERROR_CAPTION';
 
-type FormFieldRef = HTMLInputElement | HTMLTextAreaElement;
+type FormFieldElement = HTMLInputElement | HTMLTextAreaElement;
 type FormFieldAttrs = InputHTMLAttributes<HTMLInputElement> & TextareaHTMLAttributes<HTMLTextAreaElement>;
 
 export interface FormFieldProps extends TestIDProperty, Omit<FormFieldAttrs, 'type'> {
@@ -56,7 +55,7 @@ export interface FormFieldProps extends TestIDProperty, Omit<FormFieldAttrs, 'ty
   copyable?: boolean;
 }
 
-export const FormField = forwardRef<FormFieldRef, FormFieldProps>(
+export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
   (
     {
       containerStyle,
@@ -77,7 +76,6 @@ export const FormField = forwardRef<FormFieldRef, FormFieldProps>(
       value,
       defaultValue,
       onChange,
-      onPaste,
       onFocus,
       onBlur,
       onClean,
@@ -107,17 +105,10 @@ export const FormField = forwardRef<FormFieldRef, FormFieldProps>(
     const [focused, setFocused] = useState(false);
 
     const handleChange = useCallback(
-      (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      (e: React.ChangeEvent<FormFieldElement>) => {
         inputChangeHandler(e, onChange, setLocalValue);
       },
       [onChange, setLocalValue]
-    );
-
-    const handlePaste = useCallback(
-      (e: React.ClipboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        inputPasteHandler(e, onPaste, setLocalValue);
-      },
-      [onPaste, setLocalValue]
     );
 
     const handleFocus = useCallback(
@@ -131,7 +122,7 @@ export const FormField = forwardRef<FormFieldRef, FormFieldProps>(
       [secret, localValue, focused]
     );
 
-    const spareRef = useRef<FormFieldRef>();
+    const spareRef = useRef<FormFieldElement>();
 
     useBlurElementOnTimeout(spareRef, focused && Boolean(secret || isPasswordInput));
 
@@ -165,8 +156,6 @@ export const FormField = forwardRef<FormFieldRef, FormFieldProps>(
             spellCheck={spellCheck}
             autoComplete={autoComplete}
             onChange={handleChange}
-            // onPaste={handlePaste}
-            onPaste={onPaste}
             onFocus={handleFocus}
             onBlur={handleBlur}
             {...rest}

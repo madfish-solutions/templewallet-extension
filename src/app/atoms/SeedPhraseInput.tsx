@@ -10,7 +10,7 @@ import { T, t } from 'lib/i18n';
 import { clearClipboard } from 'lib/ui/util';
 
 import { SeedLengthSelect } from './SeedLengthSelect';
-import { SeedWordInput } from './SeedWordInput';
+import { SeedWordInput, SeedWordInputProps } from './SeedWordInput';
 
 interface SeedPhraseInputProps extends TestIDProperty {
   isFirstAccount?: boolean;
@@ -40,7 +40,6 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
 
   const [pasteFailed, setPasteFailed] = useState(false);
   const [draftSeed, setDraftSeed] = useState(new Array<string>(defaultNumberOfWords).fill(''));
-  const [showSeed, setShowSeed] = useState(true);
   const [numberOfWords, setNumberOfWords] = useState(defaultNumberOfWords);
 
   const onSeedChange = useCallback(
@@ -64,12 +63,12 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
   );
 
   const onSeedWordChange = useCallback(
-    (index: number, event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    (index: number, value: string) => {
       if (pasteFailed) {
         setPasteFailed(false);
       }
       const newSeed = draftSeed.slice();
-      newSeed[index] = event.target.value.trim();
+      newSeed[index] = value.trim();
       onSeedChange(newSeed);
     },
     [draftSeed, onSeedChange, pasteFailed]
@@ -82,7 +81,6 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
 
       if (newDraftSeed.length > 24) {
         setPasteFailed(true);
-        setShowSeed(true);
         return;
       } else if (pasteFailed) {
         setPasteFailed(false);
@@ -103,11 +101,22 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
       if (newDraftSeed.length < newNumberOfWords) {
         newDraftSeed = newDraftSeed.concat(new Array(newNumberOfWords - newDraftSeed.length).fill(''));
       }
-      setShowSeed(false);
       onSeedChange(newDraftSeed);
       clearClipboard();
     },
     [numberOfWords, onSeedChange, pasteFailed, setPasteFailed]
+  );
+
+  const onSeedWordPaste = useCallback<Defined<SeedWordInputProps['onPaste']>>(
+    event => {
+      const newSeed = event.clipboardData.getData('text');
+
+      if (newSeed.trim().match(/\s/u)) {
+        event.preventDefault();
+        onSeedPaste(newSeed);
+      }
+    },
+    [onSeedPaste]
   );
 
   const numberOfWordsOptions = useMemo(() => {
@@ -124,9 +133,8 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
         <h1
           className={classNames(
             'font-inter flex self-center text-gray-800',
-            !isFirstAccount && 'font-semibold text-gray-500'
+            isFirstAccount ? 'text-2xl' : 'text-base font-semibold text-gray-500'
           )}
-          style={{ fontSize: isFirstAccount ? 23 : 16 }}
         >
           {label}
         </h1>
@@ -136,7 +144,6 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
             options={numberOfWordsOptions}
             currentOption={draftSeed.length.toString()}
             defaultOption={`${numberOfWords}`}
-            setShowSeed={setShowSeed}
             onChange={newSelectedOption => {
               const newNumberOfWords = parseInt(newSelectedOption, 10);
               if (Number.isNaN(newNumberOfWords)) {
@@ -172,24 +179,14 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
             <SeedWordInput
               key={key}
               id={index}
-              isFirstAccount={isFirstAccount}
               submitted={submitted}
-              showSeed={showSeed}
-              setShowSeed={setShowSeed}
-              onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-                e.preventDefault();
-                onSeedWordChange(index, e);
+              onChange={event => {
+                event.preventDefault();
+                onSeedWordChange(index, event.target.value);
               }}
               value={draftSeed[index]}
               testID={testID}
-              onPaste={(e: React.ClipboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-                const newSeed = e.clipboardData.getData('text');
-
-                if (newSeed.trim().match(/\s/u)) {
-                  e.preventDefault();
-                  onSeedPaste(newSeed);
-                }
-              }}
+              onPaste={onSeedWordPaste}
             />
           );
         })}

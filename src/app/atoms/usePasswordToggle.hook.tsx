@@ -4,13 +4,14 @@ import clsx from 'clsx';
 
 import { ReactComponent as EyeClosedBold } from 'app/icons/eye-closed-bold.svg';
 import { ReactComponent as EyeOpenBold } from 'app/icons/eye-open-bold.svg';
+import { USER_ACTION_TIMEOUT } from 'lib/fixed-times';
 import { useTimeout } from 'lib/ui/hooks';
 
 const usePasswordToggle = (smallPaddings: boolean): ['text' | 'password', JSX.Element] => {
   const [visible, setVisibility] = useState(false);
 
   const onTimeout = useCallback(() => void setVisibility(false), []);
-  useTimeout(visible, onTimeout);
+  useTimeout(onTimeout, USER_ACTION_TIMEOUT, visible);
 
   const Icon = (
     <button
