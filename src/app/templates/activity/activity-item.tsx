@@ -1,7 +1,13 @@
 import React, { useMemo, useState, memo, useCallback } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
-import { ActivityType, TzktOperationStatus } from '@temple-wallet/transactions-parser';
+import {
+  Activity,
+  ActivityType,
+  ActivitySubtype,
+  AllowanceInteractionActivity,
+  TzktOperationStatus
+} from '@temple-wallet/transactions-parser';
 import classNames from 'clsx';
 
 import { Button } from 'app/atoms/Button';
@@ -17,11 +23,13 @@ import { DisplayableActivity } from 'lib/temple/activity-new/types';
 import { useExplorerBaseUrls } from 'lib/temple/front';
 import useTippy from 'lib/ui/useTippy';
 
+import { ActivityDetailsRow } from './activity-details-row';
 import styles from './activity-item.module.css';
 import { BakerLogo } from './baker-logo';
 import { BakerName } from './baker-name';
 import { RobotIcon } from './robot-icon';
 import { ActivitySelectors } from './selectors';
+import { TokensAllowancesView } from './tokens-allowances-view';
 import { FilteringMode, TokensDeltaView } from './tokens-delta-view';
 
 interface Props {
@@ -72,6 +80,9 @@ const renderHashChipFromDetails = (accountPkh: string, explorerBaseUrl?: string)
   </>
 );
 
+const isAllowanceChange = (activity: Activity): activity is AllowanceInteractionActivity =>
+  activity.type === ActivityType.Interaction && activity.subtype === ActivitySubtype.ChangeAllowance;
+
 export const ActivityItem = memo<Props>(({ activity }) => {
   const { hash, timestamp, status, type, tokensDeltas, from, to } = activity;
 
@@ -86,12 +97,28 @@ export const ActivityItem = memo<Props>(({ activity }) => {
   const isSend = type === ActivityType.Send;
   const isReceive = type === ActivityType.Recieve;
   const isInteraction = type === ActivityType.Interaction;
-  const actorPrepositionI18nKey = isSend || isDelegation ? 'toAsset' : 'from';
-  const actor = isSend || isDelegation ? to : from;
-  const shouldShowBaker = (isDelegation || isBakingRewards) && isDefined(actor);
-  const shouldShowActor = isDelegation || isBakingRewards || isSend || isReceive;
+  const isAllowance = isAllowanceChange(activity);
+  const isRevoke = isAllowance && Boolean(activity.allowanceChanges[0]?.atomicAmount.isZero());
+  const { actorPrepositionI18nKey, actor } = useMemo(() => {
+    if (isAllowance) {
+      const firstAllowanceChange = activity.allowanceChanges[0];
 
-  const interactionTooltipRef = useTippy<HTMLDivElement>({
+      return {
+        actorPrepositionI18nKey: isRevoke ? ('from' as const) : ('toAsset' as const),
+        actor: isDefined(firstAllowanceChange) ? { address: firstAllowanceChange.spenderAddress } : activity.to
+      };
+    }
+
+    return {
+      actorPrepositionI18nKey: isSend || isDelegation ? ('toAsset' as const) : ('from' as const),
+      actor: isSend || isDelegation ? activity.to : activity.from
+    };
+  }, [activity, isSend, isDelegation, isRevoke, isAllowance]);
+  const shouldShowBaker = (isDelegation || isBakingRewards) && isDefined(actor);
+  const shouldShowActor = isDelegation || isBakingRewards || isSend || isReceive || isAllowance;
+  const shouldShowActorAddressInSubtitle = (isSend || isReceive || isAllowance) && isDefined(actor);
+
+  const interactionTooltipRef = useTippy<HTMLSpanElement>({
     trigger: 'mouseenter',
     hideOnClick: false,
     content: t('interactionTypeTooltip'),
@@ -111,7 +138,7 @@ export const ActivityItem = memo<Props>(({ activity }) => {
 
   return (
     <div className="py-3 flex flex-col gap-3 w-full">
-      <div className="w-full flex items-center">
+      <div className={classNames('w-full flex', !isInteraction && 'items-center')}>
         {shouldShowBaker && <BakerLogo bakerAddress={actor.address} />}
         {!shouldShowBaker && !isInteraction && (
           <RobotIcon hash={actor?.address ?? from.address} className="border border-gray-300 mr-2" />
@@ -119,11 +146,12 @@ export const ActivityItem = memo<Props>(({ activity }) => {
 
         <div className="flex-1">
           <p className="text-sm font-medium leading-tight text-gray-910 flex items-center">
-            <T id={activityTypesI18nKeys[type]} />
-            {isInteraction && (
-              <div ref={interactionTooltipRef} className="inline-block ml-1 text-gray-500">
+            {isRevoke && <T id="revoke" />}
+            {!isRevoke && <T id={isAllowance ? 'approve' : activityTypesI18nKeys[type]} />}
+            {isInteraction && !isAllowance && (
+              <span ref={interactionTooltipRef} className="inline-block ml-1 text-gray-500">
                 <AlertNewIcon className="w-4 h-4 stroke-current" />
-              </div>
+              </span>
             )}
           </p>
           <p className="text-xs leading-5 text-gray-600">
@@ -132,21 +160,25 @@ export const ActivityItem = memo<Props>(({ activity }) => {
                 <T id={actorPrepositionI18nKey} />:
               </span>
             )}
-            {(isSend || isReceive) && isDefined(actor) && (
+            {shouldShowActorAddressInSubtitle && (
               <HashShortView firstCharsCount={5} lastCharsCount={5} hash={actor.address} />
             )}
             {shouldShowBaker && <BakerName bakerAddress={actor.address} />}
-            {(!isDefined(actor) || isInteraction) && '‒'}
+            {!shouldShowActorAddressInSubtitle && !shouldShowBaker && '‒'}
           </p>
         </div>
 
         <div>
-          <TokensDeltaView
-            tokensDeltas={tokensDeltas}
-            shouldShowNFTCard={false}
-            isTotal
-            filteringMode={isInteraction ? FilteringMode.ONLY_POSITIVE_IF_PRESENT : FilteringMode.NONE}
-          />
+          {isAllowance ? (
+            <TokensAllowancesView allowancesChanges={activity.allowanceChanges} />
+          ) : (
+            <TokensDeltaView
+              tokensDeltas={tokensDeltas}
+              shouldShowNFTCard={false}
+              isTotal
+              filteringMode={isInteraction ? FilteringMode.ONLY_POSITIVE_IF_PRESENT : FilteringMode.NONE}
+            />
+          )}
         </div>
       </div>
 
@@ -180,50 +212,60 @@ export const ActivityItem = memo<Props>(({ activity }) => {
 
       {isOpen && (
         <div className="w-full px-3 rounded-lg border border-gray-300">
+          {isAllowance && activity.allowanceChanges.length > 0 && (
+            <ActivityDetailsRow
+              className="border-b border-gray-300"
+              title={
+                <>
+                  <T id={isRevoke ? 'revoked' : 'approved'} />:
+                </>
+              }
+            >
+              <TokensAllowancesView allowancesChanges={activity.allowanceChanges} />
+            </ActivityDetailsRow>
+          )}
+
           {receivedTokensDeltas.length > 0 && (
-            <div className="w-full py-3 flex border-b border-gray-300">
-              <span className="flex-1 text-gray-500 text-xs leading-5">
-                <T id="received" />
-              </span>
+            <ActivityDetailsRow className="border-b border-gray-300" title={<T id="received" />}>
               <div className="flex flex-col items-right">
                 {receivedTokensDeltas.map((tokenDelta, i) => (
                   <TokensDeltaView key={i} tokensDeltas={tokenDelta} shouldShowNFTCard isTotal={false} />
                 ))}
               </div>
-            </div>
+            </ActivityDetailsRow>
           )}
 
           {sentTokensDeltas.length > 0 && (
-            <div className="w-full py-3 flex border-b border-gray-300">
-              <span className="flex-1 text-gray-500 text-xs leading-5">
-                <T id="sent" />
-              </span>
+            <ActivityDetailsRow className="border-b border-gray-300" title={<T id="sent" />}>
               <div className="flex flex-col items-right">
                 {sentTokensDeltas.map((tokenDelta, i) => (
                   <TokensDeltaView key={i} tokensDeltas={tokenDelta} shouldShowNFTCard isTotal={false} />
                 ))}
               </div>
-            </div>
+            </ActivityDetailsRow>
           )}
 
           {shouldShowActor && (
-            <div className="w-full py-3 flex items-center border-b border-gray-300">
-              <span className="flex-1 text-gray-500 text-xs leading-5">
-                <T id={actorPrepositionI18nKey} />:
-              </span>
+            <ActivityDetailsRow
+              className="items-center border-b border-gray-300"
+              title={
+                <>
+                  <T id={actorPrepositionI18nKey} />:
+                </>
+              }
+            >
               {isDelegation && isDefined(to) && renderHashChipFromDetails(to.address, explorerBaseUrl)}
               {isSend && isDefined(to) && renderAddressChipFromDetails(to.address)}
-              {(isSend || isDelegation) && !isDefined(to) && <span className="text-gray-500 text-xs leading-5">‒</span>}
               {isReceive && renderAddressChipFromDetails(from.address)}
               {isBakingRewards && renderHashChipFromDetails(from.address, explorerBaseUrl)}
-            </div>
+              {isAllowance && isDefined(actor) && renderHashChipFromDetails(actor.address, explorerBaseUrl)}
+              {(((isSend || isDelegation) && !isDefined(to)) || (isAllowance && !isDefined(actor))) && (
+                <span className="text-gray-500 text-xs leading-5">‒</span>
+              )}
+            </ActivityDetailsRow>
           )}
 
-          <div className="w-full py-3 flex items-center">
-            <span className="flex-1 text-gray-500 text-xs leading-5">
-              <T id="txHash" />
-            </span>
-
+          <ActivityDetailsRow className="items-center" title={<T id="txHash" />}>
             <HashChip
               hash={hash}
               firstCharsCount={10}
@@ -238,7 +280,7 @@ export const ActivityItem = memo<Props>(({ activity }) => {
                 testID={ActivitySelectors.openTransactionInExplorerButton}
               />
             )}
-          </div>
+          </ActivityDetailsRow>
         </div>
       )}
     </div>

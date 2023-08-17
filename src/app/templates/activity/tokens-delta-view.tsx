@@ -9,9 +9,11 @@ import Money from 'app/atoms/Money';
 import { AssetIcon } from 'app/templates/AssetIcon';
 import { useManyTokensFiatCurrencyPrices, useFiatCurrency } from 'lib/fiat-currency';
 import { t } from 'lib/i18n';
-import { getAssetSymbol, isCollectible, useManyAssetsMetadata } from 'lib/metadata';
+import { isCollectible, useManyAssetsMetadata } from 'lib/metadata';
 import { atomsToTokens } from 'lib/temple/helpers';
 import { ZERO } from 'lib/utils/numbers';
+
+import { getAssetSymbolOrName } from './get-asset-symbol-or-name';
 
 export enum FilteringMode {
   NONE = 'NONE',
@@ -27,8 +29,6 @@ interface Props {
   isTotal: boolean;
   filteringMode?: FilteringMode;
 }
-
-const MAX_DISPLAYED_TOKEN_SYMBOL_CHARS = 15;
 
 export const TokensDeltaView = memo<Props>(
   ({ tokensDeltas, shouldShowNFTCard, isTotal, filteringMode = FilteringMode.NONE }) => {
@@ -58,15 +58,7 @@ export const TokensDeltaView = memo<Props>(
     const assetsMetadata = useManyAssetsMetadata(assetsSlugs);
     const fiatCurrencyPrices = useManyTokensFiatCurrencyPrices(assetsSlugs);
     const assetsSymbolsOrNames = useMemo(
-      () =>
-        Object.entries(assetsMetadata).map(([, metadata]) => {
-          const fullSymbolOrName =
-            isDefined(metadata) && isCollectible(metadata) ? metadata.name : getAssetSymbol(metadata, false);
-
-          return fullSymbolOrName.length > MAX_DISPLAYED_TOKEN_SYMBOL_CHARS
-            ? `${fullSymbolOrName.slice(0, MAX_DISPLAYED_TOKEN_SYMBOL_CHARS)}…`
-            : fullSymbolOrName;
-        }),
+      () => Object.entries(assetsMetadata).map(([, metadata]) => getAssetSymbolOrName(metadata)),
       [assetsMetadata]
     );
     const firstAssetSlug = assetsSlugs[0];
