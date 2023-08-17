@@ -43,7 +43,7 @@ export const OnRampOverlay: FC = () => {
       <div className="fixed left-0 right-0 top-0 bottom-0 opacity-20 bg-gray-700 z-50"></div>
       <ContentContainer
         className={classNames('fixed z-50 overflow-y-auto', popupClassName)}
-        style={{ maxWidth: '37.5rem' }}
+        style={{ maxWidth: '37.5rem', maxHeight: !popup ? 'calc(100vh - 50px)' : undefined }}
         padding={false}
       >
         <div
