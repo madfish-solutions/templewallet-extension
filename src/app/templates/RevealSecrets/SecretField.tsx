@@ -1,75 +1,56 @@
-import React, { FC, useState, useCallback, useMemo, useRef, useEffect } from 'react';
+import React, { FC, useMemo } from 'react';
 
-import clsx from 'clsx';
-
-import { Alert } from 'app/atoms';
-import { FieldLabel } from 'app/atoms/FieldLabel';
-import { FORM_FIELD_CLASS_NAME } from 'app/atoms/FormField';
-import { SecretCover } from 'app/atoms/SecretCover';
-import { t, T } from 'lib/i18n';
-import { selectNodeContent } from 'lib/ui/content-selection';
+import { Alert } from 'app/atoms/Alert';
+import { ReadOnlySecretField } from 'app/atoms/ReadOnlySecretField';
+import { TID, T } from 'lib/i18n';
 
 interface Props {
   revealType: 'private-key' | 'seed-phrase';
   value: string;
 }
 
+interface Texts {
+  title: TID;
+  description: React.ReactNode;
+  attention: TID;
+}
+
 export const SecretField: FC<Props> = ({ revealType, value }) => {
-  const [focused, setFocused] = useState(false);
-  const fieldRef = useRef<HTMLParagraphElement>(null);
-
-  const onSecretCoverClick = useCallback(() => void fieldRef.current?.focus(), []);
-
-  const covered = !focused;
-
-  useEffect(() => {
-    if (!covered) selectNodeContent(fieldRef.current);
-  }, [covered]);
-
-  const texts = useMemo(() => {
+  const texts = useMemo<Texts>(() => {
     switch (revealType) {
       case 'private-key':
         return {
-          name: t('privateKey'),
-          attention: <T id="doNotSharePrivateKey" />,
-          fieldDesc: <T id="privateKeyFieldDescription" />
+          title: 'privateKey',
+          description: <T id="privateKeyFieldDescription" />,
+          attention: 'doNotSharePrivateKey'
         };
 
       case 'seed-phrase':
         return {
-          name: t('seedPhrase'),
-          attention: <T id="doNotSharePhrase" />,
-          fieldDesc: (
+          title: 'seedPhrase',
+          description: (
             <>
               <T id="youWillNeedThisSeedPhrase" /> <T id="keepSeedPhraseSecret" />
             </>
-          )
+          ),
+          attention: 'doNotSharePhrase'
         };
     }
   }, [revealType]);
 
   return (
     <>
-      <div className="w-full flex flex-col mb-4">
-        <FieldLabel label={texts.name} description={texts.fieldDesc} className="mb-4" />
+      <ReadOnlySecretField value={value} label={texts.title} description={texts.description} />
 
-        <div className="relative flex items-stretch mb-2">
-          <p
-            ref={fieldRef}
-            id="reveal-secret-secret"
-            tabIndex={0}
-            className={clsx(FORM_FIELD_CLASS_NAME, 'h-32 break-words py-3 px-4 overflow-y-auto')}
-            onFocus={() => void setFocused(true)}
-            onBlur={() => void setFocused(false)}
-          >
-            {covered ? '' : value}
+      <Alert
+        title={<T id="attentionExclamation" />}
+        description={
+          <p>
+            <T id={texts.attention} />
           </p>
-
-          {covered && <SecretCover onClick={onSecretCoverClick} />}
-        </div>
-      </div>
-
-      <Alert title={<T id="attentionExclamation" />} description={<p>{texts.attention}</p>} className="my-4" />
+        }
+        className="my-4"
+      />
     </>
   );
 };

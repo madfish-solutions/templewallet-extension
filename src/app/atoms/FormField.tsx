@@ -61,6 +61,9 @@ export interface FormFieldProps extends TestIDProperty, Omit<FormFieldAttrs, 'ty
   copyable?: boolean;
 }
 
+/**
+ * TODO: Consider separating into two: `FormInputField` & `FormTextAreaField`
+ */
 export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
   (
     {
