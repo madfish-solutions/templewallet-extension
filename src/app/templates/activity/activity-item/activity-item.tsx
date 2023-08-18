@@ -53,9 +53,7 @@ export const ActivityItem = memo<Props>(({ activity }) => {
         {actorAvatar}
 
         <div className="flex-1">
-          <p className="text-sm font-medium leading-tight text-gray-910 flex items-center">
-            <ActivityTypeView activity={activity} />
-          </p>
+          <ActivityTypeView activity={activity} />
           <ActivitySubtitle activity={activity} />
         </div>
 

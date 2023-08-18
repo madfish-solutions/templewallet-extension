@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import React, { FC, ReactNode } from 'react';
 
 import { ActivityType } from '@temple-wallet/transactions-parser';
 
@@ -30,22 +30,24 @@ export const ActivityTypeView: FC<Props> = ({ activity }) => {
     animation: 'shift-away-subtle'
   });
 
+  let contents: ReactNode;
+
   if (isRevoke) {
-    return <T id="revoke" />;
+    contents = <T id="revoke" />;
+  } else if (isAllowanceChange) {
+    contents = <T id="approve" />;
+  } else {
+    contents = (
+      <>
+        <T id={activityTypesI18nKeys[activity.type]} />
+        {isInteraction && (
+          <span ref={interactionTooltipRef} className="inline-block ml-1 text-gray-500">
+            <AlertNewIcon className="w-4 h-4 stroke-current" />
+          </span>
+        )}
+      </>
+    );
   }
 
-  if (isAllowanceChange) {
-    return <T id="approve" />;
-  }
-
-  return (
-    <>
-      <T id={activityTypesI18nKeys[activity.type]} />
-      {isInteraction && (
-        <span ref={interactionTooltipRef} className="inline-block ml-1 text-gray-500">
-          <AlertNewIcon className="w-4 h-4 stroke-current" />
-        </span>
-      )}
-    </>
-  );
+  return <p className="text-sm font-medium leading-tight text-gray-910 flex items-center">{contents}</p>;
 };
