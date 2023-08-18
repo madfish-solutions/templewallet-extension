@@ -13,6 +13,7 @@ import {
   uppercaseLowercaseMixtureRegx
 } from 'app/defaults';
 import { shouldShowNewsletterModalAction } from 'app/store/newsletter/newsletter-actions';
+import { togglePartnersPromotionAction } from 'app/store/partners-promotion/actions';
 import {
   setAdsBannerVisibilityAction,
   setIsAnalyticsEnabledAction,
@@ -35,7 +36,7 @@ interface FormData extends TestIDProps {
   repeatPassword?: string;
   termsAccepted: boolean;
   analytics?: boolean;
-  viewAds?: boolean;
+  viewAds: boolean;
   skipOnboarding?: boolean;
   testID?: string;
 }
@@ -58,7 +59,12 @@ export const SetWalletPassword: FC<SetWalletPasswordProps> = ({
   const dispatch = useDispatch();
 
   const setAnalyticsEnabled = (analyticsEnabled: boolean) => dispatch(setIsAnalyticsEnabledAction(analyticsEnabled));
-  const setAdsViewEnabled = (adsView: boolean) => dispatch(setAdsBannerVisibilityAction(adsView));
+  const setAdsViewEnabled = (adsViewEnabled: boolean) => {
+    if (adsViewEnabled) {
+      dispatch(setAdsBannerVisibilityAction(!adsViewEnabled));
+      dispatch(togglePartnersPromotionAction(adsViewEnabled));
+    }
+  };
 
   const { setOnboardingCompleted } = useOnboardingProgress();
 
@@ -119,10 +125,7 @@ export const SetWalletPassword: FC<SetWalletPasswordProps> = ({
           : data.password
         : data.password;
       try {
-        if (data.viewAds) {
-          setAdsViewEnabled(false);
-        }
-
+        setAdsViewEnabled(data.viewAds);
         setAnalyticsEnabled(!!data.analytics);
         setOnboardingCompleted(data.skipOnboarding!);
 
