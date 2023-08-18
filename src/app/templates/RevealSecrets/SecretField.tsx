@@ -4,6 +4,8 @@ import { Alert } from 'app/atoms/Alert';
 import { ReadOnlySecretField } from 'app/atoms/ReadOnlySecretField';
 import { TID, T } from 'lib/i18n';
 
+import { RevealSecretsSelectors } from './RevealSecrets.selectors';
+
 interface Props {
   revealType: 'private-key' | 'seed-phrase';
   value: string;
@@ -40,7 +42,13 @@ export const SecretField: FC<Props> = ({ revealType, value }) => {
 
   return (
     <>
-      <ReadOnlySecretField value={value} label={texts.title} description={texts.description} />
+      <ReadOnlySecretField
+        value={value}
+        label={texts.title}
+        description={texts.description}
+        testID={RevealSecretsSelectors.RevealSecretsValue}
+        secretCoverTestId={RevealSecretsSelectors.RevealSecretsProtectedMask}
+      />
 
       <Alert
         title={<T id="attentionExclamation" />}

@@ -16,6 +16,7 @@
     "test": "jest",
     "test:coverage": "jest --coverage",
     "ts": "tsc --pretty",
+    "ts:e2e": "cd ./e2e && yarn ts",
     "lint": "eslint --quiet src",
     "lint:fix": "prettier \"./**/*\" --write --ignore-unknown",
     "clear:lint": "rimraf node_modules/.cache/.eslintcache",

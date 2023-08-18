@@ -21,7 +21,6 @@ import { useBlurElementOnTimeout } from 'lib/ui/use-blur-on-timeout';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 import { combineRefs } from 'lib/ui/util';
 
-import { NewSeedBackupSelectors } from '../pages/NewWallet/create/NewSeedBackup/NewSeedBackup.selectors';
 import { ErrorCaptionSelectors } from './ErrorCaption.selectors';
 import { FieldLabel } from './FieldLabel';
 import { SecretCover } from './SecretCover';
@@ -177,9 +176,7 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
 
           <ExtraInner innerComponent={extraInner} useDefaultWrapper={extraInnerWrapper === 'default'} />
 
-          {secretCovered && (
-            <SecretCover onClick={handleSecretBannerClick} testID={NewSeedBackupSelectors.protectedMask} />
-          )}
+          {secretCovered && <SecretCover onClick={handleSecretBannerClick} />}
 
           <Cleanable cleanable={cleanable} handleCleanClick={handleCleanClick} />
           <Copyable value={value} copy={copy} cleanable={cleanable} copyable={copyable} />

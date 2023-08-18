@@ -79,7 +79,7 @@ class PageElement {
     return getElementText(element);
   }
   async waitForText(expectedText: string, timeout = MEDIUM_TIMEOUT) {
-    const element = await this.findElement();
+    const element = await this.findElement(timeout);
 
     if (timeout > 0) {
       return await retry(

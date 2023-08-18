@@ -7,7 +7,7 @@ runs:
       shell: bash
 
     - name: Check TypeScript
-      run: yarn ts
+      run: yarn ts && yarn ts:e2e
       shell: bash
 
     - name: Find deadcode

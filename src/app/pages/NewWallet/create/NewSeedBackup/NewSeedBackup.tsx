@@ -44,6 +44,7 @@ export const NewSeedBackup: FC<NewSeedBackupProps> = ({ seedPhrase, onBackupComp
         label={'mnemonicInputLabel'}
         description={t('youWillNeedThisSeedPhrase')}
         testID={NewSeedBackupSelectors.seedPhraseValue}
+        secretCoverTestId={NewSeedBackupSelectors.protectedMask}
       />
 
       <form className="w-full mt-8" onSubmit={handleSubmit(onBackupComplete)}>

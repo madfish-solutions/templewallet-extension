@@ -14,9 +14,16 @@ interface ReadOnlySecretFieldProps extends TestIDProperty {
   label: TID;
   description: React.ReactNode;
   value: string;
+  secretCoverTestId?: string;
 }
 
-export const ReadOnlySecretField: FC<ReadOnlySecretFieldProps> = ({ value, label, description, testID }) => {
+export const ReadOnlySecretField: FC<ReadOnlySecretFieldProps> = ({
+  value,
+  label,
+  description,
+  testID,
+  secretCoverTestId
+}) => {
   const [focused, setFocused] = useState(false);
   const fieldRef = useRef<HTMLParagraphElement>(null);
 
@@ -44,7 +51,7 @@ export const ReadOnlySecretField: FC<ReadOnlySecretFieldProps> = ({ value, label
           {covered ? '' : value}
         </p>
 
-        {covered && <SecretCover onClick={onSecretCoverClick} />}
+        {covered && <SecretCover onClick={onSecretCoverClick} testID={secretCoverTestId} />}
       </div>
     </div>
   );
