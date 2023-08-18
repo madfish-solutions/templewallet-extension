@@ -3,7 +3,7 @@ import React, { FC, useState, useCallback, useRef, useEffect } from 'react';
 import clsx from 'clsx';
 
 import { setTestID, TestIDProperty } from 'lib/analytics';
-import type { TID } from 'lib/i18n';
+import { TID, T } from 'lib/i18n';
 import { selectNodeContent } from 'lib/ui/content-selection';
 
 import { FieldLabel } from './FieldLabel';
@@ -36,10 +36,10 @@ export const ReadOnlySecretField: FC<ReadOnlySecretFieldProps> = ({
   }, [covered]);
 
   return (
-    <div className="w-full flex flex-col mb-4">
-      <FieldLabel label={label} description={description} className="mb-4" />
+    <div className="w-full flex flex-col">
+      <FieldLabel label={<T id={label} />} description={description} className="mb-4" />
 
-      <div className="relative flex items-stretch mb-2">
+      <div className="relative flex items-stretch">
         <p
           ref={fieldRef}
           tabIndex={0}

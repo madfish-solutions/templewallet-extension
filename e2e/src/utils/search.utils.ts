@@ -48,25 +48,30 @@ export const findElements = async (testID: string) => {
 };
 
 class PageElement {
-  constructor(public testID: string, public otherSelectors?: OtherSelectors, public notSelectors?: OtherSelectors) {}
+  constructor(public selector: string) {}
 
   findElement(timeout?: number, errorTitle?: string) {
-    let selectors = buildSelector(this.testID, this.otherSelectors);
-    if (this.notSelectors) selectors += buildNotSelector(this.notSelectors);
-
-    return findElementBySelectors(selectors, timeout, errorTitle);
+    return findElementBySelectors(this.selector, timeout, errorTitle);
   }
+
+  findDescendant(descendantSelector: string) {
+    return findElementBySelectors(`${this.selector} ${descendantSelector}`);
+  }
+
   waitForDisplayed(timeout?: number) {
     return this.findElement(timeout);
   }
+
   async click() {
     const element = await this.findElement();
     await element.click();
   }
+
   async type(text: string) {
     const element = await this.findElement();
     await element.type(text);
   }
+
   async clearInput() {
     await BrowserContext.page.keyboard.press('End');
     await BrowserContext.page.keyboard.down('Shift');
@@ -87,8 +92,7 @@ class PageElement {
           getElementText(element).then(text => {
             if (text === expectedText) return true;
 
-            const selector = buildSelector(this.testID, this.otherSelectors);
-            throw new Error(`Waiting for expected text in \`${selector}\` timed out (${timeout} ms)`);
+            throw new Error(`Waiting for expected text in \`${this.selector}\` timed out (${timeout} ms)`);
           }),
         { maxRetryTime: timeout }
       );
@@ -99,8 +103,12 @@ class PageElement {
   }
 }
 
-export const createPageElement = (testID: string, otherSelectors?: OtherSelectors, notSelectors?: OtherSelectors) =>
-  new PageElement(testID, otherSelectors, notSelectors);
+export const createPageElement = (testID: string, otherSelectors?: OtherSelectors, notSelectors?: OtherSelectors) => {
+  let selector = buildSelector(testID, otherSelectors);
+  if (notSelectors) selector += buildNotSelector(notSelectors);
+
+  return new PageElement(selector);
+};
 
 export const getElementText = (element: ElementHandle) =>
   element.evaluate(innerElement => {
@@ -108,11 +116,13 @@ export const getElementText = (element: ElementHandle) =>
       return innerElement.value;
     }
 
-    if (innerElement.textContent) {
-      return innerElement.textContent;
+    const textContent = innerElement.textContent;
+
+    if (textContent == null) {
+      throw new Error("Element's content is not text!");
     }
 
-    throw new Error('Element text not found');
+    return textContent;
   });
 
 const buildSelectorPairs = (selectors: OtherSelectors) => {

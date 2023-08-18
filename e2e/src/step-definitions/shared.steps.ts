@@ -7,7 +7,7 @@ import { Pages } from '../page-objects';
 import { envVars } from '../utils/env.utils';
 import { iComparePrivateKeys } from '../utils/input-data.utils';
 import { createPageElement, findElement } from '../utils/search.utils';
-import { LONG_TIMEOUT, MEDIUM_TIMEOUT, SHORT_TIMEOUT, VERY_SHORT_TIMEOUT, sleep } from '../utils/timing.utils';
+import { LONG_TIMEOUT, MEDIUM_TIMEOUT, VERY_SHORT_TIMEOUT, sleep } from '../utils/timing.utils';
 
 Given(
   /I reveal a private key and compare with (.*)/,
@@ -25,7 +25,9 @@ Given(
 
     await Pages.RevealSecrets.revealSecretsProtectedMask.click();
 
-    await Pages.RevealSecrets.revealSecretsValue.waitForText(iComparePrivateKeys[key], SHORT_TIMEOUT);
+    const revealedText = await Pages.RevealSecrets.revealSecretsValue.getText();
+
+    expect(revealedText).eql(iComparePrivateKeys[key]);
   }
 );
 

@@ -141,7 +141,9 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
 
     return (
       <div className={classNames('w-full flex flex-col', containerClassName)} style={containerStyle}>
-        <FieldLabel label={label} warning={labelWarning} description={labelDescription} className="mb-4" id={id} />
+        {label && (
+          <FieldLabel label={label} warning={labelWarning} description={labelDescription} className="mb-4" id={id} />
+        )}
 
         {extraSection}
 
