@@ -4,8 +4,7 @@ import { Allowance } from '@temple-wallet/transactions-parser';
 
 import { t } from 'lib/i18n';
 import { useManyAssetsMetadata } from 'lib/metadata';
-
-import { getAssetSymbolOrName } from './get-asset-symbol-or-name';
+import { getAssetSymbolOrName } from 'lib/temple/activity-new/utils';
 
 interface Props {
   allowancesChanges: Allowance[];

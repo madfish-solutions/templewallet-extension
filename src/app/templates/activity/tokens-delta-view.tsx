@@ -10,10 +10,9 @@ import { AssetIcon } from 'app/templates/AssetIcon';
 import { useManyTokensFiatCurrencyPrices, useFiatCurrency } from 'lib/fiat-currency';
 import { t } from 'lib/i18n';
 import { isCollectible, useManyAssetsMetadata } from 'lib/metadata';
+import { getAssetSymbolOrName } from 'lib/temple/activity-new/utils';
 import { atomsToTokens } from 'lib/temple/helpers';
 import { ZERO } from 'lib/utils/numbers';
-
-import { getAssetSymbolOrName } from './get-asset-symbol-or-name';
 
 export enum FilteringMode {
   NONE = 'NONE',
