@@ -71,6 +71,7 @@ jobs:
           IMPORTED_HD_ACCOUNT_FIRST_HASH_SHORT_FORM: ${{ secrets.IMPORTED_HD_ACCOUNT_FIRST_HASH_SHORT_FORM }}
           WATCH_ONLY_PUBLIC_KEY_HASH: ${{ secrets.WATCH_ONLY_PUBLIC_KEY_HASH }}
           WATCH_ONLY_PUBLIC_KEY_HASH_SHORT_FORM: ${{ secrets.WATCH_ONLY_PUBLIC_KEY_HASH_SHORT_FORM }}
+          CUSTOM_NETWORK_RPC_URL: ${{ secrets.CUSTOM_NETWORK_RPC_URL }}
 
       - name: Install dependencies and code quality
         uses: ./.github/workflows/code-quality-check
