@@ -1,3 +1,4 @@
+import { isDefined } from '@rnw-community/shared';
 import { TzktOperationType, TzktTokenTransfer } from '@temple-wallet/transactions-parser';
 import axios, { AxiosError } from 'axios';
 
@@ -131,14 +132,31 @@ export const fetchTzktTokens = async (chainId: string, accountAddress: string) =
       })
     : [];
 
-export const fetchGetTokensTransfersByTxIds = async (chainId: string, transactionsIds: number[]) =>
-  isKnownChainId(chainId) && transactionsIds.length > 0
-    ? await fetchGet<TzktTokenTransfer[]>(chainId, '/tokens/transfers', {
-        'transactionId.in': transactionsIds.join(','),
-        limit: TZKT_FETCH_QUERY_SIZE,
-        select: 'id,from,to,transactionId,amount,token.contract,token.tokenId'
-      })
-    : [];
+export const fetchGetTokensTransfersByTxIds = async (
+  chainId: string,
+  transactionsIds: number[],
+  lastId?: number
+): Promise<TzktTokenTransfer[]> => {
+  if (!isKnownChainId(chainId) || transactionsIds.length === 0) {
+    return [];
+  }
+
+  const newTransfers = await fetchGet<TzktTokenTransfer[]>(chainId, '/tokens/transfers', {
+    'transactionId.in': transactionsIds.join(','),
+    limit: TZKT_FETCH_QUERY_SIZE,
+    select: 'id,from,to,transactionId,amount,token.contract,token.tokenId',
+    'sort.desc': 'id',
+    ...(isDefined(lastId) ? { 'id.lt': lastId } : {})
+  });
+
+  if (newTransfers.length < TZKT_FETCH_QUERY_SIZE) {
+    return newTransfers;
+  }
+
+  return newTransfers.concat(
+    await fetchGetTokensTransfersByTxIds(chainId, transactionsIds, newTransfers[newTransfers.length - 1].id)
+  );
+};
 
 export async function refetchOnce429<R>(fetcher: () => Promise<R>, delayAroundInMS = 1000) {
   try {

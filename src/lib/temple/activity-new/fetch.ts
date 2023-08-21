@@ -44,14 +44,19 @@ export default async function fetchActivities(
     )
     .flat();
   const activities = rawActivities.map<DisplayableActivity>(activity => {
-    if (activity.type === ActivityType.LiquidityBakingBurn || activity.type === ActivityType.LiquidityBakingMint) {
-      return {
-        ...activity,
-        type: ActivityType.Interaction as const
-      };
+    switch (activity.type) {
+      case ActivityType.Delegation:
+      case ActivityType.Interaction:
+        return activity;
+      case ActivityType.LiquidityBakingBurn:
+      case ActivityType.LiquidityBakingMint:
+        return {
+          ...activity,
+          type: ActivityType.Interaction as const
+        };
+      default:
+        return { ...activity, type: activity.type };
     }
-
-    return activity as DisplayableActivity;
   });
 
   const flatOperations = groups.map(({ operations }) => operations).flat();

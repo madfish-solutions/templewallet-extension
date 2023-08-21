@@ -16,11 +16,8 @@ export interface OperationsGroup {
 
 interface DisplayableRequiredDestinationActivity extends RequiredDestinationActivity {
   type: Exclude<
-    ActivityType,
-    | ActivityType.LiquidityBakingBurn
-    | ActivityType.LiquidityBakingMint
-    | ActivityType.Delegation
-    | ActivityType.Interaction
+    RequiredDestinationActivity['type'],
+    ActivityType.LiquidityBakingBurn | ActivityType.LiquidityBakingMint
   >;
 }
 
