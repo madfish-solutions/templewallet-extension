@@ -489,7 +489,7 @@ const BakerBannerComponent: React.FC<BakerBannerComponentProps> = ({ tzError, ba
 
       {!tzError && baker.minDelegation > balanceNum && (
         <Alert
-          type="warn"
+          type="warning"
           title={t('minDelegationAmountTitle')}
           description={
             <T
@@ -506,7 +506,7 @@ const BakerBannerComponent: React.FC<BakerBannerComponentProps> = ({ tzError, ba
       )}
     </>
   ) : !tzError && net.type === 'main' ? (
-    <Alert type="warn" title={t('unknownBakerTitle')} description={t('unknownBakerDescription')} className="mb-6" />
+    <Alert type="warning" title={t('unknownBakerTitle')} description={t('unknownBakerDescription')} className="mb-6" />
   ) : null;
 };
 
@@ -697,7 +697,7 @@ const DelegateErrorAlert: FC<DelegateErrorAlertProps> = ({ type, error }) => {
 
   return (
     <Alert
-      type={type === 'submit' ? 'error' : 'warn'}
+      type={type === 'submit' ? 'error' : 'warning'}
       title={(() => {
         switch (true) {
           case error instanceof NotEnoughFundsError:

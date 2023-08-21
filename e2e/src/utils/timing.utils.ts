@@ -10,7 +10,7 @@ export const VERY_SHORT_TIMEOUT = 5_000;
 
 export const RETRY_OPTIONS = {
   minTimeout: 300,
-  maxRetryTime: 15_000
+  maxRetryTime: SHORT_TIMEOUT
 };
 
 export function sleep(ms: number) {
