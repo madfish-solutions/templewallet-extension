@@ -111,7 +111,7 @@ Feature: Remove an account
     And I press Remove Account Button on the Settings page
 
     And I am on the RemoveAccount page
-    And I got the 'Cannot be removed' error with Alert title Text element on the Alert page
+    And I got the 'Cannot be removed' warning with Alert title Text element on the Alert page
 
     And I press Account Icon on the Header page
 
@@ -137,9 +137,9 @@ Feature: Remove an account
 
     And I am on the RemoveAccount page
     And I press Remove Button on the Remove Account page
-    And I got the 'Required' error with Input Error element on the Universal Component page
+    And I got the validation-error 'Required' with Input Error element on the Universal Component page
 
     And I enter shortRandomContent into Password Input on the Remove Account page
     And I press Remove Button on the Remove Account page
-    And I got the 'Invalid password' error with Input Error element on the Universal Component page
+    And I got the validation-error 'Invalid password' with Input Error element on the Universal Component page
 
