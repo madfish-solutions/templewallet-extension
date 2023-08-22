@@ -70,9 +70,12 @@ const parseAttributeRarity = (
     if (info.galleries.length) {
       const attribute_id = attribute.id;
 
+      const galleriesPKs = info.galleries.map(({ gallery: { pk } }) => pk);
+
       return {
         withAttribute: galleryAttributeCounts.reduce(
-          (acc, count) => (count.attribute_id === attribute_id ? acc + count.editions : acc),
+          (acc, count) =>
+            count.attribute_id === attribute_id && galleriesPKs.includes(count.gallery_pk) ? acc + count.editions : acc,
           0
         ),
         all: info.galleries.reduce((acc, { gallery: { editions } }) => acc + editions, 0)

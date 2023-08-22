@@ -19,11 +19,6 @@ export interface ObjktAttribute {
   };
 }
 
-export interface GetUserObjktCollectiblesResponse {
-  token: UserObjktCollectible[];
-  gallery_attribute_count: ObjktGalleryAttributeCount[];
-}
-
 interface ObjktListing {
   currency_id: number;
   price: number;
@@ -56,6 +51,8 @@ export interface UserObjktCollectible {
   galleries: {
     gallery: {
       name: string;
+      /** Primary Key */
+      pk: number;
       editions: number;
     };
   }[];
@@ -79,6 +76,7 @@ export interface UserObjktCollectible {
 
 export interface ObjktGalleryAttributeCount {
   attribute_id: number;
+  gallery_pk: number;
   editions: number;
 }
 

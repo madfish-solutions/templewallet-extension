@@ -4,6 +4,9 @@ const OBJKT_API = 'https://data.objkt.com/v3/graphql/';
 
 export const apolloObjktClient = getApolloConfigurableClient(OBJKT_API);
 
+/** See: https://public-api-v3-20221206.objkt.com/docs/#limits */
+export const MAX_OBJKT_QUERY_RESPONSE_ITEMS = 500;
+
 export const OBJKT_CONTRACT = 'KT1WvzYHCNBvDSdwafTHv7nJ1dWmZ8GCYuuC';
 
 interface ObjktCurrencyInfo {

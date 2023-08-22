@@ -17,15 +17,15 @@ const loadCollectiblesDetailsEpic: Epic = (action$: Observable<Action>) =>
     switchMap(slugs =>
       fetchObjktCollectibles$(slugs).pipe(
         map(data => {
-          const entries: [string, CollectibleDetails | null][] = data.token.map(info => {
+          const entries: [string, CollectibleDetails | null][] = data.tokens.map(info => {
             const slug = toTokenSlug(info.fa_contract, info.token_id);
-            const details = convertCollectibleObjktInfoToStateDetailsType(info, data.gallery_attribute_count);
+            const details = convertCollectibleObjktInfoToStateDetailsType(info, data.galleriesAttributesCounts);
 
             return [slug, details];
           });
 
           for (const slug of slugs) {
-            if (!data.token.some(({ fa_contract, token_id }) => toTokenSlug(fa_contract, token_id) === slug))
+            if (!data.tokens.some(({ fa_contract, token_id }) => toTokenSlug(fa_contract, token_id) === slug))
               entries.push([slug, null]);
           }
 

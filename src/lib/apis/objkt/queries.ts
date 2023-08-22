@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client';
 
 export const buildGetCollectiblesQuery = () => gql`
-  query MyQuery($token_where_or: token_bool_exp) {
-    token(where: $token_where_or) {
+  query MyQuery($where: token_bool_exp) {
+    token(where: $where) {
       fa_contract
       token_id
       tags {
@@ -33,6 +33,7 @@ export const buildGetCollectiblesQuery = () => gql`
       galleries {
         gallery {
           name
+          pk
           editions
         }
       }
@@ -60,8 +61,14 @@ export const buildGetCollectiblesQuery = () => gql`
         amount
       }
     }
-    gallery_attribute_count(where: { attribute: { tokens: { token: $token_where_or } } }) {
+  }
+`;
+
+export const buildGetGalleriesAttributesCountsQuery = () => gql`
+  query MyQuery($where: gallery_attribute_count_bool_exp) {
+    gallery_attribute_count(where: $where) {
       attribute_id
+      gallery_pk
       editions
     }
   }

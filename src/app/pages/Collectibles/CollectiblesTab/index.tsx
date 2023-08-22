@@ -2,7 +2,6 @@ import React, { FC, memo, useCallback, useEffect } from 'react';
 
 import clsx from 'clsx';
 import { isEqual } from 'lodash';
-import { useCustomCompareMemo } from 'use-custom-compare';
 
 import { SyncSpinner } from 'app/atoms';
 import Checkbox from 'app/atoms/Checkbox';
@@ -19,6 +18,7 @@ import { useFilteredAssetsSlugs } from 'lib/assets/use-filtered';
 import { T, t } from 'lib/i18n';
 import { useAccount, useChainId, useCollectibleTokens } from 'lib/temple/front';
 import { useSyncTokens } from 'lib/temple/front/sync-tokens';
+import { useMemoWithCompare } from 'lib/ui/hooks';
 import { useLocalStorage } from 'lib/ui/local-storage';
 import Popper, { PopperRenderProps } from 'lib/ui/Popper';
 import { Link } from 'lib/woozie';
@@ -48,7 +48,7 @@ export const CollectiblesTab = memo<Props>(({ scrollToTheTabsBar }) => {
     true
   );
 
-  const collectiblesSlugs = useCustomCompareMemo(
+  const collectiblesSlugs = useMemoWithCompare(
     () => collectibles.map(collectible => collectible.tokenSlug).sort(),
     [collectibles],
     isEqual
