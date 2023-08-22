@@ -7,6 +7,12 @@
   ],
   "plugins": ["import", "prettier"],
   "parser": "@typescript-eslint/parser",
+  "overrides": [{
+    "files": ["*.ts", "*.tsx"],
+    "parserOptions": {
+      "project": ["./tsconfig.json"]
+    }
+  }],
   "settings": {
     "import/resolver": {
       "typescript": {
@@ -43,6 +49,7 @@
         "newlines-between": "always"
       }
     ],
+    "@typescript-eslint/await-thenable": "error",
     "react-hooks/rules-of-hooks": "warn",
     "react-hooks/exhaustive-deps": "warn"
   }

@@ -3,6 +3,7 @@ import React, { FC, useMemo } from 'react';
 import { Alert } from 'app/atoms/Alert';
 import { ReadOnlySecretField } from 'app/atoms/ReadOnlySecretField';
 import { TID, T } from 'lib/i18n';
+import { SPACE_CHAR } from 'lib/ui/utils';
 
 import { RevealSecretsSelectors } from './RevealSecrets.selectors';
 
@@ -32,7 +33,9 @@ export const SecretField: FC<Props> = ({ revealType, value }) => {
           title: 'seedPhrase',
           description: (
             <>
-              <T id="youWillNeedThisSeedPhrase" /> <T id="keepSeedPhraseSecret" />
+              <T id="youWillNeedThisSeedPhrase" />
+              {SPACE_CHAR}
+              <T id="keepSeedPhraseSecret" />
             </>
           ),
           attention: 'doNotSharePhrase'

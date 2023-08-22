@@ -35,7 +35,7 @@ import {
 } from 'lib/temple/front';
 import * as Repo from 'lib/temple/repo';
 import { useSafeState } from 'lib/ui/hooks';
-import { withErrorHumanDelay } from 'lib/ui/humanDelay';
+import { delay } from 'lib/utils';
 import { navigate } from 'lib/woozie';
 
 import { AddAssetSelectors } from './AddAsset.selectors';
@@ -154,9 +154,11 @@ const Form: FC = () => {
         bottomSectionVisible: true
       };
     } catch (err: any) {
-      await withErrorHumanDelay(err, () => {
-        stateToSet = errorHandler(err, contractAddress, setValue);
-      });
+      console.error(err);
+
+      await delay();
+
+      stateToSet = errorHandler(err, contractAddress, setValue);
     }
 
     if (attempt === attemptRef.current) {
@@ -240,7 +242,7 @@ const Form: FC = () => {
         console.error(err);
 
         // Human delay
-        await new Promise(r => setTimeout(r, 300));
+        await delay();
         setSubmitError(err.message);
       }
     },

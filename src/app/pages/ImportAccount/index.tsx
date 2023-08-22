@@ -5,6 +5,7 @@ import { ReactComponent as DownloadIcon } from 'app/icons/download.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import { TID, T } from 'lib/i18n';
 import { useSetAccountPkh, useAllAccounts, useNetwork } from 'lib/temple/front';
+import { isTruthy } from 'lib/utils';
 import { navigate } from 'lib/woozie';
 
 import { ByFundraiserForm } from './ByFundraiserForm';
@@ -31,6 +32,7 @@ const ImportAccount: FC<ImportAccountProps> = ({ tabSlug }) => {
 
   const prevAccLengthRef = useRef(allAccounts.length);
   const prevNetworkRef = useRef(network);
+
   useEffect(() => {
     const accLength = allAccounts.length;
     if (prevAccLengthRef.current < accLength) {
@@ -40,48 +42,50 @@ const ImportAccount: FC<ImportAccountProps> = ({ tabSlug }) => {
     prevAccLengthRef.current = accLength;
   }, [allAccounts, setAccountPkh]);
 
-  const allTabs = useMemo(
-    () =>
-      [
-        {
-          slug: 'private-key',
-          i18nKey: 'privateKey',
-          Form: ByPrivateKeyForm
-        },
-        {
-          slug: 'mnemonic',
-          i18nKey: 'mnemonic',
-          Form: ByMnemonicForm
-        },
-        {
-          slug: 'fundraiser',
-          i18nKey: 'fundraiser',
-          Form: ByFundraiserForm
-        },
-        network.type !== 'main'
-          ? {
-              slug: 'faucet',
-              i18nKey: 'faucetFileTitle',
-              Form: FromFaucetForm
-            }
-          : undefined,
-        {
-          slug: 'managed-kt',
-          i18nKey: 'managedKTAccount',
-          Form: ManagedKTForm
-        },
-        {
-          slug: 'watch-only',
-          i18nKey: 'watchOnlyAccount',
-          Form: WatchOnlyForm
-        }
-      ].filter((x): x is ImportTabDescriptor => !!x),
-    [network.type]
-  );
+  const allTabs = useMemo(() => {
+    const unfiltered: (ImportTabDescriptor | null)[] = [
+      {
+        slug: 'private-key',
+        i18nKey: 'privateKey',
+        Form: ByPrivateKeyForm
+      },
+      {
+        slug: 'mnemonic',
+        i18nKey: 'mnemonic',
+        Form: ByMnemonicForm
+      },
+      {
+        slug: 'fundraiser',
+        i18nKey: 'fundraiser',
+        Form: ByFundraiserForm
+      },
+      network.type !== 'main'
+        ? {
+            slug: 'faucet',
+            i18nKey: 'faucetFileTitle',
+            Form: FromFaucetForm
+          }
+        : null,
+      {
+        slug: 'managed-kt',
+        i18nKey: 'managedKTAccount',
+        Form: ManagedKTForm
+      },
+      {
+        slug: 'watch-only',
+        i18nKey: 'watchOnlyAccount',
+        Form: WatchOnlyForm
+      }
+    ];
+
+    return unfiltered.filter(isTruthy);
+  }, [network.type]);
+
   const { slug, Form } = useMemo(() => {
     const tab = tabSlug ? allTabs.find(currentTab => currentTab.slug === tabSlug) : null;
     return tab ?? allTabs[0];
   }, [allTabs, tabSlug]);
+
   useEffect(() => {
     const prevNetworkType = prevNetworkRef.current.type;
     prevNetworkRef.current = network;

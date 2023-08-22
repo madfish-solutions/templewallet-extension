@@ -8,6 +8,7 @@ import { isSeedPhraseFilled, SeedPhraseInput } from 'app/templates/SeedPhraseInp
 import { useFormAnalytics } from 'lib/analytics';
 import { t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
+import { delay } from 'lib/utils';
 
 import { ImportAccountSelectors, ImportAccountFormType } from './selectors';
 
@@ -43,7 +44,7 @@ export const ByFundraiserForm: FC = () => {
           console.error(err);
 
           // Human delay
-          await new Promise(r => setTimeout(r, 300));
+          await delay();
           setError(err.message);
         }
       } else if (seedError === '') {

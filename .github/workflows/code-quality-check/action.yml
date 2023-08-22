@@ -3,11 +3,15 @@ description: Installs dependencies and checks TS, linting, dead code
 runs:
   using: 'composite'
   steps:
-    - run: yarn install && cd ./e2e && yarn install
+    - run: yarn install
       shell: bash
 
     - name: Check TypeScript
-      run: yarn ts && yarn ts:e2e
+      run: yarn ts
+      shell: bash
+
+    - name: Check E2E TypeScript
+      run: yarn ts:e2e
       shell: bash
 
     - name: Find deadcode

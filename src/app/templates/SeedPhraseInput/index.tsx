@@ -7,7 +7,7 @@ import { formatMnemonic } from 'app/defaults';
 import { useAppEnv } from 'app/env';
 import { TestIDProperty } from 'lib/analytics';
 import { T, t } from 'lib/i18n';
-import { clearClipboard } from 'lib/ui/util';
+import { clearClipboard } from 'lib/ui/utils';
 
 import { SeedLengthSelect } from './SeedLengthSelect';
 import { SeedWordInput, SeedWordInputProps } from './SeedWordInput';

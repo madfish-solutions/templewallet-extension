@@ -4,12 +4,13 @@ import clsx from 'clsx';
 import { useForm } from 'react-hook-form';
 
 import { Alert, FormField, FormSubmitButton } from 'app/atoms';
-import { formatMnemonic } from 'app/defaults';
+import { DEFAULT_DERIVATION_PATH, formatMnemonic } from 'app/defaults';
 import { ReactComponent as OkIcon } from 'app/icons/ok.svg';
 import { isSeedPhraseFilled, SeedPhraseInput } from 'app/templates/SeedPhraseInput';
 import { useFormAnalytics } from 'lib/analytics';
 import { TID, T, t } from 'lib/i18n';
 import { useTempleClient, validateDerivationPath } from 'lib/temple/front';
+import { delay } from 'lib/utils';
 
 import { ImportAccountSelectors, ImportAccountFormType } from './selectors';
 
@@ -44,7 +45,7 @@ export const ByMnemonicForm: FC = () => {
 
   const { register, handleSubmit, errors, formState, reset } = useForm<ByMnemonicFormData>({
     defaultValues: {
-      customDerivationPath: "m/44'/1729'/0'/0'",
+      customDerivationPath: DEFAULT_DERIVATION_PATH,
       accountNumber: 1
     }
   });
@@ -63,11 +64,7 @@ export const ByMnemonicForm: FC = () => {
           await importMnemonicAccount(
             formatMnemonic(seedPhrase),
             password || undefined,
-            derivationPath.type === 'custom'
-              ? customDerivationPath && customDerivationPath.length > 0
-                ? customDerivationPath
-                : undefined
-              : "m/44'/1729'/0'/0'"
+            derivationPath.type === 'custom' ? customDerivationPath || undefined : DEFAULT_DERIVATION_PATH
           );
 
           formAnalytics.trackSubmitSuccess();
@@ -77,7 +74,7 @@ export const ByMnemonicForm: FC = () => {
           console.error(err);
 
           // Human delay
-          await new Promise(r => setTimeout(r, 300));
+          await delay();
           setError(err.message);
         }
       } else if (seedError === '') {
