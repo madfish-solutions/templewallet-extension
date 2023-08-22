@@ -14,10 +14,11 @@ const usePasswordToggle = (
 ): ['text' | 'password', JSX.Element] => {
   const [visible, setVisibility] = useState(false);
 
-  useDidUpdate(() => setVisibility(false), [revealRef]);
+  const hide = useCallback(() => void setVisibility(false), []);
 
-  const onTimeout = useCallback(() => void setVisibility(false), []);
-  useTimeout(onTimeout, USER_ACTION_TIMEOUT, visible);
+  useDidUpdate(hide, [revealRef]);
+
+  useTimeout(hide, USER_ACTION_TIMEOUT, visible);
 
   const Icon = useMemo(
     () => (

@@ -12,6 +12,7 @@ import { T, t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
 import { TempleSharedStorageKey } from 'lib/temple/types';
 import { useLocalStorage } from 'lib/ui/local-storage';
+import { delay } from 'lib/utils';
 import { Link } from 'lib/woozie';
 
 import { ABTestGroup } from '../../../lib/apis/temple';
@@ -76,7 +77,7 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
       clearError('password');
       formAnalytics.trackSubmit();
       try {
-        if (attempt > LAST_ATTEMPT) await new Promise(res => setTimeout(res, Math.random() * 2000 + 1000));
+        if (attempt > LAST_ATTEMPT) await delay(Math.random() * 2000 + 1000);
         await unlock(password);
 
         formAnalytics.trackSubmitSuccess();
@@ -90,7 +91,7 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
         console.error(err);
 
         // Human delay.
-        await new Promise(res => setTimeout(res, 300));
+        await delay();
         setError('password', SUBMIT_ERROR_TYPE, err.message);
         focusPasswordField();
       }

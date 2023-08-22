@@ -7,6 +7,7 @@ import { Alert, FormField, FormSubmitButton } from 'app/atoms';
 import { T, t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
 import { useVanishingState } from 'lib/ui/hooks';
+import { delay } from 'lib/utils';
 
 import { SyncSettingsSelectors } from './SyncSettings.selectors';
 
@@ -42,7 +43,7 @@ const SyncSettings: FC = () => {
         }
 
         // Human delay.
-        await new Promise(res => setTimeout(res, 300));
+        await delay();
         setError('password', 'submit-error', err.message);
         focusPasswordField();
       }

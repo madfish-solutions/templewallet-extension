@@ -4,13 +4,11 @@ export const useVanishingState = <S = string>(timeout = 20_000): [S | null, Disp
   const [state, setState] = useState<S | null>(null);
 
   useEffect(() => {
-    if (state) {
-      const timer = setTimeout(() => setState(null), timeout);
+    if (state === null) return;
 
-      return () => clearTimeout(timer);
-    }
+    const timer = setTimeout(() => setState(null), timeout);
 
-    return undefined;
+    return () => clearTimeout(timer);
   }, [state, setState]);
 
   return [state, setState];

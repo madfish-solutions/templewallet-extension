@@ -19,7 +19,7 @@ import { useDidUpdate } from 'lib/ui/hooks';
 import { blurHandler, focusHandler, inputChangeHandler } from 'lib/ui/inputHandlers';
 import { useBlurElementOnTimeout } from 'lib/ui/use-blur-on-timeout';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
-import { combineRefs } from 'lib/ui/util';
+import { combineRefs } from 'lib/ui/utils';
 
 import { ErrorCaptionSelectors } from './ErrorCaption.selectors';
 import { FieldLabel } from './FieldLabel';

@@ -52,6 +52,7 @@ import { hasManager, isAddressValid, isKTAddress, mutezToTz, tzToMutez } from 'l
 import { TempleAccountType, TempleAccount, TempleNetworkType } from 'lib/temple/types';
 import { useSafeState } from 'lib/ui/hooks';
 import { useScrollIntoView } from 'lib/ui/use-scroll-into-view';
+import { delay } from 'lib/utils';
 
 import ContactsDropdown, { ContactsDropdownProps } from './ContactsDropdown';
 import { FeeSection } from './FeeSection';
@@ -241,7 +242,7 @@ export const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactReque
 
       return estimatedBaseFee;
     } catch (err: any) {
-      await new Promise(r => setTimeout(r, 300));
+      await delay();
 
       if (err instanceof ArtificialError) {
         return err;
@@ -380,7 +381,7 @@ export const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactReque
         console.error(err);
 
         // Human delay.
-        await new Promise(res => setTimeout(res, 300));
+        await delay();
         setSubmitError(err);
       }
     },

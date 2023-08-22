@@ -9,6 +9,7 @@ import { TID, T, t } from 'lib/i18n';
 import { ActivationStatus, useTempleClient, useSetAccountPkh, useTezos, activateAccount } from 'lib/temple/front';
 import { confirmOperation } from 'lib/temple/operation';
 import { useSafeState } from 'lib/ui/hooks';
+import { delay } from 'lib/utils';
 import { navigate } from 'lib/woozie';
 
 import { ImportAccountFormType } from './selectors';
@@ -91,7 +92,7 @@ export const FromFaucetForm: FC = () => {
         console.error(err);
 
         // Human delay.
-        await new Promise(res => setTimeout(res, 300));
+        await delay();
 
         setAlert(err);
       } finally {
@@ -139,7 +140,7 @@ export const FromFaucetForm: FC = () => {
         console.error(err);
 
         // Human delay.
-        await new Promise(res => setTimeout(res, 300));
+        await delay();
 
         setAlert(err);
       } finally {

@@ -16,6 +16,7 @@ import { useRetryableSWR } from 'lib/swr';
 import { useRelevantAccounts, useTezos, useTempleClient, useChainId } from 'lib/temple/front';
 import { isAddressValid } from 'lib/temple/helpers';
 import { TempleAccountType } from 'lib/temple/types';
+import { delay } from 'lib/utils';
 
 import { ImportAccountSelectors, ImportAccountFormType } from './selectors';
 
@@ -125,7 +126,7 @@ export const ManagedKTForm: FC = () => {
         console.error(err);
 
         // Human delay
-        await new Promise(r => setTimeout(r, 300));
+        await delay();
         setError(err.message);
       }
     },

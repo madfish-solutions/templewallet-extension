@@ -8,6 +8,7 @@ import { useFormAnalytics } from 'lib/analytics';
 import { T, t } from 'lib/i18n';
 import { useTempleClient, useTezos, useTezosDomainsClient, validateDelegate } from 'lib/temple/front';
 import { isAddressValid, isKTAddress } from 'lib/temple/helpers';
+import { delay } from 'lib/utils';
 
 import { ImportAccountSelectors, ImportAccountFormType } from './selectors';
 
@@ -82,7 +83,7 @@ export const WatchOnlyForm: FC = () => {
       console.error(err);
 
       // Human delay
-      await new Promise(r => setTimeout(r, 300));
+      await delay();
       setError(err.message);
     }
   }, [importWatchOnlyAccount, finalAddress, tezos, formState.isSubmitting, setError, formAnalytics]);

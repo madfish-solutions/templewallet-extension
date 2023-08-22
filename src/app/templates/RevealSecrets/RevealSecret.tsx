@@ -10,6 +10,7 @@ import { T, t } from 'lib/i18n';
 import { useAccount, useTempleClient } from 'lib/temple/front';
 import { TempleAccountType } from 'lib/temple/types';
 import { useVanishingState } from 'lib/ui/hooks';
+import { delay } from 'lib/utils';
 
 import { RevealSecretsSelectors } from './RevealSecrets.selectors';
 import { SecretField } from './SecretField';
@@ -73,7 +74,7 @@ const RevealSecret: FC<RevealSecretProps> = ({ reveal }) => {
         console.error(err);
 
         // Human delay.
-        await new Promise(res => setTimeout(res, 300));
+        await delay();
         setError('password', SUBMIT_ERROR_TYPE, err.message);
         focusPasswordField();
       }
@@ -166,10 +167,9 @@ const RevealSecret: FC<RevealSecretProps> = ({ reveal }) => {
                 substitutions={[
                   <span
                     key="account-type"
-                    className="rounded-sm border px-1 py-px font-normal leading-tight"
+                    className="rounded-sm border px-1 py-px font-normal leading-tight border-current"
                     style={{
-                      fontSize: '0.75em',
-                      borderColor: 'currentColor'
+                      fontSize: '0.75em'
                     }}
                   >
                     {getAccountBadgeTitle(account)}

@@ -6,7 +6,8 @@ import { Alert, FormField, FormSubmitButton } from 'app/atoms';
 import { useFormAnalytics } from 'lib/analytics';
 import { T, t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
-import { clearClipboard } from 'lib/ui/util';
+import { clearClipboard } from 'lib/ui/utils';
+import { delay } from 'lib/utils';
 
 import { ImportAccountSelectors, ImportAccountFormType } from './selectors';
 
@@ -38,7 +39,7 @@ export const ByPrivateKeyForm: FC = () => {
         console.error(err);
 
         // Human delay
-        await new Promise(r => setTimeout(r, 300));
+        await delay();
         setError(err.message);
       }
     },
@@ -64,7 +65,7 @@ export const ByPrivateKeyForm: FC = () => {
         errorCaption={errors.privateKey?.message}
         className="resize-none"
         containerClassName="mb-6"
-        onPaste={() => clearClipboard()}
+        onPaste={clearClipboard}
         testID={ImportAccountSelectors.privateKeyInput}
       />
 
