@@ -10,7 +10,7 @@ export const otherNetworks = [
     name: 'EVM'
   },
   {
-    analyticsSlug: 'Bitcoin',
+    analyticsSlug: 'btc',
     slug: 'btc',
     name: 'Bitcoin'
   }
