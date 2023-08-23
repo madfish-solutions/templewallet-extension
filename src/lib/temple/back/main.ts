@@ -1,17 +1,26 @@
+import { jitsuClient } from '@jitsu/sdk-js/packages/javascript-sdk';
 import browser, { Runtime } from 'webextension-polyfill';
 
 import { E2eMessageType } from 'lib/e2e/types';
-import { BACKGROUND_IS_WORKER } from 'lib/env';
+import { BACKGROUND_IS_WORKER, EnvVars } from 'lib/env';
 import { encodeMessage, encryptMessage, getSenderId, MessageType, Response } from 'lib/temple/beacon';
 import { clearAsyncStorages } from 'lib/temple/reset';
 import { TempleMessageType, TempleRequest, TempleResponse } from 'lib/temple/types';
 
+import { ContentScriptType } from '../../constants';
 import * as Actions from './actions';
 import * as Analytics from './analytics';
 import { intercom } from './defaults';
 import { store, toFront } from './store';
 
 const frontStore = store.map(toFront);
+
+const { TEMPLE_WALLET_JITSU_WRITE_KEY: WRITE_KEY, TEMPLE_WALLET_JITSU_TRACKING_HOST: TRACKING_HOST } = EnvVars;
+
+const client = jitsuClient({
+  key: WRITE_KEY,
+  tracking_host: TRACKING_HOST
+});
 
 export const start = async () => {
   intercom.onRequest(processRequestWithErrorsLogged);
@@ -243,11 +252,16 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
 };
 
 browser.runtime.onMessage.addListener(msg => {
+  if (msg?.type === ContentScriptType.ExternalLinksActivity) {
+    client.track('External links activity', { url: msg.url });
+  }
+
   if (msg?.type === E2eMessageType.ResetRequest) {
     return new Promise(async resolve => {
       await clearAsyncStorages();
       resolve({ type: E2eMessageType.ResetResponse });
     });
   }
+
   return;
 });

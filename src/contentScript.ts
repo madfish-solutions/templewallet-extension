@@ -5,6 +5,9 @@ import { IntercomClient } from 'lib/intercom/client';
 import { serealizeError } from 'lib/intercom/helpers';
 import { TempleMessageType, TempleResponse } from 'lib/temple/types';
 
+import { ContentScriptType } from './lib/constants';
+import { checkMatchByUrl } from './lib/utils/check-url';
+
 enum BeaconMessageTarget {
   Page = 'toPage',
   Extension = 'toExtension'
@@ -32,6 +35,31 @@ type BeaconMessage =
       encryptedPayload: any;
     };
 type BeaconPageMessage = BeaconMessage | { message: BeaconMessage; sender: { id: string } };
+
+const observeUrlChange = () => {
+  let oldHref = '';
+  const body = document.querySelector('body');
+
+  if (!body) {
+    return;
+  }
+
+  const observer = new MutationObserver(() => {
+    if (oldHref !== document.location.href) {
+      oldHref = document.location.href;
+
+      if (checkMatchByUrl(document.location.href)) {
+        browser.runtime.sendMessage({ type: ContentScriptType.ExternalLinksActivity, url: document.location.href });
+      }
+    }
+  });
+
+  observer.observe(body, { childList: true, subtree: true });
+};
+
+window.onload = () => {
+  observeUrlChange();
+};
 
 const SENDER = {
   id: browser.runtime.id,
