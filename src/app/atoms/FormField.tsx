@@ -268,7 +268,7 @@ const ErrorCaption: React.FC<ErrorCaptionProps> = ({ errorCaption }) => {
 const buildPaddingRightClassName = (isPasswordInput: boolean, withExtraInner: boolean, smallPaddings: boolean) => {
   if (withExtraInner) return 'pr-32';
 
-  if (isPasswordInput) return smallPaddings ? 'pr-11' : 'pr-12';
+  if (isPasswordInput) return smallPaddings ? 'pr-9' : 'pr-12';
 
   return smallPaddings ? 'pr-2' : 'pr-4';
 };
