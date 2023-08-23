@@ -39,14 +39,7 @@ export { useContactsActions, searchContacts } from './address-book';
 export { useTezosDomainsClient, isDomainNameValid } from './tzdns';
 
 export type { Baker } from './baking';
-export {
-  getRewardsStats,
-  useKnownBaker,
-  useKnownBakerOrPayoutAccount,
-  useKnownBakers,
-  useKnownBakersAndPayoutAccounts,
-  useDelegate
-} from './baking';
+export { getRewardsStats, useKnownBaker, useKnownBakerOrPayoutAccount, useKnownBakers, useDelegate } from './baking';
 
 export { activateAccount } from './activate-account';
 

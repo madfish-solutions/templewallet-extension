@@ -9,5 +9,6 @@ export {
   fetchGetOperationsTransactions,
   fetchGetAccountOperations,
   fetchGetOperationsByHash,
+  fetchGetTokensTransfersByTxIds,
   refetchOnce429
 } from './api';

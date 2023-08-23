@@ -5,7 +5,7 @@ import { isSameDay } from 'date-fns';
 
 import type { TzktOperation } from 'lib/apis/tzkt';
 import { isKnownChainId } from 'lib/apis/tzkt/api';
-import { useTezos, useChainId, useAccount, useKnownBakersAndPayoutAccounts } from 'lib/temple/front';
+import { useTezos, useChainId, useAccount, useKnownBakers } from 'lib/temple/front';
 import { useDidMount, useDidUpdate, useSafeState, useStopper } from 'lib/ui/hooks';
 
 import fetchActivities from './fetch';
@@ -17,7 +17,7 @@ export default function useActivities(initialPseudoLimit: number, assetSlug?: st
   const tezos = useTezos();
   const chainId = useChainId(true);
   const account = useAccount();
-  const knownBakersAndPayouts = useKnownBakersAndPayoutAccounts(false);
+  const knownBakers = useKnownBakers(false);
   const oldestOperationRef = useRef<TzktOperation>();
 
   const accountAddress = account.publicKeyHash;
@@ -28,9 +28,9 @@ export default function useActivities(initialPseudoLimit: number, assetSlug?: st
 
   const { stop: stopLoading, stopAndBuildChecker } = useStopper();
 
-  const tzktBakersOrPayoutsAliases = useMemo(
-    () => knownBakersAndPayouts.map(({ address, name }) => ({ address, alias: name })),
-    [knownBakersAndPayouts]
+  const tzktBakersAliases = useMemo(
+    () => knownBakers?.map(({ address, name }) => ({ address, alias: name })) ?? [],
+    [knownBakers]
   );
 
   async function loadActivities(pseudoLimit: number, activities: DisplayableActivity[], shouldStop: () => boolean) {
@@ -56,7 +56,7 @@ export default function useActivities(initialPseudoLimit: number, assetSlug?: st
         assetSlug,
         pseudoLimit,
         tezos,
-        tzktBakersOrPayoutsAliases,
+        tzktBakersAliases,
         oldestOperationRef.current
       ));
       oldestOperationRef.current = newOldestOperation ?? oldestOperationRef.current;

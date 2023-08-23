@@ -17,7 +17,7 @@ import { useAccount } from 'lib/temple/front';
 
 import { useShouldShowPartnersPromoSelector } from '../../store/partners-promotion/selectors';
 import { useIsEnabledAdsBannerSelector } from '../../store/settings/selectors';
-import { ActivityItem } from './activity-item';
+import { ActivityItem } from './activity-item/activity-item';
 
 const INITIAL_NUMBER = 30;
 const LOAD_STEP = 30;

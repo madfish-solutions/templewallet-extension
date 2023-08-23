@@ -1689,8 +1689,20 @@
       }
     }
   },
+  "approve": {
+    "message": "Approve"
+  },
+  "revoke": {
+    "message": "Revoke"
+  },
   "approveToken": {
     "message": "Approve Token"
+  },
+  "approved": {
+    "message": "Approved"
+  },
+  "revoked": {
+    "message": "Revoked"
   },
   "add": {
     "message": "Add"
@@ -1913,6 +1925,9 @@
   },
   "interaction": {
     "message": "Interaction"
+  },
+  "interactionTypeTooltip": {
+    "message": "This transaction type is not currently supported. We are continuously improving our transaction processing capabilities. Thank you for your understanding."
   },
   "interactionWithContract": {
     "message": "with $contract$",

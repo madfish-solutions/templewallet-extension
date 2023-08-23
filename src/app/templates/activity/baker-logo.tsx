@@ -19,7 +19,7 @@ export const BakerLogo: FC<Props> = ({ bakerAddress }) => {
   }
 
   return (
-    <div className="flex items-center justify-center w-9 h-9 rounded-md border border-gray-300 mr-2">
+    <div className="mr-2">
       <Image
         src={bakerOrPayoutAccount.logo ?? undefined}
         loader={<RobotIcon hash={bakerAddress} />}

@@ -1,5 +1,5 @@
 import { isDefined } from '@rnw-community/shared';
-import { ActivityType, parseTransactions, TzktOperationType } from '@temple-wallet/transactions-parser';
+import { ActivityType, parseOperations, TzktOperationType } from '@temple-wallet/transactions-parser';
 
 import type { TzktApiChainId, TzktAlias, TzktOperation } from 'lib/apis/tzkt';
 import * as TZKT from 'lib/apis/tzkt';
@@ -25,7 +25,7 @@ export default async function fetchActivities(
   assetSlug: string | undefined,
   pseudoLimit: number,
   tezos: ReactiveTezosToolkit,
-  knownBakersAndPayouts: TzktAlias[],
+  knownBakers: TzktAlias[],
   olderThan?: TzktOperation
 ): Promise<FetchActivitiesReturnValue> {
   const operations = await fetchOperations(chainId, account, assetSlug, pseudoLimit, tezos, olderThan);
@@ -38,15 +38,26 @@ export default async function fetchActivities(
     return { activities: [], reachedTheEnd };
   }
 
-  // TODO: replace filtering with transformation of liquidity baking activities into 'Unknown' activities
-  const activities = groups
-    .map(({ operations }) =>
-      parseTransactions(operations, account.publicKeyHash, knownBakersAndPayouts).filter(
-        (activity): activity is DisplayableActivity =>
-          activity.type !== ActivityType.LiquidityBakingBurn && activity.type !== ActivityType.LiquidityBakingMint
-      )
+  const rawActivities = groups
+    .map(({ operations, tokensTransfers }) =>
+      parseOperations(operations, account.publicKeyHash, knownBakers, tokensTransfers)
     )
     .flat();
+  const activities = rawActivities.map<DisplayableActivity>(activity => {
+    switch (activity.type) {
+      case ActivityType.Delegation:
+      case ActivityType.Interaction:
+        return activity;
+      case ActivityType.LiquidityBakingBurn:
+      case ActivityType.LiquidityBakingMint:
+        return {
+          ...activity,
+          type: ActivityType.Interaction as const
+        };
+      default:
+        return { ...activity, type: activity.type };
+    }
+  });
 
   const flatOperations = groups.map(({ operations }) => operations).flat();
   const oldestOperation = flatOperations.reduce(
@@ -56,7 +67,7 @@ export default async function fetchActivities(
   );
 
   if (activities.length === 0) {
-    return fetchActivities(chainId, account, assetSlug, pseudoLimit, tezos, knownBakersAndPayouts, oldestOperation);
+    return fetchActivities(chainId, account, assetSlug, pseudoLimit, tezos, knownBakers, oldestOperation);
   }
 
   return {
@@ -261,10 +272,21 @@ async function fetchOperGroupsForOperations(
   const groups: OperationsGroup[] = [];
   for (const hash of uniqueHashes) {
     const operations = await TZKT.refetchOnce429(() => TZKT.fetchGetOperationsByHash(chainId, hash), 1000);
+    const tokensTransfers = await TZKT.refetchOnce429(
+      () =>
+        TZKT.fetchGetTokensTransfersByTxIds(
+          chainId,
+          operations
+            .filter(op => op.type === TzktOperationType.Transaction && (op.tokenTransfersCount ?? 0) > 0)
+            .map(({ id }) => id)
+        ),
+      1000
+    );
     operations.sort((b, a) => a.id - b.id);
     groups.push({
       hash,
-      operations
+      operations,
+      tokensTransfers
     });
   }
 
