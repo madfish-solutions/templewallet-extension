@@ -5,7 +5,7 @@ import clsx from 'clsx';
 import { Button, ButtonProps } from 'app/atoms/Button';
 import { ReactComponent as ManageIcon } from 'app/icons/manage.svg';
 import useTippy from 'lib/ui/useTippy';
-import { combineRefs } from 'lib/ui/util';
+import { combineRefs } from 'lib/ui/utils';
 
 interface ButtonForManageDropdownProps extends ButtonProps {
   opened: boolean;
