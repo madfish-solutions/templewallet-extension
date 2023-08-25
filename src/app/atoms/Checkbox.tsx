@@ -7,7 +7,7 @@ import { TestIDProps, setTestID, useAnalytics, AnalyticsEventCategory } from 'li
 import { blurHandler, checkedHandler, focusHandler } from 'lib/ui/inputHandlers';
 
 export type CheckboxProps = TestIDProps &
-  Pick<InputHTMLAttributes<HTMLInputElement>, 'name' | 'checked' | 'className' | 'onFocus' | 'onBlur' | 'onClick'> & {
+  Pick<InputHTMLAttributes<HTMLInputElement>, 'name' | 'checked' | 'onFocus' | 'onBlur' | 'onClick'> & {
     containerClassName?: string;
     errored?: boolean;
     onChange?: (checked: boolean, event: React.ChangeEvent<HTMLInputElement>) => void;
@@ -15,18 +15,7 @@ export type CheckboxProps = TestIDProps &
 
 const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
   (
-    {
-      containerClassName,
-      errored = false,
-      className,
-      checked,
-      onChange,
-      onFocus,
-      onBlur,
-      testID,
-      testIDProperties,
-      ...rest
-    },
+    { containerClassName, errored = false, checked, onChange, onFocus, onBlur, testID, testIDProperties, ...rest },
     ref
   ) => {
     const [localChecked, setLocalChecked] = useState(() => checked ?? false);
@@ -64,7 +53,7 @@ const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
     const classNameMemo = useMemo(
       () =>
         classNames(
-          'flex justify-center items-center h-6 w-6 flex-shrink-0',
+          'relative flex justify-center items-center h-6 w-6 flex-shrink-0',
           'text-white border rounded-md overflow-hidden',
           'transition ease-in-out duration-200 disable-outline-for-click',
           localChecked ? 'bg-primary-orange' : 'bg-black-40',
@@ -91,7 +80,7 @@ const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
         <input
           ref={ref}
           type="checkbox"
-          className={classNames('sr-only', className)}
+          className="absolute top-0 left-0 invisible w-full h-full"
           checked={localChecked}
           onChange={handleChange}
           onFocus={handleFocus}
@@ -102,7 +91,7 @@ const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
 
         <OkIcon
           className={classNames(localChecked ? 'block' : 'hidden', 'h-4 w-4 pointer-events-none stroke-current')}
-          style={{ strokeWidth: 2 }}
+          style={{ strokeWidth: 4 }}
         />
       </div>
     );
