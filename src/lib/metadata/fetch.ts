@@ -17,6 +17,7 @@ import { tokenToSlug } from 'lib/assets';
 
 import { TokenMetadataOnChain, fetchTokenMetadata as fetchTokenMetadataOnChain } from './on-chain';
 import { TokenMetadata, TokenStandardsEnum } from './types';
+import { buildTokenMetadataFromFetched } from './utils';
 
 export const fetchOneTokenMetadata = async (
   rpcUrl: string,
@@ -35,7 +36,10 @@ export const fetchOneTokenMetadata = async (
   return chainTokenMetadataToBase(metadataOnChain) || undefined;
 };
 
-const fetchTokensMetadata = async (rpcUrl: string, slugs: string[]): Promise<(TokenMetadataResponse | null)[]> => {
+export const fetchTokensMetadata = async (
+  rpcUrl: string,
+  slugs: string[]
+): Promise<(TokenMetadataResponse | null)[]> => {
   if (slugs.length === 0) return [];
 
   const tezos = new TezosToolkit(rpcUrl);
@@ -83,21 +87,6 @@ export const loadTokensMetadata$ = (rpcUrl: string, slugs: string[]): Observable
     ),
     map(data => data.filter(isDefined))
   );
-
-const buildTokenMetadataFromFetched = (
-  token: TokenMetadataResponse | nullish,
-  address: string,
-  id: number
-): TokenMetadata | null =>
-  isDefined(token)
-    ? {
-        id,
-        address,
-        ...pick(token, ['decimals', 'thumbnailUri', 'displayUri', 'artifactUri']),
-        symbol: token.symbol ?? token.name?.substring(0, 8) ?? '???',
-        name: token.name ?? token.symbol ?? 'Unknown Token'
-      }
-    : null;
 
 export const loadWhitelist$ = (): Observable<TokenMetadata[]> =>
   fetchWhitelistTokens$().pipe(

@@ -12,9 +12,12 @@ import { useTokensLoading } from 'app/hooks/use-tokens-loading';
 import { loadSwapDexesAction, loadSwapTokensAction } from 'app/store/swap/actions';
 import { useBalancesLoading } from 'lib/temple/front/load-balances';
 
+import { useMetadataRefresh } from './hooks/use-metadata-refresh';
+
 export const WithDataLoading: FC<PropsWithChildren> = ({ children }) => {
-  useMetadataLoading();
   useTokensLoading();
+  useMetadataLoading();
+  useMetadataRefresh();
   useBalancesLoading();
   useCollectiblesDetailsLoading();
 
