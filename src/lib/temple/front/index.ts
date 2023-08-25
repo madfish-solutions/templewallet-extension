@@ -53,8 +53,6 @@ export { validateDelegate } from './validate-delegate';
 
 export { validateRecipient } from './validate-recipient';
 
-export { useSecretState } from './use-secret-state.hook';
-
 export { useFilteredContacts } from './use-filtered-contacts.hook';
 
 export { decryptKukaiSeedPhrase } from './kukai';

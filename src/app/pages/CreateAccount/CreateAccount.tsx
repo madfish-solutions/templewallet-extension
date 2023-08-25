@@ -10,6 +10,7 @@ import { useFormAnalytics } from 'lib/analytics';
 import { T, t } from 'lib/i18n';
 import { useTempleClient, useAllAccounts, useSetAccountPkh } from 'lib/temple/front';
 import { TempleAccountType } from 'lib/temple/types';
+import { delay } from 'lib/utils';
 import { navigate } from 'lib/woozie';
 
 import { CreateAccountSelectors } from './CreateAccount.selectors';
@@ -68,7 +69,7 @@ const CreateAccount: FC = () => {
         console.error(err);
 
         // Human delay.
-        await new Promise(res => setTimeout(res, 300));
+        await delay();
         setError('name', SUBMIT_ERROR_TYPE, err.message);
       }
     },

@@ -73,6 +73,7 @@ export const SlippageToleranceInput = forwardRef<HTMLInputElement, Props>(({ nam
         <span className="text-xs h-0 overflow-y-hidden absolute top-0 left-0" ref={contentCopyRef}>
           {customPercentageValue}
         </span>
+
         <AssetField
           className={classNames('rounded-md border bg-opacity-0 -mb-2 text-right', borderClassName)}
           containerClassName="relative"
@@ -97,7 +98,7 @@ export const SlippageToleranceInput = forwardRef<HTMLInputElement, Props>(({ nam
               %
             </span>
           }
-          useDefaultInnerWrapper={false}
+          extraInnerWrapper="none"
           assetDecimals={2}
           onChange={handleCustomPercentageChange}
         />

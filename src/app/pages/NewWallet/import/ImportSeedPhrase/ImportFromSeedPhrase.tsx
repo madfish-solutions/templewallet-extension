@@ -2,7 +2,8 @@ import React, { FC, useCallback, useState } from 'react';
 
 import { useForm } from 'react-hook-form';
 
-import { FormSubmitButton, SeedPhraseInput } from 'app/atoms';
+import { FormSubmitButton } from 'app/atoms';
+import { SeedPhraseInput } from 'app/templates/SeedPhraseInput';
 import { T, t } from 'lib/i18n';
 
 import { ImportFromSeedPhraseSelectors } from './ImportFromSeedPhrase.selectors';
@@ -33,7 +34,6 @@ export const ImportFromSeedPhrase: FC<ImportFromSeedPhraseProps> = ({
     <form className="w-full mx-auto my-8 px-12 pb-8" onSubmit={handleSubmit(onSubmit)}>
       <SeedPhraseInput
         isFirstAccount
-        label={t('seedPhrase')}
         submitted={formState.submitCount !== 0}
         seedError={seedError}
         onChange={setSeedPhrase}

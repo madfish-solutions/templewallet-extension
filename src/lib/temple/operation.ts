@@ -2,6 +2,7 @@ import { BlockResponse, OperationEntry } from '@taquito/rpc';
 import { TezosToolkit } from '@taquito/taquito';
 
 import { CONFIRM_TIMEOUT } from 'lib/fixed-times';
+import { delay } from 'lib/utils';
 
 const SYNC_INTERVAL = 10_000;
 
@@ -49,7 +50,7 @@ export async function confirmOperation(
   }
 
   const timeToWait = Math.max(startedAt + SYNC_INTERVAL - Date.now(), 0);
-  await new Promise(r => setTimeout(r, timeToWait));
+  await delay(timeToWait);
 
   return confirmOperation(tezos, opHash, {
     initializedAt,
