@@ -2,7 +2,8 @@ import React, { FC } from 'react';
 
 import { useForm } from 'react-hook-form';
 
-import { Alert, FormField, FormSubmitButton, FormCheckbox } from 'app/atoms';
+import { Alert, FormSubmitButton, FormCheckbox } from 'app/atoms';
+import { ReadOnlySecretField } from 'app/atoms/ReadOnlySecretField';
 import { T, t } from 'lib/i18n';
 
 import { NewSeedBackupSelectors } from './NewSeedBackup.selectors';
@@ -38,19 +39,12 @@ export const NewSeedBackup: FC<NewSeedBackupProps> = ({ seedPhrase, onBackupComp
         className="mt-4 mb-8"
       />
 
-      <FormField
-        secret
-        textarea
-        rows={4}
-        readOnly
-        label={t('mnemonicInputLabel')}
-        labelDescription={t('youWillNeedThisSeedPhrase')}
-        id="backup-mnemonic"
-        testID={NewSeedBackupSelectors.seedPhraseValue}
-        spellCheck={false}
-        containerClassName="mb-4"
-        className="resize-none notranslate"
+      <ReadOnlySecretField
         value={seedPhrase}
+        label={'mnemonicInputLabel'}
+        description={t('youWillNeedThisSeedPhrase')}
+        testID={NewSeedBackupSelectors.seedPhraseValue}
+        secretCoverTestId={NewSeedBackupSelectors.protectedMask}
       />
 
       <form className="w-full mt-8" onSubmit={handleSubmit(onBackupComplete)}>

@@ -26,6 +26,7 @@ import { useRetryableSWR } from 'lib/swr';
 import { useTempleClient, useAccount, useRelevantAccounts, useCustomChainId, useGasToken } from 'lib/temple/front';
 import { TempleAccountType, TempleDAppPayload, TempleAccount, TempleChainId } from 'lib/temple/types';
 import { useSafeState } from 'lib/ui/hooks';
+import { delay } from 'lib/utils';
 import { useLocation } from 'lib/woozie';
 
 import { ConfirmPageSelectors } from './ConfirmPage.selectors';
@@ -195,7 +196,7 @@ const ConfirmDAppForm: FC = () => {
         console.error(err);
 
         // Human delay.
-        await new Promise(res => setTimeout(res, 300));
+        await delay();
         setError(err);
       }
     },

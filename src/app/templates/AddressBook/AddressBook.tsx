@@ -11,7 +11,7 @@ import { isDomainNameValid, useTezosDomainsClient, useContactsActions, useFilter
 import { isAddressValid } from 'lib/temple/helpers';
 import { TempleContact } from 'lib/temple/types';
 import { useConfirm } from 'lib/ui/dialog';
-import { withErrorHumanDelay } from 'lib/ui/humanDelay';
+import { delay } from 'lib/utils';
 
 import CustomSelect, { OptionRenderProps } from '../CustomSelect';
 import { AddressBookSelectors } from './AddressBook.selectors';
@@ -127,7 +127,11 @@ const AddNewContactForm: React.FC<{ className?: string }> = ({ className }) => {
         await addContact({ address, name, addedAt: Date.now() });
         resetForm();
       } catch (err: any) {
-        await withErrorHumanDelay(err, () => setError('address', SUBMIT_ERROR_TYPE, err.message));
+        console.error(err);
+
+        await delay();
+
+        setError('address', SUBMIT_ERROR_TYPE, err.message);
       }
     },
     [submitting, clearError, addContact, resetForm, setError, domainsClient]

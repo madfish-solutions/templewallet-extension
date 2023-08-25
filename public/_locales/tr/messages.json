@@ -611,12 +611,6 @@
   "mnemonicInputLabel": {
     "message": "Kurtarma sözcüğü"
   },
-  "mnemonicInputDescription": {
-    "message": "Anımsatıcı ifade. Gizli anahtarınız 12 - 24 sözcükten oluşur."
-  },
-  "mnemonicInputPlaceholder": {
-    "message": "ör. mekan çorap süt güncelleme..."
-  },
   "passwordInputDescription": {
     "message": "Bu bir cüzdan parolası DEĞİLDİR.\nEk anımsatıcı ifade türetmek için kullanılır."
   },

@@ -42,7 +42,6 @@ export enum TempleChainId {
   Jakartanet = 'NetXLH1uAxK7CCh',
   Limanet = 'NetXizpkH94bocH',
   Kathmandunet = 'NetXdnUSgMs7Xc3',
-  Mumbainet = 'NetXgbcrNtXD2yA',
   Monday = 'NetXaqtQ8b5nihx',
   Daily = 'NetXxkAx4woPLyu',
   Dcp = 'NetXooyhiru73tk',
@@ -700,12 +699,3 @@ interface TempleRemoveDAppSessionResponse extends TempleMessageBase {
 }
 
 export type OperationsPreview = any[] | { branch: string; contents: any[] };
-
-export enum ImportAccountFormType {
-  PrivateKey = 'ImportAccountFormType.PrivateKey',
-  Mnemonic = 'ImportAccountFormType.Mnemonic',
-  Fundraiser = 'ImportAccountFormType.Fundraiser',
-  FaucetFile = 'ImportAccountFormType.FaucetFile',
-  ManagedKT = 'ImportAccountFormType.ManagedKT',
-  WatchOnly = 'ImportAccountFormType.WatchOnly'
-}

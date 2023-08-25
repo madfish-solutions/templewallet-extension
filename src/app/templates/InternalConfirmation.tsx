@@ -28,7 +28,7 @@ import { useCustomChainId, useNetwork, useRelevantAccounts, tryParseExpenses, us
 import { tzToMutez } from 'lib/temple/helpers';
 import { TempleAccountType, TempleChainId, TempleConfirmationPayload } from 'lib/temple/types';
 import { useSafeState } from 'lib/ui/hooks';
-import { isTruthy } from 'lib/utils';
+import { isTruthy, delay } from 'lib/utils';
 
 import { InternalConfirmationSelectors } from './InternalConfirmation.selectors';
 
@@ -183,7 +183,7 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
         await onConfirm(confirmed, modifiedTotalFeeValue - revealFee, modifiedStorageLimitValue);
       } catch (err: any) {
         // Human delay.
-        await new Promise(res => setTimeout(res, 300));
+        await delay();
         setError(err);
       }
     },

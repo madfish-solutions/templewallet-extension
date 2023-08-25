@@ -579,9 +579,6 @@
   "mnemonicWordsAmountConstraint": {
     "message": "12, 15, 18, 21 or 24 words in English"
   },
-  "mnemonicSpacingConstraint": {
-    "message": "Each word separated with a single space"
-  },
   "seedInputNumberOfWords": {
     "message": "My Seed phrase is $count$ words",
     "placeholders": {
@@ -761,14 +758,8 @@
   "mnemonicInputLabel": {
     "message": "Seed phrase"
   },
-  "mnemonicInputDescription": {
-    "message": "Mnemonic. Your secret 12 - 24 words phrase."
-  },
   "mnemonicInputWarning": {
     "message": "We don't store your seed phrase. Don't lose it!"
-  },
-  "mnemonicInputPlaceholder": {
-    "message": "e.g. venue sock milk update..."
   },
   "passwordInputDescription": {
     "message": "That is NOT a wallet password.\nUsed for additional mnemonic derivation."

@@ -645,6 +645,10 @@ module.exports = {
         '11/12': '91.666667%',
         full: '100%'
       }),
+      inset: {
+        '2px': '2px',
+        '1/2': '50%',
+      },
       space: (theme, { negative }) => ({
         ...theme('spacing'),
         ...negative(theme('spacing'))
