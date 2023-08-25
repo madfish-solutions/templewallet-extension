@@ -593,9 +593,6 @@
   "mnemonicInputLabel": {
     "message": "助记词"
   },
-  "mnemonicInputPlaceholder": {
-    "message": "例如：venue sock milk update..."
-  },
   "passwordInputDescription": {
     "message": "这不是钱包的密码。\n用于附加助记衍生。"
   },

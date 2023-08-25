@@ -9,17 +9,10 @@ interface SeedLengthSelectProps {
   options: Array<string>;
   currentOption: string;
   defaultOption?: string;
-  setShowSeed: (value: boolean) => void;
   onChange: (newSelectedOption: string) => void;
 }
 
-export const SeedLengthSelect: FC<SeedLengthSelectProps> = ({
-  options,
-  currentOption,
-  defaultOption,
-  setShowSeed,
-  onChange
-}) => {
+export const SeedLengthSelect: FC<SeedLengthSelectProps> = ({ options, currentOption, defaultOption, onChange }) => {
   const [selectedOption, setSelectedOption] = useState(defaultOption ?? '');
   const [isOpen, setIsOpen] = useState(false);
 
@@ -47,11 +40,10 @@ export const SeedLengthSelect: FC<SeedLengthSelectProps> = ({
   const handleClick = useCallback(
     (option: string) => {
       setIsOpen(false);
-      setShowSeed(true);
       setSelectedOption(option);
       onChange(option);
     },
-    [setShowSeed, onChange]
+    [onChange]
   );
 
   return (

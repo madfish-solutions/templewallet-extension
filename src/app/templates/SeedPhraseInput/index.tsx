@@ -7,16 +7,16 @@ import { formatMnemonic } from 'app/defaults';
 import { useAppEnv } from 'app/env';
 import { TestIDProperty } from 'lib/analytics';
 import { T, t } from 'lib/i18n';
-import { clearClipboard } from 'lib/ui/util';
+import { clearClipboard } from 'lib/ui/utils';
 
 import { SeedLengthSelect } from './SeedLengthSelect';
-import { SeedWordInput } from './SeedWordInput';
+import { SeedWordInput, SeedWordInputProps } from './SeedWordInput';
+import { useRevealRef } from './use-reveal-ref.hook';
 
 interface SeedPhraseInputProps extends TestIDProperty {
   isFirstAccount?: boolean;
   submitted: boolean;
   seedError: string;
-  label: string;
   labelWarning?: string;
   onChange: (seed: string) => void;
   setSeedError: (e: string) => void;
@@ -29,7 +29,6 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
   isFirstAccount,
   submitted,
   seedError,
-  label,
   labelWarning,
   onChange,
   setSeedError,
@@ -39,9 +38,10 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
   const { popup } = useAppEnv();
 
   const [pasteFailed, setPasteFailed] = useState(false);
-  const [draftSeed, setDraftSeed] = useState(new Array(defaultNumberOfWords).fill(''));
-  const [showSeed, setShowSeed] = useState(true);
+  const [draftSeed, setDraftSeed] = useState(new Array<string>(defaultNumberOfWords).fill(''));
   const [numberOfWords, setNumberOfWords] = useState(defaultNumberOfWords);
+
+  const { getRevealRef, onReveal, resetRevealRef } = useRevealRef();
 
   const onSeedChange = useCallback(
     (newDraftSeed: Array<string>) => {
@@ -64,12 +64,12 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
   );
 
   const onSeedWordChange = useCallback(
-    (index: number, event: React.ChangeEvent<HTMLInputElement>) => {
+    (index: number, value: string) => {
       if (pasteFailed) {
         setPasteFailed(false);
       }
       const newSeed = draftSeed.slice();
-      newSeed[index] = event.target.value.trim();
+      newSeed[index] = value.trim();
       onSeedChange(newSeed);
     },
     [draftSeed, onSeedChange, pasteFailed]
@@ -82,7 +82,6 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
 
       if (newDraftSeed.length > 24) {
         setPasteFailed(true);
-        setShowSeed(true);
         return;
       } else if (pasteFailed) {
         setPasteFailed(false);
@@ -103,11 +102,23 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
       if (newDraftSeed.length < newNumberOfWords) {
         newDraftSeed = newDraftSeed.concat(new Array(newNumberOfWords - newDraftSeed.length).fill(''));
       }
-      setShowSeed(false);
+      resetRevealRef();
       onSeedChange(newDraftSeed);
       clearClipboard();
     },
-    [numberOfWords, onSeedChange, pasteFailed, setPasteFailed]
+    [numberOfWords, onSeedChange, pasteFailed, setPasteFailed, resetRevealRef]
+  );
+
+  const onSeedWordPaste = useCallback<Defined<SeedWordInputProps['onPaste']>>(
+    event => {
+      const newSeed = event.clipboardData.getData('text');
+
+      if (newSeed.trim().match(/\s/u)) {
+        event.preventDefault();
+        onSeedPaste(newSeed);
+      }
+    },
+    [onSeedPaste]
   );
 
   const numberOfWordsOptions = useMemo(() => {
@@ -124,11 +135,10 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
         <h1
           className={classNames(
             'font-inter flex self-center text-gray-800',
-            !isFirstAccount && 'font-semibold text-gray-500'
+            isFirstAccount ? 'text-2xl' : 'text-base font-semibold text-gray-500'
           )}
-          style={{ fontSize: isFirstAccount ? 23 : 16 }}
         >
-          {label}
+          <T id="seedPhrase" />
         </h1>
 
         <div className="relative w-64 h-10" style={{ width: popup ? 220 : undefined }}>
@@ -136,7 +146,6 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
             options={numberOfWordsOptions}
             currentOption={draftSeed.length.toString()}
             defaultOption={`${numberOfWords}`}
-            setShowSeed={setShowSeed}
             onChange={newSelectedOption => {
               const newNumberOfWords = parseInt(newSelectedOption, 10);
               if (Number.isNaN(newNumberOfWords)) {
@@ -152,12 +161,8 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
         </div>
       </div>
 
-      {!isFirstAccount && <div className="text-xs font-medium text-red-600 text-center">{labelWarning}</div>}
-
-      {!isFirstAccount && (
-        <div className="text-xs font-medium text-red-600 text-center mb-6">
-          <T id="seedPhraseAttention" />
-        </div>
+      {labelWarning && (
+        <div className="text-xs font-medium text-red-600 text-center whitespace-pre-line mb-6">{labelWarning}</div>
       )}
 
       <div className="w-full text-center pb-2 mb-6 text-gray-700 border-b-2" style={{ borderBottomWidth: 1 }}>
@@ -172,24 +177,16 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
             <SeedWordInput
               key={key}
               id={index}
-              isFirstAccount={isFirstAccount}
               submitted={submitted}
-              showSeed={showSeed}
-              setShowSeed={setShowSeed}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                e.preventDefault();
-                onSeedWordChange(index, e);
+              onChange={event => {
+                event.preventDefault();
+                onSeedWordChange(index, event.target.value);
               }}
+              revealRef={getRevealRef(index)}
+              onReveal={() => onReveal(index)}
               value={draftSeed[index]}
               testID={testID}
-              onPaste={(e: React.ClipboardEvent<HTMLInputElement>) => {
-                const newSeed = e.clipboardData.getData('text');
-
-                if (newSeed.trim().match(/\s/u)) {
-                  e.preventDefault();
-                  onSeedPaste(newSeed);
-                }
-              }}
+              onPaste={onSeedWordPaste}
             />
           );
         })}
@@ -205,3 +202,5 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
     </div>
   );
 };
+
+export const isSeedPhraseFilled = (seedPhrase: string) => seedPhrase && !seedPhrase.split(' ').includes('');

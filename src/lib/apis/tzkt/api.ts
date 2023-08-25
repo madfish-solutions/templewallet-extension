@@ -1,6 +1,7 @@
 import axios, { AxiosError } from 'axios';
 
 import { TempleChainId } from 'lib/temple/types';
+import { delay } from 'lib/utils';
 
 import {
   TzktOperation,
@@ -137,9 +138,9 @@ export async function refetchOnce429<R>(fetcher: () => Promise<R>, delayAroundIn
     if (err.isAxiosError) {
       const error: AxiosError = err;
       if (error.response?.status === 429) {
-        await sleep(delayAroundInMS);
+        await delay(delayAroundInMS);
         const res = await fetcher();
-        await sleep(delayAroundInMS);
+        await delay(delayAroundInMS);
         return res;
       }
     }
@@ -147,8 +148,6 @@ export async function refetchOnce429<R>(fetcher: () => Promise<R>, delayAroundIn
     throw err;
   }
 }
-
-const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 interface GetAccountResponse {
   frozenDeposit?: string;
