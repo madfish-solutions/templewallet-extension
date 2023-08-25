@@ -47,7 +47,7 @@ Given(
 );
 
 Given(
-  /I click on visible token checkbox of (.*) token to hide or reveal it/,
+  /I click on (.*) token label to hide or reveal it/,
   { timeout: MEDIUM_TIMEOUT },
   async (slug: keyof typeof iSelectTokenSlugs) => {
     const assetsSlug = iSelectTokenSlugs[slug];

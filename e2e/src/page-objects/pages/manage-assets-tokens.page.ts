@@ -1,7 +1,7 @@
 import retry from 'async-retry';
 import { ManageAssetsSelectors } from 'src/app/pages/ManageAssets/ManageAssets.selectors';
 
-import { RETRY_OPTIONS, SHORT_TIMEOUT, VERY_SHORT_TIMEOUT } from "e2e/src/utils/timing.utils";
+import { RETRY_OPTIONS, SHORT_TIMEOUT, VERY_SHORT_TIMEOUT } from 'e2e/src/utils/timing.utils';
 
 import { Page } from '../../classes/page.class';
 import { createPageElement, findElement } from '../../utils/search.utils';
@@ -47,7 +47,7 @@ export class ManageAssetsTokensPage extends Page {
   // for hiding or revealing assets
   async interactVisibleAsset(slug: string) {
     const visibleCheckBox = await findElement(
-      ManageAssetsSelectors.visibleAssetCheckBox,
+      ManageAssetsSelectors.assetItem,
       { slug },
       SHORT_TIMEOUT,
       `Visible asset checkbox related to token with slug: ${slug} is not displayed in the list`

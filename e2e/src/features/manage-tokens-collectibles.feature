@@ -28,27 +28,50 @@ Feature: Manage tokens + collectibles
 @dev
   Scenario: As a user, I'd like to hide and delete tokens [Positive]
     Given I have imported an existing account
-#  Hide hardcoded token
+#  hardcoded token
+
     And I press Manage Button on the Assets page
 
     And I am on the ManageAssetsTokens page
     And I check that kUSD is in the 'Manage Tokens' list
     # hide
-    And I click on visible token checkbox of kUSD token to hide or reveal it
+    And I click on kUSD token label to hide or reveal it
+  #   checking that the token disappears on the Home page
+    And I press Temple Logo Icon on the Header page
 
-#
-#    # delete token
-#    And I click on delete token button of kUSD to reach confirm modal page
-#
-#    And I am on the ConfirmationModal page
-#    And I press Ok Button on the Confirmation Modal page
-#
-#    And I check that kUSD token is deleted from token list
-##   Checking that the token disappears on the Home page
-#    And I press Temple Logo Icon on the Header page
-#
-#    And I am on the Home page
-#    And I scroll 900 pixels on the Home page
-#
-#    Then I check the token with name Kolibri is NOT displayed on the Home page
-#
+    And I am on the Home page
+    And I scroll 900 pixels on the Home page
+
+    And I check the token with name Kolibri is NOT displayed on the Home page
+    And I press Manage Button on the Assets page
+
+    And I am on the ManageAssetsTokens page
+    And I check that kUSD is in the 'Manage Tokens' list
+    # reveal
+    And I click on kUSD token label to hide or reveal it
+  #   checking that the token displays on the Home page
+    And I press Temple Logo Icon on the Header page
+
+    And I am on the Home page
+    And I scroll 900 pixels on the Home page
+    And I check the token with name Kolibri is displayed on the Home page
+
+    # delete token
+    And I press Manage Button on the Assets page
+
+    And I am on the ManageAssetsTokens page
+    And I check that kUSD is in the 'Manage Tokens' list
+    And I click on delete token button of kUSD to reach confirm modal page
+
+    And I am on the ConfirmationModal page
+    And I press Ok Button on the Confirmation Modal page
+
+    And I check that kUSD token is deleted from token list
+#   checking that the token disappears on the Home page
+    And I press Temple Logo Icon on the Header page
+
+    And I am on the Home page
+    And I scroll 900 pixels on the Home page
+
+    Then I check the token with name Kolibri is NOT displayed on the Home page
+
