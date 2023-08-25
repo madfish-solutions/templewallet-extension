@@ -10,11 +10,11 @@ export const useUserAnalyticsAndAdsSettings = () => {
   const isAnalyticsEnabled = useAnalyticsEnabledSelector();
   const isAdsEnabled = useShouldShowPartnersPromoSelector();
 
-  const [, setIsWebsitesAnalyticsEnebled] = usePassiveStorage(WEBSITES_ANALYTICS_ENABLED);
+  const [, setIsWebsitesAnalyticsEnabled] = usePassiveStorage(WEBSITES_ANALYTICS_ENABLED);
 
   useEffect(() => {
     const isAnalyticsAndAdsEnabled = isAnalyticsEnabled && isAdsEnabled;
 
-    setIsWebsitesAnalyticsEnebled(isAnalyticsAndAdsEnabled);
-  }, [isAnalyticsEnabled, isAdsEnabled, setIsWebsitesAnalyticsEnebled]);
+    setIsWebsitesAnalyticsEnabled(isAnalyticsAndAdsEnabled);
+  }, [isAnalyticsEnabled, isAdsEnabled, setIsWebsitesAnalyticsEnabled]);
 };
