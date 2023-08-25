@@ -6,6 +6,8 @@ export { useDidUpdate } from './useDidUpdate';
 
 export { useSafeState } from './useSafeState';
 
+export { useTimeout } from './useTimeout';
+
 export { useInterval } from './useInterval';
 
 export { useStopper } from './useStopper';
@@ -13,3 +15,5 @@ export { useStopper } from './useStopper';
 export { useFocusOnElement } from './useFocusOnElement';
 
 export { useMemoWithCompare } from './useMemoWithCompare';
+
+export { useVanishingState } from './useVanishingState';

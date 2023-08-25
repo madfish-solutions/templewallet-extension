@@ -1,22 +1,40 @@
-import React, { useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 
-import classNames from 'clsx';
+import clsx from 'clsx';
 
-import { ReactComponent as EyeClosedBold } from '../icons/eye-closed-bold.svg';
-import { ReactComponent as EyeOpenBold } from '../icons/eye-open-bold.svg';
+import { ReactComponent as EyeClosedBold } from 'app/icons/eye-closed-bold.svg';
+import { ReactComponent as EyeOpenBold } from 'app/icons/eye-open-bold.svg';
+import { USER_ACTION_TIMEOUT } from 'lib/fixed-times';
+import { useDidUpdate, useTimeout } from 'lib/ui/hooks';
 
-const usePasswordToggle = (): [string, JSX.Element] => {
+const usePasswordToggle = (
+  smallPaddings: boolean,
+  onReveal?: EmptyFn,
+  revealRef?: unknown
+): ['text' | 'password', JSX.Element] => {
   const [visible, setVisibility] = useState(false);
 
-  const Icon = (
-    <button
-      type="button"
-      tabIndex={1}
-      className={classNames('absolute inset-y-0 right-3')}
-      onClick={() => setVisibility(!visible)}
-    >
-      {visible ? <EyeClosedBold /> : <EyeOpenBold />}
-    </button>
+  const hide = useCallback(() => void setVisibility(false), []);
+
+  useDidUpdate(hide, [revealRef]);
+
+  useTimeout(hide, USER_ACTION_TIMEOUT, visible);
+
+  const Icon = useMemo(
+    () => (
+      <button
+        type="button"
+        tabIndex={1}
+        className={clsx('absolute inset-y-0', smallPaddings ? 'right-2' : 'right-3')}
+        onClick={() => {
+          setVisibility(!visible);
+          if (!visible) onReveal?.();
+        }}
+      >
+        {visible ? <EyeClosedBold /> : <EyeOpenBold />}
+      </button>
+    ),
+    [visible, smallPaddings, onReveal]
   );
 
   const inputType = visible ? 'text' : 'password';

@@ -8,6 +8,7 @@ import { T, t } from 'lib/i18n';
 import { ActivationStatus, useTezos, useAccount, activateAccount } from 'lib/temple/front';
 import { confirmOperation } from 'lib/temple/operation';
 import { useIsMounted } from 'lib/ui/hooks';
+import { delay } from 'lib/utils';
 
 import { ActivateAccountSelectors } from './ActivateAccount.selectors';
 
@@ -64,7 +65,7 @@ const ActivateAccount: FC = () => {
         console.error(err);
 
         // Human delay.
-        await new Promise(res => setTimeout(res, 300));
+        await delay();
         const mes = t('failureSecretMayBeInvalid');
         setError('secret', SUBMIT_ERROR_TYPE, mes);
       }

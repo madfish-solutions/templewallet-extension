@@ -5,6 +5,7 @@ import { useWillUnmount } from './useWillUnmount';
 
 export function useDidUpdate(callback: EmptyFn, conditions?: unknown[]) {
   const hasMountedRef = useRef(false);
+
   const internalConditions = useMemo(() => {
     if (typeof conditions !== 'undefined' && !Array.isArray(conditions)) {
       return [conditions];
@@ -15,14 +16,17 @@ export function useDidUpdate(callback: EmptyFn, conditions?: unknown[]) {
     }
     return conditions;
   }, [conditions]);
+
   useEffect(() => {
     if (hasMountedRef.current) {
       callback();
     }
   }, internalConditions);
+
   useDidMount(() => {
     hasMountedRef.current = true;
   });
+
   useWillUnmount(() => {
     hasMountedRef.current = false;
   });
