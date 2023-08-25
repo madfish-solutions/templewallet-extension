@@ -593,9 +593,6 @@
   "mnemonicInputLabel": {
     "message": "phrase mnémonique"
   },
-  "mnemonicInputPlaceholder": {
-    "message": "p. ex. venue sock milk update…"
-  },
   "passwordInputDescription": {
     "message": "Il NE s'agit PAS d'un mot de passe de portefeuille.\nUtilisé pour la dérivation mnémonique supplémentaire."
   },

@@ -593,9 +593,6 @@
   "mnemonicInputLabel": {
     "message": "助記詞"
   },
-  "mnemonicInputPlaceholder": {
-    "message": "例如 venue sock milk update…"
-  },
   "passwordInputDescription": {
     "message": "這「不是」錢包密碼。\n用於其他的助記詞衍生。"
   },

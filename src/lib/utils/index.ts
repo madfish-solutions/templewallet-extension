@@ -8,6 +8,10 @@ export const isTruthy = <T>(value: T): value is Truthy<T> => Boolean(value);
 /** With strict equality check (i.e. `===`) */
 export const filterUnique = <T>(array: T[]) => Array.from(new Set(array));
 
+const DEFAULT_DELAY = 300;
+
+export const delay = (ms = DEFAULT_DELAY) => new Promise(res => setTimeout(res, ms));
+
 export const filterByStringProperty = <T extends { [key in K]: string }, K extends string>(array: T[], key: K): T[] => {
   const usedKeyValues: string[] = [];
 

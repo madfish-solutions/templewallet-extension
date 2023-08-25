@@ -10,6 +10,10 @@ runs:
       run: yarn ts
       shell: bash
 
+    - name: Check E2E TypeScript
+      run: yarn ts:e2e
+      shell: bash
+
     - name: Find deadcode
       run: yarn find-deadcode
       shell: bash

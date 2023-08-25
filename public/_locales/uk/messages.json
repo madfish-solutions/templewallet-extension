@@ -607,12 +607,6 @@
   "mnemonicInputLabel": {
     "message": "Сід фраза"
   },
-  "mnemonicInputDescription": {
-    "message": "Мнємоніка. Ваша таємна фраза з 12 - 24 слів."
-  },
-  "mnemonicInputPlaceholder": {
-    "message": "наприклад venue sock milk update..."
-  },
   "passwordInputDescription": {
     "message": "УВАГА: Це не пароль гаманця!\nВикористовується для додаткової деривації мнємоніки."
   },

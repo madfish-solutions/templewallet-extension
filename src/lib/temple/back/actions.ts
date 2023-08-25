@@ -20,7 +20,7 @@ import {
   TempleSettings,
   TempleSharedStorageKey
 } from 'lib/temple/types';
-import { createQueue } from 'lib/utils';
+import { createQueue, delay } from 'lib/utils';
 
 import {
   getCurrentPermission,
@@ -71,7 +71,8 @@ export async function getFrontState(): Promise<TempleState> {
     if (BACKGROUND_IS_WORKER) return await enqueueUnlock(async () => toFront(store.getState()));
     else return toFront(state);
   } else {
-    await new Promise(r => setTimeout(r, 10));
+    await delay(10);
+
     return getFrontState();
   }
 }

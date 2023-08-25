@@ -1,7 +1,7 @@
 import { NewSeedBackupSelectors } from 'src/app/pages/NewWallet/create/NewSeedBackup/NewSeedBackup.selectors';
 
-import { Page } from '../../classes/page.class';
-import { createPageElement } from '../../utils/search.utils';
+import { Page } from 'e2e/src/classes/page.class';
+import { createPageElement } from 'e2e/src/utils/search.utils';
 
 export class NewSeedBackupPage extends Page {
   protectedMask = createPageElement(NewSeedBackupSelectors.protectedMask);
