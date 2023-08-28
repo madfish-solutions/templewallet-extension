@@ -1,12 +1,23 @@
 import { devToolsEnhancer } from '@redux-devtools/remote';
 import { configureStore } from '@reduxjs/toolkit';
 import { TypedUseSelectorHook, useSelector as useRawSelector } from 'react-redux';
-import { FLUSH, PAUSE, PERSIST, persistReducer, persistStore, PURGE, REGISTER, REHYDRATE } from 'redux-persist';
+import {
+  createMigrate,
+  FLUSH,
+  PAUSE,
+  PERSIST,
+  persistReducer,
+  persistStore,
+  PURGE,
+  REGISTER,
+  REHYDRATE
+} from 'redux-persist';
 import autoMergeLevel2 from 'redux-persist/lib/stateReconciler/autoMergeLevel2';
 import storage from 'redux-persist/lib/storage';
 
 import { IS_DEV_ENV } from 'lib/env';
 
+import { migrations } from './migrations';
 import { epicMiddleware, rootEpic } from './root-state.epics';
 import { rootReducer } from './root-state.reducer';
 import type { RootState } from './root-state.type';
@@ -16,11 +27,12 @@ const persistConfigBlacklist: (keyof RootState)[] = ['buyWithCreditCard', 'colle
 const persistedReducer = persistReducer<RootState>(
   {
     key: 'temple-root',
-    version: 1,
+    version: 2,
     storage: storage,
     stateReconciler: autoMergeLevel2,
     blacklist: persistConfigBlacklist,
-    debug: IS_DEV_ENV
+    debug: IS_DEV_ENV,
+    migrate: createMigrate(migrations)
   },
   rootReducer
 );
