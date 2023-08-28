@@ -12,10 +12,9 @@ import { useLocalStorage } from 'lib/ui/local-storage';
 
 const STORAGE_KEY = 'METADATA_REFRESH';
 
-type RefreshVersion = `${number}`;
-type RefreshRecords = Record<string, RefreshVersion>;
+type RefreshRecords = Record<string, number>;
 
-const REFRESH_VERSION: RefreshVersion = '1';
+const REFRESH_VERSION = 1;
 
 export const useMetadataRefresh = () => {
   const tezos = useTezos();
