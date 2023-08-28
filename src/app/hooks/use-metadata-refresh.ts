@@ -31,7 +31,15 @@ export const useMetadataRefresh = () => {
     const lastVersion = records[chainId];
     const setLastVersion = () => setRecords(r => ({ ...r, [chainId]: REFRESH_VERSION }));
 
-    if (!lastVersion || lastVersion < REFRESH_VERSION)
+    const needToSetVersion = !lastVersion || lastVersion < REFRESH_VERSION;
+
+    if (!slugsOnAppLoad.length) {
+      if (needToSetVersion) setLastVersion();
+
+      return;
+    }
+
+    if (needToSetVersion)
       fetchTokensMetadata(tezos.rpc.getRpcUrl(), slugsOnAppLoad)
         .then(data =>
           data.reduce<TokenMetadata[]>((acc, token, index) => {
