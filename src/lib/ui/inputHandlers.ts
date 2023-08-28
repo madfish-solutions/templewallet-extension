@@ -38,9 +38,8 @@ const baseHandler = <E extends SyntheticEvent>(
 ): void => {
   if (onEvent) {
     onEvent(evt);
-    if (evt.defaultPrevented) {
-      return;
-    }
+
+    if (evt.defaultPrevented) return;
   }
 
   setValue();

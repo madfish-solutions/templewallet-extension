@@ -251,7 +251,7 @@ describe('Beacon', () => {
       const msg =
         'T98o3bvBdnAk5D33JLxXF95DvXJnW2hv48znPDAxAHecuovmVUXaDBwvtkdPH5HnQ1SRZCPCUYBZXT7QUTni51xRQ9qBChsZCaUDbR7mMwDwbpq3';
       const req: Request = decodeMessage<OperationRequest>(msg);
-      const message = await req.operationDetails.map(formatOpParams);
+      const message = req.operationDetails.map(formatOpParams);
       expect(message).toStrictEqual([
         {
           kind: 'noop'
@@ -262,7 +262,7 @@ describe('Beacon', () => {
       const msg =
         '654x25rCB9HXuAs1qSZ1AP7NSqApzqwS56p2QTas2qvtf2CPDig8VjtN9unBt27PivDNeapzMePNKQ7isfHLRVZHgzM5kUj17YnNw4ZSuPiB6QX1gGRy6ZTCResPEJToBBRCmNkciu2AY17Efm6w6xsL2PTsS9RUfXEWVH6KhZkswVhoSskcEZNqEUgdm8qeFMw4eWPAaHejU4be';
       const req: Request = decodeMessage<OperationRequest>(msg);
-      const message = await req.operationDetails.map(formatOpParams);
+      const message = req.operationDetails.map(formatOpParams);
       expect(message).toStrictEqual([
         { amount: 8, fee: 2, gasLimit: 4, kind: 'transaction', mutez: true, parameter: 9, storageLimit: 5, to: 6 }
       ]);
@@ -271,7 +271,7 @@ describe('Beacon', () => {
       const msg =
         '5NbQMW2kTqt8fvxmArwKQcrT5JQJLyUcYtBAouNB4YEs4PNVY2ginrMNCLK1WmpeuhxMpDJpyRLZ9EGT7ddyM1uHqu8Yp92nQQturL2xoYChC5bpNTdUzHZH1S';
       const req: Request = decodeMessage<OperationRequest>(msg);
-      const message = await req.operationDetails.map(formatOpParams);
+      const message = req.operationDetails.map(formatOpParams);
       expect(message).toStrictEqual([
         {
           kind: 'origination',

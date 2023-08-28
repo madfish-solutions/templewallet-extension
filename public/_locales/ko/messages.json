@@ -593,9 +593,6 @@
   "mnemonicInputLabel": {
     "message": "비밀 문구"
   },
-  "mnemonicInputPlaceholder": {
-    "message": "예) 장소 양말 우유 업데이트..."
-  },
   "passwordInputDescription": {
     "message": "이는 지갑 비밀번호가 아닙니다.\n추가 니모닉 도출에 사용합니다."
   },

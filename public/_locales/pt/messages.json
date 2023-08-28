@@ -611,12 +611,6 @@
   "mnemonicInputLabel": {
     "message": "Frase semente"
   },
-  "mnemonicInputDescription": {
-    "message": "Mnemónica. A sua frase secreta de 12 a 24 palavras."
-  },
-  "mnemonicInputPlaceholder": {
-    "message": "por exemplo, local meia leite atualização..."
-  },
   "passwordInputDescription": {
     "message": "Isso NÃO é uma palavra-passe de carteira.\nUtilizado para derivação mnemónica adicional."
   },
