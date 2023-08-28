@@ -60,9 +60,14 @@ export const SetWalletPassword: FC<SetWalletPasswordProps> = ({
 
   const setAnalyticsEnabled = (analyticsEnabled: boolean) => dispatch(setIsAnalyticsEnabledAction(analyticsEnabled));
   const setAdsViewEnabled = (adsViewEnabled: boolean) => {
+    console.log('adsViewEnabled: ', adsViewEnabled);
+
     if (adsViewEnabled) {
-      dispatch(setAdsBannerVisibilityAction(!adsViewEnabled));
-      dispatch(togglePartnersPromotionAction(adsViewEnabled));
+      dispatch(setAdsBannerVisibilityAction(false));
+      dispatch(togglePartnersPromotionAction(true));
+    } else {
+      dispatch(setAdsBannerVisibilityAction(true));
+      dispatch(togglePartnersPromotionAction(false));
     }
   };
 
