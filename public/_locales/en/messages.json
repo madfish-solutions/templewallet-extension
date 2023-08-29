@@ -3059,5 +3059,11 @@
   },
   "keepLatestNews": {
     "message": "Keep up with the latest news from Madfish"
+  },
+  "viewAds": {
+    "message": "View Ads"
+  },
+  "viewAdsDescription": {
+    "message": "I agree to share data(wallet address, IP) and get cashback at Temple Keys for viewing ads"
   }
 }
