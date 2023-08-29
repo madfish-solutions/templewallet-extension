@@ -1,8 +1,11 @@
 import React, { FC, memo, useCallback, useMemo, useState } from 'react';
 
+import clsx from 'clsx';
 import { useForm } from 'react-hook-form';
 
 import { FormField, FormSubmitButton } from 'app/atoms';
+import { FieldLabel } from 'app/atoms/FieldLabel';
+import { FORM_FIELD_CLASS_NAME } from 'app/atoms/FormField';
 import { setTestID } from 'lib/analytics';
 import { T } from 'lib/i18n';
 
@@ -135,29 +138,31 @@ const WordsRow = memo<WordsRowProps>(({ allWords, indexToFill, onFill }) => {
   );
 
   return (
-    <div className="mb-6 -mx-2 flex items-stretch">
+    <div className="flex items-stretch gap-x-4 mb-6">
       {indexes.map(i => {
         const toFill = i === indexToFill;
 
         return (
-          <div key={i} className="p-2">
-            <FormField
+          <div key={i} className="flex-1">
+            <FieldLabel
               label={
                 <span {...setTestID(NewSeedVerifySelectors.mnemonicWordNumber)}>
                   <T id="word" substitutions={i + 1} />
                 </span>
               }
-              {...(toFill
-                ? {
-                    value: fillValue,
-                    onChange: handleChange
-                  }
-                : {
-                    disabled: true,
-                    defaultValue: allWords[i]
-                  })}
-              testID={NewSeedVerifySelectors.firstMnemonicInput}
+              className="mb-4"
             />
+
+            {toFill ? (
+              <FormField value={fillValue} onChange={handleChange} testID={NewSeedVerifySelectors.mnemonicWordInput} />
+            ) : (
+              <div
+                className={clsx(FORM_FIELD_CLASS_NAME, 'py-3 px-4')}
+                {...setTestID(NewSeedVerifySelectors.mnemonicWordInput)}
+              >
+                {allWords[i]}
+              </div>
+            )}
           </div>
         );
       })}

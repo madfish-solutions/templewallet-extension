@@ -19,3 +19,12 @@ export enum ImportAccountSelectors {
   managedContractInput = 'Import Account(ManagedKT)/Managed Contract Input',
   managedKTImportButton = 'Import Account(ManagedKT)/Import Account Button'
 }
+
+export enum ImportAccountFormType {
+  PrivateKey = 'ImportAccountFormType.PrivateKey',
+  Mnemonic = 'ImportAccountFormType.Mnemonic',
+  Fundraiser = 'ImportAccountFormType.Fundraiser',
+  FaucetFile = 'ImportAccountFormType.FaucetFile',
+  ManagedKT = 'ImportAccountFormType.ManagedKT',
+  WatchOnly = 'ImportAccountFormType.WatchOnly'
+}

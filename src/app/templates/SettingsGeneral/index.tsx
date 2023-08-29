@@ -14,11 +14,11 @@ import { PartnersPromotionSettings } from './Components/partners-promotion-setti
 const GeneralSettings: FC = () => {
   return (
     <div className="w-full max-w-sm mx-auto my-8">
-      <LocaleSelect className="mb-8" />
+      <LocaleSelect />
 
-      <FiatCurrencySelect className="mb-8" />
+      <FiatCurrencySelect />
 
-      <BlockExplorerSelect className="mb-8" />
+      <BlockExplorerSelect />
 
       <PopupSettings />
 
