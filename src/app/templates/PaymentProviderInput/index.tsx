@@ -1,14 +1,23 @@
-import React, { FC } from 'react';
+import React, { FC, useState } from 'react';
 
+import { isDefined } from '@rnw-community/shared';
 import classNames from 'clsx';
 
-import Popper from 'lib/ui/Popper';
-import { sameWidthModifiers } from 'lib/ui/same-width-modifiers';
+import { setTestID } from 'lib/analytics';
+import { PaymentProviderInterface } from 'lib/buy-with-credit-card/topup.interface';
+import { T } from 'lib/i18n';
 import { isTruthy } from 'lib/utils';
 
-import { PaymentProviderInputHeader } from './PaymentProviderInputHeader';
-import { PaymentProvidersMenu } from './PaymentProvidersMenu';
+import { DropdownSelect } from '../DropdownSelect/DropdownSelect';
+import { InputContainer } from '../InputContainer/InputContainer';
+import { TopUpProviderIcon } from '../TopUpProviderIcon';
+import { MoneyRange } from './MoneyRange';
+import { PaymentProviderOption } from './PaymentProvidersMenu/PaymentProviderOption';
 import { PaymentProviderInputProps } from './types';
+
+const renderOptionContent = (option: PaymentProviderInterface) => (
+  <PaymentProviderOption value={option} isSelected={false} shouldShowSeparator={false} />
+);
 
 export const PaymentProviderInput: FC<PaymentProviderInputProps> = ({
   className,
@@ -19,36 +28,56 @@ export const PaymentProviderInput: FC<PaymentProviderInputProps> = ({
   onChange,
   headerTestID,
   testID
-}) => (
-  <div className={classNames('w-full', className)}>
-    <Popper
-      placement="bottom"
-      strategy="fixed"
-      modifiers={sameWidthModifiers}
-      fallbackPlacementsEnabled={false}
-      popup={({ opened, setOpened }) => (
-        <PaymentProvidersMenu
-          value={value}
-          options={options}
-          isLoading={isLoading}
-          opened={opened}
-          testID={testID}
-          setOpened={setOpened}
-          onChange={onChange}
+}) => {
+  const [searchValue, setSearchValue] = useState<string>('');
+  return (
+    <div className={classNames('w-full', className)}>
+      <InputContainer footer={isTruthy(error) && <span className="text-xs text-red-700 leading-relaxed">{error}</span>}>
+        <DropdownSelect
+          testIds={{
+            dropdownTestId: testID
+          }}
+          dropdownButtonClassName="p-2 pr-4"
+          DropdownFaceContent={<PaymentProviderDropdownFaceContent value={value} testId={headerTestID} />}
+          searchProps={{ searchValue, onSearchChange: event => setSearchValue(event?.target.value) }}
+          optionsProps={{
+            options,
+            isLoading,
+            noItemsText: 'No Items',
+            getKey: option => option.id,
+            renderOptionContent,
+            onOptionChange: onChange
+          }}
         />
+      </InputContainer>
+    </div>
+  );
+};
+
+interface PaymentProviderDropdownFaceContentProps {
+  value?: PaymentProviderInterface;
+  testId?: string;
+}
+
+const PaymentProviderDropdownFaceContent: FC<PaymentProviderDropdownFaceContentProps> = ({ value, testId }) => (
+  <div className="w-full flex flex-row items-center gap-2 rounded-md cursor-pointer" {...setTestID(testId)}>
+    <TopUpProviderIcon providerId={value?.id} />
+    <div className="flex flex-1 flex-col items-start">
+      {isDefined(value) ? (
+        <>
+          <span className="font-normal text-ulg text-gray-700 leading-tight">{value.name}</span>
+          <MoneyRange
+            minAmount={value.minInputAmount}
+            maxAmount={value.maxInputAmount}
+            currencySymbol={value.inputSymbol}
+            decimalPlaces={value.inputDecimals ?? 2}
+          />
+        </>
+      ) : (
+        <span className="font-medium text-sm leading-tight text-gray-500">
+          <T id="selectPaymentProvider" />
+        </span>
       )}
-    >
-      {({ ref, opened, toggleOpened, setOpened }) => (
-        <PaymentProviderInputHeader
-          ref={ref as unknown as React.RefObject<HTMLDivElement>}
-          value={value}
-          opened={opened}
-          setOpened={setOpened}
-          toggleOpened={toggleOpened}
-          testID={headerTestID}
-        />
-      )}
-    </Popper>
-    {isTruthy(error) && <span className="mt-1 text-xs text-red-700 leading-relaxed">{error}</span>}
+    </div>
   </div>
 );

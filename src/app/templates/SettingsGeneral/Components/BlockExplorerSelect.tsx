@@ -1,36 +1,38 @@
-import React, { useMemo, useCallback, FC } from 'react';
+import React, { useMemo, useCallback, FC, useState } from 'react';
 
+import classNames from 'clsx';
+import { isEqual } from 'lodash';
 import browser from 'webextension-polyfill';
 
 import Flag from 'app/atoms/Flag';
+import { DropdownSelect } from 'app/templates/DropdownSelect/DropdownSelect';
+import { InputContainer } from 'app/templates/InputContainer/InputContainer';
 import { setTestID } from 'lib/analytics';
-import { T, t } from 'lib/i18n';
+import { T } from 'lib/i18n';
 import { BlockExplorer, useChainId, BLOCK_EXPLORERS, useBlockExplorer } from 'lib/temple/front';
 import { isKnownChainId } from 'lib/temple/types';
 import { searchAndFilterItems } from 'lib/utils/search-items';
 
-import IconifiedSelect, { IconifiedSelectOptionRenderProps } from '../../IconifiedSelect';
 import { SettingsGeneralSelectors } from '../selectors';
 
-type BlockExplorerSelectProps = {
-  className?: string;
-};
+const renderOptionContent = (option: BlockExplorer, isSelected: boolean) => (
+  <BlockExplorerOptionContent option={option} isSelected={isSelected} />
+);
 
-const getBlockExplorerId = ({ id }: BlockExplorer) => id;
-
-const BlockExplorerSelect: FC<BlockExplorerSelectProps> = ({ className }) => {
+const BlockExplorerSelect = () => {
   const { explorer, setExplorerId } = useBlockExplorer();
   const chainId = useChainId(true)!;
+  const [searchValue, setSearchValue] = useState<string>('');
 
   const options = useMemo(() => {
     if (chainId && isKnownChainId(chainId)) {
-      return BLOCK_EXPLORERS.filter(explorer => explorer.baseUrls.get(chainId));
+      const knownExplorers = BLOCK_EXPLORERS.filter(explorer => explorer.baseUrls.get(chainId));
+
+      return searchBlockExplorer(searchValue, knownExplorers);
     }
 
     return [];
-  }, [chainId]);
-
-  const searchItems = useCallback((searchString: string) => searchBlockExplorer(searchString, options), [options]);
+  }, [chainId, searchValue]);
 
   const handleBlockExplorerChange = useCallback(
     (option: BlockExplorer) => {
@@ -40,57 +42,78 @@ const BlockExplorerSelect: FC<BlockExplorerSelectProps> = ({ className }) => {
   );
 
   return (
-    <IconifiedSelect
-      BeforeContent={BlockExplorerTitle}
-      FieldContent={BlockExplorerFieldContent}
-      OptionContent={BlockExplorerOptionContent}
-      getKey={getBlockExplorerId}
-      onChange={handleBlockExplorerChange}
-      options={options}
-      value={explorer}
-      noItemsText={t('noItemsFound')}
-      className={className}
-      padded
-      fieldStyle={{ minHeight: '3.375rem' }}
-      search={{ filterItems: searchItems }}
-      testID={SettingsGeneralSelectors.blockExplorerDropDown}
-    />
+    <div className="mb-8">
+      <InputContainer header={<BlockExplorerTitle />}>
+        <DropdownSelect
+          testIds={{
+            dropdownTestId: SettingsGeneralSelectors.blockExplorerDropDown
+          }}
+          optionsListClassName="p-2"
+          dropdownButtonClassName="p-3"
+          DropdownFaceContent={<BlockExplorerFieldContent {...explorer} />}
+          optionsProps={{
+            options,
+            noItemsText: 'No items',
+            getKey: option => option.id,
+            renderOptionContent: option => renderOptionContent(option, isEqual(option, explorer)),
+            onOptionChange: handleBlockExplorerChange
+          }}
+          searchProps={{
+            searchValue,
+            onSearchChange: event => setSearchValue(event?.target.value)
+          }}
+        />
+      </InputContainer>
+    </div>
   );
 };
 
 export default BlockExplorerSelect;
 
 const BlockExplorerTitle: FC = () => (
-  <h2 className="mb-4 leading-tight flex flex-col">
+  <h2 className="leading-tight flex flex-col">
     <span className="text-base font-semibold text-gray-700">
       <T id="blockExplorer" />
     </span>
   </h2>
 );
 
-const BlockExplorerIcon: FC<IconifiedSelectOptionRenderProps<BlockExplorer>> = ({ option: { id, name } }) => (
+const BlockExplorerIcon: FC<Pick<BlockExplorer, 'id' | 'name'>> = ({ id, name }) => (
   <Flag alt={name} className="ml-2 mr-3" src={browser.runtime.getURL(`/misc/explorer-logos/${id}.ico`)} />
 );
 
-const BlockExplorerFieldContent: FC<IconifiedSelectOptionRenderProps<BlockExplorer>> = ({ option }) => {
+const BlockExplorerFieldContent: FC<BlockExplorer> = ({ id, name }) => {
   return (
-    <>
-      <BlockExplorerIcon option={option} />
+    <div className="flex items-center">
+      <BlockExplorerIcon id={id} name={name} />
 
-      <span className="text-xl text-gray-700">{option.name}</span>
-    </>
+      <span className="text-xl text-gray-700">{name}</span>
+    </div>
   );
 };
 
-const BlockExplorerOptionContent: FC<IconifiedSelectOptionRenderProps<BlockExplorer>> = ({ option }) => {
-  return (
-    <>
-      <BlockExplorerIcon option={option} />
+interface BlockExplorerOptionContentProps {
+  option: BlockExplorer;
+  isSelected?: boolean;
+}
 
-      <div className="w-full text-lg text-gray-700" {...setTestID(SettingsGeneralSelectors.blockExplorerItem)}>
+const BlockExplorerOptionContent: FC<BlockExplorerOptionContentProps> = ({ option, isSelected }) => {
+  return (
+    <div
+      className={classNames(
+        'w-full flex items-center py-1.5 px-2 rounded',
+        isSelected ? 'bg-gray-200' : 'hover:bg-gray-100'
+      )}
+    >
+      <BlockExplorerIcon id={option.id} name={option.name} />
+
+      <div
+        className="w-full text-left text-lg text-gray-700"
+        {...setTestID(SettingsGeneralSelectors.blockExplorerItem)}
+      >
         {option.name}
       </div>
-    </>
+    </div>
   );
 };
 
