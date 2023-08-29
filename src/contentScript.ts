@@ -38,9 +38,9 @@ type BeaconMessage =
     };
 type BeaconPageMessage = BeaconMessage | { message: BeaconMessage; sender: { id: string } };
 
-let isUserEnableWebsitesAnalytis = false;
+let isUserEnableWebsitesAnalytics = false;
 browser.storage.local.get(WEBSITES_ANALYTICS_ENABLED).then(storage => {
-  isUserEnableWebsitesAnalytis = storage[WEBSITES_ANALYTICS_ENABLED];
+  isUserEnableWebsitesAnalytics = storage[WEBSITES_ANALYTICS_ENABLED];
 });
 
 const observeUrlChange = () => {
@@ -67,7 +67,7 @@ const observeUrlChange = () => {
 let isContentLoadedBefore = false;
 
 window.onload = () => {
-  if (!isContentLoadedBefore && isUserEnableWebsitesAnalytis) {
+  if (!isContentLoadedBefore && isUserEnableWebsitesAnalytics) {
     isContentLoadedBefore = true;
 
     observeUrlChange();

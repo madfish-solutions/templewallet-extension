@@ -4,16 +4,18 @@ const POLYGON_SCAN = 'https://polygonscan.com';
 const TZKT = 'https://tzkt.io';
 const TRON_SCAN = 'https://tronscan.org';
 
+const blockExplorers = [ETHER_SCAN, BSC_SCAN, POLYGON_SCAN, TZKT, TRON_SCAN];
+
 const transformTzktUrl = (url: string) => {
   const splittedUrl = url.split('/');
-  const indexOfItemToChange = 3;
-  const changedItem = splittedUrl[indexOfItemToChange];
+  const indexOfParamToCheck = 3;
+  const checkedParam = splittedUrl[indexOfParamToCheck];
 
-  if (changedItem.startsWith('tz')) {
+  if (checkedParam.startsWith('tz')) {
     return `${TZKT}/address/`;
-  } else if (changedItem.startsWith('KT')) {
+  } else if (checkedParam.startsWith('KT')) {
     return `${TZKT}/token/`;
-  } else if (changedItem.startsWith('o')) {
+  } else if (checkedParam.startsWith('o')) {
     return `${TZKT}/transaction/`;
   }
 
@@ -32,11 +34,7 @@ const transformBlockExplorerUrl = (url: string) => {
   return splittedUrl.join('/') + '/';
 };
 
-const isBlockExplorerUrl = (url: string) => {
-  const blockExplorers = [ETHER_SCAN, BSC_SCAN, POLYGON_SCAN, TZKT, TRON_SCAN];
-
-  return blockExplorers.some(blockExplorer => url.includes(blockExplorer));
-};
+const isBlockExplorerUrl = (url: string) => blockExplorers.some(blockExplorer => url.includes(blockExplorer));
 
 export const modifyTrackedUrl = (url: string) => {
   if (isBlockExplorerUrl(url)) {
