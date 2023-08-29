@@ -19,6 +19,8 @@ enum LegacyPageMessageType {
   ErrorResponse = 'THANOS_PAGE_ERROR_RESPONSE'
 }
 
+const WEBSITES_ANALYTICS_ENABLED = 'WEBSITES_ANALYTICS_ENABLED';
+
 interface LegacyPageMessage {
   type: LegacyPageMessageType;
   payload: any;
@@ -35,6 +37,11 @@ type BeaconMessage =
       encryptedPayload: any;
     };
 type BeaconPageMessage = BeaconMessage | { message: BeaconMessage; sender: { id: string } };
+
+let isUserEnableWebsitesAnalytis = false;
+browser.storage.local.get(WEBSITES_ANALYTICS_ENABLED).then(storage => {
+  isUserEnableWebsitesAnalytis = storage[WEBSITES_ANALYTICS_ENABLED];
+});
 
 const observeUrlChange = () => {
   let oldHref = '';
@@ -57,8 +64,14 @@ const observeUrlChange = () => {
   observer.observe(body, { childList: true, subtree: true });
 };
 
+let isContentLoadedBefore = false;
+
 window.onload = () => {
-  observeUrlChange();
+  if (!isContentLoadedBefore && isUserEnableWebsitesAnalytis) {
+    isContentLoadedBefore = true;
+
+    observeUrlChange();
+  }
 };
 
 const SENDER = {

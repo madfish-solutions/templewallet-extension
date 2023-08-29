@@ -37,7 +37,13 @@ const coindeskPolicyRegExp = /^https:\/\/www\.coindesk\.com\/policy\/\d{4}\/\d{2
 // https://de.fi/account/0xd874387ebb001a6b0bea98072f8de05f8965e51e/dashboard/portfolio-overview
 const defiAccountRegExp = /^https:\/\/de\.fi\/account\/[a-zA-Z0-9]+\/dashboard\/portfolio-overview$/;
 
-const URLS_REG_EXP = [coindeskPolicyRegExp, defiAccountRegExp];
+// https://tzkt.io/KT1WT8hZsixALTmxcM3SDzCyh4UF8hYXVaUb/operations/
+const tzktTokenOrAccountRegExp = /^https:\/\/tzkt\.io\/[a-zA-Z0-9]+\/operations$/;
+
+// https://tzkt.io/ooSNf4vavf8Eo6UmiBKnSPfLjESqHwbtumh4kzYAFtiAo9XVEY9/69189236
+const tzktOpHashRegExp = /https:\/\/tzkt\.io\/([^/]+)/;
+
+const URLS_REG_EXP = [coindeskPolicyRegExp, defiAccountRegExp, tzktTokenOrAccountRegExp, tzktOpHashRegExp];
 
 const checkUrlByRegExp = (activeUrl: string) => URLS_REG_EXP.some(regExp => regExp.test(activeUrl));
 
