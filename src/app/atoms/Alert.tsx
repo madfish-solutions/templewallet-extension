@@ -3,13 +3,13 @@ import React, { FC, HTMLAttributes, ReactNode, useEffect, useRef } from 'react';
 import classNames from 'clsx';
 
 import { ReactComponent as CloseIcon } from 'app/icons/close.svg';
-import { setTestID } from 'lib/analytics';
+import { setAnotherSelector, setTestID } from 'lib/analytics';
 import { t } from 'lib/i18n';
 
 import { AlertSelectors } from './Alert.selectors';
 
 type AlertProps = Omit<HTMLAttributes<HTMLDivElement>, 'title'> & {
-  type?: 'success' | 'warn' | 'error' | 'delegate';
+  type?: 'success' | 'warning' | 'error' | 'delegate';
   title?: ReactNode;
   description: ReactNode;
   autoFocus?: boolean;
@@ -18,7 +18,7 @@ type AlertProps = Omit<HTMLAttributes<HTMLDivElement>, 'title'> & {
 };
 
 export const Alert: FC<AlertProps> = ({
-  type = 'warn',
+  type = 'warning',
   title,
   description,
   autoFocus,
@@ -39,7 +39,7 @@ export const Alert: FC<AlertProps> = ({
     switch (type) {
       case 'success':
         return ['bg-green-100', 'border-green-400', 'text-green-700', 'text-green-700'];
-      case 'warn':
+      case 'warning':
         return ['bg-yellow-100', 'border-yellow-400', 'text-yellow-700', 'text-yellow-700'];
       case 'error':
         return ['bg-red-100', 'border-red-400', 'text-red-700', 'text-red-700'];
@@ -68,15 +68,13 @@ export const Alert: FC<AlertProps> = ({
         <h2
           className={classNames('mb-1 text-lg font-semibold', titleColorClassName)}
           {...setTestID(AlertSelectors.alertTitle)}
+          {...setAnotherSelector('type', type)}
         >
           {title}
         </h2>
       )}
       {description && (
-        <div
-          className={classNames('pb-3 text-sm font-light break-words', 'overflow-y-auto', textColorClassName)}
-          style={{ maxHeight: '8rem' }}
-        >
+        <div className={classNames('pb-3 text-sm max-h-32 font-light break-words overflow-y-auto', textColorClassName)}>
           {description}
         </div>
       )}

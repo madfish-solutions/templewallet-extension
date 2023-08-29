@@ -16,13 +16,11 @@ export { FormSecondaryButton } from './FormSecondaryButton';
 export type { FormCheckboxProps } from './FormCheckbox';
 export { FormCheckbox } from './FormCheckbox';
 
-export { SyncSpinner } from './SyncSpinner';
+export { ActivitySpinner } from './ActivitySpinner';
 
 export { NoSpaceField } from './NoSpaceField';
 
 export { TabSwitcher } from './TabSwitcher';
-
-export { SeedPhraseInput } from './SeedPhraseInput';
 
 export { Stepper } from './Stepper/Stepper';
 

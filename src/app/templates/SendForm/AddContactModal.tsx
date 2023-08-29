@@ -7,8 +7,8 @@ import HashShortView from 'app/atoms/HashShortView';
 import Identicon from 'app/atoms/Identicon';
 import ModalWithTitle from 'app/templates/ModalWithTitle';
 import { T, t } from 'lib/i18n';
-import { useContacts } from 'lib/temple/front';
-import { withErrorHumanDelay } from 'lib/ui/humanDelay';
+import { useContactsActions } from 'lib/temple/front';
+import { delay } from 'lib/utils';
 
 type AddContactModalProps = {
   address: string | null;
@@ -16,7 +16,7 @@ type AddContactModalProps = {
 };
 
 const AddContactModal: FC<AddContactModalProps> = ({ address, onClose }) => {
-  const { addContact } = useContacts();
+  const { addContact } = useContactsActions();
 
   const {
     register,
@@ -44,7 +44,11 @@ const AddContactModal: FC<AddContactModalProps> = ({ address, onClose }) => {
         resetForm();
         onClose();
       } catch (err: any) {
-        await withErrorHumanDelay(err, () => setError('address', 'submit-error', err.message));
+        console.error(err);
+
+        await delay();
+
+        setError('address', 'submit-error', err.message);
       }
     },
     [submitting, clearError, addContact, address, resetForm, onClose, setError]

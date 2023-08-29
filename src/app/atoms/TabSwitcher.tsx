@@ -5,7 +5,7 @@ import classNames from 'clsx';
 import { TID, T } from 'lib/i18n';
 import { Link } from 'lib/woozie';
 
-import { ImportAccountSelectors } from '../pages/ImportAccount/ImportAccount.selectors';
+import { ImportAccountSelectors } from '../pages/ImportAccount/selectors';
 
 type TabDescriptor = {
   slug: string;

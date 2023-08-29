@@ -55,6 +55,14 @@
       }
     }
   },
+  "branchName": {
+    "message": "branch: $branch$",
+    "placeholders": {
+      "branch": {
+        "content": "$1"
+      }
+    }
+  },
   "madeWithLove": {
     "message": "Made with $loveIcon$ by $companyName$",
     "placeholders": {
@@ -571,9 +579,6 @@
   "mnemonicWordsAmountConstraint": {
     "message": "12, 15, 18, 21 or 24 words in English"
   },
-  "mnemonicSpacingConstraint": {
-    "message": "Each word separated with a single space"
-  },
   "seedInputNumberOfWords": {
     "message": "My Seed phrase is $count$ words",
     "placeholders": {
@@ -750,14 +755,8 @@
   "mnemonicInputLabel": {
     "message": "Seed phrase"
   },
-  "mnemonicInputDescription": {
-    "message": "Mnemonic. Your secret 12 - 24 words phrase."
-  },
   "mnemonicInputWarning": {
     "message": "We don't store your seed phrase. Don't lose it!"
-  },
-  "mnemonicInputPlaceholder": {
-    "message": "e.g. venue sock milk update..."
   },
   "passwordInputDescription": {
     "message": "That is NOT a wallet password.\nUsed for additional mnemonic derivation."
@@ -991,8 +990,13 @@
   "enable": {
     "message": "enable"
   },
-  "enableAds": {
-    "message": "Enable Ads"
+  "payMeForEveryAdISee": { "message": "Pay me for every ad I see" },
+  "noThanks": { "message": "No thanks" },
+  "acceptAdsBannerTitle_A": {
+    "message": "Get paid to discover exciting services and dApps!"
+  },
+  "acceptAdsBannerText_A": {
+    "message": "Here's the deal: share some data with us (wallet address, IP) to see the most relevant ads and we'll *pay you* a fair share monthly. By doing so, you support the developers of Temple Wallet. Change your mind? Easily disable sharing in settings.\n\nStart earning now!"
   },
   "dAppsCheckmarkPrompt": {
     "message": "Click on the checkmark to $action$ DApps interaction feature",

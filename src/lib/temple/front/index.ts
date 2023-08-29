@@ -34,7 +34,7 @@ export { useBlockTriggers, useOnBlock } from './chain';
 
 export { useBalance, getBalanceSWRKey } from './balance';
 
-export { useContacts, searchContacts } from './address-book';
+export { useContactsActions, searchContacts } from './address-book';
 
 export { useTezosDomainsClient, isDomainNameValid } from './tzdns';
 
@@ -54,8 +54,6 @@ export { TempleProvider } from './provider';
 export { validateDelegate } from './validate-delegate';
 
 export { validateRecipient } from './validate-recipient';
-
-export { useSecretState } from './use-secret-state.hook';
 
 export { useFilteredContacts } from './use-filtered-contacts.hook';
 

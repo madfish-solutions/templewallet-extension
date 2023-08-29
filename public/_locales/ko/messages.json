@@ -52,6 +52,14 @@
       }
     }
   },
+  "branchName": {
+    "message": "branch: $branch$",
+    "placeholders": {
+      "branch": {
+        "content": "$1"
+      }
+    }
+  },
   "madeWithLove": {
     "message": "$companyName$ 옆에 $loveIcon$ 포함하여 제작",
     "placeholders": {
@@ -585,9 +593,6 @@
   "mnemonicInputLabel": {
     "message": "비밀 문구"
   },
-  "mnemonicInputPlaceholder": {
-    "message": "예) 장소 양말 우유 업데이트..."
-  },
   "passwordInputDescription": {
     "message": "이는 지갑 비밀번호가 아닙니다.\n추가 니모닉 도출에 사용합니다."
   },
@@ -786,9 +791,6 @@
   },
   "enable": {
     "message": "활성화"
-  },
-  "enableAds": {
-    "message": "Enable Ads"
   },
   "enablePartnersPromotionConfirm": {
     "message": "Support the development team and earn tokens by viewing ads inside the wallet."

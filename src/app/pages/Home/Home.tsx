@@ -1,19 +1,33 @@
-import React, { FC, FunctionComponent, SVGProps, useEffect, useLayoutEffect, useMemo } from 'react';
+import React, {
+  FC,
+  FunctionComponent,
+  ReactNode,
+  Suspense,
+  SVGProps,
+  useEffect,
+  useLayoutEffect,
+  useMemo
+} from 'react';
 
 import classNames from 'clsx';
 import { useDispatch } from 'react-redux';
 import { Props as TippyProps } from 'tippy.js';
 
 import { Anchor } from 'app/atoms';
+import Spinner from 'app/atoms/Spinner/Spinner';
+import { useTabSlug } from 'app/atoms/useTabSlug';
 import { useAppEnv } from 'app/env';
+import ErrorBoundary from 'app/ErrorBoundary';
 import { ReactComponent as BuyIcon } from 'app/icons/buy.svg';
 import { ReactComponent as ReceiveIcon } from 'app/icons/receive.svg';
 import { ReactComponent as SendIcon } from 'app/icons/send-alt.svg';
 import { ReactComponent as SwapIcon } from 'app/icons/swap.svg';
 import { ReactComponent as WithdrawIcon } from 'app/icons/withdraw.svg';
 import PageLayout from 'app/layouts/PageLayout';
+import { ActivityComponent } from 'app/templates/activity/Activity';
+import AssetInfo from 'app/templates/AssetInfo';
 import { TestIDProps } from 'lib/analytics';
-import { TEZ_TOKEN_SLUG } from 'lib/assets';
+import { TEZ_TOKEN_SLUG, isTezAsset } from 'lib/assets';
 import { T, t } from 'lib/i18n';
 import { useAssetMetadata, getAssetSymbol } from 'lib/metadata';
 import { useAccount, useNetwork } from 'lib/temple/front';
@@ -22,14 +36,17 @@ import useTippy from 'lib/ui/useTippy';
 import { createUrl, HistoryAction, Link, navigate, To, useLocation } from 'lib/woozie';
 import { createLocationState } from 'lib/woozie/location';
 
+import { useUserTestingGroupNameSelector } from '../../store/ab-testing/selectors';
 import { togglePartnersPromotionAction } from '../../store/partners-promotion/actions';
 import { useIsEnabledAdsBannerSelector } from '../../store/settings/selectors';
+import { CollectiblesList } from '../Collectibles/CollectiblesList';
 import { useOnboardingProgress } from '../Onboarding/hooks/useOnboardingProgress.hook';
 import Onboarding from '../Onboarding/Onboarding';
-import { ContentSection } from './ContentSection';
 import { HomeSelectors } from './Home.selectors';
+import BakingSection from './OtherComponents/BakingSection';
 import EditableTitle from './OtherComponents/EditableTitle';
 import MainBanner from './OtherComponents/MainBanner';
+import { Tokens } from './OtherComponents/Tokens/Tokens';
 
 type ExploreProps = {
   assetSlug?: string | null;
@@ -70,7 +87,7 @@ const Home: FC<ExploreProps> = ({ assetSlug }) => {
     if (isEnabledAdsBanner) {
       dispatch(togglePartnersPromotionAction(false));
     }
-  }, [isEnabledAdsBanner]);
+  }, [isEnabledAdsBanner, dispatch]);
 
   const accountPkh = account.publicKeyHash;
   const canSend = account.type !== TempleAccountType.WatchOnly;
@@ -145,7 +162,7 @@ const Home: FC<ExploreProps> = ({ assetSlug }) => {
         </div>
       </div>
 
-      <ContentSection assetSlug={assetSlug} />
+      <SecondarySection assetSlug={assetSlug} />
     </PageLayout>
   ) : (
     <Onboarding />
@@ -219,3 +236,147 @@ const ActionButton: FC<ActionButtonProps> = ({
 
   return <Link testID={testID} testIDProperties={testIDProperties} to={to} {...commonButtonProps} />;
 };
+
+const Delegation: FC = () => (
+  <SuspenseContainer whileMessage={t('delegationInfoWhileMessage')}>
+    <BakingSection />
+  </SuspenseContainer>
+);
+
+type ActivityTabProps = {
+  assetSlug?: string;
+};
+
+const ActivityTab: FC<ActivityTabProps> = ({ assetSlug }) => (
+  <SuspenseContainer whileMessage={t('operationHistoryWhileMessage')}>
+    <ActivityComponent assetSlug={assetSlug} />
+  </SuspenseContainer>
+);
+
+type SecondarySectionProps = {
+  assetSlug?: string | null;
+  className?: string;
+};
+
+const SecondarySection: FC<SecondarySectionProps> = ({ assetSlug, className }) => {
+  const { fullPage } = useAppEnv();
+  const tabSlug = useTabSlug();
+  const testGroupName = useUserTestingGroupNameSelector();
+
+  const tabs = useMemo<
+    {
+      slug: string;
+      title: string;
+      Component: FC;
+      testID: string;
+    }[]
+  >(() => {
+    if (!assetSlug) {
+      return [
+        {
+          slug: 'tokens',
+          title: t('tokens'),
+          Component: Tokens,
+          testID: HomeSelectors.assetsTab
+        },
+        {
+          slug: 'collectibles',
+          title: t('collectibles'),
+          Component: CollectiblesList,
+          testID: HomeSelectors.collectiblesTab
+        },
+        {
+          slug: 'activity',
+          title: t('activity'),
+          Component: ActivityTab,
+          testID: HomeSelectors.activityTab
+        }
+      ];
+    }
+
+    const activity = {
+      slug: 'activity',
+      title: t('activity'),
+      Component: () => <ActivityTab assetSlug={assetSlug} />,
+      testID: HomeSelectors.activityTab
+    };
+
+    const info = {
+      slug: 'info',
+      title: t('info'),
+      Component: () => <AssetInfo assetSlug={assetSlug} />,
+      testID: HomeSelectors.aboutTab
+    };
+
+    if (isTezAsset(assetSlug)) {
+      return [
+        activity,
+        {
+          slug: 'delegation',
+          title: t('delegate'),
+          Component: Delegation,
+          testID: HomeSelectors.delegationTab
+        }
+      ];
+    }
+
+    return [activity, info];
+  }, [assetSlug]);
+
+  const { slug, Component } = useMemo(() => {
+    const tab = tabSlug ? tabs.find(currentTab => currentTab.slug === tabSlug) : null;
+    return tab ?? tabs[0];
+  }, [tabSlug, tabs]);
+
+  return (
+    <div className={classNames('-mx-4', 'shadow-top-light', fullPage && 'rounded-t-md', className)}>
+      <div className="w-full max-w-sm mx-auto flex items-center justify-center">
+        {tabs.map(currentTab => {
+          const active = slug === currentTab.slug;
+
+          return (
+            <Link
+              key={assetSlug ? `asset_${currentTab.slug}` : currentTab.slug}
+              to={lctn => ({ ...lctn, search: `?tab=${currentTab.slug}` })}
+              replace
+              className={classNames(
+                'flex1 w-full',
+                'text-center cursor-pointer py-2',
+                'text-gray-500 text-xs font-medium',
+                'border-t-3',
+                active ? 'border-primary-orange' : 'border-transparent',
+                active ? 'text-primary-orange' : 'hover:text-primary-orange',
+                'transition ease-in-out duration-300',
+                'truncate'
+              )}
+              testID={currentTab.testID}
+              testIDProperties={{
+                ...(currentTab.slug === 'delegation' && { abTestingCategory: testGroupName })
+              }}
+            >
+              {currentTab.title}
+            </Link>
+          );
+        })}
+      </div>
+      <SuspenseContainer whileMessage="displaying tab">{Component && <Component />}</SuspenseContainer>
+    </div>
+  );
+};
+
+interface SuspenseContainerProps extends PropsWithChildren {
+  whileMessage: string;
+  fallback?: ReactNode;
+}
+
+const SuspenseContainer: FC<SuspenseContainerProps> = ({ whileMessage, fallback = <SpinnerSection />, children }) => (
+  <ErrorBoundary whileMessage={whileMessage}>
+    <Suspense fallback={fallback}>{children}</Suspense>
+  </ErrorBoundary>
+);
+
+const SpinnerSection: FC = () => (
+  <div className="flex justify-center my-12">
+    <Spinner theme="gray" className="w-20" />
+  </div>
+);

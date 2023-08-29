@@ -7,6 +7,10 @@
     "start": "./node_modules/.bin/cucumber-js --fail-fast",
     "start:dev": "yarn start --tags @dev",
     "start:remove_account": "yarn start --tags @remove_account",
+    "start:create_account": "yarn start --tags @create_account",
+    "start:address_book": "yarn start --tags @address_book",
+    "start:custom_node": "yarn start --tags @custom_node",
+    "start:unlock_screen": "yarn start --tags @unlock_screen",
     "test": "yarn start --exit --tags 'not @dev'",
     "ts": "tsc --pretty"
   },

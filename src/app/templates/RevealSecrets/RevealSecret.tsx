@@ -1,16 +1,19 @@
 import React, { FC, useCallback, useEffect, useLayoutEffect, useMemo, useRef } from 'react';
 
-import classNames from 'clsx';
+import clsx from 'clsx';
 import { OnSubmit, useForm } from 'react-hook-form';
 
 import { Alert, FormField, FormSubmitButton } from 'app/atoms';
 import { getAccountBadgeTitle } from 'app/defaults';
 import AccountBanner from 'app/templates/AccountBanner';
 import { T, t } from 'lib/i18n';
-import { useAccount, useSecretState, useTempleClient } from 'lib/temple/front';
+import { useAccount, useTempleClient } from 'lib/temple/front';
 import { TempleAccountType } from 'lib/temple/types';
+import { useVanishingState } from 'lib/ui/hooks';
+import { delay } from 'lib/utils';
 
 import { RevealSecretsSelectors } from './RevealSecrets.selectors';
+import { SecretField } from './SecretField';
 
 const SUBMIT_ERROR_TYPE = 'submit-error';
 
@@ -29,9 +32,7 @@ const RevealSecret: FC<RevealSecretProps> = ({ reveal }) => {
   const { register, handleSubmit, errors, setError, clearError, formState } = useForm<FormData>();
   const submitting = formState.isSubmitting;
 
-  const [secret, setSecret] = useSecretState();
-
-  const secretFieldRef = useRef<HTMLTextAreaElement>(null);
+  const [secret, setSecret] = useVanishingState();
 
   useEffect(() => {
     if (account.publicKeyHash) {
@@ -39,13 +40,6 @@ const RevealSecret: FC<RevealSecretProps> = ({ reveal }) => {
     }
     return undefined;
   }, [account.publicKeyHash, setSecret]);
-
-  useEffect(() => {
-    if (secret) {
-      secretFieldRef.current?.focus();
-      secretFieldRef.current?.select();
-    }
-  }, [secret]);
 
   const formRef = useRef<HTMLFormElement>(null);
 
@@ -80,7 +74,7 @@ const RevealSecret: FC<RevealSecretProps> = ({ reveal }) => {
         console.error(err);
 
         // Human delay.
-        await new Promise(res => setTimeout(res, 300));
+        await delay();
         setError('password', SUBMIT_ERROR_TYPE, err.message);
         focusPasswordField();
       }
@@ -118,7 +112,7 @@ const RevealSecret: FC<RevealSecretProps> = ({ reveal }) => {
                 </span>
               </label>
               <input
-                className={classNames(
+                className={clsx(
                   'appearance-none w-full py-3 pl-4',
                   'rounded-md border-2 border-gray-300',
                   'bg-transparent text-gray-700 text-lg leading-tight'
@@ -127,9 +121,7 @@ const RevealSecret: FC<RevealSecretProps> = ({ reveal }) => {
                 value={account.derivationPath}
               />
             </div>
-          ),
-          attention: <T id="doNotSharePrivateKey" />,
-          fieldDesc: <T id="privateKeyFieldDescription" />
+          )
         };
 
       case 'seed-phrase':
@@ -154,12 +146,6 @@ const RevealSecret: FC<RevealSecretProps> = ({ reveal }) => {
                 </span>
               </div>
             </div>
-          ),
-          attention: <T id="doNotSharePhrase" />,
-          fieldDesc: (
-            <>
-              <T id="youWillNeedThisSeedPhrase" /> <T id="keepSeedPhraseSecret" />
-            </>
           )
         };
     }
@@ -181,10 +167,9 @@ const RevealSecret: FC<RevealSecretProps> = ({ reveal }) => {
                 substitutions={[
                   <span
                     key="account-type"
-                    className="rounded-sm border px-1 py-px font-normal leading-tight"
+                    className="rounded-sm border px-1 py-px font-normal leading-tight border-current"
                     style={{
-                      fontSize: '0.75em',
-                      borderColor: 'currentColor'
+                      fontSize: '0.75em'
                     }}
                   >
                     {getAccountBadgeTitle(account)}
@@ -198,29 +183,7 @@ const RevealSecret: FC<RevealSecretProps> = ({ reveal }) => {
       );
     }
 
-    if (secret) {
-      return (
-        <>
-          <FormField
-            ref={secretFieldRef}
-            secret
-            textarea
-            rows={4}
-            readOnly
-            label={texts.name}
-            labelDescription={texts.fieldDesc}
-            id="reveal-secret-secret"
-            spellCheck={false}
-            containerClassName="mb-4"
-            className="resize-none notranslate"
-            value={secret}
-            testID={RevealSecretsSelectors.RevealSecretsValue}
-          />
-
-          <Alert title={t('attentionExclamation')} description={<p>{texts.attention}</p>} className="my-4" />
-        </>
-      );
-    }
+    if (secret) return <SecretField value={secret} revealType={reveal} />;
 
     return (
       <form ref={formRef} onSubmit={handleSubmit(onSubmit)}>
@@ -245,6 +208,7 @@ const RevealSecret: FC<RevealSecretProps> = ({ reveal }) => {
     );
   }, [
     account,
+    reveal,
     forbidPrivateKeyRevealing,
     errors,
     handleSubmit,

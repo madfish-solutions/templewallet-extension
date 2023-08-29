@@ -1,4 +1,4 @@
-import { isTruthy, createQueue } from './index';
+import { isTruthy, createQueue, delay } from './index';
 
 /** See: https://developer.mozilla.org/en-US/docs/Glossary/Falsy */
 const ALL_FALSY_VALUES = [false, 0, -0, BigInt(0), '', NaN, null, undefined];
@@ -48,6 +48,7 @@ describe('Queue', () => {
 });
 
 async function withDelay(ms: number, factory: () => any) {
-  await new Promise(r => setTimeout(r, ms));
+  await delay(ms);
+
   return factory();
 }

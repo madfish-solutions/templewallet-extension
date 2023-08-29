@@ -1,5 +1,6 @@
 import React, { FC, useMemo } from 'react';
 
+import { usePushNotifications } from 'app/hooks/use-push-notifications';
 import { CustomRpcContext } from 'lib/analytics';
 
 import { NewBlockTriggersProvider } from './chain';
@@ -7,13 +8,17 @@ import { TempleClientProvider, useTempleClient } from './client';
 import { ReadyTempleProvider, useNetwork } from './ready';
 import { SyncTokensProvider } from './sync-tokens';
 
-export const TempleProvider: FC<PropsWithChildren> = ({ children }) => (
-  <CustomRpcContext.Provider value={undefined}>
-    <TempleClientProvider>
-      <ConditionalReadyTemple>{children}</ConditionalReadyTemple>
-    </TempleClientProvider>
-  </CustomRpcContext.Provider>
-);
+export const TempleProvider: FC<PropsWithChildren> = ({ children }) => {
+  usePushNotifications();
+
+  return (
+    <CustomRpcContext.Provider value={undefined}>
+      <TempleClientProvider>
+        <ConditionalReadyTemple>{children}</ConditionalReadyTemple>
+      </TempleClientProvider>
+    </CustomRpcContext.Provider>
+  );
+};
 
 const ConditionalReadyTemple: FC<PropsWithChildren> = ({ children }) => {
   const { ready } = useTempleClient();
