@@ -19,7 +19,7 @@ const transformTzktUrl = (url: string) => {
     return `${TZKT}/transaction/`;
   }
 
-  return TZKT;
+  return TZKT + '/';
 };
 
 const transformBlockExplorerUrl = (url: string) => {
