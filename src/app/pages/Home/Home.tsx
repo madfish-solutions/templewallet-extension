@@ -103,9 +103,9 @@ const Home: FC<ExploreProps> = ({ assetSlug }) => {
               <span
                 className="font-normal"
                 {...setTestID(TokenPageSelectors.pageName)}
-                {...setAnotherSelector('symbol', getAssetSymbol(assetMetadata))}
+                {...setAnotherSelector('symbol', assetName)}
               >
-                {getAssetSymbol(assetMetadata)}
+                {assetName}
               </span>
             </>
           )}
