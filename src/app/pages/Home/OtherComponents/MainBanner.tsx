@@ -169,9 +169,9 @@ const AssetBanner: FC<AssetBannerProps> = ({ assetSlug, accountPkh }) => {
           <div
             className="text-sm font-normal text-gray-700 truncate flex-1 ml-2"
             {...setTestID(TokenPageSelectors.tokenName)}
-            {...setAnotherSelector('name', getAssetName(assetMetadata))}
+            {...setAnotherSelector('name', assetName)}
           >
-            {getAssetName(assetMetadata)}
+            {assetName}
           </div>
         </div>
         <AddressChip pkh={accountPkh} testID={TokenPageSelectors.publicAddressButton} />
