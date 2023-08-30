@@ -1,12 +1,13 @@
 import { Given } from '@cucumber/cucumber';
 import { expect } from 'chai';
+import { ErrorCaptionSelectors } from 'src/app/atoms/ErrorCaption.selectors';
 import { OperationStatusSelectors } from 'src/app/templates/OperationStatus.selectors';
 
 import { BrowserContext } from '../classes/browser-context.class';
 import { Pages } from '../page-objects';
 import { envVars } from '../utils/env.utils';
 import { iComparePrivateKeys } from '../utils/input-data.utils';
-import { createPageElement, findElement } from '../utils/search.utils';
+import { createPageElement, findElement, getElementText } from '../utils/search.utils';
 import { LONG_TIMEOUT, MEDIUM_TIMEOUT, VERY_SHORT_TIMEOUT, sleep } from '../utils/timing.utils';
 
 Given(
@@ -54,14 +55,35 @@ Given(
   }
 );
 
+Given(
+  /The (.*) is displayed on the (.*) page/,
+  { timeout: MEDIUM_TIMEOUT },
+  async (elementName: string, pageName: string) => {
+    await createPageElement(`${pageName}/${elementName}`).waitForDisplayed();
+  }
+);
+
 // for checking validation errors or other where is no 'type' property
 Given(
   /I got the validation-error '(.*)' with (.*) element on the (.*) page/,
   { timeout: MEDIUM_TIMEOUT },
   async (errorName: string, elementName: string, pageName: string) => {
-    await createPageElement(`${pageName}/${elementName}`).waitForDisplayed();
     const getErrorContent = await createPageElement(`${pageName}/${elementName}`).getText();
 
+    expect(getErrorContent).eql(errorName);
+  }
+);
+
+// for checking validation errors where is no 'type' property for related input/checkbox component
+
+Given(
+  /I got the validation-error '(.*)' in the (.*) on the (.*) page/,
+  { timeout: MEDIUM_TIMEOUT },
+  async (errorName: string, parentElementName: string, pageName: string) => {
+    const childElement = await createPageElement(`${pageName}/${parentElementName}`).findChildSelectors(
+      ErrorCaptionSelectors.inputError
+    );
+    const getErrorContent = await getElementText(childElement);
     expect(getErrorContent).eql(errorName);
   }
 );

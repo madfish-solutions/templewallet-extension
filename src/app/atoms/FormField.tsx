@@ -58,6 +58,10 @@ export interface FormFieldProps extends TestIDProperty, Omit<FormFieldAttrs, 'ty
   smallPaddings?: boolean;
   fieldWrapperBottomMargin?: boolean;
   copyable?: boolean;
+  testIDs?: {
+    inputSection?: string;
+    input?: string;
+  };
 }
 
 /**
@@ -96,6 +100,7 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
       fieldWrapperBottomMargin = true,
       copyable,
       testID,
+      testIDs,
       ...rest
     },
     ref
@@ -140,7 +145,11 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
     const handleCleanClick = useCallback(() => void onClean?.(), [onClean]);
 
     return (
-      <div className={classNames('w-full flex flex-col', containerClassName)} style={containerStyle}>
+      <div
+        className={classNames('w-full flex flex-col', containerClassName)}
+        style={containerStyle}
+        {...setTestID(testIDs?.inputSection)}
+      >
         {label && (
           <FieldLabel label={label} warning={labelWarning} description={labelDescription} className="mb-4" id={id} />
         )}
@@ -171,7 +180,7 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
             onFocus={handleFocus}
             onBlur={handleBlur}
             {...rest}
-            {...setTestID(testID)}
+            {...setTestID(testIDs?.input || testID)}
           />
 
           {isPasswordInput && !revealForbidden && localValue !== '' && RevealPasswordIcon}

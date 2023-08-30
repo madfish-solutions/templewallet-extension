@@ -20,6 +20,20 @@ export const findElement = async (
   return await findElementBySelectors(selector, timeout, errorTitle);
 };
 
+const buildChildSelector = (parentTestID: string, childTestID: string) =>
+  `${parentTestID} [data-testid="${childTestID}"]`;
+
+export const findChildElement = async (
+  parentTestID: string,
+  childTestID: string,
+  timeout = MEDIUM_TIMEOUT,
+  errorTitle?: string
+) => {
+  const selectors = buildChildSelector(`[data-testid="${parentTestID}"]`, childTestID);
+
+  return await findElementBySelectors(selectors, timeout, errorTitle);
+};
+
 export const findElementBySelectors = async (selectors: string, timeout = MEDIUM_TIMEOUT, errorTitle?: string) => {
   const element = await BrowserContext.page.waitForSelector(selectors, { visible: true, timeout }).catch(error => {
     if (errorTitle && error instanceof Error) {
@@ -54,8 +68,10 @@ class PageElement {
     return findElementBySelectors(this.selector, timeout, errorTitle);
   }
 
-  findDescendant(descendantSelector: string) {
-    return findElementBySelectors(`${this.selector} ${descendantSelector}`);
+  findChildSelectors(childSelector: string, timeout?: number, errorTitle?: string) {
+    const selectors = buildChildSelector(this.selector, childSelector);
+
+    return findElementBySelectors(selectors, timeout, errorTitle);
   }
 
   waitForDisplayed(timeout?: number) {

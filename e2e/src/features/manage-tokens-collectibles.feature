@@ -25,7 +25,6 @@ Feature: Manage tokens + collectibles
 
 
 @manage_assets
-@dev
   Scenario: As a user, I'd like to hide and delete tokens [Positive]
     Given I have imported an existing account
 #  hardcoded token
@@ -74,4 +73,37 @@ Feature: Manage tokens + collectibles
     And I scroll 900 pixels on the Home page
 
     Then I check the token with name Kolibri is NOT displayed on the Home page
+
+
+@manage_assets
+@dev
+  Scenario: Validation check on Add Asset page + other checks [Negative]
+    Given I have imported an existing account
+
+    And I press Manage Button on the Assets page
+#   empty state check
+    And I am on the ManageAssetsTokens page
+    And I enter shortRandomContent into Search Assets Input on the Manage Assets page
+    And The Empty State Text is displayed on the Manage Assets page
+
+    And I clear Search Assets Input value on the Manage Assets page
+    And I press Add Asset Button on the Manage Assets(Tokens) page
+
+#  validation checks
+    And I am on the AddAsset page
+    # Address input
+    And I enter shortRandomContent into Address Input on the Add Asset page
+    And I got the validation-error 'Invalid address' in the Address Input Section on the Add Asset page
+    And I clear Address Input value on the Add Asset page
+    And I got the validation-error 'Required' in the Address Input Section on the Add Asset page
+
+    And I enter shitTokenContractAddress into Address Input on the Add Asset page
+    And I wait until other inputs load after entering a token address
+    And I scroll 150 pixels on the AddAsset page
+
+    # Symbol input
+
+
+
+
 

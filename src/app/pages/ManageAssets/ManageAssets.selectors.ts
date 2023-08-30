@@ -4,5 +4,6 @@ export enum ManageAssetsSelectors {
   searchAssetsInput = 'Manage Assets/Search Assets Input',
   assetItem = 'Manage Assets/Asset Item',
   visibleAssetCheckBox = 'Manage Assets/Visible Asset Check Box',
-  deleteAssetButton = 'Manage Assets/Delete Asset Button'
+  deleteAssetButton = 'Manage Assets/Delete Asset Button',
+  emptyStateText = 'Manage Assets/Empty State Text'
 }
