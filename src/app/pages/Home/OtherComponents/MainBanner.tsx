@@ -12,7 +12,6 @@ import { BalanceMode } from 'app/store/settings/state';
 import { AssetIcon } from 'app/templates/AssetIcon';
 import Balance from 'app/templates/Balance';
 import InFiat from 'app/templates/InFiat';
-import { setAnotherSelector, setTestID } from 'lib/analytics';
 import { useFiatCurrency } from 'lib/fiat-currency';
 import { t, T } from 'lib/i18n';
 import { TezosLogoIcon } from 'lib/icons';
@@ -21,6 +20,7 @@ import { useGasToken, useNetwork } from 'lib/temple/front';
 import { useTotalBalance } from 'lib/temple/front/use-total-balance.hook';
 import useTippy from 'lib/ui/useTippy';
 
+import { setAnotherSelector, setTestID } from '../../../../lib/analytics';
 import { HomeSelectors } from '../Home.selectors';
 import { TokenPageSelectors } from '../Token-page.selectors';
 import AddressChip from './AddressChip';
@@ -160,6 +160,8 @@ interface AssetBannerProps {
 
 const AssetBanner: FC<AssetBannerProps> = ({ assetSlug, accountPkh }) => {
   const assetMetadata = useAssetMetadata(assetSlug);
+  const assetName = getAssetName(assetMetadata);
+  const assetSymbol = getAssetSymbol(assetMetadata);
 
   return (
     <div className="w-full max-w-sm mx-auto mb-4">
@@ -174,7 +176,7 @@ const AssetBanner: FC<AssetBannerProps> = ({ assetSlug, accountPkh }) => {
             {assetName}
           </div>
         </div>
-        <AddressChip pkh={accountPkh} testID={TokenPageSelectors.publicAddressButton} />
+        <AddressChip pkh={accountPkh} />
       </div>
       <div className="flex items-center text-2xl">
         <Balance address={accountPkh} assetSlug={assetSlug}>
@@ -184,7 +186,7 @@ const AssetBanner: FC<AssetBannerProps> = ({ assetSlug, accountPkh }) => {
                 <Money smallFractionFont={false} fiat>
                   {balance}
                 </Money>
-                <span className="ml-2">{getAssetSymbol(assetMetadata)}</span>
+                <span className="ml-2">{assetSymbol}</span>
               </div>
               <InFiat assetSlug={assetSlug} volume={balance} smallFractionFont={false}>
                 {({ balance, symbol }) => (
