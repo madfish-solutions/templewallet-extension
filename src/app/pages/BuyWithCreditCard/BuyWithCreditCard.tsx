@@ -147,7 +147,8 @@ export const BuyWithCreditCard: FC = () => {
     [inputCurrency]
   );
 
-  const submitDisabled = Object.keys(errors).length > 0 || !isDefined(outputAmount);
+  const someErrorOccurred = isDefined(purchaseLinkError) || Object.keys(errors).length > 0;
+  const submitDisabled = someErrorOccurred || !isDefined(outputAmount);
 
   return (
     <PageLayout pageTitle={<T id="buyWithCard" />}>
