@@ -97,7 +97,7 @@ Feature: Manage tokens + collectibles
     And I clear Address Input value on the Add Asset page
     And I got the validation-error 'Required' in the Address Input Section on the Add Asset page
 
-    And I enter shitTokenContractAddress into Address Input on the Add Asset page
+    And I enter customTokenContractAddress into Address Input on the Add Asset page
     And I wait until other inputs load after entering a token address
     And I scroll 150 pixels on the AddAsset page
 
@@ -107,7 +107,7 @@ Feature: Manage tokens + collectibles
     And I clear Asset ID Input value on the Add Asset page
     And I wait until other inputs load after entering a token address
 
-    # Symbol input. TODO: Need to updated after validation fix
+    # Symbol input. TODO: Need to be updated after validation fix TW-1057
     And I clear Symbol Input value on the Add Asset page
     And I got the validation-error 'Required' in the Symbol Input Section on the Add Asset page
     And I enter longRandomContent into Symbol Input on the Add Asset page
@@ -117,7 +117,7 @@ Feature: Manage tokens + collectibles
     And I enter customTokenSymbol into Symbol Input on the Add Asset page
     And I scroll 100 pixels on the AddAsset page
 
-    # Name input. TODO: Need to updated after validation fix
+    # Name input. TODO: Need to be updated after validation fix TW-1057
     And I clear Name Input value on the Add Asset page
     And I got the validation-error 'Required' in the Name Input Section on the Add Asset page
     And I enter amount_1 into Name Input on the Add Asset page
@@ -130,7 +130,31 @@ Feature: Manage tokens + collectibles
     And I clear Name Input value on the Add Asset page
     And I enter customTokenName into Name Input on the Add Asset page
 
+    # Decimals input (check if the input has right decimals)
+    And I scroll 100 pixels on the AddAsset page
+    And The Decimals Input on the Add Asset page has correct 8 value
+
     # Icon URL
+    And I scroll 500 pixels on the AddAsset page
+    And I clear Icon URL Input value on the Add Asset page
+    And I enter shortRandomContent into Icon URL Input on the Add Asset page
+    And I scroll 500 pixels on the AddAsset page
+    And I got the validation-error 'Valid image URLOnly HTTPSOnly .png, .jpg, .jpeg, .gif, .webp images allowedOr IPFS image URL' in the Icon URL Input Section on the Add Asset page
+
+    And I clear Icon URL Input value on the Add Asset page
+    And I enter customTokenIconURL into Icon URL Input on the Add Asset page
+
+    # checking if token will be added after validation errors
+    And I press Add Asset Button on the Add Asset page
+
+    And I am on the Token page
+    And I check that KLL page with Killer token displayed or selected correctly
+    And I press Temple Logo Icon on the Header page
+
+    And I am on the Home page
+    And I scroll 900 pixels on the Home page
+
+    Then I check the token with name Killer is displayed on the Home page
 
 
 

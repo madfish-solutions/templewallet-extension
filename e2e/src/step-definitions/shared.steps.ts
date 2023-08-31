@@ -55,6 +55,17 @@ Given(
   }
 );
 
+// universal assertion check
+Given(
+  /The (.*) on the (.*) page has correct (.*) value/,
+  { timeout: MEDIUM_TIMEOUT },
+  async (elementName: string, pageName: string, value: string) => {
+    const elementValue = await createPageElement(`${pageName}/${elementName}`).getText();
+
+    expect(elementValue).eql(value);
+  }
+);
+
 Given(
   /The (.*) is displayed on the (.*) page/,
   { timeout: MEDIUM_TIMEOUT },

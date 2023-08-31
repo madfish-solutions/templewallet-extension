@@ -31,6 +31,7 @@ export const iEnterValues = {
   customTokenContractAddress: 'KT1Td6a28ydPMXKJS5yS5Usadj4Qx5drsCfY', // 'KLL (Killer) token'
   customTokenSymbol: 'KLL', // 'KLL (Killer) token'
   customTokenName: 'Killer', // 'KLL (Killer) token'
+  customTokenIconURL: 'https://i.imgur.com/2s1WRni.png', // 'KLL (Killer) token'
 
   // For transactions
   amount_0_0001: '0.0001',
