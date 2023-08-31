@@ -1,4 +1,4 @@
-import React, { ComponentProps, FC, ReactNode, Suspense, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import React, { ComponentProps, FC, ReactNode, Suspense, useEffect, useRef, useState } from 'react';
 
 import classNames from 'clsx';
 
