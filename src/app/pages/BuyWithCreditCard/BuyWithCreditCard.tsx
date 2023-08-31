@@ -1,11 +1,11 @@
 import React, { FC, Suspense, useEffect, useMemo, useState } from 'react';
 
-import { isNotEmptyString, isDefined } from '@rnw-community/shared';
+import { isDefined } from '@rnw-community/shared';
 import BigNumber from 'bignumber.js';
 import { isEqual } from 'lodash';
 import { useDispatch } from 'react-redux';
 
-import { Alert, Anchor, FormSubmitButton } from 'app/atoms';
+import { Alert, FormSubmitButton } from 'app/atoms';
 import ErrorBoundary from 'app/ErrorBoundary';
 import { ReactComponent as ArrowDownIcon } from 'app/icons/arrow-down.svg';
 import PageLayout from 'app/layouts/PageLayout';
@@ -29,7 +29,6 @@ import { useErrorAlert } from './hooks/use-error-alert';
 import { useFormInputsCallbacks } from './hooks/use-form-inputs-callbacks';
 import { usePairLimitsAreLoading } from './hooks/use-input-limits';
 import { usePaymentProviders } from './hooks/use-payment-providers';
-import { usePurchaseLink } from './hooks/use-purchase-link';
 import { useUpdateCurrentProvider } from './hooks/use-update-current-provider';
 import { AmountErrorType } from './types/amount-error-type';
 
@@ -39,7 +38,17 @@ export const BuyWithCreditCard: FC = () => {
   const dispatch = useDispatch();
   const [formIsLoading, setFormIsLoading] = useState(false);
   const form = useBuyWithCreditCardForm();
-  const { formValues, errors, lazySetValue, triggerValidation, formState } = form;
+  const {
+    formValues,
+    errors,
+    lazySetValue,
+    triggerValidation,
+    formState,
+    handleSubmit,
+    onSubmit,
+    purchaseLinkError,
+    purchaseLinkLoading
+  } = form;
   const { inputAmount, inputCurrency, outputToken, outputAmount, topUpProvider } = formValues;
 
   const { allPaymentProviders, paymentProvidersToDisplay, providersErrors, updateOutputAmounts } = usePaymentProviders(
@@ -58,13 +67,11 @@ export const BuyWithCreditCard: FC = () => {
     refreshForm
   } = useFormInputsCallbacks(form, updateOutputAmounts, formIsLoading, setFormIsLoading);
 
-  const { purchaseLink, purchaseLinkLoading, updateLinkError } = usePurchaseLink(formValues);
-
   const {
     onAlertClose,
     shouldHideErrorAlert,
     message: alertErrorMessage
-  } = useErrorAlert(form, allPaymentProviders, providersErrors, updateLinkError);
+  } = useErrorAlert(form, allPaymentProviders, providersErrors, purchaseLinkError);
 
   const { fiatCurrenciesWithPairLimits: allFiatCurrencies } = useAllFiatCurrencies(
     inputCurrency.code,
@@ -140,8 +147,7 @@ export const BuyWithCreditCard: FC = () => {
     [inputCurrency]
   );
 
-  const someErrorOccured = isDefined(updateLinkError) || Object.keys(errors).length > 0;
-  const submitDisabled = !isNotEmptyString(purchaseLink) || someErrorOccured || !isDefined(outputAmount);
+  const submitDisabled = Object.keys(errors).length > 0 || !isDefined(outputAmount);
 
   return (
     <PageLayout pageTitle={<T id="buyWithCard" />}>
@@ -214,12 +220,11 @@ export const BuyWithCreditCard: FC = () => {
                   disabled={submitDisabled}
                   loading={isLoading}
                   testID={BuyWithCreditCardSelectors.topUpButton}
+                  onClick={handleSubmit(onSubmit)}
                 >
-                  <Anchor href={purchaseLink} treatAsButton className="w-full h-full flex justify-center items-center">
-                    <span>
-                      <T id="topUp" />
-                    </span>
-                  </Anchor>
+                  <span>
+                    <T id="topUp" />
+                  </span>
                 </FormSubmitButton>
 
                 <div className="flex justify-between w-full">

@@ -1,11 +1,20 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
+import { isDefined } from '@rnw-community/shared';
 import { useForm } from 'react-hook-form';
+import browser from 'webextension-polyfill';
 import { object as objectSchema, number as numberSchema, mixed as mixedSchema } from 'yup';
 
+import { useUserIdSelector } from 'app/store/settings/selectors';
+import { useFormAnalytics } from 'lib/analytics';
 import { MOONPAY_ASSETS_BASE_URL } from 'lib/apis/moonpay';
+import { createAliceBobOrder, getMoonpaySign } from 'lib/apis/temple';
+import { createOrder as createUtorgOrder } from 'lib/apis/utorg';
+import { TopUpProviderId } from 'lib/buy-with-credit-card/top-up-provider-id.enum';
 import { TopUpInputInterface, TopUpOutputInterface } from 'lib/buy-with-credit-card/topup.interface';
 import { useYupValidationResolver } from 'lib/form/use-yup-validation-resolver';
+import { useAccount } from 'lib/temple/front';
+import { assertUnreachable } from 'lib/utils/switch-cases';
 
 import { AmountErrorType } from '../types/amount-error-type';
 import { BuyWithCreditCardFormValues } from '../types/buy-with-credit-card-form-values';
@@ -47,6 +56,13 @@ const validationSchema = objectSchema().shape({
 export const useBuyWithCreditCardForm = () => {
   const validationResolver = useYupValidationResolver<BuyWithCreditCardFormValues>(validationSchema);
 
+  const formAnalytics = useFormAnalytics('BuyWithCreditCardForm');
+  const { publicKeyHash } = useAccount();
+  const userId = useUserIdSelector();
+
+  const [purchaseLinkLoading, setPurchaseLinkLoading] = useState(false);
+  const [purchaseLinkError, setPurchaseLinkError] = useState<Error>();
+
   const { errors, watch, register, setValue, getValues, ...rest } = useForm<BuyWithCreditCardFormValues>({
     defaultValues,
     validationResolver
@@ -79,12 +95,67 @@ export const useBuyWithCreditCardForm = () => {
     register('topUpProvider');
   }, [register]);
 
+  const onSubmit = useCallback(
+    async (formValues: BuyWithCreditCardFormValues) => {
+      const { inputAmount, inputCurrency, outputAmount, outputToken, topUpProvider } = formValues;
+
+      if (
+        !isDefined(topUpProvider?.outputAmount) ||
+        !isDefined(inputAmount) ||
+        !isDefined(outputAmount) ||
+        !isDefined(topUpProvider)
+      ) {
+        setPurchaseLinkLoading(false);
+        return;
+      }
+
+      setPurchaseLinkLoading(true);
+
+      try {
+        let url: string;
+        switch (topUpProvider.id) {
+          case TopUpProviderId.MoonPay:
+            url = await getMoonpaySign(outputToken.code, '#ed8936', publicKeyHash, inputAmount, inputCurrency.code);
+            break;
+          case TopUpProviderId.Utorg:
+            url = await createUtorgOrder(outputAmount, inputCurrency.code, publicKeyHash, outputToken.code);
+            break;
+          case TopUpProviderId.AliceBob:
+            const { data } = await createAliceBobOrder(false, inputAmount.toFixed(), userId, publicKeyHash);
+            url = data.orderInfo.payUrl;
+            break;
+          default:
+            return assertUnreachable(topUpProvider.id);
+        }
+
+        await browser.tabs.create({ url });
+      } catch (error: any) {
+        setPurchaseLinkError(error);
+
+        const analyticsProperties = {
+          inputAmount,
+          inputAsset: inputCurrency.code,
+          outputAmount,
+          outputAsset: outputToken.code,
+          provider: topUpProvider.id
+        };
+        formAnalytics.trackSubmitFail(analyticsProperties);
+      } finally {
+        setPurchaseLinkLoading(false);
+      }
+    },
+    [formAnalytics, publicKeyHash, userId]
+  );
+
   return {
     formValues,
     errors,
     lazySetValue,
     setValue,
     getValues,
+    onSubmit,
+    purchaseLinkError,
+    purchaseLinkLoading,
     ...rest
   };
 };
