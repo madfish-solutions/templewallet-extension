@@ -1,7 +1,8 @@
+import retry from 'async-retry';
 import { HomeSelectors } from 'src/app/pages/Home/Home.selectors';
 import { AssetsSelectors } from 'src/app/pages/Home/OtherComponents/Assets.selectors';
 
-import { SHORT_TIMEOUT } from 'e2e/src/utils/timing.utils';
+import { RETRY_OPTIONS, VERY_SHORT_TIMEOUT } from 'e2e/src/utils/timing.utils';
 
 import { Page } from '../../classes/page.class';
 import { createPageElement, findElement } from '../../utils/search.utils';
@@ -35,8 +36,21 @@ export class HomePage extends Page {
     await findElement(
       AssetsSelectors.assetItemButton,
       { name },
-      SHORT_TIMEOUT,
+      VERY_SHORT_TIMEOUT,
       `${name} token not found in the token list on the Home page`
+    );
+  }
+
+  async isTokenNotDisplayed(name: string) {
+    await retry(
+      () =>
+        this.isTokenDisplayed(name).then(
+          () => {
+            throw new Error(`Token with slug: '${name}' not deleted/hidden and displayed on the Home page`);
+          },
+          () => undefined
+        ),
+      RETRY_OPTIONS
     );
   }
 }
