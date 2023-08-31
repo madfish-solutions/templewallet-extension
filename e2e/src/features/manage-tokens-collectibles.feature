@@ -101,7 +101,38 @@ Feature: Manage tokens + collectibles
     And I wait until other inputs load after entering a token address
     And I scroll 150 pixels on the AddAsset page
 
-    # Symbol input
+    # Failed parse metadata alert
+    And I enter amount_1 into Asset ID Input on the Add Asset page
+    And I got the 'Failed to parse metadata' warning with Alert title Text element on the Alert page
+    And I clear Asset ID Input value on the Add Asset page
+    And I wait until other inputs load after entering a token address
+
+    # Symbol input. TODO: Need to updated after validation fix
+    And I clear Symbol Input value on the Add Asset page
+    And I got the validation-error 'Required' in the Symbol Input Section on the Add Asset page
+    And I enter longRandomContent into Symbol Input on the Add Asset page
+    And I got the validation-error 'Only a-z, A-Z, 0-9 chars allowed, 2-5 length' in the Symbol Input Section on the Add Asset page
+    And I clear Symbol Input value on the Add Asset page
+
+    And I enter customTokenSymbol into Symbol Input on the Add Asset page
+    And I scroll 100 pixels on the AddAsset page
+
+    # Name input. TODO: Need to updated after validation fix
+    And I clear Name Input value on the Add Asset page
+    And I got the validation-error 'Required' in the Name Input Section on the Add Asset page
+    And I enter amount_1 into Name Input on the Add Asset page
+    And I got the validation-error 'No special characters, 3-50 length' in the Name Input Section on the Add Asset page
+    #  to reach 50 symbols length
+    And I enter longRandomContent into Name Input on the Add Asset page
+    And I enter longRandomContent into Name Input on the Add Asset page
+    And I got the validation-error 'No special characters, 3-50 length' in the Name Input Section on the Add Asset page
+
+    And I clear Name Input value on the Add Asset page
+    And I enter customTokenName into Name Input on the Add Asset page
+
+    # Icon URL
+
+
 
 
 
