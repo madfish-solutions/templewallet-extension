@@ -1,6 +1,8 @@
 import WebSocketTransport from '@ledgerhq/hw-transport-http/lib-es/WebSocketTransport';
 import type Browser from 'webextension-polyfill';
 
+import { delay } from 'lib/utils';
+
 /* URL which triggers Ledger Live app to open and handle communication */
 const LEDGER_LIVE_APP_WS_URL = 'ws://localhost:8435';
 
@@ -27,7 +29,8 @@ export const openLedgerLiveApp = async () => {
   await openLedgerLiveAppXDGLink();
 
   for (let i = 0; i < APP_POLLING_LIMIT; i++) {
-    await new Promise(r => setTimeout(r, APP_POLLING_DELAY));
+    await delay(APP_POLLING_DELAY);
+
     if (await isLedgerLiveAppOpen()) return;
   }
 

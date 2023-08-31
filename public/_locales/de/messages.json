@@ -55,6 +55,14 @@
       }
     }
   },
+  "branchName": {
+    "message": "branch: $branch$",
+    "placeholders": {
+      "branch": {
+        "content": "$1"
+      }
+    }
+  },
   "madeWithLove": {
     "message": "Erstellt mit $loveIcon$ von $companyName$",
     "placeholders": {
@@ -603,12 +611,6 @@
   "mnemonicInputLabel": {
     "message": "Seed-Phrase"
   },
-  "mnemonicInputDescription": {
-    "message": "Gedächtnisstütze. Ihre geheime 12 - 24 Wörter Phrase."
-  },
-  "mnemonicInputPlaceholder": {
-    "message": "z. B. Veranstaltungsort Socke Milch Update..."
-  },
   "passwordInputDescription": {
     "message": "Das ist KEIN Wallet-Passwort.\nWird für zusätzliche Gedächtnisstützenableitung verwendet."
   },
@@ -828,9 +830,6 @@
   },
   "enable": {
     "message": "aktivieren"
-  },
-  "enableAds": {
-    "message": "Enable Ads"
   },
   "enablePartnersPromotionConfirm": {
     "message": "Support the development team and earn tokens by viewing ads inside the wallet."

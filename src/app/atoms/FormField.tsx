@@ -14,21 +14,21 @@ import classNames from 'clsx';
 import CleanButton from 'app/atoms/CleanButton';
 import CopyButton from 'app/atoms/CopyButton';
 import { ReactComponent as CopyIcon } from 'app/icons/copy.svg';
-import { ReactComponent as LockAltIcon } from 'app/icons/lock-alt.svg';
 import { setTestID, TestIDProperty } from 'lib/analytics';
-import { T } from 'lib/i18n';
+import { useDidUpdate } from 'lib/ui/hooks';
 import { blurHandler, focusHandler, inputChangeHandler } from 'lib/ui/inputHandlers';
 import { useBlurElementOnTimeout } from 'lib/ui/use-blur-on-timeout';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
-import { combineRefs } from 'lib/ui/util';
+import { combineRefs } from 'lib/ui/utils';
 
-import { NewSeedBackupSelectors } from '../pages/NewWallet/create/NewSeedBackup/NewSeedBackup.selectors';
 import { ErrorCaptionSelectors } from './ErrorCaption.selectors';
+import { FieldLabel } from './FieldLabel';
+import { SecretCover } from './SecretCover';
 import usePasswordToggle from './usePasswordToggle.hook';
 
 export const PASSWORD_ERROR_CAPTION = 'PASSWORD_ERROR_CAPTION';
 
-type FormFieldRef = HTMLInputElement | HTMLTextAreaElement;
+export type FormFieldElement = HTMLInputElement | HTMLTextAreaElement;
 type FormFieldAttrs = InputHTMLAttributes<HTMLInputElement> & TextareaHTMLAttributes<HTMLTextAreaElement>;
 
 export interface FormFieldProps extends TestIDProperty, Omit<FormFieldAttrs, 'type'> {
@@ -41,19 +41,33 @@ export interface FormFieldProps extends TestIDProperty, Omit<FormFieldAttrs, 'ty
   containerClassName?: string;
   containerStyle?: React.CSSProperties;
   textarea?: boolean;
+  /** `textarea=true` only */
   secret?: boolean;
+  /** `type='password'` only */
+  revealForbidden?: boolean;
+  /**
+   * Any value, whose change will result in password un-reveal.
+   * `type='password'` only
+   */
+  revealRef?: unknown;
   cleanable?: boolean;
-  extraButton?: ReactNode;
   extraInner?: ReactNode;
-  useDefaultInnerWrapper?: boolean;
-  onClean?: () => void;
+  extraInnerWrapper?: 'default' | 'none' | 'unset';
+  onClean?: EmptyFn;
+  onReveal?: EmptyFn;
+  smallPaddings?: boolean;
   fieldWrapperBottomMargin?: boolean;
-  labelPaddingClassName?: string;
-  dropdownInner?: ReactNode;
   copyable?: boolean;
+  testIDs?: {
+    inputSection?: string;
+    input?: string;
+  };
 }
 
-export const FormField = forwardRef<FormFieldRef, FormFieldProps>(
+/**
+ * TODO: Consider separating into two: `FormInputField` & `FormTextAreaField`
+ */
+export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
   (
     {
       containerStyle,
@@ -65,11 +79,11 @@ export const FormField = forwardRef<FormFieldRef, FormFieldProps>(
       containerClassName,
       textarea,
       secret: secretProp,
+      revealForbidden = false,
+      revealRef,
       cleanable,
-      extraButton = null,
       extraInner = null,
-      dropdownInner = null,
-      useDefaultInnerWrapper = true,
+      extraInnerWrapper = 'default',
       id,
       type,
       value,
@@ -78,13 +92,15 @@ export const FormField = forwardRef<FormFieldRef, FormFieldProps>(
       onFocus,
       onBlur,
       onClean,
+      onReveal,
       className,
       spellCheck = false,
       autoComplete = 'off',
+      smallPaddings = false,
       fieldWrapperBottomMargin = true,
-      labelPaddingClassName = 'mb-4',
       copyable,
       testID,
+      testIDs,
       ...rest
     },
     ref
@@ -92,17 +108,19 @@ export const FormField = forwardRef<FormFieldRef, FormFieldProps>(
     const secret = secretProp && textarea;
     const Field = textarea ? 'textarea' : 'input';
 
-    const [passwordInputType, TogglePasswordIcon] = usePasswordToggle();
+    const [passwordInputType, RevealPasswordIcon] = usePasswordToggle(smallPaddings, onReveal, revealRef);
     const isPasswordInput = type === 'password';
     const inputType = isPasswordInput ? passwordInputType : type;
 
     const { copy } = useCopyToClipboard();
 
     const [localValue, setLocalValue] = useState(value ?? defaultValue ?? '');
+    useDidUpdate(() => void setLocalValue(value ?? ''), [value]);
+
     const [focused, setFocused] = useState(false);
 
     const handleChange = useCallback(
-      (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      (e: React.ChangeEvent<FormFieldElement>) => {
         inputChangeHandler(e, onChange, setLocalValue);
       },
       [onChange, setLocalValue]
@@ -114,27 +132,27 @@ export const FormField = forwardRef<FormFieldRef, FormFieldProps>(
     );
     const handleBlur = useCallback((e: React.FocusEvent) => blurHandler(e, onBlur, setFocused), [onBlur, setFocused]);
 
-    const secretBannerDisplayed = useMemo(
+    const secretCovered = useMemo(
       () => Boolean(secret && localValue !== '' && !focused),
       [secret, localValue, focused]
     );
 
-    const spareRef = useRef<FormFieldRef>();
+    const spareRef = useRef<FormFieldElement>();
 
-    useBlurElementOnTimeout(spareRef, Boolean(secret && focused));
+    useBlurElementOnTimeout(spareRef, focused && Boolean(secret || isPasswordInput));
 
     const handleSecretBannerClick = () => void spareRef.current?.focus();
     const handleCleanClick = useCallback(() => void onClean?.(), [onClean]);
 
     return (
-      <div className={classNames('w-full flex flex-col', containerClassName)} style={containerStyle}>
-        <LabelComponent
-          label={label}
-          warning={labelWarning}
-          description={labelDescription}
-          className={labelPaddingClassName}
-          id={id}
-        />
+      <div
+        className={classNames('w-full flex flex-col', containerClassName)}
+        style={containerStyle}
+        {...setTestID(testIDs?.inputSection)}
+      >
+        {label && (
+          <FieldLabel label={label} warning={labelWarning} description={labelDescription} className="mb-4" id={id} />
+        )}
 
         {extraSection}
 
@@ -142,11 +160,13 @@ export const FormField = forwardRef<FormFieldRef, FormFieldProps>(
           <Field
             ref={combineRefs(ref, spareRef)}
             className={classNames(
-              'appearance-none w-full py-3 pl-4 border-2 rounded-md bg-gray-100',
-              'focus:border-primary-orange focus:bg-transparent focus:outline-none focus:shadow-outline',
-              'transition ease-in-out duration-200',
-              'text-gray-700 text-lg leading-tight placeholder-alphagray',
-              getInnerClassName(isPasswordInput, extraInner),
+              FORM_FIELD_CLASS_NAME,
+              smallPaddings ? 'py-2 pl-2' : 'py-3 pl-4',
+              buildPaddingRightClassName(
+                isPasswordInput,
+                extraInnerWrapper === 'unset' ? false : Boolean(extraInner),
+                smallPaddings
+              ),
               errorCaption ? 'border-red-500' : 'border-gray-300',
               className
             )}
@@ -160,37 +180,39 @@ export const FormField = forwardRef<FormFieldRef, FormFieldProps>(
             onFocus={handleFocus}
             onBlur={handleBlur}
             {...rest}
-            {...setTestID(testID)}
+            {...setTestID(testIDs?.input || testID)}
           />
 
-          {localValue !== '' && isPasswordInput && TogglePasswordIcon}
-          <ExtraInner innerComponent={extraInner} useDefaultInnerWrapper={useDefaultInnerWrapper} />
+          {isPasswordInput && !revealForbidden && localValue !== '' && RevealPasswordIcon}
 
-          {dropdownInner}
+          <ExtraInner innerComponent={extraInner} useDefaultWrapper={extraInnerWrapper === 'default'} />
 
-          {extraButton}
-
-          <SecretBanner
-            handleSecretBannerClick={handleSecretBannerClick}
-            secretBannerDisplayed={secretBannerDisplayed}
-          />
+          {secretCovered && <SecretCover onClick={handleSecretBannerClick} />}
 
           <Cleanable cleanable={cleanable} handleCleanClick={handleCleanClick} />
           <Copyable value={value} copy={copy} cleanable={cleanable} copyable={copyable} />
         </div>
+
         <ErrorCaption errorCaption={errorCaption} />
       </div>
     );
   }
 );
 
+export const FORM_FIELD_CLASS_NAME = classNames(
+  'appearance-none w-full border-2 rounded-md bg-gray-100',
+  'focus:border-primary-orange focus:bg-transparent focus:outline-none focus:shadow-outline',
+  'transition ease-in-out duration-200',
+  'text-gray-700 text-lg leading-tight placeholder-alphagray'
+);
+
 interface ExtraInnerProps {
   innerComponent: React.ReactNode;
-  useDefaultInnerWrapper: boolean;
+  useDefaultWrapper: boolean;
 }
 
-const ExtraInner: React.FC<ExtraInnerProps> = ({ useDefaultInnerWrapper, innerComponent }) => {
-  if (useDefaultInnerWrapper)
+const ExtraInner: React.FC<ExtraInnerProps> = ({ useDefaultWrapper, innerComponent }) => {
+  if (useDefaultWrapper)
     return (
       <div
         className={classNames(
@@ -203,44 +225,6 @@ const ExtraInner: React.FC<ExtraInnerProps> = ({ useDefaultInnerWrapper, innerCo
     );
   return <>{innerComponent}</>;
 };
-
-interface SecretBannerProps {
-  handleSecretBannerClick: () => void;
-  secretBannerDisplayed: boolean;
-}
-
-const SecretBanner: React.FC<SecretBannerProps> = ({ secretBannerDisplayed, handleSecretBannerClick }) =>
-  secretBannerDisplayed ? (
-    <div
-      className="absolute flex flex-col items-center justify-center rounded-md bg-gray-200 cursor-text"
-      style={{
-        top: 2,
-        right: 2,
-        bottom: 2,
-        left: 2
-      }}
-      onClick={handleSecretBannerClick}
-      {...setTestID(NewSeedBackupSelectors.protectedMask)}
-    >
-      <p
-        className={classNames(
-          'flex items-center mb-1',
-          'uppercase text-gray-600 text-lg font-semibold text-shadow-black'
-        )}
-      >
-        <LockAltIcon className="-ml-2 mr-1 h-6 w-auto stroke-current stroke-2" />
-        <span>
-          <T id="protectedFormField" />
-        </span>
-      </p>
-
-      <p className="mb-1 flex items-center text-gray-500 text-sm">
-        <span>
-          <T id="clickToRevealField" />
-        </span>
-      </p>
-    </div>
-  ) : null;
 
 interface CleanableProps {
   handleCleanClick: () => void;
@@ -290,26 +274,10 @@ const ErrorCaption: React.FC<ErrorCaptionProps> = ({ errorCaption }) => {
   ) : null;
 };
 
-interface LabelComponentProps {
-  className: string;
-  label: ReactNode;
-  description: ReactNode;
-  warning: ReactNode;
-  id?: string;
-}
+const buildPaddingRightClassName = (isPasswordInput: boolean, withExtraInner: boolean, smallPaddings: boolean) => {
+  if (withExtraInner) return 'pr-32';
 
-const LabelComponent: React.FC<LabelComponentProps> = ({ label, className, description, warning, id }) =>
-  label ? (
-    <label className={classNames(className, 'leading-tight flex flex-col')} htmlFor={id}>
-      <span className="text-base font-semibold text-gray-700">{label}</span>
+  if (isPasswordInput) return smallPaddings ? 'pr-9' : 'pr-12';
 
-      {description && <span className="mt-1 text-xs font-light text-gray-600 max-w-9/10">{description}</span>}
-
-      {warning && <span className="mt-1 text-xs font-medium text-red-600 max-w-9/10">{warning}</span>}
-    </label>
-  ) : null;
-
-const getInnerClassName = (isPasswordInput: boolean, extraInner: ReactNode) => {
-  const passwordClassName = isPasswordInput ? 'pr-12' : 'pr-4';
-  return extraInner ? 'pr-32' : passwordClassName;
+  return smallPaddings ? 'pr-2' : 'pr-4';
 };

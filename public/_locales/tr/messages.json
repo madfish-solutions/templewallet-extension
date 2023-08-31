@@ -55,6 +55,14 @@
       }
     }
   },
+  "branchName": {
+    "message": "branch: $branch$",
+    "placeholders": {
+      "branch": {
+        "content": "$1"
+      }
+    }
+  },
   "madeWithLove": {
     "message": "$companyName$ tarafından $loveIcon$ ile oluşturulmuştur",
     "placeholders": {
@@ -603,12 +611,6 @@
   "mnemonicInputLabel": {
     "message": "Kurtarma sözcüğü"
   },
-  "mnemonicInputDescription": {
-    "message": "Anımsatıcı ifade. Gizli anahtarınız 12 - 24 sözcükten oluşur."
-  },
-  "mnemonicInputPlaceholder": {
-    "message": "ör. mekan çorap süt güncelleme..."
-  },
   "passwordInputDescription": {
     "message": "Bu bir cüzdan parolası DEĞİLDİR.\nEk anımsatıcı ifade türetmek için kullanılır."
   },
@@ -828,9 +830,6 @@
   },
   "enable": {
     "message": "etkinleştir"
-  },
-  "enableAds": {
-    "message": "Enable Ads"
   },
   "enablePartnersPromotionConfirm": {
     "message": "Support the development team and earn tokens by viewing ads inside the wallet."

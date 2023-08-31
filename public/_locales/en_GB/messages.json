@@ -55,6 +55,14 @@
       }
     }
   },
+  "branchName": {
+    "message": "branch: $branch$",
+    "placeholders": {
+      "branch": {
+        "content": "$1"
+      }
+    }
+  },
   "madeWithLove": {
     "message": "Made with $loveIcon$ by $companyName$",
     "placeholders": {
@@ -602,12 +610,6 @@
   "mnemonicInputLabel": {
     "message": "Seed phrase"
   },
-  "mnemonicInputDescription": {
-    "message": "Mnemonic. Your secret 12 - 24 words phrase."
-  },
-  "mnemonicInputPlaceholder": {
-    "message": "e.g. venue sock milk update..."
-  },
   "passwordInputDescription": {
     "message": "That is NOT a wallet password.\nUsed for additional mnemonic derivation."
   },
@@ -812,9 +814,6 @@
   },
   "enable": {
     "message": "enable"
-  },
-  "enableAds": {
-    "message": "Enable Ads"
   },
   "enablePartnersPromotionConfirm": {
     "message": "Support the development team and earn tokens by viewing ads inside the wallet."
@@ -1788,5 +1787,11 @@
   },
   "keepLatestNews": {
     "message": "Keep up with the latest news from Madfish"
+  },
+  "viewAds": {
+    "message": "View Ads"
+  },
+  "viewAdsDescription": {
+    "message": "I agree to share data(wallet address, IP) and get cashback at Temple Keys for viewing ads"
   }
 }

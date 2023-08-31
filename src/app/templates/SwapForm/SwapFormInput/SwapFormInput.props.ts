@@ -15,7 +15,7 @@ export interface SwapFormInputProps extends TestIDProps {
   testIDs?: SwapFormTestIDs;
 }
 
-export interface SwapFormTestIDs {
+interface SwapFormTestIDs {
   dropdown: string;
   input?: string;
   searchInput?: string;

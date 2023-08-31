@@ -10,17 +10,19 @@
     "start:create_account": "yarn start --tags @create_account",
     "start:address_book": "yarn start --tags @address_book",
     "start:custom_node": "yarn start --tags @custom_node",
+    "start:unlock_screen": "yarn start --tags @unlock_screen",
+    "start:manage_assets": "yarn start --tags @manage_assets",
     "test": "yarn start --exit --tags 'not @dev'",
     "ts": "tsc --pretty"
   },
   "dependencies": {
-    "@cucumber/cucumber": "^8.7.0",
+    "@cucumber/cucumber": "^9.4.0",
     "@types/chai": "^4.3.4",
     "async-retry": "^1.3.3",
     "chai": "^4.3.7",
     "dotenv": "^16.0.3",
+    "puppeteer": "^19.11.1",
     "puppeteer-screen-recorder": "^2.1.2",
-    "puppeteer": "^19.4.0",
     "ts-node": "^10.9.1"
   }
 }

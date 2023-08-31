@@ -11,18 +11,12 @@ export const useAllFiatCurrencies = (inputCurrencySymbol: string, outputTokenSym
   const moonpayFiatCurrencies = useFiatCurrenciesSelector(TopUpProviderId.MoonPay);
   const utorgFiatCurrencies = useFiatCurrenciesSelector(TopUpProviderId.Utorg);
   const aliceBobFiatCurrencies = useFiatCurrenciesSelector(TopUpProviderId.AliceBob);
-  const binanceConnectFiatCurrencies = useFiatCurrenciesSelector(TopUpProviderId.BinanceConnect);
 
   const allPairsLimits = useAllPairsLimitsSelector();
 
   const allNonUniqueFiatCurrencies = useMemo(
-    () => [
-      ...moonpayFiatCurrencies,
-      ...utorgFiatCurrencies,
-      ...aliceBobFiatCurrencies,
-      ...binanceConnectFiatCurrencies
-    ],
-    [moonpayFiatCurrencies, utorgFiatCurrencies, aliceBobFiatCurrencies, binanceConnectFiatCurrencies]
+    () => [...moonpayFiatCurrencies, ...utorgFiatCurrencies, ...aliceBobFiatCurrencies],
+    [moonpayFiatCurrencies, utorgFiatCurrencies, aliceBobFiatCurrencies]
   );
 
   const pairLimits = useMemo(
