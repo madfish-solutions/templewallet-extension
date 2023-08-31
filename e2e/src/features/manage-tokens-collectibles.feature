@@ -25,6 +25,7 @@ Feature: Manage tokens + collectibles
 
 
 @manage_assets
+  @dev
   Scenario: As a user, I'd like to hide and delete tokens [Positive]
     Given I have imported an existing account
 #  hardcoded token
@@ -42,6 +43,7 @@ Feature: Manage tokens + collectibles
     And I scroll 900 pixels on the Home page
 
     And I check the token with name Kolibri is NOT displayed on the Home page
+    And I scroll -600 pixels on the Home page
     And I press Manage Button on the Assets page
 
     And I am on the ManageAssetsTokens page
@@ -76,7 +78,6 @@ Feature: Manage tokens + collectibles
 
 
 @manage_assets
-@dev
   Scenario: Validation check on Add Asset page + other checks [Negative]
     Given I have imported an existing account
 
@@ -155,9 +156,6 @@ Feature: Manage tokens + collectibles
     And I scroll 900 pixels on the Home page
 
     Then I check the token with name Killer is displayed on the Home page
-
-
-
 
 
 
