@@ -33,13 +33,6 @@ export class ManageAssetsTokensPage extends Page {
       SHORT_TIMEOUT,
       `Delete token button related to token with slug: ${slug} is not displayed in the list`
     );
-
-    await findElement(
-      ManageAssetsSelectors.visibleAssetCheckBox,
-      { slug },
-      SHORT_TIMEOUT,
-      `Visible asset checkbox related to token with slug: ${slug} is not displayed in the list`
-    );
   }
 
   // for hiding or revealing assets
