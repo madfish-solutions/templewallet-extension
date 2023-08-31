@@ -11,6 +11,7 @@
     "start:address_book": "yarn start --tags @address_book",
     "start:custom_node": "yarn start --tags @custom_node",
     "start:unlock_screen": "yarn start --tags @unlock_screen",
+    "start:manage_assets": "yarn start --tags @manage_assets",
     "test": "yarn start --exit --tags 'not @dev'",
     "ts": "tsc --pretty"
   },
