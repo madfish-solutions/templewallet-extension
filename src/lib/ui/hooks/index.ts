@@ -12,8 +12,6 @@ export { useInterval } from './useInterval';
 
 export { useStopper } from './useStopper';
 
-export { useFocusOnElement } from './useFocusOnElement';
-
 export { useMemoWithCompare } from './useMemoWithCompare';
 
 export { useVanishingState } from './useVanishingState';

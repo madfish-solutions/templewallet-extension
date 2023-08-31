@@ -8,5 +8,10 @@ export const otherNetworks = [
     analyticsSlug: 'evm',
     slug: 'eth',
     name: 'EVM'
+  },
+  {
+    analyticsSlug: 'btc',
+    slug: 'btc',
+    name: 'Bitcoin'
   }
 ];
