@@ -73,6 +73,7 @@ const Home: FC<ExploreProps> = ({ assetSlug }) => {
   const isEnabledAdsBanner = useIsEnabledAdsBannerSelector();
 
   const assetMetadata = useAssetMetadata(assetSlug || TEZ_TOKEN_SLUG);
+  const assetSymbol = getAssetSymbol(assetMetadata);
 
   useLayoutEffect(() => {
     const usp = new URLSearchParams(search);
@@ -103,9 +104,9 @@ const Home: FC<ExploreProps> = ({ assetSlug }) => {
               <span
                 className="font-normal"
                 {...setTestID(TokenPageSelectors.pageName)}
-                {...setAnotherSelector('symbol', getAssetSymbol(assetMetadata))}
+                {...setAnotherSelector('symbol', assetSymbol)}
               >
-                {getAssetSymbol(assetMetadata)}
+                {assetSymbol}
               </span>
             </>
           )}
@@ -216,10 +217,7 @@ const ActionButton: FC<ActionButtonProps> = ({
           >
             <Icon className={classNames('w-6 h-auto', disabled ? 'stroke-gray' : 'stroke-accent-orange')} />
           </div>
-          <span
-            style={{ fontSize: 11 }}
-            className={classNames('text-center', disabled ? 'text-gray-20' : 'text-gray-910')}
-          >
+          <span className={classNames('text-center text-xxs', disabled ? 'text-gray-20' : 'text-gray-910')}>
             {label}
           </span>
         </>

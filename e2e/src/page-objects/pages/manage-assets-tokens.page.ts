@@ -10,14 +10,12 @@ export class ManageAssetsTokensPage extends Page {
   addAssetButton = createPageElement(ManageAssetsSelectors.addAssetButton);
   searchAssetsInput = createPageElement(ManageAssetsSelectors.searchAssetsInput);
   assetItem = createPageElement(ManageAssetsSelectors.assetItem);
-  visibleTokenCheckBox = createPageElement(ManageAssetsSelectors.visibleAssetCheckBox);
   deleteAssetButton = createPageElement(ManageAssetsSelectors.deleteAssetButton);
 
   async isVisible() {
     await this.addAssetButton.waitForDisplayed();
     await this.searchAssetsInput.waitForDisplayed();
     await this.assetItem.waitForDisplayed();
-    await this.visibleTokenCheckBox.waitForDisplayed();
     await this.deleteAssetButton.waitForDisplayed();
   }
 
@@ -34,13 +32,6 @@ export class ManageAssetsTokensPage extends Page {
       { slug },
       SHORT_TIMEOUT,
       `Delete token button related to token with slug: ${slug} is not displayed in the list`
-    );
-
-    await findElement(
-      ManageAssetsSelectors.visibleAssetCheckBox,
-      { slug },
-      SHORT_TIMEOUT,
-      `Visible asset checkbox related to token with slug: ${slug} is not displayed in the list`
     );
   }
 

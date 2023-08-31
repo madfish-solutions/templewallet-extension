@@ -28,7 +28,7 @@ export const iEnterValues = {
   customNetworkRPC: envVars.CUSTOM_NETWORK_RPC_URL,
   customTestName: 'Custom Test Net',
 
-  shitTokenContractAddress: 'KT1Td6a28ydPMXKJS5yS5Usadj4Qx5drsCfY', // 'KLL (Killer) token'
+  customTokenContractAddress: 'KT1Td6a28ydPMXKJS5yS5Usadj4Qx5drsCfY', // 'KLL (Killer) token'
   customTokenSymbol: 'KLL', // 'KLL (Killer) token'
   customTokenName: 'Killer', // 'KLL (Killer) token'
 

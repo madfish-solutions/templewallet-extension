@@ -185,12 +185,7 @@ const ListItem = memo<ListItemProps>(({ assetSlug, last, checked, onUpdate }) =>
         <CloseIcon className="w-auto h-4 stroke-current stroke-2" title={t('delete')} />
       </div>
 
-      <Checkbox
-        checked={checked}
-        onChange={handleCheckboxChange}
-        testID={ManageAssetsSelectors.visibleAssetCheckBox}
-        {...setAnotherSelector('slug', assetSlug)}
-      />
+      <Checkbox checked={checked} onChange={handleCheckboxChange} />
     </label>
   );
 });

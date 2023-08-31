@@ -6,7 +6,6 @@ import debounce from 'debounce-promise';
 import { useUserIdSelector } from 'app/store/settings/selectors';
 import { useFormAnalytics } from 'lib/analytics';
 import { createAliceBobOrder, getMoonpaySign } from 'lib/apis/temple';
-import { createBinanceConnectTradeOrder } from 'lib/apis/temple-static';
 import { createOrder as createUtorgOrder } from 'lib/apis/utorg';
 import { TopUpProviderId } from 'lib/buy-with-credit-card/top-up-provider-id.enum';
 import { useAccount } from 'lib/temple/front';
@@ -64,14 +63,6 @@ export const usePurchaseLink = (formValues: BuyWithCreditCardFormValues) => {
                 inputCurrency.code,
                 publicKeyHash,
                 outputToken.code
-              );
-              break;
-            case TopUpProviderId.BinanceConnect:
-              newPurchaseLink = await createBinanceConnectTradeOrder(
-                inputCurrency.code,
-                outputToken.code,
-                String(inputAmount),
-                publicKeyHash
               );
               break;
             case TopUpProviderId.AliceBob:
