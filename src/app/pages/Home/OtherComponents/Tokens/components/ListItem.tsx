@@ -5,6 +5,7 @@ import classNames from 'clsx';
 
 import { useTokenApyInfo } from 'app/hooks/use-token-apy.hook';
 import { AssetIcon } from 'app/templates/AssetIcon';
+import { setAnotherSelector } from 'lib/analytics';
 import { useAssetMetadata, getAssetName, getAssetSymbol } from 'lib/metadata';
 import { Link } from 'lib/woozie';
 
@@ -47,6 +48,7 @@ export const ListItem = memo<Props>(
         className={classNameMemo}
         testID={AssetsSelectors.assetItemButton}
         testIDProperties={{ key: assetSlug }}
+        {...setAnotherSelector('name', assetName)}
       >
         <AssetIcon assetSlug={assetSlug} size={40} className="mr-2 flex-shrink-0" />
 
