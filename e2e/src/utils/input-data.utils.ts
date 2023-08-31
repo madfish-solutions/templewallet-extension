@@ -26,7 +26,7 @@ export const iEnterValues = {
   secondContactPublicKey: 'tz1eSbADvrQzhH6vWP6MUy6VoEiGPJJZj696',
   customNetworkRPC: envVars.CUSTOM_NETWORK_RPC_URL,
   customTestName: 'Custom Test Net',
-  shitTokenContractAddress: 'KT1Td6a28ydPMXKJS5yS5Usadj4Qx5drsCfY', // 'KLL (Killer) token'
+  customTokenContractAddress: 'KT1Td6a28ydPMXKJS5yS5Usadj4Qx5drsCfY', // 'KLL (Killer) token'
 
   // For transactions
   amount_0_0001: '0.0001',

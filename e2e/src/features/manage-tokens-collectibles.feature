@@ -9,7 +9,7 @@ Feature: Manage tokens + collectibles
     And I press Add Asset Button on the Manage Assets(Tokens) page
 
     And I am on the AddAsset page
-    And I enter shitTokenContractAddress into Address Input on the Add Asset page
+    And I enter customTokenContractAddress into Address Input on the Add Asset page
     And I wait until other inputs load after entering a token address
     And I scroll 500 pixels on the AddAsset page
     And I press Add Asset Button on the Add Asset page

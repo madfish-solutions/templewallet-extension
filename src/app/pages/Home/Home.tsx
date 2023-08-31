@@ -73,6 +73,7 @@ const Home: FC<ExploreProps> = ({ assetSlug }) => {
   const isEnabledAdsBanner = useIsEnabledAdsBannerSelector();
 
   const assetMetadata = useAssetMetadata(assetSlug || TEZ_TOKEN_SLUG);
+  const assetSymbol = getAssetSymbol(assetMetadata);
 
   useLayoutEffect(() => {
     const usp = new URLSearchParams(search);
@@ -103,9 +104,9 @@ const Home: FC<ExploreProps> = ({ assetSlug }) => {
               <span
                 className="font-normal"
                 {...setTestID(TokenPageSelectors.pageName)}
-                {...setAnotherSelector('symbol', getAssetSymbol(assetMetadata))}
+                {...setAnotherSelector('symbol', assetSymbol)}
               >
-                {getAssetSymbol(assetMetadata)}
+                {assetSymbol}
               </span>
             </>
           )}
