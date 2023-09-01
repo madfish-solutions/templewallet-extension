@@ -3,7 +3,8 @@ Feature: Manage tokens + collectibles
 
   Scenario: As a user, I'd like to add tokens and collectibles to my wallet [Positive]
     Given I have imported an existing account
-    And I press Manage Button on the Assets page
+    And I press Manage Dropdown Button on the Assets page
+    And I press Manage Dropdown/Manage Button on the Assets page
 
     And I am on the ManageAssetsTokens page
     And I press Add Asset Button on the Manage Assets(Tokens) page
