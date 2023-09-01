@@ -131,7 +131,7 @@ const CollectiblePage: FC<Props> = ({ assetSlug }) => {
           <Alert
             type="error"
             title={t('error')}
-            description={operationError instanceof Error ? operationError.message : `${t('unknownError')}`}
+            description={operationError instanceof Error ? operationError.message : t('unknownError')}
             className="mb-4"
           />
         ) : (

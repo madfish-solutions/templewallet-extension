@@ -16,8 +16,8 @@ export const CollectibleBlur: FC<Props> = ({ onClick }) => {
       onClick={onClick}
       className={clsx('relative flex justify-center items-center h-full w-full', onClick && 'cursor-pointer')}
     >
-      <img src={BlurImageSrc} alt="Adult content" className="h-full w-full" />
-      <RevealEyeSvg className="absolute z-10" color="#718096" />
+      <img src={BlurImageSrc} alt="Adult content" className="h-full w-full text-gray-600" />
+      <RevealEyeSvg className="absolute z-10 w-8 h-8 stroke-current fill-current" />
     </div>
   );
 };

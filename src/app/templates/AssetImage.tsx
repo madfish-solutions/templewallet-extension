@@ -16,7 +16,8 @@ export const AssetImage = memo<AssetImageProps>(
   ({ metadata, className, size, fullViewCollectible, style, loader, fallback, onLoad, onError }) => {
     const src = useMemo(() => {
       if (metadata && isCollectible(metadata)) return buildCollectibleImageURLs(metadata, fullViewCollectible);
-      else return buildTokenIconURLs(metadata?.thumbnailUri);
+
+      return buildTokenIconURLs(metadata?.thumbnailUri);
     }, [metadata, fullViewCollectible]);
 
     const styleMemo: React.CSSProperties = useMemo(

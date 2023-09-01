@@ -11,6 +11,8 @@ interface AttributesItemsProps {
   details?: CollectibleDetails | null;
 }
 
+const IntlDateTimeFormat = new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+
 export const AttributesItems: FC<AttributesItemsProps> = ({ details }) => {
   return (
     <>
@@ -44,10 +46,8 @@ export const PropertiesItems: FC<PropertiesItemsProps> = ({ assetSlug, accountPk
     const mintedTimestamp = details?.mintedTimestamp;
     if (!mintedTimestamp) return '-';
 
-    return new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'short', day: 'numeric' }).format(
-      new Date(mintedTimestamp)
-    );
-  }, [details]);
+    return IntlDateTimeFormat.format(new Date(mintedTimestamp));
+  }, [details?.mintedTimestamp]);
 
   const royaltiesStr = useMemo(() => {
     if (!details?.royalties) return '-';

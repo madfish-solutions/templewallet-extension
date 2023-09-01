@@ -6,9 +6,9 @@ export interface CollectibleDetails extends Pick<UserObjktCollectible, 'fa' | 'd
   /** Minted on date.
    * ISO String (e.g. `2023-05-30T09:40:33+00:00`)
    */
+  mintedTimestamp: string;
   /** Editions */
   supply: number;
-  mintedTimestamp: string;
   /** Cheepest listing */
   listing: null | CollectibleDetailsListing;
   /** Highest offer */

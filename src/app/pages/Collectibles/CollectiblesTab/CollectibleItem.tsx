@@ -48,9 +48,7 @@ export const CollectibleItem: FC<Props> = ({ assetSlug, accountPkh, areDetailsSh
     return { floorPrice, decimals: currency.decimals, symbol: currency.symbol };
   }, [details]);
 
-  const handleIntersection = useCallback(() => {
-    setDisplayed(true);
-  }, [setDisplayed]);
+  const handleIntersection = useCallback(() => void setDisplayed(true), []);
 
   useIntersectionDetection(toDisplayRef, handleIntersection, !displayed);
 

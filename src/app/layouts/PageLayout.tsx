@@ -217,9 +217,7 @@ const Toolbar: FC<ToolbarProps> = ({
       </div>
 
       {pageTitle && (
-        <h2 className="px-1 flex items-center text-gray-700 font-normal overflow-hidden" style={{ fontSize: 17 }}>
-          {pageTitle}
-        </h2>
+        <h2 className="px-1 flex items-center text-ulg text-gray-700 font-normal overflow-hidden">{pageTitle}</h2>
       )}
 
       <div className="flex-1" />

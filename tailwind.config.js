@@ -582,7 +582,6 @@ module.exports = {
         '2xl-plus': '1.75rem'
       },
       spacing: {
-        1.5: '0.375rem',
         13: '3.25rem',
         15: '3.75rem',
         18: '4.5rem',
