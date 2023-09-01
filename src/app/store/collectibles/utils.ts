@@ -2,13 +2,13 @@ import { pick } from 'lodash';
 
 import type { UserObjktCollectible, ObjktGalleryAttributeCount } from 'lib/apis/objkt';
 import { ADULT_CONTENT_TAGS } from 'lib/apis/objkt/adult-tags';
-import { Attribute, Tag } from 'lib/apis/objkt/types';
+import type { ObjktAttribute, ObjktTag } from 'lib/apis/objkt/types';
 import { atomsToTokens } from 'lib/temple/helpers';
 
 import type { CollectibleDetails } from './state';
 
 const ADULT_ATTRIBUTE_NAME = '__nsfw_';
-const checkForAdultery = (attributes: Attribute[], tags: Tag[]) =>
+const checkForAdultery = (attributes: ObjktAttribute[], tags: ObjktTag[]) =>
   attributes.some(({ attribute }) => attribute.name === ADULT_ATTRIBUTE_NAME) ||
   tags.some(({ tag }) => {
     return ADULT_CONTENT_TAGS.includes(tag.name);
@@ -18,7 +18,7 @@ const TECHNICAL_ATTRIBUTES = ['__nsfw_', '__hazards_'];
 
 export const convertCollectibleObjktInfoToStateDetailsType = (
   info: UserObjktCollectible,
-  galaryAttributeCounts: ObjktGalleryAttributeCount[]
+  galleryAttributeCounts: ObjktGalleryAttributeCount[]
 ): CollectibleDetails => {
   const cheepestListing = info.listings_active[0];
   const listing = cheepestListing
@@ -43,7 +43,7 @@ export const convertCollectibleObjktInfoToStateDetailsType = (
     attributes: info.attributes
       .filter(({ attribute: { name } }) => !TECHNICAL_ATTRIBUTES.includes(name))
       .map(({ attribute }) => {
-        const rarity = parseAttributeRarity(attribute, info, galaryAttributeCounts);
+        const rarity = parseAttributeRarity(attribute, info, galleryAttributeCounts);
 
         return { ...attribute, rarity };
       })
@@ -64,15 +64,18 @@ const parseRoyalties = (royalties: { amount: number; decimals: number }[]) => {
 const parseAttributeRarity = (
   attribute: UserObjktCollectible['attributes'][number]['attribute'],
   info: UserObjktCollectible,
-  galaryAttributeCounts: ObjktGalleryAttributeCount[]
+  galleryAttributeCounts: ObjktGalleryAttributeCount[]
 ) => {
   const editions = (() => {
     if (info.galleries.length) {
       const attribute_id = attribute.id;
 
+      const galleriesPKs = info.galleries.map(({ gallery: { pk } }) => pk);
+
       return {
-        withAttribute: galaryAttributeCounts.reduce(
-          (acc, count) => (count.attribute_id === attribute_id ? acc + count.editions : acc),
+        withAttribute: galleryAttributeCounts.reduce(
+          (acc, count) =>
+            count.attribute_id === attribute_id && galleriesPKs.includes(count.gallery_pk) ? acc + count.editions : acc,
           0
         ),
         all: info.galleries.reduce((acc, { gallery: { editions } }) => acc + editions, 0)

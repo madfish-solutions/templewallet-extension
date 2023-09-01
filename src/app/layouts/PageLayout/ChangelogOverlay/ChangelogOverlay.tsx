@@ -5,34 +5,32 @@ import classNames from 'clsx';
 import { Button } from 'app/atoms/Button';
 import { useAppEnv } from 'app/env';
 import ContentContainer from 'app/layouts/ContentContainer';
+import { APP_VERSION } from 'lib/env';
 import { T } from 'lib/i18n';
 import { useTempleClient, useStorage } from 'lib/temple/front';
 
-import PackageJSON from '../../../../../package.json';
 import { changelogData, ChangelogItem } from './ChangelogOverlay.data';
 import s from './ChangelogOverlay.module.css';
 import { ChangelogOverlaySelectors } from './ChangelogOverlay.selectors';
 
-const currentVersion = PackageJSON.version;
-
 export const ChangelogOverlay: FC = () => {
   const { popup } = useAppEnv();
   const { ready } = useTempleClient();
-  const [lastShownVersion, setLastShownVersion] = useStorage(`last_shown_changelog_version`, currentVersion);
+  const [lastShownVersion, setLastShownVersion] = useStorage(`last_shown_changelog_version`, APP_VERSION);
 
   const handleContinue = () => {
-    setLastShownVersion(currentVersion);
+    setLastShownVersion(APP_VERSION);
   };
   const popupClassName = popup ? 'inset-0' : 'top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2 p-12';
 
-  const isNewerVersion = changelogData.find(e => e.version === currentVersion);
+  const isNewerVersion = changelogData.find(e => e.version === APP_VERSION);
   if (!isNewerVersion) {
     return null;
   }
 
   const filteredChangelog = filterByVersion(lastShownVersion, changelogData);
 
-  return ready && lastShownVersion !== currentVersion ? (
+  return ready && lastShownVersion !== APP_VERSION ? (
     <>
       <div className={'fixed left-0 right-0 top-0 bottom-0 opacity-20 bg-gray-700 z-50'}></div>
 

@@ -1,8 +1,7 @@
-import React, { FC, useCallback, useEffect } from 'react';
+import React, { FC, memo, useCallback, useEffect } from 'react';
 
 import clsx from 'clsx';
 import { isEqual } from 'lodash';
-import { useCustomCompareMemo } from 'use-custom-compare';
 
 import { SyncSpinner } from 'app/atoms';
 import Checkbox from 'app/atoms/Checkbox';
@@ -10,7 +9,6 @@ import Divider from 'app/atoms/Divider';
 import DropdownWrapper from 'app/atoms/DropdownWrapper';
 import { useAppEnv } from 'app/env';
 import { ReactComponent as EditingIcon } from 'app/icons/editing.svg';
-import { CollectibleItem } from 'app/pages/Collectibles/components/CollectibleItem';
 import { AssetsSelectors } from 'app/pages/Home/OtherComponents/Assets.selectors';
 import { useTokensMetadataLoadingSelector } from 'app/store/tokens-metadata/selectors';
 import { ButtonForManageDropdown } from 'app/templates/ManageDropdown';
@@ -20,9 +18,12 @@ import { useFilteredAssetsSlugs } from 'lib/assets/use-filtered';
 import { T, t } from 'lib/i18n';
 import { useAccount, useChainId, useCollectibleTokens } from 'lib/temple/front';
 import { useSyncTokens } from 'lib/temple/front/sync-tokens';
+import { useMemoWithCompare } from 'lib/ui/hooks';
 import { useLocalStorage } from 'lib/ui/local-storage';
 import Popper, { PopperRenderProps } from 'lib/ui/Popper';
 import { Link } from 'lib/woozie';
+
+import { CollectibleItem } from './CollectibleItem';
 
 const LOCAL_STORAGE_TOGGLE_KEY = 'collectibles-grid:show-items-details';
 
@@ -30,7 +31,7 @@ interface Props {
   scrollToTheTabsBar: EmptyFn;
 }
 
-export const CollectiblesTab: FC<Props> = ({ scrollToTheTabsBar }) => {
+export const CollectiblesTab = memo<Props>(({ scrollToTheTabsBar }) => {
   const chainId = useChainId(true)!;
   const { popup } = useAppEnv();
   const { publicKeyHash } = useAccount();
@@ -47,7 +48,7 @@ export const CollectiblesTab: FC<Props> = ({ scrollToTheTabsBar }) => {
     true
   );
 
-  const collectiblesSlugs = useCustomCompareMemo(
+  const collectiblesSlugs = useMemoWithCompare(
     () => collectibles.map(collectible => collectible.tokenSlug).sort(),
     [collectibles],
     isEqual
@@ -95,14 +96,16 @@ export const CollectiblesTab: FC<Props> = ({ scrollToTheTabsBar }) => {
           </Popper>
         </div>
 
-        {isSyncing && filteredAssets.length === 0 ? (
-          <SyncSpinner className="mt-6" />
-        ) : filteredAssets.length === 0 ? (
-          <div className="w-full border rounded border-gray-200">
-            <p className={'text-gray-600 text-center text-xs py-6'}>
-              <T id="zeroCollectibleText" />
-            </p>
-          </div>
+        {filteredAssets.length === 0 ? (
+          isSyncing ? (
+            <SyncSpinner className="mt-6" />
+          ) : (
+            <div className="w-full border rounded border-gray-200">
+              <p className={'text-gray-600 text-center text-xs py-6'}>
+                <T id="zeroCollectibleText" />
+              </p>
+            </div>
+          )
         ) : (
           <>
             <div className="grid grid-cols-3 gap-1">
@@ -122,7 +125,7 @@ export const CollectiblesTab: FC<Props> = ({ scrollToTheTabsBar }) => {
       </div>
     </div>
   );
-};
+});
 
 interface ManageButtonDropdownProps extends PopperRenderProps {
   areDetailsShown: boolean;

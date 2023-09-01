@@ -25,3 +25,5 @@ export const loadTokenSuggestionActions = createActions<LoadTokenMetadataPayload
 );
 
 export const resetTokensMetadataLoadingAction = createAction('assets/RESET_TOKENS_METADATA_LOADING');
+
+export const refreshTokensMetadataAction = createAction<TokenMetadata[]>('assets/REFRESH_TOKENS_METADATA');

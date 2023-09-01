@@ -1244,13 +1244,6 @@
     minimatch "^3.1.2"
     strip-json-comments "^3.1.1"
 
-"@google/model-viewer@3.1.1":
-  version "3.1.1"
-  resolved "https://registry.yarnpkg.com/@google/model-viewer/-/model-viewer-3.1.1.tgz#60e33f8cde9befa074a238e2bc9457f642017b30"
-  integrity sha512-RSIsFv/5XaHJHx4cWWlcR8fG8AD8bkGhw+rRfgAUKrJmbEzHQy7BZ1Cz6Ry66mNZ8uqQZwzclPsi4ckCMG02tw==
-  dependencies:
-    lit "^2.7.2"
-
 "@firebase/analytics-compat@0.2.6":
   version "0.2.6"
   resolved "https://registry.yarnpkg.com/@firebase/analytics-compat/-/analytics-compat-0.2.6.tgz#50063978c42f13eb800e037e96ac4b17236841f4"
@@ -1623,6 +1616,13 @@
   version "0.10.1"
   resolved "https://registry.yarnpkg.com/@firebase/webchannel-wrapper/-/webchannel-wrapper-0.10.1.tgz#60bb2aaf129f9e00621f8d698722ddba6ee1f8ac"
   integrity sha512-Dq5rYfEpdeel0bLVN+nfD1VWmzCkK+pJbSjIawGE+RY4+NIJqhbUDDQjvV0NUK84fMfwxvtFoCtEe70HfZjFcw==
+
+"@google/model-viewer@3.1.1":
+  version "3.1.1"
+  resolved "https://registry.yarnpkg.com/@google/model-viewer/-/model-viewer-3.1.1.tgz#60e33f8cde9befa074a238e2bc9457f642017b30"
+  integrity sha512-RSIsFv/5XaHJHx4cWWlcR8fG8AD8bkGhw+rRfgAUKrJmbEzHQy7BZ1Cz6Ry66mNZ8uqQZwzclPsi4ckCMG02tw==
+  dependencies:
+    lit "^2.7.2"
 
 "@graphql-typed-document-node/core@^3.1.1":
   version "3.1.1"
@@ -8609,6 +8609,11 @@ lines-and-columns@^1.1.6:
   resolved "https://registry.yarnpkg.com/lines-and-columns/-/lines-and-columns-1.1.6.tgz#1c00c743b433cd0a4e80758f7b64a57440d9ff00"
   integrity sha1-HADHQ7QzzQpOgHWPe2SldEDZ/wA=
 
+linked-list@^0.1.0:
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/linked-list/-/linked-list-0.1.0.tgz#798b0ff97d1b92a4fd08480f55aea4e9d49d37bf"
+  integrity sha512-Zr4ovrd0ODzF3ut2TWZMdHIxb8iFdJc/P3QM4iCJdlxxGHXo69c9hGIHzLo8/FtuR9E6WUZc5irKhtPUgOKMAg==
+
 lit-element@^3.3.0:
   version "3.3.2"
   resolved "https://registry.yarnpkg.com/lit-element/-/lit-element-3.3.2.tgz#9913bf220b85065f0e5f1bb8878cc44f36b50cfa"
@@ -8633,11 +8638,6 @@ lit@^2.7.2:
     "@lit/reactive-element" "^1.6.0"
     lit-element "^3.3.0"
     lit-html "^2.7.0"
-
-linked-list@^0.1.0:
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/linked-list/-/linked-list-0.1.0.tgz#798b0ff97d1b92a4fd08480f55aea4e9d49d37bf"
-  integrity sha512-Zr4ovrd0ODzF3ut2TWZMdHIxb8iFdJc/P3QM4iCJdlxxGHXo69c9hGIHzLo8/FtuR9E6WUZc5irKhtPUgOKMAg==
 
 load-json-file@^4.0.0:
   version "4.0.0"
@@ -12256,11 +12256,6 @@ use-composed-ref@^1.0.0:
   integrity sha512-my1lNHGWsSDAhhVAT4MKs6IjBUtG6ZG11uUqexPH9PptiIZDQOzaF4f5tEbJ2+7qvNbtXNBbU3SfmN+fXlWDhg==
   dependencies:
     ts-essentials "^2.0.3"
-
-use-custom-compare@^1.4.0:
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/use-custom-compare/-/use-custom-compare-1.4.0.tgz#3b750ae0487d3c8e8c38ed2da8b633450981e4e9"
-  integrity sha512-3VyBy9aUZgOdHKMVvECAW+o5SXVF1Ly9plXIoXZNBKnkiBz395Z0unTg6Q3SdLWp2RZHyyoG9GEo3HP3obz5Cw==
 
 use-debounce@7.0.1:
   version "7.0.1"

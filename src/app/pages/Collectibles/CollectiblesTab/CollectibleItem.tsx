@@ -5,7 +5,10 @@ import clsx from 'clsx';
 
 import Money from 'app/atoms/Money';
 import { useAppEnv } from 'app/env';
-import { useCollectibleDetailsSelector } from 'app/store/collectibles/selectors';
+import {
+  useAllCollectiblesDetailsLoadingSelector,
+  useCollectibleDetailsSelector
+} from 'app/store/collectibles/selectors';
 import { useTokenMetadataSelector } from 'app/store/tokens-metadata/selectors';
 import { objktCurrencies } from 'lib/apis/objkt';
 import { T } from 'lib/i18n';
@@ -15,7 +18,7 @@ import { atomsToTokens } from 'lib/temple/helpers';
 import { useIntersectionDetection } from 'lib/ui/use-intersection-detection';
 import { Link } from 'lib/woozie';
 
-import { CollectibleItemImage } from './CollectibleItemImage/CollectibleItemImage';
+import { CollectibleItemImage } from './CollectibleItemImage';
 
 interface Props {
   assetSlug: string;
@@ -28,7 +31,9 @@ export const CollectibleItem: FC<Props> = ({ assetSlug, accountPkh, areDetailsSh
   const metadata = useTokenMetadataSelector(assetSlug);
   const toDisplayRef = useRef<HTMLDivElement>(null);
   const [displayed, setDisplayed] = useState(true);
-  const { data: balance } = useBalance(assetSlug, accountPkh, { displayed });
+  const { data: balance } = useBalance(assetSlug, accountPkh, { displayed, suspense: false });
+
+  const areDetailsLoading = useAllCollectiblesDetailsLoadingSelector();
   const details = useCollectibleDetailsSelector(assetSlug);
 
   const listing = useMemo(() => {
@@ -64,10 +69,10 @@ export const CollectibleItem: FC<Props> = ({ assetSlug, accountPkh, areDetailsSh
       >
         {displayed && (
           <CollectibleItemImage
-            metadata={metadata}
-            mime={details?.mime}
             assetSlug={assetSlug}
-            isAdultContent={details?.isAdultContent}
+            metadata={metadata}
+            areDetailsLoading={areDetailsLoading && details === undefined}
+            mime={details?.mime}
           />
         )}
 

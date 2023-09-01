@@ -42,12 +42,21 @@ type CollectibleDetailsAttribute = UserObjktCollectible['attributes'][number]['a
   rarity: number;
 };
 
-export type CollectibleDetailsRecord = Record<string, CollectibleDetails>;
+/** `null` for no available asset details */
+export type CollectibleDetailsRecord = Record<string, CollectibleDetails | null>;
 
 export interface CollectiblesState {
   details: LoadableEntityState<CollectibleDetailsRecord>;
+  adultFlags: Record<string, AdultFlag>;
+}
+
+interface AdultFlag {
+  val: boolean;
+  /** Timestamp in seconds */
+  ts: number;
 }
 
 export const collectiblesInitialState: CollectiblesState = {
-  details: createEntity({})
+  details: createEntity({}),
+  adultFlags: {}
 };

@@ -1,11 +1,10 @@
 import { isEqual } from 'lodash';
 import { useDispatch } from 'react-redux';
-import { useCustomCompareMemo } from 'use-custom-compare';
 
 import { loadCollectiblesDetailsActions } from 'app/store/collectibles/actions';
 import { COLLECTIBLES_DETAILS_SYNC_INTERVAL } from 'lib/fixed-times';
 import { useAccount, useChainId, useCollectibleTokens } from 'lib/temple/front';
-import { useInterval } from 'lib/ui/hooks';
+import { useInterval, useMemoWithCompare } from 'lib/ui/hooks';
 
 export const useCollectiblesDetailsLoading = () => {
   const chainId = useChainId()!;
@@ -13,7 +12,7 @@ export const useCollectiblesDetailsLoading = () => {
   const { data: collectibles } = useCollectibleTokens(chainId, publicKeyHash);
   const dispatch = useDispatch();
 
-  const slugs = useCustomCompareMemo(
+  const slugs = useMemoWithCompare(
     () => collectibles.map(({ tokenSlug }) => tokenSlug).sort(),
     [collectibles],
     isEqual

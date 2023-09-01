@@ -1,9 +1,13 @@
+/*
+  Package `three` must also be installed - it is a peer dep for `@google/model-viewer`
+*/
+
 import React, { FC, useEffect, useRef } from 'react';
 
 import '@google/model-viewer';
 import ModelViewerElementBase from '@google/model-viewer/lib/model-viewer-base';
 import { emptyFn } from '@rnw-community/shared';
-import classNames from 'clsx';
+import clsx from 'clsx';
 
 declare global {
   namespace JSX {
@@ -23,7 +27,7 @@ interface Props {
   onError?: EmptyFn;
 }
 
-export const ModelViewer: FC<Props> = ({ uri, alt, className, onError = emptyFn }) => {
+export const Model3DViewer: FC<Props> = ({ uri, alt, className, onError = emptyFn }) => {
   const modelViewerRef = useRef<ModelViewerElementBase>(null);
 
   useEffect(() => {
@@ -36,7 +40,7 @@ export const ModelViewer: FC<Props> = ({ uri, alt, className, onError = emptyFn 
     }
 
     return undefined;
-  }, []);
+  }, [onError]);
 
   return (
     <model-viewer
@@ -47,8 +51,8 @@ export const ModelViewer: FC<Props> = ({ uri, alt, className, onError = emptyFn 
       camera-controls={true}
       autoPlay
       shadow-intensity="1"
-      //@ts-ignore
-      class={classNames('w-full h-full', className)}
+      // @ts-ignore
+      class={clsx('w-full h-full', className)}
     ></model-viewer>
   );
 };

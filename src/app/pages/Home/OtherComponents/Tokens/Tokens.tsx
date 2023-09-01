@@ -4,7 +4,6 @@ import { BigNumber } from 'bignumber.js';
 import clsx from 'clsx';
 import { isEqual } from 'lodash';
 import { useDispatch } from 'react-redux';
-import { useCustomCompareMemo } from 'use-custom-compare';
 
 import { SyncSpinner, Divider, Checkbox } from 'app/atoms';
 import DropdownWrapper from 'app/atoms/DropdownWrapper';
@@ -24,6 +23,7 @@ import { useFilteredAssetsSlugs } from 'lib/assets/use-filtered';
 import { T, t } from 'lib/i18n';
 import { useAccount, useChainId, useDisplayedFungibleTokens } from 'lib/temple/front';
 import { useSyncTokens } from 'lib/temple/front/sync-tokens';
+import { useMemoWithCompare } from 'lib/ui/hooks';
 import { useLocalStorage } from 'lib/ui/local-storage';
 import Popper, { PopperRenderProps } from 'lib/ui/Popper';
 import { Link, navigate } from 'lib/woozie';
@@ -55,7 +55,7 @@ export const TokensTab: FC = () => {
     [setIsZeroBalancesHidden]
   );
 
-  const slugs = useCustomCompareMemo(() => tokens.map(({ tokenSlug }) => tokenSlug).sort(), [tokens], isEqual);
+  const slugs = useMemoWithCompare(() => tokens.map(({ tokenSlug }) => tokenSlug).sort(), [tokens], isEqual);
 
   const { filteredAssets, searchValue, setSearchValue } = useFilteredAssetsSlugs(
     slugs,

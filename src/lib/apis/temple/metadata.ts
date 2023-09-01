@@ -27,6 +27,8 @@ export interface TokenMetadataResponse {
   name?: string;
   thumbnailUri?: string;
   artifactUri?: string;
+  displayUri?: string;
+  image?: string;
 }
 
 export const fetchOneTokenMetadata = (chainId: MetadataApiChainId, address: string, id = 0) =>

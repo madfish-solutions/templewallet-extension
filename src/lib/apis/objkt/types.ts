@@ -3,11 +3,11 @@ interface Name {
   name: string;
 }
 
-export interface Tag {
+export interface ObjktTag {
   tag: Name;
 }
 
-export interface Attribute {
+export interface ObjktAttribute {
   attribute: {
     id: number;
     name: string;
@@ -17,11 +17,6 @@ export interface Attribute {
       editions: number;
     }[];
   };
-}
-
-export interface GetUserObjktCollectiblesResponse {
-  token: UserObjktCollectible[];
-  gallery_attribute_count: ObjktGalleryAttributeCount[];
 }
 
 interface ObjktListing {
@@ -56,10 +51,12 @@ export interface UserObjktCollectible {
   galleries: {
     gallery: {
       name: string;
+      /** Primary Key */
+      pk: number;
       editions: number;
     };
   }[];
-  tags: Tag[];
+  tags: ObjktTag[];
   offers_active: {
     buyer_address: string;
     price: number;
@@ -68,7 +65,7 @@ export interface UserObjktCollectible {
     marketplace_contract: string;
     __typename: 'offer_active';
   }[];
-  attributes: Attribute[];
+  attributes: ObjktAttribute[];
   supply: number;
   royalties: {
     decimals: number;
@@ -79,6 +76,7 @@ export interface UserObjktCollectible {
 
 export interface ObjktGalleryAttributeCount {
   attribute_id: number;
+  gallery_pk: number;
   editions: number;
 }
 
