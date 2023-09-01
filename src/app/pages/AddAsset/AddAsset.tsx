@@ -343,10 +343,14 @@ const BottomSection: FC<BottomSectionProps> = props => {
         ref={register({
           required: t('required'),
           validate: (val: string) => {
-            if (!val || val.length < 2 || val.length > 8) {
+            if (!val || val.length < 2 || val.length > 10) {
               return t('tokenSymbolPatternDescription');
             }
             return true;
+          },
+          pattern: {
+            value: /^[a-z0-9]*$/i,
+            message: t('tokenSymbolPatternDescription')
           }
         })}
         name="symbol"
@@ -362,10 +366,14 @@ const BottomSection: FC<BottomSectionProps> = props => {
         ref={register({
           required: t('required'),
           validate: (val: string) => {
-            if (!val || val.length < 3 || val.length > 50) {
+            if (!val || val.length < 3 || val.length > 25) {
               return t('tokenNamePatternDescription');
             }
             return true;
+          },
+          pattern: {
+            value: /^[a-z0-9]*$/i,
+            message: t('tokenNamePatternDescription')
           }
         })}
         name="name"

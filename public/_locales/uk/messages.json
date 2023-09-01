@@ -305,7 +305,7 @@
     "message": "e.g. KT1v9CmPy..."
   },
   "tokenSymbolPatternDescription": {
-    "message": "Тільки a-z, A-Z, 0-9 символи дозволені, 2-5 довжина"
+    "message": "Тільки a-z, A-Z, 0-9 символи дозволені, 2-10 довжина"
   },
   "symbol": {
     "message": "Тікер"
@@ -317,7 +317,7 @@
     "message": "e.g. WEW, BOW, LAL etc."
   },
   "tokenNamePatternDescription": {
-    "message": "Ніяких спеціальних символів, 3-50 в довжину"
+    "message": "Ніяких спеціальних символів, 3-25 в довжину"
   },
   "name": {
     "message": "Ім'я"
