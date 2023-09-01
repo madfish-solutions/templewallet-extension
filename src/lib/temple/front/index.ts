@@ -61,6 +61,5 @@ export {
   isSvgDataUriInUtf8Encoding,
   buildTokenIconURLs,
   buildCollectibleImageURLs,
-  buildObjktCollectibleArtifactUri,
-  SVG_DATA_URI_UTF8_PREFIX
+  buildObjktCollectibleArtifactUri
 } from './image-uri';

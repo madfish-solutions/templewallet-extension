@@ -2796,10 +2796,10 @@
   dependencies:
     nanoid "^3.1.25"
 
-"@temple-wallet/wallet-address-validator@^0.4.2":
-  version "0.4.2"
-  resolved "https://registry.yarnpkg.com/@temple-wallet/wallet-address-validator/-/wallet-address-validator-0.4.2.tgz#1334a67aa71d0c397dd7c20a94245a612fd7feff"
-  integrity sha512-FPsHW+IYKBu1/qvGDGtwaCfyP60xPIKMPhGgbU+mUVN/AMsdgNf3FkG2hTuBC0jylToxuI+ijGGSzpIj+Yl1Qg==
+"@temple-wallet/wallet-address-validator@^0.4.3":
+  version "0.4.3"
+  resolved "https://registry.yarnpkg.com/@temple-wallet/wallet-address-validator/-/wallet-address-validator-0.4.3.tgz#4bb7905a824e290872b7a7fc449df2e8c332e9e1"
+  integrity sha512-vP+K1bEXLw/2MRbSAaGrT7ZEFYyrb/C/NfdTBZdeKjwinqduz2aFHrun8bBOUMc9MQnKxyTIkiZu2g6i2z9tyw==
   dependencies:
     base-x "^3.0.4"
     bs58check "^3.0.1"
@@ -4706,11 +4706,6 @@ bignumber.js@9.1.0, bignumber.js@^9.0.2, bignumber.js@^9.1.0:
   version "9.1.0"
   resolved "https://registry.yarnpkg.com/bignumber.js/-/bignumber.js-9.1.0.tgz#8d340146107fe3a6cb8d40699643c302e8773b62"
   integrity sha512-4LwHK4nfDOraBCtst+wOWIHbu1vhvAPJK8g8nROd4iuc3PSEjWif/qwbkh8jwCJz6yDBvtU4KPynETgrfh7y3A==
-
-binance-icons@^0.5.1:
-  version "0.5.1"
-  resolved "https://registry.yarnpkg.com/binance-icons/-/binance-icons-0.5.1.tgz#e86917c9a351d18a82f566232b6ee18a1616bc94"
-  integrity sha512-S9KsVZ4E02qtxEECgGNednR8Ll5j3IiK/tOkXbmmNf/mSpdhRuVMwSzBRTakA25KdQLJ7RmZFkrQuSZGtcfmVg==
 
 binary-extensions@^2.0.0:
   version "2.1.0"

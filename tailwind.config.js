@@ -114,7 +114,8 @@ module.exports = {
           700: '#2b6cb0',
           750: '#4a5568',
           800: '#2c5282',
-          900: '#2a4365'
+          900: '#2a4365',
+          910: '#212e36'
         },
         indigo: {
           100: '#ebf4ff',
@@ -574,7 +575,9 @@ module.exports = {
     },
     extend: {
       fontSize: {
-        '2xs': '0.625rem',
+        xxxs: '0.625rem',
+        xxs: '0.6875rem',
+        '2xs': '0.8125rem',
         ulg: '1.0625rem',
         '2xl-plus': '1.75rem'
       },

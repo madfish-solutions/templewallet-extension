@@ -1,18 +1,16 @@
-import React, { useMemo, useCallback, FC } from 'react';
+import React, { useMemo, useCallback, FC, useState } from 'react';
 
+import classNames from 'clsx';
 import browser from 'webextension-polyfill';
 
 import Flag from 'app/atoms/Flag';
-import { AnalyticsEventCategory, AnalyticsEventEnum, useAnalytics, setTestID } from 'lib/analytics';
-import { getCurrentLocale, updateLocale, T, t } from 'lib/i18n';
+import { DropdownSelect } from 'app/templates/DropdownSelect/DropdownSelect';
+import { InputContainer } from 'app/templates/InputContainer/InputContainer';
+import { AnalyticsEventCategory, AnalyticsEventEnum, setTestID, useAnalytics } from 'lib/analytics';
+import { getCurrentLocale, updateLocale, T } from 'lib/i18n';
 import { searchAndFilterItems } from 'lib/utils/search-items';
 
-import IconifiedSelect, { IconifiedSelectOptionRenderProps } from '../../IconifiedSelect';
 import { SettingsGeneralSelectors } from '../selectors';
-
-type LocaleSelectProps = {
-  className?: string;
-};
 
 type LocaleOption = {
   code: string;
@@ -97,16 +95,23 @@ const LOCALE_OPTIONS: LocaleOption[] = [
   }
 ];
 
-const localeIsDisabled = ({ disabled }: LocaleOption) => !!disabled;
-
-const getLocaleCode = ({ code }: LocaleOption) => code;
-
-const LocaleSelect: FC<LocaleSelectProps> = ({ className }) => {
+const LocaleSelect: FC = () => {
   const selectedLocale = getCurrentLocale();
   const { trackEvent } = useAnalytics();
+  const [searchValue, setSearchValue] = useState<string>('');
+
+  const options = useMemo(
+    () =>
+      searchAndFilterItems(LOCALE_OPTIONS, searchValue, [
+        { name: 'code', weight: 0.75 },
+        { name: 'flagName', weight: 1 },
+        { name: 'label', weight: 0.5 }
+      ]),
+    [searchValue]
+  );
 
   const value = useMemo(
-    () => LOCALE_OPTIONS.find(({ code }) => code === selectedLocale) ?? LOCALE_OPTIONS[0],
+    () => options.find(({ code }) => code === selectedLocale) ?? LOCALE_OPTIONS[0],
     [selectedLocale]
   );
 
@@ -119,57 +124,70 @@ const LocaleSelect: FC<LocaleSelectProps> = ({ className }) => {
   );
 
   return (
-    <IconifiedSelect
-      BeforeContent={LocaleTitle}
-      FieldContent={LocaleFieldContent}
-      OptionContent={LocaleOptionContent}
-      getKey={getLocaleCode}
-      isDisabled={localeIsDisabled}
-      onChange={handleLocaleChange}
-      options={LOCALE_OPTIONS}
-      value={value}
-      noItemsText={t('noItemsFound')}
-      className={className}
-      padded
-      fieldStyle={{ minHeight: '3.375rem' }}
-      search={{ filterItems: searchLocale }}
-      testID={SettingsGeneralSelectors.languageDropDown}
-    />
+    <InputContainer className="mb-8" header={<LocaleTitle />}>
+      <DropdownSelect
+        testIds={{
+          dropdownTestId: SettingsGeneralSelectors.languageDropDown
+        }}
+        optionsListClassName="p-2"
+        dropdownButtonClassName="p-3"
+        DropdownFaceContent={<LocaleFieldContent {...value} />}
+        optionsProps={{
+          options,
+          noItemsText: 'No items',
+          getKey: option => option.code,
+          renderOptionContent: option => renderOptionContent(option, option.code === value.code),
+          onOptionChange: handleLocaleChange
+        }}
+        searchProps={{
+          searchValue,
+          onSearchChange: event => setSearchValue(event?.target.value)
+        }}
+      />
+    </InputContainer>
   );
 };
 
 export default LocaleSelect;
 
 const LocaleTitle: FC = () => (
-  <h2 className="mb-4 leading-tight flex flex-col">
+  <h2 className="leading-tight flex flex-col">
     <span className="text-base font-semibold text-gray-700">
       <T id="languageAndCountry" />
     </span>
   </h2>
 );
 
-type SelectItemProps = IconifiedSelectOptionRenderProps<LocaleOption>;
+interface LocaleOptionContentProps {
+  option: LocaleOption;
+  isSelected?: boolean;
+}
 
-const LocaleIcon: FC<SelectItemProps> = ({ option: { flagName, code } }) => (
+const LocaleIcon: FC<LocaleOptionContentProps> = ({ option: { flagName, code } }) => (
   <Flag alt={code} className="ml-2 mr-3" src={browser.runtime.getURL(`/misc/country-flags/${flagName}.svg`)} />
 );
 
-const LocaleFieldContent: FC<SelectItemProps> = ({ option }) => {
+const LocaleFieldContent = (option: LocaleOption) => (
+  <div className="flex items-center">
+    <LocaleIcon option={option} />
+
+    <span className="text-xl text-gray-700">{option.label}</span>
+  </div>
+);
+
+const LocaleOptionContent: FC<LocaleOptionContentProps> = ({ option, isSelected }) => {
   return (
-    <>
+    <div
+      className={classNames(
+        'flex items-center py-1.5 px-2 rounded',
+        isSelected ? 'bg-gray-200' : 'hover:bg-gray-100',
+        option.disabled && 'opacity-25 cursor-default'
+      )}
+      {...setTestID(SettingsGeneralSelectors.languageitem)}
+    >
       <LocaleIcon option={option} />
 
-      <span className="text-xl text-gray-700">{option.label}</span>
-    </>
-  );
-};
-
-const LocaleOptionContent: FC<SelectItemProps> = ({ option }) => {
-  return (
-    <>
-      <LocaleIcon option={option} />
-
-      <div className="relative w-full text-lg text-gray-700" {...setTestID(SettingsGeneralSelectors.languageitem)}>
+      <div className="relative text-left w-full text-lg text-gray-700">
         {option.label}
 
         {option.disabled && (
@@ -180,13 +198,10 @@ const LocaleOptionContent: FC<SelectItemProps> = ({ option }) => {
           </div>
         )}
       </div>
-    </>
+    </div>
   );
 };
 
-const searchLocale = (searchString: string) =>
-  searchAndFilterItems(LOCALE_OPTIONS, searchString, [
-    { name: 'code', weight: 0.75 },
-    { name: 'flagName', weight: 1 },
-    { name: 'label', weight: 0.5 }
-  ]);
+const renderOptionContent = (option: LocaleOption, isSelected: boolean) => (
+  <LocaleOptionContent option={option} isSelected={isSelected} />
+);

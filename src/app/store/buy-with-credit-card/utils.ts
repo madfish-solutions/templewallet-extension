@@ -1,8 +1,5 @@
 import { isDefined } from '@rnw-community/shared';
 import { AxiosResponse } from 'axios';
-import BigNumber from 'bignumber.js';
-import { binanceCryptoIcons } from 'binance-icons';
-import CurrenciesCodes from 'currency-codes';
 
 import {
   Currency,
@@ -11,14 +8,8 @@ import {
   FiatCurrency as MoonPayFiatCurrency
 } from 'lib/apis/moonpay';
 import { AliceBobPairInfo } from 'lib/apis/temple';
-import { GetBinanceConnectCurrenciesResponse } from 'lib/apis/temple-static';
 import { CurrencyInfoType as UtorgCurrencyInfoType, UtorgCurrencyInfo } from 'lib/apis/utorg';
 import { toTokenSlug } from 'lib/assets';
-import { LOCAL_MAINNET_TOKENS_METADATA } from 'lib/assets/known-tokens';
-import { SVG_DATA_URI_UTF8_PREFIX } from 'lib/temple/front';
-import { filterByStringProperty } from 'lib/utils';
-
-import { TopUpProviderCurrencies } from './state';
 
 const UTORG_FIAT_ICONS_BASE_URL = 'https://utorg.pro/img/flags2/icon-';
 const UTORG_CRYPTO_ICONS_BASE_URL = 'https://utorg.pro/img/cryptoIcons';
@@ -110,54 +101,3 @@ export const mapAliceBobProviderCurrencies = (response: AxiosResponse<{ pairInfo
   ],
   crypto: [aliceBobTezos]
 });
-
-export const mapBinanceConnectProviderCurrencies = (
-  data: GetBinanceConnectCurrenciesResponse
-): TopUpProviderCurrencies => {
-  const fiat = filterByStringProperty(data.pairs, 'fiatCurrency').map(item => {
-    const code = item.fiatCurrency;
-
-    return {
-      name: CurrenciesCodes.code(code)?.currency ?? code,
-      code,
-      icon: `${UTORG_FIAT_ICONS_BASE_URL}${code.slice(0, -1)}.svg`,
-      /** Assumed */
-      precision: 2,
-      minAmount: item.minLimit,
-      maxAmount: item.maxLimit
-    };
-  });
-
-  const crypto = data.assets.map(asset => {
-    const { contractAddress, cryptoCurrency: code, withdrawIntegerMultiple } = asset;
-
-    const precision =
-      withdrawIntegerMultiple && Number.isFinite(withdrawIntegerMultiple)
-        ? new BigNumber(withdrawIntegerMultiple).decimalPlaces()!
-        : 0;
-
-    const iconSvgString = binanceCryptoIcons.get(code.toLowerCase());
-    const icon = iconSvgString ? `${SVG_DATA_URI_UTF8_PREFIX}${encodeURIComponent(iconSvgString)}` : '';
-
-    return {
-      /** No token id available */
-      slug: contractAddress ? toTokenSlug(contractAddress) : '',
-      name: getBinanceConnectCryptoCurrencyName(code, contractAddress),
-      code,
-      icon,
-      precision,
-      minAmount: asset.withdrawMin,
-      maxAmount: asset.withdrawMax
-    };
-  });
-
-  return { fiat, crypto };
-};
-
-const getBinanceConnectCryptoCurrencyName = (code: string, address: string | null) => {
-  if (!address || code === 'XTZ') {
-    return 'Tezos';
-  }
-
-  return LOCAL_MAINNET_TOKENS_METADATA.find(m => m.address === address && m.id === 0)?.name ?? code;
-};

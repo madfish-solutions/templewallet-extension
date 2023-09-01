@@ -2,9 +2,7 @@ import React, { FC, useCallback, useMemo } from 'react';
 
 import classNames from 'clsx';
 
-import ABContainer from 'app/atoms/ABContainer';
 import { Button } from 'app/atoms/Button';
-import { ReactComponent as AlertIcon } from 'app/icons/alert-sm.svg';
 import { HomeSelectors } from 'app/pages/Home/Home.selectors';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
 import { T } from 'lib/i18n';
@@ -29,21 +27,7 @@ export const DelegateTezosTag: FC = () => {
     [trackEvent]
   );
 
-  const buttonA = useMemo(
-    () => (
-      <Button
-        onClick={handleTagClick}
-        className={classNames('inline-flex items-center pl-1 ml-2 py-1 pr-1.5', modStyles['apyTag'])}
-        testID={AssetsSelectors.assetItemDelegateButton}
-      >
-        <AlertIcon className="animate-fade-in mr-1 stroke-current" />
-        <T id="delegate" />
-      </Button>
-    ),
-    [handleTagClick]
-  );
-
-  const buttonB = useMemo(
+  const NotDelegatedButton = useMemo(
     () => (
       <Button
         onClick={handleTagClick}
@@ -69,5 +53,5 @@ export const DelegateTezosTag: FC = () => {
     [handleTagClick]
   );
 
-  return myBakerPkh ? TezosDelegated : <ABContainer groupAComponent={buttonA} groupBComponent={buttonB} />;
+  return myBakerPkh ? TezosDelegated : NotDelegatedButton;
 };

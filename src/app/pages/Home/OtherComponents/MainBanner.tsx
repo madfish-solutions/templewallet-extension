@@ -13,6 +13,7 @@ import AddressChip from 'app/templates/AddressChip';
 import { AssetIcon } from 'app/templates/AssetIcon';
 import Balance from 'app/templates/Balance';
 import InFiat from 'app/templates/InFiat';
+import { setAnotherSelector, setTestID } from 'lib/analytics';
 import { useFiatCurrency } from 'lib/fiat-currency';
 import { t, T } from 'lib/i18n';
 import { TezosLogoIcon } from 'lib/icons';
@@ -22,6 +23,7 @@ import { useTotalBalance } from 'lib/temple/front/use-total-balance.hook';
 import useTippy from 'lib/ui/useTippy';
 
 import { HomeSelectors } from '../Home.selectors';
+import { TokenPageSelectors } from './TokenPage.selectors';
 
 interface Props {
   assetSlug?: string | null;
@@ -158,13 +160,21 @@ interface AssetBannerProps {
 
 const AssetBanner: FC<AssetBannerProps> = ({ assetSlug, accountPkh }) => {
   const assetMetadata = useAssetMetadata(assetSlug);
+  const assetName = getAssetName(assetMetadata);
+  const assetSymbol = getAssetSymbol(assetMetadata);
 
   return (
     <div className="w-full max-w-sm mx-auto mb-4">
       <div className="flex justify-between items-center mb-3">
         <div className="flex items-center">
           <AssetIcon assetSlug={assetSlug} size={24} className="flex-shrink-0" />
-          <div className="text-sm font-normal text-gray-700 truncate flex-1 ml-2">{getAssetName(assetMetadata)}</div>
+          <div
+            className="text-sm font-normal text-gray-700 truncate flex-1 ml-2"
+            {...setTestID(TokenPageSelectors.tokenName)}
+            {...setAnotherSelector('name', assetName)}
+          >
+            {assetName}
+          </div>
         </div>
         <AddressChip pkh={accountPkh} modeSwitch={{ testID: HomeSelectors.addressModeSwitchButton }} />
       </div>
@@ -176,7 +186,7 @@ const AssetBanner: FC<AssetBannerProps> = ({ assetSlug, accountPkh }) => {
                 <Money smallFractionFont={false} fiat>
                   {balance}
                 </Money>
-                <span className="ml-2">{getAssetSymbol(assetMetadata)}</span>
+                <span className="ml-2">{assetSymbol}</span>
               </div>
               <InFiat assetSlug={assetSlug} volume={balance} smallFractionFont={false}>
                 {({ balance, symbol }) => (

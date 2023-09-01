@@ -77,7 +77,7 @@ export const CollectibleItem: FC<Props> = ({ assetSlug, accountPkh, areDetailsSh
         )}
 
         {areDetailsShown && balance ? (
-          <div className="absolute bottom-1.5 left-1.5 text-2xs text-white leading-none p-1 bg-black bg-opacity-60 rounded">
+          <div className="absolute bottom-1.5 left-1.5 text-xxxs text-white leading-none p-1 bg-black bg-opacity-60 rounded">
             {balance.toFixed()}×
           </div>
         ) : null}
@@ -86,7 +86,7 @@ export const CollectibleItem: FC<Props> = ({ assetSlug, accountPkh, areDetailsSh
       {areDetailsShown && (
         <div className="mt-1 mb-2 mx-1.5">
           <h5 className="text-sm leading-5 text-gray-910 truncate">{assetName}</h5>
-          <div className="text-2xs leading-3 text-gray-600">
+          <div className="text-xxxs leading-3 text-gray-600">
             <span>
               <T id="floorPrice" />:{' '}
             </span>

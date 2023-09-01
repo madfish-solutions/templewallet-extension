@@ -3074,5 +3074,11 @@
   "cannotSellToYourself": { "message": "Cannot sell to yourself" },
   "selectedAccountCannotSignTx": { "message": "Selected account cannot sign transactions" },
   "attributes": { "message": "Attributes" },
-  "properties": { "message": "Properties" }
+  "properties": { "message": "Properties" },
+  "viewAds": {
+    "message": "View Ads"
+  },
+  "viewAdsDescription": {
+    "message": "I agree to share data(wallet address, IP) and get cashback at Temple Keys for viewing ads"
+  }
 }

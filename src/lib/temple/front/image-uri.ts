@@ -8,7 +8,7 @@ const MEDIA_HOST = 'https://static.tcinfra.net';
 const DEFAULT_MEDIA_SIZE: TcInfraMediaSize = 'small';
 const OBJKT_MEDIA_HOST = 'https://assets.objkt.media/file/assets-003';
 
-export const SVG_DATA_URI_UTF8_PREFIX = 'data:image/svg+xml;charset=utf-8,';
+const SVG_DATA_URI_UTF8_PREFIX = 'data:image/svg+xml;charset=utf-8,';
 
 export const isSvgDataUriInUtf8Encoding = (uri: string) =>
   uri.slice(0, SVG_DATA_URI_UTF8_PREFIX.length).toLowerCase() === SVG_DATA_URI_UTF8_PREFIX;

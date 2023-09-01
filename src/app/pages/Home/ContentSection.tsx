@@ -101,7 +101,7 @@ export const ContentSection: FC<Props> = ({ assetSlug, className }) => {
         name: 'info',
         titleI18nKey: 'info',
         Component: () => <AssetInfo assetSlug={assetSlug} />,
-        testID: HomeSelectors.aboutTab
+        testID: HomeSelectors.infoTab
       }
     ];
   }, [assetSlug, scrollToTheTabsBar]);

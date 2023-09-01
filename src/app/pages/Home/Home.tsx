@@ -12,7 +12,7 @@ import { ReactComponent as SendIcon } from 'app/icons/send-alt.svg';
 import { ReactComponent as SwapIcon } from 'app/icons/swap.svg';
 import { ReactComponent as WithdrawIcon } from 'app/icons/withdraw.svg';
 import PageLayout from 'app/layouts/PageLayout';
-import { TestIDProps } from 'lib/analytics';
+import { setAnotherSelector, setTestID, TestIDProps } from 'lib/analytics';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { T, t } from 'lib/i18n';
 import { useAssetMetadata, getAssetSymbol } from 'lib/metadata';
@@ -30,6 +30,7 @@ import { ContentSection } from './ContentSection';
 import { HomeSelectors } from './Home.selectors';
 import EditableTitle from './OtherComponents/EditableTitle';
 import MainBanner from './OtherComponents/MainBanner';
+import { TokenPageSelectors } from './OtherComponents/TokenPage.selectors';
 
 type ExploreProps = {
   assetSlug?: string | null;
@@ -55,6 +56,7 @@ const Home: FC<ExploreProps> = ({ assetSlug }) => {
   const isEnabledAdsBanner = useIsEnabledAdsBannerSelector();
 
   const assetMetadata = useAssetMetadata(assetSlug || TEZ_TOKEN_SLUG);
+  const assetSymbol = getAssetSymbol(assetMetadata);
 
   useLayoutEffect(() => {
     const usp = new URLSearchParams(search);
@@ -82,7 +84,13 @@ const Home: FC<ExploreProps> = ({ assetSlug }) => {
         <>
           {assetSlug && (
             <>
-              <span className="font-normal">{getAssetSymbol(assetMetadata)}</span>
+              <span
+                className="font-normal"
+                {...setTestID(TokenPageSelectors.pageName)}
+                {...setAnotherSelector('symbol', assetSymbol)}
+              >
+                {assetSymbol}
+              </span>
             </>
           )}
         </>
@@ -192,10 +200,7 @@ const ActionButton: FC<ActionButtonProps> = ({
           >
             <Icon className={classNames('w-6 h-auto', disabled ? 'stroke-gray' : 'stroke-accent-orange')} />
           </div>
-          <span
-            style={{ fontSize: 11 }}
-            className={classNames('text-center', disabled ? 'text-gray-20' : 'text-gray-910')}
-          >
+          <span className={classNames('text-center text-xxs', disabled ? 'text-gray-20' : 'text-gray-910')}>
             {label}
           </span>
         </>

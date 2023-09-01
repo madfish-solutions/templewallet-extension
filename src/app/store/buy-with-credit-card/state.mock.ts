@@ -7,8 +7,7 @@ export const mockBuyWithCreditCardState: BuyWithCreditCardState = {
   currencies: {
     [TopUpProviderId.MoonPay]: createEntity({ fiat: [], crypto: [] }),
     [TopUpProviderId.Utorg]: createEntity({ fiat: [], crypto: [] }),
-    [TopUpProviderId.AliceBob]: createEntity({ fiat: [], crypto: [] }),
-    [TopUpProviderId.BinanceConnect]: createEntity({ fiat: [], crypto: [] })
+    [TopUpProviderId.AliceBob]: createEntity({ fiat: [], crypto: [] })
   },
   pairLimits: {}
 };

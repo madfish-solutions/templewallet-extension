@@ -1,39 +1,47 @@
-import React, { ChangeEvent, FC, useMemo } from 'react';
+import React, { ChangeEvent, FC, ReactNode, useMemo } from 'react';
 
+import { isDefined } from '@rnw-community/shared';
 import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
 
-import { useFormAnalytics } from 'lib/analytics';
+import AssetField from 'app/atoms/AssetField';
+import Money from 'app/atoms/Money';
+import { AssetIcon } from 'app/templates/AssetIcon';
+import { DropdownSelect } from 'app/templates/DropdownSelect/DropdownSelect';
+import InFiat from 'app/templates/InFiat';
+import { InputContainer } from 'app/templates/InputContainer/InputContainer';
+import { setTestID, useFormAnalytics } from 'lib/analytics';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { useFilteredAssetsSlugs } from 'lib/assets/use-filtered';
-import { t } from 'lib/i18n';
-import { EMPTY_BASE_METADATA, useAssetMetadata } from 'lib/metadata';
+import { T, t, toLocalFormat } from 'lib/i18n';
+import { EMPTY_BASE_METADATA, useAssetMetadata, AssetMetadataBase } from 'lib/metadata';
 import { useAvailableRoute3TokensSlugs } from 'lib/route3/assets';
 import { useAccount, useBalance, useGetTokenMetadata, useOnBlock } from 'lib/temple/front';
-import Popper from 'lib/ui/Popper';
-import { sameWidthModifiers } from 'lib/ui/same-width-modifiers';
 
-import { AssetsMenu } from './AssetsMenu/AssetsMenu';
+import { AssetOption } from './AssetsMenu/AssetOption';
 import { PercentageButton } from './PercentageButton/PercentageButton';
 import { SwapFormInputProps } from './SwapFormInput.props';
-import { SwapFormInputHeader } from './SwapFormInputHeader/SwapFormInputHeader';
-import { useSwapFormTokenIdInput } from './SwapFormTokenIdInput.hook';
 
 const EXCHANGE_XTZ_RESERVE = new BigNumber('0.3');
 const PERCENTAGE_BUTTONS = [25, 50, 75, 100];
 const LEADING_ASSETS = [TEZ_TOKEN_SLUG];
 
+const renderOptionContent = (option: string, isSelected: boolean) => (
+  <AssetOption assetSlug={option} selected={isSelected} />
+);
+
 export const SwapFormInput: FC<SwapFormInputProps> = ({
-  value,
   className,
-  error,
+  value,
   label,
+  error,
   name,
   amountInputDisabled,
   testIDs,
   onChange
 }) => {
   const { trackChange } = useFormAnalytics('SwapForm');
+
   const { assetSlug, amount } = value;
   const isTezosSlug = assetSlug === 'tez';
   const assetSlugWithFallback = assetSlug ?? 'tez';
@@ -50,13 +58,11 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
   useOnBlock(_ => balance.mutate());
 
   const { isLoading, route3tokensSlugs } = useAvailableRoute3TokensSlugs();
-  const { filteredAssets, searchValue, setSearchValue, tokenId, setTokenId } = useFilteredAssetsSlugs(
+  const { filteredAssets, searchValue, setSearchValue, setTokenId } = useFilteredAssetsSlugs(
     route3tokensSlugs,
     name === 'input',
     LEADING_ASSETS
   );
-
-  const showTokenIdInput = useSwapFormTokenIdInput(searchValue);
 
   const maxAmount = useMemo(() => {
     if (!assetSlug) {
@@ -67,11 +73,6 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
 
     return maxSendAmount ?? new BigNumber(0);
   }, [assetSlug, isTezosSlug, balance.data]);
-
-  const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setTokenId(undefined);
-    setSearchValue(e.target.value);
-  };
 
   const handleAmountChange = (newAmount?: BigNumber) =>
     onChange({
@@ -105,6 +106,11 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
     trackChange({ [name]: assetMetadata.symbol }, { [name]: newAssetMetadata.symbol });
   };
 
+  const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setTokenId(undefined);
+    setSearchValue(e.target.value);
+  };
+
   const prettyError = useMemo(() => {
     if (!error) {
       return error;
@@ -118,73 +124,196 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
   }, [error]);
 
   return (
-    <div className={classNames('w-full', className)}>
-      <input className="hidden" name={name} disabled={amountInputDisabled} />
-
-      <Popper
-        placement="bottom"
-        strategy="fixed"
-        modifiers={sameWidthModifiers}
-        fallbackPlacementsEnabled={false}
-        popup={({ opened, setOpened }) => (
-          <AssetsMenu
-            value={assetSlug}
-            options={filteredAssets}
-            isLoading={isLoading}
-            searchString={searchValue}
-            showTokenIdInput={showTokenIdInput}
-            opened={opened}
-            testID={testIDs?.dropdown}
-            setOpened={setOpened}
-            onChange={handleSelectedAssetChange}
-          />
-        )}
-      >
-        {({ ref, opened, toggleOpened, setOpened }) => (
-          <SwapFormInputHeader
-            ref={ref as unknown as React.RefObject<HTMLDivElement>}
-            selectedAssetSlug={assetSlug}
-            selectedAssetMetadata={assetMetadata}
-            amount={amount}
-            balance={assetSlug ? balance.data : undefined}
+    <div className={className}>
+      <InputContainer
+        header={
+          <SwapInputHeader
             label={label}
-            opened={opened}
-            searchString={searchValue}
-            setOpened={setOpened}
-            showTokenIdInput={showTokenIdInput}
-            tokenId={tokenId}
-            toggleOpened={toggleOpened}
-            onTokenIdChange={setTokenId}
-            amountInputDisabled={amountInputDisabled}
-            onAmountChange={handleAmountChange}
-            onSearchChange={handleSearchChange}
-            testIDs={testIDs}
+            selectedAssetSlug={assetSlugWithFallback}
+            selectedAssetSymbol={assetMetadataWithFallback.symbol}
           />
-        )}
-      </Popper>
-
-      <div
-        className={classNames(
-          !amountInputDisabled && 'mt-1',
-          'w-full flex items-center',
-          prettyError ? 'justify-between' : 'justify-end'
-        )}
-      >
-        {prettyError && <div className="text-red-700 text-xs">{prettyError}</div>}
-
-        {!amountInputDisabled && (
-          <div className="flex">
-            {PERCENTAGE_BUTTONS.map(percentage => (
-              <PercentageButton
-                disabled={!balance}
-                key={percentage}
-                percentage={percentage}
-                onClick={handlePercentageClick}
-              />
-            ))}
+        }
+        footer={
+          <div className={classNames('w-full flex items-center', prettyError ? 'justify-between' : 'justify-end')}>
+            {prettyError && <div className="text-red-700 text-xs">{prettyError}</div>}
+            <SwapFooter
+              amountInputDisabled={Boolean(amountInputDisabled)}
+              selectedAssetSlug={assetSlugWithFallback}
+              handlePercentageClick={handlePercentageClick}
+            />
           </div>
-        )}
+        }
+      >
+        <DropdownSelect
+          testIds={{
+            dropdownTestId: testIDs?.dropdown
+          }}
+          dropdownButtonClassName="pl-4 pr-3 py-5"
+          DropdownFaceContent={
+            <SwapDropdownFace
+              testId={testIDs?.assetDropDownButton}
+              selectedAssetSlug={assetSlug}
+              selectedAssetMetadata={assetMetadata}
+            />
+          }
+          searchProps={{
+            searchValue,
+            testId: testIDs?.searchInput,
+            onSearchChange: handleSearchChange
+          }}
+          Input={
+            <SwapInput
+              testId={testIDs?.input}
+              amount={value.amount}
+              amountInputDisabled={Boolean(amountInputDisabled)}
+              onChange={handleAmountChange}
+              selectedAssetSlug={assetSlugWithFallback}
+              selectedAssetMetadata={assetMetadata}
+            />
+          }
+          optionsProps={{
+            isLoading,
+            options: filteredAssets,
+            noItemsText: 'No items',
+            getKey: option => option,
+            renderOptionContent: option => renderOptionContent(option, value.assetSlug === option),
+            onOptionChange: handleSelectedAssetChange
+          }}
+        />
+      </InputContainer>
+    </div>
+  );
+};
+
+interface SwapFieldProps {
+  testId?: string;
+  selectedAssetSlug?: string;
+  selectedAssetMetadata: AssetMetadataBase;
+}
+
+const SwapDropdownFace: FC<SwapFieldProps> = ({ testId, selectedAssetSlug, selectedAssetMetadata }) => (
+  <div {...setTestID(testId)} className="max-h-18">
+    {selectedAssetSlug ? (
+      <div className="flex gap-2 align-center">
+        <AssetIcon assetSlug={selectedAssetSlug} size={32} className="w-8" />
+        <span className="text-gray-700 text-lg overflow-hidden w-16 leading-8 text-ellipsis">
+          {selectedAssetMetadata.symbol}
+        </span>
       </div>
+    ) : (
+      <div className="w-24 mr-2 text-gray-500 text-sm font-medium leading-tight">
+        <div className="w-12">
+          <T id="selectToken" />
+        </div>
+      </div>
+    )}
+  </div>
+);
+
+interface SwapInputProps extends SwapFieldProps {
+  testId?: string;
+  amount: BigNumber | undefined;
+  amountInputDisabled: boolean;
+  onChange: (value?: BigNumber) => void;
+}
+const SwapInput: FC<SwapInputProps> = ({
+  amount,
+  amountInputDisabled,
+  selectedAssetSlug,
+  selectedAssetMetadata,
+  testId,
+  onChange
+}) => {
+  const handleAmountChange = (newAmount?: string) =>
+    onChange(Boolean(newAmount) && isDefined(newAmount) ? new BigNumber(newAmount) : undefined);
+
+  return (
+    <div
+      className={classNames(
+        'flex-1 px-2 flex items-center justify-between rounded-r-md h-18',
+        amountInputDisabled && 'bg-gray-100'
+      )}
+    >
+      <div className="h-full flex-1 flex items-end justify-center flex-col">
+        <AssetField
+          autoFocus
+          testID={testId}
+          value={amount?.toString()}
+          className="text-gray-700 text-2xl text-right border-none bg-opacity-0 pl-0 focus:shadow-none"
+          style={{ padding: 0, borderRadius: 0 }}
+          placeholder={toLocalFormat(0, { decimalPlaces: 2 })}
+          min={0}
+          disabled={amountInputDisabled}
+          assetDecimals={selectedAssetMetadata.decimals}
+          fieldWrapperBottomMargin={false}
+          onChange={handleAmountChange}
+        />
+
+        <InFiat assetSlug={selectedAssetSlug} volume={selectedAssetSlug ? amount ?? 0 : 0} smallFractionFont={false}>
+          {({ balance, symbol }) => (
+            <div className="text-gray-500 flex">
+              <span className="mr-1">≈</span>
+              {balance}
+              <span className="ml-1">{symbol}</span>
+            </div>
+          )}
+        </InFiat>
+      </div>
+    </div>
+  );
+};
+
+const SwapInputHeader: FC<{ label: ReactNode; selectedAssetSlug: string; selectedAssetSymbol: string }> = ({
+  selectedAssetSlug,
+  selectedAssetSymbol,
+  label
+}) => {
+  const account = useAccount();
+  const balance = useBalance(selectedAssetSlug, account.publicKeyHash, { suspense: false });
+  useOnBlock(_ => balance.mutate());
+
+  return (
+    <div className="w-full flex items-center justify-between">
+      <span className="text-xl text-gray-900">{label}</span>
+
+      {selectedAssetSlug && (
+        <span className="text-xs text-gray-500 flex items-baseline">
+          <span className="mr-1">
+            <T id="balance" />:
+          </span>
+          {balance.data && (
+            <span className={classNames('text-sm mr-1 text-gray-700', balance.data.eq(0) && 'text-red-700')}>
+              <Money smallFractionFont={false} fiat={false}>
+                {balance.data}
+              </Money>
+            </span>
+          )}
+          <span>{selectedAssetSymbol}</span>
+        </span>
+      )}
+    </div>
+  );
+};
+
+const SwapFooter: FC<{
+  amountInputDisabled: boolean;
+  selectedAssetSlug: string;
+  handlePercentageClick: (percentage: number) => void;
+}> = ({ amountInputDisabled, selectedAssetSlug, handlePercentageClick }) => {
+  const account = useAccount();
+  const balance = useBalance(selectedAssetSlug, account.publicKeyHash, { suspense: false });
+  useOnBlock(_ => balance.mutate());
+
+  return amountInputDisabled ? null : (
+    <div className="flex">
+      {PERCENTAGE_BUTTONS.map(percentage => (
+        <PercentageButton
+          disabled={!balance.data}
+          key={percentage}
+          percentage={percentage}
+          onClick={handlePercentageClick}
+        />
+      ))}
     </div>
   );
 };
