@@ -24,7 +24,7 @@ const URLS_TO_TRACK = [
   'https://tronscan.org/#/transaction',
   'https://tronscan.org/#/address',
   'https://tronscan.org/#/block',
-  'https://tronscan.org/#/address',
+  'https://tronscan.org/#/token',
   'https://www.coingecko.com/en/exchanges',
   'https://www.coindesk.com/policy',
   'https://cointelegraph.com/news',
