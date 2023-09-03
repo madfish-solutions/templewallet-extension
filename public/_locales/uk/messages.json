@@ -1728,6 +1728,7 @@
   "blockExplorer": {
     "message": "Експлорер блокчейна"
   },
+  "viewOnBlockExplorer": { "message": "Відкрити в експлорері" },
   "game": {
     "message": "Гра"
   },

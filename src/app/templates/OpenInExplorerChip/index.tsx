@@ -1,6 +1,7 @@
 import React, { FC, useMemo } from 'react';
 
 import { ExternalLinkChip, ExternalLinkChipProps } from 'app/atoms/ExternalLinkChip';
+import { t } from 'lib/i18n';
 import { useExplorerBaseUrls } from 'lib/temple/front';
 
 import { OpenInExplorerChipSelectors } from './selectors';
@@ -13,7 +14,7 @@ type Props = Omit<ExternalLinkChipProps, 'href'> & {
 export const OpenInExplorerChip: FC<Props> = ({
   hash,
   type = 'transaction',
-  tooltip = 'View on block explorer',
+  tooltip = t('viewOnBlockExplorer'),
   ...props
 }) => {
   const urls = useExplorerBaseUrls();
