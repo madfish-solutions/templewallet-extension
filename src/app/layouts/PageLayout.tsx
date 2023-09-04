@@ -1,14 +1,4 @@
-import React, {
-  ComponentProps,
-  FC,
-  ReactNode,
-  Suspense,
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState
-} from 'react';
+import React, { ComponentProps, FC, ReactNode, Suspense, useCallback, useEffect, useRef, useState } from 'react';
 
 import classNames from 'clsx';
 
@@ -120,7 +110,7 @@ const Toolbar: FC<ToolbarProps> = ({
   attention
 }) => {
   const { historyPosition, pathname } = useLocation();
-  const { fullPage, registerBackHandler, onBack } = useAppEnv();
+  const { fullPage } = useAppEnv();
   const { setOnboardingCompleted } = useOnboardingProgress();
 
   const onStepBack = () => {
@@ -135,19 +125,13 @@ const Toolbar: FC<ToolbarProps> = ({
   const canStepBack = Boolean(step) && step! > 0;
   const isBackButtonAvailable = canBack || canStepBack;
 
-  useLayoutEffect(() => {
-    return registerBackHandler(() => {
-      switch (true) {
-        case historyPosition > 0:
-          goBack();
-          break;
+  const handleBack = () => {
+    if (canBack) {
+      return goBack();
+    }
 
-        case !inHome:
-          navigate('/', HistoryAction.Replace);
-          break;
-      }
-    });
-  }, [registerBackHandler, historyPosition, inHome]);
+    navigate('/', HistoryAction.Replace);
+  };
 
   const [sticked, setSticked] = useState(false);
 
@@ -207,7 +191,7 @@ const Toolbar: FC<ToolbarProps> = ({
               'transition duration-300 ease-in-out',
               'opacity-90 hover:opacity-100'
             )}
-            onClick={step ? onStepBack : onBack}
+            onClick={step ? onStepBack : handleBack}
             testID={PageLayoutSelectors.backButton}
           >
             <ChevronLeftIcon className="-ml-2 h-5 w-auto stroke-current stroke-2" />
