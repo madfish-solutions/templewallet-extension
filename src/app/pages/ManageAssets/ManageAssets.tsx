@@ -202,7 +202,7 @@ const LoadingComponent: React.FC<LoadingComponentProps> = ({ loading, searchValu
       <p className="mb-2 flex items-center justify-center text-gray-600 text-base font-light">
         {Boolean(searchValue) && <SearchIcon className="w-5 h-auto mr-1 stroke-current" />}
 
-        <span>
+        <span {...setTestID(ManageAssetsSelectors.emptyStateText)}>
           <T id="noAssetsFound" />
         </span>
       </p>
