@@ -21,6 +21,18 @@ export const iEnterValues = {
   shortRandomContent: generateRandomContent(),
   longRandomContent: 'long random content for test + ' + generateRandomContent(),
 
+  // For adding assets, contacts, etc ...
+  contactPublicKey: 'tz1aWpVn8k5aZvVaCKPMdcPeX8ccm5662SLL',
+  secondContactPublicKey: 'tz1eSbADvrQzhH6vWP6MUy6VoEiGPJJZj696',
+
+  customNetworkRPC: envVars.CUSTOM_NETWORK_RPC_URL,
+  customTestName: 'Custom Test Net',
+
+  customTokenContractAddress: 'KT1Td6a28ydPMXKJS5yS5Usadj4Qx5drsCfY', // 'KLL (Killer) token'
+  customTokenSymbol: 'KLL', // 'KLL (Killer) token'
+  customTokenName: 'Killer', // 'KLL (Killer) token'
+  customTokenIconURL: 'https://i.imgur.com/2s1WRni.png', // 'KLL (Killer) token'
+
   // For transactions
   amount_0_0001: '0.0001',
   amount_0_005: '0.005',

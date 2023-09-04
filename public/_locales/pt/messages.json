@@ -55,6 +55,14 @@
       }
     }
   },
+  "branchName": {
+    "message": "branch: $branch$",
+    "placeholders": {
+      "branch": {
+        "content": "$1"
+      }
+    }
+  },
   "madeWithLove": {
     "message": "Feito com $loveIcon$ pela $companyName$",
     "placeholders": {
@@ -603,12 +611,6 @@
   "mnemonicInputLabel": {
     "message": "Frase semente"
   },
-  "mnemonicInputDescription": {
-    "message": "Mnemónica. A sua frase secreta de 12 a 24 palavras."
-  },
-  "mnemonicInputPlaceholder": {
-    "message": "por exemplo, local meia leite atualização..."
-  },
   "passwordInputDescription": {
     "message": "Isso NÃO é uma palavra-passe de carteira.\nUtilizado para derivação mnemónica adicional."
   },
@@ -828,9 +830,6 @@
   },
   "enable": {
     "message": "ativar"
-  },
-  "enableAds": {
-    "message": "Enable Ads"
   },
   "enablePartnersPromotionConfirm": {
     "message": "Support the development team and earn tokens by viewing ads inside the wallet."

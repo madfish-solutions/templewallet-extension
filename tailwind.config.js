@@ -111,7 +111,8 @@ module.exports = {
           700: '#2b6cb0',
           750: '#4a5568',
           800: '#2c5282',
-          900: '#2a4365'
+          900: '#2a4365',
+          910: '#212e36'
         },
         indigo: {
           100: '#ebf4ff',
@@ -310,6 +311,7 @@ module.exports = {
       };
     })(),
     fontSize: {
+      xxs: '0.6875rem',
       xs: '0.75rem',
       sm: '0.875rem',
       base: '1rem',
@@ -339,16 +341,19 @@ module.exports = {
       ...theme('spacing'),
       2.25: '2.25rem',
       12: '3rem',
+      18: '4.5rem',
       700: '700px',
       full: '100%',
       screen: '100vh'
     }),
     inset: {
+      '2px': '2px',
       0: '0',
       1: '0.25rem',
       2: '0.5rem',
       3: '0.75rem',
       4: '1rem',
+      5: '1.25rem',
       8: '2rem',
       12: '3rem',
       '1/2': '50%',
@@ -390,6 +395,7 @@ module.exports = {
     }),
     maxHeight: {
       full: '100%',
+      18: '4.5rem',
       '3/25': '52px',
       screen: '100vh'
     },

@@ -11,7 +11,7 @@ import PageLayout from 'app/layouts/PageLayout';
 import { ManageAssetsSelectors } from 'app/pages/ManageAssets/ManageAssets.selectors';
 import { AssetIcon } from 'app/templates/AssetIcon';
 import SearchAssetField from 'app/templates/SearchAssetField';
-import { setTestID } from 'lib/analytics';
+import { setAnotherSelector, setTestID } from 'lib/analytics';
 import { AssetTypesEnum } from 'lib/assets/types';
 import { T, t } from 'lib/i18n';
 import { useAssetMetadata, getAssetName, getAssetSymbol } from 'lib/metadata';
@@ -152,6 +152,8 @@ const ListItem = memo<ListItemProps>(({ assetSlug, last, checked, onUpdate }) =>
         'focus:outline-none overflow-hidden cursor-pointer',
         'transition ease-in-out duration-200'
       )}
+      {...setTestID(ManageAssetsSelectors.assetItem)}
+      {...setAnotherSelector('slug', assetSlug)}
     >
       <AssetIcon assetSlug={assetSlug} size={32} className="mr-3 flex-shrink-0" />
 
@@ -161,12 +163,7 @@ const ListItem = memo<ListItemProps>(({ assetSlug, last, checked, onUpdate }) =>
             {getAssetName(metadata)}
           </div>
 
-          <div
-            className="text-xs font-light text-gray-600 truncate w-full"
-            {...setTestID(ManageAssetsSelectors.tokenTicket)}
-          >
-            {getAssetSymbol(metadata)}
-          </div>
+          <div className="text-xs font-light text-gray-600 truncate w-full">{getAssetSymbol(metadata)}</div>
         </div>
       </div>
 
@@ -182,12 +179,13 @@ const ListItem = memo<ListItemProps>(({ assetSlug, last, checked, onUpdate }) =>
           evt.preventDefault();
           onUpdate(assetSlug, ITokenStatus.Removed);
         }}
-        {...setTestID(ManageAssetsSelectors.deleteTokenButton)}
+        {...setTestID(ManageAssetsSelectors.deleteAssetButton)}
+        {...setAnotherSelector('slug', assetSlug)}
       >
         <CloseIcon className="w-auto h-4 stroke-current stroke-2" title={t('delete')} />
       </div>
 
-      <Checkbox checked={checked} onChange={handleCheckboxChange} testID={ManageAssetsSelectors.visibleTokenCheckBox} />
+      <Checkbox checked={checked} onChange={handleCheckboxChange} />
     </label>
   );
 });
@@ -204,7 +202,7 @@ const LoadingComponent: React.FC<LoadingComponentProps> = ({ loading, searchValu
       <p className="mb-2 flex items-center justify-center text-gray-600 text-base font-light">
         {Boolean(searchValue) && <SearchIcon className="w-5 h-auto mr-1 stroke-current" />}
 
-        <span>
+        <span {...setTestID(ManageAssetsSelectors.emptyStateText)}>
           <T id="noAssetsFound" />
         </span>
       </p>

@@ -1,8 +1,8 @@
 Feature: Delegate
-  @dev
+
   Scenario: As a user, i'd like to re-delegate TEZ to a baker
     Given I have imported an existing account
-    And I press Selected Network Button on the Network Select page
+    And I press Selected Network Button on the Header page
     And I select ECAD Labs Mainnet node in the networks drop-down list on the Header page
     And I check that ECAD Labs Mainnet node is selected correctly
     And I press Asset Item Apy Button on the Assets page

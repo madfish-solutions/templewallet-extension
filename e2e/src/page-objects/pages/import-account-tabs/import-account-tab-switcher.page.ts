@@ -1,7 +1,7 @@
-import { ImportAccountSelectors } from 'src/app/pages/ImportAccount/ImportAccount.selectors';
+import { ImportAccountSelectors } from 'src/app/pages/ImportAccount/selectors';
 
-import { Page } from '../../../classes/page.class';
-import { createPageElement, findElements, getElementText } from '../../../utils/search.utils';
+import { Page } from 'e2e/src/classes/page.class';
+import { createPageElement, findElements, getElementText } from 'e2e/src/utils/search.utils';
 
 export class ImportAccountTab extends Page {
   tabSwitcher = createPageElement(ImportAccountSelectors.tabSwitcher);

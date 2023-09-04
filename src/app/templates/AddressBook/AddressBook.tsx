@@ -8,16 +8,16 @@ import Identicon from 'app/atoms/Identicon';
 import Name from 'app/atoms/Name';
 import SubTitle from 'app/atoms/SubTitle';
 import { ReactComponent as CloseIcon } from 'app/icons/close.svg';
+import { setAnotherSelector, setTestID } from 'lib/analytics';
 import { t, T } from 'lib/i18n';
-import { isDomainNameValid, useTezosDomainsClient, useContacts, useFilteredContacts } from 'lib/temple/front';
+import { isDomainNameValid, useTezosDomainsClient, useContactsActions, useFilteredContacts } from 'lib/temple/front';
 import { isAddressValid } from 'lib/temple/helpers';
 import { TempleContact } from 'lib/temple/types';
 import { useConfirm } from 'lib/ui/dialog';
-import { withErrorHumanDelay } from 'lib/ui/humanDelay';
+import { delay } from 'lib/utils';
 
 import CustomSelect, { OptionRenderProps } from '../CustomSelect';
 import HashChip from '../HashChip';
-// eslint-disable-next-line import/namespace
 import { AddressBookSelectors } from './AddressBook.selectors';
 
 type ContactActions = {
@@ -25,7 +25,7 @@ type ContactActions = {
 };
 
 const AddressBook: React.FC = () => {
-  const { removeContact } = useContacts();
+  const { removeContact } = useContactsActions();
   const { allContacts } = useFilteredContacts();
   const confirm = useConfirm();
 
@@ -94,7 +94,7 @@ type ContactFormData = {
 const SUBMIT_ERROR_TYPE = 'submit-error';
 
 const AddNewContactForm: React.FC<{ className?: string }> = ({ className }) => {
-  const { addContact } = useContacts();
+  const { addContact } = useContactsActions();
   const domainsClient = useTezosDomainsClient();
 
   const {
@@ -131,7 +131,11 @@ const AddNewContactForm: React.FC<{ className?: string }> = ({ className }) => {
         await addContact({ address, name, addedAt: Date.now() });
         resetForm();
       } catch (err: any) {
-        await withErrorHumanDelay(err, () => setError('address', SUBMIT_ERROR_TYPE, err.message));
+        console.error(err);
+
+        await delay();
+
+        setError('address', SUBMIT_ERROR_TYPE, err.message);
       }
     },
     [submitting, clearError, addContact, resetForm, setError, domainsClient]
@@ -197,7 +201,11 @@ const ContactIcon: React.FC<OptionRenderProps<TempleContact, string, ContactActi
 );
 
 const ContactContent: React.FC<OptionRenderProps<TempleContact, string, ContactActions>> = ({ item, actions }) => (
-  <div className="flex flex-1 w-full">
+  <div
+    className="flex flex-1 w-full"
+    {...setTestID(AddressBookSelectors.contactItem)}
+    {...setAnotherSelector('hash', item.address)}
+  >
     <div className="flex flex-col justify-between flex-1">
       <Name className="mb-px text-sm font-medium leading-tight text-left">{item.name}</Name>
 
@@ -214,6 +222,7 @@ const ContactContent: React.FC<OptionRenderProps<TempleContact, string, ContactA
             'rounded-sm border border-opacity-25 border-black text-black'
           )}
           style={{ fontSize: '0.6rem' }}
+          {...setTestID(AddressBookSelectors.contactOwnLabelText)}
         >
           <T id="ownAccount" />
         </span>
@@ -225,6 +234,8 @@ const ContactContent: React.FC<OptionRenderProps<TempleContact, string, ContactA
           evt.stopPropagation();
           actions?.remove(item.address);
         }}
+        {...setTestID(AddressBookSelectors.deleteContactButton)}
+        {...setAnotherSelector('hash', item.address)}
       >
         <CloseIcon className="w-auto h-5 stroke-current stroke-2" title={t('delete')} />
       </button>

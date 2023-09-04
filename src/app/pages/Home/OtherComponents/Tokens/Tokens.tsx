@@ -15,13 +15,12 @@ import { useShouldShowPartnersPromoSelector } from 'app/store/partners-promotion
 import { useIsEnabledAdsBannerSelector } from 'app/store/settings/selectors';
 import SearchAssetField from 'app/templates/SearchAssetField';
 import { OptimalPromoVariantEnum } from 'lib/apis/optimal';
-import { TEMPLE_TOKEN_SLUG } from 'lib/assets';
 import { T } from 'lib/i18n';
 import { useAccount, useChainId, useDisplayedFungibleTokens, useFilteredAssets } from 'lib/temple/front';
 import { useSyncTokens } from 'lib/temple/front/sync-tokens';
-import { filterUnique } from 'lib/utils';
 import { Link, navigate } from 'lib/woozie';
 
+import { filterUnique } from '../../../../../lib/utils';
 import { AssetsSelectors } from '../Assets.selectors';
 import { AcceptAdsBanner } from './AcceptAdsBanner';
 import { ListItem } from './components/ListItem';
@@ -39,7 +38,7 @@ export const Tokens: FC = () => {
   const { data: tokens = [] } = useDisplayedFungibleTokens(chainId, publicKeyHash);
 
   const tokenSlugsWithTezAndTkey = useMemo(
-    () => filterUnique(['tez', TEMPLE_TOKEN_SLUG, ...tokens.map(({ tokenSlug }) => tokenSlug)]),
+    () => filterUnique(['tez', ...tokens.map(({ tokenSlug }) => tokenSlug)]),
     [tokens]
   );
 
@@ -84,7 +83,7 @@ export const Tokens: FC = () => {
         })
       );
     }
-  }, [isShouldShowPartnersPromoState, isEnabledAdsBanner]);
+  }, [isShouldShowPartnersPromoState, isEnabledAdsBanner, publicKeyHash, dispatch]);
 
   useEffect(() => {
     if (activeIndex !== 0 && activeIndex >= filteredAssets.length) {

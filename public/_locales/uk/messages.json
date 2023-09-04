@@ -52,6 +52,14 @@
       }
     }
   },
+  "branchName": {
+    "message": "branch: $branch$",
+    "placeholders": {
+      "branch": {
+        "content": "$1"
+      }
+    }
+  },
   "madeWithLove": {
     "message": "Зроблено з $loveIcon$ компанією $companyName$",
     "placeholders": {
@@ -599,12 +607,6 @@
   "mnemonicInputLabel": {
     "message": "Сід фраза"
   },
-  "mnemonicInputDescription": {
-    "message": "Мнємоніка. Ваша таємна фраза з 12 - 24 слів."
-  },
-  "mnemonicInputPlaceholder": {
-    "message": "наприклад venue sock milk update..."
-  },
   "passwordInputDescription": {
     "message": "УВАГА: Це не пароль гаманця!\nВикористовується для додаткової деривації мнємоніки."
   },
@@ -806,9 +808,6 @@
   },
   "enable": {
     "message": "увімкнути"
-  },
-  "enableAds": {
-    "message": "Enable Ads"
   },
   "enablePartnersPromotionConfirm": {
     "message": "Support the development team and earn tokens by viewing ads inside the wallet."

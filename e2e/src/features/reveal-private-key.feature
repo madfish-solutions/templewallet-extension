@@ -1,5 +1,5 @@
 Feature: Reveal private key
-
+@reveal_private_key
   Scenario: As a user, I'd like to reveal my private key
     Given I have imported an existing account
 
@@ -14,5 +14,6 @@ Feature: Reveal private key
     And I enter defaultPassword into Reveal Password Input on the Reveal Secrets page
     And I press Reveal Button on the Reveal Secrets page
 
+    And I press Reveal Secrets Protected Mask on the Reveal Secrets page
     Then I compare my Private Key to Revealed value
 

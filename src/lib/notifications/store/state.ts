@@ -13,7 +13,3 @@ export const notificationsInitialState: NotificationsState = {
   list: createEntity([]),
   isNewsEnabled: true
 };
-
-export interface NotificationsRootState {
-  notifications: NotificationsState;
-}

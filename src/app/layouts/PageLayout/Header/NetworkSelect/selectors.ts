@@ -1,5 +1,5 @@
 export enum NetworkSelectSelectors {
-  networkItemButton = 'Network Select/Network Item Button',
-  selectedNetworkButton = 'Network Select/Selected Network Button',
-  selectedNetworkButtonName = 'Network Select/Selected Network Button Name'
+  networkItemButton = 'Network Drop-down/Network Item Button',
+  selectedNetworkButton = 'Header/Selected Network Button',
+  selectedNetworkButtonName = 'Header/Selected Network Button Name'
 }

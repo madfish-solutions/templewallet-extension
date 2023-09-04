@@ -52,6 +52,14 @@
       }
     }
   },
+  "branchName": {
+    "message": "branch: $branch$",
+    "placeholders": {
+      "branch": {
+        "content": "$1"
+      }
+    }
+  },
   "madeWithLove": {
     "message": "$companyName$が$loveIcon$で作成",
     "placeholders": {
@@ -585,9 +593,6 @@
   "mnemonicInputLabel": {
     "message": "シードフレーズ"
   },
-  "mnemonicInputPlaceholder": {
-    "message": "例: venue sock milk update..."
-  },
   "passwordInputDescription": {
     "message": "ウォレットパスワードではありません。\n追加的なニーモニックの導出に使用されます。"
   },
@@ -786,9 +791,6 @@
   },
   "enable": {
     "message": "有効にする"
-  },
-  "enableAds": {
-    "message": "Enable Ads"
   },
   "enablePartnersPromotionConfirm": {
     "message": "Support the development team and earn tokens by viewing ads inside the wallet."
