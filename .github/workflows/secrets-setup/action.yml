@@ -21,6 +21,11 @@ inputs:
     required: true
   TEMPLE_WALLET_DEXES_API_URL:
     required: true
+  TEMPLE_FIREBASE_CONFIG:
+      required: true
+  TEMPLE_FIREBASE_MESSAGING_VAPID_KEY:
+      required: true
+# [e2e]
   DEFAULT_HD_ACCOUNT_SEED_PHRASE:
     required: false
   DEFAULT_HD_ACCOUNT_FIRST_PRIVATE_KEY:
@@ -45,10 +50,8 @@ inputs:
     required: false
   WATCH_ONLY_PUBLIC_KEY_HASH_SHORT_FORM:
     required: false
-  TEMPLE_FIREBASE_CONFIG:
-    required: true
-  TEMPLE_FIREBASE_MESSAGING_VAPID_KEY:
-    required: true
+  CUSTOM_NETWORK_RPC_URL:
+    required: false
 
 runs:
   using: 'composite'

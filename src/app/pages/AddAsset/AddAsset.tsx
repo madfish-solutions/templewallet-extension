@@ -356,6 +356,7 @@ const BottomSection: FC<BottomSectionProps> = props => {
         placeholder={t('tokenSymbolInputPlaceholder')}
         errorCaption={errors.symbol?.message}
         containerClassName="mb-4"
+        testID={AddAssetSelectors.symbolInput}
       />
 
       <FormField
@@ -375,6 +376,7 @@ const BottomSection: FC<BottomSectionProps> = props => {
         placeholder={t('tokenNameInputPlaceholder')}
         errorCaption={errors.name?.message}
         containerClassName="mb-4"
+        testID={AddAssetSelectors.nameInput}
       />
 
       <FormField
@@ -389,6 +391,7 @@ const BottomSection: FC<BottomSectionProps> = props => {
         placeholder="0"
         errorCaption={errors.decimals?.message}
         containerClassName="mb-4"
+        testID={AddAssetSelectors.decimalsInput}
       />
 
       <FormField
@@ -431,6 +434,7 @@ const BottomSection: FC<BottomSectionProps> = props => {
         placeholder="e.g. https://cdn.com/mytoken.png"
         errorCaption={errors.thumbnailUri?.message}
         containerClassName="mb-6"
+        testID={AddAssetSelectors.iconURLInput}
       />
 
       {submitError && <Alert type="error" title={t('error')} autoFocus description={submitError} className="mb-6" />}
