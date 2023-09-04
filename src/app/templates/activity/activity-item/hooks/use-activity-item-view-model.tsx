@@ -9,11 +9,14 @@ import { formatDateOutput } from 'lib/notifications/utils/date.utils';
 import { DisplayableActivity } from 'lib/temple/activity-new/types';
 import { getActor, getActivityTypeFlags } from 'lib/temple/activity-new/utils';
 import { useExplorerBaseUrls } from 'lib/temple/front';
+import { formatTcInfraImgUri } from 'lib/temple/front/image-uri';
+import { Image } from 'lib/ui/Image';
 
-import { BakerLogo } from '../baker-logo';
-import { RobotIcon } from '../robot-icon';
-import { FilteringMode } from '../tokens-delta-view';
-import styles from './activity-item.module.css';
+import { BakerLogo } from '../../baker-logo';
+import { RobotIcon } from '../../robot-icon';
+import { FilteringMode } from '../../tokens-delta-view';
+import styles from '../activity-item.module.css';
+import { useTzProfileLogo } from './use-tz-profile-logo';
 
 const statusesColors = {
   [TzktOperationStatus.Applied]: 'bg-green-500',
@@ -22,6 +25,8 @@ const statusesColors = {
   [TzktOperationStatus.Pending]: 'bg-gray-20',
   [TzktOperationStatus.Skipped]: 'bg-red-700'
 };
+
+const actorAvatarStyles = 'border border-gray-300 mr-2';
 
 export const useActivityItemViewModel = (activity: DisplayableActivity) => {
   const { hash, timestamp, status, tokensDeltas, from } = activity;
@@ -37,6 +42,8 @@ export const useActivityItemViewModel = (activity: DisplayableActivity) => {
   const shouldShowActor = isDelegation || isBakingRewards || isSend || isReceive || isAllowanceChange;
   const headerTokensDeltasFilteringMode = isInteraction ? FilteringMode.ONLY_POSITIVE_IF_PRESENT : FilteringMode.NONE;
   const allowanceChanges = isAllowanceChange ? (activity as AllowanceInteractionActivity).allowanceChanges : [];
+
+  const tzProfileLogo = useTzProfileLogo(actor?.address);
 
   const locale = getCurrentLocale();
   const jsLocaleName = locale.replaceAll('_', '-');
@@ -55,6 +62,8 @@ export const useActivityItemViewModel = (activity: DisplayableActivity) => {
   );
   const sentTokensDeltas = useMemo(() => tokensDeltas.filter(({ atomicAmount }) => atomicAmount.lt(0)), [tokensDeltas]);
 
+  const robotIconHash = useMemo(() => actor?.address ?? from.address, [actor?.address, from.address]);
+
   const actorAvatar = useMemo(() => {
     if (shouldShowBaker) {
       return <BakerLogo bakerAddress={actor.address} />;
@@ -64,8 +73,26 @@ export const useActivityItemViewModel = (activity: DisplayableActivity) => {
       return null;
     }
 
-    return <RobotIcon hash={actor?.address ?? from.address} className="border border-gray-300 mr-2" />;
-  }, [actor, from.address, isInteraction, shouldShowBaker]);
+    if (isDefined(tzProfileLogo)) {
+      return (
+        <Image
+          src={formatTcInfraImgUri(tzProfileLogo)}
+          loader={<RobotIcon hash={robotIconHash} />}
+          fallback={<RobotIcon hash={robotIconHash} />}
+          style={{
+            objectFit: 'contain',
+            borderRadius: '0.375rem',
+            minWidth: '2.25rem'
+          }}
+          className={actorAvatarStyles}
+          height={36}
+          width={36}
+        />
+      );
+    }
+
+    return <RobotIcon hash={robotIconHash} className={actorAvatarStyles} />;
+  }, [actor?.address, isInteraction, robotIconHash, shouldShowBaker, tzProfileLogo]);
 
   const toggleDetails = useCallback(() => {
     setIsOpen(value => !value);

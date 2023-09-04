@@ -6,16 +6,13 @@ import { apolloObjktClient } from './constants';
 import { buildGetHoldersInfoQuery } from './queries';
 import { TzProfile, TzProfilesQueryResponse } from './types';
 
-export const fetchTzProfilesInfo$ = (address: string): Observable<TzProfile> => {
+export const fetchTzProfileInfo$ = (address: string): Observable<TzProfile> => {
   const request = buildGetHoldersInfoQuery(address);
 
   return apolloObjktClient.query<TzProfilesQueryResponse>(request, undefined, { nextFetchPolicy: 'no-cache' }).pipe(
-    map(result => {
-      const { logo } = result.holder_by_pk;
-
-      //check for nullable value
+    map(({ holder_by_pk }) => {
       return {
-        logo: isDefined(logo) ? logo : undefined
+        logo: isDefined(holder_by_pk?.logo) ? holder_by_pk?.logo : undefined
       };
     })
   );
