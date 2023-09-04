@@ -5,10 +5,7 @@ import clsx from 'clsx';
 import SearchField, { SearchFieldProps } from 'app/templates/SearchField';
 import { t } from 'lib/i18n';
 
-interface SearchAssetFieldProps extends SearchFieldProps {
-  value: string;
-  onValueChange: (v: string) => void;
-}
+type SearchAssetFieldProps = SearchFieldProps;
 
 const SearchAssetField: FC<SearchAssetFieldProps> = ({ className, ...rest }) => (
   <SearchField

@@ -97,15 +97,7 @@ export const CollectiblesTab = memo<Props>(({ scrollToTheTabsBar }) => {
         </div>
 
         {filteredAssets.length === 0 ? (
-          isSyncing ? (
-            <SyncSpinner className="mt-6" />
-          ) : (
-            <div className="w-full border rounded border-gray-200">
-              <p className={'text-gray-600 text-center text-xs py-6'}>
-                <T id="zeroCollectibleText" />
-              </p>
-            </div>
-          )
+          buildEmptySection(isSyncing)
         ) : (
           <>
             <div className="grid grid-cols-3 gap-1">
@@ -126,6 +118,17 @@ export const CollectiblesTab = memo<Props>(({ scrollToTheTabsBar }) => {
     </div>
   );
 });
+
+const buildEmptySection = (isSyncing: boolean) =>
+  isSyncing ? (
+    <SyncSpinner className="mt-6" />
+  ) : (
+    <div className="w-full border rounded border-gray-200">
+      <p className={'text-gray-600 text-center text-xs py-6'}>
+        <T id="zeroCollectibleText" />
+      </p>
+    </div>
+  );
 
 interface ManageButtonDropdownProps extends PopperRenderProps {
   areDetailsShown: boolean;

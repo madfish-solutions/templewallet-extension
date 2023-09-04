@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useMemo } from 'react';
+import React, { memo, useCallback, useMemo } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
 import { useDispatch } from 'react-redux';
@@ -29,8 +29,9 @@ import { navigate } from 'lib/woozie';
 
 import { useCollectibleSelling } from '../hooks/use-collectible-selling.hook';
 import { CollectiblesSelectors } from '../selectors';
+import { AttributesItems } from './AttributesItems';
 import { CollectiblePageImage } from './CollectiblePageImage';
-import { AttributesItems, PropertiesItems } from './TabsGridContent';
+import { PropertiesItems } from './PropertiesItems';
 
 const DETAILS_SYNC_INTERVAL = 4 * BLOCK_DURATION;
 
@@ -38,15 +39,16 @@ interface Props {
   assetSlug: string;
 }
 
-const CollectiblePage: FC<Props> = ({ assetSlug }) => {
+const CollectiblePage = memo<Props>(({ assetSlug }) => {
   const metadata = useTokenMetadataSelector(assetSlug);
+  const details = useCollectibleDetailsSelector(assetSlug);
+  const areAnyCollectiblesDetailsLoading = useAllCollectiblesDetailsLoadingSelector();
+
   const account = useAccount();
 
   const { publicKeyHash } = account;
   const accountCanSign = account.type !== TempleAccountType.WatchOnly;
 
-  const details = useCollectibleDetailsSelector(assetSlug);
-  const areAnyCollectiblesDetailsLoading = useAllCollectiblesDetailsLoadingSelector();
   const areDetailsLoading = areAnyCollectiblesDetailsLoading && details === undefined;
 
   const collectibleName = getAssetName(metadata);
@@ -228,6 +230,6 @@ const CollectiblePage: FC<Props> = ({ assetSlug }) => {
       </div>
     </PageLayout>
   );
-};
+});
 
 export default CollectiblePage;

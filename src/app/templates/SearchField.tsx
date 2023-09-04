@@ -14,7 +14,7 @@ export interface SearchFieldProps extends InputHTMLAttributes<HTMLInputElement>,
   cleanButtonStyle?: React.CSSProperties;
   cleanButtonIconStyle?: React.CSSProperties;
   value: string;
-  onValueChange: (v: string) => void;
+  onValueChange: (value: string) => void;
 }
 
 const SearchField: FC<SearchFieldProps> = ({

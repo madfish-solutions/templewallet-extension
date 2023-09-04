@@ -1,4 +1,4 @@
-import React, { FC, useMemo } from 'react';
+import React, { memo, useMemo } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
 
@@ -17,7 +17,7 @@ interface Props {
   mime?: string | null;
 }
 
-export const CollectibleItemImage: FC<Props> = ({ assetSlug, metadata, areDetailsLoading, mime }) => {
+export const CollectibleItemImage = memo<Props>(({ assetSlug, metadata, areDetailsLoading, mime }) => {
   const isAdultContent = useCollectibleIsAdultSelector(assetSlug);
   const isAdultFlagLoading = areDetailsLoading && !isDefined(isAdultContent);
 
@@ -38,4 +38,4 @@ export const CollectibleItemImage: FC<Props> = ({ assetSlug, metadata, areDetail
       fallback={<CollectibleImageFallback isAudioCollectible={isAudioCollectible} />}
     />
   );
-};
+});

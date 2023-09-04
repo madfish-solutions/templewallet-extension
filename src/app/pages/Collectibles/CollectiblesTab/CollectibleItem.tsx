@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useRef, useState, useMemo } from 'react';
+import React, { memo, useCallback, useRef, useState, useMemo } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
 import clsx from 'clsx';
@@ -26,7 +26,7 @@ interface Props {
   areDetailsShown: boolean;
 }
 
-export const CollectibleItem: FC<Props> = ({ assetSlug, accountPkh, areDetailsShown }) => {
+export const CollectibleItem = memo<Props>(({ assetSlug, accountPkh, areDetailsShown }) => {
   const { popup } = useAppEnv();
   const metadata = useTokenMetadataSelector(assetSlug);
   const toDisplayRef = useRef<HTMLDivElement>(null);
@@ -103,4 +103,4 @@ export const CollectibleItem: FC<Props> = ({ assetSlug, accountPkh, areDetailsSh
       )}
     </Link>
   );
-};
+});

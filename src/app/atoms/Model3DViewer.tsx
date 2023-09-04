@@ -34,9 +34,9 @@ export const Model3DViewer: FC<Props> = ({ uri, alt, className, onError = emptyF
     const modelViewer = modelViewerRef.current;
 
     if (modelViewer) {
-      modelViewer?.addEventListener('error', onError);
+      modelViewer.addEventListener('error', onError);
 
-      return () => modelViewer?.removeEventListener('error', onError);
+      return () => modelViewer.removeEventListener('error', onError);
     }
 
     return undefined;

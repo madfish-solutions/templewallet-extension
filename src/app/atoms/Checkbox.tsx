@@ -1,6 +1,6 @@
 import React, { forwardRef, InputHTMLAttributes, useCallback, useEffect, useMemo, useState } from 'react';
 
-import classNames from 'clsx';
+import clsx from 'clsx';
 
 import { ReactComponent as OkIcon } from 'app/icons/ok.svg';
 import { TestIDProps, setTestID, useAnalytics, AnalyticsEventCategory } from 'lib/analytics';
@@ -64,7 +64,7 @@ const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
 
     const classNameMemo = useMemo(
       () =>
-        classNames(
+        clsx(
           'flex justify-center items-center flex-shrink-0',
           'text-white border overflow-hidden',
           'transition ease-in-out duration-200 disable-outline-for-click',
@@ -84,7 +84,7 @@ const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
           })(),
           overrideClassNames || 'h-6 w-6 rounded-md'
         ),
-      [localChecked, localFocused, errored]
+      [localChecked, localFocused, errored, overrideClassNames]
     );
 
     return (
@@ -92,7 +92,7 @@ const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
         <input
           ref={ref}
           type="checkbox"
-          className={classNames('sr-only', className)}
+          className={clsx('sr-only', className)}
           checked={localChecked}
           onChange={handleChange}
           onFocus={handleFocus}
@@ -102,8 +102,7 @@ const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
         />
 
         <OkIcon
-          className={classNames(localChecked ? 'block' : 'hidden', 'pointer-events-none stroke-current')}
-          style={{ strokeWidth: 2, height: '67%', width: '67%' }}
+          className={clsx('h-4/6 w-4/6 stroke-2 stroke-current pointer-events-none', localChecked ? 'block' : 'hidden')}
         />
       </div>
     );
