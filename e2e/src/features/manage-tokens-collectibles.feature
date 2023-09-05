@@ -25,7 +25,6 @@ Feature: Manage tokens + collectibles
 
 
 @manage_assets
-@dev
   Scenario: As a user, I'd like to hide and delete tokens [Positive]
     Given I have imported an existing account
 #  hardcoded token
