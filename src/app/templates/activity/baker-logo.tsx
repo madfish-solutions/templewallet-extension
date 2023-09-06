@@ -19,20 +19,14 @@ export const BakerLogo: FC<Props> = ({ bakerAddress }) => {
   }
 
   return (
-    <div className="mr-2">
-      <Image
-        src={bakerOrPayoutAccount.logo ?? undefined}
-        loader={<RobotIcon hash={bakerAddress} />}
-        fallback={<RobotIcon hash={bakerAddress} />}
-        alt={bakerOrPayoutAccount.name}
-        style={{
-          objectFit: 'contain',
-          maxWidth: '100%',
-          maxHeight: '100%'
-        }}
-        height={36}
-        width={36}
-      />
-    </div>
+    <Image
+      src={bakerOrPayoutAccount.logo ?? undefined}
+      loader={<RobotIcon hash={bakerAddress} />}
+      fallback={<RobotIcon hash={bakerAddress} />}
+      alt={bakerOrPayoutAccount.name}
+      className="object-contain max-w-full max-h-full mr-2"
+      height={36}
+      width={36}
+    />
   );
 };

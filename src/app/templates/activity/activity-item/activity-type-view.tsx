@@ -21,7 +21,7 @@ const activityTypesI18nKeys = {
 };
 
 export const ActivityTypeView: FC<Props> = ({ activity }) => {
-  const { isAllowanceChange, isInteraction, isRevoke } = getActivityTypeFlags(activity);
+  const { isAllowanceChange, isInteraction, isRevoke, is3Route } = getActivityTypeFlags(activity);
 
   const interactionTooltipRef = useTippy<HTMLSpanElement>({
     trigger: 'mouseenter',
@@ -39,8 +39,8 @@ export const ActivityTypeView: FC<Props> = ({ activity }) => {
   } else {
     contents = (
       <>
-        <T id={activityTypesI18nKeys[activity.type]} />
-        {isInteraction && (
+        <T id={is3Route ? 'route3' : activityTypesI18nKeys[activity.type]} />
+        {isInteraction && !is3Route && (
           <span ref={interactionTooltipRef} className="inline-block ml-1 text-gray-500">
             <AlertNewIcon className="w-4 h-4 stroke-current" />
           </span>

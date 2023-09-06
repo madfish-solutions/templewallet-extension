@@ -12,6 +12,7 @@ import { useExplorerBaseUrls } from 'lib/temple/front';
 import { formatTcInfraImgUri } from 'lib/temple/front/image-uri';
 import { Image } from 'lib/ui/Image';
 
+import Route3Logo from '../../assets/3route.png';
 import { BakerLogo } from '../../baker-logo';
 import { RobotIcon } from '../../robot-icon';
 import { FilteringMode } from '../../tokens-delta-view';
@@ -26,7 +27,7 @@ const statusesColors = {
   [TzktOperationStatus.Skipped]: 'bg-red-700'
 };
 
-const actorAvatarStyles = 'border border-gray-300 mr-2';
+const actorAvatarStyles = 'border border-gray-300 mr-2 rounded-md min-w-9';
 
 export const useActivityItemViewModel = (activity: DisplayableActivity) => {
   const { hash, timestamp, status, tokensDeltas, from } = activity;
@@ -35,7 +36,7 @@ export const useActivityItemViewModel = (activity: DisplayableActivity) => {
   const [isOpen, setIsOpen] = useState(false);
   const [wasToggled, setWasToggled] = useState(false);
 
-  const { isDelegation, isBakingRewards, isSend, isReceive, isInteraction, isAllowanceChange, isRevoke } =
+  const { isDelegation, isBakingRewards, isSend, isReceive, isInteraction, is3Route, isAllowanceChange, isRevoke } =
     getActivityTypeFlags(activity);
   const { prepositionI18nKey: actorPrepositionI18nKey, actor } = getActor(activity);
   const shouldShowBaker = (isDelegation || isBakingRewards) && isDefined(actor);
@@ -69,6 +70,14 @@ export const useActivityItemViewModel = (activity: DisplayableActivity) => {
       return <BakerLogo bakerAddress={actor.address} />;
     }
 
+    if (is3Route) {
+      return (
+        <div className={classNames('flex items-center justify-center', actorAvatarStyles)}>
+          <img src={Route3Logo} alt="3Route logo" height={12} width={24} />
+        </div>
+      );
+    }
+
     if (isInteraction) {
       return null;
     }
@@ -79,11 +88,6 @@ export const useActivityItemViewModel = (activity: DisplayableActivity) => {
           src={formatTcInfraImgUri(tzProfileLogo)}
           loader={<RobotIcon hash={robotIconHash} />}
           fallback={<RobotIcon hash={robotIconHash} />}
-          style={{
-            objectFit: 'contain',
-            borderRadius: '0.375rem',
-            minWidth: '2.25rem'
-          }}
           className={actorAvatarStyles}
           height={36}
           width={36}
@@ -92,7 +96,7 @@ export const useActivityItemViewModel = (activity: DisplayableActivity) => {
     }
 
     return <RobotIcon hash={robotIconHash} className={actorAvatarStyles} />;
-  }, [actor?.address, isInteraction, robotIconHash, shouldShowBaker, tzProfileLogo]);
+  }, [actor?.address, isInteraction, robotIconHash, shouldShowBaker, tzProfileLogo, is3Route]);
 
   const toggleDetails = useCallback(() => {
     setIsOpen(value => !value);

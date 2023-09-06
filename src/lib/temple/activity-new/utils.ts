@@ -4,23 +4,25 @@ import { ActivitySubtype, ActivityType, AllowanceInteractionActivity } from '@te
 import { getAssetSymbol, isCollectible } from 'lib/metadata';
 import { AssetMetadataBase } from 'lib/metadata/types';
 
+import { ROUTE3_CONTRACT } from '../../route3/constants';
 import { DisplayableActivity } from './types';
 
 const MAX_DISPLAYED_TOKEN_SYMBOL_CHARS = 15;
 
 /** Attention! The returned values cannot be used as typeguards yet */
 export const getActivityTypeFlags = (activity: DisplayableActivity) => {
-  const { type } = activity;
+  const { type, to } = activity;
 
   const isDelegation = type === ActivityType.Delegation;
   const isBakingRewards = type === ActivityType.BakingRewards;
   const isSend = type === ActivityType.Send;
   const isReceive = type === ActivityType.Recieve;
   const isInteraction = type === ActivityType.Interaction;
+  const is3Route = type === ActivityType.Interaction && to?.address === ROUTE3_CONTRACT;
   const isAllowanceChange = isInteraction && activity.subtype === ActivitySubtype.ChangeAllowance;
   const isRevoke = isAllowanceChange && Boolean(activity.allowanceChanges[0]?.atomicAmount.isZero());
 
-  return { isDelegation, isBakingRewards, isSend, isReceive, isInteraction, isAllowanceChange, isRevoke };
+  return { isDelegation, isBakingRewards, isSend, isReceive, isInteraction, is3Route, isAllowanceChange, isRevoke };
 };
 
 export const getAssetSymbolOrName = (metadata: AssetMetadataBase | undefined) => {

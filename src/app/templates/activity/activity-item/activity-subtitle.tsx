@@ -15,7 +15,8 @@ interface Props {
 
 export const ActivitySubtitle: FC<Props> = ({ activity }) => {
   const { prepositionI18nKey, actor } = getActor(activity);
-  const { isSend, isReceive, isAllowanceChange, isDelegation, isBakingRewards } = getActivityTypeFlags(activity);
+  const { isSend, isReceive, isAllowanceChange, isDelegation, isBakingRewards, is3Route } =
+    getActivityTypeFlags(activity);
   const shouldShowActorAddressInSubtitle = (isSend || isReceive || isAllowanceChange) && isDefined(actor);
   const shouldShowBaker = (isDelegation || isBakingRewards) && isDefined(actor);
   const shouldShowActor = isDelegation || isBakingRewards || isSend || isReceive || isAllowanceChange;
@@ -25,6 +26,8 @@ export const ActivitySubtitle: FC<Props> = ({ activity }) => {
     secondPart = <HashShortView firstCharsCount={5} lastCharsCount={5} hash={actor.address} />;
   } else if (shouldShowBaker) {
     secondPart = <BakerName bakerAddress={actor.address} />;
+  } else if (is3Route) {
+    secondPart = <T id="swapTokens" />;
   } else {
     secondPart = '‒';
   }

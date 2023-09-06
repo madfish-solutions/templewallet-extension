@@ -389,12 +389,14 @@ module.exports = {
       ...theme('spacing'),
       ...negative(theme('spacing'))
     }),
-    maxHeight: {
+    maxHeight: theme => ({
+      ...theme('spacing'),
       full: '100%',
       '3/25': '52px',
       screen: '100vh'
-    },
+    }),
     maxWidth: (theme, { breakpoints }) => ({
+      ...theme('spacing'),
       none: 'none',
       100: '6.25rem',
       xs: '20rem',
@@ -411,15 +413,15 @@ module.exports = {
       full: '100%',
       ...breakpoints(theme('screens'))
     }),
-    minHeight: {
-      0: '0',
+    minHeight: theme => ({
+      ...theme('spacing'),
       full: '100%',
       screen: '100vh'
-    },
-    minWidth: {
-      0: '0',
+    }),
+    minWidth: theme => ({
+      ...theme('spacing'),
       full: '100%'
-    },
+    }),
     objectPosition: {
       bottom: 'bottom',
       center: 'center',

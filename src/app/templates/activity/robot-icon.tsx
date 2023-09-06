@@ -1,5 +1,7 @@
 import React, { FC } from 'react';
 
+import classNames from 'clsx';
+
 import Identicon from 'app/atoms/Identicon';
 
 interface Props {
@@ -8,11 +10,5 @@ interface Props {
 }
 
 export const RobotIcon: FC<Props> = ({ hash, className }) => (
-  <Identicon
-    type="bottts"
-    hash={hash}
-    size={36}
-    style={{ borderRadius: '0.375rem', minWidth: '2.25rem', backgroundColor: 'white' }}
-    className={className}
-  />
+  <Identicon type="bottts" hash={hash} size={36} className={classNames('rounded-md bg-white min-w-9', className)} />
 );
