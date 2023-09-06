@@ -17,7 +17,7 @@ import styles from './activity-item.module.css';
 import { ActivitySubtitle } from './activity-subtitle';
 import { ActivityTypeView } from './activity-type-view';
 import { ActorChip } from './actor-chip';
-import { useActivityItemViewModel } from './use-activity-item-view-model';
+import { useActivityItemViewModel } from './hooks/use-activity-item-view-model';
 
 interface Props {
   activity: DisplayableActivity;
