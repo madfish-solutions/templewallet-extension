@@ -31,7 +31,7 @@ Feature: Create a new wallet
     Then I am on the Home page
 
 
-    @dev
+
   Scenario: As a user, I'd like to create a wallet and pass on-boarding
       Given I am on the Welcome page
       And I press Create New Wallet button on the Welcome page
