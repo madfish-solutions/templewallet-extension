@@ -181,12 +181,12 @@ const AssetBanner: FC<AssetBannerProps> = ({ assetSlug, accountPkh }) => {
       <div className="flex items-center text-2xl">
         <Balance address={accountPkh} assetSlug={assetSlug}>
           {balance => (
-            <div style={{ lineHeight: '29px' }} className="flex flex-col">
-              <div className="flex font-medium">
+            <div className="flex flex-col">
+              <div className="flex text-2xl">
                 <Money smallFractionFont={false} fiat>
                   {balance}
                 </Money>
-                <span className="ml-2">{assetSymbol}</span>
+                <span className="ml-1">{assetSymbol}</span>
               </div>
               <InFiat assetSlug={assetSlug} volume={balance} smallFractionFont={false}>
                 {({ balance, symbol }) => (

@@ -16,7 +16,7 @@ export const useErrorAlert = (
   form: ReturnType<typeof useBuyWithCreditCardForm>,
   allPaymentProviders: PaymentProviderInterface[],
   allProvidersErrors: Record<TopUpProviderId, ProviderErrors>,
-  updateLinkError?: Error
+  purchaseLinkError?: Error
 ) => {
   const { formValues } = form;
   const { inputCurrency, outputToken } = formValues;
@@ -28,14 +28,11 @@ export const useErrorAlert = (
   const onAlertClose = () => setShouldHideErrorAlert(true);
 
   const message = useMemo(() => {
-    // TODO: return handling errors for Alice&Bob as soon as this service starts working
-    if (isDefined(updateLinkError)) {
-      return t('errorWhileCreatingOrder', getAxiosQueryErrorMessage(updateLinkError));
+    if (isDefined(purchaseLinkError)) {
+      return t('errorWhileCreatingOrder', getAxiosQueryErrorMessage(purchaseLinkError));
     }
 
     for (const providerId in allProvidersErrors) {
-      if (providerId === TopUpProviderId.AliceBob) continue;
-
       const errors = allProvidersErrors[providerId as TopUpProviderId];
 
       if (errors.currencies === PAIR_NOT_FOUND_MESSAGE || errors.limits === PAIR_NOT_FOUND_MESSAGE) continue;
@@ -50,7 +47,7 @@ export const useErrorAlert = (
     }
 
     return undefined;
-  }, [updateLinkError, updatePairLimitsErrors, allProvidersErrors, allPaymentProviders, currenciesErrors]);
+  }, [purchaseLinkError, updatePairLimitsErrors, allProvidersErrors, allPaymentProviders, currenciesErrors]);
 
   useEffect(() => setShouldHideErrorAlert(false), [message]);
 
