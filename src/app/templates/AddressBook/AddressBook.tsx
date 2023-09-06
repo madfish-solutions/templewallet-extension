@@ -171,7 +171,10 @@ const AddNewContactForm: React.FC<{ className?: string }> = ({ className }) => {
         placeholder={t('recipientInputPlaceholderWithDomain')}
         errorCaption={errors.address?.message}
         containerClassName="mb-4"
-        testID={AddressBookSelectors.addressInput}
+        testIDs={{
+          input: AddressBookSelectors.addressInput,
+          inputSection: AddressBookSelectors.addressInputSection
+        }}
       />
 
       <FormField
@@ -186,7 +189,10 @@ const AddNewContactForm: React.FC<{ className?: string }> = ({ className }) => {
         errorCaption={errors.name?.message}
         containerClassName="mb-6"
         maxLength={50}
-        testID={AddressBookSelectors.nameInput}
+        testIDs={{
+          input: AddressBookSelectors.nameInput,
+          inputSection: AddressBookSelectors.nameInputSection
+        }}
       />
 
       <FormSubmitButton loading={submitting} testID={AddressBookSelectors.addContactButton}>
