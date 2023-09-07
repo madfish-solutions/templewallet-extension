@@ -1,5 +1,6 @@
 import { createReducer } from '@reduxjs/toolkit';
 import { isDefined } from '@rnw-community/shared';
+import { omit, pick } from 'lodash';
 
 import { tokenToSlug } from 'lib/assets';
 
@@ -8,7 +9,8 @@ import {
   loadWhitelistAction,
   loadTokensMetadataAction,
   loadOneTokenMetadataActions,
-  resetTokensMetadataLoadingAction
+  resetTokensMetadataLoadingAction,
+  refreshTokensMetadataAction
 } from './actions';
 import { tokensMetadataInitialState, TokensMetadataState } from './state';
 import { patchMetadatas } from './utils';
@@ -78,4 +80,19 @@ export const tokensMetadataReducer = createReducer<TokensMetadataState>(tokensMe
     ...state,
     metadataLoading: false
   }));
+
+  builder.addCase(refreshTokensMetadataAction, (state, { payload }) => {
+    const keysToRefresh = ['artifactUri', 'displayUri'] as const;
+
+    for (const metadata of payload) {
+      const slug = tokenToSlug(metadata);
+      const current = state.metadataRecord[slug];
+      if (!current) continue;
+
+      state.metadataRecord[slug] = {
+        ...omit(current, keysToRefresh),
+        ...pick(metadata, keysToRefresh)
+      };
+    }
+  });
 });

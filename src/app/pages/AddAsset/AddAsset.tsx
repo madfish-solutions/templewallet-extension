@@ -278,7 +278,10 @@ const Form: FC = () => {
         placeholder={t('tokenContractPlaceholder')}
         errorCaption={errors.address?.message}
         containerClassName="mb-6"
-        testID={AddAssetSelectors.addressInput}
+        testIDs={{
+          inputSection: AddAssetSelectors.addressInputSection,
+          input: AddAssetSelectors.addressInput
+        }}
       />
 
       <FormField
@@ -342,11 +345,9 @@ const BottomSection: FC<BottomSectionProps> = props => {
       <FormField
         ref={register({
           required: t('required'),
-          validate: (val: string) => {
-            if (!val || val.length < 2 || val.length > 8) {
-              return t('tokenSymbolPatternDescription');
-            }
-            return true;
+          pattern: {
+            value: /^[a-zA-Z0-9]{2,10}$/,
+            message: t('tokenSymbolPatternDescription')
           }
         })}
         name="symbol"
@@ -356,17 +357,18 @@ const BottomSection: FC<BottomSectionProps> = props => {
         placeholder={t('tokenSymbolInputPlaceholder')}
         errorCaption={errors.symbol?.message}
         containerClassName="mb-4"
-        testID={AddAssetSelectors.symbolInput}
+        testIDs={{
+          inputSection: AddAssetSelectors.symbolInputSection,
+          input: AddAssetSelectors.symbolInput
+        }}
       />
 
       <FormField
         ref={register({
           required: t('required'),
-          validate: (val: string) => {
-            if (!val || val.length < 3 || val.length > 50) {
-              return t('tokenNamePatternDescription');
-            }
-            return true;
+          pattern: {
+            value: /^[a-zA-Z0-9\s]{3,25}$/,
+            message: t('tokenNamePatternDescription')
           }
         })}
         name="name"
@@ -376,7 +378,10 @@ const BottomSection: FC<BottomSectionProps> = props => {
         placeholder={t('tokenNameInputPlaceholder')}
         errorCaption={errors.name?.message}
         containerClassName="mb-4"
-        testID={AddAssetSelectors.nameInput}
+        testIDs={{
+          inputSection: AddAssetSelectors.nameInputSection,
+          input: AddAssetSelectors.nameInput
+        }}
       />
 
       <FormField
@@ -391,7 +396,10 @@ const BottomSection: FC<BottomSectionProps> = props => {
         placeholder="0"
         errorCaption={errors.decimals?.message}
         containerClassName="mb-4"
-        testID={AddAssetSelectors.decimalsInput}
+        testIDs={{
+          inputSection: AddAssetSelectors.decimalsInputSection,
+          input: AddAssetSelectors.decimalsInput
+        }}
       />
 
       <FormField
@@ -434,7 +442,10 @@ const BottomSection: FC<BottomSectionProps> = props => {
         placeholder="e.g. https://cdn.com/mytoken.png"
         errorCaption={errors.thumbnailUri?.message}
         containerClassName="mb-6"
-        testID={AddAssetSelectors.iconURLInput}
+        testIDs={{
+          inputSection: AddAssetSelectors.iconURLInputSection,
+          input: AddAssetSelectors.iconURLInput
+        }}
       />
 
       {submitError && <Alert type="error" title={t('error')} autoFocus description={submitError} className="mb-6" />}

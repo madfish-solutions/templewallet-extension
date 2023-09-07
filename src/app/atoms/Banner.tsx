@@ -32,7 +32,7 @@ export const Banner: FC<Props> = ({ title, description, enableButton, disableBut
     <div className="flex flex-wrap gap-x-4 gap-y-2">
       <FormSecondaryButton
         small
-        className="flex-1 h-2.25 rounded-md"
+        className="flex-1 h-9 rounded-md"
         onClick={disableButton.onClick}
         testID={disableButton.testID}
         testIDProperties={disableButton.testIDProperties}
@@ -44,7 +44,7 @@ export const Banner: FC<Props> = ({ title, description, enableButton, disableBut
 
       <FormSubmitButton
         small
-        className="flex-1 h-2.25 rounded-md"
+        className="flex-1 h-9 rounded-md"
         onClick={enableButton.onClick}
         testID={enableButton.testID}
         testIDProperties={enableButton.testIDProperties}

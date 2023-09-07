@@ -1,38 +1,37 @@
-import React, { ButtonHTMLAttributes, FC, useMemo } from 'react';
+import React, { FC, useMemo } from 'react';
 
 import classNames from 'clsx';
 
 import Spinner from 'app/atoms/Spinner/Spinner';
-import { TestIDProps } from 'lib/analytics';
 
-import { Button } from './Button';
+import { Button, ButtonProps } from './Button';
 
-type FormSecondaryButtonProps = ButtonHTMLAttributes<HTMLButtonElement> &
-  TestIDProps & {
-    loading?: boolean;
-    small?: boolean;
-  };
+interface FormSecondaryButtonProps extends ButtonProps {
+  keepChildrenWhenLoading?: boolean;
+  loading?: boolean;
+  small?: boolean;
+}
 
 export const FormSecondaryButton: FC<FormSecondaryButtonProps> = ({
+  keepChildrenWhenLoading,
   loading,
   small,
   type = 'button',
   disabled,
   className,
-  style,
   children,
   ...rest
 }) => {
   const classNameMemo = useMemo(
     () =>
       classNames(
-        'relative flex items-center',
-        'bg-white rounded border-2 border-primary-orange font-semibold',
+        'relative flex items-center justify-center',
+        'bg-white rounded border-2 font-semibold',
         'transition duration-200 ease-in-out',
         small ? 'px-6 py-2 text-sm' : 'px-8 py-2.5 text-base',
-        loading ? 'text-transparent' : 'text-primary-orange',
+        disabled ? 'text-gray-350 border-gray-350' : 'text-primary-orange border-primary-orange',
         loading || disabled
-          ? 'opacity-75 shadow-inner pointer-events-none'
+          ? 'opacity-75 shadow-inner cursor-default'
           : 'opacity-90 hover:opacity-100 shadow-sm hover:shadow focus:shadow',
         className
       ),
@@ -40,14 +39,10 @@ export const FormSecondaryButton: FC<FormSecondaryButtonProps> = ({
   );
 
   return (
-    <Button type={type} className={classNameMemo} style={style} disabled={disabled} {...rest}>
-      {children}
+    <Button type={type} className={classNameMemo} disabled={disabled} {...rest}>
+      {loading ? keepChildrenWhenLoading && children : children}
 
-      {loading && (
-        <div className="absolute inset-0 flex items-center justify-center">
-          <Spinner theme="primary" style={{ width: small ? '2rem' : '3rem' }} />
-        </div>
-      )}
+      {loading && <Spinner theme="primary" className={small ? 'w-8' : 'w-12'} />}
     </Button>
   );
 };

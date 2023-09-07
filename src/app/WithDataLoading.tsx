@@ -3,6 +3,7 @@ import React, { FC, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 
 import { useAdvertisingLoading } from 'app/hooks/use-advertising.hook';
+import { useCollectiblesDetailsLoading } from 'app/hooks/use-collectibles-details-loading';
 import { useTokensApyLoading } from 'app/hooks/use-load-tokens-apy.hook';
 import { useLongRefreshLoading } from 'app/hooks/use-long-refresh-loading.hook';
 import { useMetadataLoading } from 'app/hooks/use-metadata-loading';
@@ -11,10 +12,14 @@ import { useTokensLoading } from 'app/hooks/use-tokens-loading';
 import { loadSwapDexesAction, loadSwapTokensAction } from 'app/store/swap/actions';
 import { useBalancesLoading } from 'lib/temple/front/load-balances';
 
+import { useMetadataRefresh } from './hooks/use-metadata-refresh';
+
 export const WithDataLoading: FC<PropsWithChildren> = ({ children }) => {
-  useMetadataLoading();
   useTokensLoading();
+  useMetadataLoading();
+  useMetadataRefresh();
   useBalancesLoading();
+  useCollectiblesDetailsLoading();
 
   useLongRefreshLoading();
   useAdvertisingLoading();

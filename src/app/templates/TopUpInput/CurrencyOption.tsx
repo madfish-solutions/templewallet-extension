@@ -5,9 +5,9 @@ import { ListRowProps } from 'react-virtualized';
 
 import { getAssetSymbolToDisplay } from 'lib/buy-with-credit-card/get-asset-symbol-to-display';
 
-import { StaticCurrencyImage } from '../StaticCurrencyImage';
-import { CurrencyBase } from '../types';
-import { getProperNetworkFullName } from '../utils';
+import { StaticCurrencyImage } from './StaticCurrencyImage';
+import { CurrencyBase } from './types';
+import { getProperNetworkFullName } from './utils';
 
 interface Props extends Partial<Pick<ListRowProps, 'style'>> {
   isFiat?: boolean;

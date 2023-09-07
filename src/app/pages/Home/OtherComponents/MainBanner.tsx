@@ -9,9 +9,11 @@ import Money from 'app/atoms/Money';
 import { toggleBalanceModeAction } from 'app/store/settings/actions';
 import { useBalanceModeSelector } from 'app/store/settings/selectors';
 import { BalanceMode } from 'app/store/settings/state';
+import AddressChip from 'app/templates/AddressChip';
 import { AssetIcon } from 'app/templates/AssetIcon';
 import Balance from 'app/templates/Balance';
 import InFiat from 'app/templates/InFiat';
+import { setAnotherSelector, setTestID } from 'lib/analytics';
 import { useFiatCurrency } from 'lib/fiat-currency';
 import { t, T } from 'lib/i18n';
 import { TezosLogoIcon } from 'lib/icons';
@@ -20,10 +22,8 @@ import { useGasToken, useNetwork } from 'lib/temple/front';
 import { useTotalBalance } from 'lib/temple/front/use-total-balance.hook';
 import useTippy from 'lib/ui/useTippy';
 
-import { setAnotherSelector, setTestID } from '../../../../lib/analytics';
 import { HomeSelectors } from '../Home.selectors';
-import { TokenPageSelectors } from '../Token-page.selectors';
-import AddressChip from './AddressChip';
+import { TokenPageSelectors } from './TokenPage.selectors';
 
 interface Props {
   assetSlug?: string | null;
@@ -176,17 +176,17 @@ const AssetBanner: FC<AssetBannerProps> = ({ assetSlug, accountPkh }) => {
             {assetName}
           </div>
         </div>
-        <AddressChip pkh={accountPkh} />
+        <AddressChip pkh={accountPkh} modeSwitch={{ testID: HomeSelectors.addressModeSwitchButton }} />
       </div>
       <div className="flex items-center text-2xl">
         <Balance address={accountPkh} assetSlug={assetSlug}>
           {balance => (
-            <div style={{ lineHeight: '29px' }} className="flex flex-col">
-              <div className="flex font-medium">
+            <div className="flex flex-col">
+              <div className="flex text-2xl">
                 <Money smallFractionFont={false} fiat>
                   {balance}
                 </Money>
-                <span className="ml-2">{assetSymbol}</span>
+                <span className="ml-1">{assetSymbol}</span>
               </div>
               <InFiat assetSlug={assetSlug} volume={balance} smallFractionFont={false}>
                 {({ balance, symbol }) => (

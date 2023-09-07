@@ -6,7 +6,7 @@ import { loadChainId } from 'lib/temple/helpers';
 
 const { TEMPLE_WALLET_JITSU_WRITE_KEY: WRITE_KEY, TEMPLE_WALLET_JITSU_TRACKING_HOST: TRACKING_HOST } = EnvVars;
 
-const client = jitsuClient({
+export const client = jitsuClient({
   key: WRITE_KEY,
   tracking_host: TRACKING_HOST
 });

@@ -6,7 +6,7 @@ import classNames from 'clsx';
 import { AnalyticsEventCategory, setTestID, TestIDProps, useAnalytics } from 'lib/analytics';
 import { getNumberSymbols, toLocalFixed, toLocalFormat, toShortened, t } from 'lib/i18n';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
-import useTippy, { TippyInstance, TippyProps } from 'lib/ui/useTippy';
+import useTippy, { TippyInstance, UseTippyOptions } from 'lib/ui/useTippy';
 
 interface MoneyProps extends TestIDProps {
   children: number | string | BigNumber;
@@ -50,9 +50,8 @@ const Money = memo<MoneyProps>(
     const indexOfDecimal = result.indexOf(decimal) === -1 ? result.indexOf('.') : result.indexOf(decimal);
 
     const tippyClassName = classNames(
-      'px-px -mr-px rounded truncate cursor-pointer',
-      tooltip && 'hover:bg-black hover:bg-opacity-5',
-      'transition ease-in-out duration-200'
+      'px-px -mr-px rounded truncate',
+      tooltip && 'cursor-pointer hover:bg-black hover:bg-opacity-5 transition ease-in-out duration-200'
     );
 
     if (indexOfDecimal === -1) {
@@ -68,7 +67,7 @@ const Money = memo<MoneyProps>(
       );
     }
 
-    if (!fiat && decimalsLength > cryptoDecimals && !shortened) {
+    if (!fiat && !shortened && decimalsLength > cryptoDecimals) {
       return (
         <MoneyWithoutFormat
           tooltip={tooltip}
@@ -251,7 +250,7 @@ const FullAmountTippy: FC<FullAmountTippyProps> = ({
   }, [copied, showAmountTooltip, fullAmountStr]);
 
   const tippyInstanceRef = useRef<TippyInstance>();
-  const tippyProps = useMemo<TippyProps>(
+  const tippyProps = useMemo<UseTippyOptions>(
     () => ({
       trigger: 'mouseenter',
       hideOnClick: false,
