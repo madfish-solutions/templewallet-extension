@@ -1,3 +1,7 @@
+import PackageJSON from '../../package.json';
+
+export const APP_VERSION = PackageJSON.version;
+
 export const IS_DEV_ENV = process.env.NODE_ENV === 'development';
 
 const IS_DEV_GITHUB_ACTION_RUN_ENV = process.env.GITHUB_ACTION_RUN_ENV === 'development';

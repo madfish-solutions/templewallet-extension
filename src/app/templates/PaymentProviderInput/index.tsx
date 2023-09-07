@@ -30,6 +30,7 @@ export const PaymentProviderInput: FC<PaymentProviderInputProps> = ({
   testID
 }) => {
   const [searchValue, setSearchValue] = useState<string>('');
+
   return (
     <div className={classNames('w-full', className)}>
       <InputContainer footer={isTruthy(error) && <span className="text-xs text-red-700 leading-relaxed">{error}</span>}>

@@ -14,6 +14,7 @@ export function useDidUpdate(callback: EmptyFn, conditions?: unknown[]) {
         'Using [] as the second argument makes useDidUpdate a noop. The second argument should either be `undefined` or an array of length greater than 0.'
       );
     }
+
     return conditions;
   }, [conditions]);
 

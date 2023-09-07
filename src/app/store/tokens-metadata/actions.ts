@@ -5,9 +5,10 @@ import { createActions } from 'lib/store';
 
 export const addTokensMetadataAction = createAction<TokenMetadata[]>('assets/ADD_TOKENS_METADATA');
 
-export const loadTokensMetadataAction = createAction<{ rpcUrl: string; slugs: string[] }>(
-  'assets/LOAD_TOKENS_METADATA'
-);
+export const loadTokensMetadataAction = createAction<{
+  rpcUrl: string;
+  slugs: string[];
+}>('assets/LOAD_TOKENS_METADATA');
 
 export const loadWhitelistAction = createActions<undefined, TokenMetadata[]>('assets/LOAD_WHITELIST_METADATA');
 
@@ -24,3 +25,5 @@ export const loadTokenSuggestionActions = createActions<LoadTokenMetadataPayload
 );
 
 export const resetTokensMetadataLoadingAction = createAction('assets/RESET_TOKENS_METADATA_LOADING');
+
+export const refreshTokensMetadataAction = createAction<TokenMetadata[]>('assets/REFRESH_TOKENS_METADATA');
