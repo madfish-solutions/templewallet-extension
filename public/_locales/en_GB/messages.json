@@ -308,7 +308,7 @@
     "message": "e.g. KT1v9CmPy..."
   },
   "tokenSymbolPatternDescription": {
-    "message": "Only a-z, A-Z, 0-9 chars allowed, 2-5 length"
+    "message": "Only a-z, A-Z, 0-9 chars allowed, 2-10 length"
   },
   "symbol": {
     "message": "Symbol"
@@ -320,7 +320,7 @@
     "message": "e.g. WEW, BOW, LAL etc."
   },
   "tokenNamePatternDescription": {
-    "message": "No special characters, 3-50 length"
+    "message": "No special characters, 3-25 length"
   },
   "name": {
     "message": "Name"
