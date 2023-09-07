@@ -1,10 +1,9 @@
 import { HomeSelectors } from 'src/app/pages/Home/Home.selectors';
-import { TokenPageSelectors } from 'src/app/pages/Home/Token-page.selectors';
+import { TokenPageSelectors } from 'src/app/pages/Home/OtherComponents/TokenPage.selectors';
 
+import { Page } from 'e2e/src/classes/page.class';
+import { createPageElement, findElement } from 'e2e/src/utils/search.utils';
 import { SHORT_TIMEOUT } from 'e2e/src/utils/timing.utils';
-
-import { Page } from '../../classes/page.class';
-import { createPageElement, findElement } from '../../utils/search.utils';
 
 export class TokenPage extends Page {
   pageName = createPageElement(TokenPageSelectors.pageName);

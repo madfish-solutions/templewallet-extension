@@ -84,7 +84,7 @@ const AddContactModal: FC<AddContactModalProps> = ({ address, onClose }) => {
         </div>
 
         <div className="flex justify-end">
-          <FormSecondaryButton type="button" small className="mr-3" onClick={onClose}>
+          <FormSecondaryButton small className="mr-3" onClick={onClose}>
             <T id="cancel" />
           </FormSecondaryButton>
 

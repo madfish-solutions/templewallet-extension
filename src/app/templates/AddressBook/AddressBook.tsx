@@ -3,10 +3,7 @@ import React, { useCallback, useMemo } from 'react';
 import classNames from 'clsx';
 import { useForm } from 'react-hook-form';
 
-import { FormField, FormSubmitButton } from 'app/atoms';
-import Identicon from 'app/atoms/Identicon';
-import Name from 'app/atoms/Name';
-import SubTitle from 'app/atoms/SubTitle';
+import { Name, Identicon, FormField, FormSubmitButton, HashChip, SubTitle } from 'app/atoms';
 import { ReactComponent as CloseIcon } from 'app/icons/close.svg';
 import { setAnotherSelector, setTestID } from 'lib/analytics';
 import { t, T } from 'lib/i18n';
@@ -17,7 +14,6 @@ import { useConfirm } from 'lib/ui/dialog';
 import { delay } from 'lib/utils';
 
 import CustomSelect, { OptionRenderProps } from '../CustomSelect';
-import HashChip from '../HashChip';
 import { AddressBookSelectors } from './AddressBook.selectors';
 
 type ContactActions = {

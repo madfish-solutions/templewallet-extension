@@ -1,3 +1,6 @@
+// eslint-disable-next-line import/no-duplicates
+import formatDateFns from 'date-fns/format';
+// eslint-disable-next-line import/no-duplicates
 import { enUS, enGB, fr, zhCN, zhTW, ja, ko, uk, ru } from 'date-fns/locale';
 import browser from 'webextension-polyfill';
 
@@ -75,4 +78,10 @@ export function getNumberSymbols() {
 
 export function getCurrentLocale() {
   return getSavedLocale() || getNativeLocale();
+}
+
+export function formatDate(date: string | number | Date, format: string) {
+  const locale = getDateFnsLocale();
+
+  return formatDateFns(new Date(date), format, { locale });
 }

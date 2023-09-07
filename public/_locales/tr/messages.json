@@ -1855,7 +1855,7 @@
     "message": "Eşleşen dApps bulunamadı"
   },
   "thousandFormat": {
-    "message": "$thousand$k",
+    "message": "$thousand$K",
     "placeholders": {
       "thousand": {
         "content": "$1"

@@ -702,6 +702,9 @@
   "send": {
     "message": "Send"
   },
+  "floorPrice": { "message": "Floor" },
+  "sellFor": { "message": "Sell for" },
+  "noOffersYet": { "message": "No offers yet" },
   "get": {
     "message": "Get"
   },
@@ -1689,12 +1692,9 @@
   "activity": {
     "message": "Activity"
   },
-  "manage": {
-    "message": "Manage"
-  },
-  "manageTokens": {
-    "message": "Manage Tokens"
-  },
+  "manage": { "message": "Manage" },
+  "manageTokens": { "message": "Manage Tokens" },
+  "manageAssetsList": { "message": "Manage assets list" },
   "noItemsFound": {
     "message": "No items found"
   },
@@ -2119,6 +2119,7 @@
   "blockExplorer": {
     "message": "Blockchain explorer"
   },
+  "viewOnBlockExplorer": { "message": "View on block explorer" },
   "specifyTokenId": {
     "message": "Specify token ID"
   },
@@ -2153,7 +2154,7 @@
     "message": "No matching dApps were found"
   },
   "thousandFormat": {
-    "message": "$thousand$k",
+    "message": "$thousand$K",
     "placeholders": {
       "thousand": {
         "content": "$1"
@@ -2362,6 +2363,8 @@
     "message": "less",
     "description": "Show less"
   },
+  "showInfo": { "message": "Show info" },
+  "hideZeroBalance": { "message": "Hide 0 balance" },
   "recentDestinations": {
     "message": "Recent destinations"
   },
@@ -3054,12 +3057,25 @@
   "creditCard": {
     "message": "credit card"
   },
+  "creator": {
+    "message": "Creator:"
+  },
+  "creators": {
+    "message": "Creators:"
+  },
   "subscribeToNewsletter": {
     "message": "Subscribe to our Newsletter"
   },
   "keepLatestNews": {
     "message": "Keep up with the latest news from Madfish"
   },
+  "unknownError": {
+    "message": "Unknown error"
+  },
+  "cannotSellToYourself": { "message": "Cannot sell to yourself" },
+  "selectedAccountCannotSignTx": { "message": "Selected account cannot sign transactions" },
+  "attributes": { "message": "Attributes" },
+  "properties": { "message": "Properties" },
   "viewAds": {
     "message": "View Ads"
   },

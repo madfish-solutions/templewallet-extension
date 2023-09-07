@@ -5,12 +5,21 @@ import CSSTransition from 'react-transition-group/CSSTransition';
 
 type DropdownWrapperProps = HTMLAttributes<HTMLDivElement> & {
   opened: boolean;
+  design?: Design;
   hiddenOverflow?: boolean;
   scaleAnimation?: boolean;
 };
 
+const DESIGN_CLASS_NAMES = {
+  light: 'bg-white border-gray-300',
+  dark: 'bg-gray-910 border-gray-850'
+};
+
+type Design = keyof typeof DESIGN_CLASS_NAMES;
+
 const DropdownWrapper: FC<DropdownWrapperProps> = ({
   opened,
+  design = 'light',
   hiddenOverflow = true,
   scaleAnimation = true,
   className,
@@ -36,13 +45,10 @@ const DropdownWrapper: FC<DropdownWrapperProps> = ({
         'mt-2 border rounded-md shadow-xl',
         hiddenOverflow && 'overflow-hidden',
         process.env.TARGET_BROWSER === 'firefox' && 'grayscale-firefox-fix',
+        DESIGN_CLASS_NAMES[design],
         className
       )}
-      style={{
-        backgroundColor: '#1b262c',
-        borderColor: '#212e36',
-        ...style
-      }}
+      style={style}
       {...rest}
     />
   </CSSTransition>

@@ -2,7 +2,9 @@ import React, { useMemo } from 'react';
 
 import ReactImageFallback from 'react-image-fallback';
 
-interface Props {
+import { isTruthy } from 'lib/utils';
+
+export interface ImageProps {
   src?: string | (string | undefined)[];
   alt?: string;
   className?: string;
@@ -11,6 +13,8 @@ interface Props {
   width?: string | number;
   height?: string | number;
   style?: React.CSSProperties;
+  onLoad?: EmptyFn;
+  onError?: EmptyFn;
 }
 
 /*
@@ -21,16 +25,16 @@ interface Props {
 ReactImageFallback.prototype.componentDidUpdate = ReactImageFallback.prototype.componentWillReceiveProps;
 delete ReactImageFallback.prototype.componentWillReceiveProps;
 
-export const Image: React.FC<Props> = ({ src: sources, alt, loader, fallback, ...rest }) => {
-  const localFallback = useMemo(() => fallback || <img alt={alt} {...rest} />, [alt, rest]);
+export const Image: React.FC<ImageProps> = ({ src: sources, alt, loader, fallback, onLoad, onError, ...rest }) => {
+  const localFallback = useMemo(() => fallback || <img alt={alt} {...rest} />, [fallback, alt, rest]);
 
   const { src, fallbackImage } = useMemo(() => {
     let src: string | undefined;
     let fallbackImage: React.ReactElement | (undefined | string | React.ReactElement)[];
     if (Array.isArray(sources)) {
-      sources = sources.filter(Boolean);
-      src = sources[0];
-      fallbackImage = [...sources.slice(1), localFallback];
+      const filtered = sources.filter(isTruthy);
+      src = filtered[0];
+      fallbackImage = [...filtered.slice(1), localFallback];
     } else {
       src = sources;
       fallbackImage = localFallback;
@@ -46,6 +50,14 @@ export const Image: React.FC<Props> = ({ src: sources, alt, loader, fallback, ..
       alt={alt}
       initialImage={loader}
       fallbackImage={fallbackImage as any}
+      /** (event: SyntheticEvent | string) => void
+       * Fired twice (bug) on successful source found
+       */
+      onLoad={onLoad}
+      /** (event: string) => void
+       * Fired once all sources failed to load
+       */
+      onError={onError}
       {...rest}
     />
   );

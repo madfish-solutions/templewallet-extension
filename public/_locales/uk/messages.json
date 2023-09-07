@@ -1365,12 +1365,9 @@
   "activity": {
     "message": "Активність"
   },
-  "manage": {
-    "message": "Керувати"
-  },
-  "manageAssets": {
-    "message": "Керувати Активами"
-  },
+  "manage": { "message": "Керувати" },
+  "manageTokens": { "message": "Керувати Токенами" },
+  "manageAssetsList": { "message": "Керувати Активами" },
   "noAssetsFound": {
     "message": "Активів не знайдено"
   },
@@ -1731,6 +1728,7 @@
   "blockExplorer": {
     "message": "Експлорер блокчейна"
   },
+  "viewOnBlockExplorer": { "message": "Відкрити в експлорері" },
   "game": {
     "message": "Гра"
   },
@@ -1854,5 +1852,12 @@
         "content": "$1"
       }
     }
+  },
+  "showInfo": { "message": "Деталі" },
+  "hideZeroBalance": { "message": "Сховати нульові баланси" },
+  "creator": { "message": "Автор:" },
+  "creators": { "message": "Автори:" },
+  "unknownError": {
+    "message": "Невідома помилка"
   }
 }
