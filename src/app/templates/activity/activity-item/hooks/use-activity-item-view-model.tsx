@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo, useState } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
-import { AllowanceInteractionActivity, TzktOperationStatus } from '@temple-wallet/transactions-parser';
+import { AllowanceInteractionActivity, Route3Activity, TzktOperationStatus } from '@temple-wallet/transactions-parser';
 import classNames from 'clsx';
 
 import { getCurrentLocale, t } from 'lib/i18n';
@@ -43,6 +43,7 @@ export const useActivityItemViewModel = (activity: DisplayableActivity) => {
   const shouldShowActor = isDelegation || isBakingRewards || isSend || isReceive || isAllowanceChange;
   const headerTokensDeltasFilteringMode = isInteraction ? FilteringMode.ONLY_POSITIVE_IF_PRESENT : FilteringMode.NONE;
   const allowanceChanges = isAllowanceChange ? (activity as AllowanceInteractionActivity).allowanceChanges : [];
+  const cashback = is3Route ? (activity as Route3Activity).cashback : undefined;
 
   const tzProfileLogo = useTzProfileLogo(actor?.address);
 
@@ -111,6 +112,7 @@ export const useActivityItemViewModel = (activity: DisplayableActivity) => {
     status,
     isAllowanceChange,
     allowanceChanges,
+    cashback,
     activityTime,
     chevronAnimationClassName,
     toggleDetails,

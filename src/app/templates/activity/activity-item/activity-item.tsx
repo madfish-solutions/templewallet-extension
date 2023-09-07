@@ -1,5 +1,6 @@
 import React, { memo } from 'react';
 
+import { isDefined } from '@rnw-community/shared';
 import classNames from 'clsx';
 
 import { Button } from 'app/atoms/Button';
@@ -9,6 +10,7 @@ import HashChip from 'app/templates/HashChip';
 import { T, t } from 'lib/i18n';
 import { DisplayableActivity } from 'lib/temple/activity-new/types';
 
+import { CashbackView } from '../cashback-view';
 import { ActivitySelectors } from '../selectors';
 import { TokensAllowancesView } from '../tokens-allowances-view';
 import { TokensDeltaView } from '../tokens-delta-view';
@@ -32,6 +34,7 @@ export const ActivityItem = memo<Props>(({ activity }) => {
     status,
     isAllowanceChange,
     allowanceChanges,
+    cashback,
     activityTime,
     chevronAnimationClassName,
     toggleDetails,
@@ -101,6 +104,14 @@ export const ActivityItem = memo<Props>(({ activity }) => {
                 {receivedTokensDeltas.map((tokenDelta, i) => (
                   <TokensDeltaView key={i} tokensDeltas={tokenDelta} shouldShowNFTCard isTotal={false} />
                 ))}
+              </div>
+            </ActivityDetailsRow>
+          )}
+
+          {isDefined(cashback) && (
+            <ActivityDetailsRow className="border-b border-gray-300" title={`${t('swapCashback')}:`}>
+              <div className="flex flex-col items-right">
+                <CashbackView cashback={cashback} />
               </div>
             </ActivityDetailsRow>
           )}
