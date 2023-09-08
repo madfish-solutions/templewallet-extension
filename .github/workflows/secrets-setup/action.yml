@@ -52,6 +52,8 @@ inputs:
     required: false
   CUSTOM_NETWORK_RPC_URL:
     required: false
+  CUSTOM_NETWORK_SECOND_RPC_URL:
+    required: false
 
 runs:
   using: 'composite'
@@ -94,4 +96,5 @@ runs:
         WATCH_ONLY_PUBLIC_KEY_HASH=${{ inputs.WATCH_ONLY_PUBLIC_KEY_HASH }}
         WATCH_ONLY_PUBLIC_KEY_HASH_SHORT_FORM=${{ inputs.WATCH_ONLY_PUBLIC_KEY_HASH_SHORT_FORM }}
         CUSTOM_NETWORK_RPC_URL=${{ inputs.CUSTOM_NETWORK_RPC_URL }}
+        CUSTOM_NETWORK_SECOND_RPC_URL=${{ inputs.CUSTOM_NETWORK_SECOND_RPC_URL }}
         EOF

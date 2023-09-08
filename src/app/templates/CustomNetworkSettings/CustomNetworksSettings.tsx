@@ -167,7 +167,10 @@ const CustomNetworksSettings: FC = () => {
           errorCaption={errors.name?.message}
           containerClassName="mb-4"
           maxLength={35}
-          testID={CustomNetworkSettingsSelectors.nameInput}
+          testIDs={{
+            input: CustomNetworkSettingsSelectors.nameInput,
+            inputSection: CustomNetworkSettingsSelectors.nameInputSection
+          }}
         />
 
         <FormField
@@ -187,7 +190,10 @@ const CustomNetworksSettings: FC = () => {
           placeholder="http://localhost:8545"
           errorCaption={errors.rpcBaseURL?.message || (errors.rpcBaseURL?.type === 'unique' ? t('mustBeUnique') : '')}
           containerClassName="mb-4"
-          testID={CustomNetworkSettingsSelectors.RPCbaseURLinput}
+          testIDs={{
+            input: CustomNetworkSettingsSelectors.RPCbaseURLinput,
+            inputSection: CustomNetworkSettingsSelectors.RPCbaseURLinputSection
+          }}
         />
 
         <FormSubmitButton loading={submitting} testID={CustomNetworkSettingsSelectors.addNetworkButton}>

@@ -26,6 +26,7 @@ export const iEnterValues = {
   secondContactPublicKey: 'tz1eSbADvrQzhH6vWP6MUy6VoEiGPJJZj696',
 
   customNetworkRPC: envVars.CUSTOM_NETWORK_RPC_URL,
+  secondCustomNetworkRPC: envVars.CUSTOM_NETWORK_SECOND_RPC_URL,
   customTestName: 'Custom Test Net',
 
   customTokenContractAddress: 'KT1Td6a28ydPMXKJS5yS5Usadj4Qx5drsCfY', // 'KLL (Killer) token'
