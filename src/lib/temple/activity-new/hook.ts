@@ -114,8 +114,6 @@ export default function useActivities(initialPseudoLimit: number, assetSlug?: st
     [activities]
   );
 
-  console.log(groupedByDayActivities, 'activities');
-
   return {
     loading,
     reachedTheEnd,
