@@ -323,7 +323,7 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
           <div className="w-1/2 pr-2">
             <FormSecondaryButton
               type="button"
-              className="justify-center w-full"
+              className="w-full"
               loading={declining}
               disabled={declining}
               onClick={handleDeclineClick}

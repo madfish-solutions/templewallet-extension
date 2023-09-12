@@ -1,11 +1,22 @@
+import { AddAssetPage } from 'e2e/src/page-objects/pages/add-asset.page';
 import { AddressBookPage } from 'e2e/src/page-objects/pages/address-book.page';
 import { ConfirmationModalPage } from 'e2e/src/page-objects/pages/confirmation-modal.page';
 import { NetworksDropDown } from 'e2e/src/page-objects/pages/drop-down-lists/networks.drop-down';
+import { ManageAssetsCollectiblesPage } from 'e2e/src/page-objects/pages/manage-assets-collectibles.page';
+import { ManageAssetsTokensPage } from 'e2e/src/page-objects/pages/manage-assets-tokens.page';
 import { NetworksPage } from 'e2e/src/page-objects/pages/networks.page';
 import { NewsletterModalPage } from 'e2e/src/page-objects/pages/newsletter-modal.page';
 import { OnRumModalPage } from 'e2e/src/page-objects/pages/on-rum-modal.page';
+import {
+  OnboardingCongratsPage,
+  OnboardingFirstStepPage,
+  OnboardingFourthStepPage,
+  OnboardingSecondStepPage,
+  OnboardingThirdStepPage
+} from 'e2e/src/page-objects/pages/onboarding.page';
 import { RemoveAccountPage } from 'e2e/src/page-objects/pages/remove-account.page';
 import { SwapPage } from 'e2e/src/page-objects/pages/swap.page';
+import { TokenPage } from 'e2e/src/page-objects/pages/token.page';
 
 import { OperationStatusAlert } from './pages/alerts/operation-status.alert';
 import { CreateOrRestoreAnAccountPage } from './pages/create-or-restore-an-account.page';
@@ -59,5 +70,14 @@ export const Pages = {
   RemoveAccount: new RemoveAccountPage(),
   AddressBook: new AddressBookPage(),
   ConfirmationModal: new ConfirmationModalPage(),
-  Networks: new NetworksPage()
+  Networks: new NetworksPage(),
+  ManageAssetsCollectibles: new ManageAssetsCollectiblesPage(),
+  ManageAssetsTokens: new ManageAssetsTokensPage(),
+  AddAsset: new AddAssetPage(),
+  Token: new TokenPage(),
+  OnboardingFirstStep: new OnboardingFirstStepPage(),
+  OnboardingSecondStep: new OnboardingSecondStepPage(),
+  OnboardingThirdStep: new OnboardingThirdStepPage(),
+  OnboardingFourthStep: new OnboardingFourthStepPage(),
+  OnboardingCongrats: new OnboardingCongratsPage()
 };

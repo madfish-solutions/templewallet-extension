@@ -196,11 +196,10 @@ const InitialStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
       </div>
 
       <FormSubmitButton
-        className="w-full justify-center border-none"
+        className="w-full justify-center border-none mt-6"
         style={{
           padding: '10px 2rem',
-          background: '#4299e1',
-          marginTop: '24px'
+          background: '#4299e1'
         }}
         onClick={submitExchangeHandler}
         disabled={proceedForbidden}

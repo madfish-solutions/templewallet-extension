@@ -6,8 +6,8 @@ import useSWR from 'swr';
 
 import { FormField } from 'app/atoms';
 import { ReactComponent as CopyIcon } from 'app/icons/copy.svg';
+import { ReactComponent as GlobeIcon } from 'app/icons/globe.svg';
 import { ReactComponent as HashIcon } from 'app/icons/hash.svg';
-import { ReactComponent as LanguageIcon } from 'app/icons/language.svg';
 import { ReactComponent as QRIcon } from 'app/icons/qr.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import ViewsSwitcher, { ViewsSwitcherProps } from 'app/templates/ViewsSwitcher/ViewsSwitcher';
@@ -22,7 +22,7 @@ import { ReceiveSelectors } from './Receive.selectors';
 
 const ADDRESS_FIELD_VIEWS = [
   {
-    Icon: LanguageIcon,
+    Icon: GlobeIcon,
     key: 'domain',
     name: t('domain')
   },

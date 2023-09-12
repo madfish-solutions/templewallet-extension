@@ -105,11 +105,7 @@ export const NewSeedVerify: FC<NewSeedVerifyProps> = ({ seedPhrase, onVerificati
           ))}
         </div>
 
-        <FormSubmitButton
-          disabled={!filled}
-          style={{ display: 'block', width: 384, margin: '8px auto', fontSize: 14, fontWeight: 500 }}
-          testID={NewSeedVerifySelectors.nextButton}
-        >
+        <FormSubmitButton disabled={!filled} className="w-96 my-2 mx-auto" testID={NewSeedVerifySelectors.nextButton}>
           <T id="next" />
         </FormSubmitButton>
       </form>

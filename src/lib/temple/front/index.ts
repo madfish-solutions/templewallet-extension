@@ -1,4 +1,4 @@
-export { useStorage, fetchFromStorage, putToStorage } from './storage';
+export { useStorage } from './storage';
 
 export { useTempleClient, request, assertResponse } from './client';
 
@@ -19,13 +19,11 @@ export {
 } from './ready';
 
 export {
-  useAvailableAssets,
-  useAssetsSortPredicate,
   useCollectibleTokens,
   useDisplayedFungibleTokens,
   useGetTokenMetadata,
   useGasToken,
-  useFilteredAssets
+  useAvailableAssetsSlugs
 } from './assets';
 
 export { validateDerivationPath, validateContractAddress } from './helpers';
@@ -59,4 +57,9 @@ export { useFilteredContacts } from './use-filtered-contacts.hook';
 
 export { decryptKukaiSeedPhrase } from './kukai';
 
-export { buildTokenIconURLs, buildCollectibleImageURLs } from './image-uri';
+export {
+  isSvgDataUriInUtf8Encoding,
+  buildTokenIconURLs,
+  buildCollectibleImageURLs,
+  buildObjktCollectibleArtifactUri
+} from './image-uri';
