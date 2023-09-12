@@ -13,7 +13,12 @@ import {
   uppercaseLowercaseMixtureRegx
 } from 'app/defaults';
 import { shouldShowNewsletterModalAction } from 'app/store/newsletter/newsletter-actions';
-import { setIsAnalyticsEnabledAction, setOnRampPossibilityAction } from 'app/store/settings/actions';
+import { togglePartnersPromotionAction } from 'app/store/partners-promotion/actions';
+import {
+  setAdsBannerVisibilityAction,
+  setIsAnalyticsEnabledAction,
+  setOnRampPossibilityAction
+} from 'app/store/settings/actions';
 import { AnalyticsEventCategory, TestIDProps, useAnalytics } from 'lib/analytics';
 import { T, t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
@@ -31,6 +36,7 @@ interface FormData extends TestIDProps {
   repeatPassword?: string;
   termsAccepted: boolean;
   analytics?: boolean;
+  viewAds: boolean;
   skipOnboarding?: boolean;
   testID?: string;
 }
@@ -53,6 +59,16 @@ export const SetWalletPassword: FC<SetWalletPasswordProps> = ({
   const dispatch = useDispatch();
 
   const setAnalyticsEnabled = (analyticsEnabled: boolean) => dispatch(setIsAnalyticsEnabledAction(analyticsEnabled));
+  const setAdsViewEnabled = (adsViewEnabled: boolean) => {
+    if (adsViewEnabled) {
+      dispatch(setAdsBannerVisibilityAction(false));
+      dispatch(togglePartnersPromotionAction(true));
+    } else {
+      dispatch(setAdsBannerVisibilityAction(true));
+      dispatch(togglePartnersPromotionAction(false));
+    }
+  };
+
   const { setOnboardingCompleted } = useOnboardingProgress();
 
   const isImportFromKeystoreFile = Boolean(keystorePassword);
@@ -62,7 +78,12 @@ export const SetWalletPassword: FC<SetWalletPasswordProps> = ({
   const [focused, setFocused] = useState(false);
 
   const { control, watch, register, handleSubmit, errors, triggerValidation, formState } = useForm<FormData>({
-    defaultValues: { shouldUseKeystorePassword: !isKeystorePasswordWeak, analytics: true, skipOnboarding: false },
+    defaultValues: {
+      shouldUseKeystorePassword: !isKeystorePasswordWeak,
+      analytics: true,
+      viewAds: true,
+      skipOnboarding: false
+    },
     mode: 'onChange'
   });
   const submitting = formState.isSubmitting;
@@ -107,6 +128,7 @@ export const SetWalletPassword: FC<SetWalletPasswordProps> = ({
           : data.password
         : data.password;
       try {
+        setAdsViewEnabled(data.viewAds);
         setAnalyticsEnabled(!!data.analytics);
         setOnboardingCompleted(data.skipOnboarding!);
 
@@ -247,6 +269,16 @@ export const SetWalletPassword: FC<SetWalletPasswordProps> = ({
 
       <Controller
         control={control}
+        name="viewAds"
+        as={FormCheckbox}
+        label={t('viewAds')}
+        labelDescription={<T id="viewAdsDescription" />}
+        containerClassName="mb-4"
+        testID={setWalletPasswordSelectors.viewAdsCheckBox}
+      />
+
+      <Controller
+        control={control}
         name="skipOnboarding"
         as={p => <FormCheckbox {...p} testID={setWalletPasswordSelectors.skipOnboardingCheckbox} />}
         label={t('skipOnboarding')}
@@ -291,7 +323,7 @@ export const SetWalletPassword: FC<SetWalletPasswordProps> = ({
 
       <FormSubmitButton
         loading={submitting}
-        style={{ display: 'block', width: '100%', fontSize: 14, fontWeight: 500 }}
+        className="w-full"
         testID={ownMnemonic ? setWalletPasswordSelectors.importButton : setWalletPasswordSelectors.createButton}
       >
         <T id={ownMnemonic ? 'import' : 'create'} />

@@ -5,6 +5,7 @@ import { Controller, useForm } from 'react-hook-form';
 
 import { Alert, FormField, FormSubmitButton } from 'app/atoms';
 import ConfirmLedgerOverlay from 'app/atoms/ConfirmLedgerOverlay';
+import { DEFAULT_DERIVATION_PATH } from 'app/defaults';
 import { ReactComponent as LinkIcon } from 'app/icons/link.svg';
 import { ReactComponent as OkIcon } from 'app/icons/ok.svg';
 import PageLayout from 'app/layouts/PageLayout';
@@ -13,6 +14,7 @@ import { T, t } from 'lib/i18n';
 import { useAllAccounts, useSetAccountPkh, useTempleClient, validateDerivationPath } from 'lib/temple/front';
 import { getLedgerTransportType } from 'lib/temple/ledger';
 import { DerivationType, TempleAccountType } from 'lib/temple/types';
+import { delay } from 'lib/utils';
 import { navigate } from 'lib/woozie';
 
 import { ConnectLedgerSelectors } from './ConnectLedger.selectors';
@@ -75,7 +77,7 @@ const ConnectLedger: FC = () => {
   const { control, register, handleSubmit, errors, formState } = useForm<FormData>({
     defaultValues: {
       name: defaultName,
-      customDerivationPath: "m/44'/1729'/0'/0'",
+      customDerivationPath: DEFAULT_DERIVATION_PATH,
       accountNumber: 1,
       derivationType: DerivationType.ED25519
     }
@@ -115,7 +117,7 @@ const ConnectLedger: FC = () => {
         console.error(err);
 
         // Human delay.
-        await new Promise(res => setTimeout(res, 300));
+        await delay();
         setError(err.message);
       }
 
@@ -133,7 +135,7 @@ const ConnectLedger: FC = () => {
         console.error(err);
 
         // Human delay.
-        await new Promise(res => setTimeout(res, 300));
+        await delay();
         setError(err.message);
       }
     },

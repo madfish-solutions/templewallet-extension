@@ -18,7 +18,6 @@ import {
   isAllowanceInteractionActivityTypeGuard,
   isInteractionActivityTypeGuard
 } from 'lib/temple/activity-new/utils';
-import { useExplorerBaseUrls } from 'lib/temple/front';
 import { formatTcInfraImgUri } from 'lib/temple/front/image-uri';
 import { Image } from 'lib/ui/Image';
 
@@ -46,7 +45,6 @@ const actorAvatarStyles = 'border border-gray-300 mr-2 rounded-md min-w-9';
 export const useActivityItemViewModel = (activity: DisplayableActivity) => {
   const { hash, timestamp, status, tokensDeltas, from } = activity;
 
-  const { transaction: explorerBaseUrl } = useExplorerBaseUrls();
   const [isOpen, setIsOpen] = useState(false);
   const [wasToggled, setWasToggled] = useState(false);
 
@@ -134,7 +132,6 @@ export const useActivityItemViewModel = (activity: DisplayableActivity) => {
     shouldShowActor,
     actorPrepositionI18nKey,
     hash,
-    explorerBaseUrl,
     tokensDeltas
   };
 };

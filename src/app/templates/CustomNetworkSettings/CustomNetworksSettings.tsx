@@ -16,7 +16,7 @@ import { NETWORK_IDS } from 'lib/temple/networks';
 import { TempleNetwork } from 'lib/temple/types';
 import { COLORS } from 'lib/ui/colors';
 import { useConfirm } from 'lib/ui/dialog';
-import { withErrorHumanDelay } from 'lib/ui/humanDelay';
+import { delay } from 'lib/utils';
 
 import { CustomNetworkSettingsSelectors } from './CustomNetworkSettingsSelectors';
 
@@ -52,7 +52,12 @@ const CustomNetworksSettings: FC = () => {
       try {
         chainId = await loadChainId(rpcBaseURL);
       } catch (err: any) {
-        await withErrorHumanDelay(err, () => setError('rpcBaseURL', SUBMIT_ERROR_TYPE, t('invalidRpcCantGetChainId')));
+        console.error(err);
+
+        await delay();
+
+        setError('rpcBaseURL', SUBMIT_ERROR_TYPE, t('invalidRpcCantGetChainId'));
+
         return;
       }
 
@@ -74,7 +79,11 @@ const CustomNetworksSettings: FC = () => {
         });
         resetForm();
       } catch (err: any) {
-        await withErrorHumanDelay(err, () => setError('rpcBaseURL', SUBMIT_ERROR_TYPE, err.message));
+        console.error(err);
+
+        await delay();
+
+        setError('rpcBaseURL', SUBMIT_ERROR_TYPE, err.message);
       }
     },
     [clearError, customNetworks, resetForm, submitting, setError, updateSettings]
@@ -101,7 +110,7 @@ const CustomNetworksSettings: FC = () => {
         customNetworks: customNetworks.filter(({ rpcBaseURL }) => rpcBaseURL !== baseUrl)
       }).catch(async err => {
         console.error(err);
-        await new Promise(res => setTimeout(res, 300));
+        await delay();
         setError('rpcBaseURL', SUBMIT_ERROR_TYPE, err.message);
       });
     },
@@ -158,7 +167,10 @@ const CustomNetworksSettings: FC = () => {
           errorCaption={errors.name?.message}
           containerClassName="mb-4"
           maxLength={35}
-          testID={CustomNetworkSettingsSelectors.nameInput}
+          testIDs={{
+            input: CustomNetworkSettingsSelectors.nameInput,
+            inputSection: CustomNetworkSettingsSelectors.nameInputSection
+          }}
         />
 
         <FormField
@@ -178,7 +190,10 @@ const CustomNetworksSettings: FC = () => {
           placeholder="http://localhost:8545"
           errorCaption={errors.rpcBaseURL?.message || (errors.rpcBaseURL?.type === 'unique' ? t('mustBeUnique') : '')}
           containerClassName="mb-4"
-          testID={CustomNetworkSettingsSelectors.RPCbaseURLinput}
+          testIDs={{
+            input: CustomNetworkSettingsSelectors.RPCbaseURLinput,
+            inputSection: CustomNetworkSettingsSelectors.RPCbaseURLinputSection
+          }}
         />
 
         <FormSubmitButton loading={submitting} testID={CustomNetworkSettingsSelectors.addNetworkButton}>

@@ -294,7 +294,7 @@
     "message": "p. ex. KT1v9CmPy…"
   },
   "tokenSymbolPatternDescription": {
-    "message": "Seuls les caractères a-z, A-Z, 0-9 sont autorisés, longueur de 2 à 5"
+    "message": "Seuls les caractères a-z, A-Z, 0-9 sont autorisés, longueur de 2 à 10"
   },
   "symbol": {
     "message": "Symbole"
@@ -306,7 +306,7 @@
     "message": "p. ex. WEW, BOW, LAL etc."
   },
   "tokenNamePatternDescription": {
-    "message": "Aucun caractère spécial, longueur de 3 à 50"
+    "message": "Aucun caractère spécial, longueur de 3 à 25"
   },
   "name": {
     "message": "Nom"
@@ -592,9 +592,6 @@
   },
   "mnemonicInputLabel": {
     "message": "phrase mnémonique"
-  },
-  "mnemonicInputPlaceholder": {
-    "message": "p. ex. venue sock milk update…"
   },
   "passwordInputDescription": {
     "message": "Il NE s'agit PAS d'un mot de passe de portefeuille.\nUtilisé pour la dérivation mnémonique supplémentaire."

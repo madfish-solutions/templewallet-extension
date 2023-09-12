@@ -11,7 +11,6 @@ if (LOCAL_METADATA_API_URL) console.warn(`process.env.LOCAL_METADATA_API_URL fou
 const API_CHAIN_NAMES = {
   [TempleChainId.Mainnet]: 'mainnet',
   [TempleChainId.Ghostnet]: 'ghostnet',
-  [TempleChainId.Mumbainet]: 'mumbainet',
   [TempleChainId.Dcp]: 'dcp',
   [TempleChainId.DcpTest]: 'dcptest'
 };
@@ -28,6 +27,8 @@ export interface TokenMetadataResponse {
   name?: string;
   thumbnailUri?: string;
   artifactUri?: string;
+  displayUri?: string;
+  image?: string;
 }
 
 export const fetchOneTokenMetadata = (chainId: MetadataApiChainId, address: string, id = 0) =>

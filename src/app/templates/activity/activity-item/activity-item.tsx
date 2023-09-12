@@ -4,9 +4,9 @@ import { isDefined } from '@rnw-community/shared';
 import classNames from 'clsx';
 
 import { Button } from 'app/atoms/Button';
-import OpenInExplorerChip from 'app/atoms/OpenInExplorerChip';
+import { HashChip } from 'app/atoms/HashChip';
 import { ReactComponent as ChevronUpNewIcon } from 'app/icons/chevron-up-new.svg';
-import HashChip from 'app/templates/HashChip';
+import { OpenInExplorerChip } from 'app/templates/OpenInExplorerChip';
 import { T, t } from 'lib/i18n';
 import { DisplayableActivity } from 'lib/temple/activity-new/types';
 
@@ -46,7 +46,6 @@ export const ActivityItem = memo<Props>(({ activity }) => {
     shouldShowActor,
     actorPrepositionI18nKey,
     hash,
-    explorerBaseUrl,
     tokensDeltas
   } = useActivityItemViewModel(activity);
 
@@ -76,11 +75,11 @@ export const ActivityItem = memo<Props>(({ activity }) => {
 
       <div className="w-full flex items-center">
         <div className={classNames('px-0.5 rounded-lg h-4 flex items-center mr-1 font-medium', statusColorClassName)}>
-          <span className="px-1 text-2xs leading-none uppercase text-white">
+          <span className="px-1 text-xxxs leading-none uppercase text-white">
             <T id={status} />
           </span>
         </div>
-        <span className="flex-1 text-2xs font-medium text-gray-600">{activityTime}</span>
+        <span className="flex-1 text-xxxs font-medium text-gray-600">{activityTime}</span>
         <Button
           testID={ActivitySelectors.detailsButton}
           onClick={toggleDetails}
@@ -143,13 +142,7 @@ export const ActivityItem = memo<Props>(({ activity }) => {
               className={classNames('mr-1', styles.hashChip)}
             />
 
-            {explorerBaseUrl && (
-              <OpenInExplorerChip
-                baseUrl={explorerBaseUrl}
-                hash={hash}
-                testID={ActivitySelectors.openTransactionInExplorerButton}
-              />
-            )}
+            <OpenInExplorerChip hash={hash} testID={ActivitySelectors.openTransactionInExplorerButton} />
           </ActivityDetailsRow>
         </div>
       )}
