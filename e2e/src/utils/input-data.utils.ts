@@ -18,8 +18,12 @@ export const iEnterValues = {
   defaultPassword: envVars.DEFAULT_PASSWORD,
   watchOnlyPublicKey: envVars.WATCH_ONLY_PUBLIC_KEY_HASH,
   bakerAddress: '',
+
+  // For input validation
   shortRandomContent: generateRandomContent(),
-  longRandomContent: 'long random content for test + ' + generateRandomContent(),
+  longRandomContent: 'long random content for test + long +' + generateRandomContent(),
+  specialSymbolsContent: '#$%^&*&^()',
+  сyrillicContent: 'привіт привіт ',
 
   // For adding assets, contacts, etc ...
   contactPublicKey: 'tz1aWpVn8k5aZvVaCKPMdcPeX8ccm5662SLL',
