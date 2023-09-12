@@ -4,6 +4,7 @@ import classNames from 'clsx';
 import useSWR from 'swr';
 
 import { Button, HashChip } from 'app/atoms';
+import { CopyButtonProps } from 'app/atoms/CopyButton';
 import { ReactComponent as GlobeIcon } from 'app/icons/globe.svg';
 import { ReactComponent as HashIcon } from 'app/icons/hash.svg';
 import { TestIDProps } from 'lib/analytics';
@@ -12,13 +13,15 @@ import { useTezos, useTezosDomainsClient, useStorage } from 'lib/temple/front';
 type Props = TestIDProps & {
   pkh: string;
   className?: string;
+  chipClassName?: string;
   small?: boolean;
   modeSwitch?: TestIDProps;
+  rounded?: CopyButtonProps['rounded'];
 };
 
 const TZDNS_MODE_ON_STORAGE_KEY = 'domain-displayed';
 
-const AddressChip: FC<Props> = ({ pkh, className, small, modeSwitch, ...rest }) => {
+const AddressChip: FC<Props> = ({ pkh, className, chipClassName, small, modeSwitch, rounded, ...rest }) => {
   const tezos = useTezos();
   const { resolver: domainsResolver } = useTezosDomainsClient();
 
@@ -41,9 +44,17 @@ const AddressChip: FC<Props> = ({ pkh, className, small, modeSwitch, ...rest }) 
   return (
     <div className={classNames('flex', className)}>
       {tzdnsName && domainDisplayed ? (
-        <HashChip hash={tzdnsName} firstCharsCount={7} lastCharsCount={10} small={small} {...rest} />
+        <HashChip
+          className={chipClassName}
+          hash={tzdnsName}
+          firstCharsCount={7}
+          lastCharsCount={10}
+          small={small}
+          rounded={rounded}
+          {...rest}
+        />
       ) : (
-        <HashChip hash={pkh} small={small} {...rest} />
+        <HashChip className={chipClassName} hash={pkh} small={small} rounded={rounded} {...rest} />
       )}
 
       {tzdnsName && (

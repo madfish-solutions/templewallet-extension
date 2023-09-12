@@ -8,7 +8,6 @@ import { getCurrentLocale, t } from 'lib/i18n';
 import { formatDateOutput } from 'lib/notifications/utils/date.utils';
 import { DisplayableActivity } from 'lib/temple/activity-new/types';
 import { getActor, getActivityTypeFlags } from 'lib/temple/activity-new/utils';
-import { useExplorerBaseUrls } from 'lib/temple/front';
 import { formatTcInfraImgUri } from 'lib/temple/front/image-uri';
 import { Image } from 'lib/ui/Image';
 
@@ -31,7 +30,6 @@ const actorAvatarStyles = 'border border-gray-300 mr-2';
 export const useActivityItemViewModel = (activity: DisplayableActivity) => {
   const { hash, timestamp, status, tokensDeltas, from } = activity;
 
-  const { transaction: explorerBaseUrl } = useExplorerBaseUrls();
   const [isOpen, setIsOpen] = useState(false);
   const [wasToggled, setWasToggled] = useState(false);
 
@@ -118,7 +116,6 @@ export const useActivityItemViewModel = (activity: DisplayableActivity) => {
     shouldShowActor,
     actorPrepositionI18nKey,
     hash,
-    explorerBaseUrl,
     tokensDeltas
   };
 };

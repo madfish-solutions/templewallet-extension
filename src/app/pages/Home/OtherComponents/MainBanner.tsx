@@ -24,8 +24,8 @@ import { useTotalBalance } from 'lib/temple/front/use-total-balance.hook';
 import useTippy from 'lib/ui/useTippy';
 
 import { HomeSelectors } from '../Home.selectors';
-import { TokenPageSelectors } from './TokenPage.selectors';
 import styles from './MainBanner.module.css';
+import { TokenPageSelectors } from './TokenPage.selectors';
 
 interface Props {
   assetSlug?: string | null;
@@ -51,8 +51,7 @@ const TotalVolumeBanner: FC<TotalVolumeBannerProps> = ({ accountPkh }) => (
     <BalanceInfo />
     <AddressChip
       pkh={accountPkh}
-      testID={HomeSelectors.publicAddressButton}
-      addressModeSwitchTestID={HomeSelectors.addressModeSwitchButton}
+      modeSwitch={{ testID: HomeSelectors.addressModeSwitchButton }}
       chipClassName={classNames(isPopupWindow() && styles['popup-address-chip'])}
     />
   </div>
@@ -143,6 +142,7 @@ interface BalanceProps {
   volume: number | string | BigNumber;
   currency: string;
 }
+
 const BalanceFiat: FC<BalanceProps> = ({ volume, currency }) => (
   <>
     <span className="mr-1">≈</span>

@@ -7,7 +7,7 @@ import { useTabSlug } from 'app/atoms/useTabSlug';
 import { useAppEnv } from 'app/env';
 import ErrorBoundary from 'app/ErrorBoundary';
 import { ToolbarElement } from 'app/layouts/PageLayout';
-import { ActivityComponent } from 'app/templates/activity/Activity';
+import { ActivityComponent } from 'app/templates/activity';
 import AssetInfo from 'app/templates/AssetInfo';
 import { TabsBar } from 'app/templates/TabBar';
 import { isTezAsset } from 'lib/assets';

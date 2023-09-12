@@ -3,12 +3,11 @@ import React, { FC } from 'react';
 import { isDefined } from '@rnw-community/shared';
 import clsx from 'clsx';
 
-import OpenInExplorerChip from 'app/atoms/OpenInExplorerChip';
+import { HashChip } from 'app/atoms/HashChip';
 import AddressChip from 'app/templates/AddressChip';
-import HashChip from 'app/templates/HashChip';
+import { OpenInExplorerChip } from 'app/templates/OpenInExplorerChip';
 import { DisplayableActivity } from 'lib/temple/activity-new/types';
 import { getActor, getActivityTypeFlags } from 'lib/temple/activity-new/utils';
-import { useExplorerBaseUrls } from 'lib/temple/front';
 
 import { ActivitySelectors } from '../selectors';
 import styles from './activity-item.module.css';
@@ -19,7 +18,6 @@ interface ActorChipProps {
 
 export const ActorChip: FC<ActorChipProps> = ({ activity }) => {
   const { actor } = getActor(activity);
-  const { transaction: explorerBaseUrl } = useExplorerBaseUrls();
 
   const { isDelegation, isBakingRewards, isAllowanceChange } = getActivityTypeFlags(activity);
 
@@ -31,18 +29,12 @@ export const ActorChip: FC<ActorChipProps> = ({ activity }) => {
     return (
       <>
         <HashChip
-          className={clsx(styles.hashChip, explorerBaseUrl && 'mr-1')}
+          className={clsx(styles.hashChip, 'mr-1')}
           hash={actor.address}
           rounded="base"
           testID={ActivitySelectors.addressFromDetailsButton}
         />
-        {explorerBaseUrl && (
-          <OpenInExplorerChip
-            baseUrl={explorerBaseUrl}
-            hash={actor.address}
-            testID={ActivitySelectors.openAddressInExplorerButton}
-          />
-        )}
+        <OpenInExplorerChip hash={actor.address} testID={ActivitySelectors.openAddressInExplorerButton} />
       </>
     );
   }
@@ -51,7 +43,7 @@ export const ActorChip: FC<ActorChipProps> = ({ activity }) => {
     <AddressChip
       pkh={actor.address}
       testID={ActivitySelectors.addressFromDetailsButton}
-      addressModeSwitchTestID={ActivitySelectors.addressModeSwitchButton}
+      modeSwitch={{ testID: ActivitySelectors.addressModeSwitchButton }}
       rounded="base"
       chipClassName={styles.hashChip}
     />

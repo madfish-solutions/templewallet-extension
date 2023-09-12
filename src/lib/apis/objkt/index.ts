@@ -3,19 +3,22 @@
  * Explore: https://public-api-v3-20221206.objkt.com/explore
  */
 
+import { isDefined } from '@rnw-community/shared';
 import { TezosToolkit } from '@taquito/taquito';
 import { chunk } from 'lodash';
-import { forkJoin, map, of, switchMap } from 'rxjs';
+import { forkJoin, map, of, switchMap, Observable } from 'rxjs';
 
 import { fromFa2TokenSlug } from 'lib/assets/utils';
 
 import { apolloObjktClient, MAX_OBJKT_QUERY_RESPONSE_ITEMS, OBJKT_CONTRACT } from './constants';
-import { buildGetCollectiblesQuery, buildGetGalleriesAttributesCountsQuery } from './queries';
+import { buildGetCollectiblesQuery, buildGetGalleriesAttributesCountsQuery, buildGetHoldersInfoQuery } from './queries';
 import type {
   FxHashContractInterface,
   UserObjktCollectible,
   ObjktGalleryAttributeCount,
-  ObjktContractInterface
+  ObjktContractInterface,
+  TzProfilesQueryResponse,
+  TzProfile
 } from './types';
 
 export type { UserObjktCollectible, ObjktGalleryAttributeCount } from './types';

@@ -2,7 +2,7 @@ import React, { FC, useMemo } from 'react';
 
 import clsx from 'clsx';
 
-import { ReactComponent as ArrowTopRightSvgIcon } from 'app/icons/arrow-top-right.svg';
+import { ReactComponent as ArrowUpRightSvgIcon } from 'app/icons/arrow-up-right.svg';
 import { ReactComponent as LinkSvgIcon } from 'app/icons/external-link.svg';
 import type { TestIDProps } from 'lib/analytics';
 import useTippy, { UseTippyOptions } from 'lib/ui/useTippy';
@@ -40,7 +40,7 @@ export const ExternalLinkChip: FC<ExternalLinkChipProps> = ({
 
   const ref = useTippy<HTMLAnchorElement>(tippyOptions);
 
-  const SvgIcon = arrowIcon ? ArrowTopRightSvgIcon : LinkSvgIcon;
+  const SvgIcon = arrowIcon ? ArrowUpRightSvgIcon : LinkSvgIcon;
 
   return (
     <Anchor
@@ -58,7 +58,7 @@ export const ExternalLinkChip: FC<ExternalLinkChipProps> = ({
       testID={testID}
       testIDProperties={testIDProperties}
     >
-      <SvgIcon className={clsx('stroke-current fill-current', small ? 'h-3 w-3' : 'h-4 w-4')} />
+      <SvgIcon className={clsx('stroke-current w-auto', small ? 'h-3' : 'h-4')} />
     </Anchor>
   );
 };
