@@ -2796,6 +2796,13 @@
   dependencies:
     nanoid "^3.1.25"
 
+"@temple-wallet/transactions-parser@^3.0.0":
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/@temple-wallet/transactions-parser/-/transactions-parser-3.0.0.tgz#4977f7bc6c836b0108beeae26c741acf2ff08b86"
+  integrity sha512-npEvtbjCgWASH1gWzsYKZOANGYCDy53dyAfhX0oN6swqIxZq3xd8tP+AZnYj0NzAq/eRIZk/5yJoQKKJD8kAxA==
+  dependencies:
+    bignumber.js "^9.1.0"
+
 "@temple-wallet/wallet-address-validator@^0.4.3":
   version "0.4.3"
   resolved "https://registry.yarnpkg.com/@temple-wallet/wallet-address-validator/-/wallet-address-validator-0.4.3.tgz#4bb7905a824e290872b7a7fc449df2e8c332e9e1"
