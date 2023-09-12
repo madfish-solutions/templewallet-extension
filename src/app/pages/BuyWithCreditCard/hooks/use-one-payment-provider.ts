@@ -10,7 +10,6 @@ import {
   usePairLimitsErrorsSelector
 } from 'app/store/buy-with-credit-card/selectors';
 import { getMoonPayBuyQuote } from 'lib/apis/moonpay';
-import { estimateBinanceConnectOutput } from 'lib/apis/temple-static';
 import { estimateAliceBobOutput } from 'lib/apis/temple/endpoints/alice-bob';
 import { convertFiatAmountToCrypto } from 'lib/apis/utorg';
 import { getAssetSymbolToDisplay } from 'lib/buy-with-credit-card/get-asset-symbol-to-display';
@@ -64,11 +63,6 @@ const getOutputAmountFunctions: Record<TopUpProviderId, getOutputAmountFunction>
     const response = await estimateAliceBobOutput(false, inputAmount.toString());
 
     return response.data.outputAmount;
-  },
-  [TopUpProviderId.BinanceConnect]: async (inputAmount, inputAsset, outputAsset) => {
-    const response = await estimateBinanceConnectOutput(inputAsset.code, outputAsset.code, String(inputAmount));
-
-    return response;
   }
 };
 
@@ -87,11 +81,6 @@ const initialPaymentProvidersData: Record<TopUpProviderId, PaymentProviderInitia
     name: 'Alice&Bob',
     id: TopUpProviderId.AliceBob,
     kycRequired: false
-  },
-  [TopUpProviderId.BinanceConnect]: {
-    name: 'Binance Connect',
-    id: TopUpProviderId.BinanceConnect,
-    kycRequired: true
   }
 };
 

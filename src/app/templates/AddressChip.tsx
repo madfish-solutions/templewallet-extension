@@ -1,101 +1,65 @@
-import React, { FC, useCallback, useEffect, useState } from 'react';
+import React, { FC, useCallback } from 'react';
 
 import classNames from 'clsx';
 import useSWR from 'swr';
 
-import { Button } from 'app/atoms';
-import { CopyButtonProps } from 'app/atoms/CopyButton';
+import { Button, HashChip } from 'app/atoms';
 import { ReactComponent as GlobeIcon } from 'app/icons/globe.svg';
 import { ReactComponent as HashIcon } from 'app/icons/hash.svg';
-import HashChip from 'app/templates/HashChip';
 import { TestIDProps } from 'lib/analytics';
-import { useTezos, useTezosDomainsClient, fetchFromStorage, putToStorage } from 'lib/temple/front';
+import { useTezos, useTezosDomainsClient, useStorage } from 'lib/temple/front';
 
-type AddressChipProps = TestIDProps & {
+type Props = TestIDProps & {
   pkh: string;
   className?: string;
-  chipClassName?: string;
   small?: boolean;
-  addressModeSwitchTestID?: string;
-  rounded?: CopyButtonProps['rounded'];
+  modeSwitch?: TestIDProps;
 };
 
-const domainDisplayedKey = 'domain-displayed';
+const TZDNS_MODE_ON_STORAGE_KEY = 'domain-displayed';
 
-const AddressChip: FC<AddressChipProps> = ({
-  pkh,
-  chipClassName,
-  className,
-  small,
-  addressModeSwitchTestID,
-  rounded = 'sm',
-  ...rest
-}) => {
+const AddressChip: FC<Props> = ({ pkh, className, small, modeSwitch, ...rest }) => {
   const tezos = useTezos();
   const { resolver: domainsResolver } = useTezosDomainsClient();
 
   const resolveDomainReverseName = useCallback(
-    (_k: string, publicKeyHash: string) => domainsResolver.resolveAddressToName(publicKeyHash),
+    (_k: string, pkh: string) => domainsResolver.resolveAddressToName(pkh),
     [domainsResolver]
   );
 
-  const { data: reverseName } = useSWR(() => ['tzdns-reverse-name', pkh, tezos.checksum], resolveDomainReverseName, {
+  const { data: tzdnsName } = useSWR(() => ['pkh-tzdns-name', pkh, tezos.checksum], resolveDomainReverseName, {
     shouldRetryOnError: false,
     revalidateOnFocus: false
   });
 
-  const [domainDisplayed, setDomainDisplayed] = useState(false);
+  const [domainDisplayed, setDomainDisplayed] = useStorage(TZDNS_MODE_ON_STORAGE_KEY, false);
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const val = await fetchFromStorage<boolean>(domainDisplayedKey);
-        setDomainDisplayed(val ?? true);
-      } catch {}
-    })();
-  }, [domainDisplayedKey, setDomainDisplayed]);
-
-  const handleToggleDomainClick = useCallback(() => {
-    setDomainDisplayed(d => {
-      const newValue = !d;
-      putToStorage(domainDisplayedKey, newValue);
-      return newValue;
-    });
-  }, [setDomainDisplayed, domainDisplayedKey]);
+  const handleToggleDomainClick = useCallback(() => void setDomainDisplayed(val => !val), [setDomainDisplayed]);
 
   const Icon = domainDisplayed ? HashIcon : GlobeIcon;
 
   return (
-    <div className={classNames('flex items-center', className)}>
-      {reverseName && domainDisplayed ? (
-        <HashChip
-          className={chipClassName}
-          hash={reverseName}
-          firstCharsCount={7}
-          lastCharsCount={10}
-          small={small}
-          rounded={rounded}
-          {...rest}
-        />
+    <div className={classNames('flex', className)}>
+      {tzdnsName && domainDisplayed ? (
+        <HashChip hash={tzdnsName} firstCharsCount={7} lastCharsCount={10} small={small} {...rest} />
       ) : (
-        <HashChip className={chipClassName} hash={pkh} small={small} rounded={rounded} {...rest} />
+        <HashChip hash={pkh} small={small} {...rest} />
       )}
 
-      {reverseName && (
+      {tzdnsName && (
         <Button
           type="button"
           className={classNames(
-            'inline-flex items-center justify-center ml-1 p-1',
-            rounded === 'base' ? 'rounded' : 'rounded-sm',
-            'bg-gray-100 text-gray-600 leading-none select-none',
+            'inline-flex items-center justify-center ml-2 rounded-sm p-1',
+            'bg-gray-100 hover:shadow-xs hover:text-gray-600 text-gray-500 leading-none select-none',
             small ? 'text-xs' : 'text-sm',
             'transition ease-in-out duration-300'
           )}
           onClick={handleToggleDomainClick}
-          testID={addressModeSwitchTestID}
-          testIDProperties={{ toDomainMode: !domainDisplayed }}
+          testID={modeSwitch?.testID}
+          testIDProperties={{ toDomainMode: !domainDisplayed, ...modeSwitch?.testIDProperties }}
         >
-          <Icon className={classNames('w-auto stroke-current', small ? 'h-3' : 'h-4')} />
+          <Icon className={classNames('w-auto stroke-current fill-current', small ? 'h-3' : 'h-4')} />
         </Button>
       )}
     </div>

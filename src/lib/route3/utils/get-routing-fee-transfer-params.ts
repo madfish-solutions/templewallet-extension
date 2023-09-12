@@ -3,6 +3,8 @@ import { BigNumber } from 'bignumber.js';
 
 import { Route3Token } from 'lib/apis/route3/fetch-route3-tokens';
 
+import { isRoute3GasToken } from './assets.utils';
+
 export const getRoutingFeeTransferParams = async (
   token: Route3Token,
   feeAmountAtomic: BigNumber,
@@ -10,7 +12,7 @@ export const getRoutingFeeTransferParams = async (
   routingFeeAddress: string,
   tezos: TezosToolkit
 ) => {
-  if (token.contract === null) {
+  if (isRoute3GasToken(token.contract)) {
     return [
       {
         amount: feeAmountAtomic.toNumber(),

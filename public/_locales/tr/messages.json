@@ -306,7 +306,7 @@
     "message": "ör. KT1v9CmPy..."
   },
   "tokenSymbolPatternDescription": {
-    "message": "Yalnızca a-z, A-Z, 0-9 karakterlerine izin verilir, 2-5 uzunluk"
+    "message": "Yalnızca a-z, A-Z, 0-9 karakterlerine izin verilir, 2-10 uzunluk"
   },
   "symbol": {
     "message": "Sembol"
@@ -318,7 +318,7 @@
     "message": "ör. WEW, BOW, LAL vb."
   },
   "tokenNamePatternDescription": {
-    "message": "Özel karakter yok, 3-50 uzunluk"
+    "message": "Özel karakter yok, 3-25 uzunluk"
   },
   "name": {
     "message": "Ad"
@@ -610,12 +610,6 @@
   },
   "mnemonicInputLabel": {
     "message": "Kurtarma sözcüğü"
-  },
-  "mnemonicInputDescription": {
-    "message": "Anımsatıcı ifade. Gizli anahtarınız 12 - 24 sözcükten oluşur."
-  },
-  "mnemonicInputPlaceholder": {
-    "message": "ör. mekan çorap süt güncelleme..."
   },
   "passwordInputDescription": {
     "message": "Bu bir cüzdan parolası DEĞİLDİR.\nEk anımsatıcı ifade türetmek için kullanılır."
@@ -1861,7 +1855,7 @@
     "message": "Eşleşen dApps bulunamadı"
   },
   "thousandFormat": {
-    "message": "$thousand$k",
+    "message": "$thousand$K",
     "placeholders": {
       "thousand": {
         "content": "$1"

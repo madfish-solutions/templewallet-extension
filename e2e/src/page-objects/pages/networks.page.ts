@@ -1,6 +1,7 @@
+import retry from 'async-retry';
 import { CustomNetworkSettingsSelectors } from 'src/app/templates/CustomNetworkSettings/CustomNetworkSettingsSelectors';
 
-import { VERY_SHORT_TIMEOUT } from 'e2e/src/utils/timing.utils';
+import { RETRY_OPTIONS, VERY_SHORT_TIMEOUT } from 'e2e/src/utils/timing.utils';
 
 import { Page } from '../../classes/page.class';
 import { createPageElement, findElement } from '../../utils/search.utils';
@@ -35,5 +36,23 @@ export class NetworksPage extends Page {
     );
 
     return deleteCustomNetworkButton;
+  }
+
+  async clickDeleteCustomNetwork(url: string) {
+    const customNetworkDeleteBtn = await this.isCustomNetworkAdded(url);
+    await customNetworkDeleteBtn.click();
+  }
+
+  async isCustomNetworkDeleted(url: string) {
+    await retry(
+      () =>
+        this.isCustomNetworkAdded(url).then(
+          () => {
+            throw new Error(`The custom network '${url}' not deleted`);
+          },
+          () => undefined
+        ),
+      RETRY_OPTIONS
+    );
   }
 }

@@ -294,7 +294,7 @@
     "message": "例如：KT1v9CmPy..."
   },
   "tokenSymbolPatternDescription": {
-    "message": "仅可使用a-z、A-Z、0-9字符，长度为2-5"
+    "message": "仅可使用a-z、A-Z、0-9字符，长度为2-10"
   },
   "symbol": {
     "message": "符号"
@@ -306,7 +306,7 @@
     "message": "例如WEW、BOW、LAL等等。"
   },
   "tokenNamePatternDescription": {
-    "message": "无特殊字符，长度为3-50"
+    "message": "无特殊字符，长度为3-25"
   },
   "name": {
     "message": "名称"
@@ -592,9 +592,6 @@
   },
   "mnemonicInputLabel": {
     "message": "助记词"
-  },
-  "mnemonicInputPlaceholder": {
-    "message": "例如：venue sock milk update..."
   },
   "passwordInputDescription": {
     "message": "这不是钱包的密码。\n用于附加助记衍生。"

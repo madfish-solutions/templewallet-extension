@@ -294,7 +294,7 @@
     "message": "예) KT1v9CmPy..."
   },
   "tokenSymbolPatternDescription": {
-    "message": "a-z, A-Z, 0-9만 허용되며 2-5글자여야 합니다"
+    "message": "a-z, A-Z, 0-9만 허용되며 2-10글자여야 합니다"
   },
   "symbol": {
     "message": "기호"
@@ -306,7 +306,7 @@
     "message": "예) WEW, BOW, LAL etc."
   },
   "tokenNamePatternDescription": {
-    "message": "특수 문자를 제외한 3-50글자"
+    "message": "특수 문자를 제외한 3-25글자"
   },
   "name": {
     "message": "이름"
@@ -592,9 +592,6 @@
   },
   "mnemonicInputLabel": {
     "message": "비밀 문구"
-  },
-  "mnemonicInputPlaceholder": {
-    "message": "예) 장소 양말 우유 업데이트..."
   },
   "passwordInputDescription": {
     "message": "이는 지갑 비밀번호가 아닙니다.\n추가 니모닉 도출에 사용합니다."

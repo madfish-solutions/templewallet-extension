@@ -105,5 +105,3 @@ export const fetchFiatToTezosRates = () =>
 
       return mappedRates;
     });
-
-export const getFiatCurrencyKey = ({ name }: FiatCurrencyOption) => name;

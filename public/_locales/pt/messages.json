@@ -306,7 +306,7 @@
     "message": "por exemplo, KT1v9CmPy..."
   },
   "tokenSymbolPatternDescription": {
-    "message": "Apenas são permitidos caracteres a-z, A-Z, 0-9, comprimento de 2 a 5"
+    "message": "Apenas são permitidos caracteres a-z, A-Z, 0-9, comprimento de 2 a 10"
   },
   "symbol": {
     "message": "Símbolo"
@@ -318,7 +318,7 @@
     "message": "por exemplo, WEW, BOW, LAL, etc."
   },
   "tokenNamePatternDescription": {
-    "message": "Sem carateres especiais, comprimento de 3 a 50"
+    "message": "Sem carateres especiais, comprimento de 3 a 25"
   },
   "name": {
     "message": "Nome"
@@ -610,12 +610,6 @@
   },
   "mnemonicInputLabel": {
     "message": "Frase semente"
-  },
-  "mnemonicInputDescription": {
-    "message": "Mnemónica. A sua frase secreta de 12 a 24 palavras."
-  },
-  "mnemonicInputPlaceholder": {
-    "message": "por exemplo, local meia leite atualização..."
   },
   "passwordInputDescription": {
     "message": "Isso NÃO é uma palavra-passe de carteira.\nUtilizado para derivação mnemónica adicional."
@@ -1861,7 +1855,7 @@
     "message": "Não foram encontrados dApps correspondentes"
   },
   "thousandFormat": {
-    "message": "$thousand$k",
+    "message": "$thousand$K",
     "placeholders": {
       "thousand": {
         "content": "$1"

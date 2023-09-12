@@ -1,12 +1,12 @@
 import { NewSeedVerifySelectors } from 'src/app/pages/NewWallet/create/NewSeedVerify/NewSeedVerify.selectors';
 
-import { BrowserContext } from '../../classes/browser-context.class';
-import { Page } from '../../classes/page.class';
-import { createPageElement, findElements, getElementText } from '../../utils/search.utils';
+import { BrowserContext } from 'e2e/src/classes/browser-context.class';
+import { Page } from 'e2e/src/classes/page.class';
+import { createPageElement, findElements, getElementText } from 'e2e/src/utils/search.utils';
 
 export class VerifyMnemonicPage extends Page {
   nextButton = createPageElement(NewSeedVerifySelectors.nextButton);
-  firstMnemonicInput = createPageElement(NewSeedVerifySelectors.firstMnemonicInput);
+  firstMnemonicInput = createPageElement(NewSeedVerifySelectors.mnemonicWordInput);
 
   async isVisible() {
     await this.nextButton.waitForDisplayed();
@@ -23,7 +23,7 @@ export class VerifyMnemonicPage extends Page {
       return Number(numberText);
     });
 
-    const wordInputs = await findElements(NewSeedVerifySelectors.firstMnemonicInput);
+    const wordInputs = await findElements(NewSeedVerifySelectors.mnemonicWordInput);
     const wordInputTexts = await Promise.all(wordInputs.map(item => getElementText(item)));
     const emptyWordInputIndexes = wordInputTexts
       .map((text, index) => {
@@ -32,11 +32,12 @@ export class VerifyMnemonicPage extends Page {
       })
       .filter(index => index !== undefined) as number[];
 
+    const seedPhrase = BrowserContext.seedPhrase.split(' ');
     for (const index of emptyWordInputIndexes) {
       const input = wordInputs[index];
 
       const wordIndex = wordNumbers[index] - 1;
-      const word = BrowserContext.seedPhrase.split(' ')[wordIndex];
+      const word = seedPhrase[wordIndex];
 
       await input.type(word);
     }

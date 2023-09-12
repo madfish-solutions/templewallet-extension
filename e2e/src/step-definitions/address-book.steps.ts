@@ -42,7 +42,6 @@ Given(
   /I find an added contact = '(.*)' and click to delete it/,
   { timeout: MEDIUM_TIMEOUT },
   async (contactVarName: ContactVarName) => {
-    // await sleep(60_000);
     await Pages.AddressBook.clickDeleteContact(iEnterValues[contactVarName]);
   }
 );

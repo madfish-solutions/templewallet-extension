@@ -1,13 +1,14 @@
 import { Given } from '@cucumber/cucumber';
 import { expect } from 'chai';
+import { ErrorCaptionSelectors } from 'src/app/atoms/ErrorCaption.selectors';
 import { OperationStatusSelectors } from 'src/app/templates/OperationStatus.selectors';
 
 import { BrowserContext } from '../classes/browser-context.class';
 import { Pages } from '../page-objects';
 import { envVars } from '../utils/env.utils';
 import { iComparePrivateKeys } from '../utils/input-data.utils';
-import { createPageElement, findElement } from '../utils/search.utils';
-import { LONG_TIMEOUT, MEDIUM_TIMEOUT, sleep, VERY_SHORT_TIMEOUT } from '../utils/timing.utils';
+import { createPageElement, findElement, getElementText } from '../utils/search.utils';
+import { LONG_TIMEOUT, MEDIUM_TIMEOUT, VERY_SHORT_TIMEOUT, sleep } from '../utils/timing.utils';
 
 Given(
   /I reveal a private key and compare with (.*)/,
@@ -22,11 +23,12 @@ Given(
     await Pages.RevealSecrets.isVisible();
     await Pages.RevealSecrets.revealPasswordField.type(BrowserContext.password);
     await Pages.RevealSecrets.revealButton.click();
-    await Pages.RevealSecrets.revealSecretsValue.getText();
-    const revealedSecretsValue = await Pages.RevealSecrets.revealSecretsValue.getText();
-    const privateKeyType = iComparePrivateKeys[key];
 
-    expect(revealedSecretsValue).eql(privateKeyType);
+    await Pages.RevealSecrets.revealSecretsProtectedMask.click();
+
+    const revealedText = await Pages.RevealSecrets.revealSecretsValue.getText();
+
+    expect(revealedText).eql(iComparePrivateKeys[key]);
   }
 );
 
@@ -53,14 +55,46 @@ Given(
   }
 );
 
+// universal assertion check
+Given(
+  /The (.*) on the (.*) page has correct (.*) value/,
+  { timeout: MEDIUM_TIMEOUT },
+  async (elementName: string, pageName: string, value: string) => {
+    const elementValue = await createPageElement(`${pageName}/${elementName}`).getText();
+
+    expect(elementValue).eql(value);
+  }
+);
+
+Given(
+  /The (.*) is displayed on the (.*) page/,
+  { timeout: MEDIUM_TIMEOUT },
+  async (elementName: string, pageName: string) => {
+    await createPageElement(`${pageName}/${elementName}`).waitForDisplayed();
+  }
+);
+
 // for checking validation errors or other where is no 'type' property
 Given(
   /I got the validation-error '(.*)' with (.*) element on the (.*) page/,
   { timeout: MEDIUM_TIMEOUT },
   async (errorName: string, elementName: string, pageName: string) => {
-    await createPageElement(`${pageName}/${elementName}`).waitForDisplayed();
     const getErrorContent = await createPageElement(`${pageName}/${elementName}`).getText();
 
+    expect(getErrorContent).eql(errorName);
+  }
+);
+
+// for checking validation errors where is no 'type' property for related input/checkbox component
+
+Given(
+  /I got the validation-error '(.*)' in the (.*) on the (.*) page/,
+  { timeout: MEDIUM_TIMEOUT },
+  async (errorName: string, parentElementName: string, pageName: string) => {
+    const childElement = await createPageElement(`${pageName}/${parentElementName}`).findChildSelectors(
+      ErrorCaptionSelectors.inputError
+    );
+    const getErrorContent = await getElementText(childElement);
     expect(getErrorContent).eql(errorName);
   }
 );

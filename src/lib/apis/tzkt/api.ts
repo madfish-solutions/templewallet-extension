@@ -3,6 +3,7 @@ import { TzktOperationType, TzktTokenTransfer } from '@temple-wallet/transaction
 import axios, { AxiosError } from 'axios';
 
 import { TempleChainId } from 'lib/temple/types';
+import { delay } from 'lib/utils';
 
 import {
   TzktOperation,
@@ -18,7 +19,6 @@ const TZKT_API_BASE_URLS = {
   [TempleChainId.Mainnet]: 'https://api.tzkt.io/v1',
   [TempleChainId.Jakartanet]: 'https://api.jakartanet.tzkt.io/v1',
   [TempleChainId.Limanet]: 'https://api.limanet.tzkt.io/v1',
-  [TempleChainId.Mumbainet]: 'https://api.mumbainet.tzkt.io/v1',
   [TempleChainId.Ghostnet]: 'https://api.ghostnet.tzkt.io/v1',
   [TempleChainId.Dcp]: 'https://explorer-api.tlnt.net/v1',
   [TempleChainId.DcpTest]: 'https://explorer.tlnt.net:8009/v1'
@@ -165,9 +165,9 @@ export async function refetchOnce429<R>(fetcher: () => Promise<R>, delayAroundIn
     if (err.isAxiosError) {
       const error: AxiosError = err;
       if (error.response?.status === 429) {
-        await sleep(delayAroundInMS);
+        await delay(delayAroundInMS);
         const res = await fetcher();
-        await sleep(delayAroundInMS);
+        await delay(delayAroundInMS);
         return res;
       }
     }
@@ -175,8 +175,6 @@ export async function refetchOnce429<R>(fetcher: () => Promise<R>, delayAroundIn
     throw err;
   }
 }
-
-const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 interface GetAccountResponse {
   frozenDeposit?: string;

@@ -294,7 +294,7 @@
     "message": "例: KT1v9CmPy..."
   },
   "tokenSymbolPatternDescription": {
-    "message": "文字はa～z、A～Z、0～9のみ可、長さは2～5文字"
+    "message": "文字はa～z、A～Z、0～9のみ可、長さは2～10文字"
   },
   "symbol": {
     "message": "記号"
@@ -306,7 +306,7 @@
     "message": "例: WEW、BOW、LALなど"
   },
   "tokenNamePatternDescription": {
-    "message": "特殊文字なし、3～50文字"
+    "message": "特殊文字なし、3～25文字"
   },
   "name": {
     "message": "名前"
@@ -592,9 +592,6 @@
   },
   "mnemonicInputLabel": {
     "message": "シードフレーズ"
-  },
-  "mnemonicInputPlaceholder": {
-    "message": "例: venue sock milk update..."
   },
   "passwordInputDescription": {
     "message": "ウォレットパスワードではありません。\n追加的なニーモニックの導出に使用されます。"

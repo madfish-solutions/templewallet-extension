@@ -35,7 +35,7 @@ import {
 } from 'lib/temple/front';
 import * as Repo from 'lib/temple/repo';
 import { useSafeState } from 'lib/ui/hooks';
-import { withErrorHumanDelay } from 'lib/ui/humanDelay';
+import { delay } from 'lib/utils';
 import { navigate } from 'lib/woozie';
 
 import { AddAssetSelectors } from './AddAsset.selectors';
@@ -154,9 +154,11 @@ const Form: FC = () => {
         bottomSectionVisible: true
       };
     } catch (err: any) {
-      await withErrorHumanDelay(err, () => {
-        stateToSet = errorHandler(err, contractAddress, setValue);
-      });
+      console.error(err);
+
+      await delay();
+
+      stateToSet = errorHandler(err, contractAddress, setValue);
     }
 
     if (attempt === attemptRef.current) {
@@ -240,7 +242,7 @@ const Form: FC = () => {
         console.error(err);
 
         // Human delay
-        await new Promise(r => setTimeout(r, 300));
+        await delay();
         setSubmitError(err.message);
       }
     },
@@ -276,7 +278,10 @@ const Form: FC = () => {
         placeholder={t('tokenContractPlaceholder')}
         errorCaption={errors.address?.message}
         containerClassName="mb-6"
-        testID={AddAssetSelectors.addressInput}
+        testIDs={{
+          inputSection: AddAssetSelectors.addressInputSection,
+          input: AddAssetSelectors.addressInput
+        }}
       />
 
       <FormField
@@ -340,11 +345,9 @@ const BottomSection: FC<BottomSectionProps> = props => {
       <FormField
         ref={register({
           required: t('required'),
-          validate: (val: string) => {
-            if (!val || val.length < 2 || val.length > 8) {
-              return t('tokenSymbolPatternDescription');
-            }
-            return true;
+          pattern: {
+            value: /^[a-zA-Z0-9]{2,10}$/,
+            message: t('tokenSymbolPatternDescription')
           }
         })}
         name="symbol"
@@ -354,16 +357,18 @@ const BottomSection: FC<BottomSectionProps> = props => {
         placeholder={t('tokenSymbolInputPlaceholder')}
         errorCaption={errors.symbol?.message}
         containerClassName="mb-4"
+        testIDs={{
+          inputSection: AddAssetSelectors.symbolInputSection,
+          input: AddAssetSelectors.symbolInput
+        }}
       />
 
       <FormField
         ref={register({
           required: t('required'),
-          validate: (val: string) => {
-            if (!val || val.length < 3 || val.length > 50) {
-              return t('tokenNamePatternDescription');
-            }
-            return true;
+          pattern: {
+            value: /^[a-zA-Z0-9\s]{3,25}$/,
+            message: t('tokenNamePatternDescription')
           }
         })}
         name="name"
@@ -373,6 +378,10 @@ const BottomSection: FC<BottomSectionProps> = props => {
         placeholder={t('tokenNameInputPlaceholder')}
         errorCaption={errors.name?.message}
         containerClassName="mb-4"
+        testIDs={{
+          inputSection: AddAssetSelectors.nameInputSection,
+          input: AddAssetSelectors.nameInput
+        }}
       />
 
       <FormField
@@ -387,6 +396,10 @@ const BottomSection: FC<BottomSectionProps> = props => {
         placeholder="0"
         errorCaption={errors.decimals?.message}
         containerClassName="mb-4"
+        testIDs={{
+          inputSection: AddAssetSelectors.decimalsInputSection,
+          input: AddAssetSelectors.decimalsInput
+        }}
       />
 
       <FormField
@@ -429,6 +442,10 @@ const BottomSection: FC<BottomSectionProps> = props => {
         placeholder="e.g. https://cdn.com/mytoken.png"
         errorCaption={errors.thumbnailUri?.message}
         containerClassName="mb-6"
+        testIDs={{
+          inputSection: AddAssetSelectors.iconURLInputSection,
+          input: AddAssetSelectors.iconURLInput
+        }}
       />
 
       {submitError && <Alert type="error" title={t('error')} autoFocus description={submitError} className="mb-6" />}

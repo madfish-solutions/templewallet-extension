@@ -1,4 +1,4 @@
-import React, { ComponentProps, FC, ReactNode, Suspense, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import React, { ComponentProps, FC, ReactNode, Suspense, useCallback, useEffect, useRef, useState } from 'react';
 
 import classNames from 'clsx';
 
@@ -98,6 +98,8 @@ type ToolbarProps = {
   attention?: boolean;
 };
 
+export let ToolbarElement: HTMLDivElement | null = null;
+
 const Toolbar: FC<ToolbarProps> = ({
   pageTitle,
   hasBackAction = true,
@@ -108,7 +110,7 @@ const Toolbar: FC<ToolbarProps> = ({
   attention
 }) => {
   const { historyPosition, pathname } = useLocation();
-  const { fullPage, registerBackHandler, onBack } = useAppEnv();
+  const { fullPage } = useAppEnv();
   const { setOnboardingCompleted } = useOnboardingProgress();
 
   const onStepBack = () => {
@@ -123,23 +125,17 @@ const Toolbar: FC<ToolbarProps> = ({
   const canStepBack = Boolean(step) && step! > 0;
   const isBackButtonAvailable = canBack || canStepBack;
 
-  useLayoutEffect(() => {
-    return registerBackHandler(() => {
-      switch (true) {
-        case historyPosition > 0:
-          goBack();
-          break;
+  const handleBack = () => {
+    if (canBack) {
+      return goBack();
+    }
 
-        case !inHome:
-          navigate('/', HistoryAction.Replace);
-          break;
-      }
-    });
-  }, [registerBackHandler, historyPosition, inHome]);
+    navigate('/', HistoryAction.Replace);
+  };
 
   const [sticked, setSticked] = useState(false);
 
-  const rootRef = useRef<HTMLDivElement>(null);
+  const rootRef = useRef<HTMLDivElement | null>();
 
   useEffect(() => {
     const toolbarEl = rootRef.current;
@@ -159,9 +155,14 @@ const Toolbar: FC<ToolbarProps> = ({
     return undefined;
   }, [setSticked]);
 
+  const updateRootRef = useCallback((elem: HTMLDivElement | null) => {
+    rootRef.current = elem;
+    ToolbarElement = elem;
+  }, []);
+
   return (
     <div
-      ref={rootRef}
+      ref={updateRootRef}
       className={classNames(
         'sticky z-20 flex items-center py-2 px-4',
         fullPage && !sticked && 'rounded-t',
@@ -190,7 +191,7 @@ const Toolbar: FC<ToolbarProps> = ({
               'transition duration-300 ease-in-out',
               'opacity-90 hover:opacity-100'
             )}
-            onClick={step ? onStepBack : onBack}
+            onClick={step ? onStepBack : handleBack}
             testID={PageLayoutSelectors.backButton}
           >
             <ChevronLeftIcon className="-ml-2 h-5 w-auto stroke-current stroke-2" />
@@ -200,9 +201,7 @@ const Toolbar: FC<ToolbarProps> = ({
       </div>
 
       {pageTitle && (
-        <h2 className="px-1 flex items-center text-gray-700 font-normal leading-none" style={{ fontSize: 17 }}>
-          {pageTitle}
-        </h2>
+        <h2 className="px-1 flex items-center text-ulg text-gray-700 font-normal overflow-hidden">{pageTitle}</h2>
       )}
 
       <div className="flex-1" />

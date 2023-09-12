@@ -7,6 +7,7 @@ import { abTestingEpics } from './ab-testing/epics';
 import { advertisingEpics } from './advertising/epics';
 import { balancesEpics } from './balances/epics';
 import { buyWithCreditCardEpics } from './buy-with-credit-card/epics';
+import { collectiblesEpics } from './collectibles/epics';
 import { currencyEpics } from './currency/epics';
 import { partnersPromotionEpics } from './partners-promotion/epics';
 import { swapEpics } from './swap/epics';
@@ -21,7 +22,8 @@ const allEpics = combineEpics(
   balancesEpics,
   tokensMetadataEpics,
   abTestingEpics,
-  buyWithCreditCardEpics
+  buyWithCreditCardEpics,
+  collectiblesEpics
 );
 
 export const epicMiddleware = createEpicMiddleware();
