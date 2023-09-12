@@ -22,11 +22,10 @@ export const getActivityTypeFlags = (activity: DisplayableActivity) => {
   const isSend = type === ActivityType.Send;
   const isReceive = type === ActivityType.Recieve;
   const isInteraction = type === ActivityType.Interaction;
-  const is3Route = isInteraction && activity.subtype === ActivitySubtype.Route3;
   const isAllowanceChange = isInteraction && activity.subtype === ActivitySubtype.ChangeAllowance;
   const isRevoke = isAllowanceChange && Boolean(activity.allowanceChanges[0]?.atomicAmount.isZero());
 
-  return { isDelegation, isBakingRewards, isSend, isReceive, isInteraction, is3Route, isAllowanceChange, isRevoke };
+  return { isDelegation, isBakingRewards, isSend, isReceive, isInteraction, isAllowanceChange, isRevoke };
 };
 
 export const isInteractionActivityTypeGuard = (activity: DisplayableActivity): activity is InteractionActivity =>
