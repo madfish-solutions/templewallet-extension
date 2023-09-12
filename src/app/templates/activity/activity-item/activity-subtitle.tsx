@@ -1,4 +1,4 @@
-import React, { FC, ReactNode } from 'react';
+import React, { FC, memo, ReactNode } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
 
@@ -13,7 +13,7 @@ interface Props {
   activity: DisplayableActivity;
 }
 
-export const ActivitySubtitle: FC<Props> = ({ activity }) => {
+export const ActivitySubtitle: FC<Props> = memo(({ activity }) => {
   const { prepositionI18nKey, actor } = getActor(activity);
   const { isSend, isReceive, isAllowanceChange, isDelegation, isBakingRewards, is3Route } =
     getActivityTypeFlags(activity);
@@ -42,4 +42,4 @@ export const ActivitySubtitle: FC<Props> = ({ activity }) => {
       {secondPart}
     </p>
   );
-};
+});

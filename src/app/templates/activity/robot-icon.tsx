@@ -10,5 +10,11 @@ interface Props {
 }
 
 export const RobotIcon: FC<Props> = ({ hash, className }) => (
-  <Identicon type="bottts" hash={hash} size={36} className={classNames('rounded-md bg-white min-w-9', className)} />
+  <Identicon
+    type="bottts"
+    hash={hash}
+    size={36}
+    style={{ backgroundColor: 'white' }}
+    className={classNames('rounded-md min-w-9', className)}
+  />
 );

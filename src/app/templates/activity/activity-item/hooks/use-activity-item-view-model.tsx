@@ -1,18 +1,28 @@
 import React, { useCallback, useMemo, useState } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
-import { AllowanceInteractionActivity, Route3Activity, TzktOperationStatus } from '@temple-wallet/transactions-parser';
+import {
+  ActivitySubtype,
+  AllowanceInteractionActivity,
+  Route3Activity,
+  TzktOperationStatus
+} from '@temple-wallet/transactions-parser';
 import classNames from 'clsx';
 
 import { getCurrentLocale, t } from 'lib/i18n';
 import { formatDateOutput } from 'lib/notifications/utils/date.utils';
 import { DisplayableActivity } from 'lib/temple/activity-new/types';
-import { getActor, getActivityTypeFlags } from 'lib/temple/activity-new/utils';
+import {
+  getActivityTypeFlags,
+  getActor,
+  isAllowanceInteractionActivityTypeGuard,
+  isInteractionActivityTypeGuard
+} from 'lib/temple/activity-new/utils';
 import { useExplorerBaseUrls } from 'lib/temple/front';
 import { formatTcInfraImgUri } from 'lib/temple/front/image-uri';
 import { Image } from 'lib/ui/Image';
 
-import Route3Logo from '../../assets/3route.png';
+import Route3LogoSrc from '../../assets/3route.png';
 import { BakerLogo } from '../../baker-logo';
 import { RobotIcon } from '../../robot-icon';
 import { FilteringMode } from '../../tokens-delta-view';
@@ -25,6 +35,10 @@ const statusesColors = {
   [TzktOperationStatus.Failed]: 'bg-red-700',
   [TzktOperationStatus.Pending]: 'bg-gray-20',
   [TzktOperationStatus.Skipped]: 'bg-red-700'
+};
+
+const interactionActivitiesLogos = {
+  [ActivitySubtype.Route3]: Route3LogoSrc
 };
 
 const actorAvatarStyles = 'border border-gray-300 mr-2 rounded-md min-w-9';
@@ -71,16 +85,12 @@ export const useActivityItemViewModel = (activity: DisplayableActivity) => {
       return <BakerLogo bakerAddress={actor.address} />;
     }
 
-    if (is3Route) {
-      return (
+    if (isInteractionActivityTypeGuard(activity)) {
+      return isDefined(activity.subtype) && !isAllowanceInteractionActivityTypeGuard(activity) ? (
         <div className={classNames('flex items-center justify-center', actorAvatarStyles)}>
-          <img src={Route3Logo} alt="3Route logo" height={12} width={24} />
+          <img src={interactionActivitiesLogos[activity.subtype]} alt={activity.subtype} height={12} width={24} />
         </div>
-      );
-    }
-
-    if (isInteraction) {
-      return null;
+      ) : null;
     }
 
     if (isDefined(tzProfileLogo)) {
@@ -97,7 +107,7 @@ export const useActivityItemViewModel = (activity: DisplayableActivity) => {
     }
 
     return <RobotIcon hash={robotIconHash} className={actorAvatarStyles} />;
-  }, [actor?.address, isInteraction, robotIconHash, shouldShowBaker, tzProfileLogo, is3Route]);
+  }, [shouldShowBaker, activity, tzProfileLogo, robotIconHash, actor?.address]);
 
   const toggleDetails = useCallback(() => {
     setIsOpen(value => !value);

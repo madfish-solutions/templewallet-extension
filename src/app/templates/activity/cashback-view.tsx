@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import React, { FC, memo } from 'react';
 
 import BigNumber from 'bignumber.js';
 
@@ -12,7 +12,7 @@ interface Props {
   cashback: BigNumber;
 }
 
-export const CashbackView: FC<Props> = ({ cashback }) => {
+export const CashbackView: FC<Props> = memo(({ cashback }) => {
   const { selectedFiatCurrency } = useFiatCurrency();
 
   const tkeyMetadata = useAssetMetadata(TEMPLE_TOKEN_SLUG);
@@ -42,4 +42,4 @@ export const CashbackView: FC<Props> = ({ cashback }) => {
       </div>
     </div>
   );
-};
+});

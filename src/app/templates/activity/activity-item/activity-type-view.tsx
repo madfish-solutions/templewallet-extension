@@ -1,11 +1,16 @@
 import React, { FC, ReactNode } from 'react';
 
-import { ActivityType } from '@temple-wallet/transactions-parser';
+import { isDefined } from '@rnw-community/shared';
+import { ActivitySubtype, ActivityType } from '@temple-wallet/transactions-parser';
 
 import { ReactComponent as AlertNewIcon } from 'app/icons/alert-new.svg';
 import { T, t } from 'lib/i18n';
 import { DisplayableActivity } from 'lib/temple/activity-new/types';
-import { getActivityTypeFlags } from 'lib/temple/activity-new/utils';
+import {
+  getActivityTypeFlags,
+  isAllowanceInteractionActivityTypeGuard,
+  isInteractionActivityTypeGuard
+} from 'lib/temple/activity-new/utils';
 import useTippy from 'lib/ui/useTippy';
 
 interface Props {
@@ -20,8 +25,12 @@ const activityTypesI18nKeys = {
   [ActivityType.Interaction]: 'interaction' as const
 };
 
+const activitySubtypesI18nKeys = {
+  [ActivitySubtype.Route3]: 'route3' as const
+};
+
 export const ActivityTypeView: FC<Props> = ({ activity }) => {
-  const { isAllowanceChange, isInteraction, isRevoke, is3Route } = getActivityTypeFlags(activity);
+  const { isAllowanceChange, isInteraction, isRevoke } = getActivityTypeFlags(activity);
 
   const interactionTooltipRef = useTippy<HTMLSpanElement>({
     trigger: 'mouseenter',
@@ -36,11 +45,17 @@ export const ActivityTypeView: FC<Props> = ({ activity }) => {
     contents = <T id="revoke" />;
   } else if (isAllowanceChange) {
     contents = <T id="approve" />;
+  } else if (
+    isInteractionActivityTypeGuard(activity) &&
+    isDefined(activity.subtype) &&
+    !isAllowanceInteractionActivityTypeGuard(activity)
+  ) {
+    contents = <T id={activitySubtypesI18nKeys[activity.subtype]} />;
   } else {
     contents = (
       <>
-        <T id={is3Route ? 'route3' : activityTypesI18nKeys[activity.type]} />
-        {isInteraction && !is3Route && (
+        <T id={activityTypesI18nKeys[activity.type]} />
+        {isInteraction && (
           <span ref={interactionTooltipRef} className="inline-block ml-1 text-gray-500">
             <AlertNewIcon className="w-4 h-4 stroke-current" />
           </span>
