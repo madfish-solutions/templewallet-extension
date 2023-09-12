@@ -306,7 +306,7 @@
     "message": "z. B. KT1v9CmPy..."
   },
   "tokenSymbolPatternDescription": {
-    "message": "Nur a-z, A-Z, 0-9 Zeichen erlaubt, 2-5 Länge"
+    "message": "Nur a-z, A-Z, 0-9 Zeichen erlaubt, 2-10 Länge"
   },
   "symbol": {
     "message": "Symbol"
@@ -318,7 +318,7 @@
     "message": "z. B. WEW, BOW, LAL etc."
   },
   "tokenNamePatternDescription": {
-    "message": "Keine Sonderzeichen, 3-50 Länge"
+    "message": "Keine Sonderzeichen, 3-25 Länge"
   },
   "name": {
     "message": "Name"
@@ -610,12 +610,6 @@
   },
   "mnemonicInputLabel": {
     "message": "Seed-Phrase"
-  },
-  "mnemonicInputDescription": {
-    "message": "Gedächtnisstütze. Ihre geheime 12 - 24 Wörter Phrase."
-  },
-  "mnemonicInputPlaceholder": {
-    "message": "z. B. Veranstaltungsort Socke Milch Update..."
   },
   "passwordInputDescription": {
     "message": "Das ist KEIN Wallet-Passwort.\nWird für zusätzliche Gedächtnisstützenableitung verwendet."
@@ -1861,7 +1855,7 @@
     "message": "Es wurden keine passenden dApps gefunden"
   },
   "thousandFormat": {
-    "message": "$thousand$k",
+    "message": "$thousand$K",
     "placeholders": {
       "thousand": {
         "content": "$1"

@@ -1,18 +1,23 @@
-import React, { FC, useCallback } from 'react';
+import React, { FC, useCallback, useMemo, useState } from 'react';
+
+import classNames from 'clsx';
+import { isEqual } from 'lodash';
+import { useDebounce } from 'use-debounce';
 
 import Money from 'app/atoms/Money';
 import { useTokensMetadataSelector } from 'app/store/tokens-metadata/selectors';
 import { AssetIcon } from 'app/templates/AssetIcon';
 import Balance from 'app/templates/Balance';
-import IconifiedSelect, { IconifiedSelectOptionRenderProps } from 'app/templates/IconifiedSelect';
 import InFiat from 'app/templates/InFiat';
 import { setTestID, setAnotherSelector } from 'lib/analytics';
+import { searchAssetsWithNoMeta } from 'lib/assets/search.utils';
 import { T, t } from 'lib/i18n';
 import { useAssetMetadata, getAssetSymbol } from 'lib/metadata';
 import { useAccount } from 'lib/temple/front';
-import { searchAssetsWithNoMeta } from 'lib/temple/front/assets';
 
 import { AssetItemContent } from '../AssetItemContent';
+import { DropdownSelect } from '../DropdownSelect/DropdownSelect';
+import { InputContainer } from '../InputContainer/InputContainer';
 import { SendFormSelectors } from '../SendForm/selectors';
 import { IAsset } from './interfaces';
 import { getSlug } from './utils';
@@ -28,12 +33,23 @@ interface AssetSelectProps {
   };
 }
 
+const renderOptionContent = (asset: IAsset, selected: boolean) => (
+  <AssetOptionContent asset={asset} selected={selected} />
+);
+
 const AssetSelect: FC<AssetSelectProps> = ({ value, assets, onChange, className, testIDs }) => {
   const allTokensMetadata = useTokensMetadataSelector();
+
+  const [searchString, setSearchString] = useState<string>('');
+  const [searchStringDebounced] = useDebounce(searchString, 300);
 
   const searchItems = useCallback(
     (searchString: string) => searchAssetsWithNoMeta(searchString, assets, allTokensMetadata, getSlug),
     [assets, allTokensMetadata]
+  );
+  const searchedOptions = useMemo(
+    () => (searchStringDebounced ? searchItems(searchStringDebounced) : assets),
+    [searchItems, searchStringDebounced, assets]
   );
 
   const handleChange = useCallback(
@@ -44,31 +60,32 @@ const AssetSelect: FC<AssetSelectProps> = ({ value, assets, onChange, className,
   );
 
   return (
-    <IconifiedSelect
-      BeforeContent={AssetSelectTitle}
-      FieldContent={AssetFieldContent}
-      OptionContent={AssetOptionContent}
-      getKey={getSlug}
-      onChange={handleChange}
-      options={assets}
-      value={value}
-      noItemsText={t('noAssetsFound')}
-      className={className}
-      fieldStyle={{ minHeight: '4.5rem' }}
-      search={{
-        placeholder: t('swapTokenSearchInputPlaceholder'),
-        filterItems: searchItems,
-        inputTestID: testIDs?.searchInput
-      }}
-      testID={testIDs?.main}
-    />
+    <InputContainer className={className} header={<AssetSelectTitle />}>
+      <DropdownSelect
+        DropdownFaceContent={<AssetFieldContent asset={value} />}
+        searchProps={{
+          testId: testIDs?.searchInput,
+          searchValue: searchString,
+          onSearchChange: event => setSearchString(event.target.value)
+        }}
+        testIds={{ dropdownTestId: testIDs?.main }}
+        dropdownButtonClassName="p-2 h-18"
+        optionsProps={{
+          options: searchedOptions,
+          noItemsText: t('noAssetsFound'),
+          getKey: option => getSlug(option),
+          onOptionChange: handleChange,
+          renderOptionContent: asset => renderOptionContent(asset, isEqual(asset, value))
+        }}
+      />
+    </InputContainer>
   );
 };
 
 export default AssetSelect;
 
 const AssetSelectTitle: FC = () => (
-  <h2 className="mb-4 leading-tight flex flex-col">
+  <h2 className="leading-tight flex flex-col">
     <span className="text-base font-semibold text-gray-700">
       <T id="asset" />
     </span>
@@ -79,15 +96,13 @@ const AssetSelectTitle: FC = () => (
   </h2>
 );
 
-type AssetSelectOptionRenderProps = IconifiedSelectOptionRenderProps<IAsset>;
-
-const AssetFieldContent: FC<AssetSelectOptionRenderProps> = ({ option }) => {
+const AssetFieldContent: FC<{ asset: IAsset }> = ({ asset }) => {
   const account = useAccount();
-  const assetSlug = getSlug(option);
+  const assetSlug = getSlug(asset);
   const metadata = useAssetMetadata(assetSlug);
 
   return (
-    <>
+    <div className="flex items-center">
       <AssetIcon assetSlug={assetSlug} className="mr-3" size={48} />
 
       <Balance assetSlug={assetSlug} address={account.publicKeyHash}>
@@ -112,16 +127,19 @@ const AssetFieldContent: FC<AssetSelectOptionRenderProps> = ({ option }) => {
           </div>
         )}
       </Balance>
-    </>
+    </div>
   );
 };
 
-const AssetOptionContent: FC<AssetSelectOptionRenderProps> = ({ option }) => {
-  const slug = getSlug(option);
+const AssetOptionContent: FC<{ asset: IAsset; selected: boolean }> = ({ asset, selected }) => {
+  const slug = getSlug(asset);
 
   return (
     <div
-      className="flex items-center w-full py-1.5"
+      className={classNames(
+        'flex items-center w-full py-1.5 px-2 h-15',
+        selected ? 'bg-gray-200' : 'hover:bg-gray-100'
+      )}
       {...setTestID(SendFormSelectors.assetDropDownItem)}
       {...setAnotherSelector('slug', slug)}
     >

@@ -305,7 +305,7 @@
     "message": "e.g. KT1v9CmPy..."
   },
   "tokenSymbolPatternDescription": {
-    "message": "Тільки a-z, A-Z, 0-9 символи дозволені, 2-5 довжина"
+    "message": "Тільки a-z, A-Z, 0-9 символи дозволені, 2-10 довжина"
   },
   "symbol": {
     "message": "Тікер"
@@ -317,7 +317,7 @@
     "message": "e.g. WEW, BOW, LAL etc."
   },
   "tokenNamePatternDescription": {
-    "message": "Ніяких спеціальних символів, 3-50 в довжину"
+    "message": "Ніяких спеціальних символів, 3-25 в довжину"
   },
   "name": {
     "message": "Ім'я"
@@ -606,12 +606,6 @@
   },
   "mnemonicInputLabel": {
     "message": "Сід фраза"
-  },
-  "mnemonicInputDescription": {
-    "message": "Мнємоніка. Ваша таємна фраза з 12 - 24 слів."
-  },
-  "mnemonicInputPlaceholder": {
-    "message": "наприклад venue sock milk update..."
   },
   "passwordInputDescription": {
     "message": "УВАГА: Це не пароль гаманця!\nВикористовується для додаткової деривації мнємоніки."
@@ -1371,12 +1365,9 @@
   "activity": {
     "message": "Активність"
   },
-  "manage": {
-    "message": "Керувати"
-  },
-  "manageAssets": {
-    "message": "Керувати Активами"
-  },
+  "manage": { "message": "Керувати" },
+  "manageTokens": { "message": "Керувати Токенами" },
+  "manageAssetsList": { "message": "Керувати Активами" },
   "noAssetsFound": {
     "message": "Активів не знайдено"
   },
@@ -1737,6 +1728,7 @@
   "blockExplorer": {
     "message": "Експлорер блокчейна"
   },
+  "viewOnBlockExplorer": { "message": "Відкрити в експлорері" },
   "game": {
     "message": "Гра"
   },
@@ -1860,5 +1852,12 @@
         "content": "$1"
       }
     }
+  },
+  "showInfo": { "message": "Деталі" },
+  "hideZeroBalance": { "message": "Сховати нульові баланси" },
+  "creator": { "message": "Автор:" },
+  "creators": { "message": "Автори:" },
+  "unknownError": {
+    "message": "Невідома помилка"
   }
 }

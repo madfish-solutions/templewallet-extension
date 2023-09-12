@@ -4,7 +4,7 @@ import classNames from 'clsx';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { useDispatch } from 'react-redux';
 
-import { ActivitySpinner } from 'app/atoms';
+import { SyncSpinner } from 'app/atoms';
 import { DateView } from 'app/atoms/date-view';
 import { PartnersPromotion, PartnersPromotionVariant } from 'app/atoms/partners-promotion';
 import { useAppEnv } from 'app/env';
@@ -71,12 +71,12 @@ export const ActivityComponent: React.FC<Props> = ({ assetSlug }) => {
 
   return (
     <div className="w-full max-w-sm mx-auto">
-      <div className={classNames('mt-3 flex flex-col', popup && 'mx-4')}>
+      <div className={classNames('my-3 flex flex-col', popup && 'mx-4')}>
         <InfiniteScroll
           dataLength={groupedByDayActivities.length}
           hasMore={reachedTheEnd === false}
           next={loadNext}
-          loader={loading && <ActivitySpinner height="2.5rem" />}
+          loader={loading && <SyncSpinner className="mt-4" />}
           onScroll={onScroll}
         >
           {groupedByDayActivities.map((activities, index) => (

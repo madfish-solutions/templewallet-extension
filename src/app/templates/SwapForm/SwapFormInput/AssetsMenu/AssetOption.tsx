@@ -14,31 +14,25 @@ import { AssetsMenuSelectors } from './selectors';
 interface Props extends Partial<Pick<ListRowProps, 'style'>> {
   assetSlug: string;
   selected?: boolean;
-  onClick: (newValue: string) => void;
 }
 
-export const AssetOption: FC<Props> = ({ assetSlug, selected, style, onClick }) => {
+export const AssetOption: FC<Props> = ({ assetSlug, selected }) => {
   const assetMetadata = useAssetMetadata(assetSlug);
-
-  const handleClick = () => onClick(assetSlug);
 
   if (!isTruthy(assetMetadata)) return null;
 
   return (
-    <button
-      type="button"
-      style={style}
+    <div
       className={classNames(
-        'py-1.5 px-2 w-full flex items-center rounded',
+        'py-1.5 px-2 w-full flex items-center rounded h-16',
         selected ? 'bg-gray-200' : 'hover:bg-gray-100'
       )}
-      onClick={handleClick}
       {...setTestID(AssetsMenuSelectors.assetsMenuAssetItem)}
       {...setAnotherSelector('slug', assetSlug)}
     >
       <AssetIcon assetSlug={assetSlug} size={32} className="mx-2" />
 
       <AssetItemContent slug={assetSlug} metadata={assetMetadata} />
-    </button>
+    </div>
   );
 };

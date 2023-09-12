@@ -6,6 +6,7 @@ import { abTestingReducer } from './ab-testing/reducers';
 import { advertisingReducer } from './advertising/reducers';
 import { balancesReducer } from './balances/reducers';
 import { buyWithCreditCardReducer } from './buy-with-credit-card/reducers';
+import { collectiblesPersistedReducer } from './collectibles/reducer';
 import { currencyReducer } from './currency/reducers';
 import { dAppsReducer } from './d-apps/reducers';
 import { newsletterReducers } from './newsletter/newsletter-reducers';
@@ -26,6 +27,7 @@ const rootStateReducersMap = {
   tokensMetadata: tokensMetadataReducer,
   abTesting: abTestingReducer,
   buyWithCreditCard: buyWithCreditCardReducer,
+  collectibles: collectiblesPersistedReducer,
   newsletter: newsletterReducers
 };
 

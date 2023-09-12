@@ -40,6 +40,7 @@ import {
 import { hasManager, isAddressValid, isKTAddress, mutezToTz, tzToMutez } from 'lib/temple/helpers';
 import { TempleAccountType } from 'lib/temple/types';
 import { useSafeState } from 'lib/ui/hooks';
+import { delay } from 'lib/utils';
 import { Link, useLocation } from 'lib/woozie';
 
 import { useUserTestingGroupNameSelector } from '../store/ab-testing/selectors';
@@ -159,7 +160,7 @@ const DelegateForm: FC = () => {
       return baseFee;
     } catch (err: any) {
       // Human delay
-      await new Promise(r => setTimeout(r, 300));
+      await delay();
 
       if (err instanceof ArtificialError) {
         return err;
@@ -255,7 +256,7 @@ const DelegateForm: FC = () => {
         console.error(err);
 
         // Human delay.
-        await new Promise(res => setTimeout(res, 300));
+        await delay();
         setSubmitError(err);
       }
     },
@@ -275,7 +276,7 @@ const DelegateForm: FC = () => {
 
   return (
     <>
-      {operation && <OperationStatus typeTitle={t('delegation')} operation={operation} />}
+      {operation && <OperationStatus typeTitle={t('delegation')} operation={operation} className="mb-8" />}
 
       <form onSubmit={handleSubmit(onSubmit)}>
         {useMemo(

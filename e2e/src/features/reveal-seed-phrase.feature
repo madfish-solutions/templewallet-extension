@@ -14,5 +14,6 @@ Feature: Reveal seed phrase
     And I enter defaultPassword into Reveal Password Input on the Reveal Secrets page
     And I press Reveal Button on the Reveal Secrets page
 
+    And I press Reveal Secrets Protected Mask on the Reveal Secrets page
     Then I compare my Seed Phrase to Revealed value
 

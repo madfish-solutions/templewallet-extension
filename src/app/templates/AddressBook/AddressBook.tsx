@@ -3,10 +3,7 @@ import React, { useCallback, useMemo } from 'react';
 import classNames from 'clsx';
 import { useForm } from 'react-hook-form';
 
-import { FormField, FormSubmitButton } from 'app/atoms';
-import Identicon from 'app/atoms/Identicon';
-import Name from 'app/atoms/Name';
-import SubTitle from 'app/atoms/SubTitle';
+import { Name, Identicon, FormField, FormSubmitButton, HashChip, SubTitle } from 'app/atoms';
 import { ReactComponent as CloseIcon } from 'app/icons/close.svg';
 import { setAnotherSelector, setTestID } from 'lib/analytics';
 import { t, T } from 'lib/i18n';
@@ -14,10 +11,9 @@ import { isDomainNameValid, useTezosDomainsClient, useContactsActions, useFilter
 import { isAddressValid } from 'lib/temple/helpers';
 import { TempleContact } from 'lib/temple/types';
 import { useConfirm } from 'lib/ui/dialog';
-import { withErrorHumanDelay } from 'lib/ui/humanDelay';
+import { delay } from 'lib/utils';
 
 import CustomSelect, { OptionRenderProps } from '../CustomSelect';
-import HashChip from '../HashChip';
 import { AddressBookSelectors } from './AddressBook.selectors';
 
 type ContactActions = {
@@ -131,7 +127,11 @@ const AddNewContactForm: React.FC<{ className?: string }> = ({ className }) => {
         await addContact({ address, name, addedAt: Date.now() });
         resetForm();
       } catch (err: any) {
-        await withErrorHumanDelay(err, () => setError('address', SUBMIT_ERROR_TYPE, err.message));
+        console.error(err);
+
+        await delay();
+
+        setError('address', SUBMIT_ERROR_TYPE, err.message);
       }
     },
     [submitting, clearError, addContact, resetForm, setError, domainsClient]
@@ -167,7 +167,10 @@ const AddNewContactForm: React.FC<{ className?: string }> = ({ className }) => {
         placeholder={t('recipientInputPlaceholderWithDomain')}
         errorCaption={errors.address?.message}
         containerClassName="mb-4"
-        testID={AddressBookSelectors.addressInput}
+        testIDs={{
+          input: AddressBookSelectors.addressInput,
+          inputSection: AddressBookSelectors.addressInputSection
+        }}
       />
 
       <FormField
@@ -182,7 +185,10 @@ const AddNewContactForm: React.FC<{ className?: string }> = ({ className }) => {
         errorCaption={errors.name?.message}
         containerClassName="mb-6"
         maxLength={50}
-        testID={AddressBookSelectors.nameInput}
+        testIDs={{
+          input: AddressBookSelectors.nameInput,
+          inputSection: AddressBookSelectors.nameInputSection
+        }}
       />
 
       <FormSubmitButton loading={submitting} testID={AddressBookSelectors.addContactButton}>
