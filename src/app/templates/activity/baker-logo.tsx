@@ -24,7 +24,7 @@ export const BakerLogo: FC<Props> = ({ bakerAddress }) => {
       loader={<RobotIcon hash={bakerAddress} />}
       fallback={<RobotIcon hash={bakerAddress} />}
       alt={bakerOrPayoutAccount.name}
-      className="object-contain max-w-full max-h-full mr-2"
+      className="object-contain max-w-full max-h-full mr-2 rounded-md"
       height={36}
       width={36}
     />

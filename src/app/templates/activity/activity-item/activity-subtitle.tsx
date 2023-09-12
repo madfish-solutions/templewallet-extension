@@ -1,23 +1,13 @@
 import React, { FC, memo, ReactNode } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
-import { ActivitySubtype } from '@temple-wallet/transactions-parser';
 
 import HashShortView from 'app/atoms/HashShortView';
 import { T } from 'lib/i18n';
 import { DisplayableActivity } from 'lib/temple/activity-new/types';
-import {
-  getActivityTypeFlags,
-  getActor,
-  isAllowanceInteractionActivityTypeGuard,
-  isInteractionActivityTypeGuard
-} from 'lib/temple/activity-new/utils';
+import { getActivityTypeFlags, getActor } from 'lib/temple/activity-new/utils';
 
 import { BakerName } from '../baker-name';
-
-const activitySubtypesI18nKeys = {
-  [ActivitySubtype.Route3]: 'swapTokens' as const
-};
 
 interface Props {
   activity: DisplayableActivity;
@@ -25,7 +15,8 @@ interface Props {
 
 export const ActivitySubtitle: FC<Props> = memo(({ activity }) => {
   const { prepositionI18nKey, actor } = getActor(activity);
-  const { isSend, isReceive, isAllowanceChange, isDelegation, isBakingRewards } = getActivityTypeFlags(activity);
+  const { isSend, isReceive, is3Route, isAllowanceChange, isDelegation, isBakingRewards } =
+    getActivityTypeFlags(activity);
   const shouldShowActorAddressInSubtitle = (isSend || isReceive || isAllowanceChange) && isDefined(actor);
   const shouldShowBaker = (isDelegation || isBakingRewards) && isDefined(actor);
   const shouldShowActor = isDelegation || isBakingRewards || isSend || isReceive || isAllowanceChange;
@@ -35,12 +26,8 @@ export const ActivitySubtitle: FC<Props> = memo(({ activity }) => {
     secondPart = <HashShortView firstCharsCount={5} lastCharsCount={5} hash={actor.address} />;
   } else if (shouldShowBaker) {
     secondPart = <BakerName bakerAddress={actor.address} />;
-  } else if (
-    isInteractionActivityTypeGuard(activity) &&
-    isDefined(activity.subtype) &&
-    !isAllowanceInteractionActivityTypeGuard(activity)
-  ) {
-    secondPart = <T id={activitySubtypesI18nKeys[activity.subtype]} />;
+  } else if (is3Route) {
+    secondPart = <T id="swapTokens" />;
   } else {
     secondPart = '‒';
   }
