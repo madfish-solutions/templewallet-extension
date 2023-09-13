@@ -51,6 +51,7 @@ const TotalVolumeBanner: FC<TotalVolumeBannerProps> = ({ accountPkh }) => (
     <BalanceInfo />
     <AddressChip
       pkh={accountPkh}
+      testID={HomeSelectors.publicAddressButton}
       modeSwitch={{ testID: HomeSelectors.addressModeSwitchButton }}
       chipClassName={classNames(isPopupWindow() && styles['popup-address-chip'])}
     />
@@ -183,7 +184,11 @@ const AssetBanner: FC<AssetBannerProps> = ({ assetSlug, accountPkh }) => {
             {assetName}
           </div>
         </div>
-        <AddressChip pkh={accountPkh} modeSwitch={{ testID: HomeSelectors.addressModeSwitchButton }} />
+        <AddressChip
+          pkh={accountPkh}
+          testID={HomeSelectors.publicAddressButton}
+          modeSwitch={{ testID: HomeSelectors.addressModeSwitchButton }}
+        />
       </div>
       <div className="flex items-center text-2xl">
         <Balance address={accountPkh} assetSlug={assetSlug}>
