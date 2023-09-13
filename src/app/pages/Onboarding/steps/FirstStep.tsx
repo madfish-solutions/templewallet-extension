@@ -1,10 +1,12 @@
 import React, { FC } from 'react';
 
 import { Button } from 'app/atoms/Button';
+import { setTestID } from 'lib/analytics';
 import { T } from 'lib/i18n';
 
 import { ReactComponent as BalancesIcon } from '../assets/first.svg';
 import styles from '../Onboarding.module.css';
+import { OnboardingSelectors } from '../Onboarding.selectors';
 
 interface Props {
   setStep: (step: number) => void;
@@ -13,7 +15,7 @@ interface Props {
 const FirstStep: FC<Props> = ({ setStep }) => {
   return (
     <>
-      <p className={styles['title']}>
+      <p className={styles['title']} {...setTestID(OnboardingSelectors.firstStepText)}>
         <T id={'addressBalanceDetails'} />
       </p>
       <p className={styles['description']}>
@@ -33,6 +35,7 @@ const FirstStep: FC<Props> = ({ setStep }) => {
           borderRadius: 4
         }}
         onClick={() => setStep(1)}
+        testID={OnboardingSelectors.firstStepNextButton}
       >
         <T id={'next'} />
       </Button>

@@ -7,6 +7,13 @@ import { ManageAssetsTokensPage } from 'e2e/src/page-objects/pages/manage-assets
 import { NetworksPage } from 'e2e/src/page-objects/pages/networks.page';
 import { NewsletterModalPage } from 'e2e/src/page-objects/pages/newsletter-modal.page';
 import { OnRumModalPage } from 'e2e/src/page-objects/pages/on-rum-modal.page';
+import {
+  OnboardingCongratsPage,
+  OnboardingFirstStepPage,
+  OnboardingFourthStepPage,
+  OnboardingSecondStepPage,
+  OnboardingThirdStepPage
+} from 'e2e/src/page-objects/pages/onboarding.page';
 import { RemoveAccountPage } from 'e2e/src/page-objects/pages/remove-account.page';
 import { SwapPage } from 'e2e/src/page-objects/pages/swap.page';
 import { TokenPage } from 'e2e/src/page-objects/pages/token.page';
@@ -67,5 +74,10 @@ export const Pages = {
   ManageAssetsCollectibles: new ManageAssetsCollectiblesPage(),
   ManageAssetsTokens: new ManageAssetsTokensPage(),
   AddAsset: new AddAssetPage(),
-  Token: new TokenPage()
+  Token: new TokenPage(),
+  OnboardingFirstStep: new OnboardingFirstStepPage(),
+  OnboardingSecondStep: new OnboardingSecondStepPage(),
+  OnboardingThirdStep: new OnboardingThirdStepPage(),
+  OnboardingFourthStep: new OnboardingFourthStepPage(),
+  OnboardingCongrats: new OnboardingCongratsPage()
 };
