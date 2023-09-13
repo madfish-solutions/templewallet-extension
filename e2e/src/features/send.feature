@@ -7,7 +7,7 @@ Feature: Send
     And I check that ECAD Labs Mainnet node is selected correctly
     And I press Send Button on the Home page
 
-    And I am on the Send page
+    Then I am on the Send page
 # Send TEZ
 #    And I enter watchOnlyPublicKey into Recipient Input on the Send Form page
 #    And I enter amount_0_0001 into Amount Input on the Send Form page
