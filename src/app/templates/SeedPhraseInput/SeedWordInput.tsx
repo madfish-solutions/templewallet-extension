@@ -1,9 +1,11 @@
-import React, { FC, useCallback, useRef } from 'react';
+import React, { FC, useCallback, useEffect, useRef, useState } from 'react';
 
 import clsx from 'clsx';
 
 import { FormField, FormFieldElement } from 'app/atoms/FormField';
+import { bip39WordList } from 'app/pages/ImportAccount/constants';
 import type { TestIDProperty } from 'lib/analytics';
+import { t } from 'lib/i18n';
 
 export interface SeedWordInputProps extends TestIDProperty {
   id: number;
@@ -13,6 +15,7 @@ export interface SeedWordInputProps extends TestIDProperty {
   onPaste?: (e: React.ClipboardEvent<FormFieldElement>) => void;
   revealRef: unknown;
   onReveal: EmptyFn;
+  setWordSpellingError: (e: string) => void;
 }
 
 export const SeedWordInput: FC<SeedWordInputProps> = ({
@@ -23,10 +26,13 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
   onPaste,
   revealRef,
   onReveal,
+  setWordSpellingError,
   testID
 }) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const isError = submitted ? !value : false;
+  const [onBlur, setOnBlur] = useState(true);
+  const errorCheckRef = useRef<boolean | undefined>(undefined);
 
   const handlePaste = useCallback(
     (e: React.ClipboardEvent<FormFieldElement>) => {
@@ -37,6 +43,15 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
     },
     [onPaste]
   );
+
+  useEffect(() => {
+    if (value && !bip39WordList.includes(value) && onBlur) {
+      setWordSpellingError(t('mnemonicWordsError'));
+      errorCheckRef.current = true;
+    } else {
+      errorCheckRef.current = undefined;
+    }
+  }, [value, onBlur, errorCheckRef, setWordSpellingError]);
 
   return (
     <div className="flex flex-col">
@@ -50,6 +65,8 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
         id={id.toString()}
         value={value}
         onChange={onChange}
+        onBlur={() => setOnBlur(true)}
+        onFocus={() => setOnBlur(false)}
         onPaste={handlePaste}
         revealRef={revealRef}
         onReveal={onReveal}
@@ -57,6 +74,7 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
         smallPaddings
         fieldWrapperBottomMargin={false}
         testID={testID}
+        errorCaption={errorCheckRef.current}
       />
     </div>
   );

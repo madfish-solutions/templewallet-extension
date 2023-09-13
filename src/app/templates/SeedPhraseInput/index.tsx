@@ -16,7 +16,7 @@ import { useRevealRef } from './use-reveal-ref.hook';
 interface SeedPhraseInputProps extends TestIDProperty {
   isFirstAccount?: boolean;
   submitted: boolean;
-  seedError: string;
+  seedError: string | React.ReactNode;
   labelWarning?: string;
   onChange: (seed: string) => void;
   setSeedError: (e: string) => void;
@@ -40,6 +40,7 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
   const [pasteFailed, setPasteFailed] = useState(false);
   const [draftSeed, setDraftSeed] = useState(new Array<string>(defaultNumberOfWords).fill(''));
   const [numberOfWords, setNumberOfWords] = useState(defaultNumberOfWords);
+  const [wordSpellingError, setWordSpellingError] = useState('');
 
   const { getRevealRef, onReveal, resetRevealRef } = useRevealRef();
 
@@ -50,7 +51,7 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
 
       if (newDraftSeed.some(word => word !== '')) {
         if (newDraftSeed.some(word => word === '')) {
-          newSeedError = t('mnemonicWordsAmountConstraint');
+          newSeedError = t('mnemonicWordsAmountConstraint', [numberOfWords]) as string;
         } else if (!validateMnemonic(formatMnemonic(joinedDraftSeed))) {
           newSeedError = t('justValidPreGeneratedMnemonic');
         }
@@ -60,7 +61,7 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
       setSeedError(newSeedError);
       onChange(newSeedError ? '' : joinedDraftSeed);
     },
-    [setDraftSeed, setSeedError, onChange]
+    [setDraftSeed, setSeedError, onChange, numberOfWords]
   );
 
   const onSeedWordChange = useCallback(
@@ -181,18 +182,22 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
               onChange={event => {
                 event.preventDefault();
                 onSeedWordChange(index, event.target.value);
+                setWordSpellingError('');
               }}
               revealRef={getRevealRef(index)}
               onReveal={() => onReveal(index)}
               value={draftSeed[index]}
               testID={testID}
               onPaste={onSeedWordPaste}
+              setWordSpellingError={setWordSpellingError}
             />
           );
         })}
       </div>
 
-      {submitted && seedError ? <div className="text-xs text-red-700 mt-4">{seedError}</div> : null}
+      {wordSpellingError && <div className="text-xs text-red-700 mt-4">{wordSpellingError}</div>}
+
+      {submitted && seedError && <div className="text-xs text-red-700 mt-4">{seedError}</div>}
 
       {pasteFailed ? (
         <div className="text-xs text-red-700 mt-4">

@@ -466,7 +466,15 @@
     "message": "At least 1 uppercase letter"
   },
   "mnemonicWordsAmountConstraint": {
-    "message": "12, 15, 18, 21 or 24 words in English"
+    "message": "Seed phrase must contain $number$ words",
+    "placeholders": {
+      "number": {
+        "content": "$1"
+      }
+    }
+  },
+  "mnemonicWordsError": {
+    "message": "Make sure the words spelled correctly"
   },
   "mnemonicSpacingConstraint": {
     "message": "Each word separated with a single space"
