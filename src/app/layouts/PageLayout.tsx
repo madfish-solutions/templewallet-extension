@@ -223,6 +223,7 @@ const Toolbar: FC<ToolbarProps> = ({
               'transition duration-300 ease-in-out'
             )}
             onClick={() => setOnboardingCompleted(true)}
+            testID={PageLayoutSelectors.skipButton}
           >
             <T id="skip" />
           </Button>
