@@ -13,7 +13,8 @@ Given(
 
 Given(/I check that (.*) node is selected correctly/, { timeout: MEDIUM_TIMEOUT }, async (networkName: string) => {
   await Pages.Header.selectedNetworkButtonName.waitForText(networkName, SHORT_TIMEOUT);
-  // dropdown close animation
+
+  // Dropdown closing animation duration
   await sleep(100);
 
   await Pages.Header.templeLogoButton.waitForDisplayed();
