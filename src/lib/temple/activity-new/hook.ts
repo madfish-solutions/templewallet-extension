@@ -42,36 +42,44 @@ export default function useActivities(initialPseudoLimit: number, assetSlug?: st
 
     setLoading(activities.length ? 'more' : 'init');
 
-    let newActivities: DisplayableActivity[];
-    let newReachedTheEnd = false;
-    let newOldestOperation: TzktOperation | undefined;
-    try {
-      ({
-        activities: newActivities,
-        reachedTheEnd: newReachedTheEnd,
-        oldestOperation: newOldestOperation
-      } = await fetchActivities(
-        chainId,
-        account,
-        assetSlug,
-        pseudoLimit,
-        tezos,
-        tzktBakersAliases,
-        oldestOperationRef.current
-      ));
-      oldestOperationRef.current = newOldestOperation ?? oldestOperationRef.current;
-      if (shouldStop()) return;
-    } catch (error) {
-      if (shouldStop()) return;
-      setLoading(false);
-      console.error(error);
+    const allNewActivities: DisplayableActivity[] = [];
+    const minGroupsCount = activities.length ? 0 : 6;
 
-      return;
-    }
+    do {
+      let newActivities: DisplayableActivity[];
+      let newReachedTheEnd = false;
+      let newOldestOperation: TzktOperation | undefined;
+      try {
+        ({
+          activities: newActivities,
+          reachedTheEnd: newReachedTheEnd,
+          oldestOperation: newOldestOperation
+        } = await fetchActivities(
+          chainId,
+          account,
+          assetSlug,
+          pseudoLimit,
+          tezos,
+          tzktBakersAliases,
+          oldestOperationRef.current
+        ));
+        oldestOperationRef.current = newOldestOperation ?? oldestOperationRef.current;
+        if (shouldStop()) return;
+      } catch (error) {
+        if (shouldStop()) return;
+        setLoading(false);
+        console.error(error);
 
-    setActivities(activities.concat(newActivities));
+        return;
+      }
+
+      allNewActivities.push(...newActivities);
+
+      setReachedTheEnd(newReachedTheEnd);
+    } while (allNewActivities.length < minGroupsCount);
+
+    setActivities(activities.concat(allNewActivities));
     setLoading(false);
-    setReachedTheEnd(newReachedTheEnd);
   }
 
   /** Loads more of older items */
