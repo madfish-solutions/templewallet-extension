@@ -42,10 +42,10 @@ const DCP_NETWORKS: TempleNetwork[] = [
 export const NETWORKS: TempleNetwork[] = [
   {
     id: 'mainnet',
-    nameI18nKey: 'tezosMainnet',
-    description: 'Tezos mainnet',
+    name: 'Tezos Commons',
+    description: 'Tezos Commons',
     type: 'main',
-    rpcBaseURL: 'https://uoi3x99n7c.tezosrpc.midl.dev',
+    rpcBaseURL: 'https://prod.tcinfra.net/rpc/mainnet',
     color: '#83b300',
     disabled: false
   },
