@@ -24,7 +24,7 @@ export const CashbackView: FC<Props> = memo(({ cashback }) => {
   return (
     <div className="flex flex-row items-center">
       <div className="flex flex-1 flex-col items-right">
-        <div className="inline-flex text-right justify-end font-medium text-green-500">
+        <div className="inline-flex text-right justify-end text-xs font-medium text-green-500">
           <span>
             {'+ '}
             <Money forceUseFormattingThreshold smallFractionFont={false}>
