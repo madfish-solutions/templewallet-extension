@@ -43,7 +43,7 @@ export default function useActivities(initialPseudoLimit: number, assetSlug?: st
     setLoading(activities.length ? 'more' : 'init');
 
     const allNewActivities: DisplayableActivity[] = [];
-    const minGroupsCount = activities.length ? 1 : 6;
+    const minGroupsCount = activities.length ? 1 : 10;
 
     let newActivities: DisplayableActivity[];
     let newReachedTheEnd = false;
