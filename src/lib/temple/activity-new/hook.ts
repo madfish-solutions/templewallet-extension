@@ -43,12 +43,15 @@ export default function useActivities(initialPseudoLimit: number, assetSlug?: st
     setLoading(activities.length ? 'more' : 'init');
 
     const allNewActivities: DisplayableActivity[] = [];
-    const minGroupsCount = activities.length ? 0 : 6;
+    const minGroupsCount = activities.length ? 1 : 6;
 
-    do {
-      let newActivities: DisplayableActivity[];
-      let newReachedTheEnd = false;
-      let newOldestOperation: TzktOperation | undefined;
+    let newActivities: DisplayableActivity[];
+    let newReachedTheEnd = false;
+    let newOldestOperation: TzktOperation | undefined;
+
+    while (allNewActivities.length < minGroupsCount) {
+      if (newReachedTheEnd) break;
+
       try {
         ({
           activities: newActivities,
@@ -74,12 +77,11 @@ export default function useActivities(initialPseudoLimit: number, assetSlug?: st
       }
 
       allNewActivities.push(...newActivities);
-
-      setReachedTheEnd(newReachedTheEnd);
-    } while (allNewActivities.length < minGroupsCount);
+    }
 
     setActivities(activities.concat(allNewActivities));
     setLoading(false);
+    setReachedTheEnd(newReachedTheEnd);
   }
 
   /** Loads more of older items */
