@@ -73,7 +73,7 @@ export const NETWORKS: TempleNetwork[] = [
     name: 'Ghostnet Testnet',
     description: 'Ghostnet testnet',
     type: 'test',
-    rpcBaseURL: 'https://uoi3x99n7c.ghostnet.tezosrpc.midl.dev',
+    rpcBaseURL: 'https://rpc.ghostnet.teztnets.xyz',
     color: '#131380',
     disabled: false
   },
