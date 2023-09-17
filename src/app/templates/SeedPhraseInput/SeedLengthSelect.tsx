@@ -1,5 +1,7 @@
 import React, { FC, useCallback, useEffect, useRef, useState } from 'react';
 
+import './seedLength.css';
+
 import classNames from 'clsx';
 
 import { ReactComponent as SelectArrowDownIcon } from 'app/icons/select-arrow-down.svg';
@@ -66,11 +68,20 @@ export const SeedLengthSelect: FC<SeedLengthSelectProps> = ({ options, currentOp
                 selectedOption === option ? 'bg-gray-200' : 'hover:bg-gray-100',
                 'py-1',
                 'text-gray-800',
-                'flex justify-center'
+                'flex justify-start px-3 m-2 rounded-md',
+                'text-lg'
               )}
-              style={{ fontSize: 17 }}
             >
-              <span style={{ fontSize: 13 }}>{t('seedInputNumberOfWords', [`${option}`])}</span>
+              <label htmlFor={option} className="flex gap-2 items-center">
+                <input
+                  type="radio"
+                  id={option}
+                  value={option}
+                  checked={selectedOption === option}
+                  onChange={e => setSelectedOption(e.target.value)}
+                />
+                <span className="text-sm">{option}</span>
+              </label>
             </li>
           );
         })}

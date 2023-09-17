@@ -43,7 +43,8 @@ export const ImportFromSeedPhrase: FC<ImportFromSeedPhraseProps> = ({
       />
 
       <FormSubmitButton
-        style={{ display: 'block', width: 384, margin: '40px auto', fontSize: 14, fontWeight: 500 }}
+        className="mt-20 mx-auto block text-sm font-medium justify-center"
+        style={{ width: 384 }}
         testID={ImportFromSeedPhraseSelectors.nextButton}
       >
         <T id="next" />

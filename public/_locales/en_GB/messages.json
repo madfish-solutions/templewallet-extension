@@ -1096,7 +1096,7 @@
     "message": "Derivation path"
   },
   "seedPhrase": {
-    "message": "Seed Phrase"
+    "message": "Seed phrase"
   },
   "pathForHDAccounts": {
     "message": "for HD acccounts. This is the thing you use to recover all your accounts from your seed phrase.",

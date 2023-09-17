@@ -356,6 +356,7 @@ module.exports = {
       5: '1.25rem',
       8: '2rem',
       12: '3rem',
+      18: '4.5rem',
       '1/2': '50%',
       auto: 'auto'
     },

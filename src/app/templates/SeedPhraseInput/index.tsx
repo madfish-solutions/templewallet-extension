@@ -5,6 +5,7 @@ import classNames from 'clsx';
 
 import { formatMnemonic } from 'app/defaults';
 import { useAppEnv } from 'app/env';
+import { bip39WordList } from 'app/pages/ImportAccount/constants';
 import { TestIDProperty } from 'lib/analytics';
 import { T, t } from 'lib/i18n';
 import { clearClipboard } from 'lib/ui/utils';
@@ -51,7 +52,12 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
 
       if (newDraftSeed.some(word => word !== '')) {
         if (newDraftSeed.some(word => word === '')) {
-          newSeedError = t('mnemonicWordsAmountConstraint', [numberOfWords]) as string;
+          const availableWords = newDraftSeed.filter(word => word !== '');
+          if (!availableWords.some(word => bip39WordList.includes(word))) {
+            newSeedError = t('mnemonicWordsAmountConstraint', [numberOfWords]) as string;
+          } else {
+            newSeedError = '';
+          }
         } else if (!validateMnemonic(formatMnemonic(joinedDraftSeed))) {
           newSeedError = t('justValidPreGeneratedMnemonic');
         }
@@ -190,6 +196,7 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
               testID={testID}
               onPaste={onSeedWordPaste}
               setWordSpellingError={setWordSpellingError}
+              onSeedWordChange={onSeedWordChange}
             />
           );
         })}
