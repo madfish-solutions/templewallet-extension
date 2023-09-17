@@ -174,7 +174,7 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
           optionsProps={{
             isLoading,
             options: filteredAssets,
-            noItemsText: 'No items',
+            noItemsText: t('noItemsWithPositiveBalance'),
             getKey: option => option,
             renderOptionContent: option => renderOptionContent(option, value.assetSlug === option),
             onOptionChange: handleSelectedAssetChange
