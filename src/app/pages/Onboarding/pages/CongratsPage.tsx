@@ -6,10 +6,12 @@ import { ReactComponent as RedditIcon } from 'app/icons/reddit.svg';
 import { ReactComponent as TelegramIcon } from 'app/icons/telegram.svg';
 import { ReactComponent as TwitterIcon } from 'app/icons/twitter.svg';
 import { ReactComponent as YoutubeIcon } from 'app/icons/youtube.svg';
+import { setTestID } from 'lib/analytics';
 import { T } from 'lib/i18n';
 
 import { useOnboardingProgress } from '../hooks/useOnboardingProgress.hook';
 import styles from '../Onboarding.module.css';
+import { OnboardingSelectors } from '../Onboarding.selectors';
 
 const links = [
   {
@@ -44,7 +46,7 @@ const CongratsPage: FC = () => {
 
   return (
     <>
-      <p className={styles['title']}>
+      <p className={styles['title']} {...setTestID(OnboardingSelectors.congratsText)}>
         <T id={'congrats'} />
       </p>
       <p className={styles['description']} style={{ marginBottom: 20 }}>
@@ -95,6 +97,7 @@ const CongratsPage: FC = () => {
           borderRadius: 4
         }}
         onClick={() => setOnboardingCompleted(true)}
+        testID={OnboardingSelectors.congratsStartButton}
       >
         <T id={'start'} />
       </Button>

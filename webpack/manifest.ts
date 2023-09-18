@@ -57,7 +57,7 @@ const buildManifestV2 = (vendor: string): Manifest.WebExtensionManifest => {
 
     permissions: [...PERMISSIONS, ...HOST_PERMISSIONS],
 
-    content_security_policy: "script-src 'self' 'unsafe-eval'; object-src 'self'",
+    content_security_policy: "script-src 'self' 'unsafe-eval' blob:; object-src 'self'",
 
     browser_action: buildBrowserAction(vendor),
 
@@ -75,7 +75,7 @@ const buildManifestV2 = (vendor: string): Manifest.WebExtensionManifest => {
 
 const AUTHOR_URL = 'https://madfish.solutions';
 
-const PERMISSIONS = ['storage', 'unlimitedStorage', 'clipboardWrite', 'activeTab', 'notifications'];
+const PERMISSIONS = ['storage', 'unlimitedStorage', 'clipboardWrite', 'activeTab'];
 
 const HOST_PERMISSIONS: string[] = ['http://localhost:8732/'];
 

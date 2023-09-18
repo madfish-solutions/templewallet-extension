@@ -1,10 +1,12 @@
 import React, { FC } from 'react';
 
 import { Button } from 'app/atoms/Button';
+import { setTestID } from 'lib/analytics';
 import { T } from 'lib/i18n';
 
 import { ReactComponent as ButtonsIcon } from '../assets/second.svg';
 import styles from '../Onboarding.module.css';
+import { OnboardingSelectors } from '../Onboarding.selectors';
 
 interface Props {
   setStep: (step: number) => void;
@@ -13,7 +15,7 @@ interface Props {
 const SecondStep: FC<Props> = ({ setStep }) => {
   return (
     <>
-      <p className={styles['title']}>
+      <p className={styles['title']} {...setTestID(OnboardingSelectors.secondStepText)}>
         <T id={'howToStartDetails'} />
       </p>
       <p className={styles['description']} style={{ marginBottom: 0 }}>
@@ -36,6 +38,7 @@ const SecondStep: FC<Props> = ({ setStep }) => {
           borderRadius: 4
         }}
         onClick={() => setStep(2)}
+        testID={OnboardingSelectors.secondStepNextButton}
       >
         <T id={'next'} />
       </Button>

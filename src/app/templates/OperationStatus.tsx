@@ -1,16 +1,15 @@
 import React, { FC, ReactNode, useEffect, useMemo } from 'react';
 
-import classNames from 'clsx';
+import type { WalletOperation } from '@taquito/taquito';
 
-import { Alert } from 'app/atoms';
-import OpenInExplorerChip from 'app/atoms/OpenInExplorerChip';
-import HashChip from 'app/templates/HashChip';
+import { HashChip, Alert } from 'app/atoms';
 import { T, t } from 'lib/i18n';
-import { useTezos, useExplorerBaseUrls, useBlockTriggers } from 'lib/temple/front';
+import { useTezos, useBlockTriggers } from 'lib/temple/front';
 import { FailedOpError } from 'lib/temple/operation';
 import { useSafeState } from 'lib/ui/hooks';
 
 import { setTestID } from '../../lib/analytics';
+import { OpenInExplorerChip } from './OpenInExplorerChip';
 import { OperationStatusSelectors } from './OperationStatus.selectors';
 
 type OperationStatusProps = {
@@ -18,16 +17,19 @@ type OperationStatusProps = {
   closable?: boolean;
   onClose?: () => void;
   typeTitle: string;
-  operation: any;
+  operation: WalletOperation;
 };
 
 const OperationStatus: FC<OperationStatusProps> = ({ typeTitle, operation, className, closable, onClose }) => {
   const tezos = useTezos();
   const { confirmOperationAndTriggerNewBlock } = useBlockTriggers();
 
-  const hash = useMemo(() => operation.hash || operation.opHash, [operation]);
-
-  const { transaction: transactionBaseUrl } = useExplorerBaseUrls();
+  const hash = useMemo(
+    () =>
+      // @ts-expect-error
+      operation.hash || operation.opHash,
+    [operation]
+  );
 
   const descFooter = useMemo(
     () => (
@@ -35,11 +37,13 @@ const OperationStatus: FC<OperationStatusProps> = ({ typeTitle, operation, class
         <div className="whitespace-nowrap">
           <T id="operationHash" />:{' '}
         </div>
-        <HashChip hash={hash} firstCharsCount={10} lastCharsCount={7} small key="hash" className="ml-2 mr-2" />
-        {transactionBaseUrl && <OpenInExplorerChip baseUrl={transactionBaseUrl} hash={hash} />}
+
+        <HashChip hash={hash} firstCharsCount={10} lastCharsCount={7} small key="hash" className="mx-2" />
+
+        <OpenInExplorerChip hash={hash} small />
       </div>
     ),
-    [hash, transactionBaseUrl]
+    [hash]
   );
 
   const [alert, setAlert] = useSafeState<{
@@ -93,7 +97,7 @@ const OperationStatus: FC<OperationStatusProps> = ({ typeTitle, operation, class
       title={alert.title}
       description={alert.description}
       autoFocus
-      className={classNames('mb-8', className)}
+      className={className}
       closable={closable}
       onClose={onClose}
     />

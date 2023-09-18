@@ -1370,12 +1370,9 @@
   "activity": {
     "message": "Activity"
   },
-  "manage": {
-    "message": "Manage"
-  },
-  "manageTokens": {
-    "message": "Manage Tokens"
-  },
+  "manage": { "message": "Manage" },
+  "manageTokens": { "message": "Manage Tokens" },
+  "manageAssetsList": { "message": "Manage assets list" },
   "noAssetsFound": {
     "message": "No assets found"
   },
@@ -1795,6 +1792,9 @@
   },
   "keepLatestNews": {
     "message": "Keep up with the latest news from Madfish"
+  },
+  "unknownError": {
+    "message": "Unknown error"
   },
   "viewAds": {
     "message": "View Ads"

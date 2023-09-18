@@ -60,11 +60,7 @@ export const NewSeedBackup: FC<NewSeedBackupProps> = ({ seedPhrase, onBackupComp
           testID={NewSeedBackupSelectors.iMadeSeedPhraseBackupCheckBox}
         />
 
-        <FormSubmitButton
-          loading={submitting}
-          style={{ display: 'block', width: '100%', marginTop: 32, fontSize: 14, fontWeight: 500 }}
-          testID={NewSeedBackupSelectors.nextButton}
-        >
+        <FormSubmitButton loading={submitting} className="w-full mt-8" testID={NewSeedBackupSelectors.nextButton}>
           <T id="next" />
         </FormSubmitButton>
       </form>

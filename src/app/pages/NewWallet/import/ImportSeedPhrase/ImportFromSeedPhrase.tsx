@@ -46,11 +46,7 @@ export const ImportFromSeedPhrase: FC<ImportFromSeedPhraseProps> = ({
         setNumberOfWords={setNumberOfWords}
       />
 
-      <FormSubmitButton
-        className="mt-20 mx-auto block text-sm font-medium justify-center"
-        style={{ width: 384 }}
-        testID={ImportFromSeedPhraseSelectors.nextButton}
-      >
+      <FormSubmitButton className="w-96 my-10 mx-auto" testID={ImportFromSeedPhraseSelectors.nextButton}>
         <T id="next" />
       </FormSubmitButton>
     </form>
