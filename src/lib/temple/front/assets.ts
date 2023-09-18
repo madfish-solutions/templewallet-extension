@@ -50,15 +50,12 @@ const useKnownTokens = (chainId: string, account: string, fungible = true, onlyD
   };
 };
 
-export const useDisplayedFungibleTokens = (chainId: string, account: string) =>
-  useKnownTokens(chainId, account, true, true);
-
 const useFungibleTokens = (chainId: string, account: string) => useKnownTokens(chainId, account, true, false);
 
 export const useCollectibleTokens = (chainId: string, account: string, onlyDisplayed: boolean = false) =>
   useKnownTokens(chainId, account, false, onlyDisplayed);
 
-export const useAllStoredTokensSlugs = (chainId: string) =>
+const useAllStoredTokensSlugs = (chainId: string) =>
   useRetryableSWR(['use-tokens-slugs', chainId], () => getAllStoredTokensSlugs(chainId), {
     revalidateOnMount: true,
     refreshInterval: TOKENS_SYNC_INTERVAL

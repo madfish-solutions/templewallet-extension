@@ -64,7 +64,7 @@ export const CollectiblesTab = memo<Props>(({ scrollToTheTabsBar }) => {
   return (
     <div className="w-full max-w-sm mx-auto">
       <div className={clsx('my-3', popup && 'mx-4')}>
-        <div className="mb-4 w-full flex items-strech">
+        <div className="mb-4 w-full flex">
           <SearchAssetField
             value={searchValue}
             onValueChange={setSearchValue}

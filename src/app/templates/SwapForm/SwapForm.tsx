@@ -24,7 +24,6 @@ import { KNOWN_TOKENS_SLUGS } from 'lib/assets/known-tokens';
 import { T, t } from 'lib/i18n';
 import { useAssetMetadata } from 'lib/metadata';
 import {
-  ZERO,
   ROUTING_FEE_RATIO,
   BURN_ADDREESS,
   MAX_ROUTING_FEE_CHAINS,
@@ -40,6 +39,7 @@ import { ROUTING_FEE_PERCENT, SWAP_CASHBACK_PERCENT } from 'lib/swap-router/conf
 import { useAccount, useGetTokenMetadata, useTezos } from 'lib/temple/front';
 import { atomsToTokens, tokensToAtoms } from 'lib/temple/helpers';
 import useTippy from 'lib/ui/useTippy';
+import { ZERO } from 'lib/utils/numbers';
 import { parseTransferParamsToParamsWithKind } from 'lib/utils/parse-transfer-params';
 import { HistoryAction, navigate } from 'lib/woozie';
 

@@ -166,18 +166,22 @@ export type TzktRewardsEntry = {
 
 export type TzktGetRewardsResponse = TzktRewardsEntry[] | undefined;
 
-export interface TzktAccountToken {
+export interface TzktAccountAsset {
+  id: number;
   account: TzktAlias;
+  /** Raw value, not divided by `decimals` */
   balance: string;
   firstLevel: number;
   firstTime: string;
-  id: number;
   lastLevel: number;
   lastTime: string;
+  transfersCount: number;
   token: {
-    contract: TzktAlias;
     id: number;
-    metadata: {
+    contract: TzktAlias;
+    standard: 'fa1.2' | 'fa2';
+    tokenId: string;
+    metadata?: {
       artifactUri: string;
       creators: Array<string>;
       decimals?: string;
@@ -191,10 +195,19 @@ export interface TzktAccountToken {
       tags: Array<string>;
       thumbnailUri: string;
     };
-    standard: string;
+  };
+}
+
+export interface TzktAccountToken {
+  /** Raw value, not divided by `decimals` */
+  balance: string;
+  token: {
+    contract: {
+      address: string;
+    };
+    standard: 'fa1.2' | 'fa2';
     tokenId: string;
   };
-  transfersCount: number;
 }
 
 export interface TzktTokenTransfer {

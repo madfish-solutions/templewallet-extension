@@ -1,7 +1,7 @@
 import { TokenMetadata, TokenStandardsEnum } from 'lib/metadata/types';
 import { TempleChainId } from 'lib/temple/types';
 
-import { toTokenSlug } from './index';
+import { tokenToSlug, toTokenSlug } from './index';
 import { FA2Token } from './types';
 
 export const TempleToken: FA2Token = {
@@ -22,21 +22,8 @@ export namespace KNOWN_TOKENS_SLUGS {
   export const TEMPLE = toTokenSlug(TempleToken.contract, TempleToken.id);
 }
 
-const PREDEFINED_TOKENS_BY_CHAIN_ID: Record<string, string[]> = {
-  [TempleChainId.Mainnet]: [
-    KNOWN_TOKENS_SLUGS.TEMPLE,
-    KNOWN_TOKENS_SLUGS.USDT,
-    KNOWN_TOKENS_SLUGS.UUSD,
-    KNOWN_TOKENS_SLUGS.KUSD,
-    KNOWN_TOKENS_SLUGS.TZBTC,
-    KNOWN_TOKENS_SLUGS.UBTC,
-    KNOWN_TOKENS_SLUGS.QUIPU,
-    KNOWN_TOKENS_SLUGS.YOU
-  ],
-  [TempleChainId.Dcp]: ['KT1N7Rh6SgSdExMPxfnYw1tHqrkSm7cm6JDN_0']
-};
-
-export const getPredefinedTokensSlugs = (chainId: string) => PREDEFINED_TOKENS_BY_CHAIN_ID[chainId] ?? [];
+export const getPredefinedTokensSlugs = (chainId: string) =>
+  PREDEFINED_TOKENS_METADATA[chainId]?.map(m => tokenToSlug(m)) ?? [];
 
 const YOUVES_COLORS = { bg: '#143A3A', bgHover: '#4F6B6B' };
 
@@ -58,8 +45,7 @@ export const DEPRECATED_TKEY_METADATA: TokenMetadata = {
   standard: TokenStandardsEnum.Fa2
 };
 
-export const LOCAL_MAINNET_TOKENS_METADATA: TokenMetadata[] = [
-  DEPRECATED_TKEY_METADATA,
+export const PREDEFINED_MAINNET_TOKENS_METADATA: TokenMetadata[] = [
   {
     id: 0,
     address: 'KT1VaEsVNiBoA56eToEK6n6BcPgh1tdx9eXi',
@@ -134,6 +120,8 @@ export const LOCAL_MAINNET_TOKENS_METADATA: TokenMetadata[] = [
   }
 ];
 
+export const LOCAL_MAINNET_TOKENS_METADATA = PREDEFINED_MAINNET_TOKENS_METADATA.concat(DEPRECATED_TKEY_METADATA);
+
 export const DCP_TOKENS_METADATA: TokenMetadata[] = [
   {
     id: 0,
@@ -145,3 +133,8 @@ export const DCP_TOKENS_METADATA: TokenMetadata[] = [
     standard: TokenStandardsEnum.Fa2
   }
 ];
+
+export const PREDEFINED_TOKENS_METADATA: Record<string, TokenMetadata[]> = {
+  [TempleChainId.Mainnet]: PREDEFINED_MAINNET_TOKENS_METADATA,
+  [TempleChainId.Dcp]: DCP_TOKENS_METADATA
+};

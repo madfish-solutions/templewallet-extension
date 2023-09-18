@@ -5,18 +5,15 @@ import { BigNumber } from 'bignumber.js';
 
 import { useBalancesWithDecimals } from 'app/hooks/use-balances-with-decimals.hook';
 import { useSelector } from 'app/store';
-import { TEZ_TOKEN_SLUG } from 'lib/assets';
+import { TEZ_TOKEN_SLUG, useDisplayedAccountTokens } from 'lib/assets';
 import { useFiatToUsdRate } from 'lib/fiat-currency';
 import { isTruthy } from 'lib/utils';
 
-import { useDisplayedFungibleTokens, useGasToken } from './assets';
-import { useAccount, useChainId } from './ready';
+import { useGasToken } from './assets';
 
 /** Total fiat volume of displayed tokens */
 export const useTotalBalance = () => {
-  const chainId = useChainId(true)!;
-  const { publicKeyHash } = useAccount();
-  const { data: tokens } = useDisplayedFungibleTokens(chainId, publicKeyHash);
+  const tokens = useDisplayedAccountTokens();
   const gasToken = useGasToken();
 
   const tokensBalances = useBalancesWithDecimals();
@@ -25,7 +22,7 @@ export const useTotalBalance = () => {
   const fiatToUsdRate = useFiatToUsdRate();
 
   const slugs = useMemo(
-    () => (tokens ? [TEZ_TOKEN_SLUG, ...tokens.map(token => token.tokenSlug)] : [TEZ_TOKEN_SLUG]),
+    () => (tokens ? [TEZ_TOKEN_SLUG, ...tokens.map(token => token.slug)] : [TEZ_TOKEN_SLUG]),
     [tokens]
   );
 

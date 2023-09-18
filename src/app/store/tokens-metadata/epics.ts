@@ -19,7 +19,7 @@ const loadWhitelistEpic: Epic = (action$: Observable<Action>) =>
     ofType(loadWhitelistAction.submit),
     switchMap(() =>
       loadWhitelist$().pipe(
-        concatMap(tokensMetadata => [loadWhitelistAction.success(tokensMetadata)]),
+        map(tokensMetadata => loadWhitelistAction.success(tokensMetadata)),
         catchError(err => of(loadWhitelistAction.fail(err.message)))
       )
     )

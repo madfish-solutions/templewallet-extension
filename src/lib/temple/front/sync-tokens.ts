@@ -5,7 +5,7 @@ import { useSWRConfig } from 'swr';
 import { ScopedMutator } from 'swr/dist/types';
 
 import { fetchWhitelistTokenSlugs } from 'lib/apis/temple';
-import { TzktAccountToken, fetchTzktTokens } from 'lib/apis/tzkt';
+import { TzktAccountAsset, fetchTzktTokens } from 'lib/apis/tzkt';
 import { toTokenSlug } from 'lib/assets';
 import { getPredefinedTokensSlugs } from 'lib/assets/known-tokens';
 import { getStoredTokens } from 'lib/temple/assets';
@@ -76,7 +76,7 @@ const updateTokenSlugs = (
   chainId: string,
   accountPkh: string,
   existingRecords: Array<Repo.IAccountToken | undefined>,
-  tzktTokensMap: Map<string, TzktAccountToken>
+  tzktTokensMap: Map<string, TzktAccountAsset>
 ) => {
   const existing = existingRecords[i];
   const tzktToken = tzktTokensMap.get(slug);

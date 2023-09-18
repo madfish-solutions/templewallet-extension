@@ -65,5 +65,8 @@ export function getAssetName(metadata: AssetMetadataBase | nullish) {
   return metadata ? metadata.name : 'Unknown Token';
 }
 
+/**
+ * @deprecated // Assertion here is not safe!
+ */
 export const isCollectible = (metadata: AssetMetadataBase): metadata is TokenMetadata =>
   'artifactUri' in metadata && Boolean((metadata as TokenMetadata).artifactUri);

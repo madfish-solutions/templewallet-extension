@@ -29,6 +29,7 @@ export interface TokenMetadataResponse {
   artifactUri?: string;
   displayUri?: string;
   image?: string;
+  // standard?: 'fa2' | 'fa12';
 }
 
 export const fetchOneTokenMetadata = (chainId: MetadataApiChainId, address: string, id = 0) =>

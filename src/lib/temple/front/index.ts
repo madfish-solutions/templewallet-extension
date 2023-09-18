@@ -18,13 +18,7 @@ export {
   useCustomChainId
 } from './ready';
 
-export {
-  useCollectibleTokens,
-  useDisplayedFungibleTokens,
-  useGetTokenMetadata,
-  useGasToken,
-  useAvailableAssetsSlugs
-} from './assets';
+export { useCollectibleTokens, useGetTokenMetadata, useGasToken, useAvailableAssetsSlugs } from './assets';
 
 export { validateDerivationPath, validateContractAddress } from './helpers';
 

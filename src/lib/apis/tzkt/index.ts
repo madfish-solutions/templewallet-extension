@@ -6,7 +6,7 @@ export type {
   TzktAlias,
   TzktOperationType,
   TzktTransactionOperation,
-  TzktAccountToken
+  TzktAccountAsset
 } from './types';
 
 export type { TzktApiChainId } from './api';
@@ -15,6 +15,7 @@ export {
   getDelegatorRewards,
   getOneUserContracts,
   fetchTzktTokens,
+  fetchTzktAccountTokens,
   fetchGetOperationsTransactions,
   fetchGetAccountOperations,
   fetchGetOperationsByHash,

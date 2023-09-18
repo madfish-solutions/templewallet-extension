@@ -15,8 +15,6 @@ export const ROUTING_FEE_SLIPPAGE_RATIO = 0.995;
 export const MAX_ROUTING_FEE_CHAINS = 1;
 export const SWAP_THRESHOLD_TO_GET_CASHBACK = 10;
 
-export const ZERO = new BigNumber(0);
-
 export const TEMPLE_TOKEN: Route3Token = {
   id: 138,
   symbol: 'TKEY',

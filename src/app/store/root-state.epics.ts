@@ -5,6 +5,7 @@ import { notificationsEpics } from 'lib/notifications';
 
 import { abTestingEpics } from './ab-testing/epics';
 import { advertisingEpics } from './advertising/epics';
+import { assetsEpics } from './assets/epics';
 import { balancesEpics } from './balances/epics';
 import { buyWithCreditCardEpics } from './buy-with-credit-card/epics';
 import { collectiblesEpics } from './collectibles/epics';
@@ -20,6 +21,7 @@ const allEpics = combineEpics(
   swapEpics,
   partnersPromotionEpics,
   balancesEpics,
+  assetsEpics,
   tokensMetadataEpics,
   abTestingEpics,
   buyWithCreditCardEpics,
