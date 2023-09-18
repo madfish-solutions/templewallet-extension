@@ -2046,3 +2046,5 @@ zebra
 zero
 zone
 zoo`.split(/\r?\n/);
+
+export const defaultNumberOfWords = 12;

@@ -22,6 +22,8 @@ interface SeedPhraseInputProps extends TestIDProperty {
   onChange: (seed: string) => void;
   setSeedError: (e: string) => void;
   reset: () => void;
+  numberOfWords: number;
+  setNumberOfWords: (n: number) => void;
 }
 
 const defaultNumberOfWords = 12;
@@ -34,13 +36,15 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
   onChange,
   setSeedError,
   reset,
+  numberOfWords,
+  setNumberOfWords,
   testID
 }) => {
   const { popup } = useAppEnv();
 
   const [pasteFailed, setPasteFailed] = useState(false);
   const [draftSeed, setDraftSeed] = useState(new Array<string>(defaultNumberOfWords).fill(''));
-  const [numberOfWords, setNumberOfWords] = useState(defaultNumberOfWords);
+
   const [wordSpellingError, setWordSpellingError] = useState('');
 
   const { getRevealRef, onReveal, resetRevealRef } = useRevealRef();
@@ -109,11 +113,12 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
       if (newDraftSeed.length < newNumberOfWords) {
         newDraftSeed = newDraftSeed.concat(new Array(newNumberOfWords - newDraftSeed.length).fill(''));
       }
+
       resetRevealRef();
       onSeedChange(newDraftSeed);
       clearClipboard();
     },
-    [numberOfWords, onSeedChange, pasteFailed, setPasteFailed, resetRevealRef]
+    [numberOfWords, onSeedChange, pasteFailed, setPasteFailed, resetRevealRef, setNumberOfWords]
   );
 
   const onSeedWordPaste = useCallback<Defined<SeedWordInputProps['onPaste']>>(

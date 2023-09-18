@@ -1,4 +1,4 @@
-import React, { FC, KeyboardEventHandler, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import clsx from 'clsx';
 
@@ -58,12 +58,12 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
   }, [value, onBlur, errorCheckRef, setWordSpellingError]);
 
   useEffect(() => {
-    if (!onBlur && value && value.length > 1) {
+    if (!onBlur && value && value.length > 1 && !onPaste) {
       setShowAutocomplete(true);
     } else {
       setShowAutocomplete(false);
     }
-  }, [showAutocomplete, value, onBlur]);
+  }, [showAutocomplete, value, onBlur, onPaste]);
 
   const autocompleteVariants = useMemo(
     () => (value ? bip39WordList.filter(word => word.startsWith(value)) : null),
@@ -87,6 +87,7 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
             setTimeout(() => setOnBlur(true), 100);
           }
         }}
+        value={value}
         onFocus={() => setOnBlur(false)}
         onPaste={handlePaste}
         revealRef={revealRef}

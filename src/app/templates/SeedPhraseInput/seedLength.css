@@ -30,7 +30,7 @@ input[type=radio]::before {
 
 input[type=radio]::before {
 	height: 0;
- width: 0;
+    width: 0;
 }
 	
 input[type=radio]:checked::before {
