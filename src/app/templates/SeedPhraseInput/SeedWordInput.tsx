@@ -58,12 +58,12 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
   }, [value, onBlur, errorCheckRef, setWordSpellingError]);
 
   useEffect(() => {
-    if (!onBlur && value && value.length > 1 && !onPaste) {
+    if (!onBlur && value && value.length > 1) {
       setShowAutocomplete(true);
     } else {
       setShowAutocomplete(false);
     }
-  }, [showAutocomplete, value, onBlur, onPaste]);
+  }, [showAutocomplete, value, onBlur]);
 
   const autocompleteVariants = useMemo(
     () => (value ? bip39WordList.filter(word => word.startsWith(value)) : null),
@@ -84,7 +84,7 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
         // delay for ref update works properly
         onBlur={e => {
           if (e.relatedTarget === null) {
-            setTimeout(() => setOnBlur(true), 100);
+            setOnBlur(true);
           }
         }}
         value={value}
