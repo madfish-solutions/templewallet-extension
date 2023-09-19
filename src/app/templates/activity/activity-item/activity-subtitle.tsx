@@ -1,4 +1,4 @@
-import React, { FC, ReactNode } from 'react';
+import React, { FC, memo, ReactNode } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
 
@@ -13,9 +13,10 @@ interface Props {
   activity: DisplayableActivity;
 }
 
-export const ActivitySubtitle: FC<Props> = ({ activity }) => {
+export const ActivitySubtitle: FC<Props> = memo(({ activity }) => {
   const { prepositionI18nKey, actor } = getActor(activity);
-  const { isSend, isReceive, isAllowanceChange, isDelegation, isBakingRewards } = getActivityTypeFlags(activity);
+  const { isSend, isReceive, is3Route, isAllowanceChange, isDelegation, isBakingRewards } =
+    getActivityTypeFlags(activity);
   const shouldShowActorAddressInSubtitle = (isSend || isReceive || isAllowanceChange) && isDefined(actor);
   const shouldShowBaker = (isDelegation || isBakingRewards) && isDefined(actor);
   const shouldShowActor = isDelegation || isBakingRewards || isSend || isReceive || isAllowanceChange;
@@ -25,6 +26,8 @@ export const ActivitySubtitle: FC<Props> = ({ activity }) => {
     secondPart = <HashShortView firstCharsCount={5} lastCharsCount={5} hash={actor.address} />;
   } else if (shouldShowBaker) {
     secondPart = <BakerName bakerAddress={actor.address} />;
+  } else if (is3Route) {
+    secondPart = <T id="swapTokens" />;
   } else {
     secondPart = '‒';
   }
@@ -39,4 +42,4 @@ export const ActivitySubtitle: FC<Props> = ({ activity }) => {
       {secondPart}
     </p>
   );
-};
+});

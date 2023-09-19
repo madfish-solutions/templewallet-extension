@@ -1,5 +1,10 @@
 import { isDefined } from '@rnw-community/shared';
-import { ActivitySubtype, ActivityType, AllowanceInteractionActivity } from '@temple-wallet/transactions-parser';
+import {
+  ActivitySubtype,
+  ActivityType,
+  AllowanceInteractionActivity,
+  InteractionActivity
+} from '@temple-wallet/transactions-parser';
 
 import { getAssetSymbol, isCollectible } from 'lib/metadata';
 import { AssetMetadataBase } from 'lib/metadata/types';
@@ -17,11 +22,20 @@ export const getActivityTypeFlags = (activity: DisplayableActivity) => {
   const isSend = type === ActivityType.Send;
   const isReceive = type === ActivityType.Recieve;
   const isInteraction = type === ActivityType.Interaction;
+  const is3Route = isInteraction && activity.subtype === ActivitySubtype.Route3;
   const isAllowanceChange = isInteraction && activity.subtype === ActivitySubtype.ChangeAllowance;
   const isRevoke = isAllowanceChange && Boolean(activity.allowanceChanges[0]?.atomicAmount.isZero());
 
-  return { isDelegation, isBakingRewards, isSend, isReceive, isInteraction, isAllowanceChange, isRevoke };
+  return { isDelegation, isBakingRewards, isSend, isReceive, isInteraction, is3Route, isAllowanceChange, isRevoke };
 };
+
+export const isInteractionActivityTypeGuard = (activity: DisplayableActivity): activity is InteractionActivity =>
+  activity.type === ActivityType.Interaction;
+
+export const isAllowanceInteractionActivityTypeGuard = (
+  activity: DisplayableActivity
+): activity is AllowanceInteractionActivity =>
+  isInteractionActivityTypeGuard(activity) && activity.subtype === ActivitySubtype.ChangeAllowance;
 
 export const getAssetSymbolOrName = (metadata: AssetMetadataBase | undefined) => {
   const fullSymbolOrName =

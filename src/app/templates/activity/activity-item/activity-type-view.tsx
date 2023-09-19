@@ -1,11 +1,16 @@
 import React, { FC, ReactNode } from 'react';
 
-import { ActivityType } from '@temple-wallet/transactions-parser';
+import { isDefined } from '@rnw-community/shared';
+import { ActivitySubtype, ActivityType } from '@temple-wallet/transactions-parser';
 
 import { ReactComponent as AlertNewIcon } from 'app/icons/alert-new.svg';
 import { T, t } from 'lib/i18n';
 import { DisplayableActivity } from 'lib/temple/activity-new/types';
-import { getActivityTypeFlags } from 'lib/temple/activity-new/utils';
+import {
+  getActivityTypeFlags,
+  isAllowanceInteractionActivityTypeGuard,
+  isInteractionActivityTypeGuard
+} from 'lib/temple/activity-new/utils';
 import useTippy from 'lib/ui/useTippy';
 
 interface Props {
@@ -18,6 +23,10 @@ const activityTypesI18nKeys = {
   [ActivityType.Delegation]: 'delegation' as const,
   [ActivityType.BakingRewards]: 'bakerRewards' as const,
   [ActivityType.Interaction]: 'interaction' as const
+};
+
+const activitySubtypesI18nKeys = {
+  [ActivitySubtype.Route3]: 'route3' as const
 };
 
 export const ActivityTypeView: FC<Props> = ({ activity }) => {
@@ -36,6 +45,12 @@ export const ActivityTypeView: FC<Props> = ({ activity }) => {
     contents = <T id="revoke" />;
   } else if (isAllowanceChange) {
     contents = <T id="approve" />;
+  } else if (
+    isInteractionActivityTypeGuard(activity) &&
+    isDefined(activity.subtype) &&
+    !isAllowanceInteractionActivityTypeGuard(activity)
+  ) {
+    contents = <T id={activitySubtypesI18nKeys[activity.subtype]} />;
   } else {
     contents = (
       <>

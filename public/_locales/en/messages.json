@@ -3049,6 +3049,12 @@
   "swapRoute3Link": {
     "message": "3route DEX aggregator."
   },
+  "route3": {
+    "message": "3Route"
+  },
+  "swapTokens": {
+    "message": "Swap tokens"
+  },
   "searchingTheBestRoute": {
     "message": "Searching the best route"
   },

@@ -1,16 +1,27 @@
 import React, { useCallback, useMemo, useState } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
-import { AllowanceInteractionActivity, TzktOperationStatus } from '@temple-wallet/transactions-parser';
+import {
+  ActivitySubtype,
+  AllowanceInteractionActivity,
+  Route3Activity,
+  TzktOperationStatus
+} from '@temple-wallet/transactions-parser';
 import classNames from 'clsx';
 
 import { getCurrentLocale, t } from 'lib/i18n';
 import { formatDateOutput } from 'lib/notifications/utils/date.utils';
 import { DisplayableActivity } from 'lib/temple/activity-new/types';
-import { getActor, getActivityTypeFlags } from 'lib/temple/activity-new/utils';
+import {
+  getActivityTypeFlags,
+  getActor,
+  isAllowanceInteractionActivityTypeGuard,
+  isInteractionActivityTypeGuard
+} from 'lib/temple/activity-new/utils';
 import { formatTcInfraImgUri } from 'lib/temple/front/image-uri';
 import { Image } from 'lib/ui/Image';
 
+import Route3LogoSrc from '../../assets/3route.png';
 import { BakerLogo } from '../../baker-logo';
 import { RobotIcon } from '../../robot-icon';
 import { FilteringMode } from '../../tokens-delta-view';
@@ -25,7 +36,11 @@ const statusesColors = {
   [TzktOperationStatus.Skipped]: 'bg-red-700'
 };
 
-const actorAvatarStyles = 'border border-gray-300 mr-2';
+const interactionActivitiesLogos = {
+  [ActivitySubtype.Route3]: Route3LogoSrc
+};
+
+const actorAvatarStyles = 'border border-gray-300 mr-2 rounded-md min-w-9';
 
 export const useActivityItemViewModel = (activity: DisplayableActivity) => {
   const { hash, timestamp, status, tokensDeltas, from } = activity;
@@ -33,13 +48,14 @@ export const useActivityItemViewModel = (activity: DisplayableActivity) => {
   const [isOpen, setIsOpen] = useState(false);
   const [wasToggled, setWasToggled] = useState(false);
 
-  const { isDelegation, isBakingRewards, isSend, isReceive, isInteraction, isAllowanceChange, isRevoke } =
+  const { isDelegation, isBakingRewards, isSend, isReceive, isInteraction, is3Route, isAllowanceChange, isRevoke } =
     getActivityTypeFlags(activity);
   const { prepositionI18nKey: actorPrepositionI18nKey, actor } = getActor(activity);
   const shouldShowBaker = (isDelegation || isBakingRewards) && isDefined(actor);
   const shouldShowActor = isDelegation || isBakingRewards || isSend || isReceive || isAllowanceChange;
   const headerTokensDeltasFilteringMode = isInteraction ? FilteringMode.ONLY_POSITIVE_IF_PRESENT : FilteringMode.NONE;
   const allowanceChanges = isAllowanceChange ? (activity as AllowanceInteractionActivity).allowanceChanges : [];
+  const cashback = is3Route ? (activity as Route3Activity).cashback : undefined;
 
   const tzProfileLogo = useTzProfileLogo(actor?.address);
 
@@ -67,8 +83,12 @@ export const useActivityItemViewModel = (activity: DisplayableActivity) => {
       return <BakerLogo bakerAddress={actor.address} />;
     }
 
-    if (isInteraction) {
-      return null;
+    if (isInteractionActivityTypeGuard(activity)) {
+      return isDefined(activity.subtype) && !isAllowanceInteractionActivityTypeGuard(activity) ? (
+        <div className={classNames('flex items-center justify-center', actorAvatarStyles)}>
+          <img src={interactionActivitiesLogos[activity.subtype]} alt={activity.subtype} height={12} width={24} />
+        </div>
+      ) : null;
     }
 
     if (isDefined(tzProfileLogo)) {
@@ -77,11 +97,6 @@ export const useActivityItemViewModel = (activity: DisplayableActivity) => {
           src={formatTcInfraImgUri(tzProfileLogo)}
           loader={<RobotIcon hash={robotIconHash} />}
           fallback={<RobotIcon hash={robotIconHash} />}
-          style={{
-            objectFit: 'contain',
-            borderRadius: '0.375rem',
-            minWidth: '2.25rem'
-          }}
           className={actorAvatarStyles}
           height={36}
           width={36}
@@ -90,7 +105,7 @@ export const useActivityItemViewModel = (activity: DisplayableActivity) => {
     }
 
     return <RobotIcon hash={robotIconHash} className={actorAvatarStyles} />;
-  }, [actor?.address, isInteraction, robotIconHash, shouldShowBaker, tzProfileLogo]);
+  }, [shouldShowBaker, activity, tzProfileLogo, robotIconHash, actor?.address]);
 
   const toggleDetails = useCallback(() => {
     setIsOpen(value => !value);
@@ -105,6 +120,7 @@ export const useActivityItemViewModel = (activity: DisplayableActivity) => {
     status,
     isAllowanceChange,
     allowanceChanges,
+    cashback,
     activityTime,
     chevronAnimationClassName,
     toggleDetails,

@@ -58,7 +58,7 @@
     "@taquito/tzip16": "17.0.0",
     "@taquito/utils": "17.0.0",
     "@temple-wallet/dapp": "5.0.2",
-    "@temple-wallet/transactions-parser": "^3.0.0",
+    "@temple-wallet/transactions-parser": "^4.0.0",
     "@temple-wallet/wallet-address-validator": "^0.4.3",
     "@tezos-domains/core": "1.26.0",
     "@tezos-domains/taquito-client": "1.26.0",

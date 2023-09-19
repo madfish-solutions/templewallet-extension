@@ -42,34 +42,46 @@ export default function useActivities(initialPseudoLimit: number, assetSlug?: st
 
     setLoading(activities.length ? 'more' : 'init');
 
+    const allNewActivities: DisplayableActivity[] = [];
+
+    // Loading 10+ items first (initially) & 3+ for the following calls
+    const minGroupsCount = activities.length ? 3 : 10;
+
     let newActivities: DisplayableActivity[];
     let newReachedTheEnd = false;
     let newOldestOperation: TzktOperation | undefined;
-    try {
-      ({
-        activities: newActivities,
-        reachedTheEnd: newReachedTheEnd,
-        oldestOperation: newOldestOperation
-      } = await fetchActivities(
-        chainId,
-        account,
-        assetSlug,
-        pseudoLimit,
-        tezos,
-        tzktBakersAliases,
-        oldestOperationRef.current
-      ));
-      oldestOperationRef.current = newOldestOperation ?? oldestOperationRef.current;
-      if (shouldStop()) return;
-    } catch (error) {
-      if (shouldStop()) return;
-      setLoading(false);
-      console.error(error);
 
-      return;
+    while (allNewActivities.length < minGroupsCount) {
+      if (newReachedTheEnd) break;
+
+      try {
+        ({
+          activities: newActivities,
+          reachedTheEnd: newReachedTheEnd,
+          oldestOperation: newOldestOperation
+        } = await fetchActivities(
+          chainId,
+          account,
+          assetSlug,
+          pseudoLimit,
+          tezos,
+          tzktBakersAliases,
+          oldestOperationRef.current
+        ));
+        oldestOperationRef.current = newOldestOperation ?? oldestOperationRef.current;
+        if (shouldStop()) return;
+      } catch (error) {
+        if (shouldStop()) return;
+        setLoading(false);
+        console.error(error);
+
+        return;
+      }
+
+      allNewActivities.push(...newActivities);
     }
 
-    setActivities(activities.concat(newActivities));
+    setActivities(activities.concat(allNewActivities));
     setLoading(false);
     setReachedTheEnd(newReachedTheEnd);
   }
