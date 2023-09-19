@@ -28,6 +28,8 @@ interface SeedPhraseInputProps extends TestIDProperty {
 
 const defaultNumberOfWords = 12;
 
+const checkWordExist = (word: string) => word !== '';
+
 export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
   isFirstAccount,
   submitted,
@@ -54,9 +56,9 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
       let newSeedError = '';
       const joinedDraftSeed = newDraftSeed.join(' ');
 
-      if (newDraftSeed.some(word => word !== '')) {
+      if (newDraftSeed.some(word => checkWordExist(word))) {
         if (newDraftSeed.some(word => word === '')) {
-          const availableWords = newDraftSeed.filter(word => word !== '');
+          const availableWords = newDraftSeed.filter(word => checkWordExist(word));
           if (!availableWords.some(word => bip39WordList.includes(word))) {
             newSeedError = t('mnemonicWordsAmountConstraint', [numberOfWords]) as string;
           } else {

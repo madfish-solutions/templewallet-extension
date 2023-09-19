@@ -70,6 +70,16 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
     [value]
   );
 
+  const handleClick = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>, variant: string) => {
+    e.preventDefault();
+    if (inputRef && inputRef.current) {
+      onSeedWordChange(id, variant);
+      setWordSpellingError('');
+      inputRef.current.value = variant;
+    }
+    setOnBlur(true);
+  };
+
   return (
     <div className="flex flex-col relative">
       <label htmlFor={id.toString()} className={clsx('self-center', isError ? 'text-red-600' : 'text-gray-600')}>
@@ -106,31 +116,22 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
             'absolute left-0 z-50 px-2 items-center top-18 shadow-lg flex flex-col'
           )}
         >
-          {autocompleteVariants?.map((variant, index) => {
-            return (
-              <div className="hover:bg-gray-200 w-full rounded focus:bg-gray-200" key={index}>
-                <button
-                  className="my-2 px-3 py-2 w-full"
-                  onClick={e => {
-                    e.preventDefault();
-                    if (inputRef && inputRef.current) {
-                      onSeedWordChange(id, variant);
-                      setWordSpellingError('');
-                      inputRef.current.value = variant;
-                    }
+          {autocompleteVariants?.map((variant, index) => (
+            <div className="hover:bg-gray-200 w-full rounded focus:bg-gray-200" key={index}>
+              <button
+                className="my-2 px-3 py-2 w-full"
+                onClick={e => handleClick(e, variant)}
+                onBlur={e => {
+                  if (e.relatedTarget === null) {
                     setOnBlur(true);
-                  }}
-                  onBlur={e => {
-                    if (e.relatedTarget === null) {
-                      setOnBlur(true);
-                    }
-                  }}
-                >
-                  {variant}
-                </button>
-              </div>
-            );
-          })}
+                  }
+                }}
+              >
+                {variant}
+              </button>
+            </div>
+          ))}
+          )
         </div>
       )}
     </div>

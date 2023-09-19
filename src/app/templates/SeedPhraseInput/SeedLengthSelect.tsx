@@ -79,6 +79,7 @@ export const SeedLengthSelect: FC<SeedLengthSelectProps> = ({ options, currentOp
                   value={option}
                   checked={selectedOption === option}
                   onChange={e => setSelectedOption(e.target.value)}
+                  className="input"
                 />
                 <span className="text-sm">{option}</span>
               </label>
