@@ -39,7 +39,7 @@ export const fetchWhitelistTokens$ = () =>
     map(({ data }) => data.tokens?.filter(x => x.contractAddress !== 'tez') ?? [])
   );
 
-export const fetchWhitelistTokenSlugs = (chainId: string) =>
+const fetchWhitelistTokenSlugs = (chainId: string) =>
   api
     .get<WhitelistResponse>('tokens/quipuswap.whitelist.json')
     .then(response =>

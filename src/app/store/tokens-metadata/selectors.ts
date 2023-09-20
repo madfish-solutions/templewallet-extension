@@ -1,6 +1,6 @@
 import { TokenMetadata } from 'lib/metadata';
 
-import { useSelector } from '../index';
+import { useSelector } from '../root-state.selector';
 
 export const useTokenMetadataSelector = (slug: string): TokenMetadata | undefined =>
   useSelector(state => state.tokensMetadata.metadataRecord[slug]);

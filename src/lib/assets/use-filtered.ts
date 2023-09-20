@@ -2,6 +2,7 @@ import { useCallback, useMemo, useState } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
 import { BigNumber } from 'bignumber.js';
+import { isEqual } from 'lodash';
 import { useDebounce } from 'use-debounce';
 
 import { useBalancesWithDecimals } from 'app/hooks/use-balances-with-decimals.hook';
@@ -9,6 +10,7 @@ import { toTokenSlug } from 'lib/assets';
 import { useAccountBalances } from 'lib/balances';
 import { useUsdToTokenRates } from 'lib/fiat-currency/core';
 import { useTokensMetadataWithPresenceCheck } from 'lib/metadata';
+import { useMemoWithCompare } from 'lib/ui/hooks';
 
 import { searchAssetsWithNoMeta } from './search.utils';
 
@@ -21,7 +23,7 @@ export function useFilteredAssetsSlugs(
   const allTokensMetadata = useTokensMetadataWithPresenceCheck(assetsSlugs);
 
   const nonLeadingAssets = useMemo(
-    () => (leadingAssets?.length ? assetsSlugs.filter(slug => !leadingAssets.includes(slug)) : assetsSlugs),
+    () => (leadingAssets?.length ? assetsSlugs.filter(slug => !leadingAssets.includes(slug)) : [...assetsSlugs]),
     [assetsSlugs, leadingAssets]
   );
 
@@ -53,29 +55,33 @@ export function useFilteredAssetsSlugs(
     [searchValueDebounced, sourceArray, allTokensMetadata, assetsSortPredicate]
   );
 
-  const filteredAssets = useMemo(() => {
-    if (!isDefined(leadingAssets) || !leadingAssets.length) return searchedSlugs;
+  const filteredAssets = useMemoWithCompare(
+    () => {
+      if (!isDefined(leadingAssets) || !leadingAssets.length) return searchedSlugs;
 
-    const filteredLeadingSlugs =
-      leadingAssetsAreFilterable && filterZeroBalances ? leadingAssets.filter(isNonZeroBalance) : leadingAssets;
+      const filteredLeadingSlugs =
+        leadingAssetsAreFilterable && filterZeroBalances ? leadingAssets.filter(isNonZeroBalance) : leadingAssets;
 
-    const searchedLeadingSlugs = searchAssetsWithNoMeta(
+      const searchedLeadingSlugs = searchAssetsWithNoMeta(
+        searchValueDebounced,
+        filteredLeadingSlugs,
+        allTokensMetadata,
+        slug => slug
+      );
+
+      return searchedLeadingSlugs.length ? searchedLeadingSlugs.concat(searchedSlugs) : searchedSlugs;
+    },
+    [
+      leadingAssets,
+      leadingAssetsAreFilterable,
+      filterZeroBalances,
+      isNonZeroBalance,
+      searchedSlugs,
       searchValueDebounced,
-      filteredLeadingSlugs,
-      allTokensMetadata,
-      slug => slug
-    );
-
-    return searchedLeadingSlugs.length ? searchedLeadingSlugs.concat(searchedSlugs) : searchedSlugs;
-  }, [
-    leadingAssets,
-    leadingAssetsAreFilterable,
-    filterZeroBalances,
-    isNonZeroBalance,
-    searchedSlugs,
-    searchValueDebounced,
-    allTokensMetadata
-  ]);
+      allTokensMetadata
+    ],
+    isEqual
+  );
 
   return {
     filteredAssets,

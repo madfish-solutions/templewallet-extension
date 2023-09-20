@@ -4,7 +4,7 @@ import constate from 'constate';
 import { useSWRConfig } from 'swr';
 import { ScopedMutator } from 'swr/dist/types';
 
-import { fetchWhitelistTokenSlugs } from 'lib/apis/temple';
+// import { fetchWhitelistTokenSlugs } from 'lib/apis/temple';
 import { TzktAccountAsset, fetchTzktTokens } from 'lib/apis/tzkt';
 import { toTokenSlug } from 'lib/assets';
 import { getPredefinedTokensSlugs } from 'lib/assets/known-tokens';
@@ -36,9 +36,9 @@ export const [SyncTokensProvider, useSyncTokens] = constate(() => {
 const makeSync = async (accountPkh: string, chainId: string, mutate: ScopedMutator) => {
   if (!chainId) return;
 
-  const [tzktTokens, whitelistTokenSlugs, displayedTokens] = await Promise.all([
+  const [tzktTokens, displayedTokens] = await Promise.all([
     fetchTzktTokens(chainId, accountPkh),
-    fetchWhitelistTokenSlugs(chainId),
+    // fetchWhitelistTokenSlugs(chainId),
     getStoredTokens(chainId, accountPkh, true)
   ]);
 
@@ -51,8 +51,8 @@ const makeSync = async (accountPkh: string, chainId: string, mutate: ScopedMutat
   const tokenSlugs = filterUnique([
     ...getPredefinedTokensSlugs(chainId),
     ...tzktTokens.map(balance => toTokenSlug(balance.token.contract.address, balance.token.tokenId)),
-    ...displayedTokenSlugs,
-    ...whitelistTokenSlugs
+    ...displayedTokenSlugs
+    // ...whitelistTokenSlugs
   ]);
 
   const tokensRepoKeys = tokenSlugs.map(slug => Repo.toAccountTokenKey(chainId, accountPkh, slug));

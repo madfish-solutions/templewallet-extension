@@ -2,7 +2,7 @@ import { isEqual } from 'lodash';
 
 import { useMemoWithCompare } from 'lib/ui/hooks';
 
-import { useSelector } from '../index';
+import { useSelector } from '../root-state.selector';
 
 export const useAccountTokensAreLoadingSelector = () => useSelector(state => state.assets.tokens.isLoading);
 
@@ -15,3 +15,5 @@ export const useAccountTokensSelector = (account: string, chainId: string) => {
     isEqual
   );
 };
+
+export const useMainnetTokensWhitelistSelector = () => useSelector(state => state.assets.mainnetWhitelist);

@@ -5,18 +5,16 @@ import { omit, pick } from 'lodash';
 import { tokenToSlug } from 'lib/assets';
 
 import {
-  addTokensMetadataAction,
-  loadWhitelistAction,
+  putTokensMetadataAction,
   loadTokensMetadataAction,
-  loadOneTokenMetadataActions,
   resetTokensMetadataLoadingAction,
-  refreshTokensMetadataAction
+  refreshTokensMetadataAction,
+  addTokensMetadataAction
 } from './actions';
 import { tokensMetadataInitialState, TokensMetadataState } from './state';
-import { patchMetadatas } from './utils';
 
 export const tokensMetadataReducer = createReducer<TokensMetadataState>(tokensMetadataInitialState, builder => {
-  builder.addCase(addTokensMetadataAction, (state, { payload: tokensMetadata }) => {
+  builder.addCase(putTokensMetadataAction, (state, { payload: tokensMetadata }) => {
     if (tokensMetadata.length < 1) {
       return {
         ...state,
@@ -43,14 +41,12 @@ export const tokensMetadataReducer = createReducer<TokensMetadataState>(tokensMe
     };
   });
 
-  builder.addCase(loadWhitelistAction.success, (state, { payload: tokensMetadata }) => {
+  builder.addCase(addTokensMetadataAction, (state, { payload: tokensMetadata }) => {
     tokensMetadata = tokensMetadata.filter(metadata => {
       const slug = tokenToSlug(metadata);
 
       return !isDefined(state.metadataRecord[slug]);
     });
-
-    tokensMetadata = patchMetadatas(tokensMetadata);
 
     if (tokensMetadata.length < 1) return state;
 
@@ -72,11 +68,6 @@ export const tokensMetadataReducer = createReducer<TokensMetadataState>(tokensMe
   }));
 
   builder.addCase(resetTokensMetadataLoadingAction, state => ({
-    ...state,
-    metadataLoading: false
-  }));
-
-  builder.addCase(loadOneTokenMetadataActions.fail, state => ({
     ...state,
     metadataLoading: false
   }));

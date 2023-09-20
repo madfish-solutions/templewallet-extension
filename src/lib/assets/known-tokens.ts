@@ -9,6 +9,8 @@ export const TempleToken: FA2Token = {
   id: 0
 };
 
+export const TEMPLE_TOKEN_SLUG = toTokenSlug(TempleToken.contract, TempleToken.id);
+
 export namespace KNOWN_TOKENS_SLUGS {
   export const TZBTC = toTokenSlug('KT1PWx2mnDueood7fEmfbBDKx1D9BAnnXitn', 0);
   export const KUSD = toTokenSlug('KT1K9gCRgaLRFKTErYt1wVxA3Frb9FjasjTV', 0);
@@ -45,7 +47,7 @@ export const DEPRECATED_TKEY_METADATA: TokenMetadata = {
   standard: TokenStandardsEnum.Fa2
 };
 
-export const PREDEFINED_MAINNET_TOKENS_METADATA: TokenMetadata[] = [
+const PREDEFINED_MAINNET_TOKENS_METADATA: TokenMetadata[] = [
   {
     id: 0,
     address: 'KT1VaEsVNiBoA56eToEK6n6BcPgh1tdx9eXi',

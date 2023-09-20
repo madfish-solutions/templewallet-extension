@@ -1,6 +1,8 @@
 import { createReducer } from '@reduxjs/toolkit';
 
-import { loadAccountTokensActions, setTokenStatusToRemovedAction, toggleTokenStatusAction } from './actions';
+import { toTokenSlug } from 'lib/assets';
+
+import { loadAccountTokensActions, loadTokensWhitelistActions, setTokenStatusAction } from './actions';
 import { initialState, SliceState } from './state';
 
 export const assetsReducer = createReducer<SliceState>(initialState, builder => {
@@ -31,21 +33,30 @@ export const assetsReducer = createReducer<SliceState>(initialState, builder => 
     }
   });
 
-  builder.addCase(setTokenStatusToRemovedAction, (state, { payload: { account, chainId, slug } }) => {
-    const tokens = state.tokens.data;
-    const index = tokens.findIndex(t => t.account === account && t.chainId === chainId && t.slug === slug);
-    const token = tokens[index] ?? { account, chainId, slug };
-
-    token.status = 'removed';
-    tokens[index === -1 ? tokens.length : index] = token;
+  builder.addCase(loadTokensWhitelistActions.submit, state => {
+    state.mainnetWhitelist.isLoading = true;
   });
 
-  builder.addCase(toggleTokenStatusAction, (state, { payload: { account, chainId, slug } }) => {
+  builder.addCase(loadTokensWhitelistActions.fail, state => {
+    state.mainnetWhitelist.isLoading = false;
+  });
+
+  builder.addCase(loadTokensWhitelistActions.success, (state, { payload }) => {
+    state.mainnetWhitelist.isLoading = false;
+    delete state.mainnetWhitelist.error;
+
+    for (const token of payload) {
+      const slug = toTokenSlug(token.contractAddress, token.fa2TokenId);
+      if (!state.mainnetWhitelist.data.includes(slug)) state.mainnetWhitelist.data.push(slug);
+    }
+  });
+
+  builder.addCase(setTokenStatusAction, (state, { payload: { account, chainId, slug, status } }) => {
     const tokens = state.tokens.data;
     const index = tokens.findIndex(t => t.account === account && t.chainId === chainId && t.slug === slug);
     const token = tokens[index] ?? { account, chainId, slug };
 
-    token.status = token.status === 'disabled' ? 'enabled' : 'disabled';
+    token.status = status;
     tokens[index === -1 ? tokens.length : index] = token;
   });
 });

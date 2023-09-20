@@ -1,4 +1,4 @@
-import React, { FC, memo, useCallback } from 'react';
+import React, { FC, memo, useCallback, useMemo } from 'react';
 
 import classNames from 'clsx';
 import { useDispatch } from 'react-redux';
@@ -8,13 +8,14 @@ import { ReactComponent as AddIcon } from 'app/icons/add-to-list.svg';
 import { ReactComponent as CloseIcon } from 'app/icons/close.svg';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
 import { ManageAssetsSelectors } from 'app/pages/ManageAssets/ManageAssets.selectors';
-import { setTokenStatusToRemovedAction, toggleTokenStatusAction } from 'app/store/assets/actions';
+import { setTokenStatusAction } from 'app/store/assets/actions';
 import { useAccountTokensAreLoadingSelector } from 'app/store/assets/selectors';
 import { useTokensMetadataLoadingSelector } from 'app/store/tokens-metadata/selectors';
 import { AssetIcon } from 'app/templates/AssetIcon';
 import SearchAssetField from 'app/templates/SearchAssetField';
 import { setAnotherSelector, setTestID } from 'lib/analytics';
-import { TEMPLE_TOKEN_SLUG, useAccountTokens } from 'lib/assets';
+import { TEMPLE_TOKEN_SLUG } from 'lib/assets';
+import { useAccountTokens } from 'lib/assets/hooks';
 import { useFilteredAssetsSlugs } from 'lib/assets/use-filtered';
 import { T, t } from 'lib/i18n';
 import { useAssetMetadata, getAssetName, getAssetSymbol } from 'lib/metadata';
@@ -32,9 +33,9 @@ export const ManageTokensContent: FC = memo(() => {
 
   const tokens = useAccountTokens(publicKeyHash, chainId);
 
-  const managebleTokens = tokens.reduce<string[]>(
-    (acc, { slug, status }) => (slug === TEMPLE_TOKEN_SLUG || status === 'removed' ? acc : acc.concat(slug)),
-    []
+  const managebleTokens = useMemo(
+    () => tokens.reduce<string[]>((acc, { slug }) => (slug === TEMPLE_TOKEN_SLUG ? acc : acc.concat(slug)), []),
+    [tokens]
   );
 
   const tokensAreLoading = useAccountTokensAreLoadingSelector();
@@ -56,8 +57,7 @@ export const ManageTokensContent: FC = memo(() => {
           title: t('deleteTokenConfirm')
         });
 
-        if (confirmed) return;
-        dispatch(setTokenStatusToRemovedAction({ account: publicKeyHash, chainId, slug }));
+        if (confirmed) dispatch(setTokenStatusAction({ account: publicKeyHash, chainId, slug, status: 'removed' }));
       } catch (err: any) {
         console.error(err);
         alert(err.message);
@@ -67,14 +67,10 @@ export const ManageTokensContent: FC = memo(() => {
   );
 
   const toggleTokenStatus = useCallback(
-    async (slug: string) => {
-      try {
-        dispatch(toggleTokenStatusAction({ account: publicKeyHash, chainId, slug }));
-      } catch (err: any) {
-        console.error(err);
-        alert(err.message);
-      }
-    },
+    (slug: string, toDisable: boolean) =>
+      void dispatch(
+        setTokenStatusAction({ account: publicKeyHash, chainId, slug, status: toDisable ? 'disabled' : 'enabled' })
+      ),
     [chainId, publicKeyHash]
   );
 
@@ -106,14 +102,13 @@ export const ManageTokensContent: FC = memo(() => {
           {managableSlugs.map((slug, i, arr) => {
             const last = i === arr.length - 1;
             const status = tokens.find(t => t.slug === slug)!.status;
-            const checked = !status || status === 'enabled';
 
             return (
               <ListItem
                 key={slug}
                 assetSlug={slug}
                 last={last}
-                checked={checked}
+                checked={status === 'enabled'}
                 onRemove={removeToken}
                 onToggle={toggleTokenStatus}
               />
@@ -131,16 +126,14 @@ type ListItemProps = {
   assetSlug: string;
   last: boolean;
   checked: boolean;
-  onToggle: (slug: string) => void;
+  onToggle: (slug: string, toDisable: boolean) => void;
   onRemove: (slug: string) => void;
 };
 
 const ListItem = memo<ListItemProps>(({ assetSlug, last, checked, onToggle, onRemove }) => {
   const metadata = useAssetMetadata(assetSlug);
 
-  const onCheckboxChange = useCallback(() => {
-    onToggle(assetSlug);
-  }, [assetSlug, onToggle]);
+  const onCheckboxChange = useCallback((checked: boolean) => void onToggle(assetSlug, !checked), [assetSlug, onToggle]);
 
   const onRemoveBtnClick = useCallback<React.MouseEventHandler<HTMLDivElement>>(
     event => {

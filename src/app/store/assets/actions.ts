@@ -1,17 +1,30 @@
 import { createAction } from '@reduxjs/toolkit';
 
+import { WhitelistResponseToken } from 'lib/apis/temple';
 import { createActions } from 'lib/store';
 
-import { StorredToken } from './state';
+import { StoredAssetStatus, StoredToken } from './state';
+
+interface LoadTokensPayload {
+  /** PKH */
+  account: string;
+  chainId: string;
+}
 
 export const loadAccountTokensActions = createActions<
-  { account: string; chainId: string },
-  { account: string; chainId: string; slugs: string[] },
+  LoadTokensPayload,
+  LoadTokensPayload & { slugs: string[] },
   { code?: number }
 >('assets/LOAD_ACCOUNT_TOKENS');
 
-type TokenStatusAlterPayload = Pick<StorredToken, 'account' | 'chainId' | 'slug'>;
+type LoadWhitelistPayload = WhitelistResponseToken[];
 
-export const setTokenStatusToRemovedAction = createAction<TokenStatusAlterPayload>('assets/SET_TOKEN_REMOVED');
+export const loadTokensWhitelistActions = createActions<void, LoadWhitelistPayload, { code?: number }>(
+  'assets/LOAD_TOKENS_WHITELIST'
+);
 
-export const toggleTokenStatusAction = createAction<TokenStatusAlterPayload>('assets/TOGGLE_TOKEN_STATUS');
+interface SetTokenStatusPayload extends Pick<StoredToken, 'account' | 'chainId' | 'slug'> {
+  status: StoredAssetStatus;
+}
+
+export const setTokenStatusAction = createAction<SetTokenStatusPayload>('assets/SET_TOKEN_STATUS');

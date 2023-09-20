@@ -1,9 +1,9 @@
 import { isDefined } from '@rnw-community/shared';
 import { pick } from 'lodash';
 
-import type { TokenMetadataResponse } from 'lib/apis/temple';
+import type { TokenMetadataResponse, WhitelistResponseToken } from 'lib/apis/temple';
 
-import type { TokenMetadata } from './types';
+import { TokenMetadata, TokenStandardsEnum } from './types';
 
 export const buildTokenMetadataFromFetched = (
   token: TokenMetadataResponse | nullish,
@@ -20,3 +20,17 @@ export const buildTokenMetadataFromFetched = (
         name: token.name ?? token.symbol ?? 'Unknown Token'
       }
     : null;
+
+export const transformWhitelistToTokenMetadata = (
+  token: WhitelistResponseToken,
+  address: string,
+  id: number
+): TokenMetadata => ({
+  id,
+  address,
+  decimals: token.metadata.decimals,
+  symbol: token.metadata.symbol ?? token.metadata.name?.substring(0, 8) ?? '???',
+  name: token.metadata.name ?? token.metadata.symbol ?? 'Unknown Token',
+  thumbnailUri: token.metadata.thumbnailUri,
+  standard: token.type === 'FA12' ? TokenStandardsEnum.Fa12 : TokenStandardsEnum.Fa2
+});

@@ -6,7 +6,8 @@ import { isEqual } from 'lodash';
 import AssetSelect from 'app/templates/AssetSelect';
 import OperationStatus from 'app/templates/OperationStatus';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
-import { TEZ_TOKEN_SLUG, useDisplayedAccountTokens } from 'lib/assets';
+import { TEZ_TOKEN_SLUG } from 'lib/assets';
+import { useEnabledAccountTokens } from 'lib/assets/hooks';
 import { useAssetsSortPredicate } from 'lib/assets/use-filtered';
 import { t } from 'lib/i18n';
 import { useAccount, useChainId, useTezos, useCollectibleTokens } from 'lib/temple/front';
@@ -26,7 +27,7 @@ const SendForm: FC<SendFormProps> = ({ assetSlug = TEZ_TOKEN_SLUG }) => {
   const chainId = useChainId(true)!;
   const account = useAccount();
 
-  const tokens = useDisplayedAccountTokens();
+  const tokens = useEnabledAccountTokens();
   const { data: collectibles = [] } = useCollectibleTokens(chainId, account.publicKeyHash, true);
   const assetsSortPredicate = useAssetsSortPredicate();
 

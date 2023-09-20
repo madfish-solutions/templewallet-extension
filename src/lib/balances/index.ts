@@ -3,7 +3,7 @@ import BigNumber from 'bignumber.js';
 
 import { useBalancesSelector } from 'app/store/balances/selectors';
 import { isFA2Token, TEZ_TOKEN_SLUG } from 'lib/assets';
-import { fromAssetSlug } from 'lib/assets/utils';
+import { fromAssetSlug } from 'lib/assets/contract.utils';
 import { TEZOS_METADATA, AssetMetadataBase } from 'lib/metadata';
 import { loadContract } from 'lib/temple/contract';
 import { useAccount, useChainId } from 'lib/temple/front';

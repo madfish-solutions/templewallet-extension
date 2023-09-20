@@ -17,10 +17,11 @@ import { useIsEnabledAdsBannerSelector } from 'app/store/settings/selectors';
 import { ButtonForManageDropdown } from 'app/templates/ManageDropdown';
 import SearchAssetField from 'app/templates/SearchAssetField';
 import { OptimalPromoVariantEnum } from 'lib/apis/optimal';
-import { TEMPLE_TOKEN_SLUG, TEZ_TOKEN_SLUG, useDisplayedAccountTokens } from 'lib/assets';
+import { TEZ_TOKEN_SLUG, TEMPLE_TOKEN_SLUG } from 'lib/assets';
+import { useEnabledAccountTokens } from 'lib/assets/hooks';
 import { useFilteredAssetsSlugs } from 'lib/assets/use-filtered';
 import { T, t } from 'lib/i18n';
-import { useAccount, useChainId } from 'lib/temple/front';
+import { useAccount } from 'lib/temple/front';
 import { useSyncTokens } from 'lib/temple/front/sync-tokens';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import { useLocalStorage } from 'lib/ui/local-storage';
@@ -45,7 +46,7 @@ export const TokensTab: FC = () => {
   const { isSyncing } = useSyncTokens();
   const { popup } = useAppEnv();
 
-  const tokens = useDisplayedAccountTokens();
+  const tokens = useEnabledAccountTokens();
 
   const [isZeroBalancesHidden, setIsZeroBalancesHidden] = useLocalStorage(LOCAL_STORAGE_TOGGLE_KEY, false);
 
@@ -54,7 +55,7 @@ export const TokensTab: FC = () => {
     [setIsZeroBalancesHidden]
   );
 
-  const slugs = useMemoWithCompare(() => tokens.map(({ slug }) => slug).sort(), [tokens], isEqual);
+  const slugs = useMemoWithCompare(() => tokens.map(({ slug }) => slug), [tokens], isEqual);
 
   const { filteredAssets, searchValue, setSearchValue } = useFilteredAssetsSlugs(
     slugs,

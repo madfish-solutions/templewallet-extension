@@ -29,7 +29,7 @@ import Balance from 'app/templates/Balance';
 import InFiat from 'app/templates/InFiat';
 import { useFormAnalytics } from 'lib/analytics';
 import { isTezAsset, toPenny } from 'lib/assets';
-import { toTransferParams } from 'lib/assets/utils';
+import { toTransferParams } from 'lib/assets/contract.utils';
 import { fetchBalance, fetchTezosBalance } from 'lib/balances';
 import { useAssetFiatCurrencyPrice, useFiatCurrency } from 'lib/fiat-currency';
 import { BLOCK_DURATION } from 'lib/fixed-times';

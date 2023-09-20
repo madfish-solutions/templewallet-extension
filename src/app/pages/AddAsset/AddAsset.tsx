@@ -10,7 +10,7 @@ import { Alert, FormField, FormSubmitButton, NoSpaceField } from 'app/atoms';
 import Spinner from 'app/atoms/Spinner/Spinner';
 import { ReactComponent as AddIcon } from 'app/icons/add.svg';
 import PageLayout from 'app/layouts/PageLayout';
-import { addTokensMetadataAction } from 'app/store/tokens-metadata/actions';
+import { putTokensMetadataAction } from 'app/store/tokens-metadata/actions';
 import { useFormAnalytics } from 'lib/analytics';
 import { TokenMetadataResponse } from 'lib/apis/temple';
 import { toTokenSlug } from 'lib/assets';
@@ -215,7 +215,7 @@ const Form: FC = () => {
           id: tokenId
         };
 
-        dispatch(addTokensMetadataAction([tokenMetadata]));
+        dispatch(putTokensMetadataAction([tokenMetadata]));
 
         await Repo.accountTokens.put(
           {
