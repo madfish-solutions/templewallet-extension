@@ -5,7 +5,7 @@ import { AssetsSelectors } from 'src/app/pages/Home/OtherComponents/Assets.selec
 import { RETRY_OPTIONS, VERY_SHORT_TIMEOUT } from 'e2e/src/utils/timing.utils';
 
 import { Page } from '../../classes/page.class';
-import { createPageElement, findElement } from '../../utils/search.utils';
+import { createPageElement, findElement, findElements, getElementText } from '../../utils/search.utils';
 
 export class HomePage extends Page {
   ReceiveButton = createPageElement(HomeSelectors.receiveButton);
@@ -52,5 +52,19 @@ export class HomePage extends Page {
         ),
       RETRY_OPTIONS
     );
+  }
+
+  async isZeroBalanceHidden() {
+    const tokenList = await findElements(AssetsSelectors.assetItemCryptoBalanceButton);
+
+    /* Begin from second index (third token in the list) because
+    first two tokens won't be hidden after clicking on 'hide 0 balances' */
+    for (let i = 2; i < tokenList.length; i++) {
+      const tokenBalance = await getElementText(tokenList[i]);
+
+      if (Number(tokenBalance) === 0) {
+        throw new Error(`Token with zero balance is not hidden`);
+      }
+    }
   }
 }

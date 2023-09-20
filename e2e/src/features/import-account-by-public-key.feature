@@ -1,5 +1,6 @@
 Feature: Import an account by public key (Watch-only)
 
+  @import_account_public_key
   Scenario: As a user, I'd like to import an account by public key
     Given I have imported an existing account
 

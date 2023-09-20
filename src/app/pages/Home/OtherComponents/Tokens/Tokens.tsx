@@ -17,6 +17,7 @@ import { useShouldShowPartnersPromoSelector } from 'app/store/partners-promotion
 import { useIsEnabledAdsBannerSelector } from 'app/store/settings/selectors';
 import { ButtonForManageDropdown } from 'app/templates/ManageDropdown';
 import SearchAssetField from 'app/templates/SearchAssetField';
+import { setTestID } from 'lib/analytics';
 import { OptimalPromoVariantEnum } from 'lib/apis/optimal';
 import { TEMPLE_TOKEN_SLUG, TEZ_TOKEN_SLUG } from 'lib/assets';
 import { useFilteredAssetsSlugs } from 'lib/assets/use-filtered';
@@ -28,6 +29,7 @@ import { useLocalStorage } from 'lib/ui/local-storage';
 import Popper, { PopperRenderProps } from 'lib/ui/Popper';
 import { Link, navigate } from 'lib/woozie';
 
+import { HomeSelectors } from '../../Home.selectors';
 import { AssetsSelectors } from '../Assets.selectors';
 import { AcceptAdsBanner } from './AcceptAdsBanner';
 import { ListItem } from './components/ListItem';
@@ -181,7 +183,7 @@ export const TokensTab: FC = () => {
           <p className="mb-2 flex items-center justify-center text-gray-600 text-base font-light">
             {searchValueExist && <SearchIcon className="w-5 h-auto mr-1 stroke-current" />}
 
-            <span>
+            <span {...setTestID(HomeSelectors.emptyStateText)}>
               <T id="noAssetsFound" />
             </span>
           </p>
@@ -240,12 +242,11 @@ const ManageButtonDropdown: FC<ManageButtonDropdownProps> = ({
 
       <Divider className="my-2" />
 
-      <label className={buttonClassName}>
+      <label className={buttonClassName} {...setTestID(AssetsSelectors.dropdownHideZeroBalancesCheckbox)}>
         <Checkbox
           overrideClassNames="h-4 w-4 rounded"
           checked={isZeroBalancesHidden}
           onChange={toggleHideZeroBalances}
-          testID={AssetsSelectors.dropdownHideZeroBalancesCheckbox}
         />
         <span className="text-sm text-gray-600 ml-2 leading-5">
           <T id="hideZeroBalance" />
