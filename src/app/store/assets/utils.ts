@@ -1,7 +1,6 @@
 import { fetchTokensMetadata, isKnownChainId } from 'lib/apis/temple';
 import { fetchTzktAccountTokens } from 'lib/apis/tzkt';
 import { toTokenSlug } from 'lib/assets';
-import { isCollectible } from 'lib/metadata';
 
 interface AccountTokenResponse {
   slug: string;
@@ -17,7 +16,10 @@ export const fetchAccountTokens = async (account: string, chainId: string): Prom
   const [data1, data2] = await Promise.all([
     fetchTzktAccountTokens(account, chainId),
     fetchNoMetaOnTzktAccountTokens(account, chainId)
-  ]);
+  ]).catch(error => {
+    console.error(error);
+    throw error;
+  });
 
   return data1
     .map(t => ({

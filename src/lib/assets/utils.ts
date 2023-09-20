@@ -5,7 +5,6 @@ import type { AssetMetadataBase } from 'lib/metadata';
 import type { Asset, FA2Token } from './types';
 
 export const TEZ_TOKEN_SLUG = 'tez' as const;
-export const TEMPLE_TOKEN_SLUG = 'KT1VaEsVNiBoA56eToEK6n6BcPgh1tdx9eXi_0';
 
 export const toTokenSlug = (contract: string, id: BigNumber.Value = 0) => {
   return `${contract}_${new BigNumber(id).toFixed()}`;

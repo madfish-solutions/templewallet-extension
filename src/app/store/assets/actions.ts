@@ -14,12 +14,12 @@ interface LoadTokensPayload {
 export const loadAccountTokensActions = createActions<
   LoadTokensPayload,
   LoadTokensPayload & { slugs: string[] },
-  { code?: number }
+  { code?: string }
 >('assets/LOAD_ACCOUNT_TOKENS');
 
 type LoadWhitelistPayload = WhitelistResponseToken[];
 
-export const loadTokensWhitelistActions = createActions<void, LoadWhitelistPayload, { code?: number }>(
+export const loadTokensWhitelistActions = createActions<void, LoadWhitelistPayload, { code?: string }>(
   'assets/LOAD_TOKENS_WHITELIST'
 );
 
@@ -27,4 +27,5 @@ interface SetTokenStatusPayload extends Pick<StoredToken, 'account' | 'chainId' 
   status: StoredAssetStatus;
 }
 
+/** Adds token record too, if absent */
 export const setTokenStatusAction = createAction<SetTokenStatusPayload>('assets/SET_TOKEN_STATUS');

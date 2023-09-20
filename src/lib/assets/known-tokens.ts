@@ -38,7 +38,7 @@ export const TOKENS_BRAND_COLORS: Record<string, { bg: string; bgHover?: string 
   [KNOWN_TOKENS_SLUGS.YOU]: YOUVES_COLORS
 };
 
-export const DEPRECATED_TKEY_METADATA: TokenMetadata = {
+const DEPRECATED_TKEY_METADATA: TokenMetadata = {
   id: 0,
   address: 'KT1WihWRnmzhfebi6zqQ4tvNGiPeVxiGwTi2',
   name: 'Deprecated Temple Key',

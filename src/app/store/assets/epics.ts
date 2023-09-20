@@ -1,5 +1,6 @@
+import axios from 'axios';
 import { combineEpics, Epic } from 'redux-observable';
-import { from, Observable, of } from 'rxjs';
+import { from, of } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 import { Action } from 'ts-action';
 import { ofType, toPayload } from 'ts-action-operators';
@@ -17,7 +18,7 @@ const loadAccountTokensEpic: Epic<Action> = action$ =>
       from(fetchAccountTokens(account, chainId)).pipe(
         map(tokens => tokens.map(t => t.slug)),
         map(slugs => loadAccountTokensActions.success({ account, chainId, slugs })),
-        catchError(err => of(loadAccountTokensActions.fail({ code: 404 })))
+        catchError(err => of(loadAccountTokensActions.fail({ code: axios.isAxiosError(err) ? err.code : undefined })))
       )
     )
   );
@@ -28,7 +29,7 @@ const loadTokensWhitelistEpic: Epic<Action> = action$ =>
     switchMap(() =>
       fetchWhitelistTokens$().pipe(
         map(loadTokensWhitelistActions.success),
-        catchError(err => of(loadTokensWhitelistActions.fail({ code: 404 })))
+        catchError(err => of(loadTokensWhitelistActions.fail({ code: axios.isAxiosError(err) ? err.code : undefined })))
       )
     )
   );

@@ -198,18 +198,6 @@ export interface TzktAccountAsset {
   };
 }
 
-export interface TzktAccountToken {
-  /** Raw value, not divided by `decimals` */
-  balance: string;
-  token: {
-    contract: {
-      address: string;
-    };
-    standard: 'fa1.2' | 'fa2';
-    tokenId: string;
-  };
-}
-
 export interface TzktTokenTransfer {
   amount: string;
   from: TzktAlias;

@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 
+import { isString } from 'lodash';
 import { useDispatch } from 'react-redux';
 
 import { loadTokensMetadataAction } from 'app/store/tokens-metadata/actions';
@@ -65,8 +66,11 @@ export function getAssetName(metadata: AssetMetadataBase | nullish) {
   return metadata ? metadata.name : 'Unknown Token';
 }
 
+/** Empty string for `artifactUri` counts */
+export const isCollectible = (metadata: any) => 'artifactUri' in metadata && isString(metadata.artifactUri);
+
 /**
  * @deprecated // Assertion here is not safe!
  */
-export const isCollectible = (metadata: AssetMetadataBase): metadata is TokenMetadata =>
-  'artifactUri' in metadata && Boolean((metadata as TokenMetadata).artifactUri);
+export const isCollectibleTokenMetadata = (metadata: AssetMetadataBase): metadata is TokenMetadata =>
+  isCollectible(metadata);

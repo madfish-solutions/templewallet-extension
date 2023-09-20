@@ -6,4 +6,5 @@
 - Minimize persisted data
 - Refactor `lib/assets/hooks`
 - `useSlugsOf`
+- `@deprecated isCollectibleTokenMetadata`
 -

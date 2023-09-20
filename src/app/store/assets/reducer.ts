@@ -11,9 +11,9 @@ export const assetsReducer = createReducer<SliceState>(initialState, builder => 
     delete state.tokens.error;
   });
 
-  builder.addCase(loadAccountTokensActions.fail, state => {
+  builder.addCase(loadAccountTokensActions.fail, (state, { payload }) => {
     state.tokens.isLoading = false;
-    state.tokens.error = `Couldn't load account tokens`;
+    state.tokens.error = payload ? String(payload) : 'unknown';
   });
 
   builder.addCase(loadAccountTokensActions.success, (state, { payload }) => {
@@ -37,8 +37,9 @@ export const assetsReducer = createReducer<SliceState>(initialState, builder => 
     state.mainnetWhitelist.isLoading = true;
   });
 
-  builder.addCase(loadTokensWhitelistActions.fail, state => {
+  builder.addCase(loadTokensWhitelistActions.fail, (state, { payload }) => {
     state.mainnetWhitelist.isLoading = false;
+    state.mainnetWhitelist.error = payload ? String(payload) : 'unknown';
   });
 
   builder.addCase(loadTokensWhitelistActions.success, (state, { payload }) => {

@@ -8,7 +8,6 @@ import {
   TzktOperationType,
   TzktQuoteCurrency,
   TzktAccountAsset,
-  TzktAccountToken,
   allInt32ParameterKeys,
   TzktGetRewardsParams,
   TzktGetRewardsResponse,

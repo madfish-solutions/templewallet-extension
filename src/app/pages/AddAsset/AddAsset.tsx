@@ -10,6 +10,7 @@ import { Alert, FormField, FormSubmitButton, NoSpaceField } from 'app/atoms';
 import Spinner from 'app/atoms/Spinner/Spinner';
 import { ReactComponent as AddIcon } from 'app/icons/add.svg';
 import PageLayout from 'app/layouts/PageLayout';
+import { setTokenStatusAction } from 'app/store/assets/actions';
 import { putTokensMetadataAction } from 'app/store/tokens-metadata/actions';
 import { useFormAnalytics } from 'lib/analytics';
 import { TokenMetadataResponse } from 'lib/apis/temple';
@@ -21,7 +22,7 @@ import {
   IncorrectTokenIdError
 } from 'lib/assets/standards';
 import { T, t } from 'lib/i18n';
-import type { TokenMetadata } from 'lib/metadata';
+import { isCollectible, TokenMetadata } from 'lib/metadata';
 import { fetchOneTokenMetadata } from 'lib/metadata/fetch';
 import { TokenMetadataNotFoundError } from 'lib/metadata/on-chain';
 import { loadContract } from 'lib/temple/contract';
@@ -217,16 +218,18 @@ const Form: FC = () => {
 
         dispatch(putTokensMetadataAction([tokenMetadata]));
 
-        await Repo.accountTokens.put(
-          {
-            chainId,
-            account: accountPkh,
-            tokenSlug,
-            status: Repo.ITokenStatus.Enabled,
-            addedAt: Date.now()
-          },
-          Repo.toAccountTokenKey(chainId, accountPkh, tokenSlug)
-        );
+        if (isCollectible(tokenMetadata))
+          await Repo.accountTokens.put(
+            {
+              chainId,
+              account: accountPkh,
+              tokenSlug,
+              status: Repo.ITokenStatus.Enabled,
+              addedAt: Date.now()
+            },
+            Repo.toAccountTokenKey(chainId, accountPkh, tokenSlug)
+          );
+        else dispatch(setTokenStatusAction({ chainId, account: accountPkh, slug: tokenSlug, status: 'enabled' }));
 
         swrCache.delete(getBalanceSWRKey(tezos, tokenSlug, accountPkh));
 

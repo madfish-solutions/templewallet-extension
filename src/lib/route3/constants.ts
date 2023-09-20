@@ -1,5 +1,3 @@
-import { BigNumber } from 'bignumber.js';
-
 import { Route3Token, Route3TokenStandardEnum } from 'lib/apis/route3/fetch-route3-tokens';
 import { TempleToken } from 'lib/assets/known-tokens';
 

@@ -14,7 +14,7 @@ import { tokenToSlug } from './utils';
 
 type AssetStatus = Exclude<StoredAssetStatus, 'removed'>;
 
-export interface AccountToken {
+interface AccountToken {
   slug: string;
   // decimals: number;
   status: AssetStatus;
