@@ -23,7 +23,7 @@
     "start:reveal_mnemonic": "yarn start --tags @reveal_mnemonic",
     "start:send": "yarn start --tags @send",
     "start:swap": "yarn start --tags @swap",
-    "test": "yarn start --exit --tags 'not @dev'",
+    "test": "yarn start --exit --tags @dev",
     "ts": "tsc --pretty"
   },
   "dependencies": {
