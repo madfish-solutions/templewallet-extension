@@ -38,7 +38,8 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
   name,
   amountInputDisabled,
   testIDs,
-  onChange
+  onChange,
+  noItemsText = 'No items'
 }) => {
   const { trackChange } = useFormAnalytics('SwapForm');
 
@@ -174,7 +175,7 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
           optionsProps={{
             isLoading,
             options: filteredAssets,
-            noItemsText: 'No items',
+            noItemsText,
             getKey: option => option,
             renderOptionContent: option => renderOptionContent(option, value.assetSlug === option),
             onOptionChange: handleSelectedAssetChange

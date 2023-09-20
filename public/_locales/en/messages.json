@@ -1695,8 +1695,8 @@
   "manage": { "message": "Manage" },
   "manageTokens": { "message": "Manage Tokens" },
   "manageAssetsList": { "message": "Manage assets list" },
-  "noItemsFound": {
-    "message": "No items found"
+  "noItemsWithPositiveBalance": {
+    "message": "No items with positive balance"
   },
   "noAssetsFound": {
     "message": "No assets found"
