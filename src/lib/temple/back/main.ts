@@ -11,7 +11,6 @@ import * as Actions from './actions';
 import * as Analytics from './analytics';
 import { intercom } from './defaults';
 import { store, toFront } from './store';
-import { modifyTrackedUrl } from './utils';
 
 const frontStore = store.map(toFront);
 
@@ -246,8 +245,7 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
 
 browser.runtime.onMessage.addListener(msg => {
   if (msg?.type === ContentScriptType.ExternalLinksActivity) {
-    const modifiedUrl = modifyTrackedUrl(msg.url);
-    Analytics.client.track('External links activity', { url: modifiedUrl });
+    Analytics.client.track('External links activity', { url: msg.url });
   }
 
   if (msg?.type === E2eMessageType.ResetRequest) {

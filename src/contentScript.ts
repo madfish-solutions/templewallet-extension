@@ -6,7 +6,7 @@ import { serealizeError } from 'lib/intercom/helpers';
 import { TempleMessageType, TempleResponse } from 'lib/temple/types';
 
 import { ContentScriptType } from './lib/constants';
-import { checkMatchByUrl } from './lib/utils/check-url';
+import { getTrackedUrl } from './lib/utils/url-track/get-tracked-url';
 
 enum BeaconMessageTarget {
   Page = 'toPage',
@@ -55,8 +55,10 @@ const observeUrlChange = () => {
     if (oldHref !== document.location.href) {
       oldHref = document.location.href;
 
-      if (checkMatchByUrl(document.location.href)) {
-        browser.runtime.sendMessage({ type: ContentScriptType.ExternalLinksActivity, url: document.location.href });
+      const url = getTrackedUrl(document.location.href);
+
+      if (url) {
+        browser.runtime.sendMessage({ type: ContentScriptType.ExternalLinksActivity, url });
       }
     }
   });
