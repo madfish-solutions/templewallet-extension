@@ -1,8 +1,8 @@
 import {
   coindeskArticlesRegExp,
   EXACT_MATCH_URLS,
-  REG_EXPS_WITH_TRUNCATED_URLS,
-  TRUNCATED_URLS,
+  REG_EXPS_WITH_URLS,
+  STARTS_WITH_URLS,
   tzktOpHashRegExp,
   tzktTokenOrAccountRegExp
 } from './constants';
@@ -17,19 +17,21 @@ export const getTrackedUrl = (actualUrl: string) => {
   }
 
   if (coindeskArticlesRegExp.test(actualUrl)) {
-    return `https://www.coindesk.com/${actualUrl.split('/')[3]}/articles`;
+    const articleCategory = actualUrl.split('/')[3];
+
+    return `https://www.coindesk.com/${articleCategory}/articles`;
   }
 
-  for (let i = 0; i < REG_EXPS_WITH_TRUNCATED_URLS.length; i++) {
-    const currentItem = REG_EXPS_WITH_TRUNCATED_URLS[i];
+  for (let i = 0; i < REG_EXPS_WITH_URLS.length; i++) {
+    const currentItem = REG_EXPS_WITH_URLS[i];
 
     if (currentItem.regExp.test(actualUrl)) {
       return currentItem.url;
     }
   }
 
-  for (let i = 0; i < TRUNCATED_URLS.length; i++) {
-    const currentLink = TRUNCATED_URLS[i];
+  for (let i = 0; i < STARTS_WITH_URLS.length; i++) {
+    const currentLink = STARTS_WITH_URLS[i];
 
     if (actualUrl.startsWith(currentLink)) {
       return currentLink;

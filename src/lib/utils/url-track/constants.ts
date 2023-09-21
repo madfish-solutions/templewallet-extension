@@ -1,12 +1,12 @@
-interface RegExpsWithTruncatedUrls {
+interface RegExpsWithUrls {
   regExp: RegExp;
   url: string;
 }
 
-export const REG_EXPS_WITH_TRUNCATED_URLS: RegExpsWithTruncatedUrls[] = [
+export const REG_EXPS_WITH_URLS: RegExpsWithUrls[] = [
   {
     // https://www.coindesk.com/price/bitcoin/
-    regExp: /^https:\/\/coindesk\.com\/price\/[a-z-]+\/$/,
+    regExp: /^https:\/\/www\.coindesk\.com\/price\/[a-z-]+\/$/,
     url: 'https://www.coindesk.com/price/tokens'
   },
   {
@@ -16,28 +16,48 @@ export const REG_EXPS_WITH_TRUNCATED_URLS: RegExpsWithTruncatedUrls[] = [
   },
   {
     // https://decrypt.co/197988/how-to-get-a-refund-for-fortnite-from-epic-games
-    regExp: /^https:\/\/decrypt\.co\/[0-9]+\/[a-z-]+$/,
+    regExp: /^https:\/\/decrypt\.co\/[0-9]+\/[a-z0-9-]+$/,
     url: 'https://decrypt.co/articles'
   },
   {
+    // https://cryptopotato.com/is-ripple-xrp-about-to-outperform-ethereum-eth-by-500/
+    regExp: /^https:\/\/cryptopotato\.com\/[a-z0-9-]+\/$/,
+    url: 'https://cryptopotato.com/articles'
+  },
+  {
     // https://news.bitcoin.com/secs-crypto-chief-signals-ramp-up-in-enforcement-were-going-to-continue-to-bring-those-charges/
-    regExp: /^https:\/\/news\.bitcoin\.com\/[a-z-]+$/,
+    regExp: /^https:\/\/news\.bitcoin\.com\/[a-z0-9-]+\/$/,
     url: 'https://news.bitcoin.com/articles'
   },
   {
+    // https://cryptonews.com/news/next-pepe-coin-make-crypto-millionaires-wall-street-memes-presale-ends-4-days.htm
+    regExp: /^https:\/\/cryptonews\.com\/news\/[a-z0-9.-]+$/,
+    url: 'https://cryptonews.com/news/articles'
+  },
+  {
     // https://bitcoinmagazine.com/business/over-50-of-us-bitcoin-miners-to-back-new-policy-group
-    regExp: /^https:\/\/bitcoinmagazine\.com\/[a-z]+\/[a-z-]+$/,
+    regExp: /^https:\/\/bitcoinmagazine\.com\/[a-z]+\/[a-z0-9-]+$/,
     url: 'https://bitcoinmagazine.com/articles'
   },
   {
     // https://ambcrypto.com/will-polkadots-usdc-integration-boost-the-network/
-    regExp: /^https:\/\/ambcrypto\.com\/[a-z]+$/,
+    regExp: /^https:\/\/ambcrypto\.com\/[a-z0-9-]+\/$/,
     url: 'https://ambcrypto.com/articles'
   },
   {
+    // https://www.investopedia.com/crypto-adoption-flatlined-as-fomo-turned-into-buyer-s-remorse-in-2022-7971317
+    regExp: /^https:\/\/www\.investopedia\.com\/[a-z0-9-]+$/,
+    url: 'https://investopedia.com/articles'
+  },
+  {
     // https://thecryptobasic.com/2023/09/20/bybit-lists-paypal-usd-pyusd-stablecoin-for-spot-trading/
-    regExp: /^https:\/\/thecryptobasic\.com\/\d{4}\/\d{2}\/\d{2}\/[a-z-]+\/$/,
-    url: 'https://thecryptobasic.com/category/latest-crypto-news/articles'
+    regExp: /^https:\/\/thecryptobasic\.com\/\d{4}\/\d{2}\/\d{2}\/[a-z0-9-]+\/$/,
+    url: 'https://thecryptobasic.com/articles'
+  },
+  {
+    // https://beincrypto.com/ltc-price-breaks-out-double-bottom-pattern/
+    regExp: /^https:\/\/beincrypto\.com\/[a-z0-9-]+\/$/,
+    url: 'https://beincrypto.com/articles'
   },
   {
     // https://beincrypto.com/price/bitcoin/
@@ -46,27 +66,27 @@ export const REG_EXPS_WITH_TRUNCATED_URLS: RegExpsWithTruncatedUrls[] = [
   },
   {
     // https://blockworks.co/news/hal-finney-bitcoin-satoshi-nakamoto-zk-proofs
-    regExp: /^https:\/\/blockworks\.co\/news\/[a-z]+\/$/,
+    regExp: /^https:\/\/blockworks\.co\/news\/[a-z0-9-]+$/,
     url: 'https://blockworks.co/news/articles'
   },
   {
     // https://www.tradingview.com/symbols/BTCUSD/?exchange=CRYPTO
-    regExp: /^https:\/\/tradingview\.com\/symbols\/[A-Z]+\/\?exchange=CRYPTO$/,
+    regExp: /^https:\/\/www\.tradingview\.com\/symbols\/[A-Z]+\/\?exchange=CRYPTO$/,
     url: 'https://www.tradingview.com/symbols/tokens'
   },
   {
     // https://www.tradingview.com/chart/ARBUSDT/DCKdJWUH-Long-trade-12-for-Arbitrum-ARB-price/
-    regExp: /^https:\/\/tradingview\.com\/chart\/[A-Z]+\/[A-Za-z0-9-]+\/$/,
+    regExp: /^https:\/\/www\.tradingview\.com\/chart\/[A-Z]+\/[A-Za-z0-9-]+\/$/,
     url: 'https://www.tradingview.com/chart/articles'
   },
   {
     // https://cryptoslate.com/celsius-to-purchase-45m-core-scientific-mining-facility-as-part-of-bankruptcy-settlement/
-    regExp: /^https:\/\/cryptoslate\.com\/[a-z-]+\/$/,
+    regExp: /^https:\/\/cryptoslate\.com\/[a-z0-9-]+\/$/,
     url: 'https://cryptoslate.com/articles'
   },
   {
     // https://cryptoslate.com/coins/bitcoin/
-    regExp: /^https:\/\/cryptoslate\.com\/coins\/[a-z-]+\/$/,
+    regExp: /^https:\/\/cryptoslate\.com\/coins\/[a-z0-9-]+\/$/,
     url: 'https://cryptoslate.com/coins/tokens'
   },
   {
@@ -139,9 +159,6 @@ export const EXACT_MATCH_URLS = [
   'https://cryptopotato.com/ethereum-price-analysis/',
   'https://cryptopotato.com/ripple-price-analysis/',
 
-  'https://www.newsbtc.com/',
-  'https://www.newsbtc.com/news/',
-
   'https://cryptonews.com/',
   'https://cryptonews.com/news/',
 
@@ -168,6 +185,7 @@ export const EXACT_MATCH_URLS = [
   'https://beincrypto.com/news/',
   'https://beincrypto.com/bitcoin-news/',
   'https://beincrypto.com/altcoin-news/',
+  'https://beincrypto.com/price/',
 
   'https://blockworks.co/news',
 
@@ -189,6 +207,8 @@ export const EXACT_MATCH_URLS = [
 
   'https://cointelegraph.com/',
 
+  'https://coinmarketcap.com/coins/',
+
   'https://www.reddit.com/r/Bitcoin/',
 
   'https://magic.store/',
@@ -197,7 +217,7 @@ export const EXACT_MATCH_URLS = [
   'https://magic.store/games'
 ];
 
-export const TRUNCATED_URLS = [
+export const STARTS_WITH_URLS = [
   'https://etherscan.io/tx',
   'https://etherscan.io/address',
   'https://etherscan.io/token',
@@ -219,10 +239,14 @@ export const TRUNCATED_URLS = [
 
   'https://www.coingecko.com/en/exchanges',
 
+  'https://www.cnbc.com/quotes',
+
+  'https://blockworks.co/category',
+
   'https://coincodex.com/article',
   'https://coincodex.com/crypto',
 
-  'https://www.investing.com/indices/us-spx-500',
+  'https://www.investing.com/indices',
 
   'https://www.dappt.io/app',
 
