@@ -3,7 +3,7 @@ import { createAction } from '@reduxjs/toolkit';
 import { WhitelistResponseToken } from 'lib/apis/temple';
 import { createActions } from 'lib/store';
 
-import { StoredAssetStatus, StoredToken } from './state';
+import { StoredAssetStatus, StoredAsset } from './state';
 
 interface LoadTokensPayload {
   /** PKH */
@@ -17,15 +17,22 @@ export const loadAccountTokensActions = createActions<
   { code?: string }
 >('assets/LOAD_ACCOUNT_TOKENS');
 
+export const loadAccountCollectiblesActions = createActions<
+  LoadTokensPayload,
+  LoadTokensPayload & { slugs: string[] },
+  { code?: string }
+>('assets/LOAD_ACCOUNT_COLLECTIBLES');
+
 type LoadWhitelistPayload = WhitelistResponseToken[];
 
 export const loadTokensWhitelistActions = createActions<void, LoadWhitelistPayload, { code?: string }>(
   'assets/LOAD_TOKENS_WHITELIST'
 );
 
-interface SetTokenStatusPayload extends Pick<StoredToken, 'account' | 'chainId' | 'slug'> {
+interface SetAssetStatusPayload extends Pick<StoredAsset, 'account' | 'chainId' | 'slug'> {
+  isCollectible?: boolean;
   status: StoredAssetStatus;
 }
 
-/** Adds token record too, if absent */
-export const setTokenStatusAction = createAction<SetTokenStatusPayload>('assets/SET_TOKEN_STATUS');
+/** Adds asset record too, if absent */
+export const setAssetStatusAction = createAction<SetAssetStatusPayload>('assets/SET_ASSET_STATUS');

@@ -4,6 +4,7 @@
 - `export { useSelector, dispatch } from 'app/store';`
 - Whitelisted tokens to Redux store
 - Minimize persisted data
+- Optimize assets metadata loading by saving it after assets fetch
 - Refactor `lib/assets/hooks`
 - `useSlugsOf`
 - `@deprecated isCollectibleTokenMetadata`

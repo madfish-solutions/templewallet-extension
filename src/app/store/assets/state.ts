@@ -15,7 +15,7 @@ interface TokenBase {
 
 export type StoredAssetStatus = 'enabled' | 'disabled' | 'removed';
 
-export interface StoredToken {
+export interface StoredAsset {
   slug: string;
   chainId: string;
   /** PKH */
@@ -25,12 +25,14 @@ export interface StoredToken {
 }
 
 export interface SliceState {
-  tokens: LoadableEntityState<StoredToken[]>;
+  tokens: LoadableEntityState<StoredAsset[]>;
+  collectibles: LoadableEntityState<StoredAsset[]>;
   /** Mainnet tokens whitelist slugs */
   mainnetWhitelist: LoadableEntityState<string[]>;
 }
 
 export const initialState: SliceState = {
   tokens: createEntity([]),
+  collectibles: createEntity([]),
   mainnetWhitelist: createEntity([])
 };

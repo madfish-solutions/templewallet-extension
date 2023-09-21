@@ -4,18 +4,14 @@ import { isDefined } from '@rnw-community/shared';
 import { ScopedMutator } from 'swr/dist/types';
 
 import { useTokensMetadataSelector } from 'app/store/tokens-metadata/selectors';
-import { isTezAsset, TEMPLE_TOKEN_SLUG } from 'lib/assets';
-import { AssetTypesEnum } from 'lib/assets/types';
+import { isTezAsset } from 'lib/assets';
 import { TOKENS_SYNC_INTERVAL } from 'lib/fixed-times';
 import { isCollectible } from 'lib/metadata';
 import { FILM_METADATA, TEZOS_METADATA } from 'lib/metadata/defaults';
 import type { AssetMetadataBase } from 'lib/metadata/types';
 import { useRetryableSWR } from 'lib/swr';
-import { getStoredTokens, getAllStoredTokensSlugs, isTokenDisplayed } from 'lib/temple/assets';
+import { getStoredTokens } from 'lib/temple/assets';
 import { useNetwork } from 'lib/temple/front';
-import { ITokenStatus } from 'lib/temple/repo';
-
-import { useChainId, useAccount } from './ready';
 
 const useKnownTokens = (chainId: string, account: string, fungible = true, onlyDisplayed = true) => {
   const swrResponse = useRetryableSWR(
@@ -49,17 +45,6 @@ const useKnownTokens = (chainId: string, account: string, fungible = true, onlyD
     data
   };
 };
-
-const useFungibleTokens = (chainId: string, account: string) => useKnownTokens(chainId, account, true, false);
-
-export const useCollectibleTokens = (chainId: string, account: string, onlyDisplayed: boolean = false) =>
-  useKnownTokens(chainId, account, false, onlyDisplayed);
-
-const useAllStoredTokensSlugs = (chainId: string) =>
-  useRetryableSWR(['use-tokens-slugs', chainId], () => getAllStoredTokensSlugs(chainId), {
-    revalidateOnMount: true,
-    refreshInterval: TOKENS_SYNC_INTERVAL
-  });
 
 export const useGasToken = () => {
   const { type } = useNetwork();
@@ -98,91 +83,6 @@ export const useGetTokenMetadata = () => {
     },
     [allTokensMetadata, metadata]
   );
-};
-
-type TokenStatuses = Record<string, { displayed: boolean; removed: boolean }>;
-
-export const useAvailableAssetsSlugs = (assetType: AssetTypesEnum) => {
-  const chainId = useChainId(true)!;
-  const { publicKeyHash } = useAccount();
-  const allTokensMetadata = useTokensMetadataSelector();
-
-  const { data: allCollectiblesSlugs = [], isValidating: allKnownCollectiblesTokenSlugsLoading } =
-    useAllKnownCollectibleTokenSlugs(chainId);
-
-  const {
-    data: collectibles = [],
-    mutate: mutateCollectibles,
-    isValidating: collectibleTokensLoading
-  } = useCollectibleTokens(chainId, publicKeyHash, false);
-
-  const { data: allTokenSlugs = [], isValidating: allKnownFungibleTokenSlugsLoading } =
-    useAllKnownFungibleTokenSlugs(chainId);
-
-  const {
-    data: tokens = [],
-    mutate: mutateTokens,
-    isValidating: fungibleTokensLoading
-  } = useFungibleTokens(chainId, publicKeyHash);
-
-  const isCollectibles = assetType === AssetTypesEnum.Collectibles;
-  const assets = isCollectibles ? collectibles : tokens;
-  const slugs = isCollectibles ? allCollectiblesSlugs : allTokenSlugs;
-  const mutate = isCollectibles ? mutateCollectibles : mutateTokens;
-
-  const isLoading =
-    allKnownFungibleTokenSlugsLoading ||
-    fungibleTokensLoading ||
-    allKnownCollectiblesTokenSlugsLoading ||
-    collectibleTokensLoading;
-
-  const assetsStatuses = useMemo(() => {
-    const statuses: TokenStatuses = {};
-    for (const asset of assets) {
-      statuses[asset.tokenSlug] = {
-        displayed: isTokenDisplayed(asset),
-        removed: asset.status === ITokenStatus.Removed
-      };
-    }
-    return statuses;
-  }, [assets]);
-
-  const availableAssets = useMemo(
-    () =>
-      slugs.filter(slug => slug !== TEMPLE_TOKEN_SLUG && slug in allTokensMetadata && !assetsStatuses[slug]?.removed),
-    [slugs, allTokensMetadata, assetsStatuses]
-  );
-
-  return { availableAssets, assetsStatuses, isLoading, mutate };
-};
-
-const useAllKnownFungibleTokenSlugs = (chainId: string) => useAllKnownTokensSlugs(chainId, true);
-
-const useAllKnownCollectibleTokenSlugs = (chainId: string) => useAllKnownTokensSlugs(chainId, false);
-
-const useAllKnownTokensSlugs = (chainId: string, fungible = true) => {
-  const swrResponse = useAllStoredTokensSlugs(chainId);
-  const tokensMetadata = useTokensMetadataSelector();
-
-  const slugs = swrResponse.data;
-
-  const data = useMemo(
-    () =>
-      slugs?.filter(slug => {
-        const metadata = tokensMetadata[slug];
-        if (!isDefined(metadata)) return false;
-
-        const itIsCollectible = isCollectible(metadata);
-
-        return fungible ? !itIsCollectible : itIsCollectible;
-      }) ?? [],
-    [slugs, tokensMetadata, fungible]
-  );
-
-  return {
-    ...swrResponse,
-    data
-  };
 };
 
 export const updateTokensSWR = async (mutate: ScopedMutator, chainId: string, account: string) => {

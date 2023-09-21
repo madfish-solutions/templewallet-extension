@@ -6,7 +6,6 @@ import { CustomRpcContext } from 'lib/analytics';
 import { NewBlockTriggersProvider } from './chain';
 import { TempleClientProvider, useTempleClient } from './client';
 import { ReadyTempleProvider, useNetwork } from './ready';
-import { SyncTokensProvider } from './sync-tokens';
 
 export const TempleProvider: FC<PropsWithChildren> = ({ children }) => {
   usePushNotifications();
@@ -28,9 +27,7 @@ const ConditionalReadyTemple: FC<PropsWithChildren> = ({ children }) => {
       ready ? (
         <ReadyTempleProvider>
           <WalletRpcProvider>
-            <SyncTokensProvider>
-              <NewBlockTriggersProvider>{children}</NewBlockTriggersProvider>
-            </SyncTokensProvider>
+            <NewBlockTriggersProvider>{children}</NewBlockTriggersProvider>
           </WalletRpcProvider>
         </ReadyTempleProvider>
       ) : (

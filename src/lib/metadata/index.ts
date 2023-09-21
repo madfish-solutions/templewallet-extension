@@ -67,7 +67,8 @@ export function getAssetName(metadata: AssetMetadataBase | nullish) {
 }
 
 /** Empty string for `artifactUri` counts */
-export const isCollectible = (metadata: any) => 'artifactUri' in metadata && isString(metadata.artifactUri);
+export const isCollectible = (metadata: Record<string, any>) =>
+  'artifactUri' in metadata && isString(metadata.artifactUri);
 
 /**
  * @deprecated // Assertion here is not safe!

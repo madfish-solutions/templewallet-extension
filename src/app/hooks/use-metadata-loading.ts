@@ -3,11 +3,11 @@ import { useEffect } from 'react';
 import { isEqual } from 'lodash';
 import { useDispatch } from 'react-redux';
 
-import { useAccountTokensSelector } from 'app/store/assets/selectors';
+import { useAccountAssetsSelector } from 'app/store/assets/selectors';
 import { loadTokensMetadataAction, resetTokensMetadataLoadingAction } from 'app/store/tokens-metadata/actions';
 import { useTokensMetadataSelector } from 'app/store/tokens-metadata/selectors';
 import { METADATA_SYNC_INTERVAL } from 'lib/fixed-times';
-import { useAccount, useChainId, useTezos, useCollectibleTokens } from 'lib/temple/front';
+import { useAccount, useChainId, useTezos } from 'lib/temple/front';
 import { useInterval, useMemoWithCompare } from 'lib/ui/hooks';
 
 export const useMetadataLoading = () => {
@@ -16,25 +16,25 @@ export const useMetadataLoading = () => {
   const dispatch = useDispatch();
   const tezos = useTezos();
 
-  const tokens = useAccountTokensSelector(account, chainId);
-  const { data: collectibles } = useCollectibleTokens(chainId, account);
+  const tokens = useAccountAssetsSelector(account, chainId);
+  const collectibles = useAccountAssetsSelector(account, chainId, true);
 
-  const tokensMetadata = useTokensMetadataSelector();
+  const assetsMetadata = useTokensMetadataSelector();
 
   const slugsWithoutMetadata = useMemoWithCompare(
     () => {
       const tokensSlugs = tokens.reduce<string[]>(
-        (acc, { slug }) => (tokensMetadata[slug] ? acc : acc.concat(slug)),
+        (acc, { slug }) => (assetsMetadata[slug] ? acc : acc.concat(slug)),
         []
       );
       const collectiblesSlugs = collectibles.reduce<string[]>(
-        (acc, { tokenSlug }) => (tokensMetadata[tokenSlug] ? acc : acc.concat(tokenSlug)),
+        (acc, { slug }) => (assetsMetadata[slug] ? acc : acc.concat(slug)),
         []
       );
 
       return tokensSlugs.concat(collectiblesSlugs).sort();
     },
-    [tokens, collectibles, tokensMetadata],
+    [tokens, collectibles, assetsMetadata],
     isEqual
   );
 

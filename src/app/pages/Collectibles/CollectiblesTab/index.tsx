@@ -1,7 +1,6 @@
 import React, { FC, memo, useCallback, useEffect } from 'react';
 
 import clsx from 'clsx';
-import { isEqual } from 'lodash';
 
 import { SyncSpinner } from 'app/atoms';
 import Checkbox from 'app/atoms/Checkbox';
@@ -10,15 +9,15 @@ import DropdownWrapper from 'app/atoms/DropdownWrapper';
 import { useAppEnv } from 'app/env';
 import { ReactComponent as EditingIcon } from 'app/icons/editing.svg';
 import { AssetsSelectors } from 'app/pages/Home/OtherComponents/Assets.selectors';
+import { useAreAssetsLoading } from 'app/store/assets/selectors';
 import { useTokensMetadataLoadingSelector } from 'app/store/tokens-metadata/selectors';
 import { ButtonForManageDropdown } from 'app/templates/ManageDropdown';
 import SearchAssetField from 'app/templates/SearchAssetField';
+import { useEnabledAccountCollectiblesSlugs } from 'lib/assets/hooks';
 import { AssetTypesEnum } from 'lib/assets/types';
 import { useFilteredAssetsSlugs } from 'lib/assets/use-filtered';
 import { T, t } from 'lib/i18n';
-import { useAccount, useChainId, useCollectibleTokens } from 'lib/temple/front';
-import { useSyncTokens } from 'lib/temple/front/sync-tokens';
-import { useMemoWithCompare } from 'lib/ui/hooks';
+import { useAccount } from 'lib/temple/front';
 import { useLocalStorage } from 'lib/ui/local-storage';
 import Popper, { PopperRenderProps } from 'lib/ui/Popper';
 import { Link } from 'lib/woozie';
@@ -32,34 +31,23 @@ interface Props {
 }
 
 export const CollectiblesTab = memo<Props>(({ scrollToTheTabsBar }) => {
-  const chainId = useChainId(true)!;
   const { popup } = useAppEnv();
   const { publicKeyHash } = useAccount();
-  const { isSyncing: tokensAreSyncing } = useSyncTokens();
+
+  const assetsAreLoading = useAreAssetsLoading(true);
   const metadatasLoading = useTokensMetadataLoadingSelector();
+  const isSyncing = assetsAreLoading || metadatasLoading;
 
   const [areDetailsShown, setDetailsShown] = useLocalStorage(LOCAL_STORAGE_TOGGLE_KEY, false);
 
   const toggleDetailsShown = useCallback(() => void setDetailsShown(val => !val), [setDetailsShown]);
 
-  const { data: collectibles = [], isValidating: readingCollectibles } = useCollectibleTokens(
-    chainId,
-    publicKeyHash,
-    true
-  );
+  const slugs = useEnabledAccountCollectiblesSlugs();
 
-  const collectiblesSlugs = useMemoWithCompare(
-    () => collectibles.map(collectible => collectible.tokenSlug).sort(),
-    [collectibles],
-    isEqual
-  );
+  const { filteredAssets, searchValue, setSearchValue } = useFilteredAssetsSlugs(slugs, false);
 
-  const { filteredAssets, searchValue, setSearchValue } = useFilteredAssetsSlugs(collectiblesSlugs, false);
-
-  const shouldScrollToTheTabsBar = collectibles.length > 0;
+  const shouldScrollToTheTabsBar = slugs.length > 0;
   useEffect(() => void scrollToTheTabsBar(), [shouldScrollToTheTabsBar, scrollToTheTabsBar]);
-
-  const isSyncing = tokensAreSyncing || metadatasLoading || readingCollectibles;
 
   return (
     <div className="w-full max-w-sm mx-auto">

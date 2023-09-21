@@ -3,7 +3,7 @@ import { useMemo } from 'react';
 import { ChainIds } from '@taquito/taquito';
 import { isEqual, sortBy, uniqBy } from 'lodash';
 
-import { useAccountTokensSelector, useMainnetTokensWhitelistSelector } from 'app/store/assets/selectors';
+import { useAccountAssetsSelector, useMainnetTokensWhitelistSelector } from 'app/store/assets/selectors';
 import type { StoredAssetStatus } from 'app/store/assets/state';
 import { useBalancesSelector } from 'app/store/balances/selectors';
 import { useAccount, useChainId } from 'lib/temple/front';
@@ -24,7 +24,7 @@ interface AccountToken {
 const TOKENS_SORT_ITERATEES: (keyof AccountToken)[] = ['predefined', 'slug'];
 
 export const useAccountTokens = (account: string, chainId: string) => {
-  const stored = useAccountTokensSelector(account, chainId);
+  const stored = useAccountAssetsSelector(account, chainId);
   const whitelistSlugs = useWhitelistSlugs(chainId);
 
   const balances = useBalancesSelector(account, chainId);
@@ -34,7 +34,7 @@ export const useAccountTokens = (account: string, chainId: string) => {
       // 1. Stored
       const storedReduced = stored.reduce<AccountToken[]>(
         (acc, { slug, status }) =>
-          status === 'removed' ? acc : acc.concat({ slug, status: getTokenStatus(balances[slug], status) }),
+          status === 'removed' ? acc : acc.concat({ slug, status: getAssetStatus(balances[slug], status) }),
         []
       );
 
@@ -56,12 +56,14 @@ export const useAccountTokens = (account: string, chainId: string) => {
       const whitelisted = whitelistSlugs.reduce<AccountToken[]>((acc, slug) => {
         const storedStatus = stored.find(t => t.slug === slug)?.status;
 
-        return storedStatus === 'removed' ? acc : acc.concat({ slug, status: getTokenStatus(balances[slug]) });
+        return storedStatus === 'removed' ? acc : acc.concat({ slug, status: getAssetStatus(balances[slug]) });
       }, []);
 
       // Keep this order to preserve correct statuses & flags
       const tokens = predefined.concat(storedReduced).concat(whitelisted);
 
+      // Sorting is needed to preserve some tokens order (avoid UI listing jumps)
+      // after merge of multiple sources (stored, predefined, whitelist)
       return sortBy(
         uniqBy(tokens, t => t.slug),
         TOKENS_SORT_ITERATEES
@@ -72,17 +74,17 @@ export const useAccountTokens = (account: string, chainId: string) => {
   );
 };
 
-export const useEnabledAccountTokens = () => {
+export const useEnabledAccountTokensSlugs = () => {
   const chainId = useChainId(true)!;
   const { publicKeyHash } = useAccount();
 
   const tokens = useAccountTokens(publicKeyHash, chainId);
 
-  return useMemo(() => tokens.filter(({ status }) => status === 'enabled'), [tokens]);
+  return useMemo(
+    () => tokens.reduce<string[]>((acc, { slug, status }) => (status === 'enabled' ? acc.concat(slug) : acc), []),
+    [tokens]
+  );
 };
-
-const getTokenStatus = (atomicBalance: string, storedStatus?: AssetStatus): AssetStatus =>
-  storedStatus || (Number(atomicBalance) > 0 ? 'enabled' : 'disabled');
 
 const useWhitelistSlugs = (chainId: string) => {
   const mainnetWhitelist = useMainnetTokensWhitelistSelector();
@@ -93,3 +95,35 @@ const useWhitelistSlugs = (chainId: string) => {
     (a, b) => a.join('') === b.join('')
   );
 };
+
+export const useAccountCollectibles = (account: string, chainId: string) => {
+  const stored = useAccountAssetsSelector(account, chainId, true);
+
+  const balances = useBalancesSelector(account, chainId);
+
+  return useMemoWithCompare<AccountToken[]>(
+    () =>
+      stored.reduce<AccountToken[]>(
+        (acc, { slug, status }) =>
+          status === 'removed' ? acc : acc.concat({ slug, status: getAssetStatus(balances[slug], status) }),
+        []
+      ),
+    [stored, balances],
+    isEqual
+  );
+};
+
+export const useEnabledAccountCollectiblesSlugs = () => {
+  const chainId = useChainId(true)!;
+  const { publicKeyHash } = useAccount();
+
+  const collectibles = useAccountCollectibles(publicKeyHash, chainId);
+
+  return useMemo(
+    () => collectibles.reduce<string[]>((acc, { slug, status }) => (status === 'enabled' ? acc.concat(slug) : acc), []),
+    [collectibles]
+  );
+};
+
+const getAssetStatus = (atomicBalance: string, storedStatus?: AssetStatus): AssetStatus =>
+  storedStatus || (Number(atomicBalance) > 0 ? 'enabled' : 'disabled');

@@ -9,8 +9,7 @@ import { setAssetStatusAction } from 'app/store/assets/actions';
 import { useAreAssetsLoading } from 'app/store/assets/selectors';
 import { useTokensMetadataLoadingSelector } from 'app/store/tokens-metadata/selectors';
 import SearchAssetField from 'app/templates/SearchAssetField';
-import { TEMPLE_TOKEN_SLUG } from 'lib/assets';
-import { useAccountTokens } from 'lib/assets/hooks';
+import { useAccountCollectibles } from 'lib/assets/hooks';
 import { useFilteredAssetsSlugs } from 'lib/assets/use-filtered';
 import { T, t } from 'lib/i18n';
 import { useAccount, useChainId } from 'lib/temple/front';
@@ -20,24 +19,21 @@ import { Link } from 'lib/woozie';
 import { ListItem } from './ListItem';
 import { Loader } from './Loader';
 
-export const ManageTokensContent = memo(() => {
+export const ManageCollectiblesContent = memo(() => {
   const chainId = useChainId(true)!;
   const { publicKeyHash } = useAccount();
 
   const dispatch = useDispatch();
 
-  const tokens = useAccountTokens(publicKeyHash, chainId);
+  const collectibles = useAccountCollectibles(publicKeyHash, chainId);
 
-  const managebleSlugs = useMemo(
-    () => tokens.reduce<string[]>((acc, { slug }) => (slug === TEMPLE_TOKEN_SLUG ? acc : acc.concat(slug)), []),
-    [tokens]
-  );
+  const slugs = useMemo(() => collectibles.map(c => c.slug), [collectibles]);
 
-  const tokensAreLoading = useAreAssetsLoading();
+  const tokensAreLoading = useAreAssetsLoading(true);
   const metadatasLoading = useTokensMetadataLoadingSelector();
   const isLoading = tokensAreLoading || metadatasLoading;
 
-  const { filteredAssets, searchValue, setSearchValue } = useFilteredAssetsSlugs(managebleSlugs, false);
+  const { filteredAssets, searchValue, setSearchValue } = useFilteredAssetsSlugs(slugs, false);
 
   const confirm = useConfirm();
 
@@ -45,10 +41,13 @@ export const ManageTokensContent = memo(() => {
     async (slug: string) => {
       try {
         const confirmed = await confirm({
-          title: t('deleteTokenConfirm')
+          title: t('deleteCollectibleConfirm')
         });
 
-        if (confirmed) dispatch(setAssetStatusAction({ account: publicKeyHash, chainId, slug, status: 'removed' }));
+        if (confirmed)
+          dispatch(
+            setAssetStatusAction({ isCollectible: true, account: publicKeyHash, chainId, slug, status: 'removed' })
+          );
       } catch (err: any) {
         console.error(err);
         alert(err.message);
@@ -57,10 +56,16 @@ export const ManageTokensContent = memo(() => {
     [chainId, publicKeyHash, confirm]
   );
 
-  const toggleTokenStatus = useCallback(
+  const toggleAssetStatus = useCallback(
     (slug: string, toDisable: boolean) =>
       void dispatch(
-        setAssetStatusAction({ account: publicKeyHash, chainId, slug, status: toDisable ? 'disabled' : 'enabled' })
+        setAssetStatusAction({
+          isCollectible: true,
+          account: publicKeyHash,
+          chainId,
+          slug,
+          status: toDisable ? 'disabled' : 'enabled'
+        })
       ),
     [chainId, publicKeyHash]
   );
@@ -81,10 +86,10 @@ export const ManageTokensContent = memo(() => {
             'opacity-75 hover:bg-gray-100 hover:opacity-100 focus:opacity-100',
             'transition ease-in-out duration-200'
           )}
-          testID={ManageAssetsSelectors.addAssetButton}
+          testID={ManageAssetsSelectors.addCollectiblesButton}
         >
           <AddIcon className="mr-1 h-5 w-auto stroke-current stroke-2" />
-          <T id="addToken" />
+          <T id="addCollectible" />
         </Link>
       </div>
 
@@ -92,7 +97,8 @@ export const ManageTokensContent = memo(() => {
         <div className="flex flex-col w-full overflow-hidden border rounded-md text-gray-700 text-sm leading-tight">
           {filteredAssets.map((slug, i, arr) => {
             const last = i === arr.length - 1;
-            const status = tokens.find(t => t.slug === slug)!.status;
+
+            const status = collectibles.find(t => t.slug === slug)!.status;
 
             return (
               <ListItem
@@ -101,13 +107,13 @@ export const ManageTokensContent = memo(() => {
                 last={last}
                 checked={status === 'enabled'}
                 onRemove={removeItem}
-                onToggle={toggleTokenStatus}
+                onToggle={toggleAssetStatus}
               />
             );
           })}
         </div>
       ) : (
-        isLoading || <Loader searchActive={Boolean(searchValue)} />
+        isLoading || <Loader collectibles searchActive={Boolean(searchValue)} />
       )}
     </div>
   );

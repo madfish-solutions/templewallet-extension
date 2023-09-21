@@ -3,12 +3,7 @@ import BigNumber from 'bignumber.js';
 import * as Repo from 'lib/temple/repo';
 import { filterUnique } from 'lib/utils';
 
-export const setTokenStatus = async (
-  chainId: string,
-  account: string,
-  tokenSlug: string,
-  status: Repo.ITokenStatus
-) => {
+const setTokenStatus = async (chainId: string, account: string, tokenSlug: string, status: Repo.ITokenStatus) => {
   const repoKey = Repo.toAccountTokenKey(chainId, account, tokenSlug);
   const existing = await Repo.accountTokens.get(repoKey);
 
@@ -36,7 +31,7 @@ export const getStoredTokens = (chainId: string, account: string, onlyDisplayed:
   return collection.sortBy('order');
 };
 
-export const getAllStoredTokensSlugs = async (chainId: string) => {
+const getAllStoredTokensSlugs = async (chainId: string) => {
   const allAccountTokens = await Repo.accountTokens.where({ chainId }).toArray();
 
   return filterUnique(allAccountTokens.map(t => t.tokenSlug));

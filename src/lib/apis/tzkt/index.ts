@@ -15,7 +15,7 @@ export {
   getDelegatorRewards,
   getOneUserContracts,
   fetchTzktTokens,
-  fetchTzktAccountTokens,
+  fetchTzktAccountAssets,
   fetchGetOperationsTransactions,
   fetchGetAccountOperations,
   fetchGetOperationsByHash,

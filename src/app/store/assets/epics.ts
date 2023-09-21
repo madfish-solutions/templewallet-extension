@@ -7,8 +7,8 @@ import { ofType, toPayload } from 'ts-action-operators';
 
 import { fetchWhitelistTokens$ } from 'lib/apis/temple';
 
-import { loadAccountTokensActions, loadTokensWhitelistActions } from './actions';
-import { fetchAccountTokens } from './utils';
+import { loadAccountTokensActions, loadAccountCollectiblesActions, loadTokensWhitelistActions } from './actions';
+import { fetchAccountTokens, fetchAccountCollectibles } from './utils';
 
 const loadAccountTokensEpic: Epic<Action> = action$ =>
   action$.pipe(
@@ -19,6 +19,20 @@ const loadAccountTokensEpic: Epic<Action> = action$ =>
         map(tokens => tokens.map(t => t.slug)),
         map(slugs => loadAccountTokensActions.success({ account, chainId, slugs })),
         catchError(err => of(loadAccountTokensActions.fail({ code: axios.isAxiosError(err) ? err.code : undefined })))
+      )
+    )
+  );
+
+const loadAccountCollectiblesEpic: Epic<Action> = action$ =>
+  action$.pipe(
+    ofType(loadAccountCollectiblesActions.submit),
+    toPayload(),
+    switchMap(({ account, chainId }) =>
+      from(fetchAccountCollectibles(account, chainId)).pipe(
+        map(slugs => loadAccountCollectiblesActions.success({ account, chainId, slugs })),
+        catchError(err =>
+          of(loadAccountCollectiblesActions.fail({ code: axios.isAxiosError(err) ? err.code : undefined }))
+        )
       )
     )
   );
@@ -34,4 +48,4 @@ const loadTokensWhitelistEpic: Epic<Action> = action$ =>
     )
   );
 
-export const assetsEpics = combineEpics(loadAccountTokensEpic, loadTokensWhitelistEpic);
+export const assetsEpics = combineEpics(loadAccountTokensEpic, loadAccountCollectiblesEpic, loadTokensWhitelistEpic);
