@@ -16,8 +16,8 @@ export const useMetadataLoading = () => {
   const dispatch = useDispatch();
   const tezos = useTezos();
 
-  const tokens = useAccountAssetsSelector(account, chainId);
-  const collectibles = useAccountAssetsSelector(account, chainId, true);
+  const tokens = useAccountAssetsSelector(account, chainId, 'tokens');
+  const collectibles = useAccountAssetsSelector(account, chainId, 'collectibles');
 
   const assetsMetadata = useTokensMetadataSelector();
 

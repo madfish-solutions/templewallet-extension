@@ -34,7 +34,7 @@ export const CollectiblesTab = memo<Props>(({ scrollToTheTabsBar }) => {
   const { popup } = useAppEnv();
   const { publicKeyHash } = useAccount();
 
-  const assetsAreLoading = useAreAssetsLoading(true);
+  const assetsAreLoading = useAreAssetsLoading('collectibles');
   const metadatasLoading = useTokensMetadataLoadingSelector();
   const isSyncing = assetsAreLoading || metadatasLoading;
 

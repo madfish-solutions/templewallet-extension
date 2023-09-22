@@ -4,17 +4,20 @@ import { useMemoWithCompare } from 'lib/ui/hooks';
 
 import { useSelector } from '../root-state.selector';
 
-export const useAccountAssetsSelector = (account: string, chainId: string, collectibles?: boolean) => {
-  const allAssets = useSelector(state => state.assets[collectibles ? 'collectibles' : 'tokens'].data);
+type AssetsType = 'collectibles' | 'tokens';
+
+export const useAllAssetsSelector = (type: AssetsType) => useSelector(state => state.assets[type].data);
+
+export const useAccountAssetsSelector = (account: string, chainId: string, type: AssetsType) => {
+  const assets = useAllAssetsSelector(type);
 
   return useMemoWithCompare(
-    () => allAssets.filter(t => t.account === account && t.chainId === chainId),
-    [allAssets],
+    () => assets.filter(t => t.account === account && t.chainId === chainId),
+    [assets],
     isEqual
   );
 };
 
-export const useAreAssetsLoading = (collectibles?: boolean) =>
-  useSelector(state => state.assets[collectibles ? 'collectibles' : 'tokens'].isLoading);
+export const useAreAssetsLoading = (type: AssetsType) => useSelector(state => state.assets[type].isLoading);
 
 export const useMainnetTokensWhitelistSelector = () => useSelector(state => state.assets.mainnetWhitelist);

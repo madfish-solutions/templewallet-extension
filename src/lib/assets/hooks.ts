@@ -3,7 +3,11 @@ import { useMemo } from 'react';
 import { ChainIds } from '@taquito/taquito';
 import { isEqual, sortBy, uniqBy } from 'lodash';
 
-import { useAccountAssetsSelector, useMainnetTokensWhitelistSelector } from 'app/store/assets/selectors';
+import {
+  useAllAssetsSelector,
+  useAccountAssetsSelector,
+  useMainnetTokensWhitelistSelector
+} from 'app/store/assets/selectors';
 import type { StoredAssetStatus } from 'app/store/assets/state';
 import { useBalancesSelector } from 'app/store/balances/selectors';
 import { useAccount, useChainId } from 'lib/temple/front';
@@ -21,10 +25,14 @@ interface AccountToken {
   predefined?: boolean;
 }
 
+/**
+ * Sorting is needed to preserve some tokens order (avoid UI listing jumps)
+ * after merge of multiple sources (e.g. stored, predefined, whitelist)
+ */
 const TOKENS_SORT_ITERATEES: (keyof AccountToken)[] = ['predefined', 'slug'];
 
-export const useAccountTokens = (account: string, chainId: string) => {
-  const stored = useAccountAssetsSelector(account, chainId);
+const useAccountTokens = (account: string, chainId: string) => {
+  const stored = useAccountAssetsSelector(account, chainId, 'tokens');
   const whitelistSlugs = useWhitelistSlugs(chainId);
 
   const balances = useBalancesSelector(account, chainId);
@@ -60,18 +68,43 @@ export const useAccountTokens = (account: string, chainId: string) => {
       }, []);
 
       // Keep this order to preserve correct statuses & flags
-      const tokens = predefined.concat(storedReduced).concat(whitelisted);
+      const concatenated: AccountToken[] = predefined.concat(storedReduced).concat(whitelisted);
 
-      // Sorting is needed to preserve some tokens order (avoid UI listing jumps)
-      // after merge of multiple sources (stored, predefined, whitelist)
       return sortBy(
-        uniqBy(tokens, t => t.slug),
+        uniqBy(concatenated, t => t.slug),
         TOKENS_SORT_ITERATEES
       );
     },
-    [stored, chainId, whitelistSlugs, balances],
+    [chainId, stored, whitelistSlugs, balances],
     isEqual
   );
+};
+
+export const useAllAvailableTokens = (account: string, chainId: string) => {
+  const tokens = useAccountTokens(account, chainId);
+  const allTokensStored = useAllAssetsSelector('tokens');
+
+  return useMemo(() => {
+    const allTokens = allTokensStored.filter(t => t.chainId === chainId);
+
+    const removedSlugs = allTokens.reduce<string[]>(
+      (acc, t) => (t.status === 'removed' && t.account === account ? acc.concat(t.slug) : acc),
+      []
+    );
+
+    const otherTokens = allTokens.reduce<AccountToken[]>((acc, curr) => {
+      if (curr.account === account || removedSlugs.includes(curr.slug)) return acc;
+
+      return acc.concat({ slug: curr.slug, status: 'disabled' });
+    }, []);
+
+    const concatenated = tokens.concat(otherTokens);
+
+    return sortBy(
+      uniqBy(concatenated, t => t.slug),
+      TOKENS_SORT_ITERATEES
+    );
+  }, [tokens, allTokensStored, account, chainId]);
 };
 
 export const useEnabledAccountTokensSlugs = () => {
@@ -97,7 +130,7 @@ const useWhitelistSlugs = (chainId: string) => {
 };
 
 export const useAccountCollectibles = (account: string, chainId: string) => {
-  const stored = useAccountAssetsSelector(account, chainId, true);
+  const stored = useAccountAssetsSelector(account, chainId, 'collectibles');
 
   const balances = useBalancesSelector(account, chainId);
 

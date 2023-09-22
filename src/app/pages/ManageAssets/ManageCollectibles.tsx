@@ -29,9 +29,9 @@ export const ManageCollectiblesContent = memo(() => {
 
   const slugs = useMemo(() => collectibles.map(c => c.slug), [collectibles]);
 
-  const tokensAreLoading = useAreAssetsLoading(true);
+  const assetsAreLoading = useAreAssetsLoading('collectibles');
   const metadatasLoading = useTokensMetadataLoadingSelector();
-  const isLoading = tokensAreLoading || metadatasLoading;
+  const isLoading = assetsAreLoading || metadatasLoading;
 
   const { filteredAssets, searchValue, setSearchValue } = useFilteredAssetsSlugs(slugs, false);
 

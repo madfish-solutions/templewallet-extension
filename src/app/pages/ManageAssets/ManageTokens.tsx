@@ -10,7 +10,7 @@ import { useAreAssetsLoading } from 'app/store/assets/selectors';
 import { useTokensMetadataLoadingSelector } from 'app/store/tokens-metadata/selectors';
 import SearchAssetField from 'app/templates/SearchAssetField';
 import { TEMPLE_TOKEN_SLUG } from 'lib/assets';
-import { useAccountTokens } from 'lib/assets/hooks';
+import { useAllAvailableTokens } from 'lib/assets/hooks';
 import { useFilteredAssetsSlugs } from 'lib/assets/use-filtered';
 import { T, t } from 'lib/i18n';
 import { useAccount, useChainId } from 'lib/temple/front';
@@ -26,16 +26,16 @@ export const ManageTokensContent = memo(() => {
 
   const dispatch = useDispatch();
 
-  const tokens = useAccountTokens(publicKeyHash, chainId);
+  const tokens = useAllAvailableTokens(publicKeyHash, chainId);
 
   const managebleSlugs = useMemo(
     () => tokens.reduce<string[]>((acc, { slug }) => (slug === TEMPLE_TOKEN_SLUG ? acc : acc.concat(slug)), []),
     [tokens]
   );
 
-  const tokensAreLoading = useAreAssetsLoading();
+  const assetsAreLoading = useAreAssetsLoading('tokens');
   const metadatasLoading = useTokensMetadataLoadingSelector();
-  const isLoading = tokensAreLoading || metadatasLoading;
+  const isLoading = assetsAreLoading || metadatasLoading;
 
   const { filteredAssets, searchValue, setSearchValue } = useFilteredAssetsSlugs(managebleSlugs, false);
 

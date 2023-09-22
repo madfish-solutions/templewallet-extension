@@ -23,7 +23,6 @@ import { useEnabledAccountTokensSlugs } from 'lib/assets/hooks';
 import { useFilteredAssetsSlugs } from 'lib/assets/use-filtered';
 import { T, t } from 'lib/i18n';
 import { useAccount } from 'lib/temple/front';
-import { useMemoWithCompare } from 'lib/ui/hooks';
 import { useLocalStorage } from 'lib/ui/local-storage';
 import Popper, { PopperRenderProps } from 'lib/ui/Popper';
 import { ZERO } from 'lib/utils/numbers';
@@ -45,7 +44,7 @@ export const TokensTab: FC = () => {
   const { publicKeyHash } = useAccount();
   const { popup } = useAppEnv();
 
-  const isSyncing = useAreAssetsLoading();
+  const isSyncing = useAreAssetsLoading('tokens');
 
   const slugs = useEnabledAccountTokensSlugs();
 

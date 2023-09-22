@@ -8,4 +8,5 @@
 - Refactor `lib/assets/hooks`
 - `useSlugsOf`
 - `@deprecated isCollectibleTokenMetadata`
+- Optimize balances store slice reducing
 -
