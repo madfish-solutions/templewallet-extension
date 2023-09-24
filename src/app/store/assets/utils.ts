@@ -83,7 +83,7 @@ const fetchNoMetaOnTzktAccountCollectibles = async (account: string, chainId: st
   return slugs.filter((_, i) => {
     const metadata = metadatas[i];
 
-    return metadata && isCollectible(metadata);
+    return metadata ? isCollectible(metadata) : false;
   });
 };
 

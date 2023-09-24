@@ -208,11 +208,10 @@ export const fecthTezosBalanceFromTzkt = async (account: string, chainId: string
 
 const LIMIT = 10000;
 
-const fecthTokensBalancesFromTzktOnce = async (account: string, chainId: string, limit: number, offset = 0) =>
+const fetchTokensBalancesFromTzktOnce = async (account: string, chainId: string, limit: number, offset = 0) =>
   isKnownChainId(chainId)
     ? await fetchGet<TzktAccountAsset[]>(chainId, '/tokens/balances', {
         account,
-        'balance.gt': 0,
         limit,
         offset
       })
@@ -222,7 +221,7 @@ export const fetchAllTokensBalancesFromTzkt = async (selectedRpcUrl: string, acc
   const balances: TzktAccountAsset[] = [];
 
   await (async function recourse(offset: number) {
-    const data = await fecthTokensBalancesFromTzktOnce(selectedRpcUrl, account, LIMIT, offset);
+    const data = await fetchTokensBalancesFromTzktOnce(selectedRpcUrl, account, LIMIT, offset);
 
     balances.push(...data);
 

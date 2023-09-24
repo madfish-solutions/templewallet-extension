@@ -16,12 +16,9 @@ import { useMemoWithCompare } from 'lib/ui/hooks';
 import { PREDEFINED_TOKENS_METADATA } from './known-tokens';
 import { tokenToSlug } from './utils';
 
-type AssetStatus = Exclude<StoredAssetStatus, 'removed'>;
-
 interface AccountToken {
   slug: string;
-  // decimals: number;
-  status: AssetStatus;
+  status: StoredAssetStatus;
   predefined?: boolean;
 }
 
@@ -32,7 +29,7 @@ interface AccountToken {
 const TOKENS_SORT_ITERATEES: (keyof AccountToken)[] = ['predefined', 'slug'];
 
 const useAccountTokens = (account: string, chainId: string) => {
-  const stored = useAccountAssetsSelector(account, chainId, 'tokens');
+  const storedRaw = useAccountAssetsSelector(account, chainId, 'tokens');
   const whitelistSlugs = useWhitelistSlugs(chainId);
 
   const balances = useBalancesSelector(account, chainId);
@@ -40,42 +37,35 @@ const useAccountTokens = (account: string, chainId: string) => {
   return useMemoWithCompare<AccountToken[]>(
     () => {
       // 1. Stored
-      const storedReduced = stored.reduce<AccountToken[]>(
-        (acc, { slug, status }) =>
-          status === 'removed' ? acc : acc.concat({ slug, status: getAssetStatus(balances[slug], status) }),
-        []
-      );
+      const stored = storedRaw.map<AccountToken>(({ slug, status }) => ({
+        slug,
+        status: getAssetStatus(balances[slug], status)
+      }));
 
       // 2. Predefined
       const predefinedMetadata = PREDEFINED_TOKENS_METADATA[chainId];
 
       const predefined = predefinedMetadata
-        ? predefinedMetadata.reduce<AccountToken[]>((acc, metadata) => {
+        ? predefinedMetadata.map<AccountToken>(metadata => {
             const slug = tokenToSlug(metadata);
-            const storedStatus = stored.find(t => t.slug === slug)?.status;
+            const storedStatus = storedRaw.find(t => t.slug === slug)?.status;
 
-            return storedStatus === 'removed'
-              ? acc
-              : acc.concat({ slug, status: storedStatus ?? 'enabled', predefined: true });
-          }, [])
+            return { slug, status: storedStatus ?? 'enabled', predefined: true };
+          })
         : [];
 
       // 3. Whitelisted
-      const whitelisted = whitelistSlugs.reduce<AccountToken[]>((acc, slug) => {
-        const storedStatus = stored.find(t => t.slug === slug)?.status;
-
-        return storedStatus === 'removed' ? acc : acc.concat({ slug, status: getAssetStatus(balances[slug]) });
-      }, []);
+      const whitelisted = whitelistSlugs.map<AccountToken>(slug => ({ slug, status: getAssetStatus(balances[slug]) }));
 
       // Keep this order to preserve correct statuses & flags
-      const concatenated: AccountToken[] = predefined.concat(storedReduced).concat(whitelisted);
+      const concatenated: AccountToken[] = predefined.concat(stored).concat(whitelisted);
 
       return sortBy(
         uniqBy(concatenated, t => t.slug),
         TOKENS_SORT_ITERATEES
       );
     },
-    [chainId, stored, whitelistSlugs, balances],
+    [chainId, storedRaw, whitelistSlugs, balances],
     isEqual
   );
 };
@@ -85,15 +75,12 @@ export const useAllAvailableTokens = (account: string, chainId: string) => {
   const allTokensStored = useAllAssetsSelector('tokens');
 
   return useMemo(() => {
+    const removedSlugs = tokens.reduce<string[]>((acc, t) => (t.status === 'removed' ? acc.concat(t.slug) : acc), []);
+
     const allTokens = allTokensStored.filter(t => t.chainId === chainId);
 
-    const removedSlugs = allTokens.reduce<string[]>(
-      (acc, t) => (t.status === 'removed' && t.account === account ? acc.concat(t.slug) : acc),
-      []
-    );
-
     const otherTokens = allTokens.reduce<AccountToken[]>((acc, curr) => {
-      if (curr.account === account || removedSlugs.includes(curr.slug)) return acc;
+      if (curr.account === account || curr.status === 'removed' || removedSlugs.includes(curr.slug)) return acc;
 
       return acc.concat({ slug: curr.slug, status: 'disabled' });
     }, []);
@@ -158,5 +145,5 @@ export const useEnabledAccountCollectiblesSlugs = () => {
   );
 };
 
-const getAssetStatus = (atomicBalance: string, storedStatus?: AssetStatus): AssetStatus =>
+const getAssetStatus = (atomicBalance: string, storedStatus?: StoredAssetStatus): StoredAssetStatus =>
   storedStatus || (Number(atomicBalance) > 0 ? 'enabled' : 'disabled');
