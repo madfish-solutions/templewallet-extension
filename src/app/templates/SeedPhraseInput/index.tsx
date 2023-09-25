@@ -1,11 +1,12 @@
 import React, { FC, useCallback, useMemo, useState } from 'react';
 
 import { validateMnemonic } from 'bip39';
+import bip39WordList from 'bip39/src/wordlists/english.json';
 import classNames from 'clsx';
 
+import { FormFieldElement } from 'app/atoms/FormField';
 import { formatMnemonic } from 'app/defaults';
 import { useAppEnv } from 'app/env';
-import { bip39WordList } from 'app/pages/ImportAccount/constants';
 import { TestIDProperty } from 'lib/analytics';
 import { T, t } from 'lib/i18n';
 import { clearClipboard } from 'lib/ui/utils';
@@ -27,8 +28,6 @@ interface SeedPhraseInputProps extends TestIDProperty {
 }
 
 const defaultNumberOfWords = 12;
-
-const checkWordExist = (word: string) => word !== '';
 
 export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
   isFirstAccount,
@@ -56,13 +55,12 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
       let newSeedError = '';
       const joinedDraftSeed = newDraftSeed.join(' ');
 
-      if (newDraftSeed.some(word => checkWordExist(word))) {
+      if (newDraftSeed.some(Boolean)) {
         if (newDraftSeed.some(word => word === '')) {
-          const availableWords = newDraftSeed.filter(word => checkWordExist(word));
-          if (!availableWords.some(word => bip39WordList.includes(word))) {
-            newSeedError = t('mnemonicWordsAmountConstraint', [numberOfWords]) as string;
-          } else {
+          if (newDraftSeed.some(word => word !== '' && bip39WordList.includes(word))) {
             newSeedError = '';
+          } else {
+            newSeedError = t('mnemonicWordsAmountConstraint', [numberOfWords]) as string;
           }
         } else if (!validateMnemonic(formatMnemonic(joinedDraftSeed))) {
           newSeedError = t('justValidPreGeneratedMnemonic');
@@ -187,16 +185,18 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
         {[...Array(numberOfWords).keys()].map(index => {
           const key = `import-seed-word-${index}`;
 
+          const handleChange = (event: React.ChangeEvent<FormFieldElement>) => {
+            event.preventDefault();
+            onSeedWordChange(index, event.target.value);
+            setWordSpellingError('');
+          };
+
           return (
             <SeedWordInput
               key={key}
               id={index}
               submitted={submitted}
-              onChange={event => {
-                event.preventDefault();
-                onSeedWordChange(index, event.target.value);
-                setWordSpellingError('');
-              }}
+              onChange={handleChange}
               revealRef={getRevealRef(index)}
               onReveal={() => onReveal(index)}
               value={draftSeed[index]}

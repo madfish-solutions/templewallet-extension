@@ -293,30 +293,6 @@ module.exports = {
       extrabold: '800',
       black: '900'
     },
-    height: theme => ({
-      auto: 'auto',
-      ...theme('spacing'),
-      2.25: '2.25rem',
-      12: '3rem',
-      18: '4.5rem',
-      700: '700px',
-      full: '100%',
-      screen: '100vh'
-    }),
-    inset: {
-      '2px': '2px',
-      0: '0',
-      1: '0.25rem',
-      2: '0.5rem',
-      3: '0.75rem',
-      4: '1rem',
-      5: '1.25rem',
-      8: '2rem',
-      12: '3rem',
-      18: '4.5rem',
-      '1/2': '50%',
-      auto: 'auto'
-    },
     letterSpacing: {
       tighter: '-0.05em',
       tight: '-0.025em',
@@ -674,6 +650,7 @@ module.exports = {
       inset: {
         '2px': '2px',
         '1/2': '50%',
+        18: '4.5rem',
       },
       space: (theme, { negative }) => ({
         ...theme('spacing'),

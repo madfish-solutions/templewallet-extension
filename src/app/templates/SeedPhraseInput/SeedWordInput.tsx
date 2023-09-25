@@ -1,9 +1,9 @@
 import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
+import bip39WordList from 'bip39/src/wordlists/english.json';
 import clsx from 'clsx';
 
 import { FormField, FormFieldElement, FORM_FIELD_CLASS_NAME } from 'app/atoms/FormField';
-import { bip39WordList } from 'app/pages/ImportAccount/constants';
 import type { TestIDProperty } from 'lib/analytics';
 import { t } from 'lib/i18n';
 
@@ -33,7 +33,7 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
 }) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const isError = submitted ? !value : false;
-  const [onBlur, setOnBlur] = useState(true);
+  const [isBlur, setIsBlur] = useState(true);
   const errorCheckRef = useRef<boolean | undefined>(undefined);
   const [showAutocomplete, setShowAutocomplete] = useState(false);
 
@@ -48,22 +48,22 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
   );
 
   useEffect(() => {
-    if (value && !bip39WordList.includes(value) && onBlur) {
+    if (value && !bip39WordList.includes(value) && isBlur) {
       setWordSpellingError(t('mnemonicWordsError'));
       errorCheckRef.current = true;
     } else {
       errorCheckRef.current = undefined;
       setWordSpellingError('');
     }
-  }, [value, onBlur, errorCheckRef, setWordSpellingError]);
+  }, [value, isBlur, errorCheckRef, setWordSpellingError]);
 
   useEffect(() => {
-    if (!onBlur && value && value.length > 1) {
+    if (!isBlur && value && value.length > 1) {
       setShowAutocomplete(true);
     } else {
       setShowAutocomplete(false);
     }
-  }, [showAutocomplete, value, onBlur]);
+  }, [showAutocomplete, value, isBlur]);
 
   const autocompleteVariants = useMemo(
     () => (value ? bip39WordList.filter(word => word.startsWith(value)) : null),
@@ -77,7 +77,13 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
       setWordSpellingError('');
       inputRef.current.value = variant;
     }
-    setOnBlur(true);
+    setIsBlur(true);
+  };
+
+  const handleBlur = (e: React.FocusEvent) => {
+    if (e.relatedTarget === null) {
+      setIsBlur(true);
+    }
   };
 
   return (
@@ -91,14 +97,9 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
         type="password"
         id={id.toString()}
         onChange={onChange}
-        // delay for ref update works properly
-        onBlur={e => {
-          if (e.relatedTarget === null) {
-            setOnBlur(true);
-          }
-        }}
+        onBlur={handleBlur}
         value={value}
-        onFocus={() => setOnBlur(false)}
+        onFocus={() => setIsBlur(false)}
         onPaste={handlePaste}
         revealRef={revealRef}
         onReveal={onReveal}
@@ -116,17 +117,9 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
             'absolute left-0 z-50 px-2 items-center top-18 shadow-lg flex flex-col'
           )}
         >
-          {autocompleteVariants?.map((variant, index) => (
-            <div className="hover:bg-gray-200 w-full rounded focus:bg-gray-200" key={index}>
-              <button
-                className="my-2 px-3 py-2 w-full"
-                onClick={e => handleClick(e, variant)}
-                onBlur={e => {
-                  if (e.relatedTarget === null) {
-                    setOnBlur(true);
-                  }
-                }}
-              >
+          {autocompleteVariants.map(variant => (
+            <div className="hover:bg-gray-200 w-full rounded focus:bg-gray-200" key={variant}>
+              <button className="my-2 px-3 py-2 w-full" onClick={e => handleClick(e, variant)} onBlur={handleBlur}>
                 {variant}
               </button>
             </div>

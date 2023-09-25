@@ -616,7 +616,7 @@
     "message": "Custom derivation path"
   },
   "mnemonicInputLabel": {
-    "message": "Seed phrase"
+    "message": "Seed Phrase"
   },
   "passwordInputDescription": {
     "message": "That is NOT a wallet password.\nUsed for additional mnemonic derivation."

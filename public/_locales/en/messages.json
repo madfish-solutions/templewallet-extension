@@ -764,7 +764,7 @@
     "message": "Custom derivation path"
   },
   "mnemonicInputLabel": {
-    "message": "Seed phrase"
+    "message": "Seed Phrase"
   },
   "mnemonicInputWarning": {
     "message": "We don't store your seed phrase. Don't lose it!"

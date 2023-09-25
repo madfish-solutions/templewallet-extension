@@ -1,6 +1,6 @@
 import React, { FC, useCallback, useEffect, useRef, useState } from 'react';
 
-import './seedLength.css';
+import './seedLength.module.css';
 
 import classNames from 'clsx';
 
