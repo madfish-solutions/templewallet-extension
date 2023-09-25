@@ -1,3 +1,5 @@
+import { createAction } from '@reduxjs/toolkit';
+
 import { createActions } from 'lib/store/action.utils';
 
 interface BalancesTzktPayloadSubmit {
@@ -5,7 +7,7 @@ interface BalancesTzktPayloadSubmit {
   chainId: string;
 }
 interface BalancesPayloadSuccess extends BalancesTzktPayloadSubmit {
-  balances: Record<string, string>;
+  balances: StringRecord;
 }
 interface BalancesPayloadFail extends BalancesTzktPayloadSubmit {
   error: string;
@@ -16,3 +18,5 @@ export const loadTokensBalancesFromTzktAction = createActions<
   BalancesPayloadSuccess,
   BalancesPayloadFail
 >('balances/LOAD_TOKENS_BALANCES');
+
+export const putTokensBalancesAction = createAction<BalancesPayloadSuccess>('balances/PUT_TOKENS_BALANCES');

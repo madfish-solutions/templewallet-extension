@@ -1,9 +1,9 @@
 - Migrate IndexDB tokens into Redux
-- `token.metadata.null`
-- No-cycle lint rule
+- No-cycle lint rule + 'no-assert' warn
 - `export { useSelector, dispatch } from 'app/store';`
 - Whitelisted tokens to Redux store
 - Minimize persisted data
+- - Assets stored like balances (by keys)
 - Optimize assets metadata loading by saving it after assets fetch
 - Refactor `lib/assets/hooks`
 - `useSlugsOf`

@@ -30,7 +30,7 @@ const loadTokensBalancesFromTzktEpic: Epic = (action$: Observable<Action>) =>
     switchMap(({ publicKeyHash, chainId }) =>
       fetchTokensBalances$(publicKeyHash, chainId).pipe(
         map(([tezosBalances, tokensBalances]) => {
-          const balances: Record<string, string> = {
+          const balances: StringRecord = {
             [TEZ_TOKEN_SLUG]: new BigNumber(tezosBalances.balance ?? 0)
               .minus(tezosBalances.frozenDeposit ?? 0)
               .toFixed()

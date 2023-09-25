@@ -1,12 +1,15 @@
 import axios from 'axios';
 import { combineEpics, Epic } from 'redux-observable';
-import { from, of } from 'rxjs';
+import { from, of, concatMap } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 import { Action } from 'ts-action';
 import { ofType, toPayload } from 'ts-action-operators';
 
 import { fetchWhitelistTokens$ } from 'lib/apis/temple';
+import { buildTokenMetadataFromFetched } from 'lib/metadata/utils';
 
+import { putTokensBalancesAction } from '../balances/actions';
+import { addTokensMetadataAction } from '../tokens-metadata/actions';
 import { loadAccountTokensActions, loadAccountCollectiblesActions, loadTokensWhitelistActions } from './actions';
 import { fetchAccountTokens, fetchAccountCollectibles } from './utils';
 
@@ -29,7 +32,11 @@ const loadAccountCollectiblesEpic: Epic<Action> = action$ =>
     toPayload(),
     switchMap(({ account, chainId }) =>
       from(fetchAccountCollectibles(account, chainId)).pipe(
-        map(slugs => loadAccountCollectiblesActions.success({ account, chainId, slugs })),
+        concatMap(({ slugs, metadatas, balances }) => [
+          loadAccountCollectiblesActions.success({ account, chainId, slugs }),
+          addTokensMetadataAction(metadatas),
+          putTokensBalancesAction({ publicKeyHash: account, chainId, balances })
+        ]),
         catchError(err =>
           of(loadAccountCollectiblesActions.fail({ code: axios.isAxiosError(err) ? err.code : undefined }))
         )

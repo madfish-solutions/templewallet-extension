@@ -1,4 +1,3 @@
-import { isDefined } from '@rnw-community/shared';
 import { TezosToolkit } from '@taquito/taquito';
 import { pick } from 'lodash';
 import { from, Observable } from 'rxjs';
@@ -66,11 +65,12 @@ const chainTokenMetadataToBase = (metadata: TokenMetadataOnChain | nullish): Tok
 export const loadTokensMetadata$ = (rpcUrl: string, slugs: string[]): Observable<TokenMetadata[]> =>
   from(fetchTokensMetadata(rpcUrl, slugs)).pipe(
     map(data =>
-      data.map((token, index) => {
+      data.reduce<TokenMetadata[]>((acc, token, index) => {
         const [address, id] = slugs[index].split('_');
 
-        return buildTokenMetadataFromFetched(token, address, Number(id));
-      })
-    ),
-    map(data => data.filter(isDefined))
+        const metadata = token && buildTokenMetadataFromFetched(token, address, Number(id));
+
+        return metadata ? acc.concat(metadata) : acc;
+      }, [])
+    )
   );

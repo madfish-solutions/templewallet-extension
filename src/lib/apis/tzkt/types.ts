@@ -176,26 +176,38 @@ export interface TzktAccountAsset {
   lastLevel: number;
   lastTime: string;
   transfersCount: number;
-  token: {
-    id: number;
-    contract: TzktAlias;
-    standard: 'fa1.2' | 'fa2';
-    tokenId: string;
-    metadata?: {
-      artifactUri: string;
-      creators: Array<string>;
-      decimals?: string;
-      description: string;
-      displayUri: string;
-      formats: Array<{ uri: string; mimeType: string }>;
-      isBooleanAmount: boolean;
-      name: string;
-      shouldPreferSymbol: boolean;
-      symbol: string;
-      tags: Array<string>;
-      thumbnailUri: string;
-    };
-  };
+  token: TzktAssetToken;
+}
+
+interface TzktAssetToken {
+  id: number;
+  contract: TzktAlias;
+  standard: 'fa1.2' | 'fa2';
+  tokenId: string;
+  metadata?: TzktAssetMetadata;
+}
+
+export interface TzktAssetMetadata {
+  creators: string[];
+  decimals?: string;
+  description: string;
+  formats: { uri: string; mimeType: string }[];
+  isBooleanAmount: boolean;
+  name: string;
+  shouldPreferSymbol: boolean;
+  symbol: string;
+  tags: string[];
+  thumbnailUri: string;
+  displayUri: string;
+  artifactUri: string;
+}
+
+export interface TzktAssetWithMeta extends TzktAccountAsset {
+  token: WithRequired<TzktAssetToken, 'metadata'>;
+}
+
+export interface TzktAssetWithNoMeta extends TzktAccountAsset {
+  token: Omit<TzktAssetToken, 'metadata'>;
 }
 
 export interface TzktTokenTransfer {

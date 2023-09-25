@@ -6,13 +6,16 @@ export interface WhitelistResponseToken {
   contractAddress: 'tez' | string;
   fa2TokenId?: number;
   network: 'mainnet' | string;
-  metadata: {
-    decimals: number;
-    name: string;
-    symbol: string;
-    thumbnailUri?: string;
-  };
+  metadata: WhitelistResponseMetadata;
   type: 'FA2' | 'FA12';
+}
+
+interface WhitelistResponseMetadata {
+  decimals: number;
+  name: string;
+  symbol: string;
+  thumbnailUri?: string;
+  description?: string;
 }
 
 interface WhitelistResponse {

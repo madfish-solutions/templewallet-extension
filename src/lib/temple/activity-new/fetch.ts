@@ -121,7 +121,10 @@ const fetchOperations_Token_Fa_2 = (
     entrypoint: 'transfer',
     'sort.desc': 'level',
     target: contractAddress,
-    'parameter.[*].in': `[{"from_":"${accountAddress}","txs":[{"token_id":"${tokenId}"}]},{"txs":[{"to_":"${accountAddress}","token_id":"${tokenId}"}]}]`,
+    'parameter.[*].in': JSON.stringify([
+      { from_: accountAddress, txs: [{ token_id: tokenId }] },
+      { txs: [{ to_: accountAddress, token_id: tokenId }] }
+    ]),
     'level.lt': olderThan?.oldestTzktOperation.level
   });
 

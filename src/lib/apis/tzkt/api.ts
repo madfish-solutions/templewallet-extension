@@ -133,13 +133,13 @@ export const fetchTzktTokens = async (chainId: string, accountAddress: string) =
 
 const TZKT_MAX_QUERY_ITEMS_LIMIT = 10_000;
 
-export const fetchTzktAccountAssets = async (
+export const fetchTzktAccountAssets = (
   account: string,
   chainId: string,
   /** `null` for unknown */
-  fungible: boolean | null = null
-) => {
-  if (!isKnownChainId(chainId)) return [];
+  fungible: boolean | null
+): Promise<TzktAccountAsset[]> => {
+  if (!isKnownChainId(chainId)) return Promise.resolve([]);
 
   const recurse = async (accum: TzktAccountAsset[], offset?: number): Promise<TzktAccountAsset[]> => {
     const data = await fetchTzktAccountAssetsOnce(account, chainId, offset, fungible);
