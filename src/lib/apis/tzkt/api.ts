@@ -3,6 +3,7 @@ import axios, { AxiosError } from 'axios';
 import { TempleChainId } from 'lib/temple/types';
 import { delay } from 'lib/utils';
 
+import { TzktAssetWithMeta, TzktAssetWithNoMeta } from '.';
 import {
   TzktOperation,
   TzktOperationType,
@@ -133,16 +134,19 @@ export const fetchTzktTokens = async (chainId: string, accountAddress: string) =
 
 const TZKT_MAX_QUERY_ITEMS_LIMIT = 10_000;
 
-export const fetchTzktAccountAssets = (
+export function fetchTzktAccountAssets<
+  F extends boolean | null,
+  T extends TzktAccountAsset = F extends boolean ? TzktAssetWithMeta : TzktAssetWithNoMeta
+>(
   account: string,
   chainId: string,
   /** `null` for unknown */
-  fungible: boolean | null
-): Promise<TzktAccountAsset[]> => {
+  fungible: F
+): Promise<T[]> {
   if (!isKnownChainId(chainId)) return Promise.resolve([]);
 
-  const recurse = async (accum: TzktAccountAsset[], offset?: number): Promise<TzktAccountAsset[]> => {
-    const data = await fetchTzktAccountAssetsOnce(account, chainId, offset, fungible);
+  const recurse = async (accum: T[], offset?: number): Promise<T[]> => {
+    const data = (await fetchTzktAccountAssetsOnce(account, chainId, offset, fungible)) as T[];
 
     if (!data.length) return accum;
 
@@ -153,7 +157,7 @@ export const fetchTzktAccountAssets = (
   };
 
   return recurse([]);
-};
+}
 
 const fetchTzktAccountAssetsOnce = (
   account: string,

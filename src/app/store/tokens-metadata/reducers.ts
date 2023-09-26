@@ -1,15 +1,17 @@
 import { createReducer } from '@reduxjs/toolkit';
-import { isDefined } from '@rnw-community/shared';
 import { omit, pick } from 'lodash';
 
 import { tokenToSlug } from 'lib/assets';
+import { buildTokenMetadataFromFetched, buildTokenMetadataFromTzkt } from 'lib/metadata/utils';
 
 import {
   putTokensMetadataAction,
   loadTokensMetadataAction,
   resetTokensMetadataLoadingAction,
   refreshTokensMetadataAction,
-  addTokensMetadataAction
+  addTokensMetadataAction,
+  addTokensMetadataOfFetchedAction,
+  addTokensMetadataOfTzktAction
 } from './actions';
 import { tokensMetadataInitialState, TokensMetadataState } from './state';
 
@@ -41,25 +43,35 @@ export const tokensMetadataReducer = createReducer<TokensMetadataState>(tokensMe
     };
   });
 
-  builder.addCase(addTokensMetadataAction, (state, { payload: tokensMetadata }) => {
-    tokensMetadata = tokensMetadata.filter(metadata => {
+  builder.addCase(addTokensMetadataAction, (state, { payload }) => {
+    for (const metadata of payload) {
       const slug = tokenToSlug(metadata);
+      if (state.metadataRecord[slug]) continue;
 
-      return !isDefined(state.metadataRecord[slug]);
-    });
+      state.metadataRecord[slug] = metadata;
+    }
+  });
 
-    if (tokensMetadata.length < 1) return state;
+  builder.addCase(addTokensMetadataOfFetchedAction, (state, { payload }) => {
+    for (const slug of Object.keys(payload)) {
+      if (state.metadataRecord[slug]) continue;
 
-    return {
-      ...state,
-      metadataRecord: tokensMetadata.reduce(
-        (obj, tokenMetadata) => ({
-          ...obj,
-          [tokenToSlug(tokenMetadata)]: tokenMetadata
-        }),
-        state.metadataRecord
-      )
-    };
+      const [address, id] = slug.split('_');
+      state.metadataRecord[slug] = buildTokenMetadataFromFetched(payload[slug]!, address, Number(id));
+    }
+  });
+
+  builder.addCase(addTokensMetadataOfTzktAction, (state, { payload }) => {
+    for (const slug of Object.keys(payload)) {
+      if (state.metadataRecord[slug]) continue;
+
+      const asset = payload[slug]!;
+      state.metadataRecord[slug] = buildTokenMetadataFromTzkt(
+        asset.metadata,
+        asset.contract.address,
+        Number(asset.tokenId)
+      );
+    }
   });
 
   builder.addCase(loadTokensMetadataAction, state => ({

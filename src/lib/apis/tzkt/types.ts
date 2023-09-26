@@ -202,8 +202,10 @@ export interface TzktAssetMetadata {
   artifactUri: string;
 }
 
+export type TzktTokenWithMeta = WithRequired<TzktAssetToken, 'metadata'>;
+
 export interface TzktAssetWithMeta extends TzktAccountAsset {
-  token: WithRequired<TzktAssetToken, 'metadata'>;
+  token: TzktTokenWithMeta;
 }
 
 export interface TzktAssetWithNoMeta extends TzktAccountAsset {

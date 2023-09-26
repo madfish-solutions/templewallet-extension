@@ -6,10 +6,9 @@ import { Action } from 'ts-action';
 import { ofType, toPayload } from 'ts-action-operators';
 
 import { fetchWhitelistTokens$ } from 'lib/apis/temple';
-import { buildTokenMetadataFromFetched } from 'lib/metadata/utils';
 
 import { putTokensBalancesAction } from '../balances/actions';
-import { addTokensMetadataAction } from '../tokens-metadata/actions';
+import { addTokensMetadataOfFetchedAction, addTokensMetadataOfTzktAction } from '../tokens-metadata/actions';
 import { loadAccountTokensActions, loadAccountCollectiblesActions, loadTokensWhitelistActions } from './actions';
 import { fetchAccountTokens, fetchAccountCollectibles } from './utils';
 
@@ -32,10 +31,11 @@ const loadAccountCollectiblesEpic: Epic<Action> = action$ =>
     toPayload(),
     switchMap(({ account, chainId }) =>
       from(fetchAccountCollectibles(account, chainId)).pipe(
-        concatMap(({ slugs, metadatas, balances }) => [
+        concatMap(({ slugs, tzktAssetsWithMeta, metadatas, balances }) => [
           loadAccountCollectiblesActions.success({ account, chainId, slugs }),
-          addTokensMetadataAction(metadatas),
-          putTokensBalancesAction({ publicKeyHash: account, chainId, balances })
+          putTokensBalancesAction({ publicKeyHash: account, chainId, balances }),
+          addTokensMetadataOfFetchedAction(metadatas),
+          addTokensMetadataOfTzktAction(tzktAssetsWithMeta)
         ]),
         catchError(err =>
           of(loadAccountCollectiblesActions.fail({ code: axios.isAxiosError(err) ? err.code : undefined }))

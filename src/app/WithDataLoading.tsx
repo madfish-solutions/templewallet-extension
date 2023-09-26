@@ -2,17 +2,17 @@ import React, { FC, useEffect } from 'react';
 
 import { useDispatch } from 'react-redux';
 
-import { useAdvertisingLoading } from 'app/hooks/use-advertising.hook';
-import { useCollectiblesDetailsLoading } from 'app/hooks/use-collectibles-details-loading';
-import { useTokensApyLoading } from 'app/hooks/use-load-tokens-apy.hook';
-import { useLongRefreshLoading } from 'app/hooks/use-long-refresh-loading.hook';
-import { useMetadataLoading } from 'app/hooks/use-metadata-loading';
-import { useStorageAnalytics } from 'app/hooks/use-storage-analytics';
 import { loadSwapDexesAction, loadSwapTokensAction } from 'app/store/swap/actions';
-import { useBalancesLoading } from 'lib/temple/front/load-balances';
 
+import { useAdvertisingLoading } from './hooks/use-advertising.hook';
 import { useAssetsLoading } from './hooks/use-assets-loading';
+import { useBalancesLoading } from './hooks/use-balances-loading';
+import { useCollectiblesDetailsLoading } from './hooks/use-collectibles-details-loading';
+import { useTokensApyLoading } from './hooks/use-load-tokens-apy.hook';
+import { useLongRefreshLoading } from './hooks/use-long-refresh-loading.hook';
+import { useMetadataLoading } from './hooks/use-metadata-loading';
 import { useMetadataRefresh } from './hooks/use-metadata-refresh';
+import { useStorageAnalytics } from './hooks/use-storage-analytics';
 
 export const WithDataLoading: FC<PropsWithChildren> = ({ children }) => {
   useAssetsLoading();

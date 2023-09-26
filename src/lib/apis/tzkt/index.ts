@@ -9,7 +9,8 @@ export type {
   TzktAccountAsset,
   TzktAssetWithMeta,
   TzktAssetWithNoMeta,
-  TzktAssetMetadata
+  TzktAssetMetadata,
+  TzktTokenWithMeta
 } from './types';
 
 export type { TzktApiChainId } from './api';
