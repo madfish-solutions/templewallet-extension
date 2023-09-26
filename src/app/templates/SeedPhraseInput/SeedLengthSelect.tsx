@@ -1,11 +1,11 @@
 import React, { FC, useCallback, useEffect, useRef, useState } from 'react';
 
-import './seedLength.module.css';
-
 import classNames from 'clsx';
 
 import { ReactComponent as SelectArrowDownIcon } from 'app/icons/select-arrow-down.svg';
 import { t } from 'lib/i18n';
+
+import styles from './seedLength.module.css';
 
 interface SeedLengthSelectProps {
   options: Array<string>;
@@ -79,7 +79,7 @@ export const SeedLengthSelect: FC<SeedLengthSelectProps> = ({ options, currentOp
                   value={option}
                   checked={selectedOption === option}
                   onChange={e => setSelectedOption(e.target.value)}
-                  className="input"
+                  className={styles.input}
                 />
                 <span className="text-sm">{option}</span>
               </label>
