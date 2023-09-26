@@ -1,5 +1,6 @@
 import axios, { AxiosError } from 'axios';
 
+import { toTokenSlug } from 'lib/assets';
 import { TempleChainId } from 'lib/temple/types';
 import { delay } from 'lib/utils';
 
@@ -145,18 +146,18 @@ export function fetchTzktAccountAssets<
 ): Promise<T[]> {
   if (!isKnownChainId(chainId)) return Promise.resolve([]);
 
-  const recurse = async (accum: T[], offset?: number): Promise<T[]> => {
+  const recurse = async (accum: T[], offset: number): Promise<T[]> => {
     const data = (await fetchTzktAccountAssetsOnce(account, chainId, offset, fungible)) as T[];
 
     if (!data.length) return accum;
 
     if (data.length === TZKT_MAX_QUERY_ITEMS_LIMIT)
-      return recurse(accum.concat(data), (offset ?? 0) + TZKT_MAX_QUERY_ITEMS_LIMIT);
+      return recurse(accum.concat(data), offset + TZKT_MAX_QUERY_ITEMS_LIMIT);
 
     return accum.concat(data);
   };
 
-  return recurse([]);
+  return recurse([], 0);
 }
 
 const fetchTzktAccountAssetsOnce = (
@@ -169,7 +170,6 @@ const fetchTzktAccountAssetsOnce = (
     account,
     limit: TZKT_MAX_QUERY_ITEMS_LIMIT,
     offset,
-    // select: 'balance,token.contract.address,token.standard,token.tokenId', // (do)
     ...(fungible === null
       ? { 'token.metadata.null': true }
       : {
@@ -198,41 +198,51 @@ export async function refetchOnce429<R>(fetcher: () => Promise<R>, delayAroundIn
 }
 
 interface GetAccountResponse {
-  frozenDeposit?: string;
   balance: string;
+  frozenDeposit?: string;
 }
 
 export const fecthTezosBalanceFromTzkt = async (account: string, chainId: string): Promise<GetAccountResponse> =>
   isKnownChainId(chainId)
-    ? await fetchGet<GetAccountResponse>(chainId, `/accounts/${account}`).then(({ frozenDeposit, balance }) => ({
+    ? await fetchGet<GetAccountResponse>(chainId, `/accounts/${account}`, {
+        select: 'balance,frozenDeposit'
+      }).then(({ frozenDeposit, balance }) => ({
         frozenDeposit,
         balance
       }))
     : { balance: '0' };
 
-const LIMIT = 10000;
+export const fetchAllAssetsBalancesFromTzkt = async (account: string, chainId: string) => {
+  if (!isKnownChainId(chainId)) return {};
 
-const fetchTokensBalancesFromTzktOnce = async (account: string, chainId: string, limit: number, offset = 0) =>
-  isKnownChainId(chainId)
-    ? await fetchGet<TzktAccountAsset[]>(chainId, '/tokens/balances', {
-        account,
-        limit,
-        offset
-      })
-    : [];
-
-export const fetchAllTokensBalancesFromTzkt = async (selectedRpcUrl: string, account: string) => {
-  const balances: TzktAccountAsset[] = [];
+  const balances: StringRecord = {};
 
   await (async function recourse(offset: number) {
-    const data = await fetchTokensBalancesFromTzktOnce(selectedRpcUrl, account, LIMIT, offset);
+    const data = await fetchAssetsBalancesFromTzktOnce(account, chainId, offset);
 
-    balances.push(...data);
+    for (const item of data) {
+      const slug = toTokenSlug(item['token.contract.address'], item['token.tokenId']);
+      balances[slug] = item.balance;
+    }
 
-    if (data.length === LIMIT) {
-      await recourse(offset + LIMIT);
+    if (data.length === TZKT_MAX_QUERY_ITEMS_LIMIT) {
+      await recourse(offset + TZKT_MAX_QUERY_ITEMS_LIMIT);
     }
   })(0);
 
   return balances;
 };
+
+interface AssetBalance {
+  balance: string;
+  'token.contract.address': string;
+  'token.tokenId': string;
+}
+
+const fetchAssetsBalancesFromTzktOnce = (account: string, chainId: TzktApiChainId, offset = 0) =>
+  fetchGet<AssetBalance[]>(chainId, '/tokens/balances', {
+    account,
+    limit: TZKT_MAX_QUERY_ITEMS_LIMIT,
+    offset,
+    select: 'balance,token.contract.address,token.tokenId'
+  });

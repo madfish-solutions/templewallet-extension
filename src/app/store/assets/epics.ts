@@ -8,6 +8,7 @@ import { ofType, toPayload } from 'ts-action-operators';
 import { fetchWhitelistTokens } from 'lib/apis/temple';
 
 import { putTokensBalancesAction } from '../balances/actions';
+import { fixBalances } from '../balances/utils';
 import { addTokensMetadataOfFetchedAction, addTokensMetadataOfTzktAction } from '../tokens-metadata/actions';
 import { loadAccountTokensActions, loadAccountCollectiblesActions, loadTokensWhitelistActions } from './actions';
 import { loadAccountTokens, loadAccountCollectibles } from './utils';
@@ -20,7 +21,7 @@ const loadAccountTokensEpic: Epic<Action> = action$ =>
       from(loadAccountTokens(account, chainId)).pipe(
         concatMap(({ slugs, tzktAssetsWithMeta, metadatas, balances }) => [
           loadAccountTokensActions.success({ account, chainId, slugs }),
-          putTokensBalancesAction({ publicKeyHash: account, chainId, balances }),
+          putTokensBalancesAction({ publicKeyHash: account, chainId, balances: fixBalances(balances) }),
           addTokensMetadataOfFetchedAction(metadatas),
           addTokensMetadataOfTzktAction(tzktAssetsWithMeta)
         ]),
@@ -37,7 +38,7 @@ const loadAccountCollectiblesEpic: Epic<Action> = action$ =>
       from(loadAccountCollectibles(account, chainId)).pipe(
         concatMap(({ slugs, tzktAssetsWithMeta, metadatas, balances }) => [
           loadAccountCollectiblesActions.success({ account, chainId, slugs }),
-          putTokensBalancesAction({ publicKeyHash: account, chainId, balances }),
+          putTokensBalancesAction({ publicKeyHash: account, chainId, balances: fixBalances(balances) }),
           addTokensMetadataOfFetchedAction(metadatas),
           addTokensMetadataOfTzktAction(tzktAssetsWithMeta)
         ]),

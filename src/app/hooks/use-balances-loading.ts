@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 
 import { useDispatch } from 'react-redux';
 
@@ -12,6 +12,11 @@ export const useBalancesLoading = () => {
   const { publicKeyHash } = useAccount();
 
   const dispatch = useDispatch();
+
+  useEffect(
+    () => void dispatch(loadTokensBalancesFromTzktAction.submit({ publicKeyHash, chainId, gasOnly: true })),
+    []
+  );
 
   const load = useCallback(
     () => void dispatch(loadTokensBalancesFromTzktAction.submit({ publicKeyHash, chainId })),

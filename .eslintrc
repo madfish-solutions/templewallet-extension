@@ -5,7 +5,7 @@
     "plugin:import/warnings",
     "plugin:import/typescript"
   ],
-  "plugins": ["import", "prettier"],
+  "plugins": ["import", "prettier", "no-type-assertion"],
   "parser": "@typescript-eslint/parser",
   "overrides": [{
     "files": ["*.ts", "*.tsx"],
@@ -49,6 +49,7 @@
         "newlines-between": "always"
       }
     ],
+    "no-type-assertion/no-type-assertion": "warn",
     "@typescript-eslint/await-thenable": "error",
     "@typescript-eslint/no-non-null-assertion": "warn",
     "react-hooks/rules-of-hooks": "warn",
