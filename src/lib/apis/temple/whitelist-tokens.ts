@@ -1,6 +1,4 @@
 import axios from 'axios';
-import { from } from 'rxjs';
-import { map } from 'rxjs/operators';
 
 export interface WhitelistResponseToken {
   contractAddress: 'tez' | string;
@@ -35,10 +33,11 @@ const WHITELIST_TOKENS_BASE_URL = 'https://raw.githubusercontent.com/madfish-sol
 
 const api = axios.create({ baseURL: WHITELIST_TOKENS_BASE_URL });
 
-export const fetchWhitelistTokens$ = () =>
-  from(
-    api.get<WhitelistResponse>('tokens/quipuswap.whitelist.json').catch(error => {
+export const fetchWhitelistTokens = () =>
+  api.get<WhitelistResponse>('tokens/quipuswap.whitelist.json').then(
+    ({ data }) => data.tokens ?? [],
+    error => {
       console.error(error);
       throw error;
-    })
-  ).pipe(map(({ data }) => data.tokens?.filter(x => x.contractAddress !== 'tez') ?? []));
+    }
+  );

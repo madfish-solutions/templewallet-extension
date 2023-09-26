@@ -8,7 +8,7 @@ import { useAccount, useChainId } from 'lib/temple/front';
 import { useInterval } from 'lib/ui/hooks';
 
 export const useBalancesLoading = () => {
-  const chainId = useChainId(true) ?? '';
+  const chainId = useChainId(true)!;
   const { publicKeyHash } = useAccount();
 
   const dispatch = useDispatch();

@@ -52,6 +52,7 @@ export const assetsReducer = createReducer<SliceState>(initialState, builder => 
     delete state.mainnetWhitelist.error;
 
     for (const token of payload) {
+      if (token.contractAddress === 'tez') continue;
       const slug = toTokenSlug(token.contractAddress, token.fa2TokenId);
       if (!state.mainnetWhitelist.data.includes(slug)) state.mainnetWhitelist.data.push(slug);
     }
