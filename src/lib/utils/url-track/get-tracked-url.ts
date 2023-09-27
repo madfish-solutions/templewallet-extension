@@ -1,4 +1,5 @@
 import {
+  bitcoinMagazineArticlesRegExp,
   coindeskArticlesRegExp,
   EXACT_MATCH_URLS,
   REG_EXPS_WITH_URLS,
@@ -8,7 +9,6 @@ import {
 } from './constants';
 
 export const getTrackedUrl = (actualUrl: string) => {
-  console.log(actualUrl, 'actual');
   if (EXACT_MATCH_URLS.includes(actualUrl)) {
     return actualUrl;
   }
@@ -21,6 +21,12 @@ export const getTrackedUrl = (actualUrl: string) => {
     const articleCategory = actualUrl.split('/')[3];
 
     return `https://www.coindesk.com/${articleCategory}/articles`;
+  }
+
+  if (bitcoinMagazineArticlesRegExp.test(actualUrl)) {
+    const articleCategory = actualUrl.split('/')[3];
+
+    return `https://bitcoinmagazine.com/${articleCategory}/article`;
   }
 
   for (let i = 0; i < REG_EXPS_WITH_URLS.length; i++) {

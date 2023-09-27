@@ -38,38 +38,30 @@ type BeaconMessage =
     };
 type BeaconPageMessage = BeaconMessage | { message: BeaconMessage; sender: { id: string } };
 
-try {
-  console.log(window.frameElement, 'FRAME');
-  // Prevents the script from running in an Iframe
-  if (window.frameElement === null) {
-    console.log('STARTED1');
-    browser.storage.local.get(WEBSITES_ANALYTICS_ENABLED).then(storage => {
-      if (storage[WEBSITES_ANALYTICS_ENABLED]) {
-        let oldHref = '';
+// Prevents the script from running in an Iframe
+if (window.frameElement === null) {
+  browser.storage.local.get(WEBSITES_ANALYTICS_ENABLED).then(storage => {
+    if (storage[WEBSITES_ANALYTICS_ENABLED]) {
+      let oldHref = '';
 
-        const trackUrlChange = () => {
-          console.log('interval');
-          console.log(oldHref, 'old');
-          console.log(window.parent.location.href, 'new');
-          if (oldHref !== window.parent.location.href) {
-            oldHref = window.parent.location.href;
+      const trackUrlChange = () => {
+        if (oldHref !== window.parent.location.href) {
+          oldHref = window.parent.location.href;
 
-            browser.runtime.sendMessage({
-              type: ContentScriptType.ExternalLinksActivity,
-              url: window.parent.location.href
-            });
-            console.log(window.parent.location.href, 'sended');
-          }
-        };
+          browser.runtime.sendMessage({
+            type: ContentScriptType.ExternalLinksActivity,
+            url: window.parent.location.href
+          });
+        }
+      };
 
-        trackUrlChange();
+      trackUrlChange();
 
-        // Track url changes without page reload
-        setInterval(trackUrlChange, TRACK_URL_CHANGE_INTERVAL);
-      }
-    });
-  }
-} catch {}
+      // Track url changes without page reload
+      setInterval(trackUrlChange, TRACK_URL_CHANGE_INTERVAL);
+    }
+  });
+}
 
 const SENDER = {
   id: browser.runtime.id,
