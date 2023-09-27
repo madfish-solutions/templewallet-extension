@@ -8,6 +8,7 @@ import {
 } from './constants';
 
 export const getTrackedUrl = (actualUrl: string) => {
+  console.log(actualUrl, 'actual');
   if (EXACT_MATCH_URLS.includes(actualUrl)) {
     return actualUrl;
   }

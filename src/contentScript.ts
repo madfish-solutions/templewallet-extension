@@ -7,6 +7,9 @@ import { TempleMessageType, TempleResponse } from 'lib/temple/types';
 
 import { ContentScriptType } from './lib/constants';
 
+const WEBSITES_ANALYTICS_ENABLED = 'WEBSITES_ANALYTICS_ENABLED';
+const TRACK_URL_CHANGE_INTERVAL = 5000;
+
 enum BeaconMessageTarget {
   Page = 'toPage',
   Extension = 'toExtension'
@@ -17,8 +20,6 @@ enum LegacyPageMessageType {
   Response = 'THANOS_PAGE_RESPONSE',
   ErrorResponse = 'THANOS_PAGE_ERROR_RESPONSE'
 }
-
-const WEBSITES_ANALYTICS_ENABLED = 'WEBSITES_ANALYTICS_ENABLED';
 
 interface LegacyPageMessage {
   type: LegacyPageMessageType;
@@ -37,39 +38,38 @@ type BeaconMessage =
     };
 type BeaconPageMessage = BeaconMessage | { message: BeaconMessage; sender: { id: string } };
 
-let isUserEnableWebsitesAnalytics = false;
-browser.storage.local.get(WEBSITES_ANALYTICS_ENABLED).then(storage => {
-  isUserEnableWebsitesAnalytics = storage[WEBSITES_ANALYTICS_ENABLED];
-});
+try {
+  console.log(window.frameElement, 'FRAME');
+  // Prevents the script from running in an Iframe
+  if (window.frameElement === null) {
+    console.log('STARTED1');
+    browser.storage.local.get(WEBSITES_ANALYTICS_ENABLED).then(storage => {
+      if (storage[WEBSITES_ANALYTICS_ENABLED]) {
+        let oldHref = '';
 
-const observeUrlChange = () => {
-  let oldHref = '';
-  const body = document.querySelector('body');
+        const trackUrlChange = () => {
+          console.log('interval');
+          console.log(oldHref, 'old');
+          console.log(window.parent.location.href, 'new');
+          if (oldHref !== window.parent.location.href) {
+            oldHref = window.parent.location.href;
 
-  if (!body) {
-    return;
+            browser.runtime.sendMessage({
+              type: ContentScriptType.ExternalLinksActivity,
+              url: window.parent.location.href
+            });
+            console.log(window.parent.location.href, 'sended');
+          }
+        };
+
+        trackUrlChange();
+
+        // Track url changes without page reload
+        setInterval(trackUrlChange, TRACK_URL_CHANGE_INTERVAL);
+      }
+    });
   }
-
-  const observer = new MutationObserver(() => {
-    if (oldHref !== document.location.href) {
-      oldHref = document.location.href;
-
-      browser.runtime.sendMessage({ type: ContentScriptType.ExternalLinksActivity, url: document.location.href });
-    }
-  });
-
-  observer.observe(body, { childList: true, subtree: true });
-};
-
-let isContentLoadedBefore = false;
-
-window.onload = () => {
-  if (!isContentLoadedBefore && isUserEnableWebsitesAnalytics) {
-    isContentLoadedBefore = true;
-
-    observeUrlChange();
-  }
-};
+} catch {}
 
 const SENDER = {
   id: browser.runtime.id,
