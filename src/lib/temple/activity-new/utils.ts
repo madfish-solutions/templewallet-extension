@@ -23,10 +23,58 @@ export const getActivityTypeFlags = (activity: DisplayableActivity) => {
   const isReceive = type === ActivityType.Recieve;
   const isInteraction = type === ActivityType.Interaction;
   const is3Route = isInteraction && activity.subtype === ActivitySubtype.Route3;
+  const isQuipuswapCoinflip =
+    isInteraction &&
+    (activity.subtype === ActivitySubtype.QuipuswapCoinflipBet ||
+      activity.subtype === ActivitySubtype.QuipuswapCoinflipWin);
+
+  const isQuipuswapAddLiqiudityV1 = isInteraction && activity.subtype === ActivitySubtype.QuipuswapAddLiqiudityV1;
+  const isQuipuswapRemoveLiquidityV1 = isInteraction && activity.subtype === ActivitySubtype.QuipuswapRemoveLiquidityV1;
+  const isQuipuswapAddLiqiudityV2 = isInteraction && activity.subtype === ActivitySubtype.QuipuswapAddLiqiudityV2;
+  const isQuipuswapRemoveLiquidityV2 = isInteraction && activity.subtype === ActivitySubtype.QuipuswapRemoveLiquidityV2;
+  const isQuipuswapAddLiqiudityV3 = isInteraction && activity.subtype === ActivitySubtype.QuipuswapAddLiqiudityV3;
+  const isQuipuswapRemoveLiquidityV3 = isInteraction && activity.subtype === ActivitySubtype.QuipuswapRemoveLiquidityV3;
+  const isQuipuswapAddLiqiudityStableswap =
+    isInteraction && activity.subtype === ActivitySubtype.QuipuswapAddLiquidityStableswap;
+  const isQuipuswapRemoveLiquidityStableswap =
+    isInteraction && activity.subtype === ActivitySubtype.QuipuswapRemoveLiquidityStableswap;
+  const isQuipuswapInvestInDividents = isInteraction && activity.subtype === ActivitySubtype.QuipuswapInvestInDividents;
+  const isQuipuswapDivestFromDividents =
+    isInteraction && activity.subtype === ActivitySubtype.QuipuswapDivestFromDividents;
+  const isQuipuswapInvestInFarm = isInteraction && activity.subtype === ActivitySubtype.QuipuswapInvestInFarm;
+  const isQuipuswapDivestFromFarm = isInteraction && activity.subtype === ActivitySubtype.QuipuswapDivestFromFarm;
+  const isQuipuswapHarvestFromFarm = isInteraction && activity.subtype === ActivitySubtype.QuipuswapHarvestFromFarm;
+  const isQuipuswapHarvestFromDividents =
+    isInteraction && activity.subtype === ActivitySubtype.QuipuswapHarvestFromDividents;
+
   const isAllowanceChange = isInteraction && activity.subtype === ActivitySubtype.ChangeAllowance;
   const isRevoke = isAllowanceChange && Boolean(activity.allowanceChanges[0]?.atomicAmount.isZero());
 
-  return { isDelegation, isBakingRewards, isSend, isReceive, isInteraction, is3Route, isAllowanceChange, isRevoke };
+  return {
+    isDelegation,
+    isBakingRewards,
+    isSend,
+    isReceive,
+    isInteraction,
+    is3Route,
+    isAllowanceChange,
+    isRevoke,
+    isQuipuswapCoinflip,
+    isQuipuswapAddLiqiudityV1,
+    isQuipuswapRemoveLiquidityV1,
+    isQuipuswapAddLiqiudityV2,
+    isQuipuswapRemoveLiquidityV2,
+    isQuipuswapAddLiqiudityV3,
+    isQuipuswapRemoveLiquidityV3,
+    isQuipuswapAddLiqiudityStableswap,
+    isQuipuswapRemoveLiquidityStableswap,
+    isQuipuswapInvestInDividents,
+    isQuipuswapDivestFromDividents,
+    isQuipuswapInvestInFarm,
+    isQuipuswapDivestFromFarm,
+    isQuipuswapHarvestFromFarm,
+    isQuipuswapHarvestFromDividents
+  };
 };
 
 export const isInteractionActivityTypeGuard = (activity: DisplayableActivity): activity is InteractionActivity =>
@@ -63,3 +111,21 @@ export const getActor = (activity: DisplayableActivity) => {
     actor: isSend || isDelegation ? activity.to : activity.from
   };
 };
+
+export const isQuipuswapSubtype = (subtype: ActivitySubtype): boolean =>
+  subtype === ActivitySubtype.QuipuswapCoinflipBet ||
+  subtype === ActivitySubtype.QuipuswapCoinflipWin ||
+  subtype === ActivitySubtype.QuipuswapAddLiqiudityV1 ||
+  subtype === ActivitySubtype.QuipuswapRemoveLiquidityV1 ||
+  subtype === ActivitySubtype.QuipuswapAddLiqiudityV2 ||
+  subtype === ActivitySubtype.QuipuswapRemoveLiquidityV2 ||
+  subtype === ActivitySubtype.QuipuswapAddLiqiudityV3 ||
+  subtype === ActivitySubtype.QuipuswapRemoveLiquidityV3 ||
+  subtype === ActivitySubtype.QuipuswapAddLiquidityStableswap ||
+  subtype === ActivitySubtype.QuipuswapRemoveLiquidityStableswap ||
+  subtype === ActivitySubtype.QuipuswapInvestInDividents ||
+  subtype === ActivitySubtype.QuipuswapDivestFromDividents ||
+  subtype === ActivitySubtype.QuipuswapInvestInFarm ||
+  subtype === ActivitySubtype.QuipuswapDivestFromFarm ||
+  subtype === ActivitySubtype.QuipuswapHarvestFromFarm ||
+  subtype === ActivitySubtype.QuipuswapHarvestFromDividents;

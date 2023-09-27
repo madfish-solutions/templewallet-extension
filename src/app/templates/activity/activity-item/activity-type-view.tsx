@@ -26,7 +26,23 @@ const activityTypesI18nKeys = {
 };
 
 const activitySubtypesI18nKeys = {
-  [ActivitySubtype.Route3]: 'route3' as const
+  [ActivitySubtype.Route3]: 'route3' as const,
+  [ActivitySubtype.QuipuswapCoinflipBet]: 'quipuswap' as const,
+  [ActivitySubtype.QuipuswapCoinflipWin]: 'quipuswap' as const,
+  [ActivitySubtype.QuipuswapAddLiqiudityV1]: 'quipuswap' as const,
+  [ActivitySubtype.QuipuswapRemoveLiquidityV1]: 'quipuswap' as const,
+  [ActivitySubtype.QuipuswapAddLiqiudityV2]: 'quipuswap' as const,
+  [ActivitySubtype.QuipuswapRemoveLiquidityV2]: 'quipuswap' as const,
+  [ActivitySubtype.QuipuswapAddLiqiudityV3]: 'quipuswap' as const,
+  [ActivitySubtype.QuipuswapRemoveLiquidityV3]: 'quipuswap' as const,
+  [ActivitySubtype.QuipuswapAddLiquidityStableswap]: 'quipuswap' as const,
+  [ActivitySubtype.QuipuswapRemoveLiquidityStableswap]: 'quipuswap' as const,
+  [ActivitySubtype.QuipuswapInvestInDividents]: 'quipuswap' as const,
+  [ActivitySubtype.QuipuswapDivestFromDividents]: 'quipuswap' as const,
+  [ActivitySubtype.QuipuswapInvestInFarm]: 'quipuswap' as const,
+  [ActivitySubtype.QuipuswapDivestFromFarm]: 'quipuswap' as const,
+  [ActivitySubtype.QuipuswapHarvestFromFarm]: 'quipuswap' as const,
+  [ActivitySubtype.QuipuswapHarvestFromDividents]: 'quipuswap' as const
 };
 
 export const ActivityTypeView: FC<Props> = ({ activity }) => {

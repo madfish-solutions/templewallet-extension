@@ -16,12 +16,14 @@ import {
   getActivityTypeFlags,
   getActor,
   isAllowanceInteractionActivityTypeGuard,
-  isInteractionActivityTypeGuard
+  isInteractionActivityTypeGuard,
+  isQuipuswapSubtype
 } from 'lib/temple/activity-new/utils';
 import { formatTcInfraImgUri } from 'lib/temple/front/image-uri';
 import { Image } from 'lib/ui/Image';
 
 import Route3LogoSrc from '../../assets/3route.png';
+import QuipuswapLogoSrc from '../../assets/quipuswap.png';
 import { BakerLogo } from '../../baker-logo';
 import { RobotIcon } from '../../robot-icon';
 import { FilteringMode } from '../../tokens-delta-view';
@@ -37,7 +39,23 @@ const statusesColors = {
 };
 
 const interactionActivitiesLogos = {
-  [ActivitySubtype.Route3]: Route3LogoSrc
+  [ActivitySubtype.Route3]: Route3LogoSrc,
+  [ActivitySubtype.QuipuswapCoinflipBet]: QuipuswapLogoSrc,
+  [ActivitySubtype.QuipuswapCoinflipWin]: QuipuswapLogoSrc,
+  [ActivitySubtype.QuipuswapAddLiqiudityV1]: QuipuswapLogoSrc,
+  [ActivitySubtype.QuipuswapRemoveLiquidityV1]: QuipuswapLogoSrc,
+  [ActivitySubtype.QuipuswapAddLiqiudityV2]: QuipuswapLogoSrc,
+  [ActivitySubtype.QuipuswapRemoveLiquidityV2]: QuipuswapLogoSrc,
+  [ActivitySubtype.QuipuswapAddLiqiudityV3]: QuipuswapLogoSrc,
+  [ActivitySubtype.QuipuswapRemoveLiquidityV3]: QuipuswapLogoSrc,
+  [ActivitySubtype.QuipuswapAddLiquidityStableswap]: QuipuswapLogoSrc,
+  [ActivitySubtype.QuipuswapRemoveLiquidityStableswap]: QuipuswapLogoSrc,
+  [ActivitySubtype.QuipuswapInvestInDividents]: QuipuswapLogoSrc,
+  [ActivitySubtype.QuipuswapDivestFromDividents]: QuipuswapLogoSrc,
+  [ActivitySubtype.QuipuswapInvestInFarm]: QuipuswapLogoSrc,
+  [ActivitySubtype.QuipuswapDivestFromFarm]: QuipuswapLogoSrc,
+  [ActivitySubtype.QuipuswapHarvestFromFarm]: QuipuswapLogoSrc,
+  [ActivitySubtype.QuipuswapHarvestFromDividents]: QuipuswapLogoSrc
 };
 
 const actorAvatarStyles = 'border border-gray-300 mr-2 rounded-md min-w-9';
@@ -84,9 +102,11 @@ export const useActivityItemViewModel = (activity: DisplayableActivity) => {
     }
 
     if (isInteractionActivityTypeGuard(activity)) {
+      const width = isDefined(activity.subtype) && isQuipuswapSubtype(activity.subtype) ? 36 : 24;
+
       return isDefined(activity.subtype) && !isAllowanceInteractionActivityTypeGuard(activity) ? (
-        <div className={classNames('flex items-center justify-center', actorAvatarStyles)}>
-          <img src={interactionActivitiesLogos[activity.subtype]} alt={activity.subtype} height={12} width={24} />
+        <div className={classNames('flex items-center justify-center overflow-hidden', actorAvatarStyles)}>
+          <img src={interactionActivitiesLogos[activity.subtype]} alt={activity.subtype} height={12} width={width} />
         </div>
       ) : null;
     }

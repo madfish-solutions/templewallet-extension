@@ -1793,5 +1793,53 @@
   },
   "viewAdsDescription": {
     "message": "I agree to share data(wallet address, IP) and get cashback at Temple Keys for viewing ads"
+  },
+  "coinflip": {
+    "message": "Coinflip"
+  },
+  "addLiqiudityV1": {
+    "message": "Add Liquidity V1"
+  },
+  "removeLiqiudityV1": {
+    "message": "Remove Liqiudity V1"
+  },
+  "addLiqiudityV2": {
+    "message": "Add Liqiudity V2"
+  },
+  "removeLiqiudityV2": {
+    "message": "Remove Liqiudity V2"
+  },
+  "addLiqiudityV3": {
+    "message": "Add Liqiudity V3"
+  },
+  "removeLiqiudityV3": {
+    "message": "Remove Liqiudity V3"
+  },
+  "addLiqiudityStableswap": {
+    "message": "Add Liqiudity Stableswap"
+  },
+  "removeLiqiudityStableswap": {
+    "message": "Remove Liqiudity Stableswap"
+  },
+  "investInDividents": {
+    "message": "Invest In Dividents"
+  },
+  "divestFromDividents": {
+    "message": "Divest From Dividents"
+  },
+  "investInFarm": {
+    "message": "Invest In Farm"
+  },
+  "divestFromFarm": {
+    "message": "Divest From Farm"
+  },
+  "harvestFromFarm": {
+    "message": "Harvest From Farm"
+  },
+  "harvestFromDividents": {
+    "message": "Harvest From Dividents"
+  },
+  "quipuswap": {
+    "message": "Quipuswap"
   }
 }
