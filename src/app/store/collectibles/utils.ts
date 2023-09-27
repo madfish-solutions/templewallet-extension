@@ -36,7 +36,6 @@ export const convertCollectibleObjktInfoToStateDetailsType = (
     listing,
     isAdultContent: checkForAdultery(info.attributes, info.tags),
     objktArtifactUri: info.artifact_uri,
-    offers: info.offers_active,
     creators: info.creators.map(({ holder: { address, tzdomain } }) => ({ address, tzDomain: tzdomain })),
     galleries: info.galleries.map(({ gallery: { name } }) => ({ title: name })),
     royalties: parseRoyalties(info.royalties),

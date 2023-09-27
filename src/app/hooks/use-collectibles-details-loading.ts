@@ -19,6 +19,7 @@ export const useCollectiblesDetailsLoading = () => {
     () => {
       if (slugs.length < 1) return;
 
+      console.log('fuck', slugs);
       dispatch(loadCollectiblesDetailsActions.submit(slugs));
     },
     COLLECTIBLES_DETAILS_SYNC_INTERVAL,

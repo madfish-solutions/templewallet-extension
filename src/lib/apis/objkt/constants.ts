@@ -1,8 +1,8 @@
-import { getApolloConfigurableClient } from '../apollo';
+import { buildApolloClient } from '../apollo';
 
 const OBJKT_API = 'https://data.objkt.com/v3/graphql/';
 
-export const apolloObjktClient = getApolloConfigurableClient(OBJKT_API);
+export const apolloObjktClient = buildApolloClient(OBJKT_API);
 
 /** See: https://public-api-v3-20221206.objkt.com/docs/#limits */
 export const MAX_OBJKT_QUERY_RESPONSE_ITEMS = 500;

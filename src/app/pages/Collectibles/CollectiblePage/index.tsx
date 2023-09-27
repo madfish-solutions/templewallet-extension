@@ -15,10 +15,11 @@ import { useTokenMetadataSelector } from 'app/store/tokens-metadata/selectors';
 import AddressChip from 'app/templates/AddressChip';
 import OperationStatus from 'app/templates/OperationStatus';
 import { TabsBar } from 'app/templates/TabBar';
-import { objktCurrencies } from 'lib/apis/objkt';
+import { fetchCollectibleExtraDetails, objktCurrencies } from 'lib/apis/objkt';
 import { BLOCK_DURATION } from 'lib/fixed-times';
 import { t, T } from 'lib/i18n';
 import { getAssetName } from 'lib/metadata';
+import { useRetryableSWR } from 'lib/swr';
 import { useAccount } from 'lib/temple/front';
 import { formatTcInfraImgUri } from 'lib/temple/front/image-uri';
 import { atomsToTokens } from 'lib/temple/helpers';
@@ -46,6 +47,17 @@ const CollectiblePage = memo<Props>(({ assetSlug }) => {
 
   const account = useAccount();
 
+  const [contractAddress, tokenId] = assetSlug.split('_');
+
+  const { data: extraDetails } = useRetryableSWR(
+    ['fetchCollectibleExtraDetails', contractAddress, tokenId],
+    () => fetchCollectibleExtraDetails(contractAddress, tokenId),
+    {
+      refreshInterval: DETAILS_SYNC_INTERVAL
+    }
+  );
+  const offers = extraDetails?.offers_active;
+
   const { publicKeyHash } = account;
   const accountCanSign = account.type !== TempleAccountType.WatchOnly;
 
@@ -65,8 +77,8 @@ const CollectiblePage = memo<Props>(({ assetSlug }) => {
   const creators = details?.creators ?? [];
 
   const takableOffer = useMemo(
-    () => details?.offers.find(({ buyer_address }) => buyer_address !== publicKeyHash),
-    [details, publicKeyHash]
+    () => offers?.find(({ buyer_address }) => buyer_address !== publicKeyHash),
+    [offers, publicKeyHash]
   );
 
   const {
@@ -85,7 +97,7 @@ const CollectiblePage = memo<Props>(({ assetSlug }) => {
   ]);
 
   const displayedOffer = useMemo(() => {
-    const highestOffer = details?.offers[0];
+    const highestOffer = offers?.[0];
     if (!isDefined(highestOffer)) return null;
 
     const offer = takableOffer ?? highestOffer;
@@ -98,7 +110,7 @@ const CollectiblePage = memo<Props>(({ assetSlug }) => {
     const price = atomsToTokens(offer.price, currency.decimals);
 
     return { price, symbol: currency.symbol, buyerIsMe };
-  }, [details?.offers, takableOffer, publicKeyHash]);
+  }, [offers, takableOffer, publicKeyHash]);
 
   const sellButtonTooltipStr = useMemo(() => {
     if (!displayedOffer) return;
