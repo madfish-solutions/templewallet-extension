@@ -8,6 +8,8 @@ export const SHORT_TIMEOUT = 15_000;
 
 export const VERY_SHORT_TIMEOUT = 5_000;
 
+export const ONE_SECOND = 1000;
+
 export const RETRY_OPTIONS = {
   minTimeout: 300,
   maxRetryTime: SHORT_TIMEOUT
