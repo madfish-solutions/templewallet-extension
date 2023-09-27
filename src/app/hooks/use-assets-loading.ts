@@ -1,7 +1,6 @@
 import { useEffect } from 'react';
 
-import { useDispatch } from 'react-redux';
-
+import { dispatch } from 'app/store';
 import {
   loadAccountTokensActions,
   loadTokensWhitelistActions,
@@ -13,8 +12,6 @@ import { TempleChainId } from 'lib/temple/types';
 export const useAssetsLoading = () => {
   const chainId = useChainId()!;
   const { publicKeyHash } = useAccount();
-
-  const dispatch = useDispatch();
 
   useEffect(() => {
     dispatch(loadAccountTokensActions.submit({ account: publicKeyHash, chainId }));

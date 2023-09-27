@@ -3,7 +3,6 @@
 - `export { useSelector, dispatch } from 'app/store';`
 - Minimize persisted data
 - - Assets stored like balances (by keys)
-- Refactor `lib/assets/hooks`
 - `useSlugsOf`
 - `@deprecated isCollectibleTokenMetadata`
 -

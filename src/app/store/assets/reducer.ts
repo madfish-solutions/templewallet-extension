@@ -6,7 +6,8 @@ import {
   loadAccountTokensActions,
   loadAccountCollectiblesActions,
   loadTokensWhitelistActions,
-  setAssetStatusAction
+  setAssetStatusAction,
+  putAssetAsIsAction
 } from './actions';
 import { initialState, SliceState } from './state';
 
@@ -92,5 +93,15 @@ export const assetsReducer = createReducer<SliceState>(initialState, builder => 
 
     token.status = status;
     assets[index === -1 ? assets.length : index] = token;
+  });
+
+  builder.addCase(putAssetAsIsAction, (state, { payload: { assets, type } }) => {
+    const data = state[type].data;
+
+    for (const asset of assets) {
+      const { slug, account, chainId } = asset;
+      const index = data.findIndex(a => a.account === account && a.chainId === chainId && a.slug === slug);
+      data[index === -1 ? data.length : index] = asset;
+    }
   });
 });

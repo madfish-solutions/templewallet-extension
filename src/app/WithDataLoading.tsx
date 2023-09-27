@@ -6,6 +6,7 @@ import { loadSwapDexesAction, loadSwapTokensAction } from 'app/store/swap/action
 
 import { useAdvertisingLoading } from './hooks/use-advertising.hook';
 import { useAssetsLoading } from './hooks/use-assets-loading';
+import { useAssetsMigrations } from './hooks/use-assets-migrations';
 import { useBalancesLoading } from './hooks/use-balances-loading';
 import { useCollectiblesDetailsLoading } from './hooks/use-collectibles-details-loading';
 import { useTokensApyLoading } from './hooks/use-load-tokens-apy.hook';
@@ -15,6 +16,8 @@ import { useMetadataRefresh } from './hooks/use-metadata-refresh';
 import { useStorageAnalytics } from './hooks/use-storage-analytics';
 
 export const WithDataLoading: FC<PropsWithChildren> = ({ children }) => {
+  useAssetsMigrations();
+
   useAssetsLoading();
   useMetadataLoading();
   useMetadataRefresh();

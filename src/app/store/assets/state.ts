@@ -1,18 +1,5 @@
 import { createEntity, LoadableEntityState } from 'lib/store';
 
-type NumberString = `${bigint}`;
-
-interface TokenBase {
-  std: 'fa-1.2' | 'fa-2';
-  address: string;
-  /** Whole number {0, 1, 2, 3, ...} */
-  id?: string;
-  /** Whole number {0, 1, 2, 3, ...} */
-  decimals: number;
-  symbol: string;
-  name: string;
-}
-
 export type StoredAssetStatus = 'enabled' | 'disabled' | 'removed';
 
 export interface StoredAsset {

@@ -26,10 +26,6 @@ export const accountTokens = db.table<IAccountToken, string>(Table.AccountTokens
 
 export const operations = db.table<IOperation, string>(Table.Operations);
 
-export function toAccountTokenKey(chainId: string, account: string, tokenSlug: string) {
-  return [chainId, account, tokenSlug].join('_');
-}
-
 export enum ITokenStatus {
   Idle,
   Enabled,
@@ -37,7 +33,7 @@ export enum ITokenStatus {
   Removed
 }
 
-export interface IAccountToken {
+interface IAccountToken {
   chainId: string;
   account: string;
   tokenSlug: string;

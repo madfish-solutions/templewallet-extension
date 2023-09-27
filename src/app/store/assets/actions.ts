@@ -36,3 +36,9 @@ interface SetAssetStatusPayload extends Pick<StoredAsset, 'account' | 'chainId' 
 
 /** Adds asset record too, if absent */
 export const setAssetStatusAction = createAction<SetAssetStatusPayload>('assets/SET_ASSET_STATUS');
+
+interface PutAssetsAsIsPayload {
+  type: 'collectibles' | 'tokens';
+  assets: StoredAsset[];
+}
+export const putAssetAsIsAction = createAction<PutAssetsAsIsPayload>('assets/PUT_ASSETS_AS_IS');
