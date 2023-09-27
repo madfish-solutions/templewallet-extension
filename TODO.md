@@ -5,4 +5,5 @@
 - - Assets stored like balances (by keys)
 - `useSlugsOf`
 - `@deprecated isCollectibleTokenMetadata`
+- Refactor <ManageAssets />
 -

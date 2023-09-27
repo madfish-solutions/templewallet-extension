@@ -18,8 +18,6 @@ export {
   useCustomChainId
 } from './ready';
 
-export { useGetTokenMetadata, useGasToken } from './assets';
-
 export { validateDerivationPath, validateContractAddress } from './helpers';
 
 export { useBlockTriggers, useOnBlock } from './chain';

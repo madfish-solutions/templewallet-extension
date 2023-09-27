@@ -1,7 +1,6 @@
 import React, { FC, useCallback, useEffect, useMemo, useState } from 'react';
 
 import clsx from 'clsx';
-import { isEqual } from 'lodash';
 import { useDispatch } from 'react-redux';
 
 import { SyncSpinner, Divider, Checkbox } from 'app/atoms';

@@ -5,20 +5,6 @@ import { fetchTzktAccountAssets, TzktAssetWithMeta, TzktAssetWithNoMeta, TzktTok
 import { toTokenSlug } from 'lib/assets';
 import { isCollectible } from 'lib/metadata';
 
-/**
- * @deprecated // (do)
- * Currently, only slugs are used
- */
-interface AccountTokenResponse {
-  slug: string;
-  // std: 'fa-2' | 'fa-1.2';
-  decimals: number;
-  symbol: string;
-  name: string;
-  /** Atomic */
-  balance: string;
-}
-
 export const loadAccountTokens = (account: string, chainId: string) =>
   Promise.all([
     fetchTzktAccountAssets(account, chainId, true),

@@ -21,9 +21,10 @@ import BakingHistoryItem from 'app/pages/Home/OtherComponents/BakingHistoryItem'
 import { useUserTestingGroupNameSelector } from 'app/store/ab-testing/selectors';
 import BakerBanner from 'app/templates/BakerBanner';
 import { getDelegatorRewards, isKnownChainId } from 'lib/apis/tzkt';
+import { useGasToken } from 'lib/assets/hooks';
 import { T, t } from 'lib/i18n';
 import { useRetryableSWR } from 'lib/swr';
-import { useAccount, useChainId, useDelegate, useGasToken } from 'lib/temple/front';
+import { useAccount, useChainId, useDelegate } from 'lib/temple/front';
 import { TempleAccountType } from 'lib/temple/types';
 import useTippy from 'lib/ui/useTippy';
 import { Link } from 'lib/woozie';

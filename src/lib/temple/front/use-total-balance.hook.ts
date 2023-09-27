@@ -6,11 +6,9 @@ import { BigNumber } from 'bignumber.js';
 import { useBalancesWithDecimals } from 'app/hooks/use-balances-with-decimals.hook';
 import { useSelector } from 'app/store/root-state.selector';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
-import { useEnabledAccountTokensSlugs } from 'lib/assets/hooks';
+import { useEnabledAccountTokensSlugs, useGasToken } from 'lib/assets/hooks';
 import { useFiatToUsdRate } from 'lib/fiat-currency';
 import { isTruthy } from 'lib/utils';
-
-import { useGasToken } from './assets';
 
 /** Total fiat volume of displayed tokens */
 export const useTotalBalance = () => {

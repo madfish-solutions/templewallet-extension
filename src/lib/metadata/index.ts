@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 
 import { isString } from 'lodash';
 import { useDispatch } from 'react-redux';
@@ -10,6 +10,7 @@ import {
   useTokensMetadataSelector
 } from 'app/store/tokens-metadata/selectors';
 import { isTezAsset } from 'lib/assets';
+import { useGasToken } from 'lib/assets/hooks';
 import { useNetwork } from 'lib/temple/front';
 import { isTruthy } from 'lib/utils';
 
@@ -54,6 +55,22 @@ export const useTokensMetadataWithPresenceCheck = (slugsToCheck?: string[]) => {
   }, [slugsToCheck, allTokensMetadata, tokensMetadataLoading, dispatch, rpcUrl]);
 
   return allTokensMetadata;
+};
+
+export const useGetAssetMetadata = () => {
+  const allTokensMetadata = useTokensMetadataSelector();
+  const { metadata } = useGasToken();
+
+  return useCallback(
+    (slug: string): AssetMetadataBase | undefined => {
+      if (isTezAsset(slug)) {
+        return metadata;
+      }
+
+      return allTokensMetadata[slug];
+    },
+    [allTokensMetadata, metadata]
+  );
 };
 
 export function getAssetSymbol(metadata: AssetMetadataBase | nullish, short = false) {

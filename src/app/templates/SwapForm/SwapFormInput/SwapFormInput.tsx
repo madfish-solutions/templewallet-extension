@@ -14,9 +14,9 @@ import { setTestID, useFormAnalytics } from 'lib/analytics';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { useFilteredAssetsSlugs } from 'lib/assets/use-filtered';
 import { T, t, toLocalFormat } from 'lib/i18n';
-import { EMPTY_BASE_METADATA, useAssetMetadata, AssetMetadataBase } from 'lib/metadata';
+import { EMPTY_BASE_METADATA, useAssetMetadata, useGetAssetMetadata, AssetMetadataBase } from 'lib/metadata';
 import { useAvailableRoute3TokensSlugs } from 'lib/route3/assets';
-import { useAccount, useBalance, useGetTokenMetadata, useOnBlock } from 'lib/temple/front';
+import { useAccount, useBalance, useOnBlock } from 'lib/temple/front';
 
 import { AssetOption } from './AssetsMenu/AssetOption';
 import { PercentageButton } from './PercentageButton/PercentageButton';
@@ -51,7 +51,7 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
     () => (assetSlug ? assetMetadataWithFallback : EMPTY_BASE_METADATA),
     [assetSlug, assetMetadataWithFallback]
   );
-  const getTokenMetadata = useGetTokenMetadata();
+  const getTokenMetadata = useGetAssetMetadata();
 
   const account = useAccount();
   const balance = useBalance(assetSlugWithFallback, account.publicKeyHash, { suspense: false });

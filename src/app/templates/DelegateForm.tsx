@@ -19,6 +19,7 @@ import OperationStatus from 'app/templates/OperationStatus';
 import { useFormAnalytics } from 'lib/analytics';
 import { submitDelegation } from 'lib/apis/everstake';
 import { ABTestGroup } from 'lib/apis/temple';
+import { useGasToken } from 'lib/assets/hooks';
 import { fetchTezosBalance } from 'lib/balances';
 import { BLOCK_DURATION } from 'lib/fixed-times';
 import { TID, T, t } from 'lib/i18n';
@@ -29,7 +30,6 @@ import {
   isDomainNameValid,
   useAccount,
   useBalance,
-  useGasToken,
   useKnownBaker,
   useKnownBakers,
   useNetwork,

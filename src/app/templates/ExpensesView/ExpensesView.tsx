@@ -11,9 +11,10 @@ import { ReactComponent as ChevronDownIcon } from 'app/icons/chevron-down.svg';
 import { ReactComponent as ClipboardIcon } from 'app/icons/clipboard.svg';
 import InFiat from 'app/templates/InFiat';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
+import { useGasToken } from 'lib/assets/hooks';
 import { TProps, T, t } from 'lib/i18n';
 import { useAssetMetadata, getAssetSymbol } from 'lib/metadata';
-import { RawOperationAssetExpense, RawOperationExpenses, useGasToken } from 'lib/temple/front';
+import { RawOperationAssetExpense, RawOperationExpenses } from 'lib/temple/front';
 import { mutezToTz, tzToMutez } from 'lib/temple/helpers';
 
 import { setTestID } from '../../../lib/analytics';

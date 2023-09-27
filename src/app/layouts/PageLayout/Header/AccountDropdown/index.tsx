@@ -13,8 +13,9 @@ import { ReactComponent as LockIcon } from 'app/icons/lock.svg';
 import { ReactComponent as MaximiseIcon } from 'app/icons/maximise.svg';
 import { ReactComponent as SettingsIcon } from 'app/icons/settings.svg';
 import SearchField from 'app/templates/SearchField';
+import { useGasToken } from 'lib/assets/hooks';
 import { T, t } from 'lib/i18n';
-import { useAccount, useRelevantAccounts, useSetAccountPkh, useTempleClient, useGasToken } from 'lib/temple/front';
+import { useAccount, useRelevantAccounts, useSetAccountPkh, useTempleClient } from 'lib/temple/front';
 import { PopperRenderProps } from 'lib/ui/Popper';
 import { HistoryAction, navigate } from 'lib/woozie';
 
