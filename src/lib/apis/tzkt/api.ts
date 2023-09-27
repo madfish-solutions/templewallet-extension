@@ -122,17 +122,6 @@ export const getDelegatorRewards = (
     ...restParams
   });
 
-const TZKT_FETCH_QUERY_SIZE = 300;
-
-export const fetchTzktTokens = async (chainId: string, accountAddress: string) =>
-  isKnownChainId(chainId)
-    ? await fetchGet<TzktAccountAsset[]>(chainId, '/tokens/balances', {
-        account: accountAddress,
-        limit: TZKT_FETCH_QUERY_SIZE,
-        'sort.desc': 'balance'
-      })
-    : [];
-
 const TZKT_MAX_QUERY_ITEMS_LIMIT = 10_000;
 
 export function fetchTzktAccountAssets<

@@ -24,9 +24,6 @@ export namespace KNOWN_TOKENS_SLUGS {
   export const TEMPLE = toTokenSlug(TempleToken.contract, TempleToken.id);
 }
 
-export const getPredefinedTokensSlugs = (chainId: string) =>
-  PREDEFINED_TOKENS_METADATA[chainId]?.map(m => tokenToSlug(m)) ?? [];
-
 const YOUVES_COLORS = { bg: '#143A3A', bgHover: '#4F6B6B' };
 
 export const TOKENS_BRAND_COLORS: Record<string, { bg: string; bgHover?: string }> = {
