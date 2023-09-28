@@ -1,7 +1,0 @@
-- Migrate IndexDB tokens into Redux
-- `export { useSelector, dispatch } from 'app/store';`
-- Minimize persisted data
-- - Assets stored like balances (by keys)
-- `useSlugsOf`
-- `@deprecated isCollectibleTokenMetadata`
--

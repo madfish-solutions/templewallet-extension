@@ -1,5 +1,3 @@
-import { forkJoin, map } from 'rxjs';
-
 import { fetchTokensMetadata, isKnownChainId, TokenMetadataResponse } from 'lib/apis/temple';
 import { fetchTzktAccountAssets, TzktAssetWithMeta, TzktAssetWithNoMeta, TzktTokenWithMeta } from 'lib/apis/tzkt';
 import { toTokenSlug } from 'lib/assets';
@@ -28,12 +26,6 @@ export const loadAccountCollectibles = (account: string, chainId: string) =>
       throw error;
     }
   );
-
-export const loadAccountCollectibles$ = (account: string, chainId: string) =>
-  forkJoin([
-    fetchTzktAccountAssets(account, chainId, false),
-    loadNoMetaOnTzktAccountAssets(account, chainId, false)
-  ]).pipe(map(([data1, data2]) => buildLoadAssetsResponse(data1, data2)));
 
 interface NoMetaOnTzktAsset {
   slug: string;
