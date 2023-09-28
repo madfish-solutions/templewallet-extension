@@ -10,10 +10,9 @@ import { useMemoWithCompare } from 'lib/ui/hooks';
 
 import { getAssetStatus } from './utils';
 
-interface AccountToken {
+export interface AccountCollectible {
   slug: string;
   status: StoredAssetStatus;
-  predefined?: boolean;
 }
 
 export const useAccountCollectibles = (account: string, chainId: string) => {
@@ -21,9 +20,9 @@ export const useAccountCollectibles = (account: string, chainId: string) => {
 
   const balances = useBalancesSelector(account, chainId);
 
-  return useMemoWithCompare<AccountToken[]>(
+  return useMemoWithCompare<AccountCollectible[]>(
     () =>
-      stored.reduce<AccountToken[]>(
+      stored.reduce<AccountCollectible[]>(
         (acc, { slug, status }) =>
           status === 'removed' ? acc : acc.concat({ slug, status: getAssetStatus(balances[slug], status) }),
         []

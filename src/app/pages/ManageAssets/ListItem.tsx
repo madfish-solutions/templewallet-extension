@@ -1,6 +1,6 @@
 import React, { memo, useCallback } from 'react';
 
-import classNames from 'clsx';
+import clsx from 'clsx';
 
 import Checkbox from 'app/atoms/Checkbox';
 import { ReactComponent as CloseIcon } from 'app/icons/close.svg';
@@ -33,7 +33,7 @@ export const ListItem = memo<Props>(({ assetSlug, last, checked, onToggle, onRem
 
   return (
     <label
-      className={classNames(
+      className={clsx(
         !last && 'border-b border-gray-200',
         checked ? 'bg-gray-100' : 'hover:bg-gray-100 focus:bg-gray-100',
         'block w-full flex items-center py-2 px-3 text-gray-700',
@@ -56,7 +56,7 @@ export const ListItem = memo<Props>(({ assetSlug, last, checked, onToggle, onRem
       <div className="flex-1" />
 
       <div
-        className={classNames(
+        className={clsx(
           'mr-2 p-1 rounded-full text-gray-400',
           'hover:text-gray-600 hover:bg-black hover:bg-opacity-5',
           'transition ease-in-out duration-200'

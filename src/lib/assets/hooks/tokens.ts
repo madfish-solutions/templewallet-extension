@@ -17,7 +17,7 @@ import { PREDEFINED_TOKENS_METADATA } from '../known-tokens';
 import { tokenToSlug } from '../utils';
 import { getAssetStatus } from './utils';
 
-interface AccountToken {
+export interface AccountToken {
   slug: string;
   status: StoredAssetStatus;
   predefined?: boolean;
@@ -38,6 +38,7 @@ export const useAllAvailableTokens = (account: string, chainId: string) => {
       return acc.concat({ slug: curr.slug, status: 'disabled' });
     }, []);
 
+    // Keep this order to preserve correct statuses & flags
     const concatenated = tokens.concat(otherTokens);
 
     return sortBy(
