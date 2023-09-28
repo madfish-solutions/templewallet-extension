@@ -1,5 +1,7 @@
 import { atomsToTokens } from 'lib/temple/helpers';
 
+export const getKeyForBalancesRecord = (publiKeyHash: string, chainId: string) => `${publiKeyHash}_${chainId}`;
+
 const YUPANA_TOKENS = [
   'KT1Rk86CX85DjBKmuyBhrCyNsHyudHVtASec_0',
   'KT1Rk86CX85DjBKmuyBhrCyNsHyudHVtASec_2',

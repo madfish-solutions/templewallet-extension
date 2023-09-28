@@ -2,7 +2,8 @@ import { useMemo } from 'react';
 
 import BigNumber from 'bignumber.js';
 
-import { useAccount, useBalance } from 'lib/temple/front';
+import { useBalance } from 'lib/balances';
+import { useAccount } from 'lib/temple/front';
 
 export const useDisabledProceed = (
   inputAmount: number | undefined,

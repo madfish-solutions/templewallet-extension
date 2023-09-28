@@ -11,7 +11,7 @@ import {
 } from 'app/store/tokens-metadata/selectors';
 import { isTezAsset } from 'lib/assets';
 import { useGasToken } from 'lib/assets/hooks';
-import { useNetwork } from 'lib/temple/front';
+import { useNetwork } from 'lib/temple/front/ready';
 import { isTruthy } from 'lib/utils';
 
 import { TEZOS_METADATA, FILM_METADATA } from './defaults';

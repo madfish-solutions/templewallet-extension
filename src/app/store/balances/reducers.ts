@@ -1,10 +1,10 @@
 import { createReducer } from '@reduxjs/toolkit';
 
-import { getKeyForBalancesRecord } from 'lib/balances';
 import { createEntity } from 'lib/store/entity.utils';
 
 import { loadTokensBalancesFromTzktAction, putTokensBalancesAction } from './actions';
 import { balancesInitialState } from './state';
+import { getKeyForBalancesRecord } from './utils';
 
 export const balancesReducer = createReducer(balancesInitialState, builder => {
   builder.addCase(loadTokensBalancesFromTzktAction.submit, (state, { payload }) => {

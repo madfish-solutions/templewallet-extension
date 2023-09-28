@@ -13,10 +13,11 @@ import { InputContainer } from 'app/templates/InputContainer/InputContainer';
 import { setTestID, useFormAnalytics } from 'lib/analytics';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { useFilteredAssetsSlugs } from 'lib/assets/use-filtered';
+import { useBalance } from 'lib/balances';
 import { T, t, toLocalFormat } from 'lib/i18n';
 import { EMPTY_BASE_METADATA, useAssetMetadata, useGetAssetMetadata, AssetMetadataBase } from 'lib/metadata';
 import { useAvailableRoute3TokensSlugs } from 'lib/route3/assets';
-import { useAccount, useBalance, useOnBlock } from 'lib/temple/front';
+import { useAccount, useOnBlock } from 'lib/temple/front';
 
 import { AssetOption } from './AssetsMenu/AssetOption';
 import { PercentageButton } from './PercentageButton/PercentageButton';

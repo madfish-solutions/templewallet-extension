@@ -1,6 +1,6 @@
 import { createEntity } from 'lib/store';
 
-import { PartnersPromotionState } from './state';
+import type { PartnersPromotionState } from './state';
 
 export const mockPartnersPromotion = {
   body: '',

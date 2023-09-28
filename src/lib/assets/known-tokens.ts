@@ -1,8 +1,8 @@
 import { TokenMetadata, TokenStandardsEnum } from 'lib/metadata/types';
 import { TempleChainId } from 'lib/temple/types';
 
-import { tokenToSlug, toTokenSlug } from './index';
 import { FA2Token } from './types';
+import { toTokenSlug } from './utils';
 
 export const TempleToken: FA2Token = {
   contract: 'KT1VaEsVNiBoA56eToEK6n6BcPgh1tdx9eXi',

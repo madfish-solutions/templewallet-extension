@@ -22,8 +22,6 @@ export { validateDerivationPath, validateContractAddress } from './helpers';
 
 export { useBlockTriggers, useOnBlock } from './chain';
 
-export { useBalance, getBalanceSWRKey } from './balance';
-
 export { useContactsActions, searchContacts } from './address-book';
 
 export { useTezosDomainsClient, isDomainNameValid } from './tzdns';

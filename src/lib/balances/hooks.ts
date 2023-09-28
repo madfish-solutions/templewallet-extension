@@ -2,12 +2,21 @@ import { useCallback, useMemo } from 'react';
 
 import BigNumber from 'bignumber.js';
 
-import { fetchBalance } from 'lib/balances';
+import { useBalancesSelector } from 'app/store/balances/selectors';
 import { useAssetMetadata } from 'lib/metadata';
 import { useRetryableSWR } from 'lib/swr';
+import { useTezos, useAccount, useChainId, ReactiveTezosToolkit } from 'lib/temple/front';
 import { michelEncoder, loadFastRpcClient } from 'lib/temple/helpers';
 
-import { useTezos, ReactiveTezosToolkit } from './ready';
+import { fetchBalance } from './fetch';
+import { getBalanceSWRKey } from './utils';
+
+export const useAccountBalances = () => {
+  const { publicKeyHash } = useAccount();
+  const chainId = useChainId(true)!;
+
+  return useBalancesSelector(publicKeyHash, chainId);
+};
 
 type UseBalanceOptions = {
   suspense?: boolean;
@@ -43,8 +52,4 @@ export function useBalance(assetSlug: string, address: string, opts: UseBalanceO
     dedupingInterval: 20_000,
     fallbackData: opts.initial
   });
-}
-
-export function getBalanceSWRKey(tezos: ReactiveTezosToolkit, assetSlug: string, address: string) {
-  return ['balance', tezos.checksum, assetSlug, address];
 }

@@ -1,4 +1,4 @@
-import { TokenMetadata } from 'lib/metadata';
+import type { TokenMetadata } from 'lib/metadata';
 
 import { useSelector } from '../root-state.selector';
 

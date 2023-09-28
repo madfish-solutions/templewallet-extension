@@ -1,5 +1,4 @@
 - Migrate IndexDB tokens into Redux
-- No-cycle lint rule
 - `export { useSelector, dispatch } from 'app/store';`
 - Minimize persisted data
 - - Assets stored like balances (by keys)

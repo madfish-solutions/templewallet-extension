@@ -4,7 +4,6 @@ import { toTokenSlug } from 'lib/assets';
 import { TempleChainId } from 'lib/temple/types';
 import { delay } from 'lib/utils';
 
-import { TzktAssetWithMeta, TzktAssetWithNoMeta } from '.';
 import {
   TzktOperation,
   TzktOperationType,
@@ -13,7 +12,9 @@ import {
   allInt32ParameterKeys,
   TzktGetRewardsParams,
   TzktGetRewardsResponse,
-  TzktRelatedContract
+  TzktRelatedContract,
+  TzktAssetWithMeta,
+  TzktAssetWithNoMeta
 } from './types';
 
 const TZKT_API_BASE_URLS = {

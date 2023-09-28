@@ -1,10 +1,10 @@
 import { DerivationType } from '@taquito/ledger-signer';
-import { Estimate } from '@taquito/taquito';
-import { TempleDAppMetadata, TempleDAppNetwork } from '@temple-wallet/dapp/dist/types';
+import type { Estimate } from '@taquito/taquito';
+import type { TempleDAppMetadata, TempleDAppNetwork } from '@temple-wallet/dapp/dist/types';
 
 import type { TID } from 'lib/i18n/types';
 
-import {
+import type {
   TempleSendPageEventRequest,
   TempleSendPageEventResponse,
   TempleSendTrackEventRequest,
