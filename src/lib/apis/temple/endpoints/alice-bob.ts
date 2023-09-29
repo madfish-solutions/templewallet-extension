@@ -92,10 +92,13 @@ export const getAliceBobPairInfo = (isWithdraw: boolean) =>
 export const getAliceBobOrderInfo = (orderId: string) =>
   templeWalletApi.get<{ orderInfo: AliceBobOrderInfo }>('/alice-bob/check-order', { params: { orderId } });
 
-export const estimateAliceBobOutput = (isWithdraw: boolean, amount: string) =>
+export const estimateAliceBobOutput = (amount: string, inputAssetCode: string, outputAssetCode: string) =>
   templeWalletApi.post<{ outputAmount: number }>('/alice-bob/estimate-amount', null, {
     params: {
-      isWithdraw,
-      amount
+      amount,
+      from: getFromToParam(inputAssetCode),
+      to: getFromToParam(outputAssetCode)
     }
   });
+
+const getFromToParam = (code: string) => (code === 'XTZ' ? 'TEZ' : `CARD${code}`);
