@@ -27,14 +27,14 @@ const knownUtorgFiatCurrenciesNames: Record<string, string> = {
   INR: 'Indian Rupee'
 };
 
-const knownAliceBobFiatCurrenciesNames: Record<string, string> = {
+export const knownAliceBobFiatCurrenciesNames: Record<string, string> = {
   ...knownUtorgFiatCurrenciesNames,
   UAH: 'Ukrainian Hryvnia',
   MYR: 'Malaysian Ringgit',
   KZT: 'Kazakhstan tenge'
 };
 
-const knownAliceBobFiatCurrencies: Record<string, AliceBobFiatCurrency> = {
+export const knownAliceBobFiatCurrencies: Record<string, AliceBobFiatCurrency> = {
   UAH: {
     name: knownAliceBobFiatCurrenciesNames['UAH'],
     code: 'UAH',
@@ -127,7 +127,11 @@ export const mapAliceBobProviderCurrencies = (response: AxiosResponse<{ pairsInf
     const maxAmount = Number(pair.maxamount.split(' ')[0]);
 
     if (knownAliceBobFiatCurrencies[code]) {
-      return knownAliceBobFiatCurrencies[code];
+      return {
+        ...knownAliceBobFiatCurrencies[code],
+        minAmount,
+        maxAmount
+      };
     }
 
     return {

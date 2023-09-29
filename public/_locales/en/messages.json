@@ -2642,22 +2642,19 @@
   "enterCardNumber": {
     "message": "Enter card number"
   },
-  "onlyForUkrainianCards": {
-    "message": "Only for Ukrainian banking cards"
+  "onlyForCountryBankingCards": {
+    "message": "Only for $country$ banking cards",
+    "placeholders": {
+      "country": {
+        "content": "$1"
+      }
+    }
   },
   "buyWithCrypto": {
     "message": "Buy with Crypto"
   },
   "buyWithExolix": {
     "message": "Buy With Exolix"
-  },
-  "buyWithExolixDescription": {
-    "message": "Exchange $number$ cryptocurrencies to TEZ or USDT Tezos instantly and without registration",
-    "placeholders": {
-      "number": {
-        "content": "$1"
-      }
-    }
   },
   "buyWithRamp": {
     "message": "Buy With Ramp"
@@ -2666,10 +2663,10 @@
     "message": "Buy TEZ  using Visa, Mastercard, and all major debit and credit cards. Ramp is available in 160+ countries and territories."
   },
   "sellWithAliceBob": {
-    "message": "Sell TEZ with Alice-Bob (UAH only)"
+    "message": "Sell TEZ with Alice-Bob"
   },
   "sellWithAliceBobDescription": {
-    "message": "Fast and cost-effective exchange of TEZ to UAH."
+    "message": "Fast and cost-effective exchange of TEZ."
   },
   "selectPaymentProvider": {
     "message": "Select payment provider"
@@ -2781,7 +2778,7 @@
     "message": "Sell TEZ details"
   },
   "sellDetailsDescription": {
-    "message": "Sell TEZ to fiat. Get fiat to Visa, Mastercard Ukrainian cards."
+    "message": "Sell TEZ to fiat. Get fiat to Visa, Mastercard cards."
   },
   "privacyAndPolicyLinks": {
     "message": "By clicking $buttonContent$ you agree with \n$termsOfUse$ and $privacyPolicy$",

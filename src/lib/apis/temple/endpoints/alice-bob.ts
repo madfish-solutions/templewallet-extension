@@ -86,11 +86,6 @@ export const cancelAliceBobOrder = (orderId: string) =>
 export const getAliceBobPairsInfo = (isWithdraw: boolean) =>
   templeWalletApi.get<{ pairsInfo: AliceBobPairInfo[] }>('/alice-bob/get-pairs-info', { params: { isWithdraw } });
 
-export const getAliceBobPairInfo = (isWithdraw: boolean) =>
-  templeWalletApi.get<{ pairInfo: { minAmount: number; maxAmount: number } }>('/alice-bob/get-pair-info', {
-    params: { isWithdraw }
-  });
-
 export const getAliceBobOrderInfo = (orderId: string) =>
   templeWalletApi.get<{ orderInfo: AliceBobOrderInfo }>('/alice-bob/check-order', { params: { orderId } });
 
