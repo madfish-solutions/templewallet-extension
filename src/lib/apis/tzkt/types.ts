@@ -184,6 +184,9 @@ interface TzktAssetToken {
   contract: TzktAlias;
   standard: 'fa1.2' | 'fa2';
   tokenId: string;
+  /**
+   * @deprecated // Not always correct information
+   */
   metadata?: TzktAssetMetadata;
 }
 

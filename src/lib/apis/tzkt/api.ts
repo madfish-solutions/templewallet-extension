@@ -210,9 +210,9 @@ export const fetchAllAssetsBalancesFromTzkt = async (account: string, chainId: s
   await (async function recourse(offset: number) {
     const data = await fetchAssetsBalancesFromTzktOnce(account, chainId, offset);
 
-    for (const item of data) {
-      const slug = toTokenSlug(item['token.contract.address'], item['token.tokenId']);
-      balances[slug] = item.balance;
+    for (const [address, tokenId, balance] of data) {
+      const slug = toTokenSlug(address, tokenId);
+      balances[slug] = balance;
     }
 
     if (data.length === TZKT_MAX_QUERY_ITEMS_LIMIT) {
@@ -223,16 +223,12 @@ export const fetchAllAssetsBalancesFromTzkt = async (account: string, chainId: s
   return balances;
 };
 
-interface AssetBalance {
-  balance: string;
-  'token.contract.address': string;
-  'token.tokenId': string;
-}
+type AssetBalance = [address: string, tokenId: string, balance: string];
 
 const fetchAssetsBalancesFromTzktOnce = (account: string, chainId: TzktApiChainId, offset = 0) =>
   fetchGet<AssetBalance[]>(chainId, '/tokens/balances', {
     account,
     limit: TZKT_MAX_QUERY_ITEMS_LIMIT,
     offset,
-    select: 'balance,token.contract.address,token.tokenId'
+    'select.values': 'token.contract.address,token.tokenId,balance'
   });
