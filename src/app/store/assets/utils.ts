@@ -57,7 +57,7 @@ const loadNoMetaOnTzktAccountAssets = async (account: string, chainId: string, f
 
 const buildLoadAssetsResponse = (data1: TzktAssetWithMeta[], data2: NoMetaOnTzktAsset[]) => {
   const slugs: string[] = [];
-  const tzktAssetsWithMeta: Record<string, TzktTokenWithMeta> = {};
+  const tzktAssetsWithMeta: TzktTokenWithMeta[] = [];
   const metadatas: Record<string, TokenMetadataResponse> = {};
   const balances: StringRecord = {};
 
@@ -66,7 +66,7 @@ const buildLoadAssetsResponse = (data1: TzktAssetWithMeta[], data2: NoMetaOnTzkt
     const slug = toTokenSlug(token.contract.address, token.tokenId);
 
     slugs.push(slug);
-    tzktAssetsWithMeta[slug] = token;
+    tzktAssetsWithMeta.push(token);
     balances[slug] = asset.balance;
   }
 

@@ -7,12 +7,12 @@ import type { TokenMetadata } from 'lib/metadata';
 export const putTokensMetadataAction = createAction<TokenMetadata[]>('metadata/PUT_TOKENS_METADATA');
 
 export const addTokensMetadataAction = createAction<TokenMetadata[]>('metadata/ADD_TOKENS_METADATA');
+
 export const addTokensMetadataOfFetchedAction = createAction<Record<string, TokenMetadataResponse>>(
   'metadata/ADD_TOKENS_METADATA_OF_FETCHED'
 );
-export const addTokensMetadataOfTzktAction = createAction<Record<string, TzktTokenWithMeta>>(
-  'metadata/ADD_TOKENS_METADATA_OF_TZKT'
-);
+
+export const addTokensMetadataOfTzktAction = createAction<TzktTokenWithMeta[]>('metadata/ADD_TOKENS_METADATA_OF_TZKT');
 
 export const loadTokensMetadataAction = createAction<{
   rpcUrl: string;

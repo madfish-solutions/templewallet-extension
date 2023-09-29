@@ -1,7 +1,7 @@
 import { createReducer } from '@reduxjs/toolkit';
 import { omit, pick } from 'lodash';
 
-import { tokenToSlug } from 'lib/assets';
+import { tokenToSlug, toTokenSlug } from 'lib/assets';
 import { buildTokenMetadataFromFetched, buildTokenMetadataFromTzkt } from 'lib/metadata/utils';
 
 import {
@@ -62,10 +62,10 @@ export const tokensMetadataReducer = createReducer<TokensMetadataState>(tokensMe
   });
 
   builder.addCase(addTokensMetadataOfTzktAction, (state, { payload }) => {
-    for (const slug of Object.keys(payload)) {
+    for (const asset of payload) {
+      const slug = toTokenSlug(asset.contract.address, asset.tokenId);
       if (state.metadataRecord[slug]) continue;
 
-      const asset = payload[slug]!;
       state.metadataRecord[slug] = buildTokenMetadataFromTzkt(
         asset.metadata,
         asset.contract.address,
