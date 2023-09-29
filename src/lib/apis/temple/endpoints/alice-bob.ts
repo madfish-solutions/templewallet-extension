@@ -62,16 +62,18 @@ export interface AliceBobPairInfo {
 }
 
 export const createAliceBobOrder = (
-  isWithdraw: boolean,
   amount: string,
+  inputAssetCode: string,
+  outputAssetCode: string,
   userId: string,
   walletAddress?: string,
   cardNumber?: string
 ) =>
   templeWalletApi.post<{ orderInfo: AliceBobOrderInfo }>('/alice-bob/create-order', null, {
     params: {
-      isWithdraw,
       amount,
+      from: getFromToParam(inputAssetCode),
+      to: getFromToParam(outputAssetCode),
       userId,
       walletAddress,
       cardNumber
