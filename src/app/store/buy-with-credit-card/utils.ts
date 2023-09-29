@@ -135,7 +135,7 @@ export const mapAliceBobProviderCurrencies = (response: AxiosResponse<{ pairsInf
     }
 
     return {
-      name: knownAliceBobFiatCurrenciesNames[code],
+      name: knownAliceBobFiatCurrenciesNames[code] ?? '',
       code,
       icon: `https://static.moonpay.com/widget/currencies/${code.toLowerCase()}.svg`,
       precision: 2,

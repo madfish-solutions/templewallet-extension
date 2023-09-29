@@ -48,7 +48,7 @@ export const useOutputCurrencies = (
           return {
             name: knownAliceBobFiatCurrenciesNames[code] ?? '',
             code,
-            icon: '',
+            icon: `https://static.moonpay.com/widget/currencies/${code.toLowerCase()}.svg`,
             minAmount,
             maxAmount
           };
