@@ -10,6 +10,7 @@ import {
 import { AliceBobPairInfo } from 'lib/apis/temple';
 import { CurrencyInfoType as UtorgCurrencyInfoType, UtorgCurrencyInfo } from 'lib/apis/utorg';
 import { toTokenSlug } from 'lib/assets';
+import { FIAT_ICONS_SRC } from 'lib/icons';
 
 const UTORG_FIAT_ICONS_BASE_URL = 'https://utorg.pro/img/flags2/icon-';
 const UTORG_CRYPTO_ICONS_BASE_URL = 'https://utorg.pro/img/cryptoIcons';
@@ -19,10 +20,23 @@ const knownUtorgFiatCurrenciesNames: Record<string, string> = {
   INR: 'Indian Rupee'
 };
 
+const knownAliceBobFiatCurrenciesNames: Record<string, string> = {
+  ...knownUtorgFiatCurrenciesNames,
+  UAH: 'Ukrainian Hryvnia',
+  MYR: 'Malaysian Ringgit'
+};
+
 const aliceBobHryvnia = {
-  name: 'Ukrainian Hryvnia',
+  name: knownAliceBobFiatCurrenciesNames['UAH'],
   code: 'UAH',
-  icon: '',
+  icon: FIAT_ICONS_SRC.UAH,
+  precision: 2
+};
+
+const aliceBobRinggit = {
+  name: knownAliceBobFiatCurrenciesNames['MYR'],
+  code: 'MYR',
+  icon: `${UTORG_FIAT_ICONS_BASE_URL}MY.svg`,
   precision: 2
 };
 
@@ -91,13 +105,35 @@ export const mapUtorgProviderCurrencies = (currencies: UtorgCurrencyInfo[]) => (
     }))
 });
 
-export const mapAliceBobProviderCurrencies = (response: AxiosResponse<{ pairInfo: AliceBobPairInfo }>) => ({
-  fiat: [
-    {
-      ...aliceBobHryvnia,
-      minAmount: response.data.pairInfo.minAmount,
-      maxAmount: response.data.pairInfo.maxAmount
+export const mapAliceBobProviderCurrencies = (response: AxiosResponse<{ pairsInfo: AliceBobPairInfo[] }>) => ({
+  fiat: response.data.pairsInfo.map(pair => {
+    const [minAmountString, code] = pair.minamount.split(' ');
+    const minAmount = Number(minAmountString);
+    const maxAmount = Number(pair.maxamount.split(' ')[0]);
+
+    switch (pair.from) {
+      case 'CARDUAH':
+        return {
+          ...aliceBobHryvnia,
+          minAmount,
+          maxAmount
+        };
+      case 'CARDMYR':
+        return {
+          ...aliceBobRinggit,
+          minAmount,
+          maxAmount
+        };
+      default:
+        return {
+          name: knownAliceBobFiatCurrenciesNames[code],
+          code,
+          icon: `https://static.moonpay.com/widget/currencies/${code.toLowerCase()}.svg`,
+          precision: 2,
+          minAmount,
+          maxAmount
+        };
     }
-  ],
+  }),
   crypto: [aliceBobTezos]
 });

@@ -47,8 +47,18 @@ export interface AliceBobOrderInfo {
 }
 
 export interface AliceBobPairInfo {
-  minAmount: number;
-  maxAmount: number;
+  from: string;
+  to: string;
+  fromnetwork: string | null;
+  tonetwork: string | null;
+  in: string;
+  out: string;
+  ratetype: string;
+  amount: string;
+  tofee: string;
+  fromfee: string;
+  minamount: string;
+  maxamount: string;
 }
 
 export const createAliceBobOrder = (
@@ -71,8 +81,13 @@ export const createAliceBobOrder = (
 export const cancelAliceBobOrder = (orderId: string) =>
   templeWalletApi.post('/alice-bob/cancel-order', null, { params: { orderId } });
 
+export const getAliceBobPairsInfo = (isWithdraw: boolean) =>
+  templeWalletApi.get<{ pairsInfo: AliceBobPairInfo[] }>('/alice-bob/get-pairs-info', { params: { isWithdraw } });
+
 export const getAliceBobPairInfo = (isWithdraw: boolean) =>
-  templeWalletApi.get<{ pairInfo: AliceBobPairInfo }>('/alice-bob/get-pair-info', { params: { isWithdraw } });
+  templeWalletApi.get<{ pairInfo: { minAmount: number; maxAmount: number } }>('/alice-bob/get-pair-info', {
+    params: { isWithdraw }
+  });
 
 export const getAliceBobOrderInfo = (orderId: string) =>
   templeWalletApi.get<{ orderInfo: AliceBobOrderInfo }>('/alice-bob/check-order', { params: { orderId } });

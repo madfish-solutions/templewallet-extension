@@ -21,6 +21,7 @@ import { shouldShowFieldError } from 'lib/form/should-show-field-error';
 import { t, T, toLocalFormat } from 'lib/i18n';
 import { useInterval } from 'lib/ui/hooks';
 
+import { FIAT_ICONS_SRC } from '../../../lib/icons';
 import { BuyWithCreditCardSelectors } from './BuyWithCreditCard.selectors';
 import { useAllCryptoCurrencies } from './hooks/use-all-crypto-currencies';
 import { useAllFiatCurrencies } from './hooks/use-all-fiat-currencies';
@@ -32,7 +33,8 @@ import { usePaymentProviders } from './hooks/use-payment-providers';
 import { useUpdateCurrentProvider } from './hooks/use-update-current-provider';
 import { AmountErrorType } from './types/amount-error-type';
 
-const fitFiatIconFn = (currency: TopUpInputInterface) => !currency.icon.startsWith(MOONPAY_ASSETS_BASE_URL);
+const fitFiatIconFn = (currency: TopUpInputInterface) =>
+  !currency.icon.startsWith(MOONPAY_ASSETS_BASE_URL) && currency.icon !== FIAT_ICONS_SRC.UAH;
 
 export const BuyWithCreditCard: FC = () => {
   const dispatch = useDispatch();
