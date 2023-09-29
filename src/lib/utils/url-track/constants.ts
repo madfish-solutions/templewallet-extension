@@ -286,7 +286,7 @@ export const EXACT_MATCH_URLS = [
 
   'https://www.dextools.io/app/en/pairs',
 
-  'https://www.blockchain.com/explorer',
+  'https://www.blockchain.com/explorer/',
 
   'https://www.coingecko.com/',
 
