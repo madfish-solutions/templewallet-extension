@@ -19,6 +19,8 @@ export interface SeedWordInputProps extends TestIDProperty {
   onSeedWordChange: (index: number, value: string) => void;
 }
 
+const BUTTON_TAG_NAME = 'BUTTON';
+
 export const SeedWordInput: FC<SeedWordInputProps> = ({
   id,
   submitted,
@@ -48,7 +50,7 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
   );
 
   useEffect(() => {
-    if (value && !bip39WordList.includes(value) && isBlur) {
+    if (value && !bip39WordList.includes(value)) {
       setWordSpellingError(t('mnemonicWordsError'));
       errorCheckRef.current = true;
     } else {
@@ -66,7 +68,7 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
   }, [showAutocomplete, value, isBlur]);
 
   const autocompleteVariants = useMemo(
-    () => (value ? bip39WordList.filter(word => word.startsWith(value)) : null),
+    () => (value ? bip39WordList.filter(word => word.startsWith(value)).slice(0, 3) : null),
     [value]
   );
 
@@ -81,14 +83,14 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
   };
 
   const handleBlur = (e: React.FocusEvent) => {
-    if (e.relatedTarget === null) {
+    if (e.relatedTarget?.tagName !== BUTTON_TAG_NAME) {
       setIsBlur(true);
     }
   };
 
   return (
     <div className="flex flex-col relative">
-      <label htmlFor={id.toString()} className={clsx('self-center', isError ? 'text-red-600' : 'text-gray-600')}>
+      <label htmlFor={id.toString()} className={clsx('self-center', isError ? 'text-red-600' : 'text-gray-500')}>
         <p style={{ fontSize: 14 }}>{`#${id + 1}`}</p>
       </label>
 
@@ -111,20 +113,18 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
         style={{ backgroundColor: 'white' }}
       />
       {showAutocomplete && autocompleteVariants && autocompleteVariants.length > 0 && (
-        <div
-          className={clsx(
-            FORM_FIELD_CLASS_NAME,
-            'absolute left-0 z-50 px-2 items-center top-18 shadow-lg flex flex-col'
-          )}
-        >
+        <div className={clsx(FORM_FIELD_CLASS_NAME, 'absolute left-0 z-50 px-2 top-18 shadow-lg flex flex-col')}>
           {autocompleteVariants.map(variant => (
             <div className="hover:bg-gray-200 w-full rounded focus:bg-gray-200" key={variant}>
-              <button className="my-2 px-3 py-2 w-full" onClick={e => handleClick(e, variant)} onBlur={handleBlur}>
+              <button
+                className="my-2 px-3 py-2 w-full text-left  text-gray-600 hover:text-gray-910 focus:text-gray-910 focus:bg-gray-200"
+                onClick={e => handleClick(e, variant)}
+                onBlur={handleBlur}
+              >
                 {variant}
               </button>
             </div>
           ))}
-          )
         </div>
       )}
     </div>

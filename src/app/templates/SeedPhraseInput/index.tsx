@@ -146,7 +146,7 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
       <div className="flex justify-between mb-6">
         <h1
           className={classNames(
-            'font-inter flex self-center text-gray-800',
+            'font-inter flex self-center text-gray-910',
             isFirstAccount ? 'text-2xl' : 'text-base font-semibold text-gray-500'
           )}
         >
@@ -209,15 +209,17 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
         })}
       </div>
 
-      {wordSpellingError && <div className="text-xs text-red-700 mt-4">{wordSpellingError}</div>}
+      <div className="h-20">
+        {wordSpellingError && <div className="text-xs text-red-700 pt-4 h-10">{wordSpellingError}</div>}
 
-      {submitted && seedError && <div className="text-xs text-red-700 mt-4">{seedError}</div>}
+        {submitted && seedError && <div className="text-xs text-red-700 py-2 h-10">{seedError}</div>}
 
-      {pasteFailed ? (
-        <div className="text-xs text-red-700 mt-4">
-          <T id="seedPasteFailedTooManyWords" />
-        </div>
-      ) : null}
+        {pasteFailed ? (
+          <div className="text-xs text-red-700 mt-4">
+            <T id="seedPasteFailedTooManyWords" />
+          </div>
+        ) : null}
+      </div>
     </div>
   );
 };

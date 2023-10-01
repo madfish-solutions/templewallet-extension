@@ -46,7 +46,7 @@ export const ImportFromSeedPhrase: FC<ImportFromSeedPhraseProps> = ({
         setNumberOfWords={setNumberOfWords}
       />
 
-      <FormSubmitButton className="w-96 my-10 mx-auto" testID={ImportFromSeedPhraseSelectors.nextButton}>
+      <FormSubmitButton className="w-96 mb-2 mx-auto" testID={ImportFromSeedPhraseSelectors.nextButton}>
         <T id="next" />
       </FormSubmitButton>
     </form>

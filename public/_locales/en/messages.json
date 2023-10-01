@@ -596,7 +596,7 @@
     }
   },
   "justValidPreGeneratedMnemonic": {
-    "message": "Just valid pre-generated mnemonic"
+    "message": "Invalid Seed Phrase"
   },
   "seedPasteFailedTooManyWords": {
     "message": "Paste failed because it contained over 24 words."

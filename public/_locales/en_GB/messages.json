@@ -480,7 +480,7 @@
     "message": "Each word separated with a single space"
   },
   "justValidPreGeneratedMnemonic": {
-    "message": "Just valid pre-generated mnemonic"
+    "message": "Invalid Seed Phrase"
   },
   "oops": {
     "message": "Oops!"
