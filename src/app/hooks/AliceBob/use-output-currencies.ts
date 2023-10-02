@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 
-import { knownAliceBobFiatCurrencies, knownAliceBobFiatCurrenciesNames } from 'app/store/buy-with-credit-card/utils';
+import { getCurrencyNameByCode, knownAliceBobFiatCurrencies } from 'app/store/buy-with-credit-card/utils';
 import { getAliceBobPairsInfo } from 'lib/apis/temple';
 import { FIAT_ICONS_SRC } from 'lib/icons';
 
@@ -13,7 +13,7 @@ export interface AliceBobWithdrawCurrency {
 }
 
 export const DEFAULT_OUTPUT_CURRENCY = {
-  name: knownAliceBobFiatCurrenciesNames['UAH'],
+  name: getCurrencyNameByCode('UAH'),
   code: 'UAH',
   icon: FIAT_ICONS_SRC.UAH
 };
@@ -46,7 +46,7 @@ export const useOutputCurrencies = (
           }
 
           return {
-            name: knownAliceBobFiatCurrenciesNames[code] ?? '',
+            name: getCurrencyNameByCode(code),
             code,
             icon: `https://static.moonpay.com/widget/currencies/${code.toLowerCase()}.svg`,
             minAmount,
