@@ -19,9 +19,13 @@ export const balancesReducer = createReducer(balancesInitialState, builder => {
   builder.addCase(loadTokensBalancesFromTzktAction.success, (state, { payload }) => {
     const key = getKeyForBalancesRecord(payload.publicKeyHash, payload.chainId);
 
+    const data = payload.mergeNotReplace
+      ? { ...state.balancesAtomic[key]?.data, ...payload.balances }
+      : payload.balances;
+
     state.balancesAtomic = {
       ...state.balancesAtomic,
-      [key]: createEntity(payload.balances, false)
+      [key]: createEntity(data, false)
     };
   });
 

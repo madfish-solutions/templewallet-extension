@@ -1,22 +1,21 @@
 import { BigNumber } from 'bignumber.js';
 import { combineEpics, Epic } from 'redux-observable';
 import { catchError, forkJoin, map, of, switchMap } from 'rxjs';
-import { Action } from 'ts-action';
 import { ofType, toPayload } from 'ts-action-operators';
 
-import { fecthTezosBalanceFromTzkt, fetchAllAssetsBalancesFromTzkt } from 'lib/apis/tzkt/api';
+import { fetchTezosBalanceFromTzkt, fetchAllAssetsBalancesFromTzkt } from 'lib/apis/tzkt';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 
 import { loadTokensBalancesFromTzktAction } from './actions';
 import { fixBalances } from './utils';
 
-const loadTokensBalancesFromTzktEpic: Epic<Action> = action$ =>
+const loadTokensBalancesFromTzktEpic: Epic = action$ =>
   action$.pipe(
     ofType(loadTokensBalancesFromTzktAction.submit),
     toPayload(),
     switchMap(({ publicKeyHash, chainId, gasOnly }) =>
       forkJoin([
-        fecthTezosBalanceFromTzkt(publicKeyHash, chainId),
+        fetchTezosBalanceFromTzkt(publicKeyHash, chainId),
         gasOnly ? of(undefined) : fetchAllAssetsBalancesFromTzkt(publicKeyHash, chainId)
       ]).pipe(
         map(([tezosBalances, balances]) => {
@@ -27,7 +26,12 @@ const loadTokensBalancesFromTzktEpic: Epic<Action> = action$ =>
             .minus(tezosBalances.frozenDeposit ?? 0)
             .toFixed();
 
-          return loadTokensBalancesFromTzktAction.success({ publicKeyHash, chainId, balances });
+          return loadTokensBalancesFromTzktAction.success({
+            publicKeyHash,
+            chainId,
+            balances,
+            mergeNotReplace: gasOnly
+          });
         }),
         catchError(err => of(loadTokensBalancesFromTzktAction.fail(err.message)))
       )

@@ -1,8 +1,8 @@
 import { createReducer } from '@reduxjs/toolkit';
 import { omit, pick } from 'lodash';
 
-import { tokenToSlug, toTokenSlug } from 'lib/assets';
-import { buildTokenMetadataFromFetched, buildTokenMetadataFromTzkt } from 'lib/metadata/utils';
+import { tokenToSlug } from 'lib/assets';
+import { buildTokenMetadataFromFetched } from 'lib/metadata/utils';
 
 import {
   putTokensMetadataAction,
@@ -10,8 +10,7 @@ import {
   resetTokensMetadataLoadingAction,
   refreshTokensMetadataAction,
   addTokensMetadataAction,
-  addTokensMetadataOfFetchedAction,
-  addTokensMetadataOfTzktAction
+  addTokensMetadataOfFetchedAction
 } from './actions';
 import { tokensMetadataInitialState, TokensMetadataState } from './state';
 
@@ -58,19 +57,6 @@ export const tokensMetadataReducer = createReducer<TokensMetadataState>(tokensMe
 
       const [address, id] = slug.split('_');
       state.metadataRecord[slug] = buildTokenMetadataFromFetched(payload[slug]!, address, Number(id));
-    }
-  });
-
-  builder.addCase(addTokensMetadataOfTzktAction, (state, { payload }) => {
-    for (const asset of payload) {
-      const slug = toTokenSlug(asset.contract.address, asset.tokenId);
-      if (state.metadataRecord[slug]) continue;
-
-      state.metadataRecord[slug] = buildTokenMetadataFromTzkt(
-        asset.metadata,
-        asset.contract.address,
-        Number(asset.tokenId)
-      );
     }
   });
 

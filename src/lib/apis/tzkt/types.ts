@@ -190,7 +190,7 @@ interface TzktAssetToken {
   metadata?: TzktAssetMetadata;
 }
 
-export interface TzktAssetMetadata {
+interface TzktAssetMetadata {
   creators: string[];
   decimals?: string;
   description: string;
@@ -203,16 +203,6 @@ export interface TzktAssetMetadata {
   thumbnailUri: string;
   displayUri: string;
   artifactUri: string;
-}
-
-export type TzktTokenWithMeta = WithRequired<TzktAssetToken, 'metadata'>;
-
-export interface TzktAssetWithMeta extends TzktAccountAsset {
-  token: TzktTokenWithMeta;
-}
-
-export interface TzktAssetWithNoMeta extends TzktAccountAsset {
-  token: Omit<TzktAssetToken, 'metadata'>;
 }
 
 export interface TzktTokenTransfer {

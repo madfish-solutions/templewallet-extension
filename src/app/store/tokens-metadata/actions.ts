@@ -1,7 +1,6 @@
 import { createAction } from '@reduxjs/toolkit';
 
 import { TokenMetadataResponse } from 'lib/apis/temple';
-import { TzktTokenWithMeta } from 'lib/apis/tzkt';
 import type { TokenMetadata } from 'lib/metadata';
 
 export const putTokensMetadataAction = createAction<TokenMetadata[]>('metadata/PUT_TOKENS_METADATA');
@@ -11,8 +10,6 @@ export const addTokensMetadataAction = createAction<TokenMetadata[]>('metadata/A
 export const addTokensMetadataOfFetchedAction = createAction<Record<string, TokenMetadataResponse>>(
   'metadata/ADD_TOKENS_METADATA_OF_FETCHED'
 );
-
-export const addTokensMetadataOfTzktAction = createAction<TzktTokenWithMeta[]>('metadata/ADD_TOKENS_METADATA_OF_TZKT');
 
 export const loadTokensMetadataAction = createAction<{
   rpcUrl: string;

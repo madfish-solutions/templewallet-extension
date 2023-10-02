@@ -12,9 +12,7 @@ import {
   allInt32ParameterKeys,
   TzktGetRewardsParams,
   TzktGetRewardsResponse,
-  TzktRelatedContract,
-  TzktAssetWithMeta,
-  TzktAssetWithNoMeta
+  TzktRelatedContract
 } from './types';
 
 const TZKT_API_BASE_URLS = {
@@ -125,19 +123,16 @@ export const getDelegatorRewards = (
 
 const TZKT_MAX_QUERY_ITEMS_LIMIT = 10_000;
 
-export function fetchTzktAccountAssets<
-  F extends boolean | null,
-  T extends TzktAccountAsset = F extends boolean ? TzktAssetWithMeta : TzktAssetWithNoMeta
->(
+export function fetchTzktAccountAssets(
   account: string,
   chainId: string,
   /** `null` for unknown */
-  fungible: F
-): Promise<T[]> {
+  fungible: boolean | null
+): Promise<TzktAccountAsset[]> {
   if (!isKnownChainId(chainId)) return Promise.resolve([]);
 
-  const recurse = async (accum: T[], offset: number): Promise<T[]> => {
-    const data = (await fetchTzktAccountAssetsOnce(account, chainId, offset, fungible)) as T[];
+  const recurse = async (accum: TzktAccountAsset[], offset: number): Promise<TzktAccountAsset[]> => {
+    const data = await fetchTzktAccountAssetsOnce(account, chainId, offset, fungible);
 
     if (!data.length) return accum;
 
@@ -192,7 +187,7 @@ interface GetAccountResponse {
   frozenDeposit?: string;
 }
 
-export const fecthTezosBalanceFromTzkt = async (account: string, chainId: string): Promise<GetAccountResponse> =>
+export const fetchTezosBalanceFromTzkt = async (account: string, chainId: string): Promise<GetAccountResponse> =>
   isKnownChainId(chainId)
     ? await fetchGet<GetAccountResponse>(chainId, `/accounts/${account}`, {
         select: 'balance,frozenDeposit'

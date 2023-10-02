@@ -1,3 +1,4 @@
+import type { Action } from 'redux';
 import { combineEpics, createEpicMiddleware } from 'redux-observable';
 import { catchError } from 'rxjs/operators';
 
@@ -11,6 +12,7 @@ import { buyWithCreditCardEpics } from './buy-with-credit-card/epics';
 import { collectiblesEpics } from './collectibles/epics';
 import { currencyEpics } from './currency/epics';
 import { partnersPromotionEpics } from './partners-promotion/epics';
+import type { RootState } from './root-state.type';
 import { swapEpics } from './swap/epics';
 import { tokensMetadataEpics } from './tokens-metadata/epics';
 
@@ -28,7 +30,7 @@ const allEpics = combineEpics(
   collectiblesEpics
 );
 
-export const epicMiddleware = createEpicMiddleware();
+export const epicMiddleware = createEpicMiddleware<Action, Action, RootState>();
 
 export const rootEpic: typeof allEpics = (action$, store$, dependencies) =>
   allEpics(action$, store$, dependencies).pipe(

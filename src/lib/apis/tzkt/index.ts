@@ -5,21 +5,7 @@ export type {
   TzktRewardsEntry,
   TzktAlias,
   TzktOperationType,
-  TzktTransactionOperation,
-  TzktAssetWithMeta,
-  TzktAssetWithNoMeta,
-  TzktAssetMetadata,
-  TzktTokenWithMeta
+  TzktTransactionOperation
 } from './types';
 
-export type { TzktApiChainId } from './api';
-export {
-  isKnownChainId,
-  getDelegatorRewards,
-  getOneUserContracts,
-  fetchTzktAccountAssets,
-  fetchGetOperationsTransactions,
-  fetchGetAccountOperations,
-  fetchGetOperationsByHash,
-  refetchOnce429
-} from './api';
+export * from './api';

@@ -13,6 +13,7 @@ interface LoadBalancesSubmitPayload extends LoadBalancesPayloadBase {
 
 interface LoadBalancesSuccessPayload extends LoadBalancesPayloadBase {
   balances: StringRecord;
+  mergeNotReplace?: boolean;
 }
 
 interface LoadBalancesFailPayload extends LoadBalancesPayloadBase {

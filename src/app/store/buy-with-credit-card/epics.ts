@@ -1,7 +1,7 @@
 import { isDefined } from '@rnw-community/shared';
+import { Action } from 'redux';
 import { combineEpics, Epic } from 'redux-observable';
-import { catchError, forkJoin, from, map, Observable, of, switchMap, withLatestFrom } from 'rxjs';
-import { Action } from 'ts-action';
+import { catchError, forkJoin, from, map, of, switchMap, withLatestFrom } from 'rxjs';
 import { ofType } from 'ts-action-operators';
 
 import type { RootState } from 'app/store/root-state.type';
@@ -29,7 +29,7 @@ const getCurrencies$ = <T>(fetchFn: () => Promise<T>, transformFn: (data: T) => 
 
 const allTopUpProviderIds = [TopUpProviderId.MoonPay, TopUpProviderId.Utorg, TopUpProviderId.AliceBob];
 
-const loadAllCurrenciesEpic: Epic = (action$: Observable<Action>) =>
+const loadAllCurrenciesEpic: Epic = action$ =>
   action$.pipe(
     ofType(loadAllCurrenciesActions.submit),
     switchMap(() =>
@@ -49,7 +49,7 @@ const loadAllCurrenciesEpic: Epic = (action$: Observable<Action>) =>
     )
   );
 
-const updatePairLimitsEpic: Epic = (action$: Observable<Action>, state$: Observable<RootState>) =>
+const updatePairLimitsEpic: Epic<Action, Action, RootState> = (action$, state$) =>
   action$.pipe(
     ofType(updatePairLimitsActions.submit),
     withLatestFrom(state$),

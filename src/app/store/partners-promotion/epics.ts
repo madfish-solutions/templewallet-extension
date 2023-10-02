@@ -1,14 +1,13 @@
 import { combineEpics, Epic } from 'redux-observable';
-import { Observable, of } from 'rxjs';
+import { of } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
-import { Action } from 'ts-action';
 import { ofType, toPayload } from 'ts-action-operators';
 
 import { getOptimalPromotionImage$ } from 'lib/apis/optimal';
 
 import { loadPartnersPromoAction } from './actions';
 
-const loadPartnersPromotionEpic: Epic = (action$: Observable<Action>) =>
+const loadPartnersPromotionEpic: Epic = action$ =>
   action$.pipe(
     ofType(loadPartnersPromoAction.submit),
     toPayload(),

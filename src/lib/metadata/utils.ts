@@ -1,7 +1,6 @@
 import { pick } from 'lodash';
 
 import type { TokenMetadataResponse, WhitelistResponseToken } from 'lib/apis/temple';
-import { TzktAssetMetadata } from 'lib/apis/tzkt';
 
 import { TokenMetadata, TokenStandardsEnum } from './types';
 
@@ -16,17 +15,6 @@ export const buildTokenMetadataFromFetched = (
   // standard: token.standard === 'fa2' ? TokenStandardsEnum.Fa2 : TokenStandardsEnum.Fa12,
   symbol: token.symbol ?? token.name?.substring(0, 8) ?? '???',
   name: token.name ?? token.symbol ?? 'Unknown Token'
-});
-
-export const buildTokenMetadataFromTzkt = (
-  metadata: TzktAssetMetadata,
-  address: string,
-  id: number
-): TokenMetadata => ({
-  address,
-  id,
-  ...pick(metadata, ['decimals', 'symbol', 'name', 'thumbnailUri', 'displayUri', 'artifactUri']),
-  decimals: metadata.decimals ? Number(metadata.decimals) : 0
 });
 
 export const buildTokenMetadataFromWhitelist = ({

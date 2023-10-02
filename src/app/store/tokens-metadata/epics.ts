@@ -1,7 +1,6 @@
 import { combineEpics, Epic } from 'redux-observable';
 import { of } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
-import { Action } from 'ts-action';
 import { ofType, toPayload } from 'ts-action-operators';
 
 import { loadTokensMetadata$ } from 'lib/metadata/fetch';
@@ -15,7 +14,7 @@ import {
   resetTokensMetadataLoadingAction
 } from './actions';
 
-const addWhitelistMetadataEpic: Epic<Action> = action$ =>
+const addWhitelistMetadataEpic: Epic = action$ =>
   action$.pipe(
     ofType(loadTokensWhitelistActions.success),
     toPayload(),
@@ -23,7 +22,7 @@ const addWhitelistMetadataEpic: Epic<Action> = action$ =>
     map(addTokensMetadataAction)
   );
 
-const loadTokensMetadataEpic: Epic<Action> = action$ =>
+const loadTokensMetadataEpic: Epic = action$ =>
   action$.pipe(
     ofType(loadTokensMetadataAction),
     toPayload(),
