@@ -14,7 +14,7 @@ type Props = {
   assetSlug: string;
   last: boolean;
   checked: boolean;
-  onToggle: (slug: string, toDisable: boolean) => void;
+  onToggle: (slug: string, newState: boolean) => void;
   onRemove: (slug: string) => void;
 };
 

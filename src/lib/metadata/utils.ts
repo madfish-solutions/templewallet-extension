@@ -12,7 +12,6 @@ export const buildTokenMetadataFromFetched = (
   address,
   id,
   ...pick(token, ['decimals', 'thumbnailUri', 'displayUri', 'artifactUri']),
-  // standard: token.standard === 'fa2' ? TokenStandardsEnum.Fa2 : TokenStandardsEnum.Fa12,
   symbol: token.symbol ?? token.name?.substring(0, 8) ?? '???',
   name: token.name ?? token.symbol ?? 'Unknown Token'
 });

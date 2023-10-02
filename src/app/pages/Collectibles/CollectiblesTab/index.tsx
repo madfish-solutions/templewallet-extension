@@ -43,7 +43,6 @@ export const CollectiblesTab = memo<Props>(({ scrollToTheTabsBar }) => {
   const toggleDetailsShown = useCallback(() => void setDetailsShown(val => !val), [setDetailsShown]);
 
   const slugs = useEnabledAccountCollectiblesSlugs();
-  console.log('slugs:', slugs);
 
   const { filteredAssets, searchValue, setSearchValue } = useFilteredAssetsSlugs(slugs, false);
 

@@ -48,8 +48,6 @@ const finishAssetsLoading = async (
     return knownMeta[slug] ? acc : acc.concat(slug);
   }, []);
 
-  console.log('fuck', fungibleByMetaCheck, data.length, slugsWithoutMeta);
-
   const newMetadatas = isKnownChainId(chainId)
     ? await fetchTokensMetadata(chainId, slugsWithoutMeta).catch(err => {
         console.error(err);

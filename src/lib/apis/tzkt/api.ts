@@ -123,16 +123,14 @@ export const getDelegatorRewards = (
 
 const TZKT_MAX_QUERY_ITEMS_LIMIT = 10_000;
 
-export function fetchTzktAccountAssets(
-  account: string,
-  chainId: string,
-  /** `null` for unknown */
-  fungible: boolean | null
-): Promise<TzktAccountAsset[]> {
+/**
+ * @arg fungible // `null` for unknown fungibility only
+ */
+export function fetchTzktAccountAssets(account: string, chainId: string, fungible: boolean | null) {
   if (!isKnownChainId(chainId)) return Promise.resolve([]);
 
   const recurse = async (accum: TzktAccountAsset[], offset: number): Promise<TzktAccountAsset[]> => {
-    const data = await fetchTzktAccountAssetsOnce(account, chainId, offset, fungible);
+    const data = await fetchTzktAccountAssetsPage(account, chainId, offset, fungible);
 
     if (!data.length) return accum;
 
@@ -145,7 +143,7 @@ export function fetchTzktAccountAssets(
   return recurse([], 0);
 }
 
-const fetchTzktAccountAssetsOnce = (
+const fetchTzktAccountAssetsPage = (
   account: string,
   chainId: TzktApiChainId,
   offset?: number,
@@ -158,7 +156,6 @@ const fetchTzktAccountAssetsOnce = (
     ...(fungible === null
       ? { 'token.metadata.null': true }
       : {
-          // 'token.metadata.decimals.null': false, // (do)
           'token.metadata.artifactUri.null': fungible
         }),
     'sort.desc': 'balance'

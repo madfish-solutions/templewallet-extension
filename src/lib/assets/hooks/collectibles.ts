@@ -19,7 +19,6 @@ export const useAccountCollectibles = (account: string, chainId: string) => {
   const stored = useAccountAssetsSelector(account, chainId, 'collectibles');
 
   const balances = useBalancesSelector(account, chainId);
-  console.log('FUCK', stored, balances);
 
   return useMemoWithCompare<AccountCollectible[]>(
     () =>
