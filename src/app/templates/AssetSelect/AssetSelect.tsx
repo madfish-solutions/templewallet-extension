@@ -10,10 +10,10 @@ import { AssetIcon } from 'app/templates/AssetIcon';
 import Balance from 'app/templates/Balance';
 import InFiat from 'app/templates/InFiat';
 import { setTestID, setAnotherSelector } from 'lib/analytics';
+import { searchAssetsWithNoMeta } from 'lib/assets/search.utils';
 import { T, t } from 'lib/i18n';
 import { useAssetMetadata, getAssetSymbol } from 'lib/metadata';
 import { useAccount } from 'lib/temple/front';
-import { searchAssetsWithNoMeta } from 'lib/temple/front/assets';
 
 import { AssetItemContent } from '../AssetItemContent';
 import { DropdownSelect } from '../DropdownSelect/DropdownSelect';

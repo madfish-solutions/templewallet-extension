@@ -57,7 +57,7 @@ const buildManifestV2 = (vendor: string): Manifest.WebExtensionManifest => {
 
     permissions: [...PERMISSIONS, ...HOST_PERMISSIONS],
 
-    content_security_policy: "script-src 'self' 'unsafe-eval'; object-src 'self'",
+    content_security_policy: "script-src 'self' 'unsafe-eval' blob:; object-src 'self'",
 
     browser_action: buildBrowserAction(vendor),
 

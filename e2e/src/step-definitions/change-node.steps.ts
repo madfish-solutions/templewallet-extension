@@ -13,6 +13,7 @@ Given(
 
 Given(/I check that (.*) node is selected correctly/, { timeout: MEDIUM_TIMEOUT }, async (networkName: string) => {
   await Pages.Header.selectedNetworkButtonName.waitForText(networkName, SHORT_TIMEOUT);
+  await Pages.NetworksDropDown.isClosed();
 
   await Pages.Header.templeLogoButton.waitForDisplayed();
   await Pages.Header.accountIconButton.waitForDisplayed();

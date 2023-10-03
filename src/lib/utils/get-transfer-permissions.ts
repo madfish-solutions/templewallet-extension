@@ -7,7 +7,6 @@ interface TokenToSpend {
   contract: string | null;
   tokenId: string | number | null;
   standard: 'fa12' | 'fa2' | 'xtz';
-  decimals: number;
 }
 
 export const getTransferPermissions = async (

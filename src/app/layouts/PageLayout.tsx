@@ -1,4 +1,4 @@
-import React, { ComponentProps, FC, ReactNode, Suspense, useEffect, useRef, useState } from 'react';
+import React, { ComponentProps, FC, ReactNode, Suspense, useCallback, useEffect, useRef, useState } from 'react';
 
 import classNames from 'clsx';
 
@@ -98,6 +98,8 @@ type ToolbarProps = {
   attention?: boolean;
 };
 
+export let ToolbarElement: HTMLDivElement | null = null;
+
 const Toolbar: FC<ToolbarProps> = ({
   pageTitle,
   hasBackAction = true,
@@ -133,7 +135,7 @@ const Toolbar: FC<ToolbarProps> = ({
 
   const [sticked, setSticked] = useState(false);
 
-  const rootRef = useRef<HTMLDivElement>(null);
+  const rootRef = useRef<HTMLDivElement | null>();
 
   useEffect(() => {
     const toolbarEl = rootRef.current;
@@ -153,9 +155,14 @@ const Toolbar: FC<ToolbarProps> = ({
     return undefined;
   }, [setSticked]);
 
+  const updateRootRef = useCallback((elem: HTMLDivElement | null) => {
+    rootRef.current = elem;
+    ToolbarElement = elem;
+  }, []);
+
   return (
     <div
-      ref={rootRef}
+      ref={updateRootRef}
       className={classNames(
         'sticky z-20 flex items-center py-2 px-4',
         fullPage && !sticked && 'rounded-t',
@@ -194,9 +201,7 @@ const Toolbar: FC<ToolbarProps> = ({
       </div>
 
       {pageTitle && (
-        <h2 className="px-1 flex items-center text-gray-700 font-normal leading-none" style={{ fontSize: 17 }}>
-          {pageTitle}
-        </h2>
+        <h2 className="px-1 flex items-center text-ulg text-gray-700 font-normal overflow-hidden">{pageTitle}</h2>
       )}
 
       <div className="flex-1" />
@@ -218,6 +223,7 @@ const Toolbar: FC<ToolbarProps> = ({
               'transition duration-300 ease-in-out'
             )}
             onClick={() => setOnboardingCompleted(true)}
+            testID={PageLayoutSelectors.skipButton}
           >
             <T id="skip" />
           </Button>

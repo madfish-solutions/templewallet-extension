@@ -3,7 +3,8 @@ Feature: Manage tokens + collectibles
 
   Scenario: As a user, I'd like to add tokens and collectibles to my wallet [Positive]
     Given I have imported an existing account
-    And I press Manage Button on the Assets page
+    And I press Manage Dropdown Button on the Assets page
+    And I press Manage Button on the Assets (Manage Dropdown) page
 
     And I am on the ManageAssetsTokens page
     And I press Add Asset Button on the Manage Assets(Tokens) page
@@ -25,11 +26,13 @@ Feature: Manage tokens + collectibles
 
 
 @manage_assets
+  @dev
   Scenario: As a user, I'd like to hide and delete tokens [Positive]
     Given I have imported an existing account
 #  hardcoded token
 
-    And I press Manage Button on the Assets page
+    And I press Manage Dropdown Button on the Assets page
+    And I press Manage Button on the Assets (Manage Dropdown) page
 
     And I am on the ManageAssetsTokens page
     And I check that kUSD is in the 'Manage Tokens' list
@@ -43,7 +46,8 @@ Feature: Manage tokens + collectibles
 
     And I check the token with name Kolibri is NOT displayed on the Home page
     And I scroll -600 pixels on the Home page
-    And I press Manage Button on the Assets page
+    And I press Manage Dropdown Button on the Assets page
+    And I press Manage Button on the Assets (Manage Dropdown) page
 
     And I am on the ManageAssetsTokens page
     And I check that kUSD is in the 'Manage Tokens' list
@@ -57,7 +61,8 @@ Feature: Manage tokens + collectibles
     And I check the token with name Kolibri is displayed on the Home page
 
     # delete token
-    And I press Manage Button on the Assets page
+    And I press Manage Dropdown Button on the Assets page
+    And I press Manage Button on the Assets (Manage Dropdown) page
 
     And I am on the ManageAssetsTokens page
     And I check that kUSD is in the 'Manage Tokens' list
@@ -80,7 +85,8 @@ Feature: Manage tokens + collectibles
   Scenario: Validation check on Add Asset page + other checks [Negative]
     Given I have imported an existing account
 
-    And I press Manage Button on the Assets page
+    And I press Manage Dropdown Button on the Assets page
+    And I press Manage Button on the Assets (Manage Dropdown) page
 #   empty state check
     And I am on the ManageAssetsTokens page
     And I enter shortRandomContent into Search Assets Input on the Manage Assets page
@@ -107,27 +113,33 @@ Feature: Manage tokens + collectibles
     And I clear Asset ID Input value on the Add Asset page
     And I wait until other inputs load after entering a token address
 
-    # Symbol input. TODO: Need to be updated after validation fix TW-1057
+    # Symbol input.
     And I clear Symbol Input value on the Add Asset page
     And I got the validation-error 'Required' in the Symbol Input Section on the Add Asset page
     And I enter longRandomContent into Symbol Input on the Add Asset page
-    And I got the validation-error 'Only a-z, A-Z, 0-9 chars allowed, 2-5 length' in the Symbol Input Section on the Add Asset page
+    And I got the validation-error 'Only a-z, A-Z, 0-9 chars allowed, 2-10 length' in the Symbol Input Section on the Add Asset page
+    And I clear Symbol Input value on the Add Asset page
+    And I enter сyrillicContent into Symbol Input on the Add Asset page
+    And I got the validation-error 'Only a-z, A-Z, 0-9 chars allowed, 2-10 length' in the Symbol Input Section on the Add Asset page
     And I clear Symbol Input value on the Add Asset page
 
     And I enter customTokenSymbol into Symbol Input on the Add Asset page
     And I scroll 100 pixels on the AddAsset page
 
-    # Name input. TODO: Need to be updated after validation fix TW-1057
+    # Name input.
     And I clear Name Input value on the Add Asset page
     And I got the validation-error 'Required' in the Name Input Section on the Add Asset page
     And I enter amount_1 into Name Input on the Add Asset page
-    And I got the validation-error 'No special characters, 3-50 length' in the Name Input Section on the Add Asset page
-    #  to reach 50 symbols length
-    And I enter longRandomContent into Name Input on the Add Asset page
-    And I enter longRandomContent into Name Input on the Add Asset page
-    And I got the validation-error 'No special characters, 3-50 length' in the Name Input Section on the Add Asset page
+    And I got the validation-error 'No special characters, 3-25 length' in the Name Input Section on the Add Asset page
 
+    And I enter longRandomContent into Name Input on the Add Asset page
+    And I got the validation-error 'No special characters, 3-25 length' in the Name Input Section on the Add Asset page
     And I clear Name Input value on the Add Asset page
+
+    And I enter specialSymbolsContent into Name Input on the Add Asset page
+    And I got the validation-error 'No special characters, 3-25 length' in the Name Input Section on the Add Asset page
+    And I clear Name Input value on the Add Asset page
+
     And I enter customTokenName into Name Input on the Add Asset page
 
     # Decimals input (check if the input has right decimals)

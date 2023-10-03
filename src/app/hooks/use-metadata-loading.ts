@@ -1,6 +1,7 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
+import { isEqual } from 'lodash';
 import { useDispatch } from 'react-redux';
 
 import {
@@ -13,7 +14,7 @@ import { METADATA_SYNC_INTERVAL } from 'lib/fixed-times';
 import { useChainId, useTezos } from 'lib/temple/front';
 import { useAllStoredTokensSlugs } from 'lib/temple/front/assets';
 import { TempleChainId } from 'lib/temple/types';
-import { useInterval } from 'lib/ui/hooks';
+import { useInterval, useMemoWithCompare } from 'lib/ui/hooks';
 
 export const useMetadataLoading = () => {
   const chainId = useChainId(true)!;
@@ -24,9 +25,10 @@ export const useMetadataLoading = () => {
 
   const { data: tokensSlugs } = useAllStoredTokensSlugs(chainId);
 
-  const slugsWithoutMetadata = useMemo(
-    () => tokensSlugs?.filter(slug => !isDefined(tokensMetadata[slug])),
-    [tokensSlugs, tokensMetadata]
+  const slugsWithoutMetadata = useMemoWithCompare(
+    () => tokensSlugs?.filter(slug => !isDefined(tokensMetadata[slug])).sort(),
+    [tokensSlugs, tokensMetadata],
+    isEqual
   );
 
   useEffect(() => {

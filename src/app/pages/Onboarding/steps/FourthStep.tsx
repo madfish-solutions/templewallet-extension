@@ -1,10 +1,12 @@
 import React, { FC } from 'react';
 
 import { Button } from 'app/atoms/Button';
+import { setTestID } from 'lib/analytics';
 import { T } from 'lib/i18n';
 
 import ProfileRpcImg from '../assets/profile-rpc.png';
 import styles from '../Onboarding.module.css';
+import { OnboardingSelectors } from '../Onboarding.selectors';
 
 interface Props {
   setStep: (step: number) => void;
@@ -13,7 +15,7 @@ interface Props {
 const FourthStep: FC<Props> = ({ setStep }) => {
   return (
     <>
-      <p className={styles['title']}>
+      <p className={styles['title']} {...setTestID(OnboardingSelectors.fourthStepText)}>
         <T id={'profileRpcDetails'} />
       </p>
       <p className={styles['description']}>
@@ -48,6 +50,7 @@ const FourthStep: FC<Props> = ({ setStep }) => {
           borderRadius: 4
         }}
         onClick={() => setStep(4)}
+        testID={OnboardingSelectors.fourthStepDoneButton}
       >
         <T id={'done'} />
       </Button>
