@@ -1,5 +1,6 @@
 import React, { FC, useCallback, useEffect, useMemo, useState } from 'react';
 
+import { ChainIds } from '@taquito/taquito';
 import { BigNumber } from 'bignumber.js';
 import clsx from 'clsx';
 import { isEqual } from 'lodash';
@@ -35,7 +36,6 @@ import { toExploreAssetLink } from './utils';
 
 const LOCAL_STORAGE_TOGGLE_KEY = 'tokens-list:hide-zero-balances';
 const svgIconClassName = 'w-4 h-4 stroke-current fill-current text-gray-600';
-const LEADING_ASSETS = [TEZ_TOKEN_SLUG, TEMPLE_TOKEN_SLUG];
 
 export const TokensTab: FC = () => {
   const dispatch = useDispatch();
@@ -57,10 +57,15 @@ export const TokensTab: FC = () => {
 
   const slugs = useMemoWithCompare(() => tokens.map(({ tokenSlug }) => tokenSlug).sort(), [tokens], isEqual);
 
+  const leadingAssets = useMemo(
+    () => (chainId === ChainIds.MAINNET ? [TEZ_TOKEN_SLUG, TEMPLE_TOKEN_SLUG] : [TEZ_TOKEN_SLUG]),
+    [chainId]
+  );
+
   const { filteredAssets, searchValue, setSearchValue } = useFilteredAssetsSlugs(
     slugs,
     isZeroBalancesHidden,
-    LEADING_ASSETS
+    leadingAssets
   );
 
   const isEnabledAdsBanner = useIsEnabledAdsBannerSelector();
