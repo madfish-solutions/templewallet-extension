@@ -33,6 +33,8 @@ import { usePaymentProviders } from './hooks/use-payment-providers';
 import { useUpdateCurrentProvider } from './hooks/use-update-current-provider';
 import { AmountErrorType } from './types/amount-error-type';
 
+const FORM_REFRESH_INTERVAL = 20000;
+
 const fitFiatIconFn = (currency: TopUpInputInterface) =>
   !currency.icon.startsWith(MOONPAY_ASSETS_BASE_URL) && currency.icon !== FIAT_ICONS_SRC.UAH;
 
@@ -132,7 +134,7 @@ export const BuyWithCreditCard: FC = () => {
     isLoading
   );
 
-  useInterval(refreshForm, 10000, [refreshForm], false);
+  useInterval(refreshForm, FORM_REFRESH_INTERVAL, [refreshForm], false);
 
   const minAmountStr = useMemo(
     () =>
