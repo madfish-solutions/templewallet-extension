@@ -405,6 +405,7 @@ export const SwapForm: FC = () => {
           searchInput: SwapFormFromInputSelectors.searchInput,
           assetDropDownButton: SwapFormFromInputSelectors.assetDropDownButton
         }}
+        noItemsText={t('noItemsWithPositiveBalance')}
       />
 
       <div className="w-full my-4 flex justify-center">
