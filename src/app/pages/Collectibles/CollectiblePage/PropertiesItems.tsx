@@ -15,10 +15,17 @@ interface PropertiesItemsProps {
 }
 
 export const PropertiesItems = memo<PropertiesItemsProps>(({ assetSlug, accountPkh, details }) => {
+  const { contract, id } = fromFa2TokenSlug(assetSlug);
+
   const { data: balance } = useBalance(assetSlug, accountPkh, {
     suspense: false
   });
-  const { account: accountExplorerBaseUrl } = useExplorerBaseUrls();
+
+  const { transaction: explorerBaseUrl } = useExplorerBaseUrls();
+  const exploreContractUrl = useMemo(
+    () => (explorerBaseUrl ? new URL(contract, explorerBaseUrl).href : null),
+    [explorerBaseUrl, contract]
+  );
 
   const mintedTimestamp = useMemo(() => {
     const value = details?.mintedTimestamp;
@@ -33,8 +40,6 @@ export const PropertiesItems = memo<PropertiesItemsProps>(({ assetSlug, accountP
 
     return `${royalties.toString()}%`;
   }, [details]);
-
-  const { contract, id } = fromFa2TokenSlug(assetSlug);
 
   const itemClassName = 'flex flex-col gap-y-2 p-3 border border-gray-300 rounded-md';
   const itemTitleClassName = 'text-xs text-gray-600 leading-5';
@@ -72,7 +77,7 @@ export const PropertiesItems = memo<PropertiesItemsProps>(({ assetSlug, accountP
             className="tracking-tighter"
             rounded="base"
           />
-          <ExternalLinkChip href={new URL(contract, accountExplorerBaseUrl).href} tooltip="Explore contract" />
+          {exploreContractUrl && <ExternalLinkChip href={exploreContractUrl} tooltip="Explore contract" />}
         </div>
       </div>
 
