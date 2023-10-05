@@ -36,7 +36,9 @@ export const ActivitySubtitle: FC<Props> = memo(({ activity }) => {
     isQuipuswapInvestInFarm,
     isQuipuswapDivestFromFarm,
     isQuipuswapHarvestFromFarm,
-    isQuipuswapHarvestFromDividents
+    isQuipuswapHarvestFromDividents,
+    isQuipuswapSend,
+    isQuipuswapReceive
   } = getActivityTypeFlags(activity);
   const shouldShowActorAddressInSubtitle = (isSend || isReceive || isAllowanceChange) && isDefined(actor);
   const shouldShowBaker = (isDelegation || isBakingRewards) && isDefined(actor);
@@ -79,6 +81,10 @@ export const ActivitySubtitle: FC<Props> = memo(({ activity }) => {
     secondPart = <T id="harvestFromFarm" />;
   } else if (isQuipuswapHarvestFromDividents) {
     secondPart = <T id="harvestFromDividents" />;
+  } else if (isQuipuswapSend) {
+    secondPart = <T id="swapAndSend" />;
+  } else if (isQuipuswapReceive) {
+    secondPart = <T id="receiveFromSwap" />;
   } else {
     secondPart = '‒';
   }

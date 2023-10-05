@@ -55,7 +55,9 @@ const interactionActivitiesLogos = {
   [ActivitySubtype.QuipuswapInvestInFarm]: QuipuswapLogoSrc,
   [ActivitySubtype.QuipuswapDivestFromFarm]: QuipuswapLogoSrc,
   [ActivitySubtype.QuipuswapHarvestFromFarm]: QuipuswapLogoSrc,
-  [ActivitySubtype.QuipuswapHarvestFromDividents]: QuipuswapLogoSrc
+  [ActivitySubtype.QuipuswapHarvestFromDividents]: QuipuswapLogoSrc,
+  [ActivitySubtype.QuipuswapSend]: QuipuswapLogoSrc,
+  [ActivitySubtype.QuipuswapReceive]: QuipuswapLogoSrc
 };
 
 const actorAvatarStyles = 'border border-gray-300 mr-2 rounded-md min-w-9';
@@ -66,11 +68,28 @@ export const useActivityItemViewModel = (activity: DisplayableActivity) => {
   const [isOpen, setIsOpen] = useState(false);
   const [wasToggled, setWasToggled] = useState(false);
 
-  const { isDelegation, isBakingRewards, isSend, isReceive, isInteraction, is3Route, isAllowanceChange, isRevoke } =
-    getActivityTypeFlags(activity);
+  const {
+    isDelegation,
+    isBakingRewards,
+    isSend,
+    isReceive,
+    isInteraction,
+    is3Route,
+    isAllowanceChange,
+    isRevoke,
+    isQuipuswapSend,
+    isQuipuswapReceive
+  } = getActivityTypeFlags(activity);
   const { prepositionI18nKey: actorPrepositionI18nKey, actor } = getActor(activity);
   const shouldShowBaker = (isDelegation || isBakingRewards) && isDefined(actor);
-  const shouldShowActor = isDelegation || isBakingRewards || isSend || isReceive || isAllowanceChange;
+  const shouldShowActor =
+    isDelegation ||
+    isBakingRewards ||
+    isSend ||
+    isReceive ||
+    isQuipuswapSend ||
+    isQuipuswapReceive ||
+    isAllowanceChange;
   const headerTokensDeltasFilteringMode = isInteraction ? FilteringMode.ONLY_POSITIVE_IF_PRESENT : FilteringMode.NONE;
   const allowanceChanges = isAllowanceChange ? (activity as AllowanceInteractionActivity).allowanceChanges : [];
   const cashback = is3Route ? (activity as Route3Activity).cashback : undefined;

@@ -1839,6 +1839,12 @@
   "harvestFromDividents": {
     "message": "Harvest From Dividents"
   },
+  "swapAndSend": {
+    "message": "Swap and Send"
+  },
+  "receiveFromSwap": {
+    "message": "Receive from swap"
+  },
   "quipuswap": {
     "message": "Quipuswap"
   }

@@ -19,7 +19,7 @@ interface Props {
 
 const activityTypesI18nKeys = {
   [ActivityType.Send]: 'send' as const,
-  [ActivityType.Recieve]: 'receive' as const,
+  [ActivityType.Receive]: 'receive' as const,
   [ActivityType.Delegation]: 'delegation' as const,
   [ActivityType.BakingRewards]: 'bakerRewards' as const,
   [ActivityType.Interaction]: 'interaction' as const
@@ -42,7 +42,9 @@ const activitySubtypesI18nKeys = {
   [ActivitySubtype.QuipuswapInvestInFarm]: 'quipuswap' as const,
   [ActivitySubtype.QuipuswapDivestFromFarm]: 'quipuswap' as const,
   [ActivitySubtype.QuipuswapHarvestFromFarm]: 'quipuswap' as const,
-  [ActivitySubtype.QuipuswapHarvestFromDividents]: 'quipuswap' as const
+  [ActivitySubtype.QuipuswapHarvestFromDividents]: 'quipuswap' as const,
+  [ActivitySubtype.QuipuswapSend]: 'quipuswap' as const,
+  [ActivitySubtype.QuipuswapReceive]: 'quipuswap' as const
 };
 
 export const ActivityTypeView: FC<Props> = ({ activity }) => {

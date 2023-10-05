@@ -3,7 +3,8 @@ import {
   ActivitySubtype,
   ActivityType,
   AllowanceInteractionActivity,
-  InteractionActivity
+  InteractionActivity,
+  isQuipuswapSendParameter
 } from '@temple-wallet/transactions-parser';
 
 import { getAssetSymbol, isCollectible } from 'lib/metadata';
@@ -20,7 +21,7 @@ export const getActivityTypeFlags = (activity: DisplayableActivity) => {
   const isDelegation = type === ActivityType.Delegation;
   const isBakingRewards = type === ActivityType.BakingRewards;
   const isSend = type === ActivityType.Send;
-  const isReceive = type === ActivityType.Recieve;
+  const isReceive = type === ActivityType.Receive;
   const isInteraction = type === ActivityType.Interaction;
   const is3Route = isInteraction && activity.subtype === ActivitySubtype.Route3;
   const isQuipuswapCoinflip =
@@ -46,6 +47,8 @@ export const getActivityTypeFlags = (activity: DisplayableActivity) => {
   const isQuipuswapHarvestFromFarm = isInteraction && activity.subtype === ActivitySubtype.QuipuswapHarvestFromFarm;
   const isQuipuswapHarvestFromDividents =
     isInteraction && activity.subtype === ActivitySubtype.QuipuswapHarvestFromDividents;
+  const isQuipuswapSend = isInteraction && activity.subtype === ActivitySubtype.QuipuswapSend;
+  const isQuipuswapReceive = isInteraction && activity.subtype === ActivitySubtype.QuipuswapReceive;
 
   const isAllowanceChange = isInteraction && activity.subtype === ActivitySubtype.ChangeAllowance;
   const isRevoke = isAllowanceChange && Boolean(activity.allowanceChanges[0]?.atomicAmount.isZero());
@@ -73,7 +76,9 @@ export const getActivityTypeFlags = (activity: DisplayableActivity) => {
     isQuipuswapInvestInFarm,
     isQuipuswapDivestFromFarm,
     isQuipuswapHarvestFromFarm,
-    isQuipuswapHarvestFromDividents
+    isQuipuswapHarvestFromDividents,
+    isQuipuswapSend,
+    isQuipuswapReceive
   };
 };
 
@@ -95,7 +100,8 @@ export const getAssetSymbolOrName = (metadata: AssetMetadataBase | undefined) =>
 };
 
 export const getActor = (activity: DisplayableActivity) => {
-  const { isAllowanceChange, isRevoke, isSend, isDelegation } = getActivityTypeFlags(activity);
+  const { isAllowanceChange, isRevoke, isSend, isDelegation, isQuipuswapSend, isQuipuswapReceive } =
+    getActivityTypeFlags(activity);
 
   if (isAllowanceChange) {
     const firstAllowanceChange = (activity as AllowanceInteractionActivity).allowanceChanges[0];
@@ -103,6 +109,20 @@ export const getActor = (activity: DisplayableActivity) => {
     return {
       prepositionI18nKey: isRevoke ? ('from' as const) : ('toAsset' as const),
       actor: isDefined(firstAllowanceChange) ? { address: firstAllowanceChange.spenderAddress } : activity.to
+    };
+  }
+
+  if (isQuipuswapSend && isQuipuswapSendParameter(activity.parameter)) {
+    return {
+      prepositionI18nKey: 'toAsset' as const,
+      actor: { address: activity.parameter.value.receiver }
+    };
+  }
+
+  if (isQuipuswapReceive) {
+    return {
+      prepositionI18nKey: 'from' as const,
+      actor: activity.initiator
     };
   }
 
@@ -128,4 +148,6 @@ export const isQuipuswapSubtype = (subtype: ActivitySubtype): boolean =>
   subtype === ActivitySubtype.QuipuswapInvestInFarm ||
   subtype === ActivitySubtype.QuipuswapDivestFromFarm ||
   subtype === ActivitySubtype.QuipuswapHarvestFromFarm ||
-  subtype === ActivitySubtype.QuipuswapHarvestFromDividents;
+  subtype === ActivitySubtype.QuipuswapHarvestFromDividents ||
+  subtype === ActivitySubtype.QuipuswapSend ||
+  subtype === ActivitySubtype.QuipuswapReceive;
