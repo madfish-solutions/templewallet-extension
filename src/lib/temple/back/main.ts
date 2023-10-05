@@ -5,13 +5,13 @@ import { BACKGROUND_IS_WORKER } from 'lib/env';
 import { encodeMessage, encryptMessage, getSenderId, MessageType, Response } from 'lib/temple/beacon';
 import { clearAsyncStorages } from 'lib/temple/reset';
 import { TempleMessageType, TempleRequest, TempleResponse } from 'lib/temple/types';
+import { getTrackedUrl } from 'lib/utils/url-track/get-tracked-url';
 
 import { ContentScriptType } from '../../constants';
 import * as Actions from './actions';
 import * as Analytics from './analytics';
 import { intercom } from './defaults';
 import { store, toFront } from './store';
-import { modifyTrackedUrl } from './utils';
 
 const frontStore = store.map(toFront);
 
@@ -246,8 +246,11 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
 
 browser.runtime.onMessage.addListener(msg => {
   if (msg?.type === ContentScriptType.ExternalLinksActivity) {
-    const modifiedUrl = modifyTrackedUrl(msg.url);
-    Analytics.client.track('External links activity', { url: modifiedUrl });
+    const url = getTrackedUrl(msg.url);
+
+    if (url) {
+      Analytics.client.track('External links activity', { url });
+    }
   }
 
   if (msg?.type === E2eMessageType.ResetRequest) {

@@ -1,5 +1,6 @@
 import React, { FC, useCallback, useEffect, useMemo, useState } from 'react';
 
+import { ChainIds } from '@taquito/taquito';
 import clsx from 'clsx';
 import { useDispatch } from 'react-redux';
 
@@ -21,7 +22,7 @@ import { TEZ_TOKEN_SLUG, TEMPLE_TOKEN_SLUG } from 'lib/assets';
 import { useEnabledAccountTokensSlugs } from 'lib/assets/hooks';
 import { useFilteredAssetsSlugs } from 'lib/assets/use-filtered';
 import { T, t } from 'lib/i18n';
-import { useAccount } from 'lib/temple/front';
+import { useAccount, useChainId } from 'lib/temple/front';
 import { useLocalStorage } from 'lib/ui/local-storage';
 import Popper, { PopperRenderProps } from 'lib/ui/Popper';
 import { ZERO } from 'lib/utils/numbers';
@@ -34,12 +35,12 @@ import { toExploreAssetLink } from './utils';
 
 const LOCAL_STORAGE_TOGGLE_KEY = 'tokens-list:hide-zero-balances';
 const svgIconClassName = 'w-4 h-4 stroke-current fill-current text-gray-600';
-const LEADING_ASSETS = [TEZ_TOKEN_SLUG, TEMPLE_TOKEN_SLUG];
 
 export const TokensTab: FC = () => {
   const dispatch = useDispatch();
   const balances = useBalancesWithDecimals();
 
+  const chainId = useChainId()!;
   const { publicKeyHash } = useAccount();
   const { popup } = useAppEnv();
 
@@ -54,10 +55,15 @@ export const TokensTab: FC = () => {
     [setIsZeroBalancesHidden]
   );
 
+  const leadingAssets = useMemo(
+    () => (chainId === ChainIds.MAINNET ? [TEZ_TOKEN_SLUG, TEMPLE_TOKEN_SLUG] : [TEZ_TOKEN_SLUG]),
+    [chainId]
+  );
+
   const { filteredAssets, searchValue, setSearchValue } = useFilteredAssetsSlugs(
     slugs,
     isZeroBalancesHidden,
-    LEADING_ASSETS
+    leadingAssets
   );
 
   const isEnabledAdsBanner = useIsEnabledAdsBannerSelector();

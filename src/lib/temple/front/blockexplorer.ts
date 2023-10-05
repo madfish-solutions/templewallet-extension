@@ -7,7 +7,11 @@ import { useStorage } from './storage';
 
 type BlockExplorerId = 'tzkt' | 'tzstats' | 'bcd' | 't4l3nt';
 
-type BaseUrls = { account?: string; transaction: string; api?: string };
+interface BaseUrls {
+  account?: string;
+  transaction: string;
+  api?: string;
+}
 
 export type BlockExplorer = {
   id: BlockExplorerId;
@@ -117,8 +121,11 @@ export function useExplorerBaseUrls(): Partial<BaseUrls> {
   const chainId = useChainId();
   const { explorer } = useBlockExplorer();
 
-  if (chainId && isKnownChainId(chainId)) {
-    return explorer.baseUrls.get(chainId) ?? {};
-  }
-  return {};
+  return useMemo(() => {
+    if (chainId && isKnownChainId(chainId)) {
+      return explorer.baseUrls.get(chainId) ?? {};
+    }
+
+    return {};
+  }, [chainId, explorer]);
 }
