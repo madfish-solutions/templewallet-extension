@@ -77,9 +77,9 @@ export const useActivityItemViewModel = (activity: DisplayableActivity) => {
     is3Route,
     isAllowanceChange,
     isRevoke,
-    isQuipuswapSend,
-    isQuipuswapReceive
+    quipuswap
   } = getActivityTypeFlags(activity);
+  const { isQuipuswapSend, isQuipuswapReceive } = quipuswap;
   const { prepositionI18nKey: actorPrepositionI18nKey, actor } = getActor(activity);
   const shouldShowBaker = (isDelegation || isBakingRewards) && isDefined(actor);
   const shouldShowActor =

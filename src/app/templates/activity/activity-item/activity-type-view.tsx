@@ -25,26 +25,28 @@ const activityTypesI18nKeys = {
   [ActivityType.Interaction]: 'interaction' as const
 };
 
+const quipuswapActivitySubtype = 'quipuswap' as const;
+
 const activitySubtypesI18nKeys = {
   [ActivitySubtype.Route3]: 'route3' as const,
-  [ActivitySubtype.QuipuswapCoinflipBet]: 'quipuswap' as const,
-  [ActivitySubtype.QuipuswapCoinflipWin]: 'quipuswap' as const,
-  [ActivitySubtype.QuipuswapAddLiqiudityV1]: 'quipuswap' as const,
-  [ActivitySubtype.QuipuswapRemoveLiquidityV1]: 'quipuswap' as const,
-  [ActivitySubtype.QuipuswapAddLiqiudityV2]: 'quipuswap' as const,
-  [ActivitySubtype.QuipuswapRemoveLiquidityV2]: 'quipuswap' as const,
-  [ActivitySubtype.QuipuswapAddLiqiudityV3]: 'quipuswap' as const,
-  [ActivitySubtype.QuipuswapRemoveLiquidityV3]: 'quipuswap' as const,
-  [ActivitySubtype.QuipuswapAddLiquidityStableswap]: 'quipuswap' as const,
-  [ActivitySubtype.QuipuswapRemoveLiquidityStableswap]: 'quipuswap' as const,
-  [ActivitySubtype.QuipuswapInvestInDividents]: 'quipuswap' as const,
-  [ActivitySubtype.QuipuswapDivestFromDividents]: 'quipuswap' as const,
-  [ActivitySubtype.QuipuswapInvestInFarm]: 'quipuswap' as const,
-  [ActivitySubtype.QuipuswapDivestFromFarm]: 'quipuswap' as const,
-  [ActivitySubtype.QuipuswapHarvestFromFarm]: 'quipuswap' as const,
-  [ActivitySubtype.QuipuswapHarvestFromDividents]: 'quipuswap' as const,
-  [ActivitySubtype.QuipuswapSend]: 'quipuswap' as const,
-  [ActivitySubtype.QuipuswapReceive]: 'quipuswap' as const
+  [ActivitySubtype.QuipuswapCoinflipBet]: quipuswapActivitySubtype,
+  [ActivitySubtype.QuipuswapCoinflipWin]: quipuswapActivitySubtype,
+  [ActivitySubtype.QuipuswapAddLiqiudityV1]: quipuswapActivitySubtype,
+  [ActivitySubtype.QuipuswapRemoveLiquidityV1]: quipuswapActivitySubtype,
+  [ActivitySubtype.QuipuswapAddLiqiudityV2]: quipuswapActivitySubtype,
+  [ActivitySubtype.QuipuswapRemoveLiquidityV2]: quipuswapActivitySubtype,
+  [ActivitySubtype.QuipuswapAddLiqiudityV3]: quipuswapActivitySubtype,
+  [ActivitySubtype.QuipuswapRemoveLiquidityV3]: quipuswapActivitySubtype,
+  [ActivitySubtype.QuipuswapAddLiquidityStableswap]: quipuswapActivitySubtype,
+  [ActivitySubtype.QuipuswapRemoveLiquidityStableswap]: quipuswapActivitySubtype,
+  [ActivitySubtype.QuipuswapInvestInDividents]: quipuswapActivitySubtype,
+  [ActivitySubtype.QuipuswapDivestFromDividents]: quipuswapActivitySubtype,
+  [ActivitySubtype.QuipuswapInvestInFarm]: quipuswapActivitySubtype,
+  [ActivitySubtype.QuipuswapDivestFromFarm]: quipuswapActivitySubtype,
+  [ActivitySubtype.QuipuswapHarvestFromFarm]: quipuswapActivitySubtype,
+  [ActivitySubtype.QuipuswapHarvestFromDividents]: quipuswapActivitySubtype,
+  [ActivitySubtype.QuipuswapSend]: quipuswapActivitySubtype,
+  [ActivitySubtype.QuipuswapReceive]: quipuswapActivitySubtype
 };
 
 export const ActivityTypeView: FC<Props> = ({ activity }) => {

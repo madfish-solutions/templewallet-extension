@@ -15,13 +15,9 @@ interface Props {
 
 export const ActivitySubtitle: FC<Props> = memo(({ activity }) => {
   const { prepositionI18nKey, actor } = getActor(activity);
+  const { isSend, isReceive, is3Route, isAllowanceChange, isDelegation, isBakingRewards, quipuswap } =
+    getActivityTypeFlags(activity);
   const {
-    isSend,
-    isReceive,
-    is3Route,
-    isAllowanceChange,
-    isDelegation,
-    isBakingRewards,
     isQuipuswapCoinflip,
     isQuipuswapAddLiqiudityV1,
     isQuipuswapRemoveLiquidityV1,
@@ -39,7 +35,7 @@ export const ActivitySubtitle: FC<Props> = memo(({ activity }) => {
     isQuipuswapHarvestFromDividents,
     isQuipuswapSend,
     isQuipuswapReceive
-  } = getActivityTypeFlags(activity);
+  } = quipuswap;
   const shouldShowActorAddressInSubtitle = (isSend || isReceive || isAllowanceChange) && isDefined(actor);
   const shouldShowBaker = (isDelegation || isBakingRewards) && isDefined(actor);
   const shouldShowActor = isDelegation || isBakingRewards || isSend || isReceive || isAllowanceChange;

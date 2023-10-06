@@ -62,23 +62,25 @@ export const getActivityTypeFlags = (activity: DisplayableActivity) => {
     is3Route,
     isAllowanceChange,
     isRevoke,
-    isQuipuswapCoinflip,
-    isQuipuswapAddLiqiudityV1,
-    isQuipuswapRemoveLiquidityV1,
-    isQuipuswapAddLiqiudityV2,
-    isQuipuswapRemoveLiquidityV2,
-    isQuipuswapAddLiqiudityV3,
-    isQuipuswapRemoveLiquidityV3,
-    isQuipuswapAddLiqiudityStableswap,
-    isQuipuswapRemoveLiquidityStableswap,
-    isQuipuswapInvestInDividents,
-    isQuipuswapDivestFromDividents,
-    isQuipuswapInvestInFarm,
-    isQuipuswapDivestFromFarm,
-    isQuipuswapHarvestFromFarm,
-    isQuipuswapHarvestFromDividents,
-    isQuipuswapSend,
-    isQuipuswapReceive
+    quipuswap: {
+      isQuipuswapCoinflip,
+      isQuipuswapAddLiqiudityV1,
+      isQuipuswapRemoveLiquidityV1,
+      isQuipuswapAddLiqiudityV2,
+      isQuipuswapRemoveLiquidityV2,
+      isQuipuswapAddLiqiudityV3,
+      isQuipuswapRemoveLiquidityV3,
+      isQuipuswapAddLiqiudityStableswap,
+      isQuipuswapRemoveLiquidityStableswap,
+      isQuipuswapInvestInDividents,
+      isQuipuswapDivestFromDividents,
+      isQuipuswapInvestInFarm,
+      isQuipuswapDivestFromFarm,
+      isQuipuswapHarvestFromFarm,
+      isQuipuswapHarvestFromDividents,
+      isQuipuswapSend,
+      isQuipuswapReceive
+    }
   };
 };
 
@@ -100,8 +102,8 @@ export const getAssetSymbolOrName = (metadata: AssetMetadataBase | undefined) =>
 };
 
 export const getActor = (activity: DisplayableActivity) => {
-  const { isAllowanceChange, isRevoke, isSend, isDelegation, isQuipuswapSend, isQuipuswapReceive } =
-    getActivityTypeFlags(activity);
+  const { isAllowanceChange, isRevoke, isSend, isDelegation, quipuswap } = getActivityTypeFlags(activity);
+  const { isQuipuswapSend, isQuipuswapReceive } = quipuswap;
 
   if (isAllowanceChange) {
     const firstAllowanceChange = (activity as AllowanceInteractionActivity).allowanceChanges[0];
@@ -132,22 +134,25 @@ export const getActor = (activity: DisplayableActivity) => {
   };
 };
 
-export const isQuipuswapSubtype = (subtype: ActivitySubtype): boolean =>
-  subtype === ActivitySubtype.QuipuswapCoinflipBet ||
-  subtype === ActivitySubtype.QuipuswapCoinflipWin ||
-  subtype === ActivitySubtype.QuipuswapAddLiqiudityV1 ||
-  subtype === ActivitySubtype.QuipuswapRemoveLiquidityV1 ||
-  subtype === ActivitySubtype.QuipuswapAddLiqiudityV2 ||
-  subtype === ActivitySubtype.QuipuswapRemoveLiquidityV2 ||
-  subtype === ActivitySubtype.QuipuswapAddLiqiudityV3 ||
-  subtype === ActivitySubtype.QuipuswapRemoveLiquidityV3 ||
-  subtype === ActivitySubtype.QuipuswapAddLiquidityStableswap ||
-  subtype === ActivitySubtype.QuipuswapRemoveLiquidityStableswap ||
-  subtype === ActivitySubtype.QuipuswapInvestInDividents ||
-  subtype === ActivitySubtype.QuipuswapDivestFromDividents ||
-  subtype === ActivitySubtype.QuipuswapInvestInFarm ||
-  subtype === ActivitySubtype.QuipuswapDivestFromFarm ||
-  subtype === ActivitySubtype.QuipuswapHarvestFromFarm ||
-  subtype === ActivitySubtype.QuipuswapHarvestFromDividents ||
-  subtype === ActivitySubtype.QuipuswapSend ||
-  subtype === ActivitySubtype.QuipuswapReceive;
+const QuipuswapSubtypes = [
+  ActivitySubtype.QuipuswapCoinflipBet,
+  ActivitySubtype.QuipuswapCoinflipWin,
+  ActivitySubtype.QuipuswapAddLiqiudityV1,
+  ActivitySubtype.QuipuswapRemoveLiquidityV1,
+  ActivitySubtype.QuipuswapAddLiqiudityV2,
+  ActivitySubtype.QuipuswapRemoveLiquidityV2,
+  ActivitySubtype.QuipuswapAddLiqiudityV3,
+  ActivitySubtype.QuipuswapRemoveLiquidityV3,
+  ActivitySubtype.QuipuswapAddLiquidityStableswap,
+  ActivitySubtype.QuipuswapRemoveLiquidityStableswap,
+  ActivitySubtype.QuipuswapInvestInDividents,
+  ActivitySubtype.QuipuswapDivestFromDividents,
+  ActivitySubtype.QuipuswapInvestInFarm,
+  ActivitySubtype.QuipuswapDivestFromFarm,
+  ActivitySubtype.QuipuswapHarvestFromFarm,
+  ActivitySubtype.QuipuswapHarvestFromDividents,
+  ActivitySubtype.QuipuswapSend,
+  ActivitySubtype.QuipuswapReceive
+];
+
+export const isQuipuswapSubtype = (subtype: ActivitySubtype) => QuipuswapSubtypes.includes(subtype);
