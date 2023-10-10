@@ -1,7 +1,6 @@
 import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import bip39WordList from 'bip39/src/wordlists/english.json';
-import clsx from 'clsx';
 
 import { FormField, FormFieldElement } from 'app/atoms/FormField';
 import type { TestIDProperty } from 'lib/analytics';
@@ -34,9 +33,9 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
   testID
 }) => {
   const inputRef = useRef<HTMLInputElement>(null);
-  const isError = submitted ? !value : false;
+
   const [isBlur, setIsBlur] = useState(true);
-  const errorCheckRef = useRef<boolean | undefined>(undefined);
+  const [isError, setIsError] = useState(false);
   const [showAutocomplete, setShowAutocomplete] = useState(false);
 
   const handlePaste = useCallback(
@@ -50,14 +49,19 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
   );
 
   useEffect(() => {
+    if (submitted && !value) {
+      setIsError(true);
+      return;
+    }
+
     if (value && !bip39WordList.includes(value)) {
       setWordSpellingError(t('mnemonicWordsError'));
-      errorCheckRef.current = true;
+      setIsError(true);
     } else {
-      errorCheckRef.current = undefined;
+      setIsError(false);
       setWordSpellingError('');
     }
-  }, [value, isBlur, errorCheckRef, setWordSpellingError]);
+  }, [submitted, value, setWordSpellingError]);
 
   useEffect(() => {
     if (!isBlur && value && value.length > 1) {
@@ -90,7 +94,7 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
 
   return (
     <div className="flex flex-col relative">
-      <label htmlFor={id.toString()} className={clsx('self-center', isError ? 'text-red-600' : 'text-gray-500')}>
+      <label htmlFor={id.toString()} className="self-center text-gray-500">
         <p style={{ fontSize: 14 }}>{`#${id + 1}`}</p>
       </label>
 
@@ -109,15 +113,15 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
         smallPaddings
         fieldWrapperBottomMargin={false}
         testID={testID}
-        errorCaption={errorCheckRef.current}
+        errorCaption={isError}
         style={{ backgroundColor: 'white' }}
       />
       {showAutocomplete && autocompleteVariants && autocompleteVariants.length > 0 && (
         <div className="w-full rounded-md bg-gray-100 text-gray-700 text-lg leading-tight absolute left-0 z-50 px-2 pb-2 top-18 shadow-lg flex flex-col">
           {autocompleteVariants.map(variant => (
-            <div className="mt-2 hover:bg-gray-200 w-full rounded focus:bg-gray-200" key={variant}>
+            <div className="mt-2 hover:bg-gray-200 rounded w-full focus:bg-gray-200" key={variant}>
               <button
-                className="px-3 py-2 w-full text-left text-gray-600 hover:text-gray-910 focus:text-gray-910 focus:bg-gray-200"
+                className="px-3 py-2 w-full text-left rounded text-gray-600 hover:text-gray-910 focus:text-gray-910 focus:bg-gray-200 focus:outline-none"
                 onClick={e => handleClick(e, variant)}
                 onBlur={handleBlur}
               >
