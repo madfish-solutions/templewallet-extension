@@ -3,7 +3,7 @@ import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from 're
 import bip39WordList from 'bip39/src/wordlists/english.json';
 import clsx from 'clsx';
 
-import { FormField, FormFieldElement, FORM_FIELD_CLASS_NAME } from 'app/atoms/FormField';
+import { FormField, FormFieldElement } from 'app/atoms/FormField';
 import type { TestIDProperty } from 'lib/analytics';
 import { t } from 'lib/i18n';
 
@@ -113,11 +113,11 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
         style={{ backgroundColor: 'white' }}
       />
       {showAutocomplete && autocompleteVariants && autocompleteVariants.length > 0 && (
-        <div className={clsx(FORM_FIELD_CLASS_NAME, 'absolute left-0 z-50 px-2 top-18 shadow-lg flex flex-col')}>
+        <div className="w-full rounded-md bg-gray-100 text-gray-700 text-lg leading-tight absolute left-0 z-50 px-2 pb-2 top-18 shadow-lg flex flex-col">
           {autocompleteVariants.map(variant => (
-            <div className="hover:bg-gray-200 w-full rounded focus:bg-gray-200" key={variant}>
+            <div className="mt-2 hover:bg-gray-200 w-full rounded focus:bg-gray-200" key={variant}>
               <button
-                className="my-2 px-3 py-2 w-full text-left  text-gray-600 hover:text-gray-910 focus:text-gray-910 focus:bg-gray-200"
+                className="px-3 py-2 w-full text-left text-gray-600 hover:text-gray-910 focus:text-gray-910 focus:bg-gray-200"
                 onClick={e => handleClick(e, variant)}
                 onBlur={handleBlur}
               >

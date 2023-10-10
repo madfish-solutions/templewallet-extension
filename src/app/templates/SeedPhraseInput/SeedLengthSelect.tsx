@@ -55,7 +55,9 @@ export const SeedLengthSelect: FC<SeedLengthSelectProps> = ({ options, currentOp
     >
       <div className={classNames('flex flex-row justify-around p-2')} onClick={() => setIsOpen(!isOpen)}>
         <span style={{ fontSize: 13 }}>{t('seedInputNumberOfWords', [`${selectedOption}`])}</span>
-        <SelectArrowDownIcon className="ml-1" />
+        <SelectArrowDownIcon
+          className={classNames('ml-1 transition ease-in-out duration-75', isOpen && 'transform rotate-180')}
+        />
       </div>
       <ul className={classNames(!isOpen && 'hidden')}>
         {options.map(option => {
@@ -66,7 +68,7 @@ export const SeedLengthSelect: FC<SeedLengthSelectProps> = ({ options, currentOp
               onClick={() => handleClick(option)}
               className={classNames(
                 selectedOption === option ? 'bg-gray-200' : 'hover:bg-gray-100',
-                'py-1',
+                'py-2',
                 'text-gray-800',
                 'flex justify-start px-3 m-2 rounded-md',
                 'text-lg'
