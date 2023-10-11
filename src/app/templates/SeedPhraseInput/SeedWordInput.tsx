@@ -1,6 +1,7 @@
 import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import bip39WordList from 'bip39/src/wordlists/english.json';
+import classNames from 'clsx';
 
 import { FormField, FormFieldElement } from 'app/atoms/FormField';
 import type { TestIDProperty } from 'lib/analytics';
@@ -8,6 +9,8 @@ import { t } from 'lib/i18n';
 
 export interface SeedWordInputProps extends TestIDProperty {
   id: number;
+  inputsRef: React.MutableRefObject<(FormFieldElement | null)[]>;
+  numberOfWords: number;
   submitted: boolean;
   value?: string;
   onChange?: (e: React.ChangeEvent<FormFieldElement>) => void;
@@ -22,6 +25,8 @@ const BUTTON_TAG_NAME = 'BUTTON';
 
 export const SeedWordInput: FC<SeedWordInputProps> = ({
   id,
+  inputsRef,
+  numberOfWords,
   submitted,
   value,
   onChange,
@@ -32,20 +37,17 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
   onSeedWordChange,
   testID
 }) => {
-  const inputRef = useRef<HTMLInputElement>(null);
+  const variantsRef = useRef<Array<HTMLButtonElement | null>>([]);
 
   const [isBlur, setIsBlur] = useState(true);
   const [isError, setIsError] = useState(false);
-  const [showAutocomplete, setShowAutocomplete] = useState(false);
 
-  const handlePaste = useCallback(
-    (e: React.ClipboardEvent<FormFieldElement>) => {
-      if (onPaste) {
-        inputRef.current?.blur();
-        onPaste(e);
-      }
-    },
-    [onPaste]
+  const [showAutoComplete, setShowAutoComplete] = useState(false);
+  const [focusedVariantIndex, setFocusedVariantIndex] = useState(-1);
+
+  const autoCompleteVariants = useMemo(
+    () => (value ? bip39WordList.filter(word => word.startsWith(value)).slice(0, 3) : null),
+    [value]
   );
 
   useEffect(() => {
@@ -65,30 +67,94 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
 
   useEffect(() => {
     if (!isBlur && value && value.length > 1) {
-      setShowAutocomplete(true);
+      setShowAutoComplete(true);
     } else {
-      setShowAutocomplete(false);
+      setShowAutoComplete(false);
     }
-  }, [showAutocomplete, value, isBlur]);
+  }, [showAutoComplete, value, isBlur]);
 
-  const autocompleteVariants = useMemo(
-    () => (value ? bip39WordList.filter(word => word.startsWith(value)).slice(0, 3) : null),
-    [value]
+  useEffect(() => variantsRef.current[focusedVariantIndex]?.focus(), [focusedVariantIndex]);
+
+  const handlePaste = useCallback(
+    (e: React.ClipboardEvent<FormFieldElement>) => {
+      if (onPaste) {
+        inputsRef.current[id]?.blur();
+        onPaste(e);
+      }
+    },
+    [onPaste]
   );
 
-  const handleClick = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>, variant: string) => {
-    e.preventDefault();
-    if (inputRef && inputRef.current) {
+  const setValueToVariant = (variant: string) => {
+    if (inputsRef.current[id]) {
       onSeedWordChange(id, variant);
       setWordSpellingError('');
-      inputRef.current.value = variant;
+      inputsRef.current[id]!.value = variant;
     }
     setIsBlur(true);
+  };
+
+  const handleVariantClick = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>, variant: string) => {
+    e.preventDefault();
+    setValueToVariant(variant);
   };
 
   const handleBlur = (e: React.FocusEvent) => {
     if (e.relatedTarget?.tagName !== BUTTON_TAG_NAME) {
       setIsBlur(true);
+      setFocusedVariantIndex(-1);
+    }
+  };
+
+  const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    if (!autoCompleteVariants) {
+      return;
+    }
+
+    if (e.key === 'Tab' || e.key === 'Enter') {
+      setValueToVariant(autoCompleteVariants[0]);
+
+      if (id < numberOfWords - 1) {
+        e.preventDefault();
+        inputsRef.current[id + 1]?.focus();
+      }
+    }
+
+    if (e.key === 'ArrowDown' && autoCompleteVariants.length > 1) {
+      e.preventDefault();
+      setFocusedVariantIndex(1);
+    }
+  };
+
+  const handleVariantKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>, variant: string) => {
+    if (!autoCompleteVariants) {
+      return;
+    }
+
+    if (e.key === 'Tab' || e.key === 'Enter') {
+      setValueToVariant(variant);
+
+      if (id < numberOfWords - 1) {
+        e.preventDefault();
+        inputsRef.current[id + 1]?.focus();
+      }
+    }
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      if (focusedVariantIndex < autoCompleteVariants.length - 1) {
+        setFocusedVariantIndex(prev => prev + 1);
+      }
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      if (focusedVariantIndex === 0) {
+        inputsRef.current[id]?.focus();
+        setFocusedVariantIndex(-1);
+      }
+
+      if (focusedVariantIndex > 0) {
+        setFocusedVariantIndex(prev => prev - 1);
+      }
     }
   };
 
@@ -99,7 +165,7 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
       </label>
 
       <FormField
-        ref={inputRef}
+        ref={el => (inputsRef.current[id] = el)}
         type="password"
         id={id.toString()}
         onChange={onChange}
@@ -115,19 +181,26 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
         testID={testID}
         errorCaption={isError}
         style={{ backgroundColor: 'white' }}
+        onKeyDown={handleInputKeyDown}
       />
-      {showAutocomplete && autocompleteVariants && autocompleteVariants.length > 0 && (
+      {showAutoComplete && autoCompleteVariants && autoCompleteVariants.length > 0 && (
         <div className="w-full rounded-md bg-gray-100 text-gray-700 text-lg leading-tight absolute left-0 z-50 px-2 pb-2 top-18 shadow-lg flex flex-col">
-          {autocompleteVariants.map(variant => (
-            <div className="mt-2 hover:bg-gray-200 rounded w-full focus:bg-gray-200" key={variant}>
-              <button
-                className="px-3 py-2 w-full text-left rounded text-gray-600 hover:text-gray-910 focus:text-gray-910 focus:bg-gray-200 focus:outline-none"
-                onClick={e => handleClick(e, variant)}
-                onBlur={handleBlur}
-              >
-                {variant}
-              </button>
-            </div>
+          {autoCompleteVariants.map((variant, index) => (
+            <button
+              key={variant}
+              ref={el => (variantsRef.current[index] = el)}
+              className={classNames(
+                'mt-2 px-3 py-2 w-full text-left rounded text-gray-600',
+                'hover:text-gray-910 hover:bg-gray-200',
+                'focus:text-gray-910 focus:bg-gray-200 focus:outline-none',
+                index === 0 && focusedVariantIndex === -1 && 'text-gray-910 bg-gray-200'
+              )}
+              onClick={e => handleVariantClick(e, variant)}
+              onBlur={handleBlur}
+              onKeyDown={e => handleVariantKeyDown(e, variant)}
+            >
+              {variant}
+            </button>
           ))}
         </div>
       )}

@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useMemo, useState } from 'react';
+import React, { FC, useCallback, useMemo, useRef, useState } from 'react';
 
 import { validateMnemonic } from 'bip39';
 import bip39WordList from 'bip39/src/wordlists/english.json';
@@ -41,6 +41,8 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
   setNumberOfWords,
   testID
 }) => {
+  const inputsRef = useRef<Array<FormFieldElement | null>>([]);
+
   const { popup } = useAppEnv();
 
   const [pasteFailed, setPasteFailed] = useState(false);
@@ -195,6 +197,8 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
             <SeedWordInput
               key={key}
               id={index}
+              inputsRef={inputsRef}
+              numberOfWords={numberOfWords}
               submitted={submitted}
               onChange={handleChange}
               revealRef={getRevealRef(index)}
