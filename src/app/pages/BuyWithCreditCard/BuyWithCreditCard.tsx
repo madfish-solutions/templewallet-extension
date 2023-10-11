@@ -19,6 +19,7 @@ import { getAssetSymbolToDisplay } from 'lib/buy-with-credit-card/get-asset-symb
 import { TopUpInputInterface } from 'lib/buy-with-credit-card/topup.interface';
 import { shouldShowFieldError } from 'lib/form/should-show-field-error';
 import { t, T, toLocalFormat } from 'lib/i18n';
+import { FIAT_ICONS_SRC } from 'lib/icons';
 import { useInterval } from 'lib/ui/hooks';
 
 import { BuyWithCreditCardSelectors } from './BuyWithCreditCard.selectors';
@@ -32,7 +33,10 @@ import { usePaymentProviders } from './hooks/use-payment-providers';
 import { useUpdateCurrentProvider } from './hooks/use-update-current-provider';
 import { AmountErrorType } from './types/amount-error-type';
 
-const fitFiatIconFn = (currency: TopUpInputInterface) => !currency.icon.startsWith(MOONPAY_ASSETS_BASE_URL);
+const FORM_REFRESH_INTERVAL = 20000;
+
+const fitFiatIconFn = (currency: TopUpInputInterface) =>
+  !currency.icon.startsWith(MOONPAY_ASSETS_BASE_URL) && currency.icon !== FIAT_ICONS_SRC.UAH;
 
 export const BuyWithCreditCard: FC = () => {
   const dispatch = useDispatch();
@@ -130,7 +134,7 @@ export const BuyWithCreditCard: FC = () => {
     isLoading
   );
 
-  useInterval(refreshForm, 10000, [refreshForm], false);
+  useInterval(refreshForm, FORM_REFRESH_INTERVAL, [refreshForm], false);
 
   const minAmountStr = useMemo(
     () =>

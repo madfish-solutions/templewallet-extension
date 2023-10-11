@@ -6,7 +6,7 @@ import { ofType } from 'ts-action-operators';
 
 import type { RootState } from 'app/store/root-state.type';
 import { getMoonPayCurrencies } from 'lib/apis/moonpay';
-import { getAliceBobPairInfo } from 'lib/apis/temple';
+import { getAliceBobPairsInfo } from 'lib/apis/temple';
 import { getCurrenciesInfo as getUtorgCurrenciesInfo } from 'lib/apis/utorg';
 import { PAIR_NOT_FOUND_MESSAGE } from 'lib/buy-with-credit-card/constants';
 import { getUpdatedFiatLimits } from 'lib/buy-with-credit-card/get-updated-fiat-limits';
@@ -36,7 +36,7 @@ const loadAllCurrenciesEpic: Epic = (action$: Observable<Action>) =>
       forkJoin([
         getCurrencies$(getMoonPayCurrencies, mapMoonPayProviderCurrencies),
         getCurrencies$(getUtorgCurrenciesInfo, mapUtorgProviderCurrencies),
-        getCurrencies$(() => getAliceBobPairInfo(false), mapAliceBobProviderCurrencies)
+        getCurrencies$(() => getAliceBobPairsInfo(false), mapAliceBobProviderCurrencies)
       ]).pipe(
         map(([moonpayCurrencies, utorgCurrencies, tezUahPairInfo]) =>
           loadAllCurrenciesActions.success({
