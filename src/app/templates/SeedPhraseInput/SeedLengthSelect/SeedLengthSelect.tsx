@@ -5,7 +5,7 @@ import classNames from 'clsx';
 import { ReactComponent as SelectArrowDownIcon } from 'app/icons/select-arrow-down.svg';
 import { t } from 'lib/i18n';
 
-import styles from './seedLength.module.css';
+import { SeedLengthOption } from './SeedLengthOption/SeedLengthOption';
 
 interface SeedLengthSelectProps {
   options: Array<string>;
@@ -62,30 +62,13 @@ export const SeedLengthSelect: FC<SeedLengthSelectProps> = ({ options, currentOp
       <ul className={classNames(!isOpen && 'hidden')}>
         {options.map(option => {
           return (
-            <li
+            <SeedLengthOption
               key={option}
-              value={option}
-              onClick={() => handleClick(option)}
-              className={classNames(
-                selectedOption === option ? 'bg-gray-200' : 'hover:bg-gray-100',
-                'py-2',
-                'text-gray-800',
-                'flex justify-start px-3 m-2 rounded-md',
-                'text-lg'
-              )}
-            >
-              <label htmlFor={option} className="flex gap-2 items-center">
-                <input
-                  type="radio"
-                  id={option}
-                  value={option}
-                  checked={selectedOption === option}
-                  onChange={e => setSelectedOption(e.target.value)}
-                  className={styles.input}
-                />
-                <span className="text-sm">{option}</span>
-              </label>
-            </li>
+              option={option}
+              selectedOption={selectedOption}
+              onClick={handleClick}
+              onChange={setSelectedOption}
+            />
           );
         })}
       </ul>

@@ -82,81 +82,97 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
         onPaste(e);
       }
     },
-    [onPaste]
+    [id, inputsRef, onPaste]
   );
 
-  const setValueToVariant = (variant: string) => {
-    if (inputsRef.current[id]) {
-      onSeedWordChange(id, variant);
-      setWordSpellingError('');
-      inputsRef.current[id]!.value = variant;
-    }
-    setIsBlur(true);
-  };
+  const setValueToVariant = useCallback(
+    (variant: string) => {
+      if (inputsRef.current[id]) {
+        onSeedWordChange(id, variant);
+        setWordSpellingError('');
+        inputsRef.current[id]!.value = variant;
+      }
+      setIsBlur(true);
+    },
+    [id, inputsRef, onSeedWordChange, setWordSpellingError]
+  );
 
-  const handleVariantClick = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>, variant: string) => {
-    e.preventDefault();
-    setValueToVariant(variant);
-  };
+  const handleVariantClick = useCallback(
+    (e: React.MouseEvent<HTMLButtonElement, MouseEvent>, variant: string) => {
+      e.preventDefault();
+      setValueToVariant(variant);
+    },
+    [setValueToVariant]
+  );
 
-  const handleBlur = (e: React.FocusEvent) => {
+  const handleBlur = useCallback((e: React.FocusEvent) => {
     if (e.relatedTarget?.tagName !== BUTTON_TAG_NAME) {
       setIsBlur(true);
       setFocusedVariantIndex(-1);
     }
-  };
+  }, []);
 
-  const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    if (!autoCompleteVariants) {
-      return;
-    }
+  const handleInputKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      if (!autoCompleteVariants) {
+        return;
+      }
 
-    if (e.key === 'Tab' || e.key === 'Enter') {
-      setValueToVariant(autoCompleteVariants[0]);
+      if (e.key === 'Tab' || e.key === 'Enter') {
+        setValueToVariant(autoCompleteVariants[0]);
 
-      if (id < numberOfWords - 1) {
+        if (id < numberOfWords - 1) {
+          e.preventDefault();
+          inputsRef.current[id + 1]?.focus();
+        }
+      }
+
+      if (e.key === 'ArrowDown' && autoCompleteVariants.length > 1) {
         e.preventDefault();
-        inputsRef.current[id + 1]?.focus();
+        setFocusedVariantIndex(1);
       }
-    }
+    },
+    [autoCompleteVariants, id, inputsRef, numberOfWords, setValueToVariant]
+  );
 
-    if (e.key === 'ArrowDown' && autoCompleteVariants.length > 1) {
-      e.preventDefault();
-      setFocusedVariantIndex(1);
-    }
-  };
+  const handleVariantKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLButtonElement>, variant: string) => {
+      if (!autoCompleteVariants) {
+        return;
+      }
 
-  const handleVariantKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>, variant: string) => {
-    if (!autoCompleteVariants) {
-      return;
-    }
+      if (e.key === 'Tab' || e.key === 'Enter') {
+        setValueToVariant(variant);
 
-    if (e.key === 'Tab' || e.key === 'Enter') {
-      setValueToVariant(variant);
+        if (id < numberOfWords - 1) {
+          e.preventDefault();
+          inputsRef.current[id + 1]?.focus();
+        }
+      }
 
-      if (id < numberOfWords - 1) {
+      if (e.key === 'ArrowDown') {
         e.preventDefault();
-        inputsRef.current[id + 1]?.focus();
-      }
-    }
+        if (focusedVariantIndex < autoCompleteVariants.length - 1) {
+          setFocusedVariantIndex(prev => prev + 1);
+        }
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        if (focusedVariantIndex === 0) {
+          inputsRef.current[id]?.focus();
+          setFocusedVariantIndex(-1);
+        }
 
-    if (e.key === 'ArrowDown') {
-      e.preventDefault();
-      if (focusedVariantIndex < autoCompleteVariants.length - 1) {
-        setFocusedVariantIndex(prev => prev + 1);
+        if (focusedVariantIndex > 0) {
+          setFocusedVariantIndex(prev => prev - 1);
+        }
       }
-    } else if (e.key === 'ArrowUp') {
-      e.preventDefault();
-      if (focusedVariantIndex === 0) {
-        inputsRef.current[id]?.focus();
-        setFocusedVariantIndex(-1);
-      }
+    },
+    [autoCompleteVariants, focusedVariantIndex, id, inputsRef, numberOfWords, setValueToVariant]
+  );
 
-      if (focusedVariantIndex > 0) {
-        setFocusedVariantIndex(prev => prev - 1);
-      }
-    }
-  };
+  const setInputRef = useCallback((el: FormFieldElement | null) => (inputsRef.current[id] = el), [id, inputsRef]);
+
+  const handleFocus = useCallback(() => setIsBlur(false), []);
 
   return (
     <div className="flex flex-col relative">
@@ -165,13 +181,13 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
       </label>
 
       <FormField
-        ref={el => (inputsRef.current[id] = el)}
+        ref={setInputRef}
         type="password"
         id={id.toString()}
         onChange={onChange}
         onBlur={handleBlur}
         value={value}
-        onFocus={() => setIsBlur(false)}
+        onFocus={handleFocus}
         onPaste={handlePaste}
         revealRef={revealRef}
         onReveal={onReveal}

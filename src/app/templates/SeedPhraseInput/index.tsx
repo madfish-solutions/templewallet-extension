@@ -1,7 +1,6 @@
 import React, { FC, useCallback, useMemo, useRef, useState } from 'react';
 
 import { validateMnemonic } from 'bip39';
-import bip39WordList from 'bip39/src/wordlists/english.json';
 import classNames from 'clsx';
 
 import { FormFieldElement } from 'app/atoms/FormField';
@@ -11,7 +10,7 @@ import { TestIDProperty } from 'lib/analytics';
 import { T, t } from 'lib/i18n';
 import { clearClipboard } from 'lib/ui/utils';
 
-import { SeedLengthSelect } from './SeedLengthSelect';
+import { SeedLengthSelect } from './SeedLengthSelect/SeedLengthSelect';
 import { SeedWordInput, SeedWordInputProps } from './SeedWordInput';
 import { useRevealRef } from './use-reveal-ref.hook';
 
@@ -53,23 +52,25 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
   const { getRevealRef, onReveal, resetRevealRef } = useRevealRef();
 
   const onSeedChange = useCallback(
-    (newDraftSeed: Array<string>) => {
-      let newSeedError = '';
-      const joinedDraftSeed = newDraftSeed.join(' ');
+    (newDraftSeed: string[]) => {
+      setDraftSeed(newDraftSeed);
 
-      if (newDraftSeed.some(Boolean)) {
-        if (newDraftSeed.some(word => word === '')) {
-          if (newDraftSeed.some(word => word !== '' && bip39WordList.includes(word))) {
-            newSeedError = '';
-          } else {
-            newSeedError = t('mnemonicWordsAmountConstraint', [numberOfWords]) as string;
-          }
-        } else if (!validateMnemonic(formatMnemonic(joinedDraftSeed))) {
-          newSeedError = t('justValidPreGeneratedMnemonic');
-        }
+      const joinedDraftSeed = newDraftSeed.join(' ');
+      let newSeedError = '';
+
+      if (!newDraftSeed.some(Boolean)) {
+        onChange(joinedDraftSeed);
+        return;
       }
 
-      setDraftSeed(newDraftSeed);
+      if (newDraftSeed.some(word => word === '')) {
+        newSeedError = t('mnemonicWordsAmountConstraint', [numberOfWords]) as string;
+      }
+
+      if (!validateMnemonic(formatMnemonic(joinedDraftSeed))) {
+        newSeedError = t('justValidPreGeneratedMnemonic');
+      }
+
       setSeedError(newSeedError);
       onChange(newSeedError ? '' : joinedDraftSeed);
     },
