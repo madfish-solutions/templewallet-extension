@@ -55,12 +55,16 @@ export class HomePage extends Page {
   }
 
   async isZeroBalanceHidden() {
-    const tokenList = await findElements(AssetsSelectors.assetItemCryptoBalanceButton);
+    const balancesElems = await findElements(AssetsSelectors.assetItemCryptoBalanceButton);
 
     /* Begin from second index (third token in the list) because
     first two tokens won't be hidden after clicking on 'hide 0 balances' */
-    for (let i = 2; i < tokenList.length; i++) {
-      const tokenBalance = await getElementText(tokenList[i]);
+    for (let i = 2; i < balancesElems.length; i++) {
+      const balanceElem = balancesElems[i];
+      const fullValueElem = await balanceElem.$(':scope > input');
+      if (!fullValueElem) throw new Error('Cannot read full token balance value');
+
+      const tokenBalance = await getElementText(fullValueElem);
 
       if (Number(tokenBalance) === 0) {
         throw new Error(`Token with zero balance is not hidden`);

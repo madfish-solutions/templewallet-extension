@@ -242,11 +242,12 @@ const ManageButtonDropdown: FC<ManageButtonDropdownProps> = ({
 
       <Divider className="my-2" />
 
-      <label className={buttonClassName} {...setTestID(AssetsSelectors.dropdownHideZeroBalancesCheckbox)}>
+      <label className={buttonClassName}>
         <Checkbox
           overrideClassNames="h-4 w-4 rounded"
           checked={isZeroBalancesHidden}
           onChange={toggleHideZeroBalances}
+          testID={AssetsSelectors.dropdownHideZeroBalancesCheckbox}
         />
         <span className="text-sm text-gray-600 ml-2 leading-5">
           <T id="hideZeroBalance" />

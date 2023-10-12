@@ -297,11 +297,11 @@ const FullAmountTippy: FC<FullAmountTippyProps> = ({
   );
 
   return (
-    <div className="contents">
+    <div className="contents" {...setTestID(testID)}>
       {enabled ? (
         <>
           <span ref={ref} onClick={handleClick} {...rest} />
-          <input ref={fieldRef} value={fullAmountStr} readOnly className="sr-only" {...setTestID(testID)} />
+          <input ref={fieldRef} value={fullAmountStr} readOnly className="sr-only" />
         </>
       ) : (
         <span {...rest} />
