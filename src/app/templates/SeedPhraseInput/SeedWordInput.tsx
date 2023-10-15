@@ -12,7 +12,6 @@ export interface SeedWordInputProps extends TestIDProperty {
   inputsRef: React.MutableRefObject<(FormFieldElement | null)[]>;
   numberOfWords: number;
   submitted: boolean;
-  seedError: boolean;
   revealRef: unknown;
   onReveal: EmptyFn;
   setWordSpellingErrorsCount: Dispatch<SetStateAction<number>>;
@@ -29,7 +28,6 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
   inputsRef,
   numberOfWords,
   submitted,
-  seedError,
   revealRef,
   onReveal,
   setWordSpellingErrorsCount,
@@ -52,6 +50,8 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
     [value]
   );
 
+  const errorCaption = (submitted && !value) || isWordSpellingError;
+
   useEffect(() => {
     if (isWordSpellingError) {
       setWordSpellingErrorsCount(prev => prev + 1);
@@ -61,19 +61,31 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
   }, [isWordSpellingError, setWordSpellingErrorsCount]);
 
   useEffect(() => {
-    if (value && !bip39WordList.includes(value)) {
-      setIsWordSpellingError(true);
-    } else {
+    if (!value) {
       setIsWordSpellingError(false);
+      return;
     }
+
+    if (!bip39WordList.includes(value)) {
+      setIsWordSpellingError(true);
+      return;
+    }
+
+    setIsWordSpellingError(false);
   }, [submitted, value]);
 
   useEffect(() => {
-    if (!isBlur && value && value.length > 1) {
-      setShowAutoComplete(true);
-    } else {
+    if (isBlur) {
       setShowAutoComplete(false);
+      return;
     }
+
+    if (value && value.length > 1) {
+      setShowAutoComplete(true);
+      return;
+    }
+
+    setShowAutoComplete(false);
   }, [showAutoComplete, value, isBlur]);
 
   useEffect(() => variantsRef.current[focusedVariantIndex]?.focus(), [focusedVariantIndex]);
@@ -195,7 +207,7 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
         smallPaddings
         fieldWrapperBottomMargin={false}
         testID={testID}
-        errorCaption={(submitted && seedError) || isWordSpellingError}
+        errorCaption={errorCaption}
         style={{ backgroundColor: 'white' }}
         onKeyDown={handleInputKeyDown}
       />

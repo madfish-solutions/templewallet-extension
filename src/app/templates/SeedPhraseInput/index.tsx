@@ -201,7 +201,6 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
               inputsRef={inputsRef}
               numberOfWords={numberOfWords}
               submitted={submitted}
-              seedError={Boolean(seedError)}
               onChange={handleChange}
               revealRef={getRevealRef(index)}
               onReveal={() => onReveal(index)}
