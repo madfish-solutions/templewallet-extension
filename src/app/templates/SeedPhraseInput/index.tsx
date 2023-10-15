@@ -172,6 +172,7 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
               onSeedChange(newDraftSeed);
               reset();
               setSeedError('');
+              setWordSpellingError('');
             }}
           />
         </div>
