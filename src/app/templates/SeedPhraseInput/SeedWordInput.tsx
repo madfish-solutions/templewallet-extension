@@ -1,5 +1,6 @@
 import React, { Dispatch, FC, SetStateAction, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
+import { emptyFn } from '@rnw-community/shared';
 import bip39WordList from 'bip39/src/wordlists/english.json';
 import classNames from 'clsx';
 
@@ -34,8 +35,8 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
   setWordSpellingErrorsCount,
   onSeedWordChange,
   value,
-  onChange,
-  onPaste,
+  onChange = emptyFn,
+  onPaste = emptyFn,
   testID
 }) => {
   const variantsRef = useRef<Array<HTMLButtonElement | null>>([]);
@@ -79,10 +80,8 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
 
   const handlePaste = useCallback(
     (e: React.ClipboardEvent<FormFieldElement>) => {
-      if (onPaste) {
-        inputsRef.current[id]?.blur();
-        onPaste(e);
-      }
+      inputsRef.current[id]?.blur();
+      onPaste(e);
     },
     [id, inputsRef, onPaste]
   );

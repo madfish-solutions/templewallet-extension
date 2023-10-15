@@ -7,6 +7,8 @@ import { ReactComponent as EyeOpenBold } from 'app/icons/eye-open-bold.svg';
 import { USER_ACTION_TIMEOUT } from 'lib/fixed-times';
 import { useDidUpdate, useTimeout } from 'lib/ui/hooks';
 
+const DEFAULT_REVEAL_REF_VALUE = 0;
+
 const usePasswordToggle = (
   smallPaddings: boolean,
   onReveal?: EmptyFn,
@@ -17,7 +19,10 @@ const usePasswordToggle = (
 
   const hide = useCallback(() => void setVisibility(false), []);
 
-  useDidUpdate(hide, [revealRef]);
+  useDidUpdate(() => {
+    if (revealRef === DEFAULT_REVEAL_REF_VALUE) return;
+    hide();
+  }, [revealRef]);
 
   useTimeout(hide, USER_ACTION_TIMEOUT, visible);
 
@@ -28,8 +33,10 @@ const usePasswordToggle = (
         tabIndex={1}
         className={clsx('absolute inset-y-0', smallPaddings ? 'right-2' : 'right-3')}
         onClick={() => {
-          setVisibility(!visible);
-          if (!visible) onReveal?.();
+          if (!visible) {
+            onReveal?.();
+          }
+          setVisibility(prev => !prev);
         }}
         onBlur={handleBlur}
       >
