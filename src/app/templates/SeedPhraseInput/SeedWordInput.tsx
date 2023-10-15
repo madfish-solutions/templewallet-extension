@@ -1,24 +1,23 @@
-import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { Dispatch, FC, SetStateAction, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import bip39WordList from 'bip39/src/wordlists/english.json';
 import classNames from 'clsx';
 
 import { FormField, FormFieldElement } from 'app/atoms/FormField';
 import type { TestIDProperty } from 'lib/analytics';
-import { t } from 'lib/i18n';
 
 export interface SeedWordInputProps extends TestIDProperty {
   id: number;
   inputsRef: React.MutableRefObject<(FormFieldElement | null)[]>;
   numberOfWords: number;
   submitted: boolean;
+  revealRef: unknown;
+  onReveal: EmptyFn;
+  setWordSpellingErrorsCount: Dispatch<SetStateAction<number>>;
+  onSeedWordChange: (index: number, value: string) => void;
   value?: string;
   onChange?: (e: React.ChangeEvent<FormFieldElement>) => void;
   onPaste?: (e: React.ClipboardEvent<FormFieldElement>) => void;
-  revealRef: unknown;
-  onReveal: EmptyFn;
-  setWordSpellingError: (e: string) => void;
-  onSeedWordChange: (index: number, value: string) => void;
 }
 
 const BUTTON_TAG_NAME = 'BUTTON';
@@ -28,13 +27,13 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
   inputsRef,
   numberOfWords,
   submitted,
+  revealRef,
+  onReveal,
+  setWordSpellingErrorsCount,
+  onSeedWordChange,
   value,
   onChange,
   onPaste,
-  revealRef,
-  onReveal,
-  setWordSpellingError,
-  onSeedWordChange,
   testID
 }) => {
   const variantsRef = useRef<Array<HTMLButtonElement | null>>([]);
@@ -51,19 +50,25 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
   );
 
   useEffect(() => {
+    if (isError) {
+      setWordSpellingErrorsCount(prev => prev + 1);
+    } else {
+      setWordSpellingErrorsCount(prev => (prev > 0 ? prev - 1 : prev));
+    }
+  }, [isError, setWordSpellingErrorsCount]);
+
+  useEffect(() => {
     if (submitted && !value) {
       setIsError(true);
       return;
     }
 
     if (value && !bip39WordList.includes(value)) {
-      setWordSpellingError(t('mnemonicWordsError'));
       setIsError(true);
     } else {
       setIsError(false);
-      setWordSpellingError('');
     }
-  }, [submitted, value, setWordSpellingError]);
+  }, [submitted, value]);
 
   useEffect(() => {
     if (!isBlur && value && value.length > 1) {
@@ -89,12 +94,11 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
     (variant: string) => {
       if (inputsRef.current[id]) {
         onSeedWordChange(id, variant);
-        setWordSpellingError('');
         inputsRef.current[id]!.value = variant;
       }
       setIsBlur(true);
     },
-    [id, inputsRef, onSeedWordChange, setWordSpellingError]
+    [id, inputsRef, onSeedWordChange]
   );
 
   const handleVariantClick = useCallback(

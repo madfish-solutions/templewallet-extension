@@ -46,8 +46,7 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
 
   const [pasteFailed, setPasteFailed] = useState(false);
   const [draftSeed, setDraftSeed] = useState(new Array<string>(defaultNumberOfWords).fill(''));
-
-  const [wordSpellingError, setWordSpellingError] = useState('');
+  const [wordSpellingErrorsCount, setWordSpellingErrorsCount] = useState(0);
 
   const { getRevealRef, onReveal, resetRevealRef } = useRevealRef();
 
@@ -172,7 +171,7 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
               onSeedChange(newDraftSeed);
               reset();
               setSeedError('');
-              setWordSpellingError('');
+              setWordSpellingErrorsCount(0);
             }}
           />
         </div>
@@ -193,7 +192,6 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
           const handleChange = (event: React.ChangeEvent<FormFieldElement>) => {
             event.preventDefault();
             onSeedWordChange(index, event.target.value);
-            setWordSpellingError('');
           };
 
           return (
@@ -209,23 +207,27 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
               value={draftSeed[index]}
               testID={testID}
               onPaste={onSeedWordPaste}
-              setWordSpellingError={setWordSpellingError}
+              setWordSpellingErrorsCount={setWordSpellingErrorsCount}
               onSeedWordChange={onSeedWordChange}
             />
           );
         })}
       </div>
 
-      <div className="h-20">
-        {wordSpellingError && <div className="text-xs text-red-700 pt-4 h-10">{wordSpellingError}</div>}
+      <div className="h-12 mt-4 mb-6 text-xs text-red-700">
+        {submitted && seedError && <div>{seedError}</div>}
 
-        {submitted && seedError && <div className="text-xs text-red-700 py-2 h-10">{seedError}</div>}
+        {wordSpellingErrorsCount > 0 && (
+          <div>
+            <T id="mnemonicWordsError" />
+          </div>
+        )}
 
-        {pasteFailed ? (
-          <div className="text-xs text-red-700 mt-4">
+        {pasteFailed && (
+          <div>
             <T id="seedPasteFailedTooManyWords" />
           </div>
-        ) : null}
+        )}
       </div>
     </div>
   );
