@@ -108,7 +108,12 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
     const secret = secretProp && textarea;
     const Field = textarea ? 'textarea' : 'input';
 
-    const [passwordInputType, RevealPasswordIcon] = usePasswordToggle(smallPaddings, onReveal, revealRef);
+    const [passwordInputType, RevealPasswordIcon] = usePasswordToggle(
+      smallPaddings,
+      onReveal,
+      revealRef,
+      onBlur as (e: React.FocusEvent) => void
+    );
     const isPasswordInput = type === 'password';
     const inputType = isPasswordInput ? passwordInputType : type;
 

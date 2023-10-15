@@ -171,6 +171,7 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
               setNumberOfWords(newNumberOfWords);
               onSeedChange(newDraftSeed);
               reset();
+              setSeedError('');
             }}
           />
         </div>

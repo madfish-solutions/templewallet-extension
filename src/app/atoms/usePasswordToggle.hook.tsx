@@ -10,7 +10,8 @@ import { useDidUpdate, useTimeout } from 'lib/ui/hooks';
 const usePasswordToggle = (
   smallPaddings: boolean,
   onReveal?: EmptyFn,
-  revealRef?: unknown
+  revealRef?: unknown,
+  handleBlur?: (e: React.FocusEvent) => void
 ): ['text' | 'password', JSX.Element] => {
   const [visible, setVisibility] = useState(false);
 
@@ -30,11 +31,12 @@ const usePasswordToggle = (
           setVisibility(!visible);
           if (!visible) onReveal?.();
         }}
+        onBlur={handleBlur}
       >
         {visible ? <EyeClosedBold /> : <EyeOpenBold />}
       </button>
     ),
-    [visible, smallPaddings, onReveal]
+    [smallPaddings, handleBlur, visible, onReveal]
   );
 
   const inputType = visible ? 'text' : 'password';
