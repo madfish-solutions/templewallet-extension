@@ -11,6 +11,7 @@ export interface SeedWordInputProps extends TestIDProperty {
   inputsRef: React.MutableRefObject<(FormFieldElement | null)[]>;
   numberOfWords: number;
   submitted: boolean;
+  seedError: boolean;
   revealRef: unknown;
   onReveal: EmptyFn;
   setWordSpellingErrorsCount: Dispatch<SetStateAction<number>>;
@@ -27,6 +28,7 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
   inputsRef,
   numberOfWords,
   submitted,
+  seedError,
   revealRef,
   onReveal,
   setWordSpellingErrorsCount,
@@ -39,7 +41,7 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
   const variantsRef = useRef<Array<HTMLButtonElement | null>>([]);
 
   const [isBlur, setIsBlur] = useState(true);
-  const [isError, setIsError] = useState(false);
+  const [isWordSpellingError, setIsWordSpellingError] = useState(false);
 
   const [showAutoComplete, setShowAutoComplete] = useState(false);
   const [focusedVariantIndex, setFocusedVariantIndex] = useState(-1);
@@ -50,23 +52,18 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
   );
 
   useEffect(() => {
-    if (isError) {
+    if (isWordSpellingError) {
       setWordSpellingErrorsCount(prev => prev + 1);
     } else {
       setWordSpellingErrorsCount(prev => (prev > 0 ? prev - 1 : prev));
     }
-  }, [isError, setWordSpellingErrorsCount]);
+  }, [isWordSpellingError, setWordSpellingErrorsCount]);
 
   useEffect(() => {
-    if (submitted && !value) {
-      setIsError(true);
-      return;
-    }
-
     if (value && !bip39WordList.includes(value)) {
-      setIsError(true);
+      setIsWordSpellingError(true);
     } else {
-      setIsError(false);
+      setIsWordSpellingError(false);
     }
   }, [submitted, value]);
 
@@ -199,7 +196,7 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
         smallPaddings
         fieldWrapperBottomMargin={false}
         testID={testID}
-        errorCaption={isError}
+        errorCaption={(submitted && seedError) || isWordSpellingError}
         style={{ backgroundColor: 'white' }}
         onKeyDown={handleInputKeyDown}
       />
