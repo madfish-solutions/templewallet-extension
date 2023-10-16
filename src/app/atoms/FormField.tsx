@@ -31,7 +31,7 @@ export const PASSWORD_ERROR_CAPTION = 'PASSWORD_ERROR_CAPTION';
 export type FormFieldElement = HTMLInputElement | HTMLTextAreaElement;
 type FormFieldAttrs = InputHTMLAttributes<HTMLInputElement> & TextareaHTMLAttributes<HTMLTextAreaElement>;
 
-export interface FormFieldProps extends TestIDProperty, Omit<FormFieldAttrs, 'type'> {
+export interface FormFieldProps extends TestIDProperty, Omit<FormFieldAttrs, 'type' | 'onBlur'> {
   type?: 'text' | 'number' | 'password';
   extraSection?: ReactNode;
   label?: ReactNode;
@@ -55,6 +55,7 @@ export interface FormFieldProps extends TestIDProperty, Omit<FormFieldAttrs, 'ty
   extraInnerWrapper?: 'default' | 'none' | 'unset';
   onClean?: EmptyFn;
   onReveal?: EmptyFn;
+  onBlur?: React.FocusEventHandler;
   smallPaddings?: boolean;
   fieldWrapperBottomMargin?: boolean;
   copyable?: boolean;
@@ -108,12 +109,7 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
     const secret = secretProp && textarea;
     const Field = textarea ? 'textarea' : 'input';
 
-    const [passwordInputType, RevealPasswordIcon] = usePasswordToggle(
-      smallPaddings,
-      onReveal,
-      revealRef,
-      onBlur as (e: React.FocusEvent) => void
-    );
+    const [passwordInputType, RevealPasswordIcon] = usePasswordToggle(smallPaddings, onReveal, revealRef, onBlur);
     const isPasswordInput = type === 'password';
     const inputType = isPasswordInput ? passwordInputType : type;
 
