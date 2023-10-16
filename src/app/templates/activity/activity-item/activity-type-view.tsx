@@ -39,12 +39,12 @@ const activitySubtypesI18nKeys = {
   [ActivitySubtype.QuipuswapRemoveLiquidityV3]: quipuswapActivitySubtype,
   [ActivitySubtype.QuipuswapAddLiquidityStableswap]: quipuswapActivitySubtype,
   [ActivitySubtype.QuipuswapRemoveLiquidityStableswap]: quipuswapActivitySubtype,
-  [ActivitySubtype.QuipuswapInvestInDividents]: quipuswapActivitySubtype,
-  [ActivitySubtype.QuipuswapDivestFromDividents]: quipuswapActivitySubtype,
+  [ActivitySubtype.QuipuswapInvestInDividends]: quipuswapActivitySubtype,
+  [ActivitySubtype.QuipuswapDivestFromDividends]: quipuswapActivitySubtype,
   [ActivitySubtype.QuipuswapInvestInFarm]: quipuswapActivitySubtype,
   [ActivitySubtype.QuipuswapDivestFromFarm]: quipuswapActivitySubtype,
   [ActivitySubtype.QuipuswapHarvestFromFarm]: quipuswapActivitySubtype,
-  [ActivitySubtype.QuipuswapHarvestFromDividents]: quipuswapActivitySubtype,
+  [ActivitySubtype.QuipuswapHarvestFromDividends]: quipuswapActivitySubtype,
   [ActivitySubtype.QuipuswapSend]: quipuswapActivitySubtype,
   [ActivitySubtype.QuipuswapReceive]: quipuswapActivitySubtype
 };

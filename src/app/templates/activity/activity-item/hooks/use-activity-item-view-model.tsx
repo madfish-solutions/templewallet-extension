@@ -50,12 +50,12 @@ const interactionActivitiesLogos = {
   [ActivitySubtype.QuipuswapRemoveLiquidityV3]: QuipuswapLogoSrc,
   [ActivitySubtype.QuipuswapAddLiquidityStableswap]: QuipuswapLogoSrc,
   [ActivitySubtype.QuipuswapRemoveLiquidityStableswap]: QuipuswapLogoSrc,
-  [ActivitySubtype.QuipuswapInvestInDividents]: QuipuswapLogoSrc,
-  [ActivitySubtype.QuipuswapDivestFromDividents]: QuipuswapLogoSrc,
+  [ActivitySubtype.QuipuswapInvestInDividends]: QuipuswapLogoSrc,
+  [ActivitySubtype.QuipuswapDivestFromDividends]: QuipuswapLogoSrc,
   [ActivitySubtype.QuipuswapInvestInFarm]: QuipuswapLogoSrc,
   [ActivitySubtype.QuipuswapDivestFromFarm]: QuipuswapLogoSrc,
   [ActivitySubtype.QuipuswapHarvestFromFarm]: QuipuswapLogoSrc,
-  [ActivitySubtype.QuipuswapHarvestFromDividents]: QuipuswapLogoSrc,
+  [ActivitySubtype.QuipuswapHarvestFromDividends]: QuipuswapLogoSrc,
   [ActivitySubtype.QuipuswapSend]: QuipuswapLogoSrc,
   [ActivitySubtype.QuipuswapReceive]: QuipuswapLogoSrc
 };

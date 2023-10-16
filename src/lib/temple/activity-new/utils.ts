@@ -39,14 +39,14 @@ export const getActivityTypeFlags = (activity: DisplayableActivity) => {
     isInteraction && activity.subtype === ActivitySubtype.QuipuswapAddLiquidityStableswap;
   const isQuipuswapRemoveLiquidityStableswap =
     isInteraction && activity.subtype === ActivitySubtype.QuipuswapRemoveLiquidityStableswap;
-  const isQuipuswapInvestInDividends = isInteraction && activity.subtype === ActivitySubtype.QuipuswapInvestInDividents;
+  const isQuipuswapInvestInDividends = isInteraction && activity.subtype === ActivitySubtype.QuipuswapInvestInDividends;
   const isQuipuswapDivestFromDividends =
-    isInteraction && activity.subtype === ActivitySubtype.QuipuswapDivestFromDividents;
+    isInteraction && activity.subtype === ActivitySubtype.QuipuswapDivestFromDividends;
   const isQuipuswapInvestInFarm = isInteraction && activity.subtype === ActivitySubtype.QuipuswapInvestInFarm;
   const isQuipuswapDivestFromFarm = isInteraction && activity.subtype === ActivitySubtype.QuipuswapDivestFromFarm;
   const isQuipuswapHarvestFromFarm = isInteraction && activity.subtype === ActivitySubtype.QuipuswapHarvestFromFarm;
   const isQuipuswapHarvestFromDividends =
-    isInteraction && activity.subtype === ActivitySubtype.QuipuswapHarvestFromDividents;
+    isInteraction && activity.subtype === ActivitySubtype.QuipuswapHarvestFromDividends;
   const isQuipuswapSend = isInteraction && activity.subtype === ActivitySubtype.QuipuswapSend;
   const isQuipuswapReceive = isInteraction && activity.subtype === ActivitySubtype.QuipuswapReceive;
 
@@ -145,12 +145,12 @@ const QuipuswapSubtypes = [
   ActivitySubtype.QuipuswapRemoveLiquidityV3,
   ActivitySubtype.QuipuswapAddLiquidityStableswap,
   ActivitySubtype.QuipuswapRemoveLiquidityStableswap,
-  ActivitySubtype.QuipuswapInvestInDividents,
-  ActivitySubtype.QuipuswapDivestFromDividents,
+  ActivitySubtype.QuipuswapInvestInDividends,
+  ActivitySubtype.QuipuswapDivestFromDividends,
   ActivitySubtype.QuipuswapInvestInFarm,
   ActivitySubtype.QuipuswapDivestFromFarm,
   ActivitySubtype.QuipuswapHarvestFromFarm,
-  ActivitySubtype.QuipuswapHarvestFromDividents,
+  ActivitySubtype.QuipuswapHarvestFromDividends,
   ActivitySubtype.QuipuswapSend,
   ActivitySubtype.QuipuswapReceive
 ];
