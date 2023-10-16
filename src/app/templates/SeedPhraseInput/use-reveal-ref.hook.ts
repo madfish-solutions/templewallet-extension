@@ -1,5 +1,7 @@
 import { useCallback, useState } from 'react';
 
+import { isDefined } from '@rnw-community/shared';
+
 interface RevealRef {
   value: number;
   index: number;
@@ -27,7 +29,7 @@ export const useRevealRef = () => {
 
       setRevealRef({
         index,
-        value: revealRef ? revealRef.value + 1 : DEFAULT_VALUE + 1
+        value: isDefined(revealRef) ? revealRef.value + 1 : revealRef === null ? RESET_VALUE + 1 : DEFAULT_VALUE + 1
       });
     },
     [revealRef]
