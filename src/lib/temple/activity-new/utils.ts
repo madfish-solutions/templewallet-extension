@@ -39,13 +39,13 @@ export const getActivityTypeFlags = (activity: DisplayableActivity) => {
     isInteraction && activity.subtype === ActivitySubtype.QuipuswapAddLiquidityStableswap;
   const isQuipuswapRemoveLiquidityStableswap =
     isInteraction && activity.subtype === ActivitySubtype.QuipuswapRemoveLiquidityStableswap;
-  const isQuipuswapInvestInDividents = isInteraction && activity.subtype === ActivitySubtype.QuipuswapInvestInDividents;
-  const isQuipuswapDivestFromDividents =
+  const isQuipuswapInvestInDividends = isInteraction && activity.subtype === ActivitySubtype.QuipuswapInvestInDividents;
+  const isQuipuswapDivestFromDividends =
     isInteraction && activity.subtype === ActivitySubtype.QuipuswapDivestFromDividents;
   const isQuipuswapInvestInFarm = isInteraction && activity.subtype === ActivitySubtype.QuipuswapInvestInFarm;
   const isQuipuswapDivestFromFarm = isInteraction && activity.subtype === ActivitySubtype.QuipuswapDivestFromFarm;
   const isQuipuswapHarvestFromFarm = isInteraction && activity.subtype === ActivitySubtype.QuipuswapHarvestFromFarm;
-  const isQuipuswapHarvestFromDividents =
+  const isQuipuswapHarvestFromDividends =
     isInteraction && activity.subtype === ActivitySubtype.QuipuswapHarvestFromDividents;
   const isQuipuswapSend = isInteraction && activity.subtype === ActivitySubtype.QuipuswapSend;
   const isQuipuswapReceive = isInteraction && activity.subtype === ActivitySubtype.QuipuswapReceive;
@@ -72,12 +72,12 @@ export const getActivityTypeFlags = (activity: DisplayableActivity) => {
       isQuipuswapRemoveLiquidityV3,
       isQuipuswapAddLiqiudityStableswap,
       isQuipuswapRemoveLiquidityStableswap,
-      isQuipuswapInvestInDividents,
-      isQuipuswapDivestFromDividents,
+      isQuipuswapInvestInDividends,
+      isQuipuswapDivestFromDividends,
       isQuipuswapInvestInFarm,
       isQuipuswapDivestFromFarm,
       isQuipuswapHarvestFromFarm,
-      isQuipuswapHarvestFromDividents,
+      isQuipuswapHarvestFromDividends,
       isQuipuswapSend,
       isQuipuswapReceive
     }

@@ -3133,49 +3133,49 @@
     "message": "Today"
   },
   "coinflip": {
-    "message": "Coinflip"
+    "message": "Coin flip"
   },
-  "addLiqiudityV1": {
-    "message": "Add Liquidity V1"
+  "investInV1": {
+    "message": "Invest in V1"
   },
-  "removeLiqiudityV1": {
-    "message": "Remove Liqiudity V1"
+  "divestFromV1": {
+    "message": "Divest from V1"
   },
-  "addLiqiudityV2": {
-    "message": "Add Liqiudity V2"
+  "investInV2": {
+    "message": "Invest in V2"
   },
-  "removeLiqiudityV2": {
-    "message": "Remove Liqiudity V2"
+  "divestFromV2": {
+    "message": "Divest from V2"
   },
-  "addLiqiudityV3": {
-    "message": "Add Liqiudity V3"
+  "investInV3": {
+    "message": "Invest in V3"
   },
-  "removeLiqiudityV3": {
-    "message": "Remove Liqiudity V3"
+  "divestFromV3": {
+    "message": "Divest from V3"
   },
-  "addLiqiudityStableswap": {
-    "message": "Add Liqiudity Stableswap"
+  "investInStableswap": {
+    "message": "Invest in Stableswap"
   },
-  "removeLiqiudityStableswap": {
-    "message": "Remove Liqiudity Stableswap"
+  "divestFromStableswap": {
+    "message": "Divest from Stableswap"
   },
-  "investInDividents": {
-    "message": "Invest In Dividents"
+  "investInDividends": {
+    "message": "Invest In Dividends"
   },
-  "divestFromDividents": {
-    "message": "Divest From Dividents"
+  "divestFromDividends": {
+    "message": "Divest From Dividends"
   },
-  "investInFarm": {
-    "message": "Invest In Farm"
+  "stakeToFarm": {
+    "message": "Stake to farm"
   },
-  "divestFromFarm": {
-    "message": "Divest From Farm"
+  "unstakeFromFarm": {
+    "message": "Unstake from farm"
   },
-  "harvestFromFarm": {
-    "message": "Harvest From Farm"
+  "claimRewards": {
+    "message": "Claim Rewards"
   },
-  "harvestFromDividents": {
-    "message": "Harvest From Dividents"
+  "harvestFromDividends": {
+    "message": "Harvest From Dividends"
   },
   "swapAndSend": {
     "message": "Swap and Send"

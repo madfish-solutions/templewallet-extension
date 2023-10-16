@@ -27,12 +27,12 @@ export const ActivitySubtitle: FC<Props> = memo(({ activity }) => {
     isQuipuswapRemoveLiquidityV3,
     isQuipuswapAddLiqiudityStableswap,
     isQuipuswapRemoveLiquidityStableswap,
-    isQuipuswapInvestInDividents,
-    isQuipuswapDivestFromDividents,
+    isQuipuswapInvestInDividends,
+    isQuipuswapDivestFromDividends,
     isQuipuswapInvestInFarm,
     isQuipuswapDivestFromFarm,
     isQuipuswapHarvestFromFarm,
-    isQuipuswapHarvestFromDividents,
+    isQuipuswapHarvestFromDividends,
     isQuipuswapSend,
     isQuipuswapReceive
   } = quipuswap;
@@ -50,33 +50,33 @@ export const ActivitySubtitle: FC<Props> = memo(({ activity }) => {
   } else if (isQuipuswapCoinflip) {
     secondPart = <T id="coinflip" />;
   } else if (isQuipuswapAddLiqiudityV1) {
-    secondPart = <T id="addLiqiudityV1" />;
+    secondPart = <T id="investInV1" />;
   } else if (isQuipuswapRemoveLiquidityV1) {
-    secondPart = <T id="removeLiqiudityV1" />;
+    secondPart = <T id="divestFromV1" />;
   } else if (isQuipuswapAddLiqiudityV2) {
-    secondPart = <T id="addLiqiudityV2" />;
+    secondPart = <T id="investInV2" />;
   } else if (isQuipuswapRemoveLiquidityV2) {
-    secondPart = <T id="removeLiqiudityV2" />;
+    secondPart = <T id="divestFromV2" />;
   } else if (isQuipuswapAddLiqiudityV3) {
-    secondPart = <T id="addLiqiudityV3" />;
+    secondPart = <T id="investInV3" />;
   } else if (isQuipuswapRemoveLiquidityV3) {
-    secondPart = <T id="removeLiqiudityV3" />;
+    secondPart = <T id="divestFromV3" />;
   } else if (isQuipuswapAddLiqiudityStableswap) {
-    secondPart = <T id="addLiqiudityStableswap" />;
+    secondPart = <T id="investInStableswap" />;
   } else if (isQuipuswapRemoveLiquidityStableswap) {
-    secondPart = <T id="removeLiqiudityStableswap" />;
-  } else if (isQuipuswapInvestInDividents) {
-    secondPart = <T id="investInDividents" />;
-  } else if (isQuipuswapDivestFromDividents) {
-    secondPart = <T id="divestFromDividents" />;
+    secondPart = <T id="divestFromStableswap" />;
+  } else if (isQuipuswapInvestInDividends) {
+    secondPart = <T id="investInDividends" />;
+  } else if (isQuipuswapDivestFromDividends) {
+    secondPart = <T id="divestFromDividends" />;
   } else if (isQuipuswapInvestInFarm) {
-    secondPart = <T id="investInFarm" />;
+    secondPart = <T id="stakeToFarm" />;
   } else if (isQuipuswapDivestFromFarm) {
-    secondPart = <T id="divestFromFarm" />;
+    secondPart = <T id="unstakeFromFarm" />;
   } else if (isQuipuswapHarvestFromFarm) {
-    secondPart = <T id="harvestFromFarm" />;
-  } else if (isQuipuswapHarvestFromDividents) {
-    secondPart = <T id="harvestFromDividents" />;
+    secondPart = <T id="claimRewards" />;
+  } else if (isQuipuswapHarvestFromDividends) {
+    secondPart = <T id="harvestFromDividends" />;
   } else if (isQuipuswapSend) {
     secondPart = <T id="swapAndSend" />;
   } else if (isQuipuswapReceive) {
