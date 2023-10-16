@@ -3,6 +3,7 @@ import React, { Dispatch, FC, SetStateAction, useCallback, useEffect, useMemo, u
 import { emptyFn } from '@rnw-community/shared';
 import bip39WordList from 'bip39/src/wordlists/english.json';
 import classNames from 'clsx';
+import debounce from 'debounce-promise';
 
 import { FormField, FormFieldElement } from 'app/atoms/FormField';
 import type { TestIDProperty } from 'lib/analytics';
@@ -50,6 +51,8 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
     [value]
   );
 
+  const debouncedSetIsWordSpellingError = useMemo(() => debounce(setIsWordSpellingError, 200), []);
+
   const errorCaption = (submitted && !value) || isWordSpellingError;
 
   useEffect(() => {
@@ -62,17 +65,17 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
 
   useEffect(() => {
     if (!value) {
-      setIsWordSpellingError(false);
+      debouncedSetIsWordSpellingError(false);
       return;
     }
 
     if (!bip39WordList.includes(value)) {
-      setIsWordSpellingError(true);
+      debouncedSetIsWordSpellingError(true);
       return;
     }
 
-    setIsWordSpellingError(false);
-  }, [submitted, value]);
+    debouncedSetIsWordSpellingError(false);
+  }, [debouncedSetIsWordSpellingError, submitted, value]);
 
   useEffect(() => {
     if (isBlur) {
