@@ -16,6 +16,8 @@ const usePasswordToggle = (
 ): ['text' | 'password', JSX.Element] => {
   const [visible, setVisibility] = useState(false);
 
+  const buttonId = useMemo(() => (id ? `passwordToggle-${id}` : undefined), [id]);
+
   const hide = useCallback(() => void setVisibility(false), []);
 
   useDidUpdate(hide, [revealRef]);
@@ -25,7 +27,7 @@ const usePasswordToggle = (
   const Icon = useMemo(
     () => (
       <button
-        id={id}
+        id={buttonId}
         type="button"
         tabIndex={1}
         className={clsx('absolute inset-y-0', smallPaddings ? 'right-2' : 'right-3')}

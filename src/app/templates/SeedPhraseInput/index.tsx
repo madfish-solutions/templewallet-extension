@@ -8,7 +8,7 @@ import { formatMnemonic } from 'app/defaults';
 import { useAppEnv } from 'app/env';
 import { TestIDProperty } from 'lib/analytics';
 import { T, t } from 'lib/i18n';
-import { clearClipboard } from 'lib/ui/utils';
+//import { clearClipboard } from 'lib/ui/utils';
 
 import { SeedLengthSelect } from './SeedLengthSelect/SeedLengthSelect';
 import { SeedWordInput, SeedWordInputProps } from './SeedWordInput';
@@ -118,7 +118,7 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
 
       resetRevealRef();
       onSeedChange(newDraftSeed);
-      clearClipboard();
+      //clearClipboard();
     },
     [numberOfWords, onSeedChange, pasteFailed, setPasteFailed, resetRevealRef, setNumberOfWords]
   );

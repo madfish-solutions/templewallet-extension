@@ -22,8 +22,6 @@ export interface SeedWordInputProps extends TestIDProperty {
   onPaste?: (e: React.ClipboardEvent<FormFieldElement>) => void;
 }
 
-const BUTTON_TAG_NAME = 'BUTTON';
-
 export const SeedWordInput: FC<SeedWordInputProps> = ({
   id,
   inputsRef,
@@ -122,12 +120,12 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
 
   const handleBlur = useCallback(
     (e: React.FocusEvent) => {
-      const tag = e.relatedTarget?.tagName;
-
-      if (tag !== BUTTON_TAG_NAME || (tag === BUTTON_TAG_NAME && e.relatedTarget?.id !== id.toString())) {
-        setIsBlur(true);
-        setFocusedVariantIndex(-1);
+      if (checkRelatedTarget(id, e.relatedTarget?.id)) {
+        return;
       }
+
+      setIsBlur(true);
+      setFocusedVariantIndex(-1);
     },
     [id]
   );
@@ -224,6 +222,7 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
           {autoCompleteVariants.map((variant, index) => (
             <button
               key={variant}
+              id="autoCompleteVariant"
               ref={el => (variantsRef.current[index] = el)}
               className={classNames(
                 'mt-2 px-3 py-2 w-full text-left rounded text-gray-600',
@@ -242,4 +241,16 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
       )}
     </div>
   );
+};
+
+const checkRelatedTarget = (inputId: number, targetId?: string) => {
+  if (!targetId) {
+    return false;
+  }
+
+  if (targetId === 'autoCompleteVariant') {
+    return true;
+  }
+
+  return targetId.startsWith('passwordToggle') && targetId.split('-')[1] === inputId.toString();
 };
