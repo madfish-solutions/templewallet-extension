@@ -1793,5 +1793,59 @@
   },
   "viewAdsDescription": {
     "message": "I agree to share data(wallet address, IP) and get cashback at Temple Keys for viewing ads"
+  },
+  "coinflip": {
+    "message": "Coin flip"
+  },
+  "investInV1": {
+    "message": "Invest in V1"
+  },
+  "divestFromV1": {
+    "message": "Divest from V1"
+  },
+  "investInV2": {
+    "message": "Invest in V2"
+  },
+  "divestFromV2": {
+    "message": "Divest from V2"
+  },
+  "investInV3": {
+    "message": "Invest in V3"
+  },
+  "divestFromV3": {
+    "message": "Divest from V3"
+  },
+  "investInStableswap": {
+    "message": "Invest in Stableswap"
+  },
+  "divestFromStableswap": {
+    "message": "Divest from Stableswap"
+  },
+  "investInDividends": {
+    "message": "Invest In Dividends"
+  },
+  "divestFromDividends": {
+    "message": "Divest From Dividends"
+  },
+  "stakeToFarm": {
+    "message": "Stake to farm"
+  },
+  "unstakeFromFarm": {
+    "message": "Unstake from farm"
+  },
+  "claimRewards": {
+    "message": "Claim Rewards"
+  },
+  "harvestFromDividends": {
+    "message": "Harvest From Dividends"
+  },
+  "swapAndSend": {
+    "message": "Swap and Send"
+  },
+  "receiveFromSwap": {
+    "message": "Receive from swap"
+  },
+  "quipuswap": {
+    "message": "Quipuswap"
   }
 }

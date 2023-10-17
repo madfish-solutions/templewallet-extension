@@ -19,14 +19,34 @@ interface Props {
 
 const activityTypesI18nKeys = {
   [ActivityType.Send]: 'send' as const,
-  [ActivityType.Recieve]: 'receive' as const,
+  [ActivityType.Receive]: 'receive' as const,
   [ActivityType.Delegation]: 'delegation' as const,
   [ActivityType.BakingRewards]: 'bakerRewards' as const,
   [ActivityType.Interaction]: 'interaction' as const
 };
 
+const quipuswapActivitySubtype = 'quipuswap' as const;
+
 const activitySubtypesI18nKeys = {
-  [ActivitySubtype.Route3]: 'route3' as const
+  [ActivitySubtype.Route3]: 'route3' as const,
+  [ActivitySubtype.QuipuswapCoinflipBet]: quipuswapActivitySubtype,
+  [ActivitySubtype.QuipuswapCoinflipWin]: quipuswapActivitySubtype,
+  [ActivitySubtype.QuipuswapAddLiqiudityV1]: quipuswapActivitySubtype,
+  [ActivitySubtype.QuipuswapRemoveLiquidityV1]: quipuswapActivitySubtype,
+  [ActivitySubtype.QuipuswapAddLiqiudityV2]: quipuswapActivitySubtype,
+  [ActivitySubtype.QuipuswapRemoveLiquidityV2]: quipuswapActivitySubtype,
+  [ActivitySubtype.QuipuswapAddLiqiudityV3]: quipuswapActivitySubtype,
+  [ActivitySubtype.QuipuswapRemoveLiquidityV3]: quipuswapActivitySubtype,
+  [ActivitySubtype.QuipuswapAddLiquidityStableswap]: quipuswapActivitySubtype,
+  [ActivitySubtype.QuipuswapRemoveLiquidityStableswap]: quipuswapActivitySubtype,
+  [ActivitySubtype.QuipuswapInvestInDividends]: quipuswapActivitySubtype,
+  [ActivitySubtype.QuipuswapDivestFromDividends]: quipuswapActivitySubtype,
+  [ActivitySubtype.QuipuswapInvestInFarm]: quipuswapActivitySubtype,
+  [ActivitySubtype.QuipuswapDivestFromFarm]: quipuswapActivitySubtype,
+  [ActivitySubtype.QuipuswapHarvestFromFarm]: quipuswapActivitySubtype,
+  [ActivitySubtype.QuipuswapHarvestFromDividends]: quipuswapActivitySubtype,
+  [ActivitySubtype.QuipuswapSend]: quipuswapActivitySubtype,
+  [ActivitySubtype.QuipuswapReceive]: quipuswapActivitySubtype
 };
 
 export const ActivityTypeView: FC<Props> = ({ activity }) => {

@@ -2796,10 +2796,10 @@
   dependencies:
     nanoid "^3.1.25"
 
-"@temple-wallet/transactions-parser@^4.0.0":
-  version "4.0.0"
-  resolved "https://registry.yarnpkg.com/@temple-wallet/transactions-parser/-/transactions-parser-4.0.0.tgz#edf24ba111ea367bd6a2d98d144c82fc01cd7fa0"
-  integrity sha512-Fkl2AcTO5iu9pRF7HQB/vUJsri+0R96XDaPBsBemMqYed/H8Zm5RQ8YGveMFYbAxwfsgeR33gLzXSzObPzIM9Q==
+"@temple-wallet/transactions-parser@^6.0.0":
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/@temple-wallet/transactions-parser/-/transactions-parser-6.0.0.tgz#ef94c3aa20027a5477b1ecc2e296ebfd1fdd537a"
+  integrity sha512-PmVbFzE8sHr6OD2J3HcERvhcVVhycuCyDOjfX08/3iT+8NNh8rcvEXYLoNBfYjol/foS4LkO5srAF8KZTuNQDA==
   dependencies:
     bignumber.js "^9.1.0"
 

@@ -507,7 +507,7 @@ export async function request<T extends TempleRequest>(req: T) {
 
 export function assertResponse(condition: any): asserts condition {
   if (!condition) {
-    throw new Error('Invalid response recieved');
+    throw new Error('Invalid response received');
   }
 }
 

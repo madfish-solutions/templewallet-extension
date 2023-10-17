@@ -43,6 +43,7 @@ interface TzktDelegationOperation extends TzktOperationBase {
   amount?: number;
   prevDelegate?: TzktAlias | null;
   newDelegate?: TzktAlias | null;
+  parameter: undefined;
 }
 
 interface TzktTransactionOperation extends TzktOperationBase {
@@ -55,7 +56,7 @@ interface TzktTransactionOperation extends TzktOperationBase {
   allocationFee: number;
   target: TzktAlias;
   amount: number;
-  parameter?: unknown;
+  parameter: unknown;
   entrypoint?: string;
   hasInternals: boolean;
   tokenTransfersCount?: number;
@@ -65,10 +66,12 @@ interface TzktOriginationOperation extends TzktOperationBase {
   type: TzktOperationType.Origination;
   originatedContract?: TzktAlias;
   contractBalance?: string;
+  parameter: unknown;
 }
 
 interface TzktRevealOperation extends TzktOperationBase {
   type: TzktOperationType.Reveal;
+  parameter: unknown;
 }
 
 export type TzktOperation =
