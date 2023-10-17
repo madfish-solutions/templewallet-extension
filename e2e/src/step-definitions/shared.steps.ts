@@ -38,8 +38,9 @@ Given(/I'm waiting for 'success ✓' operation status/, { timeout: LONG_TIMEOUT 
   await sleep(10_000); // TODO: Make optional
 });
 
-const hashObject = {
-  defaultAccountShortHash: envVars.DEFAULT_HD_ACCOUNT_FIRST_HASH_SHORT_FORM,
+const hashObjectShortForm = {
+  defaultFirstAccountShortHash: envVars.DEFAULT_HD_ACCOUNT_FIRST_HASH_SHORT_FORM,
+  defaultSecondAccountShortHash: envVars.DEFAULT_HD_ACCOUNT_SECOND_HASH_SHORT_FORM,
   importedAccountShortHash: envVars.IMPORTED_HD_ACCOUNT_FIRST_HASH_SHORT_FORM,
   watchOnlyAccountShortHash: envVars.WATCH_ONLY_PUBLIC_KEY_HASH_SHORT_FORM
 };
@@ -47,9 +48,9 @@ const hashObject = {
 Given(
   /I check if (.*) is corresponded to the selected account/,
   { timeout: MEDIUM_TIMEOUT },
-  async (hashType: keyof typeof hashObject) => {
+  async (hashType: keyof typeof hashObjectShortForm) => {
     const pkhFromUI = await Pages.Home.PublicAddressButton.getText();
-    const targetPkh = hashObject[hashType];
+    const targetPkh = hashObjectShortForm[hashType];
 
     expect(pkhFromUI).eql(targetPkh);
   }
