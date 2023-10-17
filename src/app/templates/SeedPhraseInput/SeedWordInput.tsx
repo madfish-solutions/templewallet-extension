@@ -120,12 +120,17 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
     [setValueToVariant]
   );
 
-  const handleBlur = useCallback((e: React.FocusEvent) => {
-    if (e.relatedTarget?.tagName !== BUTTON_TAG_NAME) {
-      setIsBlur(true);
-      setFocusedVariantIndex(-1);
-    }
-  }, []);
+  const handleBlur = useCallback(
+    (e: React.FocusEvent) => {
+      const tag = e.relatedTarget?.tagName;
+
+      if (tag !== BUTTON_TAG_NAME || (tag === BUTTON_TAG_NAME && e.relatedTarget?.id !== id.toString())) {
+        setIsBlur(true);
+        setFocusedVariantIndex(-1);
+      }
+    },
+    [id]
+  );
 
   const handleInputKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {

@@ -109,7 +109,7 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
     const secret = secretProp && textarea;
     const Field = textarea ? 'textarea' : 'input';
 
-    const [passwordInputType, RevealPasswordIcon] = usePasswordToggle(smallPaddings, onReveal, revealRef, onBlur);
+    const [passwordInputType, RevealPasswordIcon] = usePasswordToggle(smallPaddings, id, onReveal, revealRef, onBlur);
     const isPasswordInput = type === 'password';
     const inputType = isPasswordInput ? passwordInputType : type;
 

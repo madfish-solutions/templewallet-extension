@@ -9,6 +9,7 @@ import { useDidUpdate, useTimeout } from 'lib/ui/hooks';
 
 const usePasswordToggle = (
   smallPaddings: boolean,
+  id?: string,
   onReveal?: EmptyFn,
   revealRef?: unknown,
   handleBlur?: (e: React.FocusEvent) => void
@@ -24,6 +25,7 @@ const usePasswordToggle = (
   const Icon = useMemo(
     () => (
       <button
+        id={id}
         type="button"
         tabIndex={1}
         className={clsx('absolute inset-y-0', smallPaddings ? 'right-2' : 'right-3')}
