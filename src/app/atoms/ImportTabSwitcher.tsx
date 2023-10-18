@@ -19,7 +19,7 @@ type ImportTabSwitcherProps = {
 
 const ImportTabSwitcher: React.FC<ImportTabSwitcherProps> = ({ className, tabs, activeTabSlug, urlPrefix }) => (
   <div className={classNames('w-full', className)} style={{ borderBottomWidth: 1, fontSize: 17 }}>
-    <div className={classNames('flex items-center justify-around')}>
+    <div className={classNames('flex items-center justify-between px-25')}>
       {tabs.map(({ slug, i18nKey }) => {
         const active = slug === activeTabSlug;
 

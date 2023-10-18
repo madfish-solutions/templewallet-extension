@@ -577,7 +577,15 @@
     "message": "Inclusion of at least one special character, e.g., ! @ # ? ] - (optional, recommended)."
   },
   "mnemonicWordsAmountConstraint": {
-    "message": "12, 15, 18, 21 or 24 words in English"
+    "message": "Seed phrase must contain $number$ words",
+    "placeholders": {
+      "number": {
+        "content": "$1"
+      }
+    }
+  },
+  "mnemonicWordsError": {
+    "message": "Make sure the words spelled correctly"
   },
   "seedInputNumberOfWords": {
     "message": "My Seed phrase is $count$ words",
@@ -588,7 +596,7 @@
     }
   },
   "justValidPreGeneratedMnemonic": {
-    "message": "Just valid pre-generated mnemonic"
+    "message": "Invalid Seed Phrase"
   },
   "seedPasteFailedTooManyWords": {
     "message": "Paste failed because it contained over 24 words."
@@ -756,7 +764,7 @@
     "message": "Custom derivation path"
   },
   "mnemonicInputLabel": {
-    "message": "Seed phrase"
+    "message": "Seed Phrase"
   },
   "mnemonicInputWarning": {
     "message": "We don't store your seed phrase. Don't lose it!"
@@ -1406,7 +1414,7 @@
     "message": "The elliptical curve that the account will use."
   },
   "seedPhrase": {
-    "message": "Seed Phrase"
+    "message": "Seed phrase"
   },
   "pathForHDAccounts": {
     "message": "for HD acccounts. This is the thing you use to recover all your accounts from your seed phrase.",
