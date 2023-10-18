@@ -7,12 +7,12 @@ import { Alert, FormField, FormSubmitButton } from 'app/atoms';
 import { DEFAULT_DERIVATION_PATH, formatMnemonic } from 'app/defaults';
 import { ReactComponent as OkIcon } from 'app/icons/ok.svg';
 import { isSeedPhraseFilled, SeedPhraseInput } from 'app/templates/SeedPhraseInput';
-import { useFormAnalytics } from 'lib/analytics';
-import { TID, T, t } from 'lib/i18n';
+import { setTestID, useFormAnalytics } from 'lib/analytics';
+import { T, t, TID } from 'lib/i18n';
 import { useTempleClient, validateDerivationPath } from 'lib/temple/front';
 import { delay } from 'lib/utils';
 
-import { ImportAccountSelectors, ImportAccountFormType } from './selectors';
+import { ImportAccountFormType, ImportAccountSelectors } from './selectors';
 
 interface DerivationPath {
   type: string;
@@ -148,6 +148,11 @@ export const ByMnemonicForm: FC = () => {
                   padding: '0.4rem 0.375rem 0.4rem 0.375rem'
                 }}
                 onClick={handleClick}
+                {...setTestID(
+                  dp.type === 'default'
+                    ? ImportAccountSelectors.defaultAccountButton
+                    : ImportAccountSelectors.customDerivationPathButton
+                )}
               >
                 <T id={dp.i18nKey} />
                 <div className="flex-1" />
@@ -176,6 +181,7 @@ export const ByMnemonicForm: FC = () => {
           placeholder={t('derivationPathExample2')}
           errorCaption={errors.customDerivationPath?.message}
           containerClassName="mb-6"
+          testID={ImportAccountSelectors.customDerivationPathInput}
         />
       )}
 

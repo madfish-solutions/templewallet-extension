@@ -132,7 +132,7 @@ export const getElementText = (element: ElementHandle) =>
       return innerElement.value;
     }
 
-    const textContent = innerElement.textContent;
+    const textContent = innerElement.textContent?.replace(/\n/g, ' ');
 
     if (textContent == null) {
       throw new Error("Element's content is not text!");

@@ -15,9 +15,12 @@ const generateRandomContent = () => {
 export const iEnterValues = {
   ...iComparePrivateKeys,
   defaultSeedPhrase: envVars.DEFAULT_HD_ACCOUNT_SEED_PHRASE,
+  defaultFirstPrivateKey: envVars.DEFAULT_HD_ACCOUNT_FIRST_PRIVATE_KEY,
+  defaultFirstPublicKey: 'tz1g1NfadfC2qktJH99sHeBETRWGaQyrbiA4',
   defaultPassword: envVars.DEFAULT_PASSWORD,
   watchOnlyPublicKey: envVars.WATCH_ONLY_PUBLIC_KEY_HASH,
   bakerAddress: '',
+  customDerivationPath: `m/44'/1729'/10'/0'`, // eleventh account in HD
 
   // For input validation
   shortRandomContent: generateRandomContent(),

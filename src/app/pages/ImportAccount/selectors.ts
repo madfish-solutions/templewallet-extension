@@ -5,6 +5,9 @@ export enum ImportAccountSelectors {
   privateKeyImportButton = 'Import Account(Private Key)/Private Key Import Button',
 
   mnemonicWordInput = 'Import Account(Mnemonic)/Mnemonic Word Input',
+  defaultAccountButton = 'Import Account(Mnemonic)/Default Account (the first one) Button',
+  customDerivationPathButton = 'Import Account(Mnemonic)/Custom Derivation Path Button',
+  customDerivationPathInput = 'Import Account(Mnemonic)/Custom Derivation Path Input',
   mnemonicPasswordInput = 'Import Account(Mnemonic)/Mnemonic Password Input',
   mnemonicImportButton = 'Import Account(Mnemonic)/Mnemonic Import Button',
 

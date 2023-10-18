@@ -60,7 +60,6 @@ Feature: Import existing wallet
     Then I am on the Home page
 
 
-  @dev
   Scenario: As a user, I'd like to switch between onboarding pages and skip it [Negative]
     Given I am on the Welcome page
     And I press Import Existing Wallet button on the Welcome page
