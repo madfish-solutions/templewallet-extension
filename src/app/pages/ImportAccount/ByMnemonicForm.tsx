@@ -12,7 +12,8 @@ import { T, t, TID } from 'lib/i18n';
 import { useTempleClient, validateDerivationPath } from 'lib/temple/front';
 import { delay } from 'lib/utils';
 
-import { ImportAccountFormType, ImportAccountSelectors } from './selectors';
+import { defaultNumberOfWords } from './constants';
+import { ImportAccountSelectors, ImportAccountFormType } from './selectors';
 
 interface DerivationPath {
   type: string;
@@ -42,6 +43,8 @@ export const ByMnemonicForm: FC = () => {
 
   const [seedPhrase, setSeedPhrase] = useState('');
   const [seedError, setSeedError] = useState('');
+
+  const [numberOfWords, setNumberOfWords] = useState(defaultNumberOfWords);
 
   const { register, handleSubmit, errors, formState, reset } = useForm<ByMnemonicFormData>({
     defaultValues: {
@@ -78,10 +81,19 @@ export const ByMnemonicForm: FC = () => {
           setError(err.message);
         }
       } else if (seedError === '') {
-        setSeedError(t('mnemonicWordsAmountConstraint'));
+        setSeedError(t('mnemonicWordsAmountConstraint', [numberOfWords]) as string);
       }
     },
-    [seedPhrase, seedError, formState.isSubmitting, setError, importMnemonicAccount, derivationPath, formAnalytics]
+    [
+      seedPhrase,
+      seedError,
+      formState.isSubmitting,
+      setError,
+      importMnemonicAccount,
+      derivationPath,
+      formAnalytics,
+      numberOfWords
+    ]
   );
 
   return (
@@ -97,6 +109,8 @@ export const ByMnemonicForm: FC = () => {
           onChange={setSeedPhrase}
           reset={reset}
           testID={ImportAccountSelectors.mnemonicWordInput}
+          numberOfWords={numberOfWords}
+          setNumberOfWords={setNumberOfWords}
         />
       </div>
 
