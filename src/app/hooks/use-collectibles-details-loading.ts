@@ -16,6 +16,7 @@ export const useCollectiblesDetailsLoading = () => {
 
   useInterval(
     () => {
+      // Is it necessary for collectibles on non-Mainnet networks too?
       if (slugs.length) dispatch(loadCollectiblesDetailsActions.submit(slugs));
     },
     COLLECTIBLES_DETAILS_SYNC_INTERVAL,

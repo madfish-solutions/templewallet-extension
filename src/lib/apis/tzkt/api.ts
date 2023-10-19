@@ -143,15 +143,16 @@ export function fetchTzktAccountAssets(account: string, chainId: string, fungibl
   return recurse([], 0);
 }
 
-const fetchTzktAccountAssetsPage = (
+export const fetchTzktAccountAssetsPage = (
   account: string,
   chainId: TzktApiChainId,
   offset?: number,
-  fungible: boolean | null = null
+  fungible: boolean | null = null,
+  limit = TZKT_MAX_QUERY_ITEMS_LIMIT
 ) =>
   fetchGet<TzktAccountAsset[]>(chainId, '/tokens/balances', {
     account,
-    limit: TZKT_MAX_QUERY_ITEMS_LIMIT,
+    limit,
     offset,
     ...(fungible === null
       ? { 'token.metadata.null': true }

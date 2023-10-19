@@ -1,5 +1,5 @@
 import { fetchTokensMetadata, isKnownChainId, TokenMetadataResponse } from 'lib/apis/temple';
-import { fetchTzktAccountAssets } from 'lib/apis/tzkt';
+import { fetchTzktAccountAssets, fetchTzktAccountAssetsPage } from 'lib/apis/tzkt';
 import { TzktAccountAsset } from 'lib/apis/tzkt/types';
 import { toTokenSlug } from 'lib/assets';
 import { isCollectible } from 'lib/metadata';
@@ -20,19 +20,28 @@ export const loadAccountTokens = (account: string, chainId: string, knownMeta: M
     }
   );
 
+/** @deprecated // Remove, when pagination is ready */
+const __TEMPORARY_COLLECTIBLES_LOAD_LIMIT__ = 300;
+
 export const loadAccountCollectibles = (account: string, chainId: string, knownMeta: MetadataRecords) =>
-  Promise.all([
-    // Fetching assets known to be NFTs, not checking metadata
-    fetchTzktAccountAssets(account, chainId, false).then(data => finishAssetsLoading(data, chainId, knownMeta)),
-    // Fetching unknowns only, checking metadata to filter for NFTs
-    fetchTzktAccountAssets(account, chainId, null).then(data => finishAssetsLoading(data, chainId, knownMeta, false))
-  ]).then(
-    ([data1, data2]) => mergeLoadedAssetsData(data1, data2),
-    error => {
-      console.error(error);
-      throw error;
-    }
-  );
+  isKnownChainId(chainId)
+    ? Promise.all([
+        // Fetching assets known to be NFTs, not checking metadata
+        fetchTzktAccountAssetsPage(account, chainId, 0, false, __TEMPORARY_COLLECTIBLES_LOAD_LIMIT__).then(data =>
+          finishAssetsLoading(data, chainId, knownMeta)
+        ),
+        // Fetching unknowns only, checking metadata to filter for NFTs
+        fetchTzktAccountAssets(account, chainId, null).then(data =>
+          finishAssetsLoading(data, chainId, knownMeta, false)
+        )
+      ]).then(
+        ([data1, data2]) => mergeLoadedAssetsData(data1, data2),
+        error => {
+          console.error(error);
+          throw error;
+        }
+      )
+    : Promise.resolve([]);
 
 /**
  * @arg fungibleByMetaCheck // Leave `undefined` to not check for assets fungibility

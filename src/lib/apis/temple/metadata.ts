@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { chunk } from 'lodash';
 import memoize from 'mem';
 
 import { IS_STAGE_ENV } from 'lib/env';
@@ -36,12 +37,22 @@ export const fetchOneTokenMetadata = (chainId: MetadataApiChainId, address: stri
     .get<TokenMetadataResponse>(`/metadata/${address}/${id}`)
     .then(({ data }) => (data.name === 'Unknown Token' ? undefined : data));
 
-export const fetchTokensMetadata = async (chainId: MetadataApiChainId, slugs: string[]) => {
-  if (slugs.length === 0) return [];
+const METADATA_CHUNK_SIZE = 100;
 
-  return getApi(chainId)
-    .post<(TokenMetadataResponse | null)[]>('/', slugs)
-    .then(r => r.data);
+export const fetchTokensMetadata = (
+  chainId: MetadataApiChainId,
+  slugs: string[]
+): Promise<(TokenMetadataResponse | null)[]> => {
+  if (slugs.length === 0) return Promise.resolve([]);
+
+  return Promise.all(
+    // Parallelizing
+    chunk(slugs, METADATA_CHUNK_SIZE).map(clugsChunk =>
+      getApi(chainId)
+        .post<(TokenMetadataResponse | null)[]>('/', clugsChunk)
+        .then(r => r.data)
+    )
+  ).then(datas => datas.flat());
 };
 
 const getApi = memoize((chainId: MetadataApiChainId) => {
