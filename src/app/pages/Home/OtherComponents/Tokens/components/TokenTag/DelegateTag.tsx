@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useMemo } from 'react';
+import React, { memo, useCallback, useMemo } from 'react';
 
 import classNames from 'clsx';
 
@@ -12,9 +12,9 @@ import { navigate } from 'lib/woozie';
 import { AssetsSelectors } from '../../../Assets.selectors';
 import modStyles from '../../Tokens.module.css';
 
-export const DelegateTezosTag: FC = () => {
+export const DelegateTezosTag = memo(() => {
   const acc = useAccount();
-  const { data: myBakerPkh } = useDelegate(acc.publicKeyHash);
+  const { data: myBakerPkh } = useDelegate(acc.publicKeyHash, false);
   const { trackEvent } = useAnalytics();
 
   const handleTagClick = useCallback(
@@ -54,4 +54,4 @@ export const DelegateTezosTag: FC = () => {
   );
 
   return myBakerPkh ? TezosDelegated : NotDelegatedButton;
-};
+});
