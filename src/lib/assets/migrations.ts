@@ -1,5 +1,5 @@
 import { dispatch } from 'app/store';
-import { putAssetAsIsAction } from 'app/store/assets/actions';
+import { putAssetsAsIsAction } from 'app/store/assets/actions';
 import type { StoredAsset } from 'app/store/assets/state';
 import { isCollectible, TokenMetadata } from 'lib/metadata';
 import * as Repo from 'lib/temple/repo';
@@ -29,8 +29,8 @@ export const migrateFromIndexedDB = async (metadatas: Record<string, TokenMetada
     });
   }
 
-  if (tokens.length) dispatch(putAssetAsIsAction({ type: 'tokens', assets: tokens }));
-  if (collectibles.length) dispatch(putAssetAsIsAction({ type: 'collectibles', assets: collectibles }));
+  if (tokens.length) dispatch(putAssetsAsIsAction({ type: 'tokens', assets: tokens }));
+  if (collectibles.length) dispatch(putAssetsAsIsAction({ type: 'collectibles', assets: collectibles }));
 
   await Repo.accountTokens.clear();
 };

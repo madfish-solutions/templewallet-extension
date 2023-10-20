@@ -24,24 +24,21 @@ export const loadAccountTokens = (account: string, chainId: string, knownMeta: M
 const __TEMPORARY_COLLECTIBLES_LOAD_LIMIT__ = 300;
 
 export const loadAccountCollectibles = (account: string, chainId: string, knownMeta: MetadataRecords) =>
-  isKnownChainId(chainId)
-    ? Promise.all([
-        // Fetching assets known to be NFTs, not checking metadata
-        fetchTzktAccountAssetsPage(account, chainId, 0, false, __TEMPORARY_COLLECTIBLES_LOAD_LIMIT__).then(data =>
-          finishAssetsLoading(data, chainId, knownMeta)
-        ),
-        // Fetching unknowns only, checking metadata to filter for NFTs
-        fetchTzktAccountAssets(account, chainId, null).then(data =>
-          finishAssetsLoading(data, chainId, knownMeta, false)
-        )
-      ]).then(
-        ([data1, data2]) => mergeLoadedAssetsData(data1, data2),
-        error => {
-          console.error(error);
-          throw error;
-        }
-      )
-    : Promise.resolve([]);
+  Promise.all([
+    // Fetching assets known to be NFTs, not checking metadata
+    (isKnownChainId(chainId)
+      ? fetchTzktAccountAssetsPage(account, chainId, 0, false, __TEMPORARY_COLLECTIBLES_LOAD_LIMIT__)
+      : Promise.resolve([])
+    ).then(data => finishAssetsLoading(data, chainId, knownMeta)),
+    // Fetching unknowns only, checking metadata to filter for NFTs
+    fetchTzktAccountAssets(account, chainId, null).then(data => finishAssetsLoading(data, chainId, knownMeta, false))
+  ]).then(
+    ([data1, data2]) => mergeLoadedAssetsData(data1, data2),
+    error => {
+      console.error(error);
+      throw error;
+    }
+  );
 
 /**
  * @arg fungibleByMetaCheck // Leave `undefined` to not check for assets fungibility

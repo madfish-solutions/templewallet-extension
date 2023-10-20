@@ -13,11 +13,11 @@ export const useAccountAssetsSelector = (account: string, chainId: string, type:
 
   return useMemoWithCompare(
     () => assets.filter(t => t.account === account && t.chainId === chainId),
-    [assets],
+    [assets, account, chainId],
     isEqual
   );
 };
 
 export const useAreAssetsLoading = (type: AssetsType) => useSelector(state => state.assets[type].isLoading);
 
-export const useMainnetTokensWhitelistSelector = () => useSelector(state => state.assets.mainnetWhitelist);
+export const useMainnetTokensWhitelistSelector = () => useSelector(state => state.assets.mainnetWhitelist.data);

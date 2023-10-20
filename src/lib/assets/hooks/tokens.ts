@@ -112,7 +112,7 @@ const useWhitelistSlugs = (chainId: string) => {
   const mainnetWhitelist = useMainnetTokensWhitelistSelector();
 
   return useMemoWithCompare(
-    () => (chainId === ChainIds.MAINNET ? mainnetWhitelist.data : []),
+    () => (chainId === ChainIds.MAINNET ? mainnetWhitelist : []),
     [chainId, mainnetWhitelist],
     (a, b) => a.join('') === b.join('')
   );

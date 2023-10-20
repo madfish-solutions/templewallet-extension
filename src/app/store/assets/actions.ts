@@ -41,4 +41,4 @@ interface PutAssetsAsIsPayload {
   type: 'collectibles' | 'tokens';
   assets: StoredAsset[];
 }
-export const putAssetAsIsAction = createAction<PutAssetsAsIsPayload>('assets/PUT_ASSETS_AS_IS');
+export const putAssetsAsIsAction = createAction<PutAssetsAsIsPayload>('assets/PUT_ASSETS_AS_IS');
