@@ -3,15 +3,14 @@ import { useMemo } from 'react';
 import { isEqual } from 'lodash';
 
 import { useAccountAssetsSelector } from 'app/store/assets/selectors';
-import type { StoredAssetStatus } from 'app/store/assets/state';
+import type { StoredAssetStatus, StoredCollectible } from 'app/store/assets/state';
 import { useBalancesSelector } from 'app/store/balances/selectors';
 import { useAccount, useChainId } from 'lib/temple/front';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 
 import { getAssetStatus } from './utils';
 
-export interface AccountCollectible {
-  slug: string;
+export interface AccountCollectible extends Pick<StoredCollectible, 'slug' | 'name' | 'symbol'> {
   status: StoredAssetStatus;
 }
 
@@ -23,8 +22,10 @@ export const useAccountCollectibles = (account: string, chainId: string) => {
   return useMemoWithCompare<AccountCollectible[]>(
     () =>
       stored.reduce<AccountCollectible[]>(
-        (acc, { slug, status }) =>
-          status === 'removed' ? acc : acc.concat({ slug, status: getAssetStatus(balances[slug], status) }),
+        (acc, { slug, status, name, symbol }) =>
+          status === 'removed'
+            ? acc
+            : acc.concat({ slug, name, symbol, status: getAssetStatus(balances[slug], status) }),
         []
       ),
     [stored, balances],

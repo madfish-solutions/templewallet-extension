@@ -5,15 +5,16 @@ import { toTokenSlug } from 'lib/assets';
 import { isCollectible } from 'lib/metadata';
 
 import type { MetadataRecords } from '../tokens-metadata/state';
+import { LoadedCollectible } from './actions';
 
 export const loadAccountTokens = (account: string, chainId: string, knownMeta: MetadataRecords) =>
   Promise.all([
     // Fetching assets known to be FTs, not checking metadata
-    fetchTzktAccountAssets(account, chainId, true).then(data => finishAssetsLoading(data, chainId, knownMeta)),
+    fetchTzktAccountAssets(account, chainId, true).then(data => finishTokensLoading(data, chainId, knownMeta)),
     // Fetching unknowns only, checking metadata to filter for FTs
-    fetchTzktAccountAssets(account, chainId, null).then(data => finishAssetsLoading(data, chainId, knownMeta, true))
+    fetchTzktAccountAssets(account, chainId, null).then(data => finishTokensLoading(data, chainId, knownMeta, true))
   ]).then(
-    ([data1, data2]) => mergeLoadedAssetsData(data1, data2),
+    ([data1, data2]) => mergeLoadedTokensData(data1, data2),
     error => {
       console.error(error);
       throw error;
@@ -23,25 +24,24 @@ export const loadAccountTokens = (account: string, chainId: string, knownMeta: M
 export const loadAccountCollectibles = (account: string, chainId: string, knownMeta: MetadataRecords) =>
   Promise.all([
     // Fetching assets known to be NFTs, not checking metadata
-    fetchTzktAccountAssets(account, chainId, false).then(data => finishCollectiblesLoading(data, chainId)),
+    fetchTzktAccountAssets(account, chainId, false).then(data => finishCollectiblesLoadingWithMeta(data, knownMeta)),
     // Fetching unknowns only, checking metadata to filter for NFTs
-    fetchTzktAccountAssets(account, chainId, null).then(data => finishCollectiblesLoading(data, chainId, knownMeta))
+    fetchTzktAccountAssets(account, chainId, null).then(data =>
+      finishCollectiblesLoadingWithoutMeta(data, knownMeta, chainId)
+    )
   ]).then(
-    ([data1, data2]) => mergeLoadedAssetsData(data1, data2),
+    ([data1, data2]) => mergeLoadedCollectiblesData(data1, data2),
     error => {
       console.error(error);
       throw error;
     }
   );
 
-/**
- * @arg fungibleByMetaCheck // Leave `undefined` to not check for assets fungibility
- */
-const finishAssetsLoading = async (
+const finishTokensLoading = async (
   data: TzktAccountAsset[],
   chainId: string,
   knownMeta: MetadataRecords,
-  fungibleByMetaCheck?: boolean
+  fungibleByMetaCheck = false
 ) => {
   const slugsWithoutMeta = data.reduce<string[]>((acc, curr) => {
     const slug = tzktAssetToTokenSlug(curr);
@@ -62,13 +62,10 @@ const finishAssetsLoading = async (
     const slug = tzktAssetToTokenSlug(asset);
     const metadataOfNew = newMetadatas?.[slugsWithoutMeta.indexOf(slug)];
 
-    if (typeof fungibleByMetaCheck === 'boolean') {
+    if (fungibleByMetaCheck) {
       const metadata = knownMeta[slug] || metadataOfNew;
 
-      if (!metadata) continue;
-      if (isCollectible(metadata)) {
-        if (fungibleByMetaCheck === true) continue;
-      } else if (fungibleByMetaCheck === false) continue;
+      if (!metadata || isCollectible(metadata)) continue;
     }
 
     slugs.push(slug);
@@ -79,16 +76,34 @@ const finishAssetsLoading = async (
   return { slugs, balances, newMeta };
 };
 
-/**
- * @arg knownMeta // Leave `undefined` to not check for assets fungibility
- */
-const finishCollectiblesLoading = async (data: TzktAccountAsset[], chainId: string, knownMeta?: MetadataRecords) => {
-  const slugsWithoutMeta = knownMeta
-    ? data.reduce<string[]>((acc, curr) => {
-        const slug = tzktAssetToTokenSlug(curr);
-        return knownMeta[slug] ? acc : acc.concat(slug);
-      }, [])
-    : [];
+const finishCollectiblesLoadingWithMeta = async (data: TzktAccountAsset[], knownMeta: MetadataRecords) => {
+  const collectibles: LoadedCollectible[] = [];
+  const balances: StringRecord = {};
+
+  for (const asset of data) {
+    const slug = tzktAssetToTokenSlug(asset);
+
+    const metadata = knownMeta[slug];
+    const tzktMetadata = asset.token.metadata!;
+    const name = metadata?.name ?? tzktMetadata.name;
+    const symbol = metadata?.symbol ?? tzktMetadata.symbol;
+
+    collectibles.push({ slug, name, symbol });
+    balances[slug] = asset.balance;
+  }
+
+  return { collectibles, balances };
+};
+
+const finishCollectiblesLoadingWithoutMeta = async (
+  data: TzktAccountAsset[],
+  knownMeta: MetadataRecords,
+  chainId: string
+) => {
+  const slugsWithoutMeta = data.reduce<string[]>((acc, curr) => {
+    const slug = tzktAssetToTokenSlug(curr);
+    return knownMeta[slug] ? acc : acc.concat(slug);
+  }, []);
 
   const newMetadatas = isKnownChainId(chainId)
     ? await fetchTokensMetadata(chainId, slugsWithoutMeta).catch(err => {
@@ -96,27 +111,28 @@ const finishCollectiblesLoading = async (data: TzktAccountAsset[], chainId: stri
       })
     : null;
 
-  const slugs: string[] = [];
+  const collectibles: LoadedCollectible[] = [];
   const balances: StringRecord = {};
   const newMeta: Record<string, TokenMetadataResponse> = {};
 
   for (const asset of data) {
     const slug = tzktAssetToTokenSlug(asset);
 
-    if (knownMeta) {
-      const metadataOfNew = newMetadatas?.[slugsWithoutMeta.indexOf(slug)];
-      const metadata = knownMeta[slug] || metadataOfNew;
+    const metadataOfNew = newMetadatas?.[slugsWithoutMeta.indexOf(slug)];
+    const metadata = knownMeta[slug] || metadataOfNew;
 
-      if (!metadata || !isCollectible(metadata)) continue;
+    if (!metadata || !isCollectible(metadata)) continue;
 
-      if (metadataOfNew) newMeta[slug] = metadataOfNew;
-    }
+    const name = metadata.name;
+    const symbol = metadata.symbol;
 
-    slugs.push(slug);
+    if (metadataOfNew) newMeta[slug] = metadataOfNew;
+
+    collectibles.push({ slug, name, symbol });
     balances[slug] = asset.balance;
   }
 
-  return { slugs, balances, newMeta };
+  return { collectibles, balances, newMeta };
 };
 
 interface LoadedAssetsData {
@@ -125,8 +141,20 @@ interface LoadedAssetsData {
   newMeta: Record<string, TokenMetadataResponse>;
 }
 
-const mergeLoadedAssetsData = (data1: LoadedAssetsData, data2: LoadedAssetsData) => ({
+const mergeLoadedTokensData = (data1: LoadedAssetsData, data2: LoadedAssetsData) => ({
   slugs: data1.slugs.concat(data2.slugs),
+  balances: { ...data1.balances, ...data2.balances },
+  newMeta: { ...data1.newMeta, ...data2.newMeta }
+});
+
+interface LoadedCollectiblesData {
+  collectibles: LoadedCollectible[];
+  balances: StringRecord;
+  newMeta?: Record<string, TokenMetadataResponse>;
+}
+
+const mergeLoadedCollectiblesData = (data1: LoadedCollectiblesData, data2: LoadedCollectiblesData) => ({
+  collectibles: data1.collectibles.concat(data2.collectibles),
   balances: { ...data1.balances, ...data2.balances },
   newMeta: { ...data1.newMeta, ...data2.newMeta }
 });

@@ -3,12 +3,22 @@ import { isEqual } from 'lodash';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 
 import { useSelector } from '../root-state.selector';
+import { StoredCollectible, StoredToken } from './state';
 
 type AssetsType = 'collectibles' | 'tokens';
 
-export const useAllAssetsSelector = (type: AssetsType) => useSelector(state => state.assets[type].data);
+export function useAllAssetsSelector(type: 'tokens'): StoredToken[];
+export function useAllAssetsSelector(type: 'collectibles'): StoredCollectible[];
+export function useAllAssetsSelector(type: AssetsType) {
+  return useSelector(state => state.assets[type].data);
+}
 
-export const useAccountAssetsSelector = (account: string, chainId: string, type: AssetsType) => {
+export const useAllTokensSelector = () => useSelector(state => state.assets.tokens.data);
+
+export function useAccountAssetsSelector(account: string, chainId: string, type: 'tokens'): StoredToken[];
+export function useAccountAssetsSelector(account: string, chainId: string, type: 'collectibles'): StoredCollectible[];
+export function useAccountAssetsSelector(account: string, chainId: string, type: AssetsType) {
+  // @ts-ignore
   const assets = useAllAssetsSelector(type);
 
   return useMemoWithCompare(
@@ -16,7 +26,7 @@ export const useAccountAssetsSelector = (account: string, chainId: string, type:
     [assets, account, chainId],
     isEqual
   );
-};
+}
 
 export const useAreAssetsLoading = (type: AssetsType) => useSelector(state => state.assets[type].isLoading);
 

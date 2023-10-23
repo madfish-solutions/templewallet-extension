@@ -11,9 +11,16 @@ export interface StoredAsset {
   status?: StoredAssetStatus;
 }
 
+export type StoredToken = StoredAsset;
+
+export interface StoredCollectible extends StoredAsset {
+  name: string;
+  symbol: string;
+}
+
 export interface SliceState {
   tokens: LoadableEntityState<StoredAsset[]>;
-  collectibles: LoadableEntityState<StoredAsset[]>;
+  collectibles: LoadableEntityState<StoredCollectible[]>;
   /** Mainnet tokens whitelist slugs */
   mainnetWhitelist: LoadableEntityState<string[]>;
 }

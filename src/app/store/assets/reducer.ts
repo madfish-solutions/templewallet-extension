@@ -74,28 +74,28 @@ export const assetsReducer = createReducer<SliceState>(initialState, builder => 
     delete state.collectibles.error;
 
     const collectibles = state.collectibles.data;
-    const { account, chainId, slugs } = payload;
+    const { account, chainId, collectibles: loadedCollectibles } = payload;
 
-    for (const slug of slugs) {
+    for (const { slug, name, symbol } of loadedCollectibles) {
       if (!collectibles.some(t => t.slug === slug && t.chainId === chainId && t.account === account))
         collectibles.push({
           account,
           chainId,
-          slug
+          slug,
+          name,
+          symbol
         });
     }
   });
 
   builder.addCase(setAssetStatusAction, (state, { payload: { isCollectible, account, chainId, slug, status } }) => {
     const assets = state[isCollectible ? 'collectibles' : 'tokens'].data;
-    const index = assets.findIndex(t => t.account === account && t.chainId === chainId && t.slug === slug);
-    const token = assets[index] ?? { account, chainId, slug };
+    const asset = assets.find(t => t.account === account && t.chainId === chainId && t.slug === slug);
 
-    token.status = status;
-    assets[index === -1 ? assets.length : index] = token;
+    if (asset) asset.status = status;
   });
 
-  builder.addCase(putAssetsAsIsAction, (state, { payload: { assets, type } }) => {
+  builder.addCase(putAssetsAsIsAction, (state, { payload: { type, assets } }) => {
     const data = state[type].data;
 
     for (const asset of assets) {

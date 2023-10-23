@@ -3,23 +3,25 @@ import { createAction } from '@reduxjs/toolkit';
 import { WhitelistResponseToken } from 'lib/apis/temple';
 import { createActions } from 'lib/store';
 
-import { StoredAssetStatus, StoredAsset } from './state';
+import { StoredAssetStatus, StoredAsset, StoredCollectible, StoredToken } from './state';
 
-interface LoadTokensPayload {
+interface LoadAssetsPayload {
   /** PKH */
   account: string;
   chainId: string;
 }
 
 export const loadAccountTokensActions = createActions<
-  LoadTokensPayload,
-  LoadTokensPayload & { slugs: string[] },
+  LoadAssetsPayload,
+  LoadAssetsPayload & { slugs: string[] },
   { code?: string }
 >('assets/LOAD_ACCOUNT_TOKENS');
 
+export type LoadedCollectible = Pick<StoredCollectible, 'slug' | 'name' | 'symbol'>;
+
 export const loadAccountCollectiblesActions = createActions<
-  LoadTokensPayload,
-  LoadTokensPayload & { slugs: string[] },
+  LoadAssetsPayload,
+  LoadAssetsPayload & { collectibles: LoadedCollectible[] },
   { code?: string }
 >('assets/LOAD_ACCOUNT_COLLECTIBLES');
 
@@ -34,11 +36,16 @@ interface SetAssetStatusPayload extends Pick<StoredAsset, 'account' | 'chainId' 
   status: StoredAssetStatus;
 }
 
-/** Adds asset record too, if absent */
 export const setAssetStatusAction = createAction<SetAssetStatusPayload>('assets/SET_ASSET_STATUS');
 
-interface PutAssetsAsIsPayload {
-  type: 'collectibles' | 'tokens';
-  assets: StoredAsset[];
-}
+type PutAssetsAsIsPayload =
+  | {
+      type: 'tokens';
+      assets: StoredToken[];
+    }
+  | {
+      type: 'collectibles';
+      assets: StoredCollectible[];
+    };
+
 export const putAssetsAsIsAction = createAction<PutAssetsAsIsPayload>('assets/PUT_ASSETS_AS_IS');

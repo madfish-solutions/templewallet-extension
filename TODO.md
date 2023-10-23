@@ -1,3 +1,6 @@
 - TTL for metadata (only NFTs but permanent for tokens) ?
 - `string` type for assets IDs
+- `name` & `symbol` separate from the list ?
+- - `decimals` in `StoredCollectible` (`StoredAsset`) ?
+- `state.assets.(tokens | collectibles)` -> `state.(tokens | collectibles).list`
 -

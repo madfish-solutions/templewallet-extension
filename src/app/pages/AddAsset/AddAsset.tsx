@@ -10,7 +10,7 @@ import { Alert, FormField, FormSubmitButton, NoSpaceField } from 'app/atoms';
 import Spinner from 'app/atoms/Spinner/Spinner';
 import { ReactComponent as AddIcon } from 'app/icons/add.svg';
 import PageLayout from 'app/layouts/PageLayout';
-import { setAssetStatusAction } from 'app/store/assets/actions';
+import { putAssetsAsIsAction } from 'app/store/assets/actions';
 import { putTokensMetadataAction } from 'app/store/tokens-metadata/actions';
 import { useFormAnalytics } from 'lib/analytics';
 import { TokenMetadataResponse } from 'lib/apis/temple';
@@ -211,14 +211,25 @@ const Form: FC = () => {
 
         dispatch(putTokensMetadataAction([tokenMetadata]));
 
+        const asset = {
+          chainId,
+          account: accountPkh,
+          slug: tokenSlug,
+          status: 'enabled' as const
+        };
+
         dispatch(
-          setAssetStatusAction({
-            isCollectible: isCollectible(tokenMetadata),
-            chainId,
-            account: accountPkh,
-            slug: tokenSlug,
-            status: 'enabled'
-          })
+          putAssetsAsIsAction(
+            isCollectible(tokenMetadata)
+              ? {
+                  type: 'collectibles',
+                  assets: [{ ...asset, name: tokenMetadata.name, symbol: tokenMetadata.symbol }]
+                }
+              : {
+                  type: 'tokens',
+                  assets: [asset]
+                }
+          )
         );
 
         swrCache.delete(getBalanceSWRKey(tezos, tokenSlug, accountPkh));
