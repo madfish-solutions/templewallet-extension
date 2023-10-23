@@ -158,7 +158,7 @@ const scriptsConfig = (() => {
   const config = buildBaseConfig();
 
   config.entry = {
-    contentScript: Path.join(PATHS.SOURCE, 'contentScript.ts')
+    contentScript: Path.join(PATHS.SOURCE, 'contentScript.tsx')
   };
 
   config.output = {

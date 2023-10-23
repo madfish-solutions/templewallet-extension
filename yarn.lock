@@ -2334,6 +2334,13 @@
   dependencies:
     "@sinonjs/commons" "^1.7.0"
 
+"@slise/embed-react@^2.2.0":
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/@slise/embed-react/-/embed-react-2.2.0.tgz#346bf34d375144a7f5173354c1672d3687fa8b47"
+  integrity sha512-btboJc24ABEg5ncbVnab+asKarp3kTSTdMHHcndrnkCDlXNQNSw3vL0Lv8tanqgE3Ogt51AF8QGEhWDNOZAcxQ==
+  dependencies:
+    react-script-hook "^1.7.2"
+
 "@stablelib/aead@^1.0.1":
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/@stablelib/aead/-/aead-1.0.1.tgz#c4b1106df9c23d1b867eb9b276d8f42d5fc4c0c3"
@@ -10580,6 +10587,11 @@ react-redux@^8.0.2:
     hoist-non-react-statics "^3.3.2"
     react-is "^18.0.0"
     use-sync-external-store "^1.0.0"
+
+react-script-hook@^1.7.2:
+  version "1.7.2"
+  resolved "https://registry.yarnpkg.com/react-script-hook/-/react-script-hook-1.7.2.tgz#ec130d67f9a25fcde57fbfd1faa87e5b97521948"
+  integrity sha512-fhyCEfXb94fag34UPRF0zry1XGwmVY+79iibWwTqAoOiCzYJQOYTiWJ7CnqglA9tMSV8g45cQpHCMcBwr7dwhA==
 
 react-text-mask@^5.5.0:
   version "5.5.0"
