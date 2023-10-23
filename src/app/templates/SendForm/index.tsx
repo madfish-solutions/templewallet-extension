@@ -1,17 +1,15 @@
-import React, { FC, Suspense, useCallback, useState } from 'react';
+import React, { memo, Suspense, useCallback, useMemo, useState } from 'react';
 
 import type { WalletOperation } from '@taquito/taquito';
-import { isEqual } from 'lodash';
 
 import AssetSelect from 'app/templates/AssetSelect';
 import OperationStatus from 'app/templates/OperationStatus';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
-import { useEnabledAccountTokensSlugs, useEnabledAccountCollectiblesSlugs } from 'lib/assets/hooks';
-import { useAssetsSortPredicate } from 'lib/assets/use-filtered';
+import { useEnabledAccountTokensSlugs } from 'lib/assets/hooks';
 import { t } from 'lib/i18n';
 import { useTezos } from 'lib/temple/front';
-import { useMemoWithCompare, useSafeState } from 'lib/ui/hooks';
+import { useSafeState } from 'lib/ui/hooks';
 import { HistoryAction, navigate } from 'lib/woozie';
 
 import AddContactModal from './AddContactModal';
@@ -19,21 +17,24 @@ import { Form } from './Form';
 import { SendFormSelectors } from './selectors';
 import { SpinnerSection } from './SpinnerSection';
 
-type SendFormProps = {
+type Props = {
   assetSlug?: string | null;
 };
 
-const SendForm: FC<SendFormProps> = ({ assetSlug = TEZ_TOKEN_SLUG }) => {
+const SendForm = memo<Props>(({ assetSlug = TEZ_TOKEN_SLUG }) => {
   const tokensSlugs = useEnabledAccountTokensSlugs();
-  const collectiblesSlugs = useEnabledAccountCollectiblesSlugs();
 
-  const assetsSortPredicate = useAssetsSortPredicate();
+  const assetsSlugs = useMemo<string[]>(() => {
+    if (!assetSlug) return [TEZ_TOKEN_SLUG, ...tokensSlugs];
+    const index = tokensSlugs.indexOf(assetSlug);
 
-  const allAssetsSlugs = useMemoWithCompare<string[]>(
-    () => [TEZ_TOKEN_SLUG, ...tokensSlugs, ...collectiblesSlugs].sort(assetsSortPredicate),
-    [tokensSlugs, collectiblesSlugs, assetsSortPredicate],
-    isEqual
-  );
+    if (index === -1) return [TEZ_TOKEN_SLUG, assetSlug, ...tokensSlugs];
+
+    const restSlugs = [...tokensSlugs];
+    tokensSlugs.splice(index, 1);
+
+    return [TEZ_TOKEN_SLUG, ...restSlugs];
+  }, [tokensSlugs, assetSlug]);
 
   const selectedAsset = assetSlug ?? TEZ_TOKEN_SLUG;
 
@@ -67,7 +68,7 @@ const SendForm: FC<SendFormProps> = ({ assetSlug = TEZ_TOKEN_SLUG }) => {
 
       <AssetSelect
         value={selectedAsset}
-        slugs={allAssetsSlugs}
+        slugs={assetsSlugs}
         onChange={handleAssetChange}
         className="mb-6"
         testIDs={{
@@ -83,6 +84,6 @@ const SendForm: FC<SendFormProps> = ({ assetSlug = TEZ_TOKEN_SLUG }) => {
       <AddContactModal address={addContactModalAddress} onClose={closeContactModal} />
     </>
   );
-};
+});
 
 export default SendForm;

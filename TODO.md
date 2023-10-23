@@ -1,0 +1,3 @@
+- TTL for metadata (only NFTs but permanent for tokens) ?
+- `string` type for assets IDs
+-

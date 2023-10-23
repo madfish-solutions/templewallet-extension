@@ -17,24 +17,12 @@ export const useMetadataLoading = () => {
   const tezos = useTezos();
 
   const tokens = useAccountAssetsSelector(account, chainId, 'tokens');
-  const collectibles = useAccountAssetsSelector(account, chainId, 'collectibles');
 
   const assetsMetadata = useTokensMetadataSelector();
 
   const slugsWithoutMetadata = useMemoWithCompare(
-    () => {
-      const tokensSlugs = tokens.reduce<string[]>(
-        (acc, { slug }) => (assetsMetadata[slug] ? acc : acc.concat(slug)),
-        []
-      );
-      const collectiblesSlugs = collectibles.reduce<string[]>(
-        (acc, { slug }) => (assetsMetadata[slug] ? acc : acc.concat(slug)),
-        []
-      );
-
-      return tokensSlugs.concat(collectiblesSlugs).sort();
-    },
-    [tokens, collectibles, assetsMetadata],
+    () => tokens.reduce<string[]>((acc, { slug }) => (assetsMetadata[slug] ? acc : acc.concat(slug)), []),
+    [tokens, assetsMetadata],
     isEqual
   );
 
