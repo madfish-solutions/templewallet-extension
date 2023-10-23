@@ -16,12 +16,12 @@ import AddressChip from 'app/templates/AddressChip';
 import OperationStatus from 'app/templates/OperationStatus';
 import { TabsBar } from 'app/templates/TabBar';
 import { fetchCollectibleExtraDetails, objktCurrencies } from 'lib/apis/objkt';
+import { buildTokenImagesStack } from 'lib/images-uri';
 import { BLOCK_DURATION } from 'lib/fixed-times';
 import { t, T } from 'lib/i18n';
 import { getAssetName } from 'lib/metadata';
 import { useRetryableSWR } from 'lib/swr';
 import { useAccount } from 'lib/temple/front';
-import { formatTcInfraImgUri } from 'lib/temple/front/image-uri';
 import { atomsToTokens } from 'lib/temple/helpers';
 import { TempleAccountType } from 'lib/temple/types';
 import { useInterval } from 'lib/ui/hooks';
@@ -69,7 +69,7 @@ const CollectiblePage = memo<Props>(({ assetSlug }) => {
     () =>
       details && {
         title: details.galleries[0]?.title ?? details.fa.name,
-        logo: [formatTcInfraImgUri(details.fa.logo, 'small'), formatTcInfraImgUri(details.fa.logo, 'medium')]
+        logo: buildTokenImagesStack(details.fa.logo)
       },
     [details]
   );

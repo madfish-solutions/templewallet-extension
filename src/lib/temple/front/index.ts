@@ -46,10 +46,3 @@ export { validateRecipient } from './validate-recipient';
 export { useFilteredContacts } from './use-filtered-contacts.hook';
 
 export { decryptKukaiSeedPhrase } from './kukai';
-
-export {
-  isSvgDataUriInUtf8Encoding,
-  buildTokenIconURLs,
-  buildCollectibleImageURLs,
-  buildObjktCollectibleArtifactUri
-} from './image-uri';

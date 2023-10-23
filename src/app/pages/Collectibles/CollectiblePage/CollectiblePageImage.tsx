@@ -2,8 +2,8 @@ import React, { memo, useCallback, useEffect, useState } from 'react';
 
 import { Model3DViewer } from 'app/atoms/Model3DViewer';
 import { AssetImage } from 'app/templates/AssetImage';
+import { isSvgDataUriInUtf8Encoding, buildObjktCollectibleArtifactUri } from 'lib/images-uri';
 import { TokenMetadata } from 'lib/metadata';
-import { isSvgDataUriInUtf8Encoding, buildObjktCollectibleArtifactUri } from 'lib/temple/front';
 import { Image } from 'lib/ui/Image';
 
 import { AudioCollectible } from '../components/AudioCollectible';
