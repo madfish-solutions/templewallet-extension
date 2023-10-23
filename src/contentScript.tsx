@@ -9,6 +9,7 @@ import { ContentScriptType } from 'lib/constants';
 import { IntercomClient } from 'lib/intercom/client';
 import { serealizeError } from 'lib/intercom/helpers';
 import { ADS_REPLACE_URLS_BASES } from 'lib/slise/constants';
+import { getAdsContainers } from 'lib/slise/get-ads-containers';
 import { getSlotId } from 'lib/slise/get-slot-id';
 import { SliseAd } from 'lib/slise/slise-ad';
 import { TempleMessageType, TempleResponse } from 'lib/temple/types';
@@ -33,11 +34,6 @@ interface LegacyPageMessage {
   reqId?: string | number;
 }
 
-interface AdContainerProps {
-  element: HTMLElement;
-  width: number;
-}
-
 type BeaconMessage =
   | {
       target: BeaconMessageTarget;
@@ -54,14 +50,6 @@ const availableAdsResolutions = [
   { width: 728, height: 90 }
 ];
 
-const getFinalWidth = (element: Element) => {
-  const elementStyle = getComputedStyle(element);
-  const rawWidthFromStyle = elementStyle.width;
-  const rawWidthFromAttribute = element.getAttribute('width');
-
-  return Number((rawWidthFromAttribute || rawWidthFromStyle).replace('px', '') || element.clientWidth);
-};
-
 const replaceAds = debounce(
   () => {
     if (!ADS_REPLACE_URLS_BASES.some(base => window.location.href.startsWith(base))) {
@@ -69,33 +57,7 @@ const replaceAds = debounce(
     }
 
     try {
-      const builtInAdsImages = [...document.querySelectorAll('span + img')].filter(element => {
-        const { width, height } = element.getBoundingClientRect();
-        const label = element.previousElementSibling?.innerHTML ?? '';
-
-        return (width > 0 || height > 0) && ['Featured', 'Ad'].includes(label);
-      });
-      const coinzillaBanners = [...document.querySelectorAll('.coinzilla')];
-      const bitmediaBanners = [...document.querySelectorAll('iframe[src*="media.bmcdn"], iframe[src*="cdn.bmcdn"]')];
-
-      const adsContainers = builtInAdsImages
-        .map((image): AdContainerProps | null => {
-          const element = image.closest('div');
-
-          return element && { element, width: getFinalWidth(image) };
-        })
-        .concat(
-          [...bitmediaBanners, ...coinzillaBanners].map(banner => {
-            const parentElement = banner.parentElement;
-            const closestDiv = parentElement?.closest('div') ?? null;
-            const element = bitmediaBanners.includes(banner) ? closestDiv : parentElement;
-            const widthDefinedElement = element?.parentElement ?? parentElement;
-            const bannerFrame = banner.tagName === 'iframe' ? banner : banner.querySelector('iframe');
-
-            return element && { element, width: getFinalWidth(bannerFrame || widthDefinedElement!) };
-          })
-        )
-        .filter((element): element is AdContainerProps => Boolean(element));
+      const adsContainers = getAdsContainers();
 
       adsContainers.forEach(({ element: adContainer, width: containerWidth }) => {
         let adsResolution = availableAdsResolutions[0];
