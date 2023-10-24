@@ -158,7 +158,8 @@ const scriptsConfig = (() => {
   const config = buildBaseConfig();
 
   config.entry = {
-    contentScript: Path.join(PATHS.SOURCE, 'contentScript.tsx')
+    contentScript: Path.join(PATHS.SOURCE, 'contentScript.ts'),
+    replaceAds: Path.join(PATHS.SOURCE, 'replaceAds.tsx')
   };
 
   config.output = {
