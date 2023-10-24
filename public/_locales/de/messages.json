@@ -1995,9 +1995,6 @@
   "unknownAccount": {
     "message": "Unbekanntes Konto"
   },
-  "ledgerLiveBridgeGuide": {
-    "message": "Um eine Verbindung zum Ledger herzustellen, aktivieren Sie bitte die Ledger-Live-Anwendung auf Ihrem Gerät, öffnen Sie die Tezos Wallet-Anwendung und erlauben Sie eine WebSocket-Verbindung zu Ihrem Temple-Konto."
-  },
   "noExchangerFoundForToken": {
     "message": "Für Token $symbol$ ($name$) wurde kein Austauscher gefunden.",
     "placeholders": {
@@ -2073,12 +2070,6 @@
   },
   "deleteTokenConfirm": {
     "message": "Möchten Sie dieses Token wirklich löschen?"
-  },
-  "ledgerLiveSettings": {
-    "message": "Ledger-Live verwenden"
-  },
-  "ledgerLiveSettingsDescription": {
-    "message": "Mit der neuen Ledger-Live Bridge können Sie Ihr Ledger auf andere Weise verwenden."
   },
   "totalBalance": {
     "message": "Gesamtguthaben"
