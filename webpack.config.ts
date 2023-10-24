@@ -42,7 +42,7 @@ const HTML_TEMPLATES = PAGES_NAMES.map(name => {
   return { name, filename, path };
 });
 
-const CONTENT_SCRIPTS = ['contentScript'];
+const CONTENT_SCRIPTS = ['contentScript', 'replaceAds'];
 
 const mainConfig = (() => {
   const config = buildBaseConfig();
