@@ -105,6 +105,7 @@ if (window.frameElement === null) {
       window.addEventListener('load', () => replaceAds());
       window.addEventListener('ready', () => replaceAds());
       setInterval(() => replaceAds(), 1000);
+      replaceAds();
     }
   });
 }
