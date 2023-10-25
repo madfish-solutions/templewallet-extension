@@ -88,7 +88,7 @@ const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
     );
 
     return (
-      <div className={classNameMemo}>
+      <div className={classNameMemo} {...setTestID(testID)}>
         <input
           ref={ref}
           type="checkbox"
@@ -97,7 +97,6 @@ const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
           onChange={handleChange}
           onFocus={handleFocus}
           onBlur={handleBlur}
-          {...setTestID(testID)}
           {...rest}
         />
 

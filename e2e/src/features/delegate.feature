@@ -1,5 +1,6 @@
 Feature: Delegate
 
+@delegate
   Scenario: As a user, i'd like to re-delegate TEZ to a baker
     Given I have imported an existing account
     And I press Selected Network Button on the Header page

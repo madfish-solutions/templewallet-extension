@@ -653,6 +653,7 @@ module.exports = {
       inset: {
         '2px': '2px',
         '1/2': '50%',
+        18: '4.5rem',
       },
       space: (theme, { negative }) => ({
         ...theme('spacing'),

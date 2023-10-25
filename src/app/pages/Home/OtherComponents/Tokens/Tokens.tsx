@@ -1,5 +1,6 @@
 import React, { FC, useCallback, useEffect, useMemo, useState } from 'react';
 
+import { ChainIds } from '@taquito/taquito';
 import { BigNumber } from 'bignumber.js';
 import clsx from 'clsx';
 import { isEqual } from 'lodash';
@@ -17,6 +18,7 @@ import { useShouldShowPartnersPromoSelector } from 'app/store/partners-promotion
 import { useIsEnabledAdsBannerSelector } from 'app/store/settings/selectors';
 import { ButtonForManageDropdown } from 'app/templates/ManageDropdown';
 import SearchAssetField from 'app/templates/SearchAssetField';
+import { setTestID } from 'lib/analytics';
 import { OptimalPromoVariantEnum } from 'lib/apis/optimal';
 import { TEMPLE_TOKEN_SLUG, TEZ_TOKEN_SLUG } from 'lib/assets';
 import { useFilteredAssetsSlugs } from 'lib/assets/use-filtered';
@@ -28,6 +30,7 @@ import { useLocalStorage } from 'lib/ui/local-storage';
 import Popper, { PopperRenderProps } from 'lib/ui/Popper';
 import { Link, navigate } from 'lib/woozie';
 
+import { HomeSelectors } from '../../Home.selectors';
 import { AssetsSelectors } from '../Assets.selectors';
 import { AcceptAdsBanner } from './AcceptAdsBanner';
 import { ListItem } from './components/ListItem';
@@ -35,7 +38,6 @@ import { toExploreAssetLink } from './utils';
 
 const LOCAL_STORAGE_TOGGLE_KEY = 'tokens-list:hide-zero-balances';
 const svgIconClassName = 'w-4 h-4 stroke-current fill-current text-gray-600';
-const LEADING_ASSETS = [TEZ_TOKEN_SLUG, TEMPLE_TOKEN_SLUG];
 
 export const TokensTab: FC = () => {
   const dispatch = useDispatch();
@@ -57,10 +59,15 @@ export const TokensTab: FC = () => {
 
   const slugs = useMemoWithCompare(() => tokens.map(({ tokenSlug }) => tokenSlug).sort(), [tokens], isEqual);
 
+  const leadingAssets = useMemo(
+    () => (chainId === ChainIds.MAINNET ? [TEZ_TOKEN_SLUG, TEMPLE_TOKEN_SLUG] : [TEZ_TOKEN_SLUG]),
+    [chainId]
+  );
+
   const { filteredAssets, searchValue, setSearchValue } = useFilteredAssetsSlugs(
     slugs,
     isZeroBalancesHidden,
-    LEADING_ASSETS
+    leadingAssets
   );
 
   const isEnabledAdsBanner = useIsEnabledAdsBannerSelector();
@@ -181,7 +188,7 @@ export const TokensTab: FC = () => {
           <p className="mb-2 flex items-center justify-center text-gray-600 text-base font-light">
             {searchValueExist && <SearchIcon className="w-5 h-auto mr-1 stroke-current" />}
 
-            <span>
+            <span {...setTestID(HomeSelectors.emptyStateText)}>
               <T id="noAssetsFound" />
             </span>
           </p>

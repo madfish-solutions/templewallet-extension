@@ -117,7 +117,7 @@ const BalanceInfo: FC = () => {
           </Button>
         )}
 
-        <div className="text-sm font-medium text-gray-700">
+        <div className="text-sm font-medium text-gray-700" {...setTestID(HomeSelectors.fiatTezSwitchText)}>
           {shouldShowFiatBanner ? (
             <T id="totalEquityValue" />
           ) : (

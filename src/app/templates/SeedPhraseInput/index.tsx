@@ -1,26 +1,29 @@
-import React, { FC, useCallback, useMemo, useState } from 'react';
+import React, { FC, useCallback, useMemo, useRef, useState } from 'react';
 
 import { validateMnemonic } from 'bip39';
 import classNames from 'clsx';
 
+import { FormFieldElement } from 'app/atoms/FormField';
 import { formatMnemonic } from 'app/defaults';
 import { useAppEnv } from 'app/env';
 import { TestIDProperty } from 'lib/analytics';
 import { T, t } from 'lib/i18n';
 import { clearClipboard } from 'lib/ui/utils';
 
-import { SeedLengthSelect } from './SeedLengthSelect';
+import { SeedLengthSelect } from './SeedLengthSelect/SeedLengthSelect';
 import { SeedWordInput, SeedWordInputProps } from './SeedWordInput';
 import { useRevealRef } from './use-reveal-ref.hook';
 
 interface SeedPhraseInputProps extends TestIDProperty {
   isFirstAccount?: boolean;
   submitted: boolean;
-  seedError: string;
+  seedError: string | React.ReactNode;
   labelWarning?: string;
   onChange: (seed: string) => void;
   setSeedError: (e: string) => void;
   reset: () => void;
+  numberOfWords: number;
+  setNumberOfWords: (n: number) => void;
 }
 
 const defaultNumberOfWords = 12;
@@ -33,34 +36,44 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
   onChange,
   setSeedError,
   reset,
+  numberOfWords,
+  setNumberOfWords,
   testID
 }) => {
+  const inputsRef = useRef<Array<FormFieldElement | null>>([]);
+
   const { popup } = useAppEnv();
 
   const [pasteFailed, setPasteFailed] = useState(false);
   const [draftSeed, setDraftSeed] = useState(new Array<string>(defaultNumberOfWords).fill(''));
-  const [numberOfWords, setNumberOfWords] = useState(defaultNumberOfWords);
+  const [wordSpellingErrorsCount, setWordSpellingErrorsCount] = useState(0);
 
   const { getRevealRef, onReveal, resetRevealRef } = useRevealRef();
 
   const onSeedChange = useCallback(
-    (newDraftSeed: Array<string>) => {
-      let newSeedError = '';
-      const joinedDraftSeed = newDraftSeed.join(' ');
+    (newDraftSeed: string[]) => {
+      setDraftSeed(newDraftSeed);
 
-      if (newDraftSeed.some(word => word !== '')) {
-        if (newDraftSeed.some(word => word === '')) {
-          newSeedError = t('mnemonicWordsAmountConstraint');
-        } else if (!validateMnemonic(formatMnemonic(joinedDraftSeed))) {
-          newSeedError = t('justValidPreGeneratedMnemonic');
-        }
+      const joinedDraftSeed = newDraftSeed.join(' ');
+      let newSeedError = '';
+
+      if (!newDraftSeed.some(Boolean)) {
+        onChange(joinedDraftSeed);
+        return;
       }
 
-      setDraftSeed(newDraftSeed);
+      if (newDraftSeed.some(word => word === '')) {
+        newSeedError = t('mnemonicWordsAmountConstraint', [numberOfWords]) as string;
+      }
+
+      if (!validateMnemonic(formatMnemonic(joinedDraftSeed))) {
+        newSeedError = t('justValidPreGeneratedMnemonic');
+      }
+
       setSeedError(newSeedError);
       onChange(newSeedError ? '' : joinedDraftSeed);
     },
-    [setDraftSeed, setSeedError, onChange]
+    [setDraftSeed, setSeedError, onChange, numberOfWords]
   );
 
   const onSeedWordChange = useCallback(
@@ -102,11 +115,12 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
       if (newDraftSeed.length < newNumberOfWords) {
         newDraftSeed = newDraftSeed.concat(new Array(newNumberOfWords - newDraftSeed.length).fill(''));
       }
+
       resetRevealRef();
       onSeedChange(newDraftSeed);
       clearClipboard();
     },
-    [numberOfWords, onSeedChange, pasteFailed, setPasteFailed, resetRevealRef]
+    [numberOfWords, onSeedChange, pasteFailed, setPasteFailed, resetRevealRef, setNumberOfWords]
   );
 
   const onSeedWordPaste = useCallback<Defined<SeedWordInputProps['onPaste']>>(
@@ -134,7 +148,7 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
       <div className="flex justify-between mb-6">
         <h1
           className={classNames(
-            'font-inter flex self-center text-gray-800',
+            'font-inter flex self-center text-gray-910',
             isFirstAccount ? 'text-2xl' : 'text-base font-semibold text-gray-500'
           )}
         >
@@ -156,6 +170,8 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
               setNumberOfWords(newNumberOfWords);
               onSeedChange(newDraftSeed);
               reset();
+              setSeedError('');
+              setWordSpellingErrorsCount(0);
             }}
           />
         </div>
@@ -173,32 +189,46 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
         {[...Array(numberOfWords).keys()].map(index => {
           const key = `import-seed-word-${index}`;
 
+          const handleChange = (event: React.ChangeEvent<FormFieldElement>) => {
+            event.preventDefault();
+            onSeedWordChange(index, event.target.value);
+          };
+
           return (
             <SeedWordInput
               key={key}
               id={index}
+              inputsRef={inputsRef}
+              numberOfWords={numberOfWords}
               submitted={submitted}
-              onChange={event => {
-                event.preventDefault();
-                onSeedWordChange(index, event.target.value);
-              }}
+              onChange={handleChange}
               revealRef={getRevealRef(index)}
               onReveal={() => onReveal(index)}
               value={draftSeed[index]}
               testID={testID}
               onPaste={onSeedWordPaste}
+              setWordSpellingErrorsCount={setWordSpellingErrorsCount}
+              onSeedWordChange={onSeedWordChange}
             />
           );
         })}
       </div>
 
-      {submitted && seedError ? <div className="text-xs text-red-700 mt-4">{seedError}</div> : null}
+      <div className="h-12 mt-4 mb-6 text-xs text-red-700">
+        {submitted && seedError && <div>{seedError}</div>}
 
-      {pasteFailed ? (
-        <div className="text-xs text-red-700 mt-4">
-          <T id="seedPasteFailedTooManyWords" />
-        </div>
-      ) : null}
+        {wordSpellingErrorsCount > 0 && (
+          <div>
+            <T id="mnemonicWordsError" />
+          </div>
+        )}
+
+        {pasteFailed && (
+          <div>
+            <T id="seedPasteFailedTooManyWords" />
+          </div>
+        )}
+      </div>
     </div>
   );
 };

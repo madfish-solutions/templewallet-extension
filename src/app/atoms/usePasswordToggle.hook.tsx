@@ -9,10 +9,14 @@ import { useDidUpdate, useTimeout } from 'lib/ui/hooks';
 
 const usePasswordToggle = (
   smallPaddings: boolean,
+  id?: string,
   onReveal?: EmptyFn,
-  revealRef?: unknown
+  revealRef?: unknown,
+  handleBlur?: (e: React.FocusEvent) => void
 ): ['text' | 'password', JSX.Element] => {
   const [visible, setVisibility] = useState(false);
+
+  const buttonId = useMemo(() => (id ? `passwordToggle-${id}` : undefined), [id]);
 
   const hide = useCallback(() => void setVisibility(false), []);
 
@@ -23,18 +27,22 @@ const usePasswordToggle = (
   const Icon = useMemo(
     () => (
       <button
+        id={buttonId}
         type="button"
         tabIndex={1}
         className={clsx('absolute inset-y-0', smallPaddings ? 'right-2' : 'right-3')}
         onClick={() => {
-          setVisibility(!visible);
-          if (!visible) onReveal?.();
+          if (!visible) {
+            onReveal?.();
+          }
+          setVisibility(prev => !prev);
         }}
+        onBlur={handleBlur}
       >
         {visible ? <EyeClosedBold /> : <EyeOpenBold />}
       </button>
     ),
-    [visible, smallPaddings, onReveal]
+    [smallPaddings, handleBlur, visible, onReveal]
   );
 
   const inputType = visible ? 'text' : 'password';

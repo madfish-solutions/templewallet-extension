@@ -59,8 +59,8 @@ const getOutputAmountFunctions: Record<TopUpProviderId, getOutputAmountFunction>
   },
   [TopUpProviderId.Utorg]: async (inputAmount, inputAsset, outputAsset) =>
     convertFiatAmountToCrypto(inputAsset.code, outputAsset.code, inputAmount),
-  [TopUpProviderId.AliceBob]: async inputAmount => {
-    const response = await estimateAliceBobOutput(false, inputAmount.toString());
+  [TopUpProviderId.AliceBob]: async (inputAmount, inputAsset, outputAsset) => {
+    const response = await estimateAliceBobOutput(inputAmount.toString(), inputAsset.code, outputAsset.code);
 
     return response.data.outputAmount;
   }

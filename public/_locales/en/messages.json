@@ -580,7 +580,15 @@
     "message": "Inclusion of at least one special character, e.g., ! @ # ? ] - (optional, recommended)."
   },
   "mnemonicWordsAmountConstraint": {
-    "message": "12, 15, 18, 21 or 24 words in English"
+    "message": "Seed phrase must contain $number$ words",
+    "placeholders": {
+      "number": {
+        "content": "$1"
+      }
+    }
+  },
+  "mnemonicWordsError": {
+    "message": "Make sure the words spelled correctly"
   },
   "seedInputNumberOfWords": {
     "message": "My Seed phrase is $count$ words",
@@ -591,7 +599,7 @@
     }
   },
   "justValidPreGeneratedMnemonic": {
-    "message": "Just valid pre-generated mnemonic"
+    "message": "Invalid Seed Phrase"
   },
   "seedPasteFailedTooManyWords": {
     "message": "Paste failed because it contained over 24 words."
@@ -759,7 +767,7 @@
     "message": "Custom derivation path"
   },
   "mnemonicInputLabel": {
-    "message": "Seed phrase"
+    "message": "Seed Phrase"
   },
   "mnemonicInputWarning": {
     "message": "We don't store your seed phrase. Don't lose it!"
@@ -1412,7 +1420,7 @@
     "message": "The elliptical curve that the account will use."
   },
   "seedPhrase": {
-    "message": "Seed Phrase"
+    "message": "Seed phrase"
   },
   "pathForHDAccounts": {
     "message": "for HD acccounts. This is the thing you use to recover all your accounts from your seed phrase.",
@@ -2669,22 +2677,19 @@
   "enterCardNumber": {
     "message": "Enter card number"
   },
-  "onlyForUkrainianCards": {
-    "message": "Only for Ukrainian banking cards"
+  "onlyForCountryBankingCards": {
+    "message": "Only for $country$ banking cards",
+    "placeholders": {
+      "country": {
+        "content": "$1"
+      }
+    }
   },
   "buyWithCrypto": {
     "message": "Buy with Crypto"
   },
   "buyWithExolix": {
     "message": "Buy With Exolix"
-  },
-  "buyWithExolixDescription": {
-    "message": "Exchange $number$ cryptocurrencies to TEZ or USDT Tezos instantly and without registration",
-    "placeholders": {
-      "number": {
-        "content": "$1"
-      }
-    }
   },
   "buyWithRamp": {
     "message": "Buy With Ramp"
@@ -2693,10 +2698,10 @@
     "message": "Buy TEZ  using Visa, Mastercard, and all major debit and credit cards. Ramp is available in 160+ countries and territories."
   },
   "sellWithAliceBob": {
-    "message": "Sell TEZ with Alice-Bob (UAH only)"
+    "message": "Sell TEZ with Alice-Bob"
   },
   "sellWithAliceBobDescription": {
-    "message": "Fast and cost-effective exchange of TEZ to UAH."
+    "message": "Fast and cost-effective exchange of TEZ."
   },
   "selectPaymentProvider": {
     "message": "Select payment provider"
@@ -2808,7 +2813,7 @@
     "message": "Sell TEZ details"
   },
   "sellDetailsDescription": {
-    "message": "Sell TEZ to fiat. Get fiat to Visa, Mastercard Ukrainian cards."
+    "message": "Sell TEZ to fiat. Get fiat to Visa, Mastercard cards."
   },
   "privacyAndPolicyLinks": {
     "message": "By clicking $buttonContent$ you agree with \n$termsOfUse$ and $privacyPolicy$",
