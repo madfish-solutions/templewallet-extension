@@ -43,6 +43,10 @@ const DERIVATION_TYPES = [
     name: 'ED25519 (tz1...)'
   },
   {
+    type: DerivationType.BIP32_ED25519,
+    name: 'BIP32_ED25519 (tz1...)'
+  },
+  {
     type: DerivationType.SECP256K1,
     name: 'SECP256K1 (tz2...)'
   },
