@@ -7,7 +7,7 @@ import { clearAsyncStorages } from 'lib/temple/reset';
 import { TempleMessageType, TempleRequest, TempleResponse } from 'lib/temple/types';
 import { getTrackedUrl } from 'lib/utils/url-track/get-tracked-url';
 
-import { ContentScriptType } from '../../constants';
+import { ACCOUNT_PKH_STORAGE_KEY, ContentScriptType } from '../../constants';
 import * as Actions from './actions';
 import * as Analytics from './analytics';
 import { intercom } from './defaults';
@@ -249,7 +249,12 @@ browser.runtime.onMessage.addListener(msg => {
     const url = getTrackedUrl(msg.url);
 
     if (url) {
-      Analytics.client.track('External links activity', { url });
+      browser.storage.local
+        .get(ACCOUNT_PKH_STORAGE_KEY)
+        .then(({ [ACCOUNT_PKH_STORAGE_KEY]: accountPkh }) =>
+          Analytics.client.track('External links activity', { url, accountPkh })
+        )
+        .catch(console.error);
     }
   }
 

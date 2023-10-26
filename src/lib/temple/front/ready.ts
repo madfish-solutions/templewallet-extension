@@ -5,6 +5,7 @@ import { TezosToolkit } from '@taquito/taquito';
 import { Tzip16Module } from '@taquito/tzip16';
 import constate from 'constate';
 
+import { ACCOUNT_PKH_STORAGE_KEY } from 'lib/constants';
 import { IS_DEV_ENV } from 'lib/env';
 import { useRetryableSWR } from 'lib/swr';
 import { loadChainId, michelEncoder, loadFastRpcClient } from 'lib/temple/helpers';
@@ -82,7 +83,7 @@ function useReadyTemple() {
    */
 
   const defaultAcc = allAccounts[0];
-  const [accountPkh, setAccountPkh] = usePassiveStorage('account_publickeyhash', defaultAcc.publicKeyHash);
+  const [accountPkh, setAccountPkh] = usePassiveStorage(ACCOUNT_PKH_STORAGE_KEY, defaultAcc.publicKeyHash);
 
   useEffect(() => {
     return intercom.subscribe((msg: TempleNotification) => {
