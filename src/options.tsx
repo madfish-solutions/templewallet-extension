@@ -8,6 +8,7 @@ import browser from 'webextension-polyfill';
 
 import 'lib/lock-up/run-checks';
 import 'lib/ledger/proxy/foreground';
+import 'lib/keep-bg-worker-alive/script';
 
 import DisableOutlinesForClick from 'app/a11y/DisableOutlinesForClick';
 import Dialogs from 'app/layouts/Dialogs';
