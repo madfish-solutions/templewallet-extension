@@ -39,12 +39,9 @@ const replaceAds = debounce(
   true
 );
 
-console.log('x3');
 // Prevents the script from running in an Iframe
 if (window.frameElement === null) {
-  console.log('x4');
   browser.storage.local.get(WEBSITES_ANALYTICS_ENABLED).then(storage => {
-    console.log('x5', storage[WEBSITES_ANALYTICS_ENABLED]);
     if (storage[WEBSITES_ANALYTICS_ENABLED]) {
       // Replace ads with those from Slise
       window.addEventListener('load', () => replaceAds());

@@ -136,9 +136,10 @@ export const SetWalletPassword: FC<SetWalletPasswordProps> = ({
           : data.password
         : data.password;
       try {
+        const shouldEnableAnalytics = Boolean(data.analytics);
         setAdsViewEnabled(data.viewAds);
-        setAnalyticsEnabled(!!data.analytics);
-        await putToStorage(WEBSITES_ANALYTICS_ENABLED, data.viewAds && !!data.analytics);
+        setAnalyticsEnabled(shouldEnableAnalytics);
+        await putToStorage(WEBSITES_ANALYTICS_ENABLED, data.viewAds && shouldEnableAnalytics);
         setOnboardingCompleted(data.skipOnboarding!);
 
         await registerWallet(password!, formatMnemonic(seedPhrase));

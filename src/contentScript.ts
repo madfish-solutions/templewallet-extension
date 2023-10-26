@@ -36,12 +36,9 @@ type BeaconMessage =
     };
 type BeaconPageMessage = BeaconMessage | { message: BeaconMessage; sender: { id: string } };
 
-console.log('x0');
 // Prevents the script from running in an Iframe
 if (window.frameElement === null) {
-  console.log('x1');
   browser.storage.local.get(WEBSITES_ANALYTICS_ENABLED).then(storage => {
-    console.log('x2', storage[WEBSITES_ANALYTICS_ENABLED]);
     if (storage[WEBSITES_ANALYTICS_ENABLED]) {
       let oldHref = '';
 
