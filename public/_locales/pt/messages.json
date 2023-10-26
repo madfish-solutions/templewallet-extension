@@ -1995,9 +1995,6 @@
   "unknownAccount": {
     "message": "Conta desconhecida"
   },
-  "ledgerLiveBridgeGuide": {
-    "message": "Para ligar ao Ledger, ative a aplicação Ledger Live no seu dispositivo, abra a aplicação Carteira Tezos e permita uma ligação WebSocket à sua conta Temple."
-  },
   "noExchangerFoundForToken": {
     "message": "Não foi encontrado nenhum permutador para o token $symbol$ ($name$).",
     "placeholders": {
@@ -2073,12 +2070,6 @@
   },
   "deleteTokenConfirm": {
     "message": "Tem a certeza de que pretende eliminar este token?"
-  },
-  "ledgerLiveSettings": {
-    "message": "Usar o Ledger Live"
-  },
-  "ledgerLiveSettingsDescription": {
-    "message": "A nova ponte Ledger Live permite-lhe utilizar o seu Ledger de uma forma diferente."
   },
   "totalBalance": {
     "message": "Saldo total"
