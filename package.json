@@ -233,6 +233,5 @@
     "@taquito/tzip16": "17.0.0",
     "bignumber.js": "9.1.0",
     "graphql-request": "^6.1.0"
-  },
-  "devDependencies": {}
+  }
 }
