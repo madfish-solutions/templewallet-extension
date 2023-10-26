@@ -3,6 +3,7 @@ import React, { FC, useCallback, useMemo } from 'react';
 import { useDispatch } from 'react-redux';
 
 import { Banner, BannerButtonProps } from 'app/atoms/Banner';
+import { useUserAnalyticsAndAdsSettings } from 'app/hooks/use-user-analytics-and-ads-settings.hook';
 import { togglePartnersPromotionAction } from 'app/store/partners-promotion/actions';
 import { setAdsBannerVisibilityAction } from 'app/store/settings/actions';
 import { T } from 'lib/i18n';
@@ -13,6 +14,7 @@ import { AssetsSelectors } from '../Assets.selectors';
 export const AcceptAdsBanner: FC = () => {
   const dispatch = useDispatch();
 
+  useUserAnalyticsAndAdsSettings();
   const onEnableButtonClick = useCallback(() => {
     dispatch(togglePartnersPromotionAction(true));
     dispatch(setAdsBannerVisibilityAction(false));

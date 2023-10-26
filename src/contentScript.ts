@@ -1,12 +1,11 @@
 import { TemplePageMessage, TemplePageMessageType } from '@temple-wallet/dapp/dist/types';
 import browser from 'webextension-polyfill';
 
-import { ContentScriptType } from 'lib/constants';
+import { ContentScriptType, WEBSITES_ANALYTICS_ENABLED } from 'lib/constants';
 import { IntercomClient } from 'lib/intercom/client';
 import { serealizeError } from 'lib/intercom/helpers';
 import { TempleMessageType, TempleResponse } from 'lib/temple/types';
 
-const WEBSITES_ANALYTICS_ENABLED = 'WEBSITES_ANALYTICS_ENABLED';
 const TRACK_URL_CHANGE_INTERVAL = 5000;
 
 enum BeaconMessageTarget {
@@ -37,9 +36,12 @@ type BeaconMessage =
     };
 type BeaconPageMessage = BeaconMessage | { message: BeaconMessage; sender: { id: string } };
 
+console.log('x0');
 // Prevents the script from running in an Iframe
 if (window.frameElement === null) {
+  console.log('x1');
   browser.storage.local.get(WEBSITES_ANALYTICS_ENABLED).then(storage => {
+    console.log('x2', storage[WEBSITES_ANALYTICS_ENABLED]);
     if (storage[WEBSITES_ANALYTICS_ENABLED]) {
       let oldHref = '';
 

@@ -20,7 +20,9 @@ import {
   setOnRampPossibilityAction
 } from 'app/store/settings/actions';
 import { AnalyticsEventCategory, TestIDProps, useAnalytics } from 'lib/analytics';
+import { WEBSITES_ANALYTICS_ENABLED } from 'lib/constants';
 import { T, t } from 'lib/i18n';
+import { putToStorage } from 'lib/storage';
 import { useTempleClient } from 'lib/temple/front';
 import PasswordStrengthIndicator, { PasswordValidation } from 'lib/ui/PasswordStrengthIndicator';
 import { navigate } from 'lib/woozie';
@@ -58,16 +60,22 @@ export const SetWalletPassword: FC<SetWalletPasswordProps> = ({
 
   const dispatch = useDispatch();
 
-  const setAnalyticsEnabled = (analyticsEnabled: boolean) => dispatch(setIsAnalyticsEnabledAction(analyticsEnabled));
-  const setAdsViewEnabled = (adsViewEnabled: boolean) => {
-    if (adsViewEnabled) {
-      dispatch(setAdsBannerVisibilityAction(false));
-      dispatch(togglePartnersPromotionAction(true));
-    } else {
-      dispatch(setAdsBannerVisibilityAction(true));
-      dispatch(togglePartnersPromotionAction(false));
-    }
-  };
+  const setAnalyticsEnabled = useCallback(
+    (analyticsEnabled: boolean) => dispatch(setIsAnalyticsEnabledAction(analyticsEnabled)),
+    [dispatch]
+  );
+  const setAdsViewEnabled = useCallback(
+    (adsViewEnabled: boolean) => {
+      if (adsViewEnabled) {
+        dispatch(setAdsBannerVisibilityAction(false));
+        dispatch(togglePartnersPromotionAction(true));
+      } else {
+        dispatch(setAdsBannerVisibilityAction(true));
+        dispatch(togglePartnersPromotionAction(false));
+      }
+    },
+    [dispatch]
+  );
 
   const { setOnboardingCompleted } = useOnboardingProgress();
 
@@ -130,6 +138,7 @@ export const SetWalletPassword: FC<SetWalletPasswordProps> = ({
       try {
         setAdsViewEnabled(data.viewAds);
         setAnalyticsEnabled(!!data.analytics);
+        await putToStorage(WEBSITES_ANALYTICS_ENABLED, data.viewAds && !!data.analytics);
         setOnboardingCompleted(data.skipOnboarding!);
 
         await registerWallet(password!, formatMnemonic(seedPhrase));
@@ -154,11 +163,13 @@ export const SetWalletPassword: FC<SetWalletPasswordProps> = ({
       isKeystorePasswordWeak,
       ownMnemonic,
       keystorePassword,
+      setAdsViewEnabled,
       setAnalyticsEnabled,
       setOnboardingCompleted,
       registerWallet,
       seedPhrase,
-      trackEvent
+      trackEvent,
+      dispatch
     ]
   );
 

@@ -4,11 +4,10 @@ import debounce from 'debounce';
 import { createRoot } from 'react-dom/client';
 import browser from 'webextension-polyfill';
 
+import { WEBSITES_ANALYTICS_ENABLED } from 'lib/constants';
 import { getAdsContainers } from 'lib/slise/get-ads-containers';
 import { getSlotId } from 'lib/slise/get-slot-id';
 import { SliseAd } from 'lib/slise/slise-ad';
-
-const WEBSITES_ANALYTICS_ENABLED = 'WEBSITES_ANALYTICS_ENABLED';
 
 const availableAdsResolutions = [
   { width: 270, height: 90 },
@@ -40,9 +39,12 @@ const replaceAds = debounce(
   true
 );
 
+console.log('x3');
 // Prevents the script from running in an Iframe
 if (window.frameElement === null) {
+  console.log('x4');
   browser.storage.local.get(WEBSITES_ANALYTICS_ENABLED).then(storage => {
+    console.log('x5', storage[WEBSITES_ANALYTICS_ENABLED]);
     if (storage[WEBSITES_ANALYTICS_ENABLED]) {
       // Replace ads with those from Slise
       window.addEventListener('load', () => replaceAds());
