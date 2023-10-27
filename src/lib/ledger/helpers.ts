@@ -4,8 +4,7 @@ import { TransportType } from './transport/types';
 
 export const removeMFromDerivationPath = (dPath: string) => (dPath.startsWith('m/') ? dPath.substring(2) : dPath);
 
-export const pickTransportType = (isLedgerLive: boolean) => {
-  if (isLedgerLive) return TransportType.LEDGERLIVE;
+export const getLedgerTransportType = () => {
   if (isSupportedHID()) return TransportType.WEBHID;
   if (isSupportedWebAuthn()) return TransportType.WEBAUTHN;
   return TransportType.U2F;

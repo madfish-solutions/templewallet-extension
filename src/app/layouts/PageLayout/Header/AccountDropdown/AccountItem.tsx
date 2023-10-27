@@ -8,6 +8,7 @@ import Balance from 'app/templates/Balance';
 import { TempleAccount } from 'lib/temple/types';
 import { useScrollIntoViewOnMount } from 'lib/ui/use-scroll-into-view';
 
+import { setAnotherSelector, setTestID } from '../../../../../lib/analytics';
 import { AccountDropdownSelectors } from './selectors';
 
 interface AccountItemProps {
@@ -49,7 +50,11 @@ export const AccountItem: React.FC<AccountItemProps> = ({ account, selected, gas
       <div style={{ marginLeft: '10px' }} className="flex flex-col items-start">
         <Name className="text-sm font-medium">{name}</Name>
 
-        <div className="text-xs text-gray-500">
+        <div
+          className="text-xs text-gray-500"
+          {...setTestID(AccountDropdownSelectors.accountAddressValue)}
+          {...setAnotherSelector('hash', publicKeyHash)}
+        >
           <HashShortView hash={publicKeyHash} />
         </div>
 

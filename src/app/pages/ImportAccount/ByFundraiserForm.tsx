@@ -10,6 +10,7 @@ import { t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
 import { delay } from 'lib/utils';
 
+import { defaultNumberOfWords } from './constants';
 import { ImportAccountSelectors, ImportAccountFormType } from './selectors';
 
 interface ByFundraiserFormData {
@@ -26,6 +27,8 @@ export const ByFundraiserForm: FC = () => {
 
   const [seedPhrase, setSeedPhrase] = useState('');
   const [seedError, setSeedError] = useState('');
+
+  const [numberOfWords, setNumberOfWords] = useState(defaultNumberOfWords);
 
   const onSubmit = useCallback<(data: ByFundraiserFormData) => void>(
     async data => {
@@ -48,10 +51,10 @@ export const ByFundraiserForm: FC = () => {
           setError(err.message);
         }
       } else if (seedError === '') {
-        setSeedError(t('mnemonicWordsAmountConstraint'));
+        setSeedError(t('mnemonicWordsAmountConstraint', [numberOfWords]) as string);
       }
     },
-    [seedPhrase, importFundraiserAccount, formState.isSubmitting, setError, seedError, formAnalytics]
+    [seedPhrase, importFundraiserAccount, formState.isSubmitting, setError, seedError, formAnalytics, numberOfWords]
   );
 
   const resetSeedPhrase = useCallback(() => void setSeedPhrase(''), []);
@@ -90,6 +93,8 @@ export const ByFundraiserForm: FC = () => {
         setSeedError={setSeedError}
         onChange={setSeedPhrase}
         reset={resetSeedPhrase}
+        numberOfWords={numberOfWords}
+        setNumberOfWords={setNumberOfWords}
         testID={ImportAccountSelectors.fundraiserSeedPhraseInput}
       />
 

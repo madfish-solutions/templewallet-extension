@@ -3,7 +3,6 @@ import React, { FC } from 'react';
 import AnalyticsSettings from 'app/templates/SettingsGeneral/Components/AnalyticsSettings';
 import BlockExplorerSelect from 'app/templates/SettingsGeneral/Components/BlockExplorerSelect';
 import FiatCurrencySelect from 'app/templates/SettingsGeneral/Components/FiatCurrencySelect';
-import LedgerLiveSettings from 'app/templates/SettingsGeneral/Components/LedgerLiveSettings';
 import LocaleSelect from 'app/templates/SettingsGeneral/Components/LocaleSelect';
 import LockUpSettings from 'app/templates/SettingsGeneral/Components/LockUpSettings';
 import PopupSettings from 'app/templates/SettingsGeneral/Components/PopupSettings';
@@ -25,8 +24,6 @@ const GeneralSettings: FC = () => {
       <LockUpSettings />
 
       <AnalyticsSettings />
-
-      <LedgerLiveSettings />
 
       <NotificationsSettings />
 

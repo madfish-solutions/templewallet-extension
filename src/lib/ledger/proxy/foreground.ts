@@ -1,9 +1,8 @@
 import browser from 'webextension-polyfill';
 
-import { isPopupWindow } from 'app/env';
-import { getLedgerTransportType } from 'lib/temple/ledger';
 import { stringToUInt8Array } from 'lib/utils';
 
+import { getLedgerTransportType } from '../helpers';
 import type { TempleLedgerSigner } from '../signer';
 import { TransportType } from '../types';
 import type { RequestMessage, ForegroundResponse, CreatorArguments } from './types';
@@ -30,15 +29,6 @@ browser.runtime.onMessage.addListener((message: unknown): Promise<ForegroundResp
   }
 
   const pagesWindows = getPagesWindows();
-
-  if (transportType === TransportType.LEDGERLIVE) {
-    /*
-      In case of the only opened extension window being 'popup',
-      it will close and thus, lose connection to 'ledger-live'.
-      (i) Consider using a fallback transport in this case.
-    */
-    if (isPopupWindow() && pagesWindows.length === 1) return Promise.resolve({ type: 'refusal', transportType });
-  }
 
   /* Only letting the first page to respond */
   if (pagesWindows[0]! !== window) return;

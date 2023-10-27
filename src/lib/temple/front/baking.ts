@@ -1,6 +1,5 @@
 import { useCallback, useMemo } from 'react';
 
-import { HttpResponseError, HttpRequestFailed } from '@taquito/http-utils';
 import BigNumber from 'bignumber.js';
 
 import {
@@ -20,23 +19,8 @@ export function useDelegate(address: string, suspense = true) {
   const getDelegate = useCallback(async () => {
     try {
       return await tezos.rpc.getDelegate(address);
-    } catch (error: unknown) {
-      if (error instanceof HttpResponseError) {
-        if (error.status === 404) return null;
-      }
-      if (error instanceof HttpRequestFailed) {
-        /*
-          `@taquito/http-utils` package uses `@vespaiach/axios-fetch-adapter`,
-          which throws a SyntaxError in case of 404 response.
-          See: https://github.com/vespaiach/axios-fetch-adapter/issues/25
-        */
-        if (/SyntaxError(.*)JSON/.test(error.message)) {
-          console.error('Presumably, `@vespaiach/axios-fetch-adapter` SyntaxError (taken as 404):', { error });
-          return null;
-        }
-      }
-
-      throw error;
+    } catch {
+      return null;
     }
   }, [address, tezos]);
 
