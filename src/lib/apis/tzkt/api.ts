@@ -11,16 +11,17 @@ import {
   allInt32ParameterKeys,
   TzktGetRewardsParams,
   TzktGetRewardsResponse,
-  TzktRelatedContract
+  TzktRelatedContract,
+  TzktAccount
 } from './types';
 
 const TZKT_API_BASE_URLS = {
   [TempleChainId.Mainnet]: 'https://api.tzkt.io/v1',
-  [TempleChainId.Jakartanet]: 'https://api.jakartanet.tzkt.io/v1',
-  [TempleChainId.Limanet]: 'https://api.limanet.tzkt.io/v1',
+  [TempleChainId.Mumbai]: 'https://api.mumbainet.tzkt.io/v1',
+  [TempleChainId.Nairobi]: 'https://api.nairobinet.tzkt.io/v1',
   [TempleChainId.Ghostnet]: 'https://api.ghostnet.tzkt.io/v1',
   [TempleChainId.Dcp]: 'https://explorer-api.tlnt.net/v1',
-  [TempleChainId.DcpTest]: 'https://explorer.tlnt.net:8009/v1'
+  [TempleChainId.DcpTest]: 'https://explorer-api.test.tlnt.net/v1'
 };
 
 export type TzktApiChainId = keyof typeof TZKT_API_BASE_URLS;
@@ -189,3 +190,6 @@ export const fetchAllTokensBalancesFromTzkt = async (selectedRpcUrl: string, acc
 
   return balances;
 };
+
+export const getAccountStatsFromTzkt = async (account: string, chainId: string) =>
+  isKnownChainId(chainId) ? await fetchGet<TzktAccount>(chainId, `/accounts/${account}`) : null;

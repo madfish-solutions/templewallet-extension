@@ -13,9 +13,8 @@ const getLastMonday = (date = new Date()) => {
 export const NETWORK_IDS = new Map<string, string>([
   [TempleChainId.Mainnet, 'mainnet'],
   [TempleChainId.Ghostnet, 'ghostnet'],
-  [TempleChainId.Jakartanet, 'jakartanet'],
-  [TempleChainId.Limanet, 'limanet'],
-  [TempleChainId.Kathmandunet, 'kathmandunet']
+  [TempleChainId.Mumbai, 'mumbainet'],
+  [TempleChainId.Nairobi, 'nairobinet']
 ]);
 
 const DCP_NETWORKS: TempleNetwork[] = [

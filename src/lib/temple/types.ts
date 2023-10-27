@@ -39,10 +39,9 @@ export interface TempleState {
 export enum TempleChainId {
   Mainnet = 'NetXdQprcVkpaWU',
   Ghostnet = 'NetXnHfVqm9iesp',
-  Jakartanet = 'NetXLH1uAxK7CCh',
-  Limanet = 'NetXizpkH94bocH',
-  Kathmandunet = 'NetXdnUSgMs7Xc3',
   Monday = 'NetXaqtQ8b5nihx',
+  Mumbai = 'NetXgbcrNtXD2yA',
+  Nairobi = 'NetXyuzvDo2Ugzb',
   Daily = 'NetXxkAx4woPLyu',
   Dcp = 'NetXooyhiru73tk',
   DcpTest = 'NetXX7Tz1sK8JTa'

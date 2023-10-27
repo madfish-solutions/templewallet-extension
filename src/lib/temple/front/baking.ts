@@ -8,23 +8,36 @@ import {
   bakingBadGetBaker,
   getAllBakersBakingBad
 } from 'lib/apis/baking-bad';
-import type { TzktRewardsEntry } from 'lib/apis/tzkt';
+import { getAccountStatsFromTzkt, isKnownChainId, TzktRewardsEntry, TzktAccountType } from 'lib/apis/tzkt';
 import { useRetryableSWR } from 'lib/swr';
 
-import { useNetwork, useTezos } from './ready';
+import { useChainId, useNetwork, useTezos } from './ready';
 
 export function useDelegate(address: string, suspense = true) {
   const tezos = useTezos();
+  const chainId = useChainId(suspense);
 
   const getDelegate = useCallback(async () => {
-    try {
-      return await tezos.rpc.getDelegate(address);
-    } catch {
-      return null;
-    }
-  }, [address, tezos]);
+    if (chainId && isKnownChainId(chainId)) {
+      try {
+        const accountStats = await getAccountStatsFromTzkt(address, chainId);
 
-  return useRetryableSWR(['delegate', tezos.checksum, address], getDelegate, {
+        switch (accountStats?.type) {
+          case TzktAccountType.Empty:
+            return null;
+          case TzktAccountType.User:
+          case TzktAccountType.Contract:
+            return accountStats.delegate?.address ?? null;
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    return await tezos.rpc.getDelegate(address);
+  }, [address, tezos, chainId]);
+
+  return useRetryableSWR(['delegate', tezos.checksum, address, chainId], getDelegate, {
     dedupingInterval: 20_000,
     suspense
   });
