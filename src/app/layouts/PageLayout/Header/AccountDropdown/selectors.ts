@@ -1,5 +1,6 @@
 export enum AccountDropdownSelectors {
   accountItemButton = 'Account Drop-down/Account Item Button',
+  accountAddressValue = 'Account Drop-down/Account Address Value',
   actionButton = 'Account Drop-down/Action Button',
   logoutButton = 'Account Drop-down/Logout Button',
   createOrRestoreAccountButton = 'Account Drop-down/Create Or Restore Account Button',

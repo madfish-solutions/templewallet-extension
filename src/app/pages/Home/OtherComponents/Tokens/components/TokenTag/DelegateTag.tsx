@@ -14,7 +14,7 @@ import modStyles from '../../Tokens.module.css';
 
 export const DelegateTezosTag = memo(() => {
   const acc = useAccount();
-  const { data: myBakerPkh } = useDelegate(acc.publicKeyHash, false);
+  const { data: myBakerPkh } = useDelegate(acc.publicKeyHash);
   const { trackEvent } = useAnalytics();
 
   const handleTagClick = useCallback(

@@ -141,4 +141,4 @@ Feature: Unlock Screen
 
     And I am on the Home page
 # checking that restored account(wallet) is corresponded to the mnemonic I entered after loosing previous account(wallet)
-    Then I check if defaultAccountShortHash is corresponded to the selected account
+    Then I check if defaultFirstAccountShortHash is corresponded to the selected account

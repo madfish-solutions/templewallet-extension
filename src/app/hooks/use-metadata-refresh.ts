@@ -4,10 +4,11 @@ import { useDispatch } from 'react-redux';
 
 import { refreshTokensMetadataAction } from 'app/store/tokens-metadata/actions';
 import { useTokensMetadataSelector } from 'app/store/tokens-metadata/selectors';
+import { fetchTokensMetadata } from 'lib/apis/temple';
 import { TokenMetadata } from 'lib/metadata';
-import { fetchTokensMetadata } from 'lib/metadata/fetch';
 import { buildTokenMetadataFromFetched } from 'lib/metadata/utils';
-import { useChainId, useTezos } from 'lib/temple/front';
+import { useChainId } from 'lib/temple/front';
+import { TempleChainId } from 'lib/temple/types';
 import { useLocalStorage } from 'lib/ui/local-storage';
 
 const STORAGE_KEY = 'METADATA_REFRESH';
@@ -17,7 +18,6 @@ type RefreshRecords = Record<string, number>;
 const REFRESH_VERSION = 1;
 
 export const useMetadataRefresh = () => {
-  const tezos = useTezos();
   const chainId = useChainId()!;
   const dispatch = useDispatch();
 
@@ -38,8 +38,10 @@ export const useMetadataRefresh = () => {
       return;
     }
 
-    if (needToSetVersion)
-      fetchTokensMetadata(tezos.rpc.getRpcUrl(), slugsOnAppLoad)
+    if (!needToSetVersion) return;
+
+    if (chainId === TempleChainId.Mainnet) {
+      fetchTokensMetadata(chainId, slugsOnAppLoad)
         .then(data =>
           data.reduce<TokenMetadata[]>((acc, token, index) => {
             const slug = slugsOnAppLoad[index]!;
@@ -57,5 +59,6 @@ export const useMetadataRefresh = () => {
           },
           error => console.error(error)
         );
+    }
   }, [chainId]);
 };
