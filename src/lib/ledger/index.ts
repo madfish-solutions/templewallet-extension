@@ -18,7 +18,7 @@ export const createLedgerSigner = async (
     publicKeyHash
   );
 
-  // After Ledger Live bridge was setuped, we don't close transport
+  // Ledger Live is not available but we still don't close transport
   // Probably we do not need to close it
   // But if we need, we can close it after not use timeout
   const cleanup = () => {};

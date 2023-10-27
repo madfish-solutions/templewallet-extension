@@ -3,7 +3,6 @@ import U2FTransport from '@ledgerhq/hw-transport-u2f';
 import WebAuthnTransport from '@ledgerhq/hw-transport-webauthn';
 import TransportWebHID from '@ledgerhq/hw-transport-webhid';
 
-import { isLedgerLiveAppOpen, openLedgerLiveApp, openLedgerLiveTransport } from './ledger-live.utils';
 import { TransportType, BridgeExchangeRequest } from './types';
 
 export class TransportBridge {
@@ -42,38 +41,29 @@ export class TransportBridge {
 
     if (transport == null) return await this.createTransport(transportType);
 
-    if (transportType === TransportType.LEDGERLIVE) {
-      if (await isLedgerLiveAppOpen()) return transport;
-      else {
-        await openLedgerLiveApp();
-        this.transport = await openLedgerLiveTransport();
-        return this.transport!;
-      }
-    } else {
-      if (transportType === TransportType.WEBHID && transport instanceof TransportWebHID) {
-        const device = transport.device;
-        const nameOfDeviceType = device && device.constructor.name;
-        const deviceIsOpen = device && device.opened;
-        if (nameOfDeviceType === 'HIDDevice' && deviceIsOpen) return transport;
+    if (transportType === TransportType.WEBHID && transport instanceof TransportWebHID) {
+      const device = transport.device;
+      const nameOfDeviceType = device && device.constructor.name;
+      const deviceIsOpen = device && device.opened;
+      if (nameOfDeviceType === 'HIDDevice' && deviceIsOpen) return transport;
 
-        const bufferTransport = await TransportWebHID.openConnected();
-        if (bufferTransport) this.transport = bufferTransport;
-      }
-
-      return this.transport!;
+      const bufferTransport = await TransportWebHID.openConnected();
+      if (bufferTransport) this.transport = bufferTransport;
     }
+
+    return this.transport!;
   }
 
   private async createTransport(transportType: TransportType) {
-    if (transportType === TransportType.LEDGERLIVE) {
-      if (!(await isLedgerLiveAppOpen())) await openLedgerLiveApp();
-      this.transport = await openLedgerLiveTransport();
-    } else if (transportType === TransportType.WEBHID) {
-      this.transport = await TransportWebHID.create();
-    } else if (transportType === TransportType.WEBAUTHN) {
-      this.transport = await WebAuthnTransport.create();
-    } else {
-      this.transport = await U2FTransport.create();
+    switch (transportType) {
+      case TransportType.WEBHID:
+        this.transport = await TransportWebHID.create();
+        break;
+      case TransportType.WEBAUTHN:
+        this.transport = await WebAuthnTransport.create();
+        break;
+      default:
+        this.transport = await U2FTransport.create();
     }
 
     return this.transport!;

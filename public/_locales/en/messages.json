@@ -2379,9 +2379,6 @@
   "unknownAccount": {
     "message": "Unknown account"
   },
-  "ledgerLiveBridgeGuide": {
-    "message": "To connect to Ledger, please activate the Ledger Live application on your device, open Tezos Wallet application and allow a WebSocket connection to your Temple account."
-  },
   "ledgerBridgeGuide": {
     "message": "To connect the Ledger, please activate your device and open Tezos Wallet application."
   },
@@ -2607,12 +2604,6 @@
   },
   "deleteTokenConfirm": {
     "message": "Are you sure you want to delete this token?"
-  },
-  "ledgerLiveSettings": {
-    "message": "Use Ledger Live"
-  },
-  "ledgerLiveSettingsDescription": {
-    "message": "The new Ledger Live bridge allows you to use your Ledger in a different way."
   },
   "lockUpSettings": {
     "message": "Extension lock-up"
