@@ -47,17 +47,16 @@ export function usePassiveStorage<T = any>(key: string, fallback?: T) {
     setValue(finalData);
   }, [finalData]);
 
-  const prevValue = useRef(value);
+  const updateValue = useCallback(
+    (newValue: T | null | undefined) => {
+      const newValueWithFallback = fallback === undefined ? newValue : newValue ?? fallback;
+      putToStorage(key, newValueWithFallback);
+      setValue(newValueWithFallback);
+    },
+    [fallback, key]
+  );
 
-  useEffect(() => {
-    if (prevValue.current !== value && value !== undefined) {
-      putToStorage(key, value);
-    }
-
-    prevValue.current = value;
-  }, [key, value]);
-
-  return [value, setValue];
+  return [value, updateValue];
 }
 
 function onStorageChanged<T = any>(key: string, callback: (newValue: T) => void) {
