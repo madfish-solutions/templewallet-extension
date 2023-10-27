@@ -22,7 +22,7 @@ export function useDelegate(address: string, suspense = true) {
       try {
         const accountStats = await getAccountStatsFromTzkt(address, chainId);
 
-        switch (accountStats?.type) {
+        switch (accountStats.type) {
           case TzktAccountType.Empty:
             return null;
           case TzktAccountType.User:

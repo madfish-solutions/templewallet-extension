@@ -191,5 +191,5 @@ export const fetchAllTokensBalancesFromTzkt = async (selectedRpcUrl: string, acc
   return balances;
 };
 
-export const getAccountStatsFromTzkt = async (account: string, chainId: string) =>
-  isKnownChainId(chainId) ? await fetchGet<TzktAccount>(chainId, `/accounts/${account}`) : null;
+export const getAccountStatsFromTzkt = async (account: string, chainId: TzktApiChainId) =>
+  fetchGet<TzktAccount>(chainId, `/accounts/${account}`);
