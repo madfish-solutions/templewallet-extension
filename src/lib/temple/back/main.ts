@@ -50,8 +50,8 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
       };
 
     case TempleMessageType.NewWalletRequest:
-      await Actions.registerNewWallet(req.password, req.mnemonic);
-      return { type: TempleMessageType.NewWalletResponse };
+      const accountPkh = await Actions.registerNewWallet(req.password, req.mnemonic);
+      return { type: TempleMessageType.NewWalletResponse, accountPkh };
 
     case TempleMessageType.UnlockRequest:
       await Actions.unlock(req.password);
