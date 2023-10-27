@@ -219,17 +219,10 @@ const Form: FC = () => {
         };
 
         dispatch(
-          putAssetsAsIsAction(
-            isCollectible(tokenMetadata)
-              ? {
-                  type: 'collectibles',
-                  assets: [{ ...asset, name: tokenMetadata.name, symbol: tokenMetadata.symbol }]
-                }
-              : {
-                  type: 'tokens',
-                  assets: [asset]
-                }
-          )
+          putAssetsAsIsAction({
+            type: isCollectible(tokenMetadata) ? 'collectibles' : 'tokens',
+            assets: [asset]
+          })
         );
 
         swrCache.delete(getBalanceSWRKey(tezos, tokenSlug, accountPkh));

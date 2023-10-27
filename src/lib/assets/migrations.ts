@@ -21,22 +21,12 @@ export const migrateFromIndexedDB = async (metadatas: Record<string, TokenMetada
     const metadata = metadatas[tokenSlug];
     if (!metadata) continue;
 
-    if (isCollectible(metadata))
-      collectibles.push({
-        slug: tokenSlug,
-        account,
-        chainId,
-        status: statusMap[status],
-        name: metadata.name,
-        symbol: metadata.symbol
-      });
-    else
-      tokens.push({
-        slug: tokenSlug,
-        account,
-        chainId,
-        status: statusMap[status]
-      });
+    (isCollectible(metadata) ? collectibles : tokens).push({
+      slug: tokenSlug,
+      account,
+      chainId,
+      status: statusMap[status]
+    });
   }
 
   if (tokens.length) dispatch(putAssetsAsIsAction({ type: 'tokens', assets: tokens }));

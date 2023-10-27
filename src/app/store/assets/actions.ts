@@ -17,7 +17,9 @@ export const loadAccountTokensActions = createActions<
   { code?: string }
 >('assets/LOAD_ACCOUNT_TOKENS');
 
-export type LoadedCollectible = Pick<StoredCollectible, 'slug' | 'name' | 'symbol'>;
+export interface LoadedCollectible {
+  slug: string;
+}
 
 export const loadAccountCollectiblesActions = createActions<
   LoadAssetsPayload,

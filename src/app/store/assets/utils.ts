@@ -24,7 +24,7 @@ export const loadAccountTokens = (account: string, chainId: string, knownMeta: M
 export const loadAccountCollectibles = (account: string, chainId: string, knownMeta: MetadataRecords) =>
   Promise.all([
     // Fetching assets known to be NFTs, not checking metadata
-    fetchTzktAccountAssets(account, chainId, false).then(data => finishCollectiblesLoadingWithMeta(data, knownMeta)),
+    fetchTzktAccountAssets(account, chainId, false).then(data => finishCollectiblesLoadingWithMeta(data)),
     // Fetching unknowns only, checking metadata to filter for NFTs
     fetchTzktAccountAssets(account, chainId, null).then(data =>
       finishCollectiblesLoadingWithoutMeta(data, knownMeta, chainId)
@@ -76,19 +76,14 @@ const finishTokensLoading = async (
   return { slugs, balances, newMeta };
 };
 
-const finishCollectiblesLoadingWithMeta = async (data: TzktAccountAsset[], knownMeta: MetadataRecords) => {
+const finishCollectiblesLoadingWithMeta = async (data: TzktAccountAsset[]) => {
   const collectibles: LoadedCollectible[] = [];
   const balances: StringRecord = {};
 
   for (const asset of data) {
     const slug = tzktAssetToTokenSlug(asset);
 
-    const metadata = knownMeta[slug];
-    const tzktMetadata = asset.token.metadata!;
-    const name = metadata?.name ?? tzktMetadata.name;
-    const symbol = metadata?.symbol ?? tzktMetadata.symbol;
-
-    collectibles.push({ slug, name, symbol });
+    collectibles.push({ slug });
     balances[slug] = asset.balance;
   }
 
@@ -123,12 +118,9 @@ const finishCollectiblesLoadingWithoutMeta = async (
 
     if (!metadata || !isCollectible(metadata)) continue;
 
-    const name = metadata.name;
-    const symbol = metadata.symbol;
-
     if (metadataOfNew) newMeta[slug] = metadataOfNew;
 
-    collectibles.push({ slug, name, symbol });
+    collectibles.push({ slug });
     balances[slug] = asset.balance;
   }
 

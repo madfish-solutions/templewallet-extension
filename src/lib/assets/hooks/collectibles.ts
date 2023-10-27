@@ -10,7 +10,7 @@ import { useMemoWithCompare } from 'lib/ui/hooks';
 
 import { getAssetStatus } from './utils';
 
-export interface AccountCollectible extends Pick<StoredCollectible, 'slug' | 'name' | 'symbol'> {
+export interface AccountCollectible extends Pick<StoredCollectible, 'slug'> {
   status: StoredAssetStatus;
 }
 
@@ -22,10 +22,8 @@ export const useAccountCollectibles = (account: string, chainId: string) => {
   return useMemoWithCompare<AccountCollectible[]>(
     () =>
       stored.reduce<AccountCollectible[]>(
-        (acc, { slug, status, name, symbol }) =>
-          status === 'removed'
-            ? acc
-            : acc.concat({ slug, name, symbol, status: getAssetStatus(balances[slug], status) }),
+        (acc, { slug, status }) =>
+          status === 'removed' ? acc : acc.concat({ slug, status: getAssetStatus(balances[slug], status) }),
         []
       ),
     [stored, balances],

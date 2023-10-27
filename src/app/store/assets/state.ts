@@ -13,10 +13,7 @@ export interface StoredAsset {
 
 export type StoredToken = StoredAsset;
 
-export interface StoredCollectible extends StoredAsset {
-  name: string;
-  symbol: string;
-}
+export type StoredCollectible = StoredAsset;
 
 export interface SliceState {
   tokens: LoadableEntityState<StoredAsset[]>;
