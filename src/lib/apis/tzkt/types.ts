@@ -238,7 +238,7 @@ interface TzktAccountBase {
   alias: string | nullish;
 }
 
-export interface TzktUserAccount extends TzktAccountBase {
+interface TzktUserAccount extends TzktAccountBase {
   type: TzktAccountType.User;
   id: number;
   publicKey: string;
@@ -290,7 +290,7 @@ export interface TzktUserAccount extends TzktAccountBase {
   lastActivityTime: string | nullish;
 }
 
-export interface TzktDelegateAccount extends TzktAccountBase {
+interface TzktDelegateAccount extends TzktAccountBase {
   type: TzktAccountType.Delegate;
   id: number;
   active: boolean;
@@ -364,7 +364,7 @@ export interface TzktDelegateAccount extends TzktAccountBase {
   software: { date: string; version: string | nullish };
 }
 
-export interface TzktContractAccount extends TzktAccountBase {
+interface TzktContractAccount extends TzktAccountBase {
   type: TzktAccountType.Contract;
   id: number;
   kind: 'delegator_contract' | 'smart_contract' | nullish;
@@ -401,7 +401,7 @@ export interface TzktContractAccount extends TzktAccountBase {
   storage: unknown;
 }
 
-export interface TzktGhostAccount extends TzktAccountBase {
+interface TzktGhostAccount extends TzktAccountBase {
   type: TzktAccountType.Ghost;
   id: number;
   activeTokensCount: number;
@@ -414,7 +414,7 @@ export interface TzktGhostAccount extends TzktAccountBase {
   extras: unknown;
 }
 
-export interface TzktRollupAccount extends TzktAccountBase {
+interface TzktRollupAccount extends TzktAccountBase {
   type: TzktAccountType.Rollup;
   id: number;
   creator: TzktAlias | nullish;
@@ -439,7 +439,7 @@ export interface TzktRollupAccount extends TzktAccountBase {
   extras: unknown;
 }
 
-export interface TzktSmartRollupAccount extends TzktAccountBase {
+interface TzktSmartRollupAccount extends TzktAccountBase {
   type: TzktAccountType.SmartRollup;
   id: number;
   creator: TzktAlias | nullish;
@@ -475,7 +475,7 @@ export interface TzktSmartRollupAccount extends TzktAccountBase {
   extras: unknown;
 }
 
-export interface TzktEmptyAccount extends TzktAccountBase {
+interface TzktEmptyAccount extends TzktAccountBase {
   type: TzktAccountType.Empty;
   alias: undefined;
   counter: number;
