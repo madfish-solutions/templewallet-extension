@@ -7,7 +7,7 @@ export function searchAndFilterItems<T, S>(
   prepare?: null | ((item: T) => S),
   threshold = 0.1
 ) {
-  if (!searchString) return items;
+  if (!searchString) return [...items];
 
   const searchable = prepare ? items.map(prepare) : items;
 

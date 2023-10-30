@@ -92,7 +92,7 @@ export function useFilteredAssetsSlugs(
   };
 }
 
-function useAssetsSortPredicate() {
+export function useAssetsSortPredicate() {
   const balances = useBalancesWithDecimals();
   const usdToTokenRates = useUsdToTokenRates();
 

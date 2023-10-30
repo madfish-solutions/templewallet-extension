@@ -59,6 +59,17 @@ const fetchTokensMetadata = async (rpcUrl: string, slugs: string[]): Promise<(To
 const chainTokenMetadataToBase = (metadata: TokenMetadataOnChain | nullish): TokenMetadataResponse | null =>
   metadata ? pick(metadata, 'name', 'symbol', 'decimals', 'thumbnailUri', 'displayUri', 'artifactUri') : null;
 
+export const loadTokensMetadata = (rpcUrl: string, slugs: string[]): Promise<TokenMetadata[]> =>
+  fetchTokensMetadata(rpcUrl, slugs).then(data =>
+    data.reduce<TokenMetadata[]>((acc, token, index) => {
+      const [address, id] = slugs[index].split('_');
+
+      const metadata = token && buildTokenMetadataFromFetched(token, address, Number(id));
+
+      return metadata ? acc.concat(metadata) : acc;
+    }, [])
+  );
+
 export const loadTokensMetadata$ = (rpcUrl: string, slugs: string[]): Observable<TokenMetadata[]> =>
   from(fetchTokensMetadata(rpcUrl, slugs)).pipe(
     map(data =>
