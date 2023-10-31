@@ -110,6 +110,8 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     });
     assertResponse(res.type === TempleMessageType.NewWalletResponse);
     clearLocalStorage(['onboarding', 'analytics']);
+
+    return res.accountPkh;
   }, []);
 
   const unlock = useCallback(async (password: string) => {
