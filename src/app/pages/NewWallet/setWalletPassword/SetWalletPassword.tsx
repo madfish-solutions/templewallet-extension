@@ -139,16 +139,21 @@ export const SetWalletPassword: FC<SetWalletPasswordProps> = ({
         const shouldEnableAnalytics = Boolean(data.analytics);
         setAdsViewEnabled(data.viewAds);
         setAnalyticsEnabled(shouldEnableAnalytics);
-        await putToStorage(WEBSITES_ANALYTICS_ENABLED, data.viewAds && shouldEnableAnalytics);
+        const shouldEnableWebsiteAnalytics = data.viewAds && shouldEnableAnalytics;
+        await putToStorage(WEBSITES_ANALYTICS_ENABLED, shouldEnableWebsiteAnalytics);
+
         setOnboardingCompleted(data.skipOnboarding!);
 
-        await registerWallet(password!, formatMnemonic(seedPhrase));
+        const accountPkh = await registerWallet(password!, formatMnemonic(seedPhrase));
         trackEvent(
           data.skipOnboarding ? 'OnboardingSkipped' : 'OnboardingNotSkipped',
           AnalyticsEventCategory.General,
           undefined,
           data.analytics
         );
+        if (shouldEnableWebsiteAnalytics) {
+          trackEvent('AnalyticsAndAdsEnabled', AnalyticsEventCategory.General, { accountPkh }, data.analytics);
+        }
         navigate('/loading');
         !ownMnemonic && dispatch(setOnRampPossibilityAction(true));
         dispatch(shouldShowNewsletterModalAction(true));

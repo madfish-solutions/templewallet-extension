@@ -43,6 +43,7 @@ const HTML_TEMPLATES = PAGES_NAMES.map(name => {
 });
 
 const CONTENT_SCRIPTS = ['contentScript', 'replaceAds'];
+if (BACKGROUND_IS_WORKER) CONTENT_SCRIPTS.push('keepBackgroundWorkerAlive');
 
 const mainConfig = (() => {
   const config = buildBaseConfig();
@@ -161,6 +162,9 @@ const scriptsConfig = (() => {
     contentScript: Path.join(PATHS.SOURCE, 'contentScript.ts'),
     replaceAds: Path.join(PATHS.SOURCE, 'replaceAds.tsx')
   };
+
+  if (BACKGROUND_IS_WORKER)
+    config.entry.keepBackgroundWorkerAlive = Path.join(PATHS.SOURCE, 'keepBackgroundWorkerAlive.ts');
 
   config.output = {
     ...config.output,

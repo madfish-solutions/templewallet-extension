@@ -4,6 +4,7 @@ import browser, { Storage } from 'webextension-polyfill';
 
 import { fetchFromStorage, putToStorage } from 'lib/storage';
 import { useRetryableSWR } from 'lib/swr';
+import { useDidUpdate } from 'lib/ui/hooks';
 
 export function useStorage<T = any>(key: string): [T | null | undefined, (val: SetStateAction<T>) => Promise<void>];
 export function useStorage<T = any>(key: string, fallback: T): [T, (val: SetStateAction<T>) => Promise<void>];
@@ -43,7 +44,7 @@ export function usePassiveStorage<T = any>(key: string, fallback?: T) {
 
   const [value, setValue] = useState(finalData);
 
-  useEffect(() => {
+  useDidUpdate(() => {
     setValue(finalData);
   }, [finalData]);
 
