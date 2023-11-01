@@ -5,7 +5,6 @@ import { useDispatch } from 'react-redux';
 import { useAreAssetsLoading } from 'app/store/assets/selectors';
 import { addTokensMetadataAction } from 'app/store/tokens-metadata/actions';
 import { useTokensMetadataSelector } from 'app/store/tokens-metadata/selectors';
-import { useEnabledAccountCollectiblesSlugs } from 'lib/assets/hooks';
 import { useAssetsSortPredicate } from 'lib/assets/use-filtered';
 import { loadTokensMetadata } from 'lib/metadata/fetch';
 import { useNetwork } from 'lib/temple/front';
@@ -13,8 +12,7 @@ import { useDidMount } from 'lib/ui/hooks';
 
 const ITEMS_PER_PAGE = 30;
 
-export const useCollectibles = () => {
-  const allEnabledSlugs = useEnabledAccountCollectiblesSlugs();
+export const useCollectibles = (allEnabledSlugs: string[]) => {
   const allMeta = useTokensMetadataSelector();
   const assetsAreLoading = useAreAssetsLoading('collectibles');
 
@@ -26,7 +24,7 @@ export const useCollectibles = () => {
 
   const assetsSortPredicate = useAssetsSortPredicate();
 
-  const loadMore = useCallback(async () => {
+  const loadNext = useCallback(async () => {
     if (isLoading || slugs.length >= allEnabledSlugs.length) return;
 
     setIsLoading(true);
@@ -48,9 +46,9 @@ export const useCollectibles = () => {
       .finally(() => setIsLoading(false));
   }, [isLoading, slugs.length, allEnabledSlugs, allMeta, rpcUrl, assetsSortPredicate, dispatch]);
 
-  useDidMount(loadMore);
+  useDidMount(loadNext);
 
   const isSyncing = assetsAreLoading || isLoading;
 
-  return { slugs, isSyncing, loadMore };
+  return { slugs, isSyncing, loadNext };
 };

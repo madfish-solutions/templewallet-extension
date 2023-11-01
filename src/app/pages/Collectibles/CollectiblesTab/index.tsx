@@ -1,7 +1,9 @@
-import React, { FC, memo, useCallback, useEffect } from 'react';
+import React, { FC, memo, useCallback, useEffect, useMemo, useState } from 'react';
 
+import { emptyFn } from '@rnw-community/shared';
 import clsx from 'clsx';
 import InfiniteScroll from 'react-infinite-scroll-component';
+import { useDebounce } from 'use-debounce/lib';
 
 import { SyncSpinner } from 'app/atoms';
 import Checkbox from 'app/atoms/Checkbox';
@@ -12,16 +14,20 @@ import { ReactComponent as EditingIcon } from 'app/icons/editing.svg';
 import { AssetsSelectors } from 'app/pages/Home/OtherComponents/Assets.selectors';
 import { ButtonForManageDropdown } from 'app/templates/ManageDropdown';
 import SearchAssetField from 'app/templates/SearchAssetField';
+import { useEnabledAccountCollectiblesSlugs } from 'lib/assets/hooks';
+import { searchAssetsWithNoMeta } from 'lib/assets/search.utils';
 import { AssetTypesEnum } from 'lib/assets/types';
+import { useAssetsSortPredicate } from 'lib/assets/use-filtered';
 import { T, t } from 'lib/i18n';
+import { useTokensMetadataWithPresenceCheck } from 'lib/metadata';
 import { useAccount } from 'lib/temple/front';
 import { useLocalStorage } from 'lib/ui/local-storage';
 import Popper, { PopperRenderProps } from 'lib/ui/Popper';
+import { isSearchStringApplicable } from 'lib/utils/search-items';
 import { Link } from 'lib/woozie';
 
 import { CollectibleItem } from './CollectibleItem';
 import { useCollectibles } from './use-collectibles';
-import { useFilteredAssetsSlugs } from './use-filtered';
 
 const LOCAL_STORAGE_TOGGLE_KEY = 'collectibles-grid:show-items-details';
 
@@ -36,10 +42,29 @@ export const CollectiblesTab = memo<Props>(({ scrollToTheTabsBar }) => {
   const [areDetailsShown, setDetailsShown] = useLocalStorage(LOCAL_STORAGE_TOGGLE_KEY, false);
   const toggleDetailsShown = useCallback(() => void setDetailsShown(val => !val), [setDetailsShown]);
 
-  const { slugs, isSyncing, loadMore } = useCollectibles();
-  console.log('SLUGS:', slugs);
+  const allEnabledSlugs = useEnabledAccountCollectiblesSlugs();
 
-  const { searchValue, setSearchValue } = useFilteredAssetsSlugs(slugs, false);
+  const { slugs, isSyncing, loadNext } = useCollectibles(allEnabledSlugs);
+  console.log('SLUGS:', isSyncing, slugs);
+
+  const allTokensMetadata = useTokensMetadataWithPresenceCheck(allEnabledSlugs);
+
+  const [searchValue, setSearchValue] = useState('');
+  const [searchValueDebounced] = useDebounce(searchValue, 300);
+
+  const assetsSortPredicate = useAssetsSortPredicate();
+
+  const isInSearch = isSearchStringApplicable(searchValueDebounced);
+
+  const displayedSlugs = useMemo(
+    () =>
+      isInSearch
+        ? searchAssetsWithNoMeta(searchValueDebounced, allEnabledSlugs, allTokensMetadata, slug => slug).sort(
+            assetsSortPredicate
+          )
+        : slugs,
+    [isInSearch, slugs, searchValueDebounced, allEnabledSlugs, allTokensMetadata, assetsSortPredicate]
+  );
 
   const shouldScrollToTheTabsBar = slugs.length > 0;
   useEffect(() => void scrollToTheTabsBar(), [shouldScrollToTheTabsBar, scrollToTheTabsBar]);
@@ -79,18 +104,18 @@ export const CollectiblesTab = memo<Props>(({ scrollToTheTabsBar }) => {
           </Popper>
         </div>
 
-        {slugs.length === 0 ? (
+        {displayedSlugs.length === 0 ? (
           buildEmptySection(isSyncing)
         ) : (
           <InfiniteScroll
             hasChildren={true}
             hasMore={true}
-            dataLength={slugs.length}
-            next={loadMore}
+            dataLength={displayedSlugs.length}
+            next={isInSearch ? emptyFn : loadNext}
             loader={isSyncing && <SyncSpinner className="mt-6" />}
           >
             <div className="grid grid-cols-3 gap-1">
-              {slugs.map(slug => (
+              {displayedSlugs.map(slug => (
                 <CollectibleItem
                   key={slug}
                   assetSlug={slug}

@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useMemo, useState } from 'react';
+import React, { FC, memo, useCallback, useMemo, useState } from 'react';
 
 import classNames from 'clsx';
 import { isEqual } from 'lodash';
@@ -33,7 +33,7 @@ interface AssetSelectProps {
 
 const renderOptionContent = (slug: string, selected: boolean) => <AssetOptionContent slug={slug} selected={selected} />;
 
-const AssetSelect: FC<AssetSelectProps> = ({ value, slugs, onChange, className, testIDs }) => {
+const AssetSelect = memo<AssetSelectProps>(({ value, slugs, onChange, className, testIDs }) => {
   const allTokensMetadata = useTokensMetadataSelector();
 
   const [searchString, setSearchString] = useState<string>('');
@@ -77,7 +77,7 @@ const AssetSelect: FC<AssetSelectProps> = ({ value, slugs, onChange, className, 
       />
     </InputContainer>
   );
-};
+});
 
 export default AssetSelect;
 

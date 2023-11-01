@@ -62,6 +62,14 @@ const SendForm = memo<Props>(({ assetSlug = TEZ_TOKEN_SLUG }) => {
     setAddContactModalAddress(null);
   }, [setAddContactModalAddress]);
 
+  const testIDs = useMemo(
+    () => ({
+      main: SendFormSelectors.assetDropDown,
+      searchInput: SendFormSelectors.assetDropDownSearchInput
+    }),
+    []
+  );
+
   return (
     <>
       {operation && <OperationStatus typeTitle={t('transaction')} operation={operation} className="mb-8" />}
@@ -71,10 +79,7 @@ const SendForm = memo<Props>(({ assetSlug = TEZ_TOKEN_SLUG }) => {
         slugs={assetsSlugs}
         onChange={handleAssetChange}
         className="mb-6"
-        testIDs={{
-          main: SendFormSelectors.assetDropDown,
-          searchInput: SendFormSelectors.assetDropDownSearchInput
-        }}
+        testIDs={testIDs}
       />
 
       <Suspense fallback={<SpinnerSection />}>
