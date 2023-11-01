@@ -1,5 +1,4 @@
-import { tokenToSlug } from 'lib/assets';
-import { LOCAL_MAINNET_TOKENS_METADATA, DCP_TOKENS_METADATA } from 'lib/assets/known-tokens';
+import { ALL_PREDEFINED_METADATAS_RECORD } from 'lib/assets/known-tokens';
 import type { TokenMetadata } from 'lib/metadata';
 
 export type MetadataRecords = Record<string, TokenMetadata>;
@@ -10,12 +9,6 @@ export interface TokensMetadataState {
 }
 
 export const tokensMetadataInitialState: TokensMetadataState = {
-  metadataRecord: [...LOCAL_MAINNET_TOKENS_METADATA, ...DCP_TOKENS_METADATA].reduce(
-    (obj, tokenMetadata) => ({
-      ...obj,
-      [tokenToSlug(tokenMetadata)]: tokenMetadata
-    }),
-    {}
-  ),
+  metadataRecord: ALL_PREDEFINED_METADATAS_RECORD,
   metadataLoading: false
 };

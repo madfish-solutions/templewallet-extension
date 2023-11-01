@@ -1,8 +1,9 @@
+import type { MetadataRecords } from 'app/store/tokens-metadata/state';
 import { TokenMetadata, TokenStandardsEnum } from 'lib/metadata/types';
 import { TempleChainId } from 'lib/temple/types';
 
 import { FA2Token } from './types';
-import { toTokenSlug } from './utils';
+import { tokenToSlug, toTokenSlug } from './utils';
 
 export const TempleToken: FA2Token = {
   contract: 'KT1VaEsVNiBoA56eToEK6n6BcPgh1tdx9eXi',
@@ -119,9 +120,7 @@ const PREDEFINED_MAINNET_TOKENS_METADATA: TokenMetadata[] = [
   }
 ];
 
-export const LOCAL_MAINNET_TOKENS_METADATA = PREDEFINED_MAINNET_TOKENS_METADATA.concat(DEPRECATED_TKEY_METADATA);
-
-export const DCP_TOKENS_METADATA: TokenMetadata[] = [
+const DCP_TOKENS_METADATA: TokenMetadata[] = [
   {
     id: 0,
     address: 'KT1N7Rh6SgSdExMPxfnYw1tHqrkSm7cm6JDN',
@@ -137,3 +136,15 @@ export const PREDEFINED_TOKENS_METADATA: Record<string, TokenMetadata[]> = {
   [TempleChainId.Mainnet]: PREDEFINED_MAINNET_TOKENS_METADATA,
   [TempleChainId.Dcp]: DCP_TOKENS_METADATA
 };
+
+export const ALL_PREDEFINED_METADATAS_RECORD: MetadataRecords = [
+  ...PREDEFINED_MAINNET_TOKENS_METADATA,
+  DEPRECATED_TKEY_METADATA,
+  ...DCP_TOKENS_METADATA
+].reduce(
+  (obj, tokenMetadata) => ({
+    ...obj,
+    [tokenToSlug(tokenMetadata)]: tokenMetadata
+  }),
+  {}
+);
