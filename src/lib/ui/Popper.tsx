@@ -43,7 +43,7 @@ const Popper = memo<PopperProps>(({ popup, children, fallbackPlacementsEnabled =
   const popupRef = useRef<HTMLDivElement>(null);
 
   const [opened, setOpened] = useState(false);
-  console.log(opened, 'opened');
+
   const toggleOpened = useCallback(() => {
     setOpened(o => !o);
   }, [setOpened]);
