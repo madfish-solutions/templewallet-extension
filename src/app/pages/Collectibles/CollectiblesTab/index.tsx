@@ -1,6 +1,5 @@
 import React, { FC, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { emptyFn } from '@rnw-community/shared';
 import clsx from 'clsx';
 import { isEqual } from 'lodash';
 import InfiniteScroll from 'react-infinite-scroll-component';
@@ -31,7 +30,7 @@ import { isSearchStringApplicable } from 'lib/utils/search-items';
 import { Link } from 'lib/woozie';
 
 import { CollectibleItem } from './CollectibleItem';
-import { ITEMS_PER_PAGE, useCollectibles } from './use-collectibles';
+import { ITEMS_PER_PAGE, useCollectiblesWithLoading } from './use-collectibles';
 
 const LOCAL_STORAGE_TOGGLE_KEY = 'collectibles-grid:show-items-details';
 
@@ -58,7 +57,7 @@ export const CollectiblesTab = memo<Props>(({ scrollToTheTabsBar }) => {
     isEqual
   );
 
-  const { slugs, isLoading, loadNext } = useCollectibles(allEnabledSlugsSorted);
+  const { slugs, isLoading, loadNext, loadNextSeed } = useCollectiblesWithLoading(allEnabledSlugsSorted);
   console.log('LOADING:', isLoading, assetsAreLoading, tokensMetadataLoading);
 
   const [searchValue, setSearchValue] = useState('');
@@ -74,10 +73,13 @@ export const CollectiblesTab = memo<Props>(({ scrollToTheTabsBar }) => {
 
     // In pagination, loading meta for the following pages in advance,
     // while not required in current page
-    return isLoading ? undefined : allEnabledSlugsSorted.slice(slugs.length + ITEMS_PER_PAGE);
+    return isLoading ? undefined : allEnabledSlugsSorted.slice(slugs.length + ITEMS_PER_PAGE * 2);
   }, [isInSearch, isLoading, allEnabledSlugsSorted, slugs.length]);
 
-  const allTokensMetadata = useAssetsMetadataWithPresenceCheck(metaToCheckAndLoad);
+  const allTokensMetadata = useAssetsMetadataWithPresenceCheck(
+    metaToCheckAndLoad
+    // undefined
+  );
 
   const displayedSlugs = useMemo(
     () =>
@@ -95,8 +97,16 @@ export const CollectiblesTab = memo<Props>(({ scrollToTheTabsBar }) => {
   const shouldScrollToTheTabsBar = slugs.length > 0;
   useEffect(() => void scrollToTheTabsBar(), [shouldScrollToTheTabsBar, scrollToTheTabsBar]);
 
-  const nextSeedRef = useRef(0);
-  const nextSeed = useMemo(() => (isLoading ? nextSeedRef.current : ++nextSeedRef.current), [isLoading]);
+  const contentElement = useMemo(
+    () => (
+      <div className="grid grid-cols-3 gap-1">
+        {displayedSlugs.map(slug => (
+          <CollectibleItem key={slug} assetSlug={slug} accountPkh={publicKeyHash} areDetailsShown={areDetailsShown} />
+        ))}
+      </div>
+    ),
+    [displayedSlugs, publicKeyHash, areDetailsShown]
+  );
 
   return (
     <div className="w-full max-w-sm mx-auto">
@@ -137,30 +147,25 @@ export const CollectiblesTab = memo<Props>(({ scrollToTheTabsBar }) => {
           buildEmptySection(isSyncing)
         ) : (
           <>
-            <InfiniteScroll // TODO: Scroll handler to fix failed load
-              // For grid layout (non-array children) this must be `true`
-              hasChildren={true}
-              hasMore={!isInSearch}
-              // Used only to determine, whether to call `next` on next scroll-to-end event.
-              // Need to update artificially, over cases of `next` calls throwing error.
-              // + When switching between `isInSearch` modes results in the same data length.
-              dataLength={isInSearch ? -1 : nextSeed}
-              next={isInSearch ? emptyFn : loadNext}
-              // `InfiniteScroll`'s loader conditions r not suited here
-              loader={null}
-              scrollThreshold={0.95}
-            >
-              <div className="grid grid-cols-3 gap-1">
-                {displayedSlugs.map(slug => (
-                  <CollectibleItem
-                    key={slug}
-                    assetSlug={slug}
-                    accountPkh={publicKeyHash}
-                    areDetailsShown={areDetailsShown}
-                  />
-                ))}
-              </div>
-            </InfiniteScroll>
+            {isInSearch ? (
+              contentElement
+            ) : (
+              <InfiniteScroll
+                // For grid layout (non-array children) this must be `true`
+                hasChildren={true}
+                hasMore={true}
+                // Used only to determine, whether to call `next` on next scroll-to-end event.
+                // Need to update artificially, over cases of `next` calls throwing error
+                // and not changing `displayedSlugs.length`.
+                dataLength={loadNextSeed}
+                next={loadNext}
+                // `InfiniteScroll`'s loader conditions r not suited here
+                loader={null}
+                scrollThreshold={0.95}
+              >
+                {contentElement}
+              </InfiniteScroll>
+            )}
 
             {isSyncing && <SyncSpinner className="mt-6" />}
           </>

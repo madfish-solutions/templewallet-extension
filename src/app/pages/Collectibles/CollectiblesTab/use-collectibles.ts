@@ -10,7 +10,7 @@ import { useDidMount, useDidUpdate } from 'lib/ui/hooks';
 
 export const ITEMS_PER_PAGE = 30;
 
-export const useCollectibles = (allEnabledSlugsSorted: string[]) => {
+export const useCollectiblesWithLoading = (allEnabledSlugsSorted: string[]) => {
   const allMeta = useTokensMetadataSelector();
 
   const { rpcBaseURL: rpcUrl } = useNetwork();
@@ -58,8 +58,11 @@ export const useCollectibles = (allEnabledSlugsSorted: string[]) => {
     if (!isLoading && slugs.length) _load(slugs.length);
   }, [allEnabledSlugsSorted]); // (!) What if it's loading & then stops?
 
+  const [loadNextSeed, setLoadNextSeed] = useState(0);
+
   const loadNext = useCallback(() => {
     console.log('LOAD_NEXT:', isLoading, slugs.length, allEnabledSlugsSorted.length);
+    setLoadNextSeed(val => (val % 2) + 1);
     if (isLoading || slugs.length === allEnabledSlugsSorted.length) return;
 
     const size = (Math.floor(slugs.length / ITEMS_PER_PAGE) + 1) * ITEMS_PER_PAGE;
@@ -67,5 +70,5 @@ export const useCollectibles = (allEnabledSlugsSorted: string[]) => {
     _load(size);
   }, [_load, isLoading, slugs.length, allEnabledSlugsSorted.length]);
 
-  return { slugs, isLoading, loadNext };
+  return { slugs, isLoading, loadNext, loadNextSeed };
 };

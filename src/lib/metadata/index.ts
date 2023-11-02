@@ -49,7 +49,7 @@ export const useAssetsMetadataWithPresenceCheck = (slugsToCheck?: string[]) => {
   useEffect(() => {
     if (tokensMetadataLoading || !slugsToCheck?.length) return;
 
-    const missingList = slugsToCheck
+    const missingChunk = slugsToCheck
       .filter(
         slug =>
           !isTezAsset(slug) &&
@@ -59,14 +59,14 @@ export const useAssetsMetadataWithPresenceCheck = (slugsToCheck?: string[]) => {
       )
       .slice(0, 2 * METADATA_API_LOAD_CHUNK_SIZE);
 
-    console.log('MISSING:', missingList);
-    if (missingList.length > 0) {
-      checkedRef.current = [...checkedRef.current, ...missingList];
+    console.log('MISSING:', missingChunk);
+    if (missingChunk.length > 0) {
+      checkedRef.current = [...checkedRef.current, ...missingChunk];
 
       dispatch(
         loadTokensMetadataAction({
           rpcUrl,
-          slugs: missingList
+          slugs: missingChunk
         })
       );
     }
