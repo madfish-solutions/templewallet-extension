@@ -6,10 +6,12 @@ import { isEqual } from 'lodash';
 import { useDebounce } from 'use-debounce';
 
 import { useBalancesWithDecimals } from 'app/hooks/use-balances-with-decimals.hook';
+import { useBalancesSelector } from 'app/store/balances/selectors';
 import { toTokenSlug } from 'lib/assets';
 import { useAccountBalances } from 'lib/balances';
 import { useUsdToTokenRates } from 'lib/fiat-currency/core';
-import { useTokensMetadataWithPresenceCheck } from 'lib/metadata';
+import { useAssetsMetadataWithPresenceCheck } from 'lib/metadata';
+import { useAccount, useChainId } from 'lib/temple/front';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 
 import { searchAssetsWithNoMeta } from './search.utils';
@@ -20,7 +22,7 @@ export function useFilteredAssetsSlugs(
   leadingAssets?: string[],
   leadingAssetsAreFilterable = false
 ) {
-  const allTokensMetadata = useTokensMetadataWithPresenceCheck(assetsSlugs);
+  const allTokensMetadata = useAssetsMetadataWithPresenceCheck(assetsSlugs);
 
   const nonLeadingAssets = useMemo(
     () => (leadingAssets?.length ? assetsSlugs.filter(slug => !leadingAssets.includes(slug)) : [...assetsSlugs]),
@@ -110,5 +112,22 @@ export function useAssetsSortPredicate() {
       return tokenBEquity.comparedTo(tokenAEquity);
     },
     [balances, usdToTokenRates]
+  );
+}
+
+export function useCollectiblesSortPredicate() {
+  const { publicKeyHash } = useAccount();
+  const chainId = useChainId(true)!;
+
+  const balancesRaw = useBalancesSelector(publicKeyHash, chainId);
+
+  return useCallback(
+    (tokenASlug: string, tokenBSlug: string) => {
+      const tokenABalance = new BigNumber(balancesRaw[tokenASlug] ?? '0');
+      const tokenBBalance = new BigNumber(balancesRaw[tokenBSlug] ?? '0');
+
+      return tokenBBalance.comparedTo(tokenABalance);
+    },
+    [balancesRaw]
   );
 }

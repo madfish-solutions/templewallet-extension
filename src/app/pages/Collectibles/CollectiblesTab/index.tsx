@@ -1,9 +1,10 @@
-import React, { FC, memo, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { FC, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { emptyFn } from '@rnw-community/shared';
 import clsx from 'clsx';
+import { isEqual } from 'lodash';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import { useDebounce } from 'use-debounce/lib';
+import { useDebounce } from 'use-debounce';
 
 import { SyncSpinner } from 'app/atoms';
 import Checkbox from 'app/atoms/Checkbox';
@@ -12,22 +13,25 @@ import DropdownWrapper from 'app/atoms/DropdownWrapper';
 import { useAppEnv } from 'app/env';
 import { ReactComponent as EditingIcon } from 'app/icons/editing.svg';
 import { AssetsSelectors } from 'app/pages/Home/OtherComponents/Assets.selectors';
+import { useAreAssetsLoading } from 'app/store/assets/selectors';
+import { useTokensMetadataLoadingSelector } from 'app/store/tokens-metadata/selectors';
 import { ButtonForManageDropdown } from 'app/templates/ManageDropdown';
 import SearchAssetField from 'app/templates/SearchAssetField';
 import { useEnabledAccountCollectiblesSlugs } from 'lib/assets/hooks';
 import { searchAssetsWithNoMeta } from 'lib/assets/search.utils';
 import { AssetTypesEnum } from 'lib/assets/types';
-import { useAssetsSortPredicate } from 'lib/assets/use-filtered';
+import { useCollectiblesSortPredicate } from 'lib/assets/use-filtered';
 import { T, t } from 'lib/i18n';
-import { useTokensMetadataWithPresenceCheck } from 'lib/metadata';
+import { useAssetsMetadataWithPresenceCheck } from 'lib/metadata';
 import { useAccount } from 'lib/temple/front';
+import { useMemoWithCompare } from 'lib/ui/hooks';
 import { useLocalStorage } from 'lib/ui/local-storage';
 import Popper, { PopperRenderProps } from 'lib/ui/Popper';
 import { isSearchStringApplicable } from 'lib/utils/search-items';
 import { Link } from 'lib/woozie';
 
 import { CollectibleItem } from './CollectibleItem';
-import { useCollectibles } from './use-collectibles';
+import { ITEMS_PER_PAGE, useCollectibles } from './use-collectibles';
 
 const LOCAL_STORAGE_TOGGLE_KEY = 'collectibles-grid:show-items-details';
 
@@ -43,31 +47,56 @@ export const CollectiblesTab = memo<Props>(({ scrollToTheTabsBar }) => {
   const toggleDetailsShown = useCallback(() => void setDetailsShown(val => !val), [setDetailsShown]);
 
   const allEnabledSlugs = useEnabledAccountCollectiblesSlugs();
+  const assetsAreLoading = useAreAssetsLoading('collectibles');
+  const tokensMetadataLoading = useTokensMetadataLoadingSelector();
 
-  const { slugs, isSyncing, loadNext } = useCollectibles(allEnabledSlugs);
-  console.log('SLUGS:', isSyncing, slugs);
+  const assetsSortPredicate = useCollectiblesSortPredicate();
 
-  const allTokensMetadata = useTokensMetadataWithPresenceCheck(allEnabledSlugs);
+  const allEnabledSlugsSorted = useMemoWithCompare(
+    () => [...allEnabledSlugs].sort(assetsSortPredicate),
+    [allEnabledSlugs, assetsSortPredicate],
+    isEqual
+  );
+
+  const { slugs, isLoading, loadNext } = useCollectibles(allEnabledSlugsSorted);
+  console.log('LOADING:', isLoading, assetsAreLoading, tokensMetadataLoading);
 
   const [searchValue, setSearchValue] = useState('');
   const [searchValueDebounced] = useDebounce(searchValue, 300);
 
-  const assetsSortPredicate = useAssetsSortPredicate();
-
   const isInSearch = isSearchStringApplicable(searchValueDebounced);
+
+  const isSyncing = isInSearch ? assetsAreLoading || tokensMetadataLoading : assetsAreLoading || isLoading;
+
+  const metaToCheckAndLoad = useMemo(() => {
+    // Search is not paginated. This is how all needed meta is loaded
+    if (isInSearch) return allEnabledSlugsSorted;
+
+    // In pagination, loading meta for the following pages in advance,
+    // while not required in current page
+    return isLoading ? undefined : allEnabledSlugsSorted.slice(slugs.length + ITEMS_PER_PAGE);
+  }, [isInSearch, isLoading, allEnabledSlugsSorted, slugs.length]);
+
+  const allTokensMetadata = useAssetsMetadataWithPresenceCheck(metaToCheckAndLoad);
 
   const displayedSlugs = useMemo(
     () =>
       isInSearch
-        ? searchAssetsWithNoMeta(searchValueDebounced, allEnabledSlugs, allTokensMetadata, slug => slug).sort(
+        ? searchAssetsWithNoMeta(searchValueDebounced, allEnabledSlugsSorted, allTokensMetadata, slug => slug).sort(
             assetsSortPredicate
           )
         : slugs,
-    [isInSearch, slugs, searchValueDebounced, allEnabledSlugs, allTokensMetadata, assetsSortPredicate]
+    [isInSearch, slugs, searchValueDebounced, allEnabledSlugsSorted, allTokensMetadata, assetsSortPredicate]
   );
+
+  console.log('SLUGS:', allEnabledSlugsSorted.length, slugs.length, displayedSlugs.length);
+  console.log('META:', allEnabledSlugsSorted.filter(s => !!allTokensMetadata[s]).length);
 
   const shouldScrollToTheTabsBar = slugs.length > 0;
   useEffect(() => void scrollToTheTabsBar(), [shouldScrollToTheTabsBar, scrollToTheTabsBar]);
+
+  const nextSeedRef = useRef(0);
+  const nextSeed = useMemo(() => (isLoading ? nextSeedRef.current : ++nextSeedRef.current), [isLoading]);
 
   return (
     <div className="w-full max-w-sm mx-auto">
@@ -107,24 +136,34 @@ export const CollectiblesTab = memo<Props>(({ scrollToTheTabsBar }) => {
         {displayedSlugs.length === 0 ? (
           buildEmptySection(isSyncing)
         ) : (
-          <InfiniteScroll
-            hasChildren={true}
-            hasMore={true}
-            dataLength={displayedSlugs.length}
-            next={isInSearch ? emptyFn : loadNext}
-            loader={isSyncing && <SyncSpinner className="mt-6" />}
-          >
-            <div className="grid grid-cols-3 gap-1">
-              {displayedSlugs.map(slug => (
-                <CollectibleItem
-                  key={slug}
-                  assetSlug={slug}
-                  accountPkh={publicKeyHash}
-                  areDetailsShown={areDetailsShown}
-                />
-              ))}
-            </div>
-          </InfiniteScroll>
+          <>
+            <InfiniteScroll // TODO: Scroll handler to fix failed load
+              // For grid layout (non-array children) this must be `true`
+              hasChildren={true}
+              hasMore={!isInSearch}
+              // Used only to determine, whether to call `next` on next scroll-to-end event.
+              // Need to update artificially, over cases of `next` calls throwing error.
+              // + When switching between `isInSearch` modes results in the same data length.
+              dataLength={isInSearch ? -1 : nextSeed}
+              next={isInSearch ? emptyFn : loadNext}
+              // `InfiniteScroll`'s loader conditions r not suited here
+              loader={null}
+              scrollThreshold={0.95}
+            >
+              <div className="grid grid-cols-3 gap-1">
+                {displayedSlugs.map(slug => (
+                  <CollectibleItem
+                    key={slug}
+                    assetSlug={slug}
+                    accountPkh={publicKeyHash}
+                    areDetailsShown={areDetailsShown}
+                  />
+                ))}
+              </div>
+            </InfiniteScroll>
+
+            {isSyncing && <SyncSpinner className="mt-6" />}
+          </>
         )}
       </div>
     </div>

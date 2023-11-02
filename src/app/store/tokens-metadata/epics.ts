@@ -28,7 +28,10 @@ const loadTokensMetadataEpic: Epic = action$ =>
     toPayload(),
     switchMap(({ rpcUrl, slugs }) =>
       loadTokensMetadata$(rpcUrl, slugs).pipe(
-        map(putTokensMetadataAction),
+        map(data => {
+          console.log(1, slugs, data);
+          return putTokensMetadataAction(data);
+        }),
         catchError(() => of(resetTokensMetadataLoadingAction()))
       )
     )

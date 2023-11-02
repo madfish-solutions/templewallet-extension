@@ -37,7 +37,7 @@ export const fetchOneTokenMetadata = (chainId: MetadataApiChainId, address: stri
     .get<TokenMetadataResponse>(`/metadata/${address}/${id}`)
     .then(({ data }) => (data.name === 'Unknown Token' ? undefined : data));
 
-const METADATA_CHUNK_SIZE = 100;
+export const METADATA_API_LOAD_CHUNK_SIZE = 50;
 
 export const fetchTokensMetadata = (
   chainId: MetadataApiChainId,
@@ -47,7 +47,7 @@ export const fetchTokensMetadata = (
 
   return Promise.all(
     // Parallelizing
-    chunk(slugs, METADATA_CHUNK_SIZE).map(clugsChunk =>
+    chunk(slugs, METADATA_API_LOAD_CHUNK_SIZE).map(clugsChunk =>
       getApi(chainId)
         .post<(TokenMetadataResponse | null)[]>('/', clugsChunk)
         .then(r => r.data)

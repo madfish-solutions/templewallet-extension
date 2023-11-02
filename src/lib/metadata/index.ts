@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 
 import { isString } from 'lodash';
 import { useDispatch } from 'react-redux';
@@ -9,6 +9,7 @@ import {
   useTokensMetadataLoadingSelector,
   useTokensMetadataSelector
 } from 'app/store/tokens-metadata/selectors';
+import { METADATA_API_LOAD_CHUNK_SIZE } from 'lib/apis/temple';
 import { isTezAsset } from 'lib/assets';
 import { useGasToken } from 'lib/assets/hooks';
 import { useNetwork } from 'lib/temple/front/ready';
@@ -30,27 +31,44 @@ export const useAssetMetadata = (slug: string): AssetMetadataBase | undefined =>
   const tokenMetadata = useTokenMetadataSelector(slug);
   const gasMetadata = useGasTokenMetadata();
 
-  if (isTezAsset(slug)) return gasMetadata;
-
-  return tokenMetadata;
+  return isTezAsset(slug) ? gasMetadata : tokenMetadata;
 };
 
-export const useTokensMetadataWithPresenceCheck = (slugsToCheck?: string[]) => {
+/**
+ * @param slugsToCheck // Memoize
+ */
+export const useAssetsMetadataWithPresenceCheck = (slugsToCheck?: string[]) => {
   const allTokensMetadata = useTokensMetadataSelector();
 
   const tokensMetadataLoading = useTokensMetadataLoadingSelector();
   const { rpcBaseURL: rpcUrl } = useNetwork();
   const dispatch = useDispatch();
 
+  const checkedRef = useRef<string[]>([]);
+
   useEffect(() => {
     if (tokensMetadataLoading || !slugsToCheck?.length) return;
 
-    const metadataMissingAssetsSlugs = slugsToCheck.filter(
-      slug => !isTezAsset(slug) && !isTruthy(allTokensMetadata[slug])
-    );
+    const missingList = slugsToCheck
+      .filter(
+        slug =>
+          !isTezAsset(slug) &&
+          !isTruthy(allTokensMetadata[slug]) &&
+          // In case fetched metadata is `null`
+          !checkedRef.current.includes(slug)
+      )
+      .slice(0, 2 * METADATA_API_LOAD_CHUNK_SIZE);
 
-    if (metadataMissingAssetsSlugs.length > 0) {
-      dispatch(loadTokensMetadataAction({ rpcUrl, slugs: metadataMissingAssetsSlugs }));
+    console.log('MISSING:', missingList);
+    if (missingList.length > 0) {
+      checkedRef.current = [...checkedRef.current, ...missingList];
+
+      dispatch(
+        loadTokensMetadataAction({
+          rpcUrl,
+          slugs: missingList
+        })
+      );
     }
   }, [slugsToCheck, allTokensMetadata, tokensMetadataLoading, dispatch, rpcUrl]);
 

@@ -1,6 +1,4 @@
-import { isEqual } from 'lodash';
-
-import { useMemoWithCompare } from 'lib/ui/hooks';
+import { useMemo } from 'react';
 
 import { useSelector } from '../root-state.selector';
 import { StoredCollectible, StoredToken } from './state';
@@ -21,11 +19,7 @@ export function useAccountAssetsSelector(account: string, chainId: string, type:
   // @ts-ignore
   const assets = useAllAssetsSelector(type);
 
-  return useMemoWithCompare(
-    () => assets.filter(t => t.account === account && t.chainId === chainId),
-    [assets, account, chainId],
-    isEqual
-  );
+  return useMemo(() => assets.filter(t => t.account === account && t.chainId === chainId), [assets, account, chainId]);
 }
 
 export const useAreAssetsLoading = (type: AssetsType) => useSelector(state => state.assets[type].isLoading);

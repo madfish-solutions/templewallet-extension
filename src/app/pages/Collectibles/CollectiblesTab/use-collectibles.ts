@@ -2,53 +2,70 @@ import { useCallback, useState } from 'react';
 
 import { useDispatch } from 'react-redux';
 
-import { useAreAssetsLoading } from 'app/store/assets/selectors';
 import { addTokensMetadataAction } from 'app/store/tokens-metadata/actions';
 import { useTokensMetadataSelector } from 'app/store/tokens-metadata/selectors';
-import { useAssetsSortPredicate } from 'lib/assets/use-filtered';
 import { loadTokensMetadata } from 'lib/metadata/fetch';
 import { useNetwork } from 'lib/temple/front';
-import { useDidMount } from 'lib/ui/hooks';
+import { useDidMount, useDidUpdate } from 'lib/ui/hooks';
 
-const ITEMS_PER_PAGE = 30;
+export const ITEMS_PER_PAGE = 30;
 
-export const useCollectibles = (allEnabledSlugs: string[]) => {
+export const useCollectibles = (allEnabledSlugsSorted: string[]) => {
   const allMeta = useTokensMetadataSelector();
-  const assetsAreLoading = useAreAssetsLoading('collectibles');
 
   const { rpcBaseURL: rpcUrl } = useNetwork();
   const dispatch = useDispatch();
 
   const [slugs, setSlugs] = useState<string[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(Boolean(allEnabledSlugsSorted.length));
 
-  const assetsSortPredicate = useAssetsSortPredicate();
+  const _load = useCallback(
+    async (size: number) => {
+      setIsLoading(true);
 
-  const loadNext = useCallback(async () => {
-    if (isLoading || slugs.length >= allEnabledSlugs.length) return;
+      const newSlugs = allEnabledSlugsSorted.slice(0, size);
 
-    setIsLoading(true);
+      const slugsWithoutMeta = newSlugs.filter(slug => !allMeta[slug]);
+      console.log('_LOAD:', size, newSlugs.length, allEnabledSlugsSorted.length, slugsWithoutMeta.length);
 
-    const newSlugs = allEnabledSlugs.slice(0, slugs.length + ITEMS_PER_PAGE);
+      if (slugsWithoutMeta.length)
+        await loadTokensMetadata(rpcUrl, slugsWithoutMeta)
+          .then(
+            newMeta => {
+              if (newMeta.length) dispatch(addTokensMetadataAction(newMeta));
+              setSlugs(newSlugs);
+            },
+            error => {
+              console.error(error);
+            }
+          )
+          .finally(() => setIsLoading(false));
+      else {
+        setSlugs(newSlugs);
+        setIsLoading(false);
+      }
+    },
+    [allEnabledSlugsSorted, allMeta, rpcUrl, dispatch]
+  );
 
-    const slugsWithoutMeta = newSlugs.filter(slug => !allMeta[slug]);
+  useDidMount(() => {
+    console.log('LOAD_ON_MOUNT:', isLoading);
+    if (isLoading) _load(ITEMS_PER_PAGE);
+  });
 
-    await loadTokensMetadata(rpcUrl, slugsWithoutMeta)
-      .then(
-        newMeta => {
-          if (newMeta.length) dispatch(addTokensMetadataAction(newMeta));
-          setSlugs(newSlugs.sort(assetsSortPredicate)); // (!) List tail might glitch
-        },
-        error => {
-          console.error(error);
-        }
-      )
-      .finally(() => setIsLoading(false));
-  }, [isLoading, slugs.length, allEnabledSlugs, allMeta, rpcUrl, assetsSortPredicate, dispatch]);
+  useDidUpdate(() => {
+    console.log('LOAD_ON_UPDATE:', isLoading, slugs.length);
+    if (!isLoading && slugs.length) _load(slugs.length);
+  }, [allEnabledSlugsSorted]); // (!) What if it's loading & then stops?
 
-  useDidMount(loadNext);
+  const loadNext = useCallback(() => {
+    console.log('LOAD_NEXT:', isLoading, slugs.length, allEnabledSlugsSorted.length);
+    if (isLoading || slugs.length === allEnabledSlugsSorted.length) return;
 
-  const isSyncing = assetsAreLoading || isLoading;
+    const size = (Math.floor(slugs.length / ITEMS_PER_PAGE) + 1) * ITEMS_PER_PAGE;
 
-  return { slugs, isSyncing, loadNext };
+    _load(size);
+  }, [_load, isLoading, slugs.length, allEnabledSlugsSorted.length]);
+
+  return { slugs, isLoading, loadNext };
 };
