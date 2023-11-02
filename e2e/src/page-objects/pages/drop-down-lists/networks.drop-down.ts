@@ -5,8 +5,6 @@ import { Page } from 'e2e/src/classes/page.class';
 import { createPageElement, findElement } from 'e2e/src/utils/search.utils';
 import { ONE_SECOND, RETRY_OPTIONS } from 'e2e/src/utils/timing.utils';
 
-const STILL_OPENED_ERROR_MESSAGE = 'Networks dropdown is still opened';
-
 export class NetworksDropDown extends Page {
   networkItemButton = createPageElement(NetworkSelectSelectors.networkItemButton);
 
