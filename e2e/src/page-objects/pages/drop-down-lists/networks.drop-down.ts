@@ -15,16 +15,16 @@ export class NetworksDropDown extends Page {
   }
 
   async isClosed() {
-    await retry(async () => {
-      try {
-        await this.isVisible(ONE_SECOND);
-        throw new Error(STILL_OPENED_ERROR_MESSAGE);
-      } catch (e: any) {
-        if (e.message === STILL_OPENED_ERROR_MESSAGE) {
-          throw e;
-        }
-      }
-    }, RETRY_OPTIONS);
+    await retry(
+      () =>
+        this.isVisible(ONE_SECOND).then(
+          () => {
+            throw new Error(`Networks dropdown is still opened`);
+          },
+          () => undefined
+        ),
+      RETRY_OPTIONS
+    );
   }
 
   async selectNetwork(name: string) {
