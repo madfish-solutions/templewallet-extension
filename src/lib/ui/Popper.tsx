@@ -13,6 +13,7 @@ import React, {
 } from 'react';
 
 import { Instance, Options, createPopper } from '@popperjs/core';
+import classNames from 'clsx';
 import useOnClickOutside from 'use-onclickoutside';
 
 import Portal from 'lib/ui/Portal';
@@ -42,7 +43,7 @@ const Popper = memo<PopperProps>(({ popup, children, fallbackPlacementsEnabled =
   const popupRef = useRef<HTMLDivElement>(null);
 
   const [opened, setOpened] = useState(false);
-
+  console.log(opened, 'opened');
   const toggleOpened = useCallback(() => {
     setOpened(o => !o);
   }, [setOpened]);
@@ -125,7 +126,7 @@ const Popper = memo<PopperProps>(({ popup, children, fallbackPlacementsEnabled =
       {triggerNode}
 
       <Portal>
-        <div ref={popupRef} className="z-40" style={style}>
+        <div ref={popupRef} className={classNames('z-40', !opened && 'hidden')} style={style}>
           {popupNode}
         </div>
       </Portal>
