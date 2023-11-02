@@ -15,22 +15,16 @@ export class NetworksDropDown extends Page {
   }
 
   async isClosed() {
-    retry(async bail => {
+    await retry(async () => {
       try {
         await this.isVisible(ONE_SECOND);
         throw new Error(STILL_OPENED_ERROR_MESSAGE);
       } catch (e: any) {
         if (e.message === STILL_OPENED_ERROR_MESSAGE) {
           throw e;
-        } else {
-          bail(e); // Abort retry for other errors
         }
       }
-    }, RETRY_OPTIONS).catch(e => {
-      if (e.message === STILL_OPENED_ERROR_MESSAGE) {
-        throw e;
-      }
-    });
+    }, RETRY_OPTIONS);
   }
 
   async selectNetwork(name: string) {
