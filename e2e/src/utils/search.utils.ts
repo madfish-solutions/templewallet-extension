@@ -35,7 +35,7 @@ export const findChildElement = async (
 };
 
 export const findElementBySelectors = async (selectors: string, timeout = MEDIUM_TIMEOUT, errorTitle?: string) => {
-  const element = await BrowserContext.page.waitForSelector(selectors, { visible: true, timeout }).catch(error => {
+  const element = await BrowserContext.page.waitForSelector(selectors, { timeout }).catch(error => {
     if (errorTitle && error instanceof Error) {
       error.message = `${errorTitle}\n` + error.message;
     }

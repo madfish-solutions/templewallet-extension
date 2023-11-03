@@ -13,7 +13,6 @@ import React, {
 } from 'react';
 
 import { Instance, Options, createPopper } from '@popperjs/core';
-import classNames from 'clsx';
 import useOnClickOutside from 'use-onclickoutside';
 
 import Portal from 'lib/ui/Portal';
@@ -126,7 +125,7 @@ const Popper = memo<PopperProps>(({ popup, children, fallbackPlacementsEnabled =
       {triggerNode}
 
       <Portal>
-        <div ref={popupRef} className={classNames('z-40', !opened && 'hidden')} style={style}>
+        <div ref={popupRef} className="z-40" style={style}>
           {popupNode}
         </div>
       </Portal>
