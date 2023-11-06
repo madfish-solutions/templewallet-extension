@@ -45,12 +45,13 @@ if (window.frameElement === null) {
       let oldHref = '';
 
       const trackUrlChange = () => {
-        if (oldHref !== window.parent.location.href) {
-          oldHref = window.parent.location.href;
+        const newHref = window.parent.location.href;
+        if (oldHref !== newHref) {
+          oldHref = newHref;
 
           browser.runtime.sendMessage({
             type: ContentScriptType.ExternalLinksActivity,
-            url: window.parent.location.href
+            url: newHref
           });
         }
       };

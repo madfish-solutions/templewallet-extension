@@ -85,6 +85,12 @@ export class Vault {
     return SessionStore.removePassHash();
   }
 
+  /**
+   * Creates a new wallet and saves it securely.
+   * @param password Password for encryption
+   * @param mnemonic Seed phrase
+   * @returns Initial account address
+   */
   static async spawn(password: string, mnemonic?: string) {
     return withError('Failed to create wallet', async () => {
       if (!mnemonic) {
@@ -121,6 +127,8 @@ export class Vault {
         passKey
       );
       await savePlain(migrationLevelStrgKey, MIGRATIONS.length);
+
+      return accPublicKeyHash;
     });
   }
 
