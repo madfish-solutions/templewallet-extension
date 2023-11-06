@@ -6,21 +6,41 @@ export const iComparePrivateKeys = {
 };
 
 const generateRandomContent = () => {
-  const wordsArray = ['apple', 'banana', 'carrot', 'dog', 'elephant', 'fish', 'grape', 'hat', 'ice cream', 'jungle'];
+  const wordsArray = ['apple', 'banana', 'carrot', 'dog', 'elephant', 'fish', 'grape', 'hat', 'cream', 'jungle'];
   const randomWord = Math.floor(Math.random() * wordsArray.length);
 
   return wordsArray[randomWord] + Math.floor(Math.random() * 10000).toString();
 };
 
+const randomSeedWord = () => {
+  const wordsArray = ['about', 'document', 'lesson', 'scatter', 'above', 'dog', 'letter', 'abuse', 'science'];
+  return wordsArray[Math.floor(Math.random() * wordsArray.length)];
+};
+
 export const iEnterValues = {
   ...iComparePrivateKeys,
-  defaultSeedPhrase: envVars.DEFAULT_HD_ACCOUNT_SEED_PHRASE,
   defaultFirstPrivateKey: envVars.DEFAULT_HD_ACCOUNT_FIRST_PRIVATE_KEY,
-  defaultFirstPublicKey: 'tz1g1NfadfC2qktJH99sHeBETRWGaQyrbiA4',
+  defaultFirstPublicKey: envVars.DEFAULT_HD_ACCOUNT_FIRST_PUBLIC_KEY_HASH,
   defaultPassword: envVars.DEFAULT_PASSWORD,
+
   watchOnlyPublicKey: envVars.WATCH_ONLY_PUBLIC_KEY_HASH,
   bakerAddress: '',
+
+  // Derivation paths
+  basicDerivationPath: `m/44'/1729'/0'/0'`, // first account in HD (main)
   customDerivationPath: `m/44'/1729'/10'/0'`, // eleventh account in HD
+  invalidDerivationPath: `m/broken44'/1729'/0'/0'`,
+  secondInvalidDerivationPath: `m/44'/17broken29'/0'/0'`,
+  thirdInvalidDerivationPath: `m/44'/1729'/0broken'/0'`,
+  fourthInvalidDerivationPath: `m/44'/1729'/0'/0broken'`,
+
+  // For testing mnemonic inputs
+  defaultSeedPhrase: envVars.DEFAULT_HD_ACCOUNT_SEED_PHRASE,
+  importedSeedPhrase: envVars.IMPORTED_HD_ACCOUNT_SEED_PHRASE,
+  longSeedPhrase24: envVars.LONG_HD_ACCOUNT_SEED_PHRASE,
+  invalidSeedPhrase: 'scissors dolphin light ability voice voice sail cruel labor dry screen feature', // words from BIP39
+  invalidRandomSeedPhrase: `${randomSeedWord()} document ? ${randomSeedWord()} ${randomSeedWord()} ${randomSeedWord()} dog ? ${randomSeedWord()} ${randomSeedWord()} ? ${randomSeedWord()}`,
+  incorrectSeedPhrase: 'alsla sadh 123213 sadaj asdj sajd jewd wedn wedn wedbn wedhb criwl',
 
   // For input validation
   shortRandomContent: generateRandomContent(),

@@ -13,7 +13,7 @@ Feature: Remove an account
     And I select Mnemonic tab
     And I am on the ImportAccountMnemonic page
 
-    And I enter second mnemonic
+    And I enter importedSeedPhrase mnemonic on the ImportAccountMnemonic page
     And I press Mnemonic Import Button on the Import Account(Mnemonic) page
 
     And I am on the Home page
@@ -122,7 +122,7 @@ Feature: Remove an account
     And I select Mnemonic tab
 
     And I am on the ImportAccountMnemonic page
-    And I enter second mnemonic
+    And I enter importedSeedPhrase mnemonic on the ImportAccountMnemonic page
     And I press Mnemonic Import Button on the Import Account(Mnemonic) page
 
     And I am on the Home page

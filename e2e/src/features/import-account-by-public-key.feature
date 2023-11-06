@@ -18,8 +18,6 @@ Feature: Import an account by public key (Watch-only)
 
     Then I check if watchOnlyAccountShortHash is corresponded to the selected account
 
-
-  @dev
   Scenario: Check validation importing by public key
     Given I have imported an existing account
 

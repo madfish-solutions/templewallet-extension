@@ -20,7 +20,6 @@ Feature: Import Account by Private Key
 
 
 
-
   Scenario: Check validation importing by private key
     Given I have imported an existing account
 

@@ -6,7 +6,7 @@ Feature: Import existing wallet
     And I press Import Existing Wallet button on the Welcome page
 
     And I am on the ImportExistingWallet page
-    And I enter default mnemonic
+    And I enter defaultSeedPhrase mnemonic on the ImportExistingWallet page
     And I press Next button on the Import Existing Seed Phrase page
 
     And I am on the SetWallet page
@@ -29,7 +29,7 @@ Feature: Import existing wallet
     And I press Import Existing Wallet button on the Welcome page
 
     And I am on the ImportExistingWallet page
-    And I enter default mnemonic
+    And I enter defaultSeedPhrase mnemonic on the ImportExistingWallet page
     And I press Next button on the Import Existing Seed Phrase page
 
     And I am on the SetWallet page
@@ -66,7 +66,7 @@ Feature: Import existing wallet
     And I press Import Existing Wallet button on the Welcome page
 
     And I am on the ImportExistingWallet page
-    And I enter default mnemonic
+    And I enter defaultSeedPhrase mnemonic on the ImportExistingWallet page
     And I press Next button on the Import Existing Seed Phrase page
 
     And I am on the SetWallet page
