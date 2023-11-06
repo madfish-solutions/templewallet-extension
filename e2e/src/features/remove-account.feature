@@ -31,7 +31,7 @@ Feature: Remove an account
     And I press Remove Button on the Remove Account page
 
     And I am on the Home page
-    And I check if defaultSecondAccountShortHash is corresponded to the selected account
+    And I check if defaultFirstAccountShortHash is corresponded to the selected account
 
 #    Remove an imported account by private key
 
