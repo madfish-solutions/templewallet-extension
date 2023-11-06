@@ -21,8 +21,6 @@ export const useCollectiblesListingLogic = (allSlugsSorted: string[]) => {
   const assetsAreLoading = useAreAssetsLoading('collectibles');
   const tokensMetadataLoading = useTokensMetadataLoadingSelector();
 
-  console.log('LOADING:', pageIsLoading, assetsAreLoading, tokensMetadataLoading);
-
   const [searchValue, setSearchValue] = useState('');
   const [searchValueDebounced] = useDebounce(searchValue, 300);
 
@@ -39,10 +37,7 @@ export const useCollectiblesListingLogic = (allSlugsSorted: string[]) => {
     return pageIsLoading ? undefined : allSlugsSorted.slice(paginatedSlugs.length + ITEMS_PER_PAGE * 2);
   }, [isInSearchMode, pageIsLoading, allSlugsSorted, paginatedSlugs.length]);
 
-  const allTokensMetadata = useAssetsMetadataWithPresenceCheck(
-    metaToCheckAndLoad
-    // undefined
-  );
+  const allTokensMetadata = useAssetsMetadataWithPresenceCheck(metaToCheckAndLoad);
 
   const displayedSlugs = useMemo(
     () =>
@@ -51,9 +46,6 @@ export const useCollectiblesListingLogic = (allSlugsSorted: string[]) => {
         : paginatedSlugs,
     [isInSearchMode, paginatedSlugs, searchValueDebounced, allSlugsSorted, allTokensMetadata]
   );
-
-  console.log('SLUGS:', allSlugsSorted.length, paginatedSlugs.length, displayedSlugs.length);
-  console.log('META:', allSlugsSorted.filter(s => !!allTokensMetadata[s]).length);
 
   return {
     isInSearchMode,
