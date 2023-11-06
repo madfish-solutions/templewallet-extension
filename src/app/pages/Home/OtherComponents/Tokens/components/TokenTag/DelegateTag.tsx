@@ -6,7 +6,7 @@ import { Button } from 'app/atoms/Button';
 import { HomeSelectors } from 'app/pages/Home/Home.selectors';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
 import { T } from 'lib/i18n';
-import { FAILED_TO_GET_DELEGATE_RESULT, useAccount, useDelegate } from 'lib/temple/front';
+import { useAccount, useDelegate } from 'lib/temple/front';
 import { navigate } from 'lib/woozie';
 
 import { AssetsSelectors } from '../../../Assets.selectors';

@@ -15,7 +15,7 @@ import { useRetryableSWR } from 'lib/swr';
 
 import { useChainId, useNetwork, useTezos } from './ready';
 
-export const FAILED_TO_GET_DELEGATE_RESULT = '';
+const FAILED_TO_GET_DELEGATE_RESULT = '';
 
 export class GetDelegateAddressError extends Error {
   constructor(public internalError: unknown) {

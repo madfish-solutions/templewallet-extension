@@ -39,7 +39,6 @@ export { useTezosDomainsClient, isDomainNameValid } from './tzdns';
 
 export type { Baker } from './baking';
 export {
-  FAILED_TO_GET_DELEGATE_RESULT,
   GetDelegateAddressError,
   getRewardsStats,
   useKnownBaker,
