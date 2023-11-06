@@ -228,7 +228,7 @@ const Form: FC = () => {
           Repo.toAccountTokenKey(chainId, accountPkh, tokenSlug)
         );
 
-        swrCache.delete(unstable_serialize(getBalanceSWRKey(tezos, tokenSlug, accountPkh)));
+        swrCache.delete(`$swr$${unstable_serialize(getBalanceSWRKey(tezos, tokenSlug, accountPkh))}`);
 
         formAnalytics.trackSubmitSuccess();
 
