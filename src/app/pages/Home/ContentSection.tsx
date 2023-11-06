@@ -5,13 +5,14 @@ import clsx from 'clsx';
 import Spinner from 'app/atoms/Spinner/Spinner';
 import { useTabSlug } from 'app/atoms/useTabSlug';
 import { useAppEnv } from 'app/env';
-import ErrorBoundary from 'app/ErrorBoundary';
+import ErrorBoundary, { ErrorBoundaryProps } from 'app/ErrorBoundary';
 import { ToolbarElement } from 'app/layouts/PageLayout';
 import { ActivityComponent } from 'app/templates/activity/Activity';
 import AssetInfo from 'app/templates/AssetInfo';
 import { TabsBar } from 'app/templates/TabBar';
 import { isTezAsset } from 'lib/assets';
 import { t, TID } from 'lib/i18n';
+import { GetDelegateAddressError, useAccountPkh, useResetDelegateCache } from 'lib/temple/front';
 
 import { CollectiblesTab } from '../Collectibles/CollectiblesTab';
 import { HomeSelectors } from './Home.selectors';
@@ -33,11 +34,26 @@ interface TabData {
   whileMessageI18nKey?: TID;
 }
 
+const wholeErrorMessageFn = (error: Error, online: boolean, defaultMessage: string) => {
+  if (error instanceof GetDelegateAddressError && online) {
+    return t('errorGettingBakerAddressMessageOnline');
+  }
+
+  if (error instanceof GetDelegateAddressError) {
+    return t('errorGettingBakerAddressMessage');
+  }
+
+  return defaultMessage;
+};
+
 export const ContentSection: FC<Props> = ({ assetSlug, className }) => {
   const { fullPage } = useAppEnv();
   const tabSlug = useTabSlug();
 
   const tabBarElemRef = useRef<HTMLDivElement>(null);
+
+  const accountPkh = useAccountPkh();
+  const resetDelegateCache = useResetDelegateCache(accountPkh);
 
   const scrollToTheTabsBar = useCallback(() => {
     if (!tabBarElemRef.current) return;
@@ -115,20 +131,24 @@ export const ContentSection: FC<Props> = ({ assetSlug, className }) => {
     <div className={clsx('-mx-4 shadow-top-light', fullPage && 'rounded-t-md', className)}>
       <TabsBar ref={tabBarElemRef} tabs={tabs} activeTabName={name} />
 
-      <SuspenseContainer whileMessage={whileMessageI18nKey ? t(whileMessageI18nKey) : 'displaying tab'}>
+      <SuspenseContainer
+        whileMessage={whileMessageI18nKey ? t(whileMessageI18nKey) : 'displaying tab'}
+        beforeTryAgain={resetDelegateCache}
+        wholeErrorMessageFn={wholeErrorMessageFn}
+      >
         {Component && <Component />}
       </SuspenseContainer>
     </div>
   );
 };
 
-interface SuspenseContainerProps extends PropsWithChildren {
+interface SuspenseContainerProps extends PropsWithChildren, Omit<ErrorBoundaryProps, 'className' | 'children'> {
   whileMessage: string;
   fallback?: ReactNode;
 }
 
-const SuspenseContainer: FC<SuspenseContainerProps> = ({ whileMessage, fallback = <SpinnerSection />, children }) => (
-  <ErrorBoundary whileMessage={whileMessage}>
+const SuspenseContainer: FC<SuspenseContainerProps> = ({ fallback = <SpinnerSection />, children, ...restProps }) => (
+  <ErrorBoundary {...restProps}>
     <Suspense fallback={fallback}>{children}</Suspense>
   </ErrorBoundary>
 );

@@ -624,6 +624,12 @@
   "tryAgain": {
     "message": "Try again"
   },
+  "errorGettingBakerAddressMessageOnline": {
+    "message": "Failed to get baker's address. Please, reload the page and try again."
+  },
+  "errorGettingBakerAddressMessage": {
+    "message": "Failed to get baker's address. Please, check your internet connection and try again."
+  },
   "tezosMainnet": {
     "message": "Tezos Mainnet",
     "description": "Mainnet = main network"

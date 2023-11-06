@@ -1,6 +1,8 @@
 import { useCallback, useMemo } from 'react';
 
+import retry from 'async-retry';
 import BigNumber from 'bignumber.js';
+import useSWR, { unstable_serialize, useSWRConfig } from 'swr';
 
 import {
   BakingBadBaker,
@@ -13,31 +15,65 @@ import { useRetryableSWR } from 'lib/swr';
 
 import { useChainId, useNetwork, useTezos } from './ready';
 
-export function useDelegate(address: string, suspense = true) {
+export const FAILED_TO_GET_DELEGATE_RESULT = '';
+
+export class GetDelegateAddressError extends Error {
+  constructor(public internalError: unknown) {
+    super('Failed to get delegate address');
+  }
+}
+
+export function useResetDelegateCache(address: string) {
+  const tezos = useTezos();
+  const chainId = useChainId(false);
+  const { cache: swrCache } = useSWRConfig();
+
+  return useCallback(() => {
+    const cacheKeyBase = unstable_serialize(['delegate', tezos.checksum, address, chainId]);
+
+    swrCache.delete(`$swr$${cacheKeyBase}`);
+  }, [address, tezos, chainId, swrCache]);
+}
+
+export function useDelegate(address: string, suspense = true, shouldPreventErrorPropagation = true) {
   const tezos = useTezos();
   const chainId = useChainId(suspense);
 
   const getDelegate = useCallback(async () => {
-    if (chainId && isKnownChainId(chainId)) {
-      try {
-        const accountStats = await getAccountStatsFromTzkt(address, chainId);
+    try {
+      return await retry(
+        async (): Promise<string | null> => {
+          const freshChainId = chainId ?? (await tezos.rpc.getChainId());
+          if (freshChainId && isKnownChainId(freshChainId)) {
+            try {
+              const accountStats = await getAccountStatsFromTzkt(address, freshChainId);
 
-        switch (accountStats.type) {
-          case TzktAccountType.Empty:
-            return null;
-          case TzktAccountType.User:
-          case TzktAccountType.Contract:
-            return accountStats.delegate?.address ?? null;
-        }
-      } catch (e) {
-        console.error(e);
+              switch (accountStats.type) {
+                case TzktAccountType.Empty:
+                  return null;
+                case TzktAccountType.User:
+                case TzktAccountType.Contract:
+                  return accountStats.delegate?.address ?? null;
+              }
+            } catch (e) {
+              console.error(e);
+            }
+          }
+
+          return await tezos.rpc.getDelegate(address);
+        },
+        { retries: 3, minTimeout: 3000, maxTimeout: 5000 }
+      );
+    } catch (e) {
+      if (shouldPreventErrorPropagation) {
+        return FAILED_TO_GET_DELEGATE_RESULT;
       }
+
+      throw new GetDelegateAddressError(e);
     }
+  }, [address, tezos, chainId, shouldPreventErrorPropagation]);
 
-    return await tezos.rpc.getDelegate(address);
-  }, [address, tezos, chainId]);
-
-  return useRetryableSWR(['delegate', tezos.checksum, address, chainId], getDelegate, {
+  return useSWR(['delegate', tezos.checksum, address, chainId], getDelegate, {
     dedupingInterval: 20_000,
     suspense
   });

@@ -70,7 +70,7 @@ const links = [
 
 const BakingSection = memo(() => {
   const acc = useAccount();
-  const { data: myBakerPkh } = useDelegate(acc.publicKeyHash);
+  const { data: myBakerPkh } = useDelegate(acc.publicKeyHash, true, false);
   const canDelegate = acc.type !== TempleAccountType.WatchOnly;
   const chainId = useChainId(true);
   const { isDcpNetwork } = useGasToken();

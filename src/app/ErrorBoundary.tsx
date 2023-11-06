@@ -3,11 +3,13 @@ import React, { Component, ErrorInfo } from 'react';
 import classNames from 'clsx';
 
 import { ReactComponent as DangerIcon } from 'app/icons/danger.svg';
-import { T } from 'lib/i18n';
+import { t, T } from 'lib/i18n';
 
-interface ErrorBoundaryProps extends React.PropsWithChildren {
+export interface ErrorBoundaryProps extends React.PropsWithChildren {
   className?: string;
   whileMessage?: string;
+  wholeErrorMessageFn?: (error: Error, online: boolean, defaultMessage: string) => string;
+  beforeTryAgain?: (error: Error) => void | Promise<void>;
 }
 
 type ErrorBoundaryState = {
@@ -33,13 +35,26 @@ export default class ErrorBoundary extends Component<ErrorBoundaryProps> {
     });
   }
 
-  tryAgain() {
+  async tryAgain() {
+    if (this.props.beforeTryAgain) {
+      await this.props.beforeTryAgain(this.state.error!);
+    }
     this.setState({ error: null });
+  }
+
+  getDefaultErrorMessage() {
+    const { whileMessage } = this.props;
+    const online = getOnlineStatus();
+    const firstPart = whileMessage ? t('smthWentWrongWhile', [whileMessage]) : t('smthWentWrong');
+
+    return online ? firstPart : [firstPart, t('mayHappenBecauseYouAreOffline')].join('. ');
   }
 
   render() {
     if (this.state.error) {
       const online = getOnlineStatus();
+      const { wholeErrorMessageFn: wholeMessageFn } = this.props;
+      const defaultMessage = this.getDefaultErrorMessage();
 
       return (
         <div className={classNames('w-full', 'flex items-center justify-center', this.props.className)}>
@@ -49,21 +64,7 @@ export default class ErrorBoundary extends Component<ErrorBoundaryProps> {
             <T id="oops">{message => <h2 className="mb-1 text-2xl">{message}</h2>}</T>
 
             <p className="mb-4 text-sm opacity-90 text-center font-light">
-              {this.props.whileMessage ? (
-                <T id="smthWentWrongWhile" substitutions={this.props.whileMessage} />
-              ) : (
-                <T id="smthWentWrong" />
-              )}
-              {!online && (
-                <T id="mayHappenBecauseYouAreOffline">
-                  {message => (
-                    <>
-                      {'. '}
-                      {message}
-                    </>
-                  )}
-                </T>
-              )}
+              {wholeMessageFn ? wholeMessageFn(this.state.error, online, defaultMessage) : defaultMessage}
             </p>
 
             <T id="tryAgain">
