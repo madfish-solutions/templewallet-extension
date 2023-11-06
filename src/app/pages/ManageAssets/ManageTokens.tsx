@@ -28,12 +28,12 @@ export const ManageTokens = memo<ManageAssetsCommonProps>(
 
     const { filteredAssets, searchValue, setSearchValue } = useFilteredAssetsSlugs(slugs, false);
 
-    const isInSearch = isSearchStringApplicable(searchValue);
+    const isInSearchMode = isSearchStringApplicable(searchValue);
 
     return (
       <ManageAssetsContent ofCollectibles={false} searchValue={searchValue} setSearchValue={setSearchValue}>
         {filteredAssets.length === 0 ? (
-          <AssetsPlaceholder isInSearch={isInSearch} isLoading={isLoading} />
+          <AssetsPlaceholder isInSearchMode={isInSearchMode} isLoading={isLoading} />
         ) : (
           <div className={WRAPPER_CLASSNAME}>
             {filteredAssets.map((slug, i, arr) => {

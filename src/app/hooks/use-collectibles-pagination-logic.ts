@@ -10,23 +10,23 @@ import { useDidMount, useDidUpdate } from 'lib/ui/hooks';
 
 export const ITEMS_PER_PAGE = 30;
 
-export const useCollectiblesWithLoading = (allEnabledSlugsSorted: string[]) => {
+export const useCollectiblesPaginationLogic = (allSlugsSorted: string[]) => {
   const allMeta = useTokensMetadataSelector();
 
   const { rpcBaseURL: rpcUrl } = useNetwork();
   const dispatch = useDispatch();
 
   const [slugs, setSlugs] = useState<string[]>([]);
-  const [isLoading, setIsLoading] = useState(Boolean(allEnabledSlugsSorted.length));
+  const [isLoading, setIsLoading] = useState(Boolean(allSlugsSorted.length));
 
   const _load = useCallback(
     async (size: number) => {
       setIsLoading(true);
 
-      const newSlugs = allEnabledSlugsSorted.slice(0, size);
+      const newSlugs = allSlugsSorted.slice(0, size);
 
       const slugsWithoutMeta = newSlugs.filter(slug => !allMeta[slug]);
-      console.log('_LOAD:', size, newSlugs.length, allEnabledSlugsSorted.length, slugsWithoutMeta.length);
+      console.log('_LOAD:', size, newSlugs.length, allSlugsSorted.length, slugsWithoutMeta.length);
 
       if (slugsWithoutMeta.length)
         await loadTokensMetadata(rpcUrl, slugsWithoutMeta)
@@ -45,7 +45,7 @@ export const useCollectiblesWithLoading = (allEnabledSlugsSorted: string[]) => {
         setIsLoading(false);
       }
     },
-    [allEnabledSlugsSorted, allMeta, rpcUrl, dispatch]
+    [allSlugsSorted, allMeta, rpcUrl, dispatch]
   );
 
   useDidMount(() => {
@@ -56,19 +56,19 @@ export const useCollectiblesWithLoading = (allEnabledSlugsSorted: string[]) => {
   useDidUpdate(() => {
     console.log('LOAD_ON_UPDATE:', isLoading, slugs.length);
     if (!isLoading && slugs.length) _load(slugs.length);
-  }, [allEnabledSlugsSorted]); // (!) What if it's loading & then stops?
+  }, [allSlugsSorted]); // (!) What if it's loading & then stops?
 
-  const [loadNextSeed, setLoadNextSeed] = useState(0);
+  const [seedForLoadNext, setSeedForLoadNext] = useState(0);
 
   const loadNext = useCallback(() => {
-    console.log('LOAD_NEXT:', isLoading, slugs.length, allEnabledSlugsSorted.length);
-    setLoadNextSeed(val => (val % 2) + 1);
-    if (isLoading || slugs.length === allEnabledSlugsSorted.length) return;
+    console.log('LOAD_NEXT:', isLoading, slugs.length, allSlugsSorted.length);
+    setSeedForLoadNext(val => (val % 2) + 1);
+    if (isLoading || slugs.length === allSlugsSorted.length) return;
 
     const size = (Math.floor(slugs.length / ITEMS_PER_PAGE) + 1) * ITEMS_PER_PAGE;
 
     _load(size);
-  }, [_load, isLoading, slugs.length, allEnabledSlugsSorted.length]);
+  }, [_load, isLoading, slugs.length, allSlugsSorted.length]);
 
-  return { slugs, isLoading, loadNext, loadNextSeed };
+  return { slugs, isLoading, loadNext, seedForLoadNext };
 };
