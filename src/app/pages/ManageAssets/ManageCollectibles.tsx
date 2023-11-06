@@ -6,7 +6,8 @@ import { SyncSpinner } from 'app/atoms';
 import { SimpleInfiniteScroll } from 'app/atoms/SimpleInfiniteScroll';
 import { useCollectiblesListingLogic } from 'app/hooks/use-collectibles-listing-logic';
 import { useAccountCollectibles } from 'lib/assets/hooks';
-import { useCollectiblesSortPredicate } from 'lib/assets/use-filtered';
+import { useCollectiblesSortPredicate } from 'lib/assets/use-sorting';
+import { useGetCollectibleMetadata } from 'lib/metadata';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 
 import { AssetsPlaceholder } from './AssetsPlaceholder';
@@ -29,10 +30,14 @@ export const ManageCollectibles = memo<ManageAssetsCommonProps>(
     const { isInSearchMode, displayedSlugs, isSyncing, loadNext, seedForLoadNext, searchValue, setSearchValue } =
       useCollectiblesListingLogic(allSlugsSorted);
 
+    const getMetadata = useGetCollectibleMetadata();
+
     const contentElement = useMemo(
       () => (
         <div className={WRAPPER_CLASSNAME}>
           {displayedSlugs.map((slug, i, arr) => {
+            const metadata = getMetadata(slug);
+
             const last = i === arr.length - 1;
             const status = collectibles.find(t => t.slug === slug)!.status;
 
@@ -40,6 +45,7 @@ export const ManageCollectibles = memo<ManageAssetsCommonProps>(
               <ListItem
                 key={slug}
                 assetSlug={slug}
+                metadata={metadata}
                 last={last}
                 checked={status === 'enabled'}
                 onRemove={removeItem}

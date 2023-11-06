@@ -2,8 +2,9 @@ import { useCallback, useState } from 'react';
 
 import { useDispatch } from 'react-redux';
 
+import { useAllCollectiblesMetadataSelector } from 'app/store/collectibles-metadata/selectors';
 import { addTokensMetadataAction } from 'app/store/tokens-metadata/actions';
-import { useTokensMetadataSelector } from 'app/store/tokens-metadata/selectors';
+import { tokenToSlug } from 'lib/assets';
 import { loadTokensMetadata } from 'lib/metadata/fetch';
 import { useNetwork } from 'lib/temple/front';
 import { useDidMount, useDidUpdate } from 'lib/ui/hooks';
@@ -11,7 +12,7 @@ import { useDidMount, useDidUpdate } from 'lib/ui/hooks';
 export const ITEMS_PER_PAGE = 30;
 
 export const useCollectiblesPaginationLogic = (allSlugsSorted: string[]) => {
-  const allMeta = useTokensMetadataSelector();
+  const allMeta = useAllCollectiblesMetadataSelector();
 
   const { rpcBaseURL: rpcUrl } = useNetwork();
   const dispatch = useDispatch();
@@ -25,7 +26,8 @@ export const useCollectiblesPaginationLogic = (allSlugsSorted: string[]) => {
 
       const newSlugs = allSlugsSorted.slice(0, size);
 
-      const slugsWithoutMeta = newSlugs.filter(slug => !allMeta[slug]);
+      const slugsWithoutMeta = newSlugs.filter(slug => !allMeta.some(m => tokenToSlug(m) === slug));
+      console.log('_LOAD:', size, newSlugs.length, allSlugsSorted.length, slugsWithoutMeta.length);
 
       if (slugsWithoutMeta.length)
         await loadTokensMetadata(rpcUrl, slugsWithoutMeta)
@@ -48,16 +50,19 @@ export const useCollectiblesPaginationLogic = (allSlugsSorted: string[]) => {
   );
 
   useDidMount(() => {
+    console.log('LOAD_ON_MOUNT:', isLoading);
     if (isLoading) _load(ITEMS_PER_PAGE);
   });
 
   useDidUpdate(() => {
+    console.log('LOAD_ON_UPDATE:', isLoading, slugs.length);
     if (!isLoading && slugs.length) _load(slugs.length);
-  }, [allSlugsSorted]);
+  }, [allSlugsSorted]); // (!) What if it's loading & then stops?
 
   const [seedForLoadNext, setSeedForLoadNext] = useState(0);
 
   const loadNext = useCallback(() => {
+    console.log('LOAD_NEXT:', isLoading, slugs.length, allSlugsSorted.length);
     setSeedForLoadNext(val => (val % 2) + 1);
     if (isLoading || slugs.length === allSlugsSorted.length) return;
 

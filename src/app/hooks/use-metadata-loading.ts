@@ -4,7 +4,7 @@ import { useDispatch } from 'react-redux';
 
 import { useAccountAssetsSelector } from 'app/store/assets/selectors';
 import { resetTokensMetadataLoadingAction } from 'app/store/tokens-metadata/actions';
-import { useAssetsMetadataWithPresenceCheck } from 'lib/metadata';
+import { useTokensMetadataPresenceCheck } from 'lib/metadata';
 import { useAccount, useChainId } from 'lib/temple/front';
 
 export const useMetadataLoading = () => {
@@ -22,5 +22,5 @@ export const useMetadataLoading = () => {
   }, []);
 
   // TODO: Should there be a time interval?
-  useAssetsMetadataWithPresenceCheck(slugs);
+  useTokensMetadataPresenceCheck(slugs);
 };

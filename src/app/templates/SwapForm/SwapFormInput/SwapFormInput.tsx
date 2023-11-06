@@ -6,16 +6,22 @@ import classNames from 'clsx';
 
 import AssetField from 'app/atoms/AssetField';
 import Money from 'app/atoms/Money';
+import { useTokensListingLogic } from 'app/hooks/use-tokens-listing-logic';
 import { AssetIcon } from 'app/templates/AssetIcon';
 import { DropdownSelect } from 'app/templates/DropdownSelect/DropdownSelect';
 import InFiat from 'app/templates/InFiat';
 import { InputContainer } from 'app/templates/InputContainer/InputContainer';
 import { setTestID, useFormAnalytics } from 'lib/analytics';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
-import { useFilteredAssetsSlugs } from 'lib/assets/use-filtered';
 import { useBalance } from 'lib/balances';
 import { T, t, toLocalFormat } from 'lib/i18n';
-import { EMPTY_BASE_METADATA, useAssetMetadata, useGetAssetMetadata, AssetMetadataBase } from 'lib/metadata';
+import {
+  EMPTY_BASE_METADATA,
+  useAssetMetadata,
+  useGetAssetMetadata,
+  AssetMetadataBase,
+  useTokensMetadataPresenceCheck
+} from 'lib/metadata';
 import { useAvailableRoute3TokensSlugs } from 'lib/route3/assets';
 import { useAccount, useOnBlock } from 'lib/temple/front';
 
@@ -60,11 +66,13 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
   useOnBlock(_ => balance.mutate());
 
   const { isLoading, route3tokensSlugs } = useAvailableRoute3TokensSlugs();
-  const { filteredAssets, searchValue, setSearchValue, setTokenId } = useFilteredAssetsSlugs(
+  const { filteredAssets, searchValue, setSearchValue, setTokenId } = useTokensListingLogic(
     route3tokensSlugs,
     name === 'input',
     LEADING_ASSETS
   );
+
+  useTokensMetadataPresenceCheck(route3tokensSlugs);
 
   const maxAmount = useMemo(() => {
     if (!assetSlug) {

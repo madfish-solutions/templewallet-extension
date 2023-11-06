@@ -16,7 +16,7 @@ import { ButtonForManageDropdown } from 'app/templates/ManageDropdown';
 import SearchAssetField from 'app/templates/SearchAssetField';
 import { useEnabledAccountCollectiblesSlugs } from 'lib/assets/hooks';
 import { AssetTypesEnum } from 'lib/assets/types';
-import { useCollectiblesSortPredicate } from 'lib/assets/use-filtered';
+import { useCollectiblesSortPredicate } from 'lib/assets/use-sorting';
 import { T, t } from 'lib/i18n';
 import { useAccount } from 'lib/temple/front';
 import { useMemoWithCompare } from 'lib/ui/hooks';

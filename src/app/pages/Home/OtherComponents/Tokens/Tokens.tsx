@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { FC, memo, useCallback, useEffect, useMemo, useState } from 'react';
 
 import { ChainIds } from '@taquito/taquito';
 import clsx from 'clsx';
@@ -8,7 +8,7 @@ import { SyncSpinner, Divider, Checkbox } from 'app/atoms';
 import DropdownWrapper from 'app/atoms/DropdownWrapper';
 import { PartnersPromotion, PartnersPromotionVariant } from 'app/atoms/partners-promotion';
 import { useAppEnv } from 'app/env';
-import { useBalancesWithDecimals } from 'app/hooks/use-balances-with-decimals.hook';
+import { useTokensListingLogic } from 'app/hooks/use-tokens-listing-logic';
 import { ReactComponent as EditingIcon } from 'app/icons/editing.svg';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
 import { useAreAssetsLoading } from 'app/store/assets/selectors';
@@ -21,12 +21,10 @@ import { setTestID } from 'lib/analytics';
 import { OptimalPromoVariantEnum } from 'lib/apis/optimal';
 import { TEZ_TOKEN_SLUG, TEMPLE_TOKEN_SLUG } from 'lib/assets';
 import { useEnabledAccountTokensSlugs } from 'lib/assets/hooks';
-import { useFilteredAssetsSlugs } from 'lib/assets/use-filtered';
 import { T, t } from 'lib/i18n';
 import { useAccount, useChainId } from 'lib/temple/front';
 import { useLocalStorage } from 'lib/ui/local-storage';
 import Popper, { PopperRenderProps } from 'lib/ui/Popper';
-import { ZERO } from 'lib/utils/numbers';
 import { Link, navigate } from 'lib/woozie';
 
 import { HomeSelectors } from '../../Home.selectors';
@@ -38,9 +36,8 @@ import { toExploreAssetLink } from './utils';
 const LOCAL_STORAGE_TOGGLE_KEY = 'tokens-list:hide-zero-balances';
 const svgIconClassName = 'w-4 h-4 stroke-current fill-current text-gray-600';
 
-export const TokensTab: FC = () => {
+export const TokensTab = memo(() => {
   const dispatch = useDispatch();
-  const balances = useBalancesWithDecimals();
 
   const chainId = useChainId()!;
   const { publicKeyHash } = useAccount();
@@ -62,7 +59,7 @@ export const TokensTab: FC = () => {
     [chainId]
   );
 
-  const { filteredAssets, searchValue, setSearchValue } = useFilteredAssetsSlugs(
+  const { filteredAssets, searchValue, setSearchValue } = useTokensListingLogic(
     slugs,
     isZeroBalancesHidden,
     leadingAssets
@@ -79,24 +76,25 @@ export const TokensTab: FC = () => {
     return searchFocused && searchValueExist && filteredAssets[activeIndex] ? filteredAssets[activeIndex] : null;
   }, [filteredAssets, searchFocused, searchValueExist, activeIndex]);
 
-  const tokensView = useMemo<Array<JSX.Element>>(() => {
+  const tokensView = useMemo<JSX.Element[]>(() => {
     const tokensJsx = filteredAssets.map(assetSlug => (
       <ListItem
         key={assetSlug}
         assetSlug={assetSlug}
         active={activeAssetSlug ? assetSlug === activeAssetSlug : false}
-        balance={balances[assetSlug] ?? ZERO}
       />
     ));
 
+    const promoJsx = <PartnersPromotion key="promo-token-item" variant={PartnersPromotionVariant.Text} />;
+
     if (filteredAssets.length < 5) {
-      tokensJsx.push(<PartnersPromotion key="promo-token-item" variant={PartnersPromotionVariant.Text} />);
+      tokensJsx.push(promoJsx);
     } else {
-      tokensJsx.splice(1, 0, <PartnersPromotion key="promo-token-item" variant={PartnersPromotionVariant.Text} />);
+      tokensJsx.splice(1, 0, promoJsx);
     }
 
     return tokensJsx;
-  }, [filteredAssets, activeAssetSlug, balances]);
+  }, [filteredAssets, activeAssetSlug]);
 
   useEffect(() => {
     if (isShouldShowPartnersPromoState && !isEnabledAdsBanner) {
@@ -211,7 +209,7 @@ export const TokensTab: FC = () => {
       {isSyncing && <SyncSpinner className="mt-4" />}
     </div>
   );
-};
+});
 
 interface ManageButtonDropdownProps extends PopperRenderProps {
   isZeroBalancesHidden: boolean;

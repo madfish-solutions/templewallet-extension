@@ -3,9 +3,9 @@ import { useMemo, useState } from 'react';
 import { useDebounce } from 'use-debounce';
 
 import { useAreAssetsLoading } from 'app/store/assets/selectors';
-import { useTokensMetadataLoadingSelector } from 'app/store/tokens-metadata/selectors';
+import { useCollectiblesMetadataLoadingSelector } from 'app/store/collectibles-metadata/selectors';
 import { searchAssetsWithNoMeta } from 'lib/assets/search.utils';
-import { useAssetsMetadataWithPresenceCheck } from 'lib/metadata';
+import { useCollectiblesMetadataPresenceCheck, useGetCollectibleMetadata } from 'lib/metadata';
 import { isSearchStringApplicable } from 'lib/utils/search-items';
 
 import { ITEMS_PER_PAGE, useCollectiblesPaginationLogic } from './use-collectibles-pagination-logic';
@@ -19,14 +19,16 @@ export const useCollectiblesListingLogic = (allSlugsSorted: string[]) => {
   } = useCollectiblesPaginationLogic(allSlugsSorted);
 
   const assetsAreLoading = useAreAssetsLoading('collectibles');
-  const tokensMetadataLoading = useTokensMetadataLoadingSelector();
+  const metadatasLoading = useCollectiblesMetadataLoadingSelector();
+
+  console.log('LOADING:', pageIsLoading, assetsAreLoading, metadatasLoading);
 
   const [searchValue, setSearchValue] = useState('');
   const [searchValueDebounced] = useDebounce(searchValue, 300);
 
   const isInSearchMode = isSearchStringApplicable(searchValueDebounced);
 
-  const isSyncing = isInSearchMode ? assetsAreLoading || tokensMetadataLoading : assetsAreLoading || pageIsLoading;
+  const isSyncing = isInSearchMode ? assetsAreLoading || metadatasLoading : assetsAreLoading || pageIsLoading;
 
   const metaToCheckAndLoad = useMemo(() => {
     // Search is not paginated. This is how all needed meta is loaded
@@ -37,15 +39,23 @@ export const useCollectiblesListingLogic = (allSlugsSorted: string[]) => {
     return pageIsLoading ? undefined : allSlugsSorted.slice(paginatedSlugs.length + ITEMS_PER_PAGE * 2);
   }, [isInSearchMode, pageIsLoading, allSlugsSorted, paginatedSlugs.length]);
 
-  const allTokensMetadata = useAssetsMetadataWithPresenceCheck(metaToCheckAndLoad);
+  useCollectiblesMetadataPresenceCheck(
+    metaToCheckAndLoad
+    // undefined
+  );
+
+  const getCollectibleMeta = useGetCollectibleMetadata();
 
   const displayedSlugs = useMemo(
     () =>
       isInSearchMode
-        ? searchAssetsWithNoMeta(searchValueDebounced, allSlugsSorted, allTokensMetadata, slug => slug)
+        ? searchAssetsWithNoMeta(searchValueDebounced, allSlugsSorted, getCollectibleMeta, slug => slug)
         : paginatedSlugs,
-    [isInSearchMode, paginatedSlugs, searchValueDebounced, allSlugsSorted, allTokensMetadata]
+    [isInSearchMode, paginatedSlugs, searchValueDebounced, allSlugsSorted, getCollectibleMeta]
   );
+
+  console.log('SLUGS:', allSlugsSorted.length, paginatedSlugs.length, displayedSlugs.length);
+  console.log('META:', allSlugsSorted.filter(s => !!getCollectibleMeta(s)).length);
 
   return {
     isInSearchMode,

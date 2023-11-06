@@ -3,7 +3,7 @@ import { useEffect, useMemo } from 'react';
 import { useDispatch } from 'react-redux';
 
 import { refreshTokensMetadataAction } from 'app/store/tokens-metadata/actions';
-import { useTokensMetadataSelector } from 'app/store/tokens-metadata/selectors';
+import { useAllTokensMetadataSelector } from 'app/store/tokens-metadata/selectors';
 import { fetchTokensMetadata } from 'lib/apis/temple';
 import { ALL_PREDEFINED_METADATAS_RECORD } from 'lib/assets/known-tokens';
 import { TokenMetadata } from 'lib/metadata';
@@ -24,7 +24,7 @@ export const useMetadataRefresh = () => {
 
   const [records, setRecords] = useLocalStorage<RefreshRecords>(STORAGE_KEY, {});
 
-  const tokensMetadata = useTokensMetadataSelector();
+  const tokensMetadata = useAllTokensMetadataSelector();
   const slugsOnAppLoad = useMemo(
     () => Object.keys(tokensMetadata).filter(slug => !ALL_PREDEFINED_METADATAS_RECORD[slug]),
     []

@@ -1,10 +1,11 @@
 import React, { memo, useMemo } from 'react';
 
+import { useTokensListingLogic } from 'app/hooks/use-tokens-listing-logic';
 import { useAreAssetsLoading } from 'app/store/assets/selectors';
 import { useTokensMetadataLoadingSelector } from 'app/store/tokens-metadata/selectors';
 import { TEMPLE_TOKEN_SLUG } from 'lib/assets';
 import { useAllAvailableTokens } from 'lib/assets/hooks';
-import { useFilteredAssetsSlugs } from 'lib/assets/use-filtered';
+import { useGetTokenMetadata } from 'lib/metadata';
 import { isSearchStringApplicable } from 'lib/utils/search-items';
 
 import { AssetsPlaceholder } from './AssetsPlaceholder';
@@ -20,15 +21,16 @@ export const ManageTokens = memo<ManageAssetsCommonProps>(
       () => tokens.reduce<string[]>((acc, { slug }) => (slug === TEMPLE_TOKEN_SLUG ? acc : acc.concat(slug)), []),
       [tokens]
     );
-    const slugs = managebleSlugs;
 
     const assetsAreLoading = useAreAssetsLoading('tokens');
     const metadatasLoading = useTokensMetadataLoadingSelector();
     const isLoading = assetsAreLoading || metadatasLoading;
 
-    const { filteredAssets, searchValue, setSearchValue } = useFilteredAssetsSlugs(slugs, false);
+    const { filteredAssets, searchValue, setSearchValue } = useTokensListingLogic(managebleSlugs, false);
 
     const isInSearchMode = isSearchStringApplicable(searchValue);
+
+    const getMetadata = useGetTokenMetadata();
 
     return (
       <ManageAssetsContent ofCollectibles={false} searchValue={searchValue} setSearchValue={setSearchValue}>
@@ -37,6 +39,8 @@ export const ManageTokens = memo<ManageAssetsCommonProps>(
         ) : (
           <div className={WRAPPER_CLASSNAME}>
             {filteredAssets.map((slug, i, arr) => {
+              const metadata = getMetadata(slug);
+
               const last = i === arr.length - 1;
               const status = tokens.find(t => t.slug === slug)!.status;
 
@@ -44,6 +48,7 @@ export const ManageTokens = memo<ManageAssetsCommonProps>(
                 <ListItem
                   key={slug}
                   assetSlug={slug}
+                  metadata={metadata}
                   last={last}
                   checked={status === 'enabled'}
                   onRemove={removeItem}

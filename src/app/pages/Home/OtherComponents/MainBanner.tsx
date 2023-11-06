@@ -31,13 +31,13 @@ interface Props {
   accountPkh: string;
 }
 
-const MainBanner = memo<Props>(({ assetSlug, accountPkh }) => {
+const MainBanner: FC<Props> = ({ assetSlug, accountPkh }) => {
   return assetSlug ? (
     <AssetBanner assetSlug={assetSlug ?? 'tez'} accountPkh={accountPkh} />
   ) : (
     <TotalVolumeBanner accountPkh={accountPkh} />
   );
-});
+};
 
 export default MainBanner;
 
@@ -45,14 +45,14 @@ interface TotalVolumeBannerProps {
   accountPkh: string;
 }
 
-const TotalVolumeBanner: FC<TotalVolumeBannerProps> = ({ accountPkh }) => (
+const TotalVolumeBanner = memo<TotalVolumeBannerProps>(({ accountPkh }) => (
   <div className="flex items-start justify-between w-full max-w-sm mx-auto mb-4">
     <BalanceInfo />
     <AddressChip pkh={accountPkh} testID={HomeSelectors.publicAddressButton} />
   </div>
-);
+));
 
-const BalanceInfo: FC = () => {
+const BalanceInfo = () => {
   const dispatch = useDispatch();
   const network = useNetwork();
   const { totalBalanceInFiat, totalBalanceInGasToken } = useTotalBalance();
@@ -159,7 +159,7 @@ interface AssetBannerProps {
   accountPkh: string;
 }
 
-const AssetBanner: FC<AssetBannerProps> = ({ assetSlug, accountPkh }) => {
+const AssetBanner = memo<AssetBannerProps>(({ assetSlug, accountPkh }) => {
   const assetMetadata = useAssetMetadata(assetSlug);
   const assetName = getAssetName(assetMetadata);
   const assetSymbol = getAssetSymbol(assetMetadata);
@@ -204,4 +204,4 @@ const AssetBanner: FC<AssetBannerProps> = ({ assetSlug, accountPkh }) => {
       </div>
     </div>
   );
-};
+});

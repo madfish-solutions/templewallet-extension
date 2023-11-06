@@ -4,7 +4,7 @@ import { isEqual } from 'lodash';
 
 import { useAccountAssetsSelector } from 'app/store/assets/selectors';
 import type { StoredAssetStatus, StoredCollectible } from 'app/store/assets/state';
-import { useBalancesSelector } from 'app/store/balances/selectors';
+import { useAllBalancesSelector } from 'app/store/balances/selectors';
 import { useAccount, useChainId } from 'lib/temple/front';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 
@@ -17,7 +17,7 @@ export interface AccountCollectible extends Pick<StoredCollectible, 'slug'> {
 export const useAccountCollectibles = (account: string, chainId: string) => {
   const stored = useAccountAssetsSelector(account, chainId, 'collectibles');
 
-  const balances = useBalancesSelector(account, chainId);
+  const balances = useAllBalancesSelector(account, chainId);
 
   return useMemoWithCompare<AccountCollectible[]>(
     () =>

@@ -7,6 +7,7 @@ import { advertisingReducer } from './advertising/reducers';
 import { assetsReducer } from './assets/reducer';
 import { balancesReducer } from './balances/reducers';
 import { buyWithCreditCardReducer } from './buy-with-credit-card/reducers';
+import { collectiblesMetadataPersistedReducer } from './collectibles-metadata/reducer';
 import { collectiblesPersistedReducer } from './collectibles/reducer';
 import { currencyReducer } from './currency/reducers';
 import { dAppsReducer } from './d-apps/reducers';
@@ -27,6 +28,7 @@ const rootStateReducersMap = {
   balances: balancesReducer,
   assets: assetsReducer,
   tokensMetadata: tokensMetadataReducer,
+  collectiblesMetadata: collectiblesMetadataPersistedReducer,
   abTesting: abTestingReducer,
   buyWithCreditCard: buyWithCreditCardReducer,
   collectibles: collectiblesPersistedReducer,

@@ -6,12 +6,12 @@ import { useDispatch } from 'react-redux';
 import { FormSubmitButton, FormSecondaryButton, Spinner, Money, Alert } from 'app/atoms';
 import { useTabSlug } from 'app/atoms/useTabSlug';
 import PageLayout from 'app/layouts/PageLayout';
+import { useCollectibleMetadataSelector } from 'app/store/collectibles-metadata/selectors';
 import { loadCollectiblesDetailsActions } from 'app/store/collectibles/actions';
 import {
   useAllCollectiblesDetailsLoadingSelector,
   useCollectibleDetailsSelector
 } from 'app/store/collectibles/selectors';
-import { useTokenMetadataSelector } from 'app/store/tokens-metadata/selectors';
 import AddressChip from 'app/templates/AddressChip';
 import OperationStatus from 'app/templates/OperationStatus';
 import { TabsBar } from 'app/templates/TabBar';
@@ -41,7 +41,7 @@ interface Props {
 }
 
 const CollectiblePage = memo<Props>(({ assetSlug }) => {
-  const metadata = useTokenMetadataSelector(assetSlug); // Loaded only, if shown in grid for now
+  const metadata = useCollectibleMetadataSelector(assetSlug); // Loaded only, if shown in grid for now
   const details = useCollectibleDetailsSelector(assetSlug);
   const areAnyCollectiblesDetailsLoading = useAllCollectiblesDetailsLoadingSelector();
 

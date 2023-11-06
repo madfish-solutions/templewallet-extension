@@ -8,19 +8,18 @@ import { ManageAssetsSelectors } from 'app/pages/ManageAssets/selectors';
 import { AssetIcon } from 'app/templates/AssetIcon';
 import { setAnotherSelector, setTestID } from 'lib/analytics';
 import { t } from 'lib/i18n';
-import { useAssetMetadata, getAssetName, getAssetSymbol } from 'lib/metadata';
+import { getAssetName, getAssetSymbol, AssetMetadataBase } from 'lib/metadata';
 
 type Props = {
   assetSlug: string;
+  metadata?: AssetMetadataBase;
   last: boolean;
   checked: boolean;
   onToggle: (slug: string, newState: boolean) => void;
   onRemove: (slug: string) => void;
 };
 
-export const ListItem = memo<Props>(({ assetSlug, last, checked, onToggle, onRemove }) => {
-  const metadata = useAssetMetadata(assetSlug);
-
+export const ListItem = memo<Props>(({ assetSlug, metadata, last, checked, onToggle, onRemove }) => {
   const onCheckboxChange = useCallback((checked: boolean) => void onToggle(assetSlug, !checked), [assetSlug, onToggle]);
 
   const onRemoveBtnClick = useCallback<React.MouseEventHandler<HTMLDivElement>>(

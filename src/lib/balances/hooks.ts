@@ -2,20 +2,42 @@ import { useCallback, useMemo } from 'react';
 
 import BigNumber from 'bignumber.js';
 
-import { useBalancesSelector } from 'app/store/balances/selectors';
-import { useAssetMetadata } from 'lib/metadata';
+import { useAllBalancesSelector, useBalanceSelector } from 'app/store/balances/selectors';
+import { useAssetMetadata, useGetTokenOrGasMetadata } from 'lib/metadata';
 import { useRetryableSWR } from 'lib/swr';
 import { useTezos, useAccount, useChainId, ReactiveTezosToolkit } from 'lib/temple/front';
-import { michelEncoder, loadFastRpcClient } from 'lib/temple/helpers';
+import { michelEncoder, loadFastRpcClient, atomsToTokens } from 'lib/temple/helpers';
 
 import { fetchBalance } from './fetch';
 import { getBalanceSWRKey } from './utils';
 
-export const useAccountBalances = () => {
+export const useCurrentAccountBalances = () => {
   const { publicKeyHash } = useAccount();
   const chainId = useChainId(true)!;
 
-  return useBalancesSelector(publicKeyHash, chainId);
+  return useAllBalancesSelector(publicKeyHash, chainId);
+};
+
+export const useCurrentAccountAssetBalance = (slug: string) => {
+  const { publicKeyHash } = useAccount();
+  const chainId = useChainId(true)!;
+
+  return useBalanceSelector(publicKeyHash, chainId, slug);
+};
+
+export const useGetCurrentAccountTokenOrGasBalanceWithDecimals = () => {
+  const rawBalances = useCurrentAccountBalances();
+  const getMetadata = useGetTokenOrGasMetadata();
+
+  return useCallback(
+    (slug: string) => {
+      const rawBalance = rawBalances[slug] as string | undefined;
+      const metadata = getMetadata(slug);
+
+      return rawBalance && metadata ? atomsToTokens(new BigNumber(rawBalance), metadata.decimals) : undefined;
+    },
+    [rawBalances, getMetadata]
+  );
 };
 
 type UseBalanceOptions = {

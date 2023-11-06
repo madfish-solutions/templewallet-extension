@@ -24,17 +24,13 @@ type Props = {
 const SendForm = memo<Props>(({ assetSlug = TEZ_TOKEN_SLUG }) => {
   const tokensSlugs = useEnabledAccountTokensSlugs();
 
-  const assetsSlugs = useMemo<string[]>(() => {
-    if (!assetSlug) return [TEZ_TOKEN_SLUG, ...tokensSlugs];
-    const index = tokensSlugs.indexOf(assetSlug);
-
-    if (index === -1) return [TEZ_TOKEN_SLUG, assetSlug, ...tokensSlugs];
-
-    const restSlugs = [...tokensSlugs];
-    tokensSlugs.splice(index, 1);
-
-    return [TEZ_TOKEN_SLUG, ...restSlugs];
-  }, [tokensSlugs, assetSlug]);
+  const assetsSlugs = useMemo<string[]>(
+    () =>
+      !assetSlug || tokensSlugs.some(s => s === assetSlug)
+        ? [TEZ_TOKEN_SLUG, ...tokensSlugs]
+        : [TEZ_TOKEN_SLUG, assetSlug, ...tokensSlugs],
+    [tokensSlugs, assetSlug]
+  );
 
   const selectedAsset = assetSlug ?? TEZ_TOKEN_SLUG;
 

@@ -6,7 +6,7 @@ import { searchAndFilterItems } from 'lib/utils/search-items';
 export function searchAssetsWithNoMeta<T>(
   searchValue: string,
   assets: T[],
-  tokensMetadata: Record<string, AssetMetadataBase>,
+  getMetadata: (slug: string) => AssetMetadataBase | undefined,
   getSlug: (asset: T) => string
 ) {
   return searchAndFilterItems(
@@ -19,9 +19,10 @@ export function searchAssetsWithNoMeta<T>(
     ],
     asset => {
       const slug = getSlug(asset);
+
       return {
         slug,
-        metadata: isTezAsset(slug) ? TEZOS_METADATA : tokensMetadata[slug]
+        metadata: isTezAsset(slug) ? TEZOS_METADATA : getMetadata(slug)
       };
     }
   );

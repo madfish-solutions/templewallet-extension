@@ -1,3 +1,4 @@
+- `TokenMetadata.slug: string`
 - TTL for metadata (only NFTs but permanent for tokens) ?
 - `string` type for assets IDs
 - `name` & `symbol` separate from the list ?

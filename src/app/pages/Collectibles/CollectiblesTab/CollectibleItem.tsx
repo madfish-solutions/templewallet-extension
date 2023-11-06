@@ -5,11 +5,11 @@ import clsx from 'clsx';
 
 import Money from 'app/atoms/Money';
 import { useAppEnv } from 'app/env';
+import { useCollectibleMetadataSelector } from 'app/store/collectibles-metadata/selectors';
 import {
   useAllCollectiblesDetailsLoadingSelector,
   useCollectibleDetailsSelector
 } from 'app/store/collectibles/selectors';
-import { useTokenMetadataSelector } from 'app/store/tokens-metadata/selectors';
 import { objktCurrencies } from 'lib/apis/objkt';
 import { useBalance } from 'lib/balances';
 import { T } from 'lib/i18n';
@@ -28,7 +28,7 @@ interface Props {
 
 export const CollectibleItem = memo<Props>(({ assetSlug, accountPkh, areDetailsShown }) => {
   const { popup } = useAppEnv();
-  const metadata = useTokenMetadataSelector(assetSlug);
+  const metadata = useCollectibleMetadataSelector(assetSlug);
   const toDisplayRef = useRef<HTMLDivElement>(null);
   const [displayed, setDisplayed] = useState(true);
   const { data: balance } = useBalance(assetSlug, accountPkh, { displayed, suspense: false });

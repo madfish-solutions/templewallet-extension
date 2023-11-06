@@ -3,15 +3,19 @@ import { useCallback, useEffect, useRef } from 'react';
 import { isString } from 'lodash';
 import { useDispatch } from 'react-redux';
 
+import {
+  useCollectiblesMetadataLoadingSelector,
+  useAllCollectiblesMetadataSelector,
+  useCollectibleMetadataSelector
+} from 'app/store/collectibles-metadata/selectors';
 import { loadTokensMetadataAction } from 'app/store/tokens-metadata/actions';
 import {
   useTokenMetadataSelector,
   useTokensMetadataLoadingSelector,
-  useTokensMetadataSelector
+  useAllTokensMetadataSelector
 } from 'app/store/tokens-metadata/selectors';
 import { METADATA_API_LOAD_CHUNK_SIZE } from 'lib/apis/temple';
-import { isTezAsset } from 'lib/assets';
-import { useGasToken } from 'lib/assets/hooks';
+import { isTezAsset, tokenToSlug } from 'lib/assets';
 import { useNetwork } from 'lib/temple/front/ready';
 import { isTruthy } from 'lib/utils';
 
@@ -21,7 +25,7 @@ import { AssetMetadataBase, TokenMetadata } from './types';
 export type { AssetMetadataBase, TokenMetadata } from './types';
 export { TEZOS_METADATA, EMPTY_BASE_METADATA } from './defaults';
 
-const useGasTokenMetadata = () => {
+export const useGasTokenMetadata = () => {
   const network = useNetwork();
 
   return network.type === 'dcp' ? FILM_METADATA : TEZOS_METADATA;
@@ -29,65 +33,102 @@ const useGasTokenMetadata = () => {
 
 export const useAssetMetadata = (slug: string): AssetMetadataBase | undefined => {
   const tokenMetadata = useTokenMetadataSelector(slug);
+  const collectibleMetadata = useCollectibleMetadataSelector(slug);
   const gasMetadata = useGasTokenMetadata();
 
-  return isTezAsset(slug) ? gasMetadata : tokenMetadata;
+  return isTezAsset(slug) ? gasMetadata : tokenMetadata || collectibleMetadata;
+};
+
+type TokenMetadataGetter = (slug: string) => TokenMetadata | undefined;
+
+export const useGetTokenMetadata = () => {
+  const allMeta = useAllTokensMetadataSelector();
+
+  return useCallback<TokenMetadataGetter>(slug => allMeta[slug], [allMeta]);
+};
+
+export const useGetTokenOrGasMetadata = () => {
+  const getTokenMetadata = useGetTokenMetadata();
+  const gasMetadata = useGasTokenMetadata();
+
+  return useCallback(
+    (slug: string): AssetMetadataBase | undefined => (isTezAsset(slug) ? gasMetadata : getTokenMetadata(slug)),
+    [getTokenMetadata, gasMetadata]
+  );
+};
+
+export const useGetCollectibleMetadata = () => {
+  const allMeta = useAllCollectiblesMetadataSelector();
+
+  return useCallback<TokenMetadataGetter>(slug => allMeta.find(m => tokenToSlug(m) === slug), [allMeta]);
+};
+
+export const useGetAssetMetadata = () => {
+  const getTokenOrGasMetadata = useGetTokenOrGasMetadata();
+  const getCollectibleMetadata = useGetCollectibleMetadata();
+
+  return useCallback(
+    (slug: string) => getTokenOrGasMetadata(slug) || getCollectibleMetadata(slug),
+    [getTokenOrGasMetadata, getCollectibleMetadata]
+  );
 };
 
 /**
  * @param slugsToCheck // Memoize
  */
-export const useAssetsMetadataWithPresenceCheck = (slugsToCheck?: string[]) => {
-  const allTokensMetadata = useTokensMetadataSelector();
+export const useTokensMetadataPresenceCheck = (slugsToCheck?: string[]) => {
+  const metadataLoading = useTokensMetadataLoadingSelector();
+  const getMetadata = useGetTokenMetadata();
 
-  const tokensMetadataLoading = useTokensMetadataLoadingSelector();
+  useAssetsMetadataPresenceCheck(false, metadataLoading, getMetadata, slugsToCheck);
+};
+
+/**
+ * @param slugsToCheck // Memoize
+ */
+export const useCollectiblesMetadataPresenceCheck = (slugsToCheck?: string[]) => {
+  const metadataLoading = useCollectiblesMetadataLoadingSelector();
+  const getMetadata = useGetCollectibleMetadata();
+
+  useAssetsMetadataPresenceCheck(true, metadataLoading, getMetadata, slugsToCheck);
+};
+
+const useAssetsMetadataPresenceCheck = (
+  ofCollectibles: boolean,
+  metadataLoading: boolean,
+  getMetadata: TokenMetadataGetter,
+  slugsToCheck?: string[]
+) => {
   const { rpcBaseURL: rpcUrl } = useNetwork();
   const dispatch = useDispatch();
 
   const checkedRef = useRef<string[]>([]);
 
   useEffect(() => {
-    if (tokensMetadataLoading || !slugsToCheck?.length) return;
+    if (metadataLoading || !slugsToCheck?.length) return;
 
     const missingChunk = slugsToCheck
       .filter(
         slug =>
           !isTezAsset(slug) &&
-          !isTruthy(allTokensMetadata[slug]) &&
+          !isTruthy(getMetadata(slug)) &&
           // In case fetched metadata is `null`
           !checkedRef.current.includes(slug)
       )
       .slice(0, 2 * METADATA_API_LOAD_CHUNK_SIZE);
 
+    console.log('MISSING:', missingChunk);
     if (missingChunk.length > 0) {
       checkedRef.current = [...checkedRef.current, ...missingChunk];
 
       dispatch(
-        loadTokensMetadataAction({
+        (ofCollectibles ? loadCollectiblesMetadataAction : loadTokensMetadataAction)({
           rpcUrl,
           slugs: missingChunk
         })
       );
     }
-  }, [slugsToCheck, allTokensMetadata, tokensMetadataLoading, dispatch, rpcUrl]);
-
-  return allTokensMetadata;
-};
-
-export const useGetAssetMetadata = () => {
-  const allTokensMetadata = useTokensMetadataSelector();
-  const { metadata } = useGasToken();
-
-  return useCallback(
-    (slug: string): AssetMetadataBase | undefined => {
-      if (isTezAsset(slug)) {
-        return metadata;
-      }
-
-      return allTokensMetadata[slug];
-    },
-    [allTokensMetadata, metadata]
-  );
+  }, [ofCollectibles, slugsToCheck, getMetadata, metadataLoading, dispatch, rpcUrl]);
 };
 
 export function getAssetSymbol(metadata: AssetMetadataBase | nullish, short = false) {
