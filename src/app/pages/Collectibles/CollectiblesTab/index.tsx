@@ -1,4 +1,4 @@
-import React, { FC, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { FC, memo, useCallback, useEffect, useMemo, useState } from 'react';
 
 import clsx from 'clsx';
 import { isEqual } from 'lodash';
@@ -10,6 +10,7 @@ import Checkbox from 'app/atoms/Checkbox';
 import Divider from 'app/atoms/Divider';
 import DropdownWrapper from 'app/atoms/DropdownWrapper';
 import { useAppEnv } from 'app/env';
+import { ITEMS_PER_PAGE, useCollectiblesWithLoading } from 'app/hooks/use-collectibles-with-loading';
 import { ReactComponent as EditingIcon } from 'app/icons/editing.svg';
 import { AssetsSelectors } from 'app/pages/Home/OtherComponents/Assets.selectors';
 import { useAreAssetsLoading } from 'app/store/assets/selectors';
@@ -30,7 +31,6 @@ import { isSearchStringApplicable } from 'lib/utils/search-items';
 import { Link } from 'lib/woozie';
 
 import { CollectibleItem } from './CollectibleItem';
-import { ITEMS_PER_PAGE, useCollectiblesWithLoading } from './use-collectibles';
 
 const LOCAL_STORAGE_TOGGLE_KEY = 'collectibles-grid:show-items-details';
 
@@ -45,19 +45,19 @@ export const CollectiblesTab = memo<Props>(({ scrollToTheTabsBar }) => {
   const [areDetailsShown, setDetailsShown] = useLocalStorage(LOCAL_STORAGE_TOGGLE_KEY, false);
   const toggleDetailsShown = useCallback(() => void setDetailsShown(val => !val), [setDetailsShown]);
 
-  const allEnabledSlugs = useEnabledAccountCollectiblesSlugs();
+  const allSlugs = useEnabledAccountCollectiblesSlugs();
   const assetsAreLoading = useAreAssetsLoading('collectibles');
   const tokensMetadataLoading = useTokensMetadataLoadingSelector();
 
   const assetsSortPredicate = useCollectiblesSortPredicate();
 
-  const allEnabledSlugsSorted = useMemoWithCompare(
-    () => [...allEnabledSlugs].sort(assetsSortPredicate),
-    [allEnabledSlugs, assetsSortPredicate],
+  const allSlugsSorted = useMemoWithCompare(
+    () => [...allSlugs].sort(assetsSortPredicate),
+    [allSlugs, assetsSortPredicate],
     isEqual
   );
 
-  const { slugs, isLoading, loadNext, loadNextSeed } = useCollectiblesWithLoading(allEnabledSlugsSorted);
+  const { slugs: paginatedSlugs, isLoading, loadNext, loadNextSeed } = useCollectiblesWithLoading(allSlugsSorted);
   console.log('LOADING:', isLoading, assetsAreLoading, tokensMetadataLoading);
 
   const [searchValue, setSearchValue] = useState('');
@@ -69,12 +69,12 @@ export const CollectiblesTab = memo<Props>(({ scrollToTheTabsBar }) => {
 
   const metaToCheckAndLoad = useMemo(() => {
     // Search is not paginated. This is how all needed meta is loaded
-    if (isInSearch) return allEnabledSlugsSorted;
+    if (isInSearch) return allSlugsSorted;
 
     // In pagination, loading meta for the following pages in advance,
     // while not required in current page
-    return isLoading ? undefined : allEnabledSlugsSorted.slice(slugs.length + ITEMS_PER_PAGE * 2);
-  }, [isInSearch, isLoading, allEnabledSlugsSorted, slugs.length]);
+    return isLoading ? undefined : allSlugsSorted.slice(paginatedSlugs.length + ITEMS_PER_PAGE * 2);
+  }, [isInSearch, isLoading, allSlugsSorted, paginatedSlugs.length]);
 
   const allTokensMetadata = useAssetsMetadataWithPresenceCheck(
     metaToCheckAndLoad
@@ -84,17 +84,17 @@ export const CollectiblesTab = memo<Props>(({ scrollToTheTabsBar }) => {
   const displayedSlugs = useMemo(
     () =>
       isInSearch
-        ? searchAssetsWithNoMeta(searchValueDebounced, allEnabledSlugsSorted, allTokensMetadata, slug => slug).sort(
+        ? searchAssetsWithNoMeta(searchValueDebounced, allSlugsSorted, allTokensMetadata, slug => slug).sort(
             assetsSortPredicate
           )
-        : slugs,
-    [isInSearch, slugs, searchValueDebounced, allEnabledSlugsSorted, allTokensMetadata, assetsSortPredicate]
+        : paginatedSlugs,
+    [isInSearch, paginatedSlugs, searchValueDebounced, allSlugsSorted, allTokensMetadata, assetsSortPredicate]
   );
 
-  console.log('SLUGS:', allEnabledSlugsSorted.length, slugs.length, displayedSlugs.length);
-  console.log('META:', allEnabledSlugsSorted.filter(s => !!allTokensMetadata[s]).length);
+  console.log('SLUGS:', allSlugsSorted.length, paginatedSlugs.length, displayedSlugs.length);
+  console.log('META:', allSlugsSorted.filter(s => !!allTokensMetadata[s]).length);
 
-  const shouldScrollToTheTabsBar = slugs.length > 0;
+  const shouldScrollToTheTabsBar = paginatedSlugs.length > 0;
   useEffect(() => void scrollToTheTabsBar(), [shouldScrollToTheTabsBar, scrollToTheTabsBar]);
 
   const contentElement = useMemo(

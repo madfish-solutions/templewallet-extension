@@ -5,9 +5,10 @@ import { useTokensMetadataLoadingSelector } from 'app/store/tokens-metadata/sele
 import { TEMPLE_TOKEN_SLUG } from 'lib/assets';
 import { useAllAvailableTokens } from 'lib/assets/hooks';
 import { useFilteredAssetsSlugs } from 'lib/assets/use-filtered';
+import { isSearchStringApplicable } from 'lib/utils/search-items';
 
+import { AssetsPlaceholder } from './AssetsPlaceholder';
 import { ListItem } from './ListItem';
-import { Loader } from './Loader';
 import { WRAPPER_CLASSNAME, ManageAssetsContent } from './ManageAssetsContent';
 import { ManageAssetsCommonProps } from './utils';
 
@@ -27,9 +28,13 @@ export const ManageTokens = memo<ManageAssetsCommonProps>(
 
     const { filteredAssets, searchValue, setSearchValue } = useFilteredAssetsSlugs(slugs, false);
 
+    const isInSearch = isSearchStringApplicable(searchValue);
+
     return (
       <ManageAssetsContent ofCollectibles={false} searchValue={searchValue} setSearchValue={setSearchValue}>
-        {filteredAssets.length > 0 ? (
+        {filteredAssets.length === 0 ? (
+          <AssetsPlaceholder isInSearch={isInSearch} isLoading={isLoading} />
+        ) : (
           <div className={WRAPPER_CLASSNAME}>
             {filteredAssets.map((slug, i, arr) => {
               const last = i === arr.length - 1;
@@ -47,8 +52,6 @@ export const ManageTokens = memo<ManageAssetsCommonProps>(
               );
             })}
           </div>
-        ) : (
-          isLoading || <Loader searchActive={Boolean(searchValue)} />
         )}
       </ManageAssetsContent>
     );

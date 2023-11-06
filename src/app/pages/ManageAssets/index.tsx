@@ -68,11 +68,11 @@ const ManageAssets = memo<Props>(({ assetType }) => {
       pageTitle={
         <>
           <ControlCentreIcon className="w-auto h-4 mr-1 stroke-current" />
-          <T id={assetType === AssetTypesEnum.Collectibles ? 'manageCollectibles' : 'manageTokens'} />
+          <T id={ofCollectibles ? 'manageCollectibles' : 'manageTokens'} />
         </>
       }
     >
-      {assetType === AssetTypesEnum.Collectibles ? (
+      {ofCollectibles ? (
         <ManageCollectibles
           chainId={chainId}
           publicKeyHash={publicKeyHash}
