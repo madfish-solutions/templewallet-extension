@@ -3,6 +3,7 @@ import React, { ComponentProps, FC, Suspense } from 'react';
 import 'lib/local-storage/migrations';
 import 'lib/lock-up/run-checks';
 import 'lib/ledger/proxy/foreground';
+import 'lib/keep-bg-worker-alive/script';
 
 import AwaitFonts from 'app/a11y/AwaitFonts';
 import AwaitI18N from 'app/a11y/AwaitI18N';

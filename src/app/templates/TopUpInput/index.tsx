@@ -188,9 +188,11 @@ const ErrorsComponent: React.FC<ErrorsComponentProps> = ({
     <p className={classNames(isInsufficientTezBalanceError ? 'text-red-700' : 'text-transparent')}>
       <T id="insufficientTezBalance" />
     </p>
-    <p className={getSmallErrorText(isMaxAmountError)}>
-      <CurrencyText className={getBigErrorText(isMaxAmountError)} coin={coin} maxAmount={maxAmount} />
-    </p>
+    {maxAmount && (
+      <p className={getSmallErrorText(isMaxAmountError)}>
+        <CurrencyText className={getBigErrorText(isMaxAmountError)} coin={coin} maxAmount={maxAmount} />
+      </p>
+    )}
   </div>
 );
 
