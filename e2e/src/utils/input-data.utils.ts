@@ -17,6 +17,8 @@ const randomSeedWord = () => {
   return wordsArray[Math.floor(Math.random() * wordsArray.length)];
 };
 
+export const EMPTY_WORD_FOR_INPUTS = 'EMPTY_WORD';
+
 export const iEnterValues = {
   ...iComparePrivateKeys,
   defaultFirstPrivateKey: envVars.DEFAULT_HD_ACCOUNT_FIRST_PRIVATE_KEY,
@@ -39,7 +41,7 @@ export const iEnterValues = {
   importedSeedPhrase: envVars.IMPORTED_HD_ACCOUNT_SEED_PHRASE,
   longSeedPhrase24: envVars.LONG_HD_ACCOUNT_SEED_PHRASE,
   invalidSeedPhrase: 'scissors dolphin light ability voice voice sail cruel labor dry screen feature', // words from BIP39
-  invalidRandomSeedPhrase: `${randomSeedWord()} document ? ${randomSeedWord()} ${randomSeedWord()} ${randomSeedWord()} dog ? ${randomSeedWord()} ${randomSeedWord()} ? ${randomSeedWord()}`,
+  invalidRandomSeedPhrase: `${randomSeedWord()} document ${EMPTY_WORD_FOR_INPUTS} ${randomSeedWord()} ${randomSeedWord()} ${randomSeedWord()} dog ${EMPTY_WORD_FOR_INPUTS} ${randomSeedWord()} ${randomSeedWord()} ${EMPTY_WORD_FOR_INPUTS} ${randomSeedWord()}`,
   incorrectSeedPhrase: 'alsla sadh 123213 sadaj asdj sajd jewd wedn wedn wedbn wedhb criwl',
 
   // For input validation

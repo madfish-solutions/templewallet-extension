@@ -1,6 +1,7 @@
 import { ImportAccountSelectors } from 'src/app/pages/ImportAccount/selectors';
 
 import { Page } from 'e2e/src/classes/page.class';
+import { EMPTY_WORD_FOR_INPUTS } from 'e2e/src/utils/input-data.utils';
 import { clearDataFromInput, createPageElement, findElement, findElements } from 'e2e/src/utils/search.utils';
 import { SHORT_TIMEOUT } from 'e2e/src/utils/timing.utils';
 
@@ -23,7 +24,7 @@ export class ImportAccountMnemonicTab extends Page {
       const word = wordsArray[i];
       const input = wordsInputs[i];
 
-      await input.type(word.replace('?', ''));
+      await input.type(word.replace(EMPTY_WORD_FOR_INPUTS, ''));
     }
   }
 
