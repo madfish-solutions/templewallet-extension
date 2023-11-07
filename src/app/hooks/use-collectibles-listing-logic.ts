@@ -11,17 +11,10 @@ import { isSearchStringApplicable } from 'lib/utils/search-items';
 import { ITEMS_PER_PAGE, useCollectiblesPaginationLogic } from './use-collectibles-pagination-logic';
 
 export const useCollectiblesListingLogic = (allSlugsSorted: string[]) => {
-  const {
-    slugs: paginatedSlugs,
-    isLoading: pageIsLoading,
-    loadNext,
-    seedForLoadNext
-  } = useCollectiblesPaginationLogic(allSlugsSorted);
+  const { slugs: paginatedSlugs, isLoading: pageIsLoading, loadNext } = useCollectiblesPaginationLogic(allSlugsSorted);
 
   const assetsAreLoading = useAreAssetsLoading('collectibles');
   const metadatasLoading = useCollectiblesMetadataLoadingSelector();
-
-  console.log('LOADING:', pageIsLoading, assetsAreLoading, metadatasLoading);
 
   const [searchValue, setSearchValue] = useState('');
   const [searchValueDebounced] = useDebounce(searchValue, 300);
@@ -54,16 +47,12 @@ export const useCollectiblesListingLogic = (allSlugsSorted: string[]) => {
     [isInSearchMode, paginatedSlugs, searchValueDebounced, allSlugsSorted, getCollectibleMeta]
   );
 
-  console.log('SLUGS:', allSlugsSorted.length, paginatedSlugs.length, displayedSlugs.length);
-  console.log('META:', allSlugsSorted.filter(s => !!getCollectibleMeta(s)).length);
-
   return {
     isInSearchMode,
     displayedSlugs,
     paginatedSlugs,
     isSyncing,
     loadNext,
-    seedForLoadNext,
     searchValue,
     setSearchValue
   };

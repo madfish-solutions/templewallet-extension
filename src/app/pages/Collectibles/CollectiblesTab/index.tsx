@@ -49,16 +49,8 @@ export const CollectiblesTab = memo<Props>(({ scrollToTheTabsBar }) => {
     isEqual
   );
 
-  const {
-    isInSearchMode,
-    displayedSlugs,
-    paginatedSlugs,
-    isSyncing,
-    loadNext,
-    seedForLoadNext,
-    searchValue,
-    setSearchValue
-  } = useCollectiblesListingLogic(allSlugsSorted);
+  const { isInSearchMode, displayedSlugs, paginatedSlugs, isSyncing, loadNext, searchValue, setSearchValue } =
+    useCollectiblesListingLogic(allSlugsSorted);
 
   const shouldScrollToTheTabsBar = paginatedSlugs.length > 0;
   useEffect(() => {
@@ -118,9 +110,7 @@ export const CollectiblesTab = memo<Props>(({ scrollToTheTabsBar }) => {
             {isInSearchMode ? (
               contentElement
             ) : (
-              <SimpleInfiniteScroll loadNext={loadNext} seedForLoadNext={seedForLoadNext}>
-                {contentElement}
-              </SimpleInfiniteScroll>
+              <SimpleInfiniteScroll loadNext={loadNext}>{contentElement}</SimpleInfiniteScroll>
             )}
 
             {isSyncing && <SyncSpinner className="mt-6" />}

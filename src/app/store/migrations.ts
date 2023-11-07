@@ -26,7 +26,6 @@ export const MIGRATIONS: MigrationManifest = {
       // Occured after stringifying large numbers for token IDs.
       if (tokenId.includes('e')) {
         delete allTokensMetadata[slug];
-        console.log('E:', slug, tokenId, metadata);
         continue;
       }
 

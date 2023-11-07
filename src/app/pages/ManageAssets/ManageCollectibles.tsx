@@ -27,7 +27,7 @@ export const ManageCollectibles = memo<ManageAssetsCommonProps>(
       isEqual
     );
 
-    const { isInSearchMode, displayedSlugs, isSyncing, loadNext, seedForLoadNext, searchValue, setSearchValue } =
+    const { isInSearchMode, displayedSlugs, isSyncing, loadNext, searchValue, setSearchValue } =
       useCollectiblesListingLogic(allSlugsSorted);
 
     const getMetadata = useGetCollectibleMetadata();
@@ -67,9 +67,7 @@ export const ManageCollectibles = memo<ManageAssetsCommonProps>(
             {isInSearchMode ? (
               contentElement
             ) : (
-              <SimpleInfiniteScroll loadNext={loadNext} seedForLoadNext={seedForLoadNext}>
-                {contentElement}
-              </SimpleInfiniteScroll>
+              <SimpleInfiniteScroll loadNext={loadNext}>{contentElement}</SimpleInfiniteScroll>
             )}
 
             {isSyncing && <SyncSpinner className="mt-6" />}

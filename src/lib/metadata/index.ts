@@ -113,12 +113,11 @@ const useAssetsMetadataPresenceCheck = (
         slug =>
           !isTezAsset(slug) &&
           !isTruthy(getMetadata(slug)) &&
-          // In case fetched metadata is `null`
+          // In case fetched metadata is `null` & won't save
           !checkedRef.current.includes(slug)
       )
       .slice(0, 2 * METADATA_API_LOAD_CHUNK_SIZE);
 
-    console.log('MISSING:', missingChunk);
     if (missingChunk.length > 0) {
       checkedRef.current = [...checkedRef.current, ...missingChunk];
 
