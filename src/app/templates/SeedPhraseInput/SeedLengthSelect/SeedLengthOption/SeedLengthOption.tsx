@@ -3,8 +3,8 @@ import React, { FC, memo, useCallback } from 'react';
 import { emptyFn } from '@rnw-community/shared';
 import classNames from 'clsx';
 
-import { setAnotherSelector, setTestID } from '../../../../../lib/analytics';
-import { ImportAccountSelectors } from '../../../../pages/ImportAccount/selectors';
+import { setAnotherSelector, setTestID } from 'lib/analytics';
+import { ImportAccountSelectors } from 'app/pages/ImportAccount/selectors';
 import styles from './seedLengthOption.module.css';
 
 interface Props {
