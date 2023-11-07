@@ -3,10 +3,10 @@ import React, { FC, useCallback, useEffect, useRef, useState } from 'react';
 import classNames from 'clsx';
 
 import { ReactComponent as SelectArrowDownIcon } from 'app/icons/select-arrow-down.svg';
+import { ImportAccountSelectors } from 'app/pages/ImportAccount/selectors';
 import { setTestID } from 'lib/analytics';
 import { t } from 'lib/i18n';
 
-import { ImportAccountSelectors } from 'app/pages/ImportAccount/selectors';
 import { SeedLengthOption } from './SeedLengthOption/SeedLengthOption';
 
 interface SeedLengthSelectProps {
