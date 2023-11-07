@@ -4,6 +4,7 @@ import retry from 'async-retry';
 import BigNumber from 'bignumber.js';
 import useSWR, { unstable_serialize, useSWRConfig } from 'swr';
 
+import { BoundaryError } from 'app/ErrorBoundary';
 import {
   BakingBadBaker,
   BakingBadBakerValueHistoryItem,
@@ -11,33 +12,37 @@ import {
   getAllBakersBakingBad
 } from 'lib/apis/baking-bad';
 import { getAccountStatsFromTzkt, isKnownChainId, TzktRewardsEntry, TzktAccountType } from 'lib/apis/tzkt';
+import { t } from 'lib/i18n';
 import { useRetryableSWR } from 'lib/swr';
+import type { ReactiveTezosToolkit } from 'lib/temple/front';
 
+import { getOnlineStatus } from './get-online-status';
 import { useChainId, useNetwork, useTezos } from './ready';
 
-const FAILED_TO_GET_DELEGATE_RESULT = '';
-
-export class GetDelegateAddressError extends Error {
-  constructor(public internalError: unknown) {
-    super('Failed to get delegate address');
-  }
+function getDelegateCacheKey(
+  tezos: ReactiveTezosToolkit,
+  address: string,
+  chainId: string | nullish,
+  shouldPreventErrorPropagation: boolean
+) {
+  return `$swr$${unstable_serialize(['delegate', tezos.checksum, address, chainId, shouldPreventErrorPropagation])}`;
 }
 
-export function useResetDelegateCache(address: string) {
+function useResetDelegateCache(address: string, shouldPreventErrorPropagation: boolean) {
   const tezos = useTezos();
   const chainId = useChainId(false);
   const { cache: swrCache } = useSWRConfig();
 
   return useCallback(() => {
-    const cacheKeyBase = unstable_serialize(['delegate', tezos.checksum, address, chainId]);
-
-    swrCache.delete(`$swr$${cacheKeyBase}`);
-  }, [address, tezos, chainId, swrCache]);
+    swrCache.delete(getDelegateCacheKey(tezos, address, chainId, shouldPreventErrorPropagation));
+  }, [address, tezos, chainId, swrCache, shouldPreventErrorPropagation]);
 }
 
 export function useDelegate(address: string, suspense = true, shouldPreventErrorPropagation = true) {
   const tezos = useTezos();
   const chainId = useChainId(suspense);
+
+  const resetDelegateCache = useResetDelegateCache(address, shouldPreventErrorPropagation);
 
   const getDelegate = useCallback(async () => {
     try {
@@ -66,14 +71,17 @@ export function useDelegate(address: string, suspense = true, shouldPreventError
       );
     } catch (e) {
       if (shouldPreventErrorPropagation) {
-        return FAILED_TO_GET_DELEGATE_RESULT;
+        return null;
       }
 
-      throw new GetDelegateAddressError(e);
+      throw new BoundaryError(
+        getOnlineStatus() ? t('errorGettingBakerAddressMessageOnline') : t('errorGettingBakerAddressMessage'),
+        resetDelegateCache
+      );
     }
-  }, [address, tezos, chainId, shouldPreventErrorPropagation]);
+  }, [chainId, tezos, address, shouldPreventErrorPropagation, resetDelegateCache]);
 
-  return useSWR(['delegate', tezos.checksum, address, chainId], getDelegate, {
+  return useSWR(['delegate', tezos.checksum, address, chainId, shouldPreventErrorPropagation], getDelegate, {
     dedupingInterval: 20_000,
     suspense
   });

@@ -12,7 +12,6 @@ import AssetInfo from 'app/templates/AssetInfo';
 import { TabsBar } from 'app/templates/TabBar';
 import { isTezAsset } from 'lib/assets';
 import { t, TID } from 'lib/i18n';
-import { GetDelegateAddressError, useAccountPkh, useResetDelegateCache } from 'lib/temple/front';
 
 import { CollectiblesTab } from '../Collectibles/CollectiblesTab';
 import { HomeSelectors } from './Home.selectors';
@@ -34,26 +33,11 @@ interface TabData {
   whileMessageI18nKey?: TID;
 }
 
-const wholeErrorMessageFn = (error: Error, online: boolean, defaultMessage: string) => {
-  if (error instanceof GetDelegateAddressError && online) {
-    return t('errorGettingBakerAddressMessageOnline');
-  }
-
-  if (error instanceof GetDelegateAddressError) {
-    return t('errorGettingBakerAddressMessage');
-  }
-
-  return defaultMessage;
-};
-
 export const ContentSection: FC<Props> = ({ assetSlug, className }) => {
   const { fullPage } = useAppEnv();
   const tabSlug = useTabSlug();
 
   const tabBarElemRef = useRef<HTMLDivElement>(null);
-
-  const accountPkh = useAccountPkh();
-  const resetDelegateCache = useResetDelegateCache(accountPkh);
 
   const scrollToTheTabsBar = useCallback(() => {
     if (!tabBarElemRef.current) return;
@@ -131,11 +115,7 @@ export const ContentSection: FC<Props> = ({ assetSlug, className }) => {
     <div className={clsx('-mx-4 shadow-top-light', fullPage && 'rounded-t-md', className)}>
       <TabsBar ref={tabBarElemRef} tabs={tabs} activeTabName={name} />
 
-      <SuspenseContainer
-        whileMessage={whileMessageI18nKey ? t(whileMessageI18nKey) : 'displaying tab'}
-        beforeTryAgain={resetDelegateCache}
-        wholeErrorMessageFn={wholeErrorMessageFn}
-      >
+      <SuspenseContainer whileMessage={whileMessageI18nKey ? t(whileMessageI18nKey) : 'displaying tab'}>
         {Component && <Component />}
       </SuspenseContainer>
     </div>

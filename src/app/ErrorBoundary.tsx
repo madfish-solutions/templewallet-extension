@@ -4,12 +4,17 @@ import classNames from 'clsx';
 
 import { ReactComponent as DangerIcon } from 'app/icons/danger.svg';
 import { t, T } from 'lib/i18n';
+import { getOnlineStatus } from 'lib/temple/front';
 
 export interface ErrorBoundaryProps extends React.PropsWithChildren {
   className?: string;
   whileMessage?: string;
-  wholeErrorMessageFn?: (error: Error, online: boolean, defaultMessage: string) => string;
-  beforeTryAgain?: (error: Error) => void | Promise<void>;
+}
+
+export class BoundaryError extends Error {
+  constructor(public readonly message: string, public readonly beforeTryAgain: EmptyFn) {
+    super(message);
+  }
 }
 
 type ErrorBoundaryState = {
@@ -36,8 +41,9 @@ export default class ErrorBoundary extends Component<ErrorBoundaryProps> {
   }
 
   async tryAgain() {
-    if (this.props.beforeTryAgain) {
-      await this.props.beforeTryAgain(this.state.error!);
+    const { error } = this.state;
+    if (error instanceof BoundaryError) {
+      error.beforeTryAgain();
     }
     this.setState({ error: null });
   }
@@ -50,21 +56,28 @@ export default class ErrorBoundary extends Component<ErrorBoundaryProps> {
     return online ? firstPart : [firstPart, t('mayHappenBecauseYouAreOffline')].join('. ');
   }
 
+  componentDidUpdate(prevProps: ErrorBoundaryProps) {
+    if (prevProps.children !== this.props.children) {
+      this.setState({ error: null });
+    }
+  }
+
   render() {
-    if (this.state.error) {
-      const online = getOnlineStatus();
-      const { wholeErrorMessageFn: wholeMessageFn } = this.props;
+    const { children, className } = this.props;
+    const { error } = this.state;
+
+    if (error) {
       const defaultMessage = this.getDefaultErrorMessage();
 
       return (
-        <div className={classNames('w-full', 'flex items-center justify-center', this.props.className)}>
+        <div className={classNames('w-full', 'flex items-center justify-center', className)}>
           <div className={classNames('max-w-xs', 'p-4', 'flex flex-col items-center', 'text-red-600')}>
             <DangerIcon className="h-16 w-auto stroke-current" />
 
             <T id="oops">{message => <h2 className="mb-1 text-2xl">{message}</h2>}</T>
 
             <p className="mb-4 text-sm opacity-90 text-center font-light">
-              {wholeMessageFn ? wholeMessageFn(this.state.error, online, defaultMessage) : defaultMessage}
+              {error instanceof BoundaryError ? error.message : defaultMessage}
             </p>
 
             <T id="tryAgain">
@@ -93,10 +106,6 @@ export default class ErrorBoundary extends Component<ErrorBoundaryProps> {
       );
     }
 
-    return this.props.children;
+    return children;
   }
-}
-
-function getOnlineStatus() {
-  return typeof navigator !== 'undefined' && typeof navigator.onLine === 'boolean' ? navigator.onLine : true;
 }

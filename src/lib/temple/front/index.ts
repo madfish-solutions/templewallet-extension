@@ -38,14 +38,7 @@ export { useContactsActions, searchContacts } from './address-book';
 export { useTezosDomainsClient, isDomainNameValid } from './tzdns';
 
 export type { Baker } from './baking';
-export {
-  GetDelegateAddressError,
-  getRewardsStats,
-  useKnownBaker,
-  useKnownBakers,
-  useDelegate,
-  useResetDelegateCache
-} from './baking';
+export { getRewardsStats, useKnownBaker, useKnownBakers, useDelegate } from './baking';
 
 export { activateAccount } from './activate-account';
 
@@ -71,3 +64,5 @@ export {
   buildCollectibleImageURLs,
   buildObjktCollectibleArtifactUri
 } from './image-uri';
+
+export { getOnlineStatus } from './get-online-status';

@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useMemo } from 'react';
+import React, { memo, useCallback, /* useEffect, */ useMemo } from 'react';
 
 import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
@@ -23,7 +23,7 @@ import BakerBanner from 'app/templates/BakerBanner';
 import { getDelegatorRewards, isKnownChainId } from 'lib/apis/tzkt';
 import { T, t } from 'lib/i18n';
 import { useRetryableSWR } from 'lib/swr';
-import { useAccount, useChainId, useDelegate, useGasToken } from 'lib/temple/front';
+import { useAccount, useChainId, useDelegate, useGasToken /*, useResetDelegateCache */ } from 'lib/temple/front';
 import { TempleAccountType } from 'lib/temple/types';
 import useTippy from 'lib/ui/useTippy';
 import { Link } from 'lib/woozie';
@@ -84,6 +84,13 @@ const BakingSection = memo(() => {
     content: t('disabledForWatchOnlyAccount'),
     animation: 'shift-away-subtle'
   };
+
+  /* const resetDelegateCache = useResetDelegateCache(acc.publicKeyHash);
+  useEffect(() => {
+    resetDelegateCache();
+
+    return () => resetDelegateCache();
+  }, [resetDelegateCache]); */
 
   const getBakingHistory = useCallback(
     async (_k: string, accountPkh: string) => {
