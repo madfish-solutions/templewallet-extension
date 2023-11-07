@@ -21,7 +21,7 @@ const collectiblesMetadataReducer = createReducer(collectiblesMetadataInitialSta
       if (!metadataRaw) continue;
       const index = state.records.findIndex(m => tokenToSlug(m) === slug);
       const [address, id] = slug.split('_');
-      const metadata = buildTokenMetadataFromFetched(metadataRaw, address, Number(id));
+      const metadata = buildTokenMetadataFromFetched(metadataRaw, address, id);
 
       if (index !== -1) state.records.splice(index, 1);
       state.records.unshift(metadata);

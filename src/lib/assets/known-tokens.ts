@@ -37,7 +37,7 @@ export const TOKENS_BRAND_COLORS: Record<string, { bg: string; bgHover?: string 
 };
 
 const DEPRECATED_TKEY_METADATA: TokenMetadata = {
-  id: 0,
+  id: '0',
   address: 'KT1WihWRnmzhfebi6zqQ4tvNGiPeVxiGwTi2',
   name: 'Deprecated Temple Key',
   symbol: 'TKEY_OLD',
@@ -47,7 +47,7 @@ const DEPRECATED_TKEY_METADATA: TokenMetadata = {
 
 const PREDEFINED_MAINNET_TOKENS_METADATA: TokenMetadata[] = [
   {
-    id: 0,
+    id: '0',
     address: 'KT1VaEsVNiBoA56eToEK6n6BcPgh1tdx9eXi',
     name: 'Temple Key',
     symbol: 'TKEY',
@@ -56,7 +56,7 @@ const PREDEFINED_MAINNET_TOKENS_METADATA: TokenMetadata[] = [
     standard: TokenStandardsEnum.Fa2
   },
   {
-    id: 0,
+    id: '0',
     address: 'KT1XnTn74bUtxHfDtBmm2bGZAQfhPbvKWR8o',
     name: 'Tether USD',
     symbol: 'USDt',
@@ -65,7 +65,7 @@ const PREDEFINED_MAINNET_TOKENS_METADATA: TokenMetadata[] = [
     standard: TokenStandardsEnum.Fa2
   },
   {
-    id: 0,
+    id: '0',
     address: 'KT1XRPEPXbZK25r3Htzp2o1x7xdMMmfocKNW',
     name: 'youves uUSD',
     symbol: 'uUSD',
@@ -74,7 +74,7 @@ const PREDEFINED_MAINNET_TOKENS_METADATA: TokenMetadata[] = [
     standard: TokenStandardsEnum.Fa2
   },
   {
-    id: 0,
+    id: '0',
     address: 'KT1K9gCRgaLRFKTErYt1wVxA3Frb9FjasjTV',
     name: 'Kolibri',
     symbol: 'kUSD',
@@ -83,7 +83,7 @@ const PREDEFINED_MAINNET_TOKENS_METADATA: TokenMetadata[] = [
     standard: TokenStandardsEnum.Fa12
   },
   {
-    id: 0,
+    id: '0',
     address: 'KT1PWx2mnDueood7fEmfbBDKx1D9BAnnXitn',
     name: 'Tezos BTC',
     symbol: 'tzBTC',
@@ -92,7 +92,7 @@ const PREDEFINED_MAINNET_TOKENS_METADATA: TokenMetadata[] = [
     standard: TokenStandardsEnum.Fa12
   },
   {
-    id: 2,
+    id: '2',
     address: 'KT1XRPEPXbZK25r3Htzp2o1x7xdMMmfocKNW',
     name: 'youves uBTC',
     symbol: 'uBTC',
@@ -101,7 +101,7 @@ const PREDEFINED_MAINNET_TOKENS_METADATA: TokenMetadata[] = [
     standard: TokenStandardsEnum.Fa2
   },
   {
-    id: 0,
+    id: '0',
     address: 'KT193D4vozYnhGJQVtw7CoxxqphqUEEwK6Vb',
     name: 'Quipuswap governance token',
     symbol: 'QUIPU',
@@ -110,7 +110,7 @@ const PREDEFINED_MAINNET_TOKENS_METADATA: TokenMetadata[] = [
     standard: TokenStandardsEnum.Fa2
   },
   {
-    id: 0,
+    id: '0',
     address: 'KT1Xobej4mc6XgEjDoJoHtTKgbD1ELMvcQuL',
     name: 'youves YOU Governance',
     symbol: 'YOU',
@@ -122,7 +122,7 @@ const PREDEFINED_MAINNET_TOKENS_METADATA: TokenMetadata[] = [
 
 const DCP_TOKENS_METADATA: TokenMetadata[] = [
   {
-    id: 0,
+    id: '0',
     address: 'KT1N7Rh6SgSdExMPxfnYw1tHqrkSm7cm6JDN',
     decimals: 0,
     symbol: 'APX',

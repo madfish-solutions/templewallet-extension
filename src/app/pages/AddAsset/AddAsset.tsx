@@ -1,4 +1,4 @@
-import React, { FC, ReactNode, useCallback, useEffect, useRef, useMemo } from 'react';
+import React, { FC, memo, ReactNode, useCallback, useEffect, useRef, useMemo } from 'react';
 
 import classNames from 'clsx';
 import { FormContextValues, useForm } from 'react-hook-form';
@@ -75,7 +75,7 @@ const INITIAL_STATE: ComponentState = {
 
 class ContractNotFoundError extends Error {}
 
-const Form: FC = () => {
+const Form = memo(() => {
   const tezos = useTezos();
   const { id: networkId } = useNetwork();
   const chainId = useChainId(true)!;
@@ -207,7 +207,7 @@ const Form: FC = () => {
         const tokenMetadata: TokenMetadata = {
           ...baseMetadata,
           address: contractAddress,
-          id: tokenId
+          id: String(tokenId)
         };
 
         const assetIsCollectible = isCollectible(tokenMetadata);
@@ -333,7 +333,7 @@ const Form: FC = () => {
       )}
     </form>
   );
-};
+});
 
 type BottomSectionProps = Pick<FormContextValues, 'register' | 'errors' | 'formState'> & {
   submitError?: ReactNode;

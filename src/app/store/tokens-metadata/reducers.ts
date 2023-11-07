@@ -20,7 +20,7 @@ export const tokensMetadataReducer = createReducer<TokensMetadataState>(tokensMe
       const rawMetadata = records[slug];
       if (!rawMetadata) continue;
       const [address, id] = slug.split('_');
-      const metadata = buildTokenMetadataFromFetched(rawMetadata, address, Number(id));
+      const metadata = buildTokenMetadataFromFetched(rawMetadata, address, id);
 
       state.metadataRecord[slug] = metadata;
     }
@@ -54,7 +54,7 @@ export const tokensMetadataReducer = createReducer<TokensMetadataState>(tokensMe
       const rawMetadata = payload[slug];
       if (!rawMetadata) continue;
       const [address, id] = slug.split('_');
-      const metadata = buildTokenMetadataFromFetched(rawMetadata, address, Number(id));
+      const metadata = buildTokenMetadataFromFetched(rawMetadata, address, id);
 
       state.metadataRecord[slug] = {
         ...omit(current, keysToRefresh),

@@ -41,17 +41,15 @@ export const useMetadataRefresh = () => {
       return;
     }
 
-    if (!needToSetVersion) return;
+    if (!needToSetVersion || chainId !== TempleChainId.Mainnet) return;
 
-    if (chainId === TempleChainId.Mainnet) {
-      fetchTokensMetadata(chainId, slugsOnAppLoad).then(
-        data => {
-          const record = reduceToMetadataRecord(slugsOnAppLoad, data);
-          dispatch(refreshTokensMetadataAction(record));
-          setLastVersion();
-        },
-        error => console.error(error)
-      );
-    }
+    fetchTokensMetadata(chainId, slugsOnAppLoad).then(
+      data => {
+        const record = reduceToMetadataRecord(slugsOnAppLoad, data);
+        dispatch(refreshTokensMetadataAction(record));
+        setLastVersion();
+      },
+      error => console.error(error)
+    );
   }, [chainId]);
 };
