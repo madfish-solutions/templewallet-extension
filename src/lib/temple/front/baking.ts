@@ -2,7 +2,7 @@ import { useCallback, useMemo } from 'react';
 
 import retry from 'async-retry';
 import BigNumber from 'bignumber.js';
-import useSWR, { unstable_serialize, useSWRConfig } from 'swr';
+import useSWR, { useSWRConfig } from 'swr';
 
 import { BoundaryError } from 'app/ErrorBoundary';
 import {
@@ -13,7 +13,7 @@ import {
 } from 'lib/apis/baking-bad';
 import { getAccountStatsFromTzkt, isKnownChainId, TzktRewardsEntry, TzktAccountType } from 'lib/apis/tzkt';
 import { t } from 'lib/i18n';
-import { useRetryableSWR } from 'lib/swr';
+import { getCacheKey, useRetryableSWR } from 'lib/swr';
 import type { ReactiveTezosToolkit } from 'lib/temple/front';
 
 import { getOnlineStatus } from './get-online-status';
@@ -25,29 +25,22 @@ function getDelegateCacheKey(
   chainId: string | nullish,
   shouldPreventErrorPropagation: boolean
 ) {
-  return `$swr$${unstable_serialize(['delegate', tezos.checksum, address, chainId, shouldPreventErrorPropagation])}`;
-}
-
-function useResetDelegateCache(address: string, shouldPreventErrorPropagation: boolean) {
-  const tezos = useTezos();
-  const chainId = useChainId(false);
-  const { cache: swrCache } = useSWRConfig();
-
-  return useCallback(() => {
-    swrCache.delete(getDelegateCacheKey(tezos, address, chainId, shouldPreventErrorPropagation));
-  }, [address, tezos, chainId, swrCache, shouldPreventErrorPropagation]);
+  return getCacheKey(['delegate', tezos.checksum, address, chainId, shouldPreventErrorPropagation]);
 }
 
 export function useDelegate(address: string, suspense = true, shouldPreventErrorPropagation = true) {
   const tezos = useTezos();
   const chainId = useChainId(suspense);
+  const { cache: swrCache } = useSWRConfig();
 
-  const resetDelegateCache = useResetDelegateCache(address, shouldPreventErrorPropagation);
+  const resetDelegateCache = useCallback(() => {
+    swrCache.delete(getDelegateCacheKey(tezos, address, chainId, shouldPreventErrorPropagation));
+  }, [address, tezos, chainId, swrCache, shouldPreventErrorPropagation]);
 
   const getDelegate = useCallback(async () => {
     try {
       return await retry(
-        async (): Promise<string | null> => {
+        async () => {
           const freshChainId = chainId ?? (await tezos.rpc.getChainId());
           if (freshChainId && isKnownChainId(freshChainId)) {
             try {
