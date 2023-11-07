@@ -1,67 +1,61 @@
 import { createReducer } from '@reduxjs/toolkit';
-import { persistReducer } from 'redux-persist';
+import { persistReducer, createTransform } from 'redux-persist';
+import hardSet from 'redux-persist/lib/stateReconciler/hardSet';
 import storage from 'redux-persist/lib/storage';
 // import { omit, pick } from 'lodash';
 
-// import { tokenToSlug } from 'lib/assets';
-// import { buildTokenMetadataFromFetched } from 'lib/metadata/utils';
+import { tokenToSlug } from 'lib/assets';
+import { checkSizeOfLocalStorageEntryToSet } from 'lib/local-storage';
+import { buildTokenMetadataFromFetched } from 'lib/metadata/utils';
 
-// import {
-//   putTokensMetadataAction,
-//   loadTokensMetadataAction,
-//   resetTokensMetadataLoadingAction,
-//   refreshTokensMetadataAction,
-//   addTokensMetadataAction,
-//   addTokensMetadataOfFetchedAction
-// } from './actions';
+import {
+  addCollectiblesMetadataAction,
+  addCollectiblesMetadataOfFetchedAction,
+  putCollectiblesMetadataAction,
+  loadCollectiblesMetadataAction,
+  resetCollectiblesMetadataLoadingAction
+} from './actions';
 import { collectiblesMetadataInitialState, CollectiblesMetadataState } from './state';
 
 const collectiblesMetadataReducer = createReducer(collectiblesMetadataInitialState, builder => {
-  // builder.addCase(putTokensMetadataAction, (state, { payload: tokensMetadata }) => {
-  //   if (tokensMetadata.length < 1) {
-  //     return {
-  //       ...state,
-  //       metadataLoading: false
-  //     };
-  //   }
-  //   const metadataRecord = tokensMetadata.reduce((prevState, tokenMetadata) => {
-  //     const slug = tokenToSlug(tokenMetadata);
-  //     return {
-  //       ...prevState,
-  //       [slug]: {
-  //         ...prevState[slug],
-  //         ...tokenMetadata
-  //       }
-  //     };
-  //   }, state.metadataRecord);
-  //   return {
-  //     ...state,
-  //     metadataRecord,
-  //     metadataLoading: false
-  //   };
-  // });
-  // builder.addCase(addTokensMetadataAction, (state, { payload }) => {
-  //   for (const metadata of payload) {
-  //     const slug = tokenToSlug(metadata);
-  //     if (state.metadataRecord[slug]) continue;
-  //     state.metadataRecord[slug] = metadata;
-  //   }
-  // });
-  // builder.addCase(addTokensMetadataOfFetchedAction, (state, { payload }) => {
-  //   for (const slug of Object.keys(payload)) {
-  //     if (state.metadataRecord[slug]) continue;
-  //     const [address, id] = slug.split('_');
-  //     state.metadataRecord[slug] = buildTokenMetadataFromFetched(payload[slug]!, address, Number(id));
-  //   }
-  // });
-  // builder.addCase(loadTokensMetadataAction, state => ({
-  //   ...state,
-  //   metadataLoading: true
-  // }));
-  // builder.addCase(resetTokensMetadataLoadingAction, state => ({
-  //   ...state,
-  //   metadataLoading: false
-  // }));
+  builder.addCase(addCollectiblesMetadataAction, (state, { payload }) => {
+    for (const metadata of payload) {
+      const slug = tokenToSlug(metadata);
+      const index = state.records.findIndex(m => tokenToSlug(m) === slug);
+      if (index === -1) state.records.unshift(metadata);
+    }
+  });
+
+  builder.addCase(addCollectiblesMetadataOfFetchedAction, (state, { payload }) => {
+    for (const slug of Object.keys(payload)) {
+      const index = state.records.findIndex(m => tokenToSlug(m) === slug);
+      if (index === -1) {
+        const [address, id] = slug.split('_');
+        const metadata = buildTokenMetadataFromFetched(payload[slug]!, address, Number(id));
+        state.records.unshift(metadata);
+      }
+    }
+  });
+
+  builder.addCase(putCollectiblesMetadataAction, (state, { payload: tokensMetadata }) => {
+    for (const metadata of tokensMetadata) {
+      const slug = tokenToSlug(metadata);
+      const index = state.records.findIndex(m => tokenToSlug(m) === slug);
+      if (index !== -1) state.records.splice(index, 1);
+      state.records.unshift(metadata);
+    }
+
+    state.isLoading = false;
+  });
+
+  builder.addCase(loadCollectiblesMetadataAction, state => {
+    state.isLoading = true;
+  });
+
+  builder.addCase(resetCollectiblesMetadataLoadingAction, state => {
+    state.isLoading = false;
+  });
+
   // builder.addCase(refreshTokensMetadataAction, (state, { payload }) => {
   //   const keysToRefresh = ['artifactUri', 'displayUri'] as const;
   //   for (const metadata of payload) {
@@ -76,10 +70,26 @@ const collectiblesMetadataReducer = createReducer(collectiblesMetadataInitialSta
   // });
 });
 
-export const collectiblesMetadataPersistedReducer = persistReducer(
+const PERSIST_KEY = 'root.collectiblesMetadata';
+
+export const collectiblesMetadataPersistedReducer = persistReducer<CollectiblesMetadataState>(
   {
-    key: 'root.collectibles-metadata',
-    storage
+    key: PERSIST_KEY,
+    storage,
+    stateReconciler: hardSet,
+    transforms: [
+      // Reducing slice size (if needed) to succesfully persist
+      createTransform<CollectiblesMetadataState, CollectiblesMetadataState>(inboundState => {
+        if (checkSizeOfLocalStorageEntryToSet(PERSIST_KEY, inboundState)) return inboundState;
+
+        let records = inboundState.records;
+        do {
+          records = records.slice(0, records.length - 1);
+        } while (records.length && !checkSizeOfLocalStorageEntryToSet(PERSIST_KEY, { ...inboundState, records }));
+
+        return { ...inboundState, records };
+      }, null)
+    ]
   },
   collectiblesMetadataReducer
 );

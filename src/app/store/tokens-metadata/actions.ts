@@ -3,19 +3,19 @@ import { createAction } from '@reduxjs/toolkit';
 import { TokenMetadataResponse } from 'lib/apis/temple';
 import type { TokenMetadata } from 'lib/metadata';
 
-export const putTokensMetadataAction = createAction<TokenMetadata[]>('metadata/PUT_TOKENS_METADATA');
-
-export const addTokensMetadataAction = createAction<TokenMetadata[]>('metadata/ADD_TOKENS_METADATA');
+export const addTokensMetadataAction = createAction<TokenMetadata[]>('tokens-metadata/ADD_MULTIPLE');
 
 export const addTokensMetadataOfFetchedAction = createAction<Record<string, TokenMetadataResponse>>(
-  'metadata/ADD_TOKENS_METADATA_OF_FETCHED'
+  'tokens-metadata/ADD_MULTIPLE_OF_FETCHED'
 );
+
+export const putTokensMetadataAction = createAction<TokenMetadata[]>('tokens-metadata/PUT_MULTIPLE');
 
 export const loadTokensMetadataAction = createAction<{
   rpcUrl: string;
   slugs: string[];
-}>('metadata/LOAD_TOKENS_METADATA');
+}>('tokens-metadata/LOAD');
 
-export const resetTokensMetadataLoadingAction = createAction('metadata/RESET_TOKENS_METADATA_LOADING');
+export const resetTokensMetadataLoadingAction = createAction('tokens-metadata/RESET_LOADING');
 
-export const refreshTokensMetadataAction = createAction<TokenMetadata[]>('metadata/REFRESH_TOKENS_METADATA');
+export const refreshTokensMetadataAction = createAction<TokenMetadata[]>('tokens-metadata/REFRESH_MULTIPLE');

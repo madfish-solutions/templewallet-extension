@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef } from 'react';
 import { isString } from 'lodash';
 import { useDispatch } from 'react-redux';
 
+import { loadCollectiblesMetadataAction } from 'app/store/collectibles-metadata/actions';
 import {
   useCollectiblesMetadataLoadingSelector,
   useAllCollectiblesMetadataSelector,
@@ -134,7 +135,7 @@ const useAssetsMetadataPresenceCheck = (
 export function getAssetSymbol(metadata: AssetMetadataBase | nullish, short = false) {
   if (!metadata) return '???';
   if (!short) return metadata.symbol;
-  return metadata.symbol === 'tez' ? 'ꜩ' : metadata.symbol.substr(0, 5);
+  return metadata.symbol === 'tez' ? 'ꜩ' : metadata.symbol.substring(0, 5);
 }
 
 export function getAssetName(metadata: AssetMetadataBase | nullish) {

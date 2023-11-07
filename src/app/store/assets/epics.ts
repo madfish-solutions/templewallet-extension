@@ -10,6 +10,7 @@ import { toLatestValue } from 'lib/store';
 
 import { putTokensBalancesAction } from '../balances/actions';
 import { fixBalances } from '../balances/utils';
+import { addCollectiblesMetadataOfFetchedAction } from '../collectibles-metadata/actions';
 import type { RootState } from '../root-state.type';
 import { addTokensMetadataOfFetchedAction } from '../tokens-metadata/actions';
 import { loadAccountTokensActions, loadAccountCollectiblesActions, loadTokensWhitelistActions } from './actions';
@@ -42,7 +43,7 @@ const loadAccountCollectiblesEpic: Epic<Action, Action, RootState> = (action$, s
         concatMap(({ collectibles, balances, newMeta }) => [
           loadAccountCollectiblesActions.success({ account, chainId, collectibles }),
           putTokensBalancesAction({ publicKeyHash: account, chainId, balances: fixBalances(balances) }),
-          addTokensMetadataOfFetchedAction(newMeta)
+          addCollectiblesMetadataOfFetchedAction(newMeta)
         ]),
         catchError(err =>
           of(loadAccountCollectiblesActions.fail({ code: axios.isAxiosError(err) ? err.code : undefined }))

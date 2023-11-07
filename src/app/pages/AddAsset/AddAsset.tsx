@@ -11,6 +11,7 @@ import Spinner from 'app/atoms/Spinner/Spinner';
 import { ReactComponent as AddIcon } from 'app/icons/add.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import { putAssetsAsIsAction } from 'app/store/assets/actions';
+import { putCollectiblesMetadataAction } from 'app/store/collectibles-metadata/actions';
 import { putTokensMetadataAction } from 'app/store/tokens-metadata/actions';
 import { useFormAnalytics } from 'lib/analytics';
 import { TokenMetadataResponse } from 'lib/apis/temple';
@@ -209,7 +210,10 @@ const Form: FC = () => {
           id: tokenId
         };
 
-        dispatch(putTokensMetadataAction([tokenMetadata]));
+        const assetIsCollectible = isCollectible(tokenMetadata);
+
+        if (assetIsCollectible) dispatch(putCollectiblesMetadataAction([tokenMetadata]));
+        else dispatch(putTokensMetadataAction([tokenMetadata]));
 
         const asset = {
           chainId,
@@ -220,7 +224,7 @@ const Form: FC = () => {
 
         dispatch(
           putAssetsAsIsAction({
-            type: isCollectible(tokenMetadata) ? 'collectibles' : 'tokens',
+            type: assetIsCollectible ? 'collectibles' : 'tokens',
             assets: [asset]
           })
         );

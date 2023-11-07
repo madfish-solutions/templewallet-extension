@@ -2,8 +2,8 @@ import { useCallback, useState } from 'react';
 
 import { useDispatch } from 'react-redux';
 
+import { addCollectiblesMetadataAction } from 'app/store/collectibles-metadata/actions';
 import { useAllCollectiblesMetadataSelector } from 'app/store/collectibles-metadata/selectors';
-import { addTokensMetadataAction } from 'app/store/tokens-metadata/actions';
 import { tokenToSlug } from 'lib/assets';
 import { loadTokensMetadata } from 'lib/metadata/fetch';
 import { useNetwork } from 'lib/temple/front';
@@ -33,7 +33,7 @@ export const useCollectiblesPaginationLogic = (allSlugsSorted: string[]) => {
         await loadTokensMetadata(rpcUrl, slugsWithoutMeta)
           .then(
             newMeta => {
-              if (newMeta.length) dispatch(addTokensMetadataAction(newMeta));
+              if (newMeta.length) dispatch(addCollectiblesMetadataAction(newMeta));
               setSlugs(newSlugs);
             },
             error => {
