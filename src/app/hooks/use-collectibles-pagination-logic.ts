@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react';
 
 import { useDispatch } from 'react-redux';
 
-import { addCollectiblesMetadataAction } from 'app/store/collectibles-metadata/actions';
+import { putCollectiblesMetadataAction } from 'app/store/collectibles-metadata/actions';
 import { useAllCollectiblesMetadataSelector } from 'app/store/collectibles-metadata/selectors';
 import { tokenToSlug } from 'lib/assets';
 import { loadTokensMetadata } from 'lib/metadata/fetch';
@@ -32,8 +32,8 @@ export const useCollectiblesPaginationLogic = (allSlugsSorted: string[]) => {
       if (slugsWithoutMeta.length)
         await loadTokensMetadata(rpcUrl, slugsWithoutMeta)
           .then(
-            newMeta => {
-              if (newMeta.length) dispatch(addCollectiblesMetadataAction(newMeta));
+            records => {
+              dispatch(putCollectiblesMetadataAction({ records }));
               setSlugs(newSlugs);
             },
             error => {

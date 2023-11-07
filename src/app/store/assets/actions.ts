@@ -27,9 +27,7 @@ export const loadAccountCollectiblesActions = createActions<
   { code?: string }
 >('assets/LOAD_ACCOUNT_COLLECTIBLES');
 
-type LoadWhitelistPayload = WhitelistResponseToken[];
-
-export const loadTokensWhitelistActions = createActions<void, LoadWhitelistPayload, { code?: string }>(
+export const loadTokensWhitelistActions = createActions<void, WhitelistResponseToken[], { code?: string }>(
   'assets/LOAD_TOKENS_WHITELIST'
 );
 

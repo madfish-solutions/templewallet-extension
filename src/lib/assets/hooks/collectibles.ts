@@ -10,7 +10,7 @@ import { useMemoWithCompare } from 'lib/ui/hooks';
 
 import { getAssetStatus } from './utils';
 
-export interface AccountCollectible extends Pick<StoredCollectible, 'slug'> {
+interface AccountCollectible extends Pick<StoredCollectible, 'slug'> {
   status: StoredAssetStatus;
 }
 

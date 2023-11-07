@@ -1,34 +1,28 @@
 import { combineEpics, Epic } from 'redux-observable';
-import { of } from 'rxjs';
+import { from, of } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 import { ofType, toPayload } from 'ts-action-operators';
 
-import { loadTokensMetadata$ } from 'lib/metadata/fetch';
-import { buildTokenMetadataFromWhitelist } from 'lib/metadata/utils';
+import { loadTokensMetadata } from 'lib/metadata/fetch';
 
 import { loadTokensWhitelistActions } from '../assets/actions';
 import {
   putTokensMetadataAction,
   loadTokensMetadataAction,
-  addTokensMetadataAction,
+  addWhitelistTokensMetadataAction,
   resetTokensMetadataLoadingAction
 } from './actions';
 
 const addWhitelistMetadataEpic: Epic = action$ =>
-  action$.pipe(
-    ofType(loadTokensWhitelistActions.success),
-    toPayload(),
-    map(tokens => tokens.map(buildTokenMetadataFromWhitelist)),
-    map(addTokensMetadataAction)
-  );
+  action$.pipe(ofType(loadTokensWhitelistActions.success), toPayload(), map(addWhitelistTokensMetadataAction));
 
 const loadTokensMetadataEpic: Epic = action$ =>
   action$.pipe(
     ofType(loadTokensMetadataAction),
     toPayload(),
     switchMap(({ rpcUrl, slugs }) =>
-      loadTokensMetadata$(rpcUrl, slugs).pipe(
-        map(data => putTokensMetadataAction(data)),
+      from(loadTokensMetadata(rpcUrl, slugs)).pipe(
+        map(records => putTokensMetadataAction({ records, resetLoading: true })),
         catchError(() => of(resetTokensMetadataLoadingAction()))
       )
     )

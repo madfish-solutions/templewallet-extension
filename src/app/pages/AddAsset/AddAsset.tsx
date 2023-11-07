@@ -212,8 +212,9 @@ const Form: FC = () => {
 
         const assetIsCollectible = isCollectible(tokenMetadata);
 
-        if (assetIsCollectible) dispatch(putCollectiblesMetadataAction([tokenMetadata]));
-        else dispatch(putTokensMetadataAction([tokenMetadata]));
+        const actionPayload = { records: { [tokenSlug]: tokenMetadata } };
+        if (assetIsCollectible) dispatch(putCollectiblesMetadataAction(actionPayload));
+        else dispatch(putTokensMetadataAction(actionPayload));
 
         const asset = {
           chainId,

@@ -1,15 +1,16 @@
 import { createAction } from '@reduxjs/toolkit';
 
-import { TokenMetadataResponse } from 'lib/apis/temple';
-import type { TokenMetadata } from 'lib/metadata';
+import type { WhitelistResponseToken } from 'lib/apis/temple';
+import type { FetchedMetadataRecord } from 'lib/metadata/fetch';
 
-export const addTokensMetadataAction = createAction<TokenMetadata[]>('tokens-metadata/ADD_MULTIPLE');
+export const putTokensMetadataAction = createAction<{
+  records: FetchedMetadataRecord;
+  resetLoading?: boolean;
+}>('tokens-metadata/PUT_MULTIPLE');
 
-export const addTokensMetadataOfFetchedAction = createAction<Record<string, TokenMetadataResponse>>(
-  'tokens-metadata/ADD_MULTIPLE_OF_FETCHED'
+export const addWhitelistTokensMetadataAction = createAction<WhitelistResponseToken[]>(
+  'tokens-metadata/ADD_WHITELISTED'
 );
-
-export const putTokensMetadataAction = createAction<TokenMetadata[]>('tokens-metadata/PUT_MULTIPLE');
 
 export const loadTokensMetadataAction = createAction<{
   rpcUrl: string;
@@ -18,4 +19,4 @@ export const loadTokensMetadataAction = createAction<{
 
 export const resetTokensMetadataLoadingAction = createAction('tokens-metadata/RESET_LOADING');
 
-export const refreshTokensMetadataAction = createAction<TokenMetadata[]>('tokens-metadata/REFRESH_MULTIPLE');
+export const refreshTokensMetadataAction = createAction<FetchedMetadataRecord>('tokens-metadata/REFRESH_MULTIPLE');

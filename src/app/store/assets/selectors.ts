@@ -11,8 +11,6 @@ export function useAllAssetsSelector(type: AssetsType) {
   return useSelector(state => state.assets[type].data);
 }
 
-export const useAllTokensSelector = () => useSelector(state => state.assets.tokens.data);
-
 export function useAccountAssetsSelector(account: string, chainId: string, type: 'tokens'): StoredToken[];
 export function useAccountAssetsSelector(account: string, chainId: string, type: 'collectibles'): StoredCollectible[];
 export function useAccountAssetsSelector(account: string, chainId: string, type: AssetsType) {

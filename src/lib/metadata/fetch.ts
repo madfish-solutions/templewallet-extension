@@ -1,7 +1,5 @@
 import { TezosToolkit } from '@taquito/taquito';
 import { pick } from 'lodash';
-import { from, Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
 
 import {
   TokenMetadataResponse,
@@ -11,8 +9,6 @@ import {
 } from 'lib/apis/temple';
 
 import { TokenMetadataOnChain, fetchTokenMetadata as fetchTokenMetadataOnChain } from './on-chain';
-import { TokenMetadata } from './types';
-import { buildTokenMetadataFromFetched } from './utils';
 
 export const fetchOneTokenMetadata = async (
   rpcUrl: string,
@@ -59,26 +55,14 @@ const fetchTokensMetadata = async (rpcUrl: string, slugs: string[]): Promise<(To
 const chainTokenMetadataToBase = (metadata: TokenMetadataOnChain | nullish): TokenMetadataResponse | null =>
   metadata ? pick(metadata, 'name', 'symbol', 'decimals', 'thumbnailUri', 'displayUri', 'artifactUri') : null;
 
-export const loadTokensMetadata = (rpcUrl: string, slugs: string[]): Promise<TokenMetadata[]> =>
-  fetchTokensMetadata(rpcUrl, slugs).then(data =>
-    data.reduce<TokenMetadata[]>((acc, token, index) => {
-      const [address, id] = slugs[index].split('_');
+export const loadTokensMetadata = (rpcUrl: string, slugs: string[]) =>
+  fetchTokensMetadata(rpcUrl, slugs).then(data => reduceToMetadataRecord(slugs, data));
 
-      const metadata = token && buildTokenMetadataFromFetched(token, address, Number(id));
+export type FetchedMetadataRecord = Record<string, TokenMetadataResponse | null>;
 
-      return metadata ? acc.concat(metadata) : acc;
-    }, [])
-  );
+export const reduceToMetadataRecord = (slugs: string[], list: (TokenMetadataResponse | null)[]) =>
+  list.reduce<FetchedMetadataRecord>((acc, metadata, index) => {
+    const slug = slugs[index]!;
 
-export const loadTokensMetadata$ = (rpcUrl: string, slugs: string[]): Observable<TokenMetadata[]> =>
-  from(fetchTokensMetadata(rpcUrl, slugs)).pipe(
-    map(data =>
-      data.reduce<TokenMetadata[]>((acc, token, index) => {
-        const [address, id] = slugs[index].split('_');
-
-        const metadata = token && buildTokenMetadataFromFetched(token, address, Number(id));
-
-        return metadata ? acc.concat(metadata) : acc;
-      }, [])
-    )
-  );
+    return { ...acc, [slug]: metadata };
+  }, {});
