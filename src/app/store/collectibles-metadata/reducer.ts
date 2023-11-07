@@ -4,6 +4,7 @@ import hardSet from 'redux-persist/lib/stateReconciler/hardSet';
 import storage from 'redux-persist/lib/storage';
 
 import { tokenToSlug } from 'lib/assets';
+import { fromAssetSlug } from 'lib/assets/utils';
 import { checkSizeOfLocalStorageEntryToSet } from 'lib/local-storage';
 import { buildTokenMetadataFromFetched } from 'lib/metadata/utils';
 
@@ -20,7 +21,8 @@ const collectiblesMetadataReducer = createReducer(collectiblesMetadataInitialSta
       const metadataRaw = records[slug];
       if (!metadataRaw) continue;
       const index = state.records.findIndex(m => tokenToSlug(m) === slug);
-      const [address, id] = slug.split('_');
+      const [address, id] = fromAssetSlug(slug);
+      if (!id) continue;
       const metadata = buildTokenMetadataFromFetched(metadataRaw, address, id);
 
       if (index !== -1) state.records.splice(index, 1);
@@ -40,6 +42,7 @@ const collectiblesMetadataReducer = createReducer(collectiblesMetadataInitialSta
 });
 
 const PERSIST_KEY = 'root.collectiblesMetadata';
+const STORAGE_PERSIST_KEY = `persist:${PERSIST_KEY}`;
 
 export const collectiblesMetadataPersistedReducer = persistReducer<CollectiblesMetadataState>(
   {
@@ -49,12 +52,15 @@ export const collectiblesMetadataPersistedReducer = persistReducer<CollectiblesM
     transforms: [
       // Reducing slice size (if needed) to succesfully persist
       createTransform<CollectiblesMetadataState, CollectiblesMetadataState>(inboundState => {
-        if (checkSizeOfLocalStorageEntryToSet(PERSIST_KEY, inboundState)) return inboundState;
+        if (checkSizeOfLocalStorageEntryToSet(STORAGE_PERSIST_KEY, inboundState)) return inboundState;
 
         let records = inboundState.records;
         do {
           records = records.slice(0, records.length - 1);
-        } while (records.length && !checkSizeOfLocalStorageEntryToSet(PERSIST_KEY, { ...inboundState, records }));
+        } while (
+          records.length &&
+          !checkSizeOfLocalStorageEntryToSet(STORAGE_PERSIST_KEY, { ...inboundState, records })
+        );
 
         return { ...inboundState, records };
       }, null)

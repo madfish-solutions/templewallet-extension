@@ -68,7 +68,7 @@ const getMetadataFromUri = async (
 export async function fetchTokenMetadata(
   tezos: TezosToolkit,
   contractAddress: string,
-  tokenId: string | number = 0,
+  tokenId: string,
   detailed: boolean = false
 ): Promise<DetailedTokenMetdataOnChain | null> {
   const tokenIdStr = String(tokenId);

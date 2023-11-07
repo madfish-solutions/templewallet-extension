@@ -2,7 +2,7 @@ import { ChainIds, TezosToolkit } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
 
 import { isFA2Token, TEZ_TOKEN_SLUG } from 'lib/assets';
-import { fromAssetSlug } from 'lib/assets/contract.utils';
+import { fromAssetSlugWithStandardDetect } from 'lib/assets/contract.utils';
 import { TEZOS_METADATA, AssetMetadataBase } from 'lib/metadata';
 import { loadContract } from 'lib/temple/contract';
 import { atomsToTokens } from 'lib/temple/helpers';
@@ -32,7 +32,7 @@ export const fetchBalance = async (
 };
 
 const fetchBalanceAtomic = async (tezos: TezosToolkit, assetSlug: string, account: string) => {
-  const asset = await fromAssetSlug(tezos, assetSlug);
+  const asset = await fromAssetSlugWithStandardDetect(tezos, assetSlug);
 
   if (asset === TEZ_TOKEN_SLUG) return await fetchTezosBalanceAtomic(tezos, account);
 

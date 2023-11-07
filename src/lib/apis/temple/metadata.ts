@@ -32,7 +32,7 @@ export interface TokenMetadataResponse {
   image?: string;
 }
 
-export const fetchOneTokenMetadata = (chainId: MetadataApiChainId, address: string, id = 0) =>
+export const fetchOneTokenMetadata = (chainId: MetadataApiChainId, address: string, id: string) =>
   getApi(chainId)
     .get<TokenMetadataResponse>(`/metadata/${address}/${id}`)
     .then(({ data }) => (data.name === 'Unknown Token' ? undefined : data));

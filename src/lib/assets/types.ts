@@ -1,14 +1,12 @@
-import type BigNumber from 'bignumber.js';
-
 import type { TEZ_TOKEN_SLUG } from './index';
 
 interface Token {
   contract: string;
-  id?: BigNumber.Value;
+  id?: string;
 }
 
 export interface FA2Token extends Token {
-  id: BigNumber.Value;
+  id: string;
 }
 
 export type Asset = Token | typeof TEZ_TOKEN_SLUG;

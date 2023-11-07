@@ -38,7 +38,7 @@ export const useTokensListingLogic = (
 
   const [searchValue, setSearchValue] = useState('');
   const [tokenId, setTokenId] = useState<number>();
-  const [searchValueDebounced] = useDebounce(tokenId ? toTokenSlug(searchValue, tokenId) : searchValue, 300);
+  const [searchValueDebounced] = useDebounce(tokenId ? toTokenSlug(searchValue, String(tokenId)) : searchValue, 300);
 
   const assetsSortPredicate = useTokensSortPredicate();
   const getMetadata = useGetTokenOrGasMetadata();

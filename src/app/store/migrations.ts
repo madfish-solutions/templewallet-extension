@@ -1,4 +1,4 @@
-import type { PersistedState } from 'redux-persist';
+import type { MigrationManifest, PersistedState } from 'redux-persist';
 
 import { toTokenSlug } from 'lib/assets';
 import { isCollectible } from 'lib/metadata';
@@ -7,8 +7,8 @@ import type { RootState } from './root-state.type';
 
 type TypedPersistedRootState = Exclude<PersistedState, undefined> & RootState;
 
-export const MIGRATIONS = {
-  '1': (persistedState: PersistedState) => {
+export const MIGRATIONS: MigrationManifest = {
+  '2': (persistedState: PersistedState) => {
     if (!persistedState) return persistedState;
     const typedPersistedState = persistedState as TypedPersistedRootState;
     const allTokensMetadata = typedPersistedState.tokensMetadata.metadataRecord;
@@ -26,6 +26,7 @@ export const MIGRATIONS = {
       // Occured after stringifying large numbers for token IDs.
       if (tokenId.includes('e')) {
         delete allTokensMetadata[slug];
+        console.log('E:', slug, tokenId, metadata);
         continue;
       }
 

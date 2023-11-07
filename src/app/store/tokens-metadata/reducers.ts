@@ -2,6 +2,7 @@ import { createReducer } from '@reduxjs/toolkit';
 import { omit, pick } from 'lodash';
 
 import { toTokenSlug } from 'lib/assets';
+import { fromAssetSlug } from 'lib/assets/utils';
 import { buildTokenMetadataFromFetched, buildTokenMetadataFromWhitelist } from 'lib/metadata/utils';
 
 import {
@@ -16,13 +17,11 @@ import { tokensMetadataInitialState, TokensMetadataState } from './state';
 export const tokensMetadataReducer = createReducer<TokensMetadataState>(tokensMetadataInitialState, builder => {
   builder.addCase(putTokensMetadataAction, (state, { payload: { records, resetLoading } }) => {
     for (const slug of Object.keys(records)) {
-      if (state.metadataRecord[slug]) continue;
+      const [address, id] = fromAssetSlug(slug);
       const rawMetadata = records[slug];
-      if (!rawMetadata) continue;
-      const [address, id] = slug.split('_');
-      const metadata = buildTokenMetadataFromFetched(rawMetadata, address, id);
+      if (!rawMetadata || !id) continue;
 
-      state.metadataRecord[slug] = metadata;
+      state.metadataRecord[slug] = buildTokenMetadataFromFetched(rawMetadata, address, id);
     }
 
     if (resetLoading) state.metadataLoading = false;
@@ -51,9 +50,11 @@ export const tokensMetadataReducer = createReducer<TokensMetadataState>(tokensMe
     for (const slug of Object.keys(payload)) {
       const current = state.metadataRecord[slug];
       if (!current) continue;
+
+      const [address, id] = fromAssetSlug(slug);
       const rawMetadata = payload[slug];
-      if (!rawMetadata) continue;
-      const [address, id] = slug.split('_');
+      if (!rawMetadata || !id) continue;
+
       const metadata = buildTokenMetadataFromFetched(rawMetadata, address, id);
 
       state.metadataRecord[slug] = {

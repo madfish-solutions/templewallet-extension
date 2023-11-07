@@ -7,13 +7,14 @@ import {
   fetchTokensMetadata as fetchTokensMetadataOnAPI,
   isKnownChainId
 } from 'lib/apis/temple';
+import { fromAssetSlug } from 'lib/assets/utils';
 
 import { TokenMetadataOnChain, fetchTokenMetadata as fetchTokenMetadataOnChain } from './on-chain';
 
 export const fetchOneTokenMetadata = async (
   rpcUrl: string,
   address: string,
-  id: number = 0
+  id: string
 ): Promise<TokenMetadataResponse | undefined> => {
   const tezos = new TezosToolkit(rpcUrl);
   const chainId = await tezos.rpc.getChainId();
@@ -39,7 +40,8 @@ const fetchTokensMetadata = async (rpcUrl: string, slugs: string[]): Promise<(To
 
   return await Promise.all(
     slugs.map(async slug => {
-      const [address, id = 0] = slug.split('_');
+      const [address, id] = fromAssetSlug(slug);
+      if (!id) return null;
 
       return await fetchTokenMetadataOnChain(tezos, address, id)
         .then(chainTokenMetadataToBase)

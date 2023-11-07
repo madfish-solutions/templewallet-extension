@@ -1,5 +1,7 @@
 import { useEffect } from 'react';
 
+import { fromAssetSlug } from 'lib/assets/utils';
+
 import { useAnalytics } from './use-analytics.hook';
 
 const pageRoutesWithToken = ['/explore', '/send', '/collectible'];
@@ -15,7 +17,7 @@ export const usePageRouterAnalytics = (pathname: string, search: string, isConte
 
     if (pageRoutesWithToken.some(route => pathname.startsWith(route))) {
       const [, route = '', tokenSlug = 'tez'] = pathname.split('/');
-      const [tokenAddress, tokenId = '0'] = tokenSlug.split('_');
+      const [tokenAddress, tokenId] = fromAssetSlug(tokenSlug);
 
       return void pageEvent(`/${route}`, search, {
         tokenAddress,

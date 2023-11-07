@@ -132,7 +132,7 @@ const Form = memo(() => {
       if (tokenStandard === 'fa2') await assertFa2TokenDefined(tezos, contract, tokenId);
 
       const rpcUrl = tezos.rpc.getRpcUrl();
-      const metadata = await fetchOneTokenMetadata(rpcUrl, contractAddress, tokenId);
+      const metadata = await fetchOneTokenMetadata(rpcUrl, contractAddress, String(tokenId));
 
       if (metadata) {
         metadataRef.current = metadata;

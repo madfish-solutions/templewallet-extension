@@ -8,6 +8,7 @@ import { isValidContractAddress, tokensToAtoms } from 'lib/temple/helpers';
 import { isFA2Token, isTezAsset } from './index';
 import { detectTokenStandard } from './standards';
 import { Asset } from './types';
+import { fromAssetSlug } from './utils';
 
 export const toTransferParams = async (
   tezos: TezosToolkit,
@@ -17,7 +18,7 @@ export const toTransferParams = async (
   toPkh: string,
   amount: BigNumber.Value
 ) => {
-  const asset = await fromAssetSlug(tezos, assetSlug);
+  const asset = await fromAssetSlugWithStandardDetect(tezos, assetSlug);
 
   if (isTezAsset(asset)) {
     return {
@@ -66,10 +67,10 @@ export const toTransferParams = async (
   return contract.methods.transfer(fromPkh, toPkh, pennyAmount).toTransferParams();
 };
 
-export const fromAssetSlug = async (tezos: TezosToolkit, slug: string): Promise<Asset> => {
+export const fromAssetSlugWithStandardDetect = async (tezos: TezosToolkit, slug: string): Promise<Asset> => {
   if (isTezAsset(slug)) return slug;
 
-  const [contractAddress, tokenIdStr] = slug.split('_');
+  const [contractAddress, tokenIdStr] = fromAssetSlug(slug);
 
   if (!isValidContractAddress(contractAddress)) {
     throw new Error('Invalid contract address');
@@ -79,6 +80,6 @@ export const fromAssetSlug = async (tezos: TezosToolkit, slug: string): Promise<
 
   return {
     contract: contractAddress,
-    id: tokenStandard === 'fa2' ? new BigNumber(tokenIdStr ?? 0) : undefined
+    id: tokenStandard === 'fa2' ? tokenIdStr ?? '0' : undefined
   };
 };

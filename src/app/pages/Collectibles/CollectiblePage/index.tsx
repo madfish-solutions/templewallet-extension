@@ -16,6 +16,7 @@ import AddressChip from 'app/templates/AddressChip';
 import OperationStatus from 'app/templates/OperationStatus';
 import { TabsBar } from 'app/templates/TabBar';
 import { fetchCollectibleExtraDetails, objktCurrencies } from 'lib/apis/objkt';
+import { fromAssetSlug } from 'lib/assets/utils';
 import { BLOCK_DURATION } from 'lib/fixed-times';
 import { t, T } from 'lib/i18n';
 import { buildTokenImagesStack } from 'lib/images-uri';
@@ -47,11 +48,11 @@ const CollectiblePage = memo<Props>(({ assetSlug }) => {
 
   const account = useAccount();
 
-  const [contractAddress, tokenId] = assetSlug.split('_');
+  const [contractAddress, tokenId] = fromAssetSlug(assetSlug);
 
   const { data: extraDetails } = useRetryableSWR(
     ['fetchCollectibleExtraDetails', contractAddress, tokenId],
-    () => fetchCollectibleExtraDetails(contractAddress, tokenId),
+    () => (tokenId ? fetchCollectibleExtraDetails(contractAddress, tokenId) : Promise.resolve(null)),
     {
       refreshInterval: DETAILS_SYNC_INTERVAL
     }

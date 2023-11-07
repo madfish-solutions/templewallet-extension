@@ -1,9 +1,4 @@
 - `TokenMetadata.slug: string`
-- TTL for metadata (only NFTs but permanent for tokens) ?
-- `string` type for assets IDs
-- `name` & `symbol` separate from the list ?
-- - `decimals` in `StoredCollectible` (`StoredAsset`) ?
-- `state.assets.(tokens | collectibles)` -> `state.(tokens | collectibles).list`
 - Metadata of `KT1EJ1KpvY1oVQVE5fw2W3JjsDWTkEhbYbwm_0` NFT in `tz1Up3Uyj6PR3AkdsaXouhhetS3VdaTkW2Ro` not loaded first in a grid
 - Metadata not saved:
 - -
