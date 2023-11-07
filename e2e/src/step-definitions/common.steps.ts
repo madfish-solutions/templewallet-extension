@@ -1,4 +1,5 @@
 import { Given } from '@cucumber/cucumber';
+import axios from 'axios';
 
 import { BrowserContext } from '../classes/browser-context.class';
 import { Pages } from '../page-objects';
@@ -62,3 +63,22 @@ Given(
     await Pages[page].scrollTo(countOfScroll);
   }
 );
+
+Given(/I make request for creating a notification/, { timeout: MEDIUM_TIMEOUT }, async () => {
+  try {
+    const requestBody = {
+      key1: 'value1',
+      key2: 'value2'
+    };
+
+    const response = await axios.post('https://example.com/api', requestBody, {
+      headers: {
+        'Content-Type': 'application/json' // Set the appropriate content type
+      }
+    });
+
+    console.log('Status Code:', response.status);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+});
