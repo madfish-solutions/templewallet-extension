@@ -6,7 +6,7 @@ import { ReactComponent as SelectArrowDownIcon } from 'app/icons/select-arrow-do
 import { setTestID } from 'lib/analytics';
 import { t } from 'lib/i18n';
 
-import { ImportAccountSelectors } from '../../../pages/ImportAccount/selectors';
+import { ImportAccountSelectors } from 'app/pages/ImportAccount/selectors';
 import { SeedLengthOption } from './SeedLengthOption/SeedLengthOption';
 
 interface SeedLengthSelectProps {
