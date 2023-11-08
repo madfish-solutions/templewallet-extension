@@ -8,18 +8,16 @@ import {
   useAccountAssetsSelector,
   useMainnetTokensWhitelistSelector
 } from 'app/store/assets/selectors';
-import type { StoredAssetStatus } from 'app/store/assets/state';
 import { useAllBalancesSelector } from 'app/store/balances/selectors';
 import { useAccount, useChainId } from 'lib/temple/front';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 
 import { PREDEFINED_TOKENS_METADATA } from '../known-tokens';
+import type { AccountAsset } from '../types';
 import { tokenToSlug } from '../utils';
 import { getAssetStatus } from './utils';
 
-interface AccountToken {
-  slug: string;
-  status: StoredAssetStatus;
+interface AccountToken extends AccountAsset {
   predefined?: boolean;
 }
 

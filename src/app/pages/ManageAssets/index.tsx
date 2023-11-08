@@ -1,13 +1,9 @@
-import React, { memo, useCallback } from 'react';
+import React, { memo } from 'react';
 
 import { ReactComponent as ControlCentreIcon } from 'app/icons/control-centre.svg';
 import PageLayout from 'app/layouts/PageLayout';
-import { dispatch } from 'app/store';
-import { setAssetStatusAction } from 'app/store/assets/actions';
 import { AssetTypesEnum } from 'lib/assets/types';
-import { t, T } from 'lib/i18n';
-import { useAccount, useChainId } from 'lib/temple/front';
-import { useConfirm } from 'lib/ui/dialog';
+import { T } from 'lib/i18n';
 
 import { ManageCollectibles } from './ManageCollectibles';
 import { ManageTokens } from './ManageTokens';
@@ -17,51 +13,7 @@ interface Props {
 }
 
 const ManageAssets = memo<Props>(({ assetType }) => {
-  const chainId = useChainId(true)!;
-  const { publicKeyHash } = useAccount();
-
-  const confirm = useConfirm();
-
   const ofCollectibles = assetType === AssetTypesEnum.Collectibles;
-
-  const removeItem = useCallback(
-    async (slug: string) => {
-      try {
-        const confirmed = await confirm({
-          title: t(ofCollectibles ? 'deleteCollectibleConfirm' : 'deleteTokenConfirm')
-        });
-
-        if (confirmed)
-          dispatch(
-            setAssetStatusAction({
-              isCollectible: ofCollectibles,
-              account: publicKeyHash,
-              chainId,
-              slug,
-              status: 'removed'
-            })
-          );
-      } catch (err: any) {
-        console.error(err);
-        alert(err.message);
-      }
-    },
-    [ofCollectibles, chainId, publicKeyHash, confirm]
-  );
-
-  const toggleTokenStatus = useCallback(
-    (slug: string, toDisable: boolean) =>
-      void dispatch(
-        setAssetStatusAction({
-          isCollectible: ofCollectibles,
-          account: publicKeyHash,
-          chainId,
-          slug,
-          status: toDisable ? 'disabled' : 'enabled'
-        })
-      ),
-    [ofCollectibles, chainId, publicKeyHash]
-  );
 
   return (
     <PageLayout
@@ -72,21 +24,7 @@ const ManageAssets = memo<Props>(({ assetType }) => {
         </>
       }
     >
-      {ofCollectibles ? (
-        <ManageCollectibles
-          chainId={chainId}
-          publicKeyHash={publicKeyHash}
-          removeItem={removeItem}
-          toggleTokenStatus={toggleTokenStatus}
-        />
-      ) : (
-        <ManageTokens
-          chainId={chainId}
-          publicKeyHash={publicKeyHash}
-          removeItem={removeItem}
-          toggleTokenStatus={toggleTokenStatus}
-        />
-      )}
+      {ofCollectibles ? <ManageCollectibles /> : <ManageTokens />}
     </PageLayout>
   );
 });

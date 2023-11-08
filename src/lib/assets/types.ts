@@ -1,4 +1,11 @@
+import type { StoredAssetStatus } from 'app/store/assets/state';
+
 import type { TEZ_TOKEN_SLUG } from './index';
+
+export interface AccountAsset {
+  slug: string;
+  status: StoredAssetStatus;
+}
 
 interface Token {
   contract: string;

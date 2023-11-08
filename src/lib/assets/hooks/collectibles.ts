@@ -3,25 +3,21 @@ import { useMemo } from 'react';
 import { isEqual } from 'lodash';
 
 import { useAccountAssetsSelector } from 'app/store/assets/selectors';
-import type { StoredAssetStatus, StoredCollectible } from 'app/store/assets/state';
 import { useAllBalancesSelector } from 'app/store/balances/selectors';
 import { useAccount, useChainId } from 'lib/temple/front';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 
+import type { AccountAsset } from '../types';
 import { getAssetStatus } from './utils';
-
-interface AccountCollectible extends Pick<StoredCollectible, 'slug'> {
-  status: StoredAssetStatus;
-}
 
 export const useAccountCollectibles = (account: string, chainId: string) => {
   const stored = useAccountAssetsSelector(account, chainId, 'collectibles');
 
   const balances = useAllBalancesSelector(account, chainId);
 
-  return useMemoWithCompare<AccountCollectible[]>(
+  return useMemoWithCompare<AccountAsset[]>(
     () =>
-      stored.reduce<AccountCollectible[]>(
+      stored.reduce<AccountAsset[]>(
         (acc, { slug, status }) =>
           status === 'removed' ? acc : acc.concat({ slug, status: getAssetStatus(balances[slug], status) }),
         []

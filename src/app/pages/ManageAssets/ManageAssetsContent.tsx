@@ -1,19 +1,23 @@
-import React, { FC, PropsWithChildren } from 'react';
+import React, { FC, memo, PropsWithChildren, useCallback } from 'react';
 
 import clsx from 'clsx';
 
 import { ReactComponent as AddIcon } from 'app/icons/add-to-list.svg';
+import { dispatch } from 'app/store';
+import { setAssetStatusAction } from 'app/store/assets/actions';
 import SearchAssetField from 'app/templates/SearchAssetField';
-import { T } from 'lib/i18n';
+import { AccountAsset } from 'lib/assets/types';
+import { t, T } from 'lib/i18n';
+import type { TokenMetadataGetter } from 'lib/metadata';
+import { useAccount, useChainId } from 'lib/temple/front';
+import { useConfirm } from 'lib/ui/dialog';
 import { Link } from 'lib/woozie';
 
+import { ListItem } from './ListItem';
 import { ManageAssetsSelectors } from './selectors';
 
-export const WRAPPER_CLASSNAME =
-  'flex flex-col w-full overflow-hidden border rounded-md text-gray-700 text-sm leading-tight';
-
 interface Props extends PropsWithChildren {
-  ofCollectibles: boolean;
+  ofCollectibles?: boolean;
   searchValue: string;
   setSearchValue: (value: string) => void;
 }
@@ -44,3 +48,77 @@ export const ManageAssetsContent: FC<Props> = ({ ofCollectibles, searchValue, se
     {children}
   </div>
 );
+
+interface ManageAssetsContentListProps {
+  ofCollectibles?: boolean;
+  assets: AccountAsset[];
+  getMetadata: TokenMetadataGetter;
+}
+
+export const ManageAssetsContentList = memo<ManageAssetsContentListProps>(({ ofCollectibles, assets, getMetadata }) => {
+  const chainId = useChainId(true)!;
+  const { publicKeyHash } = useAccount();
+
+  const confirm = useConfirm();
+
+  const removeItem = useCallback(
+    async (slug: string) => {
+      try {
+        const confirmed = await confirm({
+          title: t(ofCollectibles ? 'deleteCollectibleConfirm' : 'deleteTokenConfirm')
+        });
+
+        if (confirmed)
+          dispatch(
+            setAssetStatusAction({
+              isCollectible: ofCollectibles,
+              account: publicKeyHash,
+              chainId,
+              slug,
+              status: 'removed'
+            })
+          );
+      } catch (err: any) {
+        console.error(err);
+        alert(err.message);
+      }
+    },
+    [ofCollectibles, chainId, publicKeyHash, confirm]
+  );
+
+  const toggleTokenStatus = useCallback(
+    (slug: string, toDisable: boolean) =>
+      void dispatch(
+        setAssetStatusAction({
+          isCollectible: ofCollectibles,
+          account: publicKeyHash,
+          chainId,
+          slug,
+          status: toDisable ? 'disabled' : 'enabled'
+        })
+      ),
+    [ofCollectibles, chainId, publicKeyHash]
+  );
+
+  return (
+    <div className="flex flex-col w-full overflow-hidden border rounded-md text-gray-700 text-sm leading-tight">
+      {assets.map(({ slug, status }, i, arr) => {
+        const metadata = getMetadata(slug);
+
+        const last = i === arr.length - 1;
+
+        return (
+          <ListItem
+            key={slug}
+            assetSlug={slug}
+            metadata={metadata}
+            last={last}
+            checked={status === 'enabled'}
+            onRemove={removeItem}
+            onToggle={toggleTokenStatus}
+          />
+        );
+      })}
+    </div>
+  );
+});
