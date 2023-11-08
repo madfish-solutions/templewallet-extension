@@ -22,7 +22,13 @@ const loadAccountTokensEpic: Epic<Action, Action, RootState> = (action$, state$)
     toPayload(),
     toLatestValue(state$),
     switchMap(([{ account, chainId }, state]) =>
-      from(loadAccountTokens(account, chainId, state.tokensMetadata.metadataRecord)).pipe(
+      from(
+        loadAccountTokens(
+          account,
+          chainId,
+          Object.values(state.tokensMetadata.metadataRecord).concat(state.collectiblesMetadata.records)
+        )
+      ).pipe(
         concatMap(({ slugs, balances, newMeta }) => [
           loadAccountTokensActions.success({ account, chainId, slugs }),
           putTokensBalancesAction({ publicKeyHash: account, chainId, balances: fixBalances(balances) }),
@@ -39,9 +45,15 @@ const loadAccountCollectiblesEpic: Epic<Action, Action, RootState> = (action$, s
     toPayload(),
     toLatestValue(state$),
     switchMap(([{ account, chainId }, state]) =>
-      from(loadAccountCollectibles(account, chainId, state.tokensMetadata.metadataRecord)).pipe(
-        concatMap(({ collectibles, balances, newMeta }) => [
-          loadAccountCollectiblesActions.success({ account, chainId, collectibles }),
+      from(
+        loadAccountCollectibles(
+          account,
+          chainId,
+          Object.values(state.tokensMetadata.metadataRecord).concat(state.collectiblesMetadata.records)
+        )
+      ).pipe(
+        concatMap(({ slugs, balances, newMeta }) => [
+          loadAccountCollectiblesActions.success({ account, chainId, slugs }),
           putTokensBalancesAction({ publicKeyHash: account, chainId, balances: fixBalances(balances) }),
           putCollectiblesMetadataAction({ records: newMeta })
         ]),

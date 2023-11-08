@@ -71,8 +71,6 @@ export async function fetchTokenMetadata(
   tokenId: string,
   detailed: boolean = false
 ): Promise<DetailedTokenMetdataOnChain | null> {
-  const tokenIdStr = String(tokenId);
-
   if (!isValidContractAddress(contractAddress)) {
     throw new Error('Invalid contract address');
   }
@@ -81,7 +79,7 @@ export async function fetchTokenMetadata(
     const contract = await retry(() => tezos.contract.at(contractAddress, compose(tzip12, tzip16)), RETRY_PARAMS);
 
     const tzip12Metadata = await getTzip12Metadata(contract, tokenId);
-    const metadataFromUri = await getMetadataFromUri(contract, tokenIdStr, tezos);
+    const metadataFromUri = await getMetadataFromUri(contract, tokenId, tezos);
 
     const rawMetadata = { ...metadataFromUri, ...tzip12Metadata };
 
@@ -91,7 +89,7 @@ export async function fetchTokenMetadata(
 
     const baseMetadata: TokenMetadataOnChain = {
       decimals: +rawMetadata.decimals,
-      symbol: rawMetadata.symbol || rawMetadata.name!.substr(0, 8),
+      symbol: rawMetadata.symbol || rawMetadata.name!.substring(0, 8),
       name: rawMetadata.name || rawMetadata.symbol!,
       shouldPreferSymbol: parseBool(rawMetadata.shouldPreferSymbol),
       thumbnailUri:
@@ -112,7 +110,7 @@ export async function fetchTokenMetadata(
     const tzip16Metadata = await getTzip16Metadata(contract);
 
     const detailedMetadata: DetailedTokenMetdataOnChain = {
-      ...tzip16Metadata?.assets?.[tokenIdStr],
+      ...tzip16Metadata?.assets?.[tokenId],
       ...rawMetadata,
       ...baseMetadata
     };

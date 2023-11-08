@@ -17,13 +17,9 @@ export const loadAccountTokensActions = createActions<
   { code?: string }
 >('assets/LOAD_ACCOUNT_TOKENS');
 
-export interface LoadedCollectible {
-  slug: string;
-}
-
 export const loadAccountCollectiblesActions = createActions<
   LoadAssetsPayload,
-  LoadAssetsPayload & { collectibles: LoadedCollectible[] },
+  LoadAssetsPayload & { slugs: string[] },
   { code?: string }
 >('assets/LOAD_ACCOUNT_COLLECTIBLES');
 

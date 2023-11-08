@@ -74,9 +74,9 @@ export const assetsReducer = createReducer<SliceState>(initialState, builder => 
     delete state.collectibles.error;
 
     const collectibles = state.collectibles.data;
-    const { account, chainId, collectibles: loadedCollectibles } = payload;
+    const { account, chainId, slugs } = payload;
 
-    for (const { slug } of loadedCollectibles) {
+    for (const slug of slugs) {
       if (!collectibles.some(t => t.slug === slug && t.chainId === chainId && t.account === account))
         collectibles.push({
           account,
