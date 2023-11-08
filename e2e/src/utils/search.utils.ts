@@ -89,11 +89,7 @@ class PageElement {
   }
 
   async clearInput() {
-    await BrowserContext.page.keyboard.press('End');
-    await BrowserContext.page.keyboard.down('Shift');
-    await BrowserContext.page.keyboard.press('Home');
-    await BrowserContext.page.keyboard.up('Shift');
-    await BrowserContext.page.keyboard.press('Backspace');
+    await clearDataFromInput();
   }
   async getText() {
     const element = await this.findElement();
@@ -132,7 +128,7 @@ export const getElementText = (element: ElementHandle) =>
       return innerElement.value;
     }
 
-    const textContent = innerElement.textContent;
+    const textContent = innerElement.textContent?.replace(/\n/g, ' ');
 
     if (textContent == null) {
       throw new Error("Element's content is not text!");
@@ -155,4 +151,12 @@ const buildSelector = (testID: string, otherSelectors?: OtherSelectors) => {
 const buildNotSelector = (notSelectors: OtherSelectors) => {
   const pairs = buildSelectorPairs(notSelectors);
   return `:not([${pairs.join(']):not([')}])`;
+};
+
+export const clearDataFromInput = async () => {
+  await BrowserContext.page.keyboard.press('End');
+  await BrowserContext.page.keyboard.down('Shift');
+  await BrowserContext.page.keyboard.press('Home');
+  await BrowserContext.page.keyboard.up('Shift');
+  await BrowserContext.page.keyboard.press('Backspace');
 };
