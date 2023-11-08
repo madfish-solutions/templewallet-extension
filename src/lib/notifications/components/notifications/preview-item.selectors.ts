@@ -1,3 +1,5 @@
 export enum PreviewItemSelectors {
-  NavigationButton = 'Notifications/NavigationButton'
+  notificationItem = 'Notifications/NavigationButton',
+  notificationItemTitleText = 'Notifications/NavigationButton',
+  notificationItemDescriptionText = 'Notifications/NavigationButton'
 }

@@ -69,7 +69,7 @@ Given(
 Given(/I make request for creating a notification/, { timeout: MEDIUM_TIMEOUT }, async () => {
   const currentDate = new Date();
   const currentDateISO = new Date().toISOString();
-  const expirationDateISO = new Date(currentDate.getTime() + 180000).toISOString(); // Notification will be deleted in 3 minutes
+  const expirationDateISO = new Date(currentDate.getTime() + 240000).toISOString(); // Notification will be deleted in 4 minutes
 
   const requestBody = {
     mobile: 'off',

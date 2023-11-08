@@ -5,6 +5,7 @@ import classNames from 'clsx';
 import { AlertTriangleIcon, ArrowRightIcon, NewsIcon, NotificationDotIcon, UpdateIcon } from 'lib/icons';
 import { Link } from 'lib/woozie';
 
+import { setAnotherSelector, setTestID } from '../../../analytics';
 import { NotificationStatus } from '../../enums/notification-status.enum';
 import { NotificationType } from '../../enums/notification-type.enum';
 import { NotificationInterface } from '../../interfaces/notification.interface';
@@ -31,7 +32,7 @@ export const NotificationPreviewItem: FC<Props> = ({ notification }) => {
         'flex column p-4 border-b border-gray-300',
         notification.status === NotificationStatus.Read && 'bg-gray-10'
       ])}
-      testID={PreviewItemSelectors.NavigationButton}
+      testID={PreviewItemSelectors.notificationItem}
       testIDProperties={{ id: notification.id, type: notification.type }}
     >
       <div className="relative">
@@ -59,10 +60,19 @@ export const NotificationPreviewItem: FC<Props> = ({ notification }) => {
               'mb-2 text-sm font-medium',
               notification.status === NotificationStatus.Read ? 'text-gray-600' : 'text-black'
             )}
+            {...setTestID(PreviewItemSelectors.notificationItemTitleText)}
+            {...setAnotherSelector('title', notification.title)}
           >
             {notification.title}
           </p>
-          <p className="text-gray-600 text-xs">{notification.description}</p>
+
+          <p
+            className="text-gray-600 text-xs"
+            {...setTestID(PreviewItemSelectors.notificationItemDescriptionText)}
+            {...setAnotherSelector('description', notification.description)}
+          >
+            {notification.description}
+          </p>
         </div>
 
         <div className="flex row justify-between items-center">
