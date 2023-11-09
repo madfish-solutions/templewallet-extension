@@ -37,23 +37,14 @@ export async function init() {
   const saved = getSavedLocale();
 
   if (saved) {
-    const native = getNativeLocale();
-
-    await Promise.all([
-      // Fetch target locale messages if needed
-      (async () => {
-        if (!areLocalesEqual(saved, native)) {
-          refetched.target = await fetchLocaleMessages(saved);
-        }
-      })(),
-      // Fetch fallback locale messages if needed
-      (async () => {
-        const deflt = getDefaultLocale();
-        if (!areLocalesEqual(deflt, native) && !areLocalesEqual(deflt, saved)) {
-          refetched.fallback = await fetchLocaleMessages(deflt);
-        }
-      })()
+    const deflt = getDefaultLocale();
+    const [newTargetLocale, newFallbackLocale] = await Promise.all([
+      !areLocalesEqual(saved, deflt) ? fetchLocaleMessages(saved) : null,
+      fetchLocaleMessages(deflt)
     ]);
+
+    refetched.target = newTargetLocale;
+    refetched.fallback = newFallbackLocale;
   }
 
   fetchedLocaleMessages = refetched;

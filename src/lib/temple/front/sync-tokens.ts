@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react';
 
 import constate from 'constate';
 import { useSWRConfig } from 'swr';
-import { ScopedMutator } from 'swr/dist/types';
+import { ScopedMutator } from 'swr/_internal';
 
 import { fetchWhitelistTokenSlugs } from 'lib/apis/temple';
 import { TzktAccountToken, fetchTzktTokens } from 'lib/apis/tzkt';

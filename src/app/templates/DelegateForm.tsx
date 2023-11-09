@@ -37,6 +37,7 @@ import {
   useTezosDomainsClient,
   validateDelegate
 } from 'lib/temple/front';
+import { useTezosAddressByDomainName } from 'lib/temple/front/tzdns';
 import { hasManager, isAddressValid, isKTAddress, mutezToTz, tzToMutez } from 'lib/temple/helpers';
 import { TempleAccountType } from 'lib/temple/types';
 import { useSafeState } from 'lib/ui/hooks';
@@ -92,14 +93,7 @@ const DelegateForm: FC = () => {
     () => toValue && isDomainNameValid(toValue, domainsClient),
     [toValue, domainsClient]
   );
-  const domainAddressFactory = useCallback(
-    (_k: string, _checksum: string, value: string) => domainsClient.resolver.resolveNameToAddress(value),
-    [domainsClient]
-  );
-  const { data: resolvedAddress } = useSWR(['tzdns-address', tezos.checksum, toValue], domainAddressFactory, {
-    shouldRetryOnError: false,
-    revalidateOnFocus: false
-  });
+  const { data: resolvedAddress } = useTezosAddressByDomainName(toValue);
 
   const toFieldRef = useRef<HTMLTextAreaElement>(null);
 

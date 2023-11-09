@@ -85,10 +85,10 @@ const InitialStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
   const { data: ratesData } = useSWR(['exolix/api/rate', coinFrom, coinTo, amount], () =>
     queryExchange({
       coinFrom: coinFrom.code,
-      coinFromNetwork: coinFrom.network!.code,
+      coinFromNetwork: coinFrom.network.code,
       amount: amount ?? 0,
       coinTo: coinTo.code,
-      coinToNetwork: coinTo!.network.code
+      coinToNetwork: coinTo.network.code
     })
   );
 
@@ -103,10 +103,10 @@ const InitialStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
 
       const { toAmount: maxCoinFromAmount } = await queryExchange({
         coinFrom: coinTo.code,
-        coinFromNetwork: coinTo.network!.code,
+        coinFromNetwork: coinTo.network.code,
         amount: maxCoinToAmount,
         coinTo: coinFrom.code,
-        coinToNetwork: coinFrom.network!.code
+        coinToNetwork: coinFrom.network.code
       });
 
       setMaxAmountFetched(maxCoinFromAmount);

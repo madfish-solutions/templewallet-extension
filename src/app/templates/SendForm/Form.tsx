@@ -48,6 +48,7 @@ import {
   useFilteredContacts,
   validateRecipient
 } from 'lib/temple/front';
+import { useTezosAddressByDomainName } from 'lib/temple/front/tzdns';
 import { hasManager, isAddressValid, isKTAddress, mutezToTz, tzToMutez } from 'lib/temple/helpers';
 import { TempleAccountType, TempleAccount, TempleNetworkType } from 'lib/temple/types';
 import { useSafeState } from 'lib/ui/hooks';
@@ -129,7 +130,7 @@ export const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactReque
       const amount = new BigNumber(getValues().amount);
       setValue(
         'amount',
-        (newShouldUseFiat ? amount.multipliedBy(assetPrice!) : amount.div(assetPrice!)).toFormat(
+        (newShouldUseFiat ? amount.multipliedBy(assetPrice) : amount.div(assetPrice)).toFormat(
           newShouldUseFiat ? 2 : 6,
           BigNumber.ROUND_FLOOR,
           {
@@ -164,14 +165,7 @@ export const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactReque
     [toValue, domainsClient]
   );
 
-  const domainAddressFactory = useCallback(
-    (_k: string, _checksum: string, address: string) => domainsClient.resolver.resolveNameToAddress(address),
-    [domainsClient]
-  );
-  const { data: resolvedAddress } = useSWR(['tzdns-address', tezos.checksum, toValue], domainAddressFactory, {
-    shouldRetryOnError: false,
-    revalidateOnFocus: false
-  });
+  const { data: resolvedAddress } = useTezosAddressByDomainName(toValue);
 
   const toFilled = useMemo(
     () => (resolvedAddress ? toFilledWithDomain : toFilledWithAddress),

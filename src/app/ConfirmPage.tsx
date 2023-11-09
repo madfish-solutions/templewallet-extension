@@ -131,7 +131,7 @@ const ConfirmDAppForm: FC = () => {
     return pageId;
   }, [loc.search]);
 
-  const { data } = useRetryableSWR<TempleDAppPayload>([id], getDAppPayload, {
+  const { data } = useRetryableSWR<TempleDAppPayload>(id, getDAppPayload, {
     suspense: true,
     shouldRetryOnError: false,
     revalidateOnFocus: false,

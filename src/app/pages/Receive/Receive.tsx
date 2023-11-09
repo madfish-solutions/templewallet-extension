@@ -2,7 +2,6 @@ import React, { FC, memo, useCallback, useEffect } from 'react';
 
 import classNames from 'clsx';
 import { QRCode } from 'react-qr-svg';
-import useSWR from 'swr';
 
 import { FormField } from 'app/atoms';
 import { ReactComponent as CopyIcon } from 'app/icons/copy.svg';
@@ -14,6 +13,7 @@ import ViewsSwitcher, { ViewsSwitcherProps } from 'app/templates/ViewsSwitcher/V
 import { setTestID } from 'lib/analytics';
 import { T, t } from 'lib/i18n';
 import { useAccount, useTezos, useTezosDomainsClient } from 'lib/temple/front';
+import { useTezosDomainNameByAddress } from 'lib/temple/front/tzdns';
 import { useSafeState } from 'lib/ui/hooks';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 
@@ -35,23 +35,13 @@ const ADDRESS_FIELD_VIEWS = [
 
 const Receive: FC = () => {
   const account = useAccount();
-  const tezos = useTezos();
-  const { resolver: domainsResolver, isSupported } = useTezosDomainsClient();
+  const { isSupported } = useTezosDomainsClient();
   const address = account.publicKeyHash;
 
   const { fieldRef, copy, copied } = useCopyToClipboard();
   const [activeView, setActiveView] = useSafeState(ADDRESS_FIELD_VIEWS[1]);
 
-  const resolveDomainReverseName = useCallback(
-    (_k: string, pkh: string) => domainsResolver.resolveAddressToName(pkh),
-    [domainsResolver]
-  );
-
-  const { data: reverseName } = useSWR(
-    () => ['tzdns-reverse-name', address, tezos.checksum],
-    resolveDomainReverseName,
-    { shouldRetryOnError: false, revalidateOnFocus: false }
-  );
+  const { data: reverseName } = useTezosDomainNameByAddress(address);
 
   useEffect(() => {
     if (!isSupported) {
