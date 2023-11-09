@@ -18,7 +18,7 @@ import { useEnabledAccountCollectiblesSlugs } from 'lib/assets/hooks';
 import { AssetTypesEnum } from 'lib/assets/types';
 import { useCollectiblesSortPredicate } from 'lib/assets/use-sorting';
 import { T, t } from 'lib/i18n';
-import { useAccount } from 'lib/temple/front';
+import { useAccount, useChainId } from 'lib/temple/front';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import { useLocalStorage } from 'lib/ui/local-storage';
 import Popper, { PopperRenderProps } from 'lib/ui/Popper';
@@ -35,6 +35,7 @@ interface Props {
 export const CollectiblesTab = memo<Props>(({ scrollToTheTabsBar }) => {
   const { popup } = useAppEnv();
   const { publicKeyHash } = useAccount();
+  const chainId = useChainId()!;
 
   const [areDetailsShown, setDetailsShown] = useLocalStorage(LOCAL_STORAGE_TOGGLE_KEY, false);
   const toggleDetailsShown = useCallback(() => void setDetailsShown(val => !val), [setDetailsShown]);
@@ -61,11 +62,17 @@ export const CollectiblesTab = memo<Props>(({ scrollToTheTabsBar }) => {
     () => (
       <div className="grid grid-cols-3 gap-1">
         {displayedSlugs.map(slug => (
-          <CollectibleItem key={slug} assetSlug={slug} accountPkh={publicKeyHash} areDetailsShown={areDetailsShown} />
+          <CollectibleItem
+            key={slug}
+            assetSlug={slug}
+            accountPkh={publicKeyHash}
+            chainId={chainId}
+            areDetailsShown={areDetailsShown}
+          />
         ))}
       </div>
     ),
-    [displayedSlugs, publicKeyHash, areDetailsShown]
+    [displayedSlugs, publicKeyHash, chainId, areDetailsShown]
   );
 
   return (

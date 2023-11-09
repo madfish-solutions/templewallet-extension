@@ -5,13 +5,13 @@ import clsx from 'clsx';
 
 import Money from 'app/atoms/Money';
 import { useAppEnv } from 'app/env';
+import { useBalanceSelector } from 'app/store/balances/selectors';
 import { useCollectibleMetadataSelector } from 'app/store/collectibles-metadata/selectors';
 import {
   useAllCollectiblesDetailsLoadingSelector,
   useCollectibleDetailsSelector
 } from 'app/store/collectibles/selectors';
 import { objktCurrencies } from 'lib/apis/objkt';
-import { useBalance } from 'lib/balances';
 import { T } from 'lib/i18n';
 import { getAssetName } from 'lib/metadata';
 import { atomsToTokens } from 'lib/temple/helpers';
@@ -23,15 +23,23 @@ import { CollectibleItemImage } from './CollectibleItemImage';
 interface Props {
   assetSlug: string;
   accountPkh: string;
+  chainId: string;
   areDetailsShown: boolean;
 }
 
-export const CollectibleItem = memo<Props>(({ assetSlug, accountPkh, areDetailsShown }) => {
+export const CollectibleItem = memo<Props>(({ assetSlug, accountPkh, chainId, areDetailsShown }) => {
   const { popup } = useAppEnv();
   const metadata = useCollectibleMetadataSelector(assetSlug);
   const toDisplayRef = useRef<HTMLDivElement>(null);
   const [displayed, setDisplayed] = useState(true);
-  const { data: balance } = useBalance(assetSlug, accountPkh, { displayed, suspense: false });
+  const balanceAtomic = useBalanceSelector(accountPkh, chainId, assetSlug);
+
+  const decimals = metadata?.decimals;
+
+  const balance = useMemo(
+    () => (isDefined(decimals) && balanceAtomic ? atomsToTokens(balanceAtomic, decimals) : null),
+    [balanceAtomic, decimals]
+  );
 
   const areDetailsLoading = useAllCollectiblesDetailsLoadingSelector();
   const details = useCollectibleDetailsSelector(assetSlug);

@@ -32,10 +32,7 @@ export const useCollectiblesListingLogic = (allSlugsSorted: string[]) => {
     return pageIsLoading ? undefined : allSlugsSorted.slice(paginatedSlugs.length + ITEMS_PER_PAGE * 2);
   }, [isInSearchMode, pageIsLoading, allSlugsSorted, paginatedSlugs.length]);
 
-  useCollectiblesMetadataPresenceCheck(
-    metaToCheckAndLoad
-    // undefined
-  );
+  useCollectiblesMetadataPresenceCheck(metaToCheckAndLoad);
 
   const getCollectibleMeta = useGetCollectibleMetadata();
 
