@@ -31,7 +31,7 @@ export const CollectibleItem = memo<Props>(({ assetSlug, accountPkh, chainId, ar
   const { popup } = useAppEnv();
   const metadata = useCollectibleMetadataSelector(assetSlug);
   const toDisplayRef = useRef<HTMLDivElement>(null);
-  const [displayed, setDisplayed] = useState(true);
+  const [isInViewport, setIsInViewport] = useState(false);
   const balanceAtomic = useBalanceSelector(accountPkh, chainId, assetSlug);
 
   const decimals = metadata?.decimals;
@@ -56,9 +56,9 @@ export const CollectibleItem = memo<Props>(({ assetSlug, accountPkh, chainId, ar
     return { floorPrice, decimals: currency.decimals, symbol: currency.symbol };
   }, [details]);
 
-  const handleIntersection = useCallback(() => void setDisplayed(true), []);
+  const handleIntersection = useCallback(() => void setIsInViewport(true), []);
 
-  useIntersectionDetection(toDisplayRef, handleIntersection, !displayed);
+  useIntersectionDetection(toDisplayRef, handleIntersection, !isInViewport);
 
   const assetName = getAssetName(metadata);
 
@@ -73,7 +73,7 @@ export const CollectibleItem = memo<Props>(({ assetSlug, accountPkh, chainId, ar
         )}
         title={assetName}
       >
-        {displayed && (
+        {isInViewport && (
           <CollectibleItemImage
             assetSlug={assetSlug}
             metadata={metadata}
