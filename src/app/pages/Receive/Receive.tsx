@@ -1,4 +1,4 @@
-import React, { FC, memo, useCallback, useEffect } from 'react';
+import React, { FC, memo, useEffect } from 'react';
 
 import classNames from 'clsx';
 import { QRCode } from 'react-qr-svg';
@@ -12,7 +12,7 @@ import PageLayout from 'app/layouts/PageLayout';
 import ViewsSwitcher, { ViewsSwitcherProps } from 'app/templates/ViewsSwitcher/ViewsSwitcher';
 import { setTestID } from 'lib/analytics';
 import { T, t } from 'lib/i18n';
-import { useAccount, useTezos, useTezosDomainsClient } from 'lib/temple/front';
+import { useAccount, useTezosDomainsClient } from 'lib/temple/front';
 import { useTezosDomainNameByAddress } from 'lib/temple/front/tzdns';
 import { useSafeState } from 'lib/ui/hooks';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
