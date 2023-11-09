@@ -10,6 +10,7 @@ import { useTokensSortPredicate } from 'lib/assets/use-sorting';
 import { useCurrentAccountBalances } from 'lib/balances';
 import { useGetTokenOrGasMetadata } from 'lib/metadata';
 import { useMemoWithCompare } from 'lib/ui/hooks';
+import { isSearchStringApplicable } from 'lib/utils/search-items';
 
 export const useTokensListingLogic = (
   assetsSlugs: string[],
@@ -18,7 +19,7 @@ export const useTokensListingLogic = (
   leadingAssetsAreFilterable = false
 ) => {
   const nonLeadingAssets = useMemo(
-    () => (leadingAssets?.length ? assetsSlugs.filter(slug => !leadingAssets.includes(slug)) : [...assetsSlugs]),
+    () => (leadingAssets?.length ? assetsSlugs.filter(slug => !leadingAssets.includes(slug)) : assetsSlugs),
     [assetsSlugs, leadingAssets]
   );
 
@@ -45,7 +46,9 @@ export const useTokensListingLogic = (
 
   const searchedSlugs = useMemo(
     () =>
-      searchAssetsWithNoMeta(searchValueDebounced, sourceArray, getMetadata, slug => slug).sort(assetsSortPredicate),
+      isSearchStringApplicable(searchValueDebounced)
+        ? searchAssetsWithNoMeta(searchValueDebounced, sourceArray, getMetadata, slug => slug)
+        : [...sourceArray].sort(assetsSortPredicate),
     [searchValueDebounced, sourceArray, getMetadata, assetsSortPredicate]
   );
 

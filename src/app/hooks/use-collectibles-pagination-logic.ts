@@ -53,7 +53,10 @@ export const useCollectiblesPaginationLogic = (allSlugsSorted: string[]) => {
   });
 
   useDidUpdate(() => {
-    if (!isLoading && slugs.length) _load(slugs.length);
+    if (isLoading) return;
+
+    if (slugs.length) _load(slugs.length);
+    else if (allSlugsSorted.length) _load(ITEMS_PER_PAGE);
   }, [allSlugsSorted]);
 
   const loadNext = useCallback(() => {

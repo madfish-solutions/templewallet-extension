@@ -20,5 +20,5 @@ export function searchAndFilterItems<T, S>(
 
   const result = fuse.search(searchString);
 
-  return items.filter((_, index) => result.some(({ refIndex }) => refIndex === index));
+  return result.map(({ refIndex }) => items[refIndex]!);
 }
