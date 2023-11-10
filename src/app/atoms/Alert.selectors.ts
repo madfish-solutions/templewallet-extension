@@ -1,3 +1,4 @@
 export enum AlertSelectors {
-  alertTitle = 'Alert/Alert title Text'
+  alertTitle = 'Alert/Alert title Text',
+  alertDescription = 'Alert/Alert description Text'
 }

@@ -42,7 +42,10 @@ const hashObjectShortForm = {
   defaultFirstAccountShortHash: envVars.DEFAULT_HD_ACCOUNT_FIRST_HASH_SHORT_FORM,
   defaultSecondAccountShortHash: envVars.DEFAULT_HD_ACCOUNT_SECOND_HASH_SHORT_FORM,
   importedAccountShortHash: envVars.IMPORTED_HD_ACCOUNT_FIRST_HASH_SHORT_FORM,
-  watchOnlyAccountShortHash: envVars.WATCH_ONLY_PUBLIC_KEY_HASH_SHORT_FORM
+  importedAccountDerPathShortHash: 'tz1RPXf...RE8q',
+  importedAccountByPasswordShortHash: 'tz1ZfC8...PcHE', // By additional (optional) 'Password' input
+  watchOnlyAccountShortHash: envVars.WATCH_ONLY_PUBLIC_KEY_HASH_SHORT_FORM,
+  longFirstAccountShortHash: envVars.LONG_HD_ACCOUNT_FIRST_HASH_SHORT_FORM
 };
 
 Given(
