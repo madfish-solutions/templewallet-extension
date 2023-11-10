@@ -115,14 +115,15 @@ export const ContentSection: FC<Props> = ({ assetSlug, className }) => {
     <div className={clsx('-mx-4 shadow-top-light', fullPage && 'rounded-t-md', className)}>
       <TabsBar ref={tabBarElemRef} tabs={tabs} activeTabName={name} />
 
-      <SuspenseContainer whileMessage={whileMessageI18nKey ? t(whileMessageI18nKey) : 'displaying tab'}>
-        {Component && <Component />}
-      </SuspenseContainer>
+      <SuspenseContainer
+        whileMessage={whileMessageI18nKey ? t(whileMessageI18nKey) : 'displaying tab'}
+        Content={Component}
+      />
     </div>
   );
 };
 
-interface SuspenseContainerProps extends PropsWithChildren, Omit<ErrorBoundaryProps, 'className' | 'children'> {
+interface SuspenseContainerProps extends Omit<ErrorBoundaryProps, 'className'> {
   whileMessage: string;
   fallback?: ReactNode;
 }

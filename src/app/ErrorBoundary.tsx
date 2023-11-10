@@ -1,4 +1,4 @@
-import React, { Component, ErrorInfo } from 'react';
+import React, { Component, ErrorInfo, FC } from 'react';
 
 import classNames from 'clsx';
 
@@ -9,6 +9,7 @@ import { getOnlineStatus } from 'lib/temple/front';
 export interface ErrorBoundaryProps extends React.PropsWithChildren {
   className?: string;
   whileMessage?: string;
+  Content?: FC<{}>;
 }
 
 export class BoundaryError extends Error {
@@ -57,18 +58,17 @@ export default class ErrorBoundary extends Component<ErrorBoundaryProps> {
   }
 
   componentDidUpdate(prevProps: ErrorBoundaryProps) {
-    if (prevProps.children !== this.props.children) {
+    if (prevProps.Content !== this.props.Content) {
       this.setState({ error: null });
     }
   }
 
   render() {
-    const { children, className } = this.props;
+    const { className, Content, children: childrenFromProps } = this.props;
     const { error } = this.state;
+    const children = Content ? <Content /> : childrenFromProps;
 
     if (error) {
-      const defaultMessage = this.getDefaultErrorMessage();
-
       return (
         <div className={classNames('w-full', 'flex items-center justify-center', className)}>
           <div className={classNames('max-w-xs', 'p-4', 'flex flex-col items-center', 'text-red-600')}>
@@ -77,7 +77,7 @@ export default class ErrorBoundary extends Component<ErrorBoundaryProps> {
             <T id="oops">{message => <h2 className="mb-1 text-2xl">{message}</h2>}</T>
 
             <p className="mb-4 text-sm opacity-90 text-center font-light">
-              {error instanceof BoundaryError ? error.message : defaultMessage}
+              {error instanceof BoundaryError ? error.message : this.getDefaultErrorMessage()}
             </p>
 
             <T id="tryAgain">
