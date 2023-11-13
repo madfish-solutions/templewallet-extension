@@ -4,7 +4,6 @@ import { DEFAULT_FEE, WalletOperation } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
 import { Control, Controller, FieldError, FormStateProxy, NestDataObject, useForm } from 'react-hook-form';
-import useSWR from 'swr';
 import browser from 'webextension-polyfill';
 
 import { Alert, Button, FormSubmitButton, NoSpaceField } from 'app/atoms';
@@ -23,6 +22,7 @@ import { fetchTezosBalance } from 'lib/balances';
 import { BLOCK_DURATION } from 'lib/fixed-times';
 import { TID, T, t } from 'lib/i18n';
 import { setDelegate } from 'lib/michelson';
+import { useTypedSWR } from 'lib/swr';
 import { loadContract } from 'lib/temple/contract';
 import {
   Baker,
@@ -179,11 +179,15 @@ const DelegateForm: FC = () => {
     data: baseFee,
     error: estimateBaseFeeError,
     isValidating: estimating
-  } = useSWR(() => (toFilled ? ['delegate-base-fee', tezos.checksum, accountPkh, toResolved] : null), estimateBaseFee, {
-    shouldRetryOnError: false,
-    focusThrottleInterval: 10_000,
-    dedupingInterval: BLOCK_DURATION
-  });
+  } = useTypedSWR(
+    () => (toFilled ? ['delegate-base-fee', tezos.checksum, accountPkh, toResolved] : null),
+    estimateBaseFee,
+    {
+      shouldRetryOnError: false,
+      focusThrottleInterval: 10_000,
+      dedupingInterval: BLOCK_DURATION
+    }
+  );
   const baseFeeError = baseFee instanceof Error ? baseFee : estimateBaseFeeError;
   const estimationError = !estimating ? baseFeeError : null;
 

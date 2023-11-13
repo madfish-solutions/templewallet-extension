@@ -176,7 +176,7 @@
     "rxjs": "^7.5.6",
     "scryptsy": "2.1.0",
     "stream-browserify": "3.0.0",
-    "swr": "^2.2.4",
+    "swr": "2.2.4",
     "tailwindcss": "2.2.19",
     "terser-webpack-plugin": "5.3.6",
     "three": "^0.151.2",

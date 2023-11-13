@@ -3,8 +3,8 @@ import { useCallback, useMemo } from 'react';
 import { TezosToolkit } from '@taquito/taquito';
 import { DomainNameValidationResult, isTezosDomainsSupportedNetwork } from '@tezos-domains/core';
 import { TaquitoTezosDomainsClient } from '@tezos-domains/taquito-client';
-import useSWR from 'swr';
 
+import { useTypedSWR } from 'lib/swr';
 import { NETWORK_IDS } from 'lib/temple/networks';
 
 import { useTezos, useChainId } from './ready';
@@ -36,7 +36,7 @@ export function useTezosAddressByDomainName(domainName: string) {
     [domainsClient]
   );
 
-  return useSWR(['tzdns-address', tezos.checksum, domainName], domainAddressFactory, {
+  return useTypedSWR(['tzdns-address', tezos.checksum, domainName], domainAddressFactory, {
     shouldRetryOnError: false,
     revalidateOnFocus: false
   });
@@ -50,7 +50,7 @@ export function useTezosDomainNameByAddress(address: string) {
     [domainsResolver]
   );
 
-  return useSWR(() => ['tzdns-reverse-name', address, tezos.checksum], resolveDomainReverseName, {
+  return useTypedSWR(['tzdns-reverse-name', address, tezos.checksum], resolveDomainReverseName, {
     shouldRetryOnError: false,
     revalidateOnFocus: false
   });

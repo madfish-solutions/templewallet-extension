@@ -1,7 +1,6 @@
 import React, { FC, useEffect, useState, useMemo } from 'react';
 
 import classNames from 'clsx';
-import useSWR from 'swr';
 import { useDebounce } from 'use-debounce';
 
 import { FormSubmitButton } from 'app/atoms';
@@ -12,6 +11,7 @@ import WarningComponent from 'app/pages/Buy/Crypto/Exolix/steps/WarningComponent
 import { TopUpInput } from 'app/templates/TopUpInput';
 import { useAssetUSDPrice } from 'lib/fiat-currency';
 import { T } from 'lib/i18n';
+import { useTypedSWR } from 'lib/swr';
 import { useAccount } from 'lib/temple/front';
 
 import { EXOLIX_PRIVICY_LINK, EXOLIX_TERMS_LINK, outputTokensList } from '../config';
@@ -54,7 +54,7 @@ const InitialStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
 
   const coinToPriceUSD = useAssetUSDPrice(coinTo.slug!);
 
-  const { data: currencies, isValidating: isCurrenciesLoading } = useSWR(['exolix/api/currencies'], getCurrencies);
+  const { data: currencies, isValidating: isCurrenciesLoading } = useTypedSWR(['exolix/api/currencies'], getCurrencies);
 
   const currenciesCount = useCurrenciesCount();
 
@@ -82,7 +82,7 @@ const InitialStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
     }
   };
 
-  const { data: ratesData } = useSWR(['exolix/api/rate', coinFrom, coinTo, amount], () =>
+  const { data: ratesData } = useTypedSWR(['exolix/api/rate', coinFrom, coinTo, amount], () =>
     queryExchange({
       coinFrom: coinFrom.code,
       coinFromNetwork: coinFrom.network.code,

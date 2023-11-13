@@ -15,7 +15,6 @@ import { DEFAULT_FEE, TransferParams, WalletOperation, Estimate } from '@taquito
 import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
 import { Controller, FieldError, useForm } from 'react-hook-form';
-import useSWR from 'swr';
 
 import { NoSpaceField } from 'app/atoms';
 import AssetField from 'app/atoms/AssetField';
@@ -36,6 +35,7 @@ import { BLOCK_DURATION } from 'lib/fixed-times';
 import { toLocalFixed, T, t } from 'lib/i18n';
 import { AssetMetadataBase, useAssetMetadata, getAssetSymbol } from 'lib/metadata';
 import { transferImplicit, transferToContract } from 'lib/michelson';
+import { useTypedSWR } from 'lib/swr';
 import { loadContract } from 'lib/temple/contract';
 import {
   ReactiveTezosToolkit,
@@ -251,7 +251,7 @@ export const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactReque
     data: baseFee,
     error: estimateBaseFeeError,
     isValidating: estimating
-  } = useSWR(
+  } = useTypedSWR(
     () => (toFilled ? ['transfer-base-fee', tezos.checksum, assetSlug, accountPkh, toResolved] : null),
     estimateBaseFee,
     {

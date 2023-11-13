@@ -1,7 +1,8 @@
 import React, { FC } from 'react';
 
 import FontFaceObserver from 'fontfaceobserver';
-import useSWR from 'swr';
+
+import { useTypedSWR } from 'lib/swr';
 
 interface AwaitFontsProps extends PropsWithChildren {
   name: string;
@@ -10,7 +11,7 @@ interface AwaitFontsProps extends PropsWithChildren {
 }
 
 const AwaitFonts: FC<AwaitFontsProps> = ({ name, weights, className, children }) => {
-  useSWR([name, weights, className], awaitFonts, {
+  useTypedSWR([name, weights, className], awaitFonts, {
     suspense: true,
     shouldRetryOnError: false,
     revalidateOnFocus: false,
