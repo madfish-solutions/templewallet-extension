@@ -4,17 +4,15 @@ import { ChainIds } from '@taquito/taquito';
 import { BigNumber } from 'bignumber.js';
 import clsx from 'clsx';
 import { isEqual } from 'lodash';
-import { useDispatch } from 'react-redux';
 
 import { SyncSpinner, Divider, Checkbox } from 'app/atoms';
 import DropdownWrapper from 'app/atoms/DropdownWrapper';
 import { PartnersPromotion, PartnersPromotionVariant } from 'app/atoms/partners-promotion';
 import { useAppEnv } from 'app/env';
 import { useBalancesWithDecimals } from 'app/hooks/use-balances-with-decimals.hook';
+import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
 import { ReactComponent as EditingIcon } from 'app/icons/editing.svg';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
-import { loadPartnersPromoAction } from 'app/store/partners-promotion/actions';
-import { useShouldShowPartnersPromoSelector } from 'app/store/partners-promotion/selectors';
 import { useIsEnabledAdsBannerSelector } from 'app/store/settings/selectors';
 import { ButtonForManageDropdown } from 'app/templates/ManageDropdown';
 import SearchAssetField from 'app/templates/SearchAssetField';
@@ -40,7 +38,6 @@ const LOCAL_STORAGE_TOGGLE_KEY = 'tokens-list:hide-zero-balances';
 const svgIconClassName = 'w-4 h-4 stroke-current fill-current text-gray-600';
 
 export const TokensTab: FC = () => {
-  const dispatch = useDispatch();
   const chainId = useChainId(true)!;
   const balances = useBalancesWithDecimals();
 
@@ -71,7 +68,6 @@ export const TokensTab: FC = () => {
   );
 
   const isEnabledAdsBanner = useIsEnabledAdsBannerSelector();
-  const isShouldShowPartnersPromoState = useShouldShowPartnersPromoSelector();
 
   const [searchFocused, setSearchFocused] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -100,16 +96,7 @@ export const TokensTab: FC = () => {
     return tokensJsx;
   }, [filteredAssets, activeAssetSlug, balances]);
 
-  useEffect(() => {
-    if (isShouldShowPartnersPromoState && !isEnabledAdsBanner) {
-      dispatch(
-        loadPartnersPromoAction.submit({
-          optimalPromoVariantEnum: OptimalPromoVariantEnum.Token,
-          accountAddress: publicKeyHash
-        })
-      );
-    }
-  }, [isShouldShowPartnersPromoState, isEnabledAdsBanner, publicKeyHash, dispatch]);
+  useLoadPartnersPromo(OptimalPromoVariantEnum.Token);
 
   useEffect(() => {
     if (activeIndex !== 0 && activeIndex >= filteredAssets.length) {
