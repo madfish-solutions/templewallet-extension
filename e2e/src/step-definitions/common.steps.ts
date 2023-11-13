@@ -62,3 +62,7 @@ Given(
     await Pages[page].scrollTo(countOfScroll);
   }
 );
+
+Given(/I reload the page/, async () => {
+  await BrowserContext.page.reload();
+});

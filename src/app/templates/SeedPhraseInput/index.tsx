@@ -6,10 +6,11 @@ import classNames from 'clsx';
 import { FormFieldElement } from 'app/atoms/FormField';
 import { formatMnemonic } from 'app/defaults';
 import { useAppEnv } from 'app/env';
-import { TestIDProperty } from 'lib/analytics';
+import { setTestID, TestIDProperty } from 'lib/analytics';
 import { T, t } from 'lib/i18n';
 import { clearClipboard } from 'lib/ui/utils';
 
+import { ImportAccountSelectors } from '../../pages/ImportAccount/selectors';
 import { SeedLengthSelect } from './SeedLengthSelect/SeedLengthSelect';
 import { SeedWordInput, SeedWordInputProps } from './SeedWordInput';
 import { useRevealRef } from './use-reveal-ref.hook';
@@ -214,7 +215,10 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
         })}
       </div>
 
-      <div className="h-12 mt-4 mb-6 text-xs text-red-700">
+      <div
+        className="h-12 mt-4 mb-6 text-xs text-red-700"
+        {...setTestID(ImportAccountSelectors.mnemonicValidationErrorText)}
+      >
         {submitted && seedError && <div>{seedError}</div>}
 
         {wordSpellingErrorsCount > 0 && (
