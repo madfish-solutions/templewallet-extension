@@ -24,16 +24,19 @@ export const useCollectiblesPaginationLogic = (allSlugsSorted: string[]) => {
     async (size: number) => {
       setIsLoading(true);
 
-      const newSlugs = allSlugsSorted.slice(0, size);
+      const nextSlugs = allSlugsSorted.slice(0, size);
 
-      const slugsWithoutMeta = newSlugs.filter(slug => !allMeta.some(m => tokenToSlug(m) === slug));
+      const slugsWithoutMeta = nextSlugs
+        // Not checking metadata of loaded items
+        .slice(slugs.length)
+        .filter(slug => !allMeta.some(m => tokenToSlug(m) === slug));
 
       if (slugsWithoutMeta.length)
         await loadTokensMetadata(rpcUrl, slugsWithoutMeta)
           .then(
             records => {
               dispatch(putCollectiblesMetadataAction({ records }));
-              setSlugs(newSlugs);
+              setSlugs(nextSlugs);
             },
             error => {
               console.error(error);
@@ -41,11 +44,11 @@ export const useCollectiblesPaginationLogic = (allSlugsSorted: string[]) => {
           )
           .finally(() => setIsLoading(false));
       else {
-        setSlugs(newSlugs);
+        setSlugs(nextSlugs);
         setIsLoading(false);
       }
     },
-    [allSlugsSorted, allMeta, rpcUrl, dispatch]
+    [allSlugsSorted, slugs.length, allMeta, rpcUrl, dispatch]
   );
 
   useDidMount(() => {

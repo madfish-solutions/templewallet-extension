@@ -21,7 +21,7 @@ import { T, t } from 'lib/i18n';
 import { useAccount, useChainId } from 'lib/temple/front';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import { useLocalStorage } from 'lib/ui/local-storage';
-import Popper, { PopperRenderProps } from 'lib/ui/Popper';
+import Popper, { PopperChildren, PopperPopup, PopperRenderProps } from 'lib/ui/Popper';
 import { Link } from 'lib/woozie';
 
 import { CollectibleItem } from './CollectibleItem';
@@ -75,6 +75,27 @@ export const CollectiblesTab = memo<Props>(({ scrollToTheTabsBar }) => {
     [displayedSlugs, publicKeyHash, chainId, areDetailsShown]
   );
 
+  const renderManageDropdown = useCallback<PopperPopup>(
+    props => (
+      <ManageButtonDropdown {...props} areDetailsShown={areDetailsShown} toggleDetailsShown={toggleDetailsShown} />
+    ),
+    [areDetailsShown, toggleDetailsShown]
+  );
+
+  const renderManageButton = useCallback<PopperChildren>(
+    ({ ref, opened, toggleOpened }) => (
+      <ButtonForManageDropdown
+        ref={ref}
+        opened={opened}
+        tooltip={t('manageAssetsList')}
+        onClick={toggleOpened}
+        testID={AssetsSelectors.manageButton}
+        testIDProperties={{ listOf: 'Collectibles' }}
+      />
+    ),
+    []
+  );
+
   return (
     <div className="w-full max-w-sm mx-auto">
       <div className={clsx('my-3', popup && 'mx-4')}>
@@ -86,27 +107,8 @@ export const CollectiblesTab = memo<Props>(({ scrollToTheTabsBar }) => {
             testID={AssetsSelectors.searchAssetsInputCollectibles}
           />
 
-          <Popper
-            placement="bottom-end"
-            strategy="fixed"
-            popup={props => (
-              <ManageButtonDropdown
-                {...props}
-                areDetailsShown={areDetailsShown}
-                toggleDetailsShown={toggleDetailsShown}
-              />
-            )}
-          >
-            {({ ref, opened, toggleOpened }) => (
-              <ButtonForManageDropdown
-                ref={ref}
-                opened={opened}
-                tooltip={t('manageAssetsList')}
-                onClick={toggleOpened}
-                testID={AssetsSelectors.manageButton}
-                testIDProperties={{ listOf: 'Collectibles' }}
-              />
-            )}
+          <Popper placement="bottom-end" strategy="fixed" popup={renderManageDropdown}>
+            {renderManageButton}
           </Popper>
         </div>
 

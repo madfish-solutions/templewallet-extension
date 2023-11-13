@@ -1,4 +1,4 @@
-import React, { FC, PropsWithChildren, useCallback, useState } from 'react';
+import React, { memo, PropsWithChildren, useCallback, useState } from 'react';
 
 import InfiniteScroll from 'react-infinite-scroll-component';
 
@@ -6,7 +6,7 @@ interface Props {
   loadNext: EmptyFn;
 }
 
-export const SimpleInfiniteScroll: FC<PropsWithChildren<Props>> = ({ loadNext, children }) => {
+export const SimpleInfiniteScroll = memo<PropsWithChildren<Props>>(({ loadNext, children }) => {
   const [seedForLoadNext, setSeedForLoadNext] = useState(0);
 
   const loadNextLocal = useCallback(() => {
@@ -33,4 +33,4 @@ export const SimpleInfiniteScroll: FC<PropsWithChildren<Props>> = ({ loadNext, c
       {children}
     </InfiniteScroll>
   );
-};
+});

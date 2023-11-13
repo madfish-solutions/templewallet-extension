@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import React, { memo } from 'react';
 
 import clsx from 'clsx';
 
@@ -7,7 +7,7 @@ import { t } from 'lib/i18n';
 
 type SearchAssetFieldProps = SearchFieldProps;
 
-const SearchAssetField: FC<SearchAssetFieldProps> = ({ className, ...rest }) => (
+const SearchAssetField = memo<SearchAssetFieldProps>(({ className, ...rest }) => (
   <SearchField
     className={clsx(
       'py-2 pl-8 pr-4 bg-gray-100',
@@ -22,6 +22,6 @@ const SearchAssetField: FC<SearchAssetFieldProps> = ({ className, ...rest }) => 
     searchIconWrapperClassName="px-2 text-gray-600"
     {...rest}
   />
-);
+));
 
 export default SearchAssetField;

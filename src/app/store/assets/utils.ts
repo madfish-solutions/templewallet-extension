@@ -1,3 +1,5 @@
+import mem from 'mem';
+
 import { fetchTokensMetadata, isKnownChainId } from 'lib/apis/temple';
 import { fetchTzktAccountAssets } from 'lib/apis/tzkt';
 import type { TzktAccountAsset } from 'lib/apis/tzkt/types';
@@ -10,7 +12,7 @@ export const loadAccountTokens = (account: string, chainId: string, knownMeta: T
     // Fetching assets known to be FTs, not checking metadata
     fetchTzktAccountAssets(account, chainId, true).then(data => finishTokensLoading(data, chainId, knownMeta)),
     // Fetching unknowns only, checking metadata to filter for FTs
-    fetchTzktAccountAssets(account, chainId, null).then(data => finishTokensLoading(data, chainId, knownMeta, true))
+    fetchTzktAccountUnknownAssets(account, chainId).then(data => finishTokensLoading(data, chainId, knownMeta, true))
   ]).then(
     ([data1, data2]) => mergeLoadedAssetsData(data1, data2),
     error => {
@@ -24,7 +26,7 @@ export const loadAccountCollectibles = (account: string, chainId: string, knownM
     // Fetching assets known to be NFTs, not checking metadata
     fetchTzktAccountAssets(account, chainId, false).then(data => finishCollectiblesLoadingWithMeta(data)),
     // Fetching unknowns only, checking metadata to filter for NFTs
-    fetchTzktAccountAssets(account, chainId, null).then(data =>
+    fetchTzktAccountUnknownAssets(account, chainId).then(data =>
       finishCollectiblesLoadingWithoutMeta(data, knownMeta, chainId)
     )
   ]).then(
@@ -34,6 +36,13 @@ export const loadAccountCollectibles = (account: string, chainId: string, knownM
       throw error;
     }
   );
+
+const fetchTzktAccountUnknownAssets = mem(
+  // Simply throttling `fetchTzktAccountAssets` calls per set of arguments.
+  // Memoizing `Promise`, not its resolved value.
+  (account: string, chainId: string) => fetchTzktAccountAssets(account, chainId, null),
+  { maxAge: 2000, cacheKey: args => args.join('') }
+);
 
 const finishTokensLoading = async (
   data: TzktAccountAsset[],
