@@ -44,7 +44,7 @@ export const CollectiblePageImage = memo<Props>(
       if (isSvgDataUriInUtf8Encoding(objktArtifactUri)) {
         return (
           <Image
-            src={objktArtifactUri}
+            sources={objktArtifactUri}
             alt={metadata?.name}
             loader={<CollectibleImageLoader large />}
             onError={handleError}

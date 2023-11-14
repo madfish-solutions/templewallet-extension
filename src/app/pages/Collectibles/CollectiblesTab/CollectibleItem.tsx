@@ -1,7 +1,8 @@
-import React, { memo, useCallback, useRef, useState, useMemo } from 'react';
+import React, { memo, useRef, useState, useMemo } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
 import clsx from 'clsx';
+import { debounce } from 'lodash';
 
 import Money from 'app/atoms/Money';
 import { useAppEnv } from 'app/env';
@@ -30,7 +31,7 @@ interface Props {
 export const CollectibleItem = memo<Props>(({ assetSlug, accountPkh, chainId, areDetailsShown }) => {
   const { popup } = useAppEnv();
   const metadata = useCollectibleMetadataSelector(assetSlug);
-  const toDisplayRef = useRef<HTMLDivElement>(null);
+  const wrapperElemRef = useRef<HTMLDivElement>(null);
   const [isInViewport, setIsInViewport] = useState(false);
   const balanceAtomic = useBalanceSelector(accountPkh, chainId, assetSlug);
 
@@ -53,19 +54,19 @@ export const CollectibleItem = memo<Props>(({ assetSlug, accountPkh, chainId, ar
 
     if (!isDefined(currency)) return null;
 
-    return { floorPrice, decimals: currency.decimals, symbol: currency.symbol };
-  }, [details]);
+    return { floorPrice: atomsToTokens(floorPrice, currency.decimals).toString(), symbol: currency.symbol };
+  }, [details?.listing]);
 
-  const handleIntersection = useCallback(() => void setIsInViewport(true), []);
+  const handleIntersection = useMemo(() => debounce(setIsInViewport, 300), []);
 
-  useIntersectionDetection(toDisplayRef, handleIntersection, !isInViewport);
+  useIntersectionDetection(wrapperElemRef, handleIntersection, true, 800);
 
   const assetName = getAssetName(metadata);
 
   return (
     <Link to={`/collectible/${assetSlug}`} className="flex flex-col border border-gray-300 rounded-lg">
       <div
-        ref={toDisplayRef}
+        ref={wrapperElemRef}
         className={clsx(
           'relative flex items-center justify-center bg-blue-50 rounded-lg overflow-hidden hover:opacity-70',
           areDetailsShown && 'border-b border-gray-300',
@@ -73,14 +74,14 @@ export const CollectibleItem = memo<Props>(({ assetSlug, accountPkh, chainId, ar
         )}
         title={assetName}
       >
-        {isInViewport && (
+        <div className={isInViewport ? 'contents' : 'hidden'}>
           <CollectibleItemImage
             assetSlug={assetSlug}
             metadata={metadata}
             areDetailsLoading={areDetailsLoading && details === undefined}
             mime={details?.mime}
           />
-        )}
+        </div>
 
         {areDetailsShown && balance ? (
           <div className="absolute bottom-1.5 left-1.5 text-xxxs text-white leading-none p-1 bg-black bg-opacity-60 rounded">
@@ -96,10 +97,11 @@ export const CollectibleItem = memo<Props>(({ assetSlug, accountPkh, chainId, ar
             <span>
               <T id="floorPrice" />:{' '}
             </span>
+
             {isDefined(listing) ? (
               <>
                 <Money shortened smallFractionFont={false} tooltip={true}>
-                  {atomsToTokens(listing.floorPrice, listing.decimals)}
+                  {listing.floorPrice}
                 </Money>
                 <span> {listing.symbol}</span>
               </>

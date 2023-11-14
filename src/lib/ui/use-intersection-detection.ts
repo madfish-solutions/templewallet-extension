@@ -1,33 +1,36 @@
 import { RefObject, useEffect } from 'react';
 
-/**
- * @deprecated
- *
- * use `import { List } from 'react-virtualized';` instead
- */
-export const useIntersectionDetection = (ref: RefObject<HTMLDivElement>, callback: () => void, predicate = true) => {
-  useEffect(() => {
-    const el = ref.current;
-    const isHitDetected = predicate && 'IntersectionObserver' in window && el;
-    if (isHitDetected) {
-      const observer = new IntersectionObserver(
-        ([entry]) => {
-          if (entry.isIntersecting) {
-            callback();
-          }
-        },
-        { rootMargin: '0px' }
-      );
+import { useCallbackRef } from './hooks/useCallbackRef';
 
-      if (el) {
-        observer.observe(el);
+const IS_SUPPORTED = 'IntersectionObserver' in window;
+
+export const useIntersectionDetection = (
+  ref: RefObject<HTMLDivElement>,
+  callback: (intersecting: boolean) => void,
+  predicate = true,
+  verticalOffset = 0
+) => {
+  const callbackRef = useCallbackRef(callback);
+
+  useEffect(() => {
+    const elem = ref.current;
+    const canDetect = IS_SUPPORTED && predicate && elem;
+
+    if (!canDetect) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        callbackRef.current(entry.isIntersecting);
+      },
+      { root: document, rootMargin: `${verticalOffset}px 0px ${verticalOffset}px 0px` }
+    );
+
+    observer.observe(elem);
+
+    return () => {
+      if (elem) {
+        observer.unobserve(elem);
       }
-      return () => {
-        if (el) {
-          observer.unobserve(el);
-        }
-      };
-    }
-    return undefined;
-  }, [callback, predicate]);
+    };
+  }, [predicate, verticalOffset]);
 };

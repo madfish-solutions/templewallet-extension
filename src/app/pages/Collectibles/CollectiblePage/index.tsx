@@ -174,7 +174,7 @@ const CollectiblePage = memo<Props>(({ assetSlug }) => {
             {collection && (
               <div className="flex justify-between items-center">
                 <div className="flex items-center justify-center rounded">
-                  <Image src={collection?.logo} className="w-6 h-6 rounded border border-gray-300" />
+                  <Image sources={collection?.logo} className="w-6 h-6 rounded border border-gray-300" />
                   <div className="content-center ml-2 text-gray-910 text-sm">{collection?.title ?? ''}</div>
                 </div>
               </div>

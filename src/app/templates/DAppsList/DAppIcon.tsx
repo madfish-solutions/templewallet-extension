@@ -25,7 +25,7 @@ export const DAppIcon: React.FC<DAppIconProps> = ({ name, logo, className }) => 
       )}
       style={popup ? { width: '4.5rem', height: '4.5rem' } : undefined}
     >
-      <Image src={logo} className="rounded-2xl" alt={name} loader={fallbackElement} fallback={fallbackElement} />
+      <Image sources={logo} className="rounded-2xl" alt={name} loader={fallbackElement} fallback={fallbackElement} />
     </div>
   );
 };

@@ -33,6 +33,7 @@ export const CollectibleItemImage = memo<Props>(({ assetSlug, metadata, areDetai
 
   return (
     <AssetImage
+      lazy
       metadata={metadata}
       loader={<CollectibleImageLoader />}
       fallback={<CollectibleImageFallback isAudioCollectible={isAudioCollectible} />}

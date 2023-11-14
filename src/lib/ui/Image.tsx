@@ -1,64 +1,79 @@
 import React, { useMemo } from 'react';
 
-import ReactImageFallback from 'react-image-fallback';
-
 import { isTruthy } from 'lib/utils';
 
+import ReactImageFallback from './react-image-fallback';
+
 export interface ImageProps {
-  src?: string | (string | undefined)[];
+  sources?: string | (string | undefined)[];
+  loader?: React.ReactNode;
+  fallback?: React.ReactNode;
+  lazy?: boolean;
+  onLoaded?: EmptyFn;
+  onError?: EmptyFn;
+  // <img /> props
   alt?: string;
   className?: string;
-  loader?: React.ReactElement;
-  fallback?: React.ReactElement;
   width?: string | number;
   height?: string | number;
   style?: React.CSSProperties;
-  onLoad?: EmptyFn;
-  onError?: EmptyFn;
 }
 
-/*
-  Correction to discard React warnings.
-  Issue: https://github.com/socialtables/react-image-fallback/issues/49
-  PR: https://github.com/socialtables/react-image-fallback/pull/59
-*/
-ReactImageFallback.prototype.componentDidUpdate = ReactImageFallback.prototype.componentWillReceiveProps;
-delete ReactImageFallback.prototype.componentWillReceiveProps;
+export const Image: React.FC<ImageProps> = ({
+  sources,
+  loader,
+  fallback,
+  lazy,
+  onLoaded,
+  onError,
+  // <img /> props
+  alt,
+  className,
+  width,
+  height,
+  style
+}) => {
+  const imgProps = useMemo(
+    () => ({
+      className,
+      width,
+      height,
+      style,
+      alt,
+      loading: lazy ? ('lazy' as const) : undefined
+    }),
+    [className, width, height, style, alt, lazy]
+  );
 
-export const Image: React.FC<ImageProps> = ({ src: sources, alt, loader, fallback, onLoad, onError, ...rest }) => {
-  const localFallback = useMemo(() => fallback || <img alt={alt} {...rest} />, [fallback, alt, rest]);
+  const localFallback = useMemo(() => fallback || <img {...imgProps} />, [fallback, imgProps]);
 
-  const { src, fallbackImage } = useMemo(() => {
+  const { src, key, fallbackImage } = useMemo(() => {
     let src: string | undefined;
-    let fallbackImage: React.ReactElement | (undefined | string | React.ReactElement)[];
+    let key: string;
+    let fallbackImage: (string | React.ReactNode)[];
     if (Array.isArray(sources)) {
       const filtered = sources.filter(isTruthy);
       src = filtered[0];
+      key = filtered.toString();
       fallbackImage = [...filtered.slice(1), localFallback];
     } else {
       src = sources;
-      fallbackImage = localFallback;
+      key = String(src);
+      fallbackImage = [localFallback];
     }
 
-    return { src, fallbackImage };
+    return { src, key, fallbackImage };
   }, [sources, localFallback]);
 
   return (
     <ReactImageFallback
-      key={src} // We force component recreation on src change
+      key={key} // We force component recreation on sources change
       src={src}
-      alt={alt}
       initialImage={loader}
-      fallbackImage={fallbackImage as any}
-      /** (event: SyntheticEvent | string) => void
-       * Fired twice (bug) on successful source found
-       */
-      onLoad={onLoad}
-      /** (event: string) => void
-       * Fired once all sources failed to load
-       */
+      fallbackImage={fallbackImage}
+      onLoaded={onLoaded}
       onError={onError}
-      {...rest}
+      imgProps={imgProps}
     />
   );
 };
