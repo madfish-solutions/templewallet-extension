@@ -41,7 +41,7 @@ import { useTezosAddressByDomainName } from 'lib/temple/front/tzdns';
 import { hasManager, isAddressValid, isKTAddress, mutezToTz, tzToMutez } from 'lib/temple/helpers';
 import { TempleAccountType } from 'lib/temple/types';
 import { useSafeState } from 'lib/ui/hooks';
-import { delay } from 'lib/utils';
+import { delay, fifoResolve } from 'lib/utils';
 import { Link, useLocation } from 'lib/woozie';
 
 import { useUserTestingGroupNameSelector } from '../store/ab-testing/selectors';
@@ -200,6 +200,11 @@ const DelegateForm: FC = () => {
     return undefined;
   }, [balanceNum, baseFee]);
 
+  const fifoValidateDelegate = useMemo(
+    () => fifoResolve((value: any) => validateDelegate(value, domainsClient, validateAddress)),
+    [domainsClient]
+  );
+
   const handleFeeFieldChange = useCallback<BakerFormProps['handleFeeFieldChange']>(
     ([v]) => (maxAddFee && v > maxAddFee ? maxAddFee : v),
     [maxAddFee]
@@ -312,9 +317,7 @@ const DelegateForm: FC = () => {
           name="to"
           as={<NoSpaceField ref={toFieldRef} />}
           control={control}
-          rules={{
-            validate: (value: any) => validateDelegate(value, domainsClient, validateAddress)
-          }}
+          rules={{ validate: fifoValidateDelegate }}
           onChange={([v]) => v}
           onFocus={() => toFieldRef.current?.focus()}
           textarea

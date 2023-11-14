@@ -1,10 +1,8 @@
 import { TaquitoTezosDomainsClient } from '@tezos-domains/taquito-client';
-import memoize from 'micro-memoize';
 
 import { t } from 'lib/i18n';
 import { isDomainNameValid } from 'lib/temple/front';
 import { isAddressValid } from 'lib/temple/helpers';
-import { fifoResolve } from 'lib/utils';
 
 function validateAnyAddress(value: string) {
   switch (false) {
@@ -19,11 +17,6 @@ function validateAnyAddress(value: string) {
   }
 }
 
-const fifoResolveNameToAddress = memoize(
-  (domainsClient: TaquitoTezosDomainsClient): ((name: string) => Promise<string | null>) =>
-    fifoResolve(domainsClient.resolver.resolveNameToAddress)
-);
-
 export const validateDelegate = async (
   value: string | null | undefined,
   domainsClient: TaquitoTezosDomainsClient,
@@ -34,7 +27,7 @@ export const validateDelegate = async (
   if (!domainsClient.isSupported) return validateAddress(value);
 
   if (isDomainNameValid(value, domainsClient)) {
-    const resolved = await fifoResolveNameToAddress(domainsClient)(value);
+    const resolved = await domainsClient.resolver.resolveNameToAddress(value);
     if (!resolved) {
       return validateAddress(value) || t('domainDoesntResolveToAddress', value);
     }
