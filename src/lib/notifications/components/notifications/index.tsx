@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 
 import { useDispatch } from 'react-redux';
 
@@ -24,7 +24,9 @@ export const Notifications = () => {
   const isEnabledAdsBanner = useIsEnabledAdsBannerSelector();
   const shouldShowPartnersPromoState = useShouldShowPartnersPromoSelector();
 
-  useTimeout(() => void dispatch(viewAllNotificationsAction()), VIEW_ALL_NOTIFICATIONS_TIMEOUT, true, [notifications]);
+  const viewAllNotifications = useCallback(() => void dispatch(viewAllNotificationsAction()), [dispatch]);
+
+  useTimeout(viewAllNotifications, VIEW_ALL_NOTIFICATIONS_TIMEOUT, true, [notifications]);
   useLoadPartnersPromo();
 
   return (
