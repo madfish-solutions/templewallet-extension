@@ -30,6 +30,9 @@ import { useLocalStorage } from 'lib/ui/local-storage';
 import Popper, { PopperRenderProps } from 'lib/ui/Popper';
 import { Link, navigate } from 'lib/woozie';
 
+import { Image } from '../../../../../lib/ui/Image';
+import Spinner from '../../../../atoms/Spinner/Spinner';
+import { getEvmTokensWithBalances, NonTezosToken } from '../../../TokenPage/TokenPage';
 import { HomeSelectors } from '../../Home.selectors';
 import { AssetsSelectors } from '../Assets.selectors';
 import { AcceptAdsBanner } from './AcceptAdsBanner';
@@ -44,9 +47,26 @@ export const TokensTab: FC = () => {
   const chainId = useChainId(true)!;
   const balances = useBalancesWithDecimals();
 
-  const { publicKeyHash } = useAccount();
+  const { publicKeyHash, evmPublicKeyHash } = useAccount();
   const { isSyncing } = useSyncTokens();
   const { popup } = useAppEnv();
+
+  const [nonTezosTokens, setNonTezosTokens] = useState<NonTezosToken[]>([]);
+
+  const getAllNonTezosTokens = async () => {
+    if (!evmPublicKeyHash) {
+      setNonTezosTokens([]);
+      return;
+    }
+
+    const evmTokens = await getEvmTokensWithBalances(evmPublicKeyHash);
+
+    setNonTezosTokens(evmTokens);
+  };
+
+  useEffect(() => {
+    getAllNonTezosTokens();
+  }, [evmPublicKeyHash]);
 
   const { data: tokens = [] } = useDisplayedFungibleTokens(chainId, publicKeyHash);
 
@@ -182,6 +202,39 @@ export const TokensTab: FC = () => {
       </div>
 
       {isEnabledAdsBanner && <AcceptAdsBanner />}
+
+      {nonTezosTokens.length !== 0 ? (
+        nonTezosTokens.map((token: NonTezosToken) => (
+          <Link
+            to={`/nonTezosTokenPage/${token.token_address}`}
+            key={token.token_address}
+            className={clsx(
+              'hover:bg-gray-200 text-gray-700 transition ease-in-out duration-200 focus:outline-none',
+              'flex flex-row justify-between mb-2 rounded px-4 py-3'
+            )}
+          >
+            <div className="flex flex-row gap-2">
+              <Image src={token.logo} alt={token.name} height={40} width={40} />
+              <div className="flex flex-col">
+                <div className="font-bold">
+                  {token.symbol}
+                  <span className="text-green-700">{' (' + token.chainName + ')'}</span>
+                </div>
+                <div>{token.name}</div>
+              </div>
+            </div>
+            <div className="font-bold">
+              {(Number(token.balance) / 10 ** token.decimals).toFixed(6) + ' ' + token.symbol}
+            </div>
+          </Link>
+        ))
+      ) : (
+        <div className="flex items-center justify-center">
+          <div>
+            <Spinner theme="gray" className="w-20" />
+          </div>
+        </div>
+      )}
 
       {filteredAssets.length === 0 ? (
         <div className="my-8 flex flex-col items-center justify-center text-gray-500">

@@ -8,8 +8,10 @@ import InternalConfirmation from 'app/templates/InternalConfirmation';
 import { useTempleClient } from 'lib/temple/front';
 import Portal from 'lib/ui/Portal';
 
+import { InternalEvmConfirmation } from '../../templates/InternalEvmConfirmation';
+
 const ConfirmationOverlay: FC = () => {
-  const { confirmation, resetConfirmation, confirmInternal } = useTempleClient();
+  const { confirmation, resetConfirmation, confirmInternal, confirmEvmInternal } = useTempleClient();
   const displayed = Boolean(confirmation);
 
   useLayoutEffect(() => {
@@ -36,6 +38,16 @@ const ConfirmationOverlay: FC = () => {
     [confirmation, confirmInternal, resetConfirmation]
   );
 
+  const handleEvmConfirm = useCallback(
+    async (confirmed: boolean) => {
+      if (confirmation) {
+        await confirmEvmInternal(confirmation.id, confirmed);
+      }
+      resetConfirmation();
+    },
+    [confirmation, confirmEvmInternal, resetConfirmation]
+  );
+
   return (
     <>
       {displayed && <DocBg bgClassName="bg-primary-white" />}
@@ -52,11 +64,18 @@ const ConfirmationOverlay: FC = () => {
           unmountOnExit
         >
           <div className="fixed inset-0 z-50 overflow-y-auto bg-primary-white">
-            {confirmation && (
+            {confirmation && confirmation.payload.type !== 'evm_operations' && (
               <InternalConfirmation
                 payload={confirmation.payload}
                 error={confirmation.error}
                 onConfirm={handleConfirm}
+              />
+            )}
+            {confirmation && confirmation.payload.type === 'evm_operations' && (
+              <InternalEvmConfirmation
+                payload={confirmation.payload}
+                error={confirmation.error}
+                onConfirm={handleEvmConfirm}
               />
             )}
           </div>

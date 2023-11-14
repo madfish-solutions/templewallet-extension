@@ -154,6 +154,23 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
         opHash
       };
 
+    case TempleMessageType.EvmOperationsRequest:
+      console.log('EvmOperationsRequest');
+      const { txHash } = await Actions.sendEvmOperations(
+        port,
+        req.id,
+        req.token,
+        req.sourcePkh,
+        req.toAddress,
+        req.amount,
+        req.networkRpc
+      );
+
+      return {
+        type: TempleMessageType.EvmOperationsResponse,
+        txHash
+      };
+
     case TempleMessageType.SignRequest:
       const result = await Actions.sign(port, req.id, req.sourcePkh, req.bytes, req.watermark);
       return {

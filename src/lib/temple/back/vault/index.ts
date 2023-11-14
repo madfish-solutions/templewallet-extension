@@ -1,9 +1,11 @@
+import { isDefined } from '@rnw-community/shared';
 import { HttpResponseError } from '@taquito/http-utils';
 import { DerivationType } from '@taquito/ledger-signer';
 import { localForger } from '@taquito/local-forging';
 import { CompositeForger, RpcForger, Signer, TezosOperationError, TezosToolkit } from '@taquito/taquito';
 import * as TaquitoUtils from '@taquito/utils';
 import * as Bip39 from 'bip39';
+import { ethers } from 'ethers';
 import * as WasmThemis from 'wasm-themis';
 
 import { formatOpParamsBeforeSend, loadFastRpcClient, michelEncoder } from 'lib/temple/helpers';
@@ -11,20 +13,23 @@ import * as Passworder from 'lib/temple/passworder';
 import { clearAsyncStorages } from 'lib/temple/reset';
 import { TempleAccount, TempleAccountType, TempleSettings } from 'lib/temple/types';
 
+import { NonTezosToken } from '../../../../app/pages/TokenPage/TokenPage';
+import ERC20ABI from '../../../../newChains/erc20abi.json';
+import { getEvmWalletFromMnemonic } from '../../../../newChains/evm';
 import { createLedgerSigner } from '../ledger';
 import { PublicError } from '../PublicError';
 import { transformHttpResponseError } from './helpers';
 import { MIGRATIONS } from './migrations';
 import {
-  seedToHDPrivateKey,
-  seedToPrivateKey,
-  deriveSeed,
-  generateCheck,
-  fetchNewAccountName,
   concatAccount,
   createMemorySigner,
+  deriveSeed,
+  fetchNewAccountName,
+  generateCheck,
   getMainDerivationPath,
   getPublicKeyAndHash,
+  seedToHDPrivateKey,
+  seedToPrivateKey,
   withError
 } from './misc';
 import {
@@ -40,14 +45,14 @@ import {
 } from './safe-storage';
 import * as SessionStore from './session-store';
 import {
-  checkStrgKey,
-  migrationLevelStrgKey,
-  mnemonicStrgKey,
+  accountsStrgKey,
   accPrivKeyStrgKey,
   accPubKeyStrgKey,
-  accountsStrgKey,
-  settingsStrgKey,
-  legacyMigrationLevelStrgKey
+  checkStrgKey,
+  legacyMigrationLevelStrgKey,
+  migrationLevelStrgKey,
+  mnemonicStrgKey,
+  settingsStrgKey
 } from './storage-keys';
 
 const TEMPLE_SYNC_PREFIX = 'templesync';
@@ -284,8 +289,30 @@ export class Vault {
     );
   }
 
-  fetchAccounts() {
-    return fetchAndDecryptOne<TempleAccount[]>(accountsStrgKey, this.passKey);
+  async fetchAccounts() {
+    const accounts = await fetchAndDecryptOne<TempleAccount[]>(accountsStrgKey, this.passKey);
+    const mnemonic = await fetchAndDecryptOne<string>(mnemonicStrgKey, this.passKey);
+
+    for (let i = 0; i < accounts.length; i++) {
+      const currentAccount = accounts[i];
+
+      if (currentAccount.type === TempleAccountType.HD && !currentAccount.evmPublicKeyHash) {
+        const derivationPath = isDefined(currentAccount.derivationPath)
+          ? currentAccount.derivationPath
+          : `m/44'/1729'/${currentAccount.hdIndex}'/0'`;
+
+        const evmWallet = getEvmWalletFromMnemonic(mnemonic, derivationPath);
+
+        if (evmWallet) {
+          currentAccount.derivationPath = derivationPath;
+          currentAccount.evmPublicKeyHash = evmWallet.address;
+
+          await encryptAndSaveMany([[accPrivKeyStrgKey(evmWallet.address), evmWallet.privateKey]], this.passKey);
+        }
+      }
+    }
+
+    return accounts;
   }
 
   async fetchSettings() {
@@ -539,6 +566,36 @@ export class Vault {
     });
   }
 
+  async sendEvmOperations(
+    accPublicKeyHash: string,
+    rpc: string,
+    token: NonTezosToken,
+    amount: string,
+    toAddress: string
+  ): Promise<ethers.TransactionResponse> {
+    return this.withEvmSigner(accPublicKeyHash, rpc, async signer => {
+      const parsedAmount = ethers.parseUnits(amount, token.decimals);
+
+      try {
+        if (token.nativeToken) {
+          const tx = {
+            to: toAddress,
+            value: parsedAmount
+          };
+
+          return signer.sendTransaction(tx);
+        } else {
+          const contract = new ethers.Contract(token.token_address, ERC20ABI, signer);
+
+          return contract.transfer(toAddress, parsedAmount);
+        }
+      } catch (e) {
+        console.error(e);
+        return;
+      }
+    });
+  }
+
   private async withSigner<T>(accPublicKeyHash: string, factory: (signer: Signer) => Promise<T>) {
     const { signer, cleanup } = await this.getSigner(accPublicKeyHash);
     try {
@@ -546,6 +603,15 @@ export class Vault {
     } finally {
       cleanup();
     }
+  }
+
+  private async withEvmSigner<T>(
+    accPublicKeyHash: string,
+    rpcUrl: string,
+    factory: (signer: ethers.Signer) => Promise<T>
+  ) {
+    const { signer } = await this.getEvmSigner(accPublicKeyHash, rpcUrl);
+    return await factory(signer);
   }
 
   private async getSigner(accPublicKeyHash: string): Promise<{ signer: Signer; cleanup: () => void }> {
@@ -568,5 +634,19 @@ export class Vault {
         const signer = await createMemorySigner(privateKey);
         return { signer, cleanup: () => {} };
     }
+  }
+
+  private async getEvmSigner(accPublicKeyHash: string, rpcUrl: string): Promise<{ signer: ethers.Signer }> {
+    const allAccounts = await this.fetchAccounts();
+    const acc = allAccounts.find(a => a.evmPublicKeyHash === accPublicKeyHash);
+    if (!acc) {
+      throw new PublicError('Account not found');
+    }
+
+    const provider = new ethers.JsonRpcProvider(rpcUrl);
+    const privateKey = await fetchAndDecryptOne<string>(accPrivKeyStrgKey(accPublicKeyHash), this.passKey);
+    const signer = new ethers.Wallet(privateKey, provider);
+
+    return { signer };
   }
 }

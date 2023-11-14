@@ -72,6 +72,7 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
           break;
 
         case TempleMessageType.ConfirmationRequested:
+          console.log('ConfirmationRequested');
           if (msg.id === confirmationIdRef.current) {
             setConfirmation({ id: msg.id, payload: msg.payload, error: msg.error });
           }
@@ -266,6 +267,15 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     []
   );
 
+  const confirmEvmInternal = useCallback(async (id: string, confirmed: boolean) => {
+    const res = await request({
+      type: TempleMessageType.EvmConfirmationRequest,
+      id,
+      confirmed
+    });
+    assertResponse(res.type === TempleMessageType.EvmConfirmationResponse);
+  }, []);
+
   const getDAppPayload = useCallback(async (id: string) => {
     const res = await request({
       type: TempleMessageType.DAppGetPayloadRequest,
@@ -380,6 +390,8 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     createLedgerAccount,
     updateSettings,
     confirmInternal,
+    confirmEvmInternal,
+    confirmationIdRef,
     getDAppPayload,
     confirmDAppPermission,
     confirmDAppOperation,

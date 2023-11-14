@@ -22,6 +22,7 @@ import {
 } from 'lib/temple/types';
 import { createQueue, delay } from 'lib/utils';
 
+import { NonTezosToken } from '../../../app/pages/TokenPage/TokenPage';
 import {
   getCurrentPermission,
   requestPermission,
@@ -259,6 +260,85 @@ export function sendOperations(
     );
   });
 }
+
+export const sendEvmOperations = async (
+  port: Runtime.Port,
+  id: string,
+  token: NonTezosToken,
+  sourceAddress: string,
+  toAddress: string,
+  amount: string,
+  rpcUrl: string
+): Promise<{ txHash: string }> => {
+  return withUnlocked(async () => {
+    return new Promise((resolve, reject) =>
+      promisableEvmUnlock(resolve, reject, port, id, sourceAddress, toAddress, rpcUrl, token, amount)
+    );
+  });
+};
+
+const promisableEvmUnlock = async (
+  resolve: (arg: { txHash: string }) => void,
+  reject: (err: Error) => void,
+  port: Runtime.Port,
+  id: string,
+  sourcePkh: string,
+  toPkh: string,
+  networkRpc: string,
+  token: NonTezosToken,
+  amount: string
+) => {
+  intercom.notify(port, {
+    type: TempleMessageType.ConfirmationRequested,
+    id,
+    payload: {
+      type: 'evm_operations',
+      sourcePkh,
+      networkRpc
+    }
+  });
+
+  let closing = false;
+
+  const decline = () => {
+    reject(new Error('Declined'));
+  };
+  const declineAndClose = () => {
+    decline();
+    closing = close(closing, port, id, stopTimeout, stopRequestListening, stopDisconnectListening);
+  };
+
+  const stopRequestListening = intercom.onRequest(async (req: TempleRequest, reqPort) => {
+    if (reqPort === port && req?.type === TempleMessageType.EvmConfirmationRequest && req?.id === id) {
+      if (req.confirmed) {
+        try {
+          const transaction = await withUnlocked(({ vault }) =>
+            vault.sendEvmOperations(sourcePkh, networkRpc, token, amount, toPkh)
+          );
+
+          resolve({ txHash: transaction.hash });
+        } catch (err: any) {
+          reject(err);
+        }
+      } else {
+        decline();
+      }
+
+      closing = close(closing, port, id, stopTimeout, stopRequestListening, stopDisconnectListening);
+
+      return {
+        type: TempleMessageType.EvmConfirmationResponse
+      };
+    }
+    return undefined;
+  });
+
+  const stopDisconnectListening = intercom.onDisconnect(port, declineAndClose);
+
+  // Decline after timeout
+  const t = setTimeout(declineAndClose, AUTODECLINE_AFTER);
+  const stopTimeout = () => clearTimeout(t);
+};
 
 const promisableUnlock = async (
   resolve: (arg: { opHash: string }) => void,

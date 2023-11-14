@@ -30,6 +30,7 @@ import { Notifications, NotificationsItem } from 'lib/notifications';
 import { useTempleClient } from 'lib/temple/front';
 import * as Woozie from 'lib/woozie';
 
+import { TokenPage } from './pages/TokenPage/TokenPage';
 import { WithDataLoading } from './WithDataLoading';
 
 interface RouteContext {
@@ -75,6 +76,7 @@ const ROUTE_MAP = Woozie.createMap<RouteContext>([
   ['/loading', (_p, ctx) => (ctx.ready ? <Woozie.Redirect to={'/'} /> : <RootSuspenseFallback />)],
   ['/', (_p, ctx) => (ctx.ready ? <Home /> : <Welcome />)],
   ['/explore/:assetSlug?', onlyReady(({ assetSlug }) => <Home assetSlug={assetSlug} />)],
+  ['/nonTezosTokenPage/:tokenAddress?', onlyReady(({ tokenAddress }) => <TokenPage tokenAddress={tokenAddress} />)],
   ['/create-wallet', onlyNotReady(() => <CreateWallet />)],
   ['/create-account', onlyReady(() => <CreateAccount />)],
   ['/import-account/:tabSlug?', onlyReady(({ tabSlug }) => <ImportAccount tabSlug={tabSlug} />)],
