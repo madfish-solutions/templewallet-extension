@@ -14,6 +14,7 @@ Feature: Check functional on the Home page
 #  empty state error
     And The Empty State Text on the Home page has correct No assets found value
     And I clear Search Assets Input (Tokens) value on the Assets page
+    And The Asset Item Button is displayed on the Assets page
 
 #  hide 0 balances
     And I press Manage Dropdown Button on the Assets page
