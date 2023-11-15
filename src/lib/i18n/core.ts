@@ -48,9 +48,11 @@ export function getMessage(messageName: string, substitutions?: Substitutions) {
 
   if (targetVal) return applySubstitutions(targetVal, substitutions);
 
-  const nativeVal = browser.i18n.getMessage(messageName, substitutions);
+  if (!target) {
+    const nativeVal = browser.i18n.getMessage(messageName, substitutions);
 
-  if (nativeVal && !target) return nativeVal;
+    if (nativeVal) return nativeVal;
+  }
 
   const fallbackVal = fallback?.[messageName];
 
