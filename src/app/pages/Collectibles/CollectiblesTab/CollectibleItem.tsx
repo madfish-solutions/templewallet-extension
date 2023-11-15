@@ -1,8 +1,7 @@
-import React, { memo, useRef, useState, useMemo } from 'react';
+import React, { memo, useRef, useMemo } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
 import clsx from 'clsx';
-import { debounce } from 'lodash';
 
 import Money from 'app/atoms/Money';
 import { useAppEnv } from 'app/env';
@@ -16,7 +15,6 @@ import { objktCurrencies } from 'lib/apis/objkt';
 import { T } from 'lib/i18n';
 import { getAssetName } from 'lib/metadata';
 import { atomsToTokens } from 'lib/temple/helpers';
-import { useIntersectionDetection } from 'lib/ui/use-intersection-detection';
 import { Link } from 'lib/woozie';
 
 import { CollectibleItemImage } from './CollectibleItemImage';
@@ -32,7 +30,6 @@ export const CollectibleItem = memo<Props>(({ assetSlug, accountPkh, chainId, ar
   const { popup } = useAppEnv();
   const metadata = useCollectibleMetadataSelector(assetSlug);
   const wrapperElemRef = useRef<HTMLDivElement>(null);
-  const [isInViewport, setIsInViewport] = useState(false);
   const balanceAtomic = useBalanceSelector(accountPkh, chainId, assetSlug);
 
   const decimals = metadata?.decimals;
@@ -57,10 +54,6 @@ export const CollectibleItem = memo<Props>(({ assetSlug, accountPkh, chainId, ar
     return { floorPrice: atomsToTokens(floorPrice, currency.decimals).toString(), symbol: currency.symbol };
   }, [details?.listing]);
 
-  const handleIntersection = useMemo(() => debounce(setIsInViewport, 300), []);
-
-  useIntersectionDetection(wrapperElemRef, handleIntersection, true, 800);
-
   const assetName = getAssetName(metadata);
 
   return (
@@ -74,14 +67,13 @@ export const CollectibleItem = memo<Props>(({ assetSlug, accountPkh, chainId, ar
         )}
         title={assetName}
       >
-        <div className={isInViewport ? 'contents' : 'hidden'}>
-          <CollectibleItemImage
-            assetSlug={assetSlug}
-            metadata={metadata}
-            areDetailsLoading={areDetailsLoading && details === undefined}
-            mime={details?.mime}
-          />
-        </div>
+        <CollectibleItemImage
+          assetSlug={assetSlug}
+          metadata={metadata}
+          areDetailsLoading={areDetailsLoading && details === undefined}
+          mime={details?.mime}
+          containerElemRef={wrapperElemRef}
+        />
 
         {areDetailsShown && balance ? (
           <div className="absolute bottom-1.5 left-1.5 text-xxxs text-white leading-none p-1 bg-black bg-opacity-60 rounded">

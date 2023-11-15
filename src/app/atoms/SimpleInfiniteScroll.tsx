@@ -28,7 +28,7 @@ export const SimpleInfiniteScroll = memo<PropsWithChildren<Props>>(({ loadNext, 
       next={loadNextLocal}
       // `InfiniteScroll`'s loader conditions r not suited here
       loader={null}
-      scrollThreshold={0.95}
+      scrollThreshold="800px"
     >
       {children}
     </InfiniteScroll>

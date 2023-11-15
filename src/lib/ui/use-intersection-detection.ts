@@ -5,15 +5,16 @@ import { useCallbackRef } from './hooks/useCallbackRef';
 const IS_SUPPORTED = 'IntersectionObserver' in window;
 
 export const useIntersectionDetection = (
-  ref: RefObject<HTMLDivElement>,
+  elemRef: RefObject<Element>,
   callback: (intersecting: boolean) => void,
   predicate = true,
-  verticalOffset = 0
+  verticalOffset = 0,
+  root: Document | Element | null = document
 ) => {
   const callbackRef = useCallbackRef(callback);
 
   useEffect(() => {
-    const elem = ref.current;
+    const elem = elemRef.current;
     const canDetect = IS_SUPPORTED && predicate && elem;
 
     if (!canDetect) return;
@@ -22,15 +23,14 @@ export const useIntersectionDetection = (
       ([entry]) => {
         callbackRef.current(entry.isIntersecting);
       },
-      { root: document, rootMargin: `${verticalOffset}px 0px ${verticalOffset}px 0px` }
+      {
+        root,
+        rootMargin: verticalOffset ? `${verticalOffset}px 0px ${verticalOffset}px 0px` : '0px'
+      }
     );
 
     observer.observe(elem);
 
-    return () => {
-      if (elem) {
-        observer.unobserve(elem);
-      }
-    };
+    return () => void observer.unobserve(elem);
   }, [predicate, verticalOffset]);
 };

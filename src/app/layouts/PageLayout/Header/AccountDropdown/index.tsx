@@ -182,13 +182,11 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
           <SearchField
             value={searchValue}
             className={classNames(
-              'py-2 pl-8 pr-4',
-              'bg-transparent',
+              'text-white bg-transparent',
               'border border-white border-opacity-10',
               'focus:outline-none',
               'transition ease-in-out duration-200',
-              'rounded-md rounded-b-none',
-              'text-white text-sm leading-tight'
+              'rounded-md rounded-b-none'
             )}
             placeholder={t('searchByName')}
             searchIconClassName="h-5 w-auto"

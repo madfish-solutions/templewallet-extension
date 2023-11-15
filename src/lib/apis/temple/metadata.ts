@@ -47,13 +47,22 @@ export const fetchTokensMetadata = (
 
   return Promise.all(
     // Parallelizing
-    chunk(slugs, METADATA_API_LOAD_CHUNK_SIZE).map(clugsChunk =>
-      getApi(chainId)
-        .post<(TokenMetadataResponse | null)[]>('/', clugsChunk)
-        .then(r => r.data)
-    )
-  ).then(datas => datas.flat());
+    chunk(slugs, METADATA_API_LOAD_CHUNK_SIZE).map(clugsChunk => fetchTokensMetadataChunk(chainId, clugsChunk))
+  ).then(datum => datum.flat());
 };
+
+const fetchTokensMetadataChunk = memoize(
+  // Simply throttling fetch calls per set of arguments.
+  // Memoizing `Promise`, not its resolved value.
+  (chainId: MetadataApiChainId, slugs: string[]) =>
+    getApi(chainId)
+      .post<(TokenMetadataResponse | null)[]>('/', slugs)
+      .then(r => r.data),
+  {
+    maxAge: 2_000,
+    cacheKey: ([chainId, slugs]) => `${chainId}:${slugs.join()}`
+  }
+);
 
 const getApi = memoize((chainId: MetadataApiChainId) => {
   const baseURL = buildApiUrl(chainId);

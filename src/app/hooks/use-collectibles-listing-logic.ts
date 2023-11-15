@@ -17,7 +17,7 @@ export const useCollectiblesListingLogic = (allSlugsSorted: string[]) => {
   const metadatasLoading = useCollectiblesMetadataLoadingSelector();
 
   const [searchValue, setSearchValue] = useState('');
-  const [searchValueDebounced] = useDebounce(searchValue, 300);
+  const [searchValueDebounced] = useDebounce(searchValue, 500);
 
   const isInSearchMode = isSearchStringApplicable(searchValueDebounced);
 

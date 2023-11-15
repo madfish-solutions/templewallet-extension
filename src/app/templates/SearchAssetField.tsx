@@ -10,11 +10,10 @@ type SearchAssetFieldProps = SearchFieldProps;
 const SearchAssetField = memo<SearchAssetFieldProps>(({ className, ...rest }) => (
   <SearchField
     className={clsx(
-      'py-2 pl-8 pr-4 bg-gray-100',
+      'bg-gray-100 text-gray-500',
+      'placeholder-gray-500 focus:text-gray-700',
       'rounded-lg border border-bgheader outline-none border-gray-300',
       'transition ease-in-out duration-200',
-      'text-gray-500 text-sm leading-tight',
-      'placeholder-gray-500 focus:text-gray-700',
       className
     )}
     placeholder={t('searchAssets')}

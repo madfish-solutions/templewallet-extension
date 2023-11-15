@@ -1,10 +1,12 @@
-import React, { memo, useMemo } from 'react';
+import React, { memo, useMemo, useState } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
+import { debounce } from 'lodash';
 
 import { useCollectibleIsAdultSelector } from 'app/store/collectibles/selectors';
 import { AssetImage } from 'app/templates/AssetImage';
 import type { TokenMetadata } from 'lib/metadata';
+import { useIntersectionDetection } from 'lib/ui/use-intersection-detection';
 
 import { CollectibleBlur } from '../components/CollectibleBlur';
 import { CollectibleImageFallback } from '../components/CollectibleImageFallback';
@@ -15,28 +17,36 @@ interface Props {
   metadata?: TokenMetadata;
   areDetailsLoading: boolean;
   mime?: string | null;
+  containerElemRef: React.RefObject<Element>;
 }
 
-export const CollectibleItemImage = memo<Props>(({ assetSlug, metadata, areDetailsLoading, mime }) => {
-  const isAdultContent = useCollectibleIsAdultSelector(assetSlug);
-  const isAdultFlagLoading = areDetailsLoading && !isDefined(isAdultContent);
+export const CollectibleItemImage = memo<Props>(
+  ({ assetSlug, metadata, areDetailsLoading, mime, containerElemRef }) => {
+    const isAdultContent = useCollectibleIsAdultSelector(assetSlug);
+    const isAdultFlagLoading = areDetailsLoading && !isDefined(isAdultContent);
 
-  const isAudioCollectible = useMemo(() => Boolean(mime && mime.startsWith('audio')), [mime]);
+    const isAudioCollectible = useMemo(() => Boolean(mime && mime.startsWith('audio')), [mime]);
 
-  if (isAdultFlagLoading) {
-    return <CollectibleImageLoader />;
+    const [isInViewport, setIsInViewport] = useState(false);
+    const handleIntersection = useMemo(() => debounce(setIsInViewport, 300), []);
+
+    useIntersectionDetection(containerElemRef, handleIntersection, true, 800);
+
+    return (
+      <div className={isInViewport ? 'contents' : 'hidden'}>
+        {isAdultFlagLoading ? (
+          <CollectibleImageLoader />
+        ) : isAdultContent ? (
+          <CollectibleBlur />
+        ) : (
+          <AssetImage
+            lazy
+            metadata={metadata}
+            loader={<CollectibleImageLoader />}
+            fallback={<CollectibleImageFallback isAudioCollectible={isAudioCollectible} />}
+          />
+        )}
+      </div>
+    );
   }
-
-  if (isAdultContent) {
-    return <CollectibleBlur />;
-  }
-
-  return (
-    <AssetImage
-      lazy
-      metadata={metadata}
-      loader={<CollectibleImageLoader />}
-      fallback={<CollectibleImageFallback isAudioCollectible={isAudioCollectible} />}
-    />
-  );
-});
+);
