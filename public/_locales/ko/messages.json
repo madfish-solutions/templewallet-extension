@@ -306,7 +306,7 @@
     "message": "예) WEW, BOW, LAL etc."
   },
   "tokenNamePatternDescription": {
-    "message": "특수 문자를 제외한 3-25글자"
+    "message": "3-25글자"
   },
   "name": {
     "message": "이름"
