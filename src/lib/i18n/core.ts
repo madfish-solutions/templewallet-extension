@@ -56,7 +56,9 @@ export function getMessage(messageName: string, substitutions?: Substitutions) {
 
   const fallbackVal = fallback?.[messageName];
 
-  return fallbackVal ? applySubstitutions(fallbackVal, substitutions) : '';
+  return fallbackVal
+    ? applySubstitutions(fallbackVal, substitutions)
+    : browser.i18n.getMessage(messageName, substitutions) ?? '';
 }
 
 export function getDateFnsLocale() {
