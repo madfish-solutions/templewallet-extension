@@ -19,7 +19,11 @@ export const useCollectiblesListingLogic = (allSlugsSorted: string[]) => {
     return size ? Number(size) : 0;
   }, []);
 
-  const { slugs: paginatedSlugs, isLoading: pageIsLoading, loadNext } = useCollectiblesPaginationLogic(allSlugsSorted);
+  const {
+    slugs: paginatedSlugs,
+    isLoading: pageIsLoading,
+    loadNext
+  } = useCollectiblesPaginationLogic(allSlugsSorted, initialSize);
 
   const assetsAreLoading = useAreAssetsLoading('collectibles');
   const metadatasLoading = useCollectiblesMetadataLoadingSelector();

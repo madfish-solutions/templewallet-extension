@@ -1,7 +1,6 @@
 import { useCallback, useState } from 'react';
 
 import { useDispatch } from 'react-redux';
-// import useSWR from 'swr';
 
 import { putCollectiblesMetadataAction } from 'app/store/collectibles-metadata/actions';
 import { useAllCollectiblesMetadataSelector } from 'app/store/collectibles-metadata/selectors';
@@ -13,7 +12,7 @@ import { setNavigateSearchParams } from 'lib/woozie';
 
 export const ITEMS_PER_PAGE = 30;
 
-export const useCollectiblesPaginationLogic = (allSlugsSorted: string[]) => {
+export const useCollectiblesPaginationLogic = (allSlugsSorted: string[], initialSize: number) => {
   const allMeta = useAllCollectiblesMetadataSelector();
 
   const { rpcBaseURL: rpcUrl } = useNetwork();

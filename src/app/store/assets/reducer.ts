@@ -17,7 +17,6 @@ import { initialState, SliceState } from './state';
 
 const assetsReducer = createReducer<SliceState>(initialState, builder => {
   builder.addCase(loadAccountTokensActions.submit, state => {
-    console.log('STF:', state.tokens.isLoading);
     state.tokens.isLoading = true;
     delete state.tokens.error;
   });

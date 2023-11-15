@@ -1,4 +1,4 @@
-import React, { FC, ReactNode, Suspense, useCallback, useMemo, useRef } from 'react';
+import React, { FC, memo, Suspense, useCallback, useMemo, useRef } from 'react';
 
 import clsx from 'clsx';
 
@@ -33,9 +33,10 @@ interface TabData {
   whileMessageI18nKey?: TID;
 }
 
-export const ContentSection: FC<Props> = ({ assetSlug, className }) => {
+export const ContentSection = memo<Props>(({ assetSlug, className }) => {
   const { fullPage } = useAppEnv();
   const tabSlug = useTabSlug();
+  console.log('CONTENT_RENDER');
 
   const tabBarElemRef = useRef<HTMLDivElement>(null);
 
@@ -115,25 +116,28 @@ export const ContentSection: FC<Props> = ({ assetSlug, className }) => {
     <div className={clsx('-mx-4 shadow-top-light', fullPage && 'rounded-t-md', className)}>
       <TabsBar ref={tabBarElemRef} tabs={tabs} activeTabName={name} />
 
-      <SuspenseContainer whileMessage={whileMessageI18nKey ? t(whileMessageI18nKey) : 'displaying tab'}>
-        {Component && <Component />}
-      </SuspenseContainer>
+      <ContentContainer
+        ContentComponent={Component}
+        whileMessage={whileMessageI18nKey ? t(whileMessageI18nKey) : 'displaying tab'}
+      />
     </div>
   );
-};
+});
 
-interface SuspenseContainerProps extends PropsWithChildren {
+interface ContentContainerProps {
   whileMessage: string;
-  fallback?: ReactNode;
+  ContentComponent: React.FC | React.ExoticComponent;
 }
 
-const SuspenseContainer: FC<SuspenseContainerProps> = ({ whileMessage, fallback = <SpinnerSection />, children }) => (
+const ContentContainer = memo<ContentContainerProps>(({ whileMessage, ContentComponent }) => (
   <ErrorBoundary whileMessage={whileMessage}>
-    <Suspense fallback={fallback}>{children}</Suspense>
+    <Suspense fallback={<SpinnerSection />}>
+      <ContentComponent />
+    </Suspense>
   </ErrorBoundary>
-);
+));
 
-const SpinnerSection: FC = () => (
+const SpinnerSection = () => (
   <div className="flex justify-center my-12">
     <Spinner theme="gray" className="w-20" />
   </div>
