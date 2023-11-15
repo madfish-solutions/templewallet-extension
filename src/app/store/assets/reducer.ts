@@ -1,6 +1,10 @@
 import { createReducer } from '@reduxjs/toolkit';
+import { persistReducer } from 'redux-persist';
+import hardSet from 'redux-persist/lib/stateReconciler/hardSet';
+import storage from 'redux-persist/lib/storage';
 
 import { toTokenSlug } from 'lib/assets';
+import { createTransformsBeforePersist } from 'lib/store';
 
 import {
   loadAccountTokensActions,
@@ -11,8 +15,9 @@ import {
 } from './actions';
 import { initialState, SliceState } from './state';
 
-export const assetsReducer = createReducer<SliceState>(initialState, builder => {
+const assetsReducer = createReducer<SliceState>(initialState, builder => {
   builder.addCase(loadAccountTokensActions.submit, state => {
+    console.log('STF:', state.tokens.isLoading);
     state.tokens.isLoading = true;
     delete state.tokens.error;
   });
@@ -103,3 +108,19 @@ export const assetsReducer = createReducer<SliceState>(initialState, builder => 
     }
   });
 });
+
+export const assetsPersistedReducer = persistReducer<SliceState>(
+  {
+    key: 'root.assets',
+    storage,
+    stateReconciler: hardSet,
+    transforms: [
+      createTransformsBeforePersist<SliceState>({
+        tokens: entry => ({ ...entry, isLoading: false }),
+        collectibles: entry => ({ ...entry, isLoading: false }),
+        mainnetWhitelist: entry => ({ ...entry, isLoading: false })
+      })
+    ]
+  },
+  assetsReducer
+);

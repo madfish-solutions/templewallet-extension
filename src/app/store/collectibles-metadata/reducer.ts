@@ -1,5 +1,5 @@
 import { createReducer } from '@reduxjs/toolkit';
-import { persistReducer, createTransform } from 'redux-persist';
+import { persistReducer } from 'redux-persist';
 import hardSet from 'redux-persist/lib/stateReconciler/hardSet';
 import storage from 'redux-persist/lib/storage';
 
@@ -7,6 +7,7 @@ import { tokenToSlug } from 'lib/assets';
 import { fromAssetSlug } from 'lib/assets/utils';
 import { checkSizeOfLocalStorageEntryToSet } from 'lib/local-storage';
 import { buildTokenMetadataFromFetched } from 'lib/metadata/utils';
+import { createTransformsBeforePersist, getPersistStorageKey } from 'lib/store';
 
 import {
   putCollectiblesMetadataAction,
@@ -42,28 +43,28 @@ const collectiblesMetadataReducer = createReducer(collectiblesMetadataInitialSta
 });
 
 const PERSIST_KEY = 'root.collectiblesMetadata';
-const STORAGE_PERSIST_KEY = `persist:${PERSIST_KEY}`;
+const STORAGE_PERSIST_KEY = getPersistStorageKey(PERSIST_KEY);
 
 export const collectiblesMetadataPersistedReducer = persistReducer<CollectiblesMetadataState>(
   {
     key: PERSIST_KEY,
     storage,
     stateReconciler: hardSet,
+    blacklist: ['isLoading'] as (keyof CollectiblesMetadataState)[],
     transforms: [
-      // Reducing slice size (if needed) to succesfully persist
-      createTransform<CollectiblesMetadataState, CollectiblesMetadataState>(inboundState => {
-        if (checkSizeOfLocalStorageEntryToSet(STORAGE_PERSIST_KEY, inboundState)) return inboundState;
+      createTransformsBeforePersist<CollectiblesMetadataState>({
+        // Reducing slice size (if needed) to succesfully persist
+        records: (records, state) => {
+          if (checkSizeOfLocalStorageEntryToSet(STORAGE_PERSIST_KEY, state)) return records;
 
-        let records = inboundState.records;
-        do {
-          records = records.slice(0, records.length - 1);
-        } while (
-          records.length &&
-          !checkSizeOfLocalStorageEntryToSet(STORAGE_PERSIST_KEY, { ...inboundState, records })
-        );
+          do {
+            const slicingBy = records.length > 10 ? 10 : 1;
+            records = records.slice(0, records.length - slicingBy);
+          } while (records.length && !checkSizeOfLocalStorageEntryToSet(STORAGE_PERSIST_KEY, { ...state, records }));
 
-        return { ...inboundState, records };
-      }, null)
+          return records;
+        }
+      })
     ]
   },
   collectiblesMetadataReducer

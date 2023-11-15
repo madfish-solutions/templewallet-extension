@@ -56,6 +56,8 @@ export const CollectibleItem = memo<Props>(({ assetSlug, accountPkh, chainId, ar
 
   const assetName = getAssetName(metadata);
 
+  console.log('RENDER');
+
   return (
     <Link to={`/collectible/${assetSlug}`} className="flex flex-col border border-gray-300 rounded-lg">
       <div

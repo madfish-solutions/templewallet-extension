@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react';
 
 import { useDispatch } from 'react-redux';
+// import useSWR from 'swr';
 
 import { putCollectiblesMetadataAction } from 'app/store/collectibles-metadata/actions';
 import { useAllCollectiblesMetadataSelector } from 'app/store/collectibles-metadata/selectors';
@@ -8,6 +9,7 @@ import { tokenToSlug } from 'lib/assets';
 import { loadTokensMetadata } from 'lib/metadata/fetch';
 import { useNetwork } from 'lib/temple/front';
 import { useDidMount, useDidUpdate } from 'lib/ui/hooks';
+import { setNavigateSearchParams } from 'lib/woozie';
 
 export const ITEMS_PER_PAGE = 30;
 
@@ -16,6 +18,21 @@ export const useCollectiblesPaginationLogic = (allSlugsSorted: string[]) => {
 
   const { rpcBaseURL: rpcUrl } = useNetwork();
   const dispatch = useDispatch();
+
+  // const [size, setSize] = useState(0);
+
+  // const { data, isValidating } = useSWR(
+  //   ['collectibles-pagination', size],
+  //   async (data1, data2, data3) => {
+  //     const nextSlugs = allSlugsSorted.slice(0, size);
+
+  //     //
+  //     return ['a', 'b'];
+  //   },
+  //   {
+  //     //
+  //   }
+  // );
 
   const [slugs, setSlugs] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(Boolean(allSlugsSorted.length));
@@ -47,6 +64,8 @@ export const useCollectiblesPaginationLogic = (allSlugsSorted: string[]) => {
         setSlugs(nextSlugs);
         setIsLoading(false);
       }
+
+      setNavigateSearchParams({ size: String(size) });
     },
     [allSlugsSorted, slugs.length, allMeta, rpcUrl, dispatch]
   );

@@ -7,10 +7,18 @@ import { useCollectiblesMetadataLoadingSelector } from 'app/store/collectibles-m
 import { searchAssetsWithNoMeta } from 'lib/assets/search.utils';
 import { useCollectiblesMetadataPresenceCheck, useGetCollectibleMetadata } from 'lib/metadata';
 import { isSearchStringApplicable } from 'lib/utils/search-items';
+import { createLocationState } from 'lib/woozie/location';
 
 import { ITEMS_PER_PAGE, useCollectiblesPaginationLogic } from './use-collectibles-pagination-logic';
 
 export const useCollectiblesListingLogic = (allSlugsSorted: string[]) => {
+  const initialSize = useMemo(() => {
+    const { search } = createLocationState();
+    const usp = new URLSearchParams(search);
+    const size = usp.get('size');
+    return size ? Number(size) : 0;
+  }, []);
+
   const { slugs: paginatedSlugs, isLoading: pageIsLoading, loadNext } = useCollectiblesPaginationLogic(allSlugsSorted);
 
   const assetsAreLoading = useAreAssetsLoading('collectibles');

@@ -54,6 +54,7 @@ const finishTokensLoading = async (
     const slug = tzktAssetToTokenSlug(curr);
     return knownMeta.some(m => tokenToSlug(m) === slug) ? acc : acc.concat(slug);
   }, []);
+  console.log('slugsWithoutMeta for tokens:', slugsWithoutMeta);
 
   const newMetadatas = isKnownChainId(chainId)
     ? await fetchTokensMetadata(chainId, slugsWithoutMeta).catch(err => {
@@ -106,6 +107,7 @@ const finishCollectiblesLoadingWithoutMeta = async (
     const slug = tzktAssetToTokenSlug(curr);
     return knownMeta.some(m => tokenToSlug(m) === slug) ? acc : acc.concat(slug);
   }, []);
+  console.log('slugsWithoutMeta for collectibles:', slugsWithoutMeta);
 
   const newMetadatas = isKnownChainId(chainId)
     ? await fetchTokensMetadata(chainId, slugsWithoutMeta).catch(err => {

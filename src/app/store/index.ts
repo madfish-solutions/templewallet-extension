@@ -21,7 +21,12 @@ import { epicMiddleware, rootEpic } from './root-state.epics';
 import { rootReducer } from './root-state.reducer';
 import type { RootState } from './root-state.type';
 
-const persistConfigBlacklist: (keyof RootState)[] = ['buyWithCreditCard', 'collectibles'];
+const persistConfigBlacklist: (keyof RootState)[] = [
+  'buyWithCreditCard',
+  'collectibles',
+  'assets',
+  'collectiblesMetadata'
+];
 
 const persistedReducer = persistReducer<RootState>(
   {

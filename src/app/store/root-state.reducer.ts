@@ -4,7 +4,7 @@ import { notificationsReducer } from 'lib/notifications';
 
 import { abTestingReducer } from './ab-testing/reducers';
 import { advertisingReducer } from './advertising/reducers';
-import { assetsReducer } from './assets/reducer';
+import { assetsPersistedReducer } from './assets/reducer';
 import { balancesReducer } from './balances/reducers';
 import { buyWithCreditCardReducer } from './buy-with-credit-card/reducers';
 import { collectiblesMetadataPersistedReducer } from './collectibles-metadata/reducer';
@@ -26,7 +26,7 @@ const rootStateReducersMap = {
   swap: swapReducer,
   partnersPromotion: partnersPromotionRucer,
   balances: balancesReducer,
-  assets: assetsReducer,
+  assets: assetsPersistedReducer,
   tokensMetadata: tokensMetadataReducer,
   collectiblesMetadata: collectiblesMetadataPersistedReducer,
   abTesting: abTestingReducer,

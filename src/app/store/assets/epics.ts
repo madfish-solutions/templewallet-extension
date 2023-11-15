@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { Action } from 'redux';
 import { combineEpics, Epic } from 'redux-observable';
-import { from, of, concatMap } from 'rxjs';
+import { from, of, concatMap, filter } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 import { ofType, toPayload } from 'ts-action-operators';
 
@@ -21,6 +21,10 @@ const loadAccountTokensEpic: Epic<Action, Action, RootState> = (action$, state$)
     ofType(loadAccountTokensActions.submit),
     toPayload(),
     toLatestValue(state$),
+    filter(([, state]) => {
+      console.log('TF:', state.assets.tokens.isLoading);
+      return state.assets.tokens.isLoading === false;
+    }),
     switchMap(([{ account, chainId }, state]) =>
       from(
         loadAccountTokens(
@@ -44,6 +48,7 @@ const loadAccountCollectiblesEpic: Epic<Action, Action, RootState> = (action$, s
     ofType(loadAccountCollectiblesActions.submit),
     toPayload(),
     toLatestValue(state$),
+    filter(([, state]) => state.assets.collectibles.isLoading === false),
     switchMap(([{ account, chainId }, state]) =>
       from(
         loadAccountCollectibles(
