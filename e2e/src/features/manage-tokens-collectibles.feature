@@ -3,6 +3,9 @@ Feature: Manage tokens + collectibles
 
   Scenario: As a user, I'd like to add tokens and collectibles to my wallet [Positive]
     Given I have imported an existing account
+    And I press Selected Network Button on the Header page
+    And I select ECAD Labs Mainnet node in the networks drop-down list on the Header page
+    And I check that ECAD Labs Mainnet node is selected correctly
     And I press Manage Dropdown Button on the Assets page
     And I press Manage Button on the Assets (Manage Dropdown) page
 
@@ -28,6 +31,9 @@ Feature: Manage tokens + collectibles
 @manage_assets
   Scenario: As a user, I'd like to hide and delete tokens [Positive]
     Given I have imported an existing account
+    And I press Selected Network Button on the Header page
+    And I select ECAD Labs Mainnet node in the networks drop-down list on the Header page
+    And I check that ECAD Labs Mainnet node is selected correctly
 #  hardcoded token
 
     And I press Manage Dropdown Button on the Assets page
@@ -83,6 +89,9 @@ Feature: Manage tokens + collectibles
 @manage_assets
   Scenario: Validation check on Add Asset page + other checks [Negative]
     Given I have imported an existing account
+    And I press Selected Network Button on the Header page
+    And I select ECAD Labs Mainnet node in the networks drop-down list on the Header page
+    And I check that ECAD Labs Mainnet node is selected correctly
 
     And I press Manage Dropdown Button on the Assets page
     And I press Manage Button on the Assets (Manage Dropdown) page
