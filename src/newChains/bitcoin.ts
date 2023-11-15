@@ -1,45 +1,128 @@
 import ecc from '@bitcoinerlab/secp256k1';
-import BIP32Factory from 'bip32';
+import axios from 'axios';
+import BIP32Factory, { BIP32Interface } from 'bip32';
 import * as Bip39 from 'bip39';
 import * as Bitcoin from 'bitcoinjs-lib';
 
 const testnet = Bitcoin.networks.testnet;
-const GAP_LIMIT = 10;
 
-export const generateBitcoinAddressesFromMnemonic = (mnemonic: string) => {
+// SegWit
+const getBitcoinAddress = (node: BIP32Interface, network: Bitcoin.networks.Network) =>
+  Bitcoin.payments.p2wpkh({ pubkey: node.publicKey, network }).address;
+
+export const getBitcoinXPubFromMnemonic = (mnemonic: string) => {
   const seed = Bip39.mnemonicToSeedSync(mnemonic);
-
   const bip32 = BIP32Factory(ecc);
-  const root = bip32.fromSeed(seed, testnet);
 
-  const addresses = [];
+  return bip32.fromSeed(seed, testnet);
+};
 
-  for (let i = 0; i < GAP_LIMIT; i++) {
-    const currentChild = root.derivePath(`m/84'/0'/0'/0/${i}`);
+export const getNextBitcoinHDWallet = (hdMaster: BIP32Interface, index: number) => {
+  const keyPair = hdMaster.derivePath(`m/84'/0'/0'/0/${index}`);
 
-    addresses.push(Bitcoin.payments.p2wpkh({ pubkey: currentChild.publicKey, network: testnet }).address);
+  return { address: getBitcoinAddress(keyPair, testnet), keyPair };
+};
+
+interface UnspentOutput {
+  txid: string;
+  vout: number;
+  status: {
+    confirmed: boolean;
+    block_height: number;
+    block_hash: string;
+    block_time: number;
+  };
+  value: number;
+}
+
+interface UtxoResponse {
+  address: string;
+  utxos: UnspentOutput[];
+}
+
+interface UtxoInput {
+  hash: string;
+  index: number;
+}
+
+const OUTPUTS_COUNT = 2;
+
+export const sendBitcoin = async (
+  addressKeyPairsRecord: Record<string, BIP32Interface>,
+  receiverAddress: string,
+  changeAddress: string,
+  amount: string
+): Promise<string> => {
+  const userAddresses: string[] = [];
+
+  const satoshiToSend = Number(amount) * 100000000;
+
+  const { data: utxoResponse } = await axios.get<UtxoResponse[]>(
+    `http://localhost:3000/api/bitcoin-utxos?addresses=${userAddresses}`
+  );
+
+  const allUtxos = utxoResponse.flatMap(({ utxos }) => utxos);
+  console.log(allUtxos, 'allUtxos');
+  const inputs: UtxoInput[] = allUtxos.map(utxo => ({ hash: utxo.txid, index: utxo.vout }));
+  console.log(inputs, 'inputs');
+
+  const totalAmountAvailable = allUtxos.reduce((acc, utxo) => (acc += utxo.value), 0);
+  console.log(totalAmountAvailable, 'totalAmount');
+  const inputsCount = inputs.length;
+
+  const transactionSize = inputsCount * 146 + OUTPUTS_COUNT * 34 + 10 - inputsCount;
+  console.log(transactionSize, 'transactrionSize');
+
+  const fee = transactionSize * 20;
+  const change = totalAmountAvailable - satoshiToSend - fee;
+
+  console.log(fee, 'fee');
+  console.log(change, 'change');
+
+  // Check if we have enough funds to cover the transaction and the fees assuming we want to pay 20 satoshis per byte
+  if (change < 0) {
+    throw new Error('Balance is too low for this transaction');
   }
 
-  return addresses;
+  const psbt = new Bitcoin.Psbt();
+
+  //Set transaction input
+  psbt.addInputs(inputs);
+
+  // set the receiving address and the amount to send
+  psbt.addOutput({ address: receiverAddress, value: satoshiToSend });
+
+  // set the change address and the amount to send
+  psbt.addOutput({ address: changeAddress, value: change });
+
+  // Transaction signing
+  utxoResponse.forEach(({ address, utxos }) =>
+    utxos.forEach(utxo => psbt.signInputHD(utxo.vout, addressKeyPairsRecord[address]))
+  );
+
+  // serialized transaction
+  const txHex = psbt.extractTransaction().toHex();
+  console.log(txHex, 'txHex');
+
+  const txId = await broadcastTransaction(txHex);
+  console.log(txId, 'txId');
+
+  return txId;
 };
 
-export const getBitcoinAddress = () => {
-  return generatedAddresses[0];
-};
+const broadcastTransaction = async (txHex: string) => {
+  try {
+    const response = await axios.post('https://blockstream.info/api/tx', txHex);
 
-export const getAllBitcoinAddressesForCurrentMnemonic = () => {
-  return generatedAddresses;
-};
+    if (response.status === 200) {
+      console.log('Transaction successfully broadcasted!');
+      console.log('Transaction ID:', response.data);
 
-const generatedAddresses = [
-  'tb1qufwmqnja8v8knrkd0uej5v50m770z8nsfw2736',
-  'tb1q32znzr8hr95eed0tagjn6jy4pgt6w7macc0zul',
-  'tb1qdlcmn58ndpc8z57tnme2vfd0r7k8dk9kadptdg',
-  'tb1qhgmj86ky09sx2g7v8fqczugmuq4regvfntvwv6',
-  'tb1q3p44wkeslyschpxwl0pl7l3wrdw7k4jvnxjwup',
-  'tb1qlyprq7l54a2uyxtpfjp85zxg9uvr8crnsggtvq',
-  'tb1qjy2m5wskt4kaadmwmjpfnn70amx3zh9fmn2ags',
-  'tb1q0sd9fvj60em285fkrd2ukr5h4qvrmx9qamtaq6',
-  'tb1qgkzuznnwd6yg3klcsxrg4z7hn5p0shaqjxusxc',
-  'tb1qae32d9fhf6m7qjsmf6dt2esj5m3tkt9uzs5z3v'
-];
+      return response.data;
+    } else {
+      console.error('Failed to broadcast transaction. Response:', response.status, response.data);
+    }
+  } catch (error: any) {
+    console.error('Error broadcasting transaction:', error.message);
+  }
+};
