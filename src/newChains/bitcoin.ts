@@ -20,7 +20,7 @@ export const getBitcoinXPubFromMnemonic = (mnemonic: string) => {
 export const getNextBitcoinHDWallet = (hdMaster: BIP32Interface, index: number) => {
   const keyPair = hdMaster.derivePath(`m/84'/0'/0'/0/${index}`);
 
-  return { address: getBitcoinAddress(keyPair, testnet), keyPair };
+  return { address: getBitcoinAddress(keyPair, testnet), privateKey: keyPair.toWIF() };
 };
 
 interface UnspentOutput {
@@ -48,7 +48,7 @@ interface UtxoInput {
 const OUTPUTS_COUNT = 2;
 
 export const sendBitcoin = async (
-  addressKeyPairsRecord: Record<string, BIP32Interface>,
+  addressKeyPairsRecord: Record<string, string>,
   receiverAddress: string,
   changeAddress: string,
   amount: string
@@ -85,6 +85,7 @@ export const sendBitcoin = async (
   }
 
   const psbt = new Bitcoin.Psbt();
+  const bip32 = BIP32Factory(ecc);
 
   //Set transaction input
   psbt.addInputs(inputs);
@@ -97,7 +98,11 @@ export const sendBitcoin = async (
 
   // Transaction signing
   utxoResponse.forEach(({ address, utxos }) =>
-    utxos.forEach(utxo => psbt.signInputHD(utxo.vout, addressKeyPairsRecord[address]))
+    utxos.forEach(utxo => {
+      const keyPair = bip32.fromBase58(addressKeyPairsRecord[address], testnet);
+
+      psbt.signInputHD(utxo.vout, keyPair);
+    })
   );
 
   // serialized transaction

@@ -7,7 +7,6 @@ import clsx from 'clsx';
 import { TID } from '../../../lib/i18n';
 import { useAccount } from '../../../lib/temple/front';
 import { Image } from '../../../lib/ui/Image';
-import { getAllBitcoinAddressesForCurrentMnemonic } from '../../../newChains/bitcoin';
 import Spinner from '../../atoms/Spinner/Spinner';
 import { useTabSlug } from '../../atoms/useTabSlug';
 import { useAppEnv } from '../../env';
@@ -135,10 +134,10 @@ export const TokenPage: FC<Props> = ({ tokenAddress }) => {
   );
 };
 
-export const getBitcoinWithBalance = async () => {
-  const addresses = getAllBitcoinAddressesForCurrentMnemonic().join(';');
+export const getBitcoinWithBalance = async (addresses: string[]) => {
+  const addressesConcat = addresses.join(';');
 
-  const response = await axios.get<NonTezosToken>(`http://localhost:3000/api/bitcoin?addresses=${addresses}`);
+  const response = await axios.get<NonTezosToken>(`http://localhost:3000/api/bitcoin?addresses=${addressesConcat}`);
 
   return response.data;
 };
