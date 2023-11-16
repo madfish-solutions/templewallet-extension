@@ -1,11 +1,11 @@
-import React, { FC, ReactNode, Suspense, useCallback, useMemo, useRef } from 'react';
+import React, { FC, memo, Suspense, useCallback, useMemo, useRef } from 'react';
 
 import clsx from 'clsx';
 
 import Spinner from 'app/atoms/Spinner/Spinner';
 import { useTabSlug } from 'app/atoms/useTabSlug';
 import { useAppEnv } from 'app/env';
-import ErrorBoundary, { ErrorBoundaryProps } from 'app/ErrorBoundary';
+import ErrorBoundary from 'app/ErrorBoundary';
 import { ToolbarElement } from 'app/layouts/PageLayout';
 import { ActivityComponent } from 'app/templates/activity/Activity';
 import AssetInfo from 'app/templates/AssetInfo';
@@ -33,7 +33,7 @@ interface TabData {
   whileMessageI18nKey?: TID;
 }
 
-export const ContentSection: FC<Props> = ({ assetSlug, className }) => {
+export const ContentSection = memo<Props>(({ assetSlug, className }) => {
   const { fullPage } = useAppEnv();
   const tabSlug = useTabSlug();
 
@@ -115,26 +115,33 @@ export const ContentSection: FC<Props> = ({ assetSlug, className }) => {
     <div className={clsx('-mx-4 shadow-top-light', fullPage && 'rounded-t-md', className)}>
       <TabsBar ref={tabBarElemRef} tabs={tabs} activeTabName={name} />
 
-      <SuspenseContainer
+      <ContentContainer
+        ContentComponent={Component}
         whileMessage={whileMessageI18nKey ? t(whileMessageI18nKey) : 'displaying tab'}
-        Content={Component}
       />
     </div>
   );
-};
+});
 
-interface SuspenseContainerProps extends Omit<ErrorBoundaryProps, 'className'> {
+interface ContentContainerProps {
   whileMessage: string;
-  fallback?: ReactNode;
+  ContentComponent: React.FC | React.ExoticComponent;
 }
 
-const SuspenseContainer: FC<SuspenseContainerProps> = ({ fallback = <SpinnerSection />, children, ...restProps }) => (
-  <ErrorBoundary {...restProps}>
-    <Suspense fallback={fallback}>{children}</Suspense>
-  </ErrorBoundary>
-);
+const ContentContainer = memo<ContentContainerProps>(({ whileMessage, ContentComponent }) => {
+  const ErrorBoundaryContent = useCallback(
+    () => (
+      <Suspense fallback={<SpinnerSection />}>
+        <ContentComponent />
+      </Suspense>
+    ),
+    [ContentComponent]
+  );
 
-const SpinnerSection: FC = () => (
+  return <ErrorBoundary whileMessage={whileMessage} Content={ErrorBoundaryContent} />;
+});
+
+const SpinnerSection = () => (
   <div className="flex justify-center my-12">
     <Spinner theme="gray" className="w-20" />
   </div>
