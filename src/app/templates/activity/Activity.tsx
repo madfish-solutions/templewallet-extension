@@ -1,21 +1,17 @@
-import React, { Fragment, useEffect } from 'react';
+import React, { Fragment } from 'react';
 
 import classNames from 'clsx';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import { useDispatch } from 'react-redux';
 
 import { SyncSpinner } from 'app/atoms';
 import { PartnersPromotion, PartnersPromotionVariant } from 'app/atoms/partners-promotion';
 import { useAppEnv } from 'app/env';
+import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
 import { ReactComponent as LayersIcon } from 'app/icons/layers.svg';
-import { loadPartnersPromoAction } from 'app/store/partners-promotion/actions';
-import { OptimalPromoVariantEnum } from 'lib/apis/optimal';
 import { T } from 'lib/i18n/react';
 import useActivities from 'lib/temple/activity-new/hook';
 import { useAccount } from 'lib/temple/front';
 
-import { useShouldShowPartnersPromoSelector } from '../../store/partners-promotion/selectors';
-import { useIsEnabledAdsBannerSelector } from '../../store/settings/selectors';
 import { ActivityItem } from './ActivityItem';
 
 const INITIAL_NUMBER = 30;
@@ -26,26 +22,13 @@ interface Props {
 }
 
 export const ActivityComponent: React.FC<Props> = ({ assetSlug }) => {
-  const dispatch = useDispatch();
   const { loading, reachedTheEnd, list: activities, loadMore } = useActivities(INITIAL_NUMBER, assetSlug);
 
   const { popup } = useAppEnv();
 
   const { publicKeyHash: accountAddress } = useAccount();
 
-  const isShouldShowPartnersPromoState = useShouldShowPartnersPromoSelector();
-  const isEnabledAdsBanner = useIsEnabledAdsBannerSelector();
-
-  useEffect(() => {
-    if (isShouldShowPartnersPromoState && !isEnabledAdsBanner) {
-      dispatch(
-        loadPartnersPromoAction.submit({
-          optimalPromoVariantEnum: OptimalPromoVariantEnum.Fullview,
-          accountAddress
-        })
-      );
-    }
-  }, [isShouldShowPartnersPromoState, isEnabledAdsBanner, dispatch, accountAddress]);
+  useLoadPartnersPromo();
 
   if (activities.length === 0 && !loading && reachedTheEnd) {
     return (
