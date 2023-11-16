@@ -1,5 +1,5 @@
 Feature: Switch account
-@dev
+
   Scenario: As a user, I'd like to switch between my accounts
     Given I have imported an existing account
 #    creating or restoring second hd account
