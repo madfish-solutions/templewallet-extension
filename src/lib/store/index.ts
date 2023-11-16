@@ -7,4 +7,4 @@ export { mockPersistedState } from './state.utils';
 
 export { toLatestValue } from './epics.utils';
 
-export { getPersistStorageKey, createTransformsBeforePersist } from './persist.utils';
+export { getPersistStorageKey, createTransformsBeforePersist, createTransformsBeforeHydrate } from './persist.utils';

@@ -31,13 +31,14 @@ export const MIGRATIONS: MigrationManifest = {
 
       delete allTokensMetadata[slug];
 
+      const newSlug = toTokenSlug(metadata.address, tokenId);
+
       if (isCollectible(metadata)) {
-        typedPersistedState.collectiblesMetadata.records.push({
+        typedPersistedState.collectiblesMetadata.records.set(newSlug, {
           ...metadata,
           id: tokenId
         });
       } else {
-        const newSlug = toTokenSlug(metadata.address, tokenId);
         allTokensMetadata[newSlug] = { ...metadata, id: tokenId };
       }
     }

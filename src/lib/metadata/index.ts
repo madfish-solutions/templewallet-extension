@@ -16,7 +16,7 @@ import {
   useAllTokensMetadataSelector
 } from 'app/store/tokens-metadata/selectors';
 import { METADATA_API_LOAD_CHUNK_SIZE } from 'lib/apis/temple';
-import { isTezAsset, tokenToSlug } from 'lib/assets';
+import { isTezAsset } from 'lib/assets';
 import { useNetwork } from 'lib/temple/front/ready';
 import { isTruthy } from 'lib/utils';
 
@@ -61,7 +61,7 @@ export const useGetTokenOrGasMetadata = () => {
 export const useGetCollectibleMetadata = () => {
   const allMeta = useAllCollectiblesMetadataSelector();
 
-  return useCallback<TokenMetadataGetter>(slug => allMeta.find(m => tokenToSlug(m) === slug), [allMeta]);
+  return useCallback<TokenMetadataGetter>(slug => allMeta.get(slug), [allMeta]);
 };
 
 export const useGetAssetMetadata = () => {

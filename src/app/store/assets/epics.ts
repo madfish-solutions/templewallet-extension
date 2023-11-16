@@ -11,8 +11,10 @@ import { toLatestValue } from 'lib/store';
 import { putTokensBalancesAction } from '../balances/actions';
 import { fixBalances } from '../balances/utils';
 import { putCollectiblesMetadataAction } from '../collectibles-metadata/actions';
+import { MetadataMap } from '../collectibles-metadata/state';
 import type { RootState } from '../root-state.type';
 import { putTokensMetadataAction } from '../tokens-metadata/actions';
+import { MetadataRecords } from '../tokens-metadata/state';
 import { loadAccountTokensActions, loadAccountCollectiblesActions, loadTokensWhitelistActions } from './actions';
 import { loadAccountTokens, loadAccountCollectibles } from './utils';
 
@@ -26,7 +28,7 @@ const loadAccountTokensEpic: Epic<Action, Action, RootState> = (action$, state$)
         loadAccountTokens(
           account,
           chainId,
-          Object.values(state.tokensMetadata.metadataRecord).concat(state.collectiblesMetadata.records)
+          mergeAssetsMetadata(state.tokensMetadata.metadataRecord, state.collectiblesMetadata.records)
         )
       ).pipe(
         concatMap(({ slugs, balances, newMeta }) => [
@@ -49,7 +51,7 @@ const loadAccountCollectiblesEpic: Epic<Action, Action, RootState> = (action$, s
         loadAccountCollectibles(
           account,
           chainId,
-          Object.values(state.tokensMetadata.metadataRecord).concat(state.collectiblesMetadata.records)
+          mergeAssetsMetadata(state.tokensMetadata.metadataRecord, state.collectiblesMetadata.records)
         )
       ).pipe(
         concatMap(({ slugs, balances, newMeta }) => [
@@ -76,3 +78,13 @@ const loadTokensWhitelistEpic: Epic = action$ =>
   );
 
 export const assetsEpics = combineEpics(loadAccountTokensEpic, loadAccountCollectiblesEpic, loadTokensWhitelistEpic);
+
+const mergeAssetsMetadata = (tokensMetadata: MetadataRecords, collectiblesMetadata: MetadataMap) => {
+  const map = new Map(Object.entries(tokensMetadata));
+
+  for (const [slug, metadata] of collectiblesMetadata) {
+    map.set(slug, metadata);
+  }
+
+  return map;
+};

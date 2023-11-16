@@ -3,11 +3,13 @@ import mem from 'mem';
 import { fetchTokensMetadata, isKnownChainId } from 'lib/apis/temple';
 import { fetchTzktAccountAssets } from 'lib/apis/tzkt';
 import type { TzktAccountAsset } from 'lib/apis/tzkt/types';
-import { tokenToSlug, toTokenSlug } from 'lib/assets';
-import { isCollectible, TokenMetadata } from 'lib/metadata';
+import { toTokenSlug } from 'lib/assets';
+import { isCollectible } from 'lib/metadata';
 import type { FetchedMetadataRecord } from 'lib/metadata/fetch';
 
-export const loadAccountTokens = (account: string, chainId: string, knownMeta: TokenMetadata[]) =>
+import { MetadataMap } from '../collectibles-metadata/state';
+
+export const loadAccountTokens = (account: string, chainId: string, knownMeta: MetadataMap) =>
   Promise.all([
     // Fetching assets known to be FTs, not checking metadata
     fetchTzktAccountAssets(account, chainId, true).then(data => finishTokensLoading(data, chainId, knownMeta)),
@@ -21,7 +23,7 @@ export const loadAccountTokens = (account: string, chainId: string, knownMeta: T
     }
   );
 
-export const loadAccountCollectibles = (account: string, chainId: string, knownMeta: TokenMetadata[]) =>
+export const loadAccountCollectibles = (account: string, chainId: string, knownMeta: MetadataMap) =>
   Promise.all([
     // Fetching assets known to be NFTs, not checking metadata
     fetchTzktAccountAssets(account, chainId, false).then(data => finishCollectiblesLoadingWithMeta(data)),
@@ -47,12 +49,12 @@ const fetchTzktAccountUnknownAssets = mem(
 const finishTokensLoading = async (
   data: TzktAccountAsset[],
   chainId: string,
-  knownMeta: TokenMetadata[],
+  knownMeta: MetadataMap,
   fungibleByMetaCheck = false
 ) => {
   const slugsWithoutMeta = data.reduce<string[]>((acc, curr) => {
     const slug = tzktAssetToTokenSlug(curr);
-    return knownMeta.some(m => tokenToSlug(m) === slug) ? acc : acc.concat(slug);
+    return knownMeta.has(slug) ? acc : acc.concat(slug);
   }, []);
 
   const newMetadatas = isKnownChainId(chainId)
@@ -70,7 +72,7 @@ const finishTokensLoading = async (
     const metadataOfNew = newMetadatas?.[slugsWithoutMeta.indexOf(slug)];
 
     if (fungibleByMetaCheck) {
-      const metadata = metadataOfNew || knownMeta.find(m => tokenToSlug(m) === slug);
+      const metadata = metadataOfNew || knownMeta.get(slug);
 
       if (!metadata || isCollectible(metadata)) continue;
     }
@@ -99,12 +101,12 @@ const finishCollectiblesLoadingWithMeta = async (data: TzktAccountAsset[]) => {
 
 const finishCollectiblesLoadingWithoutMeta = async (
   data: TzktAccountAsset[],
-  knownMeta: TokenMetadata[],
+  knownMeta: MetadataMap,
   chainId: string
 ) => {
   const slugsWithoutMeta = data.reduce<string[]>((acc, curr) => {
     const slug = tzktAssetToTokenSlug(curr);
-    return knownMeta.some(m => tokenToSlug(m) === slug) ? acc : acc.concat(slug);
+    return knownMeta.has(slug) ? acc : acc.concat(slug);
   }, []);
 
   const newMetadatas = isKnownChainId(chainId)
@@ -121,7 +123,7 @@ const finishCollectiblesLoadingWithoutMeta = async (
     const slug = tzktAssetToTokenSlug(asset);
 
     const metadataOfNew = newMetadatas?.[slugsWithoutMeta.indexOf(slug)];
-    const metadata = metadataOfNew || knownMeta.find(m => tokenToSlug(m) === slug);
+    const metadata = metadataOfNew || knownMeta.get(slug);
 
     if (!metadata || !isCollectible(metadata)) continue;
 

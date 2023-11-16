@@ -6,7 +6,7 @@ export const PERSIST_STATE_KEY = '_persist';
 
 export const createTransformsBeforePersist = <S extends object>(
   transformers: Partial<{
-    [K in keyof S]: (subState: S[K], state: S) => S[K];
+    [K in keyof S]: (subState: S[K], originalState: S) => S[K];
   }>
 ) => {
   type K = keyof S;
@@ -25,6 +25,32 @@ export const createTransformsBeforePersist = <S extends object>(
       return subState;
     },
     out: state => state
+  };
+
+  return transform;
+};
+
+export const createTransformsBeforeHydrate = <S extends object>(
+  transformers: Partial<{
+    [K in keyof S]: (subState: S[K]) => S[K];
+  }>
+) => {
+  type K = keyof S;
+
+  const transform: Transform<S[K], S[K], S> = {
+    in: state => state,
+    out: (subState: S[K], key) => {
+      if (key === PERSIST_STATE_KEY) return subState;
+
+      try {
+        const transformerFn = transformers[key as K];
+        if (transformerFn) return transformerFn(subState);
+      } catch (err) {
+        console.error(err);
+      }
+
+      return subState;
+    }
   };
 
   return transform;

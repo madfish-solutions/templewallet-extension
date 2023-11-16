@@ -4,7 +4,6 @@ import { useDispatch } from 'react-redux';
 
 import { putCollectiblesMetadataAction } from 'app/store/collectibles-metadata/actions';
 import { useAllCollectiblesMetadataSelector } from 'app/store/collectibles-metadata/selectors';
-import { tokenToSlug } from 'lib/assets';
 import { loadTokensMetadata } from 'lib/metadata/fetch';
 import { useNetwork } from 'lib/temple/front';
 import { useDidMount, useDidUpdate } from 'lib/ui/hooks';
@@ -30,7 +29,7 @@ export const useCollectiblesPaginationLogic = (allSlugsSorted: string[], initial
       const slugsWithoutMeta = nextSlugs
         // Not checking metadata of loaded items
         .slice(slugs.length)
-        .filter(slug => !allMeta.some(m => tokenToSlug(m) === slug));
+        .filter(slug => !allMeta.get(slug));
 
       if (slugsWithoutMeta.length)
         await loadTokensMetadata(rpcUrl, slugsWithoutMeta)

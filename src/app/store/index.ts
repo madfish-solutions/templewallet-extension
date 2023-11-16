@@ -1,5 +1,5 @@
 import { devToolsEnhancer } from '@redux-devtools/remote';
-import { configureStore } from '@reduxjs/toolkit';
+import { Action, configureStore } from '@reduxjs/toolkit';
 import {
   FLUSH,
   PAUSE,
@@ -16,6 +16,7 @@ import storage from 'redux-persist/lib/storage';
 
 import { IS_DEV_ENV } from 'lib/env';
 
+import { sanitizeCollectiblesMetadataForDevTools } from './collectibles-metadata/state';
 import { MIGRATIONS } from './migrations';
 import { epicMiddleware, rootEpic } from './root-state.epics';
 import { rootReducer } from './root-state.reducer';
@@ -48,18 +49,28 @@ const store = configureStore({
   middleware: getDefaultMiddleware => {
     const defMiddleware = getDefaultMiddleware({
       serializableCheck: {
-        ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER]
+        ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
+        ignoredPaths: ['collectiblesMetadata.records']
       }
     });
 
     return defMiddleware.concat(epicMiddleware);
   },
-  ...(REDUX_DEVTOOLS_PORT
-    ? {
-        devTools: false,
-        enhancers: [devToolsEnhancer({ realtime: true, port: Number(REDUX_DEVTOOLS_PORT) })]
-      }
-    : {})
+  devTools: false,
+  enhancers: REDUX_DEVTOOLS_PORT
+    ? [
+        // See: https://github.com/zalmoxisus/remote-redux-devtools?tab=readme-ov-file#parameters
+        devToolsEnhancer<RootState, Action>({
+          realtime: true,
+          port: Number(REDUX_DEVTOOLS_PORT),
+          // See: https://github.com/reduxjs/redux-devtools/issues/496#issuecomment-670246737
+          stateSanitizer: state => ({
+            ...state,
+            collectiblesMetadata: sanitizeCollectiblesMetadataForDevTools(state.collectiblesMetadata)
+          })
+        })
+      ]
+    : undefined
 });
 
 const persistor = persistStore(store);

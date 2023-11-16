@@ -1,8 +1,8 @@
 import { mockPersistedState } from 'lib/store';
 
-import type { CollectiblesMetadataState } from './state';
+import type { SliceState } from './state';
 
-export const mockCollectiblesMetadataState = mockPersistedState<CollectiblesMetadataState>({
-  records: [],
+export const mockCollectiblesMetadataState = mockPersistedState<SliceState>({
+  records: new Map(),
   isLoading: false
 });
