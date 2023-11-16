@@ -12,18 +12,18 @@ import { createLocationState } from 'lib/woozie/location';
 import { ITEMS_PER_PAGE, useCollectiblesPaginationLogic } from './use-collectibles-pagination-logic';
 
 export const useCollectiblesListingLogic = (allSlugsSorted: string[]) => {
-  const initialSize = useMemo(() => {
+  const initialAmount = useMemo(() => {
     const { search } = createLocationState();
     const usp = new URLSearchParams(search);
-    const size = usp.get('size');
-    return size ? Number(size) : 0;
+    const amount = usp.get('amount');
+    return amount ? Number(amount) : 0;
   }, []);
 
   const {
     slugs: paginatedSlugs,
     isLoading: pageIsLoading,
     loadNext
-  } = useCollectiblesPaginationLogic(allSlugsSorted, initialSize);
+  } = useCollectiblesPaginationLogic(allSlugsSorted, initialAmount);
 
   const assetsAreLoading = useAreAssetsLoading('collectibles');
   const metadatasLoading = useCollectiblesMetadataLoadingSelector();

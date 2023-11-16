@@ -18,23 +18,8 @@ export const useCollectiblesPaginationLogic = (allSlugsSorted: string[], initial
   const { rpcBaseURL: rpcUrl } = useNetwork();
   const dispatch = useDispatch();
 
-  // const [size, setSize] = useState(0);
-
-  // const { data, isValidating } = useSWR(
-  //   ['collectibles-pagination', size],
-  //   async (data1, data2, data3) => {
-  //     const nextSlugs = allSlugsSorted.slice(0, size);
-
-  //     //
-  //     return ['a', 'b'];
-  //   },
-  //   {
-  //     //
-  //   }
-  // );
-
-  const [slugs, setSlugs] = useState<string[]>([]);
-  const [isLoading, setIsLoading] = useState(Boolean(allSlugsSorted.length));
+  const [slugs, setSlugs] = useState<string[]>(() => allSlugsSorted.slice(0, initialSize));
+  const [isLoading, setIsLoading] = useState(initialSize ? false : Boolean(allSlugsSorted.length));
 
   const _load = useCallback(
     async (size: number) => {
@@ -64,7 +49,7 @@ export const useCollectiblesPaginationLogic = (allSlugsSorted: string[], initial
         setIsLoading(false);
       }
 
-      setNavigateSearchParams({ size: String(size) });
+      setNavigateSearchParams({ amount: String(size) });
     },
     [allSlugsSorted, slugs.length, allMeta, rpcUrl, dispatch]
   );

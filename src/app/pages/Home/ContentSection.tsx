@@ -36,7 +36,6 @@ interface TabData {
 export const ContentSection = memo<Props>(({ assetSlug, className }) => {
   const { fullPage } = useAppEnv();
   const tabSlug = useTabSlug();
-  console.log('CONTENT_RENDER');
 
   const tabBarElemRef = useRef<HTMLDivElement>(null);
 
