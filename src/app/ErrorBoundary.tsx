@@ -6,7 +6,7 @@ import { ReactComponent as DangerIcon } from 'app/icons/danger.svg';
 import { t, T } from 'lib/i18n';
 import { getOnlineStatus } from 'lib/temple/front';
 
-export interface ErrorBoundaryProps extends React.PropsWithChildren {
+interface ErrorBoundaryProps extends React.PropsWithChildren {
   className?: string;
   whileMessage?: string;
   Content?: FC<{}>;
