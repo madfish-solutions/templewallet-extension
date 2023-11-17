@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import React, { FC, CSSProperties } from 'react';
 
 import classNames from 'clsx';
 
@@ -13,7 +13,7 @@ interface Props {
   currency: CurrencyBase;
   isSelected: boolean;
   fitIcons?: boolean | ((currency: CurrencyBase) => boolean);
-  style?: React.CSSProperties;
+  style?: CSSProperties;
 }
 
 export const CurrencyOption: FC<Props> = ({ currency, isFiat, isSelected, fitIcons, style }) => (

@@ -35,8 +35,8 @@ export const useCollectiblesListingLogic = (allSlugsSorted: string[]) => {
 
   const isSyncing = isInSearchMode ? assetsAreLoading || metadatasLoading : assetsAreLoading || pageIsLoading;
 
-  // There might be a glitch after `assetsAreLoading` & before `pageIsLoading` of `isSyncing === false`
-  // in 'search mode'. Debouncing to preserve `true` for a while.
+  // In `isInSearchMode === false` there might be a glitch after `assetsAreLoading` & before `pageIsLoading`
+  // of `isSyncing === false`. Debouncing to preserve `true` for a while.
   const [isSyncingDebounced] = useDebounce(isSyncing, 500);
 
   const metaToCheckAndLoad = useMemo(() => {

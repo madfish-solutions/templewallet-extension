@@ -1,4 +1,4 @@
-import React, { FC, useMemo } from 'react';
+import React, { FC, useMemo, CSSProperties } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
 import classNames from 'clsx';
@@ -16,7 +16,7 @@ interface Props {
   value: PaymentProviderInterface;
   isSelected: boolean;
   shouldShowSeparator: boolean;
-  style?: React.CSSProperties;
+  style?: CSSProperties;
 }
 
 export const PaymentProviderOption: FC<Props> = ({ value, isSelected, shouldShowSeparator, style }) => {

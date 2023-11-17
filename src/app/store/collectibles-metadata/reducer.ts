@@ -88,7 +88,7 @@ export const collectiblesMetadataPersistedReducer = persistReducer<SliceState>(
         records: subState => {
           const records = subState as unknown as TokenMetadata[];
 
-          return new Map(records.map(meta => [tokenToSlug(meta), meta])) as typeof subState;
+          return new Map(records.map(meta => [tokenToSlug(meta), meta]));
         }
       })
     ]

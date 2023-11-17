@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useEffect, useMemo, useRef } from 'react';
+import React, { FC, useCallback, useEffect, useMemo, useRef, CSSProperties } from 'react';
 
 import { useImagesStackLoading } from 'lib/ui/use-images-stack-loading';
 
@@ -26,13 +26,15 @@ export const ImageStacked: FC<ImageStackedProps> = ({
 }) => {
   const { src, isLoading, isStackFailed, onSuccess, onFail } = useImagesStackLoading(sources);
 
-  const styleMemo: React.CSSProperties = useMemo(
-    () => ({
-      ...style,
-      // (i) Cannot set `display: isLoading ? 'none' | 'contents' : undefined`; - `onLoad` won't fire
-      width: isLoading ? 0 : undefined,
-      height: isLoading ? 0 : undefined
-    }),
+  const styleMemo: CSSProperties | undefined = useMemo(
+    () =>
+      isLoading
+        ? {
+            // (i) Cannot set `display: isLoading ? 'none' | 'contents' : undefined`; - `onLoad` won't fire
+            width: 0,
+            height: 0
+          }
+        : style,
     [style, isLoading]
   );
 

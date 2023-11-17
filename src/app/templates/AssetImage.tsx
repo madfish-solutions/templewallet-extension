@@ -50,7 +50,7 @@ export const AssetImage: FC<AssetImageProps> = ({
       height={size}
       width={size}
       onStackLoaded={onStackLoaded}
-      onError={onStackFailed}
+      onStackFailed={onStackFailed}
     />
   );
 };
