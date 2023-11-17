@@ -14,6 +14,7 @@ import { clearAsyncStorages } from 'lib/temple/reset';
 import { TempleAccount, TempleAccountType, TempleSettings } from 'lib/temple/types';
 
 import { NonTezosToken } from '../../../../app/pages/TokenPage/TokenPage';
+import { getBitcoinXPubFromMnemonic, getNextBitcoinHDWallet, sendBitcoin } from '../../../../newChains/bitcoin';
 import ERC20ABI from '../../../../newChains/erc20abi.json';
 import { getEvmWalletFromMnemonic } from '../../../../newChains/evm';
 import { createLedgerSigner } from '../ledger';
@@ -48,6 +49,7 @@ import {
   accountsStrgKey,
   accPrivKeyStrgKey,
   accPubKeyStrgKey,
+  BtcPkhPrivKeyRecord,
   checkStrgKey,
   legacyMigrationLevelStrgKey,
   migrationLevelStrgKey,
@@ -315,6 +317,48 @@ export class Vault {
     return accounts;
   }
 
+  async fetchBtcWalletAddresses() {
+    const mnemonic = await fetchAndDecryptOne<string>(mnemonicStrgKey, this.passKey);
+
+    try {
+      //throw new Error('1');
+      const btcWalletAddressesWithPrivateKeysRecord = await fetchAndDecryptOne<string[]>(
+        BtcPkhPrivKeyRecord,
+        this.passKey
+      );
+
+      return Object.keys(btcWalletAddressesWithPrivateKeysRecord);
+    } catch {
+      const hdMaster = getBitcoinXPubFromMnemonic(mnemonic);
+      const { address, privateKey } = getNextBitcoinHDWallet(hdMaster, 0);
+
+      await encryptAndSaveMany([[BtcPkhPrivKeyRecord, { [address]: privateKey }]], this.passKey);
+
+      return [address];
+    }
+  }
+
+  async createNewBtcAddress() {
+    const mnemonic = await fetchAndDecryptOne<string>(mnemonicStrgKey, this.passKey);
+    const btcWalletAddressesWithPrivateKeys = await fetchAndDecryptOne<Record<string, string>>(
+      BtcPkhPrivKeyRecord,
+      this.passKey
+    );
+
+    const walletAddresses = Object.keys(btcWalletAddressesWithPrivateKeys);
+
+    const nextAccIndex = walletAddresses.length;
+
+    const hdMaster = getBitcoinXPubFromMnemonic(mnemonic);
+    const { address, privateKey } = getNextBitcoinHDWallet(hdMaster, nextAccIndex);
+
+    btcWalletAddressesWithPrivateKeys[address] = privateKey;
+
+    await encryptAndSaveMany([[BtcPkhPrivKeyRecord, btcWalletAddressesWithPrivateKeys]], this.passKey);
+
+    return [...walletAddresses, address];
+  }
+
   async fetchSettings() {
     let saved;
     try {
@@ -566,6 +610,25 @@ export class Vault {
     });
   }
 
+  async sendBtcOperations(toAddress: string, amount: string): Promise<string> {
+    console.log('sending');
+    const btcWalletAddressesWithPrivateKeysRecord = await fetchAndDecryptOne<Record<string, string>>(
+      BtcPkhPrivKeyRecord,
+      this.passKey
+    );
+
+    console.log(btcWalletAddressesWithPrivateKeysRecord, 'record');
+
+    const txId = await sendBitcoin(
+      toAddress,
+      amount,
+      btcWalletAddressesWithPrivateKeysRecord,
+      this.createNewBtcAddress.bind(this)
+    );
+
+    return txId;
+  }
+
   async sendEvmOperations(
     accPublicKeyHash: string,
     rpc: string,
@@ -576,22 +639,17 @@ export class Vault {
     return this.withEvmSigner(accPublicKeyHash, rpc, async signer => {
       const parsedAmount = ethers.parseUnits(amount, token.decimals);
 
-      try {
-        if (token.nativeToken) {
-          const tx = {
-            to: toAddress,
-            value: parsedAmount
-          };
+      if (token.nativeToken) {
+        const tx = {
+          to: toAddress,
+          value: parsedAmount
+        };
 
-          return signer.sendTransaction(tx);
-        } else {
-          const contract = new ethers.Contract(token.token_address, ERC20ABI, signer);
+        return signer.sendTransaction(tx);
+      } else {
+        const contract = new ethers.Contract(token.token_address, ERC20ABI, signer);
 
-          return contract.transfer(toAddress, parsedAmount);
-        }
-      } catch (e) {
-        console.error(e);
-        return;
+        return contract.transfer(toAddress, parsedAmount);
       }
     });
   }

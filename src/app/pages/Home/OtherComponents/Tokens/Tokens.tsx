@@ -30,9 +30,10 @@ import { useLocalStorage } from 'lib/ui/local-storage';
 import Popper, { PopperRenderProps } from 'lib/ui/Popper';
 import { Link, navigate } from 'lib/woozie';
 
+import { useBtcWalletAddresses } from '../../../../../lib/temple/front/ready';
 import { Image } from '../../../../../lib/ui/Image';
 import Spinner from '../../../../atoms/Spinner/Spinner';
-import { getEvmTokensWithBalances, NonTezosToken } from '../../../TokenPage/TokenPage';
+import { getBitcoinWithBalance, getEvmTokensWithBalances, NonTezosToken } from '../../../TokenPage/TokenPage';
 import { HomeSelectors } from '../../Home.selectors';
 import { AssetsSelectors } from '../Assets.selectors';
 import { AcceptAdsBanner } from './AcceptAdsBanner';
@@ -50,6 +51,7 @@ export const TokensTab: FC = () => {
   const { publicKeyHash, evmPublicKeyHash } = useAccount();
   const { isSyncing } = useSyncTokens();
   const { popup } = useAppEnv();
+  const btcWalletAddresses = useBtcWalletAddresses();
 
   const [nonTezosTokens, setNonTezosTokens] = useState<NonTezosToken[]>([]);
 
@@ -59,9 +61,10 @@ export const TokensTab: FC = () => {
       return;
     }
 
+    const bitcoin = await getBitcoinWithBalance(btcWalletAddresses);
     const evmTokens = await getEvmTokensWithBalances(evmPublicKeyHash);
 
-    setNonTezosTokens(evmTokens);
+    setNonTezosTokens([bitcoin, ...evmTokens]);
   };
 
   useEffect(() => {

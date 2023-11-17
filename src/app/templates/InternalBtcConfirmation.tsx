@@ -7,19 +7,18 @@ import Logo from 'app/atoms/Logo';
 import SubTitle from 'app/atoms/SubTitle';
 import { useAppEnv } from 'app/env';
 import { T, t } from 'lib/i18n';
-import { TempleEvmOpsConfirmationPayload } from 'lib/temple/types';
+import { TempleBtcOpsConfirmationPayload } from 'lib/temple/types';
 
 import { useSafeState } from '../../lib/ui/hooks';
 import { delay } from '../../lib/utils';
-import NetworkBanner from './NetworkBanner';
 
 interface Props {
-  payload: TempleEvmOpsConfirmationPayload;
+  payload: TempleBtcOpsConfirmationPayload;
   onConfirm: (confirmed: boolean) => Promise<void>;
   error?: any;
 }
 
-export const InternalEvmConfirmation: FC<Props> = ({ payload, onConfirm }) => {
+export const InternalBtcConfirmation: FC<Props> = ({ onConfirm }) => {
   const { popup } = useAppEnv();
 
   const [confirming, setConfirming] = useSafeState(false);
@@ -72,8 +71,6 @@ export const InternalEvmConfirmation: FC<Props> = ({ payload, onConfirm }) => {
           <SubTitle small className="mb-4">
             <T id="confirmAction" substitutions={t('operations')} />
           </SubTitle>
-
-          <NetworkBanner rpc={payload.networkRpc} />
         </div>
 
         <div className="flex-1" />

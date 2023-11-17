@@ -8,10 +8,12 @@ import InternalConfirmation from 'app/templates/InternalConfirmation';
 import { useTempleClient } from 'lib/temple/front';
 import Portal from 'lib/ui/Portal';
 
+import { InternalBtcConfirmation } from '../../templates/InternalBtcConfirmation';
 import { InternalEvmConfirmation } from '../../templates/InternalEvmConfirmation';
 
 const ConfirmationOverlay: FC = () => {
-  const { confirmation, resetConfirmation, confirmInternal, confirmEvmInternal } = useTempleClient();
+  const { confirmation, resetConfirmation, confirmInternal, confirmBtcInternal, confirmEvmInternal } =
+    useTempleClient();
   const displayed = Boolean(confirmation);
 
   useLayoutEffect(() => {
@@ -36,6 +38,16 @@ const ConfirmationOverlay: FC = () => {
       resetConfirmation();
     },
     [confirmation, confirmInternal, resetConfirmation]
+  );
+
+  const handleBtcConfirm = useCallback(
+    async (confirmed: boolean) => {
+      if (confirmation) {
+        await confirmBtcInternal(confirmation.id, confirmed);
+      }
+      resetConfirmation();
+    },
+    [confirmation, confirmBtcInternal, resetConfirmation]
   );
 
   const handleEvmConfirm = useCallback(
@@ -64,11 +76,11 @@ const ConfirmationOverlay: FC = () => {
           unmountOnExit
         >
           <div className="fixed inset-0 z-50 overflow-y-auto bg-primary-white">
-            {confirmation && confirmation.payload.type !== 'evm_operations' && (
-              <InternalConfirmation
+            {confirmation && confirmation.payload.type === 'btc_operations' && (
+              <InternalBtcConfirmation
                 payload={confirmation.payload}
                 error={confirmation.error}
-                onConfirm={handleConfirm}
+                onConfirm={handleBtcConfirm}
               />
             )}
             {confirmation && confirmation.payload.type === 'evm_operations' && (
@@ -78,6 +90,15 @@ const ConfirmationOverlay: FC = () => {
                 onConfirm={handleEvmConfirm}
               />
             )}
+            {confirmation &&
+              confirmation.payload.type !== 'btc_operations' &&
+              confirmation.payload.type !== 'evm_operations' && (
+                <InternalConfirmation
+                  payload={confirmation.payload}
+                  error={confirmation.error}
+                  onConfirm={handleConfirm}
+                />
+              )}
           </div>
         </CSSTransition>
       </Portal>

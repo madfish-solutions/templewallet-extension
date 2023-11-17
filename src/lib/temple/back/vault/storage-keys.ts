@@ -5,6 +5,7 @@ enum StorageEntity {
   MigrationLevel = 'migration',
   Mnemonic = 'mnemonic',
   AccPrivKey = 'accprivkey',
+  BtcPkhPrivKeyRecord = 'btcpkhprivkeyrecord',
   AccPubKey = 'accpubkey',
   Accounts = 'accounts',
   Settings = 'settings',
@@ -17,6 +18,7 @@ export const mnemonicStrgKey = createStorageKey(StorageEntity.Mnemonic);
 export const accPrivKeyStrgKey = createDynamicStorageKey(StorageEntity.AccPrivKey);
 export const accPubKeyStrgKey = createDynamicStorageKey(StorageEntity.AccPubKey);
 export const accountsStrgKey = createStorageKey(StorageEntity.Accounts);
+export const BtcPkhPrivKeyRecord = createStorageKey(StorageEntity.BtcPkhPrivKeyRecord);
 export const settingsStrgKey = createStorageKey(StorageEntity.Settings);
 export const legacyMigrationLevelStrgKey = createStorageKey(StorageEntity.LegacyMigrationLevel);
 

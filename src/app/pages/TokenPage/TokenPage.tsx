@@ -6,6 +6,7 @@ import clsx from 'clsx';
 
 import { TID } from '../../../lib/i18n';
 import { useAccount } from '../../../lib/temple/front';
+import { useBtcWalletAddresses } from '../../../lib/temple/front/ready';
 import { Image } from '../../../lib/ui/Image';
 import Spinner from '../../atoms/Spinner/Spinner';
 import { useTabSlug } from '../../atoms/useTabSlug';
@@ -43,10 +44,19 @@ export const TokenPage: FC<Props> = ({ tokenAddress }) => {
   const tabSlug = useTabSlug();
   const { evmPublicKeyHash } = useAccount();
   const isBitcoin = tokenAddress === 'btc';
+  const btcWalletAddresses = useBtcWalletAddresses();
+  console.log(btcWalletAddresses);
 
   const [nonTezosTokens, setNonTezosTokens] = useState<NonTezosToken[]>([]);
 
   const getAllNonTezosTokens = async () => {
+    if (isBitcoin) {
+      const bitcoin = await getBitcoinWithBalance(btcWalletAddresses);
+
+      setNonTezosTokens([bitcoin]);
+      return;
+    }
+
     if (!evmPublicKeyHash) {
       setNonTezosTokens([]);
       return;
@@ -70,7 +80,7 @@ export const TokenPage: FC<Props> = ({ tokenAddress }) => {
       {
         name: 'Receive',
         titleI18nKey: 'receive',
-        Component: () => <ReceiveTab address={evmPublicKeyHash} />
+        Component: () => <ReceiveTab isBitcoin={isBitcoin} address={evmPublicKeyHash} />
       },
       {
         name: 'Send',
@@ -135,8 +145,9 @@ export const TokenPage: FC<Props> = ({ tokenAddress }) => {
 };
 
 export const getBitcoinWithBalance = async (addresses: string[]) => {
-  const addressesConcat = addresses.join(';');
+  const addressesConcat = addresses.slice(-7).join(';');
 
+  console.log(addressesConcat, 'cococ');
   const response = await axios.get<NonTezosToken>(`http://localhost:3000/api/bitcoin?addresses=${addressesConcat}`);
 
   return response.data;

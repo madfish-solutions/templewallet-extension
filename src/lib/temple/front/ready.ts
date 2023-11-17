@@ -32,6 +32,7 @@ export const [
   useSetNetworkId,
   useNetwork,
   useAllAccounts,
+  useBtcWalletAddresses,
   useSetAccountPkh,
   useAccount,
   useAccountPkh,
@@ -43,6 +44,7 @@ export const [
   v => v.setNetworkId,
   v => v.network,
   v => v.allAccounts,
+  v => v.btcWalletAddresses,
   v => v.setAccountPkh,
   v => v.account,
   v => v.accountPkh,
@@ -57,6 +59,7 @@ function useReadyTemple() {
   const {
     networks: allNetworks,
     accounts: allAccounts,
+    btcWalletAddresses,
     settings,
     createTaquitoSigner,
     createTaquitoWallet
@@ -146,6 +149,7 @@ function useReadyTemple() {
     setNetworkId,
 
     allAccounts,
+    btcWalletAddresses,
     account,
     accountPkh,
     setAccountPkh,

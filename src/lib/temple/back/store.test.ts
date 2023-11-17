@@ -37,7 +37,7 @@ describe('Store tests', () => {
     expect(status).toBe(TempleStatus.Locked);
   });
   it('Unlocked event', () => {
-    unlocked({ vault: {} as Vault, accounts: [], settings: {} });
+    unlocked({ vault: {} as Vault, accounts: [], btcWalletAddresses: [], settings: {} });
     const { status } = store.getState();
     expect(status).toBe(TempleStatus.Ready);
   });

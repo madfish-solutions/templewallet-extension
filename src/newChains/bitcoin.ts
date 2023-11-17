@@ -1,8 +1,9 @@
 import ecc from '@bitcoinerlab/secp256k1';
-import axios from 'axios';
 import BIP32Factory, { BIP32Interface } from 'bip32';
 import * as Bip39 from 'bip39';
 import * as Bitcoin from 'bitcoinjs-lib';
+
+import { btcWalletAddressesUpdated } from '../lib/temple/back/store';
 
 const testnet = Bitcoin.networks.testnet;
 
@@ -20,7 +21,7 @@ export const getBitcoinXPubFromMnemonic = (mnemonic: string) => {
 export const getNextBitcoinHDWallet = (hdMaster: BIP32Interface, index: number) => {
   const keyPair = hdMaster.derivePath(`m/84'/0'/0'/0/${index}`);
 
-  return { address: getBitcoinAddress(keyPair, testnet), privateKey: keyPair.toWIF() };
+  return { address: getBitcoinAddress(keyPair, testnet)!, privateKey: keyPair.toBase58() };
 };
 
 interface UnspentOutput {
@@ -40,70 +41,95 @@ interface UtxoResponse {
   utxos: UnspentOutput[];
 }
 
-interface UtxoInput {
-  hash: string;
-  index: number;
-}
-
 const OUTPUTS_COUNT = 2;
 
 export const sendBitcoin = async (
-  addressKeyPairsRecord: Record<string, string>,
   receiverAddress: string,
-  changeAddress: string,
-  amount: string
+  amount: string,
+  addressKeyPairsRecord: Record<string, string>,
+  createNewBtcAddress: () => Promise<string[]>
 ): Promise<string> => {
-  const userAddresses: string[] = [];
+  const userAddressesConcat = Object.keys(addressKeyPairsRecord).slice(-7).join(';');
 
-  const satoshiToSend = Number(amount) * 100000000;
+  const satoshiToSend = Number((Number(amount) * 100000000).toFixed());
+  console.log(satoshiToSend, 'amount');
 
-  const { data: utxoResponse } = await axios.get<UtxoResponse[]>(
-    `http://localhost:3000/api/bitcoin-utxos?addresses=${userAddresses}`
-  );
+  const response = await fetch(`http://localhost:3000/api/bitcoin-utxos?addresses=${userAddressesConcat}`);
+  const utxoResponse: UtxoResponse[] = await response.json();
+  console.log(utxoResponse, 'utxoResponse');
 
   const allUtxos = utxoResponse.flatMap(({ utxos }) => utxos);
-  console.log(allUtxos, 'allUtxos');
-  const inputs: UtxoInput[] = allUtxos.map(utxo => ({ hash: utxo.txid, index: utxo.vout }));
-  console.log(inputs, 'inputs');
 
   const totalAmountAvailable = allUtxos.reduce((acc, utxo) => (acc += utxo.value), 0);
   console.log(totalAmountAvailable, 'totalAmount');
-  const inputsCount = inputs.length;
 
-  const transactionSize = inputsCount * 146 + OUTPUTS_COUNT * 34 + 10 - inputsCount;
-  console.log(transactionSize, 'transactrionSize');
+  const psbt = new Bitcoin.Psbt({ network: testnet });
+  const bip32 = BIP32Factory(ecc);
 
-  const fee = transactionSize * 20;
+  console.log(psbt, 'psbt1');
+
+  // Add inputs
+  utxoResponse.forEach(({ address, utxos }) => {
+    utxos.forEach(utxo => {
+      const signer = bip32.fromBase58(addressKeyPairsRecord[address], testnet);
+      const payment = Bitcoin.payments.p2wpkh({ pubkey: signer.publicKey, network: testnet });
+
+      psbt.addInput({
+        hash: utxo.txid,
+        index: utxo.vout,
+        witnessUtxo: {
+          script: payment.output!,
+          value: utxo.value
+        }
+      });
+    });
+  });
+
+  const transactionSize = psbt.inputCount * 146 + OUTPUTS_COUNT * 34 + 10 - psbt.inputCount;
+
+  const fee = transactionSize; // for testnet
+  console.log(fee, 'fee');
+
   const change = totalAmountAvailable - satoshiToSend - fee;
 
-  console.log(fee, 'fee');
   console.log(change, 'change');
 
-  // Check if we have enough funds to cover the transaction and the fees assuming we want to pay 20 satoshis per byte
+  // Check if we have enough funds to cover the transaction
   if (change < 0) {
     throw new Error('Balance is too low for this transaction');
   }
 
-  const psbt = new Bitcoin.Psbt();
-  const bip32 = BIP32Factory(ecc);
-
-  //Set transaction input
-  psbt.addInputs(inputs);
+  console.log(psbt.inputCount, 'inputsCount');
 
   // set the receiving address and the amount to send
   psbt.addOutput({ address: receiverAddress, value: satoshiToSend });
 
   // set the change address and the amount to send
-  psbt.addOutput({ address: changeAddress, value: change });
+  if (change > 0) {
+    const allAddresses = await createNewBtcAddress();
+    btcWalletAddressesUpdated(allAddresses);
+    const changeAddress = allAddresses[allAddresses.length - 1];
+    console.log(changeAddress, 'changeAddress');
+    psbt.addOutput({ address: changeAddress, value: change });
+  }
 
-  // Transaction signing
-  utxoResponse.forEach(({ address, utxos }) =>
-    utxos.forEach(utxo => {
-      const keyPair = bip32.fromBase58(addressKeyPairsRecord[address], testnet);
+  let currentInputIndex = 0;
 
-      psbt.signInputHD(utxo.vout, keyPair);
-    })
-  );
+  // Sign the inputs
+  utxoResponse.forEach(({ address, utxos }) => {
+    utxos.forEach((_, index) => {
+      console.log('sign', index);
+      const signer = bip32.fromBase58(addressKeyPairsRecord[address], testnet);
+      psbt.signInput(currentInputIndex, signer);
+      currentInputIndex++;
+    });
+  });
+
+  console.log('signed normally');
+
+  console.log(psbt, 'psbt2');
+
+  psbt.finalizeAllInputs();
 
   // serialized transaction
   const txHex = psbt.extractTransaction().toHex();
@@ -117,17 +143,16 @@ export const sendBitcoin = async (
 
 const broadcastTransaction = async (txHex: string) => {
   try {
-    const response = await axios.post('https://blockstream.info/api/tx', txHex);
+    const response = await fetch(`http://localhost:3000/api/bitcoin-broadcast-tx?txHex=${txHex}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+    const data = await response.json();
 
-    if (response.status === 200) {
-      console.log('Transaction successfully broadcasted!');
-      console.log('Transaction ID:', response.data);
-
-      return response.data;
-    } else {
-      console.error('Failed to broadcast transaction. Response:', response.status, response.data);
-    }
-  } catch (error: any) {
-    console.error('Error broadcasting transaction:', error.message);
+    return data.tx.hash;
+  } catch (error) {
+    console.error('Error broadcasting transaction:', error);
   }
 };

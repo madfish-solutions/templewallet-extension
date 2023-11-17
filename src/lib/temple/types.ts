@@ -33,6 +33,7 @@ export interface TempleDAppSession {
 export interface TempleState {
   status: TempleStatus;
   accounts: TempleAccount[];
+  btcWalletAddresses: string[];
   networks: TempleNetwork[];
   settings: TempleSettings | null;
 }
@@ -163,13 +164,13 @@ interface TempleConfirmationPayloadBase {
   sourcePkh: string;
 }
 
-interface TempleSignConfirmationPayload extends TempleConfirmationPayloadBase {
+export interface TempleSignConfirmationPayload extends TempleConfirmationPayloadBase {
   type: 'sign';
   bytes: string;
   watermark?: string;
 }
 
-interface TempleOpsConfirmationPayload extends TempleConfirmationPayloadBase {
+export interface TempleOpsConfirmationPayload extends TempleConfirmationPayloadBase {
   type: 'operations';
   networkRpc: string;
   opParams: any[];
@@ -183,10 +184,15 @@ export interface TempleEvmOpsConfirmationPayload extends TempleConfirmationPaylo
   networkRpc: string;
 }
 
+export interface TempleBtcOpsConfirmationPayload extends Omit<TempleConfirmationPayloadBase, 'sourcePkh'> {
+  type: 'btc_operations';
+}
+
 export type TempleConfirmationPayload =
   | TempleSignConfirmationPayload
   | TempleOpsConfirmationPayload
-  | TempleEvmOpsConfirmationPayload;
+  | TempleEvmOpsConfirmationPayload
+  | TempleBtcOpsConfirmationPayload;
 
 /**
  * DApp confirmation payloads
@@ -249,7 +255,9 @@ export enum TempleMessageType {
   LockRequest = 'TEMPLE_LOCK_REQUEST',
   LockResponse = 'TEMPLE_LOCK_RESPONSE',
   CreateAccountRequest = 'TEMPLE_CREATE_ACCOUNT_REQUEST',
+  CreateNewBtcAddressRequest = 'TEMPLE_CREATE_NEW_BTC_ADDRESS_REQUEST',
   CreateAccountResponse = 'TEMPLE_CREATE_ACCOUNT_RESPONSE',
+  CreateNewBtcAddressResponse = 'TEMPLE_CREATE_NEW_BTC_ADDRESS_RESPONSE',
   RevealPublicKeyRequest = 'TEMPLE_REVEAL_PUBLIC_KEY_REQUEST',
   RevealPublicKeyResponse = 'TEMPLE_REVEAL_PUBLIC_KEY_RESPONSE',
   RevealPrivateKeyRequest = 'TEMPLE_REVEAL_PRIVATE_KEY_REQUEST',
@@ -279,13 +287,17 @@ export enum TempleMessageType {
   OperationsRequest = 'TEMPLE_OPERATIONS_REQUEST',
   OperationsResponse = 'TEMPLE_OPERATIONS_RESPONSE',
   EvmOperationsRequest = 'TEMPLE_EVM_OPERATIONS_REQUEST',
+  BtcOperationsRequest = 'TEMPLE_BTC_OPERATIONS_REQUEST',
   EvmOperationsResponse = 'TEMPLE_EVM_OPERATIONS_RESPONSE',
+  BtcOperationsResponse = 'TEMPLE_BTC_OPERATIONS_RESPONSE',
   SignRequest = 'TEMPLE_SIGN_REQUEST',
   SignResponse = 'TEMPLE_SIGN_RESPONSE',
   ConfirmationRequest = 'TEMPLE_CONFIRMATION_REQUEST',
   EvmConfirmationRequest = 'TEMPLE_EVM_CONFIRMATION_REQUEST',
+  BtcConfirmationRequest = 'TEMPLE_BTC_CONFIRMATION_REQUEST',
   ConfirmationResponse = 'TEMPLE_CONFIRMATION_RESPONSE',
   EvmConfirmationResponse = 'TEMPLE_EVM_CONFIRMATION_RESPONSE',
+  BtcConfirmationResponse = 'TEMPLE_BTC_CONFIRMATION_RESPONSE',
   PageRequest = 'TEMPLE_PAGE_REQUEST',
   PageResponse = 'TEMPLE_PAGE_RESPONSE',
   DAppGetPayloadRequest = 'TEMPLE_DAPP_GET_PAYLOAD_REQUEST',
@@ -319,6 +331,7 @@ export type TempleRequest =
   | TempleUnlockRequest
   | TempleLockRequest
   | TempleCreateAccountRequest
+  | TempleCreateNewBtcAddressRequest
   | TempleRevealPublicKeyRequest
   | TempleRevealPrivateKeyRequest
   | TempleRevealMnemonicRequest
@@ -343,8 +356,10 @@ export type TempleRequest =
   | TempleGetAllDAppSessionsRequest
   | TempleRemoveDAppSessionRequest
   | TempleEvmOperationsRequest
+  | TempleBtcOperationsRequest
   | TempleSendTrackEventRequest
   | TempleEvmConfirmationRequest
+  | TempleBtcConfirmationRequest
   | TempleSendPageEventRequest;
 
 export type TempleResponse =
@@ -354,6 +369,7 @@ export type TempleResponse =
   | TempleUnlockResponse
   | TempleLockResponse
   | TempleCreateAccountResponse
+  | TempleCreateNewBtcAddressResponse
   | TempleRevealPublicKeyResponse
   | TempleRevealPrivateKeyResponse
   | TempleRevealMnemonicResponse
@@ -378,8 +394,10 @@ export type TempleResponse =
   | TempleGetAllDAppSessionsResponse
   | TempleRemoveDAppSessionResponse
   | TempleEvmOperationsResponse
+  | TempleBtcOperationsResponse
   | TempleSendTrackEventResponse
   | TempleEvmConfirmationResponse
+  | TempleBtcConfirmationResponse
   | TempleSendPageEventResponse;
 
 export interface TempleMessageBase {
@@ -455,8 +473,16 @@ interface TempleCreateAccountRequest extends TempleMessageBase {
   name?: string;
 }
 
+interface TempleCreateNewBtcAddressRequest extends TempleMessageBase {
+  type: TempleMessageType.CreateNewBtcAddressRequest;
+}
+
 interface TempleCreateAccountResponse extends TempleMessageBase {
   type: TempleMessageType.CreateAccountResponse;
+}
+
+interface TempleCreateNewBtcAddressResponse extends TempleMessageBase {
+  type: TempleMessageType.CreateNewBtcAddressResponse;
 }
 
 interface TempleRevealPublicKeyRequest extends TempleMessageBase {
@@ -611,6 +637,13 @@ interface TempleEvmOperationsRequest extends TempleMessageBase {
   amount: string;
 }
 
+interface TempleBtcOperationsRequest extends TempleMessageBase {
+  type: TempleMessageType.BtcOperationsRequest;
+  id: string;
+  toAddress: string;
+  amount: string;
+}
+
 interface TempleOperationsResponse extends TempleMessageBase {
   type: TempleMessageType.OperationsResponse;
   opHash: string;
@@ -619,6 +652,11 @@ interface TempleOperationsResponse extends TempleMessageBase {
 interface TempleEvmOperationsResponse extends TempleMessageBase {
   type: TempleMessageType.EvmOperationsResponse;
   txHash: string;
+}
+
+interface TempleBtcOperationsResponse extends TempleMessageBase {
+  type: TempleMessageType.BtcOperationsResponse;
+  txId: string;
 }
 
 interface TempleSignRequest extends TempleMessageBase {
@@ -648,12 +686,22 @@ interface TempleEvmConfirmationRequest extends TempleMessageBase {
   confirmed: boolean;
 }
 
+interface TempleBtcConfirmationRequest extends TempleMessageBase {
+  type: TempleMessageType.BtcConfirmationRequest;
+  id: string;
+  confirmed: boolean;
+}
+
 interface TempleConfirmationResponse extends TempleMessageBase {
   type: TempleMessageType.ConfirmationResponse;
 }
 
 interface TempleEvmConfirmationResponse extends TempleMessageBase {
   type: TempleMessageType.EvmConfirmationResponse;
+}
+
+interface TempleBtcConfirmationResponse extends TempleMessageBase {
+  type: TempleMessageType.BtcConfirmationResponse;
 }
 
 interface TemplePageRequest extends TempleMessageBase {

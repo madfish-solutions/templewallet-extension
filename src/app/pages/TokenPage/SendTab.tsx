@@ -23,7 +23,7 @@ interface Props {
   token?: NonTezosToken;
 }
 
-export const SendTab: FC<Props> = ({ token, isBitcoin, accountPkh }) => {
+export const SendTab: FC<Props> = ({ isBitcoin, accountPkh, token }) => {
   const [isProcessing, setProcessing] = useState(false);
   const [hash, setHash] = useState<string | null>();
   const { confirmationIdRef } = useTempleClient();
@@ -52,6 +52,27 @@ export const SendTab: FC<Props> = ({ token, isBitcoin, accountPkh }) => {
   }, [token?.chainName]);
 
   const onSubmit = async ({ to, amount }: FormData) => {
+    if (isBitcoin) {
+      console.log('isBitcoin');
+      setProcessing(true);
+
+      const id = nanoid();
+      confirmationIdRef.current = id;
+
+      const res = await request({
+        type: TempleMessageType.BtcOperationsRequest,
+        id,
+        toAddress: to,
+        amount
+      });
+      assertResponse(res.type === TempleMessageType.BtcOperationsResponse);
+
+      setHash(res.txId);
+      setProcessing(false);
+
+      return;
+    }
+
     if (!accountPkh || !token) return;
 
     setProcessing(true);

@@ -72,7 +72,6 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
           break;
 
         case TempleMessageType.ConfirmationRequested:
-          console.log('ConfirmationRequested');
           if (msg.id === confirmationIdRef.current) {
             setConfirmation({ id: msg.id, payload: msg.payload, error: msg.error });
           }
@@ -91,7 +90,7 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
    * Aliases
    */
 
-  const { status, networks: defaultNetworks, accounts, settings } = state;
+  const { status, networks: defaultNetworks, accounts, btcWalletAddresses, settings } = state;
   const idle = status === TempleStatus.Idle;
   const locked = status === TempleStatus.Locked;
   const ready = status === TempleStatus.Ready;
@@ -136,6 +135,13 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
       name
     });
     assertResponse(res.type === TempleMessageType.CreateAccountResponse);
+  }, []);
+
+  const createNewBtcAddress = useCallback(async () => {
+    const res = await request({
+      type: TempleMessageType.CreateNewBtcAddressRequest
+    });
+    assertResponse(res.type === TempleMessageType.CreateNewBtcAddressResponse);
   }, []);
 
   const revealPrivateKey = useCallback(async (accountPublicKeyHash: string, password: string) => {
@@ -267,6 +273,15 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     []
   );
 
+  const confirmBtcInternal = useCallback(async (id: string, confirmed: boolean) => {
+    const res = await request({
+      type: TempleMessageType.BtcConfirmationRequest,
+      id,
+      confirmed
+    });
+    assertResponse(res.type === TempleMessageType.BtcConfirmationResponse);
+  }, []);
+
   const confirmEvmInternal = useCallback(async (id: string, confirmed: boolean) => {
     const res = await request({
       type: TempleMessageType.EvmConfirmationRequest,
@@ -363,6 +378,7 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     customNetworks,
     networks,
     accounts,
+    btcWalletAddresses,
     settings,
     idle,
     locked,
@@ -377,6 +393,7 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     unlock,
     lock,
     createAccount,
+    createNewBtcAddress,
     revealPrivateKey,
     revealMnemonic,
     generateSyncPayload,
@@ -390,6 +407,7 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     createLedgerAccount,
     updateSettings,
     confirmInternal,
+    confirmBtcInternal,
     confirmEvmInternal,
     confirmationIdRef,
     getDAppPayload,

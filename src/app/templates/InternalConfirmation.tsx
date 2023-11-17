@@ -26,14 +26,19 @@ import { T, t } from 'lib/i18n';
 import { useRetryableSWR } from 'lib/swr';
 import { useCustomChainId, useNetwork, useRelevantAccounts, tryParseExpenses, useBalance } from 'lib/temple/front';
 import { tzToMutez } from 'lib/temple/helpers';
-import { TempleAccountType, TempleChainId, TempleConfirmationPayload } from 'lib/temple/types';
+import {
+  TempleAccountType,
+  TempleChainId,
+  TempleOpsConfirmationPayload,
+  TempleSignConfirmationPayload
+} from 'lib/temple/types';
 import { useSafeState } from 'lib/ui/hooks';
 import { isTruthy, delay } from 'lib/utils';
 
 import { InternalConfirmationSelectors } from './InternalConfirmation.selectors';
 
 type InternalConfiramtionProps = {
-  payload: TempleConfirmationPayload;
+  payload: TempleSignConfirmationPayload | TempleOpsConfirmationPayload;
   onConfirm: (confirmed: boolean, modifiedTotalFee?: number, modifiedStorageLimit?: number) => Promise<void>;
   error?: any;
 };

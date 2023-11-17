@@ -44,7 +44,8 @@ import {
   accountsUpdated,
   settingsUpdated,
   withInited,
-  withUnlocked
+  withUnlocked,
+  btcWalletAddressesUpdated
 } from './store';
 import { Vault } from './vault';
 
@@ -113,8 +114,10 @@ export function unlock(password: string) {
     enqueueUnlock(async () => {
       const vault = await Vault.setup(password, BACKGROUND_IS_WORKER);
       const accounts = await vault.fetchAccounts();
+      const btcWalletAddresses = await vault.fetchBtcWalletAddresses();
+      console.log(btcWalletAddresses, 'btcWalletAddresses');
       const settings = await vault.fetchSettings();
-      unlocked({ vault, accounts, settings });
+      unlocked({ vault, accounts, btcWalletAddresses, settings });
     })
   );
 }
@@ -124,8 +127,10 @@ export async function unlockFromSession() {
     const vault = await Vault.recoverFromSession();
     if (vault == null) return;
     const accounts = await vault.fetchAccounts();
+    const btcWalletAddresses = await vault.fetchBtcWalletAddresses();
+    console.log(btcWalletAddresses, 'btcWalletAddresses');
     const settings = await vault.fetchSettings();
-    unlocked({ vault, accounts, settings });
+    unlocked({ vault, accounts, btcWalletAddresses, settings });
   });
 }
 
@@ -140,6 +145,13 @@ export function createHDAccount(name?: string) {
 
     const updatedAccounts = await vault.createHDAccount(name);
     accountsUpdated(updatedAccounts);
+  });
+}
+
+export function createNewBtcAddress() {
+  return withUnlocked(async ({ vault }) => {
+    const updatedAddresses = await vault.createNewBtcAddress();
+    btcWalletAddressesUpdated(updatedAddresses);
   });
 }
 
@@ -260,6 +272,74 @@ export function sendOperations(
     );
   });
 }
+
+export const sendBtcOperations = async (
+  port: Runtime.Port,
+  id: string,
+  toAddress: string,
+  amount: string
+): Promise<{ txId: string }> => {
+  return withUnlocked(async () => {
+    return new Promise((resolve, reject) => promisableBtcUnlock(resolve, reject, port, id, toAddress, amount));
+  });
+};
+
+const promisableBtcUnlock = async (
+  resolve: (arg: { txId: string }) => void,
+  reject: (err: Error) => void,
+  port: Runtime.Port,
+  id: string,
+  toPkh: string,
+  amount: string
+) => {
+  intercom.notify(port, {
+    type: TempleMessageType.ConfirmationRequested,
+    id,
+    payload: {
+      type: 'btc_operations'
+    }
+  });
+
+  let closing = false;
+
+  const decline = () => {
+    reject(new Error('Declined'));
+  };
+  const declineAndClose = () => {
+    decline();
+    closing = close(closing, port, id, stopTimeout, stopRequestListening, stopDisconnectListening);
+  };
+
+  const stopRequestListening = intercom.onRequest(async (req: TempleRequest, reqPort) => {
+    if (reqPort === port && req?.type === TempleMessageType.BtcConfirmationRequest && req?.id === id) {
+      if (req.confirmed) {
+        try {
+          console.log('trysend');
+          const txId = await withUnlocked(({ vault }) => vault.sendBtcOperations(toPkh, amount));
+
+          resolve({ txId });
+        } catch (err: any) {
+          reject(err);
+        }
+      } else {
+        decline();
+      }
+
+      closing = close(closing, port, id, stopTimeout, stopRequestListening, stopDisconnectListening);
+
+      return {
+        type: TempleMessageType.BtcConfirmationResponse
+      };
+    }
+    return undefined;
+  });
+
+  const stopDisconnectListening = intercom.onDisconnect(port, declineAndClose);
+
+  // Decline after timeout
+  const t = setTimeout(declineAndClose, AUTODECLINE_AFTER);
+  const stopTimeout = () => clearTimeout(t);
+};
 
 export const sendEvmOperations = async (
   port: Runtime.Port,

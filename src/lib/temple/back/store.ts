@@ -14,10 +14,11 @@ interface UnlockedStoreState extends StoreState {
   vault: Vault;
 }
 
-export function toFront({ status, accounts, networks, settings }: StoreState): TempleState {
+export function toFront({ status, accounts, btcWalletAddresses, networks, settings }: StoreState): TempleState {
   return {
     status,
     accounts,
+    btcWalletAddresses,
     networks,
     settings
   };
@@ -34,10 +35,12 @@ export const locked = createEvent('Locked');
 export const unlocked = createEvent<{
   vault: Vault;
   accounts: TempleAccount[];
+  btcWalletAddresses: string[];
   settings: TempleSettings;
 }>('Unlocked');
 
 export const accountsUpdated = createEvent<TempleAccount[]>('Accounts updated');
+export const btcWalletAddressesUpdated = createEvent<string[]>('btcWalletAddresses updated');
 
 export const settingsUpdated = createEvent<TempleSettings>('Settings updated');
 
@@ -50,6 +53,7 @@ export const store = createStore<StoreState>({
   vault: null,
   status: TempleStatus.Idle,
   accounts: [],
+  btcWalletAddresses: [],
   networks: [],
   settings: null
 })
@@ -69,19 +73,25 @@ export const store = createStore<StoreState>({
     vault: null,
     status: TempleStatus.Locked,
     accounts: [],
+    btcWalletAddresses: [],
     networks: NETWORKS,
     settings: null
   }))
-  .on(unlocked, (state, { vault, accounts, settings }) => ({
+  .on(unlocked, (state, { vault, accounts, btcWalletAddresses, settings }) => ({
     ...state,
     vault,
     status: TempleStatus.Ready,
     accounts,
+    btcWalletAddresses,
     settings
   }))
   .on(accountsUpdated, (state, accounts) => ({
     ...state,
     accounts
+  }))
+  .on(btcWalletAddressesUpdated, (state, btcWalletAddresses) => ({
+    ...state,
+    btcWalletAddresses
   }))
   .on(settingsUpdated, (state, settings) => ({
     ...state,

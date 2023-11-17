@@ -65,6 +65,10 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
       await Actions.createHDAccount(req.name);
       return { type: TempleMessageType.CreateAccountResponse };
 
+    case TempleMessageType.CreateNewBtcAddressRequest:
+      await Actions.createNewBtcAddress();
+      return { type: TempleMessageType.CreateNewBtcAddressResponse };
+
     case TempleMessageType.RevealPublicKeyRequest:
       const publicKey = await Actions.revealPublicKey(req.accountPublicKeyHash);
       return {
@@ -154,8 +158,15 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
         opHash
       };
 
+    case TempleMessageType.BtcOperationsRequest:
+      const { txId } = await Actions.sendBtcOperations(port, req.id, req.toAddress, req.amount);
+
+      return {
+        type: TempleMessageType.BtcOperationsResponse,
+        txId
+      };
+
     case TempleMessageType.EvmOperationsRequest:
-      console.log('EvmOperationsRequest');
       const { txHash } = await Actions.sendEvmOperations(
         port,
         req.id,
