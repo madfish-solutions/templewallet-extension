@@ -4,7 +4,6 @@ import { Model3DViewer } from 'app/atoms/Model3DViewer';
 import { AssetImage } from 'app/templates/AssetImage';
 import { isSvgDataUriInUtf8Encoding, buildObjktCollectibleArtifactUri } from 'lib/images-uri';
 import { TokenMetadata } from 'lib/metadata';
-import { Image } from 'lib/ui/Image';
 
 import { AudioCollectible } from '../components/AudioCollectible';
 import { CollectibleBlur } from '../components/CollectibleBlur';
@@ -42,15 +41,7 @@ export const CollectiblePageImage = memo<Props>(
 
     if (objktArtifactUri && !isRenderFailedOnce) {
       if (isSvgDataUriInUtf8Encoding(objktArtifactUri)) {
-        return (
-          <Image
-            sources={objktArtifactUri}
-            alt={metadata?.name}
-            loader={<CollectibleImageLoader large />}
-            onError={handleError}
-            className={className}
-          />
-        );
+        return <img src={objktArtifactUri} alt={metadata?.name} className={className} onError={handleError} />;
       }
 
       if (mime) {

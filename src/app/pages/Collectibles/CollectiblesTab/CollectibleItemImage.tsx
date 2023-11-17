@@ -4,8 +4,9 @@ import { isDefined } from '@rnw-community/shared';
 import { debounce } from 'lodash';
 
 import { useCollectibleIsAdultSelector } from 'app/store/collectibles/selectors';
-import { AssetImage } from 'app/templates/AssetImage';
+import { buildCollectibleImagesStack } from 'lib/images-uri';
 import type { TokenMetadata } from 'lib/metadata';
+import { ImageStacked } from 'lib/ui/ImageStacked';
 import { useIntersectionDetection } from 'lib/ui/use-intersection-detection';
 
 import { CollectibleBlur } from '../components/CollectibleBlur';
@@ -25,10 +26,12 @@ export const CollectibleItemImage = memo<Props>(
     const isAdultContent = useCollectibleIsAdultSelector(assetSlug);
     const isAdultFlagLoading = areDetailsLoading && !isDefined(isAdultContent);
 
+    const sources = useMemo(() => (metadata ? buildCollectibleImagesStack(metadata) : []), [metadata]);
+
     const isAudioCollectible = useMemo(() => Boolean(mime && mime.startsWith('audio')), [mime]);
 
     const [isInViewport, setIsInViewport] = useState(false);
-    const handleIntersection = useMemo(() => debounce(setIsInViewport, 300), []);
+    const handleIntersection = useMemo(() => debounce(setIsInViewport, 500), []);
 
     useIntersectionDetection(containerElemRef, handleIntersection, true, 800);
 
@@ -39,9 +42,10 @@ export const CollectibleItemImage = memo<Props>(
         ) : isAdultContent ? (
           <CollectibleBlur />
         ) : (
-          <AssetImage
-            lazy
-            metadata={metadata}
+          <ImageStacked
+            sources={sources}
+            loading="lazy"
+            className="max-w-full max-h-full object-contain"
             loader={<CollectibleImageLoader />}
             fallback={<CollectibleImageFallback isAudioCollectible={isAudioCollectible} />}
           />

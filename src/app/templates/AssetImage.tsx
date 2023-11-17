@@ -2,12 +2,11 @@ import React, { FC, useMemo } from 'react';
 
 import { buildTokenImagesStack, buildCollectibleImagesStack } from 'lib/images-uri';
 import { AssetMetadataBase, isCollectibleTokenMetadata } from 'lib/metadata';
-import { Image, ImageProps } from 'lib/ui/Image';
+import { ImageStacked, ImageStackedProps } from 'lib/ui/ImageStacked';
 
 export interface AssetImageProps
-  extends Pick<ImageProps, 'loader' | 'fallback' | 'lazy' | 'style' | 'onLoaded' | 'onError'> {
+  extends Pick<ImageStackedProps, 'loader' | 'fallback' | 'className' | 'style' | 'onStackLoaded' | 'onStackFailed'> {
   metadata?: AssetMetadataBase;
-  className?: string;
   size?: number;
   fullViewCollectible?: boolean;
 }
@@ -20,9 +19,8 @@ export const AssetImage: FC<AssetImageProps> = ({
   style,
   loader,
   fallback,
-  lazy,
-  onLoaded,
-  onError
+  onStackLoaded,
+  onStackFailed
 }) => {
   const sources = useMemo(() => {
     if (metadata && isCollectibleTokenMetadata(metadata))
@@ -42,9 +40,8 @@ export const AssetImage: FC<AssetImageProps> = ({
   );
 
   return (
-    <Image
+    <ImageStacked
       sources={sources}
-      lazy={lazy}
       loader={loader}
       fallback={fallback}
       alt={metadata?.name}
@@ -52,8 +49,8 @@ export const AssetImage: FC<AssetImageProps> = ({
       style={styleMemo}
       height={size}
       width={size}
-      onLoaded={onLoaded}
-      onError={onError}
+      onStackLoaded={onStackLoaded}
+      onError={onStackFailed}
     />
   );
 };

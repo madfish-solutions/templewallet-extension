@@ -26,7 +26,7 @@ import { useAccount } from 'lib/temple/front';
 import { atomsToTokens } from 'lib/temple/helpers';
 import { TempleAccountType } from 'lib/temple/types';
 import { useInterval } from 'lib/ui/hooks';
-import { Image } from 'lib/ui/Image';
+import { ImageStacked } from 'lib/ui/ImageStacked';
 import { navigate } from 'lib/woozie';
 
 import { useCollectibleSelling } from '../hooks/use-collectible-selling.hook';
@@ -174,7 +174,7 @@ const CollectiblePage = memo<Props>(({ assetSlug }) => {
             {collection && (
               <div className="flex justify-between items-center">
                 <div className="flex items-center justify-center rounded">
-                  <Image sources={collection?.logo} className="w-6 h-6 rounded border border-gray-300" />
+                  <ImageStacked sources={collection.logo} className="w-6 h-6 rounded border border-gray-300" />
                   <div className="content-center ml-2 text-gray-910 text-sm">{collection?.title ?? ''}</div>
                 </div>
               </div>
