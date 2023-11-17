@@ -1,4 +1,4 @@
-import React, { Component, ErrorInfo, FC } from 'react';
+import React, { Component, ErrorInfo } from 'react';
 
 import classNames from 'clsx';
 
@@ -9,7 +9,6 @@ import { getOnlineStatus } from 'lib/temple/front';
 interface ErrorBoundaryProps extends React.PropsWithChildren {
   className?: string;
   whileMessage?: string;
-  Content?: FC<{}>;
 }
 
 export class BoundaryError extends Error {
@@ -57,16 +56,9 @@ export default class ErrorBoundary extends Component<ErrorBoundaryProps> {
     return online ? firstPart : [firstPart, t('mayHappenBecauseYouAreOffline')].join('. ');
   }
 
-  componentDidUpdate(prevProps: ErrorBoundaryProps) {
-    if (prevProps.Content !== this.props.Content) {
-      this.setState({ error: null });
-    }
-  }
-
   render() {
-    const { className, Content, children: childrenFromProps } = this.props;
+    const { className, children } = this.props;
     const { error } = this.state;
-    const children = Content ? <Content /> : childrenFromProps;
 
     if (error) {
       return (

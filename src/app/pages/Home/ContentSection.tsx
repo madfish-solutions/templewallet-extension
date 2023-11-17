@@ -116,6 +116,7 @@ export const ContentSection = memo<Props>(({ assetSlug, className }) => {
       <TabsBar ref={tabBarElemRef} tabs={tabs} activeTabName={name} />
 
       <ContentContainer
+        key={tabSlug ?? 'tokens'}
         ContentComponent={Component}
         whileMessage={whileMessageI18nKey ? t(whileMessageI18nKey) : 'displaying tab'}
       />
@@ -128,18 +129,13 @@ interface ContentContainerProps {
   ContentComponent: React.FC | React.ExoticComponent;
 }
 
-const ContentContainer = memo<ContentContainerProps>(({ whileMessage, ContentComponent }) => {
-  const ErrorBoundaryContent = useCallback(
-    () => (
-      <Suspense fallback={<SpinnerSection />}>
-        <ContentComponent />
-      </Suspense>
-    ),
-    [ContentComponent]
-  );
-
-  return <ErrorBoundary whileMessage={whileMessage} Content={ErrorBoundaryContent} />;
-});
+const ContentContainer = memo<ContentContainerProps>(({ whileMessage, ContentComponent }) => (
+  <ErrorBoundary whileMessage={whileMessage}>
+    <Suspense fallback={<SpinnerSection />}>
+      <ContentComponent />
+    </Suspense>
+  </ErrorBoundary>
+));
 
 const SpinnerSection = () => (
   <div className="flex justify-center my-12">
