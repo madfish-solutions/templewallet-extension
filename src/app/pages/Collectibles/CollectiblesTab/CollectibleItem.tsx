@@ -24,9 +24,10 @@ interface Props {
   accountPkh: string;
   chainId: string;
   areDetailsShown: boolean;
+  hideWithoutMeta?: boolean;
 }
 
-export const CollectibleItem = memo<Props>(({ assetSlug, accountPkh, chainId, areDetailsShown }) => {
+export const CollectibleItem = memo<Props>(({ assetSlug, accountPkh, chainId, areDetailsShown, hideWithoutMeta }) => {
   const { popup } = useAppEnv();
   const metadata = useCollectibleMetadataSelector(assetSlug);
   const wrapperElemRef = useRef<HTMLDivElement>(null);
@@ -53,6 +54,8 @@ export const CollectibleItem = memo<Props>(({ assetSlug, accountPkh, chainId, ar
 
     return { floorPrice: atomsToTokens(floorPrice, currency.decimals).toString(), symbol: currency.symbol };
   }, [details?.listing]);
+
+  if (hideWithoutMeta && !metadata) return null;
 
   const assetName = getAssetName(metadata);
 

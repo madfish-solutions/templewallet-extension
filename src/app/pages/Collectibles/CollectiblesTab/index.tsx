@@ -68,11 +68,12 @@ export const CollectiblesTab = memo<Props>(({ scrollToTheTabsBar }) => {
             accountPkh={publicKeyHash}
             chainId={chainId}
             areDetailsShown={areDetailsShown}
+            hideWithoutMeta={isInSearchMode}
           />
         ))}
       </div>
     ),
-    [displayedSlugs, publicKeyHash, chainId, areDetailsShown]
+    [displayedSlugs, publicKeyHash, chainId, areDetailsShown, isInSearchMode]
   );
 
   const renderManageDropdown = useCallback<PopperPopup>(
