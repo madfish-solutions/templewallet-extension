@@ -18,8 +18,9 @@ Given(
   /I clear (.*) value on the (.*) page/,
   { timeout: MEDIUM_TIMEOUT },
   async (elementName: string, pageName: string) => {
-    await createPageElement(`${pageName}/${elementName}`).click();
-    await createPageElement(`${pageName}/${elementName}`).clearInput();
+    const element = createPageElement(`${pageName}/${elementName}`);
+    await element.click();
+    await element.clearInput();
   }
 );
 

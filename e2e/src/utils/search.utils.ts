@@ -42,11 +42,9 @@ export const findElementBySelectors = async (selectors: string, timeout = MEDIUM
     throw error;
   });
 
-  if (isDefined(element)) {
-    return element;
-  }
+  if (!element) throw new Error(`${selectors} not found`);
 
-  throw new Error(`${selectors} not found`);
+  return element;
 };
 
 export const findElements = async (testID: string) => {
@@ -54,11 +52,9 @@ export const findElements = async (testID: string) => {
 
   const elements = await BrowserContext.page.$$(selector);
 
-  if (elements.length !== 0) {
-    return elements;
-  }
+  if (!elements.length) throw new Error(`None of "${testID}" elements were found`);
 
-  throw new Error(`None of "${testID}" elements were found`);
+  return elements;
 };
 
 class PageElement {
