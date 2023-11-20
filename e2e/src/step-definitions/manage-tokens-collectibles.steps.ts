@@ -6,7 +6,7 @@ import { MEDIUM_TIMEOUT } from 'e2e/src/utils/timing.utils';
 import { Pages } from '../page-objects';
 
 Given(/I wait until adding asset (.*) is preloaded/, { timeout: MEDIUM_TIMEOUT }, async (name: IEnterValuesKey) => {
-  await Pages.AddAsset.waitForOtherInputs(iEnterValues[name]);
+  await Pages.AddAsset.waitAddingAssetPreloaded(iEnterValues[name]);
 });
 
 Given(

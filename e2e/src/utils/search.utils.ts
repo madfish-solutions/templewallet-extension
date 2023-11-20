@@ -92,22 +92,23 @@ class PageElement {
     return getElementText(element);
   }
   async waitForText(expectedText: string, timeout = MEDIUM_TIMEOUT) {
-    const element = await this.findElement(timeout);
-
-    if (timeout > 0) {
-      return await retry(
-        () =>
-          getElementText(element).then(text => {
-            if (text === expectedText) return true;
-
-            throw new Error(`Waiting for expected text in \`${this.selector}\` timed out (${timeout} ms)`);
-          }),
-        { maxRetryTime: timeout }
-      );
+    if (timeout <= 0) {
+      const element = await this.findElement(timeout);
+      const text = await getElementText(element);
+      return text === expectedText;
     }
 
-    const text = await getElementText(element);
-    return text === expectedText;
+    return await retry(
+      async () => {
+        const element = await this.findElement(timeout);
+        const text = await getElementText(element);
+
+        if (text === expectedText) return true;
+
+        throw new Error(`Waiting for expected text in \`${this.selector}\` timed out (${timeout} ms)`);
+      },
+      { maxRetryTime: timeout }
+    );
   }
 }
 

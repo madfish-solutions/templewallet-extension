@@ -17,9 +17,7 @@ export class AddAssetPage extends Page {
     await this.assetIDInput.waitForDisplayed();
   }
 
-  async waitForOtherInputs(assetName: string) {
-    await this.addressInput.waitForDisplayed();
-    await this.assetIDInput.waitForDisplayed();
+  async waitAddingAssetPreloaded(assetName: string) {
     await this.addAssetButton.waitForDisplayed();
     await this.symbolInput.waitForDisplayed();
     await this.nameInput.waitForText(assetName);
