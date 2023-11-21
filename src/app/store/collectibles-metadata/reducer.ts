@@ -4,8 +4,7 @@ import { persistReducer } from 'redux-persist';
 import hardSet from 'redux-persist/lib/stateReconciler/hardSet';
 import storage from 'redux-persist/lib/storage';
 
-import { tokenToSlug } from 'lib/assets';
-import { fromAssetSlug } from 'lib/assets/utils';
+import { tokenToSlug, fromAssetSlug } from 'lib/assets';
 import { checkSizeOfLocalStorageEntryToSet } from 'lib/local-storage';
 import { TokenMetadata } from 'lib/metadata';
 import { buildTokenMetadataFromFetched } from 'lib/metadata/utils';

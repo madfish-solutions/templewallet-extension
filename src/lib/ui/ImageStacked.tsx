@@ -11,6 +11,7 @@ export interface ImageStackedProps extends React.ImgHTMLAttributes<HTMLImageElem
   sources: string[];
   loader?: JSX.Element;
   fallback?: JSX.Element;
+  pauseRender?: boolean;
   onStackLoaded?: EmptyFn;
   onStackFailed?: EmptyFn;
 }
@@ -20,6 +21,7 @@ export const ImageStacked: FC<ImageStackedProps> = ({
   loader,
   fallback,
   style,
+  pauseRender,
   onStackLoaded,
   onStackFailed,
   ...imgProps
@@ -48,6 +50,8 @@ export const ImageStacked: FC<ImageStackedProps> = ({
   useEffect(() => {
     if (isStackFailed && onStackFailed) onStackFailed();
   }, [isStackFailed]);
+
+  if (pauseRender) return null;
 
   if (isStackFailed) return fallback ?? null;
 

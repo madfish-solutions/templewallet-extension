@@ -7,7 +7,7 @@ import {
   fetchTokensMetadata as fetchTokensMetadataOnAPI,
   isKnownChainId
 } from 'lib/apis/temple';
-import { fromAssetSlug } from 'lib/assets/utils';
+import { fromAssetSlug } from 'lib/assets';
 
 import { TokenMetadataOnChain, fetchTokenMetadata as fetchTokenMetadataOnChain } from './on-chain';
 

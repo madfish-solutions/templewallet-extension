@@ -55,12 +55,29 @@ export const CollectibleItem = memo<Props>(({ assetSlug, accountPkh, chainId, ar
     return { floorPrice: atomsToTokens(floorPrice, currency.decimals).toString(), symbol: currency.symbol };
   }, [details?.listing]);
 
+  const style = useMemo(() => {
+    if (popup)
+      return {
+        width: 105,
+        height: areDetailsShown ? 145 : 105
+      };
+
+    return {
+      width: 125,
+      height: areDetailsShown ? 171 : 125
+    };
+  }, [areDetailsShown, popup]);
+
   if (hideWithoutMeta && !metadata) return null;
 
   const assetName = getAssetName(metadata);
 
   return (
-    <Link to={`/collectible/${assetSlug}`} className="flex flex-col border border-gray-300 rounded-lg">
+    <Link
+      to={`/collectible/${assetSlug}`}
+      className="flex flex-col border border-gray-300 rounded-lg overflow-hidden"
+      style={style}
+    >
       <div
         ref={wrapperElemRef}
         className={clsx(
@@ -86,7 +103,7 @@ export const CollectibleItem = memo<Props>(({ assetSlug, accountPkh, chainId, ar
       </div>
 
       {areDetailsShown && (
-        <div className="mt-1 mb-2 mx-1.5">
+        <div className="mt-1 mx-1.5">
           <h5 className="text-sm leading-5 text-gray-910 truncate">{assetName}</h5>
           <div className="text-xxxs leading-3 text-gray-600">
             <span>

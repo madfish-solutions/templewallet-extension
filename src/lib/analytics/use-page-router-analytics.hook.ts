@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 
-import { fromAssetSlug } from 'lib/assets/utils';
+import { fromAssetSlug } from 'lib/assets';
 
 import { useAnalytics } from './use-analytics.hook';
 

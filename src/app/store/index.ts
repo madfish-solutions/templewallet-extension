@@ -1,16 +1,6 @@
 import { devToolsEnhancer } from '@redux-devtools/remote';
 import { Action, configureStore } from '@reduxjs/toolkit';
-import {
-  FLUSH,
-  PAUSE,
-  PERSIST,
-  persistReducer,
-  persistStore,
-  PURGE,
-  REGISTER,
-  REHYDRATE,
-  createMigrate
-} from 'redux-persist';
+import { persistReducer, persistStore, createMigrate } from 'redux-persist';
 import autoMergeLevel2 from 'redux-persist/lib/stateReconciler/autoMergeLevel2';
 import storage from 'redux-persist/lib/storage';
 
@@ -48,10 +38,8 @@ const store = configureStore({
   reducer: persistedReducer,
   middleware: getDefaultMiddleware => {
     const defMiddleware = getDefaultMiddleware({
-      serializableCheck: {
-        ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
-        ignoredPaths: ['collectiblesMetadata.records']
-      }
+      immutableCheck: false,
+      serializableCheck: false
     });
 
     return defMiddleware.concat(epicMiddleware);

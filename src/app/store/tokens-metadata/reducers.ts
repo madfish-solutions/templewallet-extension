@@ -1,8 +1,7 @@
 import { createReducer } from '@reduxjs/toolkit';
 import { omit, pick } from 'lodash';
 
-import { toTokenSlug } from 'lib/assets';
-import { fromAssetSlug } from 'lib/assets/utils';
+import { toTokenSlug, fromAssetSlug } from 'lib/assets';
 import { buildTokenMetadataFromFetched, buildTokenMetadataFromWhitelist } from 'lib/metadata/utils';
 
 import {

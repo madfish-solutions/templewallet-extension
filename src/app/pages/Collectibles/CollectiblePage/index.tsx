@@ -16,7 +16,7 @@ import AddressChip from 'app/templates/AddressChip';
 import OperationStatus from 'app/templates/OperationStatus';
 import { TabsBar } from 'app/templates/TabBar';
 import { fetchCollectibleExtraDetails, objktCurrencies } from 'lib/apis/objkt';
-import { fromAssetSlug } from 'lib/assets/utils';
+import { fromAssetSlug } from 'lib/assets';
 import { BLOCK_DURATION } from 'lib/fixed-times';
 import { t, T } from 'lib/i18n';
 import { buildTokenImagesStack } from 'lib/images-uri';

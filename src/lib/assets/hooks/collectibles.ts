@@ -23,7 +23,14 @@ export const useAccountCollectibles = (account: string, chainId: string) => {
         []
       ),
     [stored, balances],
-    isEqual
+    (prev, next) => {
+      if (prev.length !== next.length) return false;
+
+      return next.every((item, i) => {
+        const prevItem = prev[i]!;
+        return item.slug === prevItem.slug && item.status === prevItem.status;
+      });
+    }
   );
 };
 

@@ -48,6 +48,7 @@ export const CollectibleItemImage = memo<Props>(
             className="max-w-full max-h-full object-contain"
             loader={<CollectibleImageLoader />}
             fallback={<CollectibleImageFallback isAudioCollectible={isAudioCollectible} />}
+            // pauseRender={!isInViewport}
           />
         )}
       </div>

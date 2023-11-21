@@ -12,7 +12,12 @@ export const buildApolloClient = (uri: string) =>
 
 class TempleApolloClient<TCacheShape> extends ApolloClient<TCacheShape> {
   async fetch<T, TVars = OperationVariables>(query: DocumentNode, variables?: TVars) {
-    const result: FetchResult<T> = await super.query<T, TVars>({ query, variables, fetchPolicy: 'network-only' });
+    const result: FetchResult<T> = await super.query<T, TVars>({
+      query,
+      variables,
+      // Disabling cache as it creates bottlenecks (blocks thread) when fetching large data
+      fetchPolicy: 'no-cache'
+    });
 
     return result.data;
   }

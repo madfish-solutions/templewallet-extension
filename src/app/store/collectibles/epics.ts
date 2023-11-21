@@ -6,7 +6,7 @@ import { fetchObjktCollectibles$ } from 'lib/apis/objkt';
 import { toTokenSlug } from 'lib/assets';
 
 import { loadCollectiblesDetailsActions } from './actions';
-import { CollectibleDetails, CollectibleDetailsRecord } from './state';
+import type { CollectibleDetailsRecord } from './state';
 import { convertCollectibleObjktInfoToStateDetailsType } from './utils';
 
 const loadCollectiblesDetailsEpic: Epic = action$ =>
@@ -16,19 +16,18 @@ const loadCollectiblesDetailsEpic: Epic = action$ =>
     switchMap(slugs =>
       fetchObjktCollectibles$(slugs).pipe(
         map(data => {
-          const entries: [string, CollectibleDetails | null][] = data.tokens.map(info => {
+          const details: CollectibleDetailsRecord = {};
+
+          for (const info of data.tokens) {
             const slug = toTokenSlug(info.fa_contract, info.token_id);
-            const details = convertCollectibleObjktInfoToStateDetailsType(info, data.galleriesAttributesCounts);
+            const itemDetails = convertCollectibleObjktInfoToStateDetailsType(info, data.galleriesAttributesCounts);
 
-            return [slug, details];
-          });
-
-          for (const slug of slugs) {
-            if (!data.tokens.some(({ fa_contract, token_id }) => toTokenSlug(fa_contract, token_id) === slug))
-              entries.push([slug, null]);
+            details[slug] = itemDetails;
           }
 
-          const details: CollectibleDetailsRecord = Object.fromEntries(entries);
+          for (const slug of slugs) {
+            if (!details[slug]) details[slug] = null;
+          }
 
           return loadCollectiblesDetailsActions.success({ details, timestamp: Date.now() });
         }),
