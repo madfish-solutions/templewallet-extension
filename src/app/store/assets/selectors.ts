@@ -1,24 +1,27 @@
 import { useMemo } from 'react';
 
 import { useSelector } from '../root-state.selector';
-import { StoredCollectible, StoredToken } from './state';
+import { getAccountAssetsStoreKey } from './utils';
 
 type AssetsType = 'collectibles' | 'tokens';
 
-export function useAllAssetsSelector(type: 'tokens'): StoredToken[];
-export function useAllAssetsSelector(type: 'collectibles'): StoredCollectible[];
-export function useAllAssetsSelector(type: AssetsType) {
-  return useSelector(state => state.assets[type].data);
-}
+export const useAllTokensSelector = () => useSelector(state => state.assets.tokens.data);
 
-export function useAccountAssetsSelector(account: string, chainId: string, type: 'tokens'): StoredToken[];
-export function useAccountAssetsSelector(account: string, chainId: string, type: 'collectibles'): StoredCollectible[];
-export function useAccountAssetsSelector(account: string, chainId: string, type: AssetsType) {
-  // @ts-ignore
-  const assets = useAllAssetsSelector(type);
+export const useAccountTokensSelector = (account: string, chainId: string) => {
+  const allTokens = useAllTokensSelector();
 
-  return useMemo(() => assets.filter(t => t.account === account && t.chainId === chainId), [assets, account, chainId]);
-}
+  return useMemo(
+    () => allTokens.filter(t => t.account === account && t.chainId === chainId),
+    [allTokens, account, chainId]
+  );
+};
+
+const ACCOUNT_COLLECTIBLES_MOCK = {};
+
+export const useAccountCollectiblesSelector = (account: string, chainId: string) =>
+  useSelector(
+    state => state.assets.collectibles.data[getAccountAssetsStoreKey(account, chainId)] ?? ACCOUNT_COLLECTIBLES_MOCK
+  );
 
 export const useAreAssetsLoading = (type: AssetsType) => useSelector(state => state.assets[type].isLoading);
 

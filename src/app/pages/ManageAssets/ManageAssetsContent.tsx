@@ -4,7 +4,7 @@ import clsx from 'clsx';
 
 import { ReactComponent as AddIcon } from 'app/icons/add-to-list.svg';
 import { dispatch } from 'app/store';
-import { setAssetStatusAction } from 'app/store/assets/actions';
+import { setTokenStatusAction, setCollectibleStatusAction } from 'app/store/assets/actions';
 import SearchAssetField from 'app/templates/SearchAssetField';
 import { AccountAsset } from 'lib/assets/types';
 import { t, T } from 'lib/i18n';
@@ -70,8 +70,7 @@ export const ManageAssetsContentList = memo<ManageAssetsContentListProps>(({ ofC
 
         if (confirmed)
           dispatch(
-            setAssetStatusAction({
-              isCollectible: ofCollectibles,
+            (ofCollectibles ? setCollectibleStatusAction : setTokenStatusAction)({
               account: publicKeyHash,
               chainId,
               slug,
@@ -89,8 +88,7 @@ export const ManageAssetsContentList = memo<ManageAssetsContentListProps>(({ ofC
   const toggleTokenStatus = useCallback(
     (slug: string, toDisable: boolean) =>
       void dispatch(
-        setAssetStatusAction({
-          isCollectible: ofCollectibles,
+        (ofCollectibles ? setCollectibleStatusAction : setTokenStatusAction)({
           account: publicKeyHash,
           chainId,
           slug,

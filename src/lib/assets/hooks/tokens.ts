@@ -4,8 +4,8 @@ import { ChainIds } from '@taquito/taquito';
 import { isEqual, sortBy, uniqBy } from 'lodash';
 
 import {
-  useAllAssetsSelector,
-  useAccountAssetsSelector,
+  useAllTokensSelector,
+  useAccountTokensSelector,
   useMainnetTokensWhitelistSelector
 } from 'app/store/assets/selectors';
 import { useAllBalancesSelector } from 'app/store/balances/selectors';
@@ -23,7 +23,7 @@ interface AccountToken extends AccountAsset {
 
 export const useAllAvailableTokens = (account: string, chainId: string) => {
   const tokens = useAccountTokens(account, chainId);
-  const allTokensStored = useAllAssetsSelector('tokens');
+  const allTokensStored = useAllTokensSelector();
 
   return useMemo(() => {
     const removedSlugs = tokens.reduce<string[]>((acc, t) => (t.status === 'removed' ? acc.concat(t.slug) : acc), []);
@@ -65,7 +65,7 @@ export const useEnabledAccountTokensSlugs = () => {
 const TOKENS_SORT_ITERATEES: (keyof AccountToken)[] = ['predefined', 'slug'];
 
 const useAccountTokens = (account: string, chainId: string) => {
-  const storedRaw = useAccountAssetsSelector(account, chainId, 'tokens');
+  const storedRaw = useAccountTokensSelector(account, chainId);
   const whitelistSlugs = useWhitelistSlugs(chainId);
 
   const balances = useAllBalancesSelector(account, chainId);

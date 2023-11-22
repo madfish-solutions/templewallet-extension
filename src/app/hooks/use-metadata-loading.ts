@@ -2,7 +2,7 @@ import { useEffect, useMemo } from 'react';
 
 import { useDispatch } from 'react-redux';
 
-import { useAccountAssetsSelector } from 'app/store/assets/selectors';
+import { useAccountTokensSelector } from 'app/store/assets/selectors';
 import { resetTokensMetadataLoadingAction } from 'app/store/tokens-metadata/actions';
 import { useTokensMetadataPresenceCheck } from 'lib/metadata';
 import { useAccount, useChainId } from 'lib/temple/front';
@@ -12,7 +12,7 @@ export const useMetadataLoading = () => {
   const { publicKeyHash: account } = useAccount();
   const dispatch = useDispatch();
 
-  const tokens = useAccountAssetsSelector(account, chainId, 'tokens');
+  const tokens = useAccountTokensSelector(account, chainId);
   const slugs = useMemo(() => tokens.map(t => t.slug), [tokens]);
 
   useEffect(() => {

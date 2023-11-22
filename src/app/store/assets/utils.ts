@@ -9,6 +9,8 @@ import type { FetchedMetadataRecord } from 'lib/metadata/fetch';
 
 import { MetadataMap } from '../collectibles-metadata/state';
 
+export const getAccountAssetsStoreKey = (account: string, chainId: string) => `${account}@${chainId}`;
+
 export const loadAccountTokens = (account: string, chainId: string, knownMeta: MetadataMap) =>
   Promise.all([
     // Fetching assets known to be FTs, not checking metadata

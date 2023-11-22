@@ -1,8 +1,6 @@
 import { useMemo } from 'react';
 
-import { isEqual } from 'lodash';
-
-import { useAccountAssetsSelector } from 'app/store/assets/selectors';
+import { useAccountCollectiblesSelector } from 'app/store/assets/selectors';
 import { useAllBalancesSelector } from 'app/store/balances/selectors';
 import { useAccount, useChainId } from 'lib/temple/front';
 import { useMemoWithCompare } from 'lib/ui/hooks';
@@ -11,17 +9,20 @@ import type { AccountAsset } from '../types';
 import { getAssetStatus } from './utils';
 
 export const useAccountCollectibles = (account: string, chainId: string) => {
-  const stored = useAccountAssetsSelector(account, chainId, 'collectibles');
+  const stored = useAccountCollectiblesSelector(account, chainId);
 
   const balances = useAllBalancesSelector(account, chainId);
 
   return useMemoWithCompare<AccountAsset[]>(
-    () =>
-      stored.reduce<AccountAsset[]>(
-        (acc, { slug, status }) =>
-          status === 'removed' ? acc : acc.concat({ slug, status: getAssetStatus(balances[slug], status) }),
-        []
-      ),
+    () => {
+      const result: AccountAsset[] = [];
+
+      for (const [slug, { status }] of Object.entries(stored)) {
+        if (status !== 'removed') result.push({ slug, status: getAssetStatus(balances[slug], status) });
+      }
+
+      return result;
+    },
     [stored, balances],
     (prev, next) => {
       if (prev.length !== next.length) return false;

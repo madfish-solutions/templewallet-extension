@@ -28,20 +28,13 @@ export const loadTokensWhitelistActions = createActions<void, WhitelistResponseT
 );
 
 interface SetAssetStatusPayload extends Pick<StoredAsset, 'account' | 'chainId' | 'slug'> {
-  isCollectible?: boolean;
   status: StoredAssetStatus;
 }
 
-export const setAssetStatusAction = createAction<SetAssetStatusPayload>('assets/SET_ASSET_STATUS');
+export const setTokenStatusAction = createAction<SetAssetStatusPayload>('assets/SET_TOKEN_STATUS');
 
-type PutAssetsAsIsPayload =
-  | {
-      type: 'tokens';
-      assets: StoredToken[];
-    }
-  | {
-      type: 'collectibles';
-      assets: StoredCollectible[];
-    };
+export const setCollectibleStatusAction = createAction<SetAssetStatusPayload>('assets/SET_COLLECTIBLE_STATUS');
 
-export const putAssetsAsIsAction = createAction<PutAssetsAsIsPayload>('assets/PUT_ASSETS_AS_IS');
+export const putTokensAsIsAction = createAction<StoredToken[]>('assets/PUT_TOKENS_AS_IS');
+
+export const putCollectiblesAsIsAction = createAction<StoredCollectible[]>('assets/PUT_COLLECTIBLES_AS_IS');
