@@ -33,17 +33,17 @@ const assetsReducer = createReducer<SliceState>(initialState, builder => {
     state.tokens.isLoading = false;
     delete state.tokens.error;
 
-    const tokens = state.tokens.data;
     const { account, chainId, slugs } = payload;
 
+    const data = state.tokens.data;
+    const key = getAccountAssetsStoreKey(account, chainId);
+
+    if (!data[key]) data[key] = {};
+    const tokens = data[key];
+
     for (const slug of slugs) {
-      if (!tokens.some(t => t.slug === slug && t.chainId === chainId && t.account === account))
-        tokens.push({
-          account,
-          chainId,
-          slug,
-          status: 'idle'
-        });
+      const stored = tokens[slug];
+      if (!stored) tokens[slug] = { status: 'idle' };
     }
   });
 
@@ -66,11 +66,10 @@ const assetsReducer = createReducer<SliceState>(initialState, builder => {
     const data = state.collectibles.data;
     const key = getAccountAssetsStoreKey(account, chainId);
 
-    console.time('Reducing NFTs');
-
     if (!data[key]) data[key] = {};
     const collectibles = data[key];
 
+    // Removing no-longer owned collectibles (if not 'idle' or added manually)
     for (const [slug, stored] of Object.entries(collectibles)) {
       if (stored.manual || stored.status !== 'idle') continue;
 
@@ -81,13 +80,12 @@ const assetsReducer = createReducer<SliceState>(initialState, builder => {
       const stored = collectibles[slug];
       if (!stored) collectibles[slug] = { status: 'idle' };
     }
-
-    console.timeEnd('Reducing NFTs');
   });
 
   builder.addCase(setTokenStatusAction, (state, { payload: { account, chainId, slug, status } }) => {
-    const tokens = state.tokens.data;
-    const token = tokens.find(t => t.account === account && t.chainId === chainId && t.slug === slug);
+    const records = state.tokens.data;
+    const key = getAccountAssetsStoreKey(account, chainId);
+    const token = records[key]?.[slug];
 
     if (token) token.status = status;
   });
@@ -101,12 +99,13 @@ const assetsReducer = createReducer<SliceState>(initialState, builder => {
   });
 
   builder.addCase(putTokensAsIsAction, (state, { payload }) => {
-    const data = state.tokens.data;
+    const records = state.collectibles.data;
 
     for (const asset of payload) {
-      const { slug, account, chainId } = asset;
-      const index = data.findIndex(a => a.account === account && a.chainId === chainId && a.slug === slug);
-      data[index === -1 ? data.length : index] = asset;
+      const { slug, account, chainId, status, manual } = asset;
+      const key = getAccountAssetsStoreKey(account, chainId);
+      if (!records[key]) records[key] = {};
+      records[key][slug] = { status, manual };
     }
   });
 

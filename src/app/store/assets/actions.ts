@@ -3,7 +3,7 @@ import { createAction } from '@reduxjs/toolkit';
 import { WhitelistResponseToken } from 'lib/apis/temple';
 import { createActions } from 'lib/store';
 
-import { AccountAssetForStore, StoredToken, StoredCollectible } from './state';
+import type { AccountAssetForStore, StoredAsset } from './state';
 
 interface LoadAssetsPayload {
   /** PKH */
@@ -33,8 +33,8 @@ export const setTokenStatusAction = createAction<SetAssetStatusPayload>('assets/
 
 export const setCollectibleStatusAction = createAction<SetAssetStatusPayload>('assets/SET_COLLECTIBLE_STATUS');
 
-export type TokenToPut = StoredToken;
-export const putTokensAsIsAction = createAction<TokenToPut[]>('assets/PUT_TOKENS_AS_IS');
+export type AssetToPut = AccountAssetForStore & StoredAsset;
 
-export type CollectibleToPut = AccountAssetForStore & StoredCollectible;
-export const putCollectiblesAsIsAction = createAction<CollectibleToPut[]>('assets/PUT_COLLECTIBLES_AS_IS');
+export const putTokensAsIsAction = createAction<AssetToPut[]>('assets/PUT_TOKENS_AS_IS');
+
+export const putCollectiblesAsIsAction = createAction<AssetToPut[]>('assets/PUT_COLLECTIBLES_AS_IS');

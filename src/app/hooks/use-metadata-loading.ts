@@ -13,7 +13,7 @@ export const useMetadataLoading = () => {
   const dispatch = useDispatch();
 
   const tokens = useAccountTokensSelector(account, chainId);
-  const slugs = useMemo(() => tokens.map(t => t.slug), [tokens]);
+  const slugs = useMemo(() => Object.keys(tokens), [tokens]);
 
   useEffect(() => {
     dispatch(resetTokensMetadataLoadingAction());

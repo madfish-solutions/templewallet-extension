@@ -11,26 +11,24 @@ export interface AccountAssetForStore {
   status: StoredAssetStatus;
 }
 
-export type StoredToken = AccountAssetForStore;
-
-export interface StoredCollectible {
+export interface StoredAsset {
   status: StoredAssetStatus;
   /** `true` if manually added by user */
   manual?: boolean;
 }
 
-type AccountCollectiblesRecord = StringRecord<StoredCollectible>;
-type StoredCollectiblesRecords = StringRecord<AccountCollectiblesRecord>;
+type AccountAssetsRecord = StringRecord<StoredAsset>;
+type StoredAssetsRecords = StringRecord<AccountAssetsRecord>;
 
 export interface SliceState {
-  tokens: LoadableEntityState<StoredToken[]>;
-  collectibles: LoadableEntityState<StoredCollectiblesRecords>;
+  tokens: LoadableEntityState<StoredAssetsRecords>;
+  collectibles: LoadableEntityState<StoredAssetsRecords>;
   /** Mainnet tokens whitelist slugs */
   mainnetWhitelist: LoadableEntityState<string[]>;
 }
 
 export const initialState: SliceState = {
-  tokens: createEntity([]),
+  tokens: createEntity({}),
   collectibles: createEntity({}),
   mainnetWhitelist: createEntity([])
 };

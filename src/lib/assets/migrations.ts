@@ -1,13 +1,13 @@
 import { dispatch } from 'app/store';
-import { TokenToPut, CollectibleToPut, putTokensAsIsAction, putCollectiblesAsIsAction } from 'app/store/assets/actions';
+import { AssetToPut, putTokensAsIsAction, putCollectiblesAsIsAction } from 'app/store/assets/actions';
 import { isCollectible, TokenMetadata } from 'lib/metadata';
 import * as Repo from 'lib/temple/repo';
 
 export const migrateFromIndexedDB = async (metadatas: Record<string, TokenMetadata>) => {
   const allRecords = await Repo.accountTokens.toArray();
 
-  const collectibles: CollectibleToPut[] = [];
-  const tokens: TokenToPut[] = [];
+  const collectibles: AssetToPut[] = [];
+  const tokens: AssetToPut[] = [];
 
   const statusMap = {
     [Repo.ITokenStatus.Enabled]: 'enabled',
@@ -20,22 +20,14 @@ export const migrateFromIndexedDB = async (metadatas: Record<string, TokenMetada
     const metadata = metadatas[tokenSlug];
     if (!metadata) continue;
 
-    if (isCollectible(metadata))
-      collectibles.push({
-        slug: tokenSlug,
-        account,
-        chainId,
-        status: statusMap[status],
-        // Specifying all as manually added, as this information is lost at this point.
-        manual: true
-      });
-    else
-      tokens.push({
-        slug: tokenSlug,
-        account,
-        chainId,
-        status: statusMap[status]
-      });
+    (isCollectible(metadata) ? collectibles : tokens).push({
+      slug: tokenSlug,
+      account,
+      chainId,
+      status: statusMap[status],
+      // Specifying all as manually added, as this information is lost at this point.
+      manual: true
+    });
   }
 
   if (tokens.length) dispatch(putTokensAsIsAction(tokens));

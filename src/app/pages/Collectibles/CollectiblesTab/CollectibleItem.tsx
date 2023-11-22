@@ -55,17 +55,25 @@ export const CollectibleItem = memo<Props>(({ assetSlug, accountPkh, chainId, ar
     return { floorPrice: atomsToTokens(floorPrice, currency.decimals).toString(), symbol: currency.symbol };
   }, [details?.listing]);
 
-  const style = useMemo(() => {
-    if (popup)
-      return {
-        width: 105,
-        height: areDetailsShown ? 145 : 105
-      };
+  // Fixed sizes to improve large grid performance
+  const [style, imgWrapStyle] = useMemo(() => {
+    const size = popup ? 106 : 125;
 
-    return {
-      width: 125,
-      height: areDetailsShown ? 171 : 125
+    const style = popup
+      ? {
+          width: size,
+          height: areDetailsShown ? 152 : size
+        }
+      : {
+          width: size,
+          height: areDetailsShown ? 171 : size
+        };
+
+    const imgWrapStyle = {
+      height: size - 2
     };
+
+    return [style, imgWrapStyle];
   }, [areDetailsShown, popup]);
 
   if (hideWithoutMeta && !metadata) return null;
@@ -82,9 +90,9 @@ export const CollectibleItem = memo<Props>(({ assetSlug, accountPkh, chainId, ar
         ref={wrapperElemRef}
         className={clsx(
           'relative flex items-center justify-center bg-blue-50 rounded-lg overflow-hidden hover:opacity-70',
-          areDetailsShown && 'border-b border-gray-300',
-          popup ? 'h-26.5' : 'h-31.25'
+          areDetailsShown && 'border-b border-gray-300'
         )}
+        style={imgWrapStyle}
         title={assetName}
       >
         <CollectibleItemImage
@@ -105,7 +113,7 @@ export const CollectibleItem = memo<Props>(({ assetSlug, accountPkh, chainId, ar
       {areDetailsShown && (
         <div className="mt-1 mx-1.5">
           <h5 className="text-sm leading-5 text-gray-910 truncate">{assetName}</h5>
-          <div className="text-xxxs leading-3 text-gray-600">
+          <div className="mt-1 text-xxxs leading-3 text-gray-600">
             <span>
               <T id="floorPrice" />:{' '}
             </span>
