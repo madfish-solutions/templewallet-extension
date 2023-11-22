@@ -1,3 +1,6 @@
+import { Mutex } from 'async-mutex';
+import { noop } from 'lodash';
+
 export { arrayBufferToString, stringToArrayBuffer, uInt8ArrayToString, stringToUInt8Array } from './buffers';
 
 /** From lodash */
@@ -7,6 +10,28 @@ export const isTruthy = <T>(value: T): value is Truthy<T> => Boolean(value);
 
 /** With strict equality check (i.e. `===`) */
 export const filterUnique = <T>(array: T[]) => Array.from(new Set(array));
+
+/** Creates the function that runs promises paralelly but resolves them in FIFO order. */
+export const fifoResolve = <A extends unknown[], T>(fn: (...args: A) => Promise<T>) => {
+  const queueMutex = new Mutex();
+  const queue: Array<Promise<T>> = [];
+
+  return async (...args: A): Promise<T> => {
+    const promise = fn(...args);
+    await queueMutex.runExclusive(async () => queue.push(promise));
+
+    try {
+      const result = await promise;
+      const prevPromises = await queueMutex.runExclusive(async () => queue.slice(0, queue.indexOf(promise)));
+      await Promise.all(prevPromises.map(promise => promise.catch(noop)));
+      await delay(prevPromises.length + 1);
+
+      return result;
+    } finally {
+      await queueMutex.runExclusive(async () => queue.splice(queue.indexOf(promise), 1));
+    }
+  };
+};
 
 const DEFAULT_DELAY = 300;
 

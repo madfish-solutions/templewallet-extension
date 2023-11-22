@@ -318,7 +318,7 @@
     "message": "por exemplo, WEW, BOW, LAL, etc."
   },
   "tokenNamePatternDescription": {
-    "message": "Sem carateres especiais, comprimento de 3 a 25"
+    "message": "comprimento de 3 a 25"
   },
   "name": {
     "message": "Nome"

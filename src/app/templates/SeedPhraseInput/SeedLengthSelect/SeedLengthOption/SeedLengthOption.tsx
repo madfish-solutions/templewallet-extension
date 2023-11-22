@@ -3,6 +3,9 @@ import React, { FC, memo, useCallback } from 'react';
 import { emptyFn } from '@rnw-community/shared';
 import classNames from 'clsx';
 
+import { ImportAccountSelectors } from 'app/pages/ImportAccount/selectors';
+import { setAnotherSelector, setTestID } from 'lib/analytics';
+
 import styles from './seedLengthOption.module.css';
 
 interface Props {
@@ -28,7 +31,12 @@ export const SeedLengthOption: FC<Props> = memo(({ option, selectedOption, onCli
         'text-lg'
       )}
     >
-      <label htmlFor={option} className="flex gap-2 items-center">
+      <label
+        htmlFor={option}
+        className="flex gap-2 items-center"
+        {...setTestID(ImportAccountSelectors.mnemonicWordsRadioButton)}
+        {...setAnotherSelector('words', option)}
+      >
         <input
           type="radio"
           id={option}

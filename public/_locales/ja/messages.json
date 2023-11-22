@@ -306,7 +306,7 @@
     "message": "例: WEW、BOW、LALなど"
   },
   "tokenNamePatternDescription": {
-    "message": "特殊文字なし、3～25文字"
+    "message": "3～25文字"
   },
   "name": {
     "message": "名前"

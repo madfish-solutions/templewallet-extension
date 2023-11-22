@@ -1,12 +1,12 @@
 import React, { FC, ReactNode, useCallback, useMemo, useRef, useState } from 'react';
 
 import { useForm, Controller } from 'react-hook-form';
-import useSWR from 'swr';
 
 import { Alert, FormSubmitButton, NoSpaceField } from 'app/atoms';
 import { useFormAnalytics } from 'lib/analytics';
 import { T, t } from 'lib/i18n';
 import { useTempleClient, useTezos, useTezosDomainsClient, validateDelegate } from 'lib/temple/front';
+import { useTezosAddressByDomainName } from 'lib/temple/front/tzdns';
 import { isAddressValid, isKTAddress } from 'lib/temple/helpers';
 import { delay } from 'lib/utils';
 
@@ -32,14 +32,7 @@ export const WatchOnlyForm: FC = () => {
 
   const addressValue = watch('address');
 
-  const domainAddressFactory = useCallback(
-    (_k: string, _checksum: string, address: string) => domainsClient.resolver.resolveNameToAddress(address),
-    [domainsClient]
-  );
-  const { data: resolvedAddress } = useSWR(['tzdns-address', tezos.checksum, addressValue], domainAddressFactory, {
-    shouldRetryOnError: false,
-    revalidateOnFocus: false
-  });
+  const { data: resolvedAddress } = useTezosAddressByDomainName(addressValue);
 
   const finalAddress = useMemo(
     () => (resolvedAddress && resolvedAddress !== null ? resolvedAddress : addressValue),
