@@ -41,7 +41,8 @@ const assetsReducer = createReducer<SliceState>(initialState, builder => {
         tokens.push({
           account,
           chainId,
-          slug
+          slug,
+          status: 'idle'
         });
     }
   });
@@ -64,12 +65,24 @@ const assetsReducer = createReducer<SliceState>(initialState, builder => {
 
     const data = state.collectibles.data;
     const key = getAccountAssetsStoreKey(account, chainId);
+
+    console.time('Reducing NFTs');
+
     if (!data[key]) data[key] = {};
     const collectibles = data[key];
 
-    for (const slug of slugs) {
-      if (!collectibles[slug]) collectibles[slug] = {};
+    for (const [slug, stored] of Object.entries(collectibles)) {
+      if (stored.manual || stored.status !== 'idle') continue;
+
+      if (!slugs.includes(slug)) delete collectibles[slug];
     }
+
+    for (const slug of slugs) {
+      const stored = collectibles[slug];
+      if (!stored) collectibles[slug] = { status: 'idle' };
+    }
+
+    console.timeEnd('Reducing NFTs');
   });
 
   builder.addCase(setTokenStatusAction, (state, { payload: { account, chainId, slug, status } }) => {
@@ -101,10 +114,10 @@ const assetsReducer = createReducer<SliceState>(initialState, builder => {
     const records = state.collectibles.data;
 
     for (const asset of payload) {
-      const { slug, account, chainId, status } = asset;
+      const { slug, account, chainId, status, manual } = asset;
       const key = getAccountAssetsStoreKey(account, chainId);
       if (!records[key]) records[key] = {};
-      records[key][slug] = { status };
+      records[key][slug] = { status, manual };
     }
   });
 

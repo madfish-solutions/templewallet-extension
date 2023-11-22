@@ -1,28 +1,29 @@
 import { createEntity, LoadableEntityState } from 'lib/store';
 
-export type StoredAssetStatus = 'enabled' | 'disabled' | 'removed';
+/** 'idle' for disabled unless balance is positive */
+export type StoredAssetStatus = 'idle' | 'enabled' | 'disabled' | 'removed';
 
-interface WithAssetStatus {
-  /** Absent for 'idle' (disabled unless balance is positive) state */
-  status?: StoredAssetStatus;
-}
-
-export interface StoredAsset extends WithAssetStatus {
+export interface AccountAssetForStore {
   slug: string;
   chainId: string;
   /** PKH */
   account: string;
+  status: StoredAssetStatus;
 }
 
-export type StoredToken = StoredAsset;
+export type StoredToken = AccountAssetForStore;
 
-export type StoredCollectible = StoredAsset;
+export interface StoredCollectible {
+  status: StoredAssetStatus;
+  /** `true` if manually added by user */
+  manual?: boolean;
+}
 
-type AccountCollectiblesRecord = StringRecord<WithAssetStatus>;
+type AccountCollectiblesRecord = StringRecord<StoredCollectible>;
 type StoredCollectiblesRecords = StringRecord<AccountCollectiblesRecord>;
 
 export interface SliceState {
-  tokens: LoadableEntityState<StoredAsset[]>;
+  tokens: LoadableEntityState<StoredToken[]>;
   collectibles: LoadableEntityState<StoredCollectiblesRecords>;
   /** Mainnet tokens whitelist slugs */
   mainnetWhitelist: LoadableEntityState<string[]>;

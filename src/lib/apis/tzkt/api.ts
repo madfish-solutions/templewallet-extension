@@ -153,6 +153,7 @@ const fetchTzktAccountAssetsPage = (
     account,
     limit: TZKT_MAX_QUERY_ITEMS_LIMIT,
     offset,
+    'balance.gt': 0,
     ...(fungible === null
       ? { 'token.metadata.null': true }
       : {
@@ -187,7 +188,8 @@ interface GetAccountResponse {
 export const fetchTezosBalanceFromTzkt = async (account: string, chainId: string): Promise<GetAccountResponse> =>
   isKnownChainId(chainId)
     ? await fetchGet<GetAccountResponse>(chainId, `/accounts/${account}`, {
-        select: 'balance,frozenDeposit'
+        select: 'balance,frozenDeposit',
+        'balance.gt': 0
       }).then(({ frozenDeposit, balance }) => ({
         frozenDeposit,
         balance
