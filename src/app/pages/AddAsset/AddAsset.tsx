@@ -367,7 +367,7 @@ const BottomSection: FC<BottomSectionProps> = props => {
         ref={register({
           required: t('required'),
           pattern: {
-            value: /^[a-zA-Z0-9\s]{3,25}$/,
+            value: /^.{3,25}$/,
             message: t('tokenNamePatternDescription')
           }
         })}
