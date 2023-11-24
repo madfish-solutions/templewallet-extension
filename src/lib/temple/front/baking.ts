@@ -2,7 +2,7 @@ import { useCallback, useMemo } from 'react';
 
 import retry from 'async-retry';
 import BigNumber from 'bignumber.js';
-import useSWR, { useSWRConfig } from 'swr';
+import useSWR, { unstable_serialize, useSWRConfig } from 'swr';
 
 import { BoundaryError } from 'app/ErrorBoundary';
 import {
@@ -13,7 +13,7 @@ import {
 } from 'lib/apis/baking-bad';
 import { getAccountStatsFromTzkt, isKnownChainId, TzktRewardsEntry, TzktAccountType } from 'lib/apis/tzkt';
 import { t } from 'lib/i18n';
-import { getCacheKey, useRetryableSWR } from 'lib/swr';
+import { useRetryableSWR } from 'lib/swr';
 import type { ReactiveTezosToolkit } from 'lib/temple/front';
 
 import { getOnlineStatus } from './get-online-status';
@@ -25,7 +25,7 @@ function getDelegateCacheKey(
   chainId: string | nullish,
   shouldPreventErrorPropagation: boolean
 ) {
-  return getCacheKey(['delegate', tezos.checksum, address, chainId, shouldPreventErrorPropagation]);
+  return unstable_serialize(['delegate', tezos.checksum, address, chainId, shouldPreventErrorPropagation]);
 }
 
 export function useDelegate(address: string, suspense = true, shouldPreventErrorPropagation = true) {
