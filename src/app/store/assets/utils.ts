@@ -1,4 +1,4 @@
-import mem from 'mem';
+import pMemoize from 'p-memoize';
 
 import { fetchTokensMetadata, isKnownChainId } from 'lib/apis/temple';
 import { fetchTzktAccountAssets } from 'lib/apis/tzkt';
@@ -47,11 +47,10 @@ export const loadAccountCollectibles = (account: string, chainId: string, knownM
     }
   );
 
-const fetchTzktAccountUnknownAssets = mem(
-  // Simply throttling fetch calls per set of arguments.
-  // Memoizing `Promise`, not its resolved value.
+const fetchTzktAccountUnknownAssets = pMemoize(
+  // Simply reducing frequency of requests per set of arguments.
   (account: string, chainId: string) => fetchTzktAccountAssets(account, chainId, null),
-  { maxAge: 2_000, cacheKey: args => args.join('') }
+  { maxAge: 10_000, cacheKey: args => args.join('') }
 );
 
 const finishTokensLoading = async (

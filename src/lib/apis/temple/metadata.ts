@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { chunk } from 'lodash';
-import memoize from 'mem';
+import memoize from 'micro-memoize';
+import pMemoize from 'p-memoize';
 
 import { IS_STAGE_ENV } from 'lib/env';
 import { TempleChainId } from 'lib/temple/types';
@@ -51,15 +52,14 @@ export const fetchTokensMetadata = (
   ).then(datum => datum.flat());
 };
 
-const fetchTokensMetadataChunk = memoize(
-  // Simply throttling fetch calls per set of arguments.
-  // Memoizing `Promise`, not its resolved value.
+const fetchTokensMetadataChunk = pMemoize(
+  // Simply reducing frequency of requests per set of arguments.
   (chainId: MetadataApiChainId, slugs: string[]) =>
     getApi(chainId)
       .post<(TokenMetadataResponse | null)[]>('/', slugs)
       .then(r => r.data),
   {
-    maxAge: 2_000,
+    maxAge: 10_000,
     cacheKey: ([chainId, slugs]) => `${chainId}:${slugs.join()}`
   }
 );

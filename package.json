@@ -138,7 +138,6 @@
     "libsodium": "0.7.8",
     "libsodium-wrappers": "0.7.8",
     "lodash": "4.17.21",
-    "mem": "^9.0.2",
     "micro-memoize": "4.0.9",
     "mini-css-extract-plugin": "2.6.1",
     "nanoid": "3.1.31",
