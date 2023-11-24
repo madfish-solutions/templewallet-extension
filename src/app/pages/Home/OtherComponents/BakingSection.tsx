@@ -86,7 +86,7 @@ const BakingSection = memo(() => {
   };
 
   const getBakingHistory = useCallback(
-    async (_k: string, accountPkh: string) => {
+    async ([, accountPkh, , chainId]: [string, string, string | nullish, string | nullish]) => {
       if (!isKnownChainId(chainId!)) {
         return [];
       }
@@ -97,7 +97,7 @@ const BakingSection = memo(() => {
         })) || []
       );
     },
-    [chainId]
+    []
   );
   const { data: bakingHistory, isValidating: loadingBakingHistory } = useRetryableSWR(
     ['baking-history', acc.publicKeyHash, myBakerPkh, chainId],

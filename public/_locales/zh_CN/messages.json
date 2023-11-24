@@ -306,7 +306,7 @@
     "message": "例如WEW、BOW、LAL等等。"
   },
   "tokenNamePatternDescription": {
-    "message": "无特殊字符，长度为3-25"
+    "message": "长度为3-25"
   },
   "name": {
     "message": "名称"

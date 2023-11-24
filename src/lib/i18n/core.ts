@@ -29,43 +29,36 @@ let fetchedLocaleMessages: FetchedLocaleMessages = {
 let cldrLocale = cldrjsLocales.en;
 
 export async function init() {
-  const refetched: FetchedLocaleMessages = {
-    target: null,
-    fallback: null
-  };
-
   const saved = getSavedLocale();
+  const deflt = getDefaultLocale();
+  const native = getNativeLocale();
 
-  if (saved) {
-    const native = getNativeLocale();
+  const [target, fallback] = await Promise.all([
+    !saved || areLocalesEqual(saved, native) ? null : fetchLocaleMessages(saved),
+    areLocalesEqual(deflt, native) || (saved && areLocalesEqual(deflt, saved)) ? null : fetchLocaleMessages(deflt)
+  ]);
 
-    await Promise.all([
-      // Fetch target locale messages if needed
-      (async () => {
-        if (!areLocalesEqual(saved, native)) {
-          refetched.target = await fetchLocaleMessages(saved);
-        }
-      })(),
-      // Fetch fallback locale messages if needed
-      (async () => {
-        const deflt = getDefaultLocale();
-        if (!areLocalesEqual(deflt, native) && !areLocalesEqual(deflt, saved)) {
-          refetched.fallback = await fetchLocaleMessages(deflt);
-        }
-      })()
-    ]);
-  }
-
-  fetchedLocaleMessages = refetched;
+  fetchedLocaleMessages = { target, fallback };
   cldrLocale = (cldrjsLocales as Record<string, any>)[getCurrentLocale()] || cldrjsLocales.en;
 }
 
 export function getMessage(messageName: string, substitutions?: Substitutions) {
-  const val = fetchedLocaleMessages.target?.[messageName] ?? fetchedLocaleMessages.fallback?.[messageName];
+  const { target, fallback } = fetchedLocaleMessages;
+  const targetVal = target?.[messageName];
 
-  if (val) return applySubstitutions(val, substitutions);
+  if (targetVal) return applySubstitutions(targetVal, substitutions);
 
-  return browser.i18n.getMessage(messageName, substitutions);
+  if (!target) {
+    const nativeVal = browser.i18n.getMessage(messageName, substitutions);
+
+    if (nativeVal) return nativeVal;
+  }
+
+  const fallbackVal = fallback?.[messageName];
+
+  return fallbackVal
+    ? applySubstitutions(fallbackVal, substitutions)
+    : browser.i18n.getMessage(messageName, substitutions) ?? '';
 }
 
 export function getDateFnsLocale() {

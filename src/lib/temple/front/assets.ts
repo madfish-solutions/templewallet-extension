@@ -1,7 +1,7 @@
 import { useCallback, useMemo } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
-import { ScopedMutator } from 'swr/dist/types';
+import { ScopedMutator } from 'swr/_internal';
 
 import { useTokensMetadataSelector } from 'app/store/tokens-metadata/selectors';
 import { isTezAsset, TEMPLE_TOKEN_SLUG } from 'lib/assets';

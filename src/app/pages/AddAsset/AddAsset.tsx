@@ -3,7 +3,7 @@ import React, { FC, ReactNode, useCallback, useEffect, useRef, useMemo } from 'r
 import classNames from 'clsx';
 import { FormContextValues, useForm } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
-import { useSWRConfig } from 'swr';
+import { useSWRConfig, unstable_serialize } from 'swr';
 import { useDebouncedCallback } from 'use-debounce';
 
 import { Alert, FormField, FormSubmitButton, NoSpaceField } from 'app/atoms';
@@ -24,7 +24,6 @@ import { T, t } from 'lib/i18n';
 import type { TokenMetadata } from 'lib/metadata';
 import { fetchOneTokenMetadata } from 'lib/metadata/fetch';
 import { TokenMetadataNotFoundError } from 'lib/metadata/on-chain';
-import { getCacheKey } from 'lib/swr';
 import { loadContract } from 'lib/temple/contract';
 import {
   useTezos,
@@ -229,7 +228,7 @@ const Form: FC = () => {
           Repo.toAccountTokenKey(chainId, accountPkh, tokenSlug)
         );
 
-        swrCache.delete(getCacheKey(getBalanceSWRKey(tezos, tokenSlug, accountPkh)));
+        swrCache.delete(unstable_serialize(getBalanceSWRKey(tezos, tokenSlug, accountPkh)));
 
         formAnalytics.trackSubmitSuccess();
 
@@ -368,7 +367,7 @@ const BottomSection: FC<BottomSectionProps> = props => {
         ref={register({
           required: t('required'),
           pattern: {
-            value: /^[a-zA-Z0-9\s]{3,25}$/,
+            value: /^.{3,25}$/,
             message: t('tokenNamePatternDescription')
           }
         })}
