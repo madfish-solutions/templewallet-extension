@@ -422,7 +422,7 @@
     "message": "e.g. WEW, BOW, LAL etc."
   },
   "tokenNamePatternDescription": {
-    "message": "No special characters, 3-25 length"
+    "message": "3-25 length"
   },
   "name": {
     "message": "Name"
@@ -577,7 +577,15 @@
     "message": "Inclusion of at least one special character, e.g., ! @ # ? ] - (optional, recommended)."
   },
   "mnemonicWordsAmountConstraint": {
-    "message": "12, 15, 18, 21 or 24 words in English"
+    "message": "Seed phrase must contain $number$ words",
+    "placeholders": {
+      "number": {
+        "content": "$1"
+      }
+    }
+  },
+  "mnemonicWordsError": {
+    "message": "Make sure the words spelled correctly"
   },
   "seedInputNumberOfWords": {
     "message": "My Seed phrase is $count$ words",
@@ -588,7 +596,7 @@
     }
   },
   "justValidPreGeneratedMnemonic": {
-    "message": "Just valid pre-generated mnemonic"
+    "message": "Invalid Seed Phrase"
   },
   "seedPasteFailedTooManyWords": {
     "message": "Paste failed because it contained over 24 words."
@@ -756,7 +764,7 @@
     "message": "Custom derivation path"
   },
   "mnemonicInputLabel": {
-    "message": "Seed phrase"
+    "message": "Seed Phrase"
   },
   "mnemonicInputWarning": {
     "message": "We don't store your seed phrase. Don't lose it!"
@@ -1406,7 +1414,7 @@
     "message": "The elliptical curve that the account will use."
   },
   "seedPhrase": {
-    "message": "Seed Phrase"
+    "message": "Seed phrase"
   },
   "pathForHDAccounts": {
     "message": "for HD acccounts. This is the thing you use to recover all your accounts from your seed phrase.",
@@ -2371,9 +2379,6 @@
   "unknownAccount": {
     "message": "Unknown account"
   },
-  "ledgerLiveBridgeGuide": {
-    "message": "To connect to Ledger, please activate the Ledger Live application on your device, open Tezos Wallet application and allow a WebSocket connection to your Temple account."
-  },
   "ledgerBridgeGuide": {
     "message": "To connect the Ledger, please activate your device and open Tezos Wallet application."
   },
@@ -2600,12 +2605,6 @@
   "deleteTokenConfirm": {
     "message": "Are you sure you want to delete this token?"
   },
-  "ledgerLiveSettings": {
-    "message": "Use Ledger Live"
-  },
-  "ledgerLiveSettingsDescription": {
-    "message": "The new Ledger Live bridge allows you to use your Ledger in a different way."
-  },
   "lockUpSettings": {
     "message": "Extension lock-up"
   },
@@ -2642,22 +2641,19 @@
   "enterCardNumber": {
     "message": "Enter card number"
   },
-  "onlyForUkrainianCards": {
-    "message": "Only for Ukrainian banking cards"
+  "onlyForCountryBankingCards": {
+    "message": "Only for $country$ banking cards",
+    "placeholders": {
+      "country": {
+        "content": "$1"
+      }
+    }
   },
   "buyWithCrypto": {
     "message": "Buy with Crypto"
   },
   "buyWithExolix": {
     "message": "Buy With Exolix"
-  },
-  "buyWithExolixDescription": {
-    "message": "Exchange $number$ cryptocurrencies to TEZ or USDT Tezos instantly and without registration",
-    "placeholders": {
-      "number": {
-        "content": "$1"
-      }
-    }
   },
   "buyWithRamp": {
     "message": "Buy With Ramp"
@@ -2666,10 +2662,10 @@
     "message": "Buy TEZ  using Visa, Mastercard, and all major debit and credit cards. Ramp is available in 160+ countries and territories."
   },
   "sellWithAliceBob": {
-    "message": "Sell TEZ with Alice-Bob (UAH only)"
+    "message": "Sell TEZ with Alice-Bob"
   },
   "sellWithAliceBobDescription": {
-    "message": "Fast and cost-effective exchange of TEZ to UAH."
+    "message": "Fast and cost-effective exchange of TEZ."
   },
   "selectPaymentProvider": {
     "message": "Select payment provider"
@@ -2781,7 +2777,7 @@
     "message": "Sell TEZ details"
   },
   "sellDetailsDescription": {
-    "message": "Sell TEZ to fiat. Get fiat to Visa, Mastercard Ukrainian cards."
+    "message": "Sell TEZ to fiat. Get fiat to Visa, Mastercard cards."
   },
   "privacyAndPolicyLinks": {
     "message": "By clicking $buttonContent$ you agree with \n$termsOfUse$ and $privacyPolicy$",

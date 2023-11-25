@@ -4,11 +4,12 @@ import browser, { Storage } from 'webextension-polyfill';
 
 import { fetchFromStorage, putToStorage } from 'lib/storage';
 import { useRetryableSWR } from 'lib/swr';
+import { useDidUpdate } from 'lib/ui/hooks';
 
 export function useStorage<T = any>(key: string): [T | null | undefined, (val: SetStateAction<T>) => Promise<void>];
 export function useStorage<T = any>(key: string, fallback: T): [T, (val: SetStateAction<T>) => Promise<void>];
 export function useStorage<T = any>(key: string, fallback?: T) {
-  const { data, mutate } = useRetryableSWR<T | null>(key, fetchFromStorage, {
+  const { data, mutate } = useRetryableSWR<T | null, unknown, string>(key, fetchFromStorage, {
     suspense: true,
     revalidateOnFocus: false,
     revalidateOnReconnect: false
@@ -33,7 +34,7 @@ export function useStorage<T = any>(key: string, fallback?: T) {
 export function usePassiveStorage<T = any>(key: string): [T | null | undefined, Dispatch<SetStateAction<T>>];
 export function usePassiveStorage<T = any>(key: string, fallback: T): [T, Dispatch<SetStateAction<T>>];
 export function usePassiveStorage<T = any>(key: string, fallback?: T) {
-  const { data } = useRetryableSWR<T | null>(key, fetchFromStorage, {
+  const { data } = useRetryableSWR<T | null, unknown, string>(key, fetchFromStorage, {
     suspense: true,
     revalidateOnFocus: false,
     revalidateOnReconnect: false
@@ -43,21 +44,20 @@ export function usePassiveStorage<T = any>(key: string, fallback?: T) {
 
   const [value, setValue] = useState(finalData);
 
-  useEffect(() => {
+  useDidUpdate(() => {
     setValue(finalData);
   }, [finalData]);
 
-  const prevValue = useRef(value);
+  const updateValue = useCallback(
+    (newValue: T | null | undefined) => {
+      const newValueWithFallback = fallback === undefined ? newValue : newValue ?? fallback;
+      putToStorage(key, newValueWithFallback);
+      setValue(newValueWithFallback);
+    },
+    [fallback, key]
+  );
 
-  useEffect(() => {
-    if (prevValue.current !== value && value !== undefined) {
-      putToStorage(key, value);
-    }
-
-    prevValue.current = value;
-  }, [key, value]);
-
-  return [value, setValue];
+  return [value, updateValue];
 }
 
 function onStorageChanged<T = any>(key: string, callback: (newValue: T) => void) {

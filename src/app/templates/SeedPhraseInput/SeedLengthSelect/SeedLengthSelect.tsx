@@ -3,7 +3,11 @@ import React, { FC, useCallback, useEffect, useRef, useState } from 'react';
 import classNames from 'clsx';
 
 import { ReactComponent as SelectArrowDownIcon } from 'app/icons/select-arrow-down.svg';
+import { ImportAccountSelectors } from 'app/pages/ImportAccount/selectors';
+import { setTestID } from 'lib/analytics';
 import { t } from 'lib/i18n';
+
+import { SeedLengthOption } from './SeedLengthOption/SeedLengthOption';
 
 interface SeedLengthSelectProps {
   options: Array<string>;
@@ -52,26 +56,23 @@ export const SeedLengthSelect: FC<SeedLengthSelectProps> = ({ options, currentOp
       className={classNames('absolute right-0 z-10 text-gray-700 border-2 rounded-md bg-white cursor-pointer')}
     >
       <div className={classNames('flex flex-row justify-around p-2')} onClick={() => setIsOpen(!isOpen)}>
-        <span style={{ fontSize: 13 }}>{t('seedInputNumberOfWords', [`${selectedOption}`])}</span>
-        <SelectArrowDownIcon className="ml-1" />
+        <span style={{ fontSize: 13 }} {...setTestID(ImportAccountSelectors.mnemonicDropDownButton)}>
+          {t('seedInputNumberOfWords', [`${selectedOption}`])}{' '}
+        </span>
+        <SelectArrowDownIcon
+          className={classNames('ml-1 transition ease-in-out duration-75', isOpen && 'transform rotate-180')}
+        />
       </div>
       <ul className={classNames(!isOpen && 'hidden')}>
         {options.map(option => {
           return (
-            <li
+            <SeedLengthOption
               key={option}
-              value={option}
-              onClick={() => handleClick(option)}
-              className={classNames(
-                selectedOption === option ? 'bg-gray-200' : 'hover:bg-gray-100',
-                'py-1',
-                'text-gray-800',
-                'flex justify-center'
-              )}
-              style={{ fontSize: 17 }}
-            >
-              <span style={{ fontSize: 13 }}>{t('seedInputNumberOfWords', [`${option}`])}</span>
-            </li>
+              option={option}
+              selectedOption={selectedOption}
+              onClick={handleClick}
+              onChange={setSelectedOption}
+            />
           );
         })}
       </ul>

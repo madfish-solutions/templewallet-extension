@@ -121,7 +121,13 @@ export const useBuyWithCreditCardForm = () => {
             url = await createUtorgOrder(outputAmount, inputCurrency.code, publicKeyHash, outputToken.code);
             break;
           case TopUpProviderId.AliceBob:
-            const { data } = await createAliceBobOrder(false, inputAmount.toFixed(), userId, publicKeyHash);
+            const { data } = await createAliceBobOrder(
+              inputAmount.toFixed(),
+              inputCurrency.code,
+              outputToken.code,
+              userId,
+              publicKeyHash
+            );
             url = data.orderInfo.payUrl;
             break;
           default:

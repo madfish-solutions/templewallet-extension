@@ -320,7 +320,7 @@
     "message": "e.g. WEW, BOW, LAL etc."
   },
   "tokenNamePatternDescription": {
-    "message": "No special characters, 3-25 length"
+    "message": "3-25 length"
   },
   "name": {
     "message": "Name"
@@ -466,13 +466,21 @@
     "message": "At least 1 uppercase letter"
   },
   "mnemonicWordsAmountConstraint": {
-    "message": "12, 15, 18, 21 or 24 words in English"
+    "message": "Seed phrase must contain $number$ words",
+    "placeholders": {
+      "number": {
+        "content": "$1"
+      }
+    }
+  },
+  "mnemonicWordsError": {
+    "message": "Make sure the words spelled correctly"
   },
   "mnemonicSpacingConstraint": {
     "message": "Each word separated with a single space"
   },
   "justValidPreGeneratedMnemonic": {
-    "message": "Just valid pre-generated mnemonic"
+    "message": "Invalid Seed Phrase"
   },
   "oops": {
     "message": "Oops!"
@@ -608,7 +616,7 @@
     "message": "Custom derivation path"
   },
   "mnemonicInputLabel": {
-    "message": "Seed phrase"
+    "message": "Seed Phrase"
   },
   "passwordInputDescription": {
     "message": "That is NOT a wallet password.\nUsed for additional mnemonic derivation."
@@ -1088,7 +1096,7 @@
     "message": "Derivation path"
   },
   "seedPhrase": {
-    "message": "Seed Phrase"
+    "message": "Seed phrase"
   },
   "pathForHDAccounts": {
     "message": "for HD acccounts. This is the thing you use to recover all your accounts from your seed phrase.",

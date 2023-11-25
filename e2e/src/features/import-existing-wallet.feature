@@ -1,11 +1,12 @@
 Feature: Import existing wallet
 
+@import_wallet
   Scenario: As a user, I'd like to import account with existing seed phrase
     Given I am on the Welcome page
     And I press Import Existing Wallet button on the Welcome page
 
     And I am on the ImportExistingWallet page
-    And I enter default mnemonic
+    And I enter defaultSeedPhrase mnemonic on the ImportExistingWallet page
     And I press Next button on the Import Existing Seed Phrase page
 
     And I am on the SetWallet page
@@ -28,7 +29,7 @@ Feature: Import existing wallet
     And I press Import Existing Wallet button on the Welcome page
 
     And I am on the ImportExistingWallet page
-    And I enter default mnemonic
+    And I enter defaultSeedPhrase mnemonic on the ImportExistingWallet page
     And I press Next button on the Import Existing Seed Phrase page
 
     And I am on the SetWallet page
@@ -60,13 +61,12 @@ Feature: Import existing wallet
     Then I am on the Home page
 
 
-  @dev
   Scenario: As a user, I'd like to switch between onboarding pages and skip it [Negative]
     Given I am on the Welcome page
     And I press Import Existing Wallet button on the Welcome page
 
     And I am on the ImportExistingWallet page
-    And I enter default mnemonic
+    And I enter defaultSeedPhrase mnemonic on the ImportExistingWallet page
     And I press Next button on the Import Existing Seed Phrase page
 
     And I am on the SetWallet page

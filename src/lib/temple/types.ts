@@ -139,7 +139,6 @@ export interface TempleSettings {
 
 export enum TempleSharedStorageKey {
   DAppEnabled = 'dappenabled',
-  UseLedgerLive = 'useledgerlive',
   LockUpEnabled = 'lock_up',
   PasswordAttempts = 'passwordAttempts',
   TimeLock = 'timelock'
@@ -413,6 +412,7 @@ interface TempleNewWalletRequest extends TempleMessageBase {
 
 interface TempleNewWalletResponse extends TempleMessageBase {
   type: TempleMessageType.NewWalletResponse;
+  accountPkh: string;
 }
 
 interface TempleUnlockRequest extends TempleMessageBase {

@@ -318,7 +318,7 @@
     "message": "ör. WEW, BOW, LAL vb."
   },
   "tokenNamePatternDescription": {
-    "message": "Özel karakter yok, 3-25 uzunluk"
+    "message": "3-25 uzunluk"
   },
   "name": {
     "message": "Ad"
@@ -1995,9 +1995,6 @@
   "unknownAccount": {
     "message": "Bilinmeyen hesap"
   },
-  "ledgerLiveBridgeGuide": {
-    "message": "Kayıt Defterine bağlanmak için lütfen cihazınızda Ledger Live uygulamasını etkinleştirin, Tezos Wallet uygulamasını açın ve Temple hesabınıza WebSocket bağlantısına izin verin."
-  },
   "noExchangerFoundForToken": {
     "message": "Token $symbol$ ($name$) için alım satım yapan kimse bulunamadı.",
     "placeholders": {
@@ -2073,12 +2070,6 @@
   },
   "deleteTokenConfirm": {
     "message": "Bu token'ı silmek istediğinizden emin misiniz?"
-  },
-  "ledgerLiveSettings": {
-    "message": "Ledger Live Uygulamasını Kullan"
-  },
-  "ledgerLiveSettingsDescription": {
-    "message": "Yeni Ledger Live, Kayıt Defterinizi farklı bir şekilde kullanmanıza olanak tanır."
   },
   "totalBalance": {
     "message": "Toplam Bakiye"

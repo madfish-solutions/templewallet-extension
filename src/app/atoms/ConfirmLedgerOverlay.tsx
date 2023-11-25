@@ -5,8 +5,6 @@ import CSSTransition from 'react-transition-group/CSSTransition';
 
 import { ReactComponent as LedgerNanoIcon } from 'app/misc/ledger.svg';
 import { T } from 'lib/i18n';
-import { TransportType } from 'lib/ledger/types';
-import { getLedgerTransportType } from 'lib/temple/ledger';
 
 type ConfirmLedgerOverlayProps = {
   displayed: boolean;
@@ -48,15 +46,9 @@ const ConfirmLedgerOverlay: FC<ConfirmLedgerOverlayProps> = ({ displayed }) => (
 
       <LedgerNanoIcon className="animate-pulse" style={{ width: '10rem', height: 'auto' }} />
 
-      {getLedgerTransportType() === TransportType.WEBHID ? (
-        <p className={classNames('mt-8', 'text-center', 'text-sm text-gray-600', 'max-w-xs')}>
-          <T id="ledgerBridgeGuide" />
-        </p>
-      ) : (
-        <p className={classNames('mt-8', 'text-center', 'text-sm text-gray-600', 'max-w-xs')}>
-          <T id="ledgerLiveBridgeGuide" />
-        </p>
-      )}
+      <p className={classNames('mt-8', 'text-center', 'text-sm text-gray-600', 'max-w-xs')}>
+        <T id="ledgerBridgeGuide" />
+      </p>
     </div>
   </CSSTransition>
 );

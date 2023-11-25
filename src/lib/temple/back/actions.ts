@@ -92,8 +92,10 @@ export async function isDAppEnabled() {
 
 export function registerNewWallet(password: string, mnemonic?: string) {
   return withInited(async () => {
-    await Vault.spawn(password, mnemonic);
+    const accountPkh = await Vault.spawn(password, mnemonic);
     await unlock(password);
+
+    return accountPkh;
   });
 }
 

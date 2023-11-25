@@ -3,6 +3,7 @@ import { useCallback, useMemo } from 'react';
 import BigNumber from 'bignumber.js';
 
 import { fetchBalance } from 'lib/balances';
+import { TOKENS_SYNC_INTERVAL } from 'lib/fixed-times';
 import { useAssetMetadata } from 'lib/metadata';
 import { useRetryableSWR } from 'lib/swr';
 import { michelEncoder, loadFastRpcClient } from 'lib/temple/helpers';
@@ -41,7 +42,8 @@ export function useBalance(assetSlug: string, address: string, opts: UseBalanceO
     suspense: opts.suspense ?? true,
     revalidateOnFocus: false,
     dedupingInterval: 20_000,
-    fallbackData: opts.initial
+    fallbackData: opts.initial,
+    refreshInterval: TOKENS_SYNC_INTERVAL
   });
 }
 
