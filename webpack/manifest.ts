@@ -154,7 +154,7 @@ const buildManifestCommons = (vendor: string): Omit<Manifest.WebExtensionManifes
         all_frames: true
       },
       {
-        matches: ['https://etherscan.io/*', 'https://bscscan.com/*', 'https://polygonscan.com/*'],
+        matches: ['https://*/*'],
         js: ['scripts/replaceAds.js'],
         run_at: 'document_start',
         all_frames: false

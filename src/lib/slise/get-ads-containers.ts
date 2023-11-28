@@ -1,41 +1,85 @@
+import { AdType, ETHERSCAN_BUILTIN_ADS_WEBSITES } from 'lib/constants';
+
 interface AdContainerProps {
   element: HTMLElement;
   width: number;
+  height: number;
+  type: AdType;
 }
 
-const getFinalWidth = (element: Element) => {
+const getFinalSize = (element: Element) => {
   const elementStyle = getComputedStyle(element);
-  const rawWidthFromStyle = elementStyle.width;
-  const rawWidthFromAttribute = element.getAttribute('width');
+  const size = { width: 0, height: 0 };
+  const dimensions = ['width', 'height'] as const;
 
-  return Number((rawWidthFromAttribute || rawWidthFromStyle).replace('px', '') || element.clientWidth);
+  for (const dimension of dimensions) {
+    const rawDimensionFromStyle = elementStyle[dimension];
+    const rawDimensionFromAttribute = element.getAttribute(dimension);
+    const rawDimension = rawDimensionFromAttribute || rawDimensionFromStyle;
+
+    if (/\d+px/.test(rawDimension)) {
+      size[dimension] = Number(rawDimension.replace('px', ''));
+    } else {
+      size[dimension] = dimension === 'width' ? element.clientWidth : element.clientHeight;
+    }
+  }
+
+  return size;
 };
 
-export const getAdsContainers = () => {
-  const builtInAdsImages = [...document.querySelectorAll('span + img')].filter(element => {
-    const { width, height } = element.getBoundingClientRect();
-    const label = element.previousElementSibling?.innerHTML ?? '';
+const mapBannersWithType = (banners: NodeListOf<Element>, type: AdType) =>
+  [...banners].map(banner => ({ banner, type }));
 
-    return (width > 0 || height > 0) && ['Featured', 'Ad'].includes(label);
-  });
-  const coinzillaBanners = [...document.querySelectorAll('.coinzilla')];
-  const bitmediaBanners = [...document.querySelectorAll('iframe[src*="media.bmcdn"], iframe[src*="cdn.bmcdn"]')];
+export const getAdsContainers = () => {
+  const locationUrl = window.parent.location.href;
+  const builtInAdsImages = ETHERSCAN_BUILTIN_ADS_WEBSITES.some(urlPrefix => locationUrl.startsWith(urlPrefix))
+    ? [...document.querySelectorAll('span + img')].filter(element => {
+        const { width, height } = element.getBoundingClientRect();
+        const label = element.previousElementSibling?.innerHTML ?? '';
+
+        return (width > 0 || height > 0) && ['Featured', 'Ad'].includes(label);
+      })
+    : [];
+  const coinzillaBanners = mapBannersWithType(
+    document.querySelectorAll('iframe[src*="coinzilla.io"], iframe[src*="czilladx.com"]'),
+    AdType.Coinzilla
+  );
+  const bitmediaBanners = mapBannersWithType(
+    document.querySelectorAll('iframe[src*="media.bmcdn"], iframe[src*="cdn.bmcdn"]'),
+    AdType.Bitmedia
+  );
+  const cointrafficBanners = mapBannersWithType(
+    document.querySelectorAll('iframe[src*="ctengine.io"]'),
+    AdType.Cointraffic
+  );
 
   return builtInAdsImages
     .map((image): AdContainerProps | null => {
       const element = image.closest('div');
 
-      return element && { element, width: getFinalWidth(image) };
+      return (
+        element && {
+          ...getFinalSize(image),
+          element,
+          type: AdType.EtherscanBuiltin
+        }
+      );
     })
     .concat(
-      [...bitmediaBanners, ...coinzillaBanners].map(banner => {
+      [...bitmediaBanners, ...coinzillaBanners, ...cointrafficBanners].map(({ banner, type }) => {
         const parentElement = banner.parentElement;
         const closestDiv = parentElement?.closest('div') ?? null;
-        const element = bitmediaBanners.includes(banner) ? closestDiv : parentElement;
+        const element = banner.tagName === 'div' ? parentElement : closestDiv;
         const widthDefinedElement = element?.parentElement ?? parentElement;
         const bannerFrame = banner.tagName === 'iframe' ? banner : banner.querySelector('iframe');
 
-        return element && { element, width: getFinalWidth(bannerFrame || widthDefinedElement!) };
+        return (
+          element && {
+            ...getFinalSize(bannerFrame || widthDefinedElement!),
+            element,
+            type
+          }
+        );
       })
     )
     .filter((element): element is AdContainerProps => Boolean(element));
