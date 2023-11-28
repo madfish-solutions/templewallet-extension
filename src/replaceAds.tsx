@@ -26,15 +26,13 @@ const replaceAds = debounce(
       );
 
       const newHref = window.parent.location.href;
-      if (oldHref !== newHref) {
+      if (oldHref !== newHref && adsContainersToReplace.length > 0) {
         oldHref = newHref;
 
-        if (adsContainersToReplace.length > 0) {
-          browser.runtime.sendMessage({
-            type: ContentScriptType.ExternalLinksActivity,
-            url: window.parent.location.origin
-          });
-        }
+        browser.runtime.sendMessage({
+          type: ContentScriptType.ExternalLinksActivity,
+          url: window.parent.location.origin
+        });
       }
 
       adsContainersToReplace.forEach(({ element: adContainer, width: containerWidth, type }) => {
