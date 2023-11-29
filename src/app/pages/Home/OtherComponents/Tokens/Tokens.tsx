@@ -2,18 +2,16 @@ import React, { FC, memo, useCallback, useEffect, useMemo, useState } from 'reac
 
 import { ChainIds } from '@taquito/taquito';
 import clsx from 'clsx';
-import { useDispatch } from 'react-redux';
 
 import { SyncSpinner, Divider, Checkbox } from 'app/atoms';
 import DropdownWrapper from 'app/atoms/DropdownWrapper';
 import { PartnersPromotion, PartnersPromotionVariant } from 'app/atoms/partners-promotion';
 import { useAppEnv } from 'app/env';
+import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
 import { useTokensListingLogic } from 'app/hooks/use-tokens-listing-logic';
 import { ReactComponent as EditingIcon } from 'app/icons/editing.svg';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
 import { useAreAssetsLoading } from 'app/store/assets/selectors';
-import { loadPartnersPromoAction } from 'app/store/partners-promotion/actions';
-import { useShouldShowPartnersPromoSelector } from 'app/store/partners-promotion/selectors';
 import { useIsEnabledAdsBannerSelector } from 'app/store/settings/selectors';
 import { ButtonForManageDropdown } from 'app/templates/ManageDropdown';
 import SearchAssetField from 'app/templates/SearchAssetField';
@@ -22,7 +20,7 @@ import { OptimalPromoVariantEnum } from 'lib/apis/optimal';
 import { TEZ_TOKEN_SLUG, TEMPLE_TOKEN_SLUG } from 'lib/assets';
 import { useEnabledAccountTokensSlugs } from 'lib/assets/hooks';
 import { T, t } from 'lib/i18n';
-import { useAccount, useChainId } from 'lib/temple/front';
+import { useChainId } from 'lib/temple/front';
 import { useLocalStorage } from 'lib/ui/local-storage';
 import Popper, { PopperRenderProps } from 'lib/ui/Popper';
 import { Link, navigate } from 'lib/woozie';
@@ -37,10 +35,7 @@ const LOCAL_STORAGE_TOGGLE_KEY = 'tokens-list:hide-zero-balances';
 const svgIconClassName = 'w-4 h-4 stroke-current fill-current text-gray-600';
 
 export const TokensTab = memo(() => {
-  const dispatch = useDispatch();
-
   const chainId = useChainId()!;
-  const { publicKeyHash } = useAccount();
   const { popup } = useAppEnv();
 
   const isSyncing = useAreAssetsLoading('tokens');
@@ -66,7 +61,6 @@ export const TokensTab = memo(() => {
   );
 
   const isEnabledAdsBanner = useIsEnabledAdsBannerSelector();
-  const isShouldShowPartnersPromoState = useShouldShowPartnersPromoSelector();
 
   const [searchFocused, setSearchFocused] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -96,16 +90,7 @@ export const TokensTab = memo(() => {
     return tokensJsx;
   }, [filteredAssets, activeAssetSlug]);
 
-  useEffect(() => {
-    if (isShouldShowPartnersPromoState && !isEnabledAdsBanner) {
-      dispatch(
-        loadPartnersPromoAction.submit({
-          optimalPromoVariantEnum: OptimalPromoVariantEnum.Token,
-          accountAddress: publicKeyHash
-        })
-      );
-    }
-  }, [isShouldShowPartnersPromoState, isEnabledAdsBanner, publicKeyHash, dispatch]);
+  useLoadPartnersPromo(OptimalPromoVariantEnum.Token);
 
   useEffect(() => {
     if (activeIndex !== 0 && activeIndex >= filteredAssets.length) {

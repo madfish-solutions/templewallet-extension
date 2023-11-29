@@ -4,7 +4,6 @@ import { DEFAULT_FEE, WalletOperation } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
 import { Control, Controller, FieldError, FormStateProxy, NestDataObject, useForm } from 'react-hook-form';
-import useSWR from 'swr';
 import browser from 'webextension-polyfill';
 
 import { Alert, Button, FormSubmitButton, NoSpaceField } from 'app/atoms';
@@ -25,6 +24,7 @@ import { BLOCK_DURATION } from 'lib/fixed-times';
 import { TID, T, t } from 'lib/i18n';
 import { HELP_UKRAINE_BAKER_ADDRESS, RECOMMENDED_BAKER_ADDRESS } from 'lib/known-bakers';
 import { setDelegate } from 'lib/michelson';
+import { useTypedSWR } from 'lib/swr';
 import { loadContract } from 'lib/temple/contract';
 import {
   Baker,
@@ -37,10 +37,11 @@ import {
   useTezosDomainsClient,
   validateDelegate
 } from 'lib/temple/front';
+import { useTezosAddressByDomainName } from 'lib/temple/front/tzdns';
 import { hasManager, isAddressValid, isKTAddress, mutezToTz, tzToMutez } from 'lib/temple/helpers';
 import { TempleAccountType } from 'lib/temple/types';
 import { useSafeState } from 'lib/ui/hooks';
-import { delay } from 'lib/utils';
+import { delay, fifoResolve } from 'lib/utils';
 import { Link, useLocation } from 'lib/woozie';
 
 import { useUserTestingGroupNameSelector } from '../store/ab-testing/selectors';
@@ -89,14 +90,7 @@ const DelegateForm: FC = () => {
     () => toValue && isDomainNameValid(toValue, domainsClient),
     [toValue, domainsClient]
   );
-  const domainAddressFactory = useCallback(
-    (_k: string, _checksum: string, value: string) => domainsClient.resolver.resolveNameToAddress(value),
-    [domainsClient]
-  );
-  const { data: resolvedAddress } = useSWR(['tzdns-address', tezos.checksum, toValue], domainAddressFactory, {
-    shouldRetryOnError: false,
-    revalidateOnFocus: false
-  });
+  const { data: resolvedAddress } = useTezosAddressByDomainName(toValue);
 
   const toFieldRef = useRef<HTMLTextAreaElement>(null);
 
@@ -182,11 +176,15 @@ const DelegateForm: FC = () => {
     data: baseFee,
     error: estimateBaseFeeError,
     isValidating: estimating
-  } = useSWR(() => (toFilled ? ['delegate-base-fee', tezos.checksum, accountPkh, toResolved] : null), estimateBaseFee, {
-    shouldRetryOnError: false,
-    focusThrottleInterval: 10_000,
-    dedupingInterval: BLOCK_DURATION
-  });
+  } = useTypedSWR(
+    () => (toFilled ? ['delegate-base-fee', tezos.checksum, accountPkh, toResolved] : null),
+    estimateBaseFee,
+    {
+      shouldRetryOnError: false,
+      focusThrottleInterval: 10_000,
+      dedupingInterval: BLOCK_DURATION
+    }
+  );
   const baseFeeError = baseFee instanceof Error ? baseFee : estimateBaseFeeError;
   const estimationError = !estimating ? baseFeeError : null;
 
@@ -198,6 +196,11 @@ const DelegateForm: FC = () => {
     }
     return undefined;
   }, [balanceNum, baseFee]);
+
+  const fifoValidateDelegate = useMemo(
+    () => fifoResolve((value: any) => validateDelegate(value, domainsClient, validateAddress)),
+    [domainsClient]
+  );
 
   const handleFeeFieldChange = useCallback<BakerFormProps['handleFeeFieldChange']>(
     ([v]) => (maxAddFee && v > maxAddFee ? maxAddFee : v),
@@ -311,9 +314,7 @@ const DelegateForm: FC = () => {
           name="to"
           as={<NoSpaceField ref={toFieldRef} />}
           control={control}
-          rules={{
-            validate: (value: any) => validateDelegate(value, domainsClient, validateAddress)
-          }}
+          rules={{ validate: fifoValidateDelegate }}
           onChange={([v]) => v}
           onFocus={() => toFieldRef.current?.focus()}
           textarea

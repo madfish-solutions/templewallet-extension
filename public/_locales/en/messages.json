@@ -422,7 +422,7 @@
     "message": "e.g. WEW, BOW, LAL etc."
   },
   "tokenNamePatternDescription": {
-    "message": "No special characters, 3-25 length"
+    "message": "3-25 length"
   },
   "name": {
     "message": "Name"

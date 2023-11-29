@@ -1,13 +1,11 @@
 import { TemplePageMessage, TemplePageMessageType } from '@temple-wallet/dapp/dist/types';
 import browser from 'webextension-polyfill';
 
+import { ContentScriptType, WEBSITES_ANALYTICS_ENABLED } from 'lib/constants';
 import { IntercomClient } from 'lib/intercom/client';
 import { serealizeError } from 'lib/intercom/helpers';
 import { TempleMessageType, TempleResponse } from 'lib/temple/types';
 
-import { ContentScriptType } from './lib/constants';
-
-const WEBSITES_ANALYTICS_ENABLED = 'WEBSITES_ANALYTICS_ENABLED';
 const TRACK_URL_CHANGE_INTERVAL = 5000;
 
 enum BeaconMessageTarget {

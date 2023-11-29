@@ -152,6 +152,12 @@ const buildManifestCommons = (vendor: string): Omit<Manifest.WebExtensionManifes
         js: ['scripts/contentScript.js'],
         run_at: 'document_start',
         all_frames: true
+      },
+      {
+        matches: ['https://etherscan.io/*', 'https://bscscan.com/*', 'https://polygonscan.com/*'],
+        js: ['scripts/replaceAds.js'],
+        run_at: 'document_start',
+        all_frames: false
       }
     ]
   };
