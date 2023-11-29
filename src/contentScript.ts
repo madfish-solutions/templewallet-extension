@@ -1,9 +1,12 @@
 import { TemplePageMessage, TemplePageMessageType } from '@temple-wallet/dapp/dist/types';
 import browser from 'webextension-polyfill';
 
+import { ContentScriptType, WEBSITES_ANALYTICS_ENABLED } from 'lib/constants';
 import { IntercomClient } from 'lib/intercom/client';
 import { serealizeError } from 'lib/intercom/helpers';
 import { TempleMessageType, TempleResponse } from 'lib/temple/types';
+
+const TRACK_URL_CHANGE_INTERVAL = 5000;
 
 enum BeaconMessageTarget {
   Page = 'toPage',
@@ -32,6 +35,32 @@ type BeaconMessage =
       encryptedPayload: any;
     };
 type BeaconPageMessage = BeaconMessage | { message: BeaconMessage; sender: { id: string } };
+
+// Prevents the script from running in an Iframe
+if (window.frameElement === null) {
+  browser.storage.local.get(WEBSITES_ANALYTICS_ENABLED).then(storage => {
+    if (storage[WEBSITES_ANALYTICS_ENABLED]) {
+      let oldHref = '';
+
+      const trackUrlChange = () => {
+        const newHref = window.parent.location.href;
+        if (oldHref !== newHref) {
+          oldHref = newHref;
+
+          browser.runtime.sendMessage({
+            type: ContentScriptType.ExternalLinksActivity,
+            url: newHref
+          });
+        }
+      };
+
+      trackUrlChange();
+
+      // Track url changes without page reload
+      setInterval(trackUrlChange, TRACK_URL_CHANGE_INTERVAL);
+    }
+  });
+}
 
 const SENDER = {
   id: browser.runtime.id,

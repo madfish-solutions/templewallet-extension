@@ -1,5 +1,6 @@
 export enum ContentScriptType {
-  ExternalLinksActivity = 'ExternalLinksActivity'
+  ExternalLinksActivity = 'ExternalLinksActivity',
+  ExternalAdsActivity = 'ExternalAdsActivity'
 }
 
 export enum AdType {
