@@ -8,7 +8,7 @@ import { Link } from 'lib/woozie';
 import { setAnotherSelector, setTestID } from '../../../analytics';
 import { NotificationStatus } from '../../enums/notification-status.enum';
 import { NotificationType } from '../../enums/notification-type.enum';
-import { NotificationInterface } from '../../interfaces/notification.interface';
+import type { NotificationInterface } from '../../types';
 import { formatDateOutput } from '../../utils/date.utils';
 import { PreviewItemSelectors } from './preview-item.selectors';
 
@@ -34,6 +34,7 @@ export const NotificationPreviewItem: FC<Props> = ({ notification }) => {
       ])}
       testID={PreviewItemSelectors.notificationItem}
       testIDProperties={{ id: notification.id, type: notification.type }}
+      {...setAnotherSelector('id', notification.id)}
     >
       <div className="relative">
         {notification.status === NotificationStatus.New && (
@@ -61,16 +62,11 @@ export const NotificationPreviewItem: FC<Props> = ({ notification }) => {
               notification.status === NotificationStatus.Read ? 'text-gray-600' : 'text-black'
             )}
             {...setTestID(PreviewItemSelectors.notificationItemTitleText)}
-            {...setAnotherSelector('title', notification.title)}
           >
             {notification.title}
           </p>
 
-          <p
-            className="text-gray-600 text-xs"
-            {...setTestID(PreviewItemSelectors.notificationItemDescriptionText)}
-            {...setAnotherSelector('description', notification.description)}
-          >
+          <p className="text-gray-600 text-xs" {...setTestID(PreviewItemSelectors.notificationItemDescriptionText)}>
             {notification.description}
           </p>
         </div>
