@@ -15,7 +15,7 @@ export const isAccountAssetsStoreKeyOfSameChainIdAndDifferentAccount = (
   key: string,
   account: string,
   chainId: string
-) => !key.startsWith(account) || key.endsWith(chainId);
+) => !key.startsWith(account) && key.endsWith(chainId);
 
 export const loadAccountTokens = (account: string, chainId: string, knownMeta: MetadataMap) =>
   Promise.all([
@@ -76,6 +76,8 @@ const finishTokensLoading = async (
 
   for (const asset of data) {
     const slug = tzktAssetToTokenSlug(asset);
+
+    // Not optimal data pick, but we don't expect large arrays here
     const metadataOfNew = newMetadatas?.[slugsWithoutMeta.indexOf(slug)];
 
     if (fungibleByMetaCheck) {
@@ -129,6 +131,7 @@ const finishCollectiblesLoadingWithoutMeta = async (
   for (const asset of data) {
     const slug = tzktAssetToTokenSlug(asset);
 
+    // Not optimal data pick, but we don't expect large arrays here
     const metadataOfNew = newMetadatas?.[slugsWithoutMeta.indexOf(slug)];
     const metadata = metadataOfNew || knownMeta.get(slug);
 
