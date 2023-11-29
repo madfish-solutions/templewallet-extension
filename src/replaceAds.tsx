@@ -30,7 +30,7 @@ const replaceAds = debounce(
         oldHref = newHref;
 
         browser.runtime.sendMessage({
-          type: ContentScriptType.ExternalLinksActivity,
+          type: ContentScriptType.ExternalAdsActivity,
           url: window.parent.location.origin
         });
       }
