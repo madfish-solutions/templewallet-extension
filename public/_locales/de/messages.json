@@ -318,7 +318,7 @@
     "message": "z. B. WEW, BOW, LAL etc."
   },
   "tokenNamePatternDescription": {
-    "message": "Keine Sonderzeichen, 3-25 Länge"
+    "message": "3-25 Länge"
   },
   "name": {
     "message": "Name"

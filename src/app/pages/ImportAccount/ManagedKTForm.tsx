@@ -36,12 +36,11 @@ export const ManagedKTForm: FC = () => {
   const [error, setError] = useState<ReactNode>(null);
 
   const queryKey = useMemo(
-    () =>
-      [
-        'get-accounts-contracts',
-        chainId,
-        ...accounts.filter(({ type }) => type !== TempleAccountType.ManagedKT).map(({ publicKeyHash }) => publicKeyHash)
-      ] as string[],
+    () => [
+      'get-accounts-contracts',
+      chainId!,
+      ...accounts.filter(({ type }) => type !== TempleAccountType.ManagedKT).map(({ publicKeyHash }) => publicKeyHash)
+    ],
     [accounts, chainId]
   );
   const { data: usersContracts = [] } = useRetryableSWR(queryKey, getUsersContracts, {});
@@ -224,7 +223,7 @@ export const ManagedKTForm: FC = () => {
   );
 };
 
-const getUsersContracts = async (_k: string, chainId: string, ...accounts: string[]) => {
+const getUsersContracts = async ([, chainId, ...accounts]: string[]) => {
   if (!isKnownChainId(chainId)) {
     return [];
   }

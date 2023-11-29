@@ -1,13 +1,13 @@
 import React, { FC, useCallback } from 'react';
 
 import classNames from 'clsx';
-import useSWR from 'swr';
 
 import { Button, HashChip } from 'app/atoms';
 import { ReactComponent as GlobeIcon } from 'app/icons/globe.svg';
 import { ReactComponent as HashIcon } from 'app/icons/hash.svg';
 import { TestIDProps } from 'lib/analytics';
-import { useTezos, useTezosDomainsClient, useStorage } from 'lib/temple/front';
+import { useStorage } from 'lib/temple/front';
+import { useTezosDomainNameByAddress } from 'lib/temple/front/tzdns';
 
 type Props = TestIDProps & {
   pkh: string;
@@ -19,18 +19,7 @@ type Props = TestIDProps & {
 const TZDNS_MODE_ON_STORAGE_KEY = 'domain-displayed';
 
 const AddressChip: FC<Props> = ({ pkh, className, small, modeSwitch, ...rest }) => {
-  const tezos = useTezos();
-  const { resolver: domainsResolver } = useTezosDomainsClient();
-
-  const resolveDomainReverseName = useCallback(
-    (_k: string, pkh: string) => domainsResolver.resolveAddressToName(pkh),
-    [domainsResolver]
-  );
-
-  const { data: tzdnsName } = useSWR(() => ['pkh-tzdns-name', pkh, tezos.checksum], resolveDomainReverseName, {
-    shouldRetryOnError: false,
-    revalidateOnFocus: false
-  });
+  const { data: tzdnsName } = useTezosDomainNameByAddress(pkh);
 
   const [domainDisplayed, setDomainDisplayed] = useStorage(TZDNS_MODE_ON_STORAGE_KEY, false);
 

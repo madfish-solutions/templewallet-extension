@@ -3,6 +3,7 @@ import { useCallback, useMemo } from 'react';
 import BigNumber from 'bignumber.js';
 
 import { useBalancesSelector } from 'app/store/balances/selectors';
+import { ASSETS_SYNC_INTERVAL } from 'lib/fixed-times';
 import { useAssetMetadata } from 'lib/metadata';
 import { useRetryableSWR } from 'lib/swr';
 import { useTezos, useAccount, useChainId, ReactiveTezosToolkit } from 'lib/temple/front';
@@ -50,6 +51,7 @@ export function useBalance(assetSlug: string, address: string, opts: UseBalanceO
     suspense: opts.suspense ?? true,
     revalidateOnFocus: false,
     dedupingInterval: 20_000,
-    fallbackData: opts.initial
+    fallbackData: opts.initial,
+    refreshInterval: ASSETS_SYNC_INTERVAL
   });
 }

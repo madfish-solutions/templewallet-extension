@@ -23,6 +23,7 @@
       }
     }
   },
+  "ignorePatterns": "src/**/*.embed.js",
   "rules": {
     "prettier/prettier": "error",
     "prefer-const": "error",

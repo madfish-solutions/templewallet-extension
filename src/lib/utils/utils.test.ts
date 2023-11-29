@@ -1,4 +1,4 @@
-import { isTruthy, createQueue, delay } from './index';
+import { isTruthy, createQueue, delay, fifoResolve } from './index';
 
 /** See: https://developer.mozilla.org/en-US/docs/Glossary/Falsy */
 const ALL_FALSY_VALUES = [false, 0, -0, BigInt(0), '', NaN, null, undefined];
@@ -44,6 +44,29 @@ describe('Queue', () => {
     ]);
 
     expect(result).toStrictEqual([1, 2, 3, 4]);
+  });
+});
+
+describe('fifoResolve', () => {
+  it('should run promises paralelly but resolve them in FIFO order', async () => {
+    const t0 = Date.now();
+    const ids: number[] = [];
+    const fn = fifoResolve((ms: number) => delay(ms));
+    const pushAfterFnResolves = (ms: number, id: number) => fn(ms).then(() => ids.push(id));
+    await Promise.all([
+      pushAfterFnResolves(300, 1),
+      pushAfterFnResolves(200, 2),
+      pushAfterFnResolves(100, 3),
+      pushAfterFnResolves(0, 4),
+      pushAfterFnResolves(300, 5),
+      pushAfterFnResolves(200, 6),
+      pushAfterFnResolves(100, 7),
+      pushAfterFnResolves(0, 8)
+    ]);
+    const t1 = Date.now();
+    expect(t1 - t0).toBeGreaterThanOrEqual(300);
+    expect(t1 - t0).toBeLessThan(400);
+    expect(ids).toEqual([1, 2, 3, 4, 5, 6, 7, 8]);
   });
 });
 

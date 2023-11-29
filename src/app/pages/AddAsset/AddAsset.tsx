@@ -3,7 +3,7 @@ import React, { FC, ReactNode, useCallback, useEffect, useRef, useMemo } from 'r
 import classNames from 'clsx';
 import { FormContextValues, useForm } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
-import { useSWRConfig } from 'swr';
+import { useSWRConfig, unstable_serialize } from 'swr';
 import { useDebouncedCallback } from 'use-debounce';
 
 import { Alert, FormField, FormSubmitButton, NoSpaceField } from 'app/atoms';
@@ -221,7 +221,7 @@ const Form: FC = () => {
           })
         );
 
-        swrCache.delete(getBalanceSWRKey(tezos, tokenSlug, accountPkh));
+        swrCache.delete(unstable_serialize(getBalanceSWRKey(tezos, tokenSlug, accountPkh)));
 
         formAnalytics.trackSubmitSuccess();
 
@@ -360,7 +360,7 @@ const BottomSection: FC<BottomSectionProps> = props => {
         ref={register({
           required: t('required'),
           pattern: {
-            value: /^[a-zA-Z0-9\s]{3,25}$/,
+            value: /^.{3,25}$/,
             message: t('tokenNamePatternDescription')
           }
         })}
