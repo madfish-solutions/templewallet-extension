@@ -95,9 +95,9 @@ Given(
   /I got the validation-error '(.*)' in the (.*) on the (.*) page/,
   { timeout: MEDIUM_TIMEOUT },
   async (errorName: string, parentElementName: string, pageName: string) => {
-    const childElement = await createPageElement(`${pageName}/${parentElementName}`).findChildSelectors(
-      ErrorCaptionSelectors.inputError
-    );
+    const childElement = await createPageElement(`${pageName}/${parentElementName}`)
+      .createChildElement(ErrorCaptionSelectors.inputError)
+      .findElement();
     const getErrorContent = await getElementText(childElement);
     expect(getErrorContent).eql(errorName);
   }

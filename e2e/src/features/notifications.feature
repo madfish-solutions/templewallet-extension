@@ -6,8 +6,8 @@ Feature: Notifications
     And I press Notification Icon Button on the Home page
 
     And I am on the NotificationsList page
-    And I check that a notification with 'Test Title' title and 'Test description' description is displayed
-    And I click on the notification with 'Test Title' title and 'Test description' description
+    And I check that new notification is displayed
+    And I click on the new notification
 
     And I am on the NotificationContent page
     And The Notification Title Text on the Notification Content page has correct Test Title value
@@ -35,7 +35,7 @@ Feature: Notifications
     And I press Notification Icon Button on the Home page
     And I am on the NotificationsList page
 
-    Then I check that a notification with 'Test Title' title and 'Test description' description is NOT displayed
+    Then I check that new notification is NOT displayed
 
 
 

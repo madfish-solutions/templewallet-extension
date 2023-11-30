@@ -1,34 +1,30 @@
 import { Given } from '@cucumber/cucumber';
+import assert from 'assert';
 import axios from 'axios';
+import type { NotificationInterface } from 'src/lib/notifications/types';
 
 import { envVars } from 'e2e/src/utils/env.utils';
 import { MEDIUM_TIMEOUT } from 'e2e/src/utils/timing.utils';
 
 import { Pages } from '../page-objects';
 
-Given(
-  /I check that a notification with '(.*)' title and '(.*)' description is displayed/,
-  { timeout: MEDIUM_TIMEOUT },
-  async (title: string, shortDescription: string) => {
-    await Pages.NotificationsList.isNotificationDisplayed(title, shortDescription);
-  }
-);
+Given(/I check that new notification is displayed/, { timeout: MEDIUM_TIMEOUT }, async () => {
+  const notification = Pages.NotificationsList.newNotification;
+  assert(notification);
+  await Pages.NotificationsList.isNotificationDisplayed(notification);
+});
 
-Given(
-  /I check that a notification with '(.*)' title and '(.*)' description is NOT displayed/,
-  { timeout: MEDIUM_TIMEOUT },
-  async (title: string, shortDescription: string) => {
-    await Pages.NotificationsList.isNotificationNotDisplayed(title, shortDescription);
-  }
-);
+Given(/I check that new notification is NOT displayed/, { timeout: MEDIUM_TIMEOUT }, async () => {
+  const notification = Pages.NotificationsList.newNotification;
+  assert(notification);
+  await Pages.NotificationsList.isNotificationNotDisplayed(notification);
+});
 
-Given(
-  /I click on the notification with '(.*)' title and '(.*)' description/,
-  { timeout: MEDIUM_TIMEOUT },
-  async (title: string, shortDescription: string) => {
-    await Pages.NotificationsList.clickOnTheNotification(title, shortDescription);
-  }
-);
+Given(/I click on the new notification/, { timeout: MEDIUM_TIMEOUT }, async () => {
+  const notification = Pages.NotificationsList.newNotification;
+  assert(notification);
+  await Pages.NotificationsList.clickOnTheNotification(notification);
+});
 
 Given(/I make request for creating a notification/, { timeout: MEDIUM_TIMEOUT }, async () => {
   const currentDate = new Date();
@@ -49,15 +45,19 @@ Given(/I make request for creating a notification/, { timeout: MEDIUM_TIMEOUT },
     expirationDate: expirationDateISO
   };
 
-  const response = await axios.post('https://temple-api-mainnet.stage.madfish.xyz/api/notifications', requestBody, {
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: envVars.NOTIFICATION_AUTHORIZATION
+  const response = await axios.post<{ notification: NotificationInterface }>(
+    'https://temple-api-mainnet.stage.madfish.xyz/api/notifications',
+    requestBody,
+    {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: envVars.NOTIFICATION_AUTHORIZATION
+      }
     }
-  });
+  );
 
   if (response.status !== 200)
-    throw new Error(
-      `Some problems with backend server. Server returns ${response.statusText} with ${response.status} status code`
-    );
+    throw new Error(`Notifications request failed with ${response.status}: ${response.statusText}`);
+
+  Pages.NotificationsList.newNotification = response.data.notification;
 });

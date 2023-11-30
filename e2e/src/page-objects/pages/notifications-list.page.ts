@@ -1,11 +1,13 @@
 import { PreviewItemSelectors } from 'src/lib/notifications/components/notifications/preview-item.selectors';
+import type { NotificationInterface } from 'src/lib/notifications/types';
 
 import { VERY_SHORT_TIMEOUT } from 'e2e/src/utils/timing.utils';
 
 import { Page } from '../../classes/page.class';
-import { createPageElement, findElement } from '../../utils/search.utils';
+import { buildSelector, createPageElement, getElementText } from '../../utils/search.utils';
 
 export class NotificationsListPage extends Page {
+  newNotification?: NotificationInterface;
   notificationItem = createPageElement(PreviewItemSelectors.notificationItem);
   notificationItemTitleText = createPageElement(PreviewItemSelectors.notificationItemTitleText);
   notificationItemDescriptionText = createPageElement(PreviewItemSelectors.notificationItemDescriptionText);
@@ -16,31 +18,34 @@ export class NotificationsListPage extends Page {
     await this.notificationItemDescriptionText.waitForDisplayed();
   }
 
-  async isNotificationDisplayed(title: string, description: string) {
-    const notificationText = await findElement(
-      PreviewItemSelectors.notificationItemTitleText,
-      { title },
+  async isNotificationDisplayed({ id, title, description }: NotificationInterface) {
+    const notificationTextPageElem = createPageElement(PreviewItemSelectors.notificationItem, { id: String(id) });
+
+    await notificationTextPageElem.waitForDisplayed(
       VERY_SHORT_TIMEOUT,
       `Notification with ${title} title is not displayed`
     );
 
-    await findElement(
-      PreviewItemSelectors.notificationItemDescriptionText,
-      { description },
-      VERY_SHORT_TIMEOUT,
-      `Notification with ${description} description is not displayed`
-    );
+    const titleText = await notificationTextPageElem
+      .createChildElement(PreviewItemSelectors.notificationItemTitleText)
+      .getText();
+    if (titleText !== title) throw new Error(`Notification title missmatch. Got: ${titleText}`);
 
-    return notificationText;
+    const descriptionText = await notificationTextPageElem
+      .createChildElement(PreviewItemSelectors.notificationItemDescriptionText)
+      .getText();
+    if (descriptionText !== description) throw new Error(`Notification description missmatch. Got: ${descriptionText}`);
   }
 
-  async clickOnTheNotification(title: string, description: string) {
-    const selectedNotification = await this.isNotificationDisplayed(title, description);
-    await selectedNotification.click();
+  async clickOnTheNotification({ id }: NotificationInterface) {
+    const notificationTextElem = createPageElement(PreviewItemSelectors.notificationItem, { id: String(id) });
+    await notificationTextElem.click();
   }
 
-  async isNotificationNotDisplayed(title: string, description: string) {
-    await this.isNotificationDisplayed(title, description).then(
+  async isNotificationNotDisplayed({ id, title }: NotificationInterface) {
+    const notificationTextElem = createPageElement(PreviewItemSelectors.notificationItem, { id: String(id) });
+
+    await notificationTextElem.waitForDisplayed().then(
       () => {
         throw new Error(`The notification '${title}' is displayed after turning off 'news' checkbox in settings`);
       },

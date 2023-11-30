@@ -1,8 +1,8 @@
 import { ImportAccountSelectors } from 'src/app/pages/ImportAccount/selectors';
 
 import { Page } from 'e2e/src/classes/page.class';
-import { EMPTY_WORD_FOR_INPUTS } from 'e2e/src/utils/input-data.utils';
-import { clearDataFromInput, createPageElement, findElement, findElements } from 'e2e/src/utils/search.utils';
+import { EMPTY_WORD_FOR_INPUTS, clearDataFromCurrentInput } from 'e2e/src/utils/input-data.utils';
+import { createPageElement, findElement, findElements } from 'e2e/src/utils/search.utils';
 import { SHORT_TIMEOUT } from 'e2e/src/utils/timing.utils';
 
 export class ImportAccountMnemonicTab extends Page {
@@ -35,7 +35,7 @@ export class ImportAccountMnemonicTab extends Page {
       const input = wordsInputs[i];
 
       await input.focus();
-      await clearDataFromInput();
+      await clearDataFromCurrentInput();
     }
   }
 
