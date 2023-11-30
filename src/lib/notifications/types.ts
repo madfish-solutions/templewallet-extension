@@ -1,6 +1,6 @@
-import { NotificationPlatformType } from '../enums/notification-platform-type.enum';
-import { NotificationStatus } from '../enums/notification-status.enum';
-import { NotificationType } from '../enums/notification-type.enum';
+import type { NotificationPlatformType } from './enums/notification-platform-type.enum';
+import type { NotificationStatus } from './enums/notification-status.enum';
+import type { NotificationType } from './enums/notification-type.enum';
 
 interface NotificationLink {
   text: string;
