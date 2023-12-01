@@ -42,6 +42,8 @@ export const SendTab: FC<Props> = ({ isBitcoin, accountPkh, token }) => {
     switch (token?.chainName) {
       case 'Ethereum Sepolia':
         return 'https://ethereum-sepolia.publicnode.com';
+      case 'Ethereum Goerli':
+        return 'https://ethereum-goerli.publicnode.com';
       case 'Polygon Mumbai':
         return 'https://polygon-mumbai-bor.publicnode.com';
       case 'BSC Testnet':
@@ -51,7 +53,7 @@ export const SendTab: FC<Props> = ({ isBitcoin, accountPkh, token }) => {
       case 'Fantom Testnet':
         return 'https://fantom-testnet.publicnode.com';
       default:
-        return '';
+        return token?.chainName ?? '';
     }
   }, [token?.chainName]);
 

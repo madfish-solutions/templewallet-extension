@@ -265,6 +265,7 @@ export async function requestEvmSign(
 
 const chainIdHexRpcUrlRecord: Record<string, string> = {
   '0xaa36a7': 'https://ethereum-sepolia.publicnode.com',
+  '0x5': 'https://ethereum-goerli.publicnode.com',
   '0x13881': 'https://polygon-mumbai-bor.publicnode.com',
   '0x61': 'https://bsc-testnet.publicnode.com',
   '0xa869': 'https://avalanche-fuji-c-chain.publicnode.com',
