@@ -256,7 +256,7 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
         if (req.evm) {
           console.log(req.payload, 'bg got payload');
 
-          const resPayload = await Actions.processEvmDApp(req.origin, req.payload, req.sourcePkh);
+          const resPayload = await Actions.processEvmDApp(req.origin, req.payload, req.chainId, req.sourcePkh);
           return {
             type: TempleMessageType.PageResponse,
             payload: resPayload ?? null

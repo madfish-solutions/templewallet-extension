@@ -1,6 +1,5 @@
 import React, { FC, useMemo, useState } from 'react';
 
-import { BigNumber } from 'bignumber.js';
 import classNames from 'clsx';
 
 import { ReactComponent as CodeAltIcon } from 'app/icons/code-alt.svg';
@@ -13,10 +12,19 @@ import ViewsSwitcher from 'app/templates/ViewsSwitcher/ViewsSwitcher';
 import { TEZ_TOKEN_SLUG, toTokenSlug } from 'lib/assets';
 import { T, t } from 'lib/i18n';
 import { tryParseExpenses } from 'lib/temple/front';
-import { TempleDAppOperationsPayload, TempleDAppSignPayload, TempleEvmDAppOperationsPayload } from 'lib/temple/types';
+import {
+  TempleDAppOperationsPayload,
+  TempleDAppSignPayload,
+  TempleEvmDAppOperationsPayload,
+  TempleEvmDAppSignPayload
+} from 'lib/temple/types';
 
 type OperationViewProps = {
-  payload: TempleEvmDAppOperationsPayload | TempleDAppOperationsPayload | TempleDAppSignPayload;
+  payload:
+    | TempleEvmDAppSignPayload
+    | TempleEvmDAppOperationsPayload
+    | TempleDAppOperationsPayload
+    | TempleDAppSignPayload;
   networkRpc?: string;
   mainnet?: boolean;
   error?: any;
@@ -143,6 +151,25 @@ const OperationView: FC<OperationViewProps> = ({
     );
   }
 
+  if (payload.type === 'sign_evm') {
+    return (
+      <div className="flex flex-col w-full">
+        <h2 className="mb-3 leading-tight flex items-center">
+          <span className="mr-2 text-base font-semibold text-gray-700">
+            <T id="payloadToSign" />
+          </span>
+        </h2>
+
+        <OperationsBanner
+          opParams={JSON.parse(payload.opParams[1])}
+          className={classNames(spFormat.key !== 'raw' && 'hidden')}
+          jsonViewStyle={signPayloadFormats.length > 1 ? { height: '11rem' } : undefined}
+          label={null}
+        />
+      </div>
+    );
+  }
+
   if (payload.type === 'confirm_operations') {
     return (
       <div className="flex flex-col w-full">
@@ -202,13 +229,6 @@ const OperationView: FC<OperationViewProps> = ({
           jsonViewStyle={signPayloadFormats.length > 1 ? { height: '11rem' } : undefined}
           label={null}
         />
-
-        <h2 className="mt-3 leading-tight flex items-center justify-between text-base font-semibold text-gray-700">
-          <span>
-            <T id="fee" />:
-          </span>
-          <span>{new BigNumber(payload.opParams[0].gas).div(1e9).toString() + ' ETH'}</span>
-        </h2>
       </div>
     );
   }

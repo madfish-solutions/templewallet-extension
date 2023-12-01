@@ -79,6 +79,10 @@ const PayloadContent: React.FC<PayloadContentProps> = ({
   const chainId = useCustomChainId(payload.networkRpc, true)!;
   const mainnet = chainId === TempleChainId.Mainnet;
 
+  if (payload.type === 'switch_evm_network') {
+    return null;
+  }
+
   if (payload.type === 'connect_evm') {
     return (
       <div className="w-full flex flex-col">
@@ -180,7 +184,7 @@ const ConfirmDAppForm: FC = () => {
           return a.publicKeyHash === accountPkhToConnect;
         }
 
-        if (payload.type === 'connect_evm') {
+        if (payload.type === 'connect_evm' || payload.type === 'switch_evm_network') {
           return a.evmPublicKeyHash === accountPkhToConnect;
         }
 
@@ -196,6 +200,7 @@ const ConfirmDAppForm: FC = () => {
           return confirmDAppPermission(id, confimed, accountPkhToConnect);
 
         case 'connect_evm':
+        case 'switch_evm_network':
           return confirmDAppPermission(id, confimed, accountPkhToConnect, true);
 
         case 'confirm_evm_operations':
@@ -203,6 +208,7 @@ const ConfirmDAppForm: FC = () => {
           return confirmDAppOperation(id, confimed, modifiedTotalFee, modifiedStorageLimit);
 
         case 'sign':
+        case 'sign_evm':
           return confirmDAppSign(id, confimed);
       }
     },
@@ -325,7 +331,25 @@ const ConfirmDAppForm: FC = () => {
           )
         };
 
+      case 'switch_evm_network':
+        return {
+          title: 'Confirm network switch',
+          declineActionTitle: t('reject'),
+          confirmActionTitle: 'Switch',
+          want: (
+            <div className="mb-2 text-sm text-center text-gray-700 flex flex-col items-center">
+              <div className="flex items-center justify-center">
+                <DAppLogo icon={payload.appMeta.icon} origin={payload.origin} size={16} className="mr-1" />
+                <Name className="font-semibold" style={{ maxWidth: '10rem' }}>
+                  {payload.appMeta.name}
+                </Name>
+              </div>
+            </div>
+          )
+        };
+
       case 'sign':
+      case 'sign_evm':
         return {
           title: t('confirmAction', t('signAction').toLowerCase()),
           declineActionTitle: t('reject'),

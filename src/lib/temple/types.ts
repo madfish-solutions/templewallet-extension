@@ -218,8 +218,18 @@ interface TempleEvmDAppConnectPayload extends TempleDAppPayloadBase {
   type: 'connect_evm';
 }
 
+interface TempleEvmDAppSwitchNetworkPayload extends TempleDAppPayloadBase {
+  type: 'switch_evm_network';
+}
+
 export interface TempleEvmDAppOperationsPayload extends TempleDAppPayloadBase {
   type: 'confirm_evm_operations';
+  sourcePkh: string;
+  opParams: any[];
+}
+
+export interface TempleEvmDAppSignPayload extends TempleDAppPayloadBase {
+  type: 'sign_evm';
   sourcePkh: string;
   opParams: any[];
 }
@@ -242,6 +252,8 @@ export interface TempleDAppSignPayload extends TempleDAppPayloadBase {
 }
 
 export type TempleDAppPayload =
+  | TempleEvmDAppSignPayload
+  | TempleEvmDAppSwitchNetworkPayload
   | TempleEvmDAppOperationsPayload
   | TempleEvmDAppConnectPayload
   | TempleDAppConnectPayload
@@ -724,6 +736,7 @@ interface TemplePageRequest extends TempleMessageBase {
   origin: string;
   payload: any;
   evm?: boolean;
+  chainId?: string;
   sourcePkh?: string;
   beacon?: boolean;
   encrypted?: boolean;

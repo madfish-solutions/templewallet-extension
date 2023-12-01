@@ -6,8 +6,6 @@ import { AUTODECLINE_AFTER, createConfirmationWindow } from './dapp';
 import { intercom } from './defaults';
 import { withUnlocked } from './store';
 
-export const SEPOLIA_RPC_URL = 'https://ethereum-sepolia.publicnode.com';
-
 type RequestConfirmParams = {
   id: string;
   payload: TempleDAppPayload;
@@ -79,7 +77,9 @@ export const requestConfirm = async ({ id, payload, onDecline, handleIntercomReq
   const stopTimeout = () => clearTimeout(t);
 };
 
-export const connectEvm = async (origin: string) => {
+export const connectEvm = async (origin: string, chainId?: string) => {
+  if (!chainId) return new Error('chainId is not defined');
+
   return new Promise(async (resolve, reject) => {
     const id = nanoid();
 
@@ -88,7 +88,7 @@ export const connectEvm = async (origin: string) => {
       payload: {
         type: 'connect_evm',
         origin,
-        networkRpc: SEPOLIA_RPC_URL,
+        networkRpc: getRpcUrlByChainId(chainId),
         appMeta: { name: origin.split('.')[1] }
       },
       onDecline: () => {
@@ -100,7 +100,6 @@ export const connectEvm = async (origin: string) => {
       },
       handleIntercomRequest: async (confirmReq, decline) => {
         if (confirmReq?.type === TempleMessageType.DAppPermConfirmationRequest && confirmReq?.id === id) {
-          console.log('confirmReq', confirmReq);
           const { confirmed, accountPublicKeyHash } = confirmReq;
           if (confirmed && accountPublicKeyHash) {
             resolve([accountPublicKeyHash]);
@@ -118,10 +117,62 @@ export const connectEvm = async (origin: string) => {
   });
 };
 
-export async function requestEvmOperation(origin: string, sourcePkh: string, opParams: any[]) {
+export const switchChain = async (params: unknown[] | Record<string, unknown> | undefined) => {
+  if (!params) return new Error('Request params is not defined');
+  //@ts-ignore
+  const chainIdHex = params[0].chainId;
+  const rpcUrl = getRpcUrlByChainId(chainIdHex);
+
   return new Promise(async (resolve, reject) => {
     const id = nanoid();
-    console.log(opParams, 'ppppaarams');
+
+    await requestConfirm({
+      id,
+      payload: {
+        type: 'switch_evm_network',
+        origin,
+        networkRpc: rpcUrl,
+        appMeta: { name: origin.split('.')[1] }
+      },
+      onDecline: () => {
+        const err = new Error('Network switch declined');
+        //@ts-ignore
+        err.code = 4001;
+
+        reject(err);
+      },
+      handleIntercomRequest: async (confirmReq, decline) => {
+        if (confirmReq?.type === TempleMessageType.DAppPermConfirmationRequest && confirmReq?.id === id) {
+          const { confirmed } = confirmReq;
+          if (confirmed) {
+            resolve({ chainId: chainIdHex, rpcUrl });
+          } else {
+            decline();
+          }
+
+          return {
+            type: TempleMessageType.DAppPermConfirmationResponse
+          };
+        }
+        return undefined;
+      }
+    });
+  });
+};
+
+export async function requestEvmOperation(
+  origin: string,
+  sourcePkh: string | undefined,
+  chainId: string | undefined,
+  opParams: any[]
+) {
+  if (!sourcePkh) return new Error('sourcePkh is not defined');
+  if (!chainId) return new Error('chainId is not defined');
+
+  const rpcUrl = getRpcUrlByChainId(chainId);
+
+  return new Promise(async (resolve, reject) => {
+    const id = nanoid();
 
     await requestConfirm({
       id,
@@ -129,7 +180,7 @@ export async function requestEvmOperation(origin: string, sourcePkh: string, opP
         type: 'confirm_evm_operations',
         origin,
         sourcePkh,
-        networkRpc: SEPOLIA_RPC_URL,
+        networkRpc: rpcUrl,
         appMeta: { name: origin.split('.')[1] },
         opParams
       },
@@ -143,9 +194,7 @@ export async function requestEvmOperation(origin: string, sourcePkh: string, opP
         if (confirmReq?.type === TempleMessageType.DAppOpsConfirmationRequest && confirmReq?.id === id) {
           if (confirmReq.confirmed) {
             try {
-              const op = await withUnlocked(({ vault }) =>
-                vault.sendEvmDAppOperations(sourcePkh, SEPOLIA_RPC_URL, opParams)
-              );
+              const op = await withUnlocked(({ vault }) => vault.sendEvmDAppOperations(sourcePkh, rpcUrl, opParams));
 
               resolve(op.hash);
             } catch (err) {
@@ -163,4 +212,65 @@ export async function requestEvmOperation(origin: string, sourcePkh: string, opP
       }
     });
   });
+}
+
+export async function requestEvmSign(
+  origin: string,
+  sourcePkh: string | undefined,
+  chainId: string | undefined,
+  opParams: any[]
+) {
+  if (!sourcePkh) return new Error('sourcePkh is not defined');
+  if (!chainId) return new Error('chainId is not defined');
+
+  const rpcUrl = getRpcUrlByChainId(chainId);
+
+  return new Promise(async (resolve, reject) => {
+    const id = nanoid();
+
+    await requestConfirm({
+      id,
+      payload: {
+        type: 'sign_evm',
+        origin,
+        sourcePkh,
+        networkRpc: rpcUrl,
+        appMeta: { name: origin.split('.')[1] },
+        opParams
+      },
+      onDecline: () => {
+        const err = new Error('Sign declined');
+        //@ts-ignore
+        err.code = 4001;
+        reject(err);
+      },
+      handleIntercomRequest: async (confirmReq, decline) => {
+        if (confirmReq?.type === TempleMessageType.DAppSignConfirmationRequest && confirmReq?.id === id) {
+          if (confirmReq.confirmed) {
+            const result = await withUnlocked(({ vault }) => vault.signEvm(sourcePkh, rpcUrl, opParams));
+            resolve(result);
+          } else {
+            decline();
+          }
+
+          return {
+            type: TempleMessageType.DAppSignConfirmationResponse
+          };
+        }
+        return undefined;
+      }
+    });
+  });
+}
+
+const chainIdHexRpcUrlRecord: Record<string, string> = {
+  '0xaa36a7': 'https://ethereum-sepolia.publicnode.com',
+  '0x13881': 'https://polygon-mumbai-bor.publicnode.com',
+  '0x61': 'https://bsc-testnet.publicnode.com',
+  '0xa869': 'https://avalanche-fuji-c-chain.publicnode.com',
+  '0xfa2': 'https://fantom-testnet.publicnode.com'
+};
+
+function getRpcUrlByChainId(chainIdHex: string) {
+  return chainIdHexRpcUrlRecord[chainIdHex] ?? chainIdHex;
 }

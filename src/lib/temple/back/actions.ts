@@ -36,7 +36,7 @@ import {
 import { intercom } from './defaults';
 import type { DryRunResult } from './dryrun';
 import { buildFinalOpParmas, dryRunOpParams } from './dryrun';
-import { connectEvm, requestEvmOperation } from './evmDapp';
+import { connectEvm, requestEvmOperation, requestEvmSign, switchChain } from './evmDapp';
 import {
   toFront,
   store,
@@ -576,16 +576,26 @@ export async function processDApp(origin: string, req: TempleDAppRequest): Promi
   }
 }
 
-export async function processEvmDApp(origin: string, payload: EvmRequestArguments, sourcePkh?: string): Promise<any> {
+export async function processEvmDApp(
+  origin: string,
+  payload: EvmRequestArguments,
+  chainId?: string,
+  sourcePkh?: string
+): Promise<any> {
   console.log(origin, 'origin');
   const { method, params } = payload;
 
   switch (method) {
     case 'eth_requestAccounts':
-      return withInited(() => enqueueDApp(() => connectEvm(origin)));
+      return withInited(() => enqueueDApp(() => connectEvm(origin, chainId)));
+    case 'wallet_switchEthereumChain':
+      return withInited(() => enqueueDApp(() => switchChain(params)));
     case 'eth_sendTransaction':
       //@ts-ignore
-      return withInited(() => enqueueDApp(() => requestEvmOperation(origin, sourcePkh, params)));
+      return withInited(() => enqueueDApp(() => requestEvmOperation(origin, sourcePkh, chainId, params)));
+    case 'eth_signTypedData_v4':
+      //@ts-ignore
+      return withInited(() => enqueueDApp(() => requestEvmSign(origin, sourcePkh, chainId, params)));
     default:
       return 'No handler for this type of request';
   }

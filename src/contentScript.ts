@@ -82,6 +82,8 @@ window.addEventListener('passToBackground', evt => {
       payload: evt.detail.args,
       // @ts-ignore
       sourcePkh: evt.detail.sourcePkh,
+      // @ts-ignore
+      chainId: evt.detail.chainId,
       evm: true
     })
     .then((res: TempleResponse) => {

@@ -664,6 +664,17 @@ export class Vault {
     });
   }
 
+  async signEvm(accPublicKeyHash: string, rpc: string, opParams: any[]): Promise<string> {
+    return this.withEvmSigner(accPublicKeyHash, rpc, async signer => {
+      console.log('trying to sign dApp params');
+      const { types, domain, message } = JSON.parse(opParams[1]);
+      //ethers will add it yourself
+      delete types.EIP712Domain;
+
+      return signer.signTypedData(domain, types, message);
+    });
+  }
+
   private async withSigner<T>(accPublicKeyHash: string, factory: (signer: Signer) => Promise<T>) {
     const { signer, cleanup } = await this.getSigner(accPublicKeyHash);
     try {
@@ -676,7 +687,7 @@ export class Vault {
   private async withEvmSigner<T>(
     accPublicKeyHash: string,
     rpcUrl: string,
-    factory: (signer: ethers.Signer) => Promise<T>
+    factory: (signer: ethers.Wallet) => Promise<T>
   ) {
     const { signer } = await this.getEvmSigner(accPublicKeyHash, rpcUrl);
     return await factory(signer);
@@ -704,7 +715,7 @@ export class Vault {
     }
   }
 
-  private async getEvmSigner(accPublicKeyHash: string, rpcUrl: string): Promise<{ signer: ethers.Signer }> {
+  private async getEvmSigner(accPublicKeyHash: string, rpcUrl: string): Promise<{ signer: ethers.Wallet }> {
     const allAccounts = await this.fetchAccounts();
     const acc = allAccounts.find(a => a.evmPublicKeyHash === accPublicKeyHash);
     if (!acc) {
