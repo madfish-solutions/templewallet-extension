@@ -46,6 +46,10 @@ export const SendTab: FC<Props> = ({ isBitcoin, accountPkh, token }) => {
         return 'https://polygon-mumbai-bor.publicnode.com';
       case 'BSC Testnet':
         return 'https://bsc-testnet.publicnode.com';
+      case 'Avalanche Testnet':
+        return 'https://avalanche-fuji-c-chain.publicnode.com';
+      case 'Fantom Testnet':
+        return 'https://fantom-testnet.publicnode.com';
       default:
         return '';
     }

@@ -70,6 +70,28 @@ const SENDER = {
   iconUrl: 'https://templewallet.com/logo.png'
 };
 
+window.addEventListener('passToBackground', evt => {
+  // @ts-ignore
+  console.log('passToBackground_content_script', evt.detail.args);
+  getIntercom()
+    .request({
+      type: TempleMessageType.PageRequest,
+      // @ts-ignore
+      origin: evt.detail.origin,
+      // @ts-ignore
+      payload: evt.detail.args,
+      // @ts-ignore
+      sourcePkh: evt.detail.sourcePkh,
+      evm: true
+    })
+    .then((res: TempleResponse) => {
+      if (res?.type === TempleMessageType.PageResponse && res.payload) {
+        window.dispatchEvent(new CustomEvent('responseFromBackground', { detail: res.payload }));
+      }
+    })
+    .catch(err => console.error(err));
+});
+
 window.addEventListener(
   'message',
   evt => {

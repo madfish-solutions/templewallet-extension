@@ -217,7 +217,7 @@ export const TokensTab: FC = () => {
             )}
           >
             <div className="flex flex-row gap-2">
-              <Image src={token.logo} alt={token.name} height={40} width={40} />
+              <Image src={token.logo} className="rounded-full" alt={token.name} height={40} width={40} />
               <div className="flex flex-col">
                 <div className="font-bold">
                   {token.symbol}

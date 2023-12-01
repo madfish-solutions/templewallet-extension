@@ -214,6 +214,16 @@ interface TempleDAppConnectPayload extends TempleDAppPayloadBase {
   type: 'connect';
 }
 
+interface TempleEvmDAppConnectPayload extends TempleDAppPayloadBase {
+  type: 'connect_evm';
+}
+
+export interface TempleEvmDAppOperationsPayload extends TempleDAppPayloadBase {
+  type: 'confirm_evm_operations';
+  sourcePkh: string;
+  opParams: any[];
+}
+
 export interface TempleDAppOperationsPayload extends TempleDAppPayloadBase {
   type: 'confirm_operations';
   sourcePkh: string;
@@ -231,7 +241,12 @@ export interface TempleDAppSignPayload extends TempleDAppPayloadBase {
   preview: any;
 }
 
-export type TempleDAppPayload = TempleDAppConnectPayload | TempleDAppOperationsPayload | TempleDAppSignPayload;
+export type TempleDAppPayload =
+  | TempleEvmDAppOperationsPayload
+  | TempleEvmDAppConnectPayload
+  | TempleDAppConnectPayload
+  | TempleDAppOperationsPayload
+  | TempleDAppSignPayload;
 
 /**
  * Messages
@@ -708,6 +723,8 @@ interface TemplePageRequest extends TempleMessageBase {
   type: TempleMessageType.PageRequest;
   origin: string;
   payload: any;
+  evm?: boolean;
+  sourcePkh?: string;
   beacon?: boolean;
   encrypted?: boolean;
 }

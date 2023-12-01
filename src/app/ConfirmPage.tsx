@@ -1,5 +1,7 @@
 import React, { FC, Fragment, memo, Suspense, useCallback, useMemo, useState } from 'react';
 
+import { isDefined } from '@rnw-community/shared';
+
 import { Alert, FormSubmitButton, FormSecondaryButton } from 'app/atoms';
 import AccountTypeBadge from 'app/atoms/AccountTypeBadge';
 import ConfirmLedgerOverlay from 'app/atoms/ConfirmLedgerOverlay';
@@ -73,8 +75,36 @@ const PayloadContent: React.FC<PayloadContentProps> = ({
 }) => {
   const allAccounts = useRelevantAccounts(false);
   const AccountOptionContent = useMemo(() => AccountOptionContentHOC(payload.networkRpc), [payload.networkRpc]);
+  const EvmAccountOptionContent = useMemo(() => EvmAccountOptionContentHOC(), []);
   const chainId = useCustomChainId(payload.networkRpc, true)!;
   const mainnet = chainId === TempleChainId.Mainnet;
+
+  if (payload.type === 'connect_evm') {
+    return (
+      <div className="w-full flex flex-col">
+        <h2 className="mb-2 leading-tight flex flex-col">
+          <span className="text-base font-semibold text-gray-700">
+            <T id="account" />
+          </span>
+
+          <span className="mt-px text-xs font-light text-gray-600 max-w-9/10">
+            <T id="toBeConnectedWithDApp" />
+          </span>
+        </h2>
+
+        <CustomSelect<TempleAccount, string>
+          activeItemId={accountPkhToConnect}
+          getItemId={getEvmPkh}
+          items={allAccounts.filter(acc => acc.type === TempleAccountType.HD && isDefined(acc.evmPublicKeyHash))}
+          maxHeight="8rem"
+          onSelect={setAccountPkhToConnect}
+          OptionIcon={AccountIcon}
+          OptionContent={EvmAccountOptionContent}
+          autoFocus
+        />
+      </div>
+    );
+  }
 
   return payload.type === 'connect' ? (
     <div className="w-full flex flex-col">
@@ -113,13 +143,12 @@ const PayloadContent: React.FC<PayloadContentProps> = ({
 export default ConfirmPage;
 
 const getPkh = (account: TempleAccount) => account.publicKeyHash;
+const getEvmPkh = (account: TempleAccount) => account.evmPublicKeyHash ?? '';
 
 const ConfirmDAppForm: FC = () => {
   const { getDAppPayload, confirmDAppPermission, confirmDAppOperation, confirmDAppSign } = useTempleClient();
   const allAccounts = useRelevantAccounts(false);
   const account = useAccount();
-
-  const [accountPkhToConnect, setAccountPkhToConnect] = useState(account.publicKeyHash);
 
   const loc = useLocation();
   const id = useMemo(() => {
@@ -140,9 +169,23 @@ const ConfirmDAppForm: FC = () => {
   const payload = data!;
   const payloadError = data!.error;
 
+  const [accountPkhToConnect, setAccountPkhToConnect] = useState(
+    payload.type === 'connect_evm' ? account.evmPublicKeyHash! : account.publicKeyHash
+  );
+
   const connectedAccount = useMemo(
     () =>
-      allAccounts.find(a => a.publicKeyHash === (payload.type === 'connect' ? accountPkhToConnect : payload.sourcePkh)),
+      allAccounts.find(a => {
+        if (payload.type === 'connect') {
+          return a.publicKeyHash === accountPkhToConnect;
+        }
+
+        if (payload.type === 'connect_evm') {
+          return a.evmPublicKeyHash === accountPkhToConnect;
+        }
+
+        return a.publicKeyHash === payload.sourcePkh;
+      }),
     [payload, allAccounts, accountPkhToConnect]
   );
 
@@ -152,6 +195,10 @@ const ConfirmDAppForm: FC = () => {
         case 'connect':
           return confirmDAppPermission(id, confimed, accountPkhToConnect);
 
+        case 'connect_evm':
+          return confirmDAppPermission(id, confimed, accountPkhToConnect, true);
+
+        case 'confirm_evm_operations':
         case 'confirm_operations':
           return confirmDAppOperation(id, confimed, modifiedTotalFee, modifiedStorageLimit);
 
@@ -224,6 +271,7 @@ const ConfirmDAppForm: FC = () => {
   const content = useMemo(() => {
     switch (payload.type) {
       case 'connect':
+      case 'connect_evm':
         return {
           title: t('confirmAction', t('connection').toLowerCase()),
           declineActionTitle: t('cancel'),
@@ -248,6 +296,7 @@ const ConfirmDAppForm: FC = () => {
         };
 
       case 'confirm_operations':
+      case 'confirm_evm_operations':
         return {
           title: t('confirmAction', t('operations').toLowerCase()),
           declineActionTitle: t('reject'),
@@ -364,7 +413,7 @@ const ConfirmDAppForm: FC = () => {
             />
           ) : (
             <>
-              {payload.type !== 'connect' && connectedAccount && (
+              {payload.type !== 'connect' && payload.type !== 'connect_evm' && connectedAccount && (
                 <AccountBanner
                   account={connectedAccount}
                   networkRpc={payload.networkRpc}
@@ -452,6 +501,24 @@ const AccountOptionContentHOC = (networkRpc: string) =>
               </div>
             )}
           </Balance>
+        </div>
+      </>
+    );
+  });
+
+const EvmAccountOptionContentHOC = () =>
+  memo<OptionRenderProps<TempleAccount>>(({ item: acc }) => {
+    return (
+      <>
+        <div className="flex flex-wrap items-center">
+          <Name className="text-sm font-medium leading-tight">{acc.name}</Name>
+          <AccountTypeBadge account={acc} />
+        </div>
+
+        <div className="flex flex-wrap items-center mt-1">
+          <div className="text-xs leading-none text-gray-700">
+            <HashShortView hash={acc.evmPublicKeyHash!} />
+          </div>
         </div>
       </>
     );

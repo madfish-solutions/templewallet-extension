@@ -16,7 +16,6 @@ import { TempleAccount, TempleAccountType, TempleSettings } from 'lib/temple/typ
 import { NonTezosToken } from '../../../../app/pages/TokenPage/TokenPage';
 import { getBitcoinXPubFromMnemonic, getNextBitcoinHDWallet, sendBitcoin } from '../../../../newChains/bitcoin';
 import ERC20ABI from '../../../../newChains/erc20abi.json';
-import { getEvmWalletFromMnemonic } from '../../../../newChains/evm';
 import { createLedgerSigner } from '../ledger';
 import { PublicError } from '../PublicError';
 import { transformHttpResponseError } from './helpers';
@@ -303,7 +302,7 @@ export class Vault {
           ? currentAccount.derivationPath
           : `m/44'/1729'/${currentAccount.hdIndex}'/0'`;
 
-        const evmWallet = getEvmWalletFromMnemonic(mnemonic, derivationPath);
+        const evmWallet = ethers.Wallet.fromPhrase(mnemonic).derivePath(derivationPath);
 
         if (evmWallet) {
           currentAccount.derivationPath = derivationPath;
@@ -651,6 +650,17 @@ export class Vault {
 
         return contract.transfer(toAddress, parsedAmount);
       }
+    });
+  }
+
+  async sendEvmDAppOperations(
+    accPublicKeyHash: string,
+    rpc: string,
+    opParams: any[]
+  ): Promise<ethers.TransactionResponse> {
+    return this.withEvmSigner(accPublicKeyHash, rpc, async signer => {
+      console.log('trying to send dApp tx');
+      return signer.sendTransaction(opParams[0]);
     });
   }
 

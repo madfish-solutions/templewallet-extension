@@ -300,13 +300,13 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     return res.payload;
   }, []);
 
-  const confirmDAppPermission = useCallback(async (id: string, confirmed: boolean, pkh: string) => {
+  const confirmDAppPermission = useCallback(async (id: string, confirmed: boolean, pkh: string, evm?: boolean) => {
     const res = await request({
       type: TempleMessageType.DAppPermConfirmationRequest,
       id,
       confirmed,
       accountPublicKeyHash: pkh,
-      accountPublicKey: confirmed ? await getPublicKey(pkh) : ''
+      accountPublicKey: confirmed && !evm ? await getPublicKey(pkh) : ''
     });
     assertResponse(res.type === TempleMessageType.DAppPermConfirmationResponse);
   }, []);

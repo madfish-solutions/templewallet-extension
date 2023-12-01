@@ -253,18 +253,28 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
           };
         }
 
-        if (!req.beacon) {
-          const resPayload = await Actions.processDApp(req.origin, req.payload);
+        if (req.evm) {
+          console.log(req.payload, 'bg got payload');
+
+          const resPayload = await Actions.processEvmDApp(req.origin, req.payload, req.sourcePkh);
           return {
             type: TempleMessageType.PageResponse,
             payload: resPayload ?? null
           };
-        } else {
+        }
+
+        if (req.beacon) {
           const res = await Actions.processBeacon(req.origin, req.payload, req.encrypted);
           return {
             type: TempleMessageType.PageResponse,
             payload: res?.payload ?? null,
             encrypted: res?.encrypted
+          };
+        } else {
+          const resPayload = await Actions.processDApp(req.origin, req.payload);
+          return {
+            type: TempleMessageType.PageResponse,
+            payload: resPayload ?? null
           };
         }
       }

@@ -23,6 +23,7 @@ import {
 import { createQueue, delay } from 'lib/utils';
 
 import { NonTezosToken } from '../../../app/pages/TokenPage/TokenPage';
+import { EvmRequestArguments } from '../../../newChains/temple-web3-provider';
 import {
   getCurrentPermission,
   requestPermission,
@@ -35,6 +36,7 @@ import {
 import { intercom } from './defaults';
 import type { DryRunResult } from './dryrun';
 import { buildFinalOpParmas, dryRunOpParams } from './dryrun';
+import { connectEvm, requestEvmOperation } from './evmDapp';
 import {
   toFront,
   store,
@@ -571,6 +573,21 @@ export async function processDApp(origin: string, req: TempleDAppRequest): Promi
 
     case TempleDAppMessageType.BroadcastRequest:
       return withInited(() => requestBroadcast(origin, req));
+  }
+}
+
+export async function processEvmDApp(origin: string, payload: EvmRequestArguments, sourcePkh?: string): Promise<any> {
+  console.log(origin, 'origin');
+  const { method, params } = payload;
+
+  switch (method) {
+    case 'eth_requestAccounts':
+      return withInited(() => enqueueDApp(() => connectEvm(origin)));
+    case 'eth_sendTransaction':
+      //@ts-ignore
+      return withInited(() => enqueueDApp(() => requestEvmOperation(origin, sourcePkh, params)));
+    default:
+      return 'No handler for this type of request';
   }
 }
 
