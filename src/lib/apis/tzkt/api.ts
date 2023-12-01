@@ -77,7 +77,11 @@ export const fetchGetAccountOperations = (
     quote?: TzktQuoteCurrency[];
     'parameter.null'?: boolean;
   }
-) => fetchGet<TzktOperation[]>(chainId, `/accounts/${accountAddress}/operations`, params);
+) =>
+  fetchGet<TzktOperation[]>(chainId, `/accounts/${accountAddress}/operations`, {
+    ...params,
+    type: Array.isArray(params.type) ? params.type.join(',') : params.type
+  });
 
 export const fetchGetOperationsByHash = (
   chainId: TzktApiChainId,
