@@ -67,15 +67,11 @@ export const getAdsContainers = () => {
     })
     .concat(
       [...bitmediaBanners, ...coinzillaBanners, ...cointrafficBanners].map(({ banner, type }) => {
-        const parentElement = banner.parentElement;
-        const closestDiv = parentElement?.closest('div') ?? null;
-        const element = banner.tagName === 'div' ? parentElement : closestDiv;
-        const widthDefinedElement = element?.parentElement ?? parentElement;
-        const bannerFrame = banner.tagName === 'iframe' ? banner : banner.querySelector('iframe');
+        const element = banner.parentElement?.closest('div') ?? null;
 
         return (
           element && {
-            ...getFinalSize(bannerFrame || widthDefinedElement!),
+            ...getFinalSize(banner),
             element,
             type
           }
