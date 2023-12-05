@@ -32,7 +32,17 @@ export const ActivityComponent: React.FC<Props> = ({ assetSlug }) => {
 
   if (activities.length === 0 && !loading && reachedTheEnd) {
     return (
-      <div className={classNames('mt-4 mb-12', 'flex flex-col items-center justify-center', 'text-gray-500')}>
+      <div
+        className={classNames(
+          'mt-3 mb-12 w-full max-w-sm mx-auto',
+          'flex flex-col items-center justify-center',
+          'text-gray-500'
+        )}
+      >
+        <div className="w-full flex justify-center mb-6">
+          <PartnersPromotion variant={PartnersPromotionVariant.Image} />
+        </div>
+
         <LayersIcon className="w-16 h-auto mb-2 stroke-current" />
 
         <h3 className="text-sm font-light text-center" style={{ maxWidth: '20rem' }}>
@@ -52,6 +62,11 @@ export const ActivityComponent: React.FC<Props> = ({ assetSlug }) => {
   return (
     <div className="w-full max-w-sm mx-auto">
       <div className={classNames('my-3 flex flex-col', popup && 'mx-4')}>
+        {loading && activities.length === 0 && (
+          <div className="w-full mb-4 flex justify-center">
+            <PartnersPromotion variant={PartnersPromotionVariant.Image} />
+          </div>
+        )}
         <InfiniteScroll
           dataLength={activities.length}
           hasMore={reachedTheEnd === false}
