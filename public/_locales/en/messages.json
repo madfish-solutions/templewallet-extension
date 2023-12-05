@@ -634,6 +634,10 @@
     "message": "Tezos Mainnet",
     "description": "Mainnet = main network"
   },
+  "marigoldMainnet": {
+    "message": "Marigold Mainnet",
+    "description": "Mainnet = main network"
+  },
   "templeWalletOptions": {
     "message": "Temple Wallet | Options"
   },

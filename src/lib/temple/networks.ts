@@ -49,6 +49,15 @@ export const NETWORKS: TempleNetwork[] = [
     disabled: false
   },
   {
+    id: 'marigold-mainnet',
+    nameI18nKey: 'marigoldMainnet',
+    description: 'Marigold mainnet',
+    type: 'main',
+    rpcBaseURL: 'https://mainnet.tezos.marigold.dev',
+    color: '#48bb78',
+    disabled: false
+  },
+  {
     id: 'smartpy-mainnet',
     name: 'SmartPy Mainnet',
     description: 'SmartPy Mainnet',
