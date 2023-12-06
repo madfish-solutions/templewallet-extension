@@ -21,7 +21,7 @@
     "lint:fix": "prettier \"./**/*\" --write --ignore-unknown",
     "clear:lint": "rimraf node_modules/.cache/.eslintcache",
     "find-deadcode": "ts-prune --error",
-    "audit": "node ./audit.js"
+    "audit-deps": "node ./audit-deps.js"
   },
   "engines": {
     "node": "16"

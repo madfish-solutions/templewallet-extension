@@ -7,7 +7,7 @@ runs:
       shell: bash
 
     - name: Audit dependencies
-      run: yarn audit
+      run: yarn audit-deps
       shell: bash
 
     - name: Check TypeScript
