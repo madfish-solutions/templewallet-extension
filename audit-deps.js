@@ -5,10 +5,8 @@ const { exec } = require('child_process');
     if (error) {
       console.log(stdout);
 
-      for (const line of stdout.split('\n')) {
-        if (line.includes('High') || line.includes('Critical')) {
-          throw new Error('Audit failed');
-        }
+      if (stdout.includes('High') || stdout.includes('Critical')) {
+        throw new Error('Audit failed');
       }
     }
   });
