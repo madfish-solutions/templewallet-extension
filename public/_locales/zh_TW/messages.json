@@ -306,7 +306,7 @@
     "message": "例如 WEW、BOW、LAL 等"
   },
   "tokenNamePatternDescription": {
-    "message": "無特殊字元，長度為 3-25 個字元"
+    "message": "長度為 3-25 個字元"
   },
   "name": {
     "message": "名稱"
@@ -479,6 +479,10 @@
   },
   "tezosMainnet": {
     "message": "Tezos 主網路",
+    "description": "Mainnet = main network"
+  },
+  "marigoldMainnet": {
+    "message": "Marigold 主網路",
     "description": "Mainnet = main network"
   },
   "templeWalletOptions": {
