@@ -179,7 +179,7 @@
     "stream-browserify": "3.0.0",
     "swr": "2.2.4",
     "tailwindcss": "2.2.19",
-    "terser-webpack-plugin": "5.3.6",
+    "terser-webpack-plugin": "^5.3.7",
     "three": "^0.151.2",
     "timers-browserify": "^2.0.12",
     "tippy.js": "6.2.6",
