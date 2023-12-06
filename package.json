@@ -20,7 +20,8 @@
     "lint": "eslint --quiet src",
     "lint:fix": "prettier \"./**/*\" --write --ignore-unknown",
     "clear:lint": "rimraf node_modules/.cache/.eslintcache",
-    "find-deadcode": "ts-prune --error"
+    "find-deadcode": "ts-prune --error",
+    "audit": "node ./audit.js"
   },
   "engines": {
     "node": "16"
