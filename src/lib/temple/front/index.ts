@@ -64,5 +64,3 @@ export {
   buildCollectibleImageURLs,
   buildObjktCollectibleArtifactUri
 } from './image-uri';
-
-export { getOnlineStatus } from './get-online-status';
