@@ -28,8 +28,8 @@ Given(/I click on the new notification/, { timeout: MEDIUM_TIMEOUT }, async () =
 
 Given(/I make request for creating a notification/, { timeout: MEDIUM_TIMEOUT }, async () => {
   const currentDate = new Date();
-  const currentDateISO = new Date().toISOString();
-  const expirationDateISO = new Date(currentDate.getTime() + 60000).toISOString(); // Notification will be deleted in 4 minutes
+  const currentDateISO = currentDate.toISOString();
+  const expirationDateISO = new Date(currentDate.getTime() + 90000).toISOString(); // Notification will be deleted in 1.5 minute
 
   const requestBody = {
     mobile: 'off',
@@ -45,7 +45,7 @@ Given(/I make request for creating a notification/, { timeout: MEDIUM_TIMEOUT },
     expirationDate: expirationDateISO
   };
 
-  const response = await axios.post<NotificationInterface>(
+  const response = await axios.post<{ notification: NotificationInterface }>(
     'https://temple-api-mainnet.stage.madfish.xyz/api/notifications',
     requestBody,
     {
@@ -57,9 +57,7 @@ Given(/I make request for creating a notification/, { timeout: MEDIUM_TIMEOUT },
   );
 
   if (response.status !== 200)
-    throw new Error(
-      `Some problems with backend server. Server returns ${response.statusText} with ${response.status} status code`
-    );
+    throw new Error(`Notifications request failed with ${response.status}: ${response.statusText}`);
 
-  Pages.NotificationsList.newNotification = response.data;
+  Pages.NotificationsList.newNotification = response.data.notification;
 });

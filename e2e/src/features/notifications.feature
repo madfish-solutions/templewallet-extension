@@ -1,5 +1,5 @@
 Feature: Notifications
-  @dev
+  @notifications
   Scenario: As a user, I'd like to read some news
     Given I make request for creating a notification
     And I have imported an existing account

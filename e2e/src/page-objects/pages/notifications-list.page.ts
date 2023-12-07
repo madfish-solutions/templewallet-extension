@@ -19,19 +19,19 @@ export class NotificationsListPage extends Page {
   }
 
   async isNotificationDisplayed({ id, title, description }: NotificationInterface) {
-    const notificationTextElem = createPageElement(PreviewItemSelectors.notificationItem, { id: String(id) });
+    const notificationTextPageElem = createPageElement(PreviewItemSelectors.notificationItem, { id: String(id) });
 
-    await notificationTextElem.waitForDisplayed(
+    await notificationTextPageElem.waitForDisplayed(
       VERY_SHORT_TIMEOUT,
       `Notification with ${title} title is not displayed`
     );
 
-    const titleText = await notificationTextElem
+    const titleText = await notificationTextPageElem
       .createChildElement(PreviewItemSelectors.notificationItemTitleText)
       .getText();
     if (titleText !== title) throw new Error(`Notification title missmatch. Got: ${titleText}`);
 
-    const descriptionText = await notificationTextElem
+    const descriptionText = await notificationTextPageElem
       .createChildElement(PreviewItemSelectors.notificationItemDescriptionText)
       .getText();
     if (descriptionText !== description) throw new Error(`Notification description missmatch. Got: ${descriptionText}`);
