@@ -105,7 +105,7 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
     if (tzToMutez(tezBalance).isLessThanOrEqualTo(totalTransactionCost)) {
       dispatch(setOnRampPossibilityAction(true));
     }
-  }, [tezBalance, totalTransactionCost]);
+  }, [dispatch, tezBalance, totalTransactionCost]);
 
   const signPayloadFormats: ViewsSwitcherItemProps[] = useMemo(() => {
     if (payload.type === 'operations') {

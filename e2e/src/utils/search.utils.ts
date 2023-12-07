@@ -1,4 +1,3 @@
-import { isDefined } from '@rnw-community/shared';
 import retry from 'async-retry';
 import { ElementHandle } from 'puppeteer';
 
@@ -19,18 +18,16 @@ export const findElement = async (
 };
 
 export const findElementBySelectors = async (selectors: string, timeout = MEDIUM_TIMEOUT, errorTitle?: string) => {
-  const element = await BrowserContext.page.waitForSelector(selectors, { visible: true, timeout }).catch(error => {
+  const element = await BrowserContext.page.waitForSelector(selectors, { timeout }).catch(error => {
     if (errorTitle && error instanceof Error) {
       error.message = `${errorTitle}\n` + error.message;
     }
     throw error;
   });
 
-  if (isDefined(element)) {
-    return element;
-  }
+  if (!element) throw new Error(`${selectors} not found`);
 
-  throw new Error(`${selectors} not found`);
+  return element;
 };
 
 export const findElements = async (testID: string) => {
@@ -38,11 +35,9 @@ export const findElements = async (testID: string) => {
 
   const elements = await BrowserContext.page.$$(selector);
 
-  if (elements.length !== 0) {
-    return elements;
-  }
+  if (!elements.length) throw new Error(`None of "${testID}" elements were found`);
 
-  throw new Error(`None of "${testID}" elements were found`);
+  return elements;
 };
 
 class PageElement {
@@ -79,22 +74,23 @@ class PageElement {
   }
 
   async waitForText(expectedText: string, timeout = MEDIUM_TIMEOUT) {
-    const element = await this.findElement(timeout);
-
-    if (timeout > 0) {
-      return await retry(
-        () =>
-          getElementText(element).then(text => {
-            if (text === expectedText) return true;
-
-            throw new Error(`Waiting for expected text in \`${this.selector}\` timed out (${timeout} ms)`);
-          }),
-        { maxRetryTime: timeout }
-      );
+    if (timeout <= 0) {
+      const element = await this.findElement(timeout);
+      const text = await getElementText(element);
+      return text === expectedText;
     }
 
-    const text = await getElementText(element);
-    return text === expectedText;
+    return await retry(
+      async () => {
+        const element = await this.findElement(timeout);
+        const text = await getElementText(element);
+
+        if (text === expectedText) return true;
+
+        throw new Error(`Waiting for expected text in \`${this.selector}\` timed out (${timeout} ms)`);
+      },
+      { maxRetryTime: timeout }
+    );
   }
 }
 

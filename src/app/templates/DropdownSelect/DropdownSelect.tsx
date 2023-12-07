@@ -8,28 +8,25 @@ import DropdownWrapper from 'app/atoms/DropdownWrapper';
 import Spinner from 'app/atoms/Spinner/Spinner';
 import { ReactComponent as ChevronDownIcon } from 'app/icons/chevron-down.svg';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
-import { AnalyticsEventCategory, setTestID, useAnalytics } from 'lib/analytics';
+import { AnalyticsEventCategory, TestIDProperty, setTestID, useAnalytics } from 'lib/analytics';
 import { t } from 'lib/i18n';
 import Popper from 'lib/ui/Popper';
 import { sameWidthModifiers } from 'lib/ui/same-width-modifiers';
 
-interface Props<T> {
+interface Props<T> extends TestIDProperty {
   DropdownFaceContent: ReactNode;
   Input?: ReactNode;
   optionsListClassName?: string;
   dropdownButtonClassName?: string;
   searchProps: SelectSearchProps;
   optionsProps: SelectOptionsPropsBase<T>;
-  testIds?: {
-    dropdownTestId?: string;
-  };
 }
 
 export const DropdownSelect = <T extends unknown>({
   Input,
   searchProps,
   optionsProps,
-  testIds,
+  testID,
   DropdownFaceContent,
   optionsListClassName,
   dropdownButtonClassName
@@ -38,8 +35,8 @@ export const DropdownSelect = <T extends unknown>({
   const { trackEvent } = useAnalytics();
 
   const trackDropdownClick = () => {
-    if (testIds?.dropdownTestId) {
-      trackEvent(testIds?.dropdownTestId, AnalyticsEventCategory.DropdownOpened);
+    if (testID) {
+      trackEvent(testID, AnalyticsEventCategory.DropdownOpened);
     }
   };
 
@@ -59,7 +56,7 @@ export const DropdownSelect = <T extends unknown>({
       )}
     >
       {({ ref, opened, toggleOpened }) => (
-        <div ref={ref as unknown as React.RefObject<HTMLDivElement>} {...setTestID(testIds?.dropdownTestId)}>
+        <div ref={ref as unknown as React.RefObject<HTMLDivElement>} {...setTestID(testID)}>
           {opened ? (
             <SelectSearch {...searchProps} className={dropdownButtonClassName} />
           ) : (

@@ -48,7 +48,6 @@ export const iEnterValues = {
   // For input validation
   shortRandomContent: generateRandomContent(),
   longRandomContent: 'long random content for test + long +' + generateRandomContent(),
-  specialSymbolsContent: '#$%^&*&^()',
   сyrillicContent: 'привіт привіт ',
 
   // For adding assets, contacts, etc ...
@@ -59,10 +58,11 @@ export const iEnterValues = {
   secondCustomNetworkRPC: envVars.CUSTOM_NETWORK_SECOND_RPC_URL,
   customTestName: 'Custom Test Net',
 
-  customTokenContractAddress: 'KT1Td6a28ydPMXKJS5yS5Usadj4Qx5drsCfY', // 'KLL (Killer) token'
-  customTokenSymbol: 'KLL', // 'KLL (Killer) token'
-  customTokenName: 'Killer', // 'KLL (Killer) token'
-  customTokenIconURL: 'https://i.imgur.com/2s1WRni.png', // 'KLL (Killer) token'
+  // 'KLL (Killer) token'
+  customTokenContractAddress: 'KT1Td6a28ydPMXKJS5yS5Usadj4Qx5drsCfY',
+  customTokenSymbol: 'KLL',
+  customTokenName: 'Killer',
+  customTokenIconURL: 'https://i.imgur.com/2s1WRni.png',
 
   // For transactions
   amount_0_0001: '0.0001',

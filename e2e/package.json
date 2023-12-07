@@ -14,7 +14,7 @@
     "start:manage_assets": "yarn start --tags @manage_assets",
     "start:home": "yarn start --tags @home",
     "start:create_new_wallet": "yarn start --tags @create_new_wallet",
-    "start:delegate": "yarn start --tags @create_new_wallet",
+    "start:delegate": "yarn start --tags @delegate",
     "start:import_account_mnemonic": "yarn start --tags @import_account_mnemonic",
     "start:import_account_private_key": "yarn start --tags @import_account_private_key",
     "start:import_account_public_key": "yarn start --tags @import_account_public_key",

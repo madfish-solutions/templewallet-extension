@@ -10,7 +10,6 @@ import CssMinimizerPlugin from 'css-minimizer-webpack-plugin';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import * as Path from 'path';
-import ExtensionReloaderBadlyTyped, { ExtensionReloader as ExtensionReloaderType } from 'webpack-ext-reloader';
 import ExtensionReloaderMV3BadlyTyped, {
   ExtensionReloader as ExtensionReloaderMV3Type
 } from 'webpack-ext-reloader-mv3';
@@ -32,7 +31,6 @@ import { buildManifest } from './webpack/manifest';
 import { PATHS } from './webpack/paths';
 import { isTruthy } from './webpack/utils';
 
-const ExtensionReloader = ExtensionReloaderBadlyTyped as ExtensionReloaderType;
 const ExtensionReloaderMV3 = ExtensionReloaderMV3BadlyTyped as ExtensionReloaderMV3Type;
 
 const PAGES_NAMES = ['popup', 'fullpage', 'confirm', 'options'];
@@ -42,7 +40,7 @@ const HTML_TEMPLATES = PAGES_NAMES.map(name => {
   return { name, filename, path };
 });
 
-const CONTENT_SCRIPTS = ['contentScript'];
+const CONTENT_SCRIPTS = ['contentScript', 'replaceAds'];
 if (BACKGROUND_IS_WORKER) CONTENT_SCRIPTS.push('keepBackgroundWorkerAlive');
 
 const mainConfig = (() => {
@@ -158,8 +156,12 @@ const mainConfig = (() => {
 const scriptsConfig = (() => {
   const config = buildBaseConfig();
 
+  // Required for dynamic imports `import()`
+  config.output!.chunkFormat = 'module';
+
   config.entry = {
-    contentScript: Path.join(PATHS.SOURCE, 'contentScript.ts')
+    contentScript: Path.join(PATHS.SOURCE, 'contentScript.ts'),
+    replaceAds: Path.join(PATHS.SOURCE, 'replaceAds.ts')
   };
 
   if (BACKGROUND_IS_WORKER)
@@ -182,18 +184,7 @@ const scriptsConfig = (() => {
         cleanOnceBeforeBuildPatterns: ['scripts/**'],
         cleanStaleWebpackAssets: false,
         verbose: false
-      }),
-
-      /* Page reloading in development mode */
-      DEVELOPMENT_ENV &&
-        new ExtensionReloader({
-          port: RELOADER_PORTS.SCRIPTS,
-          reloadPage: true,
-          entries: {
-            background: '',
-            contentScript: CONTENT_SCRIPTS
-          }
-        })
+      })
     ].filter(isTruthy)
   );
 

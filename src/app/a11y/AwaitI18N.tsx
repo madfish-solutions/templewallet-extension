@@ -1,12 +1,11 @@
 import { FC } from 'react';
 
-import useSWR from 'swr';
-
 import { onInited } from 'lib/i18n';
+import { useTypedSWR } from 'lib/swr';
 import { delay } from 'lib/utils';
 
 const AwaitI18N: FC = () => {
-  useSWR('i18n', awaitI18n, {
+  useTypedSWR('i18n', awaitI18n, {
     suspense: true,
     shouldRetryOnError: false,
     revalidateOnFocus: false,
