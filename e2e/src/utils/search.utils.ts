@@ -84,13 +84,11 @@ class PageElement {
     await element.type(text);
   }
 
-  async clearInput() {
-    await clearDataFromInput();
-  }
   async getText() {
     const element = await this.findElement();
     return getElementText(element);
   }
+
   async waitForText(expectedText: string, timeout = MEDIUM_TIMEOUT) {
     if (timeout <= 0) {
       const element = await this.findElement(timeout);
