@@ -9,9 +9,12 @@ export type {
   TzktAccountToken
 } from './types';
 
+export { TzktAccountType } from './types';
+
 export type { TzktApiChainId } from './api';
 export {
   isKnownChainId,
+  getAccountStatsFromTzkt,
   getDelegatorRewards,
   getOneUserContracts,
   fetchTzktTokens,

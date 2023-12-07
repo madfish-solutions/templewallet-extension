@@ -3,11 +3,18 @@ import React, { Component, ErrorInfo } from 'react';
 import classNames from 'clsx';
 
 import { ReactComponent as DangerIcon } from 'app/icons/danger.svg';
-import { T } from 'lib/i18n';
+import { t, T } from 'lib/i18n';
+import { getOnlineStatus } from 'lib/temple/front';
 
 interface ErrorBoundaryProps extends React.PropsWithChildren {
   className?: string;
   whileMessage?: string;
+}
+
+export class BoundaryError extends Error {
+  constructor(public readonly message: string, public readonly beforeTryAgain: EmptyFn) {
+    super(message);
+  }
 }
 
 type ErrorBoundaryState = {
@@ -33,37 +40,36 @@ export default class ErrorBoundary extends Component<ErrorBoundaryProps> {
     });
   }
 
-  tryAgain() {
+  async tryAgain() {
+    const { error } = this.state;
+    if (error instanceof BoundaryError) {
+      error.beforeTryAgain();
+    }
     this.setState({ error: null });
   }
 
-  render() {
-    if (this.state.error) {
-      const online = getOnlineStatus();
+  getDefaultErrorMessage() {
+    const { whileMessage } = this.props;
+    const online = getOnlineStatus();
+    const firstPart = whileMessage ? t('smthWentWrongWhile', [whileMessage]) : t('smthWentWrong');
 
+    return online ? firstPart : [firstPart, t('mayHappenBecauseYouAreOffline')].join('. ');
+  }
+
+  render() {
+    const { className, children } = this.props;
+    const { error } = this.state;
+
+    if (error) {
       return (
-        <div className={classNames('w-full', 'flex items-center justify-center', this.props.className)}>
+        <div className={classNames('w-full', 'flex items-center justify-center', className)}>
           <div className={classNames('max-w-xs', 'p-4', 'flex flex-col items-center', 'text-red-600')}>
             <DangerIcon className="h-16 w-auto stroke-current" />
 
             <T id="oops">{message => <h2 className="mb-1 text-2xl">{message}</h2>}</T>
 
             <p className="mb-4 text-sm opacity-90 text-center font-light">
-              {this.props.whileMessage ? (
-                <T id="smthWentWrongWhile" substitutions={this.props.whileMessage} />
-              ) : (
-                <T id="smthWentWrong" />
-              )}
-              {!online && (
-                <T id="mayHappenBecauseYouAreOffline">
-                  {message => (
-                    <>
-                      {'. '}
-                      {message}
-                    </>
-                  )}
-                </T>
-              )}
+              {error instanceof BoundaryError ? error.message : this.getDefaultErrorMessage()}
             </p>
 
             <T id="tryAgain">
@@ -92,10 +98,6 @@ export default class ErrorBoundary extends Component<ErrorBoundaryProps> {
       );
     }
 
-    return this.props.children;
+    return children;
   }
-}
-
-function getOnlineStatus() {
-  return typeof navigator !== 'undefined' && typeof navigator.onLine === 'boolean' ? navigator.onLine : true;
 }
