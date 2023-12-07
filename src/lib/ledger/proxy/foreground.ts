@@ -5,6 +5,7 @@ import { stringToUInt8Array } from 'lib/utils';
 import { getLedgerTransportType } from '../helpers';
 import type { TempleLedgerSigner } from '../signer';
 import { TransportType } from '../types';
+
 import type { RequestMessage, ForegroundResponse, CreatorArguments } from './types';
 
 let windowIsActive = document.hasFocus();

@@ -1,6 +1,7 @@
 import browser from 'webextension-polyfill';
 
 import { TempleAccountType, TempleStatus } from '../types';
+
 import { accountsUpdated, inited as initEvent, locked, settingsUpdated, store, unlocked } from './store';
 import { Vault } from './vault';
 

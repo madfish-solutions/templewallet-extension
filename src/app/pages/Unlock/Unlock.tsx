@@ -6,7 +6,10 @@ import { useDispatch } from 'react-redux';
 
 import { Alert, FormField, FormSubmitButton } from 'app/atoms';
 import SimplePageLayout from 'app/layouts/SimplePageLayout';
+import { getUserTestingGroupNameActions } from 'app/store/ab-testing/actions';
+import { useUserTestingGroupNameSelector } from 'app/store/ab-testing/selectors';
 import { useFormAnalytics } from 'lib/analytics';
+import { ABTestGroup } from 'lib/apis/temple';
 import { USER_ACTION_TIMEOUT } from 'lib/fixed-times';
 import { T, t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
@@ -15,9 +18,6 @@ import { useLocalStorage } from 'lib/ui/local-storage';
 import { delay } from 'lib/utils';
 import { Link } from 'lib/woozie';
 
-import { ABTestGroup } from '../../../lib/apis/temple';
-import { getUserTestingGroupNameActions } from '../../store/ab-testing/actions';
-import { useUserTestingGroupNameSelector } from '../../store/ab-testing/selectors';
 import { UnlockSelectors } from './Unlock.selectors';
 
 interface UnlockProps {

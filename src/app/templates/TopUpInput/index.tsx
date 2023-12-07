@@ -10,6 +10,7 @@ import { T, toLocalFormat } from 'lib/i18n';
 
 import { DropdownSelect } from '../DropdownSelect/DropdownSelect';
 import { InputContainer } from '../InputContainer/InputContainer';
+
 import { CurrencyOption } from './CurrencyOption';
 import { StaticCurrencyImage } from './StaticCurrencyImage';
 import { TopUpInputPropsGeneric, CurrencyBase, TopUpInputPropsBase } from './types';

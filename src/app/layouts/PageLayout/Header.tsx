@@ -12,10 +12,10 @@ import { useTempleClient, useAccount } from 'lib/temple/front';
 import Popper from 'lib/ui/Popper';
 import { Link } from 'lib/woozie';
 
-import styles from './Header.module.css';
-import { HeaderSelectors } from './Header.selectors';
 import AccountDropdown from './Header/AccountDropdown';
 import NetworkSelect from './Header/NetworkSelect';
+import styles from './Header.module.css';
+import { HeaderSelectors } from './Header.selectors';
 
 const Header: FC = () => {
   const appEnv = useAppEnv();

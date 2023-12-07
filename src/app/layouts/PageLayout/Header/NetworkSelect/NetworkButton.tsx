@@ -3,10 +3,10 @@ import React from 'react';
 import classNames from 'clsx';
 
 import { Button } from 'app/atoms/Button';
+import { setAnotherSelector } from 'lib/analytics';
 import { T } from 'lib/i18n';
 import { TempleNetwork } from 'lib/temple/types';
 
-import { setAnotherSelector } from '../../../../../lib/analytics';
 import { NetworkSelectSelectors } from './selectors';
 
 interface Props {

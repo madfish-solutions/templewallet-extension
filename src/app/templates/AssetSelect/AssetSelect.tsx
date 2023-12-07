@@ -19,6 +19,7 @@ import { AssetItemContent } from '../AssetItemContent';
 import { DropdownSelect } from '../DropdownSelect/DropdownSelect';
 import { InputContainer } from '../InputContainer/InputContainer';
 import { SendFormSelectors } from '../SendForm/selectors';
+
 import { IAsset } from './interfaces';
 import { getSlug } from './utils';
 
