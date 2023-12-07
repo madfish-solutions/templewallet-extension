@@ -4,7 +4,7 @@ import classNames from 'clsx';
 
 import { ReactComponent as DangerIcon } from 'app/icons/danger.svg';
 import { t, T } from 'lib/i18n';
-import { getOnlineStatus } from 'lib/temple/front';
+import { getOnlineStatus } from 'lib/temple/front/get-online-status';
 
 interface ErrorBoundaryProps extends React.PropsWithChildren {
   className?: string;
