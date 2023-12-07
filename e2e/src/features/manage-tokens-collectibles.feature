@@ -129,14 +129,10 @@ Feature: Manage tokens + collectibles
     And I clear Name Input value on the Add Asset page
     And I got the validation-error 'Required' in the Name Input Section on the Add Asset page
     And I enter amount_1 into Name Input on the Add Asset page
-    And I got the validation-error 'No special characters, 3-25 length' in the Name Input Section on the Add Asset page
+    And I got the validation-error '3-25 length' in the Name Input Section on the Add Asset page
 
     And I enter longRandomContent into Name Input on the Add Asset page
-    And I got the validation-error 'No special characters, 3-25 length' in the Name Input Section on the Add Asset page
-    And I clear Name Input value on the Add Asset page
-
-    And I enter specialSymbolsContent into Name Input on the Add Asset page
-    And I got the validation-error 'No special characters, 3-25 length' in the Name Input Section on the Add Asset page
+    And I got the validation-error '3-25 length' in the Name Input Section on the Add Asset page
     And I clear Name Input value on the Add Asset page
 
     And I enter customTokenName into Name Input on the Add Asset page

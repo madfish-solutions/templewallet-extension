@@ -47,7 +47,6 @@ export const iEnterValues = {
   // For input validation
   shortRandomContent: generateRandomContent(),
   longRandomContent: 'long random content for test + long +' + generateRandomContent(),
-  specialSymbolsContent: '#$%^&*&^()',
   сyrillicContent: 'привіт привіт ',
 
   // For adding assets, contacts, etc ...
