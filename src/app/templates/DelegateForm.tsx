@@ -21,6 +21,7 @@ import { ABTestGroup } from 'lib/apis/temple';
 import { fetchTezosBalance } from 'lib/balances';
 import { BLOCK_DURATION } from 'lib/fixed-times';
 import { TID, T, t } from 'lib/i18n';
+import { HELP_UKRAINE_BAKER_ADDRESS, RECOMMENDED_BAKER_ADDRESS } from 'lib/known-bakers';
 import { setDelegate } from 'lib/michelson';
 import { useTypedSWR } from 'lib/swr';
 import { loadContract } from 'lib/temple/contract';
@@ -55,9 +56,6 @@ interface FormData {
   to: string;
   fee: number;
 }
-
-export const RECOMMENDED_BAKER_ADDRESS = 'tz1aRoaRhSpRYvFdyvgWLL6TGyRoGF51wDjM';
-export const HELP_UKRAINE_BAKER_ADDRESS = 'tz1bMFzs2aECPn4aCRmKQWHSLHF8ZnZbYcah';
 
 const DelegateForm: FC = () => {
   const { registerBackHandler } = useAppEnv();

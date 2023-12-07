@@ -10,7 +10,7 @@ import ErrorBoundary from 'app/ErrorBoundary';
 import { ReactComponent as ChevronLeftIcon } from 'app/icons/chevron-left.svg';
 import ContentContainer from 'app/layouts/ContentContainer';
 import { T } from 'lib/i18n';
-import { NotificationsBell } from 'lib/notifications';
+import { NotificationsBell } from 'lib/notifications/components/bell';
 import { goBack, HistoryAction, navigate, useLocation } from 'lib/woozie';
 
 import { DonationBanner } from '../atoms/DonationBanner/DonationBanner';

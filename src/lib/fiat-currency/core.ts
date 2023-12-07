@@ -4,7 +4,7 @@ import { isDefined } from '@rnw-community/shared';
 import axios from 'axios';
 import { BigNumber } from 'bignumber.js';
 
-import { useSelector } from 'app/store';
+import { useSelector } from 'app/store/root-state.selector';
 import { useStorage } from 'lib/temple/front';
 import { isTruthy } from 'lib/utils';
 
