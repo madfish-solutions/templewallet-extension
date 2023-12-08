@@ -35,9 +35,7 @@ export const PaymentProviderInput: FC<PaymentProviderInputProps> = ({
     <div className={classNames('w-full', className)}>
       <InputContainer footer={isTruthy(error) && <span className="text-xs text-red-700 leading-relaxed">{error}</span>}>
         <DropdownSelect
-          testIds={{
-            dropdownTestId: testID
-          }}
+          testID={testID}
           dropdownButtonClassName="p-2 pr-4"
           DropdownFaceContent={<PaymentProviderDropdownFaceContent value={value} testId={headerTestID} />}
           searchProps={{ searchValue, onSearchChange: event => setSearchValue(event?.target.value) }}

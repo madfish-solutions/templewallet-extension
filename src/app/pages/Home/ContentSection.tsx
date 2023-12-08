@@ -116,6 +116,7 @@ export const ContentSection = memo<Props>(({ assetSlug, className }) => {
       <TabsBar ref={tabBarElemRef} tabs={tabs} activeTabName={name} />
 
       <ContentContainer
+        key={tabSlug ?? 'tokens'}
         ContentComponent={Component}
         whileMessage={whileMessageI18nKey ? t(whileMessageI18nKey) : 'displaying tab'}
       />

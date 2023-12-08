@@ -6,7 +6,7 @@ import { SwapFormSelectors } from 'src/app/templates/SwapForm/SwapForm.selectors
 import { Pages } from 'e2e/src/page-objects';
 import { iSelectTokenSlugs } from 'e2e/src/utils/input-data.utils';
 import { createPageElement } from 'e2e/src/utils/search.utils';
-import { MEDIUM_TIMEOUT, VERY_LONG_TIMEOUT, VERY_SHORT_TIMEOUT } from 'e2e/src/utils/timing.utils';
+import { MEDIUM_TIMEOUT, VERY_LONG_TIMEOUT, SHORT_TIMEOUT } from 'e2e/src/utils/timing.utils';
 
 Given(
   /I select (.*) token in the token drop-down list on the Swap page/,
@@ -19,14 +19,10 @@ Given(
 );
 
 Given(/I click on animated Swap button on the Swap page/, { timeout: MEDIUM_TIMEOUT }, async () => {
-  const elem = createPageElement(SwapFormSelectors.swapButton, undefined, { loading: '' });
+  const swapBtnElem = createPageElement(SwapFormSelectors.swapButton, undefined, { loading: '' });
   const confirmButton = createPageElement(InternalConfirmationSelectors.confirmButton);
 
-  await retry(
-    async () => {
-      await elem.click();
-      await confirmButton.waitForDisplayed(VERY_SHORT_TIMEOUT);
-    },
-    { retries: 3 }
-  );
+  await retry(() => swapBtnElem.click(), { retries: 3 });
+
+  await confirmButton.waitForDisplayed(SHORT_TIMEOUT);
 });

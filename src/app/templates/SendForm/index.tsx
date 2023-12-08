@@ -61,6 +61,7 @@ const SendForm = memo<Props>(({ assetSlug = TEZ_TOKEN_SLUG }) => {
   const testIDs = useMemo(
     () => ({
       main: SendFormSelectors.assetDropDown,
+      select: SendFormSelectors.assetDropDownSelect,
       searchInput: SendFormSelectors.assetDropDownSearchInput
     }),
     []

@@ -1,7 +1,7 @@
 import { BrowserContext } from 'e2e/src/classes/browser-context.class';
 
 export abstract class Page {
-  abstract isVisible(): void;
+  abstract isVisible(timeout?: number): void;
 
   scrollTo(topPositionPx: number) {
     return BrowserContext.page.evaluate(top => {

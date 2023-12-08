@@ -8,7 +8,7 @@ import Money from 'app/atoms/Money';
 import { AssetIcon } from 'app/templates/AssetIcon';
 import Balance from 'app/templates/Balance';
 import InFiat from 'app/templates/InFiat';
-import { setTestID, setAnotherSelector } from 'lib/analytics';
+import { setTestID, setAnotherSelector, TestIDProperty } from 'lib/analytics';
 import { searchAssetsWithNoMeta } from 'lib/assets/search.utils';
 import { T, t } from 'lib/i18n';
 import { useAssetMetadata, getAssetSymbol, useGetAssetMetadata } from 'lib/metadata';
@@ -26,6 +26,7 @@ interface Props {
   className?: string;
   testIDs?: {
     main: string;
+    select: string;
     searchInput: string;
   };
 }
@@ -58,13 +59,13 @@ const AssetSelect = memo<Props>(({ value, slugs, onChange, className, testIDs })
   return (
     <InputContainer className={className} header={<AssetSelectTitle />}>
       <DropdownSelect
-        DropdownFaceContent={<AssetFieldContent slug={value} />}
+        DropdownFaceContent={<AssetFieldContent slug={value} testID={testIDs?.select} />}
         searchProps={{
           testId: testIDs?.searchInput,
           searchValue: searchString,
           onSearchChange: event => setSearchString(event.target.value)
         }}
-        testIds={{ dropdownTestId: testIDs?.main }}
+        testID={testIDs?.main}
         dropdownButtonClassName="p-2 h-18"
         optionsProps={{
           options: searchedOptions,
@@ -92,12 +93,12 @@ const AssetSelectTitle: FC = () => (
   </h2>
 );
 
-const AssetFieldContent: FC<{ slug: string }> = ({ slug }) => {
+const AssetFieldContent: FC<{ slug: string } & TestIDProperty> = ({ slug, testID }) => {
   const account = useAccount();
   const metadata = useAssetMetadata(slug);
 
   return (
-    <div className="flex items-center">
+    <div className="flex items-center" {...setTestID(testID)} {...setAnotherSelector('slug', slug)}>
       <AssetIcon assetSlug={slug} className="mr-3" size={48} />
 
       <Balance assetSlug={slug} address={account.publicKeyHash}>

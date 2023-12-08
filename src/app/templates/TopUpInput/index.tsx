@@ -81,9 +81,7 @@ export const TopUpInput = <C extends CurrencyBase>(_props: TopUpInputPropsGeneri
         }
       >
         <DropdownSelect<CurrencyBase>
-          testIds={{
-            dropdownTestId: testID
-          }}
+          testID={testID}
           dropdownButtonClassName="pl-4 pr-3 py-5"
           DropdownFaceContent={
             <TopUpMainContent

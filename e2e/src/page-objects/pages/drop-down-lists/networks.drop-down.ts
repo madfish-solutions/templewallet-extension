@@ -12,12 +12,6 @@ export class NetworksDropDown extends Page {
     await this.networkItemButton.waitForDisplayed(timeout);
   }
 
-  async selectNetwork(name: string) {
-    const networkItemElem = await findElement(NetworkSelectSelectors.networkItemButton, { name });
-
-    await networkItemElem.click();
-  }
-
   async isClosed() {
     await retry(
       () =>
@@ -29,5 +23,11 @@ export class NetworksDropDown extends Page {
         ),
       RETRY_OPTIONS
     );
+  }
+
+  async selectNetwork(name: string) {
+    const networkItemElem = await findElement(NetworkSelectSelectors.networkItemButton, { name });
+
+    await networkItemElem.click();
   }
 }
