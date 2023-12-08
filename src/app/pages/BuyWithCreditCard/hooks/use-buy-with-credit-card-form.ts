@@ -6,7 +6,7 @@ import browser from 'webextension-polyfill';
 import { object as objectSchema, number as numberSchema, mixed as mixedSchema } from 'yup';
 
 import { useUserIdSelector } from 'app/store/settings/selectors';
-import { useFormAnalytics } from 'lib/analytics';
+import { AnalyticsEventCategory, useAnalytics, useFormAnalytics } from 'lib/analytics';
 import { MOONPAY_ASSETS_BASE_URL } from 'lib/apis/moonpay';
 import { createAliceBobOrder, getMoonpaySign } from 'lib/apis/temple';
 import { createOrder as createUtorgOrder } from 'lib/apis/utorg';
@@ -54,6 +54,7 @@ const validationSchema = objectSchema().shape({
 });
 
 export const useBuyWithCreditCardForm = () => {
+  const { trackEvent } = useAnalytics();
   const validationResolver = useYupValidationResolver<BuyWithCreditCardFormValues>(validationSchema);
 
   const formAnalytics = useFormAnalytics('BuyWithCreditCardForm');
@@ -98,6 +99,14 @@ export const useBuyWithCreditCardForm = () => {
   const onSubmit = useCallback(
     async (formValues: BuyWithCreditCardFormValues) => {
       const { inputAmount, inputCurrency, outputAmount, outputToken, topUpProvider } = formValues;
+
+      trackEvent('BUY_WITH_CREDIT_CARD_FORM_SUBMIT', AnalyticsEventCategory.FormSubmit, {
+        inputAmount: inputAmount?.toString(),
+        inputAsset: inputCurrency.code,
+        outputAmount: outputAmount?.toString(),
+        outputAsset: outputToken.code,
+        provider: topUpProvider?.name
+      });
 
       if (
         !isDefined(topUpProvider?.outputAmount) ||

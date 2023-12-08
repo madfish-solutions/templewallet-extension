@@ -75,6 +75,7 @@ const SendForm: FC<SendFormProps> = ({ assetSlug = TEZ_TOKEN_SLUG }) => {
         className="mb-6"
         testIDs={{
           main: SendFormSelectors.assetDropDown,
+          select: SendFormSelectors.assetDropDownSelect,
           searchInput: SendFormSelectors.assetDropDownSearchInput
         }}
       />
