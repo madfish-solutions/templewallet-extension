@@ -5,7 +5,6 @@ import classNames from 'clsx';
 import { Button } from 'app/atoms/Button';
 import DropdownWrapper from 'app/atoms/DropdownWrapper';
 import { openInFullPage, useAppEnv } from 'app/env';
-import { useCurrentOs } from 'app/hooks/use-current-os';
 import { ReactComponent as AddIcon } from 'app/icons/add.svg';
 import { ReactComponent as DAppsIcon } from 'app/icons/apps-alt.svg';
 import { ReactComponent as DownloadIcon } from 'app/icons/download.svg';
@@ -24,7 +23,8 @@ import { AccountItem } from './AccountItem';
 import { ActionButtonProps, ActionButton } from './ActionButton';
 import { AccountDropdownSelectors } from './selectors';
 
-const COLOR_GRAY_600 = '#718096';
+const isMacOS = /Mac OS/.test(navigator.userAgent);
+const searchHotkey = ` (${isMacOS ? '⌘' : 'Ctrl + '}K)`;
 
 type AccountDropdownProps = PopperRenderProps;
 
@@ -39,7 +39,6 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
   const account = useAccount();
   const setAccountPkh = useSetAccountPkh();
   const { assetName: gasTokenName } = useGasToken();
-  const os = useCurrentOs();
 
   const [searchValue, setSearchValue] = useState('');
   const [attractSelectedAccount, setAttractSelectedAccount] = useState(true);
@@ -137,8 +136,6 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
     [appEnv.fullPage, closeDropdown, handleMaximiseViewClick]
   );
 
-  const searchHotkey = useMemo(() => ` (${os === 'mac' ? '⌘' : 'Ctrl + '}K)`, [os]);
-
   useEffect(() => {
     if (searchValue) setAttractSelectedAccount(false);
     else if (!opened) setAttractSelectedAccount(true);
@@ -194,11 +191,11 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
             'text-gray-500 placeholder-gray-600 text-sm leading-tight'
           )}
           placeholder={t('searchAccount', [searchHotkey])}
-          searchIconClassName="h-5 w-auto"
+          searchIconClassName="h-5 w-auto text-gray-600 stroke-current"
           searchIconWrapperClassName="px-2"
-          cleanButtonStyle={{ backgroundColor: 'transparent', borderColor: COLOR_GRAY_600 }}
-          cleanButtonIconStyle={{ stroke: COLOR_GRAY_600 }}
-          searchIconStyle={{ stroke: COLOR_GRAY_600 }}
+          cleanButtonClassName="border-gray-600"
+          cleanButtonIconClassName="text-gray-600 stroke-current"
+          cleanButtonStyle={{ backgroundColor: 'transparent' }}
           onValueChange={setSearchValue}
         />
 

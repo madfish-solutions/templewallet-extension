@@ -12,6 +12,7 @@ export interface SearchFieldProps extends InputHTMLAttributes<HTMLInputElement>,
   searchIconClassName?: string;
   searchIconWrapperClassName?: string;
   cleanButtonClassName?: string;
+  cleanButtonIconClassName?: string;
   searchIconStyle?: React.CSSProperties;
   cleanButtonStyle?: React.CSSProperties;
   cleanButtonIconStyle?: React.CSSProperties;
@@ -29,6 +30,7 @@ const SearchField: FC<SearchFieldProps> = ({
   searchIconWrapperClassName,
   cleanButtonClassName,
   searchIconStyle,
+  cleanButtonIconClassName,
   cleanButtonStyle,
   cleanButtonIconStyle,
   testID,
@@ -72,6 +74,7 @@ const SearchField: FC<SearchFieldProps> = ({
           <CleanButton
             bottomOffset={bottomOffset}
             className={cleanButtonClassName}
+            iconClassName={cleanButtonIconClassName}
             style={cleanButtonStyle}
             iconStyle={cleanButtonIconStyle}
             onClick={handleClean}
