@@ -8,4 +8,6 @@ export type {
   TzktTransactionOperation
 } from './types';
 
+export { TzktAccountType } from './types';
+
 export * from './api';
