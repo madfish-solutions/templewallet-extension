@@ -99,7 +99,7 @@ const assetsReducer = createReducer<SliceState>(initialState, builder => {
   });
 
   builder.addCase(putTokensAsIsAction, (state, { payload }) => {
-    const records = state.collectibles.data;
+    const records = state.tokens.data;
 
     for (const asset of payload) {
       const { slug, account, chainId, status, manual } = asset;
