@@ -1,6 +1,6 @@
 module.exports = {
   "extends": [
-    require.resolve('./noimport-config-react-app.js'),
+    "react-app",
     "plugin:import/errors",
     "plugin:import/warnings",
     "plugin:import/typescript"
@@ -54,11 +54,6 @@ module.exports = {
     "@typescript-eslint/await-thenable": "error",
     "@typescript-eslint/no-non-null-assertion": "warn",
     "react-hooks/rules-of-hooks": "warn",
-    "react-hooks/exhaustive-deps": "warn",
-    // https://github.com/benmosher/eslint-plugin-import/tree/master/docs/rules
-    "import/first": "error",
-    "import/no-amd": "error",
-    "import/no-anonymous-default-export": "warn",
-    "import/no-webpack-loader-syntax": "error"
+    "react-hooks/exhaustive-deps": "warn"
   }
 }
