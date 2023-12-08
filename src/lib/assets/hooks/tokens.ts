@@ -27,7 +27,13 @@ export const useAllAvailableTokens = (account: string, chainId: string) => {
   const allTokensStored = useAllTokensSelector();
 
   return useMemo(() => {
-    const removedSlugs = tokens.reduce<string[]>((acc, t) => (t.status === 'removed' ? acc.concat(t.slug) : acc), []);
+    const remainedTokens: AccountToken[] = [];
+    const removedSlugs: string[] = [];
+
+    for (const token of tokens) {
+      if (token.status === 'removed') removedSlugs.push(token.slug);
+      else remainedTokens.push(token);
+    }
 
     const otherAccountsTokens: AccountToken[] = [];
     for (const [key, record] of Object.entries(allTokensStored)) {
@@ -39,7 +45,7 @@ export const useAllAvailableTokens = (account: string, chainId: string) => {
     }
 
     // Keep this order to preserve correct statuses & flags
-    const concatenated = tokens.concat(otherAccountsTokens);
+    const concatenated = remainedTokens.concat(otherAccountsTokens);
 
     return sortBy(
       uniqBy(concatenated, t => t.slug),
