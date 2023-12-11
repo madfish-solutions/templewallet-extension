@@ -125,6 +125,7 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
           </span>
         </>
       }
+      isConfirmationPopup={!canImportNew}
     >
       {isDisabled && (
         <Alert
