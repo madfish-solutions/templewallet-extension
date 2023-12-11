@@ -6,11 +6,11 @@ import clsx from 'clsx';
 import Money from 'app/atoms/Money';
 import { useAppEnv } from 'app/env';
 import { useBalanceSelector } from 'app/store/balances/selectors';
-import { useCollectibleMetadataSelector } from 'app/store/collectibles-metadata/selectors';
 import {
   useAllCollectiblesDetailsLoadingSelector,
   useCollectibleDetailsSelector
 } from 'app/store/collectibles/selectors';
+import { useCollectibleMetadataSelector } from 'app/store/collectibles-metadata/selectors';
 import { objktCurrencies } from 'lib/apis/objkt';
 import { T } from 'lib/i18n';
 import { getAssetName } from 'lib/metadata';

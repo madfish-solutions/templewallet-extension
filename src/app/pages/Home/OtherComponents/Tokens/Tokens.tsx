@@ -27,6 +27,7 @@ import { Link, navigate } from 'lib/woozie';
 
 import { HomeSelectors } from '../../Home.selectors';
 import { AssetsSelectors } from '../Assets.selectors';
+
 import { AcceptAdsBanner } from './AcceptAdsBanner';
 import { ListItem } from './components/ListItem';
 import { toExploreAssetLink } from './utils';
@@ -35,7 +36,8 @@ const LOCAL_STORAGE_TOGGLE_KEY = 'tokens-list:hide-zero-balances';
 const svgIconClassName = 'w-4 h-4 stroke-current fill-current text-gray-600';
 
 export const TokensTab = memo(() => {
-  const chainId = useChainId()!;
+  const chainId = useChainId(true)!;
+
   const { popup } = useAppEnv();
 
   const isSyncing = useAreAssetsLoading('tokens');

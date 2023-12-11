@@ -1,4 +1,5 @@
 import { useSelector } from '../root-state.selector';
+
 import { getAccountAssetsStoreKey } from './utils';
 
 type AssetsType = 'collectibles' | 'tokens';

@@ -11,6 +11,7 @@ import { T, t } from 'lib/i18n';
 import { clearClipboard } from 'lib/ui/utils';
 
 import { ImportAccountSelectors } from '../../pages/ImportAccount/selectors';
+
 import { SeedLengthSelect } from './SeedLengthSelect/SeedLengthSelect';
 import { SeedWordInput, SeedWordInputProps } from './SeedWordInput';
 import { useRevealRef } from './use-reveal-ref.hook';

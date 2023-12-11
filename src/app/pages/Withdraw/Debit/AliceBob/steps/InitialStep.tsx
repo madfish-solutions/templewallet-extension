@@ -21,6 +21,7 @@ import { t, T } from 'lib/i18n/react';
 
 import { CardNumberInput } from '../components/CardNumberInput';
 import { useCardNumberInput } from '../components/use-card-number-input.hook';
+
 import { StepProps } from './step.props';
 
 const NOT_UKRAINIAN_CARD_ERROR_MESSAGE = 'Ukrainian bank card is required.';

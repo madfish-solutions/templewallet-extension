@@ -15,6 +15,7 @@ import { MetadataMap } from '../collectibles-metadata/state';
 import type { RootState } from '../root-state.type';
 import { putTokensMetadataAction } from '../tokens-metadata/actions';
 import { MetadataRecords } from '../tokens-metadata/state';
+
 import { loadAccountTokensActions, loadAccountCollectiblesActions, loadTokensWhitelistActions } from './actions';
 import { loadAccountTokens, loadAccountCollectibles } from './utils';
 

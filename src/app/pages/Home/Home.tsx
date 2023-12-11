@@ -14,6 +14,7 @@ import { HistoryAction, navigate, useLocation } from 'lib/woozie';
 
 import { useOnboardingProgress } from '../Onboarding/hooks/useOnboardingProgress.hook';
 import Onboarding from '../Onboarding/Onboarding';
+
 import { ActionButtonsBar } from './ActionButtonsBar';
 import { ContentSection } from './ContentSection';
 import EditableTitle from './OtherComponents/EditableTitle';

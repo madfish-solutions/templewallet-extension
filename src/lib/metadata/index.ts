@@ -17,7 +17,7 @@ import {
 } from 'app/store/tokens-metadata/selectors';
 import { METADATA_API_LOAD_CHUNK_SIZE } from 'lib/apis/temple';
 import { isTezAsset } from 'lib/assets';
-import { useNetwork } from 'lib/temple/front/ready';
+import { useNetwork } from 'lib/temple/front';
 import { isTruthy } from 'lib/utils';
 
 import { TEZOS_METADATA, FILM_METADATA } from './defaults';

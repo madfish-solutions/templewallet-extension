@@ -5,6 +5,7 @@ import { isEqual } from 'lodash';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 
 import { TempleContact } from '../types';
+
 import { useTempleClient } from './client';
 import { useRelevantAccounts, useSettings } from './ready';
 

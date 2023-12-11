@@ -7,6 +7,7 @@ import { ofType } from 'ts-action-operators';
 import type { RootState } from 'app/store/root-state.type';
 
 import { loadNotifications$ } from '../utils/api.utils';
+
 import { loadNotificationsAction } from './actions';
 
 const loadNotificationsEpic: Epic<Action, Action, RootState> = (action$, state$) =>

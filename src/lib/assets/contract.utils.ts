@@ -1,14 +1,15 @@
 import { OpKind, TezosToolkit } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
 
-import { AssetMetadataBase } from 'lib/metadata';
+import type { AssetMetadataBase } from 'lib/metadata';
 import { loadContract } from 'lib/temple/contract';
 import { isValidContractAddress, tokensToAtoms } from 'lib/temple/helpers';
 
-import { isFA2Token, isTezAsset } from './index';
 import { detectTokenStandard } from './standards';
 import { Asset } from './types';
 import { fromAssetSlug } from './utils';
+
+import { isFA2Token, isTezAsset } from './index';
 
 export const toTransferParams = async (
   tezos: TezosToolkit,

@@ -6,6 +6,7 @@ import { useAccount, useChainId } from 'lib/temple/front';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 
 import type { AccountAsset } from '../types';
+
 import { getAssetStatus } from './utils';
 
 export const useAccountCollectibles = (account: string, chainId: string) => {

@@ -3,12 +3,12 @@ import React, { FC, ReactNode, useEffect, useMemo } from 'react';
 import type { WalletOperation } from '@taquito/taquito';
 
 import { HashChip, Alert } from 'app/atoms';
+import { setTestID } from 'lib/analytics';
 import { T, t } from 'lib/i18n';
 import { useTezos, useBlockTriggers } from 'lib/temple/front';
 import { FailedOpError } from 'lib/temple/operation';
 import { useSafeState } from 'lib/ui/hooks';
 
-import { setTestID } from '../../lib/analytics';
 import { OpenInExplorerChip } from './OpenInExplorerChip';
 import { OperationStatusSelectors } from './OperationStatus.selectors';
 

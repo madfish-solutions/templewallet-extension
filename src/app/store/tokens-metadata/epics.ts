@@ -6,6 +6,7 @@ import { ofType, toPayload } from 'ts-action-operators';
 import { loadTokensMetadata } from 'lib/metadata/fetch';
 
 import { loadTokensWhitelistActions } from '../assets/actions';
+
 import {
   putTokensMetadataAction,
   loadTokensMetadataAction,

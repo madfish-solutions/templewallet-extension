@@ -10,4 +10,17 @@ export type {
 
 export { TzktAccountType } from './types';
 
-export * from './api';
+export type { TzktApiChainId } from './api';
+export {
+  isKnownChainId,
+  getAccountStatsFromTzkt,
+  getDelegatorRewards,
+  getOneUserContracts,
+  fetchTzktAccountAssets,
+  fetchTezosBalanceFromTzkt,
+  fetchAllAssetsBalancesFromTzkt,
+  fetchGetOperationsTransactions,
+  fetchGetAccountOperations,
+  fetchGetOperationsByHash,
+  refetchOnce429
+} from './api';
