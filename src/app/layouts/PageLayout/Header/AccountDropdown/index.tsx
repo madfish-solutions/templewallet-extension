@@ -17,9 +17,9 @@ import SearchField from 'app/templates/SearchField';
 import { T, t } from 'lib/i18n';
 import { useAccount, useRelevantAccounts, useSetAccountPkh, useTempleClient, useGasToken } from 'lib/temple/front';
 import { PopperRenderProps } from 'lib/ui/Popper';
+import { searchAndFilterItems } from 'lib/utils/search-items';
 import { HistoryAction, navigate } from 'lib/woozie';
 
-import { searchAndFilterItems } from '../../../../../lib/utils/search-items';
 import { AccountItem } from './AccountItem';
 import { ActionButtonProps, ActionButton } from './ActionButton';
 import { AccountDropdownSelectors } from './selectors';
