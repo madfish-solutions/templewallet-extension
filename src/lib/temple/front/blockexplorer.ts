@@ -1,7 +1,9 @@
 import { useMemo } from 'react';
 
-import { useChainId, useStorage } from 'lib/temple/front';
 import { isKnownChainId, TempleChainId } from 'lib/temple/types';
+
+import { useChainId } from './ready';
+import { useStorage } from './storage';
 
 type BlockExplorerId = 'tzkt' | 'tzstats' | 'bcd' | 't4l3nt';
 

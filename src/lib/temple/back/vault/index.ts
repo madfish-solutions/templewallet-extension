@@ -13,6 +13,7 @@ import { TempleAccount, TempleAccountType, TempleSettings } from 'lib/temple/typ
 
 import { createLedgerSigner } from '../ledger';
 import { PublicError } from '../PublicError';
+
 import { transformHttpResponseError } from './helpers';
 import { MIGRATIONS } from './migrations';
 import {

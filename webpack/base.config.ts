@@ -15,6 +15,7 @@ import WebPack from 'webpack';
 
 import packageJSON from '../package.json';
 import tsConfig from '../tsconfig.json';
+
 import { envFilesData } from './dotenv';
 import {
   NODE_ENV,

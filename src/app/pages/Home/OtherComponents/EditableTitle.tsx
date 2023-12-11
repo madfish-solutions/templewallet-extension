@@ -12,6 +12,7 @@ import { useTempleClient, useAccount } from 'lib/temple/front';
 import { useAlert } from 'lib/ui/dialog';
 
 import { HomeSelectors } from '../Home.selectors';
+
 import { EditableTitleSelectors } from './EditableTitle.selectors';
 
 const buttonClassNames = [

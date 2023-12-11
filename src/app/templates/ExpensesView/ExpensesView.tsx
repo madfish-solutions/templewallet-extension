@@ -10,15 +10,16 @@ import PlainAssetInput from 'app/atoms/PlainAssetInput';
 import { ReactComponent as ChevronDownIcon } from 'app/icons/chevron-down.svg';
 import { ReactComponent as ClipboardIcon } from 'app/icons/clipboard.svg';
 import InFiat from 'app/templates/InFiat';
+import { setTestID } from 'lib/analytics';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { TProps, T, t } from 'lib/i18n';
 import { useAssetMetadata, getAssetSymbol } from 'lib/metadata';
 import { RawOperationAssetExpense, RawOperationExpenses, useGasToken } from 'lib/temple/front';
 import { mutezToTz, tzToMutez } from 'lib/temple/helpers';
 
-import { setTestID } from '../../../lib/analytics';
 import OperationsBanner from '../OperationsBanner/OperationsBanner';
 import { OperationsBannerSelectors } from '../OperationsBanner/OperationsBanner.selectors';
+
 import styles from './ExpensesView.module.css';
 
 type OperationAssetExpense = Omit<RawOperationAssetExpense, 'tokenAddress'> & {

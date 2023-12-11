@@ -14,6 +14,7 @@ import { goBack } from 'lib/woozie';
 import { readNotificationsItemAction } from '../../store/actions';
 import { useNotificationsItemSelector } from '../../store/selectors';
 import { formatDateOutput } from '../../utils/date.utils';
+
 import { NotificationsItemContent } from './content';
 
 interface Props {

@@ -3,6 +3,7 @@ import React, { FC, useCallback, useRef, useState } from 'react';
 import { isPopupModeEnabled, setPopupMode } from 'lib/popup-mode';
 
 import { SettingsGeneralSelectors } from '../selectors';
+
 import { EnablingSetting } from './EnablingSetting';
 
 const PopupSettings: FC<{}> = () => {

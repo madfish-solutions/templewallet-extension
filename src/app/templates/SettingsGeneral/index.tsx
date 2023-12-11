@@ -6,7 +6,7 @@ import FiatCurrencySelect from 'app/templates/SettingsGeneral/Components/FiatCur
 import LocaleSelect from 'app/templates/SettingsGeneral/Components/LocaleSelect';
 import LockUpSettings from 'app/templates/SettingsGeneral/Components/LockUpSettings';
 import PopupSettings from 'app/templates/SettingsGeneral/Components/PopupSettings';
-import { NotificationsSettings } from 'lib/notifications';
+import { NotificationsSettings } from 'lib/notifications/components';
 
 import { PartnersPromotionSettings } from './Components/partners-promotion-settings';
 

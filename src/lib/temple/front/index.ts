@@ -31,7 +31,7 @@ export { validateDerivationPath, validateContractAddress } from './helpers';
 
 export { useBlockTriggers, useOnBlock } from './chain';
 
-export { useBalance, getBalanceSWRKey } from './balance';
+export { useBalance } from './balance';
 
 export { useContactsActions, searchContacts } from './address-book';
 
@@ -64,5 +64,3 @@ export {
   buildCollectibleImageURLs,
   buildObjktCollectibleArtifactUri
 } from './image-uri';
-
-export { getOnlineStatus } from './get-online-status';

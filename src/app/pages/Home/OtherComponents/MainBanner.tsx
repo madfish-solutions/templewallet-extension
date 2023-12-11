@@ -23,6 +23,7 @@ import { useTotalBalance } from 'lib/temple/front/use-total-balance.hook';
 import useTippy from 'lib/ui/useTippy';
 
 import { HomeSelectors } from '../Home.selectors';
+
 import { TokenPageSelectors } from './TokenPage.selectors';
 
 interface Props {

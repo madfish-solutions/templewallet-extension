@@ -3,7 +3,7 @@ import React, { FC, memo, useEffect } from 'react';
 import classNames from 'clsx';
 import { QRCode } from 'react-qr-svg';
 
-import { FormField } from 'app/atoms';
+import { FormField, PageTitle } from 'app/atoms';
 import { ReactComponent as CopyIcon } from 'app/icons/copy.svg';
 import { ReactComponent as GlobeIcon } from 'app/icons/globe.svg';
 import { ReactComponent as HashIcon } from 'app/icons/hash.svg';
@@ -17,7 +17,6 @@ import { useTezosDomainNameByAddress } from 'lib/temple/front/tzdns';
 import { useSafeState } from 'lib/ui/hooks';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 
-import { PageTitle } from '../../atoms/PageTitle';
 import { ReceiveSelectors } from './Receive.selectors';
 
 const ADDRESS_FIELD_VIEWS = [
