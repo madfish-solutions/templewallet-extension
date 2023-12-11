@@ -1,46 +1,80 @@
 import { useCallback, useMemo } from 'react';
 
-import { HttpResponseError, HttpRequestFailed } from '@taquito/http-utils';
+import retry from 'async-retry';
 import BigNumber from 'bignumber.js';
+import useSWR, { unstable_serialize, useSWRConfig } from 'swr';
 
+import { BoundaryError } from 'app/ErrorBoundary';
 import {
   BakingBadBaker,
   BakingBadBakerValueHistoryItem,
   bakingBadGetBaker,
   getAllBakersBakingBad
 } from 'lib/apis/baking-bad';
-import type { TzktRewardsEntry } from 'lib/apis/tzkt';
+import { getAccountStatsFromTzkt, isKnownChainId, TzktRewardsEntry, TzktAccountType } from 'lib/apis/tzkt';
+import { t } from 'lib/i18n';
 import { useRetryableSWR } from 'lib/swr';
+import type { ReactiveTezosToolkit } from 'lib/temple/front';
 
-import { useNetwork, useTezos } from './ready';
+import { getOnlineStatus } from './get-online-status';
+import { useChainId, useNetwork, useTezos } from './ready';
 
-export function useDelegate(address: string, suspense = true) {
+function getDelegateCacheKey(
+  tezos: ReactiveTezosToolkit,
+  address: string,
+  chainId: string | nullish,
+  shouldPreventErrorPropagation: boolean
+) {
+  return unstable_serialize(['delegate', tezos.checksum, address, chainId, shouldPreventErrorPropagation]);
+}
+
+export function useDelegate(address: string, suspense = true, shouldPreventErrorPropagation = true) {
   const tezos = useTezos();
+  const chainId = useChainId(suspense);
+  const { cache: swrCache } = useSWRConfig();
+
+  const resetDelegateCache = useCallback(() => {
+    swrCache.delete(getDelegateCacheKey(tezos, address, chainId, shouldPreventErrorPropagation));
+  }, [address, tezos, chainId, swrCache, shouldPreventErrorPropagation]);
 
   const getDelegate = useCallback(async () => {
     try {
-      return await tezos.rpc.getDelegate(address);
-    } catch (error: unknown) {
-      if (error instanceof HttpResponseError) {
-        if (error.status === 404) return null;
-      }
-      if (error instanceof HttpRequestFailed) {
-        /*
-          `@taquito/http-utils` package uses `@vespaiach/axios-fetch-adapter`,
-          which throws a SyntaxError in case of 404 response.
-          See: https://github.com/vespaiach/axios-fetch-adapter/issues/25
-        */
-        if (/SyntaxError(.*)JSON/.test(error.message)) {
-          console.error('Presumably, `@vespaiach/axios-fetch-adapter` SyntaxError (taken as 404):', { error });
-          return null;
-        }
+      return await retry(
+        async () => {
+          const freshChainId = chainId ?? (await tezos.rpc.getChainId());
+          if (freshChainId && isKnownChainId(freshChainId)) {
+            try {
+              const accountStats = await getAccountStatsFromTzkt(address, freshChainId);
+
+              switch (accountStats.type) {
+                case TzktAccountType.Empty:
+                  return null;
+                case TzktAccountType.User:
+                case TzktAccountType.Contract:
+                  return accountStats.delegate?.address ?? null;
+              }
+            } catch (e) {
+              console.error(e);
+            }
+          }
+
+          return await tezos.rpc.getDelegate(address);
+        },
+        { retries: 3, minTimeout: 3000, maxTimeout: 5000 }
+      );
+    } catch (e) {
+      if (shouldPreventErrorPropagation) {
+        return null;
       }
 
-      throw error;
+      throw new BoundaryError(
+        getOnlineStatus() ? t('errorGettingBakerAddressMessageOnline') : t('errorGettingBakerAddressMessage'),
+        resetDelegateCache
+      );
     }
-  }, [address, tezos]);
+  }, [chainId, tezos, address, shouldPreventErrorPropagation, resetDelegateCache]);
 
-  return useRetryableSWR(['delegate', tezos.checksum, address], getDelegate, {
+  return useSWR(['delegate', tezos.checksum, address, chainId, shouldPreventErrorPropagation], getDelegate, {
     dedupingInterval: 20_000,
     suspense
   });

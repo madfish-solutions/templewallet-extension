@@ -13,9 +13,8 @@ const getLastMonday = (date = new Date()) => {
 export const NETWORK_IDS = new Map<string, string>([
   [TempleChainId.Mainnet, 'mainnet'],
   [TempleChainId.Ghostnet, 'ghostnet'],
-  [TempleChainId.Jakartanet, 'jakartanet'],
-  [TempleChainId.Limanet, 'limanet'],
-  [TempleChainId.Kathmandunet, 'kathmandunet']
+  [TempleChainId.Mumbai, 'mumbainet'],
+  [TempleChainId.Nairobi, 'nairobinet']
 ]);
 
 const DCP_NETWORKS: TempleNetwork[] = [
@@ -47,6 +46,15 @@ export const NETWORKS: TempleNetwork[] = [
     type: 'main',
     rpcBaseURL: 'https://prod.tcinfra.net/rpc/mainnet',
     color: '#83b300',
+    disabled: false
+  },
+  {
+    id: 'marigold-mainnet',
+    nameI18nKey: 'marigoldMainnet',
+    description: 'Marigold mainnet',
+    type: 'main',
+    rpcBaseURL: 'https://mainnet.tezos.marigold.dev',
+    color: '#48bb78',
     disabled: false
   },
   {

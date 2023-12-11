@@ -3,7 +3,7 @@ import { Given } from '@cucumber/cucumber';
 import { BrowserContext } from '../classes/browser-context.class';
 import { Pages } from '../page-objects';
 import { iEnterValues, IEnterValuesKey } from '../utils/input-data.utils';
-import { createPageElement } from '../utils/search.utils';
+import { clearDataFromInput, createPageElement } from '../utils/search.utils';
 import { LONG_TIMEOUT, MEDIUM_TIMEOUT, SHORT_TIMEOUT } from '../utils/timing.utils';
 
 Given(/^I am on the (\w+) page$/, { timeout: LONG_TIMEOUT }, async (page: keyof typeof Pages) => {
@@ -18,8 +18,9 @@ Given(
   /I clear (.*) value on the (.*) page/,
   { timeout: MEDIUM_TIMEOUT },
   async (elementName: string, pageName: string) => {
-    await createPageElement(`${pageName}/${elementName}`).click();
-    await createPageElement(`${pageName}/${elementName}`).clearInput();
+    const element = createPageElement(`${pageName}/${elementName}`);
+    await element.click();
+    await clearDataFromInput();
   }
 );
 
@@ -49,7 +50,7 @@ Given(/I have imported an existing account/, { timeout: LONG_TIMEOUT }, async ()
   await Pages.SetWallet.acceptTerms.click();
   await Pages.SetWallet.importButton.click();
 
-  await Pages.NewsletterModal.isVisible();
+  await Pages.NewsletterModal.isVisible(LONG_TIMEOUT);
   await Pages.NewsletterModal.closeButton.click();
 
   await Pages.Home.isVisible();
@@ -62,3 +63,7 @@ Given(
     await Pages[page].scrollTo(countOfScroll);
   }
 );
+
+Given(/I reload the page/, async () => {
+  await BrowserContext.page.reload();
+});

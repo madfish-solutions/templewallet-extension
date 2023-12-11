@@ -12,6 +12,7 @@ import { TempleAccountType } from 'lib/temple/types';
 import { Redirect } from 'lib/woozie';
 
 import { WithdrawSelectors } from '../../Withdraw.selectors';
+
 import { InitialStep } from './steps/InitialStep';
 import { OrderStatusStep } from './steps/OrderStatusStep';
 import { SellStep } from './steps/SellStep';

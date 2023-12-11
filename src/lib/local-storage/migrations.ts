@@ -17,5 +17,9 @@ migrate([
         if (isNotEmptyString(key) && match(key)) localStorage.removeItem(key);
       }
     }
+  },
+  {
+    name: '1.19.1',
+    up: () => localStorage.removeItem('useledgerlive')
   }
 ]);

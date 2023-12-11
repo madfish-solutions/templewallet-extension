@@ -1,5 +1,6 @@
 Feature: Create a new wallet
 
+@create_new_wallet
   Scenario: As a user, i'd like to create a new wallet
     Given I am on the Welcome page
     And I press Create New Wallet button on the Welcome page
@@ -31,7 +32,7 @@ Feature: Create a new wallet
     Then I am on the Home page
 
 
-
+@create_new_wallet
   Scenario: As a user, I'd like to create a wallet and pass on-boarding
       Given I am on the Welcome page
       And I press Create New Wallet button on the Welcome page

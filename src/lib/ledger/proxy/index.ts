@@ -8,6 +8,7 @@
 */
 
 import type { CreatorArgumentsTuple } from '../types';
+
 import { TempleLedgerSignerProxy } from './signer';
 
 export const createLedgerSignerProxy = async (

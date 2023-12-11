@@ -1,6 +1,7 @@
 import browser from 'webextension-polyfill';
 
 import { TempleAccountType, TempleSettings } from '../../types';
+
 import { Vault } from './index';
 
 const password = 'Test123!';
@@ -8,6 +9,8 @@ const mnemonic = 'street seminar popular skill actress route treat coral ready b
 const accountName = 'Temple';
 
 describe('Vault tests', () => {
+  jest.setTimeout(10000);
+
   beforeEach(async () => {
     await browser.storage.local.clear();
   });

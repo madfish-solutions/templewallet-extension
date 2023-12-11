@@ -74,7 +74,10 @@ export const Alert: FC<AlertProps> = ({
         </h2>
       )}
       {description && (
-        <div className={classNames('pb-3 text-sm max-h-32 font-light break-words overflow-y-auto', textColorClassName)}>
+        <div
+          className={classNames('pb-3 text-sm max-h-32 font-light break-words overflow-y-auto', textColorClassName)}
+          {...setTestID(AlertSelectors.alertDescription)}
+        >
           {description}
         </div>
       )}

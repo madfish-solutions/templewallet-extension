@@ -11,8 +11,8 @@ import { ReactComponent as OkIcon } from 'app/icons/ok.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import { useFormAnalytics } from 'lib/analytics';
 import { T, t } from 'lib/i18n';
+import { getLedgerTransportType } from 'lib/ledger/helpers';
 import { useAllAccounts, useSetAccountPkh, useTempleClient, validateDerivationPath } from 'lib/temple/front';
-import { getLedgerTransportType } from 'lib/temple/ledger';
 import { DerivationType, TempleAccountType } from 'lib/temple/types';
 import { delay } from 'lib/utils';
 import { navigate } from 'lib/woozie';
@@ -41,6 +41,10 @@ const DERIVATION_TYPES = [
   {
     type: DerivationType.ED25519,
     name: 'ED25519 (tz1...)'
+  },
+  {
+    type: DerivationType.BIP32_ED25519,
+    name: 'BIP32_ED25519 (tz1...)'
   },
   {
     type: DerivationType.SECP256K1,

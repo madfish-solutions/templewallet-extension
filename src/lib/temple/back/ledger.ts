@@ -4,7 +4,7 @@ import type { TransportType, CreatorArgumentsTuple } from 'lib/ledger/types';
 export const createLedgerSigner = async (...args: CreatorArgumentsTuple) => {
   if (BACKGROUND_IS_WORKER) return createLedgerSignerProxy(...args);
 
-  const transportType = (await import('lib/temple/ledger')).getLedgerTransportType();
+  const transportType = (await import('lib/ledger/helpers')).getLedgerTransportType();
 
   if (transportType === 'webauthn' || transportType === 'u2f') return createLedgerSignerProxy(...args);
 

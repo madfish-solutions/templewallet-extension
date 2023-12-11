@@ -1,5 +1,6 @@
 import browser, { Runtime } from 'webextension-polyfill';
 
+import { ACCOUNT_PKH_STORAGE_KEY, ContentScriptType } from 'lib/constants';
 import { E2eMessageType } from 'lib/e2e/types';
 import { BACKGROUND_IS_WORKER } from 'lib/env';
 import { encodeMessage, encryptMessage, getSenderId, MessageType, Response } from 'lib/temple/beacon';
@@ -7,7 +8,6 @@ import { clearAsyncStorages } from 'lib/temple/reset';
 import { TempleMessageType, TempleRequest, TempleResponse } from 'lib/temple/types';
 import { getTrackedUrl } from 'lib/utils/url-track/get-tracked-url';
 
-import { ContentScriptType } from '../../constants';
 import * as Actions from './actions';
 import * as Analytics from './analytics';
 import { intercom } from './defaults';
@@ -50,8 +50,8 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
       };
 
     case TempleMessageType.NewWalletRequest:
-      await Actions.registerNewWallet(req.password, req.mnemonic);
-      return { type: TempleMessageType.NewWalletResponse };
+      const accountPkh = await Actions.registerNewWallet(req.password, req.mnemonic);
+      return { type: TempleMessageType.NewWalletResponse, accountPkh };
 
     case TempleMessageType.UnlockRequest:
       await Actions.unlock(req.password);
@@ -245,19 +245,30 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
 };
 
 browser.runtime.onMessage.addListener(msg => {
-  if (msg?.type === ContentScriptType.ExternalLinksActivity) {
-    const url = getTrackedUrl(msg.url);
+  switch (msg?.type) {
+    case ContentScriptType.ExternalLinksActivity:
+      const url = getTrackedUrl(msg.url);
 
-    if (url) {
-      Analytics.client.track('External links activity', { url });
-    }
-  }
+      if (url) {
+        browser.storage.local
+          .get(ACCOUNT_PKH_STORAGE_KEY)
+          .then(({ [ACCOUNT_PKH_STORAGE_KEY]: accountPkh }) =>
+            Analytics.client.track('External links activity', { url, accountPkh })
+          )
+          .catch(console.error);
+      }
 
-  if (msg?.type === E2eMessageType.ResetRequest) {
-    return new Promise(async resolve => {
-      await clearAsyncStorages();
-      resolve({ type: E2eMessageType.ResetResponse });
-    });
+      break;
+    case ContentScriptType.ExternalAdsActivity:
+      browser.storage.local
+        .get(ACCOUNT_PKH_STORAGE_KEY)
+        .then(({ [ACCOUNT_PKH_STORAGE_KEY]: accountPkh }) =>
+          Analytics.client.track('External Ads Activity', { url: msg.url, accountPkh })
+        )
+        .catch(console.error);
+      break;
+    case E2eMessageType.ResetRequest:
+      return clearAsyncStorages().then(() => ({ type: E2eMessageType.ResetResponse }));
   }
 
   return;

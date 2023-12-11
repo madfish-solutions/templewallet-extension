@@ -3,6 +3,7 @@ import React, { FC } from 'react';
 import { useIsLockUpEnabled } from 'lib/lock-up';
 
 import { SettingsGeneralSelectors } from '../selectors';
+
 import { EnablingSetting } from './EnablingSetting';
 
 const LockUpSettings: FC<{}> = () => {

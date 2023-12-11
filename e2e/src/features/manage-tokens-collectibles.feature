@@ -11,12 +11,12 @@ Feature: Manage tokens + collectibles
 
     And I am on the AddAsset page
     And I enter customTokenContractAddress into Address Input on the Add Asset page
-    And I wait until other inputs load after entering a token address
+    And I wait until adding asset customTokenName is preloaded
     And I scroll 500 pixels on the AddAsset page
     And I press Add Asset Button on the Add Asset page
 
     And I am on the Token page
-    And I check that KLL page with Killer token displayed or selected correctly
+    And I check that customTokenSymbol page with customTokenName token displayed or selected correctly
     And I press Temple Logo Icon on the Header page
 
     And I am on the Home page
@@ -26,7 +26,6 @@ Feature: Manage tokens + collectibles
 
 
 @manage_assets
-  @dev
   Scenario: As a user, I'd like to hide and delete tokens [Positive]
     Given I have imported an existing account
 #  hardcoded token
@@ -104,14 +103,14 @@ Feature: Manage tokens + collectibles
     And I got the validation-error 'Required' in the Address Input Section on the Add Asset page
 
     And I enter customTokenContractAddress into Address Input on the Add Asset page
-    And I wait until other inputs load after entering a token address
+    And I wait until adding asset customTokenName is preloaded
     And I scroll 150 pixels on the AddAsset page
 
     # Failed parse metadata alert
     And I enter amount_1 into Asset ID Input on the Add Asset page
     And I got the 'Failed to parse metadata' warning with Alert title Text element on the Alert page
     And I clear Asset ID Input value on the Add Asset page
-    And I wait until other inputs load after entering a token address
+    And I wait until adding asset customTokenName is preloaded
 
     # Symbol input.
     And I clear Symbol Input value on the Add Asset page
@@ -130,14 +129,10 @@ Feature: Manage tokens + collectibles
     And I clear Name Input value on the Add Asset page
     And I got the validation-error 'Required' in the Name Input Section on the Add Asset page
     And I enter amount_1 into Name Input on the Add Asset page
-    And I got the validation-error 'No special characters, 3-25 length' in the Name Input Section on the Add Asset page
+    And I got the validation-error '3-25 length' in the Name Input Section on the Add Asset page
 
     And I enter longRandomContent into Name Input on the Add Asset page
-    And I got the validation-error 'No special characters, 3-25 length' in the Name Input Section on the Add Asset page
-    And I clear Name Input value on the Add Asset page
-
-    And I enter specialSymbolsContent into Name Input on the Add Asset page
-    And I got the validation-error 'No special characters, 3-25 length' in the Name Input Section on the Add Asset page
+    And I got the validation-error '3-25 length' in the Name Input Section on the Add Asset page
     And I clear Name Input value on the Add Asset page
 
     And I enter customTokenName into Name Input on the Add Asset page
@@ -160,7 +155,7 @@ Feature: Manage tokens + collectibles
     And I press Add Asset Button on the Add Asset page
 
     And I am on the Token page
-    And I check that KLL page with Killer token displayed or selected correctly
+    And I check that customTokenSymbol page with customTokenName token displayed or selected correctly
     And I press Temple Logo Icon on the Header page
 
     And I am on the Home page

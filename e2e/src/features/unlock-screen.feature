@@ -124,7 +124,7 @@ Feature: Unlock Screen
 # restore a wallet another (second) mnemonic
     And I am on the ImportExistingWallet page
     And I got the 'Attention!' warning with Alert title Text element on the Alert page
-    And I enter default mnemonic
+    And I enter defaultSeedPhrase mnemonic on the ImportExistingWallet page
     And I press Next button on the Import Existing Seed Phrase page
 
     And I am on the SetWallet page
@@ -141,4 +141,4 @@ Feature: Unlock Screen
 
     And I am on the Home page
 # checking that restored account(wallet) is corresponded to the mnemonic I entered after loosing previous account(wallet)
-    Then I check if defaultAccountShortHash is corresponded to the selected account
+    Then I check if defaultFirstAccountShortHash is corresponded to the selected account

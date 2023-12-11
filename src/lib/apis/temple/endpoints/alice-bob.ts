@@ -47,21 +47,33 @@ export interface AliceBobOrderInfo {
 }
 
 export interface AliceBobPairInfo {
-  minAmount: number;
-  maxAmount: number;
+  from: string;
+  to: string;
+  fromnetwork: string | null;
+  tonetwork: string | null;
+  in: string;
+  out: string;
+  ratetype: string;
+  amount: string;
+  tofee: string;
+  fromfee: string;
+  minamount: string;
+  maxamount: string;
 }
 
 export const createAliceBobOrder = (
-  isWithdraw: boolean,
   amount: string,
+  inputAssetCode: string,
+  outputAssetCode: string,
   userId: string,
   walletAddress?: string,
   cardNumber?: string
 ) =>
   templeWalletApi.post<{ orderInfo: AliceBobOrderInfo }>('/alice-bob/create-order', null, {
     params: {
-      isWithdraw,
       amount,
+      from: getFromToParam(inputAssetCode),
+      to: getFromToParam(outputAssetCode),
       userId,
       walletAddress,
       cardNumber
@@ -71,16 +83,19 @@ export const createAliceBobOrder = (
 export const cancelAliceBobOrder = (orderId: string) =>
   templeWalletApi.post('/alice-bob/cancel-order', null, { params: { orderId } });
 
-export const getAliceBobPairInfo = (isWithdraw: boolean) =>
-  templeWalletApi.get<{ pairInfo: AliceBobPairInfo }>('/alice-bob/get-pair-info', { params: { isWithdraw } });
+export const getAliceBobPairsInfo = (isWithdraw: boolean) =>
+  templeWalletApi.get<{ pairsInfo: AliceBobPairInfo[] }>('/alice-bob/get-pairs-info', { params: { isWithdraw } });
 
 export const getAliceBobOrderInfo = (orderId: string) =>
   templeWalletApi.get<{ orderInfo: AliceBobOrderInfo }>('/alice-bob/check-order', { params: { orderId } });
 
-export const estimateAliceBobOutput = (isWithdraw: boolean, amount: string) =>
+export const estimateAliceBobOutput = (amount: string, inputAssetCode: string, outputAssetCode: string) =>
   templeWalletApi.post<{ outputAmount: number }>('/alice-bob/estimate-amount', null, {
     params: {
-      isWithdraw,
-      amount
+      amount,
+      from: getFromToParam(inputAssetCode),
+      to: getFromToParam(outputAssetCode)
     }
   });
+
+const getFromToParam = (code: string) => (code === 'XTZ' ? 'TEZ' : `CARD${code}`);

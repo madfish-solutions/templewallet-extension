@@ -7,6 +7,7 @@ import { loadTokensMetadata$ } from 'lib/metadata/fetch';
 import { buildTokenMetadataFromWhitelist } from 'lib/metadata/utils';
 
 import { loadTokensWhitelistActions } from '../assets/actions';
+
 import {
   putTokensMetadataAction,
   loadTokensMetadataAction,

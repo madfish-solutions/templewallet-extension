@@ -6,23 +6,47 @@ export const iComparePrivateKeys = {
 };
 
 const generateRandomContent = () => {
-  const wordsArray = ['apple', 'banana', 'carrot', 'dog', 'elephant', 'fish', 'grape', 'hat', 'ice cream', 'jungle'];
+  const wordsArray = ['apple', 'banana', 'carrot', 'dog', 'elephant', 'fish', 'grape', 'hat', 'cream', 'jungle'];
   const randomWord = Math.floor(Math.random() * wordsArray.length);
 
   return wordsArray[randomWord] + Math.floor(Math.random() * 10000).toString();
 };
 
+const randomSeedWord = () => {
+  const wordsArray = ['about', 'document', 'lesson', 'scatter', 'above', 'dog', 'letter', 'abuse', 'science'];
+  return wordsArray[Math.floor(Math.random() * wordsArray.length)];
+};
+
+export const EMPTY_WORD_FOR_INPUTS = 'EMPTY_WORD';
+
 export const iEnterValues = {
   ...iComparePrivateKeys,
-  defaultSeedPhrase: envVars.DEFAULT_HD_ACCOUNT_SEED_PHRASE,
+  defaultFirstPrivateKey: envVars.DEFAULT_HD_ACCOUNT_FIRST_PRIVATE_KEY,
+  defaultFirstPublicKey: envVars.DEFAULT_HD_ACCOUNT_FIRST_PUBLIC_KEY_HASH,
   defaultPassword: envVars.DEFAULT_PASSWORD,
+
   watchOnlyPublicKey: envVars.WATCH_ONLY_PUBLIC_KEY_HASH,
   bakerAddress: '',
+
+  // Derivation paths
+  basicDerivationPath: `m/44'/1729'/0'/0'`, // first account in HD (main)
+  customDerivationPath: `m/44'/1729'/10'/0'`, // eleventh account in HD
+  invalidDerivationPath: `m/broken44'/1729'/0'/0'`,
+  secondInvalidDerivationPath: `m/44'/17broken29'/0'/0'`,
+  thirdInvalidDerivationPath: `m/44'/1729'/0broken'/0'`,
+  fourthInvalidDerivationPath: `m/44'/1729'/0'/0broken'`,
+
+  // For testing mnemonic inputs
+  defaultSeedPhrase: envVars.DEFAULT_HD_ACCOUNT_SEED_PHRASE,
+  importedSeedPhrase: envVars.IMPORTED_HD_ACCOUNT_SEED_PHRASE,
+  longSeedPhrase24: envVars.LONG_HD_ACCOUNT_SEED_PHRASE,
+  invalidSeedPhrase: 'scissors dolphin light ability voice voice sail cruel labor dry screen feature', // words from BIP39
+  invalidRandomSeedPhrase: `${randomSeedWord()} document ${EMPTY_WORD_FOR_INPUTS} ${randomSeedWord()} ${randomSeedWord()} ${randomSeedWord()} dog ${EMPTY_WORD_FOR_INPUTS} ${randomSeedWord()} ${randomSeedWord()} ${EMPTY_WORD_FOR_INPUTS} ${randomSeedWord()}`,
+  incorrectSeedPhrase: 'alsla sadh 123213 sadaj asdj sajd jewd wedn wedn wedbn wedhb criwl',
 
   // For input validation
   shortRandomContent: generateRandomContent(),
   longRandomContent: 'long random content for test + long +' + generateRandomContent(),
-  specialSymbolsContent: '#$%^&*&^()',
   сyrillicContent: 'привіт привіт ',
 
   // For adding assets, contacts, etc ...
@@ -33,10 +57,11 @@ export const iEnterValues = {
   secondCustomNetworkRPC: envVars.CUSTOM_NETWORK_SECOND_RPC_URL,
   customTestName: 'Custom Test Net',
 
-  customTokenContractAddress: 'KT1Td6a28ydPMXKJS5yS5Usadj4Qx5drsCfY', // 'KLL (Killer) token'
-  customTokenSymbol: 'KLL', // 'KLL (Killer) token'
-  customTokenName: 'Killer', // 'KLL (Killer) token'
-  customTokenIconURL: 'https://i.imgur.com/2s1WRni.png', // 'KLL (Killer) token'
+  // 'KLL (Killer) token'
+  customTokenContractAddress: 'KT1Td6a28ydPMXKJS5yS5Usadj4Qx5drsCfY',
+  customTokenSymbol: 'KLL',
+  customTokenName: 'Killer',
+  customTokenIconURL: 'https://i.imgur.com/2s1WRni.png',
 
   // For transactions
   amount_0_0001: '0.0001',

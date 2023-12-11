@@ -69,7 +69,6 @@ Feature: Add Custom Node
 
 
 @custom_node
-  @dev
   Scenario: Validation check on Add Asset page + other checks [Negative]
      Given I have imported an existing account
 

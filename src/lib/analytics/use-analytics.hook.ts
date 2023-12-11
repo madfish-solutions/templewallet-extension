@@ -1,9 +1,9 @@
 import { useCallback } from 'react';
 
+import { useUserTestingGroupNameSelector } from 'app/store/ab-testing/selectors';
 import { useAnalyticsEnabledSelector, useUserIdSelector } from 'app/store/settings/selectors';
 import { AnalyticsEventCategory } from 'lib/temple/analytics-types';
 
-import { useUserTestingGroupNameSelector } from '../../app/store/ab-testing/selectors';
 import { sendPageEvent, sendTrackEvent } from './send-events.utils';
 import { useAnalyticsNetwork } from './use-analytics-network.hook';
 

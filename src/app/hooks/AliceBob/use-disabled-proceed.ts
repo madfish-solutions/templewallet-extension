@@ -7,8 +7,8 @@ import { useAccount } from 'lib/temple/front';
 
 export const useDisabledProceed = (
   inputAmount: number | undefined,
-  minExchangeAmount: number,
-  maxExchangeAmount: number,
+  minExchangeAmount = 0,
+  maxExchangeAmount = 0,
   isWithdraw = false
 ) => {
   const { publicKeyHash } = useAccount();

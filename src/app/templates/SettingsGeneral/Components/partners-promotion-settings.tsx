@@ -5,11 +5,11 @@ import { useDispatch } from 'react-redux';
 import { FormCheckbox } from 'app/atoms';
 import { togglePartnersPromotionAction } from 'app/store/partners-promotion/actions';
 import { useShouldShowPartnersPromoSelector } from 'app/store/partners-promotion/selectors';
+import { setAdsBannerVisibilityAction } from 'app/store/settings/actions';
+import { useIsEnabledAdsBannerSelector } from 'app/store/settings/selectors';
 import { T, t } from 'lib/i18n';
 import { useConfirm } from 'lib/ui/dialog';
 
-import { setAdsBannerVisibilityAction } from '../../../store/settings/actions';
-import { useIsEnabledAdsBannerSelector } from '../../../store/settings/selectors';
 import { SettingsGeneralSelectors } from '../selectors';
 
 export const PartnersPromotionSettings: FC = () => {
@@ -63,15 +63,14 @@ export const PartnersPromotionSettings: FC = () => {
         </span>
 
         <span className="mt-1 text-xs font-light text-gray-600" style={{ maxWidth: '90%' }}>
-          <span>
-            <T id="partnersPromoDescriptionP1" />
-          </span>
-          <span className="mx-1 font-semibold">
-            <T id="cashBack" />
-          </span>
-          <span>
-            <T id="partnersPromoDescriptionP2" />
-          </span>
+          <T
+            id="partnersPromoDescription"
+            substitutions={[
+              <span className="font-semibold">
+                <T id="rewards" />
+              </span>
+            ]}
+          />
         </span>
       </label>
 

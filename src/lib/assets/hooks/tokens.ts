@@ -15,6 +15,7 @@ import { useMemoWithCompare } from 'lib/ui/hooks';
 
 import { PREDEFINED_TOKENS_METADATA } from '../known-tokens';
 import { tokenToSlug } from '../utils';
+
 import { getAssetStatus } from './utils';
 
 export interface AccountToken {

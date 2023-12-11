@@ -25,10 +25,31 @@ export const buildManifest = (vendor: string) => {
 const buildManifestV3 = (vendor: string): Manifest.WebExtensionManifest => {
   const commons = buildManifestCommons(vendor);
 
+  commons.content_scripts!.push({
+    matches: [
+      /* For all URLs from `HOST_PERMISSIONS` & active tabs (with `activeTab` permission) */
+      '<all_urls>'
+    ],
+    js: ['scripts/keepBackgroundWorkerAlive.js'],
+    run_at: 'document_start',
+    all_frames: true,
+    match_about_blank: true,
+    // @ts-ignore
+    match_origin_as_fallback: true
+  });
+
   return {
     manifest_version: 3,
 
     ...commons,
+
+    web_accessible_resources: [
+      {
+        matches: ['https://*/*'],
+        // Required for dynamic imports `import()`
+        resources: ['scripts/*.chunk.js']
+      }
+    ],
 
     permissions: PERMISSIONS,
     host_permissions: HOST_PERMISSIONS,
@@ -58,6 +79,9 @@ const buildManifestV2 = (vendor: string): Manifest.WebExtensionManifest => {
     permissions: [...PERMISSIONS, ...HOST_PERMISSIONS],
 
     content_security_policy: "script-src 'self' 'unsafe-eval' blob:; object-src 'self'",
+
+    // Required for dynamic imports `import()`
+    web_accessible_resources: ['scripts/*.chunk.js'],
 
     browser_action: buildBrowserAction(vendor),
 
@@ -139,6 +163,12 @@ const buildManifestCommons = (vendor: string): Omit<Manifest.WebExtensionManifes
         js: ['scripts/contentScript.js'],
         run_at: 'document_start',
         all_frames: true
+      },
+      {
+        matches: ['https://*/*'],
+        js: ['scripts/replaceAds.js'],
+        run_at: 'document_start',
+        all_frames: false
       }
     ]
   };

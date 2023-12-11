@@ -2,6 +2,8 @@ import { initializeApp } from 'firebase/app';
 import { getMessaging } from 'firebase/messaging/sw';
 import browser from 'webextension-polyfill';
 
+import 'lib/keep-bg-worker-alive/background';
+
 import { EnvVars } from 'lib/env';
 import { start } from 'lib/temple/back/main';
 

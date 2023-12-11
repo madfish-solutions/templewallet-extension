@@ -4,9 +4,13 @@ import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
 
 import { FormSubmitButton } from 'app/atoms/FormSubmitButton';
-import { useDisabledProceed } from 'app/hooks/AliceBob/useDisabledProceed';
-import { useMinMaxExchangeAmounts } from 'app/hooks/AliceBob/useMinMaxExchangeAmounts';
-import { useOutputEstimation } from 'app/hooks/AliceBob/useOutputEstimation';
+import { useDisabledProceed } from 'app/hooks/AliceBob/use-disabled-proceed';
+import {
+  AliceBobWithdrawCurrency,
+  DEFAULT_OUTPUT_CURRENCY,
+  useOutputCurrencies
+} from 'app/hooks/AliceBob/use-output-currencies';
+import { useOutputEstimation } from 'app/hooks/AliceBob/use-output-estimation';
 import { ReactComponent as AlertIcon } from 'app/icons/alert.svg';
 import styles from 'app/pages/Buy/Crypto/Exolix/Exolix.module.css';
 import { WithdrawSelectors } from 'app/pages/Withdraw/Withdraw.selectors';
@@ -14,10 +18,10 @@ import { useUserIdSelector } from 'app/store/settings/selectors';
 import { TopUpInput } from 'app/templates/TopUpInput';
 import { createAliceBobOrder } from 'lib/apis/temple';
 import { t, T } from 'lib/i18n/react';
-import { FIAT_ICONS_SRC } from 'lib/icons';
 
 import { CardNumberInput } from '../components/CardNumberInput';
 import { useCardNumberInput } from '../components/use-card-number-input.hook';
+
 import { StepProps } from './step.props';
 
 const NOT_UKRAINIAN_CARD_ERROR_MESSAGE = 'Ukrainian bank card is required.';
@@ -28,15 +32,17 @@ export const InitialStep: FC<Omit<StepProps, 'orderInfo'>> = ({ isApiError, setO
   const [orderIsProcessing, setOrderIsProcessing] = useState(false);
   const [isFormSubmitted, setIsFormSubmitted] = useState(false);
 
-  const [inputAmount, setInputAmount] = useState<number | undefined>(undefined);
+  const [inputAmount, setInputAmount] = useState<number>();
+  const [outputCurrency, setOutputCurrency] = useState<AliceBobWithdrawCurrency>(DEFAULT_OUTPUT_CURRENCY);
+
   const cardNumberInput = useCardNumberInput(isFormSubmitted);
 
-  const { minExchangeAmount, maxExchangeAmount, isMinMaxLoading } = useMinMaxExchangeAmounts(setIsApiError, true);
+  const { currencies, isCurrenciesLoading } = useOutputCurrencies(setIsApiError, outputCurrency, setOutputCurrency);
 
   const { isMinAmountError, isMaxAmountError, isInsufficientTezBalanceError, disabledProceed } = useDisabledProceed(
     inputAmount,
-    minExchangeAmount,
-    maxExchangeAmount,
+    outputCurrency?.minAmount,
+    outputCurrency?.maxAmount,
     true
   );
 
@@ -47,10 +53,10 @@ export const InitialStep: FC<Omit<StepProps, 'orderInfo'>> = ({ isApiError, setO
 
   const { estimationIsLoading, outputAmount } = useOutputEstimation(
     inputAmount,
+    outputCurrency.code,
     isMinAmountError,
     isMaxAmountError,
-    setIsApiError,
-    true
+    setIsApiError
   );
 
   const exchangeRate = useMemo(
@@ -64,20 +70,20 @@ export const InitialStep: FC<Omit<StepProps, 'orderInfo'>> = ({ isApiError, setO
   const handleSubmit = () => {
     setIsFormSubmitted(true);
 
-    if (!isFormValid) {
+    if (!isFormValid || !outputCurrency?.code || !inputAmount) {
       return;
     }
 
     setOrderIsProcessing(true);
 
-    createAliceBobOrder(true, inputAmount?.toString() ?? '0', userId, undefined, cardNumberInput.value)
+    createAliceBobOrder(inputAmount?.toString(), 'XTZ', outputCurrency?.code, userId, undefined, cardNumberInput.value)
       .then(response => {
         setOrderInfo(response.data.orderInfo);
         setStep(1);
       })
       .catch(err => {
         if (err.response.data.message === NOT_UKRAINIAN_CARD_ERROR_MESSAGE) {
-          cardNumberInput.setCustomError(t('onlyForUkrainianCards'));
+          cardNumberInput.setCustomError(t('onlyForCountryBankingCards', 'Ukrainian'));
         } else {
           setIsApiError(true);
         }
@@ -87,26 +93,26 @@ export const InitialStep: FC<Omit<StepProps, 'orderInfo'>> = ({ isApiError, setO
 
   const handleInputAmountChange = (amount?: number) => setInputAmount(amount);
 
-  const isLoading = orderIsProcessing || estimationIsLoading || isMinMaxLoading;
+  const isLoading = orderIsProcessing || estimationIsLoading || isCurrenciesLoading;
 
   return (
     <>
       <p className={styles['title']}>
-        <T id={'sellTezDetails'} />
+        <T id="sellTezDetails" />
       </p>
       <p className={styles['description']}>
-        <T id={'sellDetailsDescription'} />
+        <T id="sellDetailsDescription" />
       </p>
 
       <div className="mx-auto mt-10 text-center font-inter font-normal text-gray-700">
         <TopUpInput
-          amountInputDisabled={isMinMaxLoading}
+          amountInputDisabled={isCurrenciesLoading}
           amount={inputAmount}
           label={<T id="send" />}
           currency={{ code: 'TEZ' }}
-          currenciesList={[]}
-          minAmount={minExchangeAmount.toString()}
-          maxAmount={maxExchangeAmount.toString()}
+          currenciesList={[{ code: 'TEZ' }]}
+          minAmount={String(outputCurrency?.minAmount ?? '0')}
+          maxAmount={String(outputCurrency?.maxAmount ?? '0')}
           isMinAmountError={isMinAmountError}
           isMaxAmountError={isMaxAmountError}
           isInsufficientTezBalanceError={isInsufficientTezBalanceError}
@@ -121,17 +127,21 @@ export const InitialStep: FC<Omit<StepProps, 'orderInfo'>> = ({ isApiError, setO
           readOnly
           amountInputDisabled
           label={<T id="get" />}
-          currency={{ code: 'UAH', icon: FIAT_ICONS_SRC.UAH }}
-          currenciesList={[]}
+          currency={outputCurrency}
+          currenciesList={currencies}
+          isCurrenciesLoading={isCurrenciesLoading}
           amount={outputAmount}
           emptyListPlaceholder={t('noAssetsFound')}
+          onCurrencySelect={currency => setOutputCurrency(currency)}
         />
 
         <div className={classNames(styles['exchangeRateBlock'], 'mt-1 mb-10')}>
           <p className={classNames(styles['exchangeTitle'])}>
             <T id={'exchangeRate'} />:
           </p>
-          <p className={styles['exchangeData']}>1 TEZ ≈ {exchangeRate} UAH</p>
+          <p className={styles['exchangeData']}>
+            {exchangeRate ? `1 TEZ ≈ ${exchangeRate} ${outputCurrency?.code}` : '-'}
+          </p>
         </div>
 
         <div className="w-full flex mb-1 items-center justify-between">
@@ -140,7 +150,7 @@ export const InitialStep: FC<Omit<StepProps, 'orderInfo'>> = ({ isApiError, setO
           </span>
           <span className={classNames('inline-flex items-center font-inter text-xs font-normal text-orange-500')}>
             <AlertIcon className="mr-1 stroke-current" />
-            <T id="onlyForUkrainianCards" />
+            <T id="onlyForCountryBankingCards" substitutions={[outputCurrency.name.split(' ')[0]]} />
           </span>
         </div>
 

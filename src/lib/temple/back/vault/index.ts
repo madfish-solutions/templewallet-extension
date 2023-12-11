@@ -13,6 +13,7 @@ import { TempleAccount, TempleAccountType, TempleSettings } from 'lib/temple/typ
 
 import { createLedgerSigner } from '../ledger';
 import { PublicError } from '../PublicError';
+
 import { transformHttpResponseError } from './helpers';
 import { MIGRATIONS } from './migrations';
 import {
@@ -85,6 +86,12 @@ export class Vault {
     return SessionStore.removePassHash();
   }
 
+  /**
+   * Creates a new wallet and saves it securely.
+   * @param password Password for encryption
+   * @param mnemonic Seed phrase
+   * @returns Initial account address
+   */
   static async spawn(password: string, mnemonic?: string) {
     return withError('Failed to create wallet', async () => {
       if (!mnemonic) {
@@ -121,6 +128,8 @@ export class Vault {
         passKey
       );
       await savePlain(migrationLevelStrgKey, MIGRATIONS.length);
+
+      return accPublicKeyHash;
     });
   }
 

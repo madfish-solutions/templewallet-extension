@@ -17,10 +17,6 @@ const fiatPurchaseProvidersSortPredicate = (
   providerA: PaymentProviderInterface,
   providerB: PaymentProviderInterface
 ) => {
-  if (providerA.kycRequired !== providerB.kycRequired) {
-    return providerA.kycRequired ? -1 : 1;
-  }
-
   const { outputAmount: providerAOutputAmount = 0 } = providerA;
   const { outputAmount: providerBOutputAmount = 0 } = providerB;
 

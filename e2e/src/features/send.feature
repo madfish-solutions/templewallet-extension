@@ -1,10 +1,11 @@
 Feature: Send
 
+@send
   Scenario: As a user, I'd like to send my funds to another account
     Given I have imported an existing account
     And I press Selected Network Button on the Header page
-    And I select ECAD Labs Mainnet node in the networks drop-down list on the Header page
-    And I check that ECAD Labs Mainnet node is selected correctly
+    And I select Marigold Mainnet node in the networks drop-down list on the Header page
+    And I check that Marigold Mainnet node is selected correctly
     And I press Send Button on the Home page
 
     And I am on the Send page
