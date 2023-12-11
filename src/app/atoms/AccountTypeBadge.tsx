@@ -16,8 +16,8 @@ const AccountTypeBadge = memo<AccountTypeBadgeProps>(({ account, darkTheme = fal
   return title ? (
     <span
       className={clsx(
-        'rounded border border-opacity-25 px-1 py-px ml-2 leading-tight font-medium text-opacity-50',
-        darkTheme ? 'border-white text-white' : 'border-black text-black'
+        'rounded border px-1 py-px ml-2 leading-none text-xxxxs font-medium',
+        darkTheme ? 'border-gray-500 text-gray-500' : 'border-black text-black'
       )}
       style={{ fontSize: '0.6rem' }}
     >

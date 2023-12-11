@@ -19,6 +19,7 @@ import { useAccount, useRelevantAccounts, useSetAccountPkh, useTempleClient, use
 import { PopperRenderProps } from 'lib/ui/Popper';
 import { HistoryAction, navigate } from 'lib/woozie';
 
+import { searchAndFilterItems } from '../../../../../lib/utils/search-items';
 import { AccountItem } from './AccountItem';
 import { ActionButtonProps, ActionButton } from './ActionButton';
 import { AccountDropdownSelectors } from './selectors';
@@ -46,11 +47,12 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
   const filteredAccounts = useMemo(() => {
     if (searchValue.length === 0) {
       return allAccounts;
-    } else {
-      const lowerCaseSearchValue = searchValue.toLowerCase();
-
-      return allAccounts.filter(currentAccount => currentAccount.name.toLowerCase().includes(lowerCaseSearchValue));
     }
+
+    return searchAndFilterItems(allAccounts, searchValue.toLowerCase(), [
+      { name: 'name', weight: 0.5 },
+      { name: 'publicKeyHash', weight: 0.5 }
+    ]);
   }, [searchValue, allAccounts]);
 
   const closeDropdown = useCallback(() => {
@@ -182,7 +184,7 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
         <SearchField
           value={searchValue}
           className={classNames(
-            'py-2 pl-8 pr-4',
+            'py-2 pl-8 pr-8',
             'bg-transparent',
             'border border-gray-200 border-opacity-20',
             'focus:outline-none',
