@@ -8,6 +8,8 @@ import { useAppEnv } from 'app/env';
 import ContentContainer from 'app/layouts/ContentContainer';
 import ChristmasBgPopupImg from 'app/misc/christmas-popup-bg.png';
 
+const logoStyles = { height: 64, marginTop: 0, marginBottom: 0 };
+
 interface SimplePageLayoutProps extends PropsWithChildren {
   title: ReactNode;
   isConfirmationPopup?: boolean;
@@ -30,7 +32,7 @@ const SimplePageLayout: FC<SimplePageLayoutProps> = ({ isConfirmationPopup = fal
       >
         <div className={classNames('mt-12 mb-10', 'flex flex-col items-center justify-center')}>
           <div className="flex items-center bg-gray-100">
-            <Logo hasTitle style={{ height: 64, marginTop: 0, marginBottom: 0 }} />
+            <Logo hasTitle style={logoStyles} />
           </div>
 
           <div className="pt-2 text-center text-2xl font-normal leading-tight text-gray-700 bg-gray-100">{title}</div>
