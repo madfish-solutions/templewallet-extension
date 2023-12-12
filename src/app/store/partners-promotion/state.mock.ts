@@ -24,5 +24,6 @@ export const mockPartnersPromotion = {
 
 export const mockPartnersPromotionState: PartnersPromotionState = {
   promotion: createEntity(mockPartnersPromotion),
-  shouldShowPromotion: true
+  shouldShowPromotion: true,
+  promotionHidingTimestamps: {}
 };

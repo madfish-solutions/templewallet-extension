@@ -89,9 +89,15 @@ export const TokensTab: FC = () => {
     ));
 
     if (filteredAssets.length < 5) {
-      tokensJsx.push(<PartnersPromotion key="promo-token-item" variant={PartnersPromotionVariant.Text} />);
+      tokensJsx.push(
+        <PartnersPromotion id="promo-token-item" key="promo-token-item" variant={PartnersPromotionVariant.Text} />
+      );
     } else {
-      tokensJsx.splice(1, 0, <PartnersPromotion key="promo-token-item" variant={PartnersPromotionVariant.Text} />);
+      tokensJsx.splice(
+        1,
+        0,
+        <PartnersPromotion id="promo-token-item" key="promo-token-item" variant={PartnersPromotionVariant.Text} />
+      );
     }
 
     return tokensJsx;

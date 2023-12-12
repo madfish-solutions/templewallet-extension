@@ -2,7 +2,7 @@ import { createReducer } from '@reduxjs/toolkit';
 
 import { createEntity } from 'lib/store';
 
-import { loadPartnersPromoAction, togglePartnersPromotionAction } from './actions';
+import { hidePromotionAction, loadPartnersPromoAction, togglePartnersPromotionAction } from './actions';
 import { partnersPromotionInitialState } from './state';
 
 export const partnersPromotionRucer = createReducer(partnersPromotionInitialState, builder => {
@@ -22,4 +22,8 @@ export const partnersPromotionRucer = createReducer(partnersPromotionInitialStat
     ...state,
     shouldShowPromotion: payload
   }));
+
+  builder.addCase(hidePromotionAction, (state, { payload: { id: pathname, timestamp } }) => {
+    state.promotionHidingTimestamps[pathname] = timestamp;
+  });
 });

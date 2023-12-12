@@ -43,7 +43,7 @@ export const Notifications = () => {
       <div className="max-w-sm mx-auto pb-15">
         {shouldShowPartnersPromoState && !isEnabledAdsBanner && (
           <div className="pt-6 pb-4 flex justify-center">
-            <PartnersPromotion variant={PartnersPromotionVariant.Image} />
+            <PartnersPromotion id="promo-notifications-item" variant={PartnersPromotionVariant.Image} />
           </div>
         )}
         {notifications.length === 0 ? (
