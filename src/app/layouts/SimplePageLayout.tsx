@@ -33,26 +33,13 @@ const SimplePageLayout: FC<SimplePageLayoutProps> = ({ isConfirmationPopup = fal
             <Logo hasTitle style={{ height: 64, marginTop: 0, marginBottom: 0 }} />
           </div>
 
-          <div
-            className={classNames(
-              'pt-2',
-              'text-center',
-              'text-2xl font-normal leading-tight',
-              'text-gray-700 bg-gray-100'
-            )}
-          >
-            {title}
-          </div>
+          <div className="pt-2 text-center text-2xl font-normal leading-tight text-gray-700 bg-gray-100">{title}</div>
         </div>
 
         <div
           className={classNames(
-            popup
-              ? classNames('-mx-4', 'border-t border-gray-300')
-              : classNames('w-full mx-auto max-w-md', 'rounded-md'),
-            'px-4',
-            'bg-white',
-            'shadow-md'
+            popup ? '-mx-4 border-t border-gray-300' : 'w-full mx-auto max-w-md rounded-md',
+            'px-4 bg-white shadow-md'
           )}
         >
           {children}
