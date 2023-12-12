@@ -24,7 +24,7 @@ const SimplePageLayout: FC<SimplePageLayoutProps> = ({ isConfirmationPopup = fal
         className={classNames(
           'min-h-screen',
           'flex flex-col',
-          popup && !isConfirmationPopup && 'bg-gray-100 bg-no-repeat'
+          popup && !isConfirmationPopup && 'bg-gray-100 bg-no-repeat bg-contain'
         )}
         style={{ backgroundImage: isConfirmationPopup ? undefined : `url(${ChristmasBgPopupImg})` }}
       >
