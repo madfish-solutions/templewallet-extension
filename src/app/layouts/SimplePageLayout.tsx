@@ -12,10 +12,9 @@ const logoStyles = { height: 64, marginTop: 0, marginBottom: 0 };
 
 interface SimplePageLayoutProps extends PropsWithChildren {
   title: ReactNode;
-  isConfirmationPopup?: boolean;
 }
 
-const SimplePageLayout: FC<SimplePageLayoutProps> = ({ isConfirmationPopup = false, title, children }) => {
+const SimplePageLayout: FC<SimplePageLayoutProps> = ({ title, children }) => {
   const { popup } = useAppEnv();
 
   return (
@@ -23,19 +22,22 @@ const SimplePageLayout: FC<SimplePageLayoutProps> = ({ isConfirmationPopup = fal
       {popup && <DocBg bgClassName="bg-primary-white" />}
 
       <ContentContainer
-        className={classNames(
-          'min-h-screen',
-          'flex flex-col',
-          popup && !isConfirmationPopup && 'bg-gray-100 bg-no-repeat bg-contain'
-        )}
-        style={{ backgroundImage: isConfirmationPopup ? undefined : `url(${ChristmasBgPopupImg})` }}
+        className={classNames('min-h-screen', 'flex flex-col', popup && 'bg-gray-100 bg-no-repeat bg-contain')}
+        style={{ backgroundImage: popup ? `url(${ChristmasBgPopupImg})` : undefined }}
       >
         <div className={classNames('mt-12 mb-10', 'flex flex-col items-center justify-center')}>
-          <div className="flex items-center bg-gray-100">
+          <div className={classNames('flex items-center', popup && 'bg-gray-100')}>
             <Logo hasTitle style={logoStyles} />
           </div>
 
-          <div className="pt-2 text-center text-2xl font-normal leading-tight text-gray-700 bg-gray-100">{title}</div>
+          <div
+            className={classNames(
+              'pt-2 text-center text-2xl font-normal leading-tight text-gray-700',
+              popup && 'bg-gray-100'
+            )}
+          >
+            {title}
+          </div>
         </div>
 
         <div
