@@ -11,6 +11,7 @@ import {
   usePromotionHidingTimestampSelector
 } from 'app/store/partners-promotion/selectors';
 import { isEmptyPromotion } from 'lib/apis/optimal';
+import { AD_HIDING_TIMEOUT } from 'lib/constants';
 import { t } from 'lib/i18n';
 
 import { Anchor } from './Anchor';
@@ -30,10 +31,9 @@ interface Props {
 
 const POPUP_IMAGE_WIDTH = 328;
 const FULL_IMAGE_WIDTH = 384;
-const TEMPORARY_HIDING_TIMEOUT = 12 * 3600 * 1000;
 
 const shouldBeHiddenTemporarily = (hiddenAt: number) => {
-  return Date.now() - hiddenAt < TEMPORARY_HIDING_TIMEOUT;
+  return Date.now() - hiddenAt < AD_HIDING_TIMEOUT;
 };
 
 export const PartnersPromotion: FC<Props> = memo(({ variant, id }) => {
@@ -53,7 +53,7 @@ export const PartnersPromotion: FC<Props> = memo(({ variant, id }) => {
     if (newIsHiddenTemporarily) {
       const timeout = setTimeout(
         () => setIsHiddenTemporarily(false),
-        Math.max(Date.now() - hiddenAt + TEMPORARY_HIDING_TIMEOUT, 0)
+        Math.max(Date.now() - hiddenAt + AD_HIDING_TIMEOUT, 0)
       );
 
       return () => clearTimeout(timeout);

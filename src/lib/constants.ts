@@ -19,3 +19,5 @@ export const ETHERSCAN_BUILTIN_ADS_WEBSITES = [
   'https://bscscan.com',
   'https://polygonscan.com'
 ];
+
+export const AD_HIDING_TIMEOUT = 12 * 3600 * 1000;
