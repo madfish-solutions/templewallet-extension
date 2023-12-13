@@ -25,7 +25,7 @@ const SimplePageLayout: FC<SimplePageLayoutProps> = ({ title, children }) => {
         className={classNames('min-h-screen flex flex-col', popup && 'bg-gray-100 bg-no-repeat bg-contain')}
         style={popup ? { backgroundImage: `url(${ChristmasBgPopupImg})` } : undefined}
       >
-        <div className={classNames('mt-12 mb-10 flex flex-col items-center justify-center')}>
+        <div className="mt-12 mb-10 flex flex-col items-center justify-center">
           <div className={classNames('flex items-center', popup && 'bg-gray-100')}>
             <Logo hasTitle style={logoStyles} />
           </div>
