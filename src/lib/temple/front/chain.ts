@@ -4,7 +4,7 @@ import { Subscription } from '@taquito/taquito';
 import constate from 'constate';
 import { useSWRConfig } from 'swr';
 
-import { getBalanceSWRKey } from 'lib/balances';
+import { getBalanceSWRKey } from 'lib/balances/utils';
 import { confirmOperation } from 'lib/temple/operation';
 
 import { useTezos, useRelevantAccounts } from './ready';

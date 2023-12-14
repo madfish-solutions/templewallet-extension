@@ -11,6 +11,7 @@ import { isTruthy } from 'lib/utils';
 import { DropdownSelect } from '../DropdownSelect/DropdownSelect';
 import { InputContainer } from '../InputContainer/InputContainer';
 import { TopUpProviderIcon } from '../TopUpProviderIcon';
+
 import { MoneyRange } from './MoneyRange';
 import { PaymentProviderOption } from './PaymentProvidersMenu/PaymentProviderOption';
 import { PaymentProviderInputProps } from './types';

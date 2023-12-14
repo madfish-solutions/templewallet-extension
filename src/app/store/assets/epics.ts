@@ -12,6 +12,7 @@ import { putTokensBalancesAction } from '../balances/actions';
 import { fixBalances } from '../balances/utils';
 import type { RootState } from '../root-state.type';
 import { addTokensMetadataOfFetchedAction } from '../tokens-metadata/actions';
+
 import { loadAccountTokensActions, loadAccountCollectiblesActions, loadTokensWhitelistActions } from './actions';
 import { loadAccountTokens, loadAccountCollectibles } from './utils';
 

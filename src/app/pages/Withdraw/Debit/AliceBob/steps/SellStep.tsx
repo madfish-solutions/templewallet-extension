@@ -15,6 +15,7 @@ import { useAccount, useTezos } from 'lib/temple/front';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 
 import { useUpdatedOrderInfo } from '../hooks/useUpdatedOrderInfo';
+
 import { StepProps } from './step.props';
 
 export const SellStep: FC<StepProps> = ({ orderInfo, isApiError, setStep, setOrderInfo, setIsApiError }) => {
