@@ -112,6 +112,7 @@ const DAppsList = () => {
           searchIconClassName="h-4 w-auto"
           searchIconWrapperClassName="px-2 text-gray-700"
           value={searchString}
+          isCleanButtonVisible={Boolean(searchString)}
           onValueChange={setSearchString}
         />
         <div className={classNames(popup ? 'mb-4' : 'mb-6', 'w-full flex justify-between')}>
