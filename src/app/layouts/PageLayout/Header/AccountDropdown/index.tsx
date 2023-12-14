@@ -11,21 +11,16 @@ import { ReactComponent as DownloadIcon } from 'app/icons/download.svg';
 import { ReactComponent as LinkIcon } from 'app/icons/link.svg';
 import { ReactComponent as LockIcon } from 'app/icons/lock.svg';
 import { ReactComponent as MaximiseIcon } from 'app/icons/maximise.svg';
-import { ReactComponent as SadSearchIcon } from 'app/icons/sad-search.svg';
 import { ReactComponent as SettingsIcon } from 'app/icons/settings.svg';
 import SearchField from 'app/templates/SearchField';
 import { T, t } from 'lib/i18n';
 import { useAccount, useRelevantAccounts, useSetAccountPkh, useTempleClient, useGasToken } from 'lib/temple/front';
 import { PopperRenderProps } from 'lib/ui/Popper';
-import { searchAndFilterItems } from 'lib/utils/search-items';
 import { HistoryAction, navigate } from 'lib/woozie';
 
 import { AccountItem } from './AccountItem';
 import { ActionButtonProps, ActionButton } from './ActionButton';
 import { AccountDropdownSelectors } from './selectors';
-
-const isMacOS = /Mac OS/.test(navigator.userAgent);
-const searchHotkey = ` (${isMacOS ? '⌘' : 'Ctrl + '}K)`;
 
 type AccountDropdownProps = PopperRenderProps;
 
@@ -44,15 +39,16 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
   const [searchValue, setSearchValue] = useState('');
   const [attractSelectedAccount, setAttractSelectedAccount] = useState(true);
 
+  const isShowSearch = useMemo(() => allAccounts.length > 5, [allAccounts.length]);
+
   const filteredAccounts = useMemo(() => {
     if (searchValue.length === 0) {
       return allAccounts;
-    }
+    } else {
+      const lowerCaseSearchValue = searchValue.toLowerCase();
 
-    return searchAndFilterItems(allAccounts, searchValue.toLowerCase(), [
-      { name: 'name', weight: 0.5 },
-      { name: 'publicKeyHash', weight: 0.5 }
-    ]);
+      return allAccounts.filter(currentAccount => currentAccount.name.toLowerCase().includes(lowerCaseSearchValue));
+    }
   }, [searchValue, allAccounts]);
 
   const closeDropdown = useCallback(() => {
@@ -140,7 +136,7 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
 
   useEffect(() => {
     if (searchValue) setAttractSelectedAccount(false);
-    else if (!opened) setAttractSelectedAccount(true);
+    else if (opened === false) setAttractSelectedAccount(true);
   }, [opened, searchValue]);
 
   return (
@@ -162,11 +158,11 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
 
         <Button
           className={classNames(
-            'px-2 py-0.5',
+            'px-2 py-1',
             'rounded-md',
-            'border border-gray-200',
+            'border border-gray-700',
             'flex items-center',
-            'text-gray-200',
+            'text-white text-shadow-black',
             'text-sm',
             'transition duration-300 ease-in-out',
             'opacity-20',
@@ -181,32 +177,39 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
       </div>
 
       <div className="my-2">
-        <SearchField
-          value={searchValue}
-          className={classNames(
-            'py-2 pl-8 pr-8',
-            'bg-transparent',
-            'border border-gray-200 border-opacity-20',
-            'focus:outline-none',
-            'transition ease-in-out duration-200',
-            'rounded-md rounded-b-none',
-            'text-gray-500 placeholder-gray-600 text-sm leading-tight'
-          )}
-          placeholder={t('searchAccount', [searchHotkey])}
-          searchIconClassName="h-5 w-auto text-gray-600 stroke-current"
-          searchIconWrapperClassName="px-2"
-          cleanButtonClassName="border-gray-600"
-          cleanButtonIconClassName="text-gray-600 stroke-current"
-          cleanButtonStyle={{ backgroundColor: 'transparent' }}
-          onValueChange={setSearchValue}
-        />
+        {isShowSearch && (
+          <SearchField
+            value={searchValue}
+            className={classNames(
+              'py-2 pl-8 pr-4',
+              'bg-transparent',
+              'border border-white border-opacity-10',
+              'focus:outline-none',
+              'transition ease-in-out duration-200',
+              'rounded-md rounded-b-none',
+              'text-white text-sm leading-tight'
+            )}
+            placeholder={t('searchByName')}
+            searchIconClassName="h-5 w-auto"
+            searchIconWrapperClassName="px-2 text-white opacity-75"
+            cleanButtonStyle={{ backgroundColor: 'transparent' }}
+            cleanButtonIconStyle={{ stroke: 'white' }}
+            onValueChange={setSearchValue}
+          />
+        )}
 
-        <div className="overflow-y-auto rounded border border-gray-200 border-opacity-20 shadow-inner border-t-0 rounded-t-none h-48">
+        <div
+          className={classNames(
+            'overflow-y-auto rounded border border-gray-700 shadow-inner',
+            isShowSearch && 'border-t-0 rounded-t-none'
+          )}
+          style={{ maxHeight: isShowSearch ? '12rem' : '14.25rem' }}
+        >
           <div className="flex flex-col">
             {filteredAccounts.length === 0 ? (
-              <div className="h-48 flex justify-center items-center">
-                <SadSearchIcon />
-              </div>
+              <p className="text-center text-white text-sm p-10">
+                <T id="noResults" />
+              </p>
             ) : (
               filteredAccounts.map(acc => (
                 <AccountItem

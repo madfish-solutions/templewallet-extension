@@ -9,7 +9,7 @@
     "message": "🔐💰Cryptocurrency wallet for Tezos blockchain as Web Extension for your Browser."
   },
   "createAccount": {
-    "message": "Create account"
+    "message": "Create or Restore account"
   },
   "importAccount": {
     "message": "Import account"
@@ -1744,13 +1744,8 @@
   "searchAssets": {
     "message": "Search assets..."
   },
-  "searchAccount": {
-    "message": "Search$hotkey$",
-    "placeholders": {
-      "hotkey": {
-        "content": "$1"
-      }
-    }
+  "searchByName": {
+    "message": "Search by name..."
   },
   "deployNew": {
     "message": "Deploy new"
