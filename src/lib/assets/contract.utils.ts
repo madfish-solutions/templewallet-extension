@@ -6,7 +6,7 @@ import { loadContract } from 'lib/temple/contract';
 import { isValidContractAddress, tokensToAtoms } from 'lib/temple/helpers';
 
 import { detectTokenStandard } from './standards';
-import { Asset } from './types';
+import type { Asset } from './types';
 import { fromAssetSlug } from './utils';
 
 import { isFA2Token, isTezAsset } from './index';
