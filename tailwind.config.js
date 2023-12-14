@@ -575,7 +575,6 @@ module.exports = {
     },
     extend: {
       fontSize: {
-        xxxxs: '0.563rem',
         xxxs: '0.625rem',
         xxs: '0.6875rem',
         '2xs': '0.8125rem',
@@ -651,7 +650,7 @@ module.exports = {
       inset: {
         '2px': '2px',
         '1/2': '50%',
-        18: '4.5rem'
+        18: '4.5rem',
       },
       space: (theme, { negative }) => ({
         ...theme('spacing'),

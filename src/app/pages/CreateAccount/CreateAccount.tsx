@@ -105,7 +105,11 @@ const CreateAccount: FC = () => {
             testID={CreateAccountSelectors.accountNameInputField}
           />
 
-          <FormSubmitButton loading={submitting} testID={CreateAccountSelectors.createOrRestoreButton}>
+          <FormSubmitButton
+            className="capitalize"
+            loading={submitting}
+            testID={CreateAccountSelectors.createOrRestoreButton}
+          >
             <T id="createAccount" />
           </FormSubmitButton>
         </form>

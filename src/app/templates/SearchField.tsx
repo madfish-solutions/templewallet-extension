@@ -1,4 +1,4 @@
-import React, { FC, InputHTMLAttributes, useCallback, useRef } from 'react';
+import React, { FC, InputHTMLAttributes, useCallback } from 'react';
 
 import classNames from 'clsx';
 
@@ -11,35 +11,25 @@ export interface SearchFieldProps extends InputHTMLAttributes<HTMLInputElement>,
   containerClassName?: string;
   searchIconClassName?: string;
   searchIconWrapperClassName?: string;
-  cleanButtonClassName?: string;
-  cleanButtonIconClassName?: string;
-  searchIconStyle?: React.CSSProperties;
   cleanButtonStyle?: React.CSSProperties;
   cleanButtonIconStyle?: React.CSSProperties;
-  isCleanButtonVisible?: boolean;
   value: string;
   onValueChange: (value: string) => void;
 }
 
 const SearchField: FC<SearchFieldProps> = ({
   bottomOffset = '0.45rem',
-  isCleanButtonVisible = true,
   className,
   containerClassName,
   value,
   onValueChange,
   searchIconClassName,
   searchIconWrapperClassName,
-  cleanButtonClassName,
-  searchIconStyle,
-  cleanButtonIconClassName,
   cleanButtonStyle,
   cleanButtonIconStyle,
   testID,
   ...rest
 }) => {
-  const inputRef = useRef<HTMLInputElement>(null);
-
   const handleChange = useCallback(
     (evt: React.ChangeEvent<HTMLInputElement>) => {
       onValueChange(evt.target.value);
@@ -48,18 +38,13 @@ const SearchField: FC<SearchFieldProps> = ({
   );
 
   const handleClean = useCallback(() => {
-    if (value) {
-      inputRef.current?.focus();
-    }
-
     onValueChange('');
-  }, [onValueChange, value]);
+  }, [onValueChange]);
 
   return (
     <div className={classNames('w-full flex flex-col', containerClassName)}>
       <div className="relative flex items-stretch">
         <input
-          ref={inputRef}
           type="text"
           className={classNames('appearance-none w-full', className)}
           value={value}
@@ -76,14 +61,12 @@ const SearchField: FC<SearchFieldProps> = ({
             searchIconWrapperClassName
           )}
         >
-          <SearchIcon style={searchIconStyle} className={classNames('stroke-current', searchIconClassName)} />
+          <SearchIcon className={classNames('stroke-current', searchIconClassName)} />
         </div>
 
-        {isCleanButtonVisible && (
+        {Boolean(value) && (
           <CleanButton
             bottomOffset={bottomOffset}
-            className={cleanButtonClassName}
-            iconClassName={cleanButtonIconClassName}
             style={cleanButtonStyle}
             iconStyle={cleanButtonIconStyle}
             onClick={handleClean}
