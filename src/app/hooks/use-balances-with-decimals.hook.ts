@@ -5,7 +5,8 @@ import { BigNumber } from 'bignumber.js';
 import { useBalancesSelector } from 'app/store/balances/selectors';
 import { useTokensMetadataSelector } from 'app/store/tokens-metadata/selectors';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
-import { useAccount, useChainId, useGasToken } from 'lib/temple/front';
+import { useGasToken } from 'lib/assets/hooks';
+import { useAccount, useChainId } from 'lib/temple/front';
 import { atomsToTokens } from 'lib/temple/helpers';
 
 export const useBalancesWithDecimals = () => {

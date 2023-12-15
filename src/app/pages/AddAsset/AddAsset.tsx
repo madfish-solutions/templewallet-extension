@@ -10,7 +10,8 @@ import { Alert, FormField, FormSubmitButton, NoSpaceField } from 'app/atoms';
 import Spinner from 'app/atoms/Spinner/Spinner';
 import { ReactComponent as AddIcon } from 'app/icons/add.svg';
 import PageLayout from 'app/layouts/PageLayout';
-import { addTokensMetadataAction } from 'app/store/tokens-metadata/actions';
+import { setAssetStatusAction } from 'app/store/assets/actions';
+import { putTokensMetadataAction } from 'app/store/tokens-metadata/actions';
 import { useFormAnalytics } from 'lib/analytics';
 import { TokenMetadataResponse } from 'lib/apis/temple';
 import { toTokenSlug } from 'lib/assets';
@@ -22,12 +23,11 @@ import {
 } from 'lib/assets/standards';
 import { getBalanceSWRKey } from 'lib/balances';
 import { T, t } from 'lib/i18n';
-import type { TokenMetadata } from 'lib/metadata';
+import { isCollectible, TokenMetadata } from 'lib/metadata';
 import { fetchOneTokenMetadata } from 'lib/metadata/fetch';
 import { TokenMetadataNotFoundError } from 'lib/metadata/on-chain';
 import { loadContract } from 'lib/temple/contract';
 import { useTezos, useNetwork, useChainId, useAccount, validateContractAddress } from 'lib/temple/front';
-import * as Repo from 'lib/temple/repo';
 import { useSafeState } from 'lib/ui/hooks';
 import { delay } from 'lib/utils';
 import { navigate } from 'lib/woozie';
@@ -209,17 +209,16 @@ const Form: FC = () => {
           id: tokenId
         };
 
-        dispatch(addTokensMetadataAction([tokenMetadata]));
+        dispatch(putTokensMetadataAction([tokenMetadata]));
 
-        await Repo.accountTokens.put(
-          {
+        dispatch(
+          setAssetStatusAction({
+            isCollectible: isCollectible(tokenMetadata),
             chainId,
             account: accountPkh,
-            tokenSlug,
-            status: Repo.ITokenStatus.Enabled,
-            addedAt: Date.now()
-          },
-          Repo.toAccountTokenKey(chainId, accountPkh, tokenSlug)
+            slug: tokenSlug,
+            status: 'enabled'
+          })
         );
 
         swrCache.delete(unstable_serialize(getBalanceSWRKey(tezos, tokenSlug, accountPkh)));

@@ -15,17 +15,14 @@ import { T, t } from 'lib/i18n';
 import { useAssetMetadata, getAssetSymbol } from 'lib/metadata';
 import { useAccount } from 'lib/temple/front';
 
-import { AssetItemContent } from '../AssetItemContent';
-import { DropdownSelect } from '../DropdownSelect/DropdownSelect';
-import { InputContainer } from '../InputContainer/InputContainer';
-import { SendFormSelectors } from '../SendForm/selectors';
-
-import { IAsset } from './interfaces';
-import { getSlug } from './utils';
+import { AssetItemContent } from './AssetItemContent';
+import { DropdownSelect } from './DropdownSelect/DropdownSelect';
+import { InputContainer } from './InputContainer/InputContainer';
+import { SendFormSelectors } from './SendForm/selectors';
 
 interface AssetSelectProps {
-  value: IAsset;
-  assets: IAsset[];
+  value: string;
+  slugs: string[];
   onChange?: (assetSlug: string) => void;
   className?: string;
   testIDs?: {
@@ -35,28 +32,27 @@ interface AssetSelectProps {
   };
 }
 
-const renderOptionContent = (asset: IAsset, selected: boolean) => (
-  <AssetOptionContent asset={asset} selected={selected} />
-);
+const renderOptionContent = (slug: string, selected: boolean) => <AssetOptionContent slug={slug} selected={selected} />;
 
-const AssetSelect: FC<AssetSelectProps> = ({ value, assets, onChange, className, testIDs }) => {
+const AssetSelect: FC<AssetSelectProps> = ({ value, slugs, onChange, className, testIDs }) => {
   const allTokensMetadata = useTokensMetadataSelector();
 
   const [searchString, setSearchString] = useState<string>('');
   const [searchStringDebounced] = useDebounce(searchString, 300);
 
   const searchItems = useCallback(
-    (searchString: string) => searchAssetsWithNoMeta(searchString, assets, allTokensMetadata, getSlug),
-    [assets, allTokensMetadata]
+    (searchString: string) => searchAssetsWithNoMeta(searchString, slugs, allTokensMetadata, s => s),
+    [slugs, allTokensMetadata]
   );
+
   const searchedOptions = useMemo(
-    () => (searchStringDebounced ? searchItems(searchStringDebounced) : assets),
-    [searchItems, searchStringDebounced, assets]
+    () => (searchStringDebounced ? searchItems(searchStringDebounced) : slugs),
+    [searchItems, searchStringDebounced, slugs]
   );
 
   const handleChange = useCallback(
-    (asset: IAsset) => {
-      onChange?.(getSlug(asset));
+    (slug: string) => {
+      onChange?.(slug);
     },
     [onChange]
   );
@@ -64,7 +60,7 @@ const AssetSelect: FC<AssetSelectProps> = ({ value, assets, onChange, className,
   return (
     <InputContainer className={className} header={<AssetSelectTitle />}>
       <DropdownSelect
-        DropdownFaceContent={<AssetFieldContent asset={value} testID={testIDs?.select} />}
+        DropdownFaceContent={<AssetFieldContent slug={value} testID={testIDs?.select} />}
         searchProps={{
           testId: testIDs?.searchInput,
           searchValue: searchString,
@@ -75,7 +71,7 @@ const AssetSelect: FC<AssetSelectProps> = ({ value, assets, onChange, className,
         optionsProps={{
           options: searchedOptions,
           noItemsText: t('noAssetsFound'),
-          getKey: option => getSlug(option),
+          getKey: option => option,
           onOptionChange: handleChange,
           renderOptionContent: asset => renderOptionContent(asset, isEqual(asset, value))
         }}
@@ -98,16 +94,15 @@ const AssetSelectTitle: FC = () => (
   </h2>
 );
 
-const AssetFieldContent: FC<{ asset: IAsset } & TestIDProperty> = ({ asset, testID }) => {
+const AssetFieldContent: FC<{ slug: string } & TestIDProperty> = ({ slug, testID }) => {
   const account = useAccount();
-  const assetSlug = getSlug(asset);
-  const metadata = useAssetMetadata(assetSlug);
+  const metadata = useAssetMetadata(slug);
 
   return (
-    <div className="flex items-center" {...setTestID(testID)} {...setAnotherSelector('slug', assetSlug)}>
-      <AssetIcon assetSlug={assetSlug} className="mr-3" size={48} />
+    <div className="flex items-center" {...setTestID(testID)} {...setAnotherSelector('slug', slug)}>
+      <AssetIcon assetSlug={slug} className="mr-3" size={48} />
 
-      <Balance assetSlug={assetSlug} address={account.publicKeyHash}>
+      <Balance assetSlug={slug} address={account.publicKeyHash}>
         {balance => (
           <div className="flex flex-col items-start leading-none">
             <span className="text-xl text-gray-800 flex items-baseline">
@@ -117,7 +112,7 @@ const AssetFieldContent: FC<{ asset: IAsset } & TestIDProperty> = ({ asset, test
               </span>
             </span>
 
-            <InFiat smallFractionFont={false} assetSlug={assetSlug} volume={balance}>
+            <InFiat smallFractionFont={false} assetSlug={slug} volume={balance}>
               {({ balance, symbol }) => (
                 <div className="mt-1 text-sm text-gray-500 flex">
                   <span className="mr-1">≈</span>
@@ -133,21 +128,14 @@ const AssetFieldContent: FC<{ asset: IAsset } & TestIDProperty> = ({ asset, test
   );
 };
 
-const AssetOptionContent: FC<{ asset: IAsset; selected: boolean }> = ({ asset, selected }) => {
-  const slug = getSlug(asset);
+const AssetOptionContent: FC<{ slug: string; selected: boolean }> = ({ slug, selected }) => (
+  <div
+    className={classNames('flex items-center w-full py-1.5 px-2 h-15', selected ? 'bg-gray-200' : 'hover:bg-gray-100')}
+    {...setTestID(SendFormSelectors.assetDropDownItem)}
+    {...setAnotherSelector('slug', slug)}
+  >
+    <AssetIcon assetSlug={slug} className="mx-2" size={32} />
 
-  return (
-    <div
-      className={classNames(
-        'flex items-center w-full py-1.5 px-2 h-15',
-        selected ? 'bg-gray-200' : 'hover:bg-gray-100'
-      )}
-      {...setTestID(SendFormSelectors.assetDropDownItem)}
-      {...setAnotherSelector('slug', slug)}
-    >
-      <AssetIcon assetSlug={slug} className="mx-2" size={32} />
-
-      <AssetItemContent slug={slug} />
-    </div>
-  );
-};
+    <AssetItemContent slug={slug} />
+  </div>
+);

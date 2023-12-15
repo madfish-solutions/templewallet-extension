@@ -29,7 +29,7 @@ import InFiat from 'app/templates/InFiat';
 import { useFormAnalytics } from 'lib/analytics';
 import { isTezAsset, toPenny } from 'lib/assets';
 import { toTransferParams } from 'lib/assets/contract.utils';
-import { fetchBalance, fetchTezosBalance } from 'lib/balances';
+import { fetchBalance, fetchTezosBalance, useBalance } from 'lib/balances';
 import { useAssetFiatCurrencyPrice, useFiatCurrency } from 'lib/fiat-currency';
 import { BLOCK_DURATION } from 'lib/fixed-times';
 import { toLocalFixed, T, t } from 'lib/i18n';
@@ -41,7 +41,6 @@ import {
   ReactiveTezosToolkit,
   isDomainNameValid,
   useAccount,
-  useBalance,
   useNetwork,
   useTezos,
   useTezosDomainsClient,

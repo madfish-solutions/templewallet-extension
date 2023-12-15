@@ -1,7 +1,7 @@
 import { OpKind, TezosToolkit } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
 
-import { AssetMetadataBase } from 'lib/metadata';
+import type { AssetMetadataBase } from 'lib/metadata';
 import { loadContract } from 'lib/temple/contract';
 import { isValidContractAddress, tokensToAtoms } from 'lib/temple/helpers';
 

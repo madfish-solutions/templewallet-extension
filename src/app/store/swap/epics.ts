@@ -1,8 +1,7 @@
 import { isDefined } from '@rnw-community/shared';
 import { BigNumber } from 'bignumber.js';
 import { combineEpics, Epic } from 'redux-observable';
-import { catchError, from, map, Observable, of, switchMap } from 'rxjs';
-import { Action } from 'ts-action';
+import { catchError, from, map, of, switchMap } from 'rxjs';
 import { ofType, toPayload } from 'ts-action-operators';
 
 import { fetchRoute3Dexes$ } from 'lib/apis/route3/fetch-route3-dexes';
@@ -23,7 +22,7 @@ const isAmountDefined = (
   requestParams.fromSymbol.length > 0 &&
   requestParams.toSymbol.length > 0;
 
-const loadSwapParamsEpic = (action$: Observable<Action>) =>
+const loadSwapParamsEpic: Epic = action$ =>
   action$.pipe(
     ofType(loadSwapParamsAction.submit),
     toPayload(),
@@ -39,7 +38,7 @@ const loadSwapParamsEpic = (action$: Observable<Action>) =>
     })
   );
 
-const loadSwapTokensEpic: Epic = (action$: Observable<Action>) =>
+const loadSwapTokensEpic: Epic = action$ =>
   action$.pipe(
     ofType(loadSwapTokensAction.submit),
     switchMap(() =>
@@ -50,7 +49,7 @@ const loadSwapTokensEpic: Epic = (action$: Observable<Action>) =>
     )
   );
 
-const loadSwapDexesEpic: Epic = (action$: Observable<Action>) =>
+const loadSwapDexesEpic: Epic = action$ =>
   action$.pipe(
     ofType(loadSwapDexesAction.submit),
     switchMap(() =>

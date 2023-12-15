@@ -1,18 +1,29 @@
+import { createAction } from '@reduxjs/toolkit';
+
 import { createActions } from 'lib/store/action.utils';
 
-interface BalancesTzktPayloadSubmit {
+interface LoadBalancesPayloadBase {
   publicKeyHash: string;
   chainId: string;
 }
-interface BalancesPayloadSuccess extends BalancesTzktPayloadSubmit {
-  balances: Record<string, string>;
+
+interface LoadBalancesSubmitPayload extends LoadBalancesPayloadBase {
+  gasOnly?: boolean;
 }
-interface BalancesPayloadFail extends BalancesTzktPayloadSubmit {
+
+interface LoadBalancesSuccessPayload extends LoadBalancesPayloadBase {
+  balances: StringRecord;
+  mergeNotReplace?: boolean;
+}
+
+interface LoadBalancesFailPayload extends LoadBalancesPayloadBase {
   error: string;
 }
 
 export const loadTokensBalancesFromTzktAction = createActions<
-  BalancesTzktPayloadSubmit,
-  BalancesPayloadSuccess,
-  BalancesPayloadFail
+  LoadBalancesSubmitPayload,
+  LoadBalancesSuccessPayload,
+  LoadBalancesFailPayload
 >('balances/LOAD_TOKENS_BALANCES');
+
+export const putTokensBalancesAction = createAction<LoadBalancesSuccessPayload>('balances/PUT_TOKENS_BALANCES');

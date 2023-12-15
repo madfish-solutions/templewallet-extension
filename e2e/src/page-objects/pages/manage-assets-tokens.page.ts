@@ -1,5 +1,5 @@
 import retry from 'async-retry';
-import { ManageAssetsSelectors } from 'src/app/pages/ManageAssets/ManageAssets.selectors';
+import { ManageAssetsSelectors } from 'src/app/pages/ManageAssets/selectors';
 
 import { RETRY_OPTIONS, SHORT_TIMEOUT, VERY_SHORT_TIMEOUT } from 'e2e/src/utils/timing.utils';
 

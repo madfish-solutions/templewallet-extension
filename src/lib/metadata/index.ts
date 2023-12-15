@@ -1,5 +1,6 @@
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 
+import { isString } from 'lodash';
 import { useDispatch } from 'react-redux';
 
 import { loadTokensMetadataAction } from 'app/store/tokens-metadata/actions';
@@ -9,6 +10,7 @@ import {
   useTokensMetadataSelector
 } from 'app/store/tokens-metadata/selectors';
 import { isTezAsset } from 'lib/assets';
+import { useGasToken } from 'lib/assets/hooks';
 import { useNetwork } from 'lib/temple/front/ready';
 import { isTruthy } from 'lib/utils';
 
@@ -55,6 +57,22 @@ export const useTokensMetadataWithPresenceCheck = (slugsToCheck?: string[]) => {
   return allTokensMetadata;
 };
 
+export const useGetAssetMetadata = () => {
+  const allTokensMetadata = useTokensMetadataSelector();
+  const { metadata } = useGasToken();
+
+  return useCallback(
+    (slug: string): AssetMetadataBase | undefined => {
+      if (isTezAsset(slug)) {
+        return metadata;
+      }
+
+      return allTokensMetadata[slug];
+    },
+    [allTokensMetadata, metadata]
+  );
+};
+
 export function getAssetSymbol(metadata: AssetMetadataBase | nullish, short = false) {
   if (!metadata) return '???';
   if (!short) return metadata.symbol;
@@ -65,5 +83,12 @@ export function getAssetName(metadata: AssetMetadataBase | nullish) {
   return metadata ? metadata.name : 'Unknown Token';
 }
 
-export const isCollectible = (metadata: AssetMetadataBase): metadata is TokenMetadata =>
-  'artifactUri' in metadata && Boolean((metadata as TokenMetadata).artifactUri);
+/** Empty string for `artifactUri` counts */
+export const isCollectible = (metadata: Record<string, any>) =>
+  'artifactUri' in metadata && isString(metadata.artifactUri);
+
+/**
+ * @deprecated // Assertion here is not safe!
+ */
+export const isCollectibleTokenMetadata = (metadata: AssetMetadataBase): metadata is TokenMetadata =>
+  isCollectible(metadata);

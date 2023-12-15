@@ -1,6 +1,6 @@
 export interface IMigration {
   name: string;
-  up: () => void;
+  up: () => void | Promise<void>;
 }
 
 export interface IAppliedMigration {
@@ -8,13 +8,13 @@ export interface IAppliedMigration {
   dateApplied: Date;
 }
 
-export const migrate = (migrations: IMigration[], appliedMigrations: IAppliedMigration[]) => {
+export const migrate = async (migrations: IMigration[], appliedMigrations: IAppliedMigration[]) => {
   const migrationsToRun = migrations.filter(({ name }) => appliedMigrations.findIndex(m => m.name === name) === -1);
 
   const appliedMigrationsThisTime: IAppliedMigration[] = [];
 
   for (const migration of migrationsToRun) {
-    migration.up();
+    await migration.up();
     appliedMigrationsThisTime.push({
       name: migration.name,
       dateApplied: new Date()

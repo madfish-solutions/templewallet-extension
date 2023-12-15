@@ -1,5 +1,3 @@
-import { tokenToSlug } from 'lib/assets';
-import { DEPRECATED_TKEY_METADATA } from 'lib/assets/known-tokens';
 import type { TokenMetadata } from 'lib/metadata';
 
 export const mockFA1_2TokenMetadata: TokenMetadata = {
@@ -18,10 +16,4 @@ export const mockFA2TokenMetadata: TokenMetadata = {
   symbol: 'MOCK2',
   decimals: 8,
   thumbnailUri: 'https://fakeurl.com/img2.png'
-};
-
-export const patchMetadatas = (tokensMetadata: TokenMetadata[]): TokenMetadata[] => {
-  const slug = tokenToSlug(DEPRECATED_TKEY_METADATA);
-
-  return tokensMetadata.map(metadata => (tokenToSlug(metadata) === slug ? DEPRECATED_TKEY_METADATA : metadata));
 };

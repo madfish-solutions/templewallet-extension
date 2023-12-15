@@ -1,5 +1,6 @@
 import axios, { AxiosError } from 'axios';
 
+import { toTokenSlug } from 'lib/assets';
 import { TempleChainId } from 'lib/temple/types';
 import { delay } from 'lib/utils';
 
@@ -7,7 +8,7 @@ import {
   TzktOperation,
   TzktOperationType,
   TzktQuoteCurrency,
-  TzktAccountToken,
+  TzktAccountAsset,
   allInt32ParameterKeys,
   TzktGetRewardsParams,
   TzktGetRewardsResponse,
@@ -125,16 +126,46 @@ export const getDelegatorRewards = (
     ...restParams
   });
 
-const TZKT_FETCH_QUERY_SIZE = 300;
+const TZKT_MAX_QUERY_ITEMS_LIMIT = 10_000;
 
-export const fetchTzktTokens = async (chainId: string, accountAddress: string) =>
-  isKnownChainId(chainId)
-    ? await fetchGet<TzktAccountToken[]>(chainId, '/tokens/balances', {
-        account: accountAddress,
-        limit: TZKT_FETCH_QUERY_SIZE,
-        'sort.desc': 'balance'
-      })
-    : [];
+/**
+ * @arg fungible // `null` for unknown fungibility only
+ */
+export function fetchTzktAccountAssets(account: string, chainId: string, fungible: boolean | null) {
+  if (!isKnownChainId(chainId)) return Promise.resolve([]);
+
+  const recurse = async (accum: TzktAccountAsset[], offset: number): Promise<TzktAccountAsset[]> => {
+    const data = await fetchTzktAccountAssetsPage(account, chainId, offset, fungible);
+
+    if (!data.length) return accum;
+
+    if (data.length === TZKT_MAX_QUERY_ITEMS_LIMIT)
+      return recurse(accum.concat(data), offset + TZKT_MAX_QUERY_ITEMS_LIMIT);
+
+    return accum.concat(data);
+  };
+
+  return recurse([], 0);
+}
+
+export const fetchTzktAccountAssetsPage = (
+  account: string,
+  chainId: TzktApiChainId,
+  offset?: number,
+  fungible: boolean | null = null,
+  limit = TZKT_MAX_QUERY_ITEMS_LIMIT
+) =>
+  fetchGet<TzktAccountAsset[]>(chainId, '/tokens/balances', {
+    account,
+    limit,
+    offset,
+    ...(fungible === null
+      ? { 'token.metadata.null': true }
+      : {
+          'token.metadata.artifactUri.null': fungible
+        }),
+    'sort.desc': 'balance'
+  });
 
 export async function refetchOnce429<R>(fetcher: () => Promise<R>, delayAroundInMS = 1000) {
   try {
@@ -155,45 +186,50 @@ export async function refetchOnce429<R>(fetcher: () => Promise<R>, delayAroundIn
 }
 
 interface GetAccountResponse {
-  frozenDeposit?: string;
   balance: string;
+  frozenDeposit?: string;
 }
 
-export const fecthTezosBalanceFromTzkt = async (account: string, chainId: string): Promise<GetAccountResponse> =>
+export const fetchTezosBalanceFromTzkt = async (account: string, chainId: string): Promise<GetAccountResponse> =>
   isKnownChainId(chainId)
-    ? await fetchGet<GetAccountResponse>(chainId, `/accounts/${account}`).then(({ frozenDeposit, balance }) => ({
+    ? await fetchGet<GetAccountResponse>(chainId, `/accounts/${account}`, {
+        select: 'balance,frozenDeposit'
+      }).then(({ frozenDeposit, balance }) => ({
         frozenDeposit,
         balance
       }))
     : { balance: '0' };
 
-const LIMIT = 10000;
+export const fetchAllAssetsBalancesFromTzkt = async (account: string, chainId: string) => {
+  if (!isKnownChainId(chainId)) return {};
 
-const fecthTokensBalancesFromTzktOnce = async (account: string, chainId: string, limit: number, offset = 0) =>
-  isKnownChainId(chainId)
-    ? await fetchGet<TzktAccountToken[]>(chainId, '/tokens/balances', {
-        account,
-        'balance.gt': 0,
-        limit,
-        offset
-      })
-    : [];
-
-export const fetchAllTokensBalancesFromTzkt = async (selectedRpcUrl: string, account: string) => {
-  const balances: TzktAccountToken[] = [];
+  const balances: StringRecord = {};
 
   await (async function recourse(offset: number) {
-    const data = await fecthTokensBalancesFromTzktOnce(selectedRpcUrl, account, LIMIT, offset);
+    const data = await fetchAssetsBalancesFromTzktOnce(account, chainId, offset);
 
-    balances.push(...data);
+    for (const [address, tokenId, balance] of data) {
+      const slug = toTokenSlug(address, tokenId);
+      balances[slug] = balance;
+    }
 
-    if (data.length === LIMIT) {
-      await recourse(offset + LIMIT);
+    if (data.length === TZKT_MAX_QUERY_ITEMS_LIMIT) {
+      await recourse(offset + TZKT_MAX_QUERY_ITEMS_LIMIT);
     }
   })(0);
 
   return balances;
 };
+
+type AssetBalance = [address: string, tokenId: string, balance: string];
+
+const fetchAssetsBalancesFromTzktOnce = (account: string, chainId: TzktApiChainId, offset = 0) =>
+  fetchGet<AssetBalance[]>(chainId, '/tokens/balances', {
+    account,
+    limit: TZKT_MAX_QUERY_ITEMS_LIMIT,
+    offset,
+    'select.values': 'token.contract.address,token.tokenId,balance'
+  });
 
 export const getAccountStatsFromTzkt = async (account: string, chainId: TzktApiChainId) =>
   fetchGet<TzktAccount>(chainId, `/accounts/${account}`);

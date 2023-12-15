@@ -14,11 +14,12 @@ import { AssetIcon } from 'app/templates/AssetIcon';
 import Balance from 'app/templates/Balance';
 import InFiat from 'app/templates/InFiat';
 import { setAnotherSelector, setTestID } from 'lib/analytics';
+import { useGasToken } from 'lib/assets/hooks';
 import { useFiatCurrency } from 'lib/fiat-currency';
 import { t, T } from 'lib/i18n';
 import { TezosLogoIcon } from 'lib/icons';
 import { getAssetName, getAssetSymbol, useAssetMetadata } from 'lib/metadata';
-import { useGasToken, useNetwork } from 'lib/temple/front';
+import { useNetwork } from 'lib/temple/front';
 import { useTotalBalance } from 'lib/temple/front/use-total-balance.hook';
 import useTippy from 'lib/ui/useTippy';
 

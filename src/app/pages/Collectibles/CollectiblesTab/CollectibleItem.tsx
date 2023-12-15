@@ -11,9 +11,9 @@ import {
 } from 'app/store/collectibles/selectors';
 import { useTokenMetadataSelector } from 'app/store/tokens-metadata/selectors';
 import { objktCurrencies } from 'lib/apis/objkt';
+import { useBalance } from 'lib/balances';
 import { T } from 'lib/i18n';
 import { getAssetName } from 'lib/metadata';
-import { useBalance } from 'lib/temple/front';
 import { atomsToTokens } from 'lib/temple/helpers';
 import { useIntersectionDetection } from 'lib/ui/use-intersection-detection';
 import { Link } from 'lib/woozie';

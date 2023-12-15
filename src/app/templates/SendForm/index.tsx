@@ -1,17 +1,17 @@
-import React, { FC, Suspense, useCallback, useMemo, useState } from 'react';
+import React, { FC, Suspense, useCallback, useState } from 'react';
 
 import type { WalletOperation } from '@taquito/taquito';
+import { isEqual } from 'lodash';
 
-import AssetSelect from 'app/templates/AssetSelect/AssetSelect';
-import { IAsset } from 'app/templates/AssetSelect/interfaces';
-import { getSlug } from 'app/templates/AssetSelect/utils';
+import AssetSelect from 'app/templates/AssetSelect';
 import OperationStatus from 'app/templates/OperationStatus';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
+import { useEnabledAccountTokensSlugs, useEnabledAccountCollectiblesSlugs } from 'lib/assets/hooks';
 import { useAssetsSortPredicate } from 'lib/assets/use-filtered';
 import { t } from 'lib/i18n';
-import { useAccount, useChainId, useTezos, useCollectibleTokens, useDisplayedFungibleTokens } from 'lib/temple/front';
-import { useSafeState } from 'lib/ui/hooks';
+import { useTezos } from 'lib/temple/front';
+import { useMemoWithCompare, useSafeState } from 'lib/ui/hooks';
 import { HistoryAction, navigate } from 'lib/woozie';
 
 import AddContactModal from './AddContactModal';
@@ -24,21 +24,18 @@ type SendFormProps = {
 };
 
 const SendForm: FC<SendFormProps> = ({ assetSlug = TEZ_TOKEN_SLUG }) => {
-  const chainId = useChainId(true)!;
-  const account = useAccount();
+  const tokensSlugs = useEnabledAccountTokensSlugs();
+  const collectiblesSlugs = useEnabledAccountCollectiblesSlugs();
 
-  const { data: tokens = [] } = useDisplayedFungibleTokens(chainId, account.publicKeyHash);
-  const { data: collectibles = [] } = useCollectibleTokens(chainId, account.publicKeyHash, true);
   const assetsSortPredicate = useAssetsSortPredicate();
 
-  const assets = useMemo<IAsset[]>(
-    () => [TEZ_TOKEN_SLUG, ...tokens, ...collectibles].sort((a, b) => assetsSortPredicate(getSlug(a), getSlug(b))),
-    [tokens, collectibles, assetsSortPredicate]
+  const allAssetsSlugs = useMemoWithCompare<string[]>(
+    () => [TEZ_TOKEN_SLUG, ...tokensSlugs, ...collectiblesSlugs].sort(assetsSortPredicate),
+    [tokensSlugs, collectiblesSlugs, assetsSortPredicate],
+    isEqual
   );
-  const selectedAsset = useMemo(
-    () => assets.find(a => getSlug(a) === assetSlug) ?? TEZ_TOKEN_SLUG,
-    [assets, assetSlug]
-  );
+
+  const selectedAsset = assetSlug ?? TEZ_TOKEN_SLUG;
 
   const tezos = useTezos();
   const [operation, setOperation] = useSafeState<WalletOperation | null>(null, tezos.checksum);
@@ -70,7 +67,7 @@ const SendForm: FC<SendFormProps> = ({ assetSlug = TEZ_TOKEN_SLUG }) => {
 
       <AssetSelect
         value={selectedAsset}
-        assets={assets}
+        slugs={allAssetsSlugs}
         onChange={handleAssetChange}
         className="mb-6"
         testIDs={{
@@ -81,11 +78,7 @@ const SendForm: FC<SendFormProps> = ({ assetSlug = TEZ_TOKEN_SLUG }) => {
       />
 
       <Suspense fallback={<SpinnerSection />}>
-        <Form
-          assetSlug={getSlug(selectedAsset)}
-          setOperation={setOperation}
-          onAddContactRequested={handleAddContactRequested}
-        />
+        <Form assetSlug={selectedAsset} setOperation={setOperation} onAddContactRequested={handleAddContactRequested} />
       </Suspense>
 
       <AddContactModal address={addContactModalAddress} onClose={closeContactModal} />

@@ -1,4 +1,4 @@
-import { useSelector } from '../index';
+import { useSelector } from '../root-state.selector';
 
 import type { CollectibleDetails } from './state';
 

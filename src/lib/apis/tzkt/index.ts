@@ -5,8 +5,7 @@ export type {
   TzktRewardsEntry,
   TzktAlias,
   TzktOperationType,
-  TzktTransactionOperation,
-  TzktAccountToken
+  TzktTransactionOperation
 } from './types';
 
 export { TzktAccountType } from './types';
@@ -17,7 +16,10 @@ export {
   getAccountStatsFromTzkt,
   getDelegatorRewards,
   getOneUserContracts,
-  fetchTzktTokens,
+  fetchTzktAccountAssets,
+  fetchTzktAccountAssetsPage,
+  fetchTezosBalanceFromTzkt,
+  fetchAllAssetsBalancesFromTzkt,
   fetchGetOperationsTransactions,
   fetchGetAccountOperations,
   fetchGetOperationsByHash,

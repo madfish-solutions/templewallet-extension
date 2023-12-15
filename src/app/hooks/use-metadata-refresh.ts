@@ -47,7 +47,7 @@ export const useMetadataRefresh = () => {
             const slug = slugsOnAppLoad[index]!;
             const [address, id] = slug.split('_');
 
-            const metadata = buildTokenMetadataFromFetched(token, address, Number(id));
+            const metadata = token && buildTokenMetadataFromFetched(token, address, Number(id));
 
             return metadata ? acc.concat(metadata) : acc;
           }, [])

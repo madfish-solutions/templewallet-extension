@@ -7171,6 +7171,11 @@ eslint-plugin-jsx-a11y@^6.5.1:
     object.entries "^1.1.7"
     object.fromentries "^2.0.7"
 
+eslint-plugin-no-type-assertion@^1.3.0:
+  version "1.3.0"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-no-type-assertion/-/eslint-plugin-no-type-assertion-1.3.0.tgz#14b0188509a0c8193c556a0dd763a9e87d0363af"
+  integrity sha512-04wuuIP5ptNzp969tTt0gf/Jsw4G0T5md2/nbgv3dRL/HySSNU7H4vIKNjkuno9T+6h2daj1T9Aki6bDgmXDEw==
+
 eslint-plugin-prettier@^4:
   version "4.2.1"
   resolved "https://registry.yarnpkg.com/eslint-plugin-prettier/-/eslint-plugin-prettier-4.2.1.tgz#651cbb88b1dab98bfd42f017a12fa6b2d993f94b"

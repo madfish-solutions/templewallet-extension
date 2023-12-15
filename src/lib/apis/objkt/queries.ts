@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client';
 
 export const buildGetCollectiblesQuery = () => gql`
-  query MyQuery($where: token_bool_exp) {
+  query CollectiblesQuery($where: token_bool_exp) {
     token(where: $where) {
       fa_contract
       token_id
@@ -10,7 +10,7 @@ export const buildGetCollectiblesQuery = () => gql`
           name
         }
       }
-      listings_active(order_by: { price_xtz: asc }) {
+      listings_active(limit: 1, order_by: { price_xtz: asc }) {
         currency_id
         price
       }
@@ -37,13 +37,6 @@ export const buildGetCollectiblesQuery = () => gql`
           editions
         }
       }
-      offers_active(order_by: { price_xtz: desc }) {
-        buyer_address
-        price
-        currency_id
-        bigmap_key
-        marketplace_contract
-      }
       attributes {
         attribute {
           id
@@ -65,11 +58,25 @@ export const buildGetCollectiblesQuery = () => gql`
 `;
 
 export const buildGetGalleriesAttributesCountsQuery = () => gql`
-  query MyQuery($where: gallery_attribute_count_bool_exp) {
+  query GalleriesAttributesQuery($where: gallery_attribute_count_bool_exp) {
     gallery_attribute_count(where: $where) {
       attribute_id
       gallery_pk
       editions
+    }
+  }
+`;
+
+export const buildGetCollectibleExtraQuery = () => gql`
+  query CollectiblesExtraQuery($where: token_bool_exp) {
+    token(where: $where) {
+      offers_active(order_by: { price_xtz: desc }) {
+        buyer_address
+        price
+        currency_id
+        bigmap_key
+        marketplace_contract
+      }
     }
   }
 `;

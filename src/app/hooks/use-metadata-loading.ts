@@ -1,39 +1,42 @@
 import { useEffect } from 'react';
 
-import { isDefined } from '@rnw-community/shared';
 import { isEqual } from 'lodash';
 import { useDispatch } from 'react-redux';
 
-import {
-  loadTokensMetadataAction,
-  loadWhitelistAction,
-  resetTokensMetadataLoadingAction
-} from 'app/store/tokens-metadata/actions';
+import { useAccountAssetsSelector } from 'app/store/assets/selectors';
+import { loadTokensMetadataAction, resetTokensMetadataLoadingAction } from 'app/store/tokens-metadata/actions';
 import { useTokensMetadataSelector } from 'app/store/tokens-metadata/selectors';
 import { METADATA_SYNC_INTERVAL } from 'lib/fixed-times';
-import { useChainId, useTezos } from 'lib/temple/front';
-import { useAllStoredTokensSlugs } from 'lib/temple/front/assets';
-import { TempleChainId } from 'lib/temple/types';
+import { useAccount, useChainId, useTezos } from 'lib/temple/front';
 import { useInterval, useMemoWithCompare } from 'lib/ui/hooks';
 
 export const useMetadataLoading = () => {
   const chainId = useChainId(true)!;
+  const { publicKeyHash: account } = useAccount();
   const dispatch = useDispatch();
   const tezos = useTezos();
 
-  const tokensMetadata = useTokensMetadataSelector();
+  const tokens = useAccountAssetsSelector(account, chainId, 'tokens');
+  const collectibles = useAccountAssetsSelector(account, chainId, 'collectibles');
 
-  const { data: tokensSlugs } = useAllStoredTokensSlugs(chainId);
+  const assetsMetadata = useTokensMetadataSelector();
 
   const slugsWithoutMetadata = useMemoWithCompare(
-    () => tokensSlugs?.filter(slug => !isDefined(tokensMetadata[slug])).sort(),
-    [tokensSlugs, tokensMetadata],
+    () => {
+      const tokensSlugs = tokens.reduce<string[]>(
+        (acc, { slug }) => (assetsMetadata[slug] ? acc : acc.concat(slug)),
+        []
+      );
+      const collectiblesSlugs = collectibles.reduce<string[]>(
+        (acc, { slug }) => (assetsMetadata[slug] ? acc : acc.concat(slug)),
+        []
+      );
+
+      return tokensSlugs.concat(collectiblesSlugs).sort();
+    },
+    [tokens, collectibles, assetsMetadata],
     isEqual
   );
-
-  useEffect(() => {
-    if (chainId === TempleChainId.Mainnet) dispatch(loadWhitelistAction.submit());
-  }, [chainId]);
 
   useEffect(() => {
     dispatch(resetTokensMetadataLoadingAction());
@@ -43,7 +46,7 @@ export const useMetadataLoading = () => {
 
   useInterval(
     () => {
-      if (!slugsWithoutMetadata || slugsWithoutMetadata.length < 1) return;
+      if (slugsWithoutMetadata.length < 1) return;
 
       const rpcUrl = tezos.rpc.getRpcUrl();
 

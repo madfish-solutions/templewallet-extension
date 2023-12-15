@@ -4,7 +4,7 @@ import { BigNumber } from 'bignumber.js';
 
 import Money from 'app/atoms/Money';
 import { AssetMetadataBase } from 'lib/metadata';
-import { ZERO } from 'lib/route3/constants';
+import { ZERO } from 'lib/utils/numbers';
 
 interface Props {
   inputAmount: BigNumber | undefined;

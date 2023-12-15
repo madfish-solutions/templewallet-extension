@@ -19,19 +19,9 @@ export {
   useCustomChainId
 } from './ready';
 
-export {
-  useCollectibleTokens,
-  useDisplayedFungibleTokens,
-  useGetTokenMetadata,
-  useGasToken,
-  useAvailableAssetsSlugs
-} from './assets';
-
 export { validateDerivationPath, validateContractAddress } from './helpers';
 
 export { useBlockTriggers, useOnBlock } from './chain';
-
-export { useBalance } from './balance';
 
 export { useContactsActions, searchContacts } from './address-book';
 

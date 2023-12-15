@@ -1,9 +1,7 @@
 import React, { FC, useCallback, useEffect, useMemo, useState } from 'react';
 
 import { ChainIds } from '@taquito/taquito';
-import { BigNumber } from 'bignumber.js';
 import clsx from 'clsx';
-import { isEqual } from 'lodash';
 
 import { SyncSpinner, Divider, Checkbox } from 'app/atoms';
 import DropdownWrapper from 'app/atoms/DropdownWrapper';
@@ -13,19 +11,20 @@ import { useBalancesWithDecimals } from 'app/hooks/use-balances-with-decimals.ho
 import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
 import { ReactComponent as EditingIcon } from 'app/icons/editing.svg';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
+import { useAreAssetsLoading } from 'app/store/assets/selectors';
 import { useIsEnabledAdsBannerSelector } from 'app/store/settings/selectors';
 import { ButtonForManageDropdown } from 'app/templates/ManageDropdown';
 import SearchAssetField from 'app/templates/SearchAssetField';
 import { setTestID } from 'lib/analytics';
 import { OptimalPromoVariantEnum } from 'lib/apis/optimal';
-import { TEMPLE_TOKEN_SLUG, TEZ_TOKEN_SLUG } from 'lib/assets';
+import { TEZ_TOKEN_SLUG, TEMPLE_TOKEN_SLUG } from 'lib/assets';
+import { useEnabledAccountTokensSlugs } from 'lib/assets/hooks';
 import { useFilteredAssetsSlugs } from 'lib/assets/use-filtered';
 import { T, t } from 'lib/i18n';
-import { useAccount, useChainId, useDisplayedFungibleTokens } from 'lib/temple/front';
-import { useSyncTokens } from 'lib/temple/front/sync-tokens';
-import { useMemoWithCompare } from 'lib/ui/hooks';
+import { useChainId } from 'lib/temple/front';
 import { useLocalStorage } from 'lib/ui/local-storage';
 import Popper, { PopperRenderProps } from 'lib/ui/Popper';
+import { ZERO } from 'lib/utils/numbers';
 import { Link, navigate } from 'lib/woozie';
 
 import { HomeSelectors } from '../../Home.selectors';
@@ -42,11 +41,11 @@ export const TokensTab: FC = () => {
   const chainId = useChainId(true)!;
   const balances = useBalancesWithDecimals();
 
-  const { publicKeyHash } = useAccount();
-  const { isSyncing } = useSyncTokens();
   const { popup } = useAppEnv();
 
-  const { data: tokens = [] } = useDisplayedFungibleTokens(chainId, publicKeyHash);
+  const isSyncing = useAreAssetsLoading('tokens');
+
+  const slugs = useEnabledAccountTokensSlugs();
 
   const [isZeroBalancesHidden, setIsZeroBalancesHidden] = useLocalStorage(LOCAL_STORAGE_TOGGLE_KEY, false);
 
@@ -54,8 +53,6 @@ export const TokensTab: FC = () => {
     () => void setIsZeroBalancesHidden(val => !val),
     [setIsZeroBalancesHidden]
   );
-
-  const slugs = useMemoWithCompare(() => tokens.map(({ tokenSlug }) => tokenSlug).sort(), [tokens], isEqual);
 
   const leadingAssets = useMemo(
     () => (chainId === ChainIds.MAINNET ? [TEZ_TOKEN_SLUG, TEMPLE_TOKEN_SLUG] : [TEZ_TOKEN_SLUG]),
@@ -84,7 +81,7 @@ export const TokensTab: FC = () => {
         key={assetSlug}
         assetSlug={assetSlug}
         active={activeAssetSlug ? assetSlug === activeAssetSlug : false}
-        balance={balances[assetSlug] ?? new BigNumber(0)}
+        balance={balances[assetSlug] ?? ZERO}
       />
     ));
 
@@ -134,7 +131,7 @@ export const TokensTab: FC = () => {
   return (
     <div className="w-full max-w-sm mx-auto">
       <div className={clsx('mt-3', popup && 'mx-4')}>
-        <div className="mb-3 w-full flex items-strech">
+        <div className="mb-3 w-full flex">
           <SearchAssetField
             value={searchValue}
             onValueChange={setSearchValue}

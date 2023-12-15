@@ -49,6 +49,8 @@ const persistor = persistStore(store);
 
 epicMiddleware.run(rootEpic);
 
-export { store, persistor };
+const dispatch = store.dispatch.bind(store);
+
+export { store, persistor, dispatch };
 
 export { useSelector } from './root-state.selector';
