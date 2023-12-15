@@ -8,6 +8,7 @@ import Logo from 'app/atoms/Logo';
 import Name from 'app/atoms/Name';
 import { useAppEnv } from 'app/env';
 import ContentContainer from 'app/layouts/ContentContainer';
+import { ShortcutAccountSwitchAnchor } from 'app/templates/ShortcutAccountSwitch/anchor';
 import { useTempleClient, useAccount } from 'lib/temple/front';
 import Popper from 'lib/ui/Popper';
 import { Link } from 'lib/woozie';
@@ -47,6 +48,7 @@ const Control: FC = () => {
 
   return (
     <>
+      <ShortcutAccountSwitchAnchor />
       <div className="flex-1 flex flex-col items-end">
         <div className="max-w-full overflow-x-hidden">
           <Name className="text-primary-white text-sm font-semibold text-shadow-black opacity-90">{account.name}</Name>
