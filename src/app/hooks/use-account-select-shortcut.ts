@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 
 import { useKeyboardShortcut } from './use-keyboard-shortcut';
 
-const ACCOUNT_SELECT_SHORTCUT = {
+const ACCOUNT_SELECT_HOTKEY = {
   key: 'k' as const,
   modifierKey: 'command' as const
 };
@@ -29,7 +29,7 @@ export const useAccountSelectShortcut = (
 
   const handleShortcutPress = useCallback(
     (e: KeyboardEvent) => {
-      if (e.key !== ACCOUNT_SELECT_SHORTCUT.key) return;
+      if (e.key !== ACCOUNT_SELECT_HOTKEY.key) return;
 
       e.preventDefault();
 
@@ -44,6 +44,6 @@ export const useAccountSelectShortcut = (
 
   useKeyboardShortcut({
     handler: handleShortcutPress,
-    modifierKey: ACCOUNT_SELECT_SHORTCUT.modifierKey
+    modifierKey: ACCOUNT_SELECT_HOTKEY.modifierKey
   });
 };
