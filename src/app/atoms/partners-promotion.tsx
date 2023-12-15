@@ -62,7 +62,7 @@ export const PartnersPromotion: FC<Props> = memo(({ variant, id }) => {
     return;
   }, [hiddenAt]);
 
-  const handleClosePartnersPromoClick = useCallback(async () => {
+  const handleClosePartnersPromoClick = useCallback(() => {
     dispatch(hidePromotionAction({ timestamp: Date.now(), id }));
   }, [id, dispatch]);
 
