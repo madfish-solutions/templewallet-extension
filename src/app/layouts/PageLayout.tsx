@@ -23,6 +23,7 @@ import ConfirmationOverlay from './PageLayout/ConfirmationOverlay';
 import Header from './PageLayout/Header';
 import { NewsletterOverlay } from './PageLayout/NewsletterOverlay/NewsletterOverlay';
 import { OnRampOverlay } from './PageLayout/OnRampOverlay/OnRampOverlay';
+import { ShortcutAccountSwitchOverlay } from './PageLayout/ShortcutAccountSwitchOverlay';
 
 interface PageLayoutProps extends PropsWithChildren, ToolbarProps {
   contentContainerStyle?: React.CSSProperties;
@@ -54,6 +55,7 @@ const PageLayout: FC<PageLayoutProps> = ({ children, contentContainerStyle, ...t
       <ChangelogOverlay />
       <OnRampOverlay />
       <NewsletterOverlay />
+      <ShortcutAccountSwitchOverlay />
     </>
   );
 };

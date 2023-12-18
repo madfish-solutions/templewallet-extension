@@ -14,6 +14,7 @@ import { ReactComponent as MaximiseIcon } from 'app/icons/maximise.svg';
 import { ReactComponent as SadSearchIcon } from 'app/icons/sad-search.svg';
 import { ReactComponent as SettingsIcon } from 'app/icons/settings.svg';
 import SearchField from 'app/templates/SearchField';
+import { searchHotkey } from 'lib/constants';
 import { T, t } from 'lib/i18n';
 import { useAccount, useRelevantAccounts, useSetAccountPkh, useTempleClient, useGasToken } from 'lib/temple/front';
 import { PopperRenderProps } from 'lib/ui/Popper';
@@ -23,9 +24,6 @@ import { HistoryAction, navigate } from 'lib/woozie';
 import { AccountItem } from './AccountItem';
 import { ActionButtonProps, ActionButton } from './ActionButton';
 import { AccountDropdownSelectors } from './selectors';
-
-const isMacOS = /Mac OS/.test(navigator.userAgent);
-const searchHotkey = ` (${isMacOS ? '⌘' : 'Ctrl + '}K)`;
 
 type AccountDropdownProps = PopperRenderProps;
 

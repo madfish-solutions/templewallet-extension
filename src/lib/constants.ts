@@ -19,3 +19,6 @@ export const ETHERSCAN_BUILTIN_ADS_WEBSITES = [
   'https://bscscan.com',
   'https://polygonscan.com'
 ];
+
+const isMacOS = /Mac OS/.test(navigator.userAgent);
+export const searchHotkey = ` (${isMacOS ? '⌘' : 'Ctrl + '}K)`;

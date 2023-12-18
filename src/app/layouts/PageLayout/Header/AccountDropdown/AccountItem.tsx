@@ -17,9 +17,17 @@ interface AccountItemProps {
   gasTokenName: string;
   attractSelf: boolean;
   onClick: () => void;
+  className?: string;
 }
 
-export const AccountItem: React.FC<AccountItemProps> = ({ account, selected, gasTokenName, attractSelf, onClick }) => {
+export const AccountItem: React.FC<AccountItemProps> = ({
+  account,
+  selected,
+  gasTokenName,
+  attractSelf,
+  onClick,
+  className
+}) => {
   const { name, publicKeyHash, type } = account;
 
   const elemRef = useScrollIntoViewOnMount<HTMLButtonElement>(selected && attractSelf);
@@ -32,9 +40,10 @@ export const AccountItem: React.FC<AccountItemProps> = ({ account, selected, gas
         'transition ease-in-out duration-200',
         selected && 'shadow',
         selected ? 'bg-gray-700 bg-opacity-40' : 'hover:bg-gray-700 hover:bg-opacity-20',
-        !selected && 'opacity-65 hover:opacity-100'
+        !selected && 'opacity-65 hover:opacity-100',
+        className
       ),
-    [selected]
+    [selected, className]
   );
 
   return (
