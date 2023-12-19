@@ -12,6 +12,7 @@ import { Link } from 'lib/woozie';
 import { AssetsSelectors } from '../../Assets.selectors';
 import styles from '../Tokens.module.css';
 import { toExploreAssetLink } from '../utils';
+
 import { CryptoBalance, FiatBalance } from './Balance';
 import { TokenTag } from './TokenTag';
 

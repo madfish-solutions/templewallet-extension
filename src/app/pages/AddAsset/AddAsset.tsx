@@ -20,19 +20,13 @@ import {
   detectTokenStandard,
   IncorrectTokenIdError
 } from 'lib/assets/standards';
+import { getBalanceSWRKey } from 'lib/balances';
 import { T, t } from 'lib/i18n';
 import type { TokenMetadata } from 'lib/metadata';
 import { fetchOneTokenMetadata } from 'lib/metadata/fetch';
 import { TokenMetadataNotFoundError } from 'lib/metadata/on-chain';
 import { loadContract } from 'lib/temple/contract';
-import {
-  useTezos,
-  useNetwork,
-  useChainId,
-  useAccount,
-  getBalanceSWRKey,
-  validateContractAddress
-} from 'lib/temple/front';
+import { useTezos, useNetwork, useChainId, useAccount, validateContractAddress } from 'lib/temple/front';
 import * as Repo from 'lib/temple/repo';
 import { useSafeState } from 'lib/ui/hooks';
 import { delay } from 'lib/utils';

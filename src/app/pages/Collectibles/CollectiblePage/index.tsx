@@ -29,6 +29,7 @@ import { navigate } from 'lib/woozie';
 
 import { useCollectibleSelling } from '../hooks/use-collectible-selling.hook';
 import { CollectiblesSelectors } from '../selectors';
+
 import { AttributesItems } from './AttributesItems';
 import { CollectiblePageImage } from './CollectiblePageImage';
 import { PropertiesItems } from './PropertiesItems';

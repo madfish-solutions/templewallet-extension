@@ -1,10 +1,10 @@
 import React, { FC, useState } from 'react';
 
+import ImportTabSwitcher from 'app/atoms/ImportTabSwitcher';
 import PageLayout from 'app/layouts/PageLayout';
 import { TID, t } from 'lib/i18n';
+import { useTempleClient } from 'lib/temple/front';
 
-import { useTempleClient } from '../../../lib/temple/front';
-import ImportTabSwitcher from '../../atoms/ImportTabSwitcher';
 import { ImportFromKeystoreFile } from './import/ImportFromKeystoreFile/ImportFromKeystoreFile';
 import { ImportFromSeedPhrase } from './import/ImportSeedPhrase/ImportFromSeedPhrase';
 import { LockedWalletExists } from './LockedWalletExists';

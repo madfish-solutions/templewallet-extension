@@ -481,6 +481,10 @@
     "message": "Mainnet Tezos",
     "description": "Mainnet = main network"
   },
+  "marigoldMainnet": {
+    "message": "Mainnet Marigold",
+    "description": "Mainnet = main network"
+  },
   "templeWalletOptions": {
     "message": "Portefeuille Temple | Options"
   },

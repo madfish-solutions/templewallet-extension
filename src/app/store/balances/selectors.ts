@@ -1,6 +1,6 @@
-import { getKeyForBalancesRecord } from 'lib/balances';
+import { getKeyForBalancesRecord } from 'lib/balances/utils';
 
-import { useSelector } from '..';
+import { useSelector } from '../root-state.selector';
 
 const EMPTY_BALANCES_RECORD = {};
 

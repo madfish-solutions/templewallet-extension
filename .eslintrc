@@ -31,6 +31,7 @@
     "import/no-named-as-default": "off",
     "import/no-named-as-default-member": "off",
     "import/no-self-import": "error",
+    "import/no-cycle": "error",
     "import/order": [
       "error",
       {
@@ -42,7 +43,7 @@
           }
         ],
         "pathGroupsExcludedImportTypes": ["react"],
-        "groups": [["external", "builtin"], "internal", ["parent", "sibling", "index"]],
+        "groups": [["external", "builtin"], "internal", "parent", "sibling", "index"],
         "alphabetize": {
           "order": "asc",
           "caseInsensitive": true

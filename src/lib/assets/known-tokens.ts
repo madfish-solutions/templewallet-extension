@@ -1,13 +1,15 @@
 import { TokenMetadata, TokenStandardsEnum } from 'lib/metadata/types';
 import { TempleChainId } from 'lib/temple/types';
 
-import { toTokenSlug } from './index';
 import { FA2Token } from './types';
+import { toTokenSlug } from './utils';
 
 export const TempleToken: FA2Token = {
   contract: 'KT1VaEsVNiBoA56eToEK6n6BcPgh1tdx9eXi',
   id: 0
 };
+
+export const TEMPLE_TOKEN_SLUG = toTokenSlug(TempleToken.contract, TempleToken.id);
 
 export namespace KNOWN_TOKENS_SLUGS {
   export const TZBTC = toTokenSlug('KT1PWx2mnDueood7fEmfbBDKx1D9BAnnXitn', 0);

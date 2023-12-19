@@ -9,7 +9,7 @@ import { TzktAccountToken, fetchTzktTokens } from 'lib/apis/tzkt';
 import { toTokenSlug } from 'lib/assets';
 import { getPredefinedTokensSlugs } from 'lib/assets/known-tokens';
 import { getStoredTokens } from 'lib/temple/assets';
-import { useChainId, useAccount } from 'lib/temple/front';
+import { useChainId, useAccount } from 'lib/temple/front/ready';
 import * as Repo from 'lib/temple/repo';
 import { filterUnique } from 'lib/utils';
 

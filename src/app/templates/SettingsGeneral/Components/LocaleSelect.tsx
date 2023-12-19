@@ -126,9 +126,7 @@ const LocaleSelect: FC = () => {
   return (
     <InputContainer className="mb-8" header={<LocaleTitle />}>
       <DropdownSelect
-        testIds={{
-          dropdownTestId: SettingsGeneralSelectors.languageDropDown
-        }}
+        testID={SettingsGeneralSelectors.languageDropDown}
         optionsListClassName="p-2"
         dropdownButtonClassName="p-3"
         DropdownFaceContent={<LocaleFieldContent {...value} />}

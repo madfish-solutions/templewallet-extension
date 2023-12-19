@@ -28,6 +28,7 @@ import PasswordStrengthIndicator, { PasswordValidation } from 'lib/ui/PasswordSt
 import { navigate } from 'lib/woozie';
 
 import { useOnboardingProgress } from '../../Onboarding/hooks/useOnboardingProgress.hook';
+
 import { setWalletPasswordSelectors } from './SetWalletPassword.selectors';
 
 const MIN_PASSWORD_LENGTH = 8;

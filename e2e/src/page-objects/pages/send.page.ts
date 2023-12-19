@@ -22,5 +22,7 @@ export class SendPage extends Page {
     const tokenItemElem = await findElement(SendFormSelectors.assetDropDownItem, { slug });
 
     await tokenItemElem.click();
+
+    await createPageElement(SendFormSelectors.assetDropDownSelect, { slug }).waitForDisplayed();
   }
 }
