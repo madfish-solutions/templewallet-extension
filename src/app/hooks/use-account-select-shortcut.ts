@@ -7,23 +7,8 @@ const ACCOUNT_SELECT_HOTKEY = {
   modifierKey: 'command' as const
 };
 
-const ESC_KEY = 'Escape';
-
 export const useAccountSelectShortcut = () => {
   const [opened, setOpened] = useState(false);
-
-  const handleEscPress = useCallback(
-    (e: KeyboardEvent) => {
-      if (e.key !== ESC_KEY) return;
-
-      e.preventDefault();
-
-      if (opened) {
-        setOpened(false);
-      }
-    },
-    [opened]
-  );
 
   const handleShortcutPress = useCallback((e: KeyboardEvent) => {
     if (e.key !== ACCOUNT_SELECT_HOTKEY.key) return;
@@ -32,10 +17,6 @@ export const useAccountSelectShortcut = () => {
 
     setOpened(prev => !prev);
   }, []);
-
-  useKeyboardShortcut({
-    handler: handleEscPress
-  });
 
   useKeyboardShortcut({
     handler: handleShortcutPress,

@@ -6,6 +6,7 @@ import useOnClickOutside from 'use-onclickoutside';
 
 import Divider from 'app/atoms/Divider';
 import { useAccountSelectShortcut } from 'app/hooks/use-account-select-shortcut';
+import { useKeyboardShortcut } from 'app/hooks/use-keyboard-shortcut';
 import { useModalScrollLock } from 'app/hooks/use-modal-scroll-lock';
 import { ReactComponent as SadSearchIcon } from 'app/icons/sad-search.svg';
 import { AccountItem } from 'app/layouts/PageLayout/Header/AccountDropdown/AccountItem';
@@ -42,6 +43,28 @@ export const ShortcutAccountSwitchOverlay: FC = () => {
       { name: 'publicKeyHash', weight: 0.5 }
     ]);
   }, [searchValue, allAccounts]);
+
+  const handleEscPress = useCallback(
+    (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return;
+
+      e.preventDefault();
+
+      if (searchValue) {
+        setSearchValue('');
+        return;
+      }
+
+      if (opened) {
+        setOpened(false);
+      }
+    },
+    [opened, searchValue, setOpened]
+  );
+
+  useKeyboardShortcut({
+    handler: handleEscPress
+  });
 
   const handleAccountClick = useCallback(
     (publicKeyHash: string) => {
