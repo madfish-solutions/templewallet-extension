@@ -26,7 +26,7 @@ import Welcome from 'app/pages/Welcome/Welcome';
 import { AliceBobWithdraw } from 'app/pages/Withdraw/Debit/AliceBob/AliceBobWithdraw';
 import { Withdraw } from 'app/pages/Withdraw/Withdraw';
 import { usePageRouterAnalytics } from 'lib/analytics';
-import { Notifications, NotificationsItem } from 'lib/notifications';
+import { Notifications, NotificationsItem } from 'lib/notifications/components';
 import { useTempleClient } from 'lib/temple/front';
 import * as Woozie from 'lib/woozie';
 

@@ -6,6 +6,7 @@ import * as Ed25519 from 'ed25519-hd-key';
 import { TempleAccount } from 'lib/temple/types';
 
 import { PublicError } from '../PublicError';
+
 import { fetchMessage } from './helpers';
 
 const TEZOS_BIP44_COINTYPE = 1729;

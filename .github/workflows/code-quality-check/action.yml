@@ -6,6 +6,10 @@ runs:
     - run: yarn install
       shell: bash
 
+    - name: Audit dependencies
+      run: yarn audit-deps
+      shell: bash
+
     - name: Check TypeScript
       run: yarn ts
       shell: bash

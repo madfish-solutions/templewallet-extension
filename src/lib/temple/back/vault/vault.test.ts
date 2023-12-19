@@ -1,6 +1,7 @@
 import browser from 'webextension-polyfill';
 
 import { TempleAccountType, TempleSettings } from '../../types';
+
 import { Vault } from './index';
 
 const password = 'Test123!';

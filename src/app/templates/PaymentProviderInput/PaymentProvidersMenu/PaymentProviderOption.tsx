@@ -11,6 +11,7 @@ import { t, toLocalFixed } from 'lib/i18n';
 import { formatAmountToTargetSize } from 'lib/utils/amounts';
 
 import { MoneyRange } from '../MoneyRange';
+
 import { PaymentProviderTag, PaymentProviderTagProps } from './PaymentProviderTag';
 
 interface Props extends Partial<Pick<ListRowProps, 'style'>> {

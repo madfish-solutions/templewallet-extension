@@ -4,6 +4,7 @@ import { isDefined } from '@rnw-community/shared';
 import { createEntity } from 'lib/store';
 
 import { NotificationStatus } from '../enums/notification-status.enum';
+
 import {
   loadNotificationsAction,
   setIsNewsEnabledAction,

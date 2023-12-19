@@ -3,6 +3,7 @@ import { useMemo } from 'react';
 import { TopUpProviderId } from 'lib/buy-with-credit-card/top-up-provider-id.enum';
 
 import { useSelector } from '../index';
+
 import { PairLimits } from './state';
 
 export const useProviderCurrenciesErrorSelector = (topUpProvider: TopUpProviderId) =>
