@@ -6,7 +6,7 @@ import useOnClickOutside from 'use-onclickoutside';
 
 import Divider from 'app/atoms/Divider';
 import { useAccountSelectShortcut } from 'app/hooks/use-account-select-shortcut';
-import { useDisableBodyScroll } from 'app/hooks/use-disable-body-scroll';
+import { useModalScrollLock } from 'app/hooks/use-modal-scroll-lock';
 import { ReactComponent as SadSearchIcon } from 'app/icons/sad-search.svg';
 import { AccountItem } from 'app/layouts/PageLayout/Header/AccountDropdown/AccountItem';
 import SearchField from 'app/templates/SearchField';
@@ -18,10 +18,10 @@ import { searchAndFilterItems } from 'lib/utils/search-items';
 import { HistoryAction, navigate } from 'lib/woozie';
 
 export const ShortcutAccountSwitchOverlay: FC = () => {
-  const { opened, setOpened } = useAccountSelectShortcut();
-  useDisableBodyScroll(opened);
-
   const accountSwitchRef = useRef<HTMLDivElement>(null);
+
+  const { opened, setOpened } = useAccountSelectShortcut();
+  useModalScrollLock(opened, accountSwitchRef);
   useOnClickOutside(accountSwitchRef, () => setOpened(false));
 
   const allAccounts = useRelevantAccounts();
@@ -100,7 +100,7 @@ export const ShortcutAccountSwitchOverlay: FC = () => {
 
             <Divider className="bg-gray-700 -mx-2" />
 
-            <div className="overflow-y-auto h-63 p-2 -mx-2">
+            <div className="overflow-y-auto overscroll-contain h-63 p-2 -mx-2">
               <div className="flex flex-col">
                 {filteredAccounts.length === 0 ? (
                   <div className="h-63 flex justify-center items-center">
