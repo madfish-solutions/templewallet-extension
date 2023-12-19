@@ -1,4 +1,4 @@
-import React, { FC, InputHTMLAttributes, useCallback, useRef } from 'react';
+import React, { FC, InputHTMLAttributes, MutableRefObject, useCallback, useRef } from 'react';
 
 import classNames from 'clsx';
 
@@ -17,6 +17,7 @@ export interface SearchFieldProps extends InputHTMLAttributes<HTMLInputElement>,
   cleanButtonStyle?: React.CSSProperties;
   cleanButtonIconStyle?: React.CSSProperties;
   isCleanButtonVisible?: boolean;
+  externalRef?: MutableRefObject<HTMLInputElement | null>;
   value: string;
   onValueChange: (value: string) => void;
 }
@@ -35,10 +36,11 @@ const SearchField: FC<SearchFieldProps> = ({
   cleanButtonIconClassName,
   cleanButtonStyle,
   cleanButtonIconStyle,
+  externalRef,
   testID,
   ...rest
 }) => {
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
   const handleChange = useCallback(
     (evt: React.ChangeEvent<HTMLInputElement>) => {
@@ -59,7 +61,12 @@ const SearchField: FC<SearchFieldProps> = ({
     <div className={classNames('w-full flex flex-col', containerClassName)}>
       <div className="relative flex items-stretch">
         <input
-          ref={inputRef}
+          ref={el => {
+            inputRef.current = el;
+            if (externalRef) {
+              externalRef.current = el;
+            }
+          }}
           type="text"
           className={classNames('appearance-none w-full', className)}
           value={value}

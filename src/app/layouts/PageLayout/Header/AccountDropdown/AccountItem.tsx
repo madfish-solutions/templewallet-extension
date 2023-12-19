@@ -1,14 +1,15 @@
-import React, { useMemo } from 'react';
+import React, { RefObject, useMemo } from 'react';
 
+import { isDefined } from '@rnw-community/shared';
 import classNames from 'clsx';
 
 import { Name, Button, HashShortView, Money, Identicon } from 'app/atoms';
 import AccountTypeBadge from 'app/atoms/AccountTypeBadge';
 import Balance from 'app/templates/Balance';
+import { setAnotherSelector, setTestID } from 'lib/analytics';
 import { TempleAccount } from 'lib/temple/types';
 import { useScrollIntoViewOnMount } from 'lib/ui/use-scroll-into-view';
 
-import { setAnotherSelector, setTestID } from '../../../../../lib/analytics';
 import { AccountDropdownSelectors } from './selectors';
 
 interface AccountItemProps {
@@ -17,6 +18,8 @@ interface AccountItemProps {
   gasTokenName: string;
   attractSelf: boolean;
   onClick: () => void;
+  arrayIndex?: number;
+  itemsArrayRef?: RefObject<Array<HTMLButtonElement | null>>;
   className?: string;
 }
 
@@ -26,6 +29,8 @@ export const AccountItem: React.FC<AccountItemProps> = ({
   gasTokenName,
   attractSelf,
   onClick,
+  arrayIndex,
+  itemsArrayRef,
   className
 }) => {
   const { name, publicKeyHash, type } = account;
@@ -48,7 +53,13 @@ export const AccountItem: React.FC<AccountItemProps> = ({
 
   return (
     <Button
-      ref={elemRef}
+      ref={el => {
+        elemRef.current = el;
+
+        if (isDefined(arrayIndex) && itemsArrayRef?.current) {
+          itemsArrayRef.current[arrayIndex] = el;
+        }
+      }}
       className={classNameMemo}
       onClick={onClick}
       testID={AccountDropdownSelectors.accountItemButton}
