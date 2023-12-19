@@ -18,17 +18,15 @@ export const fifoResolve = <A extends unknown[], T>(fn: (...args: A) => Promise<
 
   return async (...args: A): Promise<T> => {
     const promise = fn(...args);
-    await queueMutex.runExclusive(async () => queue.push(promise));
+    await queueMutex.runExclusive(() => queue.push(promise));
 
     try {
-      const result = await promise;
-      const prevPromises = await queueMutex.runExclusive(async () => queue.slice(0, queue.indexOf(promise)));
+      const prevPromises = await queueMutex.runExclusive(() => queue.slice(0, queue.indexOf(promise)));
       await Promise.all(prevPromises.map(promise => promise.catch(noop)));
-      await delay(prevPromises.length + 1);
 
-      return result;
+      return await promise;
     } finally {
-      await queueMutex.runExclusive(async () => queue.splice(queue.indexOf(promise), 1));
+      await queueMutex.runExclusive(() => queue.splice(queue.indexOf(promise), 1));
     }
   };
 };
