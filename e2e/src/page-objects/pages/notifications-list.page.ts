@@ -45,7 +45,7 @@ export class NotificationsListPage extends Page {
   async isNotificationNotDisplayed({ id, title }: NotificationInterface) {
     const notificationTextElem = createPageElement(PreviewItemSelectors.notificationItem, { id: String(id) });
 
-    await notificationTextElem.waitForDisplayed().then(
+    await notificationTextElem.waitForDisplayed(1_500).then(
       () => {
         throw new Error(`The notification '${title}' is displayed after turning off 'news' checkbox in settings`);
       },

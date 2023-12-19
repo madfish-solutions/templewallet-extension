@@ -45,16 +45,13 @@ Given(/I make request for creating a notification/, { timeout: MEDIUM_TIMEOUT },
     expirationDate: expirationDateISO
   };
 
-  const response = await axios.post<{ notification: NotificationInterface }>(
-    'https://temple-api-mainnet.stage.madfish.xyz/api/notifications',
-    requestBody,
-    {
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: envVars.NOTIFICATION_AUTHORIZATION
-      }
+  const response = await axios.post<{ notification: NotificationInterface }>('/api/notifications', requestBody, {
+    baseURL: envVars.TEMPLE_WALLET_API_URL,
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: envVars.NOTIFICATION_AUTHORIZATION
     }
-  );
+  });
 
   if (response.status !== 200)
     throw new Error(`Notifications request failed with ${response.status}: ${response.statusText}`);
