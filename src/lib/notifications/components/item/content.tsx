@@ -1,11 +1,16 @@
 import React, { FC } from 'react';
 
-import { NotificationInterface } from '../../interfaces/notification.interface';
+import { setTestID, TestIDProps } from '../../../analytics';
+import { NotificationInterface } from '../../types';
 
-type Props = Pick<NotificationInterface, 'content'>;
+type Props = TestIDProps & Pick<NotificationInterface, 'content'>;
 
-export const NotificationsItemContent: FC<Props> = ({ content }) => (
-  <p className="font-inter text-gray-900 font-normal whitespace-pre-wrap mb-3" style={{ fontSize: 14 }}>
+export const NotificationsItemContent: FC<Props> = ({ content, testID }) => (
+  <p
+    className="font-inter text-gray-900 font-normal whitespace-pre-wrap mb-3"
+    style={{ fontSize: 14 }}
+    {...setTestID(testID)}
+  >
     {content.map((contentItem, index) => {
       if (typeof contentItem === 'string') {
         return contentItem;
