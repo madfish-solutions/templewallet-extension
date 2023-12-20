@@ -7,8 +7,16 @@ import {
   TempleDAppRequest,
   TempleDAppResponse
 } from '@temple-wallet/dapp/dist/types';
+import memoize from 'p-memoize';
 import browser, { Runtime } from 'webextension-polyfill';
 
+import {
+  getAdPlacesRulesByDomain,
+  getProvidersRulesByDomain,
+  getProvidersToReplaceAtAllSites,
+  getSelectorsForAllProviders,
+  SliseAdPlacesRule
+} from 'lib/apis/temple';
 import { BACKGROUND_IS_WORKER } from 'lib/env';
 import { addLocalOperation } from 'lib/temple/activity';
 import * as Beacon from 'lib/temple/beacon';
@@ -20,7 +28,7 @@ import {
   TempleSettings,
   TempleSharedStorageKey
 } from 'lib/temple/types';
-import { createQueue, delay } from 'lib/utils';
+import { createQueue, delay, infiniteRetry } from 'lib/utils';
 
 import {
   getCurrentPermission,
@@ -513,6 +521,68 @@ export async function processBeacon(
   }
   return { payload: resMsg };
 }
+
+export const getExternalAdsData = async (hostname: string, href: string) => {
+  const [adPlacesRules, providersRules, providersToReplaceAtAllSites, selectorsForAllProviders] = await Promise.all([
+    infiniteRetry(() => getAdPlacesRulesByDomain(hostname)),
+    infiniteRetry(() => getProvidersRulesByDomain(hostname)),
+    infiniteRetry(() => getProvidersToReplaceAtAllSites()),
+    infiniteRetry(() => getSelectorsForAllProviders())
+  ]);
+
+  const aggregatedRelatedAdPlacesRules = adPlacesRules.reduce<Array<Omit<SliseAdPlacesRule, 'urlRegexes'>>>(
+    (acc, { urlRegexes, selector, stylesOverrides }) => {
+      if (!urlRegexes.some(regex => regex.test(href))) return acc;
+
+      const { cssString, ...restSelectorProps } = selector;
+      const ruleToComplementIndex = acc.findIndex(
+        ({ selector: candidateSelector, stylesOverrides: candidateStylesOverrides }) => {
+          const { cssString: _candidateCssString, ...restCandidateSelectorProps } = candidateSelector;
+
+          return (
+            JSON.stringify(restSelectorProps) === JSON.stringify(restCandidateSelectorProps) &&
+            JSON.stringify(stylesOverrides) === JSON.stringify(candidateStylesOverrides)
+          );
+        }
+      );
+      if (ruleToComplementIndex === -1) {
+        acc.push({ stylesOverrides, selector });
+      } else {
+        acc[ruleToComplementIndex].selector.cssString += ', '.concat(cssString);
+      }
+
+      return acc;
+    },
+    []
+  );
+
+  const relatedProvidersRules = providersRules.filter(({ urlRegexes }) => urlRegexes.some(regex => regex.test(href)));
+  const alreadyProcessedProviders = new Set<string>();
+  const selectorsForProvidersToReplace = new Set<string>();
+  const handleProvider = (provider: string) => {
+    if (alreadyProcessedProviders.has(provider)) return;
+
+    const newSelectors = selectorsForAllProviders[provider] ?? [];
+    newSelectors.forEach(selector => selectorsForProvidersToReplace.add(selector));
+    alreadyProcessedProviders.add(provider);
+  };
+
+  providersToReplaceAtAllSites.forEach(handleProvider);
+  relatedProvidersRules.forEach(({ providers }) => providers.forEach(handleProvider));
+
+  let providersSelector = '';
+  selectorsForProvidersToReplace.forEach(selector => {
+    providersSelector += selector + ', ';
+  });
+  if (providersSelector) {
+    providersSelector = providersSelector.slice(0, -2);
+  }
+
+  return {
+    adPlacesRules: aggregatedRelatedAdPlacesRules,
+    providersSelector
+  };
+};
 
 const getBeaconResponse = async (req: Beacon.Request, resBase: any, origin: string): Promise<Beacon.Response> => {
   try {

@@ -2,6 +2,11 @@ import { AxiosResponse } from 'axios';
 
 import { templeWalletApi } from './templewallet.api';
 
+export interface SliseAdStylesOverrides {
+  parentDepth: number;
+  style: Record<string, string>;
+}
+
 interface RawSliseAdPlacesRule {
   urlRegexes: string[];
   selector: {
@@ -11,6 +16,7 @@ interface RawSliseAdPlacesRule {
     shouldUseDivWrapper: boolean;
     divWrapperStyle?: Record<string, string>;
   };
+  stylesOverrides?: SliseAdStylesOverrides[];
 }
 
 export interface SliseAdPlacesRule extends Omit<RawSliseAdPlacesRule, 'urlRegexes'> {

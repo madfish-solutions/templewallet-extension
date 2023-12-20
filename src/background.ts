@@ -1,5 +1,6 @@
 import { initializeApp } from 'firebase/app';
 import { getMessaging } from 'firebase/messaging/sw';
+import 'regenerator-runtime/runtime';
 import browser from 'webextension-polyfill';
 
 import 'lib/keep-bg-worker-alive/background';

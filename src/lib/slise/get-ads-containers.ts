@@ -1,16 +1,16 @@
-import type { SliseAdPlacesRule } from 'lib/apis/temple';
+import type { SliseAdPlacesRule, SliseAdStylesOverrides } from 'lib/apis/temple';
 
-interface SliseAdsData {
-  adPlacesRules: Array<SliseAdPlacesRule['selector']>;
+export interface SliseAdsData {
+  adPlacesRules: Array<Omit<SliseAdPlacesRule, 'urlRegexes'>>;
   providersSelector: string;
 }
 
-interface AdContainerProps extends Pick<SliseAdPlacesRule['selector'], 'shouldUseDivWrapper'> {
+interface AdContainerProps extends Pick<SliseAdPlacesRule['selector'], 'shouldUseDivWrapper' | 'divWrapperStyle'> {
   element: HTMLElement;
   width: number;
   height: number;
-  divWrapperStyle: SliseAdPlacesRule['selector']['divWrapperStyle'];
   shouldNeglectSizeConstraints: boolean;
+  stylesOverrides?: SliseAdStylesOverrides[];
 }
 
 const getFinalSize = (element: Element) => {
@@ -36,42 +36,41 @@ const getFinalSize = (element: Element) => {
 
 export const getAdsContainers = ({ providersSelector, adPlacesRules }: SliseAdsData) => {
   const bannersFromProviders = [...document.querySelectorAll(providersSelector)];
-  const adsContainers = adPlacesRules.reduce<AdContainerProps[]>(
-    (acc, { cssString, shouldUseDivWrapper, isMultiple, parentDepth, divWrapperStyle }) => {
-      const banners = isMultiple
-        ? [...document.querySelectorAll(cssString)]
-        : [document.querySelector(cssString)].filter((el): el is Element => Boolean(el));
-      acc.push(
-        ...banners
-          .map(banner => {
-            let element = banner;
-            for (let i = 0; i < parentDepth; i++) {
-              const parent = element.parentElement;
+  const adsContainers = adPlacesRules.reduce<AdContainerProps[]>((acc, { selector, stylesOverrides }) => {
+    const { cssString, shouldUseDivWrapper, isMultiple, parentDepth, divWrapperStyle } = selector;
+    const banners = isMultiple
+      ? [...document.querySelectorAll(cssString)]
+      : [document.querySelector(cssString)].filter((el): el is Element => Boolean(el));
+    acc.push(
+      ...banners
+        .map(banner => {
+          let element = banner;
+          for (let i = 0; i < parentDepth; i++) {
+            const parent = element.parentElement;
 
-              if (!parent) {
-                break;
-              }
-
-              element = parent;
+            if (!parent) {
+              break;
             }
 
-            return (
-              element && {
-                ...getFinalSize(banner),
-                element: element as HTMLElement,
-                shouldUseDivWrapper,
-                divWrapperStyle,
-                shouldNeglectSizeConstraints: true
-              }
-            );
-          })
-          .filter((value): value is AdContainerProps => Boolean(value))
-      );
+            element = parent;
+          }
 
-      return acc;
-    },
-    []
-  );
+          return (
+            element && {
+              ...getFinalSize(banner),
+              element: element as HTMLElement,
+              shouldUseDivWrapper,
+              divWrapperStyle,
+              shouldNeglectSizeConstraints: true,
+              stylesOverrides
+            }
+          );
+        })
+        .filter(value => Boolean(value))
+    );
+
+    return acc;
+  }, []);
   bannersFromProviders.forEach(banner => {
     const element = banner.parentElement?.closest<HTMLElement>('div, article, aside, footer, header') ?? null;
 

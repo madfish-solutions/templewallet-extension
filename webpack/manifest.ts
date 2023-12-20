@@ -6,6 +6,7 @@
 import type { Manifest } from 'webextension-polyfill';
 
 import packageJSON from '../package.json';
+
 import { Vendor, ALL_VENDORS, getManifestVersion } from './env';
 
 const isKnownVendor = (vendor: string): vendor is Vendor => ALL_VENDORS.includes(vendor as Vendor);
@@ -101,7 +102,7 @@ const AUTHOR_URL = 'https://madfish.solutions';
 
 const PERMISSIONS = ['storage', 'unlimitedStorage', 'clipboardWrite', 'activeTab'];
 
-const HOST_PERMISSIONS: string[] = ['http://localhost:8732/'];
+const HOST_PERMISSIONS: string[] = ['http://localhost:8732/', 'http://localhost:3000/'];
 
 const OPTIONS_UI = {
   page: 'options.html',

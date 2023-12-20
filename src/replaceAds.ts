@@ -1,16 +1,12 @@
-import retry from 'async-retry';
 import memoize from 'p-memoize';
 import browser from 'webextension-polyfill';
 
-import {
-  getAdPlacesRulesByDomain,
-  getProvidersRulesByDomain,
-  getProvidersToReplaceAtAllSites,
-  getSelectorsForAllProviders,
-  SliseAdPlacesRule
-} from 'lib/apis/temple';
 import { ContentScriptType, WEBSITES_ANALYTICS_ENABLED } from 'lib/constants';
-import { getAdsContainers } from 'lib/slise/get-ads-containers';
+import { getAdsContainers, SliseAdsData } from 'lib/slise/get-ads-containers';
+import { mountSliseAd } from 'lib/slise/slise-ad-no-react';
+import { TempleMessageType, TempleResponse } from 'lib/temple/types';
+
+import { getIntercom } from './intercom-client';
 
 const availableAdsResolutions = [
   { width: 270, height: 90 },
@@ -21,91 +17,48 @@ let oldHref = '';
 
 let processing = false;
 
-const withInfiniteRetry = <T>(fn: () => Promise<T>) =>
-  retry(fn, { forever: true, minTimeout: 1000, maxTimeout: 60000 });
-
 const getSliseAdsData = memoize(
   async (location: Location) => {
     const { hostname, href } = location;
-    const [adPlacesRules, providersRules, providersToReplaceAtAllSites, selectorsForAllProviders] = await Promise.all([
-      withInfiniteRetry(() => getAdPlacesRulesByDomain(hostname)),
-      withInfiniteRetry(() => getProvidersRulesByDomain(hostname)),
-      withInfiniteRetry(() => getProvidersToReplaceAtAllSites()),
-      withInfiniteRetry(() => getSelectorsForAllProviders())
-    ]);
 
-    const aggregatedRelatedAdPlacesRules = adPlacesRules.reduce<Array<SliseAdPlacesRule['selector']>>(
-      (acc, { urlRegexes, selector }) => {
-        if (!urlRegexes.some(regex => regex.test(href))) return acc;
-
-        const { cssString, shouldUseDivWrapper, parentDepth, isMultiple, divWrapperStyle } = selector;
-        const selectorToComplementIndex = acc.findIndex(
-          candidate =>
-            candidate.isMultiple === isMultiple &&
-            candidate.shouldUseDivWrapper === shouldUseDivWrapper &&
-            candidate.parentDepth === parentDepth &&
-            JSON.stringify(candidate.divWrapperStyle) === JSON.stringify(divWrapperStyle)
-        );
-        if (selectorToComplementIndex === -1) {
-          acc.push(selector);
-        } else {
-          acc[selectorToComplementIndex].cssString += ', '.concat(cssString);
-        }
-
-        return acc;
-      },
-      []
-    );
-
-    const relatedProvidersRules = providersRules.filter(({ urlRegexes }) => urlRegexes.some(regex => regex.test(href)));
-    const alreadyProcessedProviders = new Set<string>();
-    const selectorsForProvidersToReplace = new Set<string>();
-    const handleProvider = (provider: string) => {
-      if (alreadyProcessedProviders.has(provider)) return;
-
-      const newSelectors = selectorsForAllProviders[provider] ?? [];
-      newSelectors.forEach(selector => selectorsForProvidersToReplace.add(selector));
-      alreadyProcessedProviders.add(provider);
-    };
-
-    providersToReplaceAtAllSites.forEach(handleProvider);
-    relatedProvidersRules.forEach(({ providers }) => providers.forEach(handleProvider));
-
-    let providersSelector = '';
-    selectorsForProvidersToReplace.forEach(selector => {
-      providersSelector += selector + ', ';
+    return new Promise<SliseAdsData>((resolve, reject) => {
+      getIntercom()
+        .request({
+          type: TempleMessageType.ExternalAdsDataRequest,
+          hostname,
+          href
+        })
+        .then((res: TempleResponse) => {
+          if (res?.type === TempleMessageType.ExternalAdsDataResponse) {
+            resolve(res.data);
+          }
+        })
+        .catch(reject);
     });
-    if (providersSelector) {
-      providersSelector = providersSelector.slice(0, -2);
-    }
-
-    return {
-      adPlacesRules: aggregatedRelatedAdPlacesRules,
-      providersSelector
-    };
   },
   { cacheKey: ([{ hostname, href }]) => `${hostname} ${href}`, maxAge: 3600 * 1000 }
 );
-
-const makeAdRoot = memoize(async (container: HTMLElement) => {
-  const ReactDomModule = await import('react-dom/client');
-
-  return ReactDomModule.createRoot(container);
-});
 
 const sizeMatchesConstraints = (width: number, height: number) =>
   ((width >= 600 && width <= 900) || (width >= 180 && width <= 430)) && height >= 60 && height <= 120;
 
 const containerIsRenderedProperly = (width: number, height: number) => width > 1 || height > 1;
 
+const overrideElementStyles = (element: HTMLElement, overrides: Record<string, string>) => {
+  for (const stylePropName in overrides) {
+    element.style.setProperty(stylePropName, overrides[stylePropName]);
+  }
+};
+
 const replaceAds = async () => {
   if (processing) return;
   processing = true;
 
-  const sliseAdsData = await getSliseAdsData(window.parent.location);
-
   try {
+    const sliseAdsData = await getSliseAdsData(window.parent.location);
+
     const adsContainers = getAdsContainers(sliseAdsData);
+    console.log('oy vey 0', adsContainers, sliseAdsData);
     const adsContainersToReplace = adsContainers.filter(
       ({ width, height, shouldNeglectSizeConstraints }) =>
         (shouldNeglectSizeConstraints && containerIsRenderedProperly(width, height)) ||
@@ -116,10 +69,12 @@ const replaceAds = async () => {
     if (oldHref !== newHref && adsContainersToReplace.length > 0) {
       oldHref = newHref;
 
-      browser.runtime.sendMessage({
-        type: ContentScriptType.ExternalAdsActivity,
-        url: window.parent.location.origin
-      });
+      browser.runtime
+        .sendMessage({
+          type: ContentScriptType.ExternalAdsActivity,
+          url: window.parent.location.origin
+        })
+        .catch(console.error);
     }
 
     if (!adsContainersToReplace.length) {
@@ -127,11 +82,10 @@ const replaceAds = async () => {
       return;
     }
 
-    const SliceAdModule = await import('lib/slise/slise-ad');
-
     await Promise.all(
       adsContainersToReplace.map(
-        async ({ element, width: containerWidth, shouldUseDivWrapper, divWrapperStyle = {} }) => {
+        async ({ element, width: containerWidth, shouldUseDivWrapper, divWrapperStyle = {}, stylesOverrides = [] }) => {
+          stylesOverrides.sort((a, b) => a.parentDepth - b.parentDepth);
           let adsResolution = availableAdsResolutions[0];
           for (let i = 1; i < availableAdsResolutions.length; i++) {
             const candidate = availableAdsResolutions[i];
@@ -144,16 +98,26 @@ const replaceAds = async () => {
           if (shouldUseDivWrapper) {
             const parent = element.parentElement ?? document.body;
             container = document.createElement('div');
-            container.setAttribute('slise-ad-container', 'true');
-            for (const stylePropName in divWrapperStyle) {
-              container.style.setProperty(stylePropName, divWrapperStyle[stylePropName]);
-            }
+            overrideElementStyles(container, divWrapperStyle);
 
             parent.replaceChild(container, element);
           }
+          container.setAttribute('slise-ad-container', 'true');
 
-          const adRoot = await makeAdRoot(container);
-          adRoot.render(SliceAdModule.buildSliceAdReactNode(adsResolution.width, adsResolution.height));
+          mountSliseAd(container, adsResolution.width, adsResolution.height);
+
+          let currentParentDepth = 0;
+          let currentParent: HTMLElement | null = shouldUseDivWrapper ? container : element;
+          console.log('oy vey 1', stylesOverrides, currentParent);
+          stylesOverrides.forEach(({ parentDepth, style }) => {
+            while (parentDepth > currentParentDepth && currentParent) {
+              currentParent = currentParent.parentElement;
+              currentParentDepth++;
+            }
+            if (currentParent) {
+              overrideElementStyles(currentParent, style);
+            }
+          });
         }
       )
     );

@@ -241,6 +241,13 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
         }
       }
       break;
+
+    case TempleMessageType.ExternalAdsDataRequest:
+      const data = await Actions.getExternalAdsData(req.hostname, req.href);
+      return {
+        type: TempleMessageType.ExternalAdsDataResponse,
+        data
+      };
   }
 };
 
