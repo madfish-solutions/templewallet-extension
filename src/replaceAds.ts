@@ -81,7 +81,6 @@ const replaceAds = async () => {
       return;
     }
 
-    console.log('oy vey 1', adsContainersToReplace);
     await Promise.all(
       adsContainersToReplace.map(
         async ({ element, width: containerWidth, shouldUseDivWrapper, divWrapperStyle = {}, stylesOverrides = [] }) => {
