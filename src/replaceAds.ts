@@ -81,6 +81,7 @@ const replaceAds = async () => {
       return;
     }
 
+    console.log('oy vey 1', adsContainersToReplace);
     await Promise.all(
       adsContainersToReplace.map(
         async ({ element, width: containerWidth, shouldUseDivWrapper, divWrapperStyle = {}, stylesOverrides = [] }) => {
@@ -103,7 +104,7 @@ const replaceAds = async () => {
           }
           container.setAttribute('slise-ad-container', 'true');
 
-          mountSliseAd(container, adsResolution.width, adsResolution.height);
+          mountSliseAd(container, adsResolution.width, adsResolution.height, shouldUseDivWrapper);
 
           let currentParentDepth = 0;
           let currentParent: HTMLElement | null = shouldUseDivWrapper ? container : element;

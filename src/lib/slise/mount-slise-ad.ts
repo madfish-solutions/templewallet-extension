@@ -9,7 +9,7 @@ const isTWSliseAd = (element: Element) =>
   element.className === 'adsbyslise' &&
   element.attributes.getNamedItem('data-ad-pub')?.value === PUBLISHER_ID;
 
-export const mountSliseAd = (element: HTMLElement, width: number, height: number) => {
+export const mountSliseAd = (element: HTMLElement, width: number, height: number, displayBlock = false) => {
   const children = element.children;
 
   if ([...children].some(isTWSliseAd)) {
@@ -23,7 +23,9 @@ export const mountSliseAd = (element: HTMLElement, width: number, height: number
   ins.className = 'adsbyslise';
   ins.style.width = `${width}px`;
   ins.style.height = `${height}px`;
-  ins.style.display = 'block';
+  if (displayBlock) {
+    ins.style.display = 'block';
+  }
   ins.setAttribute('data-ad-slot', slotId);
   ins.setAttribute('data-ad-pub', PUBLISHER_ID);
   ins.setAttribute('data-ad-format', `${width}x${height}`);

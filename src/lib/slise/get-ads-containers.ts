@@ -57,7 +57,7 @@ export const getAdsContainers = ({ providersSelector, adPlacesRules }: SliseAdsD
           }
 
           return {
-            ...getFinalSize(banner),
+            ...getFinalSize(element),
             element: element as HTMLElement,
             shouldUseDivWrapper,
             divWrapperStyle,
@@ -74,23 +74,17 @@ export const getAdsContainers = ({ providersSelector, adPlacesRules }: SliseAdsD
     if (
       element &&
       !adsContainers.some(
-        ({ element: duplicateCandidate }) => duplicateCandidate === element || duplicateCandidate.contains(element)
+        ({ element: duplicateCandidate }) =>
+          duplicateCandidate.contains(element) || element.contains(duplicateCandidate)
       )
     ) {
-      const childIndex = adsContainers.findIndex(({ element: childCandidate }) => element.contains(childCandidate));
-      const adContainer = {
+      adsContainers.push({
         ...getFinalSize(banner),
         element,
         shouldUseDivWrapper: false,
         divWrapperStyle: {},
         shouldNeglectSizeConstraints: false
-      };
-
-      if (childIndex === -1) {
-        adsContainers.push(adContainer);
-      } else {
-        adsContainers.splice(childIndex, 1, adContainer);
-      }
+      });
     }
   });
 
