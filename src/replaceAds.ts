@@ -3,7 +3,7 @@ import browser from 'webextension-polyfill';
 
 import { ContentScriptType, WEBSITES_ANALYTICS_ENABLED } from 'lib/constants';
 import { getAdsContainers, SliseAdsData } from 'lib/slise/get-ads-containers';
-import { mountSliseAd } from 'lib/slise/slise-ad-no-react';
+import { mountSliseAd } from 'lib/slise/mount-slise-ad';
 import { TempleMessageType, TempleResponse } from 'lib/temple/types';
 
 import { getIntercom } from './intercom-client';
@@ -58,7 +58,6 @@ const replaceAds = async () => {
     const sliseAdsData = await getSliseAdsData(window.parent.location);
 
     const adsContainers = getAdsContainers(sliseAdsData);
-    console.log('oy vey 0', adsContainers, sliseAdsData);
     const adsContainersToReplace = adsContainers.filter(
       ({ width, height, shouldNeglectSizeConstraints }) =>
         (shouldNeglectSizeConstraints && containerIsRenderedProperly(width, height)) ||
@@ -108,7 +107,6 @@ const replaceAds = async () => {
 
           let currentParentDepth = 0;
           let currentParent: HTMLElement | null = shouldUseDivWrapper ? container : element;
-          console.log('oy vey 1', stylesOverrides, currentParent);
           stylesOverrides.forEach(({ parentDepth, style }) => {
             while (parentDepth > currentParentDepth && currentParent) {
               currentParent = currentParent.parentElement;

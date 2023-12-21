@@ -5,6 +5,8 @@ const decimalIdRegex = /^\d+$/;
 const startsWithAtRegex = /^@/;
 const pathPartsToTruncateRegexes = [hostnameRegex, addressRegex, decimalIdRegex, startsWithAtRegex];
 
+const SLOT_ID_LENGTH_THRESHOLD = 40;
+
 export const getSlotId = () => {
   const { hostname, pathname, hash } = window.parent.location;
   const hostnameParts = hostname.split('.').filter(part => part !== 'www');
@@ -17,5 +19,5 @@ export const getSlotId = () => {
 
   const longSlotId = [serviceId, ...restSlotIdParts].join('-');
 
-  return longSlotId.length > 40 ? serviceId : longSlotId;
+  return longSlotId.length > SLOT_ID_LENGTH_THRESHOLD ? serviceId : longSlotId;
 };

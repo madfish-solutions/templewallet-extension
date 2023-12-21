@@ -1,6 +1,6 @@
 [production]
 chrome >= 103
-firefox >= 101
+firefox >= 52
 opera >= 36
 safari >= 14
 

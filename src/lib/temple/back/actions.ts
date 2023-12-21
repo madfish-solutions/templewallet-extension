@@ -7,7 +7,6 @@ import {
   TempleDAppRequest,
   TempleDAppResponse
 } from '@temple-wallet/dapp/dist/types';
-import memoize from 'p-memoize';
 import browser, { Runtime } from 'webextension-polyfill';
 
 import {

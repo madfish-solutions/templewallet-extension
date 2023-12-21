@@ -41,35 +41,32 @@ export const getAdsContainers = ({ providersSelector, adPlacesRules }: SliseAdsD
     const banners = isMultiple
       ? [...document.querySelectorAll(cssString)]
       : [document.querySelector(cssString)].filter((el): el is Element => Boolean(el));
-    acc.push(
-      ...banners
-        .map(banner => {
+
+    return acc.concat(
+      banners
+        .map((banner): AdContainerProps | null => {
           let element = banner;
           for (let i = 0; i < parentDepth; i++) {
             const parent = element.parentElement;
 
             if (!parent) {
-              break;
+              return null;
             }
 
             element = parent;
           }
 
-          return (
-            element && {
-              ...getFinalSize(banner),
-              element: element as HTMLElement,
-              shouldUseDivWrapper,
-              divWrapperStyle,
-              shouldNeglectSizeConstraints: true,
-              stylesOverrides
-            }
-          );
+          return {
+            ...getFinalSize(banner),
+            element: element as HTMLElement,
+            shouldUseDivWrapper,
+            divWrapperStyle,
+            shouldNeglectSizeConstraints: true,
+            stylesOverrides
+          };
         })
-        .filter(value => Boolean(value))
+        .filter((value): value is AdContainerProps => Boolean(value))
     );
-
-    return acc;
   }, []);
   bannersFromProviders.forEach(banner => {
     const element = banner.parentElement?.closest<HTMLElement>('div, article, aside, footer, header') ?? null;
@@ -80,13 +77,20 @@ export const getAdsContainers = ({ providersSelector, adPlacesRules }: SliseAdsD
         ({ element: duplicateCandidate }) => duplicateCandidate === element || duplicateCandidate.contains(element)
       )
     ) {
-      adsContainers.push({
+      const childIndex = adsContainers.findIndex(({ element: childCandidate }) => element.contains(childCandidate));
+      const adContainer = {
         ...getFinalSize(banner),
         element,
         shouldUseDivWrapper: false,
         divWrapperStyle: {},
         shouldNeglectSizeConstraints: false
-      });
+      };
+
+      if (childIndex === -1) {
+        adsContainers.push(adContainer);
+      } else {
+        adsContainers.splice(childIndex, 1, adContainer);
+      }
     }
   });
 
