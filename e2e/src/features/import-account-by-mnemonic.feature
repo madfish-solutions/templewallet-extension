@@ -77,7 +77,7 @@ Feature: Import Account by Mnemonic
     Then I check if importedAccountByPasswordShortHash is corresponded to the selected account
 
 
-@dev
+
   Scenario: Import account by mnemonic validation + negative cases
     Given I have imported an existing account
 
