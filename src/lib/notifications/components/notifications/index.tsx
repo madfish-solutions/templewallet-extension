@@ -3,8 +3,7 @@ import React, { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 
 import { DataPlaceholder } from 'app/atoms';
-import { PartnersPromotion, PartnersPromotionVariant } from 'app/atoms/partners-promotion';
-import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
+import { PartnersPromotion } from 'app/atoms/partners-promotion';
 import PageLayout from 'app/layouts/PageLayout';
 import { useShouldShowPartnersPromoSelector } from 'app/store/partners-promotion/selectors';
 import { useIsEnabledAdsBannerSelector } from 'app/store/settings/selectors';
@@ -28,7 +27,7 @@ export const Notifications = () => {
   const viewAllNotifications = useCallback(() => void dispatch(viewAllNotificationsAction()), [dispatch]);
 
   useTimeout(viewAllNotifications, VIEW_ALL_NOTIFICATIONS_TIMEOUT, true, [notifications]);
-  useLoadPartnersPromo();
+  // useLoadPartnersPromo();
 
   return (
     <PageLayout
@@ -43,7 +42,7 @@ export const Notifications = () => {
       <div className="max-w-sm mx-auto pb-15">
         {shouldShowPartnersPromoState && !isEnabledAdsBanner && (
           <div className="pt-6 pb-4 flex justify-center">
-            <PartnersPromotion variant={PartnersPromotionVariant.Image} />
+            <PartnersPromotion />
           </div>
         )}
         {notifications.length === 0 ? (

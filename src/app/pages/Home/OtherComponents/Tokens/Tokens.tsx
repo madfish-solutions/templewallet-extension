@@ -7,17 +7,15 @@ import { isEqual } from 'lodash';
 
 import { SyncSpinner, Divider, Checkbox } from 'app/atoms';
 import DropdownWrapper from 'app/atoms/DropdownWrapper';
-import { PartnersPromotion, PartnersPromotionVariant } from 'app/atoms/partners-promotion';
+import { PartnersPromotion } from 'app/atoms/partners-promotion';
 import { useAppEnv } from 'app/env';
 import { useBalancesWithDecimals } from 'app/hooks/use-balances-with-decimals.hook';
-import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
 import { ReactComponent as EditingIcon } from 'app/icons/editing.svg';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
 import { useIsEnabledAdsBannerSelector } from 'app/store/settings/selectors';
 import { ButtonForManageDropdown } from 'app/templates/ManageDropdown';
 import SearchAssetField from 'app/templates/SearchAssetField';
 import { setTestID } from 'lib/analytics';
-import { OptimalPromoVariantEnum } from 'lib/apis/optimal';
 import { TEMPLE_TOKEN_SLUG, TEZ_TOKEN_SLUG } from 'lib/assets';
 import { useFilteredAssetsSlugs } from 'lib/assets/use-filtered';
 import { T, t } from 'lib/i18n';
@@ -89,15 +87,15 @@ export const TokensTab: FC = () => {
     ));
 
     if (filteredAssets.length < 5) {
-      tokensJsx.push(<PartnersPromotion key="promo-token-item" variant={PartnersPromotionVariant.Text} />);
+      tokensJsx.push(<PartnersPromotion key="promo-token-item" />);
     } else {
-      tokensJsx.splice(1, 0, <PartnersPromotion key="promo-token-item" variant={PartnersPromotionVariant.Text} />);
+      tokensJsx.splice(1, 0, <PartnersPromotion key="promo-token-item" />);
     }
 
     return tokensJsx;
   }, [filteredAssets, activeAssetSlug, balances]);
 
-  useLoadPartnersPromo(OptimalPromoVariantEnum.Token);
+  // useLoadPartnersPromo(OptimalPromoVariantEnum.Token);
 
   useEffect(() => {
     if (activeIndex !== 0 && activeIndex >= filteredAssets.length) {

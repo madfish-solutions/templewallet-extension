@@ -4,9 +4,8 @@ import classNames from 'clsx';
 import InfiniteScroll from 'react-infinite-scroll-component';
 
 import { SyncSpinner } from 'app/atoms';
-import { PartnersPromotion, PartnersPromotionVariant } from 'app/atoms/partners-promotion';
+import { PartnersPromotion } from 'app/atoms/partners-promotion';
 import { useAppEnv } from 'app/env';
-import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
 import { ReactComponent as LayersIcon } from 'app/icons/layers.svg';
 import { T } from 'lib/i18n/react';
 import useActivities from 'lib/temple/activity-new/hook';
@@ -28,7 +27,7 @@ export const ActivityComponent: React.FC<Props> = ({ assetSlug }) => {
 
   const { publicKeyHash: accountAddress } = useAccount();
 
-  useLoadPartnersPromo();
+  // useLoadPartnersPromo();
 
   if (activities.length === 0 && !loading && reachedTheEnd) {
     return (
@@ -40,7 +39,7 @@ export const ActivityComponent: React.FC<Props> = ({ assetSlug }) => {
         )}
       >
         <div className="w-full flex justify-center mb-6">
-          <PartnersPromotion variant={PartnersPromotionVariant.Image} />
+          <PartnersPromotion />
         </div>
 
         <LayersIcon className="w-16 h-auto mb-2 stroke-current" />
@@ -64,7 +63,7 @@ export const ActivityComponent: React.FC<Props> = ({ assetSlug }) => {
       <div className={classNames('my-3 flex flex-col', popup && 'mx-4')}>
         {loading && activities.length === 0 && (
           <div className="w-full mb-4 flex justify-center">
-            <PartnersPromotion variant={PartnersPromotionVariant.Image} />
+            <PartnersPromotion />
           </div>
         )}
         <InfiniteScroll
@@ -77,7 +76,7 @@ export const ActivityComponent: React.FC<Props> = ({ assetSlug }) => {
           {activities.map((activity, index) => (
             <Fragment key={activity.hash}>
               <ActivityItem address={accountAddress} activity={activity} />
-              {index === 0 && <PartnersPromotion variant={PartnersPromotionVariant.Image} />}
+              {index === 0 && <PartnersPromotion />}
             </Fragment>
           ))}
         </InfiniteScroll>

@@ -3663,6 +3663,11 @@
   resolved "https://registry.yarnpkg.com/@temple-wallet/jest-webextension-mock/-/jest-webextension-mock-4.1.0.tgz#6834acd98297eb1c76b85a2585a0584ff5578e8f"
   integrity sha512-1D/3WpaJS9rk5SENnFB1RZ3oeYkrfDvCV4qyIYjAD6uWe6RHVzcGxQ8UPtSQ/MRrcqjT95q2VwDNxek+9z6+yw==
 
+"@temple-wallet/slise-embed-react@../tw-embed-react":
+  version "1.0.4"
+  dependencies:
+    react-script-hook "^1.7.2"
+
 "@temple-wallet/wallet-address-validator@^0.4.3":
   version "0.4.3"
   resolved "https://registry.yarnpkg.com/@temple-wallet/wallet-address-validator/-/wallet-address-validator-0.4.3.tgz#4bb7905a824e290872b7a7fc449df2e8c332e9e1"

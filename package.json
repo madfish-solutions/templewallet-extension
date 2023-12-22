@@ -29,8 +29,8 @@
   "dependencies": {
     "@apollo/client": "^3.7.2",
     "@babel/core": "7.19.3",
-    "@babel/runtime": "^7.19.0",
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
+    "@babel/runtime": "^7.19.0",
     "@dicebear/avatars": "4.2.5",
     "@dicebear/avatars-bottts-sprites": "4.2.5",
     "@dicebear/avatars-jdenticon-sprites": "4.2.5",
@@ -61,6 +61,7 @@
     "@taquito/utils": "17.0.0",
     "@temple-wallet/dapp": "5.0.2",
     "@temple-wallet/jest-webextension-mock": "^4.1.0",
+    "@temple-wallet/slise-embed-react": "../tw-embed-react",
     "@temple-wallet/wallet-address-validator": "^0.4.3",
     "@tezos-domains/core": "1.26.0",
     "@tezos-domains/taquito-client": "1.26.0",
