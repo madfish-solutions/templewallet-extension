@@ -1,11 +1,8 @@
-import { isDefined } from '@rnw-community/shared';
 import retry from 'async-retry';
 import { ElementHandle } from 'puppeteer';
 
 import { BrowserContext } from '../classes/browser-context.class';
 import { MEDIUM_TIMEOUT } from './timing.utils';
-
-const buildTestIDSelector = (testID: string) => `[data-testid="${testID}"]`;
 
 type OtherSelectors = Record<string, string>;
 
@@ -18,20 +15,6 @@ export const findElement = async (
   const selector = buildSelector(testID, otherSelectors);
 
   return await findElementBySelectors(selector, timeout, errorTitle);
-};
-
-const buildChildSelector = (parentTestID: string, childTestID: string) =>
-  `${parentTestID} [data-testid="${childTestID}"]`;
-
-export const findChildElement = async (
-  parentTestID: string,
-  childTestID: string,
-  timeout = MEDIUM_TIMEOUT,
-  errorTitle?: string
-) => {
-  const selectors = buildChildSelector(`[data-testid="${parentTestID}"]`, childTestID);
-
-  return await findElementBySelectors(selectors, timeout, errorTitle);
 };
 
 export const findElementBySelectors = async (selectors: string, timeout = MEDIUM_TIMEOUT, errorTitle?: string) => {
@@ -60,18 +43,19 @@ export const findElements = async (testID: string) => {
 class PageElement {
   constructor(public selector: string) {}
 
+  createChildElement(testID: string, otherSelectors?: OtherSelectors) {
+    const childSelector = buildSelector(testID, otherSelectors);
+    const selectors = buildChildSelector(this.selector, childSelector);
+
+    return new PageElement(selectors);
+  }
+
   findElement(timeout?: number, errorTitle?: string) {
     return findElementBySelectors(this.selector, timeout, errorTitle);
   }
 
-  findChildSelectors(childSelector: string, timeout?: number, errorTitle?: string) {
-    const selectors = buildChildSelector(this.selector, childSelector);
-
-    return findElementBySelectors(selectors, timeout, errorTitle);
-  }
-
-  waitForDisplayed(timeout?: number) {
-    return this.findElement(timeout);
+  waitForDisplayed(timeout?: number, errorTitle?: string) {
+    return this.findElement(timeout, errorTitle);
   }
 
   async click() {
@@ -132,13 +116,15 @@ export const getElementText = (element: ElementHandle) =>
     return textContent;
   });
 
+const buildTestIDSelector = (testID: string) => `[data-testid="${testID}"]`;
+
 const buildSelectorPairs = (selectors: OtherSelectors) => {
   return Object.entries(selectors).map(([key, val]) =>
     val ? (`data-${key}="${val}"` as const) : (`data-${key}` as const)
   );
 };
 
-const buildSelector = (testID: string, otherSelectors?: OtherSelectors) => {
+export const buildSelector = (testID: string, otherSelectors?: OtherSelectors) => {
   const pairs = buildSelectorPairs({ ...otherSelectors, testid: testID });
   return `[${pairs.join('][')}]`;
 };
@@ -148,10 +134,4 @@ const buildNotSelector = (notSelectors: OtherSelectors) => {
   return `:not([${pairs.join(']):not([')}])`;
 };
 
-export const clearDataFromInput = async () => {
-  await BrowserContext.page.keyboard.press('End');
-  await BrowserContext.page.keyboard.down('Shift');
-  await BrowserContext.page.keyboard.press('Home');
-  await BrowserContext.page.keyboard.up('Shift');
-  await BrowserContext.page.keyboard.press('Backspace');
-};
+const buildChildSelector = (parentSelector: string, childSelector: string) => `${parentSelector} ${childSelector}`;
