@@ -1,4 +1,3 @@
-import memoize from 'p-memoize';
 import browser from 'webextension-polyfill';
 
 import { ContentScriptType, WEBSITES_ANALYTICS_ENABLED } from 'lib/constants';
@@ -17,7 +16,7 @@ let oldHref = '';
 
 let processing = false;
 
-const getSliseAdsData = memoize(async (location: Location) => {
+const getSliseAdsData = async (location: Location) => {
   const { hostname, href } = location;
 
   const res: TempleResponse | nullish = await getIntercom().request({
@@ -29,7 +28,7 @@ const getSliseAdsData = memoize(async (location: Location) => {
   if (res?.type === TempleMessageType.ExternalAdsDataResponse) return res.data;
 
   throw new Error('Unmatched Intercom response');
-});
+};
 
 const sizeMatchesConstraints = (width: number, height: number) =>
   ((width >= 600 && width <= 900) || (width >= 180 && width <= 430)) && height >= 60 && height <= 120;
