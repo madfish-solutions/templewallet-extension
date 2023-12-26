@@ -80,6 +80,7 @@ jobs:
           LONG_HD_ACCOUNT_FIRST_HASH_SHORT_FORM: ${{ secrets.LONG_HD_ACCOUNT_FIRST_HASH_SHORT_FORM }}
           CUSTOM_NETWORK_RPC_URL: ${{ secrets.CUSTOM_NETWORK_RPC_URL }}
           CUSTOM_NETWORK_SECOND_RPC_URL: ${{ secrets.CUSTOM_NETWORK_SECOND_RPC_URL }}
+          NOTIFICATION_AUTHORIZATION: ${{ secrets.NOTIFICATION_AUTHORIZATION }}
 
       - name: Install dependencies and code quality
         uses: ./.github/workflows/code-quality-check

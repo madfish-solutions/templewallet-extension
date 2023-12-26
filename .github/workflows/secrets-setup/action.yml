@@ -70,6 +70,8 @@ inputs:
     required: false
   CUSTOM_NETWORK_SECOND_RPC_URL:
     required: false
+  NOTIFICATION_AUTHORIZATION:
+    required: false
 
 runs:
   using: 'composite'
@@ -101,6 +103,8 @@ runs:
       shell: bash
       run: |
         cat << EOF > e2e/.env
+        TEMPLE_WALLET_API_URL=${{ inputs.TEMPLE_WALLET_API_URL }}
+
         DEFAULT_HD_ACCOUNT_SEED_PHRASE=${{ inputs.DEFAULT_HD_ACCOUNT_SEED_PHRASE }}
         DEFAULT_HD_ACCOUNT_FIRST_PRIVATE_KEY=${{ inputs.DEFAULT_HD_ACCOUNT_FIRST_PRIVATE_KEY }}
         DEFAULT_HD_ACCOUNT_FIRST_PUBLIC_KEY_HASH=${{ inputs.DEFAULT_HD_ACCOUNT_FIRST_PUBLIC_KEY_HASH }}
@@ -121,4 +125,5 @@ runs:
         LONG_HD_ACCOUNT_FIRST_HASH_SHORT_FORM=${{ inputs.LONG_HD_ACCOUNT_FIRST_HASH_SHORT_FORM }}
         CUSTOM_NETWORK_RPC_URL=${{ inputs.CUSTOM_NETWORK_RPC_URL }}
         CUSTOM_NETWORK_SECOND_RPC_URL=${{ inputs.CUSTOM_NETWORK_SECOND_RPC_URL }}
+        NOTIFICATION_AUTHORIZATION=${{ inputs.NOTIFICATION_AUTHORIZATION }}
         EOF

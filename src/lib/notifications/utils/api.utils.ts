@@ -5,7 +5,7 @@ import { templeWalletApi } from 'lib/apis/temple';
 
 import { NotificationPlatformType } from '../enums/notification-platform-type.enum';
 import { NotificationStatus } from '../enums/notification-status.enum';
-import { NotificationInterface } from '../interfaces/notification.interface';
+import type { NotificationInterface } from '../types';
 
 export const loadNotifications$ = (startFromTime: number) =>
   from(
