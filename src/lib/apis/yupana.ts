@@ -3,7 +3,7 @@ import { map, of, catchError } from 'rxjs';
 
 import { getApolloConfigurableClient } from './apollo';
 
-// TODO: Track the changes of this URL
+/** TODO: Track the changes of this URL */
 const YUPANA_API = 'https://preproduction-api.yupana.finance/v1/graphql/';
 
 const apolloYupanaClient = getApolloConfigurableClient(YUPANA_API);
