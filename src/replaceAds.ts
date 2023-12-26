@@ -17,27 +17,19 @@ let oldHref = '';
 
 let processing = false;
 
-const getSliseAdsData = memoize(
-  async (location: Location) => {
-    const { hostname, href } = location;
+const getSliseAdsData = memoize(async (location: Location) => {
+  const { hostname, href } = location;
 
-    return new Promise<SliseAdsData>((resolve, reject) => {
-      getIntercom()
-        .request({
-          type: TempleMessageType.ExternalAdsDataRequest,
-          hostname,
-          href
-        })
-        .then((res: TempleResponse) => {
-          if (res?.type === TempleMessageType.ExternalAdsDataResponse) {
-            resolve(res.data);
-          }
-        })
-        .catch(reject);
-    });
-  },
-  { cacheKey: ([{ hostname, href }]) => `${hostname} ${href}`, maxAge: 3600 * 1000 }
-);
+  const res: TempleResponse | nullish = await getIntercom().request({
+    type: TempleMessageType.ExternalAdsDataRequest,
+    hostname,
+    href
+  });
+
+  if (res?.type === TempleMessageType.ExternalAdsDataResponse) return res.data;
+
+  throw new Error('Unmatched Intercom response');
+});
 
 const sizeMatchesConstraints = (width: number, height: number) =>
   ((width >= 600 && width <= 900) || (width >= 180 && width <= 430)) && height >= 60 && height <= 120;

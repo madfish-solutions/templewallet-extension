@@ -7,6 +7,8 @@ import {
   TempleDAppRequest,
   TempleDAppResponse
 } from '@temple-wallet/dapp/dist/types';
+import { isEqual } from 'lodash';
+import memoize from 'p-memoize';
 import browser, { Runtime } from 'webextension-polyfill';
 
 import {
@@ -27,7 +29,7 @@ import {
   TempleSettings,
   TempleSharedStorageKey
 } from 'lib/temple/types';
-import { createQueue, delay, infiniteRetry } from 'lib/utils';
+import { createQueue, delay } from 'lib/utils';
 
 import {
   getCurrentPermission,
@@ -521,67 +523,70 @@ export async function processBeacon(
   return { payload: resMsg };
 }
 
-export const getExternalAdsData = async (hostname: string, href: string) => {
-  const [adPlacesRules, providersRules, providersToReplaceAtAllSites, selectorsForAllProviders] = await Promise.all([
-    infiniteRetry(() => getAdPlacesRulesByDomain(hostname)),
-    infiniteRetry(() => getProvidersRulesByDomain(hostname)),
-    infiniteRetry(() => getProvidersToReplaceAtAllSites()),
-    infiniteRetry(() => getSelectorsForAllProviders())
-  ]);
+export const getExternalAdsData = memoize(
+  async (hostname: string, href: string) => {
+    const [adPlacesRules, providersRules, providersToReplaceAtAllSites, selectorsForAllProviders] = await Promise.all([
+      getAdPlacesRulesByDomain(hostname),
+      getProvidersRulesByDomain(hostname),
+      getProvidersToReplaceAtAllSites(),
+      getSelectorsForAllProviders()
+    ]);
 
-  const aggregatedRelatedAdPlacesRules = adPlacesRules.reduce<Array<Omit<SliseAdPlacesRule, 'urlRegexes'>>>(
-    (acc, { urlRegexes, selector, stylesOverrides }) => {
-      if (!urlRegexes.some(regex => regex.test(href))) return acc;
+    const aggregatedRelatedAdPlacesRules = adPlacesRules.reduce<Array<Omit<SliseAdPlacesRule, 'urlRegexes'>>>(
+      (acc, { urlRegexes, selector, stylesOverrides }) => {
+        if (!urlRegexes.some(regex => regex.test(href))) return acc;
 
-      const { cssString, ...restSelectorProps } = selector;
-      const ruleToComplementIndex = acc.findIndex(
-        ({ selector: candidateSelector, stylesOverrides: candidateStylesOverrides }) => {
-          const { cssString: _candidateCssString, ...restCandidateSelectorProps } = candidateSelector;
+        const { cssString, ...restSelectorProps } = selector;
+        const ruleToComplementIndex = acc.findIndex(
+          ({ selector: candidateSelector, stylesOverrides: candidateStylesOverrides }) => {
+            const { cssString: _candidateCssString, ...restCandidateSelectorProps } = candidateSelector;
 
-          return (
-            JSON.stringify(restSelectorProps) === JSON.stringify(restCandidateSelectorProps) &&
-            JSON.stringify(stylesOverrides) === JSON.stringify(candidateStylesOverrides)
-          );
+            return (
+              isEqual(restSelectorProps, restCandidateSelectorProps) &&
+              isEqual(stylesOverrides, candidateStylesOverrides)
+            );
+          }
+        );
+        if (ruleToComplementIndex === -1) {
+          acc.push({ stylesOverrides, selector });
+        } else {
+          acc[ruleToComplementIndex].selector.cssString += ', '.concat(cssString);
         }
-      );
-      if (ruleToComplementIndex === -1) {
-        acc.push({ stylesOverrides, selector });
-      } else {
-        acc[ruleToComplementIndex].selector.cssString += ', '.concat(cssString);
-      }
 
-      return acc;
-    },
-    []
-  );
+        return acc;
+      },
+      []
+    );
 
-  const relatedProvidersRules = providersRules.filter(({ urlRegexes }) => urlRegexes.some(regex => regex.test(href)));
-  const alreadyProcessedProviders = new Set<string>();
-  const selectorsForProvidersToReplace = new Set<string>();
-  const handleProvider = (provider: string) => {
-    if (alreadyProcessedProviders.has(provider)) return;
+    const relatedProvidersRules = providersRules.filter(({ urlRegexes }) => urlRegexes.some(regex => regex.test(href)));
+    const alreadyProcessedProviders = new Set<string>();
+    const selectorsForProvidersToReplace = new Set<string>();
+    const handleProvider = (provider: string) => {
+      if (alreadyProcessedProviders.has(provider)) return;
 
-    const newSelectors = selectorsForAllProviders[provider] ?? [];
-    newSelectors.forEach(selector => selectorsForProvidersToReplace.add(selector));
-    alreadyProcessedProviders.add(provider);
-  };
+      const newSelectors = selectorsForAllProviders[provider] ?? [];
+      newSelectors.forEach(selector => selectorsForProvidersToReplace.add(selector));
+      alreadyProcessedProviders.add(provider);
+    };
 
-  providersToReplaceAtAllSites.forEach(handleProvider);
-  relatedProvidersRules.forEach(({ providers }) => providers.forEach(handleProvider));
+    providersToReplaceAtAllSites.forEach(handleProvider);
+    relatedProvidersRules.forEach(({ providers }) => providers.forEach(handleProvider));
 
-  let providersSelector = '';
-  selectorsForProvidersToReplace.forEach(selector => {
-    providersSelector += selector + ', ';
-  });
-  if (providersSelector) {
-    providersSelector = providersSelector.slice(0, -2);
-  }
+    let providersSelector = '';
+    selectorsForProvidersToReplace.forEach(selector => {
+      providersSelector += selector + ', ';
+    });
+    if (providersSelector) {
+      providersSelector = providersSelector.slice(0, -2);
+    }
 
-  return {
-    adPlacesRules: aggregatedRelatedAdPlacesRules,
-    providersSelector
-  };
-};
+    return {
+      adPlacesRules: aggregatedRelatedAdPlacesRules,
+      providersSelector
+    };
+  },
+  { cacheKey: ([, href]) => href, maxAge: 5 * 60 * 1000 }
+);
 
 const getBeaconResponse = async (req: Beacon.Request, resBase: any, origin: string): Promise<Beacon.Response> => {
   try {
