@@ -2,7 +2,7 @@ import memoize from 'p-memoize';
 import browser from 'webextension-polyfill';
 
 import { ContentScriptType, WEBSITES_ANALYTICS_ENABLED } from 'lib/constants';
-import { getAdsContainers, SliseAdsData } from 'lib/slise/get-ads-containers';
+import { getAdsContainers } from 'lib/slise/get-ads-containers';
 import { mountSliseAd } from 'lib/slise/mount-slise-ad';
 import { TempleMessageType, TempleResponse } from 'lib/temple/types';
 
