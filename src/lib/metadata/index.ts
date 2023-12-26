@@ -116,7 +116,7 @@ const useAssetsMetadataPresenceCheck = (
           // In case fetched metadata is `null` & won't save
           !checkedRef.current.includes(slug)
       )
-      .slice(0, 2 * METADATA_API_LOAD_CHUNK_SIZE);
+      .slice(0, METADATA_API_LOAD_CHUNK_SIZE);
 
     if (missingChunk.length > 0) {
       checkedRef.current = [...checkedRef.current, ...missingChunk];
