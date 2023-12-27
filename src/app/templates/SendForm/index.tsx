@@ -1,6 +1,7 @@
 import React, { memo, Suspense, useCallback, useMemo, useState } from 'react';
 
 import type { WalletOperation } from '@taquito/taquito';
+import { isEqual } from 'lodash';
 
 import AssetSelect from 'app/templates/AssetSelect';
 import OperationStatus from 'app/templates/OperationStatus';
@@ -11,7 +12,6 @@ import { useTokensSortPredicate } from 'lib/assets/use-sorting';
 import { t } from 'lib/i18n';
 import { useTezos } from 'lib/temple/front';
 import { useMemoWithCompare, useSafeState } from 'lib/ui/hooks';
-import { areStringArraysEqual } from 'lib/utils';
 import { HistoryAction, navigate } from 'lib/woozie';
 
 import AddContactModal from './AddContactModal';
@@ -37,7 +37,7 @@ const SendForm = memo<Props>(({ assetSlug = TEZ_TOKEN_SLUG }) => {
         : [TEZ_TOKEN_SLUG, assetSlug, ...sortedSlugs];
     },
     [tokensSortPredicate, tokensSlugs, assetSlug],
-    areStringArraysEqual
+    isEqual
   );
 
   const selectedAsset = assetSlug ?? TEZ_TOKEN_SLUG;
