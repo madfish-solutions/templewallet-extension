@@ -7,9 +7,11 @@ import OperationStatus from 'app/templates/OperationStatus';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { useEnabledAccountTokensSlugs } from 'lib/assets/hooks';
+import { useTokensSortPredicate } from 'lib/assets/use-sorting';
 import { t } from 'lib/i18n';
 import { useTezos } from 'lib/temple/front';
-import { useSafeState } from 'lib/ui/hooks';
+import { useMemoWithCompare, useSafeState } from 'lib/ui/hooks';
+import { areStringArraysEqual } from 'lib/utils';
 import { HistoryAction, navigate } from 'lib/woozie';
 
 import AddContactModal from './AddContactModal';
@@ -24,12 +26,18 @@ type Props = {
 const SendForm = memo<Props>(({ assetSlug = TEZ_TOKEN_SLUG }) => {
   const tokensSlugs = useEnabledAccountTokensSlugs();
 
-  const assetsSlugs = useMemo<string[]>(
-    () =>
-      !assetSlug || tokensSlugs.some(s => s === assetSlug)
-        ? [TEZ_TOKEN_SLUG, ...tokensSlugs]
-        : [TEZ_TOKEN_SLUG, assetSlug, ...tokensSlugs],
-    [tokensSlugs, assetSlug]
+  const tokensSortPredicate = useTokensSortPredicate();
+
+  const assetsSlugs = useMemoWithCompare<string[]>(
+    () => {
+      const sortedSlugs = Array.from(tokensSlugs).sort(tokensSortPredicate);
+
+      return !assetSlug || sortedSlugs.some(s => s === assetSlug)
+        ? [TEZ_TOKEN_SLUG, ...sortedSlugs]
+        : [TEZ_TOKEN_SLUG, assetSlug, ...sortedSlugs];
+    },
+    [tokensSortPredicate, tokensSlugs, assetSlug],
+    areStringArraysEqual
   );
 
   const selectedAsset = assetSlug ?? TEZ_TOKEN_SLUG;
