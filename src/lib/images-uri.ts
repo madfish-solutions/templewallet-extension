@@ -58,11 +58,12 @@ export const buildCollectibleImagesStack = (
         buildIpfsMediaUriByInfo(artifactInfo, 'small')
       ]
     : [
+        // Some image of video asset (see: KT1RJ6PbjHpwc3M5rw5s2Nbmefwbuwbdxton_773019) only available through this option:
+        buildObjktMediaUriForItemPath(`${address}/${id}`, 'thumb288'),
+
         buildObjktMediaURI(artifactInfo.ipfs, 'thumb288'),
         buildObjktMediaURI(displayInfo.ipfs, 'thumb288'),
         buildObjktMediaURI(thumbnailInfo.ipfs, 'thumb288'),
-        // Some image of video asset (see: KT1RJ6PbjHpwc3M5rw5s2Nbmefwbuwbdxton_773019) only available through this option:
-        buildObjktMediaUriForItemPath(`${address}/${id}`, 'thumb288'),
 
         buildIpfsMediaUriByInfo(thumbnailInfo, 'medium'),
         buildIpfsMediaUriByInfo(thumbnailInfo, 'small'),
