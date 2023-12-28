@@ -10,8 +10,6 @@ export const IS_STAGE_ENV = IS_DEV_ENV || IS_DEV_GITHUB_ACTION_RUN_ENV;
 
 export const BACKGROUND_IS_WORKER = process.env.BACKGROUND_IS_WORKER === 'true';
 
-export const IS_CHROME = process.env.TARGET_BROWSER === 'chrome';
-
 export const EnvVars = {
   TEMPLE_WALLET_API_URL: process.env.TEMPLE_WALLET_API_URL!,
   TEMPLE_WALLET_DEXES_API_URL: process.env.TEMPLE_WALLET_DEXES_API_URL!,

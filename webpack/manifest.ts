@@ -108,7 +108,7 @@ const buildManifestV2 = (vendor: string): Manifest.WebExtensionManifest => {
 
 const AUTHOR_URL = 'https://madfish.solutions';
 
-const GOOGLE_DRIVE_PERMISSIONS = ['identity'];
+const GOOGLE_DRIVE_PERMISSIONS = ['identity', 'identity.email'];
 
 const PERMISSIONS = ['storage', 'unlimitedStorage', 'clipboardWrite', 'activeTab'];
 

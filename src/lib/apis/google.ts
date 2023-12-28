@@ -1,4 +1,5 @@
 import axios from 'axios';
+import useSWR from 'swr';
 import { v4 } from 'uuid';
 
 import { EnvVars } from 'lib/env';
@@ -22,6 +23,21 @@ export class FileDoesNotExistError extends Error {}
 const googleApi = axios.create({
   baseURL: 'https://www.googleapis.com'
 });
+
+const canUseChromeAuthorization = async () => {
+  try {
+    return new Promise<boolean>(resolve => {
+      chrome.identity.getProfileUserInfo({ accountStatus: chrome.identity.AccountStatus.ANY }, profile => {
+        resolve(Boolean(profile?.email));
+      });
+    });
+  } catch {
+    return false;
+  }
+};
+
+export const useCanUseChromeAuthorization = (suspense = true) =>
+  useSWR('can-use-chrome-auth', canUseChromeAuthorization, { suspense });
 
 export const getGoogleAuthToken = async () =>
   new Promise<string>((resolve, reject) => {

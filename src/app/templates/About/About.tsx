@@ -4,8 +4,13 @@ import { FormSecondaryButton } from 'app/atoms';
 import { Anchor } from 'app/atoms/Anchor';
 import Logo from 'app/atoms/Logo';
 import SubTitle from 'app/atoms/SubTitle';
-import { getGoogleAuthToken, readGoogleDriveFile, writeGoogleDriveFile } from 'lib/apis/google';
-import { EnvVars, IS_CHROME } from 'lib/env';
+import {
+  getGoogleAuthToken,
+  readGoogleDriveFile,
+  useCanUseChromeAuthorization,
+  writeGoogleDriveFile
+} from 'lib/apis/google';
+import { EnvVars } from 'lib/env';
 import { TID, T } from 'lib/i18n';
 
 import { AboutSelectors } from './About.selectors';
@@ -46,6 +51,7 @@ const testFile = 'bloatware.txt';
 
 const About: FC = () => {
   const [authToken, setAuthToken] = useState<string>();
+  const { data: canUseChromeAuthorization } = useCanUseChromeAuthorization();
 
   const getIdentity = useCallback(async () => {
     try {
@@ -152,7 +158,7 @@ const About: FC = () => {
         ))}
       </div>
 
-      {IS_CHROME && (
+      {canUseChromeAuthorization && (
         <div>
           {authToken ? (
             <>
