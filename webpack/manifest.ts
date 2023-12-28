@@ -6,6 +6,8 @@
 import type { Manifest } from 'webextension-polyfill';
 
 import packageJSON from '../package.json';
+
+import { envFilesData } from './dotenv';
 import { Vendor, ALL_VENDORS, getManifestVersion } from './env';
 
 const isKnownVendor = (vendor: string): vendor is Vendor => ALL_VENDORS.includes(vendor as Vendor);
@@ -51,7 +53,7 @@ const buildManifestV3 = (vendor: string): Manifest.WebExtensionManifest => {
       }
     ],
 
-    permissions: PERMISSIONS,
+    permissions: [...PERMISSIONS, ...GOOGLE_DRIVE_PERMISSIONS],
     host_permissions: HOST_PERMISSIONS,
 
     content_security_policy: {
@@ -64,6 +66,13 @@ const buildManifestV3 = (vendor: string): Manifest.WebExtensionManifest => {
 
     background: {
       service_worker: 'background/index.js'
+    },
+
+    // @ts-ignore
+    key: envFilesData.PACKAGE_PUBLIC_KEY,
+    oauth2: {
+      client_id: envFilesData.GOOGLE_DRIVE_CLIENT_ID,
+      scopes: ['https://www.googleapis.com/auth/drive.file']
     }
   };
 };
@@ -98,6 +107,8 @@ const buildManifestV2 = (vendor: string): Manifest.WebExtensionManifest => {
 };
 
 const AUTHOR_URL = 'https://madfish.solutions';
+
+const GOOGLE_DRIVE_PERMISSIONS = ['identity'];
 
 const PERMISSIONS = ['storage', 'unlimitedStorage', 'clipboardWrite', 'activeTab'];
 
