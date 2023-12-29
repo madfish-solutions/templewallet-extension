@@ -1,34 +1,38 @@
 import { useMemo } from 'react';
 
-import { isEqual } from 'lodash';
-
-import { useAccountAssetsSelector } from 'app/store/assets/selectors';
-import type { StoredAssetStatus } from 'app/store/assets/state';
-import { useBalancesSelector } from 'app/store/balances/selectors';
+import { useAccountCollectiblesSelector } from 'app/store/assets/selectors';
+import { useAllBalancesSelector } from 'app/store/balances/selectors';
 import { useAccount, useChainId } from 'lib/temple/front';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 
+import type { AccountAsset } from '../types';
+
 import { getAssetStatus } from './utils';
 
-export interface AccountCollectible {
-  slug: string;
-  status: StoredAssetStatus;
-}
-
 export const useAccountCollectibles = (account: string, chainId: string) => {
-  const stored = useAccountAssetsSelector(account, chainId, 'collectibles');
+  const stored = useAccountCollectiblesSelector(account, chainId);
 
-  const balances = useBalancesSelector(account, chainId);
+  const balances = useAllBalancesSelector(account, chainId);
 
-  return useMemoWithCompare<AccountCollectible[]>(
-    () =>
-      stored.reduce<AccountCollectible[]>(
-        (acc, { slug, status }) =>
-          status === 'removed' ? acc : acc.concat({ slug, status: getAssetStatus(balances[slug], status) }),
-        []
-      ),
+  return useMemoWithCompare<AccountAsset[]>(
+    () => {
+      const result: AccountAsset[] = [];
+
+      for (const [slug, { status }] of Object.entries(stored)) {
+        if (status !== 'removed') result.push({ slug, status: getAssetStatus(balances[slug], status) });
+      }
+
+      return result;
+    },
     [stored, balances],
-    isEqual
+    (prev, next) => {
+      if (prev.length !== next.length) return false;
+
+      return next.every((item, i) => {
+        const prevItem = prev[i]!;
+        return item.slug === prevItem.slug && item.status === prevItem.status;
+      });
+    }
   );
 };
 

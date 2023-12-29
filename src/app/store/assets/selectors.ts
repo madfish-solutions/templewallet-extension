@@ -1,22 +1,20 @@
-import { isEqual } from 'lodash';
-
-import { useMemoWithCompare } from 'lib/ui/hooks';
-
 import { useSelector } from '../root-state.selector';
+
+import { getAccountAssetsStoreKey } from './utils';
 
 type AssetsType = 'collectibles' | 'tokens';
 
-export const useAllAssetsSelector = (type: AssetsType) => useSelector(state => state.assets[type].data);
+export const useAllTokensSelector = () => useSelector(state => state.assets.tokens.data);
 
-export const useAccountAssetsSelector = (account: string, chainId: string, type: AssetsType) => {
-  const assets = useAllAssetsSelector(type);
+const ACCOUNT_ASSETS_EMPTY = {};
 
-  return useMemoWithCompare(
-    () => assets.filter(t => t.account === account && t.chainId === chainId),
-    [assets, account, chainId],
-    isEqual
+export const useAccountTokensSelector = (account: string, chainId: string) =>
+  useSelector(state => state.assets.tokens.data[getAccountAssetsStoreKey(account, chainId)] ?? ACCOUNT_ASSETS_EMPTY);
+
+export const useAccountCollectiblesSelector = (account: string, chainId: string) =>
+  useSelector(
+    state => state.assets.collectibles.data[getAccountAssetsStoreKey(account, chainId)] ?? ACCOUNT_ASSETS_EMPTY
   );
-};
 
 export const useAreAssetsLoading = (type: AssetsType) => useSelector(state => state.assets[type].isLoading);
 

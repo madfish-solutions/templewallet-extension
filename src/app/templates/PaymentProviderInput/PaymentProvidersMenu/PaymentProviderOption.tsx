@@ -1,8 +1,7 @@
-import React, { FC, useMemo } from 'react';
+import React, { FC, useMemo, CSSProperties } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
 import classNames from 'clsx';
-import { ListRowProps } from 'react-virtualized';
 
 import { useCryptoCurrenciesSelector } from 'app/store/buy-with-credit-card/selectors';
 import { TopUpProviderIcon } from 'app/templates/TopUpProviderIcon';
@@ -14,10 +13,11 @@ import { MoneyRange } from '../MoneyRange';
 
 import { PaymentProviderTag, PaymentProviderTagProps } from './PaymentProviderTag';
 
-interface Props extends Partial<Pick<ListRowProps, 'style'>> {
+interface Props {
   value: PaymentProviderInterface;
   isSelected: boolean;
   shouldShowSeparator: boolean;
+  style?: CSSProperties;
 }
 
 export const PaymentProviderOption: FC<Props> = ({ value, isSelected, shouldShowSeparator, style }) => {

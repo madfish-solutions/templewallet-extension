@@ -3,42 +3,38 @@ import { createAction } from '@reduxjs/toolkit';
 import { WhitelistResponseToken } from 'lib/apis/temple';
 import { createActions } from 'lib/store';
 
-import { StoredAssetStatus, StoredAsset } from './state';
+import type { AccountAssetForStore, StoredAsset } from './state';
 
-interface LoadTokensPayload {
+interface LoadAssetsPayload {
   /** PKH */
   account: string;
   chainId: string;
 }
 
 export const loadAccountTokensActions = createActions<
-  LoadTokensPayload,
-  LoadTokensPayload & { slugs: string[] },
+  LoadAssetsPayload,
+  LoadAssetsPayload & { slugs: string[] },
   { code?: string }
 >('assets/LOAD_ACCOUNT_TOKENS');
 
 export const loadAccountCollectiblesActions = createActions<
-  LoadTokensPayload,
-  LoadTokensPayload & { slugs: string[] },
+  LoadAssetsPayload,
+  LoadAssetsPayload & { slugs: string[] },
   { code?: string }
 >('assets/LOAD_ACCOUNT_COLLECTIBLES');
 
-type LoadWhitelistPayload = WhitelistResponseToken[];
-
-export const loadTokensWhitelistActions = createActions<void, LoadWhitelistPayload, { code?: string }>(
+export const loadTokensWhitelistActions = createActions<void, WhitelistResponseToken[], { code?: string }>(
   'assets/LOAD_TOKENS_WHITELIST'
 );
 
-interface SetAssetStatusPayload extends Pick<StoredAsset, 'account' | 'chainId' | 'slug'> {
-  isCollectible?: boolean;
-  status: StoredAssetStatus;
-}
+type SetAssetStatusPayload = AccountAssetForStore;
 
-/** Adds asset record too, if absent */
-export const setAssetStatusAction = createAction<SetAssetStatusPayload>('assets/SET_ASSET_STATUS');
+export const setTokenStatusAction = createAction<SetAssetStatusPayload>('assets/SET_TOKEN_STATUS');
 
-interface PutAssetsAsIsPayload {
-  type: 'collectibles' | 'tokens';
-  assets: StoredAsset[];
-}
-export const putAssetsAsIsAction = createAction<PutAssetsAsIsPayload>('assets/PUT_ASSETS_AS_IS');
+export const setCollectibleStatusAction = createAction<SetAssetStatusPayload>('assets/SET_COLLECTIBLE_STATUS');
+
+export type AssetToPut = AccountAssetForStore & StoredAsset;
+
+export const putTokensAsIsAction = createAction<AssetToPut[]>('assets/PUT_TOKENS_AS_IS');
+
+export const putCollectiblesAsIsAction = createAction<AssetToPut[]>('assets/PUT_COLLECTIBLES_AS_IS');

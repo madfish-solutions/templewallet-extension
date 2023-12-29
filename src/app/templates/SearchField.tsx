@@ -46,7 +46,7 @@ const SearchField: FC<SearchFieldProps> = ({
       <div className="relative flex items-stretch">
         <input
           type="text"
-          className={classNames('appearance-none w-full', className)}
+          className={classNames('appearance-none w-full py-2 pl-8 pr-8 text-sm leading-tight', className)}
           value={value}
           spellCheck={false}
           autoComplete="off"

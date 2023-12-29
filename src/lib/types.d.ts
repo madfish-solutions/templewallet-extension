@@ -8,7 +8,7 @@ type Defined<T> = Exclude<T, undefined>;
 
 type WithRequired<T, K extends keyof T> = T & { [P in K]-?: T[P] };
 
-type StringRecord = Record<string, string>;
+type StringRecord<T = string> = Record<string, T>;
 
 interface PropsWithChildren {
   children: import('react').ReactNode;

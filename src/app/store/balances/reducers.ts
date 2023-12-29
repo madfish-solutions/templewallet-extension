@@ -1,53 +1,44 @@
 import { createReducer } from '@reduxjs/toolkit';
 
-import { createEntity } from 'lib/store/entity.utils';
+import { TEZ_TOKEN_SLUG } from 'lib/assets';
 
-import { loadTokensBalancesFromTzktAction, putTokensBalancesAction } from './actions';
+import { loadGasBalanceActions, loadAssetsBalancesActions, putTokensBalancesAction } from './actions';
 import { balancesInitialState } from './state';
-import { getKeyForBalancesRecord } from './utils';
+import { retrieveBalancesRecord } from './utils';
 
 export const balancesReducer = createReducer(balancesInitialState, builder => {
-  builder.addCase(loadTokensBalancesFromTzktAction.submit, (state, { payload }) => {
-    const key = getKeyForBalancesRecord(payload.publicKeyHash, payload.chainId);
+  builder.addCase(loadGasBalanceActions.success, (state, { payload }) => {
+    const records = retrieveBalancesRecord(state, payload.publicKeyHash, payload.chainId);
 
-    const current = state.balancesAtomic[key];
-
-    if (current) current.isLoading = true;
-    else state.balancesAtomic[key] = createEntity({}, true);
+    records.data[TEZ_TOKEN_SLUG] = payload.balance;
   });
 
-  builder.addCase(loadTokensBalancesFromTzktAction.success, (state, { payload }) => {
-    const key = getKeyForBalancesRecord(payload.publicKeyHash, payload.chainId);
+  builder.addCase(loadAssetsBalancesActions.submit, (state, { payload }) => {
+    const records = retrieveBalancesRecord(state, payload.publicKeyHash, payload.chainId);
 
-    const data = payload.mergeNotReplace
-      ? { ...state.balancesAtomic[key]?.data, ...payload.balances }
-      : payload.balances;
-
-    state.balancesAtomic = {
-      ...state.balancesAtomic,
-      [key]: createEntity(data, false)
-    };
+    records.isLoading = true;
   });
 
-  builder.addCase(loadTokensBalancesFromTzktAction.fail, (state, { payload }) => {
-    const key = getKeyForBalancesRecord(payload.publicKeyHash, payload.chainId);
+  builder.addCase(loadAssetsBalancesActions.success, (state, { payload }) => {
+    const records = retrieveBalancesRecord(state, payload.publicKeyHash, payload.chainId);
 
-    state.balancesAtomic = {
-      ...state.balancesAtomic,
-      [key]: createEntity({}, false, payload.error)
-    };
+    records.data = Object.assign({}, records.data, payload.balances);
+    records.isLoading = false;
+    delete records.error;
+  });
+
+  builder.addCase(loadAssetsBalancesActions.fail, (state, { payload }) => {
+    const records = retrieveBalancesRecord(state, payload.publicKeyHash, payload.chainId);
+
+    records.error = payload.error;
+    records.isLoading = false;
   });
 
   builder.addCase(putTokensBalancesAction, (state, { payload }) => {
     if (Object.keys(payload.balances).length < 1) return;
 
-    const key = getKeyForBalancesRecord(payload.publicKeyHash, payload.chainId);
+    const records = retrieveBalancesRecord(state, payload.publicKeyHash, payload.chainId);
 
-    const current = state.balancesAtomic[key];
-
-    state.balancesAtomic = {
-      ...state.balancesAtomic,
-      [key]: createEntity({ ...current?.data, ...payload.balances }, current?.isLoading ?? false)
-    };
+    records.data = Object.assign({}, records.data, payload.balances);
   });
 });

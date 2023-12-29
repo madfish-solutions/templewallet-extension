@@ -3,7 +3,7 @@ import React, { useMemo } from 'react';
 import classNames from 'clsx';
 
 import { useAppEnv } from 'app/env';
-import { Image } from 'lib/ui/Image';
+import { ImageStacked } from 'lib/ui/ImageStacked';
 
 type DAppIconProps = {
   name: string;
@@ -13,6 +13,8 @@ type DAppIconProps = {
 
 export const DAppIcon: React.FC<DAppIconProps> = ({ name, logo, className }) => {
   const { popup } = useAppEnv();
+
+  const sources = useMemo(() => (logo ? [logo] : []), []);
 
   const fallbackElement = useMemo(() => <span className="text-gray-700 text-xs">{name}</span>, [name]);
 
@@ -25,7 +27,13 @@ export const DAppIcon: React.FC<DAppIconProps> = ({ name, logo, className }) => 
       )}
       style={popup ? { width: '4.5rem', height: '4.5rem' } : undefined}
     >
-      <Image src={logo} className="rounded-2xl" alt={name} loader={fallbackElement} fallback={fallbackElement} />
+      <ImageStacked
+        sources={sources}
+        className="rounded-2xl"
+        alt={name}
+        loader={fallbackElement}
+        fallback={fallbackElement}
+      />
     </div>
   );
 };

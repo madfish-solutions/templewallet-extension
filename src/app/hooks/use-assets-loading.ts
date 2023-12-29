@@ -6,6 +6,7 @@ import {
   loadTokensWhitelistActions,
   loadAccountCollectiblesActions
 } from 'app/store/assets/actions';
+import { useAreAssetsLoading } from 'app/store/assets/selectors';
 import { ASSETS_SYNC_INTERVAL } from 'lib/fixed-times';
 import { useAccount, useChainId } from 'lib/temple/front';
 import { TempleChainId } from 'lib/temple/types';
@@ -19,10 +20,21 @@ export const useAssetsLoading = () => {
     if (chainId === TempleChainId.Mainnet) dispatch(loadTokensWhitelistActions.submit());
   }, [chainId]);
 
+  const tokensAreLoading = useAreAssetsLoading('tokens');
+
   useInterval(
     () => {
-      dispatch(loadAccountTokensActions.submit({ account: publicKeyHash, chainId }));
-      dispatch(loadAccountCollectiblesActions.submit({ account: publicKeyHash, chainId }));
+      if (!tokensAreLoading) dispatch(loadAccountTokensActions.submit({ account: publicKeyHash, chainId }));
+    },
+    ASSETS_SYNC_INTERVAL,
+    [chainId, publicKeyHash]
+  );
+
+  const collectiblesAreLoading = useAreAssetsLoading('collectibles');
+
+  useInterval(
+    () => {
+      if (!collectiblesAreLoading) dispatch(loadAccountCollectiblesActions.submit({ account: publicKeyHash, chainId }));
     },
     ASSETS_SYNC_INTERVAL,
     [chainId, publicKeyHash]

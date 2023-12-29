@@ -4,10 +4,11 @@ import { notificationsReducer } from 'lib/notifications';
 
 import { abTestingReducer } from './ab-testing/reducers';
 import { advertisingReducer } from './advertising/reducers';
-import { assetsReducer } from './assets/reducer';
+import { assetsPersistedReducer } from './assets/reducer';
 import { balancesReducer } from './balances/reducers';
 import { buyWithCreditCardReducer } from './buy-with-credit-card/reducers';
 import { collectiblesPersistedReducer } from './collectibles/reducer';
+import { collectiblesMetadataPersistedReducer } from './collectibles-metadata/reducer';
 import { currencyReducer } from './currency/reducers';
 import { dAppsReducer } from './d-apps/reducers';
 import { newsletterReducers } from './newsletter/newsletter-reducers';
@@ -25,8 +26,9 @@ const rootStateReducersMap = {
   swap: swapReducer,
   partnersPromotion: partnersPromotionRucer,
   balances: balancesReducer,
-  assets: assetsReducer,
+  assets: assetsPersistedReducer,
   tokensMetadata: tokensMetadataReducer,
+  collectiblesMetadata: collectiblesMetadataPersistedReducer,
   abTesting: abTestingReducer,
   buyWithCreditCard: buyWithCreditCardReducer,
   collectibles: collectiblesPersistedReducer,

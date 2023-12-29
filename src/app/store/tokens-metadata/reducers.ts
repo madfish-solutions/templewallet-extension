@@ -1,82 +1,60 @@
 import { createReducer } from '@reduxjs/toolkit';
 import { omit, pick } from 'lodash';
 
-import { tokenToSlug } from 'lib/assets';
-import { buildTokenMetadataFromFetched } from 'lib/metadata/utils';
+import { toTokenSlug, fromAssetSlug } from 'lib/assets';
+import { buildTokenMetadataFromFetched, buildTokenMetadataFromWhitelist } from 'lib/metadata/utils';
 
 import {
   putTokensMetadataAction,
+  addWhitelistTokensMetadataAction,
   loadTokensMetadataAction,
   resetTokensMetadataLoadingAction,
-  refreshTokensMetadataAction,
-  addTokensMetadataAction,
-  addTokensMetadataOfFetchedAction
+  refreshTokensMetadataAction
 } from './actions';
 import { tokensMetadataInitialState, TokensMetadataState } from './state';
 
 export const tokensMetadataReducer = createReducer<TokensMetadataState>(tokensMetadataInitialState, builder => {
-  builder.addCase(putTokensMetadataAction, (state, { payload: tokensMetadata }) => {
-    if (tokensMetadata.length < 1) {
-      return {
-        ...state,
-        metadataLoading: false
-      };
+  builder.addCase(putTokensMetadataAction, (state, { payload: { records, resetLoading } }) => {
+    for (const slug of Object.keys(records)) {
+      const [address, id] = fromAssetSlug(slug);
+      const rawMetadata = records[slug];
+      if (!rawMetadata || !id) continue;
+
+      state.metadataRecord[slug] = buildTokenMetadataFromFetched(rawMetadata, address, id);
     }
 
-    const metadataRecord = tokensMetadata.reduce((prevState, tokenMetadata) => {
-      const slug = tokenToSlug(tokenMetadata);
-
-      return {
-        ...prevState,
-        [slug]: {
-          ...prevState[slug],
-          ...tokenMetadata
-        }
-      };
-    }, state.metadataRecord);
-
-    return {
-      ...state,
-      metadataRecord,
-      metadataLoading: false
-    };
+    if (resetLoading) state.metadataLoading = false;
   });
 
-  builder.addCase(addTokensMetadataAction, (state, { payload }) => {
-    for (const metadata of payload) {
-      const slug = tokenToSlug(metadata);
+  builder.addCase(addWhitelistTokensMetadataAction, (state, { payload }) => {
+    for (const rawMetadata of payload) {
+      const slug = toTokenSlug(rawMetadata.contractAddress, rawMetadata.fa2TokenId);
       if (state.metadataRecord[slug]) continue;
 
-      state.metadataRecord[slug] = metadata;
+      state.metadataRecord[slug] = buildTokenMetadataFromWhitelist(rawMetadata);
     }
   });
 
-  builder.addCase(addTokensMetadataOfFetchedAction, (state, { payload }) => {
-    for (const slug of Object.keys(payload)) {
-      if (state.metadataRecord[slug]) continue;
-
-      const [address, id] = slug.split('_');
-      state.metadataRecord[slug] = buildTokenMetadataFromFetched(payload[slug]!, address, Number(id));
-    }
+  builder.addCase(loadTokensMetadataAction, state => {
+    state.metadataLoading = true;
   });
 
-  builder.addCase(loadTokensMetadataAction, state => ({
-    ...state,
-    metadataLoading: true
-  }));
-
-  builder.addCase(resetTokensMetadataLoadingAction, state => ({
-    ...state,
-    metadataLoading: false
-  }));
+  builder.addCase(resetTokensMetadataLoadingAction, state => {
+    state.metadataLoading = false;
+  });
 
   builder.addCase(refreshTokensMetadataAction, (state, { payload }) => {
     const keysToRefresh = ['artifactUri', 'displayUri'] as const;
 
-    for (const metadata of payload) {
-      const slug = tokenToSlug(metadata);
+    for (const slug of Object.keys(payload)) {
       const current = state.metadataRecord[slug];
       if (!current) continue;
+
+      const [address, id] = fromAssetSlug(slug);
+      const rawMetadata = payload[slug];
+      if (!rawMetadata || !id) continue;
+
+      const metadata = buildTokenMetadataFromFetched(rawMetadata, address, id);
 
       state.metadataRecord[slug] = {
         ...omit(current, keysToRefresh),

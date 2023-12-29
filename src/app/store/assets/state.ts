@@ -1,25 +1,34 @@
 import { createEntity, LoadableEntityState } from 'lib/store';
 
-export type StoredAssetStatus = 'enabled' | 'disabled' | 'removed';
+/** 'idle' for disabled unless balance is positive */
+export type StoredAssetStatus = 'idle' | 'enabled' | 'disabled' | 'removed';
 
-export interface StoredAsset {
+export interface AccountAssetForStore {
   slug: string;
   chainId: string;
   /** PKH */
   account: string;
-  /** Absent for 'idle' (disabled unless balance is positive) state */
-  status?: StoredAssetStatus;
+  status: StoredAssetStatus;
 }
 
+export interface StoredAsset {
+  status: StoredAssetStatus;
+  /** `true` if manually added by user */
+  manual?: boolean;
+}
+
+type AccountAssetsRecord = StringRecord<StoredAsset>;
+type StoredAssetsRecords = StringRecord<AccountAssetsRecord>;
+
 export interface SliceState {
-  tokens: LoadableEntityState<StoredAsset[]>;
-  collectibles: LoadableEntityState<StoredAsset[]>;
+  tokens: LoadableEntityState<StoredAssetsRecords>;
+  collectibles: LoadableEntityState<StoredAssetsRecords>;
   /** Mainnet tokens whitelist slugs */
   mainnetWhitelist: LoadableEntityState<string[]>;
 }
 
 export const initialState: SliceState = {
-  tokens: createEntity([]),
-  collectibles: createEntity([]),
+  tokens: createEntity({}),
+  collectibles: createEntity({}),
   mainnetWhitelist: createEntity([])
 };

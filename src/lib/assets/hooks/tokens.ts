@@ -4,43 +4,49 @@ import { ChainIds } from '@taquito/taquito';
 import { isEqual, sortBy, uniqBy } from 'lodash';
 
 import {
-  useAllAssetsSelector,
-  useAccountAssetsSelector,
+  useAllTokensSelector,
+  useAccountTokensSelector,
   useMainnetTokensWhitelistSelector
 } from 'app/store/assets/selectors';
-import type { StoredAssetStatus } from 'app/store/assets/state';
-import { useBalancesSelector } from 'app/store/balances/selectors';
+import { isAccountAssetsStoreKeyOfSameChainIdAndDifferentAccount } from 'app/store/assets/utils';
+import { useAllBalancesSelector } from 'app/store/balances/selectors';
 import { useAccount, useChainId } from 'lib/temple/front';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 
 import { PREDEFINED_TOKENS_METADATA } from '../known-tokens';
+import type { AccountAsset } from '../types';
 import { tokenToSlug } from '../utils';
 
-import { getAssetStatus } from './utils';
+import { isAssetStatusIdle, getAssetStatus } from './utils';
 
-export interface AccountToken {
-  slug: string;
-  status: StoredAssetStatus;
+interface AccountToken extends AccountAsset {
   predefined?: boolean;
 }
 
 export const useAllAvailableTokens = (account: string, chainId: string) => {
   const tokens = useAccountTokens(account, chainId);
-  const allTokensStored = useAllAssetsSelector('tokens');
+  const allTokensStored = useAllTokensSelector();
 
   return useMemo(() => {
-    const removedSlugs = tokens.reduce<string[]>((acc, t) => (t.status === 'removed' ? acc.concat(t.slug) : acc), []);
+    const remainedTokens: AccountToken[] = [];
+    const removedSlugs: string[] = [];
 
-    const allTokens = allTokensStored.filter(t => t.chainId === chainId);
+    for (const token of tokens) {
+      if (token.status === 'removed') removedSlugs.push(token.slug);
+      else remainedTokens.push(token);
+    }
 
-    const otherTokens = allTokens.reduce<AccountToken[]>((acc, curr) => {
-      if (curr.account === account || curr.status === 'removed' || removedSlugs.includes(curr.slug)) return acc;
-
-      return acc.concat({ slug: curr.slug, status: 'disabled' });
-    }, []);
+    const otherAccountsTokens: AccountToken[] = [];
+    for (const [key, record] of Object.entries(allTokensStored)) {
+      if (isAccountAssetsStoreKeyOfSameChainIdAndDifferentAccount(key, account, chainId))
+        for (const [slug, asset] of Object.entries(record)) {
+          if (asset.status !== 'removed' && !removedSlugs.includes(slug))
+            otherAccountsTokens.push({ slug, status: 'disabled' });
+        }
+    }
 
     // Keep this order to preserve correct statuses & flags
-    const concatenated = tokens.concat(otherTokens);
+    const concatenated = remainedTokens.concat(otherAccountsTokens);
 
     return sortBy(
       uniqBy(concatenated, t => t.slug),
@@ -68,15 +74,15 @@ export const useEnabledAccountTokensSlugs = () => {
 const TOKENS_SORT_ITERATEES: (keyof AccountToken)[] = ['predefined', 'slug'];
 
 const useAccountTokens = (account: string, chainId: string) => {
-  const storedRaw = useAccountAssetsSelector(account, chainId, 'tokens');
+  const storedRaw = useAccountTokensSelector(account, chainId);
   const whitelistSlugs = useWhitelistSlugs(chainId);
 
-  const balances = useBalancesSelector(account, chainId);
+  const balances = useAllBalancesSelector(account, chainId);
 
   return useMemoWithCompare<AccountToken[]>(
     () => {
       // 1. Stored
-      const stored = storedRaw.map<AccountToken>(({ slug, status }) => ({
+      const stored = Object.entries(storedRaw).map<AccountToken>(([slug, { status }]) => ({
         slug,
         status: getAssetStatus(balances[slug], status)
       }));
@@ -87,9 +93,10 @@ const useAccountTokens = (account: string, chainId: string) => {
       const predefined = predefinedMetadata
         ? predefinedMetadata.map<AccountToken>(metadata => {
             const slug = tokenToSlug(metadata);
-            const storedStatus = storedRaw.find(t => t.slug === slug)?.status;
+            const storedStatus = storedRaw[slug]?.status;
+            const status = isAssetStatusIdle(storedStatus) ? 'enabled' : storedStatus;
 
-            return { slug, status: storedStatus ?? 'enabled', predefined: true };
+            return { slug, status, predefined: true };
           })
         : [];
 

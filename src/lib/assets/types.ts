@@ -1,14 +1,19 @@
-import type BigNumber from 'bignumber.js';
+import type { StoredAssetStatus } from 'app/store/assets/state';
 
 import type { TEZ_TOKEN_SLUG } from './index';
 
+export interface AccountAsset {
+  slug: string;
+  status: StoredAssetStatus;
+}
+
 interface Token {
   contract: string;
-  id?: BigNumber.Value;
+  id?: string;
 }
 
 export interface FA2Token extends Token {
-  id: BigNumber.Value;
+  id: string;
 }
 
 export type Asset = Token | typeof TEZ_TOKEN_SLUG;

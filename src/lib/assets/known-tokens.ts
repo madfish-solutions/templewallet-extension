@@ -1,12 +1,13 @@
+import type { MetadataRecords } from 'app/store/tokens-metadata/state';
 import { TokenMetadata, TokenStandardsEnum } from 'lib/metadata/types';
 import { TempleChainId } from 'lib/temple/types';
 
 import { FA2Token } from './types';
-import { toTokenSlug } from './utils';
+import { tokenToSlug, toTokenSlug } from './utils';
 
 export const TempleToken: FA2Token = {
   contract: 'KT1VaEsVNiBoA56eToEK6n6BcPgh1tdx9eXi',
-  id: 0
+  id: '0'
 };
 
 export const TEMPLE_TOKEN_SLUG = toTokenSlug(TempleToken.contract, TempleToken.id);
@@ -36,7 +37,7 @@ export const TOKENS_BRAND_COLORS: Record<string, { bg: string; bgHover?: string 
 };
 
 const DEPRECATED_TKEY_METADATA: TokenMetadata = {
-  id: 0,
+  id: '0',
   address: 'KT1WihWRnmzhfebi6zqQ4tvNGiPeVxiGwTi2',
   name: 'Deprecated Temple Key',
   symbol: 'TKEY_OLD',
@@ -46,7 +47,7 @@ const DEPRECATED_TKEY_METADATA: TokenMetadata = {
 
 const PREDEFINED_MAINNET_TOKENS_METADATA: TokenMetadata[] = [
   {
-    id: 0,
+    id: '0',
     address: 'KT1VaEsVNiBoA56eToEK6n6BcPgh1tdx9eXi',
     name: 'Temple Key',
     symbol: 'TKEY',
@@ -55,7 +56,7 @@ const PREDEFINED_MAINNET_TOKENS_METADATA: TokenMetadata[] = [
     standard: TokenStandardsEnum.Fa2
   },
   {
-    id: 0,
+    id: '0',
     address: 'KT1XnTn74bUtxHfDtBmm2bGZAQfhPbvKWR8o',
     name: 'Tether USD',
     symbol: 'USDt',
@@ -64,7 +65,7 @@ const PREDEFINED_MAINNET_TOKENS_METADATA: TokenMetadata[] = [
     standard: TokenStandardsEnum.Fa2
   },
   {
-    id: 0,
+    id: '0',
     address: 'KT1XRPEPXbZK25r3Htzp2o1x7xdMMmfocKNW',
     name: 'youves uUSD',
     symbol: 'uUSD',
@@ -73,7 +74,7 @@ const PREDEFINED_MAINNET_TOKENS_METADATA: TokenMetadata[] = [
     standard: TokenStandardsEnum.Fa2
   },
   {
-    id: 0,
+    id: '0',
     address: 'KT1K9gCRgaLRFKTErYt1wVxA3Frb9FjasjTV',
     name: 'Kolibri',
     symbol: 'kUSD',
@@ -82,7 +83,7 @@ const PREDEFINED_MAINNET_TOKENS_METADATA: TokenMetadata[] = [
     standard: TokenStandardsEnum.Fa12
   },
   {
-    id: 0,
+    id: '0',
     address: 'KT1PWx2mnDueood7fEmfbBDKx1D9BAnnXitn',
     name: 'Tezos BTC',
     symbol: 'tzBTC',
@@ -91,7 +92,7 @@ const PREDEFINED_MAINNET_TOKENS_METADATA: TokenMetadata[] = [
     standard: TokenStandardsEnum.Fa12
   },
   {
-    id: 2,
+    id: '2',
     address: 'KT1XRPEPXbZK25r3Htzp2o1x7xdMMmfocKNW',
     name: 'youves uBTC',
     symbol: 'uBTC',
@@ -100,7 +101,7 @@ const PREDEFINED_MAINNET_TOKENS_METADATA: TokenMetadata[] = [
     standard: TokenStandardsEnum.Fa2
   },
   {
-    id: 0,
+    id: '0',
     address: 'KT193D4vozYnhGJQVtw7CoxxqphqUEEwK6Vb',
     name: 'Quipuswap governance token',
     symbol: 'QUIPU',
@@ -109,7 +110,7 @@ const PREDEFINED_MAINNET_TOKENS_METADATA: TokenMetadata[] = [
     standard: TokenStandardsEnum.Fa2
   },
   {
-    id: 0,
+    id: '0',
     address: 'KT1Xobej4mc6XgEjDoJoHtTKgbD1ELMvcQuL',
     name: 'youves YOU Governance',
     symbol: 'YOU',
@@ -119,11 +120,9 @@ const PREDEFINED_MAINNET_TOKENS_METADATA: TokenMetadata[] = [
   }
 ];
 
-export const LOCAL_MAINNET_TOKENS_METADATA = PREDEFINED_MAINNET_TOKENS_METADATA.concat(DEPRECATED_TKEY_METADATA);
-
-export const DCP_TOKENS_METADATA: TokenMetadata[] = [
+const DCP_TOKENS_METADATA: TokenMetadata[] = [
   {
-    id: 0,
+    id: '0',
     address: 'KT1N7Rh6SgSdExMPxfnYw1tHqrkSm7cm6JDN',
     decimals: 0,
     symbol: 'APX',
@@ -137,3 +136,15 @@ export const PREDEFINED_TOKENS_METADATA: Record<string, TokenMetadata[]> = {
   [TempleChainId.Mainnet]: PREDEFINED_MAINNET_TOKENS_METADATA,
   [TempleChainId.Dcp]: DCP_TOKENS_METADATA
 };
+
+export const ALL_PREDEFINED_METADATAS_RECORD: MetadataRecords = [
+  ...PREDEFINED_MAINNET_TOKENS_METADATA,
+  DEPRECATED_TKEY_METADATA,
+  ...DCP_TOKENS_METADATA
+].reduce(
+  (obj, tokenMetadata) => ({
+    ...obj,
+    [tokenToSlug(tokenMetadata)]: tokenMetadata
+  }),
+  {}
+);

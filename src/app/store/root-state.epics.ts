@@ -10,6 +10,7 @@ import { assetsEpics } from './assets/epics';
 import { balancesEpics } from './balances/epics';
 import { buyWithCreditCardEpics } from './buy-with-credit-card/epics';
 import { collectiblesEpics } from './collectibles/epics';
+import { collectiblesMetadataEpics } from './collectibles-metadata/epics';
 import { currencyEpics } from './currency/epics';
 import { partnersPromotionEpics } from './partners-promotion/epics';
 import type { RootState } from './root-state.type';
@@ -25,6 +26,7 @@ const allEpics = combineEpics(
   balancesEpics,
   assetsEpics,
   tokensMetadataEpics,
+  collectiblesMetadataEpics,
   abTestingEpics,
   buyWithCreditCardEpics,
   collectiblesEpics

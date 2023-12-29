@@ -4,7 +4,6 @@
  */
 
 import { TezosToolkit } from '@taquito/taquito';
-import BigNumber from 'bignumber.js';
 import { chunk } from 'lodash';
 import { forkJoin, map, of, switchMap } from 'rxjs';
 
@@ -98,10 +97,10 @@ const fetchObjktGalleriesAttributesCountsChunk$ = (attributes: GetAttribute[]) =
     }
   );
 
-export const fetchCollectibleExtraDetails = (contract: string, id: BigNumber.Value) =>
+export const fetchCollectibleExtraDetails = (contract: string, id: string) =>
   apolloObjktClient
     .fetch<{ token: [ObjktCollectibleExtra] | [] }>(buildGetCollectibleExtraQuery(), {
-      where: { fa_contract: { _eq: contract }, token_id: { _eq: String(id) } }
+      where: { fa_contract: { _eq: contract }, token_id: { _eq: id } }
     })
     .then(data => data?.token[0] ?? null);
 

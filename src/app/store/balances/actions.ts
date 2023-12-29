@@ -7,23 +7,26 @@ interface LoadBalancesPayloadBase {
   chainId: string;
 }
 
-interface LoadBalancesSubmitPayload extends LoadBalancesPayloadBase {
-  gasOnly?: boolean;
-}
+interface LoadBalancesSubmitPayload extends LoadBalancesPayloadBase {}
 
 interface LoadBalancesSuccessPayload extends LoadBalancesPayloadBase {
   balances: StringRecord;
-  mergeNotReplace?: boolean;
 }
 
 interface LoadBalancesFailPayload extends LoadBalancesPayloadBase {
   error: string;
 }
 
-export const loadTokensBalancesFromTzktAction = createActions<
+export const loadGasBalanceActions = createActions<
+  LoadBalancesSubmitPayload,
+  LoadBalancesPayloadBase & { balance: string },
+  LoadBalancesFailPayload
+>('balances/LOAD_GAS_BALANCE');
+
+export const loadAssetsBalancesActions = createActions<
   LoadBalancesSubmitPayload,
   LoadBalancesSuccessPayload,
   LoadBalancesFailPayload
->('balances/LOAD_TOKENS_BALANCES');
+>('balances/LOAD_ASSETS_BALANCES');
 
 export const putTokensBalancesAction = createAction<LoadBalancesSuccessPayload>('balances/PUT_TOKENS_BALANCES');

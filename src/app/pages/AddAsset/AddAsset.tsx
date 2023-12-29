@@ -1,4 +1,4 @@
-import React, { FC, ReactNode, useCallback, useEffect, useRef, useMemo } from 'react';
+import React, { FC, memo, ReactNode, useCallback, useEffect, useRef, useMemo } from 'react';
 
 import classNames from 'clsx';
 import { FormContextValues, useForm } from 'react-hook-form';
@@ -10,7 +10,8 @@ import { Alert, FormField, FormSubmitButton, NoSpaceField } from 'app/atoms';
 import Spinner from 'app/atoms/Spinner/Spinner';
 import { ReactComponent as AddIcon } from 'app/icons/add.svg';
 import PageLayout from 'app/layouts/PageLayout';
-import { setAssetStatusAction } from 'app/store/assets/actions';
+import { putTokensAsIsAction, putCollectiblesAsIsAction } from 'app/store/assets/actions';
+import { putCollectiblesMetadataAction } from 'app/store/collectibles-metadata/actions';
 import { putTokensMetadataAction } from 'app/store/tokens-metadata/actions';
 import { useFormAnalytics } from 'lib/analytics';
 import { TokenMetadataResponse } from 'lib/apis/temple';
@@ -74,7 +75,7 @@ const INITIAL_STATE: ComponentState = {
 
 class ContractNotFoundError extends Error {}
 
-const Form: FC = () => {
+const Form = memo(() => {
   const tezos = useTezos();
   const { id: networkId } = useNetwork();
   const chainId = useChainId(true)!;
@@ -131,7 +132,7 @@ const Form: FC = () => {
       if (tokenStandard === 'fa2') await assertFa2TokenDefined(tezos, contract, tokenId);
 
       const rpcUrl = tezos.rpc.getRpcUrl();
-      const metadata = await fetchOneTokenMetadata(rpcUrl, contractAddress, tokenId);
+      const metadata = await fetchOneTokenMetadata(rpcUrl, contractAddress, String(tokenId));
 
       if (metadata) {
         metadataRef.current = metadata;
@@ -206,20 +207,23 @@ const Form: FC = () => {
         const tokenMetadata: TokenMetadata = {
           ...baseMetadata,
           address: contractAddress,
-          id: tokenId
+          id: String(tokenId)
         };
 
-        dispatch(putTokensMetadataAction([tokenMetadata]));
+        const assetIsCollectible = isCollectible(tokenMetadata);
 
-        dispatch(
-          setAssetStatusAction({
-            isCollectible: isCollectible(tokenMetadata),
-            chainId,
-            account: accountPkh,
-            slug: tokenSlug,
-            status: 'enabled'
-          })
-        );
+        const actionPayload = { records: { [tokenSlug]: tokenMetadata } };
+        if (assetIsCollectible) dispatch(putCollectiblesMetadataAction(actionPayload));
+        else dispatch(putTokensMetadataAction(actionPayload));
+
+        const asset = {
+          chainId,
+          account: accountPkh,
+          slug: tokenSlug,
+          status: 'enabled' as const
+        };
+
+        dispatch(assetIsCollectible ? putCollectiblesAsIsAction([asset]) : putTokensAsIsAction([asset]));
 
         swrCache.delete(unstable_serialize(getBalanceSWRKey(tezos, tokenSlug, accountPkh)));
 
@@ -324,7 +328,7 @@ const Form: FC = () => {
       )}
     </form>
   );
-};
+});
 
 type BottomSectionProps = Pick<FormContextValues, 'register' | 'errors' | 'formState'> & {
   submitError?: ReactNode;

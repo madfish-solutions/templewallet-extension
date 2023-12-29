@@ -6,11 +6,11 @@ import type { Asset, FA2Token } from './types';
 
 export const TEZ_TOKEN_SLUG = 'tez' as const;
 
-export const toTokenSlug = (contract: string, id: BigNumber.Value = 0) => {
-  return `${contract}_${new BigNumber(id).toFixed()}`;
-};
+export const toTokenSlug = (contract: string, id: string | number = 0) => `${contract}_${id}`;
 
-export const tokenToSlug = <T extends { address: string; id?: BigNumber.Value }>({ address, id }: T) => {
+export const fromAssetSlug = (slug: string) => slug.split('_') as [contract: string, tokenId?: string];
+
+export const tokenToSlug = <T extends { address: string; id?: string | number }>({ address, id }: T) => {
   return toTokenSlug(address, id);
 };
 
@@ -26,10 +26,10 @@ export const fromFa2TokenSlug = (slug: string): FA2Token => {
     throw new Error('Only fa2 token slug allowed');
   }
 
-  const [contractAddress, tokenIdStr] = slug.split('_');
+  const [contractAddress, tokenIdStr] = fromAssetSlug(slug);
 
   return {
     contract: contractAddress,
-    id: new BigNumber(tokenIdStr ?? 0)
+    id: tokenIdStr ?? '0'
   };
 };

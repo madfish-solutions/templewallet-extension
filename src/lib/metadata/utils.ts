@@ -7,7 +7,7 @@ import { TokenMetadata, TokenStandardsEnum } from './types';
 export const buildTokenMetadataFromFetched = (
   token: TokenMetadataResponse,
   address: string,
-  id: number
+  id: string
 ): TokenMetadata => ({
   address,
   id,
@@ -23,7 +23,7 @@ export const buildTokenMetadataFromWhitelist = ({
   metadata
 }: WhitelistResponseToken): TokenMetadata => ({
   address: contractAddress,
-  id: fa2TokenId ?? 0,
+  id: fa2TokenId ? String(fa2TokenId) : '0',
   decimals: metadata.decimals,
   symbol: metadata.symbol ?? metadata.name?.substring(0, 8) ?? '???',
   name: metadata.name ?? metadata.symbol ?? 'Unknown Token',

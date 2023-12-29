@@ -1,33 +1,29 @@
 import { useCallback, useMemo, useState } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
-import { BigNumber } from 'bignumber.js';
 import { isEqual } from 'lodash';
 import { useDebounce } from 'use-debounce';
 
-import { useBalancesWithDecimals } from 'app/hooks/use-balances-with-decimals.hook';
 import { toTokenSlug } from 'lib/assets';
-import { useAccountBalances } from 'lib/balances';
-import { useUsdToTokenRates } from 'lib/fiat-currency/core';
-import { useTokensMetadataWithPresenceCheck } from 'lib/metadata';
+import { searchAssetsWithNoMeta } from 'lib/assets/search.utils';
+import { useTokensSortPredicate } from 'lib/assets/use-sorting';
+import { useCurrentAccountBalances } from 'lib/balances';
+import { useGetTokenOrGasMetadata } from 'lib/metadata';
 import { useMemoWithCompare } from 'lib/ui/hooks';
+import { isSearchStringApplicable } from 'lib/utils/search-items';
 
-import { searchAssetsWithNoMeta } from './search.utils';
-
-export function useFilteredAssetsSlugs(
+export const useTokensListingLogic = (
   assetsSlugs: string[],
   filterZeroBalances = false,
   leadingAssets?: string[],
   leadingAssetsAreFilterable = false
-) {
-  const allTokensMetadata = useTokensMetadataWithPresenceCheck(assetsSlugs);
-
+) => {
   const nonLeadingAssets = useMemo(
-    () => (leadingAssets?.length ? assetsSlugs.filter(slug => !leadingAssets.includes(slug)) : [...assetsSlugs]),
+    () => (leadingAssets?.length ? assetsSlugs.filter(slug => !leadingAssets.includes(slug)) : assetsSlugs),
     [assetsSlugs, leadingAssets]
   );
 
-  const balances = useAccountBalances();
+  const balances = useCurrentAccountBalances();
   const isNonZeroBalance = useCallback(
     (slug: string) => {
       const balance = balances[slug];
@@ -43,16 +39,17 @@ export function useFilteredAssetsSlugs(
 
   const [searchValue, setSearchValue] = useState('');
   const [tokenId, setTokenId] = useState<number>();
-  const [searchValueDebounced] = useDebounce(tokenId ? toTokenSlug(searchValue, tokenId) : searchValue, 300);
+  const [searchValueDebounced] = useDebounce(tokenId ? toTokenSlug(searchValue, String(tokenId)) : searchValue, 300);
 
-  const assetsSortPredicate = useAssetsSortPredicate();
+  const assetsSortPredicate = useTokensSortPredicate();
+  const getMetadata = useGetTokenOrGasMetadata();
 
   const searchedSlugs = useMemo(
     () =>
-      searchAssetsWithNoMeta(searchValueDebounced, sourceArray, allTokensMetadata, slug => slug).sort(
-        assetsSortPredicate
-      ),
-    [searchValueDebounced, sourceArray, allTokensMetadata, assetsSortPredicate]
+      isSearchStringApplicable(searchValueDebounced)
+        ? searchAssetsWithNoMeta(searchValueDebounced, sourceArray, getMetadata, slug => slug)
+        : [...sourceArray].sort(assetsSortPredicate),
+    [searchValueDebounced, sourceArray, getMetadata, assetsSortPredicate]
   );
 
   const filteredAssets = useMemoWithCompare(
@@ -65,7 +62,7 @@ export function useFilteredAssetsSlugs(
       const searchedLeadingSlugs = searchAssetsWithNoMeta(
         searchValueDebounced,
         filteredLeadingSlugs,
-        allTokensMetadata,
+        getMetadata,
         slug => slug
       );
 
@@ -78,7 +75,7 @@ export function useFilteredAssetsSlugs(
       isNonZeroBalance,
       searchedSlugs,
       searchValueDebounced,
-      allTokensMetadata
+      getMetadata
     ],
     isEqual
   );
@@ -90,25 +87,4 @@ export function useFilteredAssetsSlugs(
     tokenId,
     setTokenId
   };
-}
-
-export function useAssetsSortPredicate() {
-  const balances = useBalancesWithDecimals();
-  const usdToTokenRates = useUsdToTokenRates();
-
-  return useCallback(
-    (tokenASlug: string, tokenBSlug: string) => {
-      const tokenABalance = balances[tokenASlug] ?? new BigNumber(0);
-      const tokenBBalance = balances[tokenBSlug] ?? new BigNumber(0);
-      const tokenAEquity = tokenABalance.multipliedBy(usdToTokenRates[tokenASlug] ?? 0);
-      const tokenBEquity = tokenBBalance.multipliedBy(usdToTokenRates[tokenBSlug] ?? 0);
-
-      if (tokenAEquity.isEqualTo(tokenBEquity)) {
-        return tokenBBalance.comparedTo(tokenABalance);
-      }
-
-      return tokenBEquity.comparedTo(tokenAEquity);
-    },
-    [balances, usdToTokenRates]
-  );
-}
+};

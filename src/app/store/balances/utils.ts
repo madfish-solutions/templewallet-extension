@@ -1,6 +1,23 @@
+import type { Draft } from '@reduxjs/toolkit';
+
+import { createEntity } from 'lib/store';
 import { atomsToTokens } from 'lib/temple/helpers';
 
-export const getKeyForBalancesRecord = (publiKeyHash: string, chainId: string) => `${publiKeyHash}_${chainId}`;
+import type { BalancesStateInterface } from './state';
+
+export const getKeyForBalancesRecord = (publicKeyHash: string, chainId: string) => `${publicKeyHash}_${chainId}`;
+
+export const retrieveBalancesRecord = (
+  state: Draft<BalancesStateInterface>,
+  publicKeyHash: string,
+  chainId: string
+) => {
+  const key = getKeyForBalancesRecord(publicKeyHash, chainId);
+
+  if (!state.balancesAtomic[key]) state.balancesAtomic[key] = createEntity({});
+
+  return state.balancesAtomic[key];
+};
 
 const YUPANA_TOKENS = [
   'KT1Rk86CX85DjBKmuyBhrCyNsHyudHVtASec_0',

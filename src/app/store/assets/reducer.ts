@@ -1,17 +1,24 @@
 import { createReducer } from '@reduxjs/toolkit';
+import { persistReducer } from 'redux-persist';
+import hardSet from 'redux-persist/lib/stateReconciler/hardSet';
+import storage from 'redux-persist/lib/storage';
 
 import { toTokenSlug } from 'lib/assets';
+import { createTransformsBeforePersist } from 'lib/store';
 
 import {
   loadAccountTokensActions,
   loadAccountCollectiblesActions,
   loadTokensWhitelistActions,
-  setAssetStatusAction,
-  putAssetsAsIsAction
+  setTokenStatusAction,
+  setCollectibleStatusAction,
+  putTokensAsIsAction,
+  putCollectiblesAsIsAction
 } from './actions';
 import { initialState, SliceState } from './state';
+import { getAccountAssetsStoreKey } from './utils';
 
-export const assetsReducer = createReducer<SliceState>(initialState, builder => {
+const assetsReducer = createReducer<SliceState>(initialState, builder => {
   builder.addCase(loadAccountTokensActions.submit, state => {
     state.tokens.isLoading = true;
     delete state.tokens.error;
@@ -26,16 +33,90 @@ export const assetsReducer = createReducer<SliceState>(initialState, builder => 
     state.tokens.isLoading = false;
     delete state.tokens.error;
 
-    const tokens = state.tokens.data;
     const { account, chainId, slugs } = payload;
 
+    const data = state.tokens.data;
+    const key = getAccountAssetsStoreKey(account, chainId);
+
+    if (!data[key]) data[key] = {};
+    const tokens = data[key];
+
     for (const slug of slugs) {
-      if (!tokens.some(t => t.slug === slug && t.chainId === chainId && t.account === account))
-        tokens.push({
-          account,
-          chainId,
-          slug
-        });
+      const stored = tokens[slug];
+      if (!stored) tokens[slug] = { status: 'idle' };
+    }
+  });
+
+  builder.addCase(loadAccountCollectiblesActions.submit, state => {
+    state.collectibles.isLoading = true;
+    delete state.collectibles.error;
+  });
+
+  builder.addCase(loadAccountCollectiblesActions.fail, (state, { payload }) => {
+    state.collectibles.isLoading = false;
+    state.collectibles.error = payload.code ? String(payload.code) : 'unknown';
+  });
+
+  builder.addCase(loadAccountCollectiblesActions.success, (state, { payload }) => {
+    state.collectibles.isLoading = false;
+    delete state.collectibles.error;
+
+    const { account, chainId, slugs } = payload;
+
+    const data = state.collectibles.data;
+    const key = getAccountAssetsStoreKey(account, chainId);
+
+    if (!data[key]) data[key] = {};
+    const collectibles = data[key];
+
+    // Removing no-longer owned collectibles (if not 'idle' or added manually)
+    for (const [slug, stored] of Object.entries(collectibles)) {
+      if (stored.manual || stored.status !== 'idle') continue;
+
+      if (!slugs.includes(slug)) delete collectibles[slug];
+    }
+
+    for (const slug of slugs) {
+      const stored = collectibles[slug];
+      if (!stored) collectibles[slug] = { status: 'idle' };
+    }
+  });
+
+  builder.addCase(setTokenStatusAction, (state, { payload: { account, chainId, slug, status } }) => {
+    const records = state.tokens.data;
+    const key = getAccountAssetsStoreKey(account, chainId);
+    const token = records[key]?.[slug];
+
+    if (token) token.status = status;
+  });
+
+  builder.addCase(setCollectibleStatusAction, (state, { payload: { account, chainId, slug, status } }) => {
+    const records = state.collectibles.data;
+    const key = getAccountAssetsStoreKey(account, chainId);
+    const collectible = records[key]?.[slug];
+
+    if (collectible) collectible.status = status;
+  });
+
+  builder.addCase(putTokensAsIsAction, (state, { payload }) => {
+    const records = state.tokens.data;
+
+    for (const asset of payload) {
+      const { slug, account, chainId, status, manual } = asset;
+      const key = getAccountAssetsStoreKey(account, chainId);
+      if (!records[key]) records[key] = {};
+      records[key][slug] = { status, manual };
+    }
+  });
+
+  builder.addCase(putCollectiblesAsIsAction, (state, { payload }) => {
+    const records = state.collectibles.data;
+
+    for (const asset of payload) {
+      const { slug, account, chainId, status, manual } = asset;
+      const key = getAccountAssetsStoreKey(account, chainId);
+      if (!records[key]) records[key] = {};
+      records[key][slug] = { status, manual };
     }
   });
 
@@ -58,50 +139,20 @@ export const assetsReducer = createReducer<SliceState>(initialState, builder => 
       if (!state.mainnetWhitelist.data.includes(slug)) state.mainnetWhitelist.data.push(slug);
     }
   });
-
-  builder.addCase(loadAccountCollectiblesActions.submit, state => {
-    state.collectibles.isLoading = true;
-    delete state.collectibles.error;
-  });
-
-  builder.addCase(loadAccountCollectiblesActions.fail, (state, { payload }) => {
-    state.collectibles.isLoading = false;
-    state.collectibles.error = payload ? String(payload) : 'unknown';
-  });
-
-  builder.addCase(loadAccountCollectiblesActions.success, (state, { payload }) => {
-    state.collectibles.isLoading = false;
-    delete state.collectibles.error;
-
-    const collectibles = state.collectibles.data;
-    const { account, chainId, slugs } = payload;
-
-    for (const slug of slugs) {
-      if (!collectibles.some(t => t.slug === slug && t.chainId === chainId && t.account === account))
-        collectibles.push({
-          account,
-          chainId,
-          slug
-        });
-    }
-  });
-
-  builder.addCase(setAssetStatusAction, (state, { payload: { isCollectible, account, chainId, slug, status } }) => {
-    const assets = state[isCollectible ? 'collectibles' : 'tokens'].data;
-    const index = assets.findIndex(t => t.account === account && t.chainId === chainId && t.slug === slug);
-    const token = assets[index] ?? { account, chainId, slug };
-
-    token.status = status;
-    assets[index === -1 ? assets.length : index] = token;
-  });
-
-  builder.addCase(putAssetsAsIsAction, (state, { payload: { assets, type } }) => {
-    const data = state[type].data;
-
-    for (const asset of assets) {
-      const { slug, account, chainId } = asset;
-      const index = data.findIndex(a => a.account === account && a.chainId === chainId && a.slug === slug);
-      data[index === -1 ? data.length : index] = asset;
-    }
-  });
 });
+
+export const assetsPersistedReducer = persistReducer<SliceState>(
+  {
+    key: 'root.assets',
+    storage,
+    stateReconciler: hardSet,
+    transforms: [
+      createTransformsBeforePersist<SliceState>({
+        tokens: entry => ({ ...entry, isLoading: false }),
+        collectibles: entry => ({ ...entry, isLoading: false }),
+        mainnetWhitelist: entry => ({ ...entry, isLoading: false })
+      })
+    ]
+  },
+  assetsReducer
+);

@@ -25,3 +25,19 @@ export function navigate(to: To, action?: HistoryAction.Push | HistoryAction.Rep
 
   changeState(action, state, url);
 }
+
+export function setNavigateSearchParams(
+  searchParams: StringRecord,
+  action: HistoryAction.Replace | HistoryAction.Push = HistoryAction.Replace
+) {
+  const lctn = createLocationState();
+
+  const search = new URLSearchParams(lctn.search);
+  for (const [key, val] of Object.entries(searchParams)) {
+    search.set(key, val);
+  }
+
+  const url = createUrl(lctn.pathname, search.toString(), lctn.hash);
+
+  changeState(action, lctn.state, url);
+}
