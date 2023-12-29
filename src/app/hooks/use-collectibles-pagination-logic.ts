@@ -18,7 +18,9 @@ export const useCollectiblesPaginationLogic = (allSlugsSorted: string[], initial
   const dispatch = useDispatch();
 
   const [slugs, setSlugs] = useState<string[]>(() => allSlugsSorted.slice(0, initialSize));
-  const [isLoading, setIsLoading] = useState(initialSize ? false : Boolean(allSlugsSorted.length));
+
+  const initialIsLoading = initialSize ? false : Boolean(allSlugsSorted.length);
+  const [isLoading, setIsLoading] = useState(initialIsLoading);
 
   const _load = useCallback(
     async (size: number) => {
@@ -54,7 +56,7 @@ export const useCollectiblesPaginationLogic = (allSlugsSorted: string[], initial
   );
 
   useDidMount(() => {
-    if (isLoading) _load(ITEMS_PER_PAGE);
+    if (initialIsLoading) _load(ITEMS_PER_PAGE);
   });
 
   useDidUpdate(() => {
