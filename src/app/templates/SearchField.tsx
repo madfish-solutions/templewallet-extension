@@ -1,4 +1,4 @@
-import React, { FC, InputHTMLAttributes, MutableRefObject, useCallback, useRef, useState } from 'react';
+import React, { FC, InputHTMLAttributes, useCallback, useRef, useState } from 'react';
 
 import { emptyFn } from '@rnw-community/shared';
 import classNames from 'clsx';
@@ -8,6 +8,8 @@ import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
 import { setTestID, TestIDProps } from 'lib/analytics';
 
 export interface SearchFieldProps extends InputHTMLAttributes<HTMLInputElement>, TestIDProps {
+  value: string;
+  onValueChange: (value: string) => void;
   bottomOffset?: string;
   containerClassName?: string;
   searchIconClassName?: string;
@@ -17,9 +19,7 @@ export interface SearchFieldProps extends InputHTMLAttributes<HTMLInputElement>,
   searchIconStyle?: React.CSSProperties;
   cleanButtonStyle?: React.CSSProperties;
   cleanButtonIconStyle?: React.CSSProperties;
-  externalRef?: MutableRefObject<HTMLInputElement | null>;
-  value: string;
-  onValueChange: (value: string) => void;
+  onCleanButtonClick?: () => void;
 }
 
 const SearchField: FC<SearchFieldProps> = ({
@@ -30,6 +30,7 @@ const SearchField: FC<SearchFieldProps> = ({
   onValueChange,
   onFocus = emptyFn,
   onBlur = emptyFn,
+  onCleanButtonClick = emptyFn,
   searchIconClassName,
   searchIconWrapperClassName,
   cleanButtonClassName,
@@ -37,7 +38,6 @@ const SearchField: FC<SearchFieldProps> = ({
   cleanButtonIconClassName,
   cleanButtonStyle,
   cleanButtonIconStyle,
-  externalRef,
   testID,
   ...rest
 }) => {
@@ -79,18 +79,15 @@ const SearchField: FC<SearchFieldProps> = ({
       inputRef.current?.blur();
       setFocused(false);
     }
-  }, [onValueChange, value]);
+
+    onCleanButtonClick();
+  }, [onCleanButtonClick, onValueChange, value]);
 
   return (
     <div className={classNames('w-full flex flex-col', containerClassName)}>
       <div className="relative flex items-stretch">
         <input
-          ref={el => {
-            inputRef.current = el;
-            if (externalRef) {
-              externalRef.current = el;
-            }
-          }}
+          ref={inputRef}
           type="text"
           className={classNames('appearance-none w-full', className)}
           value={value}

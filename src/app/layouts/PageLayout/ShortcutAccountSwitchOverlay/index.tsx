@@ -8,7 +8,6 @@ import Divider from 'app/atoms/Divider';
 import { useAccountSelectShortcut } from 'app/hooks/use-account-select-shortcut';
 import { useModalScrollLock } from 'app/hooks/use-modal-scroll-lock';
 import { ReactComponent as SadSearchIcon } from 'app/icons/sad-search.svg';
-import { AccountItem } from 'app/layouts/PageLayout/Header/AccountDropdown/AccountItem';
 import SearchField from 'app/templates/SearchField';
 import { searchHotkey } from 'lib/constants';
 import { T, t } from 'lib/i18n';
@@ -17,9 +16,10 @@ import Portal from 'lib/ui/Portal';
 import { searchAndFilterItems } from 'lib/utils/search-items';
 import { HistoryAction, navigate } from 'lib/woozie';
 
+import { AccountItem } from './AccountItem';
+
 export const ShortcutAccountSwitchOverlay: FC = () => {
   const accountSwitchRef = useRef<HTMLDivElement>(null);
-  const searchInputRef = useRef<HTMLInputElement | null>(null);
   const accountItemsRef = useRef<Array<HTMLButtonElement | null>>([]);
 
   const { opened, setOpened } = useAccountSelectShortcut();
@@ -32,8 +32,7 @@ export const ShortcutAccountSwitchOverlay: FC = () => {
   const { assetName: gasTokenName } = useGasToken();
 
   const [searchValue, setSearchValue] = useState('');
-  const [attractSelectedAccount, setAttractSelectedAccount] = useState(true);
-  const [focusedAccountItemIndex, setFocusedAccountItemIndex] = useState(-1);
+  const [focusedAccountItemIndex, setFocusedAccountItemIndex] = useState(0);
 
   const filteredAccounts = useMemo(() => {
     if (searchValue.length === 0) {
@@ -58,8 +57,23 @@ export const ShortcutAccountSwitchOverlay: FC = () => {
     [account, setAccountPkh, setOpened]
   );
 
+  const handleCleanButtonClick = useCallback(() => {
+    if (!searchValue) {
+      accountSwitchRef.current?.focus();
+    }
+  }, [searchValue]);
+
   const handleKeyPress = useCallback<KeyboardEventHandler<HTMLDivElement>>(
     e => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+
+        const focusedAccountPkh = filteredAccounts[focusedAccountItemIndex].publicKeyHash;
+        handleAccountClick(focusedAccountPkh);
+
+        return;
+      }
+
       if (e.key === 'Escape') {
         e.preventDefault();
 
@@ -78,13 +92,7 @@ export const ShortcutAccountSwitchOverlay: FC = () => {
       if (e.key === 'ArrowUp' || (e.key === 'Tab' && e['shiftKey'])) {
         e.preventDefault();
 
-        if (focusedAccountItemIndex === 0) {
-          searchInputRef.current?.focus();
-          setFocusedAccountItemIndex(-1);
-        }
-
         if (focusedAccountItemIndex > 0) {
-          accountItemsRef.current[focusedAccountItemIndex - 1]?.focus();
           setFocusedAccountItemIndex(prev => prev - 1);
         }
 
@@ -94,31 +102,20 @@ export const ShortcutAccountSwitchOverlay: FC = () => {
       if (e.key === 'ArrowDown' || e.key === 'Tab') {
         e.preventDefault();
 
-        if (focusedAccountItemIndex === -1) {
-          accountItemsRef.current[0]?.focus();
-          setFocusedAccountItemIndex(0);
-        }
-
         if (focusedAccountItemIndex >= 0 && focusedAccountItemIndex < filteredAccounts.length - 1) {
-          accountItemsRef.current[focusedAccountItemIndex + 1]?.focus();
           setFocusedAccountItemIndex(prev => prev + 1);
         }
       }
     },
-    [filteredAccounts.length, focusedAccountItemIndex, opened, searchValue, setOpened]
+    [filteredAccounts, focusedAccountItemIndex, handleAccountClick, opened, searchValue, setOpened]
   );
 
   useEffect(() => {
     if (opened) {
       setSearchValue('');
-      setFocusedAccountItemIndex(-1);
+      setFocusedAccountItemIndex(0);
     }
   }, [opened]);
-
-  useEffect(() => {
-    if (searchValue) setAttractSelectedAccount(false);
-    else if (!opened) setAttractSelectedAccount(true);
-  }, [opened, searchValue]);
 
   return (
     <Portal>
@@ -135,13 +132,13 @@ export const ShortcutAccountSwitchOverlay: FC = () => {
         <div className="fixed inset-0 z-50 w-full h-full bg-black bg-opacity-20">
           <div
             ref={accountSwitchRef}
-            onKeyDown={handleKeyPress}
-            className="absolute top-1/2 left-1/2 border rounded-md bg-gray-910 border-gray-850 p-2 w-64"
+            tabIndex={0}
+            className="absolute top-1/2 left-1/2 border rounded-md bg-gray-910 border-gray-850 p-2 w-64 focus:outline-none"
             style={{ transform: 'translate(-50%, -50%)' }}
+            onKeyDown={handleKeyPress}
           >
             <SearchField
               autoFocus
-              externalRef={searchInputRef}
               value={searchValue}
               className={classNames(
                 'py-2 pl-8 pr-8',
@@ -158,7 +155,7 @@ export const ShortcutAccountSwitchOverlay: FC = () => {
               cleanButtonIconClassName="text-gray-600 stroke-current"
               cleanButtonStyle={{ backgroundColor: 'transparent' }}
               onValueChange={setSearchValue}
-              onFocus={() => setFocusedAccountItemIndex(-1)}
+              onCleanButtonClick={handleCleanButtonClick}
             />
 
             <Divider className="bg-gray-700 -mx-2" />
@@ -172,14 +169,12 @@ export const ShortcutAccountSwitchOverlay: FC = () => {
                 ) : (
                   filteredAccounts.map((acc, index) => (
                     <AccountItem
-                      arrayIndex={index}
-                      itemsArrayRef={accountItemsRef}
                       key={acc.publicKeyHash}
                       account={acc}
-                      selected={acc.publicKeyHash === account.publicKeyHash}
+                      focused={focusedAccountItemIndex === index}
                       gasTokenName={gasTokenName}
-                      attractSelf={attractSelectedAccount}
-                      className="rounded-lg"
+                      arrayIndex={index}
+                      itemsArrayRef={accountItemsRef}
                       onClick={() => handleAccountClick(acc.publicKeyHash)}
                     />
                   ))
