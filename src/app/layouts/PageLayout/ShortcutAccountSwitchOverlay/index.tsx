@@ -33,7 +33,7 @@ export const ShortcutAccountSwitchOverlay: FC = () => {
 
   const [searchValue, setSearchValue] = useState('');
   const [focusedAccountItemIndex, setFocusedAccountItemIndex] = useState(0);
-
+  console.log(focusedAccountItemIndex, 'as');
   const filteredAccounts = useMemo(() => {
     if (searchValue.length === 0) {
       return allAccounts;
@@ -117,7 +117,7 @@ export const ShortcutAccountSwitchOverlay: FC = () => {
   );
 
   useEffect(() => {
-    if (opened) {
+    if (!opened) {
       setSearchValue('');
       setFocusedAccountItemIndex(0);
     }
