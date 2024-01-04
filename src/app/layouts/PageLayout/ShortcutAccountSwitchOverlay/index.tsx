@@ -39,10 +39,16 @@ export const ShortcutAccountSwitchOverlay: FC = () => {
       return allAccounts;
     }
 
-    return searchAndFilterItems(allAccounts, searchValue.toLowerCase(), [
-      { name: 'name', weight: 0.5 },
-      { name: 'publicKeyHash', weight: 0.5 }
-    ]);
+    return searchAndFilterItems(
+      allAccounts,
+      searchValue.toLowerCase(),
+      [
+        { name: 'name', weight: 0.5 },
+        { name: 'publicKeyHash', weight: 0.5 }
+      ],
+      null,
+      0.4
+    );
   }, [searchValue, allAccounts]);
 
   const handleAccountClick = useCallback(
@@ -160,25 +166,27 @@ export const ShortcutAccountSwitchOverlay: FC = () => {
 
             <Divider className="bg-gray-700 -mx-2" />
 
-            <div className="overflow-y-auto overscroll-contain h-63 p-2 -mx-2">
-              <div className="flex flex-col">
-                {filteredAccounts.length === 0 ? (
-                  <div className="h-63 flex justify-center items-center">
-                    <SadSearchIcon />
-                  </div>
-                ) : (
-                  filteredAccounts.map((acc, index) => (
-                    <AccountItem
-                      key={acc.publicKeyHash}
-                      account={acc}
-                      focused={focusedAccountItemIndex === index}
-                      gasTokenName={gasTokenName}
-                      arrayIndex={index}
-                      itemsArrayRef={accountItemsRef}
-                      onClick={() => handleAccountClick(acc.publicKeyHash)}
-                    />
-                  ))
-                )}
+            <div className="py-2">
+              <div className="overflow-y-auto overscroll-contain h-63 px-2 -mx-2">
+                <div className="flex flex-col">
+                  {filteredAccounts.length === 0 ? (
+                    <div className="h-63 flex justify-center items-center">
+                      <SadSearchIcon />
+                    </div>
+                  ) : (
+                    filteredAccounts.map((acc, index) => (
+                      <AccountItem
+                        key={acc.publicKeyHash}
+                        account={acc}
+                        focused={focusedAccountItemIndex === index}
+                        gasTokenName={gasTokenName}
+                        arrayIndex={index}
+                        itemsArrayRef={accountItemsRef}
+                        onClick={() => handleAccountClick(acc.publicKeyHash)}
+                      />
+                    ))
+                  )}
+                </div>
               </div>
             </div>
 

@@ -47,10 +47,16 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
       return allAccounts;
     }
 
-    return searchAndFilterItems(allAccounts, searchValue.toLowerCase(), [
-      { name: 'name', weight: 0.5 },
-      { name: 'publicKeyHash', weight: 0.5 }
-    ]);
+    return searchAndFilterItems(
+      allAccounts,
+      searchValue.toLowerCase(),
+      [
+        { name: 'name', weight: 0.5 },
+        { name: 'publicKeyHash', weight: 0.5 }
+      ],
+      null,
+      0.4
+    );
   }, [searchValue, allAccounts]);
 
   const closeDropdown = useCallback(() => {
