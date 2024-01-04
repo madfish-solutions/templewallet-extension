@@ -69,6 +69,11 @@ export const ShortcutAccountSwitchOverlay: FC = () => {
     }
   }, [searchValue]);
 
+  const handleSearchValueChange = useCallback((value: string) => {
+    setSearchValue(value);
+    setFocusedAccountItemIndex(0);
+  }, []);
+
   const handleKeyPress = useCallback<KeyboardEventHandler<HTMLDivElement>>(
     e => {
       if (e.key === 'Enter') {
@@ -160,7 +165,7 @@ export const ShortcutAccountSwitchOverlay: FC = () => {
               cleanButtonClassName="border-gray-600"
               cleanButtonIconClassName="text-gray-600 stroke-current"
               cleanButtonStyle={{ backgroundColor: 'transparent' }}
-              onValueChange={setSearchValue}
+              onValueChange={handleSearchValueChange}
               onCleanButtonClick={handleCleanButtonClick}
             />
 
