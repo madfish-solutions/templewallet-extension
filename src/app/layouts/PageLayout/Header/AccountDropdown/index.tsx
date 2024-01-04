@@ -51,11 +51,11 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
       allAccounts,
       searchValue.toLowerCase(),
       [
-        { name: 'name', weight: 0.5 },
-        { name: 'publicKeyHash', weight: 0.5 }
+        { name: 'name', weight: 1 },
+        { name: 'publicKeyHash', weight: 0.25 }
       ],
       null,
-      0.4
+      0.35
     );
   }, [searchValue, allAccounts]);
 
