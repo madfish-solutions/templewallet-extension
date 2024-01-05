@@ -17,5 +17,5 @@ export const useModalScrollLock = (shouldLock: boolean, modalRef: RefObject<HTML
     return () => {
       window.removeEventListener('wheel', handleWheelEvent);
     };
-  });
+  }, [handleWheelEvent]);
 };
