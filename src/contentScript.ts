@@ -6,8 +6,6 @@ import { IntercomClient } from 'lib/intercom/client';
 import { serealizeError } from 'lib/intercom/helpers';
 import { TempleMessageType, TempleResponse } from 'lib/temple/types';
 
-// import { getIntercom } from './intercom-client';
-
 const TRACK_URL_CHANGE_INTERVAL = 5000;
 
 enum BeaconMessageTarget {

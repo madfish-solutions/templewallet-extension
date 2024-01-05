@@ -7,8 +7,8 @@ import SubTitle from 'app/atoms/SubTitle';
 import { getGoogleAuthToken, readGoogleDriveFile, writeGoogleDriveFile } from 'lib/apis/google';
 import { EnvVars } from 'lib/env';
 import { TID, T } from 'lib/i18n';
-/* import { intercom } from 'lib/temple/front/client';
-import { TempleMessageType, TempleNotification } from 'lib/temple/types'; */
+import { backupFileName, EncryptedBackupObject, getSeedPhrase, toEncryptedBackup } from 'lib/temple/backup';
+import { useTempleClient } from 'lib/temple/front';
 
 import { AboutSelectors } from './About.selectors';
 
@@ -44,10 +44,12 @@ const LINKS: {
   }
 ];
 
-const testFile = 'bloatware.txt';
+// Substitute with your own password
+const mockPassword = '';
 
 const About: FC = () => {
   const [authToken, setAuthToken] = useState<string>();
+  const { revealMnemonic } = useTempleClient();
 
   const authorize = useCallback(async () => {
     try {
@@ -57,54 +59,39 @@ const About: FC = () => {
     }
   }, []);
 
-  const readTestFile = useCallback(async () => {
+  const readBackup = useCallback(async () => {
     try {
       if (!authToken) {
         throw new Error('No auth token');
       }
 
-      const content = await readGoogleDriveFile(testFile, authToken);
-      console.log(`Successfully read ${testFile}:`, content);
+      const content = await readGoogleDriveFile<EncryptedBackupObject>(backupFileName, authToken);
+      console.log(`Successfully read ${backupFileName}:`, content);
+      const seedPhrase = await getSeedPhrase(content, mockPassword);
+      console.log('Successfully decrypted seed phrase:', seedPhrase);
     } catch (e) {
       console.error(e);
     }
   }, [authToken]);
 
-  const writeSmthToTestFile = useCallback(async () => {
-    const bloatwareAlphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    const bloatwareContent = Array(128)
-      .fill('')
-      .map(() => bloatwareAlphabet[Math.floor(Math.random() * bloatwareAlphabet.length)])
-      .join('');
-    console.log(`Going to write ${bloatwareContent} to ${testFile}`);
+  const writeBackup = useCallback(async () => {
     try {
       if (!authToken) {
         throw new Error('No auth token');
       }
 
-      const { id, name } = await writeGoogleDriveFile(testFile, bloatwareContent, authToken, 'text/plain');
+      const seedPhrase = await revealMnemonic(mockPassword);
+      console.log('Successfully revealed seed phrase:', seedPhrase);
+      const { id, name } = await writeGoogleDriveFile(
+        backupFileName,
+        await toEncryptedBackup(seedPhrase, mockPassword),
+        authToken
+      );
       console.log(`Successfully wrote ${name} (${id})`);
     } catch (e) {
       console.error(e);
     }
-  }, [authToken]);
-
-  /* useEffect(() => {
-    if (canUseChromeAuthorization) {
-      return;
-    }
-
-    return intercom.subscribe((msg: TempleNotification) => {
-      switch (msg.type) {
-        case TempleMessageType.BackupRead:
-          console.log(`Successfully read ${testFile}:`, msg.content);
-          break;
-        case TempleMessageType.BackupWritten:
-          console.log(`Successfully wrote ${testFile}`);
-          break;
-      }
-    });
-  }, [canUseChromeAuthorization]); */
+  }, [authToken, revealMnemonic]);
 
   return (
     <div className="flex flex-col items-center my-8">
@@ -171,38 +158,14 @@ const About: FC = () => {
         ))}
       </div>
 
-      {/* canUseChromeAuthorization && (
-        <div>
-          {authToken ? (
-            <>
-              <FormSecondaryButton small onClick={readTestFile}>
-                Read test file
-              </FormSecondaryButton>
-              <FormSecondaryButton small onClick={writeSmthToTestFile}>
-                Write something to test file
-              </FormSecondaryButton>
-            </>
-          ) : (
-            <FormSecondaryButton small onClick={getIdentity}>
-              Get identity
-            </FormSecondaryButton>
-          )}
-        </div>
-      )}
-      {!canUseChromeAuthorization && (
-        <div>
-          <Anchor href="http://localhost:3000/google-drive-backup/read">Read test file</Anchor>
-          <Anchor href="http://localhost:3000/google-drive-backup/write">Write something to test file</Anchor>
-        </div>
-      ) */}
       <div>
         {authToken ? (
           <>
-            <FormSecondaryButton small onClick={readTestFile}>
-              Read test file
+            <FormSecondaryButton small onClick={readBackup}>
+              Read backup
             </FormSecondaryButton>
-            <FormSecondaryButton small onClick={writeSmthToTestFile}>
-              Write something to test file
+            <FormSecondaryButton small onClick={writeBackup}>
+              Write backup
             </FormSecondaryButton>
           </>
         ) : (

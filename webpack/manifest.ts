@@ -69,11 +69,7 @@ const buildManifestV3 = (vendor: string): Manifest.WebExtensionManifest => {
     },
 
     // @ts-ignore
-    key: envFilesData.PACKAGE_PUBLIC_KEY,
-    oauth2: {
-      client_id: envFilesData.GOOGLE_DRIVE_CLIENT_ID,
-      scopes: ['https://www.googleapis.com/auth/drive.appdata']
-    }
+    key: envFilesData.PACKAGE_PUBLIC_KEY
   };
 };
 

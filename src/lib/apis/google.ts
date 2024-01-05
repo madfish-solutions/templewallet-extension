@@ -75,10 +75,10 @@ const getFileId = async (fileName: string, authToken: string, nextPageToken?: st
   return data.nextPageToken ? getFileId(fileName, authToken, data.nextPageToken) : undefined;
 };
 
-export const readGoogleDriveFile = async (fileName: string, authToken: string) => {
+export const readGoogleDriveFile = async <T = string>(fileName: string, authToken: string) => {
   const fileId = await getFileId(fileName, authToken);
   if (fileId) {
-    const { data } = await googleApi.get<string>(`/drive/v3/files/${fileId}`, {
+    const { data } = await googleApi.get<T>(`/drive/v3/files/${fileId}`, {
       params: {
         alt: 'media',
         key: EnvVars.GOOGLE_DRIVE_API_KEY,
@@ -110,7 +110,7 @@ export const writeGoogleDriveFile = async (
     `--${boundary}\r\ncontent-type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify({
       name: fileName,
       mimeType: contentType,
-      parents: ['appDataFolder']
+      parents: fileId ? undefined : ['appDataFolder']
     })}\r\n--${boundary}\r\ncontent-type: ${contentType}\r\n\r\n${content}\r\n--${boundary}--`,
     {
       params: {
