@@ -1,6 +1,6 @@
 import axios from 'axios';
-import useSWR from 'swr';
 import { v4 } from 'uuid';
+import browser from 'webextension-polyfill';
 
 import { EnvVars } from 'lib/env';
 
@@ -24,32 +24,33 @@ const googleApi = axios.create({
   baseURL: 'https://www.googleapis.com'
 });
 
-const canUseChromeAuthorization = async () => {
-  try {
-    return new Promise<boolean>(resolve => {
-      chrome.identity.getProfileUserInfo({ accountStatus: chrome.identity.AccountStatus.ANY }, profile => {
-        resolve(Boolean(profile?.email));
-      });
-    });
-  } catch {
-    return false;
-  }
-};
-
-export const useCanUseChromeAuthorization = (suspense = true) =>
-  useSWR('can-use-chrome-auth', canUseChromeAuthorization, { suspense });
-
 export const getGoogleAuthToken = async () =>
   new Promise<string>((resolve, reject) => {
-    chrome.identity.getAuthToken({ interactive: true }, token => {
-      if (chrome.runtime.lastError) {
-        reject(chrome.runtime.lastError);
-      } else if (!token) {
-        reject(new Error('Failed to receive auth token for an unknown reason'));
-      } else {
-        resolve(token);
-      }
+    const redirectURL = browser.identity.getRedirectURL();
+    const scopes = ['https://www.googleapis.com/auth/drive.appdata'];
+    const authURLQueryParams = new URLSearchParams({
+      client_id: EnvVars.GOOGLE_DRIVE_CLIENT_ID,
+      response_type: 'token',
+      redirect_uri: redirectURL,
+      scope: scopes.join(' ')
     });
+
+    chrome.identity.launchWebAuthFlow(
+      { interactive: true, url: `https://accounts.google.com/o/oauth2/auth?${authURLQueryParams.toString()}` },
+      url => {
+        if (url) {
+          const urlParams = new URLSearchParams(url.split('#')[1]);
+          const authToken = urlParams.get('access_token');
+          if (authToken) {
+            resolve(authToken);
+          } else {
+            reject(new Error(`Failed to parse auth token, url: ${url}`));
+          }
+        } else {
+          reject(chrome.runtime.lastError ?? new Error('Failed to receive auth token for an unknown reason'));
+        }
+      }
+    );
   });
 
 const getFileId = async (fileName: string, authToken: string, nextPageToken?: string): Promise<string | undefined> => {
@@ -57,7 +58,8 @@ const getFileId = async (fileName: string, authToken: string, nextPageToken?: st
     params: {
       supportsAllDrives: false,
       key: EnvVars.GOOGLE_DRIVE_API_KEY,
-      pageToken: nextPageToken
+      pageToken: nextPageToken,
+      spaces: 'appDataFolder'
     },
     headers: {
       Authorization: `Bearer ${authToken}`
@@ -79,7 +81,8 @@ export const readGoogleDriveFile = async (fileName: string, authToken: string) =
     const { data } = await googleApi.get<string>(`/drive/v3/files/${fileId}`, {
       params: {
         alt: 'media',
-        key: EnvVars.GOOGLE_DRIVE_API_KEY
+        key: EnvVars.GOOGLE_DRIVE_API_KEY,
+        spaces: 'appDataFolder'
       },
       headers: {
         Authorization: `Bearer ${authToken}`
@@ -106,7 +109,8 @@ export const writeGoogleDriveFile = async (
     `/upload/drive/v3/files${fileId ? `/${fileId}` : ''}`,
     `--${boundary}\r\ncontent-type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify({
       name: fileName,
-      mimeType: contentType
+      mimeType: contentType,
+      parents: ['appDataFolder']
     })}\r\n--${boundary}\r\ncontent-type: ${contentType}\r\n\r\n${content}\r\n--${boundary}--`,
     {
       params: {

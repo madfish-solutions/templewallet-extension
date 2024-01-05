@@ -162,6 +162,7 @@ const scriptsConfig = (() => {
   config.entry = {
     contentScript: Path.join(PATHS.SOURCE, 'contentScript.ts'),
     replaceAds: Path.join(PATHS.SOURCE, 'replaceAds.ts')
+    // backupCommunication: Path.join(PATHS.SOURCE, 'backupCommunication.ts')
   };
 
   if (BACKGROUND_IS_WORKER)

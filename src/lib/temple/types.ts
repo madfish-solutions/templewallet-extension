@@ -1,6 +1,6 @@
-import { DerivationType } from '@taquito/ledger-signer';
-import { Estimate } from '@taquito/taquito';
-import { TempleDAppMetadata, TempleDAppNetwork } from '@temple-wallet/dapp/dist/types';
+import type { DerivationType } from '@taquito/ledger-signer';
+import type { Estimate } from '@taquito/taquito';
+import type { TempleDAppMetadata, TempleDAppNetwork } from '@temple-wallet/dapp/dist/types';
 
 import type { TID } from 'lib/i18n/types';
 
@@ -221,13 +221,17 @@ export type TempleDAppPayload = TempleDAppConnectPayload | TempleDAppOperationsP
  */
 
 export enum TempleMessageType {
-  // Aknowledge
+  // Acknowledge
   Acknowledge = 'TEMPLE_CONNECT_AKNOWLEDGE',
+  // BackupReadAcknowledge = 'TEMPLE_BACKUP_READ_ACKNOWLEDGE',
+  // BackupWrittenAcknowledge = 'TEMPLE_BACKUP_WRITTEN_ACKNOWLEDGE',
   // Notifications
   StateUpdated = 'TEMPLE_STATE_UPDATED',
   ConfirmationRequested = 'TEMPLE_CONFIRMATION_REQUESTED',
   ConfirmationExpired = 'TEMPLE_CONFIRMATION_EXPIRED',
   SelectedAccountChanged = 'TEMPLE_SELECTED_ACCOUNT_CHANGED',
+  // BackupRead = 'TEMPLE_BACKUP_READ',
+  // BackupWritten = 'TEMPLE_BACKUP_WRITTEN',
   // Request-Response pairs
   GetStateRequest = 'TEMPLE_GET_STATE_REQUEST',
   GetStateResponse = 'TEMPLE_GET_STATE_RESPONSE',
@@ -289,6 +293,11 @@ export enum TempleMessageType {
   SendTrackEventResponse = 'SEND_TRACK_EVENT_RESPONSE',
   SendPageEventRequest = 'SEND_PAGE_EVENT_REQUEST',
   SendPageEventResponse = 'SEND_PAGE_EVENT_RESPONSE'
+  // Google Drive backup
+  /* BackupContentRequest = 'TEMPLE_BACKUP_CONTENT_REQUEST',
+  BackupContentResponse = 'TEMPLE_BACKUP_CONTENT_RESPONSE',
+  BackupReadRequest = 'TEMPLE_BACKUP_READ_REQUEST',
+  BackupWrittenRequest = 'TEMPLE_BACKUP_WRITTEN_REQUEST' */
 }
 
 export type TempleNotification =
@@ -296,6 +305,8 @@ export type TempleNotification =
   | TempleConfirmationRequested
   | TempleConfirmationExpired
   | TempleSelectedAccountChanged;
+/* | TempleBackupRead
+  | TempleBackupWritten; */
 
 export type TempleRequest =
   | TempleAcknowledgeRequest
@@ -329,6 +340,9 @@ export type TempleRequest =
   | TempleRemoveDAppSessionRequest
   | TempleSendTrackEventRequest
   | TempleSendPageEventRequest;
+/* | TempleBackupContentRequest
+  | TempleBackupReadRequest
+  | TempleBackupWrittenRequest; */
 
 export type TempleResponse =
   | TempleGetStateResponse
@@ -362,6 +376,9 @@ export type TempleResponse =
   | TempleRemoveDAppSessionResponse
   | TempleSendTrackEventResponse
   | TempleSendPageEventResponse;
+/* | TempleBackupReadAcknowledgeResponse
+  | TempleBackupWriteAcknowledgeResponse
+  | TempleBackupContentResponse; */
 
 export interface TempleMessageBase {
   type: TempleMessageType;
@@ -696,5 +713,40 @@ interface TempleRemoveDAppSessionResponse extends TempleMessageBase {
   type: TempleMessageType.DAppRemoveSessionResponse;
   sessions: TempleDAppSessions;
 }
+
+/* interface TempleBackupRead extends TempleMessageBase {
+  type: TempleMessageType.BackupRead;
+  content: string;
+}
+
+interface TempleBackupReadAcknowledgeResponse extends TempleMessageBase {
+  type: TempleMessageType.BackupReadAcknowledge;
+}
+
+interface TempleBackupWritten extends TempleMessageBase {
+  type: TempleMessageType.BackupWritten;
+}
+
+interface TempleBackupWriteAcknowledgeResponse extends TempleMessageBase {
+  type: TempleMessageType.BackupWrittenAcknowledge;
+}
+
+interface TempleBackupContentRequest extends TempleMessageBase {
+  type: TempleMessageType.BackupContentRequest;
+}
+
+interface TempleBackupContentResponse extends TempleMessageBase {
+  type: TempleMessageType.BackupContentResponse;
+  content: string;
+}
+
+interface TempleBackupReadRequest extends TempleMessageBase {
+  type: TempleMessageType.BackupReadRequest;
+  content: string;
+}
+
+interface TempleBackupWrittenRequest extends TempleMessageBase {
+  type: TempleMessageType.BackupWrittenRequest;
+} */
 
 export type OperationsPreview = any[] | { branch: string; contents: any[] };

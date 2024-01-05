@@ -4,14 +4,11 @@ import { FormSecondaryButton } from 'app/atoms';
 import { Anchor } from 'app/atoms/Anchor';
 import Logo from 'app/atoms/Logo';
 import SubTitle from 'app/atoms/SubTitle';
-import {
-  getGoogleAuthToken,
-  readGoogleDriveFile,
-  useCanUseChromeAuthorization,
-  writeGoogleDriveFile
-} from 'lib/apis/google';
+import { getGoogleAuthToken, readGoogleDriveFile, writeGoogleDriveFile } from 'lib/apis/google';
 import { EnvVars } from 'lib/env';
 import { TID, T } from 'lib/i18n';
+/* import { intercom } from 'lib/temple/front/client';
+import { TempleMessageType, TempleNotification } from 'lib/temple/types'; */
 
 import { AboutSelectors } from './About.selectors';
 
@@ -51,9 +48,8 @@ const testFile = 'bloatware.txt';
 
 const About: FC = () => {
   const [authToken, setAuthToken] = useState<string>();
-  const { data: canUseChromeAuthorization } = useCanUseChromeAuthorization();
 
-  const getIdentity = useCallback(async () => {
+  const authorize = useCallback(async () => {
     try {
       setAuthToken(await getGoogleAuthToken());
     } catch (e) {
@@ -92,6 +88,23 @@ const About: FC = () => {
       console.error(e);
     }
   }, [authToken]);
+
+  /* useEffect(() => {
+    if (canUseChromeAuthorization) {
+      return;
+    }
+
+    return intercom.subscribe((msg: TempleNotification) => {
+      switch (msg.type) {
+        case TempleMessageType.BackupRead:
+          console.log(`Successfully read ${testFile}:`, msg.content);
+          break;
+        case TempleMessageType.BackupWritten:
+          console.log(`Successfully wrote ${testFile}`);
+          break;
+      }
+    });
+  }, [canUseChromeAuthorization]); */
 
   return (
     <div className="flex flex-col items-center my-8">
@@ -158,7 +171,7 @@ const About: FC = () => {
         ))}
       </div>
 
-      {canUseChromeAuthorization && (
+      {/* canUseChromeAuthorization && (
         <div>
           {authToken ? (
             <>
@@ -176,6 +189,28 @@ const About: FC = () => {
           )}
         </div>
       )}
+      {!canUseChromeAuthorization && (
+        <div>
+          <Anchor href="http://localhost:3000/google-drive-backup/read">Read test file</Anchor>
+          <Anchor href="http://localhost:3000/google-drive-backup/write">Write something to test file</Anchor>
+        </div>
+      ) */}
+      <div>
+        {authToken ? (
+          <>
+            <FormSecondaryButton small onClick={readTestFile}>
+              Read test file
+            </FormSecondaryButton>
+            <FormSecondaryButton small onClick={writeSmthToTestFile}>
+              Write something to test file
+            </FormSecondaryButton>
+          </>
+        ) : (
+          <FormSecondaryButton small onClick={authorize}>
+            Authorize
+          </FormSecondaryButton>
+        )}
+      </div>
     </div>
   );
 };

@@ -241,6 +241,38 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
         }
       }
       break;
+
+    /* case TempleMessageType.BackupReadRequest:
+      console.log('Read backup:', req.content);
+      intercom.broadcast({
+        type: TempleMessageType.BackupRead,
+        content: req.content
+      });
+      return {
+        type: TempleMessageType.BackupReadAcknowledge
+      };
+
+    case TempleMessageType.BackupWrittenRequest:
+      console.log('Backup has been written');
+      intercom.broadcast({
+        type: TempleMessageType.BackupWritten
+      });
+      return {
+        type: TempleMessageType.BackupWrittenAcknowledge
+      };
+
+    case TempleMessageType.BackupContentRequest:
+      // TODO: create real backup content
+      const bloatwareAlphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+      const bloatwareContent = Array(128)
+        .fill('')
+        .map(() => bloatwareAlphabet[Math.floor(Math.random() * bloatwareAlphabet.length)])
+        .join('');
+      console.log('Backup content:', bloatwareContent);
+      return {
+        type: TempleMessageType.BackupContentResponse,
+        content: bloatwareContent
+      }; */
   }
 };
 

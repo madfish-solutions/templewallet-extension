@@ -53,7 +53,7 @@ const buildManifestV3 = (vendor: string): Manifest.WebExtensionManifest => {
       }
     ],
 
-    permissions: [...PERMISSIONS, ...GOOGLE_DRIVE_PERMISSIONS],
+    permissions: PERMISSIONS,
     host_permissions: HOST_PERMISSIONS,
 
     content_security_policy: {
@@ -72,7 +72,7 @@ const buildManifestV3 = (vendor: string): Manifest.WebExtensionManifest => {
     key: envFilesData.PACKAGE_PUBLIC_KEY,
     oauth2: {
       client_id: envFilesData.GOOGLE_DRIVE_CLIENT_ID,
-      scopes: ['https://www.googleapis.com/auth/drive.file']
+      scopes: ['https://www.googleapis.com/auth/drive.appdata']
     }
   };
 };
@@ -108,9 +108,7 @@ const buildManifestV2 = (vendor: string): Manifest.WebExtensionManifest => {
 
 const AUTHOR_URL = 'https://madfish.solutions';
 
-const GOOGLE_DRIVE_PERMISSIONS = ['identity', 'identity.email'];
-
-const PERMISSIONS = ['storage', 'unlimitedStorage', 'clipboardWrite', 'activeTab'];
+const PERMISSIONS = ['storage', 'unlimitedStorage', 'clipboardWrite', 'activeTab', 'identity'];
 
 const HOST_PERMISSIONS: string[] = ['http://localhost:8732/'];
 
