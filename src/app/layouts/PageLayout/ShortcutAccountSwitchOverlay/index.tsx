@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useMemo, useState, useEffect, useRef, KeyboardEventHandler } from 'react';
+import React, { useCallback, useMemo, useState, useEffect, useRef, KeyboardEventHandler, memo } from 'react';
 
 import classNames from 'clsx';
 import CSSTransition from 'react-transition-group/CSSTransition';
@@ -18,7 +18,7 @@ import { HistoryAction, navigate } from 'lib/woozie';
 
 import { AccountItem } from './AccountItem';
 
-export const ShortcutAccountSwitchOverlay: FC = () => {
+export const ShortcutAccountSwitchOverlay = memo(() => {
   const accountSwitchRef = useRef<HTMLDivElement>(null);
   const accountItemsRef = useRef<Array<HTMLButtonElement | null>>([]);
 
@@ -205,4 +205,4 @@ export const ShortcutAccountSwitchOverlay: FC = () => {
       </CSSTransition>
     </Portal>
   );
-};
+});

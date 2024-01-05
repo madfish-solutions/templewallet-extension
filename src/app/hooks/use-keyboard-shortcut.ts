@@ -2,12 +2,7 @@ import { useCallback, useEffect, useMemo } from 'react';
 
 type ModifierKey = 'ctrlKey' | 'altKey' | 'shiftKey' | 'command';
 
-interface KeyboardShortcutConfig {
-  handler: (e: KeyboardEvent) => void;
-  modifierKey?: ModifierKey;
-}
-
-export const useKeyboardShortcut = ({ handler, modifierKey }: KeyboardShortcutConfig) => {
+export const useKeyboardShortcut = (handler: (e: KeyboardEvent) => void, modifierKey?: ModifierKey) => {
   const systemSpecificModifierKey = useMemo(() => {
     if (modifierKey === 'command') {
       // Use Command key on Mac, Control on other platforms
@@ -27,12 +22,9 @@ export const useKeyboardShortcut = ({ handler, modifierKey }: KeyboardShortcutCo
     [handler, systemSpecificModifierKey]
   );
 
-  const addHandler = useCallback(() => document.addEventListener('keydown', modifiedHandler), [modifiedHandler]);
-  const removeHandler = useCallback(() => document.removeEventListener('keydown', modifiedHandler), [modifiedHandler]);
-
   useEffect(() => {
-    addHandler();
+    document.addEventListener('keydown', modifiedHandler);
 
-    return () => removeHandler();
-  }, [addHandler, removeHandler]);
+    return () => void document.removeEventListener('keydown', modifiedHandler);
+  }, [modifiedHandler]);
 };

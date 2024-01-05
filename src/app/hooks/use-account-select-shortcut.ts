@@ -18,10 +18,7 @@ export const useAccountSelectShortcut = () => {
     setOpened(prev => !prev);
   }, []);
 
-  useKeyboardShortcut({
-    handler: handleShortcutPress,
-    modifierKey: ACCOUNT_SELECT_HOTKEY.modifierKey
-  });
+  useKeyboardShortcut(handleShortcutPress, ACCOUNT_SELECT_HOTKEY.modifierKey);
 
   return { opened, setOpened };
 };
