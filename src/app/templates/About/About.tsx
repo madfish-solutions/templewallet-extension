@@ -4,7 +4,12 @@ import { FormSecondaryButton } from 'app/atoms';
 import { Anchor } from 'app/atoms/Anchor';
 import Logo from 'app/atoms/Logo';
 import SubTitle from 'app/atoms/SubTitle';
-import { getGoogleAuthToken, readGoogleDriveFile, writeGoogleDriveFile } from 'lib/apis/google';
+import {
+  getGoogleAuthTokenWithBrowserAPI,
+  getGoogleAuthTokenWithProxyWebsite,
+  readGoogleDriveFile,
+  writeGoogleDriveFile
+} from 'lib/apis/google';
 import { EnvVars } from 'lib/env';
 import { TID, T } from 'lib/i18n';
 import { backupFileName, EncryptedBackupObject, getSeedPhrase, toEncryptedBackup } from 'lib/temple/backup';
@@ -45,15 +50,23 @@ const LINKS: {
 ];
 
 // Substitute with your own password
-const mockPassword = '';
+const mockPassword = '123456Aa';
 
 const About: FC = () => {
   const [authToken, setAuthToken] = useState<string>();
   const { revealMnemonic } = useTempleClient();
 
-  const authorize = useCallback(async () => {
+  const authorizeWithBrowserAPI = useCallback(async () => {
     try {
-      setAuthToken(await getGoogleAuthToken());
+      setAuthToken(await getGoogleAuthTokenWithBrowserAPI());
+    } catch (e) {
+      console.error('Caught authorization error:', e);
+    }
+  }, []);
+
+  const authorizeWithProxyWebsite = useCallback(async () => {
+    try {
+      setAuthToken(await getGoogleAuthTokenWithProxyWebsite());
     } catch (e) {
       console.error('Caught authorization error:', e);
     }
@@ -169,9 +182,14 @@ const About: FC = () => {
             </FormSecondaryButton>
           </>
         ) : (
-          <FormSecondaryButton small onClick={authorize}>
-            Authorize
-          </FormSecondaryButton>
+          <>
+            <FormSecondaryButton small onClick={authorizeWithBrowserAPI}>
+              Authorize with browser API
+            </FormSecondaryButton>
+            <FormSecondaryButton small onClick={authorizeWithProxyWebsite}>
+              Authorize with proxy website
+            </FormSecondaryButton>
+          </>
         )}
       </div>
     </div>

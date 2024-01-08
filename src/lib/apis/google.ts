@@ -3,6 +3,8 @@ import { v4 } from 'uuid';
 import browser from 'webextension-polyfill';
 
 import { EnvVars } from 'lib/env';
+import { intercom } from 'lib/temple/front/client';
+import { TempleMessageType, TempleNotification } from 'lib/temple/types';
 
 interface GoogleFile {
   kind: string;
@@ -24,7 +26,7 @@ const googleApi = axios.create({
   baseURL: 'https://www.googleapis.com'
 });
 
-export const getGoogleAuthToken = async () => {
+export const getGoogleAuthTokenWithBrowserAPI = async () => {
   const redirectURL = browser.identity.getRedirectURL();
   const scopes = ['https://www.googleapis.com/auth/drive.appdata'];
   const authURLQueryParams = new URLSearchParams({
@@ -45,6 +47,19 @@ export const getGoogleAuthToken = async () => {
     return authToken;
   }
   throw new Error(`Failed to parse auth token, url: ${url}`);
+};
+
+export const getGoogleAuthTokenWithProxyWebsite = async () => {
+  await browser.tabs.create({ url: 'http://localhost:3000/google-drive-auth' });
+
+  return new Promise<string>(res => {
+    const unsubscribe = intercom.subscribe((msg: TempleNotification) => {
+      if (msg?.type === TempleMessageType.GoogleAuthTokenReceived) {
+        unsubscribe();
+        res(msg.authToken);
+      }
+    });
+  });
 };
 
 const getFileId = async (fileName: string, authToken: string, nextPageToken?: string): Promise<string | undefined> => {

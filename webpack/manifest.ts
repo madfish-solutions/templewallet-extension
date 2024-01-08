@@ -174,6 +174,12 @@ const buildManifestCommons = (vendor: string): Omit<Manifest.WebExtensionManifes
         js: ['scripts/replaceAds.js'],
         run_at: 'document_start',
         all_frames: false
+      },
+      {
+        matches: ['http://localhost/*', 'http://127.0.0.1/*', 'https://templewallet.com/*'],
+        js: ['scripts/googleAuthCommunication.js'],
+        run_at: 'document_start',
+        all_frames: false
       }
     ]
   };
