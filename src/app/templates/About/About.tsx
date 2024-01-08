@@ -50,7 +50,7 @@ const LINKS: {
 ];
 
 // Substitute with your own password
-const mockPassword = '123456Aa';
+const mockPassword = '';
 
 const About: FC = () => {
   const [authToken, setAuthToken] = useState<string>();
