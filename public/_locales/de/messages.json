@@ -9,7 +9,7 @@
     "message": "Kryptowährungs-Wallet für Tezos-Blockchain als Web-Erweiterung für Ihren Browser."
   },
   "createAccount": {
-    "message": "Konto erstellen oder wiederherstellen"
+    "message": "Konto erstellen"
   },
   "importAccount": {
     "message": "Konto importieren"
@@ -1455,8 +1455,13 @@
   "searchAssets": {
     "message": "Vermögenswerte suchen..."
   },
-  "searchByName": {
-    "message": "Nach Name suchen..."
+  "searchAccount": {
+    "message": "Suchen$hotkey$",
+    "placeholders": {
+      "hotkey": {
+        "content": "$1"
+      }
+    }
   },
   "deployNew": {
     "message": "Neu bereitstellen"
