@@ -122,6 +122,7 @@ export const PartnersPromotion: FC<Props> = memo(({ variant, id }) => {
       <button
         className="absolute top-2 right-4 h-6 w-6 z-10 bg-blue-500 rounded-circle"
         onClick={handleClosePartnersPromoClick}
+        title={t('hideAd')}
       >
         <CloseIcon className="w-4 h-4 m-auto" style={{ strokeWidth: 3 }} />
       </button>

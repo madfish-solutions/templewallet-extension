@@ -21,7 +21,8 @@ export const partnersPromotionRucer = createReducer(partnersPromotionInitialStat
   }));
   builder.addCase(togglePartnersPromotionAction, (state, { payload }) => ({
     ...state,
-    shouldShowPromotion: payload
+    shouldShowPromotion: payload,
+    promotionHidingTimestamps: {}
   }));
 
   builder.addCase(hidePromotionAction, (state, { payload: { id: pathname, timestamp } }) => {
