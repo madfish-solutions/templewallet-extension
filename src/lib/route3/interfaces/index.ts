@@ -1,4 +1,3 @@
-import { ContractAbstraction, ContractProvider, ContractMethod } from '@taquito/taquito';
 import { BigNumber } from 'bignumber.js';
 
 export interface Route3SwapParamsRequestRaw {
@@ -57,16 +56,3 @@ export const isSwapChains = (chains: Route3SwapChains | Route3LiquidityBakingCha
 export const isLiquidityBakingParamsResponse = (
   response: Route3SwapParamsResponse
 ): response is Route3LiquidityBakingParamsResponse => 'tzbtcChain' in response && 'xtzChain' in response;
-
-export interface Route3ContractInterface extends ContractAbstraction<ContractProvider> {
-  methods: {
-    execute: (
-      token_in_id: number,
-      token_out_id: number,
-      min_out: BigNumber,
-      receiver: string,
-      hops: Array<Hop>,
-      app_id: number
-    ) => ContractMethod<ContractProvider>;
-  };
-}
