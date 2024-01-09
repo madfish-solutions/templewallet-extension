@@ -13,7 +13,6 @@ import { useBalancesWithDecimals } from 'app/hooks/use-balances-with-decimals.ho
 import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
 import { ReactComponent as EditingIcon } from 'app/icons/editing.svg';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
-import { useIsEnabledAdsBannerSelector } from 'app/store/settings/selectors';
 import { ButtonForManageDropdown } from 'app/templates/ManageDropdown';
 import SearchAssetField from 'app/templates/SearchAssetField';
 import { setTestID } from 'lib/analytics';
@@ -31,7 +30,6 @@ import { Link, navigate } from 'lib/woozie';
 import { HomeSelectors } from '../../Home.selectors';
 import { AssetsSelectors } from '../Assets.selectors';
 
-import { AcceptAdsBanner } from './AcceptAdsBanner';
 import { ListItem } from './components/ListItem';
 import { toExploreAssetLink } from './utils';
 
@@ -67,8 +65,6 @@ export const TokensTab: FC = () => {
     isZeroBalancesHidden,
     leadingAssets
   );
-
-  const isEnabledAdsBanner = useIsEnabledAdsBannerSelector();
 
   const [searchFocused, setSearchFocused] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -168,8 +164,6 @@ export const TokensTab: FC = () => {
           </Popper>
         </div>
       </div>
-
-      {isEnabledAdsBanner && <AcceptAdsBanner />}
 
       {filteredAssets.length === 0 ? (
         <div className="my-8 flex flex-col items-center justify-center text-gray-500">
