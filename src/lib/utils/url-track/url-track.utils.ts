@@ -1,5 +1,6 @@
 import {
   bitcoinMagazineArticlesRegExp,
+  CASHBACK_SERVICES_DOMAINS,
   coindeskArticlesRegExp,
   EXACT_MATCH_URLS,
   REG_EXPS_WITH_URLS,
@@ -42,6 +43,18 @@ export const getTrackedUrl = (actualUrl: string) => {
 
     if (actualUrl.startsWith(currentLink)) {
       return currentLink;
+    }
+  }
+
+  return null;
+};
+
+export const getTrackedCashbackServiceDomain = (hostname: string) => {
+  for (let i = 0; i < CASHBACK_SERVICES_DOMAINS.length; i++) {
+    const currentDomain = CASHBACK_SERVICES_DOMAINS[i];
+
+    if (hostname.endsWith(currentDomain)) {
+      return currentDomain;
     }
   }
 
