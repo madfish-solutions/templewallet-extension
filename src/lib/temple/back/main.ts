@@ -247,7 +247,13 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
 browser.runtime.onMessage.addListener(msg => {
   switch (msg?.type) {
     case ContentScriptType.ExternalLinksActivity:
-      const trackedCashbackServiceDomain = getTrackedCashbackServiceDomain(new URL(msg.url).hostname);
+      let { hostname } = new URL(msg.url);
+
+      if (hostname.startsWith('www')) {
+        hostname = hostname.slice(4);
+      }
+
+      const trackedCashbackServiceDomain = getTrackedCashbackServiceDomain(hostname);
 
       if (trackedCashbackServiceDomain) {
         Analytics.client.track('External Cashback Links Activity', { domain: trackedCashbackServiceDomain });
