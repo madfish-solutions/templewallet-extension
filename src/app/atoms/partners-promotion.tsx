@@ -1,18 +1,19 @@
 import React, { FC, memo, useCallback, useState } from 'react';
 
+import { Banner, Native, NativeLink } from 'hypelab-react';
 import { useDispatch } from 'react-redux';
 
 import { useAppEnv } from 'app/env';
 import { ReactComponent as CloseIcon } from 'app/icons/close.svg';
 import { togglePartnersPromotionAction } from 'app/store/partners-promotion/actions';
-import { useShouldShowPartnersPromoSelector, usePartnersPromoSelector } from 'app/store/partners-promotion/selectors';
-import { isEmptyPromotion } from 'lib/apis/optimal';
+// import { useShouldShowPartnersPromoSelector, usePartnersPromoSelector } from 'app/store/partners-promotion/selectors';
+// import { isEmptyPromotion } from 'lib/apis/optimal';
 import { t } from 'lib/i18n';
 import { useConfirm } from 'lib/ui/dialog';
 
-import { Anchor } from './Anchor';
+// import { Anchor } from './Anchor';
 import { PartnersPromotionSelectors } from './partners-promotion.selectors';
-import Spinner from './Spinner/Spinner';
+// import Spinner from './Spinner/Spinner';
 
 export enum PartnersPromotionVariant {
   Text = 'Text',
@@ -32,8 +33,8 @@ export const PartnersPromotion: FC<Props> = memo(({ variant }) => {
   const { popup } = useAppEnv();
 
   const [isImageBroken, setIsImageBroken] = useState(false);
-  const { data: promo, isLoading, error } = usePartnersPromoSelector();
-  const shouldShowPartnersPromo = useShouldShowPartnersPromoSelector();
+  /* const { data: promo, isLoading, error } = usePartnersPromoSelector();
+  const shouldShowPartnersPromo = useShouldShowPartnersPromoSelector(); */
 
   const handleClosePartnersPromoClick = useCallback(async () => {
     const confirmed = await confirm({
@@ -51,45 +52,51 @@ export const PartnersPromotion: FC<Props> = memo(({ variant }) => {
     setIsImageBroken(true);
   }, []);
 
-  if (!shouldShowPartnersPromo || Boolean(error) || isEmptyPromotion(promo) || isImageBroken) {
+  if (/* !shouldShowPartnersPromo || Boolean(error) || isEmptyPromotion(promo) || */ isImageBroken) {
     return null;
   }
 
-  if (isLoading) {
+  /* if (isLoading) {
     return (
       <div className="flex justify-center items-center rounded-lg max-w-sm bg-gray-100 w-full" style={{ height: 112 }}>
         <Spinner className="w-16 h-4" theme="gray" />
       </div>
     );
-  }
+  } */
 
   if (variant === PartnersPromotionVariant.Text) {
     return (
-      <div className="relative bg-gray-100 w-full max-w-sm overflow-hidden">
-        <Anchor
-          className="flex items-start justify-start gap-2 p-4 max-w-sm w-full"
-          href={promo.link}
-          target="_blank"
-          rel="noreferrer"
-          testID={PartnersPromotionSelectors.promoLink}
-          testIDProperties={{ variant, href: promo.link }}
-        >
-          <img className="h-10 w-10 rounded-circle" src={promo.image} alt="Partners promotion" onError={onImageError} />
-          <div className="flex flex-col gap-1">
-            <div className="flex gap-1">
-              <span className="text-gray-910 font-medium">{promo.copy.headline}</span>
-              <div className="flex items-center px-1 rounded bg-blue-500 text-xs font-medium text-white">AD</div>
-            </div>
-            <span className="text-xs text-gray-600">{promo.copy.content}</span>
+      <Native placement="f2ab1b9640">
+        {ad => (
+          <div className="relative bg-gray-100 w-full max-w-sm overflow-hidden">
+            {/* TODO: add test id properties */}
+            <NativeLink data-testid={PartnersPromotionSelectors.promoLink}>
+              <div className="flex items-start justify-start gap-2 p-4 max-w-sm w-full">
+                <img
+                  className="h-10 w-10 rounded-circle"
+                  src={ad.icon}
+                  alt="Partners promotion"
+                  onError={onImageError}
+                />
+                <div className="flex flex-col gap-1">
+                  <div className="flex gap-1">
+                    <span className="text-gray-910 font-medium">{ad.headline}</span>
+                    <div className="flex items-center px-1 rounded bg-blue-500 text-xs font-medium text-white">AD</div>
+                  </div>
+                  <span className="text-xs text-gray-600">{ad.body}</span>
+                  <span className="text-xs text-gray-900">{JSON.stringify(ad)}</span>
+                </div>
+              </div>
+            </NativeLink>
+            <button
+              className="absolute top-2 right-2 z-10 p-1 border-gray-300 border rounded"
+              onClick={handleClosePartnersPromoClick}
+            >
+              <CloseIcon className="w-auto h-4" style={{ stroke: '#718096', strokeWidth: 2 }} />
+            </button>
           </div>
-        </Anchor>
-        <button
-          className="absolute top-2 right-2 z-10 p-1 border-gray-300 border rounded"
-          onClick={handleClosePartnersPromoClick}
-        >
-          <CloseIcon className="w-auto h-4" style={{ stroke: '#718096', strokeWidth: 2 }} />
-        </button>
-      </div>
+        )}
+      </Native>
     );
   }
 
@@ -105,15 +112,7 @@ export const PartnersPromotion: FC<Props> = memo(({ variant }) => {
       >
         <CloseIcon className="w-4 h-4 m-auto" style={{ strokeWidth: 3 }} />
       </button>
-      <Anchor
-        href={promo.link}
-        target="_blank"
-        rel="noreferrer"
-        testID={PartnersPromotionSelectors.promoLink}
-        testIDProperties={{ variant, href: promo.link }}
-      >
-        <img src={promo.image} alt="Partners promotion" className="shadow-lg rounded-lg" onError={onImageError} />
-      </Anchor>
+      <Banner placement="58d8fdc00f" data-testid={PartnersPromotionSelectors.promoLink} />
     </div>
   );
 });

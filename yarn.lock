@@ -8226,6 +8226,11 @@ human-signals@^2.1.0:
   resolved "https://registry.yarnpkg.com/human-signals/-/human-signals-2.1.0.tgz#dc91fcba42e4d06e4abaed33b3e7a3c02f514ea0"
   integrity sha512-B4FFZ6q/T2jhhksgkbEW3HBvWIfDW85snkQgawt07S7J5QXTk6BkNV+0yAeZrM5QpMAdYlocGoljn0sJ/WQkFw==
 
+hypelab-react@^0.5.0:
+  version "0.5.0"
+  resolved "https://registry.yarnpkg.com/hypelab-react/-/hypelab-react-0.5.0.tgz#27fd56016f73cdac01fb3d0aac716842170ec383"
+  integrity sha512-5htdSf60gcn9MGUaffLjljd1GtSAFpIbHMo4Os9NXCAdID73u1R9M2ON44Wtf7+DAwfB2JfJoDAb395p9eQ9wg==
+
 iconv-lite@0.4.24:
   version "0.4.24"
   resolved "https://registry.yarnpkg.com/iconv-lite/-/iconv-lite-0.4.24.tgz#2022b4b25fbddc21d2f524974a474aafe733908b"
