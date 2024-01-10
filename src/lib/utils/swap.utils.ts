@@ -1,4 +1,4 @@
-import { ContractMethod, ContractProvider, TezosToolkit, TransferParams } from '@taquito/taquito';
+import { ContractMethod, ContractProvider, TezosToolkit, TransferParams, Wallet } from '@taquito/taquito';
 import { BigNumber } from 'bignumber.js';
 
 import { Route3Token } from 'lib/apis/route3/fetch-route3-tokens';
@@ -30,7 +30,7 @@ export const getSwapTransferParams = async (
   accountPkh: string
 ) => {
   const resultParams: Array<TransferParams> = [];
-  let swapMethod: ContractMethod<ContractProvider>;
+  let swapMethod: ContractMethod<Wallet | ContractProvider>;
 
   if (isSwapChains(chains)) {
     const swapContract = await loadContract(tezos, ROUTE3_CONTRACT, false);

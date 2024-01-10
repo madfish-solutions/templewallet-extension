@@ -7,5 +7,5 @@ export const loadContract = memoize(fetchContract, {
 });
 
 function fetchContract(tezos: TezosToolkit, address: string, walletAPI = true) {
-  return walletAPI ? tezos.wallet.at(address) : (tezos.contract.at(address) as any);
+  return walletAPI ? tezos.wallet.at(address) : tezos.contract.at(address);
 }
