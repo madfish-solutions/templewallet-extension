@@ -4,19 +4,20 @@ import classNames from 'clsx';
 
 import DocBg from 'app/a11y/DocBg';
 import { Button } from 'app/atoms/Button';
+import { DonationBanner } from 'app/atoms/DonationBanner/DonationBanner';
 import Spinner from 'app/atoms/Spinner/Spinner';
 import { useAppEnv } from 'app/env';
 import ErrorBoundary from 'app/ErrorBoundary';
 import { ReactComponent as ChevronLeftIcon } from 'app/icons/chevron-left.svg';
 import ContentContainer from 'app/layouts/ContentContainer';
+import { useOnboardingProgress } from 'app/pages/Onboarding/hooks/useOnboardingProgress.hook';
+import { AdvertisingBanner } from 'app/templates/advertising/advertising-banner/advertising-banner';
+import { AdvertisingOverlay } from 'app/templates/advertising/advertising-overlay/advertising-overlay';
 import { T } from 'lib/i18n';
 import { NotificationsBell } from 'lib/notifications';
+import { useTempleClient } from 'lib/temple/front';
 import { goBack, HistoryAction, navigate, useLocation } from 'lib/woozie';
 
-import { DonationBanner } from '../atoms/DonationBanner/DonationBanner';
-import { useOnboardingProgress } from '../pages/Onboarding/hooks/useOnboardingProgress.hook';
-import { AdvertisingBanner } from '../templates/advertising/advertising-banner/advertising-banner';
-import { AdvertisingOverlay } from '../templates/advertising/advertising-overlay/advertising-overlay';
 import { PageLayoutSelectors } from './PageLayout.selectors';
 import { ChangelogOverlay } from './PageLayout/ChangelogOverlay/ChangelogOverlay';
 import ConfirmationOverlay from './PageLayout/ConfirmationOverlay';
@@ -31,6 +32,7 @@ interface PageLayoutProps extends PropsWithChildren, ToolbarProps {
 
 const PageLayout: FC<PageLayoutProps> = ({ children, contentContainerStyle, ...toolbarProps }) => {
   const { fullPage } = useAppEnv();
+  const { ready } = useTempleClient();
 
   return (
     <>
@@ -55,7 +57,7 @@ const PageLayout: FC<PageLayoutProps> = ({ children, contentContainerStyle, ...t
       <ChangelogOverlay />
       <OnRampOverlay />
       <NewsletterOverlay />
-      <ShortcutAccountSwitchOverlay />
+      {ready && <ShortcutAccountSwitchOverlay />}
     </>
   );
 };
