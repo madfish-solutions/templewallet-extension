@@ -6,6 +6,7 @@
 import type { Manifest } from 'webextension-polyfill';
 
 import packageJSON from '../package.json';
+
 import { Vendor, ALL_VENDORS, getManifestVersion } from './env';
 
 const isKnownVendor = (vendor: string): vendor is Vendor => ALL_VENDORS.includes(vendor as Vendor);
