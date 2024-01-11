@@ -9,11 +9,13 @@ const ACCOUNT_SELECT_HOTKEY = {
   modifierKey: 'command' as const
 };
 
-export const [ShortcutAccountSelectStateProvider, useShortcutAccountSelectState] = constate(() => {
+const [ShortcutAccountSelectStateProvider, useShortcutAccountSelectState] = constate(() => {
   const [opened, setOpened] = useState(false);
 
   return { opened, setOpened };
 });
+
+export { ShortcutAccountSelectStateProvider };
 
 export const useShortcutAccountSelectModalIsOpened = (handleModalOpen?: () => void) => {
   const { opened, setOpened } = useShortcutAccountSelectState();
