@@ -120,7 +120,7 @@ export function useBalance(assetSlug: string, address: string, opts: UseBalanceO
       revalidateOnFocus: false,
       dedupingInterval: 20_000,
       fallbackData,
-      refreshInterval: BLOCK_DURATION
+      refreshInterval: isKnownChainId(chainId) ? 1000 : BLOCK_DURATION
     }
   );
 
