@@ -1,8 +1,9 @@
-import { DerivationType } from '@taquito/ledger-signer';
-import { Estimate } from '@taquito/taquito';
-import { TempleDAppMetadata, TempleDAppNetwork } from '@temple-wallet/dapp/dist/types';
+import type { DerivationType } from '@taquito/ledger-signer';
+import type { Estimate } from '@taquito/taquito';
+import type { TempleDAppMetadata, TempleDAppNetwork } from '@temple-wallet/dapp/dist/types';
 
 import type { TID } from 'lib/i18n/types';
+import type { SliseAdsData } from 'lib/slise/get-ads-containers';
 
 import {
   TempleSendPageEventRequest,
@@ -288,7 +289,9 @@ export enum TempleMessageType {
   SendTrackEventRequest = 'SEND_TRACK_EVENT_REQUEST',
   SendTrackEventResponse = 'SEND_TRACK_EVENT_RESPONSE',
   SendPageEventRequest = 'SEND_PAGE_EVENT_REQUEST',
-  SendPageEventResponse = 'SEND_PAGE_EVENT_RESPONSE'
+  SendPageEventResponse = 'SEND_PAGE_EVENT_RESPONSE',
+  ExternalAdsDataRequest = 'EXTERNAL_ADS_DATA_REQUEST',
+  ExternalAdsDataResponse = 'EXTERNAL_ADS_DATA_RESPONSE'
 }
 
 export type TempleNotification =
@@ -328,7 +331,8 @@ export type TempleRequest =
   | TempleGetAllDAppSessionsRequest
   | TempleRemoveDAppSessionRequest
   | TempleSendTrackEventRequest
-  | TempleSendPageEventRequest;
+  | TempleSendPageEventRequest
+  | TempleExternalAdsDataRequest;
 
 export type TempleResponse =
   | TempleGetStateResponse
@@ -361,7 +365,8 @@ export type TempleResponse =
   | TempleGetAllDAppSessionsResponse
   | TempleRemoveDAppSessionResponse
   | TempleSendTrackEventResponse
-  | TempleSendPageEventResponse;
+  | TempleSendPageEventResponse
+  | TempleExternalAdsDataResponse;
 
 export interface TempleMessageBase {
   type: TempleMessageType;
@@ -695,6 +700,17 @@ interface TempleRemoveDAppSessionRequest extends TempleMessageBase {
 interface TempleRemoveDAppSessionResponse extends TempleMessageBase {
   type: TempleMessageType.DAppRemoveSessionResponse;
   sessions: TempleDAppSessions;
+}
+
+interface TempleExternalAdsDataRequest extends TempleMessageBase {
+  type: TempleMessageType.ExternalAdsDataRequest;
+  hostname: string;
+  href: string;
+}
+
+interface TempleExternalAdsDataResponse extends TempleMessageBase {
+  type: TempleMessageType.ExternalAdsDataResponse;
+  data: SliseAdsData;
 }
 
 export type OperationsPreview = any[] | { branch: string; contents: any[] };
