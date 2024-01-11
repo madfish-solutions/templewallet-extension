@@ -49,8 +49,15 @@ export const getTrackedUrl = (actualUrl: string) => {
   return null;
 };
 
-export const getTrackedCashbackServiceDomain = (hostname: string) =>
-  CASHBACK_SERVICES_DOMAINS.find(domain => domain === hostname);
+export const getTrackedCashbackServiceDomain = (actualUrl: string) => {
+  let { hostname } = new URL(actualUrl);
+
+  if (hostname.startsWith('www')) {
+    hostname = hostname.slice(4);
+  }
+
+  return CASHBACK_SERVICES_DOMAINS.find(domain => domain === hostname);
+};
 
 const transformTzktUrl = (url: string) => {
   const splittedUrl = url.split('/');
