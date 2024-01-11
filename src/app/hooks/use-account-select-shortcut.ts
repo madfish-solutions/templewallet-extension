@@ -10,7 +10,7 @@ const ACCOUNT_SELECT_HOTKEY = {
   modifierKey: 'command' as const
 };
 
-export const useShortcutAccountSelectModal = (handleModalOpen?: () => void) => {
+export const useShortcutAccountSelectModalIsOpened = (handleModalOpen?: () => void) => {
   const { popup } = useAppEnv();
 
   const shortcutAccountSelectModalOpenedKey = popup
@@ -29,7 +29,7 @@ export const useShortcutAccountSelectModal = (handleModalOpen?: () => void) => {
 };
 
 export const useAccountSelectShortcut = () => {
-  const { opened, setOpened } = useShortcutAccountSelectModal();
+  const { opened, setOpened } = useShortcutAccountSelectModalIsOpened();
 
   const handleShortcutPress = useCallback((e: KeyboardEvent) => {
     if (e.key !== ACCOUNT_SELECT_HOTKEY.key) return;

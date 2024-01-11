@@ -1,9 +1,9 @@
-import React, { FC, useCallback, useMemo } from 'react';
+import React, { memo, useCallback, useMemo } from 'react';
 
 import classNames from 'clsx';
 
 import DropdownWrapper from 'app/atoms/DropdownWrapper';
-import { useShortcutAccountSelectModal } from 'app/hooks/use-account-select-shortcut';
+import { useShortcutAccountSelectModalIsOpened } from 'app/hooks/use-account-select-shortcut';
 import { ReactComponent as SignalAltIcon } from 'app/icons/signal-alt.svg';
 import { T } from 'lib/i18n';
 import { BLOCK_EXPLORERS, useAllNetworks, useBlockExplorer, useChainId, useSetNetworkId } from 'lib/temple/front';
@@ -19,11 +19,11 @@ interface Props extends PopperRenderProps {
   currentNetwork: TempleNetwork;
 }
 
-export const NetworkDropdown: FC<Props> = ({ opened, setOpened, currentNetwork }) => {
+export const NetworkDropdown = memo<Props>(({ opened, setOpened, currentNetwork }) => {
   const allNetworks = useAllNetworks();
   const setNetworkId = useSetNetworkId();
 
-  useShortcutAccountSelectModal(() => setOpened(false));
+  useShortcutAccountSelectModalIsOpened(() => setOpened(false));
 
   const filteredNetworks = useMemo(() => allNetworks.filter(n => !n.hidden), [allNetworks]);
 
@@ -89,4 +89,4 @@ export const NetworkDropdown: FC<Props> = ({ opened, setOpened, currentNetwork }
       </div>
     </DropdownWrapper>
   );
-};
+});

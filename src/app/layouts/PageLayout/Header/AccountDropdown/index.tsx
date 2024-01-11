@@ -5,7 +5,7 @@ import classNames from 'clsx';
 import { Button } from 'app/atoms/Button';
 import DropdownWrapper from 'app/atoms/DropdownWrapper';
 import { openInFullPage, useAppEnv } from 'app/env';
-import { useShortcutAccountSelectModal } from 'app/hooks/use-account-select-shortcut';
+import { useShortcutAccountSelectModalIsOpened } from 'app/hooks/use-account-select-shortcut';
 import { ReactComponent as AddIcon } from 'app/icons/add.svg';
 import { ReactComponent as DAppsIcon } from 'app/icons/apps-alt.svg';
 import { ReactComponent as DownloadIcon } from 'app/icons/download.svg';
@@ -40,7 +40,7 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
   const setAccountPkh = useSetAccountPkh();
   const { assetName: gasTokenName } = useGasToken();
 
-  useShortcutAccountSelectModal(() => setOpened(false));
+  useShortcutAccountSelectModalIsOpened(() => setOpened(false));
 
   const [searchValue, setSearchValue] = useState('');
   const [attractSelectedAccount, setAttractSelectedAccount] = useState(true);
