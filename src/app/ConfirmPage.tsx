@@ -428,7 +428,7 @@ const AccountIcon: FC<OptionRenderProps<TempleAccount>> = ({ item }) => (
 
 const AccountOptionContentHOC = (networkRpc: string) =>
   memo<OptionRenderProps<TempleAccount>>(({ item: acc }) => {
-    const { assetName } = useGasToken();
+    const { assetName } = useGasToken(networkRpc);
 
     return (
       <>

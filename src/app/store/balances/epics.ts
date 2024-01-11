@@ -1,6 +1,6 @@
 import { BigNumber } from 'bignumber.js';
 import { combineEpics, Epic } from 'redux-observable';
-import { catchError, forkJoin, map, Observable, of, switchMap } from 'rxjs';
+import { catchError, forkJoin, from, map, Observable, of, switchMap } from 'rxjs';
 import { Action } from 'ts-action';
 import { ofType, toPayload } from 'ts-action-operators';
 
@@ -8,7 +8,7 @@ import { fecthTezosBalanceFromTzkt, fetchAllTokensBalancesFromTzkt } from 'lib/a
 import { TEZ_TOKEN_SLUG, toTokenSlug } from 'lib/assets';
 import { atomsToTokens } from 'lib/temple/helpers';
 
-import { loadTokensBalancesFromTzktAction } from './actions';
+import { loadNativeTokenBalanceFromTzktAction, loadTokensBalancesFromTzktAction } from './actions';
 
 const YUPANA_TOKENS = [
   'KT1Rk86CX85DjBKmuyBhrCyNsHyudHVtASec_0',
@@ -22,6 +22,18 @@ const YUPANA_MULTIPLIER = 18;
 
 const fetchTokensBalances$ = (account: string, chainId: string) =>
   forkJoin([fecthTezosBalanceFromTzkt(account, chainId), fetchAllTokensBalancesFromTzkt(account, chainId)]);
+
+const loadNativeTokenBalanceFromTzktEpic: Epic = (action$: Observable<Action>) =>
+  action$.pipe(
+    ofType(loadNativeTokenBalanceFromTzktAction.submit),
+    toPayload(),
+    switchMap(({ publicKeyHash, chainId }) =>
+      from(fecthTezosBalanceFromTzkt(publicKeyHash, chainId)).pipe(
+        map(({ balance }) => loadNativeTokenBalanceFromTzktAction.success({ publicKeyHash, chainId, balance })),
+        catchError(err => of(loadNativeTokenBalanceFromTzktAction.fail(err.message)))
+      )
+    )
+  );
 
 const loadTokensBalancesFromTzktEpic: Epic = (action$: Observable<Action>) =>
   action$.pipe(
@@ -51,4 +63,4 @@ const loadTokensBalancesFromTzktEpic: Epic = (action$: Observable<Action>) =>
     )
   );
 
-export const balancesEpics = combineEpics(loadTokensBalancesFromTzktEpic);
+export const balancesEpics = combineEpics(loadNativeTokenBalanceFromTzktEpic, loadTokensBalancesFromTzktEpic);

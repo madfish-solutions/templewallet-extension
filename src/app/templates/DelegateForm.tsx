@@ -19,7 +19,6 @@ import OperationStatus from 'app/templates/OperationStatus';
 import { useFormAnalytics } from 'lib/analytics';
 import { submitDelegation } from 'lib/apis/everstake';
 import { ABTestGroup } from 'lib/apis/temple';
-import { fetchTezosBalance } from 'lib/balances';
 import { BLOCK_DURATION } from 'lib/fixed-times';
 import { TID, T, t } from 'lib/i18n';
 import { HELP_UKRAINE_BAKER_ADDRESS, RECOMMENDED_BAKER_ADDRESS } from 'lib/known-bakers';
@@ -30,7 +29,6 @@ import {
   Baker,
   isDomainNameValid,
   useAccount,
-  useBalance,
   useGasToken,
   useKnownBaker,
   useKnownBakers,
@@ -39,6 +37,7 @@ import {
   useTezosDomainsClient,
   validateDelegate
 } from 'lib/temple/front';
+import { useBalance } from 'lib/temple/front/balance';
 import { useTezosAddressByDomainName } from 'lib/temple/front/tzdns';
 import { hasManager, isAddressValid, isKTAddress, mutezToTz, tzToMutez } from 'lib/temple/helpers';
 import { TempleAccountType } from 'lib/temple/types';
@@ -67,7 +66,7 @@ const DelegateForm: FC = () => {
 
   const accountPkh = acc.publicKeyHash;
 
-  const { data: balanceData, mutate: mutateBalance } = useBalance('tez', accountPkh);
+  const { data: balanceData, updateBalance } = useBalance('tez', accountPkh);
   const balance = balanceData!;
   const balanceNum = balance.toNumber();
   const domainsClient = useTezosDomainsClient();
@@ -133,7 +132,7 @@ const DelegateForm: FC = () => {
 
   const estimateBaseFee = useCallback(async () => {
     try {
-      const balanceBN = (await mutateBalance(fetchTezosBalance(tezos, accountPkh)))!;
+      const balanceBN = await updateBalance();
       if (balanceBN.isZero()) {
         throw new ZeroBalanceError();
       }
@@ -171,7 +170,7 @@ const DelegateForm: FC = () => {
           throw err;
       }
     }
-  }, [tezos, accountPkh, mutateBalance, getEstimation, acc]);
+  }, [tezos, accountPkh, updateBalance, getEstimation, acc]);
 
   const {
     data: baseFee,

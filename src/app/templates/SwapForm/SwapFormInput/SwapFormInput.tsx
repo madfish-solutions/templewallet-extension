@@ -16,7 +16,8 @@ import { useFilteredAssetsSlugs } from 'lib/assets/use-filtered';
 import { T, t, toLocalFormat } from 'lib/i18n';
 import { EMPTY_BASE_METADATA, useAssetMetadata, AssetMetadataBase } from 'lib/metadata';
 import { useAvailableRoute3TokensSlugs } from 'lib/route3/assets';
-import { useAccount, useBalance, useGetTokenMetadata, useOnBlock } from 'lib/temple/front';
+import { useAccount, useGetTokenMetadata, useOnBlock } from 'lib/temple/front';
+import { useBalance } from 'lib/temple/front/balance';
 
 import { AssetOption } from './AssetsMenu/AssetOption';
 import { PercentageButton } from './PercentageButton/PercentageButton';

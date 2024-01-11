@@ -179,11 +179,11 @@ const fecthTokensBalancesFromTzktOnce = async (account: string, chainId: string,
       })
     : [];
 
-export const fetchAllTokensBalancesFromTzkt = async (selectedRpcUrl: string, account: string) => {
+export const fetchAllTokensBalancesFromTzkt = async (account: string, chainId: string) => {
   const balances: TzktAccountToken[] = [];
 
   await (async function recourse(offset: number) {
-    const data = await fecthTokensBalancesFromTzktOnce(selectedRpcUrl, account, LIMIT, offset);
+    const data = await fecthTokensBalancesFromTzktOnce(account, chainId, LIMIT, offset);
 
     balances.push(...data);
 

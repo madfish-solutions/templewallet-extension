@@ -1,5 +1,6 @@
 import { devToolsEnhancer } from '@redux-devtools/remote';
 import { configureStore } from '@reduxjs/toolkit';
+import type { AnyAction, Dispatch } from 'redux';
 import { FLUSH, PAUSE, PERSIST, persistReducer, persistStore, PURGE, REGISTER, REHYDRATE } from 'redux-persist';
 import autoMergeLevel2 from 'redux-persist/lib/stateReconciler/autoMergeLevel2';
 import storage from 'redux-persist/lib/storage';
@@ -26,6 +27,13 @@ const persistedReducer = persistReducer<RootState>(
 
 const REDUX_DEVTOOLS_PORT = IS_DEV_ENV ? process.env.REDUX_DEVTOOLS_PORT : null;
 
+const actionsSubscriptions = new Set<(action: any) => void>();
+export const subscribeToActions = (cb: (action: any) => void) => {
+  actionsSubscriptions.add(cb);
+
+  return () => actionsSubscriptions.delete(cb);
+};
+
 const store = configureStore({
   reducer: persistedReducer,
   middleware: getDefaultMiddleware => {
@@ -35,7 +43,15 @@ const store = configureStore({
       }
     });
 
-    return defMiddleware.concat(epicMiddleware);
+    return defMiddleware.concat(epicMiddleware, () => (next: Dispatch<AnyAction>) => (action: any) => {
+      const returnValue = next(action);
+
+      for (const cb of actionsSubscriptions) {
+        cb(action);
+      }
+
+      return returnValue;
+    });
   },
   ...(REDUX_DEVTOOLS_PORT
     ? {

@@ -7,9 +7,18 @@ interface BalancesTzktPayloadSubmit {
 interface BalancesPayloadSuccess extends BalancesTzktPayloadSubmit {
   balances: Record<string, string>;
 }
+interface NativeTokenBalancePayloadSuccess extends BalancesTzktPayloadSubmit {
+  balance: string;
+}
 interface BalancesPayloadFail extends BalancesTzktPayloadSubmit {
   error: string;
 }
+
+export const loadNativeTokenBalanceFromTzktAction = createActions<
+  BalancesTzktPayloadSubmit,
+  NativeTokenBalancePayloadSuccess,
+  BalancesPayloadFail
+>('balances/LOAD_NATIVE_TOKEN_BALANCE');
 
 export const loadTokensBalancesFromTzktAction = createActions<
   BalancesTzktPayloadSubmit,

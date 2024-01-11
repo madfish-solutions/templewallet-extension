@@ -13,7 +13,7 @@ import { useTokenMetadataSelector } from 'app/store/tokens-metadata/selectors';
 import { objktCurrencies } from 'lib/apis/objkt';
 import { T } from 'lib/i18n';
 import { getAssetName } from 'lib/metadata';
-import { useBalance } from 'lib/temple/front';
+import { useBalance } from 'lib/temple/front/balance';
 import { atomsToTokens } from 'lib/temple/helpers';
 import { useIntersectionDetection } from 'lib/ui/use-intersection-detection';
 import { Link } from 'lib/woozie';

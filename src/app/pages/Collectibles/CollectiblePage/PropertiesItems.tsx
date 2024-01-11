@@ -6,7 +6,8 @@ import { HashChip, ExternalLinkChip } from 'app/atoms';
 import type { CollectibleDetails } from 'app/store/collectibles/state';
 import { fromFa2TokenSlug } from 'lib/assets/utils';
 import { formatDate } from 'lib/i18n';
-import { useBalance, useExplorerBaseUrls } from 'lib/temple/front';
+import { useExplorerBaseUrls } from 'lib/temple/front';
+import { useBalance } from 'lib/temple/front/balance';
 
 interface PropertiesItemsProps {
   assetSlug: string;

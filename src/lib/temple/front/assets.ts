@@ -14,7 +14,7 @@ import { useRetryableSWR } from 'lib/swr';
 import { getStoredTokens, getAllStoredTokensSlugs, isTokenDisplayed } from 'lib/temple/assets';
 import { ITokenStatus } from 'lib/temple/repo';
 
-import { useChainId, useAccount, useNetwork } from './ready';
+import { useChainId, useCustomChainId, useAccount, useNetwork } from './ready';
 
 const useKnownTokens = (chainId: string, account: string, fungible = true, onlyDisplayed = true) => {
   const swrResponse = useRetryableSWR(
@@ -63,12 +63,18 @@ export const useAllStoredTokensSlugs = (chainId: string) =>
     refreshInterval: TOKENS_SYNC_INTERVAL
   });
 
-export const useGasToken = () => {
-  const { type } = useNetwork();
+const KNOWN_DCP_CHAIN_IDS = ['NetXooyhiru73tk', 'NetXX7Tz1sK8JTa'];
+
+export const useGasToken = (networkRpc?: string) => {
+  const { type: defaultNetworkType, rpcBaseURL } = useNetwork();
+  const isSameRpcURL = networkRpc === rpcBaseURL;
+  const chainId = useCustomChainId(networkRpc ?? rpcBaseURL, Boolean(networkRpc) && !isSameRpcURL);
+  const isDcpNetwork =
+    networkRpc && !isSameRpcURL ? KNOWN_DCP_CHAIN_IDS.includes(chainId!) : defaultNetworkType === 'dcp';
 
   return useMemo(
     () =>
-      type === 'dcp'
+      isDcpNetwork
         ? {
             logo: 'misc/token-logos/film.png',
             symbol: 'ф',
@@ -82,7 +88,7 @@ export const useGasToken = () => {
             assetName: 'tez',
             metadata: TEZOS_METADATA
           },
-    [type]
+    [isDcpNetwork]
   );
 };
 
