@@ -7,7 +7,6 @@ import { PartnersPromotion, PartnersPromotionVariant } from 'app/atoms/partners-
 import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
 import PageLayout from 'app/layouts/PageLayout';
 import { useShouldShowPartnersPromoSelector } from 'app/store/partners-promotion/selectors';
-import { useIsEnabledAdsBannerSelector } from 'app/store/settings/selectors';
 import { T } from 'lib/i18n';
 import { BellIcon } from 'lib/icons';
 import { useTimeout } from 'lib/ui/hooks';
@@ -22,7 +21,6 @@ const VIEW_ALL_NOTIFICATIONS_TIMEOUT = 5 * 1000;
 export const Notifications = () => {
   const dispatch = useDispatch();
   const notifications = useNotificationsSelector();
-  const isEnabledAdsBanner = useIsEnabledAdsBannerSelector();
   const shouldShowPartnersPromoState = useShouldShowPartnersPromoSelector();
 
   const viewAllNotifications = useCallback(() => void dispatch(viewAllNotificationsAction()), [dispatch]);
@@ -41,7 +39,7 @@ export const Notifications = () => {
       contentContainerStyle={{ padding: 0 }}
     >
       <div className="max-w-sm mx-auto pb-15">
-        {shouldShowPartnersPromoState && !isEnabledAdsBanner && (
+        {shouldShowPartnersPromoState && (
           <div className="pt-6 pb-4 flex justify-center">
             <PartnersPromotion id="promo-notifications-item" variant={PartnersPromotionVariant.Image} />
           </div>
