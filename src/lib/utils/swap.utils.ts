@@ -114,6 +114,10 @@ export const getRoutingFeeTransferParams = async (
   routingFeeAddress: string,
   tezos: TezosToolkit
 ) => {
+  if (feeAmountAtomic.lte(ZERO)) {
+    return [];
+  }
+
   if (isRoute3GasToken(token.contract)) {
     return [
       {
