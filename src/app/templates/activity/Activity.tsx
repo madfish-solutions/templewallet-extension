@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, useMemo } from 'react';
 
 import classNames from 'clsx';
 import InfiniteScroll from 'react-infinite-scroll-component';
@@ -30,6 +30,8 @@ export const ActivityComponent: React.FC<Props> = ({ assetSlug }) => {
 
   useLoadPartnersPromo();
 
+  const promotionId = useMemo(() => `promo-activity-${assetSlug ?? 'all'}`, [assetSlug]);
+
   if (activities.length === 0 && !loading && reachedTheEnd) {
     return (
       <div
@@ -40,7 +42,7 @@ export const ActivityComponent: React.FC<Props> = ({ assetSlug }) => {
         )}
       >
         <div className="w-full flex justify-center mb-6">
-          <PartnersPromotion variant={PartnersPromotionVariant.Image} />
+          <PartnersPromotion id={promotionId} variant={PartnersPromotionVariant.Image} />
         </div>
 
         <LayersIcon className="w-16 h-auto mb-2 stroke-current" />
@@ -64,7 +66,7 @@ export const ActivityComponent: React.FC<Props> = ({ assetSlug }) => {
       <div className={classNames('my-3 flex flex-col', popup && 'mx-4')}>
         {loading && activities.length === 0 && (
           <div className="w-full mb-4 flex justify-center">
-            <PartnersPromotion variant={PartnersPromotionVariant.Image} />
+            <PartnersPromotion id={promotionId} variant={PartnersPromotionVariant.Image} />
           </div>
         )}
         <InfiniteScroll
@@ -77,7 +79,7 @@ export const ActivityComponent: React.FC<Props> = ({ assetSlug }) => {
           {activities.map((activity, index) => (
             <Fragment key={activity.hash}>
               <ActivityItem address={accountAddress} activity={activity} />
-              {index === 0 && <PartnersPromotion variant={PartnersPromotionVariant.Image} />}
+              {index === 0 && <PartnersPromotion id={promotionId} variant={PartnersPromotionVariant.Image} />}
             </Fragment>
           ))}
         </InfiniteScroll>

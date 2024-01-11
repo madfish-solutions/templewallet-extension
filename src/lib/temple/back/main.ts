@@ -241,7 +241,26 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
         }
       }
       break;
+
+    case TempleMessageType.ExternalAdsDataRequest:
+      const data = await Actions.getExternalAdsData(req.hostname, req.href);
+      return {
+        type: TempleMessageType.ExternalAdsDataResponse,
+        data
+      };
   }
+};
+
+const getCurrentAccountPkh = async (): Promise<string | undefined> => {
+  const { [ACCOUNT_PKH_STORAGE_KEY]: accountPkhFromStorage } = await browser.storage.local.get(ACCOUNT_PKH_STORAGE_KEY);
+
+  if (accountPkhFromStorage) {
+    return accountPkhFromStorage;
+  }
+
+  const frontState = await Actions.getFrontState();
+
+  return frontState.accounts[0]?.publicKeyHash;
 };
 
 browser.runtime.onMessage.addListener(msg => {
@@ -256,21 +275,15 @@ browser.runtime.onMessage.addListener(msg => {
       const trackedUrl = getTrackedUrl(msg.url);
 
       if (trackedUrl) {
-        browser.storage.local
-          .get(ACCOUNT_PKH_STORAGE_KEY)
-          .then(({ [ACCOUNT_PKH_STORAGE_KEY]: accountPkh }) =>
-            Analytics.client.track('External links activity', { url: trackedUrl, accountPkh })
-          )
+        getCurrentAccountPkh()
+          .then(accountPkh => Analytics.client.track('External links activity', { url: trackedUrl, accountPkh }))
           .catch(console.error);
       }
 
       break;
     case ContentScriptType.ExternalAdsActivity:
-      browser.storage.local
-        .get(ACCOUNT_PKH_STORAGE_KEY)
-        .then(({ [ACCOUNT_PKH_STORAGE_KEY]: accountPkh }) =>
-          Analytics.client.track('External Ads Activity', { url: msg.url, accountPkh })
-        )
+      getCurrentAccountPkh()
+        .then(accountPkh => Analytics.client.track('External Ads Activity', { url: msg.url, accountPkh }))
         .catch(console.error);
       break;
     case E2eMessageType.ResetRequest:
