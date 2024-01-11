@@ -1,7 +1,6 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
-import { useAppEnv } from 'app/env';
-import { useStorage } from 'lib/temple/front';
+import constate from 'constate';
 
 import { useKeyboardShortcut } from './use-keyboard-shortcut';
 
@@ -10,14 +9,14 @@ const ACCOUNT_SELECT_HOTKEY = {
   modifierKey: 'command' as const
 };
 
+export const [ShortcutAccountSelectStateProvider, useShortcutAccountSelectState] = constate(() => {
+  const [opened, setOpened] = useState(false);
+
+  return { opened, setOpened };
+});
+
 export const useShortcutAccountSelectModalIsOpened = (handleModalOpen?: () => void) => {
-  const { popup } = useAppEnv();
-
-  const shortcutAccountSelectModalOpenedKey = popup
-    ? 'popup_shortcut_account_select_modal_opened'
-    : 'fullpage_shortcut_account_select_modal_opened';
-
-  const [opened, setOpened] = useStorage<boolean>(shortcutAccountSelectModalOpenedKey, false);
+  const { opened, setOpened } = useShortcutAccountSelectState();
 
   useEffect(() => {
     if (opened && handleModalOpen) {
