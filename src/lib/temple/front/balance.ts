@@ -52,9 +52,12 @@ export function useBalance(assetSlug: string, address: string, opts: UseBalanceO
   const fetchBalanceLocal = useCallback(async () => {
     const freshChainId = chainId ?? (await tezos.rpc.getChainId());
 
-    if (!isKnownChainId(freshChainId)) {
-      if (assetMetadata) return fetchBalanceFromBlockchain(tezos, assetSlug, address, assetMetadata);
+    if (!assetMetadata) {
       throw new Error('Metadata missing, when fetching balance');
+    }
+
+    if (!isKnownChainId(freshChainId)) {
+      return fetchBalanceFromBlockchain(tezos, assetSlug, address, assetMetadata);
     }
 
     const publicKeyHashWithChainId = getKeyForBalancesRecord(address, freshChainId);
@@ -79,33 +82,28 @@ export function useBalance(assetSlug: string, address: string, opts: UseBalanceO
     }
 
     return new Promise<BigNumber>((res, rej) => {
-      const unsubscribe = subscribeToActions((action: unknown) => {
-        if (typeof action !== 'object') {
-          return;
-        }
-
-        const typedAction = action as Record<string, any> | null;
+      const unsubscribe = subscribeToActions(action => {
         const actionMayBeRelatedToThisRequest =
-          typedAction?.payload?.publicKeyHash === address && typedAction?.payload?.chainId === freshChainId;
+          action.payload?.publicKeyHash === address && action.payload?.chainId === freshChainId;
 
         if (!actionMayBeRelatedToThisRequest) {
           return;
         }
 
-        switch (typedAction?.type) {
+        switch (action.type) {
           case loadTokensBalancesFromTzktAction.success.type:
-            res(convertRawBalance(typedAction.payload.balances[assetSlug]) ?? new BigNumber(0));
+            res(convertRawBalance(action.payload.balances[assetSlug]) ?? new BigNumber(0));
             unsubscribe();
             break;
           case loadNativeTokenBalanceFromTzktAction.success.type:
             if (assetSlug === TEZ_TOKEN_SLUG) {
-              res(convertRawBalance(typedAction.payload.balance)!);
+              res(convertRawBalance(action.payload.balance)!);
               unsubscribe();
             }
             break;
           case loadTokensBalancesFromTzktAction.fail.type:
           case loadNativeTokenBalanceFromTzktAction.fail.type:
-            rej(new Error(typedAction.payload.error));
+            rej(new Error(action.payload.error));
             unsubscribe();
         }
       });

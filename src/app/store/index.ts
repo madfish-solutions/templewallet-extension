@@ -27,8 +27,8 @@ const persistedReducer = persistReducer<RootState>(
 
 const REDUX_DEVTOOLS_PORT = IS_DEV_ENV ? process.env.REDUX_DEVTOOLS_PORT : null;
 
-const actionsSubscriptions = new Set<(action: any) => void>();
-export const subscribeToActions = (cb: (action: any) => void) => {
+const actionsSubscriptions = new Set<SyncFn<AnyAction>>();
+export const subscribeToActions = (cb: SyncFn<AnyAction>) => {
   actionsSubscriptions.add(cb);
 
   return () => actionsSubscriptions.delete(cb);
@@ -43,7 +43,7 @@ const store = configureStore({
       }
     });
 
-    return defMiddleware.concat(epicMiddleware, () => (next: Dispatch<AnyAction>) => (action: any) => {
+    return defMiddleware.concat(epicMiddleware, () => (next: Dispatch<AnyAction>) => (action: AnyAction) => {
       const returnValue = next(action);
 
       for (const cb of actionsSubscriptions) {
