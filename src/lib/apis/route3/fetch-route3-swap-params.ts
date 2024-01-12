@@ -18,7 +18,7 @@ const fetchRoute3TraditionalSwapParams = ({
   fromSymbol,
   toSymbol,
   amount,
-  chainsLimit = 3
+  chainsLimit = 2
 }: Route3SwapParamsRequest): Promise<Route3TraditionalSwapParamsResponse> =>
   fetch(`https://temple.3route.io/v3/swap/${fromSymbol}/${toSymbol}/${amount}?chainsLimit=${chainsLimit}`, {
     headers: {
@@ -32,7 +32,7 @@ const fetchRoute3LiquidityBakingParams = ({
   fromSymbol,
   toSymbol,
   amount,
-  chainsLimit = 3
+  chainsLimit = 2
 }: Route3SwapParamsRequest): Promise<Route3LiquidityBakingParamsResponse> =>
   fetch(`https://temple.3route.io/v3/swap-sirs/${fromSymbol}/${toSymbol}/${amount}?chainsLimit=${chainsLimit}`, {
     headers: {
