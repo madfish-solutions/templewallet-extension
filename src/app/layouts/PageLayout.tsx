@@ -14,23 +14,16 @@ import { useOnboardingProgress } from 'app/pages/Onboarding/hooks/useOnboardingP
 import { AdvertisingBanner } from 'app/templates/advertising/advertising-banner/advertising-banner';
 import { AdvertisingOverlay } from 'app/templates/advertising/advertising-overlay/advertising-overlay';
 import { T } from 'lib/i18n';
-import { NotificationsBell } from 'lib/notifications';
-import { useTempleClient } from 'lib/temple/front';
 import { NotificationsBell } from 'lib/notifications/components/bell';
+import { useTempleClient } from 'lib/temple/front';
 import { goBack, HistoryAction, navigate, useLocation } from 'lib/woozie';
 
 import { PageLayoutSelectors } from './PageLayout.selectors';
-import { DonationBanner } from '../atoms/DonationBanner/DonationBanner';
-import { useOnboardingProgress } from '../pages/Onboarding/hooks/useOnboardingProgress.hook';
-import { AdvertisingBanner } from '../templates/advertising/advertising-banner/advertising-banner';
-import { AdvertisingOverlay } from '../templates/advertising/advertising-overlay/advertising-overlay';
-
 import { ChangelogOverlay } from './PageLayout/ChangelogOverlay/ChangelogOverlay';
 import ConfirmationOverlay from './PageLayout/ConfirmationOverlay';
 import Header from './PageLayout/Header';
 import { NewsletterOverlay } from './PageLayout/NewsletterOverlay/NewsletterOverlay';
 import { OnRampOverlay } from './PageLayout/OnRampOverlay/OnRampOverlay';
-import { PageLayoutSelectors } from './PageLayout.selectors';
 import { ShortcutAccountSwitchOverlay } from './PageLayout/ShortcutAccountSwitchOverlay';
 
 interface PageLayoutProps extends PropsWithChildren, ToolbarProps {
