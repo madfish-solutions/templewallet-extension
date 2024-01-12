@@ -8,6 +8,7 @@ import { ReactComponent as CloseIcon } from 'app/icons/close.svg';
 import { togglePartnersPromotionAction } from 'app/store/partners-promotion/actions';
 // import { useShouldShowPartnersPromoSelector, usePartnersPromoSelector } from 'app/store/partners-promotion/selectors';
 // import { isEmptyPromotion } from 'lib/apis/optimal';
+import { EnvVars } from 'lib/env';
 import { t } from 'lib/i18n';
 import { useConfirm } from 'lib/ui/dialog';
 
@@ -66,7 +67,7 @@ export const PartnersPromotion: FC<Props> = memo(({ variant }) => {
 
   if (variant === PartnersPromotionVariant.Text) {
     return (
-      <Native placement="f2ab1b9640">
+      <Native placement={EnvVars.HYPELAB_NATIVE_PLACEMENT_SLUG}>
         {ad => (
           <div className="relative bg-gray-100 w-full max-w-sm overflow-hidden">
             {/* TODO: add test id properties */}
@@ -112,7 +113,7 @@ export const PartnersPromotion: FC<Props> = memo(({ variant }) => {
       >
         <CloseIcon className="w-4 h-4 m-auto" style={{ strokeWidth: 3 }} />
       </button>
-      <Banner placement="58d8fdc00f" data-testid={PartnersPromotionSelectors.promoLink} />
+      <Banner placement={EnvVars.HYPELAB_SMALL_PLACEMENT_SLUG} data-testid={PartnersPromotionSelectors.promoLink} />
     </div>
   );
 });
