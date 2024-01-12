@@ -12,10 +12,9 @@ import { FILM_METADATA, TEZOS_METADATA } from 'lib/metadata/defaults';
 import type { AssetMetadataBase } from 'lib/metadata/types';
 import { useRetryableSWR } from 'lib/swr';
 import { getStoredTokens, getAllStoredTokensSlugs, isTokenDisplayed } from 'lib/temple/assets';
-import { useNetwork } from 'lib/temple/front';
 import { ITokenStatus } from 'lib/temple/repo';
 
-import { useChainId, useAccount } from './ready';
+import { useChainId, useAccount, useNetwork } from './ready';
 
 const useKnownTokens = (chainId: string, account: string, fungible = true, onlyDisplayed = true) => {
   const swrResponse = useRetryableSWR(

@@ -1995,6 +1995,9 @@
   "closePartnersPromotion": {
     "message": "Are you sure you want to disable all ads?"
   },
+  "hideAd": {
+    "message": "Hide Ad"
+  },
   "domainDoesntResolveToAddress": {
     "message": "Domain \"$value$\" doesn't resolve to an address",
     "placeholders": {

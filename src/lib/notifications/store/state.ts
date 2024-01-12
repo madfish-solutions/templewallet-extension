@@ -1,6 +1,6 @@
 import { createEntity, LoadableEntityState } from 'lib/store';
 
-import { NotificationInterface } from '../interfaces/notification.interface';
+import type { NotificationInterface } from '../types';
 
 export interface NotificationsState {
   startFromTime: number;

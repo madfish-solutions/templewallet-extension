@@ -1,5 +1,5 @@
 import { AnalyticsEventCategory } from 'lib/temple/analytics-types';
-import { assertResponse, request } from 'lib/temple/front';
+import { assertResponse, request } from 'lib/temple/front/client';
 import { TempleMessageType } from 'lib/temple/types';
 
 export const sendTrackEvent = async (

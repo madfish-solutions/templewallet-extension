@@ -3,10 +3,10 @@ import React from 'react';
 import classNames from 'clsx';
 
 import { Button } from 'app/atoms/Button';
-import { T } from 'lib/i18n';
+import { setAnotherSelector } from 'lib/analytics';
+import { t } from 'lib/i18n';
 import { TempleNetwork } from 'lib/temple/types';
 
-import { setAnotherSelector } from '../../../../../lib/analytics';
 import { NetworkSelectSelectors } from './selectors';
 
 interface Props {
@@ -17,6 +17,8 @@ interface Props {
 
 export const NetworkButton: React.FC<Props> = ({ network, selected, onClick }) => {
   const { id, name, color, disabled, nameI18nKey } = network;
+
+  const title = (nameI18nKey && t(nameI18nKey)) || name;
 
   return (
     <Button
@@ -35,7 +37,7 @@ export const NetworkButton: React.FC<Props> = ({ network, selected, onClick }) =
       onClick={disabled ? undefined : onClick}
       testID={NetworkSelectSelectors.networkItemButton}
       testIDProperties={{ networkType: network.type }}
-      {...setAnotherSelector('name', name)}
+      {...setAnotherSelector('name', title)}
     >
       <div
         className="mr-2 w-3 h-3 border border-primary-white rounded-full shadow-xs"
@@ -46,7 +48,7 @@ export const NetworkButton: React.FC<Props> = ({ network, selected, onClick }) =
         className="overflow-hidden text-sm text-white whitespace-nowrap text-shadow-black"
         style={{ textOverflow: 'ellipsis', maxWidth: '10rem' }}
       >
-        {(nameI18nKey && <T id={nameI18nKey} />) || name}
+        {title}
       </span>
     </Button>
   );

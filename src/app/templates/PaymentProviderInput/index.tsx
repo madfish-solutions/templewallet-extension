@@ -11,6 +11,7 @@ import { isTruthy } from 'lib/utils';
 import { DropdownSelect } from '../DropdownSelect/DropdownSelect';
 import { InputContainer } from '../InputContainer/InputContainer';
 import { TopUpProviderIcon } from '../TopUpProviderIcon';
+
 import { MoneyRange } from './MoneyRange';
 import { PaymentProviderOption } from './PaymentProvidersMenu/PaymentProviderOption';
 import { PaymentProviderInputProps } from './types';
@@ -35,9 +36,7 @@ export const PaymentProviderInput: FC<PaymentProviderInputProps> = ({
     <div className={classNames('w-full', className)}>
       <InputContainer footer={isTruthy(error) && <span className="text-xs text-red-700 leading-relaxed">{error}</span>}>
         <DropdownSelect
-          testIds={{
-            dropdownTestId: testID
-          }}
+          testID={testID}
           dropdownButtonClassName="p-2 pr-4"
           DropdownFaceContent={<PaymentProviderDropdownFaceContent value={value} testId={headerTestID} />}
           searchProps={{ searchValue, onSearchChange: event => setSearchValue(event?.target.value) }}

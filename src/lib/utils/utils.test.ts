@@ -52,7 +52,9 @@ describe('fifoResolve', () => {
     const t0 = Date.now();
     const ids: number[] = [];
     const fn = fifoResolve((ms: number) => delay(ms));
+
     const pushAfterFnResolves = (ms: number, id: number) => fn(ms).then(() => ids.push(id));
+
     await Promise.all([
       pushAfterFnResolves(300, 1),
       pushAfterFnResolves(200, 2),
@@ -63,6 +65,7 @@ describe('fifoResolve', () => {
       pushAfterFnResolves(100, 7),
       pushAfterFnResolves(0, 8)
     ]);
+
     const t1 = Date.now();
     expect(t1 - t0).toBeGreaterThanOrEqual(300);
     expect(t1 - t0).toBeLessThan(400);

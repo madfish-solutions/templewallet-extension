@@ -1,8 +1,9 @@
 import { TaquitoTezosDomainsClient } from '@tezos-domains/taquito-client';
 
 import { t } from 'lib/i18n';
-import { isDomainNameValid } from 'lib/temple/front';
 import { isAddressValid } from 'lib/temple/helpers';
+
+import { isDomainNameValid } from './tzdns';
 
 function validateAnyAddress(value: string) {
   switch (false) {

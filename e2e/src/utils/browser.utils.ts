@@ -12,7 +12,8 @@ export const initBrowser = () =>
       `--disable-extensions-except=${EXTENSION_PATH}`,
       `--load-extension=${EXTENSION_PATH}`,
       '--user-agent=E2EPipeline/0.0.1',
-      '--start-fullscreen'
+      '--start-fullscreen',
+      '--disable-notifications'
     ],
     slowMo: 10
   });

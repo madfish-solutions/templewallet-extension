@@ -14,12 +14,12 @@ import { useOnboardingProgress } from 'app/pages/Onboarding/hooks/useOnboardingP
 import { shouldShowNewsletterModalAction } from 'app/store/newsletter/newsletter-actions';
 import { useShouldShowNewsletterModalSelector } from 'app/store/newsletter/newsletter-selectors';
 import { useOnRampPossibilitySelector } from 'app/store/settings/selectors';
+import { setTestID } from 'lib/analytics';
 import { newsletterApi } from 'lib/apis/newsletter';
 import { useYupValidationResolver } from 'lib/form/use-yup-validation-resolver';
 import { T, t } from 'lib/i18n/react';
 import { useLocation } from 'lib/woozie';
 
-import { setTestID } from '../../../../lib/analytics';
 import NewsletterImage from './NewsletterImage.png';
 import { NewsletterOverlaySelectors } from './NewsletterOverlay.selectors';
 

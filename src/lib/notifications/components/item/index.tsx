@@ -11,10 +11,13 @@ import { T } from 'lib/i18n';
 import { BellIcon } from 'lib/icons';
 import { goBack } from 'lib/woozie';
 
+import { setTestID } from '../../../analytics';
 import { readNotificationsItemAction } from '../../store/actions';
 import { useNotificationsItemSelector } from '../../store/selectors';
 import { formatDateOutput } from '../../utils/date.utils';
+
 import { NotificationsItemContent } from './content';
+import { NotificationsContentSelectors } from './notifications-content.selectors';
 
 interface Props {
   id: number;
@@ -46,10 +49,17 @@ export const NotificationsItem: FC<Props> = ({ id }) => {
           alt="Notification"
           className="w-full items-center rounded-md overflow-hidden bg-orange-10 mb-6"
         />
-        <p className="font-inter text-gray-900 font-semibold mb-4" style={{ fontSize: 19 }}>
+        <p
+          className="font-inter text-gray-900 font-semibold mb-4"
+          style={{ fontSize: 19 }}
+          {...setTestID(NotificationsContentSelectors.notificationContentTitle)}
+        >
           {notification.title}
         </p>
-        <NotificationsItemContent content={notification.content} />
+        <NotificationsItemContent
+          content={notification.content}
+          testID={NotificationsContentSelectors.notificationContentDescription}
+        />
         <div className="font-inter mt-4" style={{ fontSize: 10 }}>
           <p className="text-gray-500 font-normal">{formatDateOutput(notification.createdAt)}</p>
           {isDefined(notification.sourceUrl) && (
@@ -85,6 +95,7 @@ export const NotificationsItem: FC<Props> = ({ id }) => {
             fontSize: 17
           }}
           onClick={goBack}
+          testID={NotificationsContentSelectors.gotItButton}
         >
           <T id="okGotIt" />
         </Button>

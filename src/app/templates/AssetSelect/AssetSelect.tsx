@@ -9,7 +9,7 @@ import { useTokensMetadataSelector } from 'app/store/tokens-metadata/selectors';
 import { AssetIcon } from 'app/templates/AssetIcon';
 import Balance from 'app/templates/Balance';
 import InFiat from 'app/templates/InFiat';
-import { setTestID, setAnotherSelector } from 'lib/analytics';
+import { setTestID, setAnotherSelector, TestIDProperty } from 'lib/analytics';
 import { searchAssetsWithNoMeta } from 'lib/assets/search.utils';
 import { T, t } from 'lib/i18n';
 import { useAssetMetadata, getAssetSymbol } from 'lib/metadata';
@@ -19,6 +19,7 @@ import { AssetItemContent } from '../AssetItemContent';
 import { DropdownSelect } from '../DropdownSelect/DropdownSelect';
 import { InputContainer } from '../InputContainer/InputContainer';
 import { SendFormSelectors } from '../SendForm/selectors';
+
 import { IAsset } from './interfaces';
 import { getSlug } from './utils';
 
@@ -29,6 +30,7 @@ interface AssetSelectProps {
   className?: string;
   testIDs?: {
     main: string;
+    select: string;
     searchInput: string;
   };
 }
@@ -62,13 +64,13 @@ const AssetSelect: FC<AssetSelectProps> = ({ value, assets, onChange, className,
   return (
     <InputContainer className={className} header={<AssetSelectTitle />}>
       <DropdownSelect
-        DropdownFaceContent={<AssetFieldContent asset={value} />}
+        DropdownFaceContent={<AssetFieldContent asset={value} testID={testIDs?.select} />}
         searchProps={{
           testId: testIDs?.searchInput,
           searchValue: searchString,
           onSearchChange: event => setSearchString(event.target.value)
         }}
-        testIds={{ dropdownTestId: testIDs?.main }}
+        testID={testIDs?.main}
         dropdownButtonClassName="p-2 h-18"
         optionsProps={{
           options: searchedOptions,
@@ -96,13 +98,13 @@ const AssetSelectTitle: FC = () => (
   </h2>
 );
 
-const AssetFieldContent: FC<{ asset: IAsset }> = ({ asset }) => {
+const AssetFieldContent: FC<{ asset: IAsset } & TestIDProperty> = ({ asset, testID }) => {
   const account = useAccount();
   const assetSlug = getSlug(asset);
   const metadata = useAssetMetadata(assetSlug);
 
   return (
-    <div className="flex items-center">
+    <div className="flex items-center" {...setTestID(testID)} {...setAnotherSelector('slug', assetSlug)}>
       <AssetIcon assetSlug={assetSlug} className="mr-3" size={48} />
 
       <Balance assetSlug={assetSlug} address={account.publicKeyHash}>

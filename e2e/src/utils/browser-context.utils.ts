@@ -3,6 +3,7 @@ import { Browser } from 'puppeteer';
 import { PuppeteerScreenRecorder } from 'puppeteer-screen-recorder';
 
 import { BrowserContext } from '../classes/browser-context.class';
+
 import { getExtensionId } from './browser.utils';
 import { RETRY_OPTIONS } from './timing.utils';
 

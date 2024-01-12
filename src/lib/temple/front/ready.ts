@@ -85,7 +85,7 @@ function useReadyTemple() {
    */
 
   const defaultAcc = allAccounts[0];
-  const [accountPkh, setAccountPkh] = usePassiveStorage(ACCOUNT_PKH_STORAGE_KEY, defaultAcc.publicKeyHash);
+  const [accountPkh, setAccountPkh] = usePassiveStorage(ACCOUNT_PKH_STORAGE_KEY, defaultAcc.publicKeyHash, true);
 
   useEffect(() => {
     return intercom.subscribe((msg: TempleNotification) => {

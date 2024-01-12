@@ -45,9 +45,7 @@ const BlockExplorerSelect = () => {
     <div className="mb-8">
       <InputContainer header={<BlockExplorerTitle />}>
         <DropdownSelect
-          testIds={{
-            dropdownTestId: SettingsGeneralSelectors.blockExplorerDropDown
-          }}
+          testID={SettingsGeneralSelectors.blockExplorerDropDown}
           optionsListClassName="p-2"
           dropdownButtonClassName="p-3"
           DropdownFaceContent={<BlockExplorerFieldContent {...explorer} />}
