@@ -4,6 +4,7 @@ export enum SendFormSelectors {
   contactHashValue = 'Send Form/Contact Hash Value',
   assetDropDown = 'Send Form/Asset Drop-down',
   assetDropDownSelect = 'Send Form/Asset Drop-down Select',
+  assetDropDownSelectedItem = 'Send Form/Asset Drop-down Selected Item Name',
   assetDropDownSearchInput = 'Send Form/Asset Drop-down Search Input',
   assetDropDownItem = 'Send Form/Asset Drop-down Item',
   amountInput = 'Send Form/Amount Input',

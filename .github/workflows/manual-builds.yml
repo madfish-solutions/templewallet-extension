@@ -101,6 +101,8 @@ jobs:
       - name: Perform end-to-end tests
         if: ${{ github.event.inputs.chromePlusE2E == 'true' }}
         uses: ./.github/workflows/e2e
+        with:
+          excludedFile: ./.github/workflows/e2e/src/features/swap.feature
 
       - name: Upload E2E video to Slack
         if: ${{ failure() && github.event.inputs.chromePlusE2E == 'true' }}

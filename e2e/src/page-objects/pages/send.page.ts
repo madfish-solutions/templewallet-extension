@@ -5,7 +5,7 @@ import { createPageElement, findElement } from '../../utils/search.utils';
 
 export class SendPage extends Page {
   assetDropDown = createPageElement(SendFormSelectors.assetDropDown);
-  assetDropDownSearchInput = createPageElement(SendFormSelectors.assetDropDownSearchInput);
+  assetDropDownSelectedItem = createPageElement(SendFormSelectors.assetDropDownSelectedItem);
   amountInput = createPageElement(SendFormSelectors.amountInput);
   recipientInput = createPageElement(SendFormSelectors.recipientInput);
   sendButton = createPageElement(SendFormSelectors.sendButton);
@@ -16,6 +16,7 @@ export class SendPage extends Page {
     await this.assetDropDown.waitForDisplayed();
     await this.recipientInput.waitForDisplayed();
     await this.amountInput.waitForDisplayed();
+    await this.assetDropDownSelectedItem.waitForDisplayed();
   }
 
   async selectToken(slug: string) {

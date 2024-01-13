@@ -10,6 +10,7 @@ Feature: Send
 
     And I am on the Send page
 # Send TEZ
+    And The Asset Drop-down Selected Item Name on the Send Form page has correct TEZ value
     And I enter watchOnlyPublicKey into Recipient Input on the Send Form page
     And I enter amount_0_0001 into Amount Input on the Send Form page
     And I press Send Button on the Send Form page
@@ -25,6 +26,7 @@ Feature: Send
     And I press Asset Drop-down on the Send Form page
     And I enter uUSD into Asset Drop-down Search Input on the Send Form page
     And I select uUSD token in the token drop-down list on the Send page
+    And The Asset Drop-down Selected Item Name on the Send Form page has correct uUSD value
     And I enter watchOnlyPublicKey into Recipient Input on the Send Form page
     And I enter amount_0_0001 into Amount Input on the Send Form page
     And I press Send Button on the Send Form page
@@ -41,6 +43,7 @@ Feature: Send
     And I clear Asset Drop-down Search Input value on the Send Form page
     And I enter kUSD into Asset Drop-down Search Input on the Send Form page
     And I select kUSD token in the token drop-down list on the Send page
+    And The Asset Drop-down Selected Item Name on the Send Form page has correct kUSD value
     And I enter watchOnlyPublicKey into Recipient Input on the Send Form page
     And I enter amount_0_0001 into Amount Input on the Send Form page
     And I press Send Button on the Send Form page
@@ -57,6 +60,7 @@ Feature: Send
     And I clear Asset Drop-down Search Input value on the Send Form page
     And I enter OBJKTCOM into Asset Drop-down Search Input on the Send Form page
     And I select OBJKTCOM token in the token drop-down list on the Send page
+    And The Asset Drop-down Selected Item Name on the Send Form page has correct OBJKTCOM value
     And I enter watchOnlyPublicKey into Recipient Input on the Send Form page
     And I enter amount_1 into Amount Input on the Send Form page
     And I press Send Button on the Send Form page
