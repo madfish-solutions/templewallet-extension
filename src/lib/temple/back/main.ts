@@ -6,7 +6,7 @@ import { BACKGROUND_IS_WORKER } from 'lib/env';
 import { encodeMessage, encryptMessage, getSenderId, MessageType, Response } from 'lib/temple/beacon';
 import { clearAsyncStorages } from 'lib/temple/reset';
 import { TempleMessageType, TempleRequest, TempleResponse } from 'lib/temple/types';
-import { getTrackedUrl } from 'lib/utils/url-track/get-tracked-url';
+import { getTrackedCashbackServiceDomain, getTrackedUrl } from 'lib/utils/url-track/url-track.utils';
 
 import * as Actions from './actions';
 import * as Analytics from './analytics';
@@ -266,11 +266,17 @@ const getCurrentAccountPkh = async (): Promise<string | undefined> => {
 browser.runtime.onMessage.addListener(msg => {
   switch (msg?.type) {
     case ContentScriptType.ExternalLinksActivity:
-      const url = getTrackedUrl(msg.url);
+      const trackedCashbackServiceDomain = getTrackedCashbackServiceDomain(msg.url);
 
-      if (url) {
+      if (trackedCashbackServiceDomain) {
+        Analytics.client.track('External Cashback Links Activity', { domain: trackedCashbackServiceDomain });
+      }
+
+      const trackedUrl = getTrackedUrl(msg.url);
+
+      if (trackedUrl) {
         getCurrentAccountPkh()
-          .then(accountPkh => Analytics.client.track('External links activity', { url, accountPkh }))
+          .then(accountPkh => Analytics.client.track('External links activity', { url: trackedUrl, accountPkh }))
           .catch(console.error);
       }
 
