@@ -14,11 +14,7 @@ import {
 } from 'app/defaults';
 import { shouldShowNewsletterModalAction } from 'app/store/newsletter/newsletter-actions';
 import { togglePartnersPromotionAction } from 'app/store/partners-promotion/actions';
-import {
-  setAdsBannerVisibilityAction,
-  setIsAnalyticsEnabledAction,
-  setOnRampPossibilityAction
-} from 'app/store/settings/actions';
+import { setIsAnalyticsEnabledAction, setOnRampPossibilityAction } from 'app/store/settings/actions';
 import { AnalyticsEventCategory, TestIDProps, useAnalytics } from 'lib/analytics';
 import { WEBSITES_ANALYTICS_ENABLED } from 'lib/constants';
 import { T, t } from 'lib/i18n';
@@ -66,15 +62,7 @@ export const SetWalletPassword: FC<SetWalletPasswordProps> = ({
     [dispatch]
   );
   const setAdsViewEnabled = useCallback(
-    (adsViewEnabled: boolean) => {
-      if (adsViewEnabled) {
-        dispatch(setAdsBannerVisibilityAction(false));
-        dispatch(togglePartnersPromotionAction(true));
-      } else {
-        dispatch(setAdsBannerVisibilityAction(true));
-        dispatch(togglePartnersPromotionAction(false));
-      }
-    },
+    (adsViewEnabled: boolean) => dispatch(togglePartnersPromotionAction(adsViewEnabled)),
     [dispatch]
   );
 

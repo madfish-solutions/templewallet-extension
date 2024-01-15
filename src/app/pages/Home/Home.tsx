@@ -1,7 +1,6 @@
-import React, { FC, FunctionComponent, SVGProps, useEffect, useLayoutEffect, useMemo } from 'react';
+import React, { FC, FunctionComponent, SVGProps, useLayoutEffect, useMemo } from 'react';
 
 import classNames from 'clsx';
-import { useDispatch } from 'react-redux';
 import { Props as TippyProps } from 'tippy.js';
 
 import { Anchor } from 'app/atoms';
@@ -12,8 +11,6 @@ import { ReactComponent as SendIcon } from 'app/icons/send-alt.svg';
 import { ReactComponent as SwapIcon } from 'app/icons/swap.svg';
 import { ReactComponent as WithdrawIcon } from 'app/icons/withdraw.svg';
 import PageLayout from 'app/layouts/PageLayout';
-import { togglePartnersPromotionAction } from 'app/store/partners-promotion/actions';
-import { useIsEnabledAdsBannerSelector } from 'app/store/settings/selectors';
 import { setAnotherSelector, setTestID, TestIDProps } from 'lib/analytics';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { T, t } from 'lib/i18n';
@@ -52,9 +49,6 @@ const Home: FC<ExploreProps> = ({ assetSlug }) => {
   const account = useAccount();
   const { search } = useLocation();
   const network = useNetwork();
-  const dispatch = useDispatch();
-
-  const isEnabledAdsBanner = useIsEnabledAdsBannerSelector();
 
   const assetMetadata = useAssetMetadata(assetSlug || TEZ_TOKEN_SLUG);
   const assetSymbol = getAssetSymbol(assetMetadata);
@@ -68,12 +62,6 @@ const Home: FC<ExploreProps> = ({ assetSlug }) => {
     }
     return undefined;
   }, [registerBackHandler, assetSlug, search]);
-
-  useEffect(() => {
-    if (isEnabledAdsBanner) {
-      dispatch(togglePartnersPromotionAction(false));
-    }
-  }, [isEnabledAdsBanner, dispatch]);
 
   const accountPkh = account.publicKeyHash;
   const canSend = account.type !== TempleAccountType.WatchOnly;

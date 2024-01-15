@@ -1,10 +1,16 @@
-import { AdType, ETHERSCAN_BUILTIN_ADS_WEBSITES } from 'lib/constants';
+import type { SliseAdPlacesRule, SliseAdStylesOverrides } from 'lib/apis/temple';
 
-interface AdContainerProps {
+export interface SliseAdsData {
+  adPlacesRules: Array<Omit<SliseAdPlacesRule, 'urlRegexes'>>;
+  providersSelector: string;
+}
+
+interface AdContainerProps extends Pick<SliseAdPlacesRule['selector'], 'shouldUseDivWrapper' | 'divWrapperStyle'> {
   element: HTMLElement;
   width: number;
   height: number;
-  type: AdType;
+  shouldNeglectSizeConstraints: boolean;
+  stylesOverrides?: SliseAdStylesOverrides[];
 }
 
 const getFinalSize = (element: Element) => {
@@ -20,63 +26,67 @@ const getFinalSize = (element: Element) => {
     if (/\d+px/.test(rawDimension)) {
       size[dimension] = Number(rawDimension.replace('px', ''));
     } else {
-      size[dimension] = dimension === 'width' ? element.clientWidth : element.clientHeight;
+      const { width, height } = element.getBoundingClientRect();
+      size[dimension] = dimension === 'width' ? width : height;
     }
   }
 
   return size;
 };
 
-const mapBannersWithType = (banners: NodeListOf<Element>, type: AdType) =>
-  [...banners].map(banner => ({ banner, type }));
+export const getAdsContainers = ({ providersSelector, adPlacesRules }: SliseAdsData) => {
+  const bannersFromProviders = [...document.querySelectorAll(providersSelector)];
+  const adsContainers = adPlacesRules.reduce<AdContainerProps[]>((acc, { selector, stylesOverrides }) => {
+    const { cssString, shouldUseDivWrapper, isMultiple, parentDepth, divWrapperStyle } = selector;
+    const banners = isMultiple
+      ? [...document.querySelectorAll(cssString)]
+      : [document.querySelector(cssString)].filter((el): el is Element => Boolean(el));
 
-export const getAdsContainers = () => {
-  const locationUrl = window.parent.location.href;
-  const builtInAdsImages = ETHERSCAN_BUILTIN_ADS_WEBSITES.some(urlPrefix => locationUrl.startsWith(urlPrefix))
-    ? [...document.querySelectorAll('span + img')].filter(element => {
-        const { width, height } = element.getBoundingClientRect();
-        const label = element.previousElementSibling?.innerHTML ?? '';
+    return acc.concat(
+      banners
+        .map((banner): AdContainerProps | null => {
+          let element = banner;
+          for (let i = 0; i < parentDepth; i++) {
+            const parent = element.parentElement;
 
-        return (width > 0 || height > 0) && ['Featured', 'Ad'].includes(label);
-      })
-    : [];
-  const coinzillaBanners = mapBannersWithType(
-    document.querySelectorAll('iframe[src*="coinzilla.io"], iframe[src*="czilladx.com"]'),
-    AdType.Coinzilla
-  );
-  const bitmediaBanners = mapBannersWithType(
-    document.querySelectorAll('iframe[src*="media.bmcdn"], iframe[src*="cdn.bmcdn"]'),
-    AdType.Bitmedia
-  );
-  const cointrafficBanners = mapBannersWithType(
-    document.querySelectorAll('iframe[src*="ctengine.io"]'),
-    AdType.Cointraffic
-  );
+            if (!parent) {
+              return null;
+            }
 
-  return builtInAdsImages
-    .map((image): AdContainerProps | null => {
-      const element = image.closest('div');
-
-      return (
-        element && {
-          ...getFinalSize(image),
-          element,
-          type: AdType.EtherscanBuiltin
-        }
-      );
-    })
-    .concat(
-      [...bitmediaBanners, ...coinzillaBanners, ...cointrafficBanners].map(({ banner, type }) => {
-        const element = banner.parentElement?.closest('div') ?? null;
-
-        return (
-          element && {
-            ...getFinalSize(banner),
-            element,
-            type
+            element = parent;
           }
-        );
-      })
-    )
-    .filter((element): element is AdContainerProps => Boolean(element));
+
+          return {
+            ...getFinalSize(element),
+            element: element as HTMLElement,
+            shouldUseDivWrapper,
+            divWrapperStyle,
+            shouldNeglectSizeConstraints: true,
+            stylesOverrides
+          };
+        })
+        .filter((value): value is AdContainerProps => Boolean(value))
+    );
+  }, []);
+  bannersFromProviders.forEach(banner => {
+    const element = banner.parentElement?.closest<HTMLElement>('div, article, aside, footer, header') ?? null;
+
+    if (
+      element &&
+      !adsContainers.some(
+        ({ element: duplicateCandidate }) =>
+          duplicateCandidate.contains(element) || element.contains(duplicateCandidate)
+      )
+    ) {
+      adsContainers.push({
+        ...getFinalSize(banner),
+        element,
+        shouldUseDivWrapper: false,
+        divWrapperStyle: {},
+        shouldNeglectSizeConstraints: false
+      });
+    }
+  });
+
+  return adsContainers;
 };
