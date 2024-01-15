@@ -4,7 +4,7 @@ import BigNumber from 'bignumber.js';
 import { useDispatch } from 'react-redux';
 
 import { subscribeToActions } from 'app/store';
-import { loadNativeTokenBalanceFromTzktAction, loadTokensBalancesFromTzktAction } from 'app/store/balances/actions';
+import { loadTokensBalancesFromTzktAction } from 'app/store/balances/actions';
 import { useAllBalancesSelector } from 'app/store/balances/selectors';
 import { isKnownChainId } from 'lib/apis/tzkt';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
@@ -56,7 +56,7 @@ export function useBalance(assetSlug: string, address: string, opts: UseBalanceO
       throw new Error('Metadata missing, when fetching balance');
     }
 
-    if (!isKnownChainId(freshChainId)) {
+    if (!isKnownChainId(freshChainId) || assetSlug === TEZ_TOKEN_SLUG) {
       return fetchBalanceFromBlockchain(tezos, assetSlug, address, assetMetadata);
     }
 
@@ -76,35 +76,27 @@ export function useBalance(assetSlug: string, address: string, opts: UseBalanceO
     }
 
     if (!balanceLoading && balancesAreEmpty) {
-      const actionType =
-        assetSlug === TEZ_TOKEN_SLUG ? loadNativeTokenBalanceFromTzktAction : loadTokensBalancesFromTzktAction;
-      dispatch(actionType.submit({ publicKeyHash: address, chainId: freshChainId }));
+      dispatch(loadTokensBalancesFromTzktAction.submit({ publicKeyHash: address, chainId: freshChainId }));
     }
 
     return new Promise<BigNumber>((res, rej) => {
       const unsubscribe = subscribeToActions(action => {
-        const actionMayBeRelatedToThisRequest =
-          action.payload?.publicKeyHash === address && action.payload?.chainId === freshChainId;
-
-        if (!actionMayBeRelatedToThisRequest) {
-          return;
-        }
-
         switch (action.type) {
           case loadTokensBalancesFromTzktAction.success.type:
-            res(convertRawBalance(action.payload.balances[assetSlug]) ?? new BigNumber(0));
-            unsubscribe();
-            break;
-          case loadNativeTokenBalanceFromTzktAction.success.type:
-            if (assetSlug === TEZ_TOKEN_SLUG) {
-              res(convertRawBalance(action.payload.balance)!);
+            const successAction = action as ReturnType<typeof loadTokensBalancesFromTzktAction.success>;
+            const { publicKeyHash: newBalancesAddress, chainId: newBalancesChainId } = successAction.payload;
+            if (newBalancesAddress === address && newBalancesChainId === freshChainId) {
+              res(convertRawBalance(successAction.payload.balances[assetSlug]) ?? new BigNumber(0));
               unsubscribe();
             }
             break;
           case loadTokensBalancesFromTzktAction.fail.type:
-          case loadNativeTokenBalanceFromTzktAction.fail.type:
-            rej(new Error(action.payload.error));
-            unsubscribe();
+            const errorAction = action as ReturnType<typeof loadTokensBalancesFromTzktAction.fail>;
+            const { publicKeyHash: failedBalancesAddress, chainId: failedBalancesChainId } = errorAction.payload;
+            if (failedBalancesAddress === address && failedBalancesChainId === freshChainId) {
+              rej(new Error(errorAction.payload.error));
+              unsubscribe();
+            }
         }
       });
     });
