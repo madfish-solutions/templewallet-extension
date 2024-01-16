@@ -10,7 +10,6 @@ type SearchAssetFieldProps = SearchFieldProps;
 const SearchAssetField: FC<SearchAssetFieldProps> = ({ className, value, ...rest }) => (
   <SearchField
     value={value}
-    isCleanButtonVisible={Boolean(value)}
     className={clsx(
       'py-2 pl-8 pr-4 bg-gray-100',
       'rounded-lg border border-bgheader outline-none border-gray-300',

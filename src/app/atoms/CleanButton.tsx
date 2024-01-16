@@ -12,6 +12,8 @@ type CleanButtonProps = HTMLAttributes<HTMLButtonElement> & {
   iconStyle?: React.CSSProperties;
 };
 
+export const CLEAN_BUTTON_ID = 'CLEAN_BUTTON_ID';
+
 const CleanButton: FC<CleanButtonProps> = ({
   bottomOffset = '0.4rem',
   className,
@@ -34,6 +36,7 @@ const CleanButton: FC<CleanButtonProps> = ({
 
   return (
     <button
+      id={CLEAN_BUTTON_ID}
       ref={buttonRef}
       type="button"
       className={classNames(

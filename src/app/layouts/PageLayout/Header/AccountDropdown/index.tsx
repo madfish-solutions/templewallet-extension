@@ -5,6 +5,7 @@ import classNames from 'clsx';
 import { Button } from 'app/atoms/Button';
 import DropdownWrapper from 'app/atoms/DropdownWrapper';
 import { openInFullPage, useAppEnv } from 'app/env';
+import { useShortcutAccountSelectModalIsOpened } from 'app/hooks/use-account-select-shortcut';
 import { ReactComponent as AddIcon } from 'app/icons/add.svg';
 import { ReactComponent as DAppsIcon } from 'app/icons/apps-alt.svg';
 import { ReactComponent as DownloadIcon } from 'app/icons/download.svg';
@@ -14,6 +15,7 @@ import { ReactComponent as MaximiseIcon } from 'app/icons/maximise.svg';
 import { ReactComponent as SadSearchIcon } from 'app/icons/sad-search.svg';
 import { ReactComponent as SettingsIcon } from 'app/icons/settings.svg';
 import SearchField from 'app/templates/SearchField';
+import { searchHotkey } from 'lib/constants';
 import { T, t } from 'lib/i18n';
 import { useAccount, useRelevantAccounts, useSetAccountPkh, useTempleClient, useGasToken } from 'lib/temple/front';
 import { PopperRenderProps } from 'lib/ui/Popper';
@@ -23,9 +25,6 @@ import { HistoryAction, navigate } from 'lib/woozie';
 import { AccountItem } from './AccountItem';
 import { ActionButtonProps, ActionButton } from './ActionButton';
 import { AccountDropdownSelectors } from './selectors';
-
-const isMacOS = /Mac OS/.test(navigator.userAgent);
-const searchHotkey = ` (${isMacOS ? '⌘' : 'Ctrl + '}K)`;
 
 type AccountDropdownProps = PopperRenderProps;
 
@@ -41,6 +40,8 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
   const setAccountPkh = useSetAccountPkh();
   const { assetName: gasTokenName } = useGasToken();
 
+  useShortcutAccountSelectModalIsOpened(() => setOpened(false));
+
   const [searchValue, setSearchValue] = useState('');
   const [attractSelectedAccount, setAttractSelectedAccount] = useState(true);
 
@@ -49,10 +50,16 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
       return allAccounts;
     }
 
-    return searchAndFilterItems(allAccounts, searchValue.toLowerCase(), [
-      { name: 'name', weight: 0.5 },
-      { name: 'publicKeyHash', weight: 0.5 }
-    ]);
+    return searchAndFilterItems(
+      allAccounts,
+      searchValue.toLowerCase(),
+      [
+        { name: 'name', weight: 1 },
+        { name: 'publicKeyHash', weight: 0.25 }
+      ],
+      null,
+      0.35
+    );
   }, [searchValue, allAccounts]);
 
   const closeDropdown = useCallback(() => {
@@ -147,7 +154,7 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
     <DropdownWrapper
       opened={opened}
       design="dark"
-      className="origin-top-right p-2 min-w-64"
+      className="origin-top-right p-2 w-64"
       style={{
         transform: 'translate(3.25rem, 3.25rem)',
         pointerEvents: 'all'
