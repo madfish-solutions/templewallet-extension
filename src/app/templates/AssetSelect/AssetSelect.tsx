@@ -112,7 +112,11 @@ const AssetFieldContent: FC<{ asset: IAsset } & TestIDProperty> = ({ asset, test
           <div className="flex flex-col items-start leading-none">
             <span className="text-xl text-gray-800 flex items-baseline">
               <Money smallFractionFont={false}>{balance}</Money>{' '}
-              <span className="ml-2" style={{ fontSize: '0.75em' }}>
+              <span
+                className="ml-2"
+                style={{ fontSize: '0.75em' }}
+                {...setTestID(SendFormSelectors.assetDropDownSelectedItem)}
+              >
                 {getAssetSymbol(metadata)}
               </span>
             </span>

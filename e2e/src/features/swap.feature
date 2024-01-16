@@ -1,5 +1,5 @@
 Feature: Swap
-
+@dev
   @swap
   Scenario: As a user, i'd like to swap assets
     Given I have imported an existing account
