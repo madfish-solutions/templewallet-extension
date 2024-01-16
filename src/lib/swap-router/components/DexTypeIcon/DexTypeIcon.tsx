@@ -33,7 +33,7 @@ export const DexTypeIcon: FC<Props> = ({ dexType }) => {
       return <PlentyIcon height={20} width={20} />;
     case Route3DexTypeEnum.FlatYouvesStable:
     case Route3DexTypeEnum.FlatYouvesStableUXTZ:
-      return <YouvesIcon />;
+      return <YouvesIcon height={20} width={20} />;
     case Route3DexTypeEnum.VortexTokenToTokenFa12:
     case Route3DexTypeEnum.VortexTokenToTokenFa2:
       return <VortexIcon height={20} width={20} />;
