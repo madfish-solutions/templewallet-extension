@@ -20,18 +20,18 @@ export const ActionButton: React.FC<ActionButtonProps> = ({ Icon, linkTo, onClic
     className: classNames(
       'block w-full flex items-center px-2 whitespace-nowrap overflow-hidden',
       'rounded text-white text-shadow-black text-sm',
-      'hover:bg-white hover:bg-opacity-10',
+      'hover:bg-gray-700 hover:bg-opacity-30',
       'transition ease-in-out duration-200'
     ),
     style: {
-      paddingTop: '0.375rem',
-      paddingBottom: '0.375rem'
+      paddingTop: '0.5rem',
+      paddingBottom: '0.5rem'
     },
     onClick,
     children: (
       <>
-        <div className="flex items-center w-8">
-          <Icon className="w-auto h-6 stroke-current" />
+        <div className="flex items-center w-6">
+          <Icon className="w-auto h-4 stroke-current" />
         </div>
 
         <T id={i18nKey} />

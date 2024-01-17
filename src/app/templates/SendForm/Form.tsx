@@ -11,7 +11,13 @@ import React, {
 } from 'react';
 
 import { ManagerKeyResponse } from '@taquito/rpc';
-import { DEFAULT_FEE, TransferParams, WalletOperation, Estimate } from '@taquito/taquito';
+import {
+  DEFAULT_FEE,
+  TransferParams,
+  Estimate,
+  TransactionWalletOperation,
+  TransactionOperation
+} from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
 import { Controller, FieldError, useForm } from 'react-hook-form';
@@ -339,7 +345,7 @@ export const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactReque
       try {
         if (!assetMetadata) throw new Error('Metadata not found');
 
-        let op: WalletOperation;
+        let op: TransactionWalletOperation | TransactionOperation;
         if (isKTAddress(acc.publicKeyHash)) {
           const michelsonLambda = isKTAddress(toResolved) ? transferToContract : transferImplicit;
 

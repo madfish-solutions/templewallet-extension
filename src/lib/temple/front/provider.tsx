@@ -1,5 +1,6 @@
 import React, { FC, useMemo } from 'react';
 
+import { ShortcutAccountSelectStateProvider } from 'app/hooks/use-account-select-shortcut';
 import { usePushNotifications } from 'app/hooks/use-push-notifications';
 import { CustomRpcContext } from 'lib/analytics';
 
@@ -27,7 +28,9 @@ const ConditionalReadyTemple: FC<PropsWithChildren> = ({ children }) => {
       ready ? (
         <ReadyTempleProvider>
           <WalletRpcProvider>
-            <NewBlockTriggersProvider>{children}</NewBlockTriggersProvider>
+            <NewBlockTriggersProvider>
+              <ShortcutAccountSelectStateProvider>{children}</ShortcutAccountSelectStateProvider>
+            </NewBlockTriggersProvider>
           </WalletRpcProvider>
         </ReadyTempleProvider>
       ) : (

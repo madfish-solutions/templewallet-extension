@@ -7,8 +7,9 @@ import { t } from 'lib/i18n';
 
 type SearchAssetFieldProps = SearchFieldProps;
 
-const SearchAssetField = memo<SearchAssetFieldProps>(({ className, ...rest }) => (
+const SearchAssetField = memo<SearchAssetFieldProps>(({ className, value, ...rest }) => (
   <SearchField
+    value={value}
     className={clsx(
       'bg-gray-100 text-gray-500',
       'placeholder-gray-500 focus:text-gray-700',

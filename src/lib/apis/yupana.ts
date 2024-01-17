@@ -3,7 +3,8 @@ import { map, of, catchError } from 'rxjs';
 
 import { buildApolloClient } from './apollo';
 
-const YUPANA_API = 'https://mainnet-api.yupana.finance/v1/graphql/';
+/** TODO: Track the changes of this URL */
+const YUPANA_API = 'https://preproduction-api.yupana.finance/v1/graphql/';
 
 const apolloYupanaClient = buildApolloClient(YUPANA_API);
 

@@ -1,5 +1,6 @@
 import { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
+import { isDefined } from '@rnw-community/shared';
 import browser, { Storage } from 'webextension-polyfill';
 
 import { fetchFromStorage, putToStorage } from 'lib/storage';
@@ -32,8 +33,12 @@ export function useStorage<T = any>(key: string, fallback?: T) {
 }
 
 export function usePassiveStorage<T = any>(key: string): [T | null | undefined, Dispatch<SetStateAction<T>>];
-export function usePassiveStorage<T = any>(key: string, fallback: T): [T, Dispatch<SetStateAction<T>>];
-export function usePassiveStorage<T = any>(key: string, fallback?: T) {
+export function usePassiveStorage<T = any>(
+  key: string,
+  fallback: T,
+  shouldPutFallback?: boolean
+): [T, Dispatch<SetStateAction<T>>];
+export function usePassiveStorage<T = any>(key: string, fallback?: T, shouldPutFallback = false) {
   const { data } = useRetryableSWR<T | null, unknown, string>(key, fetchFromStorage, {
     suspense: true,
     revalidateOnFocus: false,
@@ -43,6 +48,12 @@ export function usePassiveStorage<T = any>(key: string, fallback?: T) {
   const finalData = fallback === undefined ? data : data ?? fallback;
 
   const [value, setValue] = useState(finalData);
+
+  useEffect(() => {
+    if (!isDefined(data) && isDefined(fallback) && shouldPutFallback) {
+      putToStorage(key, fallback);
+    }
+  }, [data, fallback, key, shouldPutFallback]);
 
   useDidUpdate(() => {
     setValue(finalData);

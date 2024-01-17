@@ -5,12 +5,9 @@ import { catchError, from, map, of, switchMap } from 'rxjs';
 import { ofType, toPayload } from 'ts-action-operators';
 
 import { fetchRoute3Dexes$ } from 'lib/apis/route3/fetch-route3-dexes';
-import {
-  fetchRoute3SwapParams,
-  Route3SwapParamsRequest,
-  Route3SwapParamsRequestRaw
-} from 'lib/apis/route3/fetch-route3-swap-params';
+import { fetchRoute3SwapParams } from 'lib/apis/route3/fetch-route3-swap-params';
 import { fetchgetRoute3Tokens } from 'lib/apis/route3/fetch-route3-tokens';
+import { Route3SwapParamsRequest, Route3SwapParamsRequestRaw } from 'lib/route3/interfaces';
 
 import { loadSwapDexesAction, loadSwapParamsAction, loadSwapTokensAction, resetSwapParamsAction } from './actions';
 

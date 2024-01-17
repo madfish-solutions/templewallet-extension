@@ -1,11 +1,7 @@
-import React, { memo, useEffect, useLayoutEffect } from 'react';
-
-import { useDispatch } from 'react-redux';
+import React, { memo, useLayoutEffect } from 'react';
 
 import { useAppEnv } from 'app/env';
 import PageLayout from 'app/layouts/PageLayout';
-import { togglePartnersPromotionAction } from 'app/store/partners-promotion/actions';
-import { useIsEnabledAdsBannerSelector } from 'app/store/settings/selectors';
 import { setAnotherSelector, setTestID } from 'lib/analytics';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { useAssetMetadata, getAssetSymbol } from 'lib/metadata';
@@ -30,9 +26,6 @@ const Home = memo<Props>(({ assetSlug }) => {
   const { onboardingCompleted } = useOnboardingProgress();
   const { publicKeyHash } = useAccount();
   const { search } = useLocation();
-  const dispatch = useDispatch();
-
-  const isEnabledAdsBanner = useIsEnabledAdsBannerSelector();
 
   const assetMetadata = useAssetMetadata(assetSlug || TEZ_TOKEN_SLUG);
   const assetSymbol = getAssetSymbol(assetMetadata);
@@ -46,12 +39,6 @@ const Home = memo<Props>(({ assetSlug }) => {
     }
     return undefined;
   }, [registerBackHandler, assetSlug, search]);
-
-  useEffect(() => {
-    if (isEnabledAdsBanner) {
-      dispatch(togglePartnersPromotionAction(false));
-    }
-  }, [isEnabledAdsBanner, dispatch]);
 
   return onboardingCompleted ? (
     <PageLayout

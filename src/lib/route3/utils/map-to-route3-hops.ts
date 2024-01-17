@@ -1,9 +1,7 @@
 import { BigNumber } from 'bignumber.js';
 
-import { Route3Chain } from 'lib/apis/route3/fetch-route3-swap-params';
+import { Hop, Route3Chain } from 'lib/route3/interfaces';
 import { tokensToAtoms } from 'lib/temple/helpers';
-
-import { Hop } from '../interfaces';
 
 export const mapToRoute3ExecuteHops = (chains: Array<Route3Chain>, decimals: number) => {
   const hops = new Array<Hop>();
