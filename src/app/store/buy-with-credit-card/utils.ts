@@ -24,7 +24,7 @@ const UTORG_FIAT_ICONS_BASE_URL = 'https://utorg.pro/img/flags2/icon-';
 const UTORG_CRYPTO_ICONS_BASE_URL = 'https://utorg.pro/img/cryptoIcons';
 
 export const getCurrencyNameByCode = (code: string) => {
-  const customCurrencyNames: Record<string, string> = {
+  const customCurrencyNames: StringRecord = {
     UAH: 'Ukrainian Hryvnia',
     KZT: 'Kazakhstani Tenge'
   };

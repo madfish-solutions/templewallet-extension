@@ -1,4 +1,4 @@
-import { ManageAssetsSelectors } from 'src/app/pages/ManageAssets/ManageAssets.selectors';
+import { ManageAssetsSelectors } from 'src/app/pages/ManageAssets/selectors';
 
 import { Page } from '../../classes/page.class';
 import { createPageElement } from '../../utils/search.utils';

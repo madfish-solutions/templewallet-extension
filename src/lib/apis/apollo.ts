@@ -1,25 +1,28 @@
-import { ApolloClient, InMemoryCache, HttpLink, FetchResult } from '@apollo/client';
+import { ApolloClient, InMemoryCache, HttpLink, FetchResult, OperationVariables } from '@apollo/client';
+import { isDefined } from '@rnw-community/shared';
 import { DocumentNode } from 'graphql';
 import { from } from 'rxjs';
-import { filter, map } from 'rxjs/operators';
+import { filter } from 'rxjs/operators';
 
-export const getApolloConfigurableClient = (uri: string) => {
-  const apolloClient = new ApolloClient({
+export const buildApolloClient = (uri: string) =>
+  new TempleApolloClient({
     link: new HttpLink({ uri }),
     cache: new InMemoryCache()
   });
 
-  return getRxJSApolloClient(apolloClient);
-};
+class TempleApolloClient<TCacheShape> extends ApolloClient<TCacheShape> {
+  async fetch<T, TVars = OperationVariables>(query: DocumentNode, variables?: TVars) {
+    const result: FetchResult<T> = await super.query<T, TVars>({
+      query,
+      variables,
+      // Disabling cache as it creates bottlenecks (blocks thread) when fetching large data
+      fetchPolicy: 'no-cache'
+    });
 
-const getRxJSApolloClient = <TCacheShape>(client: ApolloClient<TCacheShape>) => {
-  const queryFn = <T, TVars = object>(query: DocumentNode, variables?: TVars, options?: TVars) =>
-    from(client.query<T, TVars>({ query, variables, fetchPolicy: 'network-only', ...options })).pipe(
-      map((result: FetchResult<T>) => result.data),
-      filter((data: T | null | undefined): data is T => data !== null && data !== undefined)
-    );
+    return result.data;
+  }
 
-  return {
-    query: queryFn
-  };
-};
+  fetch$<T, TVars = OperationVariables>(query: DocumentNode, variables?: TVars) {
+    return from(this.fetch<T, TVars>(query, variables)).pipe(filter(isDefined));
+  }
+}

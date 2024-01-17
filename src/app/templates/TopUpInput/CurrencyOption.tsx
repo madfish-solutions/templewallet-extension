@@ -1,7 +1,6 @@
-import React, { FC } from 'react';
+import React, { FC, CSSProperties } from 'react';
 
 import classNames from 'clsx';
-import { ListRowProps } from 'react-virtualized';
 
 import { getAssetSymbolToDisplay } from 'lib/buy-with-credit-card/get-asset-symbol-to-display';
 
@@ -9,11 +8,12 @@ import { StaticCurrencyImage } from './StaticCurrencyImage';
 import { CurrencyBase } from './types';
 import { getProperNetworkFullName } from './utils';
 
-interface Props extends Partial<Pick<ListRowProps, 'style'>> {
+interface Props {
   isFiat?: boolean;
   currency: CurrencyBase;
   isSelected: boolean;
   fitIcons?: boolean | ((currency: CurrencyBase) => boolean);
+  style?: CSSProperties;
 }
 
 export const CurrencyOption: FC<Props> = ({ currency, isFiat, isSelected, fitIcons, style }) => (

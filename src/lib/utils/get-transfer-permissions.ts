@@ -1,7 +1,7 @@
 import { TezosToolkit, TransferParams } from '@taquito/taquito';
 import { BigNumber } from 'bignumber.js';
 
-import { ZERO } from 'lib/route3/constants';
+import { ZERO } from 'lib/utils/numbers';
 
 interface TokenToSpend {
   contract: string | null;

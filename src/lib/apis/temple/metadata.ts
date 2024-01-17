@@ -1,5 +1,7 @@
 import axios from 'axios';
-import memoize from 'mem';
+import { chunk } from 'lodash';
+import memoize from 'micro-memoize';
+import pMemoize from 'p-memoize';
 
 import { IS_STAGE_ENV } from 'lib/env';
 import { TempleChainId } from 'lib/temple/types';
@@ -31,18 +33,36 @@ export interface TokenMetadataResponse {
   image?: string;
 }
 
-export const fetchOneTokenMetadata = (chainId: MetadataApiChainId, address: string, id = 0) =>
+export const fetchOneTokenMetadata = (chainId: MetadataApiChainId, address: string, id: string) =>
   getApi(chainId)
     .get<TokenMetadataResponse>(`/metadata/${address}/${id}`)
     .then(({ data }) => (data.name === 'Unknown Token' ? undefined : data));
 
-export const fetchTokensMetadata = async (chainId: MetadataApiChainId, slugs: string[]) => {
-  if (slugs.length === 0) return [];
+export const METADATA_API_LOAD_CHUNK_SIZE = 50;
 
-  return getApi(chainId)
-    .post<(TokenMetadataResponse | null)[]>('/', slugs)
-    .then(r => r.data);
+export const fetchTokensMetadata = (
+  chainId: MetadataApiChainId,
+  slugs: string[]
+): Promise<(TokenMetadataResponse | null)[]> => {
+  if (slugs.length === 0) return Promise.resolve([]);
+
+  return Promise.all(
+    // Parallelizing
+    chunk(slugs, METADATA_API_LOAD_CHUNK_SIZE).map(clugsChunk => fetchTokensMetadataChunk(chainId, clugsChunk))
+  ).then(datum => datum.flat());
 };
+
+const fetchTokensMetadataChunk = pMemoize(
+  // Simply reducing frequency of requests per set of arguments.
+  (chainId: MetadataApiChainId, slugs: string[]) =>
+    getApi(chainId)
+      .post<(TokenMetadataResponse | null)[]>('/', slugs)
+      .then(r => r.data),
+  {
+    maxAge: 10_000,
+    cacheKey: ([chainId, slugs]) => `${chainId}:${slugs.join()}`
+  }
+);
 
 const getApi = memoize((chainId: MetadataApiChainId) => {
   const baseURL = buildApiUrl(chainId);

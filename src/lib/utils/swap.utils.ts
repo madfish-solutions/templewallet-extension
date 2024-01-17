@@ -10,8 +10,7 @@ import {
   ATOMIC_INPUT_THRESHOLD_FOR_FEE_FROM_INPUT,
   LIQUIDITY_BAKING_PROXY_CONTRACT,
   ROUTE3_CONTRACT,
-  ROUTING_FEE_RATIO,
-  ZERO
+  ROUTING_FEE_RATIO
 } from 'lib/route3/constants';
 import { isSwapChains, Route3LiquidityBakingChains, Route3SwapChains } from 'lib/route3/interfaces';
 import { isRoute3GasToken } from 'lib/route3/utils/assets.utils';
@@ -19,6 +18,7 @@ import { mapToRoute3ExecuteHops } from 'lib/route3/utils/map-to-route3-hops';
 import { loadContract } from 'lib/temple/contract';
 
 import { getTransferPermissions } from './get-transfer-permissions';
+import { ZERO } from './numbers';
 
 export const getSwapTransferParams = async (
   fromRoute3Token: Route3Token,

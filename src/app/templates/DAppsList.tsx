@@ -100,12 +100,9 @@ const DAppsList = () => {
         </div>
         <SearchField
           className={classNames(
-            'py-2 pl-8 pr-4',
-            'border border-gray-300',
-            'transition ease-in-out duration-200',
-            'rounded-lg',
-            'text-gray-700 text-sm leading-tight',
-            'placeholder-alphagray'
+            'text-gray-700 placeholder-alphagray',
+            'rounded-lg border border-gray-300',
+            'transition ease-in-out duration-200'
           )}
           containerClassName="mb-4"
           placeholder={t('searchDApps')}

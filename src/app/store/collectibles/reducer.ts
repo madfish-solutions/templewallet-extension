@@ -14,6 +14,7 @@ const collectiblesReducer = createReducer<CollectiblesState>(collectiblesInitial
   builder.addCase(loadCollectiblesDetailsActions.submit, state => {
     state.details.isLoading = true;
   });
+
   builder.addCase(loadCollectiblesDetailsActions.success, (state, { payload }) => {
     const { details: detailsRecord, timestamp } = payload;
 
@@ -37,6 +38,7 @@ const collectiblesReducer = createReducer<CollectiblesState>(collectiblesInitial
       adultFlags
     };
   });
+
   builder.addCase(loadCollectiblesDetailsActions.fail, (state, { payload }) => {
     state.details.isLoading = false;
     state.details.error = payload;

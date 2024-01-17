@@ -22,9 +22,8 @@ import { fetchRoute3SwapParams } from 'lib/apis/route3/fetch-route3-swap-params'
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { KNOWN_TOKENS_SLUGS } from 'lib/assets/known-tokens';
 import { T, t } from 'lib/i18n';
-import { useAssetMetadata } from 'lib/metadata';
+import { useAssetMetadata, useGetAssetMetadata } from 'lib/metadata';
 import {
-  ZERO,
   BURN_ADDREESS,
   MAX_ROUTING_FEE_CHAINS,
   ROUTING_FEE_ADDRESS,
@@ -37,9 +36,10 @@ import { isLiquidityBakingParamsResponse } from 'lib/route3/interfaces';
 import { getPercentageRatio } from 'lib/route3/utils/get-percentage-ratio';
 import { getRoute3TokenBySlug } from 'lib/route3/utils/get-route3-token-by-slug';
 import { ROUTING_FEE_PERCENT, SWAP_CASHBACK_PERCENT } from 'lib/swap-router/config';
-import { useAccount, useGetTokenMetadata, useTezos } from 'lib/temple/front';
+import { useAccount, useTezos } from 'lib/temple/front';
 import { atomsToTokens, tokensToAtoms } from 'lib/temple/helpers';
 import useTippy from 'lib/ui/useTippy';
+import { ZERO } from 'lib/utils/numbers';
 import { parseTransferParamsToParamsWithKind } from 'lib/utils/parse-transfer-params';
 import {
   calculateFeeFromOutput,
@@ -68,7 +68,7 @@ export const SwapForm: FC = () => {
   const { data: route3Tokens } = useSwapTokensSelector();
   const swapParams = useSwapParamsSelector();
   const allUsdToTokenRates = useSelector(state => state.currency.usdToTokenRates.data);
-  const getTokenMetadata = useGetTokenMetadata();
+  const getTokenMetadata = useGetAssetMetadata();
   const prevOutputRef = useRef(swapParams.data.output);
 
   const formAnalytics = useFormAnalytics('SwapForm');

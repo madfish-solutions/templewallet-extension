@@ -166,35 +166,43 @@ export type TzktRewardsEntry = {
 
 export type TzktGetRewardsResponse = TzktRewardsEntry[] | undefined;
 
-export interface TzktAccountToken {
+export interface TzktAccountAsset {
+  id: number;
   account: TzktAlias;
+  /** Raw value, not divided by `decimals` */
   balance: string;
   firstLevel: number;
   firstTime: string;
-  id: number;
   lastLevel: number;
   lastTime: string;
-  token: {
-    contract: TzktAlias;
-    id: number;
-    metadata: {
-      artifactUri: string;
-      creators: Array<string>;
-      decimals?: string;
-      description: string;
-      displayUri: string;
-      formats: Array<{ uri: string; mimeType: string }>;
-      isBooleanAmount: boolean;
-      name: string;
-      shouldPreferSymbol: boolean;
-      symbol: string;
-      tags: Array<string>;
-      thumbnailUri: string;
-    };
-    standard: string;
-    tokenId: string;
-  };
   transfersCount: number;
+  token: TzktAssetToken;
+}
+
+interface TzktAssetToken {
+  id: number;
+  contract: TzktAlias;
+  standard: 'fa1.2' | 'fa2';
+  tokenId: string;
+  /**
+   * @deprecated // Not always correct information
+   */
+  metadata?: TzktAssetMetadata;
+}
+
+interface TzktAssetMetadata {
+  creators: string[];
+  decimals?: string;
+  description: string;
+  formats: { uri: string; mimeType: string }[];
+  isBooleanAmount: boolean;
+  name: string;
+  shouldPreferSymbol: boolean;
+  symbol: string;
+  tags: string[];
+  thumbnailUri: string;
+  displayUri: string;
+  artifactUri: string;
 }
 
 export interface TzktTokenTransfer {

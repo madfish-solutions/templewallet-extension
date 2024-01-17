@@ -29,9 +29,12 @@ interface PopperAnchorProps extends PopperRenderProps {
   ref: RefObject<HTMLButtonElement>;
 }
 
+export type PopperPopup = RenderProp<PopperRenderProps>;
+export type PopperChildren = RenderProp<PopperAnchorProps>;
+
 type PopperProps = Partial<Options> & {
-  popup: RenderProp<PopperRenderProps>;
-  children: RenderProp<PopperAnchorProps>;
+  popup: PopperPopup;
+  children: PopperChildren;
   fallbackPlacementsEnabled?: boolean;
   style?: React.CSSProperties;
 };

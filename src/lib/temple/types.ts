@@ -5,7 +5,7 @@ import type { TempleDAppMetadata, TempleDAppNetwork } from '@temple-wallet/dapp/
 import type { TID } from 'lib/i18n/types';
 import type { SliseAdsData } from 'lib/slise/get-ads-containers';
 
-import {
+import type {
   TempleSendPageEventRequest,
   TempleSendPageEventResponse,
   TempleSendTrackEventRequest,

@@ -1,25 +1,33 @@
 import { devToolsEnhancer } from '@redux-devtools/remote';
-import { configureStore } from '@reduxjs/toolkit';
-import { FLUSH, PAUSE, PERSIST, persistReducer, persistStore, PURGE, REGISTER, REHYDRATE } from 'redux-persist';
+import { Action, configureStore } from '@reduxjs/toolkit';
+import { persistReducer, persistStore, createMigrate } from 'redux-persist';
 import autoMergeLevel2 from 'redux-persist/lib/stateReconciler/autoMergeLevel2';
 import storage from 'redux-persist/lib/storage';
 
 import { IS_DEV_ENV } from 'lib/env';
 
+import { sanitizeCollectiblesMetadataForDevTools } from './collectibles-metadata/state';
+import { MIGRATIONS } from './migrations';
 import { epicMiddleware, rootEpic } from './root-state.epics';
 import { rootReducer } from './root-state.reducer';
 import type { RootState } from './root-state.type';
 
-const persistConfigBlacklist: (keyof RootState)[] = ['buyWithCreditCard', 'collectibles'];
+const persistConfigBlacklist: (keyof RootState)[] = [
+  'buyWithCreditCard',
+  'collectibles',
+  'assets',
+  'collectiblesMetadata'
+];
 
 const persistedReducer = persistReducer<RootState>(
   {
     key: 'temple-root',
-    version: 1,
+    version: 2,
     storage,
     stateReconciler: autoMergeLevel2,
     blacklist: persistConfigBlacklist,
-    debug: IS_DEV_ENV
+    debug: IS_DEV_ENV,
+    migrate: createMigrate(MIGRATIONS, { debug: IS_DEV_ENV })
   },
   rootReducer
 );
@@ -30,25 +38,35 @@ const store = configureStore({
   reducer: persistedReducer,
   middleware: getDefaultMiddleware => {
     const defMiddleware = getDefaultMiddleware({
-      serializableCheck: {
-        ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER]
-      }
+      immutableCheck: false,
+      serializableCheck: false
     });
 
     return defMiddleware.concat(epicMiddleware);
   },
-  ...(REDUX_DEVTOOLS_PORT
-    ? {
-        devTools: false,
-        enhancers: [devToolsEnhancer({ realtime: true, port: Number(REDUX_DEVTOOLS_PORT) })]
-      }
-    : {})
+  devTools: false,
+  enhancers: REDUX_DEVTOOLS_PORT
+    ? [
+        // See: https://github.com/zalmoxisus/remote-redux-devtools?tab=readme-ov-file#parameters
+        devToolsEnhancer<RootState, Action>({
+          realtime: true,
+          port: Number(REDUX_DEVTOOLS_PORT),
+          // See: https://github.com/reduxjs/redux-devtools/issues/496#issuecomment-670246737
+          stateSanitizer: state => ({
+            ...state,
+            collectiblesMetadata: sanitizeCollectiblesMetadataForDevTools(state.collectiblesMetadata)
+          })
+        })
+      ]
+    : undefined
 });
 
 const persistor = persistStore(store);
 
 epicMiddleware.run(rootEpic);
 
-export { store, persistor };
+const dispatch = store.dispatch.bind(store);
+
+export { store, persistor, dispatch };
 
 export { useSelector } from './root-state.selector';

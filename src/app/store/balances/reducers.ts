@@ -1,27 +1,44 @@
 import { createReducer } from '@reduxjs/toolkit';
 
-import { getKeyForBalancesRecord } from 'lib/balances';
-import { createEntity } from 'lib/store/entity.utils';
+import { TEZ_TOKEN_SLUG } from 'lib/assets';
 
-import { loadTokensBalancesFromTzktAction } from './actions';
+import { loadGasBalanceActions, loadAssetsBalancesActions, putTokensBalancesAction } from './actions';
 import { balancesInitialState } from './state';
+import { retrieveBalancesRecord } from './utils';
 
 export const balancesReducer = createReducer(balancesInitialState, builder => {
-  builder.addCase(loadTokensBalancesFromTzktAction.submit, (state, { payload }) => {
-    const key = getKeyForBalancesRecord(payload.publicKeyHash, payload.chainId);
+  builder.addCase(loadGasBalanceActions.success, (state, { payload }) => {
+    const records = retrieveBalancesRecord(state, payload.publicKeyHash, payload.chainId);
 
-    state.balancesAtomic[key] = createEntity(state.balancesAtomic[key]?.data ?? {}, true);
+    records.data[TEZ_TOKEN_SLUG] = payload.balance;
   });
-  builder.addCase(loadTokensBalancesFromTzktAction.success, (state, { payload }) => {
-    state.balancesAtomic = {
-      ...state.balancesAtomic,
-      [getKeyForBalancesRecord(payload.publicKeyHash, payload.chainId)]: createEntity(payload.balances, false)
-    };
+
+  builder.addCase(loadAssetsBalancesActions.submit, (state, { payload }) => {
+    const records = retrieveBalancesRecord(state, payload.publicKeyHash, payload.chainId);
+
+    records.isLoading = true;
   });
-  builder.addCase(loadTokensBalancesFromTzktAction.fail, (state, { payload }) => {
-    state.balancesAtomic = {
-      ...state.balancesAtomic,
-      [getKeyForBalancesRecord(payload.publicKeyHash, payload.chainId)]: createEntity({}, false, payload.error)
-    };
+
+  builder.addCase(loadAssetsBalancesActions.success, (state, { payload }) => {
+    const records = retrieveBalancesRecord(state, payload.publicKeyHash, payload.chainId);
+
+    records.data = Object.assign({}, records.data, payload.balances);
+    records.isLoading = false;
+    delete records.error;
+  });
+
+  builder.addCase(loadAssetsBalancesActions.fail, (state, { payload }) => {
+    const records = retrieveBalancesRecord(state, payload.publicKeyHash, payload.chainId);
+
+    records.error = payload.error;
+    records.isLoading = false;
+  });
+
+  builder.addCase(putTokensBalancesAction, (state, { payload }) => {
+    if (Object.keys(payload.balances).length < 1) return;
+
+    const records = retrieveBalancesRecord(state, payload.publicKeyHash, payload.chainId);
+
+    records.data = Object.assign({}, records.data, payload.balances);
   });
 });

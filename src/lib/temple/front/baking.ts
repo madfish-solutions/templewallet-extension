@@ -15,8 +15,8 @@ import { getAccountStatsFromTzkt, isKnownChainId, TzktRewardsEntry, TzktAccountT
 import { t } from 'lib/i18n';
 import { useRetryableSWR } from 'lib/swr';
 import type { ReactiveTezosToolkit } from 'lib/temple/front';
+import { getOnlineStatus } from 'lib/ui/get-online-status';
 
-import { getOnlineStatus } from './get-online-status';
 import { useChainId, useNetwork, useTezos } from './ready';
 
 function getDelegateCacheKey(
