@@ -1,4 +1,4 @@
-import React, { FC, memo, useCallback, useEffect } from 'react';
+import React, { FC, memo, useCallback, useEffect, useMemo } from 'react';
 
 import clsx from 'clsx';
 import { isEqual } from 'lodash';
@@ -7,20 +7,21 @@ import { SyncSpinner } from 'app/atoms';
 import Checkbox from 'app/atoms/Checkbox';
 import Divider from 'app/atoms/Divider';
 import DropdownWrapper from 'app/atoms/DropdownWrapper';
+import { SimpleInfiniteScroll } from 'app/atoms/SimpleInfiniteScroll';
 import { useAppEnv } from 'app/env';
+import { useCollectiblesListingLogic } from 'app/hooks/use-collectibles-listing-logic';
 import { ReactComponent as EditingIcon } from 'app/icons/editing.svg';
 import { AssetsSelectors } from 'app/pages/Home/OtherComponents/Assets.selectors';
-import { useTokensMetadataLoadingSelector } from 'app/store/tokens-metadata/selectors';
 import { ButtonForManageDropdown } from 'app/templates/ManageDropdown';
 import SearchAssetField from 'app/templates/SearchAssetField';
+import { useEnabledAccountCollectiblesSlugs } from 'lib/assets/hooks';
 import { AssetTypesEnum } from 'lib/assets/types';
-import { useFilteredAssetsSlugs } from 'lib/assets/use-filtered';
+import { useCollectiblesSortPredicate } from 'lib/assets/use-sorting';
 import { T, t } from 'lib/i18n';
-import { useAccount, useChainId, useCollectibleTokens } from 'lib/temple/front';
-import { useSyncTokens } from 'lib/temple/front/sync-tokens';
+import { useAccount, useChainId } from 'lib/temple/front';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import { useLocalStorage } from 'lib/ui/local-storage';
-import Popper, { PopperRenderProps } from 'lib/ui/Popper';
+import Popper, { PopperChildren, PopperPopup, PopperRenderProps } from 'lib/ui/Popper';
 import { Link } from 'lib/woozie';
 
 import { CollectibleItem } from './CollectibleItem';
@@ -32,39 +33,74 @@ interface Props {
 }
 
 export const CollectiblesTab = memo<Props>(({ scrollToTheTabsBar }) => {
-  const chainId = useChainId(true)!;
   const { popup } = useAppEnv();
   const { publicKeyHash } = useAccount();
-  const { isSyncing: tokensAreSyncing } = useSyncTokens();
-  const metadatasLoading = useTokensMetadataLoadingSelector();
+  const chainId = useChainId()!;
 
   const [areDetailsShown, setDetailsShown] = useLocalStorage(LOCAL_STORAGE_TOGGLE_KEY, false);
-
   const toggleDetailsShown = useCallback(() => void setDetailsShown(val => !val), [setDetailsShown]);
 
-  const { data: collectibles = [], isValidating: readingCollectibles } = useCollectibleTokens(
-    chainId,
-    publicKeyHash,
-    true
-  );
+  const allSlugs = useEnabledAccountCollectiblesSlugs();
 
-  const collectiblesSlugs = useMemoWithCompare(
-    () => collectibles.map(collectible => collectible.tokenSlug).sort(),
-    [collectibles],
+  const assetsSortPredicate = useCollectiblesSortPredicate();
+
+  const allSlugsSorted = useMemoWithCompare(
+    () => [...allSlugs].sort(assetsSortPredicate),
+    [allSlugs, assetsSortPredicate],
     isEqual
   );
 
-  const { filteredAssets, searchValue, setSearchValue } = useFilteredAssetsSlugs(collectiblesSlugs, false);
+  const { isInSearchMode, displayedSlugs, paginatedSlugs, isSyncing, loadNext, searchValue, setSearchValue } =
+    useCollectiblesListingLogic(allSlugsSorted);
 
-  const shouldScrollToTheTabsBar = collectibles.length > 0;
-  useEffect(() => void scrollToTheTabsBar(), [shouldScrollToTheTabsBar, scrollToTheTabsBar]);
+  const shouldScrollToTheTabsBar = paginatedSlugs.length > 0;
+  useEffect(() => {
+    if (shouldScrollToTheTabsBar) void scrollToTheTabsBar();
+  }, [shouldScrollToTheTabsBar, scrollToTheTabsBar]);
 
-  const isSyncing = tokensAreSyncing || metadatasLoading || readingCollectibles;
+  const contentElement = useMemo(
+    () => (
+      <div className="grid grid-cols-3 gap-1">
+        {displayedSlugs.map(slug => (
+          <CollectibleItem
+            key={slug}
+            assetSlug={slug}
+            accountPkh={publicKeyHash}
+            chainId={chainId}
+            areDetailsShown={areDetailsShown}
+            hideWithoutMeta={isInSearchMode}
+          />
+        ))}
+      </div>
+    ),
+    [displayedSlugs, publicKeyHash, chainId, areDetailsShown, isInSearchMode]
+  );
+
+  const renderManageDropdown = useCallback<PopperPopup>(
+    props => (
+      <ManageButtonDropdown {...props} areDetailsShown={areDetailsShown} toggleDetailsShown={toggleDetailsShown} />
+    ),
+    [areDetailsShown, toggleDetailsShown]
+  );
+
+  const renderManageButton = useCallback<PopperChildren>(
+    ({ ref, opened, toggleOpened }) => (
+      <ButtonForManageDropdown
+        ref={ref}
+        opened={opened}
+        tooltip={t('manageAssetsList')}
+        onClick={toggleOpened}
+        testID={AssetsSelectors.manageButton}
+        testIDProperties={{ listOf: 'Collectibles' }}
+      />
+    ),
+    []
+  );
 
   return (
     <div className="w-full max-w-sm mx-auto">
       <div className={clsx('my-3', popup && 'mx-4')}>
-        <div className="mb-4 w-full flex items-strech">
+        <div className="mb-4 w-full flex">
           <SearchAssetField
             value={searchValue}
             onValueChange={setSearchValue}
@@ -72,44 +108,20 @@ export const CollectiblesTab = memo<Props>(({ scrollToTheTabsBar }) => {
             testID={AssetsSelectors.searchAssetsInputCollectibles}
           />
 
-          <Popper
-            placement="bottom-end"
-            strategy="fixed"
-            popup={props => (
-              <ManageButtonDropdown
-                {...props}
-                areDetailsShown={areDetailsShown}
-                toggleDetailsShown={toggleDetailsShown}
-              />
-            )}
-          >
-            {({ ref, opened, toggleOpened }) => (
-              <ButtonForManageDropdown
-                ref={ref}
-                opened={opened}
-                tooltip={t('manageAssetsList')}
-                onClick={toggleOpened}
-                testID={AssetsSelectors.manageButton}
-                testIDProperties={{ listOf: 'Collectibles' }}
-              />
-            )}
+          <Popper placement="bottom-end" strategy="fixed" popup={renderManageDropdown}>
+            {renderManageButton}
           </Popper>
         </div>
 
-        {filteredAssets.length === 0 ? (
+        {displayedSlugs.length === 0 ? (
           buildEmptySection(isSyncing)
         ) : (
           <>
-            <div className="grid grid-cols-3 gap-1">
-              {filteredAssets.map(slug => (
-                <CollectibleItem
-                  key={slug}
-                  assetSlug={slug}
-                  accountPkh={publicKeyHash}
-                  areDetailsShown={areDetailsShown}
-                />
-              ))}
-            </div>
+            {isInSearchMode ? (
+              contentElement
+            ) : (
+              <SimpleInfiniteScroll loadNext={loadNext}>{contentElement}</SimpleInfiniteScroll>
+            )}
 
             {isSyncing && <SyncSpinner className="mt-6" />}
           </>

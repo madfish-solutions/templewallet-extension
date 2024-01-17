@@ -1,61 +1,42 @@
 import React, { FC } from 'react';
 
-import { BigNumber } from 'bignumber.js';
-
 import { ReactComponent as Separator } from 'app/icons/separator.svg';
 import { useSwapDexesSelector } from 'app/store/swap/selectors';
-import { Route3Chain } from 'lib/apis/route3/fetch-route3-swap-params';
+import { Route3Chain } from 'lib/route3/interfaces';
 
 import { HopItem } from './hop-item';
+import { SwapRouteAmounts } from './swap-route-amounts';
 
 interface Props {
   baseInput: string | undefined;
   baseOutput: string | undefined;
   chain: Route3Chain;
+  shouldShowInput: boolean;
+  shouldShowOutput: boolean;
 }
 
-const BASE = new BigNumber(100);
-const PERCENTAGE_DECIMALS = 1;
-const AMOUNT_DECIMALS = 2;
-
-const calculatePercentage = (base: string | undefined, part: string) => {
-  if (base === undefined) {
-    return;
-  }
-
-  const amountToFormat = BASE.multipliedBy(part).dividedBy(base);
-
-  if (amountToFormat.isGreaterThanOrEqualTo(BASE)) {
-    return BASE.toFixed();
-  }
-
-  return amountToFormat.toFixed(PERCENTAGE_DECIMALS);
-};
-export const SwapRouteItem: FC<Props> = ({ chain, baseInput, baseOutput }) => {
+export const SwapRouteItem: FC<Props> = ({ chain, baseInput, baseOutput, shouldShowInput, shouldShowOutput }) => {
   const { data: route3Dexes } = useSwapDexesSelector();
 
   return (
-    <div className="flex justify-between relative">
-      <div className="absolute w-full h-full flex items-center justify-center">
-        <Separator />
-      </div>
-      <div className="z-10">
-        <div className="text-gray-600">{new BigNumber(chain.input).toFixed(AMOUNT_DECIMALS)}</div>
-        <div className="text-blue-500">{calculatePercentage(baseInput, chain.input)}%</div>
-      </div>
-      {chain.hops.map((hop, index) => {
-        const dex = route3Dexes.find(dex => dex.id === hop.dex);
+    <div className="flex flex-1 justify-between relative">
+      {shouldShowInput && <SwapRouteAmounts amount={chain.input} baseAmount={baseInput} className="text-left" />}
+      <div className="flex flex-1 flex-row relative justify-around items-center">
+        <div className="absolute w-full h-full flex items-center justify-center">
+          <Separator />
+        </div>
 
-        const aToken = hop.forward ? dex?.token1 : dex?.token2;
-        const bToken = hop.forward ? dex?.token2 : dex?.token1;
+        {chain.hops.map((hop, index) => {
+          const dex = route3Dexes.find(dex => dex.id === hop.dex);
 
-        return <HopItem className="z-10" key={index} dex={dex} aToken={aToken} bToken={bToken} />;
-      })}
+          const aToken = hop.forward ? dex?.token1 : dex?.token2;
+          const bToken = hop.forward ? dex?.token2 : dex?.token1;
 
-      <div className="z-10">
-        <div className="text-right text-gray-600">{new BigNumber(chain.output).toFixed(AMOUNT_DECIMALS)}</div>
-        <div className="text-right text-blue-500">{calculatePercentage(baseOutput, chain.output)}%</div>
+          return <HopItem className="z-10" key={index} dex={dex} aToken={aToken} bToken={bToken} />;
+        })}
       </div>
+
+      {shouldShowOutput && <SwapRouteAmounts amount={chain.output} baseAmount={baseOutput} className="text-right" />}
     </div>
   );
 };

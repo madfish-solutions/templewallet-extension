@@ -4,7 +4,7 @@ import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
 import CSSTransition from 'react-transition-group/CSSTransition';
 
-import { useBalance } from 'lib/temple/front';
+import { useBalance } from 'lib/balances';
 
 type BalanceProps = {
   address: string;

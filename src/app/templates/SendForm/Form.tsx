@@ -11,7 +11,13 @@ import React, {
 } from 'react';
 
 import { ManagerKeyResponse } from '@taquito/rpc';
-import { DEFAULT_FEE, TransferParams, WalletOperation, Estimate } from '@taquito/taquito';
+import {
+  DEFAULT_FEE,
+  TransferParams,
+  Estimate,
+  TransactionWalletOperation,
+  TransactionOperation
+} from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
 import { Controller, FieldError, useForm } from 'react-hook-form';
@@ -29,7 +35,7 @@ import InFiat from 'app/templates/InFiat';
 import { useFormAnalytics } from 'lib/analytics';
 import { isTezAsset, toPenny } from 'lib/assets';
 import { toTransferParams } from 'lib/assets/contract.utils';
-import { fetchBalance, fetchTezosBalance } from 'lib/balances';
+import { fetchBalance, fetchTezosBalance, useBalance } from 'lib/balances';
 import { useAssetFiatCurrencyPrice, useFiatCurrency } from 'lib/fiat-currency';
 import { BLOCK_DURATION } from 'lib/fixed-times';
 import { toLocalFixed, T, t } from 'lib/i18n';
@@ -41,7 +47,6 @@ import {
   ReactiveTezosToolkit,
   isDomainNameValid,
   useAccount,
-  useBalance,
   useNetwork,
   useTezos,
   useTezosDomainsClient,
@@ -340,7 +345,7 @@ export const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactReque
       try {
         if (!assetMetadata) throw new Error('Metadata not found');
 
-        let op: WalletOperation;
+        let op: TransactionWalletOperation | TransactionOperation;
         if (isKTAddress(acc.publicKeyHash)) {
           const michelsonLambda = isKTAddress(toResolved) ? transferToContract : transferImplicit;
 

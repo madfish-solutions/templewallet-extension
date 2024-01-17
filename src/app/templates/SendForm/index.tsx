@@ -1,17 +1,17 @@
-import React, { FC, Suspense, useCallback, useMemo, useState } from 'react';
+import React, { memo, Suspense, useCallback, useMemo, useState } from 'react';
 
 import type { WalletOperation } from '@taquito/taquito';
+import { isEqual } from 'lodash';
 
-import AssetSelect from 'app/templates/AssetSelect/AssetSelect';
-import { IAsset } from 'app/templates/AssetSelect/interfaces';
-import { getSlug } from 'app/templates/AssetSelect/utils';
+import AssetSelect from 'app/templates/AssetSelect';
 import OperationStatus from 'app/templates/OperationStatus';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
-import { useAssetsSortPredicate } from 'lib/assets/use-filtered';
+import { useEnabledAccountTokensSlugs } from 'lib/assets/hooks';
+import { useTokensSortPredicate } from 'lib/assets/use-sorting';
 import { t } from 'lib/i18n';
-import { useAccount, useChainId, useTezos, useCollectibleTokens, useDisplayedFungibleTokens } from 'lib/temple/front';
-import { useSafeState } from 'lib/ui/hooks';
+import { useTezos } from 'lib/temple/front';
+import { useMemoWithCompare, useSafeState } from 'lib/ui/hooks';
 import { HistoryAction, navigate } from 'lib/woozie';
 
 import AddContactModal from './AddContactModal';
@@ -19,26 +19,28 @@ import { Form } from './Form';
 import { SendFormSelectors } from './selectors';
 import { SpinnerSection } from './SpinnerSection';
 
-type SendFormProps = {
+type Props = {
   assetSlug?: string | null;
 };
 
-const SendForm: FC<SendFormProps> = ({ assetSlug = TEZ_TOKEN_SLUG }) => {
-  const chainId = useChainId(true)!;
-  const account = useAccount();
+const SendForm = memo<Props>(({ assetSlug = TEZ_TOKEN_SLUG }) => {
+  const tokensSlugs = useEnabledAccountTokensSlugs();
 
-  const { data: tokens = [] } = useDisplayedFungibleTokens(chainId, account.publicKeyHash);
-  const { data: collectibles = [] } = useCollectibleTokens(chainId, account.publicKeyHash, true);
-  const assetsSortPredicate = useAssetsSortPredicate();
+  const tokensSortPredicate = useTokensSortPredicate();
 
-  const assets = useMemo<IAsset[]>(
-    () => [TEZ_TOKEN_SLUG, ...tokens, ...collectibles].sort((a, b) => assetsSortPredicate(getSlug(a), getSlug(b))),
-    [tokens, collectibles, assetsSortPredicate]
+  const assetsSlugs = useMemoWithCompare<string[]>(
+    () => {
+      const sortedSlugs = Array.from(tokensSlugs).sort(tokensSortPredicate);
+
+      return !assetSlug || sortedSlugs.some(s => s === assetSlug)
+        ? [TEZ_TOKEN_SLUG, ...sortedSlugs]
+        : [TEZ_TOKEN_SLUG, assetSlug, ...sortedSlugs];
+    },
+    [tokensSortPredicate, tokensSlugs, assetSlug],
+    isEqual
   );
-  const selectedAsset = useMemo(
-    () => assets.find(a => getSlug(a) === assetSlug) ?? TEZ_TOKEN_SLUG,
-    [assets, assetSlug]
-  );
+
+  const selectedAsset = assetSlug ?? TEZ_TOKEN_SLUG;
 
   const tezos = useTezos();
   const [operation, setOperation] = useSafeState<WalletOperation | null>(null, tezos.checksum);
@@ -64,33 +66,34 @@ const SendForm: FC<SendFormProps> = ({ assetSlug = TEZ_TOKEN_SLUG }) => {
     setAddContactModalAddress(null);
   }, [setAddContactModalAddress]);
 
+  const testIDs = useMemo(
+    () => ({
+      main: SendFormSelectors.assetDropDown,
+      select: SendFormSelectors.assetDropDownSelect,
+      searchInput: SendFormSelectors.assetDropDownSearchInput
+    }),
+    []
+  );
+
   return (
     <>
       {operation && <OperationStatus typeTitle={t('transaction')} operation={operation} className="mb-8" />}
 
       <AssetSelect
         value={selectedAsset}
-        assets={assets}
+        slugs={assetsSlugs}
         onChange={handleAssetChange}
         className="mb-6"
-        testIDs={{
-          main: SendFormSelectors.assetDropDown,
-          select: SendFormSelectors.assetDropDownSelect,
-          searchInput: SendFormSelectors.assetDropDownSearchInput
-        }}
+        testIDs={testIDs}
       />
 
       <Suspense fallback={<SpinnerSection />}>
-        <Form
-          assetSlug={getSlug(selectedAsset)}
-          setOperation={setOperation}
-          onAddContactRequested={handleAddContactRequested}
-        />
+        <Form assetSlug={selectedAsset} setOperation={setOperation} onAddContactRequested={handleAddContactRequested} />
       </Suspense>
 
       <AddContactModal address={addContactModalAddress} onClose={closeContactModal} />
     </>
   );
-};
+});
 
 export default SendForm;

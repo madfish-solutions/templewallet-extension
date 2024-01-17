@@ -1,8 +1,8 @@
 import { createAction } from '@reduxjs/toolkit';
 
 import { Route3Dex } from 'lib/apis/route3/fetch-route3-dexes';
-import { Route3SwapParamsRequestRaw, Route3SwapParamsResponse } from 'lib/apis/route3/fetch-route3-swap-params';
 import { Route3Token } from 'lib/apis/route3/fetch-route3-tokens';
+import { Route3SwapParamsRequestRaw, Route3SwapParamsResponse } from 'lib/route3/interfaces';
 import { createActions } from 'lib/store';
 
 export const loadSwapParamsAction = createActions<Route3SwapParamsRequestRaw, Route3SwapParamsResponse, string>(

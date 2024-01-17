@@ -3,6 +3,7 @@ import React, { FC } from 'react';
 import { isDefined } from '@rnw-community/shared';
 import classNames from 'clsx';
 
+import { useAppEnv } from 'app/env';
 import { AssetIcon } from 'app/templates/AssetIcon';
 import { Route3Dex } from 'lib/apis/route3/fetch-route3-dexes';
 import { Route3Token } from 'lib/apis/route3/fetch-route3-tokens';
@@ -19,6 +20,8 @@ interface Props {
 }
 
 export const HopItem: FC<Props> = ({ dex, aToken, bToken, className }) => {
+  const { popup } = useAppEnv();
+
   const dexInfoDivRef = useTippy<HTMLDivElement>({
     trigger: 'mouseenter',
     hideOnClick: false,
@@ -43,7 +46,7 @@ export const HopItem: FC<Props> = ({ dex, aToken, bToken, className }) => {
       <div ref={dexInfoDivRef}>
         <DexTypeIcon dexType={dex?.type ?? null} />
       </div>
-      <div className="flex items-center ml-2">
+      <div className={classNames('flex items-center', popup ? 'ml-1' : 'ml-2')}>
         <div ref={tokenAInfoDivRef}>
           <AssetIcon assetSlug={toAssetSlugLocal(aToken)} size={20} />
         </div>

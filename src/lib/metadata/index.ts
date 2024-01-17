@@ -1,15 +1,23 @@
-import { useEffect } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 
+import { isString } from 'lodash';
 import { useDispatch } from 'react-redux';
 
+import { loadCollectiblesMetadataAction } from 'app/store/collectibles-metadata/actions';
+import {
+  useCollectiblesMetadataLoadingSelector,
+  useAllCollectiblesMetadataSelector,
+  useCollectibleMetadataSelector
+} from 'app/store/collectibles-metadata/selectors';
 import { loadTokensMetadataAction } from 'app/store/tokens-metadata/actions';
 import {
   useTokenMetadataSelector,
   useTokensMetadataLoadingSelector,
-  useTokensMetadataSelector
+  useAllTokensMetadataSelector
 } from 'app/store/tokens-metadata/selectors';
+import { METADATA_API_LOAD_CHUNK_SIZE } from 'lib/apis/temple';
 import { isTezAsset } from 'lib/assets';
-import { useNetwork } from 'lib/temple/front/ready';
+import { useNetwork } from 'lib/temple/front';
 import { isTruthy } from 'lib/utils';
 
 import { TEZOS_METADATA, FILM_METADATA } from './defaults';
@@ -18,7 +26,7 @@ import { AssetMetadataBase, TokenMetadata } from './types';
 export type { AssetMetadataBase, TokenMetadata } from './types';
 export { TEZOS_METADATA, EMPTY_BASE_METADATA } from './defaults';
 
-const useGasTokenMetadata = () => {
+export const useGasTokenMetadata = () => {
   const network = useNetwork();
 
   return network.type === 'dcp' ? FILM_METADATA : TEZOS_METADATA;
@@ -26,44 +34,119 @@ const useGasTokenMetadata = () => {
 
 export const useAssetMetadata = (slug: string): AssetMetadataBase | undefined => {
   const tokenMetadata = useTokenMetadataSelector(slug);
+  const collectibleMetadata = useCollectibleMetadataSelector(slug);
   const gasMetadata = useGasTokenMetadata();
 
-  if (isTezAsset(slug)) return gasMetadata;
-
-  return tokenMetadata;
+  return isTezAsset(slug) ? gasMetadata : tokenMetadata || collectibleMetadata;
 };
 
-export const useTokensMetadataWithPresenceCheck = (slugsToCheck?: string[]) => {
-  const allTokensMetadata = useTokensMetadataSelector();
+export type TokenMetadataGetter = (slug: string) => TokenMetadata | undefined;
 
-  const tokensMetadataLoading = useTokensMetadataLoadingSelector();
+export const useGetTokenMetadata = () => {
+  const allMeta = useAllTokensMetadataSelector();
+
+  return useCallback<TokenMetadataGetter>(slug => allMeta[slug], [allMeta]);
+};
+
+export const useGetTokenOrGasMetadata = () => {
+  const getTokenMetadata = useGetTokenMetadata();
+  const gasMetadata = useGasTokenMetadata();
+
+  return useCallback(
+    (slug: string): AssetMetadataBase | undefined => (isTezAsset(slug) ? gasMetadata : getTokenMetadata(slug)),
+    [getTokenMetadata, gasMetadata]
+  );
+};
+
+export const useGetCollectibleMetadata = () => {
+  const allMeta = useAllCollectiblesMetadataSelector();
+
+  return useCallback<TokenMetadataGetter>(slug => allMeta.get(slug), [allMeta]);
+};
+
+export const useGetAssetMetadata = () => {
+  const getTokenOrGasMetadata = useGetTokenOrGasMetadata();
+  const getCollectibleMetadata = useGetCollectibleMetadata();
+
+  return useCallback(
+    (slug: string) => getTokenOrGasMetadata(slug) || getCollectibleMetadata(slug),
+    [getTokenOrGasMetadata, getCollectibleMetadata]
+  );
+};
+
+/**
+ * @param slugsToCheck // Memoize
+ */
+export const useTokensMetadataPresenceCheck = (slugsToCheck?: string[]) => {
+  const metadataLoading = useTokensMetadataLoadingSelector();
+  const getMetadata = useGetTokenMetadata();
+
+  useAssetsMetadataPresenceCheck(false, metadataLoading, getMetadata, slugsToCheck);
+};
+
+/**
+ * @param slugsToCheck // Memoize
+ */
+export const useCollectiblesMetadataPresenceCheck = (slugsToCheck?: string[]) => {
+  const metadataLoading = useCollectiblesMetadataLoadingSelector();
+  const getMetadata = useGetCollectibleMetadata();
+
+  useAssetsMetadataPresenceCheck(true, metadataLoading, getMetadata, slugsToCheck);
+};
+
+const useAssetsMetadataPresenceCheck = (
+  ofCollectibles: boolean,
+  metadataLoading: boolean,
+  getMetadata: TokenMetadataGetter,
+  slugsToCheck?: string[]
+) => {
   const { rpcBaseURL: rpcUrl } = useNetwork();
   const dispatch = useDispatch();
 
+  const checkedRef = useRef<string[]>([]);
+
   useEffect(() => {
-    if (tokensMetadataLoading || !slugsToCheck?.length) return;
+    if (metadataLoading || !slugsToCheck?.length) return;
 
-    const metadataMissingAssetsSlugs = slugsToCheck.filter(
-      slug => !isTezAsset(slug) && !isTruthy(allTokensMetadata[slug])
-    );
+    const missingChunk = slugsToCheck
+      .filter(
+        slug =>
+          !isTezAsset(slug) &&
+          !isTruthy(getMetadata(slug)) &&
+          // In case fetched metadata is `null` & won't save
+          !checkedRef.current.includes(slug)
+      )
+      .slice(0, METADATA_API_LOAD_CHUNK_SIZE);
 
-    if (metadataMissingAssetsSlugs.length > 0) {
-      dispatch(loadTokensMetadataAction({ rpcUrl, slugs: metadataMissingAssetsSlugs }));
+    if (missingChunk.length > 0) {
+      checkedRef.current = [...checkedRef.current, ...missingChunk];
+
+      dispatch(
+        (ofCollectibles ? loadCollectiblesMetadataAction : loadTokensMetadataAction)({
+          rpcUrl,
+          slugs: missingChunk
+        })
+      );
     }
-  }, [slugsToCheck, allTokensMetadata, tokensMetadataLoading, dispatch, rpcUrl]);
-
-  return allTokensMetadata;
+  }, [ofCollectibles, slugsToCheck, getMetadata, metadataLoading, dispatch, rpcUrl]);
 };
 
 export function getAssetSymbol(metadata: AssetMetadataBase | nullish, short = false) {
   if (!metadata) return '???';
   if (!short) return metadata.symbol;
-  return metadata.symbol === 'tez' ? 'ꜩ' : metadata.symbol.substr(0, 5);
+  return metadata.symbol === 'tez' ? 'ꜩ' : metadata.symbol.substring(0, 5);
 }
 
 export function getAssetName(metadata: AssetMetadataBase | nullish) {
   return metadata ? metadata.name : 'Unknown Token';
 }
 
-export const isCollectible = (metadata: AssetMetadataBase): metadata is TokenMetadata =>
-  'artifactUri' in metadata && Boolean((metadata as TokenMetadata).artifactUri);
+/** Empty string for `artifactUri` counts */
+export const isCollectible = (metadata: Record<string, any>) =>
+  'artifactUri' in metadata && isString(metadata.artifactUri);
+
+/**
+ * @deprecated // Assertion here is not safe!
+ */
+export const isCollectibleTokenMetadata = (metadata: AssetMetadataBase): metadata is TokenMetadata =>
+  isCollectible(metadata);

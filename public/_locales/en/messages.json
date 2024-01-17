@@ -9,7 +9,7 @@
     "message": "🔐💰Cryptocurrency wallet for Tezos blockchain as Web Extension for your Browser."
   },
   "createAccount": {
-    "message": "Create or Restore account"
+    "message": "Create account"
   },
   "importAccount": {
     "message": "Import account"
@@ -1744,8 +1744,16 @@
   "searchAssets": {
     "message": "Search assets..."
   },
-  "searchByName": {
-    "message": "Search by name..."
+  "searchAccount": {
+    "message": "Search$hotkey$",
+    "placeholders": {
+      "hotkey": {
+        "content": "$1"
+      }
+    }
+  },
+  "shortcutSwitchAccountOverlayNavigation": {
+    "message": "TAB or ↑↓ to navigate, ⏎ to select,\nESC to dismiss"
   },
   "deployNew": {
     "message": "Deploy new"
@@ -1986,6 +1994,9 @@
   },
   "closePartnersPromotion": {
     "message": "Are you sure you want to disable all ads?"
+  },
+  "hideAd": {
+    "message": "Hide Ad"
   },
   "domainDoesntResolveToAddress": {
     "message": "Domain \"$value$\" doesn't resolve to an address",

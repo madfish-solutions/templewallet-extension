@@ -1,7 +1,6 @@
 import React, { FC } from 'react';
 
 import classNames from 'clsx';
-import { ListRowProps } from 'react-virtualized';
 
 import { AssetIcon } from 'app/templates/AssetIcon';
 import { AssetItemContent } from 'app/templates/AssetItemContent';
@@ -11,7 +10,7 @@ import { isTruthy } from 'lib/utils';
 
 import { AssetsMenuSelectors } from './selectors';
 
-interface Props extends Partial<Pick<ListRowProps, 'style'>> {
+interface Props {
   assetSlug: string;
   selected?: boolean;
 }

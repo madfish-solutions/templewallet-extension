@@ -1,3 +1,4 @@
+import { BrowserContext } from '../classes/browser-context.class';
 import { envVars } from './env.utils';
 
 export const iComparePrivateKeys = {
@@ -71,8 +72,7 @@ export const iEnterValues = {
   kUSD: 'kUSD',
   uUSD: 'uUSD',
   WTZ: 'WTZ',
-  wUSDT: 'wUSDT',
-  OBJKTCOM: 'Temple NFT'
+  wUSDT: 'wUSDT'
 };
 
 export type IEnterValuesKey = keyof typeof iEnterValues;
@@ -81,6 +81,13 @@ export const iSelectTokenSlugs = {
   kUSD: 'KT1K9gCRgaLRFKTErYt1wVxA3Frb9FjasjTV_0',
   uUSD: 'KT1XRPEPXbZK25r3Htzp2o1x7xdMMmfocKNW_0',
   WTZ: 'KT1PnUZCp3u2KzWr93pn4DD7HAJnm3rWVrgn_0',
-  wUSDT: 'KT18fp5rcTW7mbWDmzFwjLDUhs5MeJmagDSZ_18',
-  OBJKTCOM: 'KT1DGbb333QNo3e2cpN3YGL5aRwWzkADcPA3_2' // 'Temple NFT'
+  wUSDT: 'KT18fp5rcTW7mbWDmzFwjLDUhs5MeJmagDSZ_18'
+};
+
+export const clearDataFromCurrentInput = async () => {
+  await BrowserContext.page.keyboard.press('End');
+  await BrowserContext.page.keyboard.down('Shift');
+  await BrowserContext.page.keyboard.press('Home');
+  await BrowserContext.page.keyboard.up('Shift');
+  await BrowserContext.page.keyboard.press('Backspace');
 };

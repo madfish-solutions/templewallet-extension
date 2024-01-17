@@ -1,5 +1,5 @@
 import { combineEpics, Epic } from 'redux-observable';
-import { Observable, of } from 'rxjs';
+import { of } from 'rxjs';
 import { catchError, map, switchMap, withLatestFrom } from 'rxjs/operators';
 import { Action } from 'ts-action';
 import { ofType } from 'ts-action-operators';
@@ -10,7 +10,7 @@ import { loadNotifications$ } from '../utils/api.utils';
 
 import { loadNotificationsAction } from './actions';
 
-const loadNotificationsEpic: Epic = (action$: Observable<Action>, state$: Observable<RootState>) =>
+const loadNotificationsEpic: Epic<Action, Action, RootState> = (action$, state$) =>
   action$.pipe(
     ofType(loadNotificationsAction.submit),
     withLatestFrom(state$),

@@ -2,10 +2,14 @@ import { AddAssetPage } from 'e2e/src/page-objects/pages/add-asset.page';
 import { AddressBookPage } from 'e2e/src/page-objects/pages/address-book.page';
 import { ConfirmationModalPage } from 'e2e/src/page-objects/pages/confirmation-modal.page';
 import { NetworksDropDown } from 'e2e/src/page-objects/pages/drop-down-lists/networks.drop-down';
+// eslint-disable-next-line import/namespace
+import { GeneralSettingsPage } from 'e2e/src/page-objects/pages/general-settings.page';
 import { ManageAssetsCollectiblesPage } from 'e2e/src/page-objects/pages/manage-assets-collectibles.page';
 import { ManageAssetsTokensPage } from 'e2e/src/page-objects/pages/manage-assets-tokens.page';
 import { NetworksPage } from 'e2e/src/page-objects/pages/networks.page';
 import { NewsletterModalPage } from 'e2e/src/page-objects/pages/newsletter-modal.page';
+import { NotificationContentPage } from 'e2e/src/page-objects/pages/notification-content.page';
+import { NotificationsListPage } from 'e2e/src/page-objects/pages/notifications-list.page';
 import { OnRumModalPage } from 'e2e/src/page-objects/pages/on-rum-modal.page';
 import {
   OnboardingCongratsPage,
@@ -79,5 +83,8 @@ export const Pages = {
   OnboardingSecondStep: new OnboardingSecondStepPage(),
   OnboardingThirdStep: new OnboardingThirdStepPage(),
   OnboardingFourthStep: new OnboardingFourthStepPage(),
-  OnboardingCongrats: new OnboardingCongratsPage()
+  OnboardingCongrats: new OnboardingCongratsPage(),
+  NotificationsList: new NotificationsListPage(),
+  NotificationContent: new NotificationContentPage(),
+  GeneralSettings: new GeneralSettingsPage()
 };

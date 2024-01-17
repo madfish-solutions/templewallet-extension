@@ -1,7 +1,6 @@
-import { combineEpics } from 'redux-observable';
-import { from, forkJoin, map, Observable, of } from 'rxjs';
+import { combineEpics, Epic } from 'redux-observable';
+import { from, forkJoin, map, of } from 'rxjs';
 import { catchError, switchMap } from 'rxjs/operators';
-import { Action } from 'ts-action';
 import { ofType } from 'ts-action-operators';
 
 import { fetchUsdToTokenRates } from 'lib/apis/temple';
@@ -12,7 +11,7 @@ import { loadExchangeRates } from './actions';
 const loadUsdToTokenRates$ = () => from(fetchUsdToTokenRates());
 const loadFiatToTezosRates$ = () => from(fetchFiatToTezosRates());
 
-const loadExchangeRatesEpic = (action$: Observable<Action>) =>
+const loadExchangeRatesEpic: Epic = action$ =>
   action$.pipe(
     ofType(loadExchangeRates.submit),
     switchMap(() =>

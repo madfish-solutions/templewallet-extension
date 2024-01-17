@@ -8,12 +8,16 @@ import useTippy from 'lib/ui/useTippy';
 
 type CleanButtonProps = HTMLAttributes<HTMLButtonElement> & {
   bottomOffset?: string;
+  iconClassName?: string;
   iconStyle?: React.CSSProperties;
 };
+
+export const CLEAN_BUTTON_ID = 'CLEAN_BUTTON_ID';
 
 const CleanButton: FC<CleanButtonProps> = ({
   bottomOffset = '0.4rem',
   className,
+  iconClassName,
   style = {},
   iconStyle = {},
   ...rest
@@ -32,6 +36,7 @@ const CleanButton: FC<CleanButtonProps> = ({
 
   return (
     <button
+      id={CLEAN_BUTTON_ID}
       ref={buttonRef}
       type="button"
       className={classNames(
@@ -48,7 +53,7 @@ const CleanButton: FC<CleanButtonProps> = ({
       tabIndex={-1}
       {...rest}
     >
-      <CloseIcon className="w-auto h-4 stroke-current" style={iconStyle} />
+      <CloseIcon className={classNames('w-auto h-4 stroke-current', iconClassName)} style={iconStyle} />
     </button>
   );
 };

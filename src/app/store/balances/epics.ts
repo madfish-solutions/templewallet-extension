@@ -1,54 +1,51 @@
 import { BigNumber } from 'bignumber.js';
 import { combineEpics, Epic } from 'redux-observable';
-import { catchError, forkJoin, map, Observable, of, switchMap } from 'rxjs';
-import { Action } from 'ts-action';
+import { catchError, from, map, of, switchMap } from 'rxjs';
 import { ofType, toPayload } from 'ts-action-operators';
 
-import { fecthTezosBalanceFromTzkt, fetchAllTokensBalancesFromTzkt } from 'lib/apis/tzkt/api';
-import { TEZ_TOKEN_SLUG, toTokenSlug } from 'lib/assets';
-import { atomsToTokens } from 'lib/temple/helpers';
+import { fetchTezosBalanceFromTzkt, fetchAllAssetsBalancesFromTzkt } from 'lib/apis/tzkt';
 
-import { loadTokensBalancesFromTzktAction } from './actions';
+import { loadGasBalanceActions, loadAssetsBalancesActions } from './actions';
+import { fixBalances } from './utils';
 
-const YUPANA_TOKENS = [
-  'KT1Rk86CX85DjBKmuyBhrCyNsHyudHVtASec_0',
-  'KT1Rk86CX85DjBKmuyBhrCyNsHyudHVtASec_2',
-  'KT1Rk86CX85DjBKmuyBhrCyNsHyudHVtASec_3',
-  'KT1Rk86CX85DjBKmuyBhrCyNsHyudHVtASec_4',
-  'KT1Rk86CX85DjBKmuyBhrCyNsHyudHVtASec_5',
-  'KT1Rk86CX85DjBKmuyBhrCyNsHyudHVtASec_6'
-];
-const YUPANA_MULTIPLIER = 18;
-
-const fetchTokensBalances$ = (account: string, chainId: string) =>
-  forkJoin([fecthTezosBalanceFromTzkt(account, chainId), fetchAllTokensBalancesFromTzkt(account, chainId)]);
-
-const loadTokensBalancesFromTzktEpic: Epic = (action$: Observable<Action>) =>
+const loadGasBalanceEpic: Epic = action$ =>
   action$.pipe(
-    ofType(loadTokensBalancesFromTzktAction.submit),
+    ofType(loadGasBalanceActions.submit),
     toPayload(),
     switchMap(({ publicKeyHash, chainId }) =>
-      fetchTokensBalances$(publicKeyHash, chainId).pipe(
-        map(([tezosBalances, tokensBalances]) => {
-          const balances: Record<string, string> = {
-            [TEZ_TOKEN_SLUG]: new BigNumber(tezosBalances.balance ?? 0)
-              .minus(tezosBalances.frozenDeposit ?? 0)
-              .toFixed()
-          };
+      from(fetchTezosBalanceFromTzkt(publicKeyHash, chainId)).pipe(
+        map(info => {
+          const balance = new BigNumber(info.balance ?? 0).minus(info.frozenDeposit ?? 0).toFixed();
 
-          tokensBalances.forEach(({ token, balance }) => {
-            balances[toTokenSlug(token.contract.address, token.tokenId)] = balance;
+          return loadGasBalanceActions.success({
+            publicKeyHash,
+            chainId,
+            balance
           });
-
-          for (const slug of YUPANA_TOKENS) {
-            balances[slug] = atomsToTokens(new BigNumber(balances[slug]), YUPANA_MULTIPLIER).toFixed();
-          }
-
-          return loadTokensBalancesFromTzktAction.success({ publicKeyHash, chainId, balances });
         }),
-        catchError(err => of(loadTokensBalancesFromTzktAction.fail(err.message)))
+        catchError(err => of(loadGasBalanceActions.fail(err.message)))
       )
     )
   );
 
-export const balancesEpics = combineEpics(loadTokensBalancesFromTzktEpic);
+const loadAssetsBalancesEpic: Epic = action$ =>
+  action$.pipe(
+    ofType(loadAssetsBalancesActions.submit),
+    toPayload(),
+    switchMap(({ publicKeyHash, chainId }) =>
+      from(fetchAllAssetsBalancesFromTzkt(publicKeyHash, chainId)).pipe(
+        map(balances => {
+          fixBalances(balances);
+
+          return loadAssetsBalancesActions.success({
+            publicKeyHash,
+            chainId,
+            balances
+          });
+        }),
+        catchError(err => of(loadAssetsBalancesActions.fail(err.message)))
+      )
+    )
+  );
+
+export const balancesEpics = combineEpics(loadGasBalanceEpic, loadAssetsBalancesEpic);

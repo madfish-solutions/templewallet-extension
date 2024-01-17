@@ -12,7 +12,7 @@
     "message": "계정 불러오기"
   },
   "createAccount": {
-    "message": "계정 생성 또는 복원"
+    "message": "계정 만들기"
   },
   "faucetFileTitle": {
     "message": "수도꼭지 파일"

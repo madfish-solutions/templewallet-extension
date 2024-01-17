@@ -5,7 +5,6 @@ import { useDispatch } from 'react-redux';
 import { useAppEnv } from 'app/env';
 import { loadPartnersPromoAction } from 'app/store/partners-promotion/actions';
 import { useShouldShowPartnersPromoSelector } from 'app/store/partners-promotion/selectors';
-import { useIsEnabledAdsBannerSelector } from 'app/store/settings/selectors';
 import { OptimalPromoVariantEnum } from 'lib/apis/optimal';
 import { useAccountPkh } from 'lib/temple/front';
 
@@ -17,14 +16,13 @@ import { useAccountPkh } from 'lib/temple/front';
 export const useLoadPartnersPromo = (variant?: OptimalPromoVariantEnum) => {
   const { popup } = useAppEnv();
   const accountAddress = useAccountPkh();
-  const isEnabledAdsBanner = useIsEnabledAdsBannerSelector();
   const shouldShowPartnersPromoState = useShouldShowPartnersPromoSelector();
   const dispatch = useDispatch();
 
   const finalVariant = variant ?? (popup ? OptimalPromoVariantEnum.Popup : OptimalPromoVariantEnum.Fullview);
 
   useEffect(() => {
-    if (shouldShowPartnersPromoState && !isEnabledAdsBanner) {
+    if (shouldShowPartnersPromoState) {
       dispatch(
         loadPartnersPromoAction.submit({
           optimalPromoVariantEnum: finalVariant,
@@ -32,5 +30,5 @@ export const useLoadPartnersPromo = (variant?: OptimalPromoVariantEnum) => {
         })
       );
     }
-  }, [shouldShowPartnersPromoState, isEnabledAdsBanner, accountAddress, dispatch, finalVariant]);
+  }, [shouldShowPartnersPromoState, accountAddress, dispatch, finalVariant]);
 };

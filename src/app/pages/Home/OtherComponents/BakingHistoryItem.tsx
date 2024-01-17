@@ -17,8 +17,9 @@ import { ReactComponent as ShieldOkIcon } from 'app/icons/shield-ok.svg';
 import { ReactComponent as TimeIcon } from 'app/icons/time.svg';
 import { OpenInExplorerChip } from 'app/templates/OpenInExplorerChip';
 import { TzktRewardsEntry } from 'lib/apis/tzkt';
+import { useGasToken } from 'lib/assets/hooks';
 import { getPluralKey, toLocalFormat, T } from 'lib/i18n';
-import { getRewardsStats, useKnownBaker, useGasToken } from 'lib/temple/front';
+import { getRewardsStats, useKnownBaker } from 'lib/temple/front';
 import { mutezToTz } from 'lib/temple/helpers';
 
 import styles from './BakingHistoryItem.module.css';

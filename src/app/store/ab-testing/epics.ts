@@ -1,14 +1,13 @@
-import { combineEpics } from 'redux-observable';
-import { Observable, of } from 'rxjs';
+import { combineEpics, Epic } from 'redux-observable';
+import { of } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
-import { Action } from 'ts-action';
 import { ofType } from 'ts-action-operators';
 
 import { getABGroup$ } from 'lib/apis/temple';
 
 import { getUserTestingGroupNameActions } from './actions';
 
-const getUserTestingGroupNameEpic = (action$: Observable<Action>) =>
+const getUserTestingGroupNameEpic: Epic = action$ =>
   action$.pipe(
     ofType(getUserTestingGroupNameActions.submit),
     switchMap(() =>

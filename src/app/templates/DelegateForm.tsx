@@ -1,6 +1,6 @@
 import React, { FC, ReactNode, useCallback, useLayoutEffect, useMemo, useRef } from 'react';
 
-import { DEFAULT_FEE, WalletOperation } from '@taquito/taquito';
+import { DEFAULT_FEE, DelegateParams, TransactionOperation, WalletOperation } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
 import { Control, Controller, FieldError, FormStateProxy, NestDataObject, useForm } from 'react-hook-form';
@@ -19,7 +19,8 @@ import OperationStatus from 'app/templates/OperationStatus';
 import { useFormAnalytics } from 'lib/analytics';
 import { submitDelegation } from 'lib/apis/everstake';
 import { ABTestGroup } from 'lib/apis/temple';
-import { fetchTezosBalance } from 'lib/balances';
+import { useGasToken } from 'lib/assets/hooks';
+import { fetchTezosBalance, useBalance } from 'lib/balances';
 import { BLOCK_DURATION } from 'lib/fixed-times';
 import { TID, T, t } from 'lib/i18n';
 import { HELP_UKRAINE_BAKER_ADDRESS, RECOMMENDED_BAKER_ADDRESS } from 'lib/known-bakers';
@@ -30,8 +31,6 @@ import {
   Baker,
   isDomainNameValid,
   useAccount,
-  useBalance,
-  useGasToken,
   useKnownBaker,
   useKnownBakers,
   useNetwork,
@@ -112,7 +111,7 @@ const DelegateForm: FC = () => {
       return tezos.estimate.setDelegate({
         source: accountPkh,
         delegate: to
-      });
+      } as DelegateParams);
     }
   }, [tezos, accountPkh, acc.type, toResolved]);
 
@@ -225,7 +224,8 @@ const DelegateForm: FC = () => {
         const estmtn = await getEstimation();
         const addFee = tzToMutez(feeVal ?? 0);
         const fee = addFee.plus(estmtn.suggestedFeeMutez).toNumber();
-        let op: WalletOperation;
+        let op: WalletOperation | TransactionOperation;
+        let opHash = '';
         if (acc.type === TempleAccountType.ManagedKT) {
           const contract = await loadContract(tezos, acc.publicKeyHash);
           op = await contract.methods.do(setDelegate(to)).send({ amount: 0 });
@@ -237,13 +237,15 @@ const DelegateForm: FC = () => {
               fee
             } as any)
             .send();
+
+          opHash = op.opHash;
         }
 
         setOperation(op);
         reset({ to: '', fee: RECOMMENDED_ADD_FEE });
 
-        if (to === RECOMMENDED_BAKER_ADDRESS) {
-          submitDelegation(op.opHash);
+        if (to === RECOMMENDED_BAKER_ADDRESS && opHash) {
+          submitDelegation(opHash);
         }
 
         formAnalytics.trackSubmitSuccess(analyticsProperties);

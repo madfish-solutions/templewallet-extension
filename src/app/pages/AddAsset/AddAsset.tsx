@@ -1,5 +1,6 @@
-import React, { FC, ReactNode, useCallback, useEffect, useRef, useMemo } from 'react';
+import React, { FC, memo, ReactNode, useCallback, useEffect, useRef, useMemo } from 'react';
 
+import { ContractAbstraction, ContractProvider, Wallet } from '@taquito/taquito';
 import classNames from 'clsx';
 import { FormContextValues, useForm } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
@@ -10,7 +11,9 @@ import { Alert, FormField, FormSubmitButton, NoSpaceField } from 'app/atoms';
 import Spinner from 'app/atoms/Spinner/Spinner';
 import { ReactComponent as AddIcon } from 'app/icons/add.svg';
 import PageLayout from 'app/layouts/PageLayout';
-import { addTokensMetadataAction } from 'app/store/tokens-metadata/actions';
+import { putTokensAsIsAction, putCollectiblesAsIsAction } from 'app/store/assets/actions';
+import { putCollectiblesMetadataAction } from 'app/store/collectibles-metadata/actions';
+import { putTokensMetadataAction } from 'app/store/tokens-metadata/actions';
 import { useFormAnalytics } from 'lib/analytics';
 import { TokenMetadataResponse } from 'lib/apis/temple';
 import { toTokenSlug } from 'lib/assets';
@@ -22,12 +25,11 @@ import {
 } from 'lib/assets/standards';
 import { getBalanceSWRKey } from 'lib/balances';
 import { T, t } from 'lib/i18n';
-import type { TokenMetadata } from 'lib/metadata';
+import { isCollectible, TokenMetadata } from 'lib/metadata';
 import { fetchOneTokenMetadata } from 'lib/metadata/fetch';
 import { TokenMetadataNotFoundError } from 'lib/metadata/on-chain';
 import { loadContract } from 'lib/temple/contract';
 import { useTezos, useNetwork, useChainId, useAccount, validateContractAddress } from 'lib/temple/front';
-import * as Repo from 'lib/temple/repo';
 import { useSafeState } from 'lib/ui/hooks';
 import { delay } from 'lib/utils';
 import { navigate } from 'lib/woozie';
@@ -74,7 +76,7 @@ const INITIAL_STATE: ComponentState = {
 
 class ContractNotFoundError extends Error {}
 
-const Form: FC = () => {
+const Form = memo(() => {
   const tezos = useTezos();
   const { id: networkId } = useNetwork();
   const chainId = useChainId(true)!;
@@ -116,7 +118,7 @@ const Form: FC = () => {
     let stateToSet: Partial<ComponentState>;
 
     try {
-      let contract;
+      let contract: ContractAbstraction<Wallet | ContractProvider>;
       try {
         contract = await loadContract(tezos, contractAddress, false);
       } catch {
@@ -131,7 +133,7 @@ const Form: FC = () => {
       if (tokenStandard === 'fa2') await assertFa2TokenDefined(tezos, contract, tokenId);
 
       const rpcUrl = tezos.rpc.getRpcUrl();
-      const metadata = await fetchOneTokenMetadata(rpcUrl, contractAddress, tokenId);
+      const metadata = await fetchOneTokenMetadata(rpcUrl, contractAddress, String(tokenId));
 
       if (metadata) {
         metadataRef.current = metadata;
@@ -206,21 +208,23 @@ const Form: FC = () => {
         const tokenMetadata: TokenMetadata = {
           ...baseMetadata,
           address: contractAddress,
-          id: tokenId
+          id: String(tokenId)
         };
 
-        dispatch(addTokensMetadataAction([tokenMetadata]));
+        const assetIsCollectible = isCollectible(tokenMetadata);
 
-        await Repo.accountTokens.put(
-          {
-            chainId,
-            account: accountPkh,
-            tokenSlug,
-            status: Repo.ITokenStatus.Enabled,
-            addedAt: Date.now()
-          },
-          Repo.toAccountTokenKey(chainId, accountPkh, tokenSlug)
-        );
+        const actionPayload = { records: { [tokenSlug]: tokenMetadata } };
+        if (assetIsCollectible) dispatch(putCollectiblesMetadataAction(actionPayload));
+        else dispatch(putTokensMetadataAction(actionPayload));
+
+        const asset = {
+          chainId,
+          account: accountPkh,
+          slug: tokenSlug,
+          status: 'enabled' as const
+        };
+
+        dispatch(assetIsCollectible ? putCollectiblesAsIsAction([asset]) : putTokensAsIsAction([asset]));
 
         swrCache.delete(unstable_serialize(getBalanceSWRKey(tezos, tokenSlug, accountPkh)));
 
@@ -325,7 +329,7 @@ const Form: FC = () => {
       )}
     </form>
   );
-};
+});
 
 type BottomSectionProps = Pick<FormContextValues, 'register' | 'errors' | 'formState'> & {
   submitError?: ReactNode;

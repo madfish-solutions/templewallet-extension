@@ -1,5 +1,7 @@
 import Fuse from 'fuse.js';
 
+export const isSearchStringApplicable = (searchString: string) => Boolean(searchString.trim());
+
 export function searchAndFilterItems<T, S>(
   items: T[],
   searchString: string,
@@ -7,7 +9,7 @@ export function searchAndFilterItems<T, S>(
   prepare?: null | ((item: T) => S),
   threshold = 0.1
 ) {
-  if (!searchString) return items;
+  if (!isSearchStringApplicable(searchString)) return [...items];
 
   const searchable = prepare ? items.map(prepare) : items;
 
@@ -18,5 +20,5 @@ export function searchAndFilterItems<T, S>(
 
   const result = fuse.search(searchString);
 
-  return items.filter((_, index) => result.some(({ refIndex }) => refIndex === index));
+  return result.map(({ refIndex }) => items[refIndex]!);
 }

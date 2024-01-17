@@ -11,20 +11,22 @@ import {
   useAllCollectiblesDetailsLoadingSelector,
   useCollectibleDetailsSelector
 } from 'app/store/collectibles/selectors';
-import { useTokenMetadataSelector } from 'app/store/tokens-metadata/selectors';
+import { useCollectibleMetadataSelector } from 'app/store/collectibles-metadata/selectors';
 import AddressChip from 'app/templates/AddressChip';
 import OperationStatus from 'app/templates/OperationStatus';
 import { TabsBar } from 'app/templates/TabBar';
-import { objktCurrencies } from 'lib/apis/objkt';
+import { fetchCollectibleExtraDetails, objktCurrencies } from 'lib/apis/objkt';
+import { fromAssetSlug } from 'lib/assets';
 import { BLOCK_DURATION } from 'lib/fixed-times';
 import { t, T } from 'lib/i18n';
+import { buildTokenImagesStack } from 'lib/images-uri';
 import { getAssetName } from 'lib/metadata';
+import { useRetryableSWR } from 'lib/swr';
 import { useAccount } from 'lib/temple/front';
-import { formatTcInfraImgUri } from 'lib/temple/front/image-uri';
 import { atomsToTokens } from 'lib/temple/helpers';
 import { TempleAccountType } from 'lib/temple/types';
 import { useInterval } from 'lib/ui/hooks';
-import { Image } from 'lib/ui/Image';
+import { ImageStacked } from 'lib/ui/ImageStacked';
 import { navigate } from 'lib/woozie';
 
 import { useCollectibleSelling } from '../hooks/use-collectible-selling.hook';
@@ -41,11 +43,22 @@ interface Props {
 }
 
 const CollectiblePage = memo<Props>(({ assetSlug }) => {
-  const metadata = useTokenMetadataSelector(assetSlug);
+  const metadata = useCollectibleMetadataSelector(assetSlug); // Loaded only, if shown in grid for now
   const details = useCollectibleDetailsSelector(assetSlug);
   const areAnyCollectiblesDetailsLoading = useAllCollectiblesDetailsLoadingSelector();
 
   const account = useAccount();
+
+  const [contractAddress, tokenId] = fromAssetSlug(assetSlug);
+
+  const { data: extraDetails } = useRetryableSWR(
+    ['fetchCollectibleExtraDetails', contractAddress, tokenId],
+    () => (tokenId ? fetchCollectibleExtraDetails(contractAddress, tokenId) : Promise.resolve(null)),
+    {
+      refreshInterval: DETAILS_SYNC_INTERVAL
+    }
+  );
+  const offers = extraDetails?.offers_active;
 
   const { publicKeyHash } = account;
   const accountCanSign = account.type !== TempleAccountType.WatchOnly;
@@ -58,7 +71,7 @@ const CollectiblePage = memo<Props>(({ assetSlug }) => {
     () =>
       details && {
         title: details.galleries[0]?.title ?? details.fa.name,
-        logo: [formatTcInfraImgUri(details.fa.logo, 'small'), formatTcInfraImgUri(details.fa.logo, 'medium')]
+        logo: buildTokenImagesStack(details.fa.logo)
       },
     [details]
   );
@@ -66,8 +79,8 @@ const CollectiblePage = memo<Props>(({ assetSlug }) => {
   const creators = details?.creators ?? [];
 
   const takableOffer = useMemo(
-    () => details?.offers.find(({ buyer_address }) => buyer_address !== publicKeyHash),
-    [details, publicKeyHash]
+    () => offers?.find(({ buyer_address }) => buyer_address !== publicKeyHash),
+    [offers, publicKeyHash]
   );
 
   const {
@@ -86,7 +99,7 @@ const CollectiblePage = memo<Props>(({ assetSlug }) => {
   ]);
 
   const displayedOffer = useMemo(() => {
-    const highestOffer = details?.offers[0];
+    const highestOffer = offers?.[0];
     if (!isDefined(highestOffer)) return null;
 
     const offer = takableOffer ?? highestOffer;
@@ -99,7 +112,7 @@ const CollectiblePage = memo<Props>(({ assetSlug }) => {
     const price = atomsToTokens(offer.price, currency.decimals);
 
     return { price, symbol: currency.symbol, buyerIsMe };
-  }, [details?.offers, takableOffer, publicKeyHash]);
+  }, [offers, takableOffer, publicKeyHash]);
 
   const sellButtonTooltipStr = useMemo(() => {
     if (!displayedOffer) return;
@@ -162,7 +175,7 @@ const CollectiblePage = memo<Props>(({ assetSlug }) => {
             {collection && (
               <div className="flex justify-between items-center">
                 <div className="flex items-center justify-center rounded">
-                  <Image src={collection?.logo} className="w-6 h-6 rounded border border-gray-300" />
+                  <ImageStacked sources={collection.logo} className="w-6 h-6 rounded border border-gray-300" />
                   <div className="content-center ml-2 text-gray-910 text-sm">{collection?.title ?? ''}</div>
                 </div>
               </div>

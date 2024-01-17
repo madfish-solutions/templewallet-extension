@@ -42,8 +42,8 @@ export const AudioCollectible: FC<Props> = ({ uri, metadata, className, style, l
         fallback={<CollectibleImageFallback large isAudioCollectible />}
         className={className}
         style={style}
-        onLoad={handleImageLoaded}
-        onError={handleImageLoaded}
+        onStackLoaded={handleImageLoaded}
+        onStackFailed={handleImageLoaded}
       />
 
       {!ready && loader}

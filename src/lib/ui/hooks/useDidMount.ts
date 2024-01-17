@@ -1,9 +1,3 @@
 import { useEffect } from 'react';
 
-export function useDidMount(callback: EmptyFn) {
-  useEffect(() => {
-    if (typeof callback === 'function') {
-      callback();
-    }
-  }, []);
-}
+export const useDidMount = (callback: EmptyFn) => useEffect(() => void callback(), []);

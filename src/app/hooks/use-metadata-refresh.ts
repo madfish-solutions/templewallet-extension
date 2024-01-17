@@ -3,10 +3,10 @@ import { useEffect, useMemo } from 'react';
 import { useDispatch } from 'react-redux';
 
 import { refreshTokensMetadataAction } from 'app/store/tokens-metadata/actions';
-import { useTokensMetadataSelector } from 'app/store/tokens-metadata/selectors';
+import { useAllTokensMetadataSelector } from 'app/store/tokens-metadata/selectors';
 import { fetchTokensMetadata } from 'lib/apis/temple';
-import { TokenMetadata } from 'lib/metadata';
-import { buildTokenMetadataFromFetched } from 'lib/metadata/utils';
+import { ALL_PREDEFINED_METADATAS_RECORD } from 'lib/assets/known-tokens';
+import { reduceToMetadataRecord } from 'lib/metadata/fetch';
 import { useChainId } from 'lib/temple/front';
 import { TempleChainId } from 'lib/temple/types';
 import { useLocalStorage } from 'lib/ui/local-storage';
@@ -23,8 +23,11 @@ export const useMetadataRefresh = () => {
 
   const [records, setRecords] = useLocalStorage<RefreshRecords>(STORAGE_KEY, {});
 
-  const tokensMetadata = useTokensMetadataSelector();
-  const slugsOnAppLoad = useMemo(() => Object.keys(tokensMetadata), []);
+  const tokensMetadata = useAllTokensMetadataSelector();
+  const slugsOnAppLoad = useMemo(
+    () => Object.keys(tokensMetadata).filter(slug => !ALL_PREDEFINED_METADATAS_RECORD[slug]),
+    []
+  );
 
   useEffect(() => {
     const lastVersion = records[chainId];
@@ -38,27 +41,15 @@ export const useMetadataRefresh = () => {
       return;
     }
 
-    if (!needToSetVersion) return;
+    if (!needToSetVersion || chainId !== TempleChainId.Mainnet) return;
 
-    if (chainId === TempleChainId.Mainnet) {
-      fetchTokensMetadata(chainId, slugsOnAppLoad)
-        .then(data =>
-          data.reduce<TokenMetadata[]>((acc, token, index) => {
-            const slug = slugsOnAppLoad[index]!;
-            const [address, id] = slug.split('_');
-
-            const metadata = buildTokenMetadataFromFetched(token, address, Number(id));
-
-            return metadata ? acc.concat(metadata) : acc;
-          }, [])
-        )
-        .then(
-          data => {
-            if (data.length) dispatch(refreshTokensMetadataAction(data));
-            setLastVersion();
-          },
-          error => console.error(error)
-        );
-    }
+    fetchTokensMetadata(chainId, slugsOnAppLoad).then(
+      data => {
+        const record = reduceToMetadataRecord(slugsOnAppLoad, data);
+        dispatch(refreshTokensMetadataAction(record));
+        setLastVersion();
+      },
+      error => console.error(error)
+    );
   }, [chainId]);
 };
