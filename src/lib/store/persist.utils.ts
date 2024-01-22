@@ -1,6 +1,7 @@
-import type { Transform } from 'redux-persist';
+import { getStoredState, PersistConfig, type Transform, type PersistedState } from 'redux-persist';
+import storage from 'redux-persist/lib/storage';
 
-export const getPersistStorageKey = (key: string) => `persist:${key}`;
+import Storage from './storage';
 
 export const PERSIST_STATE_KEY = '_persist';
 
@@ -54,4 +55,25 @@ export const createTransformsBeforeHydrate = <S extends object>(
   };
 
   return transform;
+};
+
+/**
+ * See: https://github.com/rt2zz/redux-persist/issues/806#issuecomment-695053978
+ */
+const getStoredStateToMigrateStorage = async (config: PersistConfig<any>) => {
+  // Reading from current storage
+  let state = await getStoredState(config);
+  if (state) {
+    return state as PersistedState;
+  }
+
+  // Falling back to old. Not cleaning it just for extra caution.
+  state = await getStoredState({ ...config, storage });
+
+  return state as PersistedState;
+};
+
+export const storageConfig = {
+  storage: Storage,
+  getStoredState: getStoredStateToMigrateStorage
 };
