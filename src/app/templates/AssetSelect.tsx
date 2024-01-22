@@ -93,7 +93,7 @@ const AssetSelectTitle: FC = () => (
   </h2>
 );
 
-const AssetFieldContent: FC<{ slug: string } & TestIDProperty> = ({ slug, testID }) => {
+const AssetFieldContent = memo<{ slug: string } & TestIDProperty>(({ slug, testID }) => {
   const account = useAccount();
   const metadata = useAssetMetadata(slug);
 
@@ -125,7 +125,7 @@ const AssetFieldContent: FC<{ slug: string } & TestIDProperty> = ({ slug, testID
       </Balance>
     </div>
   );
-};
+});
 
 const AssetOptionContent: FC<{ slug: string; selected: boolean }> = ({ slug, selected }) => (
   <div
