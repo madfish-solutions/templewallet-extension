@@ -1,7 +1,7 @@
 import { getStoredState, PersistConfig, type Transform, type PersistedState } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 
-import Storage from './storage';
+import { ReduxPersistStorage } from './storage';
 
 export const PERSIST_STATE_KEY = '_persist';
 
@@ -68,12 +68,20 @@ const getStoredStateToMigrateStorage = async (config: PersistConfig<any>) => {
   }
 
   // Falling back to old. Not cleaning it just for extra caution.
-  state = await getStoredState({ ...config, storage });
+  state = await getStoredState({
+    ...config,
+    serialize: true,
+    // @ts-expect-error // For absent definition
+    deserialize: true,
+    storage
+  });
 
   return state as PersistedState;
 };
 
 export const storageConfig = {
-  storage: Storage,
+  storage: ReduxPersistStorage,
+  serialize: false,
+  deserialize: false,
   getStoredState: getStoredStateToMigrateStorage
 };

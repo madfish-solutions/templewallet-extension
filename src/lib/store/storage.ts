@@ -1,12 +1,12 @@
-import { type WebStorage } from 'redux-persist';
+import { type Storage as StorageInterface } from 'redux-persist';
 import browser from 'webextension-polyfill';
 
-const LocalStorageLikeExtensionLocalStorage: WebStorage = {
+export const ReduxPersistStorage: StorageInterface = {
   getItem(key: string) {
     return browser.storage.local.get(key).then(records => records[key] ?? null);
   },
 
-  setItem(key: string, value: string) {
+  setItem(key: string, value: any) {
     return browser.storage.local.set({ [key]: value });
   },
 
@@ -14,5 +14,3 @@ const LocalStorageLikeExtensionLocalStorage: WebStorage = {
     return browser.storage.local.remove(key);
   }
 };
-
-export default LocalStorageLikeExtensionLocalStorage;
