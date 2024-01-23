@@ -218,10 +218,10 @@ const ExtraInner: React.FC<ExtraInnerProps> = ({ useDefaultWrapper, innerCompone
       <div
         className={classNames(
           'absolute flex items-center justify-end inset-y-0 right-0 w-32',
-          'opacity-50 pointer-events-none overflow-hidden'
+          'opacity-50 pointer-events-none'
         )}
       >
-        <span className="mx-4 text-lg font-light text-gray-900">{innerComponent}</span>
+        <div className="mx-4 text-lg font-light text-gray-900">{innerComponent}</div>
       </div>
     );
   return <>{innerComponent}</>;
