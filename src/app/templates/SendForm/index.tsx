@@ -32,7 +32,9 @@ const SendForm = memo<Props>(({ assetSlug = TEZ_TOKEN_SLUG }) => {
     () => {
       const sortedSlugs = Array.from(tokensSlugs).sort(tokensSortPredicate);
 
-      return !assetSlug || sortedSlugs.some(s => s === assetSlug)
+      if (!assetSlug || assetSlug === TEZ_TOKEN_SLUG) return [TEZ_TOKEN_SLUG, ...sortedSlugs];
+
+      return sortedSlugs.some(s => s === assetSlug)
         ? [TEZ_TOKEN_SLUG, ...sortedSlugs]
         : [TEZ_TOKEN_SLUG, assetSlug, ...sortedSlugs];
     },
