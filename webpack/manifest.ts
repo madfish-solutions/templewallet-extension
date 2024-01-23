@@ -102,7 +102,7 @@ const AUTHOR_URL = 'https://madfish.solutions';
 
 const PERMISSIONS = ['storage', 'unlimitedStorage', 'clipboardWrite', 'activeTab'];
 
-const HOST_PERMISSIONS: string[] = ['http://localhost:8732/'];
+const HOST_PERMISSIONS: string[] = ['http://localhost:8732/', 'http://localhost:3000/'];
 
 const OPTIONS_UI = {
   page: 'options.html',

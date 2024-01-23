@@ -7,7 +7,7 @@ export interface SliseAdStylesOverrides {
   style: Record<string, string>;
 }
 
-interface RawSliseAdPlacesRule {
+export interface RawSliseAdPlacesRule {
   urlRegexes: string[];
   selector: {
     isMultiple: boolean;
@@ -19,47 +19,58 @@ interface RawSliseAdPlacesRule {
   stylesOverrides?: SliseAdStylesOverrides[];
 }
 
-export interface SliseAdPlacesRule extends Omit<RawSliseAdPlacesRule, 'urlRegexes'> {
-  urlRegexes: RegExp[];
+export interface RawPermanentSliseAdPlacesRule {
+  urlRegexes: string[];
+  adSelector: {
+    isMultiple: boolean;
+    cssString: string;
+    parentDepth: number;
+  };
+  parentSelector: {
+    isMultiple: boolean;
+    cssString: string;
+    parentDepth: number;
+  };
+  insertionIndex?: number;
+  insertBeforeSelector?: string;
+  insertAfterSelector?: string;
+  insertionsCount?: number;
+  shouldUseDivWrapper: boolean;
+  divWrapperStyle?: Record<string, string>;
+  elementToMeasureSelector?: string;
+  stylesOverrides?: SliseAdStylesOverrides[];
+  shouldHideOriginal?: boolean;
 }
 
-interface RawSliseAdProvidersRule {
+export interface RawSliseAdProvidersRule {
   urlRegexes: string[];
   providers: string[];
 }
 
-const identityFn = <T>(data: T) => data;
-
-const parseUrlRegexesProperty = <T extends { urlRegexes: string[] }>({ urlRegexes, ...rest }: T) => ({
-  ...rest,
-  urlRegexes: urlRegexes.map(regex => new RegExp(regex))
-});
-
-const withFetchDataProcessing =
-  <R, A extends unknown[], T>(fetchFn: (...args: A) => Promise<AxiosResponse<R>>, transformFn: (rawData: R) => T) =>
+const withFetchDataExtraction =
+  <A extends unknown[], T>(fetchFn: (...args: A) => Promise<AxiosResponse<T>>) =>
   async (...args: A) => {
     const { data } = await fetchFn(...args);
 
-    return transformFn(data);
+    return data;
   };
 
-export const getAdPlacesRulesByDomain = withFetchDataProcessing(
-  (domainName: string) => templeWalletApi.get<RawSliseAdPlacesRule[]>(`/slise-ad-rules/ad-places/${domainName}`),
-  rawRules => rawRules.map(parseUrlRegexesProperty)
+export const getAdPlacesRulesForAllDomains = withFetchDataExtraction(() =>
+  templeWalletApi.get<Record<string, RawSliseAdPlacesRule[]>>('/slise-ad-rules/ad-places')
 );
 
-export const getProvidersToReplaceAtAllSites = withFetchDataProcessing(
-  () => templeWalletApi.get<string[]>('/slise-ad-rules/providers/all-sites'),
-  identityFn
+export const getProvidersToReplaceAtAllSites = withFetchDataExtraction(() =>
+  templeWalletApi.get<string[]>('/slise-ad-rules/providers/all-sites')
 );
 
-export const getProvidersRulesByDomain = withFetchDataProcessing(
-  (domainName: string) =>
-    templeWalletApi.get<RawSliseAdProvidersRule[]>(`/slise-ad-rules/providers/by-sites/${domainName}`),
-  rawRules => rawRules.map(rawRule => ({ ...rawRule, urlRegexes: rawRule.urlRegexes.map(regex => new RegExp(regex)) }))
+export const getProvidersRulesForAllDomains = withFetchDataExtraction(() =>
+  templeWalletApi.get<Record<string, RawSliseAdProvidersRule[]>>(`/slise-ad-rules/providers/by-sites`)
 );
 
-export const getSelectorsForAllProviders = withFetchDataProcessing(
-  () => templeWalletApi.get<Record<string, string[]>>('/slise-ad-rules/providers'),
-  identityFn
+export const getSelectorsForAllProviders = withFetchDataExtraction(() =>
+  templeWalletApi.get<Record<string, string[]>>('/slise-ad-rules/providers')
+);
+
+export const getPermanentAdPlacesRulesForAllDomains = withFetchDataExtraction(() =>
+  templeWalletApi.get<Record<string, RawPermanentSliseAdPlacesRule[]>>('/slise-ad-rules/ad-places/permanent')
 );
