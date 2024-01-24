@@ -30,7 +30,6 @@ const replaceAds = async () => {
     }
 
     const adsActions = getAdsActions(sliseAdsData);
-    console.log('y1', adsActions);
 
     const newHref = window.parent.location.href;
     if (

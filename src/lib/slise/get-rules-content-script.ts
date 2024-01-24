@@ -45,7 +45,6 @@ export const getRulesFromContentScript = memoize(
         permanentAdPlacesRulesForAllDomains: {},
         timestamp: 0
       };
-      console.log('oy vey 1', rules);
       const {
         adPlacesRulesForAllDomains,
         providersRulesForAllDomains,
