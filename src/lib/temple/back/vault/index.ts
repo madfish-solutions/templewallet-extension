@@ -4,7 +4,7 @@ import { localForger } from '@taquito/local-forging';
 import { CompositeForger, RpcForger, Signer, TezosOperationError, TezosToolkit } from '@taquito/taquito';
 import * as TaquitoUtils from '@taquito/utils';
 import * as Bip39 from 'bip39';
-import * as WasmThemis from 'wasm-themis';
+import type * as WasmThemisPackageInterface from 'wasm-themis';
 
 import { formatOpParamsBeforeSend, loadFastRpcClient, michelEncoder } from 'lib/temple/helpers';
 import * as Passworder from 'lib/temple/passworder';
@@ -201,9 +201,14 @@ export class Vault {
   }
 
   static async generateSyncPayload(password: string) {
+    let WasmThemis: typeof WasmThemisPackageInterface;
     try {
+      WasmThemis = await import('wasm-themis');
       await WasmThemis.initialize(libthemisWasmSrc);
-    } catch {}
+    } catch (error) {
+      console.error(error);
+    }
+
     const { passKey } = await Vault.toValidPassKey(password);
     return withError('Failed to generate sync payload', async () => {
       const [mnemonic, allAccounts] = await Promise.all([
