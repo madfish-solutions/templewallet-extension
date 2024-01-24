@@ -13,6 +13,12 @@ import {
   SimpleInsertAdAction
 } from './types';
 
+const sliseAdQuerySelector = `ins.adsbyslise[data-ad-pub="${SLISE_PUBLISHER_ID}"]`;
+
+const elementIsOurSliseAd = (element: HTMLElement) =>
+  (element.className.includes('adsbyslise') && element.getAttribute('data-ad-pub') === SLISE_PUBLISHER_ID) ||
+  element.getAttribute('slise-ad-container');
+
 export const getAdsActions = ({ providersSelector, adPlacesRules, permanentAdPlacesRules }: SliseAdsRules) => {
   const result: AdAction[] = [];
   const addActionsIfAdRectAvailable = (
@@ -23,7 +29,6 @@ export const getAdsActions = ({ providersSelector, adPlacesRules, permanentAdPla
   ) => {
     const { width, height } = getFinalSize(elementToMeasure);
     const adRect = pickAdRect(width, height, shouldUseStrictContainerLimits, minContainerWidthIsBannerWidth);
-    console.log('x1', elementToMeasure, shouldUseStrictContainerLimits, width, height, adRect, actionsBases);
 
     if (adRect) {
       result.push(
@@ -68,7 +73,6 @@ export const getAdsActions = ({ providersSelector, adPlacesRules, permanentAdPla
       const parents = applyQuerySelector<HTMLElement>(parentCssString, shouldSearchForManyParents)
         .map(element => getParentOfDepth(element, parentParentDepth))
         .filter((value): value is HTMLElement => Boolean(value));
-      console.log('x2', adSelector, parentSelector, parents);
       permanentAdsParents = permanentAdsParents.concat(parents);
       parents.forEach(parent => {
         const sliseAdsCount = applyQuerySelector(
@@ -77,17 +81,12 @@ export const getAdsActions = ({ providersSelector, adPlacesRules, permanentAdPla
           parent
         ).length;
         let insertionsLeft = insertionsCount - sliseAdsCount;
-        console.log('x3', parent, insertionsCount, sliseAdsCount);
 
         const banners = applyQuerySelector<HTMLElement>(bannerCssString, shouldSearchForManyBannersInParent, parent)
           .map(element => getParentOfDepth(element, bannerParentDepth))
           .filter((value): value is HTMLElement => Boolean(value));
-        console.log('x4', banners);
         banners.forEach(banner => {
-          console.log('x5', banner, insertionsLeft);
-          // Extra logic for increasing reliability
           if (insertionsLeft <= 0) {
-            console.log('x6');
             const { display: bannerDisplay } = window.getComputedStyle(banner);
             if (!shouldHideOriginal || bannerDisplay !== 'none') {
               result.push({
@@ -100,13 +99,6 @@ export const getAdsActions = ({ providersSelector, adPlacesRules, permanentAdPla
             if (elementToMeasureSelector) {
               elementToMeasure = document.querySelector(elementToMeasureSelector) ?? elementToMeasure;
             }
-            console.log(
-              'x7',
-              banner.parentElement,
-              banner.parentElement?.children,
-              elementToMeasureSelector,
-              elementToMeasure
-            );
             const replaceActionBase: Omit<ReplaceElementWithAdAction, 'adRect'> = {
               type: AdActionType.ReplaceElement,
               element: banner,
@@ -145,7 +137,6 @@ export const getAdsActions = ({ providersSelector, adPlacesRules, permanentAdPla
         });
 
         if (insertionsLeft <= 0) {
-          console.log('x8');
           return;
         }
 
@@ -156,7 +147,6 @@ export const getAdsActions = ({ providersSelector, adPlacesRules, permanentAdPla
         if (insertAnchorSelector) {
           const insertAnchorElement = parent.querySelector(insertAnchorSelector);
           const newInsertionParentElement = insertAnchorElement?.parentElement;
-          console.log('x9', insertBeforeSelector, insertAfterSelector, insertAnchorElement, newInsertionParentElement);
 
           if (insertAnchorElement && newInsertionParentElement) {
             insertionParentElement = newInsertionParentElement;
@@ -165,7 +155,6 @@ export const getAdsActions = ({ providersSelector, adPlacesRules, permanentAdPla
             elementToMeasure =
               (elementToMeasureSelector && document.querySelector(elementToMeasureSelector)) ||
               (insertAnchorElement as HTMLElement);
-            console.log('x10', normalizedInsertionIndex);
           }
         } else {
           const insertionIndexWithDefault = insertionIndex ?? 0;
@@ -176,7 +165,6 @@ export const getAdsActions = ({ providersSelector, adPlacesRules, permanentAdPla
           elementToMeasure =
             (elementToMeasureSelector && document.querySelector(elementToMeasureSelector)) ||
             ((parent.children[normalizedInsertionIndex] as HTMLElement | undefined) ?? parent);
-          console.log('x11', normalizedInsertionIndex, parent.children[normalizedInsertionIndex], elementToMeasure);
         }
 
         if (normalizedInsertionIndex !== -1) {
@@ -207,23 +195,32 @@ export const getAdsActions = ({ providersSelector, adPlacesRules, permanentAdPla
     selectedElements.forEach(selectedElement => {
       const banner = getParentOfDepth(selectedElement, parentDepth);
 
-      if (!banner || permanentAdsParents.some(parent => parent.contains(banner))) {
+      if (
+        !banner ||
+        permanentAdsParents.some(parent => parent.contains(banner)) ||
+        elementIsOurSliseAd(banner) ||
+        banner.querySelector(sliseAdQuerySelector)
+      ) {
         return;
       }
 
       const actionBaseCommonProps = {
         shouldUseDivWrapper,
-        divWrapperStyle,
-        stylesOverrides
+        divWrapperStyle
       };
       const replaceElementActionBase: Omit<ReplaceElementWithAdAction, 'adRect'> = {
         type: AdActionType.ReplaceElement,
         element: banner,
+        stylesOverrides: stylesOverrides?.map(({ parentDepth, ...restProps }) => ({
+          ...restProps,
+          parentDepth: parentDepth - 1
+        })),
         ...actionBaseCommonProps
       };
       const replaceAllChildrenActionBase: Omit<ReplaceAllChildrenWithAdAction, 'adRect'> = {
         type: AdActionType.ReplaceAllChildren,
         parent: banner,
+        stylesOverrides,
         ...actionBaseCommonProps
       };
       const actionBase: Omit<InsertAdAction, 'adRect'> = shouldUseDivWrapper
@@ -234,16 +231,13 @@ export const getAdsActions = ({ providersSelector, adPlacesRules, permanentAdPla
   });
 
   const bannersFromProviders = applyQuerySelector(providersSelector, true);
-  console.log('x11', bannersFromProviders);
   bannersFromProviders.forEach(banner => {
     const elementToMeasure =
       banner.parentElement?.closest<HTMLElement>('div, article, aside, footer, header') ??
       banner.parentElement ??
       banner;
-    console.log('x12', banner, elementToMeasure);
 
     if (!permanentAdsParents.some(parent => parent.contains(banner))) {
-      console.log('x13');
       const actionBase: Omit<ReplaceElementWithAdAction, 'adRect'> = {
         type: AdActionType.ReplaceElement,
         element: banner as HTMLElement,
