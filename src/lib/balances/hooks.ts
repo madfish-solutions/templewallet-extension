@@ -1,12 +1,22 @@
 import { useCallback, useMemo } from 'react';
 
 import BigNumber from 'bignumber.js';
+import { useDispatch } from 'react-redux';
 
-import { useAllBalancesSelector, useBalanceSelector } from 'app/store/balances/selectors';
+import { subscribeToActions } from 'app/store';
+import { loadAssetsBalancesActions } from 'app/store/balances/actions';
+import {
+  useAllAccountsAndChainsBalancesSelector,
+  useAllBalancesSelector,
+  useBalanceSelector
+} from 'app/store/balances/selectors';
+import { getKeyForBalancesRecord } from 'app/store/balances/utils';
+import { isKnownChainId } from 'lib/apis/tzkt';
+import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { ASSETS_SYNC_INTERVAL } from 'lib/fixed-times';
 import { useAssetMetadata, useGetTokenOrGasMetadata } from 'lib/metadata';
 import { useRetryableSWR } from 'lib/swr';
-import { useTezos, useAccount, useChainId, ReactiveTezosToolkit } from 'lib/temple/front';
+import { useTezos, useAccount, useChainId, ReactiveTezosToolkit, useCustomChainId } from 'lib/temple/front';
 import { michelEncoder, loadFastRpcClient, atomsToTokens } from 'lib/temple/helpers';
 
 import { fetchBalance } from './fetch';
@@ -49,8 +59,24 @@ type UseBalanceOptions = {
 };
 
 export function useBalance(assetSlug: string, address: string, opts: UseBalanceOptions = {}) {
+  const dispatch = useDispatch();
   const nativeTezos = useTezos();
+  const nativeRpcUrl = useMemo(() => nativeTezos.rpc.getRpcUrl(), [nativeTezos]);
+  const { suspense = true, networkRpc = nativeRpcUrl, displayed = true, initial: fallbackData } = opts;
+  const chainId = useCustomChainId(networkRpc, opts.suspense);
   const assetMetadata = useAssetMetadata(assetSlug);
+  const allBalances = useAllAccountsAndChainsBalancesSelector();
+
+  const convertRawBalance = useCallback(
+    (rawBalance: string | undefined) => {
+      if (!assetMetadata) {
+        throw new Error('Metadata missing, when fetching balance');
+      }
+
+      return rawBalance ? atomsToTokens(new BigNumber(rawBalance), assetMetadata.decimals) : undefined;
+    },
+    [assetMetadata]
+  );
 
   const tezos = useMemo(() => {
     if (opts.networkRpc) {
@@ -63,17 +89,86 @@ export function useBalance(assetSlug: string, address: string, opts: UseBalanceO
   }, [opts.networkRpc, nativeTezos]);
 
   const fetchBalanceLocal = useCallback(async () => {
-    if (assetMetadata) return fetchBalance(tezos, assetSlug, address, assetMetadata);
-    throw new Error('Metadata missing, when fetching balance');
-  }, [tezos, address, assetSlug, assetMetadata]);
+    const freshChainId = chainId ?? (await tezos.rpc.getChainId());
 
-  const displayed = opts.displayed ?? true;
+    if (!assetMetadata) {
+      throw new Error('Metadata missing, when fetching balance');
+    }
 
-  return useRetryableSWR(displayed ? getBalanceSWRKey(tezos, assetSlug, address) : null, fetchBalanceLocal, {
-    suspense: opts.suspense ?? true,
-    revalidateOnFocus: false,
-    dedupingInterval: 20_000,
-    fallbackData: opts.initial,
-    refreshInterval: ASSETS_SYNC_INTERVAL
-  });
+    if (!isKnownChainId(freshChainId) || assetSlug === TEZ_TOKEN_SLUG) {
+      return fetchBalance(tezos, assetSlug, address, assetMetadata);
+    }
+
+    const publicKeyHashWithChainId = getKeyForBalancesRecord(address, freshChainId);
+    const accountBalances = allBalances[publicKeyHashWithChainId]?.data ?? {};
+    const balancesAreEmpty = Object.keys(accountBalances).length === 0;
+    const balanceRawError = allBalances[publicKeyHashWithChainId]?.error;
+    const balanceLoading = allBalances[publicKeyHashWithChainId]?.isLoading;
+    const alreadyFetchedBalance = convertRawBalance(accountBalances[assetSlug]);
+
+    if (alreadyFetchedBalance) {
+      return alreadyFetchedBalance;
+    }
+
+    if (balanceRawError) {
+      throw new Error(balanceRawError);
+    }
+
+    if (!balanceLoading && balancesAreEmpty) {
+      dispatch(loadAssetsBalancesActions.submit({ publicKeyHash: address, chainId: freshChainId }));
+    }
+
+    return new Promise<BigNumber>((res, rej) => {
+      const unsubscribe = subscribeToActions(action => {
+        switch (action.type) {
+          case loadAssetsBalancesActions.success.type:
+            const successAction = action as ReturnType<typeof loadAssetsBalancesActions.success>;
+            const { publicKeyHash: newBalancesAddress, chainId: newBalancesChainId } = successAction.payload;
+            if (newBalancesAddress === address && newBalancesChainId === freshChainId) {
+              res(convertRawBalance(successAction.payload.balances[assetSlug]) ?? new BigNumber(0));
+              unsubscribe();
+            }
+            break;
+          case loadAssetsBalancesActions.fail.type:
+            const errorAction = action as ReturnType<typeof loadAssetsBalancesActions.fail>;
+            const { publicKeyHash: failedBalancesAddress, chainId: failedBalancesChainId } = errorAction.payload;
+            if (failedBalancesAddress === address && failedBalancesChainId === freshChainId) {
+              rej(new Error(errorAction.payload.error));
+              unsubscribe();
+            }
+        }
+      });
+    });
+  }, [chainId, tezos, assetMetadata, assetSlug, address, allBalances, convertRawBalance, dispatch]);
+
+  const swrResponse = useRetryableSWR(
+    displayed ? getBalanceSWRKey(tezos, assetSlug, address) : null,
+    fetchBalanceLocal,
+    {
+      suspense,
+      revalidateOnFocus: false,
+      dedupingInterval: 20_000,
+      fallbackData,
+      refreshInterval: isKnownChainId(chainId) ? 1000 : ASSETS_SYNC_INTERVAL
+    }
+  );
+  const { data, error, isValidating, isLoading } = swrResponse;
+
+  const updateBalance = useCallback(async () => {
+    const newBalance = await fetchBalanceLocal();
+    swrResponse.mutate(newBalance);
+
+    return newBalance;
+  }, [fetchBalanceLocal, swrResponse]);
+
+  return useMemo(
+    () => ({
+      data,
+      error,
+      isValidating,
+      isLoading,
+      updateBalance
+    }),
+    [data, error, isLoading, isValidating, updateBalance]
+  );
 }

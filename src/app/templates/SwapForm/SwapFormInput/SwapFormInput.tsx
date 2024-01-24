@@ -63,7 +63,7 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
 
   const account = useAccount();
   const balance = useBalance(assetSlugWithFallback, account.publicKeyHash, { suspense: false });
-  useOnBlock(_ => balance.mutate());
+  useOnBlock(() => balance.updateBalance());
 
   const { isLoading, route3tokensSlugs } = useAvailableRoute3TokensSlugs();
   const { filteredAssets, searchValue, setSearchValue, setTokenId } = useTokensListingLogic(
@@ -278,7 +278,6 @@ const SwapInputHeader: FC<{ label: ReactNode; selectedAssetSlug: string; selecte
 }) => {
   const account = useAccount();
   const balance = useBalance(selectedAssetSlug, account.publicKeyHash, { suspense: false });
-  useOnBlock(_ => balance.mutate());
 
   return (
     <div className="w-full flex items-center justify-between">
@@ -310,7 +309,6 @@ const SwapFooter: FC<{
 }> = ({ amountInputDisabled, selectedAssetSlug, handlePercentageClick }) => {
   const account = useAccount();
   const balance = useBalance(selectedAssetSlug, account.publicKeyHash, { suspense: false });
-  useOnBlock(_ => balance.mutate());
 
   return amountInputDisabled ? null : (
     <div className="flex">

@@ -1,17 +1,23 @@
 import { useMemo } from 'react';
 
 import { TEZOS_METADATA, FILM_METADATA } from 'lib/metadata/defaults';
-import { useNetwork } from 'lib/temple/front';
+import { useCustomChainId, useNetwork } from 'lib/temple/front';
 
 export { useAllAvailableTokens, useEnabledAccountTokensSlugs } from './tokens';
 export { useAccountCollectibles, useEnabledAccountCollectiblesSlugs } from './collectibles';
 
-export const useGasToken = () => {
-  const { type } = useNetwork();
+const KNOWN_DCP_CHAIN_IDS = ['NetXooyhiru73tk', 'NetXX7Tz1sK8JTa'];
+
+export const useGasToken = (networkRpc?: string) => {
+  const { type: defaultNetworkType, rpcBaseURL } = useNetwork();
+  const isSameRpcURL = networkRpc === rpcBaseURL;
+  const chainId = useCustomChainId(networkRpc ?? rpcBaseURL, Boolean(networkRpc) && !isSameRpcURL);
+  const isDcpNetwork =
+    networkRpc && !isSameRpcURL ? KNOWN_DCP_CHAIN_IDS.includes(chainId!) : defaultNetworkType === 'dcp';
 
   return useMemo(
     () =>
-      type === 'dcp'
+      isDcpNetwork
         ? {
             logo: 'misc/token-logos/film.png',
             symbol: 'ф',
@@ -25,6 +31,6 @@ export const useGasToken = () => {
             assetName: 'tez',
             metadata: TEZOS_METADATA
           },
-    [type]
+    [isDcpNetwork]
   );
 };

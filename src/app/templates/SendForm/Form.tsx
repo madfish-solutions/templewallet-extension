@@ -35,7 +35,7 @@ import InFiat from 'app/templates/InFiat';
 import { useFormAnalytics } from 'lib/analytics';
 import { isTezAsset, toPenny } from 'lib/assets';
 import { toTransferParams } from 'lib/assets/contract.utils';
-import { fetchBalance, fetchTezosBalance, useBalance } from 'lib/balances';
+import { useBalance } from 'lib/balances';
 import { useAssetFiatCurrencyPrice, useFiatCurrency } from 'lib/fiat-currency';
 import { BLOCK_DURATION } from 'lib/fixed-times';
 import { toLocalFixed, T, t } from 'lib/i18n';
@@ -100,10 +100,10 @@ export const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactReque
   const canUseDomainNames = domainsClient.isSupported;
   const accountPkh = acc.publicKeyHash;
 
-  const { data: balanceData, mutate: mutateBalance } = useBalance(assetSlug, accountPkh);
+  const { data: balanceData, updateBalance: updateTokenBalance } = useBalance(assetSlug, accountPkh);
   const balance = balanceData!;
 
-  const { data: tezBalanceData, mutate: mutateTezBalance } = useBalance('tez', accountPkh);
+  const { data: tezBalanceData, updateBalance: updateTezosBalance } = useBalance('tez', accountPkh);
   const tezBalance = tezBalanceData!;
 
   const [shoudUseFiat, setShouldUseFiat] = useSafeState(false);
@@ -210,14 +210,14 @@ export const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactReque
       const to = toResolved;
       const tez = isTezAsset(assetSlug);
 
-      const balanceBN = (await mutateBalance(fetchBalance(tezos, assetSlug, accountPkh, assetMetadata)))!;
+      const balanceBN = await updateTokenBalance();
       if (balanceBN.isZero()) {
         throw new ZeroBalanceError();
       }
 
       let tezBalanceBN: BigNumber;
       if (!tez) {
-        tezBalanceBN = (await mutateTezBalance(fetchTezosBalance(tezos, accountPkh)))!;
+        tezBalanceBN = await updateTezosBalance();
         if (tezBalanceBN.isZero()) {
           throw new ZeroTEZBalanceError();
         }
@@ -250,7 +250,7 @@ export const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactReque
       console.error(err);
       throw err;
     }
-  }, [acc, tezos, assetSlug, assetMetadata, accountPkh, toResolved, mutateBalance, mutateTezBalance]);
+  }, [assetMetadata, toResolved, assetSlug, updateTokenBalance, tezos, accountPkh, acc, updateTezosBalance]);
 
   const {
     data: baseFee,

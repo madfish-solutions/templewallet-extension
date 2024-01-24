@@ -4,6 +4,8 @@ import { getKeyForBalancesRecord } from './utils';
 
 const EMPTY_BALANCES_RECORD = {};
 
+export const useAllAccountsAndChainsBalancesSelector = () => useSelector(state => state.balances.balancesAtomic);
+
 export const useAllBalancesSelector = (publicKeyHash: string, chainId: string) => {
   const publicKeyHashWithChainId = getKeyForBalancesRecord(publicKeyHash, chainId);
 
