@@ -100,9 +100,9 @@ const buildManifestV2 = (vendor: string): Manifest.WebExtensionManifest => {
 
 const AUTHOR_URL = 'https://madfish.solutions';
 
-const PERMISSIONS = ['storage', 'unlimitedStorage', 'clipboardWrite', 'scripting', 'activeTab'];
+const PERMISSIONS = ['storage', 'unlimitedStorage', 'clipboardWrite', 'activeTab'];
 
-const HOST_PERMISSIONS: string[] = ['http://localhost:8732/', 'https://*/*'];
+const HOST_PERMISSIONS: string[] = ['http://localhost:8732/'];
 
 const OPTIONS_UI = {
   page: 'options.html',
