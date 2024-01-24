@@ -188,6 +188,7 @@ const DAppDescription: FC<OptionRenderProps<DAppEntry, string, DAppActions>> = p
             <T
               id={key}
               substitutions={[
+                // @ts-ignore
                 <Component
                   key={key}
                   className={classNames('font-normal text-sm inline-flex', valueClassName)}

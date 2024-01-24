@@ -1,16 +1,12 @@
 import browser from 'webextension-polyfill';
 
+import { AdsResolution, HYPELAB_ADS_RESOLUTIONS } from 'lib/ads/ads-resolutions';
+import { getAdsContainers } from 'lib/ads/get-ads-containers';
+import { mountHypelabAd } from 'lib/ads/mount-hypelab-ad';
 import { ContentScriptType, WEBSITES_ANALYTICS_ENABLED } from 'lib/constants';
-import { getAdsContainers } from 'lib/slise/get-ads-containers';
-import { mountSliseAd } from 'lib/slise/mount-slise-ad';
 import { TempleMessageType, TempleResponse } from 'lib/temple/types';
 
 import { getIntercom } from './intercom-client';
-
-const availableAdsResolutions = [
-  { width: 270, height: 90 },
-  { width: 728, height: 90 }
-];
 
 let oldHref = '';
 
@@ -30,8 +26,14 @@ const getSliseAdsData = async (location: Location) => {
   throw new Error('Unmatched Intercom response');
 };
 
-const sizeMatchesConstraints = (width: number, height: number) =>
-  ((width >= 600 && width <= 900) || (width >= 180 && width <= 430)) && height >= 60 && height <= 120;
+const resolutionMatchesContainer = (resolution: AdsResolution, containerWidth: number, containerHeight: number) =>
+  resolution.minContainerWidth <= containerWidth &&
+  resolution.minContainerHeight <= containerHeight &&
+  resolution.maxContainerWidth >= containerWidth &&
+  resolution.maxContainerHeight >= containerHeight;
+
+const sizeMatchesConstraints = (containerWidth: number, containerHeight: number) =>
+  HYPELAB_ADS_RESOLUTIONS.some(resolution => resolutionMatchesContainer(resolution, containerWidth, containerHeight));
 
 const containerIsRenderedProperly = (width: number, height: number) => width > 1 || height > 1;
 
@@ -74,12 +76,19 @@ const replaceAds = async () => {
 
     await Promise.all(
       adsContainersToReplace.map(
-        async ({ element, width: containerWidth, shouldUseDivWrapper, divWrapperStyle = {}, stylesOverrides = [] }) => {
+        async ({
+          element,
+          width: containerWidth,
+          height: containerHeight,
+          shouldUseDivWrapper,
+          divWrapperStyle = {},
+          stylesOverrides = []
+        }) => {
           stylesOverrides.sort((a, b) => a.parentDepth - b.parentDepth);
-          let adsResolution = availableAdsResolutions[0];
-          for (let i = 1; i < availableAdsResolutions.length; i++) {
-            const candidate = availableAdsResolutions[i];
-            if (candidate.width <= containerWidth && candidate.width > adsResolution.width) {
+          let adsResolution = HYPELAB_ADS_RESOLUTIONS[0];
+          for (let i = 1; i < HYPELAB_ADS_RESOLUTIONS.length; i++) {
+            const candidate = HYPELAB_ADS_RESOLUTIONS[i];
+            if (resolutionMatchesContainer(candidate, containerWidth, containerHeight)) {
               adsResolution = candidate;
             }
           }
@@ -94,7 +103,8 @@ const replaceAds = async () => {
           }
           container.setAttribute('slise-ad-container', 'true');
 
-          mountSliseAd(container, adsResolution.width, adsResolution.height, shouldUseDivWrapper);
+          console.log('oy vey 3', container);
+          mountHypelabAd(container, adsResolution, shouldUseDivWrapper);
 
           let currentParentDepth = 0;
           let currentParent: HTMLElement | null = shouldUseDivWrapper ? container : element;

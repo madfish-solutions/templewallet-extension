@@ -13,13 +13,12 @@ export const LoadHypelabScript: FC = () => {
     try {
       const script = document.createElement('script');
       script.setAttribute('hypelab-script', '');
-      script.src = browser.runtime.getURL('/hypelab.embed.js');
+      script.src = browser.runtime.getURL('/scripts/hypelab.embed.js');
       script.async = true;
       script.onload = () => {
-        console.log('onload');
         // @ts-ignore
         HypeLab.initialize({
-          URL: 'https://api.hypelab-staging.com',
+          URL: IS_DEV_ENV ? 'https://api.hypelab-staging.com' : 'https://api.hypelab.com',
           propertySlug: EnvVars.HYPELAB_PROPERTY_SLUG,
           environment: IS_DEV_ENV ? 'development' : 'production'
         });

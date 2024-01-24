@@ -33,7 +33,7 @@ import { isTruthy } from './webpack/utils';
 
 const ExtensionReloaderMV3 = ExtensionReloaderMV3BadlyTyped as ExtensionReloaderMV3Type;
 
-const PAGES_NAMES = ['popup', 'fullpage', 'confirm', 'options'];
+const PAGES_NAMES = ['popup', 'fullpage', 'confirm', 'options', 'hypelab-ad'];
 const HTML_TEMPLATES = PAGES_NAMES.map(name => {
   const filename = `${name}.html`;
   const path = Path.join(PATHS.PUBLIC, filename);
@@ -121,7 +121,8 @@ const mainConfig = (() => {
             Using `asset/resource` rule type with `webworker` target isn't working.
             See: https://github.com/vercel/next.js/issues/22581
           */
-          { from: PATHS.LIBTHEMIS_WASM_FILE, to: PATHS.OUTPUT_WASM }
+          { from: PATHS.LIBTHEMIS_WASM_FILE, to: PATHS.OUTPUT_WASM },
+          { from: Path.join(PATHS.SOURCE, 'hypelab.embed.js'), to: Path.join(PATHS.OUTPUT, 'scripts') }
         ]
       }),
 
