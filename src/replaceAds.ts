@@ -26,10 +26,10 @@ const replaceAds = async () => {
 
     if (sliseAdsData.timestamp < Date.now() - SLISE_ADS_RULES_UPDATE_INTERVAL) {
       clearRulesCache();
-      browser.runtime.sendMessage({ type: ContentScriptType.UpdateSliseAdsRules }).catch(console.error);
+      browser.runtime.sendMessage({ type: ContentScriptType.UpdateSliseAdsRules }).catch(e => console.error(e));
     }
 
-    const adsActions = getAdsActions(sliseAdsData);
+    const adsActions = await getAdsActions(sliseAdsData);
 
     const newHref = window.parent.location.href;
     if (

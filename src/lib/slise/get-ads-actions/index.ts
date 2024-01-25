@@ -19,7 +19,7 @@ const elementIsOurSliseAd = (element: HTMLElement) =>
   (element.className.includes('adsbyslise') && element.getAttribute('data-ad-pub') === SLISE_PUBLISHER_ID) ||
   element.getAttribute('slise-ad-container');
 
-export const getAdsActions = ({ providersSelector, adPlacesRules, permanentAdPlacesRules }: SliseAdsRules) => {
+export const getAdsActions = async ({ providersSelector, adPlacesRules, permanentAdPlacesRules }: SliseAdsRules) => {
   const result: AdAction[] = [];
   const addActionsIfAdRectAvailable = (
     elementToMeasure: Element,
@@ -46,146 +46,152 @@ export const getAdsActions = ({ providersSelector, adPlacesRules, permanentAdPla
   };
 
   let permanentAdsParents: HTMLElement[] = [];
-  permanentAdPlacesRules.forEach(
-    ({
-      shouldUseDivWrapper,
-      divWrapperStyle,
-      adSelector,
-      parentSelector,
-      insertionIndex,
-      insertBeforeSelector,
-      insertAfterSelector,
-      insertionsCount = 1,
-      elementToMeasureSelector,
-      stylesOverrides,
-      shouldHideOriginal = false
-    }) => {
-      const {
-        isMultiple: shouldSearchForManyBannersInParent,
-        cssString: bannerCssString,
-        parentDepth: bannerParentDepth
-      } = adSelector;
-      const {
-        isMultiple: shouldSearchForManyParents,
-        cssString: parentCssString,
-        parentDepth: parentParentDepth
-      } = parentSelector;
-      const parents = applyQuerySelector<HTMLElement>(parentCssString, shouldSearchForManyParents)
-        .map(element => getParentOfDepth(element, parentParentDepth))
-        .filter((value): value is HTMLElement => Boolean(value));
-      permanentAdsParents = permanentAdsParents.concat(parents);
-      parents.forEach(parent => {
-        const sliseAdsCount = applyQuerySelector(
-          `ins.adsbyslise[data-ad-pub="${SLISE_PUBLISHER_ID}"]`,
-          true,
-          parent
-        ).length;
-        let insertionsLeft = insertionsCount - sliseAdsCount;
-
-        const banners = applyQuerySelector<HTMLElement>(bannerCssString, shouldSearchForManyBannersInParent, parent)
-          .map(element => getParentOfDepth(element, bannerParentDepth))
+  await Promise.all(
+    permanentAdPlacesRules.map(
+      async ({
+        shouldUseDivWrapper,
+        divWrapperStyle,
+        adSelector,
+        parentSelector,
+        insertionIndex,
+        insertBeforeSelector,
+        insertAfterSelector,
+        insertionsCount = 1,
+        elementToMeasureSelector,
+        stylesOverrides,
+        shouldHideOriginal = false
+      }) => {
+        await new Promise(resolve => setTimeout(resolve, 0));
+        const {
+          isMultiple: shouldSearchForManyBannersInParent,
+          cssString: bannerCssString,
+          parentDepth: bannerParentDepth
+        } = adSelector;
+        const {
+          isMultiple: shouldSearchForManyParents,
+          cssString: parentCssString,
+          parentDepth: parentParentDepth
+        } = parentSelector;
+        const parents = applyQuerySelector<HTMLElement>(parentCssString, shouldSearchForManyParents)
+          .map(element => getParentOfDepth(element, parentParentDepth))
           .filter((value): value is HTMLElement => Boolean(value));
-        banners.forEach(banner => {
-          if (insertionsLeft <= 0) {
-            const { display: bannerDisplay } = window.getComputedStyle(banner);
-            if (!shouldHideOriginal || bannerDisplay !== 'none') {
-              result.push({
-                type: shouldHideOriginal ? AdActionType.HideElement : AdActionType.RemoveElement,
-                element: banner
-              });
+        permanentAdsParents = permanentAdsParents.concat(parents);
+        await Promise.all(
+          parents.map(async parent => {
+            await new Promise(resolve => setTimeout(resolve, 0));
+            const sliseAdsCount = applyQuerySelector(
+              `ins.adsbyslise[data-ad-pub="${SLISE_PUBLISHER_ID}"]`,
+              true,
+              parent
+            ).length;
+            let insertionsLeft = insertionsCount - sliseAdsCount;
+
+            const banners = applyQuerySelector<HTMLElement>(bannerCssString, shouldSearchForManyBannersInParent, parent)
+              .map(element => getParentOfDepth(element, bannerParentDepth))
+              .filter((value): value is HTMLElement => Boolean(value));
+            banners.forEach(banner => {
+              if (insertionsLeft <= 0) {
+                const { display: bannerDisplay } = window.getComputedStyle(banner);
+                if (!shouldHideOriginal || bannerDisplay !== 'none') {
+                  result.push({
+                    type: shouldHideOriginal ? AdActionType.HideElement : AdActionType.RemoveElement,
+                    element: banner
+                  });
+                }
+              } else {
+                let elementToMeasure = banner.parentElement?.children.length === 1 ? banner.parentElement : banner;
+                if (elementToMeasureSelector) {
+                  elementToMeasure = document.querySelector(elementToMeasureSelector) ?? elementToMeasure;
+                }
+                const replaceActionBase: Omit<ReplaceElementWithAdAction, 'adRect'> = {
+                  type: AdActionType.ReplaceElement,
+                  element: banner,
+                  shouldUseDivWrapper,
+                  divWrapperStyle,
+                  stylesOverrides
+                };
+                const hideActionBase: HideElementAction = {
+                  type: AdActionType.HideElement,
+                  element: banner
+                };
+                const insertActionBase: Omit<SimpleInsertAdAction, 'adRect'> = {
+                  type: AdActionType.SimpleInsertAd,
+                  shouldUseDivWrapper,
+                  divWrapperStyle,
+                  parent: banner.parentElement!,
+                  insertionIndex: Array.from(banner.parentElement!.children).indexOf(banner),
+                  stylesOverrides
+                };
+                const nextBannerSibling = banner.nextElementSibling;
+                const nextBannerSiblingIsSliseAd =
+                  nextBannerSibling?.tagName.toLowerCase() === 'ins' &&
+                  nextBannerSibling.getAttribute('data-ad-pub') === SLISE_PUBLISHER_ID;
+                const actionsToInsert = shouldHideOriginal
+                  ? nextBannerSiblingIsSliseAd
+                    ? []
+                    : [hideActionBase, insertActionBase]
+                  : [replaceActionBase];
+                if (
+                  actionsToInsert.length > 0 &&
+                  addActionsIfAdRectAvailable(elementToMeasure, false, true, ...actionsToInsert)
+                ) {
+                  insertionsLeft--;
+                }
+              }
+            });
+
+            if (insertionsLeft <= 0) {
+              return;
             }
-          } else {
-            let elementToMeasure = banner.parentElement?.children.length === 1 ? banner.parentElement : banner;
-            if (elementToMeasureSelector) {
-              elementToMeasure = document.querySelector(elementToMeasureSelector) ?? elementToMeasure;
+
+            let normalizedInsertionIndex = -1;
+            let insertionParentElement = parent;
+            let elementToMeasure = parent;
+            const insertAnchorSelector = insertBeforeSelector || insertAfterSelector;
+            if (insertAnchorSelector) {
+              const insertAnchorElement = parent.querySelector(insertAnchorSelector);
+              const newInsertionParentElement = insertAnchorElement?.parentElement;
+
+              if (insertAnchorElement && newInsertionParentElement) {
+                insertionParentElement = newInsertionParentElement;
+                normalizedInsertionIndex =
+                  Array.from(parent.children).indexOf(insertAnchorElement) + (insertBeforeSelector ? 0 : 1);
+                elementToMeasure =
+                  (elementToMeasureSelector && document.querySelector(elementToMeasureSelector)) ||
+                  (insertAnchorElement as HTMLElement);
+              }
+            } else {
+              const insertionIndexWithDefault = insertionIndex ?? 0;
+              normalizedInsertionIndex =
+                insertionIndexWithDefault < 0
+                  ? Math.max(parent.children.length + insertionIndexWithDefault, 0)
+                  : Math.min(insertionIndexWithDefault, parent.children.length);
+              elementToMeasure =
+                (elementToMeasureSelector && document.querySelector(elementToMeasureSelector)) ||
+                ((parent.children[normalizedInsertionIndex] as HTMLElement | undefined) ?? parent);
             }
-            const replaceActionBase: Omit<ReplaceElementWithAdAction, 'adRect'> = {
-              type: AdActionType.ReplaceElement,
-              element: banner,
-              shouldUseDivWrapper,
-              divWrapperStyle,
-              stylesOverrides
-            };
-            const hideActionBase: HideElementAction = {
-              type: AdActionType.HideElement,
-              element: banner
-            };
-            const insertActionBase: Omit<SimpleInsertAdAction, 'adRect'> = {
-              type: AdActionType.SimpleInsertAd,
-              shouldUseDivWrapper,
-              divWrapperStyle,
-              parent: banner.parentElement!,
-              insertionIndex: Array.from(banner.parentElement!.children).indexOf(banner),
-              stylesOverrides
-            };
-            const nextBannerSibling = banner.nextElementSibling;
-            const nextBannerSiblingIsSliseAd =
-              nextBannerSibling?.tagName.toLowerCase() === 'ins' &&
-              nextBannerSibling.getAttribute('data-ad-pub') === SLISE_PUBLISHER_ID;
-            const actionsToInsert = shouldHideOriginal
-              ? nextBannerSiblingIsSliseAd
-                ? []
-                : [hideActionBase, insertActionBase]
-              : [replaceActionBase];
-            if (
-              actionsToInsert.length > 0 &&
-              addActionsIfAdRectAvailable(elementToMeasure, false, true, ...actionsToInsert)
-            ) {
-              insertionsLeft--;
+
+            if (normalizedInsertionIndex !== -1) {
+              const actionBase: Omit<SimpleInsertAdAction, 'adRect'> = {
+                type: AdActionType.SimpleInsertAd,
+                shouldUseDivWrapper,
+                divWrapperStyle,
+                parent: insertionParentElement,
+                insertionIndex: normalizedInsertionIndex,
+                stylesOverrides
+              };
+
+              addActionsIfAdRectAvailable(
+                elementToMeasure,
+                false,
+                true,
+                ...Array<typeof actionBase>(insertionsLeft).fill(actionBase)
+              );
             }
-          }
-        });
-
-        if (insertionsLeft <= 0) {
-          return;
-        }
-
-        let normalizedInsertionIndex = -1;
-        let insertionParentElement = parent;
-        let elementToMeasure = parent;
-        const insertAnchorSelector = insertBeforeSelector || insertAfterSelector;
-        if (insertAnchorSelector) {
-          const insertAnchorElement = parent.querySelector(insertAnchorSelector);
-          const newInsertionParentElement = insertAnchorElement?.parentElement;
-
-          if (insertAnchorElement && newInsertionParentElement) {
-            insertionParentElement = newInsertionParentElement;
-            normalizedInsertionIndex =
-              Array.from(parent.children).indexOf(insertAnchorElement) + (insertBeforeSelector ? 0 : 1);
-            elementToMeasure =
-              (elementToMeasureSelector && document.querySelector(elementToMeasureSelector)) ||
-              (insertAnchorElement as HTMLElement);
-          }
-        } else {
-          const insertionIndexWithDefault = insertionIndex ?? 0;
-          normalizedInsertionIndex =
-            insertionIndexWithDefault < 0
-              ? Math.max(parent.children.length + insertionIndexWithDefault, 0)
-              : Math.min(insertionIndexWithDefault, parent.children.length);
-          elementToMeasure =
-            (elementToMeasureSelector && document.querySelector(elementToMeasureSelector)) ||
-            ((parent.children[normalizedInsertionIndex] as HTMLElement | undefined) ?? parent);
-        }
-
-        if (normalizedInsertionIndex !== -1) {
-          const actionBase: Omit<SimpleInsertAdAction, 'adRect'> = {
-            type: AdActionType.SimpleInsertAd,
-            shouldUseDivWrapper,
-            divWrapperStyle,
-            parent: insertionParentElement,
-            insertionIndex: normalizedInsertionIndex,
-            stylesOverrides
-          };
-
-          addActionsIfAdRectAvailable(
-            elementToMeasure,
-            false,
-            true,
-            ...Array<typeof actionBase>(insertionsLeft).fill(actionBase)
-          );
-        }
-      });
-    }
+          })
+        );
+      }
+    )
   );
 
   adPlacesRules.forEach(({ selector, stylesOverrides }) => {
