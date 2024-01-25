@@ -1,33 +1,32 @@
-import React, { CSSProperties, FC, useCallback, useState } from 'react';
+import React, { FC, useCallback, useState } from 'react';
 
 import { emptyFn } from '@rnw-community/shared';
 import clsx from 'clsx';
+
+import { VideoPlayer } from './VideoPlayer/VideoPlayer';
 
 interface Props {
   uri: string;
   loader?: React.ReactElement;
   className?: string;
-  style?: CSSProperties;
   onError?: EmptyFn;
 }
 
-export const VideoCollectible: FC<Props> = ({ uri, loader, className, style, onError = emptyFn }) => {
+export const VideoCollectible: FC<Props> = ({ uri, loader, className, onError = emptyFn }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   const handleLoaded = useCallback(() => setIsLoading(false), []);
 
   return (
     <>
-      <video
+      <VideoPlayer
+        src={uri}
         autoPlay
         loop
         onCanPlayThrough={handleLoaded}
         className={clsx(className, isLoading && 'hidden')}
-        style={style}
         onError={onError}
-      >
-        <source src={uri} />
-      </video>
+      />
       {isLoading && loader}
     </>
   );
