@@ -7,6 +7,7 @@ import { SyncSpinner } from 'app/atoms';
 import Checkbox from 'app/atoms/Checkbox';
 import Divider from 'app/atoms/Divider';
 import DropdownWrapper from 'app/atoms/DropdownWrapper';
+import { ScrollBackUpButton } from 'app/atoms/ScrollBackUpButton';
 import { SimpleInfiniteScroll } from 'app/atoms/SimpleInfiniteScroll';
 import { useAppEnv } from 'app/env';
 import { useCollectiblesListingLogic } from 'app/hooks/use-collectibles-listing-logic';
@@ -100,7 +101,7 @@ export const CollectiblesTab = memo<Props>(({ scrollToTheTabsBar }) => {
   return (
     <div className="w-full max-w-sm mx-auto">
       <div className={clsx('my-3', popup && 'mx-4')}>
-        <div className="mb-4 w-full flex">
+        <div className="relative mb-4 w-full flex">
           <SearchAssetField
             value={searchValue}
             onValueChange={setSearchValue}
@@ -122,6 +123,8 @@ export const CollectiblesTab = memo<Props>(({ scrollToTheTabsBar }) => {
             ) : (
               <SimpleInfiniteScroll loadNext={loadNext}>{contentElement}</SimpleInfiniteScroll>
             )}
+
+            <ScrollBackUpButton />
 
             {isSyncing && <SyncSpinner className="mt-6" />}
           </>

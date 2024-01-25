@@ -1,7 +1,6 @@
-import React, { ComponentProps, FC, memo, ReactNode, Suspense, useCallback, useEffect, useRef, useState } from 'react';
+import React, { ComponentProps, FC, ReactNode, Suspense, useCallback, useEffect, useRef, useState } from 'react';
 
 import clsx from 'clsx';
-import { throttle } from 'lodash';
 
 import DocBg from 'app/a11y/DocBg';
 import { Button } from 'app/atoms/Button';
@@ -9,7 +8,6 @@ import { DonationBanner } from 'app/atoms/DonationBanner/DonationBanner';
 import Spinner from 'app/atoms/Spinner/Spinner';
 import { useAppEnv } from 'app/env';
 import ErrorBoundary from 'app/ErrorBoundary';
-import { ReactComponent as ArrowUpIcon } from 'app/icons/arrow-up.svg';
 import { ReactComponent as ChevronLeftIcon } from 'app/icons/chevron-left.svg';
 import ContentContainer from 'app/layouts/ContentContainer';
 import { useOnboardingProgress } from 'app/pages/Onboarding/hooks/useOnboardingProgress.hook';
@@ -52,8 +50,6 @@ const PageLayout: FC<PageLayoutProps> = ({ children, contentContainerStyle, ...t
             </ErrorBoundary>
           </div>
         </ContentPaper>
-
-        <ScrollBackUpButton />
       </div>
 
       <AdvertisingOverlay />
@@ -240,42 +236,3 @@ const Toolbar: FC<ToolbarProps> = ({
     </div>
   );
 };
-
-const ScrollBackUpButton = memo(() => {
-  const [shown, setShown] = useState(document.documentElement.scrollTop > 4300);
-
-  useEffect(() => {
-    const listener = throttle(
-      () => {
-        console.log(document.documentElement.scrollTop);
-
-        setShown(document.documentElement.scrollTop > 4300);
-      },
-      100,
-      { leading: false, trailing: true }
-    );
-
-    document.addEventListener('scroll', listener);
-
-    return () => document.removeEventListener('scroll', listener);
-  }, []);
-
-  const onClick = useCallback(() => void document.documentElement.scrollIntoView({ behavior: 'smooth' }), []);
-
-  return (
-    <div
-      className={clsx(
-        'fixed bottom-6 left-1/2 flex items-center bg-blue-150 rounded',
-        // 'py-1.5',
-        // 'transition ease-in-out duration-500',
-        'cursor-pointer select-none',
-        !shown && 'hidden'
-      )}
-      style={{ padding: '0.375rem 0.5rem', translate: '-50%' }}
-      onClick={onClick}
-    >
-      <ArrowUpIcon className="w-4 h-4 mr-0.5 text-gray-600 stroke-current" />
-      <span>Back to Top</span>
-    </div>
-  );
-});
