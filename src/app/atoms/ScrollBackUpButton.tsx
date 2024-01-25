@@ -11,15 +11,10 @@ export const ScrollBackUpButton = memo(() => {
   const [shown, setShown] = useState(() => document.documentElement.scrollTop > getScrollThreshold());
 
   useEffect(() => {
-    const listener = throttle(
-      () => {
-        console.log(document.documentElement.scrollTop);
-
-        setShown(document.documentElement.scrollTop > getScrollThreshold());
-      },
-      100,
-      { leading: false, trailing: true }
-    );
+    const listener = throttle(() => void setShown(document.documentElement.scrollTop > getScrollThreshold()), 100, {
+      leading: false,
+      trailing: true
+    });
 
     document.addEventListener('scroll', listener);
 
