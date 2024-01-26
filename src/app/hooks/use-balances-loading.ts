@@ -22,7 +22,8 @@ export const useBalancesLoading = () => {
   const chainId = useChainId(true)!;
   const { publicKeyHash } = useAccount();
   const { connection, connectionReady } = useTzktConnection();
-  const [subscriptionsInvoked, setSubscriptionsInvoked] = useState(false);
+  const [tokensSubscriptionConfirmed, setTokensSubscriptionConfirmed] = useState(false);
+  const [accountsSubscriptionConfirmed, setAccountsSubscriptionConfirmed] = useState(false);
 
   const dispatch = useDispatch();
 
@@ -43,6 +44,9 @@ export const useBalancesLoading = () => {
           if (Object.keys(balances).length > 0) {
             dispatch(putTokensBalancesAction({ publicKeyHash, chainId, balances }));
           }
+          break;
+        default:
+          setTokensSubscriptionConfirmed(true);
       }
     },
     [chainId, dispatch, publicKeyHash]
@@ -70,6 +74,9 @@ export const useBalancesLoading = () => {
           } else if (matchingAccount) {
             dispatch(loadGasBalanceActions.submit({ publicKeyHash, chainId }));
           }
+          break;
+        default:
+          setAccountsSubscriptionConfirmed(true);
       }
     },
     [chainId, dispatch, publicKeyHash]
@@ -77,38 +84,36 @@ export const useBalancesLoading = () => {
 
   useEffect(() => {
     if (connection && connectionReady) {
+      connection.on(TzktSubscriptionChannel.TokenBalances, tokenBalancesListener);
+      connection.on(TzktSubscriptionChannel.Accounts, accountsListener);
+
       Promise.all([
         connection.invoke(TzktSubscriptionMethod.SubscribeToAccounts, { addresses: [publicKeyHash] }),
         connection.invoke(TzktSubscriptionMethod.SubscribeToTokenBalances, { account: publicKeyHash })
-      ])
-        .then(() => {
-          connection.on(TzktSubscriptionChannel.TokenBalances, tokenBalancesListener);
-          connection.on(TzktSubscriptionChannel.Accounts, accountsListener);
-          setSubscriptionsInvoked(true);
-        })
-        .catch(e => {
-          console.error(e);
-          connection.off(TzktSubscriptionChannel.TokenBalances, tokenBalancesListener);
-          connection.off(TzktSubscriptionChannel.Accounts, accountsListener);
-        });
+      ]).catch(e => console.error(e));
 
-      return () => setSubscriptionsInvoked(false);
+      return () => {
+        setAccountsSubscriptionConfirmed(false);
+        setTokensSubscriptionConfirmed(false);
+        connection.off(TzktSubscriptionChannel.TokenBalances, tokenBalancesListener);
+        connection.off(TzktSubscriptionChannel.Accounts, accountsListener);
+      };
     }
 
     return noop;
   }, [accountsListener, connection, connectionReady, publicKeyHash, tokenBalancesListener]);
 
   useInterval(
-    () => !subscriptionsInvoked && dispatch(loadGasBalanceActions.submit({ publicKeyHash, chainId })),
+    () => !accountsSubscriptionConfirmed && dispatch(loadGasBalanceActions.submit({ publicKeyHash, chainId })),
     BALANCES_SYNC_INTERVAL,
-    [chainId, publicKeyHash, subscriptionsInvoked],
+    [chainId, publicKeyHash, accountsSubscriptionConfirmed],
     true
   );
 
   useInterval(
-    () => !subscriptionsInvoked && dispatch(loadAssetsBalancesActions.submit({ publicKeyHash, chainId })),
+    () => !tokensSubscriptionConfirmed && dispatch(loadAssetsBalancesActions.submit({ publicKeyHash, chainId })),
     BALANCES_SYNC_INTERVAL,
-    [chainId, publicKeyHash, subscriptionsInvoked],
+    [chainId, publicKeyHash, tokensSubscriptionConfirmed],
     false // Not calling immediately, because balances are also loaded via assets loading
   );
 };

@@ -536,7 +536,7 @@ interface SubscribeToOperationsParams {
    * 'origination', 'delegation' types only)
    */
   codeHash?: number;
-  types?: string;
+  types: string;
 }
 
 interface TzktSubscriptionMessageCommon {

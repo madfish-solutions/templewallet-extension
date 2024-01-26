@@ -96,11 +96,11 @@ export async function confirmOperationWithTzkt(
             handleRelevantOperations(msg.data.filter(op => op.hash === opHash));
           }
         };
+        tzktConnection.on(TzktSubscriptionChannel.Operations, operationsCallback);
         await tzktConnection.invoke(TzktSubscriptionMethod.SubscribeToOperations, {
           types: types?.join(',') ?? ALL_COMMA_SEPARATED_OPERATION_TYPES,
-          address: null
+          address: sender ?? null
         });
-        tzktConnection.on(TzktSubscriptionChannel.Operations, operationsCallback);
         try {
           handleRelevantOperations(
             await fetchGetOperationsByHashWithBaseUrl(getApiBaseURL(tzktConnection.baseUrl), opHash)
