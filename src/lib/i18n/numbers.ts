@@ -1,5 +1,5 @@
 import BigNumber from 'bignumber.js';
-import memoize from 'micro-memoize';
+import memoizee from 'memoizee';
 
 import { getCurrentLocale, getNumberSymbols } from './core';
 import { t } from './react';
@@ -49,7 +49,7 @@ export function toLocalFormat(value: BigNumber.Value, { decimalPlaces, roundingM
   return rawResult;
 }
 
-const makePluralRules = memoize((locale: string) => new Intl.PluralRules(locale.replace('_', '-')));
+const makePluralRules = memoizee((locale: string) => new Intl.PluralRules(locale.replace('_', '-')));
 
 export function getPluralKey<T extends string>(keyPrefix: T, amount: number) {
   return `${keyPrefix}_${getPluralKeyAmountPrefix(amount)}` as `${T}_${Intl.LDMLPluralRule}`;

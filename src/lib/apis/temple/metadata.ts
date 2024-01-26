@@ -1,7 +1,6 @@
 import axios from 'axios';
 import { chunk } from 'lodash';
-import memoize from 'micro-memoize';
-import pMemoize from 'p-memoize';
+import memoizee from 'memoizee';
 
 import { IS_STAGE_ENV } from 'lib/env';
 import { TempleChainId } from 'lib/temple/types';
@@ -52,7 +51,7 @@ export const fetchTokensMetadata = (
   ).then(datum => datum.flat());
 };
 
-const fetchTokensMetadataChunk = pMemoize(
+const fetchTokensMetadataChunk = memoizee(
   // Simply reducing frequency of requests per set of arguments.
   (chainId: MetadataApiChainId, slugs: string[]) =>
     getApi(chainId)
@@ -60,14 +59,18 @@ const fetchTokensMetadataChunk = pMemoize(
       .then(r => r.data),
   {
     maxAge: 10_000,
-    cacheKey: ([chainId, slugs]) => `${chainId}:${slugs.join()}`
+    normalizer: ([chainId, slugs]) => `${chainId}:${slugs.join()}`,
+    promise: true
   }
 );
 
-const getApi = memoize((chainId: MetadataApiChainId) => {
-  const baseURL = buildApiUrl(chainId);
-  return axios.create({ baseURL });
-});
+const getApi = memoizee(
+  (chainId: MetadataApiChainId) => {
+    const baseURL = buildApiUrl(chainId);
+    return axios.create({ baseURL });
+  },
+  { promise: true }
+);
 
 const buildApiUrl = (chainId: string) => {
   if (LOCAL_METADATA_API_URL) return LOCAL_METADATA_API_URL;

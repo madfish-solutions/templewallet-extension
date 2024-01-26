@@ -1,9 +1,9 @@
 import { TezosToolkit } from '@taquito/taquito';
-import memoize from 'micro-memoize';
+import memoizee from 'memoizee';
 
-export const loadContract = memoize(fetchContract, {
-  isPromise: true,
-  maxSize: 100
+export const loadContract = memoizee(fetchContract, {
+  promise: true,
+  max: 100
 });
 
 function fetchContract(tezos: TezosToolkit, address: string, walletAPI = true) {

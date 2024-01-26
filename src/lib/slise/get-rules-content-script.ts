@@ -1,5 +1,5 @@
 import { isEqual } from 'lodash';
-import memoize from 'p-memoize';
+import memoizee from 'memoizee';
 import browser from 'webextension-polyfill';
 
 import type { RawSliseAdPlacesRule, RawSliseAdProvidersRule, RawPermanentSliseAdPlacesRule } from 'lib/apis/temple';
@@ -29,11 +29,7 @@ export interface SliseAdsRules {
   timestamp: number;
 }
 
-const rulesCache = new Map();
-
-export const clearRulesCache = () => rulesCache.clear();
-
-export const getRulesFromContentScript = memoize(
+export const getRulesFromContentScript = memoizee(
   async (location: Location): Promise<SliseAdsRules> => {
     try {
       const storageContent = await browser.storage.local.get(ALL_SLISE_ADS_RULES_STORAGE_KEY);
@@ -141,5 +137,7 @@ export const getRulesFromContentScript = memoize(
       };
     }
   },
-  { maxAge: SLISE_ADS_RULES_UPDATE_INTERVAL, cache: rulesCache, cacheKey: ([location]) => location.href }
+  { maxAge: SLISE_ADS_RULES_UPDATE_INTERVAL, normalizer: ([location]) => location.href, promise: true }
 );
+
+export const clearRulesCache = () => getRulesFromContentScript.clear();
