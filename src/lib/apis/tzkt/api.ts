@@ -35,7 +35,7 @@ export function isKnownChainId(chainId?: string | null): chainId is TzktApiChain
   return chainId != null && KNOWN_CHAIN_IDS.includes(chainId);
 }
 
-export const makeWsConnection = (chainId: string): TzktHubConnection | undefined => {
+export const createWsConnection = (chainId: string): TzktHubConnection | undefined => {
   if (isKnownChainId(chainId)) {
     return new HubConnectionBuilder().withUrl(`${TZKT_API_BASE_URLS[chainId]}/ws`).build();
   }
@@ -56,11 +56,8 @@ api.interceptors.response.use(
   }
 );
 
-async function fetchGetWithBaseUrl<R>(baseUrl: string, endpoint: string, params?: Record<string, unknown>) {
-  const { data } = await api.get<R>(endpoint, {
-    baseURL: baseUrl,
-    params
-  });
+async function fetchGetWithBaseUrl<R>(baseURL: string, endpoint: string, params?: Record<string, unknown>) {
+  const { data } = await api.get<R>(endpoint, { baseURL, params });
 
   return data;
 }

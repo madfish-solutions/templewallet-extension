@@ -12,7 +12,7 @@ import React, {
 
 import { noop } from 'lodash';
 
-import { makeWsConnection, TzktHubConnection } from 'lib/apis/tzkt';
+import { createWsConnection, TzktHubConnection } from 'lib/apis/tzkt';
 
 import { useTempleClient } from './client';
 import { useChainId } from './ready';
@@ -46,7 +46,7 @@ const ReadyClientTzktConnectionProvider: FC<PropsWithChildren> = ({ children }) 
     setConnectionReadyState(newState);
   }, []);
 
-  const connection = useMemo(() => (chainId ? makeWsConnection(chainId) : undefined), [chainId]);
+  const connection = useMemo(() => (chainId ? createWsConnection(chainId) : undefined), [chainId]);
 
   const initConnection = useCallback(async () => {
     if (!connection) {
