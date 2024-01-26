@@ -47,3 +47,5 @@ export { validateRecipient } from './validate-recipient';
 export { useFilteredContacts } from './use-filtered-contacts.hook';
 
 export { decryptKukaiSeedPhrase } from './kukai';
+
+export { TzktConnectionProvider, useTzktConnection } from './tzkt-connection';

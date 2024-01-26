@@ -13,7 +13,7 @@ import {
 import { getKeyForBalancesRecord } from 'app/store/balances/utils';
 import { isKnownChainId } from 'lib/apis/tzkt';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
-import { ASSETS_SYNC_INTERVAL } from 'lib/fixed-times';
+import { ASSETS_SYNC_INTERVAL, BLOCK_DURATION } from 'lib/fixed-times';
 import { useAssetMetadata, useGetTokenOrGasMetadata } from 'lib/metadata';
 import { useRetryableSWR } from 'lib/swr';
 import { useTezos, useAccount, useChainId, ReactiveTezosToolkit, useCustomChainId } from 'lib/temple/front';
@@ -66,6 +66,7 @@ export function useBalance(assetSlug: string, address: string, opts: UseBalanceO
   const chainId = useCustomChainId(networkRpc, opts.suspense);
   const assetMetadata = useAssetMetadata(assetSlug);
   const allBalances = useAllAccountsAndChainsBalancesSelector();
+  const rawAlreadyFetchedBalance = useBalanceSelector(address, chainId ?? '', assetSlug);
 
   const convertRawBalance = useCallback(
     (rawBalance: string | undefined) => {
@@ -77,6 +78,16 @@ export function useBalance(assetSlug: string, address: string, opts: UseBalanceO
     },
     [assetMetadata]
   );
+
+  const alreadyFetchedBalance = useMemo(() => {
+    try {
+      return convertRawBalance(rawAlreadyFetchedBalance);
+    } catch (e) {
+      console.error(e);
+
+      return undefined;
+    }
+  }, [convertRawBalance, rawAlreadyFetchedBalance]);
 
   const tezos = useMemo(() => {
     if (opts.networkRpc) {
@@ -104,10 +115,10 @@ export function useBalance(assetSlug: string, address: string, opts: UseBalanceO
     const balancesAreEmpty = Object.keys(accountBalances).length === 0;
     const balanceRawError = allBalances[publicKeyHashWithChainId]?.error;
     const balanceLoading = allBalances[publicKeyHashWithChainId]?.isLoading;
-    const alreadyFetchedBalance = convertRawBalance(accountBalances[assetSlug]);
+    const freshAlreadyFetchedBalance = convertRawBalance(accountBalances[assetSlug]);
 
-    if (alreadyFetchedBalance) {
-      return alreadyFetchedBalance;
+    if (freshAlreadyFetchedBalance) {
+      return freshAlreadyFetchedBalance;
     }
 
     if (balanceRawError) {
@@ -149,7 +160,7 @@ export function useBalance(assetSlug: string, address: string, opts: UseBalanceO
       revalidateOnFocus: false,
       dedupingInterval: 20_000,
       fallbackData,
-      refreshInterval: isKnownChainId(chainId) ? 1000 : ASSETS_SYNC_INTERVAL
+      refreshInterval: isKnownChainId(chainId) ? BLOCK_DURATION : ASSETS_SYNC_INTERVAL
     }
   );
   const { data, error, isValidating, isLoading } = swrResponse;
@@ -163,12 +174,12 @@ export function useBalance(assetSlug: string, address: string, opts: UseBalanceO
 
   return useMemo(
     () => ({
-      data,
+      data: alreadyFetchedBalance ?? data,
       error,
       isValidating,
       isLoading,
       updateBalance
     }),
-    [data, error, isLoading, isValidating, updateBalance]
+    [alreadyFetchedBalance, data, error, isLoading, isValidating, updateBalance]
   );
 }

@@ -50,6 +50,7 @@ import { DelegateFormSelectors } from './DelegateForm.selectors';
 const PENNY = 0.000001;
 const RECOMMENDED_ADD_FEE = 0.0001;
 const SORT_BAKERS_BY_KEY = 'sort_bakers_by';
+const RELEVANT_TZKT_OPERATIONS_TYPES = ['delegation' as const];
 
 interface FormData {
   to: string;
@@ -208,14 +209,14 @@ const DelegateForm: FC = () => {
   );
 
   const [submitError, setSubmitError] = useSafeState<ReactNode>(null, `${tezos.checksum}_${toResolved}`);
-  const [operation, setOperation] = useSafeState<any>(null, tezos.checksum);
+  const [operationState, setOperationState] = useSafeState<OperationState | null>(null, tezos.checksum);
 
   const onSubmit = useCallback(
     async ({ fee: feeVal }: FormData) => {
       const to = toResolved;
       if (formState.isSubmitting) return;
       setSubmitError(null);
-      setOperation(null);
+      setOperationState(null);
 
       const analyticsProperties = { bakerAddress: to };
 
@@ -241,7 +242,7 @@ const DelegateForm: FC = () => {
           opHash = op.opHash;
         }
 
-        setOperation(op);
+        setOperationState({ operation: op as WalletOperation, sender: accountPkh });
         reset({ to: '', fee: RECOMMENDED_ADD_FEE });
 
         if (to === RECOMMENDED_BAKER_ADDRESS && opHash) {
@@ -269,7 +270,7 @@ const DelegateForm: FC = () => {
       tezos,
       accountPkh,
       setSubmitError,
-      setOperation,
+      setOperationState,
       reset,
       getEstimation,
       formAnalytics,
@@ -279,7 +280,15 @@ const DelegateForm: FC = () => {
 
   return (
     <>
-      {operation && <OperationStatus typeTitle={t('delegation')} operation={operation} className="mb-8" />}
+      {operationState && (
+        <OperationStatus
+          typeTitle={t('delegation')}
+          operation={operationState.operation}
+          operationSender={operationState.sender}
+          operationsTypes={RELEVANT_TZKT_OPERATIONS_TYPES}
+          className="mb-8"
+        />
+      )}
 
       <form onSubmit={handleSubmit(onSubmit)}>
         {useMemo(

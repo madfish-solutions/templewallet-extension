@@ -1,3 +1,5 @@
+import { HubConnection } from '@microsoft/signalr';
+
 /**
  * Actually, there is a bunch of other types but only these will be used for now
  */
@@ -497,3 +499,91 @@ export type TzktAccount =
   | TzktRollupAccount
   | TzktSmartRollupAccount
   | TzktEmptyAccount;
+
+export enum TzktSubscriptionStateMessageType {
+  Subscribed = 0,
+  Data = 1,
+  Reorg = 2
+}
+
+/** This enum is incomplete */
+export enum TzktSubscriptionMethod {
+  SubscribeToAccounts = 'SubscribeToAccounts',
+  SubscribeToTokenBalances = 'SubscribeToTokenBalances',
+  SubscribeToOperations = 'SubscribeToOperations'
+}
+
+export enum TzktSubscriptionChannel {
+  Accounts = 'accounts',
+  TokenBalances = 'token_balances',
+  Operations = 'operations'
+}
+
+interface SubscribeToAccountsParams {
+  addresses: string[];
+}
+
+interface SubscribeToTokenBalancesParams {
+  account?: string;
+  contract?: string;
+  tokenId?: string;
+}
+
+interface SubscribeToOperationsParams {
+  /** address you want to subscribe to, or null if you want to subscribe for all operations */
+  address: string | null;
+  /** hash of the code of the contract to which the operation is related (can be used with 'transaction',
+   * 'origination', 'delegation' types only)
+   */
+  codeHash?: number;
+  types?: string;
+}
+
+interface TzktSubscriptionMessageCommon {
+  type: TzktSubscriptionStateMessageType;
+  state: number;
+}
+
+interface TzktSubscribedMessage extends TzktSubscriptionMessageCommon {
+  type: TzktSubscriptionStateMessageType.Subscribed;
+  state: number;
+}
+
+interface TzktDataMessage<T> extends TzktSubscriptionMessageCommon {
+  type: TzktSubscriptionStateMessageType.Data;
+  state: number;
+  data: T;
+}
+
+interface TzktReorgMessage extends TzktSubscriptionMessageCommon {
+  type: TzktSubscriptionStateMessageType.Reorg;
+  state: number;
+}
+
+type TzktSubscriptionMessage<T> = TzktSubscribedMessage | TzktDataMessage<T> | TzktReorgMessage;
+
+export type TzktAccountsSubscriptionMessage = TzktSubscriptionMessage<TzktAccount[]>;
+
+export type TzktTokenBalancesSubscriptionMessage = TzktSubscriptionMessage<TzktAccountAsset[]>;
+
+export type TzktOperationsSubscriptionMessage = TzktSubscriptionMessage<TzktOperation[]>;
+
+export interface TzktHubConnection extends HubConnection {
+  invoke(method: TzktSubscriptionMethod.SubscribeToAccounts, params: SubscribeToAccountsParams): Promise<void>;
+  invoke(
+    method: TzktSubscriptionMethod.SubscribeToTokenBalances,
+    params: SubscribeToTokenBalancesParams
+  ): Promise<void>;
+  invoke(method: TzktSubscriptionMethod.SubscribeToOperations, params: SubscribeToOperationsParams): Promise<void>;
+
+  on(method: TzktSubscriptionChannel.Accounts, cb: (msg: TzktAccountsSubscriptionMessage) => void): void;
+  on(method: TzktSubscriptionChannel.TokenBalances, cb: (msg: TzktTokenBalancesSubscriptionMessage) => void): void;
+  on(method: TzktSubscriptionChannel.Operations, cb: (msg: TzktOperationsSubscriptionMessage) => void): void;
+
+  off(method: TzktSubscriptionChannel.Accounts): void;
+  off(method: TzktSubscriptionChannel.Accounts, cb: (msg: TzktAccountsSubscriptionMessage) => void): void;
+  off(method: TzktSubscriptionChannel.TokenBalances): void;
+  off(method: TzktSubscriptionChannel.TokenBalances, cb: (msg: TzktTokenBalancesSubscriptionMessage) => void): void;
+  off(method: TzktSubscriptionChannel.Operations): void;
+  off(method: TzktSubscriptionChannel.Operations, cb: (msg: TzktOperationsSubscriptionMessage) => void): void;
+}

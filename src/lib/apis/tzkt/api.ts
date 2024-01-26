@@ -1,3 +1,4 @@
+import { HubConnectionBuilder } from '@microsoft/signalr';
 import axios, { AxiosError } from 'axios';
 
 import { toTokenSlug } from 'lib/assets';
@@ -13,7 +14,8 @@ import {
   TzktGetRewardsParams,
   TzktGetRewardsResponse,
   TzktRelatedContract,
-  TzktAccount
+  TzktAccount,
+  TzktHubConnection
 } from './types';
 
 const TZKT_API_BASE_URLS = {
@@ -33,6 +35,16 @@ export function isKnownChainId(chainId?: string | null): chainId is TzktApiChain
   return chainId != null && KNOWN_CHAIN_IDS.includes(chainId);
 }
 
+export const makeWsConnection = (chainId: string): TzktHubConnection | undefined => {
+  if (isKnownChainId(chainId)) {
+    return new HubConnectionBuilder().withUrl(`${TZKT_API_BASE_URLS[chainId]}/ws`).build();
+  }
+
+  return undefined;
+};
+
+export const getApiBaseURL = (wsUrl: string) => wsUrl.replace('/ws', '');
+
 const api = axios.create();
 
 api.interceptors.response.use(
@@ -44,13 +56,17 @@ api.interceptors.response.use(
   }
 );
 
-async function fetchGet<R>(chainId: TzktApiChainId, endpoint: string, params?: Record<string, unknown>) {
+async function fetchGetWithBaseUrl<R>(baseUrl: string, endpoint: string, params?: Record<string, unknown>) {
   const { data } = await api.get<R>(endpoint, {
-    baseURL: TZKT_API_BASE_URLS[chainId],
+    baseURL: baseUrl,
     params
   });
 
   return data;
+}
+
+async function fetchGet<R>(chainId: TzktApiChainId, endpoint: string, params?: Record<string, unknown>) {
+  return fetchGetWithBaseUrl<R>(TZKT_API_BASE_URLS[chainId], endpoint, params);
 }
 
 type GetOperationsBaseParams = {
@@ -92,6 +108,14 @@ export const fetchGetOperationsByHash = (
     quote?: TzktQuoteCurrency[];
   } = {}
 ) => fetchGet<TzktOperation[]>(chainId, `/operations/${hash}`, params);
+
+export const fetchGetOperationsByHashWithBaseUrl = (
+  baseUrl: string,
+  hash: string,
+  params: {
+    quote?: TzktQuoteCurrency[];
+  } = {}
+) => fetchGetWithBaseUrl<TzktOperation[]>(baseUrl, `/operations/${hash}`, params);
 
 type GetOperationsTransactionsParams = GetOperationsBaseParams & {
   [key in `anyof.sender.target${'' | '.initiator'}`]?: string;

@@ -1,11 +1,12 @@
-import React, { FC, ReactNode, useEffect, useMemo } from 'react';
+import React, { FC, ReactNode, useCallback, useEffect, useMemo } from 'react';
 
-import type { WalletOperation } from '@taquito/taquito';
+import type { TezosToolkit, WalletOperation } from '@taquito/taquito';
 
 import { HashChip, Alert } from 'app/atoms';
 import { setTestID } from 'lib/analytics';
+import { TzktOperationType } from 'lib/apis/tzkt';
 import { T, t } from 'lib/i18n';
-import { useTezos, useBlockTriggers } from 'lib/temple/front';
+import { useTezos, useBlockTriggers, useTzktConnection } from 'lib/temple/front';
 import { FailedOpError } from 'lib/temple/operation';
 import { useSafeState } from 'lib/ui/hooks';
 
@@ -16,13 +17,49 @@ type OperationStatusProps = {
   className?: string;
   closable?: boolean;
   onClose?: () => void;
+  operationsTypes?: TzktOperationType[];
+  operationSender?: string;
   typeTitle: string;
   operation: WalletOperation;
 };
 
-const OperationStatus: FC<OperationStatusProps> = ({ typeTitle, operation, className, closable, onClose }) => {
+const OperationStatus: FC<OperationStatusProps> = ({
+  typeTitle,
+  operation,
+  className,
+  closable,
+  operationsTypes,
+  operationSender,
+  onClose
+}) => {
   const tezos = useTezos();
-  const { confirmOperationAndTriggerNewBlock } = useBlockTriggers();
+  const { confirmOperationWithTaquitoAndTriggerNewBlock, confirmOperationWithTzktAndTriggerNewBlock } =
+    useBlockTriggers();
+  const { connection: tzktConnection, connectionReady: isTzktConnectionReady } = useTzktConnection();
+
+  const confirmOperationAndTriggerNewBlock = useCallback(
+    (tezos: TezosToolkit, opHash: string, abortSignal?: AbortSignal) => {
+      if (tzktConnection && isTzktConnectionReady) {
+        return confirmOperationWithTzktAndTriggerNewBlock(
+          opHash,
+          tzktConnection,
+          operationSender,
+          operationsTypes,
+          abortSignal
+        );
+      }
+
+      return confirmOperationWithTaquitoAndTriggerNewBlock(tezos, opHash, { signal: abortSignal });
+    },
+    [
+      confirmOperationWithTaquitoAndTriggerNewBlock,
+      confirmOperationWithTzktAndTriggerNewBlock,
+      isTzktConnectionReady,
+      operationSender,
+      operationsTypes,
+      tzktConnection
+    ]
+  );
 
   const hash = useMemo(
     () =>
@@ -65,9 +102,7 @@ const OperationStatus: FC<OperationStatusProps> = ({ typeTitle, operation, class
   useEffect(() => {
     const abortCtrl = new AbortController();
 
-    confirmOperationAndTriggerNewBlock(tezos, hash, {
-      signal: abortCtrl.signal
-    })
+    confirmOperationAndTriggerNewBlock(tezos, hash, abortCtrl.signal)
       .then(() => {
         setAlert(a => ({
           ...a,
