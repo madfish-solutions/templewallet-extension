@@ -3,6 +3,8 @@ import React, { useState, useCallback, useEffect, useRef, FC } from 'react';
 import { emptyFn } from '@rnw-community/shared';
 import classNames from 'clsx';
 
+import { useAppEnv } from 'app/env';
+
 import { Error } from './components/Error/Error';
 import { Fullscreen } from './components/Fullscreen';
 import { KeyAction, KeyActionHandle } from './components/KeyAction/KeyAction';
@@ -59,6 +61,8 @@ export const VideoPlayer: FC<VideoPlayerProps> = ({
 
   const [setControlsTimeout] = useTimeout();
   const [setKeyActionVolumeTimeout] = useTimeout();
+
+  const { popup } = useAppEnv();
 
   /**
    * TOGGLE SHOWING CONTROLS
@@ -383,6 +387,7 @@ export const VideoPlayer: FC<VideoPlayerProps> = ({
       console.error('an error occurred changing into fullscreen');
       console.log(event);
     }
+
     document.addEventListener('fullscreenerror', handleError);
     document.addEventListener('keydown', keyEventHandler);
     document.addEventListener('fullscreenchange', fullscreenChangeHandler);
@@ -466,7 +471,7 @@ export const VideoPlayer: FC<VideoPlayerProps> = ({
             <Skip onSkip={skipHandler} />
           </div>
           <div>
-            <Fullscreen isFullscreen={fullscreenState} onToggle={toggleFullscreenHandler} />
+            <Fullscreen isFullscreen={fullscreenState} disabled={popup} onToggle={toggleFullscreenHandler} />
           </div>
         </div>
       </div>
