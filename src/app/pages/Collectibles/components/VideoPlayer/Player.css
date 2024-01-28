@@ -130,11 +130,7 @@
   border-radius: 50px;
 }
 .vp-progress__range--background {
-  background-color: #858585;
-}
-.vp-progress__range--buffer {
   background-color: #edf2f7;
-  transition: width 200ms ease-out;
 }
 .vp-progress__range--current {
   position: relative;

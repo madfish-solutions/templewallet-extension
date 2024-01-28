@@ -6,6 +6,7 @@ import { AssetImage } from 'app/templates/AssetImage';
 import { AssetMetadataBase } from 'lib/metadata';
 
 import { CollectibleImageFallback } from './CollectibleImageFallback';
+import { Player } from './VideoPlayer/Player';
 
 interface Props {
   uri: string;
@@ -34,16 +35,25 @@ export const AudioCollectible: FC<Props> = ({ uri, metadata, className, style, l
 
   return (
     <>
-      <audio ref={playerRef} src={uri} loop onCanPlayThrough={handleAudioLoaded} onError={onAudioError} />
-
-      <AssetImage
-        metadata={metadata}
-        fullViewCollectible
-        fallback={<CollectibleImageFallback large isAudioCollectible />}
-        className={className}
-        style={style}
-        onStackLoaded={handleImageLoaded}
-        onStackFailed={handleImageLoaded}
+      <Player
+        ref={playerRef}
+        src={uri}
+        autoPlay={false}
+        audioPlayer
+        loop
+        audioPoster={
+          <AssetImage
+            metadata={metadata}
+            fullViewCollectible
+            fallback={<CollectibleImageFallback large isAudioCollectible />}
+            className={className}
+            style={style}
+            onStackLoaded={handleImageLoaded}
+            onStackFailed={handleImageLoaded}
+          />
+        }
+        onCanPlayThrough={handleAudioLoaded}
+        onError={onAudioError}
       />
 
       {!ready && loader}
