@@ -43,8 +43,6 @@ export const createWsConnection = (chainId: string): TzktHubConnection | undefin
   return undefined;
 };
 
-export const getApiBaseURL = (wsUrl: string) => wsUrl.replace('/ws', '');
-
 const api = axios.create();
 
 api.interceptors.response.use(
@@ -56,14 +54,13 @@ api.interceptors.response.use(
   }
 );
 
-async function fetchGetWithBaseUrl<R>(baseURL: string, endpoint: string, params?: Record<string, unknown>) {
-  const { data } = await api.get<R>(endpoint, { baseURL, params });
+async function fetchGet<R>(chainId: TzktApiChainId, endpoint: string, params?: Record<string, unknown>) {
+  const { data } = await api.get<R>(endpoint, {
+    baseURL: TZKT_API_BASE_URLS[chainId],
+    params
+  });
 
   return data;
-}
-
-async function fetchGet<R>(chainId: TzktApiChainId, endpoint: string, params?: Record<string, unknown>) {
-  return fetchGetWithBaseUrl<R>(TZKT_API_BASE_URLS[chainId], endpoint, params);
 }
 
 type GetOperationsBaseParams = {
@@ -105,14 +102,6 @@ export const fetchGetOperationsByHash = (
     quote?: TzktQuoteCurrency[];
   } = {}
 ) => fetchGet<TzktOperation[]>(chainId, `/operations/${hash}`, params);
-
-export const fetchGetOperationsByHashWithBaseUrl = (
-  baseUrl: string,
-  hash: string,
-  params: {
-    quote?: TzktQuoteCurrency[];
-  } = {}
-) => fetchGetWithBaseUrl<TzktOperation[]>(baseUrl, `/operations/${hash}`, params);
 
 type GetOperationsTransactionsParams = GetOperationsBaseParams & {
   [key in `anyof.sender.target${'' | '.initiator'}`]?: string;

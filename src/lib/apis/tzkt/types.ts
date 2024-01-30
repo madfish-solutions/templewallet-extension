@@ -566,7 +566,7 @@ export type TzktAccountsSubscriptionMessage = TzktSubscriptionMessage<TzktAccoun
 
 export type TzktTokenBalancesSubscriptionMessage = TzktSubscriptionMessage<TzktAccountAsset[]>;
 
-export type TzktOperationsSubscriptionMessage = TzktSubscriptionMessage<TzktOperation[]>;
+type TzktOperationsSubscriptionMessage = TzktSubscriptionMessage<TzktOperation[]>;
 
 export interface TzktHubConnection extends HubConnection {
   invoke(method: TzktSubscriptionMethod.SubscribeToAccounts, params: SubscribeToAccountsParams): Promise<void>;

@@ -15,12 +15,3 @@ type StringRecord<T = string> = Record<string, T>;
 interface PropsWithChildren {
   children: import('react').ReactNode;
 }
-
-/**
- * This state is used to prevent glitches of tracking operation with TZKT in case we decide to switch
- * accounts without moving to home page
- */
-interface OperationState {
-  operation: import('@taquito/taquito').WalletOperation;
-  sender: string;
-}

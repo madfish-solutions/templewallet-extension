@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react';
 
+import type { WalletOperation } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
 
 import { useFormAnalytics } from 'lib/analytics';
@@ -16,14 +17,14 @@ export const useCollectibleSelling = (assetSlug: string, offer?: ObjktOffer) => 
   const tezos = useTezos();
   const { publicKeyHash } = useAccount();
   const [isSelling, setIsSelling] = useState(false);
-  const [operationState, setOperationState] = useState<OperationState | nullish>();
+  const [operation, setOperation] = useState<WalletOperation | nullish>();
   const [operationError, setOperationError] = useState<unknown>();
   const formAnalytics = useFormAnalytics('Collectible Page/Sell By Best Offer Form');
 
   const initiateSelling = useCallback(async () => {
     if (!offer || isSelling) return;
     setIsSelling(true);
-    setOperationState(null);
+    setOperation(null);
     setOperationError(null);
 
     formAnalytics.trackSubmit({ assetSlug });
@@ -62,12 +63,12 @@ export const useCollectibleSelling = (assetSlug: string, offer?: ObjktOffer) => 
       .send()
       .then(
         operation => {
-          setOperationState({ operation, sender: publicKeyHash });
+          setOperation(operation);
 
           formAnalytics.trackSubmitSuccess({ assetSlug });
         },
         error => {
-          setOperationState(null);
+          setOperation(null);
 
           if (error.message === 'Declined') return;
           console.error(error);
@@ -78,7 +79,7 @@ export const useCollectibleSelling = (assetSlug: string, offer?: ObjktOffer) => 
         }
       )
       .finally(() => void setIsSelling(false));
-  }, [tezos, isSelling, offer, assetSlug, publicKeyHash, setOperationState, setOperationError, formAnalytics]);
+  }, [tezos, isSelling, offer, assetSlug, publicKeyHash, setOperation, setOperationError, formAnalytics]);
 
-  return { isSelling, initiateSelling, operationState, operationError };
+  return { isSelling, initiateSelling, operation, operationError };
 };

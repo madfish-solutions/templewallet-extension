@@ -5,7 +5,7 @@ import constate from 'constate';
 import { useSWRConfig } from 'swr';
 
 import { getBalanceSWRKey } from 'lib/balances/utils';
-import { confirmOperation, confirmOperationWithTzkt } from 'lib/temple/operation';
+import { confirmOperation } from 'lib/temple/operation';
 
 import { useTezos, useRelevantAccounts } from './ready';
 
@@ -25,16 +25,7 @@ function useNewBlockTriggers() {
 
   useOnBlock(triggerNewBlock);
 
-  const confirmOperationWithTzktAndTriggerNewBlock = useCallback<typeof confirmOperationWithTzkt>(
-    async (...args) => {
-      const result = await confirmOperationWithTzkt(...args);
-      triggerNewBlock();
-      return result;
-    },
-    [triggerNewBlock]
-  );
-
-  const confirmOperationWithTaquitoAndTriggerNewBlock = useCallback<typeof confirmOperation>(
+  const confirmOperationAndTriggerNewBlock = useCallback<typeof confirmOperation>(
     async (...args) => {
       const result = await confirmOperation(...args);
       triggerNewBlock();
@@ -45,8 +36,7 @@ function useNewBlockTriggers() {
 
   return {
     triggerNewBlock,
-    confirmOperationWithTaquitoAndTriggerNewBlock,
-    confirmOperationWithTzktAndTriggerNewBlock
+    confirmOperationAndTriggerNewBlock
   };
 }
 

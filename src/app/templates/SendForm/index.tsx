@@ -1,5 +1,6 @@
 import React, { memo, Suspense, useCallback, useMemo, useState } from 'react';
 
+import type { WalletOperation } from '@taquito/taquito';
 import { isEqual } from 'lodash';
 
 import AssetSelect from 'app/templates/AssetSelect';
@@ -21,8 +22,6 @@ import { SpinnerSection } from './SpinnerSection';
 type Props = {
   assetSlug?: string | null;
 };
-
-const RELEVANT_TZKT_OPERATIONS_TYPES = ['transaction' as const];
 
 const SendForm = memo<Props>(({ assetSlug = TEZ_TOKEN_SLUG }) => {
   const tokensSlugs = useEnabledAccountTokensSlugs();
@@ -46,7 +45,7 @@ const SendForm = memo<Props>(({ assetSlug = TEZ_TOKEN_SLUG }) => {
   const selectedAsset = assetSlug ?? TEZ_TOKEN_SLUG;
 
   const tezos = useTezos();
-  const [operationState, setOperationState] = useSafeState<OperationState | null>(null, tezos.checksum);
+  const [operation, setOperation] = useSafeState<WalletOperation | null>(null, tezos.checksum);
   const [addContactModalAddress, setAddContactModalAddress] = useState<string | null>(null);
   const { trackEvent } = useAnalytics();
 
@@ -80,15 +79,7 @@ const SendForm = memo<Props>(({ assetSlug = TEZ_TOKEN_SLUG }) => {
 
   return (
     <>
-      {operationState && (
-        <OperationStatus
-          typeTitle={t('transaction')}
-          operation={operationState.operation}
-          className="mb-8"
-          operationSender={operationState.sender}
-          operationsTypes={RELEVANT_TZKT_OPERATIONS_TYPES}
-        />
-      )}
+      {operation && <OperationStatus typeTitle={t('transaction')} operation={operation} className="mb-8" />}
 
       <AssetSelect
         value={selectedAsset}
@@ -99,11 +90,7 @@ const SendForm = memo<Props>(({ assetSlug = TEZ_TOKEN_SLUG }) => {
       />
 
       <Suspense fallback={<SpinnerSection />}>
-        <Form
-          assetSlug={selectedAsset}
-          setOperationState={setOperationState}
-          onAddContactRequested={handleAddContactRequested}
-        />
+        <Form assetSlug={selectedAsset} setOperation={setOperation} onAddContactRequested={handleAddContactRequested} />
       </Suspense>
 
       <AddContactModal address={addContactModalAddress} onClose={closeContactModal} />

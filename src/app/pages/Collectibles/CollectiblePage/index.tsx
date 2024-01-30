@@ -37,7 +37,6 @@ import { CollectiblePageImage } from './CollectiblePageImage';
 import { PropertiesItems } from './PropertiesItems';
 
 const DETAILS_SYNC_INTERVAL = 4 * BLOCK_DURATION;
-const RELEVANT_TZKT_OPERATIONS_TYPES = ['transaction' as const];
 
 interface Props {
   assetSlug: string;
@@ -87,7 +86,7 @@ const CollectiblePage = memo<Props>(({ assetSlug }) => {
   const {
     isSelling,
     initiateSelling: onSellButtonClick,
-    operationState,
+    operation,
     operationError
   } = useCollectibleSelling(assetSlug, takableOffer);
 
@@ -152,15 +151,7 @@ const CollectiblePage = memo<Props>(({ assetSlug }) => {
             className="mb-4"
           />
         ) : (
-          operationState && (
-            <OperationStatus
-              typeTitle={t('transaction')}
-              operation={operationState.operation}
-              operationSender={operationState.sender}
-              operationsTypes={RELEVANT_TZKT_OPERATIONS_TYPES}
-              className="mb-4"
-            />
-          )
+          operation && <OperationStatus typeTitle={t('transaction')} operation={operation} className="mb-4" />
         )}
 
         <div

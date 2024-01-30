@@ -21,7 +21,6 @@ export {
   isKnownChainId,
   createWsConnection,
   getAccountStatsFromTzkt,
-  getApiBaseURL,
   getDelegatorRewards,
   getOneUserContracts,
   fetchTzktAccountAssets,
@@ -30,6 +29,5 @@ export {
   fetchGetOperationsTransactions,
   fetchGetAccountOperations,
   fetchGetOperationsByHash,
-  fetchGetOperationsByHashWithBaseUrl,
   refetchOnce429
 } from './api';

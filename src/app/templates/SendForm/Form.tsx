@@ -16,8 +16,7 @@ import {
   TransferParams,
   Estimate,
   TransactionWalletOperation,
-  TransactionOperation,
-  WalletOperation
+  TransactionOperation
 } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
@@ -78,11 +77,11 @@ const RECOMMENDED_ADD_FEE = 0.0001;
 
 type FormProps = {
   assetSlug: string;
-  setOperationState: Dispatch<OperationState | null>;
+  setOperation: Dispatch<any>;
   onAddContactRequested: (address: string) => void;
 };
 
-export const Form: FC<FormProps> = ({ assetSlug, setOperationState, onAddContactRequested }) => {
+export const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested }) => {
   const { registerBackHandler } = useAppEnv();
 
   const assetMetadata = useAssetMetadata(assetSlug);
@@ -339,7 +338,7 @@ export const Form: FC<FormProps> = ({ assetSlug, setOperationState, onAddContact
     async ({ amount, fee: feeVal }: FormData) => {
       if (formState.isSubmitting) return;
       setSubmitError(null);
-      setOperationState(null);
+      setOperation(null);
 
       formAnalytics.trackSubmit();
 
@@ -367,7 +366,7 @@ export const Form: FC<FormProps> = ({ assetSlug, setOperationState, onAddContact
           const fee = addFee.plus(estmtn.suggestedFeeMutez).toNumber();
           op = await tezos.wallet.transfer({ ...transferParams, fee } as any).send();
         }
-        setOperationState({ operation: op as WalletOperation, sender: accountPkh });
+        setOperation(op);
         reset({ to: '', fee: RECOMMENDED_ADD_FEE });
 
         formAnalytics.trackSubmitSuccess();
@@ -392,7 +391,7 @@ export const Form: FC<FormProps> = ({ assetSlug, setOperationState, onAddContact
       assetSlug,
       assetMetadata,
       setSubmitError,
-      setOperationState,
+      setOperation,
       reset,
       accountPkh,
       toResolved,

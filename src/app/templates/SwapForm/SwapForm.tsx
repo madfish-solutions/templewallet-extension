@@ -2,6 +2,7 @@ import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from 're
 
 import { isDefined } from '@rnw-community/shared';
 import { TransferParams } from '@taquito/taquito';
+import { BatchWalletOperation } from '@taquito/taquito/dist/types/wallet/batch-operation';
 import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
 import { Controller, useForm } from 'react-hook-form';
@@ -58,8 +59,6 @@ import { SwapFormInput } from './SwapFormInput/SwapFormInput';
 import { SwapMinimumReceived } from './SwapMinimumReceived/SwapMinimumReceived';
 import { SwapRoute } from './SwapRoute/SwapRoute';
 
-const RELEVANT_TZKT_OPERATIONS_TYPES = ['transaction' as const];
-
 export const SwapForm: FC = () => {
   const dispatch = useDispatch();
   const tezos = useTezos();
@@ -94,7 +93,7 @@ export const SwapForm: FC = () => {
   const outputAssetMetadata = useAssetMetadata(outputValue.assetSlug ?? TEZ_TOKEN_SLUG)!;
 
   const [error, setError] = useState<Error>();
-  const [operationState, setOperationState] = useState<OperationState>();
+  const [operation, setOperation] = useState<BatchWalletOperation>();
   const isSubmitButtonPressedRef = useRef(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isAlertVisible, setIsAlertVisible] = useState(false);
@@ -233,7 +232,7 @@ export const SwapForm: FC = () => {
     }
 
     try {
-      setOperationState(undefined);
+      setOperation(undefined);
 
       const allSwapParams: Array<TransferParams> = [];
       let routingOutputFeeTransferParams: TransferParams[] = await getRoutingFeeTransferParams(
@@ -363,7 +362,7 @@ export const SwapForm: FC = () => {
 
       setError(undefined);
       formAnalytics.trackSubmitSuccess(analyticsProperties);
-      setOperationState({ operation: batchOperation, sender: publicKeyHash });
+      setOperation(batchOperation);
     } catch (err: any) {
       if (err.message !== 'Declined') {
         setError(err);
@@ -400,7 +399,7 @@ export const SwapForm: FC = () => {
   }, []);
 
   const handleErrorClose = () => setError(undefined);
-  const handleOperationClose = () => setOperationState(undefined);
+  const handleOperationClose = () => setOperation(undefined);
 
   const handleToggleIconClick = () => {
     setValue([{ input: { assetSlug: outputValue.assetSlug } }, { output: { assetSlug: inputValue.assetSlug } }]);
@@ -443,14 +442,12 @@ export const SwapForm: FC = () => {
         />
       )}
 
-      {operationState && (
+      {operation && (
         <OperationStatus
           className="mb-8"
           closable
           typeTitle={t('swapNoun')}
-          operation={operationState.operation}
-          operationSender={operationState.sender}
-          operationsTypes={RELEVANT_TZKT_OPERATIONS_TYPES}
+          operation={operation}
           onClose={handleOperationClose}
         />
       )}
