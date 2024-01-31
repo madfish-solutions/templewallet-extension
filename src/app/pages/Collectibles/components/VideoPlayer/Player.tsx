@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect, useRef, ReactNode, forwardRef } from 'react';
 
 import { emptyFn } from '@rnw-community/shared';
-import classNames from 'clsx';
+import clsx from 'clsx';
 
 import { useAppEnv } from 'app/env';
 import { combineRefs } from 'lib/ui/utils';
@@ -417,7 +417,7 @@ export const Player = forwardRef<HTMLVideoElement | HTMLAudioElement, Props>(
 
     return (
       <div
-        className={classNames('vp-container', hidden && 'hidden-container', className)}
+        className={clsx('vp-container', hidden && 'hidden-container', className)}
         ref={containerRef}
         style={{ cursor: displayControls ? 'default' : 'none' }}
         onMouseMove={showControlsHandler}

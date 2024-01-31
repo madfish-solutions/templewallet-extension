@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useState } from 'react';
+import React, { memo, useCallback, useState } from 'react';
 
 import { emptyFn } from '@rnw-community/shared';
 
@@ -11,7 +11,7 @@ interface Props {
   onError?: EmptyFn;
 }
 
-export const VideoCollectible: FC<Props> = ({ uri, className, onError = emptyFn }) => {
+export const VideoCollectible = memo<Props>(({ uri, className, onError = emptyFn }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   const handleLoaded = useCallback(() => setIsLoading(false), []);
@@ -29,4 +29,4 @@ export const VideoCollectible: FC<Props> = ({ uri, className, onError = emptyFn 
       <CollectibleImageLoader large className={isLoading ? undefined : 'hidden'} />
     </>
   );
-};
+});

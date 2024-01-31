@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useEffect, useRef, useState } from 'react';
+import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 
 import { emptyFn } from '@rnw-community/shared';
 
@@ -17,7 +17,7 @@ interface Props {
   onAudioError?: EmptyFn;
 }
 
-export const AudioCollectible: FC<Props> = ({ uri, metadata, className, style, onAudioError = emptyFn }) => {
+export const AudioCollectible = memo<Props>(({ uri, metadata, className, style, onAudioError = emptyFn }) => {
   const playerRef = useRef<HTMLAudioElement>(null);
   const [isAudioLoading, setIsAudioLoading] = useState(true);
   const [isImageLoading, setIsImageLoading] = useState(true);
@@ -59,4 +59,4 @@ export const AudioCollectible: FC<Props> = ({ uri, metadata, className, style, o
       <CollectibleImageLoader large className={ready ? 'hidden' : undefined} />
     </>
   );
-};
+});
