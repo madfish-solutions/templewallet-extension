@@ -1,8 +1,7 @@
 import { createReducer } from '@reduxjs/toolkit';
 import { persistReducer } from 'redux-persist';
-import storage from 'redux-persist/lib/storage';
 
-import { createEntity } from 'lib/store';
+import { storageConfig, createEntity } from 'lib/store';
 
 import { loadCollectiblesDetailsActions } from './actions';
 import { collectiblesInitialState, CollectiblesState } from './state';
@@ -48,7 +47,7 @@ const collectiblesReducer = createReducer<CollectiblesState>(collectiblesInitial
 export const collectiblesPersistedReducer = persistReducer(
   {
     key: 'root.collectibles',
-    storage,
+    ...storageConfig,
     whitelist: ['adultFlags'] as (keyof CollectiblesState)[]
   },
   collectiblesReducer
