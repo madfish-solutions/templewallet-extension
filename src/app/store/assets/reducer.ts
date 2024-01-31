@@ -1,10 +1,9 @@
 import { createReducer } from '@reduxjs/toolkit';
 import { persistReducer } from 'redux-persist';
 import hardSet from 'redux-persist/lib/stateReconciler/hardSet';
-import storage from 'redux-persist/lib/storage';
 
 import { toTokenSlug } from 'lib/assets';
-import { createTransformsBeforePersist } from 'lib/store';
+import { storageConfig, createTransformsBeforePersist } from 'lib/store';
 
 import {
   loadAccountTokensActions,
@@ -144,7 +143,7 @@ const assetsReducer = createReducer<SliceState>(initialState, builder => {
 export const assetsPersistedReducer = persistReducer<SliceState>(
   {
     key: 'root.assets',
-    storage,
+    ...storageConfig,
     stateReconciler: hardSet,
     transforms: [
       createTransformsBeforePersist<SliceState>({
