@@ -24,7 +24,7 @@
     "audit-deps": "node ./audit-deps.js"
   },
   "engines": {
-    "node": "16"
+    "node": ">=18"
   },
   "dependencies": {
     "@apollo/client": "^3.7.2",
@@ -201,6 +201,9 @@
     "youves-sdk": "^0.0.6",
     "yup": "^1.1.1",
     "zip-a-folder": "^1.1.5"
+  },
+  "devDependencies": {
+    "source-map": "^0.7.4"
   },
   "resolutions": {
     "ws": "7.4.6",
