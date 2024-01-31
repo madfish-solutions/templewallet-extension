@@ -76,6 +76,7 @@
     "@types/ledgerhq__hw-transport-u2f": "4.21.2",
     "@types/libsodium-wrappers": "0.7.8",
     "@types/lodash": "^4.14.194",
+    "@types/memoizee": "^0.4.11",
     "@types/node": "16.11.7",
     "@types/node-forge": "^1.3.1",
     "@types/react": "18.0.15",
@@ -143,12 +144,11 @@
     "libsodium": "0.7.8",
     "libsodium-wrappers": "0.7.8",
     "lodash": "4.17.21",
-    "micro-memoize": "4.0.9",
+    "memoizee": "^0.4.15",
     "mini-css-extract-plugin": "2.6.1",
     "nanoid": "3.1.31",
     "node-forge": "^1.3.1",
     "npm-run-all": "^4.1.5",
-    "p-memoize": "4.0.3",
     "path-browserify": "1.0.1",
     "postcss": "8.4.17",
     "postcss-flexbugs-fixes": "5.0.2",
@@ -203,6 +203,9 @@
     "youves-sdk": "^0.0.6",
     "yup": "^1.1.1",
     "zip-a-folder": "^1.1.5"
+  },
+  "devDependencies": {
+    "source-map": "^0.7.4"
   },
   "resolutions": {
     "ws": "7.4.6",

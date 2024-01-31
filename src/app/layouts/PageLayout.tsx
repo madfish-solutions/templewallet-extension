@@ -1,6 +1,6 @@
 import React, { ComponentProps, FC, ReactNode, Suspense, useCallback, useEffect, useRef, useState } from 'react';
 
-import classNames from 'clsx';
+import clsx from 'clsx';
 
 import DocBg from 'app/a11y/DocBg';
 import { Button } from 'app/atoms/Button';
@@ -38,7 +38,7 @@ const PageLayout: FC<PageLayoutProps> = ({ children, contentContainerStyle, ...t
     <>
       <DocBg bgClassName="bg-primary-orange" />
 
-      <div className={classNames(fullPage && 'pb-20', 'relative')}>
+      <div className={clsx(fullPage && 'pb-20', 'relative')}>
         <Header />
 
         <ContentPaper>
@@ -72,7 +72,7 @@ const ContentPaper: FC<ContentPaparProps> = ({ className, style = {}, children, 
   return appEnv.fullPage ? (
     <ContentContainer>
       <div
-        className={classNames('bg-white rounded-md shadow-lg', className)}
+        className={clsx('bg-white rounded-md shadow-lg', className)}
         style={{ minHeight: '20rem', ...style }}
         {...rest}
       >
@@ -80,7 +80,7 @@ const ContentPaper: FC<ContentPaparProps> = ({ className, style = {}, children, 
       </div>
     </ContentContainer>
   ) : (
-    <ContentContainer padding={false} className={classNames('bg-white', className)} style={style} {...rest}>
+    <ContentContainer padding={false} className={clsx('bg-white', className)} style={style} {...rest}>
       {children}
     </ContentContainer>
   );
@@ -167,7 +167,7 @@ const Toolbar: FC<ToolbarProps> = ({
   return (
     <div
       ref={updateRootRef}
-      className={classNames(
+      className={clsx(
         'sticky z-20 flex items-center py-2 px-4',
         fullPage && !sticked && 'rounded-t',
         sticked ? 'shadow' : 'shadow-sm',
@@ -186,7 +186,7 @@ const Toolbar: FC<ToolbarProps> = ({
 
         {isBackButtonAvailable && (
           <Button
-            className={classNames(
+            className={clsx(
               'rounded px-2 py-1',
               'flex items-center',
               'text-gray-600 text-shadow-black',
@@ -220,7 +220,7 @@ const Toolbar: FC<ToolbarProps> = ({
       {skip && (
         <div className="flex content-end">
           <Button
-            className={classNames(
+            className={clsx(
               'flex items-center px-4 py-2 rounded',
               'text-sm font-semibold leading-none text-gray-600 text-shadow-black',
               'opacity-90 hover:opacity-100 hover:bg-black hover:bg-opacity-5',
