@@ -6,18 +6,18 @@ import { AssetImage } from 'app/templates/AssetImage';
 import { AssetMetadataBase } from 'lib/metadata';
 
 import { CollectibleImageFallback } from './CollectibleImageFallback';
+import { CollectibleImageLoader } from './CollectibleImageLoader';
 import { Player } from './VideoPlayer/Player';
 
 interface Props {
   uri: string;
   metadata?: AssetMetadataBase;
-  loader?: React.ReactElement;
   className?: string;
   style?: React.CSSProperties;
   onAudioError?: EmptyFn;
 }
 
-export const AudioCollectible: FC<Props> = ({ uri, metadata, className, style, loader, onAudioError = emptyFn }) => {
+export const AudioCollectible: FC<Props> = ({ uri, metadata, className, style, onAudioError = emptyFn }) => {
   const playerRef = useRef<HTMLAudioElement>(null);
   const [isAudioLoading, setIsAudioLoading] = useState(true);
   const [isImageLoading, setIsImageLoading] = useState(true);
@@ -53,11 +53,10 @@ export const AudioCollectible: FC<Props> = ({ uri, metadata, className, style, l
             onStackFailed={handleImageLoaded}
           />
         }
-        onCanPlayThrough={handleAudioLoaded}
+        onLoadedMetadata={handleAudioLoaded}
         onError={onAudioError}
       />
-
-      {!ready && loader}
+      <CollectibleImageLoader large className={ready ? 'hidden' : undefined} />
     </>
   );
 };

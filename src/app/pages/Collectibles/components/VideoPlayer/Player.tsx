@@ -28,7 +28,7 @@ interface Props {
   loop?: boolean;
   className?: string;
   audioPoster?: ReactNode;
-  onCanPlayThrough?: EmptyFn;
+  onLoadedMetadata?: EmptyFn;
   onError?: EmptyFn;
 }
 
@@ -42,7 +42,7 @@ export const Player = forwardRef<HTMLVideoElement | HTMLAudioElement, Props>(
       loop,
       className,
       audioPoster,
-      onCanPlayThrough = emptyFn,
+      onLoadedMetadata = emptyFn,
       onError = emptyFn
     },
     ref
@@ -58,7 +58,7 @@ export const Player = forwardRef<HTMLVideoElement | HTMLAudioElement, Props>(
     const [currentTimeUI, setCurrentTimeUI] = useState('00:00');
     const [remainedTimeUI, setRemainedTimeUI] = useState('00:00');
     const [fullscreenState, setFullscreenState] = useState(false);
-    const [volumeKeyAction, setvolumeKeyAction] = useState(false);
+    const [volumeKeyAction, setVolumeKeyAction] = useState(false);
     const [playerError, setPlayerError] = useState<MediaError | null>(null);
 
     const playerRef = useRef<HTMLVideoElement>(null);
@@ -339,9 +339,9 @@ export const Player = forwardRef<HTMLVideoElement | HTMLAudioElement, Props>(
               player.volume = +(player.volume + 0.05).toFixed(2);
             }
 
-            setvolumeKeyAction(true);
+            setVolumeKeyAction(true);
             setKeyActionVolumeTimeout(() => {
-              setvolumeKeyAction(false);
+              setVolumeKeyAction(false);
             }, 1500);
 
             break;
@@ -353,9 +353,9 @@ export const Player = forwardRef<HTMLVideoElement | HTMLAudioElement, Props>(
               player.volume = +(player.volume - 0.05).toFixed(2);
             }
 
-            setvolumeKeyAction(true);
+            setVolumeKeyAction(true);
             setKeyActionVolumeTimeout(() => {
-              setvolumeKeyAction(false);
+              setVolumeKeyAction(false);
             }, 1500);
 
             break;
@@ -384,8 +384,10 @@ export const Player = forwardRef<HTMLVideoElement | HTMLAudioElement, Props>(
       document.addEventListener('keydown', keyEventHandler);
       document.addEventListener('fullscreenchange', fullscreenChangeHandler);
 
+      onLoadedMetadata();
+
       autoPlay && (playPromise.current = player.play());
-    }, [autoPlay, volumeState, timeChangeHandler, keyEventHandler, fullscreenChangeHandler]);
+    }, [autoPlay, volumeState, timeChangeHandler, keyEventHandler, fullscreenChangeHandler, onLoadedMetadata]);
 
     /**
      * ERROR HANDLER
@@ -428,7 +430,6 @@ export const Player = forwardRef<HTMLVideoElement | HTMLAudioElement, Props>(
               src={src}
               controls={false}
               loop={loop}
-              onCanPlayThrough={onCanPlayThrough}
               onLoadedMetadata={loadedHandler}
               onClick={togglePlayHandler}
               onPlay={playHandler}
@@ -447,7 +448,6 @@ export const Player = forwardRef<HTMLVideoElement | HTMLAudioElement, Props>(
             src={src}
             controls={false}
             loop={loop}
-            onCanPlayThrough={onCanPlayThrough}
             onLoadedMetadata={loadedHandler}
             onClick={togglePlayHandler}
             onPlay={playHandler}

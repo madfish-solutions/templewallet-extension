@@ -59,7 +59,6 @@ export const CollectiblePageImage = memo<Props>(
           return (
             <VideoCollectible
               uri={buildObjktCollectibleArtifactUri(objktArtifactUri)}
-              loader={<CollectibleImageLoader large />}
               className={className}
               onError={handleError}
             />
@@ -71,7 +70,6 @@ export const CollectiblePageImage = memo<Props>(
             <AudioCollectible
               uri={buildObjktCollectibleArtifactUri(objktArtifactUri)}
               metadata={metadata}
-              loader={<CollectibleImageLoader large />}
               className={className}
               onAudioError={handleError}
             />

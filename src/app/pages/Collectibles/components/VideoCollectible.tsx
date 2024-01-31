@@ -2,16 +2,16 @@ import React, { FC, useCallback, useState } from 'react';
 
 import { emptyFn } from '@rnw-community/shared';
 
+import { CollectibleImageLoader } from './CollectibleImageLoader';
 import { Player } from './VideoPlayer/Player';
 
 interface Props {
   uri: string;
-  loader?: React.ReactElement;
   className?: string;
   onError?: EmptyFn;
 }
 
-export const VideoCollectible: FC<Props> = ({ uri, loader, className, onError = emptyFn }) => {
+export const VideoCollectible: FC<Props> = ({ uri, className, onError = emptyFn }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   const handleLoaded = useCallback(() => setIsLoading(false), []);
@@ -21,12 +21,12 @@ export const VideoCollectible: FC<Props> = ({ uri, loader, className, onError = 
       <Player
         src={uri}
         loop
-        onCanPlayThrough={handleLoaded}
+        onLoadedMetadata={handleLoaded}
         hidden={isLoading}
         className={className}
         onError={onError}
       />
-      {isLoading && loader}
+      <CollectibleImageLoader large className={isLoading ? undefined : 'hidden'} />
     </>
   );
 };
