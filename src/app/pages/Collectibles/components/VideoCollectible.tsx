@@ -1,7 +1,6 @@
 import React, { FC, useCallback, useState } from 'react';
 
 import { emptyFn } from '@rnw-community/shared';
-import clsx from 'clsx';
 
 import { Player } from './VideoPlayer/Player';
 
@@ -23,7 +22,8 @@ export const VideoCollectible: FC<Props> = ({ uri, loader, className, onError = 
         src={uri}
         loop
         onCanPlayThrough={handleLoaded}
-        className={clsx(className, isLoading && 'hidden')}
+        hidden={isLoading}
+        className={className}
         onError={onError}
       />
       {isLoading && loader}

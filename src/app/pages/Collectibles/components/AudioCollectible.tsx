@@ -41,6 +41,7 @@ export const AudioCollectible: FC<Props> = ({ uri, metadata, className, style, l
         autoPlay={false}
         audioPlayer
         loop
+        hidden={!ready}
         audioPoster={
           <AssetImage
             metadata={metadata}

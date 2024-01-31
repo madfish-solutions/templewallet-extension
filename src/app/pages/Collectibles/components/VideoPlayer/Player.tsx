@@ -24,6 +24,7 @@ interface Props {
   src: string;
   audioPlayer?: boolean;
   autoPlay?: boolean;
+  hidden?: boolean;
   loop?: boolean;
   className?: string;
   audioPoster?: ReactNode;
@@ -37,6 +38,7 @@ export const Player = forwardRef<HTMLVideoElement | HTMLAudioElement, Props>(
       src,
       audioPlayer = false,
       autoPlay = true,
+      hidden = false,
       loop,
       className,
       audioPoster,
@@ -413,7 +415,7 @@ export const Player = forwardRef<HTMLVideoElement | HTMLAudioElement, Props>(
 
     return (
       <div
-        className={classNames('vp-container', className)}
+        className={classNames('vp-container', hidden && 'hidden-container', className)}
         ref={containerRef}
         style={{ cursor: displayControls ? 'default' : 'none' }}
         onMouseMove={showControlsHandler}

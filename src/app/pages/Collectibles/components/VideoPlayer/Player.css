@@ -244,3 +244,10 @@
 .vp-volume__range:hover .vp-volume__range--current__thumb {
   transform: translateX(50%) scale(1);
 }
+
+.hidden-container,
+.hidden-container > div,
+.hidden-container > video,
+.hidden-container > audio {
+  display: none;
+}
