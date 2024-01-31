@@ -2,17 +2,17 @@ import { ManagerKeyResponse, RpcClient } from '@taquito/rpc';
 import { MichelCodecPacker } from '@taquito/taquito';
 import { validateAddress, ValidationResult } from '@taquito/utils';
 import BigNumber from 'bignumber.js';
-import memoize from 'micro-memoize';
+import memoizee from 'memoizee';
 
 import { FastRpcClient } from 'lib/taquito-fast-rpc';
 
-export const loadFastRpcClient = memoize((rpc: string) => new FastRpcClient(rpc));
+export const loadFastRpcClient = memoizee((rpc: string) => new FastRpcClient(rpc));
 
 export const michelEncoder = new MichelCodecPacker();
 
-export const loadChainId = memoize(fetchChainId, {
-  isPromise: true,
-  maxSize: 100
+export const loadChainId = memoizee(fetchChainId, {
+  promise: true,
+  max: 100
 });
 
 function fetchChainId(rpcUrl: string) {

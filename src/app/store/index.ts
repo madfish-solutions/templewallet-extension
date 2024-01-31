@@ -3,9 +3,9 @@ import { Action, configureStore } from '@reduxjs/toolkit';
 import type { AnyAction, Dispatch } from 'redux';
 import { persistReducer, persistStore, createMigrate } from 'redux-persist';
 import autoMergeLevel2 from 'redux-persist/lib/stateReconciler/autoMergeLevel2';
-import storage from 'redux-persist/lib/storage';
 
 import { IS_DEV_ENV } from 'lib/env';
+import { storageConfig } from 'lib/store';
 
 import { sanitizeCollectiblesMetadataForDevTools } from './collectibles-metadata/state';
 import { MIGRATIONS } from './migrations';
@@ -26,7 +26,7 @@ const persistedReducer = persistReducer<RootState>(
   {
     key: 'temple-root',
     version: 2,
-    storage,
+    ...storageConfig,
     stateReconciler: autoMergeLevel2,
     blacklist: persistConfigBlacklist,
     debug: IS_DEV_ENV,
