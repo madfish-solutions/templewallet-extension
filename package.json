@@ -21,10 +21,11 @@
     "lint:fix": "prettier \"./**/*\" --write --ignore-unknown",
     "clear:lint": "rimraf node_modules/.cache/.eslintcache",
     "find-deadcode": "ts-prune --error",
-    "audit-deps": "node ./audit-deps.js"
+    "audit-deps": "node ./audit-deps.js",
+    "serve-google-ads": "http-server ./public/misc/google-ads -c-1 -p 8080"
   },
   "engines": {
-    "node": "16"
+    "node": ">=18"
   },
   "dependencies": {
     "@apollo/client": "^3.7.2",
@@ -69,6 +70,7 @@
     "@types/debounce-promise": "3.1.4",
     "@types/elliptic": "6.4.14",
     "@types/fontfaceobserver": "0.0.6",
+    "@types/google-publisher-tag": "^1.20240122.0",
     "@types/jest": "27.0.3",
     "@types/ledgerhq__hw-transport": "4.21.3",
     "@types/ledgerhq__hw-transport-u2f": "4.21.2",

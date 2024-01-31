@@ -1,0 +1,70 @@
+<!--
+  This page is not to be packaged with extension, but hosted remotely. (i.e. @ https://templewallet.com/google-ads)
+
+  Serve locally by:
+
+  ```bash
+  yarn global add http-server
+  yarn serve-google-ads
+  ```
+-->
+
+<!DOCTYPE html>
+<html lang="">
+
+<head>
+  <meta charset="utf-8" />
+  <!-- <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" /> -->
+  <title>Temple Wallet | Google Ad Manager's ads</title>
+
+  <!-- SCRIPTS | See: https://developers.google.com/publisher-tag/guides/get-started -->
+
+  <script async src="https://securepubads.g.doubleclick.net/tag/js/gpt.js"></script>
+  <!-- <script src="./index.js"></script> -->
+
+  <script>
+    window.googletag = window.googletag || { cmd: [] };
+
+    googletag.cmd.push(() => {
+      // Define an ad slot for div with id "banner-ad".
+      googletag
+        .defineSlot(
+          /* 1 */
+          "/6355419/Travel/Europe/France/Paris",
+          // [728, 90],
+          [300, 250],
+          /* 2 */
+          // "/6355419/Travel/Europe",
+          // ["fluid"],
+          "ad-slot"
+        )
+        .addService(googletag.pubads());
+
+      // Enable the PubAdsService.
+      googletag.enableServices();
+    });
+  </script>
+
+  <style>
+    body {
+      margin: 0;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="ad-slot">
+    <!-- Place for ad to be inserted into
+      With React, it would be handled by `react-ad-manager` or `react-google-publisher-tag`
+    -->
+  </div>
+
+  <script>
+    googletag.cmd.push(() => {
+      // Request and render an ad for the "banner-ad" slot.
+      googletag.display("ad-slot");
+    });
+  </script>
+</body>
+
+</html>

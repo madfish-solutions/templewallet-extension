@@ -5,7 +5,7 @@ import clsx from 'clsx';
 
 import { SyncSpinner, Divider, Checkbox } from 'app/atoms';
 import DropdownWrapper from 'app/atoms/DropdownWrapper';
-import { PartnersPromotion, PartnersPromotionVariant } from 'app/atoms/partners-promotion';
+// import { PartnersPromotion, PartnersPromotionVariant } from 'app/atoms/partners-promotion';
 import { useAppEnv } from 'app/env';
 import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
 import { useTokensListingLogic } from 'app/hooks/use-tokens-listing-logic';
@@ -77,8 +77,14 @@ export const TokensTab = memo(() => {
       />
     ));
 
+    // const promoJsx = (
+    //   <PartnersPromotion id="promo-token-item" key="promo-token-item" variant={PartnersPromotionVariant.Text} />
+    // );
+
     const promoJsx = (
-      <PartnersPromotion id="promo-token-item" key="promo-token-item" variant={PartnersPromotionVariant.Text} />
+      <div key="google-ad" className="self-center">
+        <iframe src="http://127.0.0.1:8080" style={{ width: 300, height: 250 }} />
+      </div>
     );
 
     if (filteredAssets.length < 5) {
