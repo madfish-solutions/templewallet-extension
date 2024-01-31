@@ -24,7 +24,7 @@
     "audit-deps": "node ./audit-deps.js"
   },
   "engines": {
-    "node": ">=18"
+    "node": "16"
   },
   "dependencies": {
     "@apollo/client": "^3.7.2",
