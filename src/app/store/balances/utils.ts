@@ -7,6 +7,22 @@ import type { BalancesStateInterface } from './state';
 
 export const getKeyForBalancesRecord = (publicKeyHash: string, chainId: string) => `${publicKeyHash}_${chainId}`;
 
+export const writeTriedToLoadGasBalance = (
+  state: Draft<BalancesStateInterface>,
+  publicKeyHash: string,
+  chainId: string
+) => {
+  state.triedToLoadGasBalance[getKeyForBalancesRecord(publicKeyHash, chainId)] = true;
+};
+
+export const writeTriedToLoadAssetsBalances = (
+  state: Draft<BalancesStateInterface>,
+  publicKeyHash: string,
+  chainId: string
+) => {
+  state.triedToLoadAssetsBalances[getKeyForBalancesRecord(publicKeyHash, chainId)] = true;
+};
+
 export const retrieveBalancesRecord = (
   state: Draft<BalancesStateInterface>,
   publicKeyHash: string,

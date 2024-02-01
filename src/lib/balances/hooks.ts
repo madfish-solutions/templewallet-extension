@@ -11,7 +11,9 @@ import {
   useAllBalancesSelector,
   useBalancesErrorSelector,
   useBalanceSelector,
-  useBalancesLoadingSelector
+  useBalancesLoadingSelector,
+  useTriedToLoadGasBalanceSelector,
+  useTriedToLoadAssetsBalancesSelector
 } from 'app/store/balances/selectors';
 import {
   addWhitelistTokensMetadataAction,
@@ -82,6 +84,8 @@ export function useBalance(assetSlug: string, address: string, opts: UseBalanceO
   const balancesAreEmpty = Object.keys(balances).length === 0;
   const rawAlreadyFetchedBalance = useBalanceSelector(address, chainId ?? '', assetSlug);
   const shouldUseTzkt = !chainId || isKnownChainId(chainId);
+  const triedToLoadGasBalance = useTriedToLoadGasBalanceSelector(address, chainId ?? '');
+  const triedToLoadAssetsBalances = useTriedToLoadAssetsBalancesSelector(address, chainId ?? '');
 
   const tezos = useMemo(() => {
     if (opts.networkRpc) {
@@ -189,7 +193,11 @@ export function useBalance(assetSlug: string, address: string, opts: UseBalanceO
       return convertRawBalance(rawAlreadyFetchedBalance);
     }
 
-    if (shouldUseTzkt && !balancesAreEmpty) {
+    if (
+      shouldUseTzkt &&
+      !balancesAreEmpty &&
+      (assetSlug === TEZ_TOKEN_SLUG ? triedToLoadGasBalance : triedToLoadAssetsBalances)
+    ) {
       return new BigNumber(0);
     }
 
@@ -245,13 +253,15 @@ export function useBalance(assetSlug: string, address: string, opts: UseBalanceO
     rawAlreadyFetchedBalance,
     shouldUseTzkt,
     balancesAreEmpty,
+    assetSlug,
+    triedToLoadGasBalance,
+    triedToLoadAssetsBalances,
+    suspense,
     convertRawBalance,
     localRawBalance,
-    address,
-    chainId,
-    assetSlug,
     fallbackData,
-    suspense
+    address,
+    chainId
   ]);
 
   const isLoading = shouldUseTzkt ? balancesAreLoading : localIsLoading;
