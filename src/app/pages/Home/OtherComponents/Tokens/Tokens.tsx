@@ -5,7 +5,8 @@ import clsx from 'clsx';
 
 import { SyncSpinner, Divider, Checkbox } from 'app/atoms';
 import DropdownWrapper from 'app/atoms/DropdownWrapper';
-import { PartnersPromotion, PartnersPromotionVariant } from 'app/atoms/partners-promotion';
+//import { PartnersPromotion, PartnersPromotionVariant } from 'app/atoms/partners-promotion';
+import { Persona3AdBanner } from 'app/atoms/Persona3AdBanner';
 import { useAppEnv } from 'app/env';
 import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
 import { useTokensListingLogic } from 'app/hooks/use-tokens-listing-logic';
@@ -78,7 +79,7 @@ export const TokensTab = memo(() => {
     ));
 
     const promoJsx = (
-      <PartnersPromotion id="promo-token-item" key="promo-token-item" variant={PartnersPromotionVariant.Text} />
+      <Persona3AdBanner id="my-banner-ad" adUnitId="bf498e26-eb16-4e35-8954-e65690f28819" width={300} height={250} />
     );
 
     if (filteredAssets.length < 5) {
