@@ -60,6 +60,7 @@ const ReadyClientTzktConnectionProvider: FC<PropsWithChildren> = ({ children }) 
       connection.onclose(e => {
         if (!shouldShutdownConnection.current) {
           console.error(e);
+          setConnectionReady(false);
           setTimeout(() => initConnection(), 1000);
         }
       });

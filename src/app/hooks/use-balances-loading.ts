@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { noop } from 'lodash';
 import { useDispatch } from 'react-redux';
@@ -24,6 +24,8 @@ export const useBalancesLoading = () => {
   const { connection, connectionReady } = useTzktConnection();
   const [tokensSubscriptionConfirmed, setTokensSubscriptionConfirmed] = useState(false);
   const [accountsSubscriptionConfirmed, setAccountsSubscriptionConfirmed] = useState(false);
+  const triedToLoadTokensBalancesAddressRef = useRef<string>();
+  const triedToLoadTezBalanceAddressRef = useRef<string>();
 
   const dispatch = useDispatch();
 
@@ -104,14 +106,24 @@ export const useBalancesLoading = () => {
   }, [accountsListener, connection, connectionReady, publicKeyHash, tokenBalancesListener]);
 
   useInterval(
-    () => !accountsSubscriptionConfirmed && dispatch(loadGasBalanceActions.submit({ publicKeyHash, chainId })),
+    () => {
+      if (!accountsSubscriptionConfirmed || publicKeyHash !== triedToLoadTezBalanceAddressRef.current) {
+        dispatch(loadGasBalanceActions.submit({ publicKeyHash, chainId }));
+        triedToLoadTezBalanceAddressRef.current = publicKeyHash;
+      }
+    },
     BALANCES_SYNC_INTERVAL,
     [chainId, publicKeyHash, accountsSubscriptionConfirmed],
     true
   );
 
   useInterval(
-    () => !tokensSubscriptionConfirmed && dispatch(loadAssetsBalancesActions.submit({ publicKeyHash, chainId })),
+    () => {
+      if (!tokensSubscriptionConfirmed || publicKeyHash !== triedToLoadTokensBalancesAddressRef.current) {
+        dispatch(loadAssetsBalancesActions.submit({ publicKeyHash, chainId }));
+        triedToLoadTokensBalancesAddressRef.current = publicKeyHash;
+      }
+    },
     BALANCES_SYNC_INTERVAL,
     [chainId, publicKeyHash, tokensSubscriptionConfirmed],
     false // Not calling immediately, because balances are also loaded via assets loading

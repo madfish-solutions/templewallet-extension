@@ -4,8 +4,6 @@ import { getKeyForBalancesRecord } from './utils';
 
 const EMPTY_BALANCES_RECORD = {};
 
-export const useAllAccountsAndChainsBalancesSelector = () => useSelector(state => state.balances.balancesAtomic);
-
 export const useAllBalancesSelector = (publicKeyHash: string, chainId: string) => {
   const publicKeyHashWithChainId = getKeyForBalancesRecord(publicKeyHash, chainId);
 
@@ -16,4 +14,16 @@ export const useBalanceSelector = (publicKeyHash: string, chainId: string, asset
   const publicKeyHashWithChainId = getKeyForBalancesRecord(publicKeyHash, chainId);
 
   return useSelector(state => state.balances.balancesAtomic[publicKeyHashWithChainId]?.data[assetSlug]);
+};
+
+export const useBalancesLoadingSelector = (publicKeyHash: string, chainId: string) => {
+  const publicKeyHashWithChainId = getKeyForBalancesRecord(publicKeyHash, chainId);
+
+  return useSelector(state => state.balances.balancesAtomic[publicKeyHashWithChainId]?.isLoading ?? false);
+};
+
+export const useBalancesErrorSelector = (publicKeyHash: string, chainId: string) => {
+  const publicKeyHashWithChainId = getKeyForBalancesRecord(publicKeyHash, chainId);
+
+  return useSelector(state => state.balances.balancesAtomic[publicKeyHashWithChainId]?.error);
 };
