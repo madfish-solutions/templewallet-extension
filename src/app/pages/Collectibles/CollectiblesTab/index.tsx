@@ -23,6 +23,7 @@ import { useLocalStorage } from 'lib/ui/local-storage';
 import Popper, { PopperRenderProps } from 'lib/ui/Popper';
 import { Link } from 'lib/woozie';
 
+import { setTestID } from '../../../../lib/analytics';
 import { CollectibleItem } from './CollectibleItem';
 
 const LOCAL_STORAGE_TOGGLE_KEY = 'collectibles-grid:show-items-details';
@@ -124,7 +125,7 @@ const buildEmptySection = (isSyncing: boolean) =>
     <SyncSpinner className="mt-6" />
   ) : (
     <div className="w-full border rounded border-gray-200">
-      <p className={'text-gray-600 text-center text-xs py-6'}>
+      <p className={'text-gray-600 text-center text-xs py-6'} {...setTestID('Collectibles/Empty State Text')}>
         <T id="zeroCollectibleText" />
       </p>
     </div>

@@ -18,7 +18,9 @@ import { atomsToTokens } from 'lib/temple/helpers';
 import { useIntersectionDetection } from 'lib/ui/use-intersection-detection';
 import { Link } from 'lib/woozie';
 
+import { setTestID } from '../../../../lib/analytics';
 import { CollectibleItemImage } from './CollectibleItemImage';
+import { CollectibleTabSelectors } from './selectors';
 
 interface Props {
   assetSlug: string;
@@ -53,9 +55,13 @@ export const CollectibleItem = memo<Props>(({ assetSlug, accountPkh, areDetailsS
   useIntersectionDetection(toDisplayRef, handleIntersection, !displayed);
 
   const assetName = getAssetName(metadata);
-
   return (
-    <Link to={`/collectible/${assetSlug}`} className="flex flex-col border border-gray-300 rounded-lg">
+    <Link
+      testID={CollectibleTabSelectors.collectibleItemButton}
+      testIDProperties={{ key: assetSlug }}
+      to={`/collectible/${assetSlug}`}
+      className="flex flex-col border border-gray-300 rounded-lg"
+    >
       <div
         ref={toDisplayRef}
         className={clsx(
@@ -85,7 +91,8 @@ export const CollectibleItem = memo<Props>(({ assetSlug, accountPkh, areDetailsS
         <div className="mt-1 mb-2 mx-1.5">
           <h5 className="text-sm leading-5 text-gray-910 truncate">{assetName}</h5>
           <div className="text-xxxs leading-3 text-gray-600">
-            <span>
+            {' '}
+            <span {...setTestID(CollectibleTabSelectors.floorPrice)}>
               <T id="floorPrice" />:{' '}
             </span>
             {isDefined(listing) ? (
