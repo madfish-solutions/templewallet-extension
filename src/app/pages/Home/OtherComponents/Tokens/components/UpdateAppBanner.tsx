@@ -1,39 +1,44 @@
-import React, { memo, useCallback, useEffect, useState } from 'react';
+import React, { memo, useMemo, useState } from 'react';
 
 import clsx from 'clsx';
 import browser from 'webextension-polyfill';
 
 import { FormSubmitButton } from 'app/atoms';
 import { TOOLBAR_IS_STICKY } from 'app/layouts/PageLayout';
-import { MANUAL_UPDATE_TRIGGERED_KEY } from 'lib/constants';
+import { putStoredAppUpdateDetails, useStoredAppUpdateDetails } from 'app/storage/app-update';
 import { EmojiInlineIcon } from 'lib/icons/emoji';
-import { putToStorage } from 'lib/storage';
+import { useDidMount } from 'lib/ui/hooks';
 
 export const UpdateAppBanner = memo(() => {
-  const [available, setAvailable] = useState(false);
+  const storedUpdateDetails = useStoredAppUpdateDetails();
 
-  useEffect(() => {
+  const [checkedUpdateDetails, setCheckedUpdateDetails] = useState<{ version: string; triggeredManually?: true }>();
+
+  useDidMount(() => {
     // Only available in Chrome
-    browser.runtime.requestUpdateCheck?.().then(([status]) => {
-      if (status === 'update_available') setAvailable(true);
+    void browser.runtime.requestUpdateCheck?.().then(([status, details]) => {
+      if (status === 'update_available') setCheckedUpdateDetails(details);
     });
+  });
 
-    const listener = () => void setAvailable(true);
+  const updateDetails = storedUpdateDetails || checkedUpdateDetails;
 
-    browser.runtime.onUpdateAvailable.addListener(listener);
+  const onUpdateButtonPress = useMemo(() => {
+    if (!updateDetails) return null;
 
-    return () => browser.runtime.onUpdateAvailable.removeListener(listener);
-  }, []);
+    return async () => {
+      await putStoredAppUpdateDetails({
+        ...updateDetails,
+        triggeredManually: true
+      });
 
-  const onUpdateButtonPress = useCallback(async () => {
-    await putToStorage<true>(MANUAL_UPDATE_TRIGGERED_KEY, true);
+      // Applies updates if available. See:
+      // https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/runtime/reload
+      browser.runtime.reload();
+    };
+  }, [updateDetails]);
 
-    // Applies updates if available. See:
-    // https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/runtime/reload
-    browser.runtime.reload();
-  }, []);
-
-  if (!available) return null;
+  if (!onUpdateButtonPress) return null;
 
   return (
     <div

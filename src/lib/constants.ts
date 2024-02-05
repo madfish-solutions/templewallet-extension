@@ -4,8 +4,6 @@ export enum ContentScriptType {
   UpdateSliseAdsRules = 'UpdateSliseAdsRules'
 }
 
-export const MANUAL_UPDATE_TRIGGERED_KEY = 'MANUAL_UPDATE_TRIGGERED';
-
 export const WEBSITES_ANALYTICS_ENABLED = 'WEBSITES_ANALYTICS_ENABLED';
 
 export const ACCOUNT_PKH_STORAGE_KEY = 'account_publickeyhash';
