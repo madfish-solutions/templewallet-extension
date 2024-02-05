@@ -3,11 +3,26 @@ import { getMessaging } from 'firebase/messaging/sw';
 import browser from 'webextension-polyfill';
 
 import 'lib/keep-bg-worker-alive/background';
+import { MANUAL_UPDATE_TRIGGERED_KEY } from 'lib/constants';
 import { EnvVars } from 'lib/env';
 import { updateRulesStorage } from 'lib/slise/update-rules-storage';
+import { fetchFromStorage, removeFromStorage } from 'lib/storage';
 import { start } from 'lib/temple/back/main';
 
-browser.runtime.onInstalled.addListener(({ reason }) => (reason === 'install' ? openFullPage() : null));
+browser.runtime.onInstalled.addListener(({ reason }) => {
+  if (reason === 'install') {
+    openFullPage();
+    return;
+  }
+
+  if (reason === 'update')
+    fetchFromStorage<true>(MANUAL_UPDATE_TRIGGERED_KEY).then(updateTriggeredManually => {
+      if (!updateTriggeredManually) return;
+
+      removeFromStorage(MANUAL_UPDATE_TRIGGERED_KEY);
+      openFullPage();
+    });
+});
 
 start();
 

@@ -1,28 +1,25 @@
-import React, { memo, useEffect, useState } from 'react';
+import React, { memo, useCallback, useEffect, useState } from 'react';
 
 import clsx from 'clsx';
-import useSWR from 'swr';
 import browser from 'webextension-polyfill';
 
 import { FormSubmitButton } from 'app/atoms';
 import { TOOLBAR_IS_STICKY } from 'app/layouts/PageLayout';
+import { MANUAL_UPDATE_TRIGGERED_KEY } from 'lib/constants';
 import { EmojiInlineIcon } from 'lib/icons/emoji';
-
-const LONG_INTERVAL = 30 * 60_000;
+import { putToStorage } from 'lib/storage';
 
 export const UpdateAppBanner = memo(() => {
-  const { data: availableByCheck } = useSWR(
-    'check-for-app-update-available',
-    () => browser.runtime.requestUpdateCheck().then(([status]) => status === 'update_available'),
-    {
-      refreshInterval: LONG_INTERVAL,
-      dedupingInterval: LONG_INTERVAL
-    }
-  );
-
   const [available, setAvailable] = useState(false);
 
   useEffect(() => {
+    // Only available in Chrome
+    browser.runtime.requestUpdateCheck?.().then(([status]) => {
+      console.log(1, status);
+
+      if (status === 'update_available') setAvailable(true);
+    });
+
     const listener = () => void setAvailable(true);
 
     browser.runtime.onUpdateAvailable.addListener(listener);
@@ -30,7 +27,15 @@ export const UpdateAppBanner = memo(() => {
     return () => browser.runtime.onUpdateAvailable.removeListener(listener);
   }, []);
 
-  if (!(available || availableByCheck)) return null;
+  const onUpdateButtonPress = useCallback(async () => {
+    await putToStorage<true>(MANUAL_UPDATE_TRIGGERED_KEY, true);
+
+    // Applies updates if available. See:
+    // https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/runtime/reload
+    browser.runtime.reload();
+  }, []);
+
+  if (!available) return null;
 
   return (
     <div
@@ -46,15 +51,7 @@ export const UpdateAppBanner = memo(() => {
         Wallet is available in the store. Please, update your extension to unlock all the latest improvements.
       </p>
 
-      <FormSubmitButton
-        slim
-        className="mt-3"
-        onClick={
-          // Applies updates if available. See:
-          // https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/runtime/reload
-          () => void browser.runtime.reload()
-        }
-      >
+      <FormSubmitButton slim className="mt-3" onClick={onUpdateButtonPress}>
         Update now
       </FormSubmitButton>
     </div>
