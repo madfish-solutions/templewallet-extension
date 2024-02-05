@@ -1,11 +1,10 @@
 import browser from 'webextension-polyfill';
 
+import { makePersona3AdElement, showPersona3Ad } from 'lib/ads/make-persona3-ad';
 import { ContentScriptType, SLISE_ADS_RULES_UPDATE_INTERVAL, WEBSITES_ANALYTICS_ENABLED } from 'lib/constants';
 import { getAdsActions } from 'lib/slise/get-ads-actions';
 import { AdActionType } from 'lib/slise/get-ads-actions/types';
 import { clearRulesCache, getRulesFromContentScript } from 'lib/slise/get-rules-content-script';
-import { getSlotId } from 'lib/slise/get-slot-id';
-import { makeSliseAdElement, registerAd } from 'lib/slise/make-slise-ad';
 
 let oldHref = '';
 
@@ -49,13 +48,12 @@ const replaceAds = async () => {
     }
 
     await Promise.all(
-      adsActions.map(async action => {
+      adsActions.map(async (action, index) => {
         if (action.type === AdActionType.RemoveElement) {
           action.element.remove();
         } else if (action.type === AdActionType.HideElement) {
           action.element.style.setProperty('display', 'none');
         } else {
-          const slotId = getSlotId();
           const { adRect, shouldUseDivWrapper, divWrapperStyle = {}, stylesOverrides = [] } = action;
           stylesOverrides.sort((a, b) => a.parentDepth - b.parentDepth);
           let stylesOverridesCurrentElement: HTMLElement | null;
@@ -64,10 +62,10 @@ const replaceAds = async () => {
             adElementWithWrapper = document.createElement('div');
             adElementWithWrapper.setAttribute('slise-ad-container', 'true');
             overrideElementStyles(adElementWithWrapper, divWrapperStyle);
-            const adElement = makeSliseAdElement(slotId, adRect.width, adRect.height);
+            const adElement = makePersona3AdElement(adRect.width, adRect.height, false, index);
             adElementWithWrapper.appendChild(adElement);
           } else {
-            adElementWithWrapper = makeSliseAdElement(slotId, adRect.width, adRect.height);
+            adElementWithWrapper = makePersona3AdElement(adRect.width, adRect.height, false, index);
           }
           switch (action.type) {
             case AdActionType.ReplaceAllChildren:
@@ -85,7 +83,7 @@ const replaceAds = async () => {
               break;
           }
           let currentParentDepth = 0;
-          registerAd(slotId);
+          showPersona3Ad(adRect.width, adRect.height, index);
           stylesOverrides.forEach(({ parentDepth, style }) => {
             while (parentDepth > currentParentDepth && stylesOverridesCurrentElement) {
               stylesOverridesCurrentElement = stylesOverridesCurrentElement.parentElement;

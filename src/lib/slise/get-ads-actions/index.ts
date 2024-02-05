@@ -79,11 +79,7 @@ export const getAdsActions = async ({ providersSelector, adPlacesRules, permanen
         await Promise.all(
           parents.map(async parent => {
             await new Promise(resolve => setTimeout(resolve, 0));
-            const sliseAdsCount = applyQuerySelector(
-              `ins.adsbyslise[data-ad-pub="${SLISE_PUBLISHER_ID}"]`,
-              true,
-              parent
-            ).length;
+            const sliseAdsCount = applyQuerySelector(`ins.adsbyslise`, true, parent).length;
             let insertionsLeft = insertionsCount - sliseAdsCount;
 
             const banners = applyQuerySelector<HTMLElement>(bannerCssString, shouldSearchForManyBannersInParent, parent)

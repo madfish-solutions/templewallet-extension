@@ -1,17 +1,25 @@
 const availableAdsResolutions = [
   {
-    width: 270,
-    height: 90,
-    minContainerWidth: 180,
-    maxContainerWidth: 430,
-    minContainerHeight: 60,
-    maxContainerHeight: 120
+    width: 600,
+    height: 160,
+    minContainerWidth: 500,
+    maxContainerWidth: 700,
+    minContainerHeight: 120,
+    maxContainerHeight: 200
   },
   {
-    width: 728,
+    width: 300,
+    height: 250,
+    minContainerWidth: 200,
+    maxContainerWidth: 400,
+    minContainerHeight: 200,
+    maxContainerHeight: 450
+  },
+  {
+    width: 970,
     height: 90,
-    minContainerWidth: 600,
-    maxContainerWidth: 900,
+    minContainerWidth: 800,
+    maxContainerWidth: 1100,
     minContainerHeight: 60,
     maxContainerHeight: 120
   }

@@ -18,5 +18,5 @@ export const Persona3AdBanner: FC<Props> = ({ id, adUnitId, width, height }) => 
     persona3AdClient.showBannerAd({ adUnitId, containerId: id });
   }, [adUnitId, id]);
 
-  return <div id={id} style={{ width, height }} />;
+  return <div id={id} className="object-cover max-h-full max-w-full" style={{ width, height }} />;
 };

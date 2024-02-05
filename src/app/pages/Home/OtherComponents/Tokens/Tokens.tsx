@@ -79,7 +79,7 @@ export const TokensTab = memo(() => {
     ));
 
     const promoJsx = (
-      <Persona3AdBanner id="my-banner-ad" adUnitId="bf498e26-eb16-4e35-8954-e65690f28819" width={300} height={250} />
+      <Persona3AdBanner id="persona3-ad" adUnitId="cf20c750-2fe4-4761-861f-b73b2247fd4d" width={600} height={102} />
     );
 
     if (filteredAssets.length < 5) {
