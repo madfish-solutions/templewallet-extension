@@ -104,6 +104,8 @@ type ToolbarProps = {
 
 export let ToolbarElement: HTMLDivElement | null = null;
 
+export const TOOLBAR_IS_STICKY = true;
+
 const Toolbar: FC<ToolbarProps> = ({
   pageTitle,
   hasBackAction = true,
@@ -168,7 +170,8 @@ const Toolbar: FC<ToolbarProps> = ({
     <div
       ref={updateRootRef}
       className={clsx(
-        'sticky z-20 flex items-center py-2 px-4',
+        TOOLBAR_IS_STICKY && 'sticky z-20',
+        'flex items-center py-2 px-4',
         fullPage && !sticked && 'rounded-t',
         sticked ? 'shadow' : 'shadow-sm',
         'bg-gray-100 overflow-hidden transition ease-in-out duration-300'

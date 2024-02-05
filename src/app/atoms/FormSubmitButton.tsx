@@ -1,6 +1,6 @@
 import React, { FC, useMemo } from 'react';
 
-import classNames from 'clsx';
+import clsx from 'clsx';
 
 import Spinner from 'app/atoms/Spinner/Spinner';
 import { setAnotherSelector } from 'lib/analytics';
@@ -11,29 +11,37 @@ interface FormSubmitButtonProps extends ButtonProps {
   keepChildrenWhenLoading?: boolean;
   loading?: boolean;
   small?: boolean;
-  textClassNames?: string;
+  slim?: boolean;
+  rounder?: boolean;
 }
 
 export const FormSubmitButton: FC<FormSubmitButtonProps> = ({
   loading,
   keepChildrenWhenLoading,
   small,
+  slim = small,
+  rounder,
   disabled,
   className,
-  textClassNames,
   children,
   ...rest
 }) => {
-  const classNameMemo = classNames(
-    'relative flex items-center justify-center h-12 gap-x-2',
-    'text-primary-orange-lighter font-semibold rounded border-2',
-    'transition duration-200 ease-in-out',
-    small ? 'px-6 py-2 text-sm' : 'px-8 py-2.5 text-base',
-    disabled ? 'bg-gray-400 border-gray-400' : 'bg-primary-orange border-primary-orange',
-    loading || disabled
-      ? 'opacity-75 pointer-events-none'
-      : 'opacity-90 hover:opacity-100 focus:opacity-100 shadow-sm hover:shadow focus:shadow',
-    className
+  const classNameMemo = useMemo(
+    () =>
+      clsx(
+        'relative flex items-center justify-center gap-x-2',
+        'text-primary-orange-lighter font-semibold border-2',
+        'transition duration-200 ease-in-out',
+        rounder ? 'rounded-md' : 'rounded',
+        small ? 'px-6 text-sm' : 'px-8 text-base leading-5',
+        slim ? 'h-9 py-1.5' : 'h-12 py-2',
+        disabled ? 'bg-gray-400 border-gray-400' : 'bg-primary-orange border-primary-orange',
+        loading || disabled
+          ? 'opacity-75 pointer-events-none'
+          : 'opacity-90 hover:opacity-100 focus:opacity-100 shadow-sm hover:shadow focus:shadow',
+        className
+      ),
+    [disabled, loading, className, small, slim, rounder]
   );
 
   const otherProps = useMemo(() => (loading ? setAnotherSelector('loading', '') : null), [loading]);
