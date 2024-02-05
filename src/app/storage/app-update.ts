@@ -1,4 +1,5 @@
-import { fetchFromStorage, putToStorage, removeFromStorage, useStorageValue } from 'lib/storage';
+import { fetchFromStorage, putToStorage, removeFromStorage } from 'lib/storage';
+import { useStorage } from 'lib/temple/front';
 
 const storageKey = 'APP_UPDATE_AVAILABLE';
 
@@ -13,4 +14,8 @@ export const putStoredAppUpdateDetails = (value: AppUpdateDetails) => putToStora
 
 export const removeStoredAppUpdateDetails = () => removeFromStorage(storageKey);
 
-export const useStoredAppUpdateDetails = () => useStorageValue<AppUpdateDetails>(storageKey);
+export const useStoredAppUpdateDetails = () => {
+  const [value] = useStorage<AppUpdateDetails>(storageKey);
+
+  return value;
+};

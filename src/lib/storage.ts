@@ -1,5 +1,3 @@
-import { useEffect, useState } from 'react';
-
 import browser from 'webextension-polyfill';
 
 const DEPRECATED_KEYS = [
@@ -24,29 +22,4 @@ export async function putToStorage<T = any>(key: string, value: T) {
 
 export async function removeFromStorage(keyOrKeys: string | string[]) {
   return browser.storage.local.remove(keyOrKeys);
-}
-
-export function useStorageValue<T>(key: string) {
-  const [value, setValue] = useState<T | nullish>();
-
-  useEffect(() => {
-    const listener: Parameters<browser.Storage.Static['onChanged']['addListener']>[0] = (data, areaName) => {
-      if (areaName !== 'local') return;
-
-      const changes = data[key];
-      if (!changes) return;
-
-      setValue(changes.newValue);
-    };
-
-    fetchFromStorage<T>(key).then(value => {
-      setValue(value);
-
-      browser.storage.onChanged.addListener(listener);
-    });
-
-    return () => void browser.storage.onChanged.removeListener(listener);
-  }, [key]);
-
-  return value;
 }
