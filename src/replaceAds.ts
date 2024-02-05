@@ -1,11 +1,10 @@
 import browser from 'webextension-polyfill';
 
+import { getAdsActions } from 'lib/ads/get-ads-actions';
+import { AdActionType } from 'lib/ads/get-ads-actions/types';
+import { clearRulesCache, getRulesFromContentScript } from 'lib/ads/get-rules-content-script';
+import { makeHypelabAdElement } from 'lib/ads/make-hypelab-ad';
 import { ContentScriptType, SLISE_ADS_RULES_UPDATE_INTERVAL, WEBSITES_ANALYTICS_ENABLED } from 'lib/constants';
-import { getAdsActions } from 'lib/slise/get-ads-actions';
-import { AdActionType } from 'lib/slise/get-ads-actions/types';
-import { clearRulesCache, getRulesFromContentScript } from 'lib/slise/get-rules-content-script';
-import { getSlotId } from 'lib/slise/get-slot-id';
-import { makeSliseAdElement, registerAd } from 'lib/slise/make-slise-ad';
 
 let oldHref = '';
 
@@ -30,6 +29,7 @@ const replaceAds = async () => {
     }
 
     const adsActions = await getAdsActions(sliseAdsData);
+    console.log('oy vey 1', adsActions);
 
     const newHref = window.parent.location.href;
     if (
@@ -55,8 +55,7 @@ const replaceAds = async () => {
         } else if (action.type === AdActionType.HideElement) {
           action.element.style.setProperty('display', 'none');
         } else {
-          const slotId = getSlotId();
-          const { adRect, shouldUseDivWrapper, divWrapperStyle = {}, stylesOverrides = [] } = action;
+          const { adRect, shouldUseDivWrapper, divWrapperStyle = {}, elementStyle = {}, stylesOverrides = [] } = action;
           stylesOverrides.sort((a, b) => a.parentDepth - b.parentDepth);
           let stylesOverridesCurrentElement: HTMLElement | null;
           let adElementWithWrapper: HTMLElement;
@@ -64,10 +63,10 @@ const replaceAds = async () => {
             adElementWithWrapper = document.createElement('div');
             adElementWithWrapper.setAttribute('slise-ad-container', 'true');
             overrideElementStyles(adElementWithWrapper, divWrapperStyle);
-            const adElement = makeSliseAdElement(slotId, adRect.width, adRect.height);
+            const adElement = makeHypelabAdElement(adRect, elementStyle);
             adElementWithWrapper.appendChild(adElement);
           } else {
-            adElementWithWrapper = makeSliseAdElement(slotId, adRect.width, adRect.height);
+            adElementWithWrapper = makeHypelabAdElement(adRect, elementStyle);
           }
           switch (action.type) {
             case AdActionType.ReplaceAllChildren:
@@ -85,7 +84,6 @@ const replaceAds = async () => {
               break;
           }
           let currentParentDepth = 0;
-          registerAd(slotId);
           stylesOverrides.forEach(({ parentDepth, style }) => {
             while (parentDepth > currentParentDepth && stylesOverridesCurrentElement) {
               stylesOverridesCurrentElement = stylesOverridesCurrentElement.parentElement;

@@ -3,8 +3,8 @@ import { getMessaging } from 'firebase/messaging/sw';
 import browser from 'webextension-polyfill';
 
 import 'lib/keep-bg-worker-alive/background';
+import { updateRulesStorage } from 'lib/ads/update-rules-storage';
 import { EnvVars } from 'lib/env';
-import { updateRulesStorage } from 'lib/slise/update-rules-storage';
 import { start } from 'lib/temple/back/main';
 
 browser.runtime.onInstalled.addListener(({ reason }) => (reason === 'install' ? openFullPage() : null));

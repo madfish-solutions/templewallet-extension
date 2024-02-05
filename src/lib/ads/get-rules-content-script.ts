@@ -11,6 +11,7 @@ interface RawAllSliseAdsRules {
   providersSelectors: Record<string, string[]>;
   providersToReplaceAtAllSites: string[];
   permanentAdPlacesRulesForAllDomains: Record<string, RawPermanentSliseAdPlacesRule[]>;
+  permanentNativeAdPlacesRulesForAllDomains: Record<string, RawPermanentSliseAdPlacesRule[]>;
   timestamp: number;
 }
 
@@ -20,6 +21,7 @@ interface SliseAdPlacesRule extends Omit<RawSliseAdPlacesRule, 'urlRegexes'> {
 
 interface PermanentSliseAdPlacesRule extends Omit<RawPermanentSliseAdPlacesRule, 'urlRegexes'> {
   urlRegexes: RegExp[];
+  isNative: boolean;
 }
 
 export interface SliseAdsRules {
@@ -39,6 +41,7 @@ export const getRulesFromContentScript = memoizee(
         providersSelectors: {},
         providersToReplaceAtAllSites: [],
         permanentAdPlacesRulesForAllDomains: {},
+        permanentNativeAdPlacesRulesForAllDomains: {},
         timestamp: 0
       };
       const {
@@ -47,6 +50,7 @@ export const getRulesFromContentScript = memoizee(
         providersSelectors,
         providersToReplaceAtAllSites,
         permanentAdPlacesRulesForAllDomains,
+        permanentNativeAdPlacesRulesForAllDomains = {},
         timestamp
       } = rules;
       const { hostname, href } = location;
@@ -65,12 +69,21 @@ export const getRulesFromContentScript = memoizee(
         ...restRuleProps,
         urlRegexes: urlRegexes.map(regex => new RegExp(regex))
       }));
-      const permanentAdPlacesRules = (permanentAdPlacesRulesForAllDomains[hostname] ?? []).map(
-        ({ urlRegexes, ...restRuleProps }) => ({
+      const rawPermanentAdPlacesRules = permanentAdPlacesRulesForAllDomains[hostname] ?? [];
+      const rawPermanentNativeAdPlacesRules = permanentNativeAdPlacesRulesForAllDomains[hostname] ?? [];
+      const permanentAdPlacesRules = rawPermanentAdPlacesRules
+        .map(({ urlRegexes, ...restRuleProps }) => ({
           ...restRuleProps,
-          urlRegexes: urlRegexes.map(regex => new RegExp(regex))
-        })
-      );
+          urlRegexes: urlRegexes.map(regex => new RegExp(regex)),
+          isNative: false
+        }))
+        .concat(
+          rawPermanentNativeAdPlacesRules.map(({ urlRegexes, ...restRuleProps }) => ({
+            ...restRuleProps,
+            urlRegexes: urlRegexes.map(regex => new RegExp(regex)),
+            isNative: true
+          }))
+        );
 
       const aggregatedRelatedAdPlacesRules = adPlacesRules.reduce<Array<Omit<SliseAdPlacesRule, 'urlRegexes'>>>(
         (acc, { urlRegexes, selector, stylesOverrides }) => {

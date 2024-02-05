@@ -19,6 +19,7 @@ import { TempleProvider } from 'lib/temple/front';
 import { DialogsProvider } from 'lib/ui/dialog';
 import * as Woozie from 'lib/woozie';
 
+import { LoadHypelabScript } from './load-hypelab-script';
 import { StoreProvider } from './store/provider';
 
 interface Props extends React.PropsWithChildren {
@@ -35,6 +36,8 @@ export const App: FC<Props> = ({ env }) => (
           <DisableOutlinesForClick />
 
           <AwaitI18N />
+
+          <LoadHypelabScript />
 
           <AwaitFonts name="Inter" weights={[300, 400, 500, 600]} className="antialiased font-inter">
             <BootAnimation>{env.confirmWindow ? <ConfirmPage /> : <PageRouter />}</BootAnimation>

@@ -37,6 +37,7 @@ export interface RawPermanentSliseAdPlacesRule {
   insertionsCount?: number;
   shouldUseDivWrapper: boolean;
   divWrapperStyle?: Record<string, string>;
+  elementStyle?: Record<string, string>;
   elementToMeasureSelector?: string;
   stylesOverrides?: SliseAdStylesOverrides[];
   shouldHideOriginal?: boolean;
@@ -73,4 +74,8 @@ export const getSelectorsForAllProviders = withFetchDataExtraction(() =>
 
 export const getPermanentAdPlacesRulesForAllDomains = withFetchDataExtraction(() =>
   templeWalletApi.get<Record<string, RawPermanentSliseAdPlacesRule[]>>('/slise-ad-rules/ad-places/permanent')
+);
+
+export const getPermanentNativeAdPlacesRulesForAllDomains = withFetchDataExtraction(() =>
+  templeWalletApi.get<Record<string, RawPermanentSliseAdPlacesRule[]>>('/slise-ad-rules/ad-places/permanent-native')
 );

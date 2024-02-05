@@ -1,9 +1,9 @@
 import browser, { Runtime } from 'webextension-polyfill';
 
+import { updateRulesStorage } from 'lib/ads/update-rules-storage';
 import { ACCOUNT_PKH_STORAGE_KEY, ContentScriptType } from 'lib/constants';
 import { E2eMessageType } from 'lib/e2e/types';
 import { BACKGROUND_IS_WORKER } from 'lib/env';
-import { updateRulesStorage } from 'lib/slise/update-rules-storage';
 import { encodeMessage, encryptMessage, getSenderId, MessageType, Response } from 'lib/temple/beacon';
 import { clearAsyncStorages } from 'lib/temple/reset';
 import { TempleMessageType, TempleRequest, TempleResponse } from 'lib/temple/types';

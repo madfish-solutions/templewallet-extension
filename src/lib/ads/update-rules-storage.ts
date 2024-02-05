@@ -6,7 +6,8 @@ import {
   getProvidersRulesForAllDomains,
   getSelectorsForAllProviders,
   getPermanentAdPlacesRulesForAllDomains,
-  getProvidersToReplaceAtAllSites
+  getProvidersToReplaceAtAllSites,
+  getPermanentNativeAdPlacesRulesForAllDomains
 } from 'lib/apis/temple';
 import { ALL_SLISE_ADS_RULES_STORAGE_KEY } from 'lib/constants';
 
@@ -23,13 +24,15 @@ export const updateRulesStorage = async () => {
           providersRulesForAllDomains,
           providersSelectors,
           providersToReplaceAtAllSites,
-          permanentAdPlacesRulesForAllDomains
+          permanentAdPlacesRulesForAllDomains,
+          permanentNativeAdPlacesRulesForAllDomains
         ] = await Promise.all([
           getAdPlacesRulesForAllDomains(),
           getProvidersRulesForAllDomains(),
           getSelectorsForAllProviders(),
           getProvidersToReplaceAtAllSites(),
-          getPermanentAdPlacesRulesForAllDomains()
+          getPermanentAdPlacesRulesForAllDomains(),
+          getPermanentNativeAdPlacesRulesForAllDomains()
         ]);
 
         return {
@@ -38,6 +41,7 @@ export const updateRulesStorage = async () => {
           providersSelectors,
           providersToReplaceAtAllSites,
           permanentAdPlacesRulesForAllDomains,
+          permanentNativeAdPlacesRulesForAllDomains,
           timestamp: Date.now()
         };
       },

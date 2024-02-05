@@ -1,21 +1,6 @@
-const availableAdsResolutions = [
-  {
-    width: 270,
-    height: 90,
-    minContainerWidth: 180,
-    maxContainerWidth: 430,
-    minContainerHeight: 60,
-    maxContainerHeight: 120
-  },
-  {
-    width: 728,
-    height: 90,
-    minContainerWidth: 600,
-    maxContainerWidth: 900,
-    minContainerHeight: 60,
-    maxContainerHeight: 120
-  }
-];
+import { EnvVars } from 'lib/env';
+
+import { HYPELAB_ADS_RESOLUTIONS } from '../ads-resolutions';
 
 export const getFinalSize = (element: Element) => {
   const elementStyle = getComputedStyle(element);
@@ -72,25 +57,39 @@ export const pickAdRect = (
   containerWidth: number,
   containerHeight: number,
   shouldUseStrictContainerLimits: boolean,
-  minContainerWidthIsBannerWidth: boolean
+  minContainerWidthIsBannerWidth: boolean,
+  adIsNative: boolean
 ) => {
   if (containerWidth < 2 && containerHeight < 2) {
     return undefined;
   }
 
-  const matchingResolutions = availableAdsResolutions.filter(
+  if (adIsNative) {
+    return {
+      width: Math.max(160, containerWidth),
+      height: Math.max(16, containerHeight),
+      minContainerWidth: 2,
+      minContainerHeight: 2,
+      maxContainerWidth: Infinity,
+      maxContainerHeight: Infinity,
+      placementSlug: EnvVars.HYPELAB_NATIVE_PLACEMENT_SLUG
+    };
+  }
+
+  const matchingResolutions = HYPELAB_ADS_RESOLUTIONS.filter(
     ({ minContainerWidth, maxContainerWidth, minContainerHeight, maxContainerHeight, width }, i) => {
       const actualMinContainerWidth = minContainerWidthIsBannerWidth ? width : minContainerWidth;
 
-      if ((i !== 0 || shouldUseStrictContainerLimits) && containerWidth < actualMinContainerWidth) {
+      if (
+        (i !== 0 || shouldUseStrictContainerLimits) &&
+        (containerWidth < actualMinContainerWidth || (containerHeight < minContainerHeight && containerHeight >= 2))
+      ) {
         return false;
       }
 
       if (
         shouldUseStrictContainerLimits &&
-        (containerHeight < minContainerHeight ||
-          containerWidth > maxContainerWidth ||
-          containerHeight > maxContainerHeight)
+        (containerWidth > maxContainerWidth || containerHeight > maxContainerHeight)
       ) {
         return false;
       }
@@ -98,12 +97,6 @@ export const pickAdRect = (
       return true;
     }
   );
-  const resolution = matchingResolutions[matchingResolutions.length - 1];
 
-  return (
-    resolution && {
-      width: resolution.width,
-      height: resolution.height
-    }
-  );
+  return matchingResolutions[matchingResolutions.length - 1];
 };
