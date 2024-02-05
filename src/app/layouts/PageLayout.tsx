@@ -1,4 +1,14 @@
-import React, { ComponentProps, FC, ReactNode, Suspense, useCallback, useEffect, useRef, useState } from 'react';
+import React, {
+  ComponentProps,
+  FC,
+  ReactNode,
+  Suspense,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState
+} from 'react';
 
 import clsx from 'clsx';
 
@@ -104,6 +114,7 @@ type ToolbarProps = {
 
 export let ToolbarElement: HTMLDivElement | null = null;
 
+/** Defined for reference in code to highlight relation between multiple sticky elements & their sizes */
 export const TOOLBAR_IS_STICKY = true;
 
 const Toolbar: FC<ToolbarProps> = ({
@@ -166,24 +177,23 @@ const Toolbar: FC<ToolbarProps> = ({
     ToolbarElement = elem;
   }, []);
 
-  return (
-    <div
-      ref={updateRootRef}
-      className={clsx(
-        TOOLBAR_IS_STICKY && 'sticky z-20',
-        'flex items-center py-2 px-4',
-        fullPage && !sticked && 'rounded-t',
-        sticked ? 'shadow' : 'shadow-sm',
-        'bg-gray-100 overflow-hidden transition ease-in-out duration-300'
-      )}
-      style={{
+  const className = useMemo(
+    () =>
+      clsx(
         // The top value needs to be -1px or the element will never intersect
         // with the top of the browser window
         // (thus never triggering the intersection observer).
-        top: -1,
-        minHeight: '2.75rem'
-      }}
-    >
+        TOOLBAR_IS_STICKY && 'sticky z-20 -top-px',
+        'flex items-center py-2 px-4 min-h-11',
+        fullPage && !sticked && 'rounded-t',
+        sticked ? 'shadow' : 'shadow-sm',
+        'bg-gray-100 overflow-hidden transition ease-in-out duration-300'
+      ),
+    [sticked, fullPage]
+  );
+
+  return (
+    <div ref={updateRootRef} className={className}>
       <div className="flex-1">
         {!isBackButtonAvailable && adShow && <DonationBanner />}
 

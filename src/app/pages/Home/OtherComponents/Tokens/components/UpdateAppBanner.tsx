@@ -15,8 +15,6 @@ export const UpdateAppBanner = memo(() => {
   useEffect(() => {
     // Only available in Chrome
     browser.runtime.requestUpdateCheck?.().then(([status]) => {
-      console.log(1, status);
-
       if (status === 'update_available') setAvailable(true);
     });
 
