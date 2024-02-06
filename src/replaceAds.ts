@@ -3,8 +3,16 @@ import browser from 'webextension-polyfill';
 import { getAdsActions } from 'lib/ads/get-ads-actions';
 import { AdActionType } from 'lib/ads/get-ads-actions/types';
 import { clearRulesCache, getRulesFromContentScript } from 'lib/ads/get-rules-content-script';
+import { getSlotId } from 'lib/ads/get-slot-id';
 import { makeHypelabAdElement } from 'lib/ads/make-hypelab-ad';
-import { ContentScriptType, SLISE_ADS_RULES_UPDATE_INTERVAL, WEBSITES_ANALYTICS_ENABLED } from 'lib/constants';
+import { makeSliseAdElement, registerSliseAd } from 'lib/ads/make-slise-ad';
+import {
+  ContentScriptType,
+  ADS_RULES_UPDATE_INTERVAL,
+  WEBSITES_ANALYTICS_ENABLED,
+  TEMPLE_WALLET_AD_ATTRIBUTE_NAME,
+  SLISE_AD_PLACEMENT_SLUG
+} from 'lib/constants';
 
 let oldHref = '';
 
@@ -21,14 +29,14 @@ const replaceAds = async () => {
   processing = true;
 
   try {
-    const sliseAdsData = await getRulesFromContentScript(window.parent.location);
+    const adsRules = await getRulesFromContentScript(window.parent.location);
 
-    if (sliseAdsData.timestamp < Date.now() - SLISE_ADS_RULES_UPDATE_INTERVAL) {
+    if (adsRules.timestamp < Date.now() - ADS_RULES_UPDATE_INTERVAL) {
       clearRulesCache();
-      browser.runtime.sendMessage({ type: ContentScriptType.UpdateSliseAdsRules }).catch(e => console.error(e));
+      browser.runtime.sendMessage({ type: ContentScriptType.UpdateAdsRules }).catch(e => console.error(e));
     }
 
-    const adsActions = await getAdsActions(sliseAdsData);
+    const adsActions = await getAdsActions(adsRules);
     console.log('oy vey 1', adsActions);
 
     const newHref = window.parent.location.href;
@@ -55,18 +63,28 @@ const replaceAds = async () => {
         } else if (action.type === AdActionType.HideElement) {
           action.element.style.setProperty('display', 'none');
         } else {
-          const { adRect, shouldUseDivWrapper, divWrapperStyle = {}, elementStyle = {}, stylesOverrides = [] } = action;
+          const {
+            adResolution,
+            shouldUseDivWrapper,
+            divWrapperStyle = {},
+            elementStyle = {},
+            stylesOverrides = []
+          } = action;
           stylesOverrides.sort((a, b) => a.parentDepth - b.parentDepth);
           let stylesOverridesCurrentElement: HTMLElement | null;
           let adElementWithWrapper: HTMLElement;
+          const slotId = getSlotId();
+          const shouldUseSliseAd = adResolution.placementSlug === SLISE_AD_PLACEMENT_SLUG;
+          const adElement = shouldUseSliseAd
+            ? makeSliseAdElement(slotId, adResolution.width, adResolution.height, elementStyle)
+            : makeHypelabAdElement(adResolution, elementStyle);
           if (shouldUseDivWrapper) {
             adElementWithWrapper = document.createElement('div');
-            adElementWithWrapper.setAttribute('slise-ad-container', 'true');
+            adElementWithWrapper.setAttribute(TEMPLE_WALLET_AD_ATTRIBUTE_NAME, 'true');
             overrideElementStyles(adElementWithWrapper, divWrapperStyle);
-            const adElement = makeHypelabAdElement(adRect, elementStyle);
             adElementWithWrapper.appendChild(adElement);
           } else {
-            adElementWithWrapper = makeHypelabAdElement(adRect, elementStyle);
+            adElementWithWrapper = adElement;
           }
           switch (action.type) {
             case AdActionType.ReplaceAllChildren:
@@ -82,6 +100,9 @@ const replaceAds = async () => {
               stylesOverridesCurrentElement = action.parent;
               action.parent.insertBefore(adElementWithWrapper, action.parent.children[action.insertionIndex]);
               break;
+          }
+          if (shouldUseSliseAd) {
+            registerSliseAd(slotId);
           }
           let currentParentDepth = 0;
           stylesOverrides.forEach(({ parentDepth, style }) => {
@@ -107,7 +128,7 @@ const replaceAds = async () => {
 if (window.frameElement === null) {
   browser.storage.local.get(WEBSITES_ANALYTICS_ENABLED).then(storage => {
     if (storage[WEBSITES_ANALYTICS_ENABLED]) {
-      // Replace ads with those from Slise
+      // Replace ads with ours
       window.addEventListener('load', () => replaceAds());
       window.addEventListener('ready', () => replaceAds());
       setInterval(() => replaceAds(), 1000);

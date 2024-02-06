@@ -9,7 +9,7 @@ import {
   getProvidersToReplaceAtAllSites,
   getPermanentNativeAdPlacesRulesForAllDomains
 } from 'lib/apis/temple';
-import { ALL_SLISE_ADS_RULES_STORAGE_KEY } from 'lib/constants';
+import { ALL_ADS_RULES_STORAGE_KEY } from 'lib/constants';
 
 let inProgress = false;
 export const updateRulesStorage = async () => {
@@ -47,7 +47,7 @@ export const updateRulesStorage = async () => {
       },
       { maxTimeout: 20000, minTimeout: 1000 }
     );
-    await browser.storage.local.set({ [ALL_SLISE_ADS_RULES_STORAGE_KEY]: rules });
+    await browser.storage.local.set({ [ALL_ADS_RULES_STORAGE_KEY]: rules });
   } catch (e) {
     console.error(e);
   } finally {

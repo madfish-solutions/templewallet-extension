@@ -47,7 +47,6 @@
     "@redux-devtools/remote": "^0.8.0",
     "@reduxjs/toolkit": "^1.8.5",
     "@rnw-community/shared": "^0.48.0",
-    "@slise/embed-react": "^2.2.0",
     "@svgr/webpack": "6.4.0",
     "@taquito/ledger-signer": "17.0.0",
     "@taquito/local-forging": "17.0.0",

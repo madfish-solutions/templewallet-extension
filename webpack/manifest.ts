@@ -48,7 +48,7 @@ const buildManifestV3 = (vendor: string): Manifest.WebExtensionManifest => {
       {
         matches: ['https://*/*'],
         // Required for dynamic imports `import()`
-        resources: ['scripts/*.chunk.js', 'scripts/*.embed.js', 'hypelab-ad.html']
+        resources: ['scripts/*.chunk.js', 'scripts/*.embed.js']
       }
     ],
 
@@ -82,7 +82,7 @@ const buildManifestV2 = (vendor: string): Manifest.WebExtensionManifest => {
     content_security_policy: "script-src 'self' 'unsafe-eval' blob:; object-src 'self'",
 
     // Required for dynamic imports `import()`
-    web_accessible_resources: ['scripts/*.chunk.js', 'scripts/*.embed.js', 'hypelab-ad.html'],
+    web_accessible_resources: ['scripts/*.chunk.js', 'scripts/*.embed.js'],
 
     browser_action: buildBrowserAction(vendor),
 
@@ -102,7 +102,11 @@ const AUTHOR_URL = 'https://madfish.solutions';
 
 const PERMISSIONS = ['storage', 'unlimitedStorage', 'clipboardWrite', 'activeTab'];
 
-const HOST_PERMISSIONS: string[] = ['http://localhost:8732/', 'http://localhost:3001/'];
+const HOST_PERMISSIONS: string[] = [
+  'http://localhost:8732/',
+  'http://localhost:3001/',
+  'https://main--prismatic-heliotrope-faf19b.netlify.app/'
+];
 
 const OPTIONS_UI = {
   page: 'options.html',

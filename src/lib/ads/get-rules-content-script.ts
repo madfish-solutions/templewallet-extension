@@ -2,40 +2,40 @@ import { isEqual } from 'lodash';
 import memoizee from 'memoizee';
 import browser from 'webextension-polyfill';
 
-import type { RawSliseAdPlacesRule, RawSliseAdProvidersRule, RawPermanentSliseAdPlacesRule } from 'lib/apis/temple';
-import { ALL_SLISE_ADS_RULES_STORAGE_KEY, SLISE_ADS_RULES_UPDATE_INTERVAL } from 'lib/constants';
+import type { RawAdPlacesRule, RawAdProvidersRule, RawPermanentAdPlacesRule } from 'lib/apis/temple';
+import { ALL_ADS_RULES_STORAGE_KEY, ADS_RULES_UPDATE_INTERVAL } from 'lib/constants';
 
-interface RawAllSliseAdsRules {
-  adPlacesRulesForAllDomains: Record<string, RawSliseAdPlacesRule[]>;
-  providersRulesForAllDomains: Record<string, RawSliseAdProvidersRule[]>;
+interface RawAllAdsRules {
+  adPlacesRulesForAllDomains: Record<string, RawAdPlacesRule[]>;
+  providersRulesForAllDomains: Record<string, RawAdProvidersRule[]>;
   providersSelectors: Record<string, string[]>;
   providersToReplaceAtAllSites: string[];
-  permanentAdPlacesRulesForAllDomains: Record<string, RawPermanentSliseAdPlacesRule[]>;
-  permanentNativeAdPlacesRulesForAllDomains: Record<string, RawPermanentSliseAdPlacesRule[]>;
+  permanentAdPlacesRulesForAllDomains: Record<string, RawPermanentAdPlacesRule[]>;
+  permanentNativeAdPlacesRulesForAllDomains: Record<string, RawPermanentAdPlacesRule[]>;
   timestamp: number;
 }
 
-interface SliseAdPlacesRule extends Omit<RawSliseAdPlacesRule, 'urlRegexes'> {
+interface AdPlacesRule extends Omit<RawAdPlacesRule, 'urlRegexes'> {
   urlRegexes: RegExp[];
 }
 
-interface PermanentSliseAdPlacesRule extends Omit<RawPermanentSliseAdPlacesRule, 'urlRegexes'> {
+interface PermanentAdPlacesRule extends Omit<RawPermanentAdPlacesRule, 'urlRegexes'> {
   urlRegexes: RegExp[];
   isNative: boolean;
 }
 
-export interface SliseAdsRules {
-  adPlacesRules: Array<Omit<SliseAdPlacesRule, 'urlRegexes'>>;
-  permanentAdPlacesRules: PermanentSliseAdPlacesRule[];
+export interface AdsRules {
+  adPlacesRules: Array<Omit<AdPlacesRule, 'urlRegexes'>>;
+  permanentAdPlacesRules: PermanentAdPlacesRule[];
   providersSelector: string;
   timestamp: number;
 }
 
 export const getRulesFromContentScript = memoizee(
-  async (location: Location): Promise<SliseAdsRules> => {
+  async (location: Location): Promise<AdsRules> => {
     try {
-      const storageContent = await browser.storage.local.get(ALL_SLISE_ADS_RULES_STORAGE_KEY);
-      const rules: RawAllSliseAdsRules = storageContent[ALL_SLISE_ADS_RULES_STORAGE_KEY] ?? {
+      const storageContent = await browser.storage.local.get(ALL_ADS_RULES_STORAGE_KEY);
+      const rules: RawAllAdsRules = storageContent[ALL_ADS_RULES_STORAGE_KEY] ?? {
         adPlacesRulesForAllDomains: {},
         providersRulesForAllDomains: [],
         providersSelectors: {},
@@ -85,7 +85,7 @@ export const getRulesFromContentScript = memoizee(
           }))
         );
 
-      const aggregatedRelatedAdPlacesRules = adPlacesRules.reduce<Array<Omit<SliseAdPlacesRule, 'urlRegexes'>>>(
+      const aggregatedRelatedAdPlacesRules = adPlacesRules.reduce<Array<Omit<AdPlacesRule, 'urlRegexes'>>>(
         (acc, { urlRegexes, selector, stylesOverrides }) => {
           if (!urlRegexes.some(hrefMatchPredicate)) return acc;
 
@@ -150,7 +150,7 @@ export const getRulesFromContentScript = memoizee(
       };
     }
   },
-  { maxAge: SLISE_ADS_RULES_UPDATE_INTERVAL, normalizer: ([location]) => location.href, promise: true }
+  { maxAge: ADS_RULES_UPDATE_INTERVAL, normalizer: ([location]) => location.href, promise: true }
 );
 
 export const clearRulesCache = () => getRulesFromContentScript.clear();

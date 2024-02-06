@@ -1,6 +1,6 @@
 import { EnvVars } from 'lib/env';
 
-import { HYPELAB_ADS_RESOLUTIONS } from '../ads-resolutions';
+import { ADS_RESOLUTIONS } from '../ads-resolutions';
 
 export const getFinalSize = (element: Element) => {
   const elementStyle = getComputedStyle(element);
@@ -53,7 +53,7 @@ export const getParentOfDepth = (element: HTMLElement, depth: number) => {
   return parent;
 };
 
-export const pickAdRect = (
+export const pickAdResolution = (
   containerWidth: number,
   containerHeight: number,
   shouldUseStrictContainerLimits: boolean,
@@ -76,7 +76,7 @@ export const pickAdRect = (
     };
   }
 
-  const matchingResolutions = HYPELAB_ADS_RESOLUTIONS.filter(
+  const matchingResolutions = ADS_RESOLUTIONS.filter(
     ({ minContainerWidth, maxContainerWidth, minContainerHeight, maxContainerHeight, width }, i) => {
       const actualMinContainerWidth = minContainerWidthIsBannerWidth ? width : minContainerWidth;
 

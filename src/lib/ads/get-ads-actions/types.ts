@@ -1,4 +1,4 @@
-import type { SliseAdStylesOverrides } from 'lib/apis/temple';
+import type { AdStylesOverrides } from 'lib/apis/temple';
 
 import { AdsResolution } from '../ads-resolutions';
 
@@ -15,11 +15,11 @@ interface AdActionBase {
 }
 
 interface InsertAdActionProps {
-  adRect: AdsResolution;
+  adResolution: AdsResolution;
   shouldUseDivWrapper: boolean;
   divWrapperStyle?: Record<string, string>;
   elementStyle?: Record<string, string>;
-  stylesOverrides?: SliseAdStylesOverrides[];
+  stylesOverrides?: AdStylesOverrides[];
 }
 
 export interface ReplaceAllChildrenWithAdAction extends AdActionBase, InsertAdActionProps {

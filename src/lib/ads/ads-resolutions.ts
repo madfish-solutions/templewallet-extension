@@ -1,3 +1,4 @@
+import { SLISE_AD_PLACEMENT_SLUG } from 'lib/constants';
 import { EnvVars } from 'lib/env';
 
 export interface AdsResolution {
@@ -10,7 +11,7 @@ export interface AdsResolution {
   placementSlug: string;
 }
 
-export const HYPELAB_ADS_RESOLUTIONS: AdsResolution[] = [
+export const ADS_RESOLUTIONS: AdsResolution[] = [
   {
     width: 320,
     height: 50,
@@ -36,6 +37,6 @@ export const HYPELAB_ADS_RESOLUTIONS: AdsResolution[] = [
     minContainerHeight: 60,
     maxContainerWidth: 900,
     maxContainerHeight: 120,
-    placementSlug: EnvVars.HYPELAB_WIDE_PLACEMENT_SLUG
+    placementSlug: SLISE_AD_PLACEMENT_SLUG
   }
 ];

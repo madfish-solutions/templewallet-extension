@@ -1,7 +1,7 @@
-import type { SliseAdsRules } from 'lib/ads/get-rules-content-script';
-import { SLISE_PUBLISHER_ID } from 'lib/constants';
+import type { AdsRules } from 'lib/ads/get-rules-content-script';
+import { SLISE_PUBLISHER_ID, TEMPLE_WALLET_AD_ATTRIBUTE_NAME } from 'lib/constants';
 
-import { applyQuerySelector, getFinalSize, getParentOfDepth, pickAdRect } from './helpers';
+import { applyQuerySelector, getFinalSize, getParentOfDepth, pickAdResolution } from './helpers';
 import {
   AdAction,
   AdActionType,
@@ -13,23 +13,33 @@ import {
   SimpleInsertAdAction
 } from './types';
 
-const sliseAdQuerySelector = `ins.adsbyslise[data-ad-pub="${SLISE_PUBLISHER_ID}"], iframe[slise-ad-container]`;
+const ourAdQuerySelector = `iframe[${TEMPLE_WALLET_AD_ATTRIBUTE_NAME}], div[${TEMPLE_WALLET_AD_ATTRIBUTE_NAME}], \
+ins.adsbyslise[${TEMPLE_WALLET_AD_ATTRIBUTE_NAME}][data-ad-pub="${SLISE_PUBLISHER_ID}"]`;
 
-const elementIsOurSliseAd = (element: HTMLElement) =>
-  (element.className.includes('adsbyslise') && element.getAttribute('data-ad-pub') === SLISE_PUBLISHER_ID) ||
-  element.getAttribute('slise-ad-container');
+const elementIsOurAd = (element: HTMLElement) => {
+  const tagName = element.tagName.toLowerCase();
+  const isOurIframe = tagName === 'iframe' && element.hasAttribute(TEMPLE_WALLET_AD_ATTRIBUTE_NAME);
+  const isOurBannerWrapper = tagName === 'div' && element.hasAttribute(TEMPLE_WALLET_AD_ATTRIBUTE_NAME);
+  const isOurIns =
+    tagName === 'ins' &&
+    element.classList.contains('adsbyslise') &&
+    element.hasAttribute(TEMPLE_WALLET_AD_ATTRIBUTE_NAME) &&
+    element.getAttribute('data-ad-pub') === SLISE_PUBLISHER_ID;
 
-export const getAdsActions = async ({ providersSelector, adPlacesRules, permanentAdPlacesRules }: SliseAdsRules) => {
+  return isOurIframe || isOurBannerWrapper || isOurIns;
+};
+
+export const getAdsActions = async ({ providersSelector, adPlacesRules, permanentAdPlacesRules }: AdsRules) => {
   const result: AdAction[] = [];
-  const addActionsIfAdRectAvailable = (
+  const addActionsIfAdResolutionAvailable = (
     elementToMeasure: Element,
     shouldUseStrictContainerLimits: boolean,
     minContainerWidthIsBannerWidth: boolean,
     adIsNative: boolean,
-    ...actionsBases: Array<Omit<InsertAdAction, 'adRect'> | HideElementAction | RemoveElementAction>
+    ...actionsBases: Array<Omit<InsertAdAction, 'adResolution'> | HideElementAction | RemoveElementAction>
   ) => {
     const { width, height } = getFinalSize(elementToMeasure);
-    const adRect = pickAdRect(
+    const adResolution = pickAdResolution(
       width,
       height,
       shouldUseStrictContainerLimits,
@@ -37,12 +47,12 @@ export const getAdsActions = async ({ providersSelector, adPlacesRules, permanen
       adIsNative
     );
 
-    if (adRect) {
+    if (adResolution) {
       result.push(
         ...actionsBases.map(actionBase =>
           actionBase.type === AdActionType.HideElement || actionBase.type === AdActionType.RemoveElement
             ? actionBase
-            : ({ ...actionBase, adRect } as InsertAdAction)
+            : ({ ...actionBase, adResolution } as InsertAdAction)
         )
       );
 
@@ -85,17 +95,23 @@ export const getAdsActions = async ({ providersSelector, adPlacesRules, permanen
           .map(element => getParentOfDepth(element, parentParentDepth))
           .filter((value): value is HTMLElement => Boolean(value));
         permanentAdsParents = permanentAdsParents.concat(parents);
-        console.log('x1', parentSelector, isNative, permanentAdsParents);
         await Promise.all(
           parents.map(async parent => {
             await new Promise(resolve => setTimeout(resolve, 0));
-            const sliseAdsCount = applyQuerySelector(sliseAdQuerySelector, true, parent).length;
-            let insertionsLeft = insertionsCount - sliseAdsCount;
+            const ourAds = applyQuerySelector(ourAdQuerySelector, true, parent).reduce<Element[]>((acc, element) => {
+              if (acc.some(prevElement => prevElement.contains(element) || element.contains(prevElement))) {
+                return acc;
+              }
+
+              return [...acc, element];
+            }, []);
+            const ourAdsCount = ourAds.length;
+            let insertionsLeft = insertionsCount - ourAdsCount;
 
             const banners = applyQuerySelector<HTMLElement>(bannerCssString, shouldSearchForManyBannersInParent, parent)
               .map(element => getParentOfDepth(element, bannerParentDepth))
-              .filter((value): value is HTMLElement => Boolean(value));
-            console.log('x2', adSelector, isNative, banners);
+              .filter((value): value is HTMLElement => Boolean(value))
+              .filter(element => !elementIsOurAd(element));
             banners.forEach(banner => {
               if (insertionsLeft <= 0) {
                 const { display: bannerDisplay } = window.getComputedStyle(banner);
@@ -110,7 +126,7 @@ export const getAdsActions = async ({ providersSelector, adPlacesRules, permanen
                 if (elementToMeasureSelector) {
                   elementToMeasure = document.querySelector(elementToMeasureSelector) ?? elementToMeasure;
                 }
-                const replaceActionBase: Omit<ReplaceElementWithAdAction, 'adRect'> = {
+                const replaceActionBase: Omit<ReplaceElementWithAdAction, 'adResolution'> = {
                   type: AdActionType.ReplaceElement,
                   element: banner,
                   shouldUseDivWrapper,
@@ -122,7 +138,7 @@ export const getAdsActions = async ({ providersSelector, adPlacesRules, permanen
                   type: AdActionType.HideElement,
                   element: banner
                 };
-                const insertActionBase: Omit<SimpleInsertAdAction, 'adRect'> = {
+                const insertActionBase: Omit<SimpleInsertAdAction, 'adResolution'> = {
                   type: AdActionType.SimpleInsertAd,
                   shouldUseDivWrapper,
                   divWrapperStyle,
@@ -132,17 +148,15 @@ export const getAdsActions = async ({ providersSelector, adPlacesRules, permanen
                   stylesOverrides
                 };
                 const nextBannerSibling = banner.nextElementSibling;
-                const nextBannerSiblingIsSliseAd =
-                  nextBannerSibling?.tagName.toLowerCase() === 'ins' &&
-                  nextBannerSibling.getAttribute('data-ad-pub') === SLISE_PUBLISHER_ID;
+                const nextBannerSiblingIsOurAd = nextBannerSibling && elementIsOurAd(nextBannerSibling as HTMLElement);
                 const actionsToInsert = shouldHideOriginal
-                  ? nextBannerSiblingIsSliseAd
+                  ? nextBannerSiblingIsOurAd
                     ? []
                     : [hideActionBase, insertActionBase]
                   : [replaceActionBase];
                 if (
                   actionsToInsert.length > 0 &&
-                  addActionsIfAdRectAvailable(elementToMeasure, false, true, isNative, ...actionsToInsert)
+                  addActionsIfAdResolutionAvailable(elementToMeasure, false, true, isNative, ...actionsToInsert)
                 ) {
                   insertionsLeft--;
                 }
@@ -181,7 +195,7 @@ export const getAdsActions = async ({ providersSelector, adPlacesRules, permanen
             }
 
             if (normalizedInsertionIndex !== -1) {
-              const actionBase: Omit<SimpleInsertAdAction, 'adRect'> = {
+              const actionBase: Omit<SimpleInsertAdAction, 'adResolution'> = {
                 type: AdActionType.SimpleInsertAd,
                 shouldUseDivWrapper,
                 divWrapperStyle,
@@ -191,7 +205,7 @@ export const getAdsActions = async ({ providersSelector, adPlacesRules, permanen
                 stylesOverrides
               };
 
-              addActionsIfAdRectAvailable(
+              addActionsIfAdResolutionAvailable(
                 elementToMeasure,
                 false,
                 true,
@@ -215,8 +229,8 @@ export const getAdsActions = async ({ providersSelector, adPlacesRules, permanen
       if (
         !banner ||
         permanentAdsParents.some(parent => parent.contains(banner)) ||
-        elementIsOurSliseAd(banner) ||
-        banner.querySelector(sliseAdQuerySelector)
+        elementIsOurAd(banner) ||
+        banner.querySelector(ourAdQuerySelector)
       ) {
         return;
       }
@@ -225,7 +239,7 @@ export const getAdsActions = async ({ providersSelector, adPlacesRules, permanen
         shouldUseDivWrapper,
         divWrapperStyle
       };
-      const replaceElementActionBase: Omit<ReplaceElementWithAdAction, 'adRect'> = {
+      const replaceElementActionBase: Omit<ReplaceElementWithAdAction, 'adResolution'> = {
         type: AdActionType.ReplaceElement,
         element: banner,
         stylesOverrides: stylesOverrides?.map(({ parentDepth, ...restProps }) => ({
@@ -234,16 +248,16 @@ export const getAdsActions = async ({ providersSelector, adPlacesRules, permanen
         })),
         ...actionBaseCommonProps
       };
-      const replaceAllChildrenActionBase: Omit<ReplaceAllChildrenWithAdAction, 'adRect'> = {
+      const replaceAllChildrenActionBase: Omit<ReplaceAllChildrenWithAdAction, 'adResolution'> = {
         type: AdActionType.ReplaceAllChildren,
         parent: banner,
         stylesOverrides,
         ...actionBaseCommonProps
       };
-      const actionBase: Omit<InsertAdAction, 'adRect'> = shouldUseDivWrapper
+      const actionBase: Omit<InsertAdAction, 'adResolution'> = shouldUseDivWrapper
         ? replaceElementActionBase
         : replaceAllChildrenActionBase;
-      addActionsIfAdRectAvailable(banner, false, false, false, actionBase);
+      addActionsIfAdResolutionAvailable(banner, false, false, false, actionBase);
     });
   });
 
@@ -255,12 +269,12 @@ export const getAdsActions = async ({ providersSelector, adPlacesRules, permanen
       banner;
 
     if (!permanentAdsParents.some(parent => parent.contains(banner))) {
-      const actionBase: Omit<ReplaceElementWithAdAction, 'adRect'> = {
+      const actionBase: Omit<ReplaceElementWithAdAction, 'adResolution'> = {
         type: AdActionType.ReplaceElement,
         element: banner as HTMLElement,
         shouldUseDivWrapper: false
       };
-      addActionsIfAdRectAvailable(elementToMeasure, true, false, false, actionBase);
+      addActionsIfAdResolutionAvailable(elementToMeasure, true, false, false, actionBase);
     }
   });
 

@@ -280,7 +280,7 @@ browser.runtime.onMessage.addListener(msg => {
         .then(accountPkh => Analytics.client.track('External Ads Activity', { url: msg.url, accountPkh }))
         .catch(console.error);
       break;
-    case ContentScriptType.UpdateSliseAdsRules:
+    case ContentScriptType.UpdateAdsRules:
       updateRulesStorage().catch(console.error);
       break;
     case E2eMessageType.ResetRequest:
