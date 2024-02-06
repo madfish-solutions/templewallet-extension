@@ -161,7 +161,7 @@ export const TokensTab = memo(() => {
         </Popper>
       </div>
 
-      <UpdateAppBanner />
+      <UpdateAppBanner popup={popup} />
 
       {filteredAssets.length === 0 ? (
         <div className="my-8 flex flex-col items-center justify-center text-gray-500">

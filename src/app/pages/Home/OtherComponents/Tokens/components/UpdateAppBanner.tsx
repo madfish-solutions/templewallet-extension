@@ -5,14 +5,18 @@ import browser from 'webextension-polyfill';
 
 import { FormSubmitButton } from 'app/atoms';
 import { TOOLBAR_IS_STICKY } from 'app/layouts/PageLayout';
-import { useStoredAppUpdateDetails } from 'app/storage/app-update/use-value.hook';
+import { AppUpdateDetails, useStoredAppUpdateDetails } from 'app/storage/app-update/use-value.hook';
 import { EmojiInlineIcon } from 'lib/icons/emoji';
 import { useDidMount } from 'lib/ui/hooks';
 
-export const UpdateAppBanner = memo(() => {
+interface Props {
+  popup?: boolean;
+}
+
+export const UpdateAppBanner = memo<Props>(({ popup }) => {
   const [storedUpdateDetails, setStoredUpdateDetails] = useStoredAppUpdateDetails();
 
-  const [checkedUpdateDetails, setCheckedUpdateDetails] = useState<{ version: string; triggeredManually?: true }>();
+  const [checkedUpdateDetails, setCheckedUpdateDetails] = useState<AppUpdateDetails>();
 
   useDidMount(() => {
     // Only available in Chrome
@@ -44,7 +48,8 @@ export const UpdateAppBanner = memo(() => {
     <div
       className={clsx(
         'sticky z-1 flex flex-col p-3 mb-3 bg-white rounded-md shadow-lg',
-        TOOLBAR_IS_STICKY ? 'top-14' : 'top-3'
+        TOOLBAR_IS_STICKY ? 'top-14' : 'top-3',
+        popup && 'mx-4'
       )}
     >
       <h5 className="text-sm font-inter font-medium leading-4 text-gray-910">Update your Temple Wallet extension!</h5>
@@ -54,7 +59,7 @@ export const UpdateAppBanner = memo(() => {
         Wallet is available in the store. Please, update your extension to unlock all the latest improvements.
       </p>
 
-      <FormSubmitButton slim className="mt-3" onClick={onUpdateButtonPress}>
+      <FormSubmitButton slim className="mt-3" onClick={onUpdateButtonPress ?? undefined}>
         Update now
       </FormSubmitButton>
     </div>
