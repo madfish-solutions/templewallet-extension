@@ -28,8 +28,8 @@ browser.runtime.onInstalled.addListener(({ reason }) => {
     });
 });
 
-browser.runtime.onUpdateAvailable.addListener(details => {
-  putStoredAppUpdateDetails(details);
+browser.runtime.onUpdateAvailable.addListener(newManifest => {
+  putStoredAppUpdateDetails(newManifest);
 });
 
 start();

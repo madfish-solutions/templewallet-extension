@@ -5,12 +5,12 @@ import browser from 'webextension-polyfill';
 
 import { FormSubmitButton } from 'app/atoms';
 import { TOOLBAR_IS_STICKY } from 'app/layouts/PageLayout';
-import { putStoredAppUpdateDetails, useStoredAppUpdateDetails } from 'app/storage/app-update';
+import { useStoredAppUpdateDetails } from 'app/storage/app-update/use-value.hook';
 import { EmojiInlineIcon } from 'lib/icons/emoji';
 import { useDidMount } from 'lib/ui/hooks';
 
 export const UpdateAppBanner = memo(() => {
-  const storedUpdateDetails = useStoredAppUpdateDetails();
+  const [storedUpdateDetails, setStoredUpdateDetails] = useStoredAppUpdateDetails();
 
   const [checkedUpdateDetails, setCheckedUpdateDetails] = useState<{ version: string; triggeredManually?: true }>();
 
@@ -27,7 +27,7 @@ export const UpdateAppBanner = memo(() => {
     if (!updateDetails) return null;
 
     return async () => {
-      await putStoredAppUpdateDetails({
+      await setStoredUpdateDetails({
         ...updateDetails,
         triggeredManually: true
       });
@@ -36,7 +36,7 @@ export const UpdateAppBanner = memo(() => {
       // https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/runtime/reload
       browser.runtime.reload();
     };
-  }, [updateDetails]);
+  }, [updateDetails, setStoredUpdateDetails]);
 
   if (!onUpdateButtonPress) return null;
 
