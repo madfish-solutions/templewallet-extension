@@ -28,6 +28,7 @@ import { HomeSelectors } from '../../Home.selectors';
 import { AssetsSelectors } from '../Assets.selectors';
 
 import { ListItem } from './components/ListItem';
+import { UpdateAppBanner } from './components/UpdateAppBanner';
 import { toExploreAssetLink } from './utils';
 
 const LOCAL_STORAGE_TOGGLE_KEY = 'tokens-list:hide-zero-balances';
@@ -126,41 +127,41 @@ export const TokensTab = memo(() => {
 
   return (
     <div className="w-full max-w-sm mx-auto">
-      <div className={clsx('mt-3', popup && 'mx-4')}>
-        <div className="mb-3 w-full flex">
-          <SearchAssetField
-            value={searchValue}
-            onValueChange={setSearchValue}
-            onFocus={handleSearchFieldFocus}
-            onBlur={handleSearchFieldBlur}
-            containerClassName="mr-2"
-            testID={AssetsSelectors.searchAssetsInputTokens}
-          />
+      <div className={clsx('my-3 w-full flex', popup && 'mx-4')}>
+        <SearchAssetField
+          value={searchValue}
+          onValueChange={setSearchValue}
+          onFocus={handleSearchFieldFocus}
+          onBlur={handleSearchFieldBlur}
+          containerClassName="mr-2"
+          testID={AssetsSelectors.searchAssetsInputTokens}
+        />
 
-          <Popper
-            placement="bottom-end"
-            strategy="fixed"
-            popup={props => (
-              <ManageButtonDropdown
-                {...props}
-                isZeroBalancesHidden={isZeroBalancesHidden}
-                toggleHideZeroBalances={toggleHideZeroBalances}
-              />
-            )}
-          >
-            {({ ref, opened, toggleOpened }) => (
-              <ButtonForManageDropdown
-                ref={ref}
-                opened={opened}
-                tooltip={t('manageAssetsList')}
-                onClick={toggleOpened}
-                testID={AssetsSelectors.manageButton}
-                testIDProperties={{ listOf: 'Tokens' }}
-              />
-            )}
-          </Popper>
-        </div>
+        <Popper
+          placement="bottom-end"
+          strategy="fixed"
+          popup={props => (
+            <ManageButtonDropdown
+              {...props}
+              isZeroBalancesHidden={isZeroBalancesHidden}
+              toggleHideZeroBalances={toggleHideZeroBalances}
+            />
+          )}
+        >
+          {({ ref, opened, toggleOpened }) => (
+            <ButtonForManageDropdown
+              ref={ref}
+              opened={opened}
+              tooltip={t('manageAssetsList')}
+              onClick={toggleOpened}
+              testID={AssetsSelectors.manageButton}
+              testIDProperties={{ listOf: 'Tokens' }}
+            />
+          )}
+        </Popper>
       </div>
+
+      <UpdateAppBanner popup={popup} />
 
       {filteredAssets.length === 0 ? (
         <div className="my-8 flex flex-col items-center justify-center text-gray-500">

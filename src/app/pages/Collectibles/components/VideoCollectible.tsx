@@ -1,34 +1,32 @@
-import React, { CSSProperties, FC, useCallback, useState } from 'react';
+import React, { memo, useCallback, useState } from 'react';
 
 import { emptyFn } from '@rnw-community/shared';
-import clsx from 'clsx';
+
+import { CollectibleImageLoader } from './CollectibleImageLoader';
+import { Player } from './VideoPlayer/Player';
 
 interface Props {
   uri: string;
-  loader?: React.ReactElement;
   className?: string;
-  style?: CSSProperties;
   onError?: EmptyFn;
 }
 
-export const VideoCollectible: FC<Props> = ({ uri, loader, className, style, onError = emptyFn }) => {
+export const VideoCollectible = memo<Props>(({ uri, className, onError = emptyFn }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   const handleLoaded = useCallback(() => setIsLoading(false), []);
 
   return (
     <>
-      <video
-        autoPlay
+      <Player
+        src={uri}
         loop
-        onCanPlayThrough={handleLoaded}
-        className={clsx(className, isLoading && 'hidden')}
-        style={style}
+        onLoadedMetadata={handleLoaded}
+        hidden={isLoading}
+        className={className}
         onError={onError}
-      >
-        <source src={uri} />
-      </video>
-      {isLoading && loader}
+      />
+      <CollectibleImageLoader large className={isLoading ? undefined : 'hidden'} />
     </>
   );
-};
+});
