@@ -274,7 +274,8 @@ module.exports = {
           '"Noto Color Emoji"'
         ],
         serif: ['Georgia', 'Cambria', '"Times New Roman"', 'Times', 'serif'],
-        mono: ['Menlo', 'Monaco', 'Consolas', '"Liberation Mono"', '"Courier New"', 'monospace']
+        mono: ['Menlo', 'Monaco', 'Consolas', '"Liberation Mono"', '"Courier New"', 'monospace'],
+        inter: ['Inter', 'sans-serif']
       };
 
       return {
@@ -349,15 +350,6 @@ module.exports = {
     },
     textColor: theme => theme('colors'),
     textOpacity: theme => theme('opacity'),
-    zIndex: {
-      auto: 'auto',
-      0: '0',
-      10: '10',
-      20: '20',
-      30: '30',
-      40: '40',
-      50: '50'
-    },
     gridTemplateColumns: {
       none: 'none',
       1: 'repeat(1, minmax(0, 1fr))',
@@ -648,6 +640,9 @@ module.exports = {
         '2px': '2px',
         '1/2': '50%',
         18: '4.5rem'
+      },
+      zIndex: {
+        1: '1'
       },
       space: (theme, { negative }) => ({
         ...theme('spacing'),

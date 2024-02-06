@@ -50,7 +50,11 @@ export const loadAccountCollectibles = (account: string, chainId: string, knownM
 const fetchTzktAccountUnknownAssets = memoizee(
   // Simply reducing frequency of requests per set of arguments.
   (account: string, chainId: string) => fetchTzktAccountAssets(account, chainId, null),
-  { maxAge: 10_000, normalizer: args => args.join(''), promise: true }
+  {
+    maxAge: 10_000,
+    normalizer: ([account, chainId]) => `${account}@${chainId}`,
+    promise: true
+  }
 );
 
 const finishTokensLoading = async (

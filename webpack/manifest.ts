@@ -79,6 +79,9 @@ const buildManifestV2 = (vendor: string): Manifest.WebExtensionManifest => {
 
     permissions: [...PERMISSIONS, ...HOST_PERMISSIONS],
 
+    /** `blob:` was added due to 3D-models not working in Firefox otherwise. See:
+     * https://github.com/madfish-solutions/templewallet-extension/commit/7f170d058e9d628709f0da0759cfee44a0667480
+     */
     content_security_policy: "script-src 'self' 'unsafe-eval' blob:; object-src 'self'",
 
     // Required for dynamic imports `import()`

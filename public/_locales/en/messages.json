@@ -1013,12 +1013,6 @@
   },
   "payMeForEveryAdISee": { "message": "Pay me for every ad I see" },
   "noThanks": { "message": "No thanks" },
-  "acceptAdsBannerTitle_A": {
-    "message": "Get paid to discover exciting services and dApps!"
-  },
-  "acceptAdsBannerText_A": {
-    "message": "Here's the deal: share some data with us (wallet address, IP) to see the most relevant ads and we'll *pay you* a fair share monthly. By doing so, you support the developers of Temple Wallet. Change your mind? Easily disable sharing in settings.\n\nStart earning now!"
-  },
   "dAppsCheckmarkPrompt": {
     "message": "Click on the checkmark to $action$ DApps interaction feature",
     "description": "DApps = Decentralized Applications",
