@@ -16,7 +16,8 @@ export {
   useTezos,
   useChainId,
   useRelevantAccounts,
-  useCustomChainId
+  useChainIdValue,
+  useChainIdLoading
 } from './ready';
 
 export { validateDerivationPath, validateContractAddress } from './helpers';

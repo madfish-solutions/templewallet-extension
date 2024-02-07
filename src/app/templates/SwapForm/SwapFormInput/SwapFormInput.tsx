@@ -13,7 +13,7 @@ import InFiat from 'app/templates/InFiat';
 import { InputContainer } from 'app/templates/InputContainer/InputContainer';
 import { setTestID, useFormAnalytics } from 'lib/analytics';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
-import { useBalance } from 'lib/balances';
+import { _useBalance, useRawBalance } from 'lib/balances';
 import { T, t, toLocalFormat } from 'lib/i18n';
 import {
   EMPTY_BASE_METADATA,
@@ -62,8 +62,10 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
   const getTokenMetadata = useGetAssetMetadata();
 
   const account = useAccount();
-  const balance = useBalance(assetSlugWithFallback, account.publicKeyHash, { suspense: false });
-  useOnBlock(() => balance.updateBalance());
+  const { data: balance, updateBalance } = _useBalance(assetSlugWithFallback, account.publicKeyHash, {
+    suspense: false
+  });
+  useOnBlock(() => updateBalance());
 
   const { isLoading, route3tokensSlugs } = useAvailableRoute3TokensSlugs();
   const { filteredAssets, searchValue, setSearchValue, setTokenId } = useTokensListingLogic(
@@ -79,10 +81,10 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
       return new BigNumber(0);
     }
 
-    const maxSendAmount = isTezosSlug ? balance.data?.minus(EXCHANGE_XTZ_RESERVE) : balance.data;
+    const maxSendAmount = isTezosSlug ? balance?.minus(EXCHANGE_XTZ_RESERVE) : balance;
 
     return maxSendAmount ?? new BigNumber(0);
-  }, [assetSlug, isTezosSlug, balance.data]);
+  }, [assetSlug, isTezosSlug, balance]);
 
   const handleAmountChange = (newAmount?: BigNumber) =>
     onChange({
@@ -277,7 +279,7 @@ const SwapInputHeader: FC<{ label: ReactNode; selectedAssetSlug: string; selecte
   label
 }) => {
   const account = useAccount();
-  const balance = useBalance(selectedAssetSlug, account.publicKeyHash, { suspense: false });
+  const { value: balance } = useRawBalance(selectedAssetSlug, account.publicKeyHash);
 
   return (
     <div className="w-full flex items-center justify-between">
@@ -288,10 +290,10 @@ const SwapInputHeader: FC<{ label: ReactNode; selectedAssetSlug: string; selecte
           <span className="mr-1">
             <T id="balance" />:
           </span>
-          {balance.data && (
-            <span className={classNames('text-sm mr-1 text-gray-700', balance.data.eq(0) && 'text-red-700')}>
+          {balance && (
+            <span className={classNames('text-sm mr-1 text-gray-700', balance === '0' && 'text-red-700')}>
               <Money smallFractionFont={false} fiat={false}>
-                {balance.data}
+                {balance}
               </Money>
             </span>
           )}
@@ -308,13 +310,13 @@ const SwapFooter: FC<{
   handlePercentageClick: (percentage: number) => void;
 }> = ({ amountInputDisabled, selectedAssetSlug, handlePercentageClick }) => {
   const account = useAccount();
-  const balance = useBalance(selectedAssetSlug, account.publicKeyHash, { suspense: false });
+  const { value: balance } = useRawBalance(selectedAssetSlug, account.publicKeyHash);
 
   return amountInputDisabled ? null : (
     <div className="flex">
       {PERCENTAGE_BUTTONS.map(percentage => (
         <PercentageButton
-          disabled={!balance.data}
+          disabled={!balance}
           key={percentage}
           percentage={percentage}
           onClick={handlePercentageClick}

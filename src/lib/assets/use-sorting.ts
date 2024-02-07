@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 
 import { BigNumber } from 'bignumber.js';
 
-import { useAllBalancesSelector } from 'app/store/balances/selectors';
+import { useAllAccountBalancesSelector } from 'app/store/balances/selectors';
 import { useGetCurrentAccountTokenOrGasBalanceWithDecimals } from 'lib/balances/hooks';
 import { useUsdToTokenRates } from 'lib/fiat-currency/core';
 import { useAccount, useChainId } from 'lib/temple/front';
@@ -33,7 +33,7 @@ export const useCollectiblesSortPredicate = () => {
   const { publicKeyHash } = useAccount();
   const chainId = useChainId(true)!;
 
-  const balancesRaw = useAllBalancesSelector(publicKeyHash, chainId);
+  const balancesRaw = useAllAccountBalancesSelector(publicKeyHash, chainId);
 
   return useCallback(
     (aSlug: string, bSlug: string) => {

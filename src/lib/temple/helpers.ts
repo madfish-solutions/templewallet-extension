@@ -35,12 +35,14 @@ export function usdToAssetAmount(
     : usd.div(assetUsdPrice).decimalPlaces(assetDecimals || 0, roundingMode ?? BigNumber.ROUND_DOWN);
 }
 
+/** TODO: args type */
 export function tzToMutez(tz: any) {
   const bigNum = new BigNumber(tz);
   if (bigNum.isNaN()) return bigNum;
   return bigNum.times(10 ** 6).integerValue();
 }
 
+/** TODO: args type */
 export function mutezToTz(mutez: any) {
   const bigNum = new BigNumber(mutez);
   if (bigNum.isNaN()) return bigNum;
@@ -65,6 +67,7 @@ export function isKTAddress(address: string) {
 
 export const isValidContractAddress = (address: string) => isAddressValid(address) && isKTAddress(address);
 
+/** TODO: args type */
 export function formatOpParamsBeforeSend(params: any) {
   if (params.kind === 'origination' && params.script) {
     const newParams = { ...params, ...params.script };

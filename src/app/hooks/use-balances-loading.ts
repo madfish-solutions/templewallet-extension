@@ -53,6 +53,7 @@ export const useBalancesLoading = () => {
     },
     [chainId, dispatch, publicKeyHash]
   );
+
   const accountsListener = useCallback(
     (msg: TzktAccountsSubscriptionMessage) => {
       switch (msg.type) {

@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 
 import BigNumber from 'bignumber.js';
 
-import { useBalance } from 'lib/balances';
+import { _useBalance } from 'lib/balances';
 import { useAccount } from 'lib/temple/front';
 
 export const useDisabledProceed = (
@@ -12,7 +12,7 @@ export const useDisabledProceed = (
   isWithdraw = false
 ) => {
   const { publicKeyHash } = useAccount();
-  const { data: tezBalanceData } = useBalance('tez', publicKeyHash);
+  const { data: tezBalanceData } = _useBalance('tez', publicKeyHash);
   const tezBalance = tezBalanceData!;
 
   const isMinAmountError = useMemo(

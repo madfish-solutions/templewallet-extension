@@ -155,23 +155,31 @@ function useReadyTemple() {
   };
 }
 
+// TODO: export function useChainId(suspense: true): string;
+export function useChainId(): string | nullish;
+export function useChainId(suspense: true): string | null;
 export function useChainId(suspense?: boolean) {
   const tezos = useTezos();
   const rpcUrl = useMemo(() => tezos.rpc.getRpcUrl(), [tezos]);
-  return useCustomChainId(rpcUrl, suspense);
+
+  const { data: chainId } = useChainIdLoading(rpcUrl, suspense);
+
+  return chainId;
 }
 
-export function useCustomChainId(rpcUrl: string, suspense?: boolean) {
-  const fetchChainId = useCallback(async () => {
-    try {
-      return await loadChainId(rpcUrl);
-    } catch (_err) {
-      return null;
-    }
-  }, [rpcUrl]);
+// TODO: export function useChainIdValue(rpcUrl: string, suspense: true): string;
+export function useChainIdValue(rpcUrl: string): string | nullish;
+export function useChainIdValue(rpcUrl: string, suspense: true): string | null;
+export function useChainIdValue(rpcUrl: string, suspense?: boolean) {
+  const { data: chainId } = useChainIdLoading(rpcUrl, suspense);
 
-  const { data: chainId } = useRetryableSWR(['chain-id', rpcUrl], fetchChainId, { suspense, revalidateOnFocus: false });
   return chainId;
+}
+
+export function useChainIdLoading(rpcUrl: string, suspense?: boolean) {
+  const fetchChainId = useCallback(() => loadChainId(rpcUrl).catch(() => null), [rpcUrl]);
+
+  return useRetryableSWR(['chain-id', rpcUrl], fetchChainId, { suspense, revalidateOnFocus: false });
 }
 
 export function useRelevantAccounts(withExtraTypes = true) {

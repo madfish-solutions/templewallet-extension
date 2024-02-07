@@ -1,2 +1,2 @@
-export { useCurrentAccountBalances, useBalance } from './hooks';
+export { useCurrentAccountBalances, _useBalance, useRawBalance, useBalance } from './hooks';
 export { getBalanceSWRKey } from './utils';

@@ -20,12 +20,12 @@ export const fetchBalance = async (
   account: string,
   assetMetadata: Pick<AssetMetadataBase, 'decimals'>
 ) => {
-  const atomicBalance = await fetchBalanceAtomic(tezos, assetSlug, account);
+  const atomicBalance = await fetchRawBalance(tezos, assetSlug, account);
 
   return atomsToTokens(atomicBalance, assetMetadata.decimals);
 };
 
-const fetchBalanceAtomic = async (tezos: TezosToolkit, assetSlug: string, account: string) => {
+export const fetchRawBalance = async (tezos: TezosToolkit, assetSlug: string, account: string) => {
   const asset = await fromAssetSlugWithStandardDetect(tezos, assetSlug);
 
   if (asset === TEZ_TOKEN_SLUG) return await fetchTezosBalanceAtomic(tezos, account);

@@ -8,13 +8,15 @@ import useSWR from 'swr';
 import { subscribeToActions } from 'app/store';
 import { loadAssetsBalancesActions, loadGasBalanceActions, putTokensBalancesAction } from 'app/store/balances/actions';
 import {
-  useAllBalancesSelector,
+  useAllAccountBalancesSelector,
   useBalancesErrorSelector,
   useBalanceSelector,
   useBalancesLoadingSelector,
   useTriedToLoadGasBalanceSelector,
-  useTriedToLoadAssetsBalancesSelector
+  useTriedToLoadAssetsBalancesSelector,
+  useAllBalancesSelector
 } from 'app/store/balances/selectors';
+import { getKeyForBalancesRecord } from 'app/store/balances/utils';
 import {
   addWhitelistTokensMetadataAction,
   putTokensMetadataAction,
@@ -24,17 +26,19 @@ import { isKnownChainId } from 'lib/apis/tzkt';
 import { toTokenSlug, TEZ_TOKEN_SLUG } from 'lib/assets';
 import { BLOCK_DURATION } from 'lib/fixed-times';
 import { useAssetMetadata, useAssetsMetadataLoading, useGetTokenOrGasMetadata } from 'lib/metadata';
-import { useTezos, useAccount, useChainId, ReactiveTezosToolkit, useCustomChainId } from 'lib/temple/front';
+import { useRetryableSWR, useTypedSWR } from 'lib/swr';
+import { useTezos, useAccount, useChainId, ReactiveTezosToolkit, useChainIdLoading } from 'lib/temple/front';
 import { michelEncoder, loadFastRpcClient, atomsToTokens } from 'lib/temple/helpers';
+import { isTruthy } from 'lib/utils';
 
-import { fetchBalance } from './fetch';
+import { fetchRawBalance as fetchRawBalanceFromBlockchain } from './fetch';
 import { getBalanceSWRKey } from './utils';
 
 export const useCurrentAccountBalances = () => {
   const { publicKeyHash } = useAccount();
   const chainId = useChainId(true)!;
 
-  return useAllBalancesSelector(publicKeyHash, chainId);
+  return useAllAccountBalancesSelector(publicKeyHash, chainId);
 };
 
 export const useGetCurrentAccountTokenOrGasBalanceWithDecimals = () => {
@@ -64,21 +68,23 @@ function suspenseByReduxAction(cb: (action: AnyAction, stopSuspense: () => void)
   });
 }
 
-type UseBalanceOptions = {
+interface UseBalanceOptions {
   suspense?: boolean;
   networkRpc?: string;
+  //
+  //
   displayed?: boolean;
   initial?: BigNumber;
-};
+}
 
-export function useBalance(assetSlug: string, address: string, opts: UseBalanceOptions = {}) {
+export function _useBalance(assetSlug: string, address: string, opts: UseBalanceOptions = {}) {
   const dispatch = useDispatch();
   const nativeTezos = useTezos();
   const nativeRpcUrl = useMemo(() => nativeTezos.rpc.getRpcUrl(), [nativeTezos]);
   const { suspense = true, networkRpc = nativeRpcUrl, displayed = true, initial: fallbackData } = opts;
-  const chainId = useCustomChainId(networkRpc, opts.suspense);
+  const { data: chainId } = useChainIdLoading(networkRpc, opts.suspense);
   const assetMetadata = useAssetMetadata(assetSlug);
-  const balances = useAllBalancesSelector(address, chainId ?? '');
+  const balances = useAllAccountBalancesSelector(address, chainId ?? '');
   const balancesAreLoading = useBalancesLoadingSelector(address, chainId ?? '');
   const balancesError = useBalancesErrorSelector(address, chainId ?? '');
   const balancesAreEmpty = Object.keys(balances).length === 0;
@@ -97,17 +103,14 @@ export function useBalance(assetSlug: string, address: string, opts: UseBalanceO
 
     return nativeTezos;
   }, [opts.networkRpc, nativeTezos]);
-  const getRawBalanceFromBlockchain = useCallback(
-    () => fetchBalance(tezos, assetSlug, address, { decimals: 0 }),
-    [address, assetSlug, tezos]
-  );
+
   const {
     data: localRawBalance,
     error: localBalanceError,
     isLoading: localIsSWRLoading,
     mutate: mutateBalanceFromBlockchain,
     isValidating: localIsSWRValidating
-  } = useSWR(shouldUseTzkt ? null : getBalanceSWRKey(tezos, assetSlug, address), getRawBalanceFromBlockchain, {
+  } = useSWR(shouldUseTzkt ? null : getBalanceSWRKey(tezos, assetSlug, address), fetchRawBalanceFromBlockchain, {
     suspense,
     revalidateOnFocus: false,
     dedupingInterval: Math.round(BLOCK_DURATION / 2),
@@ -289,10 +292,110 @@ export function useBalance(assetSlug: string, address: string, opts: UseBalanceO
   );
 }
 
-export const useCurrentAccountAssetBalance = (slug: string) => {
-  const { publicKeyHash } = useAccount();
+/**
+ * (!) Suspense not fully supported by this hook (turned by def)
+ * (!) Not initiating loading if from TZKT & missing
+ */
+export function useRawBalance(assetSlug: string, address: string, opts: UseBalanceOptions = {}) {
+  const dispatch = useDispatch();
 
-  const { data: balance } = useBalance(slug, publicKeyHash, { suspense: true });
+  const nativeTezos = useTezos();
+  const nativeRpcUrl = useMemo(() => nativeTezos.rpc.getRpcUrl(), [nativeTezos]);
 
-  return balance!;
-};
+  const { suspense = false, networkRpc = nativeRpcUrl } = opts;
+
+  // TODO: get `isLoading` of it
+  const { data: chainId, isValidating: chainIdIsValidating } = useChainIdLoading(networkRpc, suspense);
+
+  const tezos = useMemo(() => {
+    if (opts.networkRpc) {
+      const rpc = opts.networkRpc;
+      const t = new ReactiveTezosToolkit(loadFastRpcClient(rpc), rpc);
+      t.setPackerProvider(michelEncoder);
+      return t;
+    }
+
+    return nativeTezos;
+  }, [opts.networkRpc, nativeTezos]);
+
+  const allBalances = useAllBalancesSelector();
+  const balances = useMemo(() => {
+    if (!chainId) return null;
+
+    const key = getKeyForBalancesRecord(address, chainId);
+
+    return allBalances[key];
+  }, [allBalances, chainId, address]);
+
+  // const fromBlockchain = !isTruthy(balances);
+  // const fromBlockchain = chainId && !isKnownChainId(chainId);
+
+  const rawBalanceFromStore = balances?.data[assetSlug];
+
+  // const balancesAreKnownToStore = isTruthy(balances);
+
+  /*
+  useEffect(() => {
+    if (isKnownChainId(chainId) && !(balancesAreKnownToStore && balances.isLoading)) {
+      dispatch(
+        (assetSlug === TEZ_TOKEN_SLUG ? loadGasBalanceActions : loadAssetsBalancesActions).submit({
+          chainId,
+          publicKeyHash: address
+        })
+      );
+    }
+  }, [balances?.isLoading, balancesAreKnownToStore, chainId, assetSlug, address, dispatch]);
+  */
+
+  const onChainSwrResponse = useTypedSWR(
+    getBalanceSWRKey(tezos, assetSlug, address),
+    async () => {
+      // if (balancesAreKnownToStore) return;
+      // if (!fromBlockchain) return;
+      if (!chainId || isKnownChainId(chainId)) return;
+
+      return fetchRawBalanceFromBlockchain(tezos, assetSlug, address).then(res => res.toString());
+    },
+    {
+      suspense,
+      revalidateOnFocus: false,
+      dedupingInterval: 20_000,
+      refreshInterval: BLOCK_DURATION // TODO: refresh by new block
+    }
+  );
+
+  // Return
+
+  if (!chainId)
+    return {
+      value: undefined,
+      isSyncing: chainIdIsValidating
+    };
+
+  if (isKnownChainId(chainId))
+    return {
+      value: rawBalanceFromStore,
+      isSyncing: balances?.isLoading ?? false
+    };
+
+  return {
+    value: onChainSwrResponse.data,
+    isSyncing: onChainSwrResponse.isValidating
+  };
+}
+
+/**
+ * (!) Suspense not fully supported by this hook (turned by def)
+ * (!) Not initiating loading if from TZKT & missing
+ */
+export function useBalance(assetSlug: string, address: string, opts: UseBalanceOptions = {}) {
+  const { value: rawValue, isSyncing } = useRawBalance(assetSlug, address, opts);
+  const assetMetadata = useAssetMetadata(assetSlug);
+
+  const value = useMemo(
+    () => (rawValue && assetMetadata ? atomsToTokens(new BigNumber(rawValue), assetMetadata.decimals) : undefined),
+    [rawValue, assetMetadata]
+  );
+
+  return { value, isSyncing };
+}

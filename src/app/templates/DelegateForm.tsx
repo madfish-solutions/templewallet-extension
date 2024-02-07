@@ -20,7 +20,7 @@ import { useFormAnalytics } from 'lib/analytics';
 import { submitDelegation } from 'lib/apis/everstake';
 import { ABTestGroup } from 'lib/apis/temple';
 import { useGasToken } from 'lib/assets/hooks';
-import { useBalance } from 'lib/balances';
+import { _useBalance } from 'lib/balances';
 import { BLOCK_DURATION } from 'lib/fixed-times';
 import { TID, T, t } from 'lib/i18n';
 import { HELP_UKRAINE_BAKER_ADDRESS, RECOMMENDED_BAKER_ADDRESS } from 'lib/known-bakers';
@@ -66,7 +66,7 @@ const DelegateForm: FC = () => {
 
   const accountPkh = acc.publicKeyHash;
 
-  const { data: balanceData, updateBalance } = useBalance('tez', accountPkh);
+  const { data: balanceData, updateBalance } = _useBalance('tez', accountPkh);
   const balance = balanceData!;
   const balanceNum = balance.toNumber();
   const domainsClient = useTezosDomainsClient();
@@ -478,7 +478,7 @@ const BakerBannerComponent: React.FC<BakerBannerComponentProps> = ({ tzError, ba
   const acc = useAccount();
 
   const accountPkh = acc.publicKeyHash;
-  const { data: balanceData } = useBalance('tez', accountPkh);
+  const { data: balanceData } = _useBalance('tez', accountPkh);
   const balance = balanceData!;
   const balanceNum = balance.toNumber();
   const net = useNetwork();
