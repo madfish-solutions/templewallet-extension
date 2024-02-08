@@ -1,41 +1,39 @@
-import React, { cloneElement, memo, ReactElement, useMemo } from 'react';
+import React, { FC, cloneElement, ReactElement } from 'react';
 
 import BigNumber from 'bignumber.js';
 import clsx from 'clsx';
 import CSSTransition from 'react-transition-group/CSSTransition';
 
-import { _useBalance } from 'lib/balances';
+import { useBalance } from 'lib/balances';
 
-interface BalanceProps {
+interface Props {
   address: string;
   children: (b: BigNumber) => ReactElement;
   assetSlug?: string;
   networkRpc?: string;
 }
 
-const Balance = memo<BalanceProps>(({ address, children, assetSlug = 'tez', networkRpc }) => {
-  const { data: balance } = _useBalance(assetSlug, address, { networkRpc });
+const Balance: FC<Props> = ({ address, children, assetSlug = 'tez', networkRpc }) => {
+  const { value: balance } = useBalance(assetSlug, address, { networkRpc });
   const exist = balance !== undefined;
 
-  return useMemo(() => {
-    const childNode = children(balance == null ? new BigNumber(0) : balance);
+  const childNode = children(balance == null ? new BigNumber(0) : balance);
 
-    return (
-      <CSSTransition
-        in={exist}
-        timeout={200}
-        classNames={{
-          enter: 'opacity-0',
-          enterActive: 'opacity-100 transition ease-out duration-200',
-          exit: 'opacity-0 transition ease-in duration-200'
-        }}
-      >
-        {cloneElement(childNode, {
-          className: clsx(childNode.props.className, !exist && 'invisible')
-        })}
-      </CSSTransition>
-    );
-  }, [children, exist, balance]);
-});
+  return (
+    <CSSTransition
+      in={exist}
+      timeout={200}
+      classNames={{
+        enter: 'opacity-0',
+        enterActive: 'opacity-100 transition ease-out duration-200',
+        exit: 'opacity-0 transition ease-in duration-200'
+      }}
+    >
+      {cloneElement(childNode, {
+        className: clsx(childNode.props.className, !exist && 'invisible')
+      })}
+    </CSSTransition>
+  );
+};
 
 export default Balance;

@@ -24,9 +24,7 @@ interface Props {
 }
 
 export const ListItem = memo<Props>(({ publicKeyHash, assetSlug, active }) => {
-  const metadata = useGetTokenOrGasMetadata()(assetSlug);
-
-  const { value: balance = ZERO } = useBalance(assetSlug, publicKeyHash);
+  const { value: balance = ZERO, assetMetadata: metadata } = useBalance(assetSlug, publicKeyHash);
 
   const apyInfo = useTokenApyInfo(assetSlug);
 

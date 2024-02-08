@@ -2,7 +2,8 @@ import { useMemo } from 'react';
 
 import BigNumber from 'bignumber.js';
 
-import { _useBalance } from 'lib/balances';
+import { TEZ_TOKEN_SLUG } from 'lib/assets';
+import { useBalance } from 'lib/balances';
 import { useAccount } from 'lib/temple/front';
 
 export const useDisabledProceed = (
@@ -12,8 +13,7 @@ export const useDisabledProceed = (
   isWithdraw = false
 ) => {
   const { publicKeyHash } = useAccount();
-  const { data: tezBalanceData } = _useBalance('tez', publicKeyHash);
-  const tezBalance = tezBalanceData!;
+  const { value: tezBalance } = useBalance(TEZ_TOKEN_SLUG, publicKeyHash, { suspense: true });
 
   const isMinAmountError = useMemo(
     () => inputAmount !== undefined && inputAmount !== 0 && inputAmount < minExchangeAmount,
@@ -26,7 +26,7 @@ export const useDisabledProceed = (
   );
 
   const isInsufficientTezBalanceError = useMemo(() => {
-    if (isWithdraw) {
+    if (isWithdraw && tezBalance) {
       const gasFee = new BigNumber(0.3);
       const maxTezAmount = BigNumber.max(tezBalance.minus(gasFee), 0);
 
