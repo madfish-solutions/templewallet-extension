@@ -13,7 +13,7 @@ import InFiat from 'app/templates/InFiat';
 import { InputContainer } from 'app/templates/InputContainer/InputContainer';
 import { setTestID, useFormAnalytics } from 'lib/analytics';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
-import { _useBalance, useRawBalance } from 'lib/balances';
+import { useBalance, useRawBalance } from 'lib/balances';
 import { T, t, toLocalFormat } from 'lib/i18n';
 import {
   EMPTY_BASE_METADATA,
@@ -23,7 +23,7 @@ import {
   useTokensMetadataPresenceCheck
 } from 'lib/metadata';
 import { useAvailableRoute3TokensSlugs } from 'lib/route3/assets';
-import { useAccount, useOnBlock } from 'lib/temple/front';
+import { useAccount } from 'lib/temple/front';
 
 import { AssetOption } from './AssetsMenu/AssetOption';
 import { PercentageButton } from './PercentageButton/PercentageButton';
@@ -61,11 +61,8 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
   );
   const getTokenMetadata = useGetAssetMetadata();
 
-  const account = useAccount();
-  const { data: balance, updateBalance } = _useBalance(assetSlugWithFallback, account.publicKeyHash, {
-    suspense: false
-  });
-  useOnBlock(() => updateBalance());
+  const { publicKeyHash } = useAccount();
+  const { value: balance } = useBalance(assetSlugWithFallback, publicKeyHash);
 
   const { isLoading, route3tokensSlugs } = useAvailableRoute3TokensSlugs();
   const { filteredAssets, searchValue, setSearchValue, setTokenId } = useTokensListingLogic(
@@ -278,8 +275,8 @@ const SwapInputHeader: FC<{ label: ReactNode; selectedAssetSlug: string; selecte
   selectedAssetSymbol,
   label
 }) => {
-  const account = useAccount();
-  const { value: balance } = useRawBalance(selectedAssetSlug, account.publicKeyHash);
+  const { publicKeyHash } = useAccount();
+  const { value: balance } = useRawBalance(selectedAssetSlug, publicKeyHash);
 
   return (
     <div className="w-full flex items-center justify-between">
@@ -309,8 +306,8 @@ const SwapFooter: FC<{
   selectedAssetSlug: string;
   handlePercentageClick: (percentage: number) => void;
 }> = ({ amountInputDisabled, selectedAssetSlug, handlePercentageClick }) => {
-  const account = useAccount();
-  const { value: balance } = useRawBalance(selectedAssetSlug, account.publicKeyHash);
+  const { publicKeyHash } = useAccount();
+  const { value: balance } = useRawBalance(selectedAssetSlug, publicKeyHash);
 
   return amountInputDisabled ? null : (
     <div className="flex">

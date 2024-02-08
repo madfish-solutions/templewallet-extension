@@ -29,7 +29,14 @@ import { toTokenSlug, TEZ_TOKEN_SLUG } from 'lib/assets';
 import { BLOCK_DURATION } from 'lib/fixed-times';
 import { useAssetMetadata, useAssetsMetadataLoading, useGetTokenOrGasMetadata } from 'lib/metadata';
 import { useRetryableSWR, useTypedSWR } from 'lib/swr';
-import { useTezos, useAccount, useChainId, ReactiveTezosToolkit, useChainIdLoading } from 'lib/temple/front';
+import {
+  useTezos,
+  useAccount,
+  useChainId,
+  ReactiveTezosToolkit,
+  useChainIdLoading,
+  useOnBlock
+} from 'lib/temple/front';
 import { michelEncoder, loadFastRpcClient, atomsToTokens } from 'lib/temple/helpers';
 import { isTruthy } from 'lib/utils';
 
@@ -368,12 +375,14 @@ export function useRawBalance(
     },
     {
       revalidateOnFocus: false,
-      dedupingInterval: 20_000,
-      refreshInterval: BLOCK_DURATION // TODO: refresh by new block only
+      dedupingInterval: 20_000
+      // refreshInterval: BLOCK_DURATION
     }
   );
 
-  const refreshForOnChain = useCallback(() => onChainSwrResponse.mutate(), [onChainSwrResponse.mutate]);
+  const refreshForOnChain = useCallback(() => void onChainSwrResponse.mutate(), [onChainSwrResponse.mutate]);
+
+  useOnBlock(() => refreshForOnChain(), tezos);
 
   // Return // TODO: useMemo
 
