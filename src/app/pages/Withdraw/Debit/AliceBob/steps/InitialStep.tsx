@@ -1,7 +1,7 @@
 import React, { FC, useMemo, useState } from 'react';
 
 import BigNumber from 'bignumber.js';
-import classNames from 'clsx';
+import clsx from 'clsx';
 
 import { FormSubmitButton } from 'app/atoms/FormSubmitButton';
 import { useDisabledProceed } from 'app/hooks/AliceBob/use-disabled-proceed';
@@ -39,12 +39,8 @@ export const InitialStep: FC<Omit<StepProps, 'orderInfo'>> = ({ isApiError, setO
 
   const { currencies, isCurrenciesLoading } = useOutputCurrencies(setIsApiError, outputCurrency, setOutputCurrency);
 
-  const { isMinAmountError, isMaxAmountError, isInsufficientTezBalanceError, disabledProceed } = useDisabledProceed(
-    inputAmount,
-    outputCurrency?.minAmount,
-    outputCurrency?.maxAmount,
-    true
-  );
+  const { tezBalanceLoading, isMinAmountError, isMaxAmountError, isInsufficientTezBalanceError, disabledProceed } =
+    useDisabledProceed(inputAmount, outputCurrency?.minAmount, outputCurrency?.maxAmount, true);
 
   const isFormValid = useMemo(
     () => !disabledProceed && !isApiError && cardNumberInput.isValid && cardNumberInput.isTouched,
@@ -93,7 +89,7 @@ export const InitialStep: FC<Omit<StepProps, 'orderInfo'>> = ({ isApiError, setO
 
   const handleInputAmountChange = (amount?: number) => setInputAmount(amount);
 
-  const isLoading = orderIsProcessing || estimationIsLoading || isCurrenciesLoading;
+  const isLoading = tezBalanceLoading || orderIsProcessing || estimationIsLoading || isCurrenciesLoading;
 
   return (
     <>
@@ -135,8 +131,8 @@ export const InitialStep: FC<Omit<StepProps, 'orderInfo'>> = ({ isApiError, setO
           onCurrencySelect={currency => setOutputCurrency(currency)}
         />
 
-        <div className={classNames(styles['exchangeRateBlock'], 'mt-1 mb-10')}>
-          <p className={classNames(styles['exchangeTitle'])}>
+        <div className={clsx(styles['exchangeRateBlock'], 'mt-1 mb-10')}>
+          <p className={styles['exchangeTitle']}>
             <T id={'exchangeRate'} />:
           </p>
           <p className={styles['exchangeData']}>
@@ -148,7 +144,7 @@ export const InitialStep: FC<Omit<StepProps, 'orderInfo'>> = ({ isApiError, setO
           <span className="text-xl text-gray-900">
             <T id="toCard" />
           </span>
-          <span className={classNames('inline-flex items-center font-inter text-xs font-normal text-orange-500')}>
+          <span className="inline-flex items-center font-inter text-xs font-normal text-orange-500">
             <AlertIcon className="mr-1 stroke-current" />
             <T id="onlyForCountryBankingCards" substitutions={[outputCurrency.name.split(' ')[0]]} />
           </span>

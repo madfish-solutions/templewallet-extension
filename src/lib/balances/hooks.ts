@@ -302,7 +302,7 @@ export function _useBalance(assetSlug: string, address: string, opts: _UseBalanc
 }
 
 interface UseBalanceOptions {
-  suspense?: boolean;
+  // suspense?: boolean;
   networkRpc?: string;
 }
 
@@ -317,6 +317,7 @@ export function useRawBalance(
 ): {
   value: string | undefined;
   isSyncing: boolean;
+  error?: unknown;
   refresh: EmptyFn;
 } {
   const dispatch = useDispatch();
@@ -325,10 +326,11 @@ export function useRawBalance(
   const nativeTezos = useTezos();
   const nativeRpcUrl = useMemo(() => nativeTezos.rpc.getRpcUrl(), [nativeTezos]);
 
-  const { networkRpc = nativeRpcUrl, suspense = false } = opts;
+  const { networkRpc = nativeRpcUrl } = opts;
 
   // TODO: get `isLoading` of it
-  const { data: chainId, isValidating: chainIdIsValidating } = useChainIdLoading(networkRpc);
+  const chainIdSwrRes = useChainIdLoading(networkRpc);
+  const chainId = chainIdSwrRes.data;
 
   const allBalances = useAllBalancesSelector();
   const balances = useMemo(() => {
@@ -366,7 +368,7 @@ export function useRawBalance(
     [opts.networkRpc, nativeTezos]
   );
 
-  const onChainSwrResponse = useTypedSWR(
+  const onChainBalanceSwrRes = useTypedSWR(
     getBalanceSWRKey(tezos, assetSlug, address),
     () => {
       if (!chainId || usingStore) return;
@@ -380,23 +382,26 @@ export function useRawBalance(
     }
   );
 
-  const refreshForOnChain = useCallback(() => void onChainSwrResponse.mutate(), [onChainSwrResponse.mutate]);
+  const refreshChainId = useCallback(() => void chainIdSwrRes.mutate(), [chainIdSwrRes.mutate]);
+  const refreshBalanceOnChain = useCallback(() => void onChainBalanceSwrRes.mutate(), [onChainBalanceSwrRes.mutate]);
 
-  useOnBlock(() => refreshForOnChain(), tezos);
+  useOnBlock(refreshBalanceOnChain, tezos);
 
   // Return // TODO: useMemo
 
   if (!chainId)
     return {
       value: undefined,
-      isSyncing: chainIdIsValidating,
-      refresh: emptyFn
+      isSyncing: chainIdSwrRes.isValidating,
+      error: chainIdSwrRes.error,
+      refresh: refreshChainId
     };
 
   if (usingStore)
     return {
       value: balances?.data[assetSlug],
       isSyncing: balances?.isLoading ?? false,
+      error: balances?.error,
       /**
        * Stored balances are already being refreshed as frequently as possible
        * in `useBalancesLoading` hook.
@@ -405,9 +410,10 @@ export function useRawBalance(
     };
 
   return {
-    value: onChainSwrResponse.data,
-    isSyncing: onChainSwrResponse.isValidating,
-    refresh: refreshForOnChain
+    value: onChainBalanceSwrRes.data,
+    isSyncing: onChainBalanceSwrRes.isValidating,
+    error: onChainBalanceSwrRes.error,
+    refresh: refreshBalanceOnChain
   };
 }
 
@@ -416,7 +422,7 @@ export function useRawBalance(
  * (!) Not initiating loading if from TZKT & missing
  */
 export function useBalance(assetSlug: string, address: string, opts?: UseBalanceOptions) {
-  const { value: rawValue, isSyncing, refresh } = useRawBalance(assetSlug, address, opts);
+  const { value: rawValue, isSyncing, error, refresh } = useRawBalance(assetSlug, address, opts);
   const assetMetadata = useAssetMetadata(assetSlug);
 
   const value = useMemo(
@@ -424,7 +430,7 @@ export function useBalance(assetSlug: string, address: string, opts?: UseBalance
     [rawValue, assetMetadata]
   );
 
-  return { value, isSyncing, refresh, assetMetadata };
+  return { rawValue, value, isSyncing, error, refresh, assetMetadata };
 }
 
 const buildTezosToolkit = memoizee(

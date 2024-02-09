@@ -13,7 +13,12 @@ export const useDisabledProceed = (
   isWithdraw = false
 ) => {
   const { publicKeyHash } = useAccount();
-  const { value: tezBalance } = useBalance(TEZ_TOKEN_SLUG, publicKeyHash, { suspense: true });
+  const tezBalance = useBalance(TEZ_TOKEN_SLUG, publicKeyHash);
+
+  const tezBalanceLoading = useMemo(
+    () => !tezBalance.value && tezBalance.isSyncing,
+    [tezBalance.value, tezBalance.isSyncing]
+  );
 
   const isMinAmountError = useMemo(
     () => inputAmount !== undefined && inputAmount !== 0 && inputAmount < minExchangeAmount,
@@ -26,15 +31,14 @@ export const useDisabledProceed = (
   );
 
   const isInsufficientTezBalanceError = useMemo(() => {
-    if (isWithdraw && tezBalance) {
-      const gasFee = new BigNumber(0.3);
-      const maxTezAmount = BigNumber.max(tezBalance.minus(gasFee), 0);
+    if (!isWithdraw) return false;
+    if (!tezBalance.value) return false;
 
-      return inputAmount !== undefined && inputAmount !== 0 && inputAmount > maxTezAmount.toNumber();
-    } else {
-      return false;
-    }
-  }, [inputAmount, isWithdraw, tezBalance]);
+    const gasFee = new BigNumber(0.3);
+    const maxTezAmount = BigNumber.max(tezBalance.value.minus(gasFee), 0);
+
+    return inputAmount !== undefined && inputAmount !== 0 && inputAmount > maxTezAmount.toNumber();
+  }, [inputAmount, isWithdraw, tezBalance.value]);
 
   const disabledProceed = useMemo(
     () =>
@@ -47,6 +51,7 @@ export const useDisabledProceed = (
   );
 
   return {
+    tezBalanceLoading,
     isMinAmountError,
     isMaxAmountError,
     isInsufficientTezBalanceError,

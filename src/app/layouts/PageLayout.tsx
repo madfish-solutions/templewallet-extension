@@ -96,7 +96,7 @@ const ContentPaper: FC<ContentPaparProps> = ({ className, style = {}, children, 
   );
 };
 
-const SpinnerSection: FC = () => (
+export const SpinnerSection: FC = () => (
   <div className="flex justify-center mt-24">
     <Spinner className="w-20" />
   </div>
