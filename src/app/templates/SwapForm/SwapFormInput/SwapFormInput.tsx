@@ -287,6 +287,7 @@ const SwapInputHeader: FC<{ label: ReactNode; selectedAssetSlug: string; selecte
           <span className="mr-1">
             <T id="balance" />:
           </span>
+
           {balance && (
             <span className={classNames('text-sm mr-1 text-gray-700', balance === '0' && 'text-red-700')}>
               <Money smallFractionFont={false} fiat={false}>
@@ -294,6 +295,7 @@ const SwapInputHeader: FC<{ label: ReactNode; selectedAssetSlug: string; selecte
               </Money>
             </span>
           )}
+
           <span>{selectedAssetSymbol}</span>
         </span>
       )}

@@ -6,4 +6,6 @@
 - - Error on bad RPC (i.e. old TW RPC)
 - - Spinner. No glitches
 - - Base fee estimation is okay
--
+- Swap form
+- - Max amounts glitches
+- - Base fee estimation
