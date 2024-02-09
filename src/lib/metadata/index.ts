@@ -40,13 +40,6 @@ export const useAssetMetadata = (slug: string): AssetMetadataBase | undefined =>
   return isTezAsset(slug) ? gasMetadata : tokenMetadata || collectibleMetadata;
 };
 
-export const useAssetsMetadataLoading = () => {
-  const collectiblesMetadataLoading = useCollectiblesMetadataLoadingSelector();
-  const tokensMetadataLoading = useTokensMetadataLoadingSelector();
-
-  return collectiblesMetadataLoading || tokensMetadataLoading;
-};
-
 export type TokenMetadataGetter = (slug: string) => TokenMetadata | undefined;
 
 export const useGetTokenMetadata = () => {

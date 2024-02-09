@@ -6,7 +6,7 @@ import { useTokenApyInfo } from 'app/hooks/use-token-apy.hook';
 import { AssetIcon } from 'app/templates/AssetIcon';
 import { setAnotherSelector } from 'lib/analytics';
 import { useBalance } from 'lib/balances/hooks';
-import { getAssetName, getAssetSymbol, useGetTokenOrGasMetadata } from 'lib/metadata';
+import { getAssetName, getAssetSymbol } from 'lib/metadata';
 import { ZERO } from 'lib/utils/numbers';
 import { Link } from 'lib/woozie';
 

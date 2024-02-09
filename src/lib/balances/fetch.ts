@@ -3,26 +3,13 @@ import BigNumber from 'bignumber.js';
 
 import { isFA2Token, TEZ_TOKEN_SLUG } from 'lib/assets';
 import { fromAssetSlugWithStandardDetect } from 'lib/assets/contract.utils';
-import { AssetMetadataBase } from 'lib/metadata';
 import { loadContract } from 'lib/temple/contract';
-import { atomsToTokens } from 'lib/temple/helpers';
 
 const fetchTezosBalanceAtomic = async (tezos: TezosToolkit, account: string) => {
   let nat = (await getBalanceSafe(tezos, account)) ?? new BigNumber(0);
   nat = toSafeBignum(nat);
 
   return nat;
-};
-
-export const fetchBalance = async (
-  tezos: TezosToolkit,
-  assetSlug: string,
-  account: string,
-  assetMetadata: Pick<AssetMetadataBase, 'decimals'>
-) => {
-  const atomicBalance = await fetchRawBalance(tezos, assetSlug, account);
-
-  return atomsToTokens(atomicBalance, assetMetadata.decimals);
 };
 
 export const fetchRawBalance = async (tezos: TezosToolkit, assetSlug: string, account: string) => {

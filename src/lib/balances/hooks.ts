@@ -3,7 +3,6 @@ import { useCallback, useMemo } from 'react';
 import { emptyFn } from '@rnw-community/shared';
 import BigNumber from 'bignumber.js';
 import memoizee from 'memoizee';
-import { useDispatch } from 'react-redux';
 
 import { useAllAccountBalancesSelector, useAllBalancesSelector } from 'app/store/balances/selectors';
 import { getKeyForBalancesRecord } from 'app/store/balances/utils';
@@ -64,8 +63,6 @@ export function useRawBalance(
   error?: unknown;
   refresh: EmptyFn;
 } {
-  const dispatch = useDispatch();
-
   const { publicKeyHash: currentAccountAddress } = useAccount();
   const nativeTezos = useTezos();
   const nativeRpcUrl = useMemo(() => nativeTezos.rpc.getRpcUrl(), [nativeTezos]);
