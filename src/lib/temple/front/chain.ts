@@ -68,5 +68,5 @@ export function useOnBlock(callback: (blockHash: string) => void, altTezos?: Tez
         spawnSub();
       });
     }
-  }, [tezos, callbackRef]);
+  }, [tezos]);
 }

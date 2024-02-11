@@ -17,3 +17,9 @@ export const useBalanceSelector = (publicKeyHash: string, chainId: string, asset
 
   return useSelector(state => state.balances.balancesAtomic[publicKeyHashWithChainId]?.data[assetSlug]);
 };
+
+export const useBalancesLoadingSelector = (publicKeyHash: string, chainId: string) => {
+  const publicKeyHashWithChainId = getKeyForBalancesRecord(publicKeyHash, chainId);
+
+  return useSelector(state => state.balances.balancesAtomic[publicKeyHashWithChainId]?.isLoading ?? false);
+};

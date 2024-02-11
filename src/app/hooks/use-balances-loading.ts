@@ -1,9 +1,10 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 
 import { noop } from 'lodash';
 import { useDispatch } from 'react-redux';
 
 import { loadGasBalanceActions, loadAssetsBalancesActions, putTokensBalancesAction } from 'app/store/balances/actions';
+import { useBalancesLoadingSelector } from 'app/store/balances/selectors';
 import { fixBalances } from 'app/store/balances/utils';
 import {
   TzktSubscriptionChannel,
@@ -14,23 +15,24 @@ import {
   TzktAccountType
 } from 'lib/apis/tzkt';
 import { toTokenSlug } from 'lib/assets';
-import { BALANCES_SYNC_INTERVAL } from 'lib/fixed-times';
-import { useAccount, useChainId, useTzktConnection } from 'lib/temple/front';
-import { useInterval } from 'lib/ui/hooks';
+import { useAccount, useChainId, useOnBlock, useTzktConnection } from 'lib/temple/front';
 
 export const useBalancesLoading = () => {
   const chainId = useChainId(true)!;
   const { publicKeyHash } = useAccount();
+
+  const isLoading = useBalancesLoadingSelector(publicKeyHash, chainId);
+  const isLoadingRef = useRef(false);
+  isLoadingRef.current = isLoading;
+
   const { connection, connectionReady } = useTzktConnection();
-  const [tokensSubscriptionConfirmed, setTokensSubscriptionConfirmed] = useState(false);
-  const [accountsSubscriptionConfirmed, setAccountsSubscriptionConfirmed] = useState(false);
-  const triedToLoadTokensBalancesAddressRef = useRef<string>();
-  const triedToLoadTezBalanceAddressRef = useRef<string>();
 
   const dispatch = useDispatch();
 
   const tokenBalancesListener = useCallback(
     (msg: TzktTokenBalancesSubscriptionMessage) => {
+      if (isLoadingRef.current) return;
+
       switch (msg.type) {
         case TzktSubscriptionStateMessageType.Reorg:
           dispatch(loadAssetsBalancesActions.submit({ publicKeyHash, chainId }));
@@ -47,15 +49,15 @@ export const useBalancesLoading = () => {
             dispatch(putTokensBalancesAction({ publicKeyHash, chainId, balances }));
           }
           break;
-        default:
-          setTokensSubscriptionConfirmed(true);
       }
     },
-    [chainId, dispatch, publicKeyHash]
+    [publicKeyHash, chainId, dispatch]
   );
 
   const accountsListener = useCallback(
     (msg: TzktAccountsSubscriptionMessage) => {
+      if (isLoadingRef.current) return;
+
       switch (msg.type) {
         case TzktSubscriptionStateMessageType.Reorg:
           dispatch(loadGasBalanceActions.submit({ publicKeyHash, chainId }));
@@ -78,11 +80,9 @@ export const useBalancesLoading = () => {
             dispatch(loadGasBalanceActions.submit({ publicKeyHash, chainId }));
           }
           break;
-        default:
-          setAccountsSubscriptionConfirmed(true);
       }
     },
-    [chainId, dispatch, publicKeyHash]
+    [publicKeyHash, chainId, dispatch]
   );
 
   useEffect(() => {
@@ -96,37 +96,22 @@ export const useBalancesLoading = () => {
       ]).catch(e => console.error(e));
 
       return () => {
-        setAccountsSubscriptionConfirmed(false);
-        setTokensSubscriptionConfirmed(false);
         connection.off(TzktSubscriptionChannel.TokenBalances, tokenBalancesListener);
         connection.off(TzktSubscriptionChannel.Accounts, accountsListener);
       };
     }
 
     return noop;
-  }, [accountsListener, connection, connectionReady, publicKeyHash, tokenBalancesListener]);
+  }, [accountsListener, tokenBalancesListener, connection, connectionReady, publicKeyHash]);
 
-  useInterval(
-    () => {
-      if (!accountsSubscriptionConfirmed || publicKeyHash !== triedToLoadTezBalanceAddressRef.current) {
-        dispatch(loadGasBalanceActions.submit({ publicKeyHash, chainId }));
-        triedToLoadTezBalanceAddressRef.current = publicKeyHash;
-      }
-    },
-    BALANCES_SYNC_INTERVAL,
-    [chainId, publicKeyHash, accountsSubscriptionConfirmed],
-    true
-  );
+  const dispatchLoadBalancesActions = useCallback(() => {
+    if (isLoadingRef.current === false) {
+      console.log('Go', publicKeyHash);
+      dispatch(loadGasBalanceActions.submit({ publicKeyHash, chainId }));
+      dispatch(loadAssetsBalancesActions.submit({ publicKeyHash, chainId }));
+    }
+  }, [publicKeyHash, chainId, dispatch]);
 
-  useInterval(
-    () => {
-      if (!tokensSubscriptionConfirmed || publicKeyHash !== triedToLoadTokensBalancesAddressRef.current) {
-        dispatch(loadAssetsBalancesActions.submit({ publicKeyHash, chainId }));
-        triedToLoadTokensBalancesAddressRef.current = publicKeyHash;
-      }
-    },
-    BALANCES_SYNC_INTERVAL,
-    [chainId, publicKeyHash, tokensSubscriptionConfirmed],
-    false // Not calling immediately, because balances are also loaded via assets loading
-  );
+  useEffect(dispatchLoadBalancesActions, [dispatchLoadBalancesActions]);
+  useOnBlock(dispatchLoadBalancesActions);
 };
