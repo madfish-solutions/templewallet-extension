@@ -106,7 +106,6 @@ export const useBalancesLoading = () => {
 
   const dispatchLoadBalancesActions = useCallback(() => {
     if (isLoadingRef.current === false) {
-      console.log('Go', publicKeyHash);
       dispatch(loadGasBalanceActions.submit({ publicKeyHash, chainId }));
       dispatch(loadAssetsBalancesActions.submit({ publicKeyHash, chainId }));
     }

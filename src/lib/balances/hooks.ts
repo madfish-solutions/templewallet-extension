@@ -44,19 +44,10 @@ export const useGetCurrentAccountTokenOrGasBalanceWithDecimals = () => {
   );
 };
 
-interface UseBalanceOptions {
-  // suspense?: boolean;
-  networkRpc?: string;
-}
-
-/**
- * (!) Suspense not fully supported by this hook (turned off by def)
- * (!) Not initiating loading if from TZKT & missing
- */
 export function useRawBalance(
   assetSlug: string,
   address: string,
-  opts: UseBalanceOptions = {}
+  networkRpc?: string
 ): {
   value: string | undefined;
   isSyncing: boolean;
@@ -67,10 +58,9 @@ export function useRawBalance(
   const nativeTezos = useTezos();
   const nativeRpcUrl = useMemo(() => nativeTezos.rpc.getRpcUrl(), [nativeTezos]);
 
-  const { networkRpc = nativeRpcUrl } = opts;
+  const rpcUrl = networkRpc ?? nativeRpcUrl;
 
-  // TODO: get `isLoading` of it
-  const chainIdSwrRes = useChainIdLoading(networkRpc);
+  const chainIdSwrRes = useChainIdLoading(rpcUrl);
   const chainId = chainIdSwrRes.data;
 
   const allBalances = useAllBalancesSelector();
@@ -82,32 +72,14 @@ export function useRawBalance(
     return allBalances[key];
   }, [allBalances, chainId, address]);
 
-  // const fromBlockchain = !isTruthy(balances);
-  // const fromBlockchain = chainId && !isKnownChainId(chainId);
-
-  // const rawBalanceFromStore = balances?.data[assetSlug];
-
-  // const balancesAreKnownToStore = isTruthy(balances);
-  // const usingStore = address === currentAccountAddress && isKnownChainId(chainId) && isTruthy(balances);
+  /** Only using store for currently selected account - most used case
+   * and with a refresh mechanism in useBalancesLoading hook.
+   * Other addresses' balances (e.g. of other user's accounts or contacts)
+   * are loaded via SWR from chain.
+   */
   const usingStore = address === currentAccountAddress && isKnownChainId(chainId);
 
-  /*
-  useEffect(() => {
-    if (isKnownChainId(chainId) && !(balancesAreKnownToStore && balances.isLoading)) {
-      dispatch(
-        (assetSlug === TEZ_TOKEN_SLUG ? loadGasBalanceActions : loadAssetsBalancesActions).submit({
-          chainId,
-          publicKeyHash: address
-        })
-      );
-    }
-  }, [balances?.isLoading, balancesAreKnownToStore, chainId, assetSlug, address, dispatch]);
-  */
-
-  const tezos = useMemo(
-    () => (opts.networkRpc ? buildTezosToolkit(opts.networkRpc) : nativeTezos),
-    [opts.networkRpc, nativeTezos]
-  );
+  const tezos = useMemo(() => (networkRpc ? buildTezosToolkit(networkRpc) : nativeTezos), [networkRpc, nativeTezos]);
 
   const onChainBalanceSwrRes = useTypedSWR(
     getBalanceSWRKey(tezos, assetSlug, address),
@@ -119,16 +91,13 @@ export function useRawBalance(
     {
       revalidateOnFocus: false,
       dedupingInterval: 20_000
-      // refreshInterval: BLOCK_DURATION
     }
   );
 
-  const refreshChainId = useCallback(() => void chainIdSwrRes.mutate(), [chainIdSwrRes.mutate]);
+  const refreshChainId = useCallback(() => chainIdSwrRes.mutate(), [chainIdSwrRes.mutate]);
   const refreshBalanceOnChain = useCallback(() => void onChainBalanceSwrRes.mutate(), [onChainBalanceSwrRes.mutate]);
 
   useOnBlock(refreshBalanceOnChain, tezos);
-
-  // Return // TODO: useMemo
 
   if (!chainId)
     return {
@@ -158,12 +127,8 @@ export function useRawBalance(
   };
 }
 
-/**
- * (!) Suspense not fully supported by this hook (turned by def)
- * (!) Not initiating loading if from TZKT & missing
- */
-export function useBalance(assetSlug: string, address: string, opts?: UseBalanceOptions) {
-  const { value: rawValue, isSyncing, error, refresh } = useRawBalance(assetSlug, address, opts);
+export function useBalance(assetSlug: string, address: string, networkRpc?: string) {
+  const { value: rawValue, isSyncing, error, refresh } = useRawBalance(assetSlug, address, networkRpc);
   const assetMetadata = useAssetMetadata(assetSlug);
 
   const value = useMemo(

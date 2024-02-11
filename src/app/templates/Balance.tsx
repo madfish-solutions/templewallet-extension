@@ -14,7 +14,7 @@ interface Props {
 }
 
 const Balance: FC<Props> = ({ address, children, assetSlug = 'tez', networkRpc }) => {
-  const { value: balance } = useBalance(assetSlug, address, { networkRpc });
+  const { value: balance } = useBalance(assetSlug, address, networkRpc);
   const exist = balance !== undefined;
 
   const childNode = children(balance == null ? new BigNumber(0) : balance);

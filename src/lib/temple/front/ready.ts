@@ -155,10 +155,6 @@ function useReadyTemple() {
   };
 }
 
-// TODO: export function useChainId(suspense: true): string;
-export function useChainId(): string | nullish;
-export function useChainId(suspense: true): string | null;
-export function useChainId(suspense: boolean): string | nullish;
 export function useChainId(suspense?: boolean) {
   const tezos = useTezos();
   const rpcUrl = useMemo(() => tezos.rpc.getRpcUrl(), [tezos]);
@@ -168,10 +164,6 @@ export function useChainId(suspense?: boolean) {
   return chainId;
 }
 
-// TODO: export function useChainIdValue(rpcUrl: string, suspense: true): string;
-export function useChainIdValue(rpcUrl: string): string | nullish;
-export function useChainIdValue(rpcUrl: string, suspense: true): string | null;
-export function useChainIdValue(rpcUrl: string, suspense: boolean): string | nullish;
 export function useChainIdValue(rpcUrl: string, suspense?: boolean) {
   const { data: chainId } = useChainIdLoading(rpcUrl, suspense);
 
