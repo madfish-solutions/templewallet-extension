@@ -41,7 +41,7 @@ function useNewBlockTriggers() {
   };
 }
 
-export function useOnBlock(callback: (blockHash: string) => void, altTezos?: TezosToolkit) {
+export function useOnBlock(callback: (blockHash: string) => void, altTezos?: TezosToolkit, pause = false) {
   const currentTezos = useTezos();
   const blockHashRef = useRef<string>();
   const callbackRef = useUpdatableRef(callback);
@@ -49,6 +49,8 @@ export function useOnBlock(callback: (blockHash: string) => void, altTezos?: Tez
   const tezos = altTezos || currentTezos;
 
   useEffect(() => {
+    if (pause) return;
+
     let sub: Subscription<string>;
     spawnSub();
     return () => sub.close();
@@ -68,5 +70,5 @@ export function useOnBlock(callback: (blockHash: string) => void, altTezos?: Tez
         spawnSub();
       });
     }
-  }, [tezos]);
+  }, [pause, tezos]);
 }

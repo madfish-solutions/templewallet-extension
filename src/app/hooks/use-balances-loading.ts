@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { noop } from 'lodash';
 import { useDispatch } from 'react-redux';
@@ -27,6 +27,8 @@ export const useBalancesLoading = () => {
   const isLoadingRef = useUpdatableRef(isLoading);
 
   const { connection, connectionReady } = useTzktConnection();
+  const [tokensSubscriptionConfirmed, setTokensSubscriptionConfirmed] = useState(false);
+  const [accountsSubscriptionConfirmed, setAccountsSubscriptionConfirmed] = useState(false);
 
   const dispatch = useDispatch();
 
@@ -50,6 +52,8 @@ export const useBalancesLoading = () => {
             dispatch(putTokensBalancesAction({ publicKeyHash, chainId, balances }));
           }
           break;
+        default:
+          setTokensSubscriptionConfirmed(true);
       }
     },
     [publicKeyHash, chainId, dispatch]
@@ -81,6 +85,8 @@ export const useBalancesLoading = () => {
             dispatch(loadGasBalanceActions.submit({ publicKeyHash, chainId }));
           }
           break;
+        default:
+          setAccountsSubscriptionConfirmed(true);
       }
     },
     [publicKeyHash, chainId, dispatch]
@@ -97,6 +103,8 @@ export const useBalancesLoading = () => {
       ]).catch(e => console.error(e));
 
       return () => {
+        setAccountsSubscriptionConfirmed(false);
+        setTokensSubscriptionConfirmed(false);
         connection.off(TzktSubscriptionChannel.TokenBalances, tokenBalancesListener);
         connection.off(TzktSubscriptionChannel.Accounts, accountsListener);
       };
@@ -105,13 +113,21 @@ export const useBalancesLoading = () => {
     return noop;
   }, [accountsListener, tokenBalancesListener, connection, connectionReady, publicKeyHash]);
 
-  const dispatchLoadBalancesActions = useCallback(() => {
+  const dispatchLoadGasBalanceAction = useCallback(() => {
     if (isLoadingRef.current === false && isKnownChainId(chainId)) {
       dispatch(loadGasBalanceActions.submit({ publicKeyHash, chainId }));
+    }
+  }, [publicKeyHash, chainId, dispatch]);
+
+  useEffect(dispatchLoadGasBalanceAction, [dispatchLoadGasBalanceAction]);
+  useOnBlock(dispatchLoadGasBalanceAction, undefined, accountsSubscriptionConfirmed);
+
+  const dispatchLoadAssetsBalancesActions = useCallback(() => {
+    if (isLoadingRef.current === false && isKnownChainId(chainId)) {
       dispatch(loadAssetsBalancesActions.submit({ publicKeyHash, chainId }));
     }
   }, [publicKeyHash, chainId, dispatch]);
 
-  useEffect(dispatchLoadBalancesActions, [dispatchLoadBalancesActions]);
-  useOnBlock(dispatchLoadBalancesActions);
+  useEffect(dispatchLoadAssetsBalancesActions, [dispatchLoadAssetsBalancesActions]);
+  useOnBlock(dispatchLoadAssetsBalancesActions, undefined, tokensSubscriptionConfirmed);
 };
