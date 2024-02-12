@@ -4,7 +4,6 @@ import { createActions } from 'lib/store/action.utils';
 
 interface LoadBalancesPayloadBase {
   publicKeyHash: string;
-  // chainId: TzktApiChainId;
   chainId: string;
 }
 

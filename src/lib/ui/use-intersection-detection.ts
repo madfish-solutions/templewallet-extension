@@ -1,6 +1,6 @@
 import { RefObject, useEffect } from 'react';
 
-import { useCallbackRef } from './hooks/useCallbackRef';
+import { useUpdatableRef } from './hooks';
 
 const IS_SUPPORTED = 'IntersectionObserver' in window;
 
@@ -11,7 +11,7 @@ export const useIntersectionDetection = (
   verticalOffset = 0,
   root: Document | Element | null = document
 ) => {
-  const callbackRef = useCallbackRef(callback);
+  const callbackRef = useUpdatableRef(callback);
 
   useEffect(() => {
     const elem = elemRef.current;

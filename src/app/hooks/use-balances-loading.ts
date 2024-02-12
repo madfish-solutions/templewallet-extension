@@ -16,14 +16,14 @@ import {
 } from 'lib/apis/tzkt';
 import { toTokenSlug } from 'lib/assets';
 import { useAccount, useChainId, useOnBlock, useTzktConnection } from 'lib/temple/front';
+import { useUpdatableRef } from 'lib/ui/hooks';
 
 export const useBalancesLoading = () => {
   const chainId = useChainId(true)!;
   const { publicKeyHash } = useAccount();
 
   const isLoading = useBalancesLoadingSelector(publicKeyHash, chainId);
-  const isLoadingRef = useRef(false);
-  isLoadingRef.current = isLoading;
+  const isLoadingRef = useUpdatableRef(isLoading);
 
   const { connection, connectionReady } = useTzktConnection();
 

@@ -6,7 +6,7 @@ import { useSWRConfig } from 'swr';
 
 import { getBalanceSWRKey } from 'lib/balances/utils';
 import { confirmOperation } from 'lib/temple/operation';
-import { useCallbackRef } from 'lib/ui/hooks/useCallbackRef';
+import { useUpdatableRef } from 'lib/ui/hooks';
 
 import { useTezos, useRelevantAccounts } from './ready';
 
@@ -44,7 +44,7 @@ function useNewBlockTriggers() {
 export function useOnBlock(callback: (blockHash: string) => void, altTezos?: TezosToolkit) {
   const currentTezos = useTezos();
   const blockHashRef = useRef<string>();
-  const callbackRef = useCallbackRef(callback);
+  const callbackRef = useUpdatableRef(callback);
 
   const tezos = altTezos || currentTezos;
 
