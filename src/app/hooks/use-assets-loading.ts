@@ -7,6 +7,7 @@ import {
   loadAccountCollectiblesActions
 } from 'app/store/assets/actions';
 import { useAreAssetsLoading } from 'app/store/assets/selectors';
+import { isKnownChainId } from 'lib/apis/tzkt';
 import { ASSETS_SYNC_INTERVAL } from 'lib/fixed-times';
 import { useAccount, useChainId } from 'lib/temple/front';
 import { TempleChainId } from 'lib/temple/types';
@@ -24,7 +25,8 @@ export const useAssetsLoading = () => {
 
   useInterval(
     () => {
-      if (!tokensAreLoading) dispatch(loadAccountTokensActions.submit({ account: publicKeyHash, chainId }));
+      if (!tokensAreLoading && isKnownChainId(chainId))
+        dispatch(loadAccountTokensActions.submit({ account: publicKeyHash, chainId }));
     },
     ASSETS_SYNC_INTERVAL,
     [chainId, publicKeyHash]
@@ -34,7 +36,8 @@ export const useAssetsLoading = () => {
 
   useInterval(
     () => {
-      if (!collectiblesAreLoading) dispatch(loadAccountCollectiblesActions.submit({ account: publicKeyHash, chainId }));
+      if (!collectiblesAreLoading && isKnownChainId(chainId))
+        dispatch(loadAccountCollectiblesActions.submit({ account: publicKeyHash, chainId }));
     },
     ASSETS_SYNC_INTERVAL,
     [chainId, publicKeyHash]

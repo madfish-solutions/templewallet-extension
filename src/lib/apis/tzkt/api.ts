@@ -200,20 +200,16 @@ interface GetAccountResponse {
   frozenDeposit?: string;
 }
 
-export const fetchTezosBalanceFromTzkt = async (account: string, chainId: string): Promise<GetAccountResponse> =>
-  isKnownChainId(chainId)
-    ? await fetchGet<GetAccountResponse>(chainId, `/accounts/${account}`, {
-        select: 'balance,frozenDeposit',
-        'balance.gt': 0
-      }).then(({ frozenDeposit, balance }) => ({
-        frozenDeposit,
-        balance
-      }))
-    : { balance: '0' };
+export const fetchTezosBalanceFromTzkt = async (account: string, chainId: TzktApiChainId) =>
+  fetchGet<GetAccountResponse>(chainId, `/accounts/${account}`, {
+    select: 'balance,frozenDeposit',
+    'balance.gt': 0
+  }).then(({ frozenDeposit, balance }) => ({
+    frozenDeposit,
+    balance
+  }));
 
-export const fetchAllAssetsBalancesFromTzkt = async (account: string, chainId: string) => {
-  if (!isKnownChainId(chainId)) return {};
-
+export const fetchAllAssetsBalancesFromTzkt = async (account: string, chainId: TzktApiChainId) => {
   const balances: StringRecord = {};
 
   await (async function recourse(offset: number) {

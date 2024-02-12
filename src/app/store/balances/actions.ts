@@ -1,10 +1,11 @@
 import { createAction } from '@reduxjs/toolkit';
 
+import { TzktApiChainId } from 'lib/apis/tzkt';
 import { createActions } from 'lib/store/action.utils';
 
 interface LoadBalancesPayloadBase {
   publicKeyHash: string;
-  chainId: string;
+  chainId: TzktApiChainId;
 }
 
 interface LoadBalancesSubmitPayload extends LoadBalancesPayloadBase {}

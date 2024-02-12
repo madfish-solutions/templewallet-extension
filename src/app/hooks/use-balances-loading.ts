@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect } from 'react';
 
 import { noop } from 'lodash';
 import { useDispatch } from 'react-redux';
@@ -12,7 +12,8 @@ import {
   TzktSubscriptionStateMessageType,
   TzktAccountsSubscriptionMessage,
   TzktTokenBalancesSubscriptionMessage,
-  TzktAccountType
+  TzktAccountType,
+  isKnownChainId
 } from 'lib/apis/tzkt';
 import { toTokenSlug } from 'lib/assets';
 import { useAccount, useChainId, useOnBlock, useTzktConnection } from 'lib/temple/front';
@@ -31,7 +32,7 @@ export const useBalancesLoading = () => {
 
   const tokenBalancesListener = useCallback(
     (msg: TzktTokenBalancesSubscriptionMessage) => {
-      if (isLoadingRef.current) return;
+      if (isLoadingRef.current || !isKnownChainId(chainId)) return;
 
       switch (msg.type) {
         case TzktSubscriptionStateMessageType.Reorg:
@@ -56,7 +57,7 @@ export const useBalancesLoading = () => {
 
   const accountsListener = useCallback(
     (msg: TzktAccountsSubscriptionMessage) => {
-      if (isLoadingRef.current) return;
+      if (isLoadingRef.current || !isKnownChainId(chainId)) return;
 
       switch (msg.type) {
         case TzktSubscriptionStateMessageType.Reorg:
@@ -105,7 +106,7 @@ export const useBalancesLoading = () => {
   }, [accountsListener, tokenBalancesListener, connection, connectionReady, publicKeyHash]);
 
   const dispatchLoadBalancesActions = useCallback(() => {
-    if (isLoadingRef.current === false) {
+    if (isLoadingRef.current === false && isKnownChainId(chainId)) {
       dispatch(loadGasBalanceActions.submit({ publicKeyHash, chainId }));
       dispatch(loadAssetsBalancesActions.submit({ publicKeyHash, chainId }));
     }

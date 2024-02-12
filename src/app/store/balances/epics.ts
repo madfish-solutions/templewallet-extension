@@ -1,9 +1,9 @@
 import { BigNumber } from 'bignumber.js';
 import { combineEpics, Epic } from 'redux-observable';
-import { catchError, EMPTY, from, map, of, switchMap } from 'rxjs';
+import { catchError, from, map, of, switchMap } from 'rxjs';
 import { ofType, toPayload } from 'ts-action-operators';
 
-import { fetchTezosBalanceFromTzkt, fetchAllAssetsBalancesFromTzkt, isKnownChainId } from 'lib/apis/tzkt';
+import { fetchTezosBalanceFromTzkt, fetchAllAssetsBalancesFromTzkt } from 'lib/apis/tzkt';
 
 import { loadGasBalanceActions, loadAssetsBalancesActions } from './actions';
 import { fixBalances } from './utils';
@@ -12,24 +12,20 @@ const loadGasBalanceEpic: Epic = action$ =>
   action$.pipe(
     ofType(loadGasBalanceActions.submit),
     toPayload(),
-    switchMap(({ publicKeyHash, chainId }) => {
-      if (isKnownChainId(chainId)) {
-        return from(fetchTezosBalanceFromTzkt(publicKeyHash, chainId)).pipe(
-          map(info => {
-            const balance = new BigNumber(info.balance ?? 0).minus(info.frozenDeposit ?? 0).toFixed();
+    switchMap(({ publicKeyHash, chainId }) =>
+      from(fetchTezosBalanceFromTzkt(publicKeyHash, chainId)).pipe(
+        map(info => {
+          const balance = new BigNumber(info.balance ?? 0).minus(info.frozenDeposit ?? 0).toFixed();
 
-            return loadGasBalanceActions.success({
-              publicKeyHash,
-              chainId,
-              balance
-            });
-          }),
-          catchError(err => of(loadGasBalanceActions.fail(err.message)))
-        );
-      }
-
-      return EMPTY;
-    })
+          return loadGasBalanceActions.success({
+            publicKeyHash,
+            chainId,
+            balance
+          });
+        }),
+        catchError(err => of(loadGasBalanceActions.fail(err.message)))
+      )
+    )
   );
 
 const loadAssetsBalancesEpic: Epic = action$ =>
