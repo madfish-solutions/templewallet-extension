@@ -34,13 +34,15 @@ export const useBalancesLoading = () => {
 
   const tokenBalancesListener = useCallback(
     (msg: TzktTokenBalancesSubscriptionMessage) => {
-      if (isLoadingRef.current || !isKnownChainId(chainId)) return;
+      const skipDispatch = isLoadingRef.current || !isKnownChainId(chainId);
 
       switch (msg.type) {
         case TzktSubscriptionStateMessageType.Reorg:
+          if (skipDispatch) return;
           dispatch(loadAssetsBalancesActions.submit({ publicKeyHash, chainId }));
           break;
         case TzktSubscriptionStateMessageType.Data:
+          if (skipDispatch) return;
           const balances: StringRecord = {};
           msg.data.forEach(({ account, token, balance }) => {
             if (account.address !== publicKeyHash) return;
@@ -56,18 +58,20 @@ export const useBalancesLoading = () => {
           setTokensSubscriptionConfirmed(true);
       }
     },
-    [publicKeyHash, chainId, dispatch]
+    [publicKeyHash, chainId, isLoadingRef, dispatch]
   );
 
   const accountsListener = useCallback(
     (msg: TzktAccountsSubscriptionMessage) => {
-      if (isLoadingRef.current || !isKnownChainId(chainId)) return;
+      const skipDispatch = isLoadingRef.current || !isKnownChainId(chainId);
 
       switch (msg.type) {
         case TzktSubscriptionStateMessageType.Reorg:
+          if (skipDispatch) return;
           dispatch(loadGasBalanceActions.submit({ publicKeyHash, chainId }));
           break;
         case TzktSubscriptionStateMessageType.Data:
+          if (skipDispatch) return;
           const matchingAccount = msg.data.find(acc => acc.address === publicKeyHash);
           if (
             matchingAccount?.type === TzktAccountType.Contract ||
@@ -89,7 +93,7 @@ export const useBalancesLoading = () => {
           setAccountsSubscriptionConfirmed(true);
       }
     },
-    [publicKeyHash, chainId, dispatch]
+    [publicKeyHash, chainId, isLoadingRef, dispatch]
   );
 
   useEffect(() => {
@@ -117,7 +121,7 @@ export const useBalancesLoading = () => {
     if (isLoadingRef.current === false && isKnownChainId(chainId)) {
       dispatch(loadGasBalanceActions.submit({ publicKeyHash, chainId }));
     }
-  }, [publicKeyHash, chainId, dispatch]);
+  }, [publicKeyHash, chainId, isLoadingRef, dispatch]);
 
   useEffect(dispatchLoadGasBalanceAction, [dispatchLoadGasBalanceAction]);
   useOnBlock(dispatchLoadGasBalanceAction, undefined, accountsSubscriptionConfirmed);
@@ -126,7 +130,7 @@ export const useBalancesLoading = () => {
     if (isLoadingRef.current === false && isKnownChainId(chainId)) {
       dispatch(loadAssetsBalancesActions.submit({ publicKeyHash, chainId }));
     }
-  }, [publicKeyHash, chainId, dispatch]);
+  }, [publicKeyHash, chainId, isLoadingRef, dispatch]);
 
   useEffect(dispatchLoadAssetsBalancesActions, [dispatchLoadAssetsBalancesActions]);
   useOnBlock(dispatchLoadAssetsBalancesActions, undefined, tokensSubscriptionConfirmed);
