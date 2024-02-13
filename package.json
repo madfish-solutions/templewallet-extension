@@ -202,6 +202,9 @@
     "yup": "^1.1.1",
     "zip-a-folder": "^1.1.5"
   },
+  "devDependencies": {
+    "source-map": "^0.7.4"
+  },
   "resolutions": {
     "ws": "7.4.6",
     "tslib": "^2.4.0",
