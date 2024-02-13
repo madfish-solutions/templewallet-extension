@@ -130,6 +130,7 @@ function useReadyTemple() {
     t.setSignerProvider(createTaquitoSigner(pkh));
     t.setWalletProvider(createTaquitoWallet(pkh, rpc));
     t.setPackerProvider(michelEncoder);
+
     return t;
   }, [createTaquitoSigner, createTaquitoWallet, network, account]);
 
