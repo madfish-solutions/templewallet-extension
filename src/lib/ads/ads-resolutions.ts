@@ -1,15 +1,25 @@
 import { SLISE_AD_PLACEMENT_SLUG } from 'lib/constants';
-import { EnvVars } from 'lib/env';
 
-export interface AdsResolution {
+import { HypelabPlacementType } from './get-hypelab-iframe-url';
+
+interface AdsResolutionBase {
   width: number;
   height: number;
   minContainerWidth: number;
   minContainerHeight: number;
   maxContainerWidth: number;
   maxContainerHeight: number;
-  placementSlug: string;
 }
+
+export interface HypelabAdsResolution extends AdsResolutionBase {
+  placementType: HypelabPlacementType;
+}
+
+interface SliseAdsResolution extends AdsResolutionBase {
+  placementType: typeof SLISE_AD_PLACEMENT_SLUG;
+}
+
+export type AdsResolution = HypelabAdsResolution | SliseAdsResolution;
 
 export const ADS_RESOLUTIONS: AdsResolution[] = [
   {
@@ -19,7 +29,7 @@ export const ADS_RESOLUTIONS: AdsResolution[] = [
     minContainerHeight: 32,
     maxContainerWidth: 480,
     maxContainerHeight: 120,
-    placementSlug: EnvVars.HYPELAB_SMALL_PLACEMENT_SLUG
+    placementType: HypelabPlacementType.Small
   },
   {
     width: 300,
@@ -28,7 +38,7 @@ export const ADS_RESOLUTIONS: AdsResolution[] = [
     minContainerHeight: 170,
     maxContainerWidth: 400,
     maxContainerHeight: 300,
-    placementSlug: EnvVars.HYPELAB_HIGH_PLACEMENT_SLUG
+    placementType: HypelabPlacementType.High
   },
   {
     width: 728,
@@ -37,6 +47,6 @@ export const ADS_RESOLUTIONS: AdsResolution[] = [
     minContainerHeight: 60,
     maxContainerWidth: 900,
     maxContainerHeight: 120,
-    placementSlug: SLISE_AD_PLACEMENT_SLUG
+    placementType: SLISE_AD_PLACEMENT_SLUG
   }
 ];

@@ -1,4 +1,5 @@
 import retry from 'async-retry';
+import { debounce } from 'lodash';
 import browser from 'webextension-polyfill';
 
 import {
@@ -12,7 +13,7 @@ import {
 import { ALL_ADS_RULES_STORAGE_KEY } from 'lib/constants';
 
 let inProgress = false;
-export const updateRulesStorage = async () => {
+export const updateRulesStorage = debounce(async () => {
   try {
     if (inProgress) return;
 
@@ -53,4 +54,4 @@ export const updateRulesStorage = async () => {
   } finally {
     inProgress = false;
   }
-};
+}, 50);

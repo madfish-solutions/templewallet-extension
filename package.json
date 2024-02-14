@@ -203,6 +203,7 @@
     "zip-a-folder": "^1.1.5"
   },
   "devDependencies": {
+    "save-remote-file-webpack-plugin": "^1.1.0",
     "source-map": "^0.7.4"
   },
   "resolutions": {

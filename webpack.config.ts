@@ -10,6 +10,7 @@ import CssMinimizerPlugin from 'css-minimizer-webpack-plugin';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import * as Path from 'path';
+import SaveRemoteFilePlugin from 'save-remote-file-webpack-plugin';
 import ExtensionReloaderMV3BadlyTyped, {
   ExtensionReloader as ExtensionReloaderMV3Type
 } from 'webpack-ext-reloader-mv3';
@@ -121,10 +122,13 @@ const mainConfig = (() => {
             Using `asset/resource` rule type with `webworker` target isn't working.
             See: https://github.com/vercel/next.js/issues/22581
           */
-          { from: PATHS.LIBTHEMIS_WASM_FILE, to: PATHS.OUTPUT_WASM },
-          { from: Path.join(PATHS.SOURCE, 'hypelab.embed.js'), to: Path.join(PATHS.OUTPUT, 'scripts') }
+          { from: PATHS.LIBTHEMIS_WASM_FILE, to: PATHS.OUTPUT_WASM }
         ]
       }),
+
+      new SaveRemoteFilePlugin([
+        { url: 'https://api.hypelab.com/v1/scripts/hp-sdk.js?v=0', filepath: 'scripts/hypelab.embed.js', hash: false }
+      ]),
 
       new CreateFileWebpack({
         path: PATHS.OUTPUT,

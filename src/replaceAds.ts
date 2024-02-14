@@ -74,7 +74,7 @@ const replaceAds = async () => {
           let stylesOverridesCurrentElement: HTMLElement | null;
           let adElementWithWrapper: HTMLElement;
           const slotId = getSlotId();
-          const shouldUseSliseAd = adResolution.placementSlug === SLISE_AD_PLACEMENT_SLUG;
+          const shouldUseSliseAd = adResolution.placementType === SLISE_AD_PLACEMENT_SLUG;
           const adElement = shouldUseSliseAd
             ? makeSliseAdElement(slotId, adResolution.width, adResolution.height, elementStyle)
             : makeHypelabAdElement(adResolution, elementStyle);

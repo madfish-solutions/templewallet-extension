@@ -1,20 +1,13 @@
 import { TEMPLE_WALLET_AD_ATTRIBUTE_NAME } from 'lib/constants';
-import { EnvVars } from 'lib/env';
 
-import { AdsResolution } from './ads-resolutions';
+import { HypelabAdsResolution } from './ads-resolutions';
+import { getHypelabIframeUrl } from './get-hypelab-iframe-url';
 
-export const makeHypelabAdElement = (adsResolution: AdsResolution, elementStyle: Record<string, string>) => {
-  const { width, height, placementSlug } = adsResolution;
-  const hypelabAdIframeBaseURL = EnvVars.HYPELAB_ADS_WINDOW_URL;
+export const makeHypelabAdElement = (adsResolution: HypelabAdsResolution, elementStyle: Record<string, string>) => {
+  const { width, height, placementType } = adsResolution;
 
   const iframe = document.createElement('iframe');
-  const queryParams = new URLSearchParams({
-    w: String(width),
-    h: String(height),
-    p: placementSlug,
-    o: window.location.href
-  });
-  iframe.src = `${hypelabAdIframeBaseURL}/?${queryParams.toString()}`;
+  iframe.src = getHypelabIframeUrl(placementType, window.location.href, width, height);
   iframe.style.width = `${width}px`;
   iframe.style.height = `${height}px`;
   iframe.style.border = 'none';
