@@ -1,19 +1,23 @@
-import { TezosToolkit } from '@taquito/taquito';
+import type { Operation, TezosToolkit } from '@taquito/taquito';
 
-import { ActivationStatus } from './ready';
-
-export const activateAccount = async (address: string, secret: string, tezos: TezosToolkit) => {
-  let op;
-  try {
-    op = await tezos.tz.activate(address, secret);
-  } catch (err: any) {
-    const invalidActivationError = err && err.body && /Invalid activation/.test(err.body);
-    if (invalidActivationError) {
-      return [ActivationStatus.AlreadyActivated] as [ActivationStatus];
+type ActivationResult =
+  | {
+      status: 'ALREADY_ACTIVATED';
     }
+  | {
+      status: 'SENT';
+      operation: Operation;
+    };
 
-    throw err;
-  }
+export const activateAccount = (address: string, secret: string, tezos: TezosToolkit): Promise<ActivationResult> =>
+  tezos.tz.activate(address, secret).then(
+    operation => ({ status: 'SENT', operation }),
+    err => {
+      const invalidActivationError = err && err.body && /Invalid activation/.test(err.body);
+      if (invalidActivationError) {
+        return { status: 'ALREADY_ACTIVATED' };
+      }
 
-  return [ActivationStatus.ActivationRequestSent, op] as [ActivationStatus, typeof op];
-};
+      throw err;
+    }
+  );

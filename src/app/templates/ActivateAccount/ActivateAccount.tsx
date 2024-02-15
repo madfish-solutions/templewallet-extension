@@ -1,13 +1,13 @@
-import React, { FC, KeyboardEventHandler, ReactNode, useCallback, useMemo, useState } from 'react';
+import React, { memo, KeyboardEventHandler, ReactNode, useCallback, useMemo } from 'react';
 
 import { useForm } from 'react-hook-form';
 
 import { Alert, FormField, FormSubmitButton } from 'app/atoms';
 import AccountBanner from 'app/templates/AccountBanner';
 import { T, t } from 'lib/i18n';
-import { ActivationStatus, useTezos, useAccount, activateAccount } from 'lib/temple/front';
+import { useTezos, useAccount, activateAccount } from 'lib/temple/front';
 import { confirmOperation } from 'lib/temple/operation';
-import { useIsMounted } from 'lib/ui/hooks';
+import { useSafeState } from 'lib/ui/hooks';
 import { delay } from 'lib/utils';
 
 import { ActivateAccountSelectors } from './ActivateAccount.selectors';
@@ -18,20 +18,11 @@ type FormData = {
 
 const SUBMIT_ERROR_TYPE = 'submit-error';
 
-const ActivateAccount: FC = () => {
+const ActivateAccount = memo(() => {
   const tezos = useTezos();
   const account = useAccount();
-  const isMounted = useIsMounted();
 
-  const [success, setSuccessPure] = useState<ReactNode>(null);
-  const setSuccess = useCallback<typeof setSuccessPure>(
-    val => {
-      if (isMounted()) {
-        setSuccessPure(val);
-      }
-    },
-    [setSuccessPure, isMounted]
-  );
+  const [success, setSuccess] = useSafeState<ReactNode>(null);
 
   const { register, handleSubmit, formState, clearError, setError, errors } = useForm<FormData>();
   const submitting = formState.isSubmitting;
@@ -44,19 +35,15 @@ const ActivateAccount: FC = () => {
       setSuccess(null);
 
       try {
-        const [activationStatus, op] = await activateAccount(
-          account.publicKeyHash,
-          data.secret.replace(/\s/g, ''),
-          tezos
-        );
-        switch (activationStatus) {
-          case ActivationStatus.AlreadyActivated:
+        const activation = await activateAccount(account.publicKeyHash, data.secret.replace(/\s/g, ''), tezos);
+        switch (activation.status) {
+          case 'ALREADY_ACTIVATED':
             setSuccess(`🏁 ${t('accountAlreadyActivated')}`);
             break;
 
-          case ActivationStatus.ActivationRequestSent:
+          case 'SENT':
             setSuccess(`🛫 ${t('requestSent', t('activationOperationType'))}`);
-            confirmOperation(tezos, op!.hash).then(() => {
+            confirmOperation(tezos, activation.operation.hash).then(() => {
               setSuccess(`✅ ${t('accountActivated')}`);
             });
             break;
@@ -126,6 +113,6 @@ const ActivateAccount: FC = () => {
       </FormSubmitButton>
     </form>
   );
-};
+});
 
 export default ActivateAccount;

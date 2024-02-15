@@ -4,7 +4,6 @@ export { useTempleClient, request, assertResponse } from './client';
 
 export {
   ReactiveTezosToolkit,
-  ActivationStatus,
   useAllNetworks,
   useSetNetworkId,
   useNetwork,
