@@ -60,7 +60,7 @@
     "@taquito/utils": "19.0.2",
     "@temple-wallet/dapp": "5.0.2",
     "@temple-wallet/jest-webextension-mock": "^4.1.0",
-    "@temple-wallet/save-remote-file-webpack-plugin": "^1.1.1",
+    "@temple-wallet/save-remote-file-webpack-plugin": "^1.1.2",
     "@temple-wallet/wallet-address-validator": "^0.4.3",
     "@tezos-domains/core": "1.26.0",
     "@tezos-domains/taquito-client": "1.26.0",
