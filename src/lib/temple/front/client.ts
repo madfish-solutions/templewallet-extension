@@ -9,7 +9,8 @@ import {
   WalletDelegateParams,
   WalletOriginateParams,
   WalletIncreasePaidStorageParams,
-  WalletTransferParams
+  WalletTransferParams,
+  Signer
 } from '@taquito/taquito';
 import { buf2hex } from '@taquito/utils';
 import constate from 'constate';
@@ -402,6 +403,10 @@ class TaquitoWallet implements WalletProvider {
     return this.pkh;
   }
 
+  getPK() {
+    return getPublicKey(this.pkh);
+  }
+
   async mapIncreasePaidStorageWalletParams(params: () => Promise<WalletIncreasePaidStorageParams>) {
     const walletParams = await params();
     return withoutFeesOverride(walletParams, await createIncreasePaidStorageOperation(walletParams));
@@ -437,9 +442,13 @@ class TaquitoWallet implements WalletProvider {
     assertResponse(res.type === TempleMessageType.OperationsResponse);
     return res.opHash;
   }
+
+  async sign(): Promise<string> {
+    throw new Error('Cannot sign');
+  }
 }
 
-class TempleSigner {
+class TempleSigner implements Signer {
   constructor(private pkh: string, private onBeforeSign?: (id: string) => void) {}
 
   async publicKeyHash() {
