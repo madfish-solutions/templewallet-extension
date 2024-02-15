@@ -276,7 +276,7 @@ const SwapInputHeader: FC<{ label: ReactNode; selectedAssetSlug: string; selecte
   label
 }) => {
   const { publicKeyHash } = useAccount();
-  const { value: balance } = useRawBalance(selectedAssetSlug, publicKeyHash);
+  const { value: balance } = useBalance(selectedAssetSlug, publicKeyHash);
 
   return (
     <div className="w-full flex items-center justify-between">
@@ -289,7 +289,7 @@ const SwapInputHeader: FC<{ label: ReactNode; selectedAssetSlug: string; selecte
           </span>
 
           {balance && (
-            <span className={classNames('text-sm mr-1 text-gray-700', balance === '0' && 'text-red-700')}>
+            <span className={classNames('text-sm mr-1 text-gray-700', balance.isZero() && 'text-red-700')}>
               <Money smallFractionFont={false} fiat={false}>
                 {balance}
               </Money>
