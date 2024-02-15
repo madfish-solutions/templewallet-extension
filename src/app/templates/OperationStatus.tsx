@@ -6,7 +6,6 @@ import { HashChip, Alert } from 'app/atoms';
 import { setTestID } from 'lib/analytics';
 import { T, t } from 'lib/i18n';
 import { useTezos, useBlockTriggers } from 'lib/temple/front';
-import { FailedOpError } from 'lib/temple/operation';
 import { useSafeState } from 'lib/ui/hooks';
 
 import { OpenInExplorerChip } from './OpenInExplorerChip';
@@ -63,11 +62,7 @@ const OperationStatus: FC<OperationStatusProps> = ({ typeTitle, operation, class
   }));
 
   useEffect(() => {
-    const abortCtrl = new AbortController();
-
-    confirmOperationAndTriggerNewBlock(tezos, hash, {
-      signal: abortCtrl.signal
-    })
+    confirmOperationAndTriggerNewBlock(tezos, hash)
       .then(() => {
         setAlert(a => ({
           ...a,
@@ -84,11 +79,12 @@ const OperationStatus: FC<OperationStatusProps> = ({ typeTitle, operation, class
         setAlert({
           type: 'error',
           title: t('error'),
-          description: err instanceof FailedOpError ? err.message : t('timedOutOperationConfirmation')
+          description:
+            err?.message === 'Confirmation polling timed out'
+              ? t('timedOutOperationConfirmation')
+              : err?.message || 'Operation confirmation failed'
         });
       });
-
-    return () => abortCtrl.abort();
   }, [confirmOperationAndTriggerNewBlock, tezos, hash, setAlert, descFooter, typeTitle]);
 
   return (
