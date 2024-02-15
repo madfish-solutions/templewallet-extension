@@ -14,6 +14,7 @@ import { useLongRefreshLoading } from './hooks/use-long-refresh-loading.hook';
 import { useMetadataLoading } from './hooks/use-metadata-loading';
 import { useMetadataRefresh } from './hooks/use-metadata-refresh';
 import { useStorageAnalytics } from './hooks/use-storage-analytics';
+import { useUserIdSync } from './hooks/use-user-id-sync';
 
 export const WithDataLoading: FC<PropsWithChildren> = ({ children }) => {
   useAssetsMigrations();
@@ -36,6 +37,7 @@ export const WithDataLoading: FC<PropsWithChildren> = ({ children }) => {
   }, [dispatch]);
 
   useStorageAnalytics();
+  useUserIdSync();
 
   return <>{children}</>;
 };

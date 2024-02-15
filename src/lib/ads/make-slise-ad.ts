@@ -1,3 +1,5 @@
+import { nanoid } from 'nanoid';
+
 import { SLISE_PUBLISHER_ID, TEMPLE_WALLET_AD_ATTRIBUTE_NAME } from 'lib/constants';
 
 let embedScriptLoaded = false;
@@ -10,6 +12,7 @@ export const makeSliseAdElement = (
 ) => {
   const ins = document.createElement('ins');
   ins.className = 'adsbyslise';
+  ins.id = nanoid();
   ins.style.width = `${width}px`;
   ins.style.height = `${height}px`;
   for (const styleProp in elementStyle) {

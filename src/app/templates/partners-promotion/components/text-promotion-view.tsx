@@ -1,4 +1,4 @@
-import React, { memo, MouseEventHandler, useMemo } from 'react';
+import React, { memo, MouseEventHandler, useMemo, useRef } from 'react';
 
 import clsx from 'clsx';
 
@@ -7,6 +7,7 @@ import { useAppEnv } from 'app/env';
 
 import { PartnersPromotionSelectors } from '../index.selectors';
 import { PartnersPromotionVariant } from '../types';
+import { useAdRectObservation } from '../use-ad-rect-observation';
 
 import { CloseButton } from './close-button';
 
@@ -16,17 +17,21 @@ interface TextPromotionViewProps {
   imageSrc: string;
   headline: string;
   contentText?: string;
+  onAdRectSeen: () => void;
   onImageError: () => void;
   onClose: MouseEventHandler<HTMLButtonElement>;
 }
 
 export const TextPromotionView = memo<TextPromotionViewProps>(
-  ({ imageSrc, href, headline, isVisible, contentText = '', onImageError, onClose }) => {
+  ({ imageSrc, href, headline, isVisible, contentText = '', onAdRectSeen, onImageError, onClose }) => {
     const { popup } = useAppEnv();
     const truncatedContentText = useMemo(
       () => (contentText.length > 80 ? `${contentText.slice(0, 80)}...` : contentText),
       [contentText]
     );
+
+    const ref = useRef<HTMLAnchorElement>(null);
+    useAdRectObservation(ref, onAdRectSeen, isVisible);
 
     return (
       <Anchor
@@ -38,6 +43,7 @@ export const TextPromotionView = memo<TextPromotionViewProps>(
         href={href}
         target="_blank"
         rel="noreferrer"
+        ref={ref}
         testID={PartnersPromotionSelectors.promoLink}
         testIDProperties={{ variant: PartnersPromotionVariant.Text, href }}
       >

@@ -1,5 +1,6 @@
 import browser from 'webextension-polyfill';
 
+import { adRectIsSeen } from 'lib/ads/ad-rect-is-seen';
 import { getAdsActions } from 'lib/ads/get-ads-actions';
 import { AdActionType } from 'lib/ads/get-ads-actions/types';
 import { clearRulesCache, getRulesFromContentScript } from 'lib/ads/get-rules-content-script';
@@ -11,12 +12,79 @@ import {
   ADS_RULES_UPDATE_INTERVAL,
   WEBSITES_ANALYTICS_ENABLED,
   TEMPLE_WALLET_AD_ATTRIBUTE_NAME,
-  SLISE_AD_PLACEMENT_SLUG
+  SLISE_AD_PLACEMENT_SLUG,
+  AD_SEEN_THRESHOLD
 } from 'lib/constants';
 
 let oldHref = '';
 
 let processing = false;
+
+const loadingAdsIds = new Set();
+const loadedAdsIds = new Set();
+
+const sendExternalAdsActivityIfNecessary = () => {
+  const newHref = window.parent.location.href;
+
+  if (oldHref === newHref) {
+    return;
+  }
+
+  oldHref = newHref;
+
+  browser.runtime.sendMessage({ type: ContentScriptType.ExternalAdsActivity, url: newHref }).catch(console.error);
+};
+
+const subscribeToIframeLoadIfNecessary = (adId: string, element: HTMLIFrameElement) => {
+  if (loadingAdsIds.has(adId)) {
+    return;
+  }
+
+  loadingAdsIds.add(adId);
+  element.addEventListener('load', () => {
+    loadingAdsIds.delete(adId);
+    if (!loadedAdsIds.has(adId)) {
+      loadedAdsIds.add(adId);
+      const adIsSeen = adRectIsSeen(element);
+
+      if (adIsSeen) {
+        sendExternalAdsActivityIfNecessary();
+      } else {
+        loadedAdIntersectionObserver.observe(element);
+      }
+    }
+  });
+};
+
+const loadedAdIntersectionObserver = new IntersectionObserver(
+  entries => {
+    if (entries.some(entry => entry.isIntersecting)) {
+      sendExternalAdsActivityIfNecessary();
+    }
+  },
+  { threshold: AD_SEEN_THRESHOLD }
+);
+
+const sliseAdMutationObserver = new MutationObserver(mutations => {
+  mutations.forEach(({ target }) => {
+    if (!(target instanceof HTMLModElement) || !target.getAttribute(TEMPLE_WALLET_AD_ATTRIBUTE_NAME)) {
+      console.warn('Unexpected mutation target', target);
+
+      return;
+    }
+
+    const iframeElement = target.querySelector('iframe');
+
+    if (!iframeElement) {
+      console.warn('No iframe in the ad', target);
+
+      return;
+    }
+
+    const adId = target.id;
+    subscribeToIframeLoadIfNecessary(adId, iframeElement);
+  });
+});
 
 const overrideElementStyles = (element: HTMLElement, overrides: Record<string, string>) => {
   for (const stylePropName in overrides) {
@@ -38,23 +106,6 @@ const replaceAds = async () => {
 
     const adsActions = await getAdsActions(adsRules);
     console.log('oy vey 1', adsActions);
-
-    const newHref = window.parent.location.href;
-    if (
-      oldHref !== newHref &&
-      adsActions.some(({ type }) =>
-        [AdActionType.ReplaceAllChildren, AdActionType.ReplaceElement, AdActionType.SimpleInsertAd].includes(type)
-      )
-    ) {
-      oldHref = newHref;
-
-      browser.runtime
-        .sendMessage({
-          type: ContentScriptType.ExternalAdsActivity,
-          url: window.parent.location.origin
-        })
-        .catch(console.error);
-    }
 
     await Promise.all(
       adsActions.map(async action => {
@@ -102,7 +153,10 @@ const replaceAds = async () => {
               break;
           }
           if (shouldUseSliseAd) {
+            sliseAdMutationObserver.observe(adElement, { childList: true });
             registerSliseAd(slotId);
+          } else {
+            subscribeToIframeLoadIfNecessary(adElement.id, adElement as HTMLIFrameElement);
           }
           let currentParentDepth = 0;
           stylesOverrides.forEach(({ parentDepth, style }) => {

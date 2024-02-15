@@ -5,7 +5,7 @@ import { Banner, BannerElement } from '@hypelab/sdk-react';
 import { useElementValue } from 'app/hooks/use-element-value';
 import { EnvVars } from 'lib/env';
 
-import { HypelabBannerAd, PromotionProps } from '../../types';
+import { HypelabBannerAd, SingleProviderPromotionProps } from '../../types';
 import { useAdTimeout } from '../../use-ad-timeout';
 import { ImagePromotionView } from '../image-promotion-view';
 
@@ -19,8 +19,9 @@ const bannerIsDisplayed = (element: BannerElement) => {
 
 const adAttributesObserverOptions = { attributes: true };
 
-export const HypelabImagePromotion: FC<Omit<PromotionProps, 'variant'>> = ({
+export const HypelabImagePromotion: FC<Omit<SingleProviderPromotionProps, 'variant'>> = ({
   isVisible,
+  onAdRectSeen,
   onClose,
   onError,
   onReady
@@ -76,7 +77,12 @@ export const HypelabImagePromotion: FC<Omit<PromotionProps, 'variant'>> = ({
   }, []);
 
   return (
-    <ImagePromotionView onClose={onClose} href={currentAd?.cta_url ?? '#'} isVisible={isVisible}>
+    <ImagePromotionView
+      onClose={onClose}
+      href={currentAd?.cta_url ?? '#'}
+      isVisible={isVisible}
+      onAdRectSeen={onAdRectSeen}
+    >
       <Banner
         placement={EnvVars.HYPELAB_SMALL_PLACEMENT_SLUG}
         ref={hypelabBannerElementRef}

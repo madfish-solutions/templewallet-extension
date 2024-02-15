@@ -1,13 +1,15 @@
 import browser, { Runtime } from 'webextension-polyfill';
 
 import { updateRulesStorage } from 'lib/ads/update-rules-storage';
-import { ACCOUNT_PKH_STORAGE_KEY, ContentScriptType } from 'lib/constants';
+import { ACCOUNT_PKH_STORAGE_KEY, ANALYTICS_USER_ID_STORAGE_KEY, ContentScriptType } from 'lib/constants';
 import { E2eMessageType } from 'lib/e2e/types';
 import { BACKGROUND_IS_WORKER } from 'lib/env';
 import { encodeMessage, encryptMessage, getSenderId, MessageType, Response } from 'lib/temple/beacon';
 import { clearAsyncStorages } from 'lib/temple/reset';
 import { TempleMessageType, TempleRequest, TempleResponse } from 'lib/temple/types';
 import { getTrackedCashbackServiceDomain, getTrackedUrl } from 'lib/utils/url-track/url-track.utils';
+
+import { AnalyticsEventCategory } from '../analytics-types';
 
 import * as Actions from './actions';
 import * as Analytics from './analytics';
@@ -257,34 +259,48 @@ const getCurrentAccountPkh = async (): Promise<string | undefined> => {
   return frontState.accounts[0]?.publicKeyHash;
 };
 
-browser.runtime.onMessage.addListener(msg => {
-  switch (msg?.type) {
-    case ContentScriptType.ExternalLinksActivity:
-      const trackedCashbackServiceDomain = getTrackedCashbackServiceDomain(msg.url);
+const getAnalyticsUserId = async (): Promise<string | undefined> => {
+  const { [ANALYTICS_USER_ID_STORAGE_KEY]: userId } = await browser.storage.local.get(ANALYTICS_USER_ID_STORAGE_KEY);
 
-      if (trackedCashbackServiceDomain) {
-        Analytics.client.track('External Cashback Links Activity', { domain: trackedCashbackServiceDomain });
-      }
+  return userId;
+};
 
-      const trackedUrl = getTrackedUrl(msg.url);
+browser.runtime.onMessage.addListener(async msg => {
+  try {
+    const [accountPkh, userId] = await Promise.all([getCurrentAccountPkh(), getAnalyticsUserId()]);
 
-      if (trackedUrl) {
-        getCurrentAccountPkh()
-          .then(accountPkh => Analytics.client.track('External links activity', { url: trackedUrl, accountPkh }))
-          .catch(console.error);
-      }
+    switch (msg?.type) {
+      case ContentScriptType.ExternalLinksActivity:
+        const trackedCashbackServiceDomain = getTrackedCashbackServiceDomain(msg.url);
 
-      break;
-    case ContentScriptType.ExternalAdsActivity:
-      getCurrentAccountPkh()
-        .then(accountPkh => Analytics.client.track('External Ads Activity', { url: msg.url, accountPkh }))
-        .catch(console.error);
-      break;
-    case ContentScriptType.UpdateAdsRules:
-      updateRulesStorage()?.catch(console.error);
-      break;
-    case E2eMessageType.ResetRequest:
-      return clearAsyncStorages().then(() => ({ type: E2eMessageType.ResetResponse }));
+        if (trackedCashbackServiceDomain) {
+          await Analytics.client.track('External Cashback Links Activity', { domain: trackedCashbackServiceDomain });
+        }
+
+        const trackedUrl = getTrackedUrl(msg.url);
+
+        if (trackedUrl) {
+          await Analytics.client.track('External links activity', { url: trackedUrl, accountPkh });
+        }
+
+        break;
+      case ContentScriptType.ExternalAdsActivity:
+        await Analytics.trackEvent({
+          category: AnalyticsEventCategory.General,
+          userId: userId ?? '',
+          event: 'External Ads Activity',
+          properties: { domain: new URL(msg.url).hostname, accountPkh },
+          rpc: undefined
+        });
+        break;
+      case ContentScriptType.UpdateAdsRules:
+        await updateRulesStorage();
+        break;
+      case E2eMessageType.ResetRequest:
+        return clearAsyncStorages().then(() => ({ type: E2eMessageType.ResetResponse }));
+    }
+  } catch (e) {
+    console.error(e);
   }
 
   return;

@@ -78,7 +78,12 @@ export const TokensTab = memo(() => {
     ));
 
     const promoJsx = (
-      <PartnersPromotion id="promo-token-item" key="promo-token-item" variant={PartnersPromotionVariant.Text} />
+      <PartnersPromotion
+        id="promo-token-item"
+        key="promo-token-item"
+        variant={PartnersPromotionVariant.Text}
+        pageName="Token page"
+      />
     );
 
     if (filteredAssets.length < 5) {

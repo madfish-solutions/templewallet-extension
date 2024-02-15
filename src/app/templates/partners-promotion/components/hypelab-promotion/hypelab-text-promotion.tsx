@@ -5,7 +5,7 @@ import { Native, NativeElement } from '@hypelab/sdk-react';
 import { useElementValue } from 'app/hooks/use-element-value';
 import { EnvVars } from 'lib/env';
 
-import { PromotionProps, HypelabNativeAd } from '../../types';
+import { SingleProviderPromotionProps, HypelabNativeAd } from '../../types';
 import { useAdTimeout } from '../../use-ad-timeout';
 import { TextPromotionView } from '../text-promotion-view';
 
@@ -18,7 +18,13 @@ const innerTextObserverOptions = { childList: true };
 const dummyImageSrc =
   'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==';
 
-export const HypelabTextPromotion: FC<Omit<PromotionProps, 'variant'>> = ({ isVisible, onClose, onReady, onError }) => {
+export const HypelabTextPromotion: FC<Omit<SingleProviderPromotionProps, 'variant'>> = ({
+  isVisible,
+  onAdRectSeen,
+  onClose,
+  onReady,
+  onError
+}) => {
   const hypelabHeadlineRef = useRef<HTMLSpanElement>(null);
   const hypelabNativeElementRef = useRef<NativeElement>(null);
 
@@ -44,6 +50,7 @@ export const HypelabTextPromotion: FC<Omit<PromotionProps, 'variant'>> = ({ isVi
         isVisible={isVisible}
         headline={currentAd?.headline ?? ''}
         contentText={currentAd?.body}
+        onAdRectSeen={onAdRectSeen}
         onImageError={onError}
         onClose={onClose}
       />

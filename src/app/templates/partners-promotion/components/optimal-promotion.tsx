@@ -4,13 +4,20 @@ import { usePartnersPromoSelector } from 'app/store/partners-promotion/selectors
 import { isEmptyPromotion } from 'lib/apis/optimal';
 import { useTimeout } from 'lib/ui/hooks';
 
-import { PartnersPromotionVariant, PromotionProps } from '../types';
+import { PartnersPromotionVariant, SingleProviderPromotionProps } from '../types';
 import { useAdTimeout } from '../use-ad-timeout';
 
 import { ImagePromotionView } from './image-promotion-view';
 import { TextPromotionView } from './text-promotion-view';
 
-export const OptimalPromotion: FC<PromotionProps> = ({ isVisible, variant, onClose, onReady, onError }) => {
+export const OptimalPromotion: FC<SingleProviderPromotionProps> = ({
+  isVisible,
+  variant,
+  onAdRectSeen,
+  onClose,
+  onReady,
+  onError
+}) => {
   const [isImageBroken, setIsImageBroken] = useState(false);
   const [wasLoading, setWasLoading] = useState(false);
   const [shouldPreventShowingPrevAd, setShouldPreventShowingPrevAd] = useState(true);
@@ -57,7 +64,7 @@ export const OptimalPromotion: FC<PromotionProps> = ({ isVisible, variant, onClo
 
   if (variant === PartnersPromotionVariant.Image) {
     return (
-      <ImagePromotionView onClose={onClose} href={href} isVisible={isVisible}>
+      <ImagePromotionView onClose={onClose} onAdRectSeen={onAdRectSeen} href={href} isVisible={isVisible}>
         <img src={imageSrc} alt="Partners promotion" className="shadow-lg rounded-lg" onError={onImageError} />
       </ImagePromotionView>
     );
@@ -70,6 +77,7 @@ export const OptimalPromotion: FC<PromotionProps> = ({ isVisible, variant, onClo
       isVisible={isVisible}
       headline={headline}
       contentText={content}
+      onAdRectSeen={onAdRectSeen}
       onImageError={onError}
       onClose={onClose}
     />

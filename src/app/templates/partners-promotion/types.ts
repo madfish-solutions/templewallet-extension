@@ -5,12 +5,13 @@ export enum PartnersPromotionVariant {
   Image = 'Image'
 }
 
-export interface PromotionProps {
+export interface SingleProviderPromotionProps {
   variant: PartnersPromotionVariant;
   isVisible: boolean;
   onClose: MouseEventHandler<HTMLButtonElement>;
   onReady: () => void;
   onError: () => void;
+  onAdRectSeen: () => void;
 }
 
 interface HypelabNativeCreativeSet {

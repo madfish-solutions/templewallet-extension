@@ -1,11 +1,11 @@
 import React, { FC } from 'react';
 
-import { PartnersPromotionVariant, PromotionProps } from '../../types';
+import { PartnersPromotionVariant, SingleProviderPromotionProps } from '../../types';
 
 import { HypelabImagePromotion } from './hypelab-image-promotion';
 import { HypelabTextPromotion } from './hypelab-text-promotion';
 
-export const HypelabPromotion: FC<PromotionProps> = ({ variant, ...restProps }) =>
+export const HypelabPromotion: FC<SingleProviderPromotionProps> = ({ variant, ...restProps }) =>
   variant === PartnersPromotionVariant.Image ? (
     <HypelabImagePromotion {...restProps} />
   ) : (

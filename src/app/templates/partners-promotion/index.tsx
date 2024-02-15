@@ -5,11 +5,13 @@ import { useDispatch } from 'react-redux';
 
 import Spinner from 'app/atoms/Spinner/Spinner';
 import { useAppEnv } from 'app/env';
-import { hidePromotionAction } from 'app/store/partners-promotion/actions';
+import { hidePromotionAction, setLastReportedPageNameAction } from 'app/store/partners-promotion/actions';
 import {
+  useLastReportedPageNameSelector,
   useShouldShowPartnersPromoSelector,
   usePromotionHidingTimestampSelector
 } from 'app/store/partners-promotion/selectors';
+import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
 import { AD_HIDING_TIMEOUT } from 'lib/constants';
 
 import { HypelabPromotion } from './components/hypelab-promotion';
@@ -23,18 +25,21 @@ interface PartnersPromotionProps {
   variant: PartnersPromotionVariant;
   /** For distinguishing the ads that should be hidden temporarily */
   id: string;
+  pageName: string;
 }
 
 const shouldBeHiddenTemporarily = (hiddenAt: number) => {
   return Date.now() - hiddenAt < AD_HIDING_TIMEOUT;
 };
 
-export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id }) => {
+export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pageName }) => {
   const isImageAd = variant === PartnersPromotionVariant.Image;
+  const { trackEvent } = useAnalytics();
   const { popup } = useAppEnv();
   const dispatch = useDispatch();
   const hiddenAt = usePromotionHidingTimestampSelector(id);
   const shouldShowPartnersPromo = useShouldShowPartnersPromoSelector();
+  const lastReportedPageName = useLastReportedPageNameSelector();
 
   const [isHiddenTemporarily, setIsHiddenTemporarily] = useState(shouldBeHiddenTemporarily(hiddenAt));
   const [shouldUseOptimalAd, setShouldUseOptimalAd] = useState(true);
@@ -57,6 +62,13 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id }) 
     return;
   }, [hiddenAt]);
 
+  const handleAdRectSeen = useCallback(() => {
+    if (lastReportedPageName !== pageName) {
+      dispatch(setLastReportedPageNameAction(pageName));
+      trackEvent('Internal Ads Activity', AnalyticsEventCategory.General, { page: pageName });
+    }
+  }, [dispatch, lastReportedPageName, pageName, trackEvent]);
+
   const handleClosePartnersPromoClick = useCallback<MouseEventHandler<HTMLButtonElement>>(
     e => {
       e.preventDefault();
@@ -69,14 +81,7 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id }) 
   const handleOptimalError = useCallback(() => setShouldUseOptimalAd(false), []);
   const handleHypelabError = useCallback(() => setAdError(true), []);
 
-  const handleOptimalAdReady = useCallback(() => {
-    console.log('optimal');
-    setAdIsReady(true);
-  }, []);
-  const handleHypelabAdReady = useCallback(() => {
-    console.log('hypelab');
-    setAdIsReady(true);
-  }, []);
+  const handleAdReady = useCallback(() => setAdIsReady(true), []);
 
   if (!shouldShowPartnersPromo || adError || isHiddenTemporarily) {
     return null;
@@ -88,16 +93,18 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id }) 
         <OptimalPromotion
           variant={variant}
           isVisible={adIsReady}
+          onAdRectSeen={handleAdRectSeen}
           onClose={handleClosePartnersPromoClick}
-          onReady={handleOptimalAdReady}
+          onReady={handleAdReady}
           onError={handleOptimalError}
         />
       ) : (
         <HypelabPromotion
           variant={variant}
           isVisible={adIsReady}
+          onAdRectSeen={handleAdRectSeen}
           onClose={handleClosePartnersPromoClick}
-          onReady={handleHypelabAdReady}
+          onReady={handleAdReady}
           onError={handleHypelabError}
         />
       )}

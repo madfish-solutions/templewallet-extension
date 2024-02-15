@@ -1,4 +1,4 @@
-import React, { FC, MouseEventHandler, PropsWithChildren } from 'react';
+import React, { FC, MouseEventHandler, PropsWithChildren, useRef } from 'react';
 
 import clsx from 'clsx';
 
@@ -6,16 +6,27 @@ import { Anchor } from 'app/atoms/Anchor';
 
 import { PartnersPromotionSelectors } from '../index.selectors';
 import { PartnersPromotionVariant } from '../types';
+import { useAdRectObservation } from '../use-ad-rect-observation';
 
 import { CloseButton } from './close-button';
 
 interface TextPromotionViewProps extends PropsWithChildren {
   href: string;
   isVisible: boolean;
+  onAdRectSeen: () => void;
   onClose: MouseEventHandler<HTMLButtonElement>;
 }
 
-export const ImagePromotionView: FC<TextPromotionViewProps> = ({ children, href, isVisible, onClose }) => {
+export const ImagePromotionView: FC<TextPromotionViewProps> = ({
+  children,
+  href,
+  isVisible,
+  onAdRectSeen,
+  onClose
+}) => {
+  const ref = useRef<HTMLAnchorElement>(null);
+  useAdRectObservation(ref, onAdRectSeen, isVisible);
+
   return (
     <Anchor
       className={clsx(
@@ -26,6 +37,7 @@ export const ImagePromotionView: FC<TextPromotionViewProps> = ({ children, href,
       href={href}
       target="_blank"
       rel="noreferrer"
+      ref={ref}
       testID={PartnersPromotionSelectors.promoLink}
       testIDProperties={{ variant: PartnersPromotionVariant.Image, href }}
     >
