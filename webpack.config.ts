@@ -3,6 +3,7 @@
   https://github.com/facebook/create-react-app/blob/main/packages/react-scripts/config/webpack.config.js
 */
 
+import SaveRemoteFilePlugin from '@temple-wallet/save-remote-file-webpack-plugin';
 import { CleanWebpackPlugin } from 'clean-webpack-plugin';
 import CopyWebpackPlugin from 'copy-webpack-plugin';
 import CreateFileWebpack from 'create-file-webpack';
@@ -10,7 +11,6 @@ import CssMinimizerPlugin from 'css-minimizer-webpack-plugin';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import * as Path from 'path';
-import SaveRemoteFilePlugin from 'save-remote-file-webpack-plugin';
 import ExtensionReloaderMV3BadlyTyped, {
   ExtensionReloader as ExtensionReloaderMV3Type
 } from 'webpack-ext-reloader-mv3';
