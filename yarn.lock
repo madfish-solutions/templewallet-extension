@@ -4051,6 +4051,11 @@
     "@types/minimatch" "*"
     "@types/node" "*"
 
+"@types/google-publisher-tag@^1.20240122.0":
+  version "1.20240122.0"
+  resolved "https://registry.yarnpkg.com/@types/google-publisher-tag/-/google-publisher-tag-1.20240122.0.tgz#4080314efbdd56f5cf3550d961dc82e0c6f689f2"
+  integrity sha512-1/izZ1/489v8Q7K1y18dDd405b3gkoIF87abhquGH+yto5QYH8okjH1mEMNsOdIPdh4+PTCDefbB1AtCsczolg==
+
 "@types/graceful-fs@^4.1.2":
   version "4.1.5"
   resolved "https://registry.yarnpkg.com/@types/graceful-fs/-/graceful-fs-4.1.5.tgz#21ffba0d98da4350db64891f92a9e5db3cdb4e15"
