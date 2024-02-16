@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 
 import { useAccountCollectiblesSelector } from 'app/store/assets/selectors';
-import { useAllBalancesSelector } from 'app/store/balances/selectors';
+import { useAllAccountBalancesSelector } from 'app/store/balances/selectors';
 import { useAccount, useChainId } from 'lib/temple/front';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 
@@ -12,7 +12,7 @@ import { getAssetStatus } from './utils';
 export const useAccountCollectibles = (account: string, chainId: string) => {
   const stored = useAccountCollectiblesSelector(account, chainId);
 
-  const balances = useAllBalancesSelector(account, chainId);
+  const balances = useAllAccountBalancesSelector(account, chainId);
 
   return useMemoWithCompare<AccountAsset[]>(
     () => {

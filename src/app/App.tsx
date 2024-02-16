@@ -15,7 +15,7 @@ import { AppEnvProvider } from 'app/env';
 import ErrorBoundary from 'app/ErrorBoundary';
 import Dialogs from 'app/layouts/Dialogs';
 import { PageRouter } from 'app/PageRouter';
-import { TempleProvider } from 'lib/temple/front';
+import { TempleProvider, TzktConnectionProvider } from 'lib/temple/front';
 import { DialogsProvider } from 'lib/ui/dialog';
 import * as Woozie from 'lib/woozie';
 
@@ -49,7 +49,9 @@ const AppProvider: FC<Props> = ({ children, env }) => (
   <AppEnvProvider {...env}>
     <StoreProvider>
       <Woozie.Provider>
-        <TempleProvider>{children}</TempleProvider>
+        <TempleProvider>
+          <TzktConnectionProvider>{children}</TzktConnectionProvider>
+        </TempleProvider>
       </Woozie.Provider>
     </StoreProvider>
   </AppEnvProvider>

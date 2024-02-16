@@ -1,11 +1,11 @@
 import React, { memo, FC, useMemo } from 'react';
 
-import BigNumber from 'bignumber.js';
-import classNames from 'clsx';
+import clsx from 'clsx';
 import { useDispatch } from 'react-redux';
 
 import { Button } from 'app/atoms';
 import Money from 'app/atoms/Money';
+import { useTotalBalance } from 'app/pages/Home/OtherComponents/MainBanner/use-total-balance';
 import { toggleBalanceModeAction } from 'app/store/settings/actions';
 import { useBalanceModeSelector } from 'app/store/settings/selectors';
 import { BalanceMode } from 'app/store/settings/state';
@@ -20,12 +20,13 @@ import { t, T } from 'lib/i18n';
 import { TezosLogoIcon } from 'lib/icons';
 import { getAssetName, getAssetSymbol, useAssetMetadata } from 'lib/metadata';
 import { useNetwork } from 'lib/temple/front';
-import { useTotalBalance } from 'lib/temple/front/use-total-balance.hook';
 import useTippy from 'lib/ui/useTippy';
 
-import { HomeSelectors } from '../Home.selectors';
+import { HomeSelectors } from '../../Home.selectors';
+import { TokenPageSelectors } from '../TokenPage.selectors';
 
-import { TokenPageSelectors } from './TokenPage.selectors';
+import { BalanceFiat } from './BalanceFiat';
+import { BalanceGas } from './BalanceGas';
 
 interface Props {
   assetSlug?: string | null;
@@ -48,15 +49,15 @@ interface TotalVolumeBannerProps {
 
 const TotalVolumeBanner = memo<TotalVolumeBannerProps>(({ accountPkh }) => (
   <div className="flex items-start justify-between w-full max-w-sm mx-auto mb-4">
-    <BalanceInfo />
+    <BalanceInfo accountPkh={accountPkh} />
     <AddressChip pkh={accountPkh} testID={HomeSelectors.publicAddressButton} />
   </div>
 ));
 
-const BalanceInfo = () => {
+const BalanceInfo: FC<{ accountPkh: string }> = ({ accountPkh }) => {
   const dispatch = useDispatch();
   const network = useNetwork();
-  const { totalBalanceInFiat, totalBalanceInGasToken } = useTotalBalance();
+  const totalBalanceInDollar = useTotalBalance();
   const balanceMode = useBalanceModeSelector();
 
   const {
@@ -74,7 +75,7 @@ const BalanceInfo = () => {
       content: t('showInGasOrFiat', [fiatName, gasTokenSymbol]),
       animation: 'shift-away-subtle'
     }),
-    []
+    [fiatName, gasTokenSymbol]
   );
 
   const buttonRef = useTippy<HTMLButtonElement>(tippyProps);
@@ -94,9 +95,8 @@ const BalanceInfo = () => {
           <Button
             ref={buttonRef}
             style={{ height: '22px', width: '22px' }}
-            className={classNames(
-              'mr-1',
-              'p-1',
+            className={clsx(
+              'mr-1 p-1',
               'bg-gray-100',
               'rounded-sm shadow-xs',
               'text-base font-medium',
@@ -125,35 +125,14 @@ const BalanceInfo = () => {
 
       <div className="flex items-center text-2xl">
         {shouldShowFiatBanner ? (
-          <BalanceFiat volume={totalBalanceInFiat} currency={fiatSymbol} />
+          <BalanceFiat totalBalanceInDollar={totalBalanceInDollar} currency={fiatSymbol} />
         ) : (
-          <BalanceGas volume={totalBalanceInGasToken} currency={gasTokenSymbol} />
+          <BalanceGas totalBalanceInDollar={totalBalanceInDollar} currency={gasTokenSymbol} accountPkh={accountPkh} />
         )}
       </div>
     </div>
   );
 };
-
-interface BalanceProps {
-  volume: number | string | BigNumber;
-  currency: string;
-}
-const BalanceFiat: FC<BalanceProps> = ({ volume, currency }) => (
-  <>
-    <span className="mr-1">≈</span>
-    <Money smallFractionFont={false} fiat>
-      {volume}
-    </Money>
-    <span className="ml-1">{currency}</span>
-  </>
-);
-
-const BalanceGas: FC<BalanceProps> = ({ volume, currency }) => (
-  <>
-    <Money smallFractionFont={false}>{volume}</Money>
-    <span className="ml-1">{currency}</span>
-  </>
-);
 
 interface AssetBannerProps {
   assetSlug: string;
@@ -170,6 +149,7 @@ const AssetBanner = memo<AssetBannerProps>(({ assetSlug, accountPkh }) => {
       <div className="flex justify-between items-center mb-3">
         <div className="flex items-center">
           <AssetIcon assetSlug={assetSlug} size={24} className="flex-shrink-0" />
+
           <div
             className="text-sm font-normal text-gray-700 truncate flex-1 ml-2"
             {...setTestID(TokenPageSelectors.tokenName)}
@@ -178,8 +158,10 @@ const AssetBanner = memo<AssetBannerProps>(({ assetSlug, accountPkh }) => {
             {assetName}
           </div>
         </div>
+
         <AddressChip pkh={accountPkh} modeSwitch={{ testID: HomeSelectors.addressModeSwitchButton }} />
       </div>
+
       <div className="flex items-center text-2xl">
         <Balance address={accountPkh} assetSlug={assetSlug}>
           {balance => (
@@ -190,6 +172,7 @@ const AssetBanner = memo<AssetBannerProps>(({ assetSlug, accountPkh }) => {
                 </Money>
                 <span className="ml-1">{assetSymbol}</span>
               </div>
+
               <InFiat assetSlug={assetSlug} volume={balance} smallFractionFont={false}>
                 {({ balance, symbol }) => (
                   <div style={{ lineHeight: '19px' }} className="mt-1 text-base text-gray-500 flex">

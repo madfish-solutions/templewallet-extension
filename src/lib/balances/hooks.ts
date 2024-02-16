@@ -1,29 +1,32 @@
 import { useCallback, useMemo } from 'react';
 
+import { emptyFn } from '@rnw-community/shared';
 import BigNumber from 'bignumber.js';
+import memoizee from 'memoizee';
 
-import { useAllBalancesSelector, useBalanceSelector } from 'app/store/balances/selectors';
-import { ASSETS_SYNC_INTERVAL } from 'lib/fixed-times';
+import { useAllAccountBalancesSelector, useAllBalancesSelector } from 'app/store/balances/selectors';
+import { getKeyForBalancesRecord } from 'app/store/balances/utils';
+import { isKnownChainId } from 'lib/apis/tzkt';
 import { useAssetMetadata, useGetTokenOrGasMetadata } from 'lib/metadata';
-import { useRetryableSWR } from 'lib/swr';
-import { useTezos, useAccount, useChainId, ReactiveTezosToolkit } from 'lib/temple/front';
+import { useTypedSWR } from 'lib/swr';
+import {
+  useTezos,
+  useAccount,
+  useChainId,
+  ReactiveTezosToolkit,
+  useChainIdLoading,
+  useOnBlock
+} from 'lib/temple/front';
 import { michelEncoder, loadFastRpcClient, atomsToTokens } from 'lib/temple/helpers';
 
-import { fetchBalance } from './fetch';
+import { fetchRawBalance as fetchRawBalanceFromBlockchain } from './fetch';
 import { getBalanceSWRKey } from './utils';
 
 export const useCurrentAccountBalances = () => {
   const { publicKeyHash } = useAccount();
   const chainId = useChainId(true)!;
 
-  return useAllBalancesSelector(publicKeyHash, chainId);
-};
-
-export const useCurrentAccountAssetBalance = (slug: string) => {
-  const { publicKeyHash } = useAccount();
-  const chainId = useChainId(true)!;
-
-  return useBalanceSelector(publicKeyHash, chainId, slug);
+  return useAllAccountBalancesSelector(publicKeyHash, chainId);
 };
 
 export const useGetCurrentAccountTokenOrGasBalanceWithDecimals = () => {
@@ -41,39 +44,109 @@ export const useGetCurrentAccountTokenOrGasBalanceWithDecimals = () => {
   );
 };
 
-type UseBalanceOptions = {
-  suspense?: boolean;
-  networkRpc?: string;
-  displayed?: boolean;
-  initial?: BigNumber;
-};
-
-export function useBalance(assetSlug: string, address: string, opts: UseBalanceOptions = {}) {
+export function useRawBalance(
+  assetSlug: string,
+  address: string,
+  networkRpc?: string
+): {
+  value: string | undefined;
+  isSyncing: boolean;
+  error?: unknown;
+  refresh: EmptyFn;
+} {
+  const { publicKeyHash: currentAccountAddress } = useAccount();
   const nativeTezos = useTezos();
+  const nativeRpcUrl = useMemo(() => nativeTezos.rpc.getRpcUrl(), [nativeTezos]);
+
+  const rpcUrl = networkRpc ?? nativeRpcUrl;
+
+  const chainIdSwrRes = useChainIdLoading(rpcUrl);
+  const chainId = chainIdSwrRes.data;
+
+  const allBalances = useAllBalancesSelector();
+  const balances = useMemo(() => {
+    if (!chainId) return null;
+
+    const key = getKeyForBalancesRecord(address, chainId);
+
+    return allBalances[key];
+  }, [allBalances, chainId, address]);
+
+  /** Only using store for currently selected account - most used case
+   * and with a refresh mechanism in useBalancesLoading hook.
+   * Other addresses' balances (e.g. of other user's accounts or contacts)
+   * are loaded via SWR from chain.
+   */
+  const usingStore = address === currentAccountAddress && isKnownChainId(chainId);
+
+  const tezos = useMemo(() => (networkRpc ? buildTezosToolkit(networkRpc) : nativeTezos), [networkRpc, nativeTezos]);
+
+  const onChainBalanceSwrRes = useTypedSWR(
+    getBalanceSWRKey(tezos, assetSlug, address),
+    () => {
+      if (!chainId || usingStore) return;
+
+      return fetchRawBalanceFromBlockchain(tezos, assetSlug, address).then(res => res.toString());
+    },
+    {
+      revalidateOnFocus: false,
+      dedupingInterval: 20_000
+    }
+  );
+
+  const refreshChainId = useCallback(() => chainIdSwrRes.mutate(), [chainIdSwrRes.mutate]);
+  const refreshBalanceOnChain = useCallback(() => void onChainBalanceSwrRes.mutate(), [onChainBalanceSwrRes.mutate]);
+
+  useOnBlock(refreshBalanceOnChain, tezos);
+
+  if (!chainId)
+    return {
+      value: undefined,
+      isSyncing: chainIdSwrRes.isValidating,
+      error: chainIdSwrRes.error,
+      refresh: refreshChainId
+    };
+
+  if (usingStore)
+    return {
+      value: balances?.data[assetSlug],
+      isSyncing: balances?.isLoading ?? false,
+      error: balances?.error,
+      /**
+       * Stored balances are already being refreshed as frequently as possible
+       * in `useBalancesLoading` hook.
+       */
+      refresh: emptyFn
+    };
+
+  return {
+    value: onChainBalanceSwrRes.data,
+    isSyncing: onChainBalanceSwrRes.isValidating,
+    error: onChainBalanceSwrRes.error,
+    refresh: refreshBalanceOnChain
+  };
+}
+
+export function useBalance(assetSlug: string, address: string, networkRpc?: string) {
+  const { value: rawValue, isSyncing, error, refresh } = useRawBalance(assetSlug, address, networkRpc);
   const assetMetadata = useAssetMetadata(assetSlug);
 
-  const tezos = useMemo(() => {
-    if (opts.networkRpc) {
-      const rpc = opts.networkRpc;
-      const t = new ReactiveTezosToolkit(loadFastRpcClient(rpc), rpc);
-      t.setPackerProvider(michelEncoder);
-      return t;
-    }
-    return nativeTezos;
-  }, [opts.networkRpc, nativeTezos]);
+  const value = useMemo(
+    () => (rawValue && assetMetadata ? atomsToTokens(new BigNumber(rawValue), assetMetadata.decimals) : undefined),
+    [rawValue, assetMetadata]
+  );
 
-  const fetchBalanceLocal = useCallback(async () => {
-    if (assetMetadata) return fetchBalance(tezos, assetSlug, address, assetMetadata);
-    throw new Error('Metadata missing, when fetching balance');
-  }, [tezos, address, assetSlug, assetMetadata]);
-
-  const displayed = opts.displayed ?? true;
-
-  return useRetryableSWR(displayed ? getBalanceSWRKey(tezos, assetSlug, address) : null, fetchBalanceLocal, {
-    suspense: opts.suspense ?? true,
-    revalidateOnFocus: false,
-    dedupingInterval: 20_000,
-    fallbackData: opts.initial,
-    refreshInterval: ASSETS_SYNC_INTERVAL
-  });
+  return { rawValue, value, isSyncing, error, refresh, assetMetadata };
 }
+
+const buildTezosToolkit = memoizee(
+  (rpcUrl: string) => {
+    const t = new ReactiveTezosToolkit(loadFastRpcClient(rpcUrl), rpcUrl);
+    t.setPackerProvider(michelEncoder);
+    return t;
+  },
+  {
+    max: 15,
+    maxAge: 5 * 60_000
+  }
+);

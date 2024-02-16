@@ -1,3 +1,4 @@
+import { HubConnectionBuilder } from '@microsoft/signalr';
 import axios, { AxiosError } from 'axios';
 
 import { toTokenSlug } from 'lib/assets';
@@ -13,7 +14,8 @@ import {
   TzktGetRewardsParams,
   TzktGetRewardsResponse,
   TzktRelatedContract,
-  TzktAccount
+  TzktAccount,
+  TzktHubConnection
 } from './types';
 
 const TZKT_API_BASE_URLS = {
@@ -32,6 +34,14 @@ const KNOWN_CHAIN_IDS = Object.keys(TZKT_API_BASE_URLS);
 export function isKnownChainId(chainId?: string | null): chainId is TzktApiChainId {
   return chainId != null && KNOWN_CHAIN_IDS.includes(chainId);
 }
+
+export const createWsConnection = (chainId: string): TzktHubConnection | undefined => {
+  if (isKnownChainId(chainId)) {
+    return new HubConnectionBuilder().withUrl(`${TZKT_API_BASE_URLS[chainId]}/ws`).build();
+  }
+
+  return undefined;
+};
 
 const api = axios.create();
 
@@ -190,20 +200,16 @@ interface GetAccountResponse {
   frozenDeposit?: string;
 }
 
-export const fetchTezosBalanceFromTzkt = async (account: string, chainId: string): Promise<GetAccountResponse> =>
-  isKnownChainId(chainId)
-    ? await fetchGet<GetAccountResponse>(chainId, `/accounts/${account}`, {
-        select: 'balance,frozenDeposit',
-        'balance.gt': 0
-      }).then(({ frozenDeposit, balance }) => ({
-        frozenDeposit,
-        balance
-      }))
-    : { balance: '0' };
+export const fetchTezosBalanceFromTzkt = async (account: string, chainId: TzktApiChainId) =>
+  fetchGet<GetAccountResponse>(chainId, `/accounts/${account}`, {
+    select: 'balance,frozenDeposit',
+    'balance.gt': 0
+  }).then(({ frozenDeposit, balance }) => ({
+    frozenDeposit,
+    balance
+  }));
 
-export const fetchAllAssetsBalancesFromTzkt = async (account: string, chainId: string) => {
-  if (!isKnownChainId(chainId)) return {};
-
+export const fetchAllAssetsBalancesFromTzkt = async (account: string, chainId: TzktApiChainId) => {
   const balances: StringRecord = {};
 
   await (async function recourse(offset: number) {

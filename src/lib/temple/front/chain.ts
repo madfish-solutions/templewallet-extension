@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useRef } from 'react';
 
-import { Subscription } from '@taquito/taquito';
+import { Subscription, TezosToolkit } from '@taquito/taquito';
 import constate from 'constate';
 import { useSWRConfig } from 'swr';
 
 import { getBalanceSWRKey } from 'lib/balances/utils';
 import { confirmOperation } from 'lib/temple/operation';
+import { useUpdatableRef } from 'lib/ui/hooks';
 
 import { useTezos, useRelevantAccounts } from './ready';
 
@@ -40,11 +41,16 @@ function useNewBlockTriggers() {
   };
 }
 
-export function useOnBlock(callback: (blockHash: string) => void) {
-  const tezos = useTezos();
+export function useOnBlock(callback: (blockHash: string) => void, altTezos?: TezosToolkit, pause = false) {
+  const currentTezos = useTezos();
   const blockHashRef = useRef<string>();
+  const callbackRef = useUpdatableRef(callback);
+
+  const tezos = altTezos || currentTezos;
 
   useEffect(() => {
+    if (pause) return;
+
     let sub: Subscription<string>;
     spawnSub();
     return () => sub.close();
@@ -54,7 +60,7 @@ export function useOnBlock(callback: (blockHash: string) => void) {
 
       sub.on('data', hash => {
         if (blockHashRef.current && blockHashRef.current !== hash) {
-          callback(hash);
+          callbackRef.current(hash);
         }
         blockHashRef.current = hash;
       });
@@ -64,5 +70,5 @@ export function useOnBlock(callback: (blockHash: string) => void) {
         spawnSub();
       });
     }
-  }, [tezos, callback]);
+  }, [pause, tezos]);
 }
