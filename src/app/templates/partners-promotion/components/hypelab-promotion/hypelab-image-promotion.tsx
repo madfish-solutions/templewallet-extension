@@ -2,11 +2,11 @@ import React, { FC, useEffect, useRef, useState } from 'react';
 
 import { Banner, BannerElement } from '@hypelab/sdk-react';
 
-import { useElementValue } from 'app/hooks/use-element-value';
+import { useAdTimeout } from 'app/hooks/ads/use-ad-timeout';
+import { useElementValue } from 'app/hooks/ads/use-element-value';
 import { EnvVars } from 'lib/env';
 
 import { HypelabBannerAd, SingleProviderPromotionProps } from '../../types';
-import { useAdTimeout } from '../../use-ad-timeout';
 import { ImagePromotionView } from '../image-promotion-view';
 
 import { getHypelabAd } from './get-hypelab-ad';

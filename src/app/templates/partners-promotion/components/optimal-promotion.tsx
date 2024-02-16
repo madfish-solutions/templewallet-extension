@@ -1,11 +1,11 @@
 import React, { FC, useCallback, useEffect, useRef, useState } from 'react';
 
+import { useAdTimeout } from 'app/hooks/ads/use-ad-timeout';
 import { usePartnersPromoSelector } from 'app/store/partners-promotion/selectors';
 import { isEmptyPromotion } from 'lib/apis/optimal';
 import { useTimeout } from 'lib/ui/hooks';
 
 import { PartnersPromotionVariant, SingleProviderPromotionProps } from '../types';
-import { useAdTimeout } from '../use-ad-timeout';
 
 import { ImagePromotionView } from './image-promotion-view';
 import { TextPromotionView } from './text-promotion-view';

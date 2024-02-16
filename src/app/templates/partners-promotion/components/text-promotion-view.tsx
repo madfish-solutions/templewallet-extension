@@ -4,10 +4,10 @@ import clsx from 'clsx';
 
 import { Anchor } from 'app/atoms/Anchor';
 import { useAppEnv } from 'app/env';
+import { useAdRectObservation } from 'app/hooks/ads/use-ad-rect-observation';
 
 import { PartnersPromotionSelectors } from '../index.selectors';
 import { PartnersPromotionVariant } from '../types';
-import { useAdRectObservation } from '../use-ad-rect-observation';
 
 import { CloseButton } from './close-button';
 
