@@ -71,7 +71,7 @@ export const HypelabImagePromotion: FC<Omit<SingleProviderPromotionProps, 'varia
 
     return () => {
       if (banner) {
-        // @ts-ignore
+        // @ts-expect-error
         banner.disconnectedCallback();
       }
     };

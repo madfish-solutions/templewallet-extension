@@ -35,7 +35,7 @@ const buildManifestV3 = (vendor: string): Manifest.WebExtensionManifest => {
     run_at: 'document_start',
     all_frames: true,
     match_about_blank: true,
-    // @ts-ignore
+    // @ts-expect-error
     match_origin_as_fallback: true
   });
 

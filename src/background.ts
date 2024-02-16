@@ -47,9 +47,9 @@ function openFullPage() {
 }
 
 globalThis.addEventListener('notificationclick', event => {
-  // @ts-ignore
+  // @ts-expect-error
   event.notification.close();
-  // @ts-ignore
+  // @ts-expect-error
   event.waitUntil(clients.openWindow(`${event.target.registration.scope}fullpage.html`));
 });
 

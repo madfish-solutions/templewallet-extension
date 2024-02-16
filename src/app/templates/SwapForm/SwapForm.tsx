@@ -455,7 +455,7 @@ export const SwapForm: FC = () => {
       <SwapFormInput
         name="input"
         value={inputValue}
-        // @ts-ignore
+        // @ts-expect-error
         error={errors.input?.message}
         label={<T id="from" />}
         onChange={handleInputChange}
@@ -478,7 +478,7 @@ export const SwapForm: FC = () => {
         className="mb-6"
         name="output"
         value={outputValue}
-        // @ts-ignore
+        // @ts-expect-error
         error={errors.output?.message}
         label={<T id="toAsset" />}
         amountInputDisabled={true}

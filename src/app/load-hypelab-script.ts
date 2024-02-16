@@ -19,7 +19,7 @@ export const LoadHypelabScript: FC = () => {
       script.src = browser.runtime.getURL('/scripts/hypelab.embed.js');
       script.async = true;
       script.onload = () => {
-        // @ts-ignore
+        // @ts-expect-error
         HypeLab.initialize({
           URL: IS_DEV_ENV ? 'https://api.hypelab-staging.com' : 'https://api.hypelab.com',
           propertySlug: EnvVars.HYPELAB_PROPERTY_SLUG,
