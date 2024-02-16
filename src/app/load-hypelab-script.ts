@@ -2,11 +2,14 @@ import { FC, useEffect } from 'react';
 
 import browser from 'webextension-polyfill';
 
+import { useShouldShowPartnersPromoSelector } from 'app/store/partners-promotion/selectors';
 import { EnvVars, IS_DEV_ENV } from 'lib/env';
 
 export const LoadHypelabScript: FC = () => {
+  const isAdsEnabled = useShouldShowPartnersPromoSelector();
+
   useEffect(() => {
-    if (document.querySelector('[hypelab-script]')) {
+    if (!isAdsEnabled || document.querySelector('[hypelab-script]')) {
       return;
     }
 
@@ -27,7 +30,7 @@ export const LoadHypelabScript: FC = () => {
     } catch (err) {
       console.error(err);
     }
-  }, []);
+  }, [isAdsEnabled]);
 
   return null;
 };

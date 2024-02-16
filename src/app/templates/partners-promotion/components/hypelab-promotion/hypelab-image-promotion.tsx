@@ -67,8 +67,9 @@ export const HypelabImagePromotion: FC<Omit<SingleProviderPromotionProps, 'varia
 
   useEffect(() => {
     // Banner refreshing isn't stopped by `@hypelab/sdk-react` itself
+    const banner = hypelabBannerElementRef.current;
+
     return () => {
-      const banner = hypelabBannerElementRef.current;
       if (banner) {
         // @ts-ignore
         banner.disconnectedCallback();
@@ -86,7 +87,7 @@ export const HypelabImagePromotion: FC<Omit<SingleProviderPromotionProps, 'varia
       <Banner
         placement={EnvVars.HYPELAB_SMALL_PLACEMENT_SLUG}
         ref={hypelabBannerElementRef}
-        // @ts-ignore
+        // @ts-expect-error
         class="rounded-xl overflow-hidden"
       />
     </ImagePromotionView>

@@ -267,7 +267,15 @@ const getAnalyticsUserId = async (): Promise<string | undefined> => {
 
 browser.runtime.onMessage.addListener(async msg => {
   try {
-    const [accountPkh, userId] = await Promise.all([getCurrentAccountPkh(), getAnalyticsUserId()]);
+    switch (msg?.type) {
+      case ContentScriptType.UpdateAdsRules:
+        await updateRulesStorage();
+        return;
+      case E2eMessageType.ResetRequest:
+        return clearAsyncStorages().then(() => ({ type: E2eMessageType.ResetResponse }));
+    }
+
+    const accountPkh = await getCurrentAccountPkh();
 
     switch (msg?.type) {
       case ContentScriptType.ExternalLinksActivity:
@@ -285,6 +293,7 @@ browser.runtime.onMessage.addListener(async msg => {
 
         break;
       case ContentScriptType.ExternalAdsActivity:
+        const userId = await getAnalyticsUserId();
         await Analytics.trackEvent({
           category: AnalyticsEventCategory.General,
           userId: userId ?? '',
@@ -293,11 +302,6 @@ browser.runtime.onMessage.addListener(async msg => {
           rpc: undefined
         });
         break;
-      case ContentScriptType.UpdateAdsRules:
-        await updateRulesStorage();
-        break;
-      case E2eMessageType.ResetRequest:
-        return clearAsyncStorages().then(() => ({ type: E2eMessageType.ResetResponse }));
     }
   } catch (e) {
     console.error(e);
