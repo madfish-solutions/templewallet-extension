@@ -1,14 +1,18 @@
-import React, { FC, memo, useCallback, useState } from 'react';
+import React, { FC, memo, useCallback, useEffect, useState } from 'react';
 
 import { useDispatch } from 'react-redux';
 
 import { useAppEnv } from 'app/env';
 import { ReactComponent as CloseIcon } from 'app/icons/close.svg';
-import { togglePartnersPromotionAction } from 'app/store/partners-promotion/actions';
-import { useShouldShowPartnersPromoSelector, usePartnersPromoSelector } from 'app/store/partners-promotion/selectors';
+import { hidePromotionAction } from 'app/store/partners-promotion/actions';
+import {
+  useShouldShowPartnersPromoSelector,
+  usePartnersPromoSelector,
+  usePromotionHidingTimestampSelector
+} from 'app/store/partners-promotion/selectors';
 import { isEmptyPromotion } from 'lib/apis/optimal';
+import { AD_HIDING_TIMEOUT } from 'lib/constants';
 import { t } from 'lib/i18n';
-import { useConfirm } from 'lib/ui/dialog';
 
 import { Anchor } from './Anchor';
 import { PartnersPromotionSelectors } from './partners-promotion.selectors';
@@ -21,37 +25,52 @@ export enum PartnersPromotionVariant {
 
 interface Props {
   variant: PartnersPromotionVariant;
+  /** For distinguishing the ads that should be hidden temporarily */
+  id: string;
 }
 
 const POPUP_IMAGE_WIDTH = 328;
 const FULL_IMAGE_WIDTH = 384;
 
-export const PartnersPromotion: FC<Props> = memo(({ variant }) => {
-  const confirm = useConfirm();
+const shouldBeHiddenTemporarily = (hiddenAt: number) => {
+  return Date.now() - hiddenAt < AD_HIDING_TIMEOUT;
+};
+
+export const PartnersPromotion: FC<Props> = memo(({ variant, id }) => {
   const dispatch = useDispatch();
   const { popup } = useAppEnv();
+  const hiddenAt = usePromotionHidingTimestampSelector(id);
 
+  const [isHiddenTemporarily, setIsHiddenTemporarily] = useState(shouldBeHiddenTemporarily(hiddenAt));
   const [isImageBroken, setIsImageBroken] = useState(false);
   const { data: promo, isLoading, error } = usePartnersPromoSelector();
   const shouldShowPartnersPromo = useShouldShowPartnersPromoSelector();
 
-  const handleClosePartnersPromoClick = useCallback(async () => {
-    const confirmed = await confirm({
-      title: t('closePartnersPromotion'),
-      children: t('closePartnersPromoConfirm'),
-      comfirmButtonText: t('disable')
-    });
+  useEffect(() => {
+    const newIsHiddenTemporarily = shouldBeHiddenTemporarily(hiddenAt);
+    setIsHiddenTemporarily(newIsHiddenTemporarily);
 
-    if (confirmed) {
-      dispatch(togglePartnersPromotionAction(false));
+    if (newIsHiddenTemporarily) {
+      const timeout = setTimeout(
+        () => setIsHiddenTemporarily(false),
+        Math.max(Date.now() - hiddenAt + AD_HIDING_TIMEOUT, 0)
+      );
+
+      return () => clearTimeout(timeout);
     }
-  }, [confirm]);
+
+    return;
+  }, [hiddenAt]);
+
+  const handleClosePartnersPromoClick = useCallback(() => {
+    dispatch(hidePromotionAction({ timestamp: Date.now(), id }));
+  }, [id, dispatch]);
 
   const onImageError = useCallback(() => {
     setIsImageBroken(true);
   }, []);
 
-  if (!shouldShowPartnersPromo || Boolean(error) || isEmptyPromotion(promo) || isImageBroken) {
+  if (!shouldShowPartnersPromo || Boolean(error) || isEmptyPromotion(promo) || isImageBroken || isHiddenTemporarily) {
     return null;
   }
 
@@ -86,6 +105,7 @@ export const PartnersPromotion: FC<Props> = memo(({ variant }) => {
         <button
           className="absolute top-2 right-2 z-10 p-1 border-gray-300 border rounded"
           onClick={handleClosePartnersPromoClick}
+          title={t('hideAd')}
         >
           <CloseIcon className="w-auto h-4" style={{ stroke: '#718096', strokeWidth: 2 }} />
         </button>
@@ -102,6 +122,7 @@ export const PartnersPromotion: FC<Props> = memo(({ variant }) => {
       <button
         className="absolute top-2 right-4 h-6 w-6 z-10 bg-blue-500 rounded-circle"
         onClick={handleClosePartnersPromoClick}
+        title={t('hideAd')}
       >
         <CloseIcon className="w-4 h-4 m-auto" style={{ strokeWidth: 3 }} />
       </button>

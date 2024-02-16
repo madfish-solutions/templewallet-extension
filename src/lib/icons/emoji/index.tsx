@@ -1,7 +1,6 @@
 import React, { FC, useMemo } from 'react';
 
-import Icon_Eyes_1f440 from './eyes-1f440.png';
-import Icon_MoneyBag_1f4b0 from './money-bag-1f4b0.png';
+import Icon_PartyPopper_1f389 from './party-popper-1f389.png';
 
 interface Props extends React.ImgHTMLAttributes<HTMLImageElement> {
   name: keyof typeof KnownEmojies;
@@ -15,6 +14,5 @@ export const EmojiInlineIcon: FC<Props> = ({ name, style, ...props }) => {
 };
 
 const KnownEmojies = {
-  'eyes-1f440': Icon_Eyes_1f440,
-  'money-bag-1f4b0': Icon_MoneyBag_1f4b0
+  'party-popper-1f389': Icon_PartyPopper_1f389
 };

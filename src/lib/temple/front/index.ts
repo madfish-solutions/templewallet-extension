@@ -16,22 +16,13 @@ export {
   useTezos,
   useChainId,
   useRelevantAccounts,
-  useCustomChainId
+  useChainIdValue,
+  useChainIdLoading
 } from './ready';
-
-export {
-  useCollectibleTokens,
-  useDisplayedFungibleTokens,
-  useGetTokenMetadata,
-  useGasToken,
-  useAvailableAssetsSlugs
-} from './assets';
 
 export { validateDerivationPath, validateContractAddress } from './helpers';
 
 export { useBlockTriggers, useOnBlock } from './chain';
-
-export { useBalance, getBalanceSWRKey } from './balance';
 
 export { useContactsActions, searchContacts } from './address-book';
 
@@ -58,9 +49,4 @@ export { useFilteredContacts } from './use-filtered-contacts.hook';
 
 export { decryptKukaiSeedPhrase } from './kukai';
 
-export {
-  isSvgDataUriInUtf8Encoding,
-  buildTokenIconURLs,
-  buildCollectibleImageURLs,
-  buildObjktCollectibleArtifactUri
-} from './image-uri';
+export { TzktConnectionProvider, useTzktConnection } from './tzkt-connection';

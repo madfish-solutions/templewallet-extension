@@ -1,8 +1,7 @@
 import { createReducer } from '@reduxjs/toolkit';
 import { persistReducer } from 'redux-persist';
-import storage from 'redux-persist/lib/storage';
 
-import { createEntity } from 'lib/store';
+import { storageConfig, createEntity } from 'lib/store';
 
 import { loadCollectiblesDetailsActions } from './actions';
 import { collectiblesInitialState, CollectiblesState } from './state';
@@ -14,6 +13,7 @@ const collectiblesReducer = createReducer<CollectiblesState>(collectiblesInitial
   builder.addCase(loadCollectiblesDetailsActions.submit, state => {
     state.details.isLoading = true;
   });
+
   builder.addCase(loadCollectiblesDetailsActions.success, (state, { payload }) => {
     const { details: detailsRecord, timestamp } = payload;
 
@@ -37,6 +37,7 @@ const collectiblesReducer = createReducer<CollectiblesState>(collectiblesInitial
       adultFlags
     };
   });
+
   builder.addCase(loadCollectiblesDetailsActions.fail, (state, { payload }) => {
     state.details.isLoading = false;
     state.details.error = payload;
@@ -46,7 +47,7 @@ const collectiblesReducer = createReducer<CollectiblesState>(collectiblesInitial
 export const collectiblesPersistedReducer = persistReducer(
   {
     key: 'root.collectibles',
-    storage,
+    ...storageConfig,
     whitelist: ['adultFlags'] as (keyof CollectiblesState)[]
   },
   collectiblesReducer

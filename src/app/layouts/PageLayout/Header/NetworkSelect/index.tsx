@@ -1,105 +1,27 @@
-import React, { FC, HTMLAttributes, useCallback, useMemo } from 'react';
+import React, { FC, HTMLAttributes } from 'react';
 
 import classNames from 'clsx';
 
 import { Button } from 'app/atoms/Button';
-import DropdownWrapper from 'app/atoms/DropdownWrapper';
 import Name from 'app/atoms/Name';
 import { ReactComponent as ChevronDownIcon } from 'app/icons/chevron-down.svg';
-import { ReactComponent as SignalAltIcon } from 'app/icons/signal-alt.svg';
 import { T } from 'lib/i18n';
-import {
-  BLOCK_EXPLORERS,
-  useBlockExplorer,
-  useAllNetworks,
-  useChainId,
-  useNetwork,
-  useSetNetworkId
-} from 'lib/temple/front';
-import { loadChainId } from 'lib/temple/helpers';
-import { isKnownChainId } from 'lib/temple/types';
+import { useNetwork } from 'lib/temple/front';
 import Popper from 'lib/ui/Popper';
-import { HistoryAction, navigate } from 'lib/woozie';
 
-import { NetworkButton } from './NetworkButton';
+import { NetworkDropdown } from './NetworkDropdown';
 import { NetworkSelectSelectors } from './selectors';
-import styles from './style.module.css';
 
 type NetworkSelectProps = HTMLAttributes<HTMLDivElement>;
 
 const NetworkSelect: FC<NetworkSelectProps> = () => {
-  const allNetworks = useAllNetworks();
   const currentNetwork = useNetwork();
-  const setNetworkId = useSetNetworkId();
-
-  const chainId = useChainId(true)!;
-  const { setExplorerId } = useBlockExplorer();
-
-  const filteredNetworks = useMemo(() => allNetworks.filter(n => !n.hidden), [allNetworks]);
-
-  const handleNetworkSelect = useCallback(
-    async (netId: string, rpcUrl: string, selected: boolean, setOpened: (o: boolean) => void) => {
-      setOpened(false);
-
-      if (selected) return;
-
-      try {
-        const currentChainId = await loadChainId(rpcUrl);
-
-        if (currentChainId && isKnownChainId(currentChainId)) {
-          const currentBlockExplorerId =
-            BLOCK_EXPLORERS.find(explorer => explorer.baseUrls.get(currentChainId))?.id ?? 'tzkt';
-
-          if (currentChainId !== chainId) {
-            setExplorerId(currentBlockExplorerId);
-          }
-        } else if (currentChainId !== chainId) {
-          setExplorerId('tzkt');
-        }
-      } catch (error) {
-        console.error(error);
-      }
-
-      setNetworkId(netId);
-      navigate('/', HistoryAction.Replace);
-    },
-    [setNetworkId, setExplorerId, chainId]
-  );
 
   return (
     <Popper
       placement="bottom-end"
       strategy="fixed"
-      popup={({ opened, setOpened }) => (
-        <DropdownWrapper opened={opened} design="dark" className="origin-top-right p-2">
-          <div className={styles.scroll}>
-            <h2
-              className={classNames(
-                'flex items-center mb-2 px-1 pb-1',
-                'border-b border-white border-opacity-25',
-                'text-white text-opacity-90 text-sm text-center'
-              )}
-            >
-              <SignalAltIcon className="w-auto h-4 mr-1 stroke-current" />
-              <T id="networks" />
-            </h2>
-
-            {filteredNetworks.map(network => {
-              const { id, rpcBaseURL } = network;
-              const selected = id === currentNetwork.id;
-
-              return (
-                <NetworkButton
-                  key={id}
-                  network={network}
-                  selected={selected}
-                  onClick={() => handleNetworkSelect(id, rpcBaseURL, selected, setOpened)}
-                />
-              );
-            })}
-          </div>
-        </DropdownWrapper>
-      )}
+      popup={props => <NetworkDropdown currentNetwork={currentNetwork} {...props} />}
     >
       {({ ref, opened, toggleOpened }) => (
         <Button

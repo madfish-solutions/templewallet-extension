@@ -1,0 +1,123 @@
+.vp-key-action {
+  position: absolute;
+  display: flex;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+.vp-key-action__volume {
+  position: absolute;
+  display: flex;
+  top: 0;
+  bottom: 75%;
+  left: 0;
+  right: 0;
+  background-image: linear-gradient(rgba(0, 0, 0, 0.7), transparent);
+  transition: opacity 300ms ease-out;
+  z-index: 15;
+}
+.vp-key-action__volume__container {
+  display: flex;
+  margin: auto;
+  gap: 1rem;
+  width: clamp(6rem, 12%, 12.5rem);
+  height: auto;
+  transition: all 300ms ease-out;
+}
+.vp-key-action__volume__icon {
+  position: relative;
+  width: 40%;
+  height: auto;
+}
+.vp-key-action__volume__icon svg {
+  width: 100%;
+  height: 100%;
+}
+.vp-key-action__volume__range {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: clamp(2.5rem, 5vw, 5rem);
+  margin: auto;
+}
+.vp-key-action__volume__range--background {
+  position: absolute;
+  width: 100%;
+  height: 10%;
+  border-radius: 50px;
+  background-color: #858585;
+}
+.vp-key-action__volume__range--current {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 10%;
+  border-radius: 50px;
+  background-color: #fff;
+  transition: width 200ms ease-out;
+}
+.vp-key-action__progress {
+  position: absolute;
+  display: flex;
+  top: 0;
+  bottom: 0;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 20;
+}
+.vp-key-action__progress__container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+.vp-key-action__progress.rewind {
+  left: 0;
+  right: 50%;
+  background-image: linear-gradient(to left, transparent, rgba(0, 0, 0, 0.7));
+}
+.vp-key-action__progress.skip {
+  left: 50%;
+  right: 0;
+  background-image: linear-gradient(to right, transparent, rgba(0, 0, 0, 0.7));
+}
+.vp-key-action__progress svg {
+  width: clamp(2.5rem, 10%, 5rem);
+  height: 100%;
+  margin: auto;
+}
+
+.vp-key-volume-enter {
+  opacity: 0;
+}
+.vp-key-volume-enter > div {
+  opacity: 0;
+  transform: translateY(-100%);
+}
+.vp-key-volume-enter-active {
+  opacity: 1;
+}
+.vp-key-volume-enter-active > div {
+  opacity: 1;
+  transform: translateY(0);
+}
+.vp-key-volume-exit {
+  opacity: 1;
+}
+.vp-key-volume-exit > div {
+  opacity: 1;
+  transform: translateY(0);
+}
+.vp-key-volume-exit-active {
+  opacity: 0;
+}
+.vp-key-volume-exit-active > div {
+  opacity: 0;
+  transform: translateY(-100%);
+}

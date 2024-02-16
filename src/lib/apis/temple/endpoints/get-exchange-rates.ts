@@ -10,7 +10,7 @@ interface GetExchangeRatesResponseItem {
 
 export const fetchUsdToTokenRates = () =>
   templeWalletApi.get<GetExchangeRatesResponseItem[]>('/exchange-rates').then(({ data }) => {
-    const prices: Record<string, string> = {};
+    const prices: StringRecord = {};
 
     for (const { tokenAddress, tokenId, exchangeRate } of data) {
       if (tokenAddress) {

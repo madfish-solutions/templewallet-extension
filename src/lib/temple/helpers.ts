@@ -2,17 +2,17 @@ import { ManagerKeyResponse, RpcClient } from '@taquito/rpc';
 import { MichelCodecPacker } from '@taquito/taquito';
 import { validateAddress, ValidationResult } from '@taquito/utils';
 import BigNumber from 'bignumber.js';
-import memoize from 'micro-memoize';
+import memoizee from 'memoizee';
 
 import { FastRpcClient } from 'lib/taquito-fast-rpc';
 
-export const loadFastRpcClient = memoize((rpc: string) => new FastRpcClient(rpc));
+export const loadFastRpcClient = memoizee((rpc: string) => new FastRpcClient(rpc));
 
 export const michelEncoder = new MichelCodecPacker();
 
-export const loadChainId = memoize(fetchChainId, {
-  isPromise: true,
-  maxSize: 100
+export const loadChainId = memoizee(fetchChainId, {
+  promise: true,
+  max: 100
 });
 
 function fetchChainId(rpcUrl: string) {
@@ -35,13 +35,13 @@ export function usdToAssetAmount(
     : usd.div(assetUsdPrice).decimalPlaces(assetDecimals || 0, roundingMode ?? BigNumber.ROUND_DOWN);
 }
 
-export function tzToMutez(tz: any) {
+export function tzToMutez(tz: BigNumber.Value) {
   const bigNum = new BigNumber(tz);
   if (bigNum.isNaN()) return bigNum;
   return bigNum.times(10 ** 6).integerValue();
 }
 
-export function mutezToTz(mutez: any) {
+export function mutezToTz(mutez: BigNumber.Value) {
   const bigNum = new BigNumber(mutez);
   if (bigNum.isNaN()) return bigNum;
   return bigNum.integerValue().div(10 ** 6);

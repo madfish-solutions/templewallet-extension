@@ -7,7 +7,7 @@ import { FormField } from 'app/atoms';
 import { useAppEnv } from 'app/env';
 import { ReactComponent as CopyIcon } from 'app/icons/copy.svg';
 import { isFA2Token, isTezAsset } from 'lib/assets';
-import { fromAssetSlug } from 'lib/assets/utils';
+import { fromAssetSlugWithStandardDetect } from 'lib/assets/contract.utils';
 import { T } from 'lib/i18n';
 import { getAssetSymbol, useAssetMetadata } from 'lib/metadata';
 import { useRetryableSWR } from 'lib/swr';
@@ -21,9 +21,13 @@ type AssetInfoProps = {
 const AssetInfo: FC<AssetInfoProps> = ({ assetSlug }) => {
   const { popup } = useAppEnv();
   const tezos = useTezos();
-  const asset = useRetryableSWR(['asset', assetSlug, tezos.checksum], () => fromAssetSlug(tezos, assetSlug), {
-    suspense: true
-  }).data!;
+  const asset = useRetryableSWR(
+    ['asset', assetSlug, tezos.checksum],
+    () => fromAssetSlugWithStandardDetect(tezos, assetSlug),
+    {
+      suspense: true
+    }
+  ).data!;
 
   const metadata = useAssetMetadata(assetSlug);
 

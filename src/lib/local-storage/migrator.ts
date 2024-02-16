@@ -3,10 +3,10 @@ import type { IMigration, IAppliedMigration } from 'lib/migrator';
 
 const STORAGE_KEY = 'MIGRATIONS';
 
-export const migrate = (migrations: IMigration[]) => {
+export const migrate = async (migrations: IMigration[]) => {
   const appliedMigrations = getAppliedMigrations();
 
-  const appliedMigrationsThisTime = Migrator.migrate(migrations, appliedMigrations);
+  const appliedMigrationsThisTime = await Migrator.migrate(migrations, appliedMigrations);
 
   storeAppliedMigrations(appliedMigrations.concat(appliedMigrationsThisTime));
 };

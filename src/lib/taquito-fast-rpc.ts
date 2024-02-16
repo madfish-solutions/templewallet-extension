@@ -1,6 +1,6 @@
 import { EntrypointsResponse, RpcClient } from '@taquito/rpc';
 import debounce from 'debounce';
-import memoize from 'p-memoize';
+import memoizee from 'memoizee';
 
 interface RPCOptions {
   block: string;
@@ -12,7 +12,7 @@ interface CachedEntrypointsItem {
 }
 
 export class FastRpcClient extends RpcClient {
-  refreshInterval = 10_000; // 10 sec
+  refreshInterval = 5_000; // 5 sec
   memoizeMaxAge = 180_000; // 3 min
 
   private latestBlock?: {
@@ -34,9 +34,10 @@ export class FastRpcClient extends RpcClient {
     return this.getBalanceMemo(address, opts);
   }
 
-  getBalanceMemo = memoize(super.getBalance.bind(this), {
-    cacheKey: ([address, opts]) => [address, toOptsKey(opts)].join(''),
-    maxAge: this.memoizeMaxAge
+  getBalanceMemo = memoizee(super.getBalance.bind(this), {
+    normalizer: ([address, opts]) => [address, toOptsKey(opts)].join(''),
+    maxAge: this.memoizeMaxAge,
+    promise: true
   });
 
   async getLiveBlocks(opts?: RPCOptions) {
@@ -44,9 +45,10 @@ export class FastRpcClient extends RpcClient {
     return this.getLiveBlocksMemo(opts);
   }
 
-  getLiveBlocksMemo = memoize(super.getLiveBlocks.bind(this), {
-    cacheKey: ([opts]) => toOptsKey(opts),
-    maxAge: this.memoizeMaxAge
+  getLiveBlocksMemo = memoizee(super.getLiveBlocks.bind(this), {
+    normalizer: ([opts]) => toOptsKey(opts),
+    maxAge: this.memoizeMaxAge,
+    promise: true
   });
 
   async getStorage(address: string, opts?: RPCOptions) {
@@ -54,9 +56,10 @@ export class FastRpcClient extends RpcClient {
     return this.getStorageMemo(address, opts);
   }
 
-  getStorageMemo = memoize(super.getStorage.bind(this), {
-    cacheKey: ([address, opts]) => [address, toOptsKey(opts)].join(''),
-    maxAge: this.memoizeMaxAge
+  getStorageMemo = memoizee(super.getStorage.bind(this), {
+    normalizer: ([address, opts]) => [address, toOptsKey(opts)].join(''),
+    maxAge: this.memoizeMaxAge,
+    promise: true
   });
 
   async getScript(address: string, opts?: RPCOptions) {
@@ -64,9 +67,10 @@ export class FastRpcClient extends RpcClient {
     return this.getScriptMemo(address, opts);
   }
 
-  getScriptMemo = memoize(super.getScript.bind(this), {
-    cacheKey: ([address, opts]) => [address, toOptsKey(opts)].join(''),
-    maxAge: this.memoizeMaxAge
+  getScriptMemo = memoizee(super.getScript.bind(this), {
+    normalizer: ([address, opts]) => [address, toOptsKey(opts)].join(''),
+    maxAge: this.memoizeMaxAge,
+    promise: true
   });
 
   async getContract(address: string, opts?: RPCOptions) {
@@ -74,9 +78,10 @@ export class FastRpcClient extends RpcClient {
     return this.getContractMemo(address, opts);
   }
 
-  getContractMemo = memoize(super.getContract.bind(this), {
-    cacheKey: ([address, opts]) => [address, toOptsKey(opts)].join(''),
-    maxAge: this.memoizeMaxAge
+  getContractMemo = memoizee(super.getContract.bind(this), {
+    normalizer: ([address, opts]) => [address, toOptsKey(opts)].join(''),
+    maxAge: this.memoizeMaxAge,
+    promise: true
   });
 
   // <Entrypoints>
@@ -96,9 +101,10 @@ export class FastRpcClient extends RpcClient {
     return result;
   }
 
-  getEntrypointsMemo = memoize(super.getEntrypoints.bind(this), {
-    cacheKey: ([contract, opts]) => [contract, toOptsKey(opts)].join(''),
-    maxAge: this.memoizeMaxAge
+  getEntrypointsMemo = memoizee(super.getEntrypoints.bind(this), {
+    normalizer: ([contract, opts]) => [contract, toOptsKey(opts)].join(''),
+    maxAge: this.memoizeMaxAge,
+    promise: true
   });
 
   private ENTRYPOINTS_CACHE_KEY = 'FastRpcClient.cachedEntrypoints';
@@ -163,9 +169,10 @@ export class FastRpcClient extends RpcClient {
     return this.getManagerKeyMemo(address, opts);
   }
 
-  getManagerKeyMemo = memoize(super.getManagerKey.bind(this), {
-    cacheKey: ([address, opts]) => [address, toOptsKey(opts)].join(''),
-    maxAge: this.memoizeMaxAge
+  getManagerKeyMemo = memoizee(super.getManagerKey.bind(this), {
+    normalizer: ([address, opts]) => [address, toOptsKey(opts)].join(''),
+    maxAge: this.memoizeMaxAge,
+    promise: true
   });
 
   async getDelegate(address: string, opts?: RPCOptions) {
@@ -173,9 +180,10 @@ export class FastRpcClient extends RpcClient {
     return this.getDelegateMemo(address, opts);
   }
 
-  getDelegateMemo = memoize(super.getDelegate.bind(this), {
-    cacheKey: ([address, opts]) => [address, toOptsKey(opts)].join(''),
-    maxAge: this.memoizeMaxAge
+  getDelegateMemo = memoizee(super.getDelegate.bind(this), {
+    normalizer: ([address, opts]) => [address, toOptsKey(opts)].join(''),
+    maxAge: this.memoizeMaxAge,
+    promise: true
   });
 
   async getBigMapExpr(id: string, expr: string, opts?: RPCOptions) {
@@ -183,9 +191,10 @@ export class FastRpcClient extends RpcClient {
     return this.getBigMapExprMemo(id, expr, opts);
   }
 
-  getBigMapExprMemo = memoize(super.getBigMapExpr.bind(this), {
-    cacheKey: ([id, expr, opts]) => [id, expr, toOptsKey(opts)].join(''),
-    maxAge: this.memoizeMaxAge
+  getBigMapExprMemo = memoizee(super.getBigMapExpr.bind(this), {
+    normalizer: ([id, expr, opts]) => [id, expr, toOptsKey(opts)].join(''),
+    maxAge: this.memoizeMaxAge,
+    promise: true
   });
 
   async getDelegates(address: string, opts?: RPCOptions) {
@@ -193,9 +202,10 @@ export class FastRpcClient extends RpcClient {
     return this.getDelegatesMemo(address, opts);
   }
 
-  getDelegatesMemo = memoize(super.getDelegates.bind(this), {
-    cacheKey: ([address, opts]) => [address, toOptsKey(opts)].join(''),
-    maxAge: this.memoizeMaxAge
+  getDelegatesMemo = memoizee(super.getDelegates.bind(this), {
+    normalizer: ([address, opts]) => [address, toOptsKey(opts)].join(''),
+    maxAge: this.memoizeMaxAge,
+    promise: true
   });
 
   async getConstants(opts?: RPCOptions) {
@@ -203,9 +213,10 @@ export class FastRpcClient extends RpcClient {
     return this.getConstantsMemo(opts);
   }
 
-  getConstantsMemo = memoize(super.getConstants.bind(this), {
-    cacheKey: ([opts]) => toOptsKey(opts),
-    maxAge: this.memoizeMaxAge
+  getConstantsMemo = memoizee(super.getConstants.bind(this), {
+    normalizer: ([opts]) => toOptsKey(opts),
+    maxAge: this.memoizeMaxAge,
+    promise: true
   });
 
   async getBlock(opts?: RPCOptions) {
@@ -213,9 +224,10 @@ export class FastRpcClient extends RpcClient {
     return this.getBlockMemo(opts);
   }
 
-  getBlockMemo = memoize(super.getBlock.bind(this), {
-    cacheKey: ([opts]) => toOptsKey(opts),
-    maxAge: this.memoizeMaxAge
+  getBlockMemo = memoizee(super.getBlock.bind(this), {
+    normalizer: ([opts]) => toOptsKey(opts),
+    maxAge: this.memoizeMaxAge,
+    promise: true
   });
 
   async getBlockHeader(opts?: RPCOptions) {
@@ -223,9 +235,10 @@ export class FastRpcClient extends RpcClient {
     return this.getBlockHeaderMemo(opts);
   }
 
-  getBlockHeaderMemo = memoize(super.getBlockHeader.bind(this), {
-    cacheKey: ([opts]) => toOptsKey(opts),
-    maxAge: this.memoizeMaxAge
+  getBlockHeaderMemo = memoizee(super.getBlockHeader.bind(this), {
+    normalizer: ([opts]) => toOptsKey(opts),
+    maxAge: this.memoizeMaxAge,
+    promise: true
   });
 
   async getBlockMetadata(opts?: RPCOptions) {
@@ -233,12 +246,13 @@ export class FastRpcClient extends RpcClient {
     return this.getBlockMetadataMemo(opts);
   }
 
-  getBlockMetadataMemo = memoize(super.getBlockMetadata.bind(this), {
-    cacheKey: ([opts]) => toOptsKey(opts),
-    maxAge: this.memoizeMaxAge
+  getBlockMetadataMemo = memoizee(super.getBlockMetadata.bind(this), {
+    normalizer: ([opts]) => toOptsKey(opts),
+    maxAge: this.memoizeMaxAge,
+    promise: true
   });
 
-  getChainId = memoize(super.getChainId.bind(this));
+  getChainId = memoizee(super.getChainId.bind(this), { promise: true });
 
   private async loadLatestBlock(opts?: RPCOptions) {
     const head = wantsHead(opts);

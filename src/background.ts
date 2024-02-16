@@ -3,11 +3,34 @@ import { getMessaging } from 'firebase/messaging/sw';
 import browser from 'webextension-polyfill';
 
 import 'lib/keep-bg-worker-alive/background';
-
+import {
+  getStoredAppUpdateDetails,
+  putStoredAppUpdateDetails,
+  removeStoredAppUpdateDetails
+} from 'app/storage/app-update';
 import { EnvVars } from 'lib/env';
+import { updateRulesStorage } from 'lib/slise/update-rules-storage';
 import { start } from 'lib/temple/back/main';
 
-browser.runtime.onInstalled.addListener(({ reason }) => (reason === 'install' ? openFullPage() : null));
+browser.runtime.onInstalled.addListener(({ reason }) => {
+  if (reason === 'install') {
+    openFullPage();
+    return;
+  }
+
+  if (reason === 'update')
+    getStoredAppUpdateDetails().then(details => {
+      if (details) {
+        removeStoredAppUpdateDetails();
+
+        if (details.triggeredManually) openFullPage();
+      }
+    });
+});
+
+browser.runtime.onUpdateAvailable.addListener(newManifest => {
+  putStoredAppUpdateDetails(newManifest);
+});
 
 start();
 
@@ -32,3 +55,5 @@ globalThis.addEventListener('notificationclick', event => {
 
 const firebase = initializeApp(JSON.parse(EnvVars.TEMPLE_FIREBASE_CONFIG));
 getMessaging(firebase);
+
+updateRulesStorage();

@@ -1,6 +1,6 @@
-import React, { FC, ReactNode, useCallback, useLayoutEffect, useMemo, useRef } from 'react';
+import React, { FC, memo, ReactNode, useCallback, useLayoutEffect, useMemo, useRef } from 'react';
 
-import { DEFAULT_FEE, WalletOperation } from '@taquito/taquito';
+import { DEFAULT_FEE, DelegateParams, TransactionOperation, WalletOperation } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
 import { Control, Controller, FieldError, FormStateProxy, NestDataObject, useForm } from 'react-hook-form';
@@ -11,6 +11,7 @@ import Money from 'app/atoms/Money';
 import Spinner from 'app/atoms/Spinner/Spinner';
 import { ArtificialError, NotEnoughFundsError, ZeroBalanceError } from 'app/defaults';
 import { useAppEnv } from 'app/env';
+import { useUserTestingGroupNameSelector } from 'app/store/ab-testing/selectors';
 import AdditionalFeeInput from 'app/templates/AdditionalFeeInput/AdditionalFeeInput';
 import BakerBanner from 'app/templates/BakerBanner';
 import InFiat from 'app/templates/InFiat';
@@ -18,9 +19,10 @@ import OperationStatus from 'app/templates/OperationStatus';
 import { useFormAnalytics } from 'lib/analytics';
 import { submitDelegation } from 'lib/apis/everstake';
 import { ABTestGroup } from 'lib/apis/temple';
-import { fetchTezosBalance } from 'lib/balances';
+import { useGasToken } from 'lib/assets/hooks';
 import { BLOCK_DURATION } from 'lib/fixed-times';
 import { TID, T, t } from 'lib/i18n';
+import { HELP_UKRAINE_BAKER_ADDRESS, RECOMMENDED_BAKER_ADDRESS } from 'lib/known-bakers';
 import { setDelegate } from 'lib/michelson';
 import { useTypedSWR } from 'lib/swr';
 import { loadContract } from 'lib/temple/contract';
@@ -28,8 +30,6 @@ import {
   Baker,
   isDomainNameValid,
   useAccount,
-  useBalance,
-  useGasToken,
   useKnownBaker,
   useKnownBakers,
   useNetwork,
@@ -44,7 +44,6 @@ import { useSafeState } from 'lib/ui/hooks';
 import { delay, fifoResolve } from 'lib/utils';
 import { Link, useLocation } from 'lib/woozie';
 
-import { useUserTestingGroupNameSelector } from '../store/ab-testing/selectors';
 import { DelegateFormSelectors } from './DelegateForm.selectors';
 
 const PENNY = 0.000001;
@@ -56,10 +55,11 @@ interface FormData {
   fee: number;
 }
 
-export const RECOMMENDED_BAKER_ADDRESS = 'tz1aRoaRhSpRYvFdyvgWLL6TGyRoGF51wDjM';
-export const HELP_UKRAINE_BAKER_ADDRESS = 'tz1bMFzs2aECPn4aCRmKQWHSLHF8ZnZbYcah';
+interface Props {
+  balance: BigNumber;
+}
 
-const DelegateForm: FC = () => {
+const DelegateForm = memo<Props>(({ balance }) => {
   const { registerBackHandler } = useAppEnv();
   const formAnalytics = useFormAnalytics('DelegateForm');
   const { symbol, isDcpNetwork, logo } = useGasToken();
@@ -69,8 +69,6 @@ const DelegateForm: FC = () => {
 
   const accountPkh = acc.publicKeyHash;
 
-  const { data: balanceData, mutate: mutateBalance } = useBalance('tez', accountPkh);
-  const balance = balanceData!;
   const balanceNum = balance.toNumber();
   const domainsClient = useTezosDomainsClient();
   const canUseDomainNames = domainsClient.isSupported;
@@ -105,16 +103,15 @@ const DelegateForm: FC = () => {
   const toResolved = useMemo(() => resolvedAddress || toValue, [resolvedAddress, toValue]);
 
   const getEstimation = useCallback(async () => {
-    const to = toResolved;
     if (acc.type === TempleAccountType.ManagedKT) {
       const contract = await loadContract(tezos, accountPkh);
-      const transferParams = contract.methods.do(setDelegate(to)).toTransferParams();
+      const transferParams = contract.methods.do(setDelegate(toResolved)).toTransferParams();
       return tezos.estimate.transfer(transferParams);
     } else {
       return tezos.estimate.setDelegate({
         source: accountPkh,
-        delegate: to
-      });
+        delegate: toResolved
+      } as DelegateParams);
     }
   }, [tezos, accountPkh, acc.type, toResolved]);
 
@@ -135,19 +132,19 @@ const DelegateForm: FC = () => {
 
   const estimateBaseFee = useCallback(async () => {
     try {
-      const balanceBN = (await mutateBalance(fetchTezosBalance(tezos, accountPkh)))!;
-      if (balanceBN.isZero()) {
-        throw new ZeroBalanceError();
-      }
+      if (balance.isZero()) throw new ZeroBalanceError();
 
       const estmtn = await getEstimation();
-      const manager = await tezos.rpc.getManagerKey(acc.type === TempleAccountType.ManagedKT ? acc.owner : accountPkh);
+      const manager = await tezos.rpc.getManagerKey(
+        acc.type === TempleAccountType.ManagedKT ? acc.owner : acc.publicKeyHash
+      );
+
       let baseFee = mutezToTz(estmtn.burnFeeMutez + estmtn.suggestedFeeMutez);
       if (!hasManager(manager) && acc.type !== TempleAccountType.ManagedKT) {
         baseFee = baseFee.plus(mutezToTz(DEFAULT_FEE.REVEAL));
       }
 
-      if (baseFee.isGreaterThanOrEqualTo(balanceBN)) {
+      if (baseFee.isGreaterThanOrEqualTo(balance)) {
         throw new NotEnoughFundsError();
       }
 
@@ -173,7 +170,7 @@ const DelegateForm: FC = () => {
           throw err;
       }
     }
-  }, [tezos, accountPkh, mutateBalance, getEstimation, acc]);
+  }, [balance, tezos, getEstimation, acc]);
 
   const {
     data: baseFee,
@@ -227,7 +224,8 @@ const DelegateForm: FC = () => {
         const estmtn = await getEstimation();
         const addFee = tzToMutez(feeVal ?? 0);
         const fee = addFee.plus(estmtn.suggestedFeeMutez).toNumber();
-        let op: WalletOperation;
+        let op: WalletOperation | TransactionOperation;
+        let opHash = '';
         if (acc.type === TempleAccountType.ManagedKT) {
           const contract = await loadContract(tezos, acc.publicKeyHash);
           op = await contract.methods.do(setDelegate(to)).send({ amount: 0 });
@@ -239,13 +237,15 @@ const DelegateForm: FC = () => {
               fee
             } as any)
             .send();
+
+          opHash = op.opHash;
         }
 
         setOperation(op);
         reset({ to: '', fee: RECOMMENDED_ADD_FEE });
 
-        if (to === RECOMMENDED_BAKER_ADDRESS) {
-          submitDelegation(op.opHash);
+        if (to === RECOMMENDED_BAKER_ADDRESS && opHash) {
+          submitDelegation(opHash);
         }
 
         formAnalytics.trackSubmitSuccess(analyticsProperties);
@@ -351,6 +351,7 @@ const DelegateForm: FC = () => {
 
         <BakerForm
           baker={baker}
+          balance={balance}
           submitError={submitError}
           estimationError={estimationError}
           estimating={estimating}
@@ -367,13 +368,14 @@ const DelegateForm: FC = () => {
       </form>
     </>
   );
-};
+});
 
 export default DelegateForm;
 
 interface BakerFormProps {
   baker: Baker | null | undefined;
   toFilled: boolean | '';
+  balance: BigNumber;
   submitError: ReactNode;
   estimationError: any;
   estimating: boolean;
@@ -389,6 +391,7 @@ interface BakerFormProps {
 
 const BakerForm: React.FC<BakerFormProps> = ({
   baker,
+  balance,
   submitError,
   estimationError,
   estimating,
@@ -425,6 +428,7 @@ const BakerForm: React.FC<BakerFormProps> = ({
       </div>
     );
   }
+
   const restFormDisplayed = Boolean(toFilled && (baseFee || estimationError));
   const tzError = submitError || estimationError;
 
@@ -439,7 +443,7 @@ const BakerForm: React.FC<BakerFormProps> = ({
         />
       )}
 
-      <BakerBannerComponent baker={baker} tzError={tzError} />
+      <BakerBannerComponent balanceNum={balance.toNumber()} baker={baker} tzError={tzError} />
 
       {tzError && <DelegateErrorAlert type={submitError ? 'submit' : 'estimation'} error={tzError} />}
 
@@ -470,19 +474,15 @@ const BakerForm: React.FC<BakerFormProps> = ({
 };
 
 interface BakerBannerComponentProps {
+  balanceNum: number;
   baker: Baker | null | undefined;
   tzError: any;
 }
 
-const BakerBannerComponent: React.FC<BakerBannerComponentProps> = ({ tzError, baker }) => {
-  const acc = useAccount();
-
-  const accountPkh = acc.publicKeyHash;
-  const { data: balanceData } = useBalance('tez', accountPkh);
-  const balance = balanceData!;
-  const balanceNum = balance.toNumber();
+const BakerBannerComponent = React.memo<BakerBannerComponentProps>(({ balanceNum, tzError, baker }) => {
   const net = useNetwork();
   const { symbol } = useGasToken();
+
   return baker ? (
     <>
       <div className="-mt-2 mb-6 flex flex-col items-center">
@@ -510,7 +510,7 @@ const BakerBannerComponent: React.FC<BakerBannerComponentProps> = ({ tzError, ba
   ) : !tzError && net.type === 'main' ? (
     <Alert type="warning" title={t('unknownBakerTitle')} description={t('unknownBakerDescription')} className="mb-6" />
   ) : null;
-};
+});
 
 const KnownDelegatorsList: React.FC<{ setValue: any; triggerValidation: any }> = ({ setValue, triggerValidation }) => {
   const knownBakers = useKnownBakers();

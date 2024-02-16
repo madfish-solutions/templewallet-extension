@@ -1,7 +1,7 @@
-import { Route3SwapParamsResponse } from 'lib/apis/route3/fetch-route3-swap-params';
+import { Route3SwapParamsResponse } from 'lib/route3/interfaces';
 import { createEntity } from 'lib/store';
 
-import { SwapState } from './state';
+import type { SwapState } from './state';
 
 export const DEFAULT_SWAP_PARAMS: Route3SwapParamsResponse = { input: undefined, output: undefined, chains: [] };
 

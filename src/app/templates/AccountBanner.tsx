@@ -7,8 +7,8 @@ import Identicon from 'app/atoms/Identicon';
 import Money from 'app/atoms/Money';
 import Name from 'app/atoms/Name';
 import Balance from 'app/templates/Balance';
+import { useGasToken } from 'lib/assets/hooks';
 import { t } from 'lib/i18n';
-import { useGasToken } from 'lib/temple/front';
 import { TempleAccount } from 'lib/temple/types';
 
 type AccountBannerProps = HTMLAttributes<HTMLDivElement> & {

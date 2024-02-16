@@ -8,8 +8,6 @@ import { useShouldShowPartnersPromoSelector } from 'app/store/partners-promotion
 import { T, t } from 'lib/i18n';
 import { useConfirm } from 'lib/ui/dialog';
 
-import { setAdsBannerVisibilityAction } from '../../../store/settings/actions';
-import { useIsEnabledAdsBannerSelector } from '../../../store/settings/selectors';
 import { SettingsGeneralSelectors } from '../selectors';
 
 export const PartnersPromotionSettings: FC = () => {
@@ -17,7 +15,6 @@ export const PartnersPromotionSettings: FC = () => {
   const confirm = useConfirm();
 
   const shouldShowPartnersPromo = useShouldShowPartnersPromoSelector();
-  const isEnableAdsBanner = useIsEnabledAdsBannerSelector();
 
   const handleHidePromotion = async (toChecked: boolean) => {
     const confirmed = await confirm({
@@ -28,9 +25,6 @@ export const PartnersPromotionSettings: FC = () => {
 
     if (confirmed) {
       dispatch(togglePartnersPromotionAction(toChecked));
-    }
-    if (isEnableAdsBanner) {
-      dispatch(setAdsBannerVisibilityAction(false));
     }
   };
 
@@ -43,9 +37,6 @@ export const PartnersPromotionSettings: FC = () => {
 
     if (confirmed) {
       dispatch(togglePartnersPromotionAction(toChecked));
-    }
-    if (isEnableAdsBanner) {
-      dispatch(setAdsBannerVisibilityAction(false));
     }
   };
 
@@ -63,15 +54,14 @@ export const PartnersPromotionSettings: FC = () => {
         </span>
 
         <span className="mt-1 text-xs font-light text-gray-600" style={{ maxWidth: '90%' }}>
-          <span>
-            <T id="partnersPromoDescriptionP1" />
-          </span>
-          <span className="mx-1 font-semibold">
-            <T id="cashBack" />
-          </span>
-          <span>
-            <T id="partnersPromoDescriptionP2" />
-          </span>
+          <T
+            id="partnersPromoDescription"
+            substitutions={[
+              <span className="font-semibold">
+                <T id="rewards" />
+              </span>
+            ]}
+          />
         </span>
       </label>
 

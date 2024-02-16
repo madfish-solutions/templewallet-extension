@@ -1,10 +1,10 @@
-import { DerivationType } from '@taquito/ledger-signer';
-import { Estimate } from '@taquito/taquito';
-import { TempleDAppMetadata, TempleDAppNetwork } from '@temple-wallet/dapp/dist/types';
+import type { DerivationType } from '@taquito/ledger-signer';
+import type { Estimate } from '@taquito/taquito';
+import type { TempleDAppMetadata, TempleDAppNetwork } from '@temple-wallet/dapp/dist/types';
 
 import type { TID } from 'lib/i18n/types';
 
-import {
+import type {
   TempleSendPageEventRequest,
   TempleSendPageEventResponse,
   TempleSendTrackEventRequest,
@@ -39,10 +39,9 @@ export interface TempleState {
 export enum TempleChainId {
   Mainnet = 'NetXdQprcVkpaWU',
   Ghostnet = 'NetXnHfVqm9iesp',
-  Jakartanet = 'NetXLH1uAxK7CCh',
-  Limanet = 'NetXizpkH94bocH',
-  Kathmandunet = 'NetXdnUSgMs7Xc3',
   Monday = 'NetXaqtQ8b5nihx',
+  Mumbai = 'NetXgbcrNtXD2yA',
+  Nairobi = 'NetXyuzvDo2Ugzb',
   Daily = 'NetXxkAx4woPLyu',
   Dcp = 'NetXooyhiru73tk',
   DcpTest = 'NetXX7Tz1sK8JTa'

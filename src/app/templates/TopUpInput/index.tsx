@@ -10,6 +10,7 @@ import { T, toLocalFormat } from 'lib/i18n';
 
 import { DropdownSelect } from '../DropdownSelect/DropdownSelect';
 import { InputContainer } from '../InputContainer/InputContainer';
+
 import { CurrencyOption } from './CurrencyOption';
 import { StaticCurrencyImage } from './StaticCurrencyImage';
 import { TopUpInputPropsGeneric, CurrencyBase, TopUpInputPropsBase } from './types';
@@ -81,9 +82,7 @@ export const TopUpInput = <C extends CurrencyBase>(_props: TopUpInputPropsGeneri
         }
       >
         <DropdownSelect<CurrencyBase>
-          testIds={{
-            dropdownTestId: testID
-          }}
+          testID={testID}
           dropdownButtonClassName="pl-4 pr-3 py-5"
           DropdownFaceContent={
             <TopUpMainContent
@@ -185,7 +184,7 @@ const ErrorsComponent: React.FC<ErrorsComponentProps> = ({
   coin
 }) => (
   <div className="flex justify-between items-baseline">
-    <p className={classNames(isInsufficientTezBalanceError ? 'text-red-700' : 'text-transparent')}>
+    <p className={isInsufficientTezBalanceError ? 'text-red-700' : 'text-transparent'}>
       <T id="insufficientTezBalance" />
     </p>
     {maxAmount && (

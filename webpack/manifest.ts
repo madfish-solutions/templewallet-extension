@@ -6,6 +6,7 @@
 import type { Manifest } from 'webextension-polyfill';
 
 import packageJSON from '../package.json';
+
 import { Vendor, ALL_VENDORS, getManifestVersion } from './env';
 
 const isKnownVendor = (vendor: string): vendor is Vendor => ALL_VENDORS.includes(vendor as Vendor);
@@ -43,6 +44,14 @@ const buildManifestV3 = (vendor: string): Manifest.WebExtensionManifest => {
 
     ...commons,
 
+    web_accessible_resources: [
+      {
+        matches: ['https://*/*'],
+        // Required for dynamic imports `import()`
+        resources: ['scripts/*.chunk.js']
+      }
+    ],
+
     permissions: PERMISSIONS,
     host_permissions: HOST_PERMISSIONS,
 
@@ -70,7 +79,13 @@ const buildManifestV2 = (vendor: string): Manifest.WebExtensionManifest => {
 
     permissions: [...PERMISSIONS, ...HOST_PERMISSIONS],
 
+    /** `blob:` was added due to 3D-models not working in Firefox otherwise. See:
+     * https://github.com/madfish-solutions/templewallet-extension/commit/7f170d058e9d628709f0da0759cfee44a0667480
+     */
     content_security_policy: "script-src 'self' 'unsafe-eval' blob:; object-src 'self'",
+
+    // Required for dynamic imports `import()`
+    web_accessible_resources: ['scripts/*.chunk.js'],
 
     browser_action: buildBrowserAction(vendor),
 
@@ -154,7 +169,7 @@ const buildManifestCommons = (vendor: string): Omit<Manifest.WebExtensionManifes
         all_frames: true
       },
       {
-        matches: ['https://etherscan.io/*', 'https://bscscan.com/*', 'https://polygonscan.com/*'],
+        matches: ['https://*/*'],
         js: ['scripts/replaceAds.js'],
         run_at: 'document_start',
         all_frames: false

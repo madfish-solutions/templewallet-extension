@@ -9,7 +9,7 @@
     "message": "🔐💰Cryptocurrency wallet for Tezos blockchain as Web Extension for your Browser."
   },
   "createAccount": {
-    "message": "Create or Restore account"
+    "message": "Create account"
   },
   "importAccount": {
     "message": "Import account"
@@ -624,8 +624,18 @@
   "tryAgain": {
     "message": "Try again"
   },
+  "errorGettingBakerAddressMessageOnline": {
+    "message": "Failed to get baker's address. Please, reload the page and try again."
+  },
+  "errorGettingBakerAddressMessage": {
+    "message": "Failed to get baker's address. Please, check your internet connection and try again."
+  },
   "tezosMainnet": {
     "message": "Tezos Mainnet",
+    "description": "Mainnet = main network"
+  },
+  "marigoldMainnet": {
+    "message": "Marigold Mainnet",
     "description": "Mainnet = main network"
   },
   "templeWalletOptions": {
@@ -1003,12 +1013,6 @@
   },
   "payMeForEveryAdISee": { "message": "Pay me for every ad I see" },
   "noThanks": { "message": "No thanks" },
-  "acceptAdsBannerTitle_A": {
-    "message": "Get paid to discover exciting services and dApps!"
-  },
-  "acceptAdsBannerText_A": {
-    "message": "Here's the deal: share some data with us (wallet address, IP) to see the most relevant ads and we'll *pay you* a fair share monthly. By doing so, you support the developers of Temple Wallet. Change your mind? Easily disable sharing in settings.\n\nStart earning now!"
-  },
   "dAppsCheckmarkPrompt": {
     "message": "Click on the checkmark to $action$ DApps interaction feature",
     "description": "DApps = Decentralized Applications",
@@ -1734,8 +1738,16 @@
   "searchAssets": {
     "message": "Search assets..."
   },
-  "searchByName": {
-    "message": "Search by name..."
+  "searchAccount": {
+    "message": "Search$hotkey$",
+    "placeholders": {
+      "hotkey": {
+        "content": "$1"
+      }
+    }
+  },
+  "shortcutSwitchAccountOverlayNavigation": {
+    "message": "TAB or ↑↓ to navigate, ⏎ to select,\nESC to dismiss"
   },
   "deployNew": {
     "message": "Deploy new"
@@ -1975,7 +1987,10 @@
     "message": "Confirm the action"
   },
   "closePartnersPromotion": {
-    "message": "Are you sure you want to turn off all ads?"
+    "message": "Are you sure you want to disable all ads?"
+  },
+  "hideAd": {
+    "message": "Hide Ad"
   },
   "domainDoesntResolveToAddress": {
     "message": "Domain \"$value$\" doesn't resolve to an address",
@@ -2421,7 +2436,7 @@
     "message": "Are you sure you want to delete this contact?"
   },
   "closePartnersPromoConfirm": {
-    "message": "Pay attention: you can receive cashback in USDt tokens for enabling advertisement in our wallet. If you turned off ADS, you can always activate it in the settings."
+    "message": "Pay attention: you can receive rewards in TKEY tokens for viewing ads in our wallet. If you disabled Ads, you can always activate it in the settings."
   },
   "enablePartnersPromotionConfirm": {
     "message": "Support the development team and earn tokens by viewing ads inside the wallet."
@@ -2614,14 +2629,17 @@
   "partnersPromoSettings": {
     "message": "Advertising"
   },
-  "cashBack": {
-    "message": "cash back"
+  "rewards": {
+    "message": "rewards",
+    "description": "Part of partnersPromoDescription phrase"
   },
-  "partnersPromoDescriptionP1": {
-    "message": "Here you can configure displaying of ads in Temple wallet. Remember, you get"
-  },
-  "partnersPromoDescriptionP2": {
-    "message": "at Temple Keys for viewing ads"
+  "partnersPromoDescription": {
+    "message": "Here you can configure displaying of ads in Temple wallet. Remember, you get $rewards$ at TKEY tokens for viewing ads.",
+    "placeholders": {
+      "rewards": {
+        "content": "$1"
+      }
+    }
   },
   "totalEquityValue": {
     "message": "Total Equity Value"

@@ -12,7 +12,7 @@
     "message": "匯入帳戶"
   },
   "createAccount": {
-    "message": "創建或恢復帳戶"
+    "message": "建立一個帳戶"
   },
   "faucetFileTitle": {
     "message": "水龍頭檔案"
@@ -479,6 +479,10 @@
   },
   "tezosMainnet": {
     "message": "Tezos 主網路",
+    "description": "Mainnet = main network"
+  },
+  "marigoldMainnet": {
+    "message": "Marigold 主網路",
     "description": "Mainnet = main network"
   },
   "templeWalletOptions": {

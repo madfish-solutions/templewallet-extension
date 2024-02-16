@@ -13,7 +13,6 @@ export interface CollectibleDetails extends Pick<UserObjktCollectible, 'fa' | 'd
   listing: null | CollectibleDetailsListing;
   /** Highest offer */
   objktArtifactUri: string;
-  offers: UserObjktCollectible['offers_active'];
   creators: CollectibleDetailsCreator[];
   galleries: CollectibleDetailsGallery[];
   isAdultContent: boolean;

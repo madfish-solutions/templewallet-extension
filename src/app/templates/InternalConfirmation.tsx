@@ -21,11 +21,11 @@ import OperationsBanner from 'app/templates/OperationsBanner/OperationsBanner';
 import RawPayloadView from 'app/templates/RawPayloadView';
 import ViewsSwitcher from 'app/templates/ViewsSwitcher/ViewsSwitcher';
 import { ViewsSwitcherItemProps } from 'app/templates/ViewsSwitcher/ViewsSwitcherItem';
-import { toTokenSlug } from 'lib/assets';
+import { TEZ_TOKEN_SLUG, toTokenSlug } from 'lib/assets';
+import { useRawBalance } from 'lib/balances';
 import { T, t } from 'lib/i18n';
 import { useRetryableSWR } from 'lib/swr';
-import { useCustomChainId, useNetwork, useRelevantAccounts, tryParseExpenses, useBalance } from 'lib/temple/front';
-import { tzToMutez } from 'lib/temple/helpers';
+import { useChainIdValue, useNetwork, useRelevantAccounts, tryParseExpenses } from 'lib/temple/front';
 import { TempleAccountType, TempleChainId, TempleConfirmationPayload } from 'lib/temple/types';
 import { useSafeState } from 'lib/ui/hooks';
 import { isTruthy, delay } from 'lib/utils';
@@ -65,7 +65,7 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
 
   const networkRpc = payload.type === 'operations' ? payload.networkRpc : currentNetworkRpc;
 
-  const chainId = useCustomChainId(networkRpc, true)!;
+  const chainId = useChainIdValue(networkRpc, true)!;
   const mainnet = chainId === TempleChainId.Mainnet;
 
   const allAccounts = useRelevantAccounts();
@@ -87,8 +87,7 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
     }));
   }, [rawExpensesData]);
 
-  const { data: tezBalanceData } = useBalance('tez', account.publicKeyHash);
-  const tezBalance = tezBalanceData!;
+  const { value: tezBalance } = useRawBalance(TEZ_TOKEN_SLUG, account.publicKeyHash);
 
   const totalTransactionCost = useMemo(() => {
     if (payload.type === 'operations') {
@@ -102,7 +101,7 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
   }, [payload]);
 
   useEffect(() => {
-    if (tzToMutez(tezBalance).isLessThanOrEqualTo(totalTransactionCost)) {
+    if (tezBalance && new BigNumber(tezBalance).isLessThanOrEqualTo(totalTransactionCost)) {
       dispatch(setOnRampPossibilityAction(true));
     }
   }, [dispatch, tezBalance, totalTransactionCost]);

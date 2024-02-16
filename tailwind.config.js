@@ -274,7 +274,8 @@ module.exports = {
           '"Noto Color Emoji"'
         ],
         serif: ['Georgia', 'Cambria', '"Times New Roman"', 'Times', 'serif'],
-        mono: ['Menlo', 'Monaco', 'Consolas', '"Liberation Mono"', '"Courier New"', 'monospace']
+        mono: ['Menlo', 'Monaco', 'Consolas', '"Liberation Mono"', '"Courier New"', 'monospace'],
+        inter: ['Inter', 'sans-serif']
       };
 
       return {
@@ -349,15 +350,6 @@ module.exports = {
     },
     textColor: theme => theme('colors'),
     textOpacity: theme => theme('opacity'),
-    zIndex: {
-      auto: 'auto',
-      0: '0',
-      10: '10',
-      20: '20',
-      30: '30',
-      40: '40',
-      50: '50'
-    },
     gridTemplateColumns: {
       none: 'none',
       1: 'repeat(1, minmax(0, 1fr))',
@@ -575,6 +567,7 @@ module.exports = {
     },
     extend: {
       fontSize: {
+        xxxxs: '0.563rem',
         xxxs: '0.625rem',
         xxs: '0.6875rem',
         '2xs': '0.8125rem',
@@ -586,11 +579,7 @@ module.exports = {
         15: '3.75rem',
         18: '4.5rem',
         25: '6.25rem',
-        26.5: '6.625rem',
         29: '7.25rem',
-        31.25: '7.8125rem',
-        35: '8.75rem',
-        60.5: '15.125rem',
         63: '15.75rem'
       },
       height: theme => theme('spacing'),
@@ -650,7 +639,10 @@ module.exports = {
       inset: {
         '2px': '2px',
         '1/2': '50%',
-        18: '4.5rem',
+        18: '4.5rem'
+      },
+      zIndex: {
+        1: '1'
       },
       space: (theme, { negative }) => ({
         ...theme('spacing'),

@@ -2,8 +2,8 @@ import React, { FC } from 'react';
 
 import { Alert } from 'app/atoms';
 import { NotEnoughFundsError, ZeroBalanceError, ZeroTEZBalanceError } from 'app/defaults';
+import { useGasToken } from 'lib/assets/hooks';
 import { T, t } from 'lib/i18n';
-import { useGasToken } from 'lib/temple/front';
 
 type SendErrorAlertProps = {
   type: 'submit' | 'estimation';

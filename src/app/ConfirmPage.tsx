@@ -21,9 +21,10 @@ import { ModifyFeeAndLimit } from 'app/templates/ExpensesView/ExpensesView';
 import NetworkBanner from 'app/templates/NetworkBanner';
 import OperationView from 'app/templates/OperationView';
 import { CustomRpcContext } from 'lib/analytics';
+import { useGasToken } from 'lib/assets/hooks';
 import { T, t } from 'lib/i18n';
 import { useRetryableSWR } from 'lib/swr';
-import { useTempleClient, useAccount, useRelevantAccounts, useCustomChainId, useGasToken } from 'lib/temple/front';
+import { useTempleClient, useAccount, useRelevantAccounts, useChainIdValue } from 'lib/temple/front';
 import { TempleAccountType, TempleDAppPayload, TempleAccount, TempleChainId } from 'lib/temple/types';
 import { useSafeState } from 'lib/ui/hooks';
 import { delay } from 'lib/utils';
@@ -73,7 +74,7 @@ const PayloadContent: React.FC<PayloadContentProps> = ({
 }) => {
   const allAccounts = useRelevantAccounts(false);
   const AccountOptionContent = useMemo(() => AccountOptionContentHOC(payload.networkRpc), [payload.networkRpc]);
-  const chainId = useCustomChainId(payload.networkRpc, true)!;
+  const chainId = useChainIdValue(payload.networkRpc, true)!;
   const mainnet = chainId === TempleChainId.Mainnet;
 
   return payload.type === 'connect' ? (
@@ -428,7 +429,7 @@ const AccountIcon: FC<OptionRenderProps<TempleAccount>> = ({ item }) => (
 
 const AccountOptionContentHOC = (networkRpc: string) =>
   memo<OptionRenderProps<TempleAccount>>(({ item: acc }) => {
-    const { assetName } = useGasToken();
+    const { assetName } = useGasToken(networkRpc);
 
     return (
       <>

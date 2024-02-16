@@ -4,14 +4,14 @@ import BigNumber from 'bignumber.js';
 
 import { FormField } from 'app/atoms';
 
-type AssetFieldProps = Omit<ComponentProps<typeof FormField>, 'onChange'> & {
+interface AssetFieldProps extends Omit<ComponentProps<typeof FormField>, 'onChange'> {
   value?: number | string;
   min?: number;
   max?: number;
   assetSymbol?: ReactNode;
   assetDecimals?: number;
   onChange?: (v?: string) => void;
-};
+}
 
 const AssetField = forwardRef<HTMLInputElement, AssetFieldProps>(
   (

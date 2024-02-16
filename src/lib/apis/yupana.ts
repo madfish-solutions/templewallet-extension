@@ -1,11 +1,12 @@
 import { gql } from '@apollo/client';
 import { map, of, catchError } from 'rxjs';
 
-import { getApolloConfigurableClient } from './apollo';
+import { buildApolloClient } from './apollo';
 
-const YUPANA_API = 'https://mainnet-api.yupana.finance/v1/graphql/';
+/** TODO: Track the changes of this URL */
+const YUPANA_API = 'https://preproduction-api.yupana.finance/v1/graphql/';
 
-const apolloYupanaClient = getApolloConfigurableClient(YUPANA_API);
+const apolloYupanaClient = buildApolloClient(YUPANA_API);
 
 enum TOKENS_IDS {
   /** KT1UpeXdK6AJbX58GJ92pLZVCucn2DR8Nu4b_0 */
@@ -33,7 +34,7 @@ interface GetApyFromYupanaResponse {
 export const fetchApyFromYupana$ = (symbol: keyof typeof TOKENS_IDS) => {
   const request = buildGetApyFromYupanaGqlQuery(TOKENS_IDS[symbol]);
 
-  return apolloYupanaClient.query<GetApyFromYupanaResponse>(request).pipe(
+  return apolloYupanaClient.fetch$<GetApyFromYupanaResponse>(request).pipe(
     map(data => {
       const { rates } = data.asset[0];
       const { supply_apy } = rates[0];

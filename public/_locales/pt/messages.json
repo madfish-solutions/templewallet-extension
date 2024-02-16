@@ -9,7 +9,7 @@
     "message": "Carteira de criptomoedas para blocos em cadeia Tezos como extensão da Web para o seu Browser."
   },
   "createAccount": {
-    "message": "Criar ou restaurar conta"
+    "message": "Criar conta"
   },
   "importAccount": {
     "message": "Importar conta"
@@ -497,6 +497,10 @@
   },
   "tezosMainnet": {
     "message": "Tezos Mainnet",
+    "description": "Mainnet = main network"
+  },
+  "marigoldMainnet": {
+    "message": "Marigold Mainnet",
     "description": "Mainnet = main network"
   },
   "templeWalletOptions": {
@@ -1451,8 +1455,13 @@
   "searchAssets": {
     "message": "Procurar ativos..."
   },
-  "searchByName": {
-    "message": "Procurar por nome..."
+  "searchAccount": {
+    "message": "Procurar$hotkey$",
+    "placeholders": {
+      "hotkey": {
+        "content": "$1"
+      }
+    }
   },
   "deployNew": {
     "message": "Implantar novo"

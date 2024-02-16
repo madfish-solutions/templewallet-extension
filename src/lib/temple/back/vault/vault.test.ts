@@ -1,6 +1,7 @@
 import browser from 'webextension-polyfill';
 
 import { TempleAccountType, TempleSettings } from '../../types';
+
 import { Vault } from './index';
 
 const password = 'Test123!';
@@ -173,9 +174,9 @@ describe('Vault tests', () => {
       'test1234'
     );
     const { publicKeyHash } = accounts[1];
-    const result = await vault.sign(publicKeyHash, '1234', 'test1234');
+    const result = await vault.sign(publicKeyHash, '1234', '0xFFFFFF');
     expect(result.sig).toBe(
-      'sigq3x4AvBDqF8koSQhVYW5Gg6VqYvYR5KR6QTK936Kvmkz9kbWt4kpdTeJeZHqXjYAVb14oKfUFSfBovYZFzepjpTJMUfbg'
+      'sigXsCjs6LLoEXKx8DUrDqyLwdSFEgyVZjv54TED8fjxSpbRfMmAqYrz3wC3sCiDVumLHoty1xL7JFtetyAmSVnthEmCu3Pp'
     );
   });
 

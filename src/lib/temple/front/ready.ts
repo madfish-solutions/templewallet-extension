@@ -85,7 +85,7 @@ function useReadyTemple() {
    */
 
   const defaultAcc = allAccounts[0];
-  const [accountPkh, setAccountPkh] = usePassiveStorage(ACCOUNT_PKH_STORAGE_KEY, defaultAcc.publicKeyHash);
+  const [accountPkh, setAccountPkh] = usePassiveStorage(ACCOUNT_PKH_STORAGE_KEY, defaultAcc.publicKeyHash, true);
 
   useEffect(() => {
     return intercom.subscribe((msg: TempleNotification) => {
@@ -130,6 +130,7 @@ function useReadyTemple() {
     t.setSignerProvider(createTaquitoSigner(pkh));
     t.setWalletProvider(createTaquitoWallet(pkh, rpc));
     t.setPackerProvider(michelEncoder);
+
     return t;
   }, [createTaquitoSigner, createTaquitoWallet, network, account]);
 
@@ -158,20 +159,22 @@ function useReadyTemple() {
 export function useChainId(suspense?: boolean) {
   const tezos = useTezos();
   const rpcUrl = useMemo(() => tezos.rpc.getRpcUrl(), [tezos]);
-  return useCustomChainId(rpcUrl, suspense);
+
+  const { data: chainId } = useChainIdLoading(rpcUrl, suspense);
+
+  return chainId;
 }
 
-export function useCustomChainId(rpcUrl: string, suspense?: boolean) {
-  const fetchChainId = useCallback(async () => {
-    try {
-      return await loadChainId(rpcUrl);
-    } catch (_err) {
-      return null;
-    }
-  }, [rpcUrl]);
+export function useChainIdValue(rpcUrl: string, suspense?: boolean) {
+  const { data: chainId } = useChainIdLoading(rpcUrl, suspense);
 
-  const { data: chainId } = useRetryableSWR(['chain-id', rpcUrl], fetchChainId, { suspense, revalidateOnFocus: false });
   return chainId;
+}
+
+export function useChainIdLoading(rpcUrl: string, suspense?: boolean) {
+  const fetchChainId = useCallback(() => loadChainId(rpcUrl).catch(() => null), [rpcUrl]);
+
+  return useRetryableSWR(['chain-id', rpcUrl], fetchChainId, { suspense, revalidateOnFocus: false });
 }
 
 export function useRelevantAccounts(withExtraTypes = true) {

@@ -5,8 +5,9 @@ import BigNumber from 'bignumber.js';
 import { HashChip, ExternalLinkChip } from 'app/atoms';
 import type { CollectibleDetails } from 'app/store/collectibles/state';
 import { fromFa2TokenSlug } from 'lib/assets/utils';
+import { useBalance } from 'lib/balances';
 import { formatDate } from 'lib/i18n';
-import { useBalance, useExplorerBaseUrls } from 'lib/temple/front';
+import { useExplorerBaseUrls } from 'lib/temple/front';
 
 interface PropertiesItemsProps {
   assetSlug: string;
@@ -17,9 +18,7 @@ interface PropertiesItemsProps {
 export const PropertiesItems = memo<PropertiesItemsProps>(({ assetSlug, accountPkh, details }) => {
   const { contract, id } = fromFa2TokenSlug(assetSlug);
 
-  const { data: balance } = useBalance(assetSlug, accountPkh, {
-    suspense: false
-  });
+  const { value: balance } = useBalance(assetSlug, accountPkh);
 
   const { transaction: explorerBaseUrl } = useExplorerBaseUrls();
   const exploreContractUrl = useMemo(

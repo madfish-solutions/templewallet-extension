@@ -6,17 +6,24 @@ import classNames from 'clsx';
 
 import AssetField from 'app/atoms/AssetField';
 import Money from 'app/atoms/Money';
+import { useTokensListingLogic } from 'app/hooks/use-tokens-listing-logic';
 import { AssetIcon } from 'app/templates/AssetIcon';
 import { DropdownSelect } from 'app/templates/DropdownSelect/DropdownSelect';
 import InFiat from 'app/templates/InFiat';
 import { InputContainer } from 'app/templates/InputContainer/InputContainer';
 import { setTestID, useFormAnalytics } from 'lib/analytics';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
-import { useFilteredAssetsSlugs } from 'lib/assets/use-filtered';
+import { useBalance, useRawBalance } from 'lib/balances';
 import { T, t, toLocalFormat } from 'lib/i18n';
-import { EMPTY_BASE_METADATA, useAssetMetadata, AssetMetadataBase } from 'lib/metadata';
+import {
+  EMPTY_BASE_METADATA,
+  useAssetMetadata,
+  useGetAssetMetadata,
+  AssetMetadataBase,
+  useTokensMetadataPresenceCheck
+} from 'lib/metadata';
 import { useAvailableRoute3TokensSlugs } from 'lib/route3/assets';
-import { useAccount, useBalance, useGetTokenMetadata, useOnBlock } from 'lib/temple/front';
+import { useAccount } from 'lib/temple/front';
 
 import { AssetOption } from './AssetsMenu/AssetOption';
 import { PercentageButton } from './PercentageButton/PercentageButton';
@@ -52,28 +59,29 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
     () => (assetSlug ? assetMetadataWithFallback : EMPTY_BASE_METADATA),
     [assetSlug, assetMetadataWithFallback]
   );
-  const getTokenMetadata = useGetTokenMetadata();
+  const getTokenMetadata = useGetAssetMetadata();
 
-  const account = useAccount();
-  const balance = useBalance(assetSlugWithFallback, account.publicKeyHash, { suspense: false });
-  useOnBlock(_ => balance.mutate());
+  const { publicKeyHash } = useAccount();
+  const { value: balance } = useBalance(assetSlugWithFallback, publicKeyHash);
 
   const { isLoading, route3tokensSlugs } = useAvailableRoute3TokensSlugs();
-  const { filteredAssets, searchValue, setSearchValue, setTokenId } = useFilteredAssetsSlugs(
+  const { filteredAssets, searchValue, setSearchValue, setTokenId } = useTokensListingLogic(
     route3tokensSlugs,
     name === 'input',
     LEADING_ASSETS
   );
+
+  useTokensMetadataPresenceCheck(route3tokensSlugs);
 
   const maxAmount = useMemo(() => {
     if (!assetSlug) {
       return new BigNumber(0);
     }
 
-    const maxSendAmount = isTezosSlug ? balance.data?.minus(EXCHANGE_XTZ_RESERVE) : balance.data;
+    const maxSendAmount = isTezosSlug ? balance?.minus(EXCHANGE_XTZ_RESERVE) : balance;
 
     return maxSendAmount ?? new BigNumber(0);
-  }, [assetSlug, isTezosSlug, balance.data]);
+  }, [assetSlug, isTezosSlug, balance]);
 
   const handleAmountChange = (newAmount?: BigNumber) =>
     onChange({
@@ -146,9 +154,7 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
         }
       >
         <DropdownSelect
-          testIds={{
-            dropdownTestId: testIDs?.dropdown
-          }}
+          testID={testIDs?.dropdown}
           dropdownButtonClassName="pl-4 pr-3 py-5"
           DropdownFaceContent={
             <SwapDropdownFace
@@ -269,9 +275,8 @@ const SwapInputHeader: FC<{ label: ReactNode; selectedAssetSlug: string; selecte
   selectedAssetSymbol,
   label
 }) => {
-  const account = useAccount();
-  const balance = useBalance(selectedAssetSlug, account.publicKeyHash, { suspense: false });
-  useOnBlock(_ => balance.mutate());
+  const { publicKeyHash } = useAccount();
+  const { value: balance } = useBalance(selectedAssetSlug, publicKeyHash);
 
   return (
     <div className="w-full flex items-center justify-between">
@@ -282,13 +287,15 @@ const SwapInputHeader: FC<{ label: ReactNode; selectedAssetSlug: string; selecte
           <span className="mr-1">
             <T id="balance" />:
           </span>
-          {balance.data && (
-            <span className={classNames('text-sm mr-1 text-gray-700', balance.data.eq(0) && 'text-red-700')}>
+
+          {balance && (
+            <span className={classNames('text-sm mr-1 text-gray-700', balance.isZero() && 'text-red-700')}>
               <Money smallFractionFont={false} fiat={false}>
-                {balance.data}
+                {balance}
               </Money>
             </span>
           )}
+
           <span>{selectedAssetSymbol}</span>
         </span>
       )}
@@ -301,15 +308,14 @@ const SwapFooter: FC<{
   selectedAssetSlug: string;
   handlePercentageClick: (percentage: number) => void;
 }> = ({ amountInputDisabled, selectedAssetSlug, handlePercentageClick }) => {
-  const account = useAccount();
-  const balance = useBalance(selectedAssetSlug, account.publicKeyHash, { suspense: false });
-  useOnBlock(_ => balance.mutate());
+  const { publicKeyHash } = useAccount();
+  const { value: balance } = useRawBalance(selectedAssetSlug, publicKeyHash);
 
   return amountInputDisabled ? null : (
     <div className="flex">
       {PERCENTAGE_BUTTONS.map(percentage => (
         <PercentageButton
-          disabled={!balance.data}
+          disabled={!balance}
           key={percentage}
           percentage={percentage}
           onClick={handlePercentageClick}

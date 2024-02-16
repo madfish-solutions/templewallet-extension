@@ -1,7 +1,9 @@
 import type { PersistPartial } from 'redux-persist/es/persistReducer';
 
+import { PERSIST_STATE_KEY } from './persist.utils';
+
 const persistPropertyMock: PersistPartial = {
-  _persist: {
+  [PERSIST_STATE_KEY]: {
     version: 0,
     rehydrated: false
   }

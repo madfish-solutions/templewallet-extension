@@ -9,7 +9,7 @@
     "message": "Tarayıcınızda Web Uzantısı olarak Tezos blokzinciri için kripto para cüzdanı."
   },
   "createAccount": {
-    "message": "Hesap Oluştur veya Geri Yükle"
+    "message": "Bir hesap oluşturun"
   },
   "importAccount": {
     "message": "Hesabı içe aktar"
@@ -497,6 +497,10 @@
   },
   "tezosMainnet": {
     "message": "Tezos Mainnet",
+    "description": "Mainnet = main network"
+  },
+  "marigoldMainnet": {
+    "message": "Marigold Mainnet",
     "description": "Mainnet = main network"
   },
   "templeWalletOptions": {
@@ -1451,8 +1455,13 @@
   "searchAssets": {
     "message": "Varlıkları ara..."
   },
-  "searchByName": {
-    "message": "Ada göre ara..."
+  "searchAccount": {
+    "message": "Aramak$hotkey$",
+    "placeholders": {
+      "hotkey": {
+        "content": "$1"
+      }
+    }
   },
   "deployNew": {
     "message": "Yeni dağıt"

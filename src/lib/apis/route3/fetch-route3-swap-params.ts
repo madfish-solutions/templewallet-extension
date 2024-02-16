@@ -1,34 +1,10 @@
+import { THREE_ROUTE_SIRS_TOKEN } from 'lib/assets/three-route-tokens';
 import { EnvVars } from 'lib/env';
-
-export interface Route3SwapParamsRequestRaw {
-  fromSymbol: string;
-  toSymbol: string;
-  amount: string | undefined;
-  chainsLimit?: number;
-}
-export interface Route3SwapParamsRequest {
-  fromSymbol: string;
-  toSymbol: string;
-  amount: string;
-  chainsLimit?: number;
-}
-
-interface Route3Hop {
-  dex: number;
-  forward: boolean;
-}
-
-export interface Route3Chain {
-  input: string;
-  output: string;
-  hops: Array<Route3Hop>;
-}
-
-export interface Route3SwapParamsResponse {
-  input: string | undefined;
-  output: string | undefined;
-  chains: Array<Route3Chain>;
-}
+import {
+  Route3LiquidityBakingParamsResponse,
+  Route3SwapParamsRequest,
+  Route3TraditionalSwapParamsResponse
+} from 'lib/route3/interfaces';
 
 const parser = (origJSON: string): ReturnType<typeof JSON['parse']> => {
   const stringedJSON = origJSON
@@ -38,12 +14,12 @@ const parser = (origJSON: string): ReturnType<typeof JSON['parse']> => {
   return JSON.parse(stringedJSON);
 };
 
-export const fetchRoute3SwapParams = ({
+const fetchRoute3TraditionalSwapParams = ({
   fromSymbol,
   toSymbol,
   amount,
-  chainsLimit = 3
-}: Route3SwapParamsRequest): Promise<Route3SwapParamsResponse> =>
+  chainsLimit = 2
+}: Route3SwapParamsRequest): Promise<Route3TraditionalSwapParamsResponse> =>
   fetch(`https://temple.3route.io/v3/swap/${fromSymbol}/${toSymbol}/${amount}?chainsLimit=${chainsLimit}`, {
     headers: {
       Authorization: EnvVars.TEMPLE_WALLET_ROUTE3_AUTH_TOKEN
@@ -51,3 +27,22 @@ export const fetchRoute3SwapParams = ({
   })
     .then(res => res.text())
     .then(res => parser(res));
+
+const fetchRoute3LiquidityBakingParams = ({
+  fromSymbol,
+  toSymbol,
+  amount,
+  chainsLimit = 2
+}: Route3SwapParamsRequest): Promise<Route3LiquidityBakingParamsResponse> =>
+  fetch(`https://temple.3route.io/v3/swap-sirs/${fromSymbol}/${toSymbol}/${amount}?chainsLimit=${chainsLimit}`, {
+    headers: {
+      Authorization: EnvVars.TEMPLE_WALLET_ROUTE3_AUTH_TOKEN
+    }
+  })
+    .then(res => res.text())
+    .then(res => parser(res));
+
+export const fetchRoute3SwapParams = (params: Route3SwapParamsRequest) =>
+  [params.fromSymbol, params.toSymbol].includes(THREE_ROUTE_SIRS_TOKEN.symbol)
+    ? fetchRoute3LiquidityBakingParams(params)
+    : fetchRoute3TraditionalSwapParams(params);

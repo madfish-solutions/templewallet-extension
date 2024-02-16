@@ -1,6 +1,6 @@
 import { createEntity } from 'lib/store';
 
-import { PartnersPromotionState } from './state';
+import type { PartnersPromotionState } from './state';
 
 export const mockPartnersPromotion = {
   body: '',
@@ -24,5 +24,6 @@ export const mockPartnersPromotion = {
 
 export const mockPartnersPromotionState: PartnersPromotionState = {
   promotion: createEntity(mockPartnersPromotion),
-  shouldShowPromotion: true
+  shouldShowPromotion: true,
+  promotionHidingTimestamps: {}
 };

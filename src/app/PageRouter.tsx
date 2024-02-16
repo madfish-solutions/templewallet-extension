@@ -13,7 +13,7 @@ import DApps from 'app/pages/DApps';
 import Delegate from 'app/pages/Delegate';
 import Home from 'app/pages/Home/Home';
 import ImportAccount from 'app/pages/ImportAccount';
-import ManageAssets from 'app/pages/ManageAssets/ManageAssets';
+import ManageAssets from 'app/pages/ManageAssets';
 import { CreateWallet } from 'app/pages/NewWallet/CreateWallet';
 import { ImportWallet } from 'app/pages/NewWallet/ImportWallet';
 import AttentionPage from 'app/pages/Onboarding/pages/AttentionPage';
@@ -26,7 +26,7 @@ import Welcome from 'app/pages/Welcome/Welcome';
 import { AliceBobWithdraw } from 'app/pages/Withdraw/Debit/AliceBob/AliceBobWithdraw';
 import { Withdraw } from 'app/pages/Withdraw/Withdraw';
 import { usePageRouterAnalytics } from 'lib/analytics';
-import { Notifications, NotificationsItem } from 'lib/notifications';
+import { Notifications, NotificationsItem } from 'lib/notifications/components';
 import { useTempleClient } from 'lib/temple/front';
 import * as Woozie from 'lib/woozie';
 

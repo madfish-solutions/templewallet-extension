@@ -1,7 +1,9 @@
 import { useMemo } from 'react';
 
-import { useChainId, useStorage } from 'lib/temple/front';
 import { isKnownChainId, TempleChainId } from 'lib/temple/types';
+
+import { useChainId } from './ready';
+import { useStorage } from './storage';
 
 type BlockExplorerId = 'tzkt' | 'tzstats' | 'bcd' | 't4l3nt';
 
@@ -39,18 +41,19 @@ export const BLOCK_EXPLORERS: BlockExplorer[] = [
         }
       ],
       [
-        TempleChainId.Jakartanet,
+        TempleChainId.Mumbai,
         {
-          account: 'https://jakartanet.tzkt.io',
-          transaction: 'https://jakartanet.tzkt.io'
+          account: 'https://mumbainet.tzkt.io',
+          transaction: 'https://mumbainet.tzkt.io',
+          api: 'https://api.mumbainet.tzkt.io'
         }
       ],
       [
-        TempleChainId.Limanet,
+        TempleChainId.Nairobi,
         {
-          account: 'https://limanet.tzkt.io',
-          transaction: 'https://limanet.tzkt.io',
-          api: 'https://api.limanet.tzkt.io'
+          account: 'https://nairobinet.tzkt.io',
+          transaction: 'https://nairobinet.tzkt.io',
+          api: 'https://api.nairobinet.tzkt.io'
         }
       ]
     ])
@@ -70,8 +73,9 @@ export const BLOCK_EXPLORERS: BlockExplorer[] = [
       [
         TempleChainId.DcpTest,
         {
-          account: 'https://explorer.tlnt.net:444',
-          transaction: 'https://explorer.tlnt.net:444'
+          account: 'https://explorer.test.tlnt.net',
+          transaction: 'https://explorer.test.tlnt.net',
+          api: 'https://explorer-api.test.tlnt.net'
         }
       ]
     ])

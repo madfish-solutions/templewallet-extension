@@ -2,9 +2,8 @@ import React, { memo, useCallback, useEffect, useState } from 'react';
 
 import { Model3DViewer } from 'app/atoms/Model3DViewer';
 import { AssetImage } from 'app/templates/AssetImage';
+import { isSvgDataUriInUtf8Encoding, buildObjktCollectibleArtifactUri } from 'lib/images-uri';
 import { TokenMetadata } from 'lib/metadata';
-import { isSvgDataUriInUtf8Encoding, buildObjktCollectibleArtifactUri } from 'lib/temple/front';
-import { Image } from 'lib/ui/Image';
 
 import { AudioCollectible } from '../components/AudioCollectible';
 import { CollectibleBlur } from '../components/CollectibleBlur';
@@ -42,15 +41,7 @@ export const CollectiblePageImage = memo<Props>(
 
     if (objktArtifactUri && !isRenderFailedOnce) {
       if (isSvgDataUriInUtf8Encoding(objktArtifactUri)) {
-        return (
-          <Image
-            src={objktArtifactUri}
-            alt={metadata?.name}
-            loader={<CollectibleImageLoader large />}
-            onError={handleError}
-            className={className}
-          />
-        );
+        return <img src={objktArtifactUri} alt={metadata?.name} className={className} onError={handleError} />;
       }
 
       if (mime) {
@@ -68,7 +59,6 @@ export const CollectiblePageImage = memo<Props>(
           return (
             <VideoCollectible
               uri={buildObjktCollectibleArtifactUri(objktArtifactUri)}
-              loader={<CollectibleImageLoader large />}
               className={className}
               onError={handleError}
             />
@@ -80,7 +70,6 @@ export const CollectiblePageImage = memo<Props>(
             <AudioCollectible
               uri={buildObjktCollectibleArtifactUri(objktArtifactUri)}
               metadata={metadata}
-              loader={<CollectibleImageLoader large />}
               className={className}
               onAudioError={handleError}
             />

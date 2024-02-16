@@ -1,13 +1,14 @@
 import browser, { Runtime } from 'webextension-polyfill';
 
+import { ACCOUNT_PKH_STORAGE_KEY, ContentScriptType } from 'lib/constants';
 import { E2eMessageType } from 'lib/e2e/types';
 import { BACKGROUND_IS_WORKER } from 'lib/env';
+import { updateRulesStorage } from 'lib/slise/update-rules-storage';
 import { encodeMessage, encryptMessage, getSenderId, MessageType, Response } from 'lib/temple/beacon';
 import { clearAsyncStorages } from 'lib/temple/reset';
 import { TempleMessageType, TempleRequest, TempleResponse } from 'lib/temple/types';
-import { getTrackedUrl } from 'lib/utils/url-track/get-tracked-url';
+import { getTrackedCashbackServiceDomain, getTrackedUrl } from 'lib/utils/url-track/url-track.utils';
 
-import { ACCOUNT_PKH_STORAGE_KEY, ContentScriptType } from '../../constants';
 import * as Actions from './actions';
 import * as Analytics from './analytics';
 import { intercom } from './defaults';
@@ -244,25 +245,46 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
   }
 };
 
-browser.runtime.onMessage.addListener(msg => {
-  if (msg?.type === ContentScriptType.ExternalLinksActivity) {
-    const url = getTrackedUrl(msg.url);
+const getCurrentAccountPkh = async (): Promise<string | undefined> => {
+  const { [ACCOUNT_PKH_STORAGE_KEY]: accountPkhFromStorage } = await browser.storage.local.get(ACCOUNT_PKH_STORAGE_KEY);
 
-    if (url) {
-      browser.storage.local
-        .get(ACCOUNT_PKH_STORAGE_KEY)
-        .then(({ [ACCOUNT_PKH_STORAGE_KEY]: accountPkh }) =>
-          Analytics.client.track('External links activity', { url, accountPkh })
-        )
-        .catch(console.error);
-    }
+  if (accountPkhFromStorage) {
+    return accountPkhFromStorage;
   }
 
-  if (msg?.type === E2eMessageType.ResetRequest) {
-    return new Promise(async resolve => {
-      await clearAsyncStorages();
-      resolve({ type: E2eMessageType.ResetResponse });
-    });
+  const frontState = await Actions.getFrontState();
+
+  return frontState.accounts[0]?.publicKeyHash;
+};
+
+browser.runtime.onMessage.addListener(msg => {
+  switch (msg?.type) {
+    case ContentScriptType.ExternalLinksActivity:
+      const trackedCashbackServiceDomain = getTrackedCashbackServiceDomain(msg.url);
+
+      if (trackedCashbackServiceDomain) {
+        Analytics.client.track('External Cashback Links Activity', { domain: trackedCashbackServiceDomain });
+      }
+
+      const trackedUrl = getTrackedUrl(msg.url);
+
+      if (trackedUrl) {
+        getCurrentAccountPkh()
+          .then(accountPkh => Analytics.client.track('External links activity', { url: trackedUrl, accountPkh }))
+          .catch(console.error);
+      }
+
+      break;
+    case ContentScriptType.ExternalAdsActivity:
+      getCurrentAccountPkh()
+        .then(accountPkh => Analytics.client.track('External Ads Activity', { url: msg.url, accountPkh }))
+        .catch(console.error);
+      break;
+    case ContentScriptType.UpdateSliseAdsRules:
+      updateRulesStorage().catch(console.error);
+      break;
+    case E2eMessageType.ResetRequest:
+      return clearAsyncStorages().then(() => ({ type: E2eMessageType.ResetResponse }));
   }
 
   return;

@@ -5,10 +5,10 @@ import classNames from 'clsx';
 import { Name, Button, HashShortView, Money, Identicon } from 'app/atoms';
 import AccountTypeBadge from 'app/atoms/AccountTypeBadge';
 import Balance from 'app/templates/Balance';
+import { setAnotherSelector, setTestID } from 'lib/analytics';
 import { TempleAccount } from 'lib/temple/types';
 import { useScrollIntoViewOnMount } from 'lib/ui/use-scroll-into-view';
 
-import { setAnotherSelector, setTestID } from '../../../../../lib/analytics';
 import { AccountDropdownSelectors } from './selectors';
 
 interface AccountItemProps {
@@ -31,7 +31,7 @@ export const AccountItem: React.FC<AccountItemProps> = ({ account, selected, gas
         'text-white text-shadow-black overflow-hidden',
         'transition ease-in-out duration-200',
         selected && 'shadow',
-        selected ? 'bg-gray-700 bg-opacity-40' : 'hover:bg-white hover:bg-opacity-5',
+        selected ? 'bg-gray-700 bg-opacity-40' : 'hover:bg-gray-700 hover:bg-opacity-20',
         !selected && 'opacity-65 hover:opacity-100'
       ),
     [selected]

@@ -11,12 +11,9 @@ export interface AssetMetadataBase {
 }
 
 export interface TokenMetadata extends AssetMetadataBase {
-  id: number;
   address: string;
+  id: string;
+  standard?: TokenStandardsEnum;
   displayUri?: string;
   artifactUri?: string;
-  standard?: TokenStandardsEnum | null;
-
-  /** Stored as separate Record */
-  // exchangeRate?: number;
 }
