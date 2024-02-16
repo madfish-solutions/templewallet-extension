@@ -9,7 +9,7 @@ import {
   useMainnetTokensWhitelistSelector
 } from 'app/store/assets/selectors';
 import { isAccountAssetsStoreKeyOfSameChainIdAndDifferentAccount } from 'app/store/assets/utils';
-import { useAllBalancesSelector } from 'app/store/balances/selectors';
+import { useAllAccountBalancesSelector } from 'app/store/balances/selectors';
 import { useAccount, useChainId } from 'lib/temple/front';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 
@@ -77,7 +77,7 @@ const useAccountTokens = (account: string, chainId: string) => {
   const storedRaw = useAccountTokensSelector(account, chainId);
   const whitelistSlugs = useWhitelistSlugs(chainId);
 
-  const balances = useAllBalancesSelector(account, chainId);
+  const balances = useAllAccountBalancesSelector(account, chainId);
 
   return useMemoWithCompare<AccountToken[]>(
     () => {

@@ -4,6 +4,8 @@ export { useDidUpdate } from './useDidUpdate';
 
 export { useSafeState } from './useSafeState';
 
+export { useUpdatableRef } from './useUpdatableRef';
+
 export { useTimeout } from './useTimeout';
 
 export { useInterval } from './useInterval';

@@ -35,7 +35,7 @@ const DropdownWrapper: FC<DropdownWrapperProps> = ({
 
   const onExiting = useCallback(() => {
     // Transition component does not propperly update, when Suspense is involved.
-    // E.g. happens when new node RPC is selected & chainId is being fetched (see: `useCustomChainId` hook).
+    // E.g. happens when new node RPC is selected & chainId is being fetched (see: `useChainIdValue` hook).
     // Status `exited` & `unmounted` never arrive in such case!
     // See: https://github.com/reactjs/react-transition-group/issues/817#issuecomment-1122997210
     // We will re-create it every time ourselves via different key.

@@ -12,7 +12,7 @@ interface CachedEntrypointsItem {
 }
 
 export class FastRpcClient extends RpcClient {
-  refreshInterval = 10_000; // 10 sec
+  refreshInterval = 5_000; // 5 sec
   memoizeMaxAge = 180_000; // 3 min
 
   private latestBlock?: {

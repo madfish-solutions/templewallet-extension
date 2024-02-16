@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 
 import BigNumber from 'bignumber.js';
 
+import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { useBalance } from 'lib/balances';
 import { useAccount } from 'lib/temple/front';
 
@@ -12,8 +13,13 @@ export const useDisabledProceed = (
   isWithdraw = false
 ) => {
   const { publicKeyHash } = useAccount();
-  const { data: tezBalanceData } = useBalance('tez', publicKeyHash);
-  const tezBalance = tezBalanceData!;
+  const {
+    value: tezBalance,
+    isSyncing: tezBalanceSyncing,
+    error: tezBalanceError
+  } = useBalance(TEZ_TOKEN_SLUG, publicKeyHash);
+
+  const tezBalanceLoading = useMemo(() => !tezBalance && tezBalanceSyncing, [tezBalance, tezBalanceSyncing]);
 
   const isMinAmountError = useMemo(
     () => inputAmount !== undefined && inputAmount !== 0 && inputAmount < minExchangeAmount,
@@ -26,15 +32,15 @@ export const useDisabledProceed = (
   );
 
   const isInsufficientTezBalanceError = useMemo(() => {
-    if (isWithdraw) {
-      const gasFee = new BigNumber(0.3);
-      const maxTezAmount = BigNumber.max(tezBalance.minus(gasFee), 0);
+    if (!isWithdraw) return false;
+    if (tezBalanceError) return true;
+    if (!tezBalance) return false;
 
-      return inputAmount !== undefined && inputAmount !== 0 && inputAmount > maxTezAmount.toNumber();
-    } else {
-      return false;
-    }
-  }, [inputAmount, isWithdraw, tezBalance]);
+    const gasFee = new BigNumber(0.3);
+    const maxTezAmount = BigNumber.max(tezBalance.minus(gasFee), 0);
+
+    return inputAmount !== undefined && inputAmount !== 0 && inputAmount > maxTezAmount.toNumber();
+  }, [inputAmount, isWithdraw, tezBalance, tezBalanceError]);
 
   const disabledProceed = useMemo(
     () =>
@@ -47,6 +53,7 @@ export const useDisabledProceed = (
   );
 
   return {
+    tezBalanceLoading,
     isMinAmountError,
     isMaxAmountError,
     isInsufficientTezBalanceError,

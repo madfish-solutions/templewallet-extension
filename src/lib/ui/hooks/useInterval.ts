@@ -1,6 +1,6 @@
 import { DependencyList, useEffect } from 'react';
 
-import { useCallbackRef } from './useCallbackRef';
+import { useUpdatableRef } from './useUpdatableRef';
 
 export const useInterval = (
   callback: EmptyFn,
@@ -8,7 +8,7 @@ export const useInterval = (
   deps: DependencyList,
   shouldCallImmediately = true
 ) => {
-  const callbackRef = useCallbackRef(callback);
+  const callbackRef = useUpdatableRef(callback);
 
   useEffect(() => {
     if (shouldCallImmediately) {
