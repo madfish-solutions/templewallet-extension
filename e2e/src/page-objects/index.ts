@@ -1,5 +1,7 @@
 import { AddAssetPage } from 'e2e/src/page-objects/pages/add-asset.page';
 import { AddressBookPage } from 'e2e/src/page-objects/pages/address-book.page';
+import { CollectiblePage } from 'e2e/src/page-objects/pages/collectible.page';
+import { CollectiblesTabPage } from 'e2e/src/page-objects/pages/CollectiblesTab.page';
 import { ConfirmationModalPage } from 'e2e/src/page-objects/pages/confirmation-modal.page';
 import { NetworksDropDown } from 'e2e/src/page-objects/pages/drop-down-lists/networks.drop-down';
 import { ManageAssetsCollectiblesPage } from 'e2e/src/page-objects/pages/manage-assets-collectibles.page';
@@ -41,6 +43,7 @@ import { UnlockScreenPage } from './pages/unlock-screen.page';
 import { VerifyMnemonicPage } from './pages/verify-mnemonic.page';
 import { WelcomePage } from './pages/welcome.page';
 
+
 export const Pages = {
   Welcome: new WelcomePage(),
   ImportExistingWallet: new ImportExistingWalletPage(),
@@ -75,6 +78,8 @@ export const Pages = {
   ManageAssetsTokens: new ManageAssetsTokensPage(),
   AddAsset: new AddAssetPage(),
   Token: new TokenPage(),
+  CollectiblePage: new CollectiblePage(),
+  CollectiblesTabPage: new CollectiblesTabPage(),
   OnboardingFirstStep: new OnboardingFirstStepPage(),
   OnboardingSecondStep: new OnboardingSecondStepPage(),
   OnboardingThirdStep: new OnboardingThirdStepPage(),

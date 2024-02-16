@@ -28,10 +28,10 @@ import { Image } from 'lib/ui/Image';
 import { navigate } from 'lib/woozie';
 
 import { useCollectibleSelling } from '../hooks/use-collectible-selling.hook';
-import { CollectiblesSelectors } from '../selectors';
 import { AttributesItems } from './AttributesItems';
 import { CollectiblePageImage } from './CollectiblePageImage';
 import { PropertiesItems } from './PropertiesItems';
+import { CollectiblesSelectors } from './selectors';
 
 const DETAILS_SYNC_INTERVAL = 4 * BLOCK_DURATION;
 

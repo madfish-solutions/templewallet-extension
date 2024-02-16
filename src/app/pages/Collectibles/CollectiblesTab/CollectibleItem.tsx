@@ -18,7 +18,7 @@ import { atomsToTokens } from 'lib/temple/helpers';
 import { useIntersectionDetection } from 'lib/ui/use-intersection-detection';
 import { Link } from 'lib/woozie';
 
-import { setTestID } from '../../../../lib/analytics';
+import { setAnotherSelector, setTestID } from '../../../../lib/analytics';
 import { CollectibleItemImage } from './CollectibleItemImage';
 import { CollectibleTabSelectors } from './selectors';
 
@@ -89,7 +89,13 @@ export const CollectibleItem = memo<Props>(({ assetSlug, accountPkh, areDetailsS
 
       {areDetailsShown && (
         <div className="mt-1 mb-2 mx-1.5">
-          <h5 className="text-sm leading-5 text-gray-910 truncate">{assetName}</h5>
+          <h5
+            className="text-sm leading-5 text-gray-910 truncate"
+            {...setTestID(CollectibleTabSelectors.collectibleTitleInfo)}
+            {...setAnotherSelector('symbol', assetName)}
+          >
+            {assetName}
+          </h5>
           <div className="text-xxxs leading-3 text-gray-600">
             {' '}
             <span {...setTestID(CollectibleTabSelectors.floorPrice)}>

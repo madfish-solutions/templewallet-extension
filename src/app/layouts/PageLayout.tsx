@@ -13,7 +13,9 @@ import { T } from 'lib/i18n';
 import { NotificationsBell } from 'lib/notifications';
 import { goBack, HistoryAction, navigate, useLocation } from 'lib/woozie';
 
+import { setTestID } from '../../lib/analytics';
 import { DonationBanner } from '../atoms/DonationBanner/DonationBanner';
+import { CollectiblesSelectors } from '../pages/Collectibles/CollectiblePage/selectors';
 import { useOnboardingProgress } from '../pages/Onboarding/hooks/useOnboardingProgress.hook';
 import { AdvertisingBanner } from '../templates/advertising/advertising-banner/advertising-banner';
 import { AdvertisingOverlay } from '../templates/advertising/advertising-overlay/advertising-overlay';
@@ -199,22 +201,24 @@ const Toolbar: FC<ToolbarProps> = ({
           </Button>
         )}
       </div>
-
       {pageTitle && (
-        <h2 className="px-1 flex items-center text-ulg text-gray-700 font-normal overflow-hidden">{pageTitle}</h2>
+        <h2
+          className="px-1 flex items-center text-ulg text-gray-700 font-normal overflow-hidden"
+          {...setTestID(CollectiblesSelectors.CollectibleTitle)}
+        >
+          {pageTitle}
+        </h2>
       )}
-
       <div className="flex-1" />
-
       {attention && (
         <div className="flex items-center content-end absolute right-0">
           <AdvertisingBanner />
           <NotificationsBell />
         </div>
       )}
-
       {skip && (
         <div className="flex content-end">
+          px-1 flex items-center text-ulg text-gray-700 font-normal overflow-hidden
           <Button
             className={classNames(
               'flex items-center px-4 py-2 rounded',
