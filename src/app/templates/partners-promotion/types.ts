@@ -9,9 +9,9 @@ export interface SingleProviderPromotionProps {
   variant: PartnersPromotionVariant;
   isVisible: boolean;
   onClose: MouseEventHandler<HTMLButtonElement>;
-  onReady: () => void;
-  onError: () => void;
-  onAdRectSeen: () => void;
+  onReady: EmptyFn;
+  onError: EmptyFn;
+  onAdRectSeen: EmptyFn;
 }
 
 interface HypelabNativeCreativeSet {

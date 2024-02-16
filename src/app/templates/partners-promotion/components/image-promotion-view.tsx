@@ -13,7 +13,7 @@ import { CloseButton } from './close-button';
 interface TextPromotionViewProps extends PropsWithChildren {
   href: string;
   isVisible: boolean;
-  onAdRectSeen: () => void;
+  onAdRectSeen: EmptyFn;
   onClose: MouseEventHandler<HTMLButtonElement>;
 }
 

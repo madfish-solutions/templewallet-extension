@@ -17,8 +17,8 @@ interface TextPromotionViewProps {
   imageSrc: string;
   headline: string;
   contentText?: string;
-  onAdRectSeen: () => void;
-  onImageError: () => void;
+  onAdRectSeen: EmptyFn;
+  onImageError: EmptyFn;
   onClose: MouseEventHandler<HTMLButtonElement>;
 }
 
