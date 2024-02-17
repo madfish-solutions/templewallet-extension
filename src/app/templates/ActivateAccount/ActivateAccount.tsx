@@ -8,7 +8,6 @@ import { T, t } from 'lib/i18n';
 import { useTezos, useAccount, activateAccount } from 'lib/temple/front';
 import { confirmOperation } from 'lib/temple/operation';
 import { useSafeState } from 'lib/ui/hooks';
-import { delay } from 'lib/utils';
 
 import { ActivateAccountSelectors } from './ActivateAccount.selectors';
 
@@ -51,8 +50,6 @@ const ActivateAccount = memo(() => {
       } catch (err: any) {
         console.error(err);
 
-        // Human delay.
-        await delay();
         const mes = t('failureSecretMayBeInvalid');
         setError('secret', SUBMIT_ERROR_TYPE, mes);
       }

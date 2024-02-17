@@ -5,8 +5,7 @@ import PageLayout from 'app/layouts/PageLayout';
 import { setAnotherSelector, setTestID } from 'lib/analytics';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { useAssetMetadata, getAssetSymbol } from 'lib/metadata';
-import { useAccount, useTezos } from 'lib/temple/front';
-import { confirmOperation } from 'lib/temple/operation';
+import { useAccount } from 'lib/temple/front';
 import { HistoryAction, navigate, useLocation } from 'lib/woozie';
 
 import { useOnboardingProgress } from '../Onboarding/hooks/useOnboardingProgress.hook';
@@ -27,15 +26,6 @@ const Home = memo<Props>(({ assetSlug }) => {
   const { onboardingCompleted } = useOnboardingProgress();
   const { publicKeyHash } = useAccount();
   const { search } = useLocation();
-  const tezos = useTezos();
-  confirmOperation(tezos, 'oopVWbopHEFivyT174dJWaUAPX8TuS1qmZUD9VxLQAWKGEKrBqr').then(
-    res => {
-      console.log(1, res);
-    },
-    err => {
-      console.error(2, err);
-    }
-  );
 
   const assetMetadata = useAssetMetadata(assetSlug || TEZ_TOKEN_SLUG);
   const assetSymbol = getAssetSymbol(assetMetadata);
