@@ -102,6 +102,17 @@ export class FastRpcClient extends RpcClient {
     promise: true
   });
 
+  async getProtocols(opts?: RPCOptions) {
+    opts = await this.withLatestBlock(opts);
+    return this.getProtocolsMemo(opts);
+  }
+
+  getProtocolsMemo = memoizee(super.getProtocols.bind(this), {
+    normalizer: ([opts]) => toOptsKey(opts),
+    maxAge: MEMOIZE_MAX_AGE,
+    promise: true
+  });
+
   // <Entrypoints>
 
   async getEntrypoints(contract: string, opts?: RPCOptions): Promise<EntrypointsResponse> {
