@@ -129,38 +129,40 @@ export const TokensTab = memo(() => {
 
   return (
     <div className="w-full max-w-sm mx-auto">
-      <div className={clsx('my-3 w-full flex', popup && 'mx-4')}>
-        <SearchAssetField
-          value={searchValue}
-          onValueChange={setSearchValue}
-          onFocus={handleSearchFieldFocus}
-          onBlur={handleSearchFieldBlur}
-          containerClassName="mr-2"
-          testID={AssetsSelectors.searchAssetsInputTokens}
-        />
+      <div className={clsx('my-3', popup && 'mx-4')}>
+        <div className="relative mb-4 w-full flex">
+          <SearchAssetField
+            value={searchValue}
+            onValueChange={setSearchValue}
+            onFocus={handleSearchFieldFocus}
+            onBlur={handleSearchFieldBlur}
+            containerClassName="mr-2"
+            testID={AssetsSelectors.searchAssetsInputTokens}
+          />
 
-        <Popper
-          placement="bottom-end"
-          strategy="fixed"
-          popup={props => (
-            <ManageButtonDropdown
-              {...props}
-              isZeroBalancesHidden={isZeroBalancesHidden}
-              toggleHideZeroBalances={toggleHideZeroBalances}
-            />
-          )}
-        >
-          {({ ref, opened, toggleOpened }) => (
-            <ButtonForManageDropdown
-              ref={ref}
-              opened={opened}
-              tooltip={t('manageAssetsList')}
-              onClick={toggleOpened}
-              testID={AssetsSelectors.manageButton}
-              testIDProperties={{ listOf: 'Tokens' }}
-            />
-          )}
-        </Popper>
+          <Popper
+            placement="bottom-end"
+            strategy="fixed"
+            popup={props => (
+              <ManageButtonDropdown
+                {...props}
+                isZeroBalancesHidden={isZeroBalancesHidden}
+                toggleHideZeroBalances={toggleHideZeroBalances}
+              />
+            )}
+          >
+            {({ ref, opened, toggleOpened }) => (
+              <ButtonForManageDropdown
+                ref={ref}
+                opened={opened}
+                tooltip={t('manageAssetsList')}
+                onClick={toggleOpened}
+                testID={AssetsSelectors.manageButton}
+                testIDProperties={{ listOf: 'Tokens' }}
+              />
+            )}
+          </Popper>
+        </div>
       </div>
 
       <UpdateAppBanner popup={popup} />
