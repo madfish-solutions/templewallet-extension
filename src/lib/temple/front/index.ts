@@ -16,7 +16,8 @@ export {
   useTezos,
   useChainId,
   useRelevantAccounts,
-  useCustomChainId
+  useChainIdValue,
+  useChainIdLoading
 } from './ready';
 
 export { validateDerivationPath, validateContractAddress } from './helpers';
@@ -47,3 +48,5 @@ export { validateRecipient } from './validate-recipient';
 export { useFilteredContacts } from './use-filtered-contacts.hook';
 
 export { decryptKukaiSeedPhrase } from './kukai';
+
+export { TzktConnectionProvider, useTzktConnection } from './tzkt-connection';

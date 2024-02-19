@@ -94,14 +94,14 @@ const AssetSelectTitle: FC = () => (
 );
 
 const AssetFieldContent = memo<{ slug: string } & TestIDProperty>(({ slug, testID }) => {
-  const account = useAccount();
+  const { publicKeyHash } = useAccount();
   const metadata = useAssetMetadata(slug);
 
   return (
     <div className="flex items-center" {...setTestID(testID)} {...setAnotherSelector('slug', slug)}>
       <AssetIcon assetSlug={slug} className="mr-3" size={48} />
 
-      <Balance assetSlug={slug} address={account.publicKeyHash}>
+      <Balance assetSlug={slug} address={publicKeyHash}>
         {balance => (
           <div className="flex flex-col items-start leading-none">
             <span className="text-xl text-gray-800 flex items-baseline">

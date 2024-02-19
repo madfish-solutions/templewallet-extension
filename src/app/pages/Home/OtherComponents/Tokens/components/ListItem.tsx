@@ -1,15 +1,12 @@
 import React, { memo, useMemo } from 'react';
 
-import { isDefined } from '@rnw-community/shared';
-import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
 
 import { useTokenApyInfo } from 'app/hooks/use-token-apy.hook';
 import { AssetIcon } from 'app/templates/AssetIcon';
 import { setAnotherSelector } from 'lib/analytics';
-import { useCurrentAccountAssetBalance } from 'lib/balances/hooks';
-import { getAssetName, getAssetSymbol, useGetTokenOrGasMetadata } from 'lib/metadata';
-import { atomsToTokens } from 'lib/temple/helpers';
+import { useBalance } from 'lib/balances/hooks';
+import { getAssetName, getAssetSymbol } from 'lib/metadata';
 import { ZERO } from 'lib/utils/numbers';
 import { Link } from 'lib/woozie';
 
@@ -21,21 +18,13 @@ import { CryptoBalance, FiatBalance } from './Balance';
 import { TokenTag } from './TokenTag';
 
 interface Props {
+  publicKeyHash: string;
   assetSlug: string;
   active: boolean;
 }
 
-export const ListItem = memo<Props>(({ assetSlug, active }) => {
-  const metadata = useGetTokenOrGasMetadata()(assetSlug);
-
-  const balance = useCurrentAccountAssetBalance(assetSlug);
-
-  const decimals = metadata?.decimals;
-
-  const balanceWithDecimals = useMemo(
-    () => (balance && isDefined(decimals) ? atomsToTokens(new BigNumber(balance), decimals) : ZERO),
-    [balance, decimals]
-  );
+export const ListItem = memo<Props>(({ publicKeyHash, assetSlug, active }) => {
+  const { value: balance = ZERO, assetMetadata: metadata } = useBalance(assetSlug, publicKeyHash);
 
   const apyInfo = useTokenApyInfo(assetSlug);
 
@@ -71,7 +60,7 @@ export const ListItem = memo<Props>(({ assetSlug, active }) => {
             <TokenTag assetSlug={assetSlug} assetSymbol={assetSymbol} apyInfo={apyInfo} />
           </div>
           <CryptoBalance
-            value={balanceWithDecimals}
+            value={balance}
             testID={AssetsSelectors.assetItemCryptoBalanceButton}
             testIDProperties={{ assetSlug }}
           />
@@ -80,7 +69,7 @@ export const ListItem = memo<Props>(({ assetSlug, active }) => {
           <div className="text-xs font-normal text-gray-700 truncate flex-1">{assetName}</div>
           <FiatBalance
             assetSlug={assetSlug}
-            value={balanceWithDecimals}
+            value={balance}
             testID={AssetsSelectors.assetItemFiatBalanceButton}
             testIDProperties={{ assetSlug }}
           />

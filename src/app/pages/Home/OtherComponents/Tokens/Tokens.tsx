@@ -19,7 +19,7 @@ import { OptimalPromoVariantEnum } from 'lib/apis/optimal';
 import { TEZ_TOKEN_SLUG, TEMPLE_TOKEN_SLUG } from 'lib/assets';
 import { useEnabledAccountTokensSlugs } from 'lib/assets/hooks';
 import { T, t } from 'lib/i18n';
-import { useChainId } from 'lib/temple/front';
+import { useAccount, useChainId } from 'lib/temple/front';
 import { useLocalStorage } from 'lib/ui/local-storage';
 import Popper, { PopperRenderProps } from 'lib/ui/Popper';
 import { Link, navigate } from 'lib/woozie';
@@ -36,6 +36,7 @@ const svgIconClassName = 'w-4 h-4 stroke-current fill-current text-gray-600';
 
 export const TokensTab = memo(() => {
   const chainId = useChainId(true)!;
+  const { publicKeyHash } = useAccount();
 
   const { popup } = useAppEnv();
 
@@ -73,6 +74,7 @@ export const TokensTab = memo(() => {
     const tokensJsx = filteredAssets.map(assetSlug => (
       <ListItem
         key={assetSlug}
+        publicKeyHash={publicKeyHash}
         assetSlug={assetSlug}
         active={activeAssetSlug ? assetSlug === activeAssetSlug : false}
       />
@@ -94,7 +96,7 @@ export const TokensTab = memo(() => {
     }
 
     return tokensJsx;
-  }, [filteredAssets, activeAssetSlug]);
+  }, [filteredAssets, activeAssetSlug, publicKeyHash]);
 
   useLoadPartnersPromo(OptimalPromoVariantEnum.Token);
 
