@@ -85,7 +85,7 @@ Feature: Manage tokens + collectibles
 
     Then I check the token with name Kolibri is NOT displayed on the Home page
 
-@dev
+
 @manage_assets
   Scenario: Validation check on Add Asset page + other checks [Negative]
     Given I have imported an existing account
