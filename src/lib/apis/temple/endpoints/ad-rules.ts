@@ -17,6 +17,7 @@ export interface RawAdPlacesRule {
     divWrapperStyle?: Record<string, string>;
   };
   stylesOverrides?: AdStylesOverrides[];
+  shouldHideOriginal?: boolean;
 }
 
 export interface RawPermanentAdPlacesRule {

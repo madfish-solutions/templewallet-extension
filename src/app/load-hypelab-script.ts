@@ -21,7 +21,7 @@ export const LoadHypelabScript: FC = () => {
       script.onload = () => {
         // @ts-expect-error
         HypeLab.initialize({
-          URL: IS_DEV_ENV ? 'https://api.hypelab-staging.com' : 'https://api.hypelab.com',
+          URL: EnvVars.HYPELAB_API_URL,
           propertySlug: EnvVars.HYPELAB_PROPERTY_SLUG,
           environment: IS_DEV_ENV ? 'development' : 'production'
         });

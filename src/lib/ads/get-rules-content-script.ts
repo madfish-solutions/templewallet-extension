@@ -86,22 +86,17 @@ export const getRulesFromContentScript = memoizee(
         );
 
       const aggregatedRelatedAdPlacesRules = adPlacesRules.reduce<Array<Omit<AdPlacesRule, 'urlRegexes'>>>(
-        (acc, { urlRegexes, selector, stylesOverrides }) => {
+        (acc, { urlRegexes, selector, ...restProps }) => {
           if (!urlRegexes.some(hrefMatchPredicate)) return acc;
 
           const { cssString, ...restSelectorProps } = selector;
-          const ruleToComplementIndex = acc.findIndex(
-            ({ selector: candidateSelector, stylesOverrides: candidateStylesOverrides }) => {
-              const { cssString: _candidateCssString, ...restCandidateSelectorProps } = candidateSelector;
+          const ruleToComplementIndex = acc.findIndex(({ selector: candidateSelector, ...candidateRestProps }) => {
+            const { cssString: _candidateCssString, ...restCandidateSelectorProps } = candidateSelector;
 
-              return (
-                isEqual(restSelectorProps, restCandidateSelectorProps) &&
-                isEqual(stylesOverrides, candidateStylesOverrides)
-              );
-            }
-          );
+            return isEqual(restSelectorProps, restCandidateSelectorProps) && isEqual(restProps, candidateRestProps);
+          });
           if (ruleToComplementIndex === -1) {
-            acc.push({ stylesOverrides, selector });
+            acc.push({ selector, ...restProps });
           } else {
             acc[ruleToComplementIndex].selector.cssString += ', '.concat(cssString);
           }
