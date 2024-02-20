@@ -85,7 +85,7 @@ Feature: Manage tokens + collectibles
 
     Then I check the token with name Kolibri is NOT displayed on the Home page
 
-
+@dev
 @manage_assets
   Scenario: Validation check on Add Asset page + other checks [Negative]
     Given I have imported an existing account
@@ -117,7 +117,7 @@ Feature: Manage tokens + collectibles
 
     # Failed parse metadata alert
     And I enter amount_1 into Asset ID Input on the Add Asset page
-    And I got the 'Failed to parse metadata' warning with Alert title Text element on the Alert page
+    And I got the 'Error' error with Alert title Text element on the Alert page
     And I clear Asset ID Input value on the Add Asset page
     And I wait until adding asset customTokenName is preloaded
 
