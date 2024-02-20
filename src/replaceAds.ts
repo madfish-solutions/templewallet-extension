@@ -105,7 +105,6 @@ const replaceAds = async () => {
     }
 
     const adsActions = await getAdsActions(adsRules);
-    console.log('oy vey 1', adsActions);
 
     await Promise.all(
       adsActions.map(async action => {
