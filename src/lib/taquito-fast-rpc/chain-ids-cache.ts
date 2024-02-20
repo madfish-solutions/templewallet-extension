@@ -48,6 +48,8 @@ export const setCachedChainId = (key: string, value: string) => {
 };
 
 function readCache(): StringRecord<CachedChainID> {
+  if (typeof localStorage === 'undefined') return {};
+
   try {
     const cache = localStorage.getItem(CACHE_KEY);
     return cache ? JSON.parse(cache) : {};
@@ -59,6 +61,8 @@ function readCache(): StringRecord<CachedChainID> {
 }
 
 const commitCache = debounce(() => {
+  if (typeof localStorage === 'undefined') return;
+
   try {
     localStorage.setItem(CACHE_KEY, JSON.stringify(CACHE));
   } catch (err) {

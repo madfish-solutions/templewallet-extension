@@ -51,6 +51,7 @@ function readCache(): CachedEntrypointsItem[] {
 
 const commitCache = debounce(() => {
   if (typeof localStorage === 'undefined') return;
+
   CACHE = CACHE.slice(0, CACHE_SIZE * 3);
 
   try {
