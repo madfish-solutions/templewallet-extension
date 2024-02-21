@@ -129,7 +129,7 @@ export const TokensTab = memo(() => {
 
   return (
     <div className="w-full max-w-sm mx-auto">
-      <div className={clsx('my-3 w-full flex', popup && 'mx-4')}>
+      <div className={clsx('my-3 w-full flex', popup && 'px-4')}>
         <SearchAssetField
           value={searchValue}
           onValueChange={setSearchValue}
