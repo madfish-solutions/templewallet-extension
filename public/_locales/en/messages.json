@@ -1252,7 +1252,7 @@
     }
   },
   "counterIsOffOperationError": {
-    "message": "Operations counter is off. Please, try again in a couple of seconds."
+    "message": "You're trying to push transaction too quickly. Please wait a moment and try again."
   },
   "networkOrOtherIssue": {
     "message": "Network or other technical issue."
