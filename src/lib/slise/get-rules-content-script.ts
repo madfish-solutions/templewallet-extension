@@ -13,7 +13,7 @@ interface RawAllSliseAdsRules {
   timestamp: number;
 }
 
-interface SliseAdPlacesRule extends Omit<RawSliseAdPlacesRule, 'urlRegexes'> {
+export interface SliseAdPlacesRule extends Omit<RawSliseAdPlacesRule, 'urlRegexes'> {
   urlRegexes: RegExp[];
 }
 
