@@ -289,9 +289,7 @@ export enum TempleMessageType {
   SendTrackEventRequest = 'SEND_TRACK_EVENT_REQUEST',
   SendTrackEventResponse = 'SEND_TRACK_EVENT_RESPONSE',
   SendPageEventRequest = 'SEND_PAGE_EVENT_REQUEST',
-  SendPageEventResponse = 'SEND_PAGE_EVENT_RESPONSE',
-  ExternalAdsDataRequest = 'EXTERNAL_ADS_DATA_REQUEST',
-  ExternalAdsDataResponse = 'EXTERNAL_ADS_DATA_RESPONSE'
+  SendPageEventResponse = 'SEND_PAGE_EVENT_RESPONSE'
 }
 
 export type TempleNotification =
@@ -331,8 +329,7 @@ export type TempleRequest =
   | TempleGetAllDAppSessionsRequest
   | TempleRemoveDAppSessionRequest
   | TempleSendTrackEventRequest
-  | TempleSendPageEventRequest
-  | TempleExternalAdsDataRequest;
+  | TempleSendPageEventRequest;
 
 export type TempleResponse =
   | TempleGetStateResponse
@@ -365,8 +362,7 @@ export type TempleResponse =
   | TempleGetAllDAppSessionsResponse
   | TempleRemoveDAppSessionResponse
   | TempleSendTrackEventResponse
-  | TempleSendPageEventResponse
-  | TempleExternalAdsDataResponse;
+  | TempleSendPageEventResponse;
 
 export interface TempleMessageBase {
   type: TempleMessageType;
@@ -700,17 +696,6 @@ interface TempleRemoveDAppSessionRequest extends TempleMessageBase {
 interface TempleRemoveDAppSessionResponse extends TempleMessageBase {
   type: TempleMessageType.DAppRemoveSessionResponse;
   sessions: TempleDAppSessions;
-}
-
-interface TempleExternalAdsDataRequest extends TempleMessageBase {
-  type: TempleMessageType.ExternalAdsDataRequest;
-  hostname: string;
-  href: string;
-}
-
-interface TempleExternalAdsDataResponse extends TempleMessageBase {
-  type: TempleMessageType.ExternalAdsDataResponse;
-  data: SliseAdsData;
 }
 
 export type OperationsPreview = any[] | { branch: string; contents: any[] };

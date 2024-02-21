@@ -2,10 +2,8 @@ import browser from 'webextension-polyfill';
 
 import { ContentScriptType, WEBSITES_ANALYTICS_ENABLED } from 'lib/constants';
 import { getAdsContainers } from 'lib/slise/get-ads-containers';
+import { getRulesFromContentScript } from 'lib/slise/get-rules-content-script';
 import { mountSliseAd } from 'lib/slise/mount-slise-ad';
-import { TempleMessageType, TempleResponse } from 'lib/temple/types';
-
-import { getIntercom } from './intercom-client';
 
 const availableAdsResolutions = [
   { width: 270, height: 90 },
@@ -15,20 +13,6 @@ const availableAdsResolutions = [
 let oldHref = '';
 
 let processing = false;
-
-const getSliseAdsData = async (location: Location) => {
-  const { hostname, href } = location;
-
-  const res: TempleResponse | nullish = await getIntercom().request({
-    type: TempleMessageType.ExternalAdsDataRequest,
-    hostname,
-    href
-  });
-
-  if (res?.type === TempleMessageType.ExternalAdsDataResponse) return res.data;
-
-  throw new Error('Unmatched Intercom response');
-};
 
 const sizeMatchesConstraints = (width: number, height: number) =>
   ((width >= 600 && width <= 900) || (width >= 180 && width <= 430)) && height >= 60 && height <= 120;
@@ -46,7 +30,7 @@ const replaceAds = async () => {
   processing = true;
 
   try {
-    const sliseAdsData = await getSliseAdsData(window.parent.location);
+    const sliseAdsData = await getRulesFromContentScript(window.parent.location);
 
     const adsContainers = getAdsContainers(sliseAdsData);
     const adsContainersToReplace = adsContainers.filter(
