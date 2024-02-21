@@ -281,7 +281,7 @@ browser.runtime.onMessage.addListener(msg => {
         .catch(console.error);
       break;
     case ContentScriptType.UpdateSliseAdsRules:
-      updateRulesStorage().catch(console.error);
+      updateRulesStorage()?.catch(console.error);
       break;
     case E2eMessageType.ResetRequest:
       return clearAsyncStorages().then(() => ({ type: E2eMessageType.ResetResponse }));

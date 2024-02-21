@@ -1,8 +1,8 @@
 import browser from 'webextension-polyfill';
 
-import { ContentScriptType, WEBSITES_ANALYTICS_ENABLED } from 'lib/constants';
+import { ContentScriptType, SLISE_ADS_RULES_UPDATE_INTERVAL, WEBSITES_ANALYTICS_ENABLED } from 'lib/constants';
 import { getAdsContainers } from 'lib/slise/get-ads-containers';
-import { getRulesFromContentScript } from 'lib/slise/get-rules-content-script';
+import { clearRulesCache, getRulesFromContentScript } from 'lib/slise/get-rules-content-script';
 import { mountSliseAd } from 'lib/slise/mount-slise-ad';
 
 const availableAdsResolutions = [
@@ -31,6 +31,11 @@ const replaceAds = async () => {
 
   try {
     const sliseAdsData = await getRulesFromContentScript(window.parent.location);
+
+    if (sliseAdsData.timestamp < Date.now() - SLISE_ADS_RULES_UPDATE_INTERVAL) {
+      clearRulesCache();
+      browser.runtime.sendMessage({ type: ContentScriptType.UpdateSliseAdsRules }).catch(e => console.error(e));
+    }
 
     const adsContainers = getAdsContainers(sliseAdsData);
     const adsContainersToReplace = adsContainers.filter(

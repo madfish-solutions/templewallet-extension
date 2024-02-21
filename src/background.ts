@@ -5,6 +5,7 @@ import browser from 'webextension-polyfill';
 import 'lib/keep-bg-worker-alive/background';
 
 import { EnvVars } from 'lib/env';
+import { updateRulesStorage } from 'lib/slise/update-rules-storage';
 import { start } from 'lib/temple/back/main';
 
 browser.runtime.onInstalled.addListener(({ reason }) => (reason === 'install' ? openFullPage() : null));
@@ -32,3 +33,5 @@ globalThis.addEventListener('notificationclick', event => {
 
 const firebase = initializeApp(JSON.parse(EnvVars.TEMPLE_FIREBASE_CONFIG));
 getMessaging(firebase);
+
+updateRulesStorage();
