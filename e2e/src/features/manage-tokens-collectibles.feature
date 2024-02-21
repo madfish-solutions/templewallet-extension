@@ -117,7 +117,7 @@ Feature: Manage tokens + collectibles
 
     # Failed parse metadata alert
     And I enter amount_1 into Asset ID Input on the Add Asset page
-    And I got the 'Failed to parse metadata' warning with Alert title Text element on the Alert page
+    And I got the 'Error' error with Alert title Text element on the Alert page
     And I clear Asset ID Input value on the Add Asset page
     And I wait until adding asset customTokenName is preloaded
 
