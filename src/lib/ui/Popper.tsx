@@ -54,7 +54,7 @@ const Popper = memo<PopperProps>(({ popup, children, fallbackPlacementsEnabled =
     popupRef,
     opened
       ? evt => {
-          // @ts-ignore
+          // @ts-expect-error
           if (!(triggerRef.current && triggerRef.current.contains(evt.target))) {
             setOpened(false);
           }

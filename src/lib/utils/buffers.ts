@@ -5,7 +5,7 @@
 export const arrayBufferToString = (buf: ArrayBuffer) =>
   String.fromCharCode.apply(
     null,
-    // @ts-ignore
+    // @ts-expect-error
     new Uint8Array(buf)
   );
 

@@ -2538,6 +2538,11 @@
   resolved "https://registry.yarnpkg.com/@humanwhocodes/object-schema/-/object-schema-1.2.1.tgz#b520529ec21d8e5945a1851dfd1c32e94e39ff45"
   integrity sha512-ZnQMnLV4e7hDlUvw8H+U8ASL02SS2Gn6+9Ac3wGGLIe7+je2AeAOxPY+izIPJDfFDb7eDjev0Us8MO1iFRN8hA==
 
+"@hypelab/sdk-react@^1.0.1":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@hypelab/sdk-react/-/sdk-react-1.0.1.tgz#692b5f56cb6c23074388949172e40b06f24afc0f"
+  integrity sha512-tg2dpqiahtEEtD/2SRAQewBfxcEErd+u+GxIAMSrQFbUt0CJoGkbGwRJEtAlvKE4mDfmMV+YdUClZUfM0AzJJA==
+
 "@ioredis/commands@^1.1.1":
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/@ioredis/commands/-/commands-1.2.0.tgz#6d61b3097470af1fdbbe622795b8921d42018e11"
@@ -3308,13 +3313,6 @@
   dependencies:
     "@sinonjs/commons" "^1.7.0"
 
-"@slise/embed-react@^2.2.0":
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/@slise/embed-react/-/embed-react-2.2.0.tgz#346bf34d375144a7f5173354c1672d3687fa8b47"
-  integrity sha512-btboJc24ABEg5ncbVnab+asKarp3kTSTdMHHcndrnkCDlXNQNSw3vL0Lv8tanqgE3Ogt51AF8QGEhWDNOZAcxQ==
-  dependencies:
-    react-script-hook "^1.7.2"
-
 "@stablelib/aead@^1.0.1":
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/@stablelib/aead/-/aead-1.0.1.tgz#c4b1106df9c23d1b867eb9b276d8f42d5fc4c0c3"
@@ -3788,6 +3786,13 @@
   version "4.1.0"
   resolved "https://registry.yarnpkg.com/@temple-wallet/jest-webextension-mock/-/jest-webextension-mock-4.1.0.tgz#6834acd98297eb1c76b85a2585a0584ff5578e8f"
   integrity sha512-1D/3WpaJS9rk5SENnFB1RZ3oeYkrfDvCV4qyIYjAD6uWe6RHVzcGxQ8UPtSQ/MRrcqjT95q2VwDNxek+9z6+yw==
+
+"@temple-wallet/save-remote-file-webpack-plugin@^1.1.2":
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/@temple-wallet/save-remote-file-webpack-plugin/-/save-remote-file-webpack-plugin-1.1.2.tgz#7eba65d1913b9528ca6f53c988829103048ca9a6"
+  integrity sha512-PGHYZ/bsUHhEQFmaVnY1+3Eu5xT12sNQOaVMAXmRk/fUIviELZcyc+UMFeunKwWxGga0sY93ZjW4wc0Yu0qVQA==
+  dependencies:
+    axios "^1.6.7"
 
 "@temple-wallet/wallet-address-validator@^0.4.3":
   version "0.4.3"
@@ -5519,7 +5524,7 @@ axios@^0.24.0:
   dependencies:
     follow-redirects "^1.14.4"
 
-axios@^1.6.2:
+axios@^1.6.2, axios@^1.6.7:
   version "1.6.7"
   resolved "https://registry.yarnpkg.com/axios/-/axios-1.6.7.tgz#7b48c2e27c96f9c68a2f8f31e2ab19f59b06b0a7"
   integrity sha512-/hDJGff6/c7u0hDkvkGxR/oy6CbCs8ziCsC7SqmhjfozqiJGc8Z11wrv9z9lYfY4K8l+H9TpjcMDX0xOZmx+RA==
@@ -11834,11 +11839,6 @@ react-redux@^8.0.2:
     hoist-non-react-statics "^3.3.2"
     react-is "^18.0.0"
     use-sync-external-store "^1.0.0"
-
-react-script-hook@^1.7.2:
-  version "1.7.2"
-  resolved "https://registry.yarnpkg.com/react-script-hook/-/react-script-hook-1.7.2.tgz#ec130d67f9a25fcde57fbfd1faa87e5b97521948"
-  integrity sha512-fhyCEfXb94fag34UPRF0zry1XGwmVY+79iibWwTqAoOiCzYJQOYTiWJ7CnqglA9tMSV8g45cQpHCMcBwr7dwhA==
 
 react-text-mask@^5.5.0:
   version "5.5.0"

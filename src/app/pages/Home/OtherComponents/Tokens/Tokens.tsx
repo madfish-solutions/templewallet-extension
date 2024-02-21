@@ -5,7 +5,6 @@ import clsx from 'clsx';
 
 import { SyncSpinner, Divider, Checkbox } from 'app/atoms';
 import DropdownWrapper from 'app/atoms/DropdownWrapper';
-import { PartnersPromotion, PartnersPromotionVariant } from 'app/atoms/partners-promotion';
 import { useAppEnv } from 'app/env';
 import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
 import { useTokensListingLogic } from 'app/hooks/use-tokens-listing-logic';
@@ -13,6 +12,7 @@ import { ReactComponent as EditingIcon } from 'app/icons/editing.svg';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
 import { useAreAssetsLoading } from 'app/store/assets/selectors';
 import { ButtonForManageDropdown } from 'app/templates/ManageDropdown';
+import { PartnersPromotion, PartnersPromotionVariant } from 'app/templates/partners-promotion';
 import SearchAssetField from 'app/templates/SearchAssetField';
 import { setTestID } from 'lib/analytics';
 import { OptimalPromoVariantEnum } from 'lib/apis/optimal';
@@ -81,7 +81,12 @@ export const TokensTab = memo(() => {
     ));
 
     const promoJsx = (
-      <PartnersPromotion id="promo-token-item" key="promo-token-item" variant={PartnersPromotionVariant.Text} />
+      <PartnersPromotion
+        id="promo-token-item"
+        key="promo-token-item"
+        variant={PartnersPromotionVariant.Text}
+        pageName="Token page"
+      />
     );
 
     if (filteredAssets.length < 5) {

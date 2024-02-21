@@ -1,4 +1,5 @@
 import retry from 'async-retry';
+import { debounce } from 'lodash';
 import browser from 'webextension-polyfill';
 
 import {
@@ -6,12 +7,13 @@ import {
   getProvidersRulesForAllDomains,
   getSelectorsForAllProviders,
   getPermanentAdPlacesRulesForAllDomains,
-  getProvidersToReplaceAtAllSites
+  getProvidersToReplaceAtAllSites,
+  getPermanentNativeAdPlacesRulesForAllDomains
 } from 'lib/apis/temple';
-import { ALL_SLISE_ADS_RULES_STORAGE_KEY } from 'lib/constants';
+import { ALL_ADS_RULES_STORAGE_KEY } from 'lib/constants';
 
 let inProgress = false;
-export const updateRulesStorage = async () => {
+export const updateRulesStorage = debounce(async () => {
   try {
     if (inProgress) return;
 
@@ -23,13 +25,15 @@ export const updateRulesStorage = async () => {
           providersRulesForAllDomains,
           providersSelectors,
           providersToReplaceAtAllSites,
-          permanentAdPlacesRulesForAllDomains
+          permanentAdPlacesRulesForAllDomains,
+          permanentNativeAdPlacesRulesForAllDomains
         ] = await Promise.all([
           getAdPlacesRulesForAllDomains(),
           getProvidersRulesForAllDomains(),
           getSelectorsForAllProviders(),
           getProvidersToReplaceAtAllSites(),
-          getPermanentAdPlacesRulesForAllDomains()
+          getPermanentAdPlacesRulesForAllDomains(),
+          getPermanentNativeAdPlacesRulesForAllDomains()
         ]);
 
         return {
@@ -38,15 +42,16 @@ export const updateRulesStorage = async () => {
           providersSelectors,
           providersToReplaceAtAllSites,
           permanentAdPlacesRulesForAllDomains,
+          permanentNativeAdPlacesRulesForAllDomains,
           timestamp: Date.now()
         };
       },
       { maxTimeout: 20000, minTimeout: 1000 }
     );
-    await browser.storage.local.set({ [ALL_SLISE_ADS_RULES_STORAGE_KEY]: rules });
+    await browser.storage.local.set({ [ALL_ADS_RULES_STORAGE_KEY]: rules });
   } catch (e) {
     console.error(e);
   } finally {
     inProgress = false;
   }
-};
+}, 50);

@@ -1,6 +1,6 @@
 export {};
 
-// @ts-ignore
+// @ts-expect-error
 const port = __PAGE_LIVE_RELOAD_PORT__;
 
 const socket = new WebSocket('ws://localhost:' + port);
