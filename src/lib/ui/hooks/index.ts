@@ -1,5 +1,3 @@
-export { useIsMounted } from './useIsMounted';
-
 export { useDidMount } from './useDidMount';
 
 export { useDidUpdate } from './useDidUpdate';

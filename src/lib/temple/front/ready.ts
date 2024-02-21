@@ -21,11 +21,6 @@ import {
 import { intercom, useTempleClient } from './client';
 import { usePassiveStorage } from './storage';
 
-export enum ActivationStatus {
-  ActivationRequestSent,
-  AlreadyActivated
-}
-
 export const [
   ReadyTempleProvider,
   useAllNetworks,
