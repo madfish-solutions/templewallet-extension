@@ -3,6 +3,7 @@ import browser, { Runtime } from 'webextension-polyfill';
 import { ACCOUNT_PKH_STORAGE_KEY, ContentScriptType } from 'lib/constants';
 import { E2eMessageType } from 'lib/e2e/types';
 import { BACKGROUND_IS_WORKER } from 'lib/env';
+import { updateRulesStorage } from 'lib/slise/update-rules-storage';
 import { encodeMessage, encryptMessage, getSenderId, MessageType, Response } from 'lib/temple/beacon';
 import { clearAsyncStorages } from 'lib/temple/reset';
 import { TempleMessageType, TempleRequest, TempleResponse } from 'lib/temple/types';
@@ -241,13 +242,6 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
         }
       }
       break;
-
-    case TempleMessageType.ExternalAdsDataRequest:
-      const data = await Actions.getExternalAdsData(req.hostname, req.href);
-      return {
-        type: TempleMessageType.ExternalAdsDataResponse,
-        data
-      };
   }
 };
 
@@ -285,6 +279,9 @@ browser.runtime.onMessage.addListener(msg => {
       getCurrentAccountPkh()
         .then(accountPkh => Analytics.client.track('External Ads Activity', { url: msg.url, accountPkh }))
         .catch(console.error);
+      break;
+    case ContentScriptType.UpdateSliseAdsRules:
+      updateRulesStorage()?.catch(console.error);
       break;
     case E2eMessageType.ResetRequest:
       return clearAsyncStorages().then(() => ({ type: E2eMessageType.ResetResponse }));

@@ -1,9 +1,5 @@
-import type { SliseAdPlacesRule, SliseAdStylesOverrides } from 'lib/apis/temple';
-
-export interface SliseAdsData {
-  adPlacesRules: Array<Omit<SliseAdPlacesRule, 'urlRegexes'>>;
-  providersSelector: string;
-}
+import type { SliseAdStylesOverrides } from 'lib/apis/temple';
+import type { SliseAdsRules, SliseAdPlacesRule } from 'lib/slise/get-rules-content-script';
 
 interface AdContainerProps extends Pick<SliseAdPlacesRule['selector'], 'shouldUseDivWrapper' | 'divWrapperStyle'> {
   element: HTMLElement;
@@ -34,7 +30,7 @@ const getFinalSize = (element: Element) => {
   return size;
 };
 
-export const getAdsContainers = ({ providersSelector, adPlacesRules }: SliseAdsData) => {
+export const getAdsContainers = ({ providersSelector, adPlacesRules }: SliseAdsRules) => {
   const bannersFromProviders = [...document.querySelectorAll(providersSelector)];
   const adsContainers = adPlacesRules.reduce<AdContainerProps[]>((acc, { selector, stylesOverrides }) => {
     const { cssString, shouldUseDivWrapper, isMultiple, parentDepth, divWrapperStyle } = selector;
