@@ -1251,6 +1251,9 @@
       }
     }
   },
+  "counterIsOffOperationError": {
+    "message": "Operations counter is off. Please, try again in a couple of seconds."
+  },
   "networkOrOtherIssue": {
     "message": "Network or other technical issue."
   },
