@@ -20,9 +20,7 @@ export const AD_HIDING_TIMEOUT = 12 * 3600 * 1000;
 
 export const AD_SEEN_THRESHOLD = 0.5;
 
-export const SLISE_PUBLISHER_ID = 'pub-25';
-
-export const SLISE_AD_PLACEMENT_SLUG = 'slise_ad_placement';
+export const TKEY_AD_PLACEMENT_SLUG = 'tkey_ad_placement';
 
 const isMacOS = /Mac OS/.test(navigator.userAgent);
 export const searchHotkey = ` (${isMacOS ? '⌘' : 'Ctrl + '}K)`;

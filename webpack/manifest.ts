@@ -48,7 +48,7 @@ const buildManifestV3 = (vendor: string): Manifest.WebExtensionManifest => {
       {
         matches: ['https://*/*'],
         // Required for dynamic imports `import()`
-        resources: ['scripts/*.chunk.js', 'scripts/*.embed.js']
+        resources: ['scripts/*.chunk.js', 'scripts/*.embed.js', '/fullpage.html', 'misc/ad-banners/*']
       }
     ],
 
@@ -85,7 +85,7 @@ const buildManifestV2 = (vendor: string): Manifest.WebExtensionManifest => {
     content_security_policy: "script-src 'self' 'unsafe-eval' blob:; object-src 'self'",
 
     // Required for dynamic imports `import()`
-    web_accessible_resources: ['scripts/*.chunk.js', 'scripts/*.embed.js'],
+    web_accessible_resources: ['scripts/*.chunk.js', 'scripts/*.embed.js', '/fullpage.html', 'misc/ad-banners/*'],
 
     browser_action: buildBrowserAction(vendor),
 

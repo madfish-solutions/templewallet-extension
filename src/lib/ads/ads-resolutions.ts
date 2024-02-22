@@ -1,4 +1,4 @@
-import { SLISE_AD_PLACEMENT_SLUG } from 'lib/constants';
+import { TKEY_AD_PLACEMENT_SLUG } from 'lib/constants';
 
 import { HypelabPlacementType } from './get-hypelab-iframe-url';
 
@@ -15,11 +15,11 @@ export interface HypelabAdsResolution extends AdsResolutionBase {
   placementType: HypelabPlacementType;
 }
 
-interface SliseAdsResolution extends AdsResolutionBase {
-  placementType: typeof SLISE_AD_PLACEMENT_SLUG;
+interface TKeyAdsResolution extends AdsResolutionBase {
+  placementType: typeof TKEY_AD_PLACEMENT_SLUG;
 }
 
-export type AdsResolution = HypelabAdsResolution | SliseAdsResolution;
+export type AdsResolution = HypelabAdsResolution | TKeyAdsResolution;
 
 export const ADS_RESOLUTIONS: AdsResolution[] = [
   {
@@ -47,6 +47,6 @@ export const ADS_RESOLUTIONS: AdsResolution[] = [
     minContainerHeight: 60,
     maxContainerWidth: 900,
     maxContainerHeight: 120,
-    placementType: SLISE_AD_PLACEMENT_SLUG
+    placementType: TKEY_AD_PLACEMENT_SLUG
   }
 ];

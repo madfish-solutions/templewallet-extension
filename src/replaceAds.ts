@@ -6,13 +6,13 @@ import { AdActionType } from 'lib/ads/get-ads-actions/types';
 import { clearRulesCache, getRulesFromContentScript } from 'lib/ads/get-rules-content-script';
 import { getSlotId } from 'lib/ads/get-slot-id';
 import { makeHypelabAdElement } from 'lib/ads/make-hypelab-ad';
-import { makeSliseAdElement, registerSliseAd } from 'lib/ads/make-slise-ad';
+import { makeTKeyAdElement } from 'lib/ads/make-tkey-ad';
 import {
   ContentScriptType,
   ADS_RULES_UPDATE_INTERVAL,
   WEBSITES_ANALYTICS_ENABLED,
   TEMPLE_WALLET_AD_ATTRIBUTE_NAME,
-  SLISE_AD_PLACEMENT_SLUG,
+  TKEY_AD_PLACEMENT_SLUG,
   AD_SEEN_THRESHOLD
 } from 'lib/constants';
 
@@ -124,9 +124,9 @@ const replaceAds = async () => {
           let stylesOverridesCurrentElement: HTMLElement | null;
           let adElementWithWrapper: HTMLElement;
           const slotId = getSlotId();
-          const shouldUseSliseAd = adResolution.placementType === SLISE_AD_PLACEMENT_SLUG;
-          const adElement = shouldUseSliseAd
-            ? makeSliseAdElement(slotId, adResolution.width, adResolution.height, elementStyle)
+          const shouldUseTKeyAd = adResolution.placementType === TKEY_AD_PLACEMENT_SLUG;
+          const adElement = shouldUseTKeyAd
+            ? makeTKeyAdElement(slotId, adResolution.width, adResolution.height, elementStyle)
             : makeHypelabAdElement(adResolution, elementStyle);
           if (shouldUseDivWrapper) {
             adElementWithWrapper = document.createElement('div');
@@ -151,9 +151,8 @@ const replaceAds = async () => {
               action.parent.insertBefore(adElementWithWrapper, action.parent.children[action.insertionIndex]);
               break;
           }
-          if (shouldUseSliseAd) {
+          if (shouldUseTKeyAd) {
             sliseAdMutationObserver.observe(adElement, { childList: true });
-            registerSliseAd(slotId);
           } else {
             subscribeToIframeLoadIfNecessary(adElement.id, adElement as HTMLIFrameElement);
           }

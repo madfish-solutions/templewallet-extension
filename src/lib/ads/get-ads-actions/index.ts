@@ -1,5 +1,5 @@
 import type { AdsRules } from 'lib/ads/get-rules-content-script';
-import { SLISE_PUBLISHER_ID, TEMPLE_WALLET_AD_ATTRIBUTE_NAME } from 'lib/constants';
+import { TEMPLE_WALLET_AD_ATTRIBUTE_NAME } from 'lib/constants';
 
 import { applyQuerySelector, getFinalSize, getParentOfDepth, pickAdResolution } from './helpers';
 import {
@@ -14,7 +14,7 @@ import {
 } from './types';
 
 const ourAdQuerySelector = `iframe[${TEMPLE_WALLET_AD_ATTRIBUTE_NAME}], div[${TEMPLE_WALLET_AD_ATTRIBUTE_NAME}], \
-ins.adsbyslise[${TEMPLE_WALLET_AD_ATTRIBUTE_NAME}][data-ad-pub="${SLISE_PUBLISHER_ID}"]`;
+ins.adsbyslise[${TEMPLE_WALLET_AD_ATTRIBUTE_NAME}]`;
 
 const elementIsOurAd = (element: HTMLElement) => {
   const tagName = element.tagName.toLowerCase();
@@ -23,8 +23,7 @@ const elementIsOurAd = (element: HTMLElement) => {
   const isOurIns =
     tagName === 'ins' &&
     element.classList.contains('adsbyslise') &&
-    element.hasAttribute(TEMPLE_WALLET_AD_ATTRIBUTE_NAME) &&
-    element.getAttribute('data-ad-pub') === SLISE_PUBLISHER_ID;
+    element.hasAttribute(TEMPLE_WALLET_AD_ATTRIBUTE_NAME);
 
   return isOurIframe || isOurBannerWrapper || isOurIns;
 };
