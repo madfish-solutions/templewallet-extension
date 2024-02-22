@@ -15,6 +15,7 @@ import { useCollectibleMetadataSelector } from 'app/store/collectibles-metadata/
 import AddressChip from 'app/templates/AddressChip';
 import OperationStatus from 'app/templates/OperationStatus';
 import { TabsBar } from 'app/templates/TabBar';
+import { setTestID } from 'lib/analytics';
 import { fetchCollectibleExtraDetails, objktCurrencies } from 'lib/apis/objkt';
 import { fromAssetSlug } from 'lib/assets';
 import { BLOCK_DURATION } from 'lib/fixed-times';
@@ -141,7 +142,13 @@ const CollectiblePage = memo<Props>(({ assetSlug }) => {
   }, [tabs, tabNameInUrl]);
 
   return (
-    <PageLayout pageTitle={<span className="truncate">{collectibleName}</span>}>
+    <PageLayout
+      pageTitle={
+        <span className="truncate" {...setTestID(CollectiblesSelectors.CollectibleTitle)}>
+          {collectibleName}
+        </span>
+      }
+    >
       <div className="flex flex-col gap-y-3 max-w-sm w-full mx-auto pt-2 pb-4">
         {operationError ? (
           <Alert

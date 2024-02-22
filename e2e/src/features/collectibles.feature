@@ -19,9 +19,9 @@ Feature: Check functional on the Collectible page
 
   #  check that correct collectible is opened
     And I press Back Button on the Page Layout page
-    And I check the collectible with name TEZ is displayed on the CollectiblesTab page
-    And I click on The perfect NFT! collectible to redirect on details page
+    And I check the collectible with name SecondTestNFT is displayed on the CollectiblesTab page
+    And I click on TestNFT collectible to redirect to details page
     And I am on the CollectiblePage page
-    And I check that CollectiblePage page with The perfect NFT! collectible displayed correctly
+    And I check that Collectible Page is opened for TestNFT
 
 

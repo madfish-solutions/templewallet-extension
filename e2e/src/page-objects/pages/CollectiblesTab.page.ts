@@ -11,22 +11,18 @@ export class CollectiblesTabPage extends Page {
     await this.collectibleItemButton.waitForDisplayed();
   }
 
-  async isCollectibleDisplayed(symbol: string) {
+  async isCollectibleDisplayed(name: string) {
     await findElement(
       CollectibleTabSelectors.collectibleTitleInfo,
-      { symbol },
+      { name },
       VERY_SHORT_TIMEOUT,
-      `${symbol} collectible not found in the collectible list on the CollectiblesTab page`
+      `Collectible '${name}' not clicked`
     );
   }
 
-  async interactVisibleCollectible(symbol: string) {
-    const visibleTitleInfo = await findElement(
-      CollectibleTabSelectors.collectibleTitleInfo,
-      { symbol },
-      SHORT_TIMEOUT,
-      `Visible title info related to collectible with title: ${symbol} is not displayed in the list`
-    );
-    await visibleTitleInfo.click();
+  async clickOnCollectibleItem(name: string) {
+    const titleElem = createPageElement(CollectibleTabSelectors.collectibleTitleInfo, { name: name });
+
+    await titleElem.click(SHORT_TIMEOUT, `Collectible '${name}' not clicked`);
   }
 }

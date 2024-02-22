@@ -50,7 +50,6 @@ export const iEnterValues = {
   shortRandomContent: generateRandomContent(),
   longRandomContent: 'long random content for test + long +' + generateRandomContent(),
   сyrillicContent: 'привіт привіт ',
-  CollectibleTitle: 'Temple NFT',
 
   // For adding assets, contacts, etc ...
   contactPublicKey: 'tz1aWpVn8k5aZvVaCKPMdcPeX8ccm5662SLL',
@@ -86,6 +85,11 @@ export const iSelectTokenSlugs = {
   wUSDT: 'KT18fp5rcTW7mbWDmzFwjLDUhs5MeJmagDSZ_18',
   OBJKTCOM: 'KT1DGbb333QNo3e2cpN3YGL5aRwWzkADcPA3_2', // 'Temple NFT',
   TestNFT: 'The perfect NFT!'
+};
+
+export const iSelectTokensNames = {
+  TestNFT: 'The perfect NFT!',
+  SecondTestNFT: 'TEZ'
 };
 
 export const clearDataFromCurrentInput = async () => {

@@ -120,7 +120,7 @@ export const CollectibleItem = memo<Props>(({ assetSlug, accountPkh, chainId, ar
           <h5
             className="text-sm leading-5 text-gray-910 truncate"
             {...setTestID(CollectibleTabSelectors.collectibleTitleInfo)}
-            {...setAnotherSelector('symbol', assetName)}
+            {...setAnotherSelector('name', assetName)}
           >
             {assetName}
           </h5>
