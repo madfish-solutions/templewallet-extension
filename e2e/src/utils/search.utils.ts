@@ -59,8 +59,8 @@ class PageElement {
     return this.findElement(timeout, errorTitle);
   }
 
-  async click() {
-    const element = await this.findElement();
+  async click(timeout?: number, errorTitle?: string) {
+    const element = await this.findElement(timeout, errorTitle);
     await element.click();
   }
 

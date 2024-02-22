@@ -2,37 +2,37 @@ import { Given } from '@cucumber/cucumber';
 import { expect } from 'chai';
 
 import { Pages } from 'e2e/src/page-objects';
-import { iSelectTokenSlugs } from 'e2e/src/utils/input-data.utils';
-import { createPageElement } from 'e2e/src/utils/search.utils';
+import { iSelectTokensNames } from 'e2e/src/utils/input-data.utils';
 import { MEDIUM_TIMEOUT } from 'e2e/src/utils/timing.utils';
 
 Given(
   /I check the collectible with name (.*) is displayed on the CollectiblesTab page/,
   { timeout: MEDIUM_TIMEOUT },
-  async (symbol: string) => {
-    await Pages.CollectiblesTabPage.isCollectibleDisplayed(symbol);
+  async (nameKey: keyof typeof iSelectTokensNames) => {
+    const name = iSelectTokensNames[nameKey];
+
+    await Pages.CollectiblesTabPage.isCollectibleDisplayed(name);
   }
 );
 
 Given(
-  /I click on (.*) collectible to redirect on details page/,
+  /I click on (.*) collectible to redirect to details page/,
   { timeout: MEDIUM_TIMEOUT },
-  async (slug: keyof typeof iSelectTokenSlugs) => {
-    const assetsSlug = iSelectTokenSlugs['TestNFT'];
-
-    if (assetsSlug === undefined) throw new Error(`${slug} title doesn't exist in the 'iSelectTokenSlugs' object`);
-    await Pages.CollectiblesTabPage.interactVisibleCollectible(slug);
+  async (nameKey: keyof typeof iSelectTokensNames) => {
+    const name = iSelectTokensNames[nameKey];
+    await Pages.CollectiblesTabPage.clickOnCollectibleItem(name);
   }
 );
 
 Given(
-  /I check that (.*) page with (.*) collectible displayed correctly/,
+  /I check that Collectible Page is opened for (.*)/,
   { timeout: MEDIUM_TIMEOUT },
-  async (symbol: string, name: string) => {
-    await Pages.CollectiblePage.isCorrectCollectibleSelected();
-    const TokenTitle = await Pages.CollectiblePage.CollectibleTitle.getText();
-    const targetTitle = 'The perfect NFT!';
+  async (nameKey: keyof typeof iSelectTokensNames) => {
+    await Pages.CollectiblePage.isVisible();
 
-    expect(TokenTitle).eql(targetTitle);
+    const targetName = iSelectTokensNames[nameKey];
+    const nameOnPage = await Pages.CollectiblePage.CollectibleTitle.getText();
+
+    expect(nameOnPage).eql(targetName);
   }
 );
