@@ -20,6 +20,8 @@ let oldHref = '';
 
 let processing = false;
 
+let provider: string;
+
 const loadingAdsIds = new Set();
 const loadedAdsIds = new Set();
 
@@ -32,7 +34,9 @@ const sendExternalAdsActivityIfNecessary = () => {
 
   oldHref = newHref;
 
-  browser.runtime.sendMessage({ type: ContentScriptType.ExternalAdsActivity, url: newHref }).catch(console.error);
+  browser.runtime
+    .sendMessage({ type: ContentScriptType.ExternalAdsActivity, url: newHref, provider })
+    .catch(console.error);
 };
 
 const subscribeToIframeLoadIfNecessary = (adId: string, element: HTMLIFrameElement) => {
@@ -64,27 +68,6 @@ const loadedAdIntersectionObserver = new IntersectionObserver(
   },
   { threshold: AD_SEEN_THRESHOLD }
 );
-
-const sliseAdMutationObserver = new MutationObserver(mutations => {
-  mutations.forEach(({ target }) => {
-    if (!(target instanceof HTMLModElement) || !target.getAttribute(TEMPLE_WALLET_AD_ATTRIBUTE_NAME)) {
-      console.warn('Unexpected mutation target', target);
-
-      return;
-    }
-
-    const iframeElement = target.querySelector('iframe');
-
-    if (!iframeElement) {
-      console.warn('No iframe in the ad', target);
-
-      return;
-    }
-
-    const adId = target.id;
-    subscribeToIframeLoadIfNecessary(adId, iframeElement);
-  });
-});
 
 const overrideElementStyles = (element: HTMLElement, overrides: Record<string, string>) => {
   for (const stylePropName in overrides) {
@@ -152,8 +135,10 @@ const replaceAds = async () => {
               break;
           }
           if (shouldUseTKeyAd) {
-            sliseAdMutationObserver.observe(adElement, { childList: true });
+            provider = 'Temple Wallet';
+            loadedAdIntersectionObserver.observe(adElement);
           } else {
+            provider = 'HypeLab';
             subscribeToIframeLoadIfNecessary(adElement.id, adElement as HTMLIFrameElement);
           }
           let currentParentDepth = 0;
