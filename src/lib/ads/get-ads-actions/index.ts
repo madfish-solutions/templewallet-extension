@@ -18,12 +18,11 @@ ins[${TEMPLE_WALLET_AD_ATTRIBUTE_NAME}]`;
 
 const elementIsOurAd = (element: HTMLElement) => {
   const tagName = element.tagName.toLowerCase();
-  const isOurIframe = tagName === 'iframe' && element.hasAttribute(TEMPLE_WALLET_AD_ATTRIBUTE_NAME);
-  const isOurBannerWrapper = tagName === 'div' && element.hasAttribute(TEMPLE_WALLET_AD_ATTRIBUTE_NAME);
-  const isOurIns = tagName === 'ins';
-  element.hasAttribute(TEMPLE_WALLET_AD_ATTRIBUTE_NAME);
 
-  return isOurIframe || isOurBannerWrapper || isOurIns;
+  return (
+    (tagName === 'iframe' || tagName === 'div' || tagName === 'ins') &&
+    element.hasAttribute(TEMPLE_WALLET_AD_ATTRIBUTE_NAME)
+  );
 };
 
 const forEachWithTimeoutInterruptions = <A>(array: A[], fn: (value: A) => void | Promise<void>) =>
