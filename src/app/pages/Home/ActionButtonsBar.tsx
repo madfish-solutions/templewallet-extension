@@ -17,6 +17,8 @@ import useTippy from 'lib/ui/useTippy';
 import { createUrl, Link, To } from 'lib/woozie';
 import { createLocationState } from 'lib/woozie/location';
 
+import { buildSwapPageUrlQuery } from '../Swap/utils/build-url-query';
+
 import { HomeSelectors } from './Home.selectors';
 
 const tippyPropsMock = {
@@ -42,7 +44,7 @@ export const ActionButtonsBar = memo<Props>(({ assetSlug }) => {
   const swapLink = useMemo(
     () => ({
       pathname: '/swap',
-      search: `from=${assetSlug ?? ''}`
+      search: buildSwapPageUrlQuery(assetSlug)
     }),
     [assetSlug]
   );

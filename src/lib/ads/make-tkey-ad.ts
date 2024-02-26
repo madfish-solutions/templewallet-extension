@@ -3,11 +3,15 @@ import browser from 'webextension-polyfill';
 
 import { TEMPLE_WALLET_AD_ATTRIBUTE_NAME } from 'lib/constants';
 
+import { buildSwapPageUrlQuery } from '../../app/pages/Swap/utils/build-url-query';
+
 const TKeyInpageAd = browser.runtime.getURL(`/misc/ad-banners/tkey-inpage-ad.png`);
 
-const swapTKeyUrl = `${browser.runtime.getURL(
-  'fullpage.html'
-)}#/swap?from=tez&to=KT1VaEsVNiBoA56eToEK6n6BcPgh1tdx9eXi_0&externalAd=true`;
+const swapTKeyUrl = `${browser.runtime.getURL('fullpage.html')}#/swap?${buildSwapPageUrlQuery(
+  'tez',
+  'KT1VaEsVNiBoA56eToEK6n6BcPgh1tdx9eXi_0',
+  true
+)}`;
 
 export const makeTKeyAdElement = (
   slotId: string,
@@ -16,7 +20,6 @@ export const makeTKeyAdElement = (
   elementStyle: Record<string, string>
 ) => {
   const ins = document.createElement('ins');
-  ins.className = 'adsbyslise';
   ins.id = nanoid();
   ins.style.width = `${width}px`;
   ins.style.height = `${height}px`;

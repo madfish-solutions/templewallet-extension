@@ -48,6 +48,8 @@ import {
 } from 'lib/utils/swap.utils';
 import { HistoryAction, navigate } from 'lib/woozie';
 
+import { buildSwapPageUrlQuery } from '../../pages/Swap/utils/build-url-query';
+
 import { SwapExchangeRate } from './SwapExchangeRate/SwapExchangeRate';
 import { SwapFormValue, SwapInputValue, useSwapFormDefaultValue } from './SwapForm.form';
 import styles from './SwapForm.module.css';
@@ -146,7 +148,7 @@ export const SwapForm: FC = () => {
   useEffect(
     () =>
       navigate(
-        { pathname: '/swap', search: `from=${inputValue.assetSlug ?? ''}&to=${outputValue.assetSlug ?? ''}` },
+        { pathname: '/swap', search: buildSwapPageUrlQuery(inputValue.assetSlug, outputValue.assetSlug) },
         HistoryAction.Replace
       ),
     [inputValue.assetSlug, outputValue.assetSlug]

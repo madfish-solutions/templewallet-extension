@@ -9,6 +9,17 @@ import packageJSON from '../package.json';
 
 import { Vendor, ALL_VENDORS, getManifestVersion } from './env';
 
+const WEB_ACCCESSIBLE_RESOURSES = [
+  // For dynamic imports
+  'scripts/*.chunk.js',
+  // For `<script />` injection
+  'scripts/*.embed.js',
+  // For triggering extension page open from scripts
+  'fullpage.html',
+  // For ads' images
+  'misc/ad-banners/*'
+];
+
 const isKnownVendor = (vendor: string): vendor is Vendor => ALL_VENDORS.includes(vendor as Vendor);
 
 export const buildManifest = (vendor: string) => {
@@ -48,7 +59,7 @@ const buildManifestV3 = (vendor: string): Manifest.WebExtensionManifest => {
       {
         matches: ['https://*/*'],
         // Required for dynamic imports `import()`
-        resources: ['scripts/*.chunk.js', 'scripts/*.embed.js', '/fullpage.html', 'misc/ad-banners/*']
+        resources: WEB_ACCCESSIBLE_RESOURSES
       }
     ],
 
@@ -85,7 +96,7 @@ const buildManifestV2 = (vendor: string): Manifest.WebExtensionManifest => {
     content_security_policy: "script-src 'self' 'unsafe-eval' blob:; object-src 'self'",
 
     // Required for dynamic imports `import()`
-    web_accessible_resources: ['scripts/*.chunk.js', 'scripts/*.embed.js', '/fullpage.html', 'misc/ad-banners/*'],
+    web_accessible_resources: WEB_ACCCESSIBLE_RESOURSES,
 
     browser_action: buildBrowserAction(vendor),
 

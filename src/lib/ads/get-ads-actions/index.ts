@@ -14,16 +14,14 @@ import {
 } from './types';
 
 const ourAdQuerySelector = `iframe[${TEMPLE_WALLET_AD_ATTRIBUTE_NAME}], div[${TEMPLE_WALLET_AD_ATTRIBUTE_NAME}], \
-ins.adsbyslise[${TEMPLE_WALLET_AD_ATTRIBUTE_NAME}]`;
+ins[${TEMPLE_WALLET_AD_ATTRIBUTE_NAME}]`;
 
 const elementIsOurAd = (element: HTMLElement) => {
   const tagName = element.tagName.toLowerCase();
   const isOurIframe = tagName === 'iframe' && element.hasAttribute(TEMPLE_WALLET_AD_ATTRIBUTE_NAME);
   const isOurBannerWrapper = tagName === 'div' && element.hasAttribute(TEMPLE_WALLET_AD_ATTRIBUTE_NAME);
-  const isOurIns =
-    tagName === 'ins' &&
-    element.classList.contains('adsbyslise') &&
-    element.hasAttribute(TEMPLE_WALLET_AD_ATTRIBUTE_NAME);
+  const isOurIns = tagName === 'ins';
+  element.hasAttribute(TEMPLE_WALLET_AD_ATTRIBUTE_NAME);
 
   return isOurIframe || isOurBannerWrapper || isOurIns;
 };

@@ -16,27 +16,26 @@ import {
   AD_SEEN_THRESHOLD
 } from 'lib/constants';
 
-let oldHref = '';
-
 let processing = false;
 
 let provider: string;
 
 const loadingAdsIds = new Set();
 const loadedAdsIds = new Set();
+const alreadySentAnalyticsAdsIds = new Set();
 
-const sendExternalAdsActivityIfNecessary = () => {
-  const newHref = window.parent.location.href;
-
-  if (oldHref === newHref) {
+const sendExternalAdsActivity = (adId: string) => {
+  if (alreadySentAnalyticsAdsIds.has(adId)) {
     return;
   }
 
-  oldHref = newHref;
+  alreadySentAnalyticsAdsIds.add(adId);
+
+  const url = window.parent.location.href;
 
   browser.runtime
-    .sendMessage({ type: ContentScriptType.ExternalAdsActivity, url: newHref, provider })
-    .catch(console.error);
+    .sendMessage({ type: ContentScriptType.ExternalAdsActivity, url, provider })
+    .catch(err => void console.error(err));
 };
 
 const subscribeToIframeLoadIfNecessary = (adId: string, element: HTMLIFrameElement) => {
@@ -52,7 +51,7 @@ const subscribeToIframeLoadIfNecessary = (adId: string, element: HTMLIFrameEleme
       const adIsSeen = adRectIsSeen(element);
 
       if (adIsSeen) {
-        sendExternalAdsActivityIfNecessary();
+        sendExternalAdsActivity(adId);
       } else {
         loadedAdIntersectionObserver.observe(element);
       }
@@ -63,7 +62,9 @@ const subscribeToIframeLoadIfNecessary = (adId: string, element: HTMLIFrameEleme
 const loadedAdIntersectionObserver = new IntersectionObserver(
   entries => {
     if (entries.some(entry => entry.isIntersecting)) {
-      sendExternalAdsActivityIfNecessary();
+      const elem = entries[0].target;
+
+      sendExternalAdsActivity(elem.id);
     }
   },
   { threshold: AD_SEEN_THRESHOLD }
