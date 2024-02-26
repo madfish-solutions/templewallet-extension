@@ -6,7 +6,7 @@ import { createPageElement } from 'e2e/src/utils/search.utils';
 export class CollectiblePage extends Page {
   sellButton = createPageElement(CollectiblesSelectors.sellButton);
   sendButton = createPageElement(CollectiblesSelectors.sendButton);
-  CollectibleTitle = createPageElement(CollectiblesSelectors.CollectibleTitle);
+  CollectibleTitle = createPageElement(CollectiblesSelectors.collectibleTitle);
 
   async isVisible() {
     await this.sellButton.waitForDisplayed();

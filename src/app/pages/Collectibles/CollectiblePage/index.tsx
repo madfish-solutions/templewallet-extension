@@ -144,7 +144,7 @@ const CollectiblePage = memo<Props>(({ assetSlug }) => {
   return (
     <PageLayout
       pageTitle={
-        <span className="truncate" {...setTestID(CollectiblesSelectors.CollectibleTitle)}>
+        <span className="truncate" {...setTestID(CollectiblesSelectors.collectibleTitle)}>
           {collectibleName}
         </span>
       }

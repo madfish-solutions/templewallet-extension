@@ -89,8 +89,8 @@ export const CollectibleItem = memo<Props>(
         to={`/collectible/${assetSlug}`}
         className="flex flex-col border border-gray-300 rounded-lg overflow-hidden"
         style={style}
-        testID={CollectibleTabSelectors.collectibleItemButton}
-        testIDProperties={{ key: assetSlug }}
+        testID={CollectibleTabSelectors.collectibleItem}
+        testIDProperties={{ assetSlug: assetSlug }}
       >
         <div
           ref={wrapperElemRef}
@@ -122,7 +122,7 @@ export const CollectibleItem = memo<Props>(
             <h5 className="text-sm leading-5 text-gray-910 truncate">{assetName}</h5>
             <div
               className="mt-1 text-xxxs leading-3 text-gray-600"
-              {...setTestID(CollectibleTabSelectors.collectibleTitleInfo)}
+              {...setTestID(CollectibleTabSelectors.collectibleName)}
               {...setAnotherSelector('name', assetName)}
             >
               <span {...setTestID(CollectibleTabSelectors.floorPrice)}>

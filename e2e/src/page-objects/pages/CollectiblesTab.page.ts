@@ -5,7 +5,7 @@ import { createPageElement, findElement } from 'e2e/src/utils/search.utils';
 import { SHORT_TIMEOUT, VERY_SHORT_TIMEOUT } from 'e2e/src/utils/timing.utils';
 
 export class CollectiblesTabPage extends Page {
-  collectibleItemButton = createPageElement(CollectibleTabSelectors.collectibleItemButton);
+  collectibleItemButton = createPageElement(CollectibleTabSelectors.collectibleItem);
 
   async isVisible() {
     await this.collectibleItemButton.waitForDisplayed();
@@ -13,7 +13,7 @@ export class CollectiblesTabPage extends Page {
 
   async isCollectibleDisplayed(name: string) {
     await findElement(
-      CollectibleTabSelectors.collectibleTitleInfo,
+      CollectibleTabSelectors.collectibleName,
       { name },
       VERY_SHORT_TIMEOUT,
       `Collectible '${name}' not clicked`
@@ -21,7 +21,7 @@ export class CollectiblesTabPage extends Page {
   }
 
   async clickOnCollectibleItem(name: string) {
-    const titleElem = createPageElement(CollectibleTabSelectors.collectibleTitleInfo, { name: name });
+    const titleElem = createPageElement(CollectibleTabSelectors.collectibleName, { name: name });
 
     await titleElem.click(SHORT_TIMEOUT, `Collectible '${name}' not clicked`);
   }

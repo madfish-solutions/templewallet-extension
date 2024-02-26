@@ -31,6 +31,7 @@ import Popper, { PopperChildren, PopperPopup, PopperRenderProps } from 'lib/ui/P
 import { Link } from 'lib/woozie';
 
 import { CollectibleItem } from './CollectibleItem';
+import { CollectibleTabSelectors } from './selectors';
 
 interface Props {
   scrollToTheTabsBar: EmptyFn;
@@ -152,7 +153,7 @@ const buildEmptySection = (isSyncing: boolean) =>
     <SyncSpinner className="mt-6" />
   ) : (
     <div className="w-full border rounded border-gray-200">
-      <p className={'text-gray-600 text-center text-xs py-6'} {...setTestID('Collectibles/Empty State Text')}>
+      <p className={'text-gray-600 text-center text-xs py-6'} {...setTestID(CollectibleTabSelectors.emptyStateText)}>
         <T id="zeroCollectibleText" />
       </p>
     </div>
