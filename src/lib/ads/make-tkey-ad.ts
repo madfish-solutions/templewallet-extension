@@ -1,9 +1,8 @@
 import { nanoid } from 'nanoid';
 import browser from 'webextension-polyfill';
 
+import { buildSwapPageUrlQuery } from 'app/pages/Swap/utils/build-url-query';
 import { TEMPLE_WALLET_AD_ATTRIBUTE_NAME } from 'lib/constants';
-
-import { buildSwapPageUrlQuery } from '../../app/pages/Swap/utils/build-url-query';
 
 const TKeyInpageAd = browser.runtime.getURL(`/misc/ad-banners/tkey-inpage-ad.png`);
 

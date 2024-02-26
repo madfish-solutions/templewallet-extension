@@ -13,6 +13,7 @@ import { useBlockLevel } from 'app/hooks/use-block-level.hook';
 import { useSwap } from 'app/hooks/use-swap';
 import { ReactComponent as InfoIcon } from 'app/icons/info.svg';
 import { ReactComponent as ToggleIcon } from 'app/icons/toggle.svg';
+import { buildSwapPageUrlQuery } from 'app/pages/Swap/utils/build-url-query';
 import { useSelector } from 'app/store';
 import { loadSwapParamsAction, resetSwapParamsAction } from 'app/store/swap/actions';
 import { useSwapParamsSelector, useSwapTokenSelector, useSwapTokensSelector } from 'app/store/swap/selectors';
@@ -47,8 +48,6 @@ import {
   getRoutingFeeTransferParams
 } from 'lib/utils/swap.utils';
 import { HistoryAction, navigate } from 'lib/woozie';
-
-import { buildSwapPageUrlQuery } from '../../pages/Swap/utils/build-url-query';
 
 import { SwapExchangeRate } from './SwapExchangeRate/SwapExchangeRate';
 import { SwapFormValue, SwapInputValue, useSwapFormDefaultValue } from './SwapForm.form';
