@@ -2,12 +2,12 @@ import { AxiosResponse } from 'axios';
 
 import { templeWalletApi } from './templewallet.api';
 
-export interface SliseAdStylesOverrides {
+export interface AdStylesOverrides {
   parentDepth: number;
   style: Record<string, string>;
 }
 
-export interface RawSliseAdPlacesRule {
+export interface RawAdPlacesRule {
   urlRegexes: string[];
   selector: {
     isMultiple: boolean;
@@ -16,10 +16,11 @@ export interface RawSliseAdPlacesRule {
     shouldUseDivWrapper: boolean;
     divWrapperStyle?: Record<string, string>;
   };
-  stylesOverrides?: SliseAdStylesOverrides[];
+  stylesOverrides?: AdStylesOverrides[];
+  shouldHideOriginal?: boolean;
 }
 
-export interface RawPermanentSliseAdPlacesRule {
+export interface RawPermanentAdPlacesRule {
   urlRegexes: string[];
   adSelector: {
     isMultiple: boolean;
@@ -37,12 +38,13 @@ export interface RawPermanentSliseAdPlacesRule {
   insertionsCount?: number;
   shouldUseDivWrapper: boolean;
   divWrapperStyle?: Record<string, string>;
+  elementStyle?: Record<string, string>;
   elementToMeasureSelector?: string;
-  stylesOverrides?: SliseAdStylesOverrides[];
+  stylesOverrides?: AdStylesOverrides[];
   shouldHideOriginal?: boolean;
 }
 
-export interface RawSliseAdProvidersRule {
+export interface RawAdProvidersRule {
   urlRegexes: string[];
   providers: string[];
 }
@@ -56,7 +58,7 @@ const withFetchDataExtraction =
   };
 
 export const getAdPlacesRulesForAllDomains = withFetchDataExtraction(() =>
-  templeWalletApi.get<Record<string, RawSliseAdPlacesRule[]>>('/slise-ad-rules/ad-places')
+  templeWalletApi.get<Record<string, RawAdPlacesRule[]>>('/slise-ad-rules/ad-places')
 );
 
 export const getProvidersToReplaceAtAllSites = withFetchDataExtraction(() =>
@@ -64,7 +66,7 @@ export const getProvidersToReplaceAtAllSites = withFetchDataExtraction(() =>
 );
 
 export const getProvidersRulesForAllDomains = withFetchDataExtraction(() =>
-  templeWalletApi.get<Record<string, RawSliseAdProvidersRule[]>>(`/slise-ad-rules/providers/by-sites`)
+  templeWalletApi.get<Record<string, RawAdProvidersRule[]>>(`/slise-ad-rules/providers/by-sites`)
 );
 
 export const getSelectorsForAllProviders = withFetchDataExtraction(() =>
@@ -72,5 +74,9 @@ export const getSelectorsForAllProviders = withFetchDataExtraction(() =>
 );
 
 export const getPermanentAdPlacesRulesForAllDomains = withFetchDataExtraction(() =>
-  templeWalletApi.get<Record<string, RawPermanentSliseAdPlacesRule[]>>('/slise-ad-rules/ad-places/permanent')
+  templeWalletApi.get<Record<string, RawPermanentAdPlacesRule[]>>('/slise-ad-rules/ad-places/permanent')
+);
+
+export const getPermanentNativeAdPlacesRulesForAllDomains = withFetchDataExtraction(() =>
+  templeWalletApi.get<Record<string, RawPermanentAdPlacesRule[]>>('/slise-ad-rules/ad-places/permanent-native')
 );

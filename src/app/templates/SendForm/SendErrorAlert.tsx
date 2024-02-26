@@ -1,16 +1,18 @@
-import React, { FC } from 'react';
+import React, { memo } from 'react';
+
+import { HttpResponseError } from '@taquito/http-utils';
 
 import { Alert } from 'app/atoms';
 import { NotEnoughFundsError, ZeroBalanceError, ZeroTEZBalanceError } from 'app/defaults';
 import { useGasToken } from 'lib/assets/hooks';
 import { T, t } from 'lib/i18n';
 
-type SendErrorAlertProps = {
+interface Props {
   type: 'submit' | 'estimation';
   error: unknown;
-};
+}
 
-const SendErrorAlert: FC<SendErrorAlertProps> = ({ type, error }) => {
+const SendErrorAlert = memo<Props>(({ type, error }) => {
   const { symbol } = useGasToken();
 
   return (
@@ -39,6 +41,9 @@ const SendErrorAlert: FC<SendErrorAlertProps> = ({ type, error }) => {
           case error instanceof NotEnoughFundsError:
             return t('minimalFeeGreaterThanBalanceVerbose');
 
+          case isCounterError(error):
+            return t('counterIsOffOperationError');
+
           default:
             return (
               <>
@@ -61,6 +66,9 @@ const SendErrorAlert: FC<SendErrorAlertProps> = ({ type, error }) => {
       className="mt-6 mb-4"
     />
   );
-};
+});
 
 export default SendErrorAlert;
+
+const isCounterError = (error: unknown) =>
+  error instanceof HttpResponseError && error.message.includes('counter_in_the_');

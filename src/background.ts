@@ -8,8 +8,8 @@ import {
   putStoredAppUpdateDetails,
   removeStoredAppUpdateDetails
 } from 'app/storage/app-update';
+import { updateRulesStorage } from 'lib/ads/update-rules-storage';
 import { EnvVars } from 'lib/env';
-import { updateRulesStorage } from 'lib/slise/update-rules-storage';
 import { start } from 'lib/temple/back/main';
 
 browser.runtime.onInstalled.addListener(({ reason }) => {
@@ -47,9 +47,9 @@ function openFullPage() {
 }
 
 globalThis.addEventListener('notificationclick', event => {
-  // @ts-ignore
+  // @ts-expect-error
   event.notification.close();
-  // @ts-ignore
+  // @ts-expect-error
   event.waitUntil(clients.openWindow(`${event.target.registration.scope}fullpage.html`));
 });
 

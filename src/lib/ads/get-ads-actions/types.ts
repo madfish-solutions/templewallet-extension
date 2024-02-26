@@ -1,4 +1,6 @@
-import type { SliseAdStylesOverrides } from 'lib/apis/temple';
+import type { AdStylesOverrides } from 'lib/apis/temple';
+
+import { AdsResolution } from '../ads-resolutions';
 
 export enum AdActionType {
   ReplaceAllChildren = 'replace-all-children',
@@ -12,16 +14,12 @@ interface AdActionBase {
   type: AdActionType;
 }
 
-interface AdRect {
-  width: number;
-  height: number;
-}
-
 interface InsertAdActionProps {
-  adRect: AdRect;
+  adResolution: AdsResolution;
   shouldUseDivWrapper: boolean;
   divWrapperStyle?: Record<string, string>;
-  stylesOverrides?: SliseAdStylesOverrides[];
+  elementStyle?: Record<string, string>;
+  stylesOverrides?: AdStylesOverrides[];
 }
 
 export interface ReplaceAllChildrenWithAdAction extends AdActionBase, InsertAdActionProps {

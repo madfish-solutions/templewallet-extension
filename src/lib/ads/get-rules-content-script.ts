@@ -2,43 +2,46 @@ import { isEqual } from 'lodash';
 import memoizee from 'memoizee';
 import browser from 'webextension-polyfill';
 
-import type { RawSliseAdPlacesRule, RawSliseAdProvidersRule, RawPermanentSliseAdPlacesRule } from 'lib/apis/temple';
-import { ALL_SLISE_ADS_RULES_STORAGE_KEY, SLISE_ADS_RULES_UPDATE_INTERVAL } from 'lib/constants';
+import type { RawAdPlacesRule, RawAdProvidersRule, RawPermanentAdPlacesRule } from 'lib/apis/temple';
+import { ALL_ADS_RULES_STORAGE_KEY, ADS_RULES_UPDATE_INTERVAL } from 'lib/constants';
 
-interface RawAllSliseAdsRules {
-  adPlacesRulesForAllDomains: Record<string, RawSliseAdPlacesRule[]>;
-  providersRulesForAllDomains: Record<string, RawSliseAdProvidersRule[]>;
+interface RawAllAdsRules {
+  adPlacesRulesForAllDomains: Record<string, RawAdPlacesRule[]>;
+  providersRulesForAllDomains: Record<string, RawAdProvidersRule[]>;
   providersSelectors: Record<string, string[]>;
   providersToReplaceAtAllSites: string[];
-  permanentAdPlacesRulesForAllDomains: Record<string, RawPermanentSliseAdPlacesRule[]>;
+  permanentAdPlacesRulesForAllDomains: Record<string, RawPermanentAdPlacesRule[]>;
+  permanentNativeAdPlacesRulesForAllDomains: Record<string, RawPermanentAdPlacesRule[]>;
   timestamp: number;
 }
 
-interface SliseAdPlacesRule extends Omit<RawSliseAdPlacesRule, 'urlRegexes'> {
+interface AdPlacesRule extends Omit<RawAdPlacesRule, 'urlRegexes'> {
   urlRegexes: RegExp[];
 }
 
-interface PermanentSliseAdPlacesRule extends Omit<RawPermanentSliseAdPlacesRule, 'urlRegexes'> {
+interface PermanentAdPlacesRule extends Omit<RawPermanentAdPlacesRule, 'urlRegexes'> {
   urlRegexes: RegExp[];
+  isNative: boolean;
 }
 
-export interface SliseAdsRules {
-  adPlacesRules: Array<Omit<SliseAdPlacesRule, 'urlRegexes'>>;
-  permanentAdPlacesRules: PermanentSliseAdPlacesRule[];
+export interface AdsRules {
+  adPlacesRules: Array<Omit<AdPlacesRule, 'urlRegexes'>>;
+  permanentAdPlacesRules: PermanentAdPlacesRule[];
   providersSelector: string;
   timestamp: number;
 }
 
 export const getRulesFromContentScript = memoizee(
-  async (location: Location): Promise<SliseAdsRules> => {
+  async (location: Location): Promise<AdsRules> => {
     try {
-      const storageContent = await browser.storage.local.get(ALL_SLISE_ADS_RULES_STORAGE_KEY);
-      const rules: RawAllSliseAdsRules = storageContent[ALL_SLISE_ADS_RULES_STORAGE_KEY] ?? {
+      const storageContent = await browser.storage.local.get(ALL_ADS_RULES_STORAGE_KEY);
+      const rules: RawAllAdsRules = storageContent[ALL_ADS_RULES_STORAGE_KEY] ?? {
         adPlacesRulesForAllDomains: {},
         providersRulesForAllDomains: [],
         providersSelectors: {},
         providersToReplaceAtAllSites: [],
         permanentAdPlacesRulesForAllDomains: {},
+        permanentNativeAdPlacesRulesForAllDomains: {},
         timestamp: 0
       };
       const {
@@ -47,6 +50,7 @@ export const getRulesFromContentScript = memoizee(
         providersSelectors,
         providersToReplaceAtAllSites,
         permanentAdPlacesRulesForAllDomains,
+        permanentNativeAdPlacesRulesForAllDomains = {},
         timestamp
       } = rules;
       const { hostname, href } = location;
@@ -65,30 +69,34 @@ export const getRulesFromContentScript = memoizee(
         ...restRuleProps,
         urlRegexes: urlRegexes.map(regex => new RegExp(regex))
       }));
-      const permanentAdPlacesRules = (permanentAdPlacesRulesForAllDomains[hostname] ?? []).map(
-        ({ urlRegexes, ...restRuleProps }) => ({
+      const rawPermanentAdPlacesRules = permanentAdPlacesRulesForAllDomains[hostname] ?? [];
+      const rawPermanentNativeAdPlacesRules = permanentNativeAdPlacesRulesForAllDomains[hostname] ?? [];
+      const permanentAdPlacesRules = rawPermanentAdPlacesRules
+        .map(({ urlRegexes, ...restRuleProps }) => ({
           ...restRuleProps,
-          urlRegexes: urlRegexes.map(regex => new RegExp(regex))
-        })
-      );
+          urlRegexes: urlRegexes.map(regex => new RegExp(regex)),
+          isNative: false
+        }))
+        .concat(
+          rawPermanentNativeAdPlacesRules.map(({ urlRegexes, ...restRuleProps }) => ({
+            ...restRuleProps,
+            urlRegexes: urlRegexes.map(regex => new RegExp(regex)),
+            isNative: true
+          }))
+        );
 
-      const aggregatedRelatedAdPlacesRules = adPlacesRules.reduce<Array<Omit<SliseAdPlacesRule, 'urlRegexes'>>>(
-        (acc, { urlRegexes, selector, stylesOverrides }) => {
+      const aggregatedRelatedAdPlacesRules = adPlacesRules.reduce<Array<Omit<AdPlacesRule, 'urlRegexes'>>>(
+        (acc, { urlRegexes, selector, ...restProps }) => {
           if (!urlRegexes.some(hrefMatchPredicate)) return acc;
 
           const { cssString, ...restSelectorProps } = selector;
-          const ruleToComplementIndex = acc.findIndex(
-            ({ selector: candidateSelector, stylesOverrides: candidateStylesOverrides }) => {
-              const { cssString: _candidateCssString, ...restCandidateSelectorProps } = candidateSelector;
+          const ruleToComplementIndex = acc.findIndex(({ selector: candidateSelector, ...candidateRestProps }) => {
+            const { cssString: _candidateCssString, ...restCandidateSelectorProps } = candidateSelector;
 
-              return (
-                isEqual(restSelectorProps, restCandidateSelectorProps) &&
-                isEqual(stylesOverrides, candidateStylesOverrides)
-              );
-            }
-          );
+            return isEqual(restSelectorProps, restCandidateSelectorProps) && isEqual(restProps, candidateRestProps);
+          });
           if (ruleToComplementIndex === -1) {
-            acc.push({ stylesOverrides, selector });
+            acc.push({ selector, ...restProps });
           } else {
             acc[ruleToComplementIndex].selector.cssString += ', '.concat(cssString);
           }
@@ -137,7 +145,7 @@ export const getRulesFromContentScript = memoizee(
       };
     }
   },
-  { maxAge: SLISE_ADS_RULES_UPDATE_INTERVAL, normalizer: ([location]) => location.href, promise: true }
+  { maxAge: ADS_RULES_UPDATE_INTERVAL, normalizer: ([location]) => location.href, promise: true }
 );
 
 export const clearRulesCache = () => getRulesFromContentScript.clear();

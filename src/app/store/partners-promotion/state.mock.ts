@@ -1,4 +1,4 @@
-import { createEntity } from 'lib/store';
+import { createEntity, mockPersistedState } from 'lib/store';
 
 import type { PartnersPromotionState } from './state';
 
@@ -22,8 +22,8 @@ export const mockPartnersPromotion = {
   view_url: ''
 };
 
-export const mockPartnersPromotionState: PartnersPromotionState = {
+export const mockPartnersPromotionState = mockPersistedState<PartnersPromotionState>({
   promotion: createEntity(mockPartnersPromotion),
   shouldShowPromotion: true,
   promotionHidingTimestamps: {}
-};
+});

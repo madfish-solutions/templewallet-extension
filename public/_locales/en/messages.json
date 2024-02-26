@@ -1251,6 +1251,9 @@
       }
     }
   },
+  "counterIsOffOperationError": {
+    "message": "You're trying to send transaction too quickly. Please wait a moment and try again."
+  },
   "networkOrOtherIssue": {
     "message": "Network or other technical issue."
   },
@@ -2387,6 +2390,7 @@
     "description": "Show less"
   },
   "showInfo": { "message": "Show info" },
+  "blur": { "message": "Blur" },
   "hideZeroBalance": { "message": "Hide 0 balance" },
   "recentDestinations": {
     "message": "Recent destinations"

@@ -25,7 +25,7 @@ export const FileInput: React.FC<FileInputProps> = ({ children, className, onCha
 
   useEffect(() => {
     if (ref.current && value !== ref.current.files) {
-      // @ts-ignore
+      // @ts-expect-error
       ref.current.value = value ?? [];
     }
   }, [value, ref]);
