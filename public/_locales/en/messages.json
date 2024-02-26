@@ -2390,6 +2390,7 @@
     "description": "Show less"
   },
   "showInfo": { "message": "Show info" },
+  "blur": { "message": "Blur" },
   "hideZeroBalance": { "message": "Hide 0 balance" },
   "recentDestinations": {
     "message": "Recent destinations"
