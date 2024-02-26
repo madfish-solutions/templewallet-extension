@@ -16,15 +16,17 @@ import { CollectibleImageLoader } from '../components/CollectibleImageLoader';
 interface Props {
   assetSlug: string;
   metadata?: TokenMetadata;
+  adultBlur: boolean;
   areDetailsLoading: boolean;
   mime?: string | null;
   containerElemRef: React.RefObject<Element>;
 }
 
 export const CollectibleItemImage = memo<Props>(
-  ({ assetSlug, metadata, areDetailsLoading, mime, containerElemRef }) => {
+  ({ assetSlug, metadata, adultBlur, areDetailsLoading, mime, containerElemRef }) => {
     const isAdultContent = useCollectibleIsAdultSelector(assetSlug);
     const isAdultFlagLoading = areDetailsLoading && !isDefined(isAdultContent);
+    const shouldShowBlur = isAdultContent && adultBlur;
 
     const sources = useMemo(() => (metadata ? buildCollectibleImagesStack(metadata) : []), [metadata]);
 
@@ -39,7 +41,7 @@ export const CollectibleItemImage = memo<Props>(
       <div className={isInViewport ? 'contents' : 'hidden'}>
         {isAdultFlagLoading ? (
           <CollectibleImageLoader />
-        ) : isAdultContent ? (
+        ) : shouldShowBlur ? (
           <CollectibleBlur />
         ) : (
           <ImageStacked
