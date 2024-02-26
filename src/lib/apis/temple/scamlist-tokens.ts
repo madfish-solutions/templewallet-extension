@@ -6,7 +6,7 @@ interface ScamlistResponse {
   slugs: Record<string, boolean>;
 }
 
-export const scamlistApi = axios.create({
+const scamlistApi = axios.create({
   baseURL: 'https://raw.githubusercontent.com/madfish-solutions/tokens-scamlist/master/'
 });
 
