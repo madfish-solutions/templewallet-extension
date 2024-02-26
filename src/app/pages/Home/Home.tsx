@@ -1,7 +1,10 @@
 import React, { memo, useLayoutEffect } from 'react';
 
+import { isDefined } from '@rnw-community/shared';
+
 import { useAppEnv } from 'app/env';
 import PageLayout from 'app/layouts/PageLayout';
+import { useMainnetTokensScamlistSelector } from 'app/store/assets/selectors';
 import { setAnotherSelector, setTestID } from 'lib/analytics';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { useAssetMetadata, getAssetSymbol } from 'lib/metadata';
@@ -15,6 +18,7 @@ import { ActionButtonsBar } from './ActionButtonsBar';
 import { ContentSection } from './ContentSection';
 import EditableTitle from './OtherComponents/EditableTitle';
 import MainBanner from './OtherComponents/MainBanner';
+import { ScamTokenAlert } from './OtherComponents/ScamTokenAlert';
 import { TokenPageSelectors } from './OtherComponents/TokenPage.selectors';
 
 type Props = {
@@ -26,6 +30,9 @@ const Home = memo<Props>(({ assetSlug }) => {
   const { onboardingCompleted } = useOnboardingProgress();
   const { publicKeyHash } = useAccount();
   const { search } = useLocation();
+
+  const mainnetTokensScamSlugsRecord = useMainnetTokensScamlistSelector();
+  const showScamTokenAlert = isDefined(assetSlug) && mainnetTokensScamSlugsRecord[assetSlug];
 
   const assetMetadata = useAssetMetadata(assetSlug || TEZ_TOKEN_SLUG);
   const assetSymbol = getAssetSymbol(assetMetadata);
@@ -62,6 +69,8 @@ const Home = memo<Props>(({ assetSlug }) => {
           <hr className="mb-4" />
         </div>
       )}
+
+      {showScamTokenAlert && <ScamTokenAlert />}
 
       <div className="flex flex-col items-center mb-6">
         <MainBanner accountPkh={publicKeyHash} assetSlug={assetSlug} />
