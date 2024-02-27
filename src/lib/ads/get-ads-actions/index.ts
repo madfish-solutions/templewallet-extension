@@ -1,5 +1,5 @@
 import type { AdsRules } from 'lib/ads/get-rules-content-script';
-import { SLISE_PUBLISHER_ID, TEMPLE_WALLET_AD_ATTRIBUTE_NAME } from 'lib/constants';
+import { TEMPLE_WALLET_AD_ATTRIBUTE_NAME } from 'lib/constants';
 
 import { applyQuerySelector, getFinalSize, getParentOfDepth, pickAdResolution } from './helpers';
 import {
@@ -14,19 +14,15 @@ import {
 } from './types';
 
 const ourAdQuerySelector = `iframe[${TEMPLE_WALLET_AD_ATTRIBUTE_NAME}], div[${TEMPLE_WALLET_AD_ATTRIBUTE_NAME}], \
-ins.adsbyslise[${TEMPLE_WALLET_AD_ATTRIBUTE_NAME}][data-ad-pub="${SLISE_PUBLISHER_ID}"]`;
+ins[${TEMPLE_WALLET_AD_ATTRIBUTE_NAME}]`;
 
 const elementIsOurAd = (element: HTMLElement) => {
   const tagName = element.tagName.toLowerCase();
-  const isOurIframe = tagName === 'iframe' && element.hasAttribute(TEMPLE_WALLET_AD_ATTRIBUTE_NAME);
-  const isOurBannerWrapper = tagName === 'div' && element.hasAttribute(TEMPLE_WALLET_AD_ATTRIBUTE_NAME);
-  const isOurIns =
-    tagName === 'ins' &&
-    element.classList.contains('adsbyslise') &&
-    element.hasAttribute(TEMPLE_WALLET_AD_ATTRIBUTE_NAME) &&
-    element.getAttribute('data-ad-pub') === SLISE_PUBLISHER_ID;
 
-  return isOurIframe || isOurBannerWrapper || isOurIns;
+  return (
+    (tagName === 'iframe' || tagName === 'div' || tagName === 'ins') &&
+    element.hasAttribute(TEMPLE_WALLET_AD_ATTRIBUTE_NAME)
+  );
 };
 
 const forEachWithTimeoutInterruptions = <A>(array: A[], fn: (value: A) => void | Promise<void>) =>
