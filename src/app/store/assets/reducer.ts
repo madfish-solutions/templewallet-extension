@@ -1,6 +1,5 @@
 import { createReducer } from '@reduxjs/toolkit';
 import { persistReducer } from 'redux-persist';
-//import hardSet from 'redux-persist/lib/stateReconciler/hardSet';
 
 import { toTokenSlug } from 'lib/assets';
 import { storageConfig, createTransformsBeforePersist } from 'lib/store';

@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useState } from 'react';
+import React, { memo, useCallback } from 'react';
 
 import clsx from 'clsx';
 
@@ -6,7 +6,6 @@ import { Button } from 'app/atoms/Button';
 import { AssetsSelectors } from 'app/pages/Home/OtherComponents/Assets.selectors';
 import { dispatch } from 'app/store';
 import { setTokenStatusAction } from 'app/store/assets/actions';
-import { SCAM_COLORS } from 'lib/assets/known-tokens';
 import { t, T } from 'lib/i18n';
 import { useAccount, useChainId } from 'lib/temple/front';
 import { useConfirm } from 'lib/ui/dialog';
@@ -18,8 +17,6 @@ interface Props {
 }
 
 export const ScamTag = memo<Props>(({ assetSlug }) => {
-  const [hovered, setHovered] = useState(false);
-
   const chainId = useChainId(true)!;
   const { publicKeyHash } = useAccount();
 
@@ -52,18 +49,20 @@ export const ScamTag = memo<Props>(({ assetSlug }) => {
     [chainId, publicKeyHash, confirm]
   );
 
+  const handleClick = useCallback(
+    (e: React.MouseEvent<HTMLButtonElement>) => {
+      e.preventDefault();
+      e.stopPropagation();
+      removeToken(assetSlug);
+    },
+    [assetSlug, removeToken]
+  );
+
   return (
     <Button
-      onClick={e => {
-        e.preventDefault();
-        e.stopPropagation();
-        removeToken(assetSlug);
-      }}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
+      onClick={handleClick}
+      className={clsx('uppercase ml-2 px-2 py-1', modStyles['tagBase'], modStyles['scamTag'])}
       testID={AssetsSelectors.assetItemScamButton}
-      className={clsx('uppercase ml-2 px-2 py-1', modStyles['apyTag'])}
-      style={{ backgroundColor: hovered ? SCAM_COLORS.bgHover : SCAM_COLORS.bg }}
     >
       <T id="scam" />
     </Button>
