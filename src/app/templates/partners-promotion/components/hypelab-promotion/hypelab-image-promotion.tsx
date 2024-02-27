@@ -9,7 +9,7 @@ import { EnvVars } from 'lib/env';
 import { HypelabBannerAd, SingleProviderPromotionProps } from '../../types';
 import { ImagePromotionView } from '../image-promotion-view';
 
-import { getHypelabAd } from './get-hypelab-ad';
+import { getHypelabBannerAd } from './get-hypelab-ad';
 
 const bannerIsDisplayed = (element: BannerElement) => {
   const styles = window.getComputedStyle(element);
@@ -40,9 +40,10 @@ export const HypelabImagePromotion: FC<Omit<SingleProviderPromotionProps, 'varia
     }
 
     const adUrlUpdateInterval = setInterval(() => {
-      const ad = getHypelabAd(hypelabBannerElementRef.current!) as unknown as HypelabBannerAd;
+      const elem = hypelabBannerElementRef.current;
+      const ad = elem && getHypelabBannerAd(elem);
 
-      if (ad.cta_url !== prevAdUrlRef.current) {
+      if (ad && ad.cta_url !== prevAdUrlRef.current) {
         setCurrentAd(ad);
         prevAdUrlRef.current = ad.cta_url;
       }
@@ -56,7 +57,7 @@ export const HypelabImagePromotion: FC<Omit<SingleProviderPromotionProps, 'varia
       return;
     }
 
-    const ad = getHypelabAd(hypelabBannerElementRef.current);
+    const ad = getHypelabBannerAd(hypelabBannerElementRef.current);
     if (adIsDisplayed && ad) {
       setCurrentAd(ad);
       prevAdUrlRef.current = ad.cta_url;
