@@ -61,7 +61,7 @@ export const ScamTag = memo<Props>(({ assetSlug }) => {
   return (
     <Button
       onClick={handleClick}
-      className={clsx('uppercase ml-2 px-2 py-1', modStyles['tagBase'], modStyles['scamTag'])}
+      className={clsx('uppercase ml-2 px-2 py-1', modStyles.tagBase, modStyles.scamTag)}
       testID={AssetsSelectors.assetItemScamButton}
     >
       <T id="scam" />

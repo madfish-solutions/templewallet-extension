@@ -21,12 +21,12 @@ const APR = 'APR';
 const APY = 'APY';
 const YOUVES_TOKENS_WITH_APR = [KNOWN_TOKENS_SLUGS.UUSD, KNOWN_TOKENS_SLUGS.UBTC, KNOWN_TOKENS_SLUGS.YOU];
 const TAGS_CLASSNAME_RECORD: Record<string, string> = {
-  [KNOWN_TOKENS_SLUGS.KUSD]: 'kusdTag',
-  [KNOWN_TOKENS_SLUGS.TZBTC]: 'tzbtcTag',
-  [KNOWN_TOKENS_SLUGS.USDT]: 'usdtTag',
-  [KNOWN_TOKENS_SLUGS.UUSD]: 'youvesTag',
-  [KNOWN_TOKENS_SLUGS.UBTC]: 'youvesTag',
-  [KNOWN_TOKENS_SLUGS.YOU]: 'youvesTag'
+  [KNOWN_TOKENS_SLUGS.KUSD]: modStyles.kusdTag,
+  [KNOWN_TOKENS_SLUGS.TZBTC]: modStyles.tzbtcTag,
+  [KNOWN_TOKENS_SLUGS.USDT]: modStyles.usdtTag,
+  [KNOWN_TOKENS_SLUGS.UUSD]: modStyles.youvesTag,
+  [KNOWN_TOKENS_SLUGS.UBTC]: modStyles.youvesTag,
+  [KNOWN_TOKENS_SLUGS.YOU]: modStyles.youvesTag
 };
 
 export const TokenApyTag: FC<Props> = ({ slug, symbol, apyInfo }) => {
@@ -49,7 +49,7 @@ export const TokenApyTag: FC<Props> = ({ slug, symbol, apyInfo }) => {
       }}
       testID={AssetsSelectors.assetItemApyButton}
       testIDProperties={{ slug, symbol, apyRate: rate }}
-      className={classNames('ml-2 px-2 py-1', modStyles['tagBase'], modStyles[tokenClassName])}
+      className={classNames('ml-2 px-2 py-1', modStyles.tagBase, tokenClassName)}
     >
       {label}: {displayRate}%
     </Button>

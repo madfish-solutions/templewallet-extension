@@ -99,7 +99,7 @@ export const TokensTab = memo(() => {
     }
 
     return tokensJsx;
-  }, [filteredAssets, activeAssetSlug, publicKeyHash]);
+  }, [filteredAssets, activeAssetSlug, publicKeyHash, mainnetTokensScamSlugsRecord]);
 
   useLoadPartnersPromo(OptimalPromoVariantEnum.Token);
 
