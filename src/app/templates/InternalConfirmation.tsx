@@ -28,7 +28,7 @@ import { useRetryableSWR } from 'lib/swr';
 import { useChainIdValue, useNetwork, useRelevantAccounts, tryParseExpenses } from 'lib/temple/front';
 import { TempleAccountType, TempleChainId, TempleConfirmationPayload } from 'lib/temple/types';
 import { useSafeState } from 'lib/ui/hooks';
-import { isTruthy, delay } from 'lib/utils';
+import { isTruthy } from 'lib/utils';
 
 import { InternalConfirmationSelectors } from './InternalConfirmation.selectors';
 
@@ -178,11 +178,11 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
   const confirm = useCallback(
     async (confirmed: boolean) => {
       setError(null);
+
       try {
         await onConfirm(confirmed, modifiedTotalFeeValue - revealFee, modifiedStorageLimitValue);
-      } catch (err: any) {
-        // Human delay.
-        await delay();
+      } catch (err) {
+        console.error(err);
         setError(err);
       }
     },

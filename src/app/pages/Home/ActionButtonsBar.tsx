@@ -9,6 +9,7 @@ import { ReactComponent as ReceiveIcon } from 'app/icons/receive.svg';
 import { ReactComponent as SendIcon } from 'app/icons/send-alt.svg';
 import { ReactComponent as SwapIcon } from 'app/icons/swap.svg';
 import { ReactComponent as WithdrawIcon } from 'app/icons/withdraw.svg';
+import { buildSwapPageUrlQuery } from 'app/pages/Swap/utils/build-url-query';
 import { TestIDProps } from 'lib/analytics';
 import { TID, T, t } from 'lib/i18n';
 import { useAccount, useNetwork } from 'lib/temple/front';
@@ -42,7 +43,7 @@ export const ActionButtonsBar = memo<Props>(({ assetSlug }) => {
   const swapLink = useMemo(
     () => ({
       pathname: '/swap',
-      search: `from=${assetSlug ?? ''}`
+      search: buildSwapPageUrlQuery(assetSlug)
     }),
     [assetSlug]
   );

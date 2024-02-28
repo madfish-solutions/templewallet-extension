@@ -58,7 +58,6 @@ import { hasManager, isAddressValid, isKTAddress, mutezToTz, tzToMutez } from 'l
 import { TempleAccountType, TempleAccount, TempleNetworkType } from 'lib/temple/types';
 import { useSafeState } from 'lib/ui/hooks';
 import { useScrollIntoView } from 'lib/ui/use-scroll-into-view';
-import { delay } from 'lib/utils';
 import { ZERO } from 'lib/utils/numbers';
 
 import ContactsDropdown, { ContactsDropdownProps } from './ContactsDropdown';
@@ -235,14 +234,13 @@ export const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactReque
       }
 
       return estimatedBaseFee;
-    } catch (err: any) {
-      await delay();
+    } catch (err) {
+      console.error(err);
 
       if (err instanceof ArtificialError) {
         return err;
       }
 
-      console.error(err);
       throw err;
     }
   }, [tezBalance, balance, assetMetadata, toResolved, assetSlug, tezos, accountPkh, acc]);
@@ -359,23 +357,21 @@ export const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactReque
           const estmtn = await tezos.estimate.transfer(transferParams);
           const addFee = tzToMutez(feeVal ?? 0);
           const fee = addFee.plus(estmtn.suggestedFeeMutez).toNumber();
-          op = await tezos.wallet.transfer({ ...transferParams, fee } as any).send();
+          op = await tezos.wallet.transfer({ ...transferParams, fee }).send();
         }
         setOperation(op);
         reset({ to: '', fee: RECOMMENDED_ADD_FEE });
 
         formAnalytics.trackSubmitSuccess();
       } catch (err: any) {
+        console.error(err);
+
         formAnalytics.trackSubmitFail();
 
-        if (err.message === 'Declined') {
+        if (err?.message === 'Declined') {
           return;
         }
 
-        console.error(err);
-
-        // Human delay.
-        await delay();
         setSubmitError(err);
       }
     },

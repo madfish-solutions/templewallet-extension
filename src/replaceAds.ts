@@ -6,33 +6,36 @@ import { AdActionType } from 'lib/ads/get-ads-actions/types';
 import { clearRulesCache, getRulesFromContentScript } from 'lib/ads/get-rules-content-script';
 import { getSlotId } from 'lib/ads/get-slot-id';
 import { makeHypelabAdElement } from 'lib/ads/make-hypelab-ad';
-import { makeSliseAdElement, registerSliseAd } from 'lib/ads/make-slise-ad';
+import { makeTKeyAdElement } from 'lib/ads/make-tkey-ad';
 import {
   ContentScriptType,
   ADS_RULES_UPDATE_INTERVAL,
   WEBSITES_ANALYTICS_ENABLED,
   TEMPLE_WALLET_AD_ATTRIBUTE_NAME,
-  SLISE_AD_PLACEMENT_SLUG,
+  TKEY_AD_PLACEMENT_SLUG,
   AD_SEEN_THRESHOLD
 } from 'lib/constants';
 
-let oldHref = '';
-
 let processing = false;
+
+let provider: string;
 
 const loadingAdsIds = new Set();
 const loadedAdsIds = new Set();
+const alreadySentAnalyticsAdsIds = new Set();
 
-const sendExternalAdsActivityIfNecessary = () => {
-  const newHref = window.parent.location.href;
-
-  if (oldHref === newHref) {
+const sendExternalAdsActivity = (adId: string) => {
+  if (alreadySentAnalyticsAdsIds.has(adId)) {
     return;
   }
 
-  oldHref = newHref;
+  alreadySentAnalyticsAdsIds.add(adId);
 
-  browser.runtime.sendMessage({ type: ContentScriptType.ExternalAdsActivity, url: newHref }).catch(console.error);
+  const url = window.parent.location.href;
+
+  browser.runtime
+    .sendMessage({ type: ContentScriptType.ExternalAdsActivity, url, provider })
+    .catch(err => void console.error(err));
 };
 
 const subscribeToIframeLoadIfNecessary = (adId: string, element: HTMLIFrameElement) => {
@@ -48,7 +51,7 @@ const subscribeToIframeLoadIfNecessary = (adId: string, element: HTMLIFrameEleme
       const adIsSeen = adRectIsSeen(element);
 
       if (adIsSeen) {
-        sendExternalAdsActivityIfNecessary();
+        sendExternalAdsActivity(adId);
       } else {
         loadedAdIntersectionObserver.observe(element);
       }
@@ -59,32 +62,13 @@ const subscribeToIframeLoadIfNecessary = (adId: string, element: HTMLIFrameEleme
 const loadedAdIntersectionObserver = new IntersectionObserver(
   entries => {
     if (entries.some(entry => entry.isIntersecting)) {
-      sendExternalAdsActivityIfNecessary();
+      const elem = entries[0].target;
+
+      sendExternalAdsActivity(elem.id);
     }
   },
   { threshold: AD_SEEN_THRESHOLD }
 );
-
-const sliseAdMutationObserver = new MutationObserver(mutations => {
-  mutations.forEach(({ target }) => {
-    if (!(target instanceof HTMLModElement) || !target.getAttribute(TEMPLE_WALLET_AD_ATTRIBUTE_NAME)) {
-      console.warn('Unexpected mutation target', target);
-
-      return;
-    }
-
-    const iframeElement = target.querySelector('iframe');
-
-    if (!iframeElement) {
-      console.warn('No iframe in the ad', target);
-
-      return;
-    }
-
-    const adId = target.id;
-    subscribeToIframeLoadIfNecessary(adId, iframeElement);
-  });
-});
 
 const overrideElementStyles = (element: HTMLElement, overrides: Record<string, string>) => {
   for (const stylePropName in overrides) {
@@ -124,9 +108,9 @@ const replaceAds = async () => {
           let stylesOverridesCurrentElement: HTMLElement | null;
           let adElementWithWrapper: HTMLElement;
           const slotId = getSlotId();
-          const shouldUseSliseAd = adResolution.placementType === SLISE_AD_PLACEMENT_SLUG;
-          const adElement = shouldUseSliseAd
-            ? makeSliseAdElement(slotId, adResolution.width, adResolution.height, elementStyle)
+          const shouldUseTKeyAd = adResolution.placementType === TKEY_AD_PLACEMENT_SLUG;
+          const adElement = shouldUseTKeyAd
+            ? makeTKeyAdElement(slotId, adResolution.width, adResolution.height, elementStyle)
             : makeHypelabAdElement(adResolution, elementStyle);
           if (shouldUseDivWrapper) {
             adElementWithWrapper = document.createElement('div');
@@ -151,10 +135,11 @@ const replaceAds = async () => {
               action.parent.insertBefore(adElementWithWrapper, action.parent.children[action.insertionIndex]);
               break;
           }
-          if (shouldUseSliseAd) {
-            sliseAdMutationObserver.observe(adElement, { childList: true });
-            registerSliseAd(slotId);
+          if (shouldUseTKeyAd) {
+            provider = 'Temple Wallet';
+            loadedAdIntersectionObserver.observe(adElement);
           } else {
+            provider = 'HypeLab';
             subscribeToIframeLoadIfNecessary(adElement.id, adElement as HTMLIFrameElement);
           }
           let currentParentDepth = 0;
