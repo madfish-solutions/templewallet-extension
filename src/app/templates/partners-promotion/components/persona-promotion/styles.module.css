@@ -1,0 +1,4 @@
+.container > div {
+  height: unset !important;
+  margin: auto;
+}
