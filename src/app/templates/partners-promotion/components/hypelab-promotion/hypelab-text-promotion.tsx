@@ -9,7 +9,7 @@ import { EnvVars } from 'lib/env';
 import { SingleProviderPromotionProps, HypelabNativeAd } from '../../types';
 import { TextPromotionView } from '../text-promotion-view';
 
-import { getHypelabAd } from './get-hypelab-ad';
+import { getHypelabNativeAd } from './get-hypelab-ad';
 
 const getInnerText = (element: HTMLSpanElement) => element.innerText;
 
@@ -35,15 +35,24 @@ export const HypelabTextPromotion: FC<Omit<SingleProviderPromotionProps, 'varian
   useAdTimeout(adIsReady, onError);
 
   useEffect(() => {
-    if (adIsReady) {
-      setCurrentAd(getHypelabAd(hypelabNativeElementRef.current!) as unknown as HypelabNativeAd);
-      onReady();
+    if (!adIsReady) return;
+
+    const elem = hypelabNativeElementRef.current;
+    const ad = elem && getHypelabNativeAd(elem);
+
+    if (!ad) {
+      onError();
+      return;
     }
-  }, [adIsReady, onReady]);
+
+    setCurrentAd(ad);
+    onReady();
+  }, [adIsReady, onReady, onError]);
 
   return (
     <Native placement={EnvVars.HYPELAB_NATIVE_PLACEMENT_SLUG} ref={hypelabNativeElementRef}>
       <span className="hidden" ref={hypelabHeadlineRef} data-ref="headline" />
+
       <TextPromotionView
         href={currentAd?.cta_url ?? '/'}
         imageSrc={currentAd?.creative_set.icon.url ?? dummyImageSrc}
