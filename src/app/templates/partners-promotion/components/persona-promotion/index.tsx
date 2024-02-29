@@ -12,63 +12,68 @@ import { EnvVars } from 'lib/env';
 import { PartnersPromotionSelectors } from '../../selectors';
 import { PartnersPromotionVariant, SingleProviderPromotionProps } from '../../types';
 import { buildAdClickAnalyticsProperties } from '../../utils';
+import { CloseButton } from '../close-button';
+import { ImageAdLabel } from '../image-promotion-view';
 
 import ModStyles from './styles.module.css';
 
 interface Props extends Omit<SingleProviderPromotionProps, 'variant'> {
   id: string;
-  className?: string;
 }
 
-export const PersonaPromotion = memo<Props>(
-  ({ id, className, isVisible, pageName, onReady, onError, onAdRectSeen }) => {
-    const containerId = `persona-ad-${id}`;
+export const PersonaPromotion = memo<Props>(({ id, isVisible, pageName, onReady, onError, onAdRectSeen, onClose }) => {
+  const containerId = `persona-ad-${id}`;
 
-    const ref = useRef<HTMLDivElement>(null);
+  const ref = useRef<HTMLDivElement>(null);
 
-    const { trackEvent } = useAnalytics();
+  const { trackEvent } = useAnalytics();
 
-    const onClick = useCallback(() => {
-      const anchorElem = ref.current?.querySelector<HTMLAnchorElement>('a.persona-product');
-      const href = anchorElem?.href;
-      console.log('Href:', href);
+  const onClick = useCallback(() => {
+    const anchorElem = ref.current?.querySelector<HTMLAnchorElement>('a.persona-product');
+    const href = anchorElem?.href;
+    console.log('Href:', href);
 
-      if (!href) {
-        console.error('Persona ad href not found');
-        return;
-      }
+    if (!href) {
+      console.error('Persona ad href not found');
+      return;
+    }
 
-      trackEvent(
-        PartnersPromotionSelectors.promoLink,
-        AnalyticsEventCategory.LinkPress,
-        buildAdClickAnalyticsProperties(PartnersPromotionVariant.Image, AdsProviderTitle.Persona, pageName, href)
-      );
-    }, [trackEvent, pageName]);
+    trackEvent(
+      PartnersPromotionSelectors.promoLink,
+      AnalyticsEventCategory.LinkPress,
+      buildAdClickAnalyticsProperties(PartnersPromotionVariant.Image, AdsProviderTitle.Persona, pageName, href)
+    );
+  }, [trackEvent, pageName]);
 
-    useAdRectObservation(ref, onAdRectSeen, isVisible);
+  useAdRectObservation(ref, onAdRectSeen, isVisible);
 
-    useEffect(() => {
-      const { client, adUnitId } = getPersonaAdClient();
+  useEffect(() => {
+    const { client, adUnitId } = getPersonaAdClient();
 
-      client
-        // @ts-expect-error // for missung `adConfig` prop
-        .showBannerAd({ adUnitId, containerId }, errorMsg => {
-          console.error('Persona ad error:', errorMsg);
-          onError();
-        })
-        .then(onReady);
-    }, [containerId, onReady, onError]);
+    client
+      // @ts-expect-error // for missung `adConfig` prop
+      .showBannerAd({ adUnitId, containerId }, errorMsg => {
+        console.error('Persona ad error:', errorMsg);
+        onError();
+      })
+      .then(onReady);
+  }, [containerId, onReady, onError]);
 
-    return (
+  return (
+    <div className={clsx('relative', !isVisible && 'invisible')}>
       <div
         ref={ref}
         id={containerId}
         onClick={onClick}
-        className={clsx('rounded-xl overflow-hidden', ModStyles.container, className)}
+        className={clsx('rounded-xl overflow-hidden', ModStyles.container)}
       />
-    );
-  }
-);
+
+      <ImageAdLabel />
+
+      <CloseButton onClick={onClose} variant={PartnersPromotionVariant.Image} />
+    </div>
+  );
+});
 
 const getPersonaAdClient = memoizee(() => {
   const stageApiKey = 'XXXX_api_key_staging_XXXX';

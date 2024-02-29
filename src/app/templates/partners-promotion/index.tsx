@@ -1,7 +1,6 @@
 import React, { memo, MouseEventHandler, useCallback, useEffect, useState } from 'react';
 
 import clsx from 'clsx';
-import { noop } from 'lodash';
 import { useDispatch } from 'react-redux';
 
 import Spinner from 'app/atoms/Spinner/Spinner';
@@ -132,13 +131,12 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pa
             return (
               <PersonaPromotion
                 id={id}
-                className="my-2"
                 isVisible={adIsReady}
                 pageName={pageName}
+                onAdRectSeen={handleAdRectSeen}
+                onClose={handleClosePartnersPromoClick}
                 onReady={handleAdReady}
                 onError={handlePersonaError}
-                onAdRectSeen={handleAdRectSeen}
-                onClose={noop}
               />
             );
         }

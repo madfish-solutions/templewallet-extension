@@ -71,10 +71,12 @@ export const TextPromotionView = memo<Props>(
           <div className="self-stretch">
             <img className="h-8 w-8 rounded-circle" src={imageSrc} alt="Partners promotion" onError={onImageError} />
           </div>
+
           <div className="flex-1 flex flex-col gap-1 justify-center">
             <div className="flex">
               <div className="flex flex-1 pr-2.5">
                 <span className="text-gray-910 font-medium leading-tight mr-2.5">{headline}</span>
+
                 <div
                   className={clsx(
                     'flex items-center bg-blue-600 rounded px-1.5 h-4',
@@ -84,8 +86,10 @@ export const TextPromotionView = memo<Props>(
                   AD
                 </div>
               </div>
+
               <CloseButton onClick={onClose} variant={PartnersPromotionVariant.Text} />
             </div>
+
             {truncatedContentText && (
               <span className="text-xs text-gray-600 pr-6 leading-5">{truncatedContentText}</span>
             )}

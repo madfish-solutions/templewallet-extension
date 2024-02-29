@@ -54,15 +54,20 @@ export const ImagePromotionView: FC<Props> = ({
     >
       {children}
 
-      <div
-        className={clsx(
-          'absolute top-0 left-0 px-3 rounded-tl-lg rounded-br-lg ',
-          'bg-blue-500 text-2xs leading-snug font-semibold text-white'
-        )}
-      >
-        AD
-      </div>
-      <CloseButton className="absolute top-2 right-2" onClick={onClose} variant={PartnersPromotionVariant.Image} />
+      <ImageAdLabel />
+
+      <CloseButton onClick={onClose} variant={PartnersPromotionVariant.Image} />
     </Anchor>
   );
 };
+
+export const ImageAdLabel: FC = () => (
+  <div
+    className={clsx(
+      'absolute top-0 left-0 px-3 rounded-tl-lg rounded-br-lg ',
+      'bg-blue-500 text-2xs leading-snug font-semibold text-white'
+    )}
+  >
+    AD
+  </div>
+);
