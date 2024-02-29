@@ -2,6 +2,7 @@ import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 
 import { useAdTimeout } from 'app/hooks/ads/use-ad-timeout';
 import { usePartnersPromoSelector } from 'app/store/partners-promotion/selectors';
+import { AdsProviderTitle } from 'lib/ads';
 import { isEmptyPromotion } from 'lib/apis/optimal';
 import { useTimeout } from 'lib/ui/hooks';
 
@@ -11,7 +12,7 @@ import { ImagePromotionView } from './image-promotion-view';
 import { TextPromotionView } from './text-promotion-view';
 
 export const OptimalPromotion = memo<SingleProviderPromotionProps>(
-  ({ isVisible, variant, onAdRectSeen, onClose, onReady, onError }) => {
+  ({ isVisible, variant, pageName, onAdRectSeen, onClose, onReady, onError }) => {
     const [isImageBroken, setIsImageBroken] = useState(false);
     const [wasLoading, setWasLoading] = useState(false);
     const [shouldPreventShowingPrevAd, setShouldPreventShowingPrevAd] = useState(true);
@@ -56,9 +57,18 @@ export const OptimalPromotion = memo<SingleProviderPromotionProps>(
     const { link: href, image: imageSrc, copy } = promo;
     const { headline, content } = copy;
 
+    const providerTitle = AdsProviderTitle.Optimal;
+
     if (variant === PartnersPromotionVariant.Image) {
       return (
-        <ImagePromotionView onClose={onClose} onAdRectSeen={onAdRectSeen} href={href} isVisible={isVisible}>
+        <ImagePromotionView
+          href={href}
+          isVisible={isVisible}
+          providerTitle={providerTitle}
+          pageName={pageName}
+          onClose={onClose}
+          onAdRectSeen={onAdRectSeen}
+        >
           <img src={imageSrc} alt="Partners promotion" className="shadow-lg rounded-lg" onError={onImageError} />
         </ImagePromotionView>
       );
@@ -71,6 +81,8 @@ export const OptimalPromotion = memo<SingleProviderPromotionProps>(
         isVisible={isVisible}
         headline={headline}
         contentText={content}
+        providerTitle={providerTitle}
+        pageName={pageName}
         onAdRectSeen={onAdRectSeen}
         onImageError={onError}
         onClose={onClose}

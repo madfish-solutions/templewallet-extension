@@ -4,6 +4,7 @@ import { Native, NativeElement } from '@hypelab/sdk-react';
 
 import { useAdTimeout } from 'app/hooks/ads/use-ad-timeout';
 import { useElementValue } from 'app/hooks/ads/use-element-value';
+import { AdsProviderTitle } from 'lib/ads';
 import { EnvVars } from 'lib/env';
 
 import { SingleProviderPromotionProps, HypelabNativeAd } from '../../types';
@@ -20,6 +21,7 @@ const dummyImageSrc =
 
 export const HypelabTextPromotion: FC<Omit<SingleProviderPromotionProps, 'variant'>> = ({
   isVisible,
+  pageName,
   onAdRectSeen,
   onClose,
   onReady,
@@ -59,6 +61,8 @@ export const HypelabTextPromotion: FC<Omit<SingleProviderPromotionProps, 'varian
         isVisible={isVisible}
         headline={currentAd?.headline ?? ''}
         contentText={currentAd?.body}
+        providerTitle={AdsProviderTitle.HypeLab}
+        pageName={pageName}
         onAdRectSeen={onAdRectSeen}
         onImageError={onError}
         onClose={onClose}

@@ -1,5 +1,6 @@
 import browser from 'webextension-polyfill';
 
+import { AdsProviderTitle } from 'lib/ads';
 import { adRectIsSeen } from 'lib/ads/ad-rect-is-seen';
 import { getAdsActions } from 'lib/ads/get-ads-actions';
 import { AdActionType } from 'lib/ads/get-ads-actions/types';
@@ -18,7 +19,7 @@ import {
 
 let processing = false;
 
-let provider: string;
+let provider: AdsProviderTitle;
 
 const loadingAdsIds = new Set();
 const loadedAdsIds = new Set();
@@ -136,10 +137,10 @@ const replaceAds = async () => {
               break;
           }
           if (shouldUseTKeyAd) {
-            provider = 'Temple Wallet';
+            provider = AdsProviderTitle.Temple;
             loadedAdIntersectionObserver.observe(adElement);
           } else {
-            provider = 'HypeLab';
+            provider = AdsProviderTitle.HypeLab;
             subscribeToIframeLoadIfNecessary(adElement.id, adElement as HTMLIFrameElement);
           }
           let currentParentDepth = 0;

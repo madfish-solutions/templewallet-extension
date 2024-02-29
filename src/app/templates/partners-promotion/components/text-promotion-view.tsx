@@ -5,29 +5,49 @@ import clsx from 'clsx';
 import { Anchor } from 'app/atoms/Anchor';
 import { useAppEnv } from 'app/env';
 import { useAdRectObservation } from 'app/hooks/ads/use-ad-rect-observation';
+import type { AdsProviderTitle } from 'lib/ads';
 
 import { PartnersPromotionSelectors } from '../selectors';
 import { PartnersPromotionVariant } from '../types';
+import { buildAdClickAnalyticsProperties } from '../utils';
 
 import { CloseButton } from './close-button';
 
-interface TextPromotionViewProps {
+interface Props {
   href: string;
   isVisible: boolean;
   imageSrc: string;
   headline: string;
   contentText?: string;
+  providerTitle: AdsProviderTitle;
+  pageName: string;
   onAdRectSeen: EmptyFn;
   onImageError: EmptyFn;
   onClose: MouseEventHandler<HTMLButtonElement>;
 }
 
-export const TextPromotionView = memo<TextPromotionViewProps>(
-  ({ imageSrc, href, headline, isVisible, contentText = '', onAdRectSeen, onImageError, onClose }) => {
+export const TextPromotionView = memo<Props>(
+  ({
+    imageSrc,
+    href,
+    headline,
+    isVisible,
+    contentText = '',
+    providerTitle,
+    pageName,
+    onAdRectSeen,
+    onImageError,
+    onClose
+  }) => {
     const { popup } = useAppEnv();
     const truncatedContentText = useMemo(
       () => (contentText.length > 80 ? `${contentText.slice(0, 80)}...` : contentText),
       [contentText]
+    );
+
+    const testIDProperties = useMemo(
+      () => buildAdClickAnalyticsProperties(PartnersPromotionVariant.Text, providerTitle, pageName, href),
+      [href, providerTitle, pageName]
     );
 
     const ref = useRef<HTMLAnchorElement>(null);
@@ -45,7 +65,7 @@ export const TextPromotionView = memo<TextPromotionViewProps>(
         rel="noreferrer"
         ref={ref}
         testID={PartnersPromotionSelectors.promoLink}
-        testIDProperties={{ variant: PartnersPromotionVariant.Text, href }}
+        testIDProperties={testIDProperties}
       >
         <div className="flex items-center justify-start gap-2.5 p-4 max-w-sm w-full">
           <div className="self-stretch">

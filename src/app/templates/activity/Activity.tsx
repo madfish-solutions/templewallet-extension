@@ -33,7 +33,14 @@ export const ActivityComponent: React.FC<Props> = ({ assetSlug }) => {
   const promotion = useMemo(() => {
     const promotionId = `promo-activity-${assetSlug ?? 'all'}`;
 
-    return <PartnersPromotion id={promotionId} variant={PartnersPromotionVariant.Image} pageName="Activity" />;
+    return (
+      <PartnersPromotion
+        id={promotionId}
+        variant={PartnersPromotionVariant.Image}
+        pageName="Activity"
+        withPersonaProvider
+      />
+    );
   }, [assetSlug]);
 
   if (activities.length === 0 && !loading && reachedTheEnd) {

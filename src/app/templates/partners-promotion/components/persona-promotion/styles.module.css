@@ -1,4 +1,13 @@
 .container > div {
+  /* To have control over image's size */
   height: unset !important;
+  max-height: 100% !important;
+  width: unset !important;
+  max-width: 100% !important;
   margin: auto;
+  align-items: stretch !important;
+}
+
+.container > div > a[data-test=persona-watermark] {
+  display: none;
 }

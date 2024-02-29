@@ -4,6 +4,7 @@ import { Banner, BannerElement } from '@hypelab/sdk-react';
 
 import { useAdTimeout } from 'app/hooks/ads/use-ad-timeout';
 import { useElementValue } from 'app/hooks/ads/use-element-value';
+import { AdsProviderTitle } from 'lib/ads';
 import { EnvVars } from 'lib/env';
 
 import { HypelabBannerAd, SingleProviderPromotionProps } from '../../types';
@@ -21,6 +22,7 @@ const adAttributesObserverOptions = { attributes: true };
 
 export const HypelabImagePromotion: FC<Omit<SingleProviderPromotionProps, 'variant'>> = ({
   isVisible,
+  pageName,
   onAdRectSeen,
   onClose,
   onError,
@@ -83,6 +85,8 @@ export const HypelabImagePromotion: FC<Omit<SingleProviderPromotionProps, 'varia
       onClose={onClose}
       href={currentAd?.cta_url ?? '#'}
       isVisible={isVisible}
+      providerTitle={AdsProviderTitle.HypeLab}
+      pageName={pageName}
       onAdRectSeen={onAdRectSeen}
     >
       <Banner
