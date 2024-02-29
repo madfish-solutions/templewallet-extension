@@ -16,6 +16,7 @@ import { AD_HIDING_TIMEOUT } from 'lib/constants';
 
 import { HypelabPromotion } from './components/hypelab-promotion';
 import { OptimalPromotion } from './components/optimal-promotion';
+import { PersonaPromotion } from './components/persona-promotion';
 import styles from './partners-promotion.module.css';
 import { PartnersPromotionVariant } from './types';
 
@@ -27,6 +28,8 @@ interface PartnersPromotionProps {
   id: string;
   pageName: string;
 }
+
+type AdsProviderName = 'optimal' | 'hypelab' | 'persona';
 
 const shouldBeHiddenTemporarily = (hiddenAt: number) => {
   return Date.now() - hiddenAt < AD_HIDING_TIMEOUT;
@@ -42,7 +45,7 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pa
   const lastReportedPageName = useLastReportedPageNameSelector();
 
   const [isHiddenTemporarily, setIsHiddenTemporarily] = useState(shouldBeHiddenTemporarily(hiddenAt));
-  const [shouldUseOptimalAd, setShouldUseOptimalAd] = useState(true);
+  const [providerName, setProviderName] = useState<AdsProviderName>('optimal');
   const [adError, setAdError] = useState(false);
   const [adIsReady, setAdIsReady] = useState(false);
 
@@ -78,8 +81,9 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pa
     [id, dispatch]
   );
 
-  const handleOptimalError = useCallback(() => setShouldUseOptimalAd(false), []);
-  const handleHypelabError = useCallback(() => setAdError(true), []);
+  const handleOptimalError = useCallback(() => setProviderName('hypelab'), []);
+  const handleHypelabError = useCallback(() => setProviderName('persona'), []);
+  const handlePersonaError = useCallback(() => setAdError(true), []);
 
   const handleAdReady = useCallback(() => setAdIsReady(true), []);
 
@@ -89,25 +93,35 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pa
 
   return (
     <div className={clsx('w-full relative', !adIsReady && (isImageAd ? styles.imageAdLoading : styles.textAdLoading))}>
-      {shouldUseOptimalAd ? (
-        <OptimalPromotion
-          variant={variant}
-          isVisible={adIsReady}
-          onAdRectSeen={handleAdRectSeen}
-          onClose={handleClosePartnersPromoClick}
-          onReady={handleAdReady}
-          onError={handleOptimalError}
-        />
-      ) : (
-        <HypelabPromotion
-          variant={variant}
-          isVisible={adIsReady}
-          onAdRectSeen={handleAdRectSeen}
-          onClose={handleClosePartnersPromoClick}
-          onReady={handleAdReady}
-          onError={handleHypelabError}
-        />
-      )}
+      {(() => {
+        switch (providerName) {
+          case 'optimal':
+            return (
+              <OptimalPromotion
+                variant={variant}
+                isVisible={adIsReady}
+                onAdRectSeen={handleAdRectSeen}
+                onClose={handleClosePartnersPromoClick}
+                onReady={handleAdReady}
+                onError={handleOptimalError}
+              />
+            );
+          case 'hypelab':
+            return (
+              <HypelabPromotion
+                variant={variant}
+                isVisible={adIsReady}
+                onAdRectSeen={handleAdRectSeen}
+                onClose={handleClosePartnersPromoClick}
+                onReady={handleAdReady}
+                onError={handleHypelabError}
+              />
+            );
+          case 'persona':
+            return <PersonaPromotion id={id} className="my-2" onReady={handleAdReady} onError={handlePersonaError} />;
+        }
+      })()}
+
       {!adIsReady && (
         <div
           className={clsx(

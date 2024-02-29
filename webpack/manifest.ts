@@ -7,6 +7,7 @@ import type { Manifest } from 'webextension-polyfill';
 
 import packageJSON from '../package.json';
 
+import { envFilesData } from './dotenv';
 import { Vendor, ALL_VENDORS, getManifestVersion } from './env';
 
 const WEB_ACCCESSIBLE_RESOURSES = [
@@ -128,6 +129,10 @@ const buildManifestCommons = (vendor: string): Omit<Manifest.WebExtensionManifes
 
   return {
     version: packageJSON.version,
+
+    // @ts-expect-error
+    // Public key to fixate extension ID
+    key: envFilesData._MANIFEST_KEY_,
 
     name: 'Temple - Tezos Wallet',
     short_name: 'Temple - Tezos Wallet',

@@ -5,7 +5,7 @@ import clsx from 'clsx';
 import { Anchor } from 'app/atoms/Anchor';
 import { useAdRectObservation } from 'app/hooks/ads/use-ad-rect-observation';
 
-import { PartnersPromotionSelectors } from '../index.selectors';
+import { PartnersPromotionSelectors } from '../selectors';
 import { PartnersPromotionVariant } from '../types';
 
 import { CloseButton } from './close-button';
