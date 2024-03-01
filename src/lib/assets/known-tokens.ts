@@ -17,24 +17,12 @@ export namespace KNOWN_TOKENS_SLUGS {
   export const KUSD = toTokenSlug('KT1K9gCRgaLRFKTErYt1wVxA3Frb9FjasjTV', 0);
   export const UUSD = toTokenSlug('KT1XRPEPXbZK25r3Htzp2o1x7xdMMmfocKNW', 0);
   export const QUIPU = toTokenSlug('KT193D4vozYnhGJQVtw7CoxxqphqUEEwK6Vb', 0);
-  export const WWBTC = toTokenSlug('KT18fp5rcTW7mbWDmzFwjLDUhs5MeJmagDSZ', 19);
   export const USDT = toTokenSlug('KT1XnTn74bUtxHfDtBmm2bGZAQfhPbvKWR8o', 0);
   export const UBTC = toTokenSlug('KT1XRPEPXbZK25r3Htzp2o1x7xdMMmfocKNW', 2);
   export const YOU = toTokenSlug('KT1Xobej4mc6XgEjDoJoHtTKgbD1ELMvcQuL', 0);
   export const SIRS = toTokenSlug('KT1AafHA1C1vk959wvHWBispY9Y2f3fxBUUo', 0);
   export const TEMPLE = toTokenSlug(TempleToken.contract, TempleToken.id);
 }
-
-const YOUVES_COLORS = { bg: '#143A3A', bgHover: '#4F6B6B' };
-
-export const TOKENS_BRAND_COLORS: Record<string, { bg: string; bgHover?: string }> = {
-  [KNOWN_TOKENS_SLUGS.KUSD]: { bg: '#3EBD93', bgHover: '#65CAA9' },
-  [KNOWN_TOKENS_SLUGS.TZBTC]: { bg: '#1373E4', bgHover: '#428FE9' },
-  [KNOWN_TOKENS_SLUGS.USDT]: { bg: '#009393', bgHover: '#52AF95' },
-  [KNOWN_TOKENS_SLUGS.UUSD]: YOUVES_COLORS,
-  [KNOWN_TOKENS_SLUGS.UBTC]: YOUVES_COLORS,
-  [KNOWN_TOKENS_SLUGS.YOU]: YOUVES_COLORS
-};
 
 const DEPRECATED_TKEY_METADATA: TokenMetadata = {
   id: '0',

@@ -1,11 +1,11 @@
-import React, { FC, useState, useMemo } from 'react';
+import React, { FC, useMemo } from 'react';
 
 import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
 
 import { Button } from 'app/atoms/Button';
 import type { TokenApyInfo } from 'app/hooks/use-token-apy.hook';
-import { KNOWN_TOKENS_SLUGS, TOKENS_BRAND_COLORS } from 'lib/assets/known-tokens';
+import { KNOWN_TOKENS_SLUGS } from 'lib/assets/known-tokens';
 import { isTruthy, openLink } from 'lib/utils';
 
 import { AssetsSelectors } from '../../../Assets.selectors';
@@ -20,11 +20,17 @@ interface Props {
 const APR = 'APR';
 const APY = 'APY';
 const YOUVES_TOKENS_WITH_APR = [KNOWN_TOKENS_SLUGS.UUSD, KNOWN_TOKENS_SLUGS.UBTC, KNOWN_TOKENS_SLUGS.YOU];
+const TAGS_CLASSNAME_RECORD: Record<string, string> = {
+  [KNOWN_TOKENS_SLUGS.KUSD]: modStyles.kusdTag,
+  [KNOWN_TOKENS_SLUGS.TZBTC]: modStyles.tzbtcTag,
+  [KNOWN_TOKENS_SLUGS.USDT]: modStyles.usdtTag,
+  [KNOWN_TOKENS_SLUGS.UUSD]: modStyles.youvesTag,
+  [KNOWN_TOKENS_SLUGS.UBTC]: modStyles.youvesTag,
+  [KNOWN_TOKENS_SLUGS.YOU]: modStyles.youvesTag
+};
 
 export const TokenApyTag: FC<Props> = ({ slug, symbol, apyInfo }) => {
-  const [hovered, setHovered] = useState(false);
-
-  const colors = useMemo(() => TOKENS_BRAND_COLORS[slug], [slug]);
+  const tokenClassName = useMemo(() => TAGS_CLASSNAME_RECORD[slug], [slug]);
 
   const label = useMemo(() => (YOUVES_TOKENS_WITH_APR.includes(slug) ? APR : APY), [slug]);
 
@@ -41,12 +47,9 @@ export const TokenApyTag: FC<Props> = ({ slug, symbol, apyInfo }) => {
         e.stopPropagation();
         openLink(link);
       }}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
       testID={AssetsSelectors.assetItemApyButton}
       testIDProperties={{ slug, symbol, apyRate: rate }}
-      className={classNames('ml-2 px-2 py-1', modStyles['apyTag'])}
-      style={{ backgroundColor: hovered ? colors.bgHover : colors.bg }}
+      className={classNames('ml-2 px-2 py-1', modStyles.tagBase, tokenClassName)}
     >
       {label}: {displayRate}%
     </Button>

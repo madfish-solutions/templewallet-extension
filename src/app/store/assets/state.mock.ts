@@ -5,5 +5,6 @@ import { SliceState } from './state';
 export const mockAssetsState = mockPersistedState<SliceState>({
   tokens: createEntity({}),
   collectibles: createEntity({}),
-  mainnetWhitelist: createEntity([])
+  mainnetWhitelist: createEntity([]),
+  mainnetScamlist: createEntity({})
 });

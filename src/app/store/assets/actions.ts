@@ -28,6 +28,10 @@ export const loadTokensWhitelistActions = createActions<void, WhitelistResponseT
   'assets/LOAD_TOKENS_WHITELIST'
 );
 
+export const loadTokensScamlistActions = createActions<void, Record<string, boolean>, { code?: string }>(
+  'assets/LOAD_TOKENS_SCAMLIST'
+);
+
 type SetAssetStatusPayload = AccountAssetForStore;
 
 export const setTokenStatusAction = createAction<SetAssetStatusPayload>('assets/SET_TOKEN_STATUS');
