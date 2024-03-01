@@ -31,7 +31,6 @@ export const PersonaPromotion = memo<Props>(({ id, isVisible, pageName, onReady,
   const onClick = useCallback(() => {
     const anchorElem = ref.current?.querySelector<HTMLAnchorElement>('a.persona-product');
     const href = anchorElem?.href;
-    console.log('Href:', href);
 
     if (!href) {
       console.error('Persona ad href not found');
