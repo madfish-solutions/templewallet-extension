@@ -1,6 +1,5 @@
 import React, { memo, useEffect, useRef, useCallback } from 'react';
 
-import { PersonaAdSDK } from '@personaxyz/ad-sdk';
 import clsx from 'clsx';
 import memoizee from 'memoizee';
 
@@ -46,17 +45,26 @@ export const PersonaPromotion = memo<Props>(({ id, isVisible, pageName, onReady,
 
   useAdRectObservation(ref, onAdRectSeen, isVisible);
 
-  useEffect(() => {
-    const { client, adUnitId } = getPersonaAdClient();
+  const injectAd = useCallback(async () => {
+    const { client, adUnitId } = await getPersonaAdClient();
 
-    client
+    await client.showBannerAd(
       // @ts-expect-error // for missung `adConfig` prop
-      .showBannerAd({ adUnitId, containerId }, errorMsg => {
-        console.error('Persona ad error:', errorMsg);
+      { adUnitId, containerId },
+      errorMsg => {
+        throw new Error(String(errorMsg));
+      }
+    );
+  }, [containerId]);
+
+  useEffect(
+    () =>
+      void injectAd().then(onReady, err => {
+        console.error(err);
         onError();
-      })
-      .then(onReady);
-  }, [containerId, onReady, onError]);
+      }),
+    [injectAd, onReady, onError]
+  );
 
   return (
     <div className={clsx('relative', !isVisible && 'invisible')}>
@@ -74,22 +82,27 @@ export const PersonaPromotion = memo<Props>(({ id, isVisible, pageName, onReady,
   );
 });
 
-const getPersonaAdClient = memoizee(() => {
-  const stageApiKey = 'XXXX_api_key_staging_XXXX';
+const getPersonaAdClient = memoizee(
+  async () => {
+    const { PersonaAdSDK } = await import('@personaxyz/ad-sdk');
 
-  const apiKey = EnvVars.PERSONA_ADS_API_KEY;
-  const environment = apiKey && apiKey !== stageApiKey ? 'production' : 'staging';
+    const stageApiKey = 'XXXX_api_key_staging_XXXX';
 
-  const sdk = new PersonaAdSDK({
-    // @ts-expect-error // for not-importable `enum ENVIRONMENT`
-    environment,
-    apiKey: environment === 'staging' ? stageApiKey : apiKey
-  });
+    const apiKey = EnvVars.PERSONA_ADS_API_KEY;
+    const environment = apiKey && apiKey !== stageApiKey ? 'production' : 'staging';
 
-  const client = sdk.getClient();
+    const sdk = new PersonaAdSDK({
+      // @ts-expect-error // for not-importable `enum ENVIRONMENT`
+      environment,
+      apiKey: environment === 'staging' ? stageApiKey : apiKey
+    });
 
-  const adUnitId =
-    environment === 'staging' ? 'cf20c750-2fe4-4761-861f-b73b2247fd4d' : EnvVars.PERSONA_ADS_BANNER_UNIT_ID;
+    const client = sdk.getClient();
 
-  return { client, adUnitId };
-});
+    const adUnitId =
+      environment === 'staging' ? 'cf20c750-2fe4-4761-861f-b73b2247fd4d' : EnvVars.PERSONA_ADS_BANNER_UNIT_ID;
+
+    return { client, adUnitId };
+  },
+  { promise: true }
+);
