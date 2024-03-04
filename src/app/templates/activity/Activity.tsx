@@ -4,10 +4,10 @@ import classNames from 'clsx';
 import InfiniteScroll from 'react-infinite-scroll-component';
 
 import { SyncSpinner } from 'app/atoms';
-import { PartnersPromotion, PartnersPromotionVariant } from 'app/atoms/partners-promotion';
 import { useAppEnv } from 'app/env';
 import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
 import { ReactComponent as LayersIcon } from 'app/icons/layers.svg';
+import { PartnersPromotion, PartnersPromotionVariant } from 'app/templates/partners-promotion';
 import { T } from 'lib/i18n/react';
 import useActivities from 'lib/temple/activity-new/hook';
 import { useAccount } from 'lib/temple/front';
@@ -30,7 +30,11 @@ export const ActivityComponent: React.FC<Props> = ({ assetSlug }) => {
 
   useLoadPartnersPromo();
 
-  const promotionId = useMemo(() => `promo-activity-${assetSlug ?? 'all'}`, [assetSlug]);
+  const promotion = useMemo(() => {
+    const promotionId = `promo-activity-${assetSlug ?? 'all'}`;
+
+    return <PartnersPromotion id={promotionId} variant={PartnersPromotionVariant.Image} pageName="Activity" />;
+  }, [assetSlug]);
 
   if (activities.length === 0 && !loading && reachedTheEnd) {
     return (
@@ -41,9 +45,7 @@ export const ActivityComponent: React.FC<Props> = ({ assetSlug }) => {
           'text-gray-500'
         )}
       >
-        <div className="w-full flex justify-center mb-6">
-          <PartnersPromotion id={promotionId} variant={PartnersPromotionVariant.Image} />
-        </div>
+        <div className="w-full flex justify-center mb-6">{promotion}</div>
 
         <LayersIcon className="w-16 h-auto mb-2 stroke-current" />
 
@@ -64,11 +66,7 @@ export const ActivityComponent: React.FC<Props> = ({ assetSlug }) => {
   return (
     <div className="w-full max-w-sm mx-auto">
       <div className={classNames('my-3 flex flex-col', popup && 'mx-4')}>
-        {loading && activities.length === 0 && (
-          <div className="w-full mb-4 flex justify-center">
-            <PartnersPromotion id={promotionId} variant={PartnersPromotionVariant.Image} />
-          </div>
-        )}
+        {loading && activities.length === 0 && <div className="w-full mb-4 flex justify-center">{promotion}</div>}
         <InfiniteScroll
           dataLength={activities.length}
           hasMore={reachedTheEnd === false}
@@ -79,7 +77,7 @@ export const ActivityComponent: React.FC<Props> = ({ assetSlug }) => {
           {activities.map((activity, index) => (
             <Fragment key={activity.hash}>
               <ActivityItem address={accountAddress} activity={activity} />
-              {index === 0 && <PartnersPromotion id={promotionId} variant={PartnersPromotionVariant.Image} />}
+              {index === 0 && promotion}
             </Fragment>
           ))}
         </InfiniteScroll>

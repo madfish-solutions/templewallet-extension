@@ -6,7 +6,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { Alert, FileInputProps, FileInput, FormField, FormSubmitButton } from 'app/atoms';
 import { useFormAnalytics } from 'lib/analytics';
 import { TID, T, t } from 'lib/i18n';
-import { ActivationStatus, useTempleClient, useSetAccountPkh, useTezos, activateAccount } from 'lib/temple/front';
+import { useTempleClient, useSetAccountPkh, useTezos, activateAccount } from 'lib/temple/front';
 import { confirmOperation } from 'lib/temple/operation';
 import { useSafeState } from 'lib/ui/hooks';
 import { delay } from 'lib/utils';
@@ -50,11 +50,11 @@ export const FromFaucetForm: FC = () => {
 
   const importAccount = useCallback(
     async (data: FaucetData) => {
-      const [activationStatus, op] = await activateAccount(data.pkh, data.secret ?? data.activation_code, tezos);
+      const activation = await activateAccount(data.pkh, data.secret ?? data.activation_code, tezos);
 
-      if (activationStatus === ActivationStatus.ActivationRequestSent) {
+      if (activation.status === 'SENT') {
         setAlert(`🛫 ${t('requestSent', t('activationOperationType'))}`);
-        await confirmOperation(tezos, op!.hash);
+        await confirmOperation(tezos, activation.operation.hash);
       }
 
       try {

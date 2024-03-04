@@ -7,13 +7,19 @@ import { SyncSpinner } from 'app/atoms';
 import Checkbox from 'app/atoms/Checkbox';
 import Divider from 'app/atoms/Divider';
 import DropdownWrapper from 'app/atoms/DropdownWrapper';
+import { ScrollBackUpButton } from 'app/atoms/ScrollBackUpButton';
 import { SimpleInfiniteScroll } from 'app/atoms/SimpleInfiniteScroll';
 import { useAppEnv } from 'app/env';
 import { useCollectiblesListingLogic } from 'app/hooks/use-collectibles-listing-logic';
 import { ReactComponent as EditingIcon } from 'app/icons/editing.svg';
+import {
+  LOCAL_STORAGE_ADULT_BLUR_TOGGLE_KEY,
+  LOCAL_STORAGE_SHOW_INFO_TOGGLE_KEY
+} from 'app/pages/Collectibles/constants';
 import { AssetsSelectors } from 'app/pages/Home/OtherComponents/Assets.selectors';
 import { ButtonForManageDropdown } from 'app/templates/ManageDropdown';
 import SearchAssetField from 'app/templates/SearchAssetField';
+import { setTestID } from 'lib/analytics';
 import { useEnabledAccountCollectiblesSlugs } from 'lib/assets/hooks';
 import { AssetTypesEnum } from 'lib/assets/types';
 import { useCollectiblesSortPredicate } from 'lib/assets/use-sorting';
@@ -25,8 +31,7 @@ import Popper, { PopperChildren, PopperPopup, PopperRenderProps } from 'lib/ui/P
 import { Link } from 'lib/woozie';
 
 import { CollectibleItem } from './CollectibleItem';
-
-const LOCAL_STORAGE_TOGGLE_KEY = 'collectibles-grid:show-items-details';
+import { CollectibleTabSelectors } from './selectors';
 
 interface Props {
   scrollToTheTabsBar: EmptyFn;
@@ -37,8 +42,11 @@ export const CollectiblesTab = memo<Props>(({ scrollToTheTabsBar }) => {
   const { publicKeyHash } = useAccount();
   const chainId = useChainId()!;
 
-  const [areDetailsShown, setDetailsShown] = useLocalStorage(LOCAL_STORAGE_TOGGLE_KEY, false);
+  const [areDetailsShown, setDetailsShown] = useLocalStorage(LOCAL_STORAGE_SHOW_INFO_TOGGLE_KEY, false);
   const toggleDetailsShown = useCallback(() => void setDetailsShown(val => !val), [setDetailsShown]);
+
+  const [adultBlur, setAdultBlur] = useLocalStorage(LOCAL_STORAGE_ADULT_BLUR_TOGGLE_KEY, true);
+  const toggleAdultBlur = useCallback(() => void setAdultBlur(val => !val), [setAdultBlur]);
 
   const allSlugs = useEnabledAccountCollectiblesSlugs();
 
@@ -67,20 +75,27 @@ export const CollectiblesTab = memo<Props>(({ scrollToTheTabsBar }) => {
             assetSlug={slug}
             accountPkh={publicKeyHash}
             chainId={chainId}
+            adultBlur={adultBlur}
             areDetailsShown={areDetailsShown}
             hideWithoutMeta={isInSearchMode}
           />
         ))}
       </div>
     ),
-    [displayedSlugs, publicKeyHash, chainId, areDetailsShown, isInSearchMode]
+    [displayedSlugs, publicKeyHash, chainId, adultBlur, areDetailsShown, isInSearchMode]
   );
 
   const renderManageDropdown = useCallback<PopperPopup>(
     props => (
-      <ManageButtonDropdown {...props} areDetailsShown={areDetailsShown} toggleDetailsShown={toggleDetailsShown} />
+      <ManageButtonDropdown
+        {...props}
+        areDetailsShown={areDetailsShown}
+        adultBlur={adultBlur}
+        toggleDetailsShown={toggleDetailsShown}
+        toggleAdultBlur={toggleAdultBlur}
+      />
     ),
-    [areDetailsShown, toggleDetailsShown]
+    [areDetailsShown, adultBlur, toggleDetailsShown, toggleAdultBlur]
   );
 
   const renderManageButton = useCallback<PopperChildren>(
@@ -100,7 +115,7 @@ export const CollectiblesTab = memo<Props>(({ scrollToTheTabsBar }) => {
   return (
     <div className="w-full max-w-sm mx-auto">
       <div className={clsx('my-3', popup && 'mx-4')}>
-        <div className="mb-4 w-full flex">
+        <div className="relative mb-4 w-full flex">
           <SearchAssetField
             value={searchValue}
             onValueChange={setSearchValue}
@@ -123,6 +138,8 @@ export const CollectiblesTab = memo<Props>(({ scrollToTheTabsBar }) => {
               <SimpleInfiniteScroll loadNext={loadNext}>{contentElement}</SimpleInfiniteScroll>
             )}
 
+            <ScrollBackUpButton />
+
             {isSyncing && <SyncSpinner className="mt-6" />}
           </>
         )}
@@ -136,7 +153,7 @@ const buildEmptySection = (isSyncing: boolean) =>
     <SyncSpinner className="mt-6" />
   ) : (
     <div className="w-full border rounded border-gray-200">
-      <p className={'text-gray-600 text-center text-xs py-6'}>
+      <p className={'text-gray-600 text-center text-xs py-6'} {...setTestID(CollectibleTabSelectors.emptyStateText)}>
         <T id="zeroCollectibleText" />
       </p>
     </div>
@@ -144,10 +161,18 @@ const buildEmptySection = (isSyncing: boolean) =>
 
 interface ManageButtonDropdownProps extends PopperRenderProps {
   areDetailsShown: boolean;
+  adultBlur: boolean;
   toggleDetailsShown: EmptyFn;
+  toggleAdultBlur: EmptyFn;
 }
 
-const ManageButtonDropdown: FC<ManageButtonDropdownProps> = ({ opened, areDetailsShown, toggleDetailsShown }) => {
+const ManageButtonDropdown: FC<ManageButtonDropdownProps> = ({
+  opened,
+  areDetailsShown,
+  adultBlur,
+  toggleDetailsShown,
+  toggleAdultBlur
+}) => {
   const buttonClassName = 'flex items-center px-3 py-2.5 rounded hover:bg-gray-200 cursor-pointer';
 
   return (
@@ -179,6 +204,20 @@ const ManageButtonDropdown: FC<ManageButtonDropdownProps> = ({ opened, areDetail
         />
         <span className="text-sm text-gray-600 ml-2 leading-5">
           <T id="showInfo" />
+        </span>
+      </label>
+
+      <Divider className="my-2" />
+
+      <label className={buttonClassName}>
+        <Checkbox
+          overrideClassNames="h-4 w-4 rounded"
+          checked={adultBlur}
+          onChange={toggleAdultBlur}
+          testID={AssetsSelectors.dropdownBlurCheckbox}
+        />
+        <span className="text-sm text-gray-600 ml-2 leading-5">
+          <T id="blur" />
         </span>
       </label>
     </DropdownWrapper>

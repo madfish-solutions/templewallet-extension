@@ -13,6 +13,7 @@ import { useBlockLevel } from 'app/hooks/use-block-level.hook';
 import { useSwap } from 'app/hooks/use-swap';
 import { ReactComponent as InfoIcon } from 'app/icons/info.svg';
 import { ReactComponent as ToggleIcon } from 'app/icons/toggle.svg';
+import { buildSwapPageUrlQuery } from 'app/pages/Swap/utils/build-url-query';
 import { useSelector } from 'app/store';
 import { loadSwapParamsAction, resetSwapParamsAction } from 'app/store/swap/actions';
 import { useSwapParamsSelector, useSwapTokenSelector, useSwapTokensSelector } from 'app/store/swap/selectors';
@@ -146,7 +147,7 @@ export const SwapForm: FC = () => {
   useEffect(
     () =>
       navigate(
-        { pathname: '/swap', search: `from=${inputValue.assetSlug ?? ''}&to=${outputValue.assetSlug ?? ''}` },
+        { pathname: '/swap', search: buildSwapPageUrlQuery(inputValue.assetSlug, outputValue.assetSlug) },
         HistoryAction.Replace
       ),
     [inputValue.assetSlug, outputValue.assetSlug]
@@ -455,7 +456,7 @@ export const SwapForm: FC = () => {
       <SwapFormInput
         name="input"
         value={inputValue}
-        // @ts-ignore
+        // @ts-expect-error
         error={errors.input?.message}
         label={<T id="from" />}
         onChange={handleInputChange}
@@ -478,7 +479,7 @@ export const SwapForm: FC = () => {
         className="mb-6"
         name="output"
         value={outputValue}
-        // @ts-ignore
+        // @ts-expect-error
         error={errors.output?.message}
         label={<T id="toAsset" />}
         amountInputDisabled={true}

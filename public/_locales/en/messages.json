@@ -1013,12 +1013,6 @@
   },
   "payMeForEveryAdISee": { "message": "Pay me for every ad I see" },
   "noThanks": { "message": "No thanks" },
-  "acceptAdsBannerTitle_A": {
-    "message": "Get paid to discover exciting services and dApps!"
-  },
-  "acceptAdsBannerText_A": {
-    "message": "Here's the deal: share some data with us (wallet address, IP) to see the most relevant ads and we'll *pay you* a fair share monthly. By doing so, you support the developers of Temple Wallet. Change your mind? Easily disable sharing in settings.\n\nStart earning now!"
-  },
   "dAppsCheckmarkPrompt": {
     "message": "Click on the checkmark to $action$ DApps interaction feature",
     "description": "DApps = Decentralized Applications",
@@ -1256,6 +1250,9 @@
         "content": "$1"
       }
     }
+  },
+  "counterIsOffOperationError": {
+    "message": "You're trying to send transaction too quickly. Please wait a moment and try again."
   },
   "networkOrOtherIssue": {
     "message": "Network or other technical issue."
@@ -2122,6 +2119,9 @@
   "minimumReceived": {
     "message": "Minimum received"
   },
+  "scam": {
+    "message": "Scam"
+  },
   "inputOutputAssetsCannotBeSame": {
     "message": "Input and output assets cannot be the same"
   },
@@ -2393,6 +2393,7 @@
     "description": "Show less"
   },
   "showInfo": { "message": "Show info" },
+  "blur": { "message": "Blur" },
   "hideZeroBalance": { "message": "Hide 0 balance" },
   "recentDestinations": {
     "message": "Recent destinations"
@@ -2622,6 +2623,15 @@
   },
   "readMore": {
     "message": "Read more by the "
+  },
+  "deleteScamTokenConfirmTitle": {
+    "message": "Be cautious!"
+  },
+  "deleteScamTokenConfirmDescription": {
+    "message": "This token may be a scam. We strongly advise removing it from your token list to safeguard against the risk of losing funds."
+  },
+  "scamTokenAlert": {
+    "message": "This token may be a SCAM!"
   },
   "deleteTokenConfirm": {
     "message": "Are you sure you want to delete this token?"

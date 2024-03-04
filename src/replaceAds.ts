@@ -1,23 +1,74 @@
 import browser from 'webextension-polyfill';
 
-import { ContentScriptType, SLISE_ADS_RULES_UPDATE_INTERVAL, WEBSITES_ANALYTICS_ENABLED } from 'lib/constants';
-import { getAdsContainers } from 'lib/slise/get-ads-containers';
-import { clearRulesCache, getRulesFromContentScript } from 'lib/slise/get-rules-content-script';
-import { mountSliseAd } from 'lib/slise/mount-slise-ad';
-
-const availableAdsResolutions = [
-  { width: 270, height: 90 },
-  { width: 728, height: 90 }
-];
-
-let oldHref = '';
+import { adRectIsSeen } from 'lib/ads/ad-rect-is-seen';
+import { getAdsActions } from 'lib/ads/get-ads-actions';
+import { AdActionType } from 'lib/ads/get-ads-actions/types';
+import { clearRulesCache, getRulesFromContentScript } from 'lib/ads/get-rules-content-script';
+import { getSlotId } from 'lib/ads/get-slot-id';
+import { makeHypelabAdElement } from 'lib/ads/make-hypelab-ad';
+import { makeTKeyAdElement } from 'lib/ads/make-tkey-ad';
+import {
+  ContentScriptType,
+  ADS_RULES_UPDATE_INTERVAL,
+  WEBSITES_ANALYTICS_ENABLED,
+  TEMPLE_WALLET_AD_ATTRIBUTE_NAME,
+  TKEY_AD_PLACEMENT_SLUG,
+  AD_SEEN_THRESHOLD
+} from 'lib/constants';
 
 let processing = false;
 
-const sizeMatchesConstraints = (width: number, height: number) =>
-  ((width >= 600 && width <= 900) || (width >= 180 && width <= 430)) && height >= 60 && height <= 120;
+let provider: string;
 
-const containerIsRenderedProperly = (width: number, height: number) => width > 1 || height > 1;
+const loadingAdsIds = new Set();
+const loadedAdsIds = new Set();
+const alreadySentAnalyticsAdsIds = new Set();
+
+const sendExternalAdsActivity = (adId: string) => {
+  if (alreadySentAnalyticsAdsIds.has(adId)) {
+    return;
+  }
+
+  alreadySentAnalyticsAdsIds.add(adId);
+
+  const url = window.parent.location.href;
+
+  browser.runtime
+    .sendMessage({ type: ContentScriptType.ExternalAdsActivity, url, provider })
+    .catch(err => void console.error(err));
+};
+
+const subscribeToIframeLoadIfNecessary = (adId: string, element: HTMLIFrameElement) => {
+  if (loadingAdsIds.has(adId)) {
+    return;
+  }
+
+  loadingAdsIds.add(adId);
+  element.addEventListener('load', () => {
+    loadingAdsIds.delete(adId);
+    if (!loadedAdsIds.has(adId)) {
+      loadedAdsIds.add(adId);
+      const adIsSeen = adRectIsSeen(element);
+
+      if (adIsSeen) {
+        sendExternalAdsActivity(adId);
+      } else {
+        loadedAdIntersectionObserver.observe(element);
+      }
+    }
+  });
+};
+
+const loadedAdIntersectionObserver = new IntersectionObserver(
+  entries => {
+    if (entries.some(entry => entry.isIntersecting)) {
+      const elem = entries[0].target;
+
+      sendExternalAdsActivity(elem.id);
+    }
+  },
+  { threshold: AD_SEEN_THRESHOLD }
+);
 
 const overrideElementStyles = (element: HTMLElement, overrides: Record<string, string>) => {
   for (const stylePropName in overrides) {
@@ -30,74 +81,79 @@ const replaceAds = async () => {
   processing = true;
 
   try {
-    const sliseAdsData = await getRulesFromContentScript(window.parent.location);
+    const adsRules = await getRulesFromContentScript(window.parent.location);
 
-    if (sliseAdsData.timestamp < Date.now() - SLISE_ADS_RULES_UPDATE_INTERVAL) {
+    if (adsRules.timestamp < Date.now() - ADS_RULES_UPDATE_INTERVAL) {
       clearRulesCache();
-      browser.runtime.sendMessage({ type: ContentScriptType.UpdateSliseAdsRules }).catch(e => console.error(e));
+      browser.runtime.sendMessage({ type: ContentScriptType.UpdateAdsRules }).catch(e => console.error(e));
     }
 
-    const adsContainers = getAdsContainers(sliseAdsData);
-    const adsContainersToReplace = adsContainers.filter(
-      ({ width, height, shouldNeglectSizeConstraints }) =>
-        (shouldNeglectSizeConstraints && containerIsRenderedProperly(width, height)) ||
-        sizeMatchesConstraints(width, height)
-    );
-
-    const newHref = window.parent.location.href;
-    if (oldHref !== newHref && adsContainersToReplace.length > 0) {
-      oldHref = newHref;
-
-      browser.runtime
-        .sendMessage({
-          type: ContentScriptType.ExternalAdsActivity,
-          url: window.parent.location.origin
-        })
-        .catch(console.error);
-    }
-
-    if (!adsContainersToReplace.length) {
-      processing = false;
-      return;
-    }
+    const adsActions = await getAdsActions(adsRules);
 
     await Promise.all(
-      adsContainersToReplace.map(
-        async ({ element, width: containerWidth, shouldUseDivWrapper, divWrapperStyle = {}, stylesOverrides = [] }) => {
+      adsActions.map(async action => {
+        if (action.type === AdActionType.RemoveElement) {
+          action.element.remove();
+        } else if (action.type === AdActionType.HideElement) {
+          action.element.style.setProperty('display', 'none');
+        } else {
+          const {
+            adResolution,
+            shouldUseDivWrapper,
+            divWrapperStyle = {},
+            elementStyle = {},
+            stylesOverrides = []
+          } = action;
           stylesOverrides.sort((a, b) => a.parentDepth - b.parentDepth);
-          let adsResolution = availableAdsResolutions[0];
-          for (let i = 1; i < availableAdsResolutions.length; i++) {
-            const candidate = availableAdsResolutions[i];
-            if (candidate.width <= containerWidth && candidate.width > adsResolution.width) {
-              adsResolution = candidate;
-            }
-          }
-
-          let container = element;
+          let stylesOverridesCurrentElement: HTMLElement | null;
+          let adElementWithWrapper: HTMLElement;
+          const slotId = getSlotId();
+          const shouldUseTKeyAd = adResolution.placementType === TKEY_AD_PLACEMENT_SLUG;
+          const adElement = shouldUseTKeyAd
+            ? makeTKeyAdElement(slotId, adResolution.width, adResolution.height, elementStyle)
+            : makeHypelabAdElement(adResolution, elementStyle);
           if (shouldUseDivWrapper) {
-            const parent = element.parentElement ?? document.body;
-            container = document.createElement('div');
-            overrideElementStyles(container, divWrapperStyle);
-
-            parent.replaceChild(container, element);
+            adElementWithWrapper = document.createElement('div');
+            adElementWithWrapper.setAttribute(TEMPLE_WALLET_AD_ATTRIBUTE_NAME, 'true');
+            overrideElementStyles(adElementWithWrapper, divWrapperStyle);
+            adElementWithWrapper.appendChild(adElement);
+          } else {
+            adElementWithWrapper = adElement;
           }
-          container.setAttribute('slise-ad-container', 'true');
-
-          mountSliseAd(container, adsResolution.width, adsResolution.height, shouldUseDivWrapper);
-
+          switch (action.type) {
+            case AdActionType.ReplaceAllChildren:
+              stylesOverridesCurrentElement = action.parent;
+              action.parent.innerHTML = '';
+              action.parent.appendChild(adElementWithWrapper);
+              break;
+            case AdActionType.ReplaceElement:
+              stylesOverridesCurrentElement = action.element.parentElement;
+              action.element.replaceWith(adElementWithWrapper);
+              break;
+            default:
+              stylesOverridesCurrentElement = action.parent;
+              action.parent.insertBefore(adElementWithWrapper, action.parent.children[action.insertionIndex]);
+              break;
+          }
+          if (shouldUseTKeyAd) {
+            provider = 'Temple Wallet';
+            loadedAdIntersectionObserver.observe(adElement);
+          } else {
+            provider = 'HypeLab';
+            subscribeToIframeLoadIfNecessary(adElement.id, adElement as HTMLIFrameElement);
+          }
           let currentParentDepth = 0;
-          let currentParent: HTMLElement | null = shouldUseDivWrapper ? container : element;
           stylesOverrides.forEach(({ parentDepth, style }) => {
-            while (parentDepth > currentParentDepth && currentParent) {
-              currentParent = currentParent.parentElement;
+            while (parentDepth > currentParentDepth && stylesOverridesCurrentElement) {
+              stylesOverridesCurrentElement = stylesOverridesCurrentElement.parentElement;
               currentParentDepth++;
             }
-            if (currentParent) {
-              overrideElementStyles(currentParent, style);
+            if (stylesOverridesCurrentElement) {
+              overrideElementStyles(stylesOverridesCurrentElement, style);
             }
           });
         }
-      )
+      })
     );
   } catch (error) {
     console.error('Replacing Ads error:', error);
@@ -110,7 +166,7 @@ const replaceAds = async () => {
 if (window.frameElement === null) {
   browser.storage.local.get(WEBSITES_ANALYTICS_ENABLED).then(storage => {
     if (storage[WEBSITES_ANALYTICS_ENABLED]) {
-      // Replace ads with those from Slise
+      // Replace ads with ours
       window.addEventListener('load', () => replaceAds());
       window.addEventListener('ready', () => replaceAds());
       setInterval(() => replaceAds(), 1000);

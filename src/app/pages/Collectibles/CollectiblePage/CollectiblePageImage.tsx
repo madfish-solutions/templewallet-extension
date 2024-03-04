@@ -4,12 +4,14 @@ import { Model3DViewer } from 'app/atoms/Model3DViewer';
 import { AssetImage } from 'app/templates/AssetImage';
 import { isSvgDataUriInUtf8Encoding, buildObjktCollectibleArtifactUri } from 'lib/images-uri';
 import { TokenMetadata } from 'lib/metadata';
+import { useLocalStorage } from 'lib/ui/local-storage';
 
 import { AudioCollectible } from '../components/AudioCollectible';
 import { CollectibleBlur } from '../components/CollectibleBlur';
 import { CollectibleImageFallback } from '../components/CollectibleImageFallback';
 import { CollectibleImageLoader } from '../components/CollectibleImageLoader';
 import { VideoCollectible } from '../components/VideoCollectible';
+import { LOCAL_STORAGE_ADULT_BLUR_TOGGLE_KEY } from '../constants';
 
 interface Props {
   metadata?: TokenMetadata;
@@ -22,10 +24,13 @@ interface Props {
 
 export const CollectiblePageImage = memo<Props>(
   ({ metadata, mime, objktArtifactUri, className, areDetailsLoading, isAdultContent = false }) => {
+    const [adultBlur] = useLocalStorage(LOCAL_STORAGE_ADULT_BLUR_TOGGLE_KEY, true);
+    const blurred = isAdultContent && adultBlur;
+
     const [isRenderFailedOnce, setIsRenderFailedOnce] = useState(false);
 
-    const [shouldShowBlur, setShouldShowBlur] = useState(isAdultContent);
-    useEffect(() => setShouldShowBlur(isAdultContent), [isAdultContent]);
+    const [shouldShowBlur, setShouldShowBlur] = useState(blurred);
+    useEffect(() => setShouldShowBlur(blurred), [blurred]);
 
     const handleBlurClick = useCallback(() => setShouldShowBlur(false), []);
 
@@ -59,7 +64,6 @@ export const CollectiblePageImage = memo<Props>(
           return (
             <VideoCollectible
               uri={buildObjktCollectibleArtifactUri(objktArtifactUri)}
-              loader={<CollectibleImageLoader large />}
               className={className}
               onError={handleError}
             />
@@ -71,7 +75,6 @@ export const CollectiblePageImage = memo<Props>(
             <AudioCollectible
               uri={buildObjktCollectibleArtifactUri(objktArtifactUri)}
               metadata={metadata}
-              loader={<CollectibleImageLoader large />}
               className={className}
               onAudioError={handleError}
             />

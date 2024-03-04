@@ -15,6 +15,7 @@ import { useCollectibleMetadataSelector } from 'app/store/collectibles-metadata/
 import AddressChip from 'app/templates/AddressChip';
 import OperationStatus from 'app/templates/OperationStatus';
 import { TabsBar } from 'app/templates/TabBar';
+import { setTestID } from 'lib/analytics';
 import { fetchCollectibleExtraDetails, objktCurrencies } from 'lib/apis/objkt';
 import { fromAssetSlug } from 'lib/assets';
 import { BLOCK_DURATION } from 'lib/fixed-times';
@@ -30,11 +31,11 @@ import { ImageStacked } from 'lib/ui/ImageStacked';
 import { navigate } from 'lib/woozie';
 
 import { useCollectibleSelling } from '../hooks/use-collectible-selling.hook';
-import { CollectiblesSelectors } from '../selectors';
 
 import { AttributesItems } from './AttributesItems';
 import { CollectiblePageImage } from './CollectiblePageImage';
 import { PropertiesItems } from './PropertiesItems';
+import { CollectiblesSelectors } from './selectors';
 
 const DETAILS_SYNC_INTERVAL = 4 * BLOCK_DURATION;
 
@@ -141,7 +142,13 @@ const CollectiblePage = memo<Props>(({ assetSlug }) => {
   }, [tabs, tabNameInUrl]);
 
   return (
-    <PageLayout pageTitle={<span className="truncate">{collectibleName}</span>}>
+    <PageLayout
+      pageTitle={
+        <span className="truncate" {...setTestID(CollectiblesSelectors.collectibleTitle)}>
+          {collectibleName}
+        </span>
+      }
+    >
       <div className="flex flex-col gap-y-3 max-w-sm w-full mx-auto pt-2 pb-4">
         {operationError ? (
           <Alert

@@ -1,5 +1,4 @@
-.apyTag {
-  background: #4299e1;
+.tagBase {
   border-radius: 4px;
   font-family: Inter, Helvetica, Arial, Verdana, Tahoma, sans-serif;
   font-style: normal;
@@ -9,8 +8,52 @@
   color: #ffffff;
 }
 
-.apyTag:hover {
+.delegateTag {
+  background: #4299e1;
+}
+
+.delegateTag:hover {
   background-color: #68ADE7;
+}
+
+.kusdTag {
+  background: #3EBD93;
+}
+
+.kusdTag:hover {
+  background-color: #65CAA9;
+}
+
+.tzbtcTag {
+  background: #1373E4;
+}
+
+.tzbtcTag:hover {
+  background-color: #428FE9;
+}
+
+.usdtTag {
+  background: #009393;
+}
+
+.usdtTag:hover {
+  background-color: #52AF95;
+}
+
+.youvesTag {
+  background: #143A3A;
+}
+
+.youvesTag:hover {
+  background-color: #4F6B6B;
+}
+
+.scamTag {
+  background: #C53030;
+}
+
+.scamTag:hover {
+  background-color: #D15A59;
 }
 
 .tokenInfoWidth {

@@ -33,9 +33,9 @@ import { ReactComponent as ChevronUpIcon } from 'app/icons/chevron-up.svg';
 import Balance from 'app/templates/Balance';
 import InFiat from 'app/templates/InFiat';
 import { useFormAnalytics } from 'lib/analytics';
-import { isTezAsset, toPenny } from 'lib/assets';
+import { isTezAsset, TEZ_TOKEN_SLUG, toPenny } from 'lib/assets';
 import { toTransferParams } from 'lib/assets/contract.utils';
-import { fetchBalance, fetchTezosBalance, useBalance } from 'lib/balances';
+import { useBalance } from 'lib/balances';
 import { useAssetFiatCurrencyPrice, useFiatCurrency } from 'lib/fiat-currency';
 import { BLOCK_DURATION } from 'lib/fixed-times';
 import { toLocalFixed, T, t } from 'lib/i18n';
@@ -58,7 +58,7 @@ import { hasManager, isAddressValid, isKTAddress, mutezToTz, tzToMutez } from 'l
 import { TempleAccountType, TempleAccount, TempleNetworkType } from 'lib/temple/types';
 import { useSafeState } from 'lib/ui/hooks';
 import { useScrollIntoView } from 'lib/ui/use-scroll-into-view';
-import { delay } from 'lib/utils';
+import { ZERO } from 'lib/utils/numbers';
 
 import ContactsDropdown, { ContactsDropdownProps } from './ContactsDropdown';
 import { FeeSection } from './FeeSection';
@@ -100,11 +100,8 @@ export const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactReque
   const canUseDomainNames = domainsClient.isSupported;
   const accountPkh = acc.publicKeyHash;
 
-  const { data: balanceData, mutate: mutateBalance } = useBalance(assetSlug, accountPkh);
-  const balance = balanceData!;
-
-  const { data: tezBalanceData, mutate: mutateTezBalance } = useBalance('tez', accountPkh);
-  const tezBalance = tezBalanceData!;
+  const { value: balance = ZERO } = useBalance(assetSlug, accountPkh);
+  const { value: tezBalance = ZERO } = useBalance(TEZ_TOKEN_SLUG, accountPkh);
 
   const [shoudUseFiat, setShouldUseFiat] = useSafeState(false);
 
@@ -210,15 +207,12 @@ export const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactReque
       const to = toResolved;
       const tez = isTezAsset(assetSlug);
 
-      const balanceBN = (await mutateBalance(fetchBalance(tezos, assetSlug, accountPkh, assetMetadata)))!;
-      if (balanceBN.isZero()) {
+      if (balance.isZero()) {
         throw new ZeroBalanceError();
       }
 
-      let tezBalanceBN: BigNumber;
       if (!tez) {
-        tezBalanceBN = (await mutateTezBalance(fetchTezosBalance(tezos, accountPkh)))!;
-        if (tezBalanceBN.isZero()) {
+        if (tezBalance.isZero()) {
           throw new ZeroTEZBalanceError();
         }
       }
@@ -228,29 +222,28 @@ export const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactReque
         tezos.rpc.getManagerKey(acc.type === TempleAccountType.ManagedKT ? acc.owner : accountPkh)
       ]);
 
-      const estmtnMax = await estimateMaxFee(acc, tez, tezos, to, balanceBN, transferParams, manager);
+      const estmtnMax = await estimateMaxFee(acc, tez, tezos, to, balance, transferParams, manager);
 
       let estimatedBaseFee = mutezToTz(estmtnMax.burnFeeMutez + estmtnMax.suggestedFeeMutez);
       if (!hasManager(manager)) {
         estimatedBaseFee = estimatedBaseFee.plus(mutezToTz(DEFAULT_FEE.REVEAL));
       }
 
-      if (tez ? estimatedBaseFee.isGreaterThanOrEqualTo(balanceBN) : estimatedBaseFee.isGreaterThan(tezBalanceBN!)) {
+      if (tez ? estimatedBaseFee.isGreaterThanOrEqualTo(balance) : estimatedBaseFee.isGreaterThan(tezBalance)) {
         throw new NotEnoughFundsError();
       }
 
       return estimatedBaseFee;
-    } catch (err: any) {
-      await delay();
+    } catch (err) {
+      console.error(err);
 
       if (err instanceof ArtificialError) {
         return err;
       }
 
-      console.error(err);
       throw err;
     }
-  }, [acc, tezos, assetSlug, assetMetadata, accountPkh, toResolved, mutateBalance, mutateTezBalance]);
+  }, [tezBalance, balance, assetMetadata, toResolved, assetSlug, tezos, accountPkh, acc]);
 
   const {
     data: baseFee,
@@ -270,7 +263,7 @@ export const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactReque
 
   const maxAddFee = useMemo(() => {
     if (baseFee instanceof BigNumber) {
-      return tezBalance.minus(baseFee).minus(PENNY).toNumber();
+      return tezBalance?.minus(baseFee).minus(PENNY).toNumber();
     }
     return undefined;
   }, [tezBalance, baseFee]);
@@ -281,8 +274,8 @@ export const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactReque
     if (!(baseFee instanceof BigNumber)) return null;
 
     const maxAmountAsset = isTezAsset(assetSlug) ? getMaxAmountToken(acc, balance, baseFee, safeFeeValue) : balance;
-    const maxAmountFiat = getMaxAmountFiat(assetPrice.toNumber(), maxAmountAsset);
-    return shoudUseFiat ? maxAmountFiat : maxAmountAsset;
+
+    return shoudUseFiat ? getMaxAmountFiat(assetPrice.toNumber(), maxAmountAsset) : maxAmountAsset;
   }, [acc, assetSlug, balance, baseFee, safeFeeValue, shoudUseFiat, assetPrice]);
 
   const validateAmount = useCallback(
@@ -364,23 +357,21 @@ export const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactReque
           const estmtn = await tezos.estimate.transfer(transferParams);
           const addFee = tzToMutez(feeVal ?? 0);
           const fee = addFee.plus(estmtn.suggestedFeeMutez).toNumber();
-          op = await tezos.wallet.transfer({ ...transferParams, fee } as any).send();
+          op = await tezos.wallet.transfer({ ...transferParams, fee }).send();
         }
         setOperation(op);
         reset({ to: '', fee: RECOMMENDED_ADD_FEE });
 
         formAnalytics.trackSubmitSuccess();
       } catch (err: any) {
+        console.error(err);
+
         formAnalytics.trackSubmitFail();
 
-        if (err.message === 'Declined') {
+        if (err?.message === 'Declined') {
           return;
         }
 
-        console.error(err);
-
-        // Human delay.
-        await delay();
         setSubmitError(err);
       }
     },

@@ -3,10 +3,10 @@ import React, { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 
 import { DataPlaceholder } from 'app/atoms';
-import { PartnersPromotion, PartnersPromotionVariant } from 'app/atoms/partners-promotion';
 import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
 import PageLayout from 'app/layouts/PageLayout';
 import { useShouldShowPartnersPromoSelector } from 'app/store/partners-promotion/selectors';
+import { PartnersPromotion, PartnersPromotionVariant } from 'app/templates/partners-promotion';
 import { T } from 'lib/i18n';
 import { BellIcon } from 'lib/icons';
 import { useTimeout } from 'lib/ui/hooks';
@@ -41,7 +41,11 @@ export const Notifications = () => {
       <div className="max-w-sm mx-auto pb-15">
         {shouldShowPartnersPromoState && (
           <div className="pt-6 pb-4 flex justify-center">
-            <PartnersPromotion id="promo-notifications-item" variant={PartnersPromotionVariant.Image} />
+            <PartnersPromotion
+              id="promo-notifications-item"
+              variant={PartnersPromotionVariant.Image}
+              pageName="Notifications"
+            />
           </div>
         )}
         {notifications.length === 0 ? (

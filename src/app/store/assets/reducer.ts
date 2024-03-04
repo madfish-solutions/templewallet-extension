@@ -1,10 +1,8 @@
 import { createReducer } from '@reduxjs/toolkit';
 import { persistReducer } from 'redux-persist';
-import hardSet from 'redux-persist/lib/stateReconciler/hardSet';
-import storage from 'redux-persist/lib/storage';
 
 import { toTokenSlug } from 'lib/assets';
-import { createTransformsBeforePersist } from 'lib/store';
+import { storageConfig, createTransformsBeforePersist } from 'lib/store';
 
 import {
   loadAccountTokensActions,
@@ -13,7 +11,8 @@ import {
   setTokenStatusAction,
   setCollectibleStatusAction,
   putTokensAsIsAction,
-  putCollectiblesAsIsAction
+  putCollectiblesAsIsAction,
+  loadTokensScamlistActions
 } from './actions';
 import { initialState, SliceState } from './state';
 import { getAccountAssetsStoreKey } from './utils';
@@ -122,6 +121,7 @@ const assetsReducer = createReducer<SliceState>(initialState, builder => {
 
   builder.addCase(loadTokensWhitelistActions.submit, state => {
     state.mainnetWhitelist.isLoading = true;
+    delete state.mainnetScamlist.error;
   });
 
   builder.addCase(loadTokensWhitelistActions.fail, (state, { payload }) => {
@@ -139,18 +139,35 @@ const assetsReducer = createReducer<SliceState>(initialState, builder => {
       if (!state.mainnetWhitelist.data.includes(slug)) state.mainnetWhitelist.data.push(slug);
     }
   });
+
+  builder.addCase(loadTokensScamlistActions.submit, state => {
+    state.mainnetScamlist.isLoading = true;
+    delete state.mainnetScamlist.error;
+  });
+
+  builder.addCase(loadTokensScamlistActions.fail, (state, { payload }) => {
+    state.mainnetScamlist.isLoading = false;
+    state.mainnetScamlist.error = payload ? String(payload) : 'unknown';
+  });
+
+  builder.addCase(loadTokensScamlistActions.success, (state, { payload }) => {
+    state.mainnetScamlist.isLoading = false;
+    delete state.mainnetScamlist.error;
+
+    state.mainnetScamlist.data = payload;
+  });
 });
 
 export const assetsPersistedReducer = persistReducer<SliceState>(
   {
     key: 'root.assets',
-    storage,
-    stateReconciler: hardSet,
+    ...storageConfig,
     transforms: [
       createTransformsBeforePersist<SliceState>({
         tokens: entry => ({ ...entry, isLoading: false }),
         collectibles: entry => ({ ...entry, isLoading: false }),
-        mainnetWhitelist: entry => ({ ...entry, isLoading: false })
+        mainnetWhitelist: entry => ({ ...entry, isLoading: false }),
+        mainnetScamlist: entry => ({ ...entry, isLoading: false })
       })
     ]
   },

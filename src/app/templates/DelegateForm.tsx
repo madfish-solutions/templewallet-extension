@@ -1,4 +1,4 @@
-import React, { FC, ReactNode, useCallback, useLayoutEffect, useMemo, useRef } from 'react';
+import React, { FC, memo, ReactNode, useCallback, useLayoutEffect, useMemo, useRef } from 'react';
 
 import { DEFAULT_FEE, DelegateParams, TransactionOperation, WalletOperation } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
@@ -20,7 +20,6 @@ import { useFormAnalytics } from 'lib/analytics';
 import { submitDelegation } from 'lib/apis/everstake';
 import { ABTestGroup } from 'lib/apis/temple';
 import { useGasToken } from 'lib/assets/hooks';
-import { fetchTezosBalance, useBalance } from 'lib/balances';
 import { BLOCK_DURATION } from 'lib/fixed-times';
 import { TID, T, t } from 'lib/i18n';
 import { HELP_UKRAINE_BAKER_ADDRESS, RECOMMENDED_BAKER_ADDRESS } from 'lib/known-bakers';
@@ -56,7 +55,11 @@ interface FormData {
   fee: number;
 }
 
-const DelegateForm: FC = () => {
+interface Props {
+  balance: BigNumber;
+}
+
+const DelegateForm = memo<Props>(({ balance }) => {
   const { registerBackHandler } = useAppEnv();
   const formAnalytics = useFormAnalytics('DelegateForm');
   const { symbol, isDcpNetwork, logo } = useGasToken();
@@ -66,8 +69,6 @@ const DelegateForm: FC = () => {
 
   const accountPkh = acc.publicKeyHash;
 
-  const { data: balanceData, mutate: mutateBalance } = useBalance('tez', accountPkh);
-  const balance = balanceData!;
   const balanceNum = balance.toNumber();
   const domainsClient = useTezosDomainsClient();
   const canUseDomainNames = domainsClient.isSupported;
@@ -102,15 +103,14 @@ const DelegateForm: FC = () => {
   const toResolved = useMemo(() => resolvedAddress || toValue, [resolvedAddress, toValue]);
 
   const getEstimation = useCallback(async () => {
-    const to = toResolved;
     if (acc.type === TempleAccountType.ManagedKT) {
       const contract = await loadContract(tezos, accountPkh);
-      const transferParams = contract.methods.do(setDelegate(to)).toTransferParams();
+      const transferParams = contract.methods.do(setDelegate(toResolved)).toTransferParams();
       return tezos.estimate.transfer(transferParams);
     } else {
       return tezos.estimate.setDelegate({
         source: accountPkh,
-        delegate: to
+        delegate: toResolved
       } as DelegateParams);
     }
   }, [tezos, accountPkh, acc.type, toResolved]);
@@ -132,19 +132,19 @@ const DelegateForm: FC = () => {
 
   const estimateBaseFee = useCallback(async () => {
     try {
-      const balanceBN = (await mutateBalance(fetchTezosBalance(tezos, accountPkh)))!;
-      if (balanceBN.isZero()) {
-        throw new ZeroBalanceError();
-      }
+      if (balance.isZero()) throw new ZeroBalanceError();
 
       const estmtn = await getEstimation();
-      const manager = await tezos.rpc.getManagerKey(acc.type === TempleAccountType.ManagedKT ? acc.owner : accountPkh);
+      const manager = await tezos.rpc.getManagerKey(
+        acc.type === TempleAccountType.ManagedKT ? acc.owner : acc.publicKeyHash
+      );
+
       let baseFee = mutezToTz(estmtn.burnFeeMutez + estmtn.suggestedFeeMutez);
       if (!hasManager(manager) && acc.type !== TempleAccountType.ManagedKT) {
         baseFee = baseFee.plus(mutezToTz(DEFAULT_FEE.REVEAL));
       }
 
-      if (baseFee.isGreaterThanOrEqualTo(balanceBN)) {
+      if (baseFee.isGreaterThanOrEqualTo(balance)) {
         throw new NotEnoughFundsError();
       }
 
@@ -170,7 +170,7 @@ const DelegateForm: FC = () => {
           throw err;
       }
     }
-  }, [tezos, accountPkh, mutateBalance, getEstimation, acc]);
+  }, [balance, tezos, getEstimation, acc]);
 
   const {
     data: baseFee,
@@ -351,6 +351,7 @@ const DelegateForm: FC = () => {
 
         <BakerForm
           baker={baker}
+          balance={balance}
           submitError={submitError}
           estimationError={estimationError}
           estimating={estimating}
@@ -367,13 +368,14 @@ const DelegateForm: FC = () => {
       </form>
     </>
   );
-};
+});
 
 export default DelegateForm;
 
 interface BakerFormProps {
   baker: Baker | null | undefined;
   toFilled: boolean | '';
+  balance: BigNumber;
   submitError: ReactNode;
   estimationError: any;
   estimating: boolean;
@@ -389,6 +391,7 @@ interface BakerFormProps {
 
 const BakerForm: React.FC<BakerFormProps> = ({
   baker,
+  balance,
   submitError,
   estimationError,
   estimating,
@@ -425,6 +428,7 @@ const BakerForm: React.FC<BakerFormProps> = ({
       </div>
     );
   }
+
   const restFormDisplayed = Boolean(toFilled && (baseFee || estimationError));
   const tzError = submitError || estimationError;
 
@@ -439,7 +443,7 @@ const BakerForm: React.FC<BakerFormProps> = ({
         />
       )}
 
-      <BakerBannerComponent baker={baker} tzError={tzError} />
+      <BakerBannerComponent balanceNum={balance.toNumber()} baker={baker} tzError={tzError} />
 
       {tzError && <DelegateErrorAlert type={submitError ? 'submit' : 'estimation'} error={tzError} />}
 
@@ -470,19 +474,15 @@ const BakerForm: React.FC<BakerFormProps> = ({
 };
 
 interface BakerBannerComponentProps {
+  balanceNum: number;
   baker: Baker | null | undefined;
   tzError: any;
 }
 
-const BakerBannerComponent: React.FC<BakerBannerComponentProps> = ({ tzError, baker }) => {
-  const acc = useAccount();
-
-  const accountPkh = acc.publicKeyHash;
-  const { data: balanceData } = useBalance('tez', accountPkh);
-  const balance = balanceData!;
-  const balanceNum = balance.toNumber();
+const BakerBannerComponent = React.memo<BakerBannerComponentProps>(({ balanceNum, tzError, baker }) => {
   const net = useNetwork();
   const { symbol } = useGasToken();
+
   return baker ? (
     <>
       <div className="-mt-2 mb-6 flex flex-col items-center">
@@ -510,7 +510,7 @@ const BakerBannerComponent: React.FC<BakerBannerComponentProps> = ({ tzError, ba
   ) : !tzError && net.type === 'main' ? (
     <Alert type="warning" title={t('unknownBakerTitle')} description={t('unknownBakerDescription')} className="mb-6" />
   ) : null;
-};
+});
 
 const KnownDelegatorsList: React.FC<{ setValue: any; triggerValidation: any }> = ({ setValue, triggerValidation }) => {
   const knownBakers = useKnownBakers();

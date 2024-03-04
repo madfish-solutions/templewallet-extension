@@ -2,13 +2,11 @@ import { createReducer } from '@reduxjs/toolkit';
 import { enableMapSet } from 'immer';
 import { persistReducer } from 'redux-persist';
 import hardSet from 'redux-persist/lib/stateReconciler/hardSet';
-import storage from 'redux-persist/lib/storage';
 
 import { tokenToSlug, fromAssetSlug } from 'lib/assets';
-import { checkSizeOfLocalStorageEntryToSet } from 'lib/local-storage';
 import { TokenMetadata } from 'lib/metadata';
 import { buildTokenMetadataFromFetched } from 'lib/metadata/utils';
-import { getPersistStorageKey, createTransformsBeforePersist, createTransformsBeforeHydrate } from 'lib/store';
+import { storageConfig, createTransformsBeforePersist, createTransformsBeforeHydrate } from 'lib/store';
 
 import {
   putCollectiblesMetadataAction,
@@ -46,13 +44,10 @@ const collectiblesMetadataReducer = createReducer(collectiblesMetadataInitialSta
   });
 });
 
-const PERSIST_KEY = 'root.collectiblesMetadata';
-const STORAGE_PERSIST_KEY = getPersistStorageKey(PERSIST_KEY);
-
 export const collectiblesMetadataPersistedReducer = persistReducer<SliceState>(
   {
-    key: PERSIST_KEY,
-    storage,
+    key: 'root.collectiblesMetadata',
+    ...storageConfig,
     stateReconciler: hardSet,
     blacklist: ['isLoading'] as (keyof SliceState)[],
     transforms: [
@@ -60,23 +55,11 @@ export const collectiblesMetadataPersistedReducer = persistReducer<SliceState>(
         # Persistance. Applied in direct order
       */
       createTransformsBeforePersist<SliceState>({
-        records: (recordsUntyped, originalState) => {
+        records: nonSerializibleRecords => {
           // Converting `records` from `Map` to `Array`
-          let records = Array.from(recordsUntyped.values());
+          const serializibleRecords = Array.from(nonSerializibleRecords.values());
 
-          if (checkSizeOfLocalStorageEntryToSet(STORAGE_PERSIST_KEY, { ...originalState, records }))
-            return records as unknown as typeof recordsUntyped;
-
-          // Reducing slice size (if needed) to succesfully persist
-          do {
-            const slicingBy = records.length > 10 ? 10 : 1;
-            records = records.slice(slicingBy, records.length);
-          } while (
-            records.length &&
-            !checkSizeOfLocalStorageEntryToSet(STORAGE_PERSIST_KEY, { ...originalState, records })
-          );
-
-          return records as unknown as typeof recordsUntyped;
+          return serializibleRecords as unknown as typeof nonSerializibleRecords;
         }
       }),
       /*
@@ -85,9 +68,9 @@ export const collectiblesMetadataPersistedReducer = persistReducer<SliceState>(
       createTransformsBeforeHydrate<SliceState>({
         // Converting `records` from `Array` back to `Map`
         records: subState => {
-          const records = subState as unknown as TokenMetadata[];
+          const serializibleRecords = subState as unknown as TokenMetadata[];
 
-          return new Map(records.map(meta => [tokenToSlug(meta), meta]));
+          return new Map(serializibleRecords.map(meta => [tokenToSlug(meta), meta]));
         }
       })
     ]

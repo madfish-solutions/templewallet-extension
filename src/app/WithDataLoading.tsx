@@ -1,7 +1,7 @@
 import React, { FC, useEffect } from 'react';
 
-import { useDispatch } from 'react-redux';
-
+import { dispatch } from 'app/store';
+import { loadTokensScamlistActions } from 'app/store/assets/actions';
 import { loadSwapDexesAction, loadSwapTokensAction } from 'app/store/swap/actions';
 
 import { useAdvertisingLoading } from './hooks/use-advertising.hook';
@@ -14,9 +14,12 @@ import { useLongRefreshLoading } from './hooks/use-long-refresh-loading.hook';
 import { useMetadataLoading } from './hooks/use-metadata-loading';
 import { useMetadataRefresh } from './hooks/use-metadata-refresh';
 import { useStorageAnalytics } from './hooks/use-storage-analytics';
+import { useUserIdSync } from './hooks/use-user-id-sync';
 
 export const WithDataLoading: FC<PropsWithChildren> = ({ children }) => {
   useAssetsMigrations();
+
+  useEffect(() => void dispatch(loadTokensScamlistActions.submit()), []);
 
   useAssetsLoading();
   useMetadataLoading();
@@ -28,14 +31,13 @@ export const WithDataLoading: FC<PropsWithChildren> = ({ children }) => {
   useAdvertisingLoading();
   useTokensApyLoading();
 
-  const dispatch = useDispatch();
-
   useEffect(() => {
     dispatch(loadSwapDexesAction.submit());
     dispatch(loadSwapTokensAction.submit());
-  }, [dispatch]);
+  }, []);
 
   useStorageAnalytics();
+  useUserIdSync();
 
   return <>{children}</>;
 };

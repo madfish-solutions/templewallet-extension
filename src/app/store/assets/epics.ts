@@ -6,6 +6,7 @@ import { catchError, map, switchMap } from 'rxjs/operators';
 import { ofType, toPayload } from 'ts-action-operators';
 
 import { fetchWhitelistTokens } from 'lib/apis/temple';
+import { fetchScamlistTokens } from 'lib/apis/temple/scamlist-tokens';
 import { toLatestValue } from 'lib/store';
 
 import { putTokensBalancesAction } from '../balances/actions';
@@ -16,7 +17,12 @@ import type { RootState } from '../root-state.type';
 import { putTokensMetadataAction } from '../tokens-metadata/actions';
 import { MetadataRecords } from '../tokens-metadata/state';
 
-import { loadAccountTokensActions, loadAccountCollectiblesActions, loadTokensWhitelistActions } from './actions';
+import {
+  loadAccountTokensActions,
+  loadAccountCollectiblesActions,
+  loadTokensWhitelistActions,
+  loadTokensScamlistActions
+} from './actions';
 import { loadAccountTokens, loadAccountCollectibles } from './utils';
 
 const loadAccountTokensEpic: Epic<Action, Action, RootState> = (action$, state$) =>
@@ -78,7 +84,23 @@ const loadTokensWhitelistEpic: Epic = action$ =>
     )
   );
 
-export const assetsEpics = combineEpics(loadAccountTokensEpic, loadAccountCollectiblesEpic, loadTokensWhitelistEpic);
+const loadTokensScamlistEpic: Epic = action$ =>
+  action$.pipe(
+    ofType(loadTokensScamlistActions.submit),
+    switchMap(() =>
+      from(fetchScamlistTokens()).pipe(
+        map(loadTokensScamlistActions.success),
+        catchError(err => of(loadTokensScamlistActions.fail({ code: axios.isAxiosError(err) ? err.code : undefined })))
+      )
+    )
+  );
+
+export const assetsEpics = combineEpics(
+  loadAccountTokensEpic,
+  loadAccountCollectiblesEpic,
+  loadTokensWhitelistEpic,
+  loadTokensScamlistEpic
+);
 
 const mergeAssetsMetadata = (tokensMetadata: MetadataRecords, collectiblesMetadata: MetadataMap) => {
   const map = new Map(Object.entries(tokensMetadata));

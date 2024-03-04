@@ -15,10 +15,11 @@ import { AppEnvProvider } from 'app/env';
 import ErrorBoundary from 'app/ErrorBoundary';
 import Dialogs from 'app/layouts/Dialogs';
 import { PageRouter } from 'app/PageRouter';
-import { TempleProvider } from 'lib/temple/front';
+import { TempleProvider, TzktConnectionProvider } from 'lib/temple/front';
 import { DialogsProvider } from 'lib/ui/dialog';
 import * as Woozie from 'lib/woozie';
 
+import { LoadHypelabScript } from './load-hypelab-script';
 import { StoreProvider } from './store/provider';
 
 interface Props extends React.PropsWithChildren {
@@ -36,6 +37,8 @@ export const App: FC<Props> = ({ env }) => (
 
           <AwaitI18N />
 
+          <LoadHypelabScript />
+
           <AwaitFonts name="Inter" weights={[300, 400, 500, 600]} className="antialiased font-inter">
             <BootAnimation>{env.confirmWindow ? <ConfirmPage /> : <PageRouter />}</BootAnimation>
           </AwaitFonts>
@@ -49,7 +52,9 @@ const AppProvider: FC<Props> = ({ children, env }) => (
   <AppEnvProvider {...env}>
     <StoreProvider>
       <Woozie.Provider>
-        <TempleProvider>{children}</TempleProvider>
+        <TempleProvider>
+          <TzktConnectionProvider>{children}</TzktConnectionProvider>
+        </TempleProvider>
       </Woozie.Provider>
     </StoreProvider>
   </AppEnvProvider>

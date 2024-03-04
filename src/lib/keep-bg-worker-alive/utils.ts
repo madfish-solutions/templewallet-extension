@@ -1,7 +1,7 @@
 import type Browser from 'webextension-polyfill';
 
 export const browser = (() => {
-  // @ts-ignore
+  // @ts-expect-error
   const browser: typeof Browser | undefined = globalThis.chrome || globalThis.browser;
   if (browser == null) throw new Error('Not browser extension');
   return browser;

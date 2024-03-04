@@ -51,7 +51,7 @@ export const Model3DViewer: FC<Props> = ({ uri, alt, className, onError = emptyF
       camera-controls={true}
       autoPlay
       shadow-intensity="1"
-      // @ts-ignore
+      // @ts-expect-error
       class={clsx('w-full h-full', className)}
     ></model-viewer>
   );

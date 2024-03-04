@@ -19,3 +19,5 @@ export const useAccountCollectiblesSelector = (account: string, chainId: string)
 export const useAreAssetsLoading = (type: AssetsType) => useSelector(state => state.assets[type].isLoading);
 
 export const useMainnetTokensWhitelistSelector = () => useSelector(state => state.assets.mainnetWhitelist.data);
+
+export const useMainnetTokensScamlistSelector = () => useSelector(state => state.assets.mainnetScamlist.data);

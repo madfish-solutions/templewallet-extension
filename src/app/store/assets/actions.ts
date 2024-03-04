@@ -1,6 +1,7 @@
 import { createAction } from '@reduxjs/toolkit';
 
 import { WhitelistResponseToken } from 'lib/apis/temple';
+import { TzktApiChainId } from 'lib/apis/tzkt';
 import { createActions } from 'lib/store';
 
 import type { AccountAssetForStore, StoredAsset } from './state';
@@ -8,7 +9,7 @@ import type { AccountAssetForStore, StoredAsset } from './state';
 interface LoadAssetsPayload {
   /** PKH */
   account: string;
-  chainId: string;
+  chainId: TzktApiChainId;
 }
 
 export const loadAccountTokensActions = createActions<
@@ -25,6 +26,10 @@ export const loadAccountCollectiblesActions = createActions<
 
 export const loadTokensWhitelistActions = createActions<void, WhitelistResponseToken[], { code?: string }>(
   'assets/LOAD_TOKENS_WHITELIST'
+);
+
+export const loadTokensScamlistActions = createActions<void, Record<string, boolean>, { code?: string }>(
+  'assets/LOAD_TOKENS_SCAMLIST'
 );
 
 type SetAssetStatusPayload = AccountAssetForStore;
