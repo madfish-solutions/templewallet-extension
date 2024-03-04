@@ -25,10 +25,12 @@ export interface SliceState {
   collectibles: LoadableEntityState<StoredAssetsRecords>;
   /** Mainnet tokens whitelist slugs */
   mainnetWhitelist: LoadableEntityState<string[]>;
+  mainnetScamlist: LoadableEntityState<Record<string, boolean>>;
 }
 
 export const initialState: SliceState = {
   tokens: createEntity({}),
   collectibles: createEntity({}),
-  mainnetWhitelist: createEntity([])
+  mainnetWhitelist: createEntity([]),
+  mainnetScamlist: createEntity({})
 };

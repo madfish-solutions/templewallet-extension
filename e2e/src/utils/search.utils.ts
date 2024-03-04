@@ -2,6 +2,7 @@ import retry from 'async-retry';
 import { ElementHandle } from 'puppeteer';
 
 import { BrowserContext } from '../classes/browser-context.class';
+
 import { MEDIUM_TIMEOUT } from './timing.utils';
 
 type OtherSelectors = Record<string, string>;
@@ -58,8 +59,8 @@ class PageElement {
     return this.findElement(timeout, errorTitle);
   }
 
-  async click() {
-    const element = await this.findElement();
+  async click(timeout?: number, errorTitle?: string) {
+    const element = await this.findElement(timeout, errorTitle);
     await element.click();
   }
 

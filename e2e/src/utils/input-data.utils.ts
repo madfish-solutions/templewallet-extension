@@ -1,4 +1,5 @@
 import { BrowserContext } from '../classes/browser-context.class';
+
 import { envVars } from './env.utils';
 
 export const iComparePrivateKeys = {
@@ -81,7 +82,14 @@ export const iSelectTokenSlugs = {
   kUSD: 'KT1K9gCRgaLRFKTErYt1wVxA3Frb9FjasjTV_0',
   uUSD: 'KT1XRPEPXbZK25r3Htzp2o1x7xdMMmfocKNW_0',
   WTZ: 'KT1PnUZCp3u2KzWr93pn4DD7HAJnm3rWVrgn_0',
-  wUSDT: 'KT18fp5rcTW7mbWDmzFwjLDUhs5MeJmagDSZ_18'
+  wUSDT: 'KT18fp5rcTW7mbWDmzFwjLDUhs5MeJmagDSZ_18',
+  OBJKTCOM: 'KT1DGbb333QNo3e2cpN3YGL5aRwWzkADcPA3_2', // 'Temple NFT',
+  TestNFT: 'The perfect NFT!'
+};
+
+export const iSelectTokensNames = {
+  TestNFT: 'The perfect NFT!',
+  SecondTestNFT: 'TEZ'
 };
 
 export const clearDataFromCurrentInput = async () => {

@@ -45,8 +45,8 @@ export const BANNER_ADS_META: AdMetadata[] = [
       height: 90,
       minContainerWidth: 600,
       minContainerHeight: 60,
-      maxContainerWidth: 900,
-      maxContainerHeight: 120
+      maxContainerWidth: 1440,
+      maxContainerHeight: 110
     }
   },
   {
@@ -75,8 +75,8 @@ export const BANNER_ADS_META: AdMetadata[] = [
       height: 50,
       minContainerWidth: 230,
       minContainerHeight: 32,
-      maxContainerWidth: 480,
-      maxContainerHeight: 120
+      maxContainerWidth: 420,
+      maxContainerHeight: 110
     }
   }
 ];
