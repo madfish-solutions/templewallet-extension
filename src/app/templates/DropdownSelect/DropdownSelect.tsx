@@ -15,7 +15,7 @@ import { sameWidthModifiers } from 'lib/ui/same-width-modifiers';
 
 interface Props<T> extends TestIDProperty {
   DropdownFaceContent: ReactNode;
-  singleToken: boolean;
+  singleToken?: boolean;
   Input?: ReactNode;
   optionsListClassName?: string;
   dropdownButtonClassName?: string;
@@ -25,7 +25,7 @@ interface Props<T> extends TestIDProperty {
 
 export const DropdownSelect = <T extends unknown>({
   Input,
-  singleToken,
+  singleToken = false,
   searchProps,
   optionsProps,
   testID,
