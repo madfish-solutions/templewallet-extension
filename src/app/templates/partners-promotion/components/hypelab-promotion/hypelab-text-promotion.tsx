@@ -19,6 +19,7 @@ const dummyImageSrc =
   'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==';
 
 export const HypelabTextPromotion: FC<Omit<SingleProviderPromotionProps, 'variant'>> = ({
+  providerTitle,
   isVisible,
   onAdRectSeen,
   onClose,
@@ -45,6 +46,7 @@ export const HypelabTextPromotion: FC<Omit<SingleProviderPromotionProps, 'varian
     <Native placement={EnvVars.HYPELAB_NATIVE_PLACEMENT_SLUG} ref={hypelabNativeElementRef}>
       <span className="hidden" ref={hypelabHeadlineRef} data-ref="headline" />
       <TextPromotionView
+        providerTitle={providerTitle}
         href={currentAd?.cta_url ?? '/'}
         imageSrc={currentAd?.creative_set.icon.url ?? dummyImageSrc}
         isVisible={isVisible}
