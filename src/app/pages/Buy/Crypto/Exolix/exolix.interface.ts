@@ -53,6 +53,7 @@ export interface GetRateRequestData {
 export interface GetRateResponse {
   toAmount: number;
   minAmount: number;
+  maxAmount: number;
   rate: number;
   withdrawMin: number;
   message: null;
@@ -61,6 +62,7 @@ export interface GetRateResponse {
 export interface GetRateResponseWithAmountTooLow {
   toAmount: number;
   minAmount: number;
+  maxAmount: number;
   rate: null;
   message: string;
 }
