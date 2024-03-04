@@ -1,6 +1,8 @@
+import { HYPELAB_NATIVE_AD_PLACEMENT_TYPE } from 'lib/constants';
 import { EnvVars } from 'lib/env';
 
-import { ADS_RESOLUTIONS } from '../ads-resolutions';
+import { AdsResolution, ADS_RESOLUTIONS } from '../ads-resolutions';
+import { HypelabPlacementType } from '../get-hypelab-iframe-url';
 
 export const getFinalSize = (element: Element) => {
   const elementStyle = getComputedStyle(element);
@@ -59,7 +61,7 @@ export const pickAdResolution = (
   shouldUseStrictContainerLimits: boolean,
   minContainerWidthIsBannerWidth: boolean,
   adIsNative: boolean
-) => {
+): AdsResolution | undefined => {
   if (containerWidth < 2 && containerHeight < 2) {
     return undefined;
   }
@@ -72,16 +74,17 @@ export const pickAdResolution = (
       minContainerHeight: 2,
       maxContainerWidth: Infinity,
       maxContainerHeight: Infinity,
+      placementType: HYPELAB_NATIVE_AD_PLACEMENT_TYPE,
       placementSlug: EnvVars.HYPELAB_NATIVE_PLACEMENT_SLUG
     };
   }
 
-  const matchingResolutions = ADS_RESOLUTIONS.filter(
-    ({ minContainerWidth, maxContainerWidth, minContainerHeight, maxContainerHeight, width }, i) => {
+  return ADS_RESOLUTIONS.find(
+    ({ placementType, minContainerWidth, maxContainerWidth, minContainerHeight, maxContainerHeight, width }) => {
       const actualMinContainerWidth = minContainerWidthIsBannerWidth ? width : minContainerWidth;
 
       if (
-        (i !== 0 || shouldUseStrictContainerLimits) &&
+        (placementType !== HypelabPlacementType.Small || shouldUseStrictContainerLimits) &&
         (containerWidth < actualMinContainerWidth || (containerHeight < minContainerHeight && containerHeight >= 2))
       ) {
         return false;
@@ -97,6 +100,4 @@ export const pickAdResolution = (
       return true;
     }
   );
-
-  return matchingResolutions[matchingResolutions.length - 1];
 };

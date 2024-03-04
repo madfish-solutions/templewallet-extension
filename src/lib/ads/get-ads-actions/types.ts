@@ -48,11 +48,11 @@ export interface HideElementAction extends AdActionBase {
   element: HTMLElement;
 }
 
-export type InsertAdAction = ReplaceAllChildrenWithAdAction | ReplaceElementWithAdAction | SimpleInsertAdAction;
+type InsertAdAction = ReplaceAllChildrenWithAdAction | ReplaceElementWithAdAction | SimpleInsertAdAction;
 
-export type AdAction =
-  | ReplaceAllChildrenWithAdAction
-  | ReplaceElementWithAdAction
-  | SimpleInsertAdAction
-  | RemoveElementAction
-  | HideElementAction;
+export type InsertAdActionWithoutAdResolution =
+  | Omit<ReplaceAllChildrenWithAdAction, 'adResolution'>
+  | Omit<ReplaceElementWithAdAction, 'adResolution'>
+  | Omit<SimpleInsertAdAction, 'adResolution'>;
+
+export type AdAction = InsertAdAction | RemoveElementAction | HideElementAction;

@@ -16,6 +16,7 @@ import {
   TKEY_AD_PLACEMENT_SLUG,
   AD_SEEN_THRESHOLD
 } from 'lib/constants';
+import { fetchFromStorage } from 'lib/storage';
 
 let processing = false;
 
@@ -91,71 +92,76 @@ const replaceAds = async () => {
 
     const adsActions = await getAdsActions(adsRules);
 
-    await Promise.all(
-      adsActions.map(async action => {
-        if (action.type === AdActionType.RemoveElement) {
-          action.element.remove();
-        } else if (action.type === AdActionType.HideElement) {
-          action.element.style.setProperty('display', 'none');
+    for (const action of adsActions) {
+      if (action.type === AdActionType.RemoveElement) {
+        action.element.remove();
+      } else if (action.type === AdActionType.HideElement) {
+        action.element.style.setProperty('display', 'none');
+      } else {
+        const {
+          adResolution,
+          shouldUseDivWrapper,
+          divWrapperStyle = {},
+          elementStyle = {},
+          stylesOverrides = []
+        } = action;
+
+        stylesOverrides.sort((a, b) => a.parentDepth - b.parentDepth);
+
+        let stylesOverridesCurrentElement: HTMLElement | null;
+        let adElementWithWrapper: HTMLElement;
+
+        const slotId = getSlotId();
+        const shouldUseTKeyAd = adResolution.placementType === TKEY_AD_PLACEMENT_SLUG;
+        const adElement = shouldUseTKeyAd
+          ? makeTKeyAdElement(slotId, adResolution.width, adResolution.height, elementStyle)
+          : makeHypelabAdElement(adResolution, elementStyle);
+
+        if (shouldUseDivWrapper) {
+          adElementWithWrapper = document.createElement('div');
+          adElementWithWrapper.setAttribute(TEMPLE_WALLET_AD_ATTRIBUTE_NAME, 'true');
+          overrideElementStyles(adElementWithWrapper, divWrapperStyle);
+          adElementWithWrapper.appendChild(adElement);
         } else {
-          const {
-            adResolution,
-            shouldUseDivWrapper,
-            divWrapperStyle = {},
-            elementStyle = {},
-            stylesOverrides = []
-          } = action;
-          stylesOverrides.sort((a, b) => a.parentDepth - b.parentDepth);
-          let stylesOverridesCurrentElement: HTMLElement | null;
-          let adElementWithWrapper: HTMLElement;
-          const slotId = getSlotId();
-          const shouldUseTKeyAd = adResolution.placementType === TKEY_AD_PLACEMENT_SLUG;
-          const adElement = shouldUseTKeyAd
-            ? makeTKeyAdElement(slotId, adResolution.width, adResolution.height, elementStyle)
-            : makeHypelabAdElement(adResolution, elementStyle);
-          if (shouldUseDivWrapper) {
-            adElementWithWrapper = document.createElement('div');
-            adElementWithWrapper.setAttribute(TEMPLE_WALLET_AD_ATTRIBUTE_NAME, 'true');
-            overrideElementStyles(adElementWithWrapper, divWrapperStyle);
-            adElementWithWrapper.appendChild(adElement);
-          } else {
-            adElementWithWrapper = adElement;
-          }
-          switch (action.type) {
-            case AdActionType.ReplaceAllChildren:
-              stylesOverridesCurrentElement = action.parent;
-              action.parent.innerHTML = '';
-              action.parent.appendChild(adElementWithWrapper);
-              break;
-            case AdActionType.ReplaceElement:
-              stylesOverridesCurrentElement = action.element.parentElement;
-              action.element.replaceWith(adElementWithWrapper);
-              break;
-            default:
-              stylesOverridesCurrentElement = action.parent;
-              action.parent.insertBefore(adElementWithWrapper, action.parent.children[action.insertionIndex]);
-              break;
-          }
-          if (shouldUseTKeyAd) {
-            provider = AdsProviderTitle.Temple;
-            loadedAdIntersectionObserver.observe(adElement);
-          } else {
-            provider = AdsProviderTitle.HypeLab;
-            subscribeToIframeLoadIfNecessary(adElement.id, adElement as HTMLIFrameElement);
-          }
-          let currentParentDepth = 0;
-          stylesOverrides.forEach(({ parentDepth, style }) => {
-            while (parentDepth > currentParentDepth && stylesOverridesCurrentElement) {
-              stylesOverridesCurrentElement = stylesOverridesCurrentElement.parentElement;
-              currentParentDepth++;
-            }
-            if (stylesOverridesCurrentElement) {
-              overrideElementStyles(stylesOverridesCurrentElement, style);
-            }
-          });
+          adElementWithWrapper = adElement;
         }
-      })
-    );
+
+        switch (action.type) {
+          case AdActionType.ReplaceAllChildren:
+            stylesOverridesCurrentElement = action.parent;
+            action.parent.innerHTML = '';
+            action.parent.appendChild(adElementWithWrapper);
+            break;
+          case AdActionType.ReplaceElement:
+            stylesOverridesCurrentElement = action.element.parentElement;
+            action.element.replaceWith(adElementWithWrapper);
+            break;
+          default:
+            stylesOverridesCurrentElement = action.parent;
+            action.parent.insertBefore(adElementWithWrapper, action.parent.children[action.insertionIndex]);
+            break;
+        }
+
+        if (shouldUseTKeyAd) {
+          provider = AdsProviderTitle.Temple;
+          loadedAdIntersectionObserver.observe(adElement);
+        } else {
+          provider = AdsProviderTitle.HypeLab;
+          subscribeToIframeLoadIfNecessary(adElement.id, adElement as HTMLIFrameElement);
+        }
+
+        let currentParentDepth = 0;
+        stylesOverrides.forEach(({ parentDepth, style }) => {
+          while (parentDepth > currentParentDepth && stylesOverridesCurrentElement) {
+            stylesOverridesCurrentElement = stylesOverridesCurrentElement.parentElement;
+            currentParentDepth++;
+          }
+          if (stylesOverridesCurrentElement) {
+            overrideElementStyles(stylesOverridesCurrentElement, style);
+          }
+        });
+      }
+    }
   } catch (error) {
     console.error('Replacing Ads error:', error);
   }
@@ -165,8 +171,8 @@ const replaceAds = async () => {
 
 // Prevents the script from running in an Iframe
 if (window.frameElement === null) {
-  browser.storage.local.get(WEBSITES_ANALYTICS_ENABLED).then(storage => {
-    if (storage[WEBSITES_ANALYTICS_ENABLED]) {
+  fetchFromStorage<boolean>(WEBSITES_ANALYTICS_ENABLED).then(enabled => {
+    if (enabled) {
       // Replace ads with ours
       window.addEventListener('load', () => replaceAds());
       window.addEventListener('ready', () => replaceAds());

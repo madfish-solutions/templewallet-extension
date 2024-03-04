@@ -1,3 +1,4 @@
+import { HYPELAB_NATIVE_AD_PLACEMENT_TYPE } from 'lib/constants';
 import { EnvVars } from 'lib/env';
 
 export enum HypelabPlacementType {
@@ -15,12 +16,13 @@ export enum HypelabPlacementType {
  * @param height Frame height
  */
 export const getHypelabIframeUrl = (
-  placementType: HypelabPlacementType,
+  placementType: HypelabPlacementType | typeof HYPELAB_NATIVE_AD_PLACEMENT_TYPE,
   origin: string,
   width?: number,
   height?: number
 ) => {
   let defaultWidth: number, defaultHeight: number, placementSlug: string;
+
   switch (placementType) {
     case HypelabPlacementType.Small:
       defaultWidth = 320;
@@ -42,6 +44,7 @@ export const getHypelabIframeUrl = (
       defaultWidth = 360;
       defaultHeight = 110;
   }
+
   const url = new URL(EnvVars.HYPELAB_ADS_WINDOW_URL);
   url.searchParams.set('w', String(width ?? defaultWidth));
   url.searchParams.set('h', String(height ?? defaultHeight));

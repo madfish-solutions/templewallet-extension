@@ -1,4 +1,4 @@
-import { TKEY_AD_PLACEMENT_SLUG } from 'lib/constants';
+import { HYPELAB_NATIVE_AD_PLACEMENT_TYPE, TKEY_AD_PLACEMENT_SLUG } from 'lib/constants';
 
 import { HypelabPlacementType } from './get-hypelab-iframe-url';
 
@@ -15,21 +15,26 @@ export interface HypelabAdsResolution extends AdsResolutionBase {
   placementType: HypelabPlacementType;
 }
 
+export interface HypelabNativeAdsResolution extends AdsResolutionBase {
+  placementType: typeof HYPELAB_NATIVE_AD_PLACEMENT_TYPE;
+  placementSlug: string;
+}
+
 interface TKeyAdsResolution extends AdsResolutionBase {
   placementType: typeof TKEY_AD_PLACEMENT_SLUG;
 }
 
-export type AdsResolution = HypelabAdsResolution | TKeyAdsResolution;
+export type AdsResolution = HypelabAdsResolution | HypelabNativeAdsResolution | TKeyAdsResolution;
 
 export const ADS_RESOLUTIONS: AdsResolution[] = [
   {
-    width: 320,
-    height: 50,
-    minContainerWidth: 230,
-    minContainerHeight: 32,
-    maxContainerWidth: 480,
+    width: 728,
+    height: 90,
+    minContainerWidth: 600,
+    minContainerHeight: 60,
+    maxContainerWidth: 900,
     maxContainerHeight: 120,
-    placementType: HypelabPlacementType.Small
+    placementType: TKEY_AD_PLACEMENT_SLUG
   },
   {
     width: 300,
@@ -41,12 +46,12 @@ export const ADS_RESOLUTIONS: AdsResolution[] = [
     placementType: HypelabPlacementType.High
   },
   {
-    width: 728,
-    height: 90,
-    minContainerWidth: 600,
-    minContainerHeight: 60,
-    maxContainerWidth: 900,
+    width: 320,
+    height: 50,
+    minContainerWidth: 230,
+    minContainerHeight: 32,
+    maxContainerWidth: 480,
     maxContainerHeight: 120,
-    placementType: TKEY_AD_PLACEMENT_SLUG
+    placementType: HypelabPlacementType.Small
   }
 ];

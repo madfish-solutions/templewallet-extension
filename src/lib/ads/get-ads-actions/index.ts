@@ -1,12 +1,13 @@
 import type { AdsRules } from 'lib/ads/get-rules-content-script';
 import { TEMPLE_WALLET_AD_ATTRIBUTE_NAME } from 'lib/constants';
+import { delay, isTruthy } from 'lib/utils';
 
 import { applyQuerySelector, getFinalSize, getParentOfDepth, pickAdResolution } from './helpers';
 import {
   AdAction,
   AdActionType,
   HideElementAction,
-  InsertAdAction,
+  InsertAdActionWithoutAdResolution,
   RemoveElementAction,
   ReplaceAllChildrenWithAdAction,
   ReplaceElementWithAdAction,
@@ -25,23 +26,15 @@ const elementIsOurAd = (element: HTMLElement) => {
   );
 };
 
-const forEachWithTimeoutInterruptions = <A>(array: A[], fn: (value: A) => void | Promise<void>) =>
-  Promise.all(
-    array.map(async value => {
-      await new Promise(resolve => setTimeout(resolve, 0));
-
-      await fn(value);
-    })
-  );
-
 export const getAdsActions = async ({ providersSelector, adPlacesRules, permanentAdPlacesRules }: AdsRules) => {
   const result: AdAction[] = [];
+
   const addActionsIfAdResolutionAvailable = (
     elementToMeasure: Element,
     shouldUseStrictContainerLimits: boolean,
     minContainerWidthIsBannerWidth: boolean,
     adIsNative: boolean,
-    ...actionsBases: Array<Omit<InsertAdAction, 'adResolution'> | HideElementAction | RemoveElementAction>
+    ...actionsBases: (InsertAdActionWithoutAdResolution | HideElementAction | RemoveElementAction)[]
   ) => {
     const { width, height } = getFinalSize(elementToMeasure);
     const adResolution = pickAdResolution(
@@ -54,10 +47,10 @@ export const getAdsActions = async ({ providersSelector, adPlacesRules, permanen
 
     if (adResolution) {
       result.push(
-        ...actionsBases.map(actionBase =>
+        ...actionsBases.map<AdAction>(actionBase =>
           actionBase.type === AdActionType.HideElement || actionBase.type === AdActionType.RemoveElement
             ? actionBase
-            : ({ ...actionBase, adResolution } as InsertAdAction)
+            : { ...actionBase, adResolution }
         )
       );
 
@@ -68,9 +61,11 @@ export const getAdsActions = async ({ providersSelector, adPlacesRules, permanen
   };
 
   let permanentAdsParents: HTMLElement[] = [];
-  await forEachWithTimeoutInterruptions(
-    permanentAdPlacesRules,
-    async ({
+
+  for (const rule of permanentAdPlacesRules) {
+    await delay(0);
+
+    const {
       shouldUseDivWrapper,
       divWrapperStyle,
       elementStyle,
@@ -84,146 +79,162 @@ export const getAdsActions = async ({ providersSelector, adPlacesRules, permanen
       stylesOverrides,
       shouldHideOriginal = false,
       isNative
-    }) => {
-      const {
-        isMultiple: shouldSearchForManyBannersInParent,
-        cssString: bannerCssString,
-        parentDepth: bannerParentDepth
-      } = adSelector;
-      const {
-        isMultiple: shouldSearchForManyParents,
-        cssString: parentCssString,
-        parentDepth: parentParentDepth
-      } = parentSelector;
-      const parents = applyQuerySelector<HTMLElement>(parentCssString, shouldSearchForManyParents)
-        .map(element => getParentOfDepth(element, parentParentDepth))
-        .filter((value): value is HTMLElement => Boolean(value));
-      permanentAdsParents = permanentAdsParents.concat(parents);
-      await forEachWithTimeoutInterruptions(parents, parent => {
-        const ourAds = applyQuerySelector(ourAdQuerySelector, true, parent).reduce<Element[]>((acc, element) => {
-          if (acc.some(prevElement => prevElement.contains(element) || element.contains(prevElement))) {
-            return acc;
-          }
+    } = rule;
 
-          return [...acc, element];
-        }, []);
-        const ourAdsCount = ourAds.length;
-        let insertionsLeft = insertionsCount - ourAdsCount;
+    const {
+      isMultiple: shouldSearchForManyBannersInParent,
+      cssString: bannerCssString,
+      parentDepth: bannerParentDepth
+    } = adSelector;
 
-        const banners = applyQuerySelector<HTMLElement>(bannerCssString, shouldSearchForManyBannersInParent, parent)
-          .map(element => getParentOfDepth(element, bannerParentDepth))
-          .filter((value): value is HTMLElement => Boolean(value))
-          .filter(element => !elementIsOurAd(element));
-        banners.forEach(banner => {
-          if (insertionsLeft <= 0) {
-            const { display: bannerDisplay } = window.getComputedStyle(banner);
-            if (!shouldHideOriginal || bannerDisplay !== 'none') {
-              result.push({
-                type: shouldHideOriginal ? AdActionType.HideElement : AdActionType.RemoveElement,
-                element: banner
-              });
-            }
-          } else {
-            let elementToMeasure = banner.parentElement?.children.length === 1 ? banner.parentElement : banner;
-            if (elementToMeasureSelector) {
-              elementToMeasure = document.querySelector(elementToMeasureSelector) ?? elementToMeasure;
-            }
-            const replaceActionBase: Omit<ReplaceElementWithAdAction, 'adResolution'> = {
-              type: AdActionType.ReplaceElement,
-              element: banner,
-              shouldUseDivWrapper,
-              divWrapperStyle,
-              elementStyle,
-              stylesOverrides
-            };
-            const hideActionBase: HideElementAction = {
-              type: AdActionType.HideElement,
-              element: banner
-            };
-            const insertActionBase: Omit<SimpleInsertAdAction, 'adResolution'> = {
-              type: AdActionType.SimpleInsertAd,
-              shouldUseDivWrapper,
-              divWrapperStyle,
-              elementStyle,
-              parent: banner.parentElement!,
-              insertionIndex: Array.from(banner.parentElement!.children).indexOf(banner),
-              stylesOverrides
-            };
-            const nextBannerSibling = banner.nextElementSibling;
-            const nextBannerSiblingIsOurAd = nextBannerSibling && elementIsOurAd(nextBannerSibling as HTMLElement);
-            const actionsToInsert = shouldHideOriginal
-              ? nextBannerSiblingIsOurAd
-                ? []
-                : [hideActionBase, insertActionBase]
-              : [replaceActionBase];
-            if (
-              actionsToInsert.length > 0 &&
-              addActionsIfAdResolutionAvailable(elementToMeasure, false, true, isNative, ...actionsToInsert)
-            ) {
-              insertionsLeft--;
-            }
-          }
-        });
+    const {
+      isMultiple: shouldSearchForManyParents,
+      cssString: parentCssString,
+      parentDepth: parentParentDepth
+    } = parentSelector;
 
-        if (insertionsLeft <= 0) {
-          return;
+    const parents = applyQuerySelector<HTMLElement>(parentCssString, shouldSearchForManyParents)
+      .map(element => getParentOfDepth(element, parentParentDepth))
+      .filter((value): value is HTMLElement => Boolean(value));
+
+    permanentAdsParents = permanentAdsParents.concat(parents);
+
+    for (const parent of parents) {
+      await delay(0);
+
+      const ourAds = applyQuerySelector(ourAdQuerySelector, true, parent).reduce<Element[]>((acc, element) => {
+        if (acc.some(prevElement => prevElement.contains(element) || element.contains(prevElement))) {
+          return acc;
         }
 
-        let normalizedInsertionIndex = -1;
-        let insertionParentElement = parent;
-        let elementToMeasure = parent;
-        const insertAnchorSelector = insertBeforeSelector || insertAfterSelector;
-        if (insertAnchorSelector) {
-          const insertAnchorElement = parent.querySelector(insertAnchorSelector);
-          const newInsertionParentElement = insertAnchorElement?.parentElement;
+        return [...acc, element];
+      }, []);
 
-          if (insertAnchorElement && newInsertionParentElement) {
-            insertionParentElement = newInsertionParentElement;
-            normalizedInsertionIndex =
-              Array.from(parent.children).indexOf(insertAnchorElement) + (insertBeforeSelector ? 0 : 1);
-            elementToMeasure =
-              (elementToMeasureSelector && document.querySelector(elementToMeasureSelector)) ||
-              (insertAnchorElement as HTMLElement);
+      const ourAdsCount = ourAds.length;
+      let insertionsLeft = insertionsCount - ourAdsCount;
+
+      const banners = applyQuerySelector<HTMLElement>(bannerCssString, shouldSearchForManyBannersInParent, parent)
+        .map(element => getParentOfDepth(element, bannerParentDepth))
+        .filter((value): value is HTMLElement => isTruthy(value) && !elementIsOurAd(value));
+
+      banners.forEach(banner => {
+        if (insertionsLeft <= 0) {
+          const { display: bannerDisplay } = window.getComputedStyle(banner);
+          if (!shouldHideOriginal || bannerDisplay !== 'none') {
+            result.push({
+              type: shouldHideOriginal ? AdActionType.HideElement : AdActionType.RemoveElement,
+              element: banner
+            });
           }
         } else {
-          const insertionIndexWithDefault = insertionIndex ?? 0;
-          normalizedInsertionIndex =
-            insertionIndexWithDefault < 0
-              ? Math.max(parent.children.length + insertionIndexWithDefault, 0)
-              : Math.min(insertionIndexWithDefault, parent.children.length);
-          elementToMeasure =
-            (elementToMeasureSelector && document.querySelector(elementToMeasureSelector)) ||
-            ((parent.children[normalizedInsertionIndex] as HTMLElement | undefined) ?? parent);
-        }
-
-        if (normalizedInsertionIndex !== -1) {
-          const actionBase: Omit<SimpleInsertAdAction, 'adResolution'> = {
+          let elementToMeasure = banner.parentElement?.children.length === 1 ? banner.parentElement : banner;
+          if (elementToMeasureSelector) {
+            elementToMeasure = document.querySelector(elementToMeasureSelector) ?? elementToMeasure;
+          }
+          const replaceActionBase: Omit<ReplaceElementWithAdAction, 'adResolution'> = {
+            type: AdActionType.ReplaceElement,
+            element: banner,
+            shouldUseDivWrapper,
+            divWrapperStyle,
+            elementStyle,
+            stylesOverrides
+          };
+          const hideActionBase: HideElementAction = {
+            type: AdActionType.HideElement,
+            element: banner
+          };
+          const insertActionBase: Omit<SimpleInsertAdAction, 'adResolution'> = {
             type: AdActionType.SimpleInsertAd,
             shouldUseDivWrapper,
             divWrapperStyle,
             elementStyle,
-            parent: insertionParentElement,
-            insertionIndex: normalizedInsertionIndex,
+            parent: banner.parentElement!,
+            insertionIndex: Array.from(banner.parentElement!.children).indexOf(banner),
             stylesOverrides
           };
 
-          addActionsIfAdResolutionAvailable(
-            elementToMeasure,
-            false,
-            true,
-            isNative,
-            ...Array<typeof actionBase>(insertionsLeft).fill(actionBase)
-          );
+          const nextBannerSibling = banner.nextElementSibling;
+          const nextBannerSiblingIsOurAd = nextBannerSibling && elementIsOurAd(nextBannerSibling as HTMLElement);
+          const actionsToInsert = shouldHideOriginal
+            ? nextBannerSiblingIsOurAd
+              ? []
+              : [hideActionBase, insertActionBase]
+            : [replaceActionBase];
+          if (
+            actionsToInsert.length > 0 &&
+            addActionsIfAdResolutionAvailable(elementToMeasure, false, true, isNative, ...actionsToInsert)
+          ) {
+            insertionsLeft--;
+          }
         }
       });
-    }
-  );
 
-  await forEachWithTimeoutInterruptions(adPlacesRules, async ({ selector, stylesOverrides, shouldHideOriginal }) => {
+      if (insertionsLeft <= 0) {
+        continue;
+      }
+
+      let normalizedInsertionIndex = -1;
+      let insertionParentElement = parent;
+      let elementToMeasure = parent;
+      const insertAnchorSelector = insertBeforeSelector || insertAfterSelector;
+      if (insertAnchorSelector) {
+        const insertAnchorElement = parent.querySelector(insertAnchorSelector);
+        const newInsertionParentElement = insertAnchorElement?.parentElement;
+
+        if (insertAnchorElement && newInsertionParentElement) {
+          insertionParentElement = newInsertionParentElement;
+          normalizedInsertionIndex =
+            Array.from(parent.children).indexOf(insertAnchorElement) + (insertBeforeSelector ? 0 : 1);
+          elementToMeasure =
+            (elementToMeasureSelector && document.querySelector(elementToMeasureSelector)) ||
+            (insertAnchorElement as HTMLElement);
+        }
+      } else {
+        const insertionIndexWithDefault = insertionIndex ?? 0;
+
+        normalizedInsertionIndex =
+          insertionIndexWithDefault < 0
+            ? Math.max(parent.children.length + insertionIndexWithDefault, 0)
+            : Math.min(insertionIndexWithDefault, parent.children.length);
+
+        elementToMeasure =
+          (elementToMeasureSelector && document.querySelector(elementToMeasureSelector)) ||
+          ((parent.children[normalizedInsertionIndex] as HTMLElement | undefined) ?? parent);
+      }
+
+      if (normalizedInsertionIndex !== -1) {
+        const actionBase: Omit<SimpleInsertAdAction, 'adResolution'> = {
+          type: AdActionType.SimpleInsertAd,
+          shouldUseDivWrapper,
+          divWrapperStyle,
+          elementStyle,
+          parent: insertionParentElement,
+          insertionIndex: normalizedInsertionIndex,
+          stylesOverrides
+        };
+
+        addActionsIfAdResolutionAvailable(
+          elementToMeasure,
+          false,
+          true,
+          isNative,
+          ...Array<typeof actionBase>(insertionsLeft).fill(actionBase)
+        );
+      }
+    }
+  }
+
+  for (const rule of adPlacesRules) {
+    await delay(0);
+
+    const { selector, stylesOverrides, shouldHideOriginal } = rule;
+
     const { cssString, shouldUseDivWrapper, isMultiple, parentDepth, divWrapperStyle } = selector;
     const selectedElements = applyQuerySelector<HTMLElement>(cssString, isMultiple);
 
-    await forEachWithTimeoutInterruptions(selectedElements, selectedElement => {
+    for (const selectedElement of selectedElements) {
+      await delay(0);
+
       const banner = getParentOfDepth(selectedElement, parentDepth);
 
       if (
@@ -232,7 +243,7 @@ export const getAdsActions = async ({ providersSelector, adPlacesRules, permanen
         elementIsOurAd(banner) ||
         banner.querySelector(ourAdQuerySelector)
       ) {
-        return;
+        continue;
       }
 
       const actionBaseCommonProps = {
@@ -240,7 +251,7 @@ export const getAdsActions = async ({ providersSelector, adPlacesRules, permanen
         divWrapperStyle
       };
 
-      let actionsBases: Array<Omit<InsertAdAction, 'adResolution'> | HideElementAction | RemoveElementAction>;
+      let actionsBases: (InsertAdActionWithoutAdResolution | HideElementAction | RemoveElementAction)[];
       if (shouldUseDivWrapper && shouldHideOriginal) {
         const parent = banner.parentElement!;
         const insertAdAction: Omit<SimpleInsertAdAction, 'adResolution'> = {
@@ -300,8 +311,8 @@ export const getAdsActions = async ({ providersSelector, adPlacesRules, permanen
       if (actionsBases.length > 0) {
         addActionsIfAdResolutionAvailable(banner, false, false, false, ...actionsBases);
       }
-    });
-  });
+    }
+  }
 
   const bannersFromProviders = applyQuerySelector(providersSelector, true);
   bannersFromProviders.forEach(banner => {

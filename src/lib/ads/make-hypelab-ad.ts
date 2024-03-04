@@ -2,10 +2,13 @@ import { nanoid } from 'nanoid';
 
 import { TEMPLE_WALLET_AD_ATTRIBUTE_NAME } from 'lib/constants';
 
-import { HypelabAdsResolution } from './ads-resolutions';
+import { HypelabAdsResolution, HypelabNativeAdsResolution } from './ads-resolutions';
 import { getHypelabIframeUrl } from './get-hypelab-iframe-url';
 
-export const makeHypelabAdElement = (adsResolution: HypelabAdsResolution, elementStyle: Record<string, string>) => {
+export const makeHypelabAdElement = (
+  adsResolution: HypelabAdsResolution | HypelabNativeAdsResolution,
+  elementStyle: Record<string, string>
+) => {
   const { width, height, placementType } = adsResolution;
 
   const iframe = document.createElement('iframe');
