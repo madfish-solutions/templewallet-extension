@@ -4,6 +4,8 @@ import browser from 'webextension-polyfill';
 import { buildSwapPageUrlQuery } from 'app/pages/Swap/utils/build-url-query';
 import { TEMPLE_WALLET_AD_ATTRIBUTE_NAME } from 'lib/constants';
 
+import { AdView } from './types';
+
 const TKeyInpageAd = browser.runtime.getURL(`/misc/ad-banners/tkey-inpage-ad.png`);
 
 const swapTKeyUrl = `${browser.runtime.getURL('fullpage.html')}#/swap?${buildSwapPageUrlQuery(
@@ -12,13 +14,13 @@ const swapTKeyUrl = `${browser.runtime.getURL('fullpage.html')}#/swap?${buildSwa
   true
 )}`;
 
-export const makeTKeyAdElement = (
+export const makeTKeyAdView = (
   slotId: string,
   width: number,
   height: number,
-  elementStyle: Record<string, string>
-) => {
-  const ins = document.createElement('ins');
+  elementStyle: StringRecord<string>
+): AdView => {
+  const ins = document.createElement('ins'); // TODO: Why 'ins' ?
   ins.id = nanoid();
   ins.style.width = `${width}px`;
   ins.style.height = `${height}px`;
@@ -49,5 +51,5 @@ export const makeTKeyAdElement = (
   img.style.height = '100%';
   anchor.appendChild(img);
 
-  return ins;
+  return { element: ins };
 };

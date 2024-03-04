@@ -1,12 +1,12 @@
 import { EnvVars } from 'lib/env';
 
-export interface HypeLabBannerAdSource {
+interface HypeLabBannerAdSource {
   providerName: 'HypeLab';
   native: false;
   size: 'small' | 'high' | 'wide';
 }
 
-export interface HypeLabNativeAdSource {
+interface HypeLabNativeAdSource {
   providerName: 'HypeLab';
   native: true;
   slug: string;
@@ -17,9 +17,16 @@ interface TempleAdSource {
   providerName: 'Temple';
 }
 
+export type PersonaAdShape = 'regular' | 'wide' | 'squarish';
+
+interface PersonaAdSource {
+  providerName: 'Persona';
+  shape: PersonaAdShape;
+}
+
 export type HypeLabAdSources = HypeLabBannerAdSource | HypeLabNativeAdSource;
 
-export type AdSource = HypeLabAdSources | TempleAdSource;
+export type AdSource = HypeLabAdSources | TempleAdSource | PersonaAdSource;
 
 export interface AdDimensions {
   width: number;
@@ -73,6 +80,20 @@ export const BANNER_ADS_META: AdMetadata[] = [
     dimensions: {
       width: 320,
       height: 50,
+      minContainerWidth: 230,
+      minContainerHeight: 32,
+      maxContainerWidth: 420,
+      maxContainerHeight: 110
+    }
+  },
+  {
+    source: {
+      providerName: 'Persona',
+      shape: 'regular'
+    },
+    dimensions: {
+      width: 321,
+      height: 101,
       minContainerWidth: 230,
       minContainerHeight: 32,
       maxContainerWidth: 420,

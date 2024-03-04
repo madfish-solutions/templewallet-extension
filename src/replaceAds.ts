@@ -2,13 +2,11 @@ import browser from 'webextension-polyfill';
 
 import { AdsProviderTitle } from 'lib/ads';
 import { adRectIsSeen } from 'lib/ads/ad-rect-is-seen';
-import { AdSource } from 'lib/ads/ads-meta';
-import { getAdsActions } from 'lib/ads/get-ads-actions';
-import { AdActionType } from 'lib/ads/get-ads-actions/types';
+import { makeTKeyAdView, makeHypelabAdView, makePersonaAdView } from 'lib/ads/ad-viewes';
+import type { AdSource } from 'lib/ads/ads-meta';
+import { getAdsActions, AdActionType } from 'lib/ads/get-ads-actions';
 import { clearRulesCache, getRulesFromContentScript } from 'lib/ads/get-rules-content-script';
 import { getSlotId } from 'lib/ads/get-slot-id';
-import { makeHypelabAdElement } from 'lib/ads/make-hypelab-ad';
-import { makeTKeyAdElement } from 'lib/ads/make-tkey-ad';
 import {
   ContentScriptType,
   ADS_RULES_UPDATE_INTERVAL,
@@ -117,11 +115,14 @@ const replaceAds = async () => {
         let adElementWithWrapper: HTMLElement;
 
         const slotId = getSlotId();
-        const isTempleKeyAd = source.providerName === 'Temple';
+        const { providerName } = source;
 
-        const adElement = isTempleKeyAd
-          ? makeTKeyAdElement(slotId, dimensions.width, dimensions.height, elementStyle)
-          : makeHypelabAdElement(source, dimensions, elementStyle);
+        const { element: adElement, postAppend } =
+          providerName === 'Temple'
+            ? makeTKeyAdView(slotId, dimensions.width, dimensions.height, elementStyle)
+            : providerName === 'HypeLab'
+            ? makeHypelabAdView(source, dimensions, elementStyle)
+            : await makePersonaAdView(source.shape, dimensions);
 
         if (shouldUseDivWrapper) {
           adElementWithWrapper = document.createElement('div');
@@ -148,11 +149,14 @@ const replaceAds = async () => {
             break;
         }
 
+        if (postAppend) await postAppend();
+
         adSource = source;
-        if (isTempleKeyAd) {
-          loadedAdIntersectionObserver.observe(adElement);
+
+        if (adElement instanceof HTMLIFrameElement) {
+          subscribeToIframeLoadIfNecessary(adElement.id, adElement);
         } else {
-          subscribeToIframeLoadIfNecessary(adElement.id, adElement as HTMLIFrameElement);
+          loadedAdIntersectionObserver.observe(adElement);
         }
 
         let currentParentDepth = 0;

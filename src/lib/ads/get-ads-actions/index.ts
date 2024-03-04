@@ -15,6 +15,8 @@ import {
   SimpleInsertAdAction
 } from './types';
 
+export { AdActionType };
+
 const ourAdQuerySelector = `iframe[${TEMPLE_WALLET_AD_ATTRIBUTE_NAME}], div[${TEMPLE_WALLET_AD_ATTRIBUTE_NAME}], \
 ins[${TEMPLE_WALLET_AD_ATTRIBUTE_NAME}]`;
 

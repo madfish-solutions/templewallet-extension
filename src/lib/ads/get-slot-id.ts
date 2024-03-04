@@ -7,6 +7,7 @@ const pathPartsToTruncateRegexes = [hostnameRegex, addressRegex, decimalIdRegex,
 
 const SLOT_ID_LENGTH_THRESHOLD = 40;
 
+/** @deprecated // Not used anywhere ? */
 export const getSlotId = () => {
   const { hostname, pathname, hash } = window.parent.location;
   const hostnameParts = hostname.split('.').filter(part => part !== 'www');
