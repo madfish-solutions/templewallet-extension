@@ -1,8 +1,4 @@
-import { HYPELAB_NATIVE_AD_PLACEMENT_TYPE } from 'lib/constants';
-import { EnvVars } from 'lib/env';
-
-import { AdsResolution, ADS_RESOLUTIONS } from '../ads-resolutions';
-import { HypelabPlacementType } from '../get-hypelab-iframe-url';
+import { AdDimensions, BANNER_ADS_META, buildHypeLabNativeMeta, isHypeLabBannerSource } from '../ads-resolutions';
 
 export const getFinalSize = (element: Element) => {
   const elementStyle = getComputedStyle(element);
@@ -55,49 +51,66 @@ export const getParentOfDepth = (element: HTMLElement, depth: number) => {
   return parent;
 };
 
-export const pickAdResolution = (
+export interface HypeLabBannerAdSource {
+  providerName: 'HypeLab';
+  native: false;
+  size: 'small' | 'high' | 'wide';
+}
+
+export interface HypeLabNativeAdSource {
+  providerName: 'HypeLab';
+  native: true;
+  slug: string;
+}
+
+/** Only covers TKEY ads for now */
+interface TempleAdSource {
+  providerName: 'Temple';
+}
+
+export type HypeLabAdSources = HypeLabBannerAdSource | HypeLabNativeAdSource;
+
+export type AdSource = HypeLabAdSources | TempleAdSource;
+
+export interface AdMetadata {
+  source: AdSource;
+  dimensions: AdDimensions;
+}
+
+export const pickAdToDisplay = (
   containerWidth: number,
   containerHeight: number,
   shouldUseStrictContainerLimits: boolean,
   minContainerWidthIsBannerWidth: boolean,
   adIsNative: boolean
-): AdsResolution | undefined => {
+): AdMetadata | undefined => {
   if (containerWidth < 2 && containerHeight < 2) {
     return undefined;
   }
 
   if (adIsNative) {
-    return {
-      width: Math.max(160, containerWidth),
-      height: Math.max(16, containerHeight),
-      minContainerWidth: 2,
-      minContainerHeight: 2,
-      maxContainerWidth: Infinity,
-      maxContainerHeight: Infinity,
-      placementType: HYPELAB_NATIVE_AD_PLACEMENT_TYPE,
-      placementSlug: EnvVars.HYPELAB_NATIVE_PLACEMENT_SLUG
-    };
+    return buildHypeLabNativeMeta(containerWidth, containerHeight);
   }
 
-  return ADS_RESOLUTIONS.find(
-    ({ placementType, minContainerWidth, maxContainerWidth, minContainerHeight, maxContainerHeight, width }) => {
-      const actualMinContainerWidth = minContainerWidthIsBannerWidth ? width : minContainerWidth;
+  return BANNER_ADS_META.find(({ source, dimensions }) => {
+    const { minContainerWidth, maxContainerWidth, minContainerHeight, maxContainerHeight, width } = dimensions;
 
-      if (
-        (placementType !== HypelabPlacementType.Small || shouldUseStrictContainerLimits) &&
-        (containerWidth < actualMinContainerWidth || (containerHeight < minContainerHeight && containerHeight >= 2))
-      ) {
-        return false;
-      }
+    const actualMinContainerWidth = minContainerWidthIsBannerWidth ? width : minContainerWidth;
 
-      if (
-        shouldUseStrictContainerLimits &&
-        (containerWidth > maxContainerWidth || containerHeight > maxContainerHeight)
-      ) {
-        return false;
-      }
-
-      return true;
+    if (
+      (shouldUseStrictContainerLimits || !isHypeLabBannerSource(source) || source.size !== 'small') &&
+      (containerWidth < actualMinContainerWidth || (containerHeight < minContainerHeight && containerHeight >= 2))
+    ) {
+      return false;
     }
-  );
+
+    if (
+      shouldUseStrictContainerLimits &&
+      (containerWidth > maxContainerWidth || containerHeight > maxContainerHeight)
+    ) {
+      return false;
+    }
+
+    return true;
+  });
 };

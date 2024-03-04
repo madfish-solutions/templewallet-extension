@@ -3,6 +3,7 @@ import browser from 'webextension-polyfill';
 import { AdsProviderTitle } from 'lib/ads';
 import { adRectIsSeen } from 'lib/ads/ad-rect-is-seen';
 import { getAdsActions } from 'lib/ads/get-ads-actions';
+import { AdSource } from 'lib/ads/get-ads-actions/helpers';
 import { AdActionType } from 'lib/ads/get-ads-actions/types';
 import { clearRulesCache, getRulesFromContentScript } from 'lib/ads/get-rules-content-script';
 import { getSlotId } from 'lib/ads/get-slot-id';
@@ -13,14 +14,13 @@ import {
   ADS_RULES_UPDATE_INTERVAL,
   WEBSITES_ANALYTICS_ENABLED,
   TEMPLE_WALLET_AD_ATTRIBUTE_NAME,
-  TKEY_AD_PLACEMENT_SLUG,
   AD_SEEN_THRESHOLD
 } from 'lib/constants';
 import { fetchFromStorage } from 'lib/storage';
 
 let processing = false;
 
-let provider: AdsProviderTitle;
+let adSource: AdSource;
 
 const loadingAdsIds = new Set();
 const loadedAdsIds = new Set();
@@ -36,7 +36,11 @@ const sendExternalAdsActivity = (adId: string) => {
   const url = window.parent.location.href;
 
   browser.runtime
-    .sendMessage({ type: ContentScriptType.ExternalAdsActivity, url, provider })
+    .sendMessage({
+      type: ContentScriptType.ExternalAdsActivity,
+      url,
+      provider: AdsProviderTitle[adSource.providerName]
+    })
     .catch(err => void console.error(err));
 };
 
@@ -99,7 +103,8 @@ const replaceAds = async () => {
         action.element.style.setProperty('display', 'none');
       } else {
         const {
-          adResolution,
+          source,
+          dimensions,
           shouldUseDivWrapper,
           divWrapperStyle = {},
           elementStyle = {},
@@ -112,10 +117,11 @@ const replaceAds = async () => {
         let adElementWithWrapper: HTMLElement;
 
         const slotId = getSlotId();
-        const shouldUseTKeyAd = adResolution.placementType === TKEY_AD_PLACEMENT_SLUG;
-        const adElement = shouldUseTKeyAd
-          ? makeTKeyAdElement(slotId, adResolution.width, adResolution.height, elementStyle)
-          : makeHypelabAdElement(adResolution, elementStyle);
+        const isTempleKeyAd = source.providerName === 'Temple';
+
+        const adElement = isTempleKeyAd
+          ? makeTKeyAdElement(slotId, dimensions.width, dimensions.height, elementStyle)
+          : makeHypelabAdElement(source, dimensions, elementStyle);
 
         if (shouldUseDivWrapper) {
           adElementWithWrapper = document.createElement('div');
@@ -142,11 +148,10 @@ const replaceAds = async () => {
             break;
         }
 
-        if (shouldUseTKeyAd) {
-          provider = AdsProviderTitle.Temple;
+        adSource = source;
+        if (isTempleKeyAd) {
           loadedAdIntersectionObserver.observe(adElement);
         } else {
-          provider = AdsProviderTitle.HypeLab;
           subscribeToIframeLoadIfNecessary(adElement.id, adElement as HTMLIFrameElement);
         }
 

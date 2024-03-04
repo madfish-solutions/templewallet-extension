@@ -1,8 +1,8 @@
-import { HYPELAB_NATIVE_AD_PLACEMENT_TYPE, TKEY_AD_PLACEMENT_SLUG } from 'lib/constants';
+import { EnvVars } from 'lib/env';
 
-import { HypelabPlacementType } from './get-hypelab-iframe-url';
+import type { AdMetadata, AdSource, HypeLabBannerAdSource } from './get-ads-actions/helpers';
 
-interface AdsResolutionBase {
+export interface AdDimensions {
   width: number;
   height: number;
   minContainerWidth: number;
@@ -11,47 +11,67 @@ interface AdsResolutionBase {
   maxContainerHeight: number;
 }
 
-export interface HypelabAdsResolution extends AdsResolutionBase {
-  placementType: HypelabPlacementType;
-}
-
-export interface HypelabNativeAdsResolution extends AdsResolutionBase {
-  placementType: typeof HYPELAB_NATIVE_AD_PLACEMENT_TYPE;
-  placementSlug: string;
-}
-
-interface TKeyAdsResolution extends AdsResolutionBase {
-  placementType: typeof TKEY_AD_PLACEMENT_SLUG;
-}
-
-export type AdsResolution = HypelabAdsResolution | HypelabNativeAdsResolution | TKeyAdsResolution;
-
-export const ADS_RESOLUTIONS: AdsResolution[] = [
+export const BANNER_ADS_META: AdMetadata[] = [
   {
-    width: 728,
-    height: 90,
-    minContainerWidth: 600,
-    minContainerHeight: 60,
-    maxContainerWidth: 900,
-    maxContainerHeight: 120,
-    placementType: TKEY_AD_PLACEMENT_SLUG
+    source: {
+      providerName: 'Temple'
+    },
+    dimensions: {
+      width: 728,
+      height: 90,
+      minContainerWidth: 600,
+      minContainerHeight: 60,
+      maxContainerWidth: 900,
+      maxContainerHeight: 120
+    }
   },
   {
-    width: 300,
-    height: 250,
-    minContainerWidth: 210,
-    minContainerHeight: 170,
-    maxContainerWidth: 400,
-    maxContainerHeight: 300,
-    placementType: HypelabPlacementType.High
+    source: {
+      providerName: 'HypeLab',
+      native: false,
+      size: 'high'
+    },
+    dimensions: {
+      width: 300,
+      height: 250,
+      minContainerWidth: 210,
+      minContainerHeight: 170,
+      maxContainerWidth: 400,
+      maxContainerHeight: 300
+    }
   },
   {
-    width: 320,
-    height: 50,
-    minContainerWidth: 230,
-    minContainerHeight: 32,
-    maxContainerWidth: 480,
-    maxContainerHeight: 120,
-    placementType: HypelabPlacementType.Small
+    source: {
+      providerName: 'HypeLab',
+      native: false,
+      size: 'small'
+    },
+    dimensions: {
+      width: 320,
+      height: 50,
+      minContainerWidth: 230,
+      minContainerHeight: 32,
+      maxContainerWidth: 480,
+      maxContainerHeight: 120
+    }
   }
 ];
+
+export const isHypeLabBannerSource = (source: AdSource): source is HypeLabBannerAdSource =>
+  source.providerName === 'HypeLab' && !source.native;
+
+export const buildHypeLabNativeMeta = (containerWidth: number, containerHeight: number) => ({
+  source: {
+    providerName: 'HypeLab' as const,
+    native: true as const,
+    slug: EnvVars.HYPELAB_NATIVE_PLACEMENT_SLUG
+  },
+  dimensions: {
+    width: Math.max(160, containerWidth),
+    height: Math.max(16, containerHeight),
+    minContainerWidth: 2,
+    minContainerHeight: 2,
+    maxContainerWidth: Infinity,
+    maxContainerHeight: Infinity
+  }
+});

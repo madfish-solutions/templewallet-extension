@@ -1,12 +1,6 @@
-import { HYPELAB_NATIVE_AD_PLACEMENT_TYPE } from 'lib/constants';
 import { EnvVars } from 'lib/env';
 
-export enum HypelabPlacementType {
-  Small = 'small',
-  High = 'high',
-  Wide = 'wide',
-  Native = 'native'
-}
+import type { HypeLabAdSources } from './get-ads-actions/helpers';
 
 /**
  * Returns URL for Hypelab ad iframe
@@ -15,35 +9,31 @@ export enum HypelabPlacementType {
  * @param width Frame width
  * @param height Frame height
  */
-export const getHypelabIframeUrl = (
-  placementType: HypelabPlacementType | typeof HYPELAB_NATIVE_AD_PLACEMENT_TYPE,
-  origin: string,
-  width?: number,
-  height?: number
-) => {
+export const getHypelabIframeUrl = (source: HypeLabAdSources, origin: string, width?: number, height?: number) => {
   let defaultWidth: number, defaultHeight: number, placementSlug: string;
 
-  switch (placementType) {
-    case HypelabPlacementType.Small:
-      defaultWidth = 320;
-      defaultHeight = 50;
-      placementSlug = EnvVars.HYPELAB_SMALL_PLACEMENT_SLUG;
-      break;
-    case HypelabPlacementType.High:
-      defaultWidth = 300;
-      defaultHeight = 250;
-      placementSlug = EnvVars.HYPELAB_HIGH_PLACEMENT_SLUG;
-      break;
-    case HypelabPlacementType.Wide:
-      defaultWidth = 728;
-      defaultHeight = 90;
-      placementSlug = EnvVars.HYPELAB_WIDE_PLACEMENT_SLUG;
-      break;
-    default:
-      placementSlug = EnvVars.HYPELAB_NATIVE_PLACEMENT_SLUG;
-      defaultWidth = 360;
-      defaultHeight = 110;
-  }
+  if (source.native) {
+    placementSlug = EnvVars.HYPELAB_NATIVE_PLACEMENT_SLUG;
+    defaultWidth = 360;
+    defaultHeight = 110;
+  } else
+    switch (source.size) {
+      case 'small':
+        defaultWidth = 320;
+        defaultHeight = 50;
+        placementSlug = EnvVars.HYPELAB_SMALL_PLACEMENT_SLUG;
+        break;
+      case 'high':
+        defaultWidth = 300;
+        defaultHeight = 250;
+        placementSlug = EnvVars.HYPELAB_HIGH_PLACEMENT_SLUG;
+        break;
+      case 'wide':
+        defaultWidth = 728;
+        defaultHeight = 90;
+        placementSlug = EnvVars.HYPELAB_WIDE_PLACEMENT_SLUG;
+        break;
+    }
 
   const url = new URL(EnvVars.HYPELAB_ADS_WINDOW_URL);
   url.searchParams.set('w', String(width ?? defaultWidth));

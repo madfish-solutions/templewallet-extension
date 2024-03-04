@@ -2,12 +2,13 @@ import type { AdsRules } from 'lib/ads/get-rules-content-script';
 import { TEMPLE_WALLET_AD_ATTRIBUTE_NAME } from 'lib/constants';
 import { delay, isTruthy } from 'lib/utils';
 
-import { applyQuerySelector, getFinalSize, getParentOfDepth, pickAdResolution } from './helpers';
+import { applyQuerySelector, getFinalSize, getParentOfDepth, pickAdToDisplay } from './helpers';
 import {
   AdAction,
   AdActionType,
   HideElementAction,
-  InsertAdActionWithoutAdResolution,
+  InsertAdActionWithoutMeta,
+  OmitAdMeta,
   RemoveElementAction,
   ReplaceAllChildrenWithAdAction,
   ReplaceElementWithAdAction,
@@ -34,10 +35,10 @@ export const getAdsActions = async ({ providersSelector, adPlacesRules, permanen
     shouldUseStrictContainerLimits: boolean,
     minContainerWidthIsBannerWidth: boolean,
     adIsNative: boolean,
-    ...actionsBases: (InsertAdActionWithoutAdResolution | HideElementAction | RemoveElementAction)[]
+    ...actionsBases: (InsertAdActionWithoutMeta | HideElementAction | RemoveElementAction)[]
   ) => {
     const { width, height } = getFinalSize(elementToMeasure);
-    const adResolution = pickAdResolution(
+    const meta = pickAdToDisplay(
       width,
       height,
       shouldUseStrictContainerLimits,
@@ -45,19 +46,18 @@ export const getAdsActions = async ({ providersSelector, adPlacesRules, permanen
       adIsNative
     );
 
-    if (adResolution) {
-      result.push(
-        ...actionsBases.map<AdAction>(actionBase =>
-          actionBase.type === AdActionType.HideElement || actionBase.type === AdActionType.RemoveElement
-            ? actionBase
-            : { ...actionBase, adResolution }
-        )
-      );
+    if (!meta) return false;
+    const { source, dimensions } = meta;
 
-      return true;
-    }
+    result.push(
+      ...actionsBases.map<AdAction>(actionBase =>
+        actionBase.type === AdActionType.HideElement || actionBase.type === AdActionType.RemoveElement
+          ? actionBase
+          : { ...actionBase, source, dimensions }
+      )
+    );
 
-    return false;
+    return true;
   };
 
   let permanentAdsParents: HTMLElement[] = [];
@@ -131,7 +131,7 @@ export const getAdsActions = async ({ providersSelector, adPlacesRules, permanen
           if (elementToMeasureSelector) {
             elementToMeasure = document.querySelector(elementToMeasureSelector) ?? elementToMeasure;
           }
-          const replaceActionBase: Omit<ReplaceElementWithAdAction, 'adResolution'> = {
+          const replaceActionBase: OmitAdMeta<ReplaceElementWithAdAction> = {
             type: AdActionType.ReplaceElement,
             element: banner,
             shouldUseDivWrapper,
@@ -143,7 +143,7 @@ export const getAdsActions = async ({ providersSelector, adPlacesRules, permanen
             type: AdActionType.HideElement,
             element: banner
           };
-          const insertActionBase: Omit<SimpleInsertAdAction, 'adResolution'> = {
+          const insertActionBase: OmitAdMeta<SimpleInsertAdAction> = {
             type: AdActionType.SimpleInsertAd,
             shouldUseDivWrapper,
             divWrapperStyle,
@@ -203,7 +203,7 @@ export const getAdsActions = async ({ providersSelector, adPlacesRules, permanen
       }
 
       if (normalizedInsertionIndex !== -1) {
-        const actionBase: Omit<SimpleInsertAdAction, 'adResolution'> = {
+        const actionBase: OmitAdMeta<SimpleInsertAdAction> = {
           type: AdActionType.SimpleInsertAd,
           shouldUseDivWrapper,
           divWrapperStyle,
@@ -251,10 +251,10 @@ export const getAdsActions = async ({ providersSelector, adPlacesRules, permanen
         divWrapperStyle
       };
 
-      let actionsBases: (InsertAdActionWithoutAdResolution | HideElementAction | RemoveElementAction)[];
+      let actionsBases: (InsertAdActionWithoutMeta | HideElementAction | RemoveElementAction)[];
       if (shouldUseDivWrapper && shouldHideOriginal) {
         const parent = banner.parentElement!;
-        const insertAdAction: Omit<SimpleInsertAdAction, 'adResolution'> = {
+        const insertAdAction: OmitAdMeta<SimpleInsertAdAction> = {
           type: AdActionType.SimpleInsertAd,
           parent,
           insertionIndex: Array.from(parent.children).indexOf(banner),
@@ -273,7 +273,7 @@ export const getAdsActions = async ({ providersSelector, adPlacesRules, permanen
           actionsBases.push(insertAdAction);
         }
       } else if (shouldUseDivWrapper) {
-        const replaceElementActionBase: Omit<ReplaceElementWithAdAction, 'adResolution'> = {
+        const replaceElementActionBase: OmitAdMeta<ReplaceElementWithAdAction> = {
           type: AdActionType.ReplaceElement,
           element: banner,
           stylesOverrides: stylesOverrides?.map(({ parentDepth, ...restProps }) => ({
@@ -284,7 +284,7 @@ export const getAdsActions = async ({ providersSelector, adPlacesRules, permanen
         };
         actionsBases = [replaceElementActionBase];
       } else if (shouldHideOriginal) {
-        const insertAdAction: Omit<SimpleInsertAdAction, 'adResolution'> = {
+        const insertAdAction: OmitAdMeta<SimpleInsertAdAction> = {
           type: AdActionType.SimpleInsertAd,
           parent: banner,
           insertionIndex: 0,
@@ -299,7 +299,7 @@ export const getAdsActions = async ({ providersSelector, adPlacesRules, permanen
           actionsBases.push(insertAdAction);
         }
       } else {
-        const replaceAllChildrenActionBase: Omit<ReplaceAllChildrenWithAdAction, 'adResolution'> = {
+        const replaceAllChildrenActionBase: OmitAdMeta<ReplaceAllChildrenWithAdAction> = {
           type: AdActionType.ReplaceAllChildren,
           parent: banner,
           stylesOverrides,
@@ -322,7 +322,7 @@ export const getAdsActions = async ({ providersSelector, adPlacesRules, permanen
       banner;
 
     if (!permanentAdsParents.some(parent => parent.contains(banner))) {
-      const actionBase: Omit<ReplaceElementWithAdAction, 'adResolution'> = {
+      const actionBase: OmitAdMeta<ReplaceElementWithAdAction> = {
         type: AdActionType.ReplaceElement,
         element: banner as HTMLElement,
         shouldUseDivWrapper: false

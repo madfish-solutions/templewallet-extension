@@ -1,6 +1,6 @@
 import type { AdStylesOverrides } from 'lib/apis/temple';
 
-import { AdsResolution } from '../ads-resolutions';
+import { AdMetadata } from './helpers';
 
 export enum AdActionType {
   ReplaceAllChildren = 'replace-all-children',
@@ -14,11 +14,10 @@ interface AdActionBase {
   type: AdActionType;
 }
 
-interface InsertAdActionProps {
-  adResolution: AdsResolution;
+interface InsertAdActionProps extends AdMetadata {
   shouldUseDivWrapper: boolean;
-  divWrapperStyle?: Record<string, string>;
-  elementStyle?: Record<string, string>;
+  divWrapperStyle?: StringRecord<string>;
+  elementStyle?: StringRecord<string>;
   stylesOverrides?: AdStylesOverrides[];
 }
 
@@ -50,9 +49,11 @@ export interface HideElementAction extends AdActionBase {
 
 type InsertAdAction = ReplaceAllChildrenWithAdAction | ReplaceElementWithAdAction | SimpleInsertAdAction;
 
-export type InsertAdActionWithoutAdResolution =
-  | Omit<ReplaceAllChildrenWithAdAction, 'adResolution'>
-  | Omit<ReplaceElementWithAdAction, 'adResolution'>
-  | Omit<SimpleInsertAdAction, 'adResolution'>;
+export type OmitAdMeta<T extends AdMetadata> = Omit<T, keyof AdMetadata>;
+
+export type InsertAdActionWithoutMeta =
+  | OmitAdMeta<ReplaceAllChildrenWithAdAction>
+  | OmitAdMeta<ReplaceElementWithAdAction>
+  | OmitAdMeta<SimpleInsertAdAction>;
 
 export type AdAction = InsertAdAction | RemoveElementAction | HideElementAction;
