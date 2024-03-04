@@ -1,6 +1,25 @@
 import { EnvVars } from 'lib/env';
 
-import type { AdMetadata, AdSource, HypeLabBannerAdSource } from './get-ads-actions/helpers';
+export interface HypeLabBannerAdSource {
+  providerName: 'HypeLab';
+  native: false;
+  size: 'small' | 'high' | 'wide';
+}
+
+export interface HypeLabNativeAdSource {
+  providerName: 'HypeLab';
+  native: true;
+  slug: string;
+}
+
+/** Only covers TKEY ads for now */
+interface TempleAdSource {
+  providerName: 'Temple';
+}
+
+export type HypeLabAdSources = HypeLabBannerAdSource | HypeLabNativeAdSource;
+
+export type AdSource = HypeLabAdSources | TempleAdSource;
 
 export interface AdDimensions {
   width: number;
@@ -9,6 +28,11 @@ export interface AdDimensions {
   minContainerHeight: number;
   maxContainerWidth: number;
   maxContainerHeight: number;
+}
+
+export interface AdMetadata {
+  source: AdSource;
+  dimensions: AdDimensions;
 }
 
 export const BANNER_ADS_META: AdMetadata[] = [

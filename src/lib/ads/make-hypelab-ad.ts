@@ -2,8 +2,7 @@ import { nanoid } from 'nanoid';
 
 import { TEMPLE_WALLET_AD_ATTRIBUTE_NAME } from 'lib/constants';
 
-import { AdDimensions } from './ads-resolutions';
-import { HypeLabAdSources } from './get-ads-actions/helpers';
+import { AdDimensions, HypeLabAdSources } from './ads-meta';
 import { getHypelabIframeUrl } from './get-hypelab-iframe-url';
 
 export const makeHypelabAdElement = (

@@ -1,6 +1,6 @@
 import type { AdStylesOverrides } from 'lib/apis/temple';
 
-import { AdMetadata } from './helpers';
+import type { AdMetadata } from '../ads-meta';
 
 export enum AdActionType {
   ReplaceAllChildren = 'replace-all-children',

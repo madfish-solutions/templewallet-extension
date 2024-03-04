@@ -2,8 +2,8 @@ import browser from 'webextension-polyfill';
 
 import { AdsProviderTitle } from 'lib/ads';
 import { adRectIsSeen } from 'lib/ads/ad-rect-is-seen';
+import { AdSource } from 'lib/ads/ads-meta';
 import { getAdsActions } from 'lib/ads/get-ads-actions';
-import { AdSource } from 'lib/ads/get-ads-actions/helpers';
 import { AdActionType } from 'lib/ads/get-ads-actions/types';
 import { clearRulesCache, getRulesFromContentScript } from 'lib/ads/get-rules-content-script';
 import { getSlotId } from 'lib/ads/get-slot-id';

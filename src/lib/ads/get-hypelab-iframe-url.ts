@@ -1,6 +1,6 @@
 import { EnvVars } from 'lib/env';
 
-import type { HypeLabAdSources } from './get-ads-actions/helpers';
+import type { HypeLabAdSources } from './ads-meta';
 
 /**
  * Returns URL for Hypelab ad iframe

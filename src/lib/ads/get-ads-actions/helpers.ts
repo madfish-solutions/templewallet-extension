@@ -1,4 +1,4 @@
-import { AdDimensions, BANNER_ADS_META, buildHypeLabNativeMeta, isHypeLabBannerSource } from '../ads-resolutions';
+import { AdMetadata, BANNER_ADS_META, isHypeLabBannerSource, buildHypeLabNativeMeta } from '../ads-meta';
 
 export const getFinalSize = (element: Element) => {
   const elementStyle = getComputedStyle(element);
@@ -50,32 +50,6 @@ export const getParentOfDepth = (element: HTMLElement, depth: number) => {
 
   return parent;
 };
-
-export interface HypeLabBannerAdSource {
-  providerName: 'HypeLab';
-  native: false;
-  size: 'small' | 'high' | 'wide';
-}
-
-export interface HypeLabNativeAdSource {
-  providerName: 'HypeLab';
-  native: true;
-  slug: string;
-}
-
-/** Only covers TKEY ads for now */
-interface TempleAdSource {
-  providerName: 'Temple';
-}
-
-export type HypeLabAdSources = HypeLabBannerAdSource | HypeLabNativeAdSource;
-
-export type AdSource = HypeLabAdSources | TempleAdSource;
-
-export interface AdMetadata {
-  source: AdSource;
-  dimensions: AdDimensions;
-}
 
 export const pickAdToDisplay = (
   containerWidth: number,
