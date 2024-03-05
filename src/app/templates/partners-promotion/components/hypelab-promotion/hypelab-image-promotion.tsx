@@ -20,6 +20,8 @@ const bannerIsDisplayed = (element: BannerElement) => {
 const adAttributesObserverOptions = { attributes: true };
 
 export const HypelabImagePromotion: FC<Omit<SingleProviderPromotionProps, 'variant'>> = ({
+  providerTitle,
+  pageName,
   isVisible,
   onAdRectSeen,
   onClose,
@@ -79,6 +81,8 @@ export const HypelabImagePromotion: FC<Omit<SingleProviderPromotionProps, 'varia
 
   return (
     <ImagePromotionView
+      pageName={pageName}
+      providerTitle={providerTitle}
       onClose={onClose}
       href={currentAd?.cta_url ?? '#'}
       isVisible={isVisible}

@@ -11,8 +11,10 @@ import { ImagePromotionView } from './image-promotion-view';
 import { TextPromotionView } from './text-promotion-view';
 
 export const OptimalPromotion: FC<SingleProviderPromotionProps> = ({
-  isVisible,
   variant,
+  providerTitle,
+  pageName,
+  isVisible,
   onAdRectSeen,
   onClose,
   onReady,
@@ -64,7 +66,14 @@ export const OptimalPromotion: FC<SingleProviderPromotionProps> = ({
 
   if (variant === PartnersPromotionVariant.Image) {
     return (
-      <ImagePromotionView onClose={onClose} onAdRectSeen={onAdRectSeen} href={href} isVisible={isVisible}>
+      <ImagePromotionView
+        pageName={pageName}
+        providerTitle={providerTitle}
+        onClose={onClose}
+        onAdRectSeen={onAdRectSeen}
+        href={href}
+        isVisible={isVisible}
+      >
         <img src={imageSrc} alt="Partners promotion" className="shadow-lg rounded-lg" onError={onImageError} />
       </ImagePromotionView>
     );
@@ -72,6 +81,8 @@ export const OptimalPromotion: FC<SingleProviderPromotionProps> = ({
 
   return (
     <TextPromotionView
+      pageName={pageName}
+      providerTitle={providerTitle}
       href={href}
       imageSrc={imageSrc}
       isVisible={isVisible}
