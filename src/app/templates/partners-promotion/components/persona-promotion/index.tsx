@@ -7,6 +7,7 @@ import { AdsProviderTitle } from 'lib/ads';
 import { getPersonaAdClient } from 'lib/ads/persona';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
 import { EnvVars } from 'lib/env';
+import { useAccountPkh } from 'lib/temple/front';
 
 import { PartnersPromotionSelectors } from '../../selectors';
 import { PartnersPromotionVariant, SingleProviderPromotionProps } from '../../types';
@@ -21,6 +22,8 @@ interface Props extends Omit<SingleProviderPromotionProps, 'variant'> {
 }
 
 export const PersonaPromotion = memo<Props>(({ id, isVisible, pageName, onReady, onError, onAdRectSeen, onClose }) => {
+  const accountPkh = useAccountPkh();
+
   const containerId = `persona-ad-${id}`;
 
   const ref = useRef<HTMLDivElement>(null);
@@ -39,9 +42,15 @@ export const PersonaPromotion = memo<Props>(({ id, isVisible, pageName, onReady,
     trackEvent(
       PartnersPromotionSelectors.promoLink,
       AnalyticsEventCategory.LinkPress,
-      buildAdClickAnalyticsProperties(PartnersPromotionVariant.Image, AdsProviderTitle.Persona, pageName, href)
+      buildAdClickAnalyticsProperties(
+        PartnersPromotionVariant.Image,
+        AdsProviderTitle.Persona,
+        pageName,
+        accountPkh,
+        href
+      )
     );
-  }, [trackEvent, pageName]);
+  }, [trackEvent, pageName, accountPkh]);
 
   useAdRectObservation(ref, onAdRectSeen, isVisible);
 

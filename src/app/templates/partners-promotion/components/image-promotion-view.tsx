@@ -5,6 +5,7 @@ import clsx from 'clsx';
 import { Anchor } from 'app/atoms/Anchor';
 import { useAdRectObservation } from 'app/hooks/ads/use-ad-rect-observation';
 import type { AdsProviderTitle } from 'lib/ads';
+import { useAccountPkh } from 'lib/temple/front';
 
 import { PartnersPromotionSelectors } from '../selectors';
 import { PartnersPromotionVariant } from '../types';
@@ -30,13 +31,15 @@ export const ImagePromotionView: FC<Props> = ({
   onAdRectSeen,
   onClose
 }) => {
-  const testIDProperties = useMemo(
-    () => buildAdClickAnalyticsProperties(PartnersPromotionVariant.Image, providerTitle, pageName, href),
-    [href, providerTitle, pageName]
-  );
+  const accountPkh = useAccountPkh();
 
   const ref = useRef<HTMLAnchorElement>(null);
   useAdRectObservation(ref, onAdRectSeen, isVisible);
+
+  const testIDProperties = useMemo(
+    () => buildAdClickAnalyticsProperties(PartnersPromotionVariant.Image, providerTitle, pageName, accountPkh, href),
+    [href, providerTitle, pageName, accountPkh]
+  );
 
   return (
     <Anchor
