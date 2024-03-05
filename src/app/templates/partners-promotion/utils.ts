@@ -6,10 +6,12 @@ export const buildAdClickAnalyticsProperties = (
   variant: PartnersPromotionVariant,
   providerTitle: AdsProviderTitle,
   pageName: string,
+  accountPkh: string,
   href: string
 ) => ({
   variant,
   provider: providerTitle,
   page: pageName,
+  accountPkh,
   href
 });

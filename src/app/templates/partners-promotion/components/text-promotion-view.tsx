@@ -6,6 +6,7 @@ import { Anchor } from 'app/atoms/Anchor';
 import { useAppEnv } from 'app/env';
 import { useAdRectObservation } from 'app/hooks/ads/use-ad-rect-observation';
 import type { AdsProviderTitle } from 'lib/ads';
+import { useAccountPkh } from 'lib/temple/front';
 
 import { PartnersPromotionSelectors } from '../selectors';
 import { PartnersPromotionVariant } from '../types';
@@ -40,18 +41,20 @@ export const TextPromotionView = memo<Props>(
     onClose
   }) => {
     const { popup } = useAppEnv();
+    const accountPkh = useAccountPkh();
+
     const truncatedContentText = useMemo(
       () => (contentText.length > 80 ? `${contentText.slice(0, 80)}...` : contentText),
       [contentText]
     );
 
-    const testIDProperties = useMemo(
-      () => buildAdClickAnalyticsProperties(PartnersPromotionVariant.Text, providerTitle, pageName, href),
-      [href, providerTitle, pageName]
-    );
-
     const ref = useRef<HTMLAnchorElement>(null);
     useAdRectObservation(ref, onAdRectSeen, isVisible);
+
+    const testIDProperties = useMemo(
+      () => buildAdClickAnalyticsProperties(PartnersPromotionVariant.Text, providerTitle, pageName, accountPkh, href),
+      [href, providerTitle, pageName, accountPkh]
+    );
 
     return (
       <Anchor

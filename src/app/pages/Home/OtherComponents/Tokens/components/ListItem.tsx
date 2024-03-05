@@ -21,9 +21,10 @@ interface Props {
   publicKeyHash: string;
   assetSlug: string;
   active: boolean;
+  scam?: boolean;
 }
 
-export const ListItem = memo<Props>(({ publicKeyHash, assetSlug, active }) => {
+export const ListItem = memo<Props>(({ publicKeyHash, assetSlug, active, scam }) => {
   const { value: balance = ZERO, assetMetadata: metadata } = useBalance(assetSlug, publicKeyHash);
 
   const apyInfo = useTokenApyInfo(assetSlug);
@@ -57,7 +58,7 @@ export const ListItem = memo<Props>(({ publicKeyHash, assetSlug, active }) => {
         <div className="flex justify-between w-full mb-1">
           <div className="flex items-center flex-initial">
             <div className={styles['tokenSymbol']}>{assetSymbol}</div>
-            <TokenTag assetSlug={assetSlug} assetSymbol={assetSymbol} apyInfo={apyInfo} />
+            <TokenTag assetSlug={assetSlug} assetSymbol={assetSymbol} apyInfo={apyInfo} scam={scam} />
           </div>
           <CryptoBalance
             value={balance}

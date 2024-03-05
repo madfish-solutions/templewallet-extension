@@ -14,6 +14,7 @@ import {
 import { AdsProviderName, AdsProviderTitle } from 'lib/ads';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
 import { AD_HIDING_TIMEOUT } from 'lib/constants';
+import { useAccountPkh } from 'lib/temple/front';
 
 import { HypelabPromotion } from './components/hypelab-promotion';
 import { OptimalPromotion } from './components/optimal-promotion';
@@ -39,6 +40,7 @@ const shouldBeHiddenTemporarily = (hiddenAt: number) => {
 
 export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pageName, withPersonaProvider }) => {
   const isImageAd = variant === PartnersPromotionVariant.Image;
+  const accountPkh = useAccountPkh();
   const { trackEvent } = useAnalytics();
   const { popup } = useAppEnv();
   const dispatch = useDispatch();
@@ -71,11 +73,13 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pa
     if (lastReportedPageName !== pageName) {
       dispatch(setLastReportedPageNameAction(pageName));
       trackEvent('Internal Ads Activity', AnalyticsEventCategory.General, {
+        variant: providerName === 'Persona' ? PartnersPromotionVariant.Image : variant,
         page: pageName,
-        provider: AdsProviderTitle[providerName]
+        provider: AdsProviderTitle[providerName],
+        accountPkh
       });
     }
-  }, [providerName, lastReportedPageName, pageName, trackEvent, dispatch]);
+  }, [providerName, lastReportedPageName, pageName, accountPkh, variant, trackEvent, dispatch]);
 
   const handleClosePartnersPromoClick = useCallback<MouseEventHandler<HTMLButtonElement>>(
     e => {

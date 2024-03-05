@@ -6,6 +6,7 @@ export enum AssetsSelectors {
   dropdownHideZeroBalancesCheckbox = 'Assets (Manage Dropdown)/Hide Zero Balances Checkbox',
   assetItemButton = 'Assets/Asset Item Button',
   assetItemApyButton = 'Assets/Asset Item Apy Button',
+  assetItemScamButton = 'Assets/Asset Item Scam Button',
   assetItemCryptoBalanceButton = 'Assets/Asset Item Crypto Balance Button',
   assetItemFiatBalanceButton = 'Assets/Asset Item Fiat Balance Button',
   assetItemDelegateButton = 'Assets/Asset Item Delegate Button',

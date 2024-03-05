@@ -11,6 +11,7 @@ import {
   useCollectibleDetailsSelector
 } from 'app/store/collectibles/selectors';
 import { useCollectibleMetadataSelector } from 'app/store/collectibles-metadata/selectors';
+import { setAnotherSelector, setTestID } from 'lib/analytics';
 import { objktCurrencies } from 'lib/apis/objkt';
 import { T } from 'lib/i18n';
 import { getAssetName } from 'lib/metadata';
@@ -18,6 +19,7 @@ import { atomsToTokens } from 'lib/temple/helpers';
 import { Link } from 'lib/woozie';
 
 import { CollectibleItemImage } from './CollectibleItemImage';
+import { CollectibleTabSelectors } from './selectors';
 
 interface Props {
   assetSlug: string;
@@ -87,6 +89,8 @@ export const CollectibleItem = memo<Props>(
         to={`/collectible/${assetSlug}`}
         className="flex flex-col border border-gray-300 rounded-lg overflow-hidden"
         style={style}
+        testID={CollectibleTabSelectors.collectibleItem}
+        testIDProperties={{ assetSlug: assetSlug }}
       >
         <div
           ref={wrapperElemRef}
@@ -116,8 +120,12 @@ export const CollectibleItem = memo<Props>(
         {areDetailsShown && (
           <div className="mt-1 mx-1.5">
             <h5 className="text-sm leading-5 text-gray-910 truncate">{assetName}</h5>
-            <div className="mt-1 text-xxxs leading-3 text-gray-600">
-              <span>
+            <div
+              className="mt-1 text-xxxs leading-3 text-gray-600"
+              {...setTestID(CollectibleTabSelectors.collectibleName)}
+              {...setAnotherSelector('name', assetName)}
+            >
+              <span {...setTestID(CollectibleTabSelectors.floorPrice)}>
                 <T id="floorPrice" />:{' '}
               </span>
 
