@@ -49,12 +49,20 @@ const subscribeToIframeLoadIfNecessary = (adId: string, element: HTMLIFrameEleme
     Promise.race([
       new Promise<void>((res, rej) => {
         const messageListener = (e: MessageEvent<any>) => {
+          if (e.source !== element.contentWindow) {
+            console.log('Event not from our iframe', e.data);
+
+            return;
+          }
+
           try {
             const data = JSON.parse(e.data);
-            if (data.id === adId && data.type === 'ready') {
+            if (data.id !== adId) return;
+
+            if (data.type === 'ready') {
               window.removeEventListener('message', messageListener);
               res();
-            } else if (data.id === adId && data.type === 'error') {
+            } else if (data.type === 'error') {
               window.removeEventListener('message', messageListener);
               rej(new Error(data.reason ?? 'Unknown error'));
             }
