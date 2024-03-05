@@ -13,6 +13,7 @@ import {
 } from 'app/store/partners-promotion/selectors';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
 import { AD_HIDING_TIMEOUT } from 'lib/constants';
+import { useAccount } from 'lib/temple/front';
 
 import { HypelabPromotion } from './components/hypelab-promotion';
 import { OptimalPromotion } from './components/optimal-promotion';
@@ -34,6 +35,7 @@ const shouldBeHiddenTemporarily = (hiddenAt: number) => {
 
 export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pageName }) => {
   const isImageAd = variant === PartnersPromotionVariant.Image;
+  const { publicKeyHash: accountPkh } = useAccount();
   const { trackEvent } = useAnalytics();
   const { popup } = useAppEnv();
   const dispatch = useDispatch();
@@ -45,6 +47,8 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pa
   const [shouldUseOptimalAd, setShouldUseOptimalAd] = useState(true);
   const [adError, setAdError] = useState(false);
   const [adIsReady, setAdIsReady] = useState(false);
+
+  const providerTitle = shouldUseOptimalAd ? 'Optimal' : 'HypeLab';
 
   useEffect(() => {
     const newIsHiddenTemporarily = shouldBeHiddenTemporarily(hiddenAt);
@@ -65,9 +69,14 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pa
   const handleAdRectSeen = useCallback(() => {
     if (lastReportedPageName !== pageName) {
       dispatch(setLastReportedPageNameAction(pageName));
-      trackEvent('Internal Ads Activity', AnalyticsEventCategory.General, { page: pageName });
+      trackEvent('Internal Ads Activity', AnalyticsEventCategory.General, {
+        variant,
+        page: pageName,
+        provider: providerTitle,
+        accountPkh
+      });
     }
-  }, [dispatch, lastReportedPageName, pageName, trackEvent]);
+  }, [providerTitle, lastReportedPageName, variant, pageName, accountPkh, trackEvent, dispatch]);
 
   const handleClosePartnersPromoClick = useCallback<MouseEventHandler<HTMLButtonElement>>(
     e => {
@@ -92,6 +101,8 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pa
       {shouldUseOptimalAd ? (
         <OptimalPromotion
           variant={variant}
+          providerTitle={providerTitle}
+          pageName={pageName}
           isVisible={adIsReady}
           onAdRectSeen={handleAdRectSeen}
           onClose={handleClosePartnersPromoClick}
@@ -101,6 +112,8 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pa
       ) : (
         <HypelabPromotion
           variant={variant}
+          providerTitle={providerTitle}
+          pageName={pageName}
           isVisible={adIsReady}
           onAdRectSeen={handleAdRectSeen}
           onClose={handleClosePartnersPromoClick}

@@ -1,9 +1,10 @@
-import React, { FC, MouseEventHandler, PropsWithChildren, useRef } from 'react';
+import React, { FC, MouseEventHandler, PropsWithChildren, useMemo, useRef } from 'react';
 
 import clsx from 'clsx';
 
 import { Anchor } from 'app/atoms/Anchor';
 import { useAdRectObservation } from 'app/hooks/ads/use-ad-rect-observation';
+import { useAccount } from 'lib/temple/front';
 
 import { PartnersPromotionSelectors } from '../index.selectors';
 import { PartnersPromotionVariant } from '../types';
@@ -11,6 +12,8 @@ import { PartnersPromotionVariant } from '../types';
 import { CloseButton } from './close-button';
 
 interface TextPromotionViewProps extends PropsWithChildren {
+  pageName: string;
+  providerTitle: string;
   href: string;
   isVisible: boolean;
   onAdRectSeen: EmptyFn;
@@ -18,14 +21,23 @@ interface TextPromotionViewProps extends PropsWithChildren {
 }
 
 export const ImagePromotionView: FC<TextPromotionViewProps> = ({
+  pageName,
+  providerTitle,
   children,
   href,
   isVisible,
   onAdRectSeen,
   onClose
 }) => {
+  const { publicKeyHash: accountPkh } = useAccount();
+
   const ref = useRef<HTMLAnchorElement>(null);
   useAdRectObservation(ref, onAdRectSeen, isVisible);
+
+  const testIDProperties = useMemo(
+    () => ({ variant: PartnersPromotionVariant.Image, page: pageName, provider: providerTitle, href, accountPkh }),
+    [href, accountPkh, providerTitle, pageName]
+  );
 
   return (
     <Anchor
@@ -39,7 +51,7 @@ export const ImagePromotionView: FC<TextPromotionViewProps> = ({
       rel="noreferrer"
       ref={ref}
       testID={PartnersPromotionSelectors.promoLink}
-      testIDProperties={{ variant: PartnersPromotionVariant.Image, href }}
+      testIDProperties={testIDProperties}
     >
       {children}
 

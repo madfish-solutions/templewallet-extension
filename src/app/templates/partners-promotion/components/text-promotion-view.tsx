@@ -5,6 +5,7 @@ import clsx from 'clsx';
 import { Anchor } from 'app/atoms/Anchor';
 import { useAppEnv } from 'app/env';
 import { useAdRectObservation } from 'app/hooks/ads/use-ad-rect-observation';
+import { useAccount } from 'lib/temple/front';
 
 import { PartnersPromotionSelectors } from '../index.selectors';
 import { PartnersPromotionVariant } from '../types';
@@ -12,6 +13,8 @@ import { PartnersPromotionVariant } from '../types';
 import { CloseButton } from './close-button';
 
 interface TextPromotionViewProps {
+  pageName: string;
+  providerTitle: string;
   href: string;
   isVisible: boolean;
   imageSrc: string;
@@ -23,8 +26,21 @@ interface TextPromotionViewProps {
 }
 
 export const TextPromotionView = memo<TextPromotionViewProps>(
-  ({ imageSrc, href, headline, isVisible, contentText = '', onAdRectSeen, onImageError, onClose }) => {
+  ({
+    pageName,
+    providerTitle,
+    imageSrc,
+    href,
+    headline,
+    isVisible,
+    contentText = '',
+    onAdRectSeen,
+    onImageError,
+    onClose
+  }) => {
     const { popup } = useAppEnv();
+    const { publicKeyHash: accountPkh } = useAccount();
+
     const truncatedContentText = useMemo(
       () => (contentText.length > 80 ? `${contentText.slice(0, 80)}...` : contentText),
       [contentText]
@@ -32,6 +48,11 @@ export const TextPromotionView = memo<TextPromotionViewProps>(
 
     const ref = useRef<HTMLAnchorElement>(null);
     useAdRectObservation(ref, onAdRectSeen, isVisible);
+
+    const testIDProperties = useMemo(
+      () => ({ variant: PartnersPromotionVariant.Text, page: pageName, provider: providerTitle, href, accountPkh }),
+      [href, accountPkh, providerTitle, pageName]
+    );
 
     return (
       <Anchor
@@ -45,7 +66,7 @@ export const TextPromotionView = memo<TextPromotionViewProps>(
         rel="noreferrer"
         ref={ref}
         testID={PartnersPromotionSelectors.promoLink}
-        testIDProperties={{ variant: PartnersPromotionVariant.Text, href }}
+        testIDProperties={testIDProperties}
       >
         <div className="flex items-center justify-start gap-2.5 p-4 max-w-sm w-full">
           <div className="self-stretch">
