@@ -6,8 +6,9 @@ export enum PartnersPromotionVariant {
 }
 
 export interface SingleProviderPromotionProps {
-  providerTitle: string;
   variant: PartnersPromotionVariant;
+  pageName: string;
+  providerTitle: string;
   isVisible: boolean;
   onClose: MouseEventHandler<HTMLButtonElement>;
   onReady: EmptyFn;

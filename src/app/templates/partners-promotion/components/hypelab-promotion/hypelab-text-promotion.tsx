@@ -20,6 +20,7 @@ const dummyImageSrc =
 
 export const HypelabTextPromotion: FC<Omit<SingleProviderPromotionProps, 'variant'>> = ({
   providerTitle,
+  pageName,
   isVisible,
   onAdRectSeen,
   onClose,
@@ -46,6 +47,7 @@ export const HypelabTextPromotion: FC<Omit<SingleProviderPromotionProps, 'varian
     <Native placement={EnvVars.HYPELAB_NATIVE_PLACEMENT_SLUG} ref={hypelabNativeElementRef}>
       <span className="hidden" ref={hypelabHeadlineRef} data-ref="headline" />
       <TextPromotionView
+        pageName={pageName}
         providerTitle={providerTitle}
         href={currentAd?.cta_url ?? '/'}
         imageSrc={currentAd?.creative_set.icon.url ?? dummyImageSrc}

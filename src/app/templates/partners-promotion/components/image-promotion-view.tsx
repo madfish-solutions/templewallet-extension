@@ -12,6 +12,7 @@ import { PartnersPromotionVariant } from '../types';
 import { CloseButton } from './close-button';
 
 interface TextPromotionViewProps extends PropsWithChildren {
+  pageName: string;
   providerTitle: string;
   href: string;
   isVisible: boolean;
@@ -20,6 +21,7 @@ interface TextPromotionViewProps extends PropsWithChildren {
 }
 
 export const ImagePromotionView: FC<TextPromotionViewProps> = ({
+  pageName,
   providerTitle,
   children,
   href,
@@ -33,8 +35,8 @@ export const ImagePromotionView: FC<TextPromotionViewProps> = ({
   useAdRectObservation(ref, onAdRectSeen, isVisible);
 
   const testIDProperties = useMemo(
-    () => ({ variant: PartnersPromotionVariant.Image, href, accountPkh, provider: providerTitle }),
-    [href, accountPkh, providerTitle]
+    () => ({ variant: PartnersPromotionVariant.Image, page: pageName, provider: providerTitle, href, accountPkh }),
+    [href, accountPkh, providerTitle, pageName]
   );
 
   return (

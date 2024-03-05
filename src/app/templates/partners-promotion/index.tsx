@@ -70,12 +70,13 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pa
     if (lastReportedPageName !== pageName) {
       dispatch(setLastReportedPageNameAction(pageName));
       trackEvent('Internal Ads Activity', AnalyticsEventCategory.General, {
+        variant,
         page: pageName,
-        accountPkh,
-        provider: providerTitle
+        provider: providerTitle,
+        accountPkh
       });
     }
-  }, [providerTitle, lastReportedPageName, pageName, accountPkh, trackEvent, dispatch]);
+  }, [providerTitle, lastReportedPageName, variant, pageName, accountPkh, trackEvent, dispatch]);
 
   const handleClosePartnersPromoClick = useCallback<MouseEventHandler<HTMLButtonElement>>(
     e => {
@@ -101,6 +102,7 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pa
         <OptimalPromotion
           variant={variant}
           providerTitle={providerTitle}
+          pageName={pageName}
           isVisible={adIsReady}
           onAdRectSeen={handleAdRectSeen}
           onClose={handleClosePartnersPromoClick}
@@ -111,6 +113,7 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pa
         <HypelabPromotion
           variant={variant}
           providerTitle={providerTitle}
+          pageName={pageName}
           isVisible={adIsReady}
           onAdRectSeen={handleAdRectSeen}
           onClose={handleClosePartnersPromoClick}

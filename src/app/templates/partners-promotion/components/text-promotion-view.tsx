@@ -13,6 +13,7 @@ import { PartnersPromotionVariant } from '../types';
 import { CloseButton } from './close-button';
 
 interface TextPromotionViewProps {
+  pageName: string;
   providerTitle: string;
   href: string;
   isVisible: boolean;
@@ -25,7 +26,18 @@ interface TextPromotionViewProps {
 }
 
 export const TextPromotionView = memo<TextPromotionViewProps>(
-  ({ providerTitle, imageSrc, href, headline, isVisible, contentText = '', onAdRectSeen, onImageError, onClose }) => {
+  ({
+    pageName,
+    providerTitle,
+    imageSrc,
+    href,
+    headline,
+    isVisible,
+    contentText = '',
+    onAdRectSeen,
+    onImageError,
+    onClose
+  }) => {
     const { popup } = useAppEnv();
     const { publicKeyHash: accountPkh } = useAccount();
 
@@ -38,8 +50,8 @@ export const TextPromotionView = memo<TextPromotionViewProps>(
     useAdRectObservation(ref, onAdRectSeen, isVisible);
 
     const testIDProperties = useMemo(
-      () => ({ variant: PartnersPromotionVariant.Text, href, accountPkh, provider: providerTitle }),
-      [href, accountPkh, providerTitle]
+      () => ({ variant: PartnersPromotionVariant.Text, page: pageName, provider: providerTitle, href, accountPkh }),
+      [href, accountPkh, providerTitle, pageName]
     );
 
     return (
