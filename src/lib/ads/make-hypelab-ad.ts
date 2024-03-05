@@ -10,7 +10,7 @@ export const makeHypelabAdElement = (adsResolution: HypelabAdsResolution, elemen
 
   const iframe = document.createElement('iframe');
   iframe.id = nanoid();
-  iframe.src = getHypelabIframeUrl(placementType, window.location.href, width, height);
+  iframe.src = getHypelabIframeUrl(placementType, window.location.href, width, height, iframe.id);
   iframe.style.width = `${width}px`;
   iframe.style.height = `${height}px`;
   iframe.style.border = 'none';
