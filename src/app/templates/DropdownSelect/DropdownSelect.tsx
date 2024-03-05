@@ -1,4 +1,4 @@
-import React, { ChangeEventHandler, ReactNode, FC, Dispatch, SetStateAction } from 'react';
+import React, { ChangeEventHandler, ReactNode, FC, Dispatch, SetStateAction, useMemo } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
 import classNames from 'clsx';
@@ -36,6 +36,16 @@ export const DropdownSelect = <T extends unknown>({
   const isInputDefined = isDefined(Input);
   const { trackEvent } = useAnalytics();
 
+  const faceContentContainerClassName = useMemo(
+    () =>
+      classNames(
+        'flex gap-2 items-center max-h-18',
+        isInputDefined ? 'border-r border-gray-300' : 'w-full justify-between',
+        dropdownButtonClassName
+      ),
+    [isInputDefined, dropdownButtonClassName]
+  );
+
   const trackDropdownClick = () => {
     if (testID) {
       trackEvent(testID, AnalyticsEventCategory.DropdownOpened);
@@ -64,23 +74,13 @@ export const DropdownSelect = <T extends unknown>({
           ) : (
             <div className="box-border w-full flex items-center justify-between border rounded-md border-gray-300 overflow-hidden max-h-18">
               {singleToken ? (
-                <div
-                  className={classNames(
-                    'flex gap-2 items-center max-h-18',
-                    isInputDefined ? 'border-r border-gray-300' : 'w-full justify-between',
-                    dropdownButtonClassName
-                  )}
-                >
+                <div className={faceContentContainerClassName}>
                   {DropdownFaceContent}
                   <div className="h-4 w-4" />
                 </div>
               ) : (
                 <button
-                  className={classNames(
-                    'flex gap-2 items-center max-h-18',
-                    isInputDefined ? 'border-r border-gray-300' : 'w-full justify-between',
-                    dropdownButtonClassName
-                  )}
+                  className={faceContentContainerClassName}
                   onClick={() => {
                     toggleOpened();
                     trackDropdownClick();

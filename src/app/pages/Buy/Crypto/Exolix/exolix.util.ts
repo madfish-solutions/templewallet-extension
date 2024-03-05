@@ -15,11 +15,10 @@ import {
 
 const API_KEY = EnvVars.TEMPLE_WALLET_EXOLIX_API_KEY;
 
-// due to legal restrictions
-const maxDollarValue = 10000;
-
-const minAssetAmount = 0.00001;
-const avgCommission = 300;
+/** Due to legal restrictions */
+const MAX_DOLLAR_VALUE = 10000;
+const MIN_ASSET_AMOUNT = 0.00001;
+const AVG_COMISSION = 300;
 
 const api = axios.create({
   baseURL: 'https://exolix.com/api/v2',
@@ -99,7 +98,7 @@ export const loadMinMaxFields = async (
       coinToNetwork: inputAssetNetwork,
       coinFrom: outputAssetCode,
       coinFromNetwork: outputAssetNetwork,
-      amount: (maxDollarValue + avgCommission) / outputTokenPrice
+      amount: (MAX_DOLLAR_VALUE + AVG_COMISSION) / outputTokenPrice
     };
 
     const backwardExchangeData = {
@@ -107,7 +106,7 @@ export const loadMinMaxFields = async (
       coinToNetwork: outputAssetNetwork,
       coinFrom: inputAssetCode,
       coinFromNetwork: inputAssetNetwork,
-      amount: minAssetAmount
+      amount: MIN_ASSET_AMOUNT
     };
 
     const { minAmount } = await queryExchange(backwardExchangeData);
