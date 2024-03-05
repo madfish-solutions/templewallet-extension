@@ -5,9 +5,8 @@ import { useDispatch } from 'react-redux';
 
 import Spinner from 'app/atoms/Spinner/Spinner';
 import { useAppEnv } from 'app/env';
-import { hidePromotionAction, setLastReportedPageNameAction } from 'app/store/partners-promotion/actions';
+import { hidePromotionAction } from 'app/store/partners-promotion/actions';
 import {
-  useLastReportedPageNameSelector,
   useShouldShowPartnersPromoSelector,
   usePromotionHidingTimestampSelector
 } from 'app/store/partners-promotion/selectors';
@@ -38,6 +37,8 @@ const shouldBeHiddenTemporarily = (hiddenAt: number) => {
   return Date.now() - hiddenAt < AD_HIDING_TIMEOUT;
 };
 
+let lastReportedPageName: string | undefined;
+
 export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pageName, withPersonaProvider }) => {
   const isImageAd = variant === PartnersPromotionVariant.Image;
   const accountPkh = useAccountPkh();
@@ -46,7 +47,6 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pa
   const dispatch = useDispatch();
   const hiddenAt = usePromotionHidingTimestampSelector(id);
   const shouldShowPartnersPromo = useShouldShowPartnersPromoSelector();
-  const lastReportedPageName = useLastReportedPageNameSelector();
 
   const [isHiddenTemporarily, setIsHiddenTemporarily] = useState(shouldBeHiddenTemporarily(hiddenAt));
   const [providerName, setProviderName] = useState<AdsProviderLocalName>('Optimal');
@@ -70,16 +70,16 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pa
   }, [hiddenAt]);
 
   const handleAdRectSeen = useCallback(() => {
-    if (lastReportedPageName !== pageName) {
-      dispatch(setLastReportedPageNameAction(pageName));
-      trackEvent('Internal Ads Activity', AnalyticsEventCategory.General, {
-        variant: providerName === 'Persona' ? PartnersPromotionVariant.Image : variant,
-        page: pageName,
-        provider: AdsProviderTitle[providerName],
-        accountPkh
-      });
-    }
-  }, [providerName, lastReportedPageName, pageName, accountPkh, variant, trackEvent, dispatch]);
+    if (lastReportedPageName === pageName) return;
+    lastReportedPageName = pageName;
+
+    trackEvent('Internal Ads Activity', AnalyticsEventCategory.General, {
+      variant: providerName === 'Persona' ? PartnersPromotionVariant.Image : variant,
+      page: pageName,
+      provider: AdsProviderTitle[providerName],
+      accountPkh
+    });
+  }, [providerName, pageName, accountPkh, variant, trackEvent]);
 
   const handleClosePartnersPromoClick = useCallback<MouseEventHandler<HTMLButtonElement>>(
     e => {

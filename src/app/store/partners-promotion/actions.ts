@@ -20,5 +20,3 @@ export const loadPartnersPromoAction = createActions<
 export const togglePartnersPromotionAction = createAction<boolean>('partnersPromo/TOGGLE_PARTNERS_PROMO');
 
 export const hidePromotionAction = createAction<HidePromotionActionPayload>('advertising/PROMOTION_HIDING');
-
-export const setLastReportedPageNameAction = createAction<string>('partnersPromo/SET_LAST_REPORTED_PAGE_NAME');
