@@ -19,7 +19,7 @@ interface AdPlacesRule extends Omit<RawAdPlacesRule, 'urlRegexes'> {
   urlRegexes: RegExp[];
 }
 
-interface PermanentAdPlacesRule extends Omit<RawPermanentAdPlacesRule, 'urlRegexes'> {
+export interface PermanentAdPlacesRule extends Omit<RawPermanentAdPlacesRule, 'urlRegexes'> {
   urlRegexes: RegExp[];
   isNative: boolean;
 }
