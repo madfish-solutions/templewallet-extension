@@ -35,7 +35,7 @@ export const makeHypelabAdView = (
  * @param width Frame width
  * @param height Frame height
  */
-export const getHypelabIframeUrl = (source: HypeLabAdSources, origin: string, width?: number, height?: number) => {
+const getHypelabIframeUrl = (source: HypeLabAdSources, origin: string, width?: number, height?: number) => {
   let defaultWidth: number, defaultHeight: number, placementSlug: string;
 
   if (source.native) {

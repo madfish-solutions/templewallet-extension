@@ -45,6 +45,20 @@ export interface AdMetadata {
 export const BANNER_ADS_META: AdMetadata[] = [
   {
     source: {
+      providerName: 'Persona',
+      shape: 'wide'
+    },
+    dimensions: {
+      width: 970,
+      height: 90,
+      minContainerWidth: 600,
+      minContainerHeight: 60,
+      maxContainerWidth: 1440,
+      maxContainerHeight: 110
+    }
+  },
+  {
+    source: {
       providerName: 'Temple'
     },
     dimensions: {
