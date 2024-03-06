@@ -18,7 +18,8 @@ export const getHypelabIframeUrl = (
   placementType: HypelabPlacementType,
   origin: string,
   width?: number,
-  height?: number
+  height?: number,
+  id?: string
 ) => {
   let defaultWidth: number, defaultHeight: number, placementSlug: string;
   switch (placementType) {
@@ -47,6 +48,9 @@ export const getHypelabIframeUrl = (
   url.searchParams.set('h', String(height ?? defaultHeight));
   url.searchParams.set('p', placementSlug);
   url.searchParams.set('o', origin);
+  if (id) {
+    url.searchParams.set('id', id);
+  }
 
   return url.toString();
 };

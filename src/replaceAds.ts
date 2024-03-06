@@ -15,6 +15,7 @@ import {
   TKEY_AD_PLACEMENT_SLUG,
   AD_SEEN_THRESHOLD
 } from 'lib/constants';
+import { delay } from 'lib/utils';
 
 let processing = false;
 
@@ -44,18 +45,49 @@ const subscribeToIframeLoadIfNecessary = (adId: string, element: HTMLIFrameEleme
   }
 
   loadingAdsIds.add(adId);
-  element.addEventListener('load', () => {
-    loadingAdsIds.delete(adId);
-    if (!loadedAdsIds.has(adId)) {
-      loadedAdsIds.add(adId);
-      const adIsSeen = adRectIsSeen(element);
+  element.addEventListener('load', async () => {
+    Promise.race([
+      new Promise<void>((res, rej) => {
+        const messageListener = (e: MessageEvent<any>) => {
+          if (e.source !== element.contentWindow) return;
 
-      if (adIsSeen) {
-        sendExternalAdsActivity(adId);
-      } else {
-        loadedAdIntersectionObserver.observe(element);
-      }
-    }
+          try {
+            const data = JSON.parse(e.data);
+
+            if (data.id !== adId) return;
+
+            if (data.type === 'ready') {
+              window.removeEventListener('message', messageListener);
+              res();
+            } else if (data.type === 'error') {
+              window.removeEventListener('message', messageListener);
+              rej(new Error(data.reason ?? 'Unknown error'));
+            }
+          } catch {}
+        };
+        window.addEventListener('message', messageListener);
+      }),
+      delay(30000).then(() => {
+        throw new Error('Timeout exceeded');
+      })
+    ])
+      .then(() => {
+        loadingAdsIds.delete(adId);
+        if (!loadedAdsIds.has(adId)) {
+          loadedAdsIds.add(adId);
+          const adIsSeen = adRectIsSeen(element);
+
+          if (adIsSeen) {
+            sendExternalAdsActivity(adId);
+          } else {
+            loadedAdIntersectionObserver.observe(element);
+          }
+        }
+      })
+      .catch(e => {
+        console.error(`Failed to load ad ${adId}`, e);
+        loadingAdsIds.delete(adId);
+      });
   });
 };
 
