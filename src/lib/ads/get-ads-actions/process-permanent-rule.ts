@@ -32,11 +32,13 @@ export const processPermanentAdPlacesRule = async (
     .map(element => getParentOfDepth(element, parentParentDepth))
     .filter((value): value is HTMLElement => Boolean(value));
 
-  for (const parent of parents) {
-    await delay(0);
+  await Promise.all(
+    parents.map(async parent => {
+      await delay(0);
 
-    processPermanentAdsParent(parent, rule, addActionsIfAdResolutionAvailable, result);
-  }
+      processPermanentAdsParent(parent, rule, addActionsIfAdResolutionAvailable, result);
+    })
+  );
 
   return parents;
 };

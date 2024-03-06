@@ -2,3 +2,4 @@
 - - Maybe use <iframe>
 - Glitch in def ads
 - - Get back `forEachWithTimeoutInterruptions` ?
+- Adjust margins on https://www.fxstreet.com/cryptocurrencies/ethereum

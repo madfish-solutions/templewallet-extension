@@ -28,11 +28,13 @@ export const processAdPlacesRule = async (
 
   const selectedElements = applyQuerySelector<HTMLElement>(cssString, isMultiple);
 
-  for (const selectedElement of selectedElements) {
-    await delay(0);
+  await Promise.all(
+    selectedElements.map(async selectedElement => {
+      await delay(0);
 
-    processSelectedElement(selectedElement, rule, permanentAdsParents, addActionsIfAdResolutionAvailable);
-  }
+      processSelectedElement(selectedElement, rule, permanentAdsParents, addActionsIfAdResolutionAvailable);
+    })
+  );
 };
 
 const processSelectedElement = (

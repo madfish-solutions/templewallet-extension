@@ -51,19 +51,29 @@ export const getAdsActions = async ({ providersSelector, adPlacesRules, permanen
 
   let permanentAdsParents: HTMLElement[] = [];
 
-  for (const rule of permanentAdPlacesRules) {
-    await delay(0);
+  /*
+    Asynchronizing processing to free-up the thread on heavyish work here.
+    'Parallelizing' it (through `Promise.all`) to fill-up Event Loop right away.
+    Otherwise (with `for` loop), original ads start glitching through more.
+  */
 
-    permanentAdsParents = permanentAdsParents.concat(
-      await processPermanentAdPlacesRule(rule, addActionsIfAdResolutionAvailable, result)
-    );
-  }
+  await Promise.all(
+    permanentAdPlacesRules.map(async rule => {
+      await delay(0);
 
-  for (const rule of adPlacesRules) {
-    await delay(0);
+      permanentAdsParents = permanentAdsParents.concat(
+        await processPermanentAdPlacesRule(rule, addActionsIfAdResolutionAvailable, result)
+      );
+    })
+  );
 
-    await processAdPlacesRule(rule, permanentAdsParents, addActionsIfAdResolutionAvailable);
-  }
+  await Promise.all(
+    adPlacesRules.map(async rule => {
+      await delay(0);
+
+      await processAdPlacesRule(rule, permanentAdsParents, addActionsIfAdResolutionAvailable);
+    })
+  );
 
   const bannersFromProviders = applyQuerySelector(providersSelector, true);
   bannersFromProviders.forEach(banner => {
