@@ -1,4 +1,28 @@
+import { TEMPLE_WALLET_AD_ATTRIBUTE_NAME } from 'lib/constants';
+
 import { AdMetadata, BANNER_ADS_META, isHypeLabBannerSource, buildHypeLabNativeMeta } from '../ads-meta';
+
+import type { HideElementAction, InsertAdActionWithoutMeta, RemoveElementAction } from './types';
+
+export type AddActionsIfAdResolutionAvailable = (
+  elementToMeasure: Element,
+  shouldUseStrictContainerLimits: boolean,
+  minContainerWidthIsBannerWidth: boolean,
+  adIsNative: boolean,
+  ...actionsBases: (InsertAdActionWithoutMeta | HideElementAction | RemoveElementAction)[]
+) => boolean;
+
+export const ourAdQuerySelector = `iframe[${TEMPLE_WALLET_AD_ATTRIBUTE_NAME}], div[${TEMPLE_WALLET_AD_ATTRIBUTE_NAME}], \
+ins[${TEMPLE_WALLET_AD_ATTRIBUTE_NAME}]`;
+
+export const elementIsOurAd = (element: HTMLElement) => {
+  const tagName = element.tagName.toLowerCase();
+
+  return (
+    (tagName === 'iframe' || tagName === 'div' || tagName === 'ins') &&
+    element.hasAttribute(TEMPLE_WALLET_AD_ATTRIBUTE_NAME)
+  );
+};
 
 export const getFinalSize = (element: Element) => {
   const elementStyle = getComputedStyle(element);
