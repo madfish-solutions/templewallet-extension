@@ -1,6 +1,6 @@
 import { TEMPLE_WALLET_AD_ATTRIBUTE_NAME } from 'lib/constants';
 
-import { AdMetadata, BANNER_ADS_META, isHypeLabBannerSource, buildHypeLabNativeMeta } from '../ads-meta';
+import { AdMetadata, BANNER_ADS_META, buildHypeLabNativeMeta } from '../ads-meta';
 
 import type { HideElementAction, InsertAdActionWithoutMeta, RemoveElementAction } from './types';
 
@@ -96,7 +96,7 @@ export const pickAdToDisplay = (
     const actualMinContainerWidth = minContainerWidthIsBannerWidth ? width : minContainerWidth;
 
     if (
-      (shouldUseStrictContainerLimits || !isHypeLabBannerSource(source) || source.size !== 'small') &&
+      (shouldUseStrictContainerLimits || !source.shouldNotUseStrictContainerLimits) &&
       (containerWidth < actualMinContainerWidth || (containerHeight < minContainerHeight && containerHeight >= 2))
     ) {
       return false;

@@ -1,25 +1,29 @@
 import { EnvVars } from 'lib/env';
 
-interface HypeLabBannerAdSource {
+interface AdSourceBase {
+  shouldNotUseStrictContainerLimits?: boolean;
+}
+
+interface HypeLabBannerAdSource extends AdSourceBase {
   providerName: 'HypeLab';
   native: false;
   size: 'small' | 'high' | 'wide';
 }
 
-interface HypeLabNativeAdSource {
+interface HypeLabNativeAdSource extends AdSourceBase {
   providerName: 'HypeLab';
   native: true;
   slug: string;
 }
 
 /** Only covers TKEY ads for now */
-interface TempleAdSource {
+interface TempleAdSource extends AdSourceBase {
   providerName: 'Temple';
 }
 
 export type PersonaAdShape = 'regular' | 'wide' | 'squarish';
 
-interface PersonaAdSource {
+interface PersonaAdSource extends AdSourceBase {
   providerName: 'Persona';
   shape: PersonaAdShape;
 }
@@ -89,7 +93,8 @@ export const BANNER_ADS_META: AdMetadata[] = [
     source: {
       providerName: 'HypeLab',
       native: false,
-      size: 'small'
+      size: 'small',
+      shouldNotUseStrictContainerLimits: true
     },
     dimensions: {
       width: 320,
@@ -103,7 +108,8 @@ export const BANNER_ADS_META: AdMetadata[] = [
   {
     source: {
       providerName: 'Persona',
-      shape: 'regular'
+      shape: 'regular',
+      shouldNotUseStrictContainerLimits: true
     },
     dimensions: {
       width: 321,
@@ -115,9 +121,6 @@ export const BANNER_ADS_META: AdMetadata[] = [
     }
   }
 ];
-
-export const isHypeLabBannerSource = (source: AdSource): source is HypeLabBannerAdSource =>
-  source.providerName === 'HypeLab' && !source.native;
 
 export const buildHypeLabNativeMeta = (containerWidth: number, containerHeight: number) => ({
   source: {
