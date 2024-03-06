@@ -14,12 +14,7 @@ const swapTKeyUrl = `${browser.runtime.getURL('fullpage.html')}#/swap?${buildSwa
   true
 )}`;
 
-export const makeTKeyAdView = (
-  slotId: string,
-  width: number,
-  height: number,
-  elementStyle: StringRecord<string>
-): AdView => {
+export const makeTKeyAdView = (slotId: string, width: number, height: number, elementStyle: StringRecord): AdView => {
   const ins = document.createElement('ins'); // TODO: Why 'ins' ?
   ins.id = nanoid();
   ins.style.width = `${width}px`;
@@ -27,9 +22,10 @@ export const makeTKeyAdView = (
   for (const styleProp in elementStyle) {
     ins.style.setProperty(styleProp, elementStyle[styleProp]);
   }
+  ins.setAttribute(TEMPLE_WALLET_AD_ATTRIBUTE_NAME, 'true');
+  // These attribures r not used ?
   ins.setAttribute('data-ad-slot', slotId);
   ins.setAttribute('data-ad-format', `${width}x${height}`);
-  ins.setAttribute(TEMPLE_WALLET_AD_ATTRIBUTE_NAME, 'true');
 
   const div = document.createElement('div');
   div.style.width = `${width}px`;

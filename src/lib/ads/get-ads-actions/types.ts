@@ -47,7 +47,7 @@ export interface HideElementAction extends AdActionBase {
   element: HTMLElement;
 }
 
-type InsertAdAction = ReplaceAllChildrenWithAdAction | ReplaceElementWithAdAction | SimpleInsertAdAction;
+export type InsertAdAction = ReplaceAllChildrenWithAdAction | ReplaceElementWithAdAction | SimpleInsertAdAction;
 
 export type OmitAdMeta<T extends AdMetadata> = Omit<T, keyof AdMetadata>;
 

@@ -10,7 +10,7 @@ import { AdView } from './types';
 export const makeHypelabAdView = (
   source: HypeLabAdSources,
   dimensions: AdDimensions,
-  elementStyle: StringRecord<string>
+  elementStyle: StringRecord
 ): AdView => {
   const { width, height } = dimensions;
 

@@ -8,13 +8,20 @@ import { getPersonaAdClient } from '../persona';
 
 import { AdView } from './types';
 
-export const makePersonaAdView = async (shape: PersonaAdShape, { width }: AdDimensions): Promise<AdView> => {
+export const makePersonaAdView = async (
+  shape: PersonaAdShape,
+  { width }: AdDimensions,
+  elementStyle: StringRecord
+): Promise<AdView> => {
   const containerId = nanoid();
 
   const element = document.createElement('div');
   element.id = containerId;
   element.style.width = `${width}px`;
   element.setAttribute(TEMPLE_WALLET_AD_ATTRIBUTE_NAME, 'true');
+  for (const styleProp in elementStyle) {
+    element.style.setProperty(styleProp, elementStyle[styleProp]);
+  }
 
   const styleElem = document.createElement('style');
   styleElem.innerText = `
