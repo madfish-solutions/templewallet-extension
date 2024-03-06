@@ -16,7 +16,7 @@ export const makeHypelabAdView = (
 
   const iframe = document.createElement('iframe');
   iframe.id = nanoid();
-  iframe.src = getHypelabIframeUrl(source, window.location.href, width, height);
+  iframe.src = getHypelabIframeUrl(source, window.location.href, width, height, iframe.id);
   iframe.style.width = `${width}px`;
   iframe.style.height = `${height}px`;
   iframe.style.border = 'none';
@@ -35,7 +35,13 @@ export const makeHypelabAdView = (
  * @param width Frame width
  * @param height Frame height
  */
-const getHypelabIframeUrl = (source: HypeLabAdSources, origin: string, width?: number, height?: number) => {
+const getHypelabIframeUrl = (
+  source: HypeLabAdSources,
+  origin: string,
+  width?: number,
+  height?: number,
+  id?: string
+) => {
   let defaultWidth: number, defaultHeight: number, placementSlug: string;
 
   if (source.native) {
@@ -66,6 +72,9 @@ const getHypelabIframeUrl = (source: HypeLabAdSources, origin: string, width?: n
   url.searchParams.set('h', String(height ?? defaultHeight));
   url.searchParams.set('p', placementSlug);
   url.searchParams.set('o', origin);
+  if (id) {
+    url.searchParams.set('id', id);
+  }
 
   return url.toString();
 };
