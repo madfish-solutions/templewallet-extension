@@ -1,5 +1,6 @@
-import type { AdsRules } from 'lib/ads/get-rules-content-script';
 import { delay } from 'lib/utils';
+
+import type { AdsRules } from '../ads-rules';
 
 import { AddActionsIfAdResolutionAvailable, applyQuerySelector, getFinalSize, pickAdsToDisplay } from './helpers';
 import { processPermanentAdPlacesRule } from './process-permanent-rule';
@@ -34,8 +35,6 @@ export const getAdsActions = async ({ providersSelector, adPlacesRules, permanen
       minContainerWidthIsBannerWidth,
       adIsNative
     );
-
-    console.log('STACK:', stack);
 
     if (!stack.length) return false;
 
@@ -77,21 +76,23 @@ export const getAdsActions = async ({ providersSelector, adPlacesRules, permanen
   );
 
   const bannersFromProviders = applyQuerySelector(providersSelector, true);
-  bannersFromProviders.forEach(banner => {
+
+  for (const banner of bannersFromProviders) {
+    if (permanentAdsParents.some(parent => parent.contains(banner))) continue;
+
+    const actionBase: OmitAdMeta<ReplaceElementWithAdAction> = {
+      type: AdActionType.ReplaceElement,
+      element: banner as HTMLElement,
+      shouldUseDivWrapper: false
+    };
+
     const elementToMeasure =
       banner.parentElement?.closest<HTMLElement>('div, article, aside, footer, header') ??
       banner.parentElement ??
       banner;
 
-    if (!permanentAdsParents.some(parent => parent.contains(banner))) {
-      const actionBase: OmitAdMeta<ReplaceElementWithAdAction> = {
-        type: AdActionType.ReplaceElement,
-        element: banner as HTMLElement,
-        shouldUseDivWrapper: false
-      };
-      addActionsIfAdResolutionAvailable(elementToMeasure, true, false, false, actionBase);
-    }
-  });
+    addActionsIfAdResolutionAvailable(elementToMeasure, true, false, false, actionBase);
+  }
 
   return result;
 };

@@ -30,7 +30,7 @@ interface PersonaAdSource extends AdSourceBase {
 
 export type HypeLabAdSources = HypeLabBannerAdSource | HypeLabNativeAdSource;
 
-export type AdSource = HypeLabAdSources | TempleAdSource | PersonaAdSource;
+type AdSource = HypeLabAdSources | TempleAdSource | PersonaAdSource;
 
 export interface AdDimensions {
   width: number;

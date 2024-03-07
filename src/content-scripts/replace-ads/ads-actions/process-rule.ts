@@ -1,5 +1,6 @@
-import type { AdsRules } from 'lib/ads/get-rules-content-script';
 import { delay } from 'lib/utils';
+
+import type { AdsRules } from '../ads-rules';
 
 import {
   AddActionsIfAdResolutionAvailable,

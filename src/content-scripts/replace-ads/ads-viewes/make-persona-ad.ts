@@ -1,10 +1,10 @@
 import { nanoid } from 'nanoid';
 
+import { getPersonaAdClient } from 'lib/ads/persona';
 import { TEMPLE_WALLET_AD_ATTRIBUTE_NAME } from 'lib/constants';
 import { EnvVars } from 'lib/env';
 
 import { AdDimensions, PersonaAdShape } from '../ads-meta';
-import { getPersonaAdClient } from '../persona';
 
 import { AdView } from './types';
 

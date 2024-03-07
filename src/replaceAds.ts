@@ -1,111 +1,29 @@
 import browser from 'webextension-polyfill';
 
-import { AdsProviderTitle } from 'lib/ads';
-import { adRectIsSeen } from 'lib/ads/ad-rect-is-seen';
-import { makeTKeyAdView, makeHypelabAdView, makePersonaAdView } from 'lib/ads/ad-viewes';
-import type { AdMetadata, AdSource } from 'lib/ads/ads-meta';
-import { getAdsActions, AdActionType } from 'lib/ads/get-ads-actions';
-import { InsertAdAction } from 'lib/ads/get-ads-actions/types';
-import { clearRulesCache, getRulesFromContentScript } from 'lib/ads/get-rules-content-script';
 import {
   ContentScriptType,
   ADS_RULES_UPDATE_INTERVAL,
   WEBSITES_ANALYTICS_ENABLED,
-  TEMPLE_WALLET_AD_ATTRIBUTE_NAME,
-  AD_SEEN_THRESHOLD
+  TEMPLE_WALLET_AD_ATTRIBUTE_NAME
 } from 'lib/constants';
 import { fetchFromStorage } from 'lib/storage';
 
+import {
+  getRulesFromContentScript,
+  clearRulesCache,
+  getAdsActions,
+  AdActionType,
+  InsertAdAction,
+  AdMetadata,
+  overrideElementStyles,
+  observeIntersection,
+  subscribeToIframeLoadIfNecessary,
+  makeTKeyAdView,
+  makeHypelabAdView,
+  makePersonaAdView
+} from './content-scripts/replace-ads';
+
 let processing = false;
-
-let adSource: AdSource;
-
-const loadingAdsIds = new Set();
-const loadedAdsIds = new Set();
-const alreadySentAnalyticsAdsIds = new Set();
-
-const sendExternalAdsActivity = (adId: string) => {
-  if (alreadySentAnalyticsAdsIds.has(adId)) {
-    return;
-  }
-
-  alreadySentAnalyticsAdsIds.add(adId);
-
-  const url = window.parent.location.href;
-
-  browser.runtime
-    .sendMessage({
-      type: ContentScriptType.ExternalAdsActivity,
-      url,
-      provider: AdsProviderTitle[adSource.providerName]
-    })
-    .catch(err => void console.error(err));
-};
-
-const subscribeToIframeLoadIfNecessary = (adId: string, element: HTMLIFrameElement) => {
-  if (loadingAdsIds.has(adId)) {
-    return;
-  }
-
-  loadingAdsIds.add(adId);
-
-  return new Promise<void>((resolve, reject) => {
-    setTimeout(() => {
-      window.removeEventListener('message', messageListener);
-      reject(new Error('Timeout exceeded'));
-    }, 30000);
-
-    const messageListener = (e: MessageEvent<any>) => {
-      if (e.source !== element.contentWindow) return;
-
-      try {
-        const data = JSON.parse(e.data);
-
-        if (data.id !== adId) return;
-
-        if (data.type === 'ready') {
-          window.removeEventListener('message', messageListener);
-          resolve();
-        } else if (data.type === 'error') {
-          window.removeEventListener('message', messageListener);
-          reject(new Error(data.reason ?? 'Unknown error'));
-        }
-      } catch {}
-    };
-
-    element.addEventListener('load', () => void window.addEventListener('message', messageListener));
-  })
-    .then(() => {
-      if (loadedAdsIds.has(adId)) return;
-
-      loadedAdsIds.add(adId);
-      const adIsSeen = adRectIsSeen(element);
-
-      if (adIsSeen) {
-        sendExternalAdsActivity(adId);
-      } else {
-        loadedAdIntersectionObserver.observe(element);
-      }
-    })
-    .finally(() => void loadingAdsIds.delete(adId));
-};
-
-const loadedAdIntersectionObserver = new IntersectionObserver(
-  entries => {
-    if (entries.some(entry => entry.isIntersecting)) {
-      const elem = entries[0].target;
-
-      sendExternalAdsActivity(elem.id);
-    }
-  },
-  { threshold: AD_SEEN_THRESHOLD }
-);
-
-const overrideElementStyles = (element: HTMLElement, overrides: StringRecord) => {
-  for (const stylePropName in overrides) {
-    element.style.setProperty(stylePropName, overrides[stylePropName]);
-  }
-};
 
 const replaceAds = async () => {
   if (processing) return;
@@ -196,12 +114,10 @@ const processInsertAdActionOnce = async (action: InsertAdAction, ad: AdMetadata,
 
   if (postAppend) await postAppend();
 
-  adSource = source;
-
   if (adElement instanceof HTMLIFrameElement) {
-    await subscribeToIframeLoadIfNecessary(adElement.id, adElement);
+    await subscribeToIframeLoadIfNecessary(adElement.id, source.providerName, adElement);
   } else {
-    loadedAdIntersectionObserver.observe(adElement);
+    observeIntersection(adElement, source.providerName);
   }
 
   let currentParentDepth = 0;

@@ -1,7 +1,5 @@
 - Check headers sent for hrefs
 - - Maybe use <iframe>
-- Glitch in def ads
-- - Get back `forEachWithTimeoutInterruptions` ?
 - Adjust margins on https://www.fxstreet.com/cryptocurrencies/ethereum
 - Fix extra 'replace-element' action
 -

@@ -1,5 +1,6 @@
-import type { PermanentAdPlacesRule } from 'lib/ads/get-rules-content-script';
 import { delay, isTruthy } from 'lib/utils';
+
+import type { PermanentAdPlacesRule } from '../ads-rules';
 
 import {
   AddActionsIfAdResolutionAvailable,
