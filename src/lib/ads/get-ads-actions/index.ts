@@ -1,7 +1,7 @@
 import type { AdsRules } from 'lib/ads/get-rules-content-script';
 import { delay } from 'lib/utils';
 
-import { AddActionsIfAdResolutionAvailable, applyQuerySelector, getFinalSize, pickAdToDisplay } from './helpers';
+import { AddActionsIfAdResolutionAvailable, applyQuerySelector, getFinalSize, pickAdsToDisplay } from './helpers';
 import { processPermanentAdPlacesRule } from './process-permanent-rule';
 import { processAdPlacesRule } from './process-rule';
 import {
@@ -27,7 +27,7 @@ export const getAdsActions = async ({ providersSelector, adPlacesRules, permanen
     ...actionsBases: (InsertAdActionWithoutMeta | HideElementAction | RemoveElementAction)[]
   ): boolean => {
     const { width, height } = getFinalSize(elementToMeasure);
-    const meta = pickAdToDisplay(
+    const stack = pickAdsToDisplay(
       width,
       height,
       shouldUseStrictContainerLimits,
@@ -35,14 +35,15 @@ export const getAdsActions = async ({ providersSelector, adPlacesRules, permanen
       adIsNative
     );
 
-    if (!meta) return false;
-    const { source, dimensions } = meta;
+    console.log('STACK:', stack);
+
+    if (!stack.length) return false;
 
     result.push(
       ...actionsBases.map<AdAction>(actionBase =>
         actionBase.type === AdActionType.HideElement || actionBase.type === AdActionType.RemoveElement
           ? actionBase
-          : { ...actionBase, source, dimensions }
+          : { ...actionBase, meta: stack[0]!, fallbacks: stack.slice(1) }
       )
     );
 

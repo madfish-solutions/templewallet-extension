@@ -14,8 +14,13 @@ interface AdActionBase {
   type: AdActionType;
 }
 
-interface InsertAdActionProps extends AdMetadata {
-  shouldUseDivWrapper: boolean;
+interface InsertAdActionProps {
+  meta: AdMetadata;
+  fallbacks: AdMetadata[];
+  /** @deprecated // Always wrapping now
+   * TODO: Clean-up usage
+   */
+  shouldUseDivWrapper?: boolean;
   divWrapperStyle?: StringRecord<string>;
   elementStyle?: StringRecord<string>;
   stylesOverrides?: AdStylesOverrides[];
@@ -49,7 +54,7 @@ export interface HideElementAction extends AdActionBase {
 
 export type InsertAdAction = ReplaceAllChildrenWithAdAction | ReplaceElementWithAdAction | SimpleInsertAdAction;
 
-export type OmitAdMeta<T extends AdMetadata> = Omit<T, keyof AdMetadata>;
+export type OmitAdMeta<T extends InsertAdActionProps> = Omit<T, 'meta' | 'fallbacks'>;
 
 export type InsertAdActionWithoutMeta =
   | OmitAdMeta<ReplaceAllChildrenWithAdAction>

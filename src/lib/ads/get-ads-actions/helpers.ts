@@ -75,22 +75,22 @@ export const getParentOfDepth = (element: HTMLElement, depth: number) => {
   return parent;
 };
 
-export const pickAdToDisplay = (
+export const pickAdsToDisplay = (
   containerWidth: number,
   containerHeight: number,
   shouldUseStrictContainerLimits: boolean,
   minContainerWidthIsBannerWidth: boolean,
   adIsNative: boolean
-): AdMetadata | undefined => {
+): AdMetadata[] => {
   if (containerWidth < 2 && containerHeight < 2) {
-    return undefined;
+    return [];
   }
 
   if (adIsNative) {
-    return buildHypeLabNativeMeta(containerWidth, containerHeight);
+    return [buildHypeLabNativeMeta(containerWidth, containerHeight)];
   }
 
-  return BANNER_ADS_META.find(({ source, dimensions }) => {
+  return BANNER_ADS_META.filter(({ source, dimensions }) => {
     const { minContainerWidth, maxContainerWidth, minContainerHeight, maxContainerHeight, width } = dimensions;
 
     const actualMinContainerWidth = minContainerWidthIsBannerWidth ? width : minContainerWidth;

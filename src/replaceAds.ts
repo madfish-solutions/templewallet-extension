@@ -3,7 +3,7 @@ import browser from 'webextension-polyfill';
 import { AdsProviderTitle } from 'lib/ads';
 import { adRectIsSeen } from 'lib/ads/ad-rect-is-seen';
 import { makeTKeyAdView, makeHypelabAdView, makePersonaAdView } from 'lib/ads/ad-viewes';
-import type { AdSource } from 'lib/ads/ads-meta';
+import type { AdMetadata, AdSource } from 'lib/ads/ads-meta';
 import { getAdsActions, AdActionType } from 'lib/ads/get-ads-actions';
 import { InsertAdAction } from 'lib/ads/get-ads-actions/types';
 import { clearRulesCache, getRulesFromContentScript } from 'lib/ads/get-rules-content-script';
@@ -16,7 +16,6 @@ import {
   AD_SEEN_THRESHOLD
 } from 'lib/constants';
 import { fetchFromStorage } from 'lib/storage';
-import { delay } from 'lib/utils';
 
 let processing = false;
 
@@ -50,50 +49,46 @@ const subscribeToIframeLoadIfNecessary = (adId: string, element: HTMLIFrameEleme
   }
 
   loadingAdsIds.add(adId);
-  element.addEventListener('load', async () => {
-    Promise.race([
-      new Promise<void>((res, rej) => {
-        const messageListener = (e: MessageEvent<any>) => {
-          if (e.source !== element.contentWindow) return;
 
-          try {
-            const data = JSON.parse(e.data);
+  return new Promise<void>((resolve, reject) => {
+    setTimeout(() => {
+      window.removeEventListener('message', messageListener);
+      reject(new Error('Timeout exceeded'));
+    }, 30000);
 
-            if (data.id !== adId) return;
+    const messageListener = (e: MessageEvent<any>) => {
+      if (e.source !== element.contentWindow) return;
 
-            if (data.type === 'ready') {
-              window.removeEventListener('message', messageListener);
-              res();
-            } else if (data.type === 'error') {
-              window.removeEventListener('message', messageListener);
-              rej(new Error(data.reason ?? 'Unknown error'));
-            }
-          } catch {}
-        };
-        window.addEventListener('message', messageListener);
-      }),
-      delay(30000).then(() => {
-        throw new Error('Timeout exceeded');
-      })
-    ])
-      .then(() => {
-        loadingAdsIds.delete(adId);
-        if (!loadedAdsIds.has(adId)) {
-          loadedAdsIds.add(adId);
-          const adIsSeen = adRectIsSeen(element);
+      try {
+        const data = JSON.parse(e.data);
 
-          if (adIsSeen) {
-            sendExternalAdsActivity(adId);
-          } else {
-            loadedAdIntersectionObserver.observe(element);
-          }
+        if (data.id !== adId) return;
+
+        if (data.type === 'ready') {
+          window.removeEventListener('message', messageListener);
+          resolve();
+        } else if (data.type === 'error') {
+          window.removeEventListener('message', messageListener);
+          reject(new Error(data.reason ?? 'Unknown error'));
         }
-      })
-      .catch(e => {
-        console.error(`Failed to load ad ${adId}`, e);
-        loadingAdsIds.delete(adId);
-      });
-  });
+      } catch {}
+    };
+
+    element.addEventListener('load', () => void window.addEventListener('message', messageListener));
+  })
+    .then(() => {
+      if (loadedAdsIds.has(adId)) return;
+
+      loadedAdsIds.add(adId);
+      const adIsSeen = adRectIsSeen(element);
+
+      if (adIsSeen) {
+        sendExternalAdsActivity(adId);
+      } else {
+        loadedAdIntersectionObserver.observe(element);
+      }
+    })
+    .finally(() => void loadingAdsIds.delete(adId));
 };
 
 const loadedAdIntersectionObserver = new IntersectionObserver(
@@ -133,7 +128,7 @@ const replaceAds = async () => {
       } else if (action.type === AdActionType.HideElement) {
         action.element.style.setProperty('display', 'none');
       } else {
-        await processInsertAdAction(action);
+        processInsertAdAction(action, action.meta);
       }
     }
   } catch (error) {
@@ -143,20 +138,35 @@ const replaceAds = async () => {
   processing = false;
 };
 
-const processInsertAdAction = async (action: InsertAdAction) => {
-  const {
-    source,
-    dimensions,
-    shouldUseDivWrapper,
-    divWrapperStyle = {},
-    elementStyle = {},
-    stylesOverrides = []
-  } = action;
+const processInsertAdAction = (action: InsertAdAction, ad: AdMetadata) => {
+  const { shouldUseDivWrapper, divWrapperStyle = {} } = action;
+
+  const wrapperElement = document.createElement('div');
+  wrapperElement.setAttribute(TEMPLE_WALLET_AD_ATTRIBUTE_NAME, 'true');
+
+  if (shouldUseDivWrapper) {
+    overrideElementStyles(wrapperElement, divWrapperStyle);
+  } else {
+    wrapperElement.style.display = 'contents';
+  }
+
+  processInsertAdActionOnce(action, ad, wrapperElement).catch(error => {
+    console.error('Replacing an ad error:', error);
+    wrapperElement.remove();
+
+    const nextAd = action.fallbacks.shift();
+    if (nextAd) processInsertAdAction(action, nextAd);
+  });
+};
+
+const processInsertAdActionOnce = async (action: InsertAdAction, ad: AdMetadata, wrapperElement: HTMLDivElement) => {
+  const { source, dimensions } = ad;
+
+  const { elementStyle = {}, stylesOverrides = [] } = action;
 
   stylesOverrides.sort((a, b) => a.parentDepth - b.parentDepth);
 
   let stylesOverridesCurrentElement: HTMLElement | null;
-  let adElementWithWrapper: HTMLElement;
 
   const slotId = getSlotId();
   const { providerName } = source;
@@ -168,28 +178,21 @@ const processInsertAdAction = async (action: InsertAdAction) => {
       ? makeHypelabAdView(source, dimensions, elementStyle)
       : await makePersonaAdView(source.shape, dimensions, elementStyle);
 
-  if (shouldUseDivWrapper) {
-    adElementWithWrapper = document.createElement('div');
-    adElementWithWrapper.setAttribute(TEMPLE_WALLET_AD_ATTRIBUTE_NAME, 'true');
-    overrideElementStyles(adElementWithWrapper, divWrapperStyle);
-    adElementWithWrapper.appendChild(adElement);
-  } else {
-    adElementWithWrapper = adElement;
-  }
+  wrapperElement.appendChild(adElement);
 
   switch (action.type) {
     case AdActionType.ReplaceAllChildren:
       stylesOverridesCurrentElement = action.parent;
       action.parent.innerHTML = '';
-      action.parent.appendChild(adElementWithWrapper);
+      action.parent.appendChild(wrapperElement);
       break;
     case AdActionType.ReplaceElement:
       stylesOverridesCurrentElement = action.element.parentElement;
-      action.element.replaceWith(adElementWithWrapper);
+      action.element.replaceWith(wrapperElement);
       break;
     default:
       stylesOverridesCurrentElement = action.parent;
-      action.parent.insertBefore(adElementWithWrapper, action.parent.children[action.insertionIndex]);
+      action.parent.insertBefore(wrapperElement, action.parent.children[action.insertionIndex]);
       break;
   }
 
@@ -198,7 +201,7 @@ const processInsertAdAction = async (action: InsertAdAction) => {
   adSource = source;
 
   if (adElement instanceof HTMLIFrameElement) {
-    subscribeToIframeLoadIfNecessary(adElement.id, adElement);
+    await subscribeToIframeLoadIfNecessary(adElement.id, adElement);
   } else {
     loadedAdIntersectionObserver.observe(adElement);
   }
