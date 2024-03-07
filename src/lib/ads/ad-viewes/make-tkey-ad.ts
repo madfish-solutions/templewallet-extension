@@ -14,24 +14,21 @@ const swapTKeyUrl = `${browser.runtime.getURL('fullpage.html')}#/swap?${buildSwa
   true
 )}`;
 
-export const makeTKeyAdView = (slotId: string, width: number, height: number, elementStyle: StringRecord): AdView => {
-  const ins = document.createElement('ins'); // TODO: Why 'ins' ?
-  ins.id = nanoid();
-  ins.style.width = `${width}px`;
-  ins.style.height = `${height}px`;
+export const makeTKeyAdView = (width: number, height: number, elementStyle: StringRecord): AdView => {
+  const element = document.createElement('div');
+  element.id = nanoid();
+  element.style.width = `${width}px`;
+  element.style.height = `${height}px`;
   for (const styleProp in elementStyle) {
-    ins.style.setProperty(styleProp, elementStyle[styleProp]);
+    element.style.setProperty(styleProp, elementStyle[styleProp]);
   }
-  ins.setAttribute(TEMPLE_WALLET_AD_ATTRIBUTE_NAME, 'true');
-  // These attribures r not used ?
-  ins.setAttribute('data-ad-slot', slotId);
-  ins.setAttribute('data-ad-format', `${width}x${height}`);
+  element.setAttribute(TEMPLE_WALLET_AD_ATTRIBUTE_NAME, 'true');
 
   const div = document.createElement('div');
   div.style.width = `${width}px`;
   div.style.height = `${height}px`;
 
-  ins.appendChild(div);
+  element.appendChild(div);
 
   const anchor = document.createElement('a');
   anchor.href = swapTKeyUrl;
@@ -47,5 +44,5 @@ export const makeTKeyAdView = (slotId: string, width: number, height: number, el
   img.style.height = '100%';
   anchor.appendChild(img);
 
-  return { element: ins };
+  return { element };
 };

@@ -7,7 +7,6 @@ import type { AdMetadata, AdSource } from 'lib/ads/ads-meta';
 import { getAdsActions, AdActionType } from 'lib/ads/get-ads-actions';
 import { InsertAdAction } from 'lib/ads/get-ads-actions/types';
 import { clearRulesCache, getRulesFromContentScript } from 'lib/ads/get-rules-content-script';
-import { getSlotId } from 'lib/ads/get-slot-id';
 import {
   ContentScriptType,
   ADS_RULES_UPDATE_INTERVAL,
@@ -168,12 +167,11 @@ const processInsertAdActionOnce = async (action: InsertAdAction, ad: AdMetadata,
 
   let stylesOverridesCurrentElement: HTMLElement | null;
 
-  const slotId = getSlotId();
   const { providerName } = source;
 
   const { element: adElement, postAppend } =
     providerName === 'Temple'
-      ? makeTKeyAdView(slotId, dimensions.width, dimensions.height, elementStyle)
+      ? makeTKeyAdView(dimensions.width, dimensions.height, elementStyle)
       : providerName === 'HypeLab'
       ? makeHypelabAdView(source, dimensions, elementStyle)
       : await makePersonaAdView(source.shape, dimensions, elementStyle);

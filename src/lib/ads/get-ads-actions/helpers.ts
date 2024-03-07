@@ -12,16 +12,12 @@ export type AddActionsIfAdResolutionAvailable = (
   ...actionsBases: (InsertAdActionWithoutMeta | HideElementAction | RemoveElementAction)[]
 ) => boolean;
 
-export const ourAdQuerySelector = `iframe[${TEMPLE_WALLET_AD_ATTRIBUTE_NAME}], div[${TEMPLE_WALLET_AD_ATTRIBUTE_NAME}], \
-ins[${TEMPLE_WALLET_AD_ATTRIBUTE_NAME}]`;
+export const ourAdQuerySelector = `iframe[${TEMPLE_WALLET_AD_ATTRIBUTE_NAME}], div[${TEMPLE_WALLET_AD_ATTRIBUTE_NAME}]`;
 
 export const elementIsOurAd = (element: HTMLElement) => {
   const tagName = element.tagName.toLowerCase();
 
-  return (
-    (tagName === 'iframe' || tagName === 'div' || tagName === 'ins') &&
-    element.hasAttribute(TEMPLE_WALLET_AD_ATTRIBUTE_NAME)
-  );
+  return (tagName === 'iframe' || tagName === 'div') && element.hasAttribute(TEMPLE_WALLET_AD_ATTRIBUTE_NAME);
 };
 
 export const getFinalSize = (element: Element) => {

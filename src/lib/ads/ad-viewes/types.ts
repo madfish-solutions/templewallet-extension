@@ -1,4 +1,4 @@
 export interface AdView {
-  element: HTMLDivElement | HTMLIFrameElement | HTMLModElement;
+  element: HTMLDivElement | HTMLIFrameElement;
   postAppend?: () => void | Promise<unknown>;
 }
