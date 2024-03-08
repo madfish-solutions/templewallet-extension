@@ -7,7 +7,6 @@ export interface PartnersPromotionState {
   promotion: LoadableEntityState<OptimalPromotionType>;
   shouldShowPromotion: boolean;
   promotionHidingTimestamps: Record<string, number>;
-  lastReportedPageName?: string;
 }
 
 export const partnersPromotionInitialState: PartnersPromotionState = {

@@ -5,9 +5,8 @@ import { useDispatch } from 'react-redux';
 
 import Spinner from 'app/atoms/Spinner/Spinner';
 import { useAppEnv } from 'app/env';
-import { hidePromotionAction, setLastReportedPageNameAction } from 'app/store/partners-promotion/actions';
+import { hidePromotionAction } from 'app/store/partners-promotion/actions';
 import {
-  useLastReportedPageNameSelector,
   useShouldShowPartnersPromoSelector,
   usePromotionHidingTimestampSelector
 } from 'app/store/partners-promotion/selectors';
@@ -41,7 +40,8 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pa
   const dispatch = useDispatch();
   const hiddenAt = usePromotionHidingTimestampSelector(id);
   const shouldShowPartnersPromo = useShouldShowPartnersPromoSelector();
-  const lastReportedPageName = useLastReportedPageNameSelector();
+
+  const [isAnalyticsSent, setIsAnalyticsSent] = useState(false);
 
   const [isHiddenTemporarily, setIsHiddenTemporarily] = useState(shouldBeHiddenTemporarily(hiddenAt));
   const [shouldUseOptimalAd, setShouldUseOptimalAd] = useState(true);
@@ -67,16 +67,16 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pa
   }, [hiddenAt]);
 
   const handleAdRectSeen = useCallback(() => {
-    if (lastReportedPageName !== pageName) {
-      dispatch(setLastReportedPageNameAction(pageName));
+    if (!isAnalyticsSent) {
       trackEvent('Internal Ads Activity', AnalyticsEventCategory.General, {
         variant,
         page: pageName,
         provider: providerTitle,
         accountPkh
       });
+      setIsAnalyticsSent(true);
     }
-  }, [providerTitle, lastReportedPageName, variant, pageName, accountPkh, trackEvent, dispatch]);
+  }, [isAnalyticsSent, providerTitle, variant, pageName, accountPkh, trackEvent]);
 
   const handleClosePartnersPromoClick = useCallback<MouseEventHandler<HTMLButtonElement>>(
     e => {
