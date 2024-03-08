@@ -1,7 +1,7 @@
 import { getPersonaAdClient } from 'lib/ads/persona';
 import { EnvVars } from 'lib/env';
 
-import type { PersonaAdShape } from './content-scripts/replace-ads/ads-meta';
+import type { PersonaAdShape } from './ads-meta';
 
 const CONTAINER_ID = 'container';
 
@@ -22,14 +22,18 @@ getPersonaAdClient()
     );
   })
   .then(
-    () => postMessage({ type: 'ready' }),
+    () => void postMessage({ type: 'ready' }),
     error => {
       console.error(error);
-      postMessage({ id, type: 'error', reason: String(error) });
+      postMessage({ type: 'error', reason: String(error) });
     }
   );
 
-const postMessage = (message: object) => window.parent.postMessage(JSON.stringify({ ...message, id }));
+const postMessage = (message: object) =>
+  window.parent.postMessage(
+    JSON.stringify({ ...message, id }),
+    '*' // This is required
+  );
 
 const getUnitId = (shape: PersonaAdShape, isStaging: boolean) => {
   if (isStaging)

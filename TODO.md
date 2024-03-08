@@ -1,5 +1,3 @@
-- Check headers sent for hrefs
-- - Maybe use <iframe>
 - Adjust margins on https://www.fxstreet.com/cryptocurrencies/ethereum
 - Fix extra 'replace-element' action
--
+- Squarish shapes

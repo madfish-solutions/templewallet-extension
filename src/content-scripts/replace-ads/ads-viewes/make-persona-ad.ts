@@ -13,7 +13,7 @@ export const makePersonaAdView = async (
   const id = nanoid();
 
   const element = document.createElement('iframe');
-  element.src = browser.runtime.getURL(`persona-ad.html?id=${id}&shape=${shape}`);
+  element.src = browser.runtime.getURL(`iframes/persona-ad.html?id=${id}&shape=${shape}`);
   element.id = id;
 
   element.style.width = `${width}px`;

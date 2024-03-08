@@ -23,14 +23,14 @@ export const subscribeToIframeLoadIfNecessary = (
   return new Promise<void>((resolve, reject) => {
     setTimeout(() => {
       window.removeEventListener('message', messageListener);
-      reject(new Error('Timeout exceeded'));
+      reject(new Error(`Timeout exceeded for ${adId}`));
     }, IFRAME_READY_TIMEOUT);
 
-    const messageListener = (e: MessageEvent<any>) => {
-      if (e.source !== element.contentWindow) return;
+    const messageListener = (event: MessageEvent<any>) => {
+      if (event.source !== element.contentWindow) return;
 
       try {
-        const data = JSON.parse(e.data);
+        const data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
 
         if (data.id !== adId) return;
 
@@ -41,10 +41,12 @@ export const subscribeToIframeLoadIfNecessary = (
           window.removeEventListener('message', messageListener);
           reject(new Error(data.reason ?? 'Unknown error'));
         }
-      } catch {}
+      } catch (error) {
+        console.error('Observing error:', error);
+      }
     };
 
-    element.addEventListener('load', () => void window.addEventListener('message', messageListener));
+    window.addEventListener('message', messageListener);
   })
     .then(() => {
       if (loadedAdsIds.has(adId)) return;
