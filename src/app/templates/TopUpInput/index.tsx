@@ -84,14 +84,8 @@ export const TopUpInput = <C extends CurrencyBase>(_props: TopUpInputPropsGeneri
         <DropdownSelect<CurrencyBase>
           testID={testID}
           dropdownButtonClassName="pl-4 pr-3 py-5"
-          DropdownFaceContent={
-            <TopUpMainContent
-              isFiat={isFiat}
-              singleToken={singleToken}
-              fitIconsValue={fitIconsValue}
-              currency={currency}
-            />
-          }
+          singleToken={singleToken}
+          DropdownFaceContent={<TopUpMainContent isFiat={isFiat} fitIconsValue={fitIconsValue} currency={currency} />}
           Input={
             <div
               className={classNames(
@@ -141,16 +135,15 @@ export const TopUpInput = <C extends CurrencyBase>(_props: TopUpInputPropsGeneri
 };
 
 interface TopUpMainContentProps {
-  singleToken: boolean;
   fitIconsValue: boolean;
   isFiat?: boolean;
   currency: CurrencyBase;
 }
 
-const TopUpMainContent: FC<TopUpMainContentProps> = ({ singleToken, currency, fitIconsValue, isFiat }) => {
+const TopUpMainContent: FC<TopUpMainContentProps> = ({ currency, fitIconsValue, isFiat }) => {
   return (
     <div className="w-full flex items-stretch">
-      <div className={classNames('flex items-center gap-2', !singleToken && 'cursor-pointer')}>
+      <div className="flex items-center gap-2">
         <StaticCurrencyImage
           currencyCode={currency.code}
           isFiat={isFiat}
