@@ -1,3 +1,0 @@
-- Adjust margins on https://www.fxstreet.com/cryptocurrencies/ethereum
-- Fix extra 'replace-element' action
-- Squarish shapes
