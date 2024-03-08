@@ -2,6 +2,9 @@ import memoizee from 'memoizee';
 
 import { EnvVars } from 'lib/env';
 
+/** 321x101 See: https://pub.persona3.io/docs */
+export const PERSONA_STAGING_ADS_BANNER_UNIT_ID = 'e6b82a11-6a94-46c0-a9d2-cf730159a5e6';
+
 export const getPersonaAdClient = memoizee(
   async () => {
     const { PersonaAdSDK } = await import('@personaxyz/ad-sdk');

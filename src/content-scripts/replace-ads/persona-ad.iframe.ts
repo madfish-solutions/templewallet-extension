@@ -1,4 +1,4 @@
-import { getPersonaAdClient } from 'lib/ads/persona';
+import { getPersonaAdClient, PERSONA_STAGING_ADS_BANNER_UNIT_ID } from 'lib/ads/persona';
 import { EnvVars } from 'lib/env';
 
 import type { PersonaAdShape } from './ads-meta';
@@ -43,7 +43,7 @@ const getUnitId = (shape: PersonaAdShape, isStaging: boolean) => {
       case 'squarish':
         return 'bf498e26-eb16-4e35-8954-e65690f28819';
       default:
-        return 'cf20c750-2fe4-4761-861f-b73b2247fd4d';
+        return PERSONA_STAGING_ADS_BANNER_UNIT_ID;
     }
 
   switch (shape) {

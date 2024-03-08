@@ -4,7 +4,7 @@ import clsx from 'clsx';
 
 import { useAdRectObservation } from 'app/hooks/ads/use-ad-rect-observation';
 import { AdsProviderTitle } from 'lib/ads';
-import { getPersonaAdClient } from 'lib/ads/persona';
+import { getPersonaAdClient, PERSONA_STAGING_ADS_BANNER_UNIT_ID } from 'lib/ads/persona';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
 import { EnvVars } from 'lib/env';
 import { useAccountPkh } from 'lib/temple/front';
@@ -57,7 +57,7 @@ export const PersonaPromotion = memo<Props>(({ id, isVisible, pageName, onReady,
   const injectAd = useCallback(async () => {
     const { client, environment } = await getPersonaAdClient();
     const adUnitId =
-      environment === 'staging' ? 'cf20c750-2fe4-4761-861f-b73b2247fd4d' : EnvVars.PERSONA_ADS_BANNER_UNIT_ID;
+      environment === 'staging' ? PERSONA_STAGING_ADS_BANNER_UNIT_ID : EnvVars.PERSONA_ADS_BANNER_UNIT_ID;
 
     await client.showBannerAd(
       // @ts-expect-error // for missung `adConfig` prop

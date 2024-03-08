@@ -21,7 +21,13 @@ interface TempleAdSource extends AdSourceBase {
   providerName: 'Temple';
 }
 
-export type PersonaAdShape = 'regular' | 'wide' | 'squarish';
+/** See: https://pub.persona3.io/docs
+ * `regular` - 321x101
+ * `medium` - 600x160
+ * `wide` - 970x90
+ * `squarish` - 300x250
+ */
+export type PersonaAdShape = 'regular' | 'medium' | 'wide' | 'squarish';
 
 interface PersonaAdSource extends AdSourceBase {
   providerName: 'Persona';
