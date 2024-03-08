@@ -17,6 +17,8 @@ const WEB_ACCCESSIBLE_RESOURSES = [
   'scripts/*.embed.js',
   // For triggering extension page open from scripts
   'fullpage.html',
+  // For Persona ads iFrames
+  'persona-ad.html',
   // For ads' images
   'misc/ad-banners/*'
 ];

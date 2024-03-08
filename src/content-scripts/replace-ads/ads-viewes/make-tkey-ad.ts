@@ -2,7 +2,6 @@ import { nanoid } from 'nanoid';
 import browser from 'webextension-polyfill';
 
 import { buildSwapPageUrlQuery } from 'app/pages/Swap/utils/build-url-query';
-import { TEMPLE_WALLET_AD_ATTRIBUTE_NAME } from 'lib/constants';
 
 import { AdView } from './types';
 
@@ -22,7 +21,6 @@ export const makeTKeyAdView = (width: number, height: number, elementStyle: Stri
   for (const styleProp in elementStyle) {
     element.style.setProperty(styleProp, elementStyle[styleProp]);
   }
-  element.setAttribute(TEMPLE_WALLET_AD_ATTRIBUTE_NAME, 'true');
 
   const div = document.createElement('div');
   div.style.width = `${width}px`;

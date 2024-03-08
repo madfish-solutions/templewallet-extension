@@ -1,6 +1,5 @@
 import { nanoid } from 'nanoid';
 
-import { TEMPLE_WALLET_AD_ATTRIBUTE_NAME } from 'lib/constants';
 import { EnvVars } from 'lib/env';
 
 import { AdDimensions, HypeLabAdSources } from '../ads-meta';
@@ -23,7 +22,6 @@ export const makeHypelabAdView = (
   for (const styleProp in elementStyle) {
     iframe.style.setProperty(styleProp, elementStyle[styleProp]);
   }
-  iframe.setAttribute(TEMPLE_WALLET_AD_ATTRIBUTE_NAME, 'true');
 
   return { element: iframe };
 };

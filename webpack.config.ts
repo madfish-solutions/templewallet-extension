@@ -35,7 +35,8 @@ import { isTruthy } from './webpack/utils';
 const ExtensionReloaderMV3 = ExtensionReloaderMV3BadlyTyped as ExtensionReloaderMV3Type;
 
 const PAGES_NAMES = ['popup', 'fullpage', 'confirm', 'options'];
-const HTML_TEMPLATES = PAGES_NAMES.map(name => {
+const IFRAMES_NAMES = ['persona-ad'];
+const HTML_TEMPLATES = PAGES_NAMES.concat(IFRAMES_NAMES).map(name => {
   const filename = `${name}.html`;
   const path = Path.join(PATHS.PUBLIC, filename);
   return { name, filename, path };
@@ -50,7 +51,10 @@ const mainConfig = (() => {
   /* Page reloading in development mode */
   const liveReload = DEVELOPMENT_ENV && usePagesLiveReload(RELOADER_PORTS.PAGES);
 
-  config.entry = Object.fromEntries(PAGES_NAMES.map(name => [name, Path.join(PATHS.SOURCE, `${name}.tsx`)]));
+  config.entry = {
+    ...Object.fromEntries(PAGES_NAMES.map(name => [name, Path.join(PATHS.SOURCE, `${name}.tsx`)])),
+    ...Object.fromEntries(IFRAMES_NAMES.map(name => [name, Path.join(PATHS.SOURCE, `${name}.ts`)]))
+  };
 
   if (liveReload) config.entry.live_reload = liveReload.client_entry;
 

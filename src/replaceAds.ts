@@ -94,6 +94,7 @@ const processInsertAdActionOnce = async (action: InsertAdAction, ad: AdMetadata,
       ? makeHypelabAdView(source, dimensions, elementStyle)
       : await makePersonaAdView(source.shape, dimensions, elementStyle);
 
+  adElement.setAttribute(TEMPLE_WALLET_AD_ATTRIBUTE_NAME, 'true');
   wrapperElement.appendChild(adElement);
 
   switch (action.type) {
