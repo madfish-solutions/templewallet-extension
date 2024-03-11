@@ -1,6 +1,5 @@
 import axios from 'axios';
 
-import { outputTokensList } from 'app/pages/Buy/Crypto/Exolix/config';
 import { CurrencyToken } from 'app/templates/TopUpInput';
 import { EnvVars } from 'lib/env';
 import { TEZOS_METADATA } from 'lib/metadata';
@@ -15,6 +14,11 @@ import {
 } from './exolix.interface';
 
 const API_KEY = EnvVars.TEMPLE_WALLET_EXOLIX_API_KEY;
+
+/** Due to legal restrictions */
+const MAX_DOLLAR_VALUE = 10000;
+const MIN_ASSET_AMOUNT = 0.00001;
+const AVG_COMISSION = 300;
 
 const api = axios.create({
   baseURL: 'https://exolix.com/api/v2',
@@ -49,12 +53,7 @@ export const getCurrencies = async () => {
         }
       }))
     )
-    .flat()
-    .filter(
-      ({ name, network }) =>
-        outputTokensList.find(outputToken => outputToken.name === name && outputToken.network.code === network.code) ===
-        undefined
-    );
+    .flat();
 };
 
 const getCurrency = (page = 1) =>
@@ -63,6 +62,72 @@ const getCurrency = (page = 1) =>
     .then(r => r.data);
 
 export const getCurrenciesCount = () => api.get<ExolixCurrenciesInterface>('/currencies').then(r => r.data.count);
+
+const loadUSDTRate = async (coinTo: string, coinToNetwork: string) => {
+  const exchangeData = {
+    coinTo,
+    coinToNetwork,
+    coinFrom: 'USDT',
+    coinFromNetwork: 'ETH',
+    amount: 500
+  };
+
+  try {
+    const { rate } = await queryExchange(exchangeData);
+
+    return rate ?? 1;
+  } catch (error) {
+    console.error({ error });
+
+    return 1;
+  }
+};
+
+// executed only once per changed pair to determine min, max
+export const loadMinMaxFields = async (
+  inputAssetCode = 'BTC',
+  inputAssetNetwork = 'BTC',
+  outputAssetCode = 'XTZ',
+  outputAssetNetwork = 'XTZ'
+) => {
+  try {
+    const outputTokenPrice = await loadUSDTRate(outputAssetCode, outputAssetNetwork);
+
+    const forwardExchangeData = {
+      coinTo: inputAssetCode,
+      coinToNetwork: inputAssetNetwork,
+      coinFrom: outputAssetCode,
+      coinFromNetwork: outputAssetNetwork,
+      amount: (MAX_DOLLAR_VALUE + AVG_COMISSION) / outputTokenPrice
+    };
+
+    const backwardExchangeData = {
+      coinTo: outputAssetCode,
+      coinToNetwork: outputAssetNetwork,
+      coinFrom: inputAssetCode,
+      coinFromNetwork: inputAssetNetwork,
+      amount: MIN_ASSET_AMOUNT
+    };
+
+    const { minAmount } = await queryExchange(backwardExchangeData);
+
+    // setting correct exchange amount
+    backwardExchangeData.amount = minAmount ?? 0;
+
+    // correct maxAmount returns only if exchange amount is correct
+    const { maxAmount } = await queryExchange(backwardExchangeData);
+
+    // getting maxAmount for our own maximum dollar exchange amount
+    const { message, toAmount } = await queryExchange(forwardExchangeData);
+
+    // if there is a message than something went wrong with the estimation and some values may be incorrect
+    return { finalMinAmount: minAmount ?? 0, finalMaxAmount: (message === null ? toAmount : maxAmount) ?? 0 };
+  } catch (error) {
+    console.error({ error });
+
+    return { finalMinAmount: 0, finalMaxAmount: 0 };
+  }
+};
 
 export const queryExchange = (data: GetRateRequestData) =>
   api.get<GetRateResponse>('/rate', { params: { ...data, rateType: 'fixed' } }).then(

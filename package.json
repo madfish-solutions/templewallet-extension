@@ -1,6 +1,6 @@
 {
   "name": "temple-wallet",
-  "version": "1.19.11",
+  "version": "1.19.12",
   "private": true,
   "scripts": {
     "start-run": "cross-env TS_NODE_PROJECT=\"webpack/tsconfig.json\" webpack --watch --stats errors-warnings",
@@ -64,6 +64,7 @@
     "@temple-wallet/jest-webextension-mock": "^4.1.0",
     "@temple-wallet/save-remote-file-webpack-plugin": "^1.1.2",
     "@temple-wallet/wallet-address-validator": "^0.4.3",
+    "@temple-wallet/youves-sdk": "^0.0.9",
     "@tezos-domains/core": "1.26.0",
     "@tezos-domains/taquito-client": "1.26.0",
     "@types/async-retry": "1.4.3",
@@ -201,7 +202,6 @@
     "webpack-ext-reloader-mv3": "^2.1.1",
     "webpack-target-webextension": "^1.0.4",
     "webpackbar": "^5",
-    "youves-sdk": "^0.0.6",
     "yup": "^1.1.1",
     "zip-a-folder": "^1.1.5"
   },
