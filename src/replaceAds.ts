@@ -32,7 +32,7 @@ const sendExternalAdsActivity = (adId: string) => {
 
   alreadySentAnalyticsAdsIds.add(adId);
 
-  const url = window.parent.location.href;
+  const url = window.location.href;
 
   browser.runtime
     .sendMessage({ type: ContentScriptType.ExternalAdsActivity, url, provider })
@@ -113,7 +113,7 @@ const replaceAds = async () => {
   processing = true;
 
   try {
-    const adsRules = await getRulesFromContentScript(window.parent.location);
+    const adsRules = await getRulesFromContentScript(window.location);
 
     if (adsRules.timestamp < Date.now() - ADS_RULES_UPDATE_INTERVAL) {
       clearRulesCache();
@@ -121,7 +121,9 @@ const replaceAds = async () => {
     }
 
     const adsActions = await getAdsActions(adsRules);
-
+    if (adsActions.length > 0) {
+      console.log('actions', adsActions);
+    }
     await Promise.all(
       adsActions.map(async action => {
         if (action.type === AdActionType.RemoveElement) {

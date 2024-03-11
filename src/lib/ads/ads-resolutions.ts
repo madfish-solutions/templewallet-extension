@@ -34,19 +34,19 @@ export const ADS_RESOLUTIONS: AdsResolution[] = [
   {
     width: 300,
     height: 250,
-    minContainerWidth: 210,
+    minContainerWidth: 300,
     minContainerHeight: 170,
-    maxContainerWidth: 400,
-    maxContainerHeight: 300,
+    maxContainerWidth: 700,
+    maxContainerHeight: Infinity,
     placementType: HypelabPlacementType.High
   },
   {
     width: 728,
     height: 90,
-    minContainerWidth: 600,
+    minContainerWidth: 700,
     minContainerHeight: 60,
-    maxContainerWidth: 1440,
-    maxContainerHeight: 110,
+    maxContainerWidth: Infinity,
+    maxContainerHeight: Infinity,
     placementType: TKEY_AD_PLACEMENT_SLUG
   }
 ];

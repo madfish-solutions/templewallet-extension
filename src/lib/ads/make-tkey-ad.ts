@@ -18,22 +18,16 @@ export const makeTKeyAdElement = (
   height: number,
   elementStyle: Record<string, string>
 ) => {
-  const ins = document.createElement('ins');
-  ins.id = nanoid();
-  ins.style.width = `${width}px`;
-  ins.style.height = `${height}px`;
-  for (const styleProp in elementStyle) {
-    ins.style.setProperty(styleProp, elementStyle[styleProp]);
-  }
-  ins.setAttribute('data-ad-slot', slotId);
-  ins.setAttribute('data-ad-format', `${width}x${height}`);
-  ins.setAttribute(TEMPLE_WALLET_AD_ATTRIBUTE_NAME, 'true');
-
   const div = document.createElement('div');
+  div.id = nanoid();
   div.style.width = `${width}px`;
   div.style.height = `${height}px`;
-
-  ins.appendChild(div);
+  for (const styleProp in elementStyle) {
+    div.style.setProperty(styleProp, elementStyle[styleProp]);
+  }
+  div.setAttribute('data-ad-slot', slotId);
+  div.setAttribute('data-ad-format', `${width}x${height}`);
+  div.setAttribute(TEMPLE_WALLET_AD_ATTRIBUTE_NAME, 'true');
 
   const anchor = document.createElement('a');
   anchor.href = swapTKeyUrl;
@@ -49,5 +43,5 @@ export const makeTKeyAdElement = (
   img.style.height = '100%';
   anchor.appendChild(img);
 
-  return ins;
+  return div;
 };

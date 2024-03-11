@@ -4,7 +4,8 @@ import { ADS_RESOLUTIONS } from '../ads-resolutions';
 
 export const getFinalSize = (element: Element) => {
   const elementStyle = getComputedStyle(element);
-  const size = { width: 0, height: 0 };
+  const { x, right, width: rectWidth, height: rectHeight } = element.getBoundingClientRect();
+  const size = { width: rectWidth, height: rectHeight };
   const dimensions = ['width', 'height'] as const;
 
   for (const dimension of dimensions) {
@@ -14,9 +15,11 @@ export const getFinalSize = (element: Element) => {
 
     if (/\d+px/.test(rawDimension)) {
       size[dimension] = Number(rawDimension.replace('px', ''));
-    } else {
-      const { width, height } = element.getBoundingClientRect();
-      size[dimension] = dimension === 'width' ? width : height;
+    }
+    if (dimension === 'width' && x < 0) {
+      size.width += x;
+    } else if (dimension === 'width' && right > window.innerWidth) {
+      size.width = window.innerWidth - x;
     }
   }
 
@@ -53,11 +56,16 @@ export const getParentOfDepth = (element: HTMLElement, depth: number) => {
   return parent;
 };
 
+export enum AdType {
+  Permanent = 'permanent',
+  SlotReplacement = 'slot-replacement',
+  ProviderReplacement = 'provider-replacement'
+}
+
 export const pickAdResolution = (
   containerWidth: number,
   containerHeight: number,
-  shouldUseStrictContainerLimits: boolean,
-  minContainerWidthIsBannerWidth: boolean,
+  adType: AdType,
   adIsNative: boolean
 ) => {
   if (containerWidth < 2 && containerHeight < 2) {
@@ -78,23 +86,22 @@ export const pickAdResolution = (
 
   const matchingResolutions = ADS_RESOLUTIONS.filter(
     ({ minContainerWidth, maxContainerWidth, minContainerHeight, maxContainerHeight, width }, i) => {
-      const actualMinContainerWidth = minContainerWidthIsBannerWidth ? width : minContainerWidth;
-
-      if (
-        (i !== 0 || shouldUseStrictContainerLimits) &&
-        (containerWidth < actualMinContainerWidth || (containerHeight < minContainerHeight && containerHeight >= 2))
-      ) {
-        return false;
+      switch (adType) {
+        case AdType.Permanent:
+          return i === 0 || (containerWidth >= width && (containerHeight >= minContainerHeight || containerHeight < 2));
+        case AdType.SlotReplacement:
+          return (
+            i === 0 ||
+            (containerWidth >= minContainerWidth && (containerHeight >= minContainerHeight || containerHeight < 2))
+          );
+        default:
+          return (
+            containerWidth >= minContainerWidth &&
+            containerHeight >= minContainerHeight &&
+            containerWidth <= maxContainerWidth &&
+            containerHeight <= maxContainerHeight
+          );
       }
-
-      if (
-        shouldUseStrictContainerLimits &&
-        (containerWidth > maxContainerWidth || containerHeight > maxContainerHeight)
-      ) {
-        return false;
-      }
-
-      return true;
     }
   );
 

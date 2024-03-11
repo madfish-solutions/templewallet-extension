@@ -1,7 +1,7 @@
 import type { AdsRules } from 'lib/ads/get-rules-content-script';
 import { TEMPLE_WALLET_AD_ATTRIBUTE_NAME } from 'lib/constants';
 
-import { applyQuerySelector, getFinalSize, getParentOfDepth, pickAdResolution } from './helpers';
+import { AdType, applyQuerySelector, getFinalSize, getParentOfDepth, pickAdResolution } from './helpers';
 import {
   AdAction,
   AdActionType,
@@ -13,17 +13,39 @@ import {
   SimpleInsertAdAction
 } from './types';
 
+const styleToAdjustProps = [
+  'align-items',
+  'align-self',
+  'bottom',
+  'display',
+  'flex',
+  'flex-grow',
+  'flex-shrink',
+  'float',
+  'justify-content',
+  'justify-self',
+  'left',
+  'margin',
+  'max-block-size',
+  'max-height',
+  'max-inline-size',
+  'max-width',
+  'min-block-size',
+  'min-height',
+  'min-inline-size',
+  'min-width',
+  'padding',
+  'position',
+  'right',
+  'top',
+  'vertical-align',
+  'z-index'
+] as const;
+
 const ourAdQuerySelector = `iframe[${TEMPLE_WALLET_AD_ATTRIBUTE_NAME}], div[${TEMPLE_WALLET_AD_ATTRIBUTE_NAME}], \
 ins[${TEMPLE_WALLET_AD_ATTRIBUTE_NAME}]`;
 
-const elementIsOurAd = (element: HTMLElement) => {
-  const tagName = element.tagName.toLowerCase();
-
-  return (
-    (tagName === 'iframe' || tagName === 'div' || tagName === 'ins') &&
-    element.hasAttribute(TEMPLE_WALLET_AD_ATTRIBUTE_NAME)
-  );
-};
+const elementIsOurAd = (element: Element) => Boolean(element.closest(ourAdQuerySelector));
 
 const forEachWithTimeoutInterruptions = <A>(array: A[], fn: (value: A) => void | Promise<void>) =>
   Promise.all(
@@ -38,19 +60,12 @@ export const getAdsActions = async ({ providersSelector, adPlacesRules, permanen
   const result: AdAction[] = [];
   const addActionsIfAdResolutionAvailable = (
     elementToMeasure: Element,
-    shouldUseStrictContainerLimits: boolean,
-    minContainerWidthIsBannerWidth: boolean,
+    adType: AdType,
     adIsNative: boolean,
     ...actionsBases: Array<Omit<InsertAdAction, 'adResolution'> | HideElementAction | RemoveElementAction>
   ) => {
     const { width, height } = getFinalSize(elementToMeasure);
-    const adResolution = pickAdResolution(
-      width,
-      height,
-      shouldUseStrictContainerLimits,
-      minContainerWidthIsBannerWidth,
-      adIsNative
-    );
+    const adResolution = pickAdResolution(width, height, adType, adIsNative);
 
     if (adResolution) {
       result.push(
@@ -150,7 +165,7 @@ export const getAdsActions = async ({ providersSelector, adPlacesRules, permanen
               stylesOverrides
             };
             const nextBannerSibling = banner.nextElementSibling;
-            const nextBannerSiblingIsOurAd = nextBannerSibling && elementIsOurAd(nextBannerSibling as HTMLElement);
+            const nextBannerSiblingIsOurAd = nextBannerSibling && elementIsOurAd(nextBannerSibling);
             const actionsToInsert = shouldHideOriginal
               ? nextBannerSiblingIsOurAd
                 ? []
@@ -158,7 +173,7 @@ export const getAdsActions = async ({ providersSelector, adPlacesRules, permanen
               : [replaceActionBase];
             if (
               actionsToInsert.length > 0 &&
-              addActionsIfAdResolutionAvailable(elementToMeasure, false, true, isNative, ...actionsToInsert)
+              addActionsIfAdResolutionAvailable(elementToMeasure, AdType.Permanent, isNative, ...actionsToInsert)
             ) {
               insertionsLeft--;
             }
@@ -209,8 +224,7 @@ export const getAdsActions = async ({ providersSelector, adPlacesRules, permanen
 
           addActionsIfAdResolutionAvailable(
             elementToMeasure,
-            false,
-            true,
+            AdType.Permanent,
             isNative,
             ...Array<typeof actionBase>(insertionsLeft).fill(actionBase)
           );
@@ -298,25 +312,67 @@ export const getAdsActions = async ({ providersSelector, adPlacesRules, permanen
       }
 
       if (actionsBases.length > 0) {
-        addActionsIfAdResolutionAvailable(banner, false, false, false, ...actionsBases);
+        addActionsIfAdResolutionAvailable(banner, AdType.SlotReplacement, false, ...actionsBases);
       }
     });
   });
 
-  const bannersFromProviders = applyQuerySelector(providersSelector, true);
-  bannersFromProviders.forEach(banner => {
+  const bannersFromProviders = applyQuerySelector(providersSelector, true).reduce<Element[]>((acc, newBanner) => {
+    const descendantElementIndex = acc.findIndex(banner => banner.contains(newBanner));
+
+    if (descendantElementIndex >= 0) {
+      acc.splice(descendantElementIndex, 1, newBanner);
+    } else if (acc.some(ancestorCandidate => ancestorCandidate.contains(newBanner))) {
+      return acc;
+    } else {
+      acc.push(newBanner);
+    }
+
+    return acc;
+  }, []);
+
+  await forEachWithTimeoutInterruptions(bannersFromProviders, banner => {
+    const parent = banner.parentElement;
     const elementToMeasure =
-      banner.parentElement?.closest<HTMLElement>('div, article, aside, footer, header') ??
-      banner.parentElement ??
+      parent?.closest<HTMLElement>('div, article, aside, footer, header') ??
+      (parent?.tagName.toLowerCase() === 'body' ? undefined : parent) ??
       banner;
 
-    if (!permanentAdsParents.some(parent => parent.contains(banner))) {
+    if (
+      !elementIsOurAd(banner) &&
+      !banner.querySelector(ourAdQuerySelector) &&
+      !result.some(action =>
+        action.type === AdActionType.SimpleInsertAd
+          ? false
+          : action.type === AdActionType.ReplaceAllChildren
+          ? action.parent.contains(banner)
+          : action.element === banner
+      )
+    ) {
+      const bannerStyleAttribute = banner.getAttribute('style') ?? '';
+      const bannerStyleFromAttribute = Object.fromEntries(
+        bannerStyleAttribute
+          .split(';')
+          .filter(Boolean)
+          .map(style => style.split(':').map(part => part.trim()) as [string, string])
+      );
+
+      if (bannerStyleFromAttribute.width?.match(/^0[a-z]/) || bannerStyleFromAttribute.height?.match(/^0[a-z]/)) {
+        return;
+      }
+
+      const bannerStyle = window.getComputedStyle(banner as HTMLElement);
+      const divWrapperStyle = {
+        ...Object.fromEntries(styleToAdjustProps.map(propName => [propName, bannerStyle.getPropertyValue(propName)])),
+        ...bannerStyleFromAttribute
+      };
       const actionBase: Omit<ReplaceElementWithAdAction, 'adResolution'> = {
         type: AdActionType.ReplaceElement,
         element: banner as HTMLElement,
-        shouldUseDivWrapper: false
+        shouldUseDivWrapper: true,
+        divWrapperStyle
       };
-      addActionsIfAdResolutionAvailable(elementToMeasure, true, false, false, actionBase);
+      addActionsIfAdResolutionAvailable(elementToMeasure, AdType.ProviderReplacement, false, actionBase);
     }
   });
 
