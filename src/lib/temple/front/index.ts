@@ -9,7 +9,6 @@ export {
   useAllAccounts,
   useSetAccountPkh,
   useAccount,
-  useAccountPkh,
   useSettings,
   useTezos,
   useRelevantAccounts,

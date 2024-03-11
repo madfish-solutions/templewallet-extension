@@ -23,12 +23,11 @@ import { t, T } from 'lib/i18n';
 import { buildTokenImagesStack } from 'lib/images-uri';
 import { getAssetName } from 'lib/metadata';
 import { useRetryableSWR } from 'lib/swr';
-import { useAccount } from 'lib/temple/front';
 import { atomsToTokens } from 'lib/temple/helpers';
-import { TempleAccountType } from 'lib/temple/types';
 import { useInterval } from 'lib/ui/hooks';
 import { ImageStacked } from 'lib/ui/ImageStacked';
 import { navigate } from 'lib/woozie';
+import { useTezosAccount } from 'temple/hooks';
 
 import { useCollectibleSelling } from '../hooks/use-collectible-selling.hook';
 
@@ -48,7 +47,7 @@ const CollectiblePage = memo<Props>(({ assetSlug }) => {
   const details = useCollectibleDetailsSelector(assetSlug);
   const areAnyCollectiblesDetailsLoading = useAllCollectiblesDetailsLoadingSelector();
 
-  const account = useAccount();
+  const account = useTezosAccount();
 
   const [contractAddress, tokenId] = fromAssetSlug(assetSlug);
 
@@ -61,8 +60,8 @@ const CollectiblePage = memo<Props>(({ assetSlug }) => {
   );
   const offers = extraDetails?.offers_active;
 
-  const { publicKeyHash } = account;
-  const accountCanSign = account.type !== TempleAccountType.WatchOnly;
+  const { address: publicKeyHash } = account;
+  const accountCanSign = account.isWatchOnly === false;
 
   const areDetailsLoading = areAnyCollectiblesDetailsLoading && details === undefined;
 
@@ -243,7 +242,7 @@ const CollectiblePage = memo<Props>(({ assetSlug }) => {
               {activeTabName === 'attributes' ? (
                 <AttributesItems details={details} />
               ) : (
-                <PropertiesItems assetSlug={assetSlug} accountPkh={account.publicKeyHash} details={details} />
+                <PropertiesItems assetSlug={assetSlug} accountPkh={publicKeyHash} details={details} />
               )}
             </div>
           </>

@@ -23,7 +23,7 @@ import {
   useTokensMetadataPresenceCheck
 } from 'lib/metadata';
 import { useAvailableRoute3TokensSlugs } from 'lib/route3/assets';
-import { useAccount } from 'lib/temple/front';
+import { useTezosAccountAddress } from 'temple/hooks';
 
 import { AssetOption } from './AssetsMenu/AssetOption';
 import { PercentageButton } from './PercentageButton/PercentageButton';
@@ -61,7 +61,7 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
   );
   const getTokenMetadata = useGetAssetMetadata();
 
-  const { publicKeyHash } = useAccount();
+  const publicKeyHash = useTezosAccountAddress();
   const { value: balance } = useBalance(assetSlugWithFallback, publicKeyHash);
 
   const { isLoading, route3tokensSlugs } = useAvailableRoute3TokensSlugs();
@@ -275,7 +275,7 @@ const SwapInputHeader: FC<{ label: ReactNode; selectedAssetSlug: string; selecte
   selectedAssetSymbol,
   label
 }) => {
-  const { publicKeyHash } = useAccount();
+  const publicKeyHash = useTezosAccountAddress();
   const { value: balance } = useBalance(selectedAssetSlug, publicKeyHash);
 
   return (
@@ -308,7 +308,7 @@ const SwapFooter: FC<{
   selectedAssetSlug: string;
   handlePercentageClick: (percentage: number) => void;
 }> = ({ amountInputDisabled, selectedAssetSlug, handlePercentageClick }) => {
-  const { publicKeyHash } = useAccount();
+  const publicKeyHash = useTezosAccountAddress();
   const { value: balance } = useRawBalance(selectedAssetSlug, publicKeyHash);
 
   return amountInputDisabled ? null : (

@@ -6,9 +6,9 @@ import ApproveStep from 'app/pages/Buy/Crypto/Exolix/steps/ApproveStep';
 import ExchangeStep from 'app/pages/Buy/Crypto/Exolix/steps/ExchangeStep';
 import InitialStep from 'app/pages/Buy/Crypto/Exolix/steps/InitialStep';
 import { T, t } from 'lib/i18n';
-import { useAccount, useStorage } from 'lib/temple/front';
+import { useStorage } from 'lib/temple/front';
 import { Redirect } from 'lib/woozie';
-import { useTezosNetwork } from 'temple/hooks';
+import { useTezosAccountAddress, useTezosNetwork } from 'temple/hooks';
 
 import { EXOLIX_CONTACT_LINK } from './config';
 import { ExchangeDataInterface } from './exolix.interface';
@@ -30,7 +30,7 @@ export default Exolix;
 
 const BuyCryptoContent: FC = () => {
   const { isMainnet } = useTezosNetwork();
-  const { publicKeyHash } = useAccount();
+  const publicKeyHash = useTezosAccountAddress();
 
   const [step, setStep] = useStorage<number>(`topup_step_state_${publicKeyHash}`, 0);
   const [isError, setIsError] = useState(false);

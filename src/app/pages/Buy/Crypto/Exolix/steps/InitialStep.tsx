@@ -12,7 +12,7 @@ import WarningComponent from 'app/pages/Buy/Crypto/Exolix/steps/WarningComponent
 import { TopUpInput } from 'app/templates/TopUpInput';
 import { T } from 'lib/i18n';
 import { useTypedSWR } from 'lib/swr';
-import { useAccount } from 'lib/temple/front';
+import { useTezosAccountAddress } from 'temple/hooks';
 
 import { EXOLIX_PRIVICY_LINK, EXOLIX_TERMS_LINK, INITIAL_COIN_FROM, INITIAL_COIN_TO } from '../config';
 import { ExchangeDataInterface, ExchangeDataStatusEnum, OutputCurrencyInterface } from '../exolix.interface';
@@ -32,7 +32,7 @@ interface Props {
 }
 
 const InitialStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isError, setIsError }) => {
-  const { publicKeyHash } = useAccount();
+  const publicKeyHash = useTezosAccountAddress();
 
   const [coinFrom, setCoinFrom] = useState<OutputCurrencyInterface>(INITIAL_COIN_FROM);
   const [coinTo, setCoinTo] = useState<OutputCurrencyInterface>(INITIAL_COIN_TO);

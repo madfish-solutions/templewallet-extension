@@ -12,7 +12,7 @@ import { setTestID, setAnotherSelector, TestIDProperty } from 'lib/analytics';
 import { searchAssetsWithNoMeta } from 'lib/assets/search.utils';
 import { T, t } from 'lib/i18n';
 import { useAssetMetadata, getAssetSymbol, useGetAssetMetadata } from 'lib/metadata';
-import { useAccount } from 'lib/temple/front';
+import { useTezosAccountAddress } from 'temple/hooks';
 
 import { AssetItemContent } from './AssetItemContent';
 import { DropdownSelect } from './DropdownSelect/DropdownSelect';
@@ -94,7 +94,7 @@ const AssetSelectTitle: FC = () => (
 );
 
 const AssetFieldContent = memo<{ slug: string } & TestIDProperty>(({ slug, testID }) => {
-  const { publicKeyHash } = useAccount();
+  const publicKeyHash = useTezosAccountAddress();
   const metadata = useAssetMetadata(slug);
 
   return (

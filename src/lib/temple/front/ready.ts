@@ -172,7 +172,7 @@ export function useChainIdLoading(rpcUrl: string, suspense?: boolean) {
 
 export function useRelevantAccounts(withExtraTypes = true) {
   const allAccounts = useAllAccounts();
-  const account = useAccount();
+  const accountAddress = useAccountPkh();
   const setAccountPkh = useSetAccountPkh();
   const lazyChainId = useChainId();
 
@@ -194,10 +194,10 @@ export function useRelevantAccounts(withExtraTypes = true) {
   );
 
   useEffect(() => {
-    if (relevantAccounts.every(a => a.publicKeyHash !== account.publicKeyHash) && lazyChainId) {
+    if (relevantAccounts.every(a => a.publicKeyHash !== accountAddress) && lazyChainId) {
       setAccountPkh(relevantAccounts[0].publicKeyHash);
     }
-  }, [relevantAccounts, account, setAccountPkh, lazyChainId]);
+  }, [relevantAccounts, accountAddress, setAccountPkh, lazyChainId]);
 
   return useMemo(() => relevantAccounts, [relevantAccounts]);
 }

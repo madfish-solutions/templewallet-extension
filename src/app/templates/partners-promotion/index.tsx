@@ -1,10 +1,10 @@
 import React, { memo, MouseEventHandler, useCallback, useEffect, useState } from 'react';
 
 import clsx from 'clsx';
-import { useDispatch } from 'react-redux';
 
 import Spinner from 'app/atoms/Spinner/Spinner';
 import { useAppEnv } from 'app/env';
+import { dispatch } from 'app/store';
 import { hidePromotionAction, setLastReportedPageNameAction } from 'app/store/partners-promotion/actions';
 import {
   useLastReportedPageNameSelector,
@@ -13,7 +13,7 @@ import {
 } from 'app/store/partners-promotion/selectors';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
 import { AD_HIDING_TIMEOUT } from 'lib/constants';
-import { useAccount } from 'lib/temple/front';
+import { useTezosAccountAddress } from 'temple/hooks';
 
 import { HypelabPromotion } from './components/hypelab-promotion';
 import { OptimalPromotion } from './components/optimal-promotion';
@@ -35,10 +35,9 @@ const shouldBeHiddenTemporarily = (hiddenAt: number) => {
 
 export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pageName }) => {
   const isImageAd = variant === PartnersPromotionVariant.Image;
-  const { publicKeyHash: accountPkh } = useAccount();
+  const accountPkh = useTezosAccountAddress();
   const { trackEvent } = useAnalytics();
   const { popup } = useAppEnv();
-  const dispatch = useDispatch();
   const hiddenAt = usePromotionHidingTimestampSelector(id);
   const shouldShowPartnersPromo = useShouldShowPartnersPromoSelector();
   const lastReportedPageName = useLastReportedPageNameSelector();
@@ -76,7 +75,7 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pa
         accountPkh
       });
     }
-  }, [providerTitle, lastReportedPageName, variant, pageName, accountPkh, trackEvent, dispatch]);
+  }, [providerTitle, lastReportedPageName, variant, pageName, accountPkh, trackEvent]);
 
   const handleClosePartnersPromoClick = useCallback<MouseEventHandler<HTMLButtonElement>>(
     e => {
@@ -84,7 +83,7 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pa
       e.stopPropagation();
       dispatch(hidePromotionAction({ timestamp: Date.now(), id }));
     },
-    [id, dispatch]
+    [id]
   );
 
   const handleOptimalError = useCallback(() => setShouldUseOptimalAd(false), []);

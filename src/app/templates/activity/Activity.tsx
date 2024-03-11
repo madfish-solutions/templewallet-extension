@@ -10,7 +10,7 @@ import { ReactComponent as LayersIcon } from 'app/icons/layers.svg';
 import { PartnersPromotion, PartnersPromotionVariant } from 'app/templates/partners-promotion';
 import { T } from 'lib/i18n/react';
 import useActivities from 'lib/temple/activity-new/hook';
-import { useAccount } from 'lib/temple/front';
+import { useTezosAccountAddress } from 'temple/hooks';
 
 import { ActivityItem } from './ActivityItem';
 
@@ -26,7 +26,7 @@ export const ActivityComponent: React.FC<Props> = ({ assetSlug }) => {
 
   const { popup } = useAppEnv();
 
-  const { publicKeyHash: accountAddress } = useAccount();
+  const accountAddress = useTezosAccountAddress();
 
   useLoadPartnersPromo();
 

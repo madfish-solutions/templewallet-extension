@@ -9,9 +9,9 @@ import { ReactComponent as ChevronRightIcon } from 'app/icons/chevron-right.svg'
 import { BakingSectionSelectors } from 'app/pages/Home/OtherComponents/BakingSection.selectors';
 import { toLocalFormat, T } from 'lib/i18n';
 import { HELP_UKRAINE_BAKER_ADDRESS, RECOMMENDED_BAKER_ADDRESS } from 'lib/known-bakers';
-import { useRelevantAccounts, useAccount, useKnownBaker } from 'lib/temple/front';
+import { useRelevantAccounts, useKnownBaker } from 'lib/temple/front';
 import { TempleAccount } from 'lib/temple/types';
-import { useTezosNetwork } from 'temple/hooks';
+import { useTezosAccountAddress, useTezosNetwork } from 'temple/hooks';
 
 import { OpenInExplorerChip } from './OpenInExplorerChip';
 
@@ -23,7 +23,7 @@ type BakerBannerProps = HTMLAttributes<HTMLDivElement> & {
 
 const BakerBanner = memo<BakerBannerProps>(({ bakerPkh, link = false, displayAddress = false, className, style }) => {
   const allAccounts = useRelevantAccounts();
-  const account = useAccount();
+  const accountAddress = useTezosAccountAddress();
   const { popup } = useAppEnv();
   const { data: baker } = useKnownBaker(bakerPkh);
 
@@ -142,7 +142,7 @@ const BakerBanner = memo<BakerBannerProps>(({ bakerPkh, link = false, displayAdd
           <div className="flex flex-col items-start flex-1 ml-2">
             <div className={classNames('mb-px w-full', 'flex flex-wrap items-center', 'leading-none')}>
               <Name className="pb-1 mr-1 text-lg font-medium">
-                <BakerAccount account={account} bakerAcc={bakerAcc} bakerPkh={bakerPkh} />
+                <BakerAccount accPkh={accountAddress} bakerAcc={bakerAcc} bakerPkh={bakerPkh} />
               </Name>
             </div>
           </div>
@@ -156,15 +156,15 @@ export default BakerBanner;
 
 const BakerAccount: React.FC<{
   bakerAcc: TempleAccount | null;
-  account: TempleAccount;
+  accPkh: string;
   bakerPkh: string;
-}> = ({ bakerAcc, account, bakerPkh }) => {
+}> = ({ bakerAcc, accPkh, bakerPkh }) => {
   const { isDcp } = useTezosNetwork();
 
   return bakerAcc ? (
     <>
       {bakerAcc.name}
-      {bakerAcc.publicKeyHash === account.publicKeyHash && (
+      {bakerAcc.publicKeyHash === accPkh && (
         <T id="selfComment">
           {message => (
             <>

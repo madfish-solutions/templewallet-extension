@@ -11,8 +11,9 @@ import { AliceBobOrderStatus, cancelAliceBobOrder } from 'lib/apis/temple';
 import { toTransferParams } from 'lib/assets/contract.utils';
 import { T, TID } from 'lib/i18n';
 import { TEZOS_METADATA } from 'lib/metadata/defaults';
-import { useAccount, useTezos } from 'lib/temple/front';
+import { useTezos } from 'lib/temple/front';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
+import { useTezosAccountAddress } from 'temple/hooks';
 
 import { useUpdatedOrderInfo } from '../hooks/useUpdatedOrderInfo';
 
@@ -20,7 +21,7 @@ import { StepProps } from './step.props';
 
 export const SellStep: FC<StepProps> = ({ orderInfo, isApiError, setStep, setOrderInfo, setIsApiError }) => {
   const tezos = useTezos();
-  const { publicKeyHash } = useAccount();
+  const publicKeyHash = useTezosAccountAddress();
   const { copy } = useCopyToClipboard();
 
   const formAnalytics = useFormAnalytics('AliceBobWithdrawSendProgress');

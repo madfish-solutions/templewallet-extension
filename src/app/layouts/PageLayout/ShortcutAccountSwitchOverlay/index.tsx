@@ -12,10 +12,11 @@ import SearchField from 'app/templates/SearchField';
 import { useGasToken } from 'lib/assets/hooks';
 import { searchHotkey } from 'lib/constants';
 import { T, t } from 'lib/i18n';
-import { useAccount, useRelevantAccounts, useSetAccountPkh } from 'lib/temple/front';
+import { useRelevantAccounts, useSetAccountPkh } from 'lib/temple/front';
 import Portal from 'lib/ui/Portal';
 import { searchAndFilterItems } from 'lib/utils/search-items';
 import { HistoryAction, navigate } from 'lib/woozie';
+import { useTezosAccountAddress } from 'temple/hooks';
 
 import { AccountItem } from './AccountItem';
 
@@ -28,7 +29,7 @@ export const ShortcutAccountSwitchOverlay = memo(() => {
   useOnClickOutside(accountSwitchRef, () => setOpened(false));
 
   const allAccounts = useRelevantAccounts();
-  const account = useAccount();
+  const accountAddress = useTezosAccountAddress();
   const setAccountPkh = useSetAccountPkh();
   const { assetName: gasTokenName } = useGasToken();
 
@@ -54,14 +55,14 @@ export const ShortcutAccountSwitchOverlay = memo(() => {
 
   const handleAccountClick = useCallback(
     (publicKeyHash: string) => {
-      const selected = publicKeyHash === account.publicKeyHash;
+      const selected = publicKeyHash === accountAddress;
       if (!selected) {
         setAccountPkh(publicKeyHash);
       }
       setOpened(false);
       navigate('/', HistoryAction.Replace);
     },
-    [account, setAccountPkh, setOpened]
+    [accountAddress, setAccountPkh, setOpened]
   );
 
   const handleCleanButtonClick = useCallback(() => {

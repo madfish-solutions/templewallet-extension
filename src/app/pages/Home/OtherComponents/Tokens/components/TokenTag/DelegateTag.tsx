@@ -6,15 +6,16 @@ import { Button } from 'app/atoms/Button';
 import { HomeSelectors } from 'app/pages/Home/Home.selectors';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
 import { T } from 'lib/i18n';
-import { useAccount, useDelegate } from 'lib/temple/front';
+import { useDelegate } from 'lib/temple/front';
 import { navigate } from 'lib/woozie';
+import { useTezosAccountAddress } from 'temple/hooks';
 
 import { AssetsSelectors } from '../../../Assets.selectors';
 import modStyles from '../../Tokens.module.css';
 
 export const DelegateTezosTag = memo(() => {
-  const acc = useAccount();
-  const { data: myBakerPkh } = useDelegate(acc.publicKeyHash);
+  const accountAddress = useTezosAccountAddress();
+  const { data: myBakerPkh } = useDelegate(accountAddress);
   const { trackEvent } = useAnalytics();
 
   const handleTagClick = useCallback(

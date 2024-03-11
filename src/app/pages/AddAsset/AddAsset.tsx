@@ -3,7 +3,6 @@ import React, { FC, memo, ReactNode, useCallback, useEffect, useRef, useMemo } f
 import { ContractAbstraction, ContractProvider, Wallet } from '@taquito/taquito';
 import classNames from 'clsx';
 import { FormContextValues, useForm } from 'react-hook-form';
-import { useDispatch } from 'react-redux';
 import { useSWRConfig, unstable_serialize } from 'swr';
 import { useDebouncedCallback } from 'use-debounce';
 
@@ -11,6 +10,7 @@ import { Alert, FormField, FormSubmitButton, NoSpaceField } from 'app/atoms';
 import Spinner from 'app/atoms/Spinner/Spinner';
 import { ReactComponent as AddIcon } from 'app/icons/add.svg';
 import PageLayout from 'app/layouts/PageLayout';
+import { dispatch } from 'app/store';
 import { putTokensAsIsAction, putCollectiblesAsIsAction } from 'app/store/assets/actions';
 import { putCollectiblesMetadataAction } from 'app/store/collectibles-metadata/actions';
 import { putTokensMetadataAction } from 'app/store/tokens-metadata/actions';
@@ -29,11 +29,11 @@ import { isCollectible, TokenMetadata } from 'lib/metadata';
 import { fetchOneTokenMetadata } from 'lib/metadata/fetch';
 import { TokenMetadataNotFoundError } from 'lib/metadata/on-chain';
 import { loadContract } from 'lib/temple/contract';
-import { useTezos, useAccount, validateContractAddress } from 'lib/temple/front';
+import { useTezos, validateContractAddress } from 'lib/temple/front';
 import { useSafeState } from 'lib/ui/hooks';
 import { delay } from 'lib/utils';
 import { navigate } from 'lib/woozie';
-import { useTezosNetwork } from 'temple/hooks';
+import { useTezosAccountAddress, useTezosNetwork } from 'temple/hooks';
 
 import { AddAssetSelectors } from './AddAsset.selectors';
 
@@ -80,11 +80,11 @@ class ContractNotFoundError extends Error {}
 const Form = memo(() => {
   const tezos = useTezos();
   const { chainId, rpcUrl } = useTezosNetwork();
-  const { publicKeyHash: accountPkh } = useAccount();
+  const accountPkh = useTezosAccountAddress();
+
   const { cache: swrCache } = useSWRConfig();
 
   const formAnalytics = useFormAnalytics('AddAsset');
-  const dispatch = useDispatch();
 
   const { register, handleSubmit, errors, formState, watch, setValue, triggerValidation, clearError } =
     useForm<FormData>({
@@ -252,7 +252,6 @@ const Form = memo(() => {
       accountPkh,
       setSubmitError,
       formAnalytics,
-      dispatch,
       contractAddress,
       tokenId
     ]

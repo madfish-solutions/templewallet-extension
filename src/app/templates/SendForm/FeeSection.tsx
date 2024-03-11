@@ -7,7 +7,7 @@ import { Alert, FormSubmitButton } from 'app/atoms';
 import AdditionalFeeInput from 'app/templates/AdditionalFeeInput/AdditionalFeeInput';
 import { useGasToken } from 'lib/assets/hooks';
 import { t, T } from 'lib/i18n';
-import { useAccount } from 'lib/temple/front';
+import { useTezosAccountAddress } from 'temple/hooks';
 
 import { SendFormSelectors } from './selectors';
 import SendErrorAlert from './SendErrorAlert';
@@ -31,7 +31,7 @@ export const FeeSection: React.FC<FeeComponentProps> = ({
   isSubmitting,
   ...rest
 }) => {
-  const { publicKeyHash } = useAccount();
+  const publicKeyHash = useTezosAccountAddress();
   const { metadata } = useGasToken();
 
   if (!restFormDisplayed) return null;

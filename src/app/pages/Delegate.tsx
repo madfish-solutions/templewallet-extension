@@ -7,11 +7,11 @@ import DelegateForm from 'app/templates/DelegateForm';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { useBalance } from 'lib/balances';
 import { T } from 'lib/i18n';
-import { useAccount } from 'lib/temple/front';
 import { ZERO } from 'lib/utils/numbers';
+import { useTezosAccountAddress } from 'temple/hooks';
 
 const Delegate = memo(() => {
-  const { publicKeyHash } = useAccount();
+  const publicKeyHash = useTezosAccountAddress();
 
   const gasBalance = useBalance(TEZ_TOKEN_SLUG, publicKeyHash);
 

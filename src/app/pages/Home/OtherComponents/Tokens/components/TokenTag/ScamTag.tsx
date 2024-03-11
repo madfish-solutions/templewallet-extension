@@ -7,9 +7,8 @@ import { AssetsSelectors } from 'app/pages/Home/OtherComponents/Assets.selectors
 import { dispatch } from 'app/store';
 import { setTokenStatusAction } from 'app/store/assets/actions';
 import { t, T } from 'lib/i18n';
-import { useAccount } from 'lib/temple/front';
 import { useConfirm } from 'lib/ui/dialog';
-import { useTezosNetwork } from 'temple/hooks';
+import { useTezosAccountAddress, useTezosNetwork } from 'temple/hooks';
 
 import modStyles from '../../Tokens.module.css';
 
@@ -19,7 +18,7 @@ interface Props {
 
 export const ScamTag = memo<Props>(({ assetSlug }) => {
   const { chainId } = useTezosNetwork();
-  const { publicKeyHash } = useAccount();
+  const publicKeyHash = useTezosAccountAddress();
 
   const confirm = useConfirm();
 

@@ -1,12 +1,11 @@
 import { useEffect } from 'react';
 
-import { useDispatch } from 'react-redux';
-
 import { useAppEnv } from 'app/env';
+import { dispatch } from 'app/store';
 import { loadPartnersPromoAction } from 'app/store/partners-promotion/actions';
 import { useShouldShowPartnersPromoSelector } from 'app/store/partners-promotion/selectors';
 import { OptimalPromoVariantEnum } from 'lib/apis/optimal';
-import { useAccountPkh } from 'lib/temple/front';
+import { useTezosAccountAddress } from 'temple/hooks';
 
 /**
  * Loads partners promo if it should be shown
@@ -15,9 +14,8 @@ import { useAccountPkh } from 'lib/temple/front';
  */
 export const useLoadPartnersPromo = (variant?: OptimalPromoVariantEnum) => {
   const { popup } = useAppEnv();
-  const accountAddress = useAccountPkh();
+  const accountAddress = useTezosAccountAddress();
   const shouldShowPartnersPromoState = useShouldShowPartnersPromoSelector();
-  const dispatch = useDispatch();
 
   const finalVariant = variant ?? (popup ? OptimalPromoVariantEnum.Popup : OptimalPromoVariantEnum.Fullview);
 
@@ -30,5 +28,5 @@ export const useLoadPartnersPromo = (variant?: OptimalPromoVariantEnum) => {
         })
       );
     }
-  }, [shouldShowPartnersPromoState, accountAddress, dispatch, finalVariant]);
+  }, [shouldShowPartnersPromoState, accountAddress, finalVariant]);
 };

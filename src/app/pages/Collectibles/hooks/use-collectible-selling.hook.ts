@@ -7,15 +7,16 @@ import { useFormAnalytics } from 'lib/analytics';
 import { getObjktMarketplaceContract } from 'lib/apis/objkt';
 import type { ObjktOffer } from 'lib/apis/objkt/types';
 import { fromFa2TokenSlug } from 'lib/assets/utils';
-import { useAccount, useTezos } from 'lib/temple/front';
+import { useTezos } from 'lib/temple/front';
 import { getTransferPermissions } from 'lib/utils/get-transfer-permissions';
 import { parseTransferParamsToParamsWithKind } from 'lib/utils/parse-transfer-params';
+import { useTezosAccountAddress } from 'temple/hooks';
 
 const DEFAULT_OBJKT_STORAGE_LIMIT = 350;
 
 export const useCollectibleSelling = (assetSlug: string, offer?: ObjktOffer) => {
   const tezos = useTezos();
-  const { publicKeyHash } = useAccount();
+  const publicKeyHash = useTezosAccountAddress();
   const [isSelling, setIsSelling] = useState(false);
   const [operation, setOperation] = useState<WalletOperation | nullish>();
   const [operationError, setOperationError] = useState<unknown>();

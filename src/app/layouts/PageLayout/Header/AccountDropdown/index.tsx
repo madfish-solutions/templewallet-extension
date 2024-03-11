@@ -18,10 +18,11 @@ import SearchField from 'app/templates/SearchField';
 import { useGasToken } from 'lib/assets/hooks';
 import { searchHotkey } from 'lib/constants';
 import { T, t } from 'lib/i18n';
-import { useAccount, useRelevantAccounts, useSetAccountPkh, useTempleClient } from 'lib/temple/front';
+import { useRelevantAccounts, useSetAccountPkh, useTempleClient } from 'lib/temple/front';
 import { PopperRenderProps } from 'lib/ui/Popper';
 import { searchAndFilterItems } from 'lib/utils/search-items';
 import { HistoryAction, navigate } from 'lib/woozie';
+import { useTezosAccountAddress } from 'temple/hooks';
 
 import { AccountItem } from './AccountItem';
 import { ActionButtonProps, ActionButton } from './ActionButton';
@@ -37,7 +38,7 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
   const appEnv = useAppEnv();
   const { lock } = useTempleClient();
   const allAccounts = useRelevantAccounts();
-  const account = useAccount();
+  const accountAddress = useTezosAccountAddress();
   const setAccountPkh = useSetAccountPkh();
   const { assetName: gasTokenName } = useGasToken();
 
@@ -82,14 +83,14 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
 
   const handleAccountClick = useCallback(
     (publicKeyHash: string) => {
-      const selected = publicKeyHash === account.publicKeyHash;
+      const selected = publicKeyHash === accountAddress;
       if (!selected) {
         setAccountPkh(publicKeyHash);
       }
       setOpened(false);
       navigate('/', HistoryAction.Replace);
     },
-    [account, setAccountPkh, setOpened]
+    [accountAddress, setAccountPkh, setOpened]
   );
 
   const actions = useMemo(
@@ -220,7 +221,7 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
                 <AccountItem
                   key={acc.publicKeyHash}
                   account={acc}
-                  selected={acc.publicKeyHash === account.publicKeyHash}
+                  selected={acc.publicKeyHash === accountAddress}
                   gasTokenName={gasTokenName}
                   attractSelf={attractSelectedAccount}
                   onClick={() => handleAccountClick(acc.publicKeyHash)}

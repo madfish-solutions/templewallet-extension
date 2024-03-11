@@ -13,8 +13,8 @@ import { createOrder as createUtorgOrder } from 'lib/apis/utorg';
 import { TopUpProviderId } from 'lib/buy-with-credit-card/top-up-provider-id.enum';
 import { TopUpInputInterface, TopUpOutputInterface } from 'lib/buy-with-credit-card/topup.interface';
 import { useYupValidationResolver } from 'lib/form/use-yup-validation-resolver';
-import { useAccount } from 'lib/temple/front';
 import { assertUnreachable } from 'lib/utils/switch-cases';
+import { useTezosAccountAddress } from 'temple/hooks';
 
 import { AmountErrorType } from '../types/amount-error-type';
 import { BuyWithCreditCardFormValues } from '../types/buy-with-credit-card-form-values';
@@ -58,7 +58,7 @@ export const useBuyWithCreditCardForm = () => {
   const validationResolver = useYupValidationResolver<BuyWithCreditCardFormValues>(validationSchema);
 
   const formAnalytics = useFormAnalytics('BuyWithCreditCardForm');
-  const { publicKeyHash } = useAccount();
+  const publicKeyHash = useTezosAccountAddress();
   const userId = useUserIdSelector();
 
   const [purchaseLinkLoading, setPurchaseLinkLoading] = useState(false);

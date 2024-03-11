@@ -8,9 +8,9 @@ import { getKeyForBalancesRecord } from 'app/store/balances/utils';
 import { isKnownChainId } from 'lib/apis/tzkt';
 import { useAssetMetadata, useGetTokenOrGasMetadata } from 'lib/metadata';
 import { useTypedSWR } from 'lib/swr';
-import { useTezos, useAccount, useChainIdLoading, useOnBlock } from 'lib/temple/front';
+import { useTezos, useChainIdLoading, useOnBlock } from 'lib/temple/front';
 import { atomsToTokens } from 'lib/temple/helpers';
-import { useTezosNetwork } from 'temple/hooks';
+import { useTezosNetwork, useTezosAccountAddress } from 'temple/hooks';
 import { buildFastRpcTezosToolkit } from 'temple/tezos';
 
 import { fetchRawBalance as fetchRawBalanceFromBlockchain } from './fetch';
@@ -18,7 +18,7 @@ import { getBalanceSWRKey } from './utils';
 
 export const useCurrentAccountBalances = () => {
   const { chainId } = useTezosNetwork();
-  const { publicKeyHash } = useAccount();
+  const publicKeyHash = useTezosAccountAddress();
 
   return useAllAccountBalancesSelector(publicKeyHash, chainId);
 };
@@ -48,7 +48,7 @@ export function useRawBalance(
   error?: unknown;
   refresh: EmptyFn;
 } {
-  const { publicKeyHash: currentAccountAddress } = useAccount();
+  const currentAccountAddress = useTezosAccountAddress();
   const nativeTezos = useTezos();
   const nativeRpcUrl = useMemo(() => nativeTezos.rpc.getRpcUrl(), [nativeTezos]);
 

@@ -4,7 +4,7 @@ import clsx from 'clsx';
 
 import { Anchor } from 'app/atoms/Anchor';
 import { useAdRectObservation } from 'app/hooks/ads/use-ad-rect-observation';
-import { useAccount } from 'lib/temple/front';
+import { useTezosAccountAddress } from 'temple/hooks';
 
 import { PartnersPromotionSelectors } from '../index.selectors';
 import { PartnersPromotionVariant } from '../types';
@@ -29,7 +29,7 @@ export const ImagePromotionView: FC<TextPromotionViewProps> = ({
   onAdRectSeen,
   onClose
 }) => {
-  const { publicKeyHash: accountPkh } = useAccount();
+  const accountPkh = useTezosAccountAddress();
 
   const ref = useRef<HTMLAnchorElement>(null);
   useAdRectObservation(ref, onAdRectSeen, isVisible);

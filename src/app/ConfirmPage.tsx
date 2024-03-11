@@ -24,11 +24,12 @@ import { CustomRpcContext } from 'lib/analytics';
 import { useGasToken } from 'lib/assets/hooks';
 import { T, t } from 'lib/i18n';
 import { useRetryableSWR } from 'lib/swr';
-import { useTempleClient, useAccount, useRelevantAccounts, useChainIdValue } from 'lib/temple/front';
+import { useTempleClient, useRelevantAccounts, useChainIdValue } from 'lib/temple/front';
 import { TempleAccountType, TempleDAppPayload, TempleAccount, TempleChainId } from 'lib/temple/types';
 import { useSafeState } from 'lib/ui/hooks';
 import { delay } from 'lib/utils';
 import { useLocation } from 'lib/woozie';
+import { useTezosAccountAddress } from 'temple/hooks';
 
 import { ConfirmPageSelectors } from './ConfirmPage.selectors';
 
@@ -118,9 +119,9 @@ const getPkh = (account: TempleAccount) => account.publicKeyHash;
 const ConfirmDAppForm: FC = () => {
   const { getDAppPayload, confirmDAppPermission, confirmDAppOperation, confirmDAppSign } = useTempleClient();
   const allAccounts = useRelevantAccounts(false);
-  const account = useAccount();
+  const accountAddress = useTezosAccountAddress();
 
-  const [accountPkhToConnect, setAccountPkhToConnect] = useState(account.publicKeyHash);
+  const [accountPkhToConnect, setAccountPkhToConnect] = useState(accountAddress);
 
   const loc = useLocation();
   const id = useMemo(() => {

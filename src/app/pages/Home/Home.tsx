@@ -8,8 +8,8 @@ import { useMainnetTokensScamlistSelector } from 'app/store/assets/selectors';
 import { setAnotherSelector, setTestID } from 'lib/analytics';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { useAssetMetadata, getAssetSymbol } from 'lib/metadata';
-import { useAccount } from 'lib/temple/front';
 import { HistoryAction, navigate, useLocation } from 'lib/woozie';
+import { useTezosAccountAddress } from 'temple/hooks';
 
 import { useOnboardingProgress } from '../Onboarding/hooks/useOnboardingProgress.hook';
 import Onboarding from '../Onboarding/Onboarding';
@@ -28,7 +28,7 @@ type Props = {
 const Home = memo<Props>(({ assetSlug }) => {
   const { fullPage, registerBackHandler } = useAppEnv();
   const { onboardingCompleted } = useOnboardingProgress();
-  const { publicKeyHash } = useAccount();
+  const publicKeyHash = useTezosAccountAddress();
   const { search } = useLocation();
 
   const mainnetTokensScamSlugsRecord = useMainnetTokensScamlistSelector();

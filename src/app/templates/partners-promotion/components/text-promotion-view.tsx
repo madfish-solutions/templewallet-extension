@@ -5,7 +5,7 @@ import clsx from 'clsx';
 import { Anchor } from 'app/atoms/Anchor';
 import { useAppEnv } from 'app/env';
 import { useAdRectObservation } from 'app/hooks/ads/use-ad-rect-observation';
-import { useAccount } from 'lib/temple/front';
+import { useTezosAccountAddress } from 'temple/hooks';
 
 import { PartnersPromotionSelectors } from '../index.selectors';
 import { PartnersPromotionVariant } from '../types';
@@ -39,7 +39,7 @@ export const TextPromotionView = memo<TextPromotionViewProps>(
     onClose
   }) => {
     const { popup } = useAppEnv();
-    const { publicKeyHash: accountPkh } = useAccount();
+    const accountPkh = useTezosAccountAddress();
 
     const truncatedContentText = useMemo(
       () => (contentText.length > 80 ? `${contentText.slice(0, 80)}...` : contentText),

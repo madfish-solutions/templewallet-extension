@@ -16,13 +16,13 @@ import {
   isKnownChainId
 } from 'lib/apis/tzkt';
 import { toTokenSlug } from 'lib/assets';
-import { useAccount, useOnBlock, useTzktConnection } from 'lib/temple/front';
+import { useOnBlock, useTzktConnection } from 'lib/temple/front';
 import { useUpdatableRef } from 'lib/ui/hooks';
-import { useTezosNetwork } from 'temple/hooks';
+import { useTezosAccountAddress, useTezosNetwork } from 'temple/hooks';
 
 export const useBalancesLoading = () => {
   const { chainId } = useTezosNetwork();
-  const { publicKeyHash } = useAccount();
+  const publicKeyHash = useTezosAccountAddress();
 
   const isLoading = useBalancesLoadingSelector(publicKeyHash, chainId);
   const isLoadingRef = useUpdatableRef(isLoading);
