@@ -16,7 +16,8 @@ import {
   TransferParams,
   Estimate,
   TransactionWalletOperation,
-  TransactionOperation
+  TransactionOperation,
+  TezosToolkit
 } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
@@ -44,7 +45,6 @@ import { transferImplicit, transferToContract } from 'lib/michelson';
 import { useTypedSWR } from 'lib/swr';
 import { loadContract } from 'lib/temple/contract';
 import {
-  ReactiveTezosToolkit,
   isDomainNameValid,
   useAccount,
   useNetwork,
@@ -673,7 +673,7 @@ type TransferParamsInvariant =
 const estimateMaxFee = async (
   acc: TempleAccount,
   tez: boolean,
-  tezos: ReactiveTezosToolkit,
+  tezos: TezosToolkit,
   to: string,
   balanceBN: BigNumber,
   transferParams: TransferParamsInvariant,

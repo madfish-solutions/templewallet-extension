@@ -7,9 +7,9 @@ import { useAllTokensMetadataSelector } from 'app/store/tokens-metadata/selector
 import { fetchTokensMetadata } from 'lib/apis/temple';
 import { ALL_PREDEFINED_METADATAS_RECORD } from 'lib/assets/known-tokens';
 import { reduceToMetadataRecord } from 'lib/metadata/fetch';
-import { useChainId } from 'lib/temple/front';
 import { TempleChainId } from 'lib/temple/types';
 import { useLocalStorage } from 'lib/ui/local-storage';
+import { useTezosNetwork } from 'temple/hooks';
 
 const STORAGE_KEY = 'METADATA_REFRESH';
 
@@ -18,7 +18,7 @@ type RefreshRecords = Record<string, number>;
 const REFRESH_VERSION = 1;
 
 export const useMetadataRefresh = () => {
-  const chainId = useChainId()!;
+  const { chainId } = useTezosNetwork();
   const dispatch = useDispatch();
 
   const [records, setRecords] = useLocalStorage<RefreshRecords>(STORAGE_KEY, {});

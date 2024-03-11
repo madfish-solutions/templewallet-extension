@@ -2,29 +2,23 @@ import { useCallback, useMemo } from 'react';
 
 import { emptyFn } from '@rnw-community/shared';
 import BigNumber from 'bignumber.js';
-import memoizee from 'memoizee';
 
 import { useAllAccountBalancesSelector, useAllBalancesSelector } from 'app/store/balances/selectors';
 import { getKeyForBalancesRecord } from 'app/store/balances/utils';
 import { isKnownChainId } from 'lib/apis/tzkt';
 import { useAssetMetadata, useGetTokenOrGasMetadata } from 'lib/metadata';
 import { useTypedSWR } from 'lib/swr';
-import {
-  useTezos,
-  useAccount,
-  useChainId,
-  ReactiveTezosToolkit,
-  useChainIdLoading,
-  useOnBlock
-} from 'lib/temple/front';
-import { michelEncoder, loadFastRpcClient, atomsToTokens } from 'lib/temple/helpers';
+import { useTezos, useAccount, useChainIdLoading, useOnBlock } from 'lib/temple/front';
+import { atomsToTokens } from 'lib/temple/helpers';
+import { useTezosNetwork } from 'temple/hooks';
+import { buildFastRpcTezosToolkit } from 'temple/tezos';
 
 import { fetchRawBalance as fetchRawBalanceFromBlockchain } from './fetch';
 import { getBalanceSWRKey } from './utils';
 
 export const useCurrentAccountBalances = () => {
+  const { chainId } = useTezosNetwork();
   const { publicKeyHash } = useAccount();
-  const chainId = useChainId(true)!;
 
   return useAllAccountBalancesSelector(publicKeyHash, chainId);
 };
@@ -79,10 +73,13 @@ export function useRawBalance(
    */
   const usingStore = address === currentAccountAddress && isKnownChainId(chainId);
 
-  const tezos = useMemo(() => (networkRpc ? buildTezosToolkit(networkRpc) : nativeTezos), [networkRpc, nativeTezos]);
+  const tezos = useMemo(
+    () => (networkRpc ? buildFastRpcTezosToolkit(networkRpc) : nativeTezos),
+    [networkRpc, nativeTezos]
+  );
 
   const onChainBalanceSwrRes = useTypedSWR(
-    getBalanceSWRKey(tezos, assetSlug, address),
+    getBalanceSWRKey(tezos.rpc.getRpcUrl(), assetSlug, address),
     () => {
       if (!chainId || usingStore) return;
 
@@ -138,15 +135,3 @@ export function useBalance(assetSlug: string, address: string, networkRpc?: stri
 
   return { rawValue, value, isSyncing, error, refresh, assetMetadata };
 }
-
-const buildTezosToolkit = memoizee(
-  (rpcUrl: string) => {
-    const t = new ReactiveTezosToolkit(loadFastRpcClient(rpcUrl), rpcUrl);
-    t.setPackerProvider(michelEncoder);
-    return t;
-  },
-  {
-    max: 15,
-    maxAge: 5 * 60_000
-  }
-);

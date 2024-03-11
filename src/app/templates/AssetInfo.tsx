@@ -21,13 +21,12 @@ type AssetInfoProps = {
 const AssetInfo: FC<AssetInfoProps> = ({ assetSlug }) => {
   const { popup } = useAppEnv();
   const tezos = useTezos();
-  const asset = useRetryableSWR(
+  const { data } = useRetryableSWR(
     ['asset', assetSlug, tezos.checksum],
     () => fromAssetSlugWithStandardDetect(tezos, assetSlug),
-    {
-      suspense: true
-    }
-  ).data!;
+    { suspense: true }
+  );
+  const asset = data!;
 
   const metadata = useAssetMetadata(assetSlug);
 

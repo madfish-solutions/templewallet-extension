@@ -4,11 +4,12 @@ import { dispatch } from 'app/store';
 import { loadCollectiblesDetailsActions } from 'app/store/collectibles/actions';
 import { useAccountCollectibles } from 'lib/assets/hooks';
 import { COLLECTIBLES_DETAILS_SYNC_INTERVAL } from 'lib/fixed-times';
-import { useAccount, useChainId } from 'lib/temple/front';
+import { useAccount } from 'lib/temple/front';
 import { useInterval, useMemoWithCompare } from 'lib/ui/hooks';
+import { useTezosNetwork } from 'temple/hooks';
 
 export const useCollectiblesDetailsLoading = () => {
-  const chainId = useChainId()!;
+  const { chainId } = useTezosNetwork();
   const { publicKeyHash } = useAccount();
   const collectibles = useAccountCollectibles(publicKeyHash, chainId);
 

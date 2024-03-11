@@ -1,8 +1,5 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo } from 'react';
 
-import { RpcClientInterface } from '@taquito/rpc';
-import { TezosToolkit } from '@taquito/taquito';
-import { Tzip16Module } from '@taquito/tzip16';
 import constate from 'constate';
 
 import { ACCOUNT_PKH_STORAGE_KEY } from 'lib/constants';
@@ -17,6 +14,7 @@ import {
   TempleNotification,
   TempleMessageType
 } from 'lib/temple/types';
+import { ReactiveTezosToolkit } from 'temple/tezos';
 
 import { intercom, useTempleClient } from './client';
 import { usePassiveStorage } from './storage';
@@ -202,13 +200,6 @@ export function useRelevantAccounts(withExtraTypes = true) {
   }, [relevantAccounts, account, setAccountPkh, lazyChainId]);
 
   return useMemo(() => relevantAccounts, [relevantAccounts]);
-}
-
-export class ReactiveTezosToolkit extends TezosToolkit {
-  constructor(rpc: string | RpcClientInterface, public checksum: string) {
-    super(rpc);
-    this.addExtension(new Tzip16Module());
-  }
 }
 
 function assertReady(state: TempleState): asserts state is ReadyTempleState {

@@ -14,27 +14,27 @@ import {
 import { getAccountStatsFromTzkt, isKnownChainId, TzktRewardsEntry, TzktAccountType } from 'lib/apis/tzkt';
 import { t } from 'lib/i18n';
 import { useRetryableSWR } from 'lib/swr';
-import type { ReactiveTezosToolkit } from 'lib/temple/front';
 import { getOnlineStatus } from 'lib/ui/get-online-status';
+import { useTezosNetwork } from 'temple/hooks';
 
-import { useChainId, useNetwork, useTezos } from './ready';
+import { useNetwork, useTezos } from './ready';
 
 function getDelegateCacheKey(
-  tezos: ReactiveTezosToolkit,
+  rpcUrl: string,
   address: string,
   chainId: string | nullish,
   shouldPreventErrorPropagation: boolean
 ) {
-  return unstable_serialize(['delegate', tezos.checksum, address, chainId, shouldPreventErrorPropagation]);
+  return unstable_serialize(['delegate', rpcUrl, address, chainId, shouldPreventErrorPropagation]);
 }
 
 export function useDelegate(address: string, suspense = true, shouldPreventErrorPropagation = true) {
   const tezos = useTezos();
-  const chainId = useChainId(suspense);
+  const { chainId } = useTezosNetwork();
   const { cache: swrCache } = useSWRConfig();
 
   const resetDelegateCache = useCallback(() => {
-    swrCache.delete(getDelegateCacheKey(tezos, address, chainId, shouldPreventErrorPropagation));
+    swrCache.delete(getDelegateCacheKey(tezos.rpc.getRpcUrl(), address, chainId, shouldPreventErrorPropagation));
   }, [address, tezos, chainId, swrCache, shouldPreventErrorPropagation]);
 
   const getDelegate = useCallback(async () => {

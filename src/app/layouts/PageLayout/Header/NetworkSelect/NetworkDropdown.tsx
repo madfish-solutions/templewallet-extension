@@ -6,11 +6,12 @@ import DropdownWrapper from 'app/atoms/DropdownWrapper';
 import { useShortcutAccountSelectModalIsOpened } from 'app/hooks/use-account-select-shortcut';
 import { ReactComponent as SignalAltIcon } from 'app/icons/signal-alt.svg';
 import { T } from 'lib/i18n';
-import { BLOCK_EXPLORERS, useAllNetworks, useBlockExplorer, useChainId, useSetNetworkId } from 'lib/temple/front';
+import { BLOCK_EXPLORERS, useAllNetworks, useBlockExplorer, useSetNetworkId } from 'lib/temple/front';
 import { loadChainId } from 'lib/temple/helpers';
 import { isKnownChainId, TempleNetwork } from 'lib/temple/types';
 import { PopperRenderProps } from 'lib/ui/Popper';
 import { HistoryAction, navigate } from 'lib/woozie';
+import { useTezosNetwork } from 'temple/hooks';
 
 import { NetworkButton } from './NetworkButton';
 import styles from './style.module.css';
@@ -27,7 +28,7 @@ export const NetworkDropdown = memo<Props>(({ opened, setOpened, currentNetwork 
 
   const filteredNetworks = useMemo(() => allNetworks.filter(n => !n.hidden), [allNetworks]);
 
-  const chainId = useChainId(true)!;
+  const { chainId } = useTezosNetwork();
   const { setExplorerId } = useBlockExplorer();
 
   const handleNetworkSelect = useCallback(

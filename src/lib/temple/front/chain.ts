@@ -19,20 +19,20 @@ function useNewBlockTriggers() {
 
   const triggerNewBlock = useCallback(() => {
     for (const acc of allAccounts) {
-      mutate(getBalanceSWRKey(tezos, 'tez', acc.publicKeyHash));
+      mutate(getBalanceSWRKey(tezos.rpc.getRpcUrl(), 'tez', acc.publicKeyHash));
       mutate(['delegate', tezos.checksum, acc.publicKeyHash]);
     }
   }, [allAccounts, mutate, tezos]);
 
   useOnBlock(triggerNewBlock);
 
-  const confirmOperationAndTriggerNewBlock = useCallback<typeof confirmOperation>(
-    async (...args) => {
-      const result = await confirmOperation(...args);
+  const confirmOperationAndTriggerNewBlock = useCallback(
+    async (hash: string) => {
+      const result = await confirmOperation(tezos, hash);
       triggerNewBlock();
       return result;
     },
-    [triggerNewBlock]
+    [triggerNewBlock, tezos]
   );
 
   return {

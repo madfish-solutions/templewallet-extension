@@ -1,8 +1,9 @@
+import { TezosToolkit } from '@taquito/taquito';
+
 import type { TzktApiChainId, TzktOperation } from 'lib/apis/tzkt';
 import * as TZKT from 'lib/apis/tzkt';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { detectTokenStandard } from 'lib/assets/standards';
-import { ReactiveTezosToolkit } from 'lib/temple/front';
 import { TempleAccount } from 'lib/temple/types';
 import { filterUnique } from 'lib/utils';
 
@@ -16,7 +17,7 @@ export default async function fetchActivities(
   account: TempleAccount,
   assetSlug: string | undefined,
   pseudoLimit: number,
-  tezos: ReactiveTezosToolkit,
+  tezos: TezosToolkit,
   olderThan?: Activity
 ): Promise<Activity[]> {
   const operations = await fetchOperations(chainId, account, assetSlug, pseudoLimit, tezos, olderThan);
@@ -37,7 +38,7 @@ async function fetchOperations(
   account: TempleAccount,
   assetSlug: string | undefined,
   pseudoLimit: number,
-  tezos: ReactiveTezosToolkit,
+  tezos: TezosToolkit,
   olderThan?: Activity
 ): Promise<TzktOperation[]> {
   const { publicKeyHash: accAddress } = account;

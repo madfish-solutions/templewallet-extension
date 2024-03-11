@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback, FC, useState } from 'react';
+import React, { useMemo, useCallback, FC, useState, memo } from 'react';
 
 import classNames from 'clsx';
 import { isEqual } from 'lodash';
@@ -9,9 +9,10 @@ import { DropdownSelect } from 'app/templates/DropdownSelect/DropdownSelect';
 import { InputContainer } from 'app/templates/InputContainer/InputContainer';
 import { setTestID } from 'lib/analytics';
 import { T } from 'lib/i18n';
-import { BlockExplorer, useChainId, BLOCK_EXPLORERS, useBlockExplorer } from 'lib/temple/front';
+import { BlockExplorer, BLOCK_EXPLORERS, useBlockExplorer } from 'lib/temple/front';
 import { isKnownChainId } from 'lib/temple/types';
 import { searchAndFilterItems } from 'lib/utils/search-items';
+import { useTezosNetwork } from 'temple/hooks';
 
 import { SettingsGeneralSelectors } from '../selectors';
 
@@ -19,9 +20,9 @@ const renderOptionContent = (option: BlockExplorer, isSelected: boolean) => (
   <BlockExplorerOptionContent option={option} isSelected={isSelected} />
 );
 
-const BlockExplorerSelect = () => {
+const BlockExplorerSelect = memo(() => {
   const { explorer, setExplorerId } = useBlockExplorer();
-  const chainId = useChainId(true)!;
+  const { chainId } = useTezosNetwork();
   const [searchValue, setSearchValue] = useState<string>('');
 
   const options = useMemo(() => {
@@ -64,7 +65,7 @@ const BlockExplorerSelect = () => {
       </InputContainer>
     </div>
   );
-};
+});
 
 export default BlockExplorerSelect;
 

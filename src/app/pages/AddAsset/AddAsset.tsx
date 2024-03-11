@@ -29,10 +29,11 @@ import { isCollectible, TokenMetadata } from 'lib/metadata';
 import { fetchOneTokenMetadata } from 'lib/metadata/fetch';
 import { TokenMetadataNotFoundError } from 'lib/metadata/on-chain';
 import { loadContract } from 'lib/temple/contract';
-import { useTezos, useNetwork, useChainId, useAccount, validateContractAddress } from 'lib/temple/front';
+import { useTezos, useAccount, validateContractAddress } from 'lib/temple/front';
 import { useSafeState } from 'lib/ui/hooks';
 import { delay } from 'lib/utils';
 import { navigate } from 'lib/woozie';
+import { useTezosNetwork } from 'temple/hooks';
 
 import { AddAssetSelectors } from './AddAsset.selectors';
 
@@ -78,8 +79,7 @@ class ContractNotFoundError extends Error {}
 
 const Form = memo(() => {
   const tezos = useTezos();
-  const { id: networkId } = useNetwork();
-  const chainId = useChainId(true)!;
+  const { chainId, rpcUrl } = useTezosNetwork();
   const { publicKeyHash: accountPkh } = useAccount();
   const { cache: swrCache } = useSWRConfig();
 
@@ -181,7 +181,7 @@ const Form = memo(() => {
       setState(INITIAL_STATE);
       attemptRef.current++;
     }
-  }, [setState, formValid, networkId, contractAddress, tokenId]);
+  }, [setState, formValid, rpcUrl, contractAddress, tokenId]);
 
   const cleanContractAddress = useCallback(() => {
     setValue('address', '');
@@ -226,7 +226,7 @@ const Form = memo(() => {
 
         dispatch(assetIsCollectible ? putCollectiblesAsIsAction([asset]) : putTokensAsIsAction([asset]));
 
-        swrCache.delete(unstable_serialize(getBalanceSWRKey(tezos, tokenSlug, accountPkh)));
+        swrCache.delete(unstable_serialize(getBalanceSWRKey(tezos.rpc.getRpcUrl(), tokenSlug, accountPkh)));
 
         formAnalytics.trackSubmitSuccess();
 

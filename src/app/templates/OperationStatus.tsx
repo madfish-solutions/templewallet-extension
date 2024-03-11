@@ -5,7 +5,7 @@ import type { WalletOperation } from '@taquito/taquito';
 import { HashChip, Alert } from 'app/atoms';
 import { setTestID } from 'lib/analytics';
 import { T, t } from 'lib/i18n';
-import { useTezos, useBlockTriggers } from 'lib/temple/front';
+import { useBlockTriggers } from 'lib/temple/front';
 import { CONFIRMATION_TIMED_OUT_ERROR_MSG } from 'lib/temple/operation';
 import { useSafeState } from 'lib/ui/hooks';
 
@@ -21,7 +21,6 @@ type OperationStatusProps = {
 };
 
 const OperationStatus: FC<OperationStatusProps> = ({ typeTitle, operation, className, closable, onClose }) => {
-  const tezos = useTezos();
   const { confirmOperationAndTriggerNewBlock } = useBlockTriggers();
 
   const hash = useMemo(
@@ -63,7 +62,7 @@ const OperationStatus: FC<OperationStatusProps> = ({ typeTitle, operation, class
   }));
 
   useEffect(() => {
-    confirmOperationAndTriggerNewBlock(tezos, hash)
+    confirmOperationAndTriggerNewBlock(hash)
       .then(() => {
         setAlert(a => ({
           ...a,
@@ -86,7 +85,7 @@ const OperationStatus: FC<OperationStatusProps> = ({ typeTitle, operation, class
               : err?.message || 'Operation confirmation failed'
         });
       });
-  }, [confirmOperationAndTriggerNewBlock, tezos, hash, setAlert, descFooter, typeTitle]);
+  }, [confirmOperationAndTriggerNewBlock, hash, setAlert, descFooter, typeTitle]);
 
   return (
     <Alert

@@ -1,6 +1,7 @@
 import { isKnownChainId } from 'lib/apis/tzkt/api';
-import { useTezos, useChainId, useAccount } from 'lib/temple/front';
+import { useTezos, useAccount } from 'lib/temple/front';
 import { useDidMount, useDidUpdate, useSafeState, useStopper } from 'lib/ui/hooks';
+import { useTezosNetwork } from 'temple/hooks';
 
 import fetchActivities from './fetch';
 import type { Activity } from './types';
@@ -9,7 +10,7 @@ type TLoading = 'init' | 'more' | false;
 
 export default function useActivities(initialPseudoLimit: number, assetSlug?: string) {
   const tezos = useTezos();
-  const chainId = useChainId(true);
+  const { chainId } = useTezosNetwork();
   const account = useAccount();
 
   const accountAddress = account.publicKeyHash;

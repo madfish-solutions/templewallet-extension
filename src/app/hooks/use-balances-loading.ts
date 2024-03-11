@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 
 import { noop } from 'lodash';
-import { useDispatch } from 'react-redux';
 
+import { dispatch } from 'app/store';
 import { loadGasBalanceActions, loadAssetsBalancesActions, putTokensBalancesAction } from 'app/store/balances/actions';
 import { useBalancesLoadingSelector } from 'app/store/balances/selectors';
 import { fixBalances } from 'app/store/balances/utils';
@@ -16,11 +16,12 @@ import {
   isKnownChainId
 } from 'lib/apis/tzkt';
 import { toTokenSlug } from 'lib/assets';
-import { useAccount, useChainId, useOnBlock, useTzktConnection } from 'lib/temple/front';
+import { useAccount, useOnBlock, useTzktConnection } from 'lib/temple/front';
 import { useUpdatableRef } from 'lib/ui/hooks';
+import { useTezosNetwork } from 'temple/hooks';
 
 export const useBalancesLoading = () => {
-  const chainId = useChainId(true)!;
+  const { chainId } = useTezosNetwork();
   const { publicKeyHash } = useAccount();
 
   const isLoading = useBalancesLoadingSelector(publicKeyHash, chainId);
@@ -29,8 +30,6 @@ export const useBalancesLoading = () => {
   const { connection, connectionReady } = useTzktConnection();
   const [tokensSubscriptionConfirmed, setTokensSubscriptionConfirmed] = useState(false);
   const [accountsSubscriptionConfirmed, setAccountsSubscriptionConfirmed] = useState(false);
-
-  const dispatch = useDispatch();
 
   const tokenBalancesListener = useCallback(
     (msg: TzktTokenBalancesSubscriptionMessage) => {
@@ -58,7 +57,7 @@ export const useBalancesLoading = () => {
           setTokensSubscriptionConfirmed(true);
       }
     },
-    [publicKeyHash, chainId, isLoadingRef, dispatch]
+    [publicKeyHash, chainId, isLoadingRef]
   );
 
   const accountsListener = useCallback(
@@ -93,7 +92,7 @@ export const useBalancesLoading = () => {
           setAccountsSubscriptionConfirmed(true);
       }
     },
-    [publicKeyHash, chainId, isLoadingRef, dispatch]
+    [publicKeyHash, chainId, isLoadingRef]
   );
 
   useEffect(() => {
@@ -121,7 +120,7 @@ export const useBalancesLoading = () => {
     if (isLoadingRef.current === false && isKnownChainId(chainId)) {
       dispatch(loadGasBalanceActions.submit({ publicKeyHash, chainId }));
     }
-  }, [publicKeyHash, chainId, isLoadingRef, dispatch]);
+  }, [publicKeyHash, chainId, isLoadingRef]);
 
   useEffect(dispatchLoadGasBalanceAction, [dispatchLoadGasBalanceAction]);
   useOnBlock(dispatchLoadGasBalanceAction, undefined, accountsSubscriptionConfirmed);
@@ -130,7 +129,7 @@ export const useBalancesLoading = () => {
     if (isLoadingRef.current === false && isKnownChainId(chainId)) {
       dispatch(loadAssetsBalancesActions.submit({ publicKeyHash, chainId }));
     }
-  }, [publicKeyHash, chainId, isLoadingRef, dispatch]);
+  }, [publicKeyHash, chainId, isLoadingRef]);
 
   useEffect(dispatchLoadAssetsBalancesActions, [dispatchLoadAssetsBalancesActions]);
   useOnBlock(dispatchLoadAssetsBalancesActions, undefined, tokensSubscriptionConfirmed);

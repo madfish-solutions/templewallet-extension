@@ -5,10 +5,11 @@ import { useDispatch } from 'react-redux';
 import { useAccountTokensSelector } from 'app/store/assets/selectors';
 import { resetTokensMetadataLoadingAction } from 'app/store/tokens-metadata/actions';
 import { useTokensMetadataPresenceCheck } from 'lib/metadata';
-import { useAccount, useChainId } from 'lib/temple/front';
+import { useAccount } from 'lib/temple/front';
+import { useTezosNetwork } from 'temple/hooks';
 
 export const useMetadataLoading = () => {
-  const chainId = useChainId(true)!;
+  const { chainId } = useTezosNetwork();
   const { publicKeyHash: account } = useAccount();
   const dispatch = useDispatch();
 

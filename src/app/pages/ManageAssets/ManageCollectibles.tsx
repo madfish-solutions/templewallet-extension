@@ -8,14 +8,15 @@ import { useCollectiblesListingLogic } from 'app/hooks/use-collectibles-listing-
 import { useAccountCollectibles } from 'lib/assets/hooks';
 import { useCollectiblesSortPredicate } from 'lib/assets/use-sorting';
 import { useGetCollectibleMetadata } from 'lib/metadata';
-import { useAccount, useChainId } from 'lib/temple/front';
+import { useAccount } from 'lib/temple/front';
 import { useMemoWithCompare } from 'lib/ui/hooks';
+import { useTezosNetwork } from 'temple/hooks';
 
 import { AssetsPlaceholder } from './AssetsPlaceholder';
 import { ManageAssetsContent, ManageAssetsContentList } from './ManageAssetsContent';
 
 export const ManageCollectibles = memo(() => {
-  const chainId = useChainId(true)!;
+  const { chainId } = useTezosNetwork();
   const { publicKeyHash } = useAccount();
 
   const collectibles = useAccountCollectibles(publicKeyHash, chainId);

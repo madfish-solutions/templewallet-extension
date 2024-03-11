@@ -9,12 +9,13 @@ import {
 import { useAreAssetsLoading } from 'app/store/assets/selectors';
 import { isKnownChainId } from 'lib/apis/tzkt';
 import { ASSETS_SYNC_INTERVAL } from 'lib/fixed-times';
-import { useAccount, useChainId } from 'lib/temple/front';
+import { useAccount } from 'lib/temple/front';
 import { TempleChainId } from 'lib/temple/types';
 import { useInterval } from 'lib/ui/hooks';
+import { useTezosNetwork } from 'temple/hooks';
 
 export const useAssetsLoading = () => {
-  const chainId = useChainId()!;
+  const { chainId } = useTezosNetwork();
   const { publicKeyHash } = useAccount();
 
   useEffect(() => {

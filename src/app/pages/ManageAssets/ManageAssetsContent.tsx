@@ -9,9 +9,10 @@ import SearchAssetField from 'app/templates/SearchAssetField';
 import { AccountAsset } from 'lib/assets/types';
 import { t, T } from 'lib/i18n';
 import type { TokenMetadataGetter } from 'lib/metadata';
-import { useAccount, useChainId } from 'lib/temple/front';
+import { useAccount } from 'lib/temple/front';
 import { useConfirm } from 'lib/ui/dialog';
 import { Link } from 'lib/woozie';
+import { useTezosNetwork } from 'temple/hooks';
 
 import { ListItem } from './ListItem';
 import { ManageAssetsSelectors } from './selectors';
@@ -56,7 +57,7 @@ interface ManageAssetsContentListProps {
 }
 
 export const ManageAssetsContentList = memo<ManageAssetsContentListProps>(({ ofCollectibles, assets, getMetadata }) => {
-  const chainId = useChainId(true)!;
+  const { chainId } = useTezosNetwork();
   const { publicKeyHash } = useAccount();
 
   const confirm = useConfirm();

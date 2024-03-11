@@ -3,7 +3,6 @@ export { useStorage } from './storage';
 export { useTempleClient, request, assertResponse } from './client';
 
 export {
-  ReactiveTezosToolkit,
   useAllNetworks,
   useSetNetworkId,
   useNetwork,
@@ -13,7 +12,6 @@ export {
   useAccountPkh,
   useSettings,
   useTezos,
-  useChainId,
   useRelevantAccounts,
   useChainIdValue,
   useChainIdLoading
