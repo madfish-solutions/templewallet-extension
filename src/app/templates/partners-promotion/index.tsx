@@ -1,4 +1,4 @@
-import React, { memo, MouseEventHandler, useCallback, useEffect, useState } from 'react';
+import React, { memo, MouseEventHandler, useCallback, useEffect, useRef, useState } from 'react';
 
 import clsx from 'clsx';
 import { useDispatch } from 'react-redux';
@@ -41,7 +41,7 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pa
   const hiddenAt = usePromotionHidingTimestampSelector(id);
   const shouldShowPartnersPromo = useShouldShowPartnersPromoSelector();
 
-  const [isAnalyticsSent, setIsAnalyticsSent] = useState(false);
+  const isAnalyticsSentRef = useRef(false);
 
   const [isHiddenTemporarily, setIsHiddenTemporarily] = useState(shouldBeHiddenTemporarily(hiddenAt));
   const [shouldUseOptimalAd, setShouldUseOptimalAd] = useState(true);
@@ -67,16 +67,16 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pa
   }, [hiddenAt]);
 
   const handleAdRectSeen = useCallback(() => {
-    if (!isAnalyticsSent) {
+    if (!isAnalyticsSentRef.current) {
       trackEvent('Internal Ads Activity', AnalyticsEventCategory.General, {
         variant,
         page: pageName,
         provider: providerTitle,
         accountPkh
       });
-      setIsAnalyticsSent(true);
+      isAnalyticsSentRef.current = true;
     }
-  }, [isAnalyticsSent, providerTitle, variant, pageName, accountPkh, trackEvent]);
+  }, [providerTitle, variant, pageName, accountPkh, trackEvent]);
 
   const handleClosePartnersPromoClick = useCallback<MouseEventHandler<HTMLButtonElement>>(
     e => {
