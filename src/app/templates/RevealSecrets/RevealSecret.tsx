@@ -7,10 +7,11 @@ import { Alert, FormField, FormSubmitButton } from 'app/atoms';
 import { getAccountBadgeTitle } from 'app/defaults';
 import AccountBanner from 'app/templates/AccountBanner';
 import { T, t } from 'lib/i18n';
-import { useAccount, useTempleClient } from 'lib/temple/front';
+import { useTempleClient } from 'lib/temple/front';
 import { TempleAccountType } from 'lib/temple/types';
 import { useVanishingState } from 'lib/ui/hooks';
 import { delay } from 'lib/utils';
+import { useTezosAccount } from 'temple/hooks';
 
 import { RevealSecretsSelectors } from './RevealSecrets.selectors';
 import { SecretField } from './SecretField';
@@ -27,7 +28,7 @@ type RevealSecretProps = {
 
 const RevealSecret: FC<RevealSecretProps> = ({ reveal }) => {
   const { revealPrivateKey, revealMnemonic } = useTempleClient();
-  const account = useAccount();
+  const account = useTezosAccount();
 
   const { register, handleSubmit, errors, setError, clearError, formState } = useForm<FormData>();
   const submitting = formState.isSubmitting;
@@ -35,11 +36,11 @@ const RevealSecret: FC<RevealSecretProps> = ({ reveal }) => {
   const [secret, setSecret] = useVanishingState();
 
   useEffect(() => {
-    if (account.publicKeyHash) {
+    if (account.address) {
       return () => setSecret(null);
     }
     return undefined;
-  }, [account.publicKeyHash, setSecret]);
+  }, [account.address, setSecret]);
 
   const formRef = useRef<HTMLFormElement>(null);
 
@@ -61,7 +62,7 @@ const RevealSecret: FC<RevealSecretProps> = ({ reveal }) => {
 
         switch (reveal) {
           case 'private-key':
-            scrt = await revealPrivateKey(account.publicKeyHash, password);
+            scrt = await revealPrivateKey(account.address, password);
             break;
 
           case 'seed-phrase':
@@ -86,7 +87,7 @@ const RevealSecret: FC<RevealSecretProps> = ({ reveal }) => {
       setError,
       revealPrivateKey,
       revealMnemonic,
-      account.publicKeyHash,
+      account.address,
       setSecret,
       focusPasswordField
     ]
@@ -172,7 +173,7 @@ const RevealSecret: FC<RevealSecretProps> = ({ reveal }) => {
                       fontSize: '0.75em'
                     }}
                   >
-                    {getAccountBadgeTitle(account)}
+                    {getAccountBadgeTitle(account.type)}
                   </span>
                 ]}
               />

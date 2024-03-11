@@ -5,9 +5,10 @@ import { useForm } from 'react-hook-form';
 import { Alert, FormField, FormSubmitButton } from 'app/atoms';
 import AccountBanner from 'app/templates/AccountBanner';
 import { T, t } from 'lib/i18n';
-import { useTezos, useAccount, activateAccount } from 'lib/temple/front';
+import { useTezos, activateAccount } from 'lib/temple/front';
 import { confirmOperation } from 'lib/temple/operation';
 import { useSafeState } from 'lib/ui/hooks';
+import { useTezosAccount } from 'temple/hooks';
 
 import { ActivateAccountSelectors } from './ActivateAccount.selectors';
 
@@ -19,7 +20,7 @@ const SUBMIT_ERROR_TYPE = 'submit-error';
 
 const ActivateAccount = memo(() => {
   const tezos = useTezos();
-  const account = useAccount();
+  const account = useTezosAccount();
 
   const [success, setSuccess] = useSafeState<ReactNode>(null);
 
@@ -34,7 +35,7 @@ const ActivateAccount = memo(() => {
       setSuccess(null);
 
       try {
-        const activation = await activateAccount(account.publicKeyHash, data.secret.replace(/\s/g, ''), tezos);
+        const activation = await activateAccount(account.address, data.secret.replace(/\s/g, ''), tezos);
         switch (activation.status) {
           case 'ALREADY_ACTIVATED':
             setSuccess(`🏁 ${t('accountAlreadyActivated')}`);
@@ -54,7 +55,7 @@ const ActivateAccount = memo(() => {
         setError('secret', SUBMIT_ERROR_TYPE, mes);
       }
     },
-    [clearError, submitting, setError, setSuccess, account.publicKeyHash, tezos]
+    [clearError, submitting, setError, setSuccess, account.address, tezos]
   );
 
   const submit = useMemo(() => handleSubmit(onSubmit), [handleSubmit, onSubmit]);

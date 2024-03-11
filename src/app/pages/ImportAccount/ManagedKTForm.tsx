@@ -254,7 +254,7 @@ const ContractOptionContent: FC<ContractOptionRenderProps> = props => {
           <T id="contract" />
         </Name>
 
-        <AccountTypeBadge account={{ type: TempleAccountType.ManagedKT }} />
+        <AccountTypeBadge accountType={TempleAccountType.ManagedKT} />
       </div>
 
       <div className="flex flex-wrap items-center mt-1">

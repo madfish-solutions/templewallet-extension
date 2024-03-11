@@ -89,6 +89,13 @@ interface TempleWatchOnlyAccount extends TempleAccountBase {
   chainId?: string;
 }
 
+export interface NewTempleAccountBase {
+  address: string;
+  type: TempleAccountType;
+  isWatchOnly: boolean;
+  title: string;
+}
+
 interface TempleAccountBase {
   type: TempleAccountType;
   name: string;

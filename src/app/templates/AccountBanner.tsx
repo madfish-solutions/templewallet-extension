@@ -9,10 +9,10 @@ import Name from 'app/atoms/Name';
 import Balance from 'app/templates/Balance';
 import { useGasToken } from 'lib/assets/hooks';
 import { t } from 'lib/i18n';
-import { TempleAccount } from 'lib/temple/types';
+import { NewTempleAccountBase } from 'lib/temple/types';
 
 type AccountBannerProps = HTMLAttributes<HTMLDivElement> & {
-  account: TempleAccount;
+  account: NewTempleAccountBase;
   displayBalance?: boolean;
   networkRpc?: string;
   label?: ReactNode;
@@ -38,19 +38,19 @@ const AccountBanner = memo<AccountBannerProps>(
         )}
 
         <div className="w-full border rounded-md p-2 flex items-center">
-          <Identicon type="bottts" hash={account.publicKeyHash} size={32} className="flex-shrink-0 shadow-xs" />
+          <Identicon type="bottts" hash={account.address} size={32} className="flex-shrink-0 shadow-xs" />
 
           <div className="flex flex-col items-start ml-2">
             <div className="flex flex-wrap items-center">
-              <Name className="text-sm font-medium leading-tight text-gray-800">{account.name}</Name>
+              <Name className="text-sm font-medium leading-tight text-gray-800">{account.title}</Name>
 
-              <AccountTypeBadge account={account} />
+              <AccountTypeBadge accountType={account.type} />
             </div>
 
             <div className="flex flex-wrap items-center mt-1">
               <div className="text-xs leading-none text-gray-700">
                 {(() => {
-                  const val = account.publicKeyHash;
+                  const val = account.address;
                   const ln = val.length;
                   return (
                     <>
@@ -63,7 +63,7 @@ const AccountBanner = memo<AccountBannerProps>(
               </div>
 
               {displayBalance && (
-                <Balance address={account.publicKeyHash} networkRpc={networkRpc}>
+                <Balance address={account.address} networkRpc={networkRpc}>
                   {bal => (
                     <div className="ml-2 text-xs leading-none flex items-baseline text-gray-600">
                       <Money>{bal}</Money>

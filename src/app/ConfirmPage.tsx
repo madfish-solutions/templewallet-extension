@@ -436,7 +436,7 @@ const AccountOptionContentHOC = (networkRpc: string) =>
       <>
         <div className="flex flex-wrap items-center">
           <Name className="text-sm font-medium leading-tight">{acc.name}</Name>
-          <AccountTypeBadge account={acc} />
+          <AccountTypeBadge accountType={acc.type} />
         </div>
 
         <div className="flex flex-wrap items-center mt-1">

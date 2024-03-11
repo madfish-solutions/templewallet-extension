@@ -199,7 +199,7 @@ export function useRelevantAccounts(withExtraTypes = true) {
     }
   }, [relevantAccounts, accountAddress, setAccountPkh, lazyChainId]);
 
-  return useMemo(() => relevantAccounts, [relevantAccounts]);
+  return relevantAccounts;
 }
 
 function assertReady(state: TempleState): asserts state is ReadyTempleState {

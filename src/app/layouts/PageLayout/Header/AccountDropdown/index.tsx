@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useMemo, useState, useEffect } from 'react';
+import React, { memo, useCallback, useMemo, useState, useEffect } from 'react';
 
 import classNames from 'clsx';
 
@@ -28,13 +28,13 @@ import { AccountItem } from './AccountItem';
 import { ActionButtonProps, ActionButton } from './ActionButton';
 import { AccountDropdownSelectors } from './selectors';
 
-type AccountDropdownProps = PopperRenderProps;
+type Props = PopperRenderProps;
 
 interface TDropdownAction extends ActionButtonProps {
   key: string;
 }
 
-const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
+const AccountDropdown = memo<Props>(({ opened, setOpened }) => {
   const appEnv = useAppEnv();
   const { lock } = useTempleClient();
   const allAccounts = useRelevantAccounts();
@@ -239,6 +239,6 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
       </div>
     </DropdownWrapper>
   );
-};
+});
 
 export default AccountDropdown;

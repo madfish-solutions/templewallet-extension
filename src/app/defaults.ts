@@ -1,5 +1,5 @@
 import { t } from 'lib/i18n';
-import { TempleAccount, TempleAccountType } from 'lib/temple/types';
+import { TempleAccountType } from 'lib/temple/types';
 
 export const OP_STACK_PREVIEW_SIZE = 2;
 
@@ -33,8 +33,8 @@ export function formatMnemonic(m: string) {
   return m.replace(/\n/g, ' ').trim();
 }
 
-export function getAccountBadgeTitle(account: Pick<TempleAccount, 'type'>) {
-  switch (account.type) {
+export function getAccountBadgeTitle(accountType: TempleAccountType) {
+  switch (accountType) {
     case TempleAccountType.Imported:
       return t('importedAccount');
 

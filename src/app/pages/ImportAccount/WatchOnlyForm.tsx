@@ -8,7 +8,6 @@ import { T, t } from 'lib/i18n';
 import { useTempleClient, useTezos, useTezosDomainsClient, validateDelegate } from 'lib/temple/front';
 import { useTezosAddressByDomainName } from 'lib/temple/front/tzdns';
 import { isAddressValid, isKTAddress } from 'lib/temple/helpers';
-import { delay } from 'lib/utils';
 
 import { ImportAccountSelectors, ImportAccountFormType } from './selectors';
 
@@ -75,8 +74,6 @@ export const WatchOnlyForm: FC = () => {
 
       console.error(err);
 
-      // Human delay
-      await delay();
       setError(err.message);
     }
   }, [importWatchOnlyAccount, finalAddress, tezos, formState.isSubmitting, setError, formAnalytics]);

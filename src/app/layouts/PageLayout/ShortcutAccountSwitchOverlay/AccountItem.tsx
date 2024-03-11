@@ -88,7 +88,7 @@ export const AccountItem: React.FC<AccountItemProps> = ({
             )}
           </Balance>
 
-          <AccountTypeBadge account={account} darkTheme />
+          <AccountTypeBadge accountType={account.type} darkTheme />
         </div>
       </div>
     </Button>

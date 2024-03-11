@@ -5,10 +5,11 @@ import { OnSubmit, useForm } from 'react-hook-form';
 import { Alert, FormField, FormSubmitButton } from 'app/atoms';
 import AccountBanner from 'app/templates/AccountBanner';
 import { T, t } from 'lib/i18n';
-import { useTempleClient, useRelevantAccounts, useAccount } from 'lib/temple/front';
+import { useTempleClient, useRelevantAccounts } from 'lib/temple/front';
 import { TempleAccountType } from 'lib/temple/types';
 import { delay } from 'lib/utils';
 import { navigate } from 'lib/woozie';
+import { useTezosAccount } from 'temple/hooks';
 
 import { RemoveAccountSelectors } from './RemoveAccount.selectors';
 
@@ -21,7 +22,7 @@ type FormData = {
 const RemoveAccount: FC = () => {
   const { removeAccount } = useTempleClient();
   const allAccounts = useRelevantAccounts();
-  const account = useAccount();
+  const account = useTezosAccount();
 
   const prevAccLengthRef = useRef(allAccounts.length);
   useEffect(() => {
@@ -41,7 +42,7 @@ const RemoveAccount: FC = () => {
 
       clearError('password');
       try {
-        await removeAccount(account.publicKeyHash, password);
+        await removeAccount(account.address, password);
       } catch (err: any) {
         console.error(err);
 
@@ -50,7 +51,7 @@ const RemoveAccount: FC = () => {
         setError('password', SUBMIT_ERROR_TYPE, err.message);
       }
     },
-    [submitting, clearError, setError, removeAccount, account.publicKeyHash]
+    [submitting, clearError, setError, removeAccount, account.address]
   );
 
   return (

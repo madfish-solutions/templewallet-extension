@@ -8,8 +8,9 @@ import { ACCOUNT_NAME_PATTERN } from 'app/defaults';
 import { ReactComponent as EditIcon } from 'app/icons/edit.svg';
 import { useFormAnalytics } from 'lib/analytics';
 import { T, t } from 'lib/i18n';
-import { useTempleClient, useAccount } from 'lib/temple/front';
+import { useTempleClient } from 'lib/temple/front';
 import { useAlert } from 'lib/ui/dialog';
+import { useTezosAccount } from 'temple/hooks';
 
 import { HomeSelectors } from '../Home.selectors';
 
@@ -25,7 +26,7 @@ const buttonClassNames = [
 
 const EditableTitle: FC = () => {
   const { editAccountName } = useTempleClient();
-  const account = useAccount();
+  const account = useTezosAccount();
   const customAlert = useAlert();
   const formAnalytics = useFormAnalytics('ChangeAccountName');
 
@@ -35,12 +36,12 @@ const EditableTitle: FC = () => {
   const accNamePrevRef = useRef<string>();
 
   useEffect(() => {
-    if (accNamePrevRef.current && accNamePrevRef.current !== account.name && editing) {
+    if (accNamePrevRef.current && accNamePrevRef.current !== account.title && editing) {
       setEditing(false);
     }
 
-    accNamePrevRef.current = account.name;
-  }, [account.name, editing, setEditing]);
+    accNamePrevRef.current = account.title;
+  }, [account.title, editing, setEditing]);
 
   useEffect(() => {
     if (editing) {
@@ -73,8 +74,8 @@ const EditableTitle: FC = () => {
         formAnalytics.trackSubmit();
         try {
           const newName = editAccNameFieldRef.current?.value;
-          if (newName && newName !== account.name) {
-            await editAccountName(account.publicKeyHash, newName);
+          if (newName && newName !== account.title) {
+            await editAccountName(account.address, newName);
           }
 
           setEditing(false);
@@ -92,7 +93,7 @@ const EditableTitle: FC = () => {
         }
       })();
     },
-    [account.name, editAccountName, account.publicKeyHash, customAlert, formAnalytics]
+    [account.title, editAccountName, account.address, customAlert, formAnalytics]
   );
 
   const handleEditFieldFocus = useCallback(() => {
@@ -112,7 +113,7 @@ const EditableTitle: FC = () => {
           <FormField
             ref={editAccNameFieldRef}
             name="name"
-            defaultValue={account.name}
+            defaultValue={account.title}
             maxLength={16}
             pattern={ACCOUNT_NAME_PATTERN.toString().slice(1, -1)}
             title={t('accountNameInputTitle')}
@@ -145,7 +146,7 @@ const EditableTitle: FC = () => {
             style={{ maxWidth: '24rem', fontSize: 23 }}
             testID={HomeSelectors.accountNameText}
           >
-            {account.name}
+            {account.title}
           </Name>
 
           {!editing && (

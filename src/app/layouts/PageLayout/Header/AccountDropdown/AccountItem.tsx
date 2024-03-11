@@ -71,7 +71,7 @@ export const AccountItem: React.FC<AccountItemProps> = ({ account, selected, gas
             )}
           </Balance>
 
-          <AccountTypeBadge account={account} darkTheme />
+          <AccountTypeBadge accountType={account.type} darkTheme />
         </div>
       </div>
     </Button>
