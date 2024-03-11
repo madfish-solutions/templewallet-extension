@@ -5,6 +5,7 @@ on:
     branches:
       - master
       - development
+      - development-2
 
 jobs:
   pull-request-check:

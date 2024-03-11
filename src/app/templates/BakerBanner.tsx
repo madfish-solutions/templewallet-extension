@@ -9,8 +9,9 @@ import { ReactComponent as ChevronRightIcon } from 'app/icons/chevron-right.svg'
 import { BakingSectionSelectors } from 'app/pages/Home/OtherComponents/BakingSection.selectors';
 import { toLocalFormat, T } from 'lib/i18n';
 import { HELP_UKRAINE_BAKER_ADDRESS, RECOMMENDED_BAKER_ADDRESS } from 'lib/known-bakers';
-import { useRelevantAccounts, useAccount, useNetwork, useKnownBaker } from 'lib/temple/front';
+import { useRelevantAccounts, useAccount, useKnownBaker } from 'lib/temple/front';
 import { TempleAccount } from 'lib/temple/types';
+import { useTezosNetwork } from 'temple/hooks';
 
 import { OpenInExplorerChip } from './OpenInExplorerChip';
 
@@ -158,7 +159,7 @@ const BakerAccount: React.FC<{
   account: TempleAccount;
   bakerPkh: string;
 }> = ({ bakerAcc, account, bakerPkh }) => {
-  const network = useNetwork();
+  const { isDcp } = useTezosNetwork();
 
   return bakerAcc ? (
     <>
@@ -174,7 +175,7 @@ const BakerAccount: React.FC<{
         </T>
       )}
     </>
-  ) : network.type === 'dcp' ? (
+  ) : isDcp ? (
     <div className="flex">
       <HashChip bgShade={200} rounded="base" className="mr-1" hash={bakerPkh} small textShade={700} />
 

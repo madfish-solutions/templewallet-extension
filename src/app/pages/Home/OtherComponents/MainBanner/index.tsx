@@ -1,11 +1,11 @@
 import React, { memo, FC, useMemo } from 'react';
 
 import clsx from 'clsx';
-import { useDispatch } from 'react-redux';
 
 import { Button } from 'app/atoms';
 import Money from 'app/atoms/Money';
 import { useTotalBalance } from 'app/pages/Home/OtherComponents/MainBanner/use-total-balance';
+import { dispatch } from 'app/store';
 import { toggleBalanceModeAction } from 'app/store/settings/actions';
 import { useBalanceModeSelector } from 'app/store/settings/selectors';
 import { BalanceMode } from 'app/store/settings/state';
@@ -19,8 +19,8 @@ import { useFiatCurrency } from 'lib/fiat-currency';
 import { t, T } from 'lib/i18n';
 import { TezosLogoIcon } from 'lib/icons';
 import { getAssetName, getAssetSymbol, useAssetMetadata } from 'lib/metadata';
-import { useNetwork } from 'lib/temple/front';
 import useTippy from 'lib/ui/useTippy';
+import { useTezosNetwork } from 'temple/hooks';
 
 import { HomeSelectors } from '../../Home.selectors';
 import { TokenPageSelectors } from '../TokenPage.selectors';
@@ -55,8 +55,7 @@ const TotalVolumeBanner = memo<TotalVolumeBannerProps>(({ accountPkh }) => (
 ));
 
 const BalanceInfo: FC<{ accountPkh: string }> = ({ accountPkh }) => {
-  const dispatch = useDispatch();
-  const network = useNetwork();
+  const { isMainnet } = useTezosNetwork();
   const totalBalanceInDollar = useTotalBalance();
   const balanceMode = useBalanceModeSelector();
 
@@ -84,14 +83,13 @@ const BalanceInfo: FC<{ accountPkh: string }> = ({ accountPkh }) => {
 
   const handleTvlModeToggle = () => dispatch(toggleBalanceModeAction(nextBalanceMode));
 
-  const isMainNetwork = network.type === 'main';
   const isFiatMode = balanceMode === BalanceMode.Fiat;
-  const shouldShowFiatBanner = isMainNetwork && isFiatMode;
+  const shouldShowFiatBanner = isMainnet && isFiatMode;
 
   return (
     <div className="flex flex-col justify-between items-start">
       <div className="flex items-center">
-        {isMainNetwork && (
+        {isMainnet && (
           <Button
             ref={buttonRef}
             style={{ height: '22px', width: '22px' }}

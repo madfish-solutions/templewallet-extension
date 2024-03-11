@@ -10,7 +10,7 @@ const getLastMonday = (date = new Date()) => {
   return formatDateToRPCFormat(nextMonday);
 };
 
-export const NETWORK_IDS = new Map<string, string>([
+export const NETWORK_NAMES = new Map<string, string>([
   [TempleChainId.Mainnet, 'mainnet'],
   [TempleChainId.Ghostnet, 'ghostnet'],
   [TempleChainId.Mumbai, 'mumbainet'],

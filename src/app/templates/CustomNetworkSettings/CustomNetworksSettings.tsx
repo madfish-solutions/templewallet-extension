@@ -12,7 +12,7 @@ import { setAnotherSelector, setTestID } from 'lib/analytics';
 import { T, t } from 'lib/i18n';
 import { useSettings, useTempleClient } from 'lib/temple/front';
 import { loadChainId } from 'lib/temple/helpers';
-import { NETWORK_IDS } from 'lib/temple/networks';
+import { NETWORK_NAMES } from 'lib/temple/networks';
 import { TempleNetwork } from 'lib/temple/types';
 import { COLORS } from 'lib/ui/colors';
 import { useConfirm } from 'lib/ui/dialog';
@@ -62,7 +62,7 @@ const CustomNetworksSettings: FC = () => {
       }
 
       try {
-        const networkId = NETWORK_IDS.get(chainId) ?? rpcBaseURL;
+        const networkName = NETWORK_NAMES.get(chainId) ?? rpcBaseURL;
         await updateSettings({
           customNetworks: [
             ...customNetworks,
@@ -70,7 +70,7 @@ const CustomNetworksSettings: FC = () => {
               rpcBaseURL,
               name,
               description: name,
-              type: networkId === 'mainnet' ? 'main' : 'test',
+              type: networkName === 'mainnet' ? 'main' : 'test',
               disabled: false,
               color: COLORS[Math.floor(Math.random() * COLORS.length)],
               id: rpcBaseURL

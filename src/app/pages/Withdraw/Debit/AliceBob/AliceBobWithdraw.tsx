@@ -7,9 +7,10 @@ import PageLayout from 'app/layouts/PageLayout';
 import styles from 'app/pages/Buy/Crypto/Exolix/Exolix.module.css';
 import { AliceBobOrderInfo, AliceBobOrderStatus } from 'lib/apis/temple';
 import { t, T } from 'lib/i18n/react';
-import { useAccount, useNetwork, useStorage } from 'lib/temple/front';
+import { useAccount, useStorage } from 'lib/temple/front';
 import { TempleAccountType } from 'lib/temple/types';
 import { Redirect } from 'lib/woozie';
+import { useTezosNetwork } from 'temple/hooks';
 
 import { WithdrawSelectors } from '../../Withdraw.selectors';
 
@@ -24,7 +25,7 @@ const ALICE_BOB_TERMS_LINK =
 const ALICE_BOB_CONTACT_LINK = 'https://t.me/alicebobhelp';
 
 export const AliceBobWithdraw: FC = () => {
-  const network = useNetwork();
+  const { isMainnet } = useTezosNetwork();
   const account = useAccount();
   const { publicKeyHash } = account;
 
@@ -35,7 +36,7 @@ export const AliceBobWithdraw: FC = () => {
     null
   );
 
-  if (network.type !== 'main' || account.type === TempleAccountType.WatchOnly) {
+  if (!isMainnet || account.type === TempleAccountType.WatchOnly) {
     return <Redirect to={'/'} />;
   }
 

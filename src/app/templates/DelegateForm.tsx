@@ -32,7 +32,6 @@ import {
   useAccount,
   useKnownBaker,
   useKnownBakers,
-  useNetwork,
   useTezos,
   useTezosDomainsClient,
   validateDelegate
@@ -43,6 +42,7 @@ import { TempleAccountType } from 'lib/temple/types';
 import { useSafeState } from 'lib/ui/hooks';
 import { delay, fifoResolve } from 'lib/utils';
 import { Link, useLocation } from 'lib/woozie';
+import { useTezosNetwork } from 'temple/hooks';
 
 import { DelegateFormSelectors } from './DelegateForm.selectors';
 
@@ -480,7 +480,7 @@ interface BakerBannerComponentProps {
 }
 
 const BakerBannerComponent = React.memo<BakerBannerComponentProps>(({ balanceNum, tzError, baker }) => {
-  const net = useNetwork();
+  const { isMainnet } = useTezosNetwork();
   const { symbol } = useGasToken();
 
   return baker ? (
@@ -507,7 +507,7 @@ const BakerBannerComponent = React.memo<BakerBannerComponentProps>(({ balanceNum
         />
       )}
     </>
-  ) : !tzError && net.type === 'main' ? (
+  ) : !tzError && isMainnet ? (
     <Alert type="warning" title={t('unknownBakerTitle')} description={t('unknownBakerDescription')} className="mb-6" />
   ) : null;
 });

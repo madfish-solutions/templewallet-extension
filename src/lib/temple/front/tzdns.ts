@@ -5,14 +5,14 @@ import { DomainNameValidationResult, isTezosDomainsSupportedNetwork } from '@tez
 import { TaquitoTezosDomainsClient } from '@tezos-domains/taquito-client';
 
 import { useTypedSWR } from 'lib/swr';
-import { NETWORK_IDS } from 'lib/temple/networks';
+import { NETWORK_NAMES } from 'lib/temple/networks';
 import { useTezosNetwork } from 'temple/hooks';
 
 import { useTezos } from './ready';
 
-function getClient(networkId: 'mainnet' | 'custom', tezos: TezosToolkit) {
-  return isTezosDomainsSupportedNetwork(networkId)
-    ? new TaquitoTezosDomainsClient({ network: networkId, tezos })
+function getClient(networkName: 'mainnet' | 'custom', tezos: TezosToolkit) {
+  return isTezosDomainsSupportedNetwork(networkName)
+    ? new TaquitoTezosDomainsClient({ network: networkName, tezos })
     : TaquitoTezosDomainsClient.Unsupported;
 }
 
@@ -24,8 +24,8 @@ export function useTezosDomainsClient() {
   const { chainId } = useTezosNetwork();
   const tezos = useTezos();
 
-  const networkId = NETWORK_IDS.get(chainId)!;
-  return useMemo(() => getClient(networkId === 'mainnet' ? networkId : 'custom', tezos), [networkId, tezos]);
+  const networkName = NETWORK_NAMES.get(chainId)!;
+  return useMemo(() => getClient(networkName === 'mainnet' ? networkName : 'custom', tezos), [networkName, tezos]);
 }
 
 export function useTezosAddressByDomainName(domainName: string) {

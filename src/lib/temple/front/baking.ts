@@ -17,7 +17,7 @@ import { useRetryableSWR } from 'lib/swr';
 import { getOnlineStatus } from 'lib/ui/get-online-status';
 import { useTezosNetwork } from 'temple/hooks';
 
-import { useNetwork, useTezos } from './ready';
+import { useTezos } from './ready';
 
 function getDelegateCacheKey(
   rpcUrl: string,
@@ -129,7 +129,8 @@ const defaultRewardConfigHistory = [
 ];
 
 export function useKnownBaker(address: string | null, suspense = true) {
-  const net = useNetwork();
+  const { isMainnet } = useTezosNetwork();
+
   const fetchBaker = useCallback(async (): Promise<Baker | null> => {
     if (!address) return null;
     try {
@@ -173,7 +174,8 @@ export function useKnownBaker(address: string | null, suspense = true) {
       return null;
     }
   }, [address]);
-  return useRetryableSWR(net.type === 'main' && address ? ['baker', address] : null, fetchBaker, {
+
+  return useRetryableSWR(isMainnet && address ? ['baker', address] : null, fetchBaker, {
     refreshInterval: 120_000,
     dedupingInterval: 60_000,
     suspense
@@ -181,8 +183,9 @@ export function useKnownBaker(address: string | null, suspense = true) {
 }
 
 export function useKnownBakers(suspense = true) {
-  const net = useNetwork();
-  const { data: bakers } = useRetryableSWR(net.type === 'main' ? 'all-bakers' : null, getAllBakersBakingBad, {
+  const { isMainnet } = useTezosNetwork();
+
+  const { data: bakers } = useRetryableSWR(isMainnet ? 'all-bakers' : null, getAllBakersBakingBad, {
     refreshInterval: 120_000,
     dedupingInterval: 60_000,
     suspense

@@ -3,7 +3,6 @@ import React, { FC, useCallback, useEffect, useMemo } from 'react';
 import { localForger } from '@taquito/local-forging';
 import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
-import { useDispatch } from 'react-redux';
 
 import { Alert, FormSubmitButton, FormSecondaryButton } from 'app/atoms';
 import ConfirmLedgerOverlay from 'app/atoms/ConfirmLedgerOverlay';
@@ -13,6 +12,7 @@ import { useAppEnv } from 'app/env';
 import { ReactComponent as CodeAltIcon } from 'app/icons/code-alt.svg';
 import { ReactComponent as EyeIcon } from 'app/icons/eye.svg';
 import { ReactComponent as HashIcon } from 'app/icons/hash.svg';
+import { dispatch } from 'app/store';
 import { setOnRampPossibilityAction } from 'app/store/settings/actions';
 import AccountBanner from 'app/templates/AccountBanner';
 import ExpensesView, { ModifyFeeAndLimit } from 'app/templates/ExpensesView/ExpensesView';
@@ -25,10 +25,11 @@ import { TEZ_TOKEN_SLUG, toTokenSlug } from 'lib/assets';
 import { useRawBalance } from 'lib/balances';
 import { T, t } from 'lib/i18n';
 import { useRetryableSWR } from 'lib/swr';
-import { useChainIdValue, useNetwork, useRelevantAccounts, tryParseExpenses } from 'lib/temple/front';
+import { useChainIdValue, useRelevantAccounts, tryParseExpenses } from 'lib/temple/front';
 import { TempleAccountType, TempleChainId, TempleConfirmationPayload } from 'lib/temple/types';
 import { useSafeState } from 'lib/ui/hooks';
 import { isTruthy } from 'lib/utils';
+import { useTezosNetwork } from 'temple/hooks';
 
 import { InternalConfirmationSelectors } from './InternalConfirmation.selectors';
 
@@ -41,9 +42,8 @@ type InternalConfiramtionProps = {
 const MIN_GAS_FEE = 0;
 
 const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfirm, error: payloadError }) => {
-  const { rpcBaseURL: currentNetworkRpc } = useNetwork();
+  const { rpcUrl: currentNetworkRpc } = useTezosNetwork();
   const { popup } = useAppEnv();
-  const dispatch = useDispatch();
 
   const getContentToParse = useCallback(async () => {
     switch (payload.type) {
@@ -104,7 +104,7 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
     if (tezBalance && new BigNumber(tezBalance).isLessThanOrEqualTo(totalTransactionCost)) {
       dispatch(setOnRampPossibilityAction(true));
     }
-  }, [dispatch, tezBalance, totalTransactionCost]);
+  }, [tezBalance, totalTransactionCost]);
 
   const signPayloadFormats: ViewsSwitcherItemProps[] = useMemo(() => {
     if (payload.type === 'operations') {

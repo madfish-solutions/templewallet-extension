@@ -4,9 +4,10 @@ import { TabSwitcher } from 'app/atoms';
 import { ReactComponent as DownloadIcon } from 'app/icons/download.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import { TID, T } from 'lib/i18n';
-import { useSetAccountPkh, useAllAccounts, useNetwork } from 'lib/temple/front';
+import { useSetAccountPkh, useAllAccounts } from 'lib/temple/front';
 import { isTruthy } from 'lib/utils';
 import { navigate } from 'lib/woozie';
+import { useTezosNetwork } from 'temple/hooks';
 
 import { ByFundraiserForm } from './ByFundraiserForm';
 import { ByMnemonicForm } from './ByMnemonicForm';
@@ -26,12 +27,12 @@ interface ImportTabDescriptor {
 }
 
 const ImportAccount: FC<ImportAccountProps> = ({ tabSlug }) => {
-  const network = useNetwork();
+  const { isMainnet } = useTezosNetwork();
   const allAccounts = useAllAccounts();
   const setAccountPkh = useSetAccountPkh();
 
   const prevAccLengthRef = useRef(allAccounts.length);
-  const prevNetworkRef = useRef(network);
+  const prevIsMainnetRef = useRef(isMainnet);
 
   useEffect(() => {
     const accLength = allAccounts.length;
@@ -59,13 +60,13 @@ const ImportAccount: FC<ImportAccountProps> = ({ tabSlug }) => {
         i18nKey: 'fundraiser',
         Form: ByFundraiserForm
       },
-      network.type !== 'main'
-        ? {
+      isMainnet
+        ? null
+        : {
             slug: 'faucet',
             i18nKey: 'faucetFileTitle',
             Form: FromFaucetForm
-          }
-        : null,
+          },
       {
         slug: 'managed-kt',
         i18nKey: 'managedKTAccount',
@@ -79,7 +80,7 @@ const ImportAccount: FC<ImportAccountProps> = ({ tabSlug }) => {
     ];
 
     return unfiltered.filter(isTruthy);
-  }, [network.type]);
+  }, [isMainnet]);
 
   const { slug, Form } = useMemo(() => {
     const tab = tabSlug ? allTabs.find(currentTab => currentTab.slug === tabSlug) : null;
@@ -87,12 +88,11 @@ const ImportAccount: FC<ImportAccountProps> = ({ tabSlug }) => {
   }, [allTabs, tabSlug]);
 
   useEffect(() => {
-    const prevNetworkType = prevNetworkRef.current.type;
-    prevNetworkRef.current = network;
-    if (prevNetworkType !== 'main' && network.type === 'main' && slug === 'faucet') {
-      navigate(`/import-account/private-key`);
-    }
-  }, [network, slug]);
+    const prevIsMainnet = prevIsMainnetRef.current;
+    prevIsMainnetRef.current = isMainnet;
+
+    if (slug === 'faucet' && isMainnet && !prevIsMainnet) navigate(`/import-account/private-key`);
+  }, [isMainnet, slug]);
 
   return (
     <PageLayout

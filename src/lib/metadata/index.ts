@@ -17,8 +17,8 @@ import {
 } from 'app/store/tokens-metadata/selectors';
 import { METADATA_API_LOAD_CHUNK_SIZE } from 'lib/apis/temple';
 import { isTezAsset } from 'lib/assets';
-import { useNetwork } from 'lib/temple/front';
 import { isTruthy } from 'lib/utils';
+import { useTezosNetwork } from 'temple/hooks';
 
 import { TEZOS_METADATA, FILM_METADATA } from './defaults';
 import { AssetMetadataBase, TokenMetadata } from './types';
@@ -27,9 +27,9 @@ export type { AssetMetadataBase, TokenMetadata } from './types';
 export { TEZOS_METADATA, EMPTY_BASE_METADATA } from './defaults';
 
 export const useGasTokenMetadata = () => {
-  const network = useNetwork();
+  const { isDcp } = useTezosNetwork();
 
-  return network.type === 'dcp' ? FILM_METADATA : TEZOS_METADATA;
+  return isDcp ? FILM_METADATA : TEZOS_METADATA;
 };
 
 export const useAssetMetadata = (slug: string): AssetMetadataBase | undefined => {
@@ -100,7 +100,7 @@ const useAssetsMetadataPresenceCheck = (
   getMetadata: TokenMetadataGetter,
   slugsToCheck?: string[]
 ) => {
-  const { rpcBaseURL: rpcUrl } = useNetwork();
+  const { rpcUrl } = useTezosNetwork();
   const dispatch = useDispatch();
 
   const checkedRef = useRef<string[]>([]);

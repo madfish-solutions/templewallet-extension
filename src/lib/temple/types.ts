@@ -129,7 +129,7 @@ export type TempleNetwork = TempleNetworkBase &
       }
   );
 
-export type TempleNetworkType = 'main' | 'test' | 'dcp';
+type TempleNetworkType = 'main' | 'test' | 'dcp';
 
 export interface TempleSettings {
   customNetworks?: TempleNetwork[];

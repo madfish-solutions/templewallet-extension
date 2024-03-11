@@ -47,7 +47,6 @@ import { loadContract } from 'lib/temple/contract';
 import {
   isDomainNameValid,
   useAccount,
-  useNetwork,
   useTezos,
   useTezosDomainsClient,
   useFilteredContacts,
@@ -55,10 +54,11 @@ import {
 } from 'lib/temple/front';
 import { useTezosAddressByDomainName } from 'lib/temple/front/tzdns';
 import { hasManager, isAddressValid, isKTAddress, mutezToTz, tzToMutez } from 'lib/temple/helpers';
-import { TempleAccountType, TempleAccount, TempleNetworkType } from 'lib/temple/types';
+import { TempleAccountType, TempleAccount } from 'lib/temple/types';
 import { useSafeState } from 'lib/ui/hooks';
 import { useScrollIntoView } from 'lib/ui/use-scroll-into-view';
 import { ZERO } from 'lib/utils/numbers';
+import { useTezosNetwork } from 'temple/hooks';
 
 import ContactsDropdown, { ContactsDropdownProps } from './ContactsDropdown';
 import { FeeSection } from './FeeSection';
@@ -90,7 +90,7 @@ export const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactReque
   const assetSymbol = useMemo(() => getAssetSymbol(assetMetadata), [assetMetadata]);
 
   const { allContacts } = useFilteredContacts();
-  const network = useNetwork();
+  const { isMainnet } = useTezosNetwork();
   const acc = useAccount();
   const tezos = useTezos();
   const domainsClient = useTezosDomainsClient();
@@ -105,7 +105,7 @@ export const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactReque
 
   const [shoudUseFiat, setShouldUseFiat] = useSafeState(false);
 
-  const canToggleFiat = getAssetPriceByNetwork(network.type, assetPrice.toNumber());
+  const canToggleFiat = isMainnet;
   const prevCanToggleFiat = useRef(canToggleFiat);
 
   /**
@@ -701,9 +701,6 @@ const estimateMaxFee = async (
   }
   return estmtnMax;
 };
-
-const getAssetPriceByNetwork = (network: TempleNetworkType, assetPrice: number | null) =>
-  network === 'main' && assetPrice !== null;
 
 const getBaseFeeError = (baseFee: BigNumber | ArtificialError | undefined, estimateBaseFeeError: any) =>
   baseFee instanceof Error ? baseFee : estimateBaseFeeError;
