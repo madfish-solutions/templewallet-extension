@@ -23,3 +23,9 @@ export const useBalancesLoadingSelector = (publicKeyHash: string, chainId: strin
 
   return useSelector(state => state.balances.balancesAtomic[publicKeyHashWithChainId]?.isLoading ?? false);
 };
+
+export const useBalancesErrorSelector = (publicKeyHash: string, chainId: string) => {
+  const publicKeyHashWithChainId = getKeyForBalancesRecord(publicKeyHash, chainId);
+
+  return useSelector(state => state.balances.balancesAtomic[publicKeyHashWithChainId]?.error);
+};

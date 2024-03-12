@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
+import { isDefined } from '@rnw-community/shared';
 import { noop } from 'lodash';
 import { useDispatch } from 'react-redux';
 
 import { loadGasBalanceActions, loadAssetsBalancesActions, putTokensBalancesAction } from 'app/store/balances/actions';
-import { useBalancesLoadingSelector } from 'app/store/balances/selectors';
+import { useBalancesErrorSelector, useBalancesLoadingSelector } from 'app/store/balances/selectors';
 import { fixBalances } from 'app/store/balances/utils';
 import {
   TzktSubscriptionChannel,
@@ -31,6 +32,9 @@ export const useBalancesLoading = () => {
     // Using initial `false` & only updating on further changes.
     isLoadingRef.current = isLoading;
   }, [isLoading]);
+
+  const storedError = useBalancesErrorSelector(publicKeyHash, chainId);
+  const isStoredError = isDefined(storedError);
 
   const { connection, connectionReady } = useTzktConnection();
   const [tokensSubscriptionConfirmed, setTokensSubscriptionConfirmed] = useState(false);
@@ -130,7 +134,7 @@ export const useBalancesLoading = () => {
   }, [publicKeyHash, chainId, isLoadingRef, dispatch]);
 
   useEffect(dispatchLoadGasBalanceAction, [dispatchLoadGasBalanceAction]);
-  useOnBlock(dispatchLoadGasBalanceAction, undefined, accountsSubscriptionConfirmed);
+  useOnBlock(dispatchLoadGasBalanceAction, undefined, accountsSubscriptionConfirmed && isStoredError === false);
 
   const dispatchLoadAssetsBalancesActions = useCallback(() => {
     if (isLoadingRef.current === false && isKnownChainId(chainId)) {
@@ -139,5 +143,5 @@ export const useBalancesLoading = () => {
   }, [publicKeyHash, chainId, isLoadingRef, dispatch]);
 
   useEffect(dispatchLoadAssetsBalancesActions, [dispatchLoadAssetsBalancesActions]);
-  useOnBlock(dispatchLoadAssetsBalancesActions, undefined, tokensSubscriptionConfirmed);
+  useOnBlock(dispatchLoadAssetsBalancesActions, undefined, tokensSubscriptionConfirmed && isStoredError === false);
 };
