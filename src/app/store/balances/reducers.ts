@@ -13,6 +13,12 @@ export const balancesReducer = createReducer(balancesInitialState, builder => {
     records.data[TEZ_TOKEN_SLUG] = payload.balance;
   });
 
+  builder.addCase(loadGasBalanceActions.fail, (state, { payload }) => {
+    const records = retrieveBalancesRecord(state, payload.publicKeyHash, payload.chainId);
+
+    records.error = payload.error;
+  });
+
   builder.addCase(loadAssetsBalancesActions.submit, (state, { payload }) => {
     const records = retrieveBalancesRecord(state, payload.publicKeyHash, payload.chainId);
 
