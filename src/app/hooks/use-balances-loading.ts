@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { noop } from 'lodash';
 import { useDispatch } from 'react-redux';
@@ -17,14 +17,20 @@ import {
 } from 'lib/apis/tzkt';
 import { toTokenSlug } from 'lib/assets';
 import { useAccount, useChainId, useOnBlock, useTzktConnection } from 'lib/temple/front';
-import { useUpdatableRef } from 'lib/ui/hooks';
+import { useDidUpdate } from 'lib/ui/hooks';
 
 export const useBalancesLoading = () => {
   const chainId = useChainId(true)!;
   const { publicKeyHash } = useAccount();
 
   const isLoading = useBalancesLoadingSelector(publicKeyHash, chainId);
-  const isLoadingRef = useUpdatableRef(isLoading);
+  const isLoadingRef = useRef(false);
+
+  useDidUpdate(() => {
+    // Persisted `isLoading` value might be `true`.
+    // Using initial `false` & only updating on further changes.
+    isLoadingRef.current = isLoading;
+  }, [isLoading]);
 
   const { connection, connectionReady } = useTzktConnection();
   const [tokensSubscriptionConfirmed, setTokensSubscriptionConfirmed] = useState(false);
