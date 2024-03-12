@@ -26,6 +26,7 @@ import { useGasToken } from 'lib/assets/hooks';
 import { T, t } from 'lib/i18n';
 import { useRetryableSWR } from 'lib/swr';
 import { useDelegate } from 'lib/temple/front';
+import { TempleAccountType } from 'lib/temple/types';
 import useTippy from 'lib/ui/useTippy';
 import { Link } from 'lib/woozie';
 import { useTezosAccount, useTezosNetwork } from 'temple/hooks';
@@ -71,8 +72,8 @@ const links = [
 
 const BakingSection = memo(() => {
   const account = useTezosAccount();
-  const { data: myBakerPkh } = useDelegate(account.address, true, false);
-  const canDelegate = account.isWatchOnly === false;
+  const { data: myBakerPkh } = useDelegate(account.publicKeyHash, true, false);
+  const canDelegate = account.type !== TempleAccountType.WatchOnly;
   const { chainId } = useTezosNetwork();
   const { isDcpNetwork } = useGasToken();
   const testGroupName = useUserTestingGroupNameSelector();
@@ -101,7 +102,7 @@ const BakingSection = memo(() => {
     []
   );
   const { data: bakingHistory, isValidating: loadingBakingHistory } = useRetryableSWR(
-    ['baking-history', account.address, myBakerPkh, chainId],
+    ['baking-history', account.publicKeyHash, myBakerPkh, chainId],
     getBakingHistory,
     { suspense: true, revalidateOnFocus: false, revalidateOnReconnect: false }
   );

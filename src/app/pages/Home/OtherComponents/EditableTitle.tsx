@@ -26,7 +26,7 @@ const buttonClassNames = [
 
 const EditableTitle: FC = () => {
   const { editAccountName } = useTempleClient();
-  const account = useTezosAccount();
+  const { publicKeyHash, name: accountTitle } = useTezosAccount();
   const customAlert = useAlert();
   const formAnalytics = useFormAnalytics('ChangeAccountName');
 
@@ -36,12 +36,12 @@ const EditableTitle: FC = () => {
   const accNamePrevRef = useRef<string>();
 
   useEffect(() => {
-    if (accNamePrevRef.current && accNamePrevRef.current !== account.title && editing) {
+    if (accNamePrevRef.current && accNamePrevRef.current !== accountTitle && editing) {
       setEditing(false);
     }
 
-    accNamePrevRef.current = account.title;
-  }, [account.title, editing, setEditing]);
+    accNamePrevRef.current = accountTitle;
+  }, [accountTitle, editing, setEditing]);
 
   useEffect(() => {
     if (editing) {
@@ -74,8 +74,8 @@ const EditableTitle: FC = () => {
         formAnalytics.trackSubmit();
         try {
           const newName = editAccNameFieldRef.current?.value;
-          if (newName && newName !== account.title) {
-            await editAccountName(account.address, newName);
+          if (newName && newName !== accountTitle) {
+            await editAccountName(publicKeyHash, newName);
           }
 
           setEditing(false);
@@ -93,7 +93,7 @@ const EditableTitle: FC = () => {
         }
       })();
     },
-    [account.title, editAccountName, account.address, customAlert, formAnalytics]
+    [accountTitle, editAccountName, publicKeyHash, customAlert, formAnalytics]
   );
 
   const handleEditFieldFocus = useCallback(() => {
@@ -113,7 +113,7 @@ const EditableTitle: FC = () => {
           <FormField
             ref={editAccNameFieldRef}
             name="name"
-            defaultValue={account.title}
+            defaultValue={accountTitle}
             maxLength={16}
             pattern={ACCOUNT_NAME_PATTERN.toString().slice(1, -1)}
             title={t('accountNameInputTitle')}
@@ -146,7 +146,7 @@ const EditableTitle: FC = () => {
             style={{ maxWidth: '24rem', fontSize: 23 }}
             testID={HomeSelectors.accountNameText}
           >
-            {account.title}
+            {accountTitle}
           </Name>
 
           {!editing && (

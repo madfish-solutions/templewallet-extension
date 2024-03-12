@@ -35,7 +35,7 @@ const ActivateAccount = memo(() => {
       setSuccess(null);
 
       try {
-        const activation = await activateAccount(account.address, data.secret.replace(/\s/g, ''), tezos);
+        const activation = await activateAccount(account.publicKeyHash, data.secret.replace(/\s/g, ''), tezos);
         switch (activation.status) {
           case 'ALREADY_ACTIVATED':
             setSuccess(`🏁 ${t('accountAlreadyActivated')}`);
@@ -55,7 +55,7 @@ const ActivateAccount = memo(() => {
         setError('secret', SUBMIT_ERROR_TYPE, mes);
       }
     },
-    [clearError, submitting, setError, setSuccess, account.address, tezos]
+    [clearError, submitting, setError, setSuccess, account.publicKeyHash, tezos]
   );
 
   const submit = useMemo(() => handleSubmit(onSubmit), [handleSubmit, onSubmit]);

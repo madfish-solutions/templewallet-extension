@@ -24,6 +24,7 @@ import { buildTokenImagesStack } from 'lib/images-uri';
 import { getAssetName } from 'lib/metadata';
 import { useRetryableSWR } from 'lib/swr';
 import { atomsToTokens } from 'lib/temple/helpers';
+import { TempleAccountType } from 'lib/temple/types';
 import { useInterval } from 'lib/ui/hooks';
 import { ImageStacked } from 'lib/ui/ImageStacked';
 import { navigate } from 'lib/woozie';
@@ -60,8 +61,8 @@ const CollectiblePage = memo<Props>(({ assetSlug }) => {
   );
   const offers = extraDetails?.offers_active;
 
-  const { address: publicKeyHash } = account;
-  const accountCanSign = account.isWatchOnly === false;
+  const { publicKeyHash } = account;
+  const accountCanSign = account.type !== TempleAccountType.WatchOnly;
 
   const areDetailsLoading = areAnyCollectiblesDetailsLoading && details === undefined;
 

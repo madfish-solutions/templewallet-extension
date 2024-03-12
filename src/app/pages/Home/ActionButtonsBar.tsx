@@ -12,6 +12,7 @@ import { ReactComponent as WithdrawIcon } from 'app/icons/withdraw.svg';
 import { buildSwapPageUrlQuery } from 'app/pages/Swap/utils/build-url-query';
 import { TestIDProps } from 'lib/analytics';
 import { TID, T, t } from 'lib/i18n';
+import { TempleAccountType } from 'lib/temple/types';
 import useTippy from 'lib/ui/useTippy';
 import { createUrl, Link, To } from 'lib/woozie';
 import { createLocationState } from 'lib/woozie/location';
@@ -34,7 +35,7 @@ export const ActionButtonsBar = memo<Props>(({ assetSlug }) => {
   const account = useTezosAccount();
   const { isMainnet, isDcp } = useTezosNetwork();
 
-  const canSend = account.isWatchOnly === false;
+  const canSend = account.type !== TempleAccountType.WatchOnly;
   const sendLink = assetSlug ? `/send/${assetSlug}` : '/send';
 
   const swapLink = useMemo(

@@ -50,7 +50,7 @@ const Control: FC = () => {
     <>
       <div className="flex-1 flex flex-col items-end">
         <div className="max-w-full overflow-x-hidden">
-          <Name className="text-primary-white text-sm font-semibold text-shadow-black opacity-90">{account.title}</Name>
+          <Name className="text-primary-white text-sm font-semibold text-shadow-black opacity-90">{account.name}</Name>
         </div>
 
         <div className="flex-1" />
@@ -79,7 +79,7 @@ const Control: FC = () => {
             onClick={toggleOpened}
             testID={HeaderSelectors.accountIcon}
           >
-            <Identicon type="bottts" hash={account.address} size={48} />
+            <Identicon type="bottts" hash={account.publicKeyHash} size={48} />
           </Button>
         )}
       </Popper>

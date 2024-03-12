@@ -3,6 +3,9 @@ import { useMemo } from 'react';
 import { useChainId, useNetwork, useAccount, useAccountPkh, useAllAccounts } from 'lib/temple/front/ready';
 import { TempleAccountType, TempleChainId, NewTempleAccountBase } from 'lib/temple/types';
 
+// ts-prune-ignore-next
+export const useTezosRpcUrl = () => useNetwork().rpcBaseURL;
+
 // @ts-expect-error
 // ts-prune-ignore-next
 interface TezosNetwork {
@@ -32,20 +35,7 @@ interface TezosAccount extends NewTempleAccountBase {
   //
 }
 
-export const useTezosAccount = () => {
-  const { publicKeyHash: address, type, derivationPath, name } = useAccount();
-
-  return useMemo(
-    () => ({
-      address,
-      type,
-      isWatchOnly: type === TempleAccountType.WatchOnly,
-      derivationPath,
-      title: name
-    }),
-    [address, type, name, derivationPath]
-  );
-};
+export const useTezosAccount = useAccount;
 
 export const useTezosAccountAddress = useAccountPkh;
 

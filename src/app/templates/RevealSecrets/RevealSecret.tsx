@@ -36,11 +36,11 @@ const RevealSecret: FC<RevealSecretProps> = ({ reveal }) => {
   const [secret, setSecret] = useVanishingState();
 
   useEffect(() => {
-    if (account.address) {
+    if (account.publicKeyHash) {
       return () => setSecret(null);
     }
     return undefined;
-  }, [account.address, setSecret]);
+  }, [account.publicKeyHash, setSecret]);
 
   const formRef = useRef<HTMLFormElement>(null);
 
@@ -62,7 +62,7 @@ const RevealSecret: FC<RevealSecretProps> = ({ reveal }) => {
 
         switch (reveal) {
           case 'private-key':
-            scrt = await revealPrivateKey(account.address, password);
+            scrt = await revealPrivateKey(account.publicKeyHash, password);
             break;
 
           case 'seed-phrase':
@@ -87,7 +87,7 @@ const RevealSecret: FC<RevealSecretProps> = ({ reveal }) => {
       setError,
       revealPrivateKey,
       revealMnemonic,
-      account.address,
+      account.publicKeyHash,
       setSecret,
       focusPasswordField
     ]
