@@ -24,12 +24,12 @@ import { CustomRpcContext } from 'lib/analytics';
 import { useGasToken } from 'lib/assets/hooks';
 import { T, t } from 'lib/i18n';
 import { useRetryableSWR } from 'lib/swr';
-import { useTempleClient, useChainIdValue, useAllAccounts } from 'lib/temple/front';
+import { useTempleClient, useAllAccounts } from 'lib/temple/front';
 import { TempleAccountType, TempleDAppPayload, StoredAccount, TempleChainId } from 'lib/temple/types';
 import { useSafeState } from 'lib/ui/hooks';
 import { delay } from 'lib/utils';
 import { useLocation } from 'lib/woozie';
-import { useTezosAccountAddress } from 'temple/hooks';
+import { useTezosAccountAddress, useTezosChainIdLoadingValue } from 'temple/hooks';
 import { isTezosAccountOfActableType } from 'temple/tezos';
 
 import { ConfirmPageSelectors } from './ConfirmPage.selectors';
@@ -75,7 +75,7 @@ const PayloadContent: React.FC<PayloadContentProps> = ({
   modifyFeeAndLimit
 }) => {
   const AccountOptionContent = useMemo(() => AccountOptionContentHOC(payload.networkRpc), [payload.networkRpc]);
-  const chainId = useChainIdValue(payload.networkRpc, true)!;
+  const chainId = useTezosChainIdLoadingValue(payload.networkRpc, true)!;
   const mainnet = chainId === TempleChainId.Mainnet;
 
   const allAccounts = useAllAccounts();

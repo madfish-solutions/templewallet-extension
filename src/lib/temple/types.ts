@@ -98,13 +98,6 @@ export interface StoredAccountBase {
   derivationType?: DerivationType;
 }
 
-export interface NewTempleAccountBase {
-  address: string;
-  type: TempleAccountType;
-  isWatchOnly: boolean;
-  title: string;
-}
-
 export enum TempleAccountType {
   HD,
   Imported,

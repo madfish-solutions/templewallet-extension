@@ -1,11 +1,10 @@
-import { useCallback, useEffect, useLayoutEffect, useMemo } from 'react';
+import { useEffect, useLayoutEffect, useMemo } from 'react';
 
 import constate from 'constate';
 
 import { ACCOUNT_PKH_STORAGE_KEY } from 'lib/constants';
 import { IS_DEV_ENV } from 'lib/env';
-import { useRetryableSWR } from 'lib/swr';
-import { loadChainId, michelEncoder, loadFastRpcClient } from 'lib/temple/helpers';
+import { michelEncoder, loadFastRpcClient } from 'lib/temple/helpers';
 import {
   ReadyTempleState,
   TempleAccountType,
@@ -147,27 +146,6 @@ function useReadyTemple() {
     settings,
     tezos
   };
-}
-
-export function useChainId(suspense?: boolean) {
-  const tezos = useTezos();
-  const rpcUrl = useMemo(() => tezos.rpc.getRpcUrl(), [tezos]);
-
-  const { data: chainId } = useChainIdLoading(rpcUrl, suspense);
-
-  return chainId;
-}
-
-export function useChainIdValue(rpcUrl: string, suspense?: boolean) {
-  const { data: chainId } = useChainIdLoading(rpcUrl, suspense);
-
-  return chainId;
-}
-
-export function useChainIdLoading(rpcUrl: string, suspense?: boolean) {
-  const fetchChainId = useCallback(() => loadChainId(rpcUrl).catch(() => null), [rpcUrl]);
-
-  return useRetryableSWR(['chain-id', rpcUrl], fetchChainId, { suspense, revalidateOnFocus: false });
 }
 
 function assertReady(state: TempleState): asserts state is ReadyTempleState {

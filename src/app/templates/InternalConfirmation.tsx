@@ -25,11 +25,11 @@ import { TEZ_TOKEN_SLUG, toTokenSlug } from 'lib/assets';
 import { useRawBalance } from 'lib/balances';
 import { T, t } from 'lib/i18n';
 import { useRetryableSWR } from 'lib/swr';
-import { useChainIdValue, tryParseExpenses } from 'lib/temple/front';
+import { tryParseExpenses } from 'lib/temple/front';
 import { TempleAccountType, TempleChainId, TempleConfirmationPayload } from 'lib/temple/types';
 import { useSafeState } from 'lib/ui/hooks';
 import { isTruthy } from 'lib/utils';
-import { useTezosNetwork, useTezosRelevantAccounts } from 'temple/hooks';
+import { useTezosChainIdLoadingValue, useTezosNetwork, useTezosRelevantAccounts } from 'temple/hooks';
 
 import { InternalConfirmationSelectors } from './InternalConfirmation.selectors';
 
@@ -65,7 +65,7 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
 
   const networkRpc = payload.type === 'operations' ? payload.networkRpc : currentNetworkRpc;
 
-  const chainId = useChainIdValue(networkRpc, true)!;
+  const chainId = useTezosChainIdLoadingValue(networkRpc, true)!;
   const mainnet = chainId === TempleChainId.Mainnet;
 
   const accounts = useTezosRelevantAccounts(chainId);

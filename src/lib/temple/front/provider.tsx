@@ -3,7 +3,7 @@ import React, { FC, useMemo } from 'react';
 import { ShortcutAccountSelectStateProvider } from 'app/hooks/use-account-select-shortcut';
 import { usePushNotifications } from 'app/hooks/use-push-notifications';
 import { CustomRpcContext } from 'lib/analytics';
-import { useTezosNetwork } from 'temple/hooks';
+import { useTezosNetwork, useTezosNetworkRpcUrl } from 'temple/hooks';
 
 import { NewBlockTriggersProvider } from './chain';
 import { TempleClientProvider, useTempleClient } from './client';
@@ -41,12 +41,9 @@ const ConditionalReadyTemple: FC<PropsWithChildren> = ({ children }) => {
   );
 };
 
-/**
- * TODO: Why do we need this?
- *
- * Note: Didn't have suspense here before. Hint: Have a `useTezosRpcUrl()` */
+/** TODO: Why do we need this? */
 const WalletRpcProvider: FC<PropsWithChildren> = ({ children }) => {
-  const { rpcUrl } = useTezosNetwork();
+  const rpcUrl = useTezosNetworkRpcUrl();
 
   return <CustomRpcContext.Provider value={rpcUrl}>{children}</CustomRpcContext.Provider>;
 };

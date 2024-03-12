@@ -1,10 +1,9 @@
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 
-import { useChainId, useNetwork, useAccount, useAccountPkh, useAllAccounts } from 'lib/temple/front/ready';
-import { TempleAccountType, TempleChainId, NewTempleAccountBase } from 'lib/temple/types';
-
-// ts-prune-ignore-next
-export const useTezosRpcUrl = () => useNetwork().rpcBaseURL;
+import { useRetryableSWR } from 'lib/swr';
+import { useNetwork, useAccount, useAccountPkh, useAllAccounts } from 'lib/temple/front/ready';
+import { loadChainId } from 'lib/temple/helpers';
+import { TempleAccountType, TempleChainId } from 'lib/temple/types';
 
 // @ts-expect-error
 // ts-prune-ignore-next
@@ -14,14 +13,15 @@ interface TezosNetwork {
   isMainnet: boolean;
 }
 
+/** (!) Relies on suspense - use only in PageLayout descendant components. */
 export const useTezosNetwork = () => {
-  const chainId = useChainId(true)!;
   const { rpcBaseURL: rpcUrl } = useNetwork();
+  const chainId = useTezosChainIdLoadingValue(rpcUrl, true)!;
 
   return useMemo(
     () => ({
       rpcUrl,
-      chainId,
+      chainId: chainId,
       isMainnet: chainId === TempleChainId.Mainnet,
       isDcp: chainId === TempleChainId.Dcp || chainId === TempleChainId.DcpTest
     }),
@@ -29,11 +29,15 @@ export const useTezosNetwork = () => {
   );
 };
 
+export const useTezosNetworkRpcUrl = () => useNetwork().rpcBaseURL;
+
+/** (!) Relies on suspense - use only in PageLayout descendant components. */
 // @ts-expect-error
-// ts-prune-ignore-next
-interface TezosAccount extends NewTempleAccountBase {
-  //
-}
+const useTezosNetworkChainId = () => {
+  const rpcURL = useTezosNetworkRpcUrl();
+
+  return useTezosChainIdLoadingValue(rpcURL, true)!;
+};
 
 export const useTezosAccount = useAccount;
 
@@ -58,4 +62,20 @@ export function useTezosRelevantAccounts(chainId: string) {
       }),
     [chainId, allAccounts]
   );
+}
+
+// export function useTezosChainIdLoadingValue(rpcUrl: string): string | undefined;
+// export function useTezosChainIdLoadingValue(rpcUrl: string, suspense: boolean): string | undefined;
+// export function useTezosChainIdLoadingValue(rpcUrl: string, suspense: false): string | undefined;
+// export function useTezosChainIdLoadingValue(rpcUrl: string, suspense: true): string;
+export function useTezosChainIdLoadingValue(rpcUrl: string, suspense?: boolean): string | undefined {
+  const { data: chainId } = useTezosChainIdLoading(rpcUrl, suspense);
+
+  return chainId;
+}
+
+export function useTezosChainIdLoading(rpcUrl: string, suspense?: boolean) {
+  const fetchChainId = useCallback(() => loadChainId(rpcUrl), [rpcUrl]);
+
+  return useRetryableSWR(['chain-id', rpcUrl], fetchChainId, { suspense, revalidateOnFocus: false });
 }

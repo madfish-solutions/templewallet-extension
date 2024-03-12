@@ -10,9 +10,7 @@ export {
   useSetAccountPkh,
   useAccount,
   useSettings,
-  useTezos,
-  useChainIdValue,
-  useChainIdLoading
+  useTezos
 } from './ready';
 
 export { validateDerivationPath, validateContractAddress } from './helpers';
