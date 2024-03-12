@@ -4,6 +4,10 @@ import { Tzip16Module } from '@taquito/tzip16';
 import memoizee from 'memoizee';
 
 import { loadFastRpcClient, michelEncoder } from 'lib/temple/helpers';
+import { TempleAccountBase, TempleAccountType } from 'lib/temple/types';
+
+export const isTezosAccountOfActableType = (account: TempleAccountBase) =>
+  !(account.type === TempleAccountType.WatchOnly || account.type === TempleAccountType.ManagedKT);
 
 export const buildFastRpcTezosToolkit = memoizee(
   (rpcUrl: string) => {

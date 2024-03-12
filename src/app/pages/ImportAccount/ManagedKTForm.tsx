@@ -13,11 +13,11 @@ import { useFormAnalytics } from 'lib/analytics';
 import { getOneUserContracts, TzktRelatedContract, isKnownChainId } from 'lib/apis/tzkt';
 import { T, t } from 'lib/i18n';
 import { useRetryableSWR } from 'lib/swr';
-import { useRelevantAccounts, useTezos, useTempleClient } from 'lib/temple/front';
+import { useTezos, useTempleClient } from 'lib/temple/front';
 import { isAddressValid } from 'lib/temple/helpers';
 import { TempleAccountType } from 'lib/temple/types';
 import { delay } from 'lib/utils';
-import { useTezosNetwork } from 'temple/hooks';
+import { useTezosNetwork, useTezosRelevantAccounts } from 'temple/hooks';
 
 import { ImportAccountSelectors, ImportAccountFormType } from './selectors';
 
@@ -28,11 +28,11 @@ type ImportKTAccountFormData = {
 const getContractAddress = (contract: TzktRelatedContract) => contract.address;
 
 export const ManagedKTForm: FC = () => {
-  const accounts = useRelevantAccounts();
+  const { chainId } = useTezosNetwork();
+  const accounts = useTezosRelevantAccounts(chainId);
   const tezos = useTezos();
   const { importKTManagedAccount } = useTempleClient();
   const formAnalytics = useFormAnalytics(ImportAccountFormType.ManagedKT);
-  const { chainId } = useTezosNetwork();
 
   const [error, setError] = useState<ReactNode>(null);
 

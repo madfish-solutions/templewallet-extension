@@ -18,11 +18,11 @@ import SearchField from 'app/templates/SearchField';
 import { useGasToken } from 'lib/assets/hooks';
 import { searchHotkey } from 'lib/constants';
 import { T, t } from 'lib/i18n';
-import { useRelevantAccounts, useSetAccountPkh, useTempleClient } from 'lib/temple/front';
+import { useSetAccountPkh, useTempleClient } from 'lib/temple/front';
 import { PopperRenderProps } from 'lib/ui/Popper';
 import { searchAndFilterItems } from 'lib/utils/search-items';
 import { HistoryAction, navigate } from 'lib/woozie';
-import { useTezosAccountAddress } from 'temple/hooks';
+import { useTezosAccountAddress, useTezosNetwork, useTezosRelevantAccounts } from 'temple/hooks';
 
 import { AccountItem } from './AccountItem';
 import { ActionButtonProps, ActionButton } from './ActionButton';
@@ -37,7 +37,8 @@ interface TDropdownAction extends ActionButtonProps {
 const AccountDropdown = memo<Props>(({ opened, setOpened }) => {
   const appEnv = useAppEnv();
   const { lock } = useTempleClient();
-  const allAccounts = useRelevantAccounts();
+  const { chainId } = useTezosNetwork();
+  const allAccounts = useTezosRelevantAccounts(chainId);
   const accountAddress = useTezosAccountAddress();
   const setAccountPkh = useSetAccountPkh();
   const { assetName: gasTokenName } = useGasToken();

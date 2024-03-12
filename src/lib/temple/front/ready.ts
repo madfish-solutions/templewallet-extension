@@ -170,38 +170,6 @@ export function useChainIdLoading(rpcUrl: string, suspense?: boolean) {
   return useRetryableSWR(['chain-id', rpcUrl], fetchChainId, { suspense, revalidateOnFocus: false });
 }
 
-export function useRelevantAccounts(withExtraTypes = true) {
-  const allAccounts = useAllAccounts();
-  const accountAddress = useAccountPkh();
-  const setAccountPkh = useSetAccountPkh();
-  const lazyChainId = useChainId();
-
-  const relevantAccounts = useMemo(
-    () =>
-      allAccounts.filter(acc => {
-        switch (acc.type) {
-          case TempleAccountType.ManagedKT:
-            return withExtraTypes && acc.chainId === lazyChainId;
-
-          case TempleAccountType.WatchOnly:
-            return withExtraTypes && (!acc.chainId || acc.chainId === lazyChainId);
-
-          default:
-            return true;
-        }
-      }),
-    [allAccounts, lazyChainId, withExtraTypes]
-  );
-
-  useEffect(() => {
-    if (relevantAccounts.every(a => a.publicKeyHash !== accountAddress) && lazyChainId) {
-      setAccountPkh(relevantAccounts[0].publicKeyHash);
-    }
-  }, [relevantAccounts, accountAddress, setAccountPkh, lazyChainId]);
-
-  return relevantAccounts;
-}
-
 function assertReady(state: TempleState): asserts state is ReadyTempleState {
   if (state.status !== TempleStatus.Ready) {
     throw new Error('Temple not ready');

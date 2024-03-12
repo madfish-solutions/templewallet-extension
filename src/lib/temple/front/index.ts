@@ -11,7 +11,6 @@ export {
   useAccount,
   useSettings,
   useTezos,
-  useRelevantAccounts,
   useChainIdValue,
   useChainIdLoading
 } from './ready';

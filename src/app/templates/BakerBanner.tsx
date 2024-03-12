@@ -9,7 +9,7 @@ import { ReactComponent as ChevronRightIcon } from 'app/icons/chevron-right.svg'
 import { BakingSectionSelectors } from 'app/pages/Home/OtherComponents/BakingSection.selectors';
 import { toLocalFormat, T } from 'lib/i18n';
 import { HELP_UKRAINE_BAKER_ADDRESS, RECOMMENDED_BAKER_ADDRESS } from 'lib/known-bakers';
-import { useRelevantAccounts, useKnownBaker } from 'lib/temple/front';
+import { useKnownBaker, useAllAccounts } from 'lib/temple/front';
 import { TempleAccount } from 'lib/temple/types';
 import { useTezosAccountAddress, useTezosNetwork } from 'temple/hooks';
 
@@ -22,7 +22,7 @@ type BakerBannerProps = HTMLAttributes<HTMLDivElement> & {
 };
 
 const BakerBanner = memo<BakerBannerProps>(({ bakerPkh, link = false, displayAddress = false, className, style }) => {
-  const allAccounts = useRelevantAccounts();
+  const allAccounts = useAllAccounts();
   const accountAddress = useTezosAccountAddress();
   const { popup } = useAppEnv();
   const { data: baker } = useKnownBaker(bakerPkh);

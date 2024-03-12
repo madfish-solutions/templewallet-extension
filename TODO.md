@@ -1,3 +1,6 @@
 - Reform `lib/temple`
 - - `lib/temple/back` -> `background`
 - -
+- Make sure RPC can be changed, when chainId not available
+- - Not depend on useChainId suspensed
+-

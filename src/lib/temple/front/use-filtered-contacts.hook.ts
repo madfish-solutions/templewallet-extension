@@ -3,16 +3,18 @@ import { useEffect, useMemo } from 'react';
 import { isEqual } from 'lodash';
 
 import { useMemoWithCompare } from 'lib/ui/hooks';
+import { useTezosNetwork, useTezosRelevantAccounts } from 'temple/hooks';
 
-import { TempleContact } from '../types';
+import type { TempleContact } from '../types';
 
 import { useTempleClient } from './client';
-import { useRelevantAccounts, useSettings } from './ready';
+import { useSettings } from './ready';
 
 export function useFilteredContacts() {
   const { contacts } = useSettings();
 
-  const accounts = useRelevantAccounts();
+  const { chainId } = useTezosNetwork();
+  const accounts = useTezosRelevantAccounts(chainId);
   const accountContacts = useMemo<TempleContact[]>(
     () =>
       accounts.map(acc => ({

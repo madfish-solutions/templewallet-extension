@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 
-import { useChainId, useNetwork, useAccount, useAccountPkh } from 'lib/temple/front/ready';
+import { useChainId, useNetwork, useAccount, useAccountPkh, useAllAccounts } from 'lib/temple/front/ready';
 import { TempleAccountType, TempleChainId, NewTempleAccountBase } from 'lib/temple/types';
 
 // @ts-expect-error
@@ -47,4 +47,25 @@ export const useTezosAccount = () => {
   );
 };
 
-export const useTezosAccountAddress = () => useAccountPkh();
+export const useTezosAccountAddress = useAccountPkh;
+
+export function useTezosRelevantAccounts(chainId: string) {
+  const allAccounts = useAllAccounts();
+
+  return useMemo(
+    () =>
+      allAccounts.filter(acc => {
+        switch (acc.type) {
+          case TempleAccountType.ManagedKT:
+            return acc.chainId === chainId;
+
+          case TempleAccountType.WatchOnly:
+            return !acc.chainId || acc.chainId === chainId;
+
+          default:
+            return true;
+        }
+      }),
+    [chainId, allAccounts]
+  );
+}

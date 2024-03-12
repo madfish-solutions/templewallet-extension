@@ -24,12 +24,13 @@ import { CustomRpcContext } from 'lib/analytics';
 import { useGasToken } from 'lib/assets/hooks';
 import { T, t } from 'lib/i18n';
 import { useRetryableSWR } from 'lib/swr';
-import { useTempleClient, useRelevantAccounts, useChainIdValue } from 'lib/temple/front';
+import { useTempleClient, useChainIdValue, useAllAccounts } from 'lib/temple/front';
 import { TempleAccountType, TempleDAppPayload, TempleAccount, TempleChainId } from 'lib/temple/types';
 import { useSafeState } from 'lib/ui/hooks';
 import { delay } from 'lib/utils';
 import { useLocation } from 'lib/woozie';
 import { useTezosAccountAddress } from 'temple/hooks';
+import { isTezosAccountOfActableType } from 'temple/tezos';
 
 import { ConfirmPageSelectors } from './ConfirmPage.selectors';
 
@@ -73,10 +74,12 @@ const PayloadContent: React.FC<PayloadContentProps> = ({
   error,
   modifyFeeAndLimit
 }) => {
-  const allAccounts = useRelevantAccounts(false);
   const AccountOptionContent = useMemo(() => AccountOptionContentHOC(payload.networkRpc), [payload.networkRpc]);
   const chainId = useChainIdValue(payload.networkRpc, true)!;
   const mainnet = chainId === TempleChainId.Mainnet;
+
+  const allAccounts = useAllAccounts();
+  const accounts = useMemo(() => allAccounts.filter(acc => isTezosAccountOfActableType(acc)), [allAccounts]);
 
   return payload.type === 'connect' ? (
     <div className="w-full flex flex-col">
@@ -93,7 +96,7 @@ const PayloadContent: React.FC<PayloadContentProps> = ({
       <CustomSelect<TempleAccount, string>
         activeItemId={accountPkhToConnect}
         getItemId={getPkh}
-        items={allAccounts}
+        items={accounts}
         maxHeight="8rem"
         onSelect={setAccountPkhToConnect}
         OptionIcon={AccountIcon}
@@ -118,8 +121,10 @@ const getPkh = (account: TempleAccount) => account.publicKeyHash;
 
 const ConfirmDAppForm: FC = () => {
   const { getDAppPayload, confirmDAppPermission, confirmDAppOperation, confirmDAppSign } = useTempleClient();
-  const allAccounts = useRelevantAccounts(false);
+
   const accountAddress = useTezosAccountAddress();
+
+  const allAccounts = useAllAccounts();
 
   const [accountPkhToConnect, setAccountPkhToConnect] = useState(accountAddress);
 
@@ -144,7 +149,11 @@ const ConfirmDAppForm: FC = () => {
 
   const connectedAccount = useMemo(
     () =>
-      allAccounts.find(a => a.publicKeyHash === (payload.type === 'connect' ? accountPkhToConnect : payload.sourcePkh)),
+      allAccounts.find(
+        acc =>
+          isTezosAccountOfActableType(acc) &&
+          acc.publicKeyHash === (payload.type === 'connect' ? accountPkhToConnect : payload.sourcePkh)
+      ),
     [payload, allAccounts, accountPkhToConnect]
   );
 

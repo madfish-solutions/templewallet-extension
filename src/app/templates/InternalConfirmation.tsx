@@ -25,11 +25,11 @@ import { TEZ_TOKEN_SLUG, toTokenSlug } from 'lib/assets';
 import { useRawBalance } from 'lib/balances';
 import { T, t } from 'lib/i18n';
 import { useRetryableSWR } from 'lib/swr';
-import { useChainIdValue, useRelevantAccounts, tryParseExpenses } from 'lib/temple/front';
+import { useChainIdValue, tryParseExpenses } from 'lib/temple/front';
 import { TempleAccountType, TempleChainId, TempleConfirmationPayload } from 'lib/temple/types';
 import { useSafeState } from 'lib/ui/hooks';
 import { isTruthy } from 'lib/utils';
-import { useTezosNetwork } from 'temple/hooks';
+import { useTezosNetwork, useTezosRelevantAccounts } from 'temple/hooks';
 
 import { InternalConfirmationSelectors } from './InternalConfirmation.selectors';
 
@@ -68,15 +68,17 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
   const chainId = useChainIdValue(networkRpc, true)!;
   const mainnet = chainId === TempleChainId.Mainnet;
 
-  const allAccounts = useRelevantAccounts();
+  const accounts = useTezosRelevantAccounts(chainId);
   const account = useMemo(
-    () => allAccounts.find(a => a.publicKeyHash === payload.sourcePkh)!,
-    [allAccounts, payload.sourcePkh]
+    () => accounts.find(a => a.publicKeyHash === payload.sourcePkh)!,
+    [accounts, payload.sourcePkh]
   );
+
   const rawExpensesData = useMemo(
     () => tryParseExpenses(contentToParse!, account.publicKeyHash),
     [contentToParse, account.publicKeyHash]
   );
+
   const expensesData = useMemo(() => {
     return rawExpensesData.map(({ expenses, ...restProps }) => ({
       expenses: expenses.map(({ tokenAddress, tokenId, ...restProps }) => ({

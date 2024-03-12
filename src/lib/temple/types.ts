@@ -96,7 +96,7 @@ export interface NewTempleAccountBase {
   title: string;
 }
 
-interface TempleAccountBase {
+export interface TempleAccountBase {
   type: TempleAccountType;
   name: string;
   publicKeyHash: string;
