@@ -9,7 +9,7 @@ import type * as WasmThemisPackageInterface from 'wasm-themis';
 import { formatOpParamsBeforeSend, loadFastRpcClient, michelEncoder } from 'lib/temple/helpers';
 import * as Passworder from 'lib/temple/passworder';
 import { clearAsyncStorages } from 'lib/temple/reset';
-import { TempleAccount, TempleAccountType, TempleSettings } from 'lib/temple/types';
+import { StoredAccount, TempleAccountType, TempleSettings } from 'lib/temple/types';
 
 import { createLedgerSigner } from '../ledger';
 import { PublicError } from '../PublicError';
@@ -103,7 +103,7 @@ export class Vault {
       const accPrivateKey = seedToHDPrivateKey(seed, hdAccIndex);
       const [accPublicKey, accPublicKeyHash] = await getPublicKeyAndHash(accPrivateKey);
 
-      const initialAccount: TempleAccount = {
+      const initialAccount: StoredAccount = {
         type: TempleAccountType.HD,
         name: 'Account 1',
         publicKeyHash: accPublicKeyHash,
@@ -213,7 +213,7 @@ export class Vault {
     return withError('Failed to generate sync payload', async () => {
       const [mnemonic, allAccounts] = await Promise.all([
         fetchAndDecryptOne<string>(mnemonicStrgKey, passKey),
-        fetchAndDecryptOne<TempleAccount[]>(accountsStrgKey, passKey)
+        fetchAndDecryptOne<StoredAccount[]>(accountsStrgKey, passKey)
       ]);
 
       const hdAccounts = allAccounts.filter(acc => acc.type === TempleAccountType.HD);
@@ -240,7 +240,7 @@ export class Vault {
   static async removeAccount(accPublicKeyHash: string, password: string) {
     const { passKey } = await Vault.toValidPassKey(password);
     return withError('Failed to remove account', async doThrow => {
-      const allAccounts = await fetchAndDecryptOne<TempleAccount[]>(accountsStrgKey, passKey);
+      const allAccounts = await fetchAndDecryptOne<StoredAccount[]>(accountsStrgKey, passKey);
       const acc = allAccounts.find(a => a.publicKeyHash === accPublicKeyHash);
       if (!acc || acc.type === TempleAccountType.HD) {
         doThrow();
@@ -291,7 +291,7 @@ export class Vault {
   }
 
   fetchAccounts() {
-    return fetchAndDecryptOne<TempleAccount[]>(accountsStrgKey, this.passKey);
+    return fetchAndDecryptOne<StoredAccount[]>(accountsStrgKey, this.passKey);
   }
 
   async fetchSettings() {
@@ -302,7 +302,7 @@ export class Vault {
     return saved ? { ...DEFAULT_SETTINGS, ...saved } : DEFAULT_SETTINGS;
   }
 
-  async createHDAccount(name?: string, hdAccIndex?: number): Promise<TempleAccount[]> {
+  async createHDAccount(name?: string, hdAccIndex?: number): Promise<StoredAccount[]> {
     return withError('Failed to create account', async () => {
       const [mnemonic, allAccounts] = await Promise.all([
         fetchAndDecryptOne<string>(mnemonicStrgKey, this.passKey),
@@ -324,7 +324,7 @@ export class Vault {
         return this.createHDAccount(accName, hdAccIndex + 1);
       }
 
-      const newAccount: TempleAccount = {
+      const newAccount: StoredAccount = {
         type: TempleAccountType.HD,
         name: accName,
         publicKeyHash: accPublicKeyHash,
@@ -357,7 +357,7 @@ export class Vault {
         signer.publicKeyHash()
       ]);
 
-      const newAccount: TempleAccount = {
+      const newAccount: StoredAccount = {
         type: TempleAccountType.Imported,
         name: await fetchNewAccountName(allAccounts),
         publicKeyHash: accPublicKeyHash
@@ -406,7 +406,7 @@ export class Vault {
   async importManagedKTAccount(accPublicKeyHash: string, chainId: string, owner: string) {
     return withError('Failed to import Managed KT account', async () => {
       const allAccounts = await this.fetchAccounts();
-      const newAccount: TempleAccount = {
+      const newAccount: StoredAccount = {
         type: TempleAccountType.ManagedKT,
         name: await fetchNewAccountName(
           allAccounts.filter(({ type }) => type === TempleAccountType.ManagedKT),
@@ -427,7 +427,7 @@ export class Vault {
   async importWatchOnlyAccount(accPublicKeyHash: string, chainId?: string) {
     return withError('Failed to import Watch Only account', async () => {
       const allAccounts = await this.fetchAccounts();
-      const newAccount: TempleAccount = {
+      const newAccount: StoredAccount = {
         type: TempleAccountType.WatchOnly,
         name: await fetchNewAccountName(
           allAccounts.filter(({ type }) => type === TempleAccountType.WatchOnly),
@@ -454,7 +454,7 @@ export class Vault {
         const accPublicKey = await signer.publicKey();
         const accPublicKeyHash = await signer.publicKeyHash();
 
-        const newAccount: TempleAccount = {
+        const newAccount: StoredAccount = {
           type: TempleAccountType.Ledger,
           name,
           publicKeyHash: accPublicKeyHash,

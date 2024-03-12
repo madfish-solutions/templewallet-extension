@@ -54,7 +54,7 @@ import {
 } from 'lib/temple/front';
 import { useTezosAddressByDomainName } from 'lib/temple/front/tzdns';
 import { hasManager, isAddressValid, isKTAddress, mutezToTz, tzToMutez } from 'lib/temple/helpers';
-import { TempleAccountType, TempleAccount } from 'lib/temple/types';
+import { TempleAccountType, StoredAccount } from 'lib/temple/types';
 import { useSafeState } from 'lib/ui/hooks';
 import { useScrollIntoView } from 'lib/ui/use-scroll-into-view';
 import { ZERO } from 'lib/utils/numbers';
@@ -652,7 +652,7 @@ interface FeeComponentProps {
 const getMaxAmountFiat = (assetPrice: number | null, maxAmountAsset: BigNumber) =>
   assetPrice ? maxAmountAsset.times(assetPrice).decimalPlaces(2, BigNumber.ROUND_FLOOR) : new BigNumber(0);
 
-const getMaxAmountToken = (acc: TempleAccount, balance: BigNumber, baseFee: BigNumber, safeFeeValue: number) =>
+const getMaxAmountToken = (acc: StoredAccount, balance: BigNumber, baseFee: BigNumber, safeFeeValue: number) =>
   BigNumber.max(
     acc.type === TempleAccountType.ManagedKT
       ? balance
@@ -671,7 +671,7 @@ type TransferParamsInvariant =
     };
 
 const estimateMaxFee = async (
-  acc: TempleAccount,
+  acc: StoredAccount,
   tez: boolean,
   tezos: TezosToolkit,
   to: string,

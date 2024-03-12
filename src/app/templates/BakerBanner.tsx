@@ -10,7 +10,7 @@ import { BakingSectionSelectors } from 'app/pages/Home/OtherComponents/BakingSec
 import { toLocalFormat, T } from 'lib/i18n';
 import { HELP_UKRAINE_BAKER_ADDRESS, RECOMMENDED_BAKER_ADDRESS } from 'lib/known-bakers';
 import { useKnownBaker, useAllAccounts } from 'lib/temple/front';
-import { TempleAccount } from 'lib/temple/types';
+import { StoredAccount } from 'lib/temple/types';
 import { useTezosAccountAddress, useTezosNetwork } from 'temple/hooks';
 
 import { OpenInExplorerChip } from './OpenInExplorerChip';
@@ -155,7 +155,7 @@ const BakerBanner = memo<BakerBannerProps>(({ bakerPkh, link = false, displayAdd
 export default BakerBanner;
 
 const BakerAccount: React.FC<{
-  bakerAcc: TempleAccount | null;
+  bakerAcc: StoredAccount | null;
   accPkh: string;
   bakerPkh: string;
 }> = ({ bakerAcc, accPkh, bakerPkh }) => {

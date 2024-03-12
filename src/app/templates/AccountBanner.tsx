@@ -11,16 +11,16 @@ import { useGasToken } from 'lib/assets/hooks';
 import { t } from 'lib/i18n';
 import { NewTempleAccountBase } from 'lib/temple/types';
 
-type AccountBannerProps = HTMLAttributes<HTMLDivElement> & {
+interface Props extends HTMLAttributes<HTMLDivElement> {
   account: NewTempleAccountBase;
   displayBalance?: boolean;
   networkRpc?: string;
   label?: ReactNode;
   labelDescription?: ReactNode;
   labelIndent?: 'sm' | 'md';
-};
+}
 
-const AccountBanner = memo<AccountBannerProps>(
+const AccountBanner = memo<Props>(
   ({ account, displayBalance = true, networkRpc, className, label, labelIndent = 'md', labelDescription }) => {
     const labelWithFallback = label ?? t('account');
     const { metadata } = useGasToken();

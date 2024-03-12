@@ -1,7 +1,7 @@
 import * as Bip39 from 'bip39';
 
 import * as Passworder from 'lib/temple/passworder';
-import { TempleAccount, TempleAccountType, TempleContact, TempleSettings } from 'lib/temple/types';
+import { StoredAccount, TempleAccountType, TempleContact, TempleSettings } from 'lib/temple/types';
 
 import { seedToHDPrivateKey, generateCheck, fetchNewAccountName, getPublicKeyAndHash } from './misc';
 import {
@@ -27,7 +27,7 @@ export const MIGRATIONS = [
 
     const [mnemonic, accounts] = await Promise.all([
       fetchAndDecryptOneLegacy<string>(mnemonicStrgKey, passKey),
-      fetchAndDecryptOneLegacy<TempleAccount[]>(accountsStrgKey, passKey)
+      fetchAndDecryptOneLegacy<StoredAccount[]>(accountsStrgKey, passKey)
     ]);
     const migratedAccounts = accounts.map(acc =>
       acc.type === TempleAccountType.HD
@@ -43,7 +43,7 @@ export const MIGRATIONS = [
     const accPrivateKey = seedToHDPrivateKey(seed, hdAccIndex);
     const [accPublicKey, accPublicKeyHash] = await getPublicKeyAndHash(accPrivateKey);
 
-    const newInitialAccount: TempleAccount = {
+    const newInitialAccount: StoredAccount = {
       type: TempleAccountType.HD,
       name: await fetchNewAccountName(accounts),
       publicKeyHash: accPublicKeyHash,
@@ -64,7 +64,7 @@ export const MIGRATIONS = [
   // [2] Add hdIndex prop to HD Accounts
   async (password: string) => {
     const passKey = await Passworder.generateKeyLegacy(password);
-    const accounts = await fetchAndDecryptOneLegacy<TempleAccount[]>(accountsStrgKey, passKey);
+    const accounts = await fetchAndDecryptOneLegacy<StoredAccount[]>(accountsStrgKey, passKey);
 
     let hdAccIndex = 0;
     const newAccounts = accounts.map(acc =>
@@ -103,7 +103,7 @@ export const MIGRATIONS = [
 
     const [mnemonic, accounts, settings] = await Promise.all([
       fetchLegacySafe<string>(mnemonicStrgKey),
-      fetchLegacySafe<TempleAccount[]>(accountsStrgKey),
+      fetchLegacySafe<StoredAccount[]>(accountsStrgKey),
       fetchLegacySafe<TempleSettings>(settingsStrgKey)
     ]);
 

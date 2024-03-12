@@ -3,7 +3,7 @@ import * as TaquitoUtils from '@taquito/utils';
 import * as Bip39 from 'bip39';
 import * as Ed25519 from 'ed25519-hd-key';
 
-import { TempleAccount } from 'lib/temple/types';
+import { StoredAccount } from 'lib/temple/types';
 
 import { PublicError } from '../PublicError';
 
@@ -15,7 +15,7 @@ export function generateCheck() {
   return Bip39.generateMnemonic(128);
 }
 
-export function concatAccount(current: TempleAccount[], newOne: TempleAccount) {
+export function concatAccount(current: StoredAccount[], newOne: StoredAccount) {
   if (current.every(a => a.publicKeyHash !== newOne.publicKeyHash)) {
     return [...current, newOne];
   }
@@ -26,7 +26,7 @@ export function concatAccount(current: TempleAccount[], newOne: TempleAccount) {
 type NewAccountName = 'defaultAccountName' | 'defaultManagedKTAccountName' | 'defaultWatchOnlyAccountName';
 
 export function fetchNewAccountName(
-  allAccounts: TempleAccount[],
+  allAccounts: StoredAccount[],
   templateI18nKey: NewAccountName = 'defaultAccountName'
 ) {
   return fetchMessage(templateI18nKey, String(allAccounts.length + 1));

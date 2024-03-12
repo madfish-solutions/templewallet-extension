@@ -17,7 +17,7 @@ export { DerivationType };
 
 export interface ReadyTempleState extends TempleState {
   status: TempleStatus.Ready;
-  accounts: NonEmptyArray<TempleAccount>;
+  accounts: NonEmptyArray<StoredAccount>;
   networks: NonEmptyArray<TempleNetwork>;
   settings: TempleSettings;
 }
@@ -31,7 +31,7 @@ export interface TempleDAppSession {
 
 export interface TempleState {
   status: TempleStatus;
-  accounts: TempleAccount[];
+  accounts: StoredAccount[];
   networks: TempleNetwork[];
   settings: TempleSettings | null;
 }
@@ -57,36 +57,45 @@ export enum TempleStatus {
   Ready
 }
 
-export type TempleAccount =
-  | TempleHDAccount
-  | TempleImportedAccount
-  | TempleLedgerAccount
-  | TempleManagedKTAccount
-  | TempleWatchOnlyAccount;
+export type StoredAccount =
+  | StoredHDAccount
+  | StoredImportedAccount
+  | StoredLedgerAccount
+  | StoredManagedKTAccount
+  | StoredWatchOnlyAccount;
 
-interface TempleLedgerAccount extends TempleAccountBase {
+interface StoredLedgerAccount extends StoredAccountBase {
   type: TempleAccountType.Ledger;
   derivationPath: string;
 }
 
-interface TempleImportedAccount extends TempleAccountBase {
+interface StoredImportedAccount extends StoredAccountBase {
   type: TempleAccountType.Imported;
 }
 
-interface TempleHDAccount extends TempleAccountBase {
+interface StoredHDAccount extends StoredAccountBase {
   type: TempleAccountType.HD;
   hdIndex: number;
 }
 
-interface TempleManagedKTAccount extends TempleAccountBase {
+interface StoredManagedKTAccount extends StoredAccountBase {
   type: TempleAccountType.ManagedKT;
   chainId: string;
   owner: string;
 }
 
-interface TempleWatchOnlyAccount extends TempleAccountBase {
+interface StoredWatchOnlyAccount extends StoredAccountBase {
   type: TempleAccountType.WatchOnly;
   chainId?: string;
+}
+
+export interface StoredAccountBase {
+  type: TempleAccountType;
+  name: string;
+  publicKeyHash: string;
+  hdIndex?: number;
+  derivationPath?: string;
+  derivationType?: DerivationType;
 }
 
 export interface NewTempleAccountBase {
@@ -94,15 +103,6 @@ export interface NewTempleAccountBase {
   type: TempleAccountType;
   isWatchOnly: boolean;
   title: string;
-}
-
-export interface TempleAccountBase {
-  type: TempleAccountType;
-  name: string;
-  publicKeyHash: string;
-  hdIndex?: number;
-  derivationPath?: string;
-  derivationType?: DerivationType;
 }
 
 export enum TempleAccountType {

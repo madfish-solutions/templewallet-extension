@@ -25,7 +25,7 @@ import { useGasToken } from 'lib/assets/hooks';
 import { T, t } from 'lib/i18n';
 import { useRetryableSWR } from 'lib/swr';
 import { useTempleClient, useChainIdValue, useAllAccounts } from 'lib/temple/front';
-import { TempleAccountType, TempleDAppPayload, TempleAccount, TempleChainId } from 'lib/temple/types';
+import { TempleAccountType, TempleDAppPayload, StoredAccount, TempleChainId } from 'lib/temple/types';
 import { useSafeState } from 'lib/ui/hooks';
 import { delay } from 'lib/utils';
 import { useLocation } from 'lib/woozie';
@@ -93,7 +93,7 @@ const PayloadContent: React.FC<PayloadContentProps> = ({
         </span>
       </h2>
 
-      <CustomSelect<TempleAccount, string>
+      <CustomSelect<StoredAccount, string>
         activeItemId={accountPkhToConnect}
         getItemId={getPkh}
         items={accounts}
@@ -117,7 +117,7 @@ const PayloadContent: React.FC<PayloadContentProps> = ({
 
 export default ConfirmPage;
 
-const getPkh = (account: TempleAccount) => account.publicKeyHash;
+const getPkh = (account: StoredAccount) => account.publicKeyHash;
 
 const ConfirmDAppForm: FC = () => {
   const { getDAppPayload, confirmDAppPermission, confirmDAppOperation, confirmDAppSign } = useTempleClient();
@@ -433,12 +433,12 @@ const ConfirmDAppForm: FC = () => {
   );
 };
 
-const AccountIcon: FC<OptionRenderProps<TempleAccount>> = ({ item }) => (
+const AccountIcon: FC<OptionRenderProps<StoredAccount>> = ({ item }) => (
   <Identicon type="bottts" hash={item.publicKeyHash} size={32} className="flex-shrink-0 shadow-xs" />
 );
 
 const AccountOptionContentHOC = (networkRpc: string) =>
-  memo<OptionRenderProps<TempleAccount>>(({ item: acc }) => {
+  memo<OptionRenderProps<StoredAccount>>(({ item: acc }) => {
     const { assetName } = useGasToken(networkRpc);
 
     return (

@@ -1,7 +1,7 @@
 import { createStore, createEvent } from 'effector';
 
 import { NETWORKS } from 'lib/temple/networks';
-import { TempleState, TempleStatus, TempleAccount, TempleSettings } from 'lib/temple/types';
+import { TempleState, TempleStatus, StoredAccount, TempleSettings } from 'lib/temple/types';
 
 import { Vault } from './vault';
 
@@ -33,11 +33,11 @@ export const locked = createEvent('Locked');
 
 export const unlocked = createEvent<{
   vault: Vault;
-  accounts: TempleAccount[];
+  accounts: StoredAccount[];
   settings: TempleSettings;
 }>('Unlocked');
 
-export const accountsUpdated = createEvent<TempleAccount[]>('Accounts updated');
+export const accountsUpdated = createEvent<StoredAccount[]>('Accounts updated');
 
 export const settingsUpdated = createEvent<TempleSettings>('Settings updated');
 

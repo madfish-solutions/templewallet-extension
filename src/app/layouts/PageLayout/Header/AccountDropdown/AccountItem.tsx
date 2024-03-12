@@ -6,20 +6,20 @@ import { Name, Button, HashShortView, Money, Identicon } from 'app/atoms';
 import AccountTypeBadge from 'app/atoms/AccountTypeBadge';
 import Balance from 'app/templates/Balance';
 import { setAnotherSelector, setTestID } from 'lib/analytics';
-import { TempleAccount } from 'lib/temple/types';
+import { StoredAccountBase } from 'lib/temple/types';
 import { useScrollIntoViewOnMount } from 'lib/ui/use-scroll-into-view';
 
 import { AccountDropdownSelectors } from './selectors';
 
-interface AccountItemProps {
-  account: TempleAccount;
+interface Props {
+  account: StoredAccountBase;
   selected: boolean;
   gasTokenName: string;
   attractSelf: boolean;
   onClick: () => void;
 }
 
-export const AccountItem: React.FC<AccountItemProps> = ({ account, selected, gasTokenName, attractSelf, onClick }) => {
+export const AccountItem: React.FC<Props> = ({ account, selected, gasTokenName, attractSelf, onClick }) => {
   const { name, publicKeyHash, type } = account;
 
   const elemRef = useScrollIntoViewOnMount<HTMLButtonElement>(selected && attractSelf);

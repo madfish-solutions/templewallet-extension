@@ -7,7 +7,7 @@ import { Name, Button, HashShortView, Money, Identicon } from 'app/atoms';
 import AccountTypeBadge from 'app/atoms/AccountTypeBadge';
 import Balance from 'app/templates/Balance';
 import { setAnotherSelector, setTestID } from 'lib/analytics';
-import { TempleAccount } from 'lib/temple/types';
+import { StoredAccount } from 'lib/temple/types';
 import { useScrollIntoView } from 'lib/ui/use-scroll-into-view';
 
 import { ShortcutAccountSwitchSelectors } from './selectors';
@@ -15,7 +15,7 @@ import { ShortcutAccountSwitchSelectors } from './selectors';
 const scrollIntoViewOptions: ScrollIntoViewOptions = { block: 'end', behavior: 'smooth' };
 
 interface AccountItemProps {
-  account: TempleAccount;
+  account: StoredAccount;
   focused: boolean;
   gasTokenName: string;
   arrayIndex?: number;
