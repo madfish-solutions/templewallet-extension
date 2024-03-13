@@ -29,9 +29,20 @@
       [data-test=persona-watermark] {
         top: 0; /* Missing, needed explicit after img.style.display = 'block' */
       }
+
+      #loader {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        translate: -50% -50%;
+        font-size: medium;
+        color: #6c757d;
+      }
     </style>
   </head>
   <body>
+
+    <div id="loader">Loading...</div>
 
     <div id="container"></div>
 

@@ -7,7 +7,7 @@ const loadingAdsIds = new Set();
 const loadedAdsIds = new Set();
 const alreadySentAnalyticsAdsIds = new Set();
 
-const IFRAME_READY_TIMEOUT = 15_000;
+const IFRAME_READY_TIMEOUT = 10_000;
 
 export const subscribeToIframeLoadIfNecessary = (
   adId: string,
