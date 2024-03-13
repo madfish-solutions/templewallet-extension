@@ -12,7 +12,6 @@ import browser, { Runtime } from 'webextension-polyfill';
 import { BACKGROUND_IS_WORKER } from 'lib/env';
 import { addLocalOperation } from 'lib/temple/activity';
 import * as Beacon from 'lib/temple/beacon';
-import { loadChainId } from 'lib/temple/helpers';
 import {
   TempleState,
   TempleMessageType,
@@ -21,6 +20,7 @@ import {
   TempleSharedStorageKey
 } from 'lib/temple/types';
 import { createQueue, delay } from 'lib/utils';
+import { loadTezosChainId } from 'temple/tezos';
 
 import {
   getCurrentPermission,
@@ -337,7 +337,7 @@ const promisableUnlock = async (
 
 const safeAddLocalOperation = async (networkRpc: string, op: any) => {
   try {
-    const chainId = await loadChainId(networkRpc);
+    const chainId = await loadTezosChainId(networkRpc);
     await addLocalOperation(chainId, op.hash, op.results);
   } catch {}
   return undefined;

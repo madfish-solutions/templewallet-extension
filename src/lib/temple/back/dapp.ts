@@ -23,7 +23,7 @@ import browser, { Runtime } from 'webextension-polyfill';
 
 import { addLocalOperation } from 'lib/temple/activity';
 import * as Beacon from 'lib/temple/beacon';
-import { loadChainId, isAddressValid } from 'lib/temple/helpers';
+import { isAddressValid } from 'lib/temple/helpers';
 import { NETWORKS } from 'lib/temple/networks';
 import {
   TempleMessageType,
@@ -33,6 +33,7 @@ import {
   TempleDAppSessions,
   TempleNotification
 } from 'lib/temple/types';
+import { loadTezosChainId } from 'temple/tezos';
 
 import { intercom } from './defaults';
 import { buildFinalOpParmas, dryRunOpParams } from './dryrun';
@@ -225,7 +226,7 @@ const handleIntercomRequest = async (
 
 const safeGetChain = async (networkRpc: string, op: any) => {
   try {
-    const chainId = await loadChainId(networkRpc);
+    const chainId = await loadTezosChainId(networkRpc);
     await addLocalOperation(chainId, op.hash, op.results);
   } catch {}
 };
@@ -472,8 +473,8 @@ async function getNetworkRPC(net: TempleDAppNetwork) {
     try {
       const current = await getCurrentTempleNetwork();
       const [currentChainId, targetChainId] = await Promise.all([
-        loadChainId(current.rpcBaseURL),
-        loadChainId(targetRpc).catch(() => null)
+        loadTezosChainId(current.rpcBaseURL),
+        loadTezosChainId(targetRpc).catch(() => null)
       ]);
 
       return targetChainId === null || currentChainId === targetChainId ? current.rpcBaseURL : targetRpc;

@@ -23,6 +23,7 @@ export enum AnalyticsEventEnum {
 export interface TempleSendTrackEventRequest extends TempleMessageBase {
   type: TempleMessageType.SendTrackEventRequest;
   userId: string;
+  /** @deprecated TODO: Not load ChainId @ BG + EVM network */
   rpc: string | undefined;
   event: string;
   category: AnalyticsEventCategory;

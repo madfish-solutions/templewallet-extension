@@ -2,8 +2,9 @@ import { useCallback, useMemo } from 'react';
 
 import { useRetryableSWR } from 'lib/swr';
 import { useNetwork, useAccount, useAccountPkh, useAllAccounts } from 'lib/temple/front/ready';
-import { loadChainId } from 'lib/temple/helpers';
 import { TempleAccountType, TempleChainId } from 'lib/temple/types';
+
+import { loadTezosChainId } from './tezos';
 
 // @ts-expect-error
 // ts-prune-ignore-next
@@ -75,7 +76,7 @@ export function useTezosChainIdLoadingValue(rpcUrl: string, suspense?: boolean):
 }
 
 export function useTezosChainIdLoading(rpcUrl: string, suspense?: boolean) {
-  const fetchChainId = useCallback(() => loadChainId(rpcUrl), [rpcUrl]);
+  const fetchChainId = useCallback(() => loadTezosChainId(rpcUrl), [rpcUrl]);
 
   return useRetryableSWR(['chain-id', rpcUrl], fetchChainId, { suspense, revalidateOnFocus: false });
 }

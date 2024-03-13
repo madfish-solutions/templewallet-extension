@@ -7,11 +7,11 @@ import { useShortcutAccountSelectModalIsOpened } from 'app/hooks/use-account-sel
 import { ReactComponent as SignalAltIcon } from 'app/icons/signal-alt.svg';
 import { T } from 'lib/i18n';
 import { BLOCK_EXPLORERS, useAllNetworks, useBlockExplorer, useSetNetworkId } from 'lib/temple/front';
-import { loadChainId } from 'lib/temple/helpers';
 import { isKnownChainId, TempleNetwork } from 'lib/temple/types';
 import { PopperRenderProps } from 'lib/ui/Popper';
 import { HistoryAction, navigate } from 'lib/woozie';
 import { useTezosNetwork } from 'temple/hooks';
+import { loadTezosChainId } from 'temple/tezos';
 
 import { NetworkButton } from './NetworkButton';
 import styles from './style.module.css';
@@ -38,7 +38,7 @@ export const NetworkDropdown = memo<Props>(({ opened, setOpened, currentNetwork 
       if (selected) return;
 
       try {
-        const currentChainId = await loadChainId(rpcUrl);
+        const currentChainId = await loadTezosChainId(rpcUrl);
 
         if (currentChainId && isKnownChainId(currentChainId)) {
           const currentBlockExplorerId =

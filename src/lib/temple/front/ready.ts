@@ -4,7 +4,6 @@ import constate from 'constate';
 
 import { ACCOUNT_PKH_STORAGE_KEY } from 'lib/constants';
 import { IS_DEV_ENV } from 'lib/env';
-import { michelEncoder, loadFastRpcClient } from 'lib/temple/helpers';
 import {
   ReadyTempleState,
   TempleAccountType,
@@ -13,7 +12,7 @@ import {
   TempleNotification,
   TempleMessageType
 } from 'lib/temple/types';
-import { ReactiveTezosToolkit } from 'temple/tezos';
+import { michelEncoder, buildFastRpcClient, ReactiveTezosToolkit } from 'temple/tezos';
 
 import { intercom, useTempleClient } from './client';
 import { usePassiveStorage } from './storage';
@@ -118,7 +117,7 @@ function useReadyTemple() {
     const rpc = network.rpcBaseURL;
     const pkh = account.type === TempleAccountType.ManagedKT ? account.owner : account.publicKeyHash;
 
-    const t = new ReactiveTezosToolkit(loadFastRpcClient(rpc), checksum);
+    const t = new ReactiveTezosToolkit(buildFastRpcClient(rpc), checksum);
     t.setSignerProvider(createTaquitoSigner(pkh));
     t.setWalletProvider(createTaquitoWallet(pkh, rpc));
     t.setPackerProvider(michelEncoder);

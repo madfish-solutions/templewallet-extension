@@ -11,12 +11,12 @@ import { ReactComponent as CloseIcon } from 'app/icons/close.svg';
 import { setAnotherSelector, setTestID } from 'lib/analytics';
 import { T, t } from 'lib/i18n';
 import { useSettings, useTempleClient } from 'lib/temple/front';
-import { loadChainId } from 'lib/temple/helpers';
 import { NETWORK_NAMES } from 'lib/temple/networks';
 import { TempleNetwork } from 'lib/temple/types';
 import { COLORS } from 'lib/ui/colors';
 import { useConfirm } from 'lib/ui/dialog';
 import { delay } from 'lib/utils';
+import { loadTezosChainId } from 'temple/tezos';
 
 import { CustomNetworkSettingsSelectors } from './CustomNetworkSettingsSelectors';
 
@@ -50,7 +50,7 @@ const CustomNetworksSettings: FC = () => {
 
       let chainId;
       try {
-        chainId = await loadChainId(rpcBaseURL);
+        chainId = await loadTezosChainId(rpcBaseURL);
       } catch (err: any) {
         console.error(err);
 

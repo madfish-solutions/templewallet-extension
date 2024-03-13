@@ -66,6 +66,7 @@ export function useOnBlock(callback: (blockHash: string) => void, altTezos?: Tez
         }
         blockHashRef.current = hash;
       });
+
       sub.on('error', err => {
         console.error(err);
         sub.close();
