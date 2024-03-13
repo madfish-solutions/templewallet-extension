@@ -8,7 +8,6 @@ import classNames from 'clsx';
 import { Controller, useForm } from 'react-hook-form';
 
 import { Alert, FormSubmitButton } from 'app/atoms';
-import { useBlockLevel } from 'app/hooks/use-block-level.hook';
 import { useSwap } from 'app/hooks/use-swap';
 import { ReactComponent as InfoIcon } from 'app/icons/info.svg';
 import { ReactComponent as ToggleIcon } from 'app/icons/toggle.svg';
@@ -48,6 +47,7 @@ import {
 } from 'lib/utils/swap.utils';
 import { HistoryAction, navigate } from 'lib/woozie';
 import { useTezosAccountAddress } from 'temple/hooks';
+import { useTezosBlockLevel } from 'temple/hooks/use-block';
 
 import { SwapExchangeRate } from './SwapExchangeRate/SwapExchangeRate';
 import { SwapFormValue, SwapInputValue, useSwapFormDefaultValue } from './SwapForm.form';
@@ -62,7 +62,7 @@ import { SwapRoute } from './SwapRoute/SwapRoute';
 
 export const SwapForm: FC = () => {
   const tezos = useTezos();
-  const blockLevel = useBlockLevel();
+  const blockLevel = useTezosBlockLevel();
   const publicKeyHash = useTezosAccountAddress();
   const getSwapParams = useSwap();
   const { data: route3Tokens } = useSwapTokensSelector();

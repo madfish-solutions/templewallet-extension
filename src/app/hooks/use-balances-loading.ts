@@ -16,9 +16,9 @@ import {
   isKnownChainId
 } from 'lib/apis/tzkt';
 import { toTokenSlug } from 'lib/assets';
-import { useOnBlock, useTzktConnection } from 'lib/temple/front';
+import { useTzktConnection } from 'lib/temple/front';
 import { useUpdatableRef } from 'lib/ui/hooks';
-import { useTezosAccountAddress, useTezosNetwork } from 'temple/hooks';
+import { useTezosAccountAddress, useTezosNetwork, useOnTezosBlock } from 'temple/hooks';
 
 export const useBalancesLoading = () => {
   const { chainId } = useTezosNetwork();
@@ -123,7 +123,7 @@ export const useBalancesLoading = () => {
   }, [publicKeyHash, chainId, isLoadingRef]);
 
   useEffect(dispatchLoadGasBalanceAction, [dispatchLoadGasBalanceAction]);
-  useOnBlock(dispatchLoadGasBalanceAction, undefined, accountsSubscriptionConfirmed);
+  useOnTezosBlock(dispatchLoadGasBalanceAction, undefined, accountsSubscriptionConfirmed);
 
   const dispatchLoadAssetsBalancesActions = useCallback(() => {
     if (isLoadingRef.current === false && isKnownChainId(chainId)) {
@@ -132,5 +132,5 @@ export const useBalancesLoading = () => {
   }, [publicKeyHash, chainId, isLoadingRef]);
 
   useEffect(dispatchLoadAssetsBalancesActions, [dispatchLoadAssetsBalancesActions]);
-  useOnBlock(dispatchLoadAssetsBalancesActions, undefined, tokensSubscriptionConfirmed);
+  useOnTezosBlock(dispatchLoadAssetsBalancesActions, undefined, tokensSubscriptionConfirmed);
 };

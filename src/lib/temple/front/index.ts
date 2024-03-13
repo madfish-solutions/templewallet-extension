@@ -15,8 +15,6 @@ export {
 
 export { validateDerivationPath, validateContractAddress } from './helpers';
 
-export { useOnBlock } from './chain';
-
 export { useContactsActions, searchContacts } from './address-book';
 
 export { useTezosDomainsClient, isDomainNameValid } from './tzdns';

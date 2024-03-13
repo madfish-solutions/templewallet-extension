@@ -1,12 +1,11 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { Subscription, TezosToolkit } from '@taquito/taquito';
 
+import { useTezos } from 'lib/temple/front/ready';
 import { useUpdatableRef } from 'lib/ui/hooks';
 
-import { useTezos } from './ready';
-
-export function useOnBlock(callback: (blockHash: string) => void, altTezos?: TezosToolkit, pause = false) {
+export function useOnTezosBlock(callback: (blockHash: string) => void, altTezos?: TezosToolkit, pause = false) {
   const currentTezos = useTezos();
   const blockHashRef = useRef<string>();
   const callbackRef = useUpdatableRef(callback);
@@ -38,3 +37,19 @@ export function useOnBlock(callback: (blockHash: string) => void, altTezos?: Tez
     }
   }, [pause, tezos]);
 }
+
+export const useTezosBlockLevel = () => {
+  const tezos = useTezos();
+
+  const [blockLevel, setBlockLevel] = useState<number>();
+
+  useEffect(() => {
+    const subscription = tezos.stream.subscribeBlock('head');
+
+    subscription.on('data', block => setBlockLevel(block.header.level));
+
+    return () => subscription.close();
+  }, [tezos]);
+
+  return blockLevel;
+};

@@ -1,10 +1,13 @@
 import { useCallback, useMemo } from 'react';
 
 import { useRetryableSWR } from 'lib/swr';
-import { useNetwork, useAccount, useAccountPkh, useAllAccounts } from 'lib/temple/front/ready';
+import { useNetwork, useAccount, useAccountPkh, useAllAccounts, useTezos } from 'lib/temple/front/ready';
 import { TempleAccountType, TempleChainId } from 'lib/temple/types';
 
-import { loadTezosChainId } from './tezos';
+import { loadTezosChainId } from '../tezos';
+
+export { useTezos };
+export { useOnTezosBlock } from './use-block';
 
 // @ts-expect-error
 // ts-prune-ignore-next
