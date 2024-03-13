@@ -5,41 +5,43 @@ import clsx from 'clsx';
 import { Anchor } from 'app/atoms/Anchor';
 import { useAppEnv } from 'app/env';
 import { useAdRectObservation } from 'app/hooks/ads/use-ad-rect-observation';
-import { useAccount } from 'lib/temple/front';
+import type { AdsProviderTitle } from 'lib/ads';
+import { useAccountPkh } from 'lib/temple/front';
 
-import { PartnersPromotionSelectors } from '../index.selectors';
+import { PartnersPromotionSelectors } from '../selectors';
 import { PartnersPromotionVariant } from '../types';
+import { buildAdClickAnalyticsProperties } from '../utils';
 
 import { CloseButton } from './close-button';
 
-interface TextPromotionViewProps {
-  pageName: string;
-  providerTitle: string;
+interface Props {
   href: string;
   isVisible: boolean;
   imageSrc: string;
   headline: string;
   contentText?: string;
+  providerTitle: AdsProviderTitle;
+  pageName: string;
   onAdRectSeen: EmptyFn;
   onImageError: EmptyFn;
   onClose: MouseEventHandler<HTMLButtonElement>;
 }
 
-export const TextPromotionView = memo<TextPromotionViewProps>(
+export const TextPromotionView = memo<Props>(
   ({
-    pageName,
-    providerTitle,
     imageSrc,
     href,
     headline,
     isVisible,
     contentText = '',
+    providerTitle,
+    pageName,
     onAdRectSeen,
     onImageError,
     onClose
   }) => {
     const { popup } = useAppEnv();
-    const { publicKeyHash: accountPkh } = useAccount();
+    const accountPkh = useAccountPkh();
 
     const truncatedContentText = useMemo(
       () => (contentText.length > 80 ? `${contentText.slice(0, 80)}...` : contentText),
@@ -50,8 +52,8 @@ export const TextPromotionView = memo<TextPromotionViewProps>(
     useAdRectObservation(ref, onAdRectSeen, isVisible);
 
     const testIDProperties = useMemo(
-      () => ({ variant: PartnersPromotionVariant.Text, page: pageName, provider: providerTitle, href, accountPkh }),
-      [href, accountPkh, providerTitle, pageName]
+      () => buildAdClickAnalyticsProperties(PartnersPromotionVariant.Text, providerTitle, pageName, accountPkh, href),
+      [href, providerTitle, pageName, accountPkh]
     );
 
     return (
@@ -72,10 +74,12 @@ export const TextPromotionView = memo<TextPromotionViewProps>(
           <div className="self-stretch">
             <img className="h-8 w-8 rounded-circle" src={imageSrc} alt="Partners promotion" onError={onImageError} />
           </div>
+
           <div className="flex-1 flex flex-col gap-1 justify-center">
             <div className="flex">
               <div className="flex flex-1 pr-2.5">
                 <span className="text-gray-910 font-medium leading-tight mr-2.5">{headline}</span>
+
                 <div
                   className={clsx(
                     'flex items-center bg-blue-600 rounded px-1.5 h-4',
@@ -85,8 +89,10 @@ export const TextPromotionView = memo<TextPromotionViewProps>(
                   AD
                 </div>
               </div>
+
               <CloseButton onClick={onClose} variant={PartnersPromotionVariant.Text} />
             </div>
+
             {truncatedContentText && (
               <span className="text-xs text-gray-600 pr-6 leading-5">{truncatedContentText}</span>
             )}
