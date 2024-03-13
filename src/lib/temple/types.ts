@@ -18,7 +18,7 @@ export { DerivationType };
 export interface ReadyTempleState extends TempleState {
   status: TempleStatus.Ready;
   accounts: NonEmptyArray<StoredAccount>;
-  networks: NonEmptyArray<TempleNetwork>;
+  networks: NonEmptyArray<StoredNetwork>;
   settings: TempleSettings;
 }
 
@@ -32,7 +32,7 @@ export interface TempleDAppSession {
 export interface TempleState {
   status: TempleStatus;
   accounts: StoredAccount[];
-  networks: TempleNetwork[];
+  networks: StoredNetwork[];
   settings: TempleSettings | null;
 }
 
@@ -106,20 +106,21 @@ export enum TempleAccountType {
   WatchOnly
 }
 
-interface TempleNetworkBase {
+interface StoredNetworkBase {
   id: string;
   name?: string;
   nameI18nKey?: TID;
   description: string;
   descriptionI18nKey?: string;
-  type: TempleNetworkType;
+  /** @deprecated // TODO: Rely on chain ID instead */
+  type: 'main' | 'test' | 'dcp';
   rpcBaseURL: string;
   color: string;
   disabled: boolean;
   hidden?: boolean;
 }
 
-export type TempleNetwork = TempleNetworkBase &
+export type StoredNetwork = StoredNetworkBase &
   (
     | {
         nameI18nKey: TID;
@@ -129,10 +130,8 @@ export type TempleNetwork = TempleNetworkBase &
       }
   );
 
-type TempleNetworkType = 'main' | 'test' | 'dcp';
-
 export interface TempleSettings {
-  customNetworks?: TempleNetwork[];
+  customNetworks?: StoredNetwork[];
   contacts?: TempleContact[];
 }
 

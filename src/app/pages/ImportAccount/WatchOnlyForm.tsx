@@ -5,9 +5,10 @@ import { useForm, Controller } from 'react-hook-form';
 import { Alert, FormSubmitButton, NoSpaceField } from 'app/atoms';
 import { useFormAnalytics } from 'lib/analytics';
 import { T, t } from 'lib/i18n';
-import { useTempleClient, useTezos, useTezosDomainsClient, validateDelegate } from 'lib/temple/front';
+import { useTempleClient, useTezosDomainsClient, validateDelegate } from 'lib/temple/front';
 import { useTezosAddressByDomainName } from 'lib/temple/front/tzdns';
 import { isAddressValid, isKTAddress } from 'lib/temple/helpers';
+import { useTezos } from 'temple/hooks';
 
 import { ImportAccountSelectors, ImportAccountFormType } from './selectors';
 

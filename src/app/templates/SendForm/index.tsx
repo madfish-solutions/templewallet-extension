@@ -10,9 +10,9 @@ import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { useEnabledAccountTokensSlugs } from 'lib/assets/hooks';
 import { useTokensSortPredicate } from 'lib/assets/use-sorting';
 import { t } from 'lib/i18n';
-import { useTezos } from 'lib/temple/front';
 import { useMemoWithCompare, useSafeState } from 'lib/ui/hooks';
 import { HistoryAction, navigate } from 'lib/woozie';
+import { useTezos } from 'temple/hooks';
 
 import AddContactModal from './AddContactModal';
 import { Form } from './Form';

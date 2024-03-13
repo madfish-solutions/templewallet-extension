@@ -11,11 +11,11 @@ import { ReactComponent as CloseIcon } from 'app/icons/close.svg';
 import { setAnotherSelector, setTestID } from 'lib/analytics';
 import { T, t } from 'lib/i18n';
 import { useSettings, useTempleClient } from 'lib/temple/front';
-import { NETWORK_NAMES } from 'lib/temple/networks';
-import { TempleNetwork } from 'lib/temple/types';
+import { StoredNetwork } from 'lib/temple/types';
 import { COLORS } from 'lib/ui/colors';
 import { useConfirm } from 'lib/ui/dialog';
 import { delay } from 'lib/utils';
+import { TEZOS_NETWORK_NAMES } from 'temple/networks';
 import { loadTezosChainId } from 'temple/tezos';
 
 import { CustomNetworkSettingsSelectors } from './CustomNetworkSettingsSelectors';
@@ -62,7 +62,7 @@ const CustomNetworksSettings: FC = () => {
       }
 
       try {
-        const networkName = NETWORK_NAMES.get(chainId) ?? rpcBaseURL;
+        const networkName = TEZOS_NETWORK_NAMES.get(chainId) ?? rpcBaseURL;
         await updateSettings({
           customNetworks: [
             ...customNetworks,
@@ -208,7 +208,7 @@ export default CustomNetworksSettings;
 
 type NetworksListItemProps = {
   canRemove: boolean;
-  network: TempleNetwork;
+  network: StoredNetwork;
   onRemoveClick?: (baseUrl: string) => void;
   last: boolean;
 };

@@ -8,9 +8,14 @@ import { getKeyForBalancesRecord } from 'app/store/balances/utils';
 import { isKnownChainId } from 'lib/apis/tzkt';
 import { useAssetMetadata, useGetTokenOrGasMetadata } from 'lib/metadata';
 import { useTypedSWR } from 'lib/swr';
-import { useTezos } from 'lib/temple/front';
 import { atomsToTokens } from 'lib/temple/helpers';
-import { useTezosNetwork, useTezosAccountAddress, useTezosChainIdLoading, useOnTezosBlock } from 'temple/hooks';
+import {
+  useTezos,
+  useTezosNetwork,
+  useTezosAccountAddress,
+  useTezosChainIdLoading,
+  useOnTezosBlock
+} from 'temple/hooks';
 import { buildFastRpcTezosToolkit } from 'temple/tezos';
 
 import { fetchRawBalance as fetchRawBalanceFromBlockchain } from './fetch';

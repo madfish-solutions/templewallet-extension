@@ -5,8 +5,8 @@ import { DomainNameValidationResult, isTezosDomainsSupportedNetwork } from '@tez
 import { TaquitoTezosDomainsClient } from '@tezos-domains/taquito-client';
 
 import { useTypedSWR } from 'lib/swr';
-import { NETWORK_NAMES } from 'lib/temple/networks';
 import { useTezosNetwork } from 'temple/hooks';
+import { TEZOS_NETWORK_NAMES } from 'temple/networks';
 
 import { useTezos } from './ready';
 
@@ -24,7 +24,7 @@ export function useTezosDomainsClient() {
   const { chainId } = useTezosNetwork();
   const tezos = useTezos();
 
-  const networkName = NETWORK_NAMES.get(chainId)!;
+  const networkName = TEZOS_NETWORK_NAMES.get(chainId)!;
   return useMemo(() => getClient(networkName === 'mainnet' ? networkName : 'custom', tezos), [networkName, tezos]);
 }
 

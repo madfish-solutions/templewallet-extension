@@ -7,7 +7,7 @@ import { useShortcutAccountSelectModalIsOpened } from 'app/hooks/use-account-sel
 import { ReactComponent as SignalAltIcon } from 'app/icons/signal-alt.svg';
 import { T } from 'lib/i18n';
 import { BLOCK_EXPLORERS, useAllNetworks, useBlockExplorer, useSetNetworkId } from 'lib/temple/front';
-import { isKnownChainId, TempleNetwork } from 'lib/temple/types';
+import { isKnownChainId, StoredNetwork } from 'lib/temple/types';
 import { PopperRenderProps } from 'lib/ui/Popper';
 import { HistoryAction, navigate } from 'lib/woozie';
 import { useTezosNetwork } from 'temple/hooks';
@@ -17,7 +17,7 @@ import { NetworkButton } from './NetworkButton';
 import styles from './style.module.css';
 
 interface Props extends PopperRenderProps {
-  currentNetwork: TempleNetwork;
+  currentNetwork: StoredNetwork;
 }
 
 export const NetworkDropdown = memo<Props>(({ opened, setOpened, currentNetwork }) => {

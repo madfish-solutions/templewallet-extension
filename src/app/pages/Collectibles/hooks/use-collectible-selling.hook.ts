@@ -7,10 +7,9 @@ import { useFormAnalytics } from 'lib/analytics';
 import { getObjktMarketplaceContract } from 'lib/apis/objkt';
 import type { ObjktOffer } from 'lib/apis/objkt/types';
 import { fromFa2TokenSlug } from 'lib/assets/utils';
-import { useTezos } from 'lib/temple/front';
 import { getTransferPermissions } from 'lib/utils/get-transfer-permissions';
 import { parseTransferParamsToParamsWithKind } from 'lib/utils/parse-transfer-params';
-import { useTezosAccountAddress } from 'temple/hooks';
+import { useTezosAccountAddress, useTezos } from 'temple/hooks';
 
 const DEFAULT_OBJKT_STORAGE_LIMIT = 350;
 

@@ -1,5 +1,6 @@
 ## TODO:
 
+- Deal with 'MondayNet' & 'DailyNet' (Chain ID)
 - Reform `lib/temple`
 - - `lib/temple/back` -> `background`
 - -

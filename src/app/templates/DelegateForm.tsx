@@ -32,7 +32,6 @@ import {
   useAccount,
   useKnownBaker,
   useKnownBakers,
-  useTezos,
   useTezosDomainsClient,
   validateDelegate
 } from 'lib/temple/front';
@@ -42,7 +41,7 @@ import { TempleAccountType } from 'lib/temple/types';
 import { useSafeState } from 'lib/ui/hooks';
 import { delay, fifoResolve } from 'lib/utils';
 import { Link, useLocation } from 'lib/woozie';
-import { useTezosNetwork } from 'temple/hooks';
+import { useTezos, useTezosNetwork } from 'temple/hooks';
 
 import { DelegateFormSelectors } from './DelegateForm.selectors';
 

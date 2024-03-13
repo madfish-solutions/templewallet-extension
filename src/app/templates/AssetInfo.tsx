@@ -11,8 +11,8 @@ import { fromAssetSlugWithStandardDetect } from 'lib/assets/contract.utils';
 import { T } from 'lib/i18n';
 import { getAssetSymbol, useAssetMetadata } from 'lib/metadata';
 import { useRetryableSWR } from 'lib/swr';
-import { useTezos } from 'lib/temple/front';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
+import { useTezos } from 'temple/hooks';
 
 type AssetInfoProps = {
   assetSlug: string;

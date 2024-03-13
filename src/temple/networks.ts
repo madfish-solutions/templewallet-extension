@@ -1,4 +1,4 @@
-import { TempleChainId, TempleNetwork } from 'lib/temple/types';
+import { TempleChainId, StoredNetwork } from 'lib/temple/types';
 
 const formatDateToRPCFormat = (date: Date) => date.toLocaleDateString('en-GB').split('/').reverse().join('-');
 
@@ -10,14 +10,14 @@ const getLastMonday = (date = new Date()) => {
   return formatDateToRPCFormat(nextMonday);
 };
 
-export const NETWORK_NAMES = new Map<string, string>([
+export const TEZOS_NETWORK_NAMES = new Map<string, string>([
   [TempleChainId.Mainnet, 'mainnet'],
   [TempleChainId.Ghostnet, 'ghostnet'],
   [TempleChainId.Mumbai, 'mumbainet'],
   [TempleChainId.Nairobi, 'nairobinet']
 ]);
 
-const DCP_NETWORKS: TempleNetwork[] = [
+const DCP_TEZOS_NETWORKS: StoredNetwork[] = [
   {
     id: 't4l3nt-mainnet',
     name: 'T4L3NT Mainnet',
@@ -38,7 +38,7 @@ const DCP_NETWORKS: TempleNetwork[] = [
   }
 ];
 
-export const NETWORKS: TempleNetwork[] = [
+export const TEZOS_NETWORKS: StoredNetwork[] = [
   {
     id: 'mainnet',
     nameI18nKey: 'tezosMainnet',
@@ -75,7 +75,7 @@ export const NETWORKS: TempleNetwork[] = [
     color: '#047857',
     disabled: false
   },
-  ...DCP_NETWORKS,
+  ...DCP_TEZOS_NETWORKS,
   {
     id: 'ghostnet',
     name: 'Ghostnet Testnet',

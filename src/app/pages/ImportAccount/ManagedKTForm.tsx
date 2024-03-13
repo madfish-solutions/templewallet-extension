@@ -13,11 +13,11 @@ import { useFormAnalytics } from 'lib/analytics';
 import { getOneUserContracts, TzktRelatedContract, isKnownChainId } from 'lib/apis/tzkt';
 import { T, t } from 'lib/i18n';
 import { useRetryableSWR } from 'lib/swr';
-import { useTezos, useTempleClient } from 'lib/temple/front';
+import { useTempleClient } from 'lib/temple/front';
 import { isAddressValid } from 'lib/temple/helpers';
 import { TempleAccountType } from 'lib/temple/types';
 import { delay } from 'lib/utils';
-import { useTezosNetwork, useTezosRelevantAccounts } from 'temple/hooks';
+import { useTezos, useTezosNetwork, useTezosRelevantAccounts } from 'temple/hooks';
 
 import { ImportAccountSelectors, ImportAccountFormType } from './selectors';
 

@@ -24,7 +24,6 @@ import browser, { Runtime } from 'webextension-polyfill';
 import { addLocalOperation } from 'lib/temple/activity';
 import * as Beacon from 'lib/temple/beacon';
 import { isAddressValid } from 'lib/temple/helpers';
-import { NETWORKS } from 'lib/temple/networks';
 import {
   TempleMessageType,
   TempleRequest,
@@ -33,6 +32,7 @@ import {
   TempleDAppSessions,
   TempleNotification
 } from 'lib/temple/types';
+import { TEZOS_NETWORKS } from 'temple/networks';
 import { loadTezosChainId } from 'temple/tezos';
 
 import { intercom } from './defaults';
@@ -467,7 +467,8 @@ async function requestConfirm({ id, payload, onDecline, handleIntercomRequest }:
 }
 
 async function getNetworkRPC(net: TempleDAppNetwork) {
-  const targetRpc = typeof net === 'string' ? NETWORKS.find(n => n.id === net)!.rpcBaseURL : removeLastSlash(net.rpc);
+  const targetRpc =
+    typeof net === 'string' ? TEZOS_NETWORKS.find(n => n.id === net)!.rpcBaseURL : removeLastSlash(net.rpc);
 
   if (typeof net === 'string') {
     try {
@@ -492,11 +493,11 @@ async function getCurrentTempleNetwork() {
     'custom_networks_snapshot'
   ]);
 
-  return [...NETWORKS, ...(customNetworksSnapshot ?? [])].find(n => n.id === networkId) ?? NETWORKS[0];
+  return [...TEZOS_NETWORKS, ...(customNetworksSnapshot ?? [])].find(n => n.id === networkId) ?? TEZOS_NETWORKS[0];
 }
 
 function isAllowedNetwork(net: TempleDAppNetwork) {
-  return typeof net === 'string' ? NETWORKS.some(n => !n.disabled && n.id === net) : Boolean(net?.rpc);
+  return typeof net === 'string' ? TEZOS_NETWORKS.some(n => !n.disabled && n.id === net) : Boolean(net?.rpc);
 }
 
 function isNetworkEquals(fNet: TempleDAppNetwork, sNet: TempleDAppNetwork) {

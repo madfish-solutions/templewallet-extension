@@ -47,7 +47,6 @@ import { loadContract } from 'lib/temple/contract';
 import {
   isDomainNameValid,
   useAccount,
-  useTezos,
   useTezosDomainsClient,
   useFilteredContacts,
   validateRecipient
@@ -58,7 +57,7 @@ import { TempleAccountType, StoredAccount } from 'lib/temple/types';
 import { useSafeState } from 'lib/ui/hooks';
 import { useScrollIntoView } from 'lib/ui/use-scroll-into-view';
 import { ZERO } from 'lib/utils/numbers';
-import { useTezosNetwork } from 'temple/hooks';
+import { useTezos, useTezosNetwork } from 'temple/hooks';
 
 import ContactsDropdown, { ContactsDropdownProps } from './ContactsDropdown';
 import { FeeSection } from './FeeSection';

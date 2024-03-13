@@ -4,9 +4,8 @@ import { BigNumber } from 'bignumber.js';
 
 import { Route3Token } from 'lib/apis/route3/fetch-route3-tokens';
 import { Route3LiquidityBakingChains, Route3SwapChains } from 'lib/route3/interfaces';
-import { useTezos } from 'lib/temple/front';
 import { getSwapTransferParams } from 'lib/utils/swap.utils';
-import { useTezosAccountAddress } from 'temple/hooks';
+import { useTezosAccountAddress, useTezos } from 'temple/hooks';
 
 export const useSwap = () => {
   const tezos = useTezos();

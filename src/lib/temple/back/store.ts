@@ -1,7 +1,7 @@
 import { createStore, createEvent } from 'effector';
 
-import { NETWORKS } from 'lib/temple/networks';
 import { TempleState, TempleStatus, StoredAccount, TempleSettings } from 'lib/temple/types';
+import { TEZOS_NETWORKS } from 'temple/networks';
 
 import { Vault } from './vault';
 
@@ -57,7 +57,7 @@ export const store = createStore<StoreState>({
     ...state,
     inited: true,
     status: vaultExist ? TempleStatus.Locked : TempleStatus.Idle,
-    networks: NETWORKS
+    networks: TEZOS_NETWORKS
   }))
   .on(locked, () => ({
     // Attention!
@@ -69,7 +69,7 @@ export const store = createStore<StoreState>({
     vault: null,
     status: TempleStatus.Locked,
     accounts: [],
-    networks: NETWORKS,
+    networks: TEZOS_NETWORKS,
     settings: null
   }))
   .on(unlocked, (state, { vault, accounts, settings }) => ({

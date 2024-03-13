@@ -1,7 +1,6 @@
 import { isKnownChainId } from 'lib/apis/tzkt/api';
-import { useTezos } from 'lib/temple/front';
 import { useDidMount, useDidUpdate, useSafeState, useStopper } from 'lib/ui/hooks';
-import { useTezosAccountAddress, useTezosNetwork } from 'temple/hooks';
+import { useTezos, useTezosAccountAddress, useTezosNetwork } from 'temple/hooks';
 
 import fetchActivities from './fetch';
 import type { Activity } from './types';

@@ -27,11 +27,11 @@ import { isCollectible, TokenMetadata } from 'lib/metadata';
 import { fetchOneTokenMetadata } from 'lib/metadata/fetch';
 import { TokenMetadataNotFoundError } from 'lib/metadata/on-chain';
 import { loadContract } from 'lib/temple/contract';
-import { useTezos, validateContractAddress } from 'lib/temple/front';
+import { validateContractAddress } from 'lib/temple/front';
 import { useSafeState } from 'lib/ui/hooks';
 import { delay } from 'lib/utils';
 import { navigate } from 'lib/woozie';
-import { useTezosAccountAddress, useTezosNetwork } from 'temple/hooks';
+import { useTezosAccountAddress, useTezosNetwork, useTezos } from 'temple/hooks';
 
 import { AddAssetSelectors } from './AddAsset.selectors';
 

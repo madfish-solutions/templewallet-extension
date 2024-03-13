@@ -35,7 +35,6 @@ import { isLiquidityBakingParamsResponse } from 'lib/route3/interfaces';
 import { getPercentageRatio } from 'lib/route3/utils/get-percentage-ratio';
 import { getRoute3TokenBySlug } from 'lib/route3/utils/get-route3-token-by-slug';
 import { ROUTING_FEE_PERCENT, SWAP_CASHBACK_PERCENT } from 'lib/swap-router/config';
-import { useTezos } from 'lib/temple/front';
 import { atomsToTokens, tokensToAtoms } from 'lib/temple/helpers';
 import useTippy from 'lib/ui/useTippy';
 import { ZERO } from 'lib/utils/numbers';
@@ -46,7 +45,7 @@ import {
   getRoutingFeeTransferParams
 } from 'lib/utils/swap.utils';
 import { HistoryAction, navigate } from 'lib/woozie';
-import { useTezosAccountAddress } from 'temple/hooks';
+import { useTezos, useTezosAccountAddress } from 'temple/hooks';
 import { useTezosBlockLevel } from 'temple/hooks/use-block';
 
 import { SwapExchangeRate } from './SwapExchangeRate/SwapExchangeRate';

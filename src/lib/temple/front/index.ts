@@ -9,8 +9,7 @@ export {
   useAllAccounts,
   useSetAccountPkh,
   useAccount,
-  useSettings,
-  useTezos
+  useSettings
 } from './ready';
 
 export { validateDerivationPath, validateContractAddress } from './helpers';
@@ -21,8 +20,6 @@ export { useTezosDomainsClient, isDomainNameValid } from './tzdns';
 
 export type { Baker } from './baking';
 export { getRewardsStats, useKnownBaker, useKnownBakers, useDelegate } from './baking';
-
-export { activateAccount } from './activate-account';
 
 export type { BlockExplorer } from './blockexplorer';
 export { BLOCK_EXPLORERS, useBlockExplorer, useExplorerBaseUrls } from './blockexplorer';
