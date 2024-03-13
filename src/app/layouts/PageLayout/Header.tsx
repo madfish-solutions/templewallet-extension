@@ -11,7 +11,7 @@ import ContentContainer from 'app/layouts/ContentContainer';
 import { useTempleClient } from 'lib/temple/front';
 import Popper from 'lib/ui/Popper';
 import { Link } from 'lib/woozie';
-import { useTezosAccount } from 'temple/hooks';
+import { useTezosAccount } from 'temple/front';
 
 import AccountDropdown from './Header/AccountDropdown';
 import NetworkSelect from './Header/NetworkSelect';

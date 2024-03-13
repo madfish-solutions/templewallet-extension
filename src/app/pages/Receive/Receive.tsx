@@ -16,7 +16,7 @@ import { useTezosDomainsClient } from 'lib/temple/front';
 import { useTezosDomainNameByAddress } from 'lib/temple/front/tzdns';
 import { useSafeState } from 'lib/ui/hooks';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
-import { useTezosAccountAddress } from 'temple/hooks';
+import { useTezosAccountAddress } from 'temple/front';
 
 import { ReceiveSelectors } from './Receive.selectors';
 

@@ -22,7 +22,7 @@ import { useSetAccountPkh, useTempleClient } from 'lib/temple/front';
 import { PopperRenderProps } from 'lib/ui/Popper';
 import { searchAndFilterItems } from 'lib/utils/search-items';
 import { HistoryAction, navigate } from 'lib/woozie';
-import { useTezosAccountAddress, useTezosNetwork, useTezosRelevantAccounts } from 'temple/hooks';
+import { useTezosAccountAddress, useTezosNetwork, useTezosRelevantAccounts } from 'temple/front';
 
 import { AccountItem } from './AccountItem';
 import { ActionButtonProps, ActionButton } from './ActionButton';

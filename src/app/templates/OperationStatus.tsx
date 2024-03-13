@@ -6,7 +6,7 @@ import { HashChip, Alert } from 'app/atoms';
 import { setTestID } from 'lib/analytics';
 import { T, t } from 'lib/i18n';
 import { useSafeState } from 'lib/ui/hooks';
-import { useTezos } from 'temple/hooks';
+import { useTezos } from 'temple/front';
 import { confirmTezosOperation, TEZOS_CONFIRMATION_TIMED_OUT_ERROR_MSG } from 'temple/tezos';
 
 import { OpenInExplorerChip } from './OpenInExplorerChip';

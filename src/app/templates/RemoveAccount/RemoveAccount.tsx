@@ -9,7 +9,7 @@ import { useTempleClient } from 'lib/temple/front';
 import { TempleAccountType } from 'lib/temple/types';
 import { delay } from 'lib/utils';
 import { navigate } from 'lib/woozie';
-import { useTezosAccount, useTezosNetwork, useTezosRelevantAccounts } from 'temple/hooks';
+import { useTezosAccount, useTezosNetwork, useTezosRelevantAccounts } from 'temple/front';
 
 import { RemoveAccountSelectors } from './RemoveAccount.selectors';
 

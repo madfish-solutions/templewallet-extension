@@ -9,7 +9,7 @@ import { useAccountCollectibles } from 'lib/assets/hooks';
 import { useCollectiblesSortPredicate } from 'lib/assets/use-sorting';
 import { useGetCollectibleMetadata } from 'lib/metadata';
 import { useMemoWithCompare } from 'lib/ui/hooks';
-import { useTezosAccountAddress, useTezosNetwork } from 'temple/hooks';
+import { useTezosAccountAddress, useTezosNetwork } from 'temple/front';
 
 import { AssetsPlaceholder } from './AssetsPlaceholder';
 import { ManageAssetsContent, ManageAssetsContentList } from './ManageAssetsContent';

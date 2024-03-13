@@ -29,7 +29,7 @@ import { TempleAccountType, TempleDAppPayload, StoredAccount, TempleChainId } fr
 import { useSafeState } from 'lib/ui/hooks';
 import { delay } from 'lib/utils';
 import { useLocation } from 'lib/woozie';
-import { useTezosAccountAddress, useTezosChainIdLoadingValue } from 'temple/hooks';
+import { useTezosAccountAddress, useTezosChainIdLoadingValue } from 'temple/front';
 import { isTezosAccountOfActableType } from 'temple/tezos';
 
 import { ConfirmPageSelectors } from './ConfirmPage.selectors';

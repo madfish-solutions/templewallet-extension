@@ -5,7 +5,7 @@ import { dispatch } from 'app/store';
 import { loadPartnersPromoAction } from 'app/store/partners-promotion/actions';
 import { useShouldShowPartnersPromoSelector } from 'app/store/partners-promotion/selectors';
 import { OptimalPromoVariantEnum } from 'lib/apis/optimal';
-import { useTezosAccountAddress } from 'temple/hooks';
+import { useTezosAccountAddress } from 'temple/front';
 
 /**
  * Loads partners promo if it should be shown

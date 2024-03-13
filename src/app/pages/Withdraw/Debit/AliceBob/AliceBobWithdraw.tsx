@@ -10,7 +10,7 @@ import { t, T } from 'lib/i18n/react';
 import { useStorage } from 'lib/temple/front';
 import { TempleAccountType } from 'lib/temple/types';
 import { Redirect } from 'lib/woozie';
-import { useTezosAccount, useTezosNetwork } from 'temple/hooks';
+import { useTezosAccount, useTezosNetwork } from 'temple/front';
 
 import { WithdrawSelectors } from '../../Withdraw.selectors';
 

@@ -3,7 +3,7 @@ import { useMemo } from 'react';
 import { useAccountCollectiblesSelector } from 'app/store/assets/selectors';
 import { useAllAccountBalancesSelector } from 'app/store/balances/selectors';
 import { useMemoWithCompare } from 'lib/ui/hooks';
-import { useTezosAccountAddress, useTezosNetwork } from 'temple/hooks';
+import { useTezosAccountAddress, useTezosNetwork } from 'temple/front';
 
 import type { AccountAsset } from '../types';
 

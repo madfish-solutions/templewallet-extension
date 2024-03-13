@@ -8,7 +8,7 @@ import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { useBalance } from 'lib/balances';
 import { T } from 'lib/i18n';
 import { ZERO } from 'lib/utils/numbers';
-import { useTezosAccountAddress } from 'temple/hooks';
+import { useTezosAccountAddress } from 'temple/front';
 
 const Delegate = memo(() => {
   const publicKeyHash = useTezosAccountAddress();

@@ -8,7 +8,7 @@ import { TEMPLE_TOKEN_SLUG } from 'lib/assets';
 import { useAllAvailableTokens } from 'lib/assets/hooks';
 import { useGetTokenMetadata } from 'lib/metadata';
 import { isSearchStringApplicable } from 'lib/utils/search-items';
-import { useTezosAccountAddress, useTezosNetwork } from 'temple/hooks';
+import { useTezosAccountAddress, useTezosNetwork } from 'temple/front';
 
 import { AssetsPlaceholder } from './AssetsPlaceholder';
 import { ManageAssetsContent, ManageAssetsContentList } from './ManageAssetsContent';

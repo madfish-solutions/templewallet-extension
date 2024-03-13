@@ -15,7 +15,7 @@ import { getAccountStatsFromTzkt, isKnownChainId, TzktRewardsEntry, TzktAccountT
 import { t } from 'lib/i18n';
 import { useRetryableSWR } from 'lib/swr';
 import { getOnlineStatus } from 'lib/ui/get-online-status';
-import { useTezosNetwork } from 'temple/hooks';
+import { useTezosNetwork } from 'temple/front';
 
 import { useTezos } from './ready';
 

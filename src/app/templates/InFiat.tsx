@@ -6,7 +6,7 @@ import BigNumber from 'bignumber.js';
 import Money from 'app/atoms/Money';
 import { TestIDProps } from 'lib/analytics';
 import { useAssetFiatCurrencyPrice, useFiatCurrency } from 'lib/fiat-currency';
-import { useTezosNetwork } from 'temple/hooks';
+import { useTezosNetwork } from 'temple/front';
 
 interface OutputProps {
   balance: ReactNode;

@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 
 import { TEZOS_METADATA, FILM_METADATA } from 'lib/metadata/defaults';
 import { TempleChainId } from 'lib/temple/types';
-import { useTezosChainIdLoadingValue, useTezosNetwork } from 'temple/hooks';
+import { useTezosChainIdLoadingValue, useTezosNetwork } from 'temple/front';
 
 export { useAllAvailableTokens, useEnabledAccountTokensSlugs } from './tokens';
 export { useAccountCollectibles, useEnabledAccountCollectiblesSlugs } from './collectibles';

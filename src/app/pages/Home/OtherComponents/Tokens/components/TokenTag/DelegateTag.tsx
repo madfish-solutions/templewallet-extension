@@ -8,7 +8,7 @@ import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
 import { T } from 'lib/i18n';
 import { useDelegate } from 'lib/temple/front';
 import { navigate } from 'lib/woozie';
-import { useTezosAccountAddress } from 'temple/hooks';
+import { useTezosAccountAddress } from 'temple/front';
 
 import { AssetsSelectors } from '../../../Assets.selectors';
 import modStyles from '../../Tokens.module.css';

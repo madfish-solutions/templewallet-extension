@@ -14,7 +14,7 @@ import { TopUpProviderId } from 'lib/buy-with-credit-card/top-up-provider-id.enu
 import { TopUpInputInterface, TopUpOutputInterface } from 'lib/buy-with-credit-card/topup.interface';
 import { useYupValidationResolver } from 'lib/form/use-yup-validation-resolver';
 import { assertUnreachable } from 'lib/utils/switch-cases';
-import { useTezosAccountAddress } from 'temple/hooks';
+import { useTezosAccountAddress } from 'temple/front';
 
 import { AmountErrorType } from '../types/amount-error-type';
 import { BuyWithCreditCardFormValues } from '../types/buy-with-credit-card-form-values';

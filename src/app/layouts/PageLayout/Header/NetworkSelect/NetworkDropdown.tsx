@@ -10,7 +10,7 @@ import { BLOCK_EXPLORERS, useAllNetworks, useBlockExplorer, useSetNetworkId } fr
 import { isKnownChainId, StoredNetwork } from 'lib/temple/types';
 import { PopperRenderProps } from 'lib/ui/Popper';
 import { HistoryAction, navigate } from 'lib/woozie';
-import { useTezosNetwork } from 'temple/hooks';
+import { useTezosNetwork } from 'temple/front';
 import { loadTezosChainId } from 'temple/tezos';
 
 import { NetworkButton } from './NetworkButton';

@@ -11,7 +11,7 @@ import { toLocalFormat, T } from 'lib/i18n';
 import { HELP_UKRAINE_BAKER_ADDRESS, RECOMMENDED_BAKER_ADDRESS } from 'lib/known-bakers';
 import { useKnownBaker, useAllAccounts } from 'lib/temple/front';
 import { StoredAccount } from 'lib/temple/types';
-import { useTezosAccountAddress, useTezosNetwork } from 'temple/hooks';
+import { useTezosAccountAddress, useTezosNetwork } from 'temple/front';
 
 import { OpenInExplorerChip } from './OpenInExplorerChip';
 

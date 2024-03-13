@@ -16,7 +16,7 @@ import { TempleAccountType } from 'lib/temple/types';
 import useTippy from 'lib/ui/useTippy';
 import { createUrl, Link, To } from 'lib/woozie';
 import { createLocationState } from 'lib/woozie/location';
-import { useTezosAccount, useTezosNetwork } from 'temple/hooks';
+import { useTezosAccount, useTezosNetwork } from 'temple/front';
 
 import { HomeSelectors } from './Home.selectors';
 

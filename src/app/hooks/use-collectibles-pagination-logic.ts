@@ -7,7 +7,7 @@ import { useAllCollectiblesMetadataSelector } from 'app/store/collectibles-metad
 import { loadTokensMetadata } from 'lib/metadata/fetch';
 import { useDidMount, useDidUpdate } from 'lib/ui/hooks';
 import { setNavigateSearchParams } from 'lib/woozie';
-import { useTezosNetwork } from 'temple/hooks';
+import { useTezosNetwork } from 'temple/front';
 
 export const ITEMS_PER_PAGE = 30;
 

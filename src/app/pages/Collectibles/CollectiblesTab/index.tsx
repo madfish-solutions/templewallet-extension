@@ -28,7 +28,7 @@ import { useMemoWithCompare } from 'lib/ui/hooks';
 import { useLocalStorage } from 'lib/ui/local-storage';
 import Popper, { PopperChildren, PopperPopup, PopperRenderProps } from 'lib/ui/Popper';
 import { Link } from 'lib/woozie';
-import { useTezosAccountAddress, useTezosNetwork } from 'temple/hooks';
+import { useTezosAccountAddress, useTezosNetwork } from 'temple/front';
 
 import { CollectibleItem } from './CollectibleItem';
 import { CollectibleTabSelectors } from './selectors';

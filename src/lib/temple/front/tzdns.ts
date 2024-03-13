@@ -5,7 +5,7 @@ import { DomainNameValidationResult, isTezosDomainsSupportedNetwork } from '@tez
 import { TaquitoTezosDomainsClient } from '@tezos-domains/taquito-client';
 
 import { useTypedSWR } from 'lib/swr';
-import { useTezosNetwork } from 'temple/hooks';
+import { useTezosNetwork } from 'temple/front';
 import { TEZOS_NETWORK_NAMES } from 'temple/networks';
 
 import { useTezos } from './ready';

@@ -16,7 +16,7 @@ import { useSetAccountPkh } from 'lib/temple/front';
 import Portal from 'lib/ui/Portal';
 import { searchAndFilterItems } from 'lib/utils/search-items';
 import { HistoryAction, navigate } from 'lib/woozie';
-import { useTezosAccountAddress, useTezosNetwork, useTezosRelevantAccounts } from 'temple/hooks';
+import { useTezosAccountAddress, useTezosNetwork, useTezosRelevantAccounts } from 'temple/front';
 
 import { AccountItem } from './AccountItem';
 

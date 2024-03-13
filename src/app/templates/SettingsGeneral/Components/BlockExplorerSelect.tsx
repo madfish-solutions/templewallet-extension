@@ -12,7 +12,7 @@ import { T } from 'lib/i18n';
 import { BlockExplorer, BLOCK_EXPLORERS, useBlockExplorer } from 'lib/temple/front';
 import { isKnownChainId } from 'lib/temple/types';
 import { searchAndFilterItems } from 'lib/utils/search-items';
-import { useTezosNetwork } from 'temple/hooks';
+import { useTezosNetwork } from 'temple/front';
 
 import { SettingsGeneralSelectors } from '../selectors';
 

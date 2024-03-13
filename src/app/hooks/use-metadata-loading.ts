@@ -5,7 +5,7 @@ import { useDispatch } from 'react-redux';
 import { useAccountTokensSelector } from 'app/store/assets/selectors';
 import { resetTokensMetadataLoadingAction } from 'app/store/tokens-metadata/actions';
 import { useTokensMetadataPresenceCheck } from 'lib/metadata';
-import { useTezosAccountAddress, useTezosNetwork } from 'temple/hooks';
+import { useTezosAccountAddress, useTezosNetwork } from 'temple/front';
 
 export const useMetadataLoading = () => {
   const { chainId } = useTezosNetwork();

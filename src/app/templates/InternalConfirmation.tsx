@@ -29,7 +29,7 @@ import { tryParseExpenses } from 'lib/temple/front';
 import { TempleAccountType, TempleChainId, TempleConfirmationPayload } from 'lib/temple/types';
 import { useSafeState } from 'lib/ui/hooks';
 import { isTruthy } from 'lib/utils';
-import { useTezosChainIdLoadingValue, useTezosNetwork, useTezosRelevantAccounts } from 'temple/hooks';
+import { useTezosChainIdLoadingValue, useTezosNetwork, useTezosRelevantAccounts } from 'temple/front';
 
 import { InternalConfirmationSelectors } from './InternalConfirmation.selectors';
 

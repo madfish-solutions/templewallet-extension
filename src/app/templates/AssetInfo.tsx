@@ -12,7 +12,7 @@ import { T } from 'lib/i18n';
 import { getAssetSymbol, useAssetMetadata } from 'lib/metadata';
 import { useRetryableSWR } from 'lib/swr';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
-import { useTezos } from 'temple/hooks';
+import { useTezos } from 'temple/front';
 
 type AssetInfoProps = {
   assetSlug: string;

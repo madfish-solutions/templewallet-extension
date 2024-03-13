@@ -10,7 +10,7 @@ import { useTempleClient, useSetAccountPkh } from 'lib/temple/front';
 import { useSafeState } from 'lib/ui/hooks';
 import { delay } from 'lib/utils';
 import { navigate } from 'lib/woozie';
-import { useTezos } from 'temple/hooks';
+import { useTezos } from 'temple/front';
 import { confirmTezosOperation } from 'temple/tezos';
 import { activateTezosAccount } from 'temple/tezos/activate-account';
 

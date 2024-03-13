@@ -15,7 +15,7 @@ import { dispatch } from 'app/store';
 import { setOnRampPossibilityAction } from 'app/store/settings/actions';
 import { useOnRampPossibilitySelector } from 'app/store/settings/selectors';
 import { T } from 'lib/i18n/react';
-import { useTezosAccountAddress } from 'temple/hooks';
+import { useTezosAccountAddress } from 'temple/front';
 
 import OnRampOverlayBgPopupImg from './assets/on-ramp-overlay-bg-popup.png';
 import OnRampOverlayBgImg from './assets/on-ramp-overlay-bg.png';

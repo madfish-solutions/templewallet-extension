@@ -5,7 +5,7 @@ import { loadCollectiblesDetailsActions } from 'app/store/collectibles/actions';
 import { useAccountCollectibles } from 'lib/assets/hooks';
 import { COLLECTIBLES_DETAILS_SYNC_INTERVAL } from 'lib/fixed-times';
 import { useInterval, useMemoWithCompare } from 'lib/ui/hooks';
-import { useTezosAccountAddress, useTezosNetwork } from 'temple/hooks';
+import { useTezosAccountAddress, useTezosNetwork } from 'temple/front';
 
 export const useCollectiblesDetailsLoading = () => {
   const { chainId } = useTezosNetwork();

@@ -41,7 +41,7 @@ import { TempleAccountType } from 'lib/temple/types';
 import { useSafeState } from 'lib/ui/hooks';
 import { delay, fifoResolve } from 'lib/utils';
 import { Link, useLocation } from 'lib/woozie';
-import { useTezos, useTezosNetwork } from 'temple/hooks';
+import { useTezos, useTezosNetwork } from 'temple/front';
 
 import { DelegateFormSelectors } from './DelegateForm.selectors';
 

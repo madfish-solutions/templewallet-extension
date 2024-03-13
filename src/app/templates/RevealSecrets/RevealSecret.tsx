@@ -11,7 +11,7 @@ import { useTempleClient } from 'lib/temple/front';
 import { TempleAccountType } from 'lib/temple/types';
 import { useVanishingState } from 'lib/ui/hooks';
 import { delay } from 'lib/utils';
-import { useTezosAccount } from 'temple/hooks';
+import { useTezosAccount } from 'temple/front';
 
 import { RevealSecretsSelectors } from './RevealSecrets.selectors';
 import { SecretField } from './SecretField';

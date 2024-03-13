@@ -7,7 +7,7 @@ import { TID, T } from 'lib/i18n';
 import { useSetAccountPkh, useAllAccounts } from 'lib/temple/front';
 import { isTruthy } from 'lib/utils';
 import { navigate } from 'lib/woozie';
-import { useTezosNetwork } from 'temple/hooks';
+import { useTezosNetwork } from 'temple/front';
 
 import { ByFundraiserForm } from './ByFundraiserForm';
 import { ByMnemonicForm } from './ByMnemonicForm';

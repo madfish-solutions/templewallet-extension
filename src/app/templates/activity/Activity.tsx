@@ -10,7 +10,7 @@ import { ReactComponent as LayersIcon } from 'app/icons/layers.svg';
 import { PartnersPromotion, PartnersPromotionVariant } from 'app/templates/partners-promotion';
 import { T } from 'lib/i18n/react';
 import useActivities from 'lib/temple/activity-new/hook';
-import { useTezosAccountAddress } from 'temple/hooks';
+import { useTezosAccountAddress } from 'temple/front';
 
 import { ActivityItem } from './ActivityItem';
 

@@ -14,7 +14,7 @@ import {
   fetchYOUApr$
 } from 'app/store/d-apps/utils';
 import { TempleChainId } from 'lib/temple/types';
-import { useTezosNetwork } from 'temple/hooks';
+import { useTezosNetwork } from 'temple/front';
 
 export const useTokensApyLoading = () => {
   const { rpcUrl, chainId } = useTezosNetwork();

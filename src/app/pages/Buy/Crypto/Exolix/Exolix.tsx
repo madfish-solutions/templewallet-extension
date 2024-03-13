@@ -8,7 +8,7 @@ import InitialStep from 'app/pages/Buy/Crypto/Exolix/steps/InitialStep';
 import { T, t } from 'lib/i18n';
 import { useStorage } from 'lib/temple/front';
 import { Redirect } from 'lib/woozie';
-import { useTezosAccountAddress, useTezosNetwork } from 'temple/hooks';
+import { useTezosAccountAddress, useTezosNetwork } from 'temple/front';
 
 import { EXOLIX_CONTACT_LINK } from './config';
 import { ExchangeDataInterface } from './exolix.interface';

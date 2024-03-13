@@ -4,7 +4,7 @@ import Money from 'app/atoms/Money';
 import Balance from 'app/templates/Balance';
 import InFiat from 'app/templates/InFiat';
 import { AssetMetadataBase, useAssetMetadata, getAssetName, getAssetSymbol } from 'lib/metadata';
-import { useTezosAccountAddress } from 'temple/hooks';
+import { useTezosAccountAddress } from 'temple/front';
 
 interface Props {
   slug: string;

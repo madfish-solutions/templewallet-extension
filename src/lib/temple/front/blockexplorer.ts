@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 
 import { isKnownChainId, TempleChainId } from 'lib/temple/types';
-import { useTezosNetwork } from 'temple/hooks';
+import { useTezosNetwork } from 'temple/front';
 
 import { useStorage } from './storage';
 

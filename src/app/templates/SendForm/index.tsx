@@ -12,7 +12,7 @@ import { useTokensSortPredicate } from 'lib/assets/use-sorting';
 import { t } from 'lib/i18n';
 import { useMemoWithCompare, useSafeState } from 'lib/ui/hooks';
 import { HistoryAction, navigate } from 'lib/woozie';
-import { useTezos } from 'temple/hooks';
+import { useTezos } from 'temple/front';
 
 import AddContactModal from './AddContactModal';
 import { Form } from './Form';

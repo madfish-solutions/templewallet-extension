@@ -13,7 +13,7 @@ import {
 } from 'app/store/partners-promotion/selectors';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
 import { AD_HIDING_TIMEOUT } from 'lib/constants';
-import { useTezosAccountAddress } from 'temple/hooks';
+import { useTezosAccountAddress } from 'temple/front';
 
 import { HypelabPromotion } from './components/hypelab-promotion';
 import { OptimalPromotion } from './components/optimal-promotion';

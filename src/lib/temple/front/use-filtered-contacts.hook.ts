@@ -3,7 +3,7 @@ import { useEffect, useMemo } from 'react';
 import { isEqual } from 'lodash';
 
 import { useMemoWithCompare } from 'lib/ui/hooks';
-import { useTezosNetwork, useTezosRelevantAccounts } from 'temple/hooks';
+import { useTezosNetwork, useTezosRelevantAccounts } from 'temple/front';
 
 import type { TempleContact } from '../types';
 

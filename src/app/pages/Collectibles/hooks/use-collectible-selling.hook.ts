@@ -9,7 +9,7 @@ import type { ObjktOffer } from 'lib/apis/objkt/types';
 import { fromFa2TokenSlug } from 'lib/assets/utils';
 import { getTransferPermissions } from 'lib/utils/get-transfer-permissions';
 import { parseTransferParamsToParamsWithKind } from 'lib/utils/parse-transfer-params';
-import { useTezosAccountAddress, useTezos } from 'temple/hooks';
+import { useTezosAccountAddress, useTezos } from 'temple/front';
 
 const DEFAULT_OBJKT_STORAGE_LIMIT = 350;
 

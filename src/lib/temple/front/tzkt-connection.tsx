@@ -13,7 +13,7 @@ import React, {
 import { noop } from 'lodash';
 
 import { createWsConnection, TzktHubConnection } from 'lib/apis/tzkt';
-import { useTezosNetwork } from 'temple/hooks';
+import { useTezosNetwork } from 'temple/front';
 
 import { useTempleClient } from './client';
 

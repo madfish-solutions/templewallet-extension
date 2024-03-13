@@ -9,7 +9,7 @@ import { ALL_PREDEFINED_METADATAS_RECORD } from 'lib/assets/known-tokens';
 import { reduceToMetadataRecord } from 'lib/metadata/fetch';
 import { TempleChainId } from 'lib/temple/types';
 import { useLocalStorage } from 'lib/ui/local-storage';
-import { useTezosNetwork } from 'temple/hooks';
+import { useTezosNetwork } from 'temple/front';
 
 const STORAGE_KEY = 'METADATA_REFRESH';
 

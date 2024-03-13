@@ -6,7 +6,7 @@ import { Alert, FormField, FormSubmitButton } from 'app/atoms';
 import AccountBanner from 'app/templates/AccountBanner';
 import { T, t } from 'lib/i18n';
 import { useSafeState } from 'lib/ui/hooks';
-import { useTezos, useTezosAccount } from 'temple/hooks';
+import { useTezos, useTezosAccount } from 'temple/front';
 import { confirmTezosOperation } from 'temple/tezos';
 import { activateTezosAccount } from 'temple/tezos/activate-account';
 

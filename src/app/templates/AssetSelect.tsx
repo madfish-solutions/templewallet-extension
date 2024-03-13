@@ -12,7 +12,7 @@ import { setTestID, setAnotherSelector, TestIDProperty } from 'lib/analytics';
 import { searchAssetsWithNoMeta } from 'lib/assets/search.utils';
 import { T, t } from 'lib/i18n';
 import { useAssetMetadata, getAssetSymbol, useGetAssetMetadata } from 'lib/metadata';
-import { useTezosAccountAddress } from 'temple/hooks';
+import { useTezosAccountAddress } from 'temple/front';
 
 import { AssetItemContent } from './AssetItemContent';
 import { DropdownSelect } from './DropdownSelect/DropdownSelect';

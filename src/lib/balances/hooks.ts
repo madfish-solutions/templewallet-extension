@@ -15,7 +15,7 @@ import {
   useTezosAccountAddress,
   useTezosChainIdLoading,
   useOnTezosBlock
-} from 'temple/hooks';
+} from 'temple/front';
 import { buildFastRpcTezosToolkit } from 'temple/tezos';
 
 import { fetchRawBalance as fetchRawBalanceFromBlockchain } from './fetch';

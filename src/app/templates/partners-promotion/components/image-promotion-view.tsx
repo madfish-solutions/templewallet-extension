@@ -4,7 +4,7 @@ import clsx from 'clsx';
 
 import { Anchor } from 'app/atoms/Anchor';
 import { useAdRectObservation } from 'app/hooks/ads/use-ad-rect-observation';
-import { useTezosAccountAddress } from 'temple/hooks';
+import { useTezosAccountAddress } from 'temple/front';
 
 import { PartnersPromotionSelectors } from '../index.selectors';
 import { PartnersPromotionVariant } from '../types';

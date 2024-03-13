@@ -8,7 +8,7 @@ import { T, t } from 'lib/i18n';
 import { useTempleClient, useTezosDomainsClient, validateDelegate } from 'lib/temple/front';
 import { useTezosAddressByDomainName } from 'lib/temple/front/tzdns';
 import { isAddressValid, isKTAddress } from 'lib/temple/helpers';
-import { useTezos } from 'temple/hooks';
+import { useTezos } from 'temple/front';
 
 import { ImportAccountSelectors, ImportAccountFormType } from './selectors';
 

@@ -11,7 +11,7 @@ import { isKnownChainId } from 'lib/apis/tzkt';
 import { ASSETS_SYNC_INTERVAL } from 'lib/fixed-times';
 import { TempleChainId } from 'lib/temple/types';
 import { useInterval } from 'lib/ui/hooks';
-import { useTezosAccountAddress, useTezosNetwork } from 'temple/hooks';
+import { useTezosAccountAddress, useTezosNetwork } from 'temple/front';
 
 export const useAssetsLoading = () => {
   const { chainId } = useTezosNetwork();

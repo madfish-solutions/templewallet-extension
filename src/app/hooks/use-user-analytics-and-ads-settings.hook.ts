@@ -4,7 +4,7 @@ import { useAnalytics } from 'lib/analytics';
 import { WEBSITES_ANALYTICS_ENABLED } from 'lib/constants';
 import { AnalyticsEventCategory } from 'lib/temple/analytics-types';
 import { usePassiveStorage } from 'lib/temple/front/storage';
-import { useTezosAccountAddress } from 'temple/hooks';
+import { useTezosAccountAddress } from 'temple/front';
 
 import { useShouldShowPartnersPromoSelector } from '../store/partners-promotion/selectors';
 import { useAnalyticsEnabledSelector } from '../store/settings/selectors';

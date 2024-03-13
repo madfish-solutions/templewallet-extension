@@ -8,7 +8,7 @@ import { dispatch } from 'app/store';
 import { setTokenStatusAction } from 'app/store/assets/actions';
 import { t, T } from 'lib/i18n';
 import { useConfirm } from 'lib/ui/dialog';
-import { useTezosAccountAddress, useTezosNetwork } from 'temple/hooks';
+import { useTezosAccountAddress, useTezosNetwork } from 'temple/front';
 
 import modStyles from '../../Tokens.module.css';
 

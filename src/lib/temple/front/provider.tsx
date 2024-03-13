@@ -3,7 +3,7 @@ import React, { FC, useMemo } from 'react';
 import { ShortcutAccountSelectStateProvider } from 'app/hooks/use-account-select-shortcut';
 import { usePushNotifications } from 'app/hooks/use-push-notifications';
 import { CustomRpcContext } from 'lib/analytics';
-import { useTezosNetworkRpcUrl } from 'temple/hooks';
+import { useTezosNetworkRpcUrl } from 'temple/front';
 
 import { TempleClientProvider, useTempleClient } from './client';
 import { ReadyTempleProvider } from './ready';

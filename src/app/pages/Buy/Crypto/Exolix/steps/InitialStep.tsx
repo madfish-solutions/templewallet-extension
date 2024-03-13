@@ -12,7 +12,7 @@ import WarningComponent from 'app/pages/Buy/Crypto/Exolix/steps/WarningComponent
 import { TopUpInput } from 'app/templates/TopUpInput';
 import { T } from 'lib/i18n';
 import { useTypedSWR } from 'lib/swr';
-import { useTezosAccountAddress } from 'temple/hooks';
+import { useTezosAccountAddress } from 'temple/front';
 
 import { EXOLIX_PRIVICY_LINK, EXOLIX_TERMS_LINK, INITIAL_COIN_FROM, INITIAL_COIN_TO } from '../config';
 import { ExchangeDataInterface, ExchangeDataStatusEnum, OutputCurrencyInterface } from '../exolix.interface';

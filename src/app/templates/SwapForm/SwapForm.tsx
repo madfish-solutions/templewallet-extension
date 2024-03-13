@@ -45,8 +45,8 @@ import {
   getRoutingFeeTransferParams
 } from 'lib/utils/swap.utils';
 import { HistoryAction, navigate } from 'lib/woozie';
-import { useTezos, useTezosAccountAddress } from 'temple/hooks';
-import { useTezosBlockLevel } from 'temple/hooks/use-block';
+import { useTezos, useTezosAccountAddress } from 'temple/front';
+import { useTezosBlockLevel } from 'temple/front/use-block';
 
 import { SwapExchangeRate } from './SwapExchangeRate/SwapExchangeRate';
 import { SwapFormValue, SwapInputValue, useSwapFormDefaultValue } from './SwapForm.form';

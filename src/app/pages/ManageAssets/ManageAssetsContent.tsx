@@ -11,7 +11,7 @@ import { t, T } from 'lib/i18n';
 import type { TokenMetadataGetter } from 'lib/metadata';
 import { useConfirm } from 'lib/ui/dialog';
 import { Link } from 'lib/woozie';
-import { useTezosAccountAddress, useTezosNetwork } from 'temple/hooks';
+import { useTezosAccountAddress, useTezosNetwork } from 'temple/front';
 
 import { ListItem } from './ListItem';
 import { ManageAssetsSelectors } from './selectors';

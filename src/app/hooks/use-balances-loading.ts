@@ -18,7 +18,7 @@ import {
 import { toTokenSlug } from 'lib/assets';
 import { useTzktConnection } from 'lib/temple/front';
 import { useUpdatableRef } from 'lib/ui/hooks';
-import { useTezosAccountAddress, useTezosNetwork, useOnTezosBlock } from 'temple/hooks';
+import { useTezosAccountAddress, useTezosNetwork, useOnTezosBlock } from 'temple/front';
 
 export const useBalancesLoading = () => {
   const { chainId } = useTezosNetwork();

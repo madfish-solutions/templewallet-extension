@@ -17,7 +17,7 @@ import { useTempleClient } from 'lib/temple/front';
 import { isAddressValid } from 'lib/temple/helpers';
 import { TempleAccountType } from 'lib/temple/types';
 import { delay } from 'lib/utils';
-import { useTezos, useTezosNetwork, useTezosRelevantAccounts } from 'temple/hooks';
+import { useTezos, useTezosNetwork, useTezosRelevantAccounts } from 'temple/front';
 
 import { ImportAccountSelectors, ImportAccountFormType } from './selectors';
 
