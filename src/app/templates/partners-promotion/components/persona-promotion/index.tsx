@@ -78,14 +78,12 @@ export const PersonaPromotion = memo<Props>(({ id, isVisible, pageName, onReady,
   );
 
   return (
-    <div className={clsx('flex flex-col items-center', !isVisible && 'invisible')}>
-      <div className={`h-${AD_BANNER_HEIGHT} relative rounded-xl overflow-hidden`}>
-        <div ref={ref} id={containerId} onClick={onClick} className={clsx('h-full', ModStyles.container)} />
+    <div className={clsx('relative rounded-xl overflow-hidden', 'h-' + AD_BANNER_HEIGHT, !isVisible && 'invisible')}>
+      <div ref={ref} id={containerId} onClick={onClick} className={clsx('h-full', ModStyles.container)} />
 
-        <ImageAdLabel />
+      <ImageAdLabel />
 
-        <CloseButton onClick={onClose} variant={PartnersPromotionVariant.Image} />
-      </div>
+      <CloseButton onClick={onClose} variant={PartnersPromotionVariant.Image} />
     </div>
   );
 });

@@ -104,7 +104,12 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pa
   }
 
   return (
-    <div className={clsx('w-full relative', !adIsReady && (isImageAd ? styles.imageAdLoading : styles.textAdLoading))}>
+    <div
+      className={clsx(
+        'w-full relative flex flex-col items-center',
+        !adIsReady && (isImageAd ? styles.imageAdLoading : styles.textAdLoading)
+      )}
+    >
       {(() => {
         switch (providerName) {
           case 'Optimal':
