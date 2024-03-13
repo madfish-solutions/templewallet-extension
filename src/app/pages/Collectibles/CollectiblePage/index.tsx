@@ -18,7 +18,7 @@ import { TabsBar } from 'app/templates/TabBar';
 import { setTestID } from 'lib/analytics';
 import { fetchCollectibleExtraDetails, objktCurrencies } from 'lib/apis/objkt';
 import { fromAssetSlug } from 'lib/assets';
-import { BLOCK_DURATION } from 'lib/fixed-times';
+import { TEZOS_BLOCK_DURATION } from 'lib/fixed-times';
 import { t, T } from 'lib/i18n';
 import { buildTokenImagesStack } from 'lib/images-uri';
 import { getAssetName } from 'lib/metadata';
@@ -37,7 +37,7 @@ import { CollectiblePageImage } from './CollectiblePageImage';
 import { PropertiesItems } from './PropertiesItems';
 import { CollectiblesSelectors } from './selectors';
 
-const DETAILS_SYNC_INTERVAL = 4 * BLOCK_DURATION;
+const DETAILS_SYNC_INTERVAL = 4 * TEZOS_BLOCK_DURATION;
 
 interface Props {
   assetSlug: string;

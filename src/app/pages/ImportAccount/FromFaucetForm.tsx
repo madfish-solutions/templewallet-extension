@@ -7,10 +7,10 @@ import { Alert, FileInputProps, FileInput, FormField, FormSubmitButton } from 'a
 import { useFormAnalytics } from 'lib/analytics';
 import { TID, T, t } from 'lib/i18n';
 import { useTempleClient, useSetAccountPkh, useTezos, activateAccount } from 'lib/temple/front';
-import { confirmOperation } from 'lib/temple/operation';
 import { useSafeState } from 'lib/ui/hooks';
 import { delay } from 'lib/utils';
 import { navigate } from 'lib/woozie';
+import { confirmTezosOperation } from 'temple/tezos';
 
 import { ImportAccountFormType } from './selectors';
 
@@ -54,7 +54,7 @@ export const FromFaucetForm: FC = () => {
 
       if (activation.status === 'SENT') {
         setAlert(`🛫 ${t('requestSent', t('activationOperationType'))}`);
-        await confirmOperation(tezos, activation.operation.hash);
+        await confirmTezosOperation(tezos, activation.operation.hash);
       }
 
       try {

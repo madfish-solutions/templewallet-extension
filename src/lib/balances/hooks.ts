@@ -14,7 +14,6 @@ import { useTezosNetwork, useTezosAccountAddress, useTezosChainIdLoading } from 
 import { buildFastRpcTezosToolkit } from 'temple/tezos';
 
 import { fetchRawBalance as fetchRawBalanceFromBlockchain } from './fetch';
-import { getBalanceSWRKey } from './utils';
 
 export const useCurrentAccountBalances = () => {
   const { chainId } = useTezosNetwork();
@@ -79,7 +78,7 @@ export function useRawBalance(
   );
 
   const onChainBalanceSwrRes = useTypedSWR(
-    getBalanceSWRKey(tezos.rpc.getRpcUrl(), assetSlug, address),
+    ['balance', tezos.rpc.getRpcUrl(), assetSlug, address],
     () => {
       if (!chainId || usingStore) return;
 
@@ -94,7 +93,7 @@ export function useRawBalance(
   const refreshChainId = useCallback(() => chainIdSwrRes.mutate(), [chainIdSwrRes.mutate]);
   const refreshBalanceOnChain = useCallback(() => void onChainBalanceSwrRes.mutate(), [onChainBalanceSwrRes.mutate]);
 
-  useOnBlock(refreshBalanceOnChain, tezos);
+  useOnBlock(refreshBalanceOnChain, tezos, !chainId || usingStore);
 
   if (!chainId)
     return {

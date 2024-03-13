@@ -20,7 +20,7 @@ import { useFormAnalytics } from 'lib/analytics';
 import { submitDelegation } from 'lib/apis/everstake';
 import { ABTestGroup } from 'lib/apis/temple';
 import { useGasToken } from 'lib/assets/hooks';
-import { BLOCK_DURATION } from 'lib/fixed-times';
+import { TEZOS_BLOCK_DURATION } from 'lib/fixed-times';
 import { TID, T, t } from 'lib/i18n';
 import { HELP_UKRAINE_BAKER_ADDRESS, RECOMMENDED_BAKER_ADDRESS } from 'lib/known-bakers';
 import { setDelegate } from 'lib/michelson';
@@ -182,7 +182,7 @@ const DelegateForm = memo<Props>(({ balance }) => {
     {
       shouldRetryOnError: false,
       focusThrottleInterval: 10_000,
-      dedupingInterval: BLOCK_DURATION
+      dedupingInterval: TEZOS_BLOCK_DURATION
     }
   );
   const baseFeeError = baseFee instanceof Error ? baseFee : estimateBaseFeeError;

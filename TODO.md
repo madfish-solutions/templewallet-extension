@@ -11,6 +11,8 @@
 - Memoize `loadTezosChainId()` @ BG
 - Rework analytics (properties) - breaking change
 - - Category separation
+- Contacts to Redux
+- - See `useFilteredContacts`
 -
 
 
@@ -19,4 +21,5 @@
 - TempleAccount -> StoredAccount
 - useTezos${Network | Account | ...} hooks
 - Started reforming `lib/temple`
+- `TEZOS_BLOCK_DURATION`
 -

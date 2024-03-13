@@ -6,6 +6,8 @@ import memoizee from 'memoizee';
 import { FastRpcClient } from 'lib/taquito-fast-rpc';
 import { StoredAccountBase, TempleAccountType } from 'lib/temple/types';
 
+export { TEZOS_CONFIRMATION_TIMED_OUT_ERROR_MSG, confirmTezosOperation } from './confirmation';
+
 const MAX_MEMOIZED_TOOLKITS = 3;
 
 export const michelEncoder = new MichelCodecPacker();

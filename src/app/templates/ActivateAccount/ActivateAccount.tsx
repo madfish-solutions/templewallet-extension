@@ -6,9 +6,9 @@ import { Alert, FormField, FormSubmitButton } from 'app/atoms';
 import AccountBanner from 'app/templates/AccountBanner';
 import { T, t } from 'lib/i18n';
 import { useTezos, activateAccount } from 'lib/temple/front';
-import { confirmOperation } from 'lib/temple/operation';
 import { useSafeState } from 'lib/ui/hooks';
 import { useTezosAccount } from 'temple/hooks';
+import { confirmTezosOperation } from 'temple/tezos';
 
 import { ActivateAccountSelectors } from './ActivateAccount.selectors';
 
@@ -43,7 +43,7 @@ const ActivateAccount = memo(() => {
 
           case 'SENT':
             setSuccess(`🛫 ${t('requestSent', t('activationOperationType'))}`);
-            confirmOperation(tezos, activation.operation.hash).then(() => {
+            confirmTezosOperation(tezos, activation.operation.hash).then(() => {
               setSuccess(`✅ ${t('accountActivated')}`);
             });
             break;

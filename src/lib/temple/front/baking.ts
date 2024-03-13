@@ -25,17 +25,17 @@ function getDelegateCacheKey(
   chainId: string | nullish,
   shouldPreventErrorPropagation: boolean
 ) {
-  return unstable_serialize(['delegate', rpcUrl, address, chainId, shouldPreventErrorPropagation]);
+  return ['delegate', rpcUrl, address, chainId, shouldPreventErrorPropagation];
 }
 
 export function useDelegate(address: string, suspense = true, shouldPreventErrorPropagation = true) {
   const tezos = useTezos();
-  const { chainId } = useTezosNetwork();
+  const { chainId, rpcUrl } = useTezosNetwork();
   const { cache: swrCache } = useSWRConfig();
 
   const resetDelegateCache = useCallback(() => {
-    swrCache.delete(getDelegateCacheKey(tezos.rpc.getRpcUrl(), address, chainId, shouldPreventErrorPropagation));
-  }, [address, tezos, chainId, swrCache, shouldPreventErrorPropagation]);
+    swrCache.delete(unstable_serialize(getDelegateCacheKey(rpcUrl, address, chainId, shouldPreventErrorPropagation)));
+  }, [address, rpcUrl, chainId, swrCache, shouldPreventErrorPropagation]);
 
   const getDelegate = useCallback(async () => {
     try {
@@ -74,7 +74,7 @@ export function useDelegate(address: string, suspense = true, shouldPreventError
     }
   }, [chainId, tezos, address, shouldPreventErrorPropagation, resetDelegateCache]);
 
-  return useSWR(['delegate', tezos.checksum, address, chainId, shouldPreventErrorPropagation], getDelegate, {
+  return useSWR(getDelegateCacheKey(rpcUrl, address, chainId, shouldPreventErrorPropagation), getDelegate, {
     dedupingInterval: 20_000,
     suspense
   });

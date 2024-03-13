@@ -38,7 +38,7 @@ import { isTezAsset, TEZ_TOKEN_SLUG, toPenny } from 'lib/assets';
 import { toTransferParams } from 'lib/assets/contract.utils';
 import { useBalance } from 'lib/balances';
 import { useAssetFiatCurrencyPrice, useFiatCurrency } from 'lib/fiat-currency';
-import { BLOCK_DURATION } from 'lib/fixed-times';
+import { TEZOS_BLOCK_DURATION } from 'lib/fixed-times';
 import { toLocalFixed, T, t } from 'lib/i18n';
 import { AssetMetadataBase, useAssetMetadata, getAssetSymbol } from 'lib/metadata';
 import { transferImplicit, transferToContract } from 'lib/michelson';
@@ -255,7 +255,7 @@ export const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactReque
     {
       shouldRetryOnError: false,
       focusThrottleInterval: 10_000,
-      dedupingInterval: BLOCK_DURATION
+      dedupingInterval: TEZOS_BLOCK_DURATION
     }
   );
   const feeError = getBaseFeeError(baseFee, estimateBaseFeeError);

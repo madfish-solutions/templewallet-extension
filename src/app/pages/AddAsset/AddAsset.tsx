@@ -3,7 +3,6 @@ import React, { FC, memo, ReactNode, useCallback, useEffect, useRef, useMemo } f
 import { ContractAbstraction, ContractProvider, Wallet } from '@taquito/taquito';
 import classNames from 'clsx';
 import { FormContextValues, useForm } from 'react-hook-form';
-import { useSWRConfig, unstable_serialize } from 'swr';
 import { useDebouncedCallback } from 'use-debounce';
 
 import { Alert, FormField, FormSubmitButton, NoSpaceField } from 'app/atoms';
@@ -23,7 +22,6 @@ import {
   detectTokenStandard,
   IncorrectTokenIdError
 } from 'lib/assets/standards';
-import { getBalanceSWRKey } from 'lib/balances';
 import { T, t } from 'lib/i18n';
 import { isCollectible, TokenMetadata } from 'lib/metadata';
 import { fetchOneTokenMetadata } from 'lib/metadata/fetch';
@@ -81,8 +79,6 @@ const Form = memo(() => {
   const tezos = useTezos();
   const { chainId, rpcUrl } = useTezosNetwork();
   const accountPkh = useTezosAccountAddress();
-
-  const { cache: swrCache } = useSWRConfig();
 
   const formAnalytics = useFormAnalytics('AddAsset');
 
@@ -226,8 +222,6 @@ const Form = memo(() => {
 
         dispatch(assetIsCollectible ? putCollectiblesAsIsAction([asset]) : putTokensAsIsAction([asset]));
 
-        swrCache.delete(unstable_serialize(getBalanceSWRKey(tezos.rpc.getRpcUrl(), tokenSlug, accountPkh)));
-
         formAnalytics.trackSubmitSuccess();
 
         navigate({
@@ -235,26 +229,14 @@ const Form = memo(() => {
           search: 'after_token_added=true'
         });
       } catch (err: any) {
-        formAnalytics.trackSubmitFail();
-
         console.error(err);
 
-        // Human delay
-        await delay();
+        formAnalytics.trackSubmitFail();
+
         setSubmitError(err.message);
       }
     },
-    [
-      tezos,
-      swrCache,
-      formState.isSubmitting,
-      chainId,
-      accountPkh,
-      setSubmitError,
-      formAnalytics,
-      contractAddress,
-      tokenId
-    ]
+    [formState.isSubmitting, chainId, accountPkh, setSubmitError, formAnalytics, contractAddress, tokenId]
   );
 
   return (

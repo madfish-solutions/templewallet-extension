@@ -3,9 +3,8 @@ import React, { FC, useMemo } from 'react';
 import { ShortcutAccountSelectStateProvider } from 'app/hooks/use-account-select-shortcut';
 import { usePushNotifications } from 'app/hooks/use-push-notifications';
 import { CustomRpcContext } from 'lib/analytics';
-import { useTezosNetwork, useTezosNetworkRpcUrl } from 'temple/hooks';
+import { useTezosNetworkRpcUrl } from 'temple/hooks';
 
-import { NewBlockTriggersProvider } from './chain';
 import { TempleClientProvider, useTempleClient } from './client';
 import { ReadyTempleProvider } from './ready';
 
@@ -29,9 +28,7 @@ const ConditionalReadyTemple: FC<PropsWithChildren> = ({ children }) => {
       ready ? (
         <ReadyTempleProvider>
           <WalletRpcProvider>
-            <NewBlockTriggersProvider>
-              <ShortcutAccountSelectStateProvider>{children}</ShortcutAccountSelectStateProvider>
-            </NewBlockTriggersProvider>
+            <ShortcutAccountSelectStateProvider>{children}</ShortcutAccountSelectStateProvider>
           </WalletRpcProvider>
         </ReadyTempleProvider>
       ) : (
