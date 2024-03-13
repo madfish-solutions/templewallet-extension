@@ -5,11 +5,11 @@ import { AdDimensions, PersonaAdShape } from '../ads-meta';
 
 import { AdView } from './types';
 
-export const makePersonaAdView = async (
+export const makePersonaAdView = (
   shape: PersonaAdShape,
   { width, height }: AdDimensions,
   elementStyle: StringRecord
-): Promise<AdView> => {
+): AdView => {
   const id = nanoid();
 
   const element = document.createElement('iframe');

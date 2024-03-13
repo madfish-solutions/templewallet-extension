@@ -39,15 +39,17 @@ const replaceAds = async () => {
 
     const adsActions = await getAdsActions(adsRules);
 
-    for (const action of adsActions) {
-      if (action.type === AdActionType.RemoveElement) {
-        action.element.remove();
-      } else if (action.type === AdActionType.HideElement) {
-        action.element.style.setProperty('display', 'none');
-      } else {
-        processInsertAdAction(action, action.meta);
-      }
-    }
+    await Promise.allSettled(
+      adsActions.map(async action => {
+        if (action.type === AdActionType.RemoveElement) {
+          action.element.remove();
+        } else if (action.type === AdActionType.HideElement) {
+          action.element.style.setProperty('display', 'none');
+        } else {
+          await processInsertAdAction(action, action.meta);
+        }
+      })
+    );
   } catch (error) {
     console.error('Replacing Ads error:', error);
   }
@@ -55,7 +57,7 @@ const replaceAds = async () => {
   processing = false;
 };
 
-const processInsertAdAction = (action: InsertAdAction, ad: AdMetadata) => {
+const processInsertAdAction = async (action: InsertAdAction, ad: AdMetadata) => {
   const { shouldUseDivWrapper, divWrapperStyle = {} } = action;
 
   const wrapperElement = document.createElement('div');
@@ -67,12 +69,16 @@ const processInsertAdAction = (action: InsertAdAction, ad: AdMetadata) => {
     wrapperElement.style.display = 'contents';
   }
 
-  processInsertAdActionOnce(action, ad, wrapperElement).catch(error => {
+  await processInsertAdActionOnce(action, ad, wrapperElement).catch(error => {
     console.error('Replacing an ad error:', error);
-    wrapperElement.remove();
 
     const nextAd = action.fallbacks.shift();
-    if (nextAd) processInsertAdAction(action, nextAd);
+    if (nextAd) {
+      // Changing element to replace
+      if (action.type === AdActionType.ReplaceElement) action.element = wrapperElement;
+
+      return processInsertAdAction(action, nextAd);
+    } else wrapperElement.remove();
   });
 };
 
@@ -92,7 +98,7 @@ const processInsertAdActionOnce = async (action: InsertAdAction, ad: AdMetadata,
       ? makeTKeyAdView(dimensions.width, dimensions.height, elementStyle)
       : providerName === 'HypeLab'
       ? makeHypelabAdView(source, dimensions, elementStyle)
-      : await makePersonaAdView(source.shape, dimensions, elementStyle);
+      : makePersonaAdView(source.shape, dimensions, elementStyle);
 
   adElement.setAttribute(TEMPLE_WALLET_AD_ATTRIBUTE_NAME, 'true');
   wrapperElement.appendChild(adElement);
