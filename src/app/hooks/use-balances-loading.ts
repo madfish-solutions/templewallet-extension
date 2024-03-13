@@ -1,10 +1,11 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
+import { isDefined } from '@rnw-community/shared';
 import { noop } from 'lodash';
 
 import { dispatch } from 'app/store';
 import { loadGasBalanceActions, loadAssetsBalancesActions, putTokensBalancesAction } from 'app/store/balances/actions';
-import { useBalancesLoadingSelector } from 'app/store/balances/selectors';
+import { useBalancesErrorSelector, useBalancesLoadingSelector } from 'app/store/balances/selectors';
 import { fixBalances } from 'app/store/balances/utils';
 import {
   TzktSubscriptionChannel,
@@ -17,7 +18,7 @@ import {
 } from 'lib/apis/tzkt';
 import { toTokenSlug } from 'lib/assets';
 import { useTzktConnection } from 'lib/temple/front';
-import { useUpdatableRef } from 'lib/ui/hooks';
+import { useDidUpdate } from 'lib/ui/hooks';
 import { useTezosAccountAddress, useTezosNetwork, useOnTezosBlock } from 'temple/front';
 
 export const useBalancesLoading = () => {
@@ -25,7 +26,16 @@ export const useBalancesLoading = () => {
   const publicKeyHash = useTezosAccountAddress();
 
   const isLoading = useBalancesLoadingSelector(publicKeyHash, chainId);
-  const isLoadingRef = useUpdatableRef(isLoading);
+  const isLoadingRef = useRef(false);
+
+  useDidUpdate(() => {
+    // Persisted `isLoading` value might be `true`.
+    // Using initial `false` & only updating on further changes.
+    isLoadingRef.current = isLoading;
+  }, [isLoading]);
+
+  const storedError = useBalancesErrorSelector(publicKeyHash, chainId);
+  const isStoredError = isDefined(storedError);
 
   const { connection, connectionReady } = useTzktConnection();
   const [tokensSubscriptionConfirmed, setTokensSubscriptionConfirmed] = useState(false);
@@ -123,7 +133,7 @@ export const useBalancesLoading = () => {
   }, [publicKeyHash, chainId, isLoadingRef]);
 
   useEffect(dispatchLoadGasBalanceAction, [dispatchLoadGasBalanceAction]);
-  useOnTezosBlock(dispatchLoadGasBalanceAction, undefined, accountsSubscriptionConfirmed);
+  useOnTezosBlock(dispatchLoadGasBalanceAction, undefined, accountsSubscriptionConfirmed && isStoredError === false);
 
   const dispatchLoadAssetsBalancesActions = useCallback(() => {
     if (isLoadingRef.current === false && isKnownChainId(chainId)) {
@@ -132,5 +142,5 @@ export const useBalancesLoading = () => {
   }, [publicKeyHash, chainId, isLoadingRef]);
 
   useEffect(dispatchLoadAssetsBalancesActions, [dispatchLoadAssetsBalancesActions]);
-  useOnTezosBlock(dispatchLoadAssetsBalancesActions, undefined, tokensSubscriptionConfirmed);
+  useOnTezosBlock(dispatchLoadAssetsBalancesActions, undefined, tokensSubscriptionConfirmed && isStoredError === false);
 };
