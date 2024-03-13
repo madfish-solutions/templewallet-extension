@@ -11,7 +11,7 @@ import { useAccountPkh } from 'lib/temple/front';
 
 import { PartnersPromotionSelectors } from '../../selectors';
 import { PartnersPromotionVariant, SingleProviderPromotionProps } from '../../types';
-import { buildAdClickAnalyticsProperties } from '../../utils';
+import { AD_BANNER_HEIGHT, buildAdClickAnalyticsProperties } from '../../utils';
 import { CloseButton } from '../close-button';
 import { ImageAdLabel } from '../image-promotion-view';
 
@@ -78,17 +78,14 @@ export const PersonaPromotion = memo<Props>(({ id, isVisible, pageName, onReady,
   );
 
   return (
-    <div className={clsx('relative', !isVisible && 'invisible')}>
-      <div
-        ref={ref}
-        id={containerId}
-        onClick={onClick}
-        className={clsx('rounded-xl overflow-hidden', ModStyles.container)}
-      />
+    <div className={clsx('flex flex-col items-center', !isVisible && 'invisible')}>
+      <div className={`h-${AD_BANNER_HEIGHT} relative rounded-xl overflow-hidden`}>
+        <div ref={ref} id={containerId} onClick={onClick} className={clsx('h-full', ModStyles.container)} />
 
-      <ImageAdLabel />
+        <ImageAdLabel />
 
-      <CloseButton onClick={onClose} variant={PartnersPromotionVariant.Image} />
+        <CloseButton onClick={onClose} variant={PartnersPromotionVariant.Image} />
+      </div>
     </div>
   );
 });
