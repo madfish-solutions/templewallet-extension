@@ -26,22 +26,14 @@ import { HELP_UKRAINE_BAKER_ADDRESS, RECOMMENDED_BAKER_ADDRESS } from 'lib/known
 import { setDelegate } from 'lib/michelson';
 import { useTypedSWR } from 'lib/swr';
 import { loadContract } from 'lib/temple/contract';
-import {
-  Baker,
-  isDomainNameValid,
-  useAccount,
-  useKnownBaker,
-  useKnownBakers,
-  useTezosDomainsClient,
-  validateDelegate
-} from 'lib/temple/front';
-import { useTezosAddressByDomainName } from 'lib/temple/front/tzdns';
+import { Baker, useAccount, useKnownBaker, useKnownBakers, validateDelegate } from 'lib/temple/front';
 import { hasManager, isAddressValid, isKTAddress, mutezToTz, tzToMutez } from 'lib/temple/helpers';
 import { TempleAccountType } from 'lib/temple/types';
 import { useSafeState } from 'lib/ui/hooks';
 import { delay, fifoResolve } from 'lib/utils';
 import { Link, useLocation } from 'lib/woozie';
 import { useTezos, useTezosNetwork } from 'temple/front';
+import { isTezosDomainsNameValid, useTezosAddressByDomainName, useTezosDomainsClient } from 'temple/front/tzdns';
 
 import { DelegateFormSelectors } from './DelegateForm.selectors';
 
@@ -87,7 +79,7 @@ const DelegateForm = memo<Props>(({ balance }) => {
 
   const toFilledWithAddress = useMemo(() => Boolean(toValue && isAddressValid(toValue)), [toValue]);
   const toFilledWithDomain = useMemo(
-    () => toValue && isDomainNameValid(toValue, domainsClient),
+    () => toValue && isTezosDomainsNameValid(toValue, domainsClient),
     [toValue, domainsClient]
   );
   const { data: resolvedAddress } = useTezosAddressByDomainName(toValue);

@@ -44,20 +44,14 @@ import { AssetMetadataBase, useAssetMetadata, getAssetSymbol } from 'lib/metadat
 import { transferImplicit, transferToContract } from 'lib/michelson';
 import { useTypedSWR } from 'lib/swr';
 import { loadContract } from 'lib/temple/contract';
-import {
-  isDomainNameValid,
-  useAccount,
-  useTezosDomainsClient,
-  useFilteredContacts,
-  validateRecipient
-} from 'lib/temple/front';
-import { useTezosAddressByDomainName } from 'lib/temple/front/tzdns';
+import { useAccount, useFilteredContacts, validateRecipient } from 'lib/temple/front';
 import { hasManager, isAddressValid, isKTAddress, mutezToTz, tzToMutez } from 'lib/temple/helpers';
 import { TempleAccountType, StoredAccount } from 'lib/temple/types';
 import { useSafeState } from 'lib/ui/hooks';
 import { useScrollIntoView } from 'lib/ui/use-scroll-into-view';
 import { ZERO } from 'lib/utils/numbers';
 import { useTezos, useTezosNetwork } from 'temple/front';
+import { isTezosDomainsNameValid, useTezosAddressByDomainName, useTezosDomainsClient } from 'temple/front/tzdns';
 
 import ContactsDropdown, { ContactsDropdownProps } from './ContactsDropdown';
 import { FeeSection } from './FeeSection';
@@ -162,7 +156,7 @@ export const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactReque
   const toFilledWithAddress = useMemo(() => Boolean(toValue && isAddressValid(toValue)), [toValue]);
 
   const toFilledWithDomain = useMemo(
-    () => toValue && isDomainNameValid(toValue, domainsClient),
+    () => toValue && isTezosDomainsNameValid(toValue, domainsClient),
     [toValue, domainsClient]
   );
 

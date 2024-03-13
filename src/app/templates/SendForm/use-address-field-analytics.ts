@@ -3,8 +3,9 @@ import { useCallback, useEffect, useRef } from 'react';
 import { isDefined } from '@rnw-community/shared';
 
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
-import { isDomainNameValid, useTezosDomainsClient, validateRecipient } from 'lib/temple/front';
+import { validateRecipient } from 'lib/temple/front';
 import { otherNetworks } from 'lib/temple/front/other-networks';
+import { isTezosDomainsNameValid, useTezosDomainsClient } from 'temple/front/tzdns';
 
 export const useAddressFieldAnalytics = (value: string, addressFromNetworkEventName: string) => {
   const analytics = useAnalytics();
@@ -32,7 +33,7 @@ export const useAddressFieldAnalytics = (value: string, addressFromNetworkEventN
       .then(result => {
         if (
           result === false ||
-          (result === true && domainsClient.isSupported && isDomainNameValid(value, domainsClient))
+          (result === true && domainsClient.isSupported && isTezosDomainsNameValid(value, domainsClient))
         ) {
           return;
         }

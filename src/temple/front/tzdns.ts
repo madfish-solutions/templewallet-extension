@@ -5,10 +5,9 @@ import { DomainNameValidationResult, isTezosDomainsSupportedNetwork } from '@tez
 import { TaquitoTezosDomainsClient } from '@tezos-domains/taquito-client';
 
 import { useTypedSWR } from 'lib/swr';
+import { useTezos } from 'lib/temple/front/ready';
 import { useTezosNetwork } from 'temple/front';
 import { TEZOS_NETWORK_NAMES } from 'temple/networks';
-
-import { useTezos } from './ready';
 
 function getClient(networkName: 'mainnet' | 'custom', tezos: TezosToolkit) {
   return isTezosDomainsSupportedNetwork(networkName)
@@ -16,7 +15,7 @@ function getClient(networkName: 'mainnet' | 'custom', tezos: TezosToolkit) {
     : TaquitoTezosDomainsClient.Unsupported;
 }
 
-export function isDomainNameValid(name: string, client: TaquitoTezosDomainsClient) {
+export function isTezosDomainsNameValid(name: string, client: TaquitoTezosDomainsClient) {
   return client.validator.validateDomainName(name, { minLevel: 2 }) === DomainNameValidationResult.VALID;
 }
 

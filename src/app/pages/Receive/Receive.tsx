@@ -12,11 +12,10 @@ import PageLayout from 'app/layouts/PageLayout';
 import ViewsSwitcher, { ViewsSwitcherProps } from 'app/templates/ViewsSwitcher/ViewsSwitcher';
 import { setTestID } from 'lib/analytics';
 import { T, t } from 'lib/i18n';
-import { useTezosDomainsClient } from 'lib/temple/front';
-import { useTezosDomainNameByAddress } from 'lib/temple/front/tzdns';
 import { useSafeState } from 'lib/ui/hooks';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 import { useTezosAccountAddress } from 'temple/front';
+import { useTezosDomainNameByAddress, useTezosDomainsClient } from 'temple/front/tzdns';
 
 import { ReceiveSelectors } from './Receive.selectors';
 

@@ -16,8 +16,6 @@ export { validateDerivationPath, validateContractAddress } from './helpers';
 
 export { useContactsActions, searchContacts } from './address-book';
 
-export { useTezosDomainsClient, isDomainNameValid } from './tzdns';
-
 export type { Baker } from './baking';
 export { getRewardsStats, useKnownBaker, useKnownBakers, useDelegate } from './baking';
 
