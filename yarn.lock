@@ -3887,7 +3887,7 @@
     "@svgr/plugin-jsx" "^6.4.0"
     "@svgr/plugin-svgo" "^6.3.1"
 
-"@taquito/beacon-wallet@19.0.2", "@taquito/beacon-wallet@^12.1.1":
+"@taquito/beacon-wallet@19.0.2", "@taquito/beacon-wallet@^19.0.2":
   version "19.0.2"
   resolved "https://registry.yarnpkg.com/@taquito/beacon-wallet/-/beacon-wallet-19.0.2.tgz#0f354f04224384966b31d30dbc5bca0310f2c329"
   integrity sha512-p6UjYNXpVVsR4fJtZhyOo1+h7kqj+YmsaFji+XPMcFbM6MZGzPY1kpNa1rQ8tvQirjGiVH5mphd/krFYBQqI/Q==
@@ -3896,7 +3896,7 @@
     "@taquito/core" "^19.0.2"
     "@taquito/taquito" "^19.0.2"
 
-"@taquito/contracts-library@19.0.2", "@taquito/contracts-library@^12.1.1":
+"@taquito/contracts-library@19.0.2", "@taquito/contracts-library@^19.0.2":
   version "19.0.2"
   resolved "https://registry.yarnpkg.com/@taquito/contracts-library/-/contracts-library-19.0.2.tgz#7b96895208e3d4bd4722b033b4be0d3747b867dc"
   integrity sha512-dacMhb3hNjUKzvhpUy6It1nlP6Lc7e+BxoT4foucnXYcHDV2AkRHZAqrcA/b9oR3MI1QPuC7WJNQlYz2KVId/w==
@@ -3991,7 +3991,7 @@
     pbkdf2 "^3.1.2"
     typedarray-to-buffer "^4.0.0"
 
-"@taquito/taquito@19.0.2", "@taquito/taquito@^12.1.1", "@taquito/taquito@^19.0.2":
+"@taquito/taquito@19.0.2", "@taquito/taquito@^19.0.2":
   version "19.0.2"
   resolved "https://registry.yarnpkg.com/@taquito/taquito/-/taquito-19.0.2.tgz#02f06679cdab21301ba11ae4ecd7ad3527e87851"
   integrity sha512-kVwJqnn45VVgu5uFjd4dZKZjdmrSipFZg8N2HE6SGc757pzLhDItQJ8z9cKKZUYlrTe73N3wGij4kr7CZ5r//g==
@@ -4016,7 +4016,7 @@
     "@taquito/taquito" "^19.0.2"
     "@taquito/tzip16" "^19.0.2"
 
-"@taquito/tzip16@19.0.2", "@taquito/tzip16@^12.1.1", "@taquito/tzip16@^19.0.2":
+"@taquito/tzip16@19.0.2", "@taquito/tzip16@^19.0.2":
   version "19.0.2"
   resolved "https://registry.yarnpkg.com/@taquito/tzip16/-/tzip16-19.0.2.tgz#428ecf33c2472cd681fe6322cb04a363351fece2"
   integrity sha512-E6BJs0IL2tk0zLhHiQYgXQ2xqkodraibdYWgGVvBCcTiAqKScGthrlh1AixBcLpnx6tOXb+Lca0Z7topYAfuAQ==
@@ -4074,6 +4074,20 @@
     bs58check "^3.0.1"
     crc "^3.8.0"
     jssha "2.3.1"
+
+"@temple-wallet/youves-sdk@^0.0.9":
+  version "0.0.9"
+  resolved "https://registry.yarnpkg.com/@temple-wallet/youves-sdk/-/youves-sdk-0.0.9.tgz#ab581e05826c5020238b880abbbe0d7f3628cf48"
+  integrity sha512-gEUG78e8AtyWZmy6n5pUKH/1iJAIMM9ZFhpUOOlYZy9ucjLbau+/lSr2DDnU4khDCrtfSkxy6G6fLzXp5Vszzg==
+  dependencies:
+    "@taquito/beacon-wallet" "^19.0.2"
+    "@taquito/contracts-library" "^19.0.2"
+    "@taquito/taquito" "^19.0.2"
+    "@taquito/tzip16" "^19.0.2"
+    axios "^0.24.0"
+    bignumber.js "^9.0.2"
+    graphql "^15.5.1"
+    graphql-request "^3.5.0"
 
 "@tezos-domains/core@1.26.0", "@tezos-domains/core@^1.26.0":
   version "1.26.0"
@@ -14367,20 +14381,6 @@ yocto-queue@^0.1.0:
   version "0.1.0"
   resolved "https://registry.yarnpkg.com/yocto-queue/-/yocto-queue-0.1.0.tgz#0294eb3dee05028d31ee1a5fa2c556a6aaf10a1b"
   integrity sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==
-
-youves-sdk@^0.0.6:
-  version "0.0.6"
-  resolved "https://registry.yarnpkg.com/youves-sdk/-/youves-sdk-0.0.6.tgz#c575aa26d353af003ea726950527a960b5f042b6"
-  integrity sha512-RTk617JSJ66n0S+NnacTxH+Cm4XffiLsDlSZID/Y+uGMVr/y34tZkaF2DIhrA5hNgf0gUgA/etJqFdmK/2DVNQ==
-  dependencies:
-    "@taquito/beacon-wallet" "^12.1.1"
-    "@taquito/contracts-library" "^12.1.1"
-    "@taquito/taquito" "^12.1.1"
-    "@taquito/tzip16" "^12.1.1"
-    axios "^0.24.0"
-    bignumber.js "^9.0.2"
-    graphql "^15.5.1"
-    graphql-request "^3.5.0"
 
 yup@^1.1.1:
   version "1.1.1"
