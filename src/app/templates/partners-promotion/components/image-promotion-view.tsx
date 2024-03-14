@@ -45,7 +45,7 @@ export const ImagePromotionView: FC<Props> = ({
     <Anchor
       className={clsx(
         'relative w-full flex justify-center items-center rounded-xl',
-        'min-h-' + AD_BANNER_HEIGHT,
+        `min-h-${AD_BANNER_HEIGHT}`,
         'bg-gray-100 hover:bg-gray-200',
         !isVisible && 'invisible'
       )}

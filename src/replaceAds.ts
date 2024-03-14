@@ -41,12 +41,16 @@ const replaceAds = async () => {
 
     await Promise.allSettled(
       adsActions.map(async action => {
-        if (action.type === AdActionType.RemoveElement) {
-          action.element.remove();
-        } else if (action.type === AdActionType.HideElement) {
-          action.element.style.setProperty('display', 'none');
-        } else {
-          await processInsertAdAction(action, action.meta);
+        try {
+          if (action.type === AdActionType.RemoveElement) {
+            action.element.remove();
+          } else if (action.type === AdActionType.HideElement) {
+            action.element.style.setProperty('display', 'none');
+          } else {
+            await processInsertAdAction(action, action.meta);
+          }
+        } catch (err) {
+          console.error('Replacing an ad error:', err);
         }
       })
     );
@@ -70,7 +74,7 @@ const processInsertAdAction = async (action: InsertAdAction, ad: AdMetadata) => 
   }
 
   await processInsertAdActionOnce(action, ad, wrapperElement).catch(error => {
-    console.error('Replacing an ad error:', error);
+    console.error('Inserting an ad attempt error:', error);
 
     const nextAd = action.fallbacks.shift();
     if (nextAd) {
@@ -78,7 +82,11 @@ const processInsertAdAction = async (action: InsertAdAction, ad: AdMetadata) => 
       if (action.type === AdActionType.ReplaceElement) action.element = wrapperElement;
 
       return processInsertAdAction(action, nextAd);
-    } else wrapperElement.remove();
+    }
+
+    wrapperElement.remove();
+
+    throw error;
   });
 };
 
