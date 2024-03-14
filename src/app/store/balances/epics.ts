@@ -1,4 +1,3 @@
-import { BigNumber } from 'bignumber.js';
 import { combineEpics, Epic } from 'redux-observable';
 import { catchError, from, map, of, switchMap } from 'rxjs';
 import { ofType, toPayload } from 'ts-action-operators';
@@ -14,15 +13,13 @@ const loadGasBalanceEpic: Epic = action$ =>
     toPayload(),
     switchMap(({ publicKeyHash, chainId }) =>
       from(fetchTezosBalanceFromTzkt(publicKeyHash, chainId)).pipe(
-        map(info => {
-          const balance = new BigNumber(info.balance ?? 0).minus(info.frozenDeposit ?? 0).toFixed();
-
-          return loadGasBalanceActions.success({
+        map(balance =>
+          loadGasBalanceActions.success({
             publicKeyHash,
             chainId,
             balance
-          });
-        }),
+          })
+        ),
         catchError(err => of(loadGasBalanceActions.fail(err.message)))
       )
     )

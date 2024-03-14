@@ -1,3 +1,8 @@
+import { TzktAccount } from './types';
+
+export const calcTzktAccountSpendableTezBalance = ({ balance, stakedBalance, unstakedBalance }: TzktAccount) =>
+  ((balance ?? 0) - (stakedBalance ?? 0) - (unstakedBalance ?? 0)).toFixed();
+
 type ParameterFa12 = {
   entrypoint: string;
   value: {
@@ -6,15 +11,18 @@ type ParameterFa12 = {
     value: string;
   };
 };
+
 interface Fa2Transaction {
   to_: string;
   amount: string;
   token_id: string;
 }
+
 interface Fa2OpParams {
   txs: Fa2Transaction[];
   from_: string;
 }
+
 export type ParameterFa2 = {
   entrypoint: string;
   value: Fa2OpParams[];
