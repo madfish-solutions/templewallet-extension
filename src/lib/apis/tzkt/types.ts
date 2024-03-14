@@ -317,8 +317,6 @@ interface TzktDelegateAccount extends TzktAccountBase {
   activationTime: string;
   deactivationLevel: number | nullish;
   deactivationTime: string | nullish;
-  stakedBalance?: number;
-  unstakedBalance?: number;
   delegatedBalance: number;
   numContracts: number;
   rollupsCount: number;
