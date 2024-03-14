@@ -13,7 +13,7 @@ import {
   AdAction,
   AdActionType,
   HideElementAction,
-  OmitAdMeta,
+  OmitAdInAction,
   ReplaceElementWithAdAction,
   SimpleInsertAdAction
 } from './types';
@@ -100,7 +100,7 @@ const processPermanentAdsParent = (
       if (elementToMeasureSelector) {
         elementToMeasure = document.querySelector(elementToMeasureSelector) ?? elementToMeasure;
       }
-      const replaceActionBase: OmitAdMeta<ReplaceElementWithAdAction> = {
+      const replaceActionBase: OmitAdInAction<ReplaceElementWithAdAction> = {
         type: AdActionType.ReplaceElement,
         element: banner,
         shouldUseDivWrapper,
@@ -112,7 +112,7 @@ const processPermanentAdsParent = (
         type: AdActionType.HideElement,
         element: banner
       };
-      const insertActionBase: OmitAdMeta<SimpleInsertAdAction> = {
+      const insertActionBase: OmitAdInAction<SimpleInsertAdAction> = {
         type: AdActionType.SimpleInsertAd,
         shouldUseDivWrapper,
         divWrapperStyle,
@@ -172,7 +172,7 @@ const processPermanentAdsParent = (
   }
 
   if (normalizedInsertionIndex !== -1) {
-    const actionBase: OmitAdMeta<SimpleInsertAdAction> = {
+    const actionBase: OmitAdInAction<SimpleInsertAdAction> = {
       type: AdActionType.SimpleInsertAd,
       shouldUseDivWrapper,
       divWrapperStyle,

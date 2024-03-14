@@ -15,7 +15,7 @@ interface AdActionBase {
 }
 
 interface InsertAdActionProps {
-  meta: AdMetadata;
+  ad: AdMetadata;
   fallbacks: AdMetadata[];
   /** @deprecated // Always wrapping now
    * TODO: Clean-up usage
@@ -54,11 +54,11 @@ export interface HideElementAction extends AdActionBase {
 
 export type InsertAdAction = ReplaceAllChildrenWithAdAction | ReplaceElementWithAdAction | SimpleInsertAdAction;
 
-export type OmitAdMeta<T extends InsertAdActionProps> = Omit<T, 'meta' | 'fallbacks'>;
+export type OmitAdInAction<T extends InsertAdActionProps> = Omit<T, 'ad' | 'fallbacks'>;
 
 export type InsertAdActionWithoutMeta =
-  | OmitAdMeta<ReplaceAllChildrenWithAdAction>
-  | OmitAdMeta<ReplaceElementWithAdAction>
-  | OmitAdMeta<SimpleInsertAdAction>;
+  | OmitAdInAction<ReplaceAllChildrenWithAdAction>
+  | OmitAdInAction<ReplaceElementWithAdAction>
+  | OmitAdInAction<SimpleInsertAdAction>;
 
 export type AdAction = InsertAdAction | RemoveElementAction | HideElementAction;

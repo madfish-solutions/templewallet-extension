@@ -47,7 +47,7 @@ const replaceAds = async () => {
           } else if (action.type === AdActionType.HideElement) {
             action.element.style.setProperty('display', 'none');
           } else {
-            await processInsertAdAction(action, action.meta);
+            await processInsertAdAction(action, action.ad);
           }
         } catch (err) {
           console.error('Replacing an ad error:', err);

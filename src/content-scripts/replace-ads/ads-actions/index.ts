@@ -10,7 +10,7 @@ import {
   AdActionType,
   HideElementAction,
   InsertAdActionWithoutMeta,
-  OmitAdMeta,
+  OmitAdInAction,
   RemoveElementAction,
   ReplaceElementWithAdAction
 } from './types';
@@ -42,7 +42,7 @@ export const getAdsActions = async ({ providersSelector, adPlacesRules, permanen
       ...actionsBases.map<AdAction>(actionBase =>
         actionBase.type === AdActionType.HideElement || actionBase.type === AdActionType.RemoveElement
           ? actionBase
-          : { ...actionBase, meta: stack[0]!, fallbacks: stack.slice(1) }
+          : { ...actionBase, ad: stack[0]!, fallbacks: stack.slice(1) }
       )
     );
 
@@ -80,7 +80,7 @@ export const getAdsActions = async ({ providersSelector, adPlacesRules, permanen
   for (const banner of bannersFromProviders) {
     if (permanentAdsParents.some(parent => parent.contains(banner))) continue;
 
-    const actionBase: OmitAdMeta<ReplaceElementWithAdAction> = {
+    const actionBase: OmitAdInAction<ReplaceElementWithAdAction> = {
       type: AdActionType.ReplaceElement,
       element: banner as HTMLElement,
       shouldUseDivWrapper: false

@@ -13,7 +13,7 @@ import {
   AdActionType,
   HideElementAction,
   InsertAdActionWithoutMeta,
-  OmitAdMeta,
+  OmitAdInAction,
   RemoveElementAction,
   ReplaceAllChildrenWithAdAction,
   ReplaceElementWithAdAction,
@@ -69,7 +69,7 @@ const processSelectedElement = (
   let actionsBases: (InsertAdActionWithoutMeta | HideElementAction | RemoveElementAction)[];
   if (shouldUseDivWrapper && shouldHideOriginal) {
     const parent = banner.parentElement!;
-    const insertAdAction: OmitAdMeta<SimpleInsertAdAction> = {
+    const insertAdAction: OmitAdInAction<SimpleInsertAdAction> = {
       type: AdActionType.SimpleInsertAd,
       parent,
       insertionIndex: Array.from(parent.children).indexOf(banner),
@@ -88,7 +88,7 @@ const processSelectedElement = (
       actionsBases.push(insertAdAction);
     }
   } else if (shouldUseDivWrapper) {
-    const replaceElementActionBase: OmitAdMeta<ReplaceElementWithAdAction> = {
+    const replaceElementActionBase: OmitAdInAction<ReplaceElementWithAdAction> = {
       type: AdActionType.ReplaceElement,
       element: banner,
       stylesOverrides: stylesOverrides?.map(({ parentDepth, ...restProps }) => ({
@@ -99,7 +99,7 @@ const processSelectedElement = (
     };
     actionsBases = [replaceElementActionBase];
   } else if (shouldHideOriginal) {
-    const insertAdAction: OmitAdMeta<SimpleInsertAdAction> = {
+    const insertAdAction: OmitAdInAction<SimpleInsertAdAction> = {
       type: AdActionType.SimpleInsertAd,
       parent: banner,
       insertionIndex: 0,
@@ -114,7 +114,7 @@ const processSelectedElement = (
       actionsBases.push(insertAdAction);
     }
   } else {
-    const replaceAllChildrenActionBase: OmitAdMeta<ReplaceAllChildrenWithAdAction> = {
+    const replaceAllChildrenActionBase: OmitAdInAction<ReplaceAllChildrenWithAdAction> = {
       type: AdActionType.ReplaceAllChildren,
       parent: banner,
       stylesOverrides,
