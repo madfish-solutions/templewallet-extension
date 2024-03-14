@@ -88,11 +88,14 @@ export const useBalancesLoading = () => {
             matchingAccount?.type === TzktAccountType.Delegate ||
             matchingAccount?.type === TzktAccountType.User
           ) {
+            const balance =
+              matchingAccount.balance - (matchingAccount.stakedBalance ?? 0) - (matchingAccount.unstakedBalance ?? 0);
+
             dispatch(
               loadGasBalanceActions.success({
                 publicKeyHash,
                 chainId,
-                balance: matchingAccount.balance.toFixed()
+                balance: balance.toFixed()
               })
             );
           } else if (matchingAccount) {

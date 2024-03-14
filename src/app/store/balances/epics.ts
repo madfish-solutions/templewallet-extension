@@ -15,7 +15,10 @@ const loadGasBalanceEpic: Epic = action$ =>
     switchMap(({ publicKeyHash, chainId }) =>
       from(fetchTezosBalanceFromTzkt(publicKeyHash, chainId)).pipe(
         map(info => {
-          const balance = new BigNumber(info.balance ?? 0).minus(info.frozenDeposit ?? 0).toFixed();
+          const balance = new BigNumber(info.balance ?? 0)
+            .minus(info.stakedBalance ?? 0)
+            .minus(info.unstakedBalance ?? 0)
+            .toFixed();
 
           return loadGasBalanceActions.success({
             publicKeyHash,

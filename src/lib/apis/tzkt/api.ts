@@ -196,17 +196,19 @@ export async function refetchOnce429<R>(fetcher: () => Promise<R>, delayAroundIn
 }
 
 interface GetAccountResponse {
-  balance: string;
-  frozenDeposit?: string;
+  balance: number;
+  stakedBalance?: number;
+  unstakedBalance?: number;
 }
 
 export const fetchTezosBalanceFromTzkt = async (account: string, chainId: TzktApiChainId) =>
   fetchGet<GetAccountResponse>(chainId, `/accounts/${account}`, {
-    select: 'balance,frozenDeposit',
+    select: 'balance,stakedBalance,unstakedBalance',
     'balance.gt': 0
-  }).then(({ frozenDeposit, balance }) => ({
-    frozenDeposit,
-    balance
+  }).then(({ stakedBalance, balance, unstakedBalance }) => ({
+    balance,
+    stakedBalance,
+    unstakedBalance
   }));
 
 export const fetchAllAssetsBalancesFromTzkt = async (account: string, chainId: TzktApiChainId) => {
