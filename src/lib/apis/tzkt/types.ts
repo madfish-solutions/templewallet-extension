@@ -114,7 +114,7 @@ export type TzktGetRewardsParams = {
   quote?: TzktQuoteCurrency[];
 };
 
-export type TzktRewardsEntry = {
+export interface TzktRewardsEntry {
   cycle: number;
   balance: number;
   baker: {
@@ -164,7 +164,7 @@ export type TzktRewardsEntry = {
   revelationLostRewards: number;
   revelationLostFees: number;
   quote?: TzktQuote;
-};
+}
 
 export type TzktGetRewardsResponse = TzktRewardsEntry[] | undefined;
 
@@ -246,6 +246,8 @@ interface TzktAccountBase {
   type: TzktAccountType;
   address: string;
   alias: string | nullish;
+  stakedBalance?: number;
+  unstakedBalance?: number;
 }
 
 interface TzktUserAccount extends TzktAccountBase {
@@ -309,14 +311,12 @@ interface TzktDelegateAccount extends TzktAccountBase {
   balance: number;
   rollupBonds: number;
   smartRollupBonds: number;
-  frozenDeposit: number;
   frozenDepositLimit: number | nullish;
   counter: number;
   activationLevel: number;
   activationTime: string;
   deactivationLevel: number | nullish;
   deactivationTime: string | nullish;
-  stakingBalance: number;
   delegatedBalance: number;
   numContracts: number;
   rollupsCount: number;
