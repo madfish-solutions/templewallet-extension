@@ -31,3 +31,5 @@ export {
   fetchGetOperationsByHash,
   refetchOnce429
 } from './api';
+
+export { calcTzktAccountSpendableTezBalance } from './utils';

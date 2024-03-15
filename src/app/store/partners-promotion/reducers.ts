@@ -44,8 +44,7 @@ export const partnersPromotionPersistedReducer = persistReducer<PartnersPromotio
   {
     key: 'root.partnersPromotion',
     ...storageConfig,
-    stateReconciler: hardSet,
-    blacklist: ['lastReportedPageName']
+    stateReconciler: hardSet
   },
   partnersPromotionReducer
 );

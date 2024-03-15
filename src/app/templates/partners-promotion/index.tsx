@@ -1,4 +1,4 @@
-import React, { memo, MouseEventHandler, useCallback, useEffect, useState } from 'react';
+import React, { memo, MouseEventHandler, useCallback, useEffect, useRef, useState } from 'react';
 
 import clsx from 'clsx';
 import { useDispatch } from 'react-redux';
@@ -37,8 +37,6 @@ const shouldBeHiddenTemporarily = (hiddenAt: number) => {
   return Date.now() - hiddenAt < AD_HIDING_TIMEOUT;
 };
 
-let lastReportedPageName: string | undefined;
-
 export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pageName, withPersonaProvider }) => {
   const isImageAd = variant === PartnersPromotionVariant.Image;
   const accountPkh = useAccountPkh();
@@ -47,6 +45,8 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pa
   const dispatch = useDispatch();
   const hiddenAt = usePromotionHidingTimestampSelector(id);
   const shouldShowPartnersPromo = useShouldShowPartnersPromoSelector();
+
+  const isAnalyticsSentRef = useRef(false);
 
   const [isHiddenTemporarily, setIsHiddenTemporarily] = useState(shouldBeHiddenTemporarily(hiddenAt));
   const [providerName, setProviderName] = useState<AdsProviderLocalName>('Optimal');
@@ -70,8 +70,7 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pa
   }, [hiddenAt]);
 
   const handleAdRectSeen = useCallback(() => {
-    if (lastReportedPageName === pageName) return;
-    lastReportedPageName = pageName;
+    if (isAnalyticsSentRef.current) return;
 
     trackEvent('Internal Ads Activity', AnalyticsEventCategory.General, {
       variant: providerName === 'Persona' ? PartnersPromotionVariant.Image : variant,
@@ -79,6 +78,7 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pa
       provider: AdsProviderTitle[providerName],
       accountPkh
     });
+    isAnalyticsSentRef.current = true;
   }, [providerName, pageName, accountPkh, variant, trackEvent]);
 
   const handleClosePartnersPromoClick = useCallback<MouseEventHandler<HTMLButtonElement>>(
