@@ -10,12 +10,14 @@ import {
   useShouldShowPartnersPromoSelector,
   usePromotionHidingTimestampSelector
 } from 'app/store/partners-promotion/selectors';
+import { AdsProviderName, AdsProviderTitle } from 'lib/ads';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
 import { AD_HIDING_TIMEOUT } from 'lib/constants';
-import { useAccount } from 'lib/temple/front';
+import { useAccountPkh } from 'lib/temple/front';
 
 import { HypelabPromotion } from './components/hypelab-promotion';
 import { OptimalPromotion } from './components/optimal-promotion';
+import { PersonaPromotion } from './components/persona-promotion';
 import styles from './partners-promotion.module.css';
 import { PartnersPromotionVariant } from './types';
 
@@ -26,15 +28,18 @@ interface PartnersPromotionProps {
   /** For distinguishing the ads that should be hidden temporarily */
   id: string;
   pageName: string;
+  withPersonaProvider?: boolean;
 }
+
+type AdsProviderLocalName = Exclude<AdsProviderName, 'Temple'>;
 
 const shouldBeHiddenTemporarily = (hiddenAt: number) => {
   return Date.now() - hiddenAt < AD_HIDING_TIMEOUT;
 };
 
-export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pageName }) => {
+export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pageName, withPersonaProvider }) => {
   const isImageAd = variant === PartnersPromotionVariant.Image;
-  const { publicKeyHash: accountPkh } = useAccount();
+  const accountPkh = useAccountPkh();
   const { trackEvent } = useAnalytics();
   const { popup } = useAppEnv();
   const dispatch = useDispatch();
@@ -44,11 +49,9 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pa
   const isAnalyticsSentRef = useRef(false);
 
   const [isHiddenTemporarily, setIsHiddenTemporarily] = useState(shouldBeHiddenTemporarily(hiddenAt));
-  const [shouldUseOptimalAd, setShouldUseOptimalAd] = useState(true);
+  const [providerName, setProviderName] = useState<AdsProviderLocalName>('Optimal');
   const [adError, setAdError] = useState(false);
   const [adIsReady, setAdIsReady] = useState(false);
-
-  const providerTitle = shouldUseOptimalAd ? 'Optimal' : 'HypeLab';
 
   useEffect(() => {
     const newIsHiddenTemporarily = shouldBeHiddenTemporarily(hiddenAt);
@@ -67,16 +70,16 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pa
   }, [hiddenAt]);
 
   const handleAdRectSeen = useCallback(() => {
-    if (!isAnalyticsSentRef.current) {
-      trackEvent('Internal Ads Activity', AnalyticsEventCategory.General, {
-        variant,
-        page: pageName,
-        provider: providerTitle,
-        accountPkh
-      });
-      isAnalyticsSentRef.current = true;
-    }
-  }, [providerTitle, variant, pageName, accountPkh, trackEvent]);
+    if (isAnalyticsSentRef.current) return;
+
+    trackEvent('Internal Ads Activity', AnalyticsEventCategory.General, {
+      variant: providerName === 'Persona' ? PartnersPromotionVariant.Image : variant,
+      page: pageName,
+      provider: AdsProviderTitle[providerName],
+      accountPkh
+    });
+    isAnalyticsSentRef.current = true;
+  }, [providerName, pageName, accountPkh, variant, trackEvent]);
 
   const handleClosePartnersPromoClick = useCallback<MouseEventHandler<HTMLButtonElement>>(
     e => {
@@ -87,8 +90,12 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pa
     [id, dispatch]
   );
 
-  const handleOptimalError = useCallback(() => setShouldUseOptimalAd(false), []);
-  const handleHypelabError = useCallback(() => setAdError(true), []);
+  const handleOptimalError = useCallback(() => setProviderName('HypeLab'), []);
+  const handleHypelabError = useCallback(
+    () => (withPersonaProvider ? setProviderName('Persona') : setAdError(true)),
+    [withPersonaProvider]
+  );
+  const handlePersonaError = useCallback(() => setAdError(true), []);
 
   const handleAdReady = useCallback(() => setAdIsReady(true), []);
 
@@ -98,29 +105,47 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pa
 
   return (
     <div className={clsx('w-full relative', !adIsReady && (isImageAd ? styles.imageAdLoading : styles.textAdLoading))}>
-      {shouldUseOptimalAd ? (
-        <OptimalPromotion
-          variant={variant}
-          providerTitle={providerTitle}
-          pageName={pageName}
-          isVisible={adIsReady}
-          onAdRectSeen={handleAdRectSeen}
-          onClose={handleClosePartnersPromoClick}
-          onReady={handleAdReady}
-          onError={handleOptimalError}
-        />
-      ) : (
-        <HypelabPromotion
-          variant={variant}
-          providerTitle={providerTitle}
-          pageName={pageName}
-          isVisible={adIsReady}
-          onAdRectSeen={handleAdRectSeen}
-          onClose={handleClosePartnersPromoClick}
-          onReady={handleAdReady}
-          onError={handleHypelabError}
-        />
-      )}
+      {(() => {
+        switch (providerName) {
+          case 'Optimal':
+            return (
+              <OptimalPromotion
+                variant={variant}
+                isVisible={adIsReady}
+                pageName={pageName}
+                onAdRectSeen={handleAdRectSeen}
+                onClose={handleClosePartnersPromoClick}
+                onReady={handleAdReady}
+                onError={handleOptimalError}
+              />
+            );
+          case 'HypeLab':
+            return (
+              <HypelabPromotion
+                variant={variant}
+                isVisible={adIsReady}
+                pageName={pageName}
+                onAdRectSeen={handleAdRectSeen}
+                onClose={handleClosePartnersPromoClick}
+                onReady={handleAdReady}
+                onError={handleHypelabError}
+              />
+            );
+          case 'Persona':
+            return (
+              <PersonaPromotion
+                id={id}
+                isVisible={adIsReady}
+                pageName={pageName}
+                onAdRectSeen={handleAdRectSeen}
+                onClose={handleClosePartnersPromoClick}
+                onReady={handleAdReady}
+                onError={handlePersonaError}
+              />
+            );
+        }
+      })()}
+
       {!adIsReady && (
         <div
           className={clsx(

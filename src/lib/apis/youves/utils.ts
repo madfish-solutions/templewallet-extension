@@ -1,4 +1,4 @@
-import { contracts, AssetDefinition } from 'youves-sdk';
+import { contracts, AssetDefinition } from '@temple-wallet/youves-sdk';
 
 import { YouvesTokensEnum } from './enums';
 

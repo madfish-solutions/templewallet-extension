@@ -15,7 +15,7 @@ const FIAT_CURRENCY_STORAGE_KEY = 'fiat_currency';
 
 export const useUsdToTokenRates = () => useSelector(state => state.currency.usdToTokenRates.data);
 
-export function useAssetUSDPrice(slug: string) {
+function useAssetUSDPrice(slug: string) {
   const usdToTokenRates = useUsdToTokenRates();
 
   return useMemo(() => {

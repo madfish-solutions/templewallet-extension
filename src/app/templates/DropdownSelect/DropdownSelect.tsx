@@ -1,4 +1,4 @@
-import React, { ChangeEventHandler, ReactNode, FC, Dispatch, SetStateAction } from 'react';
+import React, { ChangeEventHandler, ReactNode, FC, Dispatch, SetStateAction, useMemo } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
 import classNames from 'clsx';
@@ -15,6 +15,7 @@ import { sameWidthModifiers } from 'lib/ui/same-width-modifiers';
 
 interface Props<T> extends TestIDProperty {
   DropdownFaceContent: ReactNode;
+  singleToken?: boolean;
   Input?: ReactNode;
   optionsListClassName?: string;
   dropdownButtonClassName?: string;
@@ -24,6 +25,7 @@ interface Props<T> extends TestIDProperty {
 
 export const DropdownSelect = <T extends unknown>({
   Input,
+  singleToken = false,
   searchProps,
   optionsProps,
   testID,
@@ -33,6 +35,16 @@ export const DropdownSelect = <T extends unknown>({
 }: Props<T>) => {
   const isInputDefined = isDefined(Input);
   const { trackEvent } = useAnalytics();
+
+  const faceContentContainerClassName = useMemo(
+    () =>
+      classNames(
+        'flex gap-2 items-center max-h-18',
+        isInputDefined ? 'border-r border-gray-300' : 'w-full justify-between',
+        dropdownButtonClassName
+      ),
+    [isInputDefined, dropdownButtonClassName]
+  );
 
   const trackDropdownClick = () => {
     if (testID) {
@@ -61,20 +73,23 @@ export const DropdownSelect = <T extends unknown>({
             <SelectSearch {...searchProps} className={dropdownButtonClassName} />
           ) : (
             <div className="box-border w-full flex items-center justify-between border rounded-md border-gray-300 overflow-hidden max-h-18">
-              <button
-                className={classNames(
-                  'flex gap-2 items-center max-h-18',
-                  isInputDefined ? 'border-r border-gray-300' : 'w-full justify-between',
-                  dropdownButtonClassName
-                )}
-                onClick={() => {
-                  toggleOpened();
-                  trackDropdownClick();
-                }}
-              >
-                {DropdownFaceContent}
-                <ChevronDownIcon className="text-gray-600 stroke-current stroke-2 h-4 w-4" />
-              </button>
+              {singleToken ? (
+                <div className={faceContentContainerClassName}>
+                  {DropdownFaceContent}
+                  <div className="h-4 w-4" />
+                </div>
+              ) : (
+                <button
+                  className={faceContentContainerClassName}
+                  onClick={() => {
+                    toggleOpened();
+                    trackDropdownClick();
+                  }}
+                >
+                  {DropdownFaceContent}
+                  <ChevronDownIcon className="text-gray-600 stroke-current stroke-2 h-4 w-4" />
+                </button>
+              )}
               {Input}
             </div>
           )}

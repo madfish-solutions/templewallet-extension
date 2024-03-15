@@ -7,7 +7,7 @@ import { useCollectibleIsAdultSelector } from 'app/store/collectibles/selectors'
 import { buildCollectibleImagesStack } from 'lib/images-uri';
 import type { TokenMetadata } from 'lib/metadata';
 import { ImageStacked } from 'lib/ui/ImageStacked';
-import { useIntersectionDetection } from 'lib/ui/use-intersection-detection';
+import { useIntersectionByOffsetObserver } from 'lib/ui/use-intersection-observer';
 
 import { CollectibleBlur } from '../components/CollectibleBlur';
 import { CollectibleImageFallback } from '../components/CollectibleImageFallback';
@@ -35,7 +35,7 @@ export const CollectibleItemImage = memo<Props>(
     const [isInViewport, setIsInViewport] = useState(false);
     const handleIntersection = useMemo(() => debounce(setIsInViewport, 500), []);
 
-    useIntersectionDetection(containerElemRef, handleIntersection, true, 800);
+    useIntersectionByOffsetObserver(containerElemRef, handleIntersection, true, 800);
 
     return (
       <div className={isInViewport ? 'contents' : 'hidden'}>
