@@ -3,6 +3,7 @@ import type { Estimate } from '@taquito/taquito';
 import type { TempleDAppMetadata, TempleDAppNetwork } from '@temple-wallet/dapp/dist/types';
 
 import type { TID } from 'lib/i18n/types';
+import { TempleChainName } from 'temple/types';
 
 import type {
   TempleSendPageEventRequest,
@@ -87,6 +88,7 @@ interface StoredManagedKTAccount extends StoredAccountBase {
 
 interface StoredWatchOnlyAccount extends StoredAccountBase {
   type: TempleAccountType.WatchOnly;
+  chain: TempleChainName;
   chainId?: string;
 }
 

@@ -21,6 +21,7 @@ import { TezosLogoIcon } from 'lib/icons';
 import { getAssetName, getAssetSymbol, useAssetMetadata } from 'lib/metadata';
 import useTippy from 'lib/ui/useTippy';
 import { useAccountAddress, useTezosNetwork } from 'temple/front';
+import { TempleChainName } from 'temple/types';
 
 import { HomeSelectors } from '../../Home.selectors';
 import { TokenPageSelectors } from '../TokenPage.selectors';
@@ -48,7 +49,7 @@ interface TotalVolumeBannerProps {
 }
 
 const TotalVolumeBanner = memo<TotalVolumeBannerProps>(({ accountPkh }) => {
-  const accountEthAddress = useAccountAddress('evm');
+  const accountEvmAddress = useAccountAddress(TempleChainName.EVM);
 
   return (
     <div className="flex items-start justify-between w-full max-w-sm mx-auto mb-4">
@@ -56,7 +57,7 @@ const TotalVolumeBanner = memo<TotalVolumeBannerProps>(({ accountPkh }) => {
 
       <div className="flex flex-col gap-y-3">
         <AddressChip pkh={accountPkh} testID={HomeSelectors.publicAddressButton} />
-        {accountEthAddress ? <AddressChip pkh={accountEthAddress} /> : null}
+        {accountEvmAddress ? <AddressChip pkh={accountEvmAddress} /> : null}
       </div>
     </div>
   );

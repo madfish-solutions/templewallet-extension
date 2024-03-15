@@ -12,6 +12,7 @@ import * as Passworder from 'lib/temple/passworder';
 import { clearAsyncStorages } from 'lib/temple/reset';
 import { StoredAccount, TempleAccountType, TempleSettings } from 'lib/temple/types';
 import { michelEncoder, buildFastRpcClient } from 'temple/tezos';
+import { TempleChainName } from 'temple/types';
 
 import { createLedgerSigner } from '../ledger';
 import { PublicError } from '../PublicError';
@@ -442,6 +443,7 @@ export class Vault {
           'defaultWatchOnlyAccountName'
         ),
         publicKeyHash: accPublicKeyHash,
+        chain: TempleChainName.Tezos,
         chainId
       };
       const newAllAcounts = concatAccount(allAccounts, newAccount);

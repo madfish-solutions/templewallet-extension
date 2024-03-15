@@ -3,6 +3,7 @@ import { useCallback, useMemo } from 'react';
 import { useRetryableSWR } from 'lib/swr';
 import { useNetwork, useStoredAccount, useAccountPkh, useAllAccounts, useTezos } from 'lib/temple/front/ready';
 import { TempleAccountType, TempleTezosChainId } from 'lib/temple/types';
+import { TempleChainName } from 'temple/types';
 
 import { loadTezosChainId } from '../tezos';
 
@@ -47,7 +48,7 @@ export const useAccount = useStoredAccount;
 
 export const useTezosAccountAddress = useAccountPkh;
 
-export function useAccountAddress(chain: 'evm' | 'tezos') {
+export function useAccountAddress(chain: TempleChainName) {
   const account = useStoredAccount();
 
   return chain === 'evm' ? account.evmAddress : account.publicKeyHash;
@@ -56,7 +57,7 @@ export function useAccountAddress(chain: 'evm' | 'tezos') {
 // ts-prune-ignore-next
 export const useEthersAccountAddress = () => useAccount().evmAddress;
 
-export function useTezosRelevantAccounts(chainId: string) {
+export function useTezosRelevantAccounts(tezosChainId: string) {
   const allAccounts = useAllAccounts();
 
   return useMemo(
@@ -64,16 +65,16 @@ export function useTezosRelevantAccounts(chainId: string) {
       allAccounts.filter(acc => {
         switch (acc.type) {
           case TempleAccountType.ManagedKT:
-            return acc.chainId === chainId;
+            return acc.chainId === tezosChainId;
 
           case TempleAccountType.WatchOnly:
-            return !acc.chainId || acc.chainId === chainId;
+            return !acc.chainId || acc.chainId === tezosChainId;
 
           default:
             return true;
         }
       }),
-    [chainId, allAccounts]
+    [tezosChainId, allAccounts]
   );
 }
 

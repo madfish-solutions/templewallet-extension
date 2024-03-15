@@ -3,6 +3,7 @@ import * as ViemAccounts from 'viem/accounts';
 
 import * as Passworder from 'lib/temple/passworder';
 import { StoredAccount, StoredHDAccount, TempleAccountType, TempleContact, TempleSettings } from 'lib/temple/types';
+import { TempleChainName } from 'temple/types';
 
 import { seedToHDPrivateKey, generateCheck, fetchNewAccountName, getPublicKeyAndHash } from './misc';
 import {
@@ -146,6 +147,8 @@ export const MIGRATIONS = [
       if (account.type === TempleAccountType.HD) {
         const ethAcc = ViemAccounts.mnemonicToAccount(mnemonic, { accountIndex: account.hdIndex });
         account.evmAddress = ethAcc.address;
+      } else if (account.type === TempleAccountType.WatchOnly) {
+        account.chain = TempleChainName.Tezos;
       }
     }
 

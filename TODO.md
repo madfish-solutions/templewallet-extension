@@ -1,5 +1,6 @@
 ## TODO:
 
+- Import watch-only EVM account
 - Tezos Chain ID
 - - Deal with 'MondayNet' & 'DailyNet' (Chain ID)
 - - Make sure RPC can be changed, when chainId not available
@@ -21,6 +22,8 @@
 - - See `useFilteredContacts`
 - Finalize `useAccount` hooks
 - `StoredAccount['publicKeyHash' -> 'tezAddress']`
+- - Current by index ?
+- - `StoredWatchOnlyAccount.address`
 -
 
 
