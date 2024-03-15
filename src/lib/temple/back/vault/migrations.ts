@@ -45,7 +45,7 @@ export const MIGRATIONS = [
     const accPrivateKey = seedToHDPrivateKey(seed, hdAccIndex);
     const [accPublicKey, accPublicKeyHash] = await getPublicKeyAndHash(accPrivateKey);
 
-    const newInitialAccount: Omit<StoredHDAccount, 'ethAddress'> = {
+    const newInitialAccount: Omit<StoredHDAccount, 'evmAddress'> = {
       type: TempleAccountType.HD,
       name: await fetchNewAccountName(accounts),
       publicKeyHash: accPublicKeyHash,
@@ -141,18 +141,18 @@ export const MIGRATIONS = [
     const mnemonic = await fetchAndDecryptOne<string>(mnemonicStrgKey, passKey);
 
     for (const account of accounts) {
+      // account.tezAddress = account.publicKeyHash;
+      // delete account.publicKeyHash;
       if (account.type === TempleAccountType.HD) {
         const ethAcc = ViemAccounts.mnemonicToAccount(mnemonic, { accountIndex: account.hdIndex });
-        // account.tezAddress = account.publicKeyHash;
-        // delete account.publicKeyHash;
-        account.ethAddress = ethAcc.address;
+        account.evmAddress = ethAcc.address;
       }
     }
 
     await encryptAndSaveMany([[accountsStrgKey, accounts]], passKey);
   }
 
-  // [6] Keep Chain IDs
+  // [6] Store Chain IDs
   // async (password: string) => {
   //   //
   // }

@@ -26,13 +26,13 @@ import { HELP_UKRAINE_BAKER_ADDRESS, RECOMMENDED_BAKER_ADDRESS } from 'lib/known
 import { setDelegate } from 'lib/michelson';
 import { useTypedSWR } from 'lib/swr';
 import { loadContract } from 'lib/temple/contract';
-import { Baker, useAccount, useKnownBaker, useKnownBakers, validateDelegate } from 'lib/temple/front';
+import { Baker, useKnownBaker, useKnownBakers, validateDelegate } from 'lib/temple/front';
 import { hasManager, isAddressValid, isKTAddress, mutezToTz, tzToMutez } from 'lib/temple/helpers';
 import { TempleAccountType } from 'lib/temple/types';
 import { useSafeState } from 'lib/ui/hooks';
 import { delay, fifoResolve } from 'lib/utils';
 import { Link, useLocation } from 'lib/woozie';
-import { useTezos, useTezosNetwork } from 'temple/front';
+import { useAccount, useTezos, useTezosNetwork } from 'temple/front';
 import { isTezosDomainsNameValid, useTezosAddressByDomainName, useTezosDomainsClient } from 'temple/front/tzdns';
 
 import { DelegateFormSelectors } from './DelegateForm.selectors';
@@ -321,8 +321,8 @@ const DelegateForm = memo<Props>(({ balance }) => {
             canUseDomainNames
               ? t('bakerInputDescriptionWithDomain')
               : isDcpNetwork
-              ? t('producerInputDescription')
-              : t('bakerInputDescription')
+                ? t('producerInputDescription')
+                : t('bakerInputDescription')
           }
           placeholder={canUseDomainNames ? t('recipientInputPlaceholderWithDomain') : t('bakerInputPlaceholder')}
           errorCaption={errors.to?.message && t(errors.to.message.toString() as TID)}

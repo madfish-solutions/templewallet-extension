@@ -20,7 +20,7 @@ import { t, T } from 'lib/i18n';
 import { TezosLogoIcon } from 'lib/icons';
 import { getAssetName, getAssetSymbol, useAssetMetadata } from 'lib/metadata';
 import useTippy from 'lib/ui/useTippy';
-import { useEthersAccountAddress, useTezosNetwork } from 'temple/front';
+import { useAccountAddress, useTezosNetwork } from 'temple/front';
 
 import { HomeSelectors } from '../../Home.selectors';
 import { TokenPageSelectors } from '../TokenPage.selectors';
@@ -48,7 +48,7 @@ interface TotalVolumeBannerProps {
 }
 
 const TotalVolumeBanner = memo<TotalVolumeBannerProps>(({ accountPkh }) => {
-  const accountEthAddress = useEthersAccountAddress();
+  const accountEthAddress = useAccountAddress('evm');
 
   return (
     <div className="flex items-start justify-between w-full max-w-sm mx-auto mb-4">

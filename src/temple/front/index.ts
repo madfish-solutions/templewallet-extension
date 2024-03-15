@@ -1,7 +1,7 @@
 import { useCallback, useMemo } from 'react';
 
 import { useRetryableSWR } from 'lib/swr';
-import { useNetwork, useAccount, useAccountPkh, useAllAccounts, useTezos } from 'lib/temple/front/ready';
+import { useNetwork, useStoredAccount, useAccountPkh, useAllAccounts, useTezos } from 'lib/temple/front/ready';
 import { TempleAccountType, TempleChainId } from 'lib/temple/types';
 
 import { loadTezosChainId } from '../tezos';
@@ -43,11 +43,17 @@ const useTezosNetworkChainId = () => {
   return useTezosChainIdLoadingValue(rpcURL, true)!;
 };
 
-export const useStoredAccount = useAccount;
+export const useAccount = useStoredAccount;
 
 export const useTezosAccountAddress = useAccountPkh;
 
-export const useEthersAccountAddress = () => useStoredAccount().ethAddress;
+export const useAccountAddress = (chain: 'tezos' | 'evm') => {
+  const account = useStoredAccount();
+
+  return chain === 'evm' ? account.evmAddress : account.publicKeyHash;
+};
+
+export const useEthersAccountAddress = () => useAccount().evmAddress;
 
 export function useTezosRelevantAccounts(chainId: string) {
   const allAccounts = useAllAccounts();

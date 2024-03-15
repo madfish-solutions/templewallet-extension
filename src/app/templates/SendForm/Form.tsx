@@ -44,13 +44,13 @@ import { AssetMetadataBase, useAssetMetadata, getAssetSymbol } from 'lib/metadat
 import { transferImplicit, transferToContract } from 'lib/michelson';
 import { useTypedSWR } from 'lib/swr';
 import { loadContract } from 'lib/temple/contract';
-import { useAccount, useFilteredContacts, validateRecipient } from 'lib/temple/front';
+import { useFilteredContacts, validateRecipient } from 'lib/temple/front';
 import { hasManager, isAddressValid, isKTAddress, mutezToTz, tzToMutez } from 'lib/temple/helpers';
 import { TempleAccountType, StoredAccount } from 'lib/temple/types';
 import { useSafeState } from 'lib/ui/hooks';
 import { useScrollIntoView } from 'lib/ui/use-scroll-into-view';
 import { ZERO } from 'lib/utils/numbers';
-import { useTezos, useTezosNetwork } from 'temple/front';
+import { useAccount, useTezos, useTezosNetwork } from 'temple/front';
 import { isTezosDomainsNameValid, useTezosAddressByDomainName, useTezosDomainsClient } from 'temple/front/tzdns';
 
 import ContactsDropdown, { ContactsDropdownProps } from './ContactsDropdown';

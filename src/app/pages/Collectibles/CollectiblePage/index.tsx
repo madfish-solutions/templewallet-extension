@@ -28,7 +28,7 @@ import { TempleAccountType } from 'lib/temple/types';
 import { useInterval } from 'lib/ui/hooks';
 import { ImageStacked } from 'lib/ui/ImageStacked';
 import { navigate } from 'lib/woozie';
-import { useStoredAccount } from 'temple/front';
+import { useAccount } from 'temple/front';
 
 import { useCollectibleSelling } from '../hooks/use-collectible-selling.hook';
 
@@ -48,7 +48,7 @@ const CollectiblePage = memo<Props>(({ assetSlug }) => {
   const details = useCollectibleDetailsSelector(assetSlug);
   const areAnyCollectiblesDetailsLoading = useAllCollectiblesDetailsLoadingSelector();
 
-  const account = useStoredAccount();
+  const account = useAccount();
 
   const [contractAddress, tokenId] = fromAssetSlug(assetSlug);
 

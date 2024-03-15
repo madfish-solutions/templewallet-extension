@@ -112,7 +112,7 @@ export class Vault {
         name: 'Account 1',
         publicKeyHash: accPublicKeyHash,
         hdIndex: hdAccIndex,
-        ethAddress: ethAcc.address
+        evmAddress: ethAcc.address
       };
       const newAccounts = [initialAccount];
 
@@ -336,7 +336,7 @@ export class Vault {
         name: accName,
         publicKeyHash: accPublicKeyHash,
         hdIndex: hdAccIndex,
-        ethAddress: ethAcc.address
+        evmAddress: ethAcc.address
       };
       const newAllAcounts = concatAccount(allAccounts, newAccount);
 

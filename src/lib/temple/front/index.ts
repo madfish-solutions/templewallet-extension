@@ -8,7 +8,7 @@ export {
   useNetwork,
   useAllAccounts,
   useSetAccountPkh,
-  useAccount,
+  useStoredAccount,
   useSettings
 } from './ready';
 

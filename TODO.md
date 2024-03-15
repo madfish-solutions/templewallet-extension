@@ -19,6 +19,8 @@
 - - Category separation
 - Contacts to Redux
 - - See `useFilteredContacts`
+- Finalize `useAccount` hooks
+- `StoredAccount['publicKeyHash' -> 'tezAddress']`
 -
 
 

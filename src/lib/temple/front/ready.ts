@@ -24,7 +24,7 @@ export const [
   useNetwork,
   useAllAccounts,
   useSetAccountPkh,
-  useAccount,
+  useStoredAccount,
   useAccountPkh,
   useSettings,
   useTezos
