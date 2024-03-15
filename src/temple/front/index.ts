@@ -47,6 +47,8 @@ export const useTezosAccount = useAccount;
 
 export const useTezosAccountAddress = useAccountPkh;
 
+export const useEthersAccountAddress = () => useTezosAccount().ethAddress;
+
 export function useTezosRelevantAccounts(chainId: string) {
   const allAccounts = useAllAccounts();
 

@@ -1,12 +1,14 @@
 import * as Bip39 from 'bip39';
+import * as ViemAccounts from 'viem/accounts';
 
 import * as Passworder from 'lib/temple/passworder';
-import { StoredAccount, TempleAccountType, TempleContact, TempleSettings } from 'lib/temple/types';
+import { StoredAccount, StoredHDAccount, TempleAccountType, TempleContact, TempleSettings } from 'lib/temple/types';
 
 import { seedToHDPrivateKey, generateCheck, fetchNewAccountName, getPublicKeyAndHash } from './misc';
 import {
   encryptAndSaveMany,
   encryptAndSaveManyLegacy,
+  fetchAndDecryptOne,
   fetchAndDecryptOneLegacy,
   getPlain,
   removeManyLegacy
@@ -43,7 +45,7 @@ export const MIGRATIONS = [
     const accPrivateKey = seedToHDPrivateKey(seed, hdAccIndex);
     const [accPublicKey, accPublicKeyHash] = await getPublicKeyAndHash(accPrivateKey);
 
-    const newInitialAccount: StoredAccount = {
+    const newInitialAccount: Omit<StoredHDAccount, 'ethAddress'> = {
       type: TempleAccountType.HD,
       name: await fetchNewAccountName(accounts),
       publicKeyHash: accPublicKeyHash,
@@ -130,5 +132,28 @@ export const MIGRATIONS = [
 
     // Remove old
     await removeManyLegacy([...toSave.map(([key]) => key), 'contacts']);
+  },
+
+  // [5] Extend accounts
+  async (password: string) => {
+    const passKey = await Passworder.generateKey(password);
+    const accounts = await fetchAndDecryptOne<StoredAccount[]>(accountsStrgKey, passKey);
+    const mnemonic = await fetchAndDecryptOne<string>(mnemonicStrgKey, passKey);
+
+    for (const account of accounts) {
+      if (account.type === TempleAccountType.HD) {
+        const ethAcc = ViemAccounts.mnemonicToAccount(mnemonic, { accountIndex: account.hdIndex });
+        // account.tezAddress = account.publicKeyHash;
+        // delete account.publicKeyHash;
+        account.ethAddress = ethAcc.address;
+      }
+    }
+
+    await encryptAndSaveMany([[accountsStrgKey, accounts]], passKey);
   }
+
+  // [6] Keep Chain IDs
+  // async (password: string) => {
+  //   //
+  // }
 ];

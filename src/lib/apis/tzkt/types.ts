@@ -101,7 +101,7 @@ export type TzktRelatedContract = {
 
 export const allInt32ParameterKeys = ['eq', 'ne', 'gt', 'ge', 'lt', 'le', 'in', 'ni'] as const;
 
-type Int32ParameterKey = typeof allInt32ParameterKeys[number];
+type Int32ParameterKey = (typeof allInt32ParameterKeys)[number];
 
 type Int32Parameter = Partial<Record<Int32ParameterKey, number>>;
 

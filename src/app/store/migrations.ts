@@ -14,7 +14,7 @@ type MakePropertiesOptional<T, K extends keyof T> = {
 
 /** Blacklisted slices are not rehydrated */
 type TypedPersistedRootState = Exclude<PersistedState, undefined> &
-  MakePropertiesOptional<RootState, typeof SLICES_BLACKLIST[number]>;
+  MakePropertiesOptional<RootState, (typeof SLICES_BLACKLIST)[number]>;
 
 export const MIGRATIONS: MigrationManifest = {
   '2': (persistedState: PersistedState) => {

@@ -6,7 +6,7 @@ import {
   Route3TraditionalSwapParamsResponse
 } from 'lib/route3/interfaces';
 
-const parser = (origJSON: string): ReturnType<typeof JSON['parse']> => {
+const parser = (origJSON: string): ReturnType<(typeof JSON)['parse']> => {
   const stringedJSON = origJSON
     .replace(/input":\s*([-+Ee0-9.]+)/g, 'input":"$1"')
     .replace(/output":\s*([-+Ee0-9.]+)/g, 'output":"$1"');

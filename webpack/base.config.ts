@@ -287,9 +287,6 @@ export const buildBaseConfig = (): WebPack.Configuration & Pick<WebPack.WebpackO
           { file: '**/src/setupProxy.*' },
           { file: '**/src/setupTests.*' }
         ]
-      },
-      logger: {
-        infrastructure: 'silent'
       }
     }),
 

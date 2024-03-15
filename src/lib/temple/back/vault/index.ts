@@ -4,6 +4,7 @@ import { localForger } from '@taquito/local-forging';
 import { CompositeForger, RpcForger, Signer, TezosOperationError, TezosToolkit } from '@taquito/taquito';
 import * as TaquitoUtils from '@taquito/utils';
 import * as Bip39 from 'bip39';
+import * as ViemAccounts from 'viem/accounts';
 import type * as WasmThemisPackageInterface from 'wasm-themis';
 
 import { formatOpParamsBeforeSend } from 'lib/temple/helpers';
@@ -104,11 +105,14 @@ export class Vault {
       const accPrivateKey = seedToHDPrivateKey(seed, hdAccIndex);
       const [accPublicKey, accPublicKeyHash] = await getPublicKeyAndHash(accPrivateKey);
 
+      const ethAcc = ViemAccounts.mnemonicToAccount(mnemonic, { accountIndex: hdAccIndex });
+
       const initialAccount: StoredAccount = {
         type: TempleAccountType.HD,
         name: 'Account 1',
         publicKeyHash: accPublicKeyHash,
-        hdIndex: hdAccIndex
+        hdIndex: hdAccIndex,
+        ethAddress: ethAcc.address
       };
       const newAccounts = [initialAccount];
 
@@ -325,11 +329,14 @@ export class Vault {
         return this.createHDAccount(accName, hdAccIndex + 1);
       }
 
+      const ethAcc = ViemAccounts.mnemonicToAccount(mnemonic, { accountIndex: hdAccIndex });
+
       const newAccount: StoredAccount = {
         type: TempleAccountType.HD,
         name: accName,
         publicKeyHash: accPublicKeyHash,
-        hdIndex: hdAccIndex
+        hdIndex: hdAccIndex,
+        ethAddress: ethAcc.address
       };
       const newAllAcounts = concatAccount(allAccounts, newAccount);
 

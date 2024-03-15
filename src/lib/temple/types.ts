@@ -73,9 +73,10 @@ interface StoredImportedAccount extends StoredAccountBase {
   type: TempleAccountType.Imported;
 }
 
-interface StoredHDAccount extends StoredAccountBase {
+export interface StoredHDAccount extends StoredAccountBase {
   type: TempleAccountType.HD;
   hdIndex: number;
+  ethAddress: string;
 }
 
 interface StoredManagedKTAccount extends StoredAccountBase {
@@ -94,6 +95,7 @@ export interface StoredAccountBase {
   name: string;
   publicKeyHash: string;
   hdIndex?: number;
+  ethAddress?: string;
   derivationPath?: string;
   derivationType?: DerivationType;
 }

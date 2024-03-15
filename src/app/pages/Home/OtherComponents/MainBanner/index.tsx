@@ -20,7 +20,7 @@ import { t, T } from 'lib/i18n';
 import { TezosLogoIcon } from 'lib/icons';
 import { getAssetName, getAssetSymbol, useAssetMetadata } from 'lib/metadata';
 import useTippy from 'lib/ui/useTippy';
-import { useTezosNetwork } from 'temple/front';
+import { useEthersAccountAddress, useTezosNetwork } from 'temple/front';
 
 import { HomeSelectors } from '../../Home.selectors';
 import { TokenPageSelectors } from '../TokenPage.selectors';
@@ -47,12 +47,20 @@ interface TotalVolumeBannerProps {
   accountPkh: string;
 }
 
-const TotalVolumeBanner = memo<TotalVolumeBannerProps>(({ accountPkh }) => (
-  <div className="flex items-start justify-between w-full max-w-sm mx-auto mb-4">
-    <BalanceInfo accountPkh={accountPkh} />
-    <AddressChip pkh={accountPkh} testID={HomeSelectors.publicAddressButton} />
-  </div>
-));
+const TotalVolumeBanner = memo<TotalVolumeBannerProps>(({ accountPkh }) => {
+  const accountEthAddress = useEthersAccountAddress();
+
+  return (
+    <div className="flex items-start justify-between w-full max-w-sm mx-auto mb-4">
+      <BalanceInfo accountPkh={accountPkh} />
+
+      <div className="flex flex-col gap-y-3">
+        <AddressChip pkh={accountPkh} testID={HomeSelectors.publicAddressButton} />
+        {accountEthAddress ? <AddressChip pkh={accountEthAddress} /> : null}
+      </div>
+    </div>
+  );
+});
 
 const BalanceInfo: FC<{ accountPkh: string }> = ({ accountPkh }) => {
   const { isMainnet } = useTezosNetwork();
