@@ -5,12 +5,7 @@ import hardSet from 'redux-persist/lib/stateReconciler/hardSet';
 import { AD_HIDING_TIMEOUT } from 'lib/constants';
 import { createEntity, storageConfig } from 'lib/store';
 
-import {
-  hidePromotionAction,
-  loadPartnersPromoAction,
-  setLastReportedPageNameAction,
-  togglePartnersPromotionAction
-} from './actions';
+import { hidePromotionAction, loadPartnersPromoAction, togglePartnersPromotionAction } from './actions';
 import { partnersPromotionInitialState, PartnersPromotionState } from './state';
 
 const partnersPromotionReducer = createReducer(partnersPromotionInitialState, builder => {
@@ -43,18 +38,13 @@ const partnersPromotionReducer = createReducer(partnersPromotionInitialState, bu
 
     promotionHidingTimestamps[pathname] = timestamp;
   });
-
-  builder.addCase(setLastReportedPageNameAction, (state, { payload }) => {
-    state.lastReportedPageName = payload;
-  });
 });
 
 export const partnersPromotionPersistedReducer = persistReducer<PartnersPromotionState>(
   {
     key: 'root.partnersPromotion',
     ...storageConfig,
-    stateReconciler: hardSet,
-    blacklist: ['lastReportedPageName']
+    stateReconciler: hardSet
   },
   partnersPromotionReducer
 );

@@ -4,12 +4,13 @@ import { Banner, BannerElement } from '@hypelab/sdk-react';
 
 import { useAdTimeout } from 'app/hooks/ads/use-ad-timeout';
 import { useElementValue } from 'app/hooks/ads/use-element-value';
+import { AdsProviderTitle } from 'lib/ads';
 import { EnvVars } from 'lib/env';
 
 import { HypelabBannerAd, SingleProviderPromotionProps } from '../../types';
 import { ImagePromotionView } from '../image-promotion-view';
 
-import { getHypelabAd } from './get-hypelab-ad';
+import { getHypelabBannerAd } from './get-hypelab-ad';
 
 const bannerIsDisplayed = (element: BannerElement) => {
   const styles = window.getComputedStyle(element);
@@ -20,9 +21,8 @@ const bannerIsDisplayed = (element: BannerElement) => {
 const adAttributesObserverOptions = { attributes: true };
 
 export const HypelabImagePromotion: FC<Omit<SingleProviderPromotionProps, 'variant'>> = ({
-  providerTitle,
-  pageName,
   isVisible,
+  pageName,
   onAdRectSeen,
   onClose,
   onError,
@@ -42,9 +42,10 @@ export const HypelabImagePromotion: FC<Omit<SingleProviderPromotionProps, 'varia
     }
 
     const adUrlUpdateInterval = setInterval(() => {
-      const ad = getHypelabAd(hypelabBannerElementRef.current!) as unknown as HypelabBannerAd;
+      const elem = hypelabBannerElementRef.current;
+      const ad = elem && getHypelabBannerAd(elem);
 
-      if (ad.cta_url !== prevAdUrlRef.current) {
+      if (ad && ad.cta_url !== prevAdUrlRef.current) {
         setCurrentAd(ad);
         prevAdUrlRef.current = ad.cta_url;
       }
@@ -58,7 +59,7 @@ export const HypelabImagePromotion: FC<Omit<SingleProviderPromotionProps, 'varia
       return;
     }
 
-    const ad = getHypelabAd(hypelabBannerElementRef.current);
+    const ad = getHypelabBannerAd(hypelabBannerElementRef.current);
     if (adIsDisplayed && ad) {
       setCurrentAd(ad);
       prevAdUrlRef.current = ad.cta_url;
@@ -81,11 +82,11 @@ export const HypelabImagePromotion: FC<Omit<SingleProviderPromotionProps, 'varia
 
   return (
     <ImagePromotionView
-      pageName={pageName}
-      providerTitle={providerTitle}
       onClose={onClose}
       href={currentAd?.cta_url ?? '#'}
       isVisible={isVisible}
+      providerTitle={AdsProviderTitle.HypeLab}
+      pageName={pageName}
       onAdRectSeen={onAdRectSeen}
     >
       <Banner

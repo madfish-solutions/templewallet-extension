@@ -4,39 +4,41 @@ import clsx from 'clsx';
 
 import { Anchor } from 'app/atoms/Anchor';
 import { useAdRectObservation } from 'app/hooks/ads/use-ad-rect-observation';
-import { useAccount } from 'lib/temple/front';
+import type { AdsProviderTitle } from 'lib/ads';
+import { useAccountPkh } from 'lib/temple/front';
 
-import { PartnersPromotionSelectors } from '../index.selectors';
+import { PartnersPromotionSelectors } from '../selectors';
 import { PartnersPromotionVariant } from '../types';
+import { buildAdClickAnalyticsProperties } from '../utils';
 
 import { CloseButton } from './close-button';
 
-interface TextPromotionViewProps extends PropsWithChildren {
-  pageName: string;
-  providerTitle: string;
+interface Props extends PropsWithChildren {
   href: string;
   isVisible: boolean;
+  providerTitle: AdsProviderTitle;
+  pageName: string;
   onAdRectSeen: EmptyFn;
   onClose: MouseEventHandler<HTMLButtonElement>;
 }
 
-export const ImagePromotionView: FC<TextPromotionViewProps> = ({
-  pageName,
-  providerTitle,
+export const ImagePromotionView: FC<Props> = ({
   children,
   href,
   isVisible,
+  providerTitle,
+  pageName,
   onAdRectSeen,
   onClose
 }) => {
-  const { publicKeyHash: accountPkh } = useAccount();
+  const accountPkh = useAccountPkh();
 
   const ref = useRef<HTMLAnchorElement>(null);
   useAdRectObservation(ref, onAdRectSeen, isVisible);
 
   const testIDProperties = useMemo(
-    () => ({ variant: PartnersPromotionVariant.Image, page: pageName, provider: providerTitle, href, accountPkh }),
-    [href, accountPkh, providerTitle, pageName]
+    () => buildAdClickAnalyticsProperties(PartnersPromotionVariant.Image, providerTitle, pageName, accountPkh, href),
+    [href, providerTitle, pageName, accountPkh]
   );
 
   return (
@@ -55,15 +57,20 @@ export const ImagePromotionView: FC<TextPromotionViewProps> = ({
     >
       {children}
 
-      <div
-        className={clsx(
-          'absolute top-0 left-0 px-3 rounded-tl-lg rounded-br-lg ',
-          'bg-blue-500 text-2xs leading-snug font-semibold text-white'
-        )}
-      >
-        AD
-      </div>
-      <CloseButton className="absolute top-2 right-2" onClick={onClose} variant={PartnersPromotionVariant.Image} />
+      <ImageAdLabel />
+
+      <CloseButton onClick={onClose} variant={PartnersPromotionVariant.Image} />
     </Anchor>
   );
 };
+
+export const ImageAdLabel: FC = () => (
+  <div
+    className={clsx(
+      'absolute top-0 left-0 px-3 rounded-tl-lg rounded-br-lg ',
+      'bg-blue-500 text-2xs leading-snug font-semibold text-white'
+    )}
+  >
+    AD
+  </div>
+);
