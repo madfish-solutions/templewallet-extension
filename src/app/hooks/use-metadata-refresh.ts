@@ -7,7 +7,7 @@ import { useAllTokensMetadataSelector } from 'app/store/tokens-metadata/selector
 import { fetchTokensMetadata } from 'lib/apis/temple';
 import { ALL_PREDEFINED_METADATAS_RECORD } from 'lib/assets/known-tokens';
 import { reduceToMetadataRecord } from 'lib/metadata/fetch';
-import { TempleChainId } from 'lib/temple/types';
+import { TempleTezosChainId } from 'lib/temple/types';
 import { useLocalStorage } from 'lib/ui/local-storage';
 import { useTezosNetwork } from 'temple/front';
 
@@ -41,7 +41,7 @@ export const useMetadataRefresh = () => {
       return;
     }
 
-    if (!needToSetVersion || chainId !== TempleChainId.Mainnet) return;
+    if (!needToSetVersion || chainId !== TempleTezosChainId.Mainnet) return;
 
     fetchTokensMetadata(chainId, slugsOnAppLoad).then(
       data => {

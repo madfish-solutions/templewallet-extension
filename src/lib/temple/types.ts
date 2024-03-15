@@ -36,7 +36,7 @@ export interface TempleState {
   settings: TempleSettings | null;
 }
 
-export enum TempleChainId {
+export enum TempleTezosChainId {
   Mainnet = 'NetXdQprcVkpaWU',
   Ghostnet = 'NetXnHfVqm9iesp',
   Monday = 'NetXaqtQ8b5nihx',
@@ -47,8 +47,8 @@ export enum TempleChainId {
   DcpTest = 'NetXX7Tz1sK8JTa'
 }
 
-export function isKnownChainId(chainId: string): chainId is TempleChainId {
-  return Object.values(TempleChainId).includes(chainId as TempleChainId);
+export function isKnownChainId(chainId: string): chainId is TempleTezosChainId {
+  return Object.values(TempleTezosChainId).includes(chainId as TempleTezosChainId);
 }
 
 export enum TempleStatus {

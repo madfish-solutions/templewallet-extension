@@ -9,7 +9,7 @@ import {
 import { useAreAssetsLoading } from 'app/store/assets/selectors';
 import { isKnownChainId } from 'lib/apis/tzkt';
 import { ASSETS_SYNC_INTERVAL } from 'lib/fixed-times';
-import { TempleChainId } from 'lib/temple/types';
+import { TempleTezosChainId } from 'lib/temple/types';
 import { useInterval } from 'lib/ui/hooks';
 import { useTezosAccountAddress, useTezosNetwork } from 'temple/front';
 
@@ -18,7 +18,7 @@ export const useAssetsLoading = () => {
   const publicKeyHash = useTezosAccountAddress();
 
   useEffect(() => {
-    if (chainId === TempleChainId.Mainnet) dispatch(loadTokensWhitelistActions.submit());
+    if (chainId === TempleTezosChainId.Mainnet) dispatch(loadTokensWhitelistActions.submit());
   }, [chainId]);
 
   const tokensAreLoading = useAreAssetsLoading('tokens');

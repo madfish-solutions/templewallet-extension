@@ -25,7 +25,7 @@ import { useGasToken } from 'lib/assets/hooks';
 import { T, t } from 'lib/i18n';
 import { useRetryableSWR } from 'lib/swr';
 import { useTempleClient, useAllAccounts } from 'lib/temple/front';
-import { TempleAccountType, TempleDAppPayload, StoredAccount, TempleChainId } from 'lib/temple/types';
+import { TempleAccountType, TempleDAppPayload, StoredAccount, TempleTezosChainId } from 'lib/temple/types';
 import { useSafeState } from 'lib/ui/hooks';
 import { delay } from 'lib/utils';
 import { useLocation } from 'lib/woozie';
@@ -76,7 +76,7 @@ const PayloadContent: React.FC<PayloadContentProps> = ({
 }) => {
   const AccountOptionContent = useMemo(() => AccountOptionContentHOC(payload.networkRpc), [payload.networkRpc]);
   const chainId = useTezosChainIdLoadingValue(payload.networkRpc, true)!;
-  const mainnet = chainId === TempleChainId.Mainnet;
+  const mainnet = chainId === TempleTezosChainId.Mainnet;
 
   const allAccounts = useAllAccounts();
   const accounts = useMemo(() => allAccounts.filter(acc => isTezosAccountOfActableType(acc)), [allAccounts]);

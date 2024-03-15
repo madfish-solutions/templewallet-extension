@@ -26,7 +26,7 @@ import { useRawBalance } from 'lib/balances';
 import { T, t } from 'lib/i18n';
 import { useRetryableSWR } from 'lib/swr';
 import { tryParseExpenses } from 'lib/temple/front';
-import { TempleAccountType, TempleChainId, TempleConfirmationPayload } from 'lib/temple/types';
+import { TempleAccountType, TempleTezosChainId, TempleConfirmationPayload } from 'lib/temple/types';
 import { useSafeState } from 'lib/ui/hooks';
 import { isTruthy } from 'lib/utils';
 import { useTezosChainIdLoadingValue, useTezosNetwork, useTezosRelevantAccounts } from 'temple/front';
@@ -66,7 +66,7 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
   const networkRpc = payload.type === 'operations' ? payload.networkRpc : currentNetworkRpc;
 
   const chainId = useTezosChainIdLoadingValue(networkRpc, true)!;
-  const mainnet = chainId === TempleChainId.Mainnet;
+  const mainnet = chainId === TempleTezosChainId.Mainnet;
 
   const accounts = useTezosRelevantAccounts(chainId);
   const account = useMemo(

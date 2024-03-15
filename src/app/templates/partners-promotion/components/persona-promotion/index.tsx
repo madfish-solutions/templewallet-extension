@@ -7,7 +7,7 @@ import { useAdRectObservation } from 'app/hooks/ads/use-ad-rect-observation';
 import { AdsProviderTitle } from 'lib/ads';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
 import { EnvVars } from 'lib/env';
-import { useAccountPkh } from 'lib/temple/front';
+import { useTezosAccountAddress } from 'temple/front';
 
 import { PartnersPromotionSelectors } from '../../selectors';
 import { PartnersPromotionVariant, SingleProviderPromotionProps } from '../../types';
@@ -22,7 +22,7 @@ interface Props extends Omit<SingleProviderPromotionProps, 'variant'> {
 }
 
 export const PersonaPromotion = memo<Props>(({ id, isVisible, pageName, onReady, onError, onAdRectSeen, onClose }) => {
-  const accountPkh = useAccountPkh();
+  const accountPkh = useTezosAccountAddress();
 
   const containerId = `persona-ad-${id}`;
 

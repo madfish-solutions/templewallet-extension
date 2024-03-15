@@ -321,8 +321,8 @@ const DelegateForm = memo<Props>(({ balance }) => {
             canUseDomainNames
               ? t('bakerInputDescriptionWithDomain')
               : isDcpNetwork
-                ? t('producerInputDescription')
-                : t('bakerInputDescription')
+              ? t('producerInputDescription')
+              : t('bakerInputDescription')
           }
           placeholder={canUseDomainNames ? t('recipientInputPlaceholderWithDomain') : t('bakerInputPlaceholder')}
           errorCaption={errors.to?.message && t(errors.to.message.toString() as TID)}

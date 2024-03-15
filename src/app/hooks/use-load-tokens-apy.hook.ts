@@ -13,7 +13,7 @@ import {
   fetchUUSDCApr$,
   fetchYOUApr$
 } from 'app/store/d-apps/utils';
-import { TempleChainId } from 'lib/temple/types';
+import { TempleTezosChainId } from 'lib/temple/types';
 import { useTezosNetwork } from 'temple/front';
 
 export const useTokensApyLoading = () => {
@@ -23,7 +23,7 @@ export const useTokensApyLoading = () => {
   const [tokensApy, setTokensApy] = useState({});
 
   useEffect(() => {
-    if (chainId === TempleChainId.Mainnet) {
+    if (chainId === TempleTezosChainId.Mainnet) {
       const subscription = forkJoin([
         fetchTzBtcApy$(),
         fetchKUSDApy$(),

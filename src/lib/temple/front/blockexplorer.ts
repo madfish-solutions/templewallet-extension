@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 
-import { isKnownChainId, TempleChainId } from 'lib/temple/types';
+import { isKnownChainId, TempleTezosChainId } from 'lib/temple/types';
 import { useTezosNetwork } from 'temple/front';
 
 import { useStorage } from './storage';
@@ -16,7 +16,7 @@ interface BaseUrls {
 export type BlockExplorer = {
   id: BlockExplorerId;
   name: string;
-  baseUrls: Map<TempleChainId, BaseUrls>;
+  baseUrls: Map<TempleTezosChainId, BaseUrls>;
 };
 
 export const BLOCK_EXPLORERS: BlockExplorer[] = [
@@ -25,7 +25,7 @@ export const BLOCK_EXPLORERS: BlockExplorer[] = [
     name: 'TzKT',
     baseUrls: new Map([
       [
-        TempleChainId.Mainnet,
+        TempleTezosChainId.Mainnet,
         {
           account: 'https://tzkt.io',
           transaction: 'https://tzkt.io',
@@ -33,7 +33,7 @@ export const BLOCK_EXPLORERS: BlockExplorer[] = [
         }
       ],
       [
-        TempleChainId.Ghostnet,
+        TempleTezosChainId.Ghostnet,
         {
           account: 'https://ghostnet.tzkt.io',
           transaction: 'https://ghostnet.tzkt.io',
@@ -41,7 +41,7 @@ export const BLOCK_EXPLORERS: BlockExplorer[] = [
         }
       ],
       [
-        TempleChainId.Mumbai,
+        TempleTezosChainId.Mumbai,
         {
           account: 'https://mumbainet.tzkt.io',
           transaction: 'https://mumbainet.tzkt.io',
@@ -49,7 +49,7 @@ export const BLOCK_EXPLORERS: BlockExplorer[] = [
         }
       ],
       [
-        TempleChainId.Nairobi,
+        TempleTezosChainId.Nairobi,
         {
           account: 'https://nairobinet.tzkt.io',
           transaction: 'https://nairobinet.tzkt.io',
@@ -63,7 +63,7 @@ export const BLOCK_EXPLORERS: BlockExplorer[] = [
     name: 'T4L3NT',
     baseUrls: new Map([
       [
-        TempleChainId.Dcp,
+        TempleTezosChainId.Dcp,
         {
           account: 'https://explorer.tlnt.net',
           transaction: 'https://explorer.tlnt.net',
@@ -71,7 +71,7 @@ export const BLOCK_EXPLORERS: BlockExplorer[] = [
         }
       ],
       [
-        TempleChainId.DcpTest,
+        TempleTezosChainId.DcpTest,
         {
           account: 'https://explorer.test.tlnt.net',
           transaction: 'https://explorer.test.tlnt.net',
@@ -85,7 +85,7 @@ export const BLOCK_EXPLORERS: BlockExplorer[] = [
     name: 'TzStats',
     baseUrls: new Map([
       [
-        TempleChainId.Mainnet,
+        TempleTezosChainId.Mainnet,
         {
           account: 'https://tzstats.com',
           transaction: 'https://tzstats.com'
@@ -98,7 +98,7 @@ export const BLOCK_EXPLORERS: BlockExplorer[] = [
     name: 'Better Call Dev',
     baseUrls: new Map([
       [
-        TempleChainId.Mainnet,
+        TempleTezosChainId.Mainnet,
         {
           transaction: 'https://better-call.dev/mainnet/opg'
         }
