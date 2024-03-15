@@ -20,13 +20,11 @@ import { delay } from 'lib/utils';
 
 let processing = false;
 
-let provider: AdsProviderTitle;
-
 const loadingAdsIds = new Set();
 const loadedAdsIds = new Set();
 const alreadySentAnalyticsAdsIds = new Set();
 
-const sendExternalAdsActivity = (adId: string) => {
+const sendExternalAdsActivity = (adId: string, provider: AdsProviderTitle) => {
   if (alreadySentAnalyticsAdsIds.has(adId)) {
     return;
   }
@@ -40,7 +38,9 @@ const sendExternalAdsActivity = (adId: string) => {
     .catch(err => void console.error(err));
 };
 
-const subscribeToIframeLoadIfNecessary = (adId: string, element: HTMLIFrameElement) => {
+const subscribeToIframeLoadIfNecessary = (element: HTMLIFrameElement, provider: AdsProviderTitle) => {
+  const adId = element.id;
+
   if (loadingAdsIds.has(adId)) {
     return;
   }
@@ -79,9 +79,9 @@ const subscribeToIframeLoadIfNecessary = (adId: string, element: HTMLIFrameEleme
           const adIsSeen = adRectIsSeen(element);
 
           if (adIsSeen) {
-            sendExternalAdsActivity(adId);
+            sendExternalAdsActivity(adId, provider);
           } else {
-            loadedAdIntersectionObserver.observe(element);
+            sendAnalyticsAfterIntersection(element, provider);
           }
         }
       })
@@ -92,16 +92,20 @@ const subscribeToIframeLoadIfNecessary = (adId: string, element: HTMLIFrameEleme
   });
 };
 
-const loadedAdIntersectionObserver = new IntersectionObserver(
-  entries => {
-    if (entries.some(entry => entry.isIntersecting)) {
-      const elem = entries[0].target;
+const sendAnalyticsAfterIntersection = (adElement: Element, provider: AdsProviderTitle) => {
+  const loadedAdIntersectionObserver = new IntersectionObserver(
+    entries => {
+      if (entries.some(entry => entry.isIntersecting)) {
+        const elem = entries[0].target;
 
-      sendExternalAdsActivity(elem.id);
-    }
-  },
-  { threshold: AD_SEEN_THRESHOLD }
-);
+        sendExternalAdsActivity(elem.id, provider);
+      }
+    },
+    { threshold: AD_SEEN_THRESHOLD }
+  );
+
+  loadedAdIntersectionObserver.observe(adElement);
+};
 
 const overrideElementStyles = (element: HTMLElement, overrides: Record<string, string>) => {
   for (const stylePropName in overrides) {
@@ -169,11 +173,9 @@ const replaceAds = async () => {
               break;
           }
           if (shouldUseTKeyAd) {
-            provider = AdsProviderTitle.Temple;
-            loadedAdIntersectionObserver.observe(adElement);
+            sendAnalyticsAfterIntersection(adElement, AdsProviderTitle.Temple);
           } else {
-            provider = AdsProviderTitle.HypeLab;
-            subscribeToIframeLoadIfNecessary(adElement.id, adElement as HTMLIFrameElement);
+            subscribeToIframeLoadIfNecessary(adElement as HTMLIFrameElement, AdsProviderTitle.HypeLab);
           }
           let currentParentDepth = 0;
           stylesOverrides.forEach(({ parentDepth, style }) => {
