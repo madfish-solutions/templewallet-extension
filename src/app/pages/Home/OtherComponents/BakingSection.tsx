@@ -29,7 +29,7 @@ import { useDelegate } from 'lib/temple/front';
 import { TempleAccountType } from 'lib/temple/types';
 import useTippy from 'lib/ui/useTippy';
 import { Link } from 'lib/woozie';
-import { useTezosAccount, useTezosNetwork } from 'temple/front';
+import { useStoredAccount, useTezosNetwork } from 'temple/front';
 
 import styles from './BakingSection.module.css';
 import { BakingSectionSelectors } from './BakingSection.selectors';
@@ -71,7 +71,7 @@ const links = [
 ];
 
 const BakingSection = memo(() => {
-  const account = useTezosAccount();
+  const account = useStoredAccount();
   const { data: myBakerPkh } = useDelegate(account.publicKeyHash, true, false);
   const canDelegate = account.type !== TempleAccountType.WatchOnly;
   const { chainId } = useTezosNetwork();

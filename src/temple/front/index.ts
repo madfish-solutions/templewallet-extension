@@ -43,11 +43,11 @@ const useTezosNetworkChainId = () => {
   return useTezosChainIdLoadingValue(rpcURL, true)!;
 };
 
-export const useTezosAccount = useAccount;
+export const useStoredAccount = useAccount;
 
 export const useTezosAccountAddress = useAccountPkh;
 
-export const useEthersAccountAddress = () => useTezosAccount().ethAddress;
+export const useEthersAccountAddress = () => useStoredAccount().ethAddress;
 
 export function useTezosRelevantAccounts(chainId: string) {
   const allAccounts = useAllAccounts();

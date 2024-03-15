@@ -11,7 +11,7 @@ import { useTempleClient } from 'lib/temple/front';
 import { TempleAccountType } from 'lib/temple/types';
 import { useVanishingState } from 'lib/ui/hooks';
 import { delay } from 'lib/utils';
-import { useTezosAccount } from 'temple/front';
+import { useStoredAccount } from 'temple/front';
 
 import { RevealSecretsSelectors } from './RevealSecrets.selectors';
 import { SecretField } from './SecretField';
@@ -28,7 +28,7 @@ type RevealSecretProps = {
 
 const RevealSecret: FC<RevealSecretProps> = ({ reveal }) => {
   const { revealPrivateKey, revealMnemonic } = useTempleClient();
-  const account = useTezosAccount();
+  const account = useStoredAccount();
 
   const { register, handleSubmit, errors, setError, clearError, formState } = useForm<FormData>();
   const submitting = formState.isSubmitting;

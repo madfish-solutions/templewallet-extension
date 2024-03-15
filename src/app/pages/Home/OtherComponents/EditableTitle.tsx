@@ -10,7 +10,7 @@ import { useFormAnalytics } from 'lib/analytics';
 import { T, t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
 import { useAlert } from 'lib/ui/dialog';
-import { useTezosAccount } from 'temple/front';
+import { useStoredAccount } from 'temple/front';
 
 import { HomeSelectors } from '../Home.selectors';
 
@@ -26,7 +26,7 @@ const buttonClassNames = [
 
 const EditableTitle: FC = () => {
   const { editAccountName } = useTempleClient();
-  const { publicKeyHash, name: accountTitle } = useTezosAccount();
+  const { publicKeyHash, name: accountTitle } = useStoredAccount();
   const customAlert = useAlert();
   const formAnalytics = useFormAnalytics('ChangeAccountName');
 

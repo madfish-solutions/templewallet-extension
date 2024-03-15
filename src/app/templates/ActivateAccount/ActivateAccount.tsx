@@ -6,7 +6,7 @@ import { Alert, FormField, FormSubmitButton } from 'app/atoms';
 import AccountBanner from 'app/templates/AccountBanner';
 import { T, t } from 'lib/i18n';
 import { useSafeState } from 'lib/ui/hooks';
-import { useTezos, useTezosAccount } from 'temple/front';
+import { useTezos, useStoredAccount } from 'temple/front';
 import { confirmTezosOperation } from 'temple/tezos';
 import { activateTezosAccount } from 'temple/tezos/activate-account';
 
@@ -20,7 +20,7 @@ const SUBMIT_ERROR_TYPE = 'submit-error';
 
 const ActivateAccount = memo(() => {
   const tezos = useTezos();
-  const account = useTezosAccount();
+  const account = useStoredAccount();
 
   const [success, setSuccess] = useSafeState<ReactNode>(null);
 

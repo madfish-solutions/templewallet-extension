@@ -10,7 +10,7 @@ import { t, T } from 'lib/i18n/react';
 import { useStorage } from 'lib/temple/front';
 import { TempleAccountType } from 'lib/temple/types';
 import { Redirect } from 'lib/woozie';
-import { useTezosAccount, useTezosNetwork } from 'temple/front';
+import { useStoredAccount, useTezosNetwork } from 'temple/front';
 
 import { WithdrawSelectors } from '../../Withdraw.selectors';
 
@@ -26,7 +26,7 @@ const ALICE_BOB_CONTACT_LINK = 'https://t.me/alicebobhelp';
 
 export const AliceBobWithdraw: FC = () => {
   const { isMainnet } = useTezosNetwork();
-  const account = useTezosAccount();
+  const account = useStoredAccount();
   const { publicKeyHash } = account;
 
   const [step, setStep] = useStorage<number>(`alice_bob_withdraw_step_state_${publicKeyHash}`, 0);

@@ -9,7 +9,7 @@ import { useTempleClient } from 'lib/temple/front';
 import { TempleAccountType } from 'lib/temple/types';
 import { delay } from 'lib/utils';
 import { navigate } from 'lib/woozie';
-import { useTezosAccount, useTezosNetwork, useTezosRelevantAccounts } from 'temple/front';
+import { useStoredAccount, useTezosNetwork, useTezosRelevantAccounts } from 'temple/front';
 
 import { RemoveAccountSelectors } from './RemoveAccount.selectors';
 
@@ -23,7 +23,7 @@ const RemoveAccount: FC = () => {
   const { removeAccount } = useTempleClient();
   const { chainId } = useTezosNetwork();
   const allAccounts = useTezosRelevantAccounts(chainId);
-  const account = useTezosAccount();
+  const account = useStoredAccount();
 
   const prevAccLengthRef = useRef(allAccounts.length);
   useEffect(() => {

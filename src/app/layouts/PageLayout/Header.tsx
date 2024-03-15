@@ -11,7 +11,7 @@ import ContentContainer from 'app/layouts/ContentContainer';
 import { useTempleClient } from 'lib/temple/front';
 import Popper from 'lib/ui/Popper';
 import { Link } from 'lib/woozie';
-import { useTezosAccount } from 'temple/front';
+import { useStoredAccount } from 'temple/front';
 
 import AccountDropdown from './Header/AccountDropdown';
 import NetworkSelect from './Header/NetworkSelect';
@@ -44,7 +44,7 @@ const Header: FC = () => {
 export default Header;
 
 const Control: FC = () => {
-  const account = useTezosAccount();
+  const account = useStoredAccount();
 
   return (
     <>
