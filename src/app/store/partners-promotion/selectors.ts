@@ -6,6 +6,3 @@ export const useShouldShowPartnersPromoSelector = () =>
 
 export const usePromotionHidingTimestampSelector = (id: string) =>
   useSelector(({ partnersPromotion }) => partnersPromotion.promotionHidingTimestamps[id] ?? 0);
-
-export const useLastReportedPageNameSelector = () =>
-  useSelector(({ partnersPromotion }) => partnersPromotion.lastReportedPageName);

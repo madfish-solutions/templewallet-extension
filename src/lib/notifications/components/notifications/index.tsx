@@ -45,6 +45,7 @@ export const Notifications = () => {
               id="promo-notifications-item"
               variant={PartnersPromotionVariant.Image}
               pageName="Notifications"
+              withPersonaProvider
             />
           </div>
         )}

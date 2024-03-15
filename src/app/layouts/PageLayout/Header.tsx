@@ -29,7 +29,7 @@ const Header: FC = () => {
           <div className="flex items-stretch">
             <Link to="/" className="flex-shrink-0 pr-4" testID={HeaderSelectors.templeLogoIcon}>
               <div className="flex items-center">
-                <Logo hasTitle={appEnv.fullPage} white />
+                <Logo hasTitle={appEnv.fullPage} fill="#FFFFFF" />
               </div>
             </Link>
 

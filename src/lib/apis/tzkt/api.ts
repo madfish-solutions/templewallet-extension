@@ -17,6 +17,7 @@ import {
   TzktAccount,
   TzktHubConnection
 } from './types';
+import { calcTzktAccountSpendableTezBalance } from './utils';
 
 const TZKT_API_BASE_URLS = {
   [TempleChainId.Mainnet]: 'https://api.tzkt.io/v1',
@@ -195,19 +196,8 @@ export async function refetchOnce429<R>(fetcher: () => Promise<R>, delayAroundIn
   }
 }
 
-interface GetAccountResponse {
-  balance: string;
-  frozenDeposit?: string;
-}
-
 export const fetchTezosBalanceFromTzkt = async (account: string, chainId: TzktApiChainId) =>
-  fetchGet<GetAccountResponse>(chainId, `/accounts/${account}`, {
-    select: 'balance,frozenDeposit',
-    'balance.gt': 0
-  }).then(({ frozenDeposit, balance }) => ({
-    frozenDeposit,
-    balance
-  }));
+  getAccountStatsFromTzkt(account, chainId).then(calcTzktAccountSpendableTezBalance);
 
 export const fetchAllAssetsBalancesFromTzkt = async (account: string, chainId: TzktApiChainId) => {
   const balances: StringRecord = {};

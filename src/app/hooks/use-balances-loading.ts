@@ -14,7 +14,8 @@ import {
   TzktAccountsSubscriptionMessage,
   TzktTokenBalancesSubscriptionMessage,
   TzktAccountType,
-  isKnownChainId
+  isKnownChainId,
+  calcTzktAccountSpendableTezBalance
 } from 'lib/apis/tzkt';
 import { toTokenSlug } from 'lib/assets';
 import { useTzktConnection } from 'lib/temple/front';
@@ -87,11 +88,13 @@ export const useBalancesLoading = () => {
             matchingAccount?.type === TzktAccountType.Delegate ||
             matchingAccount?.type === TzktAccountType.User
           ) {
+            const balance = calcTzktAccountSpendableTezBalance(matchingAccount);
+
             dispatch(
               loadGasBalanceActions.success({
                 publicKeyHash,
                 chainId,
-                balance: matchingAccount.balance.toFixed()
+                balance
               })
             );
           } else if (matchingAccount) {

@@ -42,6 +42,8 @@ jobs:
           HYPELAB_NATIVE_PLACEMENT_SLUG: ${{ vars.HYPELAB_NATIVE_PLACEMENT_SLUG }}
           HYPELAB_PROPERTY_SLUG: ${{ vars.HYPELAB_PROPERTY_SLUG }}
           HYPELAB_ADS_WINDOW_URL: ${{ vars.HYPELAB_ADS_WINDOW_URL }}
+          PERSONA_ADS_API_KEY: ${{ vars.PERSONA_ADS_API_KEY }}
+          PERSONA_ADS_BANNER_UNIT_ID: ${{ vars.PERSONA_ADS_BANNER_UNIT_ID }}
 
       - name: Install dependencies and code quality
         uses: ./.github/workflows/code-quality-check

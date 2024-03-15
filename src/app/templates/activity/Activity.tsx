@@ -1,4 +1,4 @@
-import React, { Fragment, useMemo } from 'react';
+import React, { useMemo } from 'react';
 
 import classNames from 'clsx';
 import InfiniteScroll from 'react-infinite-scroll-component';
@@ -33,7 +33,14 @@ export const ActivityComponent: React.FC<Props> = ({ assetSlug }) => {
   const promotion = useMemo(() => {
     const promotionId = `promo-activity-${assetSlug ?? 'all'}`;
 
-    return <PartnersPromotion id={promotionId} variant={PartnersPromotionVariant.Image} pageName="Activity" />;
+    return (
+      <PartnersPromotion
+        id={promotionId}
+        variant={PartnersPromotionVariant.Image}
+        pageName="Activity"
+        withPersonaProvider
+      />
+    );
   }, [assetSlug]);
 
   if (activities.length === 0 && !loading && reachedTheEnd) {
@@ -66,7 +73,8 @@ export const ActivityComponent: React.FC<Props> = ({ assetSlug }) => {
   return (
     <div className="w-full max-w-sm mx-auto">
       <div className={classNames('my-3 flex flex-col', popup && 'mx-4')}>
-        {loading && activities.length === 0 && <div className="w-full mb-4 flex justify-center">{promotion}</div>}
+        <div className="w-full mb-4 flex justify-center">{promotion}</div>
+
         <InfiniteScroll
           dataLength={activities.length}
           hasMore={reachedTheEnd === false}
@@ -74,11 +82,8 @@ export const ActivityComponent: React.FC<Props> = ({ assetSlug }) => {
           loader={loading && <SyncSpinner className="mt-4" />}
           onScroll={onScroll}
         >
-          {activities.map((activity, index) => (
-            <Fragment key={activity.hash}>
-              <ActivityItem address={accountAddress} activity={activity} />
-              {index === 0 && promotion}
-            </Fragment>
+          {activities.map(activity => (
+            <ActivityItem key={activity.hash} address={accountAddress} activity={activity} />
           ))}
         </InfiniteScroll>
       </div>
