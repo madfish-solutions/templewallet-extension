@@ -188,7 +188,7 @@
     "tippy.js": "6.2.6",
     "ts-action": "^11.0.0",
     "ts-action-operators": "^9.1.2",
-    "ts-jest": "27.1.1",
+    "ts-jest": "^27",
     "ts-node": "^10.9.2",
     "ts-prune": "^0.10.3",
     "typescript": "^5.4.2",
@@ -208,7 +208,8 @@
     "zip-a-folder": "^3"
   },
   "devDependencies": {
-    "source-map": "^0.7.4"
+    "source-map": "^0.7.4",
+    "text-decoding": "^1.0.0"
   },
   "resolutions": {
     "react-dev-utils/fork-ts-checker-webpack-plugin": "^9",
