@@ -12,7 +12,7 @@ import { collectiblesMetadataPersistedReducer } from './collectibles-metadata/re
 import { currencyReducer } from './currency/reducers';
 import { dAppsReducer } from './d-apps/reducers';
 import { newsletterReducers } from './newsletter/newsletter-reducers';
-import { partnersPromotionReducer } from './partners-promotion/reducers';
+import { partnersPromotionPersistedReducer } from './partners-promotion/reducers';
 import { settingsReducer } from './settings/reducers';
 import { swapReducer } from './swap/reducers';
 import { tokensMetadataReducer } from './tokens-metadata/reducers';
@@ -24,7 +24,7 @@ const rootStateReducersMap = {
   notifications: notificationsReducer,
   dApps: dAppsReducer,
   swap: swapReducer,
-  partnersPromotion: partnersPromotionReducer,
+  partnersPromotion: partnersPromotionPersistedReducer,
   balances: balancesReducer,
   assets: assetsPersistedReducer,
   tokensMetadata: tokensMetadataReducer,
