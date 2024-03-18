@@ -11,11 +11,10 @@ import { isKnownChainId } from 'lib/apis/tzkt';
 import { ASSETS_SYNC_INTERVAL } from 'lib/fixed-times';
 import { TempleTezosChainId } from 'lib/temple/types';
 import { useInterval } from 'lib/ui/hooks';
-import { useTezosAccountAddress, useTezosNetwork } from 'temple/front';
+import { useTezosNetwork } from 'temple/front';
 
-export const useAssetsLoading = () => {
+export const useAssetsLoading = (publicKeyHash: string) => {
   const { chainId } = useTezosNetwork();
-  const publicKeyHash = useTezosAccountAddress();
 
   useEffect(() => {
     if (chainId === TempleTezosChainId.Mainnet) dispatch(loadTokensWhitelistActions.submit());

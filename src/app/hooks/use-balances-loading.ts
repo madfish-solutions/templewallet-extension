@@ -20,11 +20,10 @@ import {
 import { toTokenSlug } from 'lib/assets';
 import { useTzktConnection } from 'lib/temple/front';
 import { useDidUpdate } from 'lib/ui/hooks';
-import { useTezosAccountAddress, useTezosNetwork, useOnTezosBlock } from 'temple/front';
+import { useTezosNetwork, useOnTezosBlock } from 'temple/front';
 
-export const useBalancesLoading = () => {
+export const useBalancesLoading = (publicKeyHash: string) => {
   const { chainId } = useTezosNetwork();
-  const publicKeyHash = useTezosAccountAddress();
 
   const isLoading = useBalancesLoadingSelector(publicKeyHash, chainId);
   const isLoadingRef = useRef(false);

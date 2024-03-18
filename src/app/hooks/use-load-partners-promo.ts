@@ -20,7 +20,7 @@ export const useLoadPartnersPromo = (variant?: OptimalPromoVariantEnum) => {
   const finalVariant = variant ?? (popup ? OptimalPromoVariantEnum.Popup : OptimalPromoVariantEnum.Fullview);
 
   useEffect(() => {
-    if (shouldShowPartnersPromoState) {
+    if (shouldShowPartnersPromoState && accountAddress) {
       dispatch(
         loadPartnersPromoAction.submit({
           optimalPromoVariantEnum: finalVariant,

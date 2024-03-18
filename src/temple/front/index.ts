@@ -8,7 +8,6 @@ import { TempleChainName } from 'temple/types';
 import { loadTezosChainId } from '../tezos';
 
 export { useTezos };
-export { TempleChainName } from '../types';
 export { useOnTezosBlock } from './use-block';
 
 // @ts-expect-error
@@ -35,6 +34,7 @@ export const useTezosNetwork = () => {
   );
 };
 
+// ts-prune-ignore-next
 export const useEvmNetwork = () => {
   return useMemo(
     () => ({
@@ -60,7 +60,7 @@ export const useAccount = useStoredAccount;
 export const useTezosAccountAddress = () => useAccountAddress(TempleChainName.Tezos);
 export const useEvmAccountAddress = () => useAccountAddress(TempleChainName.EVM);
 
-export function useAccountAddress(chain: TempleChainName): string | undefined {
+function useAccountAddress(chain: TempleChainName): string | undefined {
   const account = useStoredAccount();
 
   if (account.type === TempleAccountType.WatchOnly) {
