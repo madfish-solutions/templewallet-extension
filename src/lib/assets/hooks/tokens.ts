@@ -11,7 +11,7 @@ import {
 import { isAccountAssetsStoreKeyOfSameChainIdAndDifferentAccount } from 'app/store/assets/utils';
 import { useAllAccountBalancesSelector } from 'app/store/balances/selectors';
 import { useMemoWithCompare } from 'lib/ui/hooks';
-import { useTezosAccountAddress, useTezosNetwork } from 'temple/front';
+import { useTezosNetwork } from 'temple/front';
 
 import { PREDEFINED_TOKENS_METADATA } from '../known-tokens';
 import type { AccountAsset } from '../types';
@@ -55,9 +55,8 @@ export const useAllAvailableTokens = (account: string, chainId: string) => {
   }, [tokens, allTokensStored, account, chainId]);
 };
 
-export const useEnabledAccountTokensSlugs = () => {
+export const useEnabledAccountTokensSlugs = (publicKeyHash: string) => {
   const { chainId } = useTezosNetwork();
-  const publicKeyHash = useTezosAccountAddress();
 
   const tokens = useAccountTokens(publicKeyHash, chainId);
 

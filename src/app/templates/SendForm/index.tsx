@@ -25,7 +25,7 @@ interface Props {
 }
 
 const SendForm = memo<Props>(({ assetSlug = TEZ_TOKEN_SLUG, publicKeyHash }) => {
-  const tokensSlugs = useEnabledAccountTokensSlugs();
+  const tokensSlugs = useEnabledAccountTokensSlugs(publicKeyHash);
 
   const tokensSortPredicate = useTokensSortPredicate(publicKeyHash);
 

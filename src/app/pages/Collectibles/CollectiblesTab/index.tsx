@@ -62,7 +62,7 @@ const TezosCollectiblesTab = memo<TezosCollectiblesTabProps>(({ publicKeyHash, s
   const [adultBlur, setAdultBlur] = useLocalStorage(LOCAL_STORAGE_ADULT_BLUR_TOGGLE_KEY, true);
   const toggleAdultBlur = useCallback(() => void setAdultBlur(val => !val), [setAdultBlur]);
 
-  const allSlugs = useEnabledAccountCollectiblesSlugs();
+  const allSlugs = useEnabledAccountCollectiblesSlugs(publicKeyHash);
 
   const assetsSortPredicate = useCollectiblesSortPredicate(publicKeyHash);
 
