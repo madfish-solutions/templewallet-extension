@@ -13,7 +13,7 @@ import {
 import { AdsProviderName, AdsProviderTitle } from 'lib/ads';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
 import { AD_HIDING_TIMEOUT, UNDER_DEVELOPMENT_MSG } from 'lib/constants';
-import { useTezosAccountAddress } from 'temple/front';
+import { useAccountAddressForTezos } from 'temple/front';
 
 import { HypelabPromotion } from './components/hypelab-promotion';
 import { OptimalPromotion } from './components/optimal-promotion';
@@ -38,7 +38,7 @@ const shouldBeHiddenTemporarily = (hiddenAt: number) => {
 };
 
 export const PartnersPromotion = memo<PartnersPromotionProps>(props => {
-  const accountPkh = useTezosAccountAddress();
+  const accountPkh = useAccountAddressForTezos();
 
   return accountPkh ? (
     <TezosPartnersPromotion {...props} accountPkh={accountPkh} />

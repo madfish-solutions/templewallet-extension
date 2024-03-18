@@ -29,7 +29,7 @@ import { TempleAccountType } from 'lib/temple/types';
 import { useInterval } from 'lib/ui/hooks';
 import { ImageStacked } from 'lib/ui/ImageStacked';
 import { navigate } from 'lib/woozie';
-import { useAccount, useTezosAccountAddress } from 'temple/front';
+import { useAccount, useAccountAddressForTezos } from 'temple/front';
 
 import { useCollectibleSelling } from '../hooks/use-collectible-selling.hook';
 
@@ -45,7 +45,7 @@ interface Props {
 }
 
 const CollectiblePage = memo<Props>(({ assetSlug }) => {
-  const accountTezAddress = useTezosAccountAddress();
+  const accountTezAddress = useAccountAddressForTezos();
 
   return accountTezAddress ? (
     <TezosCollectiblePage assetSlug={assetSlug} />

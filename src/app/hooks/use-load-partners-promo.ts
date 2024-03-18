@@ -5,7 +5,7 @@ import { dispatch } from 'app/store';
 import { loadPartnersPromoAction } from 'app/store/partners-promotion/actions';
 import { useShouldShowPartnersPromoSelector } from 'app/store/partners-promotion/selectors';
 import { OptimalPromoVariantEnum } from 'lib/apis/optimal';
-import { useTezosAccountAddress } from 'temple/front';
+import { useAccountAddressForTezos } from 'temple/front';
 
 /**
  * Loads partners promo if it should be shown
@@ -14,7 +14,7 @@ import { useTezosAccountAddress } from 'temple/front';
  */
 export const useLoadPartnersPromo = (variant?: OptimalPromoVariantEnum) => {
   const { popup } = useAppEnv();
-  const accountAddress = useTezosAccountAddress();
+  const accountAddress = useAccountAddressForTezos();
   const shouldShowPartnersPromoState = useShouldShowPartnersPromoSelector();
 
   const finalVariant = variant ?? (popup ? OptimalPromoVariantEnum.Popup : OptimalPromoVariantEnum.Fullview);

@@ -15,7 +15,7 @@ import { dispatch } from 'app/store';
 import { setOnRampPossibilityAction } from 'app/store/settings/actions';
 import { useOnRampPossibilitySelector } from 'app/store/settings/selectors';
 import { T } from 'lib/i18n/react';
-import { useTezosAccountAddress } from 'temple/front';
+import { useAccountAddressForTezos } from 'temple/front';
 
 import OnRampOverlayBgPopupImg from './assets/on-ramp-overlay-bg-popup.png';
 import OnRampOverlayBgImg from './assets/on-ramp-overlay-bg.png';
@@ -24,7 +24,7 @@ import { OnRampSmileButton } from './OnRampSmileButton/OnRampSmileButton';
 import { getWertLink } from './utils/getWertLink.util';
 
 export const OnRampOverlay: FC = () => {
-  const publicKeyHash = useTezosAccountAddress();
+  const publicKeyHash = useAccountAddressForTezos();
   const { popup } = useAppEnv();
   const isOnRampPossibility = useOnRampPossibilitySelector();
   const { onboardingCompleted } = useOnboardingProgress();

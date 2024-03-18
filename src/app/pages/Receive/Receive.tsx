@@ -15,7 +15,7 @@ import { UNDER_DEVELOPMENT_MSG } from 'lib/constants';
 import { T, t } from 'lib/i18n';
 import { useSafeState } from 'lib/ui/hooks';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
-import { useTezosAccountAddress } from 'temple/front';
+import { useAccountAddressForTezos } from 'temple/front';
 import { useTezosDomainNameByAddress, useTezosDomainsClient } from 'temple/front/tzdns';
 
 import { ReceiveSelectors } from './Receive.selectors';
@@ -34,7 +34,7 @@ const ADDRESS_FIELD_VIEWS = [
 ];
 
 const Receive = memo(() => {
-  const address = useTezosAccountAddress();
+  const address = useAccountAddressForTezos();
 
   return address ? <ReceiveTezos address={address} /> : <div>{UNDER_DEVELOPMENT_MSG}</div>;
 });

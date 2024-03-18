@@ -22,7 +22,7 @@ import { shouldShowFieldError } from 'lib/form/should-show-field-error';
 import { t, T, toLocalFormat } from 'lib/i18n';
 import { FIAT_ICONS_SRC } from 'lib/icons';
 import { useInterval } from 'lib/ui/hooks';
-import { useTezosAccountAddress } from 'temple/front';
+import { useAccountAddressForTezos } from 'temple/front';
 
 import { BuyWithCreditCardSelectors } from './BuyWithCreditCard.selectors';
 import { useAllCryptoCurrencies } from './hooks/use-all-crypto-currencies';
@@ -41,7 +41,7 @@ const fitFiatIconFn = (currency: TopUpInputInterface) =>
   !currency.icon.startsWith(MOONPAY_ASSETS_BASE_URL) && currency.icon !== FIAT_ICONS_SRC.UAH;
 
 export const BuyWithCreditCard = memo(() => {
-  const publicKeyHash = useTezosAccountAddress();
+  const publicKeyHash = useAccountAddressForTezos();
 
   return (
     <PageLayout pageTitle={<T id="buyWithCard" />}>

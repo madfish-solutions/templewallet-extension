@@ -9,14 +9,14 @@ import { UNDER_DEVELOPMENT_MSG } from 'lib/constants';
 import { T, t } from 'lib/i18n';
 import { useStorage } from 'lib/temple/front';
 import { Redirect } from 'lib/woozie';
-import { useTezosAccountAddress, useTezosNetwork } from 'temple/front';
+import { useAccountAddressForTezos, useTezosNetwork } from 'temple/front';
 
 import { EXOLIX_CONTACT_LINK } from './config';
 import { ExchangeDataInterface } from './exolix.interface';
 import { ExolixSelectors } from './Exolix.selectors';
 
 const Exolix: FC = memo(() => {
-  const publicKeyHash = useTezosAccountAddress();
+  const publicKeyHash = useAccountAddressForTezos();
 
   return (
     <PageLayout

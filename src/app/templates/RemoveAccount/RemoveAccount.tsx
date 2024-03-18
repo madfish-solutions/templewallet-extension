@@ -7,7 +7,6 @@ import AccountBanner from 'app/templates/AccountBanner';
 import { T, t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
 import { TempleAccountType } from 'lib/temple/types';
-import { delay } from 'lib/utils';
 import { navigate } from 'lib/woozie';
 import { useAccount, useTezosNetwork, useTezosRelevantAccounts } from 'temple/front';
 
@@ -47,8 +46,6 @@ const RemoveAccount: FC = () => {
       } catch (err: any) {
         console.error(err);
 
-        // Human delay.
-        await delay();
         setError('password', SUBMIT_ERROR_TYPE, err.message);
       }
     },

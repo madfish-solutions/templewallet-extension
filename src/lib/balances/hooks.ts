@@ -12,7 +12,7 @@ import { atomsToTokens } from 'lib/temple/helpers';
 import {
   useTezos,
   useTezosNetwork,
-  useTezosAccountAddress,
+  useAccountAddressForTezos,
   useTezosChainIdLoading,
   useOnTezosBlock
 } from 'temple/front';
@@ -51,7 +51,7 @@ export function useRawBalance(
   error?: unknown;
   refresh: EmptyFn;
 } {
-  const currentAccountAddress = useTezosAccountAddress();
+  const currentAccountAddress = useAccountAddressForTezos();
   const nativeTezos = useTezos();
   const nativeRpcUrl = useMemo(() => nativeTezos.rpc.getRpcUrl(), [nativeTezos]);
 

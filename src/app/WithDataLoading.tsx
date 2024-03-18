@@ -3,7 +3,7 @@ import React, { FC, useEffect } from 'react';
 import { dispatch } from 'app/store';
 import { loadTokensScamlistActions } from 'app/store/assets/actions';
 import { loadSwapDexesAction, loadSwapTokensAction } from 'app/store/swap/actions';
-import { useTezosAccountAddress } from 'temple/front';
+import { useAccountAddressForTezos } from 'temple/front';
 
 import { useAdvertisingLoading } from './hooks/use-advertising.hook';
 import { useAssetsLoading } from './hooks/use-assets-loading';
@@ -36,7 +36,7 @@ export const WithDataLoading: FC<PropsWithChildren> = ({ children }) => {
   useStorageAnalytics();
   useUserIdSync();
 
-  const publicKeyHash = useTezosAccountAddress();
+  const publicKeyHash = useAccountAddressForTezos();
 
   return publicKeyHash ? <WithTezosDataLoading publicKeyHash={publicKeyHash} children={children} /> : <>{children}</>;
 };

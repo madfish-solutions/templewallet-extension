@@ -222,7 +222,6 @@
     "@taquito/contracts-library": "19.0.2",
     "@taquito/tzip16": "19.0.2",
     "bignumber.js": "9.1.0",
-    "eslint-plugin-import": "^2.29.0",
     "graphql-request": "^6.1.0",
     "json5": "^2.2.2",
     "follow-redirects": "^1.15.4"

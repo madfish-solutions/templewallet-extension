@@ -23,7 +23,7 @@ import { T, t } from 'lib/i18n';
 import { useLocalStorage } from 'lib/ui/local-storage';
 import Popper, { PopperRenderProps } from 'lib/ui/Popper';
 import { Link, navigate } from 'lib/woozie';
-import { useTezosAccountAddress, useTezosNetwork } from 'temple/front';
+import { useAccountAddressForTezos, useTezosNetwork } from 'temple/front';
 
 import { HomeSelectors } from '../../Home.selectors';
 import { AssetsSelectors } from '../Assets.selectors';
@@ -36,7 +36,7 @@ const LOCAL_STORAGE_TOGGLE_KEY = 'tokens-list:hide-zero-balances';
 const svgIconClassName = 'w-4 h-4 stroke-current fill-current text-gray-600';
 
 export const TokensTab = memo(() => {
-  const accountTezAddress = useTezosAccountAddress();
+  const accountTezAddress = useAccountAddressForTezos();
 
   return accountTezAddress ? (
     <TezosTokensTab publicKeyHash={accountTezAddress} />

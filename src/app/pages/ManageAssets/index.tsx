@@ -5,7 +5,7 @@ import PageLayout from 'app/layouts/PageLayout';
 import { AssetTypesEnum } from 'lib/assets/types';
 import { UNDER_DEVELOPMENT_MSG } from 'lib/constants';
 import { T } from 'lib/i18n';
-import { useTezosAccountAddress } from 'temple/front';
+import { useAccountAddressForTezos } from 'temple/front';
 
 import { ManageTezosCollectibles } from './ManageCollectibles';
 import { ManageTezosTokens } from './ManageTokens';
@@ -16,7 +16,7 @@ interface Props {
 
 const ManageAssets = memo<Props>(({ assetType }) => {
   const ofCollectibles = assetType === AssetTypesEnum.Collectibles;
-  const accountTezAddress = useTezosAccountAddress();
+  const accountTezAddress = useAccountAddressForTezos();
 
   return (
     <PageLayout

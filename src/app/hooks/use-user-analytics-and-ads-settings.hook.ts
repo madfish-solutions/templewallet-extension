@@ -4,7 +4,7 @@ import { useAnalytics } from 'lib/analytics';
 import { WEBSITES_ANALYTICS_ENABLED } from 'lib/constants';
 import { AnalyticsEventCategory } from 'lib/temple/analytics-types';
 import { usePassiveStorage } from 'lib/temple/front/storage';
-import { useTezosAccountAddress } from 'temple/front';
+import { useAccountAddressForTezos } from 'temple/front';
 
 import { useShouldShowPartnersPromoSelector } from '../store/partners-promotion/selectors';
 import { useAnalyticsEnabledSelector } from '../store/settings/selectors';
@@ -16,7 +16,7 @@ export const useUserAnalyticsAndAdsSettings = () => {
 
   const [, setIsWebsitesAnalyticsEnabled] = usePassiveStorage(WEBSITES_ANALYTICS_ENABLED);
   const prevWebsiteAnalyticsEnabledRef = useRef(isAnalyticsEnabled && isAdsEnabled);
-  const accountPkh = useTezosAccountAddress();
+  const accountPkh = useAccountAddressForTezos();
 
   useEffect(() => {
     const shouldEnableAnalyticsAndAds = isAnalyticsEnabled && isAdsEnabled;

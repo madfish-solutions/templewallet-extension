@@ -29,7 +29,7 @@ import { useMemoWithCompare } from 'lib/ui/hooks';
 import { useLocalStorage } from 'lib/ui/local-storage';
 import Popper, { PopperChildren, PopperPopup, PopperRenderProps } from 'lib/ui/Popper';
 import { Link } from 'lib/woozie';
-import { useTezosAccountAddress, useTezosNetwork } from 'temple/front';
+import { useAccountAddressForTezos, useTezosNetwork } from 'temple/front';
 
 import { CollectibleItem } from './CollectibleItem';
 import { CollectibleTabSelectors } from './selectors';
@@ -39,7 +39,7 @@ interface Props {
 }
 
 export const CollectiblesTab = memo<Props>(({ scrollToTheTabsBar }) => {
-  const accountTezAddress = useTezosAccountAddress();
+  const accountTezAddress = useAccountAddressForTezos();
 
   return accountTezAddress ? (
     <TezosCollectiblesTab publicKeyHash={accountTezAddress} scrollToTheTabsBar={scrollToTheTabsBar} />

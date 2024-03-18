@@ -5,7 +5,7 @@ import PageLayout from 'app/layouts/PageLayout';
 import SendForm from 'app/templates/SendForm';
 import { UNDER_DEVELOPMENT_MSG } from 'lib/constants';
 import { t } from 'lib/i18n';
-import { useTezosAccountAddress } from 'temple/front';
+import { useAccountAddressForTezos } from 'temple/front';
 
 import { PageTitle } from '../atoms/PageTitle';
 
@@ -14,7 +14,7 @@ type Props = {
 };
 
 const Send = memo<Props>(({ assetSlug }) => {
-  const accountTezAddress = useTezosAccountAddress();
+  const accountTezAddress = useAccountAddressForTezos();
 
   return (
     <PageLayout pageTitle={<PageTitle icon={<SendIcon className="w-auto h-4 stroke-current" />} title={t('send')} />}>

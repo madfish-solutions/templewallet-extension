@@ -21,7 +21,7 @@ import { t, T } from 'lib/i18n';
 import { TezosLogoIcon } from 'lib/icons';
 import { getAssetName, getAssetSymbol, useAssetMetadata } from 'lib/metadata';
 import useTippy from 'lib/ui/useTippy';
-import { useEvmAccountAddress, useTezosAccountAddress, useTezosNetwork } from 'temple/front';
+import { useAccountAddressForEvm, useAccountAddressForTezos, useTezosNetwork } from 'temple/front';
 
 import { HomeSelectors } from '../../Home.selectors';
 import { TokenPageSelectors } from '../TokenPage.selectors';
@@ -40,8 +40,8 @@ const MainBanner = memo<Props>(({ assetSlug }) => {
 export default MainBanner;
 
 const TotalVolumeBanner = () => {
-  const accountPkh = useTezosAccountAddress();
-  const accountEvmAddress = useEvmAccountAddress();
+  const accountPkh = useAccountAddressForTezos();
+  const accountEvmAddress = useAccountAddressForEvm();
 
   return (
     <div className="flex items-start justify-between w-full max-w-sm mx-auto mb-4">
@@ -138,7 +138,7 @@ interface AssetBannerProps {
 }
 
 const AssetBanner = memo<AssetBannerProps>(({ assetSlug }) => {
-  const accountTezAddress = useTezosAccountAddress();
+  const accountTezAddress = useAccountAddressForTezos();
 
   return accountTezAddress ? (
     <TezosAssetBanner assetSlug={assetSlug} accountPkh={accountTezAddress} />

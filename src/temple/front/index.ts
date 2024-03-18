@@ -1,7 +1,7 @@
 import { useCallback, useMemo } from 'react';
 
 import { useRetryableSWR } from 'lib/swr';
-import { useNetwork, useStoredAccount, useAllAccounts, useTezos } from 'lib/temple/front/ready';
+import { useNetwork, useStoredAccount, useAccountAddress, useAllAccounts, useTezos } from 'lib/temple/front/ready';
 import { TempleAccountType, TempleTezosChainId } from 'lib/temple/types';
 import { TempleChainName } from 'temple/types';
 
@@ -54,27 +54,47 @@ const useTezosNetworkChainId = () => {
   return useTezosChainIdLoadingValue(rpcURL, true)!;
 };
 
-/** @deprecated // useTezosAccount | useEvmAccount */
+// export { useStoredAccount as useAccount };
 export const useAccount = useStoredAccount;
 
-export const useTezosAccountAddress = () => useAccountAddress(TempleChainName.Tezos);
-export const useEvmAccountAddress = () => useAccountAddress(TempleChainName.EVM);
+// ts-prune-ignore-next
+export const useAccountForTezos = () => useAccountForChain(TempleChainName.Tezos);
+// ts-prune-ignore-next
+export const useAccountForEvm = () => useAccountForChain(TempleChainName.EVM);
 
-function useAccountAddress(chain: TempleChainName): string | undefined {
-  const account = useStoredAccount();
+function useAccountForChain(chain: TempleChainName) {
+  const storedAccount = useStoredAccount();
 
-  if (account.type === TempleAccountType.WatchOnly) {
-    if (account.chain !== chain) return undefined;
-    // TODO: if (account.chainId && chainId !== account.chainId) return undefined; ?
+  if (storedAccount.type === TempleAccountType.WatchOnly) {
+    if (storedAccount.chain !== chain) return undefined;
+    // TODO: if (storedAccount.chainId && chainId !== storedAccount.chainId) return undefined; ?
 
-    return account.publicKeyHash;
+    return storedAccount;
   }
 
-  return chain === 'evm' ? account.evmAddress : account.publicKeyHash;
+  if (chain === 'evm') return storedAccount.evmAddress ? storedAccount : undefined;
+
+  return storedAccount;
 }
 
 // ts-prune-ignore-next
-export const useEthersAccountAddress = () => useAccount().evmAddress;
+export { useAccountAddress };
+
+export const useAccountAddressForTezos = () => useAccountAddressForChain(TempleChainName.Tezos);
+export const useAccountAddressForEvm = () => useAccountAddressForChain(TempleChainName.EVM);
+
+function useAccountAddressForChain(chain: TempleChainName): string | undefined {
+  const storedAccount = useStoredAccount();
+
+  if (storedAccount.type === TempleAccountType.WatchOnly) {
+    if (storedAccount.chain !== chain) return undefined;
+    // TODO: if (storedAccount.chainId && chainId !== storedAccount.chainId) return undefined; ?
+
+    return storedAccount.publicKeyHash;
+  }
+
+  return chain === 'evm' ? storedAccount.evmAddress : storedAccount.publicKeyHash;
+}
 
 export function useTezosRelevantAccounts(tezosChainId: string) {
   const allAccounts = useAllAccounts();

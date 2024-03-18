@@ -16,7 +16,7 @@ import { useSetAccountPkh } from 'lib/temple/front';
 import Portal from 'lib/ui/Portal';
 import { searchAndFilterItems } from 'lib/utils/search-items';
 import { HistoryAction, navigate } from 'lib/woozie';
-import { useTezosAccountAddress, useTezosNetwork, useTezosRelevantAccounts } from 'temple/front';
+import { useAccountAddressForTezos, useTezosNetwork, useTezosRelevantAccounts } from 'temple/front';
 
 import { AccountItem } from './AccountItem';
 
@@ -30,7 +30,7 @@ export const ShortcutAccountSwitchOverlay = memo(() => {
 
   const { chainId } = useTezosNetwork();
   const allAccounts = useTezosRelevantAccounts(chainId);
-  const accountAddress = useTezosAccountAddress();
+  const accountAddress = useAccountAddressForTezos();
   const setAccountPkh = useSetAccountPkh();
   const { assetName: gasTokenName } = useGasToken();
 

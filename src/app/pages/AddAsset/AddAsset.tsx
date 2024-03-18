@@ -32,12 +32,12 @@ import { validateContractAddress } from 'lib/temple/front';
 import { useSafeState } from 'lib/ui/hooks';
 import { delay } from 'lib/utils';
 import { navigate } from 'lib/woozie';
-import { useTezosAccountAddress, useTezosNetwork, useTezos } from 'temple/front';
+import { useAccountAddressForTezos, useTezosNetwork, useTezos } from 'temple/front';
 
 import { AddAssetSelectors } from './AddAsset.selectors';
 
 const AddAsset = memo(() => {
-  const accountPkh = useTezosAccountAddress();
+  const accountPkh = useAccountAddressForTezos();
 
   return (
     <PageLayout

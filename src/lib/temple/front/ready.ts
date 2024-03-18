@@ -25,7 +25,7 @@ export const [
   useAllAccounts,
   useSetAccountPkh,
   useStoredAccount,
-  // useAccountPkh,
+  useAccountAddress,
   useSettings,
   useTezos
 ] = constate(
@@ -36,7 +36,7 @@ export const [
   v => v.allAccounts,
   v => v.setAccountPkh,
   v => v.account,
-  // v => v.accountPkh,
+  v => v.accountPkh,
   v => v.settings,
   v => v.tezos
 );

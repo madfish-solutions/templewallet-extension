@@ -7,14 +7,14 @@ import { dispatch } from 'app/store';
 import { resetSwapParamsAction } from 'app/store/swap/actions';
 import { SwapForm } from 'app/templates/SwapForm/SwapForm';
 import { t, T } from 'lib/i18n';
-import { useTezosAccountAddress, useTezosNetwork } from 'temple/front';
+import { useAccountAddressForTezos, useTezosNetwork } from 'temple/front';
 
 import TkeyAd from './assets/tkey-swap-page-ad.png';
 import { useTKeyAd } from './hooks/use-tkey-ad';
 
 export const Swap: FC = () => {
   const { isMainnet } = useTezosNetwork();
-  const publicKeyHash = useTezosAccountAddress();
+  const publicKeyHash = useAccountAddressForTezos();
 
   const showTKeyAd = useTKeyAd();
 

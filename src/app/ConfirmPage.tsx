@@ -30,14 +30,14 @@ import { TempleAccountType, TempleDAppPayload, StoredAccount, TempleTezosChainId
 import { useSafeState } from 'lib/ui/hooks';
 import { delay } from 'lib/utils';
 import { useLocation } from 'lib/woozie';
-import { useTezosAccountAddress, useTezosChainIdLoadingValue } from 'temple/front';
+import { useAccountAddressForTezos, useTezosChainIdLoadingValue } from 'temple/front';
 import { isTezosAccountOfActableType } from 'temple/tezos';
 
 import { ConfirmPageSelectors } from './ConfirmPage.selectors';
 
 const ConfirmPage = memo(() => {
   const { ready } = useTempleClient();
-  const accountTezAddress = useTezosAccountAddress();
+  const accountTezAddress = useAccountAddressForTezos();
 
   if (ready)
     return (

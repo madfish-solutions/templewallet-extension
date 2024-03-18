@@ -9,10 +9,10 @@ import { useBalance } from 'lib/balances';
 import { UNDER_DEVELOPMENT_MSG } from 'lib/constants';
 import { T } from 'lib/i18n';
 import { ZERO } from 'lib/utils/numbers';
-import { useTezosAccountAddress } from 'temple/front';
+import { useAccountAddressForTezos } from 'temple/front';
 
 const Delegate = memo(() => {
-  const publicKeyHash = useTezosAccountAddress();
+  const publicKeyHash = useAccountAddressForTezos();
 
   return (
     <PageLayout

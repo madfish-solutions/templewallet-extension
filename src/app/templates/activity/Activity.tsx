@@ -11,7 +11,7 @@ import { PartnersPromotion, PartnersPromotionVariant } from 'app/templates/partn
 import { UNDER_DEVELOPMENT_MSG } from 'lib/constants';
 import { T } from 'lib/i18n/react';
 import useTezosActivities from 'lib/temple/activity-new/hook';
-import { useTezosAccountAddress } from 'temple/front';
+import { useAccountAddressForTezos } from 'temple/front';
 
 import { ActivityItem } from './ActivityItem';
 
@@ -23,7 +23,7 @@ interface Props {
 }
 
 export const ActivityTab = React.memo<Props>(({ assetSlug }) => {
-  const accountAddress = useTezosAccountAddress();
+  const accountAddress = useAccountAddressForTezos();
 
   return accountAddress ? (
     <ActivityComponent accountAddress={accountAddress} assetSlug={assetSlug} />
