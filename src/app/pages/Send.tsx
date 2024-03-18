@@ -3,8 +3,8 @@ import React, { memo } from 'react';
 import { ReactComponent as SendIcon } from 'app/icons/send.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import SendForm from 'app/templates/SendForm';
-import { UNDER_DEVELOPMENT_MSG } from 'lib/constants';
 import { t } from 'lib/i18n';
+import { UNDER_DEVELOPMENT_MSG } from 'temple/evm/under_dev_msg';
 import { useAccountAddressForTezos } from 'temple/front';
 
 import { PageTitle } from '../atoms/PageTitle';

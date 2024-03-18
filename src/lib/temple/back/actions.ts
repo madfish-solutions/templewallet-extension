@@ -21,6 +21,7 @@ import {
 } from 'lib/temple/types';
 import { createQueue, delay } from 'lib/utils';
 import { loadTezosChainId } from 'temple/tezos';
+import { TempleChainName } from 'temple/types';
 
 import {
   getCurrentPermission,
@@ -205,9 +206,9 @@ export function importManagedKTAccount(address: string, chainId: string, owner: 
   });
 }
 
-export function importWatchOnlyAccount(address: string, chainId?: string) {
+export function importWatchOnlyAccount(chain: TempleChainName, address: string, chainId?: string) {
   return withUnlocked(async ({ vault }) => {
-    const updatedAccounts = await vault.importWatchOnlyAccount(address, chainId);
+    const updatedAccounts = await vault.importWatchOnlyAccount(chain, address, chainId);
     accountsUpdated(updatedAccounts);
   });
 }

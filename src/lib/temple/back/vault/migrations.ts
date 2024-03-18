@@ -135,8 +135,9 @@ export const MIGRATIONS = [
     await removeManyLegacy([...toSave.map(([key]) => key), 'contacts']);
   },
 
-  // [5] Extend accounts
+  // [5] Extend accounts for EVM support
   async (password: string) => {
+    console.log('VAULT.MIGRATIONS: EVM migration started');
     const passKey = await Passworder.generateKey(password);
     const accounts = await fetchAndDecryptOne<StoredAccount[]>(accountsStrgKey, passKey);
     const mnemonic = await fetchAndDecryptOne<string>(mnemonicStrgKey, passKey);
@@ -153,6 +154,7 @@ export const MIGRATIONS = [
     }
 
     await encryptAndSaveMany([[accountsStrgKey, accounts]], passKey);
+    console.log('VAULT.MIGRATIONS: EVM migration finished');
   }
 
   // [6] Store Chain IDs

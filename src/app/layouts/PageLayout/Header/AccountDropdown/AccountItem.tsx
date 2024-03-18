@@ -6,13 +6,14 @@ import { Name, Button, HashShortView, Money, Identicon } from 'app/atoms';
 import AccountTypeBadge from 'app/atoms/AccountTypeBadge';
 import Balance from 'app/templates/Balance';
 import { setAnotherSelector, setTestID } from 'lib/analytics';
-import { StoredAccountBase } from 'lib/temple/types';
+import { StoredAccount } from 'lib/temple/types';
 import { useScrollIntoViewOnMount } from 'lib/ui/use-scroll-into-view';
+import { getAccountAddressOfTezos } from 'temple/accounts';
 
 import { AccountDropdownSelectors } from './selectors';
 
 interface Props {
-  account: StoredAccountBase;
+  account: StoredAccount;
   selected: boolean;
   gasTokenName: string;
   attractSelf: boolean;
@@ -20,7 +21,8 @@ interface Props {
 }
 
 export const AccountItem: React.FC<Props> = ({ account, selected, gasTokenName, attractSelf, onClick }) => {
-  const { name, publicKeyHash, type } = account;
+  const accountAddress = account.publicKeyHash;
+  const accountTezAddress = getAccountAddressOfTezos(account);
 
   const elemRef = useScrollIntoViewOnMount<HTMLButtonElement>(selected && attractSelf);
 
@@ -43,33 +45,37 @@ export const AccountItem: React.FC<Props> = ({ account, selected, gasTokenName, 
       className={classNameMemo}
       onClick={onClick}
       testID={AccountDropdownSelectors.accountItemButton}
-      testIDProperties={{ accountTypeEnum: type }}
+      testIDProperties={{ accountTypeEnum: account.type }}
     >
-      <Identicon type="bottts" hash={publicKeyHash} size={46} className="flex-shrink-0 shadow-xs-white" />
+      <Identicon type="bottts" hash={accountAddress} size={46} className="flex-shrink-0 shadow-xs-white" />
 
       <div style={{ marginLeft: '10px' }} className="flex flex-col items-start">
-        <Name className="text-sm font-medium">{name}</Name>
+        <Name className="text-sm font-medium">{account.name}</Name>
 
         <div
           className="text-xs text-gray-500"
           {...setTestID(AccountDropdownSelectors.accountAddressValue)}
-          {...setAnotherSelector('hash', publicKeyHash)}
+          {...setAnotherSelector('hash', accountAddress)}
         >
-          <HashShortView hash={publicKeyHash} />
+          <HashShortView hash={accountAddress} />
         </div>
 
         <div className="flex flex-wrap items-center">
-          <Balance address={publicKeyHash}>
-            {bal => (
-              <span className="text-xs leading-tight flex items-baseline text-gray-500">
-                <Money smallFractionFont={false} tooltip={false}>
-                  {bal}
-                </Money>
+          {accountTezAddress ? (
+            <Balance address={accountAddress}>
+              {bal => (
+                <span className="text-xs leading-tight flex items-baseline text-gray-500">
+                  <Money smallFractionFont={false} tooltip={false}>
+                    {bal}
+                  </Money>
 
-                <span className="ml-1">{gasTokenName.toUpperCase()}</span>
-              </span>
-            )}
-          </Balance>
+                  <span className="ml-1">{gasTokenName.toUpperCase()}</span>
+                </span>
+              )}
+            </Balance>
+          ) : (
+            '🚧 🛠️ 🔜 🏗️ ETH'
+          )}
 
           <AccountTypeBadge accountType={account.type} darkTheme />
         </div>

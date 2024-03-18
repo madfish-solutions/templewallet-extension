@@ -133,7 +133,7 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
       };
 
     case TempleMessageType.ImportWatchOnlyAccountRequest:
-      await Actions.importWatchOnlyAccount(req.address, req.chainId);
+      await Actions.importWatchOnlyAccount(req.chain, req.address, req.chainId);
       return {
         type: TempleMessageType.ImportWatchOnlyAccountResponse
       };

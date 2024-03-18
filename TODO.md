@@ -26,6 +26,7 @@
 - `StoredAccount['publicKeyHash' -> 'tezAddress']`
 - - Current by index ?
 - - `StoredWatchOnlyAccount.address`
+- Remove Vault legacy code if versions usage stats allows
 -
 
 

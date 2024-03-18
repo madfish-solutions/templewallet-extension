@@ -17,11 +17,11 @@ import { TopUpInput } from 'app/templates/TopUpInput';
 import { MOONPAY_ASSETS_BASE_URL } from 'lib/apis/moonpay';
 import { getAssetSymbolToDisplay } from 'lib/buy-with-credit-card/get-asset-symbol-to-display';
 import { TopUpInputInterface } from 'lib/buy-with-credit-card/topup.interface';
-import { UNDER_DEVELOPMENT_MSG } from 'lib/constants';
 import { shouldShowFieldError } from 'lib/form/should-show-field-error';
 import { t, T, toLocalFormat } from 'lib/i18n';
 import { FIAT_ICONS_SRC } from 'lib/icons';
 import { useInterval } from 'lib/ui/hooks';
+import { UNDER_DEVELOPMENT_MSG } from 'temple/evm/under_dev_msg';
 import { useAccountAddressForTezos } from 'temple/front';
 
 import { BuyWithCreditCardSelectors } from './BuyWithCreditCard.selectors';

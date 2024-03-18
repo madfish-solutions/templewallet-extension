@@ -1,5 +1,7 @@
 import browser from 'webextension-polyfill';
 
+import { TempleChainName } from 'temple/types';
+
 import { TempleAccountType, TempleSettings } from '../../types';
 
 import { Vault } from './index';
@@ -252,7 +254,7 @@ describe('Vault tests', () => {
   it('importWatchOnlyAccount test', async () => {
     await Vault.spawn(password, mnemonic);
     const vault = await Vault.setup(password);
-    const accounts = await vault.importWatchOnlyAccount('KT19txYWjVo4yLvcGnnyiGc35CuX12Pc4krn');
+    const accounts = await vault.importWatchOnlyAccount(TempleChainName.Tezos, 'KT19txYWjVo4yLvcGnnyiGc35CuX12Pc4krn');
     expect(accounts[1].type).toBe(TempleAccountType.WatchOnly);
   });
 
@@ -265,7 +267,10 @@ describe('Vault tests', () => {
     } catch (err: any) {
       expect(err.message).toEqual('Failed to remove account');
     }
-    const accountsWithWatchOnly = await vault.importWatchOnlyAccount('KT19txYWjVo4yLvcGnnyiGc35CuX12Pc4krn');
+    const accountsWithWatchOnly = await vault.importWatchOnlyAccount(
+      TempleChainName.Tezos,
+      'KT19txYWjVo4yLvcGnnyiGc35CuX12Pc4krn'
+    );
     expect(accountsWithWatchOnly[1].type).toBe(TempleAccountType.WatchOnly);
     const afterRemoveAccounts = await Vault.removeAccount(accountsWithWatchOnly[1].publicKeyHash, password);
     expect(afterRemoveAccounts.length).toBe(1);

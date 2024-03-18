@@ -8,9 +8,9 @@ import { useAppEnv } from 'app/env';
 import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
 import { ReactComponent as LayersIcon } from 'app/icons/layers.svg';
 import { PartnersPromotion, PartnersPromotionVariant } from 'app/templates/partners-promotion';
-import { UNDER_DEVELOPMENT_MSG } from 'lib/constants';
 import { T } from 'lib/i18n/react';
 import useTezosActivities from 'lib/temple/activity-new/hook';
+import { UNDER_DEVELOPMENT_MSG } from 'temple/evm/under_dev_msg';
 import { useAccountAddressForTezos } from 'temple/front';
 
 import { ActivityItem } from './ActivityItem';
@@ -28,7 +28,7 @@ export const ActivityTab = React.memo<Props>(({ assetSlug }) => {
   return accountAddress ? (
     <ActivityComponent accountAddress={accountAddress} assetSlug={assetSlug} />
   ) : (
-    <div className="w-full max-w-sm mx-auto m-3 flex flex-col">{UNDER_DEVELOPMENT_MSG}</div>
+    <div className="w-full max-w-sm mx-auto py-3 text-center">{UNDER_DEVELOPMENT_MSG}</div>
   );
 });
 

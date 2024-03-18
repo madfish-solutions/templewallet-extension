@@ -15,12 +15,12 @@ import Balance from 'app/templates/Balance';
 import InFiat from 'app/templates/InFiat';
 import { setAnotherSelector, setTestID } from 'lib/analytics';
 import { useGasToken } from 'lib/assets/hooks';
-import { UNDER_DEVELOPMENT_MSG } from 'lib/constants';
 import { useFiatCurrency } from 'lib/fiat-currency';
 import { t, T } from 'lib/i18n';
 import { TezosLogoIcon } from 'lib/icons';
 import { getAssetName, getAssetSymbol, useAssetMetadata } from 'lib/metadata';
 import useTippy from 'lib/ui/useTippy';
+import { UNDER_DEVELOPMENT_MSG } from 'temple/evm/under_dev_msg';
 import { useAccountAddressForEvm, useAccountAddressForTezos, useTezosNetwork } from 'temple/front';
 
 import { HomeSelectors } from '../../Home.selectors';
@@ -47,7 +47,7 @@ const TotalVolumeBanner = () => {
     <div className="flex items-start justify-between w-full max-w-sm mx-auto mb-4">
       {accountPkh ? <TezosBalanceInfo accountPkh={accountPkh} /> : <div>{UNDER_DEVELOPMENT_MSG}</div>}
 
-      <div className="flex flex-col gap-y-3">
+      <div className="flex flex-col gap-y-1 items-end">
         {accountPkh ? <AddressChip pkh={accountPkh} testID={HomeSelectors.publicAddressButton} /> : null}
         {accountEvmAddress ? <AddressChip pkh={accountEvmAddress} /> : null}
       </div>

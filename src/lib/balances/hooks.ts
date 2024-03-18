@@ -127,6 +127,7 @@ export function useRawBalance(
   };
 }
 
+/** useTezosBalance */
 export function useBalance(assetSlug: string, address: string, networkRpc?: string) {
   const { value: rawValue, isSyncing, error, refresh } = useRawBalance(assetSlug, address, networkRpc);
   const assetMetadata = useAssetMetadata(assetSlug);

@@ -30,6 +30,7 @@ import {
   TempleSettings,
   DerivationType
 } from 'lib/temple/types';
+import { TempleChainName } from 'temple/types';
 
 type Confirmation = {
   id: string;
@@ -223,10 +224,11 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     assertResponse(res.type === TempleMessageType.ImportManagedKTAccountResponse);
   }, []);
 
-  const importWatchOnlyAccount = useCallback(async (address: string, chainId?: string) => {
+  const importWatchOnlyAccount = useCallback(async (chain: TempleChainName, address: string, chainId?: string) => {
     const res = await request({
       type: TempleMessageType.ImportWatchOnlyAccountRequest,
       address,
+      chain,
       chainId
     });
     assertResponse(res.type === TempleMessageType.ImportWatchOnlyAccountResponse);

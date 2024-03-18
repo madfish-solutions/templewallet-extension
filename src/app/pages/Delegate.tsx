@@ -6,9 +6,9 @@ import PageLayout, { SpinnerSection } from 'app/layouts/PageLayout';
 import DelegateForm from 'app/templates/DelegateForm';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { useBalance } from 'lib/balances';
-import { UNDER_DEVELOPMENT_MSG } from 'lib/constants';
 import { T } from 'lib/i18n';
 import { ZERO } from 'lib/utils/numbers';
+import { UNDER_DEVELOPMENT_MSG } from 'temple/evm/under_dev_msg';
 import { useAccountAddressForTezos } from 'temple/front';
 
 const Delegate = memo(() => {

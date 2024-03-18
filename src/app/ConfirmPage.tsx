@@ -22,7 +22,6 @@ import NetworkBanner from 'app/templates/NetworkBanner';
 import OperationView from 'app/templates/OperationView';
 import { CustomRpcContext } from 'lib/analytics';
 import { useGasToken } from 'lib/assets/hooks';
-import { UNDER_DEVELOPMENT_MSG } from 'lib/constants';
 import { T, t } from 'lib/i18n';
 import { useRetryableSWR } from 'lib/swr';
 import { useTempleClient, useAllAccounts } from 'lib/temple/front';
@@ -30,6 +29,7 @@ import { TempleAccountType, TempleDAppPayload, StoredAccount, TempleTezosChainId
 import { useSafeState } from 'lib/ui/hooks';
 import { delay } from 'lib/utils';
 import { useLocation } from 'lib/woozie';
+import { UNDER_DEVELOPMENT_MSG } from 'temple/evm/under_dev_msg';
 import { useAccountAddressForTezos, useTezosChainIdLoadingValue } from 'temple/front';
 import { isTezosAccountOfActableType } from 'temple/tezos';
 

@@ -23,12 +23,12 @@ import { setTestID } from 'lib/analytics';
 import { useEnabledAccountCollectiblesSlugs } from 'lib/assets/hooks';
 import { AssetTypesEnum } from 'lib/assets/types';
 import { useCollectiblesSortPredicate } from 'lib/assets/use-sorting';
-import { UNDER_DEVELOPMENT_MSG } from 'lib/constants';
 import { T, t } from 'lib/i18n';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import { useLocalStorage } from 'lib/ui/local-storage';
 import Popper, { PopperChildren, PopperPopup, PopperRenderProps } from 'lib/ui/Popper';
 import { Link } from 'lib/woozie';
+import { UNDER_DEVELOPMENT_MSG } from 'temple/evm/under_dev_msg';
 import { useAccountAddressForTezos, useTezosNetwork } from 'temple/front';
 
 import { CollectibleItem } from './CollectibleItem';
@@ -44,7 +44,7 @@ export const CollectiblesTab = memo<Props>(({ scrollToTheTabsBar }) => {
   return accountTezAddress ? (
     <TezosCollectiblesTab publicKeyHash={accountTezAddress} scrollToTheTabsBar={scrollToTheTabsBar} />
   ) : (
-    <div>{UNDER_DEVELOPMENT_MSG}</div>
+    <div className="w-full max-w-sm mx-auto py-3 text-center">{UNDER_DEVELOPMENT_MSG}</div>
   );
 });
 

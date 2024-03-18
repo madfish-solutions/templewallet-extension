@@ -13,6 +13,7 @@ interface Props {
   networkRpc?: string;
 }
 
+/** TezosBalance */
 const Balance: FC<Props> = ({ address, children, assetSlug = 'tez', networkRpc }) => {
   const { value: balance } = useBalance(assetSlug, address, networkRpc);
   const exist = balance !== undefined;

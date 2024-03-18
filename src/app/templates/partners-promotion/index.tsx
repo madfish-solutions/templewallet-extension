@@ -12,7 +12,8 @@ import {
 } from 'app/store/partners-promotion/selectors';
 import { AdsProviderName, AdsProviderTitle } from 'lib/ads';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
-import { AD_HIDING_TIMEOUT, UNDER_DEVELOPMENT_MSG } from 'lib/constants';
+import { AD_HIDING_TIMEOUT } from 'lib/constants';
+import { UNDER_DEVELOPMENT_MSG } from 'temple/evm/under_dev_msg';
 import { useAccountAddressForTezos } from 'temple/front';
 
 import { HypelabPromotion } from './components/hypelab-promotion';
