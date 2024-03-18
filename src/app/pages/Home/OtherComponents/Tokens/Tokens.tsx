@@ -73,6 +73,7 @@ const TezosTokensTab: FC<TezosTokensTabProps> = ({ publicKeyHash }) => {
   const mainnetTokensScamSlugsRecord = useMainnetTokensScamlistSelector();
 
   const { filteredAssets, searchValue, setSearchValue } = useTokensListingLogic(
+    publicKeyHash,
     slugs,
     isZeroBalancesHidden,
     leadingAssets

@@ -31,7 +31,7 @@ export const ManageTezosTokens = memo<Props>(({ publicKeyHash }) => {
   const metadatasLoading = useTokensMetadataLoadingSelector();
   const isSyncing = assetsAreLoading || metadatasLoading;
 
-  const { filteredAssets, searchValue, setSearchValue } = useTokensListingLogic(managebleSlugs, false);
+  const { filteredAssets, searchValue, setSearchValue } = useTokensListingLogic(publicKeyHash, managebleSlugs, false);
 
   const isInSearchMode = isSearchStringApplicable(searchValue);
 

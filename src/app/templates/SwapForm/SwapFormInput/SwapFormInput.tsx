@@ -65,6 +65,7 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
 
   const { isLoading, route3tokensSlugs } = useAvailableRoute3TokensSlugs();
   const { filteredAssets, searchValue, setSearchValue, setTokenId } = useTokensListingLogic(
+    publicKeyHash,
     route3tokensSlugs,
     name === 'input',
     LEADING_ASSETS

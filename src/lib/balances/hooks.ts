@@ -20,15 +20,14 @@ import { buildFastRpcTezosToolkit } from 'temple/tezos';
 
 import { fetchRawBalance as fetchRawBalanceFromBlockchain } from './fetch';
 
-export const useCurrentAccountBalances = () => {
+export const useCurrentAccountBalances = (publicKeyHash: string) => {
   const { chainId } = useTezosNetwork();
-  const publicKeyHash = useTezosAccountAddress();
 
   return useAllAccountBalancesSelector(publicKeyHash, chainId);
 };
 
-export const useGetCurrentAccountTokenOrGasBalanceWithDecimals = () => {
-  const rawBalances = useCurrentAccountBalances();
+export const useGetCurrentAccountTokenOrGasBalanceWithDecimals = (publicKeyHash: string) => {
+  const rawBalances = useCurrentAccountBalances(publicKeyHash);
   const getMetadata = useGetTokenOrGasMetadata();
 
   return useCallback(
