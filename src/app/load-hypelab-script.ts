@@ -23,7 +23,7 @@ export const LoadHypelabScript: FC = () => {
         HypeLab.initialize({
           URL: EnvVars.HYPELAB_API_URL,
           propertySlug: EnvVars.HYPELAB_PROPERTY_SLUG,
-          environment: IS_DEV_ENV ? 'development' : 'production'
+          environment: EnvVars.HYPELAB_API_URL === 'https://api.hypelab-staging.com' ? 'development' : 'production'
         });
       };
       document.head.appendChild(script);
