@@ -3,7 +3,7 @@ import { FC, useEffect } from 'react';
 import browser from 'webextension-polyfill';
 
 import { useShouldShowPartnersPromoSelector } from 'app/store/partners-promotion/selectors';
-import { EnvVars } from 'lib/env';
+import { EnvVars, IS_STAGE_ENV } from 'lib/env';
 
 export const LoadHypelabScript: FC = () => {
   const isAdsEnabled = useShouldShowPartnersPromoSelector();
@@ -23,7 +23,7 @@ export const LoadHypelabScript: FC = () => {
         HypeLab.initialize({
           URL: EnvVars.HYPELAB_API_URL,
           propertySlug: EnvVars.HYPELAB_PROPERTY_SLUG,
-          environment: EnvVars.HYPELAB_API_URL === 'https://api.hypelab-staging.com' ? 'development' : 'production'
+          environment: IS_STAGE_ENV ? 'development' : 'production'
         });
       };
       document.head.appendChild(script);
