@@ -11,19 +11,19 @@ import { toLocalFormat, T } from 'lib/i18n';
 import { HELP_UKRAINE_BAKER_ADDRESS, RECOMMENDED_BAKER_ADDRESS } from 'lib/known-bakers';
 import { useKnownBaker, useAllAccounts } from 'lib/temple/front';
 import { StoredAccount } from 'lib/temple/types';
-import { useTezosAccountAddress, useTezosNetwork } from 'temple/front';
+import { useTezosNetwork } from 'temple/front';
 
 import { OpenInExplorerChip } from './OpenInExplorerChip';
 
-type BakerBannerProps = HTMLAttributes<HTMLDivElement> & {
+interface Props extends HTMLAttributes<HTMLDivElement> {
+  accountPkh: string;
   bakerPkh: string;
   link?: boolean;
   displayAddress?: boolean;
-};
+}
 
-const BakerBanner = memo<BakerBannerProps>(({ bakerPkh, link = false, displayAddress = false, className, style }) => {
+const BakerBanner = memo<Props>(({ accountPkh, bakerPkh, link = false, displayAddress = false, className, style }) => {
   const allAccounts = useAllAccounts();
-  const accountAddress = useTezosAccountAddress();
   const { popup } = useAppEnv();
   const { data: baker } = useKnownBaker(bakerPkh);
 
@@ -142,7 +142,7 @@ const BakerBanner = memo<BakerBannerProps>(({ bakerPkh, link = false, displayAdd
           <div className="flex flex-col items-start flex-1 ml-2">
             <div className={classNames('mb-px w-full', 'flex flex-wrap items-center', 'leading-none')}>
               <Name className="pb-1 mr-1 text-lg font-medium">
-                <BakerAccount accPkh={accountAddress} bakerAcc={bakerAcc} bakerPkh={bakerPkh} />
+                <BakerAccount accPkh={accountPkh} bakerAcc={bakerAcc} bakerPkh={bakerPkh} />
               </Name>
             </div>
           </div>

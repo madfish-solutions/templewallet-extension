@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
 import { TransferParams } from '@taquito/taquito';
@@ -45,7 +45,7 @@ import {
   getRoutingFeeTransferParams
 } from 'lib/utils/swap.utils';
 import { HistoryAction, navigate } from 'lib/woozie';
-import { useTezos, useTezosAccountAddress } from 'temple/front';
+import { useTezos } from 'temple/front';
 import { useTezosBlockLevel } from 'temple/front/use-block';
 
 import { SwapExchangeRate } from './SwapExchangeRate/SwapExchangeRate';
@@ -59,11 +59,14 @@ import { SwapFormInput } from './SwapFormInput/SwapFormInput';
 import { SwapMinimumReceived } from './SwapMinimumReceived/SwapMinimumReceived';
 import { SwapRoute } from './SwapRoute/SwapRoute';
 
-export const SwapForm: FC = () => {
+interface Props {
+  publicKeyHash: string;
+}
+
+export const SwapForm = memo<Props>(({ publicKeyHash }) => {
   const tezos = useTezos();
   const blockLevel = useTezosBlockLevel();
-  const publicKeyHash = useTezosAccountAddress();
-  const getSwapParams = useSwap();
+  const getSwapParams = useSwap(publicKeyHash);
   const { data: route3Tokens } = useSwapTokensSelector();
   const swapParams = useSwapParamsSelector();
   const allUsdToTokenRates = useSelector(state => state.currency.usdToTokenRates.data);
@@ -452,10 +455,10 @@ export const SwapForm: FC = () => {
       )}
 
       <SwapFormInput
+        publicKeyHash={publicKeyHash}
         name="input"
         value={inputValue}
-        // @ts-expect-error
-        error={errors.input?.message}
+        error={errors.input?.message as string}
         label={<T id="from" />}
         onChange={handleInputChange}
         testIDs={{
@@ -474,11 +477,11 @@ export const SwapForm: FC = () => {
       </div>
 
       <SwapFormInput
+        publicKeyHash={publicKeyHash}
         className="mb-6"
         name="output"
         value={outputValue}
-        // @ts-expect-error
-        error={errors.output?.message}
+        error={errors.output?.message as string}
         label={<T id="toAsset" />}
         amountInputDisabled={true}
         onChange={handleOutputChange}
@@ -600,4 +603,4 @@ export const SwapForm: FC = () => {
       </p>
     </form>
   );
-};
+});

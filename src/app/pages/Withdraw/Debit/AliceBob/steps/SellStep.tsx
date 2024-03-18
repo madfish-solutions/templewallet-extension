@@ -12,15 +12,25 @@ import { toTransferParams } from 'lib/assets/contract.utils';
 import { T, TID } from 'lib/i18n';
 import { TEZOS_METADATA } from 'lib/metadata/defaults';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
-import { useTezos, useTezosAccountAddress } from 'temple/front';
+import { useTezos } from 'temple/front';
 
 import { useUpdatedOrderInfo } from '../hooks/useUpdatedOrderInfo';
 
 import { StepProps } from './step.props';
 
-export const SellStep: FC<StepProps> = ({ orderInfo, isApiError, setStep, setOrderInfo, setIsApiError }) => {
+interface SellStepProps extends StepProps {
+  publicKeyHash: string;
+}
+
+export const SellStep: FC<SellStepProps> = ({
+  publicKeyHash,
+  orderInfo,
+  isApiError,
+  setStep,
+  setOrderInfo,
+  setIsApiError
+}) => {
   const tezos = useTezos();
-  const publicKeyHash = useTezosAccountAddress();
   const { copy } = useCopyToClipboard();
 
   const formAnalytics = useFormAnalytics('AliceBobWithdrawSendProgress');

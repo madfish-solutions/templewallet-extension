@@ -1,4 +1,4 @@
-import React, { FC, useState } from 'react';
+import React, { memo, useState } from 'react';
 
 import { Stepper } from 'app/atoms';
 import { Anchor } from 'app/atoms/Anchor';
@@ -24,7 +24,7 @@ const ALICE_BOB_TERMS_LINK =
   'https://oval-rhodium-33f.notion.site/End-User-License-Agreement-Abex-Eng-6124123e256d456a83cffc3b2977c4dc';
 const ALICE_BOB_CONTACT_LINK = 'https://t.me/alicebobhelp';
 
-export const AliceBobWithdraw: FC = () => {
+export const AliceBobWithdraw = memo(() => {
   const { isMainnet } = useTezosNetwork();
   const account = useAccount();
   const { publicKeyHash } = account;
@@ -69,6 +69,7 @@ export const AliceBobWithdraw: FC = () => {
 
         {step === 0 && (
           <InitialStep
+            publicKeyHash={publicKeyHash}
             isApiError={isApiError}
             setStep={setStep}
             setOrderInfo={setOrderInfo}
@@ -78,6 +79,7 @@ export const AliceBobWithdraw: FC = () => {
 
         {orderInfo && step === 1 && (
           <SellStep
+            publicKeyHash={publicKeyHash}
             orderInfo={orderInfo}
             isApiError={isApiError}
             setStep={setStep}
@@ -131,4 +133,4 @@ export const AliceBobWithdraw: FC = () => {
       </div>
     </PageLayout>
   );
-};
+});

@@ -1,13 +1,14 @@
 import { useCallback, useMemo } from 'react';
 
 import { useRetryableSWR } from 'lib/swr';
-import { useNetwork, useStoredAccount, useAccountPkh, useAllAccounts, useTezos } from 'lib/temple/front/ready';
+import { useNetwork, useStoredAccount, useAllAccounts, useTezos } from 'lib/temple/front/ready';
 import { TempleAccountType, TempleTezosChainId } from 'lib/temple/types';
 import { TempleChainName } from 'temple/types';
 
 import { loadTezosChainId } from '../tezos';
 
 export { useTezos };
+export { TempleChainName } from '../types';
 export { useOnTezosBlock } from './use-block';
 
 // @ts-expect-error
@@ -34,6 +35,15 @@ export const useTezosNetwork = () => {
   );
 };
 
+export const useEvmNetwork = () => {
+  return useMemo(
+    () => ({
+      //
+    }),
+    []
+  );
+};
+
 export const useTezosNetworkRpcUrl = () => useNetwork().rpcBaseURL;
 
 /** (!) Relies on suspense - use only in PageLayout descendant components. */
@@ -44,12 +54,21 @@ const useTezosNetworkChainId = () => {
   return useTezosChainIdLoadingValue(rpcURL, true)!;
 };
 
+/** @deprecated // useTezosAccount | useEvmAccount */
 export const useAccount = useStoredAccount;
 
-export const useTezosAccountAddress = useAccountPkh;
+export const useTezosAccountAddress = () => useAccountAddress(TempleChainName.Tezos);
+export const useEvmAccountAddress = () => useAccountAddress(TempleChainName.EVM);
 
-export function useAccountAddress(chain: TempleChainName) {
+export function useAccountAddress(chain: TempleChainName): string | undefined {
   const account = useStoredAccount();
+
+  if (account.type === TempleAccountType.WatchOnly) {
+    if (account.chain !== chain) return undefined;
+    // TODO: if (account.chainId && chainId !== account.chainId) return undefined; ?
+
+    return account.publicKeyHash;
+  }
 
   return chain === 'evm' ? account.evmAddress : account.publicKeyHash;
 }

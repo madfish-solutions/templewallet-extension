@@ -227,7 +227,7 @@ const BakingSection = memo(() => {
                   delegateButtonProps={commonSmallDelegateButtonProps}
                 />
               </div>
-              <BakerBanner displayAddress bakerPkh={myBakerPkh} />
+              <BakerBanner accountPkh={account.publicKeyHash} displayAddress bakerPkh={myBakerPkh} />
             </>
           ) : (
             <div className="flex flex-col items-center text-black">

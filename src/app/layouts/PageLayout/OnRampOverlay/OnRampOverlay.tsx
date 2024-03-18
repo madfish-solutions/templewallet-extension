@@ -35,7 +35,7 @@ export const OnRampOverlay: FC = () => {
   );
   const close = () => void dispatch(setOnRampPossibilityAction(false));
 
-  if (!isOnRampPossibility || !onboardingCompleted) return null;
+  if (!isOnRampPossibility || !onboardingCompleted || !publicKeyHash) return null;
 
   return (
     <>

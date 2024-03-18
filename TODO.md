@@ -1,6 +1,8 @@
 ## TODO:
 
 - Import watch-only EVM account
+- Usage of `useAccount().publicKeyHash`
+- - With `useTezosAccount` hook
 - Tezos Chain ID
 - - Deal with 'MondayNet' & 'DailyNet' (Chain ID)
 - - Make sure RPC can be changed, when chainId not available
@@ -40,6 +42,7 @@
 - - Old accounts are Tezos only
 - - New will be Tezos + EVM
 - - - Make sure, they are Tezos + EVM + any other new chain
+- Watch-only accounts' addresses in ads' analytics
 -
 
 ## QUESTIONS

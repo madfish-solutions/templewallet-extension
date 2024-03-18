@@ -6,7 +6,7 @@ import { useAllAccountBalancesSelector } from 'app/store/balances/selectors';
 import { useGetCurrentAccountTokenOrGasBalanceWithDecimals } from 'lib/balances/hooks';
 import { useUsdToTokenRates } from 'lib/fiat-currency/core';
 import { ZERO } from 'lib/utils/numbers';
-import { useTezosAccountAddress, useTezosNetwork } from 'temple/front';
+import { useTezosNetwork } from 'temple/front';
 
 export const useTokensSortPredicate = () => {
   const getBalance = useGetCurrentAccountTokenOrGasBalanceWithDecimals();
@@ -29,9 +29,8 @@ export const useTokensSortPredicate = () => {
   );
 };
 
-export const useCollectiblesSortPredicate = () => {
+export const useCollectiblesSortPredicate = (publicKeyHash: string) => {
   const { chainId } = useTezosNetwork();
-  const publicKeyHash = useTezosAccountAddress();
 
   const balancesRaw = useAllAccountBalancesSelector(publicKeyHash, chainId);
 

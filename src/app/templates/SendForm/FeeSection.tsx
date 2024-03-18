@@ -7,12 +7,12 @@ import { Alert, FormSubmitButton } from 'app/atoms';
 import AdditionalFeeInput from 'app/templates/AdditionalFeeInput/AdditionalFeeInput';
 import { useGasToken } from 'lib/assets/hooks';
 import { t, T } from 'lib/i18n';
-import { useTezosAccountAddress } from 'temple/front';
 
 import { SendFormSelectors } from './selectors';
 import SendErrorAlert from './SendErrorAlert';
 
 interface FeeComponentProps extends FeeAlertPropsBase {
+  accountPkh: string;
   restFormDisplayed: boolean;
   control: any;
   handleFeeFieldChange: ([v]: any) => any;
@@ -22,6 +22,7 @@ interface FeeComponentProps extends FeeAlertPropsBase {
 }
 
 export const FeeSection: React.FC<FeeComponentProps> = ({
+  accountPkh,
   restFormDisplayed,
   estimationError,
   control,
@@ -31,14 +32,13 @@ export const FeeSection: React.FC<FeeComponentProps> = ({
   isSubmitting,
   ...rest
 }) => {
-  const publicKeyHash = useTezosAccountAddress();
   const { metadata } = useGasToken();
 
   if (!restFormDisplayed) return null;
 
   return (
     <>
-      <FeeAlert {...rest} estimationError={estimationError} accountPkh={publicKeyHash} />
+      <FeeAlert {...rest} estimationError={estimationError} accountPkh={accountPkh} />
 
       <AdditionalFeeInput
         name="fee"

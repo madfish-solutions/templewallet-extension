@@ -23,6 +23,7 @@ import { setTestID } from 'lib/analytics';
 import { useEnabledAccountCollectiblesSlugs } from 'lib/assets/hooks';
 import { AssetTypesEnum } from 'lib/assets/types';
 import { useCollectiblesSortPredicate } from 'lib/assets/use-sorting';
+import { UNDER_DEVELOPMENT_MSG } from 'lib/constants';
 import { T, t } from 'lib/i18n';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import { useLocalStorage } from 'lib/ui/local-storage';
@@ -38,8 +39,21 @@ interface Props {
 }
 
 export const CollectiblesTab = memo<Props>(({ scrollToTheTabsBar }) => {
+  const accountTezAddress = useTezosAccountAddress();
+
+  return accountTezAddress ? (
+    <TezosCollectiblesTab publicKeyHash={accountTezAddress} scrollToTheTabsBar={scrollToTheTabsBar} />
+  ) : (
+    <div>{UNDER_DEVELOPMENT_MSG}</div>
+  );
+});
+
+interface TezosCollectiblesTabProps extends Props {
+  publicKeyHash: string;
+}
+
+const TezosCollectiblesTab = memo<TezosCollectiblesTabProps>(({ publicKeyHash, scrollToTheTabsBar }) => {
   const { popup } = useAppEnv();
-  const publicKeyHash = useTezosAccountAddress();
   const { chainId } = useTezosNetwork();
 
   const [areDetailsShown, setDetailsShown] = useLocalStorage(LOCAL_STORAGE_SHOW_INFO_TOGGLE_KEY, false);
@@ -50,7 +64,7 @@ export const CollectiblesTab = memo<Props>(({ scrollToTheTabsBar }) => {
 
   const allSlugs = useEnabledAccountCollectiblesSlugs();
 
-  const assetsSortPredicate = useCollectiblesSortPredicate();
+  const assetsSortPredicate = useCollectiblesSortPredicate(publicKeyHash);
 
   const allSlugsSorted = useMemoWithCompare(
     () => [...allSlugs].sort(assetsSortPredicate),

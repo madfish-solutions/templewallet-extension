@@ -341,6 +341,7 @@ const DelegateForm = memo<Props>(({ balance }) => {
         )}
 
         <BakerForm
+          accountPkh={accountPkh}
           baker={baker}
           balance={balance}
           submitError={submitError}
@@ -364,6 +365,7 @@ const DelegateForm = memo<Props>(({ balance }) => {
 export default DelegateForm;
 
 interface BakerFormProps {
+  accountPkh: string;
   baker: Baker | null | undefined;
   toFilled: boolean | '';
   balance: BigNumber;
@@ -381,6 +383,7 @@ interface BakerFormProps {
 }
 
 const BakerForm: React.FC<BakerFormProps> = ({
+  accountPkh,
   baker,
   balance,
   submitError,
@@ -434,7 +437,7 @@ const BakerForm: React.FC<BakerFormProps> = ({
         />
       )}
 
-      <BakerBannerComponent balanceNum={balance.toNumber()} baker={baker} tzError={tzError} />
+      <BakerBannerComponent accountPkh={accountPkh} balanceNum={balance.toNumber()} baker={baker} tzError={tzError} />
 
       {tzError && <DelegateErrorAlert type={submitError ? 'submit' : 'estimation'} error={tzError} />}
 
@@ -460,24 +463,25 @@ const BakerForm: React.FC<BakerFormProps> = ({
       </FormSubmitButton>
     </>
   ) : (
-    <KnownDelegatorsList setValue={setValue} triggerValidation={triggerValidation} />
+    <KnownDelegatorsList accountPkh={accountPkh} setValue={setValue} triggerValidation={triggerValidation} />
   );
 };
 
 interface BakerBannerComponentProps {
+  accountPkh: string;
   balanceNum: number;
   baker: Baker | null | undefined;
   tzError: any;
 }
 
-const BakerBannerComponent = React.memo<BakerBannerComponentProps>(({ balanceNum, tzError, baker }) => {
+const BakerBannerComponent = React.memo<BakerBannerComponentProps>(({ accountPkh, balanceNum, tzError, baker }) => {
   const { isMainnet } = useTezosNetwork();
   const { symbol } = useGasToken();
 
   return baker ? (
     <>
       <div className="-mt-2 mb-6 flex flex-col items-center">
-        <BakerBanner bakerPkh={baker.address} style={{ width: undefined }} />
+        <BakerBanner accountPkh={accountPkh} bakerPkh={baker.address} style={{ width: undefined }} />
       </div>
 
       {!tzError && baker.minDelegation > balanceNum && (
@@ -503,7 +507,13 @@ const BakerBannerComponent = React.memo<BakerBannerComponentProps>(({ balanceNum
   ) : null;
 });
 
-const KnownDelegatorsList: React.FC<{ setValue: any; triggerValidation: any }> = ({ setValue, triggerValidation }) => {
+interface KnownDelegatorsListProps {
+  accountPkh: string;
+  setValue: any;
+  triggerValidation: any;
+}
+
+const KnownDelegatorsList: React.FC<KnownDelegatorsListProps> = ({ accountPkh, setValue, triggerValidation }) => {
   const knownBakers = useKnownBakers();
   const { search } = useLocation();
   const testGroupName = useUserTestingGroupNameSelector();
@@ -667,6 +677,7 @@ const KnownDelegatorsList: React.FC<{ setValue: any; triggerValidation: any }> =
               testIDProperties={{ bakerAddress: baker.address, abTestingCategory: testGroupName }}
             >
               <BakerBanner
+                accountPkh={accountPkh}
                 bakerPkh={baker.address}
                 link
                 style={{ width: undefined }}

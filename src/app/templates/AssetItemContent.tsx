@@ -4,16 +4,14 @@ import Money from 'app/atoms/Money';
 import Balance from 'app/templates/Balance';
 import InFiat from 'app/templates/InFiat';
 import { AssetMetadataBase, useAssetMetadata, getAssetName, getAssetSymbol } from 'lib/metadata';
-import { useTezosAccountAddress } from 'temple/front';
 
 interface Props {
   slug: string;
   metadata?: AssetMetadataBase | nullish;
+  publicKeyHash: string;
 }
 
-export const AssetItemContent: FC<Props> = ({ slug, metadata }) => {
-  const publicKeyHash = useTezosAccountAddress();
-
+export const AssetItemContent: FC<Props> = ({ slug, metadata, publicKeyHash }) => {
   if (metadata) return <AssetItemContentComponent slug={slug} metadata={metadata} publicKeyHash={publicKeyHash} />;
 
   return <AssetItemContentWithUseMeta slug={slug} publicKeyHash={publicKeyHash} />;

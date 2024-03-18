@@ -8,14 +8,17 @@ import { TEMPLE_TOKEN_SLUG } from 'lib/assets';
 import { useAllAvailableTokens } from 'lib/assets/hooks';
 import { useGetTokenMetadata } from 'lib/metadata';
 import { isSearchStringApplicable } from 'lib/utils/search-items';
-import { useTezosAccountAddress, useTezosNetwork } from 'temple/front';
+import { useTezosNetwork } from 'temple/front';
 
 import { AssetsPlaceholder } from './AssetsPlaceholder';
 import { ManageAssetsContent, ManageAssetsContentList } from './ManageAssetsContent';
 
-export const ManageTokens = memo(() => {
+interface Props {
+  publicKeyHash: string;
+}
+
+export const ManageTezosTokens = memo<Props>(({ publicKeyHash }) => {
   const { chainId } = useTezosNetwork();
-  const publicKeyHash = useTezosAccountAddress();
 
   const tokens = useAllAvailableTokens(publicKeyHash, chainId);
 
@@ -45,7 +48,7 @@ export const ManageTokens = memo(() => {
         <AssetsPlaceholder isInSearchMode={isInSearchMode} isLoading={isSyncing} />
       ) : (
         <>
-          <ManageAssetsContentList assets={displayedAssets} getMetadata={getMetadata} />
+          <ManageAssetsContentList publicKeyHash={publicKeyHash} assets={displayedAssets} getMetadata={getMetadata} />
 
           {isSyncing && <SyncSpinner className="mt-6" />}
         </>

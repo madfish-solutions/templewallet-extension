@@ -5,6 +5,7 @@ import { TestIDProps } from 'lib/analytics';
 import { SwapInputValue } from '../SwapForm.form';
 
 export interface SwapFormInputProps extends TestIDProps {
+  publicKeyHash: string;
   value: SwapInputValue;
   className?: string;
   error?: string;

@@ -84,7 +84,7 @@ export const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactReque
 
   const { allContacts } = useFilteredContacts();
   const { isMainnet } = useTezosNetwork();
-  const acc = useAccount();
+  const acc = useAccount(); // TODO: useTezosAccount(): TezosAccount
   const tezos = useTezos();
   const domainsClient = useTezosDomainsClient();
 
@@ -569,6 +569,7 @@ export const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactReque
         <SpinnerSection />
       ) : (
         <FeeSection
+          accountPkh={accountPkh}
           restFormDisplayed={restFormDisplayed}
           submitError={submitError}
           estimationError={estimationError}

@@ -5,7 +5,6 @@ import clsx from 'clsx';
 import { Anchor } from 'app/atoms/Anchor';
 import { useAdRectObservation } from 'app/hooks/ads/use-ad-rect-observation';
 import type { AdsProviderTitle } from 'lib/ads';
-import { useTezosAccountAddress } from 'temple/front';
 
 import { PartnersPromotionSelectors } from '../selectors';
 import { PartnersPromotionVariant } from '../types';
@@ -14,6 +13,7 @@ import { buildAdClickAnalyticsProperties } from '../utils';
 import { CloseButton } from './close-button';
 
 interface Props extends PropsWithChildren {
+  accountPkh: string;
   href: string;
   isVisible: boolean;
   providerTitle: AdsProviderTitle;
@@ -23,6 +23,7 @@ interface Props extends PropsWithChildren {
 }
 
 export const ImagePromotionView: FC<Props> = ({
+  accountPkh,
   children,
   href,
   isVisible,
@@ -31,8 +32,6 @@ export const ImagePromotionView: FC<Props> = ({
   onAdRectSeen,
   onClose
 }) => {
-  const accountPkh = useTezosAccountAddress();
-
   const ref = useRef<HTMLAnchorElement>(null);
   useAdRectObservation(ref, onAdRectSeen, isVisible);
 

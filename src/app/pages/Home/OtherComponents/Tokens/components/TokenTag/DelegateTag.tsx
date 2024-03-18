@@ -8,14 +8,16 @@ import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
 import { T } from 'lib/i18n';
 import { useDelegate } from 'lib/temple/front';
 import { navigate } from 'lib/woozie';
-import { useTezosAccountAddress } from 'temple/front';
 
 import { AssetsSelectors } from '../../../Assets.selectors';
 import modStyles from '../../Tokens.module.css';
 
-export const DelegateTezosTag = memo(() => {
-  const accountAddress = useTezosAccountAddress();
-  const { data: myBakerPkh } = useDelegate(accountAddress);
+interface Props {
+  pkh: string;
+}
+
+export const DelegateTezosTag = memo<Props>(({ pkh }) => {
+  const { data: myBakerPkh } = useDelegate(pkh);
   const { trackEvent } = useAnalytics();
 
   const handleTagClick = useCallback(

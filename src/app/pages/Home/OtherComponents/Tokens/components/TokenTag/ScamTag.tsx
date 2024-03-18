@@ -8,17 +8,17 @@ import { dispatch } from 'app/store';
 import { setTokenStatusAction } from 'app/store/assets/actions';
 import { t, T } from 'lib/i18n';
 import { useConfirm } from 'lib/ui/dialog';
-import { useTezosAccountAddress, useTezosNetwork } from 'temple/front';
+import { useTezosNetwork } from 'temple/front';
 
 import modStyles from '../../Tokens.module.css';
 
 interface Props {
   assetSlug: string;
+  tezPkh: string;
 }
 
-export const ScamTag = memo<Props>(({ assetSlug }) => {
+export const ScamTag = memo<Props>(({ assetSlug, tezPkh }) => {
   const { chainId } = useTezosNetwork();
-  const publicKeyHash = useTezosAccountAddress();
 
   const confirm = useConfirm();
 
@@ -35,7 +35,7 @@ export const ScamTag = memo<Props>(({ assetSlug }) => {
         if (confirmed)
           dispatch(
             setTokenStatusAction({
-              account: publicKeyHash,
+              account: tezPkh,
               chainId,
               slug,
               status: 'removed'
@@ -46,7 +46,7 @@ export const ScamTag = memo<Props>(({ assetSlug }) => {
         alert(err.message);
       }
     },
-    [chainId, publicKeyHash, confirm]
+    [chainId, tezPkh, confirm]
   );
 
   const handleClick = useCallback(

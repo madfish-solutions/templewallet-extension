@@ -8,8 +8,9 @@ import { useAppEnv } from 'app/env';
 import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
 import { ReactComponent as LayersIcon } from 'app/icons/layers.svg';
 import { PartnersPromotion, PartnersPromotionVariant } from 'app/templates/partners-promotion';
+import { UNDER_DEVELOPMENT_MSG } from 'lib/constants';
 import { T } from 'lib/i18n/react';
-import useActivities from 'lib/temple/activity-new/hook';
+import useTezosActivities from 'lib/temple/activity-new/hook';
 import { useTezosAccountAddress } from 'temple/front';
 
 import { ActivityItem } from './ActivityItem';
@@ -21,12 +22,29 @@ interface Props {
   assetSlug?: string;
 }
 
-export const ActivityComponent: React.FC<Props> = ({ assetSlug }) => {
-  const { loading, reachedTheEnd, list: activities, loadMore } = useActivities(INITIAL_NUMBER, assetSlug);
+export const ActivityTab = React.memo<Props>(({ assetSlug }) => {
+  const accountAddress = useTezosAccountAddress();
+
+  return accountAddress ? (
+    <ActivityComponent accountAddress={accountAddress} assetSlug={assetSlug} />
+  ) : (
+    <div className="w-full max-w-sm mx-auto m-3 flex flex-col">{UNDER_DEVELOPMENT_MSG}</div>
+  );
+});
+
+interface ActivityComponentProps extends Props {
+  accountAddress: string;
+}
+
+const ActivityComponent: React.FC<ActivityComponentProps> = ({ accountAddress, assetSlug }) => {
+  const {
+    loading,
+    reachedTheEnd,
+    list: activities,
+    loadMore
+  } = useTezosActivities(accountAddress, INITIAL_NUMBER, assetSlug);
 
   const { popup } = useAppEnv();
-
-  const accountAddress = useTezosAccountAddress();
 
   useLoadPartnersPromo();
 

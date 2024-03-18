@@ -19,11 +19,12 @@ import { Form } from './Form';
 import { SendFormSelectors } from './selectors';
 import { SpinnerSection } from './SpinnerSection';
 
-type Props = {
+interface Props {
   assetSlug?: string | null;
-};
+  publicKeyHash: string;
+}
 
-const SendForm = memo<Props>(({ assetSlug = TEZ_TOKEN_SLUG }) => {
+const SendForm = memo<Props>(({ assetSlug = TEZ_TOKEN_SLUG, publicKeyHash }) => {
   const tokensSlugs = useEnabledAccountTokensSlugs();
 
   const tokensSortPredicate = useTokensSortPredicate();
@@ -82,8 +83,10 @@ const SendForm = memo<Props>(({ assetSlug = TEZ_TOKEN_SLUG }) => {
       {operation && <OperationStatus typeTitle={t('transaction')} operation={operation} className="mb-8" />}
 
       <AssetSelect
+        accountPkh={publicKeyHash}
         value={selectedAsset}
         slugs={assetsSlugs}
+        publicKeyHash={publicKeyHash}
         onChange={handleAssetChange}
         className="mb-6"
         testIDs={testIDs}

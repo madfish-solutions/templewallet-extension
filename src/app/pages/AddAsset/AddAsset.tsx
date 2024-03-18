@@ -22,6 +22,7 @@ import {
   detectTokenStandard,
   IncorrectTokenIdError
 } from 'lib/assets/standards';
+import { UNDER_DEVELOPMENT_MSG } from 'lib/constants';
 import { T, t } from 'lib/i18n';
 import { isCollectible, TokenMetadata } from 'lib/metadata';
 import { fetchOneTokenMetadata } from 'lib/metadata/fetch';
@@ -35,18 +36,26 @@ import { useTezosAccountAddress, useTezosNetwork, useTezos } from 'temple/front'
 
 import { AddAssetSelectors } from './AddAsset.selectors';
 
-const AddAsset: FC = () => (
-  <PageLayout
-    pageTitle={
-      <>
-        <AddIcon className="w-auto h-4 mr-1 stroke-current" />
-        <T id="addAsset" />
-      </>
-    }
-  >
-    <Form />
-  </PageLayout>
-);
+const AddAsset = memo(() => {
+  const accountPkh = useTezosAccountAddress();
+
+  return (
+    <PageLayout
+      pageTitle={
+        <>
+          <AddIcon className="w-auto h-4 mr-1 stroke-current" />
+          <T id="addAsset" />
+        </>
+      }
+    >
+      {accountPkh ? (
+        <Form accountPkh={accountPkh} />
+      ) : (
+        <div className="w-full max-w-sm mx-auto my-8">{UNDER_DEVELOPMENT_MSG}</div>
+      )}
+    </PageLayout>
+  );
+});
 
 export default AddAsset;
 
@@ -75,10 +84,13 @@ const INITIAL_STATE: ComponentState = {
 
 class ContractNotFoundError extends Error {}
 
-const Form = memo(() => {
+interface FormProps {
+  accountPkh: string;
+}
+
+const Form = memo<FormProps>(({ accountPkh }) => {
   const tezos = useTezos();
   const { chainId, rpcUrl } = useTezosNetwork();
-  const accountPkh = useTezosAccountAddress();
 
   const formAnalytics = useFormAnalytics('AddAsset');
 

@@ -4,6 +4,8 @@ export enum ContentScriptType {
   UpdateAdsRules = 'UpdateAdsRules'
 }
 
+export const UNDER_DEVELOPMENT_MSG = 'Under development';
+
 export const WEBSITES_ANALYTICS_ENABLED = 'WEBSITES_ANALYTICS_ENABLED';
 
 export const ACCOUNT_PKH_STORAGE_KEY = 'account_publickeyhash';

@@ -15,13 +15,13 @@ import Balance from 'app/templates/Balance';
 import InFiat from 'app/templates/InFiat';
 import { setAnotherSelector, setTestID } from 'lib/analytics';
 import { useGasToken } from 'lib/assets/hooks';
+import { UNDER_DEVELOPMENT_MSG } from 'lib/constants';
 import { useFiatCurrency } from 'lib/fiat-currency';
 import { t, T } from 'lib/i18n';
 import { TezosLogoIcon } from 'lib/icons';
 import { getAssetName, getAssetSymbol, useAssetMetadata } from 'lib/metadata';
 import useTippy from 'lib/ui/useTippy';
-import { useAccountAddress, useTezosNetwork } from 'temple/front';
-import { TempleChainName } from 'temple/types';
+import { useEvmAccountAddress, useTezosAccountAddress, useTezosNetwork } from 'temple/front';
 
 import { HomeSelectors } from '../../Home.selectors';
 import { TokenPageSelectors } from '../TokenPage.selectors';
@@ -31,39 +31,31 @@ import { BalanceGas } from './BalanceGas';
 
 interface Props {
   assetSlug?: string | null;
-  accountPkh: string;
 }
 
-const MainBanner: FC<Props> = ({ assetSlug, accountPkh }) => {
-  return assetSlug ? (
-    <AssetBanner assetSlug={assetSlug ?? 'tez'} accountPkh={accountPkh} />
-  ) : (
-    <TotalVolumeBanner accountPkh={accountPkh} />
-  );
-};
+const MainBanner = memo<Props>(({ assetSlug }) => {
+  return assetSlug ? <AssetBanner assetSlug={assetSlug ?? 'tez'} /> : <TotalVolumeBanner />;
+});
 
 export default MainBanner;
 
-interface TotalVolumeBannerProps {
-  accountPkh: string;
-}
-
-const TotalVolumeBanner = memo<TotalVolumeBannerProps>(({ accountPkh }) => {
-  const accountEvmAddress = useAccountAddress(TempleChainName.EVM);
+const TotalVolumeBanner = () => {
+  const accountPkh = useTezosAccountAddress();
+  const accountEvmAddress = useEvmAccountAddress();
 
   return (
     <div className="flex items-start justify-between w-full max-w-sm mx-auto mb-4">
-      <BalanceInfo accountPkh={accountPkh} />
+      {accountPkh ? <TezosBalanceInfo accountPkh={accountPkh} /> : <div>{UNDER_DEVELOPMENT_MSG}</div>}
 
       <div className="flex flex-col gap-y-3">
-        <AddressChip pkh={accountPkh} testID={HomeSelectors.publicAddressButton} />
+        {accountPkh ? <AddressChip pkh={accountPkh} testID={HomeSelectors.publicAddressButton} /> : null}
         {accountEvmAddress ? <AddressChip pkh={accountEvmAddress} /> : null}
       </div>
     </div>
   );
-});
+};
 
-const BalanceInfo: FC<{ accountPkh: string }> = ({ accountPkh }) => {
+const TezosBalanceInfo: FC<{ accountPkh: string }> = ({ accountPkh }) => {
   const { isMainnet } = useTezosNetwork();
   const totalBalanceInDollar = useTotalBalance();
   const balanceMode = useBalanceModeSelector();
@@ -143,10 +135,23 @@ const BalanceInfo: FC<{ accountPkh: string }> = ({ accountPkh }) => {
 
 interface AssetBannerProps {
   assetSlug: string;
+}
+
+const AssetBanner = memo<AssetBannerProps>(({ assetSlug }) => {
+  const accountTezAddress = useTezosAccountAddress();
+
+  return accountTezAddress ? (
+    <TezosAssetBanner assetSlug={assetSlug} accountPkh={accountTezAddress} />
+  ) : (
+    <div className="w-full max-w-sm mx-auto mb-4">{UNDER_DEVELOPMENT_MSG}</div>
+  );
+});
+
+interface TezosTezosAssetBanner extends AssetBannerProps {
   accountPkh: string;
 }
 
-const AssetBanner = memo<AssetBannerProps>(({ assetSlug, accountPkh }) => {
+const TezosAssetBanner = memo<TezosTezosAssetBanner>(({ accountPkh, assetSlug }) => {
   const assetMetadata = useAssetMetadata(assetSlug);
   const assetName = getAssetName(assetMetadata);
   const assetSymbol = getAssetSymbol(assetMetadata);

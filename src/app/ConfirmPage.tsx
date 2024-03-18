@@ -22,6 +22,7 @@ import NetworkBanner from 'app/templates/NetworkBanner';
 import OperationView from 'app/templates/OperationView';
 import { CustomRpcContext } from 'lib/analytics';
 import { useGasToken } from 'lib/assets/hooks';
+import { UNDER_DEVELOPMENT_MSG } from 'lib/constants';
 import { T, t } from 'lib/i18n';
 import { useRetryableSWR } from 'lib/swr';
 import { useTempleClient, useAllAccounts } from 'lib/temple/front';
@@ -34,8 +35,9 @@ import { isTezosAccountOfActableType } from 'temple/tezos';
 
 import { ConfirmPageSelectors } from './ConfirmPage.selectors';
 
-const ConfirmPage: FC = () => {
+const ConfirmPage = memo(() => {
   const { ready } = useTempleClient();
+  const accountTezAddress = useTezosAccountAddress();
 
   if (ready)
     return (
@@ -50,14 +52,23 @@ const ConfirmPage: FC = () => {
               </div>
             }
           >
-            <ConfirmDAppForm />
+            {accountTezAddress ? (
+              <ConfirmDAppForm accountAddress={accountTezAddress} />
+            ) : (
+              <div
+                className="relative bg-white rounded-md shadow-md overflow-y-auto flex flex-col"
+                style={CONTAINER_STYLE}
+              >
+                {UNDER_DEVELOPMENT_MSG}
+              </div>
+            )}
           </Suspense>
         </ErrorBoundary>
       </ContentContainer>
     );
 
   return <Unlock canImportNew={false} />;
-};
+});
 
 interface PayloadContentProps {
   accountPkhToConnect: string;
@@ -117,12 +128,15 @@ const PayloadContent: React.FC<PayloadContentProps> = ({
 
 export default ConfirmPage;
 
+const CONTAINER_STYLE = {
+  width: 380,
+  height: 610
+};
+
 const getPkh = (account: StoredAccount) => account.publicKeyHash;
 
-const ConfirmDAppForm: FC = () => {
+const ConfirmDAppForm = memo<{ accountAddress: string }>(({ accountAddress }) => {
   const { getDAppPayload, confirmDAppPermission, confirmDAppOperation, confirmDAppSign } = useTempleClient();
-
-  const accountAddress = useTezosAccountAddress();
 
   const allAccounts = useAllAccounts();
 
@@ -339,13 +353,7 @@ const ConfirmDAppForm: FC = () => {
 
   return (
     <CustomRpcContext.Provider value={payload.networkRpc}>
-      <div
-        className="relative bg-white rounded-md shadow-md overflow-y-auto flex flex-col"
-        style={{
-          width: 380,
-          height: 610
-        }}
-      >
+      <div className="relative bg-white rounded-md shadow-md overflow-y-auto flex flex-col" style={CONTAINER_STYLE}>
         <div className="flex flex-col items-center px-4 py-2">
           <SubTitle small className={payload.type === 'connect' ? 'mt-4 mb-6' : 'mt-4 mb-2'}>
             {content.title}
@@ -431,7 +439,7 @@ const ConfirmDAppForm: FC = () => {
       </div>
     </CustomRpcContext.Provider>
   );
-};
+});
 
 const AccountIcon: FC<OptionRenderProps<StoredAccount>> = ({ item }) => (
   <Identicon type="bottts" hash={item.publicKeyHash} size={32} className="flex-shrink-0 shadow-xs" />

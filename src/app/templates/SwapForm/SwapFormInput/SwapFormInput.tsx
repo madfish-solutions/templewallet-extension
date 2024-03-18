@@ -23,7 +23,6 @@ import {
   useTokensMetadataPresenceCheck
 } from 'lib/metadata';
 import { useAvailableRoute3TokensSlugs } from 'lib/route3/assets';
-import { useTezosAccountAddress } from 'temple/front';
 
 import { AssetOption } from './AssetsMenu/AssetOption';
 import { PercentageButton } from './PercentageButton/PercentageButton';
@@ -33,11 +32,12 @@ const EXCHANGE_XTZ_RESERVE = new BigNumber('0.3');
 const PERCENTAGE_BUTTONS = [25, 50, 75, 100];
 const LEADING_ASSETS = [TEZ_TOKEN_SLUG];
 
-const renderOptionContent = (option: string, isSelected: boolean) => (
-  <AssetOption assetSlug={option} selected={isSelected} />
+const renderOptionContent = (option: string, accountPkh: string, isSelected: boolean) => (
+  <AssetOption accountPkh={accountPkh} assetSlug={option} selected={isSelected} />
 );
 
 export const SwapFormInput: FC<SwapFormInputProps> = ({
+  publicKeyHash,
   className,
   value,
   label,
@@ -61,7 +61,6 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
   );
   const getTokenMetadata = useGetAssetMetadata();
 
-  const publicKeyHash = useTezosAccountAddress();
   const { value: balance } = useBalance(assetSlugWithFallback, publicKeyHash);
 
   const { isLoading, route3tokensSlugs } = useAvailableRoute3TokensSlugs();
@@ -137,6 +136,7 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
       <InputContainer
         header={
           <SwapInputHeader
+            publicKeyHash={publicKeyHash}
             label={label}
             selectedAssetSlug={assetSlugWithFallback}
             selectedAssetSymbol={assetMetadataWithFallback.symbol}
@@ -146,6 +146,7 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
           <div className={classNames('w-full flex items-center', prettyError ? 'justify-between' : 'justify-end')}>
             {prettyError && <div className="text-red-700 text-xs">{prettyError}</div>}
             <SwapFooter
+              publicKeyHash={publicKeyHash}
               amountInputDisabled={Boolean(amountInputDisabled)}
               selectedAssetSlug={assetSlugWithFallback}
               handlePercentageClick={handlePercentageClick}
@@ -183,7 +184,7 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
             options: filteredAssets,
             noItemsText,
             getKey: option => option,
-            renderOptionContent: option => renderOptionContent(option, value.assetSlug === option),
+            renderOptionContent: option => renderOptionContent(option, publicKeyHash, value.assetSlug === option),
             onOptionChange: handleSelectedAssetChange
           }}
         />
@@ -270,12 +271,12 @@ const SwapInput: FC<SwapInputProps> = ({
   );
 };
 
-const SwapInputHeader: FC<{ label: ReactNode; selectedAssetSlug: string; selectedAssetSymbol: string }> = ({
-  selectedAssetSlug,
-  selectedAssetSymbol,
-  label
-}) => {
-  const publicKeyHash = useTezosAccountAddress();
+const SwapInputHeader: FC<{
+  publicKeyHash: string;
+  label: ReactNode;
+  selectedAssetSlug: string;
+  selectedAssetSymbol: string;
+}> = ({ publicKeyHash, selectedAssetSlug, selectedAssetSymbol, label }) => {
   const { value: balance } = useBalance(selectedAssetSlug, publicKeyHash);
 
   return (
@@ -304,11 +305,11 @@ const SwapInputHeader: FC<{ label: ReactNode; selectedAssetSlug: string; selecte
 };
 
 const SwapFooter: FC<{
+  publicKeyHash: string;
   amountInputDisabled: boolean;
   selectedAssetSlug: string;
   handlePercentageClick: (percentage: number) => void;
-}> = ({ amountInputDisabled, selectedAssetSlug, handlePercentageClick }) => {
-  const publicKeyHash = useTezosAccountAddress();
+}> = ({ publicKeyHash, amountInputDisabled, selectedAssetSlug, handlePercentageClick }) => {
   const { value: balance } = useRawBalance(selectedAssetSlug, publicKeyHash);
 
   return amountInputDisabled ? null : (

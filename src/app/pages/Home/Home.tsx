@@ -9,7 +9,6 @@ import { setAnotherSelector, setTestID } from 'lib/analytics';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { useAssetMetadata, getAssetSymbol } from 'lib/metadata';
 import { HistoryAction, navigate, useLocation } from 'lib/woozie';
-import { useTezosAccountAddress } from 'temple/front';
 
 import { useOnboardingProgress } from '../Onboarding/hooks/useOnboardingProgress.hook';
 import Onboarding from '../Onboarding/Onboarding';
@@ -28,7 +27,6 @@ type Props = {
 const Home = memo<Props>(({ assetSlug }) => {
   const { fullPage, registerBackHandler } = useAppEnv();
   const { onboardingCompleted } = useOnboardingProgress();
-  const publicKeyHash = useTezosAccountAddress();
   const { search } = useLocation();
 
   const mainnetTokensScamSlugsRecord = useMainnetTokensScamlistSelector();
@@ -73,7 +71,7 @@ const Home = memo<Props>(({ assetSlug }) => {
       {showScamTokenAlert && <ScamTokenAlert />}
 
       <div className="flex flex-col items-center mb-6">
-        <MainBanner accountPkh={publicKeyHash} assetSlug={assetSlug} />
+        <MainBanner assetSlug={assetSlug} />
 
         <ActionButtonsBar assetSlug={assetSlug} />
       </div>

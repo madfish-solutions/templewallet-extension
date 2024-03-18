@@ -4,15 +4,14 @@ import BigNumber from 'bignumber.js';
 
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { useBalance } from 'lib/balances';
-import { useTezosAccountAddress } from 'temple/front';
 
 export const useDisabledProceed = (
+  publicKeyHash: string,
   inputAmount: number | undefined,
   minExchangeAmount = 0,
   maxExchangeAmount = 0,
   isWithdraw = false
 ) => {
-  const publicKeyHash = useTezosAccountAddress();
   const {
     value: tezBalance,
     isSyncing: tezBalanceSyncing,

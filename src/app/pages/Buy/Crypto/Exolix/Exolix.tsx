@@ -5,6 +5,7 @@ import PageLayout from 'app/layouts/PageLayout';
 import ApproveStep from 'app/pages/Buy/Crypto/Exolix/steps/ApproveStep';
 import ExchangeStep from 'app/pages/Buy/Crypto/Exolix/steps/ExchangeStep';
 import InitialStep from 'app/pages/Buy/Crypto/Exolix/steps/InitialStep';
+import { UNDER_DEVELOPMENT_MSG } from 'lib/constants';
 import { T, t } from 'lib/i18n';
 import { useStorage } from 'lib/temple/front';
 import { Redirect } from 'lib/woozie';
@@ -14,23 +15,30 @@ import { EXOLIX_CONTACT_LINK } from './config';
 import { ExchangeDataInterface } from './exolix.interface';
 import { ExolixSelectors } from './Exolix.selectors';
 
-const Exolix: FC = memo(() => (
-  <PageLayout
-    pageTitle={
-      <div className="font-medium text-sm">
-        <T id="buyWithCrypto" />
-      </div>
-    }
-  >
-    <BuyCryptoContent />
-  </PageLayout>
-));
+const Exolix: FC = memo(() => {
+  const publicKeyHash = useTezosAccountAddress();
+
+  return (
+    <PageLayout
+      pageTitle={
+        <div className="font-medium text-sm">
+          <T id="buyWithCrypto" />
+        </div>
+      }
+    >
+      {publicKeyHash ? (
+        <BuyCryptoContent publicKeyHash={publicKeyHash} />
+      ) : (
+        <div className="pb-8 text-center max-w-sm mx-auto">{UNDER_DEVELOPMENT_MSG}</div>
+      )}
+    </PageLayout>
+  );
+});
 
 export default Exolix;
 
-const BuyCryptoContent: FC = () => {
+const BuyCryptoContent = memo<{ publicKeyHash: string }>(({ publicKeyHash }) => {
   const { isMainnet } = useTezosNetwork();
-  const publicKeyHash = useTezosAccountAddress();
 
   const [step, setStep] = useStorage<number>(`topup_step_state_${publicKeyHash}`, 0);
   const [isError, setIsError] = useState(false);
@@ -55,6 +63,7 @@ const BuyCryptoContent: FC = () => {
       <Stepper style={{ marginTop: 8 }} steps={steps} currentStep={step} />
       {step === 0 && (
         <InitialStep
+          publicKeyHash={publicKeyHash}
           isError={isError}
           setIsError={setIsError}
           exchangeData={exchangeData}
@@ -97,4 +106,4 @@ const BuyCryptoContent: FC = () => {
       </p>
     </div>
   );
-};
+});

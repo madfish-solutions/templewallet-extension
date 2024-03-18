@@ -18,6 +18,7 @@ import { TabsBar } from 'app/templates/TabBar';
 import { setTestID } from 'lib/analytics';
 import { fetchCollectibleExtraDetails, objktCurrencies } from 'lib/apis/objkt';
 import { fromAssetSlug } from 'lib/assets';
+import { UNDER_DEVELOPMENT_MSG } from 'lib/constants';
 import { TEZOS_BLOCK_DURATION } from 'lib/fixed-times';
 import { t, T } from 'lib/i18n';
 import { buildTokenImagesStack } from 'lib/images-uri';
@@ -28,7 +29,7 @@ import { TempleAccountType } from 'lib/temple/types';
 import { useInterval } from 'lib/ui/hooks';
 import { ImageStacked } from 'lib/ui/ImageStacked';
 import { navigate } from 'lib/woozie';
-import { useAccount } from 'temple/front';
+import { useAccount, useTezosAccountAddress } from 'temple/front';
 
 import { useCollectibleSelling } from '../hooks/use-collectible-selling.hook';
 
@@ -44,6 +45,18 @@ interface Props {
 }
 
 const CollectiblePage = memo<Props>(({ assetSlug }) => {
+  const accountTezAddress = useTezosAccountAddress();
+
+  return accountTezAddress ? (
+    <TezosCollectiblePage assetSlug={assetSlug} />
+  ) : (
+    <PageLayout pageTitle={UNDER_DEVELOPMENT_MSG}>
+      <div className="flex flex-col gap-y-3 max-w-sm w-full mx-auto pt-2 pb-4">{UNDER_DEVELOPMENT_MSG}</div>
+    </PageLayout>
+  );
+});
+
+const TezosCollectiblePage = memo<Props>(({ assetSlug }) => {
   const metadata = useCollectibleMetadataSelector(assetSlug); // Loaded only, if shown in grid for now
   const details = useCollectibleDetailsSelector(assetSlug);
   const areAnyCollectiblesDetailsLoading = useAllCollectiblesDetailsLoadingSelector();
@@ -89,7 +102,7 @@ const CollectiblePage = memo<Props>(({ assetSlug }) => {
     initiateSelling: onSellButtonClick,
     operation,
     operationError
-  } = useCollectibleSelling(assetSlug, takableOffer);
+  } = useCollectibleSelling(assetSlug, publicKeyHash, takableOffer);
 
   const onSendButtonClick = useCallback(() => navigate(`/send/${assetSlug}`), [assetSlug]);
 

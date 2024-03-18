@@ -2,7 +2,6 @@ import React, { memo, useMemo } from 'react';
 
 import classNames from 'clsx';
 
-import { useTokenApyInfo } from 'app/hooks/use-token-apy.hook';
 import { AssetIcon } from 'app/templates/AssetIcon';
 import { setAnotherSelector } from 'lib/analytics';
 import { useBalance } from 'lib/balances/hooks';
@@ -26,8 +25,6 @@ interface Props {
 
 export const ListItem = memo<Props>(({ publicKeyHash, assetSlug, active, scam }) => {
   const { value: balance = ZERO, assetMetadata: metadata } = useBalance(assetSlug, publicKeyHash);
-
-  const apyInfo = useTokenApyInfo(assetSlug);
 
   const classNameMemo = useMemo(
     () =>
@@ -58,7 +55,7 @@ export const ListItem = memo<Props>(({ publicKeyHash, assetSlug, active, scam })
         <div className="flex justify-between w-full mb-1">
           <div className="flex items-center flex-initial">
             <div className={styles['tokenSymbol']}>{assetSymbol}</div>
-            <TokenTag assetSlug={assetSlug} assetSymbol={assetSymbol} apyInfo={apyInfo} scam={scam} />
+            <TokenTag tezPkh={publicKeyHash} assetSlug={assetSlug} assetSymbol={assetSymbol} scam={scam} />
           </div>
           <CryptoBalance
             value={balance}

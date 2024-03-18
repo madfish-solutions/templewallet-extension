@@ -18,6 +18,7 @@ import { setTestID } from 'lib/analytics';
 import { OptimalPromoVariantEnum } from 'lib/apis/optimal';
 import { TEZ_TOKEN_SLUG, TEMPLE_TOKEN_SLUG } from 'lib/assets';
 import { useEnabledAccountTokensSlugs } from 'lib/assets/hooks';
+import { UNDER_DEVELOPMENT_MSG } from 'lib/constants';
 import { T, t } from 'lib/i18n';
 import { useLocalStorage } from 'lib/ui/local-storage';
 import Popper, { PopperRenderProps } from 'lib/ui/Popper';
@@ -35,8 +36,21 @@ const LOCAL_STORAGE_TOGGLE_KEY = 'tokens-list:hide-zero-balances';
 const svgIconClassName = 'w-4 h-4 stroke-current fill-current text-gray-600';
 
 export const TokensTab = memo(() => {
+  const accountTezAddress = useTezosAccountAddress();
+
+  return accountTezAddress ? (
+    <TezosTokensTab publicKeyHash={accountTezAddress} />
+  ) : (
+    <div className="w-full max-w-sm mx-auto">{UNDER_DEVELOPMENT_MSG}</div>
+  );
+});
+
+interface TezosTokensTabProps {
+  publicKeyHash: string;
+}
+
+const TezosTokensTab: FC<TezosTokensTabProps> = ({ publicKeyHash }) => {
   const { chainId } = useTezosNetwork();
-  const publicKeyHash = useTezosAccountAddress();
 
   const { popup } = useAppEnv();
 
@@ -203,7 +217,7 @@ export const TokensTab = memo(() => {
       {isSyncing && <SyncSpinner className="mt-4" />}
     </div>
   );
-});
+};
 
 interface ManageButtonDropdownProps extends PopperRenderProps {
   isZeroBalancesHidden: boolean;

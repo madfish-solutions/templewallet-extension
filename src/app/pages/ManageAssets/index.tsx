@@ -3,10 +3,12 @@ import React, { memo } from 'react';
 import { ReactComponent as ControlCentreIcon } from 'app/icons/control-centre.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import { AssetTypesEnum } from 'lib/assets/types';
+import { UNDER_DEVELOPMENT_MSG } from 'lib/constants';
 import { T } from 'lib/i18n';
+import { useTezosAccountAddress } from 'temple/front';
 
-import { ManageCollectibles } from './ManageCollectibles';
-import { ManageTokens } from './ManageTokens';
+import { ManageTezosCollectibles } from './ManageCollectibles';
+import { ManageTezosTokens } from './ManageTokens';
 
 interface Props {
   assetType: string;
@@ -14,6 +16,7 @@ interface Props {
 
 const ManageAssets = memo<Props>(({ assetType }) => {
   const ofCollectibles = assetType === AssetTypesEnum.Collectibles;
+  const accountTezAddress = useTezosAccountAddress();
 
   return (
     <PageLayout
@@ -24,7 +27,13 @@ const ManageAssets = memo<Props>(({ assetType }) => {
         </>
       }
     >
-      {ofCollectibles ? <ManageCollectibles /> : <ManageTokens />}
+      {!accountTezAddress ? (
+        <div>{UNDER_DEVELOPMENT_MSG}</div>
+      ) : ofCollectibles ? (
+        <ManageTezosCollectibles publicKeyHash={accountTezAddress} />
+      ) : (
+        <ManageTezosTokens publicKeyHash={accountTezAddress} />
+      )}
     </PageLayout>
   );
 });
