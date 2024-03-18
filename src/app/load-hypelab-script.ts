@@ -3,7 +3,7 @@ import { FC, useEffect } from 'react';
 import browser from 'webextension-polyfill';
 
 import { useShouldShowPartnersPromoSelector } from 'app/store/partners-promotion/selectors';
-import { EnvVars, IS_DEV_ENV } from 'lib/env';
+import { EnvVars } from 'lib/env';
 
 export const LoadHypelabScript: FC = () => {
   const isAdsEnabled = useShouldShowPartnersPromoSelector();
