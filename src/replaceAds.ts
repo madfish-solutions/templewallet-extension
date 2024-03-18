@@ -22,6 +22,7 @@ import {
   makeHypelabAdView,
   makePersonaAdView
 } from './content-scripts/replace-ads';
+import type { ReplaceElementWithAdAction } from './content-scripts/replace-ads/ads-actions/types';
 
 let processing = false;
 
@@ -78,13 +79,24 @@ const processInsertAdAction = async (action: InsertAdAction, ad: AdMetadata) => 
 
     const nextAd = action.fallbacks.shift();
     if (nextAd) {
-      // Changing element to replace
-      if (action.type === AdActionType.ReplaceElement) action.element = wrapperElement;
+      const { ad, fallbacks, divWrapperStyle, elementStyle, stylesOverrides } = action;
+      const newAction: ReplaceElementWithAdAction = {
+        type: AdActionType.ReplaceElement,
+        element: wrapperElement,
+        ad,
+        fallbacks,
+        divWrapperStyle,
+        elementStyle,
+        stylesOverrides
+      };
 
-      return processInsertAdAction(action, nextAd);
+      return processInsertAdAction(newAction, nextAd);
     }
 
-    wrapperElement.remove();
+    const emptyAdElement = document.createElement('div');
+    emptyAdElement.setAttribute(TEMPLE_WALLET_AD_ATTRIBUTE_NAME, 'true');
+    emptyAdElement.style.display = 'none';
+    wrapperElement.replaceWith(emptyAdElement);
 
     throw error;
   });
