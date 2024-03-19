@@ -7,7 +7,7 @@ export const getAccountAddressOfTezos = (account: StoredAccount) =>
 
 // ts-prune-ignore-next
 export const getAccountAddressOfEvm = (account: StoredAccount) =>
-  getAccountAddressOfChain(account, TempleChainName.EVM);
+  getAccountAddressOfChain(account, TempleChainName.EVM) as HexString | undefined;
 
 export const getAccountAddressOfChain = (account: StoredAccount, chain: TempleChainName): string | undefined => {
   if (account.type === TempleAccountType.WatchOnly) {

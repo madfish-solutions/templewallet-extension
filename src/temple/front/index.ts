@@ -1,5 +1,7 @@
 import { useCallback, useMemo } from 'react';
 
+// import * as ViemChains from 'viem/chains';
+
 import { useRetryableSWR } from 'lib/swr';
 import { useNetwork, useStoredAccount, useAccountAddress, useAllAccounts, useTezos } from 'lib/temple/front/ready';
 import { TempleAccountType, TempleTezosChainId } from 'lib/temple/types';
@@ -39,7 +41,17 @@ export const useTezosNetwork = () => {
 export const useEvmNetwork = () => {
   return useMemo(
     () => ({
-      //
+      // viem: ViemChains.mainnet,
+      viem: {
+        id: 1,
+        name: 'Temp Mainnet',
+        nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+        rpcUrls: {
+          default: {
+            http: ['https://cloudflare-eth.com']
+          }
+        }
+      }
     }),
     []
   );
@@ -88,7 +100,7 @@ function useAccountForChain(chain: TempleChainName) {
 export { useAccountAddress };
 
 export const useAccountAddressForTezos = () => useAccountAddressForChain(TempleChainName.Tezos);
-export const useAccountAddressForEvm = () => useAccountAddressForChain(TempleChainName.EVM);
+export const useAccountAddressForEvm = () => useAccountAddressForChain(TempleChainName.EVM) as HexString | undefined;
 
 function useAccountAddressForChain(chain: TempleChainName): string | undefined {
   const storedAccount = useStoredAccount();

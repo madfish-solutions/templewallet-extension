@@ -252,7 +252,7 @@ export function sendOperations(
       sourcePublicKey
     });
     if (dryRunResult && dryRunResult.result) {
-      opParams = (dryRunResult.result as any).opParams;
+      opParams = dryRunResult.result.opParams;
     }
 
     return new Promise((resolve, reject) =>
@@ -575,7 +575,7 @@ const getTempleReq = (req: Beacon.Request): TempleDAppRequest | void => {
 
       return {
         type: TempleDAppMessageType.PermissionRequest,
-        network: network as any,
+        network: network,
         appMeta: req.appMetadata,
         force: true
       };
@@ -618,7 +618,7 @@ const formatTempleReq = async (
           return {
             ...resBase,
             type: Beacon.MessageType.PermissionResponse,
-            publicKey: (templeRes as any).publicKey,
+            publicKey: templeRes.publicKey,
             network: (req as Beacon.PermissionRequest).network,
             scopes: [Beacon.PermissionScope.OPERATION_REQUEST, Beacon.PermissionScope.SIGN]
           };

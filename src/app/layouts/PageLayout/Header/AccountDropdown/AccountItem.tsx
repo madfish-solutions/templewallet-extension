@@ -22,7 +22,7 @@ interface Props {
 
 export const AccountItem: React.FC<Props> = ({ account, selected, gasTokenName, attractSelf, onClick }) => {
   const accountAddress = account.publicKeyHash;
-  const accountTezAddress = getAccountAddressOfTezos(account);
+  const accountTezAddress = useMemo(() => getAccountAddressOfTezos(account), [account]);
 
   const elemRef = useScrollIntoViewOnMount<HTMLButtonElement>(selected && attractSelf);
 

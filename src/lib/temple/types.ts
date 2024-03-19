@@ -49,7 +49,7 @@ export enum TempleTezosChainId {
 }
 
 export function isKnownChainId(chainId: string): chainId is TempleTezosChainId {
-  return Object.values(TempleTezosChainId).includes(chainId as TempleTezosChainId);
+  return Object.values<string>(TempleTezosChainId).includes(chainId);
 }
 
 export enum TempleStatus {
