@@ -5,6 +5,7 @@ import { CompositeForger, RpcForger, Signer, TezosOperationError, TezosToolkit }
 import * as TaquitoUtils from '@taquito/utils';
 import * as Bip39 from 'bip39';
 import * as ViemAccounts from 'viem/accounts';
+import { isHex } from 'viem/utils';
 import type * as WasmThemisPackageInterface from 'wasm-themis';
 
 import { formatOpParamsBeforeSend } from 'lib/temple/helpers';
@@ -354,20 +355,28 @@ export class Vault {
     });
   }
 
-  async importAccount(accPrivateKey: string, encPassword?: string) {
+  async importAccount(chain: TempleChainName, accPrivateKey: string, encPassword?: string) {
     const errMessage = 'Failed to import account.\nThis may happen because provided Key is invalid';
 
     return withError(errMessage, async () => {
       const allAccounts = await this.fetchAccounts();
-      const signer = await createMemorySigner(accPrivateKey, encPassword);
-      const [realAccPrivateKey, accPublicKey, accPublicKeyHash] = await Promise.all([
-        signer.secretKey(),
-        signer.publicKey(),
-        signer.publicKeyHash()
-      ]);
+
+      const [realAccPrivateKey, accPublicKey, accPublicKeyHash] = await (async () => {
+        if (chain === TempleChainName.EVM) {
+          if (!isHex(accPrivateKey)) throw new Error('EVM private key is not a hex value');
+          const evmAcc = ViemAccounts.privateKeyToAccount(accPrivateKey);
+
+          return [accPrivateKey, evmAcc.publicKey, evmAcc.address] as const;
+        }
+
+        const signer = await createMemorySigner(accPrivateKey, encPassword);
+
+        return Promise.all([signer.secretKey(), signer.publicKey(), signer.publicKeyHash()]);
+      })();
 
       const newAccount: StoredAccount = {
         type: TempleAccountType.Imported,
+        chain,
         name: await fetchNewAccountName(allAccounts),
         publicKeyHash: accPublicKeyHash
       };
@@ -400,7 +409,7 @@ export class Vault {
       }
 
       const privateKey = seedToPrivateKey(seed);
-      return this.importAccount(privateKey);
+      return this.importAccount(TempleChainName.Tezos, privateKey);
     });
   }
 
@@ -408,7 +417,7 @@ export class Vault {
     return withError('Failed to import fundraiser account', async () => {
       const seed = Bip39.mnemonicToSeedSync(mnemonic, `${email}${password}`);
       const privateKey = seedToPrivateKey(seed);
-      return this.importAccount(privateKey);
+      return this.importAccount(TempleChainName.Tezos, privateKey);
     });
   }
 

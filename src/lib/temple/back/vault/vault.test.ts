@@ -81,6 +81,7 @@ describe('Vault tests', () => {
     const vault = await Vault.setup(password);
 
     let accounts = await vault.importAccount(
+      TempleChainName.Tezos,
       'edskRqhkd2kyavm8evNWpKRcLiRC4f155KARsi9r4u7bqiFH6hhDdtbk3qY9yJPTDavEJUD81idM8dCLyrz6Gg5hFJ8J6iqoCZ'
     );
     accounts = await vault.createHDAccount(accountName);
@@ -115,6 +116,7 @@ describe('Vault tests', () => {
     await Vault.spawn(password, mnemonic);
     const vault = await Vault.setup(password);
     const accounts = await vault.importAccount(
+      TempleChainName.Tezos,
       'edskS3DtVSbWbPD1yviMGebjYwWJtruMjDcfAZsH9uba22EzKeYhmQkkraFosFETmEMfFNVcDYQ5QbFerj9ozDKroXZ6mb5oxV'
     );
     const { publicKeyHash } = accounts[1];
@@ -127,7 +129,10 @@ describe('Vault tests', () => {
   it('sign tz1 32 bytes test', async () => {
     await Vault.spawn(password, mnemonic);
     const vault = await Vault.setup(password);
-    const accounts = await vault.importAccount('edsk4TjJWEszkHKono7XMnepVqwi37FrpbVt1KCsifJeAGimxheShG');
+    const accounts = await vault.importAccount(
+      TempleChainName.Tezos,
+      'edsk4TjJWEszkHKono7XMnepVqwi37FrpbVt1KCsifJeAGimxheShG'
+    );
     const { publicKeyHash } = accounts[1];
     const result = await vault.sign(publicKeyHash, '1234');
     expect(result.sig).toBe(
@@ -138,7 +143,10 @@ describe('Vault tests', () => {
   it('sign tz2 test', async () => {
     await Vault.spawn(password, mnemonic);
     const vault = await Vault.setup(password);
-    const accounts = await vault.importAccount('spsk2rBDDeUqakQ42nBHDGQTtP3GErb6AahHPwF9bhca3Q5KA5HESE');
+    const accounts = await vault.importAccount(
+      TempleChainName.Tezos,
+      'spsk2rBDDeUqakQ42nBHDGQTtP3GErb6AahHPwF9bhca3Q5KA5HESE'
+    );
     const { publicKeyHash } = accounts[1];
     const result = await vault.sign(publicKeyHash, '1234');
     expect(result.sig).toBe(
@@ -149,7 +157,10 @@ describe('Vault tests', () => {
   it('sign tz2 with bytes producing public key that needs padding test', async () => {
     await Vault.spawn(password, mnemonic);
     const vault = await Vault.setup(password);
-    const accounts = await vault.importAccount('spsk33kCcKpgrvXRQJB2GVGxAMxrSEmwKXLh2KR4ztLcbaCnQq3FFs');
+    const accounts = await vault.importAccount(
+      TempleChainName.Tezos,
+      'spsk33kCcKpgrvXRQJB2GVGxAMxrSEmwKXLh2KR4ztLcbaCnQq3FFs'
+    );
     const { publicKeyHash } = accounts[1];
     const result = await vault.sign(publicKeyHash, '1234');
     expect(result.sig).toBe(
@@ -160,7 +171,10 @@ describe('Vault tests', () => {
   it('sign tz3 test', async () => {
     await Vault.spawn(password, mnemonic);
     const vault = await Vault.setup(password);
-    const accounts = await vault.importAccount('p2sk2obfVMEuPUnadAConLWk7Tf4Dt3n4svSgJwrgpamRqJXvaYcg1');
+    const accounts = await vault.importAccount(
+      TempleChainName.Tezos,
+      'p2sk2obfVMEuPUnadAConLWk7Tf4Dt3n4svSgJwrgpamRqJXvaYcg1'
+    );
     const { publicKeyHash } = accounts[1];
     const result = await vault.sign(publicKeyHash, '1234');
     expect(result.sig).toBe(
@@ -172,6 +186,7 @@ describe('Vault tests', () => {
     await Vault.spawn(password, mnemonic);
     const vault = await Vault.setup(password);
     const accounts = await vault.importAccount(
+      TempleChainName.Tezos,
       'p2esk2TFqgNcoT4u99ut5doGTUFNwo9x4nNvkpM6YMLqXrt4SbFdQnqLM3hoAXLMB2uZYazj6LZGvcoYzk16H6Et',
       'test1234'
     );
@@ -185,7 +200,10 @@ describe('Vault tests', () => {
   it('sign tz3 encrypted with bytes producing signature that needs padding test', async () => {
     await Vault.spawn(password, mnemonic);
     const vault = await Vault.setup(password);
-    const accounts = await vault.importAccount('p2sk2ke47zhFz3znRZj39TW5KKS9VgfU1Hax7KeErgnShNe9oQFQUP');
+    const accounts = await vault.importAccount(
+      TempleChainName.Tezos,
+      'p2sk2ke47zhFz3znRZj39TW5KKS9VgfU1Hax7KeErgnShNe9oQFQUP'
+    );
     const { publicKeyHash } = accounts[1];
     const result = await vault.sign(publicKeyHash, '1234');
     expect(result.sig).toBe(
@@ -205,6 +223,7 @@ describe('Vault tests', () => {
     await Vault.spawn(password, mnemonic);
     const vault = await Vault.setup(password);
     const accounts = await vault.importAccount(
+      TempleChainName.Tezos,
       'edskS3DtVSbWbPD1yviMGebjYwWJtruMjDcfAZsH9uba22EzKeYhmQkkraFosFETmEMfFNVcDYQ5QbFerj9ozDKroXZ6mb5oxV'
     );
     expect(accounts[1].type).toBe(TempleAccountType.Imported);

@@ -72,6 +72,7 @@ interface StoredLedgerAccount extends StoredAccountBase {
 
 interface StoredImportedAccount extends StoredAccountBase {
   type: TempleAccountType.Imported;
+  chain: TempleChainName;
 }
 
 export interface StoredHDAccount extends StoredAccountBase {
@@ -506,6 +507,7 @@ interface TempleEditAccountResponse extends TempleMessageBase {
 
 interface TempleImportAccountRequest extends TempleMessageBase {
   type: TempleMessageType.ImportAccountRequest;
+  chain: TempleChainName;
   privateKey: string;
   encPassword?: string;
 }

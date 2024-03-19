@@ -579,7 +579,7 @@
     "message": "インポートするアカウントの秘密鍵。"
   },
   "privateKeyInputPlaceholder": {
-    "message": "例: edsk3wfiPMu..."
+    "message": "例: edsk3wfiPMu... or 0xL4mp3Ty..."
   },
   "password": {
     "message": "パスワード"

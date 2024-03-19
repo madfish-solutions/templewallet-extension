@@ -600,7 +600,7 @@
     "message": "Секретний ключ аккаунту, який потрібно імпортувати."
   },
   "privateKeyInputPlaceholder": {
-    "message": "наприклад edsk3wfiPMu..."
+    "message": "наприклад edsk3wfiPMu... or 0xL4mp3Ty..."
   },
   "password": {
     "message": "Пароль"

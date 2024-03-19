@@ -9,10 +9,16 @@ export const getAccountAddressOfTezos = (account: StoredAccount) =>
 export const getAccountAddressOfEvm = (account: StoredAccount) =>
   getAccountAddressOfChain(account, TempleChainName.EVM);
 
-const getAccountAddressOfChain = (account: StoredAccount, chain: TempleChainName): string | undefined => {
+export const getAccountAddressOfChain = (account: StoredAccount, chain: TempleChainName): string | undefined => {
   if (account.type === TempleAccountType.WatchOnly) {
     if (account.chain !== chain) return undefined;
     // TODO: if (storedAccount.chainId && chainId !== storedAccount.chainId) return undefined; ?
+
+    return account.publicKeyHash;
+  }
+
+  if (account.type === TempleAccountType.Imported) {
+    if (account.chain !== chain) return undefined;
 
     return account.publicKeyHash;
   }

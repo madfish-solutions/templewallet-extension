@@ -178,9 +178,9 @@ export function editAccount(accPublicKeyHash: string, name: string) {
   });
 }
 
-export function importAccount(privateKey: string, encPassword?: string) {
+export function importAccount(chain: TempleChainName, privateKey: string, encPassword?: string) {
   return withUnlocked(async ({ vault }) => {
-    const updatedAccounts = await vault.importAccount(privateKey, encPassword);
+    const updatedAccounts = await vault.importAccount(chain, privateKey, encPassword);
     accountsUpdated(updatedAccounts);
   });
 }

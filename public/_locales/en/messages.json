@@ -762,7 +762,7 @@
     "message": "The Secret key of the Account you want to import."
   },
   "privateKeyInputPlaceholder": {
-    "message": "e.g. edsk3wfiPMu..."
+    "message": "e.g. edsk3wfiPMu... or 0xL4mp3Ty..."
   },
   "password": {
     "message": "Password"

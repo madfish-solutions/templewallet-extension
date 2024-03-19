@@ -150,6 +150,8 @@ export const MIGRATIONS = [
         account.evmAddress = ethAcc.address;
       } else if (account.type === TempleAccountType.WatchOnly) {
         account.chain = TempleChainName.Tezos;
+      } else if (account.type === TempleAccountType.Imported) {
+        account.chain = TempleChainName.Tezos;
       }
     }
 

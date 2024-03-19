@@ -5,6 +5,7 @@ import { useNetwork, useStoredAccount, useAccountAddress, useAllAccounts, useTez
 import { TempleAccountType, TempleTezosChainId } from 'lib/temple/types';
 import { TempleChainName } from 'temple/types';
 
+import { getAccountAddressOfChain } from '../accounts';
 import { loadTezosChainId } from '../tezos';
 
 export { useTezos };
@@ -72,6 +73,12 @@ function useAccountForChain(chain: TempleChainName) {
     return storedAccount;
   }
 
+  if (storedAccount.type === TempleAccountType.Imported) {
+    if (storedAccount.chain !== chain) return undefined;
+
+    return storedAccount;
+  }
+
   if (chain === 'evm') return storedAccount.evmAddress ? storedAccount : undefined;
 
   return storedAccount;
@@ -86,14 +93,7 @@ export const useAccountAddressForEvm = () => useAccountAddressForChain(TempleCha
 function useAccountAddressForChain(chain: TempleChainName): string | undefined {
   const storedAccount = useStoredAccount();
 
-  if (storedAccount.type === TempleAccountType.WatchOnly) {
-    if (storedAccount.chain !== chain) return undefined;
-    // TODO: if (storedAccount.chainId && chainId !== storedAccount.chainId) return undefined; ?
-
-    return storedAccount.publicKeyHash;
-  }
-
-  return chain === 'evm' ? storedAccount.evmAddress : storedAccount.publicKeyHash;
+  return useMemo(() => getAccountAddressOfChain(storedAccount, chain), [storedAccount, chain]);
 }
 
 export function useTezosRelevantAccounts(tezosChainId: string) {

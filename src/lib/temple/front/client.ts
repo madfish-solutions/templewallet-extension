@@ -185,9 +185,10 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     assertResponse(res.type === TempleMessageType.EditAccountResponse);
   }, []);
 
-  const importAccount = useCallback(async (privateKey: string, encPassword?: string) => {
+  const importAccount = useCallback(async (chain: TempleChainName, privateKey: string, encPassword?: string) => {
     const res = await request({
       type: TempleMessageType.ImportAccountRequest,
+      chain,
       privateKey,
       encPassword
     });

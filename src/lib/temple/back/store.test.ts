@@ -1,5 +1,7 @@
 import browser from 'webextension-polyfill';
 
+import { TempleChainName } from 'temple/types';
+
 import { TempleAccountType, TempleStatus } from '../types';
 
 import { accountsUpdated, inited as initEvent, locked, settingsUpdated, store, unlocked } from './store';
@@ -47,6 +49,7 @@ describe('Store tests', () => {
       {
         name: 'testName',
         type: TempleAccountType.Imported,
+        chain: TempleChainName.Tezos,
         publicKeyHash: 'testHashKey'
       }
     ]);

@@ -109,7 +109,7 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
       };
 
     case TempleMessageType.ImportAccountRequest:
-      await Actions.importAccount(req.privateKey, req.encPassword);
+      await Actions.importAccount(req.chain, req.privateKey, req.encPassword);
       return {
         type: TempleMessageType.ImportAccountResponse
       };

@@ -37,7 +37,7 @@ export async function getPublicKeyAndHash(privateKey: string) {
   return Promise.all([signer.publicKey(), signer.publicKeyHash()]);
 }
 
-export async function createMemorySigner(privateKey: string, encPassword?: string) {
+export function createMemorySigner(privateKey: string, encPassword?: string) {
   return InMemorySigner.fromSecretKey(privateKey, encPassword);
 }
 

@@ -56,12 +56,13 @@ export const WatchOnlyForm = memo(() => {
     setError(null);
 
     formAnalytics.trackSubmit();
+    let chain: TempleChainName | undefined;
     try {
-      const chain = isValidTezosAddress(resolvedAddress)
+      chain = isValidTezosAddress(resolvedAddress)
         ? TempleChainName.Tezos
         : Viem.isAddress(resolvedAddress)
         ? TempleChainName.EVM
-        : null;
+        : undefined;
 
       if (!chain) {
         throw new Error(t('invalidAddress'));
@@ -89,9 +90,9 @@ export const WatchOnlyForm = memo(() => {
 
       await importWatchOnlyAccount(chain, finalAddress, chainId);
 
-      formAnalytics.trackSubmitSuccess();
+      formAnalytics.trackSubmitSuccess({ chain });
     } catch (err: any) {
-      formAnalytics.trackSubmitFail();
+      formAnalytics.trackSubmitFail({ chain });
 
       console.error(err);
 

@@ -583,7 +583,7 @@
     "message": "您要匯入的帳戶的秘密金鑰。"
   },
   "privateKeyInputPlaceholder": {
-    "message": "例如 edsk3wfiPMu..."
+    "message": "例如 edsk3wfiPMu... or 0xL4mp3Ty..."
   },
   "password": {
     "message": "密碼"
