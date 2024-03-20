@@ -2,7 +2,13 @@ import * as Passworder from 'lib/temple/passworder';
 import { StoredAccount, StoredHDAccount, TempleAccountType, TempleContact, TempleSettings } from 'lib/temple/types';
 import { TempleChainName } from 'temple/types';
 
-import { generateCheck, fetchNewAccountName, mnemonicToTezosAccountCreds, mnemonicToEvmAccountCreds } from './misc';
+import {
+  generateCheck,
+  fetchNewAccountName,
+  mnemonicToTezosAccountCreds,
+  mnemonicToEvmAccountCreds,
+  buildEncryptAndSaveManyForAccount
+} from './misc';
 import {
   encryptAndSaveMany,
   encryptAndSaveManyLegacy,
@@ -146,8 +152,7 @@ export const MIGRATIONS = [
 
         account.evmAddress = evmAcc.address;
 
-        toEncryptAndSave.push([accPrivKeyStrgKey(evmAcc.address), evmAcc.privateKey]);
-        toEncryptAndSave.push([accPubKeyStrgKey(evmAcc.address), evmAcc.publicKey]);
+        toEncryptAndSave.push(...buildEncryptAndSaveManyForAccount(evmAcc));
       } else if (account.type === TempleAccountType.WatchOnly) {
         account.chain = TempleChainName.Tezos;
       } else if (account.type === TempleAccountType.Imported) {

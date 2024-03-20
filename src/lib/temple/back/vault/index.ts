@@ -4,8 +4,6 @@ import { localForger } from '@taquito/local-forging';
 import { CompositeForger, RpcForger, Signer, TezosOperationError, TezosToolkit } from '@taquito/taquito';
 import * as TaquitoUtils from '@taquito/utils';
 import * as Bip39 from 'bip39';
-import * as ViemAccounts from 'viem/accounts';
-import { isHex } from 'viem/utils';
 import type * as WasmThemisPackageInterface from 'wasm-themis';
 
 import { formatOpParamsBeforeSend } from 'lib/temple/helpers';
@@ -30,7 +28,10 @@ import {
   getMainDerivationPath,
   withError,
   mnemonicToTezosAccountCreds,
-  mnemonicToEvmAccountCreds
+  mnemonicToEvmAccountCreds,
+  buildEncryptAndSaveManyForAccount,
+  privateKeyToTezosAccountCreds,
+  privateKeyToEvmAccountCreds
 } from './misc';
 import {
   encryptAndSaveMany,
@@ -126,10 +127,8 @@ export class Vault {
         [
           [checkStrgKey, generateCheck()],
           [mnemonicStrgKey, mnemonic],
-          [accPrivKeyStrgKey(tezosAcc.address), tezosAcc.privateKey],
-          [accPubKeyStrgKey(tezosAcc.address), tezosAcc.publicKey],
-          [accPrivKeyStrgKey(evmAcc.address), evmAcc.privateKey],
-          [accPubKeyStrgKey(evmAcc.address), evmAcc.publicKey],
+          ...buildEncryptAndSaveManyForAccount(tezosAcc),
+          ...buildEncryptAndSaveManyForAccount(evmAcc),
           [accountsStrgKey, newAccounts]
         ],
         passKey
@@ -342,10 +341,8 @@ export class Vault {
 
       await encryptAndSaveMany(
         [
-          [accPrivKeyStrgKey(tezosAcc.address), tezosAcc.privateKey],
-          [accPubKeyStrgKey(tezosAcc.address), tezosAcc.publicKey],
-          [accPrivKeyStrgKey(evmAcc.address), evmAcc.privateKey],
-          [accPubKeyStrgKey(evmAcc.address), evmAcc.publicKey],
+          ...buildEncryptAndSaveManyForAccount(tezosAcc),
+          ...buildEncryptAndSaveManyForAccount(evmAcc),
           [accountsStrgKey, newAllAcounts]
         ],
         this.passKey
@@ -361,33 +358,21 @@ export class Vault {
     return withError(errMessage, async () => {
       const allAccounts = await this.fetchAccounts();
 
-      const [realAccPrivateKey, accPublicKey, accPublicKeyHash] = await (async () => {
-        if (chain === TempleChainName.EVM) {
-          if (!isHex(accPrivateKey)) throw new Error('EVM private key is not a hex value');
-          const evmAcc = ViemAccounts.privateKeyToAccount(accPrivateKey);
-
-          return [accPrivateKey, evmAcc.publicKey, evmAcc.address] as const;
-        }
-
-        const signer = await createMemorySigner(accPrivateKey, encPassword);
-
-        return Promise.all([signer.secretKey(), signer.publicKey(), signer.publicKeyHash()]);
-      })();
+      const accCreds =
+        chain === TempleChainName.EVM
+          ? privateKeyToEvmAccountCreds(accPrivateKey)
+          : await privateKeyToTezosAccountCreds(accPrivateKey, encPassword);
 
       const newAccount: StoredAccount = {
         type: TempleAccountType.Imported,
         chain,
         name: await fetchNewAccountName(allAccounts),
-        publicKeyHash: accPublicKeyHash
+        publicKeyHash: accCreds.address
       };
       const newAllAcounts = concatAccount(allAccounts, newAccount);
 
       await encryptAndSaveMany(
-        [
-          [accPrivKeyStrgKey(accPublicKeyHash), realAccPrivateKey],
-          [accPubKeyStrgKey(accPublicKeyHash), accPublicKey],
-          [accountsStrgKey, newAllAcounts]
-        ],
+        [...buildEncryptAndSaveManyForAccount(accCreds), [accountsStrgKey, newAllAcounts]],
         this.passKey
       );
 

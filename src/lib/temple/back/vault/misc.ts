@@ -3,13 +3,14 @@ import * as TaquitoUtils from '@taquito/utils';
 import * as Bip39 from 'bip39';
 import * as Ed25519 from 'ed25519-hd-key';
 import * as ViemAccounts from 'viem/accounts';
-import { toHex } from 'viem/utils';
+import { isHex, toHex } from 'viem/utils';
 
 import { StoredAccount } from 'lib/temple/types';
 
 import { PublicError } from '../PublicError';
 
 import { fetchMessage } from './helpers';
+import { accPrivKeyStrgKey, accPubKeyStrgKey } from './storage-keys';
 
 const TEZOS_BIP44_COINTYPE = 1729;
 
@@ -34,7 +35,13 @@ export function fetchNewAccountName(
   return fetchMessage(templateI18nKey, String(allAccounts.length + 1));
 }
 
-export async function mnemonicToTezosAccountCreds(mnemonic: string, hdIndex: number) {
+interface AccountCreds {
+  address: string;
+  publicKey: string;
+  privateKey: string;
+}
+
+export async function mnemonicToTezosAccountCreds(mnemonic: string, hdIndex: number): Promise<AccountCreds> {
   const seed = Bip39.mnemonicToSeedSync(mnemonic);
   const privateKey = seedToHDPrivateKey(seed, hdIndex);
 
@@ -44,7 +51,22 @@ export async function mnemonicToTezosAccountCreds(mnemonic: string, hdIndex: num
   return { address, publicKey, privateKey };
 }
 
-export function mnemonicToEvmAccountCreds(mnemonic: string, hdIndex: number) {
+export async function privateKeyToTezosAccountCreds(
+  accPrivateKey: string,
+  encPassword?: string
+): Promise<AccountCreds> {
+  const signer = await createMemorySigner(accPrivateKey, encPassword);
+
+  const [realAccPrivateKey, publicKey, address] = await Promise.all([
+    signer.secretKey(),
+    signer.publicKey(),
+    signer.publicKeyHash()
+  ]);
+
+  return { address, publicKey, privateKey: realAccPrivateKey };
+}
+
+export function mnemonicToEvmAccountCreds(mnemonic: string, hdIndex: number): AccountCreds {
   const ethAcc = ViemAccounts.mnemonicToAccount(mnemonic, { addressIndex: hdIndex });
   const address = ethAcc.address;
   const publicKey = ethAcc.publicKey;
@@ -52,6 +74,22 @@ export function mnemonicToEvmAccountCreds(mnemonic: string, hdIndex: number) {
 
   return { address, publicKey, privateKey };
 }
+
+export function privateKeyToEvmAccountCreds(privateKey: string): AccountCreds {
+  if (!isHex(privateKey)) throw new Error('EVM private key is not a hex value');
+  const { address, publicKey } = ViemAccounts.privateKeyToAccount(privateKey);
+
+  return { address, publicKey, privateKey };
+}
+
+export const buildEncryptAndSaveManyForAccount = ({
+  address,
+  privateKey,
+  publicKey
+}: AccountCreds): [string, string][] => [
+  [accPrivKeyStrgKey(address), privateKey],
+  [accPubKeyStrgKey(address), publicKey]
+];
 
 export function createMemorySigner(privateKey: string, encPassword?: string) {
   return InMemorySigner.fromSecretKey(privateKey, encPassword);
