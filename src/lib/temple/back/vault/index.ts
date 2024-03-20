@@ -107,7 +107,7 @@ export class Vault {
       const accPrivateKey = seedToHDPrivateKey(seed, hdAccIndex);
       const [accPublicKey, accPublicKeyHash] = await getPublicKeyAndHash(accPrivateKey);
 
-      const ethAcc = ViemAccounts.mnemonicToAccount(mnemonic, { accountIndex: hdAccIndex });
+      const ethAcc = ViemAccounts.mnemonicToAccount(mnemonic, { addressIndex: hdAccIndex });
 
       const initialAccount: StoredAccount = {
         type: TempleAccountType.HD,
@@ -331,7 +331,7 @@ export class Vault {
         return this.createHDAccount(accName, hdAccIndex + 1);
       }
 
-      const ethAcc = ViemAccounts.mnemonicToAccount(mnemonic, { accountIndex: hdAccIndex });
+      const ethAcc = ViemAccounts.mnemonicToAccount(mnemonic, { addressIndex: hdAccIndex });
 
       const newAccount: StoredAccount = {
         type: TempleAccountType.HD,

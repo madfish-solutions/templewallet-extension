@@ -146,7 +146,7 @@ export const MIGRATIONS = [
       // account.tezAddress = account.publicKeyHash;
       // delete account.publicKeyHash;
       if (account.type === TempleAccountType.HD) {
-        const ethAcc = ViemAccounts.mnemonicToAccount(mnemonic, { accountIndex: account.hdIndex });
+        const ethAcc = ViemAccounts.mnemonicToAccount(mnemonic, { addressIndex: account.hdIndex });
         account.evmAddress = ethAcc.address;
       } else if (account.type === TempleAccountType.WatchOnly) {
         account.chain = TempleChainName.Tezos;
