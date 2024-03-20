@@ -5,7 +5,7 @@ import { CompositeForger, RpcForger, Signer, TezosOperationError, TezosToolkit }
 import * as TaquitoUtils from '@taquito/utils';
 import * as Bip39 from 'bip39';
 import * as ViemAccounts from 'viem/accounts';
-import { isHex } from 'viem/utils';
+import { isHex, toHex } from 'viem/utils';
 import type * as WasmThemisPackageInterface from 'wasm-themis';
 
 import { formatOpParamsBeforeSend } from 'lib/temple/helpers';
@@ -104,17 +104,20 @@ export class Vault {
       const seed = Bip39.mnemonicToSeedSync(mnemonic);
 
       const hdAccIndex = 0;
-      const accPrivateKey = seedToHDPrivateKey(seed, hdAccIndex);
-      const [accPublicKey, accPublicKeyHash] = await getPublicKeyAndHash(accPrivateKey);
+      const tezosPrivateKey = seedToHDPrivateKey(seed, hdAccIndex);
+      const [tezosPublicKey, tezosAddress] = await getPublicKeyAndHash(tezosPrivateKey);
 
       const ethAcc = ViemAccounts.mnemonicToAccount(mnemonic, { addressIndex: hdAccIndex });
+      const evmAddress = ethAcc.address;
+      const evmPublicKey = ethAcc.publicKey;
+      const evmPrivateKey = toHex(ethAcc.getHdKey().privateKey!);
 
       const initialAccount: StoredAccount = {
         type: TempleAccountType.HD,
         name: 'Account 1',
-        publicKeyHash: accPublicKeyHash,
+        publicKeyHash: tezosAddress,
         hdIndex: hdAccIndex,
-        evmAddress: ethAcc.address
+        evmAddress
       };
       const newAccounts = [initialAccount];
 
@@ -128,15 +131,17 @@ export class Vault {
         [
           [checkStrgKey, generateCheck()],
           [mnemonicStrgKey, mnemonic],
-          [accPrivKeyStrgKey(accPublicKeyHash), accPrivateKey],
-          [accPubKeyStrgKey(accPublicKeyHash), accPublicKey],
+          [accPrivKeyStrgKey(tezosAddress), tezosPrivateKey],
+          [accPubKeyStrgKey(tezosAddress), tezosPublicKey],
+          [accPrivKeyStrgKey(evmAddress), evmPrivateKey],
+          [accPubKeyStrgKey(evmAddress), evmPublicKey],
           [accountsStrgKey, newAccounts]
         ],
         passKey
       );
       await savePlain(migrationLevelStrgKey, MIGRATIONS.length);
 
-      return accPublicKeyHash;
+      return tezosAddress;
     });
   }
 
@@ -323,29 +328,34 @@ export class Vault {
         hdAccIndex = allHDAccounts.length;
       }
 
-      const accPrivateKey = seedToHDPrivateKey(seed, hdAccIndex);
-      const [accPublicKey, accPublicKeyHash] = await getPublicKeyAndHash(accPrivateKey);
+      const tezosPrivateKey = seedToHDPrivateKey(seed, hdAccIndex);
+      const [tezosPublicKey, tezosAddress] = await getPublicKeyAndHash(tezosPrivateKey);
       const accName = name || (await fetchNewAccountName(allAccounts));
 
-      if (allAccounts.some(a => a.publicKeyHash === accPublicKeyHash)) {
+      if (allAccounts.some(a => a.publicKeyHash === tezosAddress)) {
         return this.createHDAccount(accName, hdAccIndex + 1);
       }
 
       const ethAcc = ViemAccounts.mnemonicToAccount(mnemonic, { addressIndex: hdAccIndex });
+      const evmAddress = ethAcc.address;
+      const evmPublicKey = ethAcc.publicKey;
+      const evmPrivateKey = toHex(ethAcc.getHdKey().privateKey!);
 
       const newAccount: StoredAccount = {
         type: TempleAccountType.HD,
         name: accName,
-        publicKeyHash: accPublicKeyHash,
+        publicKeyHash: tezosAddress,
         hdIndex: hdAccIndex,
-        evmAddress: ethAcc.address
+        evmAddress
       };
       const newAllAcounts = concatAccount(allAccounts, newAccount);
 
       await encryptAndSaveMany(
         [
-          [accPrivKeyStrgKey(accPublicKeyHash), accPrivateKey],
-          [accPubKeyStrgKey(accPublicKeyHash), accPublicKey],
+          [accPrivKeyStrgKey(tezosAddress), tezosPrivateKey],
+          [accPubKeyStrgKey(tezosAddress), tezosPublicKey],
+          [accPrivKeyStrgKey(evmAddress), evmPrivateKey],
+          [accPubKeyStrgKey(evmAddress), evmPublicKey],
           [accountsStrgKey, newAllAcounts]
         ],
         this.passKey

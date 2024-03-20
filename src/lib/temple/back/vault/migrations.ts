@@ -1,5 +1,6 @@
 import * as Bip39 from 'bip39';
 import * as ViemAccounts from 'viem/accounts';
+import { toHex } from 'viem/utils';
 
 import * as Passworder from 'lib/temple/passworder';
 import { StoredAccount, StoredHDAccount, TempleAccountType, TempleContact, TempleSettings } from 'lib/temple/types';
@@ -142,12 +143,20 @@ export const MIGRATIONS = [
     const accounts = await fetchAndDecryptOne<StoredAccount[]>(accountsStrgKey, passKey);
     const mnemonic = await fetchAndDecryptOne<string>(mnemonicStrgKey, passKey);
 
+    const toEncryptAndSave: [string, any][] = [];
     for (const account of accounts) {
       // account.tezAddress = account.publicKeyHash;
       // delete account.publicKeyHash;
       if (account.type === TempleAccountType.HD) {
         const ethAcc = ViemAccounts.mnemonicToAccount(mnemonic, { addressIndex: account.hdIndex });
-        account.evmAddress = ethAcc.address;
+        const evmAddress = ethAcc.address;
+        const evmPublicKey = ethAcc.publicKey;
+        const evmPrivateKey = toHex(ethAcc.getHdKey().privateKey!);
+
+        account.evmAddress = evmAddress;
+
+        toEncryptAndSave.push([accPrivKeyStrgKey(evmAddress), evmPrivateKey]);
+        toEncryptAndSave.push([accPubKeyStrgKey(evmAddress), evmPublicKey]);
       } else if (account.type === TempleAccountType.WatchOnly) {
         account.chain = TempleChainName.Tezos;
       } else if (account.type === TempleAccountType.Imported) {
@@ -155,7 +164,8 @@ export const MIGRATIONS = [
       }
     }
 
-    await encryptAndSaveMany([[accountsStrgKey, accounts]], passKey);
+    toEncryptAndSave.push([accountsStrgKey, accounts]);
+    await encryptAndSaveMany(toEncryptAndSave, passKey);
     console.log('VAULT.MIGRATIONS: EVM migration finished');
   }
 
