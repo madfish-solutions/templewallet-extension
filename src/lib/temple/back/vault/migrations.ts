@@ -1,12 +1,8 @@
-import * as Bip39 from 'bip39';
-import * as ViemAccounts from 'viem/accounts';
-import { toHex } from 'viem/utils';
-
 import * as Passworder from 'lib/temple/passworder';
 import { StoredAccount, StoredHDAccount, TempleAccountType, TempleContact, TempleSettings } from 'lib/temple/types';
 import { TempleChainName } from 'temple/types';
 
-import { seedToHDPrivateKey, generateCheck, fetchNewAccountName, getPublicKeyAndHash } from './misc';
+import { generateCheck, fetchNewAccountName, mnemonicToTezosAccountCreds, mnemonicToEvmAccountCreds } from './misc';
 import {
   encryptAndSaveMany,
   encryptAndSaveManyLegacy,
@@ -42,23 +38,21 @@ export const MIGRATIONS = [
         : acc
     );
 
-    const seed = Bip39.mnemonicToSeedSync(mnemonic);
     const hdAccIndex = 0;
-    const accPrivateKey = seedToHDPrivateKey(seed, hdAccIndex);
-    const [accPublicKey, accPublicKeyHash] = await getPublicKeyAndHash(accPrivateKey);
+    const tezosAcc = await mnemonicToTezosAccountCreds(mnemonic, hdAccIndex);
 
     const newInitialAccount: Omit<StoredHDAccount, 'evmAddress'> = {
       type: TempleAccountType.HD,
       name: await fetchNewAccountName(accounts),
-      publicKeyHash: accPublicKeyHash,
+      publicKeyHash: tezosAcc.publicKey,
       hdIndex: hdAccIndex
     };
     const newAccounts = [newInitialAccount, ...migratedAccounts];
 
     await encryptAndSaveManyLegacy(
       [
-        [accPrivKeyStrgKey(accPublicKeyHash), accPrivateKey],
-        [accPubKeyStrgKey(accPublicKeyHash), accPublicKey],
+        [accPrivKeyStrgKey(tezosAcc.address), tezosAcc.privateKey],
+        [accPubKeyStrgKey(tezosAcc.address), tezosAcc.publicKey],
         [accountsStrgKey, newAccounts]
       ],
       passKey
@@ -148,15 +142,12 @@ export const MIGRATIONS = [
       // account.tezAddress = account.publicKeyHash;
       // delete account.publicKeyHash;
       if (account.type === TempleAccountType.HD) {
-        const ethAcc = ViemAccounts.mnemonicToAccount(mnemonic, { addressIndex: account.hdIndex });
-        const evmAddress = ethAcc.address;
-        const evmPublicKey = ethAcc.publicKey;
-        const evmPrivateKey = toHex(ethAcc.getHdKey().privateKey!);
+        const evmAcc = mnemonicToEvmAccountCreds(mnemonic, account.hdIndex);
 
-        account.evmAddress = evmAddress;
+        account.evmAddress = evmAcc.address;
 
-        toEncryptAndSave.push([accPrivKeyStrgKey(evmAddress), evmPrivateKey]);
-        toEncryptAndSave.push([accPubKeyStrgKey(evmAddress), evmPublicKey]);
+        toEncryptAndSave.push([accPrivKeyStrgKey(evmAcc.address), evmAcc.privateKey]);
+        toEncryptAndSave.push([accPubKeyStrgKey(evmAcc.address), evmAcc.publicKey]);
       } else if (account.type === TempleAccountType.WatchOnly) {
         account.chain = TempleChainName.Tezos;
       } else if (account.type === TempleAccountType.Imported) {

@@ -2,6 +2,8 @@ import { InMemorySigner } from '@taquito/signer';
 import * as TaquitoUtils from '@taquito/utils';
 import * as Bip39 from 'bip39';
 import * as Ed25519 from 'ed25519-hd-key';
+import * as ViemAccounts from 'viem/accounts';
+import { toHex } from 'viem/utils';
 
 import { StoredAccount } from 'lib/temple/types';
 
@@ -32,16 +34,30 @@ export function fetchNewAccountName(
   return fetchMessage(templateI18nKey, String(allAccounts.length + 1));
 }
 
-export async function getPublicKeyAndHash(privateKey: string) {
+export async function mnemonicToTezosAccountCreds(mnemonic: string, hdIndex: number) {
+  const seed = Bip39.mnemonicToSeedSync(mnemonic);
+  const privateKey = seedToHDPrivateKey(seed, hdIndex);
+
   const signer = await createMemorySigner(privateKey);
-  return Promise.all([signer.publicKey(), signer.publicKeyHash()]);
+  const [publicKey, address] = await Promise.all([signer.publicKey(), signer.publicKeyHash()]);
+
+  return { address, publicKey, privateKey };
+}
+
+export function mnemonicToEvmAccountCreds(mnemonic: string, hdIndex: number) {
+  const ethAcc = ViemAccounts.mnemonicToAccount(mnemonic, { addressIndex: hdIndex });
+  const address = ethAcc.address;
+  const publicKey = ethAcc.publicKey;
+  const privateKey = toHex(ethAcc.getHdKey().privateKey!);
+
+  return { address, publicKey, privateKey };
 }
 
 export function createMemorySigner(privateKey: string, encPassword?: string) {
   return InMemorySigner.fromSecretKey(privateKey, encPassword);
 }
 
-export function seedToHDPrivateKey(seed: Buffer, hdAccIndex: number) {
+function seedToHDPrivateKey(seed: Buffer, hdAccIndex: number) {
   return seedToPrivateKey(deriveSeed(seed, getMainDerivationPath(hdAccIndex)));
 }
 
