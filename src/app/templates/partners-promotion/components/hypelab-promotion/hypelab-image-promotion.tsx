@@ -4,6 +4,7 @@ import { Banner } from '@hypelab/sdk-react';
 
 import { useAdTimeout } from 'app/hooks/ads/use-ad-timeout';
 import { AdsProviderTitle } from 'lib/ads';
+import { HYPELAB_STUB_CAMPAIGN_SLUG } from 'lib/constants';
 import { EnvVars } from 'lib/env';
 
 import { HypelabBannerAd, SingleProviderPromotionProps } from '../../types';
@@ -36,7 +37,9 @@ export const HypelabImagePromotion: FC<Omit<SingleProviderPromotionProps, 'varia
 
       const ad = getHypelabBannerAd(hypelabBannerElementRef.current);
 
-      if (ad && prevAdUrlRef.current !== ad.cta_url) {
+      if (ad && prevAdUrlRef.current !== ad.cta_url && ad.campaign_slug === HYPELAB_STUB_CAMPAIGN_SLUG) {
+        throw new Error('Stub ad detected');
+      } else if (ad && prevAdUrlRef.current !== ad.cta_url) {
         setCurrentAd(ad);
         prevAdUrlRef.current = ad.cta_url;
         setAdIsReady(true);

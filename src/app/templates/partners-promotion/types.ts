@@ -33,6 +33,7 @@ interface HypelabBannerCreativeSet {
 
 export interface HypelabNativeAd {
   cta_url: string;
+  campaign_slug: string;
   advertiser: string;
   headline: string;
   body?: string;
@@ -43,5 +44,6 @@ export interface HypelabNativeAd {
 
 export interface HypelabBannerAd {
   cta_url: string;
+  campaign_slug: string;
   creative_set: HypelabBannerCreativeSet;
 }

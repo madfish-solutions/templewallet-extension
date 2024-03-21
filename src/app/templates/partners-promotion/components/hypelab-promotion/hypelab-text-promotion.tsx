@@ -5,6 +5,7 @@ import { Native } from '@hypelab/sdk-react';
 import { useAdTimeout } from 'app/hooks/ads/use-ad-timeout';
 import { useElementValue } from 'app/hooks/ads/use-element-value';
 import { AdsProviderTitle } from 'lib/ads';
+import { HYPELAB_STUB_CAMPAIGN_SLUG } from 'lib/constants';
 import { EnvVars } from 'lib/env';
 
 import { SingleProviderPromotionProps } from '../../types';
@@ -41,7 +42,18 @@ export const HypelabTextPromotion: FC<Omit<SingleProviderPromotionProps, 'varian
 
   useAdTimeout(adIsReady, onError);
 
-  useEffect(() => void (adIsReady && onReady()), [adIsReady, onReady]);
+  useEffect(() => {
+    if (adIsReady) {
+      const campaignSlug = new URL(ctaUrl).searchParams.get('campaign_slug');
+
+      if (campaignSlug === HYPELAB_STUB_CAMPAIGN_SLUG) {
+        console.error('Stub ad detected');
+        onError();
+      } else {
+        onReady();
+      }
+    }
+  }, [adIsReady, ctaUrl, onError, onReady]);
 
   return (
     <Native placement={EnvVars.HYPELAB_NATIVE_PLACEMENT_SLUG} onError={onError}>
