@@ -9,6 +9,7 @@ import packageJSON from '../package.json';
 
 import { envFilesData } from './dotenv';
 import { Vendor, ALL_VENDORS, getManifestVersion } from './env';
+import { IFRAMES } from './paths';
 
 const WEB_ACCCESSIBLE_RESOURSES = [
   // For dynamic imports
@@ -18,7 +19,9 @@ const WEB_ACCCESSIBLE_RESOURSES = [
   // For triggering extension page open from scripts
   'fullpage.html',
   // For ads' images
-  'misc/ad-banners/*'
+  'misc/ad-banners/*',
+  // For iFrames access
+  ...Object.keys(IFRAMES).map(name => `iframes/${name}.html`)
 ];
 
 const isKnownVendor = (vendor: string): vendor is Vendor => ALL_VENDORS.includes(vendor as Vendor);

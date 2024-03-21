@@ -29,17 +29,26 @@ import {
 } from './webpack/env';
 import usePagesLiveReload from './webpack/live-reload';
 import { buildManifest } from './webpack/manifest';
-import { PATHS } from './webpack/paths';
+import { PATHS, IFRAMES } from './webpack/paths';
 import { isTruthy } from './webpack/utils';
 
 const ExtensionReloaderMV3 = ExtensionReloaderMV3BadlyTyped as ExtensionReloaderMV3Type;
 
 const PAGES_NAMES = ['popup', 'fullpage', 'confirm', 'options'];
+
 const HTML_TEMPLATES = PAGES_NAMES.map(name => {
   const filename = `${name}.html`;
   const path = Path.join(PATHS.PUBLIC, filename);
+
   return { name, filename, path };
-});
+}).concat(
+  Object.keys(IFRAMES).map(name => {
+    const filename = `${name}.html`;
+    const path = Path.join(PATHS.PUBLIC, `iframes/${filename}`);
+
+    return { name, filename: `iframes/${filename}`, path };
+  })
+);
 
 const CONTENT_SCRIPTS = ['contentScript', 'replaceAds'];
 if (BACKGROUND_IS_WORKER) CONTENT_SCRIPTS.push('keepBackgroundWorkerAlive');
@@ -50,7 +59,10 @@ const mainConfig = (() => {
   /* Page reloading in development mode */
   const liveReload = DEVELOPMENT_ENV && usePagesLiveReload(RELOADER_PORTS.PAGES);
 
-  config.entry = Object.fromEntries(PAGES_NAMES.map(name => [name, Path.join(PATHS.SOURCE, `${name}.tsx`)]));
+  config.entry = {
+    ...Object.fromEntries(PAGES_NAMES.map(name => [name, Path.join(PATHS.SOURCE, `${name}.tsx`)])),
+    ...IFRAMES
+  };
 
   if (liveReload) config.entry.live_reload = liveReload.client_entry;
 

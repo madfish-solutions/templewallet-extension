@@ -43,6 +43,8 @@ jobs:
           HYPELAB_ADS_WINDOW_URL: ${{ vars.HYPELAB_ADS_WINDOW_URL }}
           PERSONA_ADS_API_KEY: ${{ vars.PERSONA_ADS_API_KEY }}
           PERSONA_ADS_BANNER_UNIT_ID: ${{ vars.PERSONA_ADS_BANNER_UNIT_ID }}
+          PERSONA_ADS_WIDE_BANNER_UNIT_ID: ${{ vars.PERSONA_ADS_WIDE_BANNER_UNIT_ID }}
+          PERSONA_ADS_SQUARISH_BANNER_UNIT_ID: ${{ vars.PERSONA_ADS_SQUARISH_BANNER_UNIT_ID }}
 
       - name: Install dependencies and code quality check
         uses: ./.github/workflows/code-quality-check
