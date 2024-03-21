@@ -387,7 +387,7 @@ const ConfirmDAppForm = memo<{ accountAddress: string }>(({ accountAddress }) =>
                 <AccountBanner
                   account={connectedAccount}
                   networkRpc={payload.networkRpc}
-                  labelIndent="sm"
+                  smallLabelIndent
                   className="w-full mb-4"
                 />
               )}

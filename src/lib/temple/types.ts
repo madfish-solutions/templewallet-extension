@@ -67,22 +67,26 @@ export type StoredAccount =
 
 interface StoredLedgerAccount extends StoredAccountBase {
   type: TempleAccountType.Ledger;
+  tezosAddress: string;
   derivationPath: string;
 }
 
 interface StoredImportedAccount extends StoredAccountBase {
   type: TempleAccountType.Imported;
   chain: TempleChainName;
+  address: string;
 }
 
-export interface StoredHDAccount extends StoredAccountBase {
+interface StoredHDAccount extends StoredAccountBase {
   type: TempleAccountType.HD;
   hdIndex: number;
+  tezosAddress: string;
   evmAddress: string;
 }
 
 interface StoredManagedKTAccount extends StoredAccountBase {
   type: TempleAccountType.ManagedKT;
+  tezosAddress: string;
   chainId: string;
   owner: string;
 }
@@ -90,15 +94,18 @@ interface StoredManagedKTAccount extends StoredAccountBase {
 interface StoredWatchOnlyAccount extends StoredAccountBase {
   type: TempleAccountType.WatchOnly;
   chain: TempleChainName;
+  address: string;
+  /** For contract addresses */
   chainId?: string;
 }
 
 export interface StoredAccountBase {
+  id: string;
   type: TempleAccountType;
   name: string;
-  publicKeyHash: string;
-  hdIndex?: number;
-  evmAddress?: string;
+  // publicKeyHash: string;
+  // hdIndex?: number;
+  // evmAddress?: string;
   derivationPath?: string;
   derivationType?: DerivationType;
 }
@@ -456,7 +463,7 @@ interface TempleRevealPublicKeyResponse extends TempleMessageBase {
 
 interface TempleRevealPrivateKeyRequest extends TempleMessageBase {
   type: TempleMessageType.RevealPrivateKeyRequest;
-  accountPublicKeyHash: string;
+  address: string;
   password: string;
 }
 
@@ -487,7 +494,7 @@ interface TempleGenerateSyncPayloadResponse extends TempleMessageBase {
 
 interface TempleRemoveAccountRequest extends TempleMessageBase {
   type: TempleMessageType.RemoveAccountRequest;
-  accountPublicKeyHash: string;
+  id: string;
   password: string;
 }
 
@@ -497,7 +504,7 @@ interface TempleRemoveAccountResponse extends TempleMessageBase {
 
 interface TempleEditAccountRequest extends TempleMessageBase {
   type: TempleMessageType.EditAccountRequest;
-  accountPublicKeyHash: string;
+  id: string;
   name: string;
 }
 

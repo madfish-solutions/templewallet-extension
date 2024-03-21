@@ -1,4 +1,4 @@
-import React, { HTMLAttributes, memo, ReactNode } from 'react';
+import React, { HTMLAttributes, memo, ReactNode, useMemo } from 'react';
 
 import classNames from 'clsx';
 
@@ -13,22 +13,35 @@ import { StoredAccountBase } from 'lib/temple/types';
 
 interface Props extends HTMLAttributes<HTMLDivElement> {
   account: StoredAccountBase;
+  tezosAddress?: string;
+  evmAddress?: string;
   displayBalance?: boolean;
   networkRpc?: string;
   label?: ReactNode;
   labelDescription?: ReactNode;
   labelIndent?: 'sm' | 'md';
+  smallLabelIndent?: boolean;
 }
 
 const AccountBanner = memo<Props>(
-  ({ account, displayBalance = true, networkRpc, className, label, labelIndent = 'md', labelDescription }) => {
+  ({
+    account,
+    tezosAddress,
+    evmAddress,
+    displayBalance = true,
+    networkRpc,
+    className,
+    label,
+    smallLabelIndent,
+    labelDescription
+  }) => {
     const labelWithFallback = label ?? t('account');
     const { metadata } = useGasToken();
 
     return (
       <div className={classNames('flex flex-col', className)}>
         {(labelWithFallback || labelDescription) && (
-          <h2 className={classNames(labelIndent === 'md' ? 'mb-4' : 'mb-2', 'leading-tight flex flex-col')}>
+          <h2 className={classNames(smallLabelIndent ? 'mb-2' : 'mb-4', 'leading-tight flex flex-col')}>
             {labelWithFallback && <span className="text-base font-semibold text-gray-700">{labelWithFallback}</span>}
 
             {labelDescription && (
@@ -38,7 +51,7 @@ const AccountBanner = memo<Props>(
         )}
 
         <div className="w-full border rounded-md p-2 flex items-center">
-          <Identicon type="bottts" hash={account.publicKeyHash} size={32} className="flex-shrink-0 shadow-xs" />
+          <Identicon type="bottts" hash={account.id} size={32} className="flex-shrink-0 shadow-xs" />
 
           <div className="flex flex-col items-start ml-2">
             <div className="flex flex-wrap items-center">
@@ -47,34 +60,30 @@ const AccountBanner = memo<Props>(
               <AccountTypeBadge accountType={account.type} />
             </div>
 
-            <div className="flex flex-wrap items-center mt-1">
-              <div className="text-xs leading-none text-gray-700">
-                {(() => {
-                  const val = account.publicKeyHash;
-                  const ln = val.length;
-                  return (
-                    <>
-                      {val.slice(0, 7)}
-                      <span className="opacity-75">...</span>
-                      {val.slice(ln - 4, ln)}
-                    </>
-                  );
-                })()}
-              </div>
+            {tezosAddress && (
+              <div className="flex flex-wrap items-center mt-1">
+                <AccountBannerAddress address={tezosAddress} />
 
-              {displayBalance && (
-                <Balance address={account.publicKeyHash} networkRpc={networkRpc}>
-                  {bal => (
-                    <div className="ml-2 text-xs leading-none flex items-baseline text-gray-600">
-                      <Money>{bal}</Money>
-                      <span className="ml-1" style={{ fontSize: '0.75em' }}>
-                        {metadata.symbol}
-                      </span>
-                    </div>
-                  )}
-                </Balance>
-              )}
-            </div>
+                {displayBalance && tezosAddress && (
+                  <Balance address={tezosAddress} networkRpc={networkRpc}>
+                    {bal => (
+                      <div className="ml-2 text-xs leading-none flex items-baseline text-gray-600">
+                        <Money>{bal}</Money>
+                        <span className="ml-1" style={{ fontSize: '0.75em' }}>
+                          {metadata.symbol}
+                        </span>
+                      </div>
+                    )}
+                  </Balance>
+                )}
+              </div>
+            )}
+
+            {evmAddress && (
+              <div className="flex flex-wrap items-center mt-1">
+                <AccountBannerAddress address={evmAddress} />
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -83,3 +92,19 @@ const AccountBanner = memo<Props>(
 );
 
 export default AccountBanner;
+
+const AccountBannerAddress = memo<{ address: string }>(({ address }) => {
+  const [start, end] = useMemo(() => {
+    const ln = address.length;
+
+    return [address.slice(0, 7), address.slice(ln - 4, ln)];
+  }, [address]);
+
+  return (
+    <div className="text-xs leading-none text-gray-700">
+      {start}
+      <span className="opacity-75">...</span>
+      {end}
+    </div>
+  );
+});

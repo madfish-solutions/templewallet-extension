@@ -139,10 +139,10 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     assertResponse(res.type === TempleMessageType.CreateAccountResponse);
   }, []);
 
-  const revealPrivateKey = useCallback(async (accountPublicKeyHash: string, password: string) => {
+  const revealPrivateKey = useCallback(async (address: string, password: string) => {
     const res = await request({
       type: TempleMessageType.RevealPrivateKeyRequest,
-      accountPublicKeyHash,
+      address,
       password
     });
     assertResponse(res.type === TempleMessageType.RevealPrivateKeyResponse);
@@ -167,19 +167,20 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     return res.payload;
   }, []);
 
-  const removeAccount = useCallback(async (accountPublicKeyHash: string, password: string) => {
+  const removeAccount = useCallback(async (id: string, password: string) => {
     const res = await request({
       type: TempleMessageType.RemoveAccountRequest,
-      accountPublicKeyHash,
+      id,
       password
     });
     assertResponse(res.type === TempleMessageType.RemoveAccountResponse);
   }, []);
 
-  const editAccountName = useCallback(async (accountPublicKeyHash: string, name: string) => {
+  /** TODO: Move such calls out of hook */
+  const editAccountName = useCallback(async (id: string, name: string) => {
     const res = await request({
       type: TempleMessageType.EditAccountRequest,
-      accountPublicKeyHash,
+      id,
       name
     });
     assertResponse(res.type === TempleMessageType.EditAccountResponse);

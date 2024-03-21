@@ -76,7 +76,7 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
       };
 
     case TempleMessageType.RevealPrivateKeyRequest:
-      const privateKey = await Actions.revealPrivateKey(req.accountPublicKeyHash, req.password);
+      const privateKey = await Actions.revealPrivateKey(req.address, req.password);
       return {
         type: TempleMessageType.RevealPrivateKeyResponse,
         privateKey
@@ -97,13 +97,13 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
       };
 
     case TempleMessageType.RemoveAccountRequest:
-      await Actions.removeAccount(req.accountPublicKeyHash, req.password);
+      await Actions.removeAccount(req.id, req.password);
       return {
         type: TempleMessageType.RemoveAccountResponse
       };
 
     case TempleMessageType.EditAccountRequest:
-      await Actions.editAccount(req.accountPublicKeyHash, req.name);
+      await Actions.editAccount(req.id, req.name);
       return {
         type: TempleMessageType.EditAccountResponse
       };

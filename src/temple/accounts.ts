@@ -2,26 +2,44 @@ import { StoredAccount, TempleAccountType } from 'lib/temple/types';
 
 import { TempleChainName } from './types';
 
-export const getAccountAddressOfTezos = (account: StoredAccount) =>
-  getAccountAddressOfChain(account, TempleChainName.Tezos);
+export interface AccountForChain<C extends TempleChainName = TempleChainName> {
+  // extends StoredAccountBase ?
+  id: string;
+  chain: C;
+  address: string;
+  type: TempleAccountType;
+  name: string;
+  derivationPath?: string;
+}
+
+export const getAccountForTezosAddress = (account: AccountForChain) =>
+  account.chain === 'tezos' ? account.address : undefined;
+
+export const getAccountForEvmAddress = (account: AccountForChain) =>
+  account.chain === 'evm' ? account.address : undefined;
+
+export const getAccountAddressForTezos = (account: StoredAccount) =>
+  getAccountAddressForChain(account, TempleChainName.Tezos);
 
 // ts-prune-ignore-next
-export const getAccountAddressOfEvm = (account: StoredAccount) =>
-  getAccountAddressOfChain(account, TempleChainName.EVM) as HexString | undefined;
+export const getAccountAddressForEvm = (account: StoredAccount) =>
+  getAccountAddressForChain(account, TempleChainName.EVM) as HexString | undefined;
 
-export const getAccountAddressOfChain = (account: StoredAccount, chain: TempleChainName): string | undefined => {
-  if (account.type === TempleAccountType.WatchOnly) {
-    if (account.chain !== chain) return undefined;
-    // TODO: if (storedAccount.chainId && chainId !== storedAccount.chainId) return undefined; ?
-
-    return account.publicKeyHash;
+export const getAccountAddressForChain = (account: StoredAccount, chain: TempleChainName): string | undefined => {
+  switch (account.type) {
+    case TempleAccountType.HD:
+      return chain === 'evm' ? account.evmAddress : account.tezosAddress;
+    case TempleAccountType.Imported:
+      return account.chain === chain ? account.address : undefined;
+    case TempleAccountType.WatchOnly:
+      // TODO: if (account.chainId && chainId !== account.chainId) return undefined; ?
+      return account.chain === chain ? account.address : undefined;
   }
 
-  if (account.type === TempleAccountType.Imported) {
-    if (account.chain !== chain) return undefined;
-
-    return account.publicKeyHash;
-  }
-
-  return chain === 'evm' ? account.evmAddress : account.publicKeyHash;
+  return account.tezosAddress;
 };
+
+export const getAccountAddressesRecord = (account: StoredAccount) => ({
+  [TempleChainName.Tezos]: getAccountAddressForTezos(account),
+  [TempleChainName.EVM]: getAccountAddressForEvm(account)
+});

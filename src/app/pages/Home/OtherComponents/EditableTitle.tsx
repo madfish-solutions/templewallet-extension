@@ -26,7 +26,7 @@ const buttonClassNames = [
 
 const EditableTitle: FC = () => {
   const { editAccountName } = useTempleClient();
-  const { publicKeyHash, name: accountTitle } = useAccount();
+  const { id: accountId, name: accountTitle } = useAccount();
   const customAlert = useAlert();
   const formAnalytics = useFormAnalytics('ChangeAccountName');
 
@@ -75,7 +75,7 @@ const EditableTitle: FC = () => {
         try {
           const newName = editAccNameFieldRef.current?.value;
           if (newName && newName !== accountTitle) {
-            await editAccountName(publicKeyHash, newName);
+            await editAccountName(accountId, newName);
           }
 
           setEditing(false);
@@ -93,7 +93,7 @@ const EditableTitle: FC = () => {
         }
       })();
     },
-    [accountTitle, editAccountName, publicKeyHash, customAlert, formAnalytics]
+    [accountTitle, editAccountName, accountId, customAlert, formAnalytics]
   );
 
   const handleEditFieldFocus = useCallback(() => {

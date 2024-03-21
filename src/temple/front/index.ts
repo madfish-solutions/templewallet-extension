@@ -1,13 +1,13 @@
 import { useCallback, useMemo } from 'react';
 
-// import * as ViemChains from 'viem/chains';
+import * as ViemChains from 'viem/chains';
 
 import { useRetryableSWR } from 'lib/swr';
 import { useNetwork, useStoredAccount, useAccountAddress, useAllAccounts, useTezos } from 'lib/temple/front/ready';
 import { TempleAccountType, TempleTezosChainId } from 'lib/temple/types';
 import { TempleChainName } from 'temple/types';
 
-import { getAccountAddressOfChain } from '../accounts';
+import { AccountForChain, getAccountAddressForChain } from '../accounts';
 import { loadTezosChainId } from '../tezos';
 
 export { useTezos };
@@ -41,17 +41,17 @@ export const useTezosNetwork = () => {
 export const useEvmNetwork = () => {
   return useMemo(
     () => ({
-      // viem: ViemChains.mainnet,
-      viem: {
-        id: 1,
-        name: 'Temp Mainnet',
-        nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-        rpcUrls: {
-          default: {
-            http: ['https://cloudflare-eth.com']
-          }
-        }
-      }
+      viem: ViemChains.optimism
+      // viem: {
+      //   id: 1,
+      //   name: 'Temp Mainnet',
+      //   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+      //   rpcUrls: {
+      //     default: {
+      //       http: ['https://cloudflare-eth.com']
+      //     }
+      //   }
+      // }
     }),
     []
   );
@@ -75,25 +75,40 @@ export const useAccountForTezos = () => useAccountForChain(TempleChainName.Tezos
 // ts-prune-ignore-next
 export const useAccountForEvm = () => useAccountForChain(TempleChainName.EVM);
 
-function useAccountForChain(chain: TempleChainName) {
-  const storedAccount = useStoredAccount();
+function useAccountForChain<C extends TempleChainName>(chain: C): AccountForChain<C> | null {
+  const account = useStoredAccount();
 
-  if (storedAccount.type === TempleAccountType.WatchOnly) {
-    if (storedAccount.chain !== chain) return undefined;
-    // TODO: if (storedAccount.chainId && chainId !== storedAccount.chainId) return undefined; ?
+  // switch (account.type) {
+  //   case TempleAccountType.Imported:
+  //     return account.chain === chain ? account : undefined;
+  //   case TempleAccountType.WatchOnly:
+  //     // TODO: if (account.chainId && chainId !== account.chainId) return undefined; ?
+  //     return account.chain === chain ? account : undefined;
+  // }
 
-    return storedAccount;
+  // return account;
+
+  const { id, type, name, derivationPath } = account;
+  let address: string | undefined;
+
+  switch (account.type) {
+    case TempleAccountType.HD:
+      address = account[`${chain}Address`];
+      break;
+    case TempleAccountType.Imported:
+      if (account.chain === chain) address = account.address;
+      break;
+    case TempleAccountType.WatchOnly:
+      // TODO: if (account.chainId && chainId !== account.chainId) return undefined; ?
+      if (account.chain === chain) address = account.address;
+      break;
+    default:
+      if (chain === 'tezos') address = account.tezosAddress;
   }
 
-  if (storedAccount.type === TempleAccountType.Imported) {
-    if (storedAccount.chain !== chain) return undefined;
+  if (!address) return null;
 
-    return storedAccount;
-  }
-
-  if (chain === 'evm') return storedAccount.evmAddress ? storedAccount : undefined;
-
-  return storedAccount;
+  return { id, address, chain, type, name, derivationPath };
 }
 
 // ts-prune-ignore-next
@@ -105,7 +120,7 @@ export const useAccountAddressForEvm = () => useAccountAddressForChain(TempleCha
 function useAccountAddressForChain(chain: TempleChainName): string | undefined {
   const storedAccount = useStoredAccount();
 
-  return useMemo(() => getAccountAddressOfChain(storedAccount, chain), [storedAccount, chain]);
+  return useMemo(() => getAccountAddressForChain(storedAccount, chain), [storedAccount, chain]);
 }
 
 export function useTezosRelevantAccounts(tezosChainId: string) {

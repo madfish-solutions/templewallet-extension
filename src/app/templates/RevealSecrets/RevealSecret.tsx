@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useEffect, useLayoutEffect, useMemo, useRef } from 'react';
+import React, { FC, useCallback, useLayoutEffect, useMemo, useRef } from 'react';
 
 import clsx from 'clsx';
 import { OnSubmit, useForm } from 'react-hook-form';
@@ -9,9 +9,10 @@ import AccountBanner from 'app/templates/AccountBanner';
 import { T, t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
 import { TempleAccountType } from 'lib/temple/types';
-import { useVanishingState } from 'lib/ui/hooks';
-import { delay } from 'lib/utils';
-import { useAccount } from 'temple/front';
+import { useDidUpdate, useVanishingState } from 'lib/ui/hooks';
+import { AccountForChain, getAccountForEvmAddress, getAccountForTezosAddress } from 'temple/accounts';
+import { useAccountForEvm, useAccountForTezos } from 'temple/front';
+import { TempleChainTitle } from 'temple/types';
 
 import { RevealSecretsSelectors } from './RevealSecrets.selectors';
 import { SecretField } from './SecretField';
@@ -22,25 +23,38 @@ type FormData = {
   password: string;
 };
 
-type RevealSecretProps = {
+type Props = {
   reveal: 'private-key' | 'seed-phrase';
 };
 
-const RevealSecret: FC<RevealSecretProps> = ({ reveal }) => {
+const RevealSecret: FC<Props> = ({ reveal }) => {
+  const accForTezos = useAccountForTezos();
+  const accForEvm = useAccountForEvm();
+
+  return (
+    <>
+      {accForTezos ? <RevealOneSecret reveal={reveal} account={accForTezos} /> : null}
+      {accForEvm ? <RevealOneSecret reveal={reveal} account={accForEvm} /> : null}
+    </>
+  );
+};
+
+interface RevealOneSecretProps extends Props {
+  account: AccountForChain;
+}
+
+const RevealOneSecret: FC<RevealOneSecretProps> = ({ reveal, account }) => {
+  const { chain, address } = account;
+
   const { revealPrivateKey, revealMnemonic } = useTempleClient();
-  const account = useAccount();
 
   const { register, handleSubmit, errors, setError, clearError, formState } = useForm<FormData>();
   const submitting = formState.isSubmitting;
 
   const [secret, setSecret] = useVanishingState();
 
-  useEffect(() => {
-    if (account.publicKeyHash) {
-      return () => setSecret(null);
-    }
-    return undefined;
-  }, [account.publicKeyHash, setSecret]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useDidUpdate(() => void setSecret(null), [account.id, setSecret]);
 
   const formRef = useRef<HTMLFormElement>(null);
 
@@ -62,7 +76,7 @@ const RevealSecret: FC<RevealSecretProps> = ({ reveal }) => {
 
         switch (reveal) {
           case 'private-key':
-            scrt = await revealPrivateKey(account.publicKeyHash, password);
+            scrt = await revealPrivateKey(address, password);
             break;
 
           case 'seed-phrase':
@@ -74,23 +88,11 @@ const RevealSecret: FC<RevealSecretProps> = ({ reveal }) => {
       } catch (err: any) {
         console.error(err);
 
-        // Human delay.
-        await delay();
         setError('password', SUBMIT_ERROR_TYPE, err.message);
         focusPasswordField();
       }
     },
-    [
-      reveal,
-      submitting,
-      clearError,
-      setError,
-      revealPrivateKey,
-      revealMnemonic,
-      account.publicKeyHash,
-      setSecret,
-      focusPasswordField
-    ]
+    [address, submitting, reveal, clearError, setError, revealPrivateKey, revealMnemonic, setSecret, focusPasswordField]
   );
 
   const texts = useMemo(() => {
@@ -101,6 +103,9 @@ const RevealSecret: FC<RevealSecretProps> = ({ reveal }) => {
           accountBanner: (
             <AccountBanner
               account={account}
+              tezosAddress={getAccountForTezosAddress(account)}
+              evmAddress={getAccountForEvmAddress(account)}
+              label={`${TempleChainTitle[chain]} Account`}
               labelDescription={t('ifYouWantToRevealPrivateKeyFromOtherAccount')}
               className="mb-6"
             />
@@ -150,7 +155,7 @@ const RevealSecret: FC<RevealSecretProps> = ({ reveal }) => {
           )
         };
     }
-  }, [reveal, account]);
+  }, [reveal, account, chain]);
 
   const forbidPrivateKeyRevealing =
     reveal === 'private-key' &&
@@ -222,7 +227,7 @@ const RevealSecret: FC<RevealSecretProps> = ({ reveal }) => {
   ]);
 
   return (
-    <div className="w-full max-w-sm p-2 mx-auto">
+    <div className="mt-6 w-full max-w-sm p-2 mx-auto">
       {texts.accountBanner}
 
       {texts.derivationPathBanner}

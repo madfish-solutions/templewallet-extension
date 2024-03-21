@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useEffect, useRef } from 'react';
+import React, { memo, useCallback, useEffect, useRef } from 'react';
 
 import { OnSubmit, useForm } from 'react-hook-form';
 
@@ -8,6 +8,7 @@ import { T, t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
 import { TempleAccountType } from 'lib/temple/types';
 import { navigate } from 'lib/woozie';
+import { getAccountAddressForEvm, getAccountAddressForTezos } from 'temple/accounts';
 import { useAccount, useTezosNetwork, useTezosRelevantAccounts } from 'temple/front';
 
 import { RemoveAccountSelectors } from './RemoveAccount.selectors';
@@ -18,7 +19,7 @@ type FormData = {
   password: string;
 };
 
-const RemoveAccount: FC = () => {
+const RemoveAccount = memo(() => {
   const { removeAccount } = useTempleClient();
   const { chainId } = useTezosNetwork();
   const allAccounts = useTezosRelevantAccounts(chainId);
@@ -42,20 +43,22 @@ const RemoveAccount: FC = () => {
 
       clearError('password');
       try {
-        await removeAccount(account.publicKeyHash, password);
+        await removeAccount(account.id, password);
       } catch (err: any) {
         console.error(err);
 
         setError('password', SUBMIT_ERROR_TYPE, err.message);
       }
     },
-    [submitting, clearError, setError, removeAccount, account.publicKeyHash]
+    [submitting, clearError, setError, removeAccount, account.id]
   );
 
   return (
     <div className="w-full max-w-sm p-2 mx-auto">
       <AccountBanner
         account={account}
+        tezosAddress={getAccountAddressForTezos(account)}
+        evmAddress={getAccountAddressForEvm(account)}
         labelDescription={
           <>
             <T id="accountToBeRemoved" />
@@ -103,6 +106,6 @@ const RemoveAccount: FC = () => {
       )}
     </div>
   );
-};
+});
 
 export default RemoveAccount;

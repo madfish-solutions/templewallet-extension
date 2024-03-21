@@ -1,4 +1,4 @@
-import React, { FC, useMemo } from 'react';
+import React, { FC, memo, useMemo } from 'react';
 
 import classNames from 'clsx';
 
@@ -33,8 +33,8 @@ type SettingsProps = {
   tabSlug?: string | null;
 };
 
-const RevealPrivateKey: FC = () => <RevealSecret reveal="private-key" />;
-const RevealSeedPhrase: FC = () => <RevealSecret reveal="seed-phrase" />;
+const RevealPrivateKey = memo(() => <RevealSecret reveal="private-key" />);
+const RevealSeedPhrase = memo(() => <RevealSecret reveal="seed-phrase" />);
 
 interface Tab {
   slug: string;

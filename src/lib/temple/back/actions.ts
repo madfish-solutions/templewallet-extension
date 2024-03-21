@@ -151,29 +151,29 @@ export function generateSyncPayload(password: string) {
   return withUnlocked(() => Vault.generateSyncPayload(password));
 }
 
-export function revealPrivateKey(accPublicKeyHash: string, password: string) {
-  return withUnlocked(() => Vault.revealPrivateKey(accPublicKeyHash, password));
+export function revealPrivateKey(address: string, password: string) {
+  return withUnlocked(() => Vault.revealPrivateKey(address, password));
 }
 
 export function revealPublicKey(accPublicKeyHash: string) {
   return withUnlocked(({ vault }) => vault.revealPublicKey(accPublicKeyHash));
 }
 
-export function removeAccount(accPublicKeyHash: string, password: string) {
+export function removeAccount(id: string, password: string) {
   return withUnlocked(async () => {
-    const updatedAccounts = await Vault.removeAccount(accPublicKeyHash, password);
+    const updatedAccounts = await Vault.removeAccount(id, password);
     accountsUpdated(updatedAccounts);
   });
 }
 
-export function editAccount(accPublicKeyHash: string, name: string) {
+export function editAccount(id: string, name: string) {
   return withUnlocked(async ({ vault }) => {
     name = name.trim();
     if (!ACCOUNT_NAME_PATTERN.test(name)) {
       throw new Error('Invalid name. It should be: 1-16 characters, without special');
     }
 
-    const updatedAccounts = await vault.editAccountName(accPublicKeyHash, name);
+    const updatedAccounts = await vault.editAccountName(id, name);
     accountsUpdated(updatedAccounts);
   });
 }

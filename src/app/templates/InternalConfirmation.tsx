@@ -262,7 +262,7 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
             />
           ) : (
             <>
-              <AccountBanner account={account} labelIndent="sm" className="w-full mb-4" />
+              <AccountBanner account={account} className="w-full mb-4" smallLabelIndent />
 
               <NetworkBanner rpc={payload.type === 'operations' ? payload.networkRpc : currentNetworkRpc} />
 

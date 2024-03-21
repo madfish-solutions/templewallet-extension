@@ -6,9 +6,12 @@ import { Alert, FormField, FormSubmitButton } from 'app/atoms';
 import AccountBanner from 'app/templates/AccountBanner';
 import { T, t } from 'lib/i18n';
 import { useSafeState } from 'lib/ui/hooks';
-import { useTezos, useAccount } from 'temple/front';
+import { AccountForChain } from 'temple/accounts';
+import { UNDER_DEVELOPMENT_MSG } from 'temple/evm/under_dev_msg';
+import { useTezos, useAccountForTezos } from 'temple/front';
 import { confirmTezosOperation } from 'temple/tezos';
 import { activateTezosAccount } from 'temple/tezos/activate-account';
+import { TempleChainName } from 'temple/types';
 
 import { ActivateAccountSelectors } from './ActivateAccount.selectors';
 
@@ -19,8 +22,21 @@ type FormData = {
 const SUBMIT_ERROR_TYPE = 'submit-error';
 
 const ActivateAccount = memo(() => {
+  const account = useAccountForTezos();
+
+  return account ? (
+    <ActivateTezosAccount account={account} />
+  ) : (
+    <div className="w-full max-w-sm p-2 mx-auto">{UNDER_DEVELOPMENT_MSG}</div>
+  );
+});
+
+interface Props {
+  account: AccountForChain<TempleChainName.Tezos>;
+}
+
+const ActivateTezosAccount = memo<Props>(({ account }) => {
   const tezos = useTezos();
-  const account = useAccount();
 
   const [success, setSuccess] = useSafeState<ReactNode>(null);
 
@@ -35,7 +51,7 @@ const ActivateAccount = memo(() => {
       setSuccess(null);
 
       try {
-        const activation = await activateTezosAccount(account.publicKeyHash, data.secret.replace(/\s/g, ''), tezos);
+        const activation = await activateTezosAccount(account.address, data.secret.replace(/\s/g, ''), tezos);
         switch (activation.status) {
           case 'ALREADY_ACTIVATED':
             setSuccess(`🏁 ${t('accountAlreadyActivated')}`);
@@ -55,7 +71,7 @@ const ActivateAccount = memo(() => {
         setError('secret', SUBMIT_ERROR_TYPE, mes);
       }
     },
-    [clearError, submitting, setError, setSuccess, account.publicKeyHash, tezos]
+    [clearError, submitting, setError, setSuccess, account.address, tezos]
   );
 
   const submit = useMemo(() => handleSubmit(onSubmit), [handleSubmit, onSubmit]);
@@ -74,6 +90,7 @@ const ActivateAccount = memo(() => {
     <form className="w-full max-w-sm p-2 mx-auto" onSubmit={submit}>
       <AccountBanner
         account={account}
+        tezosAddress={account.address}
         labelDescription={
           <>
             <T id="accountToBeActivated" />

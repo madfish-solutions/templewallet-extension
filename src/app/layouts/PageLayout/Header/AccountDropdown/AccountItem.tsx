@@ -8,7 +8,7 @@ import Balance from 'app/templates/Balance';
 import { setAnotherSelector, setTestID } from 'lib/analytics';
 import { StoredAccount } from 'lib/temple/types';
 import { useScrollIntoViewOnMount } from 'lib/ui/use-scroll-into-view';
-import { getAccountAddressOfTezos } from 'temple/accounts';
+import { getAccountAddressForTezos } from 'temple/accounts';
 
 import { AccountDropdownSelectors } from './selectors';
 
@@ -22,7 +22,7 @@ interface Props {
 
 export const AccountItem: React.FC<Props> = ({ account, selected, gasTokenName, attractSelf, onClick }) => {
   const accountAddress = account.publicKeyHash;
-  const accountTezAddress = useMemo(() => getAccountAddressOfTezos(account), [account]);
+  const accountTezAddress = useMemo(() => getAccountAddressForTezos(account), [account]);
 
   const elemRef = useScrollIntoViewOnMount<HTMLButtonElement>(selected && attractSelf);
 

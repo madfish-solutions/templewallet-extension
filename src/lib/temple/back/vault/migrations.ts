@@ -1,5 +1,7 @@
+import { nanoid } from 'nanoid';
+
 import * as Passworder from 'lib/temple/passworder';
-import { StoredAccount, StoredHDAccount, TempleAccountType, TempleContact, TempleSettings } from 'lib/temple/types';
+import { StoredAccount, TempleAccountType, TempleContact, TempleSettings } from 'lib/temple/types';
 import { TempleChainName } from 'temple/types';
 
 import {
@@ -47,7 +49,7 @@ export const MIGRATIONS = [
     const hdAccIndex = 0;
     const tezosAcc = await mnemonicToTezosAccountCreds(mnemonic, hdAccIndex);
 
-    const newInitialAccount: Omit<StoredHDAccount, 'evmAddress'> = {
+    const newInitialAccount: LegacyTypes.TempleAccount = {
       type: TempleAccountType.HD,
       name: await fetchNewAccountName(accounts),
       publicKeyHash: tezosAcc.publicKey,
@@ -107,7 +109,7 @@ export const MIGRATIONS = [
 
     const [mnemonic, accounts, settings] = await Promise.all([
       fetchLegacySafe<string>(mnemonicStrgKey),
-      fetchLegacySafe<StoredAccount[]>(accountsStrgKey),
+      fetchLegacySafe<LegacyTypes.TempleAccount[]>(accountsStrgKey),
       fetchLegacySafe<TempleSettings>(settingsStrgKey)
     ]);
 
@@ -140,27 +142,35 @@ export const MIGRATIONS = [
   async (password: string) => {
     console.log('VAULT.MIGRATIONS: EVM migration started');
     const passKey = await Passworder.generateKey(password);
-    const accounts = await fetchAndDecryptOne<StoredAccount[]>(accountsStrgKey, passKey);
+    const accounts = await fetchAndDecryptOne<LegacyTypes.TempleAccount[]>(accountsStrgKey, passKey);
     const mnemonic = await fetchAndDecryptOne<string>(mnemonicStrgKey, passKey);
 
     const toEncryptAndSave: [string, any][] = [];
-    for (const account of accounts) {
-      // account.tezAddress = account.publicKeyHash;
-      // delete account.publicKeyHash;
-      if (account.type === TempleAccountType.HD) {
-        const evmAcc = mnemonicToEvmAccountCreds(mnemonic, account.hdIndex);
 
-        account.evmAddress = evmAcc.address;
+    const newAccounts = accounts.map<StoredAccount>(account => {
+      const tezosAddress = account.publicKeyHash;
+      const id = nanoid();
 
-        toEncryptAndSave.push(...buildEncryptAndSaveManyForAccount(evmAcc));
-      } else if (account.type === TempleAccountType.WatchOnly) {
-        account.chain = TempleChainName.Tezos;
-      } else if (account.type === TempleAccountType.Imported) {
-        account.chain = TempleChainName.Tezos;
+      switch (account.type) {
+        case TempleAccountType.HD:
+          const evmAcc = mnemonicToEvmAccountCreds(mnemonic, account.hdIndex);
+          toEncryptAndSave.push(...buildEncryptAndSaveManyForAccount(evmAcc));
+
+          return { ...account, id, tezosAddress, evmAddress: evmAcc.address };
+        case TempleAccountType.Imported:
+          return { ...account, id, address: tezosAddress, chain: TempleChainName.Tezos };
+        case TempleAccountType.WatchOnly:
+          return { ...account, id, address: tezosAddress, chain: TempleChainName.Tezos };
+        case TempleAccountType.Ledger:
+          return { ...account, id, tezosAddress };
+        case TempleAccountType.ManagedKT:
+          return { ...account, id, tezosAddress };
       }
-    }
 
-    toEncryptAndSave.push([accountsStrgKey, accounts]);
+      return account;
+    });
+
+    toEncryptAndSave.push([accountsStrgKey, newAccounts]);
     await encryptAndSaveMany(toEncryptAndSave, passKey);
     console.log('VAULT.MIGRATIONS: EVM migration finished');
   }
@@ -170,3 +180,46 @@ export const MIGRATIONS = [
   //   //
   // }
 ];
+
+namespace LegacyTypes {
+  export type TempleAccount =
+    | TempleHDAccount
+    | TempleImportedAccount
+    | TempleLedgerAccount
+    | TempleManagedKTAccount
+    | TempleWatchOnlyAccount;
+
+  interface TempleLedgerAccount extends TempleAccountBase {
+    type: TempleAccountType.Ledger;
+    derivationPath: string;
+  }
+
+  interface TempleImportedAccount extends TempleAccountBase {
+    type: TempleAccountType.Imported;
+  }
+
+  interface TempleHDAccount extends TempleAccountBase {
+    type: TempleAccountType.HD;
+    hdIndex: number;
+  }
+
+  interface TempleManagedKTAccount extends TempleAccountBase {
+    type: TempleAccountType.ManagedKT;
+    chainId: string;
+    owner: string;
+  }
+
+  interface TempleWatchOnlyAccount extends TempleAccountBase {
+    type: TempleAccountType.WatchOnly;
+    chainId?: string;
+  }
+
+  interface TempleAccountBase {
+    type: TempleAccountType;
+    name: string;
+    publicKeyHash: string;
+    hdIndex?: number;
+    derivationPath?: string;
+    derivationType?: 0 | 1 | 2 | 3;
+  }
+}
