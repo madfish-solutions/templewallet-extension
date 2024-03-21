@@ -5,12 +5,6 @@ description: Prepares and runs e2e tests
 runs:
   using: 'composite'
   steps:
-    - name: Authenticate with private NPM package
-      shell: bash
-      env:
-        NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-      run: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc
-
     - working-directory: ./e2e
       shell: bash
       run: yarn install
