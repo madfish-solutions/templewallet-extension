@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { memo, useCallback, useMemo } from 'react';
 
 import classNames from 'clsx';
 
@@ -8,7 +8,7 @@ import Balance from 'app/templates/Balance';
 import { setAnotherSelector, setTestID } from 'lib/analytics';
 import { StoredAccount } from 'lib/temple/types';
 import { useScrollIntoViewOnMount } from 'lib/ui/use-scroll-into-view';
-import { getAccountAddressForTezos } from 'temple/accounts';
+import { getAccountAddressForEvm, getAccountAddressForTezos } from 'temple/accounts';
 
 import { AccountDropdownSelectors } from './selectors';
 
@@ -17,12 +17,16 @@ interface Props {
   selected: boolean;
   gasTokenName: string;
   attractSelf: boolean;
-  onClick: () => void;
+  onClick: (accountId: string) => void;
 }
 
-export const AccountItem: React.FC<Props> = ({ account, selected, gasTokenName, attractSelf, onClick }) => {
-  const accountAddress = account.publicKeyHash;
-  const accountTezAddress = useMemo(() => getAccountAddressForTezos(account), [account]);
+export const AccountItem = memo<Props>(({ account, selected, gasTokenName, attractSelf, onClick }) => {
+  const [accountTezAddress, displayAddress] = useMemo(() => {
+    const tezAddress = getAccountAddressForTezos(account);
+    const displayAddress = (tezAddress || getAccountAddressForEvm(account))!;
+
+    return [tezAddress, displayAddress];
+  }, [account]);
 
   const elemRef = useScrollIntoViewOnMount<HTMLButtonElement>(selected && attractSelf);
 
@@ -39,15 +43,17 @@ export const AccountItem: React.FC<Props> = ({ account, selected, gasTokenName, 
     [selected]
   );
 
+  const handleClick = useCallback(() => onClick(account.id), [onClick, account.id]);
+
   return (
     <Button
       ref={elemRef}
       className={classNameMemo}
-      onClick={onClick}
+      onClick={handleClick}
       testID={AccountDropdownSelectors.accountItemButton}
       testIDProperties={{ accountTypeEnum: account.type }}
     >
-      <Identicon type="bottts" hash={accountAddress} size={46} className="flex-shrink-0 shadow-xs-white" />
+      <Identicon type="bottts" hash={account.id} size={46} className="flex-shrink-0 shadow-xs-white" />
 
       <div style={{ marginLeft: '10px' }} className="flex flex-col items-start">
         <Name className="text-sm font-medium">{account.name}</Name>
@@ -55,14 +61,14 @@ export const AccountItem: React.FC<Props> = ({ account, selected, gasTokenName, 
         <div
           className="text-xs text-gray-500"
           {...setTestID(AccountDropdownSelectors.accountAddressValue)}
-          {...setAnotherSelector('hash', accountAddress)}
+          {...setAnotherSelector('hash', displayAddress)}
         >
-          <HashShortView hash={accountAddress} />
+          <HashShortView hash={displayAddress} />
         </div>
 
         <div className="flex flex-wrap items-center">
           {accountTezAddress ? (
-            <Balance address={accountAddress}>
+            <Balance address={accountTezAddress}>
               {bal => (
                 <span className="text-xs leading-tight flex items-baseline text-gray-500">
                   <Money smallFractionFont={false} tooltip={false}>
@@ -82,4 +88,4 @@ export const AccountItem: React.FC<Props> = ({ account, selected, gasTokenName, 
       </div>
     </Button>
   );
-};
+});

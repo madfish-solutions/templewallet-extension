@@ -1,13 +1,15 @@
 import browser, { Runtime } from 'webextension-polyfill';
 
 import { updateRulesStorage } from 'lib/ads/update-rules-storage';
-import { ACCOUNT_PKH_STORAGE_KEY, ANALYTICS_USER_ID_STORAGE_KEY, ContentScriptType } from 'lib/constants';
+import { ADS_VIEWER_TEZOS_ADDRESS_STORAGE_KEY, ANALYTICS_USER_ID_STORAGE_KEY, ContentScriptType } from 'lib/constants';
 import { E2eMessageType } from 'lib/e2e/types';
 import { BACKGROUND_IS_WORKER } from 'lib/env';
+import { fetchFromStorage } from 'lib/storage';
 import { encodeMessage, encryptMessage, getSenderId, MessageType, Response } from 'lib/temple/beacon';
 import { clearAsyncStorages } from 'lib/temple/reset';
-import { TempleMessageType, TempleRequest, TempleResponse } from 'lib/temple/types';
+import { TempleAccountType, TempleMessageType, TempleRequest, TempleResponse } from 'lib/temple/types';
 import { getTrackedCashbackServiceDomain, getTrackedUrl } from 'lib/utils/url-track/url-track.utils';
+import { getAccountAddressForTezos } from 'temple/accounts';
 
 import { AnalyticsEventCategory } from '../analytics-types';
 
@@ -247,18 +249,6 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
   }
 };
 
-const getCurrentAccountPkh = async (): Promise<string | undefined> => {
-  const { [ACCOUNT_PKH_STORAGE_KEY]: accountPkhFromStorage } = await browser.storage.local.get(ACCOUNT_PKH_STORAGE_KEY);
-
-  if (accountPkhFromStorage) {
-    return accountPkhFromStorage;
-  }
-
-  const frontState = await Actions.getFrontState();
-
-  return frontState.accounts[0]?.publicKeyHash;
-};
-
 const getAnalyticsUserId = async (): Promise<string | undefined> => {
   const { [ANALYTICS_USER_ID_STORAGE_KEY]: userId } = await browser.storage.local.get(ANALYTICS_USER_ID_STORAGE_KEY);
 
@@ -273,11 +263,6 @@ browser.runtime.onMessage.addListener(async msg => {
         return;
       case E2eMessageType.ResetRequest:
         return clearAsyncStorages().then(() => ({ type: E2eMessageType.ResetResponse }));
-    }
-
-    const accountPkh = await getCurrentAccountPkh();
-
-    switch (msg?.type) {
       case ContentScriptType.ExternalLinksActivity:
         const trackedCashbackServiceDomain = getTrackedCashbackServiceDomain(msg.url);
 
@@ -288,12 +273,14 @@ browser.runtime.onMessage.addListener(async msg => {
         const trackedUrl = getTrackedUrl(msg.url);
 
         if (trackedUrl) {
+          const accountPkh = await getTezosAccountAddressForAdsImpressions();
           await Analytics.client.track('External links activity', { url: trackedUrl, accountPkh });
         }
 
         break;
       case ContentScriptType.ExternalAdsActivity:
         const userId = await getAnalyticsUserId();
+        const accountPkh = await getTezosAccountAddressForAdsImpressions();
         await Analytics.trackEvent({
           category: AnalyticsEventCategory.General,
           userId: userId ?? '',
@@ -309,3 +296,16 @@ browser.runtime.onMessage.addListener(async msg => {
 
   return;
 });
+
+async function getTezosAccountAddressForAdsImpressions() {
+  const accountPkhFromStorage = await fetchFromStorage<string>(ADS_VIEWER_TEZOS_ADDRESS_STORAGE_KEY);
+
+  if (accountPkhFromStorage) {
+    return accountPkhFromStorage;
+  }
+
+  const frontState = await Actions.getFrontState();
+  const firstHDWalletAccount = frontState.accounts.find(acc => acc.type === TempleAccountType.HD);
+
+  return firstHDWalletAccount ? getAccountAddressForTezos(firstHDWalletAccount) : null;
+}

@@ -18,11 +18,11 @@ import SearchField from 'app/templates/SearchField';
 import { useGasToken } from 'lib/assets/hooks';
 import { searchHotkey } from 'lib/constants';
 import { T, t } from 'lib/i18n';
-import { useSetAccountPkh, useTempleClient } from 'lib/temple/front';
+import { useTempleClient, useSetAccountId } from 'lib/temple/front';
 import { PopperRenderProps } from 'lib/ui/Popper';
 import { searchAndFilterItems } from 'lib/utils/search-items';
 import { HistoryAction, navigate } from 'lib/woozie';
-import { useAccountAddress, useTezosNetwork, useTezosRelevantAccounts } from 'temple/front';
+import { useAccount, useTezosNetwork, useTezosRelevantAccounts } from 'temple/front';
 
 import { AccountItem } from './AccountItem';
 import { ActionButtonProps, ActionButton } from './ActionButton';
@@ -39,8 +39,8 @@ const AccountDropdown = memo<Props>(({ opened, setOpened }) => {
   const { lock } = useTempleClient();
   const { chainId } = useTezosNetwork();
   const allAccounts = useTezosRelevantAccounts(chainId);
-  const accountAddress = useAccountAddress();
-  const setAccountPkh = useSetAccountPkh();
+  const { id: currentAccountId } = useAccount();
+  const setAccountId = useSetAccountId();
   const { assetName: gasTokenName } = useGasToken();
 
   useShortcutAccountSelectModalIsOpened(() => setOpened(false));
@@ -83,15 +83,15 @@ const AccountDropdown = memo<Props>(({ opened, setOpened }) => {
   }, [appEnv.popup, closeDropdown]);
 
   const handleAccountClick = useCallback(
-    (publicKeyHash: string) => {
-      const selected = publicKeyHash === accountAddress;
+    (id: string) => {
+      const selected = id === currentAccountId;
       if (!selected) {
-        setAccountPkh(publicKeyHash);
+        setAccountId(id);
       }
       setOpened(false);
       navigate('/', HistoryAction.Replace);
     },
-    [accountAddress, setAccountPkh, setOpened]
+    [currentAccountId, setAccountId, setOpened]
   );
 
   const actions = useMemo(
@@ -220,12 +220,12 @@ const AccountDropdown = memo<Props>(({ opened, setOpened }) => {
             ) : (
               filteredAccounts.map(acc => (
                 <AccountItem
-                  key={acc.publicKeyHash}
+                  key={acc.id}
                   account={acc}
-                  selected={acc.publicKeyHash === accountAddress}
+                  selected={acc.id === currentAccountId}
                   gasTokenName={gasTokenName}
                   attractSelf={attractSelectedAccount}
-                  onClick={() => handleAccountClick(acc.publicKeyHash)}
+                  onClick={handleAccountClick}
                 />
               ))
             )}

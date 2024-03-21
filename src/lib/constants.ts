@@ -6,7 +6,9 @@ export enum ContentScriptType {
 
 export const WEBSITES_ANALYTICS_ENABLED = 'WEBSITES_ANALYTICS_ENABLED';
 
+/** @deprecated // TDOO: Gather all keys in one place*/
 export const ACCOUNT_PKH_STORAGE_KEY = 'account_publickeyhash';
+export const ADS_VIEWER_TEZOS_ADDRESS_STORAGE_KEY = 'ADS_VIEWER_TEZOS_ADDRESS';
 
 export const ANALYTICS_USER_ID_STORAGE_KEY = 'analytics_user_id';
 

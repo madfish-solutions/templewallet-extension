@@ -7,6 +7,7 @@ import { Button } from 'app/atoms/Button';
 import Spinner from 'app/atoms/Spinner/Spinner';
 import { useAppEnv } from 'app/env';
 // SVG
+import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { ReactComponent as DelegateIcon } from 'app/icons/delegate.svg';
 import { ReactComponent as DiscordIcon } from 'app/icons/delegationDis.svg';
 import { ReactComponent as RedditIcon } from 'app/icons/delegationRed.svg';
@@ -29,7 +30,7 @@ import { useDelegate } from 'lib/temple/front';
 import { TempleAccountType } from 'lib/temple/types';
 import useTippy from 'lib/ui/useTippy';
 import { Link } from 'lib/woozie';
-import { useAccount, useTezosNetwork } from 'temple/front';
+import { useAccountForTezos, useTezosNetwork } from 'temple/front';
 
 import styles from './BakingSection.module.css';
 import { BakingSectionSelectors } from './BakingSection.selectors';
@@ -71,8 +72,10 @@ const links = [
 ];
 
 const BakingSection = memo(() => {
-  const account = useAccount();
-  const { data: myBakerPkh } = useDelegate(account.publicKeyHash, true, false);
+  const account = useAccountForTezos();
+  if (!account) throw new DeadEndBoundaryError();
+
+  const { data: myBakerPkh } = useDelegate(account.address, true, false);
   const canDelegate = account.type !== TempleAccountType.WatchOnly;
   const { chainId } = useTezosNetwork();
   const { isDcpNetwork } = useGasToken();
@@ -102,7 +105,7 @@ const BakingSection = memo(() => {
     []
   );
   const { data: bakingHistory, isValidating: loadingBakingHistory } = useRetryableSWR(
-    ['baking-history', account.publicKeyHash, myBakerPkh, chainId],
+    ['baking-history', account.address, myBakerPkh, chainId],
     getBakingHistory,
     { suspense: true, revalidateOnFocus: false, revalidateOnReconnect: false }
   );
@@ -227,7 +230,7 @@ const BakingSection = memo(() => {
                   delegateButtonProps={commonSmallDelegateButtonProps}
                 />
               </div>
-              <BakerBanner accountPkh={account.publicKeyHash} displayAddress bakerPkh={myBakerPkh} />
+              <BakerBanner accountPkh={account.address} displayAddress bakerPkh={myBakerPkh} />
             </>
           ) : (
             <div className="flex flex-col items-center text-black">

@@ -14,12 +14,6 @@ export interface AccountForChain<C extends TempleChainName = TempleChainName> {
 
 export type AccountForTezos = AccountForChain<TempleChainName.Tezos>;
 
-export const getAccountForTezosAddress = (account: AccountForChain) =>
-  account.chain === 'tezos' ? account.address : undefined;
-
-export const getAccountForEvmAddress = (account: AccountForChain) =>
-  account.chain === 'evm' ? account.address : undefined;
-
 export function getAccountForChain<C extends TempleChainName>(
   account: StoredAccount,
   chain: C

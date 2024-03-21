@@ -2,7 +2,7 @@ export { useStorage } from './storage';
 
 export { useTempleClient, request, assertResponse } from './client';
 
-export { useAllNetworks, useSetNetworkId, useNetwork, useAllAccounts, useSetAccountPkh, useSettings } from './ready';
+export { useAllNetworks, useSetNetworkId, useNetwork, useAllAccounts, useSetAccountId, useSettings } from './ready';
 
 export { validateDerivationPath, validateContractAddress } from './helpers';
 

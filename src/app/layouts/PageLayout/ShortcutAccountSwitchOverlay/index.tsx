@@ -12,11 +12,11 @@ import SearchField from 'app/templates/SearchField';
 import { useGasToken } from 'lib/assets/hooks';
 import { searchHotkey } from 'lib/constants';
 import { T, t } from 'lib/i18n';
-import { useSetAccountPkh } from 'lib/temple/front';
+import { useSetAccountId } from 'lib/temple/front';
 import Portal from 'lib/ui/Portal';
 import { searchAndFilterItems } from 'lib/utils/search-items';
 import { HistoryAction, navigate } from 'lib/woozie';
-import { useAccountAddressForTezos, useTezosNetwork, useTezosRelevantAccounts } from 'temple/front';
+import { useAccount, useTezosNetwork, useTezosRelevantAccounts } from 'temple/front';
 
 import { AccountItem } from './AccountItem';
 
@@ -29,9 +29,9 @@ export const ShortcutAccountSwitchOverlay = memo(() => {
   useOnClickOutside(accountSwitchRef, () => setOpened(false));
 
   const { chainId } = useTezosNetwork();
+  const { id: currentAccountId } = useAccount(); // TODO: useAccountId()
   const allAccounts = useTezosRelevantAccounts(chainId);
-  const accountAddress = useAccountAddressForTezos();
-  const setAccountPkh = useSetAccountPkh();
+  const setAccountId = useSetAccountId();
   const { assetName: gasTokenName } = useGasToken();
 
   const [searchValue, setSearchValue] = useState('');
@@ -55,15 +55,15 @@ export const ShortcutAccountSwitchOverlay = memo(() => {
   }, [searchValue, allAccounts]);
 
   const handleAccountClick = useCallback(
-    (publicKeyHash: string) => {
-      const selected = publicKeyHash === accountAddress;
+    (id: string) => {
+      const selected = id === currentAccountId;
       if (!selected) {
-        setAccountPkh(publicKeyHash);
+        setAccountId(id);
       }
       setOpened(false);
       navigate('/', HistoryAction.Replace);
     },
-    [accountAddress, setAccountPkh, setOpened]
+    [currentAccountId, setAccountId, setOpened]
   );
 
   const handleCleanButtonClick = useCallback(() => {
@@ -82,8 +82,8 @@ export const ShortcutAccountSwitchOverlay = memo(() => {
       if (e.key === 'Enter') {
         e.preventDefault();
 
-        const focusedAccountPkh = filteredAccounts[focusedAccountItemIndex].publicKeyHash;
-        handleAccountClick(focusedAccountPkh);
+        const focusedAccount = filteredAccounts[focusedAccountItemIndex];
+        handleAccountClick(focusedAccount!.id);
 
         return;
       }
@@ -184,13 +184,13 @@ export const ShortcutAccountSwitchOverlay = memo(() => {
                   ) : (
                     filteredAccounts.map((acc, index) => (
                       <AccountItem
-                        key={acc.publicKeyHash}
+                        key={acc.id}
                         account={acc}
                         focused={focusedAccountItemIndex === index}
                         gasTokenName={gasTokenName}
                         arrayIndex={index}
                         itemsArrayRef={accountItemsRef}
-                        onClick={() => handleAccountClick(acc.publicKeyHash)}
+                        onClick={() => handleAccountClick(acc.id)}
                       />
                     ))
                   )}

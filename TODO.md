@@ -1,5 +1,6 @@
 ## TODO:
 
+- Branch for current epic
 - Import watch-only EVM account
 - Usage of `useAccount().publicKeyHash`
 - - With `useTezosAccount` hook
@@ -34,6 +35,9 @@
 
 - Installed `viem`
 - - Had to update TS & some other deps
+- Derivation for EVM: `addressIndex` instead of `accountIndex`
+- `getTezosAccountAddressForAdsImpressions()`
+- '(Internal) Confirm' pages
 -
 
 
@@ -50,4 +54,9 @@
 
 - Do we id selected account by Tezos PKH ?
 - `bip39` -> `@scure/bip39` ?
+-
+
+## TO QA
+- Dapps connection, switching account in Confirm window & reflection in other TW pages
+- Removing account in 1 window, observing another
 -

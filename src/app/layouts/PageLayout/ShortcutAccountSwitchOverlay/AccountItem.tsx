@@ -9,6 +9,7 @@ import Balance from 'app/templates/Balance';
 import { setAnotherSelector, setTestID } from 'lib/analytics';
 import { StoredAccount } from 'lib/temple/types';
 import { useScrollIntoView } from 'lib/ui/use-scroll-into-view';
+import { getAccountAddressForEvm, getAccountAddressForTezos } from 'temple/accounts';
 
 import { ShortcutAccountSwitchSelectors } from './selectors';
 
@@ -31,7 +32,12 @@ export const AccountItem: React.FC<AccountItemProps> = ({
   arrayIndex,
   itemsArrayRef
 }) => {
-  const { name, publicKeyHash, type } = account;
+  const [accountTezAddress, displayAddress] = useMemo(() => {
+    const tezAddress = getAccountAddressForTezos(account);
+    const displayAddress = (tezAddress || getAccountAddressForEvm(account))!;
+
+    return [tezAddress, displayAddress];
+  }, [account]);
 
   const elemRef = useScrollIntoView<HTMLButtonElement>(focused, scrollIntoViewOptions);
 
@@ -60,33 +66,35 @@ export const AccountItem: React.FC<AccountItemProps> = ({
       className={classNameMemo}
       onClick={onClick}
       testID={ShortcutAccountSwitchSelectors.accountItemButton}
-      testIDProperties={{ accountTypeEnum: type }}
+      testIDProperties={{ accountTypeEnum: account.type }}
     >
-      <Identicon type="bottts" hash={publicKeyHash} size={46} className="flex-shrink-0 shadow-xs-white" />
+      <Identicon type="bottts" hash={account.id} size={46} className="flex-shrink-0 shadow-xs-white" />
 
       <div style={{ marginLeft: '10px' }} className="flex flex-col items-start">
-        <Name className="text-sm font-medium">{name}</Name>
+        <Name className="text-sm font-medium">{account.name}</Name>
 
         <div
           className="text-xs text-gray-500"
           {...setTestID(ShortcutAccountSwitchSelectors.accountAddressValue)}
-          {...setAnotherSelector('hash', publicKeyHash)}
+          {...setAnotherSelector('hash', displayAddress)}
         >
-          <HashShortView hash={publicKeyHash} />
+          <HashShortView hash={displayAddress} />
         </div>
 
         <div className="flex flex-wrap items-end">
-          <Balance address={publicKeyHash}>
-            {bal => (
-              <span className="text-xs leading-tight flex items-baseline text-gray-500">
-                <Money smallFractionFont={false} tooltip={false}>
-                  {bal}
-                </Money>
+          {accountTezAddress && (
+            <Balance address={accountTezAddress}>
+              {bal => (
+                <span className="text-xs leading-tight flex items-baseline text-gray-500">
+                  <Money smallFractionFont={false} tooltip={false}>
+                    {bal}
+                  </Money>
 
-                <span className="ml-1">{gasTokenName.toUpperCase()}</span>
-              </span>
-            )}
-          </Balance>
+                  <span className="ml-1">{gasTokenName.toUpperCase()}</span>
+                </span>
+              )}
+            </Balance>
+          )}
 
           <AccountTypeBadge accountType={account.type} darkTheme />
         </div>

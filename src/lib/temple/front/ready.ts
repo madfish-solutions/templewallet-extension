@@ -2,7 +2,6 @@ import { useEffect, useLayoutEffect, useMemo } from 'react';
 
 import constate from 'constate';
 
-import { ACCOUNT_PKH_STORAGE_KEY } from 'lib/constants';
 import { IS_DEV_ENV } from 'lib/env';
 import {
   ReadyTempleState,
@@ -12,6 +11,8 @@ import {
   TempleNotification,
   TempleMessageType
 } from 'lib/temple/types';
+import { useUpdatableRef } from 'lib/ui/hooks';
+import { getAccountAddressForTezos } from 'temple/accounts';
 import { michelEncoder, buildFastRpcClient, ReactiveTezosToolkit } from 'temple/tezos';
 
 import { intercom, useTempleClient } from './client';
@@ -23,9 +24,8 @@ export const [
   useSetNetworkId,
   useNetwork,
   useAllAccounts,
-  useSetAccountPkh,
+  useSetAccountId,
   useStoredAccount,
-  useAccountAddress,
   useSettings,
   useTezos
 ] = constate(
@@ -34,9 +34,8 @@ export const [
   v => v.setNetworkId,
   v => v.network,
   v => v.allAccounts,
-  v => v.setAccountPkh,
+  v => v.setAccountId,
   v => v.account,
-  v => v.accountPkh,
   v => v.settings,
   v => v.tezos
 );
@@ -75,28 +74,35 @@ function useReadyTemple() {
    * Accounts
    */
 
-  const defaultAcc = allAccounts[0];
-  const [accountPkh, setAccountPkh] = usePassiveStorage(ACCOUNT_PKH_STORAGE_KEY, defaultAcc.publicKeyHash, true);
+  const allAccountsRef = useUpdatableRef(allAccounts);
+
+  const defaultAcc = allAccounts[0]!;
+  // TODO: Note that selected account will be reset with update to v2
+  // TODO: Collect all storage keys in a single record
+  const [accountId, setAccountId] = usePassiveStorage('CURRENT_ACCOUNT_ID', defaultAcc.id, true);
 
   useEffect(() => {
     return intercom.subscribe((msg: TempleNotification) => {
       switch (msg?.type) {
         case TempleMessageType.SelectedAccountChanged:
-          setAccountPkh(msg.accountPublicKeyHash);
+          const account = allAccountsRef.current.find(
+            acc => getAccountAddressForTezos(acc) === msg.accountPublicKeyHash
+          );
+          if (account) setAccountId(account.id);
           break;
       }
     });
-  }, [setAccountPkh]);
+  }, [setAccountId, allAccountsRef]);
 
   useEffect(() => {
-    if (allAccounts.every(a => a.publicKeyHash !== accountPkh)) {
-      setAccountPkh(defaultAcc.publicKeyHash);
+    if (allAccounts.every(a => a.id !== accountId)) {
+      setAccountId(defaultAcc.id);
     }
-  }, [allAccounts, accountPkh, setAccountPkh, defaultAcc]);
+  }, [allAccounts, defaultAcc, accountId, setAccountId]);
 
   const account = useMemo(
-    () => allAccounts.find(a => a.publicKeyHash === accountPkh) ?? defaultAcc,
-    [allAccounts, accountPkh, defaultAcc]
+    () => allAccounts.find(a => a.id === accountId) ?? defaultAcc,
+    [allAccounts, defaultAcc, accountId]
   );
 
   /**
@@ -106,7 +112,7 @@ function useReadyTemple() {
   useLayoutEffect(() => {
     const evt = new CustomEvent('reseterrorboundary');
     window.dispatchEvent(evt);
-  }, [networkId, accountPkh]);
+  }, [networkId, accountId]);
 
   /**
    * tezos = TezosToolkit instance
@@ -139,8 +145,7 @@ function useReadyTemple() {
 
     allAccounts,
     account,
-    accountPkh,
-    setAccountPkh,
+    setAccountId,
 
     settings,
     tezos

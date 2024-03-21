@@ -3,7 +3,7 @@ import { useCallback, useMemo } from 'react';
 import * as ViemChains from 'viem/chains';
 
 import { useRetryableSWR } from 'lib/swr';
-import { useNetwork, useStoredAccount, useAccountAddress, useAllAccounts, useTezos } from 'lib/temple/front/ready';
+import { useNetwork, useStoredAccount, useAllAccounts, useTezos } from 'lib/temple/front/ready';
 import { TempleAccountType, TempleTezosChainId } from 'lib/temple/types';
 import { TempleChainName } from 'temple/types';
 
@@ -91,9 +91,6 @@ function useAccountForChain<C extends TempleChainName>(chain: C): AccountForChai
   return useMemo(() => getAccountForChain(account, chain), [account, chain]);
 }
 
-// ts-prune-ignore-next
-export { useAccountAddress };
-
 export const useAccountAddressForTezos = () => useAccountAddressForChain(TempleChainName.Tezos);
 export const useAccountAddressForEvm = () => useAccountAddressForChain(TempleChainName.EVM) as HexString | undefined;
 
@@ -103,6 +100,7 @@ function useAccountAddressForChain(chain: TempleChainName): string | undefined {
   return useMemo(() => getAccountAddressForChain(storedAccount, chain), [storedAccount, chain]);
 }
 
+/** TODO: Check usage again */
 export function useTezosRelevantAccounts(tezosChainId: string) {
   const allAccounts = useAllAccounts();
 

@@ -10,9 +10,9 @@ import { T, t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
 import { TempleAccountType } from 'lib/temple/types';
 import { useDidUpdate, useVanishingState } from 'lib/ui/hooks';
-import { AccountForChain, getAccountForEvmAddress, getAccountForTezosAddress } from 'temple/accounts';
+import { AccountForChain } from 'temple/accounts';
 import { useAccountForEvm, useAccountForTezos } from 'temple/front';
-import { TempleChainTitle } from 'temple/types';
+import { TempleChainName, TempleChainTitle } from 'temple/types';
 
 import { RevealSecretsSelectors } from './RevealSecrets.selectors';
 import { SecretField } from './SecretField';
@@ -103,8 +103,8 @@ const RevealOneSecret: FC<RevealOneSecretProps> = ({ reveal, account }) => {
           accountBanner: (
             <AccountBanner
               account={account}
-              tezosAddress={getAccountForTezosAddress(account)}
-              evmAddress={getAccountForEvmAddress(account)}
+              tezosAddress={getAccountForChainAddress(account, TempleChainName.Tezos)}
+              evmAddress={getAccountForChainAddress(account, TempleChainName.EVM)}
               label={`${TempleChainTitle[chain]} Account`}
               labelDescription={t('ifYouWantToRevealPrivateKeyFromOtherAccount')}
               className="mb-6"
@@ -238,3 +238,6 @@ const RevealOneSecret: FC<RevealOneSecretProps> = ({ reveal, account }) => {
 };
 
 export default RevealSecret;
+
+const getAccountForChainAddress = (account: AccountForChain, chain: TempleChainName) =>
+  account.chain === chain ? account.address : undefined;

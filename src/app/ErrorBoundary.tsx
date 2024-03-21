@@ -5,10 +5,18 @@ import clsx from 'clsx';
 import { ReactComponent as DangerIcon } from 'app/icons/danger.svg';
 import { t, T } from 'lib/i18n';
 import { getOnlineStatus } from 'lib/ui/get-online-status';
+import { HistoryAction, navigate } from 'lib/woozie';
 
 export class BoundaryError extends Error {
   constructor(public readonly message: string, public readonly beforeTryAgain: EmptyFn) {
     super(message);
+  }
+}
+
+/** TODO: Test it */
+export class DeadEndBoundaryError extends BoundaryError {
+  constructor() {
+    super('🚧 🛠️ 🔜 🏗️', () => navigate('/', HistoryAction.Push));
   }
 }
 

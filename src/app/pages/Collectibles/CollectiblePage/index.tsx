@@ -28,8 +28,9 @@ import { TempleAccountType } from 'lib/temple/types';
 import { useInterval } from 'lib/ui/hooks';
 import { ImageStacked } from 'lib/ui/ImageStacked';
 import { navigate } from 'lib/woozie';
+import { AccountForChain } from 'temple/accounts';
 import { UNDER_DEVELOPMENT_MSG } from 'temple/evm/under_dev_msg';
-import { useAccount, useAccountAddressForTezos } from 'temple/front';
+import { useAccountForTezos } from 'temple/front';
 
 import { useCollectibleSelling } from '../hooks/use-collectible-selling.hook';
 
@@ -45,10 +46,10 @@ interface Props {
 }
 
 const CollectiblePage = memo<Props>(({ assetSlug }) => {
-  const accountTezAddress = useAccountAddressForTezos();
+  const tezosAccount = useAccountForTezos();
 
-  return accountTezAddress ? (
-    <TezosCollectiblePage assetSlug={assetSlug} />
+  return tezosAccount ? (
+    <TezosCollectiblePage assetSlug={assetSlug} account={tezosAccount} />
   ) : (
     <PageLayout pageTitle={UNDER_DEVELOPMENT_MSG}>
       <div className="flex flex-col gap-y-3 max-w-sm w-full mx-auto pt-2 pb-4">{UNDER_DEVELOPMENT_MSG}</div>
@@ -56,12 +57,10 @@ const CollectiblePage = memo<Props>(({ assetSlug }) => {
   );
 });
 
-const TezosCollectiblePage = memo<Props>(({ assetSlug }) => {
+const TezosCollectiblePage = memo<Props & { account: AccountForChain }>(({ assetSlug, account }) => {
   const metadata = useCollectibleMetadataSelector(assetSlug); // Loaded only, if shown in grid for now
   const details = useCollectibleDetailsSelector(assetSlug);
   const areAnyCollectiblesDetailsLoading = useAllCollectiblesDetailsLoadingSelector();
-
-  const account = useAccount();
 
   const [contractAddress, tokenId] = fromAssetSlug(assetSlug);
 
@@ -74,7 +73,7 @@ const TezosCollectiblePage = memo<Props>(({ assetSlug }) => {
   );
   const offers = extraDetails?.offers_active;
 
-  const { publicKeyHash } = account;
+  const publicKeyHash = account.address;
   const accountCanSign = account.type !== TempleAccountType.WatchOnly;
 
   const areDetailsLoading = areAnyCollectiblesDetailsLoading && details === undefined;
