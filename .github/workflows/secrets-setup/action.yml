@@ -5,6 +5,8 @@ description: Writes secrets
 inputs:
   GITHUB_ACTION_RUN_ENV:
     required: true
+  NPM_TOKEN:
+    required: true
   TEMPLE_WALLET_JITSU_TRACKING_HOST:
     required: true
   TEMPLE_WALLET_JITSU_WRITE_KEY:
@@ -98,6 +100,8 @@ inputs:
 runs:
   using: 'composite'
   steps:
+    - name: Authenticate with private NPM package
+      run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > .npmrc
     - name: Create .env file
       shell: bash
       run: |

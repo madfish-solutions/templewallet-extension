@@ -17,13 +17,12 @@ jobs:
 
       - name: Repo setup
         uses: ./.github/workflows/repo-setup
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Secrets setup
         uses: ./.github/workflows/secrets-setup
         with:
           GITHUB_ACTION_RUN_ENV: development
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           TEMPLE_WALLET_JITSU_TRACKING_HOST: ${{ vars.TEMPLE_WALLET_JITSU_TRACKING_HOST }}
           TEMPLE_WALLET_JITSU_WRITE_KEY: ${{ vars.TEMPLE_WALLET_JITSU_WRITE_KEY }}
           TEMPLE_WALLET_EXOLIX_API_KEY: ${{ secrets.TEMPLE_WALLET_EXOLIX_API_KEY }}
@@ -50,8 +49,6 @@ jobs:
 
       - name: Install dependencies and code quality check
         uses: ./.github/workflows/code-quality-check
-        with:
-          NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Create Chrome build
         run: yarn build:chrome

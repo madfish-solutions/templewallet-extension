@@ -1,15 +1,10 @@
 name: Code quality check
 description: Installs dependencies and checks TS, linting, dead code
-inputs:
-  NPM_AUTH_TOKEN:
-    required: true
 runs:
   using: 'composite'
   steps:
     - run: yarn install
       shell: bash
-      env:
-        NPM_AUTH_TOKEN: ${{ inputs.NPM_AUTH_TOKEN }}
 
     - name: Audit dependencies
       run: yarn audit-deps
