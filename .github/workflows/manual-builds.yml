@@ -81,7 +81,7 @@ jobs:
 
       - name: Install dependencies and code quality
         uses: ./.github/workflows/code-quality-check
-        env:
+        with:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Create Chrome build

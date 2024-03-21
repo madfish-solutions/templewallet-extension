@@ -5,6 +5,8 @@ runs:
   steps:
     - run: yarn install
       shell: bash
+      env:
+        NPM_TOKEN: ${{ inputs.NPM_TOKEN }}
 
     - name: Audit dependencies
       run: yarn audit-deps
