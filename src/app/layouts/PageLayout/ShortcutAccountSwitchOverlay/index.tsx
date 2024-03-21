@@ -42,12 +42,15 @@ export const ShortcutAccountSwitchOverlay = memo(() => {
       return allAccounts;
     }
 
+    // TODO: DRY - there is the same search in Accounts dropdown
     return searchAndFilterItems(
       allAccounts,
       searchValue.toLowerCase(),
       [
-        { name: 'name', weight: 1 },
-        { name: 'publicKeyHash', weight: 0.25 }
+        { name: 'name' as const, weight: 1 },
+        { name: 'address', weight: 0.25 },
+        { name: 'tezosAddress', weight: 0.25 },
+        { name: 'evmAddress', weight: 0.25 }
       ],
       null,
       0.35

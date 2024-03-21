@@ -58,7 +58,9 @@ const AccountDropdown = memo<Props>(({ opened, setOpened }) => {
       searchValue.toLowerCase(),
       [
         { name: 'name', weight: 1 },
-        { name: 'publicKeyHash', weight: 0.25 }
+        { name: 'address', weight: 0.25 },
+        { name: 'tezosAddress', weight: 0.25 },
+        { name: 'evmAddress', weight: 0.25 }
       ],
       null,
       0.35
