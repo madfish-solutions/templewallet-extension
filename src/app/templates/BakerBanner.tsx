@@ -10,8 +10,9 @@ import { BakingSectionSelectors } from 'app/pages/Home/OtherComponents/BakingSec
 import { toLocalFormat, T } from 'lib/i18n';
 import { HELP_UKRAINE_BAKER_ADDRESS, RECOMMENDED_BAKER_ADDRESS } from 'lib/known-bakers';
 import { useKnownBaker, useAllAccounts } from 'lib/temple/front';
-import { StoredAccount } from 'lib/temple/types';
+import { AccountForChain, getAccountAddressForTezos, getAccountForChain } from 'temple/accounts';
 import { useTezosNetwork } from 'temple/front';
+import { TempleChainName } from 'temple/types';
 
 import { OpenInExplorerChip } from './OpenInExplorerChip';
 
@@ -27,10 +28,11 @@ const BakerBanner = memo<Props>(({ accountPkh, bakerPkh, link = false, displayAd
   const { popup } = useAppEnv();
   const { data: baker } = useKnownBaker(bakerPkh);
 
-  const bakerAcc = useMemo(
-    () => allAccounts.find(acc => acc.publicKeyHash === bakerPkh) ?? null,
-    [allAccounts, bakerPkh]
-  );
+  const bakerAcc = useMemo(() => {
+    const acc = allAccounts.find(acc => getAccountAddressForTezos(acc) === bakerPkh);
+
+    return acc ? getAccountForChain(acc, TempleChainName.Tezos) : null;
+  }, [allAccounts, bakerPkh]);
 
   const isRecommendedBaker = bakerPkh === RECOMMENDED_BAKER_ADDRESS;
   const isHelpUkraineBaker = bakerPkh === HELP_UKRAINE_BAKER_ADDRESS;
@@ -155,7 +157,7 @@ const BakerBanner = memo<Props>(({ accountPkh, bakerPkh, link = false, displayAd
 export default BakerBanner;
 
 const BakerAccount: React.FC<{
-  bakerAcc: StoredAccount | null;
+  bakerAcc: AccountForChain | null;
   accPkh: string;
   bakerPkh: string;
 }> = ({ bakerAcc, accPkh, bakerPkh }) => {
@@ -164,7 +166,7 @@ const BakerAccount: React.FC<{
   return bakerAcc ? (
     <>
       {bakerAcc.name}
-      {bakerAcc.publicKeyHash === accPkh && (
+      {bakerAcc.address === accPkh && (
         <T id="selfComment">
           {message => (
             <>

@@ -1,4 +1,4 @@
-import React, { FC, memo } from 'react';
+import React, { FC, memo, useMemo } from 'react';
 
 import { ErrorBoundaryContent } from 'app/ErrorBoundary';
 import { ReactComponent as DiamondIcon } from 'app/icons/diamond.svg';
@@ -7,12 +7,17 @@ import DelegateForm from 'app/templates/DelegateForm';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { useBalance } from 'lib/balances';
 import { T } from 'lib/i18n';
+import { TempleAccountType } from 'lib/temple/types';
 import { ZERO } from 'lib/utils/numbers';
+import { AccountForTezos, getAccountForChain } from 'temple/accounts';
 import { UNDER_DEVELOPMENT_MSG } from 'temple/evm/under_dev_msg';
-import { useAccountAddressForTezos } from 'temple/front';
+import { useAccount } from 'temple/front';
+import { TempleChainName } from 'temple/types';
 
 const Delegate = memo(() => {
-  const publicKeyHash = useAccountAddressForTezos();
+  const currentAccount = useAccount();
+
+  const tezosAccount = useMemo(() => getAccountForChain(currentAccount, TempleChainName.Tezos), [currentAccount]);
 
   return (
     <PageLayout
@@ -22,8 +27,11 @@ const Delegate = memo(() => {
         </>
       }
     >
-      {publicKeyHash ? (
-        <DelegateContent publicKeyHash={publicKeyHash} />
+      {tezosAccount ? (
+        <DelegateContent
+          account={tezosAccount}
+          ownerAddress={currentAccount.type === TempleAccountType.ManagedKT ? currentAccount.owner : undefined}
+        />
       ) : (
         <div className="p-4 w-full max-w-sm mx-auto">{UNDER_DEVELOPMENT_MSG}</div>
       )}
@@ -33,8 +41,8 @@ const Delegate = memo(() => {
 
 export default Delegate;
 
-const DelegateContent: FC<{ publicKeyHash: string }> = ({ publicKeyHash }) => {
-  const gasBalance = useBalance(TEZ_TOKEN_SLUG, publicKeyHash);
+const DelegateContent: FC<{ account: AccountForTezos; ownerAddress?: string }> = ({ account, ownerAddress }) => {
+  const gasBalance = useBalance(TEZ_TOKEN_SLUG, account.address);
 
   const isLoading = !gasBalance.value && gasBalance.isSyncing;
 
@@ -45,7 +53,7 @@ const DelegateContent: FC<{ publicKeyHash: string }> = ({ publicKeyHash }) => {
   ) : (
     <div className="py-4">
       <div className="w-full max-w-sm mx-auto">
-        <DelegateForm balance={gasBalance.value ?? ZERO} />
+        <DelegateForm account={account} balance={gasBalance.value ?? ZERO} ownerAddress={ownerAddress} />
       </div>
     </div>
   );

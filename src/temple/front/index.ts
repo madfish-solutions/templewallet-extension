@@ -7,7 +7,7 @@ import { useNetwork, useStoredAccount, useAccountAddress, useAllAccounts, useTez
 import { TempleAccountType, TempleTezosChainId } from 'lib/temple/types';
 import { TempleChainName } from 'temple/types';
 
-import { AccountForChain, getAccountAddressForChain } from '../accounts';
+import { AccountForChain, getAccountAddressForChain, getAccountForChain } from '../accounts';
 import { loadTezosChainId } from '../tezos';
 
 export { useTezos };
@@ -88,27 +88,7 @@ function useAccountForChain<C extends TempleChainName>(chain: C): AccountForChai
 
   // return account;
 
-  const { id, type, name, derivationPath } = account;
-  let address: string | undefined;
-
-  switch (account.type) {
-    case TempleAccountType.HD:
-      address = account[`${chain}Address`];
-      break;
-    case TempleAccountType.Imported:
-      if (account.chain === chain) address = account.address;
-      break;
-    case TempleAccountType.WatchOnly:
-      // TODO: if (account.chainId && chainId !== account.chainId) return undefined; ?
-      if (account.chain === chain) address = account.address;
-      break;
-    default:
-      if (chain === 'tezos') address = account.tezosAddress;
-  }
-
-  if (!address) return null;
-
-  return { id, address, chain, type, name, derivationPath };
+  return useMemo(() => getAccountForChain(account, chain), [account, chain]);
 }
 
 // ts-prune-ignore-next

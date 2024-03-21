@@ -1,5 +1,6 @@
 import browser from 'webextension-polyfill';
 
+import { getAccountAddressForTezos } from 'temple/accounts';
 import { TempleChainName } from 'temple/types';
 
 import { TempleAccountType, TempleStatus } from '../types';
@@ -47,17 +48,18 @@ describe('Store tests', () => {
   it('Accounts updated event', () => {
     accountsUpdated([
       {
+        id: 'testId',
         name: 'testName',
         type: TempleAccountType.Imported,
         chain: TempleChainName.Tezos,
-        publicKeyHash: 'testHashKey'
+        address: 'testHashKey'
       }
     ]);
     const { accounts } = store.getState();
-    const { name, type, publicKeyHash } = accounts[0];
+    const { name, type } = accounts[0];
     expect(name).toBe('testName');
     expect(type).toBe(TempleAccountType.Imported);
-    expect(publicKeyHash).toBe('testHashKey');
+    expect(getAccountAddressForTezos(accounts[0])).toBe('testHashKey');
   });
   it('Settings updated event', () => {
     settingsUpdated({});
