@@ -6,7 +6,10 @@ runs:
   using: 'composite'
   steps:
     - name: Authenticate with private NPM package
-      run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > .npmrc
+      shell: bash
+      env:
+        NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      run: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc
 
     - working-directory: ./e2e
       shell: bash
