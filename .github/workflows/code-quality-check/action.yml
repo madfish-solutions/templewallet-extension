@@ -2,8 +2,6 @@ name: Code quality check
 description: Installs dependencies and checks TS, linting, dead code
 runs:
   using: 'composite'
-  env:
-    NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
   steps:
     - run: yarn install
       shell: bash

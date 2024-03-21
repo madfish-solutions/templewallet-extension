@@ -4,11 +4,11 @@ description: Prepares and runs e2e tests
 
 runs:
   using: 'composite'
-  env:
-    NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
   steps:
     - working-directory: ./e2e
       shell: bash
+      env:
+        NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       run: yarn install
 
     - name: Run tests
