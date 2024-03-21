@@ -8,6 +8,8 @@ runs:
     - working-directory: ./e2e
       shell: bash
       run: yarn install
+      env:
+        NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
     - name: Run tests
       working-directory: ./e2e

@@ -4,6 +4,8 @@ runs:
   using: 'composite'
   steps:
     - run: yarn install
+      env:
+        NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       shell: bash
 
     - name: Audit dependencies
