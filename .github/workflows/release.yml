@@ -50,7 +50,7 @@ jobs:
       - name: Install dependencies and code quality
         uses: ./.github/workflows/code-quality-check
         with:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Create Chrome and Firefox builds
         run: yarn build:chrome & yarn build:firefox

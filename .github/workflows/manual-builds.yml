@@ -82,7 +82,7 @@ jobs:
       - name: Install dependencies and code quality
         uses: ./.github/workflows/code-quality-check
         with:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Create Chrome build
         if: ${{ github.event.inputs.chrome == 'true' || github.event.inputs.chromePlusE2E == 'true' }}
