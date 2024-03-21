@@ -17,6 +17,8 @@ jobs:
 
       - name: Repo setup
         uses: ./.github/workflows/repo-setup
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Secrets setup
         uses: ./.github/workflows/secrets-setup
