@@ -4053,6 +4053,17 @@
   dependencies:
     nanoid "^3.1.25"
 
+"@temple-wallet/extension-ads@^1.0.1":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@temple-wallet/extension-ads/-/extension-ads-1.0.1.tgz#1d3b80b14ee0dbccc8ab5a73f79f40bdff2d403f"
+  integrity sha512-Uyo4WzhbMjLlDNYouYqPVNpf/BUgPpr5IRIyrOsXWTEijLM5OrHTyPix0CbqcUjP/jkmfpCkCdBVgVEaFLv2Ow==
+  dependencies:
+    "@vespaiach/axios-fetch-adapter" "^0.3.1"
+    axios "^1.6.8"
+    lodash "^4.17.21"
+    nanoid "^5.0.6"
+    webextension-polyfill "^0.10.0"
+
 "@temple-wallet/jest-webextension-mock@^4.1.0":
   version "4.1.0"
   resolved "https://registry.yarnpkg.com/@temple-wallet/jest-webextension-mock/-/jest-webextension-mock-4.1.0.tgz#6834acd98297eb1c76b85a2585a0584ff5578e8f"
@@ -5815,6 +5826,15 @@ axios@^1.6.2, axios@^1.6.7:
   integrity sha512-/hDJGff6/c7u0hDkvkGxR/oy6CbCs8ziCsC7SqmhjfozqiJGc8Z11wrv9z9lYfY4K8l+H9TpjcMDX0xOZmx+RA==
   dependencies:
     follow-redirects "^1.15.4"
+    form-data "^4.0.0"
+    proxy-from-env "^1.1.0"
+
+axios@^1.6.8:
+  version "1.6.8"
+  resolved "https://registry.yarnpkg.com/axios/-/axios-1.6.8.tgz#66d294951f5d988a00e87a0ffb955316a619ea66"
+  integrity sha512-v/ZHtJDU39mDpyBoFVkETcd/uNdxrWRrg3bKpOKzXFA6Bvqopts6ALSMU3y6ijYxbw2B+wPrIv46egTzJXCLGQ==
+  dependencies:
+    follow-redirects "^1.15.6"
     form-data "^4.0.0"
     proxy-from-env "^1.1.0"
 
@@ -8227,7 +8247,7 @@ flux@^4.0.1:
     fbemitter "^3.0.0"
     fbjs "^3.0.1"
 
-follow-redirects@^1.0.0, follow-redirects@^1.14.4, follow-redirects@^1.14.8, follow-redirects@^1.15.4:
+follow-redirects@^1.0.0, follow-redirects@^1.14.4, follow-redirects@^1.14.8, follow-redirects@^1.15.4, follow-redirects@^1.15.6:
   version "1.15.5"
   resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.15.5.tgz#54d4d6d062c0fa7d9d17feb008461550e3ba8020"
   integrity sha512-vSFWUON1B+yAw1VN4xMfxgn5fTUiaOzAJCKBwIIgT/+7CuGy9+r+5gITvP62j3RmaD5Ph65UaERdOSRGUzZtgw==
@@ -10617,6 +10637,11 @@ nanoid@^3.3.4:
   version "3.3.7"
   resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.3.7.tgz#d0c301a691bc8d54efa0a2226ccf3fe2fd656bd8"
   integrity sha512-eSRppjcPIatRIMC1U6UngP8XFcz8MQWGQdt1MTBQ7NaAmvXDfvNxbvWV3x2y6CdEUciCSsDHDQZbhYaB8QEo2g==
+
+nanoid@^5.0.6:
+  version "5.0.6"
+  resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-5.0.6.tgz#7f99a033aa843e4dcf9778bdaec5eb02f4dc44d5"
+  integrity sha512-rRq0eMHoGZxlvaFOUdK1Ev83Bd1IgzzR+WJ3IbDJ7QOSdAxYjlurSPqFs9s4lJg29RT6nPwizFtJhQS6V5xgiA==
 
 napi-wasm@^1.1.0:
   version "1.1.0"

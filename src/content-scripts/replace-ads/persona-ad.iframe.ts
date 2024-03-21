@@ -1,7 +1,7 @@
+import type { PersonaAdShape } from '@temple-wallet/extension-ads';
+
 import { getPersonaAdClient, PERSONA_STAGING_ADS_BANNER_UNIT_ID } from 'lib/ads/persona';
 import { EnvVars } from 'lib/env';
-
-import type { PersonaAdShape } from './ads-meta';
 
 const CONTAINER_ID = 'container';
 
