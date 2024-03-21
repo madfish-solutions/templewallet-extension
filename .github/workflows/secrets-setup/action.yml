@@ -101,7 +101,7 @@ runs:
   using: 'composite'
   steps:
     - name: Authenticate with private NPM package
-      run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > .npmrc
+      run: echo "//registry.npmjs.org/:_authToken=${{ inputs.NPM_TOKEN }}" > .npmrc
     - name: Create .env file
       shell: bash
       run: |
