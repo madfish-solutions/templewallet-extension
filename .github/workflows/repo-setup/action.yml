@@ -6,6 +6,7 @@ runs:
   steps:
     - name: Use Node 20.x
       uses: actions/setup-node@v4
+      shell: bash
       env:
         NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       with:
