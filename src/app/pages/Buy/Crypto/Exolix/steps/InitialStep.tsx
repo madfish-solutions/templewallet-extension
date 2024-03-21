@@ -10,7 +10,7 @@ import styles from 'app/pages/Buy/Crypto/Exolix/Exolix.module.css';
 import ErrorComponent from 'app/pages/Buy/Crypto/Exolix/steps/ErrorComponent';
 import WarningComponent from 'app/pages/Buy/Crypto/Exolix/steps/WarningComponent';
 import { TopUpInput } from 'app/templates/TopUpInput';
-import { T } from 'lib/i18n';
+import { T, t } from 'lib/i18n';
 import { useTypedSWR } from 'lib/swr';
 import { useAccount } from 'lib/temple/front';
 
@@ -159,6 +159,7 @@ const InitialStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
         isCurrenciesLoading={isCurrenciesLoading}
         decimals={EXOLIX_DECIMALS}
         label={<T id="send" />}
+        emptyListPlaceholder={t('dropdownNoItems')}
         onCurrencySelect={setCoinFrom}
         onAmountChange={setAmount}
         minAmount={minAmountString}
@@ -176,6 +177,7 @@ const InitialStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
         isCurrenciesLoading={isCurrenciesLoading}
         decimals={EXOLIX_DECIMALS}
         label={<T id="get" />}
+        emptyListPlaceholder={t('dropdownNoItems')}
         readOnly={true}
         amountInputDisabled={true}
         amount={toAmount}
