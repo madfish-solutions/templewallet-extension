@@ -1,5 +1,8 @@
 name: Code quality check
 description: Installs dependencies and checks TS, linting, dead code
+inputs:
+  NPM_TOKEN:
+    required: true
 runs:
   using: 'composite'
   steps:
