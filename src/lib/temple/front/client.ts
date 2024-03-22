@@ -139,9 +139,10 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     assertResponse(res.type === TempleMessageType.CreateAccountResponse);
   }, []);
 
-  const revealPrivateKey = useCallback(async (address: string, password: string) => {
+  const revealPrivateKey = useCallback(async (chain: TempleChainName, address: string, password: string) => {
     const res = await request({
       type: TempleMessageType.RevealPrivateKeyRequest,
+      chain,
       address,
       password
     });
@@ -317,17 +318,15 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
 
   const createTaquitoWallet = useCallback(
     (sourcePkh: string, networkRpc: string) =>
-      new TaquitoWallet(sourcePkh, networkRpc, {
-        onBeforeSend: id => {
-          confirmationIdRef.current = id;
-        }
+      new TempleTaquitoWallet(sourcePkh, networkRpc, id => {
+        confirmationIdRef.current = id;
       }),
     []
   );
 
   const createTaquitoSigner = useCallback(
     (sourcePkh: string) =>
-      new TempleSigner(sourcePkh, id => {
+      new TempleTaquitoSigner(sourcePkh, id => {
         confirmationIdRef.current = id;
       }),
     []
@@ -397,12 +396,8 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
   };
 });
 
-type TaquitoWalletOps = {
-  onBeforeSend?: (id: string) => void;
-};
-
-class TaquitoWallet implements WalletProvider {
-  constructor(private pkh: string, private rpc: string, private opts: TaquitoWalletOps = {}) {}
+class TempleTaquitoWallet implements WalletProvider {
+  constructor(private pkh: string, private rpc: string, private onBeforeSend?: (id: string) => void) {}
 
   async getPKH() {
     return this.pkh;
@@ -434,8 +429,8 @@ class TaquitoWallet implements WalletProvider {
 
   async sendOperations(opParams: any[]) {
     const id = nanoid();
-    if (this.opts.onBeforeSend) {
-      this.opts.onBeforeSend(id);
+    if (this.onBeforeSend) {
+      this.onBeforeSend(id);
     }
     const res = await request({
       type: TempleMessageType.OperationsRequest,
@@ -453,7 +448,7 @@ class TaquitoWallet implements WalletProvider {
   }
 }
 
-class TempleSigner implements Signer {
+class TempleTaquitoSigner implements Signer {
   constructor(private pkh: string, private onBeforeSign?: (id: string) => void) {}
 
   async publicKeyHash() {

@@ -52,7 +52,7 @@ describe('Vault tests', () => {
     const vault = await Vault.setup(password);
     const accounts = await vault.createHDAccount(accountName);
     const publicKeyHash = getAccountAddressForTezos(accounts[0])!;
-    const privateKey = await Vault.revealPrivateKey(publicKeyHash, password);
+    const privateKey = await Vault.revealPrivateKey(TempleChainName.Tezos, publicKeyHash, password);
     expect(typeof privateKey).toBe('string');
   });
 

@@ -463,6 +463,7 @@ interface TempleRevealPublicKeyResponse extends TempleMessageBase {
 
 interface TempleRevealPrivateKeyRequest extends TempleMessageBase {
   type: TempleMessageType.RevealPrivateKeyRequest;
+  chain: TempleChainName;
   address: string;
   password: string;
 }

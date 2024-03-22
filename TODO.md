@@ -60,4 +60,12 @@
 ## TO QA
 - Dapps connection, switching account in Confirm window & reflection in other TW pages
 - Removing account in 1 window, observing another
+- Import Tezos accounts by revealed Private Key
+-
+
+## TASKS
+- Import by mnemonic
+- Networks
+- Assets & Balances
+- Analytics
 -

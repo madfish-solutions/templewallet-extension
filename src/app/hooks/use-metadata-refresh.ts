@@ -1,7 +1,6 @@
 import { useEffect, useMemo } from 'react';
 
-import { useDispatch } from 'react-redux';
-
+import { dispatch } from 'app/store';
 import { refreshTokensMetadataAction } from 'app/store/tokens-metadata/actions';
 import { useAllTokensMetadataSelector } from 'app/store/tokens-metadata/selectors';
 import { fetchTokensMetadata } from 'lib/apis/temple';
@@ -19,7 +18,6 @@ const REFRESH_VERSION = 1;
 
 export const useMetadataRefresh = () => {
   const { chainId } = useTezosNetwork();
-  const dispatch = useDispatch();
 
   const [records, setRecords] = useLocalStorage<RefreshRecords>(STORAGE_KEY, {});
 

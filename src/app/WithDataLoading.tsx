@@ -36,9 +36,9 @@ export const WithDataLoading: FC<PropsWithChildren> = ({ children }) => {
   useStorageAnalytics();
   useUserIdSync();
 
-  const publicKeyHash = useAccountAddressForTezos();
+  const tezosAddress = useAccountAddressForTezos();
 
-  return publicKeyHash ? <WithTezosDataLoading publicKeyHash={publicKeyHash} children={children} /> : <>{children}</>;
+  return tezosAddress ? <WithTezosDataLoading publicKeyHash={tezosAddress} children={children} /> : <>{children}</>;
 };
 
 const WithTezosDataLoading: FC<{ publicKeyHash: string } & PropsWithChildren> = ({ publicKeyHash, children }) => {

@@ -7,7 +7,7 @@ import { Route3LiquidityBakingChains, Route3SwapChains } from 'lib/route3/interf
 import { getSwapTransferParams } from 'lib/utils/swap.utils';
 import { useTezos } from 'temple/front';
 
-export const useSwap = (publicKeyHash: string) => {
+export const useGetSwapTransferParams = (publicKeyHash: string) => {
   const tezos = useTezos();
 
   return useCallback(

@@ -155,8 +155,8 @@ export function generateSyncPayload(password: string) {
   return withUnlocked(() => Vault.generateSyncPayload(password));
 }
 
-export function revealPrivateKey(address: string, password: string) {
-  return withUnlocked(() => Vault.revealPrivateKey(address, password));
+export function revealPrivateKey(chain: TempleChainName, address: string, password: string) {
+  return withUnlocked(() => Vault.revealPrivateKey(chain, address, password));
 }
 
 export function revealPublicKey(accPublicKeyHash: string) {

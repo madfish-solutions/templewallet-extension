@@ -76,7 +76,7 @@ const RevealOneSecret: FC<RevealOneSecretProps> = ({ reveal, account }) => {
 
         switch (reveal) {
           case 'private-key':
-            scrt = await revealPrivateKey(address, password);
+            scrt = await revealPrivateKey(chain, address, password);
             break;
 
           case 'seed-phrase':
@@ -92,7 +92,18 @@ const RevealOneSecret: FC<RevealOneSecretProps> = ({ reveal, account }) => {
         focusPasswordField();
       }
     },
-    [address, submitting, reveal, clearError, setError, revealPrivateKey, revealMnemonic, setSecret, focusPasswordField]
+    [
+      address,
+      submitting,
+      chain,
+      reveal,
+      clearError,
+      setError,
+      revealPrivateKey,
+      revealMnemonic,
+      setSecret,
+      focusPasswordField
+    ]
   );
 
   const texts = useMemo(() => {

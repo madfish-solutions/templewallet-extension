@@ -78,7 +78,7 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
       };
 
     case TempleMessageType.RevealPrivateKeyRequest:
-      const privateKey = await Actions.revealPrivateKey(req.address, req.password);
+      const privateKey = await Actions.revealPrivateKey(req.chain, req.address, req.password);
       return {
         type: TempleMessageType.RevealPrivateKeyResponse,
         privateKey

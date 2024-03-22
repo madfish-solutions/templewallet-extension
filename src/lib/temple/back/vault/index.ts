@@ -12,7 +12,7 @@ import * as Passworder from 'lib/temple/passworder';
 import { clearAsyncStorages } from 'lib/temple/reset';
 import { StoredAccount, TempleAccountType, TempleSettings } from 'lib/temple/types';
 import { isTruthy } from 'lib/utils';
-import { getAccountAddressForChain } from 'temple/accounts';
+import { getAccountAddressForChain, getAccountAddressForTezos } from 'temple/accounts';
 import { michelEncoder, buildFastRpcClient } from 'temple/tezos';
 import { TempleChainName } from 'temple/types';
 
@@ -238,12 +238,18 @@ export class Vault {
     });
   }
 
-  static async revealPrivateKey(address: string, password: string) {
+  static async revealPrivateKey(chain: TempleChainName, address: string, password: string) {
     const { passKey } = await Vault.toValidPassKey(password);
     return withError('Failed to reveal private key', async () => {
-      const privateKeySeed = await fetchAndDecryptOne<string>(accPrivKeyStrgKey(address), passKey);
-      const signer = await createMemorySigner(privateKeySeed);
-      return signer.secretKey();
+      const privateKey = await fetchAndDecryptOne<string>(accPrivKeyStrgKey(address), passKey);
+
+      switch (chain) {
+        case TempleChainName.Tezos:
+          const signer = await createMemorySigner(privateKey);
+          return signer.secretKey();
+        default:
+          return privateKey;
+      }
     });
   }
 
@@ -579,7 +585,7 @@ export class Vault {
 
   private async getSigner(accPublicKeyHash: string): Promise<{ signer: Signer; cleanup: () => void }> {
     const allAccounts = await this.fetchAccounts();
-    const acc = allAccounts.find(a => a.publicKeyHash === accPublicKeyHash);
+    const acc = allAccounts.find(acc => getAccountAddressForTezos(acc) === accPublicKeyHash);
     if (!acc) {
       throw new PublicError('Account not found');
     }

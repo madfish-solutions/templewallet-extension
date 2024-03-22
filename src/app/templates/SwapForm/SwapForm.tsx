@@ -8,7 +8,6 @@ import classNames from 'clsx';
 import { Controller, useForm } from 'react-hook-form';
 
 import { Alert, FormSubmitButton } from 'app/atoms';
-import { useSwap } from 'app/hooks/use-swap';
 import { ReactComponent as InfoIcon } from 'app/icons/info.svg';
 import { ReactComponent as ToggleIcon } from 'app/icons/toggle.svg';
 import { buildSwapPageUrlQuery } from 'app/pages/Swap/utils/build-url-query';
@@ -58,6 +57,7 @@ import { slippageToleranceInputValidationFn } from './SwapFormInput/SlippageTole
 import { SwapFormInput } from './SwapFormInput/SwapFormInput';
 import { SwapMinimumReceived } from './SwapMinimumReceived/SwapMinimumReceived';
 import { SwapRoute } from './SwapRoute/SwapRoute';
+import { useGetSwapTransferParams } from './use-swap-params';
 
 interface Props {
   publicKeyHash: string;
@@ -66,7 +66,8 @@ interface Props {
 export const SwapForm = memo<Props>(({ publicKeyHash }) => {
   const tezos = useTezos();
   const blockLevel = useTezosBlockLevel();
-  const getSwapParams = useSwap(publicKeyHash);
+
+  const getSwapParams = useGetSwapTransferParams(publicKeyHash);
   const { data: route3Tokens } = useSwapTokensSelector();
   const swapParams = useSwapParamsSelector();
   const allUsdToTokenRates = useSelector(state => state.currency.usdToTokenRates.data);
