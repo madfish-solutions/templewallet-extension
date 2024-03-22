@@ -17,7 +17,7 @@ import constate from 'constate';
 import { nanoid } from 'nanoid';
 import toBuffer from 'typedarray-to-buffer';
 
-import { IntercomClient } from 'lib/intercom';
+import { IntercomClient } from 'lib/intercom/client';
 import { useRetryableSWR } from 'lib/swr';
 import { clearLocalStorage } from 'lib/temple/reset';
 import {
@@ -206,6 +206,7 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     assertResponse(res.type === TempleMessageType.ImportMnemonicAccountResponse);
   }, []);
 
+  // TODO: Extract to module function
   const importFundraiserAccount = useCallback(async (email: string, password: string, mnemonic: string) => {
     const res = await request({
       type: TempleMessageType.ImportFundraiserAccountRequest,

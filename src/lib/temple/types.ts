@@ -77,7 +77,7 @@ interface StoredImportedAccount extends StoredAccountBase {
   address: string;
 }
 
-interface StoredHDAccount extends StoredAccountBase {
+export interface StoredHDAccount extends StoredAccountBase {
   type: TempleAccountType.HD;
   hdIndex: number;
   tezosAddress: string;

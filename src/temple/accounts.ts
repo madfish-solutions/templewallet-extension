@@ -44,7 +44,6 @@ export function getAccountForChain<C extends TempleChainName>(
 export const getAccountAddressForTezos = (account: StoredAccount) =>
   getAccountAddressForChain(account, TempleChainName.Tezos);
 
-// ts-prune-ignore-next
 export const getAccountAddressForEvm = (account: StoredAccount) =>
   getAccountAddressForChain(account, TempleChainName.EVM) as HexString | undefined;
 
@@ -62,7 +61,8 @@ export const getAccountAddressForChain = (account: StoredAccount, chain: TempleC
   return account.tezosAddress;
 };
 
-export const getAccountAddressesRecord = (account: StoredAccount) => ({
+// ts-prune-ignore-next
+export const getAccountAddressesRecord = (account: StoredAccount): Record<TempleChainName, string | undefined> => ({
   [TempleChainName.Tezos]: getAccountAddressForTezos(account),
   [TempleChainName.EVM]: getAccountAddressForEvm(account)
 });

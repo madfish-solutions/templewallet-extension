@@ -26,3 +26,6 @@ export const TKEY_AD_PLACEMENT_SLUG = 'tkey_ad_placement';
 
 const isMacOS = /Mac OS/.test(navigator.userAgent);
 export const searchHotkey = ` (${isMacOS ? '⌘' : 'Ctrl + '}K)`;
+
+/** TODO: Figure-out better error communication BG->FG */
+export const ACCOUNT_ALREADY_EXISTS_ERR_MSG = 'Account already exists';

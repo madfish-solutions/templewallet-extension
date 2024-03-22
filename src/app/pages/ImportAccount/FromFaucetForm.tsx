@@ -5,11 +5,13 @@ import { useForm, Controller } from 'react-hook-form';
 
 import { Alert, FileInputProps, FileInput, FormField, FormSubmitButton } from 'app/atoms';
 import { useFormAnalytics } from 'lib/analytics';
+import { ACCOUNT_ALREADY_EXISTS_ERR_MSG } from 'lib/constants';
 import { TID, T, t } from 'lib/i18n';
-import { useTempleClient, useSetAccountPkh } from 'lib/temple/front';
-import { useSafeState } from 'lib/ui/hooks';
+import { useTempleClient, useAllAccounts, useSetAccountId } from 'lib/temple/front';
+import { useSafeState, useUpdatableRef } from 'lib/ui/hooks';
 import { delay } from 'lib/utils';
 import { navigate } from 'lib/woozie';
+import { getAccountAddressForTezos } from 'temple/accounts';
 import { useTezos } from 'temple/front';
 import { confirmTezosOperation } from 'temple/tezos';
 import { activateTezosAccount } from 'temple/tezos/activate-account';
@@ -32,7 +34,11 @@ interface FaucetTextInputFormData {
 
 export const FromFaucetForm: FC = () => {
   const { importFundraiserAccount } = useTempleClient();
-  const setAccountPkh = useSetAccountPkh();
+
+  const allAccounts = useAllAccounts();
+  const allAccountsRef = useUpdatableRef(allAccounts);
+
+  const setAccountId = useSetAccountId();
   const tezos = useTezos();
   const formAnalytics = useFormAnalytics(ImportAccountFormType.FaucetFile);
 
@@ -62,16 +68,19 @@ export const FromFaucetForm: FC = () => {
       try {
         await importFundraiserAccount(data.email, data.password, data.mnemonic.join(' '));
       } catch (err: any) {
-        if (/Account already exists/.test(err?.message)) {
-          setAccountPkh(data.pkh);
-          navigate('/');
-          return;
+        if (err?.message === ACCOUNT_ALREADY_EXISTS_ERR_MSG) {
+          const accountId = allAccountsRef.current.find(acc => getAccountAddressForTezos(acc) === data.pkh)?.id;
+          if (accountId) {
+            setAccountId(accountId);
+            navigate('/');
+            return;
+          }
         }
 
         throw err;
       }
     },
-    [importFundraiserAccount, setAccountPkh, setAlert, tezos]
+    [importFundraiserAccount, setAccountId, setAlert, tezos, allAccountsRef]
   );
 
   const onTextFormSubmit = useCallback(

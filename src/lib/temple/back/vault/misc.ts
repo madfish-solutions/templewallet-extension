@@ -5,7 +5,9 @@ import * as Ed25519 from 'ed25519-hd-key';
 import * as ViemAccounts from 'viem/accounts';
 import { isHex, toHex } from 'viem/utils';
 
-import { StoredAccount } from 'lib/temple/types';
+import { ACCOUNT_ALREADY_EXISTS_ERR_MSG } from 'lib/constants';
+import { StoredAccount, StoredHDAccount, TempleAccountType } from 'lib/temple/types';
+import { TempleChainName } from 'temple/types';
 
 import { PublicError } from '../PublicError';
 
@@ -18,12 +20,40 @@ export function generateCheck() {
   return Bip39.generateMnemonic(128);
 }
 
-export function concatAccount(current: StoredAccount[], newOne: StoredAccount) {
-  if (current.every(a => a.publicKeyHash !== newOne.publicKeyHash)) {
-    return [...current, newOne];
-  }
+/** TODO: Check UX logic */
+export function concatAccount(current: StoredAccount[], newOne: Exclude<StoredAccount, StoredHDAccount>) {
+  /** New account is for certain chain */
+  const [chain, address] = (() => {
+    switch (newOne.type) {
+      case TempleAccountType.Imported:
+      case TempleAccountType.WatchOnly:
+        return [newOne.chain, newOne.address];
+      case TempleAccountType.ManagedKT:
+      case TempleAccountType.Ledger:
+        return [TempleChainName.Tezos, newOne.tezosAddress];
+    }
 
-  throw new PublicError('Account already exists');
+    throw new PublicError('Missing account type');
+  })();
+
+  const exists = current.some(acc => {
+    switch (acc.type) {
+      case TempleAccountType.HD:
+        return acc[`${chain}Address`] === address;
+      case TempleAccountType.Imported:
+      case TempleAccountType.WatchOnly:
+        return acc.chain === chain && acc.address === address;
+      case TempleAccountType.ManagedKT:
+      case TempleAccountType.Ledger:
+        return acc.tezosAddress === address;
+    }
+
+    throw new PublicError('Missing account type');
+  });
+
+  if (exists) throw new PublicError(ACCOUNT_ALREADY_EXISTS_ERR_MSG);
+
+  return [...current, newOne];
 }
 
 type NewAccountName = 'defaultAccountName' | 'defaultManagedKTAccountName' | 'defaultWatchOnlyAccountName';

@@ -16,8 +16,10 @@ import { useRetryableSWR } from 'lib/swr';
 import { useTempleClient } from 'lib/temple/front';
 import { isAddressValid } from 'lib/temple/helpers';
 import { TempleAccountType } from 'lib/temple/types';
-import { delay } from 'lib/utils';
-import { useTezos, useTezosNetwork, useTezosRelevantAccounts } from 'temple/front';
+import { delay, isTruthy } from 'lib/utils';
+import { getAccountForChain } from 'temple/accounts';
+import { useTezos, useTezosNetwork, useRelevantAccounts } from 'temple/front';
+import { TempleChainName } from 'temple/types';
 
 import { ImportAccountSelectors, ImportAccountFormType } from './selectors';
 
@@ -28,10 +30,17 @@ type ImportKTAccountFormData = {
 const getContractAddress = (contract: TzktRelatedContract) => contract.address;
 
 export const ManagedKTForm: FC = () => {
-  const { chainId } = useTezosNetwork();
-  const accounts = useTezosRelevantAccounts(chainId);
-  const tezos = useTezos();
   const { importKTManagedAccount } = useTempleClient();
+
+  const { chainId } = useTezosNetwork();
+  const tezos = useTezos();
+
+  const relevantccounts = useRelevantAccounts(chainId);
+  const tezosAccounts = useMemo(
+    () => relevantccounts.map(acc => getAccountForChain(acc, TempleChainName.Tezos)).filter(isTruthy),
+    [relevantccounts]
+  );
+
   const formAnalytics = useFormAnalytics(ImportAccountFormType.ManagedKT);
 
   const [error, setError] = useState<ReactNode>(null);
@@ -40,15 +49,15 @@ export const ManagedKTForm: FC = () => {
     () => [
       'get-accounts-contracts',
       chainId,
-      ...accounts.filter(({ type }) => type !== TempleAccountType.ManagedKT).map(({ publicKeyHash }) => publicKeyHash)
+      ...tezosAccounts.filter(({ type }) => type !== TempleAccountType.ManagedKT).map(acc => acc.address)
     ],
-    [accounts, chainId]
+    [tezosAccounts, chainId]
   );
   const { data: usersContracts = [] } = useRetryableSWR(queryKey, getUsersContracts, {});
 
   const remainingUsersContracts = useMemo(() => {
-    return usersContracts.filter(({ address }) => !accounts.some(({ publicKeyHash }) => publicKeyHash === address));
-  }, [accounts, usersContracts]);
+    return usersContracts.filter(({ address }) => !tezosAccounts.some(acc => acc.address === address));
+  }, [tezosAccounts, usersContracts]);
 
   const { watch, handleSubmit, errors, control, formState, setValue, triggerValidation } =
     useForm<ImportKTAccountFormData>({
@@ -71,14 +80,14 @@ export const ManagedKTForm: FC = () => {
         case value.startsWith('KT'):
           return t('notContractAddress');
 
-        case accounts.every(({ publicKeyHash }) => publicKeyHash !== value):
+        case tezosAccounts.every(acc => acc.address !== value):
           return t('contractAlreadyImported');
 
         default:
           return true;
       }
     },
-    [accounts]
+    [tezosAccounts]
   );
 
   const contractAddress = watch('contractAddress');
@@ -112,7 +121,7 @@ export const ManagedKTForm: FC = () => {
           throw new Error(t('invalidManagedContract'));
         }
 
-        if (!accounts.some(({ publicKeyHash }) => publicKeyHash === owner)) {
+        if (!tezosAccounts.some(acc => acc.address === owner)) {
           throw new Error(t('youAreNotContractManager'));
         }
 
@@ -130,7 +139,7 @@ export const ManagedKTForm: FC = () => {
         setError(err.message);
       }
     },
-    [formState, tezos, accounts, importKTManagedAccount, formAnalytics]
+    [formState, tezos, tezosAccounts, importKTManagedAccount, formAnalytics]
   );
 
   const handleKnownContractSelect = useCallback(

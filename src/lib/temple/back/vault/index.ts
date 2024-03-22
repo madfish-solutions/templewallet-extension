@@ -12,7 +12,7 @@ import * as Passworder from 'lib/temple/passworder';
 import { clearAsyncStorages } from 'lib/temple/reset';
 import { StoredAccount, TempleAccountType, TempleSettings } from 'lib/temple/types';
 import { isTruthy } from 'lib/utils';
-import { getAccountAddressForChain, getAccountAddressForEvm, getAccountAddressForTezos } from 'temple/accounts';
+import { getAccountAddressForChain } from 'temple/accounts';
 import { michelEncoder, buildFastRpcClient } from 'temple/tezos';
 import { TempleChainName } from 'temple/types';
 
@@ -325,18 +325,23 @@ export class Vault {
 
       if (!hdAccIndex) {
         const allHDAccounts = allAccounts.filter(a => a.type === TempleAccountType.HD);
-        hdAccIndex = allHDAccounts.length;
+        hdAccIndex = allHDAccounts.length; // TODO: Accomodate for multiple 'Wallets' & custom-derived (index gaps)
       }
 
       const tezosAcc = await mnemonicToTezosAccountCreds(mnemonic, hdAccIndex);
 
       const accName = name || (await fetchNewAccountName(allAccounts));
 
-      if (allAccounts.some(a => a.publicKeyHash === tezosAcc.address)) {
-        return this.createHDAccount(accName, hdAccIndex + 1);
-      }
-
       const evmAcc = mnemonicToEvmAccountCreds(mnemonic, hdAccIndex);
+
+      // TODO: Check UX logic without this:
+      // if (
+      //   allAccounts.some(
+      //     acc => getAccountAddressForTezos(acc) === tezosAcc.address || getAccountAddressForEvm(acc) === evmAcc.address
+      //   )
+      // ) {
+      //   return this.createHDAccount(accName, hdAccIndex + 1);
+      // }
 
       const newAccount: StoredAccount = {
         id: nanoid(),
@@ -346,7 +351,8 @@ export class Vault {
         tezosAddress: tezosAcc.address,
         evmAddress: evmAcc.address
       };
-      const newAllAcounts = concatAccount(allAccounts, newAccount);
+      // const newAllAcounts = concatAccount(allAccounts, newAccount);
+      const newAllAcounts = [...allAccounts, newAccount];
 
       await encryptAndSaveMany(
         [

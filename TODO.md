@@ -28,6 +28,7 @@
 - - Current by index ?
 - - `StoredWatchOnlyAccount.address`
 - Remove Vault legacy code if versions usage stats allows
+- [E2E] Picking accounts by `...setAnotherSelector('hash',` - accomodate to EVM
 -
 
 
@@ -38,6 +39,7 @@
 - Derivation for EVM: `addressIndex` instead of `accountIndex`
 - `getTezosAccountAddressForAdsImpressions()`
 - '(Internal) Confirm' pages
+- Change of logic in `Vault.createHDAccount()`
 -
 
 
@@ -52,6 +54,7 @@
 
 ## QUESTIONS
 
+-
 - Do we id selected account by Tezos PKH ?
 - `bip39` -> `@scure/bip39` ?
 -

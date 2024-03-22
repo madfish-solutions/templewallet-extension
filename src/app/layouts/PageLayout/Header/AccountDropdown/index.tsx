@@ -22,7 +22,7 @@ import { useTempleClient, useSetAccountId } from 'lib/temple/front';
 import { PopperRenderProps } from 'lib/ui/Popper';
 import { searchAndFilterItems } from 'lib/utils/search-items';
 import { HistoryAction, navigate } from 'lib/woozie';
-import { useAccount, useTezosNetwork, useTezosRelevantAccounts } from 'temple/front';
+import { useAccount, useTezosNetwork, useRelevantAccounts } from 'temple/front';
 
 import { AccountItem } from './AccountItem';
 import { ActionButtonProps, ActionButton } from './ActionButton';
@@ -38,7 +38,7 @@ const AccountDropdown = memo<Props>(({ opened, setOpened }) => {
   const appEnv = useAppEnv();
   const { lock } = useTempleClient();
   const { chainId } = useTezosNetwork();
-  const allAccounts = useTezosRelevantAccounts(chainId);
+  const allAccounts = useRelevantAccounts(chainId);
   const { id: currentAccountId } = useAccount();
   const setAccountId = useSetAccountId();
   const { assetName: gasTokenName } = useGasToken();

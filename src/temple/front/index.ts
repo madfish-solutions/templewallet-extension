@@ -37,7 +37,6 @@ export const useTezosNetwork = () => {
   );
 };
 
-// ts-prune-ignore-next
 export const useEvmNetwork = () => {
   return useMemo(
     () => ({
@@ -70,23 +69,12 @@ const useTezosNetworkChainId = () => {
 // export { useStoredAccount as useAccount };
 export const useAccount = useStoredAccount;
 
-// ts-prune-ignore-next
 export const useAccountForTezos = () => useAccountForChain(TempleChainName.Tezos);
-// ts-prune-ignore-next
+
 export const useAccountForEvm = () => useAccountForChain(TempleChainName.EVM);
 
 function useAccountForChain<C extends TempleChainName>(chain: C): AccountForChain<C> | null {
   const account = useStoredAccount();
-
-  // switch (account.type) {
-  //   case TempleAccountType.Imported:
-  //     return account.chain === chain ? account : undefined;
-  //   case TempleAccountType.WatchOnly:
-  //     // TODO: if (account.chainId && chainId !== account.chainId) return undefined; ?
-  //     return account.chain === chain ? account : undefined;
-  // }
-
-  // return account;
 
   return useMemo(() => getAccountForChain(account, chain), [account, chain]);
 }
@@ -101,7 +89,7 @@ function useAccountAddressForChain(chain: TempleChainName): string | undefined {
 }
 
 /** TODO: Check usage again */
-export function useTezosRelevantAccounts(tezosChainId: string) {
+export function useRelevantAccounts(tezosChainId: string) {
   const allAccounts = useAllAccounts();
 
   return useMemo(
@@ -109,10 +97,13 @@ export function useTezosRelevantAccounts(tezosChainId: string) {
       allAccounts.filter(acc => {
         switch (acc.type) {
           case TempleAccountType.ManagedKT:
-            return acc.chainId === tezosChainId;
+            return (
+              Boolean(acc.tezosAddress) && // To know if logic (interface) remained
+              acc.chainId === tezosChainId
+            );
 
           case TempleAccountType.WatchOnly:
-            return !acc.chainId || acc.chainId === tezosChainId;
+            return acc.chain === TempleChainName.Tezos && (!acc.chainId || acc.chainId === tezosChainId);
 
           default:
             return true;

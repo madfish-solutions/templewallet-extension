@@ -1,15 +1,15 @@
-import React, { memo, useCallback, useEffect, useRef } from 'react';
+import React, { memo, useCallback } from 'react';
 
 import { OnSubmit, useForm } from 'react-hook-form';
 
 import { Alert, FormField, FormSubmitButton } from 'app/atoms';
+import { useAllAccountsReactiveOnRemoval } from 'app/hooks/use-all-accounts-reactive';
 import AccountBanner from 'app/templates/AccountBanner';
 import { T, t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
 import { TempleAccountType } from 'lib/temple/types';
-import { navigate } from 'lib/woozie';
 import { getAccountAddressForEvm, getAccountAddressForTezos } from 'temple/accounts';
-import { useAccount, useTezosNetwork, useTezosRelevantAccounts } from 'temple/front';
+import { useAccount } from 'temple/front';
 
 import { RemoveAccountSelectors } from './RemoveAccount.selectors';
 
@@ -21,18 +21,10 @@ type FormData = {
 
 const RemoveAccount = memo(() => {
   const { removeAccount } = useTempleClient();
-  const { chainId } = useTezosNetwork();
-  const allAccounts = useTezosRelevantAccounts(chainId);
+
   const account = useAccount();
 
-  const prevAccLengthRef = useRef(allAccounts.length);
-  useEffect(() => {
-    const accLength = allAccounts.length;
-    if (prevAccLengthRef.current > accLength) {
-      navigate('/');
-    }
-    prevAccLengthRef.current = accLength;
-  }, [allAccounts]);
+  useAllAccountsReactiveOnRemoval();
 
   const { register, handleSubmit, errors, setError, clearError, formState } = useForm<FormData>();
   const submitting = formState.isSubmitting;

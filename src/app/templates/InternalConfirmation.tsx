@@ -29,7 +29,7 @@ import { tryParseExpenses } from 'lib/temple/front';
 import { TempleAccountType, TempleTezosChainId, TempleConfirmationPayload } from 'lib/temple/types';
 import { useSafeState } from 'lib/ui/hooks';
 import { isTruthy } from 'lib/utils';
-import { useTezosChainIdLoadingValue, useTezosNetwork, useTezosRelevantAccounts } from 'temple/front';
+import { useTezosChainIdLoadingValue, useTezosNetwork, useRelevantAccounts } from 'temple/front';
 
 import { InternalConfirmationSelectors } from './InternalConfirmation.selectors';
 
@@ -68,10 +68,10 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
   const chainId = useTezosChainIdLoadingValue(networkRpc, true)!;
   const mainnet = chainId === TempleTezosChainId.Mainnet;
 
-  const accounts = useTezosRelevantAccounts(chainId);
+  const relevantAccounts = useRelevantAccounts(chainId);
   const account = useMemo(
-    () => accounts.find(a => a.publicKeyHash === payload.sourcePkh)!,
-    [accounts, payload.sourcePkh]
+    () => relevantAccounts.find(acc => acc.publicKeyHash === payload.sourcePkh)!,
+    [relevantAccounts, payload.sourcePkh]
   );
 
   const rawExpensesData = useMemo(

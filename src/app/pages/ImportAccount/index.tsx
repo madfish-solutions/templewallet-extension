@@ -1,10 +1,10 @@
 import React, { FC, useEffect, useMemo, useRef } from 'react';
 
 import { TabSwitcher } from 'app/atoms';
+import { useAllAccountsReactiveOnAddition } from 'app/hooks/use-all-accounts-reactive';
 import { ReactComponent as DownloadIcon } from 'app/icons/download.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import { TID, T } from 'lib/i18n';
-import { useSetAccountPkh, useAllAccounts } from 'lib/temple/front';
 import { isTruthy } from 'lib/utils';
 import { navigate } from 'lib/woozie';
 import { useTezosNetwork } from 'temple/front';
@@ -28,20 +28,10 @@ interface ImportTabDescriptor {
 
 const ImportAccount: FC<ImportAccountProps> = ({ tabSlug }) => {
   const { isMainnet } = useTezosNetwork();
-  const allAccounts = useAllAccounts();
-  const setAccountPkh = useSetAccountPkh();
 
-  const prevAccLengthRef = useRef(allAccounts.length);
   const prevIsMainnetRef = useRef(isMainnet);
 
-  useEffect(() => {
-    const accLength = allAccounts.length;
-    if (prevAccLengthRef.current < accLength) {
-      setAccountPkh(allAccounts[accLength - 1].publicKeyHash);
-      navigate('/');
-    }
-    prevAccLengthRef.current = accLength;
-  }, [allAccounts, setAccountPkh]);
+  useAllAccountsReactiveOnAddition();
 
   const allTabs = useMemo(() => {
     const unfiltered: (ImportTabDescriptor | null)[] = [
