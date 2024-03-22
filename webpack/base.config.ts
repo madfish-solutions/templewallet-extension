@@ -27,7 +27,8 @@ import {
   SOURCE_MAP,
   MANIFEST_VERSION,
   BACKGROUND_IS_WORKER,
-  IMAGE_INLINE_SIZE_LIMIT_ENV
+  IMAGE_INLINE_SIZE_LIMIT_ENV,
+  IS_CORE_BUILD
 } from './env';
 import { PATHS } from './paths';
 
@@ -40,6 +41,15 @@ const ADDITIONAL_MODULE_PATHS = [
 ].filter(Boolean);
 const CSS_REGEX = /\.css$/;
 const CSS_MODULE_REGEX = /\.module\.css$/;
+
+const ignoreWordlistsPlugin = new WebPack.IgnorePlugin({
+  resourceRegExp: /^\.\/wordlists\/(?!english)/,
+  contextRegExp: /bip39\/src$/
+});
+const ignoreExtensionAdsModulePlugin = new WebPack.IgnorePlugin({
+  resourceRegExp: /^@temple-wallet\/extension-ads$/,
+  contextRegExp: /(src)|(src\/content-scripts\/replace-ads)|(src\/lib\/ads)$/
+});
 
 export const buildBaseConfig = (): WebPack.Configuration & Pick<WebPack.WebpackOptionsNormalized, 'devServer'> => ({
   mode: WEBPACK_MODE,
@@ -232,7 +242,7 @@ export const buildBaseConfig = (): WebPack.Configuration & Pick<WebPack.WebpackO
       setImmediate: ['timers-browserify', 'setImmediate']
     }),
 
-    new WebPack.IgnorePlugin({ resourceRegExp: /^\.\/wordlists\/(?!english)/, contextRegExp: /bip39\/src$/ }),
+    ...(IS_CORE_BUILD ? [ignoreWordlistsPlugin, ignoreExtensionAdsModulePlugin] : [ignoreWordlistsPlugin]),
 
     new ModuleNotFoundPlugin(PATHS.SOURCE),
 

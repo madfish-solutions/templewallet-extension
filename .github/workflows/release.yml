@@ -50,6 +50,8 @@ jobs:
 
       - name: Install dependencies and code quality
         uses: ./.github/workflows/code-quality-check
+        with:
+          optional_modules: true
 
       - name: Create Chrome and Firefox builds
         run: yarn build:chrome & yarn build:firefox
