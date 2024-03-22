@@ -14,6 +14,8 @@ export interface AccountForChain<C extends TempleChainName = TempleChainName> {
 
 export type AccountForTezos = AccountForChain<TempleChainName.Tezos>;
 
+export const getAccountForTezos = (account: StoredAccount) => getAccountForChain(account, TempleChainName.Tezos);
+
 export function getAccountForChain<C extends TempleChainName>(
   account: StoredAccount,
   chain: C
@@ -60,6 +62,15 @@ export const getAccountAddressForChain = (account: StoredAccount, chain: TempleC
 
   return account.tezosAddress;
 };
+
+export function findAccountForTezos(accounts: StoredAccount[], address: string) {
+  for (const account of accounts) {
+    const tezosAccount = getAccountForTezos(account);
+    if (tezosAccount && tezosAccount.address === address) return tezosAccount;
+  }
+
+  return undefined;
+}
 
 // ts-prune-ignore-next
 export const getAccountAddressesRecord = (account: StoredAccount): Record<TempleChainName, string | undefined> => ({

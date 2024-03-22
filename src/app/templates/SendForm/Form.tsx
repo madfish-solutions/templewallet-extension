@@ -46,11 +46,12 @@ import { useTypedSWR } from 'lib/swr';
 import { loadContract } from 'lib/temple/contract';
 import { useFilteredContacts, validateRecipient } from 'lib/temple/front';
 import { hasManager, isAddressValid, isKTAddress, mutezToTz, tzToMutez } from 'lib/temple/helpers';
-import { TempleAccountType, StoredAccount } from 'lib/temple/types';
+import { TempleAccountType } from 'lib/temple/types';
 import { useSafeState } from 'lib/ui/hooks';
 import { useScrollIntoView } from 'lib/ui/use-scroll-into-view';
 import { ZERO } from 'lib/utils/numbers';
-import { useAccount, useTezos, useTezosNetwork } from 'temple/front';
+import { AccountForTezos } from 'temple/accounts';
+import { useTezos, useTezosNetwork } from 'temple/front';
 import { isTezosDomainsNameValid, useTezosAddressByDomainName, useTezosDomainsClient } from 'temple/front/tzdns';
 
 import ContactsDropdown, { ContactsDropdownProps } from './ContactsDropdown';
@@ -68,13 +69,16 @@ interface FormData {
 const PENNY = 0.000001;
 const RECOMMENDED_ADD_FEE = 0.0001;
 
-type FormProps = {
+type Props = {
+  account: AccountForTezos;
+  /** Present for `account.type === TempleAccountType.ManagedKT` */
+  ownerAddress?: string;
   assetSlug: string;
   setOperation: Dispatch<any>;
   onAddContactRequested: (address: string) => void;
 };
 
-export const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested }) => {
+export const Form: FC<Props> = ({ account, ownerAddress, assetSlug, setOperation, onAddContactRequested }) => {
   const { registerBackHandler } = useAppEnv();
 
   const assetMetadata = useAssetMetadata(assetSlug);
@@ -84,14 +88,14 @@ export const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactReque
 
   const { allContacts } = useFilteredContacts();
   const { isMainnet } = useTezosNetwork();
-  const acc = useAccount(); // TODO: useTezosAccount(): TezosAccount
+
   const tezos = useTezos();
   const domainsClient = useTezosDomainsClient();
 
   const formAnalytics = useFormAnalytics('SendForm');
 
   const canUseDomainNames = domainsClient.isSupported;
-  const accountPkh = acc.publicKeyHash;
+  const accountPkh = account.address;
 
   const { value: balance = ZERO } = useBalance(assetSlug, accountPkh);
   const { value: tezBalance = ZERO } = useBalance(TEZ_TOKEN_SLUG, accountPkh);
@@ -212,10 +216,10 @@ export const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactReque
 
       const [transferParams, manager] = await Promise.all([
         toTransferParams(tezos, assetSlug, assetMetadata, accountPkh, to, toPenny(assetMetadata)),
-        tezos.rpc.getManagerKey(acc.type === TempleAccountType.ManagedKT ? acc.owner : accountPkh)
+        tezos.rpc.getManagerKey(ownerAddress || accountPkh)
       ]);
 
-      const estmtnMax = await estimateMaxFee(acc, tez, tezos, to, balance, transferParams, manager);
+      const estmtnMax = await estimateMaxFee(account, tez, tezos, to, balance, transferParams, manager);
 
       let estimatedBaseFee = mutezToTz(estmtnMax.burnFeeMutez + estmtnMax.suggestedFeeMutez);
       if (!hasManager(manager)) {
@@ -236,7 +240,7 @@ export const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactReque
 
       throw err;
     }
-  }, [tezBalance, balance, assetMetadata, toResolved, assetSlug, tezos, accountPkh, acc]);
+  }, [tezBalance, balance, assetMetadata, toResolved, assetSlug, tezos, accountPkh, account, ownerAddress]);
 
   const {
     data: baseFee,
@@ -266,10 +270,12 @@ export const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactReque
   const maxAmount = useMemo(() => {
     if (!(baseFee instanceof BigNumber)) return null;
 
-    const maxAmountAsset = isTezAsset(assetSlug) ? getMaxAmountToken(acc, balance, baseFee, safeFeeValue) : balance;
+    const maxAmountAsset = isTezAsset(assetSlug)
+      ? getMaxAmountToken(account.type, balance, baseFee, safeFeeValue)
+      : balance;
 
     return shoudUseFiat ? getMaxAmountFiat(assetPrice.toNumber(), maxAmountAsset) : maxAmountAsset;
-  }, [acc, assetSlug, balance, baseFee, safeFeeValue, shoudUseFiat, assetPrice]);
+  }, [account, assetSlug, balance, baseFee, safeFeeValue, shoudUseFiat, assetPrice]);
 
   const validateAmount = useCallback(
     (v?: number) => {
@@ -332,10 +338,10 @@ export const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactReque
         if (!assetMetadata) throw new Error('Metadata not found');
 
         let op: TransactionWalletOperation | TransactionOperation;
-        if (isKTAddress(acc.publicKeyHash)) {
+        if (isKTAddress(accountPkh)) {
           const michelsonLambda = isKTAddress(toResolved) ? transferToContract : transferImplicit;
 
-          const contract = await loadContract(tezos, acc.publicKeyHash);
+          const contract = await loadContract(tezos, accountPkh);
           op = await contract.methods.do(michelsonLambda(toResolved, tzToMutez(amount))).send({ amount: 0 });
         } else {
           const actualAmount = shoudUseFiat ? toAssetAmount(amount) : amount;
@@ -369,7 +375,7 @@ export const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactReque
       }
     },
     [
-      acc,
+      accountPkh,
       formState.isSubmitting,
       tezos,
       assetSlug,
@@ -377,7 +383,6 @@ export const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactReque
       setSubmitError,
       setOperation,
       reset,
-      accountPkh,
       toResolved,
       shoudUseFiat,
       toAssetAmount,
@@ -646,9 +651,14 @@ interface FeeComponentProps {
 const getMaxAmountFiat = (assetPrice: number | null, maxAmountAsset: BigNumber) =>
   assetPrice ? maxAmountAsset.times(assetPrice).decimalPlaces(2, BigNumber.ROUND_FLOOR) : new BigNumber(0);
 
-const getMaxAmountToken = (acc: StoredAccount, balance: BigNumber, baseFee: BigNumber, safeFeeValue: number) =>
+const getMaxAmountToken = (
+  accountType: TempleAccountType,
+  balance: BigNumber,
+  baseFee: BigNumber,
+  safeFeeValue: number
+) =>
   BigNumber.max(
-    acc.type === TempleAccountType.ManagedKT
+    accountType === TempleAccountType.ManagedKT
       ? balance
       : balance
           .minus(baseFee)
@@ -665,7 +675,7 @@ type TransferParamsInvariant =
     };
 
 const estimateMaxFee = async (
-  acc: StoredAccount,
+  acc: AccountForTezos,
   tez: boolean,
   tezos: TezosToolkit,
   to: string,
@@ -677,7 +687,7 @@ const estimateMaxFee = async (
   if (acc.type === TempleAccountType.ManagedKT) {
     const michelsonLambda = isKTAddress(to) ? transferToContract : transferImplicit;
 
-    const contract = await loadContract(tezos, acc.publicKeyHash);
+    const contract = await loadContract(tezos, acc.address);
     const transferParamsWrapper = contract.methods.do(michelsonLambda(to, tzToMutez(balanceBN))).toTransferParams();
     estmtnMax = await tezos.estimate.transfer(transferParamsWrapper);
   } else if (tez) {

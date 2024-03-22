@@ -29,10 +29,9 @@ import { TempleAccountType, TempleDAppPayload, TempleTezosChainId } from 'lib/te
 import { useSafeState } from 'lib/ui/hooks';
 import { delay, isTruthy } from 'lib/utils';
 import { useLocation } from 'lib/woozie';
-import { AccountForTezos, getAccountForChain } from 'temple/accounts';
+import { AccountForTezos, getAccountForTezos } from 'temple/accounts';
 import { useAccountForTezos, useTezosChainIdLoadingValue } from 'temple/front';
-import { isTezosAccountOfActableType } from 'temple/tezos';
-import { TempleChainName } from 'temple/types';
+import { isAccountOfActableType } from 'temple/tezos';
 
 import { ConfirmPageSelectors } from './ConfirmPage.selectors';
 
@@ -154,10 +153,7 @@ const ConfirmDAppForm = memo<{ account: AccountForTezos }>(({ account }) => {
   const payloadError = data!.error;
 
   const allAccounts = useMemo(
-    () =>
-      allAccountsStored
-        .map(acc => (isTezosAccountOfActableType(acc) ? getAccountForChain(acc, TempleChainName.Tezos) : null))
-        .filter(isTruthy),
+    () => allAccountsStored.map(acc => (isAccountOfActableType(acc) ? getAccountForTezos(acc) : null)).filter(isTruthy),
     [allAccountsStored]
   );
 

@@ -10,9 +10,8 @@ import { BakingSectionSelectors } from 'app/pages/Home/OtherComponents/BakingSec
 import { toLocalFormat, T } from 'lib/i18n';
 import { HELP_UKRAINE_BAKER_ADDRESS, RECOMMENDED_BAKER_ADDRESS } from 'lib/known-bakers';
 import { useKnownBaker, useAllAccounts } from 'lib/temple/front';
-import { AccountForChain, getAccountAddressForTezos, getAccountForChain } from 'temple/accounts';
+import { AccountForChain, getAccountAddressForTezos, getAccountForTezos } from 'temple/accounts';
 import { useTezosNetwork } from 'temple/front';
-import { TempleChainName } from 'temple/types';
 
 import { OpenInExplorerChip } from './OpenInExplorerChip';
 
@@ -31,7 +30,7 @@ const BakerBanner = memo<Props>(({ accountPkh, bakerPkh, link = false, displayAd
   const bakerAcc = useMemo(() => {
     const acc = allAccounts.find(acc => getAccountAddressForTezos(acc) === bakerPkh);
 
-    return acc ? getAccountForChain(acc, TempleChainName.Tezos) : null;
+    return acc ? getAccountForTezos(acc) : null;
   }, [allAccounts, bakerPkh]);
 
   const isRecommendedBaker = bakerPkh === RECOMMENDED_BAKER_ADDRESS;

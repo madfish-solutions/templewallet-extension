@@ -3,7 +3,7 @@ import { useCallback, useMemo } from 'react';
 import * as ViemChains from 'viem/chains';
 
 import { useRetryableSWR } from 'lib/swr';
-import { useNetwork, useStoredAccount, useAllAccounts, useTezos } from 'lib/temple/front/ready';
+import { useNetwork, useCurrentAccountId, useStoredAccount, useAllAccounts, useTezos } from 'lib/temple/front/ready';
 import { TempleAccountType, TempleTezosChainId } from 'lib/temple/types';
 import { TempleChainName } from 'temple/types';
 
@@ -66,7 +66,11 @@ const useTezosNetworkChainId = () => {
   return useTezosChainIdLoadingValue(rpcURL, true)!;
 };
 
-// export { useStoredAccount as useAccount };
+export {
+  useCurrentAccountId
+  // useStoredAccount as useAccount
+};
+
 export const useAccount = useStoredAccount;
 
 export const useAccountForTezos = () => useAccountForChain(TempleChainName.Tezos);

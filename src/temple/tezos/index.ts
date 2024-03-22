@@ -12,7 +12,7 @@ const MAX_MEMOIZED_TOOLKITS = 3;
 
 export const michelEncoder = new MichelCodecPacker();
 
-export const isTezosAccountOfActableType = (account: StoredAccountBase) =>
+export const isAccountOfActableType = (account: StoredAccountBase) =>
   !(account.type === TempleAccountType.WatchOnly || account.type === TempleAccountType.ManagedKT);
 
 export const buildFastRpcTezosToolkit = memoizee(

@@ -3,6 +3,7 @@ import React, { memo, Suspense, useCallback, useMemo, useState } from 'react';
 import type { WalletOperation } from '@taquito/taquito';
 import { isEqual } from 'lodash';
 
+import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import AssetSelect from 'app/templates/AssetSelect';
 import OperationStatus from 'app/templates/OperationStatus';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
@@ -10,9 +11,11 @@ import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { useEnabledAccountTokensSlugs } from 'lib/assets/hooks';
 import { useTokensSortPredicate } from 'lib/assets/use-sorting';
 import { t } from 'lib/i18n';
+import { TempleAccountType } from 'lib/temple/types';
 import { useMemoWithCompare, useSafeState } from 'lib/ui/hooks';
 import { HistoryAction, navigate } from 'lib/woozie';
-import { useTezos } from 'temple/front';
+import { getAccountForTezos } from 'temple/accounts';
+import { useAccount, useTezos } from 'temple/front';
 
 import AddContactModal from './AddContactModal';
 import { Form } from './Form';
@@ -25,6 +28,11 @@ interface Props {
 }
 
 const SendForm = memo<Props>(({ assetSlug = TEZ_TOKEN_SLUG, publicKeyHash }) => {
+  const currentAccount = useAccount();
+
+  const tezosAccount = useMemo(() => getAccountForTezos(currentAccount), [currentAccount]);
+  if (!tezosAccount) throw new DeadEndBoundaryError();
+
   const tokensSlugs = useEnabledAccountTokensSlugs(publicKeyHash);
 
   const tokensSortPredicate = useTokensSortPredicate(publicKeyHash);
@@ -93,7 +101,13 @@ const SendForm = memo<Props>(({ assetSlug = TEZ_TOKEN_SLUG, publicKeyHash }) => 
       />
 
       <Suspense fallback={<SpinnerSection />}>
-        <Form assetSlug={selectedAsset} setOperation={setOperation} onAddContactRequested={handleAddContactRequested} />
+        <Form
+          account={tezosAccount}
+          ownerAddress={currentAccount.type === TempleAccountType.ManagedKT ? currentAccount.owner : undefined}
+          assetSlug={selectedAsset}
+          setOperation={setOperation}
+          onAddContactRequested={handleAddContactRequested}
+        />
       </Suspense>
 
       <AddContactModal address={addContactModalAddress} onClose={closeContactModal} />

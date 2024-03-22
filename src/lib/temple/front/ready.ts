@@ -24,6 +24,7 @@ export const [
   useSetNetworkId,
   useNetwork,
   useAllAccounts,
+  useCurrentAccountId,
   useSetAccountId,
   useStoredAccount,
   useSettings,
@@ -34,6 +35,7 @@ export const [
   v => v.setNetworkId,
   v => v.network,
   v => v.allAccounts,
+  v => v.accountId,
   v => v.setAccountId,
   v => v.account,
   v => v.settings,
@@ -144,6 +146,7 @@ function useReadyTemple() {
     setNetworkId,
 
     allAccounts,
+    accountId,
     account,
     setAccountId,
 

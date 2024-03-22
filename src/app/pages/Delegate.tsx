@@ -9,15 +9,14 @@ import { useBalance } from 'lib/balances';
 import { T } from 'lib/i18n';
 import { TempleAccountType } from 'lib/temple/types';
 import { ZERO } from 'lib/utils/numbers';
-import { AccountForTezos, getAccountForChain } from 'temple/accounts';
+import { AccountForTezos, getAccountForTezos } from 'temple/accounts';
 import { UNDER_DEVELOPMENT_MSG } from 'temple/evm/under_dev_msg';
 import { useAccount } from 'temple/front';
-import { TempleChainName } from 'temple/types';
 
 const Delegate = memo(() => {
   const currentAccount = useAccount();
 
-  const tezosAccount = useMemo(() => getAccountForChain(currentAccount, TempleChainName.Tezos), [currentAccount]);
+  const tezosAccount = useMemo(() => getAccountForTezos(currentAccount), [currentAccount]);
 
   return (
     <PageLayout

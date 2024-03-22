@@ -2,6 +2,7 @@ import React, { memo, useState } from 'react';
 
 import { Stepper } from 'app/atoms';
 import { Anchor } from 'app/atoms/Anchor';
+import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { ReactComponent as AttentionRedIcon } from 'app/icons/attentionRed.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import styles from 'app/pages/Buy/Crypto/Exolix/Exolix.module.css';
@@ -10,7 +11,7 @@ import { t, T } from 'lib/i18n/react';
 import { useStorage } from 'lib/temple/front';
 import { TempleAccountType } from 'lib/temple/types';
 import { Redirect } from 'lib/woozie';
-import { useAccount, useTezosNetwork } from 'temple/front';
+import { useAccountForTezos, useTezosNetwork } from 'temple/front';
 
 import { WithdrawSelectors } from '../../Withdraw.selectors';
 
@@ -26,8 +27,10 @@ const ALICE_BOB_CONTACT_LINK = 'https://t.me/alicebobhelp';
 
 export const AliceBobWithdraw = memo(() => {
   const { isMainnet } = useTezosNetwork();
-  const account = useAccount();
-  const { publicKeyHash } = account;
+  const account = useAccountForTezos();
+  if (!account) throw new DeadEndBoundaryError();
+
+  const publicKeyHash = account.address;
 
   const [step, setStep] = useStorage<number>(`alice_bob_withdraw_step_state_${publicKeyHash}`, 0);
   const [isApiError, setIsApiError] = useState(false);

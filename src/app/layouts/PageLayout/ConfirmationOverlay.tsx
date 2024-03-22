@@ -1,6 +1,5 @@
-import React, { FC, useCallback, useLayoutEffect } from 'react';
+import React, { memo, useCallback, useLayoutEffect } from 'react';
 
-import classNames from 'clsx';
 import CSSTransition from 'react-transition-group/CSSTransition';
 
 import DocBg from 'app/a11y/DocBg';
@@ -8,7 +7,7 @@ import InternalConfirmation from 'app/templates/InternalConfirmation';
 import { useTempleClient } from 'lib/temple/front';
 import Portal from 'lib/ui/Portal';
 
-const ConfirmationOverlay: FC = () => {
+const ConfirmationOverlay = memo(() => {
   const { confirmation, resetConfirmation, confirmInternal } = useTempleClient();
   const displayed = Boolean(confirmation);
 
@@ -46,8 +45,8 @@ const ConfirmationOverlay: FC = () => {
           timeout={200}
           classNames={{
             enter: 'opacity-0',
-            enterActive: classNames('opacity-100', 'transition ease-out duration-200'),
-            exit: classNames('opacity-0', 'transition ease-in duration-200')
+            enterActive: 'opacity-100 transition ease-out duration-200',
+            exit: 'opacity-0 transition ease-in duration-200'
           }}
           unmountOnExit
         >
@@ -64,6 +63,6 @@ const ConfirmationOverlay: FC = () => {
       </Portal>
     </>
   );
-};
+});
 
 export default ConfirmationOverlay;

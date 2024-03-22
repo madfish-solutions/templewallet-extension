@@ -17,9 +17,8 @@ import { useTempleClient } from 'lib/temple/front';
 import { isAddressValid } from 'lib/temple/helpers';
 import { TempleAccountType } from 'lib/temple/types';
 import { delay, isTruthy } from 'lib/utils';
-import { getAccountForChain } from 'temple/accounts';
+import { getAccountForTezos } from 'temple/accounts';
 import { useTezos, useTezosNetwork, useRelevantAccounts } from 'temple/front';
-import { TempleChainName } from 'temple/types';
 
 import { ImportAccountSelectors, ImportAccountFormType } from './selectors';
 
@@ -37,7 +36,7 @@ export const ManagedKTForm: FC = () => {
 
   const relevantccounts = useRelevantAccounts(chainId);
   const tezosAccounts = useMemo(
-    () => relevantccounts.map(acc => getAccountForChain(acc, TempleChainName.Tezos)).filter(isTruthy),
+    () => relevantccounts.map(acc => getAccountForTezos(acc)).filter(isTruthy),
     [relevantccounts]
   );
 
