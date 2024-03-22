@@ -2,31 +2,27 @@
 
 - Branch for current epic
 - Import watch-only EVM account
-- Usage of `useAccount().publicKeyHash`
-- - With `useTezosAccount` hook
+- TempleContact. See: `useFilteredContacts()`
+- - Migrate
+- - To Redux ?
 - Tezos Chain ID
+- - Not depend on useChainId suspensed
 - - Deal with 'MondayNet' & 'DailyNet' (Chain ID)
 - - Make sure RPC can be changed, when chainId not available
 - - Cache `loadTezosChainId()` @ BG
 - - Value when sending analytics
 - - Migration ?
+- - Move `<WithDataLoading>` to PageLayout ?
 - -
 - Reform `lib/temple`
 - - `lib/temple/back` -> `background`
 - -
-- - Move `<WithDataLoading>` to PageLayout
-- - Not depend on useChainId suspensed
 - CustomRpcContext now only passes Tezos RPC URL - accommodate for EVM RPC too
 - Get rid of redundant `addLocalOperation` & `lib/temple/activity(-new)` -> `temple/history`
 - Rework analytics (properties) - breaking change
 - - EVM creds (chain ID, address ...)
 - - Category separation
-- Contacts to Redux
-- - See `useFilteredContacts`
-- Finalize `useAccount` hooks
-- `StoredAccount['publicKeyHash' -> 'tezAddress']`
-- - Current by index ?
-- - `StoredWatchOnlyAccount.address`
+- Check usage of `useAllAccounts()`
 - Remove Vault legacy code if versions usage stats allows
 - [E2E] Picking accounts by `...setAnotherSelector('hash',` - accomodate to EVM
 -
@@ -50,12 +46,14 @@
 - - New will be Tezos + EVM
 - - - Make sure, they are Tezos + EVM + any other new chain
 - Watch-only accounts' addresses in ads' analytics
+- Selected account will reset to 1st after update
+- Creating account when imported exists is now allowed. Reverse is not.
 -
 
 ## QUESTIONS
 
 -
-- Do we id selected account by Tezos PKH ?
+- Is `nanoid()` good enough to id accounts ?
 - `bip39` -> `@scure/bip39` ?
 -
 

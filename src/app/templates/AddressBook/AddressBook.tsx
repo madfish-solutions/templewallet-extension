@@ -24,8 +24,9 @@ type ContactActions = {
 
 const AddressBook: React.FC = () => {
   const { removeContact } = useContactsActions();
-  const { allContacts } = useFilteredContacts();
   const confirm = useConfirm();
+
+  const { allContacts } = useFilteredContacts();
 
   const handleRemoveContactClick = useCallback(
     async (address: string) => {
