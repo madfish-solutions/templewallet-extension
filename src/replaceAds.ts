@@ -29,18 +29,12 @@ configureAds({
   externalAdsActivityMessageType: ContentScriptType.ExternalAdsActivity
 });
 
-let prevAdsRules: unknown = null;
-
 const replaceAds = async () => {
   if (processing) return;
   processing = true;
 
   try {
     const adsRules = await getRulesFromContentScript(window.parent.location);
-    if (prevAdsRules !== adsRules) {
-      console.log('oy vey 1', adsRules);
-      prevAdsRules = adsRules;
-    }
 
     if (adsRules.timestamp < Date.now() - ADS_RULES_UPDATE_INTERVAL) {
       clearRulesCache();
@@ -48,9 +42,6 @@ const replaceAds = async () => {
     }
 
     const adsActions = await getAdsActions(adsRules);
-    if (adsActions.length > 0) {
-      console.log('oy vey 2', adsActions);
-    }
 
     const adsActionsResult = await executeAdsActions(adsActions);
     adsActionsResult.forEach(
