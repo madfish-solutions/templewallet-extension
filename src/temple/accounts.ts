@@ -52,7 +52,7 @@ export const getAccountAddressForEvm = (account: StoredAccount) =>
 export const getAccountAddressForChain = (account: StoredAccount, chain: TempleChainName): string | undefined => {
   switch (account.type) {
     case TempleAccountType.HD:
-      return chain === 'evm' ? account.evmAddress : account.tezosAddress;
+      return account[`${chain}Address`];
     case TempleAccountType.Imported:
       return account.chain === chain ? account.address : undefined;
     case TempleAccountType.WatchOnly:

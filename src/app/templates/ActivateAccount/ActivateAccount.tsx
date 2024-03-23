@@ -89,7 +89,6 @@ const ActivateTezosAccount = memo<Props>(({ account }) => {
     <form className="w-full max-w-sm p-2 mx-auto" onSubmit={submit}>
       <AccountBanner
         account={account}
-        tezosAddress={account.address}
         labelDescription={
           <>
             <T id="accountToBeActivated" />

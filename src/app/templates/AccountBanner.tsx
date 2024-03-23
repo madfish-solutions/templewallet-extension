@@ -9,12 +9,12 @@ import Name from 'app/atoms/Name';
 import Balance from 'app/templates/Balance';
 import { useGasToken } from 'lib/assets/hooks';
 import { t } from 'lib/i18n';
-import { StoredAccountBase } from 'lib/temple/types';
+import { StoredAccount } from 'lib/temple/types';
+import { AccountForChain, getAccountAddressForEvm, getAccountAddressForTezos } from 'temple/accounts';
+import { TempleChainName } from 'temple/types';
 
 interface Props extends HTMLAttributes<HTMLDivElement> {
-  account: StoredAccountBase;
-  tezosAddress?: string;
-  evmAddress?: string;
+  account: StoredAccount | AccountForChain;
   displayBalance?: boolean;
   networkRpc?: string;
   label?: ReactNode;
@@ -24,19 +24,20 @@ interface Props extends HTMLAttributes<HTMLDivElement> {
 }
 
 const AccountBanner = memo<Props>(
-  ({
-    account,
-    tezosAddress,
-    evmAddress,
-    displayBalance = true,
-    networkRpc,
-    className,
-    label,
-    smallLabelIndent,
-    labelDescription
-  }) => {
+  ({ account, displayBalance = true, networkRpc, className, label, smallLabelIndent, labelDescription }) => {
     const labelWithFallback = label ?? t('account');
     const { metadata } = useGasToken();
+
+    const [tezosAddress, evmAddress] = useMemo(() => {
+      if ('chain' in account && 'address' in account) {
+        return [
+          getAccountForChainAddress(account, TempleChainName.Tezos),
+          getAccountForChainAddress(account, TempleChainName.EVM)
+        ];
+      }
+
+      return [getAccountAddressForTezos(account), getAccountAddressForEvm(account)];
+    }, [account]);
 
     return (
       <div className={classNames('flex flex-col', className)}>
@@ -108,3 +109,6 @@ const AccountBannerAddress = memo<{ address: string }>(({ address }) => {
     </div>
   );
 });
+
+const getAccountForChainAddress = (account: AccountForChain, chain: TempleChainName) =>
+  account.chain === chain ? account.address : undefined;

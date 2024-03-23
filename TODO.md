@@ -1,7 +1,9 @@
 ## TODO:
 
 - Branch for current epic
+- - Code quality checks for targetting /TW-(d+)-epic-/
 - Import watch-only EVM account
+- Move `useAccountForChain()` under `constate`
 - TempleContact. See: `useFilteredContacts()`
 - - Migrate
 - - To Redux ?
@@ -25,6 +27,7 @@
 - Check usage of `useAllAccounts()`
 - Remove Vault legacy code if versions usage stats allows
 - [E2E] Picking accounts by `...setAnotherSelector('hash',` - accomodate to EVM
+- Multilanguage support
 -
 
 
@@ -36,10 +39,11 @@
 - `getTezosAccountAddressForAdsImpressions()`
 - '(Internal) Confirm' pages
 - Change of logic in `Vault.createHDAccount()`
+- `loadContract('', FALSE)` - why?
 -
 
 
-## NOTES:
+## NOTES
 
 - Import by mnemonic
 - - Old accounts are Tezos only
@@ -47,7 +51,7 @@
 - - - Make sure, they are Tezos + EVM + any other new chain
 - Watch-only accounts' addresses in ads' analytics
 - Selected account will reset to 1st after update
-- Creating account when imported exists is now allowed. Reverse is not.
+- Creating account when imported exists is allowed. Reverse is not.
 -
 
 ## QUESTIONS
@@ -63,9 +67,18 @@
 - Import Tezos accounts by revealed Private Key
 -
 
-## TASKS
+## SUB-TASKS FOR THIS EPIC
 - Import by mnemonic
-- Networks
+- Networks for EVM
 - Assets & Balances
-- Analytics
+- Address Book (Contacts)
+- Analytics ?
+-
+
+## FIX
+- Confirmation Page
+- Reveal Seed
+- Forbid importing Watch-Only if Imported by PK exists
+- Ads analytics. Send non-watch-only current PKH
+- - In case of WO - choose 1st HD
 -

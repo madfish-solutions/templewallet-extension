@@ -117,6 +117,7 @@ export function unlock(password: string) {
       const vault = await Vault.setup(password, BACKGROUND_IS_WORKER);
       const accounts = await vault.fetchAccounts();
       const settings = await vault.fetchSettings();
+      // TODO: Check logic with current prod implementation
       putToStorage<string | undefined>(ADS_VIEWER_TEZOS_ADDRESS_STORAGE_KEY, getAccountAddressForTezos(accounts[0]));
       unlocked({ vault, accounts, settings });
     })

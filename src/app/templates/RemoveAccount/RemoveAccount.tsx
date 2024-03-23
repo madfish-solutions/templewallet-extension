@@ -49,8 +49,6 @@ const RemoveAccount = memo(() => {
     <div className="w-full max-w-sm p-2 mx-auto">
       <AccountBanner
         account={account}
-        tezosAddress={getAccountAddressForTezos(account)}
-        evmAddress={getAccountAddressForEvm(account)}
         labelDescription={
           <>
             <T id="accountToBeRemoved" />
