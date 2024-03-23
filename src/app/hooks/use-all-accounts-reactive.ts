@@ -22,7 +22,6 @@ export const useAllAccountsReactiveOnAddition = () => {
 };
 
 export const useAllAccountsReactiveOnRemoval = () => {
-  // const allAccounts = useRelevantAccounts(tezosChainId);
   const allAccounts = useAllAccounts();
 
   const prevAccLengthRef = useRef(allAccounts.length);

@@ -24,10 +24,11 @@
 - Rework analytics (properties) - breaking change
 - - EVM creds (chain ID, address ...)
 - - Category separation
-- Check usage of `useAllAccounts()`
 - Remove Vault legacy code if versions usage stats allows
 - [E2E] Picking accounts by `...setAnotherSelector('hash',` - accomodate to EVM
 - Multilanguage support
+- Collect all storage keys in a single record
+- Move deps-less callbacks out of `lib/temple/client.ts` to a module ?
 -
 
 
@@ -39,7 +40,6 @@
 - `getTezosAccountAddressForAdsImpressions()`
 - '(Internal) Confirm' pages
 - Change of logic in `Vault.createHDAccount()`
-- `loadContract('', FALSE)` - why?
 -
 
 
@@ -59,6 +59,7 @@
 -
 - Is `nanoid()` good enough to id accounts ?
 - `bip39` -> `@scure/bip39` ?
+- `loadContract('', FALSE)` - why?
 -
 
 ## TO QA
@@ -76,9 +77,6 @@
 -
 
 ## FIX
-- Confirmation Page
-- Reveal Seed
-- Forbid importing Watch-Only if Imported by PK exists
 - Ads analytics. Send non-watch-only current PKH
 - - In case of WO - choose 1st HD
 -

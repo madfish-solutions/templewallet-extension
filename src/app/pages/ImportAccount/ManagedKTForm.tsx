@@ -34,10 +34,10 @@ export const ManagedKTForm: FC = () => {
   const { chainId } = useTezosNetwork();
   const tezos = useTezos();
 
-  const relevantccounts = useRelevantAccounts(chainId);
+  const relevantAccounts = useRelevantAccounts(chainId);
   const tezosAccounts = useMemo(
-    () => relevantccounts.map(acc => getAccountForTezos(acc)).filter(isTruthy),
-    [relevantccounts]
+    () => relevantAccounts.map(acc => getAccountForTezos(acc)).filter(isTruthy),
+    [relevantAccounts]
   );
 
   const formAnalytics = useFormAnalytics(ImportAccountFormType.ManagedKT);

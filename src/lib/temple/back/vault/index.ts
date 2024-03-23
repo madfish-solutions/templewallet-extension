@@ -340,15 +340,6 @@ export class Vault {
 
       const evmAcc = mnemonicToEvmAccountCreds(mnemonic, hdAccIndex);
 
-      // TODO: Check UX logic without this:
-      // if (
-      //   allAccounts.some(
-      //     acc => getAccountAddressForTezos(acc) === tezosAcc.address || getAccountAddressForEvm(acc) === evmAcc.address
-      //   )
-      // ) {
-      //   return this.createHDAccount(accName, hdAccIndex + 1);
-      // }
-
       const newAccount: StoredAccount = {
         id: nanoid(),
         type: TempleAccountType.HD,
@@ -357,7 +348,7 @@ export class Vault {
         tezosAddress: tezosAcc.address,
         evmAddress: evmAcc.address
       };
-      // const newAllAcounts = concatAccount(allAccounts, newAccount);
+
       const newAllAcounts = [...allAccounts, newAccount];
 
       await encryptAndSaveMany(

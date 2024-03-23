@@ -20,7 +20,6 @@ export function generateCheck() {
   return Bip39.generateMnemonic(128);
 }
 
-/** TODO: Check UX logic */
 export function concatAccount(current: StoredAccount[], newOne: Exclude<StoredAccount, StoredHDAccount>) {
   /** New account is for certain chain */
   const [chain, address] = (() => {

@@ -26,7 +26,7 @@ export const [
   useAllAccounts,
   useCurrentAccountId,
   useSetAccountId,
-  useStoredAccount,
+  useAccount,
   useSettings,
   useTezos
 ] = constate(
@@ -79,8 +79,7 @@ function useReadyTemple() {
   const allAccountsRef = useUpdatableRef(allAccounts);
 
   const defaultAcc = allAccounts[0]!;
-  // TODO: Note that selected account will be reset with update to v2
-  // TODO: Collect all storage keys in a single record
+
   const [accountId, setAccountId] = usePassiveStorage('CURRENT_ACCOUNT_ID', defaultAcc.id, true);
 
   useEffect(() => {

@@ -141,16 +141,16 @@ const TezosBalanceInfo: FC<{ accountPkh: string }> = ({ accountPkh }) => {
 };
 
 const EvmBalanceInfo: FC<{ address: HexString }> = ({ address }) => {
-  const { viem: viemChain } = useEvmNetwork();
-  const decimals = viemChain.nativeCurrency.decimals;
+  const network = useEvmNetwork();
+  const decimals = network.nativeCurrency.decimals;
 
   const viemClient = useMemo(
     () =>
       Viem.createPublicClient({
-        chain: viemChain,
+        chain: network,
         transport: Viem.http()
       }),
-    [viemChain]
+    [network]
   );
 
   const { data, isLoading } = useTypedSWR(['evm-gas-balance', address], () => viemClient.getBalance({ address }));

@@ -9,7 +9,7 @@ import Money from 'app/atoms/Money';
 import Name from 'app/atoms/Name';
 import Spinner from 'app/atoms/Spinner/Spinner';
 import SubTitle from 'app/atoms/SubTitle';
-import ErrorBoundary, { DeadEndBoundaryError } from 'app/ErrorBoundary';
+import ErrorBoundary from 'app/ErrorBoundary';
 import ContentContainer from 'app/layouts/ContentContainer';
 import Unlock from 'app/pages/Unlock/Unlock';
 import AccountBanner from 'app/templates/AccountBanner';
@@ -37,8 +37,6 @@ import { ConfirmPageSelectors } from './ConfirmPage.selectors';
 
 const ConfirmPage = memo(() => {
   const { ready } = useTempleClient();
-  const tezosAccount = useAccountForTezos();
-  if (!tezosAccount) throw new DeadEndBoundaryError();
 
   if (ready)
     return (
@@ -53,7 +51,7 @@ const ConfirmPage = memo(() => {
               </div>
             }
           >
-            <ConfirmDAppForm account={tezosAccount} />
+            <ConfirmDAppForm />
           </Suspense>
         </ErrorBoundary>
       </ContentContainer>
@@ -126,12 +124,20 @@ const CONTAINER_STYLE = {
 
 const getPkh = (account: AccountForTezos) => account.address;
 
-const ConfirmDAppForm = memo<{ account: AccountForTezos }>(({ account }) => {
+const ConfirmDAppForm = memo(() => {
   const { getDAppPayload, confirmDAppPermission, confirmDAppOperation, confirmDAppSign } = useTempleClient();
 
   const allAccountsStored = useAllAccounts();
+  const allAccounts = useMemo(
+    () => allAccountsStored.map(acc => (isAccountOfActableType(acc) ? getAccountForTezos(acc) : null)).filter(isTruthy),
+    [allAccountsStored]
+  );
 
-  const [accountPkhToConnect, setAccountPkhToConnect] = useState(account.address);
+  const currentAccountForTezos = useAccountForTezos();
+
+  const [accountPkhToConnect, setAccountPkhToConnect] = useState(
+    () => currentAccountForTezos?.address || allAccounts[0]!.address
+  );
 
   const loc = useLocation();
   const id = useMemo(() => {
@@ -152,16 +158,11 @@ const ConfirmDAppForm = memo<{ account: AccountForTezos }>(({ account }) => {
   const payload = data!;
   const payloadError = data!.error;
 
-  const allAccounts = useMemo(
-    () => allAccountsStored.map(acc => (isAccountOfActableType(acc) ? getAccountForTezos(acc) : null)).filter(isTruthy),
-    [allAccountsStored]
-  );
+  const connectedAccount = useMemo(() => {
+    const address = payload.type === 'connect' ? accountPkhToConnect : payload.sourcePkh;
 
-  const connectedAccount = useMemo(
-    () =>
-      allAccounts.find(acc => acc.address === (payload.type === 'connect' ? accountPkhToConnect : payload.sourcePkh)),
-    [allAccounts, payload, accountPkhToConnect]
-  );
+    return allAccounts.find(acc => acc.address === address);
+  }, [allAccounts, payload, accountPkhToConnect]);
 
   const onConfirm = useCallback(
     async (confimed: boolean, modifiedTotalFee?: number, modifiedStorageLimit?: number) => {

@@ -177,7 +177,6 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     assertResponse(res.type === TempleMessageType.RemoveAccountResponse);
   }, []);
 
-  /** TODO: Move such calls out of hook */
   const editAccountName = useCallback(async (id: string, name: string) => {
     const res = await request({
       type: TempleMessageType.EditAccountRequest,
@@ -207,7 +206,6 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     assertResponse(res.type === TempleMessageType.ImportMnemonicAccountResponse);
   }, []);
 
-  // TODO: Extract to module function
   const importFundraiserAccount = useCallback(async (email: string, password: string, mnemonic: string) => {
     const res = await request({
       type: TempleMessageType.ImportFundraiserAccountRequest,
