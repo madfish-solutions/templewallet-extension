@@ -107,7 +107,7 @@ export function useRelevantAccounts(tezosChainId: string) {
             );
 
           case TempleAccountType.WatchOnly:
-            return acc.chain === TempleChainName.Tezos && (!acc.chainId || acc.chainId === tezosChainId);
+            return acc.chain === 'tezos' ? !acc.chainId || acc.chainId === tezosChainId : true;
 
           default:
             return true;
