@@ -6,8 +6,8 @@ import { HashChip, Alert } from 'app/atoms';
 import { setTestID } from 'lib/analytics';
 import { T, t } from 'lib/i18n';
 import { useSafeState } from 'lib/ui/hooks';
-import { useTezos } from 'temple/front';
-import { confirmTezosOperation, TEZOS_CONFIRMATION_TIMED_OUT_ERROR_MSG } from 'temple/tezos';
+import { useTezosNetworkRpcUrl } from 'temple/front';
+import { buildFastRpcTezosToolkit, confirmTezosOperation, TEZOS_CONFIRMATION_TIMED_OUT_ERROR_MSG } from 'temple/tezos';
 
 import { OpenInExplorerChip } from './OpenInExplorerChip';
 import { OperationStatusSelectors } from './OperationStatus.selectors';
@@ -21,7 +21,7 @@ type OperationStatusProps = {
 };
 
 const OperationStatus: FC<OperationStatusProps> = ({ typeTitle, operation, className, closable, onClose }) => {
-  const tezos = useTezos();
+  const rpcUrl = useTezosNetworkRpcUrl();
 
   const hash = useMemo(
     () =>
@@ -62,7 +62,7 @@ const OperationStatus: FC<OperationStatusProps> = ({ typeTitle, operation, class
   }));
 
   useEffect(() => {
-    confirmTezosOperation(tezos, hash)
+    confirmTezosOperation(buildFastRpcTezosToolkit(rpcUrl), hash)
       .then(() => {
         setAlert(a => ({
           ...a,
@@ -85,7 +85,7 @@ const OperationStatus: FC<OperationStatusProps> = ({ typeTitle, operation, class
               : err?.message || 'Operation confirmation failed'
         });
       });
-  }, [tezos, hash, setAlert, descFooter, typeTitle]);
+  }, [rpcUrl, hash, setAlert, descFooter, typeTitle]);
 
   return (
     <Alert

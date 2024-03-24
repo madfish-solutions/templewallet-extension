@@ -10,11 +10,11 @@ import { useAssetMetadata, useGetTokenOrGasMetadata } from 'lib/metadata';
 import { useTypedSWR } from 'lib/swr';
 import { atomsToTokens } from 'lib/temple/helpers';
 import {
-  useTezos,
   useTezosNetwork,
   useAccountAddressForTezos,
   useTezosChainIdLoading,
-  useOnTezosBlock
+  useOnTezosBlock,
+  useTezosNetworkRpcUrl
 } from 'temple/front';
 import { buildFastRpcTezosToolkit } from 'temple/tezos';
 
@@ -52,9 +52,8 @@ export function useRawBalance(
   refresh: EmptyFn;
 } {
   const currentAccountAddress = useAccountAddressForTezos();
-  const nativeTezos = useTezos();
-  const nativeRpcUrl = useMemo(() => nativeTezos.rpc.getRpcUrl(), [nativeTezos]);
 
+  const nativeRpcUrl = useTezosNetworkRpcUrl();
   const rpcUrl = networkRpc ?? nativeRpcUrl;
 
   const chainIdSwrRes = useTezosChainIdLoading(rpcUrl);
@@ -76,13 +75,10 @@ export function useRawBalance(
    */
   const usingStore = address === currentAccountAddress && isKnownChainId(chainId);
 
-  const tezos = useMemo(
-    () => (networkRpc ? buildFastRpcTezosToolkit(networkRpc) : nativeTezos),
-    [networkRpc, nativeTezos]
-  );
+  const tezos = buildFastRpcTezosToolkit(rpcUrl);
 
   const onChainBalanceSwrRes = useTypedSWR(
-    ['balance', tezos.rpc.getRpcUrl(), assetSlug, address],
+    ['balance', rpcUrl, assetSlug, address],
     () => {
       if (!chainId || usingStore) return;
 

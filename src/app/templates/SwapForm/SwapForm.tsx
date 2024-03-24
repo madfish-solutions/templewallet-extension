@@ -67,7 +67,7 @@ export const SwapForm = memo<Props>(({ publicKeyHash }) => {
   const tezos = useTezos();
   const blockLevel = useTezosBlockLevel();
 
-  const getSwapParams = useGetSwapTransferParams(publicKeyHash);
+  const getSwapParams = useGetSwapTransferParams(tezos, publicKeyHash);
   const { data: route3Tokens } = useSwapTokensSelector();
   const swapParams = useSwapParamsSelector();
   const allUsdToTokenRates = useSelector(state => state.currency.usdToTokenRates.data);

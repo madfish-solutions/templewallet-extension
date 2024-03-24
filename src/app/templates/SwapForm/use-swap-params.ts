@@ -1,16 +1,14 @@
 import { useCallback } from 'react';
 
+import { TezosToolkit } from '@taquito/taquito';
 import { BigNumber } from 'bignumber.js';
 
 import { Route3Token } from 'lib/apis/route3/fetch-route3-tokens';
 import { Route3LiquidityBakingChains, Route3SwapChains } from 'lib/route3/interfaces';
 import { getSwapTransferParams } from 'lib/utils/swap.utils';
-import { useTezos } from 'temple/front';
 
-export const useGetSwapTransferParams = (publicKeyHash: string) => {
-  const tezos = useTezos();
-
-  return useCallback(
+export const useGetSwapTransferParams = (tezos: TezosToolkit, publicKeyHash: string) =>
+  useCallback(
     async (
       fromRoute3Token: Route3Token,
       toRoute3Token: Route3Token,
@@ -29,4 +27,3 @@ export const useGetSwapTransferParams = (publicKeyHash: string) => {
       ),
     [tezos, publicKeyHash]
   );
-};

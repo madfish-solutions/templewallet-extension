@@ -12,7 +12,8 @@ import { T } from 'lib/i18n';
 import { getAssetSymbol, useAssetMetadata } from 'lib/metadata';
 import { useRetryableSWR } from 'lib/swr';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
-import { useTezos } from 'temple/front';
+import { useTezosNetworkRpcUrl } from 'temple/front';
+import { buildFastRpcTezosToolkit } from 'temple/tezos';
 
 type AssetInfoProps = {
   assetSlug: string;
@@ -20,10 +21,11 @@ type AssetInfoProps = {
 
 const AssetInfo: FC<AssetInfoProps> = ({ assetSlug }) => {
   const { popup } = useAppEnv();
-  const tezos = useTezos();
+  const rpcUrl = useTezosNetworkRpcUrl();
+
   const { data } = useRetryableSWR(
-    ['asset', assetSlug, tezos.checksum],
-    () => fromAssetSlugWithStandardDetect(tezos, assetSlug),
+    ['asset', assetSlug, rpcUrl],
+    () => fromAssetSlugWithStandardDetect(buildFastRpcTezosToolkit(rpcUrl), assetSlug),
     { suspense: true }
   );
   const asset = data!;

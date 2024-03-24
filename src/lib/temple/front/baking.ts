@@ -16,8 +16,7 @@ import { t } from 'lib/i18n';
 import { useRetryableSWR } from 'lib/swr';
 import { getOnlineStatus } from 'lib/ui/get-online-status';
 import { useTezosNetwork } from 'temple/front';
-
-import { useTezos } from './ready';
+import { buildFastRpcTezosToolkit } from 'temple/tezos';
 
 function getDelegateCacheKey(
   rpcUrl: string,
@@ -29,8 +28,8 @@ function getDelegateCacheKey(
 }
 
 export function useDelegate(address: string, suspense = true, shouldPreventErrorPropagation = true) {
-  const tezos = useTezos();
   const { chainId, rpcUrl } = useTezosNetwork();
+
   const { cache: swrCache } = useSWRConfig();
 
   const resetDelegateCache = useCallback(() => {
@@ -39,6 +38,8 @@ export function useDelegate(address: string, suspense = true, shouldPreventError
 
   const getDelegate = useCallback(async () => {
     try {
+      const tezos = buildFastRpcTezosToolkit(rpcUrl);
+
       return await retry(
         async () => {
           const freshChainId = chainId ?? (await tezos.rpc.getChainId());
@@ -72,7 +73,7 @@ export function useDelegate(address: string, suspense = true, shouldPreventError
         resetDelegateCache
       );
     }
-  }, [chainId, tezos, address, shouldPreventErrorPropagation, resetDelegateCache]);
+  }, [chainId, rpcUrl, address, shouldPreventErrorPropagation, resetDelegateCache]);
 
   return useSWR(getDelegateCacheKey(rpcUrl, address, chainId, shouldPreventErrorPropagation), getDelegate, {
     dedupingInterval: 20_000,

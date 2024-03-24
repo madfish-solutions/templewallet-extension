@@ -499,7 +499,7 @@ function formatOpParams(op: any) {
   }
 }
 
-async function getPublicKey(accountPublicKeyHash: string) {
+export async function getPublicKey(accountPublicKeyHash: string) {
   const res = await request({
     type: TempleMessageType.RevealPublicKeyRequest,
     accountPublicKeyHash

@@ -8,15 +8,12 @@ import { useFormAnalytics } from 'lib/analytics';
 import { t } from 'lib/i18n';
 import { useTempleClient, validateDelegate } from 'lib/temple/front';
 import { isAddressValid as isValidTezosAddress, isKTAddress } from 'lib/temple/helpers';
-import { useTezos } from 'temple/front';
+import { useTezosNetworkRpcUrl } from 'temple/front';
 import { useTezosAddressByDomainName, useTezosDomainsClient } from 'temple/front/tzdns';
+import { buildFastRpcTezosToolkit } from 'temple/tezos';
 import { TempleChainName } from 'temple/types';
 
 import { ImportAccountSelectors, ImportAccountFormType } from './selectors';
-
-// console.log('aaa', Viem.isAddress('0x0244f7204b9c554306053Cc557e14D6Cbd40a33C'));
-// console.log('bbb', Viem.isAddress('0x0244f7204b9c554306053cc557e14d6cbd40a33c'));
-// console.log('ccc', Viem.getAddress('0x0244f7204b9c554306053cc557e14d6cbd40a33c'));
 
 interface WatchOnlyFormData {
   address: string;
@@ -24,10 +21,12 @@ interface WatchOnlyFormData {
 
 export const WatchOnlyForm = memo(() => {
   const { importWatchOnlyAccount } = useTempleClient();
-  const tezos = useTezos();
+
+  const rpcUrl = useTezosNetworkRpcUrl();
   const domainsClient = useTezosDomainsClient();
-  const canUseDomainNames = domainsClient.isSupported;
   const formAnalytics = useFormAnalytics(ImportAccountFormType.WatchOnly);
+
+  const canUseDomainNames = domainsClient.isSupported;
 
   const { watch, handleSubmit, errors, control, formState, setValue, triggerValidation } = useForm<WatchOnlyFormData>({
     mode: 'onChange'
@@ -71,6 +70,8 @@ export const WatchOnlyForm = memo(() => {
       let chainId: string | undefined;
 
       if (chain === TempleChainName.Tezos && isKTAddress(resolvedAddress)) {
+        const tezos = buildFastRpcTezosToolkit(rpcUrl);
+
         try {
           await tezos.contract.at(resolvedAddress);
         } catch {
@@ -98,7 +99,7 @@ export const WatchOnlyForm = memo(() => {
 
       setError(err.message);
     }
-  }, [importWatchOnlyAccount, resolvedAddress, tezos, formState.isSubmitting, setError, formAnalytics]);
+  }, [importWatchOnlyAccount, resolvedAddress, rpcUrl, formState.isSubmitting, setError, formAnalytics]);
 
   return (
     <form className="w-full max-w-sm mx-auto my-8" onSubmit={handleSubmit(onSubmit)}>

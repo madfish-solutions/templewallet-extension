@@ -120,14 +120,18 @@ function useReadyTemple() {
    */
 
   const tezos = useMemo(() => {
-    const checksum = [network.id, account.publicKeyHash].join('_');
+    const publicKeyHash = getAccountAddressForTezos(account) || ''; // TODO: !!!!!!!!!!!!!!!!!!!!!!!!!!
+
+    const checksum = [network.id, publicKeyHash].join('_');
     const rpc = network.rpcBaseURL;
-    const pkh = account.type === TempleAccountType.ManagedKT ? account.owner : account.publicKeyHash;
+    const pkh = account.type === TempleAccountType.ManagedKT ? account.owner : publicKeyHash;
 
     const t = new ReactiveTezosToolkit(buildFastRpcClient(rpc), checksum);
-    t.setSignerProvider(createTaquitoSigner(pkh));
-    t.setWalletProvider(createTaquitoWallet(pkh, rpc));
     t.setPackerProvider(michelEncoder);
+    t.setWalletProvider(createTaquitoWallet(pkh, rpc));
+    // TODO: Do we need signer, if wallet is provided ?
+    // Note: Taquito's WalletProvider already has `sign()` method - just need to implement it ?
+    t.setSignerProvider(createTaquitoSigner(pkh));
 
     return t;
   }, [createTaquitoSigner, createTaquitoWallet, network, account]);

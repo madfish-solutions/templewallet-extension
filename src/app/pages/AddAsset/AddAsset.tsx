@@ -32,7 +32,8 @@ import { useSafeState } from 'lib/ui/hooks';
 import { delay } from 'lib/utils';
 import { navigate } from 'lib/woozie';
 import { UNDER_DEVELOPMENT_MSG } from 'temple/evm/under_dev_msg';
-import { useAccountAddressForTezos, useTezosNetwork, useTezos } from 'temple/front';
+import { useAccountAddressForTezos, useTezosNetwork } from 'temple/front';
+import { buildFastRpcTezosToolkit } from 'temple/tezos';
 
 import { AddAssetSelectors } from './AddAsset.selectors';
 
@@ -89,7 +90,6 @@ interface FormProps {
 }
 
 const Form = memo<FormProps>(({ accountPkh }) => {
-  const tezos = useTezos();
   const { chainId, rpcUrl } = useTezosNetwork();
 
   const formAnalytics = useFormAnalytics('AddAsset');
@@ -126,6 +126,8 @@ const Form = memo<FormProps>(({ accountPkh }) => {
     let stateToSet: Partial<ComponentState>;
 
     try {
+      const tezos = buildFastRpcTezosToolkit(rpcUrl);
+
       let contract: ContractAbstraction<Wallet | ContractProvider>;
       try {
         contract = await loadContract(tezos, contractAddress, false);
@@ -140,7 +142,6 @@ const Form = memo<FormProps>(({ accountPkh }) => {
 
       if (tokenStandard === 'fa2') await assertFa2TokenDefined(tezos, contract, tokenId);
 
-      const rpcUrl = tezos.rpc.getRpcUrl();
       const metadata = await fetchOneTokenMetadata(rpcUrl, contractAddress, String(tokenId));
 
       if (metadata) {
@@ -172,7 +173,7 @@ const Form = memo<FormProps>(({ accountPkh }) => {
         processing: false
       }));
     }
-  }, [tezos, setValue, setState, formValid, contractAddress, tokenId]);
+  }, [rpcUrl, setValue, setState, formValid, contractAddress, tokenId]);
 
   const loadMetadata = useDebouncedCallback(loadMetadataPure, 500);
 
