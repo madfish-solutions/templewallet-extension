@@ -9,9 +9,7 @@ import {
 } from '@temple-wallet/dapp/dist/types';
 import browser, { Runtime } from 'webextension-polyfill';
 
-import { ADS_VIEWER_TEZOS_ADDRESS_STORAGE_KEY } from 'lib/constants';
 import { BACKGROUND_IS_WORKER } from 'lib/env';
-import { putToStorage } from 'lib/storage';
 import { addLocalOperation } from 'lib/temple/activity';
 import * as Beacon from 'lib/temple/beacon';
 import {
@@ -22,7 +20,6 @@ import {
   TempleSharedStorageKey
 } from 'lib/temple/types';
 import { createQueue, delay } from 'lib/utils';
-import { getAccountAddressForTezos } from 'temple/accounts';
 import { loadTezosChainId } from 'temple/tezos';
 import { TempleChainName } from 'temple/types';
 
@@ -117,8 +114,6 @@ export function unlock(password: string) {
       const vault = await Vault.setup(password, BACKGROUND_IS_WORKER);
       const accounts = await vault.fetchAccounts();
       const settings = await vault.fetchSettings();
-      // TODO: Check logic with current prod implementation
-      putToStorage<string | undefined>(ADS_VIEWER_TEZOS_ADDRESS_STORAGE_KEY, getAccountAddressForTezos(accounts[0]));
       unlocked({ vault, accounts, settings });
     })
   );

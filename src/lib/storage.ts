@@ -23,3 +23,11 @@ export async function putToStorage<T = any>(key: string, value: T) {
 export async function removeFromStorage(keyOrKeys: string | string[]) {
   return browser.storage.local.remove(keyOrKeys);
 }
+
+export async function moveValueInStorage(oldKey: string, newKey: string) {
+  const value = await fetchFromStorage(oldKey);
+
+  await putToStorage(newKey, value);
+
+  await removeFromStorage(oldKey);
+}

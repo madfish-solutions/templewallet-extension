@@ -9,7 +9,6 @@ import { encodeMessage, encryptMessage, getSenderId, MessageType, Response } fro
 import { clearAsyncStorages } from 'lib/temple/reset';
 import { TempleAccountType, TempleMessageType, TempleRequest, TempleResponse } from 'lib/temple/types';
 import { getTrackedCashbackServiceDomain, getTrackedUrl } from 'lib/utils/url-track/url-track.utils';
-import { getAccountAddressForTezos } from 'temple/accounts';
 
 import { AnalyticsEventCategory } from '../analytics-types';
 
@@ -249,12 +248,6 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
   }
 };
 
-const getAnalyticsUserId = async (): Promise<string | undefined> => {
-  const { [ANALYTICS_USER_ID_STORAGE_KEY]: userId } = await browser.storage.local.get(ANALYTICS_USER_ID_STORAGE_KEY);
-
-  return userId;
-};
-
 browser.runtime.onMessage.addListener(async msg => {
   try {
     switch (msg?.type) {
@@ -297,6 +290,8 @@ browser.runtime.onMessage.addListener(async msg => {
   return;
 });
 
+const getAnalyticsUserId = () => fetchFromStorage<string>(ANALYTICS_USER_ID_STORAGE_KEY);
+
 async function getTezosAccountAddressForAdsImpressions() {
   const accountPkhFromStorage = await fetchFromStorage<string>(ADS_VIEWER_TEZOS_ADDRESS_STORAGE_KEY);
 
@@ -305,7 +300,10 @@ async function getTezosAccountAddressForAdsImpressions() {
   }
 
   const frontState = await Actions.getFrontState();
-  const firstHDWalletAccount = frontState.accounts.find(acc => acc.type === TempleAccountType.HD);
 
-  return firstHDWalletAccount ? getAccountAddressForTezos(firstHDWalletAccount) : null;
+  for (const account of frontState.accounts) {
+    if (account.type === TempleAccountType.HD) return account.tezosAddress;
+  }
+
+  return null;
 }

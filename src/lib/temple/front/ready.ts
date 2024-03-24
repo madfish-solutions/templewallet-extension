@@ -80,7 +80,7 @@ function useReadyTemple() {
 
   const defaultAcc = allAccounts[0]!;
 
-  const [accountId, setAccountId] = usePassiveStorage('CURRENT_ACCOUNT_ID', defaultAcc.id, true);
+  const [accountId, setAccountId] = usePassiveStorage('CURRENT_ACCOUNT_ID', defaultAcc.id);
 
   useEffect(() => {
     return intercom.subscribe((msg: TempleNotification) => {

@@ -75,8 +75,3 @@
 - Address Book (Contacts)
 - Analytics ?
 -
-
-## FIX
-- Ads analytics. Send non-watch-only current PKH
-- - In case of WO - choose 1st HD
--
