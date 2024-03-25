@@ -12,8 +12,8 @@ import { useSafeState, useUpdatableRef } from 'lib/ui/hooks';
 import { delay } from 'lib/utils';
 import { navigate } from 'lib/woozie';
 import { getAccountAddressForTezos } from 'temple/accounts';
-import { useTezos } from 'temple/front';
-import { confirmTezosOperation } from 'temple/tezos';
+import { useTezosNetworkRpcUrl } from 'temple/front';
+import { buildFastRpcTezosToolkit, confirmTezosOperation } from 'temple/tezos';
 import { activateTezosAccount } from 'temple/tezos/activate-account';
 
 import { ImportAccountFormType } from './selectors';
@@ -39,7 +39,7 @@ export const FromFaucetForm: FC = () => {
   const allAccountsRef = useUpdatableRef(allAccounts);
 
   const setAccountId = useSetAccountId();
-  const tezos = useTezos();
+  const rpcUrl = useTezosNetworkRpcUrl();
   const formAnalytics = useFormAnalytics(ImportAccountFormType.FaucetFile);
 
   const { control, handleSubmit: handleTextFormSubmit, watch, errors, setValue } = useForm<FaucetTextInputFormData>();
@@ -58,6 +58,8 @@ export const FromFaucetForm: FC = () => {
 
   const importAccount = useCallback(
     async (data: FaucetData) => {
+      const tezos = buildFastRpcTezosToolkit(rpcUrl);
+
       const activation = await activateTezosAccount(data.pkh, data.secret ?? data.activation_code, tezos);
 
       if (activation.status === 'SENT') {
@@ -80,7 +82,7 @@ export const FromFaucetForm: FC = () => {
         throw err;
       }
     },
-    [importFundraiserAccount, setAccountId, setAlert, tezos, allAccountsRef]
+    [importFundraiserAccount, setAccountId, setAlert, rpcUrl, allAccountsRef]
   );
 
   const onTextFormSubmit = useCallback(
@@ -101,9 +103,6 @@ export const FromFaucetForm: FC = () => {
         formAnalytics.trackSubmitFail();
 
         console.error(err);
-
-        // Human delay.
-        await delay();
 
         setAlert(err);
       } finally {

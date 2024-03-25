@@ -9,12 +9,13 @@ import type { ObjktOffer } from 'lib/apis/objkt/types';
 import { fromFa2TokenSlug } from 'lib/assets/utils';
 import { getTransferPermissions } from 'lib/utils/get-transfer-permissions';
 import { parseTransferParamsToParamsWithKind } from 'lib/utils/parse-transfer-params';
-import { useTezos } from 'temple/front';
+import { useTezosWithSigner } from 'temple/front';
 
 const DEFAULT_OBJKT_STORAGE_LIMIT = 350;
 
 export const useCollectibleSelling = (assetSlug: string, publicKeyHash: string, offer?: ObjktOffer) => {
-  const tezos = useTezos();
+  const tezos = useTezosWithSigner(publicKeyHash);
+
   const [isSelling, setIsSelling] = useState(false);
   const [operation, setOperation] = useState<WalletOperation | nullish>();
   const [operationError, setOperationError] = useState<unknown>();

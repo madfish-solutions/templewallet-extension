@@ -5,8 +5,8 @@ import { ADS_VIEWER_TEZOS_ADDRESS_STORAGE_KEY, ANALYTICS_USER_ID_STORAGE_KEY } f
 import { useAllAccounts } from 'lib/temple/front';
 import { usePassiveStorage } from 'lib/temple/front/storage';
 import { StoredHDAccount } from 'lib/temple/types';
+import { isAccountOfActableType } from 'temple/accounts';
 import { useAccountForTezos } from 'temple/front';
-import { isAccountOfActableType } from 'temple/tezos';
 
 export const useUserIdSync = () => {
   // User ID

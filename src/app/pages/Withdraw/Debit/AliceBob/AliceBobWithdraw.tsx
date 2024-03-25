@@ -1,4 +1,4 @@
-import React, { memo, useState } from 'react';
+import React, { memo, useMemo, useState } from 'react';
 
 import { Stepper } from 'app/atoms';
 import { Anchor } from 'app/atoms/Anchor';
@@ -11,7 +11,8 @@ import { t, T } from 'lib/i18n/react';
 import { useStorage } from 'lib/temple/front';
 import { TempleAccountType } from 'lib/temple/types';
 import { Redirect } from 'lib/woozie';
-import { useAccountForTezos, useTezosNetwork } from 'temple/front';
+import { getAccountForTezos } from 'temple/accounts';
+import { useAccount, useTezosNetwork } from 'temple/front';
 
 import { WithdrawSelectors } from '../../Withdraw.selectors';
 
@@ -27,7 +28,9 @@ const ALICE_BOB_CONTACT_LINK = 'https://t.me/alicebobhelp';
 
 export const AliceBobWithdraw = memo(() => {
   const { isMainnet } = useTezosNetwork();
-  const account = useAccountForTezos();
+  const currentAccount = useAccount();
+
+  const account = useMemo(() => getAccountForTezos(currentAccount), [currentAccount]);
   if (!account) throw new DeadEndBoundaryError();
 
   const publicKeyHash = account.address;
@@ -83,6 +86,7 @@ export const AliceBobWithdraw = memo(() => {
         {orderInfo && step === 1 && (
           <SellStep
             publicKeyHash={publicKeyHash}
+            ownerAddress={currentAccount.type === TempleAccountType.ManagedKT ? currentAccount.owner : undefined}
             orderInfo={orderInfo}
             isApiError={isApiError}
             setStep={setStep}

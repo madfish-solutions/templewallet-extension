@@ -1,6 +1,9 @@
-import { StoredAccount, TempleAccountType } from 'lib/temple/types';
+import { StoredAccount, TempleAccountType, StoredAccountBase } from 'lib/temple/types';
 
 import { TempleChainName } from './types';
+
+export const isAccountOfActableType = (account: StoredAccountBase) =>
+  !(account.type === TempleAccountType.WatchOnly || account.type === TempleAccountType.ManagedKT);
 
 export interface AccountForChain<C extends TempleChainName = TempleChainName> {
   // TODO: extends StoredAccountBase ?

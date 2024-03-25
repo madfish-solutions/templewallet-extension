@@ -29,9 +29,8 @@ import { TempleAccountType, TempleDAppPayload, TempleTezosChainId } from 'lib/te
 import { useSafeState } from 'lib/ui/hooks';
 import { delay, isTruthy } from 'lib/utils';
 import { useLocation } from 'lib/woozie';
-import { AccountForTezos, getAccountForTezos } from 'temple/accounts';
+import { AccountForTezos, getAccountForTezos, isAccountOfActableType } from 'temple/accounts';
 import { useAccountForTezos, useTezosChainIdLoadingValue } from 'temple/front';
-import { isAccountOfActableType } from 'temple/tezos';
 
 import { ConfirmPageSelectors } from './ConfirmPage.selectors';
 

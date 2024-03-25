@@ -32,7 +32,7 @@ import { useSafeState } from 'lib/ui/hooks';
 import { delay, fifoResolve } from 'lib/utils';
 import { Link, useLocation } from 'lib/woozie';
 import { AccountForTezos } from 'temple/accounts';
-import { useTezos, useTezosNetwork } from 'temple/front';
+import { useTezosNetwork, useTezosWithSigner } from 'temple/front';
 import { isTezosDomainsNameValid, useTezosAddressByDomainName, useTezosDomainsClient } from 'temple/front/tzdns';
 
 import { DelegateFormSelectors } from './DelegateForm.selectors';
@@ -58,7 +58,7 @@ const DelegateForm = memo<Props>(({ account, balance, ownerAddress }) => {
   const formAnalytics = useFormAnalytics('DelegateForm');
   const { symbol, isDcpNetwork, logo } = useGasToken();
 
-  const tezos = useTezos();
+  const tezos = useTezosWithSigner(ownerAddress || account.address);
 
   const address = account.address;
 

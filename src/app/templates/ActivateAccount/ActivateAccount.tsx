@@ -8,8 +8,8 @@ import { T, t } from 'lib/i18n';
 import { useSafeState } from 'lib/ui/hooks';
 import { AccountForTezos } from 'temple/accounts';
 import { UNDER_DEVELOPMENT_MSG } from 'temple/evm/under_dev_msg';
-import { useTezos, useAccountForTezos } from 'temple/front';
-import { confirmTezosOperation } from 'temple/tezos';
+import { useAccountForTezos, useTezosNetworkRpcUrl } from 'temple/front';
+import { buildFastRpcTezosToolkit, confirmTezosOperation } from 'temple/tezos';
 import { activateTezosAccount } from 'temple/tezos/activate-account';
 
 import { ActivateAccountSelectors } from './ActivateAccount.selectors';
@@ -35,7 +35,7 @@ interface Props {
 }
 
 const ActivateTezosAccount = memo<Props>(({ account }) => {
-  const tezos = useTezos();
+  const rpcUrl = useTezosNetworkRpcUrl();
 
   const [success, setSuccess] = useSafeState<ReactNode>(null);
 
@@ -50,6 +50,8 @@ const ActivateTezosAccount = memo<Props>(({ account }) => {
       setSuccess(null);
 
       try {
+        const tezos = buildFastRpcTezosToolkit(rpcUrl);
+
         const activation = await activateTezosAccount(account.address, data.secret.replace(/\s/g, ''), tezos);
         switch (activation.status) {
           case 'ALREADY_ACTIVATED':
@@ -70,7 +72,7 @@ const ActivateTezosAccount = memo<Props>(({ account }) => {
         setError('secret', SUBMIT_ERROR_TYPE, mes);
       }
     },
-    [clearError, submitting, setError, setSuccess, account.address, tezos]
+    [clearError, submitting, setError, setSuccess, account.address, rpcUrl]
   );
 
   const submit = useMemo(() => handleSubmit(onSubmit), [handleSubmit, onSubmit]);

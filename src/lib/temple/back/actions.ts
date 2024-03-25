@@ -155,8 +155,8 @@ export function revealPrivateKey(chain: TempleChainName, address: string, passwo
   return withUnlocked(() => Vault.revealPrivateKey(chain, address, password));
 }
 
-export function revealPublicKey(accPublicKeyHash: string) {
-  return withUnlocked(({ vault }) => vault.revealPublicKey(accPublicKeyHash));
+export function revealPublicKey(accountAddress: string) {
+  return withUnlocked(({ vault }) => vault.revealPublicKey(accountAddress));
 }
 
 export function removeAccount(id: string, password: string) {

@@ -2,20 +2,12 @@ import { useEffect, useLayoutEffect, useMemo } from 'react';
 
 import constate from 'constate';
 
-import { IS_DEV_ENV } from 'lib/env';
-import {
-  ReadyTempleState,
-  TempleAccountType,
-  TempleStatus,
-  TempleState,
-  TempleNotification,
-  TempleMessageType
-} from 'lib/temple/types';
+import { ReadyTempleState, TempleStatus, TempleState, TempleNotification, TempleMessageType } from 'lib/temple/types';
 import { useUpdatableRef } from 'lib/ui/hooks';
 import { getAccountAddressForTezos } from 'temple/accounts';
-import { michelEncoder, buildFastRpcClient, ReactiveTezosToolkit } from 'temple/tezos';
+import { intercomClient } from 'temple/front/intercom-client';
 
-import { intercom, useTempleClient } from './client';
+import { useTempleClient } from './client';
 import { usePassiveStorage } from './storage';
 
 export const [
@@ -27,8 +19,7 @@ export const [
   useCurrentAccountId,
   useSetAccountId,
   useAccount,
-  useSettings,
-  useTezos
+  useSettings
 ] = constate(
   useReadyTemple,
   v => v.allNetworks,
@@ -38,21 +29,14 @@ export const [
   v => v.accountId,
   v => v.setAccountId,
   v => v.account,
-  v => v.settings,
-  v => v.tezos
+  v => v.settings
 );
 
 function useReadyTemple() {
   const templeFront = useTempleClient();
   assertReady(templeFront);
 
-  const {
-    networks: allNetworks,
-    accounts: allAccounts,
-    settings,
-    createTaquitoSigner,
-    createTaquitoWallet
-  } = templeFront;
+  const { networks: allNetworks, accounts: allAccounts, settings } = templeFront;
 
   /**
    * Networks
@@ -83,7 +67,7 @@ function useReadyTemple() {
   const [accountId, setAccountId] = usePassiveStorage('CURRENT_ACCOUNT_ID', defaultAcc.id);
 
   useEffect(() => {
-    return intercom.subscribe((msg: TempleNotification) => {
+    return intercomClient.subscribe((msg: TempleNotification) => {
       switch (msg?.type) {
         case TempleMessageType.SelectedAccountChanged:
           const account = allAccountsRef.current.find(
@@ -115,33 +99,6 @@ function useReadyTemple() {
     window.dispatchEvent(evt);
   }, [networkId, accountId]);
 
-  /**
-   * tezos = TezosToolkit instance
-   */
-
-  const tezos = useMemo(() => {
-    const publicKeyHash = getAccountAddressForTezos(account) || ''; // TODO: !!!!!!!!!!!!!!!!!!!!!!!!!!
-
-    const checksum = [network.id, publicKeyHash].join('_');
-    const rpc = network.rpcBaseURL;
-    const pkh = account.type === TempleAccountType.ManagedKT ? account.owner : publicKeyHash;
-
-    const t = new ReactiveTezosToolkit(buildFastRpcClient(rpc), checksum);
-    t.setPackerProvider(michelEncoder);
-    t.setWalletProvider(createTaquitoWallet(pkh, rpc));
-    // TODO: Do we need signer, if wallet is provided ?
-    // Note: Taquito's WalletProvider already has `sign()` method - just need to implement it ?
-    t.setSignerProvider(createTaquitoSigner(pkh));
-
-    return t;
-  }, [createTaquitoSigner, createTaquitoWallet, network, account]);
-
-  useEffect(() => {
-    if (IS_DEV_ENV) {
-      (window as any).tezos = tezos;
-    }
-  }, [tezos]);
-
   return {
     allNetworks,
     network,
@@ -153,8 +110,7 @@ function useReadyTemple() {
     account,
     setAccountId,
 
-    settings,
-    tezos
+    settings
   };
 }
 

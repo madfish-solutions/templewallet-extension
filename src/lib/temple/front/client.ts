@@ -1,35 +1,24 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import {
-  WalletProvider,
-  createOriginationOperation,
-  createSetDelegateOperation,
-  createIncreasePaidStorageOperation,
-  createTransferOperation,
-  WalletDelegateParams,
-  WalletOriginateParams,
-  WalletIncreasePaidStorageParams,
-  WalletTransferParams,
-  Signer
-} from '@taquito/taquito';
-import { buf2hex } from '@taquito/utils';
 import constate from 'constate';
-import { nanoid } from 'nanoid';
-import toBuffer from 'typedarray-to-buffer';
 
-import { IntercomClient } from 'lib/intercom/client';
 import { useRetryableSWR } from 'lib/swr';
 import { clearLocalStorage } from 'lib/temple/reset';
 import {
   TempleConfirmationPayload,
   TempleMessageType,
   TempleStatus,
-  TempleRequest,
-  TempleResponse,
   TempleNotification,
   TempleSettings,
   DerivationType
 } from 'lib/temple/types';
+import {
+  intercomClient,
+  makeIntercomRequest as request,
+  assertResponse,
+  getAccountPublicKey
+} from 'temple/front/intercom-client';
+import { getPendingConfirmationId, resetPendingConfirmationId } from 'temple/front/pending-confirm';
 import { TempleChainName } from 'temple/types';
 
 type Confirmation = {
@@ -37,8 +26,6 @@ type Confirmation = {
   payload: TempleConfirmationPayload;
   error?: any;
 };
-
-export const intercom = new IntercomClient();
 
 export const [TempleClientProvider, useTempleClient] = constate(() => {
   /**
@@ -60,33 +47,28 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
   const state = data!;
 
   const [confirmation, setConfirmation] = useState<Confirmation | null>(null);
-  const confirmationIdRef = useRef<string | null>(null);
-  const resetConfirmation = useCallback(() => {
-    confirmationIdRef.current = null;
-    setConfirmation(null);
-  }, [setConfirmation]);
 
   useEffect(() => {
-    return intercom.subscribe((msg: TempleNotification) => {
+    return intercomClient.subscribe((msg: TempleNotification) => {
       switch (msg?.type) {
         case TempleMessageType.StateUpdated:
           mutate();
           break;
 
         case TempleMessageType.ConfirmationRequested:
-          if (msg.id === confirmationIdRef.current) {
+          if (msg.id === getPendingConfirmationId()) {
             setConfirmation({ id: msg.id, payload: msg.payload, error: msg.error });
           }
           break;
 
         case TempleMessageType.ConfirmationExpired:
-          if (msg.id === confirmationIdRef.current) {
-            resetConfirmation();
+          if (msg.id === getPendingConfirmationId()) {
+            resetPendingConfirmationId();
           }
           break;
       }
     });
-  }, [mutate, setConfirmation, resetConfirmation]);
+  }, [mutate, setConfirmation]);
 
   /**
    * Aliases
@@ -286,7 +268,7 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
       id,
       confirmed,
       accountPublicKeyHash: pkh,
-      accountPublicKey: confirmed ? await getPublicKey(pkh) : ''
+      accountPublicKey: confirmed ? await getAccountPublicKey(pkh) : ''
     });
     assertResponse(res.type === TempleMessageType.DAppPermConfirmationResponse);
   }, []);
@@ -313,22 +295,6 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     });
     assertResponse(res.type === TempleMessageType.DAppSignConfirmationResponse);
   }, []);
-
-  const createTaquitoWallet = useCallback(
-    (sourcePkh: string, networkRpc: string) =>
-      new TempleTaquitoWallet(sourcePkh, networkRpc, id => {
-        confirmationIdRef.current = id;
-      }),
-    []
-  );
-
-  const createTaquitoSigner = useCallback(
-    (sourcePkh: string) =>
-      new TempleTaquitoSigner(sourcePkh, id => {
-        confirmationIdRef.current = id;
-      }),
-    []
-  );
 
   const getAllDAppSessions = useCallback(async () => {
     const res = await request({
@@ -363,7 +329,6 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
 
     // Misc
     confirmation,
-    resetConfirmation,
 
     // Actions
     registerWallet,
@@ -387,149 +352,7 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     confirmDAppPermission,
     confirmDAppOperation,
     confirmDAppSign,
-    createTaquitoWallet,
-    createTaquitoSigner,
     getAllDAppSessions,
     removeDAppSession
   };
 });
-
-class TempleTaquitoWallet implements WalletProvider {
-  constructor(private pkh: string, private rpc: string, private onBeforeSend?: (id: string) => void) {}
-
-  async getPKH() {
-    return this.pkh;
-  }
-
-  getPK() {
-    return getPublicKey(this.pkh);
-  }
-
-  async mapIncreasePaidStorageWalletParams(params: () => Promise<WalletIncreasePaidStorageParams>) {
-    const walletParams = await params();
-    return withoutFeesOverride(walletParams, await createIncreasePaidStorageOperation(walletParams));
-  }
-
-  async mapTransferParamsToWalletParams(params: () => Promise<WalletTransferParams>) {
-    const walletParams = await params();
-    return withoutFeesOverride(walletParams, await createTransferOperation(walletParams));
-  }
-
-  async mapOriginateParamsToWalletParams(params: () => Promise<WalletOriginateParams>) {
-    const walletParams = await params();
-    return withoutFeesOverride(walletParams, await createOriginationOperation(walletParams));
-  }
-
-  async mapDelegateParamsToWalletParams(params: () => Promise<WalletDelegateParams>) {
-    const walletParams = await params();
-    return withoutFeesOverride(walletParams, await createSetDelegateOperation(walletParams as any));
-  }
-
-  async sendOperations(opParams: any[]) {
-    const id = nanoid();
-    if (this.onBeforeSend) {
-      this.onBeforeSend(id);
-    }
-    const res = await request({
-      type: TempleMessageType.OperationsRequest,
-      id,
-      sourcePkh: this.pkh,
-      networkRpc: this.rpc,
-      opParams: opParams.map(formatOpParams)
-    });
-    assertResponse(res.type === TempleMessageType.OperationsResponse);
-    return res.opHash;
-  }
-
-  async sign(): Promise<string> {
-    throw new Error('Cannot sign');
-  }
-}
-
-class TempleTaquitoSigner implements Signer {
-  constructor(private pkh: string, private onBeforeSign?: (id: string) => void) {}
-
-  async publicKeyHash() {
-    return this.pkh;
-  }
-
-  async publicKey(): Promise<string> {
-    return getPublicKey(this.pkh);
-  }
-
-  async secretKey(): Promise<string> {
-    throw new Error('Secret key cannot be exposed');
-  }
-
-  async sign(bytes: string, watermark?: Uint8Array) {
-    const id = nanoid();
-    if (this.onBeforeSign) {
-      this.onBeforeSign(id);
-    }
-    const res = await request({
-      type: TempleMessageType.SignRequest,
-      sourcePkh: this.pkh,
-      id,
-      bytes,
-      watermark: watermark ? buf2hex(toBuffer(watermark)) : undefined
-    });
-    assertResponse(res.type === TempleMessageType.SignResponse);
-    return res.result;
-  }
-}
-
-function formatOpParams(op: any) {
-  switch (op.kind) {
-    case 'origination':
-      return {
-        ...op,
-        mutez: true // The balance was already converted from Tez (ꜩ) to Mutez (uꜩ)
-      };
-    case 'transaction':
-      const { destination, amount, parameters, ...txRest } = op;
-      return {
-        ...txRest,
-        to: destination,
-        amount: +amount,
-        mutez: true,
-        parameter: parameters
-      };
-    default:
-      return op;
-  }
-}
-
-export async function getPublicKey(accountPublicKeyHash: string) {
-  const res = await request({
-    type: TempleMessageType.RevealPublicKeyRequest,
-    accountPublicKeyHash
-  });
-  assertResponse(res.type === TempleMessageType.RevealPublicKeyResponse);
-  return res.publicKey;
-}
-
-export async function request<T extends TempleRequest>(req: T) {
-  const res = await intercom.request(req);
-  assertResponse('type' in res);
-  return res as TempleResponse;
-}
-
-export function assertResponse(condition: any): asserts condition {
-  if (!condition) {
-    throw new Error('Invalid response recieved');
-  }
-}
-
-function withoutFeesOverride<T>(params: any, op: T): T {
-  try {
-    const { fee, gasLimit, storageLimit } = params;
-    return {
-      ...op,
-      fee,
-      gas_limit: gasLimit,
-      storage_limit: storageLimit
-    };
-  } catch {
-    return params;
-  }
-}

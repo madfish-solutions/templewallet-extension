@@ -1,12 +1,11 @@
 import { useMemo } from 'react';
 
-import { useCurrentAccountId, useAccount, useAllAccounts, useTezos } from 'lib/temple/front/ready';
+import { useCurrentAccountId, useAccount, useAllAccounts } from 'lib/temple/front/ready';
 import { TempleAccountType } from 'lib/temple/types';
 import { TempleChainName } from 'temple/types';
 
 import { AccountForChain, getAccountAddressForChain, getAccountForChain } from '../accounts';
 
-export { useTezos };
 export {
   useTezosNetwork,
   useEvmNetwork,
@@ -14,7 +13,9 @@ export {
   useTezosChainIdLoading,
   useTezosChainIdLoadingValue
 } from './networks';
-export { useOnTezosBlock } from './use-block';
+
+export { useTezosWithSigner } from './tezos';
+export { useOnTezosBlock, useTezosBlockLevel } from './use-block';
 
 export { useCurrentAccountId, useAccount };
 

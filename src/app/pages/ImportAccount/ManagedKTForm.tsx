@@ -16,9 +16,10 @@ import { useRetryableSWR } from 'lib/swr';
 import { useTempleClient } from 'lib/temple/front';
 import { isAddressValid } from 'lib/temple/helpers';
 import { TempleAccountType } from 'lib/temple/types';
-import { delay, isTruthy } from 'lib/utils';
+import { isTruthy } from 'lib/utils';
 import { getAccountForTezos } from 'temple/accounts';
-import { useTezos, useTezosNetwork, useRelevantAccounts } from 'temple/front';
+import { useTezosNetwork, useRelevantAccounts } from 'temple/front';
+import { buildFastRpcTezosToolkit } from 'temple/tezos';
 
 import { ImportAccountSelectors, ImportAccountFormType } from './selectors';
 
@@ -31,8 +32,7 @@ const getContractAddress = (contract: TzktRelatedContract) => contract.address;
 export const ManagedKTForm: FC = () => {
   const { importKTManagedAccount } = useTempleClient();
 
-  const { chainId } = useTezosNetwork();
-  const tezos = useTezos();
+  const { chainId, rpcUrl } = useTezosNetwork();
 
   const relevantAccounts = useRelevantAccounts(chainId);
   const tezosAccounts = useMemo(
@@ -114,6 +114,8 @@ export const ManagedKTForm: FC = () => {
       formAnalytics.trackSubmit();
       setError(null);
       try {
+        const tezos = buildFastRpcTezosToolkit(rpcUrl);
+
         const contract = await tezos.contract.at(address);
         const owner = await contract.storage();
         if (typeof owner !== 'string') {
@@ -124,21 +126,19 @@ export const ManagedKTForm: FC = () => {
           throw new Error(t('youAreNotContractManager'));
         }
 
-        const chain = await tezos.rpc.getChainId();
-        await importKTManagedAccount(address, chain, owner);
+        const chainId = await tezos.rpc.getChainId();
+        await importKTManagedAccount(address, chainId, owner);
 
         formAnalytics.trackSubmitSuccess();
       } catch (err: any) {
-        formAnalytics.trackSubmitFail();
-
         console.error(err);
 
-        // Human delay
-        await delay();
+        formAnalytics.trackSubmitFail();
+
         setError(err.message);
       }
     },
-    [formState, tezos, tezosAccounts, importKTManagedAccount, formAnalytics]
+    [formState, rpcUrl, tezosAccounts, importKTManagedAccount, formAnalytics]
   );
 
   const handleKnownContractSelect = useCallback(

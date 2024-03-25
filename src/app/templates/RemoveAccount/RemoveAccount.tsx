@@ -8,7 +8,6 @@ import AccountBanner from 'app/templates/AccountBanner';
 import { T, t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
 import { TempleAccountType } from 'lib/temple/types';
-import { getAccountAddressForEvm, getAccountAddressForTezos } from 'temple/accounts';
 import { useAccount } from 'temple/front';
 
 import { RemoveAccountSelectors } from './RemoveAccount.selectors';

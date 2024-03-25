@@ -6,9 +6,10 @@ import DocBg from 'app/a11y/DocBg';
 import InternalConfirmation from 'app/templates/InternalConfirmation';
 import { useTempleClient } from 'lib/temple/front';
 import Portal from 'lib/ui/Portal';
+import { resetPendingConfirmationId } from 'temple/front/pending-confirm';
 
 const ConfirmationOverlay = memo(() => {
-  const { confirmation, resetConfirmation, confirmInternal } = useTempleClient();
+  const { confirmation, confirmInternal } = useTempleClient();
   const displayed = Boolean(confirmation);
 
   useLayoutEffect(() => {
@@ -30,9 +31,9 @@ const ConfirmationOverlay = memo(() => {
       if (confirmation) {
         await confirmInternal(confirmation.id, confirmed, modifiedTotalFee, modifiedStorageLimit);
       }
-      resetConfirmation();
+      resetPendingConfirmationId();
     },
-    [confirmation, confirmInternal, resetConfirmation]
+    [confirmation, confirmInternal]
   );
 
   return (

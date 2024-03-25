@@ -304,9 +304,9 @@ export class Vault {
 
   constructor(private passKey: CryptoKey) {}
 
-  revealPublicKey(accPublicKeyHash: string) {
+  revealPublicKey(accountAddress: string) {
     return withError('Failed to reveal public key', () =>
-      fetchAndDecryptOne<string>(accPubKeyStrgKey(accPublicKeyHash), this.passKey)
+      fetchAndDecryptOne<string>(accPubKeyStrgKey(accountAddress), this.passKey)
     );
   }
 

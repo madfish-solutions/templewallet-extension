@@ -12,7 +12,7 @@ import { toTransferParams } from 'lib/assets/contract.utils';
 import { T, TID } from 'lib/i18n';
 import { TEZOS_METADATA } from 'lib/metadata/defaults';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
-import { useTezos } from 'temple/front';
+import { useTezosWithSigner } from 'temple/front';
 
 import { useUpdatedOrderInfo } from '../hooks/useUpdatedOrderInfo';
 
@@ -20,17 +20,20 @@ import { StepProps } from './step.props';
 
 interface SellStepProps extends StepProps {
   publicKeyHash: string;
+  /** Present for `account.type === TempleAccountType.ManagedKT` */
+  ownerAddress?: string;
 }
 
 export const SellStep: FC<SellStepProps> = ({
   publicKeyHash,
+  ownerAddress,
   orderInfo,
   isApiError,
   setStep,
   setOrderInfo,
   setIsApiError
 }) => {
-  const tezos = useTezos();
+  const tezos = useTezosWithSigner(ownerAddress || publicKeyHash);
   const { copy } = useCopyToClipboard();
 
   const formAnalytics = useFormAnalytics('AliceBobWithdrawSendProgress');

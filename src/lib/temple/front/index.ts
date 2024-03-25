@@ -1,6 +1,6 @@
 export { useStorage } from './storage';
 
-export { useTempleClient, request, assertResponse } from './client';
+export { useTempleClient } from './client';
 
 export { useAllNetworks, useSetNetworkId, useNetwork, useAllAccounts, useSetAccountId, useSettings } from './ready';
 

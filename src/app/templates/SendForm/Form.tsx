@@ -51,7 +51,7 @@ import { useSafeState } from 'lib/ui/hooks';
 import { useScrollIntoView } from 'lib/ui/use-scroll-into-view';
 import { ZERO } from 'lib/utils/numbers';
 import { AccountForTezos } from 'temple/accounts';
-import { useTezos, useTezosNetwork } from 'temple/front';
+import { useTezosNetwork, useTezosWithSigner } from 'temple/front';
 import { isTezosDomainsNameValid, useTezosAddressByDomainName, useTezosDomainsClient } from 'temple/front/tzdns';
 
 import ContactsDropdown, { ContactsDropdownProps } from './ContactsDropdown';
@@ -89,7 +89,7 @@ export const Form: FC<Props> = ({ account, ownerAddress, assetSlug, setOperation
   const { allContacts } = useFilteredContacts();
   const { isMainnet } = useTezosNetwork();
 
-  const tezos = useTezos();
+  const tezos = useTezosWithSigner(ownerAddress || account.address);
   const domainsClient = useTezosDomainsClient();
 
   const formAnalytics = useFormAnalytics('SendForm');

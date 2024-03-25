@@ -70,7 +70,7 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
       return { type: TempleMessageType.CreateAccountResponse };
 
     case TempleMessageType.RevealPublicKeyRequest:
-      const publicKey = await Actions.revealPublicKey(req.accountPublicKeyHash);
+      const publicKey = await Actions.revealPublicKey(req.accountAddress);
       return {
         type: TempleMessageType.RevealPublicKeyResponse,
         publicKey

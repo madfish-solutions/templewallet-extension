@@ -4,16 +4,14 @@ import { Tzip16Module } from '@taquito/tzip16';
 import memoizee from 'memoizee';
 
 import { FastRpcClient } from 'lib/taquito-fast-rpc';
-import { StoredAccountBase, TempleAccountType } from 'lib/temple/types';
 
 export { TEZOS_CONFIRMATION_TIMED_OUT_ERROR_MSG, confirmTezosOperation } from './confirmation';
 
-const MAX_MEMOIZED_TOOLKITS = 3;
+export const MAX_MEMOIZED_TOOLKITS = 3;
 
 export const michelEncoder = new MichelCodecPacker();
 
-export const isAccountOfActableType = (account: StoredAccountBase) =>
-  !(account.type === TempleAccountType.WatchOnly || account.type === TempleAccountType.ManagedKT);
+export const makeTezosChecksum = (rpcUrl: string, accountPkh: string) => `${accountPkh}@${rpcUrl}`;
 
 export const buildFastRpcTezosToolkit = memoizee(
   (rpcUrl: string) => {
@@ -37,8 +35,14 @@ export class TempleTezosToolkit extends TezosToolkit {
 }
 
 export class ReactiveTezosToolkit extends TezosToolkit {
-  constructor(rpc: string | RpcClientInterface, public checksum: string) {
-    super(rpc);
+  checksum: string;
+
+  constructor(rpcUrl: string, accountPkh: string) {
+    super(buildFastRpcClient(rpcUrl));
+
+    this.checksum = makeTezosChecksum(rpcUrl, accountPkh);
+
+    this.setPackerProvider(michelEncoder);
     this.addExtension(new Tzip16Module());
   }
 }

@@ -453,7 +453,7 @@ interface TempleCreateAccountResponse extends TempleMessageBase {
 
 interface TempleRevealPublicKeyRequest extends TempleMessageBase {
   type: TempleMessageType.RevealPublicKeyRequest;
-  accountPublicKeyHash: string;
+  accountAddress: string;
 }
 
 interface TempleRevealPublicKeyResponse extends TempleMessageBase {
