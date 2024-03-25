@@ -79,17 +79,18 @@ describe('Vault tests', () => {
     expect(accounts.length).toBe(2);
   });
 
-  it('createHDAccount when already exist test', async () => {
+  it('createHDAccount when imported already exists test', async () => {
     await Vault.spawn(password, mnemonic);
     const vault = await Vault.setup(password);
 
     let accounts = await vault.importAccount(
       TempleChainName.Tezos,
       'edskRqhkd2kyavm8evNWpKRcLiRC4f155KARsi9r4u7bqiFH6hhDdtbk3qY9yJPTDavEJUD81idM8dCLyrz6Gg5hFJ8J6iqoCZ'
+      // Of HD index `1`
     );
     accounts = await vault.createHDAccount(accountName);
     expect(accounts.length).toBe(3);
-    expect(getAccountAddressForTezos(accounts[2])).toBe('tz1VhWfNN1qUY5rNBUMiwmnTUzpTS31s1fZD');
+    expect(getAccountAddressForTezos(accounts[2])).toBe(getAccountAddressForTezos(accounts[1]));
   });
 
   it('editAccountName test', async () => {
@@ -234,7 +235,7 @@ describe('Vault tests', () => {
   it('importFundraiserAccount test', async () => {
     await Vault.spawn(password, mnemonic);
     const vault = await Vault.setup(password);
-    const [account] = await vault.importFundraiserAccount(
+    const [, fundraiserAccount] = await vault.importFundraiserAccount(
       'rtphpwty.yohjelcp@tezos.example.org',
       'HMYlTEu0EF',
       [
@@ -255,8 +256,8 @@ describe('Vault tests', () => {
         'oven'
       ].join(' ')
     );
-    expect(account.type).toBe(TempleAccountType.Imported);
-    expect(getAccountAddressForTezos(account)).toBe('tz1ZfrERcALBwmAqwonRXYVQBDT9BjNjBHJu');
+    expect(fundraiserAccount.type).toBe(TempleAccountType.Imported);
+    expect(getAccountAddressForTezos(fundraiserAccount)).toBe('tz1ZfrERcALBwmAqwonRXYVQBDT9BjNjBHJu');
   });
 
   it('importManagedKTAccount test', async () => {

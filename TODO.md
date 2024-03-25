@@ -3,7 +3,7 @@
 - Branch for current epic
 - - Code quality checks for targetting /TW-(d+)-epic-/
 - Import watch-only EVM account
-- Move `useAccountForChain()` under `constate`
+- Unit tests for EVM accounts in the Vault
 - TempleContact. See: `useFilteredContacts()`
 - - Migrate
 - - To Redux ?
