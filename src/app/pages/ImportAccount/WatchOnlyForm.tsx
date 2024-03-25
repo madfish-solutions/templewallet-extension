@@ -9,7 +9,7 @@ import { t } from 'lib/i18n';
 import { useTempleClient, validateDelegate } from 'lib/temple/front';
 import { isAddressValid as isValidTezosAddress, isKTAddress } from 'lib/temple/helpers';
 import { useTezosNetworkRpcUrl } from 'temple/front';
-import { useTezosAddressByDomainName, useTezosDomainsClient } from 'temple/front/tzdns';
+import { useTezosAddressByDomainName, useTezosDomainsClient } from 'temple/front/tezos';
 import { getReadOnlyTezos } from 'temple/tezos';
 import { TempleChainName } from 'temple/types';
 

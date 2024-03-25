@@ -5,7 +5,7 @@ import { Subscription, TezosToolkit } from '@taquito/taquito';
 import { useUpdatableRef } from 'lib/ui/hooks';
 import { getReadOnlyTezos } from 'temple/tezos';
 
-import { useTezosNetworkRpcUrl } from './networks';
+import { useTezosNetworkRpcUrl } from '../networks';
 
 export function useOnTezosBlock(callback: (blockHash: string) => void, altTezos?: TezosToolkit, pause = false) {
   const rpcUrl = useTezosNetworkRpcUrl();
@@ -38,7 +38,7 @@ export function useOnTezosBlock(callback: (blockHash: string) => void, altTezos?
         spawnSub();
       });
     }
-  }, [pause, altTezos]);
+  }, [pause, rpcUrl, altTezos]);
 }
 
 export const useTezosBlockLevel = () => {

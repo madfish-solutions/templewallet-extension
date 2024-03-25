@@ -12,7 +12,7 @@ import { isAddressValid } from 'lib/temple/helpers';
 import { TempleContact } from 'lib/temple/types';
 import { useConfirm } from 'lib/ui/dialog';
 import { delay } from 'lib/utils';
-import { isTezosDomainsNameValid, useTezosDomainsClient } from 'temple/front/tzdns';
+import { isTezosDomainsNameValid, useTezosDomainsClient } from 'temple/front/tezos';
 
 import CustomSelect, { OptionRenderProps } from '../CustomSelect';
 

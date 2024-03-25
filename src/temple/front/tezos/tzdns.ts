@@ -4,9 +4,10 @@ import { DomainNameValidationResult, isTezosDomainsSupportedNetwork } from '@tez
 import { TaquitoTezosDomainsClient } from '@tezos-domains/taquito-client';
 
 import { useTypedSWR } from 'lib/swr';
-import { useTezosNetwork, useTezosNetworkRpcUrl } from 'temple/front';
-import { TEZOS_NETWORK_NAMES } from 'temple/networks';
 import { getReadOnlyTezos } from 'temple/tezos';
+
+import { TEZOS_NETWORK_NAMES } from '../../networks';
+import { useTezosNetwork, useTezosNetworkRpcUrl } from '../networks';
 
 function getClient(networkName: 'mainnet' | 'custom', rpcUrl: string) {
   return isTezosDomainsSupportedNetwork(networkName)

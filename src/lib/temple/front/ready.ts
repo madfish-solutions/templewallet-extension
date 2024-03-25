@@ -4,7 +4,7 @@ import constate from 'constate';
 
 import { ReadyTempleState, TempleStatus, TempleState, TempleNotification, TempleMessageType } from 'lib/temple/types';
 import { useUpdatableRef } from 'lib/ui/hooks';
-import { getAccountAddressForTezos } from 'temple/accounts';
+import { getAccountAddressForTezos, getAccountForEvm, getAccountForTezos } from 'temple/accounts';
 import { intercomClient } from 'temple/front/intercom-client';
 
 import { useTempleClient } from './client';
@@ -13,22 +13,30 @@ import { usePassiveStorage } from './storage';
 export const [
   ReadyTempleProvider,
   useAllNetworks,
-  useSetNetworkId,
   useNetwork,
+  useSetNetworkId,
   useAllAccounts,
   useCurrentAccountId,
-  useSetAccountId,
   useAccount,
+  useAccountAddressForTezos,
+  useAccountForTezos,
+  useAccountAddressForEvm,
+  useAccountForEvm,
+  useSetAccountId,
   useSettings
 ] = constate(
   useReadyTemple,
   v => v.allNetworks,
-  v => v.setNetworkId,
   v => v.network,
+  v => v.setNetworkId,
   v => v.allAccounts,
   v => v.accountId,
-  v => v.setAccountId,
   v => v.account,
+  v => v.accountAddressForTezos,
+  v => v.accountForTezos,
+  v => v.accountAddressForEvm,
+  v => v.accountForEvm,
+  v => v.setAccountId,
   v => v.settings
 );
 
@@ -90,6 +98,11 @@ function useReadyTemple() {
     [allAccounts, defaultAcc, accountId]
   );
 
+  const accountForTezos = useMemo(() => getAccountForTezos(account), [account]);
+  const accountAddressForTezos = accountForTezos?.address;
+  const accountForEvm = useMemo(() => getAccountForEvm(account), [account]);
+  const accountAddressForEvm = accountForEvm?.address as HexString | undefined;
+
   /**
    * Error boundary reset
    */
@@ -108,6 +121,10 @@ function useReadyTemple() {
     allAccounts,
     accountId,
     account,
+    accountAddressForTezos,
+    accountForTezos,
+    accountAddressForEvm,
+    accountForEvm,
     setAccountId,
 
     settings

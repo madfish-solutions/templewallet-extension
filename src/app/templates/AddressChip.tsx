@@ -7,7 +7,7 @@ import { ReactComponent as GlobeIcon } from 'app/icons/globe.svg';
 import { ReactComponent as HashIcon } from 'app/icons/hash.svg';
 import { TestIDProps } from 'lib/analytics';
 import { useStorage } from 'lib/temple/front';
-import { useTezosDomainNameByAddress } from 'temple/front/tzdns';
+import { useTezosDomainNameByAddress } from 'temple/front/tezos';
 
 type Props = TestIDProps & {
   pkh: string;

@@ -5,7 +5,7 @@ import { isDefined } from '@rnw-community/shared';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
 import { validateRecipient } from 'lib/temple/front';
 import { otherNetworks } from 'lib/temple/front/other-networks';
-import { isTezosDomainsNameValid, useTezosDomainsClient } from 'temple/front/tzdns';
+import { isTezosDomainsNameValid, useTezosDomainsClient } from 'temple/front/tezos';
 
 export const useAddressFieldAnalytics = (value: string, addressFromNetworkEventName: string) => {
   const analytics = useAnalytics();

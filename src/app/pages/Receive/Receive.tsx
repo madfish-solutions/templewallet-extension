@@ -15,7 +15,7 @@ import { T, t } from 'lib/i18n';
 import { useSafeState } from 'lib/ui/hooks';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 import { useAccountAddressForEvm, useAccountAddressForTezos } from 'temple/front';
-import { useTezosDomainNameByAddress, useTezosDomainsClient } from 'temple/front/tzdns';
+import { useTezosDomainNameByAddress, useTezosDomainsClient } from 'temple/front/tezos';
 
 import { ReceiveSelectors } from './Receive.selectors';
 

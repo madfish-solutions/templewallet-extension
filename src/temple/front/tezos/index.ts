@@ -21,8 +21,16 @@ import { TempleMessageType } from 'lib/temple/types';
 import { makeIntercomRequest, assertResponse, getAccountPublicKey } from 'temple/front/intercom-client';
 import { MAX_MEMOIZED_TOOLKITS, getTezosFastRpcClient, makeTezosChecksum, michelEncoder } from 'temple/tezos';
 
-import { useTezosNetworkRpcUrl } from './networks';
-import { setPendingConfirmationId } from './pending-confirm';
+import { useTezosNetworkRpcUrl } from '../networks';
+import { setPendingConfirmationId } from '../pending-confirm';
+
+export { useOnTezosBlock, useTezosBlockLevel } from './use-block';
+export {
+  isTezosDomainsNameValid,
+  useTezosDomainsClient,
+  useTezosAddressByDomainName,
+  useTezosDomainNameByAddress
+} from './tzdns';
 
 export const useTezosWithSigner = (signerPkh: string) => {
   const rpcUrl = useTezosNetworkRpcUrl();
