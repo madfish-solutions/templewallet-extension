@@ -58,7 +58,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: chrome_core
-          path: dist/chrome_core.zip
+          path: dist/chrome.zip
           if-no-files-found: error
           retention-days: 10
 
