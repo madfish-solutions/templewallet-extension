@@ -601,7 +601,7 @@
     "message": "Der geheime Schlüssel des Kontos, das Sie importieren möchten."
   },
   "privateKeyInputPlaceholder": {
-    "message": "z. B. edsk3wfiPMu... or 0xL4mp3Ty..."
+    "message": "z. B. edsk3wfiPMu... | 0xL4mp3Ty..."
   },
   "password": {
     "message": "Passwort"
