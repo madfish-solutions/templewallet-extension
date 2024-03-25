@@ -82,6 +82,20 @@ export const BANNER_ADS_META: AdMetadata[] = [
   },
   {
     source: {
+      providerName: 'Persona',
+      shape: 'medium'
+    },
+    dimensions: {
+      width: 600,
+      height: 160,
+      minContainerWidth: 500,
+      minContainerHeight: 80,
+      maxContainerWidth: 800,
+      maxContainerHeight: 220
+    }
+  },
+  {
+    source: {
       providerName: 'HypeLab',
       native: false,
       size: 'high'
