@@ -4053,10 +4053,10 @@
   dependencies:
     nanoid "^3.1.25"
 
-"@temple-wallet/extension-ads@^2.0.0":
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/@temple-wallet/extension-ads/-/extension-ads-2.0.0.tgz#1570877d75203ef4f07a8dec4aa23153c4190677"
-  integrity sha512-Tocji8CzOS34k7dym0bnTCd1kO22fQ4qKjOyS/oyljOV3qFhp1bqvzL0EqGZt/J4KGk1oLKWudQ0J34Vo3v58Q==
+"@temple-wallet/extension-ads@^2.0.1":
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/@temple-wallet/extension-ads/-/extension-ads-2.0.1.tgz#9148b3a66ea679e4cf133de3bbe46417a5dd76b8"
+  integrity sha512-Et9l37JDHureSyaZoGjpPsOzcKEn+xh/tz0WibipDXaQTFofqYCxsU+Rjr7kDz2My8h0n/7fkWftqRrJvF3v0Q==
   dependencies:
     "@vespaiach/axios-fetch-adapter" "^0.3.1"
     axios "^1.6.7"

@@ -61,10 +61,12 @@ if (window.frameElement === null) {
       const { configureAds } = await import('@temple-wallet/extension-ads');
       configureAds({
         hypelabAdsWindowUrl: EnvVars.HYPELAB_ADS_WINDOW_URL,
-        hypelabHighPlacementSlug: EnvVars.HYPELAB_HIGH_PLACEMENT_SLUG,
-        hypelabNativePlacementSlug: EnvVars.HYPELAB_NATIVE_PLACEMENT_SLUG,
-        hypelabSmallPlacementSlug: EnvVars.HYPELAB_SMALL_PLACEMENT_SLUG,
-        hypelabWidePlacementSlug: EnvVars.HYPELAB_WIDE_PLACEMENT_SLUG,
+        hypelab: {
+          regular: EnvVars.HYPELAB_HIGH_PLACEMENT_SLUG,
+          native: EnvVars.HYPELAB_NATIVE_PLACEMENT_SLUG,
+          small: EnvVars.HYPELAB_SMALL_PLACEMENT_SLUG,
+          wide: EnvVars.HYPELAB_WIDE_PLACEMENT_SLUG
+        },
         swapTkeyUrl,
         tkeyInpageAdUrl,
         externalAdsActivityMessageType: ContentScriptType.ExternalAdsActivity
