@@ -52,7 +52,7 @@ jobs:
         uses: ./.github/workflows/code-quality-check
 
       - name: Create Chrome build
-        run: yarn build:chrome
+        run: yarn build:chrome:core
 
       - name: Upload artifact
         uses: actions/upload-artifact@v2
