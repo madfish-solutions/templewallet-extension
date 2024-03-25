@@ -33,7 +33,7 @@ import { delay } from 'lib/utils';
 import { navigate } from 'lib/woozie';
 import { UNDER_DEVELOPMENT_MSG } from 'temple/evm/under_dev_msg';
 import { useAccountAddressForTezos, useTezosNetwork } from 'temple/front';
-import { buildFastRpcTezosToolkit } from 'temple/tezos';
+import { getReadOnlyTezos } from 'temple/tezos';
 
 import { AddAssetSelectors } from './AddAsset.selectors';
 
@@ -126,7 +126,7 @@ const Form = memo<FormProps>(({ accountPkh }) => {
     let stateToSet: Partial<ComponentState>;
 
     try {
-      const tezos = buildFastRpcTezosToolkit(rpcUrl);
+      const tezos = getReadOnlyTezos(rpcUrl);
 
       let contract: ContractAbstraction<Wallet | ContractProvider>;
       try {

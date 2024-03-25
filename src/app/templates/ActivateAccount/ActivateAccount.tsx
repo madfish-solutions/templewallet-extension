@@ -9,7 +9,7 @@ import { useSafeState } from 'lib/ui/hooks';
 import { AccountForTezos } from 'temple/accounts';
 import { UNDER_DEVELOPMENT_MSG } from 'temple/evm/under_dev_msg';
 import { useAccountForTezos, useTezosNetworkRpcUrl } from 'temple/front';
-import { buildFastRpcTezosToolkit, confirmTezosOperation } from 'temple/tezos';
+import { getReadOnlyTezos, confirmTezosOperation } from 'temple/tezos';
 import { activateTezosAccount } from 'temple/tezos/activate-account';
 
 import { ActivateAccountSelectors } from './ActivateAccount.selectors';
@@ -50,7 +50,7 @@ const ActivateTezosAccount = memo<Props>(({ account }) => {
       setSuccess(null);
 
       try {
-        const tezos = buildFastRpcTezosToolkit(rpcUrl);
+        const tezos = getReadOnlyTezos(rpcUrl);
 
         const activation = await activateTezosAccount(account.address, data.secret.replace(/\s/g, ''), tezos);
         switch (activation.status) {

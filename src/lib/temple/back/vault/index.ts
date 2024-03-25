@@ -13,7 +13,7 @@ import { clearAsyncStorages } from 'lib/temple/reset';
 import { StoredAccount, TempleAccountType, TempleSettings } from 'lib/temple/types';
 import { isTruthy } from 'lib/utils';
 import { getAccountAddressForChain, getAccountAddressForTezos } from 'temple/accounts';
-import { michelEncoder, buildFastRpcClient } from 'temple/tezos';
+import { michelEncoder, getTezosFastRpcClient } from 'temple/tezos';
 import { TempleChainName } from 'temple/types';
 
 import { createLedgerSigner } from '../ledger';
@@ -538,7 +538,7 @@ export class Vault {
   async sendOperations(accPublicKeyHash: string, rpc: string, opParams: any[]) {
     return this.withSigner(accPublicKeyHash, async signer => {
       const batch = await withError('Failed to send operations', async () => {
-        const tezos = new TezosToolkit(buildFastRpcClient(rpc));
+        const tezos = new TezosToolkit(getTezosFastRpcClient(rpc));
         tezos.setSignerProvider(signer);
         tezos.setForgerProvider(new CompositeForger([tezos.getFactory(RpcForger)(), localForger]));
         tezos.setPackerProvider(michelEncoder);

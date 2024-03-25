@@ -16,7 +16,7 @@ import {
   useOnTezosBlock,
   useTezosNetworkRpcUrl
 } from 'temple/front';
-import { buildFastRpcTezosToolkit } from 'temple/tezos';
+import { getReadOnlyTezos } from 'temple/tezos';
 
 import { fetchRawBalance as fetchRawBalanceFromBlockchain } from './fetch';
 
@@ -75,7 +75,7 @@ export function useRawBalance(
    */
   const usingStore = address === currentAccountAddress && isKnownChainId(chainId);
 
-  const tezos = buildFastRpcTezosToolkit(rpcUrl);
+  const tezos = getReadOnlyTezos(rpcUrl);
 
   const onChainBalanceSwrRes = useTypedSWR(
     ['balance', rpcUrl, assetSlug, address],

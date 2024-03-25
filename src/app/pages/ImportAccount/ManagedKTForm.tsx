@@ -19,7 +19,7 @@ import { TempleAccountType } from 'lib/temple/types';
 import { isTruthy } from 'lib/utils';
 import { getAccountForTezos } from 'temple/accounts';
 import { useTezosNetwork, useRelevantAccounts } from 'temple/front';
-import { buildFastRpcTezosToolkit } from 'temple/tezos';
+import { getReadOnlyTezos } from 'temple/tezos';
 
 import { ImportAccountSelectors, ImportAccountFormType } from './selectors';
 
@@ -114,7 +114,7 @@ export const ManagedKTForm: FC = () => {
       formAnalytics.trackSubmit();
       setError(null);
       try {
-        const tezos = buildFastRpcTezosToolkit(rpcUrl);
+        const tezos = getReadOnlyTezos(rpcUrl);
 
         const contract = await tezos.contract.at(address);
         const owner = await contract.storage();

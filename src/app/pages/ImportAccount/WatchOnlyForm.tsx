@@ -10,7 +10,7 @@ import { useTempleClient, validateDelegate } from 'lib/temple/front';
 import { isAddressValid as isValidTezosAddress, isKTAddress } from 'lib/temple/helpers';
 import { useTezosNetworkRpcUrl } from 'temple/front';
 import { useTezosAddressByDomainName, useTezosDomainsClient } from 'temple/front/tzdns';
-import { buildFastRpcTezosToolkit } from 'temple/tezos';
+import { getReadOnlyTezos } from 'temple/tezos';
 import { TempleChainName } from 'temple/types';
 
 import { ImportAccountSelectors, ImportAccountFormType } from './selectors';
@@ -70,7 +70,7 @@ export const WatchOnlyForm = memo(() => {
       let chainId: string | undefined;
 
       if (chain === TempleChainName.Tezos && isKTAddress(resolvedAddress)) {
-        const tezos = buildFastRpcTezosToolkit(rpcUrl);
+        const tezos = getReadOnlyTezos(rpcUrl);
 
         try {
           await tezos.contract.at(resolvedAddress);

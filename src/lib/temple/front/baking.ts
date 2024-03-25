@@ -16,7 +16,7 @@ import { t } from 'lib/i18n';
 import { useRetryableSWR } from 'lib/swr';
 import { getOnlineStatus } from 'lib/ui/get-online-status';
 import { useTezosNetwork } from 'temple/front';
-import { buildFastRpcTezosToolkit } from 'temple/tezos';
+import { getReadOnlyTezos } from 'temple/tezos';
 
 function getDelegateCacheKey(
   rpcUrl: string,
@@ -38,7 +38,7 @@ export function useDelegate(address: string, suspense = true, shouldPreventError
 
   const getDelegate = useCallback(async () => {
     try {
-      const tezos = buildFastRpcTezosToolkit(rpcUrl);
+      const tezos = getReadOnlyTezos(rpcUrl);
 
       return await retry(
         async () => {

@@ -13,9 +13,9 @@ export const michelEncoder = new MichelCodecPacker();
 
 export const makeTezosChecksum = (rpcUrl: string, accountPkh: string) => `${accountPkh}@${rpcUrl}`;
 
-export const buildFastRpcTezosToolkit = memoizee(
+export const getReadOnlyTezos = memoizee(
   (rpcUrl: string) => {
-    const tezos = new TezosToolkit(buildFastRpcClient(rpcUrl));
+    const tezos = new TezosToolkit(getTezosFastRpcClient(rpcUrl));
 
     tezos.setPackerProvider(michelEncoder);
     tezos.addExtension(new Tzip16Module());
@@ -34,23 +34,12 @@ export class TempleTezosToolkit extends TezosToolkit {
   }
 }
 
-export class ReactiveTezosToolkit extends TezosToolkit {
-  checksum: string;
-
-  constructor(rpcUrl: string, accountPkh: string) {
-    super(buildFastRpcClient(rpcUrl));
-
-    this.checksum = makeTezosChecksum(rpcUrl, accountPkh);
-
-    this.setPackerProvider(michelEncoder);
-    this.addExtension(new Tzip16Module());
-  }
-}
-
-export const buildFastRpcClient = memoizee((rpc: string) => new FastRpcClient(rpc), { max: MAX_MEMOIZED_TOOLKITS });
+export const getTezosFastRpcClient = memoizee((rpcUrl: string) => new FastRpcClient(rpcUrl), {
+  max: MAX_MEMOIZED_TOOLKITS
+});
 
 export function loadTezosChainId(rpcUrl: string) {
-  const rpc = buildFastRpcClient(rpcUrl);
+  const rpc = getTezosFastRpcClient(rpcUrl);
 
   return rpc.getChainId();
 }

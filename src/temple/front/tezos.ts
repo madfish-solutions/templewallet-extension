@@ -8,8 +8,10 @@ import {
   WalletOriginateParams,
   WalletIncreasePaidStorageParams,
   WalletTransferParams,
-  Signer
+  Signer,
+  TezosToolkit
 } from '@taquito/taquito';
+import { Tzip16Module } from '@taquito/tzip16';
 import { buf2hex } from '@taquito/utils';
 import memoizee from 'memoizee';
 import { nanoid } from 'nanoid';
@@ -17,7 +19,7 @@ import toBuffer from 'typedarray-to-buffer';
 
 import { TempleMessageType } from 'lib/temple/types';
 import { makeIntercomRequest, assertResponse, getAccountPublicKey } from 'temple/front/intercom-client';
-import { MAX_MEMOIZED_TOOLKITS, ReactiveTezosToolkit, makeTezosChecksum } from 'temple/tezos';
+import { MAX_MEMOIZED_TOOLKITS, getTezosFastRpcClient, makeTezosChecksum, michelEncoder } from 'temple/tezos';
 
 import { useTezosNetworkRpcUrl } from './networks';
 import { setPendingConfirmationId } from './pending-confirm';
@@ -33,20 +35,31 @@ const buildTezosToolkitWithSigner = memoizee(
     const tezos = new ReactiveTezosToolkit(rpcUrl, signerPkh);
 
     const wallet = new TempleTaquitoWallet(signerPkh, rpcUrl, setPendingConfirmationId);
-
     tezos.setWalletProvider(wallet);
 
     // TODO: Do we need signer, if wallet is provided ?
     // Note: Taquito's WalletProvider already has `sign()` method - just need to implement it ?
 
     const signer = new TempleTaquitoSigner(signerPkh, setPendingConfirmationId);
-
     tezos.setSignerProvider(signer);
 
     return tezos;
   },
   { max: MAX_MEMOIZED_TOOLKITS, normalizer: ([rpcUrl, signerPkh]) => makeTezosChecksum(rpcUrl, signerPkh) }
 );
+
+class ReactiveTezosToolkit extends TezosToolkit {
+  checksum: string;
+
+  constructor(rpcUrl: string, accountPkh: string) {
+    super(getTezosFastRpcClient(rpcUrl));
+
+    this.checksum = makeTezosChecksum(rpcUrl, accountPkh);
+
+    this.setPackerProvider(michelEncoder);
+    this.addExtension(new Tzip16Module());
+  }
+}
 
 class TempleTaquitoWallet implements WalletProvider {
   constructor(private pkh: string, private rpc: string, private onBeforeSend?: (id: string) => void) {}

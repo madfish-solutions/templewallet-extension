@@ -4,7 +4,7 @@ import { Estimate, TezosToolkit } from '@taquito/taquito';
 
 import { formatOpParamsBeforeSend } from 'lib/temple/helpers';
 import { ReadOnlySigner } from 'lib/temple/read-only-signer';
-import { michelEncoder, buildFastRpcClient } from 'temple/tezos';
+import { michelEncoder, getTezosFastRpcClient } from 'temple/tezos';
 
 type DryRunParams = {
   opParams: any[];
@@ -32,7 +32,7 @@ export async function dryRunOpParams({
   sourcePublicKey
 }: DryRunParams): Promise<DryRunResult | null> {
   try {
-    const tezos = new TezosToolkit(buildFastRpcClient(networkRpc));
+    const tezos = new TezosToolkit(getTezosFastRpcClient(networkRpc));
 
     let bytesToSign: string | undefined;
     const signer = new ReadOnlySigner(sourcePkh, sourcePublicKey, digest => {

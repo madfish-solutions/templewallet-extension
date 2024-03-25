@@ -6,11 +6,11 @@ import { TaquitoTezosDomainsClient } from '@tezos-domains/taquito-client';
 import { useTypedSWR } from 'lib/swr';
 import { useTezosNetwork, useTezosNetworkRpcUrl } from 'temple/front';
 import { TEZOS_NETWORK_NAMES } from 'temple/networks';
-import { buildFastRpcTezosToolkit } from 'temple/tezos';
+import { getReadOnlyTezos } from 'temple/tezos';
 
 function getClient(networkName: 'mainnet' | 'custom', rpcUrl: string) {
   return isTezosDomainsSupportedNetwork(networkName)
-    ? new TaquitoTezosDomainsClient({ network: networkName, tezos: buildFastRpcTezosToolkit(rpcUrl) })
+    ? new TaquitoTezosDomainsClient({ network: networkName, tezos: getReadOnlyTezos(rpcUrl) })
     : TaquitoTezosDomainsClient.Unsupported;
 }
 

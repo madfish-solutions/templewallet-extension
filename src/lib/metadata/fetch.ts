@@ -7,7 +7,7 @@ import {
   isKnownChainId
 } from 'lib/apis/temple';
 import { fromAssetSlug } from 'lib/assets';
-import { buildFastRpcTezosToolkit } from 'temple/tezos';
+import { getReadOnlyTezos } from 'temple/tezos';
 
 import { TokenMetadataOnChain, fetchTokenMetadata as fetchTokenMetadataOnChain } from './on-chain';
 
@@ -16,7 +16,7 @@ export const fetchOneTokenMetadata = async (
   address: string,
   id: string
 ): Promise<TokenMetadataResponse | undefined> => {
-  const tezos = buildFastRpcTezosToolkit(rpcUrl);
+  const tezos = getReadOnlyTezos(rpcUrl);
   const chainId = await tezos.rpc.getChainId();
 
   if (isKnownChainId(chainId)) {
@@ -31,7 +31,7 @@ export const fetchOneTokenMetadata = async (
 const fetchTokensMetadata = async (rpcUrl: string, slugs: string[]): Promise<(TokenMetadataResponse | null)[]> => {
   if (slugs.length === 0) return [];
 
-  const tezos = buildFastRpcTezosToolkit(rpcUrl);
+  const tezos = getReadOnlyTezos(rpcUrl);
   const chainId = await tezos.rpc.getChainId();
 
   if (isKnownChainId(chainId)) {

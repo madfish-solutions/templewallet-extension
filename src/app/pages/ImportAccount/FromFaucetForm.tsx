@@ -13,7 +13,7 @@ import { delay } from 'lib/utils';
 import { navigate } from 'lib/woozie';
 import { getAccountAddressForTezos } from 'temple/accounts';
 import { useTezosNetworkRpcUrl } from 'temple/front';
-import { buildFastRpcTezosToolkit, confirmTezosOperation } from 'temple/tezos';
+import { getReadOnlyTezos, confirmTezosOperation } from 'temple/tezos';
 import { activateTezosAccount } from 'temple/tezos/activate-account';
 
 import { ImportAccountFormType } from './selectors';
@@ -58,7 +58,7 @@ export const FromFaucetForm: FC = () => {
 
   const importAccount = useCallback(
     async (data: FaucetData) => {
-      const tezos = buildFastRpcTezosToolkit(rpcUrl);
+      const tezos = getReadOnlyTezos(rpcUrl);
 
       const activation = await activateTezosAccount(data.pkh, data.secret ?? data.activation_code, tezos);
 

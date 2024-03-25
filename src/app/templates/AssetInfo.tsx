@@ -13,7 +13,7 @@ import { getAssetSymbol, useAssetMetadata } from 'lib/metadata';
 import { useRetryableSWR } from 'lib/swr';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 import { useTezosNetworkRpcUrl } from 'temple/front';
-import { buildFastRpcTezosToolkit } from 'temple/tezos';
+import { getReadOnlyTezos } from 'temple/tezos';
 
 type AssetInfoProps = {
   assetSlug: string;
@@ -25,7 +25,7 @@ const AssetInfo: FC<AssetInfoProps> = ({ assetSlug }) => {
 
   const { data } = useRetryableSWR(
     ['asset', assetSlug, rpcUrl],
-    () => fromAssetSlugWithStandardDetect(buildFastRpcTezosToolkit(rpcUrl), assetSlug),
+    () => fromAssetSlugWithStandardDetect(getReadOnlyTezos(rpcUrl), assetSlug),
     { suspense: true }
   );
   const asset = data!;
