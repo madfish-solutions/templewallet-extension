@@ -1,9 +1,9 @@
 type ProcessDotEnv = {
   NODE_ENV: 'development' | 'production' | 'test';
   TARGET_BROWSER: string;
-  SOURCE_MAP?: 'true' | 'false';
+  SOURCE_MAP?: `${boolean}`;
   IMAGE_INLINE_SIZE_LIMIT?: string;
-  CORE_BUILD?: 'true' | 'false';
+  CORE_BUILD?: `${boolean}`;
 };
 
 const {

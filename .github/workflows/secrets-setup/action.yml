@@ -3,13 +3,10 @@ name: Secrets setup
 description: Writes secrets
 
 inputs:
-  core:
-    description: Do not write NPM_TOKEN into .npmrc
-    required: true
   GITHUB_ACTION_RUN_ENV:
     required: true
   NPM_TOKEN:
-    required: true
+    required: false
   TEMPLE_WALLET_JITSU_TRACKING_HOST:
     required: true
   TEMPLE_WALLET_JITSU_WRITE_KEY:
@@ -105,7 +102,7 @@ runs:
   steps:
     - name: Authenticate with private NPM package
       shell: bash
-      if: ${{ inputs.core != 'true' }}
+      if: ${{ inputs.NPM_TOKEN }}
       run: echo "//registry.npmjs.org/:_authToken=${{ inputs.NPM_TOKEN }}" > .npmrc
     - name: Create .env file
       shell: bash

@@ -36,9 +36,8 @@ jobs:
       - name: Secrets setup
         uses: ./.github/workflows/secrets-setup
         with:
-          core: ${{ github.event.inputs.core }}
           GITHUB_ACTION_RUN_ENV: development
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_TOKEN: ${{ github.event.inputs.core && '' || secrets.NPM_TOKEN }}
           TEMPLE_WALLET_JITSU_TRACKING_HOST: ${{ vars.TEMPLE_WALLET_JITSU_TRACKING_HOST }}
           TEMPLE_WALLET_JITSU_WRITE_KEY: ${{ vars.TEMPLE_WALLET_JITSU_WRITE_KEY }}
           TEMPLE_WALLET_EXOLIX_API_KEY: ${{ secrets.TEMPLE_WALLET_EXOLIX_API_KEY }}

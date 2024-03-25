@@ -42,15 +42,6 @@ const ADDITIONAL_MODULE_PATHS = [
 const CSS_REGEX = /\.css$/;
 const CSS_MODULE_REGEX = /\.module\.css$/;
 
-const ignoreWordlistsPlugin = new WebPack.IgnorePlugin({
-  resourceRegExp: /^\.\/wordlists\/(?!english)/,
-  contextRegExp: /bip39\/src$/
-});
-const ignoreExtensionAdsModulePlugin = new WebPack.IgnorePlugin({
-  resourceRegExp: /^@temple-wallet\/extension-ads$/,
-  contextRegExp: /(src)|(src\/content-scripts\/replace-ads)|(src\/lib\/ads)$/
-});
-
 export const buildBaseConfig = (): WebPack.Configuration & Pick<WebPack.WebpackOptionsNormalized, 'devServer'> => ({
   mode: WEBPACK_MODE,
   bail: PRODUCTION_ENV,
@@ -242,7 +233,14 @@ export const buildBaseConfig = (): WebPack.Configuration & Pick<WebPack.WebpackO
       setImmediate: ['timers-browserify', 'setImmediate']
     }),
 
-    ...(IS_CORE_BUILD ? [ignoreWordlistsPlugin, ignoreExtensionAdsModulePlugin] : [ignoreWordlistsPlugin]),
+    new WebPack.IgnorePlugin({
+      resourceRegExp: /^\.\/wordlists\/(?!english)/,
+      contextRegExp: /bip39\/src$/
+    }),
+    IS_CORE_BUILD &&
+      new WebPack.IgnorePlugin({
+        resourceRegExp: /^@temple-wallet\/extension-ads$/
+      }),
 
     new ModuleNotFoundPlugin(PATHS.SOURCE),
 

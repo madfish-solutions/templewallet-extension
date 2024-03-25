@@ -22,7 +22,6 @@ jobs:
       - name: Secrets setup
         uses: ./.github/workflows/secrets-setup
         with:
-          core: false
           GITHUB_ACTION_RUN_ENV: production
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           TEMPLE_WALLET_JITSU_TRACKING_HOST: ${{ vars.TEMPLE_WALLET_JITSU_TRACKING_HOST }}
