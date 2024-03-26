@@ -6,12 +6,10 @@ import { ALL_ADS_RULES_STORAGE_KEY } from 'lib/constants';
 import { EnvVars } from 'lib/env';
 import { putToStorage } from 'lib/storage';
 
+import { importExtensionAdsModule } from './import-extension-ads-module';
+
 const getApiInstance = memoizee(async () => {
-  // An error appears below if and only if optional dependencies are not installed
-  // eslint-disable-next-line @typescript-eslint/prefer-ts-expect-error
-  // @ts-ignore
-  // eslint-disable-next-line import/no-unresolved
-  const { TempleWalletApi } = await import('@temple-wallet/extension-ads');
+  const { TempleWalletApi } = await importExtensionAdsModule();
   return new TempleWalletApi(EnvVars.TEMPLE_WALLET_API_URL);
 });
 

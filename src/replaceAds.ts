@@ -1,6 +1,7 @@
 import browser from 'webextension-polyfill';
 
 import { buildSwapPageUrlQuery } from 'app/pages/Swap/utils/build-url-query';
+import { importExtensionAdsModule } from 'lib/ads/import-extension-ads-module';
 import { ContentScriptType, ADS_RULES_UPDATE_INTERVAL, WEBSITES_ANALYTICS_ENABLED } from 'lib/constants';
 import { EnvVars } from 'lib/env';
 import { fetchFromStorage } from 'lib/storage';
@@ -22,11 +23,7 @@ const replaceAds = async () => {
   processing = true;
 
   try {
-    // An error appears below if and only if optional dependencies are not installed
-    // eslint-disable-next-line @typescript-eslint/prefer-ts-expect-error
-    // @ts-ignore
-    // eslint-disable-next-line import/no-unresolved
-    const { getAdsActions, executeAdsActions } = await import('@temple-wallet/extension-ads');
+    const { getAdsActions, executeAdsActions } = await importExtensionAdsModule();
     const adsRules = await getRulesFromContentScript(window.parent.location);
 
     if (adsRules.timestamp < Date.now() - ADS_RULES_UPDATE_INTERVAL) {
@@ -54,11 +51,7 @@ if (window.frameElement === null) {
     .then(async enabled => {
       if (!enabled) return;
 
-      // An error appears below if and only if optional dependencies are not installed
-      // eslint-disable-next-line @typescript-eslint/prefer-ts-expect-error
-      // @ts-ignore
-      // eslint-disable-next-line import/no-unresolved
-      const { configureAds } = await import('@temple-wallet/extension-ads');
+      const { configureAds } = await importExtensionAdsModule();
       configureAds({
         hypelabAdsWindowUrl: EnvVars.HYPELAB_ADS_WINDOW_URL,
         hypelab: {

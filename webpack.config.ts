@@ -52,9 +52,7 @@ const HTML_TEMPLATES = PAGES_NAMES.map(name => {
 
 const IS_CORE_BUILD = process.env.CORE_BUILD === 'true';
 
-const CONTENT_SCRIPTS = ['contentScript', !IS_CORE_BUILD && 'replaceAds'].filter(
-  (value): value is string => typeof value === 'string'
-);
+const CONTENT_SCRIPTS = ['contentScript', !IS_CORE_BUILD && 'replaceAds'].filter(isTruthy);
 if (BACKGROUND_IS_WORKER) CONTENT_SCRIPTS.push('keepBackgroundWorkerAlive');
 
 const mainConfig = (() => {

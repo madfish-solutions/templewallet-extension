@@ -1,16 +1,13 @@
 import memoizee from 'memoizee';
 
+import { importExtensionAdsModule } from 'lib/ads/import-extension-ads-module';
 import { ALL_ADS_RULES_STORAGE_KEY, ADS_RULES_UPDATE_INTERVAL } from 'lib/constants';
 import { fetchFromStorage } from 'lib/storage';
 
 export const getRulesFromContentScript = memoizee(
   async (location: Location) => {
     try {
-      // An error appears below if and only if optional dependencies are not installed
-      // eslint-disable-next-line @typescript-eslint/prefer-ts-expect-error
-      // @ts-ignore
-      // eslint-disable-next-line import/no-unresolved
-      const { transformRawRules } = await import('@temple-wallet/extension-ads');
+      const { transformRawRules } = await importExtensionAdsModule();
       const rulesStored = await fetchFromStorage(ALL_ADS_RULES_STORAGE_KEY);
 
       if (!rulesStored) throw new Error('No rules for ads found');
