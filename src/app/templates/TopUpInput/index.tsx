@@ -120,7 +120,7 @@ export const TopUpInput = <C extends CurrencyBase>(_props: TopUpInputPropsGeneri
             isLoading: isCurrenciesLoading,
             options: filteredCurrencies,
             noItemsText: emptyListPlaceholder,
-            getKey: option => option.code,
+            getKey: option => `${option.code}_${option.network?.code}`,
             renderOptionContent: currCurrency => renderOptionContent(currCurrency, isEqual(currCurrency, currency)),
             onOptionChange: newValue => onCurrencySelect?.(newValue)
           }}

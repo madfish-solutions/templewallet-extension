@@ -1,6 +1,5 @@
 import retry from 'async-retry';
 import { debounce } from 'lodash';
-import browser from 'webextension-polyfill';
 
 import {
   getAdPlacesRulesForAllDomains,
@@ -11,6 +10,7 @@ import {
   getPermanentNativeAdPlacesRulesForAllDomains
 } from 'lib/apis/temple';
 import { ALL_ADS_RULES_STORAGE_KEY } from 'lib/constants';
+import { putToStorage } from 'lib/storage';
 
 let inProgress = false;
 export const updateRulesStorage = debounce(async () => {
@@ -48,7 +48,7 @@ export const updateRulesStorage = debounce(async () => {
       },
       { maxTimeout: 20000, minTimeout: 1000 }
     );
-    await browser.storage.local.set({ [ALL_ADS_RULES_STORAGE_KEY]: rules });
+    await putToStorage(ALL_ADS_RULES_STORAGE_KEY, rules);
   } catch (e) {
     console.error(e);
   } finally {

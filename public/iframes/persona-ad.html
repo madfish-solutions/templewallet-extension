@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      html, body, #container {
+        margin: 0;
+        height: 100%;
+        width: 100%;
+      }
+
+      /* Taking control over image's size. Making it fit the container & adapt */
+
+      #container > div {
+        display: block !important;
+        height: 100% !important;
+        max-height: 100% !important;
+        width: fit-content !important;
+        max-width: 100% !important;
+        margin: auto;
+      }
+
+      .persona-product > img {
+        display: block; /* Just to make its sizing more solid */
+        max-height: 100%;
+        max-width: 100%;
+        object-fit: contain;
+      }
+
+      [data-test=persona-watermark] {
+        top: 0; /* Missing, needed explicit after img.style.display = 'block' */
+      }
+
+      #loader {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        translate: -50% -50%;
+        font-size: medium;
+        color: #6c757d;
+      }
+    </style>
+  </head>
+  <body>
+
+    <div id="loader">Loading...</div>
+
+    <div id="container"></div>
+
+  </body>
+</html>

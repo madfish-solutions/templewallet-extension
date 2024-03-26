@@ -1,4 +1,5 @@
 import { EntrypointsResponse, RpcClient, RPCOptions } from '@taquito/rpc';
+import retry from 'async-retry';
 import memoizee from 'memoizee';
 
 import { makeCachedChainIdKey, getCachedChainId, setCachedChainId } from './chain-ids-cache';
@@ -37,11 +38,17 @@ export class FastRpcClient extends RpcClient {
     const cached = getCachedChainId(cacheKey);
     if (cached) return cached;
 
-    const result = await super.getChainId();
+    const result = await this.getChainIdMemo();
     setCachedChainId(cacheKey, result);
 
     return result;
   }
+
+  /** Cache storage (localStorage) is not available in BG worker. */
+  getChainIdMemo = memoizee(() => retry(() => super.getChainId(), { retries: 2 }), {
+    maxAge: MEMOIZE_MAX_AGE,
+    promise: true
+  });
 
   async getBlockHash(opts?: RPCOptions) {
     if (wantsHead(opts)) {
