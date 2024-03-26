@@ -48,7 +48,7 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(props => {
   );
 });
 
-export const TezosPartnersPromotion = memo<PartnersPromotionProps & { accountPkh: string }>(
+const TezosPartnersPromotion = memo<PartnersPromotionProps & { accountPkh: string }>(
   ({ accountPkh, variant, id, pageName, withPersonaProvider }) => {
     const isImageAd = variant === PartnersPromotionVariant.Image;
     const { trackEvent } = useAnalytics();
