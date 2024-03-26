@@ -19,8 +19,8 @@
     "noImplicitReturns": true,
     "noImplicitAny": true,
     "downlevelIteration": true,
-    "noFallthroughCasesInSwitch": true, // To always put `break` in `switch` blocks
+    "noFallthroughCasesInSwitch": true,
     "noUnusedLocals": true,
-    "noUnusedParameters": true,
+    "noUnusedParameters": true
   }
 }

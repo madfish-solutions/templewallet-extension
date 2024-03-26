@@ -3,6 +3,7 @@ import { useMemo } from 'react';
 import { useAllAccounts } from 'lib/temple/front/ready';
 import { TempleAccountType } from 'lib/temple/types';
 
+/** Filters out Tezos accounts, irrelevant for given Chain ID */
 export function useRelevantAccounts(tezosChainId: string) {
   const allAccounts = useAllAccounts();
 

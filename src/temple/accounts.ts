@@ -72,9 +72,3 @@ export function findAccountForTezos(accounts: StoredAccount[], address: string) 
 
   return undefined;
 }
-
-// ts-prune-ignore-next
-export const getAccountAddressesRecord = (account: StoredAccount): Record<TempleChainName, string | undefined> => ({
-  [TempleChainName.Tezos]: getAccountAddressForTezos(account),
-  [TempleChainName.EVM]: getAccountAddressForEvm(account)
-});

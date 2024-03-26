@@ -1,4 +1,3 @@
-import { RpcClientInterface } from '@taquito/rpc';
 import { TezosToolkit, MichelCodecPacker } from '@taquito/taquito';
 import { Tzip16Module } from '@taquito/tzip16';
 import memoizee from 'memoizee';
@@ -24,15 +23,6 @@ export const getReadOnlyTezos = memoizee(
   },
   { max: MAX_MEMOIZED_TOOLKITS }
 );
-
-// ts-prune-ignore-next
-export class TempleTezosToolkit extends TezosToolkit {
-  public readonly rpcUrl: string;
-  constructor(rpc: string | RpcClientInterface, public readonly chainId: string) {
-    super(rpc);
-    this.rpcUrl = typeof rpc === 'string' ? rpc : rpc.getRpcUrl();
-  }
-}
 
 export const getTezosFastRpcClient = memoizee((rpcUrl: string) => new FastRpcClient(rpcUrl), {
   max: MAX_MEMOIZED_TOOLKITS

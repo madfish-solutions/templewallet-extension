@@ -64,6 +64,7 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
         case TempleMessageType.ConfirmationExpired:
           if (msg.id === getPendingConfirmationId()) {
             resetPendingConfirmationId();
+            setConfirmation(null);
           }
           break;
       }

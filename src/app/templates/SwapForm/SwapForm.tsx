@@ -366,6 +366,7 @@ export const SwapForm = memo<Props>(({ publicKeyHash }) => {
       formAnalytics.trackSubmitSuccess(analyticsProperties);
       setOperation(batchOperation);
     } catch (err: any) {
+      console.error(err);
       if (err.message !== 'Declined') {
         setError(err);
       }

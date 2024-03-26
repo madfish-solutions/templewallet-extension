@@ -124,7 +124,6 @@ interface StoredNetworkBase {
   nameI18nKey?: TID;
   description: string;
   descriptionI18nKey?: string;
-  /** @deprecated // TODO: Rely on chain ID instead */
   type: 'main' | 'test' | 'dcp';
   rpcBaseURL: string;
   color: string;

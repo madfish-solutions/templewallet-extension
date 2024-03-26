@@ -331,7 +331,7 @@ export class Vault {
 
       if (!hdAccIndex) {
         const allHDAccounts = allAccounts.filter(a => a.type === TempleAccountType.HD);
-        hdAccIndex = allHDAccounts.length; // TODO: Accomodate for multiple 'Wallets' & custom-derived (index gaps)
+        hdAccIndex = allHDAccounts.length;
       }
 
       const tezosAcc = await mnemonicToTezosAccountCreds(mnemonic, hdAccIndex);

@@ -13,7 +13,6 @@ export class BoundaryError extends Error {
   }
 }
 
-/** TODO: Test it */
 export class DeadEndBoundaryError extends BoundaryError {
   constructor() {
     super('🚧 🛠️ 🔜 🏗️', () => navigate('/', HistoryAction.Push));

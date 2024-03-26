@@ -38,7 +38,6 @@ const ConditionalReadyTemple: FC<PropsWithChildren> = ({ children }) => {
   );
 };
 
-/** TODO: Why do we need this? */
 const WalletRpcProvider: FC<PropsWithChildren> = ({ children }) => {
   const rpcUrl = useTezosNetworkRpcUrl();
 

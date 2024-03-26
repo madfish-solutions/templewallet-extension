@@ -18,7 +18,6 @@ export const trackEvent = async ({
   category,
   properties
 }: Omit<TempleSendTrackEventRequest, 'type'>) => {
-  // TODO: Stop this non-sense
   const chainId = rpc && (await loadTezosChainId(rpc));
 
   client.track(`${category} ${event}`, {
@@ -42,7 +41,6 @@ export const pageEvent = async ({
   additionalProperties
 }: Omit<TempleSendPageEventRequest, 'type'>) => {
   const url = `${path}${search}`;
-  // TODO: Stop this non-sense
   const chainId = rpc && (await loadTezosChainId(rpc));
 
   client.track('AnalyticsEventCategory.PageOpened', {
