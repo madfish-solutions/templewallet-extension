@@ -1,4 +1,4 @@
-import { TempleTezosChainId, StoredNetwork } from 'lib/temple/types';
+import { StoredNetwork } from 'lib/temple/types';
 
 const formatDateToRPCFormat = (date: Date) => date.toLocaleDateString('en-GB').split('/').reverse().join('-');
 
@@ -10,31 +10,20 @@ const getLastMonday = (date = new Date()) => {
   return formatDateToRPCFormat(nextMonday);
 };
 
-export const TEZOS_NETWORK_NAMES = new Map<string, string>([
-  [TempleTezosChainId.Mainnet, 'mainnet'],
-  [TempleTezosChainId.Ghostnet, 'ghostnet'],
-  [TempleTezosChainId.Mumbai, 'mumbainet'],
-  [TempleTezosChainId.Nairobi, 'nairobinet']
-]);
-
 const DCP_TEZOS_NETWORKS: StoredNetwork[] = [
   {
     id: 't4l3nt-mainnet',
     name: 'T4L3NT Mainnet',
     description: 'Decentralized pictures Betanet',
-    type: 'dcp',
     rpcBaseURL: 'https://rpc.decentralized.pictures',
-    color: '#047857',
-    disabled: false
+    color: '#047857'
   },
   {
     id: 't4l3nt-testnet',
     name: 'T4L3NT Testnet',
     description: 'Decentralized pictures testnet',
-    type: 'dcp',
     rpcBaseURL: 'https://staging-rpc.decentralized.pictures/',
-    color: '#131380',
-    disabled: false
+    color: '#131380'
   }
 ];
 
@@ -43,94 +32,74 @@ export const TEZOS_NETWORKS: StoredNetwork[] = [
     id: 'mainnet',
     nameI18nKey: 'tezosMainnet',
     description: 'Tezos mainnet',
-    type: 'main',
     rpcBaseURL: 'https://prod.tcinfra.net/rpc/mainnet',
-    color: '#83b300',
-    disabled: false
+    color: '#83b300'
   },
   {
     id: 'marigold-mainnet',
     nameI18nKey: 'marigoldMainnet',
     description: 'Marigold mainnet',
-    type: 'main',
     rpcBaseURL: 'https://mainnet.tezos.marigold.dev',
-    color: '#48bb78',
-    disabled: false
+    color: '#48bb78'
   },
   {
     id: 'smartpy-mainnet',
     name: 'SmartPy Mainnet',
     description: 'SmartPy Mainnet',
-    type: 'main',
     rpcBaseURL: 'https://mainnet.smartpy.io',
-    color: '#34D399',
-    disabled: false
+    color: '#34D399'
   },
   {
     id: 'tezie-mainnet',
     name: 'ECAD Labs Mainnet',
     description: 'Highly available Tezos Mainnet nodes operated by ECAD Labs',
-    type: 'main',
     rpcBaseURL: 'https://mainnet.api.tez.ie',
-    color: '#047857',
-    disabled: false
+    color: '#047857'
   },
   ...DCP_TEZOS_NETWORKS,
   {
     id: 'ghostnet',
     name: 'Ghostnet Testnet',
     description: 'Ghostnet testnet',
-    type: 'test',
     rpcBaseURL: 'https://rpc.ghostnet.teztnets.com',
-    color: '#131380',
-    disabled: false
+    color: '#131380'
   },
   {
     id: 'monday',
     name: 'MondayNet Testnet',
     description: `MondayNet ${getLastMonday()}`,
-    type: 'test',
     rpcBaseURL: `https://rpc.mondaynet-${getLastMonday()}.teztnets.xyz/`,
-    color: '#FBBF24',
-    disabled: false
+    color: '#FBBF24'
   },
   {
     id: 'daily',
     name: 'DailyNet Testnet',
     description: 'DailyNet',
-    type: 'test',
     rpcBaseURL: `https://rpc.dailynet-${formatDateToRPCFormat(new Date())}.teztnets.xyz/`,
-    color: '#FBBF24',
-    disabled: false
+    color: '#FBBF24'
   },
   {
     id: 'sandbox',
     name: 'localhost:8732',
     description: 'Local Sandbox',
-    type: 'test',
     rpcBaseURL: 'http://localhost:8732',
-    color: '#e9e1cc',
-    disabled: false
-  },
-  // Hidden
+    color: '#e9e1cc'
+  }
+];
+
+export const HIDDEN_TEZOS_NETWORKS: StoredNetwork[] = [
   {
     id: 'smartpy-ithacanet',
     name: 'Ithacanet Testnet Smartpy',
     description: 'Ithacanet testnet',
-    type: 'test',
     rpcBaseURL: 'https://ithacanet.smartpy.io',
-    color: '#FBBF24',
-    disabled: false,
-    hidden: true
+    color: '#FBBF24'
   },
   {
     id: 'tzbeta-rpczero',
     name: 'Edo Testnet @rpczero.tzbeta.net',
     description: 'Highly available Edo Testnet nodes operated by Blockscale',
-    type: 'test',
     rpcBaseURL: 'https://rpczero.tzbeta.net',
-    color: '#FBBF24',
-    disabled: false,
-    hidden: true
+    color: '#FBBF24'
   }
 ];

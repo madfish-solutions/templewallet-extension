@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 
 import classNames from 'clsx';
 
@@ -20,6 +20,13 @@ export const NetworkButton: React.FC<Props> = ({ network, selected, onClick }) =
 
   const title = (nameI18nKey && t(nameI18nKey)) || name;
 
+  const testIDProperties = useMemo(
+    () => ({
+      // TODO: `networkType` (or `chainId`)
+    }),
+    []
+  );
+
   return (
     <Button
       key={id}
@@ -36,7 +43,7 @@ export const NetworkButton: React.FC<Props> = ({ network, selected, onClick }) =
       autoFocus={selected}
       onClick={disabled ? undefined : onClick}
       testID={NetworkSelectSelectors.networkItemButton}
-      testIDProperties={{ networkType: network.type }}
+      testIDProperties={testIDProperties}
       {...setAnotherSelector('name', title)}
     >
       <div

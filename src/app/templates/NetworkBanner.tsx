@@ -5,6 +5,7 @@ import classNames from 'clsx';
 import Name from 'app/atoms/Name';
 import { T, t } from 'lib/i18n';
 import { useAllNetworks } from 'lib/temple/front';
+import { HIDDEN_TEZOS_NETWORKS } from 'temple/networks';
 
 type NetworkBannerProps = {
   rpc: string;
@@ -12,8 +13,12 @@ type NetworkBannerProps = {
 };
 
 const NetworkBanner: FC<NetworkBannerProps> = ({ rpc, narrow = false }) => {
-  const allNetworks = useAllNetworks();
-  const knownNetwork = useMemo(() => allNetworks.find(n => n.rpcBaseURL === rpc), [allNetworks, rpc]);
+  const networks = useAllNetworks();
+
+  const knownNetwork = useMemo(
+    () => networks.find(n => n.rpcBaseURL === rpc) || HIDDEN_TEZOS_NETWORKS.find(n => n.rpcBaseURL === rpc),
+    [networks, rpc]
+  );
 
   return (
     <div className={classNames('flex flex-col w-full', narrow ? '-mt-1 mb-2' : 'mb-4')}>

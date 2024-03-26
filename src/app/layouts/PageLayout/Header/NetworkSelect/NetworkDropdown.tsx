@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useMemo } from 'react';
+import React, { memo, useCallback } from 'react';
 
 import classNames from 'clsx';
 
@@ -25,8 +25,6 @@ export const NetworkDropdown = memo<Props>(({ opened, setOpened, currentNetwork 
   const setNetworkId = useSetNetworkId();
 
   useShortcutAccountSelectModalIsOpened(() => setOpened(false));
-
-  const filteredNetworks = useMemo(() => allNetworks.filter(n => !n.hidden), [allNetworks]);
 
   const { chainId } = useTezosNetwork();
   const { setExplorerId } = useBlockExplorer();
@@ -74,7 +72,7 @@ export const NetworkDropdown = memo<Props>(({ opened, setOpened, currentNetwork 
           <T id="networks" />
         </h2>
 
-        {filteredNetworks.map(network => {
+        {allNetworks.map(network => {
           const { id, rpcBaseURL } = network;
           const selected = id === currentNetwork.id;
 

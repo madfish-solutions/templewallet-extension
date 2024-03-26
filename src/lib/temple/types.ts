@@ -33,7 +33,6 @@ export interface TempleDAppSession {
 export interface TempleState {
   status: TempleStatus;
   accounts: StoredAccount[];
-  networks: StoredNetwork[];
   settings: TempleSettings | null;
 }
 
@@ -103,9 +102,6 @@ export interface StoredAccountBase {
   id: string;
   type: TempleAccountType;
   name: string;
-  // publicKeyHash: string;
-  // hdIndex?: number;
-  // evmAddress?: string;
   derivationPath?: string;
   derivationType?: DerivationType;
 }
@@ -120,15 +116,16 @@ export enum TempleAccountType {
 
 interface StoredNetworkBase {
   id: string;
+  rpcBaseURL: string;
   name?: string;
   nameI18nKey?: TID;
-  description: string;
-  descriptionI18nKey?: string;
-  type: 'main' | 'test' | 'dcp';
-  rpcBaseURL: string;
+  description?: string;
   color: string;
-  disabled: boolean;
-  hidden?: boolean;
+  // Deprecated params:
+  /** @deprecated */
+  type?: 'main' | 'test' | 'dcp';
+  /** @deprecated */
+  disabled?: boolean;
 }
 
 export type StoredNetwork = StoredNetworkBase &

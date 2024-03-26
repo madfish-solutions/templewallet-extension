@@ -1,4 +1,4 @@
-import React, { FC, useCallback } from 'react';
+import React, { FC, useCallback, useMemo } from 'react';
 
 import classNames from 'clsx';
 import { useForm } from 'react-hook-form';
@@ -14,8 +14,7 @@ import { useSettings, useTempleClient } from 'lib/temple/front';
 import { StoredNetwork } from 'lib/temple/types';
 import { COLORS } from 'lib/ui/colors';
 import { useConfirm } from 'lib/ui/dialog';
-import { delay } from 'lib/utils';
-import { TEZOS_NETWORK_NAMES } from 'temple/networks';
+import { TEZOS_NETWORKS } from 'temple/networks';
 import { loadTezosChainId } from 'temple/tezos';
 
 import { CustomNetworkSettingsSelectors } from './CustomNetworkSettingsSelectors';
@@ -28,7 +27,7 @@ interface NetworkFormData {
 const SUBMIT_ERROR_TYPE = 'submit-error';
 
 const CustomNetworksSettings: FC = () => {
-  const { updateSettings, defaultNetworks } = useTempleClient();
+  const { updateSettings } = useTempleClient();
   const { customNetworks = [] } = useSettings();
   const confirm = useConfirm();
 
@@ -48,13 +47,13 @@ const CustomNetworksSettings: FC = () => {
       if (submitting) return;
       clearError();
 
+      // eslint-disable-next-line @typescript-eslint/prefer-ts-expect-error
+      // @ts-ignore
       let chainId;
       try {
         chainId = await loadTezosChainId(rpcBaseURL);
       } catch (err: any) {
         console.error(err);
-
-        await delay();
 
         setError('rpcBaseURL', SUBMIT_ERROR_TYPE, t('invalidRpcCantGetChainId'));
 
@@ -62,26 +61,25 @@ const CustomNetworksSettings: FC = () => {
       }
 
       try {
-        const networkName = TEZOS_NETWORK_NAMES.get(chainId) ?? rpcBaseURL;
+        const color = COLORS[Math.floor(Math.random() * COLORS.length)];
+
         await updateSettings({
           customNetworks: [
             ...customNetworks,
             {
+              // TODO: chainId
               rpcBaseURL,
               name,
-              description: name,
-              type: networkName === 'mainnet' ? 'main' : 'test',
               disabled: false,
-              color: COLORS[Math.floor(Math.random() * COLORS.length)],
+              color,
               id: rpcBaseURL
             }
           ]
         });
+
         resetForm();
       } catch (err: any) {
         console.error(err);
-
-        await delay();
 
         setError('rpcBaseURL', SUBMIT_ERROR_TYPE, err.message);
       }
@@ -90,9 +88,8 @@ const CustomNetworksSettings: FC = () => {
   );
 
   const rpcURLIsUnique = useCallback(
-    (url: string) =>
-      ![...defaultNetworks, ...customNetworks].filter(n => !n.hidden).some(({ rpcBaseURL }) => rpcBaseURL === url),
-    [customNetworks, defaultNetworks]
+    (url: string) => ![...TEZOS_NETWORKS, ...customNetworks].some(({ rpcBaseURL }) => rpcBaseURL === url),
+    [customNetworks]
   );
 
   const handleRemoveClick = useCallback(
@@ -110,7 +107,7 @@ const CustomNetworksSettings: FC = () => {
         customNetworks: customNetworks.filter(({ rpcBaseURL }) => rpcBaseURL !== baseUrl)
       }).catch(async err => {
         console.error(err);
-        await delay();
+
         setError('rpcBaseURL', SUBMIT_ERROR_TYPE, err.message);
       });
     },
@@ -133,23 +130,15 @@ const CustomNetworksSettings: FC = () => {
         <div className="flex flex-col text-gray-700 text-sm leading-tight border rounded-md overflow-hidden">
           {customNetworks.map(network => (
             <NetworksListItem
-              canRemove
               network={network}
               last={false}
               key={network.rpcBaseURL}
               onRemoveClick={handleRemoveClick}
             />
           ))}
-          {defaultNetworks
-            .filter(n => !n.hidden)
-            .map((network, index) => (
-              <NetworksListItem
-                canRemove={false}
-                key={network.rpcBaseURL}
-                last={index === defaultNetworks.length - 1}
-                network={network}
-              />
-            ))}
+          {TEZOS_NETWORKS.map((network, index) => (
+            <NetworksListItem key={network.rpcBaseURL} last={index === TEZOS_NETWORKS.length - 1} network={network} />
+          ))}
         </div>
       </div>
 
@@ -207,7 +196,6 @@ const CustomNetworksSettings: FC = () => {
 export default CustomNetworksSettings;
 
 type NetworksListItemProps = {
-  canRemove: boolean;
   network: StoredNetwork;
   onRemoveClick?: (baseUrl: string) => void;
   last: boolean;
@@ -216,11 +204,15 @@ type NetworksListItemProps = {
 const NetworksListItem: FC<NetworksListItemProps> = props => {
   const {
     network: { name, nameI18nKey, rpcBaseURL, color },
-    canRemove,
     onRemoveClick,
     last
   } = props;
-  const handleRemoveClick = useCallback(() => onRemoveClick?.(rpcBaseURL), [onRemoveClick, rpcBaseURL]);
+
+  const handleRemoveClick = useMemo(() => {
+    if (!onRemoveClick) return null;
+
+    return () => onRemoveClick(rpcBaseURL);
+  }, [onRemoveClick, rpcBaseURL]);
 
   return (
     <div
@@ -256,7 +248,7 @@ const NetworksListItem: FC<NetworksListItemProps> = props => {
         </div>
       </div>
 
-      {canRemove && (
+      {handleRemoveClick && (
         <button
           className="flex-none p-2 text-gray-500 hover:text-gray-600 transition ease-in-out duration-200"
           onClick={handleRemoveClick}

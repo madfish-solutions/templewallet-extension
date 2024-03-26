@@ -1,9 +1,10 @@
 import { useEffect, useLayoutEffect, useMemo } from 'react';
 
 import constate from 'constate';
+import { isEqual } from 'lodash';
 
 import { ReadyTempleState, TempleStatus, TempleState, TempleNotification, TempleMessageType } from 'lib/temple/types';
-import { useUpdatableRef } from 'lib/ui/hooks';
+import { useMemoWithCompare, useUpdatableRef } from 'lib/ui/hooks';
 import { getAccountAddressForTezos, getAccountForEvm, getAccountForTezos } from 'temple/accounts';
 import { intercomClient } from 'temple/front/intercom-client';
 
@@ -59,9 +60,10 @@ function useReadyTemple() {
     }
   }, [allNetworks, networkId, setNetworkId, defaultNet]);
 
-  const network = useMemo(
+  const network = useMemoWithCompare(
     () => allNetworks.find(n => n.id === networkId) ?? defaultNet,
-    [allNetworks, networkId, defaultNet]
+    [allNetworks, networkId, defaultNet],
+    isEqual
   );
 
   /**
@@ -93,9 +95,10 @@ function useReadyTemple() {
     }
   }, [allAccounts, defaultAcc, accountId, setAccountId]);
 
-  const account = useMemo(
+  const account = useMemoWithCompare(
     () => allAccounts.find(a => a.id === accountId) ?? defaultAcc,
-    [allAccounts, defaultAcc, accountId]
+    [allAccounts, defaultAcc, accountId],
+    isEqual
   );
 
   const accountForTezos = useMemo(() => getAccountForTezos(account), [account]);
