@@ -1,6 +1,6 @@
 import type { AdStylesOverrides } from 'lib/apis/temple';
 
-import { AdsResolution } from '../ads-resolutions';
+import type { AdMetadata } from '../ads-meta';
 
 export enum AdActionType {
   ReplaceAllChildren = 'replace-all-children',
@@ -15,10 +15,14 @@ interface AdActionBase {
 }
 
 interface InsertAdActionProps {
-  adResolution: AdsResolution;
-  shouldUseDivWrapper: boolean;
-  divWrapperStyle?: Record<string, string>;
-  elementStyle?: Record<string, string>;
+  ad: AdMetadata;
+  fallbacks: AdMetadata[];
+  /** @deprecated // Always wrapping now
+   * TODO: Clean-up usage
+   */
+  shouldUseDivWrapper?: boolean;
+  divWrapperStyle?: StringRecord<string>;
+  elementStyle?: StringRecord<string>;
   stylesOverrides?: AdStylesOverrides[];
 }
 
@@ -50,9 +54,11 @@ export interface HideElementAction extends AdActionBase {
 
 export type InsertAdAction = ReplaceAllChildrenWithAdAction | ReplaceElementWithAdAction | SimpleInsertAdAction;
 
-export type AdAction =
-  | ReplaceAllChildrenWithAdAction
-  | ReplaceElementWithAdAction
-  | SimpleInsertAdAction
-  | RemoveElementAction
-  | HideElementAction;
+export type OmitAdInAction<T extends InsertAdActionProps> = Omit<T, 'ad' | 'fallbacks'>;
+
+export type InsertAdActionWithoutMeta =
+  | OmitAdInAction<ReplaceAllChildrenWithAdAction>
+  | OmitAdInAction<ReplaceElementWithAdAction>
+  | OmitAdInAction<SimpleInsertAdAction>;
+
+export type AdAction = InsertAdAction | RemoveElementAction | HideElementAction;

@@ -1,16 +1,16 @@
 import React, { memo, useEffect, useRef, useCallback } from 'react';
 
 import clsx from 'clsx';
-import memoizee from 'memoizee';
 
 import { useAdRectObservation } from 'app/hooks/ads/use-ad-rect-observation';
 import { AdsProviderTitle } from 'lib/ads';
+import { getPersonaAdClient, PERSONA_STAGING_ADS_BANNER_UNIT_ID } from 'lib/ads/persona';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
 import { EnvVars } from 'lib/env';
 
 import { PartnersPromotionSelectors } from '../../selectors';
 import { PartnersPromotionVariant, SingleProviderPromotionProps } from '../../types';
-import { buildAdClickAnalyticsProperties } from '../../utils';
+import { AD_BANNER_HEIGHT, buildAdClickAnalyticsProperties } from '../../utils';
 import { CloseButton } from '../close-button';
 import { ImageAdLabel } from '../image-promotion-view';
 
@@ -53,7 +53,9 @@ export const PersonaPromotion = memo<Props>(
     useAdRectObservation(ref, onAdRectSeen, isVisible);
 
     const injectAd = useCallback(async () => {
-      const { client, adUnitId } = await getPersonaAdClient();
+      const { client, environment } = await getPersonaAdClient();
+      const adUnitId =
+        environment === 'staging' ? PERSONA_STAGING_ADS_BANNER_UNIT_ID : EnvVars.PERSONA_ADS_BANNER_UNIT_ID;
 
       await client.showBannerAd(
         // @ts-expect-error // for missung `adConfig` prop
@@ -74,13 +76,8 @@ export const PersonaPromotion = memo<Props>(
     );
 
     return (
-      <div className={clsx('relative', !isVisible && 'invisible')}>
-        <div
-          ref={ref}
-          id={containerId}
-          onClick={onClick}
-          className={clsx('rounded-xl overflow-hidden', ModStyles.container)}
-        />
+      <div className={clsx('relative rounded-xl overflow-hidden', `h-${AD_BANNER_HEIGHT}`, !isVisible && 'invisible')}>
+        <div ref={ref} id={containerId} onClick={onClick} className={clsx('h-full', ModStyles.container)} />
 
         <ImageAdLabel />
 
@@ -88,29 +85,4 @@ export const PersonaPromotion = memo<Props>(
       </div>
     );
   }
-);
-
-const getPersonaAdClient = memoizee(
-  async () => {
-    const { PersonaAdSDK } = await import('@personaxyz/ad-sdk');
-
-    const stageApiKey = 'XXXX_api_key_staging_XXXX';
-
-    const apiKey = EnvVars.PERSONA_ADS_API_KEY;
-    const environment = apiKey && apiKey !== stageApiKey ? 'production' : 'staging';
-
-    const sdk = new PersonaAdSDK({
-      // @ts-expect-error // for not-importable `enum ENVIRONMENT`
-      environment,
-      apiKey: environment === 'staging' ? stageApiKey : apiKey
-    });
-
-    const client = sdk.getClient();
-
-    const adUnitId =
-      environment === 'staging' ? 'cf20c750-2fe4-4761-861f-b73b2247fd4d' : EnvVars.PERSONA_ADS_BANNER_UNIT_ID;
-
-    return { client, adUnitId };
-  },
-  { promise: true }
 );

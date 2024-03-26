@@ -1,10 +1,10 @@
 import React, { memo, MouseEventHandler, useCallback, useEffect, useRef, useState } from 'react';
 
 import clsx from 'clsx';
+import { useDispatch } from 'react-redux';
 
 import Spinner from 'app/atoms/Spinner/Spinner';
 import { useAppEnv } from 'app/env';
-import { dispatch } from 'app/store';
 import { hidePromotionAction } from 'app/store/partners-promotion/actions';
 import {
   useShouldShowPartnersPromoSelector,
@@ -48,11 +48,12 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(props => {
   );
 });
 
-const TezosPartnersPromotion = memo<PartnersPromotionProps & { accountPkh: string }>(
+export const TezosPartnersPromotion = memo<PartnersPromotionProps & { accountPkh: string }>(
   ({ accountPkh, variant, id, pageName, withPersonaProvider }) => {
     const isImageAd = variant === PartnersPromotionVariant.Image;
     const { trackEvent } = useAnalytics();
     const { popup } = useAppEnv();
+    const dispatch = useDispatch();
     const hiddenAt = usePromotionHidingTimestampSelector(id);
     const shouldShowPartnersPromo = useShouldShowPartnersPromoSelector();
 
@@ -97,7 +98,7 @@ const TezosPartnersPromotion = memo<PartnersPromotionProps & { accountPkh: strin
         e.stopPropagation();
         dispatch(hidePromotionAction({ timestamp: Date.now(), id }));
       },
-      [id]
+      [id, dispatch]
     );
 
     const handleOptimalError = useCallback(() => setProviderName('HypeLab'), []);
@@ -115,7 +116,10 @@ const TezosPartnersPromotion = memo<PartnersPromotionProps & { accountPkh: strin
 
     return (
       <div
-        className={clsx('w-full relative', !adIsReady && (isImageAd ? styles.imageAdLoading : styles.textAdLoading))}
+        className={clsx(
+          'w-full relative flex flex-col items-center',
+          !adIsReady && (isImageAd ? styles.imageAdLoading : styles.textAdLoading)
+        )}
       >
         {(() => {
           switch (providerName) {

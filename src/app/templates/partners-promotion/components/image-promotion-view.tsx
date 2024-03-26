@@ -8,7 +8,7 @@ import type { AdsProviderTitle } from 'lib/ads';
 
 import { PartnersPromotionSelectors } from '../selectors';
 import { PartnersPromotionVariant } from '../types';
-import { buildAdClickAnalyticsProperties } from '../utils';
+import { AD_BANNER_HEIGHT, buildAdClickAnalyticsProperties } from '../utils';
 
 import { CloseButton } from './close-button';
 
@@ -44,7 +44,8 @@ export const ImagePromotionView: FC<Props> = ({
     <Anchor
       className={clsx(
         'relative w-full flex justify-center items-center rounded-xl',
-        'min-h-28 bg-gray-100 hover:bg-gray-200',
+        `min-h-${AD_BANNER_HEIGHT}`,
+        'bg-gray-100 hover:bg-gray-200',
         !isVisible && 'invisible'
       )}
       href={href}

@@ -2,7 +2,8 @@ import { nanoid } from 'nanoid';
 import browser from 'webextension-polyfill';
 
 import { buildSwapPageUrlQuery } from 'app/pages/Swap/utils/build-url-query';
-import { TEMPLE_WALLET_AD_ATTRIBUTE_NAME } from 'lib/constants';
+
+import { AdView } from './types';
 
 const TKeyInpageAd = browser.runtime.getURL(`/misc/ad-banners/tkey-inpage-ad.png`);
 
@@ -12,28 +13,20 @@ const swapTKeyUrl = `${browser.runtime.getURL('fullpage.html')}#/swap?${buildSwa
   true
 )}`;
 
-export const makeTKeyAdElement = (
-  slotId: string,
-  width: number,
-  height: number,
-  elementStyle: Record<string, string>
-) => {
-  const ins = document.createElement('ins');
-  ins.id = nanoid();
-  ins.style.width = `${width}px`;
-  ins.style.height = `${height}px`;
+export const makeTKeyAdView = (width: number, height: number, elementStyle: StringRecord): AdView => {
+  const element = document.createElement('div');
+  element.id = nanoid();
+  element.style.width = `${width}px`;
+  element.style.height = `${height}px`;
   for (const styleProp in elementStyle) {
-    ins.style.setProperty(styleProp, elementStyle[styleProp]);
+    element.style.setProperty(styleProp, elementStyle[styleProp]);
   }
-  ins.setAttribute('data-ad-slot', slotId);
-  ins.setAttribute('data-ad-format', `${width}x${height}`);
-  ins.setAttribute(TEMPLE_WALLET_AD_ATTRIBUTE_NAME, 'true');
 
   const div = document.createElement('div');
   div.style.width = `${width}px`;
   div.style.height = `${height}px`;
 
-  ins.appendChild(div);
+  element.appendChild(div);
 
   const anchor = document.createElement('a');
   anchor.href = swapTKeyUrl;
@@ -49,5 +42,5 @@ export const makeTKeyAdElement = (
   img.style.height = '100%';
   anchor.appendChild(img);
 
-  return ins;
+  return { element };
 };

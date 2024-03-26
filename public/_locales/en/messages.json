@@ -3111,5 +3111,8 @@
   },
   "viewAdsDescription": {
     "message": "I agree to share data(wallet address, IP) and get cashback at Temple Keys for viewing ads"
+  },
+  "dropdownNoItems": {
+    "message": "No items"
   }
 }
