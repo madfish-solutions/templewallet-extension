@@ -6,6 +6,7 @@ on:
       - master
       - development
       - development-2
+      - 'TW-[0-9]+-epic-**'
 
 jobs:
   pull-request-check:
