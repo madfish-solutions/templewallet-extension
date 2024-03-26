@@ -5,12 +5,12 @@ import classNames from 'clsx';
 import { Button } from 'app/atoms/Button';
 import { setAnotherSelector } from 'lib/analytics';
 import { t } from 'lib/i18n';
-import { TempleNetwork } from 'lib/temple/types';
+import { StoredNetwork } from 'lib/temple/types';
 
 import { NetworkSelectSelectors } from './selectors';
 
 interface Props {
-  network: TempleNetwork;
+  network: StoredNetwork;
   selected: boolean;
   onClick: EmptyFn;
 }

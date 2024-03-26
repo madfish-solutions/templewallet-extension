@@ -1,6 +1,6 @@
 import type { MetadataRecords } from 'app/store/tokens-metadata/state';
 import { TokenMetadata, TokenStandardsEnum } from 'lib/metadata/types';
-import { TempleChainId } from 'lib/temple/types';
+import { TempleTezosChainId } from 'lib/temple/types';
 
 import { FA2Token } from './types';
 import { tokenToSlug, toTokenSlug } from './utils';
@@ -133,8 +133,8 @@ const DCP_TOKENS_METADATA: TokenMetadata[] = [
 ];
 
 export const PREDEFINED_TOKENS_METADATA: Record<string, TokenMetadata[]> = {
-  [TempleChainId.Mainnet]: PREDEFINED_MAINNET_TOKENS_METADATA,
-  [TempleChainId.Dcp]: DCP_TOKENS_METADATA
+  [TempleTezosChainId.Mainnet]: PREDEFINED_MAINNET_TOKENS_METADATA,
+  [TempleTezosChainId.Dcp]: DCP_TOKENS_METADATA
 };
 
 export const ALL_PREDEFINED_METADATAS_RECORD: MetadataRecords = [

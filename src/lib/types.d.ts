@@ -1,5 +1,7 @@
 type nullish = null | undefined;
 
+type HexString = `0x${string}`;
+
 type JSONifiable = string | number | boolean | null | { [x: string]: JSONifiable | undefined } | JSONifiable[];
 
 type EmptyFn = () => void;

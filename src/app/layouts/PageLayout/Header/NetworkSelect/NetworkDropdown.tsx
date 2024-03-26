@@ -6,17 +6,18 @@ import DropdownWrapper from 'app/atoms/DropdownWrapper';
 import { useShortcutAccountSelectModalIsOpened } from 'app/hooks/use-account-select-shortcut';
 import { ReactComponent as SignalAltIcon } from 'app/icons/signal-alt.svg';
 import { T } from 'lib/i18n';
-import { BLOCK_EXPLORERS, useAllNetworks, useBlockExplorer, useChainId, useSetNetworkId } from 'lib/temple/front';
-import { loadChainId } from 'lib/temple/helpers';
-import { isKnownChainId, TempleNetwork } from 'lib/temple/types';
+import { BLOCK_EXPLORERS, useAllNetworks, useBlockExplorer, useSetNetworkId } from 'lib/temple/front';
+import { isKnownChainId, StoredNetwork } from 'lib/temple/types';
 import { PopperRenderProps } from 'lib/ui/Popper';
 import { HistoryAction, navigate } from 'lib/woozie';
+import { useTezosNetwork } from 'temple/front';
+import { loadTezosChainId } from 'temple/tezos';
 
 import { NetworkButton } from './NetworkButton';
 import styles from './style.module.css';
 
 interface Props extends PopperRenderProps {
-  currentNetwork: TempleNetwork;
+  currentNetwork: StoredNetwork;
 }
 
 export const NetworkDropdown = memo<Props>(({ opened, setOpened, currentNetwork }) => {
@@ -27,7 +28,7 @@ export const NetworkDropdown = memo<Props>(({ opened, setOpened, currentNetwork 
 
   const filteredNetworks = useMemo(() => allNetworks.filter(n => !n.hidden), [allNetworks]);
 
-  const chainId = useChainId(true)!;
+  const { chainId } = useTezosNetwork();
   const { setExplorerId } = useBlockExplorer();
 
   const handleNetworkSelect = useCallback(
@@ -37,7 +38,7 @@ export const NetworkDropdown = memo<Props>(({ opened, setOpened, currentNetwork 
       if (selected) return;
 
       try {
-        const currentChainId = await loadChainId(rpcUrl);
+        const currentChainId = await loadTezosChainId(rpcUrl);
 
         if (currentChainId && isKnownChainId(currentChainId)) {
           const currentBlockExplorerId =

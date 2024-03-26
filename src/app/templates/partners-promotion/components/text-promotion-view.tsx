@@ -6,7 +6,6 @@ import { Anchor } from 'app/atoms/Anchor';
 import { useAppEnv } from 'app/env';
 import { useAdRectObservation } from 'app/hooks/ads/use-ad-rect-observation';
 import type { AdsProviderTitle } from 'lib/ads';
-import { useAccountPkh } from 'lib/temple/front';
 
 import { PartnersPromotionSelectors } from '../selectors';
 import { PartnersPromotionVariant } from '../types';
@@ -15,6 +14,7 @@ import { buildAdClickAnalyticsProperties } from '../utils';
 import { CloseButton } from './close-button';
 
 interface Props {
+  accountPkh: string;
   href: string;
   isVisible: boolean;
   imageSrc: string;
@@ -29,6 +29,7 @@ interface Props {
 
 export const TextPromotionView = memo<Props>(
   ({
+    accountPkh,
     imageSrc,
     href,
     headline,
@@ -41,7 +42,6 @@ export const TextPromotionView = memo<Props>(
     onClose
   }) => {
     const { popup } = useAppEnv();
-    const accountPkh = useAccountPkh();
 
     const truncatedContentText = useMemo(
       () => (contentText.length > 80 ? `${contentText.slice(0, 80)}...` : contentText),

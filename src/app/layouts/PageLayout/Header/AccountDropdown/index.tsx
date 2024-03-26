@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useMemo, useState, useEffect } from 'react';
+import React, { memo, useCallback, useMemo, useState, useEffect } from 'react';
 
 import classNames from 'clsx';
 
@@ -18,27 +18,29 @@ import SearchField from 'app/templates/SearchField';
 import { useGasToken } from 'lib/assets/hooks';
 import { searchHotkey } from 'lib/constants';
 import { T, t } from 'lib/i18n';
-import { useAccount, useRelevantAccounts, useSetAccountPkh, useTempleClient } from 'lib/temple/front';
+import { useTempleClient, useSetAccountId } from 'lib/temple/front';
 import { PopperRenderProps } from 'lib/ui/Popper';
 import { searchAndFilterItems } from 'lib/utils/search-items';
 import { HistoryAction, navigate } from 'lib/woozie';
+import { useCurrentAccountId, useTezosNetwork, useRelevantAccounts } from 'temple/front';
 
 import { AccountItem } from './AccountItem';
 import { ActionButtonProps, ActionButton } from './ActionButton';
 import { AccountDropdownSelectors } from './selectors';
 
-type AccountDropdownProps = PopperRenderProps;
+type Props = PopperRenderProps;
 
 interface TDropdownAction extends ActionButtonProps {
   key: string;
 }
 
-const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
+const AccountDropdown = memo<Props>(({ opened, setOpened }) => {
   const appEnv = useAppEnv();
   const { lock } = useTempleClient();
-  const allAccounts = useRelevantAccounts();
-  const account = useAccount();
-  const setAccountPkh = useSetAccountPkh();
+  const { chainId } = useTezosNetwork();
+  const allAccounts = useRelevantAccounts(chainId);
+  const currentAccountId = useCurrentAccountId();
+  const setAccountId = useSetAccountId();
   const { assetName: gasTokenName } = useGasToken();
 
   useShortcutAccountSelectModalIsOpened(() => setOpened(false));
@@ -56,7 +58,9 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
       searchValue.toLowerCase(),
       [
         { name: 'name', weight: 1 },
-        { name: 'publicKeyHash', weight: 0.25 }
+        { name: 'address', weight: 0.25 },
+        { name: 'tezosAddress', weight: 0.25 },
+        { name: 'evmAddress', weight: 0.25 }
       ],
       null,
       0.35
@@ -81,15 +85,15 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
   }, [appEnv.popup, closeDropdown]);
 
   const handleAccountClick = useCallback(
-    (publicKeyHash: string) => {
-      const selected = publicKeyHash === account.publicKeyHash;
+    (id: string) => {
+      const selected = id === currentAccountId;
       if (!selected) {
-        setAccountPkh(publicKeyHash);
+        setAccountId(id);
       }
       setOpened(false);
       navigate('/', HistoryAction.Replace);
     },
-    [account, setAccountPkh, setOpened]
+    [currentAccountId, setAccountId, setOpened]
   );
 
   const actions = useMemo(
@@ -218,12 +222,12 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
             ) : (
               filteredAccounts.map(acc => (
                 <AccountItem
-                  key={acc.publicKeyHash}
+                  key={acc.id}
                   account={acc}
-                  selected={acc.publicKeyHash === account.publicKeyHash}
+                  selected={acc.id === currentAccountId}
                   gasTokenName={gasTokenName}
                   attractSelf={attractSelectedAccount}
-                  onClick={() => handleAccountClick(acc.publicKeyHash)}
+                  onClick={handleAccountClick}
                 />
               ))
             )}
@@ -238,6 +242,6 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
       </div>
     </DropdownWrapper>
   );
-};
+});
 
 export default AccountDropdown;

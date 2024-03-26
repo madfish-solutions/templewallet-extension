@@ -1,42 +1,44 @@
 import { useCallback, useMemo } from 'react';
 
-import { TezosToolkit } from '@taquito/taquito';
 import { DomainNameValidationResult, isTezosDomainsSupportedNetwork } from '@tezos-domains/core';
 import { TaquitoTezosDomainsClient } from '@tezos-domains/taquito-client';
 
 import { useTypedSWR } from 'lib/swr';
-import { NETWORK_IDS } from 'lib/temple/networks';
+import { getReadOnlyTezos } from 'temple/tezos';
 
-import { useTezos, useChainId } from './ready';
+import { TEZOS_NETWORK_NAMES } from '../../networks';
+import { useTezosNetwork, useTezosNetworkRpcUrl } from '../networks';
 
-function getClient(networkId: 'mainnet' | 'custom', tezos: TezosToolkit) {
-  return isTezosDomainsSupportedNetwork(networkId)
-    ? new TaquitoTezosDomainsClient({ network: networkId, tezos })
+function getClient(networkName: 'mainnet' | 'custom', rpcUrl: string) {
+  return isTezosDomainsSupportedNetwork(networkName)
+    ? new TaquitoTezosDomainsClient({ network: networkName, tezos: getReadOnlyTezos(rpcUrl) })
     : TaquitoTezosDomainsClient.Unsupported;
 }
 
-export function isDomainNameValid(name: string, client: TaquitoTezosDomainsClient) {
+export function isTezosDomainsNameValid(name: string, client: TaquitoTezosDomainsClient) {
   return client.validator.validateDomainName(name, { minLevel: 2 }) === DomainNameValidationResult.VALID;
 }
 
 export function useTezosDomainsClient() {
-  const chainId = useChainId(true)!;
-  const tezos = useTezos();
+  const { chainId, rpcUrl } = useTezosNetwork();
 
-  const networkId = NETWORK_IDS.get(chainId)!;
-  return useMemo(() => getClient(networkId === 'mainnet' ? networkId : 'custom', tezos), [networkId, tezos]);
+  return useMemo(() => {
+    const networkName = TEZOS_NETWORK_NAMES.get(chainId)!;
+
+    return getClient(networkName === 'mainnet' ? networkName : 'custom', rpcUrl);
+  }, [chainId, rpcUrl]);
 }
 
 export function useTezosAddressByDomainName(domainName: string) {
   const domainsClient = useTezosDomainsClient();
-  const tezos = useTezos();
+  const rpcUrl = useTezosNetworkRpcUrl();
 
   const domainAddressFactory = useCallback(
     ([, , name]: [string, string, string]) => domainsClient.resolver.resolveNameToAddress(name),
     [domainsClient]
   );
 
-  return useTypedSWR(['tzdns-address', tezos.checksum, domainName], domainAddressFactory, {
+  return useTypedSWR(['tzdns-address', rpcUrl, domainName], domainAddressFactory, {
     shouldRetryOnError: false,
     revalidateOnFocus: false
   });
@@ -44,13 +46,14 @@ export function useTezosAddressByDomainName(domainName: string) {
 
 export function useTezosDomainNameByAddress(address: string) {
   const { resolver: domainsResolver } = useTezosDomainsClient();
-  const tezos = useTezos();
+  const rpcUrl = useTezosNetworkRpcUrl();
+
   const resolveDomainReverseName = useCallback(
     ([, pkh]: [string, string, string]) => domainsResolver.resolveAddressToName(pkh),
     [domainsResolver]
   );
 
-  return useTypedSWR(['tzdns-reverse-name', address, tezos.checksum], resolveDomainReverseName, {
+  return useTypedSWR(['tzdns-reverse-name', address, rpcUrl], resolveDomainReverseName, {
     shouldRetryOnError: false,
     revalidateOnFocus: false
   });

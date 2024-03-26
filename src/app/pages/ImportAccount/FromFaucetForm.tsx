@@ -5,12 +5,16 @@ import { useForm, Controller } from 'react-hook-form';
 
 import { Alert, FileInputProps, FileInput, FormField, FormSubmitButton } from 'app/atoms';
 import { useFormAnalytics } from 'lib/analytics';
+import { ACCOUNT_ALREADY_EXISTS_ERR_MSG } from 'lib/constants';
 import { TID, T, t } from 'lib/i18n';
-import { useTempleClient, useSetAccountPkh, useTezos, activateAccount } from 'lib/temple/front';
-import { confirmOperation } from 'lib/temple/operation';
-import { useSafeState } from 'lib/ui/hooks';
+import { useTempleClient, useAllAccounts, useSetAccountId } from 'lib/temple/front';
+import { useSafeState, useUpdatableRef } from 'lib/ui/hooks';
 import { delay } from 'lib/utils';
 import { navigate } from 'lib/woozie';
+import { getAccountAddressForTezos } from 'temple/accounts';
+import { useTezosNetworkRpcUrl } from 'temple/front';
+import { getReadOnlyTezos, confirmTezosOperation } from 'temple/tezos';
+import { activateTezosAccount } from 'temple/tezos/activate-account';
 
 import { ImportAccountFormType } from './selectors';
 
@@ -30,8 +34,12 @@ interface FaucetTextInputFormData {
 
 export const FromFaucetForm: FC = () => {
   const { importFundraiserAccount } = useTempleClient();
-  const setAccountPkh = useSetAccountPkh();
-  const tezos = useTezos();
+
+  const allAccounts = useAllAccounts();
+  const allAccountsRef = useUpdatableRef(allAccounts);
+
+  const setAccountId = useSetAccountId();
+  const rpcUrl = useTezosNetworkRpcUrl();
   const formAnalytics = useFormAnalytics(ImportAccountFormType.FaucetFile);
 
   const { control, handleSubmit: handleTextFormSubmit, watch, errors, setValue } = useForm<FaucetTextInputFormData>();
@@ -50,26 +58,31 @@ export const FromFaucetForm: FC = () => {
 
   const importAccount = useCallback(
     async (data: FaucetData) => {
-      const activation = await activateAccount(data.pkh, data.secret ?? data.activation_code, tezos);
+      const tezos = getReadOnlyTezos(rpcUrl);
+
+      const activation = await activateTezosAccount(data.pkh, data.secret ?? data.activation_code, tezos);
 
       if (activation.status === 'SENT') {
         setAlert(`🛫 ${t('requestSent', t('activationOperationType'))}`);
-        await confirmOperation(tezos, activation.operation.hash);
+        await confirmTezosOperation(tezos, activation.operation.hash);
       }
 
       try {
         await importFundraiserAccount(data.email, data.password, data.mnemonic.join(' '));
       } catch (err: any) {
-        if (/Account already exists/.test(err?.message)) {
-          setAccountPkh(data.pkh);
-          navigate('/');
-          return;
+        if (err?.message === ACCOUNT_ALREADY_EXISTS_ERR_MSG) {
+          const accountId = allAccountsRef.current.find(acc => getAccountAddressForTezos(acc) === data.pkh)?.id;
+          if (accountId) {
+            setAccountId(accountId);
+            navigate('/');
+            return;
+          }
         }
 
         throw err;
       }
     },
-    [importFundraiserAccount, setAccountPkh, setAlert, tezos]
+    [importFundraiserAccount, setAccountId, setAlert, rpcUrl, allAccountsRef]
   );
 
   const onTextFormSubmit = useCallback(
@@ -90,9 +103,6 @@ export const FromFaucetForm: FC = () => {
         formAnalytics.trackSubmitFail();
 
         console.error(err);
-
-        // Human delay.
-        await delay();
 
         setAlert(err);
       } finally {

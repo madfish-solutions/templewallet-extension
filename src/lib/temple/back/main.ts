@@ -1,12 +1,13 @@
 import browser, { Runtime } from 'webextension-polyfill';
 
 import { updateRulesStorage } from 'lib/ads/update-rules-storage';
-import { ACCOUNT_PKH_STORAGE_KEY, ANALYTICS_USER_ID_STORAGE_KEY, ContentScriptType } from 'lib/constants';
+import { ADS_VIEWER_TEZOS_ADDRESS_STORAGE_KEY, ANALYTICS_USER_ID_STORAGE_KEY, ContentScriptType } from 'lib/constants';
 import { E2eMessageType } from 'lib/e2e/types';
 import { BACKGROUND_IS_WORKER } from 'lib/env';
+import { fetchFromStorage } from 'lib/storage';
 import { encodeMessage, encryptMessage, getSenderId, MessageType, Response } from 'lib/temple/beacon';
 import { clearAsyncStorages } from 'lib/temple/reset';
-import { TempleMessageType, TempleRequest, TempleResponse } from 'lib/temple/types';
+import { TempleAccountType, TempleMessageType, TempleRequest, TempleResponse } from 'lib/temple/types';
 import { getTrackedCashbackServiceDomain, getTrackedUrl } from 'lib/utils/url-track/url-track.utils';
 
 import { AnalyticsEventCategory } from '../analytics-types';
@@ -69,14 +70,14 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
       return { type: TempleMessageType.CreateAccountResponse };
 
     case TempleMessageType.RevealPublicKeyRequest:
-      const publicKey = await Actions.revealPublicKey(req.accountPublicKeyHash);
+      const publicKey = await Actions.revealPublicKey(req.accountAddress);
       return {
         type: TempleMessageType.RevealPublicKeyResponse,
         publicKey
       };
 
     case TempleMessageType.RevealPrivateKeyRequest:
-      const privateKey = await Actions.revealPrivateKey(req.accountPublicKeyHash, req.password);
+      const privateKey = await Actions.revealPrivateKey(req.chain, req.address, req.password);
       return {
         type: TempleMessageType.RevealPrivateKeyResponse,
         privateKey
@@ -97,19 +98,19 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
       };
 
     case TempleMessageType.RemoveAccountRequest:
-      await Actions.removeAccount(req.accountPublicKeyHash, req.password);
+      await Actions.removeAccount(req.id, req.password);
       return {
         type: TempleMessageType.RemoveAccountResponse
       };
 
     case TempleMessageType.EditAccountRequest:
-      await Actions.editAccount(req.accountPublicKeyHash, req.name);
+      await Actions.editAccount(req.id, req.name);
       return {
         type: TempleMessageType.EditAccountResponse
       };
 
     case TempleMessageType.ImportAccountRequest:
-      await Actions.importAccount(req.privateKey, req.encPassword);
+      await Actions.importAccount(req.chain, req.privateKey, req.encPassword);
       return {
         type: TempleMessageType.ImportAccountResponse
       };
@@ -133,7 +134,7 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
       };
 
     case TempleMessageType.ImportWatchOnlyAccountRequest:
-      await Actions.importWatchOnlyAccount(req.address, req.chainId);
+      await Actions.importWatchOnlyAccount(req.chain, req.address, req.chainId);
       return {
         type: TempleMessageType.ImportWatchOnlyAccountResponse
       };
@@ -247,24 +248,6 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
   }
 };
 
-const getCurrentAccountPkh = async (): Promise<string | undefined> => {
-  const { [ACCOUNT_PKH_STORAGE_KEY]: accountPkhFromStorage } = await browser.storage.local.get(ACCOUNT_PKH_STORAGE_KEY);
-
-  if (accountPkhFromStorage) {
-    return accountPkhFromStorage;
-  }
-
-  const frontState = await Actions.getFrontState();
-
-  return frontState.accounts[0]?.publicKeyHash;
-};
-
-const getAnalyticsUserId = async (): Promise<string | undefined> => {
-  const { [ANALYTICS_USER_ID_STORAGE_KEY]: userId } = await browser.storage.local.get(ANALYTICS_USER_ID_STORAGE_KEY);
-
-  return userId;
-};
-
 browser.runtime.onMessage.addListener(async msg => {
   try {
     switch (msg?.type) {
@@ -273,11 +256,6 @@ browser.runtime.onMessage.addListener(async msg => {
         return;
       case E2eMessageType.ResetRequest:
         return clearAsyncStorages().then(() => ({ type: E2eMessageType.ResetResponse }));
-    }
-
-    const accountPkh = await getCurrentAccountPkh();
-
-    switch (msg?.type) {
       case ContentScriptType.ExternalLinksActivity:
         const trackedCashbackServiceDomain = getTrackedCashbackServiceDomain(msg.url);
 
@@ -288,12 +266,14 @@ browser.runtime.onMessage.addListener(async msg => {
         const trackedUrl = getTrackedUrl(msg.url);
 
         if (trackedUrl) {
+          const accountPkh = await getTezosAccountAddressForAdsImpressions();
           await Analytics.client.track('External links activity', { url: trackedUrl, accountPkh });
         }
 
         break;
       case ContentScriptType.ExternalAdsActivity:
         const userId = await getAnalyticsUserId();
+        const accountPkh = await getTezosAccountAddressForAdsImpressions();
         await Analytics.trackEvent({
           category: AnalyticsEventCategory.General,
           userId: userId ?? '',
@@ -309,3 +289,21 @@ browser.runtime.onMessage.addListener(async msg => {
 
   return;
 });
+
+const getAnalyticsUserId = () => fetchFromStorage<string>(ANALYTICS_USER_ID_STORAGE_KEY);
+
+async function getTezosAccountAddressForAdsImpressions() {
+  const accountPkhFromStorage = await fetchFromStorage<string>(ADS_VIEWER_TEZOS_ADDRESS_STORAGE_KEY);
+
+  if (accountPkhFromStorage) {
+    return accountPkhFromStorage;
+  }
+
+  const frontState = await Actions.getFrontState();
+
+  for (const account of frontState.accounts) {
+    if (account.type === TempleAccountType.HD) return account.tezosAddress;
+  }
+
+  return null;
+}

@@ -10,7 +10,6 @@ import { isSeedPhraseFilled, SeedPhraseInput } from 'app/templates/SeedPhraseInp
 import { setTestID, useFormAnalytics } from 'lib/analytics';
 import { T, t, TID } from 'lib/i18n';
 import { useTempleClient, validateDerivationPath } from 'lib/temple/front';
-import { delay } from 'lib/utils';
 
 import { defaultNumberOfWords } from './constants';
 import { ImportAccountSelectors, ImportAccountFormType } from './selectors';
@@ -76,8 +75,6 @@ export const ByMnemonicForm: FC = () => {
 
           console.error(err);
 
-          // Human delay
-          await delay();
           setError(err.message);
         }
       } else if (seedError === '') {

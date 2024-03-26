@@ -8,9 +8,10 @@ import Logo from 'app/atoms/Logo';
 import Name from 'app/atoms/Name';
 import { useAppEnv } from 'app/env';
 import ContentContainer from 'app/layouts/ContentContainer';
-import { useTempleClient, useAccount } from 'lib/temple/front';
+import { useTempleClient } from 'lib/temple/front';
 import Popper from 'lib/ui/Popper';
 import { Link } from 'lib/woozie';
+import { useAccount } from 'temple/front';
 
 import AccountDropdown from './Header/AccountDropdown';
 import NetworkSelect from './Header/NetworkSelect';
@@ -78,7 +79,7 @@ const Control: FC = () => {
             onClick={toggleOpened}
             testID={HeaderSelectors.accountIcon}
           >
-            <Identicon type="bottts" hash={account.publicKeyHash} size={48} />
+            <Identicon type="bottts" hash={account.id} size={48} />
           </Button>
         )}
       </Popper>

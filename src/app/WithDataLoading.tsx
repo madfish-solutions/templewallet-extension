@@ -3,6 +3,7 @@ import React, { FC, useEffect } from 'react';
 import { dispatch } from 'app/store';
 import { loadTokensScamlistActions } from 'app/store/assets/actions';
 import { loadSwapDexesAction, loadSwapTokensAction } from 'app/store/swap/actions';
+import { useAccountAddressForTezos } from 'temple/front';
 
 import { useAdvertisingLoading } from './hooks/use-advertising.hook';
 import { useAssetsLoading } from './hooks/use-assets-loading';
@@ -21,11 +22,7 @@ export const WithDataLoading: FC<PropsWithChildren> = ({ children }) => {
 
   useEffect(() => void dispatch(loadTokensScamlistActions.submit()), []);
 
-  useAssetsLoading();
-  useMetadataLoading();
   useMetadataRefresh();
-  useBalancesLoading();
-  useCollectiblesDetailsLoading();
 
   useLongRefreshLoading();
   useAdvertisingLoading();
@@ -38,6 +35,17 @@ export const WithDataLoading: FC<PropsWithChildren> = ({ children }) => {
 
   useStorageAnalytics();
   useUserIdSync();
+
+  const tezosAddress = useAccountAddressForTezos();
+
+  return tezosAddress ? <WithTezosDataLoading publicKeyHash={tezosAddress} children={children} /> : <>{children}</>;
+};
+
+const WithTezosDataLoading: FC<{ publicKeyHash: string } & PropsWithChildren> = ({ publicKeyHash, children }) => {
+  useAssetsLoading(publicKeyHash);
+  useMetadataLoading(publicKeyHash);
+  useBalancesLoading(publicKeyHash);
+  useCollectiblesDetailsLoading(publicKeyHash);
 
   return <>{children}</>;
 };
