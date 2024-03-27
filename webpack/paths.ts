@@ -35,6 +35,11 @@ const DEST_RELATIVE_PATHS = {
   OUTPUT_PACKED: DEST_RELATIVE_PATH_OUTPUT_PACKED
 };
 
+/** Mapping entries' names to source paths */
+const IFRAMES = {
+  'persona-ad': path.join(PATH_SOURCE, 'content-scripts/replace-ads/persona-ad.iframe.ts')
+};
+
 const PATHS = {
   CWD: PATH_CWD,
   NODE_MODULES: PATH_NODE_MODULES,
@@ -48,4 +53,4 @@ const PATHS = {
   LIBTHEMIS_WASM_FILE: PATH_LIBTHEMIS_WASM_FILE
 };
 
-export { DEST_RELATIVE_PATHS, PATHS };
+export { DEST_RELATIVE_PATHS, PATHS, IFRAMES };

@@ -6,8 +6,7 @@ import { mockPartnersPromotion } from './state.mock';
 export interface PartnersPromotionState {
   promotion: LoadableEntityState<OptimalPromotionType>;
   shouldShowPromotion: boolean;
-  promotionHidingTimestamps: Record<string, number>;
-  lastReportedPageName?: string;
+  promotionHidingTimestamps: StringRecord<number>;
 }
 
 export const partnersPromotionInitialState: PartnersPromotionState = {

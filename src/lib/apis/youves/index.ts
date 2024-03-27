@@ -1,9 +1,17 @@
 import { TezosToolkit } from '@taquito/taquito';
+import {
+  contracts,
+  AssetDefinition,
+  createEngine,
+  Storage,
+  StorageKey,
+  StorageKeyReturnType,
+  UnifiedStaking,
+  mainnetTokens,
+  mainnetNetworkConstants
+} from '@temple-wallet/youves-sdk';
 import { BigNumber } from 'bignumber.js';
 import { catchError, from, map, Observable, of } from 'rxjs';
-import { contracts, AssetDefinition, createEngine, Storage, StorageKey, StorageKeyReturnType } from 'youves-sdk';
-import { mainnetTokens, mainnetNetworkConstants } from 'youves-sdk/dist/networks.mainnet';
-import { UnifiedStaking } from 'youves-sdk/dist/staking/unified-staking';
 
 import { YOUVES_INDEXER_URL } from './constants';
 

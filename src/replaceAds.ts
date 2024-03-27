@@ -1,112 +1,30 @@
 import browser from 'webextension-polyfill';
 
-import { adRectIsSeen } from 'lib/ads/ad-rect-is-seen';
-import { getAdsActions } from 'lib/ads/get-ads-actions';
-import { AdActionType } from 'lib/ads/get-ads-actions/types';
-import { clearRulesCache, getRulesFromContentScript } from 'lib/ads/get-rules-content-script';
-import { getSlotId } from 'lib/ads/get-slot-id';
-import { makeHypelabAdElement } from 'lib/ads/make-hypelab-ad';
-import { makeTKeyAdElement } from 'lib/ads/make-tkey-ad';
 import {
   ContentScriptType,
   ADS_RULES_UPDATE_INTERVAL,
   WEBSITES_ANALYTICS_ENABLED,
-  TEMPLE_WALLET_AD_ATTRIBUTE_NAME,
-  TKEY_AD_PLACEMENT_SLUG,
-  AD_SEEN_THRESHOLD
+  TEMPLE_WALLET_AD_ATTRIBUTE_NAME
 } from 'lib/constants';
-import { delay } from 'lib/utils';
+import { fetchFromStorage } from 'lib/storage';
+
+import {
+  getRulesFromContentScript,
+  clearRulesCache,
+  getAdsActions,
+  AdActionType,
+  InsertAdAction,
+  AdMetadata,
+  overrideElementStyles,
+  observeIntersection,
+  subscribeToIframeLoadIfNecessary,
+  makeTKeyAdView,
+  makeHypelabAdView,
+  makePersonaAdView
+} from './content-scripts/replace-ads';
+import type { ReplaceElementWithAdAction } from './content-scripts/replace-ads/ads-actions/types';
 
 let processing = false;
-
-let provider: string;
-
-const loadingAdsIds = new Set();
-const loadedAdsIds = new Set();
-const alreadySentAnalyticsAdsIds = new Set();
-
-const sendExternalAdsActivity = (adId: string) => {
-  if (alreadySentAnalyticsAdsIds.has(adId)) {
-    return;
-  }
-
-  alreadySentAnalyticsAdsIds.add(adId);
-
-  const url = window.parent.location.href;
-
-  browser.runtime
-    .sendMessage({ type: ContentScriptType.ExternalAdsActivity, url, provider })
-    .catch(err => void console.error(err));
-};
-
-const subscribeToIframeLoadIfNecessary = (adId: string, element: HTMLIFrameElement) => {
-  if (loadingAdsIds.has(adId)) {
-    return;
-  }
-
-  loadingAdsIds.add(adId);
-  element.addEventListener('load', async () => {
-    Promise.race([
-      new Promise<void>((res, rej) => {
-        const messageListener = (e: MessageEvent<any>) => {
-          if (e.source !== element.contentWindow) return;
-
-          try {
-            const data = JSON.parse(e.data);
-
-            if (data.id !== adId) return;
-
-            if (data.type === 'ready') {
-              window.removeEventListener('message', messageListener);
-              res();
-            } else if (data.type === 'error') {
-              window.removeEventListener('message', messageListener);
-              rej(new Error(data.reason ?? 'Unknown error'));
-            }
-          } catch {}
-        };
-        window.addEventListener('message', messageListener);
-      }),
-      delay(30000).then(() => {
-        throw new Error('Timeout exceeded');
-      })
-    ])
-      .then(() => {
-        loadingAdsIds.delete(adId);
-        if (!loadedAdsIds.has(adId)) {
-          loadedAdsIds.add(adId);
-          const adIsSeen = adRectIsSeen(element);
-
-          if (adIsSeen) {
-            sendExternalAdsActivity(adId);
-          } else {
-            loadedAdIntersectionObserver.observe(element);
-          }
-        }
-      })
-      .catch(e => {
-        console.error(`Failed to load ad ${adId}`, e);
-        loadingAdsIds.delete(adId);
-      });
-  });
-};
-
-const loadedAdIntersectionObserver = new IntersectionObserver(
-  entries => {
-    if (entries.some(entry => entry.isIntersecting)) {
-      const elem = entries[0].target;
-
-      sendExternalAdsActivity(elem.id);
-    }
-  },
-  { threshold: AD_SEEN_THRESHOLD }
-);
-
-const overrideElementStyles = (element: HTMLElement, overrides: Record<string, string>) => {
-  for (const stylePropName in overrides) {
-    element.style.setProperty(stylePropName, overrides[stylePropName]);
-  }
-};
 
 const replaceAds = async () => {
   if (processing) return;
@@ -122,68 +40,18 @@ const replaceAds = async () => {
 
     const adsActions = await getAdsActions(adsRules);
 
-    await Promise.all(
+    await Promise.allSettled(
       adsActions.map(async action => {
-        if (action.type === AdActionType.RemoveElement) {
-          action.element.remove();
-        } else if (action.type === AdActionType.HideElement) {
-          action.element.style.setProperty('display', 'none');
-        } else {
-          const {
-            adResolution,
-            shouldUseDivWrapper,
-            divWrapperStyle = {},
-            elementStyle = {},
-            stylesOverrides = []
-          } = action;
-          stylesOverrides.sort((a, b) => a.parentDepth - b.parentDepth);
-          let stylesOverridesCurrentElement: HTMLElement | null;
-          let adElementWithWrapper: HTMLElement;
-          const slotId = getSlotId();
-          const shouldUseTKeyAd = adResolution.placementType === TKEY_AD_PLACEMENT_SLUG;
-          const adElement = shouldUseTKeyAd
-            ? makeTKeyAdElement(slotId, adResolution.width, adResolution.height, elementStyle)
-            : makeHypelabAdElement(adResolution, elementStyle);
-          if (shouldUseDivWrapper) {
-            adElementWithWrapper = document.createElement('div');
-            adElementWithWrapper.setAttribute(TEMPLE_WALLET_AD_ATTRIBUTE_NAME, 'true');
-            overrideElementStyles(adElementWithWrapper, divWrapperStyle);
-            adElementWithWrapper.appendChild(adElement);
+        try {
+          if (action.type === AdActionType.RemoveElement) {
+            action.element.remove();
+          } else if (action.type === AdActionType.HideElement) {
+            action.element.style.setProperty('display', 'none');
           } else {
-            adElementWithWrapper = adElement;
+            await processInsertAdAction(action, action.ad);
           }
-          switch (action.type) {
-            case AdActionType.ReplaceAllChildren:
-              stylesOverridesCurrentElement = action.parent;
-              action.parent.innerHTML = '';
-              action.parent.appendChild(adElementWithWrapper);
-              break;
-            case AdActionType.ReplaceElement:
-              stylesOverridesCurrentElement = action.element.parentElement;
-              action.element.replaceWith(adElementWithWrapper);
-              break;
-            default:
-              stylesOverridesCurrentElement = action.parent;
-              action.parent.insertBefore(adElementWithWrapper, action.parent.children[action.insertionIndex]);
-              break;
-          }
-          if (shouldUseTKeyAd) {
-            provider = 'Temple Wallet';
-            loadedAdIntersectionObserver.observe(adElement);
-          } else {
-            provider = 'HypeLab';
-            subscribeToIframeLoadIfNecessary(adElement.id, adElement as HTMLIFrameElement);
-          }
-          let currentParentDepth = 0;
-          stylesOverrides.forEach(({ parentDepth, style }) => {
-            while (parentDepth > currentParentDepth && stylesOverridesCurrentElement) {
-              stylesOverridesCurrentElement = stylesOverridesCurrentElement.parentElement;
-              currentParentDepth++;
-            }
-            if (stylesOverridesCurrentElement) {
-              overrideElementStyles(stylesOverridesCurrentElement, style);
-            }
-          });
+        } catch (err) {
+          console.error('Replacing an ad error:', err);
         }
       })
     );
@@ -194,10 +62,107 @@ const replaceAds = async () => {
   processing = false;
 };
 
+const processInsertAdAction = async (action: InsertAdAction, ad: AdMetadata) => {
+  const { shouldUseDivWrapper, divWrapperStyle = {} } = action;
+
+  const wrapperElement = document.createElement('div');
+  wrapperElement.setAttribute(TEMPLE_WALLET_AD_ATTRIBUTE_NAME, 'true');
+
+  if (shouldUseDivWrapper) {
+    overrideElementStyles(wrapperElement, divWrapperStyle);
+  } else {
+    wrapperElement.style.display = 'contents';
+  }
+
+  await processInsertAdActionOnce(action, ad, wrapperElement).catch(error => {
+    console.error('Inserting an ad attempt error:', error);
+
+    const nextAd = action.fallbacks.shift();
+    if (nextAd) {
+      const { ad, fallbacks, divWrapperStyle, elementStyle, stylesOverrides } = action;
+      const newAction: ReplaceElementWithAdAction = {
+        type: AdActionType.ReplaceElement,
+        element: wrapperElement,
+        ad,
+        fallbacks,
+        divWrapperStyle,
+        elementStyle,
+        stylesOverrides
+      };
+
+      return processInsertAdAction(newAction, nextAd);
+    }
+
+    const emptyAdElement = document.createElement('div');
+    emptyAdElement.setAttribute(TEMPLE_WALLET_AD_ATTRIBUTE_NAME, 'true');
+    emptyAdElement.style.display = 'none';
+    wrapperElement.replaceWith(emptyAdElement);
+
+    throw error;
+  });
+};
+
+const processInsertAdActionOnce = async (action: InsertAdAction, ad: AdMetadata, wrapperElement: HTMLDivElement) => {
+  const { source, dimensions } = ad;
+
+  const { elementStyle = {}, stylesOverrides = [] } = action;
+
+  stylesOverrides.sort((a, b) => a.parentDepth - b.parentDepth);
+
+  let stylesOverridesCurrentElement: HTMLElement | null;
+
+  const { providerName } = source;
+
+  const { element: adElement, postAppend } =
+    providerName === 'Temple'
+      ? makeTKeyAdView(dimensions.width, dimensions.height, elementStyle)
+      : providerName === 'HypeLab'
+      ? makeHypelabAdView(source, dimensions, elementStyle)
+      : makePersonaAdView(source.shape, dimensions, elementStyle);
+
+  adElement.setAttribute(TEMPLE_WALLET_AD_ATTRIBUTE_NAME, 'true');
+  wrapperElement.appendChild(adElement);
+
+  switch (action.type) {
+    case AdActionType.ReplaceAllChildren:
+      stylesOverridesCurrentElement = action.parent;
+      action.parent.innerHTML = '';
+      action.parent.appendChild(wrapperElement);
+      break;
+    case AdActionType.ReplaceElement:
+      stylesOverridesCurrentElement = action.element.parentElement;
+      action.element.replaceWith(wrapperElement);
+      break;
+    default:
+      stylesOverridesCurrentElement = action.parent;
+      action.parent.insertBefore(wrapperElement, action.parent.children[action.insertionIndex]);
+      break;
+  }
+
+  if (postAppend) await postAppend();
+
+  if (adElement instanceof HTMLIFrameElement) {
+    await subscribeToIframeLoadIfNecessary(adElement.id, source.providerName, adElement);
+  } else {
+    observeIntersection(adElement, source.providerName);
+  }
+
+  let currentParentDepth = 0;
+  stylesOverrides.forEach(({ parentDepth, style }) => {
+    while (parentDepth > currentParentDepth && stylesOverridesCurrentElement) {
+      stylesOverridesCurrentElement = stylesOverridesCurrentElement.parentElement;
+      currentParentDepth++;
+    }
+    if (stylesOverridesCurrentElement) {
+      overrideElementStyles(stylesOverridesCurrentElement, style);
+    }
+  });
+};
+
 // Prevents the script from running in an Iframe
 if (window.frameElement === null) {
-  browser.storage.local.get(WEBSITES_ANALYTICS_ENABLED).then(storage => {
-    if (storage[WEBSITES_ANALYTICS_ENABLED]) {
+  fetchFromStorage<boolean>(WEBSITES_ANALYTICS_ENABLED).then(enabled => {
+    if (enabled) {
       // Replace ads with ours
       window.addEventListener('load', () => replaceAds());
       window.addEventListener('ready', () => replaceAds());

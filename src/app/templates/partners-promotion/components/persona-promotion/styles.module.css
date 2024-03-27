@@ -1,0 +1,14 @@
+.container > div {
+  display: block !important;
+  height: 100% !important;
+  max-width: 100% !important;
+}
+
+.container > div > a:global.persona-product > img {
+  width: unset !important;
+  height: 100% !important;
+}
+
+.container > div > a[data-test=persona-watermark] {
+  display: none;
+}

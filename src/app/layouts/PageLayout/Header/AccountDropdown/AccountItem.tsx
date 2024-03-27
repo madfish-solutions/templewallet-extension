@@ -58,7 +58,7 @@ export const AccountItem: React.FC<AccountItemProps> = ({ account, selected, gas
           <HashShortView hash={publicKeyHash} />
         </div>
 
-        <div className="flex flex-wrap items-end">
+        <div className="flex flex-wrap items-center">
           <Balance address={publicKeyHash}>
             {bal => (
               <span className="text-xs leading-tight flex items-baseline text-gray-500">

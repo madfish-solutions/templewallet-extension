@@ -1,10 +1,6 @@
-import { BannerElement, NativeElement } from '@hypelab/sdk-react';
+import { HypelabBannerAd } from '../../types';
 
-import { HypelabBannerAd, HypelabNativeAd } from '../../types';
-
-export function getHypelabAd(element: BannerElement): HypelabBannerAd | null;
-export function getHypelabAd(element: NativeElement): HypelabNativeAd | null;
-export function getHypelabAd(element: BannerElement | NativeElement): HypelabBannerAd | HypelabNativeAd | null {
+export function getHypelabBannerAd(element: HTMLElement): HypelabBannerAd | null {
   // @ts-expect-error
   return element.ad;
 }

@@ -1,5 +1,6 @@
 import React, { FC, useEffect, useState, useMemo } from 'react';
 
+import { isDefined } from '@rnw-community/shared';
 import classNames from 'clsx';
 import { useDebounce } from 'use-debounce';
 
@@ -9,29 +10,18 @@ import styles from 'app/pages/Buy/Crypto/Exolix/Exolix.module.css';
 import ErrorComponent from 'app/pages/Buy/Crypto/Exolix/steps/ErrorComponent';
 import WarningComponent from 'app/pages/Buy/Crypto/Exolix/steps/WarningComponent';
 import { TopUpInput } from 'app/templates/TopUpInput';
-import { useAssetUSDPrice } from 'lib/fiat-currency';
-import { T } from 'lib/i18n';
+import { T, t } from 'lib/i18n';
 import { useTypedSWR } from 'lib/swr';
 import { useAccount } from 'lib/temple/front';
 
-import { EXOLIX_PRIVICY_LINK, EXOLIX_TERMS_LINK, outputTokensList } from '../config';
+import { EXOLIX_PRIVICY_LINK, EXOLIX_TERMS_LINK, INITIAL_COIN_FROM, INITIAL_COIN_TO } from '../config';
 import { ExchangeDataInterface, ExchangeDataStatusEnum, OutputCurrencyInterface } from '../exolix.interface';
 import { ExolixSelectors } from '../Exolix.selectors';
-import { getCurrencies, queryExchange, submitExchange } from '../exolix.util';
+import { getCurrencies, loadMinMaxFields, queryExchange, submitExchange } from '../exolix.util';
 import { useCurrenciesCount } from '../hooks/useCurrenciesCount.hook';
 
-const INITIAL_COIN_FROM = {
-  code: 'BTC',
-  name: 'Bitcoin',
-  icon: 'https://exolix.com/icons/coins/BTC.png',
-  network: {
-    code: 'BTC',
-    fullName: 'Bitcoin'
-  }
-};
-const MAX_DOLLAR_VALUE = 10_000;
-const AVERAGE_COMMISSION = 300;
 const VALUE_PLACEHOLDER = '---';
+const EXOLIX_DECIMALS = 8;
 
 interface Props {
   exchangeData: ExchangeDataInterface | null;
@@ -45,16 +35,33 @@ const InitialStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
   const { publicKeyHash } = useAccount();
 
   const [coinFrom, setCoinFrom] = useState<OutputCurrencyInterface>(INITIAL_COIN_FROM);
-  const [coinTo, setCoinTo] = useState<OutputCurrencyInterface>(outputTokensList[0]!);
+  const [coinTo, setCoinTo] = useState<OutputCurrencyInterface>(INITIAL_COIN_TO);
 
   const [amount, setAmount] = useState<number | undefined>();
-  const [maxAmountFetched, setMaxAmountFetched] = useState<number | nullish>();
+  const [minAmount, setMinAmount] = useState<number | nullish>();
+  const [maxAmount, setMaxAmount] = useState<number | nullish>();
 
   const [debouncedAmount] = useDebounce(amount, 500);
 
-  const coinToPriceUSD = useAssetUSDPrice(coinTo.slug!);
+  const { data: allCurrencies, isValidating: isCurrenciesLoading } = useTypedSWR(
+    ['exolix/api/currencies'],
+    getCurrencies
+  );
 
-  const { data: currencies, isValidating: isCurrenciesLoading } = useTypedSWR(['exolix/api/currencies'], getCurrencies);
+  const { inputCurrencies, outputCurrencies } = useMemo(() => {
+    const inputCurrencies: OutputCurrencyInterface[] = [];
+    const outputCurrencies: OutputCurrencyInterface[] = [];
+
+    allCurrencies?.forEach(currency => {
+      if (currency.network.code === 'XTZ') {
+        outputCurrencies.push(currency);
+      } else {
+        inputCurrencies.push(currency);
+      }
+    });
+
+    return { inputCurrencies, outputCurrencies };
+  }, [allCurrencies]);
 
   const currenciesCount = useCurrenciesCount();
 
@@ -92,34 +99,22 @@ const InitialStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
     })
   );
 
-  const { rate, minAmount, toAmount } = ratesData || { rate: null, minAmount: 0, toAmount: 0 };
+  const { rate, toAmount } = ratesData || { rate: null, toAmount: 0 };
 
   useEffect(() => {
-    setMaxAmountFetched(undefined);
-    (async (): Promise<void> => {
-      const maxCoinToAmount = (MAX_DOLLAR_VALUE + AVERAGE_COMMISSION) / (coinToPriceUSD ?? 0);
-
-      if (!Number.isFinite(maxCoinToAmount)) return void setMaxAmountFetched(null);
-
-      const { toAmount: maxCoinFromAmount } = await queryExchange({
-        coinFrom: coinTo.code,
-        coinFromNetwork: coinTo.network.code,
-        amount: maxCoinToAmount,
-        coinTo: coinFrom.code,
-        coinToNetwork: coinFrom.network.code
-      });
-
-      setMaxAmountFetched(maxCoinFromAmount);
+    (async () => {
+      const { finalMinAmount, finalMaxAmount } = await loadMinMaxFields(
+        coinFrom.code,
+        coinFrom.network?.code,
+        coinTo.code,
+        coinTo.network?.code
+      );
+      setMinAmount(finalMinAmount);
+      setMaxAmount(finalMaxAmount);
     })();
-  }, [coinFrom, coinTo, coinToPriceUSD]);
+  }, [coinFrom, coinTo]);
 
-  const maxAmount = useMemo(() => {
-    if (ratesData == null || maxAmountFetched == null) return;
-    if (maxAmountFetched < minAmount) return null;
-    return maxAmountFetched;
-  }, [ratesData, maxAmountFetched, minAmount]);
-
-  const isMinAmountError = minAmount > Number(amount);
+  const isMinAmountError = isDefined(minAmount) && minAmount > Number(amount);
   const isMaxAmountError = maxAmount != null && debouncedAmount !== 0 && Number(debouncedAmount) > maxAmount;
 
   const proceedForbidden = useMemo(() => {
@@ -140,8 +135,8 @@ const InitialStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
       />
     );
 
-  const minAmountString = minAmount == null ? '0' : String(minAmount);
-  const maxAmountString = maxAmount === null ? ' ∞' : maxAmount == null ? VALUE_PLACEHOLDER : String(maxAmount);
+  const minAmountString = isDefined(minAmount) ? String(minAmount) : VALUE_PLACEHOLDER;
+  const maxAmountString = isDefined(maxAmount) ? String(maxAmount) : VALUE_PLACEHOLDER;
 
   return (
     <>
@@ -160,9 +155,11 @@ const InitialStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
       <TopUpInput
         amount={amount}
         currency={coinFrom}
-        currenciesList={currencies ?? []}
+        currenciesList={inputCurrencies}
         isCurrenciesLoading={isCurrenciesLoading}
+        decimals={EXOLIX_DECIMALS}
         label={<T id="send" />}
+        emptyListPlaceholder={t('dropdownNoItems')}
         onCurrencySelect={setCoinFrom}
         onAmountChange={setAmount}
         minAmount={minAmountString}
@@ -176,8 +173,11 @@ const InitialStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
 
       <TopUpInput
         currency={coinTo}
-        currenciesList={outputTokensList}
+        currenciesList={outputCurrencies}
+        isCurrenciesLoading={isCurrenciesLoading}
+        decimals={EXOLIX_DECIMALS}
         label={<T id="get" />}
+        emptyListPlaceholder={t('dropdownNoItems')}
         readOnly={true}
         amountInputDisabled={true}
         amount={toAmount}

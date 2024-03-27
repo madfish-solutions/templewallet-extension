@@ -1,59 +1,64 @@
-import React, { FC, useEffect, useRef, useState } from 'react';
+import React, { FC, useEffect, useRef } from 'react';
 
-import { Native, NativeElement } from '@hypelab/sdk-react';
+import { Native } from '@hypelab/sdk-react';
 
 import { useAdTimeout } from 'app/hooks/ads/use-ad-timeout';
 import { useElementValue } from 'app/hooks/ads/use-element-value';
+import { AdsProviderTitle } from 'lib/ads';
 import { EnvVars } from 'lib/env';
 
-import { SingleProviderPromotionProps, HypelabNativeAd } from '../../types';
+import { SingleProviderPromotionProps } from '../../types';
 import { TextPromotionView } from '../text-promotion-view';
 
-import { getHypelabAd } from './get-hypelab-ad';
-
 const getInnerText = (element: HTMLSpanElement) => element.innerText;
+const getLinkHref = (element: HTMLAnchorElement) => element.href;
+const getImageSrc = (element: HTMLImageElement) => element.src;
 
 const innerTextObserverOptions = { childList: true };
+const attributesObserverOptions = { attributes: true };
 
 const dummyImageSrc =
   'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==';
 
 export const HypelabTextPromotion: FC<Omit<SingleProviderPromotionProps, 'variant'>> = ({
-  providerTitle,
-  pageName,
   isVisible,
+  pageName,
   onAdRectSeen,
   onClose,
   onReady,
   onError
 }) => {
   const hypelabHeadlineRef = useRef<HTMLSpanElement>(null);
-  const hypelabNativeElementRef = useRef<NativeElement>(null);
+  const hypelabBodyRef = useRef<HTMLSpanElement>(null);
+  const hypelabCtaLinkRef = useRef<HTMLAnchorElement>(null);
+  const hypelabIconRef = useRef<HTMLImageElement>(null);
 
-  const [currentAd, setCurrentAd] = useState<HypelabNativeAd | null>(null);
   const headlineText = useElementValue(hypelabHeadlineRef, getInnerText, '', innerTextObserverOptions);
+  const bodyText = useElementValue(hypelabBodyRef, getInnerText, '', innerTextObserverOptions);
+  const ctaUrl = useElementValue(hypelabCtaLinkRef, getLinkHref, '/', attributesObserverOptions);
+  const iconUrl = useElementValue(hypelabIconRef, getImageSrc, dummyImageSrc, attributesObserverOptions);
   const adIsReady = headlineText.length > 0;
 
   useAdTimeout(adIsReady, onError);
 
-  useEffect(() => {
-    if (adIsReady) {
-      setCurrentAd(getHypelabAd(hypelabNativeElementRef.current!) as unknown as HypelabNativeAd);
-      onReady();
-    }
-  }, [adIsReady, onReady]);
+  useEffect(() => void (adIsReady && onReady()), [adIsReady, onReady]);
 
   return (
-    <Native placement={EnvVars.HYPELAB_NATIVE_PLACEMENT_SLUG} ref={hypelabNativeElementRef}>
+    <Native placement={EnvVars.HYPELAB_NATIVE_PLACEMENT_SLUG} onError={onError}>
       <span className="hidden" ref={hypelabHeadlineRef} data-ref="headline" />
+      <span className="hidden" ref={hypelabBodyRef} data-ref="body" />
+      <a className="hidden" ref={hypelabCtaLinkRef} href="/" data-ref="ctaLink">
+        <img className="hidden" ref={hypelabIconRef} data-ref="icon" alt="" />
+      </a>
+
       <TextPromotionView
-        pageName={pageName}
-        providerTitle={providerTitle}
-        href={currentAd?.cta_url ?? '/'}
-        imageSrc={currentAd?.creative_set.icon.url ?? dummyImageSrc}
+        href={ctaUrl || '/'}
+        imageSrc={iconUrl || dummyImageSrc}
         isVisible={isVisible}
-        headline={currentAd?.headline ?? ''}
-        contentText={currentAd?.body}
+        headline={headlineText}
+        contentText={bodyText}
+        providerTitle={AdsProviderTitle.HypeLab}
+        pageName={pageName}
         onAdRectSeen={onAdRectSeen}
         onImageError={onError}
         onClose={onClose}
