@@ -3,8 +3,10 @@ import React, { FC, useMemo } from 'react';
 import classNames from 'clsx';
 
 import Name from 'app/atoms/Name';
-import { T, t } from 'lib/i18n';
-import { useAllNetworks } from 'lib/temple/front';
+import { T } from 'lib/i18n';
+import { useAllTezosNetworks } from 'temple/front';
+import { getNetworkTitle } from 'temple/front/networks';
+import { HIDDEN_TEZOS_NETWORKS } from 'temple/networks';
 
 type NetworkBannerProps = {
   rpc: string;
@@ -12,8 +14,12 @@ type NetworkBannerProps = {
 };
 
 const NetworkBanner: FC<NetworkBannerProps> = ({ rpc, narrow = false }) => {
-  const allNetworks = useAllNetworks();
-  const knownNetwork = useMemo(() => allNetworks.find(n => n.rpcBaseURL === rpc), [allNetworks, rpc]);
+  const networks = useAllTezosNetworks();
+
+  const knownNetwork = useMemo(
+    () => networks.find(n => n.rpcBaseURL === rpc) || HIDDEN_TEZOS_NETWORKS.find(n => n.rpcBaseURL === rpc),
+    [networks, rpc]
+  );
 
   return (
     <div className={classNames('flex flex-col w-full', narrow ? '-mt-1 mb-2' : 'mb-4')}>
@@ -31,9 +37,7 @@ const NetworkBanner: FC<NetworkBannerProps> = ({ rpc, narrow = false }) => {
               }}
             />
 
-            <span className="text-gray-700 text-sm">
-              {knownNetwork.nameI18nKey ? t(knownNetwork.nameI18nKey) : knownNetwork.name}
-            </span>
+            <span className="text-gray-700 text-sm">{getNetworkTitle(knownNetwork)}</span>
           </div>
         ) : (
           <div className="w-full mb-1 flex items-center">

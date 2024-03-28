@@ -5,16 +5,16 @@ import { useDispatch } from 'react-redux';
 import { putCollectiblesMetadataAction } from 'app/store/collectibles-metadata/actions';
 import { useAllCollectiblesMetadataSelector } from 'app/store/collectibles-metadata/selectors';
 import { loadTokensMetadata } from 'lib/metadata/fetch';
-import { useNetwork } from 'lib/temple/front';
 import { useDidMount, useDidUpdate } from 'lib/ui/hooks';
 import { setNavigateSearchParams } from 'lib/woozie';
+import { useTezosNetwork } from 'temple/front';
 
 export const ITEMS_PER_PAGE = 30;
 
 export const useCollectiblesPaginationLogic = (allSlugsSorted: string[], initialSize: number) => {
   const allMeta = useAllCollectiblesMetadataSelector();
 
-  const { rpcBaseURL: rpcUrl } = useNetwork();
+  const { rpcUrl } = useTezosNetwork();
   const dispatch = useDispatch();
 
   const [slugs, setSlugs] = useState<string[]>(() => allSlugsSorted.slice(0, initialSize));

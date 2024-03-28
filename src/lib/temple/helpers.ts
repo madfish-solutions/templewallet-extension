@@ -1,20 +1,6 @@
 import { ManagerKeyResponse } from '@taquito/rpc';
-import { MichelCodecPacker } from '@taquito/taquito';
 import { validateAddress, ValidationResult } from '@taquito/utils';
 import BigNumber from 'bignumber.js';
-import memoizee from 'memoizee';
-
-import { FastRpcClient } from 'lib/taquito-fast-rpc';
-
-export const loadFastRpcClient = memoizee((rpc: string) => new FastRpcClient(rpc), { max: 5 });
-
-export const michelEncoder = new MichelCodecPacker();
-
-export function loadChainId(rpcUrl: string) {
-  const rpc = loadFastRpcClient(rpcUrl);
-
-  return rpc.getChainId();
-}
 
 export function hasManager(manager: ManagerKeyResponse) {
   return manager && typeof manager === 'object' ? !!manager.key : !!manager;

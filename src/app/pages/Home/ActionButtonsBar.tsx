@@ -12,11 +12,11 @@ import { ReactComponent as WithdrawIcon } from 'app/icons/withdraw.svg';
 import { buildSwapPageUrlQuery } from 'app/pages/Swap/utils/build-url-query';
 import { TestIDProps } from 'lib/analytics';
 import { TID, T, t } from 'lib/i18n';
-import { useAccount, useNetwork } from 'lib/temple/front';
-import { TempleAccountType, TempleNetworkType } from 'lib/temple/types';
+import { TempleAccountType } from 'lib/temple/types';
 import useTippy from 'lib/ui/useTippy';
 import { createUrl, Link, To } from 'lib/woozie';
 import { createLocationState } from 'lib/woozie/location';
+import { useAccount, useTezosNetwork } from 'temple/front';
 
 import { HomeSelectors } from './Home.selectors';
 
@@ -27,15 +27,13 @@ const tippyPropsMock = {
   animation: 'shift-away-subtle'
 };
 
-const NETWORK_TYPES_WITH_BUY_BUTTON: TempleNetworkType[] = ['main', 'dcp'];
-
 interface Props {
   assetSlug: string | nullish;
 }
 
 export const ActionButtonsBar = memo<Props>(({ assetSlug }) => {
   const account = useAccount();
-  const network = useNetwork();
+  const { isMainnet, isDcp } = useTezosNetwork();
 
   const canSend = account.type !== TempleAccountType.WatchOnly;
   const sendLink = assetSlug ? `/send/${assetSlug}` : '/send';
@@ -55,9 +53,9 @@ export const ActionButtonsBar = memo<Props>(({ assetSlug }) => {
       <ActionButton
         labelI18nKey="buyButton"
         Icon={BuyIcon}
-        to={network.type === 'dcp' ? 'https://buy.chainbits.com' : '/buy'}
-        isAnchor={network.type === 'dcp'}
-        disabled={!NETWORK_TYPES_WITH_BUY_BUTTON.includes(network.type)}
+        to={isDcp ? 'https://buy.chainbits.com' : '/buy'}
+        isAnchor={isDcp}
+        disabled={!(isDcp || isMainnet)}
         testID={HomeSelectors.buyButton}
       />
       <ActionButton
@@ -72,7 +70,7 @@ export const ActionButtonsBar = memo<Props>(({ assetSlug }) => {
         labelI18nKey="withdraw"
         Icon={WithdrawIcon}
         to="/withdraw"
-        disabled={!canSend || network.type !== 'main'}
+        disabled={!canSend || !isMainnet}
         testID={HomeSelectors.withdrawButton}
       />
       <ActionButton

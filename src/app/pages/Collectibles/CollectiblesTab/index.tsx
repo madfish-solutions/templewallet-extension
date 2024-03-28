@@ -24,11 +24,12 @@ import { useEnabledAccountCollectiblesSlugs } from 'lib/assets/hooks';
 import { AssetTypesEnum } from 'lib/assets/types';
 import { useCollectiblesSortPredicate } from 'lib/assets/use-sorting';
 import { T, t } from 'lib/i18n';
-import { useAccount, useChainId } from 'lib/temple/front';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import { useLocalStorage } from 'lib/ui/local-storage';
 import Popper, { PopperChildren, PopperPopup, PopperRenderProps } from 'lib/ui/Popper';
 import { Link } from 'lib/woozie';
+import { UNDER_DEVELOPMENT_MSG } from 'temple/evm/under_dev_msg';
+import { useAccountAddressForTezos, useTezosNetwork } from 'temple/front';
 
 import { CollectibleItem } from './CollectibleItem';
 import { CollectibleTabSelectors } from './selectors';
@@ -38,9 +39,22 @@ interface Props {
 }
 
 export const CollectiblesTab = memo<Props>(({ scrollToTheTabsBar }) => {
+  const accountTezAddress = useAccountAddressForTezos();
+
+  return accountTezAddress ? (
+    <TezosCollectiblesTab publicKeyHash={accountTezAddress} scrollToTheTabsBar={scrollToTheTabsBar} />
+  ) : (
+    <div className="w-full max-w-sm mx-auto py-3 text-center">{UNDER_DEVELOPMENT_MSG}</div>
+  );
+});
+
+interface TezosCollectiblesTabProps extends Props {
+  publicKeyHash: string;
+}
+
+const TezosCollectiblesTab = memo<TezosCollectiblesTabProps>(({ publicKeyHash, scrollToTheTabsBar }) => {
   const { popup } = useAppEnv();
-  const { publicKeyHash } = useAccount();
-  const chainId = useChainId()!;
+  const { chainId } = useTezosNetwork();
 
   const [areDetailsShown, setDetailsShown] = useLocalStorage(LOCAL_STORAGE_SHOW_INFO_TOGGLE_KEY, false);
   const toggleDetailsShown = useCallback(() => void setDetailsShown(val => !val), [setDetailsShown]);
@@ -48,9 +62,9 @@ export const CollectiblesTab = memo<Props>(({ scrollToTheTabsBar }) => {
   const [adultBlur, setAdultBlur] = useLocalStorage(LOCAL_STORAGE_ADULT_BLUR_TOGGLE_KEY, true);
   const toggleAdultBlur = useCallback(() => void setAdultBlur(val => !val), [setAdultBlur]);
 
-  const allSlugs = useEnabledAccountCollectiblesSlugs();
+  const allSlugs = useEnabledAccountCollectiblesSlugs(publicKeyHash);
 
-  const assetsSortPredicate = useCollectiblesSortPredicate();
+  const assetsSortPredicate = useCollectiblesSortPredicate(publicKeyHash);
 
   const allSlugsSorted = useMemoWithCompare(
     () => [...allSlugs].sort(assetsSortPredicate),

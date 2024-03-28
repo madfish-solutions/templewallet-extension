@@ -13,7 +13,6 @@ import { createOrder as createUtorgOrder } from 'lib/apis/utorg';
 import { TopUpProviderId } from 'lib/buy-with-credit-card/top-up-provider-id.enum';
 import { TopUpInputInterface, TopUpOutputInterface } from 'lib/buy-with-credit-card/topup.interface';
 import { useYupValidationResolver } from 'lib/form/use-yup-validation-resolver';
-import { useAccount } from 'lib/temple/front';
 import { assertUnreachable } from 'lib/utils/switch-cases';
 
 import { AmountErrorType } from '../types/amount-error-type';
@@ -53,12 +52,11 @@ const validationSchema = objectSchema().shape({
   topUpProvider: objectSchema().required()
 });
 
-export const useBuyWithCreditCardForm = () => {
+export const useBuyWithCreditCardForm = (publicKeyHash: string) => {
   const { trackEvent } = useAnalytics();
   const validationResolver = useYupValidationResolver<BuyWithCreditCardFormValues>(validationSchema);
 
   const formAnalytics = useFormAnalytics('BuyWithCreditCardForm');
-  const { publicKeyHash } = useAccount();
   const userId = useUserIdSelector();
 
   const [purchaseLinkLoading, setPurchaseLinkLoading] = useState(false);

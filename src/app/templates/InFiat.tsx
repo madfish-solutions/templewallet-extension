@@ -6,7 +6,7 @@ import BigNumber from 'bignumber.js';
 import Money from 'app/atoms/Money';
 import { TestIDProps } from 'lib/analytics';
 import { useAssetFiatCurrencyPrice, useFiatCurrency } from 'lib/fiat-currency';
-import { useNetwork } from 'lib/temple/front';
+import { useTezosNetwork } from 'temple/front';
 
 interface OutputProps {
   balance: ReactNode;
@@ -38,10 +38,10 @@ const InFiat: FC<InFiatProps> = ({
 }) => {
   const price = useAssetFiatCurrencyPrice(assetSlug ?? 'tez');
   const { selectedFiatCurrency } = useFiatCurrency();
-  const walletNetwork = useNetwork();
+  const { isMainnet } = useTezosNetwork();
 
   if (mainnet === undefined) {
-    mainnet = walletNetwork.type === 'main';
+    mainnet = isMainnet;
   }
 
   const roundedInFiat = useMemo(() => {

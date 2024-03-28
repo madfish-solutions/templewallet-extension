@@ -1,36 +1,13 @@
 export { useStorage } from './storage';
 
-export { useTempleClient, request, assertResponse } from './client';
-
-export {
-  ReactiveTezosToolkit,
-  useAllNetworks,
-  useSetNetworkId,
-  useNetwork,
-  useAllAccounts,
-  useSetAccountPkh,
-  useAccount,
-  useAccountPkh,
-  useSettings,
-  useTezos,
-  useChainId,
-  useRelevantAccounts,
-  useChainIdValue,
-  useChainIdLoading
-} from './ready';
+export { useTempleClient } from './client';
 
 export { validateDerivationPath, validateContractAddress } from './helpers';
 
-export { useBlockTriggers, useOnBlock } from './chain';
-
 export { useContactsActions, searchContacts } from './address-book';
-
-export { useTezosDomainsClient, isDomainNameValid } from './tzdns';
 
 export type { Baker } from './baking';
 export { getRewardsStats, useKnownBaker, useKnownBakers, useDelegate } from './baking';
-
-export { activateAccount } from './activate-account';
 
 export type { BlockExplorer } from './blockexplorer';
 export { BLOCK_EXPLORERS, useBlockExplorer, useExplorerBaseUrls } from './blockexplorer';

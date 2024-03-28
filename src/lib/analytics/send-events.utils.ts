@@ -1,6 +1,6 @@
 import { AnalyticsEventCategory } from 'lib/temple/analytics-types';
-import { assertResponse, request } from 'lib/temple/front/client';
 import { TempleMessageType } from 'lib/temple/types';
+import { assertResponse, makeIntercomRequest } from 'temple/front/intercom-client';
 
 export const sendTrackEvent = async (
   userId: string,
@@ -9,7 +9,7 @@ export const sendTrackEvent = async (
   category: AnalyticsEventCategory = AnalyticsEventCategory.General,
   properties?: object
 ) => {
-  const res = await request({
+  const res = await makeIntercomRequest({
     type: TempleMessageType.SendTrackEventRequest,
     userId,
     rpc,
@@ -27,7 +27,7 @@ export const sendPageEvent = async (
   search: string,
   additionalProperties = {}
 ) => {
-  const res = await request({
+  const res = await makeIntercomRequest({
     type: TempleMessageType.SendPageEventRequest,
     userId,
     rpc,

@@ -11,11 +11,12 @@ import { isTruthy } from 'lib/utils';
 import { AssetsMenuSelectors } from './selectors';
 
 interface Props {
+  accountPkh: string;
   assetSlug: string;
   selected?: boolean;
 }
 
-export const AssetOption: FC<Props> = ({ assetSlug, selected }) => {
+export const AssetOption: FC<Props> = ({ assetSlug, selected, accountPkh }) => {
   const assetMetadata = useAssetMetadata(assetSlug);
 
   if (!isTruthy(assetMetadata)) return null;
@@ -31,7 +32,7 @@ export const AssetOption: FC<Props> = ({ assetSlug, selected }) => {
     >
       <AssetIcon assetSlug={assetSlug} size={32} className="mx-2" />
 
-      <AssetItemContent slug={assetSlug} metadata={assetMetadata} />
+      <AssetItemContent slug={assetSlug} metadata={assetMetadata} publicKeyHash={accountPkh} />
     </div>
   );
 };

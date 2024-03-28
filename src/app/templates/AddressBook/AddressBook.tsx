@@ -7,11 +7,12 @@ import { Name, Identicon, FormField, FormSubmitButton, HashChip, SubTitle } from
 import { ReactComponent as CloseIcon } from 'app/icons/close.svg';
 import { setAnotherSelector, setTestID } from 'lib/analytics';
 import { t, T } from 'lib/i18n';
-import { isDomainNameValid, useTezosDomainsClient, useContactsActions, useFilteredContacts } from 'lib/temple/front';
+import { useContactsActions, useFilteredContacts } from 'lib/temple/front';
 import { isAddressValid } from 'lib/temple/helpers';
 import { TempleContact } from 'lib/temple/types';
 import { useConfirm } from 'lib/ui/dialog';
 import { delay } from 'lib/utils';
+import { isTezosDomainsNameValid, useTezosDomainsClient } from 'temple/front/tezos';
 
 import CustomSelect, { OptionRenderProps } from '../CustomSelect';
 
@@ -23,8 +24,9 @@ type ContactActions = {
 
 const AddressBook: React.FC = () => {
   const { removeContact } = useContactsActions();
-  const { allContacts } = useFilteredContacts();
   const confirm = useConfirm();
+
+  const { allContacts } = useFilteredContacts();
 
   const handleRemoveContactClick = useCallback(
     async (address: string) => {
@@ -112,7 +114,7 @@ const AddNewContactForm: React.FC<{ className?: string }> = ({ className }) => {
       try {
         clearError();
 
-        if (isDomainNameValid(address, domainsClient)) {
+        if (isTezosDomainsNameValid(address, domainsClient)) {
           const resolved = await domainsClient.resolver.resolveNameToAddress(address);
           if (!resolved) {
             throw new Error(t('domainDoesntResolveToAddress', address));
@@ -144,7 +146,7 @@ const AddNewContactForm: React.FC<{ className?: string }> = ({ className }) => {
         return t('required');
       }
 
-      if (isDomainNameValid(value, domainsClient)) {
+      if (isTezosDomainsNameValid(value, domainsClient)) {
         const resolved = await domainsClient.resolver.resolveNameToAddress(value);
         if (!resolved) {
           return t('domainDoesntResolveToAddress', value);

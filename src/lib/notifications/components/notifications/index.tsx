@@ -1,10 +1,9 @@
 import React, { useCallback } from 'react';
 
-import { useDispatch } from 'react-redux';
-
 import { DataPlaceholder } from 'app/atoms';
 import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
 import PageLayout from 'app/layouts/PageLayout';
+import { dispatch } from 'app/store';
 import { useShouldShowPartnersPromoSelector } from 'app/store/partners-promotion/selectors';
 import { PartnersPromotion, PartnersPromotionVariant } from 'app/templates/partners-promotion';
 import { T } from 'lib/i18n';
@@ -19,11 +18,10 @@ import { NotificationPreviewItem } from './preview-item';
 const VIEW_ALL_NOTIFICATIONS_TIMEOUT = 5 * 1000;
 
 export const Notifications = () => {
-  const dispatch = useDispatch();
   const notifications = useNotificationsSelector();
   const shouldShowPartnersPromoState = useShouldShowPartnersPromoSelector();
 
-  const viewAllNotifications = useCallback(() => void dispatch(viewAllNotificationsAction()), [dispatch]);
+  const viewAllNotifications = useCallback(() => void dispatch(viewAllNotificationsAction()), []);
 
   useTimeout(viewAllNotifications, VIEW_ALL_NOTIFICATIONS_TIMEOUT, true, [notifications]);
   useLoadPartnersPromo();

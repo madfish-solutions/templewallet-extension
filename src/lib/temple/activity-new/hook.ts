@@ -1,18 +1,14 @@
 import { isKnownChainId } from 'lib/apis/tzkt/api';
-import { useTezos, useChainId, useAccount } from 'lib/temple/front';
 import { useDidMount, useDidUpdate, useSafeState, useStopper } from 'lib/ui/hooks';
+import { useTezosNetwork } from 'temple/front';
 
 import fetchActivities from './fetch';
 import type { Activity } from './types';
 
 type TLoading = 'init' | 'more' | false;
 
-export default function useActivities(initialPseudoLimit: number, assetSlug?: string) {
-  const tezos = useTezos();
-  const chainId = useChainId(true);
-  const account = useAccount();
-
-  const accountAddress = account.publicKeyHash;
+export default function useTezosActivities(accountAddress: string, initialPseudoLimit: number, assetSlug?: string) {
+  const { chainId, rpcUrl } = useTezosNetwork();
 
   const [loading, setLoading] = useSafeState<TLoading>(isKnownChainId(chainId) && 'init');
   const [activities, setActivities] = useSafeState<Activity[]>([]);
@@ -32,7 +28,7 @@ export default function useActivities(initialPseudoLimit: number, assetSlug?: st
 
     let newActivities: Activity[];
     try {
-      newActivities = await fetchActivities(chainId, account, assetSlug, pseudoLimit, tezos, lastActivity);
+      newActivities = await fetchActivities(chainId, rpcUrl, accountAddress, assetSlug, pseudoLimit, lastActivity);
       if (shouldStop()) return;
     } catch (error) {
       if (shouldStop()) return;

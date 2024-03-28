@@ -13,10 +13,13 @@ import { useFormAnalytics } from 'lib/analytics';
 import { getOneUserContracts, TzktRelatedContract, isKnownChainId } from 'lib/apis/tzkt';
 import { T, t } from 'lib/i18n';
 import { useRetryableSWR } from 'lib/swr';
-import { useRelevantAccounts, useTezos, useTempleClient, useChainId } from 'lib/temple/front';
+import { useTempleClient } from 'lib/temple/front';
 import { isAddressValid } from 'lib/temple/helpers';
 import { TempleAccountType } from 'lib/temple/types';
-import { delay } from 'lib/utils';
+import { isTruthy } from 'lib/utils';
+import { getAccountForTezos } from 'temple/accounts';
+import { useTezosNetwork, useRelevantAccounts } from 'temple/front';
+import { getReadOnlyTezos } from 'temple/tezos';
 
 import { ImportAccountSelectors, ImportAccountFormType } from './selectors';
 
@@ -27,27 +30,33 @@ type ImportKTAccountFormData = {
 const getContractAddress = (contract: TzktRelatedContract) => contract.address;
 
 export const ManagedKTForm: FC = () => {
-  const accounts = useRelevantAccounts();
-  const tezos = useTezos();
   const { importKTManagedAccount } = useTempleClient();
+
+  const { chainId, rpcUrl } = useTezosNetwork();
+
+  const relevantAccounts = useRelevantAccounts(chainId);
+  const tezosAccounts = useMemo(
+    () => relevantAccounts.map(acc => getAccountForTezos(acc)).filter(isTruthy),
+    [relevantAccounts]
+  );
+
   const formAnalytics = useFormAnalytics(ImportAccountFormType.ManagedKT);
-  const chainId = useChainId(true);
 
   const [error, setError] = useState<ReactNode>(null);
 
   const queryKey = useMemo(
     () => [
       'get-accounts-contracts',
-      chainId!,
-      ...accounts.filter(({ type }) => type !== TempleAccountType.ManagedKT).map(({ publicKeyHash }) => publicKeyHash)
+      chainId,
+      ...tezosAccounts.filter(({ type }) => type !== TempleAccountType.ManagedKT).map(acc => acc.address)
     ],
-    [accounts, chainId]
+    [tezosAccounts, chainId]
   );
   const { data: usersContracts = [] } = useRetryableSWR(queryKey, getUsersContracts, {});
 
   const remainingUsersContracts = useMemo(() => {
-    return usersContracts.filter(({ address }) => !accounts.some(({ publicKeyHash }) => publicKeyHash === address));
-  }, [accounts, usersContracts]);
+    return usersContracts.filter(({ address }) => !tezosAccounts.some(acc => acc.address === address));
+  }, [tezosAccounts, usersContracts]);
 
   const { watch, handleSubmit, errors, control, formState, setValue, triggerValidation } =
     useForm<ImportKTAccountFormData>({
@@ -70,14 +79,14 @@ export const ManagedKTForm: FC = () => {
         case value.startsWith('KT'):
           return t('notContractAddress');
 
-        case accounts.every(({ publicKeyHash }) => publicKeyHash !== value):
+        case tezosAccounts.every(acc => acc.address !== value):
           return t('contractAlreadyImported');
 
         default:
           return true;
       }
     },
-    [accounts]
+    [tezosAccounts]
   );
 
   const contractAddress = watch('contractAddress');
@@ -105,31 +114,31 @@ export const ManagedKTForm: FC = () => {
       formAnalytics.trackSubmit();
       setError(null);
       try {
+        const tezos = getReadOnlyTezos(rpcUrl);
+
         const contract = await tezos.contract.at(address);
         const owner = await contract.storage();
         if (typeof owner !== 'string') {
           throw new Error(t('invalidManagedContract'));
         }
 
-        if (!accounts.some(({ publicKeyHash }) => publicKeyHash === owner)) {
+        if (!tezosAccounts.some(acc => acc.address === owner)) {
           throw new Error(t('youAreNotContractManager'));
         }
 
-        const chain = await tezos.rpc.getChainId();
-        await importKTManagedAccount(address, chain, owner);
+        const chainId = await tezos.rpc.getChainId();
+        await importKTManagedAccount(address, chainId, owner);
 
         formAnalytics.trackSubmitSuccess();
       } catch (err: any) {
-        formAnalytics.trackSubmitFail();
-
         console.error(err);
 
-        // Human delay
-        await delay();
+        formAnalytics.trackSubmitFail();
+
         setError(err.message);
       }
     },
-    [formState, tezos, accounts, importKTManagedAccount, formAnalytics]
+    [formState, rpcUrl, tezosAccounts, importKTManagedAccount, formAnalytics]
   );
 
   const handleKnownContractSelect = useCallback(
@@ -253,7 +262,7 @@ const ContractOptionContent: FC<ContractOptionRenderProps> = props => {
           <T id="contract" />
         </Name>
 
-        <AccountTypeBadge account={{ type: TempleAccountType.ManagedKT }} />
+        <AccountTypeBadge accountType={TempleAccountType.ManagedKT} />
       </div>
 
       <div className="flex flex-wrap items-center mt-1">

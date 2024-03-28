@@ -1,27 +1,37 @@
-import React, { FC, HTMLAttributes } from 'react';
+import React, { memo } from 'react';
 
 import classNames from 'clsx';
 
 import { Button } from 'app/atoms/Button';
 import Name from 'app/atoms/Name';
 import { ReactComponent as ChevronDownIcon } from 'app/icons/chevron-down.svg';
-import { T } from 'lib/i18n';
-import { useNetwork } from 'lib/temple/front';
 import Popper from 'lib/ui/Popper';
+import { getNetworkTitle } from 'temple/front/networks';
+import { NetworkBase } from 'temple/networks';
+import { TempleChainName } from 'temple/types';
 
-import { NetworkDropdown } from './NetworkDropdown';
+import { TezosNetworkDropdown, EvmNetworkDropdown } from './NetworkDropdown';
 import { NetworkSelectSelectors } from './selectors';
 
-type NetworkSelectProps = HTMLAttributes<HTMLDivElement>;
+interface Props {
+  chain: TempleChainName;
+  currentNetwork: NetworkBase;
+}
 
-const NetworkSelect: FC<NetworkSelectProps> = () => {
-  const currentNetwork = useNetwork();
+const NetworkSelect = memo<Props>(({ chain, currentNetwork }) => {
+  const isForTezos = chain === TempleChainName.Tezos;
 
   return (
     <Popper
       placement="bottom-end"
       strategy="fixed"
-      popup={props => <NetworkDropdown currentNetwork={currentNetwork} {...props} />}
+      popup={props =>
+        isForTezos ? (
+          <TezosNetworkDropdown currentNetworkId={currentNetwork.id} {...props} />
+        ) : (
+          <EvmNetworkDropdown currentNetworkId={currentNetwork.id} {...props} />
+        )
+      }
     >
       {({ ref, opened, toggleOpened }) => (
         <Button
@@ -37,15 +47,18 @@ const NetworkSelect: FC<NetworkSelectProps> = () => {
               : 'shadow hover:shadow-md focus:shadow-md opacity-90 hover:opacity-100 focus:opacity-100'
           )}
           onClick={toggleOpened}
-          testID={NetworkSelectSelectors.selectedNetworkButton}
+          testID={isForTezos ? NetworkSelectSelectors.selectedNetworkButton : undefined}
         >
           <div
             className="mr-2 w-3 h-3 border border-primary-white rounded-full shadow-xs"
             style={{ backgroundColor: currentNetwork.color }}
           />
 
-          <Name style={{ maxWidth: '7rem' }} testID={NetworkSelectSelectors.selectedNetworkButtonName}>
-            {(currentNetwork.nameI18nKey && <T id={currentNetwork.nameI18nKey} />) || currentNetwork.name}
+          <Name
+            style={{ maxWidth: '7rem' }}
+            testID={isForTezos ? NetworkSelectSelectors.selectedNetworkButtonName : undefined}
+          >
+            {getNetworkTitle(currentNetwork)}
           </Name>
 
           <ChevronDownIcon className="ml-1 -mr-1 stroke-current stroke-2" style={{ height: 16, width: 'auto' }} />
@@ -53,6 +66,6 @@ const NetworkSelect: FC<NetworkSelectProps> = () => {
       )}
     </Popper>
   );
-};
+});
 
 export default NetworkSelect;
