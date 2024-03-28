@@ -128,8 +128,10 @@ export type StoredNetwork =
     });
 
 export interface TempleSettings {
-  customNetworks?: StoredNetwork[];
+  customTezosNetworks?: StoredNetwork[];
   contacts?: TempleContact[];
+  /** @deprecated */
+  customNetworks?: StoredNetwork[];
 }
 
 export enum TempleSharedStorageKey {

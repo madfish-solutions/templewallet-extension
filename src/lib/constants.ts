@@ -11,6 +11,16 @@ export const ACCOUNT_PKH_STORAGE_KEY = 'account_publickeyhash';
 
 export const ADS_VIEWER_TEZOS_ADDRESS_STORAGE_KEY = 'ADS_VIEWER_TEZOS_ADDRESS';
 
+/** @deprecated */
+export const CUSTOM_NETWORKS_SNAPSHOT_STORAGE_KEY = 'custom_networks_snapshot';
+
+export const CUSTOM_TEZOS_NETWORKS_STORAGE_KEY = 'CUSTOM_TEZOS_NETWORKS';
+
+/** @deprecated */
+export const NETWORK_ID_STORAGE_KEY = 'network_id';
+
+export const CURRENT_TEZOS_NETWORK_ID_STORAGE_KEY = 'CURRENT_TEZOS_NETWORK_ID';
+
 export const ANALYTICS_USER_ID_STORAGE_KEY = 'analytics_user_id';
 
 export const ALL_ADS_RULES_STORAGE_KEY = 'ALL_ADS_RULES';

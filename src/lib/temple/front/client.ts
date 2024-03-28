@@ -80,7 +80,7 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
   const locked = status === TempleStatus.Locked;
   const ready = status === TempleStatus.Ready;
 
-  const customTezosNetworks = useMemo(() => settings?.customNetworks ?? [], [settings]);
+  const customTezosNetworks = useMemo(() => settings?.customTezosNetworks ?? [], [settings]);
 
   /**
    * Actions

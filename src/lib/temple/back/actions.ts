@@ -9,7 +9,9 @@ import {
 } from '@temple-wallet/dapp/dist/types';
 import browser, { Runtime } from 'webextension-polyfill';
 
+import { CUSTOM_TEZOS_NETWORKS_STORAGE_KEY } from 'lib/constants';
 import { BACKGROUND_IS_WORKER } from 'lib/env';
+import { putToStorage } from 'lib/storage';
 import { addLocalOperation } from 'lib/temple/activity';
 import * as Beacon from 'lib/temple/beacon';
 import {
@@ -223,7 +225,9 @@ export function createLedgerAccount(name: string, derivationPath?: string, deriv
 export function updateSettings(settings: Partial<TempleSettings>) {
   return withUnlocked(async ({ vault }) => {
     const updatedSettings = await vault.updateSettings(settings);
-    createCustomNetworksSnapshot(updatedSettings);
+
+    putToStorage(CUSTOM_TEZOS_NETWORKS_STORAGE_KEY, updatedSettings.customTezosNetworks);
+
     settingsUpdated(updatedSettings);
   });
 }
@@ -649,16 +653,6 @@ const formatTempleReq = async (
 
   throw new Error(Beacon.ErrorType.UNKNOWN_ERROR);
 };
-
-async function createCustomNetworksSnapshot(settings: TempleSettings) {
-  try {
-    if (settings.customNetworks) {
-      await browser.storage.local.set({
-        custom_networks_snapshot: settings.customNetworks
-      });
-    }
-  } catch {}
-}
 
 function getErrorData(err: any) {
   return err instanceof TezosOperationError ? err.errors.map(({ contract_code, ...rest }: any) => rest) : undefined;

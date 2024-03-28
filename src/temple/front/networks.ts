@@ -62,7 +62,7 @@ export const useTempleNetworksActions = () => {
   const addTezosNetwork = useCallback(
     (newNetwork: StoredNetwork) =>
       updateSettings({
-        customNetworks: [...customTezosNetworks, newNetwork]
+        customTezosNetworks: [...customTezosNetworks, newNetwork]
       }),
     [customTezosNetworks, updateSettings]
   );
@@ -70,7 +70,7 @@ export const useTempleNetworksActions = () => {
   const removeTezosNetwork = useCallback(
     (networkId: string) =>
       updateSettings({
-        customNetworks: customTezosNetworks.filter(n => n.id !== networkId)
+        customTezosNetworks: customTezosNetworks.filter(n => n.id !== networkId)
       }),
     [customTezosNetworks, updateSettings]
   );

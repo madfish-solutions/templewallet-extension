@@ -1,6 +1,13 @@
 import { nanoid } from 'nanoid';
 
-import { ACCOUNT_PKH_STORAGE_KEY, ADS_VIEWER_TEZOS_ADDRESS_STORAGE_KEY } from 'lib/constants';
+import {
+  ADS_VIEWER_TEZOS_ADDRESS_STORAGE_KEY,
+  CURRENT_TEZOS_NETWORK_ID_STORAGE_KEY,
+  CUSTOM_TEZOS_NETWORKS_STORAGE_KEY,
+  ACCOUNT_PKH_STORAGE_KEY,
+  NETWORK_ID_STORAGE_KEY,
+  CUSTOM_NETWORKS_SNAPSHOT_STORAGE_KEY
+} from 'lib/constants';
 import { moveValueInStorage } from 'lib/storage';
 import * as Passworder from 'lib/temple/passworder';
 import { StoredAccount, TempleAccountType, TempleContact, TempleSettings } from 'lib/temple/types';
@@ -140,10 +147,13 @@ export const MIGRATIONS = [
     await removeManyLegacy([...toSave.map(([key]) => key), 'contacts']);
   },
 
-  // [5] Extend accounts for EVM support
+  // [5] Extend data formats for EVM support
   async (password: string) => {
     console.log('VAULT.MIGRATIONS: EVM migration started');
     const passKey = await Passworder.generateKey(password);
+
+    /* ACCOUNTS */
+
     const accounts = await fetchAndDecryptOne<LegacyTypes.TempleAccount[]>(accountsStrgKey, passKey);
     const mnemonic = await fetchAndDecryptOne<string>(mnemonicStrgKey, passKey);
 
@@ -173,9 +183,20 @@ export const MIGRATIONS = [
     });
 
     toEncryptAndSave.push([accountsStrgKey, newAccounts]);
-    await encryptAndSaveMany(toEncryptAndSave, passKey);
 
     moveValueInStorage(ACCOUNT_PKH_STORAGE_KEY, ADS_VIEWER_TEZOS_ADDRESS_STORAGE_KEY);
+
+    /* NETWORKS */
+
+    const settings = await fetchAndDecryptOne<TempleSettings>(settingsStrgKey, passKey);
+    settings.customTezosNetworks = settings.customNetworks;
+    delete settings.customNetworks;
+    toEncryptAndSave.push([settingsStrgKey, settings]);
+
+    moveValueInStorage(CUSTOM_NETWORKS_SNAPSHOT_STORAGE_KEY, CUSTOM_TEZOS_NETWORKS_STORAGE_KEY);
+    moveValueInStorage(NETWORK_ID_STORAGE_KEY, CURRENT_TEZOS_NETWORK_ID_STORAGE_KEY);
+
+    await encryptAndSaveMany(toEncryptAndSave, passKey);
 
     console.log('VAULT.MIGRATIONS: EVM migration finished');
   }

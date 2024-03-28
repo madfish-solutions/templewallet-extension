@@ -3,6 +3,7 @@ import { useEffect, useLayoutEffect, useMemo } from 'react';
 import constate from 'constate';
 import { isEqual } from 'lodash';
 
+import { CURRENT_TEZOS_NETWORK_ID_STORAGE_KEY } from 'lib/constants';
 import {
   TempleStatus,
   TempleState,
@@ -62,7 +63,7 @@ function useReadyTemple() {
   const allTezosNetworks = useMemo(() => [...DEFAULT_TEZOS_NETWORKS, ...customTezosNetworks], [customTezosNetworks]);
 
   const defaultNet = allTezosNetworks[0];
-  const [networkId, setNetworkId] = usePassiveStorage('network_id', defaultNet.id);
+  const [networkId, setNetworkId] = usePassiveStorage(CURRENT_TEZOS_NETWORK_ID_STORAGE_KEY, defaultNet.id);
 
   useEffect(() => {
     if (allTezosNetworks.every(a => a.id !== networkId)) {

@@ -21,6 +21,7 @@ import {
 import { nanoid } from 'nanoid';
 import browser, { Runtime } from 'webextension-polyfill';
 
+import { CURRENT_TEZOS_NETWORK_ID_STORAGE_KEY, CUSTOM_TEZOS_NETWORKS_STORAGE_KEY } from 'lib/constants';
 import { addLocalOperation } from 'lib/temple/activity';
 import * as Beacon from 'lib/temple/beacon';
 import { isAddressValid } from 'lib/temple/helpers';
@@ -488,13 +489,13 @@ async function getNetworkRPC(net: TempleDAppNetwork) {
 }
 
 async function getCurrentTempleNetwork() {
-  const { network_id: networkId, custom_networks_snapshot: customNetworksSnapshot } = await browser.storage.local.get([
-    'network_id',
-    'custom_networks_snapshot'
-  ]);
+  const {
+    [CURRENT_TEZOS_NETWORK_ID_STORAGE_KEY]: networkId,
+    [CUSTOM_TEZOS_NETWORKS_STORAGE_KEY]: customTezosNetworks
+  } = await browser.storage.local.get([CURRENT_TEZOS_NETWORK_ID_STORAGE_KEY, CUSTOM_TEZOS_NETWORKS_STORAGE_KEY]);
 
   return (
-    [...DEFAULT_TEZOS_NETWORKS, ...(customNetworksSnapshot ?? [])].find(n => n.id === networkId) ??
+    [...DEFAULT_TEZOS_NETWORKS, ...(customTezosNetworks ?? [])].find(n => n.id === networkId) ??
     DEFAULT_TEZOS_NETWORKS[0]
   );
 }
