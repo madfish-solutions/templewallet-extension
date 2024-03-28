@@ -22,6 +22,7 @@ jobs:
         uses: ./.github/workflows/secrets-setup
         with:
           GITHUB_ACTION_RUN_ENV: development
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           TEMPLE_WALLET_JITSU_TRACKING_HOST: ${{ vars.TEMPLE_WALLET_JITSU_TRACKING_HOST }}
           TEMPLE_WALLET_JITSU_WRITE_KEY: ${{ vars.TEMPLE_WALLET_JITSU_WRITE_KEY }}
           TEMPLE_WALLET_EXOLIX_API_KEY: ${{ secrets.TEMPLE_WALLET_EXOLIX_API_KEY }}
@@ -47,8 +48,10 @@ jobs:
           PERSONA_ADS_MEDIUM_BANNER_UNIT_ID: ${{ vars.PERSONA_ADS_MEDIUM_BANNER_UNIT_ID }}
           PERSONA_ADS_SQUARISH_BANNER_UNIT_ID: ${{ vars.PERSONA_ADS_SQUARISH_BANNER_UNIT_ID }}
 
-      - name: Install dependencies and code quality check
+      - name: Install dependencies and code quality check with private modules
         uses: ./.github/workflows/code-quality-check
+        with:
+          optional_modules: true
 
       - name: Create Chrome build
         run: yarn build:chrome
@@ -57,6 +60,26 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: chrome
+          path: dist/chrome.zip
+          if-no-files-found: error
+          retention-days: 10
+
+      - name: Remove private modules
+        run: rm -rf node_modules/@temple-wallet/extension-ads
+        shell: bash
+
+      - name: Install dependencies and code quality check without private modules
+        uses: ./.github/workflows/code-quality-check
+        with:
+          optional_modules: false
+
+      - name: Create Chrome core build
+        run: yarn build:chrome:core
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: chrome_core
           path: dist/chrome.zip
           if-no-files-found: error
           retention-days: 10

@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-import { TARGET_BROWSER } from './env';
+import { IS_CORE_BUILD, TARGET_BROWSER } from './env';
 
 const PACKED_EXTENSION = (() => {
   switch (TARGET_BROWSER) {
@@ -36,9 +36,11 @@ const DEST_RELATIVE_PATHS = {
 };
 
 /** Mapping entries' names to source paths */
-const IFRAMES = {
-  'persona-ad': path.join(PATH_SOURCE, 'content-scripts/replace-ads/persona-ad.iframe.ts')
-};
+const IFRAMES: Record<string, string> = IS_CORE_BUILD
+  ? {}
+  : {
+      'persona-ad': path.join(PATH_SOURCE, 'content-scripts/replace-ads/persona-ad.iframe.ts')
+    };
 
 const PATHS = {
   CWD: PATH_CWD,

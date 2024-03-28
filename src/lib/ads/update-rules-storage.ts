@@ -1,16 +1,17 @@
 import retry from 'async-retry';
 import { debounce } from 'lodash';
+import memoizee from 'memoizee';
 
-import {
-  getAdPlacesRulesForAllDomains,
-  getProvidersRulesForAllDomains,
-  getSelectorsForAllProviders,
-  getPermanentAdPlacesRulesForAllDomains,
-  getProvidersToReplaceAtAllSites,
-  getPermanentNativeAdPlacesRulesForAllDomains
-} from 'lib/apis/temple';
 import { ALL_ADS_RULES_STORAGE_KEY } from 'lib/constants';
+import { EnvVars } from 'lib/env';
 import { putToStorage } from 'lib/storage';
+
+import { importExtensionAdsModule } from './import-extension-ads-module';
+
+const getApiInstance = memoizee(async () => {
+  const { TempleWalletApi } = await importExtensionAdsModule();
+  return new TempleWalletApi(EnvVars.TEMPLE_WALLET_API_URL);
+});
 
 let inProgress = false;
 export const updateRulesStorage = debounce(async () => {
@@ -18,36 +19,10 @@ export const updateRulesStorage = debounce(async () => {
     if (inProgress) return;
 
     inProgress = true;
-    const rules = await retry(
-      async () => {
-        const [
-          adPlacesRulesForAllDomains,
-          providersRulesForAllDomains,
-          providersSelectors,
-          providersToReplaceAtAllSites,
-          permanentAdPlacesRulesForAllDomains,
-          permanentNativeAdPlacesRulesForAllDomains
-        ] = await Promise.all([
-          getAdPlacesRulesForAllDomains(),
-          getProvidersRulesForAllDomains(),
-          getSelectorsForAllProviders(),
-          getProvidersToReplaceAtAllSites(),
-          getPermanentAdPlacesRulesForAllDomains(),
-          getPermanentNativeAdPlacesRulesForAllDomains()
-        ]);
-
-        return {
-          adPlacesRulesForAllDomains,
-          providersRulesForAllDomains,
-          providersSelectors,
-          providersToReplaceAtAllSites,
-          permanentAdPlacesRulesForAllDomains,
-          permanentNativeAdPlacesRulesForAllDomains,
-          timestamp: Date.now()
-        };
-      },
-      { maxTimeout: 20000, minTimeout: 1000 }
-    );
+    const rules = await retry(async () => (await getApiInstance()).getAllRules(), {
+      maxTimeout: 20000,
+      minTimeout: 1000
+    });
     await putToStorage(ALL_ADS_RULES_STORAGE_KEY, rules);
   } catch (e) {
     console.error(e);

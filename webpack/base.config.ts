@@ -27,7 +27,8 @@ import {
   SOURCE_MAP,
   MANIFEST_VERSION,
   BACKGROUND_IS_WORKER,
-  IMAGE_INLINE_SIZE_LIMIT_ENV
+  IMAGE_INLINE_SIZE_LIMIT_ENV,
+  IS_CORE_BUILD
 } from './env';
 import { PATHS } from './paths';
 
@@ -232,7 +233,14 @@ export const buildBaseConfig = (): WebPack.Configuration & Pick<WebPack.WebpackO
       setImmediate: ['timers-browserify', 'setImmediate']
     }),
 
-    new WebPack.IgnorePlugin({ resourceRegExp: /^\.\/wordlists\/(?!english)/, contextRegExp: /bip39\/src$/ }),
+    new WebPack.IgnorePlugin({
+      resourceRegExp: /^\.\/wordlists\/(?!english)/,
+      contextRegExp: /bip39\/src$/
+    }),
+    IS_CORE_BUILD &&
+      new WebPack.IgnorePlugin({
+        resourceRegExp: /^@temple-wallet\/extension-ads$/
+      }),
 
     new ModuleNotFoundPlugin(PATHS.SOURCE),
 
