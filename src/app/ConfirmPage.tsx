@@ -24,13 +24,13 @@ import { CustomRpcContext } from 'lib/analytics';
 import { useGasToken } from 'lib/assets/hooks';
 import { T, t } from 'lib/i18n';
 import { useRetryableSWR } from 'lib/swr';
-import { useTempleClient, useAllAccounts } from 'lib/temple/front';
+import { useTempleClient } from 'lib/temple/front/client';
 import { TempleAccountType, TempleDAppPayload, TempleTezosChainId } from 'lib/temple/types';
 import { useSafeState } from 'lib/ui/hooks';
 import { delay, isTruthy } from 'lib/utils';
 import { useLocation } from 'lib/woozie';
 import { AccountForTezos, getAccountForTezos, isAccountOfActableType } from 'temple/accounts';
-import { useAccountForTezos, useTezosChainIdLoadingValue } from 'temple/front';
+import { useAccountForTezos, useAllAccounts, useTezosChainIdLoadingValue } from 'temple/front';
 
 import { ConfirmPageSelectors } from './ConfirmPage.selectors';
 

@@ -61,6 +61,8 @@
 - Is `nanoid()` good enough to id accounts ?
 - `bip39` -> `@scure/bip39` ?
 - `loadContract('', FALSE)` - why?
+- Networks stored in Vault ?
+- Block explorers
 -
 
 ## TO QA

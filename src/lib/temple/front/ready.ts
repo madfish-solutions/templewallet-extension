@@ -3,7 +3,7 @@ import { useEffect, useLayoutEffect, useMemo } from 'react';
 import constate from 'constate';
 import { isEqual } from 'lodash';
 
-import { CURRENT_TEZOS_NETWORK_ID_STORAGE_KEY } from 'lib/constants';
+import { CURRENT_TEZOS_NETWORK_ID_STORAGE_KEY, CURRENT_EVM_NETWORK_ID_STORAGE_KEY } from 'lib/constants';
 import {
   TempleStatus,
   TempleState,
@@ -15,7 +15,7 @@ import {
 import { useMemoWithCompare, useUpdatableRef } from 'lib/ui/hooks';
 import { getAccountAddressForTezos, getAccountForEvm, getAccountForTezos } from 'temple/accounts';
 import { intercomClient } from 'temple/front/intercom-client';
-import { DEFAULT_TEZOS_NETWORKS } from 'temple/networks';
+import { DEFAULT_EVM_NETWORKS, DEFAULT_TEZOS_NETWORKS } from 'temple/networks';
 
 import { useTempleClient } from './client';
 import { usePassiveStorage } from './storage';
@@ -23,8 +23,12 @@ import { usePassiveStorage } from './storage';
 export const [
   ReadyTempleProvider,
   useAllTezosNetworks,
+  useAllEvmNetworks,
   useTezosNetworkStored,
-  useSetNetworkId,
+  useEvmNetwork,
+  useSetTezosNetworkId,
+  useSetEvmNetworkId,
+  //
   useAllAccounts,
   useCurrentAccountId,
   useAccount,
@@ -33,12 +37,17 @@ export const [
   useAccountAddressForEvm,
   useAccountForEvm,
   useSetAccountId,
+  //
   useSettings
 ] = constate(
   useReadyTemple,
   v => v.allTezosNetworks,
+  v => v.allEvmNetworks,
   v => v.tezosNetwork,
-  v => v.setNetworkId,
+  v => v.evmNetwork,
+  v => v.setTezosNetworkId,
+  v => v.setEvmNetworkId,
+  //
   v => v.allAccounts,
   v => v.accountId,
   v => v.account,
@@ -47,6 +56,7 @@ export const [
   v => v.accountAddressForEvm,
   v => v.accountForEvm,
   v => v.setAccountId,
+  //
   v => v.settings
 );
 
@@ -54,28 +64,54 @@ function useReadyTemple() {
   const templeFront = useTempleClient();
   assertReady(templeFront);
 
-  const { customTezosNetworks, accounts: allAccounts, settings } = templeFront;
+  const { customTezosNetworks, customEvmNetworks, accounts: allAccounts, settings } = templeFront;
 
   /**
    * Networks
    */
 
-  const allTezosNetworks = useMemo(() => [...DEFAULT_TEZOS_NETWORKS, ...customTezosNetworks], [customTezosNetworks]);
+  const allTezosNetworks = useMemo<typeof DEFAULT_TEZOS_NETWORKS>(
+    () => [...DEFAULT_TEZOS_NETWORKS, ...customTezosNetworks],
+    [customTezosNetworks]
+  );
+  const allEvmNetworks = useMemo<typeof DEFAULT_EVM_NETWORKS>(
+    () => [...DEFAULT_EVM_NETWORKS, ...customEvmNetworks],
+    [customEvmNetworks]
+  );
 
-  const defaultNet = allTezosNetworks[0];
-  const [networkId, setNetworkId] = usePassiveStorage(CURRENT_TEZOS_NETWORK_ID_STORAGE_KEY, defaultNet.id);
+  const defTezosNetwork = allTezosNetworks[0];
+  const defEvmNetwork = allEvmNetworks[0];
 
-  useEffect(() => {
-    if (allTezosNetworks.every(a => a.id !== networkId)) {
-      setNetworkId(defaultNet.id);
-    }
-  }, [allTezosNetworks, networkId, setNetworkId, defaultNet]);
+  const [tezosNetworkId, setTezosNetworkId] = usePassiveStorage(
+    CURRENT_TEZOS_NETWORK_ID_STORAGE_KEY,
+    defTezosNetwork.id
+  );
+
+  const [evmNetworkId, setEvmNetworkId] = usePassiveStorage(CURRENT_EVM_NETWORK_ID_STORAGE_KEY, defEvmNetwork.id);
 
   const tezosNetwork = useMemoWithCompare(
-    () => allTezosNetworks.find(n => n.id === networkId) ?? defaultNet,
-    [allTezosNetworks, networkId, defaultNet],
+    () => allTezosNetworks.find(n => n.id === tezosNetworkId) ?? defTezosNetwork,
+    [allTezosNetworks, tezosNetworkId, defTezosNetwork],
     isEqual
   );
+
+  const evmNetwork = useMemoWithCompare(
+    () => allEvmNetworks.find(n => n.id === evmNetworkId) ?? defEvmNetwork,
+    [allEvmNetworks, evmNetworkId, defEvmNetwork],
+    isEqual
+  );
+
+  useEffect(() => {
+    if (allTezosNetworks.every(a => a.id !== tezosNetworkId)) {
+      setTezosNetworkId(defTezosNetwork.id);
+    }
+  }, [allTezosNetworks, tezosNetworkId, defTezosNetwork, setTezosNetworkId]);
+
+  useEffect(() => {
+    if (allEvmNetworks.every(a => a.id !== evmNetworkId)) {
+      setEvmNetworkId(defEvmNetwork.id);
+    }
+  }, [allEvmNetworks, evmNetworkId, defEvmNetwork, setEvmNetworkId]);
 
   /**
    * Accounts
@@ -83,7 +119,7 @@ function useReadyTemple() {
 
   const allAccountsRef = useUpdatableRef(allAccounts);
 
-  const defaultAcc = allAccounts[0]!;
+  const defaultAcc = allAccounts[0];
 
   const [accountId, setAccountId] = usePassiveStorage('CURRENT_ACCOUNT_ID', defaultAcc.id);
 
@@ -124,13 +160,15 @@ function useReadyTemple() {
   useLayoutEffect(() => {
     const evt = new CustomEvent('reseterrorboundary');
     window.dispatchEvent(evt);
-  }, [networkId, accountId]);
+  }, [accountId, tezosNetworkId, evmNetworkId]);
 
   return {
     allTezosNetworks,
+    allEvmNetworks,
     tezosNetwork,
-    networkId,
-    setNetworkId,
+    evmNetwork,
+    setTezosNetworkId,
+    setEvmNetworkId,
 
     allAccounts,
     accountId,

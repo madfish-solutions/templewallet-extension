@@ -10,11 +10,10 @@ import { URL_PATTERN } from 'app/defaults';
 import { ReactComponent as CloseIcon } from 'app/icons/close.svg';
 import { setAnotherSelector, setTestID } from 'lib/analytics';
 import { T, t } from 'lib/i18n';
-import { StoredNetwork } from 'lib/temple/types';
 import { COLORS } from 'lib/ui/colors';
 import { useConfirm } from 'lib/ui/dialog';
 import { getNetworkTitle, useTempleNetworksActions } from 'temple/front';
-import { DEFAULT_TEZOS_NETWORKS } from 'temple/networks';
+import { DEFAULT_TEZOS_NETWORKS, StoredTezosNetwork } from 'temple/networks';
 import { loadTezosChainId } from 'temple/tezos';
 
 import { CustomNetworkSettingsSelectors } from './CustomNetworkSettingsSelectors';
@@ -67,7 +66,6 @@ const CustomNetworksSettings = memo(() => {
           // TODO: chainId
           rpcBaseURL,
           name,
-          disabled: false,
           color,
           id: rpcBaseURL
         });
@@ -193,7 +191,7 @@ const CustomNetworksSettings = memo(() => {
 export default CustomNetworksSettings;
 
 type NetworksListItemProps = {
-  network: StoredNetwork;
+  network: StoredTezosNetwork;
   onRemoveClick?: (baseUrl: string) => void;
   last: boolean;
 };

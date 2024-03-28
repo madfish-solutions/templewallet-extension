@@ -12,11 +12,10 @@ import SearchField from 'app/templates/SearchField';
 import { useGasToken } from 'lib/assets/hooks';
 import { searchHotkey } from 'lib/constants';
 import { T, t } from 'lib/i18n';
-import { useSetAccountId } from 'lib/temple/front';
 import Portal from 'lib/ui/Portal';
 import { searchAndFilterItems } from 'lib/utils/search-items';
 import { HistoryAction, navigate } from 'lib/woozie';
-import { useCurrentAccountId, useTezosNetwork, useRelevantAccounts } from 'temple/front';
+import { useCurrentAccountId, useTezosNetwork, useRelevantAccounts, useChangeAccount } from 'temple/front';
 
 import { AccountItem } from './AccountItem';
 
@@ -31,7 +30,7 @@ export const ShortcutAccountSwitchOverlay = memo(() => {
   const { chainId } = useTezosNetwork();
   const currentAccountId = useCurrentAccountId();
   const allAccounts = useRelevantAccounts(chainId);
-  const setAccountId = useSetAccountId();
+  const setAccountId = useChangeAccount();
   const { assetName: gasTokenName } = useGasToken();
 
   const [searchValue, setSearchValue] = useState('');

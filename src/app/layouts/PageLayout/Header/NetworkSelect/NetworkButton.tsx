@@ -4,21 +4,21 @@ import classNames from 'clsx';
 
 import { Button } from 'app/atoms/Button';
 import { setAnotherSelector } from 'lib/analytics';
-import { t } from 'lib/i18n';
-import { StoredNetwork } from 'lib/temple/types';
+import { getNetworkTitle } from 'temple/front';
+import { NetworkBase } from 'temple/networks';
 
 import { NetworkSelectSelectors } from './selectors';
 
 interface Props {
-  network: StoredNetwork;
+  network: NetworkBase;
   selected: boolean;
   onClick: EmptyFn;
 }
 
 export const NetworkButton: React.FC<Props> = ({ network, selected, onClick }) => {
-  const { id, name, color, disabled, nameI18nKey } = network;
+  const { id, color, disabled } = network;
 
-  const title = (nameI18nKey && t(nameI18nKey)) || name;
+  const title = getNetworkTitle(network);
 
   const testIDProperties = useMemo(
     () => ({
@@ -39,6 +39,7 @@ export const NetworkButton: React.FC<Props> = ({ network, selected, onClick }) =
       style={{
         padding: '0.375rem 1.5rem 0.375rem 0.5rem'
       }}
+      title={network.description}
       disabled={disabled}
       autoFocus={selected}
       onClick={disabled ? undefined : onClick}

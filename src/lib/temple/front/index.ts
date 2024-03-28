@@ -2,8 +2,6 @@ export { useStorage } from './storage';
 
 export { useTempleClient } from './client';
 
-export { useSetNetworkId, useAllAccounts, useSetAccountId } from './ready';
-
 export { validateDerivationPath, validateContractAddress } from './helpers';
 
 export { useContactsActions, searchContacts } from './address-book';

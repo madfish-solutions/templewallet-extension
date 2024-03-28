@@ -1,4 +1,26 @@
-import { StoredNetwork } from 'lib/temple/types';
+import type { TID } from 'lib/i18n';
+
+export interface NetworkBase {
+  id: string;
+  rpcBaseURL: string;
+  name?: string;
+  nameI18nKey?: TID;
+  description?: string;
+  color: string;
+  // Deprecated params:
+  /** @deprecated */
+  type?: 'main' | 'test' | 'dcp';
+  /** @deprecated // (i) No persisted item had it set to `true` */
+  disabled?: boolean;
+}
+
+export type StoredTezosNetwork =
+  | (NetworkBase & {
+      nameI18nKey: TID;
+    })
+  | (NetworkBase & {
+      name: string;
+    });
 
 const formatDateToRPCFormat = (date: Date) => date.toLocaleDateString('en-GB').split('/').reverse().join('-');
 
@@ -10,7 +32,7 @@ const getLastMonday = (date = new Date()) => {
   return formatDateToRPCFormat(nextMonday);
 };
 
-const DCP_TEZOS_NETWORKS: StoredNetwork[] = [
+const DCP_TEZOS_NETWORKS: StoredTezosNetwork[] = [
   {
     id: 't4l3nt-mainnet',
     name: 'T4L3NT Mainnet',
@@ -27,7 +49,7 @@ const DCP_TEZOS_NETWORKS: StoredNetwork[] = [
   }
 ];
 
-export const DEFAULT_TEZOS_NETWORKS: StoredNetwork[] = [
+export const DEFAULT_TEZOS_NETWORKS: NonEmptyArray<StoredTezosNetwork> = [
   {
     id: 'mainnet',
     nameI18nKey: 'tezosMainnet',
@@ -87,7 +109,7 @@ export const DEFAULT_TEZOS_NETWORKS: StoredNetwork[] = [
   }
 ];
 
-export const HIDDEN_TEZOS_NETWORKS: StoredNetwork[] = [
+export const HIDDEN_TEZOS_NETWORKS: StoredTezosNetwork[] = [
   {
     id: 'smartpy-ithacanet',
     name: 'Ithacanet Testnet Smartpy',
@@ -101,5 +123,48 @@ export const HIDDEN_TEZOS_NETWORKS: StoredNetwork[] = [
     description: 'Highly available Edo Testnet nodes operated by Blockscale',
     rpcBaseURL: 'https://rpczero.tzbeta.net',
     color: '#FBBF24'
+  }
+];
+
+export interface StoredEvmNetwork extends NetworkBase {
+  chainId: number;
+  currency: { name: string; symbol: string; decimals: number };
+}
+
+const DEFAULT_EVM_CURRENCY = { name: 'Ether', symbol: 'ETH', decimals: 18 };
+
+export const DEFAULT_EVM_NETWORKS: NonEmptyArray<StoredEvmNetwork> = [
+  {
+    id: 'mainnet',
+    chainId: 1,
+    name: 'Ethereum Mainnet',
+    rpcBaseURL: 'https://mainnet.infura.io/v3',
+    currency: DEFAULT_EVM_CURRENCY,
+    color: '#83b300'
+  },
+  {
+    id: 'optimism',
+    chainId: 10,
+    name: 'OP Mainnet',
+    description: 'Optimism Mainnet',
+    rpcBaseURL: 'https://mainnet.optimism.io',
+    currency: DEFAULT_EVM_CURRENCY,
+    color: '#48bb78'
+  },
+  {
+    id: 'arbitrum',
+    chainId: 42_161,
+    name: 'Arbitrum One',
+    rpcBaseURL: 'https://arb1.arbitrum.io/rpc',
+    currency: DEFAULT_EVM_CURRENCY,
+    color: '#047857'
+  },
+  {
+    id: 'polygon',
+    chainId: 137,
+    name: 'Polygon',
+    rpcBaseURL: 'https://polygon-rpc.com',
+    currency: { name: 'MATIC', symbol: 'MATIC', decimals: 18 },
+    color: '#34D399'
   }
 ];

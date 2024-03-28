@@ -7,12 +7,12 @@ import { Alert, FileInputProps, FileInput, FormField, FormSubmitButton } from 'a
 import { useFormAnalytics } from 'lib/analytics';
 import { ACCOUNT_ALREADY_EXISTS_ERR_MSG } from 'lib/constants';
 import { TID, T, t } from 'lib/i18n';
-import { useTempleClient, useAllAccounts, useSetAccountId } from 'lib/temple/front';
+import { useTempleClient } from 'lib/temple/front/client';
 import { useSafeState, useUpdatableRef } from 'lib/ui/hooks';
 import { delay } from 'lib/utils';
 import { navigate } from 'lib/woozie';
 import { getAccountAddressForTezos } from 'temple/accounts';
-import { useTezosNetworkRpcUrl } from 'temple/front';
+import { useAllAccounts, useChangeAccount, useTezosNetworkRpcUrl } from 'temple/front';
 import { getReadOnlyTezos, confirmTezosOperation } from 'temple/tezos';
 import { activateTezosAccount } from 'temple/tezos/activate-account';
 
@@ -38,7 +38,7 @@ export const FromFaucetForm: FC = () => {
   const allAccounts = useAllAccounts();
   const allAccountsRef = useUpdatableRef(allAccounts);
 
-  const setAccountId = useSetAccountId();
+  const setAccountId = useChangeAccount();
   const rpcUrl = useTezosNetworkRpcUrl();
   const formAnalytics = useFormAnalytics(ImportAccountFormType.FaucetFile);
 

@@ -24,7 +24,13 @@ import { useTypedSWR } from 'lib/swr';
 import { atomsToTokens } from 'lib/temple/helpers';
 import useTippy from 'lib/ui/useTippy';
 import { UNDER_DEVELOPMENT_MSG } from 'temple/evm/under_dev_msg';
-import { useAccountAddressForEvm, useAccountAddressForTezos, useTezosNetwork, useEvmNetwork } from 'temple/front';
+import {
+  useAccountAddressForEvm,
+  useAccountAddressForTezos,
+  useTezosNetwork,
+  useEvmNetwork,
+  getNetworkTitle
+} from 'temple/front';
 
 import { HomeSelectors } from '../../Home.selectors';
 import { TokenPageSelectors } from '../TokenPage.selectors';
@@ -142,12 +148,21 @@ const TezosBalanceInfo: FC<{ accountPkh: string }> = ({ accountPkh }) => {
 
 const EvmBalanceInfo: FC<{ address: HexString }> = ({ address }) => {
   const network = useEvmNetwork();
-  const decimals = network.nativeCurrency.decimals;
+  const decimals = network.currency.decimals;
 
   const viemClient = useMemo(
     () =>
       Viem.createPublicClient({
-        chain: network,
+        chain: {
+          id: network.chainId,
+          name: getNetworkTitle(network) ?? '',
+          nativeCurrency: network.currency,
+          rpcUrls: {
+            default: {
+              http: [network.rpcBaseURL]
+            }
+          }
+        },
         transport: Viem.http()
       }),
     [network]

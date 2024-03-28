@@ -1,12 +1,13 @@
 import { useCallback, useMemo } from 'react';
 
-import * as ViemChains from 'viem/chains';
+// import * as ViemChains from 'viem/chains';
 
 import { TID, t } from 'lib/i18n';
 import { useRetryableSWR } from 'lib/swr';
 import { useTempleClient } from 'lib/temple/front/client';
 import { useTezosNetworkStored } from 'lib/temple/front/ready';
-import { StoredNetwork, TempleTezosChainId } from 'lib/temple/types';
+import { TempleTezosChainId } from 'lib/temple/types';
+import { StoredTezosNetwork } from 'temple/networks';
 
 import { loadTezosChainId } from '../tezos';
 
@@ -24,23 +25,26 @@ export const getNetworkTitle = ({
 
 /** (!) Relies on suspense - use only in PageLayout descendant components. */
 export const useTezosNetwork = () => {
-  const { id, rpcBaseURL: rpcUrl, color } = useTezosNetworkStored();
-  const chainId = useTezosChainIdLoadingValue(rpcUrl, true)!;
+  const { id, rpcBaseURL, name, nameI18nKey, color } = useTezosNetworkStored();
+  const chainId = useTezosChainIdLoadingValue(rpcBaseURL, true)!;
 
   return useMemo(
     () => ({
       id,
-      rpcUrl,
+      rpcBaseURL,
+      rpcUrl: rpcBaseURL,
       chainId,
       isMainnet: chainId === TempleTezosChainId.Mainnet,
       isDcp: chainId === TempleTezosChainId.Dcp || chainId === TempleTezosChainId.DcpTest,
+      name,
+      nameI18nKey,
       color
     }),
-    [id, rpcUrl, chainId, color]
+    [id, rpcBaseURL, chainId, name, nameI18nKey, color]
   );
 };
 
-export const useEvmNetwork = () => useMemo(() => ViemChains.optimism, []);
+// export const useEvmNetwork = () => useMemo(() => ViemChains.optimism, []);
 
 export const useTezosNetworkRpcUrl = () => useTezosNetworkStored().rpcBaseURL;
 
@@ -60,7 +64,7 @@ export const useTempleNetworksActions = () => {
   const { customTezosNetworks, updateSettings } = useTempleClient();
 
   const addTezosNetwork = useCallback(
-    (newNetwork: StoredNetwork) =>
+    (newNetwork: StoredTezosNetwork) =>
       updateSettings({
         customTezosNetworks: [...customTezosNetworks, newNetwork]
       }),

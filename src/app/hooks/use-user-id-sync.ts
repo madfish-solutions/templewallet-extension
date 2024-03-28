@@ -2,11 +2,10 @@ import { useEffect, useMemo } from 'react';
 
 import { useUserIdSelector } from 'app/store/settings/selectors';
 import { ADS_VIEWER_TEZOS_ADDRESS_STORAGE_KEY, ANALYTICS_USER_ID_STORAGE_KEY } from 'lib/constants';
-import { useAllAccounts } from 'lib/temple/front';
 import { usePassiveStorage } from 'lib/temple/front/storage';
 import { StoredHDAccount } from 'lib/temple/types';
 import { isAccountOfActableType } from 'temple/accounts';
-import { useAccountForTezos } from 'temple/front';
+import { useAllAccounts, useAccountForTezos } from 'temple/front';
 
 export const useUserIdSync = () => {
   // User ID

@@ -9,9 +9,9 @@ import { ReactComponent as ChevronRightIcon } from 'app/icons/chevron-right.svg'
 import { BakingSectionSelectors } from 'app/pages/Home/OtherComponents/BakingSection.selectors';
 import { toLocalFormat, T } from 'lib/i18n';
 import { HELP_UKRAINE_BAKER_ADDRESS, RECOMMENDED_BAKER_ADDRESS } from 'lib/known-bakers';
-import { useKnownBaker, useAllAccounts } from 'lib/temple/front';
+import { useKnownBaker } from 'lib/temple/front';
 import { AccountForChain, findAccountForTezos } from 'temple/accounts';
-import { useTezosNetwork } from 'temple/front';
+import { useAllAccounts, useTezosNetwork } from 'temple/front';
 
 import { OpenInExplorerChip } from './OpenInExplorerChip';
 

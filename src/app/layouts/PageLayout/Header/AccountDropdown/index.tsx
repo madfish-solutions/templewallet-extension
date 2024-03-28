@@ -18,11 +18,11 @@ import SearchField from 'app/templates/SearchField';
 import { useGasToken } from 'lib/assets/hooks';
 import { searchHotkey } from 'lib/constants';
 import { T, t } from 'lib/i18n';
-import { useTempleClient, useSetAccountId } from 'lib/temple/front';
+import { useTempleClient } from 'lib/temple/front';
 import { PopperRenderProps } from 'lib/ui/Popper';
 import { searchAndFilterItems } from 'lib/utils/search-items';
 import { HistoryAction, navigate } from 'lib/woozie';
-import { useCurrentAccountId, useTezosNetwork, useRelevantAccounts } from 'temple/front';
+import { useCurrentAccountId, useTezosNetwork, useRelevantAccounts, useChangeAccount } from 'temple/front';
 
 import { AccountItem } from './AccountItem';
 import { ActionButtonProps, ActionButton } from './ActionButton';
@@ -40,7 +40,7 @@ const AccountDropdown = memo<Props>(({ opened, setOpened }) => {
   const { chainId } = useTezosNetwork();
   const allAccounts = useRelevantAccounts(chainId);
   const currentAccountId = useCurrentAccountId();
-  const setAccountId = useSetAccountId();
+  const setAccountId = useChangeAccount();
   const { assetName: gasTokenName } = useGasToken();
 
   useShortcutAccountSelectModalIsOpened(() => setOpened(false));

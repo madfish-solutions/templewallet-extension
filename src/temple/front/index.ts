@@ -1,17 +1,23 @@
 export {
   useAllTezosNetworks,
+  useAllEvmNetworks,
+  useEvmNetwork,
+  useSetTezosNetworkId as useChangeTezosNetwork,
+  useSetEvmNetworkId as useChangeEvmNetwork,
+  //
+  useAllAccounts,
   useCurrentAccountId,
   useAccount,
   useAccountAddressForTezos,
   useAccountForTezos,
   useAccountAddressForEvm,
-  useAccountForEvm
+  useAccountForEvm,
+  useSetAccountId as useChangeAccount
 } from 'lib/temple/front/ready';
 
 export {
   getNetworkTitle,
   useTezosNetwork,
-  useEvmNetwork,
   useTezosNetworkRpcUrl,
   useTezosChainIdLoading,
   useTezosChainIdLoadingValue,

@@ -2,8 +2,8 @@ import type { DerivationType } from '@taquito/ledger-signer';
 import type { Estimate } from '@taquito/taquito';
 import type { TempleDAppMetadata, TempleDAppNetwork } from '@temple-wallet/dapp/dist/types';
 
-import type { TID } from 'lib/i18n/types';
-import { TempleChainName } from 'temple/types';
+import type { StoredEvmNetwork, StoredTezosNetwork } from 'temple/networks';
+import type { TempleChainName } from 'temple/types';
 
 import type {
   TempleSendPageEventRequest,
@@ -105,33 +105,12 @@ export enum TempleAccountType {
   WatchOnly
 }
 
-interface StoredNetworkBase {
-  id: string;
-  rpcBaseURL: string;
-  name?: string;
-  nameI18nKey?: TID;
-  description?: string;
-  color: string;
-  // Deprecated params:
-  /** @deprecated */
-  type?: 'main' | 'test' | 'dcp';
-  /** @deprecated */
-  disabled?: boolean;
-}
-
-export type StoredNetwork =
-  | (StoredNetworkBase & {
-      nameI18nKey: TID;
-    })
-  | (StoredNetworkBase & {
-      name: string;
-    });
-
 export interface TempleSettings {
-  customTezosNetworks?: StoredNetwork[];
+  customTezosNetworks?: StoredTezosNetwork[];
+  customEvmNetworks?: StoredEvmNetwork[];
   contacts?: TempleContact[];
   /** @deprecated */
-  customNetworks?: StoredNetwork[];
+  customNetworks?: StoredTezosNetwork[];
 }
 
 export enum TempleSharedStorageKey {

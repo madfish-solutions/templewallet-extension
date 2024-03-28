@@ -80,7 +80,10 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
   const locked = status === TempleStatus.Locked;
   const ready = status === TempleStatus.Ready;
 
-  const customTezosNetworks = useMemo(() => settings?.customTezosNetworks ?? [], [settings]);
+  const [customTezosNetworks, customEvmNetworks] = useMemo(
+    () => [settings?.customTezosNetworks ?? [], settings?.customEvmNetworks ?? []],
+    [settings]
+  );
 
   /**
    * Actions
@@ -319,6 +322,7 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     // Aliases
     status,
     customTezosNetworks,
+    customEvmNetworks,
     accounts,
     settings,
     idle,
