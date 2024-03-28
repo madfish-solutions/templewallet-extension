@@ -6,22 +6,22 @@ import DropdownWrapper from 'app/atoms/DropdownWrapper';
 import { useShortcutAccountSelectModalIsOpened } from 'app/hooks/use-account-select-shortcut';
 import { ReactComponent as SignalAltIcon } from 'app/icons/signal-alt.svg';
 import { T } from 'lib/i18n';
-import { BLOCK_EXPLORERS, useAllNetworks, useBlockExplorer, useSetNetworkId } from 'lib/temple/front';
-import { isKnownChainId, StoredNetwork } from 'lib/temple/types';
+import { BLOCK_EXPLORERS, useBlockExplorer, useSetNetworkId } from 'lib/temple/front';
+import { isKnownChainId } from 'lib/temple/types';
 import { PopperRenderProps } from 'lib/ui/Popper';
 import { HistoryAction, navigate } from 'lib/woozie';
-import { useTezosNetwork } from 'temple/front';
+import { useAllTezosNetworks, useTezosNetwork } from 'temple/front';
 import { loadTezosChainId } from 'temple/tezos';
 
 import { NetworkButton } from './NetworkButton';
 import styles from './style.module.css';
 
 interface Props extends PopperRenderProps {
-  currentNetwork: StoredNetwork;
+  currentNetworkId: string;
 }
 
-export const NetworkDropdown = memo<Props>(({ opened, setOpened, currentNetwork }) => {
-  const allNetworks = useAllNetworks();
+export const NetworkDropdown = memo<Props>(({ opened, setOpened, currentNetworkId }) => {
+  const allNetworks = useAllTezosNetworks();
   const setNetworkId = useSetNetworkId();
 
   useShortcutAccountSelectModalIsOpened(() => setOpened(false));
@@ -74,7 +74,7 @@ export const NetworkDropdown = memo<Props>(({ opened, setOpened, currentNetwork 
 
         {allNetworks.map(network => {
           const { id, rpcBaseURL } = network;
-          const selected = id === currentNetwork.id;
+          const selected = id === currentNetworkId;
 
           return (
             <NetworkButton

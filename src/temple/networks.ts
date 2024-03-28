@@ -27,7 +27,7 @@ const DCP_TEZOS_NETWORKS: StoredNetwork[] = [
   }
 ];
 
-export const TEZOS_NETWORKS: StoredNetwork[] = [
+export const DEFAULT_TEZOS_NETWORKS: StoredNetwork[] = [
   {
     id: 'mainnet',
     nameI18nKey: 'tezosMainnet',

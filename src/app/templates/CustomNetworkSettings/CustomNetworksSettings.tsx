@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useMemo } from 'react';
+import React, { FC, memo, useCallback, useMemo } from 'react';
 
 import classNames from 'clsx';
 import { useForm } from 'react-hook-form';
@@ -10,11 +10,11 @@ import { URL_PATTERN } from 'app/defaults';
 import { ReactComponent as CloseIcon } from 'app/icons/close.svg';
 import { setAnotherSelector, setTestID } from 'lib/analytics';
 import { T, t } from 'lib/i18n';
-import { useSettings, useTempleClient } from 'lib/temple/front';
 import { StoredNetwork } from 'lib/temple/types';
 import { COLORS } from 'lib/ui/colors';
 import { useConfirm } from 'lib/ui/dialog';
-import { TEZOS_NETWORKS } from 'temple/networks';
+import { getNetworkTitle, useTempleNetworksActions } from 'temple/front';
+import { DEFAULT_TEZOS_NETWORKS } from 'temple/networks';
 import { loadTezosChainId } from 'temple/tezos';
 
 import { CustomNetworkSettingsSelectors } from './CustomNetworkSettingsSelectors';
@@ -26,9 +26,9 @@ interface NetworkFormData {
 
 const SUBMIT_ERROR_TYPE = 'submit-error';
 
-const CustomNetworksSettings: FC = () => {
-  const { updateSettings } = useTempleClient();
-  const { customNetworks = [] } = useSettings();
+const CustomNetworksSettings = memo(() => {
+  const { customTezosNetworks, addTezosNetwork, removeTezosNetwork } = useTempleNetworksActions();
+
   const confirm = useConfirm();
 
   const {
@@ -63,18 +63,13 @@ const CustomNetworksSettings: FC = () => {
       try {
         const color = COLORS[Math.floor(Math.random() * COLORS.length)];
 
-        await updateSettings({
-          customNetworks: [
-            ...customNetworks,
-            {
-              // TODO: chainId
-              rpcBaseURL,
-              name,
-              disabled: false,
-              color,
-              id: rpcBaseURL
-            }
-          ]
+        await addTezosNetwork({
+          // TODO: chainId
+          rpcBaseURL,
+          name,
+          disabled: false,
+          color,
+          id: rpcBaseURL
         });
 
         resetForm();
@@ -84,16 +79,16 @@ const CustomNetworksSettings: FC = () => {
         setError('rpcBaseURL', SUBMIT_ERROR_TYPE, err.message);
       }
     },
-    [clearError, customNetworks, resetForm, submitting, setError, updateSettings]
+    [submitting, addTezosNetwork, setError, resetForm, clearError]
   );
 
   const rpcURLIsUnique = useCallback(
-    (url: string) => ![...TEZOS_NETWORKS, ...customNetworks].some(({ rpcBaseURL }) => rpcBaseURL === url),
-    [customNetworks]
+    (url: string) => ![...DEFAULT_TEZOS_NETWORKS, ...customTezosNetworks].some(({ rpcBaseURL }) => rpcBaseURL === url),
+    [customTezosNetworks]
   );
 
   const handleRemoveClick = useCallback(
-    async (baseUrl: string) => {
+    async (networkId: string) => {
       if (
         !(await confirm({
           title: t('actionConfirmation'),
@@ -103,15 +98,13 @@ const CustomNetworksSettings: FC = () => {
         return;
       }
 
-      updateSettings({
-        customNetworks: customNetworks.filter(({ rpcBaseURL }) => rpcBaseURL !== baseUrl)
-      }).catch(async err => {
+      removeTezosNetwork(networkId).catch(async err => {
         console.error(err);
 
         setError('rpcBaseURL', SUBMIT_ERROR_TYPE, err.message);
       });
     },
-    [customNetworks, setError, updateSettings, confirm]
+    [removeTezosNetwork, setError, confirm]
   );
 
   return (
@@ -128,7 +121,7 @@ const CustomNetworksSettings: FC = () => {
         </h2>
 
         <div className="flex flex-col text-gray-700 text-sm leading-tight border rounded-md overflow-hidden">
-          {customNetworks.map(network => (
+          {customTezosNetworks.map(network => (
             <NetworksListItem
               network={network}
               last={false}
@@ -136,8 +129,12 @@ const CustomNetworksSettings: FC = () => {
               onRemoveClick={handleRemoveClick}
             />
           ))}
-          {TEZOS_NETWORKS.map((network, index) => (
-            <NetworksListItem key={network.rpcBaseURL} last={index === TEZOS_NETWORKS.length - 1} network={network} />
+          {DEFAULT_TEZOS_NETWORKS.map((network, index) => (
+            <NetworksListItem
+              key={network.rpcBaseURL}
+              last={index === DEFAULT_TEZOS_NETWORKS.length - 1}
+              network={network}
+            />
           ))}
         </div>
       </div>
@@ -191,7 +188,7 @@ const CustomNetworksSettings: FC = () => {
       </form>
     </div>
   );
-};
+});
 
 export default CustomNetworksSettings;
 
@@ -201,18 +198,14 @@ type NetworksListItemProps = {
   last: boolean;
 };
 
-const NetworksListItem: FC<NetworksListItemProps> = props => {
-  const {
-    network: { name, nameI18nKey, rpcBaseURL, color },
-    onRemoveClick,
-    last
-  } = props;
+const NetworksListItem: FC<NetworksListItemProps> = ({ network, onRemoveClick, last }) => {
+  const rpcBaseURL = network.rpcBaseURL;
 
   const handleRemoveClick = useMemo(() => {
     if (!onRemoveClick) return null;
 
-    return () => onRemoveClick(rpcBaseURL);
-  }, [onRemoveClick, rpcBaseURL]);
+    return () => onRemoveClick(network.id);
+  }, [onRemoveClick, network.id]);
 
   return (
     <div
@@ -230,13 +223,11 @@ const NetworksListItem: FC<NetworksListItemProps> = props => {
     >
       <div
         className="mt-1 ml-2 mr-3 w-3 h-3 border border-primary-white rounded-full shadow-xs"
-        style={{ background: color }}
+        style={{ background: network.color }}
       />
 
       <div className="flex flex-col justify-between flex-1">
-        <Name className="mb-1 text-sm font-medium leading-tight">
-          {(nameI18nKey && <T id={nameI18nKey} />) || name}
-        </Name>
+        <Name className="mb-1 text-sm font-medium leading-tight">{getNetworkTitle(network)}</Name>
 
         <div
           className="text-xs text-gray-700 font-light flex items-center"

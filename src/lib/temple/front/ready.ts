@@ -3,18 +3,26 @@ import { useEffect, useLayoutEffect, useMemo } from 'react';
 import constate from 'constate';
 import { isEqual } from 'lodash';
 
-import { ReadyTempleState, TempleStatus, TempleState, TempleNotification, TempleMessageType } from 'lib/temple/types';
+import {
+  TempleStatus,
+  TempleState,
+  TempleNotification,
+  TempleMessageType,
+  StoredAccount,
+  TempleSettings
+} from 'lib/temple/types';
 import { useMemoWithCompare, useUpdatableRef } from 'lib/ui/hooks';
 import { getAccountAddressForTezos, getAccountForEvm, getAccountForTezos } from 'temple/accounts';
 import { intercomClient } from 'temple/front/intercom-client';
+import { DEFAULT_TEZOS_NETWORKS } from 'temple/networks';
 
 import { useTempleClient } from './client';
 import { usePassiveStorage } from './storage';
 
 export const [
   ReadyTempleProvider,
-  useAllNetworks,
-  useNetwork,
+  useAllTezosNetworks,
+  useTezosNetworkStored,
   useSetNetworkId,
   useAllAccounts,
   useCurrentAccountId,
@@ -27,8 +35,8 @@ export const [
   useSettings
 ] = constate(
   useReadyTemple,
-  v => v.allNetworks,
-  v => v.network,
+  v => v.allTezosNetworks,
+  v => v.tezosNetwork,
   v => v.setNetworkId,
   v => v.allAccounts,
   v => v.accountId,
@@ -45,24 +53,26 @@ function useReadyTemple() {
   const templeFront = useTempleClient();
   assertReady(templeFront);
 
-  const { networks: allNetworks, accounts: allAccounts, settings } = templeFront;
+  const { customTezosNetworks, accounts: allAccounts, settings } = templeFront;
 
   /**
    * Networks
    */
 
-  const defaultNet = allNetworks[0];
+  const allTezosNetworks = useMemo(() => [...DEFAULT_TEZOS_NETWORKS, ...customTezosNetworks], [customTezosNetworks]);
+
+  const defaultNet = allTezosNetworks[0];
   const [networkId, setNetworkId] = usePassiveStorage('network_id', defaultNet.id);
 
   useEffect(() => {
-    if (allNetworks.every(a => a.id !== networkId)) {
+    if (allTezosNetworks.every(a => a.id !== networkId)) {
       setNetworkId(defaultNet.id);
     }
-  }, [allNetworks, networkId, setNetworkId, defaultNet]);
+  }, [allTezosNetworks, networkId, setNetworkId, defaultNet]);
 
-  const network = useMemoWithCompare(
-    () => allNetworks.find(n => n.id === networkId) ?? defaultNet,
-    [allNetworks, networkId, defaultNet],
+  const tezosNetwork = useMemoWithCompare(
+    () => allTezosNetworks.find(n => n.id === networkId) ?? defaultNet,
+    [allTezosNetworks, networkId, defaultNet],
     isEqual
   );
 
@@ -116,8 +126,8 @@ function useReadyTemple() {
   }, [networkId, accountId]);
 
   return {
-    allNetworks,
-    network,
+    allTezosNetworks,
+    tezosNetwork,
     networkId,
     setNetworkId,
 
@@ -134,8 +144,14 @@ function useReadyTemple() {
   };
 }
 
-function assertReady(state: TempleState): asserts state is ReadyTempleState {
+function assertReady<T extends TempleState>(state: T): asserts state is T & ReadyTempleState {
   if (state.status !== TempleStatus.Ready) {
     throw new Error('Temple not ready');
   }
+}
+
+interface ReadyTempleState extends TempleState {
+  status: TempleStatus.Ready;
+  accounts: NonEmptyArray<StoredAccount>;
+  settings: TempleSettings;
 }

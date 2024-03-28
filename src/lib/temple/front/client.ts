@@ -19,7 +19,6 @@ import {
   getAccountPublicKey
 } from 'temple/front/intercom-client';
 import { getPendingConfirmationId, resetPendingConfirmationId } from 'temple/front/pending-confirm';
-import { TEZOS_NETWORKS } from 'temple/networks';
 import { TempleChainName } from 'temple/types';
 
 type Confirmation = {
@@ -81,8 +80,7 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
   const locked = status === TempleStatus.Locked;
   const ready = status === TempleStatus.Ready;
 
-  const customNetworks = useMemo(() => settings?.customNetworks ?? [], [settings]);
-  const networks = useMemo(() => [...TEZOS_NETWORKS, ...customNetworks], [customNetworks]);
+  const customTezosNetworks = useMemo(() => settings?.customNetworks ?? [], [settings]);
 
   /**
    * Actions
@@ -320,8 +318,7 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
 
     // Aliases
     status,
-    customNetworks,
-    networks,
+    customTezosNetworks,
     accounts,
     settings,
     idle,

@@ -5,9 +5,9 @@ import classNames from 'clsx';
 import { Button } from 'app/atoms/Button';
 import Name from 'app/atoms/Name';
 import { ReactComponent as ChevronDownIcon } from 'app/icons/chevron-down.svg';
-import { T } from 'lib/i18n';
-import { useNetwork } from 'lib/temple/front';
 import Popper from 'lib/ui/Popper';
+import { useTezosNetwork } from 'temple/front';
+import { getNetworkTitle } from 'temple/front/networks';
 
 import { NetworkDropdown } from './NetworkDropdown';
 import { NetworkSelectSelectors } from './selectors';
@@ -15,13 +15,13 @@ import { NetworkSelectSelectors } from './selectors';
 type NetworkSelectProps = HTMLAttributes<HTMLDivElement>;
 
 const NetworkSelect: FC<NetworkSelectProps> = () => {
-  const currentNetwork = useNetwork();
+  const currentNetwork = useTezosNetwork();
 
   return (
     <Popper
       placement="bottom-end"
       strategy="fixed"
-      popup={props => <NetworkDropdown currentNetwork={currentNetwork} {...props} />}
+      popup={props => <NetworkDropdown currentNetworkId={currentNetwork.id} {...props} />}
     >
       {({ ref, opened, toggleOpened }) => (
         <Button
@@ -45,7 +45,7 @@ const NetworkSelect: FC<NetworkSelectProps> = () => {
           />
 
           <Name style={{ maxWidth: '7rem' }} testID={NetworkSelectSelectors.selectedNetworkButtonName}>
-            {(currentNetwork.nameI18nKey && <T id={currentNetwork.nameI18nKey} />) || currentNetwork.name}
+            {getNetworkTitle(currentNetwork)}
           </Name>
 
           <ChevronDownIcon className="ml-1 -mr-1 stroke-current stroke-2" style={{ height: 16, width: 'auto' }} />

@@ -14,6 +14,8 @@ type SyncFn<T, R = void> = (arg: T) => R;
 
 type StringRecord<T = string> = Record<string, T>;
 
+type NonEmptyArray<T> = [T, ...T[]];
+
 interface PropsWithChildren {
   children: import('react').ReactNode;
 }

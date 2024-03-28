@@ -12,16 +12,7 @@ import type {
   TempleSendTrackEventResponse
 } from './analytics-types';
 
-type NonEmptyArray<T> = [T, ...T[]];
-
 export { DerivationType };
-
-export interface ReadyTempleState extends TempleState {
-  status: TempleStatus.Ready;
-  accounts: NonEmptyArray<StoredAccount>;
-  networks: NonEmptyArray<StoredNetwork>;
-  settings: TempleSettings;
-}
 
 export interface TempleDAppSession {
   network: TempleDAppNetwork;
@@ -128,15 +119,13 @@ interface StoredNetworkBase {
   disabled?: boolean;
 }
 
-export type StoredNetwork = StoredNetworkBase &
-  (
-    | {
-        nameI18nKey: TID;
-      }
-    | {
-        name: string;
-      }
-  );
+export type StoredNetwork =
+  | (StoredNetworkBase & {
+      nameI18nKey: TID;
+    })
+  | (StoredNetworkBase & {
+      name: string;
+    });
 
 export interface TempleSettings {
   customNetworks?: StoredNetwork[];
