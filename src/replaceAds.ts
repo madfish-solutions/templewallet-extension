@@ -65,10 +65,7 @@ if (window.frameElement === null) {
         externalAdsActivityMessageType: ContentScriptType.ExternalAdsActivity
       });
       // Replace ads with ours
-      window.addEventListener('load', () => replaceAds());
-      window.addEventListener('ready', () => replaceAds());
       setInterval(() => replaceAds(), 1000);
-      replaceAds();
     })
     .catch(console.error);
 }

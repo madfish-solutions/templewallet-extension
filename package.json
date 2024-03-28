@@ -1,6 +1,6 @@
 {
   "name": "temple-wallet",
-  "version": "1.19.14",
+  "version": "1.20.1",
   "private": true,
   "scripts": {
     "start-run": "cross-env TS_NODE_PROJECT=\"webpack/tsconfig.json\" webpack --watch --stats errors-warnings",
@@ -232,6 +232,6 @@
     "follow-redirects": "^1.15.4"
   },
   "optionalDependencies": {
-    "@temple-wallet/extension-ads": "^2.0.1"
+    "@temple-wallet/extension-ads": "^2.0.2"
   }
 }
