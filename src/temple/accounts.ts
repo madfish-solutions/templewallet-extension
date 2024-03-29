@@ -6,7 +6,6 @@ export const isAccountOfActableType = (account: StoredAccountBase) =>
   !(account.type === TempleAccountType.WatchOnly || account.type === TempleAccountType.ManagedKT);
 
 export interface AccountForChain<C extends TempleChainName = TempleChainName> {
-  // TODO: extends StoredAccountBase ?
   id: string;
   chain: C;
   address: string;
@@ -32,7 +31,6 @@ function getAccountForChain<C extends TempleChainName>(account: StoredAccount, c
       if (account.chain === chain) address = account.address;
       break;
     case TempleAccountType.WatchOnly:
-      // TODO: if (account.chainId && chainId !== account.chainId) return undefined; ?
       if (account.chain === chain) address = account.address;
       break;
     default:
@@ -57,7 +55,6 @@ export const getAccountAddressForChain = (account: StoredAccount, chain: TempleC
     case TempleAccountType.Imported:
       return account.chain === chain ? account.address : undefined;
     case TempleAccountType.WatchOnly:
-      // TODO: if (account.chainId && chainId !== account.chainId) return undefined; ?
       return account.chain === chain ? account.address : undefined;
   }
 

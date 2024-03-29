@@ -58,7 +58,7 @@ export const PersonaPromotion = memo<Props>(
         environment === 'staging' ? PERSONA_STAGING_ADS_BANNER_UNIT_ID : EnvVars.PERSONA_ADS_BANNER_UNIT_ID;
 
       await client.showBannerAd(
-        // @ts-expect-error // for missung `adConfig` prop
+        // @ts-expect-error // for missing `adConfig` prop
         { adUnitId, containerId },
         errorMsg => {
           throw new Error(String(errorMsg));

@@ -81,13 +81,7 @@ export const WatchOnlyForm = memo(() => {
         chainId = await tezos.rpc.getChainId();
       }
 
-      const finalAddress =
-        chain === TempleChainName.Tezos
-          ? resolvedAddress
-          : Viem.getAddress(
-              resolvedAddress
-              // chainId // TODO: EIP-1191
-            );
+      const finalAddress = chain === TempleChainName.Tezos ? resolvedAddress : Viem.getAddress(resolvedAddress);
 
       await importWatchOnlyAccount(chain, finalAddress, chainId);
 

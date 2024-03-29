@@ -14,7 +14,7 @@ getPersonaAdClient()
     const adUnitId = getUnitId(shape as PersonaAdShape, environment === 'staging');
 
     return client.showBannerAd(
-      // @ts-expect-error // for missung `adConfig` prop
+      // @ts-expect-error // for missing `adConfig` prop
       { adUnitId, containerId: CONTAINER_ID },
       errorMsg => {
         throw new Error(String(errorMsg));

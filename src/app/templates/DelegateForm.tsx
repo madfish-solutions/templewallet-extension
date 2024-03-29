@@ -513,7 +513,7 @@ interface KnownDelegatorsListProps {
   triggerValidation: any;
 }
 
-const KnownDelegatorsList: React.FC<KnownDelegatorsListProps> = ({ accountPkh, setValue, triggerValidation }) => {
+const KnownDelegatorsList = memo<KnownDelegatorsListProps>(({ accountPkh, setValue, triggerValidation }) => {
   const knownBakers = useKnownBakers();
   const { search } = useLocation();
   const testGroupName = useUserTestingGroupNameSelector();
@@ -689,7 +689,7 @@ const KnownDelegatorsList: React.FC<KnownDelegatorsListProps> = ({ accountPkh, s
       </div>
     </div>
   );
-};
+});
 
 type DelegateErrorAlertProps = {
   type: 'submit' | 'estimation';

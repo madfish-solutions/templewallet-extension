@@ -134,11 +134,13 @@ const AssetFieldContent = memo<AssetFieldContent>(({ slug, publicKeyHash, testID
   );
 });
 
-const AssetOptionContent: FC<{ accountPkh: string; slug: string; selected: boolean }> = ({
-  accountPkh,
-  slug,
-  selected
-}) => (
+interface AssetOptionContentProps {
+  accountPkh: string;
+  slug: string;
+  selected: boolean;
+}
+
+const AssetOptionContent = memo<AssetOptionContentProps>(({ accountPkh, slug, selected }) => (
   <div
     className={classNames('flex items-center w-full py-1.5 px-2 h-15', selected ? 'bg-gray-200' : 'hover:bg-gray-100')}
     {...setTestID(SendFormSelectors.assetDropDownItem)}
@@ -148,4 +150,4 @@ const AssetOptionContent: FC<{ accountPkh: string; slug: string; selected: boole
 
     <AssetItemContent slug={slug} publicKeyHash={accountPkh} />
   </div>
-);
+));

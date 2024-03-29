@@ -1,7 +1,6 @@
 import React, { memo, FC, useMemo } from 'react';
 
 import clsx from 'clsx';
-import * as Viem from 'viem';
 
 import { Button } from 'app/atoms';
 import Money from 'app/atoms/Money';
@@ -20,11 +19,9 @@ import { useFiatCurrency } from 'lib/fiat-currency';
 import { t, T } from 'lib/i18n';
 import { TezosLogoIcon } from 'lib/icons';
 import { getAssetName, getAssetSymbol, useAssetMetadata } from 'lib/metadata';
-import { useTypedSWR } from 'lib/swr';
-import { atomsToTokens } from 'lib/temple/helpers';
 import useTippy from 'lib/ui/useTippy';
 import { UNDER_DEVELOPMENT_MSG } from 'temple/evm/under_dev_msg';
-import { useAccountAddressForEvm, useAccountAddressForTezos, useTezosNetwork, useEvmNetwork } from 'temple/front';
+import { useAccountAddressForEvm, useAccountAddressForTezos, useTezosNetwork } from 'temple/front';
 
 import { HomeSelectors } from '../../Home.selectors';
 import { TokenPageSelectors } from '../TokenPage.selectors';
@@ -48,11 +45,7 @@ const TotalVolumeBanner = () => {
 
   return (
     <div className="flex items-start justify-between w-full max-w-sm mx-auto mb-4">
-      {tezosAddress ? (
-        <TezosBalanceInfo accountPkh={tezosAddress} />
-      ) : evmAddress ? (
-        <EvmBalanceInfo address={evmAddress} />
-      ) : null}
+      {tezosAddress ? <TezosBalanceInfo accountPkh={tezosAddress} /> : <div>{UNDER_DEVELOPMENT_MSG}</div>}
 
       <div className="flex flex-col gap-y-1 items-end">
         {tezosAddress ? <AddressChip pkh={tezosAddress} testID={HomeSelectors.publicAddressButton} /> : null}
@@ -62,7 +55,11 @@ const TotalVolumeBanner = () => {
   );
 };
 
-const TezosBalanceInfo: FC<{ accountPkh: string }> = ({ accountPkh }) => {
+interface TezosBalanceInfoProps {
+  accountPkh: string;
+}
+
+const TezosBalanceInfo: FC<TezosBalanceInfoProps> = ({ accountPkh }) => {
   const { isMainnet } = useTezosNetwork();
   const totalBalanceInDollar = useTotalBalance(accountPkh);
   const balanceMode = useBalanceModeSelector();
@@ -138,28 +135,6 @@ const TezosBalanceInfo: FC<{ accountPkh: string }> = ({ accountPkh }) => {
       </div>
     </div>
   );
-};
-
-const EvmBalanceInfo: FC<{ address: HexString }> = ({ address }) => {
-  const network = useEvmNetwork();
-  const decimals = network.nativeCurrency.decimals;
-
-  const viemClient = useMemo(
-    () =>
-      Viem.createPublicClient({
-        chain: network,
-        transport: Viem.http()
-      }),
-    [network]
-  );
-
-  const { data, isLoading } = useTypedSWR(['evm-gas-balance', address], () => viemClient.getBalance({ address }));
-
-  const balanceStr = useMemo(() => {
-    return data ? atomsToTokens(String(data), decimals).toFixed(4) : '0';
-  }, [data, decimals]);
-
-  return <div>{isLoading ? 'Loading...' : balanceStr}</div>;
 };
 
 interface AssetBannerProps {

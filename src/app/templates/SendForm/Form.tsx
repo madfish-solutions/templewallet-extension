@@ -69,14 +69,14 @@ interface FormData {
 const PENNY = 0.000001;
 const RECOMMENDED_ADD_FEE = 0.0001;
 
-type Props = {
+interface Props {
   account: AccountForTezos;
   /** Present for `account.type === TempleAccountType.ManagedKT` */
   ownerAddress?: string;
   assetSlug: string;
   setOperation: Dispatch<any>;
   onAddContactRequested: (address: string) => void;
-};
+}
 
 export const Form: FC<Props> = ({ account, ownerAddress, assetSlug, setOperation, onAddContactRequested }) => {
   const { registerBackHandler } = useAppEnv();

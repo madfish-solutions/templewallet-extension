@@ -151,11 +151,13 @@ const BakerBanner = memo<Props>(({ accountPkh, bakerPkh, link = false, displayAd
 
 export default BakerBanner;
 
-const BakerAccount: React.FC<{
+interface BakerAccountProps {
   bakerAcc: AccountForChain | undefined;
   accPkh: string;
   bakerPkh: string;
-}> = ({ bakerAcc, accPkh, bakerPkh }) => {
+}
+
+const BakerAccount = memo<BakerAccountProps>(({ bakerAcc, accPkh, bakerPkh }) => {
   const { isDcp } = useTezosNetwork();
 
   return bakerAcc ? (
@@ -183,7 +185,7 @@ const BakerAccount: React.FC<{
       {message => <span className="font-normal">{typeof message === 'string' ? message.toLowerCase() : message}</span>}
     </T>
   );
-};
+});
 
 const SponsoredBaker: FC<{ isRecommendedBaker: boolean }> = ({ isRecommendedBaker }) => (
   <div
@@ -193,6 +195,7 @@ const SponsoredBaker: FC<{ isRecommendedBaker: boolean }> = ({ isRecommendedBake
     <T id={isRecommendedBaker ? 'recommended' : 'helpUkraine'} />
   </div>
 );
+
 const PromotedBaker: FC<{ isRecommendedBaker: boolean }> = ({ isRecommendedBaker }) => (
   <div
     className={classNames('font-normal text-xs px-2 py-1 bg-primary-orange text-white ml-2')}

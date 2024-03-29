@@ -171,6 +171,16 @@ const BuyTezosWithCreditCard = memo<{ publicKeyHash: string }>(({ publicKeyHash 
   const someErrorOccurred = isDefined(purchaseLinkError) || Object.keys(errors).length > 0;
   const submitDisabled = someErrorOccurred || !isDefined(outputAmount);
 
+  const exchangeRateStr = useMemo(() => {
+    if (isDefined(exchangeRate))
+      return `1 ${getAssetSymbolToDisplay(inputCurrency)} = ${toLocalFormat(
+        exchangeRate,
+        {}
+      )} ${getAssetSymbolToDisplay(outputToken)}`;
+
+    return '-';
+  }, [exchangeRate, inputCurrency, outputToken]);
+
   return (
     <ErrorBoundary>
       <Suspense fallback={<SpinnerSection />}>
@@ -251,14 +261,7 @@ const BuyTezosWithCreditCard = memo<{ publicKeyHash: string }>(({ publicKeyHash 
               <span className="text-xs text-gray-30 leading-relaxed">
                 <T id="exchangeRate" />:
               </span>
-              <span className="text-xs text-gray-600 leading-relaxed">
-                {isDefined(exchangeRate)
-                  ? `1 ${getAssetSymbolToDisplay(inputCurrency)} = ${toLocalFormat(
-                      exchangeRate,
-                      {}
-                    )} ${getAssetSymbolToDisplay(outputToken)}`
-                  : '-'}
-              </span>
+              <span className="text-xs text-gray-600 leading-relaxed">{exchangeRateStr}</span>
             </div>
 
             <span className="text-center text-xs text-gray-700 leading-relaxed">

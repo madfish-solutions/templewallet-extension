@@ -28,13 +28,11 @@ import { AccountItem } from './AccountItem';
 import { ActionButtonProps, ActionButton } from './ActionButton';
 import { AccountDropdownSelectors } from './selectors';
 
-type Props = PopperRenderProps;
-
 interface TDropdownAction extends ActionButtonProps {
   key: string;
 }
 
-const AccountDropdown = memo<Props>(({ opened, setOpened }) => {
+const AccountDropdown = memo<PopperRenderProps>(({ opened, setOpened }) => {
   const appEnv = useAppEnv();
   const { lock } = useTempleClient();
   const { chainId } = useTezosNetwork();

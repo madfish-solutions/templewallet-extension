@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { memo, FC, useMemo } from 'react';
 
 import classNames from 'clsx';
 import InfiniteScroll from 'react-infinite-scroll-component';
@@ -22,7 +22,7 @@ interface Props {
   assetSlug?: string;
 }
 
-export const ActivityTab = React.memo<Props>(({ assetSlug }) => {
+export const ActivityTab = memo<Props>(({ assetSlug }) => {
   const accountAddress = useAccountAddressForTezos();
 
   return accountAddress ? (
@@ -36,7 +36,7 @@ interface ActivityComponentProps extends Props {
   accountAddress: string;
 }
 
-const ActivityComponent: React.FC<ActivityComponentProps> = ({ accountAddress, assetSlug }) => {
+const ActivityComponent: FC<ActivityComponentProps> = ({ accountAddress, assetSlug }) => {
   const {
     loading,
     reachedTheEnd,

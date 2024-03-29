@@ -29,8 +29,7 @@ export const validateDelegate = async (
   if (isTezosDomainsNameValid(value, domainsClient)) {
     const resolved = await domainsClient.resolver.resolveNameToAddress(value);
     if (!resolved) {
-      // return validateAddress(value) || t('domainDoesntResolveToAddress', value);
-      return validateAddress(value);
+      return validateAddress(value) || t('domainDoesntResolveToAddress', value);
     }
 
     value = resolved;

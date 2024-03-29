@@ -14,9 +14,9 @@ import { RemoveAccountSelectors } from './RemoveAccount.selectors';
 
 const SUBMIT_ERROR_TYPE = 'submit-error';
 
-type FormData = {
+interface FormData {
   password: string;
-};
+}
 
 const RemoveAccount = memo(() => {
   const { removeAccount } = useTempleClient();

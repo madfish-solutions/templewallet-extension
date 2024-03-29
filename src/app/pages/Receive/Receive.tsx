@@ -1,4 +1,4 @@
-import React, { FC, memo, useEffect } from 'react';
+import React, { memo, useEffect } from 'react';
 
 import classNames from 'clsx';
 import { QRCode } from 'react-qr-svg';
@@ -48,7 +48,12 @@ const Receive = memo(() => {
   );
 });
 
-const ReceiveContent: FC<{ address: string; labelTitle: string }> = ({ address, labelTitle }) => {
+interface ReceiveContentProps {
+  address: string;
+  labelTitle: string;
+}
+
+const ReceiveContent = memo<ReceiveContentProps>(({ address, labelTitle }) => {
   const { isSupported } = useTezosDomainsClient();
 
   const { fieldRef, copy, copied } = useCopyToClipboard();
@@ -114,12 +119,10 @@ const ReceiveContent: FC<{ address: string; labelTitle: string }> = ({ address, 
         <div className="mb-4 p-1 bg-gray-100 border-2 border-gray-300 rounded" style={{ maxWidth: '60%' }}>
           <QRCode bgColor="#f7fafc" fgColor="#000000" level="Q" style={{ width: '100%' }} value={address} />
         </div>
-
-        {/* <Deposit address={address} /> */}
       </div>
     </>
   );
-};
+});
 
 export default Receive;
 

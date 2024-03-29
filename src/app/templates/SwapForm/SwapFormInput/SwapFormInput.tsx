@@ -1,4 +1,4 @@
-import React, { ChangeEvent, FC, ReactNode, useMemo } from 'react';
+import React, { ChangeEvent, FC, memo, ReactNode, useMemo } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
 import BigNumber from 'bignumber.js';
@@ -272,45 +272,56 @@ const SwapInput: FC<SwapInputProps> = ({
   );
 };
 
-const SwapInputHeader: FC<{
+interface SwapInputHeaderProps {
   publicKeyHash: string;
   label: ReactNode;
   selectedAssetSlug: string;
   selectedAssetSymbol: string;
-}> = ({ publicKeyHash, selectedAssetSlug, selectedAssetSymbol, label }) => {
-  const { value: balance } = useBalance(selectedAssetSlug, publicKeyHash);
+}
 
-  return (
-    <div className="w-full flex items-center justify-between">
-      <span className="text-xl text-gray-900">{label}</span>
+const SwapInputHeader = memo<SwapInputHeaderProps>(
+  ({ publicKeyHash, selectedAssetSlug, selectedAssetSymbol, label }) => {
+    const { value: balance } = useBalance(selectedAssetSlug, publicKeyHash);
 
-      {selectedAssetSlug && (
-        <span className="text-xs text-gray-500 flex items-baseline">
-          <span className="mr-1">
-            <T id="balance" />:
-          </span>
+    return (
+      <div className="w-full flex items-center justify-between">
+        <span className="text-xl text-gray-900">{label}</span>
 
-          {balance && (
-            <span className={classNames('text-sm mr-1 text-gray-700', balance.isZero() && 'text-red-700')}>
-              <Money smallFractionFont={false} fiat={false}>
-                {balance}
-              </Money>
+        {selectedAssetSlug && (
+          <span className="text-xs text-gray-500 flex items-baseline">
+            <span className="mr-1">
+              <T id="balance" />:
             </span>
-          )}
 
-          <span>{selectedAssetSymbol}</span>
-        </span>
-      )}
-    </div>
-  );
-};
+            {balance && (
+              <span className={classNames('text-sm mr-1 text-gray-700', balance.isZero() && 'text-red-700')}>
+                <Money smallFractionFont={false} fiat={false}>
+                  {balance}
+                </Money>
+              </span>
+            )}
 
-const SwapFooter: FC<{
+            <span>{selectedAssetSymbol}</span>
+          </span>
+        )}
+      </div>
+    );
+  }
+);
+
+interface SwapFooterProps {
   publicKeyHash: string;
   amountInputDisabled: boolean;
   selectedAssetSlug: string;
   handlePercentageClick: (percentage: number) => void;
-}> = ({ publicKeyHash, amountInputDisabled, selectedAssetSlug, handlePercentageClick }) => {
+}
+
+const SwapFooter: FC<SwapFooterProps> = ({
+  publicKeyHash,
+  amountInputDisabled,
+  selectedAssetSlug,
+  handlePercentageClick
+}) => {
   const { value: balance } = useRawBalance(selectedAssetSlug, publicKeyHash);
 
   return amountInputDisabled ? null : (

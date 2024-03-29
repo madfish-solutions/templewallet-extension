@@ -60,14 +60,14 @@ const AddAsset = memo(() => {
 
 export default AddAsset;
 
-type FormData = {
+interface FormData {
   address: string;
   id?: number;
   symbol: string;
   name: string;
   decimals: number;
   thumbnailUri: string;
-};
+}
 
 type ComponentState = {
   processing: boolean;

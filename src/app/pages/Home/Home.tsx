@@ -20,9 +20,9 @@ import MainBanner from './OtherComponents/MainBanner';
 import { ScamTokenAlert } from './OtherComponents/ScamTokenAlert';
 import { TokenPageSelectors } from './OtherComponents/TokenPage.selectors';
 
-type Props = {
+interface Props {
   assetSlug?: string | null;
-};
+}
 
 const Home = memo<Props>(({ assetSlug }) => {
   const { fullPage, registerBackHandler } = useAppEnv();

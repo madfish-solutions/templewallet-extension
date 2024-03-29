@@ -20,12 +20,12 @@ import { delay } from 'lib/utils';
 
 import { ConnectLedgerSelectors } from './ConnectLedger.selectors';
 
-type FormData = {
+interface FormData {
   name: string;
   customDerivationPath: string;
   derivationType?: DerivationType;
   accountNumber?: number;
-};
+}
 
 const DERIVATION_PATHS = [
   {

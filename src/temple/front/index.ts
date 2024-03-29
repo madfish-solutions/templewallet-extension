@@ -9,7 +9,6 @@ export {
 
 export {
   useTezosNetwork,
-  useEvmNetwork,
   useTezosNetworkRpcUrl,
   useTezosChainIdLoading,
   useTezosChainIdLoadingValue

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 
 import { isTezAsset } from 'lib/assets';
 
@@ -13,7 +13,7 @@ interface Props {
   scam?: boolean;
 }
 
-export const TokenTag = React.memo<Props>(({ tezPkh, assetSlug, assetSymbol, scam }) => {
+export const TokenTag = memo<Props>(({ tezPkh, assetSlug, assetSymbol, scam }) => {
   if (isTezAsset(assetSlug)) return <DelegateTezosTag pkh={tezPkh} />;
 
   if (scam) return <ScamTag assetSlug={assetSlug} tezPkh={tezPkh} />;
