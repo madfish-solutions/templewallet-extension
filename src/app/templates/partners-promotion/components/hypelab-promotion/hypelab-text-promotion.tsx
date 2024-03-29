@@ -44,25 +44,28 @@ export const HypelabTextPromotion: FC<Omit<SingleProviderPromotionProps, 'varian
   useEffect(() => void (adIsReady && onReady()), [adIsReady, onReady]);
 
   return (
-    <Native placement={EnvVars.HYPELAB_NATIVE_PLACEMENT_SLUG} onError={onError}>
-      <span className="hidden" ref={hypelabHeadlineRef} data-ref="headline" />
-      <span className="hidden" ref={hypelabBodyRef} data-ref="body" />
-      <a className="hidden" ref={hypelabCtaLinkRef} href="/" data-ref="ctaLink">
-        <img className="hidden" ref={hypelabIconRef} data-ref="icon" alt="" />
-      </a>
+    <>
+      {/* @ts-expect-error */}
+      <Native class="w-full" placement={EnvVars.HYPELAB_NATIVE_PLACEMENT_SLUG} onError={onError}>
+        <span className="hidden" ref={hypelabHeadlineRef} data-ref="headline" />
+        <span className="hidden" ref={hypelabBodyRef} data-ref="body" />
+        <a className="hidden" ref={hypelabCtaLinkRef} href="/" data-ref="ctaLink">
+          <img className="hidden" ref={hypelabIconRef} data-ref="icon" alt="" />
+        </a>
 
-      <TextPromotionView
-        href={ctaUrl || '/'}
-        imageSrc={iconUrl || dummyImageSrc}
-        isVisible={isVisible}
-        headline={headlineText}
-        contentText={bodyText}
-        providerTitle={AdsProviderTitle.HypeLab}
-        pageName={pageName}
-        onAdRectSeen={onAdRectSeen}
-        onImageError={onError}
-        onClose={onClose}
-      />
-    </Native>
+        <TextPromotionView
+          href={ctaUrl || '/'}
+          imageSrc={iconUrl || dummyImageSrc}
+          isVisible={isVisible}
+          headline={headlineText}
+          contentText={bodyText}
+          providerTitle={AdsProviderTitle.HypeLab}
+          pageName={pageName}
+          onAdRectSeen={onAdRectSeen}
+          onImageError={onError}
+          onClose={onClose}
+        />
+      </Native>
+    </>
   );
 };
