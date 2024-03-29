@@ -9,6 +9,7 @@ import { setAnotherSelector, setTestID } from 'lib/analytics';
 import { StoredAccount } from 'lib/temple/types';
 import { useScrollIntoViewOnMount } from 'lib/ui/use-scroll-into-view';
 import { getAccountAddressForEvm, getAccountAddressForTezos } from 'temple/accounts';
+import { useEvmNetwork } from 'temple/front';
 
 import { AccountDropdownSelectors } from './selectors';
 
@@ -21,6 +22,8 @@ interface Props {
 }
 
 export const AccountItem = memo<Props>(({ account, selected, gasTokenName, attractSelf, onClick }) => {
+  const evmNetwork = useEvmNetwork();
+
   const [accountTezAddress, displayAddress] = useMemo(() => {
     const tezAddress = getAccountAddressForTezos(account);
     const displayAddress = (tezAddress || getAccountAddressForEvm(account))!;
@@ -80,7 +83,7 @@ export const AccountItem = memo<Props>(({ account, selected, gasTokenName, attra
               )}
             </Balance>
           ) : (
-            '🚧 🛠️ 🔜 🏗️ ETH'
+            `🚧 🛠️ 🔜 🏗️ ${evmNetwork.currency.symbol}`
           )}
 
           <AccountTypeBadge accountType={account.type} darkTheme />

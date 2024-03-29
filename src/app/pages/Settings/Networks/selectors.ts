@@ -1,4 +1,4 @@
-export enum CustomNetworkSettingsSelectors {
+export enum NetworkSettingsSelectors {
   networkItem = 'Networks Settings/Network Item',
   deleteCustomNetworkButton = 'Networks Settings/Delete Custom Network Button',
 

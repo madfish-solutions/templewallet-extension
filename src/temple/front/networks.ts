@@ -1,13 +1,11 @@
 import { useCallback, useMemo } from 'react';
 
-// import * as ViemChains from 'viem/chains';
-
 import { TID, t } from 'lib/i18n';
 import { useRetryableSWR } from 'lib/swr';
 import { useTempleClient } from 'lib/temple/front/client';
 import { useTezosNetworkStored } from 'lib/temple/front/ready';
 import { TempleTezosChainId } from 'lib/temple/types';
-import { StoredTezosNetwork } from 'temple/networks';
+import { StoredEvmNetwork, StoredTezosNetwork } from 'temple/networks';
 
 import { loadTezosChainId } from '../tezos';
 
@@ -17,10 +15,10 @@ export const getNetworkTitle = ({
   name,
   nameI18nKey
 }: {
+  name: string;
+  nameI18nKey?: TID;
   rpcUrl?: string;
   rpcBaseURL?: string;
-  name?: string;
-  nameI18nKey?: TID;
 }) => (nameI18nKey ? t(nameI18nKey) : name || rpcBaseURL || rpcUrl);
 
 /** (!) Relies on suspense - use only in PageLayout descendant components. */
@@ -44,8 +42,6 @@ export const useTezosNetwork = () => {
   );
 };
 
-// export const useEvmNetwork = () => useMemo(() => ViemChains.optimism, []);
-
 export const useTezosNetworkRpcUrl = () => useTezosNetworkStored().rpcBaseURL;
 
 export function useTezosChainIdLoadingValue(rpcUrl: string, suspense?: boolean): string | undefined {
@@ -61,7 +57,7 @@ export function useTezosChainIdLoading(rpcUrl: string, suspense?: boolean) {
 }
 
 export const useTempleNetworksActions = () => {
-  const { customTezosNetworks, updateSettings } = useTempleClient();
+  const { customTezosNetworks, customEvmNetworks, updateSettings } = useTempleClient();
 
   const addTezosNetwork = useCallback(
     (newNetwork: StoredTezosNetwork) =>
@@ -79,5 +75,28 @@ export const useTempleNetworksActions = () => {
     [customTezosNetworks, updateSettings]
   );
 
-  return { customTezosNetworks, addTezosNetwork, removeTezosNetwork };
+  const addEvmNetwork = useCallback(
+    (newNetwork: StoredEvmNetwork) =>
+      updateSettings({
+        customEvmNetworks: [...customEvmNetworks, newNetwork]
+      }),
+    [customEvmNetworks, updateSettings]
+  );
+
+  const removeEvmNetwork = useCallback(
+    (networkId: string) =>
+      updateSettings({
+        customEvmNetworks: customEvmNetworks.filter(n => n.id !== networkId)
+      }),
+    [customEvmNetworks, updateSettings]
+  );
+
+  return {
+    customTezosNetworks,
+    customEvmNetworks,
+    addTezosNetwork,
+    removeTezosNetwork,
+    addEvmNetwork,
+    removeEvmNetwork
+  };
 };

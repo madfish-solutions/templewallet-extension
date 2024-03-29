@@ -1,13 +1,11 @@
 ## TODO:
 
-- Branch for current epic
-- - Code quality checks for targetting /TW-(d+)-epic-/
-- Import watch-only EVM account
 - Unit tests for EVM accounts in the Vault
 - TempleContact. See: `useFilteredContacts()`
 - - Migrate
 - - To Redux ?
 - Tezos Chain ID
+- - Warning for incorrect Chain ID value. Require action!
 - - Not depend on useChainId suspensed
 - - Deal with 'MondayNet' & 'DailyNet' (Chain ID)
 - - Make sure RPC can be changed, when chainId not available
@@ -61,8 +59,10 @@
 - Is `nanoid()` good enough to id accounts ?
 - `bip39` -> `@scure/bip39` ?
 - `loadContract('', FALSE)` - why?
-- Networks stored in Vault ?
+- Networks (& contacts) stored in Vault ?
 - Block explorers
+- Adding localhost RPC
+- - What native currency?
 -
 
 ## TO QA

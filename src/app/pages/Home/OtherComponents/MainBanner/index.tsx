@@ -24,13 +24,7 @@ import { useTypedSWR } from 'lib/swr';
 import { atomsToTokens } from 'lib/temple/helpers';
 import useTippy from 'lib/ui/useTippy';
 import { UNDER_DEVELOPMENT_MSG } from 'temple/evm/under_dev_msg';
-import {
-  useAccountAddressForEvm,
-  useAccountAddressForTezos,
-  useTezosNetwork,
-  useEvmNetwork,
-  getNetworkTitle
-} from 'temple/front';
+import { useAccountAddressForEvm, useAccountAddressForTezos, useTezosNetwork, useEvmNetwork } from 'temple/front';
 
 import { HomeSelectors } from '../../Home.selectors';
 import { TokenPageSelectors } from '../TokenPage.selectors';
@@ -148,14 +142,14 @@ const TezosBalanceInfo: FC<{ accountPkh: string }> = ({ accountPkh }) => {
 
 const EvmBalanceInfo: FC<{ address: HexString }> = ({ address }) => {
   const network = useEvmNetwork();
-  const decimals = network.currency.decimals;
+  const currency = network.currency;
 
   const viemClient = useMemo(
     () =>
       Viem.createPublicClient({
         chain: {
           id: network.chainId,
-          name: getNetworkTitle(network) ?? '',
+          name: network.name,
           nativeCurrency: network.currency,
           rpcUrls: {
             default: {
@@ -168,11 +162,15 @@ const EvmBalanceInfo: FC<{ address: HexString }> = ({ address }) => {
     [network]
   );
 
-  const { data, isLoading } = useTypedSWR(['evm-gas-balance', address], () => viemClient.getBalance({ address }));
+  const { data, isLoading } = useTypedSWR(['evm-gas-balance', address, network.rpcBaseURL], () =>
+    viemClient.getBalance({ address })
+  );
 
   const balanceStr = useMemo(() => {
-    return data ? atomsToTokens(String(data), decimals).toFixed(4) : '0';
-  }, [data, decimals]);
+    const valueStr = data ? atomsToTokens(String(data), currency.decimals).toFixed(6) : '0';
+
+    return `${valueStr} ${currency.symbol}`;
+  }, [data, currency]);
 
   return <div>{isLoading ? 'Loading...' : balanceStr}</div>;
 };

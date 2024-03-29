@@ -3,10 +3,11 @@ import type { TID } from 'lib/i18n';
 export interface NetworkBase {
   id: string;
   rpcBaseURL: string;
-  name?: string;
+  name: string;
   nameI18nKey?: TID;
   description?: string;
   color: string;
+  // TODO: testnet?: boolean;
   // Deprecated params:
   /** @deprecated */
   type?: 'main' | 'test' | 'dcp';
@@ -52,6 +53,7 @@ const DCP_TEZOS_NETWORKS: StoredTezosNetwork[] = [
 export const DEFAULT_TEZOS_NETWORKS: NonEmptyArray<StoredTezosNetwork> = [
   {
     id: 'mainnet',
+    name: 'Tezos Mainnet',
     nameI18nKey: 'tezosMainnet',
     description: 'Tezos mainnet',
     rpcBaseURL: 'https://prod.tcinfra.net/rpc/mainnet',
@@ -59,6 +61,7 @@ export const DEFAULT_TEZOS_NETWORKS: NonEmptyArray<StoredTezosNetwork> = [
   },
   {
     id: 'marigold-mainnet',
+    name: 'Marigold Mainnet',
     nameI18nKey: 'marigoldMainnet',
     description: 'Marigold mainnet',
     rpcBaseURL: 'https://mainnet.tezos.marigold.dev',
@@ -128,17 +131,23 @@ export const HIDDEN_TEZOS_NETWORKS: StoredTezosNetwork[] = [
 
 export interface StoredEvmNetwork extends NetworkBase {
   chainId: number;
-  currency: { name: string; symbol: string; decimals: number };
+  currency: EvmNativeCurrency;
 }
 
-const DEFAULT_EVM_CURRENCY = { name: 'Ether', symbol: 'ETH', decimals: 18 };
+export interface EvmNativeCurrency {
+  name: string;
+  symbol: string;
+  decimals: number;
+}
+
+const DEFAULT_EVM_CURRENCY: EvmNativeCurrency = { name: 'Ether', symbol: 'ETH', decimals: 18 };
 
 export const DEFAULT_EVM_NETWORKS: NonEmptyArray<StoredEvmNetwork> = [
   {
     id: 'mainnet',
     chainId: 1,
     name: 'Ethereum Mainnet',
-    rpcBaseURL: 'https://mainnet.infura.io/v3',
+    rpcBaseURL: 'https://cloudflare-eth.com',
     currency: DEFAULT_EVM_CURRENCY,
     color: '#83b300'
   },
