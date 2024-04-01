@@ -19,10 +19,10 @@ import { HomeSelectors } from './Home.selectors';
 import BakingSection from './OtherComponents/BakingSection';
 import { TokensTab } from './OtherComponents/Tokens/Tokens';
 
-type Props = {
+interface Props {
   assetSlug?: string | null;
   className?: string;
-};
+}
 
 type TabName = 'tokens' | 'collectibles' | 'activity' | 'delegation' | 'info';
 

@@ -19,11 +19,12 @@ import toBuffer from 'typedarray-to-buffer';
 
 import { TempleMessageType } from 'lib/temple/types';
 import { makeIntercomRequest, assertResponse, getAccountPublicKey } from 'temple/front/intercom-client';
-import { MAX_MEMOIZED_TOOLKITS, getTezosFastRpcClient, makeTezosChecksum, michelEncoder } from 'temple/tezos';
+import { MAX_MEMOIZED_TOOLKITS, getTezosFastRpcClient, makeTezosClientId, michelEncoder } from 'temple/tezos';
 
 import { useTezosNetworkRpcUrl } from '../networks';
 import { setPendingConfirmationId } from '../pending-confirm';
 
+export { validateTezosContractAddress } from './helpers';
 export { useOnTezosBlock, useTezosBlockLevel } from './use-block';
 export {
   isTezosDomainsNameValid,
@@ -53,16 +54,16 @@ const buildTezosToolkitWithSigner = memoizee(
 
     return tezos;
   },
-  { max: MAX_MEMOIZED_TOOLKITS, normalizer: ([rpcUrl, signerPkh]) => makeTezosChecksum(rpcUrl, signerPkh) }
+  { max: MAX_MEMOIZED_TOOLKITS, normalizer: ([rpcUrl, signerPkh]) => makeTezosClientId(rpcUrl, signerPkh) }
 );
 
 class ReactiveTezosToolkit extends TezosToolkit {
-  checksum: string;
+  clientId: string;
 
   constructor(rpcUrl: string, accountPkh: string) {
     super(getTezosFastRpcClient(rpcUrl));
 
-    this.checksum = makeTezosChecksum(rpcUrl, accountPkh);
+    this.clientId = makeTezosClientId(rpcUrl, accountPkh);
 
     this.setPackerProvider(michelEncoder);
     this.addExtension(new Tzip16Module());

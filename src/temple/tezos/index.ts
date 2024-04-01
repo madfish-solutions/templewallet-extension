@@ -10,7 +10,7 @@ export const MAX_MEMOIZED_TOOLKITS = 3;
 
 export const michelEncoder = new MichelCodecPacker();
 
-export const makeTezosChecksum = (rpcUrl: string, accountPkh: string) => `${accountPkh}@${rpcUrl}`;
+export const makeTezosClientId = (rpcUrl: string, accountPkh: string) => `${accountPkh}@${rpcUrl}`;
 
 export const getReadOnlyTezos = memoizee(
   (rpcUrl: string) => {

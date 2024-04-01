@@ -5,9 +5,9 @@ import * as Viem from 'viem';
 
 import { Alert, FormSubmitButton, NoSpaceField } from 'app/atoms';
 import { useFormAnalytics } from 'lib/analytics';
-import { t } from 'lib/i18n';
+import { T, t } from 'lib/i18n';
 import { useTempleClient, validateDelegate } from 'lib/temple/front';
-import { isAddressValid as isValidTezosAddress, isKTAddress } from 'lib/temple/helpers';
+import { isValidTezosAddress, isTezosContractAddress } from 'lib/tezos';
 import { useTezosNetworkRpcUrl } from 'temple/front';
 import { useTezosAddressByDomainName, useTezosDomainsClient } from 'temple/front/tezos';
 import { getReadOnlyTezos } from 'temple/tezos';
@@ -55,21 +55,17 @@ export const WatchOnlyForm = memo(() => {
     setError(null);
 
     formAnalytics.trackSubmit();
-    let chain: TempleChainName | undefined;
+    let chain: TempleChainName | nullish;
     try {
-      chain = isValidTezosAddress(resolvedAddress)
-        ? TempleChainName.Tezos
-        : Viem.isAddress(resolvedAddress)
-        ? TempleChainName.EVM
-        : undefined;
+      chain = getChainFromAddress(resolvedAddress);
 
       if (!chain) {
         throw new Error(t('invalidAddress'));
       }
 
-      let chainId: string | undefined;
+      let tezosChainId: string | undefined;
 
-      if (chain === TempleChainName.Tezos && isKTAddress(resolvedAddress)) {
+      if (chain === TempleChainName.Tezos && isTezosContractAddress(resolvedAddress)) {
         const tezos = getReadOnlyTezos(rpcUrl);
 
         try {
@@ -78,18 +74,12 @@ export const WatchOnlyForm = memo(() => {
           throw new Error(t('contractNotExistOnNetwork'));
         }
 
-        chainId = await tezos.rpc.getChainId();
+        tezosChainId = await tezos.rpc.getChainId();
       }
 
-      const finalAddress =
-        chain === TempleChainName.Tezos
-          ? resolvedAddress
-          : Viem.getAddress(
-              resolvedAddress
-              // chainId // TODO: EIP-1191
-            );
+      const finalAddress = chain === TempleChainName.Tezos ? resolvedAddress : Viem.getAddress(resolvedAddress);
 
-      await importWatchOnlyAccount(chain, finalAddress, chainId);
+      await importWatchOnlyAccount(chain, finalAddress, tezosChainId);
 
       formAnalytics.trackSubmitSuccess({ chain });
     } catch (err: any) {
@@ -127,11 +117,10 @@ export const WatchOnlyForm = memo(() => {
         label={t('address')}
         testID={ImportAccountSelectors.watchOnlyInput}
         labelDescription={
-          // <T id={canUseDomainNames ? 'addressInputDescriptionWithDomain' : 'addressInputDescription'} />
           <span className="whitespace-pre-line">
-            <u>Tezos:</u> Public key hash or Tezos domain of the account or smart contract.
+            <u>Tezos:</u> <T id={canUseDomainNames ? 'addressInputDescriptionWithDomain' : 'addressInputDescription'} />
             <br />
-            <u>EVM:</u> ENS name or public address of the account you want to watch.
+            <u>EVM:</u> Public address of the account you want to watch.
           </span>
         }
         placeholder={t(canUseDomainNames ? 'recipientInputPlaceholderWithDomain' : 'recipientInputPlaceholder')}
@@ -155,3 +144,11 @@ export const WatchOnlyForm = memo(() => {
     </form>
   );
 });
+
+function getChainFromAddress(address: string) {
+  if (isValidTezosAddress(address)) return TempleChainName.Tezos;
+
+  if (Viem.isAddress(address)) return TempleChainName.EVM;
+
+  return null;
+}

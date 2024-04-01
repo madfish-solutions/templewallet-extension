@@ -9,9 +9,9 @@ import { useAccountAddressForTezos } from 'temple/front';
 
 import { PageTitle } from '../atoms/PageTitle';
 
-type Props = {
+interface Props {
   assetSlug?: string | null;
-};
+}
 
 const Send = memo<Props>(({ assetSlug }) => {
   const accountTezAddress = useAccountAddressForTezos();

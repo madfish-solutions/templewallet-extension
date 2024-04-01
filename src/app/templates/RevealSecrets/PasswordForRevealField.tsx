@@ -14,9 +14,9 @@ interface Props {
 
 const SUBMIT_ERROR_TYPE = 'submit-error';
 
-type FormData = {
+interface FormData {
   password: string;
-};
+}
 
 export const PasswordForRevealField = memo<Props>(({ labelDescriptionForName, onSubmit }) => {
   const { register, handleSubmit, errors, setError, clearError, formState } = useForm<FormData>();

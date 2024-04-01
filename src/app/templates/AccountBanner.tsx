@@ -94,7 +94,11 @@ const AccountBanner = memo<Props>(
 
 export default AccountBanner;
 
-const AccountBannerAddress = memo<{ address: string }>(({ address }) => {
+interface AccountBannerAddressProps {
+  address: string;
+}
+
+const AccountBannerAddress = memo<AccountBannerAddressProps>(({ address }) => {
   const [start, end] = useMemo(() => {
     const ln = address.length;
 

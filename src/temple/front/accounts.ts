@@ -1,7 +1,23 @@
 import { useMemo } from 'react';
 
 import { useAllAccounts } from 'lib/temple/front/ready';
-import { TempleAccountType } from 'lib/temple/types';
+import { StoredAccount, TempleAccountType } from 'lib/temple/types';
+import { searchAndFilterItems } from 'lib/utils/search-items';
+
+export function searchAndFilterAccounts(accounts: StoredAccount[], searchValue: string) {
+  return searchAndFilterItems(
+    accounts,
+    searchValue.toLowerCase(),
+    [
+      { name: 'name', weight: 1 },
+      { name: 'address', weight: 0.25 },
+      { name: 'tezosAddress', weight: 0.25 },
+      { name: 'evmAddress', weight: 0.25 }
+    ],
+    null,
+    0.35
+  );
+}
 
 /** Filters out Tezos accounts, irrelevant for given Chain ID */
 export function useRelevantAccounts(tezosChainId: string) {

@@ -79,7 +79,7 @@ const isEntrypointsMatched = (entrypoints: StringRecord<MichelsonV1ExpressionExt
       for (let i = 0; i < args.length; i++) {
         const arg = args[i];
         const entryArg = entry.args[i];
-        if (!('prim' in entryArg) || arg !== entryArg.prim) return false;
+        if (!entryArg || !('prim' in entryArg) || arg !== entryArg.prim) return false;
       }
     }
 

@@ -13,9 +13,9 @@ import { useGasToken } from 'lib/assets/hooks';
 import { searchHotkey } from 'lib/constants';
 import { T, t } from 'lib/i18n';
 import Portal from 'lib/ui/Portal';
-import { searchAndFilterItems } from 'lib/utils/search-items';
 import { HistoryAction, navigate } from 'lib/woozie';
 import { useCurrentAccountId, useTezosNetwork, useRelevantAccounts, useChangeAccount } from 'temple/front';
+import { searchAndFilterAccounts } from 'temple/front/accounts';
 
 import { AccountItem } from './AccountItem';
 
@@ -36,25 +36,10 @@ export const ShortcutAccountSwitchOverlay = memo(() => {
   const [searchValue, setSearchValue] = useState('');
   const [focusedAccountItemIndex, setFocusedAccountItemIndex] = useState(0);
 
-  const filteredAccounts = useMemo(() => {
-    if (searchValue.length === 0) {
-      return allAccounts;
-    }
-
-    // TODO: DRY - there is the same search in Accounts dropdown
-    return searchAndFilterItems(
-      allAccounts,
-      searchValue.toLowerCase(),
-      [
-        { name: 'name' as const, weight: 1 },
-        { name: 'address', weight: 0.25 },
-        { name: 'tezosAddress', weight: 0.25 },
-        { name: 'evmAddress', weight: 0.25 }
-      ],
-      null,
-      0.35
-    );
-  }, [searchValue, allAccounts]);
+  const filteredAccounts = useMemo(
+    () => (searchValue.length ? searchAndFilterAccounts(allAccounts, searchValue) : allAccounts),
+    [searchValue, allAccounts]
+  );
 
   const handleAccountClick = useCallback(
     (id: string) => {

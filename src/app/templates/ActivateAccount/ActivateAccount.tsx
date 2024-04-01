@@ -14,9 +14,9 @@ import { activateTezosAccount } from 'temple/tezos/activate-account';
 
 import { ActivateAccountSelectors } from './ActivateAccount.selectors';
 
-type FormData = {
+interface FormData {
   secret: string;
-};
+}
 
 const SUBMIT_ERROR_TYPE = 'submit-error';
 

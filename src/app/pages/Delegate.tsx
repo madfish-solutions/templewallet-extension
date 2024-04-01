@@ -40,7 +40,12 @@ const Delegate = memo(() => {
 
 export default Delegate;
 
-const DelegateContent: FC<{ account: AccountForTezos; ownerAddress?: string }> = ({ account, ownerAddress }) => {
+interface DelegateContentProps {
+  account: AccountForTezos;
+  ownerAddress?: string;
+}
+
+const DelegateContent: FC<DelegateContentProps> = ({ account, ownerAddress }) => {
   const gasBalance = useBalance(TEZ_TOKEN_SLUG, account.address);
 
   const isLoading = !gasBalance.value && gasBalance.isSyncing;

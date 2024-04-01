@@ -1,9 +1,6 @@
 import React, { memo, ReactNode, useCallback, useMemo, useState } from 'react';
 
 import { useForm } from 'react-hook-form';
-import {
-  isHex as isEvmPrivateKey // TODO: Allow no `0x` (or find other way to determine chain) - MetaMask reveals without it
-} from 'viem/utils';
 
 import { Alert, FormField, FormSubmitButton } from 'app/atoms';
 import { useFormAnalytics } from 'lib/analytics';
@@ -34,8 +31,7 @@ export const ByPrivateKeyForm = memo(() => {
       setError(null);
       let chain: TempleChainName | undefined;
       try {
-        const finalPrivateKey = privateKey.replace(/\s/g, '');
-        chain = isEvmPrivateKey(finalPrivateKey) ? TempleChainName.EVM : TempleChainName.Tezos;
+        const [finalPrivateKey, chain] = toPrivateKeyWithChain(privateKey.replace(/\s/g, ''));
 
         await importAccount(chain, finalPrivateKey, encPassword);
 
@@ -52,7 +48,7 @@ export const ByPrivateKeyForm = memo(() => {
   );
 
   const keyValue = watch('privateKey');
-  const encrypted = useMemo(() => !isEvmPrivateKey(keyValue) && keyValue?.substring(2, 3) === 'e', [keyValue]);
+  const encrypted = useMemo(() => isTezosPrivateKey(keyValue) && keyValue?.substring(2, 3) === 'e', [keyValue]);
 
   return (
     <form className="w-full max-w-sm mx-auto my-8" onSubmit={handleSubmit(onSubmit)}>
@@ -101,3 +97,13 @@ export const ByPrivateKeyForm = memo(() => {
     </form>
   );
 });
+
+function toPrivateKeyWithChain(value: string): [string, TempleChainName] {
+  if (isTezosPrivateKey(value)) return [value, TempleChainName.Tezos];
+
+  if (!value.startsWith('0x')) value = `0x${value}`;
+
+  return [value, TempleChainName.EVM];
+}
+
+const isTezosPrivateKey = (value: string) => value.startsWith('edsk');

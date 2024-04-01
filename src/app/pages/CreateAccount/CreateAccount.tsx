@@ -15,9 +15,9 @@ import { delay } from 'lib/utils';
 
 import { CreateAccountSelectors } from './CreateAccount.selectors';
 
-type FormData = {
+interface FormData {
   name: string;
-};
+}
 
 const SUBMIT_ERROR_TYPE = 'submit-error';
 

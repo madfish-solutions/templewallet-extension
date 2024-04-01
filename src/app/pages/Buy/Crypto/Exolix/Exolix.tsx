@@ -1,4 +1,4 @@
-import React, { FC, memo, useState } from 'react';
+import React, { memo, useState } from 'react';
 
 import { Anchor, Stepper } from 'app/atoms';
 import PageLayout from 'app/layouts/PageLayout';
@@ -15,7 +15,7 @@ import { EXOLIX_CONTACT_LINK } from './config';
 import { ExchangeDataInterface } from './exolix.interface';
 import { ExolixSelectors } from './Exolix.selectors';
 
-const Exolix: FC = memo(() => {
+const Exolix = memo(() => {
   const publicKeyHash = useAccountAddressForTezos();
 
   return (
@@ -37,7 +37,11 @@ const Exolix: FC = memo(() => {
 
 export default Exolix;
 
-const BuyCryptoContent = memo<{ publicKeyHash: string }>(({ publicKeyHash }) => {
+interface BuyCryptoContentProps {
+  publicKeyHash: string;
+}
+
+const BuyCryptoContent = memo<BuyCryptoContentProps>(({ publicKeyHash }) => {
   const { isMainnet } = useTezosNetwork();
 
   const [step, setStep] = useStorage<number>(`topup_step_state_${publicKeyHash}`, 0);

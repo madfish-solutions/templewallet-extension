@@ -2,7 +2,7 @@ export { useStorage } from './storage';
 
 export { useTempleClient } from './client';
 
-export { validateDerivationPath, validateContractAddress } from './helpers';
+export { validateDerivationPath } from './helpers';
 
 export { useContactsActions, searchContacts } from './address-book';
 

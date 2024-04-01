@@ -62,7 +62,11 @@ const TotalVolumeBanner = () => {
   );
 };
 
-const TezosBalanceInfo: FC<{ accountPkh: string }> = ({ accountPkh }) => {
+interface TezosBalanceInfoProps {
+  accountPkh: string;
+}
+
+const TezosBalanceInfo: FC<TezosBalanceInfoProps> = ({ accountPkh }) => {
   const { isMainnet } = useTezosNetwork();
   const totalBalanceInDollar = useTotalBalance(accountPkh);
   const balanceMode = useBalanceModeSelector();
